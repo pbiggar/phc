@@ -143,18 +143,24 @@ string get_hash (VARIABLE_NAME* name)
 	return get_hash (name->value);
 }
 
-void declare (string var)
+string declare (string var)
 {
-	code 
-		<< "zval** " << var << ";\n"
-		<< "int is_" << var << "_new = 0;\n";
+	stringstream ss;
+	ss
+	<< "zval** " << var << ";\n"
+	<< "int is_" << var << "_new = 0;\n"
+	;
+	return ss.str ();
 }
 
-void cleanup (string target)
+string cleanup (string target)
 {
-	code
-		<< "if (is_" << target << "_new)\n"
-		<< "  zval_ptr_dtor (" << target << ");\n";
+	stringstream ss;
+	ss
+	<< "if (is_" << target << "_new)\n"
+	<< "  zval_ptr_dtor (" << target << ");\n"
+	;
+	return ss.str ();
 }
 
 
@@ -172,216 +178,210 @@ string prefix (string str, string prefix)
 	return ss.str ();
 }
 
-String* get_non_st_name (VARIABLE_NAME* var_name)
+string get_non_st_name (VARIABLE_NAME* var_name)
 {
 	assert (var_name->attrs->is_true ("phc.codegen.st_entry_not_required"));
-	return new String (prefix (*var_name->value, "local"));
+	return prefix (*var_name->value, "local");
 }
 
 
 // Generate calls to read_var, for array and array index lookups, and the like.
-void read_rvalue (Scope scope, string zvp, Rvalue* rvalue)
+string read_rvalue (Scope scope, string zvp, Rvalue* rvalue)
 {
+	stringstream ss;
 	VARIABLE_NAME* var_name = dyc<VARIABLE_NAME> (rvalue);
 	if (scope == LOCAL && var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
 	{
-		String* name = get_non_st_name (var_name);
-		code 
-			<< "zval* " << zvp << ";\n"
-			<< "if (" << *name << " == NULL)\n"
-			<< "{\n"
-			<<		zvp << " = EG (uninitialized_zval_ptr);\n"
-			<< "}\n"
-			<< "else\n"
-			<< "{\n"
-			<<		zvp << " = " << *name << ";\n"
-			<< "}\n";
+		string name = get_non_st_name (var_name);
+		ss
+		<< "zval* " << zvp << ";\n"
+		<< "if (" << name << " == NULL)\n"
+		<< "{\n"
+		<<		zvp << " = EG (uninitialized_zval_ptr);\n"
+		<< "}\n"
+		<< "else\n"
+		<< "{\n"
+		<<		zvp << " = " << name << ";\n"
+		<< "}\n"
+		;
 	}
 	else
 	{
 		String* name = var_name->value;
-		code
-			<< "zval* " << zvp << "= read_var (" 
-			<<								get_scope (scope) << ", "
-			<<								"\"" << *name << "\", "
-			<<								name->size () + 1  << ", "
-			<<									get_hash (name) << " TSRMLS_CC);\n";
+		ss	
+		<< "zval* " << zvp << "= read_var (" 
+		<<								get_scope (scope) << ", "
+		<<								"\"" << *name << "\", "
+		<<								name->size () + 1  << ", "
+		<<								get_hash (name) << " TSRMLS_CC);\n"
+		;
 	}
+	return ss.str ();
 }
 
-void read_st (Scope scope, string zvp, VARIABLE_NAME* var_name)
+string read_st (Scope scope, string zvp, VARIABLE_NAME* var_name)
 {
+	stringstream ss;
 	if (scope == LOCAL && var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
 	{
-		String* name = get_non_st_name (var_name);
-		code 
-			<< "if (" << *name << " == NULL)\n"
-			<< "{\n"
-			<<		*name << " = EG (uninitialized_zval_ptr);\n"
-			<<		*name << "->refcount++;\n"
-			<< "}\n"
-			<<	"zval** " << zvp << " = &" << *name << ";\n";
+		string name = get_non_st_name (var_name);
+		ss
+		<< "if (" << name << " == NULL)\n"
+		<< "{\n"
+		<<		name << " = EG (uninitialized_zval_ptr);\n"
+		<<		name << "->refcount++;\n"
+		<< "}\n"
+		<<	"zval** " << zvp << " = &" << name << ";\n";
 	}
 	else
 	{
-		// Segfaults will serve as assertions
 		String* name = var_name->value;
-		code
-			<< "zval** " << zvp << "= get_st_entry (" 
-			<<									get_scope (scope) << ", "
-			<<									"\"" << *name << "\", "
-			<<									name->size () + 1  << ", "
-			<<									get_hash (name) << " TSRMLS_CC);\n";
+		ss
+		<< "zval** " << zvp << "= get_st_entry (" 
+		<<									get_scope (scope) << ", "
+		<<									"\"" << *name << "\", "
+		<<									name->size () + 1  << ", "
+		<<									get_hash (name) << " TSRMLS_CC);\n";
 	}
+	return ss.str();
 }
 
-void index_assign_array (Scope scope, string zvp, VARIABLE_NAME* lhs, VARIABLE_NAME* index)
+string index_assign_array (Scope scope, string zvp, VARIABLE_NAME* lhs, VARIABLE_NAME* index)
 {
-	code
-		<< "zval** " << zvp << ";\n";
-
-	// lhs_var can exist more than once; rename
+	stringstream ss;
 	string zvp_name = suffix (zvp, "lhs");
-
-	read_st (scope, zvp_name, lhs);
-
 	string zvp_index = suffix (zvp, "index");
 
-	code
-		<< "// Array assignment\n";
-	read_rvalue (scope, zvp_index, index);
+	ss	
+	<< "// Array assignment\n"
+	<< read_st (scope, zvp_name, lhs)
+	<< read_rvalue (scope, zvp_index, index)
+	<<	"zval**" << zvp << " = get_ht_entry ("
+	<<						zvp_name << ", "
+	<<						zvp_index
+	<<						" TSRMLS_CC);\n"
+	;
 
-	code
-		<<	zvp << " = get_ht_entry ("
-		<<		zvp_name << ", "
-		<<		zvp_index
-		<<		" TSRMLS_CC);\n"
-		;
+	return ss.str();
 }
 
-void array_access_index (Scope scope, string zvp, Array_access* ia)
+string array_access_index (Scope scope, string zvp, Array_access* ia)
 {
+	stringstream ss;
+
+	// TODO this is practically identical to index_assign_array. Why?
+	string zvp_name = suffix (zvp, "var");
+	string zvp_index = suffix (zvp, "index");
 	VARIABLE_NAME* var_name = ia->variable_name;
 
-	code
-		<< "zval** " << zvp << ";\n";
+	ss
+	<< "// Array assignment\n"
+	<< read_st (scope, zvp_name, var_name)
+	<< read_rvalue (scope, zvp_index, ia->index)
+	<<	"zval**" << zvp << " = get_ht_entry ("
+	<<									zvp_name << ", "
+	<<									zvp_index
+	<<									" TSRMLS_CC);\n"
+	;
 
-	// lhs_var can exist more than once; rename
-	string zvp_name = suffix (zvp, "var");
-
-	read_st (scope, zvp_name, var_name);
-
-	string zvp_index = suffix (zvp, "index");
-
-	code
-		<< "// Array assignment\n";
-	read_rvalue (scope, zvp_index, ia->index);
-
-	code
-		<<	zvp << " = get_ht_entry ("
-		<<		zvp_name << ", "
-		<<		zvp_index
-		<<		" TSRMLS_CC);\n"
-		;
+	return ss.str();
 }
 
 
-void index_lhs (Scope scope, string zvp, Expr* expr)
+string index_lhs (Scope scope, string zvp, Expr* expr)
 {
+	stringstream ss;
 	if (isa<Array_access> (expr))
 	{
-		array_access_index (LOCAL, "p_rhs", dyc<Array_access> (expr));
-		return;
+		return array_access_index (LOCAL, "p_rhs", dyc<Array_access> (expr));
 	}
 
 	VARIABLE_NAME* var_name = dynamic_cast<VARIABLE_NAME*> (expr);
-
-	code
-		<< "zval** " << zvp << ";\n";
-
 	if (var_name)
 	{
-		// lhs_var can exist more than once; rename
 		string zvp_name = suffix (zvp, "var");
 
-		read_st (scope, zvp_name, var_name);
-		code 
-			<< "// Normal Assignment\n"
-			<< zvp << " = " << zvp_name << ";\n";
+		ss
+		<< "// Normal Assignment\n"
+		<< read_st (scope, zvp_name, var_name)
+		<< "zval** " << zvp << " = " << zvp_name << ";\n";
 	}
 	else
 	{
 		// Variable variable.
 		// After shredder, a variable variable cannot have array indices
 		phc_unsupported (expr);
-
-//		reference_var_var ();
+		//	reference_var_var ();
 	}
+
+	return ss.str();
 }
 
 
 /* Generate code to read the variable named in VAR to the zval* ZVP */
-void read_var (Scope scope, string zvp, VARIABLE_NAME* var_name)
+string read_var (Scope scope, string zvp, VARIABLE_NAME* var_name)
 {
-	string name = suffix (zvp, "var");
-	read_rvalue (scope, name, var_name);
-
 	// the same as read_rvalue, but doesnt declare
-	code 
-		<< "// Read normal variable\n"
-		<< zvp << " = &" << name << ";\n"; 
+	stringstream ss;
+	string name = suffix (zvp, "var");
+
+	ss
+	<< "// Read normal variable\n"
+	<< read_rvalue (scope, name, var_name)
+	<< zvp << " = &" << name << ";\n"; 
+
+	return ss.str();
 }
 
-void read_var_var (Scope scope, string zvp, Variable_variable* var_var)
+string read_var_var (Scope scope, string zvp, Variable_variable* var_var)
 {
-	code << "// Read variable variable\n";
-
-	read_rvalue (scope, "var_var", var_var->variable_name);
-
-	code
-		<< zvp << " = read_var_var (" 
-		<<		get_scope (scope) << ", "
-		<<		"var_var "
-		<<		" TSRMLS_CC);\n"
-		;
+	stringstream ss;
+	ss
+	<< "// Read variable variable\n"
+	<< read_rvalue (scope, "var_var", var_var->variable_name)
+	<< zvp << " = read_var_var (" 
+	<<					get_scope (scope) << ", "
+	<<					"var_var "
+	<<					" TSRMLS_CC);\n"
+	;
+	return ss.str();
 }
 
-void read_array_index (Scope scope, string zvp, Array_access* ia)
+string read_array_index (Scope scope, string zvp, Array_access* ia)
 {
+	stringstream ss;
 	VARIABLE_NAME* var_name  = ia->variable_name;
-	// access var as an array
-	code << "// Read array variable\n";
 
-	read_rvalue (scope, "r_array", var_name);
-	read_rvalue (scope, "ra_index", ia->index);
-
-	code
-		<< "read_array ("
-		<<		zvp << ", "
-		<<		"r_array, "
-		<<		"ra_index, "
-		<<		"&is_" << zvp << "_new "
-		<<		" TSRMLS_CC);\n"
-		;
+	ss 
+	<< "// Read array variable\n"
+	<< read_rvalue (scope, "r_array", var_name)
+	<< read_rvalue (scope, "ra_index", ia->index)
+	<< "read_array ("
+	<<			zvp << ", "
+	<<			"r_array, "
+	<<			"ra_index, "
+	<<			"&is_" << zvp << "_new "
+	<<			" TSRMLS_CC);\n"
+	;
+	return ss.str();
 }
 
 // Implementation of "global" (used in various places)
-void global (Variable_name* var_name)
+string global (Variable_name* var_name)
 {
-	code << "{\n";
-	index_lhs (LOCAL, "p_local_global_var", var_name); // lhs
-	index_lhs (GLOBAL, "p_global_var", var_name); // rhs
-
+	stringstream ss;
+	ss
+	<< "{\n" // TODO move this to caller
+	<<		index_lhs (LOCAL, "p_local_global_var", var_name) // lhs
+	<<		index_lhs (GLOBAL, "p_global_var", var_name) // rhs
 	// Note that p_global_var can be in the copy-on-write set.
-	code 
-		<< "sep_copy_on_write_ex (p_global_var);\n"
-		<< "(*p_global_var)->is_ref = 1;\n"
-		<< "(*p_global_var)->refcount++;\n"
-		<< "zval_ptr_dtor (p_local_global_var);\n"
-		<< "*p_local_global_var = *p_global_var;\n";
-	
-
-	code << "}\n";
+	<<		"sep_copy_on_write_ex (p_global_var);\n"
+	<<		"(*p_global_var)->is_ref = 1;\n"
+	<<		"(*p_global_var)->refcount++;\n"
+	<<		"zval_ptr_dtor (p_local_global_var);\n"
+	<<		"*p_local_global_var = *p_global_var;\n"
+	<< "}\n";
+	return ss.str();
 }
 
 /*
@@ -436,9 +436,11 @@ public:
 class Pattern 
 {
 public:
+	Pattern () : use_scope (false) {}
 	virtual bool match(Statement* that) = 0;
 	virtual void generate_code(Generate_C* gen) = 0;
 	virtual ~Pattern() {}
+	bool use_scope;
 };
 
 
@@ -512,8 +514,8 @@ protected:
 			if (!in_function && !in_class 
 					&& var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
 			{
-				String* name = get_non_st_name (var_name);
-				var_names.insert (*name);
+				string name = get_non_st_name (var_name);
+				var_names.insert (name);
 			}
 		}
 	};
@@ -589,8 +591,8 @@ protected:
 				if ((*i)->var->default_value)
 				{
 					code 
-						<< "if (num_args <= " << index << ")\n"
-						<< "{\n";
+					<< "if (num_args <= " << index << ")\n"
+					<< "{\n";
 
 					// An assignment to default values doesnt fit in the IR. They
 					// would need to be lowered first. The simplest option is to
@@ -609,27 +611,27 @@ protected:
 				}
 
 				code
-					<< "params[" << index << "]->refcount++;\n";
+				<< "params[" << index << "]->refcount++;\n";
 
 				// TODO this should be abstactable, but it work now, so
 				// leave it.
 				if ((*i)->var->variable_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
 				{
-					string name = *get_non_st_name ((*i)->var->variable_name);
+					string name = get_non_st_name ((*i)->var->variable_name);
 					code 
-						<< name << " = params[" << index << "];\n";
+					<< name << " = params[" << index << "];\n";
 				}
 				else
 				{
 					// TODO i dont believe theres a test for this
 					code 
-						<< "zend_hash_quick_add(EG(active_symbol_table), "
-						<<		"\"" << *(*i)->var->variable_name->value << "\", " 
-						<<		(*i)->var->variable_name->value->length() + 1 << ", "
-						<<		get_hash ((*i)->var->variable_name) << ", "
-						<<		"&params[" << index << "], "
-						<<		"sizeof(zval*), NULL);\n"
-					  ;
+					<< "zend_hash_quick_add(EG(active_symbol_table), "
+					<<		"\"" << *(*i)->var->variable_name->value << "\", " 
+					<<		(*i)->var->variable_name->value->length() + 1 << ", "
+					<<		get_hash ((*i)->var->variable_name) << ", "
+					<<		"&params[" << index << "], "
+					<<		"sizeof(zval*), NULL);\n"
+					;
 				  }
 
 				if ((*i)->var->default_value)
@@ -721,19 +723,16 @@ public:
 
 	void generate_code(Generate_C* gen)
 	{
-		code << "{\n";
-
-		read_rvalue (LOCAL, "p_cond", cond->value);
-
 		code 
-		<< "zend_bool bcond = zend_is_true (p_cond);\n"
-		<< "if (bcond)\n"
-		<< "	goto " << *iftrue->value->value << ";\n"
-		<< "else\n"
-		<< "	goto " << *iffalse->value->value << ";\n"
-		;
+		<< "{\n"
+		<<		read_rvalue (LOCAL, "p_cond", cond->value)
 
-		code << "}\n";
+		<<		"zend_bool bcond = zend_is_true (p_cond);\n"
+		<<		"if (bcond)\n"
+		<<		"	goto " << *iftrue->value->value << ";\n"
+		<<		"else\n"
+		<<		"	goto " << *iffalse->value->value << ";\n"
+		<< "}\n";
 	}
 
 protected:
@@ -766,18 +765,16 @@ protected:
  * deal with the different forms the RHS can take.
  */
 
-void index_assign_var (Scope scope, string zvp, VARIABLE_NAME* var_name)
+string index_assign_var (Scope scope, string zvp, VARIABLE_NAME* var_name)
 {
-	code
-		<< "zval** " << zvp << ";\n";
-
-	// lhs_var can exist more than once; rename
+	stringstream ss;
 	string zvp_name = suffix (zvp, "var");
 
-	read_st (scope, zvp_name, var_name);
-	code 
-		<< "// Normal Assignment\n"
-		<< zvp << " = " << zvp_name << ";\n";
+	ss
+	<< read_st (scope, zvp_name, var_name)
+	<< "zval** " << zvp << " = " << zvp_name << ";\n";
+
+	return ss.str();
 }
 
 class Pattern_assign_var : public Pattern
@@ -797,11 +794,10 @@ public:
 
 	void generate_code(Generate_C* gen)
 	{
-		code << "{\n";
-
-		index_assign_var (LOCAL, "p_lhs", lhs->value);
-
 		code 
+		<< "{\n"
+		<<		index_assign_var (LOCAL, "p_lhs", lhs->value)
+
 		<<		"if (p_lhs != NULL)\n"
 		<<		"{\n";
 
@@ -809,10 +805,10 @@ public:
 		generate_rhs ();
 
 		code 
-		<<		"}\n";
-		
-		code << "}\n";
-		code << "phc_check_invariants (TSRMLS_C);\n";
+		<<		"}\n"
+		<< "}\n"
+		<< "phc_check_invariants (TSRMLS_C);\n"
+		;
 	}
 
 protected:
@@ -821,36 +817,36 @@ protected:
 	Wildcard<VARIABLE_NAME>* lhs;
 };
 
-void assign_rhs (bool is_ref, VARIABLE_NAME* rhs)
+string assign_rhs (bool is_ref, VARIABLE_NAME* rhs)
 {
+	stringstream ss;
 	if (not is_ref)
 	{
-		declare ("p_rhs");
-		code 
-			<< "zval* temp = NULL;\n"
-			<< "p_rhs = &temp;\n";
-
-		// copied from read ()
-		read_rvalue (LOCAL, "p_rhs_var", rhs);
-
-		code 
-			<< "// Read normal variable\n"
-			<< "p_rhs = &p_rhs_var;\n"
-			<< "\n"
-			<< "if (*p_lhs != *p_rhs)\n"
-			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
-		cleanup ("p_rhs");
+		ss	
+		<< declare ("p_rhs")
+		<< "zval* temp = NULL;\n"
+		<< "p_rhs = &temp;\n"
+		<< read_rvalue (LOCAL, "p_rhs_var", rhs)
+		<< "// Read normal variable\n"
+		<< "p_rhs = &p_rhs_var;\n"
+		<< "\n"
+		<< "if (*p_lhs != *p_rhs)\n"
+		<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
+		<< cleanup ("p_rhs")
+		;
 	}
 	else
 	{
-		index_lhs (LOCAL, "p_rhs", rhs);
-		code 
-			<< "sep_copy_on_write_ex (p_rhs);\n"
-			<< "(*p_rhs)->is_ref = 1;\n"
-			<< "(*p_rhs)->refcount++;\n"
-			<< "zval_ptr_dtor (p_lhs);\n"
-			<< "*p_lhs = *p_rhs;\n";
+		ss	
+		<< index_lhs (LOCAL, "p_rhs", rhs)
+		<< "sep_copy_on_write_ex (p_rhs);\n"
+		<< "(*p_rhs)->is_ref = 1;\n"
+		<< "(*p_rhs)->refcount++;\n"
+		<< "zval_ptr_dtor (p_lhs);\n"
+		<< "*p_lhs = *p_rhs;\n"
+		;
 	}
+	return ss.str();
 }
 
 class Pattern_assign_array : public Pattern
@@ -872,21 +868,15 @@ public:
 		assert (rhs->value);
 
 		code 
-		<< "{\n";
+		<< "{\n"
+		<<		index_assign_array (LOCAL, "p_lhs", lhs->value, index->value)
 
-		index_assign_array (LOCAL, "p_lhs", lhs->value, index->value);
-
-		code 
 		<<		"if (p_lhs != NULL)\n"
-		<<		"{\n";
-
-		assign_rhs (agn->is_ref, rhs->value);
-
-		code 
-		<<		"}\n";
-		
-		code << "}\n";
-		code << "phc_check_invariants (TSRMLS_C);\n";
+		<<		"{\n"
+		<<			assign_rhs (agn->is_ref, rhs->value)
+		<<		"}\n"
+		<< "}\n"
+		<< "phc_check_invariants (TSRMLS_C);\n";
 	}
 
 protected:
@@ -896,30 +886,37 @@ protected:
 	Wildcard<VARIABLE_NAME>* rhs;
 };
 
-void push_rhs (bool is_ref, VARIABLE_NAME* rhs)
+string push_rhs (bool is_ref, VARIABLE_NAME* rhs)
 {
+	stringstream ss;
 	if (!is_ref)
 	{
-		declare ("p_rhs");
-		code 
-			<< "zval* temp = NULL;\n"
-			<< "p_rhs = &temp;\n";
-		read_var (LOCAL, "p_rhs", rhs);
-		code 
-			<< "if (*p_lhs != *p_rhs)\n"
-			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
-		cleanup ("p_rhs");
+		ss
+		<< declare ("p_rhs")
+
+		<< "zval* temp = NULL;\n"
+		<< "p_rhs = &temp;\n"
+
+		<< read_var (LOCAL, "p_rhs", rhs)
+
+		<< "if (*p_lhs != *p_rhs)\n"
+		<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
+
+		<< cleanup ("p_rhs");
 	}
 	else
 	{
-		index_lhs (LOCAL, "p_rhs", rhs);
-		code 
-			<< "sep_copy_on_write_ex (p_rhs);\n"
-			<< "(*p_rhs)->is_ref = 1;\n"
-			<< "(*p_rhs)->refcount++;\n"
-			<< "zval_ptr_dtor (p_lhs);\n"
-			<< "*p_lhs = *p_rhs;\n";
+		ss
+		<< index_lhs (LOCAL, "p_rhs", rhs)
+		
+		<< "sep_copy_on_write_ex (p_rhs);\n"
+		<< "(*p_rhs)->is_ref = 1;\n"
+		<< "(*p_rhs)->refcount++;\n"
+		<< "zval_ptr_dtor (p_lhs);\n"
+		<< "*p_lhs = *p_rhs;\n"
+		;
 	}
+	return ss.str();
 }
 
 class Pattern_push_array : public Pattern
@@ -939,23 +936,20 @@ public:
 		assert (rhs->value);
 
 		code 
-			<< "{\n"
-			<<		"zval** p_lhs;\n";
+		<< "{\n"
+		<<		"zval** p_lhs;\n"
 
-		read_st (LOCAL, "p_lhs_var", lhs->value);
-		code 
-			<<	"	// Array push \n"
-			<<	"	p_lhs = push_and_index_ht (p_lhs_var TSRMLS_CC);\n"
-			<<	""
-			<<	"	if (p_lhs != NULL)\n"
-			<<	"	{\n";
+		<< read_st (LOCAL, "p_lhs_var", lhs->value)
 
-		push_rhs (agn->is_ref, rhs->value);
-
-		code 
-			<<		"}\n"
-			<< "}\n"
-			<< "phc_check_invariants (TSRMLS_C);\n";
+		<<	"	// Array push \n"
+		<<	"	p_lhs = push_and_index_ht (p_lhs_var TSRMLS_CC);\n"
+		<<	""
+		<<	"	if (p_lhs != NULL)\n"
+		<<	"	{\n"
+		<< push_rhs (agn->is_ref, rhs->value)
+		<<		"}\n"
+		<< "}\n"
+		<< "phc_check_invariants (TSRMLS_C);\n";
 	}
 
 protected:
@@ -980,22 +974,26 @@ public:
 	void generate_rhs ()
 	{
 		code
-			<< "if ((*p_lhs)->is_ref)\n"
-			<< "{\n"
-			<< "  zval* paz_lhs = *p_lhs;\n"
-			<< "  zval_dtor (paz_lhs);\n";
+		<< "if ((*p_lhs)->is_ref)\n"
+		<< "{\n"
+		<< "  zval* paz_lhs = *p_lhs;\n"
+		<< "  zval_dtor (paz_lhs);\n";
+
 		initialize (code, "paz_lhs");
+
 		code
-			<< "}\n"
-			<< "else\n"
-			<< "{\n"
-			<<	"	zval* literal;\n"
-			<<	"	ALLOC_INIT_ZVAL (literal);\n";
+		<< "}\n"
+		<< "else\n"
+		<< "{\n"
+		<<	"	zval* literal;\n"
+		<<	"	ALLOC_INIT_ZVAL (literal);\n";
+
 		initialize (code, "literal");
+
 		code
-			<<	"	zval_ptr_dtor (p_lhs);\n"
-			<<	"	*p_lhs = literal;\n"
-			<< "}\n";
+		<<	"	zval_ptr_dtor (p_lhs);\n"
+		<<	"	*p_lhs = literal;\n"
+		<< "}\n";
 	}
 
 	virtual void initialize (ostream& os, string var) = 0;
@@ -1046,18 +1044,18 @@ public:
 				initialize (initializations, var);
 			}
 			code
-				<< "if (" << var << " != *p_lhs)\n"
-				<< "{\n"
-				<<		"assert (!" << var << "->is_ref);\n"
-				<<		"if ((*p_lhs)->is_ref)\n"
-				<<			"overwrite_lhs (*p_lhs, " << var << ");\n"
-				<<		"else\n"
-				<<		"{\n"
-				<<			var << "->refcount++;\n"
-				<<			"zval_ptr_dtor (p_lhs);\n"
-				<<			"*p_lhs = " << var << ";\n"
-				<<		"}\n"
-				<<	"}\n";
+			<< "if (" << var << " != *p_lhs)\n"
+			<< "{\n"
+			<<		"assert (!" << var << "->is_ref);\n"
+			<<		"if ((*p_lhs)->is_ref)\n"
+			<<			"overwrite_lhs (*p_lhs, " << var << ");\n"
+			<<		"else\n"
+			<<		"{\n"
+			<<			var << "->refcount++;\n"
+			<<			"zval_ptr_dtor (p_lhs);\n"
+			<<			"*p_lhs = " << var << ";\n"
+			<<		"}\n"
+			<<	"}\n";
 		}
 		else
 		{
@@ -1173,25 +1171,27 @@ public:
 	{
 		if (!agn->is_ref)
 		{
-			declare ("p_rhs");
-			code 
-				<< "zval* temp = NULL;\n"
-				<< "p_rhs = &temp;\n";
-			read_var (LOCAL, "p_rhs", rhs->value);
-			code 
-				<< "if (*p_lhs != *p_rhs)\n"
-				<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
-			cleanup ("p_rhs");
+			code
+			<< declare ("p_rhs")
+
+			<< "zval* temp = NULL;\n" // TODO this comes up everywhere, why?
+			<< "p_rhs = &temp;\n"
+			<< read_var (LOCAL, "p_rhs", rhs->value)
+
+			<< "if (*p_lhs != *p_rhs)\n"
+			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
+
+			<< cleanup ("p_rhs");
 		}
 		else
 		{
-			index_lhs (LOCAL, "p_rhs", rhs->value);
-			code 
-				<< "sep_copy_on_write_ex (p_rhs);\n"
-				<< "(*p_rhs)->is_ref = 1;\n"
-				<< "(*p_rhs)->refcount++;\n"
-				<< "zval_ptr_dtor (p_lhs);\n"
-				<< "*p_lhs = *p_rhs;\n";
+			code
+			<< index_lhs (LOCAL, "p_rhs", rhs->value)
+			<< "sep_copy_on_write_ex (p_rhs);\n"
+			<< "(*p_rhs)->is_ref = 1;\n"
+			<< "(*p_rhs)->refcount++;\n"
+			<< "zval_ptr_dtor (p_lhs);\n"
+			<< "*p_lhs = *p_rhs;\n";
 		}
 	}
 
@@ -1212,25 +1212,28 @@ public:
 	{
 		if (!agn->is_ref)
 		{
-			declare ("p_rhs");
-			code 
-				<< "zval* temp = NULL;\n"
-				<< "p_rhs = &temp;\n";
-			read_var_var (LOCAL, "p_rhs", rhs->value);
-			code 
-				<< "if (*p_lhs != *p_rhs)\n"
-				<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
-			cleanup ("p_rhs");
+			code
+			<< declare ("p_rhs")
+			<< "zval* temp = NULL;\n"
+			<< "p_rhs = &temp;\n"
+			<< read_var_var (LOCAL, "p_rhs", rhs->value)
+
+			<< "if (*p_lhs != *p_rhs)\n"
+			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
+			<< cleanup ("p_rhs")
+			;
 		}
 		else
 		{
-			index_lhs (LOCAL, "p_rhs", rhs->value);
-			code 
-				<< "sep_copy_on_write_ex (p_rhs);\n"
-				<< "(*p_rhs)->is_ref = 1;\n"
-				<< "(*p_rhs)->refcount++;\n"
-				<< "zval_ptr_dtor (p_lhs);\n"
-				<< "*p_lhs = *p_rhs;\n";
+			code
+			<< index_lhs (LOCAL, "p_rhs", rhs->value)
+
+			<< "sep_copy_on_write_ex (p_rhs);\n"
+			<< "(*p_rhs)->is_ref = 1;\n"
+			<< "(*p_rhs)->refcount++;\n"
+			<< "zval_ptr_dtor (p_lhs);\n"
+			<< "*p_lhs = *p_rhs;\n"
+			;
 		}
 	}
 
@@ -1252,25 +1255,28 @@ public:
 	{
 		if (!agn->is_ref)
 		{
-			declare ("p_rhs");
-			code 
-				<< "zval* temp = NULL;\n"
-				<< "p_rhs = &temp;\n";
-			read_array_index (LOCAL, "p_rhs", rhs->value);
-			code 
-				<< "if (*p_lhs != *p_rhs)\n"
-				<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
-			cleanup ("p_rhs");
+			code
+			<< declare ("p_rhs")
+
+			<< "zval* temp = NULL;\n"
+			<< "p_rhs = &temp;\n"
+
+			<< read_array_index (LOCAL, "p_rhs", rhs->value)
+			
+			<< "if (*p_lhs != *p_rhs)\n"
+			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
+
+			<< cleanup ("p_rhs");
 		}
 		else
 		{
-			array_access_index (LOCAL, "p_rhs", rhs->value);
 			code 
-				<< "sep_copy_on_write_ex (p_rhs);\n"
-				<< "(*p_rhs)->is_ref = 1;\n"
-				<< "(*p_rhs)->refcount++;\n"
-				<< "zval_ptr_dtor (p_lhs);\n"
-				<< "*p_lhs = *p_rhs;\n";
+			<< array_access_index (LOCAL, "p_rhs", rhs->value)
+			<< "sep_copy_on_write_ex (p_rhs);\n"
+			<< "(*p_rhs)->is_ref = 1;\n"
+			<< "(*p_rhs)->refcount++;\n"
+			<< "zval_ptr_dtor (p_lhs);\n"
+			<< "*p_lhs = *p_rhs;\n";
 		}
 	}
 
@@ -1328,11 +1334,10 @@ public:
 		<<		"count++;\n"
 		<<		"arg_info++;\n"
 		<< "}\n"
-		;
 
 		// TODO this could be locally allocated
-		declare ("p_rhs");
-		code
+		<< declare ("p_rhs")
+
 		<< "p_rhs = p_lhs;\n"
 		<< "zvp_clone (p_rhs, &is_p_rhs_new);\n"
 		<< "if (count == " << index << ")\n"
@@ -1344,9 +1349,9 @@ public:
 		<<		"ZVAL_BOOL (*p_rhs, signature->common.pass_rest_by_reference);\n"
 		<< "}\n"
 		<<	"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
-		;
 
-		cleanup ("p_rhs");
+		<< cleanup ("p_rhs")
+		;
 
 	}
 
@@ -1373,25 +1378,29 @@ public:
 		// this much copied from Assign_var
 		if (!agn->is_ref)
 		{
-			declare ("p_rhs");
-			code 
-				<< "zval* temp = NULL;\n"
-				<< "p_rhs = &temp;\n";
-			read_var (LOCAL, "p_rhs", rhs->value);
-			code 
-				<< "if (*p_lhs != *p_rhs)\n"
-				<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
-			cleanup ("p_rhs");
+			code
+			<< declare ("p_rhs")
+
+			<< "zval* temp = NULL;\n"
+			<< "p_rhs = &temp;\n"
+
+			<< read_var (LOCAL, "p_rhs", rhs->value)
+
+			<< "if (*p_lhs != *p_rhs)\n"
+			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
+			<< cleanup ("p_rhs")
+			;
 		}
 		else
 		{
-			index_lhs (LOCAL, "p_rhs", rhs->value);
-			code 
-				<< "sep_copy_on_write_ex (p_rhs);\n"
-				<< "(*p_rhs)->is_ref = 1;\n"
-				<< "(*p_rhs)->refcount++;\n"
-				<< "zval_ptr_dtor (p_lhs);\n"
-				<< "*p_lhs = *p_rhs;\n";
+			code
+			<< index_lhs (LOCAL, "p_rhs", rhs->value)
+			<< "sep_copy_on_write_ex (p_rhs);\n"
+			<< "(*p_rhs)->is_ref = 1;\n"
+			<< "(*p_rhs)->refcount++;\n"
+			<< "zval_ptr_dtor (p_lhs);\n"
+			<< "*p_lhs = *p_rhs;\n"
+			;
 		}
 		// as far as here
 
@@ -1427,7 +1436,8 @@ public:
 
 	void generate_code(Generate_C* gen)
 	{
-		global (rhs->value);
+		code
+		<< global (rhs->value);
 	}
 
 protected:
@@ -1556,18 +1566,20 @@ public:
 
 	void generate_rhs ()
 	{
-		read_rvalue (LOCAL, "p_arg", arg->value->rvalue);
+		code
+		<< read_rvalue (LOCAL, "p_arg", arg->value->rvalue);
 
 		if (lhs)
 		{
 			// create a result
-			declare ("p_rhs");
-			code 
+			code
+			<< declare ("p_rhs")
 			<< "zval* temp = NULL;\n"
 			<< "ALLOC_INIT_ZVAL (temp);\n"
 			<< "is_p_rhs_new = 1;\n"
 			<< "p_rhs = &temp;\n"
-			<< "phc_builtin_" << *method_name->value->value << " (p_arg, *p_rhs TSRMLS_CC);\n";
+			<< "phc_builtin_" << *method_name->value->value << " (p_arg, *p_rhs TSRMLS_CC);\n"
+			;
 
 			if (!agn->is_ref)
 			{
@@ -1581,9 +1593,11 @@ public:
 				<< "(*p_rhs)->is_ref = 1;\n"
 				<< "(*p_rhs)->refcount++;\n"
 				<< "zval_ptr_dtor (p_lhs);\n"
-				<< "*p_lhs = *p_rhs;\n";
+				<< "*p_lhs = *p_rhs;\n"
+				;
 			}
-			cleanup ("p_rhs");
+			code
+			<< cleanup ("p_rhs");
 		}
 		else
 			code << "phc_builtin_" << *method_name->value->value << " (p_arg, NULL TSRMLS_CC);\n";
@@ -1616,10 +1630,11 @@ public:
 
 		if (name == NULL) phc_unsupported (rhs->value);
 
-		declare ("p_rhs");
-		code 
-			<< "zval* temp;\n"
-			<< "p_rhs = &temp;\n";
+		code
+		<< declare ("p_rhs")
+		<< "zval* temp;\n"
+		<< "p_rhs = &temp;\n"
+		;
 
 		int num_args = rhs->value->actual_parameters->size();
 		code
@@ -1706,20 +1721,19 @@ public:
 			<< "destruct[" << index << "] = 0;\n"
 			<< "if (by_ref [" << index << "])\n"
 			<< "{\n"
-			;
-			read_st (LOCAL, "p_arg", var_name);
-			code
+			
+			<< read_st (LOCAL, "p_arg", var_name)
+
 			<< "	args_ind[" << index << "] = fetch_var_arg_by_ref ("
 			<<				"p_arg);\n"
 			<< "	assert (!in_copy_on_write (*args_ind[" << index << "]));\n"
 			<<	"  args[" << index << "] = *args_ind[" << index << "];\n"
 			<< "}\n"
 			<< "else\n"
-			<< "{\n";
+			<< "{\n"
 
-			read_rvalue (LOCAL, "arg", var_name);
+			<< read_rvalue (LOCAL, "arg", var_name)
 
-			code
 			<< "  args[" << index << "] = fetch_var_arg ("
 			<<				"arg, "
 			<<				"&destruct[" << index << "]);\n"
@@ -1817,7 +1831,7 @@ public:
 				;
 			}
 		}
-		cleanup ("p_rhs");
+		code << cleanup ("p_rhs");
 		
 		// code << "debug_hash(EG(active_symbol_table));\n";
 	}
@@ -1846,17 +1860,18 @@ public:
 			op_functions.end());
 		string op_fn = op_functions[*op->value->value]; 
 
-		read_rvalue (LOCAL, "left", left->value);
-		read_rvalue (LOCAL, "right", right->value);
-
 		code
+		<< read_rvalue (LOCAL, "left", left->value)
+		<< read_rvalue (LOCAL, "right", right->value)
+
 		<< "if (in_copy_on_write (*p_lhs))\n"
 		<< "{\n"
 		<< "	zval_ptr_dtor (p_lhs);\n"
 		<< "	ALLOC_INIT_ZVAL (*p_lhs);\n"
 		<< "}\n"
 		<< "zval old = **p_lhs;\n"
-		<< "int result_is_operand = (*p_lhs == left || *p_lhs == right)\n;";
+		<< "int result_is_operand = (*p_lhs == left || *p_lhs == right)\n;"
+		;
 
 		// some operators need the operands to be reversed (since we
 		// call the opposite function). This is accounted for in the
@@ -1898,9 +1913,9 @@ public:
 			op_functions.end());
 		string op_fn = op_functions[*op->value->value]; 
 
-		read_rvalue (LOCAL, "expr", var_name->value);
-
 		code
+		<< read_rvalue (LOCAL, "expr", var_name->value)
+
 		<< "if (in_copy_on_write (*p_lhs))\n"
 		<< "{\n"
 		<< "	zval_ptr_dtor (p_lhs);\n"
@@ -1934,20 +1949,20 @@ public:
 
 	void generate_code(Generate_C* gen)
 	{
-		code << "{\n";
-
 		assert(
 			op_functions.find(*op->value->value) != 
 			op_functions.end());
 		string op_fn = op_functions[*op->value->value]; 
 
-		read_st (LOCAL, "p_var", var->value);
 
-		code
-			<< "sep_copy_on_write_ex (p_var);\n"
-			<< op_fn << "(*p_var);\n";
+		code 
+		<< "{\n"
+		<<		read_st (LOCAL, "p_var", var->value)
 
-		code << "}\n";
+		<<		"sep_copy_on_write_ex (p_var);\n"
+		<<		op_fn << "(*p_var);\n"
+
+		<< "}\n";
 	}
 
 protected:
@@ -1969,29 +1984,30 @@ class Pattern_return : public Pattern
 		code << "{\n";
 		if(!gen->return_by_reference)
 		{
-			read_rvalue (LOCAL, "rhs", var_name->value);
+			code 
+			<< read_rvalue (LOCAL, "rhs", var_name->value)
 
 			// Run-time return by reference had slightly different
 			// semantics to compile-time. There is no way within a
 			// function to tell if the run-time return by reference is
 			// set, but its unnecessary anyway.
-			code 
-				<< "return_value->value = rhs->value;\n"
-				<< "return_value->type = rhs->type;\n"
-				<< "zval_copy_ctor (return_value);\n"
-				;
+			// TODO: I dont believe in run-time return by reference. It seems that
+			// it only work in the presence of compile-time return by reference.
+			<< "return_value->value = rhs->value;\n"
+			<< "return_value->type = rhs->type;\n"
+			<< "zval_copy_ctor (return_value);\n"
+			;
 		}
 		else
 		{
-			index_lhs (LOCAL, "p_rhs", var_name->value);
-
 			code
-				<< "sep_copy_on_write_ex (p_rhs);\n"
-				<< "zval_ptr_dtor (return_value_ptr);\n"
-				<< "(*p_rhs)->is_ref = 1;\n"
-				<< "(*p_rhs)->refcount++;\n"
-				<< "*return_value_ptr = *p_rhs;\n";
-
+			<< index_lhs (LOCAL, "p_rhs", var_name->value)
+			<< "sep_copy_on_write_ex (p_rhs);\n"
+			<< "zval_ptr_dtor (return_value_ptr);\n"
+			<< "(*p_rhs)->is_ref = 1;\n"
+			<< "(*p_rhs)->refcount++;\n"
+			<< "*return_value_ptr = *p_rhs;\n"
+			;
 		}
 
 		code 
@@ -2024,38 +2040,38 @@ class Pattern_unset : public Pattern
 			{
 				if (var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
 				{
-					String* name = get_non_st_name (var_name);
+					string name = get_non_st_name (var_name);
 					code
-						<< "if (" << *name << " != NULL)\n"
-						<< "{\n"
-						<<		"zval_ptr_dtor (&" << *name << ");\n"
-						<<		*name << " = NULL;\n"
-						<< "}\n";
+					<< "if (" << name << " != NULL)\n"
+					<< "{\n"
+					<<		"zval_ptr_dtor (&" << name << ");\n"
+					<<		name << " = NULL;\n"
+					<< "}\n";
 				}
 				else
 				{
 					String* name = var_name->value;
 					code
-						<< "unset_var ("
-						<<		get_scope (LOCAL) << ", "
-						<<		"\"" << *name << "\", "
-						<<		name->length() + 1
-						// no get_hash version
-						<<		");\n";
+					<< "unset_var ("
+					<<		get_scope (LOCAL) << ", "
+					<<		"\"" << *name << "\", "
+					<<		name->length() + 1
+					// no get_hash version
+					<<		");\n";
 				}
 			}
 			else 
 			{
 				assert(unset->value->array_indices->size() == 1);
 				Rvalue* index = (unset->value->array_indices->front());
-				read_st (LOCAL, "u_array", var_name);
-				read_rvalue (LOCAL, "u_index", index);
-
 				code
-					<< "unset_array ("
-					<<    "u_array, "
-					<<    "u_index "
-					<<		" TSRMLS_CC);\n";
+				<< read_st (LOCAL, "u_array", var_name)
+				<< read_rvalue (LOCAL, "u_index", index)
+
+				<< "unset_array ("
+				<<    "u_array, "
+				<<    "u_index "
+				<<		" TSRMLS_CC);\n";
 			}
 		}
 		else
@@ -2090,20 +2106,20 @@ class Pattern_isset : public Pattern_assign_zval
 			{
 				if (var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
 				{
-					String* name = get_non_st_name (var_name);
-					code << "ZVAL_BOOL(" << lhs << ", " << *name << " != NULL);\n"; 
+					string name = get_non_st_name (var_name);
+					code << "ZVAL_BOOL(" << lhs << ", " << name << " != NULL);\n"; 
 				}
 				else
 				{
 					String* name = var_name->value;
 					code
-						<< "ZVAL_BOOL(" << lhs << ", "
-						<< "isset_var ("
-						<<		get_scope (LOCAL) << ", "
-						<<		"\"" << *name << "\", "
-						<<		name->length() + 1
-						// no get_hash version
-						<<		"));\n";
+					<< "ZVAL_BOOL(" << lhs << ", "
+					<< "isset_var ("
+					<<		get_scope (LOCAL) << ", "
+					<<		"\"" << *name << "\", "
+					<<		name->length() + 1
+					// no get_hash version
+					<<		"));\n";
 				}
 			}
 			else 
@@ -2111,15 +2127,15 @@ class Pattern_isset : public Pattern_assign_zval
 				// TODO this can have > 1 array_index
 				assert(isset->value->array_indices->size() == 1);
 				Rvalue* index = isset->value->array_indices->front();
-				read_st (LOCAL, "u_array", var_name);
-				read_rvalue (LOCAL, "u_index", index);
 
 				code
-				  << "ZVAL_BOOL(" << lhs << ", "
-					<< "isset_array ("
-					<<    "u_array, "
-					<<    "u_index "
-					<<		" TSRMLS_CC));\n";
+				<< read_st (LOCAL, "u_array", var_name)
+				<< read_rvalue (LOCAL, "u_index", index)
+				<< "ZVAL_BOOL(" << lhs << ", "
+				<< "isset_array ("
+				<<    "u_array, "
+				<<    "u_index "
+				<<		" TSRMLS_CC));\n";
 			}
 		}
 		else
@@ -2264,15 +2280,14 @@ class Pattern_foreach_reset : public Pattern
 	{
 		// declare the external iterator so outside local scope blocks
 		code
-			<< "HashPosition " << *reset->value->iter->value << ";\n"
-			<< "{\n";
+		<< "HashPosition " << *reset->value->iter->value << ";\n"
+		<< "{\n"
 
-		read_rvalue (LOCAL, "fe_array", reset->value->array);
-		code 
-			<< "zend_hash_internal_pointer_reset_ex ("
-			<< "						fe_array->value.ht, "
-			<< "						&" << *reset->value->iter->value << ");\n"
-			<< "}\n";
+		<<		read_rvalue (LOCAL, "fe_array", reset->value->array)
+		<<		"zend_hash_internal_pointer_reset_ex ("
+		<<		"						fe_array->value.ht, "
+		<<		"						&" << *reset->value->iter->value << ");\n"
+		<< "}\n";
 	}
 
 protected:
@@ -2290,12 +2305,14 @@ class Pattern_foreach_has_key : public Pattern_assign_zval
 
 	void initialize (ostream& os, string var)
 	{
-		read_rvalue (LOCAL, "fe_array", has_key->value->array);
+		// TODO why does this use assign_zval?
 		os
-			<< "int type = zend_hash_get_current_key_type_ex ("
-			<< "						fe_array->value.ht, "
-			<< "						&" << *has_key->value->iter->value << ");\n"
-			<< "ZVAL_BOOL(" << var << ", type != HASH_KEY_NON_EXISTANT);\n";
+		<< read_rvalue (LOCAL, "fe_array", has_key->value->array)
+		
+		<< "int type = zend_hash_get_current_key_type_ex ("
+		<<							"fe_array->value.ht, "
+		<<							"&" << *has_key->value->iter->value << ");\n"
+		<< "ZVAL_BOOL(" << var << ", type != HASH_KEY_NON_EXISTANT);\n";
 	}
 
 protected:
@@ -2312,24 +2329,24 @@ class Pattern_foreach_get_key : public Pattern_assign_zval
 
 	void initialize (ostream& os, string var)
 	{
-		read_rvalue (LOCAL, "fe_array", get_key->value->array);
 		os
-			<< "char* str_index = NULL;\n"
-			<< "uint str_length;\n"
-			<< "ulong num_index;\n"
-			<< "int result = zend_hash_get_current_key_ex (\n"
-			<< "						fe_array->value.ht,"
-			<< "						&str_index, &str_length, &num_index, "
-			<< "						0, "
-			<< "						&" << *get_key->value->iter->value << ");\n"
-			<< "if (result == HASH_KEY_IS_LONG)\n"
-			<< "{\n"
-			<< "	ZVAL_LONG (" << var << ", num_index);\n"
-			<< "}\n"
-			<< "else\n"
-			<< "{\n"
-			<< "	ZVAL_STRINGL (" << var << ", str_index, str_length - 1, 1);\n"
-			<< "}\n";
+		<< read_rvalue (LOCAL, "fe_array", get_key->value->array)
+		<< "char* str_index = NULL;\n"
+		<< "uint str_length;\n"
+		<< "ulong num_index;\n"
+		<< "int result = zend_hash_get_current_key_ex (\n"
+		<<						"fe_array->value.ht,"
+		<<						"&str_index, &str_length, &num_index, "
+		<<						"0, "
+		<<						"&" << *get_key->value->iter->value << ");\n"
+		<< "if (result == HASH_KEY_IS_LONG)\n"
+		<< "{\n"
+		<<		"ZVAL_LONG (" << var << ", num_index);\n"
+		<< "}\n"
+		<< "else\n"
+		<< "{\n"
+		<<		"ZVAL_STRINGL (" << var << ", str_index, str_length - 1, 1);\n"
+		<< "}\n";
 	}
 
 protected:
@@ -2350,35 +2367,37 @@ class Pattern_foreach_get_val : public Pattern_assign_var
 		if (lhs == NULL)
 			return;
 
-		read_rvalue (LOCAL, "fe_array", get_val->value->array);
+		code << read_rvalue (LOCAL, "fe_array", get_val->value->array);
 		if (!agn->is_ref)
 		{
-			declare ("p_rhs");
-			code 
-				<< "zval* temp = NULL;\n"
-				<< "p_rhs = &temp;\n"
-				<< "int result = zend_hash_get_current_data_ex (\n"
-				<< "						fe_array->value.ht, "
-				<<							"(void**)(&p_rhs), "
-				<< "						&" << *get_val->value->iter->value << ");\n"
-				<< "assert (result == SUCCESS);\n"
-				<< "write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
-			cleanup ("p_rhs");
+			code
+			<< declare ("p_rhs")
+			<< "zval* temp = NULL;\n"
+			<< "p_rhs = &temp;\n"
+			<< "int result = zend_hash_get_current_data_ex (\n"
+			<<							"fe_array->value.ht, "
+			<<							"(void**)(&p_rhs), "
+			<<							"&" << *get_val->value->iter->value << ");\n"
+			<< "assert (result == SUCCESS);\n"
+			<< "write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
+			<< cleanup ("p_rhs")
+			;
 		}
 		else
 		{
 			code 
-				<< "zval** p_rhs = NULL;\n"
-				<< "int result = zend_hash_get_current_data_ex (\n"
-				<< "						fe_array->value.ht, "
-				<<							"(void**)(&p_rhs), "
-				<< "						&" << *get_val->value->iter->value << ");\n"
-				<< "assert (result == SUCCESS);\n"
-				<< "sep_copy_on_write_ex (p_rhs);\n"
-				<< "(*p_rhs)->is_ref = 1;\n"
-				<< "(*p_rhs)->refcount++;\n"
-				<< "zval_ptr_dtor (p_lhs);\n"
-				<< "*p_lhs = *p_rhs;\n";
+			<< "zval** p_rhs = NULL;\n"
+			<< "int result = zend_hash_get_current_data_ex (\n"
+			<<							"fe_array->value.ht, "
+			<<							"(void**)(&p_rhs), "
+			<<							"&" << *get_val->value->iter->value << ");\n"
+			<< "assert (result == SUCCESS);\n"
+			<< "sep_copy_on_write_ex (p_rhs);\n"
+			<< "(*p_rhs)->is_ref = 1;\n"
+			<< "(*p_rhs)->refcount++;\n"
+			<< "zval_ptr_dtor (p_lhs);\n"
+			<< "*p_lhs = *p_rhs;\n"
+			;
 		}
 	}
 
@@ -2396,14 +2415,15 @@ class Pattern_foreach_next: public Pattern
 
 	void generate_code (Generate_C* gen)
 	{
-		code << "{\n";
-		read_rvalue (LOCAL, "fe_array", next->value->array);
-		code 
-			<< "int result = zend_hash_move_forward_ex ("
-			<<							"fe_array->value.ht, "
-			<<							"&" << *next->value->iter->value << ");\n"
-			<< "assert (result == SUCCESS);\n";
-		code << "}\n";
+		code
+		<< "{\n"
+		<<		read_rvalue (LOCAL, "fe_array", next->value->array)
+		<<		"int result = zend_hash_move_forward_ex ("
+		<<							"fe_array->value.ht, "
+		<<							"&" << *next->value->iter->value << ");\n"
+		<<		"assert (result == SUCCESS);\n"
+		<< "}\n"
+		;
 	}
 
 protected:
@@ -2420,13 +2440,14 @@ class Pattern_foreach_end : public Pattern
 
 	void generate_code(Generate_C* gen)
 	{
-		code << "{\n";
-		read_rvalue (LOCAL, "fe_array", end->value->array);
-		code 
-			<< "zend_hash_internal_pointer_end_ex ("
-			<<							"fe_array->value.ht, "
-			<<							"&" << *end->value->iter->value << ");\n";
-		code << "}\n";
+		code
+		<< "{\n"
+		<<		read_rvalue (LOCAL, "fe_array", end->value->array)
+		<<		"zend_hash_internal_pointer_end_ex ("
+		<<							"fe_array->value.ht, "
+		<<							"&" << *end->value->iter->value << ");\n"
+		<< "}\n"
+		;
 	}
 
 protected:
@@ -2501,7 +2522,15 @@ void Generate_C::children_statement(Statement* in)
 	{
 		if(patterns[i]->match(in))
 		{
+			bool brackets = patterns[i]->use_scope;
+			if (brackets)
+				code << "{\n";
+
 			patterns[i]->generate_code(this);
+
+			if (brackets)
+				code << "}\n";
+
 			matched = true;
 			break;
 		}
