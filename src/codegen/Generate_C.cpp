@@ -157,15 +157,26 @@ void cleanup (string target)
 		<< "  zval_ptr_dtor (" << target << ");\n";
 }
 
+
+string suffix (string str, string suffix)
+{
+	stringstream ss;
+	ss << str << "_" << suffix;
+	return ss.str ();
+}
+
+string prefix (string str, string prefix)
+{
+	stringstream ss;
+	ss << prefix << "_" << str;
+	return ss.str ();
+}
+
 String* get_non_st_name (VARIABLE_NAME* var_name)
 {
 	assert (var_name->attrs->is_true ("phc.codegen.st_entry_not_required"));
-
-	stringstream ss;
-	ss << "local_" << *var_name->value;
-	return new String (ss.str ());
+	return new String (prefix (*var_name->value, "local"));
 }
-
 
 
 // Generate calls to read_var, for array and array index lookups, and the like.
@@ -230,15 +241,11 @@ void index_assign_array (Scope scope, string zvp, VARIABLE_NAME* lhs, VARIABLE_N
 		<< "zval** " << zvp << ";\n";
 
 	// lhs_var can exist more than once; rename
-	stringstream ss1;
-	ss1 << zvp << "_lhs";
-	string zvp_name = ss1.str ();
+	string zvp_name = suffix (zvp, "lhs");
 
 	read_st (scope, zvp_name, lhs);
 
-	stringstream ss2;
-	ss2 << zvp << "_index";
-	string zvp_index = ss2.str ();
+	string zvp_index = suffix (zvp, "index");
 
 	code
 		<< "// Array assignment\n";
@@ -260,14 +267,11 @@ void array_access_index (Scope scope, string zvp, Array_access* ia)
 		<< "zval** " << zvp << ";\n";
 
 	// lhs_var can exist more than once; rename
-	stringstream ss_var;
-	ss_var << zvp << "_var";
-	string zvp_name = ss_var.str ();
+	string zvp_name = suffix (zvp, "var");
 
 	read_st (scope, zvp_name, var_name);
-	stringstream ss_index;
-	ss_index << zvp << "_index";
-	string zvp_index = ss_index.str ();
+
+	string zvp_index = suffix (zvp, "index");
 
 	code
 		<< "// Array assignment\n";
@@ -280,6 +284,7 @@ void array_access_index (Scope scope, string zvp, Array_access* ia)
 		<<		" TSRMLS_CC);\n"
 		;
 }
+
 
 void index_lhs (Scope scope, string zvp, Expr* expr)
 {
@@ -294,12 +299,10 @@ void index_lhs (Scope scope, string zvp, Expr* expr)
 	code
 		<< "zval** " << zvp << ";\n";
 
-	if (var_name != NULL)
+	if (var_name)
 	{
 		// lhs_var can exist more than once; rename
-		stringstream ss;
-		ss << zvp << "_var";
-		string zvp_name = ss.str ();
+		string zvp_name = suffix (zvp, "var");
 
 		read_st (scope, zvp_name, var_name);
 		code 
@@ -320,9 +323,7 @@ void index_lhs (Scope scope, string zvp, Expr* expr)
 /* Generate code to read the variable named in VAR to the zval* ZVP */
 void read_var (Scope scope, string zvp, VARIABLE_NAME* var_name)
 {
-	stringstream ss;
-	ss << zvp << "var";
-	string name = ss.str ();
+	string name = suffix (zvp, "var");
 	read_rvalue (scope, name, var_name);
 
 	// the same as read_rvalue, but doesnt declare
@@ -470,57 +471,51 @@ protected:
 protected:
 	void debug_argument_stack()
 	{
-		code <<
-		"{\n"
-		"void **p;\n"
-		"int arg_count;\n"
-		"zval *param_ptr;\n"
-		"\n"
-		"p = EG(argument_stack).top_element-2;\n"
-		"arg_count = (ulong) *p;\n"
-		"\n"
-		"printf(\"\\nARGUMENT STACK\\n\");\n"
-		"while (arg_count > 0) {\n"
-		"	param_ptr = *(p-arg_count);\n"
-		"	printf(\"addr = %08X, refcount = %d, is_ref = %d\\n\", (long)param_ptr, param_ptr->refcount, param_ptr->is_ref);\n"
-		"	arg_count--;\n"
-		"}\n"
-		"printf(\"END ARGUMENT STACK\\n\");\n"
-		"}\n"
+		code
+		<< "{\n"
+		<<		"void **p;\n"
+		<<		"int arg_count;\n"
+		<<		"zval *param_ptr;\n"
+		<<	"\n"
+		<<		"p = EG(argument_stack).top_element-2;\n"
+		<<		"arg_count = (ulong) *p;\n"
+		<<	"\n"
+		<<		"printf(\"\\nARGUMENT STACK\\n\");\n"
+		<<		"while (arg_count > 0)\n"
+		<<		"{\n"
+		<<		"	param_ptr = *(p-arg_count);\n"
+		<<		"	printf(\"addr = %08X, refcount = %d, is_ref = %d\\n\", (long)param_ptr, param_ptr->refcount, param_ptr->is_ref);\n"
+		<<		"	arg_count--;\n"
+		<<		"}\n"
+		<<		"printf(\"END ARGUMENT STACK\\n\");\n"
+		<< "}\n"
 		;
 	}
 
 	class Find_temps : public Visitor
 	{
-		public:
+	public:
+		// Dont find variables within other functions, if those
+		// functions/classes are in.
+		bool in_class;
+		bool in_function;
+		set<string> var_names;
 
-			// Dont find variables within other functions, if those
-			// functions/classes are in.
-			bool in_class;
-			bool in_function;
-			set<string> var_names;
+		Find_temps () :
+			in_class (false),
+			in_function (false) 
+		{
+		}
 
-			Find_temps () :
-				in_class (false),
-				in_function (false) 
-			{
-			}
-
-			void pre_variable_name (VARIABLE_NAME* var_name)
-			{
-				if (!in_function && !in_class 
+		void pre_variable_name (VARIABLE_NAME* var_name)
+		{
+			if (!in_function && !in_class 
 					&& var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
-				{
-					String* name = get_non_st_name (var_name);
-					var_names.insert (*name);
-				}
+			{
+				String* name = get_non_st_name (var_name);
+				var_names.insert (*name);
 			}
-
-			// TODO nesting doesnt work anyway
-//			void pre_class_def (Class_def*) { in_class = true; }
-//			void post_class_def (Class_def*) { in_class = false;}
-//			void pre_method (Method*) { in_function = true; }
-//			void post_method (Method*) { in_function = false; }
+		}
 	};
 
 	void generate_non_st_declarations (Method* method, Signature* sig)
@@ -529,11 +524,10 @@ protected:
 		// collect all the variables
 		method->visit (&ft);
 		sig->visit (&ft);
-		set<string>::const_iterator i;
-		for (i = ft.var_names.begin (); i != ft.var_names.end (); i++)
+		foreach (string var, ft.var_names)
 		{
 			code
-				<< "zval* " << *i << " = NULL;\n";
+			<< "zval* " << var << " = NULL;\n";
 		}
 	}
 
@@ -655,18 +649,16 @@ protected:
 		// collect all the variables
 		method->visit (&ft);
 		sig->visit (&ft);
-		set<string>::const_iterator i;
-		for (i = ft.var_names.begin (); i != ft.var_names.end (); i++)
+		foreach (string var, ft.var_names)
 		{
 			code
-				<< "if (" << *i << " != NULL)\n"
-				<< "{\n"
-				<<		"zval_ptr_dtor (&" << *i << ");\n"
-				<< "}\n";
-	
+			<< "if (" << var << " != NULL)\n"
+			<< "{\n"
+			<<		"zval_ptr_dtor (&" << var << ");\n"
+			<< "}\n"
+			;
 		}
 	}
-
 
 	void method_exit()
 	{
@@ -729,18 +721,19 @@ public:
 
 	void generate_code(Generate_C* gen)
 	{
-		code
-			<< "{\n";
+		code << "{\n";
+
 		read_rvalue (LOCAL, "p_cond", cond->value);
+
 		code 
-			<< "zend_bool bcond = zend_is_true (p_cond);\n";
-		code 
-			<< "if (bcond)\n"
-			<< "	goto " << *iftrue->value->value << ";\n"
-			<< "else\n"
-			<< "	goto " << *iffalse->value->value << ";\n"
-			<< "}\n"
-			;
+		<< "zend_bool bcond = zend_is_true (p_cond);\n"
+		<< "if (bcond)\n"
+		<< "	goto " << *iftrue->value->value << ";\n"
+		<< "else\n"
+		<< "	goto " << *iffalse->value->value << ";\n"
+		;
+
+		code << "}\n";
 	}
 
 protected:
@@ -779,9 +772,7 @@ void index_assign_var (Scope scope, string zvp, VARIABLE_NAME* var_name)
 		<< "zval** " << zvp << ";\n";
 
 	// lhs_var can exist more than once; rename
-	stringstream ss;
-	ss << zvp << "_var";
-	string zvp_name = ss.str ();
+	string zvp_name = suffix (zvp, "var");
 
 	read_st (scope, zvp_name, var_name);
 	code 
@@ -806,23 +797,21 @@ public:
 
 	void generate_code(Generate_C* gen)
 	{
-		code 
-			<< "{\n";
+		code << "{\n";
 
 		index_assign_var (LOCAL, "p_lhs", lhs->value);
 
 		code 
-			<<		"if (p_lhs != NULL)\n"
-			<<		"{\n";
+		<<		"if (p_lhs != NULL)\n"
+		<<		"{\n";
 
 		// Generate code for the RHS
 		generate_rhs ();
 
 		code 
-			<<		"}\n";
+		<<		"}\n";
 		
-		code 
-			<< "}\n";
+		code << "}\n";
 		code << "phc_check_invariants (TSRMLS_C);\n";
 	}
 
@@ -883,21 +872,20 @@ public:
 		assert (rhs->value);
 
 		code 
-			<< "{\n";
+		<< "{\n";
 
 		index_assign_array (LOCAL, "p_lhs", lhs->value, index->value);
 
 		code 
-			<<		"if (p_lhs != NULL)\n"
-			<<		"{\n";
+		<<		"if (p_lhs != NULL)\n"
+		<<		"{\n";
 
 		assign_rhs (agn->is_ref, rhs->value);
 
 		code 
-			<<		"}\n";
+		<<		"}\n";
 		
-		code 
-			<< "}\n";
+		code << "}\n";
 		code << "phc_check_invariants (TSRMLS_C);\n";
 	}
 
@@ -1150,20 +1138,19 @@ public:
 	{
 		stringstream ss;
 
-		String::const_iterator i;
-		for(i = s->begin(); i != s->end(); i++)
+		foreach (char c, *s)
 		{
-			if(*i == '"' || *i == '\\')
+			if(c == '"' || c == '\\')
 			{
-				ss << "\\" << *i;
+				ss << "\\" << c;
 			}
-			else if(*i >= 32 && *i < 127)
+			else if(c >= 32 && c < 127)
 			{
-				ss << *i;
+				ss << c;
 			}
 			else
 			{
-				ss << "\\" << setw(3) << setfill('0') << oct << uppercase << (unsigned long int)(unsigned char) *i;
+				ss << "\\" << setw(3) << setfill('0') << oct << uppercase << (unsigned long int)(unsigned char) c;
 				ss << resetiosflags(code.flags());
 			}
 		}
@@ -1307,55 +1294,57 @@ public:
 		int index = rhs->value->param_index->value;
 
 		code
-			// lookup the function and cache it for next time
-			<< "// Call the function\n"
-			<< "static zend_fcall_info fci;\n"
-			<< "static zend_fcall_info_cache fcic = {0,NULL,NULL,NULL};\n"
-			<< "if (!fcic.initialized)\n"
-			<< "{\n"
-			<<		"zval function_name;\n"
-			<<		"INIT_PZVAL(&function_name);\n"
-			<<		"ZVAL_STRING(&function_name, "
-			<<			"\"" << *name << "\", "
-			<<			"0);\n"
+		// lookup the function and cache it for next time
+		<< "// Call the function\n"
+		<< "static zend_fcall_info fci;\n"
+		<< "static zend_fcall_info_cache fcic = {0,NULL,NULL,NULL};\n"
+		<< "if (!fcic.initialized)\n"
+		<< "{\n"
+		<<		"zval function_name;\n"
+		<<		"INIT_PZVAL(&function_name);\n"
+		<<		"ZVAL_STRING(&function_name, "
+		<<			"\"" << *name << "\", "
+		<<			"0);\n"
 
-			<<		"int result = zend_fcall_info_init (&function_name, &fci, &fcic TSRMLS_CC);\n"
-			<< 	"if (result == FAILURE) // check for missing function\n"
-			<< 	"{\n"
-			<<			"phc_setup_error (1, \"" 
-			<< 			*rhs->get_filename () << "\", " 
-			<< 			rhs->get_line_number () << ", "
-			<<				"NULL TSRMLS_CC);\n"
-						// die
-			<<			"php_error_docref (NULL TSRMLS_CC, E_ERROR, "
-			<<				"\"Call to undefined function %s()\", \"" 
-			<< 			*name << "\");\n"
-			<< 	"}\n"
-			<< "}\n"
+		<<		"int result = zend_fcall_info_init (&function_name, &fci, &fcic TSRMLS_CC);\n"
+		<< 	"if (result == FAILURE) // check for missing function\n"
+		<< 	"{\n"
+		<<			"phc_setup_error (1, \"" 
+		<< 			*rhs->get_filename () << "\", " 
+		<< 			rhs->get_line_number () << ", "
+		<<				"NULL TSRMLS_CC);\n"
+					// die
+		<<			"php_error_docref (NULL TSRMLS_CC, E_ERROR, "
+		<<				"\"Call to undefined function %s()\", \"" 
+		<< 			*name << "\");\n"
+		<< 	"}\n"
+		<< "}\n"
 
-			<< "zend_function* signature = fcic.function_handler;\n"
-			<< "zend_arg_info* arg_info = signature->common.arg_info;\n"
-			<< "int count = 0;\n"
-			<< "while (arg_info && count < " << index << ")\n"
-			<< "{\n"
-			<<		"count++;\n"
-			<<		"arg_info++;\n"
-			<< "}\n";
+		<< "zend_function* signature = fcic.function_handler;\n"
+		<< "zend_arg_info* arg_info = signature->common.arg_info;\n"
+		<< "int count = 0;\n"
+		<< "while (arg_info && count < " << index << ")\n"
+		<< "{\n"
+		<<		"count++;\n"
+		<<		"arg_info++;\n"
+		<< "}\n"
+		;
 
 		// TODO this could be locally allocated
 		declare ("p_rhs");
 		code
-			<< "p_rhs = p_lhs;\n"
-			<< "zvp_clone (p_rhs, &is_p_rhs_new);\n"
-			<< "if (count == " << index << ")\n"
-			<< "{\n"
-			<<		"ZVAL_BOOL (*p_rhs, arg_info->pass_by_reference);\n"
-			<< "}\n"
-			<< "else\n"
-			<< "{\n"
-			<<		"ZVAL_BOOL (*p_rhs, signature->common.pass_rest_by_reference);\n"
-			<< "}\n"
-			<<	"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
+		<< "p_rhs = p_lhs;\n"
+		<< "zvp_clone (p_rhs, &is_p_rhs_new);\n"
+		<< "if (count == " << index << ")\n"
+		<< "{\n"
+		<<		"ZVAL_BOOL (*p_rhs, arg_info->pass_by_reference);\n"
+		<< "}\n"
+		<< "else\n"
+		<< "{\n"
+		<<		"ZVAL_BOOL (*p_rhs, signature->common.pass_rest_by_reference);\n"
+		<< "}\n"
+		<<	"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
+		;
 
 		cleanup ("p_rhs");
 
@@ -1472,27 +1461,28 @@ public:
 		// put it in directly for non-reference lhss, and use the
 		// data directly without copying for reference lhss.
 		code
-			<< "if (!(*p_lhs)->is_ref)\n"
-			<< "{\n"
-			<<		"zval_ptr_dtor (p_lhs);\n"
-			<<		"get_constant ( "
-			<<			"\"" << *name << "\", "
-			<<			name->length() << ", " // exclude NULL-terminator
-			<<			"p_lhs "
-			<<			" TSRMLS_CC);\n"
-			<< "}\n"
-			<< "else\n"
-			<< "{\n"
-			<<		"zval* constant;\n"
-			<<		"get_constant ( "
-			<<			"\"" << *name << "\", "
-			<<			name->length() << ", " // exclude NULL-terminator
-			<<			"&constant "
-			<<			" TSRMLS_CC);\n"
-			// get_constant guarantees new memory, so we can reuse the data, rather than copy and delete it
-			<<		"overwrite_lhs_no_copy (*p_lhs, constant);\n"
-			<<		"safe_free_zval_ptr (constant);\n"
-			<< "}\n";
+		<< "if (!(*p_lhs)->is_ref)\n"
+		<< "{\n"
+		<<		"zval_ptr_dtor (p_lhs);\n"
+		<<		"get_constant ( "
+		<<			"\"" << *name << "\", "
+		<<			name->length() << ", " // exclude NULL-terminator
+		<<			"p_lhs "
+		<<			" TSRMLS_CC);\n"
+		<< "}\n"
+		<< "else\n"
+		<< "{\n"
+		<<		"zval* constant;\n"
+		<<		"get_constant ( "
+		<<			"\"" << *name << "\", "
+		<<			name->length() << ", " // exclude NULL-terminator
+		<<			"&constant "
+		<<			" TSRMLS_CC);\n"
+		// get_constant guarantees new memory, so we can reuse the data, rather than copy and delete it
+		<<		"overwrite_lhs_no_copy (*p_lhs, constant);\n"
+		<<		"safe_free_zval_ptr (constant);\n"
+		<< "}\n"
+		;
 	}
 
 protected:
@@ -1573,25 +1563,25 @@ public:
 			// create a result
 			declare ("p_rhs");
 			code 
-				<< "zval* temp = NULL;\n"
-				<< "ALLOC_INIT_ZVAL (temp);\n"
-				<< "is_p_rhs_new = 1;\n"
-				<< "p_rhs = &temp;\n"
-				<< "phc_builtin_" << *method_name->value->value << " (p_arg, *p_rhs TSRMLS_CC);\n";
+			<< "zval* temp = NULL;\n"
+			<< "ALLOC_INIT_ZVAL (temp);\n"
+			<< "is_p_rhs_new = 1;\n"
+			<< "p_rhs = &temp;\n"
+			<< "phc_builtin_" << *method_name->value->value << " (p_arg, *p_rhs TSRMLS_CC);\n";
 
 			if (!agn->is_ref)
 			{
 				code 
-					<< "write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
+				<< "write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
 			}
 			else
 			{
 				code 
-					<< "sep_copy_on_write_ex (p_rhs);\n"
-					<< "(*p_rhs)->is_ref = 1;\n"
-					<< "(*p_rhs)->refcount++;\n"
-					<< "zval_ptr_dtor (p_lhs);\n"
-					<< "*p_lhs = *p_rhs;\n";
+				<< "sep_copy_on_write_ex (p_rhs);\n"
+				<< "(*p_rhs)->is_ref = 1;\n"
+				<< "(*p_rhs)->refcount++;\n"
+				<< "zval_ptr_dtor (p_lhs);\n"
+				<< "*p_lhs = *p_rhs;\n";
 			}
 			cleanup ("p_rhs");
 		}
@@ -1633,51 +1623,49 @@ public:
 
 		int num_args = rhs->value->actual_parameters->size();
 		code
-			// lookup the function and cache it for next time
-			<< "// Call the function\n"
-			<< "static zend_fcall_info fci;\n"
-			<< "static zend_fcall_info_cache fcic = {0,NULL,NULL,NULL};\n"
-			<< "if (!fcic.initialized)\n"
-			<< "{\n"
-			<<		"zval function_name;\n"
-			<<		"INIT_PZVAL(&function_name);\n"
-			<<		"ZVAL_STRING(&function_name, "
-			<<			"\"" << *name->value << "\", "
-			<<			"0);\n"
+		// lookup the function and cache it for next time
+		<< "// Call the function\n"
+		<< "static zend_fcall_info fci;\n"
+		<< "static zend_fcall_info_cache fcic = {0,NULL,NULL,NULL};\n"
+		<< "if (!fcic.initialized)\n"
+		<< "{\n"
+		<<		"zval function_name;\n"
+		<<		"INIT_PZVAL(&function_name);\n"
+		<<		"ZVAL_STRING(&function_name, "
+		<<			"\"" << *name->value << "\", "
+		<<			"0);\n"
 
-			<<		"int result = zend_fcall_info_init (&function_name, &fci, &fcic TSRMLS_CC);\n"
-			<< 	"if (result == FAILURE) // check for missing function\n"
-			<< 	"{\n"
-			<<			"phc_setup_error (1, \"" 
-			<< 			*rhs->get_filename () << "\", " 
-			<< 			rhs->get_line_number () << ", "
-			<<				"NULL TSRMLS_CC);\n"
-						// die
-			<<			"php_error_docref (NULL TSRMLS_CC, E_ERROR, "
-			<<				"\"Call to undefined function %s()\", \"" 
-			<< 			*name->value << "\");\n"
-			<< 	"}\n"
-			<< "}\n"
-			<< "zend_function* signature = fcic.function_handler;\n";
+		<<		"int result = zend_fcall_info_init (&function_name, &fci, &fcic TSRMLS_CC);\n"
+		<< 	"if (result == FAILURE) // check for missing function\n"
+		<< 	"{\n"
+		<<			"phc_setup_error (1, \"" 
+		<< 			*rhs->get_filename () << "\", " 
+		<< 			rhs->get_line_number () << ", "
+		<<				"NULL TSRMLS_CC);\n"
+					// die
+		<<			"php_error_docref (NULL TSRMLS_CC, E_ERROR, "
+		<<				"\"Call to undefined function %s()\", \"" 
+		<< 			*name->value << "\");\n"
+		<< 	"}\n"
+		<< "}\n"
+		<< "zend_function* signature = fcic.function_handler;\n"
+		;
 
 
 		// Figure out which parameters need to be passed by reference
 		if (num_args)
 		{
 			code
-				<< "zend_arg_info* arg_info = signature->common.arg_info;\n"
-				<< "int by_ref[" << num_args << "];\n"
-				;
+			<< "zend_arg_info* arg_info = signature->common.arg_info;\n"
+			<< "int by_ref[" << num_args << "];\n"
+			;
 		}
 
 		// TODO: Not 100% this is fully correct; in particular, 
 		// pass_rest_by_reference does not seem to work.
-		for(
-			i = rhs->value->actual_parameters->begin(), index = 0; 
-			i != rhs->value->actual_parameters->end(); 
-			i++, index++)
+		index = 0;
+		foreach (Actual_parameter* param, *rhs->value->actual_parameters)
 		{
-			Actual_parameter* param = dyc<Actual_parameter> (*i);
 			// code << "printf(\"argument '%s' \", arg_info ? arg_info->name : \"(unknown)\");\n";
 			
 			code
@@ -1695,80 +1683,81 @@ public:
 			if(param->is_ref) code << "by_ref[" << index << "] = 1;\n";
 			
 			// code << "printf(\"by reference: %d\\n\", by_ref[" << index << "]);\n";
+			index++;
 		}
 
 		if (num_args)
 		{
 			code 
-				<< "// Setup array of arguments\n"
-				<< "int destruct[" << num_args << "]; // set to 1 if the arg is new\n"
-				<< "zval* args[" << num_args  << "];\n"
-				;
+			<< "// Setup array of arguments\n"
+			<< "int destruct[" << num_args << "]; // set to 1 if the arg is new\n"
+			<< "zval* args[" << num_args  << "];\n"
+			;
 		}
 		code 
-			<< "zval** args_ind[" << num_args  << "];\n";
+		<< "zval** args_ind[" << num_args  << "];\n";
 
-		for(
-			i = rhs->value->actual_parameters->begin(), index = 0; 
-			i != rhs->value->actual_parameters->end(); 
-			i++, index++)
+		index = 0;
+		foreach (Actual_parameter* param, *rhs->value->actual_parameters)
 		{
-			VARIABLE_NAME* var_name = dyc<VARIABLE_NAME>((*i)->rvalue);
+			VARIABLE_NAME* var_name = dyc<VARIABLE_NAME>(param->rvalue);
 
-			code << "destruct[" << index << "] = 0;\n";
-			code 
-				<< "if (by_ref [" << index << "])\n"
-				<< "{\n";
+			code
+			<< "destruct[" << index << "] = 0;\n"
+			<< "if (by_ref [" << index << "])\n"
+			<< "{\n"
 			;
 			read_st (LOCAL, "p_arg", var_name);
 			code
-				<< "	args_ind[" << index << "] = fetch_var_arg_by_ref ("
-				<<				"p_arg);\n"
-				<< "	assert (!in_copy_on_write (*args_ind[" << index << "]));\n"
-				<<	"  args[" << index << "] = *args_ind[" << index << "];\n"
-				<< "}\n"
-				<< "else\n"
-				<< "{\n";
+			<< "	args_ind[" << index << "] = fetch_var_arg_by_ref ("
+			<<				"p_arg);\n"
+			<< "	assert (!in_copy_on_write (*args_ind[" << index << "]));\n"
+			<<	"  args[" << index << "] = *args_ind[" << index << "];\n"
+			<< "}\n"
+			<< "else\n"
+			<< "{\n";
 
 			read_rvalue (LOCAL, "arg", var_name);
 
 			code
-				<< "  args[" << index << "] = fetch_var_arg ("
-				<<				"arg, "
-				<<				"&destruct[" << index << "]);\n"
-				<< " args_ind[" << index << "] = &args[" << index << "];\n"
-				<< "}\n"
-				;
+			<< "  args[" << index << "] = fetch_var_arg ("
+			<<				"arg, "
+			<<				"&destruct[" << index << "]);\n"
+			<< " args_ind[" << index << "] = &args[" << index << "];\n"
+			<< "}\n"
+			;
+
+			index++;
 		}
 
 		code
-			<< "phc_setup_error (1, \""
-			<<				*rhs->get_filename () << "\", " 
-			<<				rhs->get_line_number () << ", "
-			<< "			NULL TSRMLS_CC);\n"
+		<< "phc_setup_error (1, \""
+		<<				*rhs->get_filename () << "\", " 
+		<<				rhs->get_line_number () << ", "
+		<< "			NULL TSRMLS_CC);\n"
 
-			// save existing paramters, in case of recursion
-			<< "int param_count_save = fci.param_count;\n"
-			<< "zval*** params_save = fci.params;\n"
-			<< "zval** retval_save = fci.retval_ptr_ptr;\n"
+		// save existing paramters, in case of recursion
+		<< "int param_count_save = fci.param_count;\n"
+		<< "zval*** params_save = fci.params;\n"
+		<< "zval** retval_save = fci.retval_ptr_ptr;\n"
 
-			// set up params
-			<< "fci.params = args_ind;\n"
-			<< "fci.param_count = " << num_args << ";\n"
-			<< "fci.retval_ptr_ptr = p_rhs;\n"
+		// set up params
+		<< "fci.params = args_ind;\n"
+		<< "fci.param_count = " << num_args << ";\n"
+		<< "fci.retval_ptr_ptr = p_rhs;\n"
 
-			// call the function
-			<< "int success = zend_call_function (&fci, &fcic TSRMLS_CC);\n"
-			<< "assert(success == SUCCESS);\n"
+		// call the function
+		<< "int success = zend_call_function (&fci, &fcic TSRMLS_CC);\n"
+		<< "assert(success == SUCCESS);\n"
 
-			// restore params
-			<< "fci.params = params_save;\n"
-			<< "fci.param_count = param_count_save;\n"
-			<< "fci.retval_ptr_ptr = retval_save;\n"
+		// restore params
+		<< "fci.params = params_save;\n"
+		<< "fci.param_count = param_count_save;\n"
+		<< "fci.retval_ptr_ptr = retval_save;\n"
 
-			// unset the errors
-			<< "phc_setup_error (0, NULL, 0, NULL TSRMLS_CC);\n"
-			;
+		// unset the errors
+		<< "phc_setup_error (0, NULL, 0, NULL TSRMLS_CC);\n"
+		;
 
 		// Workaround a bug (feature?) of the Zend API that I don't
 		// know how to solve otherwise. It seems that Zend resets the
@@ -1784,32 +1773,30 @@ public:
 		// when calling eval'd functions, because they do in fact
 		// return the correct refcount.
 		code 
-			<< "if(signature->common.return_reference)\n"
-			<< "{\n"
-			<< "	assert (*p_rhs != EG(uninitialized_zval_ptr));\n"
-			<< "	(*p_rhs)->is_ref = 1;\n"
-			// TODO what happens if there's supposed to be 8 or 10
-			// references to it.
-			<< "  if (signature->type == ZEND_USER_FUNCTION)\n"
-			<< "		is_p_rhs_new = 1;\n"
-			<< "}\n"
-			<< "else\n"
-			<< "{\n"
-			<< "	is_p_rhs_new = 1;\n"
-			<< "}\n" ;
+		<< "if(signature->common.return_reference)\n"
+		<< "{\n"
+		<< "	assert (*p_rhs != EG(uninitialized_zval_ptr));\n"
+		<< "	(*p_rhs)->is_ref = 1;\n"
+		// TODO what happens if there's supposed to be 8 or 10
+		// references to it.
+		<< "  if (signature->type == ZEND_USER_FUNCTION)\n"
+		<< "		is_p_rhs_new = 1;\n"
+		<< "}\n"
+		<< "else\n"
+		<< "{\n"
+		<< "	is_p_rhs_new = 1;\n"
+		<< "}\n" ;
 
-		for(
-			i = rhs->value->actual_parameters->begin(), index = 0; 
-			i != rhs->value->actual_parameters->end(); 
-			i++, index++)
+		for (index = 0; index < rhs->value->actual_parameters->size (); index++)
 		{
 			// TODO put the for loop into generated code
 			code 
-				<< "if (destruct[" << index << "])\n"
-				<< "{\n"
-				<< "	assert (destruct[" << index << "] == 1);\n"
-				<< "	zval_ptr_dtor (args_ind[" << index << "]);\n"
-				<< "}\n";
+			<< "if (destruct[" << index << "])\n"
+			<< "{\n"
+			<< "	assert (destruct[" << index << "] == 1);\n"
+			<< "	zval_ptr_dtor (args_ind[" << index << "]);\n"
+			<< "}\n"
+			;
 		}
 
 		if (lhs)
@@ -1817,16 +1804,17 @@ public:
 			if (!agn->is_ref)
 			{
 				code 
-					<< "write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
+				<< "write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
 			}
 			else
 			{
 				code 
-					<< "sep_copy_on_write_ex (p_rhs);\n"
-					<< "(*p_rhs)->is_ref = 1;\n"
-					<< "(*p_rhs)->refcount++;\n"
-					<< "zval_ptr_dtor (p_lhs);\n"
-					<< "*p_lhs = *p_rhs;\n";
+				<< "sep_copy_on_write_ex (p_rhs);\n"
+				<< "(*p_rhs)->is_ref = 1;\n"
+				<< "(*p_rhs)->refcount++;\n"
+				<< "zval_ptr_dtor (p_lhs);\n"
+				<< "*p_lhs = *p_rhs;\n"
+				;
 			}
 		}
 		cleanup ("p_rhs");
@@ -1862,13 +1850,13 @@ public:
 		read_rvalue (LOCAL, "right", right->value);
 
 		code
-			<< "if (in_copy_on_write (*p_lhs))\n"
-			<< "{\n"
-			<< "	zval_ptr_dtor (p_lhs);\n"
-			<< "	ALLOC_INIT_ZVAL (*p_lhs);\n"
-			<< "}\n"
-			<< "zval old = **p_lhs;\n"
-			<< "int result_is_operand = (*p_lhs == left || *p_lhs == right)\n;";
+		<< "if (in_copy_on_write (*p_lhs))\n"
+		<< "{\n"
+		<< "	zval_ptr_dtor (p_lhs);\n"
+		<< "	ALLOC_INIT_ZVAL (*p_lhs);\n"
+		<< "}\n"
+		<< "zval old = **p_lhs;\n"
+		<< "int result_is_operand = (*p_lhs == left || *p_lhs == right)\n;";
 
 		// some operators need the operands to be reversed (since we
 		// call the opposite function). This is accounted for in the
@@ -1881,9 +1869,8 @@ public:
 		// If the result is one of the operand, the operator function
 		// will already have cleaned up the result
 		code
-			<< "if (!result_is_operand)\n"
-			<<		"zval_dtor (&old);\n";
-
+		<< "if (!result_is_operand)\n"
+		<<		"zval_dtor (&old);\n";
 	}
 
 protected:
@@ -1914,20 +1901,19 @@ public:
 		read_rvalue (LOCAL, "expr", var_name->value);
 
 		code
-			<< "if (in_copy_on_write (*p_lhs))\n"
-			<< "{\n"
-			<< "	zval_ptr_dtor (p_lhs);\n"
-			<< "	ALLOC_INIT_ZVAL (*p_lhs);\n"
-			<< "}\n"
-			<< "zval old = **p_lhs;\n"
-			<< "int result_is_operand = (*p_lhs == expr)\n;";
+		<< "if (in_copy_on_write (*p_lhs))\n"
+		<< "{\n"
+		<< "	zval_ptr_dtor (p_lhs);\n"
+		<< "	ALLOC_INIT_ZVAL (*p_lhs);\n"
+		<< "}\n"
+		<< "zval old = **p_lhs;\n"
+		<< "int result_is_operand = (*p_lhs == expr)\n;"
 
-		code 
-			<< op_fn << "(*p_lhs, expr TSRMLS_CC);\n" ;
+		<< op_fn << "(*p_lhs, expr TSRMLS_CC);\n"
 
-		code
-			<< "if (!result_is_operand)\n"
-			<<		"zval_dtor (&old);\n";
+		<< "if (!result_is_operand)\n"
+		<<		"zval_dtor (&old);\n"
+		;
 
 	}
 
