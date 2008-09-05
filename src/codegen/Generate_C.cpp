@@ -371,16 +371,15 @@ string global (Variable_name* var_name)
 {
 	stringstream ss;
 	ss
-	<< "{\n" // TODO move this to caller
-	<<		index_lhs (LOCAL, "p_local_global_var", var_name) // lhs
-	<<		index_lhs (GLOBAL, "p_global_var", var_name) // rhs
+	<<	index_lhs (LOCAL, "p_local_global_var", var_name) // lhs
+	<<	index_lhs (GLOBAL, "p_global_var", var_name) // rhs
 	// Note that p_global_var can be in the copy-on-write set.
-	<<		"sep_copy_on_write_ex (p_global_var);\n"
-	<<		"(*p_global_var)->is_ref = 1;\n"
-	<<		"(*p_global_var)->refcount++;\n"
-	<<		"zval_ptr_dtor (p_local_global_var);\n"
-	<<		"*p_local_global_var = *p_global_var;\n"
-	<< "}\n";
+	<<	"sep_copy_on_write_ex (p_global_var);\n"
+	<<	"(*p_global_var)->is_ref = 1;\n"
+	<<	"(*p_global_var)->refcount++;\n"
+	<<	"zval_ptr_dtor (p_local_global_var);\n"
+	<<	"*p_local_global_var = *p_global_var;\n"
+	;
 	return ss.str();
 }
 
@@ -436,7 +435,7 @@ public:
 class Pattern 
 {
 public:
-	Pattern () : use_scope (false) {}
+	Pattern () : use_scope (true) {}
 	virtual bool match(Statement* that) = 0;
 	virtual void generate_code(Generate_C* gen) = 0;
 	virtual ~Pattern() {}
@@ -449,6 +448,7 @@ class Pattern_method_definition : public Pattern
 public:
 	bool match(Statement* that)
 	{
+		use_scope = false;
 		pattern = new Wildcard<Method>;
 		return that->match(pattern);
 	}
@@ -693,6 +693,7 @@ class Pattern_label : public Pattern
 public:
 	bool match(Statement* that)
 	{
+		use_scope = false;
 		label = new Wildcard<LABEL_NAME>;
 		return that->match(new Label(label));
 	}
@@ -724,15 +725,14 @@ public:
 	void generate_code(Generate_C* gen)
 	{
 		code 
-		<< "{\n"
-		<<		read_rvalue (LOCAL, "p_cond", cond->value)
+		<<	read_rvalue (LOCAL, "p_cond", cond->value)
 
-		<<		"zend_bool bcond = zend_is_true (p_cond);\n"
-		<<		"if (bcond)\n"
-		<<		"	goto " << *iftrue->value->value << ";\n"
-		<<		"else\n"
-		<<		"	goto " << *iffalse->value->value << ";\n"
-		<< "}\n";
+		<<	"zend_bool bcond = zend_is_true (p_cond);\n"
+		<<	"if (bcond)\n"
+		<<	"	goto " << *iftrue->value->value << ";\n"
+		<<	"else\n"
+		<<	"	goto " << *iffalse->value->value << ";\n"
+		;
 	}
 
 protected:
@@ -795,19 +795,16 @@ public:
 	void generate_code(Generate_C* gen)
 	{
 		code 
-		<< "{\n"
-		<<		index_assign_var (LOCAL, "p_lhs", lhs->value)
+		<<	index_assign_var (LOCAL, "p_lhs", lhs->value)
 
-		<<		"if (p_lhs != NULL)\n"
-		<<		"{\n";
+		<<	"if (p_lhs != NULL)\n"
+		<<	"{\n";
 
 		// Generate code for the RHS
 		generate_rhs ();
 
 		code 
-		<<		"}\n"
-		<< "}\n"
-		<< "phc_check_invariants (TSRMLS_C);\n"
+		<<	"}\n"
 		;
 	}
 
@@ -868,15 +865,13 @@ public:
 		assert (rhs->value);
 
 		code 
-		<< "{\n"
-		<<		index_assign_array (LOCAL, "p_lhs", lhs->value, index->value)
+		<<	index_assign_array (LOCAL, "p_lhs", lhs->value, index->value)
 
-		<<		"if (p_lhs != NULL)\n"
-		<<		"{\n"
-		<<			assign_rhs (agn->is_ref, rhs->value)
-		<<		"}\n"
-		<< "}\n"
-		<< "phc_check_invariants (TSRMLS_C);\n";
+		<<	"if (p_lhs != NULL)\n"
+		<<	"{\n"
+		<<		assign_rhs (agn->is_ref, rhs->value)
+		<<	"}\n"
+		;
 	}
 
 protected:
@@ -936,20 +931,18 @@ public:
 		assert (rhs->value);
 
 		code 
-		<< "{\n"
-		<<		"zval** p_lhs;\n"
+		<<	"zval** p_lhs;\n"
 
 		<< read_st (LOCAL, "p_lhs_var", lhs->value)
 
-		<<	"	// Array push \n"
-		<<	"	p_lhs = push_and_index_ht (p_lhs_var TSRMLS_CC);\n"
-		<<	""
-		<<	"	if (p_lhs != NULL)\n"
-		<<	"	{\n"
-		<< push_rhs (agn->is_ref, rhs->value)
-		<<		"}\n"
-		<< "}\n"
-		<< "phc_check_invariants (TSRMLS_C);\n";
+		<<	"// Array push \n"
+		<<	"p_lhs = push_and_index_ht (p_lhs_var TSRMLS_CC);\n"
+		
+		<<	"if (p_lhs != NULL)\n"
+		<<	"{\n"
+		<<		push_rhs (agn->is_ref, rhs->value)
+		<<	"}\n"
+		;
 	}
 
 protected:
@@ -1956,13 +1949,11 @@ public:
 
 
 		code 
-		<< "{\n"
-		<<		read_st (LOCAL, "p_var", var->value)
+		<<	read_st (LOCAL, "p_var", var->value)
 
-		<<		"sep_copy_on_write_ex (p_var);\n"
-		<<		op_fn << "(*p_var);\n"
-
-		<< "}\n";
+		<<	"sep_copy_on_write_ex (p_var);\n"
+		<<	op_fn << "(*p_var);\n"
+		;
 	}
 
 protected:
@@ -1981,7 +1972,6 @@ class Pattern_return : public Pattern
 
 	void generate_code(Generate_C* gen)
 	{
-		code << "{\n";
 		if(!gen->return_by_reference)
 		{
 			code 
@@ -2012,7 +2002,6 @@ class Pattern_return : public Pattern
 
 		code 
 		<< "goto end_of_function;\n"
-		<< "}\n"
 		;
 	}
 
@@ -2030,8 +2019,6 @@ class Pattern_unset : public Pattern
 
 	void generate_code(Generate_C* gen)
 	{
-		code << "{\n";
-
 		VARIABLE_NAME* var_name = dynamic_cast <VARIABLE_NAME*> (unset->value->variable_name);
 
 		if (var_name != NULL)
@@ -2079,7 +2066,6 @@ class Pattern_unset : public Pattern
 			// Variable variable
 			phc_unsupported (unset);
 		}
-		code << "}\n";
 	}
 
 protected:
@@ -2096,8 +2082,6 @@ class Pattern_isset : public Pattern_assign_zval
 
 	void initialize(ostream& code, string lhs)
 	{
-		code << "{\n";
-
 		VARIABLE_NAME* var_name = dynamic_cast<VARIABLE_NAME*> (isset->value->variable_name);
 
 		if (var_name)
@@ -2144,7 +2128,6 @@ class Pattern_isset : public Pattern_assign_zval
 			// TODO
 			phc_unsupported (isset);
 		}
-		code << "}\n";
 	}
 
 protected:
@@ -2171,27 +2154,25 @@ class Pattern_method_alias : public Pattern
 		method_name.toLower();
 
 		code
-		<< "{\n"
-		<<		"zend_function* existing;\n"
-		<<		"// find the existing function\n"
-		<<		"int result = zend_hash_find ("
-		<<			"EG (function_table),"
-		<<			"\"" << method_name << "\", "
-		<<			(method_name.size()+1) << ", "
-		<<			"(void**) &existing);\n"
-		<<		"assert (result == SUCCESS);\n"
-		<<		"// rename it\n"
-		<<		"existing->common.function_name = \"" << alias_name << "\";"
-		<<		"// add it with the new name\n"
-		<<		"result = zend_hash_add ("
-		<<			"EG (function_table),"
-		<<			"\"" << alias_name << "\", "
-		<<			(alias_name.size()+1) << ", "
-		<<			"(void**)existing,"
-		<<			"sizeof(zend_function),"
-		<<			"NULL);\n"
-		<<		"assert (result == SUCCESS);\n"
-		<< "}\n"
+		<<	"zend_function* existing;\n"
+		<<	"// find the existing function\n"
+		<<	"int result = zend_hash_find ("
+		<<		"EG (function_table),"
+		<<		"\"" << method_name << "\", "
+		<<		(method_name.size()+1) << ", "
+		<<		"(void**) &existing);\n"
+		<<	"assert (result == SUCCESS);\n"
+		<<	"// rename it\n"
+		<<	"existing->common.function_name = \"" << alias_name << "\";"
+		<<	"// add it with the new name\n"
+		<<	"result = zend_hash_add ("
+		<<		"EG (function_table),"
+		<<		"\"" << alias_name << "\", "
+		<<		(alias_name.size()+1) << ", "
+		<<		"(void**)existing,"
+		<<		"sizeof(zend_function),"
+		<<		"NULL);\n"
+		<<	"assert (result == SUCCESS);\n"
 		;
 	}
 
@@ -2232,27 +2213,25 @@ class Pattern_class_or_interface_alias : public Pattern
 		aliased_name->toLower();
 
 		code
-		<< "{\n"
-		<<		"zend_class_entry* existing;\n"
-		<<		"// find the existing class_entry\n"
-		<<		"int result = zend_hash_find ("
-		<<			"EG (class_table),"
-		<<			"\"" << *aliased_name << "\", "
-		<<			(aliased_name->size()+1) << ", "
-		<<			"(void**) &existing);\n"
-		<<		"assert (result == SUCCESS);\n"
-		<<		"// rename it\n"
-		<<		"existing->name = \"" << *alias_name << "\";"
-		<<		"// add it with the new name\n"
-		<<		"result = zend_hash_add ("
-		<<			"EG (class_table),"
-		<<			"\"" << *alias_name << "\", "
-		<<			(alias_name->size()+1) << ", "
-		<<			"(void**)existing,"
-		<<			"sizeof(zend_entry),"
-		<<			"NULL);\n"
-		<<		"assert (result == SUCCESS);\n"
-		<< "}\n"
+		<<	"zend_class_entry* existing;\n"
+		<<	"// find the existing class_entry\n"
+		<<	"int result = zend_hash_find ("
+		<<		"EG (class_table),"
+		<<		"\"" << *aliased_name << "\", "
+		<<		(aliased_name->size()+1) << ", "
+		<<		"(void**) &existing);\n"
+		<<	"assert (result == SUCCESS);\n"
+		<<	"// rename it\n"
+		<<	"existing->name = \"" << *alias_name << "\";"
+		<<	"// add it with the new name\n"
+		<<	"result = zend_hash_add ("
+		<<		"EG (class_table),"
+		<<		"\"" << *alias_name << "\", "
+		<<		(alias_name->size()+1) << ", "
+		<<		"(void**)existing,"
+		<<		"sizeof(zend_entry),"
+		<<		"NULL);\n"
+		<<	"assert (result == SUCCESS);\n"
 		;
 	}
 
@@ -2272,13 +2251,14 @@ class Pattern_foreach_reset : public Pattern
 {
 	bool match (Statement* that)
 	{
+		use_scope = false;
 		reset = new Wildcard<Foreach_reset>;
 		return that->match (reset);
 	}
 
 	void generate_code(Generate_C* gen)
 	{
-		// declare the external iterator so outside local scope blocks
+		// declare the external iterator outside local scope blocks
 		code
 		<< "HashPosition " << *reset->value->iter->value << ";\n"
 		<< "{\n"
@@ -2416,13 +2396,11 @@ class Pattern_foreach_next: public Pattern
 	void generate_code (Generate_C* gen)
 	{
 		code
-		<< "{\n"
-		<<		read_rvalue (LOCAL, "fe_array", next->value->array)
-		<<		"int result = zend_hash_move_forward_ex ("
-		<<							"fe_array->value.ht, "
-		<<							"&" << *next->value->iter->value << ");\n"
-		<<		"assert (result == SUCCESS);\n"
-		<< "}\n"
+		<<	read_rvalue (LOCAL, "fe_array", next->value->array)
+		<<	"int result = zend_hash_move_forward_ex ("
+		<<						"fe_array->value.ht, "
+		<<						"&" << *next->value->iter->value << ");\n"
+		<<	"assert (result == SUCCESS);\n"
 		;
 	}
 
@@ -2441,12 +2419,10 @@ class Pattern_foreach_end : public Pattern
 	void generate_code(Generate_C* gen)
 	{
 		code
-		<< "{\n"
-		<<		read_rvalue (LOCAL, "fe_array", end->value->array)
-		<<		"zend_hash_internal_pointer_end_ex ("
-		<<							"fe_array->value.ht, "
-		<<							"&" << *end->value->iter->value << ");\n"
-		<< "}\n"
+		<<	read_rvalue (LOCAL, "fe_array", end->value->array)
+		<<	"zend_hash_internal_pointer_end_ex ("
+		<<						"fe_array->value.ht, "
+		<<						"&" << *end->value->iter->value << ");\n"
 		;
 	}
 
@@ -2529,7 +2505,11 @@ void Generate_C::children_statement(Statement* in)
 			patterns[i]->generate_code(this);
 
 			if (brackets)
-				code << "}\n";
+			{
+				code
+				<<		"phc_check_invariants (TSRMLS_C);\n"
+				<< "}\n";
+			}
 
 			matched = true;
 			break;
