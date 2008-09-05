@@ -44,6 +44,9 @@ public:
     virtual void pre_attribute(Attribute* in);
     virtual void pre_attr_mod(Attr_mod* in);
     virtual void pre_name_with_default(Name_with_default* in);
+    virtual void pre_class_alias(Class_alias* in);
+    virtual void pre_interface_alias(Interface_alias* in);
+    virtual void pre_method_alias(Method_alias* in);
     virtual void pre_return(Return* in);
     virtual void pre_static_declaration(Static_declaration* in);
     virtual void pre_global(Global* in);
@@ -130,6 +133,9 @@ public:
     virtual void post_attribute(Attribute* in);
     virtual void post_attr_mod(Attr_mod* in);
     virtual void post_name_with_default(Name_with_default* in);
+    virtual void post_class_alias(Class_alias* in);
+    virtual void post_interface_alias(Interface_alias* in);
+    virtual void post_method_alias(Method_alias* in);
     virtual void post_return(Return* in);
     virtual void post_static_declaration(Static_declaration* in);
     virtual void post_global(Global* in);
@@ -213,6 +219,9 @@ public:
     virtual void children_attribute(Attribute* in);
     virtual void children_attr_mod(Attr_mod* in);
     virtual void children_name_with_default(Name_with_default* in);
+    virtual void children_class_alias(Class_alias* in);
+    virtual void children_interface_alias(Interface_alias* in);
+    virtual void children_method_alias(Method_alias* in);
     virtual void children_return(Return* in);
     virtual void children_static_declaration(Static_declaration* in);
     virtual void children_global(Global* in);
@@ -295,6 +304,9 @@ public:
     virtual void pre_attribute_chain(Attribute* in);
     virtual void pre_attr_mod_chain(Attr_mod* in);
     virtual void pre_name_with_default_chain(Name_with_default* in);
+    virtual void pre_class_alias_chain(Class_alias* in);
+    virtual void pre_interface_alias_chain(Interface_alias* in);
+    virtual void pre_method_alias_chain(Method_alias* in);
     virtual void pre_return_chain(Return* in);
     virtual void pre_static_declaration_chain(Static_declaration* in);
     virtual void pre_global_chain(Global* in);
@@ -369,6 +381,9 @@ public:
     virtual void post_attribute_chain(Attribute* in);
     virtual void post_attr_mod_chain(Attr_mod* in);
     virtual void post_name_with_default_chain(Name_with_default* in);
+    virtual void post_class_alias_chain(Class_alias* in);
+    virtual void post_interface_alias_chain(Interface_alias* in);
+    virtual void post_method_alias_chain(Method_alias* in);
     virtual void post_return_chain(Return* in);
     virtual void post_static_declaration_chain(Static_declaration* in);
     virtual void post_global_chain(Global* in);

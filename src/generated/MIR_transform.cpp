@@ -66,6 +66,21 @@ Name_with_default* Transform::pre_name_with_default(Name_with_default* in)
     return in;
 }
 
+void Transform::pre_class_alias(Class_alias* in, Statement_list* out)
+{
+    out->push_back(in);
+}
+
+void Transform::pre_interface_alias(Interface_alias* in, Statement_list* out)
+{
+    out->push_back(in);
+}
+
+void Transform::pre_method_alias(Method_alias* in, Statement_list* out)
+{
+    out->push_back(in);
+}
+
 void Transform::pre_return(Return* in, Statement_list* out)
 {
     out->push_back(in);
@@ -415,6 +430,21 @@ Attr_mod* Transform::post_attr_mod(Attr_mod* in)
 Name_with_default* Transform::post_name_with_default(Name_with_default* in)
 {
     return in;
+}
+
+void Transform::post_class_alias(Class_alias* in, Statement_list* out)
+{
+    out->push_back(in);
+}
+
+void Transform::post_interface_alias(Interface_alias* in, Statement_list* out)
+{
+    out->push_back(in);
+}
+
+void Transform::post_method_alias(Method_alias* in, Statement_list* out)
+{
+    out->push_back(in);
 }
 
 void Transform::post_return(Return* in, Statement_list* out)
@@ -775,6 +805,24 @@ void Transform::children_name_with_default(Name_with_default* in)
 {
     in->variable_name = transform_variable_name(in->variable_name);
     in->default_value = transform_static_value(in->default_value);
+}
+
+void Transform::children_class_alias(Class_alias* in)
+{
+    in->alias = transform_class_name(in->alias);
+    in->class_name = transform_class_name(in->class_name);
+}
+
+void Transform::children_interface_alias(Interface_alias* in)
+{
+    in->alias = transform_interface_name(in->alias);
+    in->interface_name = transform_interface_name(in->interface_name);
+}
+
+void Transform::children_method_alias(Method_alias* in)
+{
+    in->alias = transform_method_name(in->alias);
+    in->method_name = transform_method_name(in->method_name);
 }
 
 void Transform::children_return(Return* in)
@@ -1793,6 +1841,33 @@ void Transform::pre_statement(Statement* in, Statement_list* out)
     			out->push_back(*i);
     	}
     	return;
+    case Class_alias::ID: 
+    	{
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
+    		pre_class_alias(dynamic_cast<Class_alias*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    case Interface_alias::ID: 
+    	{
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
+    		pre_interface_alias(dynamic_cast<Interface_alias*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    case Method_alias::ID: 
+    	{
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
+    		pre_method_alias(dynamic_cast<Method_alias*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
     case Return::ID: 
     	{
     		Statement_list* local_out = new Statement_list;
@@ -2153,6 +2228,33 @@ void Transform::post_statement(Statement* in, Statement_list* out)
     			out->push_back(*i);
     	}
     	return;
+    case Class_alias::ID: 
+    	{
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
+    		post_class_alias(dynamic_cast<Class_alias*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    case Interface_alias::ID: 
+    	{
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
+    		post_interface_alias(dynamic_cast<Interface_alias*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    case Method_alias::ID: 
+    	{
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
+    		post_method_alias(dynamic_cast<Method_alias*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
     case Return::ID: 
     	{
     		Statement_list* local_out = new Statement_list;
@@ -2494,6 +2596,15 @@ void Transform::children_statement(Statement* in)
     	break;
     case Method::ID:
     	children_method(dynamic_cast<Method*>(in));
+    	break;
+    case Class_alias::ID:
+    	children_class_alias(dynamic_cast<Class_alias*>(in));
+    	break;
+    case Interface_alias::ID:
+    	children_interface_alias(dynamic_cast<Interface_alias*>(in));
+    	break;
+    case Method_alias::ID:
+    	children_method_alias(dynamic_cast<Method_alias*>(in));
     	break;
     case Return::ID:
     	children_return(dynamic_cast<Return*>(in));

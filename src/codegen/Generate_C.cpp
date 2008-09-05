@@ -45,6 +45,7 @@ void phc_unsupported (Node* node)
 {
 	cerr << "Could not generate code:" << endl;
 	node->visit (new MIR_unparser (cerr, true));
+	cerr << endl;
 	xml_unparse (node, cerr);
 	exit (-1);
 }
@@ -2149,10 +2150,123 @@ protected:
 };
 
 /*
+ * Aliases
+ */
+
+class Pattern_method_alias : public Pattern
+{
+	bool match (Statement* that)
+	{
+		alias = new Wildcard<Method_alias>;
+		return that->match (alias);
+	}
+
+	void generate_code(Generate_C* gen)
+	{
+		String alias_name = *alias->value->alias->value->clone();
+		alias_name.toLower();
+		String method_name = *alias->value->method_name->value->clone();
+		method_name.toLower();
+
+		code
+		<< "{\n"
+		<<		"zend_function* existing;\n"
+		<<		"// find the existing function\n"
+		<<		"int result = zend_hash_find ("
+		<<			"EG (function_table),"
+		<<			"\"" << method_name << "\", "
+		<<			(method_name.size()+1) << ", "
+		<<			"(void**) &existing);\n"
+		<<		"assert (result == SUCCESS);\n"
+		<<		"// rename it\n"
+		<<		"existing->common.function_name = \"" << alias_name << "\";"
+		<<		"// add it with the new name\n"
+		<<		"result = zend_hash_add ("
+		<<			"EG (function_table),"
+		<<			"\"" << alias_name << "\", "
+		<<			(alias_name.size()+1) << ", "
+		<<			"(void**)existing,"
+		<<			"sizeof(zend_function),"
+		<<			"NULL);\n"
+		<<		"assert (result == SUCCESS);\n"
+		<< "}\n"
+		;
+	}
+
+protected:
+	Wildcard<Method_alias>* alias;
+};
+
+class Pattern_class_or_interface_alias : public Pattern
+{
+	bool match (Statement* that)
+	{
+		class_alias = new Wildcard<Class_alias>;
+		interface_alias = new Wildcard<Interface_alias>;
+		return that->match (class_alias)
+			|| that->match (interface_alias);
+	}
+
+	void generate_code(Generate_C* gen)
+	{
+		String* aliased_name;
+		String* alias_name;
+
+		if (interface_alias->value)
+		{
+			aliased_name = interface_alias->value->interface_name->value;
+			alias_name = interface_alias->value->alias->value;
+		}
+		else if (class_alias->value)
+		{
+			aliased_name = class_alias->value->class_name->value;
+			alias_name = class_alias->value->alias->value;
+		}
+
+		alias_name = alias_name->clone ();
+		alias_name->toLower();
+
+		aliased_name = aliased_name->clone ();
+		aliased_name->toLower();
+
+		code
+		<< "{\n"
+		<<		"zend_class_entry* existing;\n"
+		<<		"// find the existing class_entry\n"
+		<<		"int result = zend_hash_find ("
+		<<			"EG (class_table),"
+		<<			"\"" << *aliased_name << "\", "
+		<<			(aliased_name->size()+1) << ", "
+		<<			"(void**) &existing);\n"
+		<<		"assert (result == SUCCESS);\n"
+		<<		"// rename it\n"
+		<<		"existing->name = \"" << *alias_name << "\";"
+		<<		"// add it with the new name\n"
+		<<		"result = zend_hash_add ("
+		<<			"EG (class_table),"
+		<<			"\"" << *alias_name << "\", "
+		<<			(alias_name->size()+1) << ", "
+		<<			"(void**)existing,"
+		<<			"sizeof(zend_entry),"
+		<<			"NULL);\n"
+		<<		"assert (result == SUCCESS);\n"
+		<< "}\n"
+		;
+	}
+
+protected:
+	Wildcard<Class_alias>* class_alias;
+	Wildcard<Interface_alias>* interface_alias;
+};
+
+
+
+
+/*
  * Foreach patterns
  */
 
-class Pattern_foreach_reset: public Pattern
+class Pattern_foreach_reset : public Pattern
 {
 	bool match (Statement* that)
 	{
@@ -2352,6 +2466,9 @@ void Generate_C::children_statement(Statement* in)
 	  // allowed and result in syntax errors in C. Use // instead.
 		string str;
 		getline (ss, str);
+		if (str == "")
+			continue;
+
 		code << "// " << Pattern_assign_string::escape (s(str)) << endl;
 	}
 
@@ -2383,6 +2500,8 @@ void Generate_C::children_statement(Statement* in)
 	,	new Pattern_goto()
 	,	new Pattern_return()
 	,	new Pattern_cast ()
+	,	new Pattern_class_or_interface_alias ()
+	,	new Pattern_method_alias ()
 	,	new Pattern_foreach_reset ()
 	,	new Pattern_foreach_has_key ()
 	,	new Pattern_foreach_get_key ()

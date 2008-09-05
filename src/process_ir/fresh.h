@@ -27,6 +27,9 @@ namespace AST
 namespace HIR
 {
 	HIR::VARIABLE_NAME* fresh_var_name (string prefix);
+	HIR::CLASS_NAME* fresh_class_name (string prefix);
+	HIR::INTERFACE_NAME* fresh_interface_name (string prefix);
+	HIR::METHOD_NAME* fresh_method_name (string prefix);
 }
 
 namespace MIR

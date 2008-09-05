@@ -39,6 +39,7 @@ class MIR_to_AST : public MIR::Fold
  AST::CONSTANT_NAME*,		// CONSTANT_NAME*
  AST::Cast*,					// Cast*
  AST::Catch*,					// Catch*
+ AST::FOREIGN*,				// Class_alias*
  AST::Class_def*,				// Class_def*
  AST::Class_mod*,				// Class_mod*
  AST::Class_name*,			// Class_name*
@@ -63,6 +64,7 @@ class MIR_to_AST : public MIR::Fold
  AST::INTERFACE_NAME*,		// INTERFACE_NAME*
  AST::Identifier*,			// Identifier*
  AST::Instanceof*,			// Instanceof*
+ AST::FOREIGN*,				// Interface_alias*
  AST::Interface_def*,		// Interface_def*
  AST::Method_invocation*,	// Isset*
  AST::Identifier*,			// LABEL_NAME*
@@ -71,6 +73,7 @@ class MIR_to_AST : public MIR::Fold
  AST::METHOD_NAME*,			// METHOD_NAME*
  AST::Member*,					// Member*
  AST::Method*,					// Method*
+ AST::FOREIGN*,				// Method_alias*
  AST::Method_invocation*,	// Method_invocation*
  AST::Method_mod*,			// Method_mod*
  AST::Method_name*,			// Method_name*
@@ -833,6 +836,21 @@ public:
 	}
 
 	AST::FOREIGN* fold_param_is_ref (MIR::Param_is_ref* orig)
+	{
+		return new AST::FOREIGN (orig);
+	}
+
+	AST::FOREIGN* fold_method_alias (MIR::Method_alias* orig)
+	{
+		return new AST::FOREIGN (orig);
+	}
+
+	AST::FOREIGN* fold_class_alias (MIR::Class_alias* orig)
+	{
+		return new AST::FOREIGN (orig);
+	}
+
+	AST::FOREIGN* fold_interface_alias (MIR::Interface_alias* orig)
 	{
 		return new AST::FOREIGN (orig);
 	}

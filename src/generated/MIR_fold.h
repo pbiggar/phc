@@ -36,6 +36,7 @@ template
  class _CONSTANT_NAME,
  class _Cast,
  class _Catch,
+ class _Class_alias,
  class _Class_def,
  class _Class_mod,
  class _Class_name,
@@ -60,6 +61,7 @@ template
  class _INTERFACE_NAME,
  class _Identifier,
  class _Instanceof,
+ class _Interface_alias,
  class _Interface_def,
  class _Isset,
  class _LABEL_NAME,
@@ -68,6 +70,7 @@ template
  class _METHOD_NAME,
  class _Member,
  class _Method,
+ class _Method_alias,
  class _Method_invocation,
  class _Method_mod,
  class _Method_name,
@@ -110,7 +113,7 @@ class Fold
 {
 // Access this class from subclasses without copying out the template instantiation
 public:
-   typedef Fold<_Actual_parameter, _Array_access, _Assign_array, _Assign_field, _Assign_var, _Assign_var_var, _Attr_mod, _Attribute, _BOOL, _Bin_op, _Branch, _CAST, _CLASS_NAME, _CONSTANT_NAME, _Cast, _Catch, _Class_def, _Class_mod, _Class_name, _Constant, _Eval_expr, _Expr, _FIELD_NAME, _FOREIGN, _Field_access, _Field_name, _Foreach_end, _Foreach_get_key, _Foreach_get_val, _Foreach_has_key, _Foreach_next, _Foreach_reset, _Formal_parameter, _Global, _Goto, _HT_ITERATOR, _INT, _INTERFACE_NAME, _Identifier, _Instanceof, _Interface_def, _Isset, _LABEL_NAME, _Label, _Literal, _METHOD_NAME, _Member, _Method, _Method_invocation, _Method_mod, _Method_name, _NIL, _Name_with_default, _New, _Node, _OP, _PARAM_INDEX, _PHP_script, _Param_is_ref, _Pre_op, _Push_array, _REAL, _Return, _Rvalue, _STRING, _Signature, _Statement, _Static_array, _Static_array_elem, _Static_array_key, _Static_declaration, _Static_value, _Target, _Throw, _Try, _Type, _Unary_op, _Unset, _VARIABLE_NAME, _Variable_class, _Variable_field, _Variable_method, _Variable_name, _Variable_variable, _List> parent;
+   typedef Fold<_Actual_parameter, _Array_access, _Assign_array, _Assign_field, _Assign_var, _Assign_var_var, _Attr_mod, _Attribute, _BOOL, _Bin_op, _Branch, _CAST, _CLASS_NAME, _CONSTANT_NAME, _Cast, _Catch, _Class_alias, _Class_def, _Class_mod, _Class_name, _Constant, _Eval_expr, _Expr, _FIELD_NAME, _FOREIGN, _Field_access, _Field_name, _Foreach_end, _Foreach_get_key, _Foreach_get_val, _Foreach_has_key, _Foreach_next, _Foreach_reset, _Formal_parameter, _Global, _Goto, _HT_ITERATOR, _INT, _INTERFACE_NAME, _Identifier, _Instanceof, _Interface_alias, _Interface_def, _Isset, _LABEL_NAME, _Label, _Literal, _METHOD_NAME, _Member, _Method, _Method_alias, _Method_invocation, _Method_mod, _Method_name, _NIL, _Name_with_default, _New, _Node, _OP, _PARAM_INDEX, _PHP_script, _Param_is_ref, _Pre_op, _Push_array, _REAL, _Return, _Rvalue, _STRING, _Signature, _Statement, _Static_array, _Static_array_elem, _Static_array_key, _Static_declaration, _Static_value, _Target, _Throw, _Try, _Type, _Unary_op, _Unset, _VARIABLE_NAME, _Variable_class, _Variable_field, _Variable_method, _Variable_name, _Variable_variable, _List> parent;
 // Recursively fold the children before folding the parent
 // This methods form the client API for a fold, but should not be
 // overridden unless you know what you are doing
@@ -279,6 +282,33 @@ public:
 		_Static_value default_value = 0;
 		if(in->default_value != NULL) default_value = fold_static_value(in->default_value);
 		return fold_impl_name_with_default(in, variable_name, default_value);
+	}
+
+	virtual _Class_alias fold_class_alias(Class_alias* in)
+	{
+		_CLASS_NAME alias = 0;
+		if(in->alias != NULL) alias = fold_class_name(in->alias);
+		_CLASS_NAME class_name = 0;
+		if(in->class_name != NULL) class_name = fold_class_name(in->class_name);
+		return fold_impl_class_alias(in, alias, class_name);
+	}
+
+	virtual _Interface_alias fold_interface_alias(Interface_alias* in)
+	{
+		_INTERFACE_NAME alias = 0;
+		if(in->alias != NULL) alias = fold_interface_name(in->alias);
+		_INTERFACE_NAME interface_name = 0;
+		if(in->interface_name != NULL) interface_name = fold_interface_name(in->interface_name);
+		return fold_impl_interface_alias(in, alias, interface_name);
+	}
+
+	virtual _Method_alias fold_method_alias(Method_alias* in)
+	{
+		_METHOD_NAME alias = 0;
+		if(in->alias != NULL) alias = fold_method_name(in->alias);
+		_METHOD_NAME method_name = 0;
+		if(in->method_name != NULL) method_name = fold_method_name(in->method_name);
+		return fold_impl_method_alias(in, alias, method_name);
 	}
 
 	virtual _Return fold_return(Return* in)
@@ -722,6 +752,9 @@ public:
 	virtual _Attribute fold_impl_attribute(Attribute* orig, _Attr_mod attr_mod, _Name_with_default var) { assert(0); };
 	virtual _Attr_mod fold_impl_attr_mod(Attr_mod* orig, bool is_public, bool is_protected, bool is_private, bool is_static, bool is_const) { assert(0); };
 	virtual _Name_with_default fold_impl_name_with_default(Name_with_default* orig, _VARIABLE_NAME variable_name, _Static_value default_value) { assert(0); };
+	virtual _Class_alias fold_impl_class_alias(Class_alias* orig, _CLASS_NAME alias, _CLASS_NAME class_name) { assert(0); };
+	virtual _Interface_alias fold_impl_interface_alias(Interface_alias* orig, _INTERFACE_NAME alias, _INTERFACE_NAME interface_name) { assert(0); };
+	virtual _Method_alias fold_impl_method_alias(Method_alias* orig, _METHOD_NAME alias, _METHOD_NAME method_name) { assert(0); };
 	virtual _Return fold_impl_return(Return* orig, _VARIABLE_NAME variable_name) { assert(0); };
 	virtual _Static_declaration fold_impl_static_declaration(Static_declaration* orig, _Name_with_default var) { assert(0); };
 	virtual _Global fold_impl_global(Global* orig, _Variable_name variable_name) { assert(0); };
@@ -797,6 +830,12 @@ public:
 				return fold_interface_def(dynamic_cast<Interface_def*>(in));
 			case Method::ID:
 				return fold_method(dynamic_cast<Method*>(in));
+			case Class_alias::ID:
+				return fold_class_alias(dynamic_cast<Class_alias*>(in));
+			case Interface_alias::ID:
+				return fold_interface_alias(dynamic_cast<Interface_alias*>(in));
+			case Method_alias::ID:
+				return fold_method_alias(dynamic_cast<Method_alias*>(in));
 			case Return::ID:
 				return fold_return(dynamic_cast<Return*>(in));
 			case Static_declaration::ID:
@@ -943,6 +982,12 @@ public:
 				return fold_interface_def(dynamic_cast<Interface_def*>(in));
 			case Method::ID:
 				return fold_method(dynamic_cast<Method*>(in));
+			case Class_alias::ID:
+				return fold_class_alias(dynamic_cast<Class_alias*>(in));
+			case Interface_alias::ID:
+				return fold_interface_alias(dynamic_cast<Interface_alias*>(in));
+			case Method_alias::ID:
+				return fold_method_alias(dynamic_cast<Method_alias*>(in));
 			case Return::ID:
 				return fold_return(dynamic_cast<Return*>(in));
 			case Static_declaration::ID:
@@ -1226,6 +1271,6 @@ public:
 };
 
 template<class T, template <class _Tp, class _Alloc = allocator<_Tp> > class _List>
-class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, _List> {};
+class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, _List> {};
 }
 

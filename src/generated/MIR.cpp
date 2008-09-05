@@ -2913,6 +2913,402 @@ void Attribute::assert_valid()
     Node::assert_mixin_valid();
 }
 
+Class_alias::Class_alias(CLASS_NAME* alias, CLASS_NAME* class_name)
+{
+    this->alias = alias;
+    this->class_name = class_name;
+}
+
+Class_alias::Class_alias()
+{
+    this->alias = 0;
+    this->class_name = 0;
+}
+
+void Class_alias::visit(Visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void Class_alias::transform_children(Transform* transform)
+{
+    transform->children_statement(this);
+}
+
+int Class_alias::classid()
+{
+    return ID;
+}
+
+bool Class_alias::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Class_alias* that = dynamic_cast<Class_alias*>(in);
+    if(that == NULL) return false;
+    
+    if(this->alias == NULL)
+    {
+    	if(that->alias != NULL && !that->alias->match(this->alias))
+    		return false;
+    }
+    else if(!this->alias->match(that->alias))
+    	return false;
+    
+    if(this->class_name == NULL)
+    {
+    	if(that->class_name != NULL && !that->class_name->match(this->class_name))
+    		return false;
+    }
+    else if(!this->class_name->match(that->class_name))
+    	return false;
+    
+    return true;
+}
+
+bool Class_alias::equals(Node* in)
+{
+    Class_alias* that = dynamic_cast<Class_alias*>(in);
+    if(that == NULL) return false;
+    
+    if(this->alias == NULL || that->alias == NULL)
+    {
+    	if(this->alias != NULL || that->alias != NULL)
+    		return false;
+    }
+    else if(!this->alias->equals(that->alias))
+    	return false;
+    
+    if(this->class_name == NULL || that->class_name == NULL)
+    {
+    	if(this->class_name != NULL || that->class_name != NULL)
+    		return false;
+    }
+    else if(!this->class_name->equals(that->class_name))
+    	return false;
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+Class_alias* Class_alias::clone()
+{
+    CLASS_NAME* alias = this->alias ? this->alias->clone() : NULL;
+    CLASS_NAME* class_name = this->class_name ? this->class_name->clone() : NULL;
+    Class_alias* clone = new Class_alias(alias, class_name);
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+Node* Class_alias::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    if (this->alias != NULL)
+    {
+    	Node* alias_res = this->alias->find(in);
+    	if (alias_res) return alias_res;
+    }
+    
+    if (this->class_name != NULL)
+    {
+    	Node* class_name_res = this->class_name->find(in);
+    	if (class_name_res) return class_name_res;
+    }
+    
+    return NULL;
+}
+
+void Class_alias::find_all(Node* in, Node_list* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+    
+    if (this->alias != NULL)
+    	this->alias->find_all(in, out);
+    
+    if (this->class_name != NULL)
+    	this->class_name->find_all(in, out);
+    
+}
+
+void Class_alias::assert_valid()
+{
+    assert(alias != NULL);
+    alias->assert_valid();
+    assert(class_name != NULL);
+    class_name->assert_valid();
+    Node::assert_mixin_valid();
+}
+
+Interface_alias::Interface_alias(INTERFACE_NAME* alias, INTERFACE_NAME* interface_name)
+{
+    this->alias = alias;
+    this->interface_name = interface_name;
+}
+
+Interface_alias::Interface_alias()
+{
+    this->alias = 0;
+    this->interface_name = 0;
+}
+
+void Interface_alias::visit(Visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void Interface_alias::transform_children(Transform* transform)
+{
+    transform->children_statement(this);
+}
+
+int Interface_alias::classid()
+{
+    return ID;
+}
+
+bool Interface_alias::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Interface_alias* that = dynamic_cast<Interface_alias*>(in);
+    if(that == NULL) return false;
+    
+    if(this->alias == NULL)
+    {
+    	if(that->alias != NULL && !that->alias->match(this->alias))
+    		return false;
+    }
+    else if(!this->alias->match(that->alias))
+    	return false;
+    
+    if(this->interface_name == NULL)
+    {
+    	if(that->interface_name != NULL && !that->interface_name->match(this->interface_name))
+    		return false;
+    }
+    else if(!this->interface_name->match(that->interface_name))
+    	return false;
+    
+    return true;
+}
+
+bool Interface_alias::equals(Node* in)
+{
+    Interface_alias* that = dynamic_cast<Interface_alias*>(in);
+    if(that == NULL) return false;
+    
+    if(this->alias == NULL || that->alias == NULL)
+    {
+    	if(this->alias != NULL || that->alias != NULL)
+    		return false;
+    }
+    else if(!this->alias->equals(that->alias))
+    	return false;
+    
+    if(this->interface_name == NULL || that->interface_name == NULL)
+    {
+    	if(this->interface_name != NULL || that->interface_name != NULL)
+    		return false;
+    }
+    else if(!this->interface_name->equals(that->interface_name))
+    	return false;
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+Interface_alias* Interface_alias::clone()
+{
+    INTERFACE_NAME* alias = this->alias ? this->alias->clone() : NULL;
+    INTERFACE_NAME* interface_name = this->interface_name ? this->interface_name->clone() : NULL;
+    Interface_alias* clone = new Interface_alias(alias, interface_name);
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+Node* Interface_alias::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    if (this->alias != NULL)
+    {
+    	Node* alias_res = this->alias->find(in);
+    	if (alias_res) return alias_res;
+    }
+    
+    if (this->interface_name != NULL)
+    {
+    	Node* interface_name_res = this->interface_name->find(in);
+    	if (interface_name_res) return interface_name_res;
+    }
+    
+    return NULL;
+}
+
+void Interface_alias::find_all(Node* in, Node_list* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+    
+    if (this->alias != NULL)
+    	this->alias->find_all(in, out);
+    
+    if (this->interface_name != NULL)
+    	this->interface_name->find_all(in, out);
+    
+}
+
+void Interface_alias::assert_valid()
+{
+    assert(alias != NULL);
+    alias->assert_valid();
+    assert(interface_name != NULL);
+    interface_name->assert_valid();
+    Node::assert_mixin_valid();
+}
+
+Method_alias::Method_alias(METHOD_NAME* alias, METHOD_NAME* method_name)
+{
+    this->alias = alias;
+    this->method_name = method_name;
+}
+
+Method_alias::Method_alias()
+{
+    this->alias = 0;
+    this->method_name = 0;
+}
+
+void Method_alias::visit(Visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void Method_alias::transform_children(Transform* transform)
+{
+    transform->children_statement(this);
+}
+
+int Method_alias::classid()
+{
+    return ID;
+}
+
+bool Method_alias::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Method_alias* that = dynamic_cast<Method_alias*>(in);
+    if(that == NULL) return false;
+    
+    if(this->alias == NULL)
+    {
+    	if(that->alias != NULL && !that->alias->match(this->alias))
+    		return false;
+    }
+    else if(!this->alias->match(that->alias))
+    	return false;
+    
+    if(this->method_name == NULL)
+    {
+    	if(that->method_name != NULL && !that->method_name->match(this->method_name))
+    		return false;
+    }
+    else if(!this->method_name->match(that->method_name))
+    	return false;
+    
+    return true;
+}
+
+bool Method_alias::equals(Node* in)
+{
+    Method_alias* that = dynamic_cast<Method_alias*>(in);
+    if(that == NULL) return false;
+    
+    if(this->alias == NULL || that->alias == NULL)
+    {
+    	if(this->alias != NULL || that->alias != NULL)
+    		return false;
+    }
+    else if(!this->alias->equals(that->alias))
+    	return false;
+    
+    if(this->method_name == NULL || that->method_name == NULL)
+    {
+    	if(this->method_name != NULL || that->method_name != NULL)
+    		return false;
+    }
+    else if(!this->method_name->equals(that->method_name))
+    	return false;
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+Method_alias* Method_alias::clone()
+{
+    METHOD_NAME* alias = this->alias ? this->alias->clone() : NULL;
+    METHOD_NAME* method_name = this->method_name ? this->method_name->clone() : NULL;
+    Method_alias* clone = new Method_alias(alias, method_name);
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+Node* Method_alias::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    if (this->alias != NULL)
+    {
+    	Node* alias_res = this->alias->find(in);
+    	if (alias_res) return alias_res;
+    }
+    
+    if (this->method_name != NULL)
+    {
+    	Node* method_name_res = this->method_name->find(in);
+    	if (method_name_res) return method_name_res;
+    }
+    
+    return NULL;
+}
+
+void Method_alias::find_all(Node* in, Node_list* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+    
+    if (this->alias != NULL)
+    	this->alias->find_all(in, out);
+    
+    if (this->method_name != NULL)
+    	this->method_name->find_all(in, out);
+    
+}
+
+void Method_alias::assert_valid()
+{
+    assert(alias != NULL);
+    alias->assert_valid();
+    assert(method_name != NULL);
+    method_name->assert_valid();
+    Node::assert_mixin_valid();
+}
+
 Return::Return(VARIABLE_NAME* variable_name)
 {
     this->variable_name = variable_name;

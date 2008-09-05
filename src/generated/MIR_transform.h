@@ -41,6 +41,9 @@ public:
     virtual void pre_attribute(Attribute* in, Member_list* out);
     virtual Attr_mod* pre_attr_mod(Attr_mod* in);
     virtual Name_with_default* pre_name_with_default(Name_with_default* in);
+    virtual void pre_class_alias(Class_alias* in, Statement_list* out);
+    virtual void pre_interface_alias(Interface_alias* in, Statement_list* out);
+    virtual void pre_method_alias(Method_alias* in, Statement_list* out);
     virtual void pre_return(Return* in, Statement_list* out);
     virtual void pre_static_declaration(Static_declaration* in, Statement_list* out);
     virtual void pre_global(Global* in, Statement_list* out);
@@ -113,6 +116,9 @@ public:
     virtual void post_attribute(Attribute* in, Member_list* out);
     virtual Attr_mod* post_attr_mod(Attr_mod* in);
     virtual Name_with_default* post_name_with_default(Name_with_default* in);
+    virtual void post_class_alias(Class_alias* in, Statement_list* out);
+    virtual void post_interface_alias(Interface_alias* in, Statement_list* out);
+    virtual void post_method_alias(Method_alias* in, Statement_list* out);
     virtual void post_return(Return* in, Statement_list* out);
     virtual void post_static_declaration(Static_declaration* in, Statement_list* out);
     virtual void post_global(Global* in, Statement_list* out);
@@ -185,6 +191,9 @@ public:
     virtual void children_attribute(Attribute* in);
     virtual void children_attr_mod(Attr_mod* in);
     virtual void children_name_with_default(Name_with_default* in);
+    virtual void children_class_alias(Class_alias* in);
+    virtual void children_interface_alias(Interface_alias* in);
+    virtual void children_method_alias(Method_alias* in);
     virtual void children_return(Return* in);
     virtual void children_static_declaration(Static_declaration* in);
     virtual void children_global(Global* in);

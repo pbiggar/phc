@@ -38,13 +38,16 @@ public:
 	void children_foreach_get_val(MIR::Foreach_get_val* in);
 	void children_ht_iterator(MIR::HT_ITERATOR* in);
 	void children_variable_name (MIR::VARIABLE_NAME* in);
-	void children_param_is_ref (MIR::Param_is_ref* in);
 
 
 	void children_branch (MIR::Branch* in);
 	void children_goto (MIR::Goto* in);
 	void children_label (MIR::Label* in);
 	void children_label_name(MIR::LABEL_NAME* in);
+	void children_param_is_ref (MIR::Param_is_ref* in);
+	void children_class_alias (MIR::Class_alias* in);
+	void children_interface_alias (MIR::Interface_alias* in);
+	void children_method_alias (MIR::Method_alias* in);
 };
 
 #endif // PHC_MIR_UNPARSER 

@@ -13,6 +13,7 @@
 #include "MIR_unparser.h" 
 #include "MIR_to_AST.h" 
 
+#include "process_mir/Alias_uppering.h"
 #include "process_mir/Goto_uppering.h"
 #include "process_mir/Foreach_uppering.h"
 #include "process_mir/Param_is_ref_uppering.h"
@@ -72,6 +73,7 @@ MIR_unparser::unparse_uppered (IR::PHP_script* in)
 	MIR::PHP_script* mir = in->as_MIR ()->clone ();
 	mir->transform_children (new Foreach_uppering);
 	mir->transform_children (new Param_is_ref_uppering);
+	mir->transform_children (new Alias_uppering);
 	mir->visit (new Main_uppering);
 	mir->visit (new Goto_uppering);
 	AST::PHP_script* ast = (new MIR_to_AST ())->fold_php_script (mir);
@@ -192,9 +194,36 @@ void MIR_unparser::children_param_is_ref (Param_is_ref* in)
 		ast_unparser.unparse (folder->fold_target (in->target));
 	else
 		echo ("NULL");
-	echo (", ");
+	echo (", \"");
 	ast_unparser.unparse (folder->fold_method_name (in->method_name));
-	echo (", ");
+	echo ("\", ");
 	echo (boost::lexical_cast <string> (in->param_index->value));
 	echo (");");
+}
+
+void MIR_unparser::children_class_alias (Class_alias* in)
+{
+	echo ("class_alias (\"");
+	echo (in->alias->value);
+	echo ("\", \"");
+	echo (in->class_name->value);
+	echo ("\");");
+}
+
+void MIR_unparser::children_interface_alias (Interface_alias* in)
+{
+	echo ("interface_alias (\"");
+	echo (in->alias->value);
+	echo ("\", \"");
+	echo (in->interface_name->value);
+	echo ("\");");
+}
+
+void MIR_unparser::children_method_alias (Method_alias* in)
+{
+	echo ("method_alias (\"");
+	echo (in->alias->value);
+	echo ("\", \"");
+	echo (in->method_name->value);
+	echo ("\");");
 }

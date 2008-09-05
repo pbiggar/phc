@@ -33,6 +33,7 @@ PHP_script ::= Statement* ;
 
 Statement ::=
      Class_def | Interface_def | Method
+	| Class_alias | Interface_alias | Method_alias
 	| Return | Static_declaration | Global
 	| Try | Throw
 	| Assign_var | Assign_var_var | Assign_array | Push_array | Assign_field
@@ -67,6 +68,10 @@ Attribute ::= Attr_mod var:Name_with_default ;
 Attr_mod ::= "public"? "protected"? "private"? "static"? "const"?  ;
 
 Name_with_default ::= VARIABLE_NAME default_value:Static_value? ; -- "default" is a keyword in C++
+
+Class_alias ::= alias:CLASS_NAME CLASS_NAME ;
+Interface_alias ::= alias:INTERFACE_NAME INTERFACE_NAME ;
+Method_alias ::= alias:METHOD_NAME METHOD_NAME ;
 
 {-
    Statements
