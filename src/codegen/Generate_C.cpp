@@ -793,11 +793,7 @@ string assign_rhs (bool is_ref, VARIABLE_NAME* rhs)
 	{
 		ss	
 		<< read_st (LOCAL, "p_rhs", rhs)
-		<< "sep_copy_on_write_ex (p_rhs);\n"
-		<< "(*p_rhs)->is_ref = 1;\n"
-		<< "(*p_rhs)->refcount++;\n"
-		<< "zval_ptr_dtor (p_lhs);\n"
-		<< "*p_lhs = *p_rhs;\n"
+		<< "copy_into_ref (p_lhs, p_rhs);\n"
 		;
 	}
 	return ss.str();
@@ -860,12 +856,7 @@ string push_rhs (bool is_ref, VARIABLE_NAME* rhs)
 	{
 		ss
 		<< read_st (LOCAL, "p_rhs", rhs)
-		
-		<< "sep_copy_on_write_ex (p_rhs);\n"
-		<< "(*p_rhs)->is_ref = 1;\n"
-		<< "(*p_rhs)->refcount++;\n"
-		<< "zval_ptr_dtor (p_lhs);\n"
-		<< "*p_lhs = *p_rhs;\n"
+		<< "copy_into_ref (p_lhs, p_rhs);\n"
 		;
 	}
 	return ss.str();
@@ -1126,6 +1117,7 @@ public:
 
 			<< "zval* temp = NULL;\n" // TODO this comes up everywhere, why?
 			<< "p_rhs = &temp;\n"
+
 			<< read_var (LOCAL, "p_rhs", rhs->value)
 
 			<< "if (*p_lhs != *p_rhs)\n"
@@ -1137,11 +1129,8 @@ public:
 		{
 			code
 			<< read_st (LOCAL, "p_rhs", rhs->value)
-			<< "sep_copy_on_write_ex (p_rhs);\n"
-			<< "(*p_rhs)->is_ref = 1;\n"
-			<< "(*p_rhs)->refcount++;\n"
-			<< "zval_ptr_dtor (p_lhs);\n"
-			<< "*p_lhs = *p_rhs;\n";
+			<< "copy_into_ref (p_lhs, p_rhs);\n"
+			;
 		}
 	}
 
@@ -1164,12 +1153,15 @@ public:
 		{
 			code
 			<< declare ("p_rhs")
+
 			<< "zval* temp = NULL;\n"
 			<< "p_rhs = &temp;\n"
+
 			<< read_var_var (LOCAL, "p_rhs", rhs->value)
 
 			<< "if (*p_lhs != *p_rhs)\n"
 			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
+
 			<< cleanup ("p_rhs")
 			;
 		}
@@ -1177,12 +1169,7 @@ public:
 		{
 			code
 			<< index_lhs (LOCAL, "p_rhs", rhs->value)
-
-			<< "sep_copy_on_write_ex (p_rhs);\n"
-			<< "(*p_rhs)->is_ref = 1;\n"
-			<< "(*p_rhs)->refcount++;\n"
-			<< "zval_ptr_dtor (p_lhs);\n"
-			<< "*p_lhs = *p_rhs;\n"
+			<< "copy_into_ref (p_lhs, p_rhs);\n"
 			;
 		}
 	}
@@ -1222,11 +1209,8 @@ public:
 		{
 			code 
 			<< array_access_index (LOCAL, "p_rhs", rhs->value)
-			<< "sep_copy_on_write_ex (p_rhs);\n"
-			<< "(*p_rhs)->is_ref = 1;\n"
-			<< "(*p_rhs)->refcount++;\n"
-			<< "zval_ptr_dtor (p_lhs);\n"
-			<< "*p_lhs = *p_rhs;\n";
+			<< "copy_into_ref (p_lhs, p_rhs);\n"
+			;
 		}
 	}
 
@@ -1345,11 +1329,7 @@ public:
 		{
 			code
 			<< read_st (LOCAL, "p_rhs", rhs->value)
-			<< "sep_copy_on_write_ex (p_rhs);\n"
-			<< "(*p_rhs)->is_ref = 1;\n"
-			<< "(*p_rhs)->refcount++;\n"
-			<< "zval_ptr_dtor (p_lhs);\n"
-			<< "*p_lhs = *p_rhs;\n"
+			<< "copy_into_ref (p_lhs, p_rhs);\n"
 			;
 		}
 		// as far as here
@@ -1390,11 +1370,7 @@ public:
 		<<	index_lhs (LOCAL, "p_local_global_var", rhs->value) // lhs
 		<<	index_lhs (GLOBAL, "p_global_var", rhs->value) // rhs
 		// Note that p_global_var can be in the copy-on-write set.
-		<<	"sep_copy_on_write_ex (p_global_var);\n"
-		<<	"(*p_global_var)->is_ref = 1;\n"
-		<<	"(*p_global_var)->refcount++;\n"
-		<<	"zval_ptr_dtor (p_local_global_var);\n"
-		<<	"*p_local_global_var = *p_global_var;\n"
+		<< "copy_into_ref (p_local_global_var, p_global_var);\n"
 		;
 	}
 
@@ -1547,11 +1523,7 @@ public:
 			else
 			{
 				code 
-				<< "sep_copy_on_write_ex (p_rhs);\n"
-				<< "(*p_rhs)->is_ref = 1;\n"
-				<< "(*p_rhs)->refcount++;\n"
-				<< "zval_ptr_dtor (p_lhs);\n"
-				<< "*p_lhs = *p_rhs;\n"
+				<< "copy_into_ref (p_lhs, p_rhs);\n"
 				;
 			}
 			code
@@ -1781,11 +1753,7 @@ public:
 			else
 			{
 				code 
-				<< "sep_copy_on_write_ex (p_rhs);\n"
-				<< "(*p_rhs)->is_ref = 1;\n"
-				<< "(*p_rhs)->refcount++;\n"
-				<< "zval_ptr_dtor (p_lhs);\n"
-				<< "*p_lhs = *p_rhs;\n"
+				<< "copy_into_ref (p_lhs, p_rhs);\n"
 				;
 			}
 		}
@@ -2337,11 +2305,8 @@ class Pattern_foreach_get_val : public Pattern_assign_var
 			<<							"(void**)(&p_rhs), "
 			<<							"&" << *get_val->value->iter->value << ");\n"
 			<< "assert (result == SUCCESS);\n"
-			<< "sep_copy_on_write_ex (p_rhs);\n"
-			<< "(*p_rhs)->is_ref = 1;\n"
-			<< "(*p_rhs)->refcount++;\n"
-			<< "zval_ptr_dtor (p_lhs);\n"
-			<< "*p_lhs = *p_rhs;\n"
+
+			<< "copy_into_ref (p_lhs, p_rhs);\n"
 			;
 		}
 	}

@@ -149,6 +149,17 @@ extract_ht (zval ** p_var TSRMLS_DC)
   return extract_ht_ex (*p_var TSRMLS_CC);
 }
 
+static void
+copy_into_ref (zval** lhs, zval** rhs)
+{
+  sep_copy_on_write_ex (rhs);
+
+  (*rhs)->is_ref = 1;
+  (*rhs)->refcount++;
+  zval_ptr_dtor (lhs);
+  *lhs = *rhs;
+}
+
 
 /* Using IND as a key to HT, call the appropriate zend_index_X
  * function with data as a parameter, and return its result. This
