@@ -149,6 +149,8 @@ extract_ht (zval ** p_var TSRMLS_DC)
   return extract_ht_ex (*p_var TSRMLS_CC);
 }
 
+/* Assign RHS into LHS, by reference. After this, LHS will point to the same
+ * zval* as RHS. */
 static void
 copy_into_ref (zval** lhs, zval** rhs)
 {

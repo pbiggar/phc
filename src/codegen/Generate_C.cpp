@@ -13,14 +13,6 @@
  * of these classes, and then for every statement in the input, cycle through
  * all the patterns to find one that matches, and then call "generate_code"
  * on that pattern.
- *
- * We rely on the Shredder, Lower_control_flow and Lower_expr_flow. In a few
- * places, however, we still need a "new" temporary, but these temporaries all
- * have in common that they are short-lived (we never need to call "fresh",
- * for instance). Where we need these, we open a local C scope, and then just
- * use a descriptive name; the life-span of the temporary then is limited to
- * this scope. The equivalent of opening a local C scope when generating 
- * assembly code instead would simply be a temporary value on the stack.
  */
 
 // TODO Variable_variables cannot be used to access superglobals. See warning
@@ -103,22 +95,10 @@ void Generate_C::run (IR::PHP_script* in, Pass_manager* pm)
 	}
 }
 
-/* TODO any non-top-level class or function should be promoted to a top-level
- * class/function with a different name, and it its place to be a call to
- * "register_dynamic_class(C, __phc__C1__)". Top-level classes and functions
- * are marked with the "phc.lower_control_flow.top_level_declaration"
- * attribute. */
 
 /*
- * After the shredder, many expressions can only contain "simple" variables.
- * For example, where a bin-op could contain arbitrary expressions on the left
- * and right, after the shredder, both of those expressions must be a simple
- * variable; that is, a variable with a VARIABLE_NAME as name, no target,
- * and no array indices. Wherever we assume this, we use this function
- * "operand" to extract the variable name. That factors out a bit of recurring
- * code, and also flags where we make this assumption.
+ * Helper functions
  */
-
 
 enum Scope { LOCAL, GLOBAL };
 string get_scope (Scope scope)
@@ -185,7 +165,8 @@ string get_non_st_name (VARIABLE_NAME* var_name)
 }
 
 
-// Generate calls to read_var, for array and array index lookups, and the like.
+// Declare and getch a zval* containing the value for RVALUE. The value can be
+// changed, but the symbol-table entry cannot be affected through this.
 string read_rvalue (Scope scope, string zvp, Rvalue* rvalue)
 {
 	stringstream ss;
@@ -219,7 +200,10 @@ string read_rvalue (Scope scope, string zvp, Rvalue* rvalue)
 	return ss.str ();
 }
 
-string read_st (Scope scope, string zvp, VARIABLE_NAME* var_name)
+// Declare and fetch a zval** into ZVP, which is the symbol-table entry for
+// VAR_NAME. This zval** can be over-written, which will change the
+// symbol-table entry.
+string get_st_entry (Scope scope, string zvp, VARIABLE_NAME* var_name)
 {
 	stringstream ss;
 	if (scope == LOCAL && var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
@@ -246,15 +230,18 @@ string read_st (Scope scope, string zvp, VARIABLE_NAME* var_name)
 	return ss.str();
 }
 
-string index_assign_array (Scope scope, string zvp, VARIABLE_NAME* lhs, VARIABLE_NAME* index)
+// Declare and fetch a zval** into ZVP, which is the hash-table entry for
+// VAR_NAME[INDEX]. This zval** can be over-written, which will change the
+// hash-table entry.
+string get_array_entry (Scope scope, string zvp, VARIABLE_NAME* var_name, Rvalue* index)
 {
 	stringstream ss;
-	string zvp_name = suffix (zvp, "lhs");
+	string zvp_name = suffix (zvp, "var");
 	string zvp_index = suffix (zvp, "index");
 
 	ss	
-	<< "// Array assignment\n"
-	<< read_st (scope, zvp_name, lhs)
+	// TODO dont need get_st_entry here
+	<< get_st_entry (scope, zvp_name, var_name)
 	<< read_rvalue (scope, zvp_index, index)
 	<<	"zval**" << zvp << " = get_ht_entry ("
 	<<						zvp_name << ", "
@@ -265,36 +252,9 @@ string index_assign_array (Scope scope, string zvp, VARIABLE_NAME* lhs, VARIABLE
 	return ss.str();
 }
 
-string array_access_index (Scope scope, string zvp, Array_access* ia)
-{
-	stringstream ss;
-
-	// TODO this is practically identical to index_assign_array. Why?
-	string zvp_name = suffix (zvp, "var");
-	string zvp_index = suffix (zvp, "index");
-	VARIABLE_NAME* var_name = ia->variable_name;
-
-	ss
-	<< "// Array assignment\n"
-	<< read_st (scope, zvp_name, var_name)
-	<< read_rvalue (scope, zvp_index, ia->index)
-	<<	"zval**" << zvp << " = get_ht_entry ("
-	<<									zvp_name << ", "
-	<<									zvp_index
-	<<									" TSRMLS_CC);\n"
-	;
-
-	return ss.str();
-}
-
-
 string index_lhs (Scope scope, string zvp, Expr* expr)
 {
 	stringstream ss;
-	if (isa<Array_access> (expr))
-	{
-		return array_access_index (LOCAL, "p_rhs", dyc<Array_access> (expr));
-	}
 
 	VARIABLE_NAME* var_name = dynamic_cast<VARIABLE_NAME*> (expr);
 	if (var_name)
@@ -303,7 +263,7 @@ string index_lhs (Scope scope, string zvp, Expr* expr)
 
 		ss
 		<< "// Normal Assignment\n"
-		<< read_st (scope, zvp_name, var_name)
+		<< get_st_entry (scope, zvp_name, var_name)
 		<< "zval** " << zvp << " = " << zvp_name << ";\n";
 	}
 	else
@@ -752,7 +712,7 @@ public:
 	void generate_code(Generate_C* gen)
 	{
 		code 
-		<<	read_st (LOCAL, "p_lhs", lhs->value)
+		<<	get_st_entry (LOCAL, "p_lhs", lhs->value)
 
 		<<	"if (p_lhs != NULL)\n"
 		<<	"{\n";
@@ -792,7 +752,7 @@ string assign_rhs (bool is_ref, VARIABLE_NAME* rhs)
 	else
 	{
 		ss	
-		<< read_st (LOCAL, "p_rhs", rhs)
+		<< get_st_entry (LOCAL, "p_rhs", rhs)
 		<< "copy_into_ref (p_lhs, p_rhs);\n"
 		;
 	}
@@ -818,7 +778,8 @@ public:
 		assert (rhs->value);
 
 		code 
-		<<	index_assign_array (LOCAL, "p_lhs", lhs->value, index->value)
+		<<	get_array_entry (LOCAL, "p_lhs", lhs->value, index->value)
+		<< "assert (p_lhs != NULL);\n" // TODO can this be NULL?
 
 		<<	"if (p_lhs != NULL)\n"
 		<<	"{\n"
@@ -855,7 +816,7 @@ string push_rhs (bool is_ref, VARIABLE_NAME* rhs)
 	else
 	{
 		ss
-		<< read_st (LOCAL, "p_rhs", rhs)
+		<< get_st_entry (LOCAL, "p_rhs", rhs)
 		<< "copy_into_ref (p_lhs, p_rhs);\n"
 		;
 	}
@@ -881,7 +842,7 @@ public:
 		code 
 		<<	"zval** p_lhs;\n"
 
-		<< read_st (LOCAL, "p_lhs_var", lhs->value)
+		<< get_st_entry (LOCAL, "p_lhs_var", lhs->value)
 
 		<<	"// Array push \n"
 		<<	"p_lhs = push_and_index_ht (p_lhs_var TSRMLS_CC);\n"
@@ -1110,6 +1071,7 @@ public:
 
 	void generate_rhs ()
 	{
+		// TODO combine with assign_rhs?
 		if (!agn->is_ref)
 		{
 			code
@@ -1128,7 +1090,7 @@ public:
 		else
 		{
 			code
-			<< read_st (LOCAL, "p_rhs", rhs->value)
+			<< get_st_entry (LOCAL, "p_rhs", rhs->value)
 			<< "copy_into_ref (p_lhs, p_rhs);\n"
 			;
 		}
@@ -1208,7 +1170,7 @@ public:
 		else
 		{
 			code 
-			<< array_access_index (LOCAL, "p_rhs", rhs->value)
+			<< get_array_entry (LOCAL, "p_rhs", rhs->value->variable_name, rhs->value->index)
 			<< "copy_into_ref (p_lhs, p_rhs);\n"
 			;
 		}
@@ -1216,81 +1178,6 @@ public:
 
 protected:
 	Wildcard<Array_access>* rhs;
-};
-
-class Pattern_assign_param_is_ref : public Pattern_assign_var
-{
-public:
-	Expr* rhs_pattern()
-	{
-		rhs = new Wildcard<Param_is_ref>;
-		return rhs;
-	}
-
-	void generate_rhs ()
-	{
-		assert (!agn->is_ref);
-		String* name = dyc<METHOD_NAME> (rhs->value->method_name)->value;
-		int index = rhs->value->param_index->value;
-
-		code
-		// lookup the function and cache it for next time
-		<< "// Call the function\n"
-		<< "static zend_fcall_info fci;\n"
-		<< "static zend_fcall_info_cache fcic = {0,NULL,NULL,NULL};\n"
-		<< "if (!fcic.initialized)\n"
-		<< "{\n"
-		<<		"zval function_name;\n"
-		<<		"INIT_PZVAL(&function_name);\n"
-		<<		"ZVAL_STRING(&function_name, "
-		<<			"\"" << *name << "\", "
-		<<			"0);\n"
-
-		<<		"int result = zend_fcall_info_init (&function_name, &fci, &fcic TSRMLS_CC);\n"
-		<< 	"if (result == FAILURE) // check for missing function\n"
-		<< 	"{\n"
-		<<			"phc_setup_error (1, \"" 
-		<< 			*rhs->get_filename () << "\", " 
-		<< 			rhs->get_line_number () << ", "
-		<<				"NULL TSRMLS_CC);\n"
-					// die
-		<<			"php_error_docref (NULL TSRMLS_CC, E_ERROR, "
-		<<				"\"Call to undefined function %s()\", \"" 
-		<< 			*name << "\");\n"
-		<< 	"}\n"
-		<< "}\n"
-
-		<< "zend_function* signature = fcic.function_handler;\n"
-		<< "zend_arg_info* arg_info = signature->common.arg_info;\n"
-		<< "int count = 0;\n"
-		<< "while (arg_info && count < " << index << ")\n"
-		<< "{\n"
-		<<		"count++;\n"
-		<<		"arg_info++;\n"
-		<< "}\n"
-
-		// TODO this could be locally allocated
-		<< declare ("p_rhs")
-
-		<< "p_rhs = p_lhs;\n"
-		<< "zvp_clone (p_rhs, &is_p_rhs_new);\n"
-		<< "if (count == " << index << ")\n"
-		<< "{\n"
-		<<		"ZVAL_BOOL (*p_rhs, arg_info->pass_by_reference);\n"
-		<< "}\n"
-		<< "else\n"
-		<< "{\n"
-		<<		"ZVAL_BOOL (*p_rhs, signature->common.pass_rest_by_reference);\n"
-		<< "}\n"
-		<<	"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
-
-		<< cleanup ("p_rhs")
-		;
-
-	}
-
-protected:
-	Wildcard<Param_is_ref>* rhs;
 };
 
 
@@ -1328,7 +1215,7 @@ public:
 		else
 		{
 			code
-			<< read_st (LOCAL, "p_rhs", rhs->value)
+			<< get_st_entry (LOCAL, "p_rhs", rhs->value)
 			<< "copy_into_ref (p_lhs, p_rhs);\n"
 			;
 		}
@@ -1538,6 +1425,83 @@ protected:
 	Wildcard<Actual_parameter>* arg;
 };
 
+class Pattern_assign_param_is_ref : public Pattern_assign_var
+{
+public:
+	Expr* rhs_pattern()
+	{
+		rhs = new Wildcard<Param_is_ref>;
+		return rhs;
+	}
+
+	void generate_rhs ()
+	{
+		assert (!agn->is_ref);
+		String* name = dyc<METHOD_NAME> (rhs->value->method_name)->value;
+		int index = rhs->value->param_index->value;
+
+		code
+		// lookup the function and cache it for next time
+		<< "// Call the function\n"
+		<< "static zend_fcall_info fci;\n"
+		<< "static zend_fcall_info_cache fcic = {0,NULL,NULL,NULL};\n"
+		<< "if (!fcic.initialized)\n"
+		<< "{\n"
+		<<		"zval function_name;\n"
+		<<		"INIT_PZVAL(&function_name);\n"
+		<<		"ZVAL_STRING(&function_name, "
+		<<			"\"" << *name << "\", "
+		<<			"0);\n"
+
+		<<		"int result = zend_fcall_info_init (&function_name, &fci, &fcic TSRMLS_CC);\n"
+		<< 	"if (result == FAILURE) // check for missing function\n"
+		<< 	"{\n"
+		<<			"phc_setup_error (1, \"" 
+		<< 			*rhs->get_filename () << "\", " 
+		<< 			rhs->get_line_number () << ", "
+		<<				"NULL TSRMLS_CC);\n"
+					// die
+		<<			"php_error_docref (NULL TSRMLS_CC, E_ERROR, "
+		<<				"\"Call to undefined function %s()\", \"" 
+		<< 			*name << "\");\n"
+		<< 	"}\n"
+		<< "}\n"
+
+		<< "zend_function* signature = fcic.function_handler;\n"
+		<< "zend_arg_info* arg_info = signature->common.arg_info;\n"
+		<< "int count = 0;\n"
+		<< "while (arg_info && count < " << index << ")\n"
+		<< "{\n"
+		<<		"count++;\n"
+		<<		"arg_info++;\n"
+		<< "}\n"
+
+		// TODO this could be locally allocated
+		<< declare ("p_rhs")
+
+		<< "p_rhs = p_lhs;\n"
+		<< "zvp_clone (p_rhs, &is_p_rhs_new);\n"
+		<< "if (count == " << index << ")\n"
+		<< "{\n"
+		<<		"ZVAL_BOOL (*p_rhs, arg_info->pass_by_reference);\n"
+		<< "}\n"
+		<< "else\n"
+		<< "{\n"
+		<<		"ZVAL_BOOL (*p_rhs, signature->common.pass_rest_by_reference);\n"
+		<< "}\n"
+		<<	"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
+
+		<< cleanup ("p_rhs")
+		;
+
+	}
+
+protected:
+	Wildcard<Param_is_ref>* rhs;
+};
+
+
+
 class Pattern_method_invocation : public Pattern_eval_expr_or_assign_var
 {
 public:
@@ -1652,7 +1616,7 @@ public:
 			<< "if (by_ref [" << index << "])\n"
 			<< "{\n"
 			
-			<< read_st (LOCAL, "p_arg", var_name)
+			<< get_st_entry (LOCAL, "p_arg", var_name)
 
 			<< "	args_ind[" << index << "] = fetch_var_arg_by_ref ("
 			<<				"p_arg);\n"
@@ -1882,7 +1846,7 @@ public:
 
 
 		code 
-		<<	read_st (LOCAL, "p_var", var->value)
+		<<	get_st_entry (LOCAL, "p_var", var->value)
 
 		<<	"sep_copy_on_write_ex (p_var);\n"
 		<<	op_fn << "(*p_var);\n"
@@ -1924,7 +1888,7 @@ class Pattern_return : public Pattern
 		else
 		{
 			code
-			<< read_st (LOCAL, "p_rhs", var_name->value)
+			<< get_st_entry (LOCAL, "p_rhs", var_name->value)
 			<< "sep_copy_on_write_ex (p_rhs);\n"
 			<< "zval_ptr_dtor (return_value_ptr);\n"
 			<< "(*p_rhs)->is_ref = 1;\n"
@@ -1985,7 +1949,7 @@ class Pattern_unset : public Pattern
 				assert(unset->value->array_indices->size() == 1);
 				Rvalue* index = (unset->value->array_indices->front());
 				code
-				<< read_st (LOCAL, "u_array", var_name)
+				<< get_st_entry (LOCAL, "u_array", var_name)
 				<< read_rvalue (LOCAL, "u_index", index)
 
 				<< "unset_array ("
@@ -2046,7 +2010,7 @@ class Pattern_isset : public Pattern_assign_zval
 				Rvalue* index = isset->value->array_indices->front();
 
 				code
-				<< read_st (LOCAL, "u_array", var_name)
+				<< get_st_entry (LOCAL, "u_array", var_name)
 				<< read_rvalue (LOCAL, "u_index", index)
 				<< "ZVAL_BOOL(" << lhs << ", "
 				<< "isset_array ("
