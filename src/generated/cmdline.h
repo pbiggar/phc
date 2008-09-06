@@ -79,6 +79,8 @@ struct gengetopt_args_info
   char * output_arg;	/**< @brief Place executable into file FILE.  */
   char * output_orig;	/**< @brief Place executable into file FILE original value given at command line.  */
   const char *output_help; /**< @brief Place executable into file FILE help description.  */
+  int execute_flag;	/**< @brief Run executable after compiling (implies -c) (default=off).  */
+  const char *execute_help; /**< @brief Run executable after compiling (implies -c) help description.  */
   int next_line_curlies_flag;	/**< @brief Output the opening curly on the next line instead of on the same line (default=off).  */
   const char *next_line_curlies_help; /**< @brief Output the opening curly on the next line instead of on the same line help description.  */
   int no_leading_tab_flag;	/**< @brief Don't start every line in between <?php .. ?> with a tab (default=off).  */
@@ -149,6 +151,7 @@ struct gengetopt_args_info
   unsigned int with_php_given ;	/**< @brief Whether with-php was given.  */
   unsigned int optimize_given ;	/**< @brief Whether optimize was given.  */
   unsigned int output_given ;	/**< @brief Whether output was given.  */
+  unsigned int execute_given ;	/**< @brief Whether execute was given.  */
   unsigned int next_line_curlies_given ;	/**< @brief Whether next-line-curlies was given.  */
   unsigned int no_leading_tab_given ;	/**< @brief Whether no-leading-tab was given.  */
   unsigned int no_line_numbers_given ;	/**< @brief Whether no-line-numbers was given.  */

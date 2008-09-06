@@ -20,6 +20,7 @@ option "extension" - "Generate a PHP extension called NAME instead of a standalo
 option "with-php" - "PHP installation path" string typestr="NAME" no hidden 
 option "optimize" O "Optimize" string no default="0"
 option "output" o "Place executable into file FILE" string typestr="FILE" no
+option "execute" e "Run executable after compiling (implies -c)" flag off
 
 section "PRETTY PRINTING OPTIONS"
 option "next-line-curlies" - "Output the opening curly on the next line instead of on the same line" flag off

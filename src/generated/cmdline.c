@@ -49,6 +49,7 @@ const char *gengetopt_args_info_full_help[] = {
   "      --with-php=NAME      PHP installation path",
   "  -O, --optimize=STRING    Optimize  (default=`0')",
   "  -o, --output=FILE        Place executable into file FILE",
+  "  -e, --execute            Run executable after compiling (implies -c)  \n                             (default=off)",
   "\nPRETTY PRINTING OPTIONS:",
   "      --next-line-curlies  Output the opening curly on the next line instead of \n                             on the same line  (default=off)",
   "      --no-leading-tab     Don't start every line in between <?php .. ?> with a \n                             tab  (default=off)",
@@ -94,13 +95,14 @@ init_help_array(void)
   gengetopt_args_info_help[18] = gengetopt_args_info_full_help[21];
   gengetopt_args_info_help[19] = gengetopt_args_info_full_help[22];
   gengetopt_args_info_help[20] = gengetopt_args_info_full_help[23];
-  gengetopt_args_info_help[21] = gengetopt_args_info_full_help[27];
+  gengetopt_args_info_help[21] = gengetopt_args_info_full_help[24];
   gengetopt_args_info_help[22] = gengetopt_args_info_full_help[28];
-  gengetopt_args_info_help[23] = 0; 
+  gengetopt_args_info_help[23] = gengetopt_args_info_full_help[29];
+  gengetopt_args_info_help[24] = 0; 
   
 }
 
-const char *gengetopt_args_info_help[24];
+const char *gengetopt_args_info_help[25];
 
 typedef enum {ARG_NO
   , ARG_FLAG
@@ -143,6 +145,7 @@ void clear_given (struct gengetopt_args_info *args_info)
   args_info->with_php_given = 0 ;
   args_info->optimize_given = 0 ;
   args_info->output_given = 0 ;
+  args_info->execute_given = 0 ;
   args_info->next_line_curlies_given = 0 ;
   args_info->no_leading_tab_given = 0 ;
   args_info->no_line_numbers_given = 0 ;
@@ -187,6 +190,7 @@ void clear_args (struct gengetopt_args_info *args_info)
   args_info->optimize_orig = NULL;
   args_info->output_arg = NULL;
   args_info->output_orig = NULL;
+  args_info->execute_flag = 0;
   args_info->next_line_curlies_flag = 0;
   args_info->no_leading_tab_flag = 0;
   args_info->no_line_numbers_flag = 0;
@@ -242,32 +246,33 @@ void init_args_info(struct gengetopt_args_info *args_info)
   args_info->with_php_help = gengetopt_args_info_full_help[18] ;
   args_info->optimize_help = gengetopt_args_info_full_help[19] ;
   args_info->output_help = gengetopt_args_info_full_help[20] ;
-  args_info->next_line_curlies_help = gengetopt_args_info_full_help[22] ;
-  args_info->no_leading_tab_help = gengetopt_args_info_full_help[23] ;
-  args_info->no_line_numbers_help = gengetopt_args_info_full_help[24] ;
-  args_info->no_nulls_help = gengetopt_args_info_full_help[25] ;
-  args_info->no_empty_lists_help = gengetopt_args_info_full_help[26] ;
-  args_info->tab_help = gengetopt_args_info_full_help[27] ;
-  args_info->no_hash_bang_help = gengetopt_args_info_full_help[28] ;
-  args_info->debug_help = gengetopt_args_info_full_help[30] ;
+  args_info->execute_help = gengetopt_args_info_full_help[21] ;
+  args_info->next_line_curlies_help = gengetopt_args_info_full_help[23] ;
+  args_info->no_leading_tab_help = gengetopt_args_info_full_help[24] ;
+  args_info->no_line_numbers_help = gengetopt_args_info_full_help[25] ;
+  args_info->no_nulls_help = gengetopt_args_info_full_help[26] ;
+  args_info->no_empty_lists_help = gengetopt_args_info_full_help[27] ;
+  args_info->tab_help = gengetopt_args_info_full_help[28] ;
+  args_info->no_hash_bang_help = gengetopt_args_info_full_help[29] ;
+  args_info->debug_help = gengetopt_args_info_full_help[31] ;
   args_info->debug_min = -1;
   args_info->debug_max = -1;
-  args_info->dump_help = gengetopt_args_info_full_help[31] ;
+  args_info->dump_help = gengetopt_args_info_full_help[32] ;
   args_info->dump_min = -1;
   args_info->dump_max = -1;
-  args_info->udump_help = gengetopt_args_info_full_help[32] ;
+  args_info->udump_help = gengetopt_args_info_full_help[33] ;
   args_info->udump_min = -1;
   args_info->udump_max = -1;
-  args_info->ddump_help = gengetopt_args_info_full_help[33] ;
+  args_info->ddump_help = gengetopt_args_info_full_help[34] ;
   args_info->ddump_min = -1;
   args_info->ddump_max = -1;
-  args_info->xdump_help = gengetopt_args_info_full_help[34] ;
+  args_info->xdump_help = gengetopt_args_info_full_help[35] ;
   args_info->xdump_min = -1;
   args_info->xdump_max = -1;
-  args_info->list_passes_help = gengetopt_args_info_full_help[35] ;
-  args_info->dont_fail_help = gengetopt_args_info_full_help[36] ;
-  args_info->no_xml_attrs_help = gengetopt_args_info_full_help[37] ;
-  args_info->disable_help = gengetopt_args_info_full_help[38] ;
+  args_info->list_passes_help = gengetopt_args_info_full_help[36] ;
+  args_info->dont_fail_help = gengetopt_args_info_full_help[37] ;
+  args_info->no_xml_attrs_help = gengetopt_args_info_full_help[38] ;
+  args_info->disable_help = gengetopt_args_info_full_help[39] ;
   args_info->disable_min = -1;
   args_info->disable_max = -1;
   
@@ -499,6 +504,8 @@ cmdline_parser_dump(FILE *outfile, struct gengetopt_args_info *args_info)
     write_into_file(outfile, "optimize", args_info->optimize_orig, 0);
   if (args_info->output_given)
     write_into_file(outfile, "output", args_info->output_orig, 0);
+  if (args_info->execute_given)
+    write_into_file(outfile, "execute", 0, 0 );
   if (args_info->next_line_curlies_given)
     write_into_file(outfile, "next-line-curlies", 0, 0 );
   if (args_info->no_leading_tab_given)
@@ -1089,6 +1096,7 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
         { "with-php",	1, NULL, 0 },
         { "optimize",	1, NULL, 'O' },
         { "output",	1, NULL, 'o' },
+        { "execute",	0, NULL, 'e' },
         { "next-line-curlies",	0, NULL, 0 },
         { "no-leading-tab",	0, NULL, 0 },
         { "no-line-numbers",	0, NULL, 0 },
@@ -1108,7 +1116,7 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
         { NULL,	0, NULL, 0 }
       };
 
-      c = getopt_long (argc, argv, "hVvcC:O:o:", long_options, &option_index);
+      c = getopt_long (argc, argv, "hVvcC:O:o:e", long_options, &option_index);
 
       if (c == -1) break;	/* Exit from `while (1)' loop.  */
 
@@ -1173,6 +1181,16 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
               &(local_args_info.output_given), optarg, 0, 0, ARG_STRING,
               check_ambiguity, override, 0, 0,
               "output", 'o',
+              additional_error))
+            goto failure;
+        
+          break;
+        case 'e':	/* Run executable after compiling (implies -c).  */
+        
+        
+          if (update_arg((void *)&(args_info->execute_flag), 0, &(args_info->execute_given),
+              &(local_args_info.execute_given), optarg, 0, 0, ARG_FLAG,
+              check_ambiguity, override, 1, 0, "execute", 'e',
               additional_error))
             goto failure;
         

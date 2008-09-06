@@ -203,6 +203,10 @@ int main(int argc, char** argv)
 		pm->get_pass_named (s(args_info.disable_arg [i]))->set_enabled (false);
 	}
 
+	// -e implies -c (I dont know how to do this in gengetopt)
+	if (args_info.execute_flag)
+		args_info.compile_flag = true;
+
 
 	/* 
 	 *	Parsing 
