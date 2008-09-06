@@ -28,9 +28,9 @@ foreach ($opts as $opt)
 if ($opt_help || count ($arguments) > 0)
 {
 	die (<<<EOL
-bench - Run the Zend benchmark, producing averaged results for 10 runs - phpcompiler.org
+bench - Compiles (with optimization) the Zend benchmark, producing averaged results for 10 runs - phpcompiler.org
 
-Usage: reduce [OPTIONS] filename
+Usage: benchmark [OPTIONS]
 
 Options:
 	 -h     Print this help message

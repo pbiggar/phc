@@ -545,20 +545,20 @@ write_var (zval ** p_lhs, zval ** p_rhs, int *is_rhs_new TSRMLS_DC)
 static zval **
 get_ht_entry (zval ** p_var, zval * ind TSRMLS_DC)
 {
-	if (Z_TYPE_P (*p_var) == IS_STRING)
+  if (Z_TYPE_P (*p_var) == IS_STRING)
+    {
+      if (Z_STRLEN_PP (p_var) > 0)
 	{
-		if (Z_STRLEN_PP (p_var) > 0)
-		{
-			php_error_docref (NULL TSRMLS_CC, E_ERROR,
-					"Cannot create references to/from string offsets nor overloaded objects");
-		}
-		else
-		{
-			zval_ptr_dtor (p_var);
-			ALLOC_INIT_ZVAL (*p_var);
-			array_init (*p_var);
-		}
+	  php_error_docref (NULL TSRMLS_CC, E_ERROR,
+			    "Cannot create references to/from string offsets nor overloaded objects");
 	}
+      else
+	{
+	  zval_ptr_dtor (p_var);
+	  ALLOC_INIT_ZVAL (*p_var);
+	  array_init (*p_var);
+	}
+    }
 
   HashTable *ht = extract_ht (p_var TSRMLS_CC);
 

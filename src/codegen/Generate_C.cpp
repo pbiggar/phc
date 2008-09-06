@@ -18,6 +18,21 @@
 // TODO Variable_variables cannot be used to access superglobals. See warning
 // in http://php.net/manual/en/language.variables.superglobals.php
 
+// TODO:
+//		magic methods are:
+//			__construct
+//			__destruct
+//			__get
+//			__set
+//			__unset
+//			__isset
+//			__call
+//			__toString
+//			__serialize
+//			__unserialize
+//
+//	So that means casts are pure.
+
 #include <fstream>
 #include <set>
 #include <cstdlib>
@@ -127,7 +142,9 @@ string declare (string var)
 {
 	stringstream ss;
 	ss
+	<< "zval* " << var << "_temp = NULL;\n"
 	<< "zval** " << var << ";\n"
+	<< var << " = &" << var << "_temp;\n"
 	<< "int is_" << var << "_new = 0;\n"
 	;
 	return ss.str ();
@@ -713,16 +730,11 @@ public:
 	{
 		code 
 		<<	get_st_entry (LOCAL, "p_lhs", lhs->value)
-
-		<<	"if (p_lhs != NULL)\n"
-		<<	"{\n";
+		;
 
 		// Generate code for the RHS
 		generate_rhs ();
 
-		code 
-		<<	"}\n"
-		;
 	}
 
 protected:
@@ -738,8 +750,6 @@ string assign_rhs (bool is_ref, VARIABLE_NAME* rhs)
 	{
 		ss	
 		<< declare ("p_rhs")
-		<< "zval* temp = NULL;\n"
-		<< "p_rhs = &temp;\n"
 		<< read_rvalue (LOCAL, "p_rhs_var", rhs)
 		<< "// Read normal variable\n"
 		<< "p_rhs = &p_rhs_var;\n"
@@ -779,12 +789,7 @@ public:
 
 		code 
 		<<	get_array_entry (LOCAL, "p_lhs", lhs->value, index->value)
-		<< "assert (p_lhs != NULL);\n" // TODO can this be NULL?
-
-		<<	"if (p_lhs != NULL)\n"
-		<<	"{\n"
-		<<		assign_rhs (agn->is_ref, rhs->value)
-		<<	"}\n"
+		<<	assign_rhs (agn->is_ref, rhs->value)
 		;
 	}
 
@@ -802,9 +807,6 @@ string push_rhs (bool is_ref, VARIABLE_NAME* rhs)
 	{
 		ss
 		<< declare ("p_rhs")
-
-		<< "zval* temp = NULL;\n"
-		<< "p_rhs = &temp;\n"
 
 		<< read_var (LOCAL, "p_rhs", rhs)
 
@@ -846,7 +848,8 @@ public:
 
 		<<	"// Array push \n"
 		<<	"p_lhs = push_and_index_ht (p_lhs_var TSRMLS_CC);\n"
-		
+	
+		// TODO this can return NULL if there is an error.
 		<<	"if (p_lhs != NULL)\n"
 		<<	"{\n"
 		<<		push_rhs (agn->is_ref, rhs->value)
@@ -1071,14 +1074,12 @@ public:
 
 	void generate_rhs ()
 	{
-		// TODO combine with assign_rhs?
+		// TODO combine with assign_var_var_to_var
+		// and assign_array_index_to_var
 		if (!agn->is_ref)
 		{
 			code
 			<< declare ("p_rhs")
-
-			<< "zval* temp = NULL;\n" // TODO this comes up everywhere, why?
-			<< "p_rhs = &temp;\n"
 
 			<< read_var (LOCAL, "p_rhs", rhs->value)
 
@@ -1115,9 +1116,6 @@ public:
 		{
 			code
 			<< declare ("p_rhs")
-
-			<< "zval* temp = NULL;\n"
-			<< "p_rhs = &temp;\n"
 
 			<< read_var_var (LOCAL, "p_rhs", rhs->value)
 
@@ -1157,9 +1155,6 @@ public:
 			code
 			<< declare ("p_rhs")
 
-			<< "zval* temp = NULL;\n"
-			<< "p_rhs = &temp;\n"
-
 			<< read_array_index (LOCAL, "p_rhs", rhs->value)
 			
 			<< "if (*p_lhs != *p_rhs)\n"
@@ -1181,8 +1176,10 @@ protected:
 };
 
 
-class Pattern_cast : public Pattern_assign_var
+class Pattern_cast : public Pattern_assign_var_to_var
 {
+// Casts without a lhs have a LHS added, hence this is an assign_var, not a
+// eval_expr_or_assign_var.
 public:
 	Expr* rhs_pattern()
 	{
@@ -1195,31 +1192,7 @@ public:
 	{
 		assert (agn->is_ref == false);
 		assert (lhs);
-
-		// this much copied from Assign_var
-		if (!agn->is_ref)
-		{
-			code
-			<< declare ("p_rhs")
-
-			<< "zval* temp = NULL;\n"
-			<< "p_rhs = &temp;\n"
-
-			<< read_var (LOCAL, "p_rhs", rhs->value)
-
-			<< "if (*p_lhs != *p_rhs)\n"
-			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
-			<< cleanup ("p_rhs")
-			;
-		}
-		else
-		{
-			code
-			<< get_st_entry (LOCAL, "p_rhs", rhs->value)
-			<< "copy_into_ref (p_lhs, p_rhs);\n"
-			;
-		}
-		// as far as here
+		Pattern_assign_var_to_var::generate_rhs ();
 
 		if (*cast->value->value == "string")
 			code << "cast_var (p_lhs, IS_STRING);\n";
@@ -1239,7 +1212,6 @@ public:
 
 public:
 	Wildcard<CAST>* cast;
-	Wildcard<VARIABLE_NAME>* rhs;
 };
 
 class Pattern_global : public Pattern 
@@ -1278,6 +1250,7 @@ public:
 	void generate_rhs ()
 	{
 		assert (lhs);
+		assert (!agn->is_ref);
 		// Check whether its in the form CONST or CLASS::CONST
 		String* name = new String ("");
 		if (rhs->value->class_name)
@@ -1341,11 +1314,7 @@ public:
 	void generate_code(Generate_C* gen)
 	{
 		if (lhs == NULL)
-		{
-			code << "{\n";
 			generate_rhs ();
-			code << "}\n";
-		}
 		else
 			Pattern_assign_var::generate_code (gen);
 	}
@@ -1392,13 +1361,13 @@ public:
 
 		if (lhs)
 		{
+			assert (!agn->is_ref);
+
 			// create a result
 			code
 			<< declare ("p_rhs")
-			<< "zval* temp = NULL;\n"
-			<< "ALLOC_INIT_ZVAL (temp);\n"
+			<< "ALLOC_INIT_ZVAL (*p_rhs);\n"
 			<< "is_p_rhs_new = 1;\n"
-			<< "p_rhs = &temp;\n"
 			<< "phc_builtin_" << *method_name->value->value << " (p_arg, *p_rhs TSRMLS_CC);\n"
 			;
 
@@ -1409,6 +1378,7 @@ public:
 			}
 			else
 			{
+				// TODO: remove this, but not yet. Run more tests first.
 				code 
 				<< "copy_into_ref (p_lhs, p_rhs);\n"
 				;
@@ -1439,6 +1409,8 @@ public:
 		assert (!agn->is_ref);
 		String* name = dyc<METHOD_NAME> (rhs->value->method_name)->value;
 		int index = rhs->value->param_index->value;
+
+		// TODO only do this once per function
 
 		code
 		// lookup the function and cache it for next time
@@ -1526,8 +1498,6 @@ public:
 
 		code
 		<< declare ("p_rhs")
-		<< "zval* temp;\n"
-		<< "p_rhs = &temp;\n"
 		;
 
 		int num_args = rhs->value->actual_parameters->size();
@@ -2249,8 +2219,6 @@ class Pattern_foreach_get_val : public Pattern_assign_var
 		{
 			code
 			<< declare ("p_rhs")
-			<< "zval* temp = NULL;\n"
-			<< "p_rhs = &temp;\n"
 			<< "int result = zend_hash_get_current_data_ex (\n"
 			<<							"fe_array->value.ht, "
 			<<							"(void**)(&p_rhs), "
