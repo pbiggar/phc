@@ -1359,6 +1359,8 @@ public:
 		code
 		<< read_rvalue (LOCAL, "p_arg", arg->value->rvalue);
 
+		// TODO add extra param for include.
+
 		if (lhs)
 		{
 			assert (!agn->is_ref);
@@ -1368,26 +1370,16 @@ public:
 			<< declare ("p_rhs")
 			<< "ALLOC_INIT_ZVAL (*p_rhs);\n"
 			<< "is_p_rhs_new = 1;\n"
-			<< "phc_builtin_" << *method_name->value->value << " (p_arg, *p_rhs TSRMLS_CC);\n"
-			;
+			<< "phc_builtin_" << *method_name->value->value << " (p_arg, *p_rhs, \"" 
+			<< *arg->value->get_filename() << "\" TSRMLS_CC);\n"
 
-			if (!agn->is_ref)
-			{
-				code 
-				<< "write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
-			}
-			else
-			{
-				// TODO: remove this, but not yet. Run more tests first.
-				code 
-				<< "copy_into_ref (p_lhs, p_rhs);\n"
-				;
-			}
-			code
+			<< "write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
 			<< cleanup ("p_rhs");
 		}
 		else
-			code << "phc_builtin_" << *method_name->value->value << " (p_arg, NULL TSRMLS_CC);\n";
+			code
+			<< "phc_builtin_" << *method_name->value->value << " (p_arg, NULL, \""
+			<< *arg->value->get_filename() << "\" TSRMLS_CC);\n";
 	}
 
 protected:
