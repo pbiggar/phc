@@ -51,7 +51,7 @@ using namespace MIR;
 void phc_unsupported (Node* node)
 {
 	cerr << "Could not generate code:" << endl;
-	node->visit (new MIR_unparser (cerr, true));
+	(new MIR_unparser (cerr, true))->unparse (node);
 	cerr << endl;
 	xml_unparse (node, cerr);
 	exit (-1);
@@ -2202,10 +2202,6 @@ class Pattern_foreach_get_val : public Pattern_assign_var
 
 	void generate_rhs ()
 	{
-		// FIXME: this happens because of strange, multi-stage lowering
-		if (lhs == NULL)
-			return;
-
 		code << read_rvalue (LOCAL, "fe_array", get_val->value->array);
 		if (!agn->is_ref)
 		{
@@ -2474,10 +2470,10 @@ void Generate_C::post_php_script(PHP_script* in)
 	}
 	else
 	{
-		code << "#include <sapi/embed/php_embed.h>\n";
-		code << "#include <signal.h>\n\n";
+		code << 
+		"#include <sapi/embed/php_embed.h>\n"
+		"#include <signal.h>\n\n"
 	
-		code <<
 		"void sighandler(int signum)\n"
 		"{\n"
 		"	switch(signum)\n"
@@ -2496,9 +2492,8 @@ void Generate_C::post_php_script(PHP_script* in)
 		"	printf(\"This could be a bug in phc. If you suspect it is, please email\\n\");\n"
 		"	printf(\"a bug report to phc-general@phpcompiler.org.\\n\");\n"
 		"	exit(-1);\n"
-		"}\n";
+		"}\n"
 	
-		code << 
 		"\n"
 		"int\n"
 		"main (int argc, char* argv[])\n"
