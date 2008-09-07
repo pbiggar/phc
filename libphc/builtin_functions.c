@@ -80,8 +80,6 @@ phc_builtin_include (zval* arg, zval* result, char* filename TSRMLS_DC)
   // TODO: the file might not exist.
   //
 
-  // We dont need to handle include files, that's done by zend_execute_scripts.
-   
   // In the event that the Zend engine cannot find the file, after checking the
   // include path, it tries the current directory. It does this only if the
   // interpreter is executing, and it checks the interpreters opcodes for a
@@ -98,6 +96,13 @@ phc_builtin_include (zval* arg, zval* result, char* filename TSRMLS_DC)
   assert (EG(active_op_array) == NULL);
   assert (filename != NULL);
 
+  // Check we have a string
+  if (Z_TYPE_P (arg) != IS_STRING)
+    {
+      zvp_clone_ex (&arg);
+      convert_to_string (arg);
+    }
+
   // Pretend the interpreter is running
   EG(in_execution) = 1;
   zend_op_array ops;
@@ -107,24 +112,29 @@ phc_builtin_include (zval* arg, zval* result, char* filename TSRMLS_DC)
   // Open the file
   zend_file_handle handle;
   int success = zend_stream_open (Z_STRVAL_P (arg), &handle TSRMLS_CC);
-  assert (success == SUCCESS);
 
   // Stop pretending
   EG(in_execution) = 0;
   EG(active_op_array) = NULL;
 
+  if (success == SUCCESS)
+    {
+      // run it
+      success = zend_execute_scripts (ZEND_INCLUDE TSRMLS_CC, &result, 1, &handle);
+      assert (success == SUCCESS);
+      zend_stream_close (&handle);
+   }
+  else
+    {
+      php_error_docref("function.include" TSRMLS_CC, E_WARNING, "Failed opening '%s' for inclusion (include_path='%s')", php_strip_url_passwd(Z_STRVAL_P (arg)), STR_PRINT(PG(include_path)));
+    }
 
-  // run it
-  success = zend_execute_scripts (ZEND_INCLUDE TSRMLS_CC, &result, 1, &handle);
-  assert (success == SUCCESS);
 
  
    //TODO 
   // What happens in zend_vm_def.h, in the include's handler function:
-/*  if (!is_string (arg))
-    arg = (string) (arg);
 
-  if (is_once_variety)
+/*  if (is_once_variety)
     {
       if (is_absolutepath (arg))
 	failure = !path_ok (arg) || zend_hash_exists (EG(included_files))
