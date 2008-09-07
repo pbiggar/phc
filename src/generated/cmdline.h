@@ -53,6 +53,11 @@ struct gengetopt_args_info
   int r_option_min; /**< @brief Pass option to a plugin (specify multiple flags in the same order as multiple plugins - 1 option only per plugin)'s minimum occurreces */
   int r_option_max; /**< @brief Pass option to a plugin (specify multiple flags in the same order as multiple plugins - 1 option only per plugin)'s maximum occurreces */
   const char *r_option_help; /**< @brief Pass option to a plugin (specify multiple flags in the same order as multiple plugins - 1 option only per plugin) help description.  */
+  char ** define_arg;	/**< @brief Define ini entry (only affects -c and --include).  */
+  char ** define_orig;	/**< @brief Define ini entry (only affects -c and --include) original value given at command line.  */
+  int define_min; /**< @brief Define ini entry (only affects -c and --include)'s minimum occurreces */
+  int define_max; /**< @brief Define ini entry (only affects -c and --include)'s maximum occurreces */
+  const char *define_help; /**< @brief Define ini entry (only affects -c and --include) help description.  */
   char * read_xml_arg;	/**< @brief Assume the input is in XML format. Start processing after the named pass.  */
   char * read_xml_orig;	/**< @brief Assume the input is in XML format. Start processing after the named pass original value given at command line.  */
   const char *read_xml_help; /**< @brief Assume the input is in XML format. Start processing after the named pass help description.  */
@@ -142,6 +147,7 @@ struct gengetopt_args_info
   unsigned int obfuscate_given ;	/**< @brief Whether obfuscate was given.  */
   unsigned int run_given ;	/**< @brief Whether run was given.  */
   unsigned int r_option_given ;	/**< @brief Whether r-option was given.  */
+  unsigned int define_given ;	/**< @brief Whether define was given.  */
   unsigned int read_xml_given ;	/**< @brief Whether read-xml was given.  */
   unsigned int no_validation_given ;	/**< @brief Whether no-validation was given.  */
   unsigned int include_given ;	/**< @brief Whether include was given.  */
