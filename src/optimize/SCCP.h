@@ -7,7 +7,10 @@
 class SCCP
 {
 	CFG* cfg;
-	Lattice lattice;
+	Lattice_map lattice;
+	Edge_list* cfg_wl;
+	SSA_edge_list* ssa_wl;
+
 public:
 	SCCP (CFG* cfg);
 	void execute ();

@@ -118,8 +118,8 @@ void
 SCCP::execute ()
 {
 	// 1. Initialize:
-	Edge_list* cfg_wl = new Edge_list(cfg->get_entry_edge ());
-	SSA_edge_list* ssa_wl = new SSA_edge_list;
+	cfg_wl = new Edge_list(cfg->get_entry_edge ());
+	ssa_wl = new SSA_edge_list;
 
 	foreach (Edge* e, *cfg->get_all_edges ())
 		e->is_executable = false;
@@ -213,7 +213,7 @@ SCCP::visit_phi (Phi* phi)
 	 *			ci + cj = ci if i == j (? surely if c_i == c_j?)
 	 *			c1 + c2 = BOTTOM if i != j (this can be improved with VRP, using a similar algorithm).
 	 */
-	Lattice_cell result = TOP;
+	Lattice_cell* result = TOP;
 	foreach (VARIABLE_NAME* var, *phi->args)
 	{
 		result = meet (result, lattice[var]);
@@ -223,11 +223,11 @@ SCCP::visit_phi (Phi* phi)
 
 /*	VisitExpr:
  *	Evaluate the expression.
- *		- If its an assignment and creates a result for the LHS, add all SSA
- *		edges from LHS to SSAWL.
- *		- If its a branch, add:
- *			- all outgoing edges to CFGWL for BOTTOM
- *			- only the appropriate outgoing edge for a constant
+ *	- If its an assignment and creates a result for the LHS, add all SSA edges
+ *	from LHS to SSAWL.
+ *	- If its a branch, add:
+ *		- all outgoing edges to CFGWL for BOTTOM
+ *		- only the appropriate outgoing edge for a constant
  */
 
 void
@@ -326,9 +326,20 @@ SCCP::visit_exit_block (Exit_block*)
 }
 
 void
-SCCP::visit_branch_block (Branch_block*)
+SCCP::visit_branch_block (Branch_block* bb)
 {
-	assert (0);
+	/*	- If its a branch, add:
+	 *		- all outgoing edges to CFGWL for BOTTOM
+	 *		- only the appropriate outgoing edge for a constant
+	 */
+	if (lattice[bb->branch->variable_name] == BOTTOM)
+		cfg_wl->push_back_all (bb->get_successor_edges ());
+	else if (lattice[bb->branch->variable_name] == TOP)
+		; // do nothing
+	else
+	{
+		assert (0);
+	}
 }
 
 
@@ -379,13 +390,11 @@ SCCP::visit_assign_var (Statement_block*, MIR::Assign_var* in)
 			Literal* right = get_literal (bin_op->right);
 
 			if (left) bin_op->left = left;
-			if (right) bin_op->right = left;
+			if (right) bin_op->right = right;
 
-			if (left && right)
+			if (isa<Literal> (bin_op->left) 
+				&& isa<Literal> (bin_op->right))
 				assert (0); // TODO go through embed
-			else
-			{
-			}
 			break;
 		}
 
@@ -490,7 +499,10 @@ SCCP::visit_assign_var (Statement_block*, MIR::Assign_var* in)
 		{
 			Unary_op* u = dyc<Unary_op> (expr);
 			Literal* lit = get_literal (u->variable_name);
-			assert (0); // go through embed
+
+			if (lit)
+				assert (0); // go through embed
+
 			break;
 		}
 
@@ -520,11 +532,15 @@ SCCP::visit_assign_var (Statement_block*, MIR::Assign_var* in)
 
 	in->rhs = expr;
 	
+	// If its an assignment and creates a result for the LHS, add all SSA
+	// edges.
 	if (isa<Literal> (expr))
 	{
 		assert (in->is_ref == false); // TODO
-		lattice[in->lhs] = CONST;
+		lattice[in->lhs] = new Lattice_cell (dyc<Literal> (expr));
+		assert (0);
 	}
+
 }
 
 void
@@ -620,8 +636,8 @@ SCCP::get_literal (Rvalue* in)
 
 	VARIABLE_NAME* var_name = dyc<VARIABLE_NAME> (in);
 
-	if (lattice[var_name] != CONST)
+	if (lattice[var_name] == TOP || lattice[var_name] == BOTTOM)
 		return NULL;
 
-	assert (0); // TODO
+	return lattice[var_name]->get_value ()->clone ();
 }

@@ -9,37 +9,24 @@
  *			c1 + c2 = BOTTOM if i != j (this can be improved with VRP, using a similar algorithm).
  */
 // TODO move this into SCCP
-Lattice_cell meet (Lattice_cell l1, Lattice_cell l2)
+Lattice_cell* meet (Lattice_cell* l1, Lattice_cell* l2)
 {
-	switch (l1)
-	{
-		case TOP:
-			return l2;
+	if (l1 == BOTTOM || l2 == BOTTOM)
+		return BOTTOM;
 
-		case CONST:
-		{
-			switch (l2)
-			{
-				case TOP:
-					return l1;
+	if (l1 == TOP)
+		return l2;
+	
+	if (l2 == TOP)
+		return l1;
 
-				case CONST:
-					// TODO
-					return CONST;
-
-				case BOTTOM:
-					return BOTTOM;
-
-				default:
-					assert (0);
-			}
-			break;
-		}
-
-		case BOTTOM:
-			return BOTTOM;
-
-		default:
-			assert (0);
-	}
+	// l1 == CONST && l2 == CONST
+	if (l1->get_value()->equals (l2->get_value()))
+		return l1;
+	else
+		return BOTTOM;
 }
+// Pointers in the lattice_map are initialized to NULL, so this is the
+// easiest way to make them TOP.
+Lattice_cell* TOP = NULL;
+Lattice_cell* BOTTOM = new Lattice_cell (NULL);
