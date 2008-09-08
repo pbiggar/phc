@@ -192,6 +192,27 @@ Basic_block::get_successor ()
 	return succs->front ();
 }
 
+Edge_list*
+Basic_block::get_predecessor_edges ()
+{
+	return cfg->get_edge_predecessors (this);
+}
+
+Edge_list*
+Basic_block::get_successor_edges ()
+{
+	return cfg->get_edge_successors (this);
+}
+
+
+Edge*
+Basic_block::get_successor_edge ()
+{
+	Edge_list* succs = get_successor_edges ();
+	assert (succs->size() == 1);
+	return succs->front ();
+}
+
 Basic_block*
 Branch_block::get_true_successor ()
 {
@@ -302,3 +323,4 @@ Basic_block::get_index ()
 {
 	return cfg->index[vertex];
 }
+

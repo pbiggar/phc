@@ -7,6 +7,8 @@ typedef enum Lattice_cell_enum Lattice_cell;
 
 #include <map>
 #include "MIR.h"
+#include "Set.h"
+
 
 // TODO templatize on the lattice type
 class Lattice 
@@ -24,6 +26,7 @@ class Lattice
 	> parent;
 public:
 	Lattice ()
+	: parent (&variable_name_ptr_comparison)
 	{
 	}
 

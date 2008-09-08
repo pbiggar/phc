@@ -138,8 +138,6 @@ public:
 	void convert_to_ssa_form ();
 	void convert_out_of_ssa_form ();
 
-	MIR::VARIABLE_NAME_list* get_all_variables ();
-
 private:
 	Graph bs; // backing store
 
@@ -154,6 +152,8 @@ private:
 	// For BB methods
 	BB_list* get_bb_successors (Basic_block* bb);
 	BB_list* get_bb_predecessors (Basic_block* bb);
+	Edge_list* get_edge_successors (Basic_block* bb);
+	Edge_list* get_edge_predecessors (Basic_block* bb);
 	Edge* get_edge (Basic_block* bb1, Basic_block* bb2);
 	void replace_bb (Basic_block* bb, BB_list* replacements);
 	void remove_bb (Basic_block* bb);

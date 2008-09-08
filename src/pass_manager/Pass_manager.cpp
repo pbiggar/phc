@@ -574,7 +574,8 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 			if (args_info->cfg_dump_given)
 				cfg->dump_graphviz (s("CFG - in SSA"));
 
-			(new SCCP (cfg))->execute ();
+			SCCP* sccp = new SCCP (cfg);
+			sccp->execute ();
 			if (args_info->cfg_dump_given)
 				cfg->dump_graphviz (s("CFG - after SCCP"));
 

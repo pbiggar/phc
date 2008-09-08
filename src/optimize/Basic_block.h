@@ -60,7 +60,8 @@ public:
 
 	// Assert a block has a single successor, and return it.
 	Basic_block* get_successor ();
-	// TODO same for edge
+	Edge* get_successor_edge  ();
+	// TODO same for preds
 
 	Edge_list* get_predecessor_edges ();
 	Edge_list* get_successor_edges ();

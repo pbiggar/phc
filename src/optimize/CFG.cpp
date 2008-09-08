@@ -176,7 +176,6 @@ CFG::get_exit_bb ()
 BB_list*
 CFG::get_all_bbs ()
 {
-
 	BB_list* result = new BB_list;
 
 	foreach (vertex_t v, vertices(bs))
@@ -621,6 +620,50 @@ CFG::get_edge (Basic_block* bb1, Basic_block* bb2)
 			return ee[e];
 
 	assert (0);
+}
+
+Edge*
+CFG::get_entry_edge ()
+{
+	return get_entry_bb ()->get_successor_edge ();
+}
+
+Edge_list*
+CFG::get_all_edges ()
+{
+	Edge_list* result = new Edge_list;
+
+	foreach (edge_t e, edges(bs))
+	{
+		result->push_back (ee[e]);
+	}
+	return result;
+}
+
+Edge_list*
+CFG::get_edge_successors (Basic_block* bb)
+{
+	Edge_list* result = new Edge_list;
+
+	foreach (edge_t e, out_edges (bb->vertex, bs))
+	{
+		result->push_back (ee[e]);
+	}
+
+	return result;
+}
+
+Edge_list*
+CFG::get_edge_predecessors (Basic_block* bb)
+{
+	Edge_list* result = new Edge_list;
+
+	foreach (edge_t e, in_edges (bb->vertex, bs))
+	{
+		result->push_back (ee[e]);
+	}
+
+	return result;
 }
 
 /* returns true or false. If edge isnt true or false, asserts. */
