@@ -40,7 +40,8 @@ using namespace HIR;
 Expr*
 Lower_method_invocations::pre_method_invocation (Method_invocation* in)
 {
-	// Leave unset in place - it still needs access to the target and indices.
+	// Leave unset and isset in place - it still needs access to the target and
+	// indices.
 	METHOD_NAME* mn = dynamic_cast <METHOD_NAME*> (in->method_name);
 	if (in->target == NULL
 		&& mn
@@ -166,7 +167,8 @@ Lower_method_invocations::check_builtin (FOREIGN* in)
 		&& isa<MIR::METHOD_NAME> (param_is_ref->method_name))
 	{
 		String* method_name = dyc<MIR::METHOD_NAME> (param_is_ref->method_name)->value;
-		if (*method_name == "isset")
+		if (	 *method_name == "print"
+		    || *method_name == "empty")
 			return new BOOL (false);
 	}
 

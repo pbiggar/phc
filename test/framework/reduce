@@ -43,7 +43,7 @@ $phc = "src/phc";
 
 $cg = new Console_Getopt();
 $command_line = join (" ", $cg->readPHPArgv());
-$opt_result = $cg->getopt($cg->readPHPArgv(), "vhc:rdDf:i:UuF:ZP:m:");
+$opt_result = $cg->getopt($cg->readPHPArgv(), "vhc:rdDf:i:UuF:ZP:m:p:");
 if (!is_array ($opt_result))
 	die ($opt_result->message."\n");
 
@@ -52,6 +52,7 @@ $opt_verbose = 0;
 $opt_help = false;
 $opt_command = "";
 $opt_main_command = "";
+$opt_pass = "AST-to-HIR";
 $opt_file = NULL;
 $opt_interpret = false;
 $opt_dont_upper = false;
@@ -74,20 +75,21 @@ foreach ($opts as $opt)
 		case 'F': $opt_failure = $opt[1]; break;
 		case 'Z': $opt_zero = true; break;
 		case 'P': $opt_phc_prefix = $opt[1]; break;
+		case 'p': $opt_pass = $opt[1]; break;
 	}
 }
 foreach ($opts as $opt)  // these need to wait until opt_phc_prefix is set
 {
 	switch ($opt[0])
 	{
-		case 'r': $opt_command .= "--run $opt_phc_prefix/plugins/tools/debug_zval.la --xdump=$opt_phc_prefix/plugins/tools/debug_zval.la"; break;
-		case 'd': $opt_command .= "--run $opt_phc_prefix/plugins/tools/demi_eval.la --r-option=true --xdump=$opt_phc_prefix/plugins/tools/demi_eval.la"; break;
-		case 'D': $opt_command .= "--run $opt_phc_prefix/plugins/tools/demi_eval.la --r-option=false --xdump=$opt_phc_prefix/plugins/tools/demi_eval.la"; break;
+		case 'r': $opt_command .= "--run=$opt_phc_prefix/plugins/tools/debug_zval.la --xdump=$opt_phc_prefix/plugins/tools/debug_zval.la"; break;
+		case 'd': $opt_command .= "--run=$opt_phc_prefix/plugins/tools/demi_eval.la --r-option=true --xdump=$opt_phc_prefix/plugins/tools/demi_eval.la"; break;
+		case 'D': $opt_command .= "--run=$opt_phc_prefix/plugins/tools/demi_eval.la --r-option=false --xdump=$opt_phc_prefix/plugins/tools/demi_eval.la"; break;
 	}
 }
 
 if ($opt_command === "") 
-	$opt_command = "--xdump=AST-to-HIR --no-xml-attrs";
+	$opt_command = "--xdump=$opt_pass --no-xml-attrs";
 
 if ($opt_help || count ($arguments) == 0)
 {
@@ -101,6 +103,7 @@ Options:
     -v     Verbose. Can be set more than once. Set once, prints actions; set 
            twice, prints commands executed; set thrice, dumps results of 
            intermediate stages.
+    -p     Mnemoic: pass. Perform the reduction at the specified pass.
     -P     Since src/phc is broken, another version can be specified to do the
            conversion steps, with this prefix.
     -c     Pass as arguments to the first phc. Be sure to include an --xdump
@@ -108,9 +111,9 @@ Options:
     -m     Pass as arguments to the main phc. Default ""
     -r     Mnemonic: refcount. The equivalent of "-c--run
            plugins/tools/debug_zval.la -xdump=plugins/tools/debug_zval.la".
-    -d     The equivalent of "-c--run plugins/tools/demi_eval.la
+    -d     The equivalent of "-c--run=plugins/tools/demi_eval.la
            -xdump=plugins/tools/demi_eval.la --r-option=true".
-    -D     The equivalent of "-c--run plugins/tools/demi_eval.la
+    -D     The equivalent of "-c--run=plugins/tools/demi_eval.la
            -xdump=plugins/tools/demi_eval.la --r-option=false".
     -f     Use the passed XML file as the the first program, instead of calling
            phc.
@@ -125,7 +128,7 @@ Options:
 
 Sample commands:
     reduce -v test/subjects/codegen/0001.php
-    reduce "-c--run plugins/tools/debug_zval.la -xdump=plugins/tools/debug_zval.la" test/subjects/codegen/0001.php
+    reduce "-c--run=plugins/tools/debug_zval.la -xdump=plugins/tools/debug_zval.la" test/subjects/codegen/0001.php
     reduce -v 0001.uhir.php
     reduce -F plugins/tests/limit_assignments.la test/subjects/codegen/bench_simple.php
 
@@ -198,18 +201,18 @@ file_put_contents ("$filename.reduced", $pprogram);
 
 function add_comment ($xprogram)
 {
-	global $opt_phc_prefix;
+	global $opt_phc_prefix, $opt_pass;
 	debug (2, "Adding comment");
 	global $command_line;
-	list ($out) = run ("$opt_phc_prefix/src/phc --read-xml=$opt_phc_prefix/plugins/tools/add_comment.la --run $opt_phc_prefix/plugins/tools/add_comment.la --r-option=\"Reduced with command line '$command_line'\" --xdump=$opt_phc_prefix/plugins/tools/add_comment.la", $xprogram);
+	$out = run_safe ("$opt_phc_prefix/src/phc --read-xml=$opt_pass --run=$opt_phc_prefix/plugins/tools/add_comment.la --r-option=\"Reduced with command line '$command_line'\" --xdump=$opt_phc_prefix/plugins/tools/add_comment.la", $xprogram);
 	return $out;
 }
 
 function reduce ($xprogram_string, $start, $num)
 {
-	global $opt_phc_prefix;
+	global $opt_phc_prefix, $opt_pass;
 	debug (2, "Reducing");
-	list ($out) = run ("$opt_phc_prefix/src/phc --read-xml=$opt_phc_prefix/plugins/tools/reduce_statements.la --run $opt_phc_prefix/plugins/tools/reduce_statements.la"
+	$out = run_safe ("$opt_phc_prefix/src/phc --read-xml=$opt_pass --run=$opt_phc_prefix/plugins/tools/reduce_statements.la"
 							 ." --r-option=$start:$num --xdump=$opt_phc_prefix/plugins/tools/reduce_statements.la",
 							 $xprogram_string);
 	return $out;
@@ -217,12 +220,12 @@ function reduce ($xprogram_string, $start, $num)
 
 function convert ($xprogram_string, $upper)
 {
-	global $opt_phc_prefix;
-	global $opt_dont_upper;
+	global $opt_phc_prefix, $opt_dont_upper, $opt_pass;
+
 	if ($opt_dont_upper) $upper = false;
 	debug (2, "Converting to PHP from XML" . ($upper ? " (uppered)" : ""));
 	$upper = $upper ? "u" : ""; // TODO: if this is to be uppered, then we cant remove all?
-	list ($out) = run ("$opt_phc_prefix/src/phc --read-xml=ast --{$upper}dump=ast --run=$opt_phc_prefix/plugins/tools/remove_all.la", $xprogram_string);
+	$out = run_safe ("$opt_phc_prefix/src/phc --read-xml=$opt_pass --{$upper}dump=$opt_pass --run=$opt_phc_prefix/plugins/tools/remove_all.la", $xprogram_string);
 	return $out;
 }
 
@@ -230,7 +233,7 @@ function count_statements ($xprogram_string)
 {
 	global $opt_phc_prefix;
 	debug (2, "Counting statements");
-	list ($out, $err, $exit) = run ("$opt_phc_prefix/src/phc --read-xml=$opt_phc_prefix/plugins/tutorials/count_statements_easy.la --run $opt_phc_prefix/plugins/tutorials/count_statements_easy.la", $xprogram_string);
+	list ($out, $err, $exit) = run ("$opt_phc_prefix/src/phc --read-xml=$opt_phc_prefix/plugins/tutorials/count_statements_easy.la --run=$opt_phc_prefix/plugins/tutorials/count_statements_easy.la", $xprogram_string);
 	if ($err || $exit !== 0)
 	  die ("Error reading number of statements\n");
 	debug (2, "Output is: $out");
@@ -255,6 +258,17 @@ function run ($command, $stdin = NULL)
 		debug (2, "Command timed out");
 
 	return $result;
+}
+
+/* Check outputs */
+function run_safe ($command, $stdin = NULL)
+{
+	list ($out, $err, $exit) = run ($command, $stdin);
+
+	if ($exit !== 0 || $err !== "")
+		die ("Error ($exit): $err");
+
+	return $out;
 }
 
 function above_debug_threshold ($level)
@@ -285,7 +299,7 @@ function dump ($filename, $output)
 function do_main_step ($xprogram, $start, $num, $filename)
 {
 	// Within this step, we use src/phc, instead of $opt_phc_prefix, because we always want to test src/phc
-	global $num_steps, $opt_interpret, $opt_failure, $opt_zero, $opt_main_command;
+	global $num_steps, $opt_interpret, $opt_failure, $opt_zero, $opt_main_command, $opt_pass;
 	$num_steps++;
 
 	# Reduce
@@ -318,7 +332,7 @@ function do_main_step ($xprogram, $start, $num, $filename)
 	if ($opt_failure)
 	{
 		debug (2, "Getting output when run with failure plugin");
-		list ($phc_out, $phc_err, $phc_exit) = run ("src/phc --read-xml=ast --run $opt_failure", $xnew_program);
+		list ($phc_out, $phc_err, $phc_exit) = run ("src/phc --read-xml=$opt_pass --run=$opt_failure", $xnew_program);
 		if (preg_match ("/Failure$/", $phc_out))
 		{
 			debug (2, "Success, bug kept in");
@@ -352,7 +366,7 @@ function do_main_step ($xprogram, $start, $num, $filename)
 
 		global $opt_upper;
 		$upper = $opt_upper ? "u" : "";
-		list ($phc_out, $phc_err, $phc_exit) = run ("src/phc --read-xml=ast --{$upper}dump=$opt_interpret $opt_main_command", $xnew_program);
+		list ($phc_out, $phc_err, $phc_exit) = run ("src/phc --read-xml=$opt_pass --{$upper}dump=$opt_interpret $opt_main_command", $xnew_program);
 		if ($phc_err === "" && $phc_exit === 0)
 		{
 			list ($my_out, $my_err, $my_exit) = run (get_php_command_line ($filename, true), $phc_out);
@@ -365,7 +379,7 @@ function do_main_step ($xprogram, $start, $num, $filename)
 	{
 		# Compile and run
 		debug (2, "Getting compiled phc output");
-		list ($phc_out, $phc_err, $phc_exit) = run ("src/phc --read-xml=ast -c $opt_main_command", $xnew_program);
+		list ($phc_out, $phc_err, $phc_exit) = run ("src/phc --read-xml=$opt_pass -c $opt_main_command", $xnew_program);
 		if ($phc_err === "" && $phc_out === "" && $phc_exit === 0)
 		{
 			list ($my_out, $my_err, $my_exit) = run ("./a.out");

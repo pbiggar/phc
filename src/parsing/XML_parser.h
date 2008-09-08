@@ -55,6 +55,7 @@ public:
 	virtual Object* handle_token (string name, Object* param) = 0;
 
 	virtual Object* create_node (char const* type, List<Object*>* args) = 0;
+	virtual ~Node_builder () {}
 };
 
 

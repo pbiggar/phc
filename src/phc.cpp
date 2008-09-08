@@ -21,8 +21,6 @@
 #include "ast_to_hir/Split_multiple_arguments.h"
 #include "ast_to_hir/Split_unset_isset.h"
 #include "ast_to_hir/Strip_comments.h"
-#include "ast_to_hir/Tidy_print.h"
-#include "ast_to_hir/Translate_empty.h"
 #include "cmdline.h"
 #include "codegen/Clarify.h"
 #include "codegen/Compile_C.h"
@@ -31,6 +29,7 @@
 #include "embed/embed.h"
 #include "hir_to_mir/HIR_to_MIR.h"
 #include "hir_to_mir/Lower_control_flow.h"
+#include "hir_to_mir/Lower_dynamic_definitions.h"
 #include "hir_to_mir/Lower_method_invocations.h"
 #include "optimize/Address_taken.h"
 #include "optimize/Copy_propagation.h"
@@ -140,7 +139,6 @@ int main(int argc, char** argv)
 	pm->add_ast_transform (new Split_multiple_arguments (), s("sma"), s("Split multiple arguments for globals, attributes and static declarations"));
 	pm->add_ast_transform (new Split_unset_isset (), s("sui"), s("Split unset() and isset() into multiple calls with one argument each"));
 	pm->add_ast_transform (new Echo_split (), s("ecs"), s("Split echo() into multiple calls with one argument each"));
-	pm->add_ast_transform (new Translate_empty (), s("empty"), s("Translate calls to empty() into casts"));
 
 	pm->add_ast_transform (new Early_lower_control_flow (), s("elcf"), s("Early Lower Control Flow - lower for, while, do and switch statements")); // AST
 	pm->add_ast_transform (new Lower_expr_flow (), s("lef"), s("Lower Expression Flow - Lower ||, && and ?: expressions"));
@@ -148,7 +146,6 @@ int main(int argc, char** argv)
 	pm->add_ast_transform (new Pre_post_op_shredder (), s("pps"), s("Shred pre- and post-ops, removing post-ops"));
 	pm->add_ast_transform (new List_shredder (), s("lish"), s("List shredder - simplify to array assignments"));
 	pm->add_ast_transform (new Shredder (), s("ashred"), s("Shredder - turn the AST into three-address-code, replacing complex expressions with a temporary variable"));
-	pm->add_ast_transform (new Tidy_print (), s("tidyp"), s("Replace calls to echo() and print() with printf()"));
 	pm->add_ast_transform (new Remove_solo_variables (), s("rsv"), s("Remove statements which consist of variables by themselves"));
 	pm->add_ast_pass (new Fake_pass (s("AST-to-HIR"), s("The HIR in AST form")));
 
@@ -156,6 +153,7 @@ int main(int argc, char** argv)
 	pm->add_hir_pass (new Fake_pass (s("hir"), s("High-level Internal Representation - the smallest subset of PHP which can represent the entire language")));
 	// TODO move to optimizations
 	pm->add_hir_transform (new Copy_propagation (), s("prc"), s("Propagate copies - Remove some copies introduced as a result of lowering"));
+	pm->add_hir_transform (new Lower_dynamic_definitions (), s("ldd"), s("Lower Dynamic Defintions - Lower dynamic class, interface and method definitions using aliases"));
 	pm->add_hir_transform (new Lower_method_invocations (), s("lmi"), s("Lower Method Invocations - Lower parameters using run-time reference checks"));
 	pm->add_hir_transform (new Lower_control_flow (), s("lcf"), s("Lower Control Flow - Use gotos in place of loops, ifs, breaks and continues"));
 	pm->add_hir_pass (new Fake_pass (s("HIR-to-MIR"), s("The MIR in HIR form")));
@@ -211,6 +209,10 @@ int main(int argc, char** argv)
 	{
 		pm->get_pass_named (s(args_info.disable_arg [i]))->set_enabled (false);
 	}
+
+	// -e implies -c (I dont know how to do this in gengetopt)
+	if (args_info.execute_flag)
+		args_info.compile_flag = true;
 
 
 	/* 

@@ -1,5 +1,5 @@
 ## Makefile for the phc manual
-## Requires docbook, jade and jadetex
+## Requires docbook, jade, jadetex and docbook-dsssl
 
 html: *.sgml manual.dtd manual.dsl
 	jade -t sgml -d manual.dsl#html manual.sgml

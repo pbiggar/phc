@@ -149,6 +149,19 @@ extract_ht (zval ** p_var TSRMLS_DC)
   return extract_ht_ex (*p_var TSRMLS_CC);
 }
 
+/* Assign RHS into LHS, by reference. After this, LHS will point to the same
+ * zval* as RHS. */
+static void
+copy_into_ref (zval** lhs, zval** rhs)
+{
+  sep_copy_on_write_ex (rhs);
+
+  (*rhs)->is_ref = 1;
+  (*rhs)->refcount++;
+  zval_ptr_dtor (lhs);
+  *lhs = *rhs;
+}
+
 
 /* Using IND as a key to HT, call the appropriate zend_index_X
  * function with data as a parameter, and return its result. This
@@ -532,20 +545,20 @@ write_var (zval ** p_lhs, zval ** p_rhs, int *is_rhs_new TSRMLS_DC)
 static zval **
 get_ht_entry (zval ** p_var, zval * ind TSRMLS_DC)
 {
-	if (Z_TYPE_P (*p_var) == IS_STRING)
+  if (Z_TYPE_P (*p_var) == IS_STRING)
+    {
+      if (Z_STRLEN_PP (p_var) > 0)
 	{
-		if (Z_STRLEN_PP (p_var) > 0)
-		{
-			php_error_docref (NULL TSRMLS_CC, E_ERROR,
-					"Cannot create references to/from string offsets nor overloaded objects");
-		}
-		else
-		{
-			zval_ptr_dtor (p_var);
-			ALLOC_INIT_ZVAL (*p_var);
-			array_init (*p_var);
-		}
+	  php_error_docref (NULL TSRMLS_CC, E_ERROR,
+			    "Cannot create references to/from string offsets nor overloaded objects");
 	}
+      else
+	{
+	  zval_ptr_dtor (p_var);
+	  ALLOC_INIT_ZVAL (*p_var);
+	  array_init (*p_var);
+	}
+    }
 
   HashTable *ht = extract_ht (p_var TSRMLS_CC);
 
@@ -587,19 +600,6 @@ get_st_entry (HashTable * st, char *name, int length, ulong hashval TSRMLS_DC)
   assert (p_zvp != NULL);
 
   return p_zvp;
-}
-
-// TODO unused - remove.
-static zval **
-get_st_entry_ex (HashTable * st, char *name, int length,
-		 ulong hashval TSRMLS_DC)
-{
-  zval **p_zvp;
-  if (zend_hash_quick_find
-      (st, name, length, hashval, (void **) &p_zvp) == SUCCESS)
-    return p_zvp;
-
-  return &EG (uninitialized_zval_ptr);
 }
 
 /* Read the variable named VAR_NAME from the local symbol table and
@@ -704,7 +704,8 @@ push_and_index_ht (zval ** p_var TSRMLS_DC)
 		 }
 	 }
 
-// TODO looking at the interpreter source, it looks like this might only be the case for false?
+  // TODO looking at the interpreter source, it looks like this might only be
+  // the case for false?
   if (Z_TYPE_P (*p_var) == IS_BOOL)
     {
       php_error_docref (NULL TSRMLS_CC, E_WARNING,
@@ -875,41 +876,19 @@ cast_var (zval ** p_zvp, int type)
     case IS_OBJECT:
       convert_to_object (zvp);
       break;
-	 default:
-		assert (0); // TODO unimplemented
-		break;
+    default:
+      assert (0); // TODO unimplemented
+      break;
     }
 }
 
-static void
-unset_var (HashTable * st, char *name, int length)
-{
-  zend_hash_del (st, name, length);
-}
-
+/*
+ * isset
+ */
 static int 
 isset_var (HashTable * st, char *name, int length)
 {
-	return zend_hash_exists(st, name, length);
-}
-
-static void
-unset_array (zval ** p_var, zval * ind TSRMLS_DC)
-{
-  if (Z_TYPE_P (*p_var) == IS_STRING)
-    {
-      php_error_docref (NULL TSRMLS_CC, E_ERROR,
-			"Cannot unset string offsets");
-    }
-
-  // NO error required
-  if (Z_TYPE_P (*p_var) != IS_ARRAY)
-    return;
-
-  // if its not an array, make it an array
-  HashTable *ht = Z_ARRVAL_P (*p_var);
-
-  ht_delete (ht, ind);
+  return zend_hash_exists(st, name, length);
 }
 
 static int 
@@ -936,53 +915,34 @@ isset_array (zval ** p_var, zval * ind TSRMLS_DC)
   return ht_exists (ht, ind);
 }
 
+
+/*
+ * unset
+ */
+
 static void
-eval (zval * zvp, zval ** p_result, int *is_result_new TSRMLS_DC)
+unset_var (HashTable * st, char *name, int length)
 {
-  // If the user wrote "return ..", we need to store the
-  // return value; however, in that case, zend_eval_string
-  // will slap an extra "return" onto the front of the string,
-  // so we must remove the "return" from the string the user
-  // wrote. If the user did not write "return", he is not
-  // interested in the return value, and we must pass NULL
-  // instead or rhs to avoid zend_eval_string adding "return".
-
-  // convert to a string
-  // TODO avoid allocation
-  zval *copy = zvp;
-  zvp_clone_ex (&copy);
-  convert_to_string (copy);
-
-  if (p_result)
-  {
-	  ALLOC_INIT_ZVAL (*p_result);
-	  *is_result_new = 1;
-  }
-
-  if (p_result && !strncmp (Z_STRVAL_P (copy), "return ", 7))
-    {
-      zend_eval_string (Z_STRVAL_P (copy) + 7, *p_result,
-			"eval'd code" TSRMLS_CC);
-    }
-  else
-    {
-      zend_eval_string (Z_STRVAL_P (copy), NULL, "eval'd code" TSRMLS_CC);
-    }
-
-  // cleanup
-  assert (copy->refcount == 1);
-  zval_ptr_dtor (&copy);
+  zend_hash_del (st, name, length);
 }
 
 static void
-phc_exit (zval * arg TSRMLS_DC)
+unset_array (zval ** p_var, zval * ind TSRMLS_DC)
 {
-  if (Z_TYPE_P (arg) == IS_LONG)
-    EG (exit_status) = Z_LVAL_P (arg);
-  else
-    zend_print_variable (arg);
+  if (Z_TYPE_P (*p_var) == IS_STRING)
+    {
+      php_error_docref (NULL TSRMLS_CC, E_ERROR,
+			"Cannot unset string offsets");
+    }
 
-  zend_bailout ();
+  // NO error required
+  if (Z_TYPE_P (*p_var) != IS_ARRAY)
+    return;
+
+  // if its not an array, make it an array
+  HashTable *ht = Z_ARRVAL_P (*p_var);
+
+  ht_delete (ht, ind);
 }
 
 /* Copies a constant into ZVP. Note that LENGTH does not include the NULL-terminating byte. */

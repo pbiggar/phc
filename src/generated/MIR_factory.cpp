@@ -112,6 +112,27 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Name_with_default(variable_name, default_value);
     }
+    if(!strcmp(type_id, "Class_alias"))
+    {
+    	CLASS_NAME* alias = dynamic_cast<CLASS_NAME*>(*i++);
+    	CLASS_NAME* class_name = dynamic_cast<CLASS_NAME*>(*i++);
+    	assert(i == args->end());
+    	return new Class_alias(alias, class_name);
+    }
+    if(!strcmp(type_id, "Interface_alias"))
+    {
+    	INTERFACE_NAME* alias = dynamic_cast<INTERFACE_NAME*>(*i++);
+    	INTERFACE_NAME* interface_name = dynamic_cast<INTERFACE_NAME*>(*i++);
+    	assert(i == args->end());
+    	return new Interface_alias(alias, interface_name);
+    }
+    if(!strcmp(type_id, "Method_alias"))
+    {
+    	METHOD_NAME* alias = dynamic_cast<METHOD_NAME*>(*i++);
+    	METHOD_NAME* method_name = dynamic_cast<METHOD_NAME*>(*i++);
+    	assert(i == args->end());
+    	return new Method_alias(alias, method_name);
+    }
     if(!strcmp(type_id, "Return"))
     {
     	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);

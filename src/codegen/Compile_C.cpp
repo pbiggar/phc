@@ -10,6 +10,7 @@
 #include <iostream>
 #include <cstring>
 #include <cstdlib>
+#include <cerrno>
 #include <dlfcn.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -159,5 +160,43 @@ void Compile_C::run (IR::PHP_script* in, Pass_manager* pm)
 		dup(old_stdout);
 		close(old_stdout);
 	}
-}
 
+   // TODO: allow options to be passed at compile-time, for this option.
+   // There is a worry that this will interfere with the later plan to allow
+   // compiling multiple files into a single extension with multiple entry
+   // points, so make them mutually-exclusive when that happens.
+   if (pm->args_info->execute_flag)
+   {
+      string exe_name = "a.out";
+      if (pm->args_info->output_given)
+         exe_name = pm->args_info->output_arg;
+
+		// TODO what about an absolute path
+		string executable = "./";
+		executable.append (exe_name);
+
+      int cpid = fork();
+      if(cpid == -1)
+         phc_error ("Could not fork");
+
+      if(cpid == 0)
+      {
+         char* end_list = NULL;
+         // Child (a.out)
+         close(pfd[WRITE_END]);
+         dup2(pfd[READ_END], STDIN_FILENO);
+			errno = 0;
+         execvp(executable.c_str(), &end_list);
+			phc_error ("Error executing: %s", strerror (errno));
+      }
+      else
+      {
+         // Parent (phc)
+
+         // Wait for the executable to finish (get the exit code)
+         int exit_code;
+         waitpid(cpid, &exit_code, 0);
+         exit (exit_code);
+      }
+   }
+}

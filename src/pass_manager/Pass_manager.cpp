@@ -346,13 +346,8 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 	{
 		if (*name == args_info->udump_arg [i])
 		{
-			// TODO uppering should be built in to this
-			// TODO this should be built into to MIR_unparser
-			// TODO remove code duplication from Obfuscate.h
 			if (in->is_MIR ())
-			{
 				MIR_unparser().unparse_uppered (in->as_MIR ());
-			}
 
 			// As pure HIR, this should be fine. As HIR with Foreign MIR nodes (during HIR-to-MIR lowering), ?
 			if (in->is_HIR ())
@@ -377,7 +372,7 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 	{
 		if (*name == args_info->ddump_arg [i])
 		{
-			// Works on AST only
+			// TODO: Works on AST only
 			in->visit(new DOT_unparser());
 		}
 	}

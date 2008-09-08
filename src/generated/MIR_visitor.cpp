@@ -66,6 +66,18 @@ void Visitor::pre_name_with_default(Name_with_default* in)
 {
 }
 
+void Visitor::pre_class_alias(Class_alias* in)
+{
+}
+
+void Visitor::pre_interface_alias(Interface_alias* in)
+{
+}
+
+void Visitor::pre_method_alias(Method_alias* in)
+{
+}
+
 void Visitor::pre_return(Return* in)
 {
 }
@@ -404,6 +416,18 @@ void Visitor::post_attr_mod(Attr_mod* in)
 }
 
 void Visitor::post_name_with_default(Name_with_default* in)
+{
+}
+
+void Visitor::post_class_alias(Class_alias* in)
+{
+}
+
+void Visitor::post_interface_alias(Interface_alias* in)
+{
+}
+
+void Visitor::post_method_alias(Method_alias* in)
 {
 }
 
@@ -770,6 +794,24 @@ void Visitor::children_name_with_default(Name_with_default* in)
 {
     visit_variable_name(in->variable_name);
     visit_static_value(in->default_value);
+}
+
+void Visitor::children_class_alias(Class_alias* in)
+{
+    visit_class_name(in->alias);
+    visit_class_name(in->class_name);
+}
+
+void Visitor::children_interface_alias(Interface_alias* in)
+{
+    visit_interface_name(in->alias);
+    visit_interface_name(in->interface_name);
+}
+
+void Visitor::children_method_alias(Method_alias* in)
+{
+    visit_method_name(in->alias);
+    visit_method_name(in->method_name);
 }
 
 void Visitor::children_return(Return* in)
@@ -1195,6 +1237,27 @@ void Visitor::pre_name_with_default_chain(Name_with_default* in)
 {
     pre_node((Node*) in);
     pre_name_with_default((Name_with_default*) in);
+}
+
+void Visitor::pre_class_alias_chain(Class_alias* in)
+{
+    pre_node((Node*) in);
+    pre_statement((Statement*) in);
+    pre_class_alias((Class_alias*) in);
+}
+
+void Visitor::pre_interface_alias_chain(Interface_alias* in)
+{
+    pre_node((Node*) in);
+    pre_statement((Statement*) in);
+    pre_interface_alias((Interface_alias*) in);
+}
+
+void Visitor::pre_method_alias_chain(Method_alias* in)
+{
+    pre_node((Node*) in);
+    pre_statement((Statement*) in);
+    pre_method_alias((Method_alias*) in);
 }
 
 void Visitor::pre_return_chain(Return* in)
@@ -1715,6 +1778,27 @@ void Visitor::post_attr_mod_chain(Attr_mod* in)
 void Visitor::post_name_with_default_chain(Name_with_default* in)
 {
     post_name_with_default((Name_with_default*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_class_alias_chain(Class_alias* in)
+{
+    post_class_alias((Class_alias*) in);
+    post_statement((Statement*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_interface_alias_chain(Interface_alias* in)
+{
+    post_interface_alias((Interface_alias*) in);
+    post_statement((Statement*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_method_alias_chain(Method_alias* in)
+{
+    post_method_alias((Method_alias*) in);
+    post_statement((Statement*) in);
     post_node((Node*) in);
 }
 
@@ -2712,6 +2796,15 @@ void Visitor::pre_statement_chain(Statement* in)
     case Method::ID:
     	pre_method_chain(dynamic_cast<Method*>(in));
     	break;
+    case Class_alias::ID:
+    	pre_class_alias_chain(dynamic_cast<Class_alias*>(in));
+    	break;
+    case Interface_alias::ID:
+    	pre_interface_alias_chain(dynamic_cast<Interface_alias*>(in));
+    	break;
+    case Method_alias::ID:
+    	pre_method_alias_chain(dynamic_cast<Method_alias*>(in));
+    	break;
     case Return::ID:
     	pre_return_chain(dynamic_cast<Return*>(in));
     	break;
@@ -3022,6 +3115,15 @@ void Visitor::post_statement_chain(Statement* in)
     case Method::ID:
     	post_method_chain(dynamic_cast<Method*>(in));
     	break;
+    case Class_alias::ID:
+    	post_class_alias_chain(dynamic_cast<Class_alias*>(in));
+    	break;
+    case Interface_alias::ID:
+    	post_interface_alias_chain(dynamic_cast<Interface_alias*>(in));
+    	break;
+    case Method_alias::ID:
+    	post_method_alias_chain(dynamic_cast<Method_alias*>(in));
+    	break;
     case Return::ID:
     	post_return_chain(dynamic_cast<Return*>(in));
     	break;
@@ -3331,6 +3433,15 @@ void Visitor::children_statement(Statement* in)
     	break;
     case Method::ID:
     	children_method(dynamic_cast<Method*>(in));
+    	break;
+    case Class_alias::ID:
+    	children_class_alias(dynamic_cast<Class_alias*>(in));
+    	break;
+    case Interface_alias::ID:
+    	children_interface_alias(dynamic_cast<Interface_alias*>(in));
+    	break;
+    case Method_alias::ID:
+    	children_method_alias(dynamic_cast<Method_alias*>(in));
     	break;
     case Return::ID:
     	children_return(dynamic_cast<Return*>(in));

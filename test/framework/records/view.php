@@ -16,10 +16,11 @@
 		print "<th>Timeouts</th>\n";
 		print "<th>Test Date</th>\n";
 		print "<th>Testing revision</th>\n";
+		print "<th>Repeat?</th>\n";
 
 		// successful
 		$query = $DB->query ("
-				SELECT	c.revision, c.author, t.pass, t.fail, t.skip, t.timeout, c.test_date, c.test_revision, c.failed
+				SELECT	c.revision, c.author, t.pass, t.fail, t.skip, t.timeout, c.test_date, c.test_revision, c.failed, c.redo
 				FROM		complete AS c, tests AS t
 				WHERE		t.revision == c.revision AND t.testname == 'Total'
 				ORDER BY c.revision DESC
@@ -29,7 +30,7 @@
 
 		// failed
 		$query = $DB->query ("
-				SELECT	revision, author, '' AS pass, '' AS fail, '' as skip, '' as timeout, test_date, test_revision, failed
+				SELECT	revision, author, '' AS pass, '' AS fail, '' as skip, '' as timeout, test_date, test_revision, failed, redo
 				FROM		complete
 				WHERE		failed == 1
 				ORDER BY revision DESC

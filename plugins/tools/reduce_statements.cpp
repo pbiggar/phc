@@ -11,28 +11,26 @@
 #include "pass_manager/Plugin_pass.h"
 #include "lib/List.h"
 
-/* TODO We want to support as much of the   */
-using namespace AST;
+/* After removing statements, we may be left with gotos and branches to
+ * statements which dont exist, which will cause compiler errors. Labels will
+ * leave warnings for unused labels, which also trip us up. Unfortunately,
+ * those errors are percieved to be the sort of thing we want to isolate, which
+ * they arent. So if we remove something that involves a label, we want to
+ * remove other stuff with that label in them. (this is the sort of thing you
+ * do if you dont have data-flow :().
+ */
 
-/* After removing statements, we may be left with gotos and branches
- * to statements which dont exist, which will cause compiler errors.
- * Labels will leave warnings for unused labels, which also trip us
- * up. Unfortunately, those errors are percieved to be the sort of
- * thing we want to isolate, which they arent. So if we remove
- * something that involves a label, we want to remove other stuff
- * with that label in them. (this is the sort of thing you do if you
- * dont have data-flow :(). */
-/*class Strip_labels : public Transform
+class Strip_labels : public MIR::Transform
 {
-	public:
-		map<string, bool>* labels;
+public:
+	map<string, bool>* labels;
 
 	Strip_labels (map<string, bool>* labels)
 	{
 		this->labels = labels;
 	}
 
-	void post_branch (Branch* in, List<Statement*>* out)
+	void post_branch (MIR::Branch* in, List<MIR::Statement*>* out)
 	{
 		if (!remove_label (in->iftrue) && !remove_label (in->iffalse))
 		{
@@ -40,7 +38,7 @@ using namespace AST;
 		}
 	}
 
-	void post_goto (Goto* in, List<Statement*>* out)
+	void post_goto (MIR::Goto* in, List<MIR::Statement*>* out)
 	{
 		if (!remove_label (in->label_name))
 		{
@@ -49,7 +47,7 @@ using namespace AST;
 	}
 
 
-	void post_label (Label* in, List<Statement*>* out)
+	void post_label (MIR::Label* in, List<MIR::Statement*>* out)
 	{
 		if (!remove_label (in->label_name))
 		{
@@ -58,22 +56,32 @@ using namespace AST;
 	}
 
 	// return true if the label should be removed
-	bool remove_label (LABEL_NAME* in)
+	bool remove_label (MIR::LABEL_NAME* in)
 	{
 		return (labels->find (*in->value) != labels->end ());
 	}
 
 };
-*/
+
+#define REMOVABLE(TYPE,type)									\
+	void post_##type (TYPE* in, List<Statement*>* out)	\
+	{																	\
+	}
+#define REMOVABLE_CONTENTS(TYPE,type,CONTENT_NAME)		\
+	void post_##type (TYPE* in, List<Statement*>* out)	\
+	{																	\
+		if (in->CONTENT_NAME->size() != 0)					\
+			out->push_back (in);									\
+	}
+
+template <class Transform, class Statement>
 class Reduce : public Transform
 {
-private:
+	// Common base - anything in the AST, HIR and MIR.
+protected:
 	int start;
 	int length;
 	int index;
-
-public:
-	map<string, bool>* labels;
 
 public:
 	Reduce (int start, int length)
@@ -81,108 +89,172 @@ public:
 		this->start = start;
 		this->length = length;
 		this->index = 0;
-		this->labels = new map<string, bool> ();
 	}
-
-	// Only remove statements where its sub-statements have been removed
-	// Declarations
-	bool should_remove (Class_def* in) { return in->members->size () == 0; }
-	bool should_remove (Interface_def* in) { return in->members->size () == 0; }
-	bool should_remove (Method* in) { return in->statements->size () == 0; }
-
-	// Control-flow with sub-statements
-	bool should_remove (If* in)
-	{
-		return in->iftrue->size () == 0 && in->iffalse->size () == 0;
-	}
-
-	bool should_remove (While* in) { return in->statements->size () == 0; }
-	bool should_remove (Do* in) { return in->statements->size () == 0; }
-	bool should_remove (For* in) { return in->statements->size () == 0; }
-	bool should_remove (Foreach* in) { return in->statements->size () == 0; }
-	bool should_remove (Switch* in) { return in->switch_cases->size () == 0; }
-	bool should_remove (Switch_case* in) { return in->statements->size () == 0; }
-
-	bool should_remove (Try* in)
-	{
-		return in->statements->size () == 0 && in->catches->size () == 0;
-	}
-
-	bool should_remove (Catch* in) { return in->statements->size () == 0; }
-
-
-
-	// Catch everything else
-	bool should_remove (Statement* in)
-	{
-		return true;
-	}
-
 
 	// Things which can be removed
 	void post_statement (Statement *in, List<Statement*>* out)
 	{
-		potentially_remove<Statement> (in, out);
-
-		// If we remove a label, remove everything associated with that label.
-		// Otherwise we'll get compiler warnings and errors.
-/*			if (Goto* go = dynamic_cast <Goto*> (in))
-		{
-			mark_label (go->label_name);
-		}
-		else if (Branch* branch = dynamic_cast <Branch*> (in))
-		{
-			mark_label (branch->iftrue);
-			mark_label (branch->iffalse);
-		}
-		else if (Label* label = dynamic_cast <Label*> (in))
-		{
-			mark_label (label->label_name);
-		}*/
-	}
-
-	void post_switch_case (Switch_case *in, List<Switch_case*>* out)
-	{
-		potentially_remove<Switch_case> (in, out);
-	}
-
-	void post_catch (Catch *in, List<Catch*>* out)
-	{
-		potentially_remove<Catch> (in, out);
-	}
-
-
-
-	template <class T>
-	void potentially_remove (T* in, List<T*>* out)
-	{
-		if (!(index >= start && index < (start + length)) 
-				|| !should_remove (in))
-		{
+		if (index > start && index < (start + length))
+			Transform::post_statement(in, out);
+		else
 			out->push_back (in);
-		}
 
 		this->index++;
 	}
+};
+
+class AST_reduce : public Reduce<AST::Transform, AST::Statement>
+{
+public:
+	AST_reduce (int start, int length)
+	: Reduce<AST::Transform, AST::Statement>(start, length)
+	{
+	}
+
+	// Control-flow with sub-statements
+	void pre_if (AST::If* in, AST::Statement_list* out)
+	{
+		if (in->iftrue->size () > 0 || in->iffalse->size () > 0)
+			out->push_back (in);
+	}
+	void pre_switch_cases (AST::Switch_case* in, AST::Switch_case_list* cases)
+	{
+		if (in->statements->size () > 0)
+			cases->push_back (in);
+	}
+
+	typedef AST::Statement Statement;
+	REMOVABLE_CONTENTS (AST::Class_def, class_def, members);
+	REMOVABLE_CONTENTS (AST::Declare, declare, statements);
+	REMOVABLE_CONTENTS (AST::Do, do, statements);
+	REMOVABLE_CONTENTS (AST::For, for, statements);
+	REMOVABLE_CONTENTS (AST::Foreach, foreach, statements);
+	REMOVABLE_CONTENTS (AST::Interface_def, interface_def, members);
+	REMOVABLE_CONTENTS (AST::Method, method, statements);
+	REMOVABLE_CONTENTS (AST::Switch, switch, switch_cases);
+	REMOVABLE_CONTENTS (AST::Try, try, statements);
+	REMOVABLE_CONTENTS (AST::While, while, statements);
+	REMOVABLE (AST::Break, break);
+	REMOVABLE (AST::Continue, continue);
+	REMOVABLE (AST::Eval_expr, eval_expr);
+	REMOVABLE (AST::Global, global);
+	REMOVABLE (AST::Nop, nop);
+	REMOVABLE (AST::Return, return);
+	REMOVABLE (AST::Static_declaration, static_declaration);
+	REMOVABLE (AST::Throw, throw);
+};
+
+class HIR_reduce : public Reduce <HIR::Transform, HIR::Statement>
+{
+public:
+	HIR_reduce (int start, int length)
+	: Reduce <HIR::Transform, HIR::Statement> (start, length)
+	{
+	}
+
+	void pre_if (HIR::If* in, HIR::Statement_list* out)
+	{
+		if (in->iftrue->size () > 0 || in->iffalse->size () > 0)
+			out->push_back (in);
+	}
+
+	typedef HIR::Statement Statement;
+	REMOVABLE_CONTENTS (HIR::Class_def, class_def, members);
+	REMOVABLE_CONTENTS (HIR::Foreach, foreach, statements);
+	REMOVABLE_CONTENTS (HIR::Interface_def, interface_def, members);
+	REMOVABLE_CONTENTS (HIR::Loop, loop, statements);
+	REMOVABLE_CONTENTS (HIR::Method, method, statements);
+	REMOVABLE_CONTENTS (HIR::Try, try, statements);
+	REMOVABLE (HIR::Assign_array, assign_array);
+	REMOVABLE (HIR::Assign_field, assign_field);
+	REMOVABLE (HIR::Assign_var, assign_var);
+	REMOVABLE (HIR::Assign_var_var, assign_var_var);
+	REMOVABLE (HIR::Break, break);
+	REMOVABLE (HIR::Continue, continue);
+	REMOVABLE (HIR::Eval_expr, eval_expr);
+	REMOVABLE (HIR::Global, global);
+	REMOVABLE (HIR::Pre_op, pre_op);
+	REMOVABLE (HIR::Push_array, push_array);
+	REMOVABLE (HIR::Return, return);
+	REMOVABLE (HIR::Static_declaration, static_declaration);
+	REMOVABLE (HIR::Throw, throw);
+};
 
 
-/*	void mark_label (LABEL_NAME* name)
+
+
+class MIR_reduce : public Reduce<MIR::Transform, MIR::Statement>
+{
+public:
+	MIR_reduce (int start, int length)
+	: Reduce <MIR::Transform, MIR::Statement> (start, length)
+	{
+		labels = new map<string, bool>;
+	}
+
+public:
+	map<string, bool>* labels;
+
+
+	// Things which can be removed
+	void post_statement (MIR::Statement *in, List<MIR::Statement*>* out)
+	{
+		Reduce<MIR::Transform, MIR::Statement>::post_statement (in, out);
+
+		if (out->size() == 0 || out->back () != in)
+		{
+			// If we remove a label, remove everything associated with that label.
+			// Otherwise we'll get compiler warnings and errors.
+			if (MIR::Goto* go = dynamic_cast <MIR::Goto*> (in))
+			{
+				mark_label (go->label_name);
+			}
+			else if (MIR::Branch* branch = dynamic_cast <MIR::Branch*> (in))
+			{
+				mark_label (branch->iftrue);
+				mark_label (branch->iffalse);
+			}
+			else if (MIR::Label* label = dynamic_cast <MIR::Label*> (in))
+			{
+				mark_label (label->label_name);
+			}
+		}
+	}
+
+	void mark_label (MIR::LABEL_NAME* name)
 	{
 		(*labels)[*name->value] = true;
-	}*/
+	}
+
+	typedef MIR::Statement Statement;
+	REMOVABLE_CONTENTS (MIR::Class_def, class_def, members);
+	REMOVABLE_CONTENTS (MIR::Interface_def, interface_def, members);
+	REMOVABLE_CONTENTS (MIR::Method, method, statements);
+	REMOVABLE_CONTENTS (MIR::Try, try, statements);
+	REMOVABLE (MIR::Assign_array, assign_array);
+	REMOVABLE (MIR::Assign_field, assign_field);
+	REMOVABLE (MIR::Assign_var, assign_var);
+	REMOVABLE (MIR::Assign_var_var, assign_var_var);
+	REMOVABLE (MIR::Eval_expr, eval_expr);
+	// Leave in foreach_reset, foreach_next and foreach_end
+	// TODO: remove them all if you remove one.
+	REMOVABLE (MIR::Global, global);
+	REMOVABLE (MIR::Pre_op, pre_op);
+	REMOVABLE (MIR::Push_array, push_array);
+	REMOVABLE (MIR::Return, return);
+	REMOVABLE (MIR::Static_declaration, static_declaration);
+	REMOVABLE (MIR::Throw, throw);
+	REMOVABLE (MIR::Unset, unset);
 };
+
 
 extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 {
-	// We arent interested in running any other passes on this.
-	pm->remove_all ();
-	pm->add_ast_pass (pass);
-	// TODO re-add
-//	pm->add_hir_pass (pass);
-//	pm->add_mir_pass (pass);
+	// We want to run this immediately after the XML is red in, so we add it after every pass.
+	pm->add_after_each_pass (pass);
 }
 
-void run (IR::PHP_script* in, String* option)
+void get_options (String* option, int* start, int* length)
 {
 	// Read START and LENGTH from the option string (\d+:\d+)
 	int colon_index = -1;
@@ -202,30 +274,51 @@ void run (IR::PHP_script* in, String* option)
 			option->size () - colon_index);
 
 
-	int start = 0;
 	stringstream sss (start_string);
-	sss >> start;
+	sss >> *start;
 
-	int length = 0;
 	stringstream lss (length_string);
-	lss >> length;
-
-	Reduce* red = new Reduce (start, length);
-	in->transform_children (red);
-//	in->transform_children (new Strip_labels (red->labels));
+	lss >> *length;
 }
 
+static bool already = false;
 extern "C" void run_ast (AST::PHP_script* in, Pass_manager* pm, String* option)
 {
-	run (in, option);
+	if (already)
+		exit (0); // just retuning means the pass is dumped many times.
+
+	already = true;
+
+	int start;
+	int length;
+	get_options (option, &start, &length);
+	in->transform_children (new AST_reduce (start, length));
 }
 
 extern "C" void run_hir (HIR::PHP_script* in, Pass_manager* pm, String* option)
 {
-	run (in, option);
+	if (already)
+		exit (0);
+
+	already = true;
+
+	int start;
+	int length;
+	get_options (option, &start, &length);
+	in->transform_children (new HIR_reduce (start, length));
 }
 
 extern "C" void run_mir (MIR::PHP_script* in, Pass_manager* pm, String* option)
 {
-	run (in, option);
+	if (already)
+		exit (0);
+
+	already = true;
+
+	int start;
+	int length;
+	get_options (option, &start, &length);
+	MIR_reduce* red = new MIR_reduce (start, length);
+	in->transform_children (red);
+	in->transform_children (new Strip_labels (red->labels));
 }

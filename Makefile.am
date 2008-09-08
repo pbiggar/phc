@@ -77,10 +77,6 @@ libphc_la_SOURCES= 											\
 	src/ast_to_hir/Split_unset_isset.h					\
 	src/ast_to_hir/Strip_comments.cpp					\
 	src/ast_to_hir/Strip_comments.h						\
-	src/ast_to_hir/Tidy_print.cpp							\
-	src/ast_to_hir/Tidy_print.h							\
-	src/ast_to_hir/Translate_empty.cpp					\
-	src/ast_to_hir/Translate_empty.h						\
 	src/codegen/Clarify.cpp									\
 	src/codegen/Clarify.h									\
 	src/codegen/Compile_C.cpp								\
@@ -128,6 +124,8 @@ libphc_la_SOURCES= 											\
 	src/hir_to_mir/HIR_to_MIR.h							\
 	src/hir_to_mir/Lower_control_flow.cpp				\
 	src/hir_to_mir/Lower_control_flow.h					\
+	src/hir_to_mir/Lower_dynamic_definitions.cpp		\
+	src/hir_to_mir/Lower_dynamic_definitions.h		\
 	src/hir_to_mir/Lower_method_invocations.cpp		\
 	src/hir_to_mir/Lower_method_invocations.h			\
 	src/lib/AttrMap.cpp										\
@@ -232,6 +230,8 @@ libphc_la_SOURCES= 											\
 	src/process_ir/PHP_unparser.h							\
 	src/process_ir/XML_unparser.cpp						\
 	src/process_ir/XML_unparser.h							\
+	src/process_mir/Alias_uppering.cpp					\
+	src/process_mir/Alias_uppering.h						\
 	src/process_mir/Foreach_uppering.cpp				\
 	src/process_mir/Foreach_uppering.h					\
 	src/process_mir/Goto_uppering.cpp					\

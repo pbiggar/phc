@@ -94,6 +94,21 @@ namespace HIR
 		result->attrs->set_true ("phc.codegen.compiler_generated");
 		return result;
 	}
+
+	CLASS_NAME* fresh_class_name (string prefix)
+	{
+		return new CLASS_NAME (fresh (prefix));
+	}
+
+	INTERFACE_NAME* fresh_interface_name (string prefix)
+	{
+		return new INTERFACE_NAME (fresh (prefix));
+	}
+
+	METHOD_NAME* fresh_method_name (string prefix)
+	{
+		return new METHOD_NAME (fresh (prefix));
+	}
 }
 
 namespace MIR
@@ -108,8 +123,7 @@ namespace MIR
 
 	HT_ITERATOR* fresh_iter ()
 	{
-		HT_ITERATOR* result = new HT_ITERATOR (fresh ("ht_iterator"));
-		return result;
+		return new HT_ITERATOR (fresh ("ht_iterator"));
 	}
 
 	Label* fresh_label ()

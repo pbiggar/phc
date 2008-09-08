@@ -10,5 +10,11 @@
 
 extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 {
-	pm->remove_after_named_pass (s("ast"));
+	// defer until we know the option
+	pm->add_before_named_pass (pass, s("ast"));
+}
+
+extern "C" void run_ast (AST::PHP_script* in, Pass_manager* pm, String* option)
+{
+	pm->remove_after_named_pass (option);
 }
