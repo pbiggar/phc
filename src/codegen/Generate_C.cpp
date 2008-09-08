@@ -800,31 +800,6 @@ protected:
 	Wildcard<VARIABLE_NAME>* rhs;
 };
 
-string push_rhs (bool is_ref, VARIABLE_NAME* rhs)
-{
-	stringstream ss;
-	if (!is_ref)
-	{
-		ss
-		<< declare ("p_rhs")
-
-		<< read_var (LOCAL, "p_rhs", rhs)
-
-		<< "if (*p_lhs != *p_rhs)\n"
-		<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
-
-		<< cleanup ("p_rhs");
-	}
-	else
-	{
-		ss
-		<< get_st_entry (LOCAL, "p_rhs", rhs)
-		<< "copy_into_ref (p_lhs, p_rhs);\n"
-		;
-	}
-	return ss.str();
-}
-
 class Pattern_push_array : public Pattern
 {
 public:
@@ -851,9 +826,30 @@ public:
 	
 		// TODO this can return NULL if there is an error.
 		<<	"if (p_lhs != NULL)\n"
-		<<	"{\n"
-		<<		push_rhs (agn->is_ref, rhs->value)
-		<<	"}\n"
+		<<	"{\n";
+
+		if (!agn->is_ref)
+		{
+			code
+			<< declare ("p_rhs")
+
+			<< read_var (LOCAL, "p_rhs", rhs->value)
+
+			<< "if (*p_lhs != *p_rhs)\n"
+			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
+
+			<< cleanup ("p_rhs");
+		}
+		else
+		{
+			// TODO this is wrong
+			code	
+			<< get_st_entry (LOCAL, "p_rhs", rhs->value)
+			<< "copy_into_ref (p_lhs, p_rhs);\n"
+			;
+		}
+
+		code << "}\n"
 		;
 	}
 
@@ -920,6 +916,7 @@ public:
 	// record if we've seen this variable before
 	void generate_rhs ()
 	{
+		assert (!agn->is_ref);
 		// TODO If this isnt static, there is a new hash each time,
 		// because there is a new object each time it is called. Why is
 		// there a new object each time?
@@ -2064,6 +2061,8 @@ class Pattern_class_or_interface_alias : public Pattern
 			aliased_name = class_alias->value->class_name->value;
 			alias_name = class_alias->value->alias->value;
 		}
+		else
+			assert (0);
 
 		alias_name = alias_name->clone ();
 		alias_name->toLower();

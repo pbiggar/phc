@@ -691,22 +691,20 @@ push_and_index_ht (zval ** p_var TSRMLS_DC)
 {
   if (Z_TYPE_P (*p_var) == IS_STRING)
     {
-		 if (Z_STRLEN_PP (p_var) > 0)
-		 {
-			 php_error_docref (NULL TSRMLS_CC, E_ERROR,
-					 "[] operator not supported for strings");
-		 }
-		 else
-		 {
-			 zval_ptr_dtor (p_var);
-			 ALLOC_INIT_ZVAL (*p_var);
-			 array_init (*p_var);
-		 }
-	 }
+      if (Z_STRLEN_PP (p_var) > 0)
+	{
+	  php_error_docref (NULL TSRMLS_CC, E_ERROR,
+			    "[] operator not supported for strings");
+	}
+      else
+	{
+	  zval_ptr_dtor (p_var);
+	  ALLOC_INIT_ZVAL (*p_var);
+	  array_init (*p_var);
+	}
+    }
 
-  // TODO looking at the interpreter source, it looks like this might only be
-  // the case for false?
-  if (Z_TYPE_P (*p_var) == IS_BOOL)
+  if (Z_TYPE_P (*p_var) == IS_BOOL && Z_BVAL_PP (p_var))
     {
       php_error_docref (NULL TSRMLS_CC, E_WARNING,
 			"Cannot use a scalar value as an array");
