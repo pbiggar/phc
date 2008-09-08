@@ -28,7 +28,7 @@ CFG::CFG (Method* method)
 , method (method)
 {
 	vb = get(vertex_bb_t(), bs);
-	ebd = get(edge_branch_direction_t(), bs);
+	ee = get(edge_cfg_edge_t(), bs);
 	index = get(vertex_index_t(), bs);
 
 	// Initialize the entry and exit blocks
@@ -52,7 +52,7 @@ edge_t
 CFG::add_edge (Basic_block* source, Basic_block* target)
 {
 	edge_t e = boost::add_edge (source->vertex, target->vertex, bs).first;
-	ebd[e] = indeterminate;
+	ee[e] = new Edge (source, target, e);
 	return e;
 }
 
@@ -63,9 +63,13 @@ CFG::add_branch (Branch_block* source, Basic_block* target1, Basic_block* target
 	edge_t et = boost::add_edge (source->vertex, target1->vertex, bs).first;
 	edge_t ef = boost::add_edge (source->vertex, target2->vertex, bs).first;
 
-	ebd[et] = true;
-	ebd[ef] = false;
-	return pair<edge_t, edge_t> (et,ef);
+	ee[et] = new Edge (source, target1, et, true);
+	ee[ef] = new Edge (source, target2, ef, false);
+
+	ee[et]->edge = et;
+	ee[ef]->edge = ef;
+
+	return pair<edge_t, edge_t> (et, ef);
 }
 
 void
@@ -206,19 +210,20 @@ public:
 struct BB_property_functor
 {
 	property_map<Graph, vertex_bb_t>::type vb;
-	boost::property_map<Graph, edge_branch_direction_t>::type ebd;
+	property_map<Graph, edge_cfg_edge_t>::type ee;
 
 	BB_property_functor (CFG* cfg)
 	{
 		vb = cfg->vb;
-		ebd = cfg->ebd;
+		ee = cfg->ee;
 	}
 	void operator()(std::ostream& out, const edge_t& e) const 
 	{
-		if (indeterminate (ebd[e]))
+		Edge* edge = ee[e];
+		if (indeterminate (edge->direction))
 			return;
 
-		if (ebd[e])
+		if (edge->direction)
 			out << "[label=T]";
 		else
 			out << "[label=F]";
@@ -608,33 +613,33 @@ CFG::get_bb_predecessors (Basic_block* bb)
 	return result;
 }
 
-edge_t
+Edge*
 CFG::get_edge (Basic_block* bb1, Basic_block* bb2)
 {
 	foreach (edge_t e, out_edges (bb1->vertex, bs))
 		if (target (e, bs) == bb2->vertex)
-			return e;
+			return ee[e];
 
 	assert (0);
 }
 
 /* returns true or false. If edge isnt true or false, asserts. */
 bool
-CFG::is_true_edge (edge_t edge)
+CFG::is_true_edge (Edge* edge)
 {
-	assert (!indeterminate (ebd[edge]));
-	return ebd[edge];
+	assert (!indeterminate (edge->direction));
+	return edge->direction;
 }
 
 void
 CFG::add_bb_between (Basic_block* source, Basic_block* target, Basic_block* new_bb)
 {
 	add_bb (new_bb);
-	edge_t current_edge = get_edge (source, target);
-	assert (indeterminate (ebd[current_edge])); // TODO
+	Edge* current_edge = get_edge (source, target);
+	assert (indeterminate (current_edge->direction)); // TODO
 	add_edge (source, new_bb);
 	add_edge (new_bb, target);
-	remove_edge (current_edge, bs);
+	remove_edge (current_edge->edge, bs);
 }
 
 
@@ -656,7 +661,7 @@ CFG::replace_bb (Basic_block* bb, BB_list* replacements)
 			foreach (Basic_block* succ, *bb->get_successors ())
 			{
 				edge_t e = add_edge (pred, succ);
-				ebd[e] = ebd[get_edge (pred, bb)];
+				ee[e]->direction = get_edge (pred, bb)->direction;
 			}
 
 		remove_bb (bb);

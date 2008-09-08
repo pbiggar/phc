@@ -16,22 +16,26 @@
 
 
 class Basic_block;
+class Branch_block;
 typedef List<Basic_block*> BB_list;
+
+class Edge;
+typedef List<Edge*> Edge_list;
+
 class Dominance;
 class Phi;
-class Branch_block;
 
-/* Add a property for Basic blocks */
+// Property for BB*
 enum vertex_bb_t { vertex_bb };
 
-/* Property for branch direction */
-enum edge_branch_direction_t { edge_branch_direction };
+// Property for Edge*
+enum edge_cfg_edge_t { edge_cfg_edge };
 
 // TODO: Remove. If phc is being used as a library, this isn't very polite,
 // and could lead to the same problems as monkey-patching in Ruby. 
 namespace boost {
   BOOST_INSTALL_PROPERTY(vertex, bb);
-  BOOST_INSTALL_PROPERTY(edge, branch_direction);
+  BOOST_INSTALL_PROPERTY(edge, cfg_edge );
 }
 
 typedef boost::adjacency_list<
@@ -45,7 +49,7 @@ typedef boost::adjacency_list<
 			boost::property <vertex_bb_t, Basic_block*> > >,
 
 	// Edge property
-	boost::property<edge_branch_direction_t, boost::logic::tribool>
+	boost::property<edge_cfg_edge_t, Edge*>
 > Graph;
 
 
@@ -57,6 +61,7 @@ typedef Graph::edge_descriptor edge_t;
 
 class CFG;
 #include "Basic_block.h"
+#include "Edge.h"
 #include "SSA.h"
 #include "MIR.h"
 
@@ -69,14 +74,14 @@ public:
 	 * Boost::Graph properties
 	 */
 
-	// Accessor for BB property. Access using vb[vertex].
+	// Accessor for BB property. Access using vb[vertex]. (vb == vertex->block)
 	boost::property_map<Graph, vertex_bb_t>::type vb;
+
+	// ee = (BGL) edge -> (CFG) edge
+	boost::property_map<Graph, edge_cfg_edge_t>::type ee;
 
 	// Get color map
 	boost::property_map<Graph, vertex_color_t>::type cm;
-
-	// Accessor for Edge direction property. Access using ebd[edge].
-	boost::property_map<Graph, edge_branch_direction_t>::type ebd;
 
 	// Accessor for index property. Access using index[vertex] (this is here
 	// for graphviz, so it should be rare to require access to it.
@@ -117,6 +122,10 @@ public:
 	BB_list* get_all_bbs_top_down ();
 	BB_list* get_all_bbs_bottom_up ();
 
+	Edge* get_entry_edge ();
+	Edge* get_exit_edge ();
+	Edge_list* get_all_edges ();
+
 public:
 	/*
 	 * SSA information
@@ -128,6 +137,8 @@ public:
 
 	void convert_to_ssa_form ();
 	void convert_out_of_ssa_form ();
+
+	MIR::VARIABLE_NAME_list* get_all_variables ();
 
 private:
 	Graph bs; // backing store
@@ -143,12 +154,12 @@ private:
 	// For BB methods
 	BB_list* get_bb_successors (Basic_block* bb);
 	BB_list* get_bb_predecessors (Basic_block* bb);
-	edge_t get_edge (Basic_block* bb1, Basic_block* bb2);
+	Edge* get_edge (Basic_block* bb1, Basic_block* bb2);
 	void replace_bb (Basic_block* bb, BB_list* replacements);
 	void remove_bb (Basic_block* bb);
 
 	/* returns true or false. If edge isnt true or false, asserts. */
-	bool is_true_edge (edge_t edge);
+	bool is_true_edge (Edge* edge);
 
 	// If we use a graph with listS for the adjacency lists, then we need to
 	// renumber the indices for certain algorithms.

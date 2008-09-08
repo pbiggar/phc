@@ -20,7 +20,7 @@ class Set
 	> parent;
 
 public:
-	// If true, the SET holds every possbible variable.
+	// If true, the SET holds every possible variable.
 	bool full;
 
 public:

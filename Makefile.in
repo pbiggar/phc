@@ -100,18 +100,19 @@ am_libphc_la_OBJECTS = getopt1.lo getopt.lo AST_annotate.lo \
 	AttrMap.lo base64.lo Boolean.lo demangle.lo error.lo \
 	Integer.lo Object.lo String.lo Address_taken.lo Basic_block.lo \
 	CFG.lo Copy_propagation.lo Dead_code_elimination.lo Def_use.lo \
-	Fix_point.lo Flow_visitor.lo Live_variable_analysis.lo \
-	Prune_symbol_table.lo Set.lo SSA.lo Use_def_counter.lo \
-	Parse_buffer.lo parse.lo PHP_context.lo XML_parser.lo \
-	Optimization_pass.lo Pass_manager.lo Plugin_pass.lo \
-	AST_unparser.lo Constant_folding.lo DOT_unparser.lo \
-	Invalid_check.lo Note_top_level_declarations.lo \
-	Process_includes.lo Remove_concat_null.lo \
-	Remove_parser_temporaries.lo Strip_unparser_attributes.lo \
-	Token_conversion.lo HIR_unparser.lo debug.lo fresh.lo \
-	General.lo IR.lo PHP_unparser.lo XML_unparser.lo \
-	Alias_uppering.lo Foreach_uppering.lo Goto_uppering.lo \
-	MIR_unparser.lo Param_is_ref_uppering.lo
+	Fix_point.lo Flow_visitor.lo Lattice.lo \
+	Live_variable_analysis.lo Prune_symbol_table.lo SCCP.lo Set.lo \
+	SSA.lo Use_def_counter.lo Parse_buffer.lo parse.lo \
+	PHP_context.lo XML_parser.lo Optimization_pass.lo \
+	Pass_manager.lo Plugin_pass.lo AST_unparser.lo \
+	Constant_folding.lo DOT_unparser.lo Invalid_check.lo \
+	Note_top_level_declarations.lo Process_includes.lo \
+	Remove_concat_null.lo Remove_parser_temporaries.lo \
+	Strip_unparser_attributes.lo Token_conversion.lo \
+	HIR_unparser.lo debug.lo fresh.lo General.lo IR.lo \
+	PHP_unparser.lo XML_unparser.lo Alias_uppering.lo \
+	Foreach_uppering.lo Goto_uppering.lo MIR_unparser.lo \
+	Param_is_ref_uppering.lo
 libphc_la_OBJECTS = $(am_libphc_la_OBJECTS)
 plugins_tests_canonical_unparser_la_LIBADD =
 am_plugins_tests_canonical_unparser_la_OBJECTS =  \
@@ -699,11 +700,15 @@ libphc_la_SOURCES = \
 	src/optimize/Flow_visitor.cpp							\
 	src/optimize/Flow_visitor.h							\
 	src/optimize/Into_SSA.h									\
+	src/optimize/Lattice.cpp								\
+	src/optimize/Lattice.h									\
 	src/optimize/Live_variable_analysis.cpp			\
 	src/optimize/Live_variable_analysis.h				\
 	src/optimize/Out_of_SSA.h								\
 	src/optimize/Prune_symbol_table.cpp					\
 	src/optimize/Prune_symbol_table.h					\
+	src/optimize/SCCP.cpp									\
+	src/optimize/SCCP.h										\
 	src/optimize/Set.cpp										\
 	src/optimize/Set.h										\
 	src/optimize/SSA.cpp										\
@@ -1260,6 +1265,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/InsertDB.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Integer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Invalid_check.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Lattice.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Lift_functions_and_classes.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/List_shredder.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Live_variable_analysis.Plo@am__quote@
@@ -1287,6 +1293,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Prune_symbol_table.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Remove_concat_null.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Remove_parser_temporaries.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SCCP.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SSA.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Set.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Split_multiple_arguments.Plo@am__quote@
@@ -1750,6 +1757,13 @@ Flow_visitor.lo: src/optimize/Flow_visitor.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Flow_visitor.lo `test -f 'src/optimize/Flow_visitor.cpp' || echo '$(srcdir)/'`src/optimize/Flow_visitor.cpp
 
+Lattice.lo: src/optimize/Lattice.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Lattice.lo -MD -MP -MF $(DEPDIR)/Lattice.Tpo -c -o Lattice.lo `test -f 'src/optimize/Lattice.cpp' || echo '$(srcdir)/'`src/optimize/Lattice.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Lattice.Tpo $(DEPDIR)/Lattice.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Lattice.cpp' object='Lattice.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Lattice.lo `test -f 'src/optimize/Lattice.cpp' || echo '$(srcdir)/'`src/optimize/Lattice.cpp
+
 Live_variable_analysis.lo: src/optimize/Live_variable_analysis.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Live_variable_analysis.lo -MD -MP -MF $(DEPDIR)/Live_variable_analysis.Tpo -c -o Live_variable_analysis.lo `test -f 'src/optimize/Live_variable_analysis.cpp' || echo '$(srcdir)/'`src/optimize/Live_variable_analysis.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Live_variable_analysis.Tpo $(DEPDIR)/Live_variable_analysis.Plo
@@ -1763,6 +1777,13 @@ Prune_symbol_table.lo: src/optimize/Prune_symbol_table.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Prune_symbol_table.cpp' object='Prune_symbol_table.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Prune_symbol_table.lo `test -f 'src/optimize/Prune_symbol_table.cpp' || echo '$(srcdir)/'`src/optimize/Prune_symbol_table.cpp
+
+SCCP.lo: src/optimize/SCCP.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT SCCP.lo -MD -MP -MF $(DEPDIR)/SCCP.Tpo -c -o SCCP.lo `test -f 'src/optimize/SCCP.cpp' || echo '$(srcdir)/'`src/optimize/SCCP.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/SCCP.Tpo $(DEPDIR)/SCCP.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/SCCP.cpp' object='SCCP.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o SCCP.lo `test -f 'src/optimize/SCCP.cpp' || echo '$(srcdir)/'`src/optimize/SCCP.cpp
 
 Set.lo: src/optimize/Set.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Set.lo -MD -MP -MF $(DEPDIR)/Set.Tpo -c -o Set.lo `test -f 'src/optimize/Set.cpp' || echo '$(srcdir)/'`src/optimize/Set.cpp

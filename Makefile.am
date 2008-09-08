@@ -163,11 +163,15 @@ libphc_la_SOURCES= 											\
 	src/optimize/Flow_visitor.cpp							\
 	src/optimize/Flow_visitor.h							\
 	src/optimize/Into_SSA.h									\
+	src/optimize/Lattice.cpp								\
+	src/optimize/Lattice.h									\
 	src/optimize/Live_variable_analysis.cpp			\
 	src/optimize/Live_variable_analysis.h				\
 	src/optimize/Out_of_SSA.h								\
 	src/optimize/Prune_symbol_table.cpp					\
 	src/optimize/Prune_symbol_table.h					\
+	src/optimize/SCCP.cpp									\
+	src/optimize/SCCP.h										\
 	src/optimize/Set.cpp										\
 	src/optimize/Set.h										\
 	src/optimize/SSA.cpp										\

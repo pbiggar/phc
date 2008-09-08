@@ -27,6 +27,7 @@
 #include "process_hir/HIR_to_AST.h"
 #include "process_mir/MIR_to_AST.h"
 #include "optimize/CFG.h"
+#include "optimize/SCCP.h"
 #include "optimize/Into_SSA.h"
 #include "optimize/Out_of_SSA.h"
 
@@ -572,6 +573,10 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 			cfg->convert_to_ssa_form ();
 			if (args_info->cfg_dump_given)
 				cfg->dump_graphviz (s("CFG - in SSA"));
+
+			(new SCCP (cfg))->execute ();
+			if (args_info->cfg_dump_given)
+				cfg->dump_graphviz (s("CFG - after SCCP"));
 
 			cfg->convert_out_of_ssa_form ();
 			if (args_info->cfg_dump_given)
