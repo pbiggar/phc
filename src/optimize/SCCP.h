@@ -25,6 +25,7 @@ public:
 	// Generic MIR properties
 	void visit_statement (MIR::Statement* in);
 	void visit_branch (MIR::Branch* in);
+	MIR::Expr* visit_expr (Statement_block*, MIR::Expr*);
 
 	// Blocks
 	void visit_entry_block (Entry_block*);

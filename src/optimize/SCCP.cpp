@@ -348,7 +348,6 @@ SCCP::visit_empty_block (Empty_block*)
 void
 SCCP::visit_exit_block (Exit_block*)
 {
-	assert (0);
 }
 
 void
@@ -384,15 +383,11 @@ SCCP::visit_assign_field (Statement_block*, MIR::Assign_field *)
 	assert (0);
 }
 
-void
-SCCP::visit_assign_var (Statement_block*, MIR::Assign_var* in)
+Expr*
+SCCP::visit_expr (Statement_block*, MIR::Expr* in)
 {
-	if (lattice[in->lhs] == BOTTOM)
-		return;
-
-	Expr* expr = in->rhs;
 	// Attempt to fold the expression.
-	switch(expr->classid())
+	switch(in->classid())
 	{
 		case BOOL::ID:
 		case INT::ID:
@@ -416,7 +411,7 @@ SCCP::visit_assign_var (Statement_block*, MIR::Assign_var* in)
 
 		case Bin_op::ID:
 		{
-			Bin_op* bin_op = dyc<Bin_op> (expr);
+			Bin_op* bin_op = dyc<Bin_op> (in);
 
 			Literal* left = get_literal (bin_op->left);
 			Literal* right = get_literal (bin_op->right);
@@ -432,7 +427,7 @@ SCCP::visit_assign_var (Statement_block*, MIR::Assign_var* in)
 
 		case Cast::ID:
 		{
-			Cast* cast = dyc<Cast> (expr);
+			Cast* cast = dyc<Cast> (in);
 			Literal* lit = get_literal (cast->variable_name);
 
 			if (lit)
@@ -472,7 +467,7 @@ SCCP::visit_assign_var (Statement_block*, MIR::Assign_var* in)
 				&& isa<VARIABLE_NAME> (i->variable_name)
 				&& i->array_indices->size () == 0
 				&& get_literal (dyc<VARIABLE_NAME> (i->variable_name)))
-				in->rhs = new BOOL (true);
+				in = new BOOL (true);
 		}
 
 		case Instanceof::ID:
@@ -485,8 +480,17 @@ SCCP::visit_assign_var (Statement_block*, MIR::Assign_var* in)
 
 			// TODO APC::Optimizer has a list of pure functions. Go through
 			// embed for them.
-			assert (0);
 
+			// ignore for now
+			if (isa<METHOD_NAME> (mi->method_name))
+			{
+				METHOD_NAME* name = dyc<METHOD_NAME> (mi->method_name);
+				if (*name->value == "var_dump"
+					|| *name->value == "print")
+					break;
+			}
+
+			assert (0);
 			// TODO replace Variable_variable with VARIABLE_NAME, if possible.
 
 			// TODO: we can replace a arguement with its actual parameter
@@ -529,7 +533,7 @@ SCCP::visit_assign_var (Statement_block*, MIR::Assign_var* in)
 
 		case Unary_op::ID:
 		{
-			Unary_op* u = dyc<Unary_op> (expr);
+			Unary_op* u = dyc<Unary_op> (in);
 			Literal* lit = get_literal (u->variable_name);
 
 			if (lit)
@@ -542,7 +546,7 @@ SCCP::visit_assign_var (Statement_block*, MIR::Assign_var* in)
 		{
 			VARIABLE_NAME* var_name = dyc<VARIABLE_NAME> (in);
 			if (Literal* lit = get_literal (var_name))
-				expr = lit;
+				in = lit;
 
 			break;
 		}
@@ -552,7 +556,7 @@ SCCP::visit_assign_var (Statement_block*, MIR::Assign_var* in)
 			Variable_variable* var_var = dyc<Variable_variable> (in);
 			if (Literal* lit = get_literal (var_var->variable_name))
 				assert (0);
-				//expr = new VARIABLE_NAME (PHP::to_string (lit));
+				//in = new VARIABLE_NAME (PHP::to_string (lit));
 
 			break;
 		}
@@ -562,9 +566,18 @@ SCCP::visit_assign_var (Statement_block*, MIR::Assign_var* in)
 			break;
 	}
 
-	// If its an assignment and creates a result for the LHS, add all SSA
-	// edges.
+	return in;
+}
 
+void
+SCCP::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
+{
+	if (lattice[in->lhs] == BOTTOM)
+		return;
+
+	Expr* expr = visit_expr (bb, in->rhs);
+
+	// Update the Lattice
 	if (isa<Literal> (expr))
 	{
 		// If it changes the lattice value,
@@ -595,9 +608,11 @@ SCCP::visit_assign_var_var (Statement_block*, MIR::Assign_var_var*)
 }
 
 void
-SCCP::visit_eval_expr (Statement_block*, MIR::Eval_expr*)
+SCCP::visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
 {
-	assert (0);
+	in->expr = visit_expr (bb, in->expr);
+	if (! (isa<New> (in->expr) || isa<Method_invocation> (in->expr)))
+		assert (0); // TODO remove
 }
 
 void
@@ -642,9 +657,20 @@ SCCP::visit_push_array (Statement_block*, MIR::Push_array*)
 }
 
 void
-SCCP::visit_ssa_pre_op (Statement_block*, MIR::SSA_pre_op*)
+SCCP::visit_ssa_pre_op (Statement_block*, MIR::SSA_pre_op* in)
 {
-	assert (0);
+	if (lattice[in->use] == BOTTOM)
+		lattice[in->def] == BOTTOM;
+
+	else if (lattice[in->use] == TOP)
+		; // do nothing
+
+	else
+	{
+		Literal* lit = lattice[in->use]->get_value ();
+		assert (0); // TODO go through embed
+		// TODO lower the lattice (same as in assign_var)
+	}
 }
 
 void
