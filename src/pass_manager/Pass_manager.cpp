@@ -564,9 +564,6 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 			MIR::Method* method = dyc<MIR::Method> (stmt);
 			CFG* cfg = new CFG (method);
 
-			if (args_info->debug_given)
-				enable_cdebug ();
-
 			if (args_info->cfg_dump_given)
 				cfg->dump_graphviz (s("CFG - pre SSA"));
 
@@ -574,16 +571,20 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 			if (args_info->cfg_dump_given)
 				cfg->dump_graphviz (s("CFG - in SSA"));
 
+			if (args_info->debug_given)
+				enable_cdebug ();
+
 			SCCP* sccp = new SCCP (cfg);
 			sccp->execute ();
 			if (args_info->cfg_dump_given)
 				cfg->dump_graphviz (s("CFG - after SCCP"));
 
+			disable_cdebug ();
+
 			cfg->convert_out_of_ssa_form ();
 			if (args_info->cfg_dump_given)
 				cfg->dump_graphviz (s("CFG - post SSA"));
 
-			disable_cdebug ();
 
 /*			if (lexical_cast<int> (args_info->optimize_arg) > 0)
 			{

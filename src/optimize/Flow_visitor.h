@@ -33,6 +33,9 @@ public:
 	virtual void transfer_in (Basic_block*, BB_list*) {};
 	virtual void transfer_out (Basic_block*, BB_list*) {};
 
+	// Now this is slipping into SSA mode. hmmmm
+	virtual void visit_phi_node (Basic_block*, Phi*) {};
+
 	virtual void visit_entry_block (Entry_block*) {};
 	virtual void visit_empty_block (Empty_block*) {};
 	virtual void visit_exit_block (Exit_block*) {};

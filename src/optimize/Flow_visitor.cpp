@@ -50,6 +50,11 @@ Flow_visitor::visit (CFG* cfg)
 void
 Flow_visitor::visit_bb_local (CFG* cfg, Basic_block* bb)
 {
+	foreach (Phi* phi, *bb->get_phi_nodes ())
+	{
+		visit_phi_node (bb, phi);
+	}
+
 	/* Using the THIS pointer is a little unusual, but its required to make
 	 * these calls be resolved at template instantiation time, rather than
 	 * declaration time. See Section 10.8.2 in the GCC manual. We need the

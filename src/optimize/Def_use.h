@@ -20,17 +20,21 @@ class Def_use_web : public Flow_visitor
 public:
 	Def_use_web (CFG* cfg);
 
-	map<MIR::VARIABLE_NAME*, SSA_edge_list*> def_use_chains;
-	map<MIR::VARIABLE_NAME*, SSA_edge*> use_def_chains;
+	map<MIR::VARIABLE_NAME*, SSA_edge_list*, bool (*)(MIR::VARIABLE_NAME*, MIR::VARIABLE_NAME*)> def_use_chains;
+	map<MIR::VARIABLE_NAME*, SSA_edge*, bool (*)(MIR::VARIABLE_NAME*, MIR::VARIABLE_NAME*)> use_def_chains;
 
+	
 	SSA_edge_list* get_def_use_edges (MIR::VARIABLE_NAME* def);
 	SSA_edge* get_use_def_edges (MIR::VARIABLE_NAME* use);
-	void add_def_use_edge (MIR::VARIABLE_NAME* use, SSA_edge* edge);
+	void add_def_use_edge (MIR::VARIABLE_NAME* def, SSA_edge* use);
+	void add_use_def_edge (MIR::VARIABLE_NAME* use, SSA_edge* def);
 
 	void visit_entry_block (Entry_block*);
 	void visit_empty_block (Empty_block*);
 	void visit_exit_block (Exit_block*);
 	void visit_branch_block (Branch_block* bb);
+
+	void visit_phi_node (Basic_block* bb, Phi* phi);
 
 	void visit_assign_array (Statement_block*, MIR::Assign_array*);
 	void visit_assign_field (Statement_block*, MIR::Assign_field *);
@@ -45,6 +49,7 @@ public:
 	void visit_pre_op (Statement_block*, MIR::Pre_op*);
 	void visit_push_array (Statement_block*, MIR::Push_array*);
 	void visit_return (Statement_block*, MIR::Return*);
+	void visit_ssa_pre_op (Statement_block*, MIR::SSA_pre_op*);
 	void visit_static_declaration (Statement_block*, MIR::Static_declaration*);
 	void visit_throw (Statement_block*, MIR::Throw*);
 	void visit_try (Statement_block*, MIR::Try*);

@@ -15,6 +15,7 @@ public:
 	SCCP (CFG* cfg);
 	void execute ();
 	MIR::Literal* get_literal (MIR::Rvalue* in);
+	int get_predecessor_executable_count (Basic_block* bb);
 
 	// High-level SSA properties
 	void visit_phi (Phi* phi);

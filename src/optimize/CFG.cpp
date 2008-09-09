@@ -548,11 +548,10 @@ void CFG::convert_to_ssa_form ()
 		i++;
 	}
 
-	duw = new Def_use_web (this);
-
 	SSA_renaming sr(this);
 	sr.rename_vars (get_entry_bb ());
 
+	duw = new Def_use_web (this);
 }
 
 

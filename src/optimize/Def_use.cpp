@@ -120,8 +120,12 @@ Def_use::get_uses (Statement* in)
  * work on SSA form.
  */
 
+#include "Set.h"
+
 Def_use_web::Def_use_web (CFG* cfg)
 : Flow_visitor (FORWARD_FLOW)
+, def_use_chains (&variable_name_ptr_comparison)
+, use_def_chains (&variable_name_ptr_comparison)
 {
 	visit (cfg);
 }
@@ -145,12 +149,19 @@ Def_use_web::get_use_def_edges (MIR::VARIABLE_NAME* use)
 
 
 void
-Def_use_web::add_def_use_edge (MIR::VARIABLE_NAME* var_name, SSA_edge* use)
+Def_use_web::add_def_use_edge (MIR::VARIABLE_NAME* def, SSA_edge* use)
 {
-	if (def_use_chains[var_name] == NULL)
-		def_use_chains[var_name] = new SSA_edge_list (use);
+	if (def_use_chains[def] == NULL)
+		def_use_chains[def] = new SSA_edge_list (use);
 	else
-		def_use_chains[var_name]->push_back (use);
+		def_use_chains[def]->push_back (use);
+}
+
+void
+Def_use_web::add_use_def_edge (MIR::VARIABLE_NAME* use, SSA_edge* def)
+{
+	assert (use_def_chains[use] == NULL);
+	use_def_chains[use] = def;
 }
 
 void
@@ -176,6 +187,15 @@ Def_use_web::visit_branch_block (Branch_block* bb)
 }
 
 void
+Def_use_web::visit_phi_node (Basic_block* bb, Phi* phi)
+{
+	foreach (VARIABLE_NAME* use, *phi->args)
+		add_def_use_edge (use, new SSA_edge (phi));
+
+	add_use_def_edge (phi->lhs, new SSA_edge (phi));
+}
+
+void
 Def_use_web::visit_assign_array (Statement_block*, MIR::Assign_array* in)
 {
 	assert (0);
@@ -195,13 +215,14 @@ public:
 
 	void pre_variable_name (VARIABLE_NAME* in)
 	{
+		assert (in->in_ssa);
 		uses->push_back (in);
 	}
 };
 void
 Def_use_web::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 {
-	use_def_chains[in->lhs] = new SSA_edge (bb);
+	add_use_def_edge (in->lhs, new SSA_edge (bb));
 	VARIABLE_NAME_list* uses = new VARIABLE_NAME_list;
 	(new Def_use_web_visitor (uses))->visit_expr (in->rhs);
 	foreach (VARIABLE_NAME* use, *uses)
@@ -260,6 +281,12 @@ void
 Def_use_web::visit_return (Statement_block*, MIR::Return* in)
 {
 	assert (0);
+}
+void
+Def_use_web::visit_ssa_pre_op (Statement_block* bb, MIR::SSA_pre_op* in)
+{
+	add_def_use_edge (in->use, new SSA_edge (bb));
+	add_use_def_edge (in->def, new SSA_edge (bb));
 }
 void
 Def_use_web::visit_static_declaration (Statement_block*, MIR::Static_declaration* in)

@@ -125,11 +125,7 @@ SCCP::execute ()
 	foreach (Edge* e, *cfg->get_all_edges ())
 		e->is_executable = false;
 
-	// TODO initialize lazily
-//	foreach (VARIABLE_NAME* var, *cfg->get_all_variables ())
-//	{
-//		lattice [var] = TOP;
-//	}
+	// TOP is NULL, so the lattice map is already initialized.
 
 	// 2. Stop when CFG-worklist and SSA-worklist are both empty.
 	while (cfg_wl->size () > 0 || ssa_wl->size () > 0)
@@ -159,21 +155,8 @@ SCCP::execute ()
 			foreach (Phi* phi, *e->target->get_phi_nodes ())
 				visit_phi (phi);
 
-			// Is this the first time the stmt is evaluated?
-			int exec_count = 0;
-			foreach (Edge* pred, *e->target->get_predecessor_edges ())
-			{
-				if (pred->is_executable)
-					exec_count++;
-			}
-			// This will include the current edge, so the count will always
-			// be > 0
-			assert (exec_count > 0);
-
-			if (exec_count == 1)
-			{
+			if (get_predecessor_executable_count (e->target) == 1)
 				visit_block (e->target);
-			}
 
 			Edge_list* succs = e->target->get_successor_edges ();
 			if (succs->size() == 1)
@@ -197,6 +180,18 @@ SCCP::execute ()
 	}
 }
 
+int
+SCCP::get_predecessor_executable_count (Basic_block* bb)
+{
+	int exec_count = 0;
+	foreach (Edge* pred, *bb->get_predecessor_edges ())
+	{
+		if (pred->is_executable)
+			exec_count++;
+	}
+	return exec_count;
+}
+
 void
 SCCP::visit_phi (Phi* phi)
 {
@@ -212,19 +207,20 @@ SCCP::visit_phi (Phi* phi)
 	Lattice_cell* result = TOP;
 	foreach (VARIABLE_NAME* var, *phi->args)
 	{
+		assert (0); // non-executable means TOP
 		result = meet (result, lattice[var]);
 	}
 	lattice[phi->lhs] = result;
+
+	// TODO shouldnt this add edges to the worklist?
 }
 
-
-void
-SCCP::visit_ssa_edge (SSA_edge* phi)
-{
-	assert (0);
-}
-
-/*	VisitExpr:
+/*
+ * 4/5.	For SSAWL, pop e. If e.target is a Phi, perform visitPhi (e.target).
+ * If e.target is an expression, and any of e.targets incoming edges is
+ * executable, run visit_expression.
+ *
+ *	VisitExpr:
  *	Evaluate the expression.
  *	- If its an assignment and creates a result for the LHS, add all SSA edges
  *	from LHS to SSAWL.
@@ -232,6 +228,26 @@ SCCP::visit_ssa_edge (SSA_edge* phi)
  *		- all outgoing edges to CFGWL for BOTTOM
  *		- only the appropriate outgoing edge for a constant
  */
+
+void
+SCCP::visit_ssa_edge (SSA_edge* edge)
+{
+	switch (edge->which)
+	{
+		case SSA_edge::PHI:
+			visit_phi (edge->phi);
+			break;
+
+		case SSA_edge::BRANCH:
+		case SSA_edge::STATEMENT:
+			if (get_predecessor_executable_count (edge->bb))
+				visit_block (edge->bb);
+			break;
+
+		default:
+			assert (0);
+	}
+}
 
 
 
@@ -342,8 +358,11 @@ SCCP::visit_branch_block (Branch_block* bb)
 	 */
 	if (lattice[bb->branch->variable_name] == BOTTOM)
 		cfg_wl->push_back_all (bb->get_successor_edges ());
+
 	else if (lattice[bb->branch->variable_name] == TOP)
-		; // do nothing
+		// Not possible, as the previous visit_block will have lowered this.
+		assert (0);
+
 	else
 	{
 		assert (0);
@@ -542,6 +561,10 @@ SCCP::visit_assign_var (Statement_block*, MIR::Assign_var* in)
 	
 	// If its an assignment and creates a result for the LHS, add all SSA
 	// edges.
+
+	// If it changes the lattice value,
+	//	- add uses of the LHS to the SSA worklist.
+	Lattice_cell* old = lattice[in->lhs];
 	if (isa<Literal> (expr))
 	{
 		assert (in->is_ref == false); // TODO
