@@ -26,12 +26,12 @@ public:
 
 	/* Public interface for analyses */
 	void visit (CFG* cfg);
-	virtual void init_block (Basic_block* bb) {}
-	virtual bool solution_has_changed (Basic_block* bb) { return false; }
+	virtual void init_block (Basic_block*) {}
+	virtual bool solution_has_changed (Basic_block*) { return false; }
 
 	/* Transfer functions */
-	virtual void transfer_in (Basic_block* bb, BB_list* preds) {};
-	virtual void transfer_out (Basic_block* bb, BB_list* succs) {};
+	virtual void transfer_in (Basic_block*, BB_list*) {};
+	virtual void transfer_out (Basic_block*, BB_list*) {};
 
 	virtual void visit_entry_block (Entry_block*) {};
 	virtual void visit_empty_block (Empty_block*) {};
@@ -51,6 +51,7 @@ public:
 	virtual void visit_pre_op (Statement_block*, MIR::Pre_op*) {};
 	virtual void visit_push_array (Statement_block*, MIR::Push_array*) {};
 	virtual void visit_return (Statement_block*, MIR::Return*) {};
+	virtual void visit_ssa_pre_op (Statement_block*, MIR::SSA_pre_op*) {};
 	virtual void visit_static_declaration (Statement_block*, MIR::Static_declaration*) {};
 	virtual void visit_throw (Statement_block*, MIR::Throw*) {};
 	virtual void visit_try (Statement_block*, MIR::Try*) {};
@@ -74,6 +75,7 @@ public:
 	virtual void transform_param_is_ref (Statement_block* in, MIR::Param_is_ref*, BB_list* out);
 	virtual void transform_pre_op (Statement_block* in, MIR::Pre_op*, BB_list* out);
 	virtual void transform_push_array (Statement_block* in, MIR::Push_array*, BB_list* out);
+	virtual void transform_ssa_pre_op (Statement_block* in, MIR::SSA_pre_op*, BB_list* out);
 	virtual void transform_return (Statement_block* in, MIR::Return*, BB_list* out);
 	virtual void transform_static_declaration (Statement_block* in, MIR::Static_declaration*, BB_list* out);
 	virtual void transform_throw (Statement_block* in, MIR::Throw*, BB_list* out);

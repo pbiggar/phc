@@ -15,6 +15,7 @@
 
 #include "CFG.h"
 #include "SSA.h"
+#include "Def_use.h"
 #include "process_ast/DOT_unparser.h"
 #include "process_ir/General.h"
 
@@ -547,8 +548,11 @@ void CFG::convert_to_ssa_form ()
 		i++;
 	}
 
+	duw = new Def_use_web (this);
+
 	SSA_renaming sr(this);
 	sr.rename_vars (get_entry_bb ());
+
 }
 
 

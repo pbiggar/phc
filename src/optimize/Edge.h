@@ -9,7 +9,7 @@
 #include "SSA.h"
 
 // CFG edge
-class Edge : virtual public Object
+class Edge : public Object
 {
 public:
 	Basic_block* source;
@@ -18,21 +18,8 @@ public:
 	tribool direction;
 
 public:
-	Edge (Basic_block* source, Basic_block* target, edge_t edge)
-	: source (source)
-	, target (target)
-	, edge (edge)
-	, direction (indeterminate)
-	{
-	}
-
-	Edge (Basic_block* source, Basic_block* target, edge_t edge, bool direction)
-	: source (source)
-	, target (target)
-	, edge (edge)
-	, direction (direction)
-	{
-	}
+	Edge (Basic_block* source, Basic_block* target, edge_t edge);
+	Edge (Basic_block* source, Basic_block* target, edge_t edge, bool direction);
 
 public:
 	/*
@@ -67,24 +54,28 @@ public:
 	bool is_executable;
 
 	// TODO do we need to clone a block?
-	Edge* clone() { assert (0); }
+	Edge* clone();
 };
 
 // TODO move to SSA.h
+class Phi;
+class Statement_block;
+class Branch_block;
 class SSA_edge : public Object
 {
-	//		source var
-	//		target var
-	//		source stmt
-	//		target stmt
-	//		source BB
-	//		target BB
-	//
 public:
-	SSA_edge* clone ()
-	{
-		assert (0);
-	}
+	// Target is either a PHI or a statement (aka an expr).
+	
+	// This means any BB (for a PHI) or a statement_block, or a branch_block.
+	enum _which {PHI, STATEMENT, BRANCH} which;
+	Phi* phi;
+
+	Basic_block* bb;
+
+	SSA_edge (Phi* phi);
+	SSA_edge (Statement_block* bb);
+	SSA_edge (Branch_block* bb);
+	SSA_edge* clone ();
 };
 
 typedef List<SSA_edge*> SSA_edge_list;

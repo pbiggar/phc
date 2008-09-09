@@ -105,6 +105,7 @@
 
 #include "SCCP.h"
 #include "Lattice.h"
+#include "Def_use.h"
 #include "process_ir/debug.h"
 
 using namespace MIR;
@@ -165,8 +166,8 @@ SCCP::execute ()
 				if (pred->is_executable)
 					exec_count++;
 			}
-			// This will include the current edge. so the count will always
-			// be > 1
+			// This will include the current edge, so the count will always
+			// be > 0
 			assert (exec_count > 0);
 
 			if (exec_count == 1)
@@ -191,13 +192,7 @@ SCCP::execute ()
 			SSA_edge* e = ssa_wl->front ();
 			ssa_wl->pop_front ();
 
-			assert (0); // TODO
-//			if (isa<Phi> (e->target))
-//				visit_phi (e->target);
-//			else if (isa<Expr> (e->target))
-//				visit_expr (e->target);
-//			else
-//				;
+			visit_ssa_edge (e);
 		}
 	}
 }
@@ -205,13 +200,14 @@ SCCP::execute ()
 void
 SCCP::visit_phi (Phi* phi)
 {
-	/*		VisitPhi:
-	 *		The lattice of the phis output variable is the meet of all the inputs
-	 *		(non-execable means TOP), with the meet function:
-	 *			any + TOP = any
-	 *			any + BOTTOM = BOTTOM
-	 *			ci + cj = ci if i == j (? surely if c_i == c_j?)
-	 *			c1 + c2 = BOTTOM if i != j (this can be improved with VRP, using a similar algorithm).
+	/*	VisitPhi:
+	 *	The lattice of the phis output variable is the meet of all the inputs
+	 *	(non-execable means TOP), with the meet function:
+	 *		any + TOP = any
+	 *		any + BOTTOM = BOTTOM
+	 *		ci + cj = ci if i == j (? surely if c_i == c_j?)
+	 *		c1 + c2 = BOTTOM if i != j (this can be improved with VRP, using a
+	 *			similar algorithm).
 	 */
 	Lattice_cell* result = TOP;
 	foreach (VARIABLE_NAME* var, *phi->args)
@@ -219,6 +215,13 @@ SCCP::visit_phi (Phi* phi)
 		result = meet (result, lattice[var]);
 	}
 	lattice[phi->lhs] = result;
+}
+
+
+void
+SCCP::visit_ssa_edge (SSA_edge* phi)
+{
+	assert (0);
 }
 
 /*	VisitExpr:
@@ -229,6 +232,8 @@ SCCP::visit_phi (Phi* phi)
  *		- all outgoing edges to CFGWL for BOTTOM
  *		- only the appropriate outgoing edge for a constant
  */
+
+
 
 void
 SCCP::visit_block (Basic_block* bb)
@@ -287,6 +292,9 @@ SCCP::visit_block (Basic_block* bb)
 				break;
 			case MIR::Return::ID:
 				this->visit_return(sb, dyc<MIR::Return>(sb->statement));
+				break;
+			case MIR::SSA_pre_op::ID:
+				this->visit_ssa_pre_op(sb, dyc<MIR::SSA_pre_op>(sb->statement));
 				break;
 			case MIR::Static_declaration::ID:
 				this->visit_static_declaration(sb, dyc<MIR::Static_declaration>(sb->statement));
@@ -538,7 +546,10 @@ SCCP::visit_assign_var (Statement_block*, MIR::Assign_var* in)
 	{
 		assert (in->is_ref == false); // TODO
 		lattice[in->lhs] = new Lattice_cell (dyc<Literal> (expr));
-		assert (0);
+		foreach (SSA_edge* edge, *cfg->duw->get_def_use_edges (in->lhs))
+		{
+			ssa_wl->push_back (edge);
+		}
 	}
 
 }
@@ -592,6 +603,12 @@ SCCP::visit_pre_op (Statement_block*, MIR::Pre_op*)
 
 void
 SCCP::visit_push_array (Statement_block*, MIR::Push_array*)
+{
+	assert (0);
+}
+
+void
+SCCP::visit_ssa_pre_op (Statement_block*, MIR::SSA_pre_op*)
 {
 	assert (0);
 }

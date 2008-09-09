@@ -96,6 +96,9 @@ public:
 	}
 };
 
+/* There return the uses and defs to turn into SSA form. They are not useful
+ * for SSA webs (SSA def-use or use-edf chains).
+ */
 Set*
 Def_use::get_defs (Statement* in)
 {
@@ -110,4 +113,171 @@ Def_use::get_uses (Statement* in)
 	Def_use_visitor* duv = new Def_use_visitor;
 	in->visit (duv);
 	return duv->uses;
+}
+
+/*
+ * Def-use chains. These are slightly different def-use chains, since they
+ * work on SSA form.
+ */
+
+Def_use_web::Def_use_web (CFG* cfg)
+: Flow_visitor (FORWARD_FLOW)
+{
+	visit (cfg);
+}
+
+SSA_edge_list*
+Def_use_web::get_def_use_edges (MIR::VARIABLE_NAME* def)
+{
+	// Its possible to have defs without uses.
+	if (def_use_chains.find (def) == def_use_chains.end ())
+		return new SSA_edge_list ();
+
+	return def_use_chains[def];
+}
+
+SSA_edge*
+Def_use_web::get_use_def_edges (MIR::VARIABLE_NAME* use)
+{
+	assert (use_def_chains[use]); // every use must have a def
+	return use_def_chains[use];
+}
+
+
+void
+Def_use_web::add_def_use_edge (MIR::VARIABLE_NAME* var_name, SSA_edge* use)
+{
+	if (def_use_chains[var_name] == NULL)
+		def_use_chains[var_name] = new SSA_edge_list (use);
+	else
+		def_use_chains[var_name]->push_back (use);
+}
+
+void
+Def_use_web::visit_entry_block (Entry_block*)
+{
+}
+
+void
+Def_use_web::visit_empty_block (Empty_block*)
+{
+	assert (0);
+}
+
+void
+Def_use_web::visit_exit_block (Exit_block*)
+{
+}
+
+void
+Def_use_web::visit_branch_block (Branch_block* bb)
+{
+	add_def_use_edge (bb->branch->variable_name, new SSA_edge (bb));
+}
+
+void
+Def_use_web::visit_assign_array (Statement_block*, MIR::Assign_array* in)
+{
+	assert (0);
+}
+void
+Def_use_web::visit_assign_field (Statement_block*, MIR::Assign_field * in)
+{
+	assert (0);
+}
+
+
+class Def_use_web_visitor : public MIR::Visitor
+{
+	VARIABLE_NAME_list* uses;
+public:
+	Def_use_web_visitor (VARIABLE_NAME_list* uses) : uses (uses){}
+
+	void pre_variable_name (VARIABLE_NAME* in)
+	{
+		uses->push_back (in);
+	}
+};
+void
+Def_use_web::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
+{
+	use_def_chains[in->lhs] = new SSA_edge (bb);
+	VARIABLE_NAME_list* uses = new VARIABLE_NAME_list;
+	(new Def_use_web_visitor (uses))->visit_expr (in->rhs);
+	foreach (VARIABLE_NAME* use, *uses)
+		add_def_use_edge (use, new SSA_edge (bb));
+}
+void
+Def_use_web::visit_assign_var_var (Statement_block*, MIR::Assign_var_var* in)
+{
+	assert (0);
+}
+void
+Def_use_web::visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
+{
+	VARIABLE_NAME_list* uses = new VARIABLE_NAME_list;
+	(new Def_use_web_visitor (uses))->visit_expr (in->expr);
+	foreach (VARIABLE_NAME* use, *uses)
+		add_def_use_edge (use, new SSA_edge (bb));
+}
+void
+Def_use_web::visit_foreach_end (Statement_block*, MIR::Foreach_end* in)
+{
+	assert (0);
+}
+void
+Def_use_web::visit_foreach_next (Statement_block*, MIR::Foreach_next* in)
+{
+	assert (0);
+}
+void
+Def_use_web::visit_foreach_reset (Statement_block*, MIR::Foreach_reset* in)
+{
+	assert (0);
+}
+void
+Def_use_web::visit_global (Statement_block*, MIR::Global* in)
+{
+	// Is this a use or a def?
+	// TODO dont need this now, come back later.
+}
+void
+Def_use_web::visit_param_is_ref (Statement_block*, MIR::Param_is_ref* in)
+{
+	assert (0);
+}
+void
+Def_use_web::visit_pre_op (Statement_block*, MIR::Pre_op* in)
+{
+	assert (0);
+}
+void
+Def_use_web::visit_push_array (Statement_block*, MIR::Push_array* in)
+{
+	assert (0);
+}
+void
+Def_use_web::visit_return (Statement_block*, MIR::Return* in)
+{
+	assert (0);
+}
+void
+Def_use_web::visit_static_declaration (Statement_block*, MIR::Static_declaration* in)
+{
+	assert (0);
+}
+void
+Def_use_web::visit_throw (Statement_block*, MIR::Throw* in)
+{
+	assert (0);
+}
+void
+Def_use_web::visit_try (Statement_block*, MIR::Try* in)
+{
+	assert (0);
+}
+void
+Def_use_web::visit_unset (Statement_block*, MIR::Unset* in)
+{
+	assert (0);
 }

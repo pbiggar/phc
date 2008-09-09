@@ -107,6 +107,9 @@ Flow_visitor::visit_bb_local (CFG* cfg, Basic_block* bb)
 			case MIR::Push_array::ID:
 				this->visit_push_array(sb, dyc<MIR::Push_array>(sb->statement));
 				break;
+			case MIR::SSA_pre_op::ID:
+				this->visit_ssa_pre_op(sb, dyc<MIR::SSA_pre_op>(sb->statement));
+				break;
 			case MIR::Return::ID:
 				this->visit_return(sb, dyc<MIR::Return>(sb->statement));
 				break;
@@ -189,6 +192,9 @@ Flow_visitor::transform_bb (Basic_block* bb, BB_list* out)
 				break;
 			case MIR::Pre_op::ID:
 				this->transform_pre_op(sb, dyc<MIR::Pre_op>(sb->statement), out);
+				break;
+			case MIR::SSA_pre_op::ID:
+				this->transform_ssa_pre_op(sb, dyc<MIR::SSA_pre_op>(sb->statement), out);
 				break;
 			case MIR::Push_array::ID:
 				this->transform_push_array(sb, dyc<MIR::Push_array>(sb->statement), out);
@@ -318,6 +324,14 @@ Flow_visitor::transform_return (Statement_block* in, MIR::Return*, BB_list* out)
 {
 	out->push_back (in);
 }
+
+void
+Flow_visitor::transform_ssa_pre_op (Statement_block* in, MIR::SSA_pre_op*, BB_list* out)
+{
+	out->push_back (in);
+}
+
+
 
 void
 Flow_visitor::transform_static_declaration (Statement_block* in, MIR::Static_declaration*, BB_list* out)

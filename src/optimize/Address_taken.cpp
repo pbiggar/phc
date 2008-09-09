@@ -16,10 +16,10 @@ Address_taken::Address_taken ()
 }
 
 // Transfer functions not required
-void Address_taken::transfer_in (Basic_block* bb, list<Basic_block*>*) {}
+void Address_taken::transfer_in (Basic_block*, list<Basic_block*>*) {}
 void Address_taken::transfer_out (Basic_block*, list<Basic_block*>*) {}
 
-void Address_taken::visit_branch_block (Branch_block* bb) {}
+void Address_taken::visit_branch_block (Branch_block*) {}
 void Address_taken::visit_entry_block (Entry_block* bb)
 {
 	// All variables in the global scope are aliased.
@@ -181,17 +181,17 @@ Address_taken::visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
 }
 
 void
-Address_taken::visit_foreach_end (Statement_block* bb, MIR::Foreach_end* in)
+Address_taken::visit_foreach_end (Statement_block*, MIR::Foreach_end*)
 {
 }
 
 void
-Address_taken::visit_foreach_next (Statement_block* bb, MIR::Foreach_next* in)
+Address_taken::visit_foreach_next (Statement_block*, MIR::Foreach_next*)
 {
 }
 
 void
-Address_taken::visit_foreach_reset (Statement_block* bb, MIR::Foreach_reset* in)
+Address_taken::visit_foreach_reset (Statement_block*, MIR::Foreach_reset*)
 {
 }
 

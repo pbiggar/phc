@@ -24,6 +24,7 @@ typedef List<Edge*> Edge_list;
 
 class Dominance;
 class Phi;
+class Def_use_web;
 
 // Property for BB*
 enum vertex_bb_t { vertex_bb };
@@ -137,6 +138,8 @@ public:
 
 	void convert_to_ssa_form ();
 	void convert_out_of_ssa_form ();
+
+	Def_use_web* duw;
 
 private:
 	Graph bs; // backing store
