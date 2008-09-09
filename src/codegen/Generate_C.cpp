@@ -1149,7 +1149,8 @@ protected:
  * Semantics:
  *		The same as $x = $z; except $z is named at run-time by $y.
  *		Additionally, there is a conversion to strings needed:
- *
+ *			TODO
+ */
 class Pattern_assign_var_var_to_var  : public Pattern_assign_var
 {
 public:
