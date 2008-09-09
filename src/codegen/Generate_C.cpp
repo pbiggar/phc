@@ -728,6 +728,7 @@ public:
 
 	void generate_code(Generate_C* gen)
 	{
+		// TODO we done always need the sym-table entry.
 		code 
 		<<	get_st_entry (LOCAL, "p_lhs", lhs->value)
 		;
@@ -769,6 +770,21 @@ string assign_rhs (bool is_ref, VARIABLE_NAME* rhs)
 	return ss.str();
 }
 
+/* $x[$i] = $y; (1)
+ *		or
+ * $x[$i] =& $y; (2)
+ *
+ * Semantics:
+ *	(1) If $x[$i] is a reference, copy the value of $y into the zval at $x[$i].
+ *	       If $y doesn't exist, we can copy from uninitialized_zval.
+ *	    If $x[$i] is not a reference, overwrite the HT entry with $y, removing the old entry.
+ *	       If $y doesn't exist, put in uninitialized_zval.
+ *			 If $x[$i] doesnt exist, put uninitiliazed_val in, then replace it
+ *			 with $y (saved a second hashing operation).
+ *
+ *	(2) Remove the current HT entry, replacing it with a reference to $y.
+ *	    If $y doesnt exist, initialize it. If $x[$i] doesn't exist, it doesnt matter.
+ */
 class Pattern_assign_array : public Pattern
 {
 public:
@@ -800,6 +816,20 @@ protected:
 	Wildcard<VARIABLE_NAME>* rhs;
 };
 
+/*
+ * $x[] = $y; (1)
+ *		or
+ * $x[] =& $y; (2)
+ *
+ * Semantics:
+ * (1) Copy $y in to $x (even if $y is a reference, we copy)
+ * (2) Place a reference to $y into $x.
+ * In both cases $x may not be initialized, or may not be an array.
+ * If $x is uninitiliazed, it becomes an array, and the value is pushed.
+ * If $x is false, or "" (but not 0), it is initialized (no warning).
+ * If $x is a different scalar, a warning is printed, but that $x is not initialized (nothing pushed).
+ * If $x is a string (but not ""), a fatal error is thrown.
+ */
 class Pattern_push_array : public Pattern
 {
 public:
@@ -1059,7 +1089,21 @@ public:
 	}
 };
 
-
+/*
+ * $x = $y; (1)
+ *		or
+ *	$x =& $y; (2)
+ *
+ *	Semantics (same as $x[$i] = $y, except with sym-table insted of hash-table):
+ *	(1) If $x is a reference, copy the value of $y into the zval at $x.
+ *	       If $y doesn't exist, copy from uninitialized_zval.
+ *	    If $x is not a reference, overwrite the ST entry with $y, removing the old entry.
+ *	       If $y doesn't exist, put in uninitialized_zval.
+ *			 If $x doesnt exist, put uninitiliazed_val in, then replace it
+ *			 with $y (saved a second hashing operation).
+ *	(2) Remove the current ST entry, replacing it with a reference to $y.
+ *	    If $y doesnt exist, initialize it. If $x doesn't exist, it doesnt matter.
+ */
 class Pattern_assign_var_to_var : public Pattern_assign_var
 {
 public:
@@ -1098,6 +1142,14 @@ protected:
 	Wildcard<VARIABLE_NAME>* rhs;
 };
 
+/* $x = $$y;
+ *		or
+ *	$x =& $$y;
+ *
+ * Semantics:
+ *		The same as $x = $z; except $z is named at run-time by $y.
+ *		Additionally, there is a conversion to strings needed:
+ *
 class Pattern_assign_var_var_to_var  : public Pattern_assign_var
 {
 public:
