@@ -126,7 +126,7 @@ Basic_block::get_graphviz_head_properties ()
 	foreach (Phi* phi, *get_phi_nodes ())
 	{
 		Set* set = new Set;
-		foreach (VARIABLE_NAME* arg, *phi->args)
+		foreach (VARIABLE_NAME* arg, *phi->get_args ())
 			set->insert (arg);
 
 		result->push_back (

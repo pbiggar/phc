@@ -12,18 +12,16 @@ class Phi : virtual public Object
 {
 public:
 	MIR::VARIABLE_NAME* lhs;
-	MIR::VARIABLE_NAME_list* args;
+	list<pair<MIR::VARIABLE_NAME*, Edge*> >* args;
 
 public:
 	Phi (MIR::VARIABLE_NAME* lhs);
 
-	void add_arg (int version);
+	void add_arg (int version, Edge* source);
+	MIR::VARIABLE_NAME_list* get_args ();
+	list<pair<MIR::VARIABLE_NAME*, Edge*> >* get_arg_edges ();
 
-	Phi* clone ()
-	{
-		// TODO
-		assert (0);
-	}
+	Phi* clone () { assert (0); } // TODO
 };
 
 class Dominance

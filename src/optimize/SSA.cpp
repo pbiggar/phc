@@ -13,19 +13,38 @@
 using namespace MIR;
 using namespace boost;
 
-void
-Phi::add_arg (int version)
-{
-	VARIABLE_NAME* param = lhs->clone ();
-	param->set_version (version);
-	args->push_back (param);
-}
-
 Phi::Phi (VARIABLE_NAME* var_name)
 : lhs(var_name)
 {
-	args = new VARIABLE_NAME_list;
+	args = new list<pair<MIR::VARIABLE_NAME*, Edge*> >;
 }
+
+void
+Phi::add_arg (int version, Edge* edge)
+{
+	VARIABLE_NAME* param = lhs->clone ();
+	param->set_version (version);
+	args->push_back (make_pair (param, edge));
+}
+
+VARIABLE_NAME_list* 
+Phi::get_args ()
+{
+	VARIABLE_NAME_list* result = new VARIABLE_NAME_list;
+	pair<VARIABLE_NAME*, Edge*> pair;
+	foreach (pair, *args)
+	{
+		result->push_back (pair.first);
+	}
+	return result;
+}
+
+list<pair<MIR::VARIABLE_NAME*, Edge*> >*
+Phi::get_arg_edges ()
+{
+	return args;
+}
+
 
 // We use Muchnick, Section 8.11 (which is essentially the same as the
 // Minimal SSA form from the original Cytron, Ferrante, Rosen, Wegman and
@@ -278,7 +297,7 @@ SSA_renaming::rename_vars (Basic_block* bb)
 	// predecessor, which are not redefined here).
 	foreach (Basic_block* succ, *bb->get_successors ())
 		foreach (Phi* phi, *succ->get_phi_nodes ())
-			phi->add_arg (read_var_stack (phi->lhs));
+			phi->add_arg (read_var_stack (phi->lhs), cfg->get_edge (bb, succ));
 
 	// Recurse down the dominator tree
 	foreach (Basic_block* dominated, *bb->get_dominated_blocks ())

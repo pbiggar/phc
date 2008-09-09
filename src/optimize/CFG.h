@@ -126,6 +126,7 @@ public:
 	Edge* get_entry_edge ();
 	Edge* get_exit_edge ();
 	Edge_list* get_all_edges ();
+	Edge* get_edge (Basic_block* bb1, Basic_block* bb2);
 
 public:
 	/*
@@ -157,7 +158,6 @@ private:
 	BB_list* get_bb_predecessors (Basic_block* bb);
 	Edge_list* get_edge_successors (Basic_block* bb);
 	Edge_list* get_edge_predecessors (Basic_block* bb);
-	Edge* get_edge (Basic_block* bb1, Basic_block* bb2);
 	void replace_bb (Basic_block* bb, BB_list* replacements);
 	void remove_bb (Basic_block* bb);
 

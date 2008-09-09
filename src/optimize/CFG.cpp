@@ -563,7 +563,7 @@ CFG::convert_out_of_ssa_form ()
 		foreach (Phi* phi, *bb->get_phi_nodes ())
 		{
 			BB_list* preds = bb->get_predecessors ();
-			foreach (VARIABLE_NAME* var_name, *phi->args)
+			foreach (VARIABLE_NAME* var_name, *phi->get_args ())
 			{
 				Assign_var* copy = new Assign_var (
 					phi->lhs->clone (),

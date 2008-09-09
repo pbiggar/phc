@@ -205,14 +205,16 @@ SCCP::visit_phi (Phi* phi)
 	 *			similar algorithm).
 	 */
 	Lattice_cell* result = TOP;
-	foreach (VARIABLE_NAME* var, *phi->args)
+
+	pair<VARIABLE_NAME*, Edge*> pair;
+	foreach (pair, *phi->get_arg_edges ())
 	{
-		assert (0); // non-executable means TOP
-		result = meet (result, lattice[var]);
+		if (pair.second->is_executable)
+			; // use TOP, aka do nothing
+		else
+			result = meet (result, lattice[pair.first]);
 	}
 	lattice[phi->lhs] = result;
-
-	// TODO shouldnt this add edges to the worklist?
 }
 
 /*
@@ -365,7 +367,7 @@ SCCP::visit_branch_block (Branch_block* bb)
 
 	else
 	{
-		assert (0);
+		assert (0); // TODO
 	}
 }
 
@@ -385,6 +387,9 @@ SCCP::visit_assign_field (Statement_block*, MIR::Assign_field *)
 void
 SCCP::visit_assign_var (Statement_block*, MIR::Assign_var* in)
 {
+	if (lattice[in->lhs] == BOTTOM)
+		return;
+
 	Expr* expr = in->rhs;
 	// Attempt to fold the expression.
 	switch(expr->classid())
@@ -557,24 +562,30 @@ SCCP::visit_assign_var (Statement_block*, MIR::Assign_var* in)
 			break;
 	}
 
-	in->rhs = expr;
-	
 	// If its an assignment and creates a result for the LHS, add all SSA
 	// edges.
 
-	// If it changes the lattice value,
-	//	- add uses of the LHS to the SSA worklist.
-	Lattice_cell* old = lattice[in->lhs];
 	if (isa<Literal> (expr))
 	{
-		assert (in->is_ref == false); // TODO
-		lattice[in->lhs] = new Lattice_cell (dyc<Literal> (expr));
-		foreach (SSA_edge* edge, *cfg->duw->get_def_use_edges (in->lhs))
+		// If it changes the lattice value,
+		//	- add uses of the LHS to the SSA worklist.
+		if (lattice[in->lhs] == TOP)
 		{
-			ssa_wl->push_back (edge);
-		}
-	}
 
+			assert (in->is_ref == false); // TODO
+			lattice[in->lhs] = new Lattice_cell (dyc<Literal> (expr));
+			foreach (SSA_edge* edge, *cfg->duw->get_def_use_edges (in->lhs))
+			{
+				ssa_wl->push_back (edge);
+			}
+		}
+		else // must both be COSNT
+			assert (in->rhs->equals (expr));
+	}
+	else
+		lattice[in->lhs] = BOTTOM;
+
+	in->rhs = expr;
 }
 
 void
