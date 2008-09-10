@@ -1430,6 +1430,39 @@ protected:
 	Wildcard<Actual_parameter>* arg;
 };
 
+void
+init_function_record (string name, Node* node)
+{
+	static set<string> record;
+
+	string fci_name = suffix (name, "fci");
+	string fcic_name = suffix (name, "fcic");
+
+	// initialize and declare the first time only
+	if (record.find (name) == record.end ())
+	{
+		record.insert (name);
+
+		prologue
+		<< "static zend_fcall_info " << fci_name << ";\n"
+		<< "static zend_fcall_info_cache " << fcic_name << " = {0,NULL,NULL,NULL};\n"
+		;
+	}
+
+	// Its not necessarily a good idea to initialize at the start, since we
+	// still have to check if its initialized at call-time (it may have been
+	// created in the meantime.
+	code
+	<< "initialize_function_call (" 
+	<<			"&" << fci_name << ", "
+	<<			"&" << fcic_name << ", "
+	<<			"\"" << name << "\", "
+	<<			"\"" << *node->get_filename () << "\", " 
+	<<			node->get_line_number ()
+	<<			" TSRMLS_CC);\n"
+	;
+}
+
 class Pattern_assign_param_is_ref : public Pattern_assign_var
 {
 public:
@@ -1442,39 +1475,17 @@ public:
 	void generate_rhs ()
 	{
 		assert (!agn->is_ref);
-		String* name = dyc<METHOD_NAME> (rhs->value->method_name)->value;
+
+		string name = *dyc<METHOD_NAME> (rhs->value->method_name)->value;
 		int index = rhs->value->param_index->value;
 
-		// TODO only do this once per function
+		init_function_record (name, rhs->value);
+
+		string fci_name = suffix (name, "fci");
+		string fcic_name = suffix (name, "fcic");
 
 		code
-		// lookup the function and cache it for next time
-		<< "// Call the function\n"
-		<< "static zend_fcall_info fci;\n"
-		<< "static zend_fcall_info_cache fcic = {0,NULL,NULL,NULL};\n"
-		<< "if (!fcic.initialized)\n"
-		<< "{\n"
-		<<		"zval function_name;\n"
-		<<		"INIT_PZVAL(&function_name);\n"
-		<<		"ZVAL_STRING(&function_name, "
-		<<			"\"" << *name << "\", "
-		<<			"0);\n"
-
-		<<		"int result = zend_fcall_info_init (&function_name, &fci, &fcic TSRMLS_CC);\n"
-		<< 	"if (result == FAILURE) // check for missing function\n"
-		<< 	"{\n"
-		<<			"phc_setup_error (1, \"" 
-		<< 			*rhs->get_filename () << "\", " 
-		<< 			rhs->get_line_number () << ", "
-		<<				"NULL TSRMLS_CC);\n"
-					// die
-		<<			"php_error_docref (NULL TSRMLS_CC, E_ERROR, "
-		<<				"\"Call to undefined function %s()\", \"" 
-		<< 			*name << "\");\n"
-		<< 	"}\n"
-		<< "}\n"
-
-		<< "zend_function* signature = fcic.function_handler;\n"
+		<< "zend_function* signature = " << fcic_name << ".function_handler;\n"
 		<< "zend_arg_info* arg_info = signature->common.arg_info;\n"
 		<< "int count = 0;\n"
 		<< "while (arg_info && count < " << index << ")\n"
@@ -1526,47 +1537,19 @@ public:
 		// code << "debug_hash(EG(active_symbol_table));\n";
 
 		// Variable function or ordinary function?
-		METHOD_NAME* name;
-		name = dynamic_cast<METHOD_NAME*>(rhs->value->method_name);
-
+		METHOD_NAME* name = dynamic_cast<METHOD_NAME*>(rhs->value->method_name);
 		if (name == NULL) phc_unsupported (rhs->value);
 
+		string fci_name = suffix (*name->value, "fci");
+		string fcic_name = suffix (*name->value, "fcic");
+		init_function_record (*name->value, rhs->value);
+
 		code
-		<< declare ("p_rhs")
+		<< "zend_function* signature = " << fcic_name << ".function_handler;\n"
 		;
-
-		int num_args = rhs->value->actual_parameters->size();
-		code
-		// lookup the function and cache it for next time
-		<< "// Call the function\n"
-		<< "static zend_fcall_info fci;\n"
-		<< "static zend_fcall_info_cache fcic = {0,NULL,NULL,NULL};\n"
-		<< "if (!fcic.initialized)\n"
-		<< "{\n"
-		<<		"zval function_name;\n"
-		<<		"INIT_PZVAL(&function_name);\n"
-		<<		"ZVAL_STRING(&function_name, "
-		<<			"\"" << *name->value << "\", "
-		<<			"0);\n"
-
-		<<		"int result = zend_fcall_info_init (&function_name, &fci, &fcic TSRMLS_CC);\n"
-		<< 	"if (result == FAILURE) // check for missing function\n"
-		<< 	"{\n"
-		<<			"phc_setup_error (1, \"" 
-		<< 			*rhs->get_filename () << "\", " 
-		<< 			rhs->get_line_number () << ", "
-		<<				"NULL TSRMLS_CC);\n"
-					// die
-		<<			"php_error_docref (NULL TSRMLS_CC, E_ERROR, "
-		<<				"\"Call to undefined function %s()\", \"" 
-		<< 			*name->value << "\");\n"
-		<< 	"}\n"
-		<< "}\n"
-		<< "zend_function* signature = fcic.function_handler;\n"
-		;
-
 
 		// Figure out which parameters need to be passed by reference
+		int num_args = rhs->value->actual_parameters->size();
 		if (num_args)
 		{
 			code
@@ -1650,23 +1633,25 @@ public:
 		<< "			NULL TSRMLS_CC);\n"
 
 		// save existing paramters, in case of recursion
-		<< "int param_count_save = fci.param_count;\n"
-		<< "zval*** params_save = fci.params;\n"
-		<< "zval** retval_save = fci.retval_ptr_ptr;\n"
+		<< "int param_count_save = " << fci_name << ".param_count;\n"
+		<< "zval*** params_save = " << fci_name << ".params;\n"
+		<< "zval** retval_save = " << fci_name << ".retval_ptr_ptr;\n"
+
+		<< declare ("p_rhs")
 
 		// set up params
-		<< "fci.params = args_ind;\n"
-		<< "fci.param_count = " << num_args << ";\n"
-		<< "fci.retval_ptr_ptr = p_rhs;\n"
+		<< fci_name << ".params = args_ind;\n"
+		<< fci_name << ".param_count = " << num_args << ";\n"
+		<< fci_name << ".retval_ptr_ptr = p_rhs;\n"
 
 		// call the function
-		<< "int success = zend_call_function (&fci, &fcic TSRMLS_CC);\n"
+		<< "int success = zend_call_function (&" << fci_name << ", &" << fcic_name << " TSRMLS_CC);\n"
 		<< "assert(success == SUCCESS);\n"
 
 		// restore params
-		<< "fci.params = params_save;\n"
-		<< "fci.param_count = param_count_save;\n"
-		<< "fci.retval_ptr_ptr = retval_save;\n"
+		<< fci_name << ".params = params_save;\n"
+		<< fci_name << ".param_count = param_count_save;\n"
+		<< fci_name << ".retval_ptr_ptr = retval_save;\n"
 
 		// unset the errors
 		<< "phc_setup_error (0, NULL, 0, NULL TSRMLS_CC);\n"
@@ -2552,9 +2537,6 @@ void Generate_C::post_php_script(PHP_script* in)
 		"   php_embed_init (argc, argv PTSRMLS_CC);\n"
 		"   zend_first_try\n"
 		"   {\n"
-		"      // initialize all the constants\n"
-		<< initializations.str () << 
-		"\n"
 		"      // load the compiled extension\n"
 		"      zend_startup_module (&" << *extension_name << "_module_entry);\n"
 		"\n"
@@ -2566,6 +2548,9 @@ void Generate_C::post_php_script(PHP_script* in)
 		"      // Use standard errors, on stdout\n"
 		"      zend_alter_ini_entry (\"report_zend_debug\", sizeof(\"report_zend_debug\"), \"0\", sizeof(\"0\") - 1, PHP_INI_ALL, PHP_INI_STAGE_RUNTIME);\n"
 		"      zend_alter_ini_entry (\"display_startup_errors\", sizeof(\"display_startup_errors\"), \"1\", sizeof(\"1\") - 1, PHP_INI_ALL, PHP_INI_STAGE_RUNTIME);\n"
+		"\n"
+		"      // initialize all the constants\n"
+		<< initializations.str () << // TODO put this in __MAIN__, or else extensions cant use it.
 		"\n"
 		"      // call __MAIN__\n"
 		"      int success = call_user_function( \n"

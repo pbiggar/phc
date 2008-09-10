@@ -890,3 +890,21 @@ phc_check_invariants (TSRMLS_D)
   assert (EG (uninitialized_zval).type == IS_NULL);
   assert (EG (uninitialized_zval).is_ref == 0);
 }
+
+static void
+initialize_function_call (zend_fcall_info* fci, zend_fcall_info_cache* fcic, char* function_name, char* filename, int line_number TSRMLS_DC)
+{
+  if (!fcic->initialized)	// check for missing function
+    {
+      zval fn;
+      INIT_PZVAL (&fn);
+      ZVAL_STRING (&fn, function_name, 0);
+      int result = zend_fcall_info_init (&fn, fci, fcic TSRMLS_CC);
+      if (result != SUCCESS)
+	{
+	  phc_setup_error (1, filename, line_number, NULL TSRMLS_CC);
+	  php_error_docref (NULL TSRMLS_CC, E_ERROR,
+			    "Call to undefined function %s()", function_name);
+	}
+    }
+}
