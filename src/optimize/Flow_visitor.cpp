@@ -13,7 +13,7 @@ Flow_visitor::Flow_visitor (Flow_visitor_direction direction)
 }
 
 void
-Flow_visitor::visit (CFG* cfg)
+Flow_visitor::run (CFG* cfg)
 {
 	foreach (Basic_block* bb, *cfg->get_all_bbs ())
 	{

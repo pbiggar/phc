@@ -122,11 +122,10 @@ Def_use::get_uses (Statement* in)
 
 #include "Set.h"
 
-Def_use_web::Def_use_web (CFG* cfg)
+Def_use_web::Def_use_web ()
 : def_use_chains (&variable_name_ptr_comparison)
 , use_def_chains (&variable_name_ptr_comparison)
 {
-	visit (cfg);
 }
 
 SSA_edge_list*
@@ -183,111 +182,209 @@ Def_use_web::visit_assign_array (Statement_block*, MIR::Assign_array* in)
 {
 	assert (0);
 }
+
 void
 Def_use_web::visit_assign_field (Statement_block*, MIR::Assign_field * in)
 {
 	assert (0);
 }
 
-
-class Def_use_web_visitor : public MIR::Visitor
-{
-	VARIABLE_NAME_list* uses;
-public:
-	Def_use_web_visitor (VARIABLE_NAME_list* uses) : uses (uses){}
-
-	void pre_variable_name (VARIABLE_NAME* in)
-	{
-		assert (in->in_ssa);
-		uses->push_back (in);
-	}
-};
 void
 Def_use_web::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 {
 	add_use_def_edge (in->lhs, new SSA_edge (bb));
-	VARIABLE_NAME_list* uses = new VARIABLE_NAME_list;
-	(new Def_use_web_visitor (uses))->visit_expr (in->rhs);
-	foreach (VARIABLE_NAME* use, *uses)
-		add_def_use_edge (use, new SSA_edge (bb));
+	visit_expr (in->rhs);
 }
+
 void
 Def_use_web::visit_assign_var_var (Statement_block*, MIR::Assign_var_var* in)
 {
 	assert (0);
 }
+
 void
 Def_use_web::visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
 {
-	VARIABLE_NAME_list* uses = new VARIABLE_NAME_list;
-	(new Def_use_web_visitor (uses))->visit_expr (in->expr);
-	foreach (VARIABLE_NAME* use, *uses)
-		add_def_use_edge (use, new SSA_edge (bb));
+	visit_expr (in->expr);
 }
+
 void
 Def_use_web::visit_foreach_end (Statement_block*, MIR::Foreach_end* in)
 {
 	assert (0);
 }
+
 void
 Def_use_web::visit_foreach_next (Statement_block*, MIR::Foreach_next* in)
 {
 	assert (0);
 }
+
 void
 Def_use_web::visit_foreach_reset (Statement_block*, MIR::Foreach_reset* in)
 {
 	assert (0);
 }
+
 void
 Def_use_web::visit_global (Statement_block*, MIR::Global* in)
 {
 	// Is this a use or a def?
 	// TODO dont need this now, come back later.
 }
+
 void
 Def_use_web::visit_param_is_ref (Statement_block*, MIR::Param_is_ref* in)
 {
 	assert (0);
 }
+
 void
 Def_use_web::visit_pre_op (Statement_block*, MIR::Pre_op* in)
 {
 	assert (0);
 }
+
 void
 Def_use_web::visit_push_array (Statement_block*, MIR::Push_array* in)
 {
 	assert (0);
 }
+
 void
 Def_use_web::visit_return (Statement_block*, MIR::Return* in)
 {
 	assert (0);
 }
+
 void
 Def_use_web::visit_ssa_pre_op (Statement_block* bb, MIR::SSA_pre_op* in)
 {
 	add_def_use_edge (in->use, new SSA_edge (bb));
 	add_use_def_edge (in->def, new SSA_edge (bb));
 }
+
 void
 Def_use_web::visit_static_declaration (Statement_block*, MIR::Static_declaration* in)
 {
 	assert (0);
 }
+
 void
 Def_use_web::visit_throw (Statement_block*, MIR::Throw* in)
 {
 	assert (0);
 }
+
 void
 Def_use_web::visit_try (Statement_block*, MIR::Try* in)
 {
 	assert (0);
 }
+
 void
 Def_use_web::visit_unset (Statement_block*, MIR::Unset* in)
+{
+	assert (0);
+}
+
+/*
+ * Exprs
+ */
+
+void
+Def_use_web::visit_array_access (Array_access* in)
+{
+	assert (0);
+}
+
+void
+Def_use_web::visit_bin_op (Bin_op* in)
+{
+//	add_def_use_edge (in->left, new SSA_edge (bb));
+//	add_def_use_edge (in->right, new SSA_edge (bb));
+}
+
+void
+Def_use_web::visit_cast (Cast* in)
+{
+	assert (0);
+}
+
+void
+Def_use_web::visit_constant (Constant* in)
+{
+	assert (0);
+}
+
+void
+Def_use_web::visit_field_access (Field_access* in)
+{
+	assert (0);
+}
+
+void
+Def_use_web::visit_foreach_get_key (Foreach_get_key* in)
+{
+	assert (0);
+}
+
+void
+Def_use_web::visit_foreach_get_val (Foreach_get_val* in)
+{
+	assert (0);
+}
+
+void
+Def_use_web::visit_foreach_has_key (Foreach_has_key* in)
+{
+	assert (0);
+}
+
+void
+Def_use_web::visit_instanceof (Instanceof* in)
+{
+	assert (0);
+}
+
+void
+Def_use_web::visit_isset (Isset* in)
+{
+	assert (0);
+}
+
+void
+Def_use_web::visit_method_invocation (Method_invocation* in)
+{
+	assert (0);
+}
+
+void
+Def_use_web::visit_new (New* in)
+{
+	assert (0);
+}
+
+void
+Def_use_web::visit_param_is_ref (Param_is_ref* in)
+{
+	assert (0);
+}
+
+void
+Def_use_web::visit_unary_op (Unary_op* in)
+{
+	assert (0);
+}
+
+void
+Def_use_web::visit_variable_name (VARIABLE_NAME* in)
+{
+	assert (0);
+}
+
+void
+Def_use_web::visit_variable_variable (Variable_variable* in)
 {
 	assert (0);
 }

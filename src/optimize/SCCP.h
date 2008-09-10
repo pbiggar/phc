@@ -7,14 +7,13 @@
 
 class SCCP : public CFG_visitor
 {
-	CFG* cfg;
 	Lattice_map lattice;
 	Edge_list* cfg_wl;
 	SSA_edge_list* ssa_wl;
 
 public:
-	SCCP (CFG* cfg);
-	void execute ();
+	void run (CFG* cfg);
+
 	MIR::Literal* get_literal (MIR::Rvalue* in);
 	int get_predecessor_executable_count (Basic_block* bb);
 

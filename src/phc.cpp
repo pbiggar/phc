@@ -172,7 +172,7 @@ int main(int argc, char** argv)
 
 	pm->add_optimization (new Address_taken (), s("ataa"), s("Address-taken alias analysis"));
 	pm->add_optimization (new Live_variable_analysis (), s("lva"), s("Live variable analysis"));
-	pm->add_optimization (new Dead_code_elimination (), s("dce"), s("Dead code elimination"));
+//	pm->add_optimization (new Dead_code_elimination (), s("dce"), s("Dead code elimination"));
 
 	// codegen passes
 	stringstream ss;

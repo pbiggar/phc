@@ -18,7 +18,7 @@ class Visit_once : public CFG_visitor
 {
 public:
 	/* Public interface for analyses */
-	void visit (CFG* cfg);
+	void run (CFG* cfg);
 };
 
 #endif // PHC_VISIT_ONCE

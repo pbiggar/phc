@@ -15,11 +15,6 @@ Address_taken::Address_taken ()
 	aliases = new Set ();
 }
 
-// Transfer functions not required
-void Address_taken::transfer_in (Basic_block*, list<Basic_block*>*) {}
-void Address_taken::transfer_out (Basic_block*, list<Basic_block*>*) {}
-
-void Address_taken::visit_branch_block (Branch_block*) {}
 void Address_taken::visit_entry_block (Entry_block* bb)
 {
 	// All variables in the global scope are aliased.
@@ -181,36 +176,9 @@ Address_taken::visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
 }
 
 void
-Address_taken::visit_foreach_end (Statement_block*, MIR::Foreach_end*)
-{
-}
-
-void
-Address_taken::visit_foreach_next (Statement_block*, MIR::Foreach_next*)
-{
-}
-
-void
-Address_taken::visit_foreach_reset (Statement_block*, MIR::Foreach_reset*)
-{
-}
-
-void
 Address_taken::visit_global (Statement_block* bb, MIR::Global* in)
 {
 	aliased (bb, in->variable_name);
-}
-
-void
-Address_taken::visit_param_is_ref (Statement_block* bb, MIR::Param_is_ref* in)
-{
-	// Nothing
-}
-
-void
-Address_taken::visit_pre_op (Statement_block* bb, MIR::Pre_op* in)
-{
-	// Nothing
 }
 
 void
@@ -246,21 +214,8 @@ Address_taken::visit_throw (Statement_block* bb, MIR::Throw*)
 }
 
 void
-Address_taken::visit_unset (Statement_block* sb, MIR::Unset*)
-{
-	// Nothing
-}
-
-void
-Address_taken::init_block (Basic_block* bb)
+Address_taken::visit_statement_block (Statement_block* bb)
 {
 	// We use a global set for this, since there is only one solution.
 	bb->aliases = aliases;
-}
-
-bool
-Address_taken::solution_has_changed (Basic_block* bb)
-{
-	// The solution never changes
-	return false;
 }

@@ -2,10 +2,12 @@
  * phc -- the open source PHP compiler
  * See doc/license/README.license for licensing information
  *
- * Base class handling the "Visitor" part of the CFG. Its immediate clients
- * should handle traversing the CFG, and simply call visit_block.
- * Higher-level clients (which actually analyse) should behave as if this is
- * an MIR::Visitor which is noly called on statements, or branches.
+ * Base class handling the "Visitor" part of the CFG. Flow-analyses (such as
+ * SCCP, or Visit_once) using this can traverse the CFG, and dispatch to the
+ * clients using visit_block(). Clients (the user analyses, like DCE) override
+ * the appropriate methods.
+ *
+ * Expressions can be manually dispatched by the client using visit_expr() and transform_expr ();
  */
 
 #ifndef PHC_CFG_VISITOR
@@ -18,11 +20,17 @@
 class CFG_visitor
 {
 public:
-	// Dispatcher - Call from clients
+	// Run the analysis - common interface
+	virtual void run (CFG* cfg) = 0;
+
+	/*
+	 * Dispatchers - Call from clients
+	 */
+
 	void visit_block (Basic_block* bb);
 	void visit_expr (MIR::Expr*);
 
-	// We handle putting the blocks back into the CFG */
+	// We handle putting the blocks back into the CFG
 	void transform_block (Basic_block* bb);
 
 	// The client is responsible for handling the result (this only does
@@ -30,17 +38,30 @@ public:
 	MIR::Expr* transform_expr (MIR::Expr*);
 
 
-	// Visitor - Override in clients
+	/*
+	 * Block visitors - Override in clients.
+	 * These are called automatically for visit_block(), which should be called
+	 * by the analysis.
+	 */
+
 	virtual void visit_entry_block (Entry_block*);
 	virtual void visit_empty_block (Empty_block*);
 	virtual void visit_exit_block (Exit_block*);
 	virtual void visit_branch_block (Branch_block*);
-
-	// Don't depend on the ordering of this call in relation to
-	// visit_mir_nodes below.
 	virtual void visit_statement_block (Statement_block*);
 
+	/*
+	 * Phi visitor - Override in clients.
+	 * Automatically called for each block.
+	 */
+
 	virtual void visit_phi_node (Phi*);
+
+	/*
+	 * Statement visitors - Override in clients.
+	 * Automatically called for statement_blocks.
+	 */
+
 
 	virtual void visit_assign_array (Statement_block*, MIR::Assign_array*);
 	virtual void visit_assign_field (Statement_block*, MIR::Assign_field *);
@@ -61,7 +82,11 @@ public:
 	virtual void visit_try (Statement_block*, MIR::Try*);
 	virtual void visit_unset (Statement_block*, MIR::Unset*);
 
-	// Visit_expr - Override in clients
+	/*
+	 * Expression visitors - Override in clients.
+	 * The client must call visit_expr() manually.
+	 */
+
 	virtual void visit_array_access (MIR::Array_access* in);
 	virtual void visit_bin_op (MIR::Bin_op* in);
 	virtual void visit_bool (MIR::BOOL* in);
@@ -85,13 +110,29 @@ public:
 	virtual void visit_variable_variable (MIR::Variable_variable* in);
 
 
-	// Transform - Override in clients
+	/*
+	 * Block transforms - Override in clients
+	 * These are called automatically for transform_block(), which should be called
+	 * by the analysis.
+	 */
+
 	virtual void transform_entry_block (Entry_block* in, BB_list* out);
 	virtual void transform_empty_block (Empty_block* in, BB_list* out);
 	virtual void transform_exit_block (Exit_block* in, BB_list* out);
 	virtual void transform_branch_block (Branch_block* in, BB_list* out);
+	// Note lack of transform_statement_block. It could be added if needed.
+
+	/*
+	 * Phi visitor - Override in clients.
+	 * Automatically called for each block.
+	 */
 
 	virtual void transform_phi_node (Phi*, List<Phi*>* out);
+
+	/*
+	 * Statement transforms - Override in clients.
+	 * Automatically called for statement_blocks.
+	 */
 
 	virtual void transform_assign_array (Statement_block*, MIR::Assign_array*, BB_list*);
 	virtual void transform_assign_field (Statement_block*, MIR::Assign_field*, BB_list*);
@@ -111,6 +152,12 @@ public:
 	virtual void transform_throw (Statement_block*, MIR::Throw*, BB_list*);
 	virtual void transform_try (Statement_block*, MIR::Try*, BB_list*);
 	virtual void transform_unset (Statement_block*, MIR::Unset*, BB_list*);
+
+
+	/*
+	 * Expression transforms - Override in clients.
+	 * The client must call transform_expr() manually.
+	 */
 
 	virtual MIR::Expr* transform_array_access (MIR::Array_access* in);
 	virtual MIR::Expr* transform_bin_op (MIR::Bin_op* in);

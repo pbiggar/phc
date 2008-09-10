@@ -8,7 +8,7 @@
 #include "Visit_once.h"
 
 void
-Visit_once::visit (CFG* cfg)
+Visit_once::run (CFG* cfg)
 {
 	foreach (Basic_block* bb, *cfg->get_all_bbs ())
 	{

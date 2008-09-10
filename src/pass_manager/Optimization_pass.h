@@ -2,7 +2,7 @@
  * phc -- the open source PHP compiler
  * See doc/license/README.license for licensing information
  *
- * Wrap Optimizations for the pass queue.
+ * Wrap optimizations for the pass queue.
  */
 
 #ifndef PHC_OPTIMIZATION_PASS_H
@@ -11,15 +11,15 @@
 #include "pass_manager/Pass.h"
 #include "process_ir/IR.h"
 
-class Flow_visitor;
+class CFG_visitor;
 class CFG;
 
 class Optimization_pass : public Pass
 {
-	Flow_visitor* visitor;
+	CFG_visitor* visitor;
 public:
 
-	Optimization_pass (Flow_visitor* v, String* name, String* description);
+	Optimization_pass (CFG_visitor* v, String* name, String* description);
 	void run (CFG* in, Pass_manager* pm);
 	void run (IR::PHP_script* in, Pass_manager* pm);
 };

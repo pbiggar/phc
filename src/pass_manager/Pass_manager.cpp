@@ -28,6 +28,7 @@
 #include "process_mir/MIR_to_AST.h"
 #include "optimize/CFG.h"
 #include "optimize/SCCP.h"
+#include "optimize/Dead_code_elimination.h"
 #include "optimize/Into_SSA.h"
 #include "optimize/Out_of_SSA.h"
 
@@ -99,7 +100,7 @@ void Pass_manager::add_mir_pass (Pass* pass)
 	add_pass (pass, mir_queue);
 }
 
-void Pass_manager::add_optimization (Flow_visitor* v, String* name, String* description)
+void Pass_manager::add_optimization (CFG_visitor* v, String* name, String* description)
 {
 	Pass* pass = new Optimization_pass (v, name, description);
 	add_pass (pass, optimization_queue);
@@ -558,7 +559,7 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 	script->transform_children (new Into_SSA);
 	foreach (MIR::Statement* stmt, *script->statements)
 	{
-		// TODO we should be optimizing all methods
+		// TODO: we should be optimizing all methods, not just functions.
 		if (isa<MIR::Method> (stmt))
 		{
 			MIR::Method* method = dyc<MIR::Method> (stmt);
@@ -574,10 +575,13 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 			if (args_info->debug_given)
 				enable_cdebug ();
 
-			SCCP* sccp = new SCCP (cfg);
-			sccp->execute ();
+			SCCP().run (cfg);
 			if (args_info->cfg_dump_given)
 				cfg->dump_graphviz (s("CFG - after SCCP"));
+
+			DCE().run (cfg);
+			if (args_info->cfg_dump_given)
+				cfg->dump_graphviz (s("CFG - after DCE"));
 
 			disable_cdebug ();
 
@@ -589,7 +593,7 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 /*			if (lexical_cast<int> (args_info->optimize_arg) > 0)
 			{
 				// iterate until it fix-points (or 10 times)
-				for (int iter = 0; iter < 1; iter++) // TODO changed back to 10
+				for (int iter = 0; iter < 1; iter++) // TODO change back to 10
 				{
 					foreach (Pass* pass, *optimization_queue)
 					{

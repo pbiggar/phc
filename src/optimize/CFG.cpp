@@ -551,7 +551,8 @@ void CFG::convert_to_ssa_form ()
 	SSA_renaming sr(this);
 	sr.rename_vars (get_entry_bb ());
 
-	duw = new Def_use_web (this);
+	duw = new Def_use_web ();
+	duw->run (this);
 }
 
 

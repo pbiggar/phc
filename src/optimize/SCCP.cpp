@@ -110,13 +110,8 @@
 
 using namespace MIR;
 
-SCCP::SCCP (CFG* cfg)
-: cfg(cfg)
-{
-}
-
 void
-SCCP::execute ()
+SCCP::run (CFG* cfg)
 {
 	// 1. Initialize:
 	cfg_wl = new Edge_list(cfg->get_entry_edge ());
@@ -475,7 +470,7 @@ SCCP::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 		{
 			assert (in->is_ref == false); // TODO
 			lattice[in->lhs] = new Lattice_cell (dyc<Literal> (expr));
-			foreach (SSA_edge* edge, *cfg->duw->get_def_use_edges (in->lhs))
+			foreach (SSA_edge* edge, *bb->cfg->duw->get_def_use_edges (in->lhs))
 			{
 				ssa_wl->push_back (edge);
 			}

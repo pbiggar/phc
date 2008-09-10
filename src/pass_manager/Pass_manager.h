@@ -64,7 +64,7 @@ public:
 	void add_codegen_pass (Pass* pass);
 	void add_after_each_mir_pass (Pass* pass);
 
-	void add_optimization (Flow_visitor* visitor, String* name, String* description);
+	void add_optimization (CFG_visitor* visitor, String* name, String* description);
 	void run_optimization_passes (MIR::PHP_script* in);
 
 	// Add passes of any kind

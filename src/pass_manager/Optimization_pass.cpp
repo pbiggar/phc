@@ -8,10 +8,10 @@
 #include "pass_manager/Optimization_pass.h"
 #include "pass_manager/Pass_manager.h"
 
-#include "optimize/Flow_visitor.h"
+#include "optimize/CFG_visitor.h"
 #include "optimize/CFG.h"
 
-Optimization_pass::Optimization_pass (Flow_visitor* v, String* name, String* description)
+Optimization_pass::Optimization_pass (CFG_visitor* v, String* name, String* description)
 : visitor (v)
 {
 	this->name = name;
@@ -21,7 +21,7 @@ Optimization_pass::Optimization_pass (Flow_visitor* v, String* name, String* des
 void
 Optimization_pass::run (CFG* in, Pass_manager* pm)
 {
-	visitor->visit (in);
+	visitor->run (in);
 }
 
 void

@@ -32,7 +32,7 @@ class Def_use_web : public Visit_once
 
 
 public:
-	Def_use_web (CFG* cfg);
+	Def_use_web ();
 	
 	SSA_edge_list* get_def_use_edges (MIR::VARIABLE_NAME* def);
 	SSA_edge* get_use_def_edges (MIR::VARIABLE_NAME* use);
@@ -62,6 +62,23 @@ public:
 	void visit_throw (Statement_block*, MIR::Throw*);
 	void visit_try (Statement_block*, MIR::Try*);
 	void visit_unset (Statement_block*, MIR::Unset*);
+
+	void visit_array_access (MIR::Array_access* in);
+	void visit_bin_op (MIR::Bin_op* in);
+	void visit_cast (MIR::Cast* in);
+	void visit_constant (MIR::Constant* in);
+	void visit_field_access (MIR::Field_access* in);
+	void visit_foreach_get_key (MIR::Foreach_get_key* in);
+	void visit_foreach_get_val (MIR::Foreach_get_val* in);
+	void visit_foreach_has_key (MIR::Foreach_has_key* in);
+	void visit_instanceof (MIR::Instanceof* in);
+	void visit_isset (MIR::Isset* in);
+	void visit_method_invocation (MIR::Method_invocation* in);
+	void visit_new (MIR::New* in);
+	void visit_param_is_ref (MIR::Param_is_ref* in);
+	void visit_unary_op (MIR::Unary_op* in);
+	void visit_variable_name (MIR::VARIABLE_NAME* in);
+	void visit_variable_variable (MIR::Variable_variable* in);
 };
 
 #endif // PHC_DEF_USE

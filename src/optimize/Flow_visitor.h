@@ -28,7 +28,7 @@ protected:
 
 public:
 	/* Public interface for analyses */
-	void visit (CFG* cfg);
+	void run (CFG* cfg);
 	virtual void init_block (Basic_block*) {}
 	virtual bool solution_has_changed (Basic_block*) { return false; }
 
@@ -52,7 +52,7 @@ public:
 class Backward_flow_visitor : public Flow_visitor
 {
 public:
-	Backward_flow_visitor () : Flow_visitor (BACKWARD_FLOW) {}
+	Backward_flow_visitor  () : Flow_visitor (BACKWARD_FLOW) {}
 };
 
 
