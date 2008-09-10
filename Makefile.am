@@ -152,6 +152,8 @@ libphc_la_SOURCES= 											\
 	src/optimize/Basic_block.h								\
 	src/optimize/CFG.cpp										\
 	src/optimize/CFG.h										\
+	src/optimize/CFG_visitor.cpp							\
+	src/optimize/CFG_visitor.h								\
 	src/optimize/Copy_propagation.cpp					\
 	src/optimize/Copy_propagation.h						\
 	src/optimize/Dead_code_elimination.cpp				\
@@ -180,6 +182,8 @@ libphc_la_SOURCES= 											\
 	src/optimize/SSA.h										\
 	src/optimize/Use_def_counter.cpp 					\
 	src/optimize/Use_def_counter.h						\
+	src/optimize/Visit_once.cpp							\
+	src/optimize/Visit_once.h								\
 	src/parsing/Parse_buffer.cpp							\
 	src/parsing/Parse_buffer.h								\
 	src/parsing/parse.cpp									\

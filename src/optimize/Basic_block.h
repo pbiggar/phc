@@ -169,6 +169,15 @@ public:
 	// Assert a block has a two successors, representing true and false
 	// branches, and return the false branch.
 	Basic_block* get_false_successor ();
+
+
+	void replace (BB_list* replacements)
+	{
+		// TODO
+		assert (0);
+	}
+
+
 };
 
 class Statement_block : public Basic_block 

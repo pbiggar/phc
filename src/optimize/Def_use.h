@@ -4,6 +4,7 @@
 #include "MIR.h"
 #include "Set.h"
 #include "Flow_visitor.h"
+#include "Visit_once.h"
 
 class CFG;
 
@@ -15,23 +16,30 @@ public:
 	static Set* get_uses (MIR::Statement* statement);
 };
 
-class Def_use_web : public Flow_visitor
+class Def_use_web : public Visit_once
 {
+	map<
+		MIR::VARIABLE_NAME*,
+		SSA_edge_list*, 
+		bool (*)(MIR::VARIABLE_NAME*, MIR::VARIABLE_NAME*)
+	> def_use_chains;
+
+	map<
+		MIR::VARIABLE_NAME*,
+		SSA_edge*,
+		bool (*)(MIR::VARIABLE_NAME*, MIR::VARIABLE_NAME*)
+	> use_def_chains;
+
+
 public:
 	Def_use_web (CFG* cfg);
-
-	map<MIR::VARIABLE_NAME*, SSA_edge_list*, bool (*)(MIR::VARIABLE_NAME*, MIR::VARIABLE_NAME*)> def_use_chains;
-	map<MIR::VARIABLE_NAME*, SSA_edge*, bool (*)(MIR::VARIABLE_NAME*, MIR::VARIABLE_NAME*)> use_def_chains;
-
 	
 	SSA_edge_list* get_def_use_edges (MIR::VARIABLE_NAME* def);
 	SSA_edge* get_use_def_edges (MIR::VARIABLE_NAME* use);
+
 	void add_def_use_edge (MIR::VARIABLE_NAME* def, SSA_edge* use);
 	void add_use_def_edge (MIR::VARIABLE_NAME* use, SSA_edge* def);
 
-	void visit_entry_block (Entry_block*);
-	void visit_empty_block (Empty_block*);
-	void visit_exit_block (Exit_block*);
 	void visit_branch_block (Branch_block* bb);
 
 	void visit_phi_node (Basic_block* bb, Phi* phi);

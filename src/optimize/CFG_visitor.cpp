@@ -1,0 +1,826 @@
+#include "CFG_visitor.h"
+
+using namespace MIR;
+
+/*
+ * Visitors
+ */
+
+void
+CFG_visitor::visit_block (Basic_block* bb)
+{
+	foreach (Phi* phi, *bb->get_phi_nodes ())
+		visit_phi_node (phi);
+
+	if (Entry_block* eb = dynamic_cast<Entry_block*> (bb))
+		visit_entry_block (eb);
+
+	else if (Empty_block* eb = dynamic_cast<Empty_block*> (bb))
+		visit_empty_block (eb);
+
+	else if (Exit_block* eb = dynamic_cast<Exit_block*> (bb))
+		visit_exit_block (eb);
+
+	else if (Branch_block* brb = dynamic_cast<Branch_block*> (bb))
+		visit_branch_block (brb);
+
+	else if (Statement_block* sb = dynamic_cast<Statement_block*> (bb))
+	{
+		visit_statement_block (sb);
+
+		switch (sb->statement->classid ())
+		{
+			case Assign_array::ID:
+				visit_assign_array(sb, dyc<Assign_array>(sb->statement));
+				break;
+			case Assign_field::ID:
+				visit_assign_field(sb, dyc<Assign_field>(sb->statement));
+				break;
+			case Assign_var::ID:
+				visit_assign_var(sb, dyc<Assign_var>(sb->statement));
+				break;
+			case Assign_var_var::ID:
+				visit_assign_var_var(sb, dyc<Assign_var_var>(sb->statement));
+				break;
+			case Eval_expr::ID:
+				visit_eval_expr(sb, dyc<Eval_expr>(sb->statement));
+				break;
+			case Foreach_end::ID:
+				visit_foreach_end(sb, dyc<Foreach_end>(sb->statement));
+				break;
+			case Foreach_next::ID:
+				visit_foreach_next(sb, dyc<Foreach_next>(sb->statement));
+				break;
+			case Foreach_reset::ID:
+				visit_foreach_reset(sb, dyc<Foreach_reset>(sb->statement));
+				break;
+			case Global::ID:
+				visit_global(sb, dyc<Global>(sb->statement));
+				break;
+			case Param_is_ref::ID:
+				visit_param_is_ref (sb, dyc<Param_is_ref>(sb->statement));
+				break;
+			case Pre_op::ID:
+				visit_pre_op(sb, dyc<Pre_op>(sb->statement));
+				break;
+			case Push_array::ID:
+				visit_push_array(sb, dyc<Push_array>(sb->statement));
+				break;
+			case SSA_pre_op::ID:
+				visit_ssa_pre_op(sb, dyc<SSA_pre_op>(sb->statement));
+				break;
+			case Return::ID:
+				visit_return(sb, dyc<Return>(sb->statement));
+				break;
+			case Static_declaration::ID:
+				visit_static_declaration(sb, dyc<Static_declaration>(sb->statement));
+				break;
+			case Throw::ID:
+				visit_throw(sb, dyc<Throw>(sb->statement));
+				break;
+			case Try::ID:
+				visit_try(sb, dyc<Try>(sb->statement));
+				break;
+			case Unset::ID:
+				visit_unset (sb, dyc<Unset>(sb->statement));
+				break;
+			default:
+				xdebug (sb->statement);
+				assert (0);
+		}
+	}
+
+	else
+		assert (0);
+}
+
+void
+CFG_visitor::visit_expr (Expr* in)
+{
+	switch(in->classid())
+	{
+		case Array_access::ID:
+			visit_array_access (dyc<Array_access> (in));
+			break;
+		case Bin_op::ID:
+			visit_bin_op (dyc<Bin_op> (in));
+			break;
+		case BOOL::ID:
+			visit_bool (dyc<BOOL> (in));
+			break;
+		case Cast::ID:
+			visit_cast (dyc<Cast> (in));
+			break;
+		case Constant::ID:
+			visit_constant (dyc<Constant> (in));
+			break;
+		case Field_access::ID:
+			visit_field_access (dyc<Field_access> (in));
+			break;
+		case Foreach_get_key::ID:
+			visit_foreach_get_key (dyc<Foreach_get_key> (in));
+			break;
+		case Foreach_get_val::ID:
+			visit_foreach_get_val (dyc<Foreach_get_val> (in));
+			break;
+		case Foreach_has_key::ID:
+			visit_foreach_has_key (dyc<Foreach_has_key> (in));
+			break;
+		case Instanceof::ID:
+			visit_instanceof (dyc<Instanceof> (in));
+			break;
+		case INT::ID:
+			visit_int (dyc<INT> (in));
+			break;
+		case Isset::ID:
+			visit_isset (dyc<Isset> (in));
+			break;
+		case Method_invocation::ID:
+			visit_method_invocation (dyc<Method_invocation> (in));
+			break;
+		case New::ID:
+			visit_new (dyc<New> (in));
+			break;
+		case NIL::ID:
+			visit_nil (dyc<NIL> (in));
+			break;
+		case Param_is_ref::ID:
+			visit_param_is_ref (dyc<Param_is_ref> (in));
+			break;
+		case REAL::ID:
+			visit_real (dyc<REAL> (in));
+			break;
+		case STRING::ID:
+			visit_string (dyc<STRING> (in));
+			break;
+		case Unary_op::ID:
+			visit_unary_op (dyc<Unary_op> (in));
+			break;
+		case VARIABLE_NAME::ID:
+			visit_variable_name (dyc<VARIABLE_NAME> (in));
+			break;
+		case Variable_variable::ID:
+			visit_variable_variable (dyc<Variable_variable> (in));
+			break;
+		default:
+			assert (0);
+			break;
+	}
+}
+
+
+void
+CFG_visitor::visit_entry_block (Entry_block*)
+{
+}
+
+void
+CFG_visitor::visit_empty_block (Empty_block*)
+{
+}
+
+void
+CFG_visitor::visit_exit_block (Exit_block*)
+{
+}
+
+void
+CFG_visitor::visit_branch_block (Branch_block*)
+{
+}
+
+
+void
+CFG_visitor::visit_statement_block (Statement_block*)
+{
+}
+
+
+void
+CFG_visitor::visit_phi_node (Phi* phi)
+{
+}
+
+
+void
+CFG_visitor::visit_assign_array (Statement_block*, Assign_array*)
+{
+}
+
+void
+CFG_visitor::visit_assign_field (Statement_block*, Assign_field *)
+{
+}
+
+void
+CFG_visitor::visit_assign_var (Statement_block*, Assign_var*)
+{
+}
+
+void
+CFG_visitor::visit_assign_var_var (Statement_block*, Assign_var_var*)
+{
+}
+
+void
+CFG_visitor::visit_eval_expr (Statement_block*, Eval_expr*)
+{
+}
+
+void
+CFG_visitor::visit_foreach_end (Statement_block*, Foreach_end*)
+{
+}
+
+void
+CFG_visitor::visit_foreach_next (Statement_block*, Foreach_next*)
+{
+}
+
+void
+CFG_visitor::visit_foreach_reset (Statement_block*, Foreach_reset*)
+{
+}
+
+void
+CFG_visitor::visit_global (Statement_block*, Global*)
+{
+}
+
+void
+CFG_visitor::visit_param_is_ref (Statement_block*, Param_is_ref*)
+{
+}
+
+void
+CFG_visitor::visit_pre_op (Statement_block*, Pre_op*)
+{
+}
+
+void
+CFG_visitor::visit_push_array (Statement_block*, Push_array*)
+{
+}
+
+void
+CFG_visitor::visit_return (Statement_block*, Return*)
+{
+}
+
+void
+CFG_visitor::visit_ssa_pre_op (Statement_block*, SSA_pre_op*)
+{
+}
+
+void
+CFG_visitor::visit_static_declaration (Statement_block*, Static_declaration*)
+{
+}
+
+void
+CFG_visitor::visit_throw (Statement_block*, Throw*)
+{
+}
+
+void
+CFG_visitor::visit_try (Statement_block*, Try*)
+{
+}
+
+void
+CFG_visitor::visit_unset (Statement_block*, Unset*)
+{
+}
+
+/*
+ * Exprs
+ */
+void
+CFG_visitor::visit_array_access (Array_access* in)
+{
+}
+
+void
+CFG_visitor::visit_bin_op (Bin_op* in)
+{
+}
+
+void
+CFG_visitor::visit_bool (BOOL* in)
+{
+}
+
+void
+CFG_visitor::visit_cast (Cast* in)
+{
+}
+
+void
+CFG_visitor::visit_constant (Constant* in)
+{
+}
+
+void
+CFG_visitor::visit_field_access (Field_access* in)
+{
+}
+
+void
+CFG_visitor::visit_foreach_get_key (Foreach_get_key* in)
+{
+}
+
+void
+CFG_visitor::visit_foreach_get_val (Foreach_get_val* in)
+{
+}
+
+void
+CFG_visitor::visit_foreach_has_key (Foreach_has_key* in)
+{
+}
+
+void
+CFG_visitor::visit_instanceof (Instanceof* in)
+{
+}
+
+void
+CFG_visitor::visit_int (INT* in)
+{
+}
+
+void
+CFG_visitor::visit_isset (Isset* in)
+{
+}
+
+void
+CFG_visitor::visit_method_invocation (Method_invocation* in)
+{
+}
+
+void
+CFG_visitor::visit_new (New* in)
+{
+}
+
+void
+CFG_visitor::visit_nil (NIL* in)
+{
+}
+
+void
+CFG_visitor::visit_param_is_ref (Param_is_ref* in)
+{
+}
+
+void
+CFG_visitor::visit_real (REAL* in)
+{
+}
+
+void
+CFG_visitor::visit_string (STRING* in)
+{
+}
+
+void
+CFG_visitor::visit_unary_op (Unary_op* in)
+{
+}
+
+void
+CFG_visitor::visit_variable_name (VARIABLE_NAME* in)
+{
+}
+
+void
+CFG_visitor::visit_variable_variable (Variable_variable* in)
+{
+}
+
+
+
+
+/*
+ * Transforms
+ */
+void
+CFG_visitor::transform_block (Basic_block* bb)
+{
+	Phi_list* all_phis = new Phi_list;
+	foreach (Phi* phi, *bb->get_phi_nodes ())
+	{
+		Phi_list* out = new Phi_list;
+		transform_phi_node (phi, out);
+		all_phis->push_back_all (out);
+	}
+
+	BB_list* out = new BB_list;
+
+	if (Entry_block* eb = dynamic_cast<Entry_block*> (bb))
+		transform_entry_block (eb, out);
+
+	else if (Empty_block* eb = dynamic_cast<Empty_block*> (bb))
+		transform_empty_block (eb, out);
+
+	else if (Exit_block* eb = dynamic_cast<Exit_block*> (bb))
+		transform_exit_block (eb, out);
+
+	else if (Branch_block* brb = dynamic_cast<Branch_block*> (bb))
+		transform_branch_block (brb, out);
+
+	else if (Statement_block* sb = dynamic_cast<Statement_block*> (bb))
+	{
+		switch (sb->statement->classid ())
+		{
+			case Assign_array::ID:
+				transform_assign_array(sb, dyc<Assign_array>(sb->statement), out);
+				break;
+			case Assign_field::ID:
+				transform_assign_field(sb, dyc<Assign_field>(sb->statement), out);
+				break;
+			case Assign_var::ID:
+				transform_assign_var(sb, dyc<Assign_var>(sb->statement), out);
+				break;
+			case Assign_var_var::ID:
+				transform_assign_var_var(sb, dyc<Assign_var_var>(sb->statement), out);
+				break;
+			case Eval_expr::ID:
+				transform_eval_expr(sb, dyc<Eval_expr>(sb->statement), out);
+				break;
+			case Foreach_end::ID:
+				transform_foreach_end(sb, dyc<Foreach_end>(sb->statement), out);
+				break;
+			case Foreach_next::ID:
+				transform_foreach_next(sb, dyc<Foreach_next>(sb->statement), out);
+				break;
+			case Foreach_reset::ID:
+				transform_foreach_reset(sb, dyc<Foreach_reset>(sb->statement), out);
+				break;
+			case Global::ID:
+				transform_global(sb, dyc<Global>(sb->statement), out);
+				break;
+			case Param_is_ref::ID:
+				transform_param_is_ref (sb, dyc<Param_is_ref> (sb->statement), out);
+				break;
+			case Pre_op::ID:
+				transform_pre_op(sb, dyc<Pre_op>(sb->statement), out);
+				break;
+			case SSA_pre_op::ID:
+				transform_ssa_pre_op(sb, dyc<SSA_pre_op>(sb->statement), out);
+				break;
+			case Push_array::ID:
+				transform_push_array(sb, dyc<Push_array>(sb->statement), out);
+				break;
+			case Return::ID:
+				transform_return(sb, dyc<Return>(sb->statement), out);
+				break;
+			case Static_declaration::ID:
+				transform_static_declaration(sb, dyc<Static_declaration>(sb->statement), out);
+				break;
+			case Throw::ID:
+				transform_throw(sb, dyc<Throw>(sb->statement), out);
+				break;
+			case Try::ID:
+				transform_try(sb, dyc<Try>(sb->statement), out);
+				break;
+			case Unset::ID:
+				transform_unset(sb, dyc<Unset>(sb->statement), out);
+				break;
+			default:
+				assert (0);
+		}
+	}
+	else 
+		assert (0);
+
+	bb->replace (out);
+
+
+}
+
+void
+CFG_visitor::transform_entry_block (Entry_block* in, BB_list* out)
+{
+	out->push_back (in);
+}
+
+void
+CFG_visitor::transform_empty_block (Empty_block* in, BB_list* out)
+{
+	out->push_back (in);
+}
+
+void
+CFG_visitor::transform_exit_block (Exit_block* in, BB_list* out)
+{
+	out->push_back (in);
+}
+
+void
+CFG_visitor::transform_branch_block (Branch_block* in, BB_list* out)
+{
+	out->push_back (in);
+}
+
+void
+CFG_visitor::transform_phi_node (Phi* in, Phi_list* out)
+{
+	out->push_back (in);
+}
+
+void
+CFG_visitor::transform_assign_array (Statement_block* in, Assign_array*, BB_list* out)
+{
+	out->push_back (in);
+}
+
+void
+CFG_visitor::transform_assign_field (Statement_block* in, Assign_field*, BB_list* out)
+{
+	out->push_back (in);
+}
+
+void
+CFG_visitor::transform_assign_var (Statement_block* in, Assign_var*, BB_list* out)
+{
+	out->push_back (in);
+}
+
+void
+CFG_visitor::transform_assign_var_var (Statement_block* in, Assign_var_var*, BB_list* out)
+{
+	out->push_back (in);
+}
+
+void
+CFG_visitor::transform_eval_expr (Statement_block* in, Eval_expr*, BB_list* out)
+{
+	out->push_back (in);
+}
+
+void
+CFG_visitor::transform_foreach_end (Statement_block* in, Foreach_end*, BB_list* out)
+{
+	out->push_back (in);
+}
+
+void
+CFG_visitor::transform_foreach_next (Statement_block* in, Foreach_next*, BB_list* out)
+{
+	out->push_back (in);
+}
+
+void
+CFG_visitor::transform_foreach_reset (Statement_block* in, Foreach_reset*, BB_list* out)
+{
+	out->push_back (in);
+}
+
+void
+CFG_visitor::transform_global (Statement_block* in, Global*, BB_list* out)
+{
+	out->push_back (in);
+}
+
+void
+CFG_visitor::transform_param_is_ref (Statement_block* in, Param_is_ref*, BB_list* out)
+{
+	out->push_back (in);
+}
+
+void
+CFG_visitor::transform_pre_op (Statement_block* in, Pre_op*, BB_list* out)
+{
+	out->push_back (in);
+}
+
+void
+CFG_visitor::transform_push_array (Statement_block* in, Push_array*, BB_list* out)
+{
+	out->push_back (in);
+}
+
+void
+CFG_visitor::transform_return (Statement_block* in, Return*, BB_list* out)
+{
+	out->push_back (in);
+}
+
+void
+CFG_visitor::transform_ssa_pre_op (Statement_block* in, SSA_pre_op*, BB_list* out)
+{
+	out->push_back (in);
+}
+
+
+
+void
+CFG_visitor::transform_static_declaration (Statement_block* in, Static_declaration*, BB_list* out)
+{
+	out->push_back (in);
+}
+
+void
+CFG_visitor::transform_throw (Statement_block* in, Throw*, BB_list* out)
+{
+	out->push_back (in);
+}
+
+void
+CFG_visitor::transform_try (Statement_block* in, Try*, BB_list* out)
+{
+	out->push_back (in);
+}
+
+void
+CFG_visitor::transform_unset (Statement_block* in, Unset*, BB_list* out)
+{
+	out->push_back (in);
+}
+
+Expr*
+CFG_visitor::transform_expr (Expr* in)
+{
+	switch(in->classid())
+	{
+		case Array_access::ID:
+			return transform_array_access (dyc<Array_access> (in));
+		case Bin_op::ID:
+			return transform_bin_op (dyc<Bin_op> (in));
+		case BOOL::ID:
+			return transform_bool (dyc<BOOL> (in));
+		case Cast::ID:
+			return transform_cast (dyc<Cast> (in));
+		case Constant::ID:
+			return transform_constant (dyc<Constant> (in));
+		case Field_access::ID:
+			return transform_field_access (dyc<Field_access> (in));
+		case Foreach_get_key::ID:
+			return transform_foreach_get_key (dyc<Foreach_get_key> (in));
+		case Foreach_get_val::ID:
+			return transform_foreach_get_val (dyc<Foreach_get_val> (in));
+		case Foreach_has_key::ID:
+			return transform_foreach_has_key (dyc<Foreach_has_key> (in));
+		case Instanceof::ID:
+			return transform_instanceof (dyc<Instanceof> (in));
+		case INT::ID:
+			return transform_int (dyc<INT> (in));
+		case Isset::ID:
+			return transform_isset (dyc<Isset> (in));
+		case Method_invocation::ID:
+			return transform_method_invocation (dyc<Method_invocation> (in));
+		case New::ID:
+			return transform_new (dyc<New> (in));
+		case NIL::ID:
+			return transform_nil (dyc<NIL> (in));
+		case Param_is_ref::ID:
+			return transform_param_is_ref (dyc<Param_is_ref> (in));
+		case REAL::ID:
+			return transform_real (dyc<REAL> (in));
+		case STRING::ID:
+			return transform_string (dyc<STRING> (in));
+		case Unary_op::ID:
+			return transform_unary_op (dyc<Unary_op> (in));
+		case VARIABLE_NAME::ID:
+			return transform_variable_name (dyc<VARIABLE_NAME> (in));
+		case Variable_variable::ID:
+			return transform_variable_variable (dyc<Variable_variable> (in));
+		default:
+			assert (0);
+			break;
+	}
+	return in;
+}
+
+/*
+ * Expr transforms
+ */
+
+MIR::Expr*
+CFG_visitor::transform_array_access (MIR::Array_access* in)
+{
+	return in;
+}
+
+MIR::Expr*
+CFG_visitor::transform_bin_op (MIR::Bin_op* in)
+{
+	return in;
+}
+
+MIR::Expr*
+CFG_visitor::transform_bool (MIR::BOOL* in)
+{
+	return in;
+}
+
+MIR::Expr*
+CFG_visitor::transform_cast (MIR::Cast* in)
+{
+	return in;
+}
+
+MIR::Expr*
+CFG_visitor::transform_constant (MIR::Constant* in)
+{
+	return in;
+}
+
+MIR::Expr*
+CFG_visitor::transform_field_access (MIR::Field_access* in)
+{
+	return in;
+}
+
+MIR::Expr*
+CFG_visitor::transform_foreach_get_key (MIR::Foreach_get_key* in)
+{
+	return in;
+}
+
+MIR::Expr*
+CFG_visitor::transform_foreach_get_val (MIR::Foreach_get_val* in)
+{
+	return in;
+}
+
+MIR::Expr*
+CFG_visitor::transform_foreach_has_key (MIR::Foreach_has_key* in)
+{
+	return in;
+}
+
+MIR::Expr*
+CFG_visitor::transform_instanceof (MIR::Instanceof* in)
+{
+	return in;
+}
+
+MIR::Expr*
+CFG_visitor::transform_int (MIR::INT* in)
+{
+	return in;
+}
+
+MIR::Expr*
+CFG_visitor::transform_isset (MIR::Isset* in)
+{
+	return in;
+}
+
+MIR::Expr*
+CFG_visitor::transform_method_invocation (MIR::Method_invocation* in)
+{
+	return in;
+}
+
+MIR::Expr*
+CFG_visitor::transform_new (MIR::New* in)
+{
+	return in;
+}
+
+MIR::Expr*
+CFG_visitor::transform_nil (MIR::NIL* in)
+{
+	return in;
+}
+
+MIR::Expr*
+CFG_visitor::transform_param_is_ref (MIR::Param_is_ref* in)
+{
+	return in;
+}
+
+MIR::Expr*
+CFG_visitor::transform_real (MIR::REAL* in)
+{
+	return in;
+}
+
+MIR::Expr*
+CFG_visitor::transform_string (MIR::STRING* in)
+{
+	return in;
+}
+
+MIR::Expr*
+CFG_visitor::transform_unary_op (MIR::Unary_op* in)
+{
+	return in;
+}
+
+MIR::Expr*
+CFG_visitor::transform_variable_name (MIR::VARIABLE_NAME* in)
+{
+	return in;
+}
+
+MIR::Expr*
+CFG_visitor::transform_variable_variable (MIR::Variable_variable* in)
+{
+	return in;
+}

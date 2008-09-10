@@ -24,6 +24,8 @@ public:
 	Phi* clone () { assert (0); } // TODO
 };
 
+typedef List<Phi*> Phi_list;
+
 class Dominance
 {
 	CFG* cfg;

@@ -692,9 +692,6 @@ CFG::add_bb_between (Basic_block* source, Basic_block* target, Basic_block* new_
 void
 CFG::replace_bb (Basic_block* bb, BB_list* replacements)
 {
-	// If the edge has a T/F label, it is because the predecessor is a Branch.
-	// Just copy the label from the new predecessor.
-
 	if (replacements->size() == 1
 		&& replacements->front() == bb)
 	{
@@ -702,6 +699,9 @@ CFG::replace_bb (Basic_block* bb, BB_list* replacements)
 	}
 	else if (replacements->size() == 0)
 	{
+		// If the edge has a T/F label, it is because the predecessor is a
+		// Branch. Just copy the label from the new predecessor.
+
 		// Remove the BB
 		foreach (Basic_block* pred, *bb->get_predecessors ())
 			foreach (Basic_block* succ, *bb->get_successors ())
@@ -714,25 +714,41 @@ CFG::replace_bb (Basic_block* bb, BB_list* replacements)
 	}
 	else
 	{
-		// TODO This should create a chain, and add an edge to the front and
-		// back. I suspect this doesnt work.
+		// Branch blocks need a special interface (unless the last one is a
+		// branch block, in which case we can allow it).
+		assert (dynamic_cast<Branch_block*> (bb) == NULL);
+
+		// Our current problem is that two nodes are returned. Thats not right.
 		assert (0);
+
+		// First gets all incoming edges added
+		Basic_block* front = replacements->front ();
+		replacements->pop_front ();
+
+		add_bb (front);
+		foreach (Basic_block* pred, *front->get_predecessors ())
+		{
+			edge_t e = add_edge (pred, front);
+			ee[e]->direction = get_edge (pred, bb)->direction;
+		}
+
+		// Add edge along the chain
+		Basic_block* prev = front;
 		foreach (Basic_block* new_bb, *replacements)
 		{
 			add_bb (new_bb);
-
-			// Add edges from predecessors
-			foreach (Basic_block* pred, *bb->get_predecessors ())
-			{
-				add_edge (pred, new_bb);
-			}
-
-			// Add edges from successors 
-			foreach (Basic_block* succ, *bb->get_successors ())
-			{
-				add_edge (new_bb, succ);
-			}
+			add_edge (prev, new_bb);
+			prev = new_bb;
 		}
+
+		// Add edges to successor nodes to the last node
+		foreach (Basic_block* succ, *prev->get_successors ())
+		{
+			add_edge (prev, succ);
+		}
+
+		// Remove the old block last, so that the edges dont vanish before we
+		// use them.
 		remove_bb (bb);
 	}
 }

@@ -99,13 +99,14 @@ am_libphc_la_OBJECTS = getopt1.lo getopt.lo AST_annotate.lo \
 	Lower_dynamic_definitions.lo Lower_method_invocations.lo \
 	AttrMap.lo base64.lo Boolean.lo demangle.lo error.lo \
 	Integer.lo Object.lo String.lo Address_taken.lo Basic_block.lo \
-	CFG.lo Copy_propagation.lo Dead_code_elimination.lo Def_use.lo \
-	Edge.lo Fix_point.lo Flow_visitor.lo Lattice.lo \
-	Live_variable_analysis.lo Prune_symbol_table.lo SCCP.lo Set.lo \
-	SSA.lo Use_def_counter.lo Parse_buffer.lo parse.lo \
-	PHP_context.lo XML_parser.lo Optimization_pass.lo \
-	Pass_manager.lo Plugin_pass.lo AST_unparser.lo \
-	Constant_folding.lo DOT_unparser.lo Invalid_check.lo \
+	CFG.lo CFG_visitor.lo Copy_propagation.lo \
+	Dead_code_elimination.lo Def_use.lo Edge.lo Fix_point.lo \
+	Flow_visitor.lo Lattice.lo Live_variable_analysis.lo \
+	Prune_symbol_table.lo SCCP.lo Set.lo SSA.lo Use_def_counter.lo \
+	Visit_once.lo Parse_buffer.lo parse.lo PHP_context.lo \
+	XML_parser.lo Optimization_pass.lo Pass_manager.lo \
+	Plugin_pass.lo AST_unparser.lo Constant_folding.lo \
+	DOT_unparser.lo Invalid_check.lo \
 	Note_top_level_declarations.lo Process_includes.lo \
 	Remove_concat_null.lo Remove_parser_temporaries.lo \
 	Strip_unparser_attributes.lo Token_conversion.lo \
@@ -689,6 +690,8 @@ libphc_la_SOURCES = \
 	src/optimize/Basic_block.h								\
 	src/optimize/CFG.cpp										\
 	src/optimize/CFG.h										\
+	src/optimize/CFG_visitor.cpp							\
+	src/optimize/CFG_visitor.h								\
 	src/optimize/Copy_propagation.cpp					\
 	src/optimize/Copy_propagation.h						\
 	src/optimize/Dead_code_elimination.cpp				\
@@ -717,6 +720,8 @@ libphc_la_SOURCES = \
 	src/optimize/SSA.h										\
 	src/optimize/Use_def_counter.cpp 					\
 	src/optimize/Use_def_counter.h						\
+	src/optimize/Visit_once.cpp							\
+	src/optimize/Visit_once.h								\
 	src/parsing/Parse_buffer.cpp							\
 	src/parsing/Parse_buffer.h								\
 	src/parsing/parse.cpp									\
@@ -1239,6 +1244,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Basic_block.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Boolean.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CFG.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CFG_visitor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Clarify.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Comment_ifs.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Compile_C.Plo@am__quote@
@@ -1306,6 +1312,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Strip_unparser_attributes.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Token_conversion.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Use_def_counter.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Visit_once.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/XML_parser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/XML_unparser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/add_comment.Plo@am__quote@
@@ -1725,6 +1732,13 @@ CFG.lo: src/optimize/CFG.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o CFG.lo `test -f 'src/optimize/CFG.cpp' || echo '$(srcdir)/'`src/optimize/CFG.cpp
 
+CFG_visitor.lo: src/optimize/CFG_visitor.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT CFG_visitor.lo -MD -MP -MF $(DEPDIR)/CFG_visitor.Tpo -c -o CFG_visitor.lo `test -f 'src/optimize/CFG_visitor.cpp' || echo '$(srcdir)/'`src/optimize/CFG_visitor.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/CFG_visitor.Tpo $(DEPDIR)/CFG_visitor.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/CFG_visitor.cpp' object='CFG_visitor.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o CFG_visitor.lo `test -f 'src/optimize/CFG_visitor.cpp' || echo '$(srcdir)/'`src/optimize/CFG_visitor.cpp
+
 Copy_propagation.lo: src/optimize/Copy_propagation.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Copy_propagation.lo -MD -MP -MF $(DEPDIR)/Copy_propagation.Tpo -c -o Copy_propagation.lo `test -f 'src/optimize/Copy_propagation.cpp' || echo '$(srcdir)/'`src/optimize/Copy_propagation.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Copy_propagation.Tpo $(DEPDIR)/Copy_propagation.Plo
@@ -1815,6 +1829,13 @@ Use_def_counter.lo: src/optimize/Use_def_counter.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Use_def_counter.cpp' object='Use_def_counter.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Use_def_counter.lo `test -f 'src/optimize/Use_def_counter.cpp' || echo '$(srcdir)/'`src/optimize/Use_def_counter.cpp
+
+Visit_once.lo: src/optimize/Visit_once.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Visit_once.lo -MD -MP -MF $(DEPDIR)/Visit_once.Tpo -c -o Visit_once.lo `test -f 'src/optimize/Visit_once.cpp' || echo '$(srcdir)/'`src/optimize/Visit_once.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Visit_once.Tpo $(DEPDIR)/Visit_once.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Visit_once.cpp' object='Visit_once.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Visit_once.lo `test -f 'src/optimize/Visit_once.cpp' || echo '$(srcdir)/'`src/optimize/Visit_once.cpp
 
 Parse_buffer.lo: src/parsing/Parse_buffer.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Parse_buffer.lo -MD -MP -MF $(DEPDIR)/Parse_buffer.Tpo -c -o Parse_buffer.lo `test -f 'src/parsing/Parse_buffer.cpp' || echo '$(srcdir)/'`src/parsing/Parse_buffer.cpp

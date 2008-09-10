@@ -1,12 +1,12 @@
 
-#include "MIR_visitor.h"
 #include "process_ir/debug.h"
 
 #include "Def_use.h"
+#include "MIR_visitor.h"
 
 using namespace MIR;
 
-class Def_use_visitor : public MIR::Visitor
+class Def_use_visitor : public MIR::Visitor 
 {
 public:
 	Set* defs;
@@ -123,8 +123,7 @@ Def_use::get_uses (Statement* in)
 #include "Set.h"
 
 Def_use_web::Def_use_web (CFG* cfg)
-: Flow_visitor (FORWARD_FLOW)
-, def_use_chains (&variable_name_ptr_comparison)
+: def_use_chains (&variable_name_ptr_comparison)
 , use_def_chains (&variable_name_ptr_comparison)
 {
 	visit (cfg);
@@ -162,22 +161,6 @@ Def_use_web::add_use_def_edge (MIR::VARIABLE_NAME* use, SSA_edge* def)
 {
 	assert (use_def_chains[use] == NULL);
 	use_def_chains[use] = def;
-}
-
-void
-Def_use_web::visit_entry_block (Entry_block*)
-{
-}
-
-void
-Def_use_web::visit_empty_block (Empty_block*)
-{
-	assert (0);
-}
-
-void
-Def_use_web::visit_exit_block (Exit_block*)
-{
 }
 
 void

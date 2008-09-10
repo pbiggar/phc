@@ -251,105 +251,6 @@ SCCP::visit_ssa_edge (SSA_edge* edge)
 	}
 }
 
-
-
-void
-SCCP::visit_block (Basic_block* bb)
-{
-	if (Entry_block* eb = dynamic_cast<Entry_block*> (bb))
-		this->visit_entry_block (eb);
-
-	else if (Empty_block* eb = dynamic_cast<Empty_block*> (bb))
-		this->visit_empty_block (eb);
-
-	else if (Exit_block* eb = dynamic_cast<Exit_block*> (bb))
-		this->visit_exit_block (eb);
-
-	else if (Branch_block* brb = dynamic_cast<Branch_block*> (bb))
-		this->visit_branch_block (brb);
-
-	else if (Statement_block* sb = dynamic_cast<Statement_block*> (bb))
-	{
-		switch (sb->statement->classid ())
-		{
-			case MIR::Assign_array::ID:
-				this->visit_assign_array(sb, dyc<MIR::Assign_array>(sb->statement));
-				break;
-			case MIR::Assign_field::ID:
-				this->visit_assign_field(sb, dyc<MIR::Assign_field>(sb->statement));
-				break;
-			case MIR::Assign_var::ID:
-				this->visit_assign_var(sb, dyc<MIR::Assign_var>(sb->statement));
-				break;
-			case MIR::Assign_var_var::ID:
-				this->visit_assign_var_var(sb, dyc<MIR::Assign_var_var>(sb->statement));
-				break;
-			case MIR::Eval_expr::ID:
-				this->visit_eval_expr(sb, dyc<MIR::Eval_expr>(sb->statement));
-				break;
-			case MIR::Foreach_end::ID:
-				this->visit_foreach_end(sb, dyc<MIR::Foreach_end>(sb->statement));
-				break;
-			case MIR::Foreach_next::ID:
-				this->visit_foreach_next(sb, dyc<MIR::Foreach_next>(sb->statement));
-				break;
-			case MIR::Foreach_reset::ID:
-				this->visit_foreach_reset(sb, dyc<MIR::Foreach_reset>(sb->statement));
-				break;
-			case MIR::Global::ID:
-				this->visit_global(sb, dyc<MIR::Global>(sb->statement));
-				break;
-			case MIR::Param_is_ref::ID:
-				this->visit_param_is_ref (sb, dyc<MIR::Param_is_ref>(sb->statement));
-				break;
-			case MIR::Pre_op::ID:
-				this->visit_pre_op(sb, dyc<MIR::Pre_op>(sb->statement));
-				break;
-			case MIR::Push_array::ID:
-				this->visit_push_array(sb, dyc<MIR::Push_array>(sb->statement));
-				break;
-			case MIR::Return::ID:
-				this->visit_return(sb, dyc<MIR::Return>(sb->statement));
-				break;
-			case MIR::SSA_pre_op::ID:
-				this->visit_ssa_pre_op(sb, dyc<MIR::SSA_pre_op>(sb->statement));
-				break;
-			case MIR::Static_declaration::ID:
-				this->visit_static_declaration(sb, dyc<MIR::Static_declaration>(sb->statement));
-				break;
-			case MIR::Throw::ID:
-				this->visit_throw(sb, dyc<MIR::Throw>(sb->statement));
-				break;
-			case MIR::Try::ID:
-				this->visit_try(sb, dyc<MIR::Try>(sb->statement));
-				break;
-			case MIR::Unset::ID:
-				this->visit_unset (sb, dyc<MIR::Unset>(sb->statement));
-				break;
-			default:
-				xdebug (sb->statement);
-				assert (0);
-		}
-	}
-}
-
-void
-SCCP::visit_entry_block (Entry_block*)
-{
-	assert (0);
-}
-
-void
-SCCP::visit_empty_block (Empty_block*)
-{
-	assert (0);
-}
-
-void
-SCCP::visit_exit_block (Exit_block*)
-{
-}
-
 void
 SCCP::visit_branch_block (Branch_block* bb)
 {
@@ -370,7 +271,181 @@ SCCP::visit_branch_block (Branch_block* bb)
 	}
 }
 
+/*
+ * Exprs
+ */
 
+Expr*
+SCCP::transform_array_access (Array_access* in)
+{
+	// TODO is this a string, with a known index?
+
+	// Fold index
+	if (Literal* lit = get_literal (in->index))
+		in->index = lit;
+
+	return in;
+}
+
+Expr*
+SCCP::transform_bin_op (Bin_op* in)
+{
+	Bin_op* bin_op = dyc<Bin_op> (in);
+
+	Literal* left = get_literal (bin_op->left);
+	Literal* right = get_literal (bin_op->right);
+
+	if (left) bin_op->left = left;
+	if (right) bin_op->right = right;
+
+	if (isa<Literal> (bin_op->left) 
+			&& isa<Literal> (bin_op->right))
+		assert (0); // TODO go through embed
+
+	return in;
+}
+
+Expr*
+SCCP::transform_cast (Cast* in)
+{
+	Cast* cast = dyc<Cast> (in);
+	Literal* lit = get_literal (cast->variable_name);
+
+	if (lit)
+		assert (0); // go through embed
+
+	return in;
+}
+
+Expr*
+SCCP::transform_constant (Constant* in)
+{
+	// TODO:
+	// We'd very much like to know the value of this, however, since these are
+	// likely to be deinfed at the top-level, and this optimization won't run
+	// at the top-level (until its interprocedural), it won't do much good.
+	return in;
+}
+
+Expr*
+SCCP::transform_field_access (Field_access* in)
+{
+	// TODO warning
+	// TODO promote name to FIEDL_NAME
+	Field_access* fa = dyc<Field_access> (in);
+
+	// This uses a variable field, not a variable expr.
+	//			if (isa<Variable_field> (fa->field_name))
+	//				use (bb, dyc<Variable_field> (fa->field_name)->variable_name);
+	//
+	//			if (isa<VARIABLE_NAME> (fa->target))
+	//				use (bb, dyc<VARIABLE_NAME> (fa->target));
+
+	assert (0);
+	return in;
+}
+
+Expr*
+SCCP::transform_instanceof (Instanceof* in)
+{
+	assert (0);
+	return in;
+}
+
+Expr*
+SCCP::transform_isset (Isset* in)
+{
+	// fold isset (5) to true;
+	if (in->target == NULL
+			&& isa<VARIABLE_NAME> (in->variable_name)
+			&& in->array_indices->size () == 0
+			&& get_literal (dyc<VARIABLE_NAME> (in->variable_name)))
+		return new BOOL (true);
+
+	return in;
+}
+
+Expr*
+SCCP::transform_method_invocation (Method_invocation* in)
+{
+	// TODO APC::Optimizer has a list of pure functions. Go through
+	// embed for them.
+
+	// ignore for now
+	if (isa<METHOD_NAME> (in->method_name))
+	{
+		METHOD_NAME* name = dyc<METHOD_NAME> (in->method_name);
+		if (*name->value == "var_dump"
+				|| *name->value == "print")
+			return in;
+	}
+
+	assert (0);
+	// TODO replace Variable_variable with VARIABLE_NAME, if possible.
+
+	// TODO: we can replace a arguement with its actual parameter
+	// (watch out for refs) (only if passing by copy)
+
+	/*			if (isa<VARIABLE_NAME> (mi->method_name))
+				assert (0); // TODO
+
+				foreach (Actual_parameter* ap, *mi->actual_parameters)
+				{
+				VARIABLE_NAME* var_name = dynamic_cast<VARIABLE_NAME*> (ap->rvalue);
+				if (var_name)
+				use (bb, var_name);
+				}*/
+	return in;
+}
+
+Expr*
+SCCP::transform_new (New* in)
+{
+	// TODO turn a varaible_class into a CLASS_NAME 
+	assert (0);
+	return in;
+}
+
+Expr*
+SCCP::transform_param_is_ref (Param_is_ref* in)
+{
+	// TODO go through embed.
+	assert (0);
+	return in;
+}
+
+Expr*
+SCCP::transform_unary_op (Unary_op* in)
+{
+	if (Literal* lit = get_literal (in->variable_name))
+		assert (0); // go through embed
+
+	return in;
+}
+
+Expr*
+SCCP::transform_variable_name (VARIABLE_NAME* in)
+{
+	if (Literal* lit = get_literal (in))
+		return lit;
+
+	return in;
+}
+
+Expr*
+SCCP::transform_variable_variable (Variable_variable* in)
+{
+	if (Literal* lit = get_literal (in->variable_name))
+		assert (0);
+
+	// in = new VARIABLE_NAME (PHP::to_string (lit));
+	return in;
+}
+
+
+/*
+ * Statements
+ */
 void
 SCCP::visit_assign_array (Statement_block*, MIR::Assign_array*)
 {
@@ -383,199 +458,13 @@ SCCP::visit_assign_field (Statement_block*, MIR::Assign_field *)
 	assert (0);
 }
 
-Expr*
-SCCP::visit_expr (Statement_block*, MIR::Expr* in)
-{
-	// Attempt to fold the expression.
-	switch(in->classid())
-	{
-		case BOOL::ID:
-		case INT::ID:
-		case NIL::ID:
-		case REAL::ID:
-		case STRING::ID:
-			// do nothing
-			break;
-
-		case Constant::ID:
-			// TODO we'd very much like to know the value of this, however,
-			// since these are liekly to be deinfed at the top-level, and this
-			// optimization won't run at the top-level (until its
-			// interprocedural), it won't do much good.
-			break;
-
-		case Param_is_ref::ID:
-			// TODO go through embed.
-			assert (0);
-			break;
-
-		case Bin_op::ID:
-		{
-			Bin_op* bin_op = dyc<Bin_op> (in);
-
-			Literal* left = get_literal (bin_op->left);
-			Literal* right = get_literal (bin_op->right);
-
-			if (left) bin_op->left = left;
-			if (right) bin_op->right = right;
-
-			if (isa<Literal> (bin_op->left) 
-				&& isa<Literal> (bin_op->right))
-				assert (0); // TODO go through embed
-			break;
-		}
-
-		case Cast::ID:
-		{
-			Cast* cast = dyc<Cast> (in);
-			Literal* lit = get_literal (cast->variable_name);
-
-			if (lit)
-			{
-				assert (0); // go through embed
-			}
-			break;
-		}
-
-		case Foreach_get_key::ID:
-			break;
-
-		case Foreach_get_val::ID:
-			break;
-
-		case Foreach_has_key::ID:
-			break;
-
-		case Array_access::ID:
-		{
-			Array_access* ia = dyc<Array_access> (in);
-			// TODO is this a string, with a known index?
-
-			// Fold index
-			Literal* index = get_literal (ia->index);
-			if (index)
-				ia->index = index;
-
-			break;
-		}
-
-		case Isset::ID:
-		{
-			// fold isset (5) to true;
-			Isset* i = dyc<Isset> (in);
-			if (i->target == NULL
-				&& isa<VARIABLE_NAME> (i->variable_name)
-				&& i->array_indices->size () == 0
-				&& get_literal (dyc<VARIABLE_NAME> (i->variable_name)))
-				in = new BOOL (true);
-		}
-
-		case Instanceof::ID:
-			assert (0);
-			break;
-
-		case Method_invocation::ID:
-		{
-			Method_invocation* mi = dyc<Method_invocation> (in);
-
-			// TODO APC::Optimizer has a list of pure functions. Go through
-			// embed for them.
-
-			// ignore for now
-			if (isa<METHOD_NAME> (mi->method_name))
-			{
-				METHOD_NAME* name = dyc<METHOD_NAME> (mi->method_name);
-				if (*name->value == "var_dump"
-					|| *name->value == "print")
-					break;
-			}
-
-			assert (0);
-			// TODO replace Variable_variable with VARIABLE_NAME, if possible.
-
-			// TODO: we can replace a arguement with its actual parameter
-			// (watch out for refs) (only if passing by copy)
-
-/*			if (isa<VARIABLE_NAME> (mi->method_name))
-				assert (0); // TODO
-
-			foreach (Actual_parameter* ap, *mi->actual_parameters)
-			{
-				VARIABLE_NAME* var_name = dynamic_cast<VARIABLE_NAME*> (ap->rvalue);
-				if (var_name)
-					use (bb, var_name);
-			}*/
-			break;
-		}
-
-		case New::ID:
-		{
-			// TODO turn a variable_varaible into a VARIABLE_NAME
-			New* n = dyc<New> (in);
-			break;
-		}
-
-		case Field_access::ID:
-		{
-			// TODO warning
-			// TODO promote name to FIEDL_NAME
-			Field_access* fa = dyc<Field_access> (in);
-
-			// This uses a variable field, not a variable expr.
-//			if (isa<Variable_field> (fa->field_name))
-//				use (bb, dyc<Variable_field> (fa->field_name)->variable_name);
-//
-//			if (isa<VARIABLE_NAME> (fa->target))
-//				use (bb, dyc<VARIABLE_NAME> (fa->target));
-
-			break;
-		}
-
-		case Unary_op::ID:
-		{
-			Unary_op* u = dyc<Unary_op> (in);
-			Literal* lit = get_literal (u->variable_name);
-
-			if (lit)
-				assert (0); // go through embed
-
-			break;
-		}
-
-		case VARIABLE_NAME::ID:
-		{
-			VARIABLE_NAME* var_name = dyc<VARIABLE_NAME> (in);
-			if (Literal* lit = get_literal (var_name))
-				in = lit;
-
-			break;
-		}
-
-		case Variable_variable::ID:
-		{
-			Variable_variable* var_var = dyc<Variable_variable> (in);
-			if (Literal* lit = get_literal (var_var->variable_name))
-				assert (0);
-				//in = new VARIABLE_NAME (PHP::to_string (lit));
-
-			break;
-		}
-
-		default:
-			assert (0);
-			break;
-	}
-
-	return in;
-}
-
 void
 SCCP::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 {
 	if (lattice[in->lhs] == BOTTOM)
 		return;
 
-	Expr* expr = visit_expr (bb, in->rhs);
+	Expr* expr = transform_expr (in->rhs);
 
 	// Update the Lattice
 	if (isa<Literal> (expr))
@@ -584,7 +473,6 @@ SCCP::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 		//	- add uses of the LHS to the SSA worklist.
 		if (lattice[in->lhs] == TOP)
 		{
-
 			assert (in->is_ref == false); // TODO
 			lattice[in->lhs] = new Lattice_cell (dyc<Literal> (expr));
 			foreach (SSA_edge* edge, *cfg->duw->get_def_use_edges (in->lhs))
@@ -610,7 +498,7 @@ SCCP::visit_assign_var_var (Statement_block*, MIR::Assign_var_var*)
 void
 SCCP::visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
 {
-	in->expr = visit_expr (bb, in->expr);
+	in->expr = transform_expr (in->expr);
 	if (! (isa<New> (in->expr) || isa<Method_invocation> (in->expr)))
 		assert (0); // TODO remove
 }

@@ -2,9 +2,10 @@
 #define PHC_SCCP_H_
 
 #include "CFG.h"
+#include "CFG_visitor.h"
 #include "Lattice.h"
 
-class SCCP
+class SCCP : public CFG_visitor
 {
 	CFG* cfg;
 	Lattice_map lattice;
@@ -19,18 +20,9 @@ public:
 
 	// High-level SSA properties
 	void visit_phi (Phi* phi);
-	void visit_block (Basic_block* bb);
 	void visit_ssa_edge (SSA_edge* phi);
 
-	// Generic MIR properties
-	void visit_statement (MIR::Statement* in);
-	void visit_branch (MIR::Branch* in);
-	MIR::Expr* visit_expr (Statement_block*, MIR::Expr*);
-
 	// Blocks
-	void visit_entry_block (Entry_block*);
-	void visit_empty_block (Empty_block*);
-	void visit_exit_block (Exit_block*);
 	void visit_branch_block (Branch_block*);
 
 	// Statement blocks
@@ -53,6 +45,19 @@ public:
 	void visit_try (Statement_block*, MIR::Try*);
 	void visit_unset (Statement_block*, MIR::Unset*);
 
+	MIR::Expr* transform_array_access (MIR::Array_access* in);
+	MIR::Expr* transform_bin_op (MIR::Bin_op* in);
+	MIR::Expr* transform_cast (MIR::Cast* in);
+	MIR::Expr* transform_constant (MIR::Constant* in);
+	MIR::Expr* transform_field_access (MIR::Field_access* in);
+	MIR::Expr* transform_instanceof (MIR::Instanceof* in);
+	MIR::Expr* transform_isset (MIR::Isset* in);
+	MIR::Expr* transform_method_invocation (MIR::Method_invocation* in);
+	MIR::Expr* transform_new (MIR::New* in);
+	MIR::Expr* transform_param_is_ref (MIR::Param_is_ref* in);
+	MIR::Expr* transform_unary_op (MIR::Unary_op* in);
+	MIR::Expr* transform_variable_name (MIR::VARIABLE_NAME* in);
+	MIR::Expr* transform_variable_variable (MIR::Variable_variable* in);
 };
 
 
