@@ -890,206 +890,6 @@ protected:
 };
 
 /*
- * Assign_zval is a specialization of Assignment for assignments to a simple
- * zval which takes care of creating a new zval for the LHS if necessary.
- *
- * Assign_literal is a further specialization for those literal assignment
- * where the value of the literal is known at compile time (assigning a token
- * int, for example). The main difference between Assign_literal and 
- * Assign_zval is that Assign_literal can do constant pooling.
- */
-
-class Pattern_assign_zval : public Pattern_assign_var
-{
-public:
-	void generate_rhs ()
-	{
-		code
-		<< "if ((*p_lhs)->is_ref)\n"
-		<< "{\n"
-		<< "  zval* paz_lhs = *p_lhs;\n"
-		<< "  zval_dtor (paz_lhs);\n";
-
-		initialize (code, "paz_lhs");
-
-		code
-		<< "}\n"
-		<< "else\n"
-		<< "{\n"
-		<<	"	zval* literal;\n"
-		<<	"	ALLOC_INIT_ZVAL (literal);\n";
-
-		initialize (code, "literal");
-
-		code
-		<<	"	zval_ptr_dtor (p_lhs);\n"
-		<<	"	*p_lhs = literal;\n"
-		<< "}\n";
-	}
-
-	virtual void initialize (ostream& os, string var) = 0;
-};
-
-stringstream initializations;
-stringstream finalizations;
-
-template<class T, class K>
-class Pattern_assign_literal : public Pattern_assign_zval
-{
-public:
-	Expr* rhs_pattern()
-	{
-		rhs = new Wildcard<T>;
-		return rhs;
-	}
-
-	// record if we've seen this variable before
-	void generate_rhs ()
-	{
-		assert (!agn->is_ref);
-		// TODO If this isnt static, there is a new hash each time,
-		// because there is a new object each time it is called. Why is
-		// there a new object each time?
-		static map<K, string> vars;
-		if (args_info->optimize_given)
-		{
-			// The first time we see a constant, we add a declaration,
-			// initialization and finalization. After that, we find the
-			// first one and refer to it.
-
-
-			string var;
-			if (vars.find (key ()) != vars.end ())
-				var = vars [key ()];
-			else
-			{
-				// This is the first time we see the variable. Create the
-				// variables and add declarations. 
-				stringstream name;
-				name << prefix() << vars.size ();
-				var = name.str ();
-				vars [key ()] = var;
-
-				prologue << "zval* " << var << ";\n";
-				finalizations << "zval_ptr_dtor (&" << var << ");\n";
-				initializations << "ALLOC_INIT_ZVAL (" << var << ")\n";
-				initialize (initializations, var);
-			}
-			code
-			<< "if (" << var << " != *p_lhs)\n"
-			<< "{\n"
-			<<		"assert (!" << var << "->is_ref);\n"
-			<<		"if ((*p_lhs)->is_ref)\n"
-			<<			"overwrite_lhs (*p_lhs, " << var << ");\n"
-			<<		"else\n"
-			<<		"{\n"
-			<<			var << "->refcount++;\n"
-			<<			"zval_ptr_dtor (p_lhs);\n"
-			<<			"*p_lhs = " << var << ";\n"
-			<<		"}\n"
-			<<	"}\n";
-		}
-		else
-		{
-			Pattern_assign_zval::generate_rhs();
-		}
-	}
-
-	virtual string prefix () = 0;
-	virtual K key () = 0;
-
-protected:
-	Wildcard<T>* rhs;
-};
-
-class Pattern_assign_bool : public Pattern_assign_literal<BOOL, bool>
-{
-	string prefix () { return "phc_const_pool_bool_"; }
-	bool key () { return rhs->value->value; }
-
-	void initialize (ostream& os, string var)
-	{
-		os	<< "ZVAL_BOOL (" << var << ", " 
-			<<		(rhs->value->value ? 1 : 0) << ");\n";
-	}
-
-};
-
-class Pattern_assign_int : public Pattern_assign_literal<INT, long>
-{
-	string prefix () { return "phc_const_pool_int_"; }
-	long key () { return rhs->value->value; }
-
-	void initialize (ostream& os, string var)
-	{
-		os << "ZVAL_LONG (" << var << ", " << rhs->value->value << ");\n";
-	}
-};
-
-class Pattern_assign_real : public Pattern_assign_literal<REAL, string>
-{
-	string prefix () { return "phc_const_pool_real_"; }
-	string key () { return *(dynamic_cast<String*>(rhs->value->attrs->get("phc.codegen.source_rep"))); }
-
-	void initialize (ostream& os, string var)
-	{
-		os	<< "zend_eval_string(\"" << key() << ";\","
-			<<		var << ", "
-			<<		"\"literal\" TSRMLS_CC);\n";
-	}
-};
-
-class Pattern_assign_nil : public Pattern_assign_literal<NIL, string>
-{
-	string prefix () { return "phc_const_pool_null_"; }
-	string key () { return ""; }
-
-	void initialize (ostream& os, string var)
-	{
-		os << "ZVAL_NULL (" << var << ");\n";
-	}
-};
-
-class Pattern_assign_string : public Pattern_assign_literal<STRING, string>
-{
-	string prefix () { return "phc_const_pool_string_"; }
-	string key () { return *rhs->value->value; }
-
-	void initialize (ostream& os, string var)
-	{
-		os << "ZVAL_STRINGL(" << var << ", " 
-			<<		"\"" << escape(rhs->value->value) << "\", "
-			<<		rhs->value->value->length() << ", 1);\n";
-	}
-public:
-	// Escape according to C rules (this varies slightly from unparsing for PHP
-	// and dot).
-	static string escape(String* s)
-	{
-		stringstream ss;
-
-		foreach (char c, *s)
-		{
-			if(c == '"' || c == '\\')
-			{
-				ss << "\\" << c;
-			}
-			else if(c >= 32 && c < 127)
-			{
-				ss << c;
-			}
-			else
-			{
-				ss << "\\" << setw(3) << setfill('0') << oct << uppercase << (unsigned long int)(unsigned char) c;
-				ss << resetiosflags(code.flags());
-			}
-		}
-
-		return ss.str();
-	}
-};
-
-/*
  * $x = $y; (1)
  *		or
  *	$x =& $y; (2)
@@ -1263,6 +1063,199 @@ public:
 public:
 	Wildcard<CAST>* cast;
 };
+
+
+/*
+ * Assign_zval is a specialization of Assignment for assignments to a simple
+ * zval which takes care of creating a new zval for the LHS if necessary.
+ *
+ * Assign_literal is a further specialization for those literal assignment
+ * where the value of the literal is known at compile time (assigning a token
+ * int, for example). The main difference between Assign_literal and 
+ * Assign_zval is that Assign_literal can do constant pooling.
+ */
+
+class Pattern_assign_zval : public Pattern_assign_var
+{
+public:
+	void generate_rhs ()
+	{
+		code
+		<< "if ((*p_lhs)->is_ref)\n"
+		<< "{\n"
+		<< "  zval* paz_lhs = *p_lhs;\n"
+		<< "  zval_dtor (paz_lhs);\n";
+
+		initialize (code, "paz_lhs");
+
+		code
+		<< "}\n"
+		<< "else\n"
+		<< "{\n"
+		<<	"	zval* literal;\n"
+		<<	"	ALLOC_INIT_ZVAL (literal);\n";
+
+		initialize (code, "literal");
+
+		code
+		<<	"	zval_ptr_dtor (p_lhs);\n"
+		<<	"	*p_lhs = literal;\n"
+		<< "}\n";
+	}
+
+	virtual void initialize (ostream& os, string var) = 0;
+};
+
+stringstream initializations;
+stringstream finalizations;
+
+template<class T, class K>
+class Pattern_assign_literal : public Pattern_assign_zval
+{
+public:
+	Expr* rhs_pattern()
+	{
+		rhs = new Wildcard<T>;
+		return rhs;
+	}
+
+	// record if we've seen this variable before
+	void generate_rhs ()
+	{
+		assert (!agn->is_ref);
+		// TODO If this isnt static, there is a new hash each time,
+		// because there is a new object each time it is called. Why is
+		// there a new object each time?
+		static map<K, string> vars;
+		if (args_info->optimize_given)
+		{
+			// The first time we see a constant, we add a declaration,
+			// initialization and finalization. After that, we find the
+			// first one and refer to it.
+
+
+			string var;
+			if (vars.find (key ()) != vars.end ())
+				var = vars [key ()];
+			else
+			{
+				// This is the first time we see the variable. Create the
+				// variables and add declarations. 
+				stringstream name;
+				name << prefix() << vars.size ();
+				var = name.str ();
+				vars [key ()] = var;
+
+				prologue << "zval* " << var << ";\n";
+				finalizations << "zval_ptr_dtor (&" << var << ");\n";
+				initializations << "ALLOC_INIT_ZVAL (" << var << ")\n";
+				initialize (initializations, var);
+			}
+			code
+			<< "if (" << var << " != *p_lhs)\n"
+			<<		"write_var (p_lhs, &" << var << ", NULL);\n"
+			;
+		}
+		else
+		{
+			Pattern_assign_zval::generate_rhs();
+		}
+	}
+
+	virtual string prefix () = 0;
+	virtual K key () = 0;
+
+protected:
+	Wildcard<T>* rhs;
+};
+
+class Pattern_assign_bool : public Pattern_assign_literal<BOOL, bool>
+{
+	string prefix () { return "phc_const_pool_bool_"; }
+	bool key () { return rhs->value->value; }
+
+	void initialize (ostream& os, string var)
+	{
+		os	<< "ZVAL_BOOL (" << var << ", " 
+			<<		(rhs->value->value ? 1 : 0) << ");\n";
+	}
+
+};
+
+class Pattern_assign_int : public Pattern_assign_literal<INT, long>
+{
+	string prefix () { return "phc_const_pool_int_"; }
+	long key () { return rhs->value->value; }
+
+	void initialize (ostream& os, string var)
+	{
+		os << "ZVAL_LONG (" << var << ", " << rhs->value->value << ");\n";
+	}
+};
+
+class Pattern_assign_real : public Pattern_assign_literal<REAL, string>
+{
+	string prefix () { return "phc_const_pool_real_"; }
+	string key () { return *(dynamic_cast<String*>(rhs->value->attrs->get("phc.codegen.source_rep"))); }
+
+	void initialize (ostream& os, string var)
+	{
+		os	<< "zend_eval_string(\"" << key() << ";\","
+			<<		var << ", "
+			<<		"\"literal\" TSRMLS_CC);\n";
+	}
+};
+
+class Pattern_assign_nil : public Pattern_assign_literal<NIL, string>
+{
+	string prefix () { return "phc_const_pool_null_"; }
+	string key () { return ""; }
+
+	void initialize (ostream& os, string var)
+	{
+		os << "ZVAL_NULL (" << var << ");\n";
+	}
+};
+
+class Pattern_assign_string : public Pattern_assign_literal<STRING, string>
+{
+	string prefix () { return "phc_const_pool_string_"; }
+	string key () { return *rhs->value->value; }
+
+	void initialize (ostream& os, string var)
+	{
+		os << "ZVAL_STRINGL(" << var << ", " 
+			<<		"\"" << escape(rhs->value->value) << "\", "
+			<<		rhs->value->value->length() << ", 1);\n";
+	}
+public:
+	// Escape according to C rules (this varies slightly from unparsing for PHP
+	// and dot).
+	static string escape(String* s)
+	{
+		stringstream ss;
+
+		foreach (char c, *s)
+		{
+			if(c == '"' || c == '\\')
+			{
+				ss << "\\" << c;
+			}
+			else if(c >= 32 && c < 127)
+			{
+				ss << c;
+			}
+			else
+			{
+				ss << "\\" << setw(3) << setfill('0') << oct << uppercase << (unsigned long int)(unsigned char) c;
+				ss << resetiosflags(code.flags());
+			}
+		}
+
+		return ss.str();
+	}
+};
+
 
 class Pattern_global : public Pattern 
 {
