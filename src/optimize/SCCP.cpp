@@ -267,178 +267,6 @@ SCCP::visit_branch_block (Branch_block* bb)
 }
 
 /*
- * Exprs
- */
-
-Expr*
-SCCP::transform_array_access (Array_access* in)
-{
-	// TODO is this a string, with a known index?
-
-	// Fold index
-	if (Literal* lit = get_literal (in->index))
-		in->index = lit;
-
-	return in;
-}
-
-Expr*
-SCCP::transform_bin_op (Bin_op* in)
-{
-	Bin_op* bin_op = dyc<Bin_op> (in);
-
-	Literal* left = get_literal (bin_op->left);
-	Literal* right = get_literal (bin_op->right);
-
-	if (left) bin_op->left = left;
-	if (right) bin_op->right = right;
-
-	if (isa<Literal> (bin_op->left) 
-			&& isa<Literal> (bin_op->right))
-		assert (0); // TODO go through embed
-
-	return in;
-}
-
-Expr*
-SCCP::transform_cast (Cast* in)
-{
-	Cast* cast = dyc<Cast> (in);
-	Literal* lit = get_literal (cast->variable_name);
-
-	if (lit)
-		assert (0); // go through embed
-
-	return in;
-}
-
-Expr*
-SCCP::transform_constant (Constant* in)
-{
-	// TODO:
-	// We'd very much like to know the value of this, however, since these are
-	// likely to be deinfed at the top-level, and this optimization won't run
-	// at the top-level (until its interprocedural), it won't do much good.
-	return in;
-}
-
-Expr*
-SCCP::transform_field_access (Field_access* in)
-{
-	// TODO warning
-	// TODO promote name to FIEDL_NAME
-	Field_access* fa = dyc<Field_access> (in);
-
-	// This uses a variable field, not a variable expr.
-	//			if (isa<Variable_field> (fa->field_name))
-	//				use (bb, dyc<Variable_field> (fa->field_name)->variable_name);
-	//
-	//			if (isa<VARIABLE_NAME> (fa->target))
-	//				use (bb, dyc<VARIABLE_NAME> (fa->target));
-
-	assert (0);
-	return in;
-}
-
-Expr*
-SCCP::transform_instanceof (Instanceof* in)
-{
-	assert (0);
-	return in;
-}
-
-Expr*
-SCCP::transform_isset (Isset* in)
-{
-	// fold isset (5) to true;
-	if (in->target == NULL
-			&& isa<VARIABLE_NAME> (in->variable_name)
-			&& in->array_indices->size () == 0
-			&& get_literal (dyc<VARIABLE_NAME> (in->variable_name)))
-		return new BOOL (true);
-
-	return in;
-}
-
-Expr*
-SCCP::transform_method_invocation (Method_invocation* in)
-{
-	// TODO APC::Optimizer has a list of pure functions. Go through
-	// embed for them.
-
-	// ignore for now
-	if (isa<METHOD_NAME> (in->method_name))
-	{
-		METHOD_NAME* name = dyc<METHOD_NAME> (in->method_name);
-		if (*name->value == "var_dump"
-				|| *name->value == "print")
-			return in;
-	}
-
-	assert (0);
-	// TODO replace Variable_variable with VARIABLE_NAME, if possible.
-
-	// TODO: we can replace a arguement with its actual parameter
-	// (watch out for refs) (only if passing by copy)
-
-	/*			if (isa<VARIABLE_NAME> (mi->method_name))
-				assert (0); // TODO
-
-				foreach (Actual_parameter* ap, *mi->actual_parameters)
-				{
-				VARIABLE_NAME* var_name = dynamic_cast<VARIABLE_NAME*> (ap->rvalue);
-				if (var_name)
-				use (bb, var_name);
-				}*/
-	return in;
-}
-
-Expr*
-SCCP::transform_new (New* in)
-{
-	// TODO turn a varaible_class into a CLASS_NAME 
-	assert (0);
-	return in;
-}
-
-Expr*
-SCCP::transform_param_is_ref (Param_is_ref* in)
-{
-	// TODO go through embed.
-	assert (0);
-	return in;
-}
-
-Expr*
-SCCP::transform_unary_op (Unary_op* in)
-{
-	if (Literal* lit = get_literal (in->variable_name))
-		assert (0); // go through embed
-
-	return in;
-}
-
-Expr*
-SCCP::transform_variable_name (VARIABLE_NAME* in)
-{
-	if (Literal* lit = get_literal (in))
-		return lit;
-
-	return in;
-}
-
-Expr*
-SCCP::transform_variable_variable (Variable_variable* in)
-{
-	if (Literal* lit = get_literal (in->variable_name))
-		assert (0);
-
-	// in = new VARIABLE_NAME (PHP::to_string (lit));
-	return in;
-}
-
-
-/*
  * Statements
  */
 void
@@ -459,7 +287,7 @@ SCCP::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 	if (lattice[in->lhs] == BOTTOM)
 		return;
 
-	Expr* expr = transform_expr (in->rhs);
+	Expr* expr = transform_expr (bb, in->rhs);
 
 	// Update the Lattice
 	if (isa<Literal> (expr))
@@ -493,7 +321,7 @@ SCCP::visit_assign_var_var (Statement_block*, MIR::Assign_var_var*)
 void
 SCCP::visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
 {
-	in->expr = transform_expr (in->expr);
+	in->expr = transform_expr (bb, in->expr);
 	if (! (isa<New> (in->expr) || isa<Method_invocation> (in->expr)))
 		assert (0); // TODO remove
 }
@@ -519,12 +347,6 @@ SCCP::visit_foreach_reset (Statement_block*, MIR::Foreach_reset*)
 void
 SCCP::visit_global (Statement_block*, MIR::Global*)
 {
-}
-
-void
-SCCP::visit_param_is_ref (Statement_block*, MIR::Param_is_ref*)
-{
-	assert (0);
 }
 
 void
@@ -601,3 +423,178 @@ SCCP::get_literal (Rvalue* in)
 
 	return lattice[var_name]->get_value ()->clone ();
 }
+
+
+/*
+ * Exprs
+ */
+
+Expr*
+SCCP::transform_array_access (Statement_block*, Array_access* in)
+{
+	// TODO is this a string, with a known index?
+
+	// Fold index
+	if (Literal* lit = get_literal (in->index))
+		in->index = lit;
+
+	return in;
+}
+
+Expr*
+SCCP::transform_bin_op (Statement_block*, Bin_op* in)
+{
+	Bin_op* bin_op = dyc<Bin_op> (in);
+
+	Literal* left = get_literal (bin_op->left);
+	Literal* right = get_literal (bin_op->right);
+
+	if (left) bin_op->left = left;
+	if (right) bin_op->right = right;
+
+	if (isa<Literal> (bin_op->left) 
+			&& isa<Literal> (bin_op->right))
+		assert (0); // TODO go through embed
+
+	return in;
+}
+
+Expr*
+SCCP::transform_cast (Statement_block*, Cast* in)
+{
+	Cast* cast = dyc<Cast> (in);
+	Literal* lit = get_literal (cast->variable_name);
+
+	if (lit)
+		assert (0); // go through embed
+
+	return in;
+}
+
+Expr*
+SCCP::transform_constant (Statement_block*, Constant* in)
+{
+	// TODO:
+	// We'd very much like to know the value of this, however, since these are
+	// likely to be deinfed at the top-level, and this optimization won't run
+	// at the top-level (until its interprocedural), it won't do much good.
+	return in;
+}
+
+Expr*
+SCCP::transform_field_access (Statement_block*, Field_access* in)
+{
+	// TODO warning
+	// TODO promote name to FIEDL_NAME
+	Field_access* fa = dyc<Field_access> (in);
+
+	// This uses a variable field, not a variable expr.
+	//			if (isa<Variable_field> (fa->field_name))
+	//				use (bb, dyc<Variable_field> (fa->field_name)->variable_name);
+	//
+	//			if (isa<VARIABLE_NAME> (fa->target))
+	//				use (bb, dyc<VARIABLE_NAME> (fa->target));
+
+	assert (0);
+	return in;
+}
+
+Expr*
+SCCP::transform_instanceof (Statement_block*, Instanceof* in)
+{
+	assert (0);
+	return in;
+}
+
+Expr*
+SCCP::transform_isset (Statement_block*, Isset* in)
+{
+	// fold isset (5) to true;
+	if (in->target == NULL
+			&& isa<VARIABLE_NAME> (in->variable_name)
+			&& in->array_indices->size () == 0
+			&& get_literal (dyc<VARIABLE_NAME> (in->variable_name)))
+		return new BOOL (true);
+
+	return in;
+}
+
+Expr*
+SCCP::transform_method_invocation (Statement_block*, Method_invocation* in)
+{
+	// TODO APC::Optimizer has a list of pure functions. Go through
+	// embed for them.
+
+	// ignore for now
+	if (isa<METHOD_NAME> (in->method_name))
+	{
+		METHOD_NAME* name = dyc<METHOD_NAME> (in->method_name);
+		if (*name->value == "var_dump"
+				|| *name->value == "print")
+			return in;
+	}
+
+	assert (0);
+	// TODO replace Variable_variable with VARIABLE_NAME, if possible.
+
+	// TODO: we can replace a arguement with its actual parameter
+	// (watch out for refs) (only if passing by copy)
+
+	/*			if (isa<VARIABLE_NAME> (mi->method_name))
+				assert (0); // TODO
+
+				foreach (Actual_parameter* ap, *mi->actual_parameters)
+				{
+				VARIABLE_NAME* var_name = dynamic_cast<VARIABLE_NAME*> (ap->rvalue);
+				if (var_name)
+				use (bb, var_name);
+				}*/
+	return in;
+}
+
+Expr*
+SCCP::transform_new (Statement_block*, New* in)
+{
+	// TODO turn a varaible_class into a CLASS_NAME 
+	assert (0);
+	return in;
+}
+
+Expr*
+SCCP::transform_param_is_ref (Statement_block*, Param_is_ref* in)
+{
+	// TODO go through embed.
+	assert (0);
+	return in;
+}
+
+Expr*
+SCCP::transform_unary_op (Statement_block*, Unary_op* in)
+{
+	if (Literal* lit = get_literal (in->variable_name))
+		assert (0); // go through embed
+
+	return in;
+}
+
+Expr*
+SCCP::transform_variable_name (Statement_block*, VARIABLE_NAME* in)
+{
+	if (Literal* lit = get_literal (in))
+		return lit;
+
+	return in;
+}
+
+Expr*
+SCCP::transform_variable_variable (Statement_block*, Variable_variable* in)
+{
+	if (Literal* lit = get_literal (in->variable_name))
+		assert (0);
+
+	// in = new VARIABLE_NAME (PHP::to_string (lit));
+	return in;
+}
+
+
+

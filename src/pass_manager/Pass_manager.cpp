@@ -579,6 +579,8 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 			if (args_info->cfg_dump_given)
 				cfg->dump_graphviz (s("CFG - after SCCP"));
 
+			cfg->rebuild_ssa_form ();
+
 			DCE().run (cfg);
 			if (args_info->cfg_dump_given)
 				cfg->dump_graphviz (s("CFG - after DCE"));

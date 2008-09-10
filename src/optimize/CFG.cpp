@@ -555,6 +555,14 @@ void CFG::convert_to_ssa_form ()
 	duw->run (this);
 }
 
+void
+CFG::rebuild_ssa_form ()
+{
+	// TODO: this should fix phi nodes too.
+	duw = new Def_use_web ();
+	duw->run (this);
+}
+
 
 void
 CFG::convert_out_of_ssa_form ()
@@ -703,7 +711,12 @@ CFG::replace_bb (Basic_block* bb, BB_list* replacements)
 		// If the edge has a T/F label, it is because the predecessor is a
 		// Branch. Just copy the label from the new predecessor.
 
-		// Remove the BB
+		// Each predecessor needs a node to each successor.
+		// TODO what about phis? Avoid exponential phi by putting in an empty
+		// block.
+		// The immediate post-dominator should get the nodes, according to
+		// Cooper/Torczon lecture notes (see DCE comments).
+		assert (bb->get_phi_nodes()->size () == 0);
 		foreach (Basic_block* pred, *bb->get_predecessors ())
 			foreach (Basic_block* succ, *bb->get_successors ())
 			{
@@ -732,6 +745,9 @@ CFG::replace_bb (Basic_block* bb, BB_list* replacements)
 			edge_t e = add_edge (pred, front);
 			ee[e]->direction = get_edge (pred, bb)->direction;
 		}
+
+		// The front node gets the phi nodes.
+		front->merge_phi_nodes (bb);
 
 		// Add edge along the chain
 		Basic_block* prev = front;

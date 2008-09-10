@@ -145,6 +145,12 @@ Def_use_web::get_use_def_edges (MIR::VARIABLE_NAME* use)
 	return use_def_chains[use];
 }
 
+void
+Def_use_web::add_def_use_edge (MIR::Rvalue* def, SSA_edge* use)
+{
+	if (isa<VARIABLE_NAME> (def))
+		add_def_use_edge (dyc<VARIABLE_NAME> (def), use);
+}
 
 void
 Def_use_web::add_def_use_edge (MIR::VARIABLE_NAME* def, SSA_edge* use)
@@ -193,7 +199,7 @@ void
 Def_use_web::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 {
 	add_use_def_edge (in->lhs, new SSA_edge (bb));
-	visit_expr (in->rhs);
+	visit_expr (bb, in->rhs);
 }
 
 void
@@ -205,7 +211,7 @@ Def_use_web::visit_assign_var_var (Statement_block*, MIR::Assign_var_var* in)
 void
 Def_use_web::visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
 {
-	visit_expr (in->expr);
+	visit_expr (bb, in->expr);
 }
 
 void
@@ -293,98 +299,102 @@ Def_use_web::visit_unset (Statement_block*, MIR::Unset* in)
  */
 
 void
-Def_use_web::visit_array_access (Array_access* in)
+Def_use_web::visit_array_access (Statement_block* bb, Array_access* in)
 {
 	assert (0);
 }
 
 void
-Def_use_web::visit_bin_op (Bin_op* in)
+Def_use_web::visit_bin_op (Statement_block* bb, Bin_op* in)
 {
-//	add_def_use_edge (in->left, new SSA_edge (bb));
-//	add_def_use_edge (in->right, new SSA_edge (bb));
+	add_def_use_edge (in->left, new SSA_edge (bb));
+	add_def_use_edge (in->right, new SSA_edge (bb));
 }
 
 void
-Def_use_web::visit_cast (Cast* in)
-{
-	assert (0);
-}
-
-void
-Def_use_web::visit_constant (Constant* in)
+Def_use_web::visit_cast (Statement_block* bb, Cast* in)
 {
 	assert (0);
 }
 
 void
-Def_use_web::visit_field_access (Field_access* in)
+Def_use_web::visit_constant (Statement_block* bb, Constant* in)
 {
 	assert (0);
 }
 
 void
-Def_use_web::visit_foreach_get_key (Foreach_get_key* in)
+Def_use_web::visit_field_access (Statement_block* bb, Field_access* in)
 {
 	assert (0);
 }
 
 void
-Def_use_web::visit_foreach_get_val (Foreach_get_val* in)
+Def_use_web::visit_foreach_get_key (Statement_block* bb, Foreach_get_key* in)
 {
 	assert (0);
 }
 
 void
-Def_use_web::visit_foreach_has_key (Foreach_has_key* in)
+Def_use_web::visit_foreach_get_val (Statement_block* bb, Foreach_get_val* in)
 {
 	assert (0);
 }
 
 void
-Def_use_web::visit_instanceof (Instanceof* in)
+Def_use_web::visit_foreach_has_key (Statement_block* bb, Foreach_has_key* in)
 {
 	assert (0);
 }
 
 void
-Def_use_web::visit_isset (Isset* in)
+Def_use_web::visit_instanceof (Statement_block* bb, Instanceof* in)
 {
 	assert (0);
 }
 
 void
-Def_use_web::visit_method_invocation (Method_invocation* in)
+Def_use_web::visit_isset (Statement_block* bb, Isset* in)
 {
 	assert (0);
 }
 
 void
-Def_use_web::visit_new (New* in)
+Def_use_web::visit_method_invocation (Statement_block* bb, Method_invocation* in)
+{
+	if (isa<Variable_method> (in->method_name))
+		assert (0);
+
+	// TODO isnt this a potential def
+	foreach (Actual_parameter* param, *in->actual_parameters)
+	{
+		assert (!param->is_ref); // TODO
+		add_def_use_edge (param->rvalue, new SSA_edge (bb));
+		// what about virtual defs
+	}
+		
+}
+
+void
+Def_use_web::visit_new (Statement_block* bb, New* in)
 {
 	assert (0);
 }
 
 void
-Def_use_web::visit_param_is_ref (Param_is_ref* in)
+Def_use_web::visit_unary_op (Statement_block* bb, Unary_op* in)
+{
+	add_def_use_edge (in->variable_name, new SSA_edge (bb));
+}
+
+void
+Def_use_web::visit_variable_name (Statement_block* bb, VARIABLE_NAME* in)
 {
 	assert (0);
 }
 
 void
-Def_use_web::visit_unary_op (Unary_op* in)
-{
-	assert (0);
-}
-
-void
-Def_use_web::visit_variable_name (VARIABLE_NAME* in)
-{
-	assert (0);
-}
-
-void
-Def_use_web::visit_variable_variable (Variable_variable* in)
+Def_use_web::visit_variable_variable (Statement_block* bb, Variable_variable* in)
 {
 	assert (0);
 }

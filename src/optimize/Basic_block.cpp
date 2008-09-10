@@ -166,6 +166,14 @@ Basic_block::has_phi_function (VARIABLE_NAME* var_name)
 	return phi_nodes.has (*var_name->value);
 }
 
+/* Merge the phi nodes from OTHER into this BB. */
+void
+Basic_block::merge_phi_nodes (Basic_block* other)
+{
+	assert (get_phi_nodes ()->size () == 0);
+	assert (other->get_phi_nodes ()->size () == 0);
+}
+
 void
 Basic_block::remove_phi_nodes ()
 {

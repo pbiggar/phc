@@ -34,7 +34,6 @@ public:
 	void visit_foreach_next (Statement_block*, MIR::Foreach_next*);
 	void visit_foreach_reset (Statement_block*, MIR::Foreach_reset*);
 	void visit_global (Statement_block*, MIR::Global*);
-	void visit_param_is_ref (Statement_block*, MIR::Param_is_ref*);
 	void visit_pre_op (Statement_block*, MIR::Pre_op*);
 	void visit_push_array (Statement_block*, MIR::Push_array*);
 	void visit_return (Statement_block*, MIR::Return*);
@@ -44,19 +43,19 @@ public:
 	void visit_try (Statement_block*, MIR::Try*);
 	void visit_unset (Statement_block*, MIR::Unset*);
 
-	MIR::Expr* transform_array_access (MIR::Array_access* in);
-	MIR::Expr* transform_bin_op (MIR::Bin_op* in);
-	MIR::Expr* transform_cast (MIR::Cast* in);
-	MIR::Expr* transform_constant (MIR::Constant* in);
-	MIR::Expr* transform_field_access (MIR::Field_access* in);
-	MIR::Expr* transform_instanceof (MIR::Instanceof* in);
-	MIR::Expr* transform_isset (MIR::Isset* in);
-	MIR::Expr* transform_method_invocation (MIR::Method_invocation* in);
-	MIR::Expr* transform_new (MIR::New* in);
-	MIR::Expr* transform_param_is_ref (MIR::Param_is_ref* in);
-	MIR::Expr* transform_unary_op (MIR::Unary_op* in);
-	MIR::Expr* transform_variable_name (MIR::VARIABLE_NAME* in);
-	MIR::Expr* transform_variable_variable (MIR::Variable_variable* in);
+	MIR::Expr* transform_array_access (Statement_block*, MIR::Array_access* in);
+	MIR::Expr* transform_bin_op (Statement_block*, MIR::Bin_op* in);
+	MIR::Expr* transform_cast (Statement_block*, MIR::Cast* in);
+	MIR::Expr* transform_constant (Statement_block*, MIR::Constant* in);
+	MIR::Expr* transform_field_access (Statement_block*, MIR::Field_access* in);
+	MIR::Expr* transform_instanceof (Statement_block*, MIR::Instanceof* in);
+	MIR::Expr* transform_isset (Statement_block*, MIR::Isset* in);
+	MIR::Expr* transform_method_invocation (Statement_block*, MIR::Method_invocation* in);
+	MIR::Expr* transform_new (Statement_block*, MIR::New* in);
+	MIR::Expr* transform_param_is_ref (Statement_block*, MIR::Param_is_ref* in);
+	MIR::Expr* transform_unary_op (Statement_block*, MIR::Unary_op* in);
+	MIR::Expr* transform_variable_name (Statement_block*, MIR::VARIABLE_NAME* in);
+	MIR::Expr* transform_variable_variable (Statement_block*, MIR::Variable_variable* in);
 };
 
 

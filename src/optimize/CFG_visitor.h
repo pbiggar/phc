@@ -28,14 +28,14 @@ public:
 	 */
 
 	void visit_block (Basic_block* bb);
-	void visit_expr (MIR::Expr*);
+	void visit_expr (Statement_block* bb, MIR::Expr*);
 
 	// We handle putting the blocks back into the CFG
 	void transform_block (Basic_block* bb);
 
 	// The client is responsible for handling the result (this only does
 	// dispatch).
-	MIR::Expr* transform_expr (MIR::Expr*);
+	MIR::Expr* transform_expr (Statement_block* bb, MIR::Expr*);
 
 
 	/*
@@ -55,7 +55,7 @@ public:
 	 * Automatically called for each block.
 	 */
 
-	virtual void visit_phi_node (Phi*);
+	virtual void visit_phi_node (Basic_block* bb, Phi*);
 
 	/*
 	 * Statement visitors - Override in clients.
@@ -72,7 +72,6 @@ public:
 	virtual void visit_foreach_next (Statement_block*, MIR::Foreach_next*);
 	virtual void visit_foreach_reset (Statement_block*, MIR::Foreach_reset*);
 	virtual void visit_global (Statement_block*, MIR::Global*);
-	virtual void visit_param_is_ref (Statement_block*, MIR::Param_is_ref*);
 	virtual void visit_pre_op (Statement_block*, MIR::Pre_op*);
 	virtual void visit_push_array (Statement_block*, MIR::Push_array*);
 	virtual void visit_return (Statement_block*, MIR::Return*);
@@ -87,27 +86,27 @@ public:
 	 * The client must call visit_expr() manually.
 	 */
 
-	virtual void visit_array_access (MIR::Array_access* in);
-	virtual void visit_bin_op (MIR::Bin_op* in);
-	virtual void visit_bool (MIR::BOOL* in);
-	virtual void visit_cast (MIR::Cast* in);
-	virtual void visit_constant (MIR::Constant* in);
-	virtual void visit_field_access (MIR::Field_access* in);
-	virtual void visit_foreach_get_key (MIR::Foreach_get_key* in);
-	virtual void visit_foreach_get_val (MIR::Foreach_get_val* in);
-	virtual void visit_foreach_has_key (MIR::Foreach_has_key* in);
-	virtual void visit_instanceof (MIR::Instanceof* in);
-	virtual void visit_int (MIR::INT* in);
-	virtual void visit_isset (MIR::Isset* in);
-	virtual void visit_method_invocation (MIR::Method_invocation* in);
-	virtual void visit_new (MIR::New* in);
-	virtual void visit_nil (MIR::NIL* in);
-	virtual void visit_param_is_ref (MIR::Param_is_ref* in);
-	virtual void visit_real (MIR::REAL* in);
-	virtual void visit_string (MIR::STRING* in);
-	virtual void visit_unary_op (MIR::Unary_op* in);
-	virtual void visit_variable_name (MIR::VARIABLE_NAME* in);
-	virtual void visit_variable_variable (MIR::Variable_variable* in);
+	virtual void visit_array_access (Statement_block* bb, MIR::Array_access* in);
+	virtual void visit_bin_op (Statement_block* bb, MIR::Bin_op* in);
+	virtual void visit_bool (Statement_block* bb, MIR::BOOL* in);
+	virtual void visit_cast (Statement_block* bb, MIR::Cast* in);
+	virtual void visit_constant (Statement_block* bb, MIR::Constant* in);
+	virtual void visit_field_access (Statement_block* bb, MIR::Field_access* in);
+	virtual void visit_foreach_get_key (Statement_block* bb, MIR::Foreach_get_key* in);
+	virtual void visit_foreach_get_val (Statement_block* bb, MIR::Foreach_get_val* in);
+	virtual void visit_foreach_has_key (Statement_block* bb, MIR::Foreach_has_key* in);
+	virtual void visit_instanceof (Statement_block* bb, MIR::Instanceof* in);
+	virtual void visit_int (Statement_block* bb, MIR::INT* in);
+	virtual void visit_isset (Statement_block* bb, MIR::Isset* in);
+	virtual void visit_method_invocation (Statement_block* bb, MIR::Method_invocation* in);
+	virtual void visit_new (Statement_block* bb, MIR::New* in);
+	virtual void visit_nil (Statement_block* bb, MIR::NIL* in);
+	virtual void visit_param_is_ref (Statement_block* bb, MIR::Param_is_ref* in);
+	virtual void visit_real (Statement_block* bb, MIR::REAL* in);
+	virtual void visit_string (Statement_block* bb, MIR::STRING* in);
+	virtual void visit_unary_op (Statement_block* bb, MIR::Unary_op* in);
+	virtual void visit_variable_name (Statement_block* bb, MIR::VARIABLE_NAME* in);
+	virtual void visit_variable_variable (Statement_block* bb, MIR::Variable_variable* in);
 
 
 	/*
@@ -127,7 +126,7 @@ public:
 	 * Automatically called for each block.
 	 */
 
-	virtual void transform_phi_node (Phi*, List<Phi*>* out);
+	virtual void transform_phi_node (Basic_block* bb, Phi*, Phi_list* out);
 
 	/*
 	 * Statement transforms - Override in clients.
@@ -159,27 +158,27 @@ public:
 	 * The client must call transform_expr() manually.
 	 */
 
-	virtual MIR::Expr* transform_array_access (MIR::Array_access* in);
-	virtual MIR::Expr* transform_bin_op (MIR::Bin_op* in);
-	virtual MIR::Expr* transform_bool (MIR::BOOL* in);
-	virtual MIR::Expr* transform_cast (MIR::Cast* in);
-	virtual MIR::Expr* transform_constant (MIR::Constant* in);
-	virtual MIR::Expr* transform_field_access (MIR::Field_access* in);
-	virtual MIR::Expr* transform_foreach_get_key (MIR::Foreach_get_key* in);
-	virtual MIR::Expr* transform_foreach_get_val (MIR::Foreach_get_val* in);
-	virtual MIR::Expr* transform_foreach_has_key (MIR::Foreach_has_key* in);
-	virtual MIR::Expr* transform_instanceof (MIR::Instanceof* in);
-	virtual MIR::Expr* transform_int (MIR::INT* in);
-	virtual MIR::Expr* transform_isset (MIR::Isset* in);
-	virtual MIR::Expr* transform_method_invocation (MIR::Method_invocation* in);
-	virtual MIR::Expr* transform_new (MIR::New* in);
-	virtual MIR::Expr* transform_nil (MIR::NIL* in);
-	virtual MIR::Expr* transform_param_is_ref (MIR::Param_is_ref* in);
-	virtual MIR::Expr* transform_real (MIR::REAL* in);
-	virtual MIR::Expr* transform_string (MIR::STRING* in);
-	virtual MIR::Expr* transform_unary_op (MIR::Unary_op* in);
-	virtual MIR::Expr* transform_variable_name (MIR::VARIABLE_NAME* in);
-	virtual MIR::Expr* transform_variable_variable (MIR::Variable_variable* in);
+	virtual MIR::Expr* transform_array_access (Statement_block* bb, MIR::Array_access* in);
+	virtual MIR::Expr* transform_bin_op (Statement_block* bb, MIR::Bin_op* in);
+	virtual MIR::Expr* transform_bool (Statement_block* bb, MIR::BOOL* in);
+	virtual MIR::Expr* transform_cast (Statement_block* bb, MIR::Cast* in);
+	virtual MIR::Expr* transform_constant (Statement_block* bb, MIR::Constant* in);
+	virtual MIR::Expr* transform_field_access (Statement_block* bb, MIR::Field_access* in);
+	virtual MIR::Expr* transform_foreach_get_key (Statement_block* bb, MIR::Foreach_get_key* in);
+	virtual MIR::Expr* transform_foreach_get_val (Statement_block* bb, MIR::Foreach_get_val* in);
+	virtual MIR::Expr* transform_foreach_has_key (Statement_block* bb, MIR::Foreach_has_key* in);
+	virtual MIR::Expr* transform_instanceof (Statement_block* bb, MIR::Instanceof* in);
+	virtual MIR::Expr* transform_int (Statement_block* bb, MIR::INT* in);
+	virtual MIR::Expr* transform_isset (Statement_block* bb, MIR::Isset* in);
+	virtual MIR::Expr* transform_method_invocation (Statement_block* bb, MIR::Method_invocation* in);
+	virtual MIR::Expr* transform_new (Statement_block* bb, MIR::New* in);
+	virtual MIR::Expr* transform_nil (Statement_block* bb, MIR::NIL* in);
+	virtual MIR::Expr* transform_param_is_ref (Statement_block* bb, MIR::Param_is_ref* in);
+	virtual MIR::Expr* transform_real (Statement_block* bb, MIR::REAL* in);
+	virtual MIR::Expr* transform_string (Statement_block* bb, MIR::STRING* in);
+	virtual MIR::Expr* transform_unary_op (Statement_block* bb, MIR::Unary_op* in);
+	virtual MIR::Expr* transform_variable_name (Statement_block* bb, MIR::VARIABLE_NAME* in);
+	virtual MIR::Expr* transform_variable_variable (Statement_block* bb, MIR::Variable_variable* in);
 
 };
 
