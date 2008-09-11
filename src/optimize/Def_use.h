@@ -11,9 +11,6 @@ class CFG;
 // We dont want to put this into mir.tea. Its a long way from where its used.
 class Def_use
 {
-public:
-	static Set* get_defs (MIR::Statement* statement);
-	static Set* get_uses (MIR::Statement* statement);
 };
 
 class Def_use_web : public Visit_once
@@ -26,17 +23,21 @@ class Def_use_web : public Visit_once
 
 	map<
 		MIR::VARIABLE_NAME*,
-		SSA_edge*,
+		SSA_edge_list*, 
 		bool (*)(MIR::VARIABLE_NAME*, MIR::VARIABLE_NAME*)
 	> use_def_chains;
 
-
 public:
 	Def_use_web ();
+
+	// These are intended for use during the conversion to SSA.
+	Set* get_defs (Basic_block* bb);
+	Set* get_uses (Basic_block* bb);
 	
 	SSA_edge_list* get_def_use_edges (MIR::VARIABLE_NAME* def);
-	SSA_edge* get_use_def_edges (MIR::VARIABLE_NAME* use);
+	SSA_edge* get_use_def_edge (MIR::VARIABLE_NAME* use);
 
+private:
 	void add_def_use_edge (MIR::VARIABLE_NAME* def, SSA_edge* use);
 	void add_use_def_edge (MIR::VARIABLE_NAME* use, SSA_edge* def);
 	void add_def_use_edge (MIR::Rvalue* def, SSA_edge* use);

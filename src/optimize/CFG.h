@@ -152,6 +152,7 @@ private:
 	vertex_t entry;
 	vertex_t exit;
 
+
 	void add_statements (MIR::Statement_list*);
 
 	// For BB methods

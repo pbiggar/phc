@@ -175,6 +175,13 @@ SCCP::run (CFG* cfg)
 	}
 }
 
+void
+SCCP::die ()
+{
+	lattice.dump ();
+	assert (0);
+}
+
 int
 SCCP::get_predecessor_executable_count (Basic_block* bb)
 {
@@ -242,7 +249,7 @@ SCCP::visit_ssa_edge (SSA_edge* edge)
 			break;
 
 		default:
-			assert (0);
+			die ();
 	}
 }
 
@@ -258,11 +265,11 @@ SCCP::visit_branch_block (Branch_block* bb)
 
 	else if (lattice[bb->branch->variable_name] == TOP)
 		// Not possible, as the previous visit_block will have lowered this.
-		assert (0);
+		die ();
 
 	else
 	{
-		assert (0); // TODO
+		die (); // TODO
 	}
 }
 
@@ -272,13 +279,13 @@ SCCP::visit_branch_block (Branch_block* bb)
 void
 SCCP::visit_assign_array (Statement_block*, MIR::Assign_array*)
 {
-	assert (0);
+	die ();
 }
 
 void
 SCCP::visit_assign_field (Statement_block*, MIR::Assign_field *)
 {
-	assert (0);
+	die ();
 }
 
 void
@@ -303,7 +310,7 @@ SCCP::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 				ssa_wl->push_back (edge);
 			}
 		}
-		else // must both be COSNT
+		else // must both be CONST - do nothing
 			assert (in->rhs->equals (expr));
 	}
 	else
@@ -315,7 +322,7 @@ SCCP::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 void
 SCCP::visit_assign_var_var (Statement_block*, MIR::Assign_var_var*)
 {
-	assert (0);
+	die ();
 }
 
 void
@@ -323,25 +330,25 @@ SCCP::visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
 {
 	in->expr = transform_expr (bb, in->expr);
 	if (! (isa<New> (in->expr) || isa<Method_invocation> (in->expr)))
-		assert (0); // TODO remove
+		die (); // TODO remove
 }
 
 void
 SCCP::visit_foreach_end (Statement_block*, MIR::Foreach_end*)
 {
-	assert (0);
+	die ();
 }
 
 void
 SCCP::visit_foreach_next (Statement_block*, MIR::Foreach_next*)
 {
-	assert (0);
+	die ();
 }
 
 void
 SCCP::visit_foreach_reset (Statement_block*, MIR::Foreach_reset*)
 {
-	assert (0);
+	die ();
 }
 
 void
@@ -352,20 +359,20 @@ SCCP::visit_global (Statement_block*, MIR::Global*)
 void
 SCCP::visit_pre_op (Statement_block*, MIR::Pre_op*)
 {
-	assert (0);
+	die ();
 }
 
 void
 SCCP::visit_push_array (Statement_block*, MIR::Push_array*)
 {
-	assert (0);
+	die ();
 }
 
 void
 SCCP::visit_ssa_pre_op (Statement_block*, MIR::SSA_pre_op* in)
 {
 	if (lattice[in->use] == BOTTOM)
-		lattice[in->def] == BOTTOM;
+		lattice[in->def] = BOTTOM;
 
 	else if (lattice[in->use] == TOP)
 		; // do nothing
@@ -373,7 +380,7 @@ SCCP::visit_ssa_pre_op (Statement_block*, MIR::SSA_pre_op* in)
 	else
 	{
 		Literal* lit = lattice[in->use]->get_value ();
-		assert (0); // TODO go through embed
+		die (); // TODO go through embed
 		// TODO lower the lattice (same as in assign_var)
 	}
 }
@@ -381,31 +388,31 @@ SCCP::visit_ssa_pre_op (Statement_block*, MIR::SSA_pre_op* in)
 void
 SCCP::visit_return (Statement_block*, MIR::Return*)
 {
-	assert (0);
+	die ();
 }
 
 void
 SCCP::visit_static_declaration (Statement_block*, MIR::Static_declaration*)
 {
-	assert (0);
+	die ();
 }
 
 void
 SCCP::visit_throw (Statement_block*, MIR::Throw*)
 {
-	assert (0);
+	die ();
 }
 
 void
 SCCP::visit_try (Statement_block*, MIR::Try*)
 {
-	assert (0);
+	die ();
 }
 
 void
 SCCP::visit_unset (Statement_block*, MIR::Unset*)
 {
-	assert (0);
+	die ();
 }
 
 /* Returns NULL, or the literal in VARIABLE_NAME. We have separate functions,
@@ -454,7 +461,7 @@ SCCP::transform_bin_op (Statement_block*, Bin_op* in)
 
 	if (isa<Literal> (bin_op->left) 
 			&& isa<Literal> (bin_op->right))
-		assert (0); // TODO go through embed
+		die (); // TODO go through embed
 
 	return in;
 }
@@ -466,7 +473,7 @@ SCCP::transform_cast (Statement_block*, Cast* in)
 	Literal* lit = get_literal (cast->variable_name);
 
 	if (lit)
-		assert (0); // go through embed
+		die (); // go through embed
 
 	return in;
 }
@@ -495,14 +502,14 @@ SCCP::transform_field_access (Statement_block*, Field_access* in)
 	//			if (isa<VARIABLE_NAME> (fa->target))
 	//				use (bb, dyc<VARIABLE_NAME> (fa->target));
 
-	assert (0);
+	die ();
 	return in;
 }
 
 Expr*
 SCCP::transform_instanceof (Statement_block*, Instanceof* in)
 {
-	assert (0);
+	die ();
 	return in;
 }
 
@@ -534,14 +541,14 @@ SCCP::transform_method_invocation (Statement_block*, Method_invocation* in)
 			return in;
 	}
 
-	assert (0);
+	die ();
 	// TODO replace Variable_variable with VARIABLE_NAME, if possible.
 
 	// TODO: we can replace a arguement with its actual parameter
 	// (watch out for refs) (only if passing by copy)
 
 	/*			if (isa<VARIABLE_NAME> (mi->method_name))
-				assert (0); // TODO
+				die (); // TODO
 
 				foreach (Actual_parameter* ap, *mi->actual_parameters)
 				{
@@ -556,7 +563,7 @@ Expr*
 SCCP::transform_new (Statement_block*, New* in)
 {
 	// TODO turn a varaible_class into a CLASS_NAME 
-	assert (0);
+	die ();
 	return in;
 }
 
@@ -564,7 +571,7 @@ Expr*
 SCCP::transform_param_is_ref (Statement_block*, Param_is_ref* in)
 {
 	// TODO go through embed.
-	assert (0);
+	die ();
 	return in;
 }
 
@@ -572,7 +579,7 @@ Expr*
 SCCP::transform_unary_op (Statement_block*, Unary_op* in)
 {
 	if (Literal* lit = get_literal (in->variable_name))
-		assert (0); // go through embed
+		die (); // go through embed
 
 	return in;
 }
@@ -590,11 +597,8 @@ Expr*
 SCCP::transform_variable_variable (Statement_block*, Variable_variable* in)
 {
 	if (Literal* lit = get_literal (in->variable_name))
-		assert (0);
+		die ();
 
 	// in = new VARIABLE_NAME (PHP::to_string (lit));
 	return in;
 }
-
-
-

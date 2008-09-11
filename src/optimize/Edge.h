@@ -72,6 +72,11 @@ public:
 
 	Basic_block* bb;
 
+	// This is a pointer to the actual variable name for the def/use. The
+	// variable in the def-use web is just a key, and may be a different
+	// instance of the same variable.
+	MIR::VARIABLE_NAME* variable_name;
+
 	SSA_edge (Phi* phi);
 	SSA_edge (Statement_block* bb);
 	SSA_edge (Branch_block* bb);

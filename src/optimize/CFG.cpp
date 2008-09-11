@@ -25,6 +25,7 @@ using namespace MIR;
 
 CFG::CFG (Method* method)
 : dominance (NULL)
+, duw (NULL)
 , bs()
 , method (method)
 {
@@ -511,6 +512,10 @@ void CFG::convert_to_ssa_form ()
 	dominance->calculate_local_dominance_frontier ();
 	dominance->propagate_dominance_frontier_upwards ();
 
+	// Build def-use web (we're not in SSA form, but this will do the job).
+	duw = new Def_use_web ();
+	duw->run (this);
+
 	// Muchnick gives up at this point. We continue instead in Cooper/Torczon,
 	// Section 9.3.3, with some minor changes. Since we dont have a list of
 	// global names, we iterate through all blocks, rather than the blocks
@@ -527,7 +532,7 @@ void CFG::convert_to_ssa_form ()
 		foreach (Basic_block* frontier, *bb->get_dominance_frontier ())
 		{
 			// Get defs (including phi node LHSs)
-			Set* def_list = bb->get_ssa_defs ();
+			Set* def_list = bb->get_pre_ssa_defs ();
 			foreach (Phi* phi, *bb->get_phi_nodes())
 				def_list->insert (phi->lhs);
 
@@ -551,6 +556,22 @@ void CFG::convert_to_ssa_form ()
 	SSA_renaming sr(this);
 	sr.rename_vars (get_entry_bb ());
 
+	// Check all variables are converted
+	class Check_in_SSA : public Visitor
+	{
+		void pre_variable_name (VARIABLE_NAME* in)
+		{
+			assert (in->in_ssa);
+		}
+	};
+
+	foreach (Basic_block* bb, *get_all_bbs ())
+	{
+		if (Statement_block* sb = dynamic_cast<Statement_block*> (bb))
+			sb->statement->visit (new Check_in_SSA ());
+	}
+
+	// Build def-use web
 	duw = new Def_use_web ();
 	duw->run (this);
 }

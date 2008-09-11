@@ -33,18 +33,21 @@ Edge::clone()
 SSA_edge::SSA_edge (Phi* phi)
 : which (PHI)
 , phi (phi)
+, variable_name (NULL)
 {
 }
 
 SSA_edge::SSA_edge (Statement_block* bb)
 : which (STATEMENT)
 , bb (bb)
+, variable_name (NULL)
 {
 }
 
 SSA_edge::SSA_edge (Branch_block* bb)
 : which (BRANCH)
 , bb (bb)
+, variable_name (NULL)
 {
 }
 

@@ -50,10 +50,10 @@ public:
 	/* In the presence of variable_variables, the variable which is actually
 	 * used (ie $x for $$x) is returned, not a full set.
 	 * TODO: this will probably break for defs.
-	 * TODO: These are really for SSA_renaming. I don't think we can use them
-	 * for a different purpose with the same semantics.*/
-	virtual Set* get_ssa_defs ();
-	virtual Set* get_ssa_uses ();
+	 * These are really for SSA_renaming. We can't use them for a different
+	 * purpose with the same semantics.*/
+	virtual Set* get_pre_ssa_defs ();
+	virtual Set* get_pre_ssa_uses ();
 
 	BB_list* get_predecessors ();
 	BB_list* get_successors ();
@@ -161,8 +161,6 @@ public:
 	String* get_graphviz_label ();
 	list<pair<String*,String*> >* get_graphviz_properties ();
 
-	Set* get_ssa_uses ();
-
 	// Assert a block has a two successors, representing true and false
 	// branches, and return the true branch.
 	Basic_block* get_true_successor ();
@@ -188,9 +186,6 @@ public:
 
 public:
 	Statement_block (CFG* cfg, MIR::Statement* s);
-
-	Set* get_ssa_defs ();
-	Set* get_ssa_uses ();
 
 	virtual String* get_graphviz_label ();
 };

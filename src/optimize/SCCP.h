@@ -56,6 +56,8 @@ public:
 	MIR::Expr* transform_unary_op (Statement_block*, MIR::Unary_op* in);
 	MIR::Expr* transform_variable_name (Statement_block*, MIR::VARIABLE_NAME* in);
 	MIR::Expr* transform_variable_variable (Statement_block*, MIR::Variable_variable* in);
+private:
+	void die ();
 };
 
 

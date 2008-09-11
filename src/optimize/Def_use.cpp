@@ -2,130 +2,66 @@
 #include "process_ir/debug.h"
 
 #include "Def_use.h"
-#include "MIR_visitor.h"
+#include "Set.h"
 
 using namespace MIR;
 
-class Def_use_visitor : public MIR::Visitor 
-{
-public:
-	Set* defs;
-	Set* uses;
-	bool handled;
-public:
-	Def_use_visitor ()
-	{
-		defs = new Set;
-		uses = new Set;
-		handled = false;
-	}
-
-	void use (Rvalue* in)
-	{
-		if (isa<VARIABLE_NAME> (in))
-			uses->insert (dyc<VARIABLE_NAME> (in));
-	}
-
-	void def (VARIABLE_NAME* in)
-	{
-		defs->insert (in);
-	}
-
-	void pre_pre_op (Pre_op* in)
-	{
-		// should be conveted to SSA_pre_op
-		assert (0);
-	}
-
-	void pre_actual_parameter (Actual_parameter* in)
-	{
-		use (in->rvalue);
-		handled = true;
-	}
-
-	void pre_ssa_pre_op (SSA_pre_op* in)
-	{
-		use (in->use);
-		def (in->def);
-		handled = true;
-	}
-
-	void pre_assign_var (Assign_var* in)
-	{
-		def (in->lhs);
-		if (isa<VARIABLE_NAME> (in->rhs) || isa<Literal> (in->rhs))
-			handled = true;
-	}
-
-	void pre_bin_op (Bin_op* in)
-	{
-		use (in->left);
-		use (in->right);
-		handled = true;
-	}
-
-	void pre_unary_op (Unary_op* in)
-	{
-		use (in->variable_name);
-		handled = true;
-	}
-
-	void pre_global (Global* in)
-	{
-		
-		if (VARIABLE_NAME* vn = dynamic_cast<VARIABLE_NAME*> (in->variable_name))
-			def (vn);
-		else
-		{
-			// what's defined here?
-			use (dyc<Variable_variable> (in)->variable_name);
-		}
-
-		handled = true;
-	}
-
-	/* Leave this in until this works */
-	void post_statement (Statement* in)
-	{
-		if (!handled)
-		{
-			debug (in);
-			xdebug (in);
-		}
-		assert (handled);
-	}
-};
-
-/* There return the uses and defs to turn into SSA form. They are not useful
- * for SSA webs (SSA def-use or use-edf chains).
- */
-Set*
-Def_use::get_defs (Statement* in)
-{
-	Def_use_visitor* duv = new Def_use_visitor;
-	in->visit (duv);
-	return duv->defs;
-}
-
-Set*
-Def_use::get_uses (Statement* in)
-{
-	Def_use_visitor* duv = new Def_use_visitor;
-	in->visit (duv);
-	return duv->uses;
-}
-
 /*
- * Def-use chains. These are slightly different def-use chains, since they
- * work on SSA form.
+ * SSA-web. 
+ *
+ * For now, use the SSA-web (which doesnt actually rely on SSA form, nor is it
+ * built during it) both for getting into SSA form, and for creating the SSA
+ * web.
  */
 
-#include "Set.h"
 
 Def_use_web::Def_use_web ()
 : def_use_chains (&variable_name_ptr_comparison)
 , use_def_chains (&variable_name_ptr_comparison)
 {
+}
+
+Set*
+Def_use_web::get_defs (Basic_block* bb)
+{
+	Set* result = new Set;
+
+	// Go through the use-def result, finding those who's BB == BB
+	pair<VARIABLE_NAME*, SSA_edge_list*> pair;
+	foreach (pair, use_def_chains)
+	{
+		foreach (SSA_edge* edge, *pair.second)
+		{
+			assert (edge->which != SSA_edge::PHI);
+
+			// Dont insert the key, it may be the wrong var_name.
+			if (edge->bb == bb)
+				result->insert (edge->variable_name);
+		}
+	}
+	return result;
+}
+
+Set*
+Def_use_web::get_uses (Basic_block* bb)
+{
+	Set* result = new Set;
+
+	// Go through the def-use result, finding those who's BB == BB
+	pair<VARIABLE_NAME*, SSA_edge_list*> pair;
+	foreach (pair, def_use_chains)
+	{
+		foreach (SSA_edge* edge, *pair.second)
+		{
+			assert (edge->which != SSA_edge::PHI);
+
+			// Dont insert the key, it may be the wrong var_name.
+			if (edge->bb == bb)
+				result->insert (edge->variable_name);
+		}
+	}
+
+	return result;
 }
 
 SSA_edge_list*
@@ -139,10 +75,14 @@ Def_use_web::get_def_use_edges (MIR::VARIABLE_NAME* def)
 }
 
 SSA_edge*
-Def_use_web::get_use_def_edges (MIR::VARIABLE_NAME* use)
+Def_use_web::get_use_def_edge (MIR::VARIABLE_NAME* use)
 {
-	assert (use_def_chains[use]); // every use must have a def
-	return use_def_chains[use];
+	// every use must have exactly 1 def (in SSA form).
+	assert (use_def_chains[use]->size() == 1);
+
+	// every ssa_edge must have a VARIABLE_NAME
+	assert (use_def_chains[use]->front()->variable_name);
+	return use_def_chains[use]->front ();
 }
 
 void
@@ -155,6 +95,8 @@ Def_use_web::add_def_use_edge (MIR::Rvalue* def, SSA_edge* use)
 void
 Def_use_web::add_def_use_edge (MIR::VARIABLE_NAME* def, SSA_edge* use)
 {
+	use->variable_name = def;
+
 	if (def_use_chains[def] == NULL)
 		def_use_chains[def] = new SSA_edge_list (use);
 	else
@@ -164,8 +106,13 @@ Def_use_web::add_def_use_edge (MIR::VARIABLE_NAME* def, SSA_edge* use)
 void
 Def_use_web::add_use_def_edge (MIR::VARIABLE_NAME* use, SSA_edge* def)
 {
-	assert (use_def_chains[use] == NULL);
-	use_def_chains[use] = def;
+	def->variable_name = use;
+
+	// When used on pre-SSA form, there can be many defs.
+	if (use_def_chains[use] == NULL)
+		use_def_chains[use] = new SSA_edge_list (def);
+	else
+		use_def_chains[use]->push_back (def);
 }
 
 void
@@ -233,10 +180,11 @@ Def_use_web::visit_foreach_reset (Statement_block*, MIR::Foreach_reset* in)
 }
 
 void
-Def_use_web::visit_global (Statement_block*, MIR::Global* in)
+Def_use_web::visit_global (Statement_block* bb, MIR::Global* in)
 {
-	// Is this a use or a def?
-	// TODO dont need this now, come back later.
+	// For SSA creation, this is a def. For later, probably a virtual use too?
+	if (isa<VARIABLE_NAME> (in->variable_name))
+		add_def_use_edge (dyc<VARIABLE_NAME> (in->variable_name), new SSA_edge (bb));
 }
 
 void
@@ -390,7 +338,7 @@ Def_use_web::visit_unary_op (Statement_block* bb, Unary_op* in)
 void
 Def_use_web::visit_variable_name (Statement_block* bb, VARIABLE_NAME* in)
 {
-	assert (0);
+	add_def_use_edge (in, new SSA_edge (bb));
 }
 
 void

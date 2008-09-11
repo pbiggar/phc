@@ -274,7 +274,7 @@ SSA_renaming::rename_vars (Basic_block* bb)
 	}
 
 	// Rename local variable uses
-	foreach (VARIABLE_NAME* use, *bb->get_ssa_uses ())
+	foreach (VARIABLE_NAME* use, *bb->get_pre_ssa_uses ())
 	{
 		DEBUG ("Converting use " << use);
 		debug (use);
@@ -284,7 +284,7 @@ SSA_renaming::rename_vars (Basic_block* bb)
 	}
 
 	// Create new names for defs
-	foreach (VARIABLE_NAME* def, *bb->get_ssa_defs ())
+	foreach (VARIABLE_NAME* def, *bb->get_pre_ssa_defs ())
 	{
 		DEBUG ("Converting def " << def);
 		debug (def);
@@ -305,6 +305,6 @@ SSA_renaming::rename_vars (Basic_block* bb)
 
 	// Before going back up the tree, get rid of new variable names from
 	// the stack, so the next node up sees its own names.
-	foreach (VARIABLE_NAME* def, *bb->get_ssa_defs ())
+	foreach (VARIABLE_NAME* def, *bb->get_pre_ssa_defs ())
 		pop_var_stack (def);
 }

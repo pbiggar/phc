@@ -285,33 +285,15 @@ Basic_block::get_dominated_blocks ()
 }
 
 Set*
-Basic_block::get_ssa_defs ()
+Basic_block::get_pre_ssa_defs ()
 {
-	return new Set ();
+	return cfg->duw->get_defs (this);
 }
 
 Set*
-Basic_block::get_ssa_uses ()
+Basic_block::get_pre_ssa_uses ()
 {
-	return new Set ();
-}
-
-Set*
-Branch_block::get_ssa_uses ()
-{
-	return new Set (branch->variable_name);
-}
-
-Set*
-Statement_block::get_ssa_uses ()
-{
-	return Def_use::get_uses (statement);
-}
-
-Set*
-Statement_block::get_ssa_defs ()
-{
-	return Def_use::get_defs (statement);
+	return cfg->duw->get_uses (this);
 }
 
 List<Phi*>*

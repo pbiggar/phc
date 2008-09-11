@@ -5,6 +5,7 @@
 #include <map>
 #include "MIR.h"
 #include "Set.h"
+#include "process_ir/debug.h"
 
 struct Lattice_cell;
 
@@ -46,13 +47,20 @@ public:
 	{
 	}
 
-	// We want TOP to be the default for uninitialized vars.
-	pair<iterator, bool> insert(const pair<MIR::VARIABLE_NAME*, Lattice_cell*>& x)
+	void dump ()
 	{
-		if (x.second == NULL)
-			return parent::insert (make_pair (x.first, TOP));
-
-		return parent::insert (x);
+		pair<MIR::VARIABLE_NAME*, Lattice_cell*> pair;
+		foreach (pair, *this)
+		{
+			cdebug << *pair.first->get_ssa_var_name () << " => ";
+			if (pair.second == TOP)
+				cdebug << "TOP";
+			else if (pair.second == BOTTOM)
+				cdebug << "BOTTOM";
+			else
+				cdebug << "(" << *pair.second->get_value()->get_value_as_string () << ")";
+			cdebug << "\n";
+		}
 	}
 
 	Lattice_map* clone()
@@ -60,8 +68,6 @@ public:
 		// TODO
 		assert (0);
 	}
-private:
-	using parent::insert;
 };
 
 Lattice_cell* meet (Lattice_cell* l1, Lattice_cell* l2);

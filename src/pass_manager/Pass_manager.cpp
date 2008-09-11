@@ -568,12 +568,12 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 			if (args_info->cfg_dump_given)
 				cfg->dump_graphviz (s("CFG - pre SSA"));
 
+			if (args_info->debug_given)
+				enable_cdebug ();
+
 			cfg->convert_to_ssa_form ();
 			if (args_info->cfg_dump_given)
 				cfg->dump_graphviz (s("CFG - in SSA"));
-
-			if (args_info->debug_given)
-				enable_cdebug ();
 
 			SCCP().run (cfg);
 			if (args_info->cfg_dump_given)
