@@ -45,6 +45,12 @@ Phi::get_arg_edges ()
 	return args;
 }
 
+void
+Phi::dump ()
+{
+	DEBUG ("Phi node for " << lhs->get_ssa_var_name ());
+}
+
 
 // We use Muchnick, Section 8.11 (which is essentially the same as the
 // Minimal SSA form from the original Cytron, Ferrante, Rosen, Wegman and

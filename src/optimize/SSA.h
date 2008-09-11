@@ -12,6 +12,7 @@ class Phi : virtual public Object
 {
 public:
 	MIR::VARIABLE_NAME* lhs;
+	// TODO make private
 	list<pair<MIR::VARIABLE_NAME*, Edge*> >* args;
 
 public:
@@ -22,6 +23,8 @@ public:
 	list<pair<MIR::VARIABLE_NAME*, Edge*> >* get_arg_edges ();
 
 	Phi* clone () { assert (0); } // TODO
+
+	void dump ();
 };
 
 typedef List<Phi*> Phi_list;

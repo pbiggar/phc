@@ -166,6 +166,8 @@ libphc_la_SOURCES= 											\
 	src/optimize/Fix_point.h								\
 	src/optimize/Flow_visitor.cpp							\
 	src/optimize/Flow_visitor.h							\
+	src/optimize/If_simplification.cpp					\
+	src/optimize/If_simplification.h						\
 	src/optimize/Into_SSA.h									\
 	src/optimize/Lattice.cpp								\
 	src/optimize/Lattice.h									\

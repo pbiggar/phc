@@ -81,6 +81,12 @@ public:
 	SSA_edge (Statement_block* bb);
 	SSA_edge (Branch_block* bb);
 	SSA_edge* clone ();
+
+	Phi* get_phi ();
+	Statement_block* get_statement_block ();
+	Branch_block* get_branch_block ();
+
+	void dump ();
 };
 
 typedef List<SSA_edge*> SSA_edge_list;

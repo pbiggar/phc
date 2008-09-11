@@ -5,6 +5,7 @@
 #include "Set.h"
 
 using namespace MIR;
+using namespace std;
 
 /*
  * SSA-web. 
@@ -27,10 +28,10 @@ Def_use_web::get_defs (Basic_block* bb)
 	Set* result = new Set;
 
 	// Go through the use-def result, finding those who's BB == BB
-	pair<VARIABLE_NAME*, SSA_edge_list*> pair;
+	pair<VARIABLE_NAME*, SSA_edge_list> pair;
 	foreach (pair, use_def_chains)
 	{
-		foreach (SSA_edge* edge, *pair.second)
+		foreach (SSA_edge* edge, pair.second)
 		{
 			assert (edge->which != SSA_edge::PHI);
 
@@ -48,10 +49,10 @@ Def_use_web::get_uses (Basic_block* bb)
 	Set* result = new Set;
 
 	// Go through the def-use result, finding those who's BB == BB
-	pair<VARIABLE_NAME*, SSA_edge_list*> pair;
+	pair<VARIABLE_NAME*, SSA_edge_list> pair;
 	foreach (pair, def_use_chains)
 	{
-		foreach (SSA_edge* edge, *pair.second)
+		foreach (SSA_edge* edge, pair.second)
 		{
 			assert (edge->which != SSA_edge::PHI);
 
@@ -71,18 +72,18 @@ Def_use_web::get_def_use_edges (MIR::VARIABLE_NAME* def)
 	if (def_use_chains.find (def) == def_use_chains.end ())
 		return new SSA_edge_list ();
 
-	return def_use_chains[def];
+	return &def_use_chains[def];
 }
 
 SSA_edge*
 Def_use_web::get_use_def_edge (MIR::VARIABLE_NAME* use)
 {
 	// every use must have exactly 1 def (in SSA form).
-	assert (use_def_chains[use]->size() == 1);
+	assert (use_def_chains[use].size() == 1);
 
 	// every ssa_edge must have a VARIABLE_NAME
-	assert (use_def_chains[use]->front()->variable_name);
-	return use_def_chains[use]->front ();
+	assert (use_def_chains[use].front()->variable_name);
+	return use_def_chains[use].front ();
 }
 
 void
@@ -95,24 +96,30 @@ Def_use_web::add_def_use_edge (MIR::Rvalue* def, SSA_edge* use)
 void
 Def_use_web::add_def_use_edge (MIR::VARIABLE_NAME* def, SSA_edge* use)
 {
+	DEBUG ("Adding a def_use edge from ");
+	debug (def);
+	DEBUG ("to ")
+	use->dump ();
+	DEBUG (endl);
+	
 	use->variable_name = def;
-
-	if (def_use_chains[def] == NULL)
-		def_use_chains[def] = new SSA_edge_list (use);
-	else
-		def_use_chains[def]->push_back (use);
+	def_use_chains[def].push_back (use);
 }
 
 void
 Def_use_web::add_use_def_edge (MIR::VARIABLE_NAME* use, SSA_edge* def)
 {
+	DEBUG ("Adding a use_def edge from ");
+	debug (use);
+	DEBUG ("to ")
+	def->dump ();
+	DEBUG (endl);
+
+
 	def->variable_name = use;
 
 	// When used on pre-SSA form, there can be many defs.
-	if (use_def_chains[use] == NULL)
-		use_def_chains[use] = new SSA_edge_list (def);
-	else
-		use_def_chains[use]->push_back (def);
+	use_def_chains[use].push_back (def);
 }
 
 void
@@ -184,7 +191,7 @@ Def_use_web::visit_global (Statement_block* bb, MIR::Global* in)
 {
 	// For SSA creation, this is a def. For later, probably a virtual use too?
 	if (isa<VARIABLE_NAME> (in->variable_name))
-		add_def_use_edge (dyc<VARIABLE_NAME> (in->variable_name), new SSA_edge (bb));
+		add_use_def_edge (dyc<VARIABLE_NAME> (in->variable_name), new SSA_edge (bb));
 }
 
 void
@@ -346,3 +353,40 @@ Def_use_web::visit_variable_variable (Statement_block* bb, Variable_variable* in
 {
 	assert (0);
 }
+
+
+void
+Def_use_web::dump ()
+{
+	CHECK_DEBUG ();
+
+	cdebug << "Use-def web (" << use_def_chains.size() << "):\n";
+	pair<VARIABLE_NAME*, SSA_edge_list> p;
+	foreach (p, use_def_chains)
+	{
+		cdebug << "SSA edges for ";
+		debug (p.first);
+
+		foreach (SSA_edge* edge, p.second)
+		{
+			edge->dump ();
+		}
+		cdebug << endl;
+	}
+
+	cdebug << "Def-use web (" << def_use_chains.size() << "):\n";
+	foreach (p, def_use_chains)
+	{
+		cdebug << "SSA edges for ";
+		debug (p.first);
+
+		foreach (SSA_edge* edge, p.second)
+		{
+			edge->dump ();
+		}
+		cdebug << endl;
+	}
+
+}
+
+

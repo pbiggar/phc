@@ -16,6 +16,7 @@ public:
 
 public:
 	Basic_block (CFG* parent);
+	virtual void dump () = 0;
 
 public:
 	/*
@@ -131,6 +132,8 @@ public:
 	virtual String* get_graphviz_label ();
 	Entry_block (CFG* cfg, MIR::Method* method);
 	MIR::Method* method;
+
+	void dump ();
 };
 
 class Exit_block : public Basic_block
@@ -142,6 +145,8 @@ public:
 	Exit_block (CFG* cfg, MIR::Method* method);
 
 	virtual String* get_graphviz_label ();
+
+	void dump ();
 };
 
 class Empty_block : public Basic_block
@@ -150,6 +155,8 @@ public:
 	Empty_block (CFG* cfg);
 
 	virtual String* get_graphviz_label ();
+
+	void dump ();
 };
 
 class Branch_block : public Basic_block
@@ -181,7 +188,9 @@ public:
 		assert (0);
 	}
 
+	void switch_successors ();
 
+	void dump ();
 };
 
 class Statement_block : public Basic_block 
@@ -193,6 +202,8 @@ public:
 	Statement_block (CFG* cfg, MIR::Statement* s);
 
 	virtual String* get_graphviz_label ();
+
+	void dump ();
 };
 
 #endif // PHC_BASIC_BLOCK

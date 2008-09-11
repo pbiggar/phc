@@ -249,12 +249,12 @@ Basic_block::get_successor_edge ()
 Basic_block*
 Branch_block::get_true_successor ()
 {
-	BB_list* succs = get_successors ();
+	Edge_list* succs = get_successor_edges ();
 	assert (succs->size() == 2);
 
-	foreach (Basic_block* succ, *succs)
-		if (cfg->is_true_edge (cfg->get_edge (this, succ)))
-			return succ;
+	foreach (Edge* succ, *succs)
+		if (cfg->is_true_edge (succ))
+			return succ->target;
 
 	assert (0);
 }
@@ -262,14 +262,21 @@ Branch_block::get_true_successor ()
 Basic_block*
 Branch_block::get_false_successor ()
 {
-	BB_list* succs = get_successors ();
+	Edge_list* succs = get_successor_edges ();
 	assert (succs->size() == 2);
 
-	foreach (Basic_block* succ, *succs)
-		if (not cfg->is_true_edge (cfg->get_edge (this, succ)))
-			return succ;
+	foreach (Edge* succ, *succs)
+		if (not cfg->is_true_edge (succ))
+			return succ->target;
 
 	assert (0);
+}
+
+void
+Branch_block::switch_successors ()
+{
+	foreach (Edge* succ, *get_successor_edges ())
+		succ->direction = !succ->direction;
 }
 
 void
@@ -327,3 +334,40 @@ Basic_block::get_index ()
 	return cfg->index[vertex];
 }
 
+
+/*
+ * Debugging
+ */
+
+void
+Entry_block::dump()
+{
+	DEBUG ("Entry block");
+}
+
+void
+Exit_block::dump()
+{
+	DEBUG ("Exit block");
+}
+
+void
+Branch_block::dump()
+{
+	DEBUG ("Branch block" << branch->variable_name->get_ssa_var_name ());
+
+}
+
+void
+Statement_block::dump()
+{
+	DEBUG ("Statemnet block");
+
+	MIR_unparser mup(cdebug, true);
+	mup.unparse(statement);
+}
+void
+Empty_block::dump()
+{
+	DEBUG ("Empty block");
+}

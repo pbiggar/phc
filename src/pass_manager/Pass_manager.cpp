@@ -27,10 +27,15 @@
 #include "process_hir/HIR_to_AST.h"
 #include "process_mir/MIR_to_AST.h"
 #include "optimize/CFG.h"
-#include "optimize/SCCP.h"
-#include "optimize/Dead_code_elimination.h"
 #include "optimize/Into_SSA.h"
 #include "optimize/Out_of_SSA.h"
+
+
+// TODO remove, and put these into the pass_manager
+#include "optimize/SCCP.h"
+#include "optimize/Def_use.h"
+#include "optimize/Dead_code_elimination.h"
+#include "optimize/If_simplification.h"
 
 Pass_manager::Pass_manager (gengetopt_args_info* args_info)
 : args_info (args_info),
@@ -575,11 +580,21 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 			if (args_info->cfg_dump_given)
 				cfg->dump_graphviz (s("CFG - in SSA"));
 
+			cfg->duw->dump();
+
 			SCCP().run (cfg);
 			if (args_info->cfg_dump_given)
 				cfg->dump_graphviz (s("CFG - after SCCP"));
 
 			cfg->rebuild_ssa_form ();
+			cfg->duw->dump();
+
+			If_simplification ().run (cfg);
+			if (args_info->cfg_dump_given)
+				cfg->dump_graphviz (s("CFG - after If simplification"));
+
+			cfg->rebuild_ssa_form ();
+			cfg->duw->dump();
 
 			DCE().run (cfg);
 			if (args_info->cfg_dump_given)

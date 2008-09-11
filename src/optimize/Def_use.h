@@ -17,13 +17,13 @@ class Def_use_web : public Visit_once
 {
 	map<
 		MIR::VARIABLE_NAME*,
-		SSA_edge_list*, 
+		SSA_edge_list, 
 		bool (*)(MIR::VARIABLE_NAME*, MIR::VARIABLE_NAME*)
 	> def_use_chains;
 
 	map<
 		MIR::VARIABLE_NAME*,
-		SSA_edge_list*, 
+		SSA_edge_list, 
 		bool (*)(MIR::VARIABLE_NAME*, MIR::VARIABLE_NAME*)
 	> use_def_chains;
 
@@ -33,13 +33,21 @@ public:
 	// These are intended for use during the conversion to SSA.
 	Set* get_defs (Basic_block* bb);
 	Set* get_uses (Basic_block* bb);
-	
+
+	// For the variable DEF, return its uses.
 	SSA_edge_list* get_def_use_edges (MIR::VARIABLE_NAME* def);
+
+	// For the variable USE, return its defs.
 	SSA_edge* get_use_def_edge (MIR::VARIABLE_NAME* use);
 
+	void dump ();
+
 private:
+	// Add that the variable DEF is used in USE
 	void add_def_use_edge (MIR::VARIABLE_NAME* def, SSA_edge* use);
 	void add_use_def_edge (MIR::VARIABLE_NAME* use, SSA_edge* def);
+
+	// Add that the variable DEF is used in USE
 	void add_def_use_edge (MIR::Rvalue* def, SSA_edge* use);
 
 	void visit_branch_block (Branch_block* bb);
