@@ -43,10 +43,6 @@ public:
 	virtual list<pair<String*,Set*> >* get_graphviz_tail_properties ();
 
 public:
-	/*
-	 * Block properties
-	 */
-
 	/* In the presence of variable_variables, the variable which is actually
 	 * used (ie $x for $$x) is returned, not a full set.
 	 * TODO: this will probably break for defs.
@@ -54,6 +50,11 @@ public:
 	 * purpose with the same semantics.*/
 	virtual Set* get_pre_ssa_defs ();
 	virtual Set* get_pre_ssa_uses ();
+
+	/*
+	 * CFG properties
+	 */
+public:
 
 	BB_list* get_predecessors ();
 	BB_list* get_successors ();
@@ -69,17 +70,21 @@ public:
 	Basic_block* get_immediate_dominator ();
 	BB_list* get_dominated_blocks ();
 
-	// This is designed to return an incomplete solution while it being created.
+	// Returns an incomplete solution during creation.
 	BB_list* get_dominance_frontier ();
 	void add_to_dominance_frontier (Basic_block*);
 
-
+	/*
+	 * Phi functions (or nodes)
+	 */
+public:
 	void add_phi_function (MIR::VARIABLE_NAME* var_name);
 	bool has_phi_function (MIR::VARIABLE_NAME* var_name);
 	void merge_phi_nodes (Basic_block* other);
 	void remove_phi_nodes ();
 
 	List<Phi*>* get_phi_nodes ();
+
 private:
 	Map<string, Phi*> phi_nodes;
 

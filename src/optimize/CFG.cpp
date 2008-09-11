@@ -732,18 +732,22 @@ CFG::replace_bb (Basic_block* bb, BB_list* replacements)
 		// If the edge has a T/F label, it is because the predecessor is a
 		// Branch. Just copy the label from the new predecessor.
 
-		// Each predecessor needs a node to each successor.
-		// TODO what about phis? Avoid exponential phi by putting in an empty
-		// block.
-		// The immediate post-dominator should get the nodes, according to
+		// TODO Avoid exponential phi by putting in an empty block.
+
+		// The immediate post-dominator should get the phi nodes, according to
 		// Cooper/Torczon lecture notes (see DCE comments).
-		assert (bb->get_phi_nodes()->size () == 0);
+		if (bb->get_successors ()->size() != 1)
+			assert (bb->get_phi_nodes()->size () == 0);
+
+		// Each predecessor needs a node to each successor.
 		foreach (Basic_block* pred, *bb->get_predecessors ())
 			foreach (Basic_block* succ, *bb->get_successors ())
 			{
 				edge_t e = add_edge (pred, succ);
 				ee[e]->direction = get_edge (pred, bb)->direction;
 			}
+
+		bb->get_successor()->merge_phi_nodes (bb);
 
 		remove_bb (bb);
 	}

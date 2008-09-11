@@ -166,12 +166,37 @@ Basic_block::has_phi_function (VARIABLE_NAME* var_name)
 	return phi_nodes.has (*var_name->value);
 }
 
+List<Phi*>*
+Basic_block::get_phi_nodes ()
+{
+	List<Phi*>* result = new List<Phi*>;
+
+	pair<string, Phi*> pair;
+	foreach (pair, phi_nodes)
+		result->push_back (pair.second);
+
+	return result;
+}
+
 /* Merge the phi nodes from OTHER into this BB. */
 void
 Basic_block::merge_phi_nodes (Basic_block* other)
 {
-	assert (get_phi_nodes ()->size () == 0);
-	assert (other->get_phi_nodes ()->size () == 0);
+	// TODO this might add the same entry twice to the args list. We should really be usiung a set.
+	
+	// TODO find a test case for this
+	assert (get_phi_nodes ()->size () == 0 || other->get_phi_nodes()->size() == 0);
+	foreach (Phi* phi, *other->get_phi_nodes ())
+	{
+		if (has_phi_function (phi->lhs))
+		{
+			pair<VARIABLE_NAME*, Edge*> arg;
+			foreach (arg, *phi->args)
+				phi_nodes[*phi->lhs->value]->args->push_back (arg);
+		}
+		else
+			phi_nodes[*phi->lhs->value] = phi;
+	}
 }
 
 void
@@ -294,18 +319,6 @@ Set*
 Basic_block::get_pre_ssa_uses ()
 {
 	return cfg->duw->get_uses (this);
-}
-
-List<Phi*>*
-Basic_block::get_phi_nodes ()
-{
-	List<Phi*>* result = new List<Phi*>;
-
-	pair<string, Phi*> pair;
-	foreach (pair, phi_nodes)
-		result->push_back (pair.second);
-
-	return result;
 }
 
 int
