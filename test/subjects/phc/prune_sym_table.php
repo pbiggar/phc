@@ -1,9 +1,10 @@
 <?php
 
 	// { phc-option: --dump=generate-c }
-	// { phc-regex-output: function x\(\)\n\t{\n\t} }
+	// { phc-regex-output: !/global \$x/ }
 	function x()
 	{
+		global $x;
 	}
 
 ?>

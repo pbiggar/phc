@@ -17,6 +17,7 @@
 
 // TODO Variable_variables cannot be used to access superglobals. See warning
 // in http://php.net/manual/en/language.variables.superglobals.php
+// TODO: that is not true - add a test case.
 
 // TODO:
 //		magic methods are:
