@@ -611,46 +611,22 @@ public:
 			die ();
 		}
 
-	void
-		visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
-		{
-			if (lattice[in->lhs] == BOTTOM)
-				return;
+	void visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
+	{
+		in->rhs = transform_expr (bb, in->rhs);
+	}
 
-			Expr* expr = transform_expr (bb, in->rhs);
+	void visit_assign_var_var (Statement_block*, MIR::Assign_var_var*)
+	{
+		die ();
+	}
 
-			// Update the Lattice
-			if (isa<Literal> (expr))
-			{
-				// If it changes the lattice value,
-				//	- add uses of the LHS to the SSA worklist.
-				if (lattice[in->lhs] == TOP)
-				{
-					assert (in->is_ref == false); // TODO
-					lattice[in->lhs] = new Lattice_cell (dyc<Literal> (expr));
-				}
-				else // must both be CONST - do nothing
-					assert (in->rhs->equals (expr));
-			}
-			else
-				lattice[in->lhs] = BOTTOM;
-
-			in->rhs = expr;
-		}
-
-	void
-		visit_assign_var_var (Statement_block*, MIR::Assign_var_var*)
-		{
-			die ();
-		}
-
-	void
-		visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
-		{
-			visit_expr (bb, in->expr);
-			if (! (isa<New> (in->expr) || isa<Method_invocation> (in->expr)))
-				die (); // TODO remove
-		}
+	void visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
+	{
+		visit_expr (bb, in->expr);
+		if (! (isa<New> (in->expr) || isa<Method_invocation> (in->expr)))
+			die (); // TODO remove (put this in DCE)
+	}
 
 	void
 		visit_foreach_end (Statement_block*, MIR::Foreach_end*)
@@ -670,12 +646,12 @@ public:
 			die ();
 		}
 
-	void
-		visit_global (Statement_block*, MIR::Global*)
-		{
-			// if it has a Variable_variable, with a static variable, update.
+	void visit_global (Statement_block*, MIR::Global* in)
+	{
+		// if it has a Variable_variable, with a static variable, update.
+		if (isa<Variable_variable> (in->variable_name))
 			die ();
-		}
+	}
 
 	void
 		visit_pre_op (Statement_block*, MIR::Pre_op*)
@@ -738,19 +714,18 @@ public:
 
 	/* Returns NULL, or the literal in VARIABLE_NAME. We have separate functions,
 	 * because we cant substitute Literals directly into the IR in many cases.*/
-	Literal*
-		get_literal (Rvalue* in)
-		{
-			if (isa<Literal> (in))
-				return dyc<Literal> (in);
+	Literal* get_literal (Rvalue* in)
+	{
+		if (isa<Literal> (in))
+			return dyc<Literal> (in);
 
-			VARIABLE_NAME* var_name = dyc<VARIABLE_NAME> (in);
+		VARIABLE_NAME* var_name = dyc<VARIABLE_NAME> (in);
 
-			if (lattice[var_name] == TOP || lattice[var_name] == BOTTOM)
-				return NULL;
+		if (lattice[var_name] == TOP || lattice[var_name] == BOTTOM)
+			return NULL;
 
-			return lattice[var_name]->get_value ()->clone ();
-		}
+		return lattice[var_name]->get_value ()->clone ();
+	}
 
 
 	/*
@@ -770,18 +745,20 @@ public:
 			return in;
 		}
 
-	Expr*
-		transform_bin_op (Statement_block*, Bin_op* in)
-		{
-			Literal* left = get_literal (in->left);
-			Literal* right = get_literal (in->right);
+	Expr* transform_bin_op (Statement_block*, Bin_op* in)
+	{
+		Literal* left = get_literal (in->left);
+		Literal* right = get_literal (in->right);
 
-			if (isa<Literal> (in->left) 
-					&& isa<Literal> (in->right))
-				die (); // TODO go through embed
+		if (left) in->left = left;
+		if (right) in->right = right;
 
-			return in;
-		}
+		if (isa<Literal> (in->left) 
+				&& isa<Literal> (in->right))
+			die (); // TODO go through embed
+
+		return in;
+	}
 
 	Expr*
 		transform_cast (Statement_block*, Cast* in)

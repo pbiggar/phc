@@ -176,6 +176,7 @@ int main(int argc, char** argv)
 
 	// codegen passes
 	stringstream ss;
+	pm->add_codegen_pass (new Fake_pass (s("opt"), s("Optimized MIR")));
 	pm->add_codegen_pass (new Generate_C (ss));
 	pm->add_codegen_pass (new Compile_C (ss));
 

@@ -15,6 +15,12 @@ namespace AST
 	class Expr;
 }
 
+namespace MIR
+{
+	class Literal;
+	class Expr;
+}
+
 class PHP
 {
 private:
@@ -25,10 +31,18 @@ public:
 	static void startup_php ();
 	static void shutdown_php ();
 
-
+	/*
+	 * Front-end (defined in embed.cpp)
+	 * TODO: move to frontend.cpp
+	 */
 	static AST::Literal* convert_token (AST::Literal* token);
 	static unsigned long get_hash (String* string);
 	static AST::Expr* fold_constant_expr (AST::Expr* in);
+
+	/*
+	 * Optimization (defined in optimize.cpp)
+	 */
+	static MIR::Literal* fold_constant_expr (MIR::Expr* in);
 };
 
 #endif // PHC_EMBED_H
