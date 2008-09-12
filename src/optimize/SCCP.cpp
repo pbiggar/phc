@@ -101,6 +101,23 @@
  *
  *		At the end of the execution, check that all latticeCells are c or
  *		bottom, or non-executable.
+ *
+ *
+ *		The propagation must not update the IR. Instead, it should just propagate
+ *		lattice cells. At the end of the analysis, it is appropriate to replace
+ *		variables with their constants. For example:
+ *
+ *		L0:
+ *		x0 = 5;
+ *		x2 = PHI (x0, x1)
+ *		z = x2 + 5;
+ *		x1 = 7;
+ *		...
+ *		goto L0;
+ *
+ *		Although we can propagate 10 into z, we cannot replace z's assignment
+ *		with z = 10. If we do, then when x2 becomes BOTTOM, on the second loop
+ *		iteration, we'll already have the wrong result in z.
  */
 
 #include "SCCP.h"
@@ -173,14 +190,13 @@ SCCP::run (CFG* cfg)
 			visit_ssa_edge (e);
 		}
 	}
+
+	// The algorithm so far has found the answers. We now need to update the
+	// results.
+	update_ir (cfg);
 }
 
-void
-SCCP::die ()
-{
-	lattice.dump ();
-	assert (0);
-}
+#define die() do { lattice.dump(); assert (0); } while (0)
 
 int
 SCCP::get_predecessor_executable_count (Basic_block* bb)
@@ -211,7 +227,7 @@ SCCP::visit_phi (Phi* phi)
 	pair<VARIABLE_NAME*, Edge*> pair;
 	foreach (pair, *phi->get_arg_edges ())
 	{
-		if (pair.second->is_executable)
+		if (!pair.second->is_executable)
 			; // use TOP, aka do nothing
 		else
 			result = meet (result, lattice[pair.first]);
@@ -249,7 +265,7 @@ SCCP::visit_ssa_edge (SSA_edge* edge)
 			break;
 
 		default:
-			die ();
+			assert (0);
 	}
 }
 
@@ -265,7 +281,7 @@ SCCP::visit_branch_block (Branch_block* bb)
 
 	else if (lattice[bb->branch->variable_name] == TOP)
 		// Not possible, as the previous visit_block will have lowered this.
-		die ();
+		assert (0);
 
 	else
 	{
@@ -276,6 +292,7 @@ SCCP::visit_branch_block (Branch_block* bb)
 /*
  * Statements
  */
+
 void
 SCCP::visit_assign_array (Statement_block*, MIR::Assign_array*)
 {
@@ -315,8 +332,6 @@ SCCP::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 	}
 	else
 		lattice[in->lhs] = BOTTOM;
-
-	in->rhs = expr;
 }
 
 void
@@ -328,9 +343,7 @@ SCCP::visit_assign_var_var (Statement_block*, MIR::Assign_var_var*)
 void
 SCCP::visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
 {
-	in->expr = transform_expr (bb, in->expr);
-	if (! (isa<New> (in->expr) || isa<Method_invocation> (in->expr)))
-		die (); // TODO remove
+	visit_expr (bb, in->expr);
 }
 
 void
@@ -349,11 +362,6 @@ void
 SCCP::visit_foreach_reset (Statement_block*, MIR::Foreach_reset*)
 {
 	die ();
-}
-
-void
-SCCP::visit_global (Statement_block*, MIR::Global*)
-{
 }
 
 void
@@ -386,19 +394,7 @@ SCCP::visit_ssa_pre_op (Statement_block*, MIR::SSA_pre_op* in)
 }
 
 void
-SCCP::visit_return (Statement_block*, MIR::Return*)
-{
-	die ();
-}
-
-void
 SCCP::visit_static_declaration (Statement_block*, MIR::Static_declaration*)
-{
-	die ();
-}
-
-void
-SCCP::visit_throw (Statement_block*, MIR::Throw*)
 {
 	die ();
 }
@@ -440,27 +436,18 @@ Expr*
 SCCP::transform_array_access (Statement_block*, Array_access* in)
 {
 	// TODO is this a string, with a known index?
-
-	// Fold index
-	if (Literal* lit = get_literal (in->index))
-		in->index = lit;
-
+	assert (get_literal (in->variable_name) == NULL);
 	return in;
 }
 
 Expr*
 SCCP::transform_bin_op (Statement_block*, Bin_op* in)
 {
-	Bin_op* bin_op = dyc<Bin_op> (in);
+	Literal* left = get_literal (in->left);
+	Literal* right = get_literal (in->right);
 
-	Literal* left = get_literal (bin_op->left);
-	Literal* right = get_literal (bin_op->right);
-
-	if (left) bin_op->left = left;
-	if (right) bin_op->right = right;
-
-	if (isa<Literal> (bin_op->left) 
-			&& isa<Literal> (bin_op->right))
+	if (isa<Literal> (in->left) 
+			&& isa<Literal> (in->right))
 		die (); // TODO go through embed
 
 	return in;
@@ -469,8 +456,7 @@ SCCP::transform_bin_op (Statement_block*, Bin_op* in)
 Expr*
 SCCP::transform_cast (Statement_block*, Cast* in)
 {
-	Cast* cast = dyc<Cast> (in);
-	Literal* lit = get_literal (cast->variable_name);
+	Literal* lit = get_literal (in->variable_name);
 
 	if (lit)
 		die (); // go through embed
@@ -536,8 +522,11 @@ SCCP::transform_method_invocation (Statement_block*, Method_invocation* in)
 	if (isa<METHOD_NAME> (in->method_name))
 	{
 		METHOD_NAME* name = dyc<METHOD_NAME> (in->method_name);
-		if (*name->value == "var_dump"
-				|| *name->value == "print")
+		if (	*name->value == "var_dump"
+			|| *name->value == "print"
+			|| *name->value == "strlen"
+			|| *name->value == "strcat" // allow bench_strcat to succeed for now
+			)
 			return in;
 	}
 
@@ -601,4 +590,342 @@ SCCP::transform_variable_variable (Statement_block*, Variable_variable* in)
 
 	// in = new VARIABLE_NAME (PHP::to_string (lit));
 	return in;
+}
+
+class SCCP_updater : public Visit_once
+{
+	Lattice_map& lattice;
+public:
+
+	SCCP_updater (Lattice_map& lattice) : lattice (lattice) {}
+
+	void
+		visit_assign_array (Statement_block*, MIR::Assign_array*)
+		{
+			die ();
+		}
+
+	void
+		visit_assign_field (Statement_block*, MIR::Assign_field *)
+		{
+			die ();
+		}
+
+	void
+		visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
+		{
+			if (lattice[in->lhs] == BOTTOM)
+				return;
+
+			Expr* expr = transform_expr (bb, in->rhs);
+
+			// Update the Lattice
+			if (isa<Literal> (expr))
+			{
+				// If it changes the lattice value,
+				//	- add uses of the LHS to the SSA worklist.
+				if (lattice[in->lhs] == TOP)
+				{
+					assert (in->is_ref == false); // TODO
+					lattice[in->lhs] = new Lattice_cell (dyc<Literal> (expr));
+				}
+				else // must both be CONST - do nothing
+					assert (in->rhs->equals (expr));
+			}
+			else
+				lattice[in->lhs] = BOTTOM;
+
+			in->rhs = expr;
+		}
+
+	void
+		visit_assign_var_var (Statement_block*, MIR::Assign_var_var*)
+		{
+			die ();
+		}
+
+	void
+		visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
+		{
+			visit_expr (bb, in->expr);
+			if (! (isa<New> (in->expr) || isa<Method_invocation> (in->expr)))
+				die (); // TODO remove
+		}
+
+	void
+		visit_foreach_end (Statement_block*, MIR::Foreach_end*)
+		{
+			die ();
+		}
+
+	void
+		visit_foreach_next (Statement_block*, MIR::Foreach_next*)
+		{
+			die ();
+		}
+
+	void
+		visit_foreach_reset (Statement_block*, MIR::Foreach_reset*)
+		{
+			die ();
+		}
+
+	void
+		visit_global (Statement_block*, MIR::Global*)
+		{
+			// if it has a Variable_variable, with a static variable, update.
+			die ();
+		}
+
+	void
+		visit_pre_op (Statement_block*, MIR::Pre_op*)
+		{
+			die ();
+		}
+
+	void
+		visit_push_array (Statement_block*, MIR::Push_array*)
+		{
+			die ();
+		}
+
+	void
+		visit_ssa_pre_op (Statement_block*, MIR::SSA_pre_op* in)
+		{
+			if (lattice[in->use] == BOTTOM)
+				lattice[in->def] = BOTTOM;
+
+			else if (lattice[in->use] == TOP)
+				; // do nothing
+
+			else
+			{
+				Literal* lit = lattice[in->use]->get_value ();
+				die (); // TODO go through embed
+				// TODO lower the lattice (same as in assign_var)
+			}
+		}
+
+	void
+		visit_return (Statement_block*, MIR::Return*)
+		{
+			die ();
+		}
+
+	void
+		visit_static_declaration (Statement_block*, MIR::Static_declaration*)
+		{
+			die ();
+		}
+
+	void
+		visit_throw (Statement_block*, MIR::Throw*)
+		{
+			die ();
+		}
+
+	void
+		visit_try (Statement_block*, MIR::Try*)
+		{
+			die ();
+		}
+
+	void
+		visit_unset (Statement_block*, MIR::Unset*)
+		{
+			die ();
+		}
+
+	/* Returns NULL, or the literal in VARIABLE_NAME. We have separate functions,
+	 * because we cant substitute Literals directly into the IR in many cases.*/
+	Literal*
+		get_literal (Rvalue* in)
+		{
+			if (isa<Literal> (in))
+				return dyc<Literal> (in);
+
+			VARIABLE_NAME* var_name = dyc<VARIABLE_NAME> (in);
+
+			if (lattice[var_name] == TOP || lattice[var_name] == BOTTOM)
+				return NULL;
+
+			return lattice[var_name]->get_value ()->clone ();
+		}
+
+
+	/*
+	 * Exprs
+	 */
+
+	Expr*
+		transform_array_access (Statement_block*, Array_access* in)
+		{
+			// TODO is this a string, with a known index?
+			assert (get_literal (in->variable_name) == NULL);
+
+			// Fold index
+			if (Literal* lit = get_literal (in->index))
+				in->index = lit;
+
+			return in;
+		}
+
+	Expr*
+		transform_bin_op (Statement_block*, Bin_op* in)
+		{
+			Literal* left = get_literal (in->left);
+			Literal* right = get_literal (in->right);
+
+			if (isa<Literal> (in->left) 
+					&& isa<Literal> (in->right))
+				die (); // TODO go through embed
+
+			return in;
+		}
+
+	Expr*
+		transform_cast (Statement_block*, Cast* in)
+		{
+			Literal* lit = get_literal (in->variable_name);
+
+			if (lit)
+				die (); // go through embed
+
+			return in;
+		}
+
+	Expr*
+		transform_constant (Statement_block*, Constant* in)
+		{
+			// TODO:
+			// We'd very much like to know the value of this, however, since these are
+			// likely to be deinfed at the top-level, and this optimization won't run
+			// at the top-level (until its interprocedural), it won't do much good.
+			return in;
+		}
+
+	Expr*
+		transform_field_access (Statement_block*, Field_access* in)
+		{
+			// TODO warning
+			// TODO promote name to FIEDL_NAME
+			Field_access* fa = dyc<Field_access> (in);
+
+			// This uses a variable field, not a variable expr.
+			//			if (isa<Variable_field> (fa->field_name))
+			//				use (bb, dyc<Variable_field> (fa->field_name)->variable_name);
+			//
+			//			if (isa<VARIABLE_NAME> (fa->target))
+			//				use (bb, dyc<VARIABLE_NAME> (fa->target));
+
+			die ();
+			return in;
+		}
+
+	Expr*
+		transform_instanceof (Statement_block*, Instanceof* in)
+		{
+			die ();
+			return in;
+		}
+
+	Expr*
+		transform_isset (Statement_block*, Isset* in)
+		{
+			// fold isset (5) to true;
+			if (in->target == NULL
+					&& isa<VARIABLE_NAME> (in->variable_name)
+					&& in->array_indices->size () == 0
+					&& get_literal (dyc<VARIABLE_NAME> (in->variable_name)))
+				return new BOOL (true);
+
+			return in;
+		}
+
+	Expr*
+		transform_method_invocation (Statement_block*, Method_invocation* in)
+		{
+			// TODO APC::Optimizer has a list of pure functions. Go through
+			// embed for them.
+
+			// ignore for now
+			if (isa<METHOD_NAME> (in->method_name))
+			{
+				METHOD_NAME* name = dyc<METHOD_NAME> (in->method_name);
+				if (	*name->value == "var_dump"
+						|| *name->value == "print"
+						|| *name->value == "strlen"
+						|| *name->value == "strcat" // allow bench_strcat to succeed for now
+					)
+					return in;
+			}
+
+			die ();
+			// TODO replace Variable_variable with VARIABLE_NAME, if possible.
+
+			// TODO: we can replace a arguement with its actual parameter
+			// (watch out for refs) (only if passing by copy)
+
+			/*			if (isa<VARIABLE_NAME> (mi->method_name))
+						die (); // TODO
+
+						foreach (Actual_parameter* ap, *mi->actual_parameters)
+						{
+						VARIABLE_NAME* var_name = dynamic_cast<VARIABLE_NAME*> (ap->rvalue);
+						if (var_name)
+						use (bb, var_name);
+						}*/
+			return in;
+		}
+
+	Expr*
+		transform_new (Statement_block*, New* in)
+		{
+			// TODO turn a varaible_class into a CLASS_NAME 
+			die ();
+			return in;
+		}
+
+	Expr*
+		transform_param_is_ref (Statement_block*, Param_is_ref* in)
+		{
+			// TODO go through embed.
+			die ();
+			return in;
+		}
+
+	Expr*
+		transform_unary_op (Statement_block*, Unary_op* in)
+		{
+			if (Literal* lit = get_literal (in->variable_name))
+				die (); // go through embed
+
+			return in;
+		}
+
+	Expr*
+		transform_variable_name (Statement_block*, VARIABLE_NAME* in)
+		{
+			if (Literal* lit = get_literal (in))
+				return lit;
+
+			return in;
+		}
+
+	Expr*
+		transform_variable_variable (Statement_block*, Variable_variable* in)
+		{
+			if (Literal* lit = get_literal (in->variable_name))
+				die ();
+
+			// in = new VARIABLE_NAME (PHP::to_string (lit));
+			return in;
+		}
+};
+
+void
+SCCP::update_ir (CFG* cfg)
+{
+	SCCP_updater* updater = new SCCP_updater (lattice);
+	updater->run (cfg);
 }

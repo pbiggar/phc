@@ -16,6 +16,7 @@ public:
 
 	MIR::Literal* get_literal (MIR::Rvalue* in);
 	int get_predecessor_executable_count (Basic_block* bb);
+	void update_ir (CFG*);
 
 	// High-level SSA properties
 	void visit_phi (Phi* phi);
@@ -33,13 +34,10 @@ public:
 	void visit_foreach_end (Statement_block*, MIR::Foreach_end*);
 	void visit_foreach_next (Statement_block*, MIR::Foreach_next*);
 	void visit_foreach_reset (Statement_block*, MIR::Foreach_reset*);
-	void visit_global (Statement_block*, MIR::Global*);
 	void visit_pre_op (Statement_block*, MIR::Pre_op*);
 	void visit_push_array (Statement_block*, MIR::Push_array*);
-	void visit_return (Statement_block*, MIR::Return*);
 	void visit_ssa_pre_op (Statement_block*, MIR::SSA_pre_op*);
 	void visit_static_declaration (Statement_block*, MIR::Static_declaration*);
-	void visit_throw (Statement_block*, MIR::Throw*);
 	void visit_try (Statement_block*, MIR::Try*);
 	void visit_unset (Statement_block*, MIR::Unset*);
 
@@ -56,8 +54,6 @@ public:
 	MIR::Expr* transform_unary_op (Statement_block*, MIR::Unary_op* in);
 	MIR::Expr* transform_variable_name (Statement_block*, MIR::VARIABLE_NAME* in);
 	MIR::Expr* transform_variable_variable (Statement_block*, MIR::Variable_variable* in);
-private:
-	void die ();
 };
 
 
