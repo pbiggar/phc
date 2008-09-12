@@ -17,6 +17,7 @@
 
 // TODO Variable_variables cannot be used to access superglobals. See warning
 // in http://php.net/manual/en/language.variables.superglobals.php
+// TODO: that is not true - add a test case.
 
 // TODO:
 //		magic methods are:
@@ -729,6 +730,7 @@ public:
 
 	void generate_code(Generate_C* gen)
 	{
+		// TODO we done always need the sym-table entry.
 		code 
 		<<	get_st_entry (LOCAL, "p_lhs", lhs->value)
 		;
@@ -770,6 +772,21 @@ string assign_rhs (bool is_ref, VARIABLE_NAME* rhs)
 	return ss.str();
 }
 
+/* $x[$i] = $y; (1)
+ *		or
+ * $x[$i] =& $y; (2)
+ *
+ * Semantics:
+ *	(1) If $x[$i] is a reference, copy the value of $y into the zval at $x[$i].
+ *	       If $y doesn't exist, we can copy from uninitialized_zval.
+ *	    If $x[$i] is not a reference, overwrite the HT entry with $y, removing the old entry.
+ *	       If $y doesn't exist, put in uninitialized_zval.
+ *			 If $x[$i] doesnt exist, put uninitiliazed_val in, then replace it
+ *			 with $y (saved a second hashing operation).
+ *
+ *	(2) Remove the current HT entry, replacing it with a reference to $y.
+ *	    If $y doesnt exist, initialize it. If $x[$i] doesn't exist, it doesnt matter.
+ */
 class Pattern_assign_array : public Pattern
 {
 public:
@@ -801,31 +818,20 @@ protected:
 	Wildcard<VARIABLE_NAME>* rhs;
 };
 
-string push_rhs (bool is_ref, VARIABLE_NAME* rhs)
-{
-	stringstream ss;
-	if (!is_ref)
-	{
-		ss
-		<< declare ("p_rhs")
-
-		<< read_var (LOCAL, "p_rhs", rhs)
-
-		<< "if (*p_lhs != *p_rhs)\n"
-		<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
-
-		<< cleanup ("p_rhs");
-	}
-	else
-	{
-		ss
-		<< get_st_entry (LOCAL, "p_rhs", rhs)
-		<< "copy_into_ref (p_lhs, p_rhs);\n"
-		;
-	}
-	return ss.str();
-}
-
+/*
+ * $x[] = $y; (1)
+ *		or
+ * $x[] =& $y; (2)
+ *
+ * Semantics:
+ * (1) Copy $y in to $x (even if $y is a reference, we copy)
+ * (2) Place a reference to $y into $x.
+ * In both cases $x may not be initialized, or may not be an array.
+ * If $x is uninitiliazed, it becomes an array, and the value is pushed.
+ * If $x is false, or "" (but not 0), it is initialized (no warning).
+ * If $x is a different scalar, a warning is printed, but that $x is not initialized (nothing pushed).
+ * If $x is a string (but not ""), a fatal error is thrown.
+ */
 class Pattern_push_array : public Pattern
 {
 public:
@@ -852,9 +858,30 @@ public:
 	
 		// TODO this can return NULL if there is an error.
 		<<	"if (p_lhs != NULL)\n"
-		<<	"{\n"
-		<<		push_rhs (agn->is_ref, rhs->value)
-		<<	"}\n"
+		<<	"{\n";
+
+		if (!agn->is_ref)
+		{
+			code
+			<< declare ("p_rhs")
+
+			<< read_var (LOCAL, "p_rhs", rhs->value)
+
+			<< "if (*p_lhs != *p_rhs)\n"
+			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
+
+			<< cleanup ("p_rhs");
+		}
+		else
+		{
+			// TODO this is wrong
+			code	
+			<< get_st_entry (LOCAL, "p_rhs", rhs->value)
+			<< "copy_into_ref (p_lhs, p_rhs);\n"
+			;
+		}
+
+		code << "}\n"
 		;
 	}
 
@@ -865,205 +892,20 @@ protected:
 };
 
 /*
- * Assign_zval is a specialization of Assignment for assignments to a simple
- * zval which takes care of creating a new zval for the LHS if necessary.
+ * $x = $y; (1)
+ *		or
+ *	$x =& $y; (2)
  *
- * Assign_literal is a further specialization for those literal assignment
- * where the value of the literal is known at compile time (assigning a token
- * int, for example). The main difference between Assign_literal and 
- * Assign_zval is that Assign_literal can do constant pooling.
+ *	Semantics (same as $x[$i] = $y, except with sym-table insted of hash-table):
+ *	(1) If $x is a reference, copy the value of $y into the zval at $x.
+ *	       If $y doesn't exist, copy from uninitialized_zval.
+ *	    If $x is not a reference, overwrite the ST entry with $y, removing the old entry.
+ *	       If $y doesn't exist, put in uninitialized_zval.
+ *			 If $x doesnt exist, put uninitiliazed_val in, then replace it
+ *			 with $y (saved a second hashing operation).
+ *	(2) Remove the current ST entry, replacing it with a reference to $y.
+ *	    If $y doesnt exist, initialize it. If $x doesn't exist, it doesnt matter.
  */
-
-class Pattern_assign_zval : public Pattern_assign_var
-{
-public:
-	void generate_rhs ()
-	{
-		code
-		<< "if ((*p_lhs)->is_ref)\n"
-		<< "{\n"
-		<< "  zval* paz_lhs = *p_lhs;\n"
-		<< "  zval_dtor (paz_lhs);\n";
-
-		initialize (code, "paz_lhs");
-
-		code
-		<< "}\n"
-		<< "else\n"
-		<< "{\n"
-		<<	"	zval* literal;\n"
-		<<	"	ALLOC_INIT_ZVAL (literal);\n";
-
-		initialize (code, "literal");
-
-		code
-		<<	"	zval_ptr_dtor (p_lhs);\n"
-		<<	"	*p_lhs = literal;\n"
-		<< "}\n";
-	}
-
-	virtual void initialize (ostream& os, string var) = 0;
-};
-
-stringstream initializations;
-stringstream finalizations;
-
-template<class T, class K>
-class Pattern_assign_literal : public Pattern_assign_zval
-{
-public:
-	Expr* rhs_pattern()
-	{
-		rhs = new Wildcard<T>;
-		return rhs;
-	}
-
-	// record if we've seen this variable before
-	void generate_rhs ()
-	{
-		// TODO If this isnt static, there is a new hash each time,
-		// because there is a new object each time it is called. Why is
-		// there a new object each time?
-		static map<K, string> vars;
-		if (args_info->optimize_given)
-		{
-			// The first time we see a constant, we add a declaration,
-			// initialization and finalization. After that, we find the
-			// first one and refer to it.
-
-
-			string var;
-			if (vars.find (key ()) != vars.end ())
-				var = vars [key ()];
-			else
-			{
-				// This is the first time we see the variable. Create the
-				// variables and add declarations. 
-				stringstream name;
-				name << prefix() << vars.size ();
-				var = name.str ();
-				vars [key ()] = var;
-
-				prologue << "zval* " << var << ";\n";
-				finalizations << "zval_ptr_dtor (&" << var << ");\n";
-				initializations << "ALLOC_INIT_ZVAL (" << var << ")\n";
-				initialize (initializations, var);
-			}
-			code
-			<< "if (" << var << " != *p_lhs)\n"
-			<< "{\n"
-			<<		"assert (!" << var << "->is_ref);\n"
-			<<		"if ((*p_lhs)->is_ref)\n"
-			<<			"overwrite_lhs (*p_lhs, " << var << ");\n"
-			<<		"else\n"
-			<<		"{\n"
-			<<			var << "->refcount++;\n"
-			<<			"zval_ptr_dtor (p_lhs);\n"
-			<<			"*p_lhs = " << var << ";\n"
-			<<		"}\n"
-			<<	"}\n";
-		}
-		else
-		{
-			Pattern_assign_zval::generate_rhs();
-		}
-	}
-
-	virtual string prefix () = 0;
-	virtual K key () = 0;
-
-protected:
-	Wildcard<T>* rhs;
-};
-
-class Pattern_assign_bool : public Pattern_assign_literal<BOOL, bool>
-{
-	string prefix () { return "phc_const_pool_bool_"; }
-	bool key () { return rhs->value->value; }
-
-	void initialize (ostream& os, string var)
-	{
-		os	<< "ZVAL_BOOL (" << var << ", " 
-			<<		(rhs->value->value ? 1 : 0) << ");\n";
-	}
-
-};
-
-class Pattern_assign_int : public Pattern_assign_literal<INT, long>
-{
-	string prefix () { return "phc_const_pool_int_"; }
-	long key () { return rhs->value->value; }
-
-	void initialize (ostream& os, string var)
-	{
-		os << "ZVAL_LONG (" << var << ", " << rhs->value->value << ");\n";
-	}
-};
-
-class Pattern_assign_real : public Pattern_assign_literal<REAL, string>
-{
-	string prefix () { return "phc_const_pool_real_"; }
-	string key () { return *(dynamic_cast<String*>(rhs->value->attrs->get("phc.codegen.source_rep"))); }
-
-	void initialize (ostream& os, string var)
-	{
-		os	<< "zend_eval_string(\"" << key() << ";\","
-			<<		var << ", "
-			<<		"\"literal\" TSRMLS_CC);\n";
-	}
-};
-
-class Pattern_assign_nil : public Pattern_assign_literal<NIL, string>
-{
-	string prefix () { return "phc_const_pool_null_"; }
-	string key () { return ""; }
-
-	void initialize (ostream& os, string var)
-	{
-		os << "ZVAL_NULL (" << var << ");\n";
-	}
-};
-
-class Pattern_assign_string : public Pattern_assign_literal<STRING, string>
-{
-	string prefix () { return "phc_const_pool_string_"; }
-	string key () { return *rhs->value->value; }
-
-	void initialize (ostream& os, string var)
-	{
-		os << "ZVAL_STRINGL(" << var << ", " 
-			<<		"\"" << escape(rhs->value->value) << "\", "
-			<<		rhs->value->value->length() << ", 1);\n";
-	}
-public:
-	// Escape according to C rules (this varies slightly from unparsing for PHP
-	// and dot).
-	static string escape(String* s)
-	{
-		stringstream ss;
-
-		foreach (char c, *s)
-		{
-			if(c == '"' || c == '\\')
-			{
-				ss << "\\" << c;
-			}
-			else if(c >= 32 && c < 127)
-			{
-				ss << c;
-			}
-			else
-			{
-				ss << "\\" << setw(3) << setfill('0') << oct << uppercase << (unsigned long int)(unsigned char) c;
-				ss << resetiosflags(code.flags());
-			}
-		}
-
-		return ss.str();
-	}
-};
-
-
 class Pattern_assign_var_to_var : public Pattern_assign_var
 {
 public:
@@ -1102,6 +944,15 @@ protected:
 	Wildcard<VARIABLE_NAME>* rhs;
 };
 
+/* $x = $$y;
+ *		or
+ *	$x =& $$y;
+ *
+ * Semantics:
+ *		The same as $x = $z; except $z is named at run-time by $y.
+ *		Additionally, there is a conversion to strings needed:
+ *			TODO
+ */
 class Pattern_assign_var_var_to_var  : public Pattern_assign_var
 {
 public:
@@ -1214,6 +1065,199 @@ public:
 public:
 	Wildcard<CAST>* cast;
 };
+
+
+/*
+ * Assign_zval is a specialization of Assignment for assignments to a simple
+ * zval which takes care of creating a new zval for the LHS if necessary.
+ *
+ * Assign_literal is a further specialization for those literal assignment
+ * where the value of the literal is known at compile time (assigning a token
+ * int, for example). The main difference between Assign_literal and 
+ * Assign_zval is that Assign_literal can do constant pooling.
+ */
+
+class Pattern_assign_zval : public Pattern_assign_var
+{
+public:
+	void generate_rhs ()
+	{
+		code
+		<< "if ((*p_lhs)->is_ref)\n"
+		<< "{\n"
+		<< "  zval* paz_lhs = *p_lhs;\n"
+		<< "  zval_dtor (paz_lhs);\n";
+
+		initialize (code, "paz_lhs");
+
+		code
+		<< "}\n"
+		<< "else\n"
+		<< "{\n"
+		<<	"	zval* literal;\n"
+		<<	"	ALLOC_INIT_ZVAL (literal);\n";
+
+		initialize (code, "literal");
+
+		code
+		<<	"	zval_ptr_dtor (p_lhs);\n"
+		<<	"	*p_lhs = literal;\n"
+		<< "}\n";
+	}
+
+	virtual void initialize (ostream& os, string var) = 0;
+};
+
+stringstream initializations;
+stringstream finalizations;
+
+template<class T, class K>
+class Pattern_assign_literal : public Pattern_assign_zval
+{
+public:
+	Expr* rhs_pattern()
+	{
+		rhs = new Wildcard<T>;
+		return rhs;
+	}
+
+	// record if we've seen this variable before
+	void generate_rhs ()
+	{
+		assert (!agn->is_ref);
+		// TODO If this isnt static, there is a new hash each time,
+		// because there is a new object each time it is called. Why is
+		// there a new object each time?
+		static map<K, string> vars;
+		if (args_info->optimize_given)
+		{
+			// The first time we see a constant, we add a declaration,
+			// initialization and finalization. After that, we find the
+			// first one and refer to it.
+
+
+			string var;
+			if (vars.find (key ()) != vars.end ())
+				var = vars [key ()];
+			else
+			{
+				// This is the first time we see the variable. Create the
+				// variables and add declarations. 
+				stringstream name;
+				name << prefix() << vars.size ();
+				var = name.str ();
+				vars [key ()] = var;
+
+				prologue << "zval* " << var << ";\n";
+				finalizations << "zval_ptr_dtor (&" << var << ");\n";
+				initializations << "ALLOC_INIT_ZVAL (" << var << ")\n";
+				initialize (initializations, var);
+			}
+			code
+			<< "if (" << var << " != *p_lhs)\n"
+			<<		"write_var (p_lhs, &" << var << ", NULL);\n"
+			;
+		}
+		else
+		{
+			Pattern_assign_zval::generate_rhs();
+		}
+	}
+
+	virtual string prefix () = 0;
+	virtual K key () = 0;
+
+protected:
+	Wildcard<T>* rhs;
+};
+
+class Pattern_assign_bool : public Pattern_assign_literal<BOOL, bool>
+{
+	string prefix () { return "phc_const_pool_bool_"; }
+	bool key () { return rhs->value->value; }
+
+	void initialize (ostream& os, string var)
+	{
+		os	<< "ZVAL_BOOL (" << var << ", " 
+			<<		(rhs->value->value ? 1 : 0) << ");\n";
+	}
+
+};
+
+class Pattern_assign_int : public Pattern_assign_literal<INT, long>
+{
+	string prefix () { return "phc_const_pool_int_"; }
+	long key () { return rhs->value->value; }
+
+	void initialize (ostream& os, string var)
+	{
+		os << "ZVAL_LONG (" << var << ", " << rhs->value->value << ");\n";
+	}
+};
+
+class Pattern_assign_real : public Pattern_assign_literal<REAL, string>
+{
+	string prefix () { return "phc_const_pool_real_"; }
+	string key () { return *(dynamic_cast<String*>(rhs->value->attrs->get("phc.codegen.source_rep"))); }
+
+	void initialize (ostream& os, string var)
+	{
+		os	<< "zend_eval_string(\"" << key() << ";\","
+			<<		var << ", "
+			<<		"\"literal\" TSRMLS_CC);\n";
+	}
+};
+
+class Pattern_assign_nil : public Pattern_assign_literal<NIL, string>
+{
+	string prefix () { return "phc_const_pool_null_"; }
+	string key () { return ""; }
+
+	void initialize (ostream& os, string var)
+	{
+		os << "ZVAL_NULL (" << var << ");\n";
+	}
+};
+
+class Pattern_assign_string : public Pattern_assign_literal<STRING, string>
+{
+	string prefix () { return "phc_const_pool_string_"; }
+	string key () { return *rhs->value->value; }
+
+	void initialize (ostream& os, string var)
+	{
+		os << "ZVAL_STRINGL(" << var << ", " 
+			<<		"\"" << escape(rhs->value->value) << "\", "
+			<<		rhs->value->value->length() << ", 1);\n";
+	}
+public:
+	// Escape according to C rules (this varies slightly from unparsing for PHP
+	// and dot).
+	static string escape(String* s)
+	{
+		stringstream ss;
+
+		foreach (char c, *s)
+		{
+			if(c == '"' || c == '\\')
+			{
+				ss << "\\" << c;
+			}
+			else if(c >= 32 && c < 127)
+			{
+				ss << c;
+			}
+			else
+			{
+				ss << "\\" << setw(3) << setfill('0') << oct << uppercase << (unsigned long int)(unsigned char) c;
+				ss << resetiosflags(code.flags());
+			}
+		}
+
+		return ss.str();
+	}
+};
+
 
 class Pattern_global : public Pattern 
 {
@@ -1388,6 +1432,39 @@ protected:
 	Wildcard<Actual_parameter>* arg;
 };
 
+void
+init_function_record (string name, Node* node)
+{
+	static set<string> record;
+
+	string fci_name = suffix (name, "fci");
+	string fcic_name = suffix (name, "fcic");
+
+	// initialize and declare the first time only
+	if (record.find (name) == record.end ())
+	{
+		record.insert (name);
+
+		prologue
+		<< "static zend_fcall_info " << fci_name << ";\n"
+		<< "static zend_fcall_info_cache " << fcic_name << " = {0,NULL,NULL,NULL};\n"
+		;
+	}
+
+	// Its not necessarily a good idea to initialize at the start, since we
+	// still have to check if its initialized at call-time (it may have been
+	// created in the meantime.
+	code
+	<< "initialize_function_call (" 
+	<<			"&" << fci_name << ", "
+	<<			"&" << fcic_name << ", "
+	<<			"\"" << name << "\", "
+	<<			"\"" << *node->get_filename () << "\", " 
+	<<			node->get_line_number ()
+	<<			" TSRMLS_CC);\n"
+	;
+}
+
 class Pattern_assign_param_is_ref : public Pattern_assign_var
 {
 public:
@@ -1400,39 +1477,17 @@ public:
 	void generate_rhs ()
 	{
 		assert (!agn->is_ref);
-		String* name = dyc<METHOD_NAME> (rhs->value->method_name)->value;
+
+		string name = *dyc<METHOD_NAME> (rhs->value->method_name)->value;
 		int index = rhs->value->param_index->value;
 
-		// TODO only do this once per function
+		init_function_record (name, rhs->value);
+
+		string fci_name = suffix (name, "fci");
+		string fcic_name = suffix (name, "fcic");
 
 		code
-		// lookup the function and cache it for next time
-		<< "// Call the function\n"
-		<< "static zend_fcall_info fci;\n"
-		<< "static zend_fcall_info_cache fcic = {0,NULL,NULL,NULL};\n"
-		<< "if (!fcic.initialized)\n"
-		<< "{\n"
-		<<		"zval function_name;\n"
-		<<		"INIT_PZVAL(&function_name);\n"
-		<<		"ZVAL_STRING(&function_name, "
-		<<			"\"" << *name << "\", "
-		<<			"0);\n"
-
-		<<		"int result = zend_fcall_info_init (&function_name, &fci, &fcic TSRMLS_CC);\n"
-		<< 	"if (result == FAILURE) // check for missing function\n"
-		<< 	"{\n"
-		<<			"phc_setup_error (1, \"" 
-		<< 			*rhs->get_filename () << "\", " 
-		<< 			rhs->get_line_number () << ", "
-		<<				"NULL TSRMLS_CC);\n"
-					// die
-		<<			"php_error_docref (NULL TSRMLS_CC, E_ERROR, "
-		<<				"\"Call to undefined function %s()\", \"" 
-		<< 			*name << "\");\n"
-		<< 	"}\n"
-		<< "}\n"
-
-		<< "zend_function* signature = fcic.function_handler;\n"
+		<< "zend_function* signature = " << fcic_name << ".function_handler;\n"
 		<< "zend_arg_info* arg_info = signature->common.arg_info;\n"
 		<< "int count = 0;\n"
 		<< "while (arg_info && count < " << index << ")\n"
@@ -1484,47 +1539,19 @@ public:
 		// code << "debug_hash(EG(active_symbol_table));\n";
 
 		// Variable function or ordinary function?
-		METHOD_NAME* name;
-		name = dynamic_cast<METHOD_NAME*>(rhs->value->method_name);
-
+		METHOD_NAME* name = dynamic_cast<METHOD_NAME*>(rhs->value->method_name);
 		if (name == NULL) phc_unsupported (rhs->value);
 
+		string fci_name = suffix (*name->value, "fci");
+		string fcic_name = suffix (*name->value, "fcic");
+		init_function_record (*name->value, rhs->value);
+
 		code
-		<< declare ("p_rhs")
+		<< "zend_function* signature = " << fcic_name << ".function_handler;\n"
 		;
-
-		int num_args = rhs->value->actual_parameters->size();
-		code
-		// lookup the function and cache it for next time
-		<< "// Call the function\n"
-		<< "static zend_fcall_info fci;\n"
-		<< "static zend_fcall_info_cache fcic = {0,NULL,NULL,NULL};\n"
-		<< "if (!fcic.initialized)\n"
-		<< "{\n"
-		<<		"zval function_name;\n"
-		<<		"INIT_PZVAL(&function_name);\n"
-		<<		"ZVAL_STRING(&function_name, "
-		<<			"\"" << *name->value << "\", "
-		<<			"0);\n"
-
-		<<		"int result = zend_fcall_info_init (&function_name, &fci, &fcic TSRMLS_CC);\n"
-		<< 	"if (result == FAILURE) // check for missing function\n"
-		<< 	"{\n"
-		<<			"phc_setup_error (1, \"" 
-		<< 			*rhs->get_filename () << "\", " 
-		<< 			rhs->get_line_number () << ", "
-		<<				"NULL TSRMLS_CC);\n"
-					// die
-		<<			"php_error_docref (NULL TSRMLS_CC, E_ERROR, "
-		<<				"\"Call to undefined function %s()\", \"" 
-		<< 			*name->value << "\");\n"
-		<< 	"}\n"
-		<< "}\n"
-		<< "zend_function* signature = fcic.function_handler;\n"
-		;
-
 
 		// Figure out which parameters need to be passed by reference
+		int num_args = rhs->value->actual_parameters->size();
 		if (num_args)
 		{
 			code
@@ -1608,23 +1635,25 @@ public:
 		<< "			NULL TSRMLS_CC);\n"
 
 		// save existing paramters, in case of recursion
-		<< "int param_count_save = fci.param_count;\n"
-		<< "zval*** params_save = fci.params;\n"
-		<< "zval** retval_save = fci.retval_ptr_ptr;\n"
+		<< "int param_count_save = " << fci_name << ".param_count;\n"
+		<< "zval*** params_save = " << fci_name << ".params;\n"
+		<< "zval** retval_save = " << fci_name << ".retval_ptr_ptr;\n"
+
+		<< declare ("p_rhs")
 
 		// set up params
-		<< "fci.params = args_ind;\n"
-		<< "fci.param_count = " << num_args << ";\n"
-		<< "fci.retval_ptr_ptr = p_rhs;\n"
+		<< fci_name << ".params = args_ind;\n"
+		<< fci_name << ".param_count = " << num_args << ";\n"
+		<< fci_name << ".retval_ptr_ptr = p_rhs;\n"
 
 		// call the function
-		<< "int success = zend_call_function (&fci, &fcic TSRMLS_CC);\n"
+		<< "int success = zend_call_function (&" << fci_name << ", &" << fcic_name << " TSRMLS_CC);\n"
 		<< "assert(success == SUCCESS);\n"
 
 		// restore params
-		<< "fci.params = params_save;\n"
-		<< "fci.param_count = param_count_save;\n"
-		<< "fci.retval_ptr_ptr = retval_save;\n"
+		<< fci_name << ".params = params_save;\n"
+		<< fci_name << ".param_count = param_count_save;\n"
+		<< fci_name << ".retval_ptr_ptr = retval_save;\n"
 
 		// unset the errors
 		<< "phc_setup_error (0, NULL, 0, NULL TSRMLS_CC);\n"
@@ -2065,6 +2094,8 @@ class Pattern_class_or_interface_alias : public Pattern
 			aliased_name = class_alias->value->class_name->value;
 			alias_name = class_alias->value->alias->value;
 		}
+		else
+			assert (0);
 
 		alias_name = alias_name->clone ();
 		alias_name->toLower();
@@ -2508,9 +2539,6 @@ void Generate_C::post_php_script(PHP_script* in)
 		"   php_embed_init (argc, argv PTSRMLS_CC);\n"
 		"   zend_first_try\n"
 		"   {\n"
-		"      // initialize all the constants\n"
-		<< initializations.str () << 
-		"\n"
 		"      // load the compiled extension\n"
 		"      zend_startup_module (&" << *extension_name << "_module_entry);\n"
 		"\n"
@@ -2522,6 +2550,9 @@ void Generate_C::post_php_script(PHP_script* in)
 		"      // Use standard errors, on stdout\n"
 		"      zend_alter_ini_entry (\"report_zend_debug\", sizeof(\"report_zend_debug\"), \"0\", sizeof(\"0\") - 1, PHP_INI_ALL, PHP_INI_STAGE_RUNTIME);\n"
 		"      zend_alter_ini_entry (\"display_startup_errors\", sizeof(\"display_startup_errors\"), \"1\", sizeof(\"1\") - 1, PHP_INI_ALL, PHP_INI_STAGE_RUNTIME);\n"
+		"\n"
+		"      // initialize all the constants\n"
+		<< initializations.str () << // TODO put this in __MAIN__, or else extensions cant use it.
 		"\n"
 		"      // call __MAIN__\n"
 		"      int success = call_user_function( \n"

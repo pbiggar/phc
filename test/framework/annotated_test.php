@@ -22,7 +22,7 @@ abstract class Test_annotation
 
 	function add_value ($options, $value)
 	{
-		phc_assert (preg_match ("!{$this->value_regex}!", $value), "Value ($value )provided does not match regex ({$this->value_regex})");
+		phc_assert (preg_match ("~{$this->value_regex}~", $value), "Value ($value )provided does not match regex ({$this->value_regex})");
 		$this->options[] = array_merge ($this->get_default_options(), $options);
 		$this->values[] = $value;
 	}
@@ -103,7 +103,8 @@ class PHC_output_annotation extends Test_annotation
 	{
 		parent::__construct ();
 		$this->name = "phc-stdout";
-		$this->value_regex = ".+";
+		// either
+		$this->value_regex = "(!?/.*/)|([^/])|([^/].*[^/])";
 	}
 
 	function get_default_options ()
@@ -122,9 +123,24 @@ class PHC_output_annotation extends Test_annotation
 		{
 			$options = array_shift ($this->options);
 
+			$negate = false;
 			// Process the options
 			if (!$options["regex"])
 				$value = preg_quote ($value);
+			else
+			{
+				if ($value[0] == "!")
+				{
+					$negate = true;
+					$value = substr ($value, 1); // remove !
+				}
+
+				phc_assert ($value[0] == "/", "regexes must start with \"/\" or \"!/\"");
+				phc_assert ($value[strlen($value)-1] == "/", "regexes must end with \"/\"");
+
+				// remove '/' at front and back (back first, front changes the indices)
+				$value = substr ($value, 1, strlen ($value) - 2);
+			}
 
 			if ($options["stderr"])
 			{
@@ -146,20 +162,30 @@ class PHC_output_annotation extends Test_annotation
 					."in a later release\n!ms";
 			}
 			else
-				$pattern = "!$value!ms";
+				$pattern = "/$value/ms";
+
+			$my_pattern = "/hir\s+\(disabled/ms";
 
 			$result = preg_match ($pattern, $out);
 
 			// Potential errors
 			$suffix = "\"$value\" using pattern \"$pattern\"";
-			if ($result === 0)
-				return "{$options['prefix']} not found, expected: $suffix";
+			if ($negate)
+			{
+				if ($negate && $result === 1)
+					return "{$options['prefix']} found, not expected: $suffix";
+			}
+			else
+			{
+				if ($result === 0)
+					return "{$options['prefix']} not found, expected: $suffix";
 
-			if ($result === FALSE)
-				return "Test annotation error with: $suffix";
+				if ($result === FALSE)
+					return "Test annotation error with: $suffix";
 
-			if ($result !== 1)
-				return "Unexpected error with: $suffix";
+				if ($result !== 1)
+					return "Unexpected error with: $suffix";
+			}
 		}
 	}
 }

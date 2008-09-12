@@ -691,22 +691,20 @@ push_and_index_ht (zval ** p_var TSRMLS_DC)
 {
   if (Z_TYPE_P (*p_var) == IS_STRING)
     {
-		 if (Z_STRLEN_PP (p_var) > 0)
-		 {
-			 php_error_docref (NULL TSRMLS_CC, E_ERROR,
-					 "[] operator not supported for strings");
-		 }
-		 else
-		 {
-			 zval_ptr_dtor (p_var);
-			 ALLOC_INIT_ZVAL (*p_var);
-			 array_init (*p_var);
-		 }
-	 }
+      if (Z_STRLEN_PP (p_var) > 0)
+	{
+	  php_error_docref (NULL TSRMLS_CC, E_ERROR,
+			    "[] operator not supported for strings");
+	}
+      else
+	{
+	  zval_ptr_dtor (p_var);
+	  ALLOC_INIT_ZVAL (*p_var);
+	  array_init (*p_var);
+	}
+    }
 
-  // TODO looking at the interpreter source, it looks like this might only be
-  // the case for false?
-  if (Z_TYPE_P (*p_var) == IS_BOOL)
+  if (Z_TYPE_P (*p_var) == IS_BOOL && Z_BVAL_PP (p_var))
     {
       php_error_docref (NULL TSRMLS_CC, E_WARNING,
 			"Cannot use a scalar value as an array");
@@ -766,80 +764,6 @@ fetch_var_arg (zval * arg, int *is_arg_new)
 
       arg->refcount--;
     }
-  return arg;
-}
-
-static zval **
-fetch_array_arg_by_ref (zval ** p_var, zval * ind, int *is_arg_new TSRMLS_DC)
-{
-  // if its not an array, make it an array
-  assert (Z_TYPE_PP (p_var) != IS_STRING);	// TODO unimplemented
-  HashTable *ht = extract_ht (p_var TSRMLS_CC);
-
-  // find the var
-  // TODO this is the model for wht is to come. We need to add to the
-  // symbol table (similar to get_st_entry) and pass that. We need to
-  // do this in quite a lot of places apart from this, but we need a
-  // more efficient implementation here first.
-  zval **p_arg = get_ht_entry (p_var, ind TSRMLS_CC);
-
-  // We are passing by reference.
-  sep_copy_on_write_ex (p_arg);
-
-  // We don't need to restore ->is_ref afterwards,
-  // because the called function will reduce the
-  // refcount of arg on return, and will reset is_ref to
-  // 0 when refcount drops to 1.  If the refcount does
-  // not drop to 1 when the function returns, but we did
-  // set is_ref to 1 here, that means that is_ref must
-  // already have been 1 to start with (since if it had
-  // not, that means that the variable would have been
-  // in a copy-on-write set, and would have been
-  // separated above).
-  (*p_arg)->is_ref = 1;
-
-  return p_arg;
-}
-
-/* Dont pass-by-ref */
-static zval *
-fetch_array_arg (zval * var, zval * ind, int *is_arg_new TSRMLS_DC)
-{
-  if (var == EG (uninitialized_zval_ptr))
-    return EG (uninitialized_zval_ptr);
-
-  if (Z_TYPE_P (var) != IS_ARRAY)
-    {
-      if (Z_TYPE_P (var) == IS_STRING)
-	{
-	  *is_arg_new = 1;
-	  return read_string_index (var, ind TSRMLS_CC);
-	}
-      return EG (uninitialized_zval_ptr);
-    }
-
-  // if its not an array, make it an array
-  HashTable *ht = Z_ARRVAL_P (var);
-
-  // find the var
-  zval **p_arg;
-  if (ht_find (ht, ind, &p_arg) != SUCCESS)
-    return EG (uninitialized_zval_ptr);
-
-  zval *arg = *p_arg;
-  if (arg->is_ref)
-    {
-      // We dont separate since we don't own one of ARG's references.
-      zvp_clone (&arg, is_arg_new);
-
-      // It seems we get incorrect refcounts without this.
-      // TODO This decreases the refcount to zero, which seems wrong,
-      // but gives the right answer. We should look at how zend does
-      // this.
-
-      arg->refcount--;
-    }
-
   return arg;
 }
 
@@ -965,4 +889,22 @@ phc_check_invariants (TSRMLS_D)
   assert (EG (uninitialized_zval).value.lval == 0);
   assert (EG (uninitialized_zval).type == IS_NULL);
   assert (EG (uninitialized_zval).is_ref == 0);
+}
+
+static void
+initialize_function_call (zend_fcall_info* fci, zend_fcall_info_cache* fcic, char* function_name, char* filename, int line_number TSRMLS_DC)
+{
+  if (!fcic->initialized)	// check for missing function
+    {
+      zval fn;
+      INIT_PZVAL (&fn);
+      ZVAL_STRING (&fn, function_name, 0);
+      int result = zend_fcall_info_init (&fn, fci, fcic TSRMLS_CC);
+      if (result != SUCCESS)
+	{
+	  phc_setup_error (1, filename, line_number, NULL TSRMLS_CC);
+	  php_error_docref (NULL TSRMLS_CC, E_ERROR,
+			    "Call to undefined function %s()", function_name);
+	}
+    }
 }

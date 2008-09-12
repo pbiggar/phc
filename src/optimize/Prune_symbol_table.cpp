@@ -42,11 +42,6 @@ Prune_symbol_table::Prune_symbol_table ()
 	vars = new map<string, bool>;
 }
 
-// TODO we cant compile nested functions anyway, but this needs to be
-// updated when we do.
-
-
-
 class Analysis : public Visitor
 {
 public:
@@ -61,7 +56,8 @@ public:
 	bool record_globals;
 
 	Analysis (map<string, bool>* vars)
-	: prune (false)
+	: prune (true)
+	, var_reflection_present (false)
 	, vars(vars)
 	{
 	}
@@ -89,6 +85,7 @@ public:
 		{
 			// Since eval, include etc are builtin, and cant be called as
 			// variable variables, its actually safe to prune here.
+			// TODO not so sure
 		}
 	}
 
