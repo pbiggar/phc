@@ -627,7 +627,6 @@ libphc_la_SOURCES = \
 	src/embed/embed.cpp										\
 	src/embed/embed.h											\
 	src/embed/optimize.cpp									\
-	src/embed/optimize.h										\
 	src/embed/util.cpp										\
 	src/embed/util.h											\
 	src/generated/AST.cpp									\

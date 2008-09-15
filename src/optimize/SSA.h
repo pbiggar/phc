@@ -21,6 +21,9 @@ public:
 	void add_arg (int version, Edge* source);
 	MIR::VARIABLE_NAME_list* get_args ();
 	list<pair<MIR::VARIABLE_NAME*, Edge*> >* get_arg_edges ();
+	void remove_arg_for_edge (Edge* edge);
+
+	void replace_edge (Edge* old_edge, Edge* new_edge);
 
 	Phi* clone () { assert (0); } // TODO
 

@@ -163,6 +163,9 @@ private:
 	void replace_bb (Basic_block* bb, BB_list* replacements);
 	void remove_bb (Basic_block* bb);
 
+	// Remove the edge (and tidy up)
+	void remove_edge (Edge* edge);
+
 	/* returns true or false. If edge isnt true or false, asserts. */
 	bool is_true_edge (Edge* edge);
 

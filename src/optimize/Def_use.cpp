@@ -87,14 +87,14 @@ Def_use_web::get_use_def_edge (MIR::VARIABLE_NAME* use)
 }
 
 void
-Def_use_web::add_def_use_edge (MIR::Rvalue* def, SSA_edge* use)
+Def_use_web::add_use (MIR::Rvalue* def, SSA_edge* use)
 {
 	if (isa<VARIABLE_NAME> (def))
-		add_def_use_edge (dyc<VARIABLE_NAME> (def), use);
+		add_use (dyc<VARIABLE_NAME> (def), use);
 }
 
 void
-Def_use_web::add_def_use_edge (MIR::VARIABLE_NAME* def, SSA_edge* use)
+Def_use_web::add_use (MIR::VARIABLE_NAME* def, SSA_edge* use)
 {
 	DEBUG ("Adding a def_use edge from ");
 	debug (def);
@@ -107,7 +107,7 @@ Def_use_web::add_def_use_edge (MIR::VARIABLE_NAME* def, SSA_edge* use)
 }
 
 void
-Def_use_web::add_use_def_edge (MIR::VARIABLE_NAME* use, SSA_edge* def)
+Def_use_web::add_def (MIR::VARIABLE_NAME* use, SSA_edge* def)
 {
 	DEBUG ("Adding a use_def edge from ");
 	debug (use);
@@ -125,16 +125,16 @@ Def_use_web::add_use_def_edge (MIR::VARIABLE_NAME* use, SSA_edge* def)
 void
 Def_use_web::visit_branch_block (Branch_block* bb)
 {
-	add_def_use_edge (bb->branch->variable_name, new SSA_edge (bb));
+	add_use (bb->branch->variable_name, new SSA_edge (bb));
 }
 
 void
 Def_use_web::visit_phi_node (Basic_block* bb, Phi* phi)
 {
 	foreach (VARIABLE_NAME* use, *phi->get_args ())
-		add_def_use_edge (use, new SSA_edge (phi));
+		add_use (use, new SSA_edge (phi));
 
-	add_use_def_edge (phi->lhs, new SSA_edge (phi));
+	add_def (phi->lhs, new SSA_edge (phi));
 }
 
 void
@@ -152,7 +152,7 @@ Def_use_web::visit_assign_field (Statement_block*, MIR::Assign_field * in)
 void
 Def_use_web::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 {
-	add_use_def_edge (in->lhs, new SSA_edge (bb));
+	add_def (in->lhs, new SSA_edge (bb));
 	visit_expr (bb, in->rhs);
 }
 
@@ -191,7 +191,7 @@ Def_use_web::visit_global (Statement_block* bb, MIR::Global* in)
 {
 	// For SSA creation, this is a def. For later, probably a virtual use too?
 	if (isa<VARIABLE_NAME> (in->variable_name))
-		add_use_def_edge (dyc<VARIABLE_NAME> (in->variable_name), new SSA_edge (bb));
+		add_def (dyc<VARIABLE_NAME> (in->variable_name), new SSA_edge (bb));
 }
 
 void
@@ -221,8 +221,8 @@ Def_use_web::visit_return (Statement_block*, MIR::Return* in)
 void
 Def_use_web::visit_ssa_pre_op (Statement_block* bb, MIR::SSA_pre_op* in)
 {
-	add_def_use_edge (in->use, new SSA_edge (bb));
-	add_use_def_edge (in->def, new SSA_edge (bb));
+	add_use (in->use, new SSA_edge (bb));
+	add_def (in->def, new SSA_edge (bb));
 }
 
 void
@@ -262,14 +262,14 @@ Def_use_web::visit_array_access (Statement_block* bb, Array_access* in)
 void
 Def_use_web::visit_bin_op (Statement_block* bb, Bin_op* in)
 {
-	add_def_use_edge (in->left, new SSA_edge (bb));
-	add_def_use_edge (in->right, new SSA_edge (bb));
+	add_use (in->left, new SSA_edge (bb));
+	add_use (in->right, new SSA_edge (bb));
 }
 
 void
 Def_use_web::visit_cast (Statement_block* bb, Cast* in)
 {
-	assert (0);
+	add_use (in->variable_name, new SSA_edge (bb));
 }
 
 void
@@ -324,7 +324,7 @@ Def_use_web::visit_method_invocation (Statement_block* bb, Method_invocation* in
 	foreach (Actual_parameter* param, *in->actual_parameters)
 	{
 		assert (!param->is_ref); // TODO
-		add_def_use_edge (param->rvalue, new SSA_edge (bb));
+		add_use (param->rvalue, new SSA_edge (bb));
 		// what about virtual defs
 	}
 		
@@ -339,13 +339,13 @@ Def_use_web::visit_new (Statement_block* bb, New* in)
 void
 Def_use_web::visit_unary_op (Statement_block* bb, Unary_op* in)
 {
-	add_def_use_edge (in->variable_name, new SSA_edge (bb));
+	add_use (in->variable_name, new SSA_edge (bb));
 }
 
 void
 Def_use_web::visit_variable_name (Statement_block* bb, VARIABLE_NAME* in)
 {
-	add_def_use_edge (in, new SSA_edge (bb));
+	add_use (in, new SSA_edge (bb));
 }
 
 void

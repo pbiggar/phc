@@ -150,7 +150,7 @@ bool eval_string (String* code, zval* result, IR::Node* anchor)
 		zend_eval_string (
 			const_cast<char*>(code->c_str ()), 
 			result, 
-			const_cast<char*>("Evaluate literal")
+			const_cast<char*>("phc eval")
 			TSRMLS_CC);
 	}
 	zend_catch

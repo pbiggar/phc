@@ -8,6 +8,8 @@
 #ifndef PHC_EMBED_H
 #define PHC_EMBED_H
 
+#include "config.h"
+
 class String;
 namespace AST
 {
@@ -19,6 +21,9 @@ namespace MIR
 {
 	class Literal;
 	class Expr;
+	class METHOD_NAME;
+	class OP;
+	class CAST;
 }
 
 class PHP
@@ -42,7 +47,14 @@ public:
 	/*
 	 * Optimization (defined in optimize.cpp)
 	 */
-	static MIR::Literal* fold_constant_expr (MIR::Expr* in);
+
+	// Folding
+	static MIR::Literal* fold_unary_op (MIR::OP* op, MIR::Literal* literal);
+	static bool is_true (MIR::Literal* literal);
+	static MIR::Literal* cast_to (MIR::CAST* cast, MIR::Literal* literal);
+
+	// Functions
+	static bool is_pure_function (MIR::METHOD_NAME* in);
 };
 
 #endif // PHC_EMBED_H

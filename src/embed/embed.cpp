@@ -62,8 +62,8 @@ Literal* PHP::convert_token (Literal *in)
 	assert (code);
 
 	zval value;
-	bool ret_val = eval_string (code, &value, in);
-	assert (ret_val);
+	bool ret = eval_string (code, &value, in);
+	assert (ret);
 
 	Literal* result = zval_to_ast_literal (&value);
 	result->attrs->clone_all_from (in->attrs);

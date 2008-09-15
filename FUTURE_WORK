@@ -1,0 +1,166 @@
+============================================================
+Combine prints:
+
+	print ("str");
+	print ("str2");
+
+into 
+
+	print ("strstr2");
+
+============================================================
+Optimize pow:
+
+pow ($a, 0) => 1
+pow ($a, 1) => $a
+
+============================================================
+Convert print to echo
+
+It does actually make a minor difference
+============================================================
+CONSTANTs defined in the engine can be constant propagated
+============================================================
+Types and === can be converted to false
+============================================================
+Return types of built-in functions (as well as values)
+============================================================
+if ($a == true) can be converted to just if ($a)
+Same for
+if ($a != false)
+============================================================
+Remove echo ("")
+============================================================
+Pure functions:
+strlen
+zend_function
+md5
+sha1
+crc32
+pi
+getrandmax
+mt_getrandmax
+ord
+chr
+strtoupper
+strtoupper
+strcmp
+addslashes
+htmlspecialchars
+htmlentities
+dirname
+basename
+realpath
+version_compare
+strncmp
+strcasecmp
+strncasecmp
+dechex
+hexdec
+decbin
+decoct
+octdec
+str_repeat
+str_pad
+intval
+substr
+abs
+acos
+acosh
+asin
+asinh
+atan2
+atan
+atanh
+base_convert
+bindec
+ceil
+cos
+cosh
+decbin
+dechex
+decoct
+deg2rad
+exp
+expm1
+floor
+fmod
+getrandmax
+hexdec
+hypot
+is_finite
+is_infinite
+is_nan
+lcg_value
+log10
+log1p
+log
+max
+min
+mt_getrandmax
+octdec
+pi
+pow
+rad2deg
+round
+sin
+sinh
+sqrt
+tan
+tanh
+ip2long
+long2ip
+trim
+rtrim
+ltrim
+chop
+php_logo_guide
+zend_logo_guide
+php_edgg_logo_guide
+
+============================================================
+Functions where we know the return type:
+============================================================
+Functions where we know the return value:
+============================================================
+Fcuntnio which can be optimized, unless the result is false, in which case it may later change:
+extension_loaded 
+function_exists
+class_exists
+interface_exists
+is_callable
+php_version
+get_cfg_var
+============================================================
+Unsafe function optimizations performed by APC optimizer:
+ini_get
+get_magic_quotes_qpc
+============================================================
+Function we probably break:
+getlastmod - would be tough to support in a compiler
+getmyuid
+getmygid
+getmyinode
+============================================================
+Function optimizations performed by APC which arent safe ahead-of-time, but are probably safe for APC:
+get_current_user
+php_sapi_name
+php_ini_scanned_files
+php_uname
+============================================================
+$x[5] is NULL for non-{string/array}
+is this just scalars
+============================================================
+dont forget to lowercase all functions
+============================================================
+printf to echo
+============================================================
+merge constants into printf
+============================================================
+============================================================
+============================================================
+============================================================
+============================================================
+============================================================
+============================================================
+============================================================

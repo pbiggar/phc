@@ -122,6 +122,7 @@
 
 #include "SCCP.h"
 #include "Lattice.h"
+#include "embed/embed.h"
 #include "Def_use.h"
 #include "process_ir/debug.h"
 
@@ -285,7 +286,10 @@ SCCP::visit_branch_block (Branch_block* bb)
 
 	else
 	{
-		die (); // TODO
+		if (PHP::is_true (get_literal (bb->branch->variable_name)))
+			cfg_wl->push_back (bb->get_true_successor_edge ());
+		else
+			cfg_wl->push_back (bb->get_false_successor_edge ());
 	}
 }
 
@@ -327,8 +331,10 @@ SCCP::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 				ssa_wl->push_back (edge);
 			}
 		}
-		else // must both be CONST - do nothing
-			assert (in->rhs->equals (expr));
+		else
+		{
+			// must be a CONST already
+		}
 	}
 	else
 		lattice[in->lhs] = BOTTOM;
@@ -459,7 +465,7 @@ SCCP::transform_cast (Statement_block*, Cast* in)
 	Literal* lit = get_literal (in->variable_name);
 
 	if (lit)
-		die (); // go through embed
+		return PHP::cast_to (in->cast, lit);
 
 	return in;
 }
@@ -469,7 +475,7 @@ SCCP::transform_constant (Statement_block*, Constant* in)
 {
 	// TODO:
 	// We'd very much like to know the value of this, however, since these are
-	// likely to be deinfed at the top-level, and this optimization won't run
+	// likely to be defined at the top-level, and this optimization won't run
 	// at the top-level (until its interprocedural), it won't do much good.
 	return in;
 }
@@ -522,29 +528,24 @@ SCCP::transform_method_invocation (Statement_block*, Method_invocation* in)
 	if (isa<METHOD_NAME> (in->method_name))
 	{
 		METHOD_NAME* name = dyc<METHOD_NAME> (in->method_name);
-		if (	*name->value == "var_dump"
-			|| *name->value == "print"
-			|| *name->value == "strlen"
-			|| *name->value == "strcat" // allow bench_strcat to succeed for now
-			)
-			return in;
-	}
+		if (PHP::is_pure_function (name))
+		{
+			bool all_args_const = true;
+			foreach (Actual_parameter* param, *in->actual_parameters)
+			{
+				// TODO: we can replace a arguement with its actual parameter
+				// (watch out for refs) (only if passing by copy)
+				if (param->is_ref
+					|| get_literal (param->rvalue) == NULL)
+					all_args_const = false;
+			}
 
-	die ();
+			if (all_args_const)
+				die ();
+		}
+	}
 	// TODO replace Variable_variable with VARIABLE_NAME, if possible.
 
-	// TODO: we can replace a arguement with its actual parameter
-	// (watch out for refs) (only if passing by copy)
-
-	/*			if (isa<VARIABLE_NAME> (mi->method_name))
-				die (); // TODO
-
-				foreach (Actual_parameter* ap, *mi->actual_parameters)
-				{
-				VARIABLE_NAME* var_name = dynamic_cast<VARIABLE_NAME*> (ap->rvalue);
-				if (var_name)
-				use (bb, var_name);
-				}*/
 	return in;
 }
 
@@ -568,7 +569,11 @@ Expr*
 SCCP::transform_unary_op (Statement_block*, Unary_op* in)
 {
 	if (Literal* lit = get_literal (in->variable_name))
-		die (); // go through embed
+	{
+		Literal* folded = PHP::fold_unary_op (in->op, lit);
+		assert (folded);
+		return folded;
+	}
 
 	return in;
 }
@@ -598,6 +603,18 @@ class SCCP_updater : public Visit_once
 public:
 
 	SCCP_updater (Lattice_map& lattice) : lattice (lattice) {}
+
+	void visit_branch_block (Branch_block* bb)
+	{
+		Literal* lit = get_literal (bb->branch->variable_name);
+		if (lit)
+		{
+			if (PHP::is_true (lit))
+				bb->set_always_true ();
+			else
+				bb->set_always_false ();
+		}
+	}
 
 	void
 		visit_assign_array (Statement_block*, MIR::Assign_array*)
@@ -753,33 +770,17 @@ public:
 		if (left) in->left = left;
 		if (right) in->right = right;
 
-		if (isa<Literal> (in->left) 
-				&& isa<Literal> (in->right))
-			die (); // TODO go through embed
-
 		return in;
 	}
 
-	Expr*
-		transform_cast (Statement_block*, Cast* in)
-		{
-			Literal* lit = get_literal (in->variable_name);
-
-			if (lit)
-				die (); // go through embed
-
-			return in;
-		}
-
-	Expr*
-		transform_constant (Statement_block*, Constant* in)
-		{
-			// TODO:
-			// We'd very much like to know the value of this, however, since these are
-			// likely to be deinfed at the top-level, and this optimization won't run
-			// at the top-level (until its interprocedural), it won't do much good.
-			return in;
-		}
+	Expr* transform_constant (Statement_block*, Constant* in)
+	{
+		// TODO:
+		// We'd very much like to know the value of this, however, since these are
+		// likely to be deinfed at the top-level, and this optimization won't run
+		// at the top-level (until its interprocedural), it won't do much good.
+		return in;
+	}
 
 	Expr*
 		transform_field_access (Statement_block*, Field_access* in)
@@ -819,41 +820,22 @@ public:
 			return in;
 		}
 
-	Expr*
-		transform_method_invocation (Statement_block*, Method_invocation* in)
-		{
-			// TODO APC::Optimizer has a list of pure functions. Go through
-			// embed for them.
-
-			// ignore for now
-			if (isa<METHOD_NAME> (in->method_name))
-			{
-				METHOD_NAME* name = dyc<METHOD_NAME> (in->method_name);
-				if (	*name->value == "var_dump"
-						|| *name->value == "print"
-						|| *name->value == "strlen"
-						|| *name->value == "strcat" // allow bench_strcat to succeed for now
-					)
-					return in;
-			}
-
+	Expr* transform_method_invocation (Statement_block*, Method_invocation* in)
+	{
+		if (isa<Variable_method> (in->method_name))
 			die ();
-			// TODO replace Variable_variable with VARIABLE_NAME, if possible.
 
-			// TODO: we can replace a arguement with its actual parameter
-			// (watch out for refs) (only if passing by copy)
+		foreach (Actual_parameter* param, *in->actual_parameters)
+		{
+			if (param->is_ref)
+				continue;
 
-			/*			if (isa<VARIABLE_NAME> (mi->method_name))
-						die (); // TODO
-
-						foreach (Actual_parameter* ap, *mi->actual_parameters)
-						{
-						VARIABLE_NAME* var_name = dynamic_cast<VARIABLE_NAME*> (ap->rvalue);
-						if (var_name)
-						use (bb, var_name);
-						}*/
-			return in;
+			Literal* lit = get_literal (param->rvalue);
+			if (lit)
+				param->rvalue = lit;
 		}
+		return in;
+	}
 
 	Expr*
 		transform_new (Statement_block*, New* in)
@@ -868,15 +850,6 @@ public:
 		{
 			// TODO go through embed.
 			die ();
-			return in;
-		}
-
-	Expr*
-		transform_unary_op (Statement_block*, Unary_op* in)
-		{
-			if (Literal* lit = get_literal (in->variable_name))
-				die (); // go through embed
-
 			return in;
 		}
 

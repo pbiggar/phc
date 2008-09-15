@@ -46,6 +46,35 @@ Phi::get_arg_edges ()
 }
 
 void
+Phi::remove_arg_for_edge (Edge* edge)
+{
+	list<pair<MIR::VARIABLE_NAME*, Edge*> >::iterator i;
+	for (i = args->begin (); i != args->end (); i++)
+	{
+		if ((*i).second == edge)
+		{
+			args->erase (i);
+			break;
+		}
+	}
+}
+
+// Tell the phi node that OLD_EDGE is being removed, and replaced by NEW_EDGE.
+void
+Phi::replace_edge (Edge* old_edge, Edge* new_edge)
+{
+	pair<VARIABLE_NAME*, Edge*> pair;
+	foreach (pair, *args)
+	{
+		if (pair.second == old_edge)
+		{
+			pair.second = new_edge;
+			break;
+		}
+	}
+}
+
+void
 Phi::dump ()
 {
 	DEBUG ("Phi node for " << lhs->get_ssa_var_name ());

@@ -182,7 +182,8 @@ Basic_block::get_phi_nodes ()
 void
 Basic_block::merge_phi_nodes (Basic_block* other)
 {
-	// TODO this might add the same entry twice to the args list. We should really be usiung a set.
+	// TODO: This might add the same entry twice to the args list. We should
+	// really be using a set.
 	
 	// TODO find a test case for this
 	assert (get_phi_nodes ()->size () == 0 || other->get_phi_nodes()->size() == 0);
@@ -203,6 +204,33 @@ void
 Basic_block::remove_phi_nodes ()
 {
 	phi_nodes.clear ();
+}
+
+/* Replace any phi node with a single argument with an assignment. */
+void
+Basic_block::fix_solo_phi_args ()
+{
+	// TODO: The theory is that each Phi node executes simultaneously. If there
+	// are dependencies between the nodes, this could be wrong.
+
+	BB_list* replacements = new BB_list (this);
+	foreach (Phi* phi, *get_phi_nodes ())
+	{
+		VARIABLE_NAME_list* args = phi->get_args ();
+		if (args->size () == 1)
+		{
+			replacements->push_front (
+				new Statement_block (
+					cfg,
+					new Assign_var (
+						phi->lhs, 
+						args->front ())));
+
+			phi_nodes.erase (*phi->lhs->value);
+		}
+	}
+
+	replace (replacements);
 }
 
 BB_list*
@@ -246,6 +274,7 @@ Basic_block::get_successor_edge ()
 	return succs->front ();
 }
 
+
 Basic_block*
 Branch_block::get_true_successor ()
 {
@@ -259,6 +288,7 @@ Branch_block::get_true_successor ()
 	assert (0);
 }
 
+
 Basic_block*
 Branch_block::get_false_successor ()
 {
@@ -268,6 +298,32 @@ Branch_block::get_false_successor ()
 	foreach (Edge* succ, *succs)
 		if (not cfg->is_true_edge (succ))
 			return succ->target;
+
+	assert (0);
+}
+
+Edge*
+Branch_block::get_true_successor_edge ()
+{
+	Edge_list* succs = get_successor_edges ();
+	assert (succs->size() == 2);
+
+	foreach (Edge* succ, *succs)
+		if (cfg->is_true_edge (succ))
+			return succ;
+
+	assert (0);
+}
+
+Edge*
+Branch_block::get_false_successor_edge ()
+{
+	Edge_list* succs = get_successor_edges ();
+	assert (succs->size() == 2);
+
+	foreach (Edge* succ, *succs)
+		if (not cfg->is_true_edge (succ))
+			return succ;
 
 	assert (0);
 }
@@ -290,6 +346,32 @@ Basic_block::replace (BB_list* replacements)
 {
 	cfg->replace_bb (this, replacements);
 
+}
+
+void
+Branch_block::set_always_true ()
+{
+	// set the true edge to always true
+	get_true_successor_edge ()->direction = indeterminate;
+
+	// remove the false edge
+	cfg->remove_edge (get_false_successor_edge ());
+	
+	// remove the branch
+	remove ();
+}
+
+void
+Branch_block::set_always_false ()
+{ 
+	// set the false edge to always true
+	get_false_successor_edge ()->direction = indeterminate;
+
+	// remove the false edge
+	cfg->remove_edge (get_true_successor_edge ());
+	
+	// remove the branch
+	remove ();
 }
 
 BB_list*

@@ -579,7 +579,6 @@ void CFG::convert_to_ssa_form ()
 void
 CFG::rebuild_ssa_form ()
 {
-	// TODO: this should fix phi nodes too.
 	duw = new Def_use_web ();
 	duw->run (this);
 }
@@ -712,10 +711,12 @@ CFG::add_bb_between (Basic_block* source, Basic_block* target, Basic_block* new_
 {
 	add_bb (new_bb);
 	Edge* current_edge = get_edge (source, target);
-	assert (indeterminate (current_edge->direction)); // TODO
-	add_edge (source, new_bb);
+
+	edge_t e1 = add_edge (source, new_bb);
+	ee[e1]->direction = current_edge->direction;
+
 	add_edge (new_bb, target);
-	remove_edge (current_edge->edge, bs);
+	boost::remove_edge (current_edge->edge, bs);
 }
 
 
@@ -729,70 +730,99 @@ CFG::replace_bb (Basic_block* bb, BB_list* replacements)
 	}
 	else if (replacements->size() == 0)
 	{
-		// If the edge has a T/F label, it is because the predecessor is a
-		// Branch. Just copy the label from the new predecessor.
+		// Branch blocks don't go through this interface
+		Basic_block* succ = bb->get_successor ();
+		Edge* succ_edge = bb->get_successor_edge ();
 
-		// TODO Avoid exponential phi by putting in an empty block.
-
+		// TODO: dont know what to do here.
 		// The immediate post-dominator should get the phi nodes, according to
 		// Cooper/Torczon lecture notes (see DCE comments).
-		if (bb->get_successors ()->size() != 1)
-			assert (bb->get_phi_nodes()->size () == 0);
+		// TODO Avoid exponential phi by putting in an empty block.
+
 
 		// Each predecessor needs a node to each successor.
 		foreach (Basic_block* pred, *bb->get_predecessors ())
-			foreach (Basic_block* succ, *bb->get_successors ())
-			{
-				edge_t e = add_edge (pred, succ);
-				ee[e]->direction = get_edge (pred, bb)->direction;
-			}
+		{
+			edge_t e = add_edge (pred, succ);
 
-		bb->get_successor()->merge_phi_nodes (bb);
+			// If the edge has a T/F label, it is because the predecessor is a
+			// Branch. Just copy the label from the new predecessor.
+			ee[e]->direction = get_edge (pred, bb)->direction;
+
+			// TODO When we replace an edge before a Phi node, we need to update that
+			// phi node with the edge coming into it.
+			foreach (Phi* phi, *succ->get_phi_nodes ())
+				phi->replace_edge (succ_edge, ee[e]);
+		}
+
+		// If removing a block causes a successor to have fewer incoming edges,
+		// then we should remove the phi arguments for this edge from the phi
+		// node.
+		if (bb->get_predecessors ()->size() == 0)
+			foreach (Phi* phi, *succ->get_phi_nodes ())
+				phi->remove_arg_for_edge (succ_edge);
+
+		succ->merge_phi_nodes (bb);
 
 		remove_bb (bb);
+
+
+		// We don't perform this in the middle of the removal operation, as it will
+		// make it non-atomic, which could be tricky. Its over now, so even if it
+		// recurses, its fine.
+		succ->fix_solo_phi_args ();
 	}
 	else
 	{
-		// Branch blocks need a special interface (unless the last one is a
-		// branch block, in which case we can allow it).
-		assert (dynamic_cast<Branch_block*> (bb) == NULL);
+		// Get the data from the BB so we can remove it.
+		BB_list* preds = bb->get_predecessors ();
+		Edge_list* pred_edges = bb->get_predecessor_edges ();
+		Phi_list* old_phis = bb->get_phi_nodes ();
+		Basic_block* succ = bb->get_successor ();
 
-		// Our current problem is that two nodes are returned. Thats not right.
-		assert (0);
+		remove_bb (bb);
 
-		// First gets all incoming edges added
+		// Front gets all incoming edges added
 		Basic_block* front = replacements->front ();
 		replacements->pop_front ();
 
 		add_bb (front);
-		foreach (Basic_block* pred, *front->get_predecessors ())
+		// Each predecessor needs a node to each successor.
+		foreach (Basic_block* pred, *preds)
 		{
+			Edge* old_edge = pred_edges->front();
+			pred_edges->pop_front ();
+
 			edge_t e = add_edge (pred, front);
-			ee[e]->direction = get_edge (pred, bb)->direction;
+
+			// If the edge has a T/F label, it is because the predecessor is a
+			// Branch. Just copy the label from the new predecessor.
+			ee[e]->direction = old_edge->direction;
+
+			// When we replace an edge before a Phi node, we need to update that
+			// phi node with the edge coming into it.
+			foreach (Phi* phi, *old_phis)
+				phi->replace_edge (old_edge, ee[e]);
 		}
 
-		// The front node gets the phi nodes.
+		// Copy the phi nodes into front (the edges are already updated)
 		front->merge_phi_nodes (bb);
+
 
 		// Add edge along the chain
 		Basic_block* prev = front;
 		foreach (Basic_block* new_bb, *replacements)
 		{
+			assert (!isa<Branch_block> (new_bb));
 			add_bb (new_bb);
 			add_edge (prev, new_bb);
 			prev = new_bb;
 		}
 
-		// Add edges to successor nodes to the last node
-		foreach (Basic_block* succ, *prev->get_successors ())
-		{
-			add_edge (prev, succ);
-		}
-
-		// Remove the old block last, so that the edges dont vanish before we
-		// use them.
-		remove_bb (bb);
+		// There is only 1 successor
+		add_edge (prev, succ);
 	}
+
 }
 
 void
@@ -800,6 +830,13 @@ CFG::remove_bb (Basic_block* bb)
 {
 	clear_vertex (bb->vertex, bs);
 	remove_vertex (bb->vertex, bs);
+}
+
+void
+CFG::remove_edge (Edge* edge)
+{
+	boost::remove_edge (edge->edge, bs);
+	tidy_up ();
 }
 
 
@@ -858,15 +895,36 @@ CFG::get_all_bbs_bottom_up ()
 void
 CFG::tidy_up ()
 {
-	foreach (Basic_block* bb, *get_all_bbs ())
+	// TODO replace with worklist algorithm (beware, you cant remove a node
+	// twice. BGL doesnt like it.
+	bool repeat = true;
+	while (repeat)
 	{
-		// Remove unreachable blocks (ie, no predecessors and are not the entry
-		// block).
-	
-		// Remove empty blocks (have either 1 predecessor or 1 successor).
-		if (isa<Empty_block> (bb))
-			bb->remove ();
+		repeat = false;
+		foreach (Basic_block* bb, *get_all_bbs ())
+		{
+			// Remove unreachable blocks (ie, no predecessors and are not the entry
+			// block).
+			if (isa<Entry_block> (bb) || isa<Exit_block> (bb))
+				continue;
 
+			// Don't remove a block with phi nodes.
+			if (bb->get_phi_nodes ()->size () > 0)
+				continue;
 
+			// TODO: Dont remove infinite loops
+//			if (bb->has_self_edge ())
+//				continue;
+
+			if (
+				isa<Empty_block> (bb)
+				|| bb->get_predecessors ()->size() == 0
+				|| bb->get_successors ()->size() == 0)
+			{
+				assert (!isa<Branch_block> (bb)); // special cases?
+				repeat = true;
+				bb->remove ();
+			}
+		}
 	}
 }

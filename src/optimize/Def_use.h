@@ -44,11 +44,11 @@ public:
 
 private:
 	// Add that the variable DEF is used in USE
-	void add_def_use_edge (MIR::VARIABLE_NAME* def, SSA_edge* use);
-	void add_use_def_edge (MIR::VARIABLE_NAME* use, SSA_edge* def);
+	void add_use (MIR::VARIABLE_NAME* def, SSA_edge* use);
+	void add_def (MIR::VARIABLE_NAME* use, SSA_edge* def);
 
 	// Add that the variable DEF is used in USE
-	void add_def_use_edge (MIR::Rvalue* def, SSA_edge* use);
+	void add_use (MIR::Rvalue* def, SSA_edge* use);
 
 	void visit_branch_block (Branch_block* bb);
 

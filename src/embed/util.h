@@ -9,8 +9,15 @@
 #define PHC_EMBED_UTIL_H
 
 #include <assert.h>
+#include "AST.h"
+#include "HIR.h"
+#include "MIR.h"
 
 #if HAVE_EMBED
+
+
+#include <sapi/embed/php_embed.h>
+#include <Zend/zend.h>
 
 AST::Literal* zval_to_ast_literal (zval* value);
 HIR::Literal* zval_to_hir_literal (zval* value);

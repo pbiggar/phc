@@ -83,6 +83,7 @@ public:
 	bool has_phi_function (MIR::VARIABLE_NAME* var_name);
 	void merge_phi_nodes (Basic_block* other);
 	void remove_phi_nodes ();
+	void fix_solo_phi_args ();
 
 	List<Phi*>* get_phi_nodes ();
 
@@ -176,17 +177,16 @@ public:
 	// Assert a block has a two successors, representing true and false
 	// branches, and return the true branch.
 	Basic_block* get_true_successor ();
+	Edge* get_true_successor_edge ();
 
 	// Assert a block has a two successors, representing true and false
 	// branches, and return the false branch.
 	Basic_block* get_false_successor ();
+	Edge* get_false_successor_edge ();
 
-
-	void replace (BB_list* replacements)
-	{
-		// TODO
-		assert (0);
-	}
+	// Replace the branch with its true/false successor, and remove unreachable blocks.
+	void set_always_true ();
+	void set_always_false ();
 
 	void switch_successors ();
 
