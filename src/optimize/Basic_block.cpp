@@ -178,6 +178,17 @@ Basic_block::get_phi_nodes ()
 	return result;
 }
 
+void
+Basic_block::set_phi_nodes (Phi_list* new_phis)
+{
+	// TODO: what does indexing on the old name get us?
+	remove_phi_nodes ();
+	foreach (Phi* phi, *new_phis)
+	{
+		phi_nodes[*phi->lhs->value] = phi;
+	}
+}
+
 /* Merge the phi nodes from OTHER into this BB. */
 void
 Basic_block::merge_phi_nodes (Basic_block* other)
@@ -409,13 +420,13 @@ Basic_block::get_dominated_blocks ()
 Set*
 Basic_block::get_pre_ssa_defs ()
 {
-	return cfg->duw->get_defs (this);
+	return cfg->duw->get_bb_defs (this);
 }
 
 Set*
 Basic_block::get_pre_ssa_uses ()
 {
-	return cfg->duw->get_uses (this);
+	return cfg->duw->get_bb_uses (this);
 }
 
 int

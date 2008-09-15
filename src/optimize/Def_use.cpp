@@ -23,7 +23,7 @@ Def_use_web::Def_use_web ()
 }
 
 Set*
-Def_use_web::get_defs (Basic_block* bb)
+Def_use_web::get_bb_defs (Basic_block* bb)
 {
 	Set* result = new Set;
 
@@ -44,7 +44,7 @@ Def_use_web::get_defs (Basic_block* bb)
 }
 
 Set*
-Def_use_web::get_uses (Basic_block* bb)
+Def_use_web::get_bb_uses (Basic_block* bb)
 {
 	Set* result = new Set;
 
@@ -66,7 +66,7 @@ Def_use_web::get_uses (Basic_block* bb)
 }
 
 SSA_edge_list*
-Def_use_web::get_def_use_edges (MIR::VARIABLE_NAME* def)
+Def_use_web::get_var_uses (MIR::VARIABLE_NAME* def)
 {
 	// Its possible to have defs without uses.
 	if (def_use_chains.find (def) == def_use_chains.end ())
@@ -76,7 +76,7 @@ Def_use_web::get_def_use_edges (MIR::VARIABLE_NAME* def)
 }
 
 SSA_edge*
-Def_use_web::get_use_def_edge (MIR::VARIABLE_NAME* use)
+Def_use_web::get_var_defs (MIR::VARIABLE_NAME* use)
 {
 	// every use must have exactly 1 def (in SSA form).
 	assert (use_def_chains[use].size() == 1);

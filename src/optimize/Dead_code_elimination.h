@@ -58,6 +58,8 @@ class DCE : public Visit_once
 {
 public:
 	void transform_assign_var (Statement_block*, MIR::Assign_var* in, BB_list* out);
+
+	void transform_phi_node (Basic_block* bb, Phi* in, Phi_list* out);
 };
 
 #endif // PHC_DEAD_CODE_ELIMINATION

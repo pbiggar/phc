@@ -401,6 +401,8 @@ CFG_visitor::visit_variable_variable (Statement_block*, Variable_variable* in)
 void
 CFG_visitor::transform_block (Basic_block* bb)
 {
+	// bb->replace will move the phi nodes from BB to the new BBs. So here we
+	// just update BB.
 	Phi_list* all_phis = new Phi_list;
 	foreach (Phi* phi, *bb->get_phi_nodes ())
 	{
@@ -408,6 +410,7 @@ CFG_visitor::transform_block (Basic_block* bb)
 		transform_phi_node (bb, phi, out);
 		all_phis->push_back_all (out);
 	}
+	bb->set_phi_nodes (all_phis);
 
 	BB_list* out = new BB_list;
 

@@ -21,7 +21,7 @@ If_simplification::visit_branch_block (Branch_block* bb)
 
 	bb->cfg->duw->dump ();
 
-	SSA_edge* def = bb->cfg->duw->get_use_def_edge (branch->variable_name);
+	SSA_edge* def = bb->cfg->duw->get_var_defs (branch->variable_name);
 
 	if (def->which == SSA_edge::STATEMENT
 		&& def->get_statement_block ()->statement->match (

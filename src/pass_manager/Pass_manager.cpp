@@ -580,25 +580,33 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 			if (args_info->cfg_dump_given)
 				cfg->dump_graphviz (s("CFG - in SSA"));
 
-			cfg->duw->dump();
-
 			SCCP().run (cfg);
 			if (args_info->cfg_dump_given)
 				cfg->dump_graphviz (s("CFG - after SCCP"));
 
 			cfg->rebuild_ssa_form ();
-			cfg->duw->dump();
 
 			If_simplification ().run (cfg);
 			if (args_info->cfg_dump_given)
 				cfg->dump_graphviz (s("CFG - after If simplification"));
 
 			cfg->rebuild_ssa_form ();
-			cfg->duw->dump();
 
 			DCE().run (cfg);
 			if (args_info->cfg_dump_given)
-				cfg->dump_graphviz (s("CFG - after DCE"));
+				cfg->dump_graphviz (s("CFG - after first DCE"));
+
+			cfg->rebuild_ssa_form ();
+
+			DCE().run (cfg);
+			if (args_info->cfg_dump_given)
+				cfg->dump_graphviz (s("CFG - after second DCE"));
+
+			cfg->rebuild_ssa_form ();
+
+			DCE().run (cfg);
+			if (args_info->cfg_dump_given)
+				cfg->dump_graphviz (s("CFG - after third DCE"));
 
 			disable_cdebug ();
 

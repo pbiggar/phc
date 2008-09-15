@@ -326,7 +326,7 @@ SCCP::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 		{
 			assert (in->is_ref == false); // TODO
 			lattice[in->lhs] = new Lattice_cell (dyc<Literal> (expr));
-			foreach (SSA_edge* edge, *bb->cfg->duw->get_def_use_edges (in->lhs))
+			foreach (SSA_edge* edge, *bb->cfg->duw->get_var_uses (in->lhs))
 			{
 				ssa_wl->push_back (edge);
 			}

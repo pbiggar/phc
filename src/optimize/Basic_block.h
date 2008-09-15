@@ -87,6 +87,9 @@ public:
 
 	List<Phi*>* get_phi_nodes ();
 
+	// Replace the current phi nodes with a new set.
+	void set_phi_nodes (List<Phi*>*);
+
 private:
 	Map<string, Phi*> phi_nodes;
 
