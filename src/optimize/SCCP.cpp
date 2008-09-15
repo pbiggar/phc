@@ -531,6 +531,7 @@ SCCP::transform_method_invocation (Statement_block*, Method_invocation* in)
 		if (PHP::is_pure_function (name))
 		{
 			bool all_args_const = true;
+			Literal_list* params = new Literal_list;
 			foreach (Actual_parameter* param, *in->actual_parameters)
 			{
 				// TODO: we can replace a arguement with its actual parameter
@@ -538,10 +539,12 @@ SCCP::transform_method_invocation (Statement_block*, Method_invocation* in)
 				if (param->is_ref
 					|| get_literal (param->rvalue) == NULL)
 					all_args_const = false;
+				else
+					params->push_back (get_literal (param->rvalue));
 			}
 
 			if (all_args_const)
-				die ();
+				return PHP::call_function (name, params);
 		}
 	}
 	// TODO replace Variable_variable with VARIABLE_NAME, if possible.

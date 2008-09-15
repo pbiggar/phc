@@ -351,11 +351,15 @@ Basic_block::replace (BB_list* replacements)
 void
 Branch_block::set_always_true ()
 {
-	// set the true edge to always true
-	get_true_successor_edge ()->direction = indeterminate;
+	// Avoid assertion failures in remove_edge by not setting this edge until
+	// laser.
+	Edge* true_edge = get_true_successor_edge ();
 
 	// remove the false edge
 	cfg->remove_edge (get_false_successor_edge ());
+
+	// set the true edge to always true
+	true_edge->direction = indeterminate;
 	
 	// remove the branch
 	remove ();
@@ -364,11 +368,15 @@ Branch_block::set_always_true ()
 void
 Branch_block::set_always_false ()
 { 
-	// set the false edge to always true
-	get_false_successor_edge ()->direction = indeterminate;
+	// Avoid assertion failures in remove_edge by not setting this edge until
+	// laser.
+	Edge* false_edge = get_false_successor_edge ();
 
 	// remove the false edge
 	cfg->remove_edge (get_true_successor_edge ());
+
+	// set the false edge to always true
+	false_edge->direction = indeterminate;
 	
 	// remove the branch
 	remove ();

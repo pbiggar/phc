@@ -9,8 +9,10 @@
 #define PHC_EMBED_H
 
 #include "config.h"
+#include "lib/List.h"
 
 class String;
+
 namespace AST
 {
 	class Literal;
@@ -20,6 +22,7 @@ namespace AST
 namespace MIR
 {
 	class Literal;
+	typedef List<Literal*> Literal_list;
 	class Expr;
 	class METHOD_NAME;
 	class OP;
@@ -55,6 +58,7 @@ public:
 
 	// Functions
 	static bool is_pure_function (MIR::METHOD_NAME* in);
+	static MIR::Literal* call_function (MIR::METHOD_NAME* in, MIR::Literal_list* params);
 };
 
 #endif // PHC_EMBED_H

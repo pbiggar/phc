@@ -118,43 +118,45 @@ PHP::is_pure_function (METHOD_NAME* in)
 }
 
 Literal*
+eval_to_literal (stringstream& code, Node* anchor)
+{
+	String* code_str = s(code.str());
+
+	DEBUG ("Eval'ing string: " << *code_str);
+
+	zval value;
+	bool ret = eval_string (code_str, &value, anchor);
+	assert (ret); // true/false not SUCCESS/FAILURE
+
+	Literal* result = zval_to_mir_literal (&value);
+	zval_dtor (&value); // clear out string structure
+	return result;
+
+}
+
+Literal*
 PHP::fold_unary_op (OP* op, Literal* lit)
 {
 	stringstream ss;
 	MIR_unparser (ss, true).unparse (op);
 	MIR_unparser (ss, true).unparse (lit);
-	String* code = new String (ss.str());
 
-	zval value;
-	bool ret = eval_string (code, &value, lit);
-	if (!ret)
-	{
-		assert (0); // TODO, or should never happen?
-	}
-
-	Literal* result = zval_to_mir_literal (&value);
-	zval_dtor (&value); // clear out string structure
-	return result;
+	return eval_to_literal (ss, lit);
 }
 
 
 bool
-PHP::is_true (MIR::Literal* in)
+PHP::is_true (MIR::Literal* lit)
 {
-	String* code = in->get_value_as_string ();
+	stringstream ss;
+	ss << "(bool)" << *lit->get_value_as_string ();
 
-	zval value;
-	bool ret = eval_string (code, &value, in);
-	assert (ret);
-
-	bool result = zend_is_true (&value);
-	zval_dtor (&value); // clear out string structure
-	return result;
+	return eval_to_literal (ss, lit);
 }
 
 
 MIR::Literal*
-PHP::cast_to (MIR::CAST* cast, MIR::Literal* in)
+PHP::cast_to (MIR::CAST* cast, MIR::Literal* lit)
 {
 	// TODO add canonicalization pass to convert to lowercase
 	string type = *cast->value;
@@ -170,18 +172,30 @@ PHP::cast_to (MIR::CAST* cast, MIR::Literal* in)
 		|| type == "unset") // NULL
 	{
 		stringstream ss;
-		ss << "(" << type << ")" << *in->get_value_as_string ();
+		ss << "(" << type << ")" << *lit->get_value_as_string ();
 
-		zval value;
-		bool ret = eval_string (s(ss.str()), &value, in);
-		assert (ret);
-
-		Literal* result = zval_to_mir_literal (&value);
-		zval_dtor (&value); // clear out string structure
-		return result;
+		return eval_to_literal (ss, lit);
 	}
-	else
-		return in;
+
+	return lit;
+}
+
+
+Literal*
+PHP::call_function (MIR::METHOD_NAME* name, MIR::Literal_list* params)
+{
+	stringstream ss;
+	ss << *name->value << " (";
+	foreach (Literal* param, *params)
+	{
+		ss << *param->get_value_as_string ();
+		if (param != params->back ())
+			ss << ", ";
+	}
+	
+	ss << ");";
+
+	return eval_to_literal (ss, name);
 }
 
 
@@ -189,36 +203,12 @@ PHP::cast_to (MIR::CAST* cast, MIR::Literal* in)
 
 #else // HAVE_EMBED
 
-static void
-fail()
-{
-	phc_error ("Optimizations require the PHP SAPI");
-}
+#define FAIL(SIG) SIG { phc_error ("Optimizations require the PHP SAPI"); }
 
-bool
-PHP::is_pure_function (MIR::METHOD_NAME*)
-{
-	fail();
-}
-
-
-Literal*
-PHP::fold_unary_op (OP* op, Literal* lit)
-{
-	fail();
-}
-
-bool
-PHP::is_true (MIR::Literal* literal)
-{
-	fail();
-}
-
-
-MIR::Literal*
-PHP::cast_to (MIR::CAST* cast, MIR::Literal* literal)
-{
-	fail();
-}
+FAIL (bool PHP::is_pure_function (MIR::METHOD_NAME*))
+FAIL (Literal* PHP::fold_unary_op (OP* op, Literal* lit))
+FAIL (bool PHP::is_true (MIR::Literal* literal));
+FAIL (MIR::Literal* PHP::cast_to (MIR::CAST* cast, MIR::Literal* literal))
+FAIL (Literal* PHP::call_function (MIR::METHOD_NAME* in, MIR::Literal_list* params))
 
 #endif // HAVE_EMBED
