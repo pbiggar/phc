@@ -2,12 +2,18 @@
 #include "process_ir/General.h"
 #include "Def_use.h"
 #include "assert.h"
+#include "embed/embed.h"
 
 using namespace MIR;
 
-bool is_side_effecting (Expr* in)
+bool is_pure (Expr* in)
 {
-	return (isa<New> (in) || isa<Method_invocation> (in));
+	Wildcard<METHOD_NAME>* name = new Wildcard<METHOD_NAME>;
+	if (in->match (new Method_invocation (NULL, name, NULL))
+		&& PHP::is_pure_function (name->value))
+		return true;
+
+	return (not (isa<New> (in) || isa<Method_invocation> (in)));
 }
 
 void
@@ -15,7 +21,7 @@ DCE::transform_assign_var (Statement_block* bb, Assign_var* in, BB_list* out)
 {
 	if (bb->cfg->duw->get_var_uses(in->lhs)->size () == 0)
 	{
-		if (is_side_effecting (in->rhs))
+		if (not is_pure (in->rhs))
 		{
 			out->push_back (new Statement_block (bb->cfg, new Eval_expr (in->rhs)));
 		}
@@ -35,4 +41,13 @@ DCE::transform_phi_node (Basic_block* bb, Phi* in, Phi_list* out)
 	// remove phis with unused LHSs
 	if (bb->cfg->duw->get_var_uses (in->lhs)->size () != 0)
 		out->push_back (in);
+}
+
+void
+DCE::transform_eval_expr (Statement_block* bb, MIR::Eval_expr* in, BB_list* out)
+{
+	if (not is_pure (in->expr))
+	{
+		out->push_back (bb);
+	}
 }

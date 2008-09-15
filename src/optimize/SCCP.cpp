@@ -562,7 +562,9 @@ SCCP::transform_method_invocation (Statement_block*, Method_invocation* in)
 				if (result)
 					return result;
 				else
-					; // fall through to get params updated.
+				{
+					// fall through to get params updated.
+				}
 			}
 		}
 
@@ -712,19 +714,9 @@ public:
 
 	void visit_ssa_pre_op (Statement_block*, MIR::SSA_pre_op* in)
 	{
-		die ();
-		if (lattice[in->use] == BOTTOM)
-			lattice[in->def] = BOTTOM;
-
-		else if (lattice[in->use] == TOP)
-			; // do nothing
-
-		else
-		{
-			Literal* lit = lattice[in->use]->get_value ();
-			die (); // TODO go through embed
-			// TODO lower the lattice (same as in assign_var)
-		}
+		// TODO go through embed
+		if (get_literal (in->use))
+			die ();
 	}
 
 	void visit_return (Statement_block*, MIR::Return*)
