@@ -118,20 +118,17 @@ PHP::is_pure_function (METHOD_NAME* in)
 }
 
 Literal*
-eval_to_literal (stringstream& code, Node* anchor)
+eval_to_literal (stringstream& code)
 {
 	String* code_str = s(code.str());
 
-	DEBUG ("Eval'ing string: " << *code_str);
-
 	zval value;
-	bool ret = eval_string (code_str, &value, anchor);
+	bool ret = eval_string (code_str, &value);
 	assert (ret); // true/false not SUCCESS/FAILURE
 
 	Literal* result = zval_to_mir_literal (&value);
 	zval_dtor (&value); // clear out string structure
 	return result;
-
 }
 
 Literal*
@@ -139,9 +136,22 @@ PHP::fold_unary_op (OP* op, Literal* lit)
 {
 	stringstream ss;
 	MIR_unparser (ss, true).unparse (op);
-	MIR_unparser (ss, true).unparse (lit);
+	MIR_unparser (ss, true).unparse (lit); // literals need "" sometimes
 
-	return eval_to_literal (ss, lit);
+	return eval_to_literal (ss);
+}
+
+Literal*
+PHP::fold_bin_op (Literal* left, OP* op, Literal* right)
+{
+	stringstream ss;
+	MIR_unparser (ss, true).unparse (left);
+	ss << " ";
+	MIR_unparser (ss, true).unparse (op);
+	ss << " ";
+	MIR_unparser (ss, true).unparse (right);
+
+	return eval_to_literal (ss);
 }
 
 
@@ -151,7 +161,7 @@ PHP::is_true (MIR::Literal* lit)
 	stringstream ss;
 	ss << "(bool)" << *lit->get_value_as_string ();
 
-	return eval_to_literal (ss, lit);
+	return eval_to_literal (ss);
 }
 
 
@@ -174,7 +184,7 @@ PHP::cast_to (MIR::CAST* cast, MIR::Literal* lit)
 		stringstream ss;
 		ss << "(" << type << ")" << *lit->get_value_as_string ();
 
-		return eval_to_literal (ss, lit);
+		return eval_to_literal (ss);
 	}
 
 	return lit;
@@ -188,14 +198,26 @@ PHP::call_function (MIR::METHOD_NAME* name, MIR::Literal_list* params)
 	ss << *name->value << " (";
 	foreach (Literal* param, *params)
 	{
-		ss << *param->get_value_as_string ();
+		MIR_unparser (ss, true).unparse (param);
+
+		// No ", " after last param.
 		if (param != params->back ())
 			ss << ", ";
 	}
-	
 	ss << ");";
 
-	return eval_to_literal (ss, name);
+	// Assume this can fail for no good reason (maybe wrong number of params),
+	// and that we must recover from it.
+	// TODO: warn in this case.
+	zval value;
+	if (eval_string (s(ss.str()), &value))
+	{
+		Literal* result = zval_to_mir_literal (&value);
+		zval_dtor (&value); // clear out string structure
+		return result;
+	}
+	else
+		return NULL;
 }
 
 

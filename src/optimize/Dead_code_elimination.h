@@ -50,6 +50,9 @@
  *			remove (s)
  *
  *	Since it doesnt involve updating the SSA information, which can be hard.
+ *	However, the 'aggressive' DCE is better. For example, it _should_ (I
+ *	think) remove Phi nodes which are only used in the same phi node (or other
+ *	cyclic problems).
  *
  *	Note, if you remove a block, the edge should go to its post-dominator.
  */

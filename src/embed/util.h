@@ -24,10 +24,11 @@ HIR::Literal* zval_to_hir_literal (zval* value);
 MIR::Literal* zval_to_mir_literal (zval* value);
 
 /* Wrap eval_string, trapping errors and warnings. Eval CODE with the PHP
- * interpreter, catch and warn in the case of errors, using ANCHOR's filename
- * and line number, then return true/false for success/failure.
+ * interpreter. If ANCHOR is provided, warn in the case of errors, using
+ * ANCHOR's filename and line number. If it is not, errors go to DEBUG.
+ * Return true/false for success/failure.
  */
-bool eval_string (String* code, zval* result, IR::Node* anchor);
+bool eval_string (String* code, zval* result, IR::Node* anchor = NULL);
 
 
 #endif // HAVE_EMBED

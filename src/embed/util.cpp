@@ -122,11 +122,22 @@ void handle_php_error_cb(
 		const char *format,
 		va_list argp)
 {
-	phc_warning (
-		format, 
-		argp, 
-		current_anchor->get_filename(), 
-		current_anchor->get_line_number ());
+	if (current_anchor)
+		phc_warning (
+				format, 
+				argp, 
+				current_anchor->get_filename(), 
+				current_anchor->get_line_number ());
+	else
+	{
+		if (debugging_enabled)
+		{
+			// TODO: correct length?
+			char string[1000];
+			snprintf (string, 990, format, argp);
+			cdebug << string << endl;;
+		}
+	}
 
 	zend_bailout (); // goto zend_catch
 }
@@ -147,6 +158,8 @@ bool eval_string (String* code, zval* result, IR::Node* anchor)
 
 	zend_first_try 
 	{
+		DEBUG ("Eval'ing string: " << *code);
+
 		zend_eval_string (
 			const_cast<char*>(code->c_str ()), 
 			result, 
