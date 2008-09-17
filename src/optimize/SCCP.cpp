@@ -231,7 +231,7 @@ SCCP::visit_phi (Phi* phi)
 		if (!pair.second->is_executable)
 			; // use TOP, aka do nothing
 		else
-			result = meet (result, lattice[pair.first]);
+			result = ::meet (result, lattice[pair.first]);
 	}
 	lattice[phi->lhs] = result;
 }
@@ -296,12 +296,6 @@ SCCP::visit_branch_block (Branch_block* bb)
 /*
  * Statements
  */
-
-void
-SCCP::visit_assign_array (Statement_block*, MIR::Assign_array*)
-{
-	die ();
-}
 
 void
 SCCP::visit_assign_field (Statement_block*, MIR::Assign_field *)
@@ -393,9 +387,11 @@ SCCP::visit_ssa_pre_op (Statement_block*, MIR::SSA_pre_op* in)
 
 	else
 	{
-		Literal* lit = lattice[in->use]->get_value ();
-		die (); // TODO go through embed
-		// TODO lower the lattice (same as in assign_var)
+		Literal* lit = get_literal (in->use);
+		Literal* result = PHP::fold_pre_op (lit, in->op);
+
+		if (result)
+			meet (in->def, result);
 	}
 }
 
@@ -412,9 +408,14 @@ SCCP::visit_try (Statement_block*, MIR::Try*)
 }
 
 void
-SCCP::visit_unset (Statement_block*, MIR::Unset*)
+SCCP::visit_unset (Statement_block*, MIR::Unset* in)
 {
-	die ();
+	assert (in->target == NULL);
+	assert (in->array_indices->size () == 0);
+	assert (isa<VARIABLE_NAME> (in->variable_name));
+
+	// Def_use asserts what we cant handle, for now.
+	meet (dyc<VARIABLE_NAME> (in->variable_name), new NIL ());
 }
 
 /* Returns NULL, or the literal in VARIABLE_NAME. We have separate functions,
@@ -433,6 +434,18 @@ SCCP::get_literal (Rvalue* in)
 	return lattice[var_name]->get_value ()->clone ();
 }
 
+void
+SCCP::meet (VARIABLE_NAME* var_name, Literal* lit)
+{
+	meet (var_name, new Lattice_cell (lit));
+}
+
+void
+SCCP::meet (VARIABLE_NAME* var_name, Lattice_cell* lat)
+{
+	lattice[var_name] = ::meet (lattice[var_name], lat);
+}
+
 
 /*
  * Exprs
@@ -443,12 +456,17 @@ SCCP::get_literal (Rvalue* in)
 Expr*
 SCCP::transform_array_access (Statement_block*, Array_access* in)
 {
-	// TODO is this a string, with a known index
-	assert (get_literal (in->variable_name) == NULL);
+	Literal* index = 0;
 
 	// Fold index
-	if (Literal* lit = get_literal (in->index))
-		in->index = lit;
+	if (Literal* index = get_literal (in->index))
+		in->index = index;
+
+	// Is this a string, with a known index.
+	Literal* array = get_literal (in->variable_name);
+	if (array && index)
+		die ();
+//		return fold_string_index (array, literal);
 
 	return in;
 }
@@ -655,9 +673,11 @@ public:
 		}
 	}
 
-	void visit_assign_array (Statement_block*, MIR::Assign_array*)
+	void visit_assign_array (Statement_block*, MIR::Assign_array* in)
 	{
-		die ();
+		Literal* lit = get_literal (in->index);
+		if (lit)
+			in->index = lit;
 	}
 
 	void visit_assign_field (Statement_block*, MIR::Assign_field *)
@@ -712,16 +732,19 @@ public:
 		die ();
 	}
 
-	void visit_ssa_pre_op (Statement_block*, MIR::SSA_pre_op* in)
+	void visit_ssa_pre_op (Statement_block* bb, MIR::SSA_pre_op* in)
 	{
-		// TODO go through embed
-		if (get_literal (in->use))
-			die ();
+		if (Literal* lit = get_literal (in->def))
+			bb->statement = new Assign_var (in->def, false, lit);
 	}
 
-	void visit_return (Statement_block*, MIR::Return*)
+	void visit_return (Statement_block* bb, MIR::Return* in)
 	{
-		die ();
+		// Dont propagate to return-by-ref
+		if (bb->cfg->get_entry_bb ()->method->signature->is_ref)
+			return;
+
+		// TODO change Return to take an Rvalue
 	}
 
 	void visit_static_declaration (Statement_block*, MIR::Static_declaration*)
@@ -739,9 +762,13 @@ public:
 		die ();
 	}
 
-	void visit_unset (Statement_block*, MIR::Unset*)
+	void visit_unset (Statement_block*, MIR::Unset* in)
 	{
-		die ();
+		assert (in->target == NULL);
+		assert (in->array_indices->size () == 0);
+		assert (isa<VARIABLE_NAME> (in->variable_name));
+
+		// do nothing for a normal variable
 	}
 
 	/* Returns NULL, or the literal in VARIABLE_NAME. We have separate

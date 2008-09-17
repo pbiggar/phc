@@ -49,8 +49,8 @@ public:
 	 * TODO: this will probably break for defs.
 	 * These are really for SSA_renaming. We can't use them for a different
 	 * purpose with the same semantics.*/
-	virtual Set* get_pre_ssa_defs ();
-	virtual Set* get_pre_ssa_uses ();
+	virtual MIR::VARIABLE_NAME_list* get_pre_ssa_defs ();
+	virtual MIR::VARIABLE_NAME_list* get_pre_ssa_uses ();
 
 	/*
 	 * CFG properties

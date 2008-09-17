@@ -163,16 +163,16 @@ CFG::add_statements (Statement_list* statements)
 	consistency_check ();
 }
 
-Basic_block*
+Entry_block*
 CFG::get_entry_bb ()
 {
-	return vb[entry];
+	return dyc<Entry_block> (vb[entry]);
 }
 
-Basic_block*
+Exit_block*
 CFG::get_exit_bb ()
 {
-	return vb[exit];
+	return dyc<Exit_block> (vb[exit]);
 }
 
 BB_list*
@@ -233,7 +233,7 @@ struct BB_property_functor
 		// headlabel and taillabel attributes dont expand the area they are
 		// in, and so are frequently unreadable.
 	}
-#define LINE_LENGTH 30
+#define LINE_LENGTH 20
 	void operator()(std::ostream& out, const vertex_t& v) const 
 	{
 		out << "[";
@@ -350,7 +350,11 @@ void
 CFG::dump_graphviz (String* label)
 {
 	renumber_vertex_indices ();
-	consistency_check ();
+	if (label == NULL) // for debugging
+	{
+		consistency_check ();
+		label = s ("TEST");
+	}
 	write_graphviz (
 		cout, 
 		bs, 
@@ -532,9 +536,9 @@ void CFG::convert_to_ssa_form ()
 		foreach (Basic_block* frontier, *bb->get_dominance_frontier ())
 		{
 			// Get defs (including phi node LHSs)
-			Set* def_list = bb->get_pre_ssa_defs ();
+			VARIABLE_NAME_list* def_list = bb->get_pre_ssa_defs ();
 			foreach (Phi* phi, *bb->get_phi_nodes())
-				def_list->insert (phi->lhs);
+				def_list->push_back (phi->lhs);
 
 			bool def_added = false;
 			foreach (VARIABLE_NAME* var_name, *def_list)

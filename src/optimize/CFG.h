@@ -17,6 +17,8 @@
 
 class Basic_block;
 class Branch_block;
+class Entry_block;
+class Exit_block;
 typedef List<Basic_block*> BB_list;
 
 class Edge;
@@ -116,8 +118,8 @@ public:
 	/*
 	 * CFG access
 	 */
-	Basic_block* get_entry_bb ();
-	Basic_block* get_exit_bb ();
+	Entry_block* get_entry_bb ();
+	Exit_block* get_exit_bb ();
 
 	BB_list* get_all_bbs ();
 	BB_list* get_all_bbs_top_down ();

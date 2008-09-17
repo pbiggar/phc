@@ -31,8 +31,8 @@ public:
 	Def_use_web ();
 
 	// These are intended for use during the conversion to SSA.
-	Set* get_bb_defs (Basic_block* bb);
-	Set* get_bb_uses (Basic_block* bb);
+	MIR::VARIABLE_NAME_list* get_bb_defs (Basic_block* bb);
+	MIR::VARIABLE_NAME_list* get_bb_uses (Basic_block* bb);
 
 	// For the variable DEF, return its uses.
 	SSA_edge_list* get_var_uses (MIR::VARIABLE_NAME* def);

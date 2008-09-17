@@ -417,13 +417,13 @@ Basic_block::get_dominated_blocks ()
 	return cfg->dominance->get_blocks_dominated_by_bb (this);
 }
 
-Set*
+VARIABLE_NAME_list*
 Basic_block::get_pre_ssa_defs ()
 {
 	return cfg->duw->get_bb_defs (this);
 }
 
-Set*
+VARIABLE_NAME_list*
 Basic_block::get_pre_ssa_uses ()
 {
 	return cfg->duw->get_bb_uses (this);

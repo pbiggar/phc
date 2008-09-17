@@ -22,10 +22,10 @@ Def_use_web::Def_use_web ()
 {
 }
 
-Set*
+VARIABLE_NAME_list*
 Def_use_web::get_bb_defs (Basic_block* bb)
 {
-	Set* result = new Set;
+	VARIABLE_NAME_list* result = new VARIABLE_NAME_list;
 
 	// Go through the use-def result, finding those who's BB == BB
 	pair<VARIABLE_NAME*, SSA_edge_list> pair;
@@ -37,16 +37,16 @@ Def_use_web::get_bb_defs (Basic_block* bb)
 
 			// Dont insert the key, it may be the wrong var_name.
 			if (edge->bb == bb)
-				result->insert (edge->variable_name);
+				result->push_back (edge->variable_name);
 		}
 	}
 	return result;
 }
 
-Set*
+VARIABLE_NAME_list*
 Def_use_web::get_bb_uses (Basic_block* bb)
 {
-	Set* result = new Set;
+	VARIABLE_NAME_list* result = new VARIABLE_NAME_list;
 
 	// Go through the def-use result, finding those who's BB == BB
 	pair<VARIABLE_NAME*, SSA_edge_list> pair;
@@ -58,7 +58,7 @@ Def_use_web::get_bb_uses (Basic_block* bb)
 
 			// Dont insert the key, it may be the wrong var_name.
 			if (edge->bb == bb)
-				result->insert (edge->variable_name);
+				result->push_back (edge->variable_name);
 		}
 	}
 
@@ -138,9 +138,11 @@ Def_use_web::visit_phi_node (Basic_block* bb, Phi* phi)
 }
 
 void
-Def_use_web::visit_assign_array (Statement_block*, MIR::Assign_array* in)
+Def_use_web::visit_assign_array (Statement_block* bb, MIR::Assign_array* in)
 {
-	assert (0);
+	add_use (in->lhs, new SSA_edge (bb));
+	add_use (in->rhs, new SSA_edge (bb));
+	add_use (in->index, new SSA_edge (bb));
 }
 
 void
@@ -213,9 +215,9 @@ Def_use_web::visit_push_array (Statement_block*, MIR::Push_array* in)
 }
 
 void
-Def_use_web::visit_return (Statement_block*, MIR::Return* in)
+Def_use_web::visit_return (Statement_block* bb, MIR::Return* in)
 {
-	assert (0);
+	add_use (in->variable_name, new SSA_edge (bb));
 }
 
 void
@@ -244,9 +246,13 @@ Def_use_web::visit_try (Statement_block*, MIR::Try* in)
 }
 
 void
-Def_use_web::visit_unset (Statement_block*, MIR::Unset* in)
+Def_use_web::visit_unset (Statement_block* bb, MIR::Unset* in)
 {
-	assert (0);
+	assert (in->target == NULL);
+	assert (in->array_indices->size () == 0);
+	assert (isa<VARIABLE_NAME> (in->variable_name));
+
+	add_def (dyc<VARIABLE_NAME> (in->variable_name), new SSA_edge (bb));
 }
 
 /*
@@ -256,7 +262,8 @@ Def_use_web::visit_unset (Statement_block*, MIR::Unset* in)
 void
 Def_use_web::visit_array_access (Statement_block* bb, Array_access* in)
 {
-	assert (0);
+	add_use (in->variable_name, new SSA_edge (bb));
+	add_use (in->index, new SSA_edge (bb));
 }
 
 void

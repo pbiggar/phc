@@ -56,6 +56,7 @@ public:
 	static bool is_true (MIR::Literal* literal);
 	static MIR::Literal* cast_to (MIR::CAST* cast, MIR::Literal* literal);
 	static MIR::Literal* fold_bin_op (MIR::Literal* left, MIR::OP* op, MIR::Literal* right);
+	static MIR::Literal* fold_pre_op (MIR::Literal* use, MIR::OP* op);
 
 	// Functions
 	static bool is_pure_function (MIR::METHOD_NAME* in);

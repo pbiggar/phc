@@ -18,6 +18,9 @@ public:
 	int get_predecessor_executable_count (Basic_block* bb);
 	void update_ir (CFG*);
 
+	void meet (MIR::VARIABLE_NAME* var_name, MIR::Literal* lit);
+	void meet (MIR::VARIABLE_NAME* var_name, Lattice_cell* lat);
+
 	// High-level SSA properties
 	void visit_phi (Phi* phi);
 	void visit_ssa_edge (SSA_edge* phi);
@@ -26,7 +29,6 @@ public:
 	void visit_branch_block (Branch_block*);
 
 	// Statement blocks
-	void visit_assign_array (Statement_block*, MIR::Assign_array*);
 	void visit_assign_field (Statement_block*, MIR::Assign_field *);
 	void visit_assign_var (Statement_block*, MIR::Assign_var*);
 	void visit_assign_var_var (Statement_block*, MIR::Assign_var_var*);
