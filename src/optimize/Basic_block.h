@@ -39,9 +39,9 @@ public:
 	virtual list<std::pair<String*,String*> >* get_graphviz_properties ();
 
 	// Returns a list of (name, list[values]) pairs
-	virtual list<pair<String*,Set*> >* get_graphviz_bb_properties ();
-	virtual list<pair<String*,Set*> >* get_graphviz_head_properties ();
-	virtual list<pair<String*,Set*> >* get_graphviz_tail_properties ();
+	virtual list<pair<String*,list<String*> > >* get_graphviz_bb_properties ();
+	virtual list<pair<String*,list<String*> > >* get_graphviz_head_properties ();
+	virtual list<pair<String*,list<String*> > >* get_graphviz_tail_properties ();
 
 public:
 	/* In the presence of variable_variables, the variable which is actually

@@ -105,45 +105,49 @@ Branch_block::get_graphviz_properties ()
 }
 
 
-list<std::pair<String*,Set*> >*
+list<pair<String*,list<String*> > >*
 Basic_block::get_graphviz_bb_properties ()
 {
-	list<pair<String*,Set*> >* result = new list<std::pair<String*,Set*> >;
-	if (defs)
-		result->push_back (pair<String*, Set*> (s("defs"), defs));
-	if (uses)
-		result->push_back (pair<String*, Set*> (s("uses"), uses));
-	if (aliases && dynamic_cast<Entry_block*> (this))
-		result->push_back (pair<String*, Set*> (s("aliases"), aliases));
+	list<pair<String*,list<String*> > >* result = new list<pair<String*,list<String*> > >;
+//	if (defs)
+//		result->push_back (pair<String*, Set*> (s("defs"), defs));
+//	if (uses)
+//		result->push_back (pair<String*, Set*> (s("uses"), uses));
+//	if (aliases && dynamic_cast<Entry_block*> (this))
+//		result->push_back (pair<String*, Set*> (s("aliases"), aliases));
 	return result;
 }
 
-list<std::pair<String*,Set*> >*
+list<pair<String*,list<String*> > >*
 Basic_block::get_graphviz_head_properties ()
 {
-	list<std::pair<String*,Set*> >* result = new list<std::pair<String*,Set*> >;
+	list<pair<String*,list<String*> > >* result = new list<pair<String*,list<String*> > >;
 	// Phi nodes
 	foreach (Phi* phi, *get_phi_nodes ())
 	{
-		Set* set = new Set;
-		foreach (VARIABLE_NAME* arg, *phi->get_args ())
-			set->insert (arg);
+		list<String*> list;
+		foreach (Rvalue* arg, *phi->get_args ())
+		{
+			if (isa<VARIABLE_NAME> (arg))
+				list.push_back (dyc<VARIABLE_NAME> (arg)->get_ssa_var_name ());
+			else
+				list.push_back (dyc<Literal> (arg)->get_value_as_string ());
+		}
 
-		result->push_back (
-			pair<String*, Set*> (phi->lhs->get_ssa_var_name (), set));
+		result->push_back (make_pair (phi->lhs->get_ssa_var_name (), list));
 	}
 
-	if (live_in)
-		result->push_back (pair<String*, Set*> (s("IN"), live_in));
+//	if (live_in)
+//		result->push_back (make_pair (s("IN"), live_in));
 	return result;
 }
 
-list<std::pair<String*,Set*> >*
+list<pair<String*,list<String*> > >*
 Basic_block::get_graphviz_tail_properties ()
 {
-	list<std::pair<String*,Set*> >* result = new list<std::pair<String*,Set*> >;
-	if (live_out)
-		result->push_back (pair<String*, Set*> (s("OUT"), live_out));
+	list<pair<String*,list<String*> > >* result = new list<pair<String*,list<String*> > >;
+//	if (live_out)
+//		result->push_back (make_pair (s("OUT"), live_out));
 	return result;
 }
 
@@ -202,9 +206,10 @@ Basic_block::merge_phi_nodes (Basic_block* other)
 	{
 		if (has_phi_function (phi->lhs))
 		{
-			pair<VARIABLE_NAME*, Edge*> arg;
-			foreach (arg, *phi->args)
-				phi_nodes[*phi->lhs->value]->args->push_back (arg);
+			assert (0); // TODO: this doesnt work
+			pair<Rvalue*, Edge*> arg;
+			foreach (arg, *phi->get_arg_edges ())
+				phi_nodes[*phi->lhs->value]->get_arg_edges ()->push_back (arg);
 		}
 		else
 			phi_nodes[*phi->lhs->value] = phi;
@@ -227,14 +232,15 @@ Basic_block::fix_solo_phi_args ()
 	BB_list* replacements = new BB_list (this);
 	foreach (Phi* phi, *get_phi_nodes ())
 	{
-		VARIABLE_NAME_list* args = phi->get_args ();
+		Rvalue_list* args = phi->get_args ();
 		if (args->size () == 1)
 		{
 			replacements->push_front (
 				new Statement_block (
 					cfg,
 					new Assign_var (
-						phi->lhs, 
+						phi->lhs,
+						false,
 						args->front ())));
 
 			phi_nodes.erase (*phi->lhs->value);

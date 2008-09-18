@@ -12,18 +12,20 @@ class Phi : virtual public Object
 {
 public:
 	MIR::VARIABLE_NAME* lhs;
-	// TODO make private
-	list<pair<MIR::VARIABLE_NAME*, Edge*> >* args;
+
+private:
+	list<pair<MIR::Rvalue*, Edge*> >* args;
 
 public:
 	Phi (MIR::VARIABLE_NAME* lhs);
 
 	void add_arg (int version, Edge* source);
-	MIR::VARIABLE_NAME_list* get_args ();
-	list<pair<MIR::VARIABLE_NAME*, Edge*> >* get_arg_edges ();
+	MIR::Rvalue_list* get_args ();
+	list<pair<MIR::Rvalue*, Edge*> >* get_arg_edges ();
 	void remove_arg_for_edge (Edge* edge);
 
 	void replace_edge (Edge* old_edge, Edge* new_edge);
+	void replace_var_name (MIR::VARIABLE_NAME* old_var_name, MIR::Rvalue* new_rval);
 
 	Phi* clone () { assert (0); } // TODO
 

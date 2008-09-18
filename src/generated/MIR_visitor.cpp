@@ -1596,8 +1596,8 @@ void Visitor::pre_variable_name_chain(VARIABLE_NAME* in)
 {
     pre_node((Node*) in);
     pre_expr((Expr*) in);
-    pre_variable_name((Variable_name*) in);
     pre_rvalue((Rvalue*) in);
+    pre_variable_name((Variable_name*) in);
     pre_target((Target*) in);
     pre_identifier((Identifier*) in);
     pre_variable_name((VARIABLE_NAME*) in);
@@ -2139,8 +2139,8 @@ void Visitor::post_variable_name_chain(VARIABLE_NAME* in)
     post_variable_name((VARIABLE_NAME*) in);
     post_identifier((Identifier*) in);
     post_target((Target*) in);
-    post_rvalue((Rvalue*) in);
     post_variable_name((Variable_name*) in);
+    post_rvalue((Rvalue*) in);
     post_expr((Expr*) in);
     post_node((Node*) in);
 }

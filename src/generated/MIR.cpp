@@ -1509,10 +1509,6 @@ Expr::Expr()
 {
 }
 
-Rvalue::Rvalue()
-{
-}
-
 Target::Target()
 {
 }
@@ -5601,7 +5597,7 @@ void Isset::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Literal::Literal()
+Rvalue::Rvalue()
 {
 }
 
@@ -9776,6 +9772,10 @@ void HT_ITERATOR::assert_valid()
 {
     assert(value != NULL);
     Node::assert_mixin_valid();
+}
+
+Literal::Literal()
+{
 }
 
 Variable_variable::Variable_variable(VARIABLE_NAME* variable_name)

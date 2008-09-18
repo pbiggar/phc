@@ -70,6 +70,7 @@ public:
 	}
 };
 
+Lattice_cell* meet (Lattice_cell* l1, MIR::Literal* lit);
 Lattice_cell* meet (Lattice_cell* l1, Lattice_cell* l2);
 
 

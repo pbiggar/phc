@@ -246,16 +246,16 @@ struct BB_property_functor
 
 		// IN annotations
 		stringstream ss1;
-		pair<String*, Set*> props;
+		pair<String*, list<String*> > props;
 		foreach (props, *vb[v]->get_graphviz_head_properties ())
 		{
-			if (props.second->size ())
+			if (props.second.size ())
 			{
 				ss1 << *props.first << " = [";
 				unsigned int line_count = 1;
-				foreach (VARIABLE_NAME* var_name, *props.second)
+				foreach (String* str, props.second)
 				{
-					ss1 << *var_name->get_ssa_var_name() << ", ";
+					ss1 << *str << ", ";
 					if (ss1.str().size() > (LINE_LENGTH * line_count))
 					{
 						line_count++;
@@ -274,13 +274,13 @@ struct BB_property_functor
 		stringstream ss3;
 		foreach (props, *vb[v]->get_graphviz_bb_properties ())
 		{
-			if (props.second->size ())
+			if (props.second.size ())
 			{
 				ss3 << *props.first << " = [";
 				unsigned int line_count = 1;
-				foreach (VARIABLE_NAME* var_name, *props.second)
+				foreach (String* str, props.second)
 				{
-					ss3 << *var_name->get_ssa_var_name () << ", ";
+					ss3 << *str << ", ";
 					if (ss3.str().size() > (LINE_LENGTH * line_count))
 					{
 						line_count++;
@@ -295,13 +295,13 @@ struct BB_property_functor
 		stringstream ss4;
 		foreach (props, *vb[v]->get_graphviz_tail_properties ())
 		{
-			if (props.second->size ())
+			if (props.second.size ())
 			{
 				ss4 << *props.first << " = [";
 				unsigned int line_count = 1;
-				foreach (VARIABLE_NAME* var_name, *props.second)
+				foreach (String* str, props.second)
 				{
-					ss4 << *var_name->get_ssa_var_name() << ", ";
+					ss4 << *str << ", ";
 					if (ss4.str().size() > (LINE_LENGTH * line_count))
 					{
 						line_count++;
@@ -372,6 +372,31 @@ CFG::consistency_check ()
 	{
 		assert (vb[v]->vertex == v);
 	}
+
+	foreach (edge_t e, edges (bs))
+	{
+		assert (ee[e]->edge == e);
+
+		// Every edge should be a successor_edge of its source.
+		Basic_block* pred = ee[e]->source;
+		bool found = false;
+		foreach (Edge* outgoing, *pred->get_successor_edges ())
+			if (outgoing == ee[e])
+				found = true;
+
+		assert (found);
+
+		// Every edge should be a predecessor_edge of its target.
+		Basic_block* succ = ee[e]->target;
+		found = false;
+		foreach (Edge* incoming, *succ->get_predecessor_edges ())
+			if (incoming == ee[e])
+				found = true;
+
+		assert (found);
+	}
+
+	// Every edge should be a successor_edge of its source, and a predecessor_edge of its target.
 }
 // Do a depth first search. For each block, add a label, and a goto to the
 // next block(s).
@@ -596,12 +621,12 @@ CFG::convert_out_of_ssa_form ()
 		foreach (Phi* phi, *bb->get_phi_nodes ())
 		{
 			BB_list* preds = bb->get_predecessors ();
-			foreach (VARIABLE_NAME* var_name, *phi->get_args ())
+			foreach (Rvalue* rval, *phi->get_args ())
 			{
 				Assign_var* copy = new Assign_var (
 					phi->lhs->clone (),
 					false,
-					var_name->clone ());
+					rval->clone ());
 
 				Statement_block* new_bb = new Statement_block (this, copy);
 
@@ -727,12 +752,12 @@ CFG::add_bb_between (Basic_block* source, Basic_block* target, Basic_block* new_
 void
 CFG::replace_bb (Basic_block* bb, BB_list* replacements)
 {
+	// Same BB: do nothing
 	if (replacements->size() == 1
-		&& replacements->front() == bb)
-	{
-		// Same BB: do nothing
-	}
-	else if (replacements->size() == 0)
+			&& replacements->front() == bb)
+		return;
+
+	if (replacements->size() == 0)
 	{
 		// Branch blocks don't go through this interface
 		Basic_block* succ = bb->get_successor ();
@@ -753,7 +778,7 @@ CFG::replace_bb (Basic_block* bb, BB_list* replacements)
 			// Branch. Just copy the label from the new predecessor.
 			ee[e]->direction = get_edge (pred, bb)->direction;
 
-			// TODO When we replace an edge before a Phi node, we need to update that
+			// When we replace an edge before a Phi node, we need to update that
 			// phi node with the edge coming into it.
 			foreach (Phi* phi, *succ->get_phi_nodes ())
 				phi->replace_edge (succ_edge, ee[e]);
@@ -771,9 +796,9 @@ CFG::replace_bb (Basic_block* bb, BB_list* replacements)
 		remove_bb (bb);
 
 
-		// We don't perform this in the middle of the removal operation, as it will
-		// make it non-atomic, which could be tricky. Its over now, so even if it
-		// recurses, its fine.
+		// We don't perform this in the middle of the removal operation, as it
+		// will make it non-atomic, which could be tricky. Its over now, so
+		// even if it recurses, its fine.
 		succ->fix_solo_phi_args ();
 	}
 	else
@@ -813,7 +838,7 @@ CFG::replace_bb (Basic_block* bb, BB_list* replacements)
 		front->merge_phi_nodes (bb);
 
 
-		// Add edge along the chain
+		// Add edge along the chain (no phis to worry about here).
 		Basic_block* prev = front;
 		foreach (Basic_block* new_bb, *replacements)
 		{

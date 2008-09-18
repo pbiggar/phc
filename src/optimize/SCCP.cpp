@@ -225,13 +225,18 @@ SCCP::visit_phi (Phi* phi)
 	 */
 	Lattice_cell* result = TOP;
 
-	pair<VARIABLE_NAME*, Edge*> pair;
+	pair<Rvalue*, Edge*> pair;
 	foreach (pair, *phi->get_arg_edges ())
 	{
 		if (!pair.second->is_executable)
 			; // use TOP, aka do nothing
 		else
-			result = ::meet (result, lattice[pair.first]);
+		{
+			if (isa<Literal> (pair.first))
+				result = ::meet (result, dyc<Literal> (pair.first));
+			else
+				result = ::meet (result, lattice[dyc<VARIABLE_NAME> (pair.first)]);
+		}
 	}
 	lattice[phi->lhs] = result;
 }
@@ -661,6 +666,19 @@ public:
 	{
 	}
 
+	void visit_phi_node (Basic_block* bb, Phi* phi)
+	{
+		foreach (Rvalue* arg, *phi->get_args ())
+		{
+			if (isa<Literal> (arg))
+				continue;
+
+			Literal* lit = get_literal (arg);
+			if (lit)
+				phi->replace_var_name (dyc<VARIABLE_NAME> (arg), lit);
+		}
+	}
+
 	void visit_branch_block (Branch_block* bb)
 	{
 		Literal* lit = get_literal (bb->branch->variable_name);
@@ -675,9 +693,10 @@ public:
 
 	void visit_assign_array (Statement_block*, MIR::Assign_array* in)
 	{
-		Literal* lit = get_literal (in->index);
-		if (lit)
-			in->index = lit;
+		Literal* index = get_literal (in->index);
+		Literal* rhs = get_literal (in->rhs);
+		if (index) in->index = index;
+		if (rhs) in->rhs = rhs;
 	}
 
 	void visit_assign_field (Statement_block*, MIR::Assign_field *)

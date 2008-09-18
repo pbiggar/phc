@@ -16,7 +16,7 @@ using namespace boost;
 Phi::Phi (VARIABLE_NAME* var_name)
 : lhs(var_name)
 {
-	args = new list<pair<MIR::VARIABLE_NAME*, Edge*> >;
+	args = new list<pair<MIR::Rvalue*, Edge*> >;
 }
 
 void
@@ -27,11 +27,11 @@ Phi::add_arg (int version, Edge* edge)
 	args->push_back (make_pair (param, edge));
 }
 
-VARIABLE_NAME_list* 
+Rvalue_list* 
 Phi::get_args ()
 {
-	VARIABLE_NAME_list* result = new VARIABLE_NAME_list;
-	pair<VARIABLE_NAME*, Edge*> pair;
+	Rvalue_list* result = new Rvalue_list;
+	pair<Rvalue*, Edge*> pair;
 	foreach (pair, *args)
 	{
 		result->push_back (pair.first);
@@ -39,7 +39,7 @@ Phi::get_args ()
 	return result;
 }
 
-list<pair<MIR::VARIABLE_NAME*, Edge*> >*
+list<pair<MIR::Rvalue*, Edge*> >*
 Phi::get_arg_edges ()
 {
 	return args;
@@ -48,7 +48,7 @@ Phi::get_arg_edges ()
 void
 Phi::remove_arg_for_edge (Edge* edge)
 {
-	list<pair<MIR::VARIABLE_NAME*, Edge*> >::iterator i;
+	list<pair<MIR::Rvalue*, Edge*> >::iterator i;
 	for (i = args->begin (); i != args->end (); i++)
 	{
 		if ((*i).second == edge)
@@ -63,15 +63,38 @@ Phi::remove_arg_for_edge (Edge* edge)
 void
 Phi::replace_edge (Edge* old_edge, Edge* new_edge)
 {
-	pair<VARIABLE_NAME*, Edge*> pair;
-	foreach (pair, *args)
+	list<pair<MIR::Rvalue*, Edge*> >::iterator i;
+	for (i = args->begin (); i != args->end (); i++)
 	{
-		if (pair.second == old_edge)
+		if ((*i).second == old_edge)
 		{
-			pair.second = new_edge;
-			break;
+			(*i).second = new_edge;
+			return;
 		}
 	}
+
+	// TODO: i cant find where this happens
+//	assert (0);
+}
+
+
+void
+Phi::replace_var_name (MIR::VARIABLE_NAME* old_var_name, MIR::Rvalue* new_rval)
+{
+	// We get pair copies with a foreach loop, which wont update the original.
+	// Also, we can't use a reference in a foreach loop, since there is a
+	// comma in the pair declaration.
+	list<pair<MIR::Rvalue*, Edge*> >::iterator i;
+	for (i = args->begin (); i != args->end (); i++)
+	{
+		if ((*i).first == old_var_name)
+		{
+			(*i).first = new_rval;
+			return;
+		}
+	}
+
+	assert (0);
 }
 
 void
