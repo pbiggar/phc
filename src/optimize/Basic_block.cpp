@@ -473,14 +473,16 @@ Exit_block::dump()
 void
 Branch_block::dump()
 {
-	DEBUG ("Branch block" << branch->variable_name->get_ssa_var_name ());
+	DEBUG ("Branch block (" << *branch->variable_name->get_ssa_var_name () << ")");
 
 }
 
 void
 Statement_block::dump()
 {
-	DEBUG ("Statemnet block");
+	CHECK_DEBUG ();
+
+	DEBUG ("Statement block");
 
 	MIR_unparser mup(cdebug, true);
 	mup.unparse(statement);

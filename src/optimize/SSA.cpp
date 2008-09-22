@@ -178,7 +178,8 @@ Dominance::calculate_immediate_dominators ()
 		if (get(idom_calc, bb->vertex) != graph_traits<Graph>::null_vertex())
 		{
 			idoms[bb] = cfg->vb[get(idom_calc, bb->vertex)];
-			DEBUG ("BB " << bb << "(" << bb->get_index() << ") is dominated by " << idoms[bb]->get_index ());
+			bb->dump ();
+			DEBUG ("(" << bb->get_index() << ") is dominated by " << idoms[bb]->get_index ());
 		}
 		else
 		{
@@ -358,7 +359,7 @@ SSA_renaming::rename_vars (Basic_block* bb)
 	// Rename local variable uses
 	foreach (VARIABLE_NAME* use, *bb->get_pre_ssa_uses ())
 	{
-		DEBUG ("Converting use " << use);
+		DEBUG ("Converting use " << *use->get_ssa_var_name ());
 		debug (use);
 		use->convert_to_ssa_name (read_var_stack (use));
 		DEBUG (" to ");
@@ -368,7 +369,7 @@ SSA_renaming::rename_vars (Basic_block* bb)
 	// Create new names for defs
 	foreach (VARIABLE_NAME* def, *bb->get_pre_ssa_defs ())
 	{
-		DEBUG ("Converting def " << def);
+		DEBUG ("Converting use " << *def->get_ssa_var_name ());
 		debug (def);
 		create_new_ssa_name (def);
 		DEBUG (" to ");
