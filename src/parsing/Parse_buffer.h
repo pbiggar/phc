@@ -54,6 +54,9 @@ public:
 		pass = s (pass->substr (0, 3));
 		pass->toLower ();
 		assert (*pass == "ast" || *pass == "hir" || *pass == "mir");
+		if (*pass == "ast")
+			pass = s("sua");
+
 		return to_pass (pass, anchor);
 	}
 

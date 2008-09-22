@@ -354,19 +354,17 @@ SCCP::visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
 void
 SCCP::visit_foreach_end (Statement_block*, MIR::Foreach_end*)
 {
-	die ();
+	// No constants to be folded for any foreach.
 }
 
 void
 SCCP::visit_foreach_next (Statement_block*, MIR::Foreach_next*)
 {
-	die ();
 }
 
 void
 SCCP::visit_foreach_reset (Statement_block*, MIR::Foreach_reset*)
 {
-	die ();
 }
 
 void
@@ -722,17 +720,15 @@ public:
 
 	void visit_foreach_end (Statement_block*, MIR::Foreach_end*)
 	{
-		die ();
+		// No folding for any foreach statement.
 	}
 
 	void visit_foreach_next (Statement_block*, MIR::Foreach_next*)
 	{
-		die ();
 	}
 
 	void visit_foreach_reset (Statement_block*, MIR::Foreach_reset*)
 	{
-		die ();
 	}
 
 	void visit_global (Statement_block*, MIR::Global* in)

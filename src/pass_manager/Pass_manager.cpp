@@ -608,12 +608,11 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 			if (args_info->cfg_dump_given)
 				cfg->dump_graphviz (s("CFG - after third DCE"));
 
-			disable_cdebug ();
-
 			cfg->convert_out_of_ssa_form ();
 			if (args_info->cfg_dump_given)
 				cfg->dump_graphviz (s("CFG - post SSA"));
 
+			disable_cdebug ();
 
 /*			if (lexical_cast<int> (args_info->optimize_arg) > 0)
 			{

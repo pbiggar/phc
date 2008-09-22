@@ -161,7 +161,9 @@ PHP::is_true (Literal* lit)
 	stringstream ss;
 	ss << "(bool)" << *lit->get_value_as_string ();
 
-	return eval_to_literal (ss);
+	Literal* result = eval_to_literal (ss);
+
+	return dyc<BOOL> (result)->value;
 }
 
 

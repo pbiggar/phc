@@ -226,8 +226,8 @@ Basic_block::remove_phi_nodes ()
 void
 Basic_block::fix_solo_phi_args ()
 {
-	// TODO: The theory is that each Phi node executes simultaneously. If there
-	// are dependencies between the nodes, this could be wrong.
+	// TODO: The theory is that each Phi node executes simultaneously. If
+	// there are dependencies between the nodes, this could be wrong.
 
 	BB_list* replacements = new BB_list (this);
 	foreach (Phi* phi, *get_phi_nodes ())
@@ -359,6 +359,12 @@ Basic_block::remove ()
 }
 
 void
+Basic_block::rip_out ()
+{
+	cfg->remove_bb (this);
+}
+
+void
 Basic_block::replace (BB_list* replacements)
 {
 	cfg->replace_bb (this, replacements);
@@ -409,6 +415,12 @@ Basic_block*
 Basic_block::get_immediate_dominator ()
 {
 	return cfg->dominance->get_bb_immediate_dominator (this);
+}
+
+bool
+Basic_block::is_dominated_by (Basic_block* bb)
+{
+	return cfg->dominance->is_bb_dominated_by (this, bb);
 }
 
 void

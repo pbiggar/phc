@@ -147,6 +147,10 @@ Phi::dump ()
 Dominance::Dominance (CFG* cfg)
 : cfg(cfg)
 {
+	// Keep the calls to calculate the dominance information out of here.
+	// Since the dominance needs to be used while its still incomplete, we
+	// have to access it (which we do via the CFG) before cfg->dominance has
+	// been assigned.
 }
 
 void
@@ -177,7 +181,10 @@ Dominance::calculate_immediate_dominators ()
 			DEBUG ("BB " << bb << "(" << bb->get_index() << ") is dominated by " << idoms[bb]->get_index ());
 		}
 		else
+		{
+			idoms[bb] = NULL;
 			DEBUG ("BB: " << bb << "(" << bb->get_index() << ") does not have an immediate dominator");
+		}
 	}
 
 	// THERE (see HERE)
@@ -194,11 +201,10 @@ Dominance::calculate_immediate_dominators ()
 
 	foreach (Basic_block* y, *cfg->get_all_bbs ())
 	{
-		if (y != cfg->get_entry_bb ())
-		{
-			Basic_block* dom = y->get_immediate_dominator ();
+		// ENTRY and any unreachable nodes may have no immediate dominator.
+		Basic_block* dom = y->get_immediate_dominator ();
+		if (dom != NULL)
 			forward_idoms [dom]->push_back (y);
-		}
 	}
 }
 
@@ -259,6 +265,24 @@ Dominance::get_blocks_dominated_by_bb (Basic_block* bb)
 {
 	return forward_idoms[bb];
 }
+
+bool
+Dominance::is_bb_dominated_by (Basic_block* bb, Basic_block* potential_dom)
+{
+	// Go up the dominator chain
+	while (idoms[bb] != NULL)
+	{
+		if (idoms[bb] == potential_dom)
+			return true;
+		else
+			bb = idoms[bb];
+	}
+	
+	return false;
+}
+
+
+
 
 SSA_renaming::SSA_renaming (CFG* cfg)
 : cfg(cfg)

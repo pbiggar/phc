@@ -70,6 +70,7 @@ public:
 
 	Basic_block* get_immediate_dominator ();
 	BB_list* get_dominated_blocks ();
+	bool is_dominated_by (Basic_block* bb);
 
 	// Returns an incomplete solution during creation.
 	BB_list* get_dominance_frontier ();
@@ -100,6 +101,12 @@ public:
 	 */
 	void remove ();
 	void replace (BB_list* replacements);
+
+	// Just rip it out, removing all predecessors, successors, edges, phis etc.
+	// Sometimes, this is OK, and we dont want to do this in remove (), where it
+	// might happen by accident.
+	void rip_out ();
+
 
 public:
 	/*
@@ -192,6 +199,7 @@ public:
 	void set_always_false ();
 
 	void switch_successors ();
+
 
 	void dump ();
 };

@@ -148,15 +148,23 @@ CFG::add_statements (Statement_list* statements)
 				break;
 			}
 
+			case Return::ID:
+			{
+				add_edge (vb[v], vb[exit]);
+				use_parent = false;
+				break;
+			}
+
 			default:
 				parent = v;
 				use_parent = true;
 				break;
 		}
 	}
-	
-	assert (use_parent);
-	add_edge (vb[parent], vb[exit]);
+
+	// Return adds the edge already.
+	if (use_parent)
+		add_edge (vb[parent], vb[exit]);
 
 	tidy_up ();
 
@@ -541,6 +549,7 @@ void CFG::convert_to_ssa_form ()
 	dominance->calculate_local_dominance_frontier ();
 	dominance->propagate_dominance_frontier_upwards ();
 
+
 	// Build def-use web (we're not in SSA form, but this will do the job).
 	duw = new Def_use_web ();
 	duw->run (this);
@@ -608,6 +617,13 @@ void CFG::convert_to_ssa_form ()
 void
 CFG::rebuild_ssa_form ()
 {
+	tidy_up ();
+
+	dominance = new Dominance (this);
+	dominance->calculate_immediate_dominators ();
+	dominance->calculate_local_dominance_frontier ();
+	dominance->propagate_dominance_frontier_upwards ();
+
 	duw = new Def_use_web ();
 	duw->run (this);
 }
@@ -759,34 +775,33 @@ CFG::replace_bb (Basic_block* bb, BB_list* replacements)
 
 	if (replacements->size() == 0)
 	{
-		// Branch blocks don't go through this interface
+		// Assume many predecessors, only 1 successor.
 		Basic_block* succ = bb->get_successor ();
 		Edge* succ_edge = bb->get_successor_edge ();
 
-		// TODO: dont know what to do here.
-		// The immediate post-dominator should get the phi nodes, according to
+		// TODO: dont know what to do here.  The immediate post-dominator
+		// should get the phi nodes, according to
 		// Cooper/Torczon lecture notes (see DCE comments).
 		// TODO Avoid exponential phi by putting in an empty block.
-
 
 		// Each predecessor needs a node to each successor.
 		foreach (Basic_block* pred, *bb->get_predecessors ())
 		{
 			edge_t e = add_edge (pred, succ);
 
-			// If the edge has a T/F label, it is because the predecessor is a
-			// Branch. Just copy the label from the new predecessor.
+			// If the edge has a T/F label, it is because the predecessor is
+			// a Branch. Just copy the label from the new predecessor.
 			ee[e]->direction = get_edge (pred, bb)->direction;
 
-			// When we replace an edge before a Phi node, we need to update that
-			// phi node with the edge coming into it.
+			// When we replace an edge before a Phi node, we need to update
+			// that phi node with the edge coming into it.
 			foreach (Phi* phi, *succ->get_phi_nodes ())
 				phi->replace_edge (succ_edge, ee[e]);
 		}
 
-		// If removing a block causes a successor to have fewer incoming edges,
-		// then we should remove the phi arguments for this edge from the phi
-		// node.
+		// If removing a block causes a successor to have fewer incoming
+		// edges, then we should remove the phi arguments for this edge from
+		// the phi node.
 		if (bb->get_predecessors ()->size() == 0)
 			foreach (Phi* phi, *succ->get_phi_nodes ())
 				phi->remove_arg_for_edge (succ_edge);
@@ -796,13 +811,71 @@ CFG::replace_bb (Basic_block* bb, BB_list* replacements)
 		remove_bb (bb);
 
 
-		// We don't perform this in the middle of the removal operation, as it
-		// will make it non-atomic, which could be tricky. Its over now, so
-		// even if it recurses, its fine.
+		// We don't perform this in the middle of the removal operation, as
+		// it will make it non-atomic, which could be tricky. Its over now,
+		// so even if it recurses, its fine.
 		succ->fix_solo_phi_args ();
+	}
+	else if (bb == replacements->back ())
+	{
+		// Insert the new nodes without removing the old one. Replacing the old
+		// one will invalidate the BB's vertex. (exit blocks dont like that).
+		replacements->pop_back ();
+
+		// Get the data from the BB so we can remove it.
+		BB_list* preds = bb->get_predecessors ();
+		Edge_list* pred_edges = bb->get_predecessor_edges ();
+		Phi_list* old_phis = bb->get_phi_nodes ();
+		BB_list* successors = bb->get_successors ();
+
+		// Front gets all incoming edges added
+		Basic_block* front = replacements->front ();
+		replacements->pop_front ();
+
+		add_bb (front);
+		// Each predecessor needs a node to each successor.
+		foreach (Basic_block* pred, *preds)
+		{
+			Edge* old_edge = pred_edges->front();
+			pred_edges->pop_front ();
+
+			edge_t e = add_edge (pred, front);
+
+			// If the edge has a T/F label, it is because the predecessor is a
+			// Branch. Just copy the label from the new predecessor.
+			ee[e]->direction = old_edge->direction;
+
+			// When we replace an edge before a Phi node, we need to update that
+			// phi node with the edge coming into it.
+			foreach (Phi* phi, *old_phis)
+				phi->replace_edge (old_edge, ee[e]);
+
+			// Remove the edge into the original BB.
+			remove_edge (old_edge);
+		}
+
+		// Copy the phi nodes into front (the edges are already updated)
+		front->merge_phi_nodes (bb);
+		bb->remove_phi_nodes ();
+
+
+		// Add edge along the chain (no phis to worry about here).
+		Basic_block* prev = front;
+		foreach (Basic_block* new_bb, *replacements)
+		{
+			assert (!isa<Branch_block> (new_bb));
+			add_bb (new_bb);
+			add_edge (prev, new_bb);
+			prev = new_bb;
+		}
+
+		add_edge (prev, bb);
 	}
 	else
 	{
+		assert (!isa<Branch_block> (bb));
+		assert (!isa<Exit_block> (bb));
+
 		// Get the data from the BB so we can remove it.
 		BB_list* preds = bb->get_predecessors ();
 		Edge_list* pred_edges = bb->get_predecessor_edges ();
@@ -851,12 +924,20 @@ CFG::replace_bb (Basic_block* bb, BB_list* replacements)
 		// There is only 1 successor
 		add_edge (prev, succ);
 	}
-
 }
 
 void
 CFG::remove_bb (Basic_block* bb)
 {
+	// Fix the successors' phi nodes.
+	foreach (Basic_block* succ, *bb->get_successors())
+	{
+		Edge* edge = get_edge (bb, succ);
+
+		foreach (Phi* phi, *succ->get_phi_nodes ())
+			phi->remove_arg_for_edge (edge);
+	}
+
 	clear_vertex (bb->vertex, bs);
 	remove_vertex (bb->vertex, bs);
 }
@@ -865,7 +946,6 @@ void
 CFG::remove_edge (Edge* edge)
 {
 	boost::remove_edge (edge->edge, bs);
-	tidy_up ();
 }
 
 
@@ -924,36 +1004,44 @@ CFG::get_all_bbs_bottom_up ()
 void
 CFG::tidy_up ()
 {
-	// TODO replace with worklist algorithm (beware, you cant remove a node
-	// twice. BGL doesnt like it.
-	bool repeat = true;
-	while (repeat)
+	set<Basic_block*> reachable;
+
+	// Mark-sweep to remove unreachable nodes.
+	BB_list* worklist = new BB_list(get_entry_bb ());
+
+	while (worklist->size () > 0)
 	{
-		repeat = false;
-		foreach (Basic_block* bb, *get_all_bbs ())
+		Basic_block* bb = worklist->front ();
+		worklist->pop_front ();
+
+		// Dont process BBs we've seen before
+		if (reachable.find (bb) != reachable.end ())
+			continue;
+
+		// mark reachable
+		reachable.insert (bb);
+	
+		// Add successors to the worklist
+		foreach (Basic_block* succ, *bb->get_successors ())
+			worklist->push_back (succ);
+	}
+
+	// remove all nodes not marked as reachable
+	foreach (Basic_block* bb, *get_all_bbs ())
+	{
+		if (reachable.find (bb) == reachable.end ())
 		{
-			// Remove unreachable blocks (ie, no predecessors and are not the entry
-			// block).
-			if (isa<Entry_block> (bb) || isa<Exit_block> (bb))
-				continue;
+			// TODO: this is definitely possible. What then?
+			assert (!isa<Exit_block> (bb));
 
-			// Don't remove a block with phi nodes.
-			if (bb->get_phi_nodes ()->size () > 0)
-				continue;
-
-			// TODO: Dont remove infinite loops
-//			if (bb->has_self_edge ())
-//				continue;
-
-			if (
-				isa<Empty_block> (bb)
-				|| bb->get_predecessors ()->size() == 0
-				|| bb->get_successors ()->size() == 0)
-			{
-				assert (!isa<Branch_block> (bb)); // special cases?
-				repeat = true;
-				bb->remove ();
-			}
+			bb->rip_out ();
 		}
 	}
+
+	// Additionally, remove useless blocks (here we have to update, since there
+	// are predecessors and successors, so we use bb->remove ()).
+	foreach (Basic_block* bb, *get_all_bbs ())
+		if (isa<Empty_block> (bb) && bb->get_phi_nodes ()->size () == 0)
+			bb->remove ();
+
 }
