@@ -506,9 +506,10 @@ SCCP::transform_cast (Statement_block*, Cast* in)
 Expr*
 SCCP::transform_constant (Statement_block*, Constant* in)
 {
-	// TODO:
-	die (); // We can put in PHP built-in constants.
-
+	Literal* lit = PHP::fold_constant (in);
+	if (lit)
+		return lit;
+	
 	// We'd very much like to know the value of this, however, since these are
 	// likely to be defined at the top-level, and this optimization won't run
 	// at the top-level (until its interprocedural), it won't do much good.
@@ -519,7 +520,7 @@ Expr*
 SCCP::transform_field_access (Statement_block*, Field_access* in)
 {
 	// TODO warning
-	// TODO promote name to FIEDL_NAME
+	// TODO promote name to FIELD_NAME
 	Field_access* fa = dyc<Field_access> (in);
 
 	// This uses a variable field, not a variable expr.

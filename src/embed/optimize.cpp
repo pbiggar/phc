@@ -156,7 +156,7 @@ PHP::fold_bin_op (Literal* left, OP* op, Literal* right)
 
 
 bool
-PHP::is_true (MIR::Literal* lit)
+PHP::is_true (Literal* lit)
 {
 	stringstream ss;
 	ss << "(bool)" << *lit->get_value_as_string ();
@@ -165,8 +165,8 @@ PHP::is_true (MIR::Literal* lit)
 }
 
 
-MIR::Literal*
-PHP::cast_to (MIR::CAST* cast, MIR::Literal* lit)
+Literal*
+PHP::cast_to (CAST* cast, Literal* lit)
 {
 	// TODO add canonicalization pass to convert to lowercase
 	string type = *cast->value;
@@ -192,7 +192,7 @@ PHP::cast_to (MIR::CAST* cast, MIR::Literal* lit)
 
 
 Literal*
-PHP::call_function (MIR::METHOD_NAME* name, MIR::Literal_list* params)
+PHP::call_function (METHOD_NAME* name, Literal_list* params)
 {
 	stringstream ss;
 	ss << *name->value << " (";
@@ -220,8 +220,8 @@ PHP::call_function (MIR::METHOD_NAME* name, MIR::Literal_list* params)
 		return NULL;
 }
 
-MIR::Literal*
-PHP::fold_pre_op (MIR::Literal* use, MIR::OP* op)
+Literal*
+PHP::fold_pre_op (Literal* use, OP* op)
 {
 	stringstream ss;
 	ss << "$temp = ";
@@ -244,14 +244,40 @@ PHP::fold_pre_op (MIR::Literal* use, MIR::OP* op)
 }
 
 
+Literal*
+PHP::fold_constant (Constant* in)
+{
+	stringstream ss;
+	MIR_unparser (ss, true).unparse (in);
+
+	zval value;
+
+	// returns 1 for success, 0 for failure (not SUCCESS/FAILURE)!
+	int zend_result = zend_get_constant (
+		const_cast<char*> (ss.str().c_str ()),
+		ss.str().size (),
+		&value TSRMLS_CC);
+
+	if (zend_result == 0)
+		return NULL;
+	
+	assert (zend_result == 1);
+	Literal* result = zval_to_mir_literal (&value);
+	zval_dtor (&value); // clear out string structure
+	return result;
+}
+
+
 #else // HAVE_EMBED
 
 #define FAIL(SIG) SIG { phc_error ("Optimizations require the PHP SAPI"); }
 
-FAIL (bool PHP::is_pure_function (MIR::METHOD_NAME*))
-FAIL (Literal* PHP::fold_unary_op (OP* op, Literal* lit))
-FAIL (bool PHP::is_true (MIR::Literal* literal));
-FAIL (MIR::Literal* PHP::cast_to (MIR::CAST* cast, MIR::Literal* literal))
-FAIL (Literal* PHP::call_function (MIR::METHOD_NAME* in, MIR::Literal_list* params))
+FAIL (bool PHP::is_pure_function (METHOD_NAME*))
+FAIL (Literal* PHP::fold_unary_op (OP*, Literal*))
+FAIL (bool PHP::is_true (Literal*));
+FAIL (Literal* PHP::cast_to (CAST*, Literal*))
+FAIL (Literal* PHP::call_function (METHOD_NAME*, Literal_list*))
+FAIL (Literal* PHP::fold_pre_op (Literal* use, OP* op))
+FAIL (Literal* PHP::fold_constant (Constant* in))
 
 #endif // HAVE_EMBED

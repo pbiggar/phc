@@ -171,21 +171,21 @@ Def_use_web::visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
 }
 
 void
-Def_use_web::visit_foreach_end (Statement_block*, MIR::Foreach_end* in)
+Def_use_web::visit_foreach_end (Statement_block* bb, MIR::Foreach_end* in)
 {
-	assert (0);
+	add_use (in->array, new SSA_edge (bb));
 }
 
 void
-Def_use_web::visit_foreach_next (Statement_block*, MIR::Foreach_next* in)
+Def_use_web::visit_foreach_next (Statement_block* bb, MIR::Foreach_next* in)
 {
-	assert (0);
+	add_use (in->array, new SSA_edge (bb));
 }
 
 void
-Def_use_web::visit_foreach_reset (Statement_block*, MIR::Foreach_reset* in)
+Def_use_web::visit_foreach_reset (Statement_block* bb, MIR::Foreach_reset* in)
 {
-	assert (0);
+	add_use (in->array, new SSA_edge (bb));
 }
 
 void
@@ -282,7 +282,6 @@ Def_use_web::visit_cast (Statement_block* bb, Cast* in)
 void
 Def_use_web::visit_constant (Statement_block* bb, Constant* in)
 {
-	assert (0);
 }
 
 void
@@ -294,19 +293,19 @@ Def_use_web::visit_field_access (Statement_block* bb, Field_access* in)
 void
 Def_use_web::visit_foreach_get_key (Statement_block* bb, Foreach_get_key* in)
 {
-	assert (0);
+	add_use (in->array, new SSA_edge (bb));
 }
 
 void
 Def_use_web::visit_foreach_get_val (Statement_block* bb, Foreach_get_val* in)
 {
-	assert (0);
+	add_use (in->array, new SSA_edge (bb));
 }
 
 void
 Def_use_web::visit_foreach_has_key (Statement_block* bb, Foreach_has_key* in)
 {
-	assert (0);
+	add_use (in->array, new SSA_edge (bb));
 }
 
 void
