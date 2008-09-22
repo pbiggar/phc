@@ -145,7 +145,7 @@ void handle_php_error_cb(
 // Eval CODE with the PHP interpreter, catch and warn in the case of errors,
 // using ANCHOR's filename and line number, then return true/false for
 // success/failure.
-bool eval_string (String* code, zval* result, IR::Node* anchor)
+bool eval_string (String* code, zval* result, IR::Node* anchor, String* prepare)
 {
 	// Save the anchor for filenames and linenumbers
 	current_anchor = anchor;
@@ -159,6 +159,16 @@ bool eval_string (String* code, zval* result, IR::Node* anchor)
 	zend_first_try 
 	{
 		DEBUG ("Eval'ing string: " << *code);
+
+		if (prepare)
+		{
+			zend_eval_string (
+					const_cast<char*>(prepare->c_str ()), 
+					NULL, // so that it doesnt add a 'return' statement
+					const_cast<char*>("phc eval")
+					TSRMLS_CC);
+		}
+
 
 		zend_eval_string (
 			const_cast<char*>(code->c_str ()), 

@@ -26,9 +26,13 @@ MIR::Literal* zval_to_mir_literal (zval* value);
 /* Wrap eval_string, trapping errors and warnings. Eval CODE with the PHP
  * interpreter. If ANCHOR is provided, warn in the case of errors, using
  * ANCHOR's filename and line number. If it is not, errors go to DEBUG.
- * Return true/false for success/failure.
+ * Return true/false for success/failure. If PREPARE is set, execute that
+ * first. Because Zend insists on add "return " to the front of every command
+ * that needs a return value, you can prepare a variable using PREPARE, then
+ * just name the variable in CODE, which returns CODE, but allows arbitrary
+ * code to be run in PREPARE.
  */
-bool eval_string (String* code, zval* result, IR::Node* anchor = NULL);
+bool eval_string (String* code, zval* result, IR::Node* anchor = NULL, String* prepare = NULL);
 
 
 #endif // HAVE_EMBED

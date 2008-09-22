@@ -226,13 +226,14 @@ PHP::fold_pre_op (MIR::Literal* use, MIR::OP* op)
 	stringstream ss;
 	ss << "$temp = ";
 	MIR_unparser (ss, true).unparse (use);
-	ss << "; " << *op->value << "$temp; return $temp;";
+	ss << "; " << *op->value << "$temp;";
+
 
 	// Assume this can fail for no good reason (bad types?) and that we must
 	// recover from it.
 	// TODO: warn in this case.
 	zval value;
-	if (eval_string (s(ss.str()), &value))
+	if (eval_string (s("$temp"), &value, NULL, s(ss.str ())))
 	{
 		Literal* result = zval_to_mir_literal (&value);
 		zval_dtor (&value); // clear out string structure
