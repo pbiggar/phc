@@ -55,7 +55,7 @@ public:
 		pass->toLower ();
 		assert (*pass == "ast" || *pass == "hir" || *pass == "mir");
 		if (*pass == "ast")
-			pass = s("sua");
+			pass = s ("sua");
 
 		return to_pass (pass, anchor);
 	}

@@ -59,6 +59,7 @@ public:
 	: prune (true)
 	, var_reflection_present (false)
 	, vars(vars)
+	, record_globals(true)
 	{
 	}
 

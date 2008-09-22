@@ -1155,7 +1155,7 @@ public:
 			}
 			code
 			<< "if (" << var << " != *p_lhs)\n"
-			<<		"write_var (p_lhs, &" << var << ", NULL);\n"
+			<<		"write_var (p_lhs, &" << var << ", NULL TSRMLS_CC);\n"
 			;
 		}
 		else
