@@ -45,7 +45,8 @@
 		// make
 		cd ("make", "make");
 		cd ("make install", "install");
-		$results = cd ("php test/framework/driver.php -i -p -l", "test");
+		// TODO do long test
+		$results = cd ("php test/framework/driver.php -i -p", "test");
 
 		save_test_logs ();
 		store_test_results ($results, "tests");
