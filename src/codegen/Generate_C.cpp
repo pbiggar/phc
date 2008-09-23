@@ -325,25 +325,6 @@ string read_var_var (Scope scope, string zvp, Variable_variable* var_var)
 	return ss.str();
 }
 
-string read_array_index (Scope scope, string zvp, Array_access* ia)
-{
-	stringstream ss;
-	VARIABLE_NAME* var_name  = ia->variable_name;
-
-	ss 
-	<< "// Read array variable\n"
-	<< read_rvalue (scope, "r_array", var_name)
-	<< read_rvalue (scope, "ra_index", ia->index)
-	<< "read_array ("
-	<<			zvp << ", "
-	<<			"r_array, "
-	<<			"ra_index, "
-	<<			"&is_" << zvp << "_new "
-	<<			" TSRMLS_CC);\n"
-	;
-	return ss.str();
-}
-
 /*
  * Map of the Zend functions that implement the operators
  *
@@ -1001,13 +982,23 @@ public:
 
 	void generate_rhs ()
 	{
+		VARIABLE_NAME* var_name  = rhs->value->variable_name;
+
 		if (!agn->is_ref)
 		{
 			code
 			<< declare ("p_rhs")
 
-			<< read_array_index (LOCAL, "p_rhs", rhs->value)
-			
+			<< "// Read array variable\n"
+			<< read_rvalue (LOCAL, "r_array", var_name)
+			<< read_rvalue (LOCAL, "ra_index", rhs->value->index)
+			<< "read_array ("
+			<<			"p_rhs" << ", "
+			<<			"r_array, "
+			<<			"ra_index, "
+			<<			"&is_" << "p_rhs" << "_new "
+			<<			" TSRMLS_CC);\n"
+
 			<< "if (*p_lhs != *p_rhs)\n"
 			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
 
