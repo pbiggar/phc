@@ -726,32 +726,6 @@ protected:
 	Wildcard<VARIABLE_NAME>* lhs;
 };
 
-string assign_rhs (bool is_ref, VARIABLE_NAME* rhs)
-{
-	stringstream ss;
-	if (not is_ref)
-	{
-		ss	
-		<< declare ("p_rhs")
-		<< read_rvalue (LOCAL, "p_rhs_var", rhs)
-		<< "// Read normal variable\n"
-		<< "p_rhs = &p_rhs_var;\n"
-		<< "\n"
-		<< "if (*p_lhs != *p_rhs)\n"
-		<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
-		<< cleanup ("p_rhs")
-		;
-	}
-	else
-	{
-		ss	
-		<< get_st_entry (LOCAL, "p_rhs", rhs)
-		<< "copy_into_ref (p_lhs, p_rhs);\n"
-		;
-	}
-	return ss.str();
-}
-
 /* $x[$i] = $y; (1)
  *		or
  * $x[$i] =& $y; (2)
@@ -787,8 +761,28 @@ public:
 
 		code 
 		<<	get_array_entry (LOCAL, "p_lhs", lhs->value, index->value)
-		<<	assign_rhs (agn->is_ref, rhs->value)
 		;
+	
+		if (not agn->is_ref)
+		{
+		  code	
+			<< declare ("p_rhs")
+			<< read_rvalue (LOCAL, "p_rhs_var", rhs->value)
+			<< "// Read normal variable\n"
+			<< "p_rhs = &p_rhs_var;\n"
+			<< "\n"
+			<< "if (*p_lhs != *p_rhs)\n"
+			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
+			<< cleanup ("p_rhs")
+			;
+		}
+		else
+		{
+			code
+			<< get_st_entry (LOCAL, "p_rhs", rhs->value)
+			<< "copy_into_ref (p_lhs, p_rhs);\n"
+			;
+		}
 	}
 
 protected:
