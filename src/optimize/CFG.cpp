@@ -220,11 +220,13 @@ struct BB_property_functor
 {
 	property_map<Graph, vertex_bb_t>::type vb;
 	property_map<Graph, edge_cfg_edge_t>::type ee;
+	property_map<Graph, vertex_index_t>::type index;
 
 	BB_property_functor (CFG* cfg)
 	{
 		vb = cfg->vb;
 		ee = cfg->ee;
+		index = cfg->index;
 	}
 	void operator()(std::ostream& out, const edge_t& e) const 
 	{
@@ -263,7 +265,7 @@ struct BB_property_functor
 				unsigned int line_count = 1;
 				foreach (String* str, props.second)
 				{
-					ss1 << *str << ", ";
+					ss1 << *DOT_unparser::escape (str) << ", ";
 					if (ss1.str().size() > (LINE_LENGTH * line_count))
 					{
 						line_count++;
@@ -276,7 +278,9 @@ struct BB_property_functor
 
 		// BB source
 		stringstream ss2;
-		ss2 << *DOT_unparser::escape (vb[v]->get_graphviz_label ());
+		ss2
+			<< "(" << index[v] << ") "
+			<< *DOT_unparser::escape (vb[v]->get_graphviz_label ());
 
 		// BB properties
 		stringstream ss3;
@@ -826,7 +830,6 @@ CFG::replace_bb (Basic_block* bb, BB_list* replacements)
 		BB_list* preds = bb->get_predecessors ();
 		Edge_list* pred_edges = bb->get_predecessor_edges ();
 		Phi_list* old_phis = bb->get_phi_nodes ();
-		BB_list* successors = bb->get_successors ();
 
 		// Front gets all incoming edges added
 		Basic_block* front = replacements->front ();

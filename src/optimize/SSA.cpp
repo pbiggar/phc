@@ -100,7 +100,7 @@ Phi::replace_var_name (MIR::VARIABLE_NAME* old_var_name, MIR::Rvalue* new_rval)
 void
 Phi::dump ()
 {
-	DEBUG ("Phi node for " << lhs->get_ssa_var_name ());
+	DEBUG ("Phi node for " << *lhs->get_ssa_var_name ());
 }
 
 
@@ -171,20 +171,17 @@ Dominance::calculate_immediate_dominators ()
 		domTreePredVector.begin(),
 		get(vertex_index, cfg->bs));
 	lengauer_tarjan_dominator_tree(cfg->bs, cfg->entry, idom_calc);
-	DEBUG ("Entry is: " << cfg->get_entry_bb ());
-	DEBUG ("Exit is: " << cfg->get_exit_bb ());
 	foreach (Basic_block* bb, *cfg->get_all_bbs ())
 	{
 		if (get(idom_calc, bb->vertex) != graph_traits<Graph>::null_vertex())
 		{
 			idoms[bb] = cfg->vb[get(idom_calc, bb->vertex)];
-			bb->dump ();
 			DEBUG ("(" << bb->get_index() << ") is dominated by " << idoms[bb]->get_index ());
 		}
 		else
 		{
 			idoms[bb] = NULL;
-			DEBUG ("BB: " << bb << "(" << bb->get_index() << ") does not have an immediate dominator");
+			DEBUG ("(" << bb->get_index() << ") does not have an immediate dominator");
 		}
 	}
 

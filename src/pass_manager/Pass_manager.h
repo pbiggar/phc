@@ -61,9 +61,13 @@ public:
 	void add_mir_pass (Pass* pass);
 	void add_mir_visitor (MIR::Visitor* visitor, String* name, String* description);
 	void add_mir_transform (MIR::Transform* transform, String* name, String* description);
-	void add_codegen_pass (Pass* pass);
 	void add_after_each_mir_pass (Pass* pass);
 
+	void add_codegen_pass (Pass* pass);
+	void add_codegen_visitor (MIR::Visitor* visitor, String* name, String* description);
+	void add_codegen_transform (MIR::Transform* transform, String* name, String* description);
+
+	void add_optimization_pass (Pass* pass);
 	void add_optimization (CFG_visitor* visitor, String* name, String* description);
 	void run_optimization_passes (MIR::PHP_script* in);
 

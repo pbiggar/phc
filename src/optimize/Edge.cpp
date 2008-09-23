@@ -92,22 +92,13 @@ SSA_edge::dump ()
 	switch (which)
 	{
 		case PHI:
-		{
 			cdebug << "PHI: ";
 			phi->dump ();
 			break;
-		}
+
 		case STATEMENT:
-		{
-			cdebug << "Statement:";
-			bb->dump ();
-			break;
-		}
 		case BRANCH:
-		{
-			cdebug << "Branch:";
 			bb->dump ();
 			break;
-		}
 	}
 }

@@ -27,8 +27,6 @@
 #include "process_hir/HIR_to_AST.h"
 #include "process_mir/MIR_to_AST.h"
 #include "optimize/CFG.h"
-#include "optimize/Into_SSA.h"
-#include "optimize/Out_of_SSA.h"
 
 
 // TODO remove, and put these into the pass_manager
@@ -109,6 +107,23 @@ void Pass_manager::add_optimization (CFG_visitor* v, String* name, String* descr
 {
 	Pass* pass = new Optimization_pass (v, name, description);
 	add_pass (pass, optimization_queue);
+}
+
+void Pass_manager::add_optimization_pass (Pass* pass)
+{
+	add_pass (pass, optimization_queue);
+}
+
+void Pass_manager::add_codegen_visitor (MIR::Visitor* visitor, String* name, String* description)
+{
+	Pass* pass = new Visitor_pass (visitor, name, description);
+	add_pass (pass, codegen_queue);
+}
+
+void Pass_manager::add_codegen_transform (MIR::Transform* transform, String* name, String* description)
+{
+	Pass* pass = new Transform_pass (transform, name, description);
+	add_pass (pass, codegen_queue);
 }
 
 void Pass_manager::add_codegen_pass (Pass* pass)
@@ -559,62 +574,36 @@ bool is_queue_pass (String* name, Pass_queue* queue)
 
 void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 {
+	// TODO less hacky
+	Pass* cfg_pass = optimization_queue->front();
+	optimization_queue->pop_front();
+
+	Pass* into_ssa_pass = optimization_queue->front();
+	optimization_queue->pop_front();
+
+	Pass* out_ssa_pass = optimization_queue->back();
+	optimization_queue->pop_back();
+
+
+
 	// Perform optimizations method-at-a-time.
 	MIR::PHP_script* script = in->as_MIR();
-	script->transform_children (new Into_SSA);
 	foreach (MIR::Statement* stmt, *script->statements)
 	{
 		// TODO: we should be optimizing all methods, not just functions.
 		if (isa<MIR::Method> (stmt))
 		{
 			MIR::Method* method = dyc<MIR::Method> (stmt);
+
+
+			maybe_enable_debug (cfg_pass);
 			CFG* cfg = new CFG (method);
 
-			if (args_info->cfg_dump_given)
-				cfg->dump_graphviz (s("CFG - pre SSA"));
-
-			if (args_info->debug_given)
-				enable_cdebug ();
-
+			maybe_enable_debug (into_ssa_pass);
 			cfg->convert_to_ssa_form ();
-			if (args_info->cfg_dump_given)
-				cfg->dump_graphviz (s("CFG - in SSA"));
 
-			SCCP().run (cfg);
-			if (args_info->cfg_dump_given)
-				cfg->dump_graphviz (s("CFG - after SCCP"));
 
-			cfg->rebuild_ssa_form ();
-
-			If_simplification ().run (cfg);
-			if (args_info->cfg_dump_given)
-				cfg->dump_graphviz (s("CFG - after If simplification"));
-
-			cfg->rebuild_ssa_form ();
-
-			DCE().run (cfg);
-			if (args_info->cfg_dump_given)
-				cfg->dump_graphviz (s("CFG - after first DCE"));
-
-			cfg->rebuild_ssa_form ();
-
-			DCE().run (cfg);
-			if (args_info->cfg_dump_given)
-				cfg->dump_graphviz (s("CFG - after second DCE"));
-
-			cfg->rebuild_ssa_form ();
-
-			DCE().run (cfg);
-			if (args_info->cfg_dump_given)
-				cfg->dump_graphviz (s("CFG - after third DCE"));
-
-			cfg->convert_out_of_ssa_form ();
-			if (args_info->cfg_dump_given)
-				cfg->dump_graphviz (s("CFG - post SSA"));
-
-			disable_cdebug ();
-
-/*			if (lexical_cast<int> (args_info->optimize_arg) > 0)
+			if (lexical_cast<int> (args_info->optimize_arg) > 0)
 			{
 				// iterate until it fix-points (or 10 times)
 				for (int iter = 0; iter < 1; iter++) // TODO change back to 10
@@ -626,9 +615,12 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 
 						maybe_enable_debug (pass);
 
+						cfg->rebuild_ssa_form ();
+
 						// Run optimization
 						Optimization_pass* opt = dynamic_cast<Optimization_pass*> (pass);
-	//					opt->run (cfg, this);
+						if (opt)
+							opt->run (cfg, this);
 
 						// Dump CFG
 						for (unsigned int i = 0; i < args_info->cfg_dump_given; i++)
@@ -646,8 +638,11 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 					// TODO Iteration didnt work. Fix it.
 				}
 			}
-*/			method->statements = cfg->get_linear_statements ();
+
+			maybe_enable_debug (out_ssa_pass);
+			cfg->convert_out_of_ssa_form ();
+
+			method->statements = cfg->get_linear_statements ();
 		}
 	}
-	script->transform_children (new Out_of_SSA);
 }

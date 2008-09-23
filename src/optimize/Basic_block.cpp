@@ -473,8 +473,7 @@ Exit_block::dump()
 void
 Branch_block::dump()
 {
-	DEBUG ("Branch block (" << *branch->variable_name->get_ssa_var_name () << ")");
-
+	DEBUG ("Branch block (" << cfg->index[vertex] << ")");
 }
 
 void
@@ -482,13 +481,10 @@ Statement_block::dump()
 {
 	CHECK_DEBUG ();
 
-	DEBUG ("Statement block");
-
-	MIR_unparser mup(cdebug, true);
-	mup.unparse(statement);
+	DEBUG ("Statement block (" << cfg->index[vertex] << ")");
 }
 void
 Empty_block::dump()
 {
-	DEBUG ("Empty block");
+	DEBUG ("Empty block (" << cfg->index[vertex] << ")");
 }

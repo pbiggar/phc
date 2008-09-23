@@ -34,8 +34,13 @@
 #include "optimize/Address_taken.h"
 #include "optimize/Copy_propagation.h"
 #include "optimize/Dead_code_elimination.h"
+#include "optimize/Def_use.h"
+#include "optimize/If_simplification.h"
+#include "optimize/Into_SSA.h"
 #include "optimize/Live_variable_analysis.h"
+#include "optimize/Out_of_SSA.h"
 #include "optimize/Prune_symbol_table.h"
+#include "optimize/SCCP.h"
 #include "parsing/parse.h"
 #include "parsing/XML_parser.h"
 #include "pass_manager/Fake_pass.h"
@@ -169,14 +174,24 @@ int main(int argc, char** argv)
 	// TODO move to optimizations
 	pm->add_mir_visitor (new Prune_symbol_table (), s("pst"), s("Prune Symbol Table - Note whether a symbol table is required in generated code"));
 
+	pm->add_mir_transform (new Into_SSA (), s("inssa"), s("Convert non-SSA constructs into SSA constructs"));
 
-	pm->add_optimization (new Address_taken (), s("ataa"), s("Address-taken alias analysis"));
-	pm->add_optimization (new Live_variable_analysis (), s("lva"), s("Live variable analysis"));
+//	pm->add_optimization (new Address_taken (), s("ataa"), s("Address-taken alias analysis"));
+//	pm->add_optimization (new Live_variable_analysis (), s("lva"), s("Live variable analysis"));
 //	pm->add_optimization (new Dead_code_elimination (), s("dce"), s("Dead code elimination"));
+//
+	pm->add_optimization_pass (new Fake_pass (s("cfg"), s("Initial Control-Flow Graph")));
+	pm->add_optimization_pass (new Fake_pass (s("ssa"), s("In SSA form")));
+	pm->add_optimization (new SCCP (), s("sccp"), s("Sparse-conditional constant propagation"));
+	pm->add_optimization (new If_simplification (), s("ifsimple"), s("If-simplification"));
+	pm->add_optimization (new DCE (), s("dce1"), s("Dead-code elimination"));
+	pm->add_optimization (new DCE (), s("dce2"), s("Dead-code elimination"));
+	pm->add_optimization (new DCE (), s("dce3"), s("Dead-code elimination"));
+	pm->add_optimization_pass (new Fake_pass (s("opt"), s("Optimized Control-Flow Graph")));
 
 	// codegen passes
 	stringstream ss;
-	pm->add_codegen_pass (new Fake_pass (s("opt"), s("Optimized MIR")));
+	pm->add_codegen_transform (new Out_of_SSA (), s("outssa"), s("Remove SSA constructs"));
 	pm->add_codegen_pass (new Generate_C (ss));
 	pm->add_codegen_pass (new Compile_C (ss));
 
