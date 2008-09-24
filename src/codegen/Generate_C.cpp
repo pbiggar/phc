@@ -285,12 +285,12 @@ string read_var (Scope scope, string zvp, VARIABLE_NAME* var_name)
 	return ss.str();
 }
 
-string read_var_var (Scope scope, string zvp, Variable_variable* var_var)
+string read_var_var (Scope scope, string zvp, VARIABLE_NAME* var_var)
 {
 	stringstream ss;
 	ss
 	<< "// Read variable variable\n"
-	<< read_rvalue (scope, "var_var", var_var->variable_name)
+	<< read_rvalue (scope, "var_var", var_var)
 	<< zvp << " = read_var_var (" 
 	<<					get_scope (scope) << ", "
 	<<					"var_var "
@@ -913,7 +913,7 @@ public:
 		{
 			code
 			<< declare ("p_rhs")
-			<< read_var_var (LOCAL, "p_rhs", rhs->value)
+			<< read_var_var (LOCAL, "p_rhs", rhs->value->variable_name)
 			<< "if (*p_lhs != *p_rhs)\n"
 			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
 			<< cleanup ("p_rhs")
@@ -923,7 +923,7 @@ public:
 		{
 			code
 			<< declare ("p_rhs")
-			<< read_var_var (LOCAL, "p_rhs", rhs->value)
+			<< read_var_var (LOCAL, "p_rhs", rhs->value->variable_name)
 			<< "copy_into_ref (p_lhs, p_rhs);\n"
 			<< cleanup ("p_rhs")
 			;
@@ -1220,19 +1220,29 @@ class Pattern_assign_var_to_var_var : public Pattern
 	bool match(Statement* that)
 	{
 		lhs = new Wildcard<VARIABLE_NAME>;
-		rhs = new Wildcard<Rvalue>;
+		rhs = new Wildcard<VARIABLE_NAME>;
 		stmt = new Assign_var_var(lhs, false, rhs);
 		return(that->match(stmt));	
 	}
 
 	void generate_code(Generate_C* gen)
 	{
-		phc_unsupported(new Assign_var_var(lhs->value, stmt->is_ref, rhs->value), "assignment to variable variable");
+		code
+		<< declare ("p_lhs") 
+		<< read_var_var (LOCAL, "p_lhs", lhs->value)
+		<< declare ("p_rhs")
+		<< read_var (LOCAL, "p_rhs", rhs->value)
+		<< "if (*p_lhs != *p_rhs)\n"
+		<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
+		<< cleanup ("p_rhs");
+		;
 	}
 
 	Assign_var_var* stmt;
+	// TODO: Here and elsewhere we assume the RHS is a variable_name, but it can be
+	// any rvalue 
 	Wildcard<VARIABLE_NAME>* lhs;
-	Wildcard<Rvalue>* rhs;
+	Wildcard<VARIABLE_NAME>* rhs;
 };
 
 /*
@@ -2353,7 +2363,7 @@ void Generate_C::children_statement(Statement* in)
 	,	new Pattern_assign_constant ()
 	,	new Pattern_assign_var_to_var ()
 	,	new Pattern_assign_array_index_to_var ()
-	,	new Pattern_assign_var_var_to_var () // TODO renaming
+	,	new Pattern_assign_var_var_to_var ()
 	,	new Pattern_assign_param_is_ref ()
 	,	new Pattern_assign_array ()
 	,	new Pattern_push_array ()
