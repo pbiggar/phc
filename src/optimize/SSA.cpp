@@ -54,9 +54,23 @@ Phi::remove_arg_for_edge (Edge* edge)
 		if ((*i).second == edge)
 		{
 			args->erase (i);
-			break;
+			return;
 		}
 	}
+
+	assert (0);
+}
+
+
+bool
+Phi::has_arg_for_edge (Edge* edge)
+{
+	list<pair<MIR::Rvalue*, Edge*> >::iterator i;
+	for (i = args->begin (); i != args->end (); i++)
+		if ((*i).second == edge)
+			return true;
+	
+	return false;
 }
 
 // Tell the phi node that OLD_EDGE is being removed, and replaced by NEW_EDGE.
@@ -73,8 +87,7 @@ Phi::replace_edge (Edge* old_edge, Edge* new_edge)
 		}
 	}
 
-	// TODO: i cant find where this happens
-//	assert (0);
+	assert (0);
 }
 
 
@@ -127,7 +140,7 @@ Phi::dump ()
  *		DF (X) is the set of nodes dominated by X, whose successors are not
  *		dominated by X (well, one or more are not dominated by X).
  *	
- *	We need to calculate the dominace frontier. There is a linear-time
+ *	We need to calculate the dominance frontier. There is a linear-time
  *	algorithm for this:
  *
  * 1) Find DF_local (X):
@@ -156,6 +169,10 @@ Dominance::Dominance (CFG* cfg)
 void
 Dominance::calculate_immediate_dominators ()
 {
+	// Step 0: Remove unreachable nodes. Everything should be reachable from the
+	// entry block, or it wont dominate everything.
+	cfg ->tidy_up ();
+
 	// Step 1: Calculate immediate dominators.
 
 	// This automatically builds reverse dominators, ie, given y, find x such
@@ -174,15 +191,9 @@ Dominance::calculate_immediate_dominators ()
 	foreach (Basic_block* bb, *cfg->get_all_bbs ())
 	{
 		if (get(idom_calc, bb->vertex) != graph_traits<Graph>::null_vertex())
-		{
 			idoms[bb] = cfg->vb[get(idom_calc, bb->vertex)];
-			DEBUG ("(" << bb->get_index() << ") is dominated by " << idoms[bb]->get_index ());
-		}
 		else
-		{
 			idoms[bb] = NULL;
-			DEBUG ("(" << bb->get_index() << ") does not have an immediate dominator");
-		}
 	}
 
 	// THERE (see HERE)
@@ -206,43 +217,79 @@ Dominance::calculate_immediate_dominators ()
 	}
 }
 
+/* Use the function in Cooper/Torczon, Figure 9.10 */
 void
-Dominance::calculate_local_dominance_frontier ()
+Dominance::calculate_dominance_frontier ()
 {
-	foreach (Basic_block* x, *cfg->get_all_bbs ())
+	foreach (Basic_block* n, *cfg->get_all_bbs ())
 	{
-		// Step 2: Calculate local dominance frontier:
-		//	DF_local (x) = { y in succ (x) | idom (y) != x }
-		foreach (Basic_block* y, *x->get_successors ())
+		BB_list* preds = n->get_predecessors ();
+		if (preds->size() > 0)
 		{
-			if (y->get_immediate_dominator () != x)
-				x->add_to_dominance_frontier (y);
-		}
-	}
-}
-
-void
-Dominance::propagate_dominance_frontier_upwards ()
-{
-	// Step 3: Propagate local dominance frontier upwards.
-	// DF_up (x,z)  = { y in DF (z) | idom (z) = x && idom (y) != x }
-	foreach (Basic_block* z, *cfg->get_all_bbs_bottom_up ())
-	{
-		foreach (Basic_block* x, *z->get_predecessors ())
-		{
-			foreach (Basic_block* y, *z->get_dominance_frontier ())
+			foreach (Basic_block* pred, *preds)
 			{
-				if (y->get_immediate_dominator () != x)
-					x->add_to_dominance_frontier (y);
+				Basic_block* runner = pred;
+				// Dont include RUNNER, since it dominates itself.
+				while (runner != idoms[n] && runner != n)
+				{
+					runner->add_to_dominance_frontier (n);
+					runner = idoms[runner];
+				}
 			}
 		}
 	}
 }
 
 void
+Dominance::dump ()
+{
+	CHECK_DEBUG ();
+
+	foreach (Basic_block* bb, *cfg->get_all_bbs ())
+	{
+		bb->dump();
+		cdebug << " - dominates (forward_idom): [";
+		foreach (Basic_block* dominated, *forward_idoms[bb])
+		{
+			dominated->dump();
+			cdebug << ", ";
+		}
+		cdebug << "]\n\n";
+
+		cdebug << " - is dominated by (idom): ";
+		if (idoms[bb] == NULL)
+			cdebug << "NONE";
+		else
+			idoms[bb]->dump();
+		cdebug << "\n\n";
+
+		cdebug << " - dominance frontier: [";
+		foreach (Basic_block* frontier, *df[bb])
+		{
+			frontier->dump();
+			cdebug << ", ";
+		}
+		cdebug << "]\n\n";
+	}
+}
+
+void
 Dominance::add_to_bb_dominance_frontier (Basic_block* bb, Basic_block* frontier)
 {
-	df [bb]->push_back (frontier);
+	if (!is_bb_in_dominance_frontier (bb, frontier))
+		df [bb]->push_back (frontier);
+}
+
+
+bool
+Dominance::is_bb_in_dominance_frontier (Basic_block* bb, Basic_block* frontier)
+{
+	// TODO this can be done in constant-time if we change the form
+	foreach (Basic_block* i, *df[bb])
+		if (i == frontier)
+			return true;
+	
+	return false;
 }
 
 BB_list*

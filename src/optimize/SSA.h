@@ -23,6 +23,7 @@ public:
 	MIR::Rvalue_list* get_args ();
 	list<pair<MIR::Rvalue*, Edge*> >* get_arg_edges ();
 	void remove_arg_for_edge (Edge* edge);
+	bool has_arg_for_edge (Edge* edge);
 
 	void replace_edge (Edge* old_edge, Edge* new_edge);
 	void replace_var_name (MIR::VARIABLE_NAME* old_var_name, MIR::Rvalue* new_rval);
@@ -44,16 +45,17 @@ class Dominance
 public:
 	Dominance (CFG* cfg);
 
+	void dump ();
 
 	// Terms are defined in a comment in SSA.cpp.
 	void calculate_immediate_dominators ();
-	void calculate_local_dominance_frontier ();
-	void propagate_dominance_frontier_upwards ();
+	void calculate_dominance_frontier ();
 
 private:
 	friend class Basic_block;
 	BB_list* get_bb_dominance_frontier (Basic_block*);
 	void add_to_bb_dominance_frontier (Basic_block* bb, Basic_block* frontier);
+	bool is_bb_in_dominance_frontier (Basic_block* bb, Basic_block* frontier);
 
 	Basic_block* get_bb_immediate_dominator (Basic_block*);
 	BB_list* get_blocks_dominated_by_bb (Basic_block* bb);

@@ -75,6 +75,7 @@ public:
 	// Returns an incomplete solution during creation.
 	BB_list* get_dominance_frontier ();
 	void add_to_dominance_frontier (Basic_block*);
+	bool is_in_dominance_frontier (Basic_block*);
 
 	/*
 	 * Phi functions (or nodes)

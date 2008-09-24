@@ -166,8 +166,6 @@ CFG::add_statements (Statement_list* statements)
 	if (use_parent)
 		add_edge (vb[parent], vb[exit]);
 
-	tidy_up ();
-
 	consistency_check ();
 }
 
@@ -361,12 +359,13 @@ struct Graph_property_functor
 void
 CFG::dump_graphviz (String* label)
 {
-	renumber_vertex_indices ();
 	if (label == NULL) // for debugging
 	{
+		CHECK_DEBUG ();
 		consistency_check ();
 		label = s ("TEST");
 	}
+	renumber_vertex_indices ();
 	write_graphviz (
 		cout, 
 		bs, 
@@ -379,10 +378,20 @@ CFG::dump_graphviz (String* label)
 void
 CFG::consistency_check ()
 {
-	// The graph should never reuse vertices.
 	foreach (vertex_t v, vertices (bs))
 	{
-		assert (vb[v]->vertex == v);
+		Basic_block* bb = vb[v];
+
+		// The graph should never reuse vertices.
+		assert (bb->vertex == v);
+
+		// Check phi nodes
+		foreach (Phi* phi, *bb->get_phi_nodes ())
+		{
+			assert (phi->get_args ()->size() == bb->get_predecessors ()->size ());
+			foreach (Basic_block* pred, *bb->get_predecessors ())
+				assert (phi->has_arg_for_edge (get_edge (pred, bb)));
+		}
 	}
 
 	foreach (edge_t e, edges (bs))
@@ -550,9 +559,8 @@ void CFG::convert_to_ssa_form ()
 	// Calculate dominance frontiers
 	dominance = new Dominance (this);
 	dominance->calculate_immediate_dominators ();
-	dominance->calculate_local_dominance_frontier ();
-	dominance->propagate_dominance_frontier_upwards ();
-
+	dominance->calculate_dominance_frontier ();
+	dominance->dump ();
 
 	// Build def-use web (we're not in SSA form, but this will do the job).
 	duw = new Def_use_web ();
@@ -607,6 +615,8 @@ void CFG::convert_to_ssa_form ()
 		}
 	};
 
+	dump_graphviz (NULL);
+
 	foreach (Basic_block* bb, *get_all_bbs ())
 	{
 		if (Statement_block* sb = dynamic_cast<Statement_block*> (bb))
@@ -625,8 +635,7 @@ CFG::rebuild_ssa_form ()
 
 	dominance = new Dominance (this);
 	dominance->calculate_immediate_dominators ();
-	dominance->calculate_local_dominance_frontier ();
-	dominance->propagate_dominance_frontier_upwards ();
+	dominance->calculate_dominance_frontier ();
 
 	duw = new Def_use_web ();
 	duw->run (this);
@@ -758,6 +767,7 @@ CFG::is_true_edge (Edge* edge)
 void
 CFG::add_bb_between (Basic_block* source, Basic_block* target, Basic_block* new_bb)
 {
+	consistency_check ();
 	add_bb (new_bb);
 	Edge* current_edge = get_edge (source, target);
 
@@ -766,12 +776,15 @@ CFG::add_bb_between (Basic_block* source, Basic_block* target, Basic_block* new_
 
 	add_edge (new_bb, target);
 	boost::remove_edge (current_edge->edge, bs);
+	consistency_check ();
 }
 
 
 void
 CFG::replace_bb (Basic_block* bb, BB_list* replacements)
 {
+	consistency_check ();
+
 	// Same BB: do nothing
 	if (replacements->size() == 1
 			&& replacements->front() == bb)
@@ -805,10 +818,11 @@ CFG::replace_bb (Basic_block* bb, BB_list* replacements)
 
 		// If removing a block causes a successor to have fewer incoming
 		// edges, then we should remove the phi arguments for this edge from
-		// the phi node.
-		if (bb->get_predecessors ()->size() == 0)
-			foreach (Phi* phi, *succ->get_phi_nodes ())
-				phi->remove_arg_for_edge (succ_edge);
+		// the phi node.  This would happen if an edge is broken due to a
+		// branch's direction being resolved.
+//		if (bb->get_predecessors ()->size() == 0)
+//			foreach (Phi* phi, *succ->get_phi_nodes ())
+//				phi->remove_arg_for_edge (succ_edge);
 
 		succ->merge_phi_nodes (bb);
 
@@ -927,18 +941,19 @@ CFG::replace_bb (Basic_block* bb, BB_list* replacements)
 		// There is only 1 successor
 		add_edge (prev, succ);
 	}
+
+	consistency_check ();
 }
 
 void
 CFG::remove_bb (Basic_block* bb)
 {
-	// Fix the successors' phi nodes.
 	foreach (Basic_block* succ, *bb->get_successors())
 	{
 		Edge* edge = get_edge (bb, succ);
 
 		foreach (Phi* phi, *succ->get_phi_nodes ())
-			phi->remove_arg_for_edge (edge);
+			assert (phi->has_arg_for_edge (edge) == false);
 	}
 
 	clear_vertex (bb->vertex, bs);
@@ -948,6 +963,9 @@ CFG::remove_bb (Basic_block* bb)
 void
 CFG::remove_edge (Edge* edge)
 {
+	foreach (Phi* phi, *edge->target->get_phi_nodes ())
+		assert (phi->has_arg_for_edge (edge) == false);
+
 	boost::remove_edge (edge->edge, bs);
 }
 
@@ -1007,6 +1025,8 @@ CFG::get_all_bbs_bottom_up ()
 void
 CFG::tidy_up ()
 {
+	consistency_check ();
+
 	set<Basic_block*> reachable;
 
 	// Mark-sweep to remove unreachable nodes.
@@ -1037,7 +1057,7 @@ CFG::tidy_up ()
 			// TODO: this is definitely possible. What then?
 			assert (!isa<Exit_block> (bb));
 
-			bb->rip_out ();
+			bb->remove ();
 		}
 	}
 
@@ -1046,5 +1066,6 @@ CFG::tidy_up ()
 	foreach (Basic_block* bb, *get_all_bbs ())
 		if (isa<Empty_block> (bb) && bb->get_phi_nodes ()->size () == 0)
 			bb->remove ();
-
+	
+	consistency_check ();
 }

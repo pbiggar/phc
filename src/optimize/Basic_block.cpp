@@ -374,35 +374,53 @@ Basic_block::replace (BB_list* replacements)
 void
 Branch_block::set_always_true ()
 {
+	cfg->consistency_check ();
+
 	// Avoid assertion failures in remove_edge by not setting this edge until
-	// laser.
+	// later.
 	Edge* true_edge = get_true_successor_edge ();
+	Edge* false_edge = get_true_successor_edge ();
+
+
+	foreach (Phi* phi, *false_edge->target->get_phi_nodes ())
+		phi->remove_arg_for_edge (false_edge);
 
 	// remove the false edge
-	cfg->remove_edge (get_false_successor_edge ());
+	cfg->remove_edge (false_edge);
+
 
 	// set the true edge to always true
 	true_edge->direction = indeterminate;
 	
 	// remove the branch
 	remove ();
+	cfg->consistency_check ();
 }
 
 void
 Branch_block::set_always_false ()
 { 
+	cfg->consistency_check ();
+
 	// Avoid assertion failures in remove_edge by not setting this edge until
-	// laser.
+	// later.
+	Edge* true_edge = get_true_successor_edge ();
 	Edge* false_edge = get_false_successor_edge ();
 
-	// remove the false edge
-	cfg->remove_edge (get_true_successor_edge ());
+
+	// Remove the true edge
+	foreach (Phi* phi, *true_edge->target->get_phi_nodes ())
+		phi->remove_arg_for_edge (true_edge);
+
+	cfg->remove_edge (true_edge);
+
 
 	// set the false edge to always true
 	false_edge->direction = indeterminate;
 	
 	// remove the branch
 	remove ();
+	cfg->consistency_check ();
 }
 
 BB_list*
@@ -415,6 +433,12 @@ Basic_block*
 Basic_block::get_immediate_dominator ()
 {
 	return cfg->dominance->get_bb_immediate_dominator (this);
+}
+
+bool
+Basic_block::is_in_dominance_frontier (Basic_block* df)
+{
+	return cfg->dominance->is_bb_in_dominance_frontier (this, df);
 }
 
 bool
