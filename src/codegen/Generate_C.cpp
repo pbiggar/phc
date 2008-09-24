@@ -1225,14 +1225,16 @@ class Pattern_assign_var_to_var_var : public Pattern
 	{
 		lhs = new Wildcard<VARIABLE_NAME>;
 		rhs = new Wildcard<Rvalue>;
-		return(that->match(new Assign_var_var(lhs, false, rhs)));	
+		stmt = new Assign_var_var(lhs, false, rhs);
+		return(that->match(stmt));	
 	}
 
 	void generate_code(Generate_C* gen)
 	{
-		assert(0);
+		phc_unsupported(new Assign_var_var(lhs->value, stmt->is_ref, rhs->value), "assignment to variable variable");
 	}
 
+	Assign_var_var* stmt;
 	Wildcard<VARIABLE_NAME>* lhs;
 	Wildcard<Rvalue>* rhs;
 };
