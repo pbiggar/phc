@@ -49,9 +49,9 @@
 using namespace MIR;
 
 // Label supported features
-void phc_unsupported (Node* node)
+void phc_unsupported (Node* node, const char* feature)
 {
-	cerr << "Could not generate code:" << endl;
+	cerr << "Could not generate code for " << feature << endl;
 	(new MIR_unparser (cerr, true))->unparse (node);
 	cerr << endl;
 	xml_unparse (node, cerr);
@@ -502,7 +502,7 @@ protected:
 					// would need to be lowered first. The simplest option is to
 					// convert them to AST, run them through the passes, and
 					// generate code for that */
-					phc_unsupported (param->var->default_value);
+					phc_unsupported (param->var->default_value, "default values");
 
 /*					Statement* assign_default_values = 
 						new Assign_var(
@@ -930,7 +930,7 @@ public:
 		else
 		{
 			// TODO: implement $x =& $$y
-			phc_unsupported(rhs->value);
+			phc_unsupported(rhs->value, "reference assignment from variable variable");
 		}
 	}
 
@@ -1217,6 +1217,27 @@ public:
 };
 
 /*
+ * $$x = $y
+ */
+class Pattern_assign_var_to_var_var : public Pattern
+{
+	bool match(Statement* that)
+	{
+		lhs = new Wildcard<VARIABLE_NAME>;
+		rhs = new Wildcard<Rvalue>;
+		return(that->match(new Assign_var_var(lhs, false, rhs)));	
+	}
+
+	void generate_code(Generate_C* gen)
+	{
+		assert(0);
+	}
+
+	Wildcard<VARIABLE_NAME>* lhs;
+	Wildcard<Rvalue>* rhs;
+};
+
+/*
  * global $a or global $$a
  */
 class Pattern_global : public Pattern 
@@ -1256,7 +1277,7 @@ public:
 			var_var = dynamic_cast<Variable_variable*> (expr);
 			assert(var_var != NULL);
 
-			phc_unsupported (expr);
+			phc_unsupported (expr, "global variable variable");
 		}
 
 	return ss.str();
@@ -1526,7 +1547,7 @@ public:
 
 		// Variable function or ordinary function?
 		METHOD_NAME* name = dynamic_cast<METHOD_NAME*>(rhs->value->method_name);
-		if (name == NULL) phc_unsupported (rhs->value);
+		if (name == NULL) phc_unsupported (rhs->value, "variable function");
 
 		string fci_name = suffix (*name->value, "fci");
 		string fcic_name = suffix (*name->value, "fcic");
@@ -1939,7 +1960,7 @@ class Pattern_unset : public Pattern
 		else
 		{
 			// Variable variable
-			phc_unsupported (unset);
+			phc_unsupported (unset, "unset variable variable");
 		}
 	}
 
@@ -2001,7 +2022,7 @@ class Pattern_isset : public Pattern_assign_zval
 		{
 			// Variable variable
 			// TODO
-			phc_unsupported (isset);
+			phc_unsupported (isset, "isset variable variable");
 		}
 	}
 
@@ -2338,6 +2359,7 @@ void Generate_C::children_statement(Statement* in)
 	,	new Pattern_assign_param_is_ref ()
 	,	new Pattern_assign_array ()
 	,	new Pattern_push_array ()
+	, new Pattern_assign_var_to_var_var ()
 	,	new Pattern_global()
 	,	new Pattern_builtin()
 	,	new Pattern_unset()
@@ -2386,7 +2408,7 @@ void Generate_C::children_statement(Statement* in)
 
 	if(not matched)
 	{
-		phc_unsupported (in);
+		phc_unsupported (in, "unknown construct");
 	}
 }
 
