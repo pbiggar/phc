@@ -290,14 +290,11 @@ string read_var_var (Scope scope, string zvp, Variable_variable* var_var)
 	stringstream ss;
 	ss
 	<< "// Read variable variable\n"
-	<< declare (zvp)
-	<< "{\n"
 	<< read_rvalue (scope, "var_var", var_var->variable_name)
 	<< zvp << " = read_var_var (" 
 	<<					get_scope (scope) << ", "
 	<<					"var_var "
 	<<					" TSRMLS_CC);\n"
-	<< "}\n"
 	;
 	return ss.str();
 }
@@ -874,12 +871,9 @@ public:
 		{
 			code
 			<< declare ("p_rhs")
-
 			<< read_var (LOCAL, "p_rhs", rhs->value)
-
 			<< "if (*p_lhs != *p_rhs)\n"
 			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
-
 			<< cleanup ("p_rhs");
 		}
 		else
@@ -918,19 +912,21 @@ public:
 		if (!agn->is_ref)
 		{
 			code
-
+			<< declare ("p_rhs")
 			<< read_var_var (LOCAL, "p_rhs", rhs->value)
-
 			<< "if (*p_lhs != *p_rhs)\n"
 			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
-
 			<< cleanup ("p_rhs")
 			;
 		}
 		else
 		{
-			// TODO: implement $x =& $$y
-			phc_unsupported(rhs->value, "reference assignment from variable variable");
+			code
+			<< declare ("p_rhs")
+			<< read_var_var (LOCAL, "p_rhs", rhs->value)
+			<< "copy_into_ref (p_lhs, p_rhs);\n"
+			<< cleanup ("p_rhs")
+			;
 		}
 	}
 
