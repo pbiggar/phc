@@ -270,32 +270,6 @@ string get_array_entry (Scope scope, string zvp, VARIABLE_NAME* var_name, Rvalue
 	return ss.str();
 }
 
-string index_lhs (Scope scope, string zvp, Expr* expr)
-{
-	stringstream ss;
-
-	VARIABLE_NAME* var_name = dynamic_cast<VARIABLE_NAME*> (expr);
-	if (var_name)
-	{
-		string zvp_name = suffix (zvp, "var");
-
-		ss
-		<< "// Normal Assignment\n"
-		<< get_st_entry (scope, zvp_name, var_name)
-		<< "zval** " << zvp << " = " << zvp_name << ";\n";
-	}
-	else
-	{
-		// Variable variable.
-		// After shredder, a variable variable cannot have array indices
-		phc_unsupported (expr);
-		//	reference_var_var ();
-	}
-
-	return ss.str();
-}
-
-
 /* Generate code to read the variable named in VAR to the zval* ZVP */
 string read_var (Scope scope, string zvp, VARIABLE_NAME* var_name)
 {
@@ -316,11 +290,14 @@ string read_var_var (Scope scope, string zvp, Variable_variable* var_var)
 	stringstream ss;
 	ss
 	<< "// Read variable variable\n"
+	<< declare (zvp)
+	<< "{\n"
 	<< read_rvalue (scope, "var_var", var_var->variable_name)
 	<< zvp << " = read_var_var (" 
 	<<					get_scope (scope) << ", "
 	<<					"var_var "
 	<<					" TSRMLS_CC);\n"
+	<< "}\n"
 	;
 	return ss.str();
 }
@@ -941,7 +918,6 @@ public:
 		if (!agn->is_ref)
 		{
 			code
-			<< declare ("p_rhs")
 
 			<< read_var_var (LOCAL, "p_rhs", rhs->value)
 
@@ -953,10 +929,8 @@ public:
 		}
 		else
 		{
-			code
-			<< index_lhs (LOCAL, "p_rhs", rhs->value)
-			<< "copy_into_ref (p_lhs, p_rhs);\n"
-			;
+			// TODO: implement $x =& $$y
+			phc_unsupported(rhs->value);
 		}
 	}
 
@@ -1242,7 +1216,9 @@ public:
 	}
 };
 
-
+/*
+ * global $a or global $$a
+ */
 class Pattern_global : public Pattern 
 {
 public:
@@ -1261,6 +1237,32 @@ public:
 		<< "copy_into_ref (p_local_global_var, p_global_var);\n"
 		;
 	}
+
+	string index_lhs (Scope scope, string zvp, Expr* expr)
+	{
+		stringstream ss;
+	
+		VARIABLE_NAME* var_name = dynamic_cast<VARIABLE_NAME*> (expr);
+		if (var_name)
+		{
+			ss
+			<< "// Normal global\n"
+			<< get_st_entry (scope, zvp, var_name)
+			;
+		}
+		else
+		{
+			Variable_variable* var_var;
+			var_var = dynamic_cast<Variable_variable*> (expr);
+			assert(var_var != NULL);
+
+			phc_unsupported (expr);
+		}
+
+	return ss.str();
+}
+
+
 
 protected:
 	Wildcard<Variable_name>* rhs;
