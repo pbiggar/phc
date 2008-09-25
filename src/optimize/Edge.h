@@ -21,6 +21,9 @@ public:
 	Edge (Basic_block* source, Basic_block* target, edge_t edge);
 	Edge (Basic_block* source, Basic_block* target, edge_t edge, bool direction);
 
+	// Note: Invalidates the edge.
+	void replace_target (Basic_block* bb);
+
 public:
 	/*
 	 * Boost::Graph integration

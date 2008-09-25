@@ -10,6 +10,7 @@ class SCCP : public CFG_visitor
 	Lattice_map lattice;
 	Edge_list* cfg_wl;
 	SSA_edge_list* ssa_wl;
+	CFG* cfg;
 
 public:
 	void run (CFG* cfg);
@@ -17,6 +18,7 @@ public:
 	MIR::Literal* get_literal (MIR::Rvalue* in);
 	int get_predecessor_executable_count (Basic_block* bb);
 	void update_ir (CFG*);
+	void check_changed_definition (Lattice_cell* old_value, MIR::VARIABLE_NAME* def);
 
 	void meet (MIR::VARIABLE_NAME* var_name, MIR::Literal* lit);
 	void meet (MIR::VARIABLE_NAME* var_name, Lattice_cell* lat);

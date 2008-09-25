@@ -98,21 +98,71 @@ public:
 	CFG (MIR::Method* method);
 	List<MIR::Statement*>* get_linear_statements ();
 
+
 	// Add the BB to the graph, and update the BB's vertex.
 	vertex_t add_bb (Basic_block* bb);
 	edge_t add_edge (Basic_block* source, Basic_block* target);
-
-	// Replace the edge between SOURCE and TARGET, with an edge from SOURCE to
-	// NEW_BB, and an edge from NEW_BB to TARGET.
-	void add_bb_between (Basic_block* new_bb, Basic_block* source, Basic_block* target);
 
 	std::pair<edge_t, edge_t> add_branch (
 		Branch_block* source, 
 		Basic_block* target1, 
 		Basic_block* target2);
 
+private:
+	void add_statements (MIR::Statement_list*);
+
+	friend class Basic_block;
+	friend class Branch_block;
+	friend class Edge;
+
+	// Insert a predecessor, fix up the neighbours. After this, BB will have a
+	// single predecessor, NEW_BB, whose predecessors are BB's former
+	// predecessors.
+	void insert_predecessor_bb (Basic_block* bb, Basic_block* new_bb);
+
+	// Replace EDGE with an edge from EDGE->source to NEW_BB, and an edge from
+	// NEW_BB to EDGE->TARGET.
+	void insert_bb_between (Edge* edge, Basic_block* new_bb);
+
+
+	// Remove the basic block and fix up the neighbours.
+	void remove_bb (Basic_block* bb);
+
+	// Wrapper-interface to a number of transformations:
+	//		- remove the node
+	//		- replace the node
+	//		- add a number of predecessor or successor nodes, in a straight line.
+	// Some things arent possible:
+	//		- replace branch nodes
+	//		- add a node on a particular edge
+	void replace_bb (Basic_block* bb, BB_list* replacements);
+
+	// Remove the edge, and fix up the nodes.
+	void remove_edge (Edge* edge);
+
+	// Removes old_edge, and replaces with an edge to new_target, fixing phi
+	// nodes.
+	void replace_target_for_edge (Edge* old_edge, Basic_block* new_target);
+
+	/* Returns true or false. If edge isnt true or false, asserts. */
+	bool is_true_edge (Edge* edge);
+
+
+	/* 
+	 * Misc
+	 */
 public:
 	void dump_graphviz (String* label);
+
+	// If we use a graph with listS for the adjacency lists, then we need to
+	// renumber the indices for certain algorithms.
+	void renumber_vertex_indices ();
+
+	// Remove unreachable nodes, and empty nodes.
+	void tidy_up ();
+
+	// Check that the BB->vertex mapping is symmetric.
+	void consistency_check ();
 
 public:
 	/*
@@ -130,14 +180,21 @@ public:
 	Edge_list* get_all_edges ();
 	Edge* get_edge (Basic_block* bb1, Basic_block* bb2);
 
+private:
+
+	// For BB methods
+	BB_list* get_bb_successors (Basic_block* bb);
+	BB_list* get_bb_predecessors (Basic_block* bb);
+	Edge_list* get_edge_successors (Basic_block* bb);
+	Edge_list* get_edge_predecessors (Basic_block* bb);
+
+
 public:
 	/*
 	 * SSA information
 	 */
 	Dominance* dominance;
 	friend class Dominance;
-	friend class Basic_block;
-	friend class Branch_block;
 
 	void convert_to_ssa_form ();
 	void convert_out_of_ssa_form ();
@@ -154,32 +211,6 @@ private:
 	vertex_t entry;
 	vertex_t exit;
 
-
-	void add_statements (MIR::Statement_list*);
-
-	// For BB methods
-	BB_list* get_bb_successors (Basic_block* bb);
-	BB_list* get_bb_predecessors (Basic_block* bb);
-	Edge_list* get_edge_successors (Basic_block* bb);
-	Edge_list* get_edge_predecessors (Basic_block* bb);
-	void replace_bb (Basic_block* bb, BB_list* replacements);
-	void remove_bb (Basic_block* bb);
-
-	// Remove the edge
-	void remove_edge (Edge* edge);
-
-	/* returns true or false. If edge isnt true or false, asserts. */
-	bool is_true_edge (Edge* edge);
-
-	// If we use a graph with listS for the adjacency lists, then we need to
-	// renumber the indices for certain algorithms.
-	void renumber_vertex_indices ();
-
-	// Remove unreachable nodes, and empty nodes.
-	void tidy_up ();
-
-	// Check that the BB->vertex mapping is symmetric.
-	void consistency_check ();
 };
 
 #endif // PHC_CFG

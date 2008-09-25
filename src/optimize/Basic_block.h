@@ -56,18 +56,24 @@ public:
 	 * CFG properties
 	 */
 public:
-
-	BB_list* get_predecessors ();
-	BB_list* get_successors ();
-
 	// Assert a block has a single successor, and return it.
 	Basic_block* get_successor ();
 	Edge* get_successor_edge  ();
-	// TODO same for preds
 
-	Edge_list* get_predecessor_edges ();
+	// Assert a block has a single predeccessor, and return it.
+	Basic_block* get_predecessor ();
+	Edge* get_predecessor_edge  ();
+
+	BB_list* get_successors ();
 	Edge_list* get_successor_edges ();
 
+	BB_list* get_predecessors ();
+	Edge_list* get_predecessor_edges ();
+
+	/*
+	 * Dominance
+	 */
+public:
 	Basic_block* get_immediate_dominator ();
 	BB_list* get_dominated_blocks ();
 	bool is_dominated_by (Basic_block* bb);
@@ -102,11 +108,7 @@ public:
 	 */
 	void remove ();
 	void replace (BB_list* replacements);
-
-	// Just rip it out, removing all predecessors, successors, edges, phis etc.
-	// Sometimes, this is OK, and we dont want to do this in remove (), where it
-	// might happen by accident.
-	void rip_out ();
+	void insert_predecessor (Basic_block* bb);
 
 
 public:

@@ -229,13 +229,13 @@ Basic_block::fix_solo_phi_args ()
 	// TODO: The theory is that each Phi node executes simultaneously. If
 	// there are dependencies between the nodes, this could be wrong.
 
-	BB_list* replacements = new BB_list (this);
+	BB_list* replacements = new BB_list ();
 	foreach (Phi* phi, *get_phi_nodes ())
 	{
 		Rvalue_list* args = phi->get_args ();
 		if (args->size () == 1)
 		{
-			replacements->push_front (
+			replacements->push_back (
 				new Statement_block (
 					cfg,
 					new Assign_var (
@@ -247,7 +247,14 @@ Basic_block::fix_solo_phi_args ()
 		}
 	}
 
+	replacements->push_back (this);
 	replace (replacements);
+}
+
+void
+Basic_block::insert_predecessor (Basic_block* bb)
+{
+	cfg->insert_predecessor_bb (this, bb);
 }
 
 BB_list*
@@ -355,12 +362,6 @@ Branch_block::switch_successors ()
 void
 Basic_block::remove ()
 {
-	cfg->replace_bb (this, new BB_list);
-}
-
-void
-Basic_block::rip_out ()
-{
 	cfg->remove_bb (this);
 }
 
@@ -376,24 +377,20 @@ Branch_block::set_always_true ()
 {
 	cfg->consistency_check ();
 
-	// Avoid assertion failures in remove_edge by not setting this edge until
-	// later.
 	Edge* true_edge = get_true_successor_edge ();
-	Edge* false_edge = get_true_successor_edge ();
+	Edge* false_edge = get_false_successor_edge ();
 
+	Basic_block* succ = get_true_successor ();
+	succ->merge_phi_nodes (this);
 
-	foreach (Phi* phi, *false_edge->target->get_phi_nodes ())
-		phi->remove_arg_for_edge (false_edge);
+	foreach (Edge* edge, *get_predecessor_edges ())
+		edge->replace_target (succ);
 
-	// remove the false edge
+	// Fix up phis
+	cfg->remove_edge (true_edge);
 	cfg->remove_edge (false_edge);
-
-
-	// set the true edge to always true
-	true_edge->direction = indeterminate;
-	
-	// remove the branch
 	remove ();
+
 	cfg->consistency_check ();
 }
 
@@ -402,24 +399,20 @@ Branch_block::set_always_false ()
 { 
 	cfg->consistency_check ();
 
-	// Avoid assertion failures in remove_edge by not setting this edge until
-	// later.
 	Edge* true_edge = get_true_successor_edge ();
 	Edge* false_edge = get_false_successor_edge ();
 
+	Basic_block* succ = get_false_successor ();
+	succ->merge_phi_nodes (this);
 
-	// Remove the true edge
-	foreach (Phi* phi, *true_edge->target->get_phi_nodes ())
-		phi->remove_arg_for_edge (true_edge);
+	foreach (Edge* edge, *get_predecessor_edges ())
+		edge->replace_target (succ);
 
+	// Fix up phis
 	cfg->remove_edge (true_edge);
-
-
-	// set the false edge to always true
-	false_edge->direction = indeterminate;
-	
-	// remove the branch
+	cfg->remove_edge (false_edge);
 	remove ();
+
 	cfg->consistency_check ();
 }
 

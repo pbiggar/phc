@@ -492,8 +492,6 @@ CFG_visitor::transform_block (Basic_block* bb)
 		assert (0);
 
 	bb->replace (out);
-
-
 }
 
 void

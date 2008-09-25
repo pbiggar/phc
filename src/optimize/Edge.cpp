@@ -32,6 +32,12 @@ Edge::clone()
 	assert (0);
 }
 
+void
+Edge::replace_target (Basic_block* bb)
+{
+	target->cfg->replace_target_for_edge (this, bb);
+}
+
 SSA_edge::SSA_edge (Phi* phi)
 : which (PHI)
 , phi (phi)

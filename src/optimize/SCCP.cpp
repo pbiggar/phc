@@ -131,6 +131,8 @@ using namespace MIR;
 void
 SCCP::run (CFG* cfg)
 {
+	this->cfg = cfg;
+
 	// 1. Initialize:
 	cfg_wl = new Edge_list(cfg->get_entry_edge ());
 	ssa_wl = new SSA_edge_list;
@@ -192,6 +194,9 @@ SCCP::run (CFG* cfg)
 		}
 	}
 
+	if (debugging_enabled)
+		lattice.dump();
+
 	// The algorithm so far has found the answers. We now need to update the
 	// results.
 	update_ir (cfg);
@@ -223,6 +228,8 @@ SCCP::visit_phi (Phi* phi)
 	 *		c1 + c2 = BOTTOM if i != j (this can be improved with VRP, using a
 	 *			similar algorithm).
 	 */
+	Lattice_cell* old = lattice[phi->lhs];
+
 	Lattice_cell* result = TOP;
 
 	pair<Rvalue*, Edge*> pair;
@@ -239,6 +246,10 @@ SCCP::visit_phi (Phi* phi)
 		}
 	}
 	lattice[phi->lhs] = result;
+
+	// Although the algorithm doesnt explicitly state this, surely this is an
+	// assignment.
+	check_changed_definition (old, phi->lhs); // (BB is only used to get the DUW*)
 }
 
 /*
@@ -308,35 +319,45 @@ SCCP::visit_assign_field (Statement_block*, MIR::Assign_field *)
 	die ();
 }
 
+// In the paper, this is VisitExpression.
 void
 SCCP::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 {
 	if (lattice[in->lhs] == BOTTOM)
 		return;
 
+	assert (in->is_ref == false); // TODO
+
 	Expr* expr = transform_expr (bb, in->rhs->clone ());
 
-	// Update the Lattice
-	if (isa<Literal> (expr))
+	Lattice_cell* old = lattice[in->lhs];
+
+
+	// If it changes the lattice value,
+	if (isa<Literal> (expr) && old== TOP)
+		lattice[in->lhs] = new Lattice_cell (dyc<Literal> (expr));
+	else if (!isa<Literal> (expr))
+		lattice[in->lhs] = BOTTOM;
+
+
+	check_changed_definition (old, in->lhs);
+}
+
+void
+SCCP::check_changed_definition (Lattice_cell* old_value, VARIABLE_NAME* def)
+{
+	if (lattice[def] != old_value)
 	{
-		// If it changes the lattice value,
-		//	- add uses of the LHS to the SSA worklist.
-		if (lattice[in->lhs] == TOP)
+		foreach (SSA_edge* edge, *cfg->duw->get_var_uses (def))
 		{
-			assert (in->is_ref == false); // TODO
-			lattice[in->lhs] = new Lattice_cell (dyc<Literal> (expr));
-			foreach (SSA_edge* edge, *bb->cfg->duw->get_var_uses (in->lhs))
-			{
-				ssa_wl->push_back (edge);
-			}
-		}
-		else
-		{
-			// must be a CONST already
+			//	1. add uses of the LHS to the SSA worklist.
+			ssa_wl->push_back (edge);
+
+			// 2. If the expression controls a conditional branch, .... However,
+			// conditions never control branches - that's always a VARIABLE_NAME.
+			// The new value for that variable will propagate through 1.
 		}
 	}
-	else
-		lattice[in->lhs] = BOTTOM;
 }
 
 void
@@ -380,13 +401,15 @@ SCCP::visit_push_array (Statement_block*, MIR::Push_array*)
 }
 
 void
-SCCP::visit_ssa_pre_op (Statement_block*, MIR::SSA_pre_op* in)
+SCCP::visit_ssa_pre_op (Statement_block* bb, MIR::SSA_pre_op* in)
 {
+	Lattice_cell* old = lattice[in->def];
+
 	if (lattice[in->use] == BOTTOM)
 		lattice[in->def] = BOTTOM;
 
 	else if (lattice[in->use] == TOP)
-		; // do nothing
+		assert (lattice[in->def] == TOP); // do nothing
 
 	else
 	{
@@ -396,6 +419,12 @@ SCCP::visit_ssa_pre_op (Statement_block*, MIR::SSA_pre_op* in)
 		if (result)
 			meet (in->def, result);
 	}
+
+	// TODO: this could get duplicated a lot. The simplest way to avoid that is
+	// to move to iterarating over SSA_operations in a node, instead of
+	// painstakingly checking each place that can be a def.
+	
+	check_changed_definition (old, in->def);
 }
 
 void
