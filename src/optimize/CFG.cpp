@@ -390,8 +390,8 @@ CFG::consistency_check ()
 		foreach (Phi* phi, *bb->get_phi_nodes ())
 		{
 			assert (phi->get_args ()->size() == bb->get_predecessors ()->size ());
-			foreach (Basic_block* pred, *bb->get_predecessors ())
-				assert (phi->has_arg_for_edge (get_edge (pred, bb)));
+			foreach (Edge* pred, *bb->get_predecessor_edges ())
+				assert (phi->has_arg_for_edge (pred));
 		}
 	}
 
@@ -808,11 +808,6 @@ CFG::replace_target_for_edge (Edge* old_edge, Basic_block* new_target)
 	// a Branch. Just copy the label from the new predecessor.
 	ee[e]->direction = old_edge->direction;
 
-	// When we replace an edge before a Phi node, we need to update
-	// that phi node with the edge coming into it.
-	foreach (Phi* phi, *new_target->get_phi_nodes ())
-		phi->replace_edge (old_edge, ee[e]);
-
 	// Remove the edge into the original BB.
 	remove_edge (old_edge);
 }
@@ -820,6 +815,7 @@ CFG::replace_target_for_edge (Edge* old_edge, Basic_block* new_target)
 void
 CFG::remove_bb (Basic_block* bb)
 {
+	consistency_check ();
 	if (bb->get_successors ()->size () == 1)
 	{
 		// Assume many predecessors, only 1 successor (it can be a branch block, so
@@ -832,14 +828,24 @@ CFG::remove_bb (Basic_block* bb)
 
 		// TODO Factor the use-def chains by putting in an empty block for the phi
 		// nodes).
+		
+		dump_graphviz (NULL);
+		foreach (Basic_block* pred, *bb->get_predecessors ())
+		{
+			Edge* old_edge = get_edge(pred, bb);
+			old_edge->replace_target (succ);
 
-		// Merge the phi nodes in first, so that they will be updated by
-		// replace_target_for_edge.
+			// Update successor phi edges
+			foreach (Phi* phi, *succ->get_phi_nodes ())
+				phi->replace_edge (get_edge (bb, succ), get_edge (pred, succ));
+
+			// Update BB phi edges
+			foreach (Phi* phi, *bb->get_phi_nodes ())
+				phi->replace_edge (old_edge, get_edge (pred, succ));
+		}
+
 		succ->merge_phi_nodes (bb);
 
-		// Connect to each predecessor (disconnecting from BB)
-		foreach (Basic_block* pred, *bb->get_predecessors ())
-			get_edge (pred, bb)->replace_target (succ);
 
 		remove_edge (bb->get_successor_edge ());
 	}
@@ -856,13 +862,16 @@ CFG::insert_bb_between (Edge* edge, Basic_block* new_bb)
 {
 	add_bb (new_bb);
 
-	// There can only be one set of phi nodes affected by this, those of
-	// edge->target. They are updated in replace_target ().
 	edge->replace_target (new_bb);
 
-	// Add the new edge, and copy the direction.
+	// Add the second edge, and copy the direction.
 	edge_t e1 = add_edge (new_bb, edge->target);
-	ee[e1]->direction = edge->direction;
+
+	// Dont take the direction, since that belongs the to first edge.
+	
+	// Replace the phi's args with the new incoming edge.
+	foreach (Phi* phi, *edge->target->get_phi_nodes ())
+		phi->replace_edge (edge, get_edge (new_bb, edge->target));
 }
 
 void
@@ -879,7 +888,14 @@ CFG::insert_predecessor_bb (Basic_block* bb, Basic_block* new_bb)
 
 	// Connect to each predecessor (disconnecting from previous BB)
 	foreach (Basic_block* pred, *bb->get_predecessors ())
-		get_edge (pred, bb)->replace_target (new_bb);
+	{
+		Edge* old_edge = get_edge (pred, bb);
+		old_edge->replace_target (new_bb);
+
+		// The phis moved to the new predecessor, so there are new edges.
+		foreach (Phi* phi, *new_bb->get_phi_nodes ())
+			phi->replace_edge (old_edge, get_edge (pred, new_bb));
+	}
 
 
 	add_edge (new_bb, bb);

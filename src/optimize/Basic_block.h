@@ -197,9 +197,8 @@ public:
 	Basic_block* get_false_successor ();
 	Edge* get_false_successor_edge ();
 
-	// Replace the branch with its true/false successor, and remove unreachable blocks.
-	void set_always_true ();
-	void set_always_false ();
+	// Replace the branch with its true/false successor.
+	void set_always (bool direction);
 
 	void switch_successors ();
 

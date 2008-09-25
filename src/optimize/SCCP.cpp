@@ -711,12 +711,7 @@ public:
 	{
 		Literal* lit = get_literal (bb->branch->variable_name);
 		if (lit)
-		{
-			if (PHP::is_true (lit))
-				bb->set_always_true ();
-			else
-				bb->set_always_false ();
-		}
+			bb->set_always (PHP::is_true (lit));
 	}
 
 	void visit_assign_array (Statement_block*, MIR::Assign_array* in)

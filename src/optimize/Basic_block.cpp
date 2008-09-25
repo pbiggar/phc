@@ -126,12 +126,18 @@ Basic_block::get_graphviz_head_properties ()
 	foreach (Phi* phi, *get_phi_nodes ())
 	{
 		list<String*> list;
-		foreach (Rvalue* arg, *phi->get_args ())
+		Rvalue* arg;
+		Edge* edge;
+		foreach (tie (arg, edge), *phi->get_arg_edges ())
 		{
+			stringstream ss;
+			ss << "(" << cfg->index[edge->source->vertex] << "): ";
 			if (isa<VARIABLE_NAME> (arg))
-				list.push_back (dyc<VARIABLE_NAME> (arg)->get_ssa_var_name ());
+				ss << *dyc<VARIABLE_NAME> (arg)->get_ssa_var_name ();
 			else
-				list.push_back (dyc<Literal> (arg)->get_value_as_string ());
+				ss << *dyc<Literal> (arg)->get_value_as_string ();
+
+			list.push_back (s (ss.str()));
 		}
 
 		result->push_back (make_pair (phi->lhs->get_ssa_var_name (), list));
@@ -373,40 +379,24 @@ Basic_block::replace (BB_list* replacements)
 }
 
 void
-Branch_block::set_always_true ()
+Branch_block::set_always (bool direction)
 {
 	cfg->consistency_check ();
 
 	Edge* true_edge = get_true_successor_edge ();
 	Edge* false_edge = get_false_successor_edge ();
 
-	Basic_block* succ = get_true_successor ();
-	succ->merge_phi_nodes (this);
+	Basic_block* succ = direction ? get_true_successor () : get_false_successor ();
 
 	foreach (Edge* edge, *get_predecessor_edges ())
+	{
 		edge->replace_target (succ);
 
-	// Fix up phis
-	cfg->remove_edge (true_edge);
-	cfg->remove_edge (false_edge);
-	remove ();
+		foreach (Phi* phi, *get_phi_nodes ())
+			phi->replace_edge (edge, cfg->get_edge (edge->source, succ));
+	}
 
-	cfg->consistency_check ();
-}
-
-void
-Branch_block::set_always_false ()
-{ 
-	cfg->consistency_check ();
-
-	Edge* true_edge = get_true_successor_edge ();
-	Edge* false_edge = get_false_successor_edge ();
-
-	Basic_block* succ = get_false_successor ();
 	succ->merge_phi_nodes (this);
-
-	foreach (Edge* edge, *get_predecessor_edges ())
-		edge->replace_target (succ);
 
 	// Fix up phis
 	cfg->remove_edge (true_edge);
