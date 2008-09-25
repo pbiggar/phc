@@ -285,20 +285,6 @@ string read_var (Scope scope, string zvp, VARIABLE_NAME* var_name)
 	return ss.str();
 }
 
-string read_var_var (Scope scope, string zvp, VARIABLE_NAME* var_var)
-{
-	stringstream ss;
-	ss
-	<< "// Read variable variable\n"
-	<< read_rvalue (scope, "var_var", var_var)
-	<< zvp << " = read_var_var (" 
-	<<					get_scope (scope) << ", "
-	<<					"var_var "
-	<<					" TSRMLS_CC);\n"
-	;
-	return ss.str();
-}
-
 /*
  * Map of the Zend functions that implement the operators
  *
@@ -930,6 +916,20 @@ public:
 		}
 	}
 
+	string read_var_var (Scope scope, string zvp, VARIABLE_NAME* var_var)
+	{
+		stringstream ss;
+		ss
+		<< "// Read variable variable\n"
+		<< read_rvalue (scope, "var_var", var_var)
+		<< zvp << " = read_var_var (" 
+		<<					get_scope (scope) << ", "
+		<<					"var_var "
+		<<					" TSRMLS_CC);\n"
+		;
+		return ss.str();
+	}
+
 protected:
 	Wildcard<Variable_variable>* rhs;
 };
@@ -1227,15 +1227,36 @@ class Pattern_assign_var_to_var_var : public Pattern
 
 	void generate_code(Generate_C* gen)
 	{
-		code
-		<< declare ("p_lhs") 
-		<< read_var_var (LOCAL, "p_lhs", lhs->value)
-		<< declare ("p_rhs")
-		<< read_var (LOCAL, "p_rhs", rhs->value)
-		<< "if (*p_lhs != *p_rhs)\n"
-		<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
-		<< cleanup ("p_rhs");
+		if(!stmt->is_ref)
+		{
+			code
+			<< declare ("p_lhs") 
+			<< get_var_var (LOCAL, "p_lhs", lhs->value)
+			<< declare ("p_rhs")
+			<< read_var (LOCAL, "p_rhs", rhs->value)
+			<< "if (*p_lhs != *p_rhs)\n"
+			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
+			<< cleanup ("p_rhs");
+			;
+		}
+		else
+		{
+			phc_unsupported(new Assign_var_var(lhs->value, stmt->is_ref, rhs->value), "reference assignment to variable variable");
+		}
+	}
+
+	string get_var_var (Scope scope, string zvp, VARIABLE_NAME* var_var)
+	{
+		stringstream ss;
+		ss
+		<< "// Read variable variable\n"
+		<< read_rvalue (scope, "var_var", var_var)
+		<< zvp << " = get_var_var (" 
+		<<					get_scope (scope) << ", "
+		<<					"var_var "
+		<<					" TSRMLS_CC);\n"
 		;
+		return ss.str();
 	}
 
 	Assign_var_var* stmt;

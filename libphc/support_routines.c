@@ -616,21 +616,39 @@ read_var (HashTable * st, char *name, int length, ulong hashval TSRMLS_DC)
   return EG (uninitialized_zval_ptr);
 }
 
-/* Read the variable named VAR_NAME from the local symbol table, and
- * find the variable which it refers to and return it. If the variable
- * doent exist, a new one is created and *IS_NEW is set.
- * */
+/* Read the variable described by var_var from symbol table st
+ * If the variable does not exist or if the index is uninitialized_zval_ptr,
+ * return a pointer to uninitialized_zval_ptr
+ */
 zval **
-read_var_var (HashTable * st, zval * refl TSRMLS_DC)
+read_var_var (HashTable * st, zval * var_var TSRMLS_DC)
 {
-  // is_new not required, since no vars created.
-  if (refl == EG (uninitialized_zval_ptr))
+  if (var_var == EG (uninitialized_zval_ptr))
     return &EG (uninitialized_zval_ptr);
 
   zval **p_result;
-  if (ht_find (st, refl, &p_result) != SUCCESS)
+  if (ht_find (st, var_var, &p_result) != SUCCESS)
     {
       return &EG (uninitialized_zval_ptr);
+    }
+
+  return p_result;
+}
+
+/*
+ * Like read_var_var, but update the hash table when the index is not found 
+ */
+zval **
+get_var_var (HashTable * st, zval * var_var TSRMLS_DC)
+{
+  if (var_var == EG (uninitialized_zval_ptr))
+    return &EG (uninitialized_zval_ptr);
+
+  zval **p_result;
+  if (ht_find (st, var_var, &p_result) != SUCCESS)
+    {
+      EG (uninitialized_zval_ptr)->refcount++;
+      ht_update (st, var_var, EG (uninitialized_zval_ptr), &p_result);
     }
 
   return p_result;
