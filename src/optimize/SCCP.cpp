@@ -132,6 +132,7 @@ void
 SCCP::run (CFG* cfg)
 {
 	this->cfg = cfg;
+	cfg->consistency_check ();
 
 	// 1. Initialize:
 	cfg_wl = new Edge_list(cfg->get_entry_edge ());
@@ -167,13 +168,13 @@ SCCP::run (CFG* cfg)
 
 			e->is_executable = true;
 
-			foreach (Phi* phi, *e->target->get_phi_nodes ())
-				visit_phi (phi);
+			foreach (VARIABLE_NAME* phi_lhs, *e->get_target ()->get_phi_lhss ())
+				visit_phi (e->get_target (), phi_lhs);
 
-			if (get_predecessor_executable_count (e->target) == 1)
-				visit_block (e->target);
+			if (get_predecessor_executable_count (e->get_target()) == 1)
+				visit_block (e->get_target ());
 
-			Edge_list* succs = e->target->get_successor_edges ();
+			Edge_list* succs = e->get_target ()->get_successor_edges ();
 			if (succs->size() == 1)
 				cfg_wl->push_back (succs->front ());
 		}
@@ -217,8 +218,10 @@ SCCP::get_predecessor_executable_count (Basic_block* bb)
 }
 
 void
-SCCP::visit_phi (Phi* phi)
+SCCP::visit_phi (Basic_block* bb, VARIABLE_NAME* phi_lhs)
 {
+	Lattice_cell* old = lattice[phi_lhs];
+
 	/*	VisitPhi:
 	 *	The lattice of the phis output variable is the meet of all the inputs
 	 *	(non-execable means TOP), with the meet function:
@@ -228,28 +231,25 @@ SCCP::visit_phi (Phi* phi)
 	 *		c1 + c2 = BOTTOM if i != j (this can be improved with VRP, using a
 	 *			similar algorithm).
 	 */
-	Lattice_cell* old = lattice[phi->lhs];
-
 	Lattice_cell* result = TOP;
-
-	pair<Rvalue*, Edge*> pair;
-	foreach (pair, *phi->get_arg_edges ())
+	foreach (Edge* pred, *bb->get_predecessor_edges ())
 	{
-		if (!pair.second->is_executable)
+		if (!pred->is_executable)
 			; // use TOP, aka do nothing
 		else
 		{
-			if (isa<Literal> (pair.first))
-				result = ::meet (result, dyc<Literal> (pair.first));
+			Rvalue* arg = bb->get_phi_arg_for_edge (pred, phi_lhs);
+			if (isa<Literal> (arg))
+				result = ::meet (result, dyc<Literal> (arg));
 			else
-				result = ::meet (result, lattice[dyc<VARIABLE_NAME> (pair.first)]);
+				result = ::meet (result, lattice[dyc<VARIABLE_NAME> (arg)]);
 		}
 	}
-	lattice[phi->lhs] = result;
+	lattice[phi_lhs] = result;
 
 	// Although the algorithm doesnt explicitly state this, surely this is an
 	// assignment.
-	check_changed_definition (old, phi->lhs); // (BB is only used to get the DUW*)
+	check_changed_definition (old, phi_lhs); // (BB is only used to get the DUW*)
 }
 
 /*
@@ -272,7 +272,7 @@ SCCP::visit_ssa_edge (SSA_edge* edge)
 	switch (edge->which)
 	{
 		case SSA_edge::PHI:
-			visit_phi (edge->phi);
+			visit_phi (edge->bb, edge->phi_lhs);
 			break;
 
 		case SSA_edge::BRANCH:
@@ -694,16 +694,18 @@ public:
 	{
 	}
 
-	void visit_phi_node (Basic_block* bb, Phi* phi)
+	void visit_phi_node (Basic_block* bb, VARIABLE_NAME* phi_lhs)
 	{
-		foreach (Rvalue* arg, *phi->get_args ())
+		foreach (Edge* edge, *bb->get_predecessor_edges ())
 		{
+			Rvalue* arg = bb->get_phi_arg_for_edge (edge, phi_lhs);
+
 			if (isa<Literal> (arg))
 				continue;
 
 			Literal* lit = get_literal (arg);
 			if (lit)
-				phi->replace_var_name (dyc<VARIABLE_NAME> (arg), lit);
+				bb->set_phi_arg_for_edge (edge, phi_lhs, lit);
 		}
 	}
 

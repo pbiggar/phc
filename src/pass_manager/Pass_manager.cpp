@@ -629,7 +629,7 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 							opt->run (cfg, this);
 
 						// Dump CFG
-						for (unsigned int i = 0; i < args_info->cfg_dump_given; i++)
+/*						for (unsigned int i = 0; i < args_info->cfg_dump_given; i++)
 						{
 							if (*pass->name == args_info->cfg_dump_arg [i])
 							{
@@ -638,6 +638,9 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 								cfg->dump_graphviz (s(name.str()));
 							}
 						}
+*/
+						if (args_info->cfg_dump_given)
+							cfg->dump_graphviz (pass->name);
 					}
 					// TODO Iteration didnt work. Fix it.
 				}

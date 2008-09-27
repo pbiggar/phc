@@ -96,30 +96,29 @@ Def_use_web::add_use (MIR::Rvalue* def, SSA_edge* use)
 void
 Def_use_web::add_use (MIR::VARIABLE_NAME* def, SSA_edge* use)
 {
+	use->variable_name = def;
+	def_use_chains[def].push_back (use);
+
 	DEBUG ("Adding a def_use edge from ");
 	debug (def);
 	DEBUG ("to ")
 	use->dump ();
 	DEBUG (endl);
-	
-	use->variable_name = def;
-	def_use_chains[def].push_back (use);
 }
 
 void
 Def_use_web::add_def (MIR::VARIABLE_NAME* use, SSA_edge* def)
 {
+	def->variable_name = use;
+
+	// When used on pre-SSA form, there can be many defs.
+	use_def_chains[use].push_back (def);
+
 	DEBUG ("Adding a use_def edge from ");
 	debug (use);
 	DEBUG ("to ")
 	def->dump ();
 	DEBUG (endl);
-
-
-	def->variable_name = use;
-
-	// When used on pre-SSA form, there can be many defs.
-	use_def_chains[use].push_back (def);
 }
 
 void
@@ -129,12 +128,12 @@ Def_use_web::visit_branch_block (Branch_block* bb)
 }
 
 void
-Def_use_web::visit_phi_node (Basic_block* bb, Phi* phi)
+Def_use_web::visit_phi_node (Basic_block* bb, VARIABLE_NAME* phi_lhs)
 {
-	foreach (Rvalue* use, *phi->get_args ())
-		add_use (use, new SSA_edge (phi));
+	foreach (Rvalue* use, *bb->get_phi_args (phi_lhs))
+		add_use (use, new SSA_edge (phi_lhs, bb));
 
-	add_def (phi->lhs, new SSA_edge (phi));
+	add_def (phi_lhs, new SSA_edge (phi_lhs, bb));
 }
 
 void

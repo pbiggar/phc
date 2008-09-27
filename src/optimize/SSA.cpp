@@ -9,113 +9,10 @@
 #include "process_ir/debug.h"
 
 #include "SSA.h"
+#include "Phi.h"
 
 using namespace MIR;
 using namespace boost;
-
-Phi::Phi (VARIABLE_NAME* var_name)
-: lhs(var_name)
-{
-	args = new list<pair<MIR::Rvalue*, Edge*> >;
-}
-
-void
-Phi::add_arg (int version, Edge* edge)
-{
-	VARIABLE_NAME* param = lhs->clone ();
-	param->set_version (version);
-	args->push_back (make_pair (param, edge));
-}
-
-Rvalue_list* 
-Phi::get_args ()
-{
-	Rvalue_list* result = new Rvalue_list;
-	pair<Rvalue*, Edge*> pair;
-	foreach (pair, *args)
-	{
-		result->push_back (pair.first);
-	}
-	return result;
-}
-
-list<pair<MIR::Rvalue*, Edge*> >*
-Phi::get_arg_edges ()
-{
-	return args;
-}
-
-void
-Phi::remove_arg_for_edge (Edge* edge)
-{
-	list<pair<MIR::Rvalue*, Edge*> >::iterator i;
-	for (i = args->begin (); i != args->end (); i++)
-	{
-		if ((*i).second == edge)
-		{
-			args->erase (i);
-			return;
-		}
-	}
-
-	assert (0);
-}
-
-
-bool
-Phi::has_arg_for_edge (Edge* edge)
-{
-	list<pair<MIR::Rvalue*, Edge*> >::iterator i;
-	for (i = args->begin (); i != args->end (); i++)
-		if ((*i).second == edge)
-			return true;
-	
-	return false;
-}
-
-// Tell the phi node that OLD_EDGE is being removed, and replaced by NEW_EDGE.
-void
-Phi::replace_edge (Edge* old_edge, Edge* new_edge)
-{
-	list<pair<MIR::Rvalue*, Edge*> >::iterator i;
-	for (i = args->begin (); i != args->end (); i++)
-	{
-		if ((*i).second == old_edge)
-		{
-			(*i).second = new_edge;
-			return;
-		}
-	}
-
-	assert (0);
-}
-
-
-void
-Phi::replace_var_name (MIR::VARIABLE_NAME* old_var_name, MIR::Rvalue* new_rval)
-{
-	// We get pair copies with a foreach loop, which wont update the original.
-	// Also, we can't use a reference in a foreach loop, since there is a
-	// comma in the pair declaration.
-	list<pair<MIR::Rvalue*, Edge*> >::iterator i;
-	for (i = args->begin (); i != args->end (); i++)
-	{
-		if ((*i).first == old_var_name)
-		{
-			(*i).first = new_rval;
-			return;
-		}
-	}
-
-	assert (0);
-}
-
-void
-Phi::dump ()
-{
-	DEBUG ("Phi node for " << *lhs->get_ssa_var_name ());
-}
-
 
 // We use Muchnick, Section 8.11 (which is essentially the same as the
 // Minimal SSA form from the original Cytron, Ferrante, Rosen, Wegman and
@@ -171,7 +68,7 @@ Dominance::calculate_immediate_dominators ()
 {
 	// Step 0: Remove unreachable nodes. Everything should be reachable from the
 	// entry block, or it wont dominate everything.
-	cfg ->tidy_up ();
+	cfg->tidy_up ();
 
 	// Step 1: Calculate immediate dominators.
 
@@ -391,13 +288,19 @@ SSA_renaming::rename_vars (Basic_block* bb)
 	DEBUG ("renaming vars in " << *bb->get_graphviz_label ());
 	debug_var_stacks ();
 
-
-	// Create new names for PHI targets
-	foreach (Phi* phi, *bb->get_phi_nodes ())
+	// Convert the phi nodes
+	foreach (VARIABLE_NAME* phi_lhs, *bb->get_phi_lhss())
 	{
 		DEBUG ("converting phi lhs");
-		debug (phi->lhs);
-		create_new_ssa_name (phi->lhs);
+		debug (phi_lhs);
+//		create_new_ssa_name (phi_lhs);
+
+		VARIABLE_NAME* clone = phi_lhs->clone ();
+		create_new_ssa_name (clone);
+		bb->update_phi_node (phi_lhs, clone);
+
+		DEBUG (" to ");
+		debug (phi_lhs);
 	}
 
 	// Rename local variable uses
@@ -413,7 +316,7 @@ SSA_renaming::rename_vars (Basic_block* bb)
 	// Create new names for defs
 	foreach (VARIABLE_NAME* def, *bb->get_pre_ssa_defs ())
 	{
-		DEBUG ("Converting use " << *def->get_ssa_var_name ());
+		DEBUG ("Converting def " << *def->get_ssa_var_name ());
 		debug (def);
 		create_new_ssa_name (def);
 		DEBUG (" to ");
@@ -423,12 +326,14 @@ SSA_renaming::rename_vars (Basic_block* bb)
 	// Copy names to CFG successors (including names defined in
 	// predecessor, which are not redefined here).
 	foreach (Basic_block* succ, *bb->get_successors ())
-		foreach (Phi* phi, *succ->get_phi_nodes ())
-			phi->add_arg (read_var_stack (phi->lhs), cfg->get_edge (bb, succ));
+		foreach (VARIABLE_NAME* phi_lhs, *succ->get_phi_lhss())
+			succ->add_phi_arg (phi_lhs, read_var_stack (phi_lhs), cfg->get_edge (bb, succ));
+
 
 	// Recurse down the dominator tree
 	foreach (Basic_block* dominated, *bb->get_dominated_blocks ())
 		rename_vars (dominated);
+
 
 	// Before going back up the tree, get rid of new variable names from
 	// the stack, so the next node up sees its own names.

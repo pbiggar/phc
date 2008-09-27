@@ -9,8 +9,8 @@ using namespace MIR;
 void
 CFG_visitor::visit_block (Basic_block* bb)
 {
-	foreach (Phi* phi, *bb->get_phi_nodes ())
-		visit_phi_node (bb, phi);
+	foreach (VARIABLE_NAME* phi_lhs, *bb->get_phi_lhss ())
+		visit_phi_node (bb, phi_lhs);
 
 	if (Entry_block* eb = dynamic_cast<Entry_block*> (bb))
 		visit_entry_block (eb);
@@ -194,7 +194,7 @@ CFG_visitor::visit_statement_block (Statement_block*)
 
 
 void
-CFG_visitor::visit_phi_node (Basic_block* bb, Phi* phi)
+CFG_visitor::visit_phi_node (Basic_block* bb, VARIABLE_NAME* phi_lhs)
 {
 }
 
@@ -403,14 +403,13 @@ CFG_visitor::transform_block (Basic_block* bb)
 {
 	// bb->replace will move the phi nodes from BB to the new BBs. So here we
 	// just update BB.
-	Phi_list* all_phis = new Phi_list;
-	foreach (Phi* phi, *bb->get_phi_nodes ())
+	
+	foreach (VARIABLE_NAME* phi_lhs, *bb->get_phi_lhss ())
 	{
-		Phi_list* out = new Phi_list;
-		transform_phi_node (bb, phi, out);
-		all_phis->push_back_all (out);
+		// Allow it to update the CFG directly, its much easier.
+		transform_phi_node (bb, phi_lhs);
 	}
-	bb->set_phi_nodes (all_phis);
+
 
 	BB_list* out = new BB_list;
 
@@ -518,10 +517,10 @@ CFG_visitor::transform_branch_block (Branch_block* in, BB_list* out)
 	out->push_back (in);
 }
 
+
 void
-CFG_visitor::transform_phi_node (Basic_block* bb, Phi* in, Phi_list* out)
+CFG_visitor::transform_phi_node (Basic_block* bb, MIR::VARIABLE_NAME* lhs)
 {
-	out->push_back (in);
 }
 
 void

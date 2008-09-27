@@ -7,22 +7,30 @@
 #include "CFG.h"
 #include "Set.h"
 #include "SSA.h"
+#include "Phi.h"
 
 // CFG edge
 class Edge : public Object
 {
 public:
-	Basic_block* source;
-	Basic_block* target;
+	CFG* cfg;
 	edge_t edge;
-	tribool direction;
 
 public:
-	Edge (Basic_block* source, Basic_block* target, edge_t edge);
-	Edge (Basic_block* source, Basic_block* target, edge_t edge, bool direction);
+	Edge (CFG* cfg, edge_t edge, boost::tribool direction = boost::indeterminate);
 
-	// Note: Invalidates the edge.
-	void replace_target (Basic_block* bb);
+public:
+	/*
+	 * Block properties
+	 */
+
+	bool is_executable;
+	boost::tribool direction;
+	Phi_map pm;
+
+	Basic_block* get_source ();
+	Basic_block* get_target ();
+	void copy_phi_map (Edge* other);
 
 public:
 	/*
@@ -31,7 +39,6 @@ public:
 
 	// Indicate to BGL that this represents a vertex internal property.
 	typedef boost::edge_property_tag kind;
-	edge_t vertex;
 
 public:
 	/*
@@ -50,28 +57,20 @@ public:
 	virtual list<pair<String*,Set*> >* get_graphviz_tail_properties ();
 */
 public:
-	/*
-	 * Block properties
-	 */
-
-	bool is_executable;
-
-	// TODO do we need to clone a block?
-	Edge* clone();
+		Edge* clone() { assert (0); }
 };
 
 // TODO move to SSA.h
-class Phi;
 class Statement_block;
 class Branch_block;
 class SSA_edge : public Object
 {
+
 public:
 	// Target is either a PHI or a statement (aka an expr).
 	
 	// This means any BB (for a PHI) or a statement_block, or a branch_block.
 	enum _which {PHI, STATEMENT, BRANCH} which;
-	Phi* phi;
 
 	Basic_block* bb;
 
@@ -79,13 +78,17 @@ public:
 	// variable in the def-use web is just a key, and may be a different
 	// instance of the same variable.
 	MIR::VARIABLE_NAME* variable_name;
+	MIR::VARIABLE_NAME* phi_lhs;
 
-	SSA_edge (Phi* phi);
+public:
+
+
+	SSA_edge (MIR::VARIABLE_NAME* phi_lhs, Basic_block* bb);
 	SSA_edge (Statement_block* bb);
 	SSA_edge (Branch_block* bb);
 	SSA_edge* clone ();
 
-	Phi* get_phi ();
+	pair<MIR::VARIABLE_NAME*, Basic_block*> get_phi ();
 	Statement_block* get_statement_block ();
 	Branch_block* get_branch_block ();
 

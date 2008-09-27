@@ -103,8 +103,8 @@ am_libphc_la_OBJECTS = getopt1.lo getopt.lo AST_annotate.lo \
 	CFG.lo CFG_visitor.lo Copy_propagation.lo \
 	Dead_code_elimination.lo Def_use.lo Edge.lo Fix_point.lo \
 	Flow_visitor.lo If_simplification.lo Lattice.lo \
-	Live_variable_analysis.lo Prune_symbol_table.lo SCCP.lo Set.lo \
-	SSA.lo Use_def_counter.lo Visit_once.lo Parse_buffer.lo \
+	Live_variable_analysis.lo Phi.lo Prune_symbol_table.lo SCCP.lo \
+	Set.lo SSA.lo Use_def_counter.lo Visit_once.lo Parse_buffer.lo \
 	parse.lo PHP_context.lo XML_parser.lo Optimization_pass.lo \
 	Pass_manager.lo Plugin_pass.lo AST_unparser.lo \
 	Constant_folding.lo DOT_unparser.lo Invalid_check.lo \
@@ -716,6 +716,8 @@ libphc_la_SOURCES = \
 	src/optimize/Live_variable_analysis.cpp			\
 	src/optimize/Live_variable_analysis.h				\
 	src/optimize/Out_of_SSA.h								\
+	src/optimize/Phi.cpp										\
+	src/optimize/Phi.h										\
 	src/optimize/Prune_symbol_table.cpp					\
 	src/optimize/Prune_symbol_table.h					\
 	src/optimize/SCCP.cpp									\
@@ -1303,6 +1305,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Param_is_ref_uppering.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Parse_buffer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Pass_manager.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Phi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Plugin_pass.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Pre_post_op_shredder.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Process_includes.Plo@am__quote@
@@ -1824,6 +1827,13 @@ Live_variable_analysis.lo: src/optimize/Live_variable_analysis.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Live_variable_analysis.cpp' object='Live_variable_analysis.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Live_variable_analysis.lo `test -f 'src/optimize/Live_variable_analysis.cpp' || echo '$(srcdir)/'`src/optimize/Live_variable_analysis.cpp
+
+Phi.lo: src/optimize/Phi.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Phi.lo -MD -MP -MF $(DEPDIR)/Phi.Tpo -c -o Phi.lo `test -f 'src/optimize/Phi.cpp' || echo '$(srcdir)/'`src/optimize/Phi.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Phi.Tpo $(DEPDIR)/Phi.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Phi.cpp' object='Phi.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Phi.lo `test -f 'src/optimize/Phi.cpp' || echo '$(srcdir)/'`src/optimize/Phi.cpp
 
 Prune_symbol_table.lo: src/optimize/Prune_symbol_table.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Prune_symbol_table.lo -MD -MP -MF $(DEPDIR)/Prune_symbol_table.Tpo -c -o Prune_symbol_table.lo `test -f 'src/optimize/Prune_symbol_table.cpp' || echo '$(srcdir)/'`src/optimize/Prune_symbol_table.cpp

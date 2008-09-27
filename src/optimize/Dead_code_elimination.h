@@ -62,7 +62,7 @@ class DCE : public Visit_once
 public:
 	void transform_assign_var (Statement_block*, MIR::Assign_var* in, BB_list* out);
 
-	void transform_phi_node (Basic_block* bb, Phi* in, Phi_list* out);
+	void transform_phi_node (Basic_block* bb, MIR::VARIABLE_NAME* phi_lhs);
 
 	void transform_eval_expr (Statement_block* bb, MIR::Eval_expr* in, BB_list* out);
 };

@@ -177,6 +177,8 @@ libphc_la_SOURCES= 											\
 	src/optimize/Live_variable_analysis.cpp			\
 	src/optimize/Live_variable_analysis.h				\
 	src/optimize/Out_of_SSA.h								\
+	src/optimize/Phi.cpp										\
+	src/optimize/Phi.h										\
 	src/optimize/Prune_symbol_table.cpp					\
 	src/optimize/Prune_symbol_table.h					\
 	src/optimize/SCCP.cpp									\

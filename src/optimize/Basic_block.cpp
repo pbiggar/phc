@@ -20,6 +20,7 @@ Basic_block::Basic_block(CFG* cfg)
 , changed (false)
 , aliases (NULL)
 {
+	phi_lhss = new VARIABLE_NAME_list;
 }
 
 Branch_block::Branch_block (CFG* cfg, MIR::Branch* b)
@@ -123,15 +124,15 @@ Basic_block::get_graphviz_head_properties ()
 {
 	list<pair<String*,list<String*> > >* result = new list<pair<String*,list<String*> > >;
 	// Phi nodes
-	foreach (Phi* phi, *get_phi_nodes ())
+	foreach (VARIABLE_NAME* phi_lhs, *get_phi_lhss ())
 	{
 		list<String*> list;
-		Rvalue* arg;
-		Edge* edge;
-		foreach (tie (arg, edge), *phi->get_arg_edges ())
+		foreach (Edge* edge, *get_predecessor_edges ())
 		{
+			Rvalue* arg = get_phi_arg_for_edge (edge, phi_lhs);
+
 			stringstream ss;
-			ss << "(" << cfg->index[edge->source->vertex] << "): ";
+			ss << "(" << cfg->index[edge->get_source()->vertex] << "): ";
 			if (isa<VARIABLE_NAME> (arg))
 				ss << *dyc<VARIABLE_NAME> (arg)->get_ssa_var_name ();
 			else
@@ -140,7 +141,7 @@ Basic_block::get_graphviz_head_properties ()
 			list.push_back (s (ss.str()));
 		}
 
-		result->push_back (make_pair (phi->lhs->get_ssa_var_name (), list));
+		result->push_back (make_pair (phi_lhs->get_ssa_var_name (), list));
 	}
 
 //	if (live_in)
@@ -157,75 +158,99 @@ Basic_block::get_graphviz_tail_properties ()
 	return result;
 }
 
+
 /*
  * SSA
  */
 
+/* Merge the phi nodes from OTHER into this BB. */
 void
-Basic_block::add_phi_function (VARIABLE_NAME* var_name)
+Basic_block::copy_phi_nodes (Basic_block* other)
 {
-	// We only want 1 phi node per variable name, regardless of the number of
-	// versions.
-	assert (not has_phi_function (var_name));
-	phi_nodes[*var_name->value] = new Phi (var_name->clone ());
+	// Since a phi is an assignment, and variables can only be assigned to once,
+	// OTHER's PHIs cant exist in THIS.
+	foreach (VARIABLE_NAME* phi_lhs, *other->get_phi_lhss ())
+		assert (!has_phi_node (phi_lhs));
+
+	phi_lhss->push_back_all (other->get_phi_lhss());
 }
 
 bool
-Basic_block::has_phi_function (VARIABLE_NAME* var_name)
+Basic_block::has_phi_node (VARIABLE_NAME* phi_lhs)
 {
-	return phi_nodes.has (*var_name->value);
-}
 
-List<Phi*>*
-Basic_block::get_phi_nodes ()
-{
-	List<Phi*>* result = new List<Phi*>;
+	foreach (VARIABLE_NAME* lhs, *phi_lhss)
+	{
+		// Only operator< is defined, not >= or ==
+		if (!(*lhs < *phi_lhs) && !(*phi_lhs < *lhs))
+			return true;
+	}
 
-	pair<string, Phi*> pair;
-	foreach (pair, phi_nodes)
-		result->push_back (pair.second);
-
-	return result;
+	return false;
 }
 
 void
-Basic_block::set_phi_nodes (Phi_list* new_phis)
+Basic_block::add_phi_node (VARIABLE_NAME* phi_lhs)
 {
-	// TODO: what does indexing on the old name get us?
-	remove_phi_nodes ();
-	foreach (Phi* phi, *new_phis)
-	{
-		phi_nodes[*phi->lhs->value] = phi;
-	}
+	assert (!has_phi_node (phi_lhs));
+	phi_lhss->push_back (phi_lhs->clone ());
 }
 
-/* Merge the phi nodes from OTHER into this BB. */
 void
-Basic_block::merge_phi_nodes (Basic_block* other)
+Basic_block::add_phi_arg (VARIABLE_NAME* phi_lhs, int version, Edge* edge)
 {
-	// TODO: This might add the same entry twice to the args list. We should
-	// really be using a set.
-	
-	// TODO find a test case for this
-	assert (get_phi_nodes ()->size () == 0 || other->get_phi_nodes()->size() == 0);
-	foreach (Phi* phi, *other->get_phi_nodes ())
-	{
-		if (has_phi_function (phi->lhs))
-		{
-			assert (0); // TODO: this doesnt work
-			pair<Rvalue*, Edge*> arg;
-			foreach (arg, *phi->get_arg_edges ())
-				phi_nodes[*phi->lhs->value]->get_arg_edges ()->push_back (arg);
-		}
-		else
-			phi_nodes[*phi->lhs->value] = phi;
-	}
+//	assert (has_phi_node (phi_lhs));
+	// phi_lhs doesnt have to be in SSA, since it will be updated later using
+	// update_phi_node, if it is not.
+	VARIABLE_NAME* arg = phi_lhs->clone ();
+	arg->set_version (version);
+	set_phi_arg_for_edge (edge, phi_lhs, arg);
 }
 
 void
 Basic_block::remove_phi_nodes ()
 {
-	phi_nodes.clear ();
+	foreach (Edge* pred, *get_predecessor_edges ())
+		pred->pm.clear ();
+
+	phi_lhss->clear ();
+}
+
+void
+Basic_block::remove_phi_node (VARIABLE_NAME* phi_lhs)
+{
+	assert (has_phi_node (phi_lhs));
+	foreach (Edge* pred, *get_predecessor_edges ())
+		pred->pm.erase (phi_lhs);
+
+	// TODO: are we tryingto remove the pointer, when we have a different
+	// pointer to the same thing?
+	phi_lhss->remove (phi_lhs);
+	assert (!has_phi_node (phi_lhs));
+}
+
+
+void
+Basic_block::update_phi_node (MIR::VARIABLE_NAME* old_phi_lhs, MIR::VARIABLE_NAME* new_phi_lhs)
+{
+	// If a phi_lhs changes into SSA form, its indexing will change. So we must
+	// re-insert its args with the new index.
+	assert (!old_phi_lhs->in_ssa);
+	assert (new_phi_lhs->in_ssa);
+	assert (*old_phi_lhs->value == *new_phi_lhs->value);
+	add_phi_node (new_phi_lhs);
+
+	foreach (Edge* pred, *get_predecessor_edges ())
+	{
+		// Not all nodes have their phi argument added yet
+		if (pred->pm.find (old_phi_lhs) != pred->pm.end ())
+			set_phi_arg_for_edge (
+					pred,
+					new_phi_lhs,
+					get_phi_arg_for_edge (pred, old_phi_lhs));
+	}
+
+	remove_phi_node (old_phi_lhs);
 }
 
 /* Replace any phi node with a single argument with an assignment. */
@@ -235,27 +260,68 @@ Basic_block::fix_solo_phi_args ()
 	// TODO: The theory is that each Phi node executes simultaneously. If
 	// there are dependencies between the nodes, this could be wrong.
 
-	BB_list* replacements = new BB_list ();
-	foreach (Phi* phi, *get_phi_nodes ())
+	if (get_predecessor_edges()->size () == 1)
 	{
-		Rvalue_list* args = phi->get_args ();
-		if (args->size () == 1)
+		BB_list* replacements = new BB_list ();
+		foreach (VARIABLE_NAME* phi_lhs, *get_phi_lhss ())
 		{
+			Rvalue* arg = get_phi_args (phi_lhs)->front ();
 			replacements->push_back (
-				new Statement_block (
-					cfg,
-					new Assign_var (
-						phi->lhs,
-						false,
-						args->front ())));
-
-			phi_nodes.erase (*phi->lhs->value);
+					new Statement_block (
+						cfg,
+						new Assign_var (
+							phi_lhs->clone(),
+							false,
+							arg)));
 		}
-	}
 
-	replacements->push_back (this);
-	replace (replacements);
+		remove_phi_nodes ();
+
+		replacements->push_back (this);
+		replace (replacements);
+	}
 }
+
+Rvalue_list*
+Basic_block::get_phi_args (MIR::VARIABLE_NAME* phi_lhs)
+{
+	Rvalue_list* result = new Rvalue_list;
+
+	foreach (Edge* pred, *get_predecessor_edges ())
+		result->push_back (get_phi_arg_for_edge (pred, phi_lhs));
+
+	return result;
+}
+
+VARIABLE_NAME_list*
+Basic_block::get_phi_lhss()
+{
+	// Return a clone, since we sometimes like to update the list
+	VARIABLE_NAME_list* result = new VARIABLE_NAME_list;
+	result->push_back_all (phi_lhss);
+	return result;
+}
+
+Rvalue*
+Basic_block::get_phi_arg_for_edge (Edge* edge, VARIABLE_NAME* phi_lhs)
+{
+	Rvalue* result = edge->pm[phi_lhs];
+	assert (result);
+	return result;
+}
+
+void
+Basic_block::set_phi_arg_for_edge (Edge* edge, VARIABLE_NAME* phi_lhs, Rvalue* arg)
+{
+	assert (arg);
+	edge->pm[phi_lhs] = arg->clone ();
+}
+
+
+
+/*
+ * Block manipulation
+ */
 
 void
 Basic_block::insert_predecessor (Basic_block* bb)
@@ -313,7 +379,7 @@ Branch_block::get_true_successor ()
 
 	foreach (Edge* succ, *succs)
 		if (cfg->is_true_edge (succ))
-			return succ->target;
+			return succ->get_target ();
 
 	assert (0);
 }
@@ -327,7 +393,7 @@ Branch_block::get_false_successor ()
 
 	foreach (Edge* succ, *succs)
 		if (not cfg->is_true_edge (succ))
-			return succ->target;
+			return succ->get_target ();
 
 	assert (0);
 }
@@ -375,7 +441,6 @@ void
 Basic_block::replace (BB_list* replacements)
 {
 	cfg->replace_bb (this, replacements);
-
 }
 
 void
@@ -383,22 +448,41 @@ Branch_block::set_always (bool direction)
 {
 	cfg->consistency_check ();
 
+	// If this block has phi nodes, and the successors do too, then moving this
+	// blocks phis to the successor leaves edges in the successor with no
+	// argument for that node. Instead, replace this node with an empty node.
+	// Tody will sort out the rest, if needs be.
+	Basic_block* new_bb = new Empty_block (cfg);
+	cfg->add_bb (new_bb);
+	new_bb->copy_phi_nodes (this); // edges updated later
+
+
 	Edge* true_edge = get_true_successor_edge ();
 	Edge* false_edge = get_false_successor_edge ();
 
 	Basic_block* succ = direction ? get_true_successor () : get_false_successor ();
+	Edge* succ_edge = direction ? true_edge : false_edge;
 
-	foreach (Edge* edge, *get_predecessor_edges ())
+	// Add the incoming edges
+	foreach (Edge* old_edge, *get_predecessor_edges ())
 	{
-		edge->replace_target (succ);
+		Edge* new_edge = cfg->add_edge (old_edge->get_source (), new_bb);
 
-		foreach (Phi* phi, *get_phi_nodes ())
-			phi->replace_edge (edge, cfg->get_edge (edge->source, succ));
+		// copy the properties
+		new_edge->direction = old_edge->direction;
+		new_edge->copy_phi_map (old_edge);
+
+		cfg->remove_edge (old_edge);
 	}
 
-	succ->merge_phi_nodes (this);
+	// Add the outgoing edge
+	Edge* new_edge = cfg->add_edge (new_bb, succ);
 
-	// Fix up phis
+	// copy the phi properties (no direction)
+	new_edge->copy_phi_map (succ_edge);
+
+
+	// Remove whats left
 	cfg->remove_edge (true_edge);
 	cfg->remove_edge (false_edge);
 	remove ();

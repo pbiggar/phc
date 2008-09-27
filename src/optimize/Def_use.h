@@ -3,6 +3,7 @@
 
 #include "MIR.h"
 #include "Set.h"
+#include "Edge.h"
 #include "Flow_visitor.h"
 #include "Visit_once.h"
 
@@ -52,7 +53,7 @@ private:
 
 	void visit_branch_block (Branch_block* bb);
 
-	void visit_phi_node (Basic_block* bb, Phi* phi);
+	void visit_phi_node (Basic_block* bb, MIR::VARIABLE_NAME* phi_lhs);
 
 	void visit_assign_array (Statement_block*, MIR::Assign_array*);
 	void visit_assign_field (Statement_block*, MIR::Assign_field *);

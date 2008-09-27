@@ -10009,16 +10009,17 @@ void VARIABLE_NAME::set_version(int version)
 bool VARIABLE_NAME::operator<(MIR ::VARIABLE_NAME& other)
 {
     {
+		// the in_ssa one is less
+		if (in_ssa && !other.in_ssa)
+			return true;
+
+		if (!in_ssa && other.in_ssa)
+			return false;
+
 		if (in_ssa)
-		{
-			assert (other.in_ssa);
 			return version < other.version;
-		}
 		else
-		{
-			assert (!other.in_ssa);
 			return *value < *other.value;
-		}
 	}
 }
 

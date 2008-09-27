@@ -7,34 +7,6 @@
 using namespace boost;
 
 #include "CFG.h"
-
-class Phi : virtual public Object
-{
-public:
-	MIR::VARIABLE_NAME* lhs;
-
-private:
-	list<pair<MIR::Rvalue*, Edge*> >* args;
-
-public:
-	Phi (MIR::VARIABLE_NAME* lhs);
-
-	void add_arg (int version, Edge* source);
-	MIR::Rvalue_list* get_args ();
-	list<pair<MIR::Rvalue*, Edge*> >* get_arg_edges ();
-	void remove_arg_for_edge (Edge* edge);
-	bool has_arg_for_edge (Edge* edge);
-
-	void replace_edge (Edge* old_edge, Edge* new_edge);
-	void replace_var_name (MIR::VARIABLE_NAME* old_var_name, MIR::Rvalue* new_rval);
-
-	Phi* clone () { assert (0); } // TODO
-
-	void dump ();
-};
-
-typedef List<Phi*> Phi_list;
-
 class Dominance
 {
 	CFG* cfg;
@@ -87,7 +59,6 @@ public:
 	/*
 	 * Public interface
 	 */
-	void initialize_var_stack (MIR::VARIABLE_NAME* var_name);
 	void rename_vars (Basic_block* bb);
 
 private:

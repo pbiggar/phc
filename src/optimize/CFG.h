@@ -25,7 +25,6 @@ class Edge;
 typedef List<Edge*> Edge_list;
 
 class Dominance;
-class Phi;
 class Def_use_web;
 
 // Property for BB*
@@ -38,7 +37,7 @@ enum edge_cfg_edge_t { edge_cfg_edge };
 // and could lead to the same problems as monkey-patching in Ruby. 
 namespace boost {
   BOOST_INSTALL_PROPERTY(vertex, bb);
-  BOOST_INSTALL_PROPERTY(edge, cfg_edge );
+  BOOST_INSTALL_PROPERTY(edge, cfg_edge);
 }
 
 typedef boost::adjacency_list<
@@ -64,7 +63,6 @@ typedef Graph::edge_descriptor edge_t;
 
 class CFG;
 #include "Basic_block.h"
-#include "Edge.h"
 #include "SSA.h"
 #include "MIR.h"
 
@@ -76,6 +74,9 @@ public:
 	/*
 	 * Boost::Graph properties
 	 */
+
+	/* In general, theres no need to use properties because we have an Edge and
+	 * a Basic_block class. */
 
 	// Accessor for BB property. Access using vb[vertex]. (vb == vertex->block)
 	boost::property_map<Graph, vertex_bb_t>::type vb;
@@ -101,9 +102,9 @@ public:
 
 	// Add the BB to the graph, and update the BB's vertex.
 	vertex_t add_bb (Basic_block* bb);
-	edge_t add_edge (Basic_block* source, Basic_block* target);
 
-	std::pair<edge_t, edge_t> add_branch (
+	Edge* add_edge (Basic_block* source, Basic_block* target);
+	pair<Edge*, Edge*> add_branch (
 		Branch_block* source, 
 		Basic_block* target1, 
 		Basic_block* target2);
@@ -139,10 +140,6 @@ private:
 
 	// Remove the edge, and fix up the nodes.
 	void remove_edge (Edge* edge);
-
-	// Removes old_edge, and replaces with an edge to new_target, fixing phi
-	// nodes.
-	void replace_target_for_edge (Edge* old_edge, Basic_block* new_target);
 
 	/* Returns true or false. If edge isnt true or false, asserts. */
 	bool is_true_edge (Edge* edge);

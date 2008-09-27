@@ -87,19 +87,38 @@ public:
 	 * Phi functions (or nodes)
 	 */
 public:
-	void add_phi_function (MIR::VARIABLE_NAME* var_name);
-	bool has_phi_function (MIR::VARIABLE_NAME* var_name);
-	void merge_phi_nodes (Basic_block* other);
+	// Copy the phi nodes from OTHER, including the phi args from OTHER's
+	// incoming edges.
+	void copy_phi_nodes (Basic_block* other);
+
+	// For SSA creation/destruction
+	void add_phi_node (MIR::VARIABLE_NAME* phi_lhs);
+	bool has_phi_node (MIR::VARIABLE_NAME* phi_lhs);
+	void add_phi_arg (MIR::VARIABLE_NAME* phi_lhs, int version, Edge* edge);
 	void remove_phi_nodes ();
+	void update_phi_node (MIR::VARIABLE_NAME* old_phi_lhs, MIR::VARIABLE_NAME* new_phi_lhs);
+
+	// Remove a node (including its args from the edges)
+	void remove_phi_node (MIR::VARIABLE_NAME* phi_lhs);
+
+	// If the nodes have 1 argument, remove them, putting them into
+	// predecessors.
 	void fix_solo_phi_args ();
 
-	List<Phi*>* get_phi_nodes ();
+	// Get the arguments with VARIABLE_NAME as the lhs.
+	MIR::Rvalue_list* get_phi_args (MIR::VARIABLE_NAME* phi_lhs);
 
-	// Replace the current phi nodes with a new set.
-	void set_phi_nodes (List<Phi*>*);
+	MIR::VARIABLE_NAME_list* get_phi_lhss ();
+
+	MIR::Rvalue* get_phi_arg_for_edge (Edge*, MIR::VARIABLE_NAME* phi_lhs);
+	void set_phi_arg_for_edge (Edge*, MIR::VARIABLE_NAME* phi_lhs, MIR::Rvalue* arg);
+
 
 private:
-	Map<string, Phi*> phi_nodes;
+	// Instead of an explicit phi node, store the phi->lhs here, and the phi
+	// arguments in edges. Then they can be updated all-at-once.
+
+	MIR::VARIABLE_NAME_list* phi_lhss;
 
 
 public:

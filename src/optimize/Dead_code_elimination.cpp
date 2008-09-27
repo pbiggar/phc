@@ -35,12 +35,15 @@ DCE::transform_assign_var (Statement_block* bb, Assign_var* in, BB_list* out)
 		out->push_back (bb);
 }
 
+// TODO: replace with ADCE
+// TODO: add remove SSA_pre_ops
+
 void
-DCE::transform_phi_node (Basic_block* bb, Phi* in, Phi_list* out)
+DCE::transform_phi_node (Basic_block* bb, VARIABLE_NAME* phi_lhs)
 {
 	// remove phis with unused LHSs
-	if (bb->cfg->duw->get_var_uses (in->lhs)->size () != 0)
-		out->push_back (in);
+	if (bb->cfg->duw->get_var_uses (phi_lhs)->size () == 0)
+		bb->remove_phi_node (phi_lhs);
 }
 
 void
