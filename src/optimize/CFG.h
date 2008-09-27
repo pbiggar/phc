@@ -96,9 +96,21 @@ public:
 	 * CFG creation and manipulation
 	 */
 
+	// Creates a CFG for the method.
 	CFG (MIR::Method* method);
-	List<MIR::Statement*>* get_linear_statements ();
 
+	// Return a CFG for the backing store.
+	CFG (Graph& bs);
+
+	// Return a linear list of statement for the CFG
+	MIR::Statement_list* get_linear_statements ();
+
+	// This CFG should be treated as read-only, as its backing store is simply a
+	// view over this bs.
+	CFG* reverse ();
+
+
+	void remove_unreachable_nodes ();
 
 	// Add the BB to the graph, and update the BB's vertex.
 	vertex_t add_bb (Basic_block* bb);

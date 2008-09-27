@@ -503,21 +503,9 @@ Basic_block::get_immediate_dominator ()
 }
 
 bool
-Basic_block::is_in_dominance_frontier (Basic_block* df)
-{
-	return cfg->dominance->is_bb_in_dominance_frontier (this, df);
-}
-
-bool
 Basic_block::is_dominated_by (Basic_block* bb)
 {
 	return cfg->dominance->is_bb_dominated_by (this, bb);
-}
-
-void
-Basic_block::add_to_dominance_frontier (Basic_block* bb)
-{
-	cfg->dominance->add_to_bb_dominance_frontier (this, bb);
 }
 
 BB_list*

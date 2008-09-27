@@ -9,10 +9,17 @@ using namespace boost;
 #include "CFG.h"
 class Dominance
 {
-	CFG* cfg;
+	// Forward dominance frontier
 	Map <Basic_block*, BB_list*> df;
-	Map <Basic_block*, BB_list*> forward_idoms;
-	Map <Basic_block*, Basic_block*> idoms;
+
+	// BB -> blocks dominated by BB
+	Map <Basic_block*, BB_list*> idominated;
+
+	// BB -> BB's dominator
+	Map <Basic_block*, Basic_block*> idominator;
+
+	CFG* cfg;
+
 
 public:
 	Dominance (CFG* cfg);
@@ -20,8 +27,12 @@ public:
 	void dump ();
 
 	// Terms are defined in a comment in SSA.cpp.
-	void calculate_immediate_dominators ();
-	void calculate_dominance_frontier ();
+	void calculate_forward_dominance ();
+	void calculate_reverse_dominance ();
+	void calculate_dominance (Graph& graph, vertex_t entry);
+
+	// Dominance on the reverse CFG
+	Dominance* reverse_dominance;
 
 private:
 	friend class Basic_block;
@@ -32,6 +43,7 @@ private:
 	Basic_block* get_bb_immediate_dominator (Basic_block*);
 	BB_list* get_blocks_dominated_by_bb (Basic_block* bb);
 	bool is_bb_dominated_by (Basic_block* bb, Basic_block* potential_dom);
+
 };
 
 // Renaming (Cooper/Torczon, setion 9.3.4).

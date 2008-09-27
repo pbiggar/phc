@@ -4,9 +4,11 @@
 #include <boost/graph/visitors.hpp>
 #include <boost/graph/dominator_tree.hpp>
 #include <boost/graph/filtered_graph.hpp>
+#include <boost/graph/transpose_graph.hpp>
+#include <boost/graph/reverse_graph.hpp>
 #include <boost/graph/topological_sort.hpp>
 
-#include "process_ir/debug.h"
+#include "process_ir/General.h"
 
 #include "SSA.h"
 #include "Phi.h"
@@ -36,6 +38,12 @@ using namespace boost;
  *	Dominance Frontier:
  *		DF (X) is the set of nodes dominated by X, whose successors are not
  *		dominated by X (well, one or more are not dominated by X).
+ *
+ *	Reverse Dominator:
+ *	Reverse Immediate Dominator:
+ *	Reverse Dominaance Frontier:
+ *		Same thing on a reversed CFG.
+ *
  *	
  *	We need to calculate the dominance frontier. There is a linear-time
  *	algorithm for this:
@@ -64,33 +72,52 @@ Dominance::Dominance (CFG* cfg)
 }
 
 void
-Dominance::calculate_immediate_dominators ()
+Dominance::calculate_forward_dominance()
 {
-	// Step 0: Remove unreachable nodes. Everything should be reachable from the
-	// entry block, or it wont dominate everything.
-	cfg->tidy_up ();
+	calculate_dominance (cfg->bs, cfg->entry);
+}
+
+void
+Dominance::calculate_reverse_dominance ()
+{
+	// TODO: reverse graph gives the wrong type, but is O(1)
+	Graph transposed;
+	transpose_graph (cfg->bs, transposed);
+
+	reverse_dominance = new Dominance (cfg);
+	reverse_dominance->calculate_dominance (transposed, cfg->exit);
+}
+
+
+void
+Dominance::calculate_dominance (Graph& graph, vertex_t entry)
+{
+	// Use this function for both dominance and reverse dominance, so don't use
+	// BB properties and methods. CFG's vertices must map to GRAPH's vertices
+	// using cfg->vb, we can use CFG properties though, so long as they dont
+	// specify a direction.
+
 
 	// Step 1: Calculate immediate dominators.
-
-	// This automatically builds reverse dominators, ie, given y, find x such
+	// This automatically builds dominators: ie, given y, find x such
 	// that x idom y.
 	// From HERE to THERE copied straight from boost documentation.
 	typedef property_map<Graph, vertex_index_t>::type IndexMap;
 	typedef iterator_property_map<vector<vertex_t>::iterator, IndexMap> PredMap;
 	cfg->renumber_vertex_indices ();	
-	vector<vertex_t> domTreePredVector = vector<vertex_t>(
-		num_vertices(cfg->bs),
+	vector<vertex_t> domTreePredVector = vector<vertex_t> (
+		num_vertices (graph),
 		graph_traits<Graph>::null_vertex());
-	PredMap idom_calc = make_iterator_property_map(
-		domTreePredVector.begin(),
-		get(vertex_index, cfg->bs));
-	lengauer_tarjan_dominator_tree(cfg->bs, cfg->entry, idom_calc);
+	PredMap idom_calc = make_iterator_property_map (
+		domTreePredVector.begin (),
+		get(vertex_index, graph));
+	lengauer_tarjan_dominator_tree(graph, entry, idom_calc);
 	foreach (Basic_block* bb, *cfg->get_all_bbs ())
 	{
 		if (get(idom_calc, bb->vertex) != graph_traits<Graph>::null_vertex())
-			idoms[bb] = cfg->vb[get(idom_calc, bb->vertex)];
+			idominator[bb] = cfg->vb[get(idom_calc, bb->vertex)];
 		else
-			idoms[bb] = NULL;
+			idominator[bb] = NULL;
 	}
 
 	// THERE (see HERE)
@@ -101,36 +128,32 @@ Dominance::calculate_immediate_dominators ()
 
 	foreach (Basic_block* bb, *cfg->get_all_bbs ())
 	{
-		forward_idoms[bb] = new BB_list;
+		idominated[bb] = new BB_list;
 		df[bb] = new BB_list;
 	}
 
 	foreach (Basic_block* y, *cfg->get_all_bbs ())
 	{
 		// ENTRY and any unreachable nodes may have no immediate dominator.
-		Basic_block* dom = y->get_immediate_dominator ();
+		Basic_block* dom = this->get_bb_immediate_dominator (y);
 		if (dom != NULL)
-			forward_idoms [dom]->push_back (y);
+			idominated [dom]->push_back (y);
 	}
-}
 
-/* Use the function in Cooper/Torczon, Figure 9.10 */
-void
-Dominance::calculate_dominance_frontier ()
-{
+
+	/* Use the function in Cooper/Torczon, Figure 9.10 */
 	foreach (Basic_block* n, *cfg->get_all_bbs ())
 	{
-		BB_list* preds = n->get_predecessors ();
-		if (preds->size() > 0)
+		if (in_degree (n->vertex, graph) > 0)
 		{
-			foreach (Basic_block* pred, *preds)
+			foreach (edge_t e, in_edges (n->vertex, graph))
 			{
-				Basic_block* runner = pred;
+				Basic_block* runner = cfg->vb[source (e, graph)];
 				// Dont include RUNNER, since it dominates itself.
-				while (runner != idoms[n] && runner != n)
+				while (runner != idominator[n] && runner != n)
 				{
-					runner->add_to_dominance_frontier (n);
-					runner = idoms[runner];
+					add_to_bb_dominance_frontier (runner, n);
+					runner = idominator[runner];
 				}
 			}
 		}
@@ -146,7 +169,7 @@ Dominance::dump ()
 	{
 		bb->dump();
 		cdebug << " - dominates (forward_idom): [";
-		foreach (Basic_block* dominated, *forward_idoms[bb])
+		foreach (Basic_block* dominated, *idominated[bb])
 		{
 			dominated->dump();
 			cdebug << ", ";
@@ -154,10 +177,10 @@ Dominance::dump ()
 		cdebug << "]\n\n";
 
 		cdebug << " - is dominated by (idom): ";
-		if (idoms[bb] == NULL)
+		if (idominator[bb] == NULL)
 			cdebug << "NONE";
 		else
-			idoms[bb]->dump();
+			idominator[bb]->dump();
 		cdebug << "\n\n";
 
 		cdebug << " - dominance frontier: [";
@@ -198,26 +221,26 @@ Dominance::get_bb_dominance_frontier (Basic_block* bb)
 Basic_block*
 Dominance::get_bb_immediate_dominator (Basic_block* bb)
 {
-	return idoms[bb];
+	return idominator[bb];
 }
 
 
 BB_list*
 Dominance::get_blocks_dominated_by_bb (Basic_block* bb)
 {
-	return forward_idoms[bb];
+	return idominated[bb];
 }
 
 bool
 Dominance::is_bb_dominated_by (Basic_block* bb, Basic_block* potential_dom)
 {
 	// Go up the dominator chain
-	while (idoms[bb] != NULL)
+	while (idominator[bb] != NULL)
 	{
-		if (idoms[bb] == potential_dom)
+		if (idominator[bb] == potential_dom)
 			return true;
 		else
-			bb = idoms[bb];
+			bb = idominator[bb];
 	}
 	
 	return false;

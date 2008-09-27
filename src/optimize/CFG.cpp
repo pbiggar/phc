@@ -11,6 +11,8 @@
 #include <boost/graph/visitors.hpp>
 #include <boost/graph/dominator_tree.hpp>
 #include <boost/graph/filtered_graph.hpp>
+#include <boost/graph/transpose_graph.hpp>
+#include <boost/graph/copy.hpp>
 #include <boost/graph/topological_sort.hpp>
 
 #include "CFG.h"
@@ -40,6 +42,14 @@ CFG::CFG (Method* method)
 	add_statements (method->statements);
 
 	tidy_up ();
+}
+
+CFG::CFG (Graph& bs)
+: dominance (NULL)
+, duw(NULL)
+, bs(bs)
+, method (NULL)
+{
 }
 
 vertex_t
@@ -394,6 +404,9 @@ CFG::consistency_check ()
 			foreach (Edge* pred, *bb->get_predecessor_edges ())
 				bb->get_phi_arg_for_edge (pred, phi_lhs);
 		}
+
+		if (!isa<Exit_block> (bb))
+			assert (bb->get_successors ()->size () > 0);
 	}
 
 	foreach (edge_t e, edges (bs))
@@ -530,7 +543,6 @@ CFG::get_linear_statements ()
 	return results;
 }
 
-
 void
 CFG::renumber_vertex_indices ()
 {
@@ -546,8 +558,8 @@ void CFG::convert_to_ssa_form ()
 {
 	// Calculate dominance frontiers
 	dominance = new Dominance (this);
-	dominance->calculate_immediate_dominators ();
-	dominance->calculate_dominance_frontier ();
+	dominance->calculate_forward_dominance ();
+	dominance->calculate_reverse_dominance ();
 	dominance->dump ();
 
 	// Build def-use web (we're not in SSA form, but this will do the job).
@@ -624,8 +636,8 @@ CFG::rebuild_ssa_form ()
 	tidy_up ();
 
 	dominance = new Dominance (this);
-	dominance->calculate_immediate_dominators ();
-	dominance->calculate_dominance_frontier ();
+	dominance->calculate_forward_dominance ();
+	dominance->calculate_reverse_dominance ();
 
 	duw = new Def_use_web ();
 	duw->run (this);
@@ -946,10 +958,8 @@ CFG::get_all_bbs_bottom_up ()
 }
 
 void
-CFG::tidy_up ()
+CFG::remove_unreachable_nodes ()
 {
-	consistency_check ();
-
 	set<Basic_block*> reachable;
 
 	// Mark-sweep to remove unreachable nodes.
@@ -983,6 +993,15 @@ CFG::tidy_up ()
 			bb->remove ();
 		}
 	}
+}
+
+
+void
+CFG::tidy_up ()
+{
+	consistency_check ();
+
+	remove_unreachable_nodes ();
 
 	consistency_check ();
 
