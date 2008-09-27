@@ -620,6 +620,7 @@ void CFG::convert_to_ssa_form ()
 void
 CFG::rebuild_ssa_form ()
 {
+	consistency_check ();
 	tidy_up ();
 
 	dominance = new Dominance (this);
@@ -861,11 +862,17 @@ CFG::insert_bb_between (Edge* edge, Basic_block* new_bb)
 void
 CFG::insert_predecessor_bb (Basic_block* bb, Basic_block* new_bb)
 {
-	assert (0);
 	assert (!isa<Branch_block> (new_bb));
 
 	// Assume this isnt added
 	add_bb (new_bb);
+
+	// Move the phi nodes
+	new_bb->copy_phi_nodes (bb);
+	bb->remove_phi_nodes ();
+
+	// No phis or direction.
+	add_edge (new_bb, bb);
 
 	// Connect to each predecessor
 	foreach (Basic_block* pred, *bb->get_predecessors ())
@@ -874,13 +881,9 @@ CFG::insert_predecessor_bb (Basic_block* bb, Basic_block* new_bb)
 		remove_edge (old_edge);
 
 		Edge* new_edge = add_edge (pred, new_bb);
-
-		new_bb->copy_phi_nodes (new_bb);
-		bb->remove_phi_nodes ();
+		new_edge->copy_phi_map (old_edge);
 	}
 
-
-	add_edge (new_bb, bb);
 }
 
 void
