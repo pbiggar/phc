@@ -2,6 +2,7 @@
 #define PHC_SSA
 
 #include <boost/graph/properties.hpp>
+#include <boost/graph/reverse_graph.hpp>
 #include <stack>
 
 using namespace boost;
@@ -9,6 +10,8 @@ using namespace boost;
 #include "CFG.h"
 class Dominance
 {
+	// TODO: friend the calculate_dominace class
+public:
 	// Use vertexes so that the Blocks they refer to can be updated without
 	// invalidating the dominance information.
 
@@ -32,7 +35,6 @@ public:
 	// Terms are defined in a comment in SSA.cpp.
 	void calculate_forward_dominance ();
 	void calculate_reverse_dominance ();
-	void calculate_dominance (Graph& graph, vertex_t entry);
 
 	// Dominance on the reverse CFG
 	Dominance* reverse_dominance;

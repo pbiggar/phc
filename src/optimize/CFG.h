@@ -13,6 +13,7 @@
 #include <boost/logic/tribool.hpp>
 
 #include "lib/List.h"
+#include "lib/String.h"
 
 
 class Basic_block;
@@ -49,7 +50,7 @@ typedef boost::adjacency_list<
 	// Vertex properties
 	boost::property<boost::vertex_index_t, int,
 		boost::property<boost::vertex_color_t, boost::default_color_type,
-			boost::property <vertex_bb_t, Basic_block*> > >,
+			boost::property<vertex_bb_t, Basic_block*> > >,
 
 	// Edge property
 	boost::property<edge_cfg_edge_t, Edge*>
@@ -60,12 +61,13 @@ typedef boost::adjacency_list<
 typedef Graph::vertex_descriptor vertex_t;
 typedef Graph::edge_descriptor edge_t;
 
-
-
-class CFG;
-#include "Basic_block.h"
-#include "SSA.h"
-#include "MIR.h"
+namespace MIR
+{
+	class Method;
+	class Statement;
+	class VARIABLE_NAME;
+	typedef List<Statement*> Statement_list;
+}
 
 /* Boost::Graph is a nice library for graphs, but a little difficult to use,
  * so we don't use it directly. */
@@ -86,7 +88,7 @@ public:
 	boost::property_map<Graph, edge_cfg_edge_t>::type ee;
 
 	// Get color map
-	boost::property_map<Graph, vertex_color_t>::type cm;
+	boost::property_map<Graph, boost::vertex_color_t>::type cm;
 
 	// Accessor for index property. Access using index[vertex] (this is here
 	// for graphviz, so it should be rare to require access to it.

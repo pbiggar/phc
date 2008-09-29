@@ -47,6 +47,8 @@ bool is_critical (Statement* in)
 		return false;
 }
 
+// TODO add phi nodes
+
 /*
  * Cooper/Torczon, Sec. 10.3.1 and Figure 10.3
  *		http://www.cs.rice.edu/~keith/512/Lectures/10DeadCprop.pdf
@@ -127,7 +129,6 @@ DCE::mark_pass ()
 		// critical blocks)
 		foreach (Basic_block* rdf, *bb->get_reverse_dominance_frontier ())
 		{
-			assert (isa<Branch_block> (rdf));
 			marks[rdf] = true;
 			worklist->push_back (rdf);
 		}
@@ -151,9 +152,6 @@ DCE::sweep_pass ()
 		{
 			if (isa<Branch_block> (bb))
 			{
-				// TODO: post-dominance isnt correct
-				assert (0);
-
 				// find the nearest marked post-dominator
 				Basic_block* postdominator = bb;
 				while (!marks[postdominator])

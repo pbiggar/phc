@@ -12,6 +12,7 @@
 
 #include "SSA.h"
 #include "Phi.h"
+#include "Basic_block.h"
 
 using namespace MIR;
 using namespace boost;
@@ -71,26 +72,9 @@ Dominance::Dominance (CFG* cfg)
 	// been assigned.
 }
 
+template<class Graph_type>
 void
-Dominance::calculate_forward_dominance()
-{
-	calculate_dominance (cfg->bs, cfg->entry);
-}
-
-void
-Dominance::calculate_reverse_dominance ()
-{
-	// TODO: reverse graph gives the wrong type, but is O(1)
-	Graph transposed;
-	transpose_graph (cfg->bs, transposed);
-
-	reverse_dominance = new Dominance (cfg);
-	reverse_dominance->calculate_dominance (transposed, cfg->exit);
-}
-
-
-void
-Dominance::calculate_dominance (Graph& graph, vertex_t entry)
+calculate_dominance (Dominance* info, Graph_type& graph, vertex_t entry)
 {
 	// Use this function for both dominance and reverse dominance, so don't use
 	// BB properties and methods. CFG's vertices must map to GRAPH's vertices
@@ -102,22 +86,26 @@ Dominance::calculate_dominance (Graph& graph, vertex_t entry)
 	// This automatically builds dominators: ie, given y, find x such
 	// that x idom y.
 	// From HERE to THERE copied straight from boost documentation.
-	typedef property_map<Graph, vertex_index_t>::type IndexMap;
+	typedef typename property_map<Graph_type, vertex_index_t>::type IndexMap;
 	typedef iterator_property_map<vector<vertex_t>::iterator, IndexMap> PredMap;
-	cfg->renumber_vertex_indices ();	
+	info->cfg->renumber_vertex_indices ();	
 	vector<vertex_t> domTreePredVector = vector<vertex_t> (
 		num_vertices (graph),
-		graph_traits<Graph>::null_vertex());
+		graph_traits<Graph_type>::null_vertex());
+
+	// Use new instance, because the reverse_map<Graph> one is read-only.
+	IndexMap indices; 
 	PredMap idom_calc = make_iterator_property_map (
 		domTreePredVector.begin (),
-		get(vertex_index, graph));
+		indices);
+
 	lengauer_tarjan_dominator_tree(graph, entry, idom_calc);
 	foreach (vertex_t v, vertices (graph))
 	{
-		if (get(idom_calc, v) != graph_traits<Graph>::null_vertex())
-			idominator[v] = get(idom_calc, v);
+		if (get(idom_calc, v) != graph_traits<Graph_type>::null_vertex())
+			info->idominator[v] = get(idom_calc, v);
 		else
-			idominator[v] = NULL;
+			info->idominator[v] = NULL;
 	}
 
 	// THERE (see HERE)
@@ -129,9 +117,9 @@ Dominance::calculate_dominance (Graph& graph, vertex_t entry)
 	foreach (vertex_t v, vertices (graph))
 	{
 		// ENTRY and any unreachable nodes may have no immediate dominator.
-		vertex_t dom = idominator[v];
+		vertex_t dom = info->idominator[v];
 		if (dom != NULL)
-			idominated [dom].push_back (v);
+			info->idominated [dom].push_back (v);
 	}
 
 
@@ -144,23 +132,41 @@ Dominance::calculate_dominance (Graph& graph, vertex_t entry)
 			{
 				vertex_t runner = source (e, graph);
 				// Dont include RUNNER, since it dominates itself.
-				while (runner != idominator[n] && runner != n)
+				while (runner != info->idominator[n] && runner != n)
 				{
 					// TODO: do in linear-time
 					bool is_already_in_df = false;
-					foreach (vertex_t frontier, df[runner])
+					foreach (vertex_t frontier, info->df[runner])
 						if (frontier == n)
 							is_already_in_df = true;
 
 					if (!is_already_in_df)
-						df [runner].push_back (n);
+						info->df [runner].push_back (n);
 
-					runner = idominator[runner];
+					runner = info->idominator[runner];
 				}
 			}
 		}
 	}
 }
+
+
+void
+Dominance::calculate_forward_dominance()
+{
+	calculate_dominance (this, cfg->bs, cfg->entry);
+}
+
+void
+Dominance::calculate_reverse_dominance ()
+{
+	// reverse_graph<Graph> is not related to Graph, so we must use templates
+	// for caluclate dominance (meaning it cannot be a method).
+	reverse_dominance = new Dominance (cfg);
+	reverse_graph<Graph> rev(cfg->bs);
+	calculate_dominance (reverse_dominance, rev, cfg->exit);
+}
+
 
 void
 Dominance::dump ()

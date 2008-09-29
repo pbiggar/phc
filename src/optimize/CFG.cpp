@@ -11,8 +11,6 @@
 #include <boost/graph/visitors.hpp>
 #include <boost/graph/dominator_tree.hpp>
 #include <boost/graph/filtered_graph.hpp>
-#include <boost/graph/transpose_graph.hpp>
-#include <boost/graph/copy.hpp>
 #include <boost/graph/topological_sort.hpp>
 
 #include "CFG.h"
@@ -851,6 +849,19 @@ CFG::remove_bb (Basic_block* bb)
 		return;
 
 	replace_bb_with_empty (bb);
+}
+
+void
+CFG::remove_branch (Branch_block* branch, Basic_block* new_successor)
+{
+	// ummmmm, what then?
+	assert (new_successor->get_phi_lhss ()->size () == 0);
+
+	remove_edge (branch->get_true_successor_edge ());
+	remove_edge (branch->get_false_successor_edge ());
+	add_edge (branch, new_successor);
+
+	replace_bb_with_empty (branch);
 }
 
 void
