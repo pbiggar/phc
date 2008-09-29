@@ -145,6 +145,26 @@ DCE::mark_pass ()
 void
 DCE::sweep_pass ()
 {
+	foreach (Basic_block* bb, *cfg->get_all_bbs ())
+	{
+		if (!marks[bb])
+		{
+			if (isa<Branch_block> (bb))
+			{
+				// TODO: post-dominance isnt correct
+				assert (0);
+
+				// find the nearest marked post-dominator
+				Basic_block* postdominator = bb;
+				while (!marks[postdominator])
+					postdominator = postdominator->get_immediate_reverse_dominator ();
+
+				dyc<Branch_block> (bb)->remove (postdominator);
+			}
+			else
+				bb->remove ();
+		}
+	}
 }
 
 void

@@ -437,6 +437,13 @@ Basic_block::remove ()
 	cfg->remove_bb (this);
 }
 
+
+void
+Branch_block::remove (Basic_block* succ)
+{
+	assert (0);
+}
+
 void
 Basic_block::replace (BB_list* replacements)
 {
@@ -485,7 +492,7 @@ Branch_block::set_always (bool direction)
 	// Remove whats left
 	cfg->remove_edge (true_edge);
 	cfg->remove_edge (false_edge);
-	remove ();
+	Basic_block::remove ();
 
 	cfg->consistency_check ();
 }

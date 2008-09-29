@@ -224,6 +224,10 @@ public:
 	// Replace the branch with its true/false successor.
 	void set_always (bool direction);
 
+	// Replace the branch with an empty block, whose
+	// sole successor is SUCC.
+	void remove (Basic_block* succ);
+
 	void switch_successors ();
 
 

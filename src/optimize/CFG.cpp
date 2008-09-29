@@ -767,6 +767,17 @@ CFG::is_true_edge (Edge* edge)
 	return edge->direction;
 }
 
+// TODO:
+//	A new plan for removing basic_blocks:
+//	1) To remove a block, replace it with an empty block, with the same phi nodes
+//	2) To replace a block, replace it with an empty block (with the phi nodes),
+//		and follow it by the new BB.
+//	3) To remove a branch, replace it with an empty block (same phis), and
+//		require knowledge of the new target for the outgoing edge.
+//	4) tidy_up will sort out the empty blocks, merging the phi nodes into
+//		successor blocks if possible (it must be possible, i think).
+//	5)	Look at Cooper/torczon Section 10.3
+
 
 void
 CFG::replace_bb (Basic_block* bb, BB_list* replacements)
