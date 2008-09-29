@@ -14,8 +14,12 @@
 class DCE : public CFG_visitor 
 {
 public:
-	map<Basic_block*, bool> marks;
 	void run (CFG* cfg);
+private:
+	CFG* cfg;
+	map<Basic_block*, bool> marks;
+	void mark_pass ();
+	void sweep_pass ();
 };
 
 #endif // PHC_DEAD_CODE_ELIMINATION

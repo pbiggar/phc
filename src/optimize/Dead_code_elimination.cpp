@@ -17,6 +17,37 @@ bool is_pure (Expr* in)
 }
 
 /*
+ * Does the statement have any externally visible effects (like IO)?
+ *		Has visible effects:
+ *			Any function we dont know anything about
+ *			TODO: impure functions dont necessarily have them (ie array_merge)
+ *			Any class instatiation we know nothing about
+ *
+ *		 Doesn't have visible effects
+ *			Anything else
+*/
+bool is_critical (Statement* in)
+{
+	if (not (isa<Eval_expr> (in) || isa<Assign_var> (in)))
+		return false;
+
+	Wildcard<Expr>* expr;
+	if (in->match (new Eval_expr (expr))
+		|| in->match (
+			new Assign_var (
+				new Wildcard<VARIABLE_NAME>,
+				false, // dont-care
+				expr)))
+	{
+		// TODO: pure and critical are different
+		// TODO: indirect operations arent taken into account
+		return !is_pure (expr->value);
+	}
+	else
+		return false;
+}
+
+/*
  * Cooper/Torczon, Sec. 10.3.1 and Figure 10.3
  *		http://www.cs.rice.edu/~keith/512/Lectures/10DeadCprop.pdf
  *
@@ -47,16 +78,60 @@ bool is_pure (Expr* in)
  *
  *			foreach bb in s.rdf ()
  *				j = bb.branch ()
- *				if (
- *
- *			// assume s in form: x = y op z 
- *			if !def (y).mark
- *				set def (y).mark
+ *				if j.mark:
+ *					set j.mark
+ *					worklist =[] j
  */
 void
 DCE::mark_pass ()
 {
+	BB_list* worklist = new BB_list;
 
+	// Initialize the critical blocks - a critical block is a side-effecting one
+	foreach (Basic_block* bb, *cfg->get_all_bbs ())
+	{
+		if (isa<Entry_block> (bb) || isa<Exit_block> (bb))
+			marks[bb] = true;
+
+		else if (Statement_block* sb = dynamic_cast<Statement_block*> (bb))
+		{
+			if (is_critical (sb->statement))
+			{
+				marks[bb] = true;
+				worklist->push_back (bb);
+			}
+		}
+		else
+		{
+			// Branches and phis are handled below.
+		}
+	}
+
+	// Go through the worklist, propagating the mark from uses to defs
+	while (worklist->size () > 0)
+	{
+		Basic_block* bb = worklist->front ();
+		worklist->pop_front ();
+
+		foreach (VARIABLE_NAME* use, *cfg->duw->get_bb_uses (bb))
+		{
+			SSA_edge* def = cfg->duw->get_var_defs (use);
+			if (marks[def->bb])
+			{
+				marks[def->bb] = true;
+				worklist->push_back (bb);
+			}
+		}
+
+		// Mark the critical branches (ie, the reverse dominance frontier of the
+		// critical blocks)
+		foreach (Basic_block* rdf, *bb->get_reverse_dominance_frontier ())
+		{
+			assert (isa<Branch_block> (rdf));
+			marks[rdf] = true;
+			worklist->push_back (rdf);
+		}
+	}
 }
 
 /*	SweepPass ():
@@ -67,6 +142,10 @@ DCE::mark_pass ()
  *				else
  *					delete s
  */
+void
+DCE::sweep_pass ()
+{
+}
 
 void
 DCE::run (CFG* cfg)

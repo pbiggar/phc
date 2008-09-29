@@ -81,6 +81,13 @@ public:
 	// Returns an incomplete solution during creation.
 	BB_list* get_dominance_frontier ();
 
+	// And in reverse
+	Basic_block* get_immediate_reverse_dominator ();
+	BB_list* get_reverse_dominated_blocks ();
+	bool is_reverse_dominated_by (Basic_block* bb);
+
+	BB_list* get_reverse_dominance_frontier ();
+
 	/*
 	 * Phi functions (or nodes)
 	 */

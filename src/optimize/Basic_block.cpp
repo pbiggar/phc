@@ -490,6 +490,9 @@ Branch_block::set_always (bool direction)
 	cfg->consistency_check ();
 }
 
+/*
+ * Dominance
+ */
 BB_list*
 Basic_block::get_dominance_frontier ()
 {
@@ -513,6 +516,36 @@ Basic_block::get_dominated_blocks ()
 {
 	return cfg->dominance->get_blocks_dominated_by_bb (this);
 }
+
+
+/*
+ * Reverse Dominance
+ */
+Basic_block*
+Basic_block::get_immediate_reverse_dominator ()
+{
+	return cfg->dominance->reverse_dominance->get_bb_immediate_dominator (this);
+}
+
+BB_list*
+Basic_block::get_reverse_dominated_blocks ()
+{
+	return cfg->dominance->reverse_dominance->get_blocks_dominated_by_bb (this);
+}
+
+bool
+Basic_block::is_reverse_dominated_by (Basic_block* bb)
+{
+	return cfg->dominance->reverse_dominance->is_bb_dominated_by (this, bb);
+}
+
+BB_list*
+Basic_block::get_reverse_dominance_frontier ()
+{
+	return cfg->dominance->reverse_dominance->get_blocks_dominated_by_bb (this);
+}
+
+
 
 VARIABLE_NAME_list*
 Basic_block::get_pre_ssa_defs ()

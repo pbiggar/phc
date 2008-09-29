@@ -184,9 +184,7 @@ int main(int argc, char** argv)
 	pm->add_optimization_pass (new Fake_pass (s("ssa"), s("In SSA form")));
 	pm->add_optimization (new SCCP (), s("sccp"), s("Sparse-conditional constant propagation"));
 	pm->add_optimization (new If_simplification (), s("ifsimple"), s("If-simplification"));
-	pm->add_optimization (new DCE (), s("dce1"), s("Dead-code elimination"));
-	pm->add_optimization (new DCE (), s("dce2"), s("Dead-code elimination"));
-	pm->add_optimization (new DCE (), s("dce3"), s("Dead-code elimination"));
+	pm->add_optimization (new DCE (), s("dce"), s("Aggressive Dead-code elimination"));
 	pm->add_optimization_pass (new Fake_pass (s("opt"), s("Optimized Control-Flow Graph")));
 
 	// codegen passes
