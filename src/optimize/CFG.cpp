@@ -41,7 +41,7 @@ CFG::CFG (Method* method)
 
 	add_statements (method->statements);
 
-	tidy_up ();
+	clean ();
 }
 
 CFG::CFG (Graph& bs)
@@ -632,8 +632,8 @@ void CFG::convert_to_ssa_form ()
 void
 CFG::rebuild_ssa_form ()
 {
+	clean ();
 	consistency_check ();
-	tidy_up ();
 
 	dominance = new Dominance (this);
 	dominance->calculate_forward_dominance ();
@@ -780,6 +780,13 @@ CFG::is_true_edge (Edge* edge)
 
 
 void
+CFG::insert_predecessor_chain (Basic_block* bb, BB_list* new_bbs)
+{
+	foreach (Basic_block* new_bb, *new_bbs)
+		insert_predecessor_bb (bb, new_bb);
+}
+
+void
 CFG::replace_bb (Basic_block* bb, BB_list* replacements)
 {
 	consistency_check ();
@@ -791,81 +798,68 @@ CFG::replace_bb (Basic_block* bb, BB_list* replacements)
 
 	if (replacements->size() == 0)
 	{
-		bb->remove ();
+		remove_bb (bb);
 	}
 	else if (bb == replacements->back ())
 	{
 		// Insert the new nodes without removing the old one. Replacing the old
 		// one will invalidate the BB's vertex. (exit blocks dont like that).
 		replacements->pop_back ();
-		foreach (Basic_block* new_bb, *replacements)
-			bb->insert_predecessor (new_bb);
+		insert_predecessor_chain (bb, replacements);
 	}
 	else
 	{
-		foreach (Basic_block* new_bb, *replacements)
-			bb->insert_predecessor (new_bb);
+		// TODO: we dont support adding nodes before and after:
+		foreach (Basic_block* replacement , *replacements)
+			assert (bb != replacement);
 
-		bb->remove ();
+		insert_predecessor_chain (bb, replacements);
+		remove_bb (bb);
 	}
 
 	consistency_check ();
 }
 
-// The immediate post-dominator should get the phi nodes, according to
-// Cooper/Torczon lecture notes (see DCE comments). The single successor _is_
-// the immediate post-dominator.
+Empty_block*
+CFG::replace_bb_with_empty (Basic_block* bb)
+{
+	// By replacing the BB, we ruin any information that stores BB*s.
+	// Everything should use vertices instead, and update through this.
+	
+	consistency_check ();
 
-// TODO Factor the use-def chains by putting in an empty block for the phi
-// nodes).
+	assert (bb->get_successors ()->size () == 1);
+
+	// Replace it directly
+	Empty_block* new_bb = new Empty_block (this);
+	new_bb->vertex = bb->vertex;
+	vb[bb->vertex] = new_bb;
+
+	// Copy the properties (The edges are the same, so they'll auto-update)
+	new_bb->copy_phi_nodes (bb);
+
+	consistency_check ();
+
+	return new_bb;
+}
+
 void
 CFG::remove_bb (Basic_block* bb)
 {
-	consistency_check ();
-
-
-	if (bb->get_successors ()->size () == 0)
-	{
-		// Dont play with anything, just remove it
-		clear_vertex (bb->vertex, bs);
-		remove_vertex (bb->vertex, bs);
+	// dont-care
+	if (isa<Empty_block> (bb))
 		return;
-	}
 
-	assert (bb->get_successors()->size () == 1);
+	replace_bb_with_empty (bb);
+}
 
-	// Assume many predecessors, only 1 successor (it can be a branch block, so
-	// long as it has been broken already).
-	Basic_block* succ = bb->get_successor ();
-	Edge* succ_edge = bb->get_successor_edge ();
-
-	succ->copy_phi_nodes (bb);
-
-	foreach (Basic_block* pred, *bb->get_predecessors ())
-	{
-		Edge* old_edge = get_edge (pred, bb);
-
-		// Add the new edge to the graph
-		Edge* new_edge = add_edge (pred, succ);
-
-		// Update properties
-		new_edge->direction = old_edge->direction;
-
-		new_edge->copy_phi_map (old_edge);
-		new_edge->copy_phi_map (succ_edge);
-
-		// If there become multiple edges from the same predecessor, tidy_up will
-		// fix it.
-		remove_edge (old_edge);
-	}
-
-	remove_edge (succ_edge);
-
-	// Actually remove the block
-	clear_vertex (bb->vertex, bs);
-	remove_vertex (bb->vertex, bs);
-
-	consistency_check ();
+void
+CFG::rip_bb_out (Basic_block* bb)
+{
+	assert (!isa<Entry_block> (bb));
+	assert (!isa<Exit_block> (bb));
+	boost::clear_vertex (bb->vertex, bs);
+	boost::remove_vertex (bb->vertex, bs);
 }
 
 void
@@ -886,6 +880,7 @@ void
 CFG::insert_predecessor_bb (Basic_block* bb, Basic_block* new_bb)
 {
 	assert (!isa<Branch_block> (new_bb));
+	assert (new_bb->get_phi_lhss()->size () == 0);
 
 	// Assume this isnt added
 	add_bb (new_bb);
@@ -894,27 +889,49 @@ CFG::insert_predecessor_bb (Basic_block* bb, Basic_block* new_bb)
 	new_bb->copy_phi_nodes (bb);
 	bb->remove_phi_nodes ();
 
-	// No phis or direction.
-	add_edge (new_bb, bb);
-
 	// Connect to each predecessor
 	foreach (Basic_block* pred, *bb->get_predecessors ())
 	{
 		Edge* old_edge = get_edge (pred, bb);
-		remove_edge (old_edge);
 
 		Edge* new_edge = add_edge (pred, new_bb);
 		new_edge->copy_phi_map (old_edge);
+
+		remove_edge (old_edge);
 	}
 
+	// No phis or direction. Make sure to ad this after processing
+	// predecessors, or this will be a predecessor of BB.
+	add_edge (new_bb, bb);
 }
+
+void 
+CFG::set_branch_direction (Branch_block* bb, bool direction)
+{
+	// Just remove the outgoing node
+	if (direction)
+	{
+		bb->get_true_successor_edge ()->direction = indeterminate;
+		remove_edge (bb->get_false_successor_edge ());
+	}
+	else
+	{
+		bb->get_false_successor_edge ()->direction = indeterminate;
+		remove_edge (bb->get_true_successor_edge ());
+	}
+
+	// Update in place (takes care of incoming nodes)
+	Basic_block* new_bb = replace_bb_with_empty (bb);
+
+	consistency_check ();
+}
+
 
 void
 CFG::remove_edge (Edge* edge)
 {
 	boost::remove_edge (edge->edge, bs);
 }
-
 
 
 struct filter_back_edges
@@ -968,8 +985,24 @@ CFG::get_all_bbs_bottom_up ()
 	return result;
 }
 
+
+
+// TODO: iterate (use cooper/torczon Fig 10.5)
 void
-CFG::remove_unreachable_nodes ()
+CFG::clean ()
+{
+	consistency_check ();
+
+	remove_unreachable_blocks ();
+	fix_solo_phi_args ();
+	fold_redundant_branches ();
+	remove_empty_blocks ();
+
+	consistency_check ();
+}
+
+void
+CFG::remove_unreachable_blocks ()
 {
 	set<Basic_block*> reachable;
 
@@ -1001,38 +1034,102 @@ CFG::remove_unreachable_nodes ()
 			// TODO: this is definitely possible. What then?
 			assert (!isa<Exit_block> (bb));
 
-			bb->remove ();
+			// Dont just convert to an empty node. Rip it out entirely.
+			rip_bb_out (bb);
 		}
 	}
 }
 
 
+/* Replace any phi node with a single argument with an assignment. */
 void
-CFG::tidy_up ()
+CFG::fix_solo_phi_args ()
 {
-	consistency_check ();
-
-	remove_unreachable_nodes ();
-
-	consistency_check ();
-
-	// During updating the analysis, dont worry about solo-phi nodes. Now that
-	// its over, update the CFG with them.
 	foreach (Basic_block* bb, *get_all_bbs ())
-		bb->fix_solo_phi_args ();
+	{
+		// TODO: The theory is that each Phi node executes simultaneously. If
+		// there are dependencies between the nodes, this could be wrong.
+		// Simulateously means that the values are read before they are written
+		// to. So there is a possible situation where:
+		//		x0 = Phi (y0, ...)
+		//		y0 = Phi (x0, ...)
+		// in this case, neither ordering is correct, and temporary variables
+		// must be used.
 
-	consistency_check ();
+		// One edge means 1 phi argument
+		if (bb->get_predecessor_edges()->size () == 1)
+		{
+			BB_list* new_bbs = new BB_list ();
+			foreach (VARIABLE_NAME* phi_lhs, *bb->get_phi_lhss ())
+			{
+				Rvalue* arg = bb->get_phi_args (phi_lhs)->front ();
+				new_bbs->push_back (
+						new Statement_block (
+							this,
+							new Assign_var (
+								phi_lhs->clone(),
+								false,
+								arg)));
+			}
 
-	// TODO: a block can have multiple predecessors from the same node. Remove them/merge them.
+			// Remove the Phis before adding the predecessors. 
+			bb->remove_phi_nodes ();
 
-	// Additionally, remove useless blocks (here we have to update, since there
-	// are predecessors and successors, so we use bb->remove ()).
-	
-	// TODO an empty block can only have 1 successor, so merge the phi nodes
-	// into it, and remove the block.
+			insert_predecessor_chain (bb, new_bbs);
+		}
+	}
+}
+
+void
+CFG::fold_redundant_branches ()
+{
+	// Cooper/Torczon, page 501, 1
 	foreach (Basic_block* bb, *get_all_bbs ())
-		if (isa<Empty_block> (bb) && bb->get_phi_lhss ()->size () == 0)
-			bb->remove ();
+	{
+		if (Branch_block* branch = dynamic_cast <Branch_block*> (bb))
+		{
+			if (branch->get_true_successor () == branch->get_false_successor ())
+				set_branch_direction (branch, true);
+		}
+	}
+}
 
-	consistency_check ();
+void
+CFG::remove_empty_blocks ()
+{
+	// cooper/torczon, page 501, 2
+
+	// An empty BB might factor phi nodes between, say, 2 rather than 3 nodes.
+	// In that case, removing them would lead to extra code in the
+	// predecessors.
+	foreach (Basic_block* bb, *get_all_bbs ())
+	{
+		if (Empty_block* eb = dynamic_cast<Empty_block*> (bb))
+		{
+			// There can be multiple predecessors, but only 1 successor.
+			Basic_block* succ = eb->get_successor ();
+			Edge* succ_edge = eb->get_successor_edge ();
+
+			// Dont remove infinite loops (unless their unreachable, but thats
+			// handled in remove_unreachable_blocks.
+			if (succ == eb)
+				continue;
+
+
+			// Merge the phi nodes into the next block.
+			succ->copy_phi_nodes (eb);
+
+			foreach (Basic_block* pred, *bb->get_predecessors ())
+			{
+				Edge* pred_edge = get_edge (pred, bb);
+
+				// Add edge and copy attributes
+				Edge* new_edge = add_edge (pred, succ);
+				new_edge->direction = pred_edge->direction;
+				new_edge->copy_phi_map (succ_edge);
+			}
+
+			rip_bb_out (eb);
+		}
+	}
 }

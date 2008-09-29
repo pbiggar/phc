@@ -490,7 +490,7 @@ CFG_visitor::transform_block (Basic_block* bb)
 	else 
 		assert (0);
 
-	bb->replace (out);
+	bb->cfg->replace_bb (bb, out);
 }
 
 void

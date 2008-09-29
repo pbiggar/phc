@@ -112,12 +112,12 @@ Dominance::calculate_dominance (Graph& graph, vertex_t entry)
 		domTreePredVector.begin (),
 		get(vertex_index, graph));
 	lengauer_tarjan_dominator_tree(graph, entry, idom_calc);
-	foreach (Basic_block* bb, *cfg->get_all_bbs ())
+	foreach (vertex_t v, vertices (graph))
 	{
-		if (get(idom_calc, bb->vertex) != graph_traits<Graph>::null_vertex())
-			idominator[bb] = cfg->vb[get(idom_calc, bb->vertex)];
+		if (get(idom_calc, v) != graph_traits<Graph>::null_vertex())
+			idominator[v] = get(idom_calc, v);
 		else
-			idominator[bb] = NULL;
+			idominator[v] = NULL;
 	}
 
 	// THERE (see HERE)
@@ -126,33 +126,35 @@ Dominance::calculate_dominance (Graph& graph, vertex_t entry)
 	// We also want to find the block that are immedately dominated by
 	// another block (ie [a,b,c] such that x idom a, x idom b and x idom c.
 
-	foreach (Basic_block* bb, *cfg->get_all_bbs ())
-	{
-		idominated[bb] = new BB_list;
-		df[bb] = new BB_list;
-	}
-
-	foreach (Basic_block* y, *cfg->get_all_bbs ())
+	foreach (vertex_t v, vertices (graph))
 	{
 		// ENTRY and any unreachable nodes may have no immediate dominator.
-		Basic_block* dom = this->get_bb_immediate_dominator (y);
+		vertex_t dom = idominator[v];
 		if (dom != NULL)
-			idominated [dom]->push_back (y);
+			idominated [dom].push_back (v);
 	}
 
 
 	/* Use the function in Cooper/Torczon, Figure 9.10 */
-	foreach (Basic_block* n, *cfg->get_all_bbs ())
+	foreach (vertex_t n, vertices (graph))
 	{
-		if (in_degree (n->vertex, graph) > 0)
+		if (in_degree (n, graph) > 0)
 		{
-			foreach (edge_t e, in_edges (n->vertex, graph))
+			foreach (edge_t e, in_edges (n, graph))
 			{
-				Basic_block* runner = cfg->vb[source (e, graph)];
+				vertex_t runner = source (e, graph);
 				// Dont include RUNNER, since it dominates itself.
 				while (runner != idominator[n] && runner != n)
 				{
-					add_to_bb_dominance_frontier (runner, n);
+					// TODO: do in linear-time
+					bool is_already_in_df = false;
+					foreach (vertex_t frontier, df[runner])
+						if (frontier == n)
+							is_already_in_df = true;
+
+					if (!is_already_in_df)
+						df [runner].push_back (n);
+
 					runner = idominator[runner];
 				}
 			}
@@ -165,82 +167,72 @@ Dominance::dump ()
 {
 	CHECK_DEBUG ();
 
-	foreach (Basic_block* bb, *cfg->get_all_bbs ())
+	foreach (vertex_t v, vertices (cfg->bs))
 	{
-		bb->dump();
+		cfg->vb[v]->dump();
 		cdebug << " - dominates (forward_idom): [";
-		foreach (Basic_block* dominated, *idominated[bb])
+		foreach (vertex_t dominated, idominated[v])
 		{
-			dominated->dump();
+			cfg->vb[dominated]->dump();
 			cdebug << ", ";
 		}
 		cdebug << "]\n\n";
 
 		cdebug << " - is dominated by (idom): ";
-		if (idominator[bb] == NULL)
+		if (idominator[v] == NULL)
 			cdebug << "NONE";
 		else
-			idominator[bb]->dump();
+			cfg->vb[idominator[v]]->dump();
 		cdebug << "\n\n";
 
 		cdebug << " - dominance frontier: [";
-		foreach (Basic_block* frontier, *df[bb])
+		foreach (vertex_t frontier, df[v])
 		{
-			frontier->dump();
+			cfg->vb[frontier]->dump();
 			cdebug << ", ";
 		}
 		cdebug << "]\n\n";
 	}
 }
 
-void
-Dominance::add_to_bb_dominance_frontier (Basic_block* bb, Basic_block* frontier)
-{
-	if (!is_bb_in_dominance_frontier (bb, frontier))
-		df [bb]->push_back (frontier);
-}
-
-
-bool
-Dominance::is_bb_in_dominance_frontier (Basic_block* bb, Basic_block* frontier)
-{
-	// TODO this can be done in constant-time if we change the form
-	foreach (Basic_block* i, *df[bb])
-		if (i == frontier)
-			return true;
-	
-	return false;
-}
-
 BB_list*
 Dominance::get_bb_dominance_frontier (Basic_block* bb)
 {
-	return df[bb];
+	BB_list* result = new BB_list;
+	foreach (vertex_t v, df [bb->vertex])
+		result->push_back (cfg->vb[v]);
+
+	return result;
 }
 
 Basic_block*
 Dominance::get_bb_immediate_dominator (Basic_block* bb)
 {
-	return idominator[bb];
+	return cfg->vb [idominator [bb->vertex]];
 }
 
 
 BB_list*
 Dominance::get_blocks_dominated_by_bb (Basic_block* bb)
 {
-	return idominated[bb];
+	BB_list* result = new BB_list;
+	foreach (vertex_t v, idominated [bb->vertex])
+		result->push_back (cfg->vb [v]);
+
+	return result;
 }
 
 bool
 Dominance::is_bb_dominated_by (Basic_block* bb, Basic_block* potential_dom)
 {
+	vertex_t v = bb->vertex;
 	// Go up the dominator chain
-	while (idominator[bb] != NULL)
+	while (idominator[v] != NULL)
 	{
-		if (idominator[bb] == potential_dom)
+		if (idominator[v] == potential_dom->vertex)
 			return true;
 		else
-			bb = idominator[bb];
+			v = idominator[v];
 	}
 	
 	return false;

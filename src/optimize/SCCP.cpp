@@ -713,7 +713,7 @@ public:
 	{
 		Literal* lit = get_literal (bb->branch->variable_name);
 		if (lit)
-			bb->set_always (PHP::is_true (lit));
+			bb->cfg->set_branch_direction (bb, PHP::is_true (lit));
 	}
 
 	void visit_assign_array (Statement_block*, MIR::Assign_array* in)

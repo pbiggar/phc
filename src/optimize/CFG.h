@@ -19,6 +19,7 @@ class Basic_block;
 class Branch_block;
 class Entry_block;
 class Exit_block;
+class Empty_block;
 typedef List<Basic_block*> BB_list;
 
 class Edge;
@@ -105,13 +106,6 @@ public:
 	// Return a linear list of statement for the CFG
 	MIR::Statement_list* get_linear_statements ();
 
-	// This CFG should be treated as read-only, as its backing store is simply a
-	// view over this bs.
-	CFG* reverse ();
-
-
-	void remove_unreachable_nodes ();
-
 	// Add the BB to the graph, and update the BB's vertex.
 	vertex_t add_bb (Basic_block* bb);
 
@@ -124,22 +118,34 @@ public:
 private:
 	void add_statements (MIR::Statement_list*);
 
+	void remove_unreachable_blocks ();
+	void fix_solo_phi_args ();
+	void fold_redundant_branches ();
+	void remove_empty_blocks ();
+
 	friend class Basic_block;
 	friend class Branch_block;
 	friend class Edge;
 
+public:
+
 	// Insert a predecessor, fix up the neighbours. After this, BB will have a
 	// single predecessor, NEW_BB, whose predecessors are BB's former
-	// predecessors.
+	// predecessors. The Phis move to NEW_BB (NEW_BB cannot have phis of its
+	// own).
 	void insert_predecessor_bb (Basic_block* bb, Basic_block* new_bb);
+	void insert_predecessor_chain (Basic_block* bb, BB_list* new_bbs);
 
 	// Replace EDGE with an edge from EDGE->source to NEW_BB, and an edge from
 	// NEW_BB to EDGE->TARGET.
 	void insert_bb_between (Edge* edge, Basic_block* new_bb);
 
-
 	// Remove the basic block and fix up the neighbours.
 	void remove_bb (Basic_block* bb);
+
+	// Replace BRANCH with an enpty block, whose successor is NEW_SUCC
+	// (NEW_SUCC should probably be chosen as a post-dominator of BRANCH).
+	void remove_branch (Branch_block* branch, Basic_block* new_succ);
 
 	// Wrapper-interface to a number of transformations:
 	//		- remove the node
@@ -153,24 +159,38 @@ private:
 	// Remove the edge, and fix up the nodes.
 	void remove_edge (Edge* edge);
 
-	/* Returns true or false. If edge isnt true or false, asserts. */
-	bool is_true_edge (Edge* edge);
+	// Replace the branch with its true/false successor.
+	void set_branch_direction (Branch_block* bb, bool direction);
+
+	// Replace BB with an empty block, maintaining the edges, phi nodes, etc.
+	Empty_block* replace_bb_with_empty (Basic_block* bb);
+
+	// Dont fix edges or phi nodes, or anything. Disconnect it from
+	// everything, and remove it from the graph.
+	void rip_bb_out (Basic_block* bb);
+
 
 
 	/* 
 	 * Misc
 	 */
 public:
+
+	/* Returns true or false. If edge isnt true or false, asserts. */
+	bool is_true_edge (Edge* edge);
+
 	void dump_graphviz (String* label);
 
 	// If we use a graph with listS for the adjacency lists, then we need to
 	// renumber the indices for certain algorithms.
 	void renumber_vertex_indices ();
 
-	// Remove unreachable nodes, and empty nodes.
-	void tidy_up ();
+	// Remove unreachable nodes and empty nodes (where possible), and
+	// simplifies branches to the same target.
+	void clean ();
 
-	// Check that the BB->vertex mapping is symmetric.
+	// Check that the BB->vertex mapping is symmetric, and other similar
+	// checks.
 	void consistency_check ();
 
 public:

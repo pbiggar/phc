@@ -122,7 +122,6 @@ public:
 private:
 	// Instead of an explicit phi node, store the phi->lhs here, and the phi
 	// arguments in edges. Then they can be updated all-at-once.
-
 	MIR::VARIABLE_NAME_list* phi_lhss;
 
 
@@ -130,9 +129,7 @@ public:
 	/*
 	 * Block manipulation
 	 */
-	void remove ();
-	void replace (BB_list* replacements);
-	void insert_predecessor (Basic_block* bb);
+	// See CFG
 
 
 public:
@@ -221,15 +218,12 @@ public:
 	Basic_block* get_false_successor ();
 	Edge* get_false_successor_edge ();
 
-	// Replace the branch with its true/false successor.
-	void set_always (bool direction);
+	/*
+	 * Block manipulation: moved to CFG
+	 */
 
-	// Replace the branch with an empty block, whose
-	// sole successor is SUCC.
-	void remove (Basic_block* succ);
-
+	// except:
 	void switch_successors ();
-
 
 	void dump ();
 };

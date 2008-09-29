@@ -9,14 +9,17 @@ using namespace boost;
 #include "CFG.h"
 class Dominance
 {
+	// Use vertexes so that the Blocks they refer to can be updated without
+	// invalidating the dominance information.
+
 	// Forward dominance frontier
-	Map <Basic_block*, BB_list*> df;
+	map <vertex_t, list<vertex_t> > df;
 
 	// BB -> blocks dominated by BB
-	Map <Basic_block*, BB_list*> idominated;
+	map <vertex_t, list<vertex_t> > idominated;
 
 	// BB -> BB's dominator
-	Map <Basic_block*, Basic_block*> idominator;
+	map <vertex_t, vertex_t> idominator;
 
 	CFG* cfg;
 

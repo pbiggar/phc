@@ -178,7 +178,6 @@ Basic_block::copy_phi_nodes (Basic_block* other)
 bool
 Basic_block::has_phi_node (VARIABLE_NAME* phi_lhs)
 {
-
 	foreach (VARIABLE_NAME* lhs, *phi_lhss)
 	{
 		// Only operator< is defined, not >= or ==
@@ -253,34 +252,7 @@ Basic_block::update_phi_node (MIR::VARIABLE_NAME* old_phi_lhs, MIR::VARIABLE_NAM
 	remove_phi_node (old_phi_lhs);
 }
 
-/* Replace any phi node with a single argument with an assignment. */
-void
-Basic_block::fix_solo_phi_args ()
-{
-	// TODO: The theory is that each Phi node executes simultaneously. If
-	// there are dependencies between the nodes, this could be wrong.
 
-	if (get_predecessor_edges()->size () == 1)
-	{
-		BB_list* replacements = new BB_list ();
-		foreach (VARIABLE_NAME* phi_lhs, *get_phi_lhss ())
-		{
-			Rvalue* arg = get_phi_args (phi_lhs)->front ();
-			replacements->push_back (
-					new Statement_block (
-						cfg,
-						new Assign_var (
-							phi_lhs->clone(),
-							false,
-							arg)));
-		}
-
-		remove_phi_nodes ();
-
-		replacements->push_back (this);
-		replace (replacements);
-	}
-}
 
 Rvalue_list*
 Basic_block::get_phi_args (MIR::VARIABLE_NAME* phi_lhs)
@@ -322,12 +294,6 @@ Basic_block::set_phi_arg_for_edge (Edge* edge, VARIABLE_NAME* phi_lhs, Rvalue* a
 /*
  * Block manipulation
  */
-
-void
-Basic_block::insert_predecessor (Basic_block* bb)
-{
-	cfg->insert_predecessor_bb (this, bb);
-}
 
 BB_list*
 Basic_block::get_predecessors ()
@@ -428,78 +394,16 @@ void
 Branch_block::switch_successors ()
 {
 	foreach (Edge* succ, *get_successor_edges ())
-		succ->direction = !succ->direction;
-}
-
-void
-Basic_block::remove ()
-{
-	cfg->remove_bb (this);
-}
-
-
-void
-Branch_block::remove (Basic_block* succ)
-{
-	assert (0);
-}
-
-void
-Basic_block::replace (BB_list* replacements)
-{
-	cfg->replace_bb (this, replacements);
-}
-
-void
-Branch_block::set_always (bool direction)
-{
-	cfg->consistency_check ();
-
-	// If this block has phi nodes, and the successors do too, then moving this
-	// blocks phis to the successor leaves edges in the successor with no
-	// argument for that node. Instead, replace this node with an empty node.
-	// Tody will sort out the rest, if needs be.
-	Basic_block* new_bb = new Empty_block (cfg);
-	cfg->add_bb (new_bb);
-	new_bb->copy_phi_nodes (this); // edges updated later
-
-
-	Edge* true_edge = get_true_successor_edge ();
-	Edge* false_edge = get_false_successor_edge ();
-
-	Basic_block* succ = direction ? get_true_successor () : get_false_successor ();
-	Edge* succ_edge = direction ? true_edge : false_edge;
-
-	// Add the incoming edges
-	foreach (Edge* old_edge, *get_predecessor_edges ())
 	{
-		Edge* new_edge = cfg->add_edge (old_edge->get_source (), new_bb);
-
-		// copy the properties
-		new_edge->direction = old_edge->direction;
-		new_edge->copy_phi_map (old_edge);
-
-		cfg->remove_edge (old_edge);
+		assert (succ->direction != indeterminate);
+		succ->direction = !succ->direction;
 	}
-
-	// Add the outgoing edge
-	Edge* new_edge = cfg->add_edge (new_bb, succ);
-
-	// copy the phi properties (no direction)
-	new_edge->copy_phi_map (succ_edge);
-
-
-	// Remove whats left
-	cfg->remove_edge (true_edge);
-	cfg->remove_edge (false_edge);
-	Basic_block::remove ();
-
-	cfg->consistency_check ();
 }
 
 /*
  * Dominance
  */
+
 BB_list*
 Basic_block::get_dominance_frontier ()
 {

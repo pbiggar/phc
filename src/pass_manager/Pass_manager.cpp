@@ -29,12 +29,6 @@
 #include "optimize/CFG.h"
 
 
-// TODO remove, and put these into the pass_manager
-#include "optimize/SCCP.h"
-#include "optimize/Def_use.h"
-#include "optimize/Dead_code_elimination.h"
-#include "optimize/If_simplification.h"
-
 Pass_manager::Pass_manager (gengetopt_args_info* args_info)
 : args_info (args_info),
   check (false)
@@ -597,16 +591,20 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 
 			maybe_enable_debug (cfg_pass);
 			CFG* cfg = new CFG (method);
-			for (unsigned int i = 0; i < args_info->cfg_dump_given; i++)
-				if (*cfg_pass->name == args_info->cfg_dump_arg [i])
-					cfg->dump_graphviz (cfg_pass->name);
+//			for (unsigned int i = 0; i < args_info->cfg_dump_given; i++)
+//				if (*cfg_pass->name == args_info->cfg_dump_arg [i])
+//					cfg->dump_graphviz (cfg_pass->name);
+			if (args_info->cfg_dump_given)
+				cfg->dump_graphviz (cfg_pass->name);
 
 
 			maybe_enable_debug (into_ssa_pass);
 			cfg->convert_to_ssa_form ();
-			for (unsigned int i = 0; i < args_info->cfg_dump_given; i++)
-				if (*into_ssa_pass->name == args_info->cfg_dump_arg [i])
-					cfg->dump_graphviz (into_ssa_pass->name);
+//			for (unsigned int i = 0; i < args_info->cfg_dump_given; i++)
+//				if (*into_ssa_pass->name == args_info->cfg_dump_arg [i])
+//					cfg->dump_graphviz (into_ssa_pass->name);
+			if (args_info->cfg_dump_given)
+				cfg->dump_graphviz (cfg_pass->name);
 
 
 			if (lexical_cast<int> (args_info->optimize_arg) > 0)
@@ -648,9 +646,11 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 
 			maybe_enable_debug (out_ssa_pass);
 			cfg->convert_out_of_ssa_form ();
-			for (unsigned int i = 0; i < args_info->cfg_dump_given; i++)
-				if (*out_ssa_pass->name == args_info->cfg_dump_arg [i])
-					cfg->dump_graphviz (out_ssa_pass->name);
+//			for (unsigned int i = 0; i < args_info->cfg_dump_given; i++)
+//				if (*out_ssa_pass->name == args_info->cfg_dump_arg [i])
+//					cfg->dump_graphviz (out_ssa_pass->name);
+			if (args_info->cfg_dump_given)
+				cfg->dump_graphviz (cfg_pass->name);
 
 			method->statements = cfg->get_linear_statements ();
 		}

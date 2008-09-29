@@ -159,10 +159,10 @@ DCE::sweep_pass ()
 				while (!marks[postdominator])
 					postdominator = postdominator->get_immediate_reverse_dominator ();
 
-				dyc<Branch_block> (bb)->remove (postdominator);
+				cfg->remove_branch (dyc<Branch_block> (bb), postdominator);
 			}
 			else
-				bb->remove ();
+				cfg->remove_bb (bb);
 		}
 	}
 }
