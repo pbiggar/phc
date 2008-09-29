@@ -81,8 +81,6 @@ public:
 	MIR::VARIABLE_NAME* phi_lhs;
 
 public:
-
-
 	SSA_edge (MIR::VARIABLE_NAME* phi_lhs, Basic_block* bb);
 	SSA_edge (Statement_block* bb);
 	SSA_edge (Branch_block* bb);

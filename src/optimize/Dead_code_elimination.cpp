@@ -31,7 +31,7 @@ bool is_critical (Statement* in)
 	if (not (isa<Eval_expr> (in) || isa<Assign_var> (in)))
 		return false;
 
-	Wildcard<Expr>* expr;
+	Wildcard<Expr>* expr = new Wildcard<Expr>;
 	if (in->match (new Eval_expr (expr))
 		|| in->match (
 			new Assign_var (
@@ -150,6 +150,8 @@ DCE::sweep_pass ()
 void
 DCE::run (CFG* cfg)
 {
+	marks.clear ();
+	this->cfg = cfg;
 	mark_pass ();
 	sweep_pass ();
 }

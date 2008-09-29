@@ -10,9 +10,9 @@ using namespace std;
 /*
  * SSA-web. 
  *
- * For now, use the SSA-web (which doesnt actually rely on SSA form, nor is it
- * built during it) both for getting into SSA form, and for creating the SSA
- * web.
+ * For now, use the SSA-web (which doesnt actually rely on SSA form, nor is
+ * it built during it) both for getting into SSA form, and for creating the
+ * SSA web.
  */
 
 
@@ -28,16 +28,17 @@ Def_use_web::get_bb_defs (Basic_block* bb)
 	VARIABLE_NAME_list* result = new VARIABLE_NAME_list;
 
 	// Go through the use-def result, finding those who's BB == BB
-	pair<VARIABLE_NAME*, SSA_edge_list> pair;
-	foreach (pair, use_def_chains)
+	VARIABLE_NAME* key;
+	SSA_edge_list edge_list;
+	foreach (tie (key, edge_list), use_def_chains)
 	{
-		foreach (SSA_edge* edge, pair.second)
+		foreach (SSA_edge* edge, edge_list)
 		{
-			assert (edge->which != SSA_edge::PHI);
-
-			// Dont insert the key, it may be the wrong var_name.
 			if (edge->bb == bb)
+			{
+				// Dont insert the key itself, it may be the wrong var_name.
 				result->push_back (edge->variable_name);
+			}
 		}
 	}
 	return result;
@@ -49,16 +50,17 @@ Def_use_web::get_bb_uses (Basic_block* bb)
 	VARIABLE_NAME_list* result = new VARIABLE_NAME_list;
 
 	// Go through the def-use result, finding those who's BB == BB
-	pair<VARIABLE_NAME*, SSA_edge_list> pair;
-	foreach (pair, def_use_chains)
+	VARIABLE_NAME* key;
+	SSA_edge_list edge_list;
+	foreach (tie (key, edge_list), def_use_chains)
 	{
-		foreach (SSA_edge* edge, pair.second)
+		foreach (SSA_edge* edge, edge_list)
 		{
-			assert (edge->which != SSA_edge::PHI);
-
-			// Dont insert the key, it may be the wrong var_name.
 			if (edge->bb == bb)
+			{
+				// Dont insert the key itself, it may be the wrong var_name.
 				result->push_back (edge->variable_name);
+			}
 		}
 	}
 

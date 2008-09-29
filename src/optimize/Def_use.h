@@ -31,7 +31,9 @@ class Def_use_web : public Visit_once
 public:
 	Def_use_web ();
 
-	// These are intended for use during the conversion to SSA.
+	// Get all defs/uses in the basic_block. (Originally, this was designed
+	// for converting into SSA form, but it has been repurposed, so it might
+	// still have legacy bugs).
 	MIR::VARIABLE_NAME_list* get_bb_defs (Basic_block* bb);
 	MIR::VARIABLE_NAME_list* get_bb_uses (Basic_block* bb);
 
