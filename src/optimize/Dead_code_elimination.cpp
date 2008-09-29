@@ -16,6 +16,66 @@ bool is_pure (Expr* in)
 	return (not (isa<New> (in) || isa<Method_invocation> (in)));
 }
 
+/*
+ * Cooper/Torczon, Sec. 10.3.1 and Figure 10.3
+ *		http://www.cs.rice.edu/~keith/512/Lectures/10DeadCprop.pdf
+ *
+ *	Has a mark-sweep-style DCE algorithm:
+ *
+ *	Dead ():
+ *		MarkPass ()
+ *		SweepPass ()
+ */
+
+/*	MarkPass ():
+ *
+ *		Worklist = []
+ *
+ *		foreach statement S
+ *			clear s.mark
+ *			if s is critical
+ *				set s.mark
+ *				worklist []= s
+ *
+ *		while !worklist.empty ()
+ *			s = worklist.pop_front ()
+ *			foreach u in s.uses ()
+ *				d = u.def ()
+ *				if (!d.mark)
+ *					set d.mark
+ *					worklist []= d
+ *
+ *			foreach bb in s.rdf ()
+ *				j = bb.branch ()
+ *				if (
+ *
+ *			// assume s in form: x = y op z 
+ *			if !def (y).mark
+ *				set def (y).mark
+ */
+void
+DCE::mark_pass ()
+{
+
+}
+
+/*	SweepPass ():
+ *		foreach statement S:
+ *			if !s.mark
+ *				if isa<Branch> (s)
+ *					s = jump to nearest marked post-dominator
+ *				else
+ *					delete s
+ */
+
+void
+DCE::run (CFG* cfg)
+{
+	mark_pass ();
+	sweep_pass ();
+}
+
+/*
 void
 DCE::transform_assign_var (Statement_block* bb, Assign_var* in, BB_list* out)
 {
@@ -54,3 +114,4 @@ DCE::transform_eval_expr (Statement_block* bb, MIR::Eval_expr* in, BB_list* out)
 		out->push_back (bb);
 	}
 }
+*/
