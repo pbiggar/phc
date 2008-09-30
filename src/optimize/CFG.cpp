@@ -919,20 +919,23 @@ CFG::insert_predecessor_bb (Basic_block* bb, Basic_block* new_bb)
 void 
 CFG::set_branch_direction (Branch_block* bb, bool direction)
 {
+	Edge* true_edge = bb->get_true_successor_edge ();
+	Edge* false_edge = bb->get_false_successor_edge ();
+
 	// Just remove the outgoing node
 	if (direction)
 	{
-		bb->get_true_successor_edge ()->direction = indeterminate;
-		remove_edge (bb->get_false_successor_edge ());
+		true_edge->direction = indeterminate;
+		remove_edge (false_edge);
 	}
 	else
 	{
-		bb->get_false_successor_edge ()->direction = indeterminate;
-		remove_edge (bb->get_true_successor_edge ());
+		false_edge->direction = indeterminate;
+		remove_edge (true_edge);
 	}
 
 	// Update in place (takes care of incoming nodes)
-	Basic_block* new_bb = replace_bb_with_empty (bb);
+	replace_bb_with_empty (bb);
 
 	consistency_check ();
 }

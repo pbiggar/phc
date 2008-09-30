@@ -67,7 +67,15 @@ Basic_block::get_graphviz_properties ()
 String*
 Entry_block::get_graphviz_label ()
 {
-	return s("ENTRY");
+	stringstream ss;
+	ss << "ENTRY: (";
+
+	foreach (Formal_parameter* param, *method->signature->formal_parameters)
+		ss << *param->var->variable_name->get_ssa_var_name () << ", ";
+	
+	ss << ")";
+
+	return s (ss.str ());
 }
 
 String* Exit_block::get_graphviz_label ()
@@ -395,7 +403,7 @@ Branch_block::switch_successors ()
 {
 	foreach (Edge* succ, *get_successor_edges ())
 	{
-		assert (succ->direction != indeterminate);
+		assert (!indeterminate (succ->direction));
 		succ->direction = !succ->direction;
 	}
 }
@@ -453,7 +461,7 @@ Basic_block::is_reverse_dominated_by (Basic_block* bb)
 BB_list*
 Basic_block::get_reverse_dominance_frontier ()
 {
-	return cfg->dominance->reverse_dominance->get_blocks_dominated_by_bb (this);
+	return cfg->dominance->reverse_dominance->get_bb_dominance_frontier (this);
 }
 
 

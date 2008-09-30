@@ -74,6 +74,13 @@ SSA_edge::SSA_edge (Branch_block* bb)
 {
 }
 
+SSA_edge::SSA_edge (Entry_block* bb)
+: which (FORMAL_PARAMETER)
+, bb (bb)
+, variable_name (NULL)
+{
+}
+
 SSA_edge* 
 SSA_edge::clone ()
 {
@@ -121,6 +128,7 @@ SSA_edge::dump ()
 
 		case STATEMENT:
 		case BRANCH:
+		case FORMAL_PARAMETER:
 			bb->dump ();
 			break;
 	}

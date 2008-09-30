@@ -9,6 +9,7 @@
 
 class SCCP : public CFG_visitor
 {
+	friend class SCCP_updater;
 	Lattice_map lattice;
 	Edge_list* cfg_wl;
 	SSA_edge_list* ssa_wl;
@@ -30,6 +31,7 @@ public:
 	void visit_phi (Basic_block* bb, MIR::VARIABLE_NAME* lhs); // not visit_phi_node
 
 	// Blocks
+	void visit_entry_block (Entry_block* bb);
 	void visit_branch_block (Branch_block*);
 
 	// Statement blocks

@@ -77,10 +77,17 @@ Def_use_web::get_var_uses (MIR::VARIABLE_NAME* def)
 	return &def_use_chains[def];
 }
 
-SSA_edge*
-Def_use_web::get_var_defs (MIR::VARIABLE_NAME* use)
+bool
+Def_use_web::has_def (VARIABLE_NAME* use)
 {
-	// every use must have exactly 1 def (in SSA form).
+	return use_def_chains[use].size () == 1;
+}
+
+SSA_edge*
+Def_use_web::get_var_def (MIR::VARIABLE_NAME* use)
+{
+	// every use must have exactly 1 def (in SSA form). (Uninitialized
+	// variables can be identified using Def_use_web::has_def (use);
 	assert (use_def_chains[use].size() == 1);
 
 	// every ssa_edge must have a VARIABLE_NAME
@@ -121,6 +128,13 @@ Def_use_web::add_def (MIR::VARIABLE_NAME* use, SSA_edge* def)
 	DEBUG ("to ")
 	def->dump ();
 	DEBUG (endl);
+}
+
+void
+Def_use_web::visit_entry_block (Entry_block* bb)
+{
+	foreach (Formal_parameter* param, *bb->method->signature->formal_parameters)
+		add_def (param->var->variable_name, new SSA_edge (bb));
 }
 
 void

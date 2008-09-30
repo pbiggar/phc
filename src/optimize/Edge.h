@@ -70,7 +70,7 @@ public:
 	// Target is either a PHI or a statement (aka an expr).
 	
 	// This means any BB (for a PHI) or a statement_block, or a branch_block.
-	enum _which {PHI, STATEMENT, BRANCH} which;
+	enum _which {PHI, STATEMENT, BRANCH, FORMAL_PARAMETER} which;
 
 	Basic_block* bb;
 
@@ -84,6 +84,7 @@ public:
 	SSA_edge (MIR::VARIABLE_NAME* phi_lhs, Basic_block* bb);
 	SSA_edge (Statement_block* bb);
 	SSA_edge (Branch_block* bb);
+	SSA_edge (Entry_block* bb);
 	SSA_edge* clone ();
 
 	pair<MIR::VARIABLE_NAME*, Basic_block*> get_phi ();

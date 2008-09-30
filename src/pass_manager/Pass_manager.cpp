@@ -604,7 +604,7 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 //				if (*into_ssa_pass->name == args_info->cfg_dump_arg [i])
 //					cfg->dump_graphviz (into_ssa_pass->name);
 			if (args_info->cfg_dump_given)
-				cfg->dump_graphviz (cfg_pass->name);
+				cfg->dump_graphviz (into_ssa_pass->name);
 
 
 			if (lexical_cast<int> (args_info->optimize_arg) > 0)
@@ -644,13 +644,14 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 				}
 			}
 
+			cfg->rebuild_ssa_form ();
 			maybe_enable_debug (out_ssa_pass);
 			cfg->convert_out_of_ssa_form ();
 //			for (unsigned int i = 0; i < args_info->cfg_dump_given; i++)
 //				if (*out_ssa_pass->name == args_info->cfg_dump_arg [i])
 //					cfg->dump_graphviz (out_ssa_pass->name);
 			if (args_info->cfg_dump_given)
-				cfg->dump_graphviz (cfg_pass->name);
+				cfg->dump_graphviz (out_ssa_pass->name);
 
 			method->statements = cfg->get_linear_statements ();
 		}

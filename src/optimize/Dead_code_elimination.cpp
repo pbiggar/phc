@@ -99,6 +99,7 @@ DCE::mark_pass ()
 		{
 			if (is_critical (sb->statement))
 			{
+				DEBUG ("marking " << bb->get_index() << " as critical");
 				marks[bb] = true;
 				worklist->push_back (bb);
 			}
@@ -109,6 +110,8 @@ DCE::mark_pass ()
 		}
 	}
 
+	dump ();
+
 	// Go through the worklist, propagating the mark from uses to defs
 	while (worklist->size () > 0)
 	{
@@ -117,11 +120,17 @@ DCE::mark_pass ()
 
 		foreach (VARIABLE_NAME* use, *cfg->duw->get_bb_uses (bb))
 		{
-			SSA_edge* def = cfg->duw->get_var_defs (use);
-			if (marks[def->bb])
+			// ignore uninit
+			if (!cfg->duw->has_def (use))
+				continue;
+
+			SSA_edge* def = cfg->duw->get_var_def (use);
+			if (!marks[def->bb])
 			{
+				DEBUG ("marking " << def->bb->get_index() 
+						<< " due to def of " << *use->get_ssa_var_name ());
 				marks[def->bb] = true;
-				worklist->push_back (bb);
+				worklist->push_back (def->bb);
 			}
 		}
 
@@ -129,6 +138,8 @@ DCE::mark_pass ()
 		// critical blocks)
 		foreach (Basic_block* rdf, *bb->get_reverse_dominance_frontier ())
 		{
+			DEBUG ("marking " << rdf->get_index()
+					<< " as part of " << bb->get_index() << "'s RDF");
 			marks[rdf] = true;
 			worklist->push_back (rdf);
 		}
@@ -171,7 +182,17 @@ DCE::run (CFG* cfg)
 	marks.clear ();
 	this->cfg = cfg;
 	mark_pass ();
+	dump ();
 	sweep_pass ();
+}
+
+void
+DCE::dump()
+{
+	CHECK_DEBUG ();
+	cdebug << "DCE:" << endl;
+	foreach (Basic_block* bb, *cfg->get_all_bbs ())
+		cdebug << bb->get_index() << ": " << marks[bb] << endl;
 }
 
 /*

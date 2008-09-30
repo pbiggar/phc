@@ -20,6 +20,7 @@ private:
 	map<Basic_block*, bool> marks;
 	void mark_pass ();
 	void sweep_pass ();
+	void dump();
 };
 
 #endif // PHC_DEAD_CODE_ELIMINATION

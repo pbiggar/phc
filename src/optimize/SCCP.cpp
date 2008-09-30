@@ -143,6 +143,9 @@ SCCP::run (CFG* cfg)
 
 	// TOP is NULL, so the lattice map is already initialized.
 
+	// Start in the entry block
+	visit_entry_block (cfg->get_entry_bb ());
+
 	// 2. Stop when CFG-worklist and SSA-worklist are both empty.
 	while (cfg_wl->size () > 0 || ssa_wl->size () > 0)
 	{
@@ -283,6 +286,16 @@ SCCP::visit_ssa_edge (SSA_edge* edge)
 
 		default:
 			assert (0);
+	}
+}
+
+// Initialize all parameters to BOTTOM.
+void
+SCCP::visit_entry_block (Entry_block* bb)
+{
+	foreach (VARIABLE_NAME* var_name, *cfg->duw->get_bb_defs (bb))
+	{
+		lattice[var_name] = BOTTOM;
 	}
 }
 
@@ -813,12 +826,17 @@ public:
 		// do nothing for a normal variable
 	}
 
-	/* Returns NULL, or the literal in VARIABLE_NAME. We have separate
-	 * functions, because we cant substitute Literals directly into the IR in
-	 * many cases.*/
 	Literal* get_literal (Rvalue* in)
 	{
 		return sccp->get_literal (in);
+		// TODO: When updating, TOP means uninitialized, which in PHP means
+		// NULL. (Need to expand this poor attempt at uninitialized variables).
+//		if (lit)
+//			return lit;
+//		else if (sccp->lattice[dyc<VARIABLE_NAME>(in)] == TOP)
+//			return new NIL();
+//		else
+//			return NULL;
 	}
 
 };

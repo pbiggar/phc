@@ -41,7 +41,10 @@ public:
 	SSA_edge_list* get_var_uses (MIR::VARIABLE_NAME* def);
 
 	// For the variable USE, return its defs.
-	SSA_edge* get_var_defs (MIR::VARIABLE_NAME* use);
+	SSA_edge* get_var_def (MIR::VARIABLE_NAME* use);
+
+	// Is USE initialized.
+	bool has_def (MIR::VARIABLE_NAME* use);
 
 	void dump ();
 
@@ -53,6 +56,7 @@ private:
 	// Add that the variable DEF is used in USE
 	void add_use (MIR::Rvalue* def, SSA_edge* use);
 
+	void visit_entry_block (Entry_block* bb);
 	void visit_branch_block (Branch_block* bb);
 
 	void visit_phi_node (Basic_block* bb, MIR::VARIABLE_NAME* phi_lhs);
