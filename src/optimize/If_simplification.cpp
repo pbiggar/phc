@@ -17,21 +17,19 @@ If_simplification::visit_branch_block (Branch_block* bb)
 	 */
 
 	Branch* branch = bb->branch;
-	Wildcard<Unary_op>* op = new Wildcard<Unary_op>;
-
-	bb->cfg->duw->dump ();
+	Wildcard<Unary_op>* uop = new Wildcard<Unary_op>;
 
 	// SCCP would have fixed it otherwise
 	assert (bb->cfg->duw->has_def (branch->variable_name));
 
-	SSA_edge* def = bb->cfg->duw->get_var_def (branch->variable_name);
 
-	if (def->which == SSA_edge::STATEMENT
-		&& def->get_statement_block ()->statement->match (
-			new Assign_var (new Wildcard<VARIABLE_NAME>, false, op))
-		&& *op->value->op->value == "!")
+
+	SSA_stmt* def = bb->cfg->duw->get_def_stmt (branch->variable_name);
+	if (def && def->get_statement()->match (
+				new Assign_var (new Wildcard<VARIABLE_NAME>, false, uop))
+			&& *uop->value->op->value == "!")
 	{
-		branch->variable_name = op->value->variable_name->clone ();
+		branch->variable_name = uop->value->variable_name->clone ();
 		bb->switch_successors ();
 	}
 }

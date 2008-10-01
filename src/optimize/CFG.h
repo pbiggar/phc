@@ -21,6 +21,7 @@ class Branch_block;
 class Entry_block;
 class Exit_block;
 class Empty_block;
+class Statement_block;
 typedef List<Basic_block*> BB_list;
 
 class Edge;

@@ -6,6 +6,11 @@
 
 using namespace MIR;
 
+DCE::DCE ()
+: marks (&ssa_op_ptr_comparison)
+{
+}
+
 bool is_pure (Expr* in)
 {
 	Wildcard<METHOD_NAME>* name = new Wildcard<METHOD_NAME>;
@@ -53,7 +58,8 @@ bool is_critical (Statement* in)
  * Cooper/Torczon, Sec. 10.3.1 and Figure 10.3
  *		http://www.cs.rice.edu/~keith/512/Lectures/10DeadCprop.pdf
  *
- *	Has a mark-sweep-style DCE algorithm:
+ *	Has a mark-sweep-style DCE algorithm: (based on Cytron et al SSA paper,
+ *	section 7.1)
  *
  *	Dead ():
  *		MarkPass ()
@@ -64,15 +70,17 @@ bool is_critical (Statement* in)
  *
  *		Worklist = []
  *
+ *		// works on statements only: Phis cant be critical
  *		foreach statement S
  *			clear s.mark
  *			if s is critical
  *				set s.mark
  *				worklist []= s
  *
+ *		// Works on phis and statements, but _separately_.
  *		while !worklist.empty ()
- *			s = worklist.pop_front ()
- *			foreach u in s.uses ()
+ *			i = worklist.pop_front ()
+ *			foreach u in i.uses ()
  *				d = u.def ()
  *				if (!d.mark)
  *					set d.mark
@@ -87,21 +95,16 @@ bool is_critical (Statement* in)
 void
 DCE::mark_pass ()
 {
-	BB_list* worklist = new BB_list;
-
-	// Initialize the critical blocks - a critical block is a side-effecting one
+	// Initialize the critical blocks - a critical block is a side-effecting
+	// statement
 	foreach (Basic_block* bb, *cfg->get_all_bbs ())
 	{
-		if (isa<Entry_block> (bb) || isa<Exit_block> (bb))
-			marks[bb] = true;
-
-		else if (Statement_block* sb = dynamic_cast<Statement_block*> (bb))
+		if (Statement_block* sb = dynamic_cast<Statement_block*> (bb))
 		{
 			if (is_critical (sb->statement))
 			{
 				DEBUG ("marking " << bb->get_index() << " as critical");
-				marks[bb] = true;
-				worklist->push_back (bb);
+				mark(SSA_op::for_bb (sb));
 			}
 		}
 		else
@@ -115,64 +118,84 @@ DCE::mark_pass ()
 	// Go through the worklist, propagating the mark from uses to defs
 	while (worklist->size () > 0)
 	{
-		Basic_block* bb = worklist->front ();
+		SSA_op* op = worklist->front ();
 		worklist->pop_front ();
 
-		foreach (VARIABLE_NAME* use, *cfg->duw->get_bb_uses (bb))
+		SSA_stmt* stmt = dyc<SSA_stmt> (op); // TODO
+		Basic_block* bb = stmt->get_bb ();
+
+		foreach (MIR::VARIABLE_NAME* use, *cfg->duw->get_nonphi_uses (bb))
 		{
 			// ignore uninit
 			if (!cfg->duw->has_def (use))
 				continue;
 
-			SSA_edge* def = cfg->duw->get_var_def (use);
-			if (!marks[def->bb])
-			{
-				DEBUG ("marking " << def->bb->get_index() 
-						<< " due to def of " << *use->get_ssa_var_name ());
-				marks[def->bb] = true;
-				worklist->push_back (def->bb);
-			}
+
+			DEBUG ("marking " << bb->get_index() << " due to def of "
+					<< *use->get_ssa_var_name ());
+			mark (cfg->duw->get_var_def (use));
 		}
 
-		// Mark the critical branches (ie, the reverse dominance frontier of the
-		// critical blocks)
+		// Mark the critical branches (ie, the reverse dominance frontier of
+		// the critical blocks)
+		//
+		// The dominance frontier occurs at joins. The reverse-dominance
+		// frontier is at splits, which must be branches.
 		foreach (Basic_block* rdf, *bb->get_reverse_dominance_frontier ())
 		{
 			DEBUG ("marking " << rdf->get_index()
 					<< " as part of " << bb->get_index() << "'s RDF");
-			marks[rdf] = true;
-			worklist->push_back (rdf);
+			mark(SSA_op::for_bb (rdf));
 		}
 	}
 }
 
+void
+DCE::mark (SSA_op* op)
+{
+	marks[op] = true;
+	worklist->push_back (op);
+}
+
+// Check if the block is marked (ignoring the phi nodes)
+bool
+DCE::is_marked (Basic_block* bb)
+{
+	return marks[SSA_op::for_bb (bb)];
+}
+
 /*	SweepPass ():
- *		foreach statement S:
- *			if !s.mark
- *				if isa<Branch> (s)
- *					s = jump to nearest marked post-dominator
+ *		foreach operation i: // i can be a phi or a statement
+ *			if !i.mark
+ *				if isa<Branch> (i)
+ *					i = jump to nearest marked post-dominator
  *				else
- *					delete s
+ *					delete i
  */
 void
 DCE::sweep_pass ()
 {
-	foreach (Basic_block* bb, *cfg->get_all_bbs ())
+	SSA_op* op;
+	bool marked;
+	foreach (tie (op, marked), marks)
 	{
-		if (!marks[bb])
-		{
-			if (isa<Branch_block> (bb))
-			{
-				// find the nearest marked post-dominator
-				Basic_block* postdominator = bb;
-				while (!marks[postdominator])
-					postdominator = postdominator->get_immediate_reverse_dominator ();
+		if (!marked)
+			continue;
 
-				cfg->remove_branch (dyc<Branch_block> (bb), postdominator);
-			}
-			else
-				cfg->remove_bb (bb);
+		if (isa<SSA_stmt> (op))
+			cfg->remove_bb (op->get_bb ());
+		else if (isa<SSA_branch> (op))
+		{
+			// find the nearest marked post-dominator
+			Basic_block* postdominator = op->get_bb ();
+			while (is_marked (postdominator))
+				postdominator = postdominator->get_immediate_reverse_dominator ();
+
+			cfg->remove_branch (dyc<Branch_block> (op->get_bb ()), postdominator);
 		}
+		else
+			// TODO: phi blocks
+			assert (0);
 	}
 }
 
@@ -180,7 +203,9 @@ void
 DCE::run (CFG* cfg)
 {
 	marks.clear ();
+	worklist = new SSA_op_list;
 	this->cfg = cfg;
+
 	mark_pass ();
 	dump ();
 	sweep_pass ();
@@ -192,7 +217,7 @@ DCE::dump()
 	CHECK_DEBUG ();
 	cdebug << "DCE:" << endl;
 	foreach (Basic_block* bb, *cfg->get_all_bbs ())
-		cdebug << bb->get_index() << ": " << marks[bb] << endl;
+		cdebug << bb->get_index() << ": " << is_marked (bb) << endl;
 }
 
 /*

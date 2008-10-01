@@ -61,40 +61,5 @@ public:
 };
 
 // TODO move to SSA.h
-class Statement_block;
-class Branch_block;
-class SSA_edge : public Object
-{
-
-public:
-	// Target is either a PHI or a statement (aka an expr).
-	
-	// This means any BB (for a PHI) or a statement_block, or a branch_block.
-	enum _which {PHI, STATEMENT, BRANCH, FORMAL_PARAMETER} which;
-
-	Basic_block* bb;
-
-	// This is a pointer to the actual variable name for the def/use. The
-	// variable in the def-use web is just a key, and may be a different
-	// instance of the same variable.
-	MIR::VARIABLE_NAME* variable_name;
-	MIR::VARIABLE_NAME* phi_lhs;
-
-public:
-	SSA_edge (MIR::VARIABLE_NAME* phi_lhs, Basic_block* bb);
-	SSA_edge (Statement_block* bb);
-	SSA_edge (Branch_block* bb);
-	SSA_edge (Entry_block* bb);
-	SSA_edge* clone ();
-
-	pair<MIR::VARIABLE_NAME*, Basic_block*> get_phi ();
-	Statement_block* get_statement_block ();
-	Branch_block* get_branch_block ();
-
-	void dump ();
-};
-
-typedef List<SSA_edge*> SSA_edge_list;
-
 
 #endif // PHC_EDGE

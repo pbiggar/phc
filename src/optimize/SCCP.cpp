@@ -136,7 +136,7 @@ SCCP::run (CFG* cfg)
 
 	// 1. Initialize:
 	cfg_wl = new Edge_list(cfg->get_entry_edge ());
-	ssa_wl = new SSA_edge_list;
+	ssa_wl = new SSA_op_list;
 
 	foreach (Edge* e, *cfg->get_all_edges ())
 		e->is_executable = false;
@@ -191,10 +191,10 @@ SCCP::run (CFG* cfg)
 			 *	- If e.target is an expression, and any of e.targets incoming
 			 *	  edges is executable, run visit_expression. Else do nothing.
 			 */
-			SSA_edge* e = ssa_wl->front ();
+			SSA_op* e = ssa_wl->front ();
 			ssa_wl->pop_front ();
 
-			visit_ssa_edge (e);
+			visit_ssa_op (e);
 		}
 	}
 
@@ -270,22 +270,20 @@ SCCP::visit_phi (Basic_block* bb, VARIABLE_NAME* phi_lhs)
  */
 
 void
-SCCP::visit_ssa_edge (SSA_edge* edge)
+SCCP::visit_ssa_op (SSA_op* op)
 {
-	switch (edge->which)
+	if (SSA_phi* phi = dynamic_cast<SSA_phi*> (op))
 	{
-		case SSA_edge::PHI:
-			visit_phi (edge->bb, edge->phi_lhs);
-			break;
+		visit_phi (phi->bb, phi->phi_lhs);
+	}
+	else
+	{
+		assert (!isa<SSA_formal> (op));
 
-		case SSA_edge::BRANCH:
-		case SSA_edge::STATEMENT:
-			if (get_predecessor_executable_count (edge->bb))
-				visit_block (edge->bb);
-			break;
-
-		default:
-			assert (0);
+		// Branches and statements
+		Basic_block* bb = op->get_bb ();
+		if (get_predecessor_executable_count (bb))
+			visit_block (bb);
 	}
 }
 
@@ -293,7 +291,7 @@ SCCP::visit_ssa_edge (SSA_edge* edge)
 void
 SCCP::visit_entry_block (Entry_block* bb)
 {
-	foreach (VARIABLE_NAME* var_name, *cfg->duw->get_bb_defs (bb))
+	foreach (VARIABLE_NAME* var_name, *cfg->duw->get_formal_defs ())
 	{
 		lattice[var_name] = BOTTOM;
 	}
@@ -361,7 +359,7 @@ SCCP::check_changed_definition (Lattice_cell* old_value, VARIABLE_NAME* def)
 {
 	if (lattice[def] != old_value)
 	{
-		foreach (SSA_edge* edge, *cfg->duw->get_var_uses (def))
+		foreach (SSA_op* edge, *cfg->duw->get_var_uses (def))
 		{
 			//	1. add uses of the LHS to the SSA worklist.
 			ssa_wl->push_back (edge);

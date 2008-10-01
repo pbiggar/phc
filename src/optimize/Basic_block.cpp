@@ -469,13 +469,13 @@ Basic_block::get_reverse_dominance_frontier ()
 VARIABLE_NAME_list*
 Basic_block::get_pre_ssa_defs ()
 {
-	return cfg->duw->get_bb_defs (this);
+	return cfg->duw->get_nonphi_defs (this);
 }
 
 VARIABLE_NAME_list*
 Basic_block::get_pre_ssa_uses ()
 {
-	return cfg->duw->get_bb_uses (this);
+	return cfg->duw->get_nonphi_uses (this);
 }
 
 int
@@ -504,18 +504,16 @@ Exit_block::dump()
 void
 Branch_block::dump()
 {
-	DEBUG ("Branch block (" << cfg->index[vertex] << ")");
+	DEBUG ("Branch block (" << get_index() << ")");
 }
 
 void
 Statement_block::dump()
 {
-	CHECK_DEBUG ();
-
-	DEBUG ("Statement block (" << cfg->index[vertex] << ")");
+	DEBUG ("Statement block (" << get_index () << ")");
 }
 void
 Empty_block::dump()
 {
-	DEBUG ("Empty block (" << cfg->index[vertex] << ")");
+	DEBUG ("Empty block (" << get_index () << ")");
 }

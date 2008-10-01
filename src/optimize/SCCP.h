@@ -5,6 +5,7 @@
 #include "CFG_visitor.h"
 #include "Lattice.h"
 #include "Edge.h"
+#include "Def_use.h"
 
 
 class SCCP : public CFG_visitor
@@ -12,7 +13,7 @@ class SCCP : public CFG_visitor
 	friend class SCCP_updater;
 	Lattice_map lattice;
 	Edge_list* cfg_wl;
-	SSA_edge_list* ssa_wl;
+	SSA_op_list* ssa_wl;
 	CFG* cfg;
 
 public:
@@ -27,7 +28,7 @@ public:
 	void meet (MIR::VARIABLE_NAME* var_name, Lattice_cell* lat);
 
 	// High-level SSA properties
-	void visit_ssa_edge (SSA_edge* phi);
+	void visit_ssa_op (SSA_op* phi);
 	void visit_phi (Basic_block* bb, MIR::VARIABLE_NAME* lhs); // not visit_phi_node
 
 	// Blocks
