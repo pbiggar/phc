@@ -101,6 +101,9 @@ public:
 	virtual Basic_block* get_bb () = 0;
 	virtual void dump() = 0;
 
+	// Return the list of variables used by this operation
+	virtual MIR::VARIABLE_NAME_list* get_uses () = 0;
+
 	// Factory method depending on the type of the BB
 	static SSA_op* for_bb (Basic_block* bb);
 };
@@ -114,6 +117,9 @@ public:
 	SSA_phi (Basic_block* bb, MIR::VARIABLE_NAME* phi_lhs);
 	Basic_block* get_bb ();
 	void dump ();
+
+	// The args which are not Literals.
+	MIR::VARIABLE_NAME_list* get_uses ();
 };
 
 class SSA_stmt : public SSA_op
@@ -125,6 +131,9 @@ public:
 	MIR::Statement* get_statement ();
 	Basic_block* get_bb ();
 	void dump ();
+
+	// Any uses in the statement (ignoring the phis in the block, obviously)
+	MIR::VARIABLE_NAME_list* get_uses ();
 };
 
 class SSA_branch : public SSA_op
@@ -135,6 +144,9 @@ public:
 	SSA_branch (Branch_block* bb);
 	Basic_block* get_bb ();
 	void dump ();
+
+	// Just the branch variable
+	MIR::VARIABLE_NAME_list* get_uses ();
 };
 
 class SSA_formal : public SSA_op
@@ -145,6 +157,9 @@ public:
 	SSA_formal (Entry_block*);
 	Basic_block* get_bb ();
 	void dump ();
+
+	// No uses here
+	MIR::VARIABLE_NAME_list* get_uses ();
 };
 
 

@@ -33,6 +33,13 @@ typedef List<SSA_edge*> SSA_edge_list;
 
 class Def_use_web : public Visit_once
 {
+	// TODO: This class would benefit from additional indexing, in particular
+	// by BB.
+	
+	// The indexing variable may not be the correct var, while the vars in the
+	// SSA_edge_list will be the correct vars. The indexing variable is just
+	// for indexing, and it can index multiple vars, so we cant say anythng
+	// abour it.
 	map<
 		MIR::VARIABLE_NAME*,
 		SSA_edge_list, 
@@ -48,9 +55,25 @@ class Def_use_web : public Visit_once
 public:
 	Def_use_web ();
 
+	// Return whether USE has a defining statement (vs being uninitialized).
+	bool has_def (MIR::VARIABLE_NAME* use);
+
 	// Return the SSA_stmt defining USE, or NULL if it is not defined in a
-	// statement (but instead in a phi or a formal).
+	// statement (but instead in a phi or a formal). Fail if it is not defined
+	// anywhere.
 	SSA_stmt* get_def_stmt (MIR::VARIABLE_NAME* use);
+
+	// Get the operations in which USE is defined.
+	SSA_op* get_var_def (MIR::VARIABLE_NAME* use);
+
+	// Get the operations in which DEF is used.
+	SSA_op_list* get_var_uses (MIR::VARIABLE_NAME* def);
+
+	// Get basic_blocks in which USE is defined (a variable can be defined
+	// multiple times if we arent in SSA form. Check that only non-SSA
+	// assignments are returned.
+	BB_list* get_pre_ssa_var_defs (MIR::VARIABLE_NAME* use);
+
 
 	// Get all variables defined/used in the basic block, except for those
 	// from phi nodes.
@@ -60,24 +83,7 @@ public:
 	// Return the variables defined by formal parameters in the entry_block
 	MIR::VARIABLE_NAME_list* get_formal_defs ();
 
-	// Return if USE has a defining statement (vs being uninitialized).
-	bool has_def (MIR::VARIABLE_NAME* use);
-
-	// Get all defs/uses in the basic_block. (Originally, this was designed
-	// for converting into SSA form, but it has been repurposed, so it might
-	// still have legacy bugs).
-	// TODO: do we want the SSA_edges, or the VARS used by the BB, or the vars
-	// used by the phi/BB, etc? Make these much more specific.
-//	MIR::VARIABLE_NAME_list* get_bb_defs (Basic_block* bb);
-//	MIR::VARIABLE_NAME_list* get_bb_uses (Basic_block* bb);
-
-	// Get the operations in which DEF is used.
-	SSA_op_list* get_var_uses (MIR::VARIABLE_NAME* def);
-
-	// Get the operations in which USE is defined.
-	SSA_op* get_var_def (MIR::VARIABLE_NAME* use);
-
-
+	
 	void dump ();
 
 private:

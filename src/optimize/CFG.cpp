@@ -857,8 +857,11 @@ CFG::remove_branch (Branch_block* branch, Basic_block* new_successor)
 	// ummmmm, what then?
 	assert (new_successor->get_phi_lhss ()->size () == 0);
 
-	remove_edge (branch->get_true_successor_edge ());
-	remove_edge (branch->get_false_successor_edge ());
+	Edge* true_edge = branch->get_true_successor_edge ();
+	Edge* false_edge = branch->get_false_successor_edge ();
+
+	remove_edge (true_edge);
+	remove_edge (false_edge);
 	add_edge (branch, new_successor);
 
 	replace_bb_with_empty (branch);

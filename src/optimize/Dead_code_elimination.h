@@ -26,7 +26,12 @@ private:
 	map<SSA_op*, bool, bool (*)(SSA_op*, SSA_op*)> marks;
 
 	bool is_marked (Basic_block*);
+
+	// Mark this operation as not-dead
 	void mark (SSA_op*);
+
+	// Mark the definition of USE
+	void mark_def (MIR::VARIABLE_NAME* use);
 	
 	void mark_pass ();
 	void sweep_pass ();

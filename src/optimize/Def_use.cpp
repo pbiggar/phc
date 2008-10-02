@@ -16,15 +16,70 @@ using namespace std;
  */
 
 
+SSA_edge::SSA_edge (VARIABLE_NAME* var, SSA_op* op)
+: variable_name (var)
+, op (op)
+{
+}
+
+void
+SSA_edge::dump ()
+{
+	// TODO: mention if its a use or a def?
+	DEBUG ("Edge from " << *variable_name->get_ssa_var_name () << ": ");
+	op->dump ();
+}
+
+
 Def_use_web::Def_use_web ()
 : def_use_chains (&variable_name_ptr_comparison)
 , use_def_chains (&variable_name_ptr_comparison)
 {
 }
 
-#if 0
+
+SSA_stmt*
+Def_use_web::get_def_stmt (VARIABLE_NAME* use)
+{
+	assert (has_def (use));
+	SSA_op* op = get_var_def (use);
+
+	if (isa<SSA_stmt> (op))
+		return dyc<SSA_stmt> (op);
+	else 
+		return NULL;
+}
+
+SSA_op*
+Def_use_web::get_var_def (VARIABLE_NAME* use)
+{
+	assert (has_def (use));
+	return use_def_chains[use].front ()->op;
+}
+
+SSA_op_list*
+Def_use_web::get_var_uses (VARIABLE_NAME* def)
+{
+	// Its possible to have defs without uses.
+	if (def_use_chains.find (def) == def_use_chains.end ())
+		return new SSA_op_list ();
+
+	SSA_op_list* result = new SSA_op_list;
+	foreach (SSA_edge* edge, def_use_chains[def])
+	{
+		result->push_back (edge->op);
+	}
+	return result;
+}
+
+bool
+Def_use_web::has_def (VARIABLE_NAME* use)
+{
+	return use_def_chains[use].size () == 1;
+}
+
 VARIABLE_NAME_list*
-Def_use_web::get_bb_defs (Basic_block* bb)
+Def_use_web::get_nonphi_defs (Basic_block* bb)
 {
 	VARIABLE_NAME_list* result = new VARIABLE_NAME_list;
 
@@ -35,19 +90,19 @@ Def_use_web::get_bb_defs (Basic_block* bb)
 	{
 		foreach (SSA_edge* edge, edge_list)
 		{
-			assert (0);
-/*			if (edge->bb == bb)
+			if (!isa<SSA_phi> (edge->op)
+					&& edge->op->get_bb () == bb)
 			{
 				// Dont insert the key itself, it may be the wrong var_name.
 				result->push_back (edge->variable_name);
 			}
-*/		}
+		}
 	}
 	return result;
 }
 
 VARIABLE_NAME_list*
-Def_use_web::get_bb_uses (Basic_block* bb)
+Def_use_web::get_nonphi_uses (Basic_block* bb)
 {
 	VARIABLE_NAME_list* result = new VARIABLE_NAME_list;
 
@@ -58,63 +113,40 @@ Def_use_web::get_bb_uses (Basic_block* bb)
 	{
 		foreach (SSA_edge* edge, edge_list)
 		{
-			assert (0);
-/*			if (edge->bb == bb)
+			if (!isa<SSA_phi> (edge->op)
+					&& edge->op->get_bb () == bb)
 			{
 				// Dont insert the key itself, it may be the wrong var_name.
 				result->push_back (edge->variable_name);
 			}
-*/		}
+		}
 	}
-
 	return result;
 }
 
-SSA_edge_list*
-Def_use_web::get_bb_use_edges (Basic_block* bb)
+VARIABLE_NAME_list*
+Def_use_web::get_formal_defs ()
 {
-	SSA_edge_list* result = new SSA_edge_list;
+	VARIABLE_NAME_list* result = new VARIABLE_NAME_list;
 
 	// Go through the def-use result, finding those who's BB == BB
 	VARIABLE_NAME* key;
 	SSA_edge_list edge_list;
 	foreach (tie (key, edge_list), def_use_chains)
+	{
 		foreach (SSA_edge* edge, edge_list)
-			if (edge->bb == bb)
-				result->push_back (edge);
-
+		{
+			if (isa<SSA_formal> (edge->op))
+			{
+				// Dont insert the key itself, it may be the wrong var_name.
+				result->push_back (edge->variable_name);
+			}
+		}
+	}
 	return result;
 }
 
-SSA_edge_list*
-Def_use_web::get_var_uses (MIR::VARIABLE_NAME* def)
-{
-	// Its possible to have defs without uses.
-	if (def_use_chains.find (def) == def_use_chains.end ())
-		return new SSA_edge_list ();
 
-	return &def_use_chains[def];
-}
-
-bool
-Def_use_web::has_def (VARIABLE_NAME* use)
-{
-	return use_def_chains[use].size () == 1;
-}
-
-SSA_edge*
-Def_use_web::get_var_def (MIR::VARIABLE_NAME* use)
-{
-	// every use must have exactly 1 def (in SSA form). (Uninitialized
-	// variables can be identified using Def_use_web::has_def (use);
-	assert (use_def_chains[use].size() == 1);
-
-	// every ssa_edge must have a VARIABLE_NAME
-	assert (use_def_chains[use].front()->variable_name);
-	return use_def_chains[use].front ();
-}
-
-#endif
 
 void
 Def_use_web::add_use (MIR::Rvalue* def, SSA_op* use)
@@ -433,5 +465,4 @@ Def_use_web::dump ()
 	}
 
 }
-
 

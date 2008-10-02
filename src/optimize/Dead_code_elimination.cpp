@@ -77,7 +77,7 @@ bool is_critical (Statement* in)
  *				set s.mark
  *				worklist []= s
  *
- *		// Works on phis and statements, but _separately_.
+ *		// Works on phis and statements.
  *		while !worklist.empty ()
  *			i = worklist.pop_front ()
  *			foreach u in i.uses ()
@@ -115,36 +115,29 @@ DCE::mark_pass ()
 
 	dump ();
 
+
+
 	// Go through the worklist, propagating the mark from uses to defs
 	while (worklist->size () > 0)
 	{
 		SSA_op* op = worklist->front ();
 		worklist->pop_front ();
 
-		SSA_stmt* stmt = dyc<SSA_stmt> (op); // TODO
-		Basic_block* bb = stmt->get_bb ();
-
-		foreach (MIR::VARIABLE_NAME* use, *cfg->duw->get_nonphi_uses (bb))
+		foreach (VARIABLE_NAME* use, *op->get_uses ())
 		{
-			// ignore uninit
-			if (!cfg->duw->has_def (use))
-				continue;
-
-
-			DEBUG ("marking " << bb->get_index() << " due to def of "
-					<< *use->get_ssa_var_name ());
-			mark (cfg->duw->get_var_def (use));
+			mark_def (use);
 		}
 
 		// Mark the critical branches (ie, the reverse dominance frontier of
-		// the critical blocks)
-		//
-		// The dominance frontier occurs at joins. The reverse-dominance
-		// frontier is at splits, which must be branches.
-		foreach (Basic_block* rdf, *bb->get_reverse_dominance_frontier ())
+		// the critical blocks: The dominance frontier occurs at joins. The
+		// reverse-dominance frontier is therefore at splits, which must be
+		// branches). They are marked as they are required for control flow to
+		// reach this point. They are just as important for phis as they are for
+		// other statements, and we mark the branch, not the phi.
+		foreach (Basic_block* rdf, *op->get_bb ()->get_reverse_dominance_frontier ())
 		{
 			DEBUG ("marking " << rdf->get_index()
-					<< " as part of " << bb->get_index() << "'s RDF");
+					<< " as part of " << op->get_bb()->get_index() << "'s RDF");
 			mark(SSA_op::for_bb (rdf));
 		}
 	}
@@ -153,14 +146,34 @@ DCE::mark_pass ()
 void
 DCE::mark (SSA_op* op)
 {
-	marks[op] = true;
-	worklist->push_back (op);
+	if (!marks[op])
+	{
+		marks[op] = true;
+		worklist->push_back (op);
+	}
+}
+
+void
+DCE::mark_def (VARIABLE_NAME* use)
+{
+	// ignore uninit
+	if (!cfg->duw->has_def (use))
+		return;
+
+	SSA_op* def = cfg->duw->get_var_def (use);
+	DEBUG ("marking ")
+		def->dump ();
+	DEBUG (" due to def of " << *use->get_ssa_var_name ());
+	mark (def);
 }
 
 // Check if the block is marked (ignoring the phi nodes)
 bool
 DCE::is_marked (Basic_block* bb)
 {
+	if (isa<Entry_block> (bb) || isa<Exit_block> (bb) || isa<Empty_block> (bb))
+		return true;
+
 	return marks[SSA_op::for_bb (bb)];
 }
 
@@ -193,9 +206,15 @@ DCE::sweep_pass ()
 
 			cfg->remove_branch (dyc<Branch_block> (op->get_bb ()), postdominator);
 		}
+		else if (isa<SSA_formal> (op))
+		{
+			// TODO: mark it as unused
+		}
 		else
-			// TODO: phi blocks
-			assert (0);
+		{
+			SSA_phi* phi = dyc<SSA_phi> (op);
+			phi->bb->remove_phi_node (phi->phi_lhs);
+		}
 	}
 }
 
