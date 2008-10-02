@@ -107,15 +107,9 @@ DCE::mark_pass ()
 				mark(SSA_op::for_bb (sb));
 			}
 		}
-		else
-		{
-			// Branches and phis are handled below.
-		}
 	}
 
 	dump ();
-
-
 
 	// Go through the worklist, propagating the mark from uses to defs
 	while (worklist->size () > 0)
@@ -188,32 +182,25 @@ DCE::is_marked (Basic_block* bb)
 void
 DCE::sweep_pass ()
 {
-	SSA_op* op;
-	bool marked;
-	foreach (tie (op, marked), marks)
+	foreach (Basic_block* bb, *cfg->get_all_bbs ())
 	{
-		if (!marked)
-			continue;
+		if (isa<Statement_block> (bb) && !marks[SSA_op::for_bb (bb)])
+			cfg->remove_bb (bb);
 
-		if (isa<SSA_stmt> (op))
-			cfg->remove_bb (op->get_bb ());
-		else if (isa<SSA_branch> (op))
+		else if (isa<Branch_block> (bb) && !marks[SSA_op::for_bb (bb)])
 		{
 			// find the nearest marked post-dominator
-			Basic_block* postdominator = op->get_bb ();
+			Basic_block* postdominator = bb;
 			while (is_marked (postdominator))
 				postdominator = postdominator->get_immediate_reverse_dominator ();
 
-			cfg->remove_branch (dyc<Branch_block> (op->get_bb ()), postdominator);
+			cfg->remove_branch (dyc<Branch_block> (bb), postdominator);
 		}
-		else if (isa<SSA_formal> (op))
+
+		foreach (VARIABLE_NAME* phi_lhs, *bb->get_phi_lhss ())
 		{
-			// TODO: mark it as unused
-		}
-		else
-		{
-			SSA_phi* phi = dyc<SSA_phi> (op);
-			phi->bb->remove_phi_node (phi->phi_lhs);
+			if (!marks[new SSA_phi (bb, phi_lhs)])
+				bb->remove_phi_node (phi_lhs);
 		}
 	}
 }

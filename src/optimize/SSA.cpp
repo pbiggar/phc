@@ -420,9 +420,6 @@ void SSA_phi::dump()
 
 bool ssa_op_ptr_comparison (SSA_op* op1, SSA_op* op2)
 {
-	const bool LT = true;
-	const bool GE = false;
-
 	// order on types first
 	if (typeid (*op1) != typeid (*op2))
 		return typeid (*op1).name () < typeid (*op2).name ();

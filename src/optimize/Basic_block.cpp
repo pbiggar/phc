@@ -137,14 +137,20 @@ Basic_block::get_graphviz_head_properties ()
 		list<String*> list;
 		foreach (Edge* edge, *get_predecessor_edges ())
 		{
-			Rvalue* arg = get_phi_arg_for_edge (edge, phi_lhs);
+			Rvalue* arg = edge->pm[phi_lhs]; // avoid assertion.
 
 			stringstream ss;
 			ss << "(" << cfg->index[edge->get_source()->vertex] << "): ";
-			if (isa<VARIABLE_NAME> (arg))
-				ss << *dyc<VARIABLE_NAME> (arg)->get_ssa_var_name ();
+			if (arg)
+			{
+				if (isa<VARIABLE_NAME> (arg))
+					ss << *dyc<VARIABLE_NAME> (arg)->get_ssa_var_name ();
+				else
+					ss << *dyc<Literal> (arg)->get_value_as_string ();
+			}
 			else
-				ss << *dyc<Literal> (arg)->get_value_as_string ();
+				ss << "XXX"; // missing value.
+			
 
 			list.push_back (s (ss.str()));
 		}
