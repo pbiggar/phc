@@ -1,7 +1,8 @@
 <?php
-  // Indexing an array with a string-that-is-an-integer should be an
-  // integer indexing operation, *not* a string operation
-  // In other words, this program should not output anything:
+  // Variable names should *always* be strings
+  // Hence, this will *set* index "5" (even though the code says 5) 
+  // but *read* index 5 (even though the code says "5") 
+  // The output of the program is therefore blank.
   $x = 5;
   $$x = "a";
   echo $GLOBALS["5"];

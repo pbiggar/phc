@@ -1253,8 +1253,9 @@ class Pattern_assign_var_to_var_var : public Pattern
 		<< read_rvalue (scope, "var_var", var_var)
 		<< zvp << " = get_var_var (" 
 		<<					get_scope (scope) << ", "
-		<<					"var_var "
-		<<					" TSRMLS_CC);\n"
+		<<					"var_var, "
+    <<          "1 "
+		<<					"TSRMLS_CC);\n"
 		;
 		return ss.str();
 	}
