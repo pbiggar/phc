@@ -27,17 +27,12 @@
  * phc is responsible for calling these functions
  */
 
-static zval* empty_string;
-
 void init_runtime()
 {
-  MAKE_STD_ZVAL(empty_string);
-  ZVAL_STRING(empty_string, "", 1);
 }
 
 void finalize_runtime()
 {
-  zval_ptr_dtor(&empty_string);
 }
 
 /* Make a copy of *P_ZVP, storing it in *P_ZVP. */
@@ -641,9 +636,6 @@ read_var (HashTable * st, char *name, int length, ulong hashval TSRMLS_DC)
 zval **
 read_var_var (HashTable * st, zval * var_var TSRMLS_DC)
 {
-  if (var_var == EG (uninitialized_zval_ptr))
-     var_var = empty_string; 
-
   zval **p_result;
   if (ht_find (st, var_var, &p_result) != SUCCESS)
     {
@@ -659,9 +651,6 @@ read_var_var (HashTable * st, zval * var_var TSRMLS_DC)
 zval **
 get_var_var (HashTable * st, zval * var_var TSRMLS_DC)
 {
-  if (var_var == EG (uninitialized_zval_ptr))
-    var_var = empty_string;
-
   zval **p_result;
   if (ht_find (st, var_var, &p_result) != SUCCESS)
     {
