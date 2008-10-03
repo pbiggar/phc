@@ -2447,7 +2447,7 @@ void include_file (ostream& out, String* filename)
 	ifstream file;
 
 	stringstream ss1, ss2;
-	ss1 << "libphc/" << *filename;
+	ss1 << "runtime/" << *filename;
 	ss2 << DATADIR << "/phc/" << *filename;
 
 	// Check the current directory first. This means we can change the file without recompiling or installing.
