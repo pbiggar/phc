@@ -1241,7 +1241,12 @@ class Pattern_assign_var_to_var_var : public Pattern
 		}
 		else
 		{
-			phc_unsupported(new Assign_var_var(lhs->value, stmt->is_ref, rhs->value), "reference assignment to variable variable");
+			code
+			<< declare ("p_lhs") 
+			<< get_var_var (LOCAL, "p_lhs", lhs->value)
+			<< get_st_entry (LOCAL, "p_rhs", rhs->value)
+			<< "copy_into_ref (p_lhs, p_rhs);\n"
+			;
 		}
 	}
 
