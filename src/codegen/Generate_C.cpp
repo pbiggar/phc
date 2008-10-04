@@ -286,6 +286,27 @@ string read_var (Scope scope, string zvp, VARIABLE_NAME* var_name)
 }
 
 /*
+ * Find the variable in target_scope whose name is given by var_var in var_scope
+ * and store the result in zvp
+ */
+string get_var_var (Scope target_scope, string zvp, Scope var_scope, VARIABLE_NAME* var_var)
+{
+	stringstream ss;
+	ss
+	<< "// Read variable variable\n"
+  << "{\n"
+	<< read_rvalue (var_scope, "var_var", var_var)
+	<< zvp << " = get_var_var (" 
+	<<					get_scope (target_scope) << ", "
+	<<					"var_var, "
+  <<          "1 "
+	<<					"TSRMLS_CC);\n"
+  << "}\n"
+	;
+	return ss.str();
+}
+
+/*
  * Map of the Zend functions that implement the operators
  *
  * The map also contains entries for ++ and --, which are identical to the
@@ -1215,6 +1236,7 @@ public:
 /*
  * $$x = $y
  */
+
 class Pattern_assign_var_to_var_var : public Pattern
 {
 	bool match(Statement* that)
@@ -1231,7 +1253,7 @@ class Pattern_assign_var_to_var_var : public Pattern
 		{
 			code
 			<< declare ("p_lhs") 
-			<< get_var_var (LOCAL, "p_lhs", lhs->value)
+			<< get_var_var (LOCAL, "p_lhs", LOCAL, lhs->value)
 			<< declare ("p_rhs")
 			<< read_var (LOCAL, "p_rhs", rhs->value)
 			<< "if (*p_lhs != *p_rhs)\n"
@@ -1243,26 +1265,11 @@ class Pattern_assign_var_to_var_var : public Pattern
 		{
 			code
 			<< declare ("p_lhs") 
-			<< get_var_var (LOCAL, "p_lhs", lhs->value)
+			<< get_var_var (LOCAL, "p_lhs", LOCAL, lhs->value)
 			<< get_st_entry (LOCAL, "p_rhs", rhs->value)
 			<< "copy_into_ref (p_lhs, p_rhs);\n"
 			;
 		}
-	}
-
-	string get_var_var (Scope scope, string zvp, VARIABLE_NAME* var_var)
-	{
-		stringstream ss;
-		ss
-		<< "// Read variable variable\n"
-		<< read_rvalue (scope, "var_var", var_var)
-		<< zvp << " = get_var_var (" 
-		<<					get_scope (scope) << ", "
-		<<					"var_var, "
-    <<          "1 "
-		<<					"TSRMLS_CC);\n"
-		;
-		return ss.str();
 	}
 
 	Assign_var_var* stmt;
@@ -1271,7 +1278,7 @@ class Pattern_assign_var_to_var_var : public Pattern
 	Wildcard<VARIABLE_NAME>* lhs;
 	Wildcard<VARIABLE_NAME>* rhs;
 };
-
+	
 /*
  * global $a or global $$a
  */
@@ -1280,15 +1287,15 @@ class Pattern_global : public Pattern
 public:
 	bool match(Statement* that)
 	{
-		rhs = new Wildcard<Variable_name>;
-		return(that->match(new Global(rhs)));
+		var_name = new Wildcard<Variable_name>;
+		return(that->match(new Global(var_name)));
 	}
 
 	void generate_code(Generate_C* gen)
 	{
 		code
-		<<	index_lhs (LOCAL, "p_local_global_var", rhs->value) // lhs
-		<<	index_lhs (GLOBAL, "p_global_var", rhs->value) // rhs
+		<<	index_lhs (LOCAL, "p_local_global_var", var_name->value) // lhs
+		<<	index_lhs (GLOBAL, "p_global_var", var_name->value) // rhs
 		// Note that p_global_var can be in the copy-on-write set.
 		<< "copy_into_ref (p_local_global_var, p_global_var);\n"
 		;
@@ -1312,16 +1319,19 @@ public:
 			var_var = dynamic_cast<Variable_variable*> (expr);
 			assert(var_var != NULL);
 
-			phc_unsupported (expr, "global variable variable");
-		}
+		  ss
+      << "// Variable global\n"
+      << declare (zvp)
+      // The variable variable is always in the local scope
+      << get_var_var (scope, zvp, LOCAL, var_var->variable_name)
+      ;
+    }
 
-	return ss.str();
-}
-
-
+  	return ss.str();
+  }
 
 protected:
-	Wildcard<Variable_name>* rhs;
+	Wildcard<Variable_name>* var_name;
 };
 
 class Pattern_assign_constant : public Pattern_assign_var
