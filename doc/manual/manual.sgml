@@ -16,7 +16,6 @@
 <!ENTITY userintro SYSTEM "userintro.sgml">
 <!ENTITY install SYSTEM "install.sgml">
 <!ENTITY runningphc SYSTEM "runningphc.sgml">
-<!ENTITY porting SYSTEM "porting.sgml">
 <!-- Developers' manual -->
 <!ENTITY devintro SYSTEM "devintro.sgml">
 <!ENTITY gettingstarted SYSTEM "gettingstarted.sgml">
@@ -29,6 +28,7 @@
 <!ENTITY grammar SYSTEM "grammar.sgml">
 <!ENTITY representingphp SYSTEM "representingphp.sgml">
 <!ENTITY limitations SYSTEM "limitations.sgml">
+<!ENTITY porting SYSTEM "porting.sgml">
 <!ENTITY generatedcode SYSTEM "generatedcode.sgml">
 <!ENTITY maketeatheory SYSTEM "maketeatheory.sgml">
 <!-- Couple of macro definitions -->
@@ -41,11 +41,14 @@
 	&userintro
 	&install
 	&runningphc
-	&porting
 </book>
 <book id="devmanual">
 	<title>The &phc Developer's Manual</title>
 	&devintro
+	<part id="guide">
+		<title id=guide.title>Development guide</title>
+		&porting
+	</part>
 	<part id="treetutorials">
 		<title id="treetutorials.title">Tree Traversal API Tutorials</title>
 		&gettingstarted
