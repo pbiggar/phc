@@ -26,18 +26,20 @@ option "execute" e "Run executable after compiling (implies -c)" flag off
 section "PRETTY PRINTING OPTIONS"
 option "next-line-curlies" - "Output the opening curly on the next line instead of on the same line" flag off
 option "no-leading-tab" - "Don't start every line in between <?php .. ?> with a tab" flag off
+option "tab" - "String to use for tabs while unparsing" string default="\t" no
+option "no-hash-bang" - "Do not output any #! lines" flag off
+
+section "DOT PRINTING OPTIONS"
 option "no-line-numbers" - "Don't show line numbers when dumping DOT/XML" flag off hidden 
 option "no-nulls" - "Don't show NULLs when dumping DOT" flag off hidden
 option "no-empty-lists" - "Don't show empty lists when dumping DOT" flag off hidden
-option "tab" - "String to use for tabs while unparsing" string default="\t" no
-option "no-hash-bang" - "Do not output any #! lines" flag off 
 
 section "DEBUGGING PHC"
 option "debug" - "Print debugging information for the pass named 'passname" string typestr="passname" multiple hidden optional
 option "dump" - "Dump input as PHP (although potentially with gotos and labels) after the pass named 'passname'" string typestr="passname" multiple hidden optional
-option "udump" - "Dump input as runnable PHP after the pass named 'passname'" string typestr="passname" multiple hidden optional
-option "ddump" - "Dump input as DOT after the pass named 'passname'" string typestr="passname" multiple hidden optional
-option "xdump" - "Dump input as XML after the pass named 'passname'" string typestr="passname" multiple hidden optional
+option "dump-uppered" - "Dump input as runnable PHP after the pass named 'passname'" string typestr="passname" multiple hidden optional
+option "dump-dot" - "Dump input as DOT after the pass named 'passname'" string typestr="passname" multiple hidden optional
+option "dump-xml" - "Dump input as XML after the pass named 'passname'" string typestr="passname" multiple hidden optional
 option "list-passes" - "List the passes to be run" flag off hidden
 option "dont-fail" - "Dont fail on error (after parsing)" flag off hidden
 option "no-xml-attrs" - "When dumping XML, omit node attributes" flag off hidden

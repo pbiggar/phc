@@ -78,10 +78,10 @@ $tests[] = new CompareBackwards ("sua",			"dump",	"cb_ast");
 $tests[] = new CompareBackwards ("AST-to-HIR",	"dump",	"cb_sua");
 $tests[] = new CompareBackwards ("hir",			"dump",	"cb_AST-to-HIR");
 // if it needs to be uppered, check it doesnt segfault while dumping normally
-$tests[] = new CompareBackwards ("mir",			"udump",	"cb_hir");
+$tests[] = new CompareBackwards ("mir",			"dump-uppered",	"cb_hir");
 $tests[] = new Pass_dump (			"HIR-to-MIR",	"dump",	"cb_hir");
 $tests[] = new Pass_dump (			"mir",			"dump",	"cb_mir");
-$tests[] = new CompareWithPHP ("InterpretOptimized", "-O0 --udump=generate-c", "cb_mir");
+$tests[] = new CompareWithPHP ("InterpretOptimized", "-O0 --dump-uppered=generate-c", "cb_mir");
 $tests[] = new CompareWithPHP ("InterpretCanonicalUnparsed", "--run plugins/tests/canonical_unparser.la", "BasicParseTest"); // not necessarily dependent of InterpretUnparsed
 $tests[] = new CompareWithPHP ("InterpretStrippedIncludes", "--include --dump=sua --run plugins/tests/strip_includes.la", "cb_sua");
 $tests[] = new CompareWithPHP ("InterpretObfuscated", "--obfuscate", "cb_mir");
@@ -100,9 +100,9 @@ require_once ("xml_roundtrip.php"); // dont use plugin_test here
 require_once ("compile_plugin_test.php");
 require_once ("line_numbers.php");
 require_once ("parse_ast_dot.php");
-$tests[] = new RegressionTest ("regression_dump_ast", "--ddump=ast", "dot");
+$tests[] = new RegressionTest ("regression_dump_ast", "--dump-dot=ast", "dot");
 $tests[] = new RegressionTest ("regression_dump_php", "--pretty-print --tab=\"   \"", "unparsed");
-$tests[] = new RegressionTest ("regression_dump_xml", "--xdump=ast --xdump=hir --xdump=mir", "unparsed");
+$tests[] = new RegressionTest ("regression_dump_xml", "--dump-xml=ast --dump-xml=hir --dump-xml=mir", "unparsed");
 
 
 

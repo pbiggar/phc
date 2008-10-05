@@ -80,14 +80,14 @@ foreach ($opts as $opt)  // these need to wait until opt_phc_prefix is set
 {
 	switch ($opt[0])
 	{
-		case 'r': $opt_command .= "--run=$opt_phc_prefix/plugins/tools/debug_zval.la --xdump=$opt_phc_prefix/plugins/tools/debug_zval.la"; break;
-		case 'd': $opt_command .= "--run=$opt_phc_prefix/plugins/tools/demi_eval.la --r-option=true --xdump=$opt_phc_prefix/plugins/tools/demi_eval.la"; break;
-		case 'D': $opt_command .= "--run=$opt_phc_prefix/plugins/tools/demi_eval.la --r-option=false --xdump=$opt_phc_prefix/plugins/tools/demi_eval.la"; break;
+		case 'r': $opt_command .= "--run=$opt_phc_prefix/plugins/tools/debug_zval.la --dump-xml=$opt_phc_prefix/plugins/tools/debug_zval.la"; break;
+		case 'd': $opt_command .= "--run=$opt_phc_prefix/plugins/tools/demi_eval.la --r-option=true --dump-xml=$opt_phc_prefix/plugins/tools/demi_eval.la"; break;
+		case 'D': $opt_command .= "--run=$opt_phc_prefix/plugins/tools/demi_eval.la --r-option=false --dump-xml=$opt_phc_prefix/plugins/tools/demi_eval.la"; break;
 	}
 }
 
 if ($opt_command === "") 
-	$opt_command = "--xdump=$opt_pass --no-xml-attrs";
+	$opt_command = "--dump-xml=$opt_pass --no-xml-attrs";
 
 if ($opt_help || count ($arguments) == 0)
 {
@@ -104,14 +104,14 @@ Options:
     -p     Mnemoic: pass. Perform the reduction at the specified pass.
     -P     Since src/phc is broken, another version can be specified to do the
            conversion steps, with this prefix.
-    -c     Pass as arguments to the first phc. Be sure to include an --xdump
+    -c     Pass as arguments to the first phc. Be sure to include an --dump-xml
            command, or nothing will happen.
     -r     Mnemonic: refcount. The equivalent of "-c--run
-           plugins/tools/debug_zval.la -xdump=plugins/tools/debug_zval.la".
+           plugins/tools/debug_zval.la -dump-xml=plugins/tools/debug_zval.la".
     -d     The equivalent of "-c--run=plugins/tools/demi_eval.la
-           -xdump=plugins/tools/demi_eval.la --r-option=true".
+           -dump-xml=plugins/tools/demi_eval.la --r-option=true".
     -D     The equivalent of "-c--run=plugins/tools/demi_eval.la
-           -xdump=plugins/tools/demi_eval.la --r-option=false".
+           -dump-xml=plugins/tools/demi_eval.la --r-option=false".
     -f     Use the passed XML file as the the first program, instead of calling
            phc.
     -i     Mnemonic: Interpret. Instead of compiling the script, dump it at the
@@ -120,12 +120,12 @@ Options:
     -u     Used with -i, 'upper's before dumping (not related to -U)
     -F     Mnemonic: Failure. Used for plugins which print "Failure" to
            indicate error. Run phc with the plugin to determine failure.
-    -X     No XML attrs (pass --no-xml-attrs with --xdumps)
+    -X     No XML attrs (pass --no-xml-attrs with --dump-xmls)
     -Z     Require script to return zero when run through interpreter
 
 Sample commands:
     reduce -v test/subjects/codegen/0001.php
-    reduce "-c--run=plugins/tools/debug_zval.la -xdump=plugins/tools/debug_zval.la" test/subjects/codegen/0001.php
+    reduce "-c--run=plugins/tools/debug_zval.la -dump-xml=plugins/tools/debug_zval.la" test/subjects/codegen/0001.php
     reduce -v 0001.uhir.php
     reduce -F plugins/tests/limit_assignments.la test/subjects/codegen/bench_simple.php
 
@@ -201,7 +201,7 @@ function add_comment ($xprogram)
 	global $opt_phc_prefix, $opt_pass;
 	debug (2, "Adding comment");
 	global $command_line;
-	$out = run_safe ("$opt_phc_prefix/src/phc --read-xml=$opt_pass --run=$opt_phc_prefix/plugins/tools/add_comment.la --r-option=\"Reduced with command line '$command_line'\" --xdump=$opt_phc_prefix/plugins/tools/add_comment.la", $xprogram);
+	$out = run_safe ("$opt_phc_prefix/src/phc --read-xml=$opt_pass --run=$opt_phc_prefix/plugins/tools/add_comment.la --r-option=\"Reduced with command line '$command_line'\" --dump-xml=$opt_phc_prefix/plugins/tools/add_comment.la", $xprogram);
 	return $out;
 }
 
@@ -210,7 +210,7 @@ function reduce ($xprogram_string, $start, $num)
 	global $opt_phc_prefix, $opt_pass;
 	debug (2, "Reducing");
 	$out = run_safe ("$opt_phc_prefix/src/phc --read-xml=$opt_pass --run=$opt_phc_prefix/plugins/tools/reduce_statements.la"
-							 ." --r-option=$start:$num --xdump=$opt_phc_prefix/plugins/tools/reduce_statements.la",
+							 ." --r-option=$start:$num --dump-xml=$opt_phc_prefix/plugins/tools/reduce_statements.la",
 							 $xprogram_string);
 	return $out;
 }

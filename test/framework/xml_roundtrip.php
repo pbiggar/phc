@@ -92,7 +92,7 @@ class XML_roundtrip extends AsyncTest
 		// We can't read AST-to-HIR output with --read=hir
 		if ($pass == "AST-to-HIR") $pass = "hir";
 		if ($pass == "HIR-to-MIR") $pass = "mir";
-		$command .= " --xdump=$pass";
+		$command .= " --dump-xml=$pass";
 
 		return $command;
 	}

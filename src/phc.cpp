@@ -184,9 +184,9 @@ int main(int argc, char** argv)
 			phc_error ("Pass %s, specified with flag --" #FLAG ", is not valid", args_info.FLAG##_arg [i]);	\
 	}
 	check_passes (dump);
-	check_passes (udump);
-	check_passes (xdump);
-	check_passes (ddump);
+	check_passes (dump_uppered);
+	check_passes (dump_xml);
+	check_passes (dump_dot);
 	check_passes (debug);
 	check_passes (disable);
 

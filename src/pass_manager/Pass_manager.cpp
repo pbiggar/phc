@@ -319,9 +319,9 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 		}
 	}
 
-	for (unsigned int i = 0; i < args_info->udump_given; i++)
+	for (unsigned int i = 0; i < args_info->dump_uppered_given; i++)
 	{
-		if (*name == args_info->udump_arg [i])
+		if (*name == args_info->dump_uppered_arg [i])
 		{
 			if (in->is_MIR ())
 				MIR_unparser().unparse_uppered (in->as_MIR ());
@@ -345,18 +345,18 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 		}
 	}
 
-	for (unsigned int i = 0; i < args_info->ddump_given; i++)
+	for (unsigned int i = 0; i < args_info->dump_dot_given; i++)
 	{
-		if (*name == args_info->ddump_arg [i])
+		if (*name == args_info->dump_dot_arg [i])
 		{
 			// TODO: Works on AST only
 			in->visit(new DOT_unparser());
 		}
 	}
 
-	for (unsigned int i = 0; i < args_info->xdump_given; i++)
+	for (unsigned int i = 0; i < args_info->dump_xml_given; i++)
 	{
-		if (*name == args_info->xdump_arg [i])
+		if (*name == args_info->dump_xml_arg [i])
 		{
 			xml_unparse (in, cout, !args_info->no_xml_attrs_flag);
 		}

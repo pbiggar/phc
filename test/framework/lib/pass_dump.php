@@ -14,7 +14,7 @@ class Pass_dump extends AsyncTest
 	{
 		$this->pass = $pass;
 
-		// this might be udump
+		// this might be dump-uppered
 		$this->dump = $dump;
 
 		$this->dependencies = array ($dependency);
