@@ -2037,7 +2037,7 @@ class Pattern_isset : public Pattern_assign_zval
 				if (var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
 				{
 					string name = get_non_st_name (var_name);
-					code << "ZVAL_BOOL(" << lhs << ", " << name << " != NULL);\n"; 
+					code << "ZVAL_BOOL(" << lhs << ", " << name << " != NULL && !ZVAL_IS_NULL(" << name << "));\n"; 
 				}
 				else
 				{
@@ -2055,7 +2055,7 @@ class Pattern_isset : public Pattern_assign_zval
 				assert(isset->value->array_indices->size() == 1);
 				Rvalue* index = isset->value->array_indices->front();
 
-				code
+        code
 				<< get_st_entry (LOCAL, "u_array", var_name)
 				<< read_rvalue (LOCAL, "u_index", index)
 				<< "ZVAL_BOOL(" << lhs << ", "
@@ -2063,6 +2063,7 @@ class Pattern_isset : public Pattern_assign_zval
 				<<    "u_array, "
 				<<    "u_index "
 				<<		" TSRMLS_CC));\n";
+        ;
 			}
 		}
 		else
