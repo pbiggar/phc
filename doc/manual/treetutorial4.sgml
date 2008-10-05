@@ -4,20 +4,24 @@
 <section>
 <title></title>
 
-<para> This tutorial explains an advanced feature of pattern matching, and
-shows an important technique in writing tree transforms: the use of state.
-Suppose we are continuing the refactoring tool that we began in <xref
-linkend="treetutorial2">, and suppose that we have replaced all calls to
-database specific functions by calls to the generic DBX functions. To finish
-the refactoring, we want to rename any function <code>foo</code> in the script
-to <code>foo_DB</code>, if it makes use of the database &mdash; this clearly
-sets functions that use the database apart, which may make the structure of the
-script clearer.  </para>
+<para>
+	This tutorial explains an advanced feature of pattern matching, and shows an
+	important technique in writing tree transforms: the use of state.  Suppose
+	we are continuing the refactoring tool that we began in <xref
+	linkend="treetutorial2">, and suppose that we have replaced all calls to
+	database specific functions by calls to the generic DBX functions. To finish
+	the refactoring, we want to rename any function <code>foo</code> in the
+	script to <code>foo_DB</code>, if it makes use of the database &mdash; this
+	clearly sets functions that use the database apart, which may make the
+	structure of the script clearer.  
+</para>
 
-<para> So, we want to write a transform that renames all functions
-<code>foo</code> to <code>foo_DB</code>, if there is one or more call within
-that function to any <code>dbx_</code><emphasis>something</emphasis> function.
-Here is a simple example: </para>
+<para>
+	So, we want to write a transform that renames all functions <code>foo</code>
+	to <code>foo_DB</code>, if there is one or more call within that function to
+	any <code>dbx_</code><emphasis>something</emphasis> function.  Here is a
+	simple example: 
+</para>
 
 <programlisting>
 &lt;?<reserved>php</reserved>
@@ -34,7 +38,9 @@ Here is a simple example: </para>
 ?&gt;
 </programlisting>
 	
-<para> After the transform, we should get </para>
+<para>
+	After the transform, we should get 
+</para>
 	
 <programlisting>
 &lt;?<reserved>php</reserved>
@@ -56,25 +62,29 @@ Here is a simple example: </para>
 
 <title>The Implementation</title>
 
-<para> Since we have to modify method (function) names, the nodes we are
-interested in are the nodes of type <code>Method</code>. However, how do we
-know when to modify a particular method? Should we search the method body for
-function calls to <code>dbx_</code><emphasis>xxx</emphasis>? As we saw in <xref
-linkend="treetutorial1">, manual searching through the tree is cumbersome;
-there must be a better solution. </para> 
+<para>
+	Since we have to modify method (function) names, the nodes we are interested
+	in are the nodes of type <code>Method</code>. However, how do we know when
+	to modify a particular method? Should we search the method body for function
+	calls to <code>dbx_</code><emphasis>xxx</emphasis>? As we saw in <xref
+	linkend="treetutorial1">, manual searching through the tree is cumbersome;
+	there must be a better solution. 
+</para> 
 
-<para> The solution is in fact very easy. At the start of each method, we set a
-variable <code>uses_dbx</code> to <code>false</code>. When we process the
-method, we set <code>uses_dbx</code> to <code>true</code> when we find a
-function call to a DBX function.  Then at the end of the method, we check
-<code>uses_dbx</code>; if it was set to <code>true</code>, we modify the name
-of the method.  This tactic is implement by the following transform (available
-as <filename>plugins/tutorials/InsertDB.la</filename> in the &phc;
-distribution). Note the use of <code>pre_method</code> and
-<code>post_method</code> to initialise and check <code>use_dbx</code>,
-respectively. (Because we don't need to modify the structure of the tree in
-this transform, we use the simpler <code>Tree_visitor</code> API instead of the
-<code>Tree_transform</code> API.) </para>
+<para>
+	The solution is in fact very easy. At the start of each method, we set a
+	variable <code>uses_dbx</code> to <code>false</code>. When we process the
+	method, we set <code>uses_dbx</code> to <code>true</code> when we find a
+	function call to a DBX function.  Then at the end of the method, we check
+	<code>uses_dbx</code>; if it was set to <code>true</code>, we modify the
+	name of the method.  This tactic is implement by the following transform
+	(available as <filename>plugins/tutorials/InsertDB.la</filename> in the
+	&phc; distribution). Note the use of <code>pre_method</code> and
+	<code>post_method</code> to initialise and check <code>use_dbx</code>,
+	respectively. (Because we don't need to modify the structure of the tree in
+	this transform, we use the simpler <code>AST_visitor</code> API instead of
+	the <code>AST_transform</code> API.) 
+</para>
 
 <programlisting>
 <reserved>class</reserved> InsertDB : <reserved>public</reserved> Visitor
@@ -108,39 +118,47 @@ this transform, we use the simpler <code>Tree_visitor</code> API instead of the
 };
 </programlisting>
 
-<para> In <xref linkend="treetutorial2">, we simply wanted to check for a
-particular function name, and we used <code>match</code> to do this: </para>
+<para>
+	In <xref linkend="treetutorial2">, we simply wanted to check for a
+	particular function name, and we used <code>match</code> to do this: 
+</para>
      
 <programlisting>
 <reserved>if</reserved>(in-&gt;match(<reserved>new</reserved> METHOD_NAME("mysql_connect")))
 </programlisting>
 
-<para>Here, we need to check for method names that start with
-<code>dbx_</code>. We use the STL method <code>find</code> to do this, but we
-cannot call this directly on <code>in-&gt;method_name</code> because
-<code>in-&gt;method_name</code> has type <code>Method_name</code> (could
-either be a <code>METHOD_NAME</code> or a <code>Reflection</code>
-node).  However, calling <code>match</code> on a pattern has the side effect of
-setting the <code>value</code> to point to the node that was matched by the
-wildcard. So, if the match succeeds, we know that the name of the method must
-have been a <code>METHOD_NAME</code>, and we can access this name by
-accessing <code>pattern-&gt;value</code>
-(<code>pattern-&gt;value-&gt;value</code> is the value field of the
-<code>METHOD_NAME</code> itself, i.e., the actual string that stores the
-name of the method.) </para>
+<para>
+	Here, we need to check for method names that start with <code>dbx_</code>.
+	We use the STL method <code>find</code> to do this, but we cannot call this
+	directly on <code>in-&gt;method_name</code> because
+	<code>in-&gt;method_name</code> has type <code>Method_name</code> (could
+	either be a <code>METHOD_NAME</code> or a <code>Reflection</code> node).
+	However, calling <code>match</code> on a pattern has the side effect of
+	setting the <code>value</code> to point to the node that was matched by the
+	wildcard. So, if the match succeeds, we know that the name of the method
+	must have been a <code>METHOD_NAME</code>, and we can access this name by
+	accessing <code>pattern-&gt;value</code>
+	(<code>pattern-&gt;value-&gt;value</code> is the value field of the
+	<code>METHOD_NAME</code> itself, i.e., the actual string that stores the
+	name of the method.) 
+</para>
 
-<para> (Of course, this transform is not complete; renaming methods is not
-enough, we must also rename the corresponding method invocations. This is left
-as an exercise for the reader.) </para> 
+<para>
+	(Of course, this transform is not complete; renaming methods is not enough,
+	we must also rename the corresponding method invocations. This is left as an
+	exercise for the reader.) 
+</para> 
 
 </section>
 <section>
 
 <title> What's Next? </title>
 
-<para> <xref linkend="treetutorial5"> explains how to change the order in which
-the children of a node are visited, avoid visiting some children, or how to
-execute a piece of code in between visiting two children.</para>
+<para>
+	<xref linkend="treetutorial5"> explains how to change the order in which the
+	children of a node are visited, avoid visiting some children, or how to
+	execute a piece of code in between visiting two children.
+</para>
 
 </section>
 
