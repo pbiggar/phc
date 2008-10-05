@@ -4,129 +4,13 @@
 <section>
 <title></title>
 
-<para>Most PHP constructs can immediately be represented in terms of the &phc
-grammar (<xref linkend="grammar">). There are a few constructs that present
-some difficulties. This document describes how these difficulties are resolved,
-and it explains some of the more difficult rules in the grammar.</para>
-
-</section>
-<section id="tlgs">
-
-<title>Top Level Grammar Structure</title>
-
-<para><emphasis>The</emphasis> major difference between our abstract grammar
-for PHP and the &ldquo;official&rdquo; grammar (distributed in source code
-format with the <ulink url="http://www.php.net">PHP distribution</ulink>) is
-the top-level structure. Stripped-down, the top-level of the PHP grammar looks
-something like </para>
-
-<programlisting>
-php_script ::= statement*
-
-statement ::= class_def | method | if | while | <emphasis>... other statements ...</emphasis>
-
-method ::= statement*
-
-class_def ::= member* 
-member ::= method | attribute
-</programlisting>
-		
-<para>Compare this to the top-level grammar structure that we have
-adopted:</para>
-
-<programlisting>
-php_script ::= class_def+
-
-class_def ::= member*
-member ::= method | attribute
-
-method ::= statement*
-
-statement ::= if | while | <emphasis>... other statements ...</emphasis>
-</programlisting>
-	
-<para> (This shows essentials only; see <xref linkend="grammar"
-endterm="grammar.title"> for the details). </para>
-
-<para> This mismatch has two consequences. The first is that PHP allows scripts
-have methods that do not belong to any class, and statements that do not belong
-to any method. &phc introduces a special class called <code>%MAIN%</code> for
-this purpose. All functions defined outside the scope of any class get added as
-a static method to <code>%MAIN%</code>, and all statements defined outside the
-scope of any method get added to a special method <code>%run%</code> (in
-<code>%MAIN%</code>). Thus, the following simple PHP script</para>
-	
-<programlisting>
-&lt;?<reserved>php</reserved>
-   <reserved>function</reserved> hello()
-   {
-      <reserved>echo</reserved> "Hello world!";
-   }
-
-   hello();
-?&gt;
-</programlisting>
-
-<para>gets represented as</para>
-
-<programlisting>
-&lt;?<reserved>php</reserved>
-   <reserved>class</reserved> %MAIN%
-   {
-      <reserved>static function</reserved> hello()
-      {
-         <reserved>%STDLIB%::echo</reserved>("Hello world!");
-      }
-   
-      <reserved>static function</reserved> %run%()
-      {
-         %MAIN%::hello();
-      }
-   }
-?&gt;
-</programlisting>
-	
-<para> The second consequence is that PHP allows scripts to have function
-definitions <emphasis>inside</emphasis> other function definitions (or inside
-<code>if</code>-statements, <code>while</code>-loops, etc.). This is not
-correctly supported by &phc; see <xref linkend="limitations"
-endterm="limitations.title">. </para>
-
-</section>
-<section>
-
-<title> Method <code>target</code>s </title>
-
-<para> Recall the grammar rules for method invocations: </para>	
-
-<programlisting>
-method_invocation ::= target method_name actual_parameter* ;
-method_name ::= METHOD_NAME | reflection ;
-</programlisting>
-
-<para> As explained above, &phc thinks of a PHP script as consisting of a set
-of classes. That means that a function call must either be invoked on an
-object, or it must be a static method in some class.  The grammar rule for
-<code>target</code> is </para>
-
-<programlisting>
-target ::= expr | CLASS_NAME ;
-</programlisting>
-
-<para> So, a <code>target</code> is either an expression (for example, in
-<code>$x-&gt;foo()</code>), or a class name (in <code>CLASS::foo()</code>).
+<para>
+	Most PHP constructs can immediately be represented in terms of the &phc
+	grammar (<xref linkend="grammar">). There are a few constructs that present
+	some difficulties. This document describes how these difficulties are
+	resolved, and it explains some of the more difficult rules in the
+	grammar.
 </para>
-
-<para> When the user does not explicitly specify a target (for example, the
-call to <code>hello()</code> in the example above), &phc will automatically
-insert a target. If the method that gets invoked is defined in
-<code>%MAIN%</code> (i.e., the user provided an implementation), the target
-will be set to <code>%MAIN%</code> (for example, the call to
-<code>hello()</code>).  Otherwise, the target is set to <code>%STDLIB%</code>
-(for example, the call to <code>echo</code>). Like <code>%MAIN%</code>,
-<code>%STDLIB%</code> is a special class that collects all methods defined in
-the PHP standard library.  (Incidentally, if PHP6 implements namespaces,
-namespaces will probably be represented similarly.) </para> 
 
 </section>
 <section>
@@ -147,50 +31,49 @@ element of the first rule in detail. </para>
 <variablelist>
 
 <varlistentry>
-	<term><code>target?</code></term>
-	<listitem><para>Just like function calls, variables can have a target, and
-	just as for function calls, this target can be an expression (for an
-	object, e.g., <code>$x-&gt;y</code>) or a class name (for a static class
-	attribute, e.g. <code>FOO::$y</code>). Unlike function calls however, in
-	variables the target is optional (indicated by the question mark). If no
-	target is specified, the variable refers to a <emphasis>local</emphasis>
-	variable in a method (see <xref linkend="global"> for information on how we
-	deal with the <code>global</code> statement).</para> </listitem>
+	<term><code>Target?</code></term>
+	<listitem><para>
+		Just like function calls, variables can have a target, and just as for
+		function calls, this target can be an expression (for an object, e.g.,
+		<code>$x-&gt;y</code>) or a class name (for a static class attribute,
+		e.g. <code>FOO::$y</code>). As in function calls, in variables the target
+		is optional (indicated by the question mark). If no target is specified,
+		the variable refers to a <emphasis>local</emphasis> variable in a method.
+	</para></listitem>
 </varlistentry>
 
 <varlistentry>
-	<term><code>variable_name</code></term>
-	<listitem><para>Again, as for function calls, the name of the variable may
-	be a literal <code>VARIABLE_NAME</code> (<code>$x</code>), or be given by
-	an expression (which is wrapped up in an <code>Reflection</code> node).
-	The latter possibility is referred to as &ldquo;variable variables&rdquo;
-	in the PHP manual.  For example, <code>$$x</code> is the variable whose
-	name is currently stored in (another) variable called
-	<code>$x</code>.</para></listitem>
+	<term><code>Variable_name</code></term>
+	<listitem><para>
+		Again, as for function calls, the name of the variable may be a literal
+		<code>VARIABLE_NAME</code> (<code>$x</code>), or be given by an
+		expression (which is wrapped up in an <code>Reflection</code> node).  The
+		latter possibility is referred to as &ldquo;variable-variables&rdquo; in
+		the PHP manual.  For example, <code>$$x</code> is the variable whose name
+		is currently stored in (another) variable called
+		<code>$x</code>.
+	</para></listitem>
 </varlistentry>
 
 <varlistentry>
-	<term><code>array_indices:(expr?)*</code></term>
-	<listitem><para>A variable may have one or more array indices, for example
-	<code>$x[3][5]</code>. The strange construct <code>(expr?)*</code> means: a
-	list of (<code>*</code>) optional (<code>?</code>) expressions. For
-	example, <code>$x[4][]</code> is a list of two expressions, but the second
-	expression is not given. In PHP, this means &ldquo;use the next available
-	index&rdquo;.</para></listitem>
+	<term><code>array_indices:(Expr?)*</code></term>
+	<listitem><para>
+		A variable may have one or more array indices, for example
+		<code>$x[3][5]</code>. The strange construct <code>(Expr?)*</code> means:
+		a list of (<code>*</code>) optional (<code>?</code>) expressions. For
+		example, <code>$x[4][]</code> is a list of two expressions, but the
+		second expression is not given. In PHP, this means &ldquo;use the next
+		available index&rdquo;. String- and array-indexing (<code>$x{3}</code>)
+		are equivalent in PHP, so string-indexing is also represented by
+		<code>array_indices</code>.
+	</para></listitem>
 </varlistentry>
-
-<varlistentry>
-	<term><code>string_index:expr?</code></term>
-	<listitem><para>Finally, a variable may contain one string index
-	(<code>$x{5}</code>) that accesses an individual character from a
-	string.</para></listitem>
-</varlistentry>
-
 </variablelist>
 
 <para>We illustrate the various possibilities using diagrams.</para> 
 
 <variablelist>
+<!-- TODO: these images need to be regenerated -->
 
 <varlistentry>
 	<term>The simple case: <code>$x</code></term>
@@ -204,19 +87,6 @@ element of the first rule in detail. </para>
 	</informalfigure>
 	<para>The name of the variable is <code>x</code>, not
 	<code>$x</code>.</para>
-	</listitem>
-</varlistentry>
-
-<varlistentry>
-	<term>Using a string index: <code>$x{3}</code></term>
-	<listitem>
-	<informalfigure>
-	<mediaobject>
-	<imageobject>
-	<imagedata fileref="img/string_index.jpg">
-	</imageobject>
-	</mediaobject>
-	</informalfigure>
 	</listitem>
 </varlistentry>
 
@@ -302,25 +172,31 @@ element of the first rule in detail. </para>
 
 <title>Comments</title>
 
-<para> A number of nodes in the AST are dedicated &ldquo;commented
-nodes&rdquo;. Their corresponding C++ classes inherit from
-<code>Commented_node</code>, which introduces a
-<code>List&lt;String*&gt;*</code> attribute called <code>comments</code>.  The
-commented nodes are class members (<code>Member</code>), statements
-(<code>Statement</code>), interface and class definitions
-(<code>Interface_def</code>, <code>Class_def</code>), switch cases
-(<code>Switch_case</code>) and catches (<code>Catch</code>).  </para>
+<para>
+	A number of nodes in the AST are dedicated &ldquo;commented nodes&rdquo;.
+	Their corresponding C++ classes inherit from <code>Commented_node</code>,
+	which introduces a <code>String_list*</code> attribute called
+	<code>comments</code>.  The commented nodes are class members
+	(<code>Member</code>), statements (<code>Statement</code>), interface and
+	class definitions (<code>Interface_def</code>, <code>Class_def</code>),
+	switch cases (<code>Switch_case</code>) and catches (<code>Catch</code>).
+</para>
 
-<para> When the parser encounters a comment in the input, it attaches it either
-to the previous node in the AST, or to the next, according to a variable
-<code>attach_to_previous</code>. This variable is set as follows: </para>
+<para>
+	When the parser encounters a comment in the input, it attaches it either to
+	the previous node in the AST, or to the next, according to a variable
+	<code>attach_to_previous</code>. This variable is set as follows: 
+</para>
 
 <itemizedlist>
-<listitem> <para>It is reset to <code>false</code> at the start of each
-line</para></listitem>
-<listitem> <para>It is set to <code>true</code> after seeing a semicolon, or
-either of the keywords <code>class</code> or
-<code>function</code></para></listitem>
+	<listitem><para>
+		It is reset to <code>false</code> at the start of each
+		line
+	</para></listitem>
+	<listitem><para>
+		It is set to <code>true</code> after seeing a semicolon, or either of the
+		keywords <code>class</code> or <code>function</code>
+	</para></listitem>
 </itemizedlist>
 
 <para> Thus, in </para>
@@ -389,74 +265,14 @@ like</para>
 "Total cost is: " . $total . " (includes shipping of " . $shipping . ")"
 </programlisting>
 			
-<para> which is represented in the &phc abstract syntax tree by a number of
-strings and expressions concatenated together. Thus, as a programmer you don't
-need to do anything special to process variables inside strings. Any code you
-write for processing variables will also appropriately handle variables inside
-strings.  </para>
-
-<para> Currently, the unparser will <emphasis>not</emphasis> output strings of
-the first form, but will always output them in the second form (using
-concatenation). Future releases of &phc may remedy this (alternatively,
-dedicated more advanced pretty-printing tools for PHP could be built on top of
-&phc; see <ulink url="http://www.phpcompiler.org/spinoffs">Spinoffs</ulink>).
+<para>
+	which is represented in the &phc abstract syntax tree by a number of strings
+	and expressions concatenated together. Thus, as a programmer you don't need
+	to do anything special to process variables inside strings. Any code you
+	write for processing variables will also appropriately handle variables
+	inside strings. (Note that as of version 0.2.0, interpolated strings are
+	correctly unparsed by &phc;.)
 </para>
-
-</section>
-<section id="global">
-
-<title>Global Variables</title>
-
-<para> Global variable declarations are not explicitly recorded in the &phc
-AST. Instead the local variable declared global is assigned a reference to the
-appropriate global variable, which will be a static class attribute of %MAIN%
-(see <xref linkend="tlgs">, above).  </para>
-
-<para> For example, the following code </para>
-
-<programlisting>
-&lt;?<reserved>php</reserved>
-   $x = 100;
-
-   <reserved>function</reserved> foobar()
-   {
-      <reserved>global</reserved> $x;
-      $x = 200;
-   }
-   
-   foobar();
-?&gt;
-</programlisting>
-
-<para>is represented internally as</para> 
-
-<programlisting>
-&lt;?php
-   <reserved>class</reserved> %MAIN%
-   {
-      <reserved>static</reserved> $x = 100;
-      
-      <reserved>static</reserved> <reserved>function</reserved> foobar()
-      {
-         $x =&amp; %MAIN%::$x;
-         $x = 200;
-      }
-   
-      <reserved>static</reserved> <reserved>function</reserved> %run%()
-      {
-         %MAIN%::foobar();
-      }
-   }
-?&gt;
-</programlisting>
-
-<para>Obviously, the &phc unparser will output code using global
-declarations.</para>
-
-<para>Note that local variables in <code>%run%</code> are really global
-variables; for that reason, any &ldquo;local&rdquo; variable in
-<code>%run%</code> get assigned a target of <code>%MAIN%</code> (if no target
-was specified in the program). </para>
 
 </section>
 <section>
@@ -503,30 +319,24 @@ nesting. This transformation is &ldquo;hidden&rdquo; by the unparser.</para>
 
 <itemizedlist>
 
-<listitem><para>If <code>echo</code> has multiple (comma separated) arguments,
-they get translated into multiple function calls (<code>echo a,
-b;</code> becomes <code>echo a; echo b;</code>). Fragments of inline
-HTML also become arguments to a function call to <code>echo</code>.</para></listitem>
+	<listitem><para>
+		Fragments of inline HTML become arguments to a function call to
+		<code>echo</code>.
+	</para></listitem>
 
-<listitem><para>The keywords <code>use</code>, <code>require</code>,
-<code>require_once</code>, <code>include</code>,
-<code>include_once</code>, <code>isset</code> and <code>empty</code>
-all get translated into a function call to a function with the same
-name as the keyword</para></listitem>
+	<listitem><para>
+		The keywords <code>use</code>, <code>require</code>,
+		<code>require_once</code>, <code>include</code>,
+		<code>include_once</code>, <code>isset</code> and <code>empty</code> all
+		get translated into a function call to a function with the same name as
+		the keyword.
+	</para></listitem>
 
-<listitem><para><code>exit</code> also becomes a call to the function
-<code>exit</code>; <code>exit;</code> and <code>exit();</code> are
-interpreted as <code>exit(0)</code></para></listitem>
-
-<listitem><para>Class attribute declarations can only declare a single attribute
-per declaration in the abstract syntax; thus, <code>var x, y;</code>
-becomes <code>var x; var y;</code>. A similar comment applies to
-<code>static_var</code></para></listitem>
-
-<listitem><para>We do not support the <code>+=</code> style of operators; <code>a
-+= 2;</code> gets translated into <code>a = a + 2;</code>. It should
-be possible to reverse this translation in the unparser, but this is
-not currently implemented.</para></listitem>
+	<listitem><para>
+		<code>exit</code> also becomes a call to the function <code>exit</code>;
+		<code>exit;</code> and <code>exit();</code> are interpreted as
+		<code>exit(0)</code>
+	</para></listitem>
 
 </itemizedlist>
 
@@ -535,21 +345,28 @@ not currently implemented.</para></listitem>
 
 <title>Comparison to the PHP grammar</title>
 
-<para> Finally, the &phc grammar is much simpler than the official grammar, and
-as a consequence more general. The class of programs that are valid according
-to the abstract grammar is larger than the class of programs actually accepted
-by the PHP parser. In other words, it is possible to represent a program in the
-abstract syntax that does not have a valid PHP equivalent. The advantage of our
-grammar is that is much, <emphasis>much</emphasis> easier to work with. </para>
+<para>
+	Finally, the &phc grammar is much simpler than the official grammar, and as
+	a consequence more general. The class of programs that are valid according
+	to the abstract grammar is larger than the class of programs actually
+	accepted by the PHP parser. In other words, it is possible to represent a
+	program in the abstract syntax that does not have a valid PHP equivalent.
+	The advantage of our grammar is that is much, <emphasis>much</emphasis>
+	easier to work with. 
+</para>
 
-<para> To compare, consider the tree for </para>
+<para>
+	To compare, consider the tree for 
+</para>
 
 <programlisting>
 $g->greet("TACS");
 </programlisting>
 
-<para> Using the &phc abstract syntax, this looks like the tree shown in figure
-<xref linkend="abstracttree">. </para>
+<para>
+	Using the &phc abstract syntax, this looks like the tree shown in figure
+	<xref linkend="abstracttree">. 
+</para>
 	
 <figure id="abstracttree">
 <title>Function call in the AST</title>
@@ -560,8 +377,10 @@ $g->greet("TACS");
 </mediaobject>
 </figure>
 
-<para> However, in the official PHP grammar, the tree would look like the tree
-shown in figure <xref linkend="concretetree">. </para>
+<para>
+	However, in the official PHP grammar, the tree would look like the tree
+	shown in figure <xref linkend="concretetree">. 
+</para>
 
 <figure id="concretetree">
 <title>Function call as represented by PHP</title>
@@ -572,15 +391,17 @@ shown in figure <xref linkend="concretetree">. </para>
 </mediaobject>
 </figure>
 
-<para> Not only is the number of concepts used in the tree much larger
-(<code>base_variable_with_function_calls</code>,
-<code>reference_variable</code>, <code>variable_property</code>, etc. etc.),
-the concepts used in the &phc tree map directly to constructs in the PHP
-language; that does not hold true for the PHP tree. Moreover, the fact that
-this expression is a method invocation (function call) is immediately obvious
-from the root of the expression in the &phc tree; the root of the PHP tree says
-that the expression is a variable, and only deeper down the tree does it become
-apparent that the expression is in fact a function call. </para>
+<para>
+	Not only is the number of concepts used in the tree much larger
+	(<code>base_variable_with_function_calls</code>,
+	<code>reference_variable</code>, <code>variable_property</code>, etc. etc.),
+	the concepts used in the &phc tree map directly to constructs in the PHP
+	language; that does not hold true for the PHP tree. Moreover, the fact that
+	this expression is a method invocation (function call) is immediately
+	obvious from the root of the expression in the &phc tree; the root of the
+	PHP tree says that the expression is a variable, and only deeper down the
+	tree does it become apparent that the expression is in fact a function call.
+</para>
 
 </section>
 </chapter>

@@ -29,7 +29,7 @@
 <!ENTITY representingphp SYSTEM "representingphp.sgml">
 <!ENTITY limitations SYSTEM "limitations.sgml">
 <!ENTITY porting SYSTEM "porting.sgml">
-<!ENTITY generatedcode SYSTEM "generatedcode.sgml">
+<!ENTITY apioverview SYSTEM "apioverview.sgml">
 <!ENTITY maketeatheory SYSTEM "maketeatheory.sgml">
 <!-- Couple of macro definitions -->
 <!ENTITY phc "<reserved>phc</reserved>">
@@ -60,7 +60,7 @@
 		&grammar
 		&representingphp
 		&limitations
-		&generatedcode
+		&apioverview
 		&maketeatheory
 	</part>
 	<part id="guide">
@@ -68,5 +68,17 @@
 		<title id=guide.title>Development guide</title>
 		&porting
 	</part>
+
+	<!-- TODO: things which should be discussed:
+		developing phc:
+			- Other IRs
+			- testing
+			- project page
+			- prominent link to contribute
+		folds
+		describe compilation and generate-c
+		None,Node
+	-->
+
 </book>
 </set>

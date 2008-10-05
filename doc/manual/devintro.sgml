@@ -257,7 +257,7 @@ agree with the PHP standard view.  <xref linkend="representingphp"
 endterm="representingphp.title"> describes how the various PHP constructs get
 translated into the abstract syntax.</para>
 
-<para><xref linkend="generatedcode" endterm="generatedcode.title"> gives an
+<para><xref linkend="apioverview" endterm="apioverview.title"> gives an
 overview of the AST classes, the tree visitor API and the tree transformation
 API from a programmer's perspective.</para>
 
