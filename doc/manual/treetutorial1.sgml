@@ -149,7 +149,7 @@ Eval_expr ::= Expr ;
 
    <emphasis>// But there can also be statements nested inside any</emphasis>
    <emphasis>// of the statements in "in". We consider each one in turn.</emphasis>
-   AST_statement_list::const_iterator i;
+   Statement_list::const_iterator i;
    <reserved>for</reserved>(i = in->begin(); i != in->end(); i++)
    {
       <emphasis>// Check if the statement is an if-statement</emphasis>
@@ -282,7 +282,7 @@ Eval_expr ::= Expr ;
 }
 </programlisting>
 
-<para> We override a number of methods of the <code>AST_visitor</code> class to
+<para> We override a number of methods of the <code>Visitor</code> class to
 implement the functionality we need; the traversal is then taken care of by
 &phc;. </para>
 

@@ -48,10 +48,10 @@ In the AST, <code>include</code>s are represented as method
 invocations. Thus, we might start like this: </para>
 
 <programlisting>
-<reserved>class</reserved> Expand_includes : <reserved>public</reserved> AST_transform
+<reserved>class</reserved> Expand_includes : <reserved>public</reserved> Transform
 {
 <reserved>public</reserved>:
-   AST_expr* pre_method_invocation(AST_method_invocation* in)
+   Expr* pre_method_invocation(Method_invocation* in)
    {
       <emphasis>// Process includes</emphasis>
    }
@@ -59,7 +59,7 @@ invocations. Thus, we might start like this: </para>
 </programlisting>
 
 <para> However, this will not get us very far. The return type of
-<code>pre_method_invocation</code> is an <code>AST_expr</code>.
+<code>pre_method_invocation</code> is an <code>Expr</code>.
 That means that we can replace the method invocation (the
 <code>include</code> statement) only by another, single,
 expression. But we want to replace it by the contents of the
@@ -67,7 +67,7 @@ specified file! </para>
 
 <para> Recall from <xref linkend="treetutorial1"> that to
 turn an expression into a statement, &phc 
-inserts an <code>AST_eval_expr</code> in the abstract syntax tree.
+inserts an <code>Eval_expr</code> in the abstract syntax tree.
 Thus, if we want to process <code>include</code> statements, we
 could also look at all <code>eval_expr</code> nodes. Assuming for
 the moment we can make that work, does it get us any further? As a
@@ -76,7 +76,7 @@ matter of fact, it does! If you check
 signature for <code>pre_eval_expr</code> is </para>
 
 <programlisting>
-<reserved>void</reserved> pre_eval_expr(AST_eval_expr* in, List&lt;AST_statement*&gt;* out)
+<reserved>void</reserved> pre_eval_expr(Eval_expr* in, List&lt;Statement*&gt;* out)
 </programlisting>
 
 <para> This is different from the signatures we have seen so far. For
@@ -96,15 +96,15 @@ the tree (try it!). </para>
 <programlisting>
 <reserved>#include</reserved> "AST_transform.h"
 
-<reserved>class</reserved> Expand_includes : <reserved>public</reserved> AST_transform
+<reserved>class</reserved> Expand_includes : <reserved>public</reserved> Transform
 {
 <reserved>public</reserved>:
-   <reserved>void</reserved> pre_eval_expr(AST_eval_expr* in, List&lt;AST_statement*&gt;* out)
+   <reserved>void</reserved> pre_eval_expr(Eval_expr* in, List&lt;Statement*&gt;* out)
    {
    }
 };
 
-<reserved>extern</reserved> "C" <reserved>void</reserved> process_ast(AST_php_script* php_script)
+<reserved>extern</reserved> "C" <reserved>void</reserved> process_ast(PHP_script* php_script)
 {
    Expand_includes einc;
    php_script-&gt;transform_children(&amp;einc);
@@ -130,7 +130,7 @@ looks like. We modify the plugin as follows: </para>
 <reserved>#include</reserved> "AST_transform.h"
 <reserved>#include</reserved> "process_ast/XML_unparser.h"
 
-<reserved>class</reserved> Expand_includes : <reserved>public</reserved> AST_transform
+<reserved>class</reserved> Expand_includes : <reserved>public</reserved> Transform
 {
 <reserved>private</reserved>:
    XML_unparser* xml_unparser;
@@ -143,7 +143,7 @@ looks like. We modify the plugin as follows: </para>
    }
 
 <reserved>public</reserved>:
-   <reserved>void</reserved> pre_eval_expr(AST_eval_expr* in, List&lt;AST_statement*&gt;* out)
+   <reserved>void</reserved> pre_eval_expr(Eval_expr* in, List&lt;Statement*&gt;* out)
    {
       in-&gt;visit(xml_unparser);
    }
@@ -151,7 +151,7 @@ looks like. We modify the plugin as follows: </para>
 </programlisting>
 
 <para> The XML unparser is implemented using the
-<code>AST_visitor</code> API, so it can be invoked just like you
+<code>Visitor</code> API, so it can be invoked just like you
 run any other visitor. There is a similar visitor called
 <code>PHP_unparser</code> (in
 <filename>&lt;process_ast/PHP_unparser.h&gt;</filename>) that you can use
@@ -164,23 +164,23 @@ interested in the first, the <code>include</code>:
 </para>
 
 <programlisting>
-&lt;AST_eval_expr&gt;
-   &lt;AST_method_invocation&gt;
-      &lt;AST_target xsi:nil="true" /&gt;
-      &lt;Token_method_name&gt;
+&lt;Eval_expr&gt;
+   &lt;Method_invocation&gt;
+      &lt;Target xsi:nil="true" /&gt;
+      &lt;METHOD_NAME&gt;
          &lt;value&gt;include&lt;/value&gt;
-      &lt;/Token_method_name&gt;
-      &lt;AST_actual_parameter_list&gt;
-         &lt;AST_actual_parameter&gt;
+      &lt;/METHOD_NAME&gt;
+      &lt;Actual_parameter_list&gt;
+         &lt;Actual_parameter&gt;
             &lt;bool&gt;&lt;!-- is_ref --&gt;false&lt;/bool&gt;
-            &lt;Token_string&gt;
+            &lt;STRING&gt;
                &lt;value&gt;b.php&lt;/value&gt;
                &lt;source_rep&gt;b.php&lt;/source_rep&gt;
-            &lt;/Token_string&gt;
-         &lt;/AST_actual_parameter&gt;
-      &lt;/AST_actual_parameter_list&gt;
-   &lt;/AST_method_invocation&gt;
-&lt;/AST_eval_expr&gt;
+            &lt;/STRING&gt;
+         &lt;/Actual_parameter&gt;
+      &lt;/Actual_parameter_list&gt;
+   &lt;/Method_invocation&gt;
+&lt;/Eval_expr&gt;
 </programlisting>
 
 <para> This tells us that the <code>include</code> statement is an
@@ -194,28 +194,28 @@ in the parameter list that contains the name of the file we are interested in.
 We can construct a pattern that matches this tree exactly: </para>
 
 <programlisting>
-<reserved>class</reserved> Expand_includes : <reserved>public</reserved> AST_transform
+<reserved>class</reserved> Expand_includes : <reserved>public</reserved> Transform
 {
 <reserved>private</reserved>:
-   Wildcard&lt;Token_string&gt;* filename;
-   AST_method_invocation* pattern;
+   Wildcard&lt;STRING&gt;* filename;
+   Method_invocation* pattern;
 
 <reserved>public</reserved>:
    Expand_includes()
    {
-      filename = <reserved>new</reserved> Wildcard&lt;Token_string&gt;;
+      filename = <reserved>new</reserved> Wildcard&lt;STRING&gt;;
       pattern = 
-         <reserved>new</reserved> AST_method_invocation(
+         <reserved>new</reserved> Method_invocation(
             NULL,
-            <reserved>new</reserved> Token_method_name(<reserved>new</reserved> String("include")),
-            <reserved>new</reserved> List&lt;AST_actual_parameter*&gt;(
-               <reserved>new</reserved> AST_actual_parameter(false, filename)
+            <reserved>new</reserved> METHOD_NAME(<reserved>new</reserved> String("include")),
+            <reserved>new</reserved> List&lt;Actual_parameter*&gt;(
+               <reserved>new</reserved> Actual_parameter(false, filename)
             )
          );
    }
 
 <reserved>public</reserved>:
-   <reserved>void</reserved> pre_eval_expr(AST_eval_expr* in, List&lt;AST_statement*&gt;* out)
+   <reserved>void</reserved> pre_eval_expr(Eval_expr* in, List&lt;Statement*&gt;* out)
    {
       <emphasis>// Check for calls to include</emphasis>
       <reserved>if</reserved>(in-&gt;expr-&gt;match(pattern))
@@ -259,31 +259,31 @@ transform: </para>
 <reserved>#include</reserved> "parsing/parse.h"
 <reserved>#include</reserved> "process_ast/XML_unparser.h"
 
-<reserved>class</reserved> Expand_includes : <reserved>public</reserved> AST_transform
+<reserved>class</reserved> Expand_includes : <reserved>public</reserved> Transform
 {
 <reserved>private</reserved>:
    XML_unparser* xml_unparser;
-   Wildcard&lt;Token_string&gt;* filename;
-   AST_method_invocation* pattern;
+   Wildcard&lt;STRING&gt;* filename;
+   Method_invocation* pattern;
 
 <reserved>public</reserved>:
    Expand_includes()
    {
       xml_unparser = <reserved>new</reserved> XML_unparser(cout, false);
 
-      filename = <reserved>new</reserved> Wildcard&lt;Token_string&gt;;
+      filename = <reserved>new</reserved> Wildcard&lt;STRING&gt;;
       pattern = 
-         <reserved>new</reserved> AST_method_invocation(
+         <reserved>new</reserved> Method_invocation(
             NULL,
-            <reserved>new</reserved> Token_method_name(<reserved>new</reserved> String("include")),
-            <reserved>new</reserved> List&lt;AST_actual_parameter*&gt;(
-               <reserved>new</reserved> AST_actual_parameter(false, filename)
+            <reserved>new</reserved> METHOD_NAME(<reserved>new</reserved> String("include")),
+            <reserved>new</reserved> List&lt;Actual_parameter*&gt;(
+               <reserved>new</reserved> Actual_parameter(false, filename)
             )
          );
    }
 
 <reserved>public</reserved>:
-   <reserved>void</reserved> pre_eval_expr(AST_eval_expr* in, List&lt;AST_statement*&gt;* out)
+   <reserved>void</reserved> pre_eval_expr(Eval_expr* in, List&lt;Statement*&gt;* out)
    {
       // in-&gt;visit(xml_unparser);
 
@@ -291,7 +291,7 @@ transform: </para>
       <reserved>if</reserved>(in-&gt;expr-&gt;match(pattern))
       {
          <emphasis>// Matched! Try to parse the file</emphasis>
-         AST_php_script* php_script = parse(filename-&gt;value-&gt;value, NULL, false);
+         PHP_script* php_script = parse(filename-&gt;value-&gt;value, NULL, false);
          <reserved>if</reserved>(php_script == NULL)
          {
             cerr 
@@ -311,7 +311,7 @@ transform: </para>
    }
 };
 
-<reserved>extern</reserved> "C" <reserved>void</reserved> process_ast(AST_php_script* php_script)
+<reserved>extern</reserved> "C" <reserved>void</reserved> process_ast(PHP_script* php_script)
 {
    Expand_includes einc;
    php_script-&gt;transform_children(&amp;einc);

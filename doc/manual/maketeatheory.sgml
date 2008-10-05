@@ -106,7 +106,7 @@ list class <code>AST_list_b</code> (which inherits from the STL
 explains the purpose of the symbol in the rule, and will be used for the name
 of the attribute of the corresponding class.  The default name for each class
 attribute depends on the corresponding type: an attribute of type
-<code>AST_variable_name</code>  (corresponding to a non-terminal
+<code>Variable_name</code>  (corresponding to a non-terminal
 <code>variable_name</code>) will be called <code>variable_name</code>. The
 default name for an attribute of type <code>AST_foo_list</code> will be
 <emphasis>foos</emphasis>.  However, as mentioned above, this can be overridden
@@ -127,13 +127,13 @@ but simply means that the <code>string_index</code> field in the class may be
 NULL.  </para>
 
 <programlisting>
-<reserved>class</reserved> AST_variable : <reserved>virtual public</reserved> AST_expr
+<reserved>class</reserved> Variable : <reserved>virtual public</reserved> Expr
 {
 <reserved>public</reserved>:
-   AST_target* target;
-   AST_variable_name* variable_name;
-   AST_expr_list* array_indices;
-   AST_expr* string_index;
+   Target* target;
+   Variable_name* variable_name;
+   Expr_list* array_indices;
+   Expr* string_index;
 }
 </programlisting>
 

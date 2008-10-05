@@ -151,7 +151,7 @@
 <reserved>#include</reserved> "AST_visitor.h"
 <reserved>#include</reserved> "pass_manager/Plugin_pass.h"
 
-<reserved>class</reserved> Rename_foo_to_bar : <reserved>public</reserved> AST_visitor
+<reserved>class</reserved> Rename_foo_to_bar : <reserved>public</reserved> Visitor
 {
    <reserved>void</reserved> pre_method_name(METHOD_NAME* in)
    {

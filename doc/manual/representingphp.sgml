@@ -162,7 +162,7 @@ element of the first rule in detail. </para>
 	<term><code>variable_name</code></term>
 	<listitem><para>Again, as for function calls, the name of the variable may
 	be a literal <code>VARIABLE_NAME</code> (<code>$x</code>), or be given by
-	an expression (which is wrapped up in an <code>AST_reflection</code> node).
+	an expression (which is wrapped up in an <code>Reflection</code> node).
 	The latter possibility is referred to as &ldquo;variable variables&rdquo;
 	in the PHP manual.  For example, <code>$$x</code> is the variable whose
 	name is currently stored in (another) variable called
@@ -304,12 +304,12 @@ element of the first rule in detail. </para>
 
 <para> A number of nodes in the AST are dedicated &ldquo;commented
 nodes&rdquo;. Their corresponding C++ classes inherit from
-<code>AST_commented_node</code>, which introduces a
+<code>Commented_node</code>, which introduces a
 <code>List&lt;String*&gt;*</code> attribute called <code>comments</code>.  The
-commented nodes are class members (<code>AST_member</code>), statements
-(<code>AST_statement</code>), interface and class definitions
-(<code>AST_interface_def</code>, <code>AST_class_def</code>), switch cases
-(<code>AST_switch_case</code>) and catches (<code>AST_catch</code>).  </para>
+commented nodes are class members (<code>Member</code>), statements
+(<code>Statement</code>), interface and class definitions
+(<code>Interface_def</code>, <code>Class_def</code>), switch cases
+(<code>Switch_case</code>) and catches (<code>Catch</code>).  </para>
 
 <para> When the parser encounters a comment in the input, it attaches it either
 to the previous node in the AST, or to the next, according to a variable
@@ -332,7 +332,7 @@ bar();
 </programlisting>
 
 <para> the comment gets attached to <code>bar();</code> (to be precise, to the
-corresponding <code>AST_eval_expr</code> node; the function call itself is an
+corresponding <code>Eval_expr</code> node; the function call itself is an
 expression and &phc does not associate comments with expressions), but in
 </para>
 

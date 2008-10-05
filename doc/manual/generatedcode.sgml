@@ -18,9 +18,9 @@ explained in <xref linkend="maketeatheory" endterm="maketeatheory.title">.
 <para> There are two main kinds of AST classes: classes that correspond to
 non-terminals in the grammar, and classes that correspond to terminals in the
 grammar. These two kinds are called <code>AST_xxx</code> and
-<code>Token_xxx</code> respectively. Examples are <code>AST_while</code>,
-<code>AST_expr</code>, <code>Token_method_name</code> and
-<code>Token_int</code>. </para>
+<code>Token_xxx</code> respectively. Examples are <code>While</code>,
+<code>Expr</code>, <code>METHOD_NAME</code> and
+<code>INT</code>. </para>
 
 <para> The main difference is that terminal classes have one additional field
 (and sometimes two). Every token class gets an attribute called
@@ -39,14 +39,14 @@ string <code>__FILE__</code> might have <code>value</code> set to
 <code>__FILE__</code>. If the type of the <code>value</code> attribute it set
 to be empty, the token class does not get a value but (but it will get a
 <code>source_rep</code> field). This is the case for
-<code>Token_null&lt;&gt;</code> in the &phc grammar. </para>
+<code>NIL&lt;&gt;</code> in the &phc grammar. </para>
 
 <para> In addition, all the tokens classes have a method called
 <code>get_value_as_string()</code> and a method <code>get_source_rep</code>
 when applicable. This is useful for programs that operate on general
-<code>AST_identifier</code> objects (such as <code>Token_method_name</code> or
-<code>Token_class_name</code>) or <code>AST_literal</code> (such as
-<code>Token_real</code> or <code>Token_int</code>). Note that the value
+<code>Identifier</code> objects (such as <code>METHOD_NAME</code> or
+<code>CLASS_NAME</code>) or <code>Literal</code> (such as
+<code>REAL</code> or <code>INT</code>). Note that the value
 returned by <code>get_value_as_string()</code> and
 <code>get_source_rep()</code> may be different; for example,
 <code>get_source_rep()</code> might return <code>0.5E-1</code>, while
@@ -107,8 +107,8 @@ field in the pattern by the value in the tree. For example, in the body of the
 <code>if</code> in </para>
 
 <programlisting>
-Token_class_name* name = <reserved>new</reserved> Token_class_name(<reserved>new</reserved> String("SOME_CLASS"));
-Token_class_name* pattern = <reserved>new</reserved> Token_class_name(WILDCARD);
+CLASS_NAME* name = <reserved>new</reserved> CLASS_NAME(<reserved>new</reserved> String("SOME_CLASS"));
+CLASS_NAME* pattern = <reserved>new</reserved> CLASS_NAME(WILDCARD);
 
 <reserved>if</reserved>(name-&gt;match(pattern))
 {
@@ -147,7 +147,7 @@ is very simple. </para>
 
 <para><code>visit</code> simply calls <code>pre_visit</code>,
 <code>visit_children</code> and <code>post_visit</code> in order. It could have
-been implemented once and for all in the <code>AST_node</code> class (but is
+been implemented once and for all in the <code>Node</code> class (but is
 not, for no particular reason). </para>
 
 <para>For a node <code>x0</code>, which inherits from <code>x1</code>, which

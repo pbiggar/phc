@@ -57,7 +57,7 @@ Here is a simple example: </para>
 <title>The Implementation</title>
 
 <para> Since we have to modify method (function) names, the nodes we are
-interested in are the nodes of type <code>AST_method</code>. However, how do we
+interested in are the nodes of type <code>Method</code>. However, how do we
 know when to modify a particular method? Should we search the method body for
 function calls to <code>dbx_</code><emphasis>xxx</emphasis>? As we saw in <xref
 linkend="treetutorial1">, manual searching through the tree is cumbersome;
@@ -77,26 +77,26 @@ this transform, we use the simpler <code>Tree_visitor</code> API instead of the
 <code>Tree_transform</code> API.) </para>
 
 <programlisting>
-<reserved>class</reserved> InsertDB : <reserved>public</reserved> AST_visitor
+<reserved>class</reserved> InsertDB : <reserved>public</reserved> Visitor
 {
 <reserved>private</reserved>:
    <reserved>int</reserved> uses_dbx;
    
 <reserved>public</reserved>:
-   <reserved>void</reserved> pre_method(AST_method* in)
+   <reserved>void</reserved> pre_method(Method* in)
    {
       uses_dbx = <reserved>false</reserved>;   
    }
 
-   <reserved>void</reserved> post_method(AST_method* in)
+   <reserved>void</reserved> post_method(Method* in)
    {
       <reserved>if</reserved>(uses_dbx)
          in->signature->method_name->value->append("_DB");
    }
 
-   <reserved>void</reserved> post_method_invocation(AST_method_invocation* in)
+   <reserved>void</reserved> post_method_invocation(Method_invocation* in)
    {
-      Wildcard&lt;Token_method_name&gt;* pattern = <reserved>new</reserved> Wildcard&lt;Token_method_name&gt;;
+      Wildcard&lt;METHOD_NAME&gt;* pattern = <reserved>new</reserved> Wildcard&lt;METHOD_NAME&gt;;
       
       <emphasis>// Check for dbx_</emphasis>
       <reserved>if</reserved>(in->method_name->match(pattern) && 
@@ -112,21 +112,21 @@ this transform, we use the simpler <code>Tree_visitor</code> API instead of the
 particular function name, and we used <code>match</code> to do this: </para>
      
 <programlisting>
-<reserved>if</reserved>(in-&gt;match(<reserved>new</reserved> Token_method_name("mysql_connect")))
+<reserved>if</reserved>(in-&gt;match(<reserved>new</reserved> METHOD_NAME("mysql_connect")))
 </programlisting>
 
 <para>Here, we need to check for method names that start with
 <code>dbx_</code>. We use the STL method <code>find</code> to do this, but we
 cannot call this directly on <code>in-&gt;method_name</code> because
-<code>in-&gt;method_name</code> has type <code>AST_method_name</code> (could
-either be a <code>Token_method_name</code> or a <code>AST_reflection</code>
+<code>in-&gt;method_name</code> has type <code>Method_name</code> (could
+either be a <code>METHOD_NAME</code> or a <code>Reflection</code>
 node).  However, calling <code>match</code> on a pattern has the side effect of
 setting the <code>value</code> to point to the node that was matched by the
 wildcard. So, if the match succeeds, we know that the name of the method must
-have been a <code>Token_method_name</code>, and we can access this name by
+have been a <code>METHOD_NAME</code>, and we can access this name by
 accessing <code>pattern-&gt;value</code>
 (<code>pattern-&gt;value-&gt;value</code> is the value field of the
-<code>Token_method_name</code> itself, i.e., the actual string that stores the
+<code>METHOD_NAME</code> itself, i.e., the actual string that stores the
 name of the method.) </para>
 
 <para> (Of course, this transform is not complete; renaming methods is not
