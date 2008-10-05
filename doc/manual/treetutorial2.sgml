@@ -78,11 +78,14 @@ Reflection ::= Expr ;
 
 <programlisting>
 <reserved>#include</reserved> "AST_visitor.h"
+<reserved>#include</reserved> &lt;pass_manager/Plugin_pass.h&gt;
 
-<reserved>class</reserved> MySQL2DBX : <reserved>public</reserved> AST::Visitor
+<reserved>using</reserved> <reserved>namespace</reserved> AST;
+
+<reserved>class</reserved> MySQL2DBX : <reserved>public</reserved> Visitor
 {
 <reserved>public</reserved>:
-   <reserved>void</reserved> post_method_invocation(AST::Method_invocation* in)
+   <reserved>void</reserved> post_method_invocation(Method_invocation* in)
    {
       <reserved>if</reserved>(in->method_name->match(<reserved>new</reserved> METHOD_NAME(<reserved>new</reserved> String("mysql_connect"))))
       {
@@ -97,7 +100,7 @@ Reflection ::= Expr ;
    pm->add_after_named_pass (pass, new String ("ast"));
 }
 
-<reserved>extern</reserved> "C" <reserved>void</reserved> run_ast (AST::PHP_script* in, Pass_manager* pm, String* option)
+<reserved>extern</reserved> "C" <reserved>void</reserved> run_ast (PHP_script* in, Pass_manager* pm, String* option)
 {
    MySQL2DBX m2d;
    in->visit(&amp;m2d);
@@ -176,12 +179,14 @@ dbx_connect (module, host, database, username, password, persistent)
 <reserved>#include</reserved> "AST_visitor.h"
 <reserved>#include</reserved> &lt;pass_manager/Plugin_pass.h&gt;
 
-<reserved>class</reserved> MySQL2DBX : <reserved>public</reserved> AST::Visitor
+<reserved>using</reserved> <reserved>namespace</reserved> AST;
+
+<reserved>class</reserved> MySQL2DBX : <reserved>public</reserved> Visitor
 {
 <reserved>public</reserved>:
-   <reserved>void</reserved> post_method_invocation(AST::Method_invocation* in)
+   <reserved>void</reserved> post_method_invocation(Method_invocation* in)
    {
-      List&lt;Actual_parameter*&gt;::iterator pos;
+      Actual_parameter_list*&gt;::iterator pos;
       CONSTANT_NAME* module_name;
       Constant* module_constant;
       Actual_parameter* param;
@@ -207,26 +212,35 @@ dbx_connect (module, host, database, username, password, persistent)
          param = <reserved>new</reserved> Actual_parameter(false, module_constant);
          in->actual_parameters->insert(pos, param); pos++;
          <emphasis>/* Skip host */</emphasis> pos++;
-         param = <reserved>new</reserved> Actual_parameter(false, <reserved>new</reserved> NIL(<reserved>new</reserved> String("NULL")));
+         param = <reserved>new</reserved> Actual_parameter(false, <reserved>new</reserved> NIL());
          in->actual_parameters->insert(pos, param); 
       }
    }
 };
 
-<reserved>extern</reserved> "C" <reserved>void</reserved> process_ast(PHP_script* php_script)
+<reserved>extern</reserved> "C" <reserved>void</reserved> load (Pass_manager* pm, Plugin_pass* pass)
+{
+   pm->add_after_named_pass (pass, new String ("ast"));
+}
+
+<reserved>extern</reserved> "C" <reserved>void</reserved> run_ast (PHP_script* in, Pass_manager* pm, String* option)
 {
 	MySQL2DBX m2d;
-	php_script->visit(&amp;m2d);
+	in->visit(&amp;m2d);
 }
 </programlisting>
 
-<para> If we apply this transformation to </para>
+<para>
+	If we apply this transformation to 
+</para>
 
 <programlisting>
 $link = mysql_connect('host', 'user', 'pass');
 </programlisting>
 
-<para> We get </para>
+<para>
+	We get 
+</para>
 
 <programlisting>
 $link = dbx_connect(DBX_MYSQL, "host", NULL, "user", "pass");
@@ -237,23 +251,25 @@ $link = dbx_connect(DBX_MYSQL, "host", NULL, "user", "pass");
 
 <title>Refactoring</title>
 
-<para> A quick note on refactoring. Refactoring is the process of modifying
-existing programs (PHP scripts), usually to work in new projects or in
-different setups (for example, with a different database engine). Manual
-refactoring is laborious and error-prone, so tool-support is a must. Although
-&phc can be used to refactor PHP code as shown in this tutorial, a dedicated
-refactoring tool for PHP would be easier to use (though of course less
-flexible). Such a tool can however be built on top of &phc;. See also the list
-of <ulink url="http://www.phpcompiler.org/spinoffs">Spinoff Projects</ulink> on
-the &phc website. </para>
+<para>
+	A quick note on refactoring. Refactoring is the process of modifying
+	existing programs (PHP scripts), usually to work in new projects or in
+	different setups (for example, with a different database engine). Manual
+	refactoring is laborious and error-prone, so tool-support is a must.
+	Although &phc can be used to refactor PHP code as shown in this tutorial, a
+	dedicated refactoring tool for PHP would be easier to use (though of course
+	less flexible). Such a tool can however be built on top of &phc;.
+</para>
 
 </section>
 <section>
 
 <title> What's Next? </title>
 
-<para> <xref linkend="treetutorial3"> explains how you can modify the
-<emphasis>structure</emphasis> of the tree, as well as the tree nodes.  </para>
+<para>
+	<xref linkend="treetutorial3"> explains how you can modify the
+	<emphasis>structure</emphasis> of the tree, as well as the tree nodes.
+</para>
 
 </section>
 </chapter>
