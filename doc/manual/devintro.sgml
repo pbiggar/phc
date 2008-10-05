@@ -4,69 +4,89 @@
 <section>
 <title></title>
 
-<para> From the start, one of the design goals of &phc; has been to provide a
-useful framework for writing applications that process PHP scripts. &phc parses
-PHP code into an internal representation known as an <emphasis>abstract syntax
-tree</emphasis> or <emphasis>AST</emphasis>.  Applications can process PHP code
-by analysing and modifying this abstract representation in one of two ways:
+<para>
+	From the start, one of the design goals of &phc; has been to provide a
+	useful framework for writing applications that process PHP scripts. &phc
+	parses PHP code into an internal representation known as an
+	<emphasis>abstract syntax tree</emphasis> or <emphasis>AST</emphasis>.
+	Applications can process PHP code by analysing and modifying this abstract
+	representation in one of two ways:
 </para>  
 
 <itemizedlist>
 
-<listitem><para> &phc supports <emphasis>plugins</emphasis>. Plugins are
-modules that can be loaded into &phc, which get access to the AST. &phc;
-provides sophisticated support for writing operations over the AST through the
-<emphasis>Tree Transformation API</emphasis>. </para></listitem> 
+	<listitem><para>
+		&phc supports <emphasis>plugins</emphasis>. Plugins are modules that can
+		be loaded into &phc, which get access to the AST. &phc; provides
+		sophisticated support for writing operations over the AST through the
+		<emphasis>Tree Transformation API</emphasis>.
+	</para></listitem> 
 
-<listitem><para> Alternatively, you can export the AST to
-<emphasis>XML</emphasis>. You can then process the XML in any way you like, and
-then use &phc to convert the XML back to PHP syntax.  </para></listitem>
+	<listitem><para>
+		Alternatively, you can export the AST to <emphasis>XML</emphasis>. You
+		can then process the XML in any way you like, and then use &phc to
+		convert the XML back to PHP.
+	</para></listitem>
 
 </itemizedlist>
 
-<para> The <xref linkend="treetutorials" endterm="treetutorials.title"> explain
-how to write plugins for &phc, and provide numerous examples. You will find
-<xref linkend="reference" endterm="reference.title"> very useful when writing
-serious applications using &phc;.
+<para>
+	The <xref linkend="treetutorials" endterm="treetutorials.title"> explain how
+	to write plugins for &phc, and provide numerous examples. You will find
+	<xref linkend="reference" endterm="reference.title"> very useful when
+	writing serious applications using &phc;.
+</para>
 
-<para> You can download the documentation for this and for older versions from
-the <ulink url="http://www.phpcompiler.org/src/archive/">archive</ulink>.
-Moreover, although we have tried to document &phc as well as we can, if
-anything is still unclear, please let us know by sending an email to the <ulink
-url="http://www.phpcompiler.org/contact.html">mailing list</ulink>.  </para>
+<para>
+	Although we have tried to document &phc as well as we can, if
+	anything is still unclear, please let us know by sending an email to the
+	<ulink url="http://www.phpcompiler.org/mailinglist.html">mailing list</ulink>.
+</para>
 
 </section>
 
 <section>
 <title>System Requirements</title>
 
-<para> If you want to modify the internals of &phc in other ways than through
-the explicit API we provide for doing so, you will following tools listed
-below, in addition to those detailed in the user manual (<xref
-linkend="install">).  However, most people should not need these tools (even if
-you are implementing tools based on &phc). </para>
+<para>
+	If you want to modify the internals of &phc in other ways than through the
+	explicit API we provide for doing so, you will following tools listed below,
+	in addition to those detailed in the user manual (<xref linkend="install">).
+	However, most people should not need these tools (even if you are
+	implementing tools based on &phc).
+</para>
 
 <itemizedlist>
-<listitem><para><code>flex</code> if you need to modify the lexical
-analyser</para></listitem>
-<listitem><para><code>bison</code> if you need to modify the syntax
-analyser</para></listitem>
-<listitem><para><ulink url="http://www.maketea.org">maketea</ulink> if you
-want to modify the &phc grammar (or the AST classes)</para></listitem>
-<listitem><para><ulink
-url="http://www.gnu.org/software/gengetopt/gengetopt.html">gengetopt</ulink>
-if you need to add additional command line arguments; you will need version
-0.20 or higher</para></listitem>
-<listitem><para><ulink
-url="http://www.gnu.org/software/gperf/gperf.html">gperf</ulink> if you need
-to modify the list of keywords recognized by the lexical
-analyser</para></listitem>
+	<listitem><para>
+		<code>flex</code> if you need to modify the lexical
+		analyser
+	</para></listitem>
+	<listitem><para>
+		<code>bison</code> if you need to modify the parser
+	</para></listitem>
+	<listitem><para>
+		<ulink url="http://www.maketea.org">maketea</ulink> if you want to modify
+		the &phc grammars (or the AST classes)
+	</para></listitem>
+	<listitem><para>
+		<ulink
+		url="http://www.gnu.org/software/gengetopt/gengetopt.html">gengetopt</ulink>
+		if you need to add additional command line arguments; you will need
+		version 0.20 or higher
+	</para></listitem>
+	<listitem><para>
+		<ulink url="http://www.gnu.org/software/gperf/gperf.html">gperf</ulink>
+		if you need to modify the list of keywords recognized by the lexical
+		analyser
+	</para></listitem>
 </itemizedlist>
 
-<para>It is possible to link &phc to the Boehm garbage collector. If you wish
-to link your application with &phc, this may be necessary. However, this
-feature is experimental and seems to lead to runtime errors on some systems.
-Use with care. </para> 
+<para>
+	It is possible to link &phc to the Boehm garbage collector. If you wish to
+	link your application with &phc, this may be necessary. However, this
+	feature is experimental and seems to lead to runtime errors on some systems.
+	Use with care.
+</para> 
 
 </section>
 
@@ -81,14 +101,17 @@ Use with care. </para>
 
 <title>Demonstration</title>
 
-<para> This section is intended as a quick introduction outlining what the
-current release of &phc can do for you. It does not explain everything in
-detail. </para>
+<para>
+	This section is intended as a quick introduction outlining what the current
+	release of &phc can do for you. It does not explain everything in detail.
+</para>
 
 <section>
 <title>The Source Program</title>
 
-<para> Consider the following simple PHP script. </para>
+<para>
+	Consider the following simple PHP script.
+</para>
 
 <programlisting>
 &lt;?<reserved>php</reserved>
@@ -102,7 +125,10 @@ detail. </para>
 ?&gt;
 </programlisting>
 
-<para> Internally this program gets represented as an abstract syntax tree, as shown in figure <xref linkend="ast">. </para>
+<para>
+	Internally this program gets represented as an abstract syntax tree, as
+	shown in figure <xref linkend="ast">.
+</para>
 
 <figure id="ast">
 <title>Abstract syntax tree for the demo example</title>
@@ -123,20 +149,26 @@ detail. </para>
 
 <programlisting>
 <reserved>#include</reserved> "AST_visitor.h"
+<reserved>#include</reserved> "pass_manager/Plugin_pass.h"
 
 <reserved>class</reserved> Rename_foo_to_bar : <reserved>public</reserved> AST_visitor
 {
-   <reserved>void</reserved> pre_method_name(Token_method_name* in)
+   <reserved>void</reserved> pre_method_name(METHOD_NAME* in)
    {
       <reserved>if</reserved>(*in->value == "foo")
          in->value = <reserved>new</reserved> String("bar");
    }
 };
 
-<reserved>extern</reserved> "C" <reserved>void</reserved> process_ast(AST_php_script* php_script)
+<reserved>extern</reserved> "C" <reserved>void</reserved> run_ast (AST::PHP_script* in, Pass_manager* pm, String* option)
 {
     Rename_foo_to_bar f2b;
     php_script->visit(&amp;f2b);
+}
+
+<reserved>extern</reserved> "C" <reserved>void</reserved> load (Pass_manager* pm, Plugin_pass* pass)
+{
+	pm->add_after_named_pass (pass, new String("ast"));
 }
 </programlisting>					
 
