@@ -307,6 +307,25 @@ string get_var_var (Scope target_scope, string zvp, Scope var_scope, VARIABLE_NA
 }
 
 /*
+ * Like get_var_var, but do not add the variable to the scope
+ * if not already there
+ */
+string read_var_var (Scope scope, string zvp, VARIABLE_NAME* var_var)
+{
+	stringstream ss;
+	ss
+	<< "// Read variable variable\n"
+	<< read_rvalue (scope, "var_var", var_var)
+	<< zvp << " = read_var_var (" 
+	<<					get_scope (scope) << ", "
+	<<					"var_var "
+	<<					" TSRMLS_CC);\n"
+	;
+	return ss.str();
+}
+
+
+/*
  * Map of the Zend functions that implement the operators
  *
  * The map also contains entries for ++ and --, which are identical to the
@@ -935,20 +954,6 @@ public:
 			<< cleanup ("p_rhs")
 			;
 		}
-	}
-
-	string read_var_var (Scope scope, string zvp, VARIABLE_NAME* var_var)
-	{
-		stringstream ss;
-		ss
-		<< "// Read variable variable\n"
-		<< read_rvalue (scope, "var_var", var_var)
-		<< zvp << " = read_var_var (" 
-		<<					get_scope (scope) << ", "
-		<<					"var_var "
-		<<					" TSRMLS_CC);\n"
-		;
-		return ss.str();
 	}
 
 protected:
@@ -2067,7 +2072,16 @@ class Pattern_isset : public Pattern_assign_zval
 		{
 			// Variable variable
 			// TODO
-			phc_unsupported (isset, "isset variable variable");
+			Variable_variable* var_var;
+      var_var = dynamic_cast<Variable_variable*>(isset->value->variable_name);
+      assert(var_var);
+
+			code
+			<< declare ("p_rhs")
+			<< read_var_var (LOCAL, "p_rhs", var_var->variable_name)
+			<< "ZVAL_BOOL(" << lhs << ", !ZVAL_IS_NULL(*p_rhs));\n" 
+			<< cleanup ("p_rhs")
+      ;
 		}
 	}
 
