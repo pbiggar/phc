@@ -641,10 +641,11 @@ read_var (HashTable * st, char *name, int length, ulong hashval TSRMLS_DC)
  * 
  * If the index is not found and update_st is set the index gets
  * added to the hashtable and a pointer to the new entry is returned;
- * otherwise, the uninitialized zval is returned.
+ * *is_new is set to 1. 
+ * Otherwise, the uninitialized zval is returned and is_new is untouched.
  */
 zval **
-get_var_var (HashTable * st, zval * var_var, int update_st TSRMLS_DC)
+get_var_var (HashTable * st, zval * var_var, int update_st, int* is_new TSRMLS_DC)
 {
   zval *string_index;
   int index_found, deallocate_string_index = 0;
@@ -676,6 +677,7 @@ get_var_var (HashTable * st, zval * var_var, int update_st TSRMLS_DC)
 	}
       else
 	{
+          *is_new = 1;
 	  EG (uninitialized_zval_ptr)->refcount++;
 	  zend_hash_update (st, Z_STRVAL_P (string_index),
 			    Z_STRLEN_P (string_index) + 1,
@@ -697,7 +699,7 @@ get_var_var (HashTable * st, zval * var_var, int update_st TSRMLS_DC)
 zval **
 read_var_var (HashTable * st, zval * var_var TSRMLS_DC)
 {
-  return get_var_var (st, var_var, 0 TSRMLS_CC);
+  return get_var_var (st, var_var, 0, NULL TSRMLS_CC);
 }
 
 void

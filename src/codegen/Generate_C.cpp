@@ -299,7 +299,8 @@ string get_var_var (Scope target_scope, string zvp, Scope var_scope, VARIABLE_NA
 	<< zvp << " = get_var_var (" 
 	<<					get_scope (target_scope) << ", "
 	<<					"var_var, "
-  <<          "1 "
+  <<          "1, "
+  <<          "&is_" << zvp << "_new "
 	<<					"TSRMLS_CC);\n"
   << "}\n"
 	;
@@ -949,7 +950,7 @@ public:
 		{
 			code
 			<< declare ("p_rhs")
-			<< read_var_var (LOCAL, "p_rhs", rhs->value->variable_name)
+			<< get_var_var (LOCAL, "p_rhs", LOCAL, rhs->value->variable_name)
 			<< "copy_into_ref (p_lhs, p_rhs);\n"
 			<< cleanup ("p_rhs")
 			;
@@ -1263,7 +1264,8 @@ class Pattern_assign_var_to_var_var : public Pattern
 			<< read_var (LOCAL, "p_rhs", rhs->value)
 			<< "if (*p_lhs != *p_rhs)\n"
 			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
-			<< cleanup ("p_rhs");
+			<< cleanup ("p_lhs")
+			<< cleanup ("p_rhs")
 			;
 		}
 		else
@@ -1273,6 +1275,7 @@ class Pattern_assign_var_to_var_var : public Pattern
 			<< get_var_var (LOCAL, "p_lhs", LOCAL, lhs->value)
 			<< get_st_entry (LOCAL, "p_rhs", rhs->value)
 			<< "copy_into_ref (p_lhs, p_rhs);\n"
+			<< cleanup ("p_lhs")
 			;
 		}
 	}
@@ -1329,6 +1332,7 @@ public:
       << declare (zvp)
       // The variable variable is always in the local scope
       << get_var_var (scope, zvp, LOCAL, var_var->variable_name)
+      << cleanup (zvp)
       ;
     }
 
