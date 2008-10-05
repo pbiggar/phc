@@ -2041,15 +2041,12 @@ class Pattern_isset : public Pattern_assign_zval
 				}
 				else
 				{
-					String* name = var_name->value;
-					code
-					<< "ZVAL_BOOL(" << lhs << ", "
-					<< "isset_var ("
-					<<		get_scope (LOCAL) << ", "
-					<<		"\"" << *name << "\", "
-					<<		name->length() + 1
-					// no get_hash version
-					<<		"));\n";
+          code
+          << declare ("p_rhs")
+          << read_var (LOCAL, "p_rhs", var_name)
+			    << "ZVAL_BOOL(" << lhs << ", !ZVAL_IS_NULL(*p_rhs));\n" 
+          << cleanup ("p_rhs")
+          ;
 				}
 			}
 			else 
