@@ -5,16 +5,18 @@
 
 <title></title>
 
-<para> In <xref linkend="gettingstarted">, we explained that &phc represents
-PHP scripts internally as an abstract syntax tree, and that the structure of
-this tree is determined by the <xref linkend="grammar"
-endterm="grammar.title">. We then showed how to make use of this tree to count
-the number of statements. However, the plugin we wrote only counted the
-&ldquo;top-level&rdquo; statements. Statements nested inside other statements
-(for example, statements inside the true or false branch of an <code>if</code>
-statement) were ignored. In this tutorial, we will rectify this problem and
-write a plugin that counts <emphasis>all</emphasis> statements in a script. So,
-for </para>
+<para>
+	In <xref linkend="gettingstarted">, we explained that &phc represents PHP
+	scripts internally as an abstract syntax tree, and that the structure of
+	this tree is determined by the <xref linkend="grammar"
+	endterm="grammar.title">. We then showed how to make use of this tree to
+	count the number of statements. However, the plugin we wrote only counted
+	the &ldquo;top-level&rdquo; statements. Statements nested inside other
+	statements (for example, statements inside the true or false branch of an
+	<code>if</code> statement) were ignored. In this tutorial, we will rectify
+	this problem and write a plugin that counts <emphasis>all</emphasis>
+	statements in a script. So, for
+</para>
 		
 <programlisting>
 &lt;?<reserved>php</reserved>
@@ -26,18 +28,24 @@ for </para>
 ?&gt;
 </programlisting>
 
-<para> we should report four statements. </para>
+<para>
+	we should report four statements.
+</para>
 
-<para> Note that all the plugins that we will develop in these tutorials are
-included in the &phc distribution. For example, in this tutorial we will be
-developing two plugins: a difficult solution to the problem and an easy
-solution to the problem. You can run these plugins by running </para>
+<para>
+	Note that all the plugins that we will develop in these tutorials are
+	included in the &phc distribution. For example, in this tutorial we will be
+	developing two plugins: a difficult solution to the problem and an easy
+	solution to the problem. You can run these plugins by running
+</para>
 
 <screen>
 phc --run plugins/tutorials/count_statements_difficult.la test.php
 </screen>
 			
-<para> or </para>
+<para>
+	or 
+</para>
 
 <screen>
 phc --run plugins/tutorials/count_statements_easy.la test.php
@@ -49,23 +57,27 @@ phc --run plugins/tutorials/count_statements_easy.la test.php
 
 <title>The Grammar (Revisited)</title>
 
-<para> How do we go about counting all statements in a script?  Remember that,
-as far as &phc is concerned, a PHP script consists of a number of statements,
-but some of those statements may have other statements nested inside them. Here
-is part of the &phc; grammar: </para>
+<para>
+	How do we go about counting all statements in a script?  Remember that, as
+	far as &phc is concerned, a PHP script consists of a number of statements,
+	but some of those statements may have other statements nested inside them.
+	Here is part of the &phc; grammar: 
+</para>
 
 <programlisting>
-php_script ::= statement* ;
-statement ::= eval_expr | if | while | ...
-if ::= expr iftrue:statement* iffalse:statement* ;
-while ::= expr statement* ;
+PHP_script ::= Statement* ;
+Statement ::= Eval_expr | If | While | ...
+If ::= Expr iftrue:Statement* iffalse:Statement* ;
+While ::= Expr Statement* ;
 </programlisting>
 
-<para>The vertical bar (<code>|</code>) means &ldquo;or&rdquo;. So, a statement
-is either an evaluation of an expression (<code>eval_expr</code>), an
-<code>if</code> statement, or a <code>while</code> statement, or..  Thus, our
-running example is represented by the tree in <xref linkend="ifx5tree">. The
-four statements that we are interested in have been highlighted.  </para>
+<para>
+	The vertical bar (<code>|</code>) means &ldquo;or&rdquo;. So, a statement is
+	either an evaluation of an expression (<code>eval_expr</code>), an
+	<code>if</code> statement, or a <code>while</code> statement, or..  Thus,
+	our running example is represented by the tree in <xref linkend="ifx5tree">.
+	The four statements that we are interested in have been highlighted.
+</para>
 
 <figure id="ifx5tree">
 <title>Abstract syntax tree for the running example</title>
@@ -83,29 +95,34 @@ four statements that we are interested in have been highlighted.  </para>
 
 <title>Statements and Expressions</title>
 
-<para> The <code>eval_expr</code> nodes in the tree probably need some
-explanation. There are many different types of statements in PHP:
-<code>if</code>-statements, <code>while</code>-statements,
-<code>for</code>-loops, etc. You can find the full list in the <xref
-linkend="grammar" endterm="grammar.title">. If you do look at the grammar, you
-will notice in particular that a function call is not actually a statement!
-Instead, a function call is an <emphasis>expression</emphasis>. </para> 
+<para>
+	The <code>Eval_expr</code> nodes in the tree probably need some explanation.
+	There are many different types of statements in PHP:
+	<code>if</code>-statements, <code>while</code>-statements,
+	<code>for</code>-loops, etc. You can find the full list in the <xref
+	linkend="grammar" endterm="grammar.title">. If you do look at the grammar,
+	you will notice in particular that a function call is not actually a
+	statement!  Instead, a function call is an <emphasis>expression</emphasis>.
+</para> 
 
-<para> The difference between statements and expressions is that a statement
-<emphasis>does</emphasis> something (for example, a <code>for</code>-loop
-repeats a bunch of other statements), but an expression has a
-<emphasis>value</emphasis>. For example, &ldquo;5&rdquo; is an expression (with
-value 5), &ldquo;1+1&rdquo; is an expression (with value 2), etc. A function
-call is also considered an expression. The value of a function call is the
-value that the function returns. </para>
+<para>
+	The difference between statements and expressions is that a statement
+	<emphasis>does</emphasis> something (for example, a <code>for</code>-loop
+	repeats a bunch of other statements), but an expression has a
+	<emphasis>value</emphasis>. For example, &ldquo;5&rdquo; is an expression
+	(with value 5), &ldquo;1+1&rdquo; is an expression (with value 2), etc. A
+	function call is also considered an expression. The value of a function call
+is the value that the function returns. </para>
 
-<para> Now, the node <code>eval expr</code> makes a statement from an
-expression. So, if you want to use an expression where &phc; expects a
-statement, you have to use the grammar rule </para>
+<para>
+	Now, an <code>eval_expr</code> makes a statement from an expression.  So, if
+	you want to use an expression where &phc; expects a statement, you have to
+	use the grammar rule
+</para>
 
 <programlisting>
-statement ::= ... | eval_expr ;
-eval_expr ::= expr ;
+Statement ::= ... | Eval_expr ;
+Eval_expr ::= Expr ;
 </programlisting>
 
 </section>
@@ -114,49 +131,59 @@ eval_expr ::= expr ;
 
 <title>The Difficult Solution</title>
 
-<para> The following plugin is a partial solution to counting the number of
-statements in a tree. If you do not understand the code, do not worry! We will
-look at a much easier solution in a second. If you understand the comments,
-that is enough.  </para>
+<para>
+	The following plugin is a partial solution to counting the number of
+	statements in a tree. If you do not understand the code, do not worry! We
+	will look at a much easier solution in a second. If you understand the
+	comments, that is enough.
+</para>
 			
 <programlisting>
 <reserved>#include</reserved> &lt;AST.h&gt;
+<reserved>#include</reserved> &lt;pass_manager/Plugin_pass.h&gt;
 
-<reserved>int</reserved> count(List&lt;AST_statement*&gt;* in)
+<reserved>int</reserved> count(AST::Statement_list* in)
 {
-	<emphasis>// Every item in "in" is a statement</emphasis>
-	<reserved>int</reserved> num_statements = in->size();
+   <emphasis>// Every item in "in" is a statement</emphasis>
+   <reserved>int</reserved> num_statements = in->size();
 
-	<emphasis>// But there can also be statements nested inside any</emphasis>
-	<emphasis>// of the statements in "in". We consider each one in turn.</emphasis>
-	List&lt;AST_statement*&gt;::const_iterator i;
-	<reserved>for</reserved>(i = in->begin(); i != in->end(); i++)
-	{
-		<emphasis>// Check if the statement is an if-statement</emphasis>
-		<reserved>if</reserved>(AST_if* if_stmt = dynamic_cast&lt;AST_if*&gt;(*i))
-		{
-			num_statements += count(if_stmt->iftrue);
-			num_statements += count(if_stmt->iffalse);
-		}
-	}
+   <emphasis>// But there can also be statements nested inside any</emphasis>
+   <emphasis>// of the statements in "in". We consider each one in turn.</emphasis>
+   AST_statement_list::const_iterator i;
+   <reserved>for</reserved>(i = in->begin(); i != in->end(); i++)
+   {
+      <emphasis>// Check if the statement is an if-statement</emphasis>
+      <reserved>if</reserved>(If* if_stmt = dynamic_cast&lt;If*&gt;(*i))
+      {
+         num_statements += count(if_stmt->iftrue);
+         num_statements += count(if_stmt->iffalse);
+      }
+   }
 
-	<reserved>return</reserved> num_statements;
+   <reserved>return</reserved> num_statements;
 }
 
-<reserved>extern</reserved> "C" <reserved>void</reserved> process_ast(AST_php_script* php_script)
+<reserved>extern</reserved> "C" <reserved>void</reserved> load (Pass_manager* pm, Plugin_pass* pass)
 {
-	<reserved>int</reserved> num_statements = count(php_script->statements);
-	cout &lt;&lt; num_statements &lt;&lt; " statements found" &lt;&lt; endl;
+   pm->add_after_named_pass (pass, new String ("ast"));
+}
+
+<reserved>extern</reserved> "C" <reserved>void</reserved> run_ast (AST::PHP_script* in, Pass_manager* pm, String* option)
+{
+   <reserved>int</reserved> num_statements = count(in->statements);
+   cout &lt;&lt; num_statements &lt;&lt; " statements found" &lt;&lt; endl;
 }
 </programlisting>
 
-<para> The overall structure of this plugin should be fairly clear. We count
-all the statements in the outermost list of statements, and then consider each
-statement in turn to check if there are any statements nested inside them. This
-plugin will now report the correct number of statements for our example with
-the <code>if</code> statement. However, if will report an invalid number of
-statements for examples with other types of statements. For example, it will
-report only two statements for
+<para>
+	The overall structure of this plugin should be fairly clear. We count all
+	the statements in the outermost list of statements, and then consider each
+	statement in turn to check if there are any statements nested inside them.
+	This plugin will now report the correct number of statements for our example
+	with the <code>if</code> statement. However, if will report an invalid
+	number of statements for examples with other types of statements. For
+	example, it will report only two statements for
+</para>
 
 <programlisting>
 &lt;?<reserved>php</reserved>
@@ -165,15 +192,17 @@ report only two statements for
    {
       <reserved>echo</reserved> $x;
    }
-&gt;>
+?&gt;
 </programlisting>
 
-<para> Of course, we can fix the plugin by testing for <code>while</code>
-statements. And for <code>do</code> statements. And for <code>foreach</code>,
-<code>switch</code>, <code>try</code>, etc. As mentioned, manually dealing with
-the syntax tree is a laborious process! Even something as simple as counting
-the number of statements in a script becomes a large program. Fortunately,
-there is a much easier solution. </para> 
+<para>
+	Of course, we can fix the plugin by testing for <code>while</code>
+	statements. And for <code>do</code> statements. And for
+	<code>foreach</code>, <code>switch</code>, <code>try</code>, etc. As
+	mentioned, manually dealing with the syntax tree is a laborious process!
+	Even something as simple as counting the number of statements in a script
+	becomes a large program. Fortunately, there is a much easier solution.
+</para> 
 
 </section>
 
@@ -181,66 +210,75 @@ there is a much easier solution. </para>
 
 <title>The Easy Solution</title>
 
-<para> Fortunately, &phc will do all this for you automatically! There is a
-standard &ldquo;do-nothing&rdquo; tree traversal predefined in &phc in the form
-of a class called <code>AST_visitor</code> (defined in
-<filename>&lt;AST_visitor.h&gt;</filename>). <code>AST_visitor</code> contains
-methods for each type of node in the tree. &phc will automatically traverse the
-abstract syntax tree for you, and call the appropriate method at each node.
+<para>
+	Fortunately, &phc will do all this for you automatically! There is a
+	standard &ldquo;do-nothing&rdquo; tree traversal predefined in &phc in the
+	form of a class called <code>AST::Visitor</code> (defined in
+	<filename>AST_visitor.h</filename>). <code>AST::Visitor</code>
+	contains methods for each type of node in the tree. &phc will automatically
+	traverse the abstract syntax tree for you, and call the appropriate method
+	at each node.
 </para>
 
-<para> In fact, there are <emphasis>two</emphasis> methods defined for each
-type of node. The first method, called <code>pre_something</code>, gets called
-on a node <emphasis>before</emphasis> &phc visits the children of the node. The
-second method, called <code>post_something</code>, gets called on a node
-<emphasis>after</emphasis> &phc has visited the children of the node.  For
-example, <code>pre_method</code> gets called on an <code>AST_method</code>,
-before visiting the statements in the method.  After all statements have been
-visited, <code>post_method</code> gets called. Thus, the very first method that
-gets called is <code>pre_php_script</code> (because that is the top-level node
-in the tree), and the very last method that gets called is
-<code>post_php_script</code>. </para>
+<para>
+	In fact, there are <emphasis>two</emphasis> methods defined for each type of
+	node. The first method, called <code>pre_something</code>, gets called on a
+	node <emphasis>before</emphasis> &phc visits the children of the node. The
+	second method, called <code>post_something</code>, gets called on a node
+	<emphasis>after</emphasis> &phc has visited the children of the node.  For
+	example, <code>pre_if</code> gets called on an <code>If</code>,
+	before visiting the statements in the <code>iftrue</code> and
+	<code>iffalse</code> clauses of the <code>If</code>. After all the
+	statements, have been visited, <code>post_if</code> gets called.
+</para>
 
-<para> So, here is an alternative and much easier solution for our problem.
-This plugin will actually count <emphasis>all</emphasis> statements in a
-script, without having to worry about all the different ways statements can be
-embedded in other statements. Moreover, even if the internal representation of
-&phc; changes (for example, if another type of statement gets added), this
-plugin will still work as-is.
+<para>
+	So, here is an alternative and much easier solution for our problem. This
+	plugin will actually count <emphasis>all</emphasis> statements in a script,
+	without having to worry about all the different ways statements can be
+	embedded in other statements. Moreover, even if the internal representation
+	of &phc; changes (for example, if another type of statement gets added),
+	this plugin will still work as-is.
 </para>
 
 <programlisting>
 <reserved>#include</reserved> "AST_visitor.h"
+<reserved>#include</reserved> &lt;pass_manager/Plugin_pass.h&gt;
 
-<reserved>class</reserved> Count_statements : <reserved>public</reserved> AST_visitor
+<reserved>class</reserved> Count_statements : <reserved>public</reserved> AST::Visitor
 {
 <reserved>private</reserved>:
    <reserved>int</reserved> num_statements;
 
 <reserved>public</reserved>:
    <emphasis>// Set num_statements to zero before we begin</emphasis>
-   <reserved>void</reserved> pre_php_script(AST_php_script* in)
+   <reserved>void</reserved> pre_php_script(AST::PHP_script* in)
    {
       num_statements = 0;
    }
 
    <emphasis>// Print the number of function calls when we are done</emphasis>
-   <reserved>void</reserved> post_php_script(AST_php_script* in)
+   <reserved>void</reserved> post_php_script(AST::PHP_script* in)
    {
       cout &lt;&lt; num_statements &lt;&lt; " statements found" &lt;&lt; endl;
    }
    
    <emphasis>// Count the number of function calls</emphasis>
-   <reserved>void</reserved> post_statement(AST_statement* in)
+   <reserved>void</reserved> post_statement(AST::Statement* in)
    {
       num_statements++;
    }
 };
 
-<reserved>extern</reserved> "C" <reserved>void</reserved> process_ast(AST_php_script* php_script)
+<reserved>extern</reserved> "C" <reserved>void</reserved> load (Pass_manager* pm, Plugin_pass* pass)
+{
+   pm->add_after_named_pass (pass, new String ("ast"));
+}
+
+<reserved>extern</reserved> "C" <reserved>void</reserved> run_ast (AST::PHP_script* in, Pass_manager* pm, String* option)
 {
 	Count_statements cfc;
-	php_script->visit(&amp;cfc);
+	in->visit(&amp;cfc);
 }
 </programlisting>
 
