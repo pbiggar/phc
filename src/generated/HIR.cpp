@@ -4928,43 +4928,43 @@ void Assign_var_var::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Push_array::Push_array(VARIABLE_NAME* lhs, bool is_ref, Rvalue* rhs)
+Assign_next::Assign_next(VARIABLE_NAME* lhs, bool is_ref, Rvalue* rhs)
 {
     this->lhs = lhs;
     this->is_ref = is_ref;
     this->rhs = rhs;
 }
 
-Push_array::Push_array()
+Assign_next::Assign_next()
 {
     this->lhs = 0;
     this->is_ref = 0;
     this->rhs = 0;
 }
 
-void Push_array::visit(Visitor* visitor)
+void Assign_next::visit(Visitor* visitor)
 {
     visitor->visit_statement(this);
 }
 
-void Push_array::transform_children(Transform* transform)
+void Assign_next::transform_children(Transform* transform)
 {
     transform->children_statement(this);
 }
 
-int Push_array::classid()
+int Assign_next::classid()
 {
     return ID;
 }
 
-bool Push_array::match(Node* in)
+bool Assign_next::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    Push_array* that = dynamic_cast<Push_array*>(in);
+    Assign_next* that = dynamic_cast<Assign_next*>(in);
     if(that == NULL) return false;
     
     if(this->lhs == NULL)
@@ -4987,9 +4987,9 @@ bool Push_array::match(Node* in)
     return true;
 }
 
-bool Push_array::equals(Node* in)
+bool Assign_next::equals(Node* in)
 {
-    Push_array* that = dynamic_cast<Push_array*>(in);
+    Assign_next* that = dynamic_cast<Assign_next*>(in);
     if(that == NULL) return false;
     
     if(this->lhs == NULL || that->lhs == NULL)
@@ -5015,17 +5015,17 @@ bool Push_array::equals(Node* in)
     return true;
 }
 
-Push_array* Push_array::clone()
+Assign_next* Assign_next::clone()
 {
     VARIABLE_NAME* lhs = this->lhs ? this->lhs->clone() : NULL;
     bool is_ref = this->is_ref;
     Rvalue* rhs = this->rhs ? this->rhs->clone() : NULL;
-    Push_array* clone = new Push_array(lhs, is_ref, rhs);
+    Assign_next* clone = new Assign_next(lhs, is_ref, rhs);
     clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-Node* Push_array::find(Node* in)
+Node* Assign_next::find(Node* in)
 {
     if (this->match (in))
     	return this;
@@ -5045,7 +5045,7 @@ Node* Push_array::find(Node* in)
     return NULL;
 }
 
-void Push_array::find_all(Node* in, Node_list* out)
+void Assign_next::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -5058,7 +5058,7 @@ void Push_array::find_all(Node* in, Node_list* out)
     
 }
 
-void Push_array::assert_valid()
+void Assign_next::assert_valid()
 {
     assert(lhs != NULL);
     lhs->assert_valid();
@@ -5582,6 +5582,108 @@ void Array_access::assert_valid()
     variable_name->assert_valid();
     assert(index != NULL);
     index->assert_valid();
+    Node::assert_mixin_valid();
+}
+
+Array_next::Array_next(VARIABLE_NAME* variable_name)
+{
+    this->variable_name = variable_name;
+}
+
+Array_next::Array_next()
+{
+    this->variable_name = 0;
+}
+
+void Array_next::visit(Visitor* visitor)
+{
+    visitor->visit_expr(this);
+}
+
+void Array_next::transform_children(Transform* transform)
+{
+    transform->children_expr(this);
+}
+
+int Array_next::classid()
+{
+    return ID;
+}
+
+bool Array_next::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Array_next* that = dynamic_cast<Array_next*>(in);
+    if(that == NULL) return false;
+    
+    if(this->variable_name == NULL)
+    {
+    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
+    		return false;
+    }
+    else if(!this->variable_name->match(that->variable_name))
+    	return false;
+    
+    return true;
+}
+
+bool Array_next::equals(Node* in)
+{
+    Array_next* that = dynamic_cast<Array_next*>(in);
+    if(that == NULL) return false;
+    
+    if(this->variable_name == NULL || that->variable_name == NULL)
+    {
+    	if(this->variable_name != NULL || that->variable_name != NULL)
+    		return false;
+    }
+    else if(!this->variable_name->equals(that->variable_name))
+    	return false;
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+Array_next* Array_next::clone()
+{
+    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    Array_next* clone = new Array_next(variable_name);
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+Node* Array_next::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    if (this->variable_name != NULL)
+    {
+    	Node* variable_name_res = this->variable_name->find(in);
+    	if (variable_name_res) return variable_name_res;
+    }
+    
+    return NULL;
+}
+
+void Array_next::find_all(Node* in, Node_list* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+    
+    if (this->variable_name != NULL)
+    	this->variable_name->find_all(in, out);
+    
+}
+
+void Array_next::assert_valid()
+{
+    assert(variable_name != NULL);
+    variable_name->assert_valid();
     Node::assert_mixin_valid();
 }
 

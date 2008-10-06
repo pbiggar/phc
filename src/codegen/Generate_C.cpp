@@ -807,14 +807,14 @@ protected:
  * If $x is a different scalar, a warning is printed, but that $x is not initialized (nothing pushed).
  * If $x is a string (but not ""), a fatal error is thrown.
  */
-class Pattern_push_array : public Pattern
+class Pattern_assign_next : public Pattern
 {
 public:
 	bool match(Statement* that)
 	{
 		lhs = new Wildcard<VARIABLE_NAME>;
 		rhs = new Wildcard<VARIABLE_NAME>;
-		agn = new Push_array (lhs, false, rhs);
+		agn = new Assign_next (lhs, false, rhs);
 		return (that->match(agn));
 	}
 
@@ -861,7 +861,7 @@ public:
 	}
 
 protected:
-	Push_array* agn;
+	Assign_next* agn;
 	Wildcard<VARIABLE_NAME>* lhs;
 	Wildcard<VARIABLE_NAME>* rhs;
 };
@@ -2419,7 +2419,7 @@ void Generate_C::children_statement(Statement* in)
 	,	new Pattern_assign_var_var_to_var ()
 	,	new Pattern_assign_param_is_ref ()
 	,	new Pattern_assign_array ()
-	,	new Pattern_push_array ()
+	,	new Pattern_assign_next ()
 	, new Pattern_assign_var_to_var_var ()
 	,	new Pattern_global()
 	,	new Pattern_builtin()

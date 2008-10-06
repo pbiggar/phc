@@ -131,7 +131,7 @@ void Transform::pre_assign_var_var(Assign_var_var* in, Statement_list* out)
     out->push_back(in);
 }
 
-void Transform::pre_push_array(Push_array* in, Statement_list* out)
+void Transform::pre_assign_next(Assign_next* in, Statement_list* out)
 {
     out->push_back(in);
 }
@@ -162,6 +162,11 @@ Expr* Transform::pre_field_access(Field_access* in)
 }
 
 Expr* Transform::pre_array_access(Array_access* in)
+{
+    return in;
+}
+
+Expr* Transform::pre_array_next(Array_next* in)
 {
     return in;
 }
@@ -497,7 +502,7 @@ void Transform::post_assign_var_var(Assign_var_var* in, Statement_list* out)
     out->push_back(in);
 }
 
-void Transform::post_push_array(Push_array* in, Statement_list* out)
+void Transform::post_assign_next(Assign_next* in, Statement_list* out)
 {
     out->push_back(in);
 }
@@ -528,6 +533,11 @@ Expr* Transform::post_field_access(Field_access* in)
 }
 
 Expr* Transform::post_array_access(Array_access* in)
+{
+    return in;
+}
+
+Expr* Transform::post_array_next(Array_next* in)
 {
     return in;
 }
@@ -884,7 +894,7 @@ void Transform::children_assign_var_var(Assign_var_var* in)
     in->rhs = transform_rvalue(in->rhs);
 }
 
-void Transform::children_push_array(Push_array* in)
+void Transform::children_assign_next(Assign_next* in)
 {
     in->lhs = transform_variable_name(in->lhs);
     in->rhs = transform_rvalue(in->rhs);
@@ -925,6 +935,11 @@ void Transform::children_array_access(Array_access* in)
 {
     in->variable_name = transform_variable_name(in->variable_name);
     in->index = transform_rvalue(in->index);
+}
+
+void Transform::children_array_next(Array_next* in)
+{
+    in->variable_name = transform_variable_name(in->variable_name);
 }
 
 void Transform::children_cast(Cast* in)
@@ -1940,11 +1955,11 @@ void Transform::pre_statement(Statement* in, Statement_list* out)
     			out->push_back(*i);
     	}
     	return;
-    case Push_array::ID: 
+    case Assign_next::ID: 
     	{
     		Statement_list* local_out = new Statement_list;
     		Statement_list::const_iterator i;
-    		pre_push_array(dynamic_cast<Push_array*>(in), local_out);
+    		pre_assign_next(dynamic_cast<Assign_next*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
@@ -2117,6 +2132,7 @@ Expr* Transform::pre_expr(Expr* in)
     case Variable_variable::ID: return pre_variable_variable(dynamic_cast<Variable_variable*>(in));
     case Array_access::ID: return pre_array_access(dynamic_cast<Array_access*>(in));
     case Field_access::ID: return pre_field_access(dynamic_cast<Field_access*>(in));
+    case Array_next::ID: return pre_array_next(dynamic_cast<Array_next*>(in));
     case FOREIGN::ID: return pre_foreign(dynamic_cast<FOREIGN*>(in));
     case Isset::ID: return pre_isset(dynamic_cast<Isset*>(in));
     case Foreach_has_key::ID: return pre_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
@@ -2327,11 +2343,11 @@ void Transform::post_statement(Statement* in, Statement_list* out)
     			out->push_back(*i);
     	}
     	return;
-    case Push_array::ID: 
+    case Assign_next::ID: 
     	{
     		Statement_list* local_out = new Statement_list;
     		Statement_list::const_iterator i;
-    		post_push_array(dynamic_cast<Push_array*>(in), local_out);
+    		post_assign_next(dynamic_cast<Assign_next*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
@@ -2504,6 +2520,7 @@ Expr* Transform::post_expr(Expr* in)
     case Variable_variable::ID: return post_variable_variable(dynamic_cast<Variable_variable*>(in));
     case Array_access::ID: return post_array_access(dynamic_cast<Array_access*>(in));
     case Field_access::ID: return post_field_access(dynamic_cast<Field_access*>(in));
+    case Array_next::ID: return post_array_next(dynamic_cast<Array_next*>(in));
     case FOREIGN::ID: return post_foreign(dynamic_cast<FOREIGN*>(in));
     case Isset::ID: return post_isset(dynamic_cast<Isset*>(in));
     case Foreach_has_key::ID: return post_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
@@ -2630,8 +2647,8 @@ void Transform::children_statement(Statement* in)
     case Assign_array::ID:
     	children_assign_array(dynamic_cast<Assign_array*>(in));
     	break;
-    case Push_array::ID:
-    	children_push_array(dynamic_cast<Push_array*>(in));
+    case Assign_next::ID:
+    	children_assign_next(dynamic_cast<Assign_next*>(in));
     	break;
     case Assign_field::ID:
     	children_assign_field(dynamic_cast<Assign_field*>(in));
@@ -2774,6 +2791,9 @@ void Transform::children_expr(Expr* in)
     	break;
     case Field_access::ID:
     	children_field_access(dynamic_cast<Field_access*>(in));
+    	break;
+    case Array_next::ID:
+    	children_array_next(dynamic_cast<Array_next*>(in));
     	break;
     case FOREIGN::ID:
     	children_foreign(dynamic_cast<FOREIGN*>(in));

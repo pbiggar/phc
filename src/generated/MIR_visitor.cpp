@@ -118,7 +118,7 @@ void Visitor::pre_assign_var_var(Assign_var_var* in)
 {
 }
 
-void Visitor::pre_push_array(Push_array* in)
+void Visitor::pre_assign_next(Assign_next* in)
 {
 }
 
@@ -155,6 +155,10 @@ void Visitor::pre_field_access(Field_access* in)
 }
 
 void Visitor::pre_array_access(Array_access* in)
+{
+}
+
+void Visitor::pre_array_next(Array_next* in)
 {
 }
 
@@ -467,7 +471,7 @@ void Visitor::post_assign_var_var(Assign_var_var* in)
 {
 }
 
-void Visitor::post_push_array(Push_array* in)
+void Visitor::post_assign_next(Assign_next* in)
 {
 }
 
@@ -504,6 +508,10 @@ void Visitor::post_field_access(Field_access* in)
 }
 
 void Visitor::post_array_access(Array_access* in)
+{
+}
+
+void Visitor::post_array_next(Array_next* in)
 {
 }
 
@@ -869,7 +877,7 @@ void Visitor::children_assign_var_var(Assign_var_var* in)
     visit_rvalue(in->rhs);
 }
 
-void Visitor::children_push_array(Push_array* in)
+void Visitor::children_assign_next(Assign_next* in)
 {
     visit_variable_name(in->lhs);
     visit_marker("is_ref", in->is_ref);
@@ -911,6 +919,11 @@ void Visitor::children_array_access(Array_access* in)
 {
     visit_variable_name(in->variable_name);
     visit_rvalue(in->index);
+}
+
+void Visitor::children_array_next(Array_next* in)
+{
+    visit_variable_name(in->variable_name);
 }
 
 void Visitor::children_cast(Cast* in)
@@ -1314,11 +1327,11 @@ void Visitor::pre_assign_var_var_chain(Assign_var_var* in)
     pre_assign_var_var((Assign_var_var*) in);
 }
 
-void Visitor::pre_push_array_chain(Push_array* in)
+void Visitor::pre_assign_next_chain(Assign_next* in)
 {
     pre_node((Node*) in);
     pre_statement((Statement*) in);
-    pre_push_array((Push_array*) in);
+    pre_assign_next((Assign_next*) in);
 }
 
 void Visitor::pre_pre_op_chain(Pre_op* in)
@@ -1361,6 +1374,13 @@ void Visitor::pre_array_access_chain(Array_access* in)
     pre_node((Node*) in);
     pre_expr((Expr*) in);
     pre_array_access((Array_access*) in);
+}
+
+void Visitor::pre_array_next_chain(Array_next* in)
+{
+    pre_node((Node*) in);
+    pre_expr((Expr*) in);
+    pre_array_next((Array_next*) in);
 }
 
 void Visitor::pre_cast_chain(Cast* in)
@@ -1849,9 +1869,9 @@ void Visitor::post_assign_var_var_chain(Assign_var_var* in)
     post_node((Node*) in);
 }
 
-void Visitor::post_push_array_chain(Push_array* in)
+void Visitor::post_assign_next_chain(Assign_next* in)
 {
-    post_push_array((Push_array*) in);
+    post_assign_next((Assign_next*) in);
     post_statement((Statement*) in);
     post_node((Node*) in);
 }
@@ -1894,6 +1914,13 @@ void Visitor::post_field_access_chain(Field_access* in)
 void Visitor::post_array_access_chain(Array_access* in)
 {
     post_array_access((Array_access*) in);
+    post_expr((Expr*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_array_next_chain(Array_next* in)
+{
+    post_array_next((Array_next*) in);
     post_expr((Expr*) in);
     post_node((Node*) in);
 }
@@ -2800,8 +2827,8 @@ void Visitor::pre_statement_chain(Statement* in)
     case Assign_array::ID:
     	pre_assign_array_chain(dynamic_cast<Assign_array*>(in));
     	break;
-    case Push_array::ID:
-    	pre_push_array_chain(dynamic_cast<Push_array*>(in));
+    case Assign_next::ID:
+    	pre_assign_next_chain(dynamic_cast<Assign_next*>(in));
     	break;
     case Assign_field::ID:
     	pre_assign_field_chain(dynamic_cast<Assign_field*>(in));
@@ -2944,6 +2971,9 @@ void Visitor::pre_expr_chain(Expr* in)
     	break;
     case Field_access::ID:
     	pre_field_access_chain(dynamic_cast<Field_access*>(in));
+    	break;
+    case Array_next::ID:
+    	pre_array_next_chain(dynamic_cast<Array_next*>(in));
     	break;
     case FOREIGN::ID:
     	pre_foreign_chain(dynamic_cast<FOREIGN*>(in));
@@ -3116,8 +3146,8 @@ void Visitor::post_statement_chain(Statement* in)
     case Assign_array::ID:
     	post_assign_array_chain(dynamic_cast<Assign_array*>(in));
     	break;
-    case Push_array::ID:
-    	post_push_array_chain(dynamic_cast<Push_array*>(in));
+    case Assign_next::ID:
+    	post_assign_next_chain(dynamic_cast<Assign_next*>(in));
     	break;
     case Assign_field::ID:
     	post_assign_field_chain(dynamic_cast<Assign_field*>(in));
@@ -3260,6 +3290,9 @@ void Visitor::post_expr_chain(Expr* in)
     	break;
     case Field_access::ID:
     	post_field_access_chain(dynamic_cast<Field_access*>(in));
+    	break;
+    case Array_next::ID:
+    	post_array_next_chain(dynamic_cast<Array_next*>(in));
     	break;
     case FOREIGN::ID:
     	post_foreign_chain(dynamic_cast<FOREIGN*>(in));
@@ -3432,8 +3465,8 @@ void Visitor::children_statement(Statement* in)
     case Assign_array::ID:
     	children_assign_array(dynamic_cast<Assign_array*>(in));
     	break;
-    case Push_array::ID:
-    	children_push_array(dynamic_cast<Push_array*>(in));
+    case Assign_next::ID:
+    	children_assign_next(dynamic_cast<Assign_next*>(in));
     	break;
     case Assign_field::ID:
     	children_assign_field(dynamic_cast<Assign_field*>(in));
@@ -3576,6 +3609,9 @@ void Visitor::children_expr(Expr* in)
     	break;
     case Field_access::ID:
     	children_field_access(dynamic_cast<Field_access*>(in));
+    	break;
+    case Array_next::ID:
+    	children_array_next(dynamic_cast<Array_next*>(in));
     	break;
     case FOREIGN::ID:
     	children_foreign(dynamic_cast<FOREIGN*>(in));

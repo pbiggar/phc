@@ -25,8 +25,10 @@ class MIR_to_AST : public MIR::Fold
 <
  AST::Actual_parameter*,	// Actual_parameter*
  AST::Variable*,				// Array_access*
+ AST::Variable*,				// Array_next*
  AST::Eval_expr*,				// Assign_array*
  AST::Eval_expr*,				// Assign_field*
+ AST::Eval_expr*,				// Assign_next*
  AST::Eval_expr*,				// Assign_var*
  AST::Eval_expr*,				// Assign_var_var*
  AST::Attr_mod*,				// Attr_mod*
@@ -86,7 +88,6 @@ class MIR_to_AST : public MIR::Fold
  AST::PHP_script*,			// PHP_script*
  AST::FOREIGN*,				// Param_is_ref*
  AST::Eval_expr*,				// Pre_op*
- AST::Eval_expr*,				// Push_array*
  AST::REAL*,					// REAL*
  AST::Return*,					// Return*
  AST::Expr*,					// Rvalue*
@@ -377,7 +378,7 @@ public:
 		return new AST::Eval_expr (result);
 	}
 
-	AST::Eval_expr* fold_impl_push_array (MIR::Push_array* orig, AST::None* lhs, bool is_ref, AST::Expr* rhs) 
+	AST::Eval_expr* fold_impl_assign_next (MIR::Assign_next* orig, AST::None* lhs, bool is_ref, AST::Expr* rhs) 
 	{
 		AST::VARIABLE_NAME* lhs_var = get_var_name ();
 

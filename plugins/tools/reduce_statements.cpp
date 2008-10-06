@@ -167,6 +167,7 @@ public:
 	REMOVABLE_CONTENTS (HIR::Try, try, statements);
 	REMOVABLE (HIR::Assign_array, assign_array);
 	REMOVABLE (HIR::Assign_field, assign_field);
+	REMOVABLE (HIR::Assign_next, assign_next);
 	REMOVABLE (HIR::Assign_var, assign_var);
 	REMOVABLE (HIR::Assign_var_var, assign_var_var);
 	REMOVABLE (HIR::Break, break);
@@ -174,7 +175,6 @@ public:
 	REMOVABLE (HIR::Eval_expr, eval_expr);
 	REMOVABLE (HIR::Global, global);
 	REMOVABLE (HIR::Pre_op, pre_op);
-	REMOVABLE (HIR::Push_array, push_array);
 	REMOVABLE (HIR::Return, return);
 	REMOVABLE (HIR::Static_declaration, static_declaration);
 	REMOVABLE (HIR::Throw, throw);
@@ -233,6 +233,7 @@ public:
 	REMOVABLE_CONTENTS (MIR::Try, try, statements);
 	REMOVABLE (MIR::Assign_array, assign_array);
 	REMOVABLE (MIR::Assign_field, assign_field);
+	REMOVABLE (MIR::Assign_next, assign_next);
 	REMOVABLE (MIR::Assign_var, assign_var);
 	REMOVABLE (MIR::Assign_var_var, assign_var_var);
 	REMOVABLE (MIR::Eval_expr, eval_expr);
@@ -240,7 +241,6 @@ public:
 	// TODO: remove them all if you remove one.
 	REMOVABLE (MIR::Global, global);
 	REMOVABLE (MIR::Pre_op, pre_op);
-	REMOVABLE (MIR::Push_array, push_array);
 	REMOVABLE (MIR::Return, return);
 	REMOVABLE (MIR::Static_declaration, static_declaration);
 	REMOVABLE (MIR::Throw, throw);

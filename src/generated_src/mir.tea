@@ -36,7 +36,7 @@ Statement ::=
 	| Class_alias | Interface_alias | Method_alias
 	| Return | Static_declaration | Global
 	| Try | Throw
-	| Assign_var | Assign_var_var | Assign_array | Push_array | Assign_field
+	| Assign_var | Assign_var_var | Assign_array | Assign_next | Assign_field
 	| Eval_expr | Pre_op
 	| Unset
 	| Label | Goto | Branch
@@ -92,7 +92,7 @@ Assign_var     ::=			lhs:VARIABLE_NAME								is_ref:"&"? rhs:Expr ;
 Assign_field	::= Target	lhs:Field_name									is_ref:"&"? rhs:Rvalue ;
 Assign_array   ::=			lhs:VARIABLE_NAME index:Rvalue			is_ref:"&"? rhs:Rvalue ;
 Assign_var_var ::=			lhs:VARIABLE_NAME						      is_ref:"&"? rhs:Rvalue ;
-Push_array     ::=			lhs:VARIABLE_NAME								is_ref:"&"? rhs:Rvalue ;
+Assign_next		::=			lhs:VARIABLE_NAME								is_ref:"&"? rhs:Rvalue ;
 
 Pre_op ::= OP VARIABLE_NAME ;
 
@@ -115,6 +115,7 @@ Expr ::=
 	| Method_invocation | New
 	| Literal 
 	| Variable_name | Array_access | Field_access
+	| Array_next
 	| FOREIGN<IR::Node*>
 	-- MIR only
 	| Isset
@@ -134,6 +135,7 @@ Rvalue ::= Literal | VARIABLE_NAME ;
 
 Field_access ::= Target Field_name ;
 Array_access ::= VARIABLE_NAME index:Rvalue ;
+Array_next   ::= VARIABLE_NAME ; -- $x =& $arr[];
 
 Cast     ::= CAST VARIABLE_NAME ;
 Unary_op ::= OP VARIABLE_NAME ;

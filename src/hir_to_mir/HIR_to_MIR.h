@@ -25,8 +25,10 @@ class HIR_to_MIR : public HIR::Fold
 <
  MIR::Node*,					// Actual_parameter*
  MIR::Array_access*,			// Array_access*
+ MIR::Array_next*,			// Array_next*
  MIR::Assign_array*,			// Assign_array*
  MIR::Assign_field*,			// Assign_field*
+ MIR::Assign_next*,			// Assign_next*
  MIR::Assign_var*,			// Assign_var*
  MIR::Assign_var_var*,		// Assign_var_var*
  MIR::Attr_mod*,				// Attr_mod*
@@ -74,7 +76,6 @@ class HIR_to_MIR : public HIR::Fold
  MIR::OP*,						// OP*
  MIR::PHP_script*,			// PHP_script*
  MIR::Pre_op*,					// Pre_op*
- MIR::Push_array*,			// Push_array*
  MIR::REAL*,					// REAL*
  MIR::Return*,					// Return*
  MIR::Rvalue*,					// Rvalue*
@@ -305,10 +306,10 @@ public:
 		return result;
 	}
 
-	MIR::Push_array* fold_impl_push_array (HIR::Push_array* orig, MIR::VARIABLE_NAME* lhs, bool is_ref, MIR::Rvalue* rhs) 
+	MIR::Assign_next* fold_impl_assign_next (HIR::Assign_next* orig, MIR::VARIABLE_NAME* lhs, bool is_ref, MIR::Rvalue* rhs) 
 	{
-		MIR::Push_array* result;
-		result = new MIR::Push_array (lhs, is_ref, rhs);
+		MIR::Assign_next* result;
+		result = new MIR::Assign_next (lhs, is_ref, rhs);
 		copy_attrs (result, orig);
 		return result;
 	}

@@ -374,13 +374,13 @@ public:
 		// var->array_index indicates a push or a copy. So we have to look in
 		// ORIG.
 		
-		// push_array - $x[] = $y;
+		// assign_next - $x[] = $y;
 		if (ia
 			&& ia->index == NULL
 			&& isa<HIR::Rvalue> (expr))
 		{
-			HIR::Push_array* result;
-			result = new HIR::Push_array (
+			HIR::Assign_next* result;
+			result = new HIR::Assign_next (
 				ia->variable_name, 
 				is_ref, 
 				dyc<HIR::Rvalue> (expr));

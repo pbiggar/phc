@@ -22,8 +22,10 @@ namespace MIR{
 template
 <class _Actual_parameter,
  class _Array_access,
+ class _Array_next,
  class _Assign_array,
  class _Assign_field,
+ class _Assign_next,
  class _Assign_var,
  class _Assign_var_var,
  class _Attr_mod,
@@ -83,7 +85,6 @@ template
  class _PHP_script,
  class _Param_is_ref,
  class _Pre_op,
- class _Push_array,
  class _REAL,
  class _Return,
  class _Rvalue,
@@ -113,7 +114,7 @@ class Fold
 {
 // Access this class from subclasses without copying out the template instantiation
 public:
-   typedef Fold<_Actual_parameter, _Array_access, _Assign_array, _Assign_field, _Assign_var, _Assign_var_var, _Attr_mod, _Attribute, _BOOL, _Bin_op, _Branch, _CAST, _CLASS_NAME, _CONSTANT_NAME, _Cast, _Catch, _Class_alias, _Class_def, _Class_mod, _Class_name, _Constant, _Eval_expr, _Expr, _FIELD_NAME, _FOREIGN, _Field_access, _Field_name, _Foreach_end, _Foreach_get_key, _Foreach_get_val, _Foreach_has_key, _Foreach_next, _Foreach_reset, _Formal_parameter, _Global, _Goto, _HT_ITERATOR, _INT, _INTERFACE_NAME, _Identifier, _Instanceof, _Interface_alias, _Interface_def, _Isset, _LABEL_NAME, _Label, _Literal, _METHOD_NAME, _Member, _Method, _Method_alias, _Method_invocation, _Method_mod, _Method_name, _NIL, _Name_with_default, _New, _Node, _OP, _PARAM_INDEX, _PHP_script, _Param_is_ref, _Pre_op, _Push_array, _REAL, _Return, _Rvalue, _STRING, _Signature, _Statement, _Static_array, _Static_array_elem, _Static_array_key, _Static_declaration, _Static_value, _Target, _Throw, _Try, _Type, _Unary_op, _Unset, _VARIABLE_NAME, _Variable_class, _Variable_field, _Variable_method, _Variable_name, _Variable_variable, _List> parent;
+   typedef Fold<_Actual_parameter, _Array_access, _Array_next, _Assign_array, _Assign_field, _Assign_next, _Assign_var, _Assign_var_var, _Attr_mod, _Attribute, _BOOL, _Bin_op, _Branch, _CAST, _CLASS_NAME, _CONSTANT_NAME, _Cast, _Catch, _Class_alias, _Class_def, _Class_mod, _Class_name, _Constant, _Eval_expr, _Expr, _FIELD_NAME, _FOREIGN, _Field_access, _Field_name, _Foreach_end, _Foreach_get_key, _Foreach_get_val, _Foreach_has_key, _Foreach_next, _Foreach_reset, _Formal_parameter, _Global, _Goto, _HT_ITERATOR, _INT, _INTERFACE_NAME, _Identifier, _Instanceof, _Interface_alias, _Interface_def, _Isset, _LABEL_NAME, _Label, _Literal, _METHOD_NAME, _Member, _Method, _Method_alias, _Method_invocation, _Method_mod, _Method_name, _NIL, _Name_with_default, _New, _Node, _OP, _PARAM_INDEX, _PHP_script, _Param_is_ref, _Pre_op, _REAL, _Return, _Rvalue, _STRING, _Signature, _Statement, _Static_array, _Static_array_elem, _Static_array_key, _Static_declaration, _Static_value, _Target, _Throw, _Try, _Type, _Unary_op, _Unset, _VARIABLE_NAME, _Variable_class, _Variable_field, _Variable_method, _Variable_name, _Variable_variable, _List> parent;
 // Recursively fold the children before folding the parent
 // This methods form the client API for a fold, but should not be
 // overridden unless you know what you are doing
@@ -424,14 +425,14 @@ public:
 		return fold_impl_assign_var_var(in, lhs, is_ref, rhs);
 	}
 
-	virtual _Push_array fold_push_array(Push_array* in)
+	virtual _Assign_next fold_assign_next(Assign_next* in)
 	{
 		_VARIABLE_NAME lhs = 0;
 		if(in->lhs != NULL) lhs = fold_variable_name(in->lhs);
 		bool is_ref = in->is_ref;
 		_Rvalue rhs = 0;
 		if(in->rhs != NULL) rhs = fold_rvalue(in->rhs);
-		return fold_impl_push_array(in, lhs, is_ref, rhs);
+		return fold_impl_assign_next(in, lhs, is_ref, rhs);
 	}
 
 	virtual _Pre_op fold_pre_op(Pre_op* in)
@@ -502,6 +503,13 @@ public:
 		_Rvalue index = 0;
 		if(in->index != NULL) index = fold_rvalue(in->index);
 		return fold_impl_array_access(in, variable_name, index);
+	}
+
+	virtual _Array_next fold_array_next(Array_next* in)
+	{
+		_VARIABLE_NAME variable_name = 0;
+		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
+		return fold_impl_array_next(in, variable_name);
 	}
 
 	virtual _Cast fold_cast(Cast* in)
@@ -765,13 +773,14 @@ public:
 	virtual _Assign_field fold_impl_assign_field(Assign_field* orig, _Target target, _Field_name lhs, bool is_ref, _Rvalue rhs) { assert(0); };
 	virtual _Assign_array fold_impl_assign_array(Assign_array* orig, _VARIABLE_NAME lhs, _Rvalue index, bool is_ref, _Rvalue rhs) { assert(0); };
 	virtual _Assign_var_var fold_impl_assign_var_var(Assign_var_var* orig, _VARIABLE_NAME lhs, bool is_ref, _Rvalue rhs) { assert(0); };
-	virtual _Push_array fold_impl_push_array(Push_array* orig, _VARIABLE_NAME lhs, bool is_ref, _Rvalue rhs) { assert(0); };
+	virtual _Assign_next fold_impl_assign_next(Assign_next* orig, _VARIABLE_NAME lhs, bool is_ref, _Rvalue rhs) { assert(0); };
 	virtual _Pre_op fold_impl_pre_op(Pre_op* orig, _OP op, _VARIABLE_NAME variable_name) { assert(0); };
 	virtual _Eval_expr fold_impl_eval_expr(Eval_expr* orig, _Expr expr) { assert(0); };
 	virtual _Unset fold_impl_unset(Unset* orig, _Target target, _Variable_name variable_name, _List<_Rvalue>* array_indices) { assert(0); };
 	virtual _Isset fold_impl_isset(Isset* orig, _Target target, _Variable_name variable_name, _List<_Rvalue>* array_indices) { assert(0); };
 	virtual _Field_access fold_impl_field_access(Field_access* orig, _Target target, _Field_name field_name) { assert(0); };
 	virtual _Array_access fold_impl_array_access(Array_access* orig, _VARIABLE_NAME variable_name, _Rvalue index) { assert(0); };
+	virtual _Array_next fold_impl_array_next(Array_next* orig, _VARIABLE_NAME variable_name) { assert(0); };
 	virtual _Cast fold_impl_cast(Cast* orig, _CAST cast, _VARIABLE_NAME variable_name) { assert(0); };
 	virtual _Unary_op fold_impl_unary_op(Unary_op* orig, _OP op, _VARIABLE_NAME variable_name) { assert(0); };
 	virtual _Bin_op fold_impl_bin_op(Bin_op* orig, _Rvalue left, _OP op, _Rvalue right) { assert(0); };
@@ -852,8 +861,8 @@ public:
 				return fold_assign_var_var(dynamic_cast<Assign_var_var*>(in));
 			case Assign_array::ID:
 				return fold_assign_array(dynamic_cast<Assign_array*>(in));
-			case Push_array::ID:
-				return fold_push_array(dynamic_cast<Push_array*>(in));
+			case Assign_next::ID:
+				return fold_assign_next(dynamic_cast<Assign_next*>(in));
 			case Assign_field::ID:
 				return fold_assign_field(dynamic_cast<Assign_field*>(in));
 			case Eval_expr::ID:
@@ -926,6 +935,8 @@ public:
 				return fold_array_access(dynamic_cast<Array_access*>(in));
 			case Field_access::ID:
 				return fold_field_access(dynamic_cast<Field_access*>(in));
+			case Array_next::ID:
+				return fold_array_next(dynamic_cast<Array_next*>(in));
 			case Isset::ID:
 				return fold_isset(dynamic_cast<Isset*>(in));
 			case Foreach_has_key::ID:
@@ -1004,8 +1015,8 @@ public:
 				return fold_assign_var_var(dynamic_cast<Assign_var_var*>(in));
 			case Assign_array::ID:
 				return fold_assign_array(dynamic_cast<Assign_array*>(in));
-			case Push_array::ID:
-				return fold_push_array(dynamic_cast<Push_array*>(in));
+			case Assign_next::ID:
+				return fold_assign_next(dynamic_cast<Assign_next*>(in));
 			case Assign_field::ID:
 				return fold_assign_field(dynamic_cast<Assign_field*>(in));
 			case Eval_expr::ID:
@@ -1080,6 +1091,8 @@ public:
 				return fold_array_access(dynamic_cast<Array_access*>(in));
 			case Field_access::ID:
 				return fold_field_access(dynamic_cast<Field_access*>(in));
+			case Array_next::ID:
+				return fold_array_next(dynamic_cast<Array_next*>(in));
 			case FOREIGN::ID:
 				return fold_foreign(dynamic_cast<FOREIGN*>(in));
 			case Isset::ID:
@@ -1271,6 +1284,6 @@ public:
 };
 
 template<class T, template <class _Tp, class _Alloc = allocator<_Tp> > class _List>
-class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, _List> {};
+class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, _List> {};
 }
 
