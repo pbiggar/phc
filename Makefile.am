@@ -157,16 +157,12 @@ libphc_la_SOURCES= 											\
 	src/optimize/CFG.h										\
 	src/optimize/CFG_visitor.cpp							\
 	src/optimize/CFG_visitor.h								\
-	src/optimize/Copy_propagation.cpp					\
-	src/optimize/Copy_propagation.h						\
 	src/optimize/Dead_code_elimination.cpp				\
 	src/optimize/Dead_code_elimination.h				\
 	src/optimize/Def_use.cpp 								\
 	src/optimize/Def_use.h									\
 	src/optimize/Edge.cpp									\
 	src/optimize/Edge.h										\
-	src/optimize/Fix_point.cpp								\
-	src/optimize/Fix_point.h								\
 	src/optimize/Flow_visitor.cpp							\
 	src/optimize/Flow_visitor.h							\
 	src/optimize/If_simplification.cpp					\
@@ -179,16 +175,12 @@ libphc_la_SOURCES= 											\
 	src/optimize/Out_of_SSA.h								\
 	src/optimize/Phi.cpp										\
 	src/optimize/Phi.h										\
-	src/optimize/Prune_symbol_table.cpp					\
-	src/optimize/Prune_symbol_table.h					\
 	src/optimize/SCCP.cpp									\
 	src/optimize/SCCP.h										\
 	src/optimize/Set.cpp										\
 	src/optimize/Set.h										\
 	src/optimize/SSA.cpp										\
 	src/optimize/SSA.h										\
-	src/optimize/Use_def_counter.cpp 					\
-	src/optimize/Use_def_counter.h						\
 	src/optimize/Visit_once.cpp							\
 	src/optimize/Visit_once.h								\
 	src/parsing/Parse_buffer.cpp							\

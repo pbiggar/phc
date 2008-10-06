@@ -32,14 +32,12 @@
 #include "hir_to_mir/Lower_dynamic_definitions.h"
 #include "hir_to_mir/Lower_method_invocations.h"
 #include "optimize/Address_taken.h"
-#include "optimize/Copy_propagation.h"
 #include "optimize/Dead_code_elimination.h"
 #include "optimize/Def_use.h"
 #include "optimize/If_simplification.h"
 #include "optimize/Into_SSA.h"
 #include "optimize/Live_variable_analysis.h"
 #include "optimize/Out_of_SSA.h"
-#include "optimize/Prune_symbol_table.h"
 #include "optimize/SCCP.h"
 #include "parsing/parse.h"
 #include "parsing/XML_parser.h"
@@ -156,8 +154,6 @@ int main(int argc, char** argv)
 
 
 	pm->add_hir_pass (new Fake_pass (s("hir"), s("High-level Internal Representation - the smallest subset of PHP which can represent the entire language")));
-	// TODO move to optimizations
-	pm->add_hir_transform (new Copy_propagation (), s("prc"), s("Propagate copies - Remove some copies introduced as a result of lowering"));
 	pm->add_hir_transform (new Lower_dynamic_definitions (), s("ldd"), s("Lower Dynamic Defintions - Lower dynamic class, interface and method definitions using aliases"));
 	pm->add_hir_transform (new Lower_method_invocations (), s("lmi"), s("Lower Method Invocations - Lower parameters using run-time reference checks"));
 	pm->add_hir_transform (new Lower_control_flow (), s("lcf"), s("Lower Control Flow - Use gotos in place of loops, ifs, breaks and continues"));
@@ -170,9 +166,6 @@ int main(int argc, char** argv)
 //	pm->add_mir_pass (new Process_includes (true, new String ("mir"), pm, "incl2"));
 	pm->add_mir_transform (new Lift_functions_and_classes (), s("lfc"), s("Move statements from global scope into __MAIN__ method"));
 	pm->add_mir_visitor (new Clarify (), s("clar"), s("Clarify - Make implicit defintions explicit"));
-
-	// TODO move to optimizations
-	pm->add_mir_visitor (new Prune_symbol_table (), s("pst"), s("Prune Symbol Table - Note whether a symbol table is required in generated code"));
 
 	pm->add_mir_transform (new Into_SSA (), s("inssa"), s("Convert non-SSA constructs into SSA constructs"));
 
