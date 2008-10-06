@@ -27,6 +27,7 @@
 #include "process_hir/HIR_to_AST.h"
 #include "process_mir/MIR_to_AST.h"
 #include "optimize/CFG.h"
+#include "optimize/ssa/SSA.h"
 
 
 Pass_manager::Pass_manager (gengetopt_args_info* args_info)
@@ -599,7 +600,7 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 
 
 			maybe_enable_debug (into_ssa_pass);
-			cfg->convert_to_ssa_form ();
+			HSSA::convert_to_ssa_form (cfg);
 //			for (unsigned int i = 0; i < args_info->cfg_dump_given; i++)
 //				if (*into_ssa_pass->name == args_info->cfg_dump_arg [i])
 //					cfg->dump_graphviz (into_ssa_pass->name);
@@ -619,7 +620,7 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 
 						maybe_enable_debug (pass);
 
-						cfg->rebuild_ssa_form ();
+						HSSA::rebuild_ssa_form (cfg);
 
 						// Run optimization
 						Optimization_pass* opt = dynamic_cast<Optimization_pass*> (pass);
@@ -644,9 +645,9 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 				}
 			}
 
-			cfg->rebuild_ssa_form ();
+			HSSA::rebuild_ssa_form (cfg);
 			maybe_enable_debug (out_ssa_pass);
-			cfg->convert_out_of_ssa_form ();
+			HSSA::convert_out_of_ssa_form (cfg);
 //			for (unsigned int i = 0; i < args_info->cfg_dump_given; i++)
 //				if (*out_ssa_pass->name == args_info->cfg_dump_arg [i])
 //					cfg->dump_graphviz (out_ssa_pass->name);

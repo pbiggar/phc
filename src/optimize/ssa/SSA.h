@@ -67,7 +67,15 @@ using namespace boost;
  *		d)	Update all PHI, MEW and CHI operands and results to make them refer to
  *			entries in the hash-table.
  *				
- */ 
+ */
+
+class HSSA
+{
+public:
+	static void convert_to_ssa_form (CFG* cfg);
+	static void convert_out_of_ssa_form (CFG* cfg);
+	static void rebuild_ssa_form (CFG* cfg);
+};
 
 
 // Renaming (Cooper/Torczon, setion 9.3.4).

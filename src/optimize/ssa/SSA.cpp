@@ -1,5 +1,4 @@
 
-#include <boost/foreach.hpp>
 #include <boost/graph/depth_first_search.hpp>
 #include <boost/graph/visitors.hpp>
 #include <boost/graph/dominator_tree.hpp>
@@ -10,16 +9,150 @@
 
 #include "process_ir/General.h"
 
+#include "optimize/Basic_block.h"
+#include "optimize/Address_taken.h"
+
 #include "SSA.h"
 #include "Phi.h"
-#include "optimize/Basic_block.h"
+#include "Dominance.h"
+#include "optimize/Def_use.h"
 
 using namespace MIR;
 using namespace boost;
 
-// We use Muchnick, Section 8.11 (which is essentially the same as the
-// Minimal SSA form from the original Cytron, Ferrante, Rosen, Wegman and
-// Zadeck paper), and Cooper/Torczon Chapter 9.
+void
+HSSA::convert_to_ssa_form (CFG* cfg)
+{
+	Address_taken* aliasing = new Address_taken ();
+	aliasing->run (cfg);
+
+	// Calculate dominance frontiers
+	cfg->dominance = new Dominance (cfg);
+	cfg->dominance->calculate_forward_dominance ();
+	cfg->dominance->calculate_reverse_dominance ();
+	cfg->dominance->dump ();
+
+	// Build def-use web (we're not in SSA form, but this will do the job).
+	cfg->duw = new Def_use_web ();
+	cfg->duw->run (cfg);
+
+	// Muchnick gives up at this point. We continue instead in Cooper/Torczon,
+	// Section 9.3.3, with some minor changes. Since we dont have a list of
+	// global names, we iterate through all blocks, rather than the blocks
+	// corresponding to the variable names. 
+	// TODO: get a list of global names, and convert to semi-pruned form
+	
+	// For an assignment to X in BB, add a PHI function for variable X in the
+	// dominance frontier of BB.
+	// TODO Abstract this.
+	BB_list* worklist = cfg->get_all_bbs_top_down ();
+	BB_list::iterator i = worklist->begin ();
+	while (i != worklist->end ())
+	{
+		Basic_block* bb = *i;
+		foreach (Basic_block* frontier, *bb->get_dominance_frontier ())
+		{
+			// Get defs (including phi node LHSs)
+			VARIABLE_NAME_list* def_list = bb->get_pre_ssa_defs ();
+			foreach (VARIABLE_NAME* phi_lhs, *bb->get_phi_lhss())
+				def_list->push_back (phi_lhs);
+
+			bool def_added = false;
+			foreach (VARIABLE_NAME* var_name, *def_list)
+			{
+				if (!frontier->has_phi_node (var_name))
+				{
+					frontier->add_phi_node (var_name);
+					def_added = true;
+				}
+			}
+
+			// This adds a new def, which requires us to iterate.
+			if (def_added)
+				worklist->push_back (frontier);
+		}
+		i++;
+	}
+
+	// Rename SSA variables
+	SSA_renaming sr(cfg);
+	sr.rename_vars (cfg->get_entry_bb ());
+
+
+	// Check all variables are converted
+	class Check_in_SSA : public Visitor
+	{
+		void pre_variable_name (VARIABLE_NAME* in)
+		{
+			assert (in->in_ssa);
+		}
+	};
+
+	foreach (Basic_block* bb, *cfg->get_all_bbs ())
+	{
+		if (Statement_block* sb = dynamic_cast<Statement_block*> (bb))
+			sb->statement->visit (new Check_in_SSA ());
+	}
+
+
+	cfg->consistency_check ();
+
+	// TODO: needed?
+	// Build def-use web
+	cfg->duw = new Def_use_web ();
+	cfg->duw->run (cfg);
+}
+
+void
+HSSA::rebuild_ssa_form (CFG* cfg)
+{
+	cfg->clean ();
+	cfg->consistency_check ();
+
+	cfg->dominance = new Dominance (cfg);
+	cfg->dominance->calculate_forward_dominance ();
+	cfg->dominance->calculate_reverse_dominance ();
+
+	cfg->duw = new Def_use_web ();
+	cfg->duw->run (cfg);
+}
+
+
+void
+HSSA::convert_out_of_ssa_form (CFG* cfg)
+{
+	foreach (Basic_block* bb, *cfg->get_all_bbs ())
+	{
+		foreach (VARIABLE_NAME* phi_lhs, *bb->get_phi_lhss ())
+		{
+			BB_list* preds = bb->get_predecessors ();
+			foreach (Rvalue* rval, *bb->get_phi_args (phi_lhs))
+			{
+				Assign_var* copy = new Assign_var (
+					phi_lhs->clone (),
+					false,
+					rval->clone ());
+
+				Statement_block* new_bb = new Statement_block (cfg, copy);
+
+				cfg->insert_bb_between (cfg->get_edge (preds->front (), bb), new_bb);
+				// TODO I'm not sure these are in the same order.
+				// - the edge is included in the phi node, so use it.
+				preds->pop_front ();
+
+				// We avoid the critical edge problem because we have only 1
+				// statement per block. Removing phi nodes adds a single block
+				// along the necessary edge.
+			}
+		}
+		bb->remove_phi_nodes ();
+	}
+
+	// TODO: at this point, we could do with a register-allocation style
+	// interference graph to reduce the number of temporaries (aka
+	// "registers") that we use in the generated code.
+}
+
 
 SSA_renaming::SSA_renaming (CFG* cfg)
 : cfg(cfg)

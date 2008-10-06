@@ -228,10 +228,6 @@ public:
 	Dominance* dominance;
 	friend class Dominance;
 
-	void convert_to_ssa_form ();
-	void convert_out_of_ssa_form ();
-	void rebuild_ssa_form ();
-
 	Def_use_web* duw;
 
 private:
