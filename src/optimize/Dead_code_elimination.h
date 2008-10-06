@@ -10,6 +10,7 @@
 
 #include "CFG_visitor.h"
 #include "Edge.h"
+#include "SSA_ops.h"
 
 class DCE : public CFG_visitor 
 {

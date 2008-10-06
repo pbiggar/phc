@@ -13,12 +13,14 @@
 #include <boost/graph/filtered_graph.hpp>
 #include <boost/graph/topological_sort.hpp>
 
-#include "CFG.h"
-#include "SSA.h"
-#include "Def_use.h"
 #include "process_ast/DOT_unparser.h"
 #include "process_ir/General.h"
+
 #include "Address_taken.h"
+#include "CFG.h"
+#include "Def_use.h"
+#include "Dominance.h"
+#include "SSA.h"
 
 using namespace boost;
 using namespace std;
@@ -572,6 +574,7 @@ void CFG::convert_to_ssa_form ()
 	// Section 9.3.3, with some minor changes. Since we dont have a list of
 	// global names, we iterate through all blocks, rather than the blocks
 	// corresponding to the variable names. 
+	// TODO: get a list of global names, and convert to semi-pruned form
 	
 	// For an assignment to X in BB, add a PHI function for variable X in the
 	// dominance frontier of BB.
@@ -605,9 +608,10 @@ void CFG::convert_to_ssa_form ()
 		i++;
 	}
 
-
+	// Rename SSA variables
 	SSA_renaming sr(this);
 	sr.rename_vars (get_entry_bb ());
+
 
 	// Check all variables are converted
 	class Check_in_SSA : public Visitor
@@ -623,6 +627,7 @@ void CFG::convert_to_ssa_form ()
 		if (Statement_block* sb = dynamic_cast<Statement_block*> (bb))
 			sb->statement->visit (new Check_in_SSA ());
 	}
+
 
 	consistency_check ();
 
@@ -812,7 +817,7 @@ CFG::replace_bb (Basic_block* bb, BB_list* replacements)
 	else
 	{
 		// TODO: we dont support adding nodes before and after:
-		foreach (Basic_block* replacement , *replacements)
+		foreach (Basic_block* replacement, *replacements)
 			assert (bb != replacement);
 
 		insert_predecessor_chain (bb, replacements);

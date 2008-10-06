@@ -6,6 +6,7 @@
 #include "Edge.h"
 #include "Flow_visitor.h"
 #include "Visit_once.h"
+#include "SSA_ops.h"
 
 class CFG;
 

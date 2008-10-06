@@ -101,9 +101,9 @@ am_libphc_la_OBJECTS = getopt1.lo getopt.lo AST_annotate.lo \
 	AttrMap.lo base64.lo Boolean.lo demangle.lo error.lo \
 	Integer.lo Object.lo String.lo Address_taken.lo Basic_block.lo \
 	CFG.lo CFG_visitor.lo Dead_code_elimination.lo Def_use.lo \
-	Edge.lo Flow_visitor.lo If_simplification.lo Lattice.lo \
-	Live_variable_analysis.lo Phi.lo SCCP.lo Set.lo SSA.lo \
-	Visit_once.lo Parse_buffer.lo parse.lo PHP_context.lo \
+	Dominance.lo Edge.lo Flow_visitor.lo If_simplification.lo \
+	Lattice.lo Live_variable_analysis.lo Phi.lo SCCP.lo Set.lo \
+	SSA.lo Visit_once.lo Parse_buffer.lo parse.lo PHP_context.lo \
 	XML_parser.lo Optimization_pass.lo Pass_manager.lo \
 	Plugin_pass.lo AST_unparser.lo Constant_folding.lo \
 	DOT_unparser.lo Invalid_check.lo \
@@ -699,6 +699,8 @@ libphc_la_SOURCES = \
 	src/optimize/Dead_code_elimination.h				\
 	src/optimize/Def_use.cpp 								\
 	src/optimize/Def_use.h									\
+	src/optimize/Dominance.cpp								\
+	src/optimize/Dominance.h								\
 	src/optimize/Edge.cpp									\
 	src/optimize/Edge.h										\
 	src/optimize/Flow_visitor.cpp							\
@@ -1252,6 +1254,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Dead_code_elimination.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Def_use.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Desugar.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Dominance.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Early_lower_control_flow.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Echo_split.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Edge.Plo@am__quote@
@@ -1765,6 +1768,13 @@ Def_use.lo: src/optimize/Def_use.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Def_use.cpp' object='Def_use.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Def_use.lo `test -f 'src/optimize/Def_use.cpp' || echo '$(srcdir)/'`src/optimize/Def_use.cpp
+
+Dominance.lo: src/optimize/Dominance.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Dominance.lo -MD -MP -MF $(DEPDIR)/Dominance.Tpo -c -o Dominance.lo `test -f 'src/optimize/Dominance.cpp' || echo '$(srcdir)/'`src/optimize/Dominance.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Dominance.Tpo $(DEPDIR)/Dominance.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Dominance.cpp' object='Dominance.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Dominance.lo `test -f 'src/optimize/Dominance.cpp' || echo '$(srcdir)/'`src/optimize/Dominance.cpp
 
 Edge.lo: src/optimize/Edge.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Edge.lo -MD -MP -MF $(DEPDIR)/Edge.Tpo -c -o Edge.lo `test -f 'src/optimize/Edge.cpp' || echo '$(srcdir)/'`src/optimize/Edge.cpp

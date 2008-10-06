@@ -3,6 +3,7 @@
 #include "MIR.h"
 
 #include "Basic_block.h"
+#include "Dominance.h"
 #include "Def_use.h"
 
 using namespace std;
