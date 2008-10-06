@@ -18,6 +18,7 @@
 #include "Def_use.h"
 #include "process_ast/DOT_unparser.h"
 #include "process_ir/General.h"
+#include "Address_taken.h"
 
 using namespace boost;
 using namespace std;
@@ -554,6 +555,9 @@ CFG::renumber_vertex_indices ()
 
 void CFG::convert_to_ssa_form ()
 {
+	Address_taken* aliasing = new Address_taken ();
+	aliasing->run (this);
+
 	// Calculate dominance frontiers
 	dominance = new Dominance (this);
 	dominance->calculate_forward_dominance ();
