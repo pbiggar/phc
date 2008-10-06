@@ -1,4 +1,5 @@
 #include "Phi.h"
+#include "optimize/Set.h"
 
 using namespace MIR;
 

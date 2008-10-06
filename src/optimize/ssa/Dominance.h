@@ -1,10 +1,9 @@
 #ifndef PHC_DOMINANCE
 #define PHC_DOMINANCE
 
-#include <stack>
 #include <map>
-#include "CFG.h"
-#include "Basic_block.h"
+
+#include "optimize/CFG.h"
 
 using namespace boost;
 

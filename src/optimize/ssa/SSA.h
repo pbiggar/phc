@@ -2,8 +2,9 @@
 #define PHC_SSA
 
 #include <stack>
-#include "CFG.h"
-#include "Basic_block.h"
+
+#include "../CFG.h"
+#include "../Basic_block.h"
 
 using namespace boost;
 

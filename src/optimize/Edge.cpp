@@ -3,8 +3,7 @@
 #include "Edge.h"
 #include "MIR.h"
 #include "CFG.h"
-#include "Def_use.h"
-#include "SSA.h"
+#include "ssa/SSA.h"
 #include "Basic_block.h"
 
 #include "process_ir/debug.h"

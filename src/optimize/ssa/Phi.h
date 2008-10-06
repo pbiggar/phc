@@ -4,7 +4,6 @@
 #include <map>
 
 #include "MIR.h"
-#include "Set.h"
 
 class Phi_map : public map
 <

@@ -3,8 +3,9 @@
 #include "MIR.h"
 
 #include "Basic_block.h"
-#include "Dominance.h"
 #include "Def_use.h"
+
+#include "ssa/Dominance.h"
 
 using namespace std;
 using namespace MIR;

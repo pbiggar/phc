@@ -3,10 +3,10 @@
 
 #include <boost/graph/properties.hpp>
 
-#include "MIR.h"
 #include "CFG.h"
+#include "MIR.h"
 #include "Set.h"
-#include "SSA.h"
+#include "ssa/SSA.h"
 
 /* Basic blocks */
 class Basic_block : virtual public Object

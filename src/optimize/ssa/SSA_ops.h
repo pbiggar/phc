@@ -1,11 +1,8 @@
 #ifndef PHC_SSA_OPS
 #define PHC_SSA_OPS
 
-#include <stack>
-#include "CFG.h"
-#include "Basic_block.h"
-
-using namespace boost;
+#include "MIR.h"
+#include "optimize/Basic_block.h"
 
 /*
  * Regardless of the type of assignment or use, it can be represented in an

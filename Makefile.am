@@ -161,28 +161,30 @@ libphc_la_SOURCES= 											\
 	src/optimize/Dead_code_elimination.h				\
 	src/optimize/Def_use.cpp 								\
 	src/optimize/Def_use.h									\
-	src/optimize/Dominance.cpp								\
-	src/optimize/Dominance.h								\
 	src/optimize/Edge.cpp									\
 	src/optimize/Edge.h										\
 	src/optimize/Flow_visitor.cpp							\
 	src/optimize/Flow_visitor.h							\
 	src/optimize/If_simplification.cpp					\
 	src/optimize/If_simplification.h						\
-	src/optimize/Into_SSA.h									\
 	src/optimize/Lattice.cpp								\
 	src/optimize/Lattice.h									\
 	src/optimize/Live_variable_analysis.cpp			\
 	src/optimize/Live_variable_analysis.h				\
-	src/optimize/Out_of_SSA.h								\
-	src/optimize/Phi.cpp										\
-	src/optimize/Phi.h										\
 	src/optimize/SCCP.cpp									\
 	src/optimize/SCCP.h										\
 	src/optimize/Set.cpp										\
 	src/optimize/Set.h										\
-	src/optimize/SSA.cpp										\
-	src/optimize/SSA.h										\
+	src/optimize/ssa/Dominance.cpp						\
+	src/optimize/ssa/Dominance.h							\
+	src/optimize/ssa/Into_SSA.h							\
+	src/optimize/ssa/Out_of_SSA.h							\
+	src/optimize/ssa/Phi.cpp								\
+	src/optimize/ssa/Phi.h									\
+	src/optimize/ssa/SSA.cpp								\
+	src/optimize/ssa/SSA.h									\
+	src/optimize/ssa/SSA_ops.cpp							\
+	src/optimize/ssa/SSA_ops.h								\
 	src/optimize/Visit_once.cpp							\
 	src/optimize/Visit_once.h								\
 	src/parsing/Parse_buffer.cpp							\

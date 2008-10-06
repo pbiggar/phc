@@ -101,12 +101,12 @@ am_libphc_la_OBJECTS = getopt1.lo getopt.lo AST_annotate.lo \
 	AttrMap.lo base64.lo Boolean.lo demangle.lo error.lo \
 	Integer.lo Object.lo String.lo Address_taken.lo Basic_block.lo \
 	CFG.lo CFG_visitor.lo Dead_code_elimination.lo Def_use.lo \
-	Dominance.lo Edge.lo Flow_visitor.lo If_simplification.lo \
-	Lattice.lo Live_variable_analysis.lo Phi.lo SCCP.lo Set.lo \
-	SSA.lo Visit_once.lo Parse_buffer.lo parse.lo PHP_context.lo \
-	XML_parser.lo Optimization_pass.lo Pass_manager.lo \
-	Plugin_pass.lo AST_unparser.lo Constant_folding.lo \
-	DOT_unparser.lo Invalid_check.lo \
+	Edge.lo Flow_visitor.lo If_simplification.lo Lattice.lo \
+	Live_variable_analysis.lo SCCP.lo Set.lo Dominance.lo Phi.lo \
+	SSA.lo SSA_ops.lo Visit_once.lo Parse_buffer.lo parse.lo \
+	PHP_context.lo XML_parser.lo Optimization_pass.lo \
+	Pass_manager.lo Plugin_pass.lo AST_unparser.lo \
+	Constant_folding.lo DOT_unparser.lo Invalid_check.lo \
 	Note_top_level_declarations.lo Process_includes.lo \
 	Remove_concat_null.lo Remove_parser_temporaries.lo \
 	Strip_unparser_attributes.lo Token_conversion.lo \
@@ -699,28 +699,30 @@ libphc_la_SOURCES = \
 	src/optimize/Dead_code_elimination.h				\
 	src/optimize/Def_use.cpp 								\
 	src/optimize/Def_use.h									\
-	src/optimize/Dominance.cpp								\
-	src/optimize/Dominance.h								\
 	src/optimize/Edge.cpp									\
 	src/optimize/Edge.h										\
 	src/optimize/Flow_visitor.cpp							\
 	src/optimize/Flow_visitor.h							\
 	src/optimize/If_simplification.cpp					\
 	src/optimize/If_simplification.h						\
-	src/optimize/Into_SSA.h									\
 	src/optimize/Lattice.cpp								\
 	src/optimize/Lattice.h									\
 	src/optimize/Live_variable_analysis.cpp			\
 	src/optimize/Live_variable_analysis.h				\
-	src/optimize/Out_of_SSA.h								\
-	src/optimize/Phi.cpp										\
-	src/optimize/Phi.h										\
 	src/optimize/SCCP.cpp									\
 	src/optimize/SCCP.h										\
 	src/optimize/Set.cpp										\
 	src/optimize/Set.h										\
-	src/optimize/SSA.cpp										\
-	src/optimize/SSA.h										\
+	src/optimize/ssa/Dominance.cpp						\
+	src/optimize/ssa/Dominance.h							\
+	src/optimize/ssa/Into_SSA.h							\
+	src/optimize/ssa/Out_of_SSA.h							\
+	src/optimize/ssa/Phi.cpp								\
+	src/optimize/ssa/Phi.h									\
+	src/optimize/ssa/SSA.cpp								\
+	src/optimize/ssa/SSA.h									\
+	src/optimize/ssa/SSA_ops.cpp							\
+	src/optimize/ssa/SSA_ops.h								\
 	src/optimize/Visit_once.cpp							\
 	src/optimize/Visit_once.h								\
 	src/parsing/Parse_buffer.cpp							\
@@ -1305,6 +1307,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Remove_parser_temporaries.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SCCP.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SSA.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SSA_ops.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Set.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Split_multiple_arguments.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Split_unset_isset.Plo@am__quote@
@@ -1769,13 +1772,6 @@ Def_use.lo: src/optimize/Def_use.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Def_use.lo `test -f 'src/optimize/Def_use.cpp' || echo '$(srcdir)/'`src/optimize/Def_use.cpp
 
-Dominance.lo: src/optimize/Dominance.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Dominance.lo -MD -MP -MF $(DEPDIR)/Dominance.Tpo -c -o Dominance.lo `test -f 'src/optimize/Dominance.cpp' || echo '$(srcdir)/'`src/optimize/Dominance.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Dominance.Tpo $(DEPDIR)/Dominance.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Dominance.cpp' object='Dominance.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Dominance.lo `test -f 'src/optimize/Dominance.cpp' || echo '$(srcdir)/'`src/optimize/Dominance.cpp
-
 Edge.lo: src/optimize/Edge.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Edge.lo -MD -MP -MF $(DEPDIR)/Edge.Tpo -c -o Edge.lo `test -f 'src/optimize/Edge.cpp' || echo '$(srcdir)/'`src/optimize/Edge.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Edge.Tpo $(DEPDIR)/Edge.Plo
@@ -1811,13 +1807,6 @@ Live_variable_analysis.lo: src/optimize/Live_variable_analysis.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Live_variable_analysis.lo `test -f 'src/optimize/Live_variable_analysis.cpp' || echo '$(srcdir)/'`src/optimize/Live_variable_analysis.cpp
 
-Phi.lo: src/optimize/Phi.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Phi.lo -MD -MP -MF $(DEPDIR)/Phi.Tpo -c -o Phi.lo `test -f 'src/optimize/Phi.cpp' || echo '$(srcdir)/'`src/optimize/Phi.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Phi.Tpo $(DEPDIR)/Phi.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Phi.cpp' object='Phi.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Phi.lo `test -f 'src/optimize/Phi.cpp' || echo '$(srcdir)/'`src/optimize/Phi.cpp
-
 SCCP.lo: src/optimize/SCCP.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT SCCP.lo -MD -MP -MF $(DEPDIR)/SCCP.Tpo -c -o SCCP.lo `test -f 'src/optimize/SCCP.cpp' || echo '$(srcdir)/'`src/optimize/SCCP.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/SCCP.Tpo $(DEPDIR)/SCCP.Plo
@@ -1832,12 +1821,33 @@ Set.lo: src/optimize/Set.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Set.lo `test -f 'src/optimize/Set.cpp' || echo '$(srcdir)/'`src/optimize/Set.cpp
 
-SSA.lo: src/optimize/SSA.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT SSA.lo -MD -MP -MF $(DEPDIR)/SSA.Tpo -c -o SSA.lo `test -f 'src/optimize/SSA.cpp' || echo '$(srcdir)/'`src/optimize/SSA.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/SSA.Tpo $(DEPDIR)/SSA.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/SSA.cpp' object='SSA.lo' libtool=yes @AMDEPBACKSLASH@
+Dominance.lo: src/optimize/ssa/Dominance.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Dominance.lo -MD -MP -MF $(DEPDIR)/Dominance.Tpo -c -o Dominance.lo `test -f 'src/optimize/ssa/Dominance.cpp' || echo '$(srcdir)/'`src/optimize/ssa/Dominance.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Dominance.Tpo $(DEPDIR)/Dominance.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/ssa/Dominance.cpp' object='Dominance.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o SSA.lo `test -f 'src/optimize/SSA.cpp' || echo '$(srcdir)/'`src/optimize/SSA.cpp
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Dominance.lo `test -f 'src/optimize/ssa/Dominance.cpp' || echo '$(srcdir)/'`src/optimize/ssa/Dominance.cpp
+
+Phi.lo: src/optimize/ssa/Phi.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Phi.lo -MD -MP -MF $(DEPDIR)/Phi.Tpo -c -o Phi.lo `test -f 'src/optimize/ssa/Phi.cpp' || echo '$(srcdir)/'`src/optimize/ssa/Phi.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Phi.Tpo $(DEPDIR)/Phi.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/ssa/Phi.cpp' object='Phi.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Phi.lo `test -f 'src/optimize/ssa/Phi.cpp' || echo '$(srcdir)/'`src/optimize/ssa/Phi.cpp
+
+SSA.lo: src/optimize/ssa/SSA.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT SSA.lo -MD -MP -MF $(DEPDIR)/SSA.Tpo -c -o SSA.lo `test -f 'src/optimize/ssa/SSA.cpp' || echo '$(srcdir)/'`src/optimize/ssa/SSA.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/SSA.Tpo $(DEPDIR)/SSA.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/ssa/SSA.cpp' object='SSA.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o SSA.lo `test -f 'src/optimize/ssa/SSA.cpp' || echo '$(srcdir)/'`src/optimize/ssa/SSA.cpp
+
+SSA_ops.lo: src/optimize/ssa/SSA_ops.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT SSA_ops.lo -MD -MP -MF $(DEPDIR)/SSA_ops.Tpo -c -o SSA_ops.lo `test -f 'src/optimize/ssa/SSA_ops.cpp' || echo '$(srcdir)/'`src/optimize/ssa/SSA_ops.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/SSA_ops.Tpo $(DEPDIR)/SSA_ops.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/ssa/SSA_ops.cpp' object='SSA_ops.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o SSA_ops.lo `test -f 'src/optimize/ssa/SSA_ops.cpp' || echo '$(srcdir)/'`src/optimize/ssa/SSA_ops.cpp
 
 Visit_once.lo: src/optimize/Visit_once.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Visit_once.lo -MD -MP -MF $(DEPDIR)/Visit_once.Tpo -c -o Visit_once.lo `test -f 'src/optimize/Visit_once.cpp' || echo '$(srcdir)/'`src/optimize/Visit_once.cpp

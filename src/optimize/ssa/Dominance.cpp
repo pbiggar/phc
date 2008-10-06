@@ -1,20 +1,11 @@
 
-#include <boost/foreach.hpp>
-#include <boost/graph/depth_first_search.hpp>
-#include <boost/graph/visitors.hpp>
 #include <boost/graph/dominator_tree.hpp>
-#include <boost/graph/filtered_graph.hpp>
-#include <boost/graph/transpose_graph.hpp>
 #include <boost/graph/reverse_graph.hpp>
-#include <boost/graph/topological_sort.hpp>
 
 #include "process_ir/General.h"
 
-#include "Basic_block.h"
-#include "Def_use.h"
+#include "optimize/Basic_block.h"
 #include "Dominance.h"
-#include "Phi.h"
-#include "SSA.h"
 
 using namespace MIR;
 using namespace boost;

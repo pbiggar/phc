@@ -13,10 +13,11 @@
 #ifndef PHC_CFG_VISITOR
 #define PHC_CFG_VISITOR
 
-#include "CFG.h"
-#include "Basic_block.h"
-#include "Phi.h"
 #include "process_ir/General.h"
+
+#include "Basic_block.h"
+#include "CFG.h"
+#include "ssa/Phi.h"
 
 class CFG_visitor
 {

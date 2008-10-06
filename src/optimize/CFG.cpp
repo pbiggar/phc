@@ -19,8 +19,9 @@
 #include "Address_taken.h"
 #include "CFG.h"
 #include "Def_use.h"
-#include "Dominance.h"
-#include "SSA.h"
+
+#include "ssa/Dominance.h"
+#include "ssa/SSA.h"
 
 using namespace boost;
 using namespace std;

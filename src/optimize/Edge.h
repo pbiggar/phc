@@ -3,11 +3,11 @@
 
 #include <boost/graph/properties.hpp>
 
-#include "MIR.h"
 #include "CFG.h"
+#include "MIR.h"
 #include "Set.h"
-#include "SSA.h"
-#include "Phi.h"
+#include "ssa/Phi.h"
+#include "ssa/SSA.h"
 
 // CFG edge
 class Edge : public Object
