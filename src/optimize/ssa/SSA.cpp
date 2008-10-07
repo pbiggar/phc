@@ -20,9 +20,8 @@
 using namespace MIR;
 using namespace boost;
 
-
 void
-HSSA::convert_to_ssa_form (CFG* cfg)
+HSSA::convert_to_ssa_form ()
 {
 	Address_taken* aliasing = new Address_taken ();
 	aliasing->run (cfg);
@@ -105,7 +104,7 @@ HSSA::convert_to_ssa_form (CFG* cfg)
 }
 
 void
-HSSA::rebuild_ssa_form (CFG* cfg)
+HSSA::rebuild_ssa_form ()
 {
 	cfg->clean ();
 	cfg->consistency_check ();
@@ -120,7 +119,7 @@ HSSA::rebuild_ssa_form (CFG* cfg)
 
 
 void
-HSSA::convert_out_of_ssa_form (CFG* cfg)
+HSSA::convert_out_of_ssa_form ()
 {
 	foreach (Basic_block* bb, *cfg->get_all_bbs ())
 	{
@@ -277,7 +276,7 @@ SSA_renaming::rename_vars (Basic_block* bb)
  *
  * 1) Assign virtual variables to indirect variables in the program
  *
- * 2)	Perform alias analysis and insert MEW and CHI for all scalar and
+ * 2)	Perform alias analysis and insert MU and CHI for all scalar and
  *		virtual variables
  *
  * 3) Insert PHIs using Cytron algorithm, including CHI as assignments
@@ -331,16 +330,129 @@ SSA_renaming::rename_vars (Basic_block* bb)
  *			lhs by making the statement point to the VAR or IVAR for direct and
  *			indirect assignments respectively. Also make the VAR or IVAR node
  *			point back to its defining statement.
- *		d)	Update all PHI, MEW and CHI operands and results to make them refer
+ *		d)	Update all PHI, MU and CHI operands and results to make them refer
  *			to entries in the hash-table.
  */
+HSSA::HSSA (CFG* cfg)
+: cfg(cfg)
+{
+	virtual_variable = MIR::fresh_var_name ("VIRT");
+}
+
 
 
 void
-HSSA::convert_to_hssa_form (CFG* cfg)
+HSSA::convert_to_hssa_form ()
 {
+	// Virtual variables are used when converting C code to SSA. They deal with
+	// 5 syntactic constructs:
+	//		*p
+	//		*(p+1)
+	//		**p
+	//		p->next
+	//		a[i]
+	//
+	//	Aliases affect these constructs in various ways:
+	//		a[i] -- aliases all elements of the array
+	//		p->next -- p could be any struct, so p->next acceesses an abstract
+	//						object, not a concrete one.
+	//		*p -- can alias anything, really, including the above
+	//		*(p+1) -- same as *p, but is intended to indicate it cant alias *p
+	//		**p -- just a different syntactic construct, with the same idea.
+	//
+	//	PHP has different syntactic constructs:
+	//		$a[$i]
+	//		$$a
+	//		$p->next
+	//		$p->$f
+	//
+	//	but it suffers from a different problem: 'normal' syntactic constructs
+	//	can have aliasing behaviour, based on the run-time is_ref field of the
+	//	value. So some constructs may or may not support aliasing:
+	//		$p
+	//	and some become 'super-aliasers':
+	//		$a[$i]
+	//		$$a
+	//		$p->next
+	//		$p->$f
+	//
+	//	which, as well as supporting the standard aliasing semantics, generally
+	//	the same as in C, their value can turn out to be is_ref, which means it
+	//	can alias a whole rake of other variables. For example:
+	//		$$x = 10;
+	//		Assume that $x is either "a" or "b", so it can alias either $a or $b.
+	//		However, if $a or $b are is_ref, then the assignment to them is even
+	//		more indirect.
+	//
+	// The good news is that the copy semantics means we can ignore the fact
+	// that a variable isnt a storage location, per-se, but is instead a pointer
+	// to a zval, and the very zval it points to can change. That doesnt really
+	// bother us, because the semantics are assignment either way.
+	//
+	// So, returning to the HSSA algorithm:
+	//		- What is an indirect variable?
+	//			In C, there are syntactic constructs to tell us 'here be dragons'.
+	//			Not so in PHP, so we have to either:
+	//				- Be conservative, and assume everything is an alias.
+	//				- Perform _some_ kind of alias analysis so that 'normal'
+	//				variables aren't affected by this insanity.
+	//
+	//			At the end of the day, we can treat everything like an indirect
+	//			variable if we need to.
+	//
+	//		- How do we name the virtual variables?
+	//			In C, there is the structure of the addressing expression. We can
+	//			use this in PHP too.
+	//
+	//		- So what gets a virtual variable?
+	//			Any variable that might possibly be indirect:
+	//				- anything in a Change-on-write set (this isnt that bad):
+	//					- $x = $a[$i]; // $x isnt in a COW set after the assignment.
+	//				- anything where is_ref is set
+	//					- thats the same as the last one, since for is_ref to be set,
+	//					the refcount must be 2.
+	//				- abstract locations (which can refer to multiple places)
+	//					- $a[$i]
+	//					- $$a
+	//					- $p->next
+	//
+	//		- What about super-aliasing?
+	//			I dont know. We'll see where it goes. Hopefully nothing.
+	//
+	//
+	//
+	// 1) Assign virtual variables to indirect variables in the program
+	//
+	//
+	//	Convert all variables to virtual variables, named according to their
+	//	syntax (virt_$a[$i] or virt_$p or virt_$$p).
+
 	Address_taken* aliasing = new Address_taken ();
 	aliasing->run (cfg);
+
+
+	//	2)	Perform alias analysis and insert MU and CHI for all scalar and
+	//		virtual variables.
+	//
+	//	Perform alias analysis. Anything which has only one alias (typically
+	//	local variables) can be turned back to scalars.
+	
+	//	3) Insert PHIs using Cytron algorithm, including CHI as assignments
+	//	-- simple
+
+	// 4) Rename all scalar and virtual variables using Cytron algorithm
+	// -- simple
+	
+
+	// We still have the explosion of MUs and CHIs, so these need to be trimmed down.
+
+	// Build def-use web (we're not in SSA form, but this will do the job).
+	cfg->duw = new Def_use_web ();
+	cfg->duw->run (cfg);
+
+
+
+
 
 	// Calculate dominance frontiers
 	cfg->dominance = new Dominance (cfg);

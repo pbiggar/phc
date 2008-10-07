@@ -118,6 +118,12 @@ public:
 	MIR::Rvalue* get_phi_arg_for_edge (Edge*, MIR::VARIABLE_NAME* phi_lhs);
 	void set_phi_arg_for_edge (Edge*, MIR::VARIABLE_NAME* phi_lhs, MIR::Rvalue* arg);
 
+	/*
+	 * MU and CHI nodes, for HSSA form. A MU node is a MayUse, a CHI is a MayDef.
+	 */
+public:
+
+
 
 private:
 	// Instead of an explicit phi node, store the phi->lhs here, and the phi

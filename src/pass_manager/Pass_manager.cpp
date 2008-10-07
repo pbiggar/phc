@@ -598,9 +598,11 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 			if (args_info->cfg_dump_given)
 				cfg->dump_graphviz (cfg_pass->name);
 
+			HSSA* hssa = new HSSA(cfg);
+
 
 			maybe_enable_debug (into_ssa_pass);
-			HSSA::convert_to_ssa_form (cfg);
+			hssa->convert_to_hssa_form ();
 //			for (unsigned int i = 0; i < args_info->cfg_dump_given; i++)
 //				if (*into_ssa_pass->name == args_info->cfg_dump_arg [i])
 //					cfg->dump_graphviz (into_ssa_pass->name);
@@ -620,7 +622,7 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 
 						maybe_enable_debug (pass);
 
-						HSSA::rebuild_ssa_form (cfg);
+						hssa->rebuild_ssa_form ();
 
 						// Run optimization
 						Optimization_pass* opt = dynamic_cast<Optimization_pass*> (pass);
@@ -645,9 +647,9 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 				}
 			}
 
-			HSSA::rebuild_ssa_form (cfg);
+			hssa->rebuild_ssa_form ();
 			maybe_enable_debug (out_ssa_pass);
-			HSSA::convert_out_of_ssa_form (cfg);
+			hssa->convert_out_of_ssa_form ();
 //			for (unsigned int i = 0; i < args_info->cfg_dump_given; i++)
 //				if (*out_ssa_pass->name == args_info->cfg_dump_arg [i])
 //					cfg->dump_graphviz (out_ssa_pass->name);

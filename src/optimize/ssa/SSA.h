@@ -10,12 +10,18 @@ using namespace boost;
 
 class HSSA
 {
-public:
-	static void convert_to_hssa_form (CFG* cfg);
+	MIR::VARIABLE_NAME* virtual_variable;
+	CFG* cfg;
 
-	static void convert_to_ssa_form (CFG* cfg);
-	static void convert_out_of_ssa_form (CFG* cfg);
-	static void rebuild_ssa_form (CFG* cfg);
+public:
+	HSSA(CFG* cfg);
+
+	MIR::VARIABLE_NAME* get_virtual_variable (MIR::VARIABLE_NAME* var);
+	void convert_to_hssa_form ();
+
+	void convert_to_ssa_form ();
+	void convert_out_of_ssa_form ();
+	void rebuild_ssa_form ();
 };
 
 
