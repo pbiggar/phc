@@ -207,6 +207,9 @@ int main(int argc, char** argv)
 	if (args_info.execute_flag)
 		args_info.compile_flag = true;
 
+	if (args_info.web_app_given)
+		phc_error ("Not directly implemented: please instead follow instructions in the \"Compiling web applications\" section of the user manual.");
+
 
 	/* 
 	 *	Parsing 
