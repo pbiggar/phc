@@ -23,6 +23,15 @@
 using namespace std;
 using namespace MIR;
 
+string unparse (MIR::Node* in)
+{
+	stringstream ss;
+	MIR_unparser (ss, true).unparse (in);
+
+	return ss.str ();
+}
+
+
 MIR_unparser::MIR_unparser (ostream& os, bool in_php)
 : PHP_unparser (os, in_php)
 , ast_unparser (ups)

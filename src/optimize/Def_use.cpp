@@ -1,11 +1,15 @@
 
+#include "boost/tuple/tuple.hpp"
+
 #include "process_ir/debug.h"
 
 #include "Def_use.h"
 #include "Set.h"
 
+
 using namespace MIR;
 using namespace std;
+using namespace boost;
 
 /*
  * SSA-web. 

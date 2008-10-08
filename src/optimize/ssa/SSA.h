@@ -6,25 +6,6 @@
 #include "../CFG.h"
 #include "../Basic_block.h"
 
-using namespace boost;
-
-class HSSA
-{
-	MIR::VARIABLE_NAME* virtual_variable;
-	CFG* cfg;
-
-public:
-	HSSA(CFG* cfg);
-
-	MIR::VARIABLE_NAME* get_virtual_variable (MIR::VARIABLE_NAME* var);
-	void convert_to_hssa_form ();
-
-	void convert_to_ssa_form ();
-	void convert_out_of_ssa_form ();
-	void rebuild_ssa_form ();
-};
-
-
 // Renaming (Cooper/Torczon, setion 9.3.4).
 
 /* Given a BB, this will perform recursively perform SSA renaming, descending

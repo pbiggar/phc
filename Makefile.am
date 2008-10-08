@@ -177,6 +177,8 @@ libphc_la_SOURCES= 											\
 	src/optimize/Set.h										\
 	src/optimize/ssa/Dominance.cpp						\
 	src/optimize/ssa/Dominance.h							\
+	src/optimize/ssa/HSSA.cpp								\
+	src/optimize/ssa/HSSA.h									\
 	src/optimize/ssa/Into_SSA.h							\
 	src/optimize/ssa/Out_of_SSA.h							\
 	src/optimize/ssa/Phi.cpp								\

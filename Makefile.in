@@ -102,9 +102,9 @@ am_libphc_la_OBJECTS = getopt1.lo getopt.lo AST_annotate.lo \
 	Integer.lo Object.lo String.lo Address_taken.lo Basic_block.lo \
 	CFG.lo CFG_visitor.lo Dead_code_elimination.lo Def_use.lo \
 	Edge.lo Flow_visitor.lo If_simplification.lo Lattice.lo \
-	Live_variable_analysis.lo SCCP.lo Set.lo Dominance.lo Phi.lo \
-	SSA.lo SSA_ops.lo Visit_once.lo Parse_buffer.lo parse.lo \
-	PHP_context.lo XML_parser.lo Optimization_pass.lo \
+	Live_variable_analysis.lo SCCP.lo Set.lo Dominance.lo HSSA.lo \
+	Phi.lo SSA.lo SSA_ops.lo Visit_once.lo Parse_buffer.lo \
+	parse.lo PHP_context.lo XML_parser.lo Optimization_pass.lo \
 	Pass_manager.lo Plugin_pass.lo AST_unparser.lo \
 	Constant_folding.lo DOT_unparser.lo Invalid_check.lo \
 	Note_top_level_declarations.lo Process_includes.lo \
@@ -715,6 +715,8 @@ libphc_la_SOURCES = \
 	src/optimize/Set.h										\
 	src/optimize/ssa/Dominance.cpp						\
 	src/optimize/ssa/Dominance.h							\
+	src/optimize/ssa/HSSA.cpp								\
+	src/optimize/ssa/HSSA.h									\
 	src/optimize/ssa/Into_SSA.h							\
 	src/optimize/ssa/Out_of_SSA.h							\
 	src/optimize/ssa/Phi.cpp								\
@@ -1272,6 +1274,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HIR_transform.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HIR_unparser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HIR_visitor.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HSSA.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/IR.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/If_simplification.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/InsertDB.Plo@am__quote@
@@ -1827,6 +1830,13 @@ Dominance.lo: src/optimize/ssa/Dominance.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/ssa/Dominance.cpp' object='Dominance.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Dominance.lo `test -f 'src/optimize/ssa/Dominance.cpp' || echo '$(srcdir)/'`src/optimize/ssa/Dominance.cpp
+
+HSSA.lo: src/optimize/ssa/HSSA.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT HSSA.lo -MD -MP -MF $(DEPDIR)/HSSA.Tpo -c -o HSSA.lo `test -f 'src/optimize/ssa/HSSA.cpp' || echo '$(srcdir)/'`src/optimize/ssa/HSSA.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/HSSA.Tpo $(DEPDIR)/HSSA.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/ssa/HSSA.cpp' object='HSSA.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o HSSA.lo `test -f 'src/optimize/ssa/HSSA.cpp' || echo '$(srcdir)/'`src/optimize/ssa/HSSA.cpp
 
 Phi.lo: src/optimize/ssa/Phi.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Phi.lo -MD -MP -MF $(DEPDIR)/Phi.Tpo -c -o Phi.lo `test -f 'src/optimize/ssa/Phi.cpp' || echo '$(srcdir)/'`src/optimize/ssa/Phi.cpp
