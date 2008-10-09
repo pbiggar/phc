@@ -103,17 +103,17 @@ am_libphc_la_OBJECTS = getopt1.lo getopt.lo AST_annotate.lo \
 	CFG.lo CFG_visitor.lo Dead_code_elimination.lo Def_use.lo \
 	Edge.lo Flow_visitor.lo If_simplification.lo Lattice.lo \
 	Live_variable_analysis.lo SCCP.lo Set.lo Dominance.lo HSSA.lo \
-	Phi.lo SSA.lo SSA_ops.lo Visit_once.lo Parse_buffer.lo \
-	parse.lo PHP_context.lo XML_parser.lo Optimization_pass.lo \
-	Pass_manager.lo Plugin_pass.lo AST_unparser.lo \
-	Constant_folding.lo DOT_unparser.lo Invalid_check.lo \
-	Note_top_level_declarations.lo Process_includes.lo \
-	Remove_concat_null.lo Remove_parser_temporaries.lo \
-	Strip_unparser_attributes.lo Token_conversion.lo \
-	HIR_unparser.lo debug.lo fresh.lo General.lo IR.lo \
-	PHP_unparser.lo XML_unparser.lo Alias_uppering.lo \
-	Foreach_uppering.lo Goto_uppering.lo MIR_unparser.lo \
-	Param_is_ref_uppering.lo
+	Phi.lo SSA.lo SSA_ops.lo Virtual_variable.lo Visit_once.lo \
+	Parse_buffer.lo parse.lo PHP_context.lo XML_parser.lo \
+	Optimization_pass.lo Pass_manager.lo Plugin_pass.lo \
+	AST_unparser.lo Constant_folding.lo DOT_unparser.lo \
+	Invalid_check.lo Note_top_level_declarations.lo \
+	Process_includes.lo Remove_concat_null.lo \
+	Remove_parser_temporaries.lo Strip_unparser_attributes.lo \
+	Token_conversion.lo HIR_unparser.lo debug.lo fresh.lo \
+	General.lo IR.lo PHP_unparser.lo XML_unparser.lo \
+	Alias_uppering.lo Foreach_uppering.lo Goto_uppering.lo \
+	MIR_unparser.lo Param_is_ref_uppering.lo
 libphc_la_OBJECTS = $(am_libphc_la_OBJECTS)
 plugins_tests_canonical_unparser_la_LIBADD =
 am_plugins_tests_canonical_unparser_la_OBJECTS =  \
@@ -725,6 +725,8 @@ libphc_la_SOURCES = \
 	src/optimize/ssa/SSA.h									\
 	src/optimize/ssa/SSA_ops.cpp							\
 	src/optimize/ssa/SSA_ops.h								\
+	src/optimize/ssa/Virtual_variable.cpp				\
+	src/optimize/ssa/Virtual_variable.h					\
 	src/optimize/Visit_once.cpp							\
 	src/optimize/Visit_once.h								\
 	src/parsing/Parse_buffer.cpp							\
@@ -1318,6 +1320,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Strip_comments.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Strip_unparser_attributes.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Token_conversion.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Virtual_variable.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Visit_once.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/XML_parser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/XML_unparser.Plo@am__quote@
@@ -1858,6 +1861,13 @@ SSA_ops.lo: src/optimize/ssa/SSA_ops.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/ssa/SSA_ops.cpp' object='SSA_ops.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o SSA_ops.lo `test -f 'src/optimize/ssa/SSA_ops.cpp' || echo '$(srcdir)/'`src/optimize/ssa/SSA_ops.cpp
+
+Virtual_variable.lo: src/optimize/ssa/Virtual_variable.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Virtual_variable.lo -MD -MP -MF $(DEPDIR)/Virtual_variable.Tpo -c -o Virtual_variable.lo `test -f 'src/optimize/ssa/Virtual_variable.cpp' || echo '$(srcdir)/'`src/optimize/ssa/Virtual_variable.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Virtual_variable.Tpo $(DEPDIR)/Virtual_variable.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/ssa/Virtual_variable.cpp' object='Virtual_variable.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Virtual_variable.lo `test -f 'src/optimize/ssa/Virtual_variable.cpp' || echo '$(srcdir)/'`src/optimize/ssa/Virtual_variable.cpp
 
 Visit_once.lo: src/optimize/Visit_once.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Visit_once.lo -MD -MP -MF $(DEPDIR)/Visit_once.Tpo -c -o Visit_once.lo `test -f 'src/optimize/Visit_once.cpp' || echo '$(srcdir)/'`src/optimize/Visit_once.cpp

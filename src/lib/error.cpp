@@ -121,3 +121,21 @@ define_node_message_func (error, ERROR, MIR::Node);
 define_node_message_func (internal_error, INTERNAL_ERROR, AST::Node);
 define_node_message_func (internal_error, INTERNAL_ERROR, HIR::Node);
 define_node_message_func (internal_error, INTERNAL_ERROR, MIR::Node);
+
+
+void
+phc_unreachable (const char* message)
+{
+	if (message == NULL)
+		message = "no reason provided";
+
+	phc_internal_error ("Unreachable code reached: '%s'", message);
+}
+
+void phc_TODO (const char* message)
+{
+	if (message == NULL)
+		message = "no reason provided";
+
+	phc_internal_error ("TODO: '%s'", message);
+}

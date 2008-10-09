@@ -590,6 +590,12 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 		{
 			MIR::Method* method = dyc<MIR::Method> (stmt);
 
+			// Until we have interprocedural alias analysis, we should punt on
+			// __MAIN__.
+			// TODO: make an exception when there are no function calls.
+			if (*method->signature->method_name->value == "__MAIN__")
+				continue;
+
 			maybe_enable_debug (cfg_pass);
 			CFG* cfg = new CFG (method);
 //			for (unsigned int i = 0; i < args_info->cfg_dump_given; i++)

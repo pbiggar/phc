@@ -24,9 +24,6 @@ using namespace boost;
 void
 HSSA::convert_to_ssa_form ()
 {
-	Address_taken* aliasing = new Address_taken ();
-	aliasing->run (cfg);
-
 	// Calculate dominance frontiers
 	cfg->dominance = new Dominance (cfg);
 	cfg->dominance->calculate_forward_dominance ();
@@ -293,8 +290,8 @@ HSSA::convert_to_hssa_form ()
 	//				- anything in a Change-on-write set (this isnt that bad):
 	//					- $x = $a[$i]; // $x isnt in a COW set after the assignment.
 	//				- anything where is_ref is set
-	//					- thats the same as the last one, since for is_ref to be set,
-	//					the refcount must be 2.
+	//					- thats the same as the last one, since for is_ref to be
+	//					set, the refcount must be 2.
 	//				- abstract locations (which can refer to multiple places)
 	//					- $a[$i]
 	//					- $$a
@@ -314,8 +311,11 @@ HSSA::convert_to_hssa_form ()
 	//	Perform alias analysis. Anything which has only one alias (typically
 	//	local variables) can be turned back to scalars.
 
-//	Address_taken* aliasing = new Address_taken ();
-//	aliasing->run (cfg);
+	Address_taken* aliasing = new Address_taken ();
+	aliasing->run (cfg);
+
+	aliasing->aliases->dump ();
+
 
 	
 	//	3) Insert PHIs using Cytron algorithm, including CHI as assignments
@@ -411,248 +411,4 @@ HSSA::convert_to_hssa_form ()
 	// Build def-use web
 	cfg->duw = new Def_use_web ();
 	cfg->duw->run (cfg);
-}
-
-class Virtuals_creator : public Visit_once
-{
-public:
-	map<string, VARIABLE_NAME*> virtuals;
-
-	void create_virtual (Node* in)
-	{
-		assert (isa<Statement> (in) || isa <Expr> (in));
-
-		stringstream ss;
-		ss << "virt_" << unparse (in);
-		string name = ss.str ();
-
-		if (virtuals.find (name) == virtuals.end ())
-		{
-			virtuals[name] = new VARIABLE_NAME (s (name));
-			DEBUG ("Creating virtual: " << name);
-		}
-	}
-	
-	void visit_entry_block (Entry_block*)
-	{
-		// TODO: entry nodes
-	}
-
-	void visit_empty_block (Empty_block*)
-	{
-		assert (0);
-	}
-
-	void visit_exit_block (Exit_block*) {}
-
-	void visit_branch_block (Branch_block* bb)
-	{
-		create_virtual (bb->branch->variable_name);
-	}
-
-
-	void visit_statement_block (Statement_block* bb)
-	{
-		debug (bb->statement);
-	}
-
-	void visit_phi_node (Basic_block* bb, VARIABLE_NAME* phi_lhs)
-	{
-		assert (0);
-	}
-
-
-	void visit_assign_array (Statement_block*, Assign_array* in)
-	{
-		create_virtual (new Array_access (in->lhs, in->index));
-		create_virtual (in->rhs);
-	}
-
-	void visit_assign_field (Statement_block*, Assign_field *)
-	{
-		assert (0);
-	}
-
-	void visit_assign_var (Statement_block* bb, Assign_var* in)
-	{
-		create_virtual (in->lhs);
-		visit_expr (bb, in->rhs);
-	}
-
-	void visit_assign_var_var (Statement_block*, Assign_var_var*)
-	{
-		assert (0);
-	}
-
-	void visit_eval_expr (Statement_block* bb, Eval_expr* in)
-	{
-		visit_expr (bb, in->expr);
-	}
-
-	void visit_foreach_end (Statement_block*, Foreach_end*)
-	{
-		assert (0);
-	}
-
-	void visit_foreach_next (Statement_block*, Foreach_next*)
-	{
-		assert (0);
-	}
-
-	void visit_foreach_reset (Statement_block*, Foreach_reset*)
-	{
-		assert (0);
-	}
-
-	void visit_global (Statement_block*, Global*)
-	{
-		// Even though this aliases, we dont need to do any renaming on it.
-	}
-
-	void visit_pre_op (Statement_block*, Pre_op*)
-	{
-		assert (0);
-	}
-
-	void visit_push_array (Statement_block*, Push_array*)
-	{
-		assert (0);
-	}
-
-	void visit_return (Statement_block*, Return*)
-	{
-		assert (0);
-	}
-
-	void visit_ssa_pre_op (Statement_block*, SSA_pre_op* in)
-	{
-		create_virtual (in->use);
-		create_virtual (in->def);
-	}
-
-	void visit_static_declaration (Statement_block*, Static_declaration*)
-	{
-		assert (0);
-	}
-
-	void visit_throw (Statement_block*, Throw*)
-	{
-		assert (0);
-	}
-
-	void visit_try (Statement_block*, Try*)
-	{
-		assert (0);
-	}
-
-	void visit_unset (Statement_block*, Unset*)
-	{
-		assert (0);
-	}
-
-	/*
-	 * Exprs
-	 */
-	void visit_array_access (Statement_block*, Array_access* in)
-	{
-		create_virtual (in);
-	}
-
-	void visit_bin_op (Statement_block*, Bin_op* in)
-	{
-		create_virtual (in->left);
-		create_virtual (in->right);
-	}
-
-	void visit_cast (Statement_block*, Cast* in)
-	{
-		assert (0);
-	}
-
-	void visit_constant (Statement_block*, Constant* in)
-	{
-		assert (0);
-	}
-
-	void visit_field_access (Statement_block*, Field_access* in)
-	{
-		assert (0);
-	}
-
-	void visit_foreach_get_key (Statement_block*, Foreach_get_key* in)
-	{
-		assert (0);
-	}
-
-	void visit_foreach_get_val (Statement_block*, Foreach_get_val* in)
-	{
-		assert (0);
-	}
-
-	void visit_foreach_has_key (Statement_block*, Foreach_has_key* in)
-	{
-		assert (0);
-	}
-
-	void visit_instanceof (Statement_block*, Instanceof* in)
-	{
-		assert (0);
-	}
-
-	void visit_isset (Statement_block*, Isset* in)
-	{
-		assert (0);
-	}
-
-	void visit_method_invocation (Statement_block*, Method_invocation* in)
-	{
-		if (in->target)
-			create_virtual (in->target);
-
-		if (isa <Variable_method> (in->method_name))
-			create_virtual (dyc<Variable_method> (in->method_name)->variable_name);
-
-		foreach (Actual_parameter* ap, *in->actual_parameters)
-		{
-			if (isa<VARIABLE_NAME> (ap->rvalue))
-				create_virtual (ap->rvalue);
-		}
-	}
-
-	void visit_new (Statement_block*, New* in)
-	{
-		assert (0);
-	}
-
-	void visit_param_is_ref (Statement_block*, Param_is_ref* in)
-	{
-		assert (0);
-	}
-
-	void visit_real (Statement_block*, REAL* in)
-	{
-		assert (0);
-	}
-
-	void visit_unary_op (Statement_block*, Unary_op* in)
-	{
-		assert (0);
-	}
-
-	void visit_variable_name (Statement_block*, VARIABLE_NAME* in)
-	{
-		assert (0);
-	}
-
-	void visit_variable_variable (Statement_block*, Variable_variable* in)
-	{
-		assert (0);
-	}
-};
-
-void
-HSSA::create_virtuals ()
-{
-	Virtuals_creator vc;
-	vc.run (cfg);
 }

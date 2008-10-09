@@ -9,6 +9,7 @@
 #define PHC_ERROR_H
 
 #include <stdarg.h>
+#include <stddef.h>
 
 class String;
 
@@ -40,5 +41,8 @@ void phc_warning (const char* message, String* filename, int line, ...);
 void phc_warning (const char* message, AST::Node*, ...);
 void phc_warning (const char* message, HIR::Node*, ...);
 void phc_warning (const char* message, MIR::Node*, ...);
+
+void phc_unreachable (const char* message = NULL);
+void phc_TODO (const char* message = NULL);
 
 #endif // PHC_ERROR_H

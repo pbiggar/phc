@@ -5,8 +5,9 @@
  * Live variable analysis
  */
 
-#include "Address_taken.h"
 #include "process_ir/General.h"
+#include "Address_taken.h"
+#include "ssa/Virtual_variable.h"
 
 using namespace MIR;
 
@@ -15,12 +16,9 @@ Address_taken::Address_taken ()
 	aliases = new Set ();
 }
 
-void Address_taken::visit_entry_block (Entry_block* bb)
+void
+Address_taken::visit_entry_block (Entry_block* bb)
 {
-	// All variables in the global scope are aliased.
-	if (*bb->method->signature->method_name->value == "__MAIN__")
-		alias_bottom (bb);
-
 	foreach (Formal_parameter* fp, *bb->method->signature->formal_parameters)
 		aliased (bb, fp->var->variable_name);
 }
@@ -28,7 +26,9 @@ void Address_taken::visit_entry_block (Entry_block* bb)
 void
 Address_taken::alias_bottom (Basic_block* bb)
 {
-	bb->aliases->insert_all ();
+	// Havent thought this one through yet
+	assert (0);
+	aliases->insert_all ();
 }
 
 void
@@ -52,7 +52,7 @@ Address_taken::aliased (Basic_block* bb, Rvalue* in)
 void
 Address_taken::aliased (Basic_block* bb, VARIABLE_NAME* in)
 {
-	bb->aliases->insert (in);
+	aliases->insert (in);
 }
 
 // Aliased:
@@ -70,7 +70,7 @@ Address_taken::aliased (Basic_block* bb, VARIABLE_NAME* in)
 
 
 /* Expressions */
-void 
+void
 Address_taken::alias_expr (Basic_block* bb, Expr* in)
 {
 	switch(in->classid())
@@ -104,10 +104,6 @@ Address_taken::alias_expr (Basic_block* bb, Expr* in)
 		case Method_invocation::ID:
 		{
 			Method_invocation* mi = dyc<Method_invocation> (in);
-
-			foreach (Actual_parameter* ap, *mi->actual_parameters)
-				aliased (bb, ap->rvalue);
-
 			break;
 		}
 
@@ -138,6 +134,9 @@ Address_taken::alias_expr (Basic_block* bb, Expr* in)
 void
 Address_taken::visit_assign_array (Statement_block* bb, MIR::Assign_array* in)
 {
+	// Indirect assignments have their virtual variables aliased
+	aliased (bb, get_virtual (in));
+
 	if (in->is_ref)
 		aliased (bb, in->rhs);
 }
@@ -145,6 +144,8 @@ Address_taken::visit_assign_array (Statement_block* bb, MIR::Assign_array* in)
 void
 Address_taken::visit_assign_field (Statement_block* bb, MIR::Assign_field* in)
 {
+	aliased (bb, get_virtual (in));
+
 	if (in->is_ref)
 		aliased (bb, in->rhs);
 }
@@ -152,16 +153,16 @@ Address_taken::visit_assign_field (Statement_block* bb, MIR::Assign_field* in)
 void
 Address_taken::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 {
+	alias_expr (bb, in->rhs);
+
 	if (in->is_ref)
-	{
-		alias_expr (bb, in->rhs);
 		aliased (bb, in->lhs);
-	}
 }
 
 void
 Address_taken::visit_assign_var_var (Statement_block* bb, MIR::Assign_var_var* in)
 {
+	phc_TODO ();
 	if (in->is_ref)
 	{
 		aliased (bb, in->lhs);
@@ -172,13 +173,14 @@ Address_taken::visit_assign_var_var (Statement_block* bb, MIR::Assign_var_var* i
 void
 Address_taken::visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
 {
-	alias_expr (bb, in->expr);
+	visit_expr (bb, in->expr);
 }
 
 void
 Address_taken::visit_global (Statement_block* bb, MIR::Global* in)
 {
-	aliased (bb, in->variable_name);
+	// ignore them for now, they're not helping.
+//	aliased (bb, in->variable_name);
 }
 
 void
@@ -196,8 +198,8 @@ Address_taken::visit_return (Statement_block* bb, MIR::Return* in)
 void
 Address_taken::visit_static_declaration (Statement_block* bb, MIR::Static_declaration* in)
 {
-	// This could be set to anything in a different incovation of the
-	// function.
+	// This could be set to anything in a different invocation of the
+	// function (TODO: unsure about this)
 	aliased (bb, in->var->variable_name);
 }
 
@@ -213,9 +215,112 @@ Address_taken::visit_throw (Statement_block* bb, MIR::Throw*)
 	alias_bottom (bb);
 }
 
+/*
+ * Exprs
+ */
 void
-Address_taken::visit_statement_block (Statement_block* bb)
+Address_taken::visit_array_access (Statement_block* bb, MIR::Array_access* in)
 {
-	// We use a global set for this, since there is only one solution.
-	bb->aliases = aliases;
+	phc_TODO ();
+}
+void
+Address_taken::visit_bin_op (Statement_block* bb, MIR::Bin_op* in)
+{
+	phc_TODO ();
+}
+void
+Address_taken::visit_bool (Statement_block* bb, MIR::BOOL* in)
+{
+	phc_TODO ();
+}
+void
+Address_taken::visit_cast (Statement_block* bb, MIR::Cast* in)
+{
+	phc_TODO ();
+}
+void
+Address_taken::visit_constant (Statement_block* bb, MIR::Constant* in)
+{
+	phc_TODO ();
+}
+void
+Address_taken::visit_field_access (Statement_block* bb, MIR::Field_access* in)
+{
+	phc_TODO ();
+}
+void
+Address_taken::visit_foreach_get_key (Statement_block* bb, MIR::Foreach_get_key* in)
+{
+	phc_TODO ();
+}
+void
+Address_taken::visit_foreach_get_val (Statement_block* bb, MIR::Foreach_get_val* in)
+{
+	phc_TODO ();
+}
+void
+Address_taken::visit_foreach_has_key (Statement_block* bb, MIR::Foreach_has_key* in)
+{
+	phc_TODO ();
+}
+void
+Address_taken::visit_instanceof (Statement_block* bb, MIR::Instanceof* in)
+{
+	phc_TODO ();
+}
+void
+Address_taken::visit_int (Statement_block* bb, MIR::INT* in)
+{
+	phc_TODO ();
+}
+void
+Address_taken::visit_isset (Statement_block* bb, MIR::Isset* in)
+{
+	phc_TODO ();
+}
+void
+Address_taken::visit_method_invocation (Statement_block* bb, MIR::Method_invocation* in)
+{
+	foreach (Actual_parameter* ap, *in->actual_parameters)
+		aliased (bb, ap->rvalue);
+}
+void
+Address_taken::visit_new (Statement_block* bb, MIR::New* in)
+{
+	phc_TODO ();
+}
+void
+Address_taken::visit_nil (Statement_block* bb, MIR::NIL* in)
+{
+	phc_TODO ();
+}
+void
+Address_taken::visit_param_is_ref (Statement_block* bb, MIR::Param_is_ref* in)
+{
+	phc_TODO ();
+}
+void
+Address_taken::visit_real (Statement_block* bb, MIR::REAL* in)
+{
+	phc_TODO ();
+}
+void
+Address_taken::visit_string (Statement_block* bb, MIR::STRING* in)
+{
+	phc_TODO ();
+}
+void
+Address_taken::visit_unary_op (Statement_block* bb, MIR::Unary_op* in)
+{
+	phc_TODO ();
+}
+void
+Address_taken::visit_variable_name (Statement_block* bb, MIR::VARIABLE_NAME* in)
+{
+	phc_TODO ();
+}
+void
+Address_taken::visit_variable_variable (Statement_block* bb, MIR::Variable_variable* in)
+{
+	phc_TODO ();
 }

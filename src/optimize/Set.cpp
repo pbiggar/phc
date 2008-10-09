@@ -99,13 +99,14 @@ Set::has (VARIABLE_NAME* var_name)
 }
 
 void
-Set::dump(ostream& out)
+Set::dump()
 {
+	CHECK_DEBUG ();
 	foreach (VARIABLE_NAME* var_name, *this)
 	{
-		out << *var_name->value << ", ";
+		cdebug << *var_name->value << ", ";
 	}
-	out << "\n";
+	cdebug << "\n";
 }
 
 void 

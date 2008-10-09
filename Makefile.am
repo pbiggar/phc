@@ -187,6 +187,8 @@ libphc_la_SOURCES= 											\
 	src/optimize/ssa/SSA.h									\
 	src/optimize/ssa/SSA_ops.cpp							\
 	src/optimize/ssa/SSA_ops.h								\
+	src/optimize/ssa/Virtual_variable.cpp				\
+	src/optimize/ssa/Virtual_variable.h					\
 	src/optimize/Visit_once.cpp							\
 	src/optimize/Visit_once.h								\
 	src/parsing/Parse_buffer.cpp							\

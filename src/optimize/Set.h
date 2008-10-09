@@ -41,7 +41,7 @@ public:
 	void insert_all ();
 
 	bool has (MIR::VARIABLE_NAME* string);
-	void dump(ostream&);
+	void dump();
 
 	Set* clone ();
 	
