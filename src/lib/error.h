@@ -42,7 +42,7 @@ void phc_warning (const char* message, AST::Node*, ...);
 void phc_warning (const char* message, HIR::Node*, ...);
 void phc_warning (const char* message, MIR::Node*, ...);
 
-void phc_unreachable (const char* message = NULL);
-void phc_TODO (const char* message = NULL);
+void __attribute__((noreturn)) phc_unreachable (const char* message = NULL);
+void __attribute__((noreturn)) phc_TODO (const char* message = NULL);
 
 #endif // PHC_ERROR_H

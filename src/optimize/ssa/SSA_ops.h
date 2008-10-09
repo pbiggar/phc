@@ -76,6 +76,23 @@ public:
 	MIR::VARIABLE_NAME_list* get_uses ();
 };
 
+class SSA_chi : public SSA_op
+{
+public:
+	Basic_block* bb;
+
+	MIR::VARIABLE_NAME* lhs;
+	MIR::VARIABLE_NAME* rhs;
+};
+
+class SSA_mu : public SSA_op
+{
+public:
+	Basic_block* bb;
+
+	MIR::VARIABLE_NAME* rhs;
+};
+
 
 
 typedef List<SSA_op*> SSA_op_list;

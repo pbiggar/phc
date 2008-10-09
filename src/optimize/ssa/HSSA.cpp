@@ -21,6 +21,13 @@
 using namespace MIR;
 using namespace boost;
 
+
+/*
+ * Chow96: "Effective Representation of Aliases and Indirect Memory Operations
+ * in SSA Form"; Fred Chow, Sun Chan, Shin-Ming Liu, Raymond Lo, Mark Streich;
+ * CC 96.
+ */
+
 void
 HSSA::convert_to_ssa_form ()
 {
@@ -225,94 +232,110 @@ HSSA::HSSA (CFG* cfg)
 void
 HSSA::convert_to_hssa_form ()
 {
-	// Virtual variables are used when converting C code to SSA. They deal with
-	// a number of syntactic constructs:
-	//		*p
-	//		*(p+1)
-	//		**p
-	//		p->next
-	//		a[i]
+	// A particular version of a virtual-variable can have only 1 value,
+	// maintaining the single-value per defintion rule. If you have
+	//		v(*p) = 5;
+	//	and then
+	//		$x = v(*p);
+	//	then 5 can be propagated to $x.
 	//
-	//	Aliases affect these constructs in various ways:
-	//		a[i] -- aliases all elements of the array
-	//		p->next -- p could be any struct, so p->next acceesses an abstract
-	//						object, not a concrete one.
-	//		*p -- can alias anything, really, including the above
-	//		*(p+1) -- same as *p, but is intended to indicate it cant alias *p
-	//		**p -- just a different syntactic construct, with the same idea.
+	// The chi's make note of the new version so that this property is
+	// maintained, and the mu's extend the live ranges of the definition so that
+	// assignments arent killed when they are still in use.
 	//
-	//	PHP has different syntactic constructs:
-	//		$a[$i]
-	//		$$a
-	//		$p->next
-	//		$p->$f
+	// A virtual variable represents an 'indirect variable', which can refer to
+	// many memory locations:
 	//
-	//	but it suffers from a different problem: 'normal' syntactic constructs
-	//	can have aliasing behaviour, based on the run-time is_ref field of the
-	//	value. So some constructs may or may not have aliases:
+	//		in C:
+	//			*p
+	//			*(p+1)
+	//			**p
+	//			p->next
+	//			a[i]
+	//
+	//		in PHP:
+	//			$a[$i]
+	//			$$a
+	//			$p->next
+	//			$p->$f
+	//
+	//
+	//
+	// The virtual variables do not remove the requirement for a mu/chi variable
+	// at each load/store, for each variable in the alias set at that point.
+
+	// However, virtual-variables can also be used to condense alias sets.
+	// Chow96, Fig 5, shows that you can represent multiple indirect variables
+	// with a single virtual variable. In fact, we can use a single virtual
+	// variable for every indirect variable in the program. But I dont think we
+	// will.
+
+
+	//	PHP has a different and "new" problem: 'normal' syntactic constructs can
+	//	have aliasing behaviour, based on the run-time is_ref field of the value.
+	//	So some constructs may or may not have aliases:
 	//		$p
-	//	and some become 'super-aliasers':
+	//	and some may become 'super-aliases':
 	//		$a[$i]
 	//		$$a
 	//		$p->next
 	//		$p->$f
 	//
-	//	which, as well as supporting the standard aliasing semantics, generally
-	//	the same as in C, their value can turn out to be is_ref, which means it
-	//	can alias a whole rake of other variables. For example:
+	//	The 'super-aliases' can have is_ref set in their zval, which means they
+	//	can can alias a whole rake of other variables. For example:
 	//		$$x = 10;
 	//		Assume that $x is either "a" or "b", so it can alias either $a or $b.
 	//		However, if $a or $b are is_ref, then the assignment to them is even
 	//		more indirect.
 	//
-	// The good news is that the copy semantics means we can ignore the fact
-	// that a variable isnt a storage location, per-se, but is instead a pointer
-	// to a zval, and the very zval it points to can change. That doesnt really
-	// bother us, because the semantics are assignment either way.
+	//	Super-aliases are tough: conservatively, they could mean that each
+	//	variable needs a virtual-variable (we can still use virtual variables,
+	//	since assignments to them maintain the 'one-version-one-value' property).
+	//	We would need to perform analysis or this insanity would spill
+	//	into 'normal variables'.
 	//
+	//	We can't really name the set after its real or virtual variable though.
+	//	It could be a def of $a or $b, not just $p. So the alias set is {$p, $a,
+	//	$b), and you cant just have a variable like v^p to represent it.
+	//
+	
+	
+
 	// So, returning to the HSSA algorithm:
-	//		- What is an indirect variable?
-	//			In C, there are syntactic constructs to tell us 'here be dragons'.
-	//			Not so in PHP, so we have to either:
-	//				- Be conservative, and assume everything is an alias.
-	//				- Perform _some_ kind of alias analysis so that 'normal'
-	//				variables aren't affected by this insanity.
-	//
-	//			At the end of the day, we can treat everything like an indirect
-	//			variable if we need to.
-	//
 	//		- How do we name the virtual variables?
 	//			In C, there is the structure of the addressing expression. We can
-	//			use this in PHP too.
+	//			use this in PHP too. We dont use the versions of the variables
+	//			though.
 	//
 	//		- So what gets a virtual variable?
-	//			Any variable that might possibly be indirect:
-	//				- anything in a Change-on-write set (this isnt that bad):
-	//					- $x = $a[$i]; // $x isnt in a COW set after the assignment.
-	//				- anything where is_ref is set
-	//					- thats the same as the last one, since for is_ref to be
-	//					set, the refcount must be 2.
-	//				- abstract locations (which can refer to multiple places)
+	//			Any expression which is not a 'real' variable, but can have a value
+	//			(aka abstract locations)
 	//					- $a[$i]
 	//					- $$a
 	//					- $p->next
+	//					- $p->$f
 	//
 	//		- What about super-aliasing?
-	//			I dont know. We'll see where it goes. Hopefully nothing.
-	//
-	//
-	//
+	//			I dont know. We'll see where it goes. Hopefully nothing (doubt it).
+
+
+
 	// 1) Assign virtual variables to indirect variables in the program
-//	create_virtuals ();
+	phc_TODO ();
 
 	//	2)	Perform alias analysis and insert MU and CHI for all scalar and
 	//		virtual variables.
-	//
-	//	Perform alias analysis. Anything which has only one alias (typically
-	//	local variables) can be turned back to scalars.
+	phc_TODO ();
 
+	//	Perform alias analysis.
 	Address_taken* aliasing = new Address_taken ();
 	aliasing->run (cfg);
+
+	// We have a single alias set, so for any use of any variable in the alias
+	// set, add a mu/chi for all variables in the set.
+	add_mu_and_chi_functions (aliasing->aliases);
+
+
 
 	aliasing->aliases->dump ();
 
@@ -411,4 +434,16 @@ HSSA::convert_to_hssa_form ()
 	// Build def-use web
 	cfg->duw = new Def_use_web ();
 	cfg->duw->run (cfg);
+}
+
+
+
+// Expressions get virtual variables associated with them. This is just a name to refer to the memory it can alias. When we add mu and chis, that indicates a may-use of the contents of an alias-set. You use a virtual variable to represent a larger set of variables, including syntactic constructs which are not variables. You can choose to use a large number or a small number of these. A VV then represents 
+void
+HSSA::add_mu_and_chi_functions (Set* aliases)
+{
+	foreach (Basic_block* bb, *cfg->get_all_bbs ())
+	{
+
+	}
 }

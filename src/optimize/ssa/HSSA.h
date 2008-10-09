@@ -16,8 +16,8 @@ public:
 
 	void convert_to_hssa_form ();
 
-	// Analyse the CFG, and fill the virtual-variables map
-	void create_virtuals ();
+	// Add mu and chi functions
+	void add_mu_and_chi_functions (Set* aliases);
 
 	// Normal SSA
 	void convert_to_ssa_form ();

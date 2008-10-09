@@ -66,23 +66,28 @@ bool ssa_op_ptr_comparison (SSA_op* op1, SSA_op* op2)
 	if (typeid (*op1) != typeid (*op2))
 		return typeid (*op1).name () < typeid (*op2).name ();
 
+	// Compare vertex pointers, this wont change, even when the
+	// graph is updated.
+	if (op1->get_bb ()->vertex != op2->get_bb ()->vertex)
+		return op1->get_bb ()->vertex < op2->get_bb ()->vertex;
 
 	// Dont compare BB indices, they might be overwritten
 	if (isa<SSA_phi> (op1))
 	{
-		SSA_phi* phi1 = dyc<SSA_phi> (op1);
-		SSA_phi* phi2 = dyc<SSA_phi> (op2);
-		if (phi1->bb != phi2->bb)
-			return phi1->bb->vertex < phi2->bb->vertex;
+		// compare variable names
+		return *dyc<SSA_phi> (op1)->phi_lhs < *dyc<SSA_phi> (op2)->phi_lhs;
+	}
+	else if (isa<SSA_chi> (op1))
+	{
+		if (*dyc<SSA_chi> (op1)->lhs->value == *dyc<SSA_chi> (op2)->lhs->value)
+			return *dyc<SSA_chi> (op1)->rhs < *dyc<SSA_chi> (op2)->rhs;
 		else
-			// compare variable names
-			return *phi1->phi_lhs < *phi2->phi_lhs;
+			return *dyc<SSA_chi> (op1)->lhs < *dyc<SSA_chi> (op2)->lhs;
 	}
 	else
 	{
-		// Compare vertex pointers, this wont change, even when the
-		// graph is updated.
-		return op1->get_bb ()->vertex < op2->get_bb ()->vertex;
+		// we should have more to base this on
+		phc_TODO ();
 	}
 }
 

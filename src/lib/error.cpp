@@ -130,12 +130,15 @@ phc_unreachable (const char* message)
 		message = "no reason provided";
 
 	phc_internal_error ("Unreachable code reached: '%s'", message);
+	exit (-1);
 }
 
-void phc_TODO (const char* message)
+void
+phc_TODO (const char* message)
 {
 	if (message == NULL)
 		message = "no reason provided";
 
 	phc_internal_error ("TODO: '%s'", message);
+	exit (-1);
 }
