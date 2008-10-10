@@ -16,7 +16,6 @@ get_virtual (Node* in)
 	switch (in->classid ())
 	{
 		case Actual_parameter::ID:
-		case Array_access::ID:
 		case Assign_field::ID:
 		case Assign_var::ID:
 		case Assign_var_var::ID:
@@ -90,10 +89,14 @@ get_virtual (Node* in)
 		case Variable_variable::ID:
 			phc_unreachable ();
 
+		case Array_access::ID:
+			in = new Array_access (dyc<Array_access> (in)->variable_name, NULL);
+			break;
+
 		case Assign_array::ID:
 		{
 			Assign_array *aa = dyc<Assign_array> (in);
-			in = new Array_access (aa->lhs, aa->index);
+			in = new Array_access (aa->lhs, NULL);
 			break;
 		}
 	}

@@ -44,11 +44,10 @@ public:
 	virtual list<pair<String*,list<String*> > >* get_graphviz_tail_properties ();
 
 public:
-	/* In the presence of variable_variables, the variable which is actually
-	 * used (ie $x for $$x) is returned, not a full set.
-	 * TODO: this will probably break for defs.
+	/* 
 	 * These are really for SSA_renaming. We can't use them for a different
-	 * purpose with the same semantics.*/
+	 * purpose with the same semantics.
+	 * */
 	virtual MIR::VARIABLE_NAME_list* get_pre_ssa_defs ();
 	virtual MIR::VARIABLE_NAME_list* get_pre_ssa_uses ();
 
@@ -119,41 +118,20 @@ public:
 	void set_phi_arg_for_edge (Edge*, MIR::VARIABLE_NAME* phi_lhs, MIR::Rvalue* arg);
 
 	/*
-	 * MU and CHI nodes, for HSSA form. A MU node is a MayUse, a CHI is a MayDef.
+	 * MU and CHI nodes, for HSSA form. A MU node is a may_use, a CHI is a
+	 * may_def.
 	 */
 public:
-
+	void add_mu_node (MIR::VARIABLE_NAME*);
+	void add_chi_node (MIR::VARIABLE_NAME*);
 
 
 private:
 	// Instead of an explicit phi node, store the phi->lhs here, and the phi
 	// arguments in edges. Then they can be updated all-at-once.
 	MIR::VARIABLE_NAME_list* phi_lhss;
-
-
-public:
-	/*
-	 * Block manipulation
-	 */
-	// See CFG
-
-
-public:
-	/*
-	 * Data-flow properties
-	 *
-	 * TODO: Abstract into a DF_Solution class
-	 */
-	
-	Set* defs;
-	Set* uses;
-	Set* live_in;
-	Set* live_out;
-	int iteration_count;
-	bool changed;
-
-	// This is a global solution, so each BB should have the same solution.
-	Set* aliases;
+	MIR::VARIABLE_NAME_list* mus;
+	list<pair<MIR::VARIABLE_NAME*, MIR::VARIABLE_NAME*> >* chis;
 
 public:
 	/*

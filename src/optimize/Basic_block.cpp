@@ -15,14 +15,10 @@ using namespace MIR;
 Basic_block::Basic_block(CFG* cfg)
 : cfg(cfg)
 , vertex (NULL)
-, defs (NULL)
-, uses (NULL)
-, live_in (NULL)
-, live_out (NULL)
-, changed (false)
-, aliases (NULL)
 {
 	phi_lhss = new VARIABLE_NAME_list;
+	mus = new VARIABLE_NAME_list;
+	chis = new list<pair<MIR::VARIABLE_NAME*, MIR::VARIABLE_NAME*> >;
 }
 
 Branch_block::Branch_block (CFG* cfg, MIR::Branch* b)
@@ -160,6 +156,17 @@ Basic_block::get_graphviz_head_properties ()
 		result->push_back (make_pair (phi_lhs->get_ssa_var_name (), list));
 	}
 
+// Add chis:
+	
+	foreach (VARIABLE_NAME* mu, *mus)
+	{
+		result->push_back (
+			make_pair (
+				s("MU"), 
+				*(new List<String*> (
+					mu->get_ssa_var_name ()))));
+	}
+
 //	if (live_in)
 //		result->push_back (make_pair (s("IN"), live_in));
 	return result;
@@ -169,8 +176,20 @@ list<pair<String*,list<String*> > >*
 Basic_block::get_graphviz_tail_properties ()
 {
 	list<pair<String*,list<String*> > >* result = new list<pair<String*,list<String*> > >;
-//	if (live_out)
-//		result->push_back (make_pair (s("OUT"), live_out));
+
+	// Add chis:
+	VARIABLE_NAME* lhs;
+	VARIABLE_NAME* rhs;
+	foreach (tie (lhs, rhs), *chis)
+	{
+		result->push_back (
+			make_pair (
+				s("CHI"), 
+				*(new List<String*> (
+					lhs->get_ssa_var_name (), 
+					rhs->get_ssa_var_name ()))));
+	}
+
 	return result;
 }
 
@@ -209,6 +228,18 @@ Basic_block::add_phi_node (VARIABLE_NAME* phi_lhs)
 {
 	assert (!has_phi_node (phi_lhs));
 	phi_lhss->push_back (phi_lhs->clone ());
+}
+
+void
+Basic_block::add_mu_node (VARIABLE_NAME* mu)
+{
+	mus->push_back (mu->clone ());
+}
+
+void
+Basic_block::add_chi_node (VARIABLE_NAME* chi)
+{
+	chis->push_back (make_pair (chi->clone (), chi->clone ()));
 }
 
 void

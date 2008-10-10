@@ -303,7 +303,7 @@ struct BB_property_functor
 				unsigned int line_count = 1;
 				foreach (String* str, props.second)
 				{
-					ss3 << *str << ", ";
+					ss3 << *DOT_unparser::escape (str) << ", ";
 					if (ss3.str().size() > (LINE_LENGTH * line_count))
 					{
 						line_count++;
@@ -324,7 +324,7 @@ struct BB_property_functor
 				unsigned int line_count = 1;
 				foreach (String* str, props.second)
 				{
-					ss4 << *str << ", ";
+					ss4 << *DOT_unparser::escape (str) << ", ";
 					if (ss4.str().size() > (LINE_LENGTH * line_count))
 					{
 						line_count++;

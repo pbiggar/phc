@@ -69,10 +69,11 @@ Address_taken::aliased (Basic_block* bb, VARIABLE_NAME* in)
 // EXPR of return (we dont know call-time-return-by-reference)
 
 
-/* Expressions */
+/* This is the rhs of an $x =& ... assignment. */
 void
 Address_taken::alias_expr (Basic_block* bb, Expr* in)
 {
+	phc_TODO ();
 	switch(in->classid())
 	{
 		case BOOL::ID:
@@ -93,6 +94,8 @@ Address_taken::alias_expr (Basic_block* bb, Expr* in)
 		case Param_is_ref::ID:
 		case Unary_op::ID:
 		case Field_access::ID:
+			phc_unreachable ();
+			assert (0);
 			// do nothing
 			break;
 
@@ -103,12 +106,14 @@ Address_taken::alias_expr (Basic_block* bb, Expr* in)
 			// $r means everything is aliased unless $t or $i
 		case Method_invocation::ID:
 		{
+			phc_TODO ();
 			Method_invocation* mi = dyc<Method_invocation> (in);
 			break;
 		}
 
 		case New::ID:
 		{
+			phc_TODO ();
 			New* n = dyc<New> (in);
 
 			foreach (Actual_parameter* ap, *n->actual_parameters)
@@ -118,10 +123,12 @@ Address_taken::alias_expr (Basic_block* bb, Expr* in)
 		}
 
 		case VARIABLE_NAME::ID:
+			phc_TODO ();
 			aliased (bb, dyc<VARIABLE_NAME> (in));
 			break;
 
 		case Variable_variable::ID:
+			phc_TODO ();
 			alias_bottom (bb);
 			break;
 
@@ -153,10 +160,16 @@ Address_taken::visit_assign_field (Statement_block* bb, MIR::Assign_field* in)
 void
 Address_taken::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 {
-	alias_expr (bb, in->rhs);
+	visit_expr (bb, in->rhs);
 
 	if (in->is_ref)
+	{
 		aliased (bb, in->lhs);
+
+		VARIABLE_NAME* virt = get_virtual (in->rhs);
+		if (virt)
+			aliased (bb, virt);
+	}
 }
 
 void
@@ -179,8 +192,7 @@ Address_taken::visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
 void
 Address_taken::visit_global (Statement_block* bb, MIR::Global* in)
 {
-	// ignore them for now, they're not helping.
-//	aliased (bb, in->variable_name);
+	aliased (bb, in->variable_name);
 }
 
 void
@@ -216,33 +228,31 @@ Address_taken::visit_throw (Statement_block* bb, MIR::Throw*)
 }
 
 /*
- * Exprs
+ * Exprs - get the aliases in the expression, assuming it is not in the form:
+ *		$x =& ...
+ *	but instead:
+ *		$x = ...
+ *	or just
+ *		...
+ */
+
+/*
+ * Do nothings:
+ *		Literals and constants
+ *		unary_ops and bin_ops
+ *
+ *	Virtual vars
+ *		array_access
+ *		field_access
+ *
+ *		
  */
 void
 Address_taken::visit_array_access (Statement_block* bb, MIR::Array_access* in)
 {
-	phc_TODO ();
+	aliased (bb, get_virtual (in));
 }
-void
-Address_taken::visit_bin_op (Statement_block* bb, MIR::Bin_op* in)
-{
-	phc_TODO ();
-}
-void
-Address_taken::visit_bool (Statement_block* bb, MIR::BOOL* in)
-{
-	phc_TODO ();
-}
-void
-Address_taken::visit_cast (Statement_block* bb, MIR::Cast* in)
-{
-	phc_TODO ();
-}
-void
-Address_taken::visit_constant (Statement_block* bb, MIR::Constant* in)
-{
-	phc_TODO ();
-}
+
 void
 Address_taken::visit_field_access (Statement_block* bb, MIR::Field_access* in)
 {
@@ -269,11 +279,6 @@ Address_taken::visit_instanceof (Statement_block* bb, MIR::Instanceof* in)
 	phc_TODO ();
 }
 void
-Address_taken::visit_int (Statement_block* bb, MIR::INT* in)
-{
-	phc_TODO ();
-}
-void
 Address_taken::visit_isset (Statement_block* bb, MIR::Isset* in)
 {
 	phc_TODO ();
@@ -282,15 +287,10 @@ void
 Address_taken::visit_method_invocation (Statement_block* bb, MIR::Method_invocation* in)
 {
 	foreach (Actual_parameter* ap, *in->actual_parameters)
-		aliased (bb, ap->rvalue);
+		aliased (bb,ap->rvalue);
 }
 void
 Address_taken::visit_new (Statement_block* bb, MIR::New* in)
-{
-	phc_TODO ();
-}
-void
-Address_taken::visit_nil (Statement_block* bb, MIR::NIL* in)
 {
 	phc_TODO ();
 }
@@ -300,27 +300,11 @@ Address_taken::visit_param_is_ref (Statement_block* bb, MIR::Param_is_ref* in)
 	phc_TODO ();
 }
 void
-Address_taken::visit_real (Statement_block* bb, MIR::REAL* in)
-{
-	phc_TODO ();
-}
-void
-Address_taken::visit_string (Statement_block* bb, MIR::STRING* in)
-{
-	phc_TODO ();
-}
-void
-Address_taken::visit_unary_op (Statement_block* bb, MIR::Unary_op* in)
-{
-	phc_TODO ();
-}
-void
-Address_taken::visit_variable_name (Statement_block* bb, MIR::VARIABLE_NAME* in)
-{
-	phc_TODO ();
-}
-void
 Address_taken::visit_variable_variable (Statement_block* bb, MIR::Variable_variable* in)
 {
+	// TODO:
+	// Is this a may-use of possibly every variable in the function?
 	phc_TODO ();
 }
+
+

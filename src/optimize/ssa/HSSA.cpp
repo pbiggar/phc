@@ -17,6 +17,7 @@
 #include "Dominance.h"
 #include "process_mir/MIR_unparser.h"
 #include "optimize/Def_use.h"
+#include "SSA_ops.h"
 
 using namespace MIR;
 using namespace boost;
@@ -321,24 +322,23 @@ HSSA::convert_to_hssa_form ()
 
 
 	// 1) Assign virtual variables to indirect variables in the program
-	phc_TODO ();
+	// Do it on the fly.
 
 	//	2)	Perform alias analysis and insert MU and CHI for all scalar and
 	//		virtual variables.
-	phc_TODO ();
 
-	//	Perform alias analysis.
 	Address_taken* aliasing = new Address_taken ();
 	aliasing->run (cfg);
 
-	// We have a single alias set, so for any use of any variable in the alias
-	// set, add a mu/chi for all variables in the set.
-	add_mu_and_chi_functions (aliasing->aliases);
+	// Build existing def-use web
+	cfg->duw = new Def_use_web ();
+	cfg->duw->run (cfg);
 
+	// For any variable in the alias set, add a may_use/may_def of all other
+	// symbols in the alias set.
+	add_mu_and_chi_nodes (aliasing->aliases);
 
-
-	aliasing->aliases->dump ();
-
+//	assert (*cfg->get_entry_bb ()->method->signature->method_name->value != "simpleucall");
 
 	
 	//	3) Insert PHIs using Cytron algorithm, including CHI as assignments
@@ -350,10 +350,6 @@ HSSA::convert_to_hssa_form ()
 
 	// We still have the explosion of MUs and CHIs, so these need to be
 	// trimmed down.
-
-	// Build def-use web (we're not in SSA form, but this will do the job).
-	cfg->duw = new Def_use_web ();
-	cfg->duw->run (cfg);
 
 
 
@@ -438,12 +434,25 @@ HSSA::convert_to_hssa_form ()
 
 
 
-// Expressions get virtual variables associated with them. This is just a name to refer to the memory it can alias. When we add mu and chis, that indicates a may-use of the contents of an alias-set. You use a virtual variable to represent a larger set of variables, including syntactic constructs which are not variables. You can choose to use a large number or a small number of these. A VV then represents 
+// Given the alias set, all for every use, add a mu of all aliased variables,
+// and for every def, add 
 void
-HSSA::add_mu_and_chi_functions (Set* aliases)
+HSSA::add_mu_and_chi_nodes (Set* aliases)
 {
+	// TODO
+	assert (!aliases->full);
+
+	// Means we might be able to use it for alias analysis?
 	foreach (Basic_block* bb, *cfg->get_all_bbs ())
 	{
+		foreach (VARIABLE_NAME* use, *bb->get_pre_ssa_uses ())
+			if (aliases->has (use))
+				foreach (VARIABLE_NAME* alias, *aliases)
+					bb->add_mu_node (alias);
 
+		foreach (VARIABLE_NAME* def, *bb->get_pre_ssa_defs ())
+			if (aliases->has (def))
+				foreach (VARIABLE_NAME* alias, *aliases)
+					bb->add_chi_node (alias);
 	}
 }

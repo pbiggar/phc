@@ -12,7 +12,9 @@
 #include "cmdline.h"
 
 using namespace MIR;
-
+// Not ready to retire this just yet, as it might be useful for getting a
+// minimal SSA form. It is probably easier to do semi-pruned, however.
+#if 0
 void
 Live_variable_analysis::init_block (Basic_block* bb)
 {
@@ -399,3 +401,4 @@ Live_variable_analysis::visit_unset (Statement_block* bb, MIR::Unset* in)
 		use_bottom (bb);
 	}
 }
+#endif

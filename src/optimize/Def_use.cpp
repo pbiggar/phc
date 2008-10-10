@@ -5,6 +5,7 @@
 
 #include "Def_use.h"
 #include "Set.h"
+#include "ssa/Virtual_variable.h"
 
 
 using namespace MIR;
@@ -218,6 +219,7 @@ Def_use_web::visit_assign_array (Statement_block* bb, MIR::Assign_array* in)
 	add_use (in->lhs, new SSA_stmt (bb));
 	add_use (in->rhs, new SSA_stmt (bb));
 	add_use (in->index, new SSA_stmt (bb));
+	add_def (get_virtual (in), new SSA_stmt (bb));
 }
 
 void
@@ -266,7 +268,9 @@ Def_use_web::visit_foreach_reset (Statement_block* bb, MIR::Foreach_reset* in)
 void
 Def_use_web::visit_global (Statement_block* bb, MIR::Global* in)
 {
-	// For SSA creation, this is a def. For later, probably a virtual use too?
+	// For SSA creation, this is a def.
+	// TODO: no virtual use or virtual def here. We need to start to
+	// differentiate between $x =& $y and $x = $y;
 	if (isa<VARIABLE_NAME> (in->variable_name))
 		add_def (dyc<VARIABLE_NAME> (in->variable_name), new SSA_stmt (bb));
 }
@@ -292,6 +296,8 @@ Def_use_web::visit_push_array (Statement_block*, MIR::Push_array* in)
 void
 Def_use_web::visit_return (Statement_block* bb, MIR::Return* in)
 {
+	// what does the Chow paper say about return values? we need a mu
+	phc_TODO (); 
 	add_use (in->variable_name, new SSA_stmt (bb));
 }
 
@@ -339,6 +345,7 @@ Def_use_web::visit_array_access (Statement_block* bb, Array_access* in)
 {
 	add_use (in->variable_name, new SSA_stmt (bb));
 	add_use (in->index, new SSA_stmt (bb));
+	add_use (get_virtual (in), new SSA_stmt (bb));
 }
 
 void
@@ -467,6 +474,4 @@ Def_use_web::dump ()
 		}
 		cdebug << endl;
 	}
-
 }
-

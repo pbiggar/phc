@@ -17,7 +17,7 @@ public:
 	void convert_to_hssa_form ();
 
 	// Add mu and chi functions
-	void add_mu_and_chi_functions (Set* aliases);
+	void add_mu_and_chi_nodes (Set* aliases);
 
 	// Normal SSA
 	void convert_to_ssa_form ();
