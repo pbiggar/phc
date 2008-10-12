@@ -16,7 +16,6 @@
 <!ENTITY userintro SYSTEM "userintro.sgml">
 <!ENTITY install SYSTEM "install.sgml">
 <!ENTITY runningphc SYSTEM "runningphc.sgml">
-<!ENTITY porting SYSTEM "porting.sgml">
 <!-- Developers' manual -->
 <!ENTITY devintro SYSTEM "devintro.sgml">
 <!ENTITY gettingstarted SYSTEM "gettingstarted.sgml">
@@ -29,7 +28,8 @@
 <!ENTITY grammar SYSTEM "grammar.sgml">
 <!ENTITY representingphp SYSTEM "representingphp.sgml">
 <!ENTITY limitations SYSTEM "limitations.sgml">
-<!ENTITY generatedcode SYSTEM "generatedcode.sgml">
+<!ENTITY porting SYSTEM "porting.sgml">
+<!ENTITY apioverview SYSTEM "apioverview.sgml">
 <!ENTITY maketeatheory SYSTEM "maketeatheory.sgml">
 <!-- Couple of macro definitions -->
 <!ENTITY phc "<reserved>phc</reserved>">
@@ -41,7 +41,6 @@
 	&userintro
 	&install
 	&runningphc
-	&porting
 </book>
 <book id="devmanual">
 	<title>The &phc Developer's Manual</title>
@@ -61,8 +60,25 @@
 		&grammar
 		&representingphp
 		&limitations
-		&generatedcode
+		&apioverview
 		&maketeatheory
 	</part>
+	<part id="guide">
+		<!-- TODO: arrange these better -->
+		<title id=guide.title>Development guide</title>
+		&porting
+	</part>
+
+	<!-- TODO: things which should be discussed:
+		developing phc:
+			- Other IRs
+			- testing
+			- project page
+			- prominent link to contribute
+		folds
+		describe compilation and generate-c
+		None,Node
+	-->
+
 </book>
 </set>

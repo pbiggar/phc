@@ -50,9 +50,9 @@
 using namespace MIR;
 
 // Label supported features
-void phc_unsupported (Node* node)
+void phc_unsupported (Node* node, const char* feature)
 {
-	cerr << "Could not generate code:" << endl;
+	cerr << "Could not generate code for " << feature << endl;
 	(new MIR_unparser (cerr, true))->unparse (node);
 	cerr << endl;
 	xml_unparse (node, cerr);
@@ -271,32 +271,6 @@ string get_array_entry (Scope scope, string zvp, VARIABLE_NAME* var_name, Rvalue
 	return ss.str();
 }
 
-string index_lhs (Scope scope, string zvp, Expr* expr)
-{
-	stringstream ss;
-
-	VARIABLE_NAME* var_name = dynamic_cast<VARIABLE_NAME*> (expr);
-	if (var_name)
-	{
-		string zvp_name = suffix (zvp, "var");
-
-		ss
-		<< "// Normal Assignment\n"
-		<< get_st_entry (scope, zvp_name, var_name)
-		<< "zval** " << zvp << " = " << zvp_name << ";\n";
-	}
-	else
-	{
-		// Variable variable.
-		// After shredder, a variable variable cannot have array indices
-		phc_unsupported (expr);
-		//	reference_var_var ();
-	}
-
-	return ss.str();
-}
-
-
 /* Generate code to read the variable named in VAR to the zval* ZVP */
 string read_var (Scope scope, string zvp, VARIABLE_NAME* var_name)
 {
@@ -312,12 +286,38 @@ string read_var (Scope scope, string zvp, VARIABLE_NAME* var_name)
 	return ss.str();
 }
 
-string read_var_var (Scope scope, string zvp, Variable_variable* var_var)
+/*
+ * Find the variable in target_scope whose name is given by var_var in var_scope
+ * and store the result in zvp
+ */
+string get_var_var (Scope target_scope, string zvp, Scope var_scope, VARIABLE_NAME* var_var)
 {
 	stringstream ss;
 	ss
 	<< "// Read variable variable\n"
-	<< read_rvalue (scope, "var_var", var_var->variable_name)
+  << "{\n"
+	<< read_rvalue (var_scope, "var_var", var_var)
+	<< zvp << " = get_var_var (" 
+	<<					get_scope (target_scope) << ", "
+	<<					"var_var, "
+  <<          "1, "
+  <<          "&is_" << zvp << "_new "
+	<<					"TSRMLS_CC);\n"
+  << "}\n"
+	;
+	return ss.str();
+}
+
+/*
+ * Like get_var_var, but do not add the variable to the scope
+ * if not already there
+ */
+string read_var_var (Scope scope, string zvp, VARIABLE_NAME* var_var)
+{
+	stringstream ss;
+	ss
+	<< "// Read variable variable\n"
+	<< read_rvalue (scope, "var_var", var_var)
 	<< zvp << " = read_var_var (" 
 	<<					get_scope (scope) << ", "
 	<<					"var_var "
@@ -326,24 +326,6 @@ string read_var_var (Scope scope, string zvp, Variable_variable* var_var)
 	return ss.str();
 }
 
-string read_array_index (Scope scope, string zvp, Array_access* ia)
-{
-	stringstream ss;
-	VARIABLE_NAME* var_name  = ia->variable_name;
-
-	ss 
-	<< "// Read array variable\n"
-	<< read_rvalue (scope, "r_array", var_name)
-	<< read_rvalue (scope, "ra_index", ia->index)
-	<< "read_array ("
-	<<			zvp << ", "
-	<<			"r_array, "
-	<<			"ra_index, "
-	<<			"&is_" << zvp << "_new "
-	<<			" TSRMLS_CC);\n"
-	;
-	return ss.str();
-}
 
 /*
  * Map of the Zend functions that implement the operators
@@ -545,7 +527,7 @@ protected:
 					// would need to be lowered first. The simplest option is to
 					// convert them to AST, run them through the passes, and
 					// generate code for that */
-					phc_unsupported (param->var->default_value);
+					phc_unsupported (param->var->default_value, "default values");
 
 /*					Statement* assign_default_values = 
 						new Assign_var(
@@ -746,32 +728,6 @@ protected:
 	Wildcard<VARIABLE_NAME>* lhs;
 };
 
-string assign_rhs (bool is_ref, VARIABLE_NAME* rhs)
-{
-	stringstream ss;
-	if (not is_ref)
-	{
-		ss	
-		<< declare ("p_rhs")
-		<< read_rvalue (LOCAL, "p_rhs_var", rhs)
-		<< "// Read normal variable\n"
-		<< "p_rhs = &p_rhs_var;\n"
-		<< "\n"
-		<< "if (*p_lhs != *p_rhs)\n"
-		<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
-		<< cleanup ("p_rhs")
-		;
-	}
-	else
-	{
-		ss	
-		<< get_st_entry (LOCAL, "p_rhs", rhs)
-		<< "copy_into_ref (p_lhs, p_rhs);\n"
-		;
-	}
-	return ss.str();
-}
-
 /* $x[$i] = $y; (1)
  *		or
  * $x[$i] =& $y; (2)
@@ -807,8 +763,28 @@ public:
 
 		code 
 		<<	get_array_entry (LOCAL, "p_lhs", lhs->value, index->value)
-		<<	assign_rhs (agn->is_ref, rhs->value)
 		;
+	
+		if (not agn->is_ref)
+		{
+		  code	
+			<< declare ("p_rhs")
+			<< read_rvalue (LOCAL, "p_rhs_var", rhs->value)
+			<< "// Read normal variable\n"
+			<< "p_rhs = &p_rhs_var;\n"
+			<< "\n"
+			<< "if (*p_lhs != *p_rhs)\n"
+			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
+			<< cleanup ("p_rhs")
+			;
+		}
+		else
+		{
+			code
+			<< get_st_entry (LOCAL, "p_rhs", rhs->value)
+			<< "copy_into_ref (p_lhs, p_rhs);\n"
+			;
+		}
 	}
 
 protected:
@@ -832,14 +808,14 @@ protected:
  * If $x is a different scalar, a warning is printed, but that $x is not initialized (nothing pushed).
  * If $x is a string (but not ""), a fatal error is thrown.
  */
-class Pattern_push_array : public Pattern
+class Pattern_assign_next : public Pattern
 {
 public:
 	bool match(Statement* that)
 	{
 		lhs = new Wildcard<VARIABLE_NAME>;
 		rhs = new Wildcard<VARIABLE_NAME>;
-		agn = new Push_array (lhs, false, rhs);
+		agn = new Assign_next (lhs, false, rhs);
 		return (that->match(agn));
 	}
 
@@ -886,7 +862,7 @@ public:
 	}
 
 protected:
-	Push_array* agn;
+	Assign_next* agn;
 	Wildcard<VARIABLE_NAME>* lhs;
 	Wildcard<VARIABLE_NAME>* rhs;
 };
@@ -923,12 +899,9 @@ public:
 		{
 			code
 			<< declare ("p_rhs")
-
 			<< read_var (LOCAL, "p_rhs", rhs->value)
-
 			<< "if (*p_lhs != *p_rhs)\n"
 			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
-
 			<< cleanup ("p_rhs");
 		}
 		else
@@ -968,20 +941,19 @@ public:
 		{
 			code
 			<< declare ("p_rhs")
-
-			<< read_var_var (LOCAL, "p_rhs", rhs->value)
-
+			<< read_var_var (LOCAL, "p_rhs", rhs->value->variable_name)
 			<< "if (*p_lhs != *p_rhs)\n"
 			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
-
 			<< cleanup ("p_rhs")
 			;
 		}
 		else
 		{
 			code
-			<< index_lhs (LOCAL, "p_rhs", rhs->value)
+			<< declare ("p_rhs")
+			<< get_var_var (LOCAL, "p_rhs", LOCAL, rhs->value->variable_name)
 			<< "copy_into_ref (p_lhs, p_rhs);\n"
+			<< cleanup ("p_rhs")
 			;
 		}
 	}
@@ -1002,13 +974,23 @@ public:
 
 	void generate_rhs ()
 	{
+		VARIABLE_NAME* var_name  = rhs->value->variable_name;
+
 		if (!agn->is_ref)
 		{
 			code
 			<< declare ("p_rhs")
 
-			<< read_array_index (LOCAL, "p_rhs", rhs->value)
-			
+			<< "// Read array variable\n"
+			<< read_rvalue (LOCAL, "r_array", var_name)
+			<< read_rvalue (LOCAL, "ra_index", rhs->value->index)
+			<< "read_array ("
+			<<			"p_rhs" << ", "
+			<<			"r_array, "
+			<<			"ra_index, "
+			<<			"&is_" << "p_rhs" << "_new "
+			<<			" TSRMLS_CC);\n"
+
 			<< "if (*p_lhs != *p_rhs)\n"
 			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
 
@@ -1258,28 +1240,108 @@ public:
 	}
 };
 
+/*
+ * $$x = $y
+ */
 
+class Pattern_assign_var_to_var_var : public Pattern
+{
+	bool match(Statement* that)
+	{
+		lhs = new Wildcard<VARIABLE_NAME>;
+		rhs = new Wildcard<VARIABLE_NAME>;
+		stmt = new Assign_var_var(lhs, false, rhs);
+		return(that->match(stmt));	
+	}
+
+	void generate_code(Generate_C* gen)
+	{
+		if(!stmt->is_ref)
+		{
+			code
+			<< declare ("p_lhs") 
+			<< get_var_var (LOCAL, "p_lhs", LOCAL, lhs->value)
+			<< declare ("p_rhs")
+			<< read_var (LOCAL, "p_rhs", rhs->value)
+			<< "if (*p_lhs != *p_rhs)\n"
+			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
+			<< cleanup ("p_lhs")
+			<< cleanup ("p_rhs")
+			;
+		}
+		else
+		{
+			code
+			<< declare ("p_lhs") 
+			<< get_var_var (LOCAL, "p_lhs", LOCAL, lhs->value)
+			<< get_st_entry (LOCAL, "p_rhs", rhs->value)
+			<< "copy_into_ref (p_lhs, p_rhs);\n"
+			<< cleanup ("p_lhs")
+			;
+		}
+	}
+
+	Assign_var_var* stmt;
+	// TODO: Here and elsewhere we assume the RHS is a variable_name, but it can be
+	// any rvalue 
+	Wildcard<VARIABLE_NAME>* lhs;
+	Wildcard<VARIABLE_NAME>* rhs;
+};
+	
+/*
+ * global $a or global $$a
+ */
 class Pattern_global : public Pattern 
 {
 public:
 	bool match(Statement* that)
 	{
-		rhs = new Wildcard<Variable_name>;
-		return(that->match(new Global(rhs)));
+		var_name = new Wildcard<Variable_name>;
+		return(that->match(new Global(var_name)));
 	}
 
 	void generate_code(Generate_C* gen)
 	{
 		code
-		<<	index_lhs (LOCAL, "p_local_global_var", rhs->value) // lhs
-		<<	index_lhs (GLOBAL, "p_global_var", rhs->value) // rhs
+		<<	index_lhs (LOCAL, "p_local_global_var", var_name->value) // lhs
+		<<	index_lhs (GLOBAL, "p_global_var", var_name->value) // rhs
 		// Note that p_global_var can be in the copy-on-write set.
 		<< "copy_into_ref (p_local_global_var, p_global_var);\n"
 		;
 	}
 
+	string index_lhs (Scope scope, string zvp, Expr* expr)
+	{
+		stringstream ss;
+	
+		VARIABLE_NAME* var_name = dynamic_cast<VARIABLE_NAME*> (expr);
+		if (var_name)
+		{
+			ss
+			<< "// Normal global\n"
+			<< get_st_entry (scope, zvp, var_name)
+			;
+		}
+		else
+		{
+			Variable_variable* var_var;
+			var_var = dynamic_cast<Variable_variable*> (expr);
+			assert(var_var != NULL);
+
+		  ss
+      << "// Variable global\n"
+      << declare (zvp)
+      // The variable variable is always in the local scope
+      << get_var_var (scope, zvp, LOCAL, var_var->variable_name)
+      << cleanup (zvp)
+      ;
+    }
+
+  	return ss.str();
+  }
+
 protected:
-	Wildcard<Variable_name>* rhs;
+	Wildcard<Variable_name>* var_name;
 };
 
 class Pattern_assign_constant : public Pattern_assign_var
@@ -1540,7 +1602,7 @@ public:
 
 		// Variable function or ordinary function?
 		METHOD_NAME* name = dynamic_cast<METHOD_NAME*>(rhs->value->method_name);
-		if (name == NULL) phc_unsupported (rhs->value);
+		if (name == NULL) phc_unsupported (rhs->value, "variable function");
 
 		string fci_name = suffix (*name->value, "fci");
 		string fcic_name = suffix (*name->value, "fcic");
@@ -1953,7 +2015,7 @@ class Pattern_unset : public Pattern
 		else
 		{
 			// Variable variable
-			phc_unsupported (unset);
+			phc_unsupported (unset, "unset variable variable");
 		}
 	}
 
@@ -1980,19 +2042,16 @@ class Pattern_isset : public Pattern_assign_zval
 				if (var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
 				{
 					string name = get_non_st_name (var_name);
-					code << "ZVAL_BOOL(" << lhs << ", " << name << " != NULL);\n"; 
+					code << "ZVAL_BOOL(" << lhs << ", " << name << " != NULL && !ZVAL_IS_NULL(" << name << "));\n"; 
 				}
 				else
 				{
-					String* name = var_name->value;
-					code
-					<< "ZVAL_BOOL(" << lhs << ", "
-					<< "isset_var ("
-					<<		get_scope (LOCAL) << ", "
-					<<		"\"" << *name << "\", "
-					<<		name->length() + 1
-					// no get_hash version
-					<<		"));\n";
+          code
+          << declare ("p_rhs")
+          << read_var (LOCAL, "p_rhs", var_name)
+			    << "ZVAL_BOOL(" << lhs << ", !ZVAL_IS_NULL(*p_rhs));\n" 
+          << cleanup ("p_rhs")
+          ;
 				}
 			}
 			else 
@@ -2001,7 +2060,7 @@ class Pattern_isset : public Pattern_assign_zval
 				assert(isset->value->array_indices->size() == 1);
 				Rvalue* index = isset->value->array_indices->front();
 
-				code
+        code
 				<< get_st_entry (LOCAL, "u_array", var_name)
 				<< read_rvalue (LOCAL, "u_index", index)
 				<< "ZVAL_BOOL(" << lhs << ", "
@@ -2009,13 +2068,23 @@ class Pattern_isset : public Pattern_assign_zval
 				<<    "u_array, "
 				<<    "u_index "
 				<<		" TSRMLS_CC));\n";
+        ;
 			}
 		}
 		else
 		{
 			// Variable variable
 			// TODO
-			phc_unsupported (isset);
+			Variable_variable* var_var;
+      var_var = dynamic_cast<Variable_variable*>(isset->value->variable_name);
+      assert(var_var);
+
+			code
+			<< declare ("p_rhs")
+			<< read_var_var (LOCAL, "p_rhs", var_var->variable_name)
+			<< "ZVAL_BOOL(" << lhs << ", !ZVAL_IS_NULL(*p_rhs));\n" 
+			<< cleanup ("p_rhs")
+      ;
 		}
 	}
 
@@ -2348,10 +2417,11 @@ void Generate_C::children_statement(Statement* in)
 	,	new Pattern_assign_constant ()
 	,	new Pattern_assign_var_to_var ()
 	,	new Pattern_assign_array_index_to_var ()
-	,	new Pattern_assign_var_var_to_var () // TODO renaming
+	,	new Pattern_assign_var_var_to_var ()
 	,	new Pattern_assign_param_is_ref ()
 	,	new Pattern_assign_array ()
-	,	new Pattern_push_array ()
+	,	new Pattern_assign_next ()
+	, new Pattern_assign_var_to_var_var ()
 	,	new Pattern_global()
 	,	new Pattern_builtin()
 	,	new Pattern_unset()
@@ -2400,7 +2470,7 @@ void Generate_C::children_statement(Statement* in)
 
 	if(not matched)
 	{
-		phc_unsupported (in);
+		phc_unsupported (in, "unknown construct");
 	}
 }
 
@@ -2410,7 +2480,7 @@ void include_file (ostream& out, String* filename)
 	ifstream file;
 
 	stringstream ss1, ss2;
-	ss1 << "libphc/" << *filename;
+	ss1 << "runtime/" << *filename;
 	ss2 << DATADIR << "/phc/" << *filename;
 
 	// Check the current directory first. This means we can change the file without recompiling or installing.
@@ -2539,6 +2609,10 @@ void Generate_C::post_php_script(PHP_script* in)
 		"   php_embed_init (argc, argv PTSRMLS_CC);\n"
 		"   zend_first_try\n"
 		"   {\n"
+    "\n"
+    "      // initialize the phc runtime\n"
+    "      init_runtime();\n"
+    "\n"
 		"      // load the compiled extension\n"
 		"      zend_startup_module (&" << *extension_name << "_module_entry);\n"
 		"\n"
@@ -2566,6 +2640,8 @@ void Generate_C::post_php_script(PHP_script* in)
 		"\n"
 		"      assert (success == SUCCESS);\n"
 		"\n"
+    "      // finalize the runtime\n"
+    "      finalize_runtime();\n"
 		"\n"
 		"   }\n"
 		"   zend_catch\n"

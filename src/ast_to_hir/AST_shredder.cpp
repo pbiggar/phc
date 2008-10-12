@@ -102,6 +102,14 @@ Variable* Shredder::post_variable(Variable* in)
 
 	while(num_pieces > 0)
 	{
+		// Get the array index (can be NULL)
+		Expr* array_index = in->array_indices->front ();
+		if (array_index)
+			array_index = array_index->clone ();
+		// TODO: this destructively modifies *in. is that what we want?
+		in->array_indices->pop_front();
+
+
 		Variable* temp = fresh_var("TSi");
 		pieces->push_back(new Eval_expr(new Assignment(
 			temp->clone (),
@@ -109,12 +117,9 @@ Variable* Shredder::post_variable(Variable* in)
 			new Variable (
 				NULL, 
 				prev->variable_name->clone(), 
-				new Expr_list(in->array_indices->front()->clone ())))));
+				new Expr_list (array_index)))));
 		prev = temp;
 		num_pieces--;
-
-		// TODO: this destructively modifies *in. is that what we want?
-		in->array_indices->pop_front();
 	}
 
 	if(prev != in && !in->array_indices->empty())

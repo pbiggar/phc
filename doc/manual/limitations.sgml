@@ -4,80 +4,27 @@
 <section>
 <title></title>
 
-<para> This document describes the known limitations of the current
-&phc implementation.  These limitations are
-things that we are aware of but that are not high on our priority list
-of things to deal with at the moment. However, if any of them are
-bothering you, let us <ulink url="http://www.phpcompiler.org/contact.html">know</ulink> and we
-might look into it. </para>
-
-</section>
-<section>
-
-<title>Nested Function Definitions</title>
-
-<para> As described in <xref linkend="representingphp"
-endterm="representingphp.title">, we cannot deal with nested function
-definitions. &phc will break on the following PHP code:
-
-<programlisting>
-&lt;?<reserved>php</reserved>
-   <reserved>if</reserved>($x)
-   {
-      <reserved>function</reserved> f()
-      {
-         <reserved>echo</reserved> "First f";
-      }
-   }
-   <reserved>else</reserved>
-   {
-      <reserved>function</reserved> f()
-      {
-         <reserved>echo</reserved> "Second f";
-      }
-   }
-
-   f();
-?&gt;
-</programlisting>
-
-<para> Currently &phc will generate the
-following AST for this: </para>
-
-<programlisting>
-&lt;?<reserved>php</reserved>
-   <reserved>function</reserved> f()
-   {
-      <reserved>echo</reserved> "First f";
-   }
-
-   <reserved>function</reserved> f()
-   {
-      <reserved>echo</reserved> "Second f";
-   }
-
-   <reserved>if</reserved>($x)
-   {
-   }
-   <reserved>else</reserved>
-   {
-   }
-
-   f();
-?&gt;
-</programlisting>
+<para>
+	This document describes the known limitations of the current &phc
+	implementation. These limitations are things that we are aware of but that
+	are not high on our priority list of things to deal with at the moment.
+	However, if any of them are bothering you, let us <ulink
+	url="http://www.phpcompiler.org/mailinglist.html">know</ulink> and we might
+	look into it.
+</para>
 
 </section>
 <section>
 
 <title> Comments </title>
-
-<para> <xref linkend="representingphp" endterm="representingphp.title"> 
-explains how we deal with comments. Most comments in a PHP script
-should get attached to the right token in the tree, and no comments
-should ever be lost. If that is not true, please send us a sample program that demonstrates
-where it breaks. There are a few problems that we are aware of, and
-there are probably others too. </para>
+<para>
+	<xref linkend="representingphp" endterm="representingphp.title"> explains
+	how we deal with comments. Most comments in a PHP script should get attached
+	to the right token in the tree, and no comments should ever be lost. If that
+	is not true, please send us a sample program that demonstrates where it
+	breaks. There are a few problems that we are aware of, and there are
+	probably others too. 
+</para>
 
 <para> Dealing with comments in a completely satisfactory way is a
 difficult task! The first problem with our method of dealing with
@@ -162,11 +109,12 @@ node in the script. </para>
 
 <title> Numbers </title>
 
-<para> PHP accepts invalid octal numbers such as <code>01090</code>; the
-&ldquo;incorrect tail&rdquo; is silently ignored (so, this number
-should evaluate to 8 decimal). The &phc
-lexical analyser will generate an &ldquo;invalid token&rdquo; instead
-which will result in a syntax error. </para>
+<para>
+	PHP accepts invalid octal numbers such as <code>01090</code>; the
+	&ldquo;incorrect tail&rdquo; is silently ignored (so, this number should
+	evaluate to 8 decimal). The &phc lexical analyser will generate an
+	&ldquo;invalid token&rdquo; instead which will result in a syntax error.
+</para>
 
 </section>
 </chapter>

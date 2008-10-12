@@ -20,3 +20,9 @@ clean:
 	rm -f *.html
 	rm -f manual.tex manual.dvi manual.ps manual.pdf
 	rm -f manual.aux manual.log manual.out
+
+images:
+	phc --dump-dot=ast --no-nulls --no-empty-lists code/demo.php | dot -Tjpg -Gdpi="72" > img/demo.jpg
+	# highlight nodes using sed (for node_{2,9,19,28}, rewrite with style.
+	phc --dump-dot=ast --no-nulls --no-empty-lists --no-line-numbers code/ifx5.php | sed 's/node_\(2\|9\|19\|28\) \[/node_\1 [style=filled, fillcolor=cadetblue3, /' | dot -Tjpg -Gdpi="72" > img/ifx5.jpg
+	

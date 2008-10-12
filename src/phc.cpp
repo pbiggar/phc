@@ -198,9 +198,9 @@ int main(int argc, char** argv)
 			phc_error ("Pass %s, specified with flag --" #FLAG ", is not valid", args_info.FLAG##_arg [i]);	\
 	}
 	check_passes (dump);
-	check_passes (udump);
-	check_passes (xdump);
-	check_passes (ddump);
+	check_passes (dump_uppered);
+	check_passes (dump_xml);
+	check_passes (dump_dot);
 	check_passes (debug);
 	check_passes (disable);
 
@@ -220,6 +220,9 @@ int main(int argc, char** argv)
 	// -e implies -c (I dont know how to do this in gengetopt)
 	if (args_info.execute_flag)
 		args_info.compile_flag = true;
+
+	if (args_info.web_app_given)
+		phc_error ("Not directly implemented: please instead follow instructions in the \"Compiling web applications\" section of the user manual.");
 
 
 	/* 

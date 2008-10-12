@@ -221,13 +221,13 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Assign_var_var(lhs, is_ref, rhs);
     }
-    if(!strcmp(type_id, "Push_array"))
+    if(!strcmp(type_id, "Assign_next"))
     {
     	VARIABLE_NAME* lhs = dynamic_cast<VARIABLE_NAME*>(*i++);
     	bool is_ref = dynamic_cast<Boolean*>(*i++)->value();
     	Rvalue* rhs = dynamic_cast<Rvalue*>(*i++);
     	assert(i == args->end());
-    	return new Push_array(lhs, is_ref, rhs);
+    	return new Assign_next(lhs, is_ref, rhs);
     }
     if(!strcmp(type_id, "Pre_op"))
     {
@@ -255,6 +255,12 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	Rvalue* index = dynamic_cast<Rvalue*>(*i++);
     	assert(i == args->end());
     	return new Array_access(variable_name, index);
+    }
+    if(!strcmp(type_id, "Array_next"))
+    {
+    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	assert(i == args->end());
+    	return new Array_next(variable_name);
     }
     if(!strcmp(type_id, "Cast"))
     {

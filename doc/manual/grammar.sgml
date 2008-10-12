@@ -4,11 +4,13 @@
 <section>
 <title></title>
 
-<para> This is the full and authoritative definition of the &phc abstract
-grammar for PHP in <application>maketea</application> format (this can also be
-found in <filename>generated_src/phc.tea</filename> in the distribution). For a
-description of the structure of the grammar, and how it converts to C++ code,
-refer to the <xref linkend="maketeatheory">.  </para>
+<para>
+	This is the full and authoritative definition of the &phc abstract grammar
+	for PHP in <application>maketea</application> format (this can also be found
+	in <filename>src/generated_src/ast.tea</filename> in the distribution). For
+	a description of the structure of the grammar, and how it converts to C++
+	code, refer to the <xref linkend="maketeatheory">.  
+</para>
 
 </section>
 
@@ -16,25 +18,31 @@ refer to the <xref linkend="maketeatheory">.  </para>
 <title>Overall Structure</title>
 
 <programlisting>
-php_script ::= interface_def* class_def+ ;
+PHP_script ::= Statement* ;
 
-interface_def ::= INTERFACE_NAME <emphasis>extends</emphasis>:INTERFACE_NAME* member* ;
+Class_def ::=
+   Class_mod CLASS_NAME <emphasis>extends</emphasis>:CLASS_NAME? 
+   <emphasis>implements</emphasis>:INTERFACE_NAME* Member* ;
+Class_mod ::= "abstract"? "final"? ;
 
-class_def ::= class_mod CLASS_NAME <emphasis>extends</emphasis>:CLASS_NAME? 
-   <emphasis>implements</emphasis>:INTERFACE_NAME* member* ;
-class_mod ::= "abstract"? "final"? ;
+Interface_def ::= INTERFACE_NAME <emphasis>extends</emphasis>:INTERFACE_NAME* Member* ;
 
-member ::= method | attribute ;
+Member ::= Method | Attribute ;
 
-method ::= signature statement*? ;
-signature ::= method_mod <emphasis>is_ref</emphasis>:"&"? METHOD_NAME formal_parameter* ;
-method_mod ::= "public"? "protected"? "private"? 
-   "static"? "abstract"? "final"? ;
-formal_parameter ::= type <emphasis>is_ref</emphasis>:"&"? VARIABLE_NAME expr? ;
-type ::= "array"? CLASS_NAME? ;
+Method ::= Signature Statement*? ;
+Signature ::= Method_mod <emphasis>is_ref</emphasis>:"&"? METHOD_NAME Formal_parameter* ;
+Method_mod ::= "public"? "protected"? "private"? "static"? "abstract"? "final"? ;
+Formal_parameter ::= Type <emphasis>is_ref</emphasis>:"&"? 
+   <emphasis>var</emphasis>:Name_with_default ;
+Formal_parameter ::= Type <emphasis>is_ref</emphasis>:"&"?
+   <emphasis>var</emphasis>:Name_with_default ;
+Type ::= CLASS_NAME? ;
+Name_with_default ::= VARIABLE_NAME Expr? ;
 
-attribute ::= attr_mod VARIABLE_NAME expr? ;
-attr_mod ::= "public"? "protected"? "private"? "static"? "const"?  ;
+Attribute ::= Attr_mod <emphasis>vars</emphasis>:Name_with_default* ;
+Attr_mod ::= "public"? "protected"? "private"? "static"? "const"?  ;
+
+
 </programlisting>
 
 </section>
@@ -42,36 +50,41 @@ attr_mod ::= "public"? "protected"? "private"? "static"? "const"?  ;
 <title>Statements</title>
 
 <programlisting>
-statement ::=
-     if | while | do | for | foreach 
-   | switch | break | continue | return
-   | static_declaration
-   | unset | declare | try | throw | eval_expr ;
+Statement ::=
+     Class_def | Interface_def | Method
+   | Return | Static_declaration | Global
+   | Try | Throw | Eval_expr
+   | If | While | Do | For | Foreach
+   | Switch | Break | Continue
+   | Declare | Nop
+	;
 
-if ::= expr <emphasis>iftrue</emphasis>:statement* <emphasis>iffalse</emphasis>:statement* ;
-while ::= expr statement* ;
-do ::= statement* expr ;
-for ::= <emphasis>init</emphasis>:expr? <emphasis>cond</emphasis>:expr? <emphasis>incr</emphasis>:expr? statement* ;
-foreach ::= expr <emphasis>key</emphasis>:variable? <emphasis>is_ref</emphasis>:"&"? 
-   <emphasis>val</emphasis>:variable statement* ;
+If ::= Expr <emphasis>iftrue</emphasis>:Statement* <emphasis>iffalse</emphasis>:Statement* ;
+While ::= Expr Statement* ;
+Do ::= Statement* Expr ;
+For ::= <emphasis>init</emphasis>:Expr? <emphasis>cond</emphasis>:Expr? <emphasis>incr</emphasis>:Expr? Statement* ;
+Foreach ::= Expr <emphasis>key</emphasis>:Variable? <emphasis>is_ref</emphasis>:"&"? 
+   <emphasis>val</emphasis>:Variable Statement* ;
 
-switch ::= expr switch_case* ;
-switch_case ::= expr? statement* ;
-break ::= expr? ;
-continue ::= expr? ;
-return ::= expr? ;
+Switch ::= Expr Switch_case* ;
+Switch_case ::= Expr? Statement* ;
+Break ::= Expr? ;
+Continue ::= Expr? ;
+Return ::= Expr? ;
 
-static_declaration ::= VARIABLE_NAME expr? ;
-unset ::= variable ;
+Static_declaration ::= <emphasis>vars</emphasis>:Name_with_default* ;
+Global ::= Variable_name* ;
 
-declare ::= directive+ statement* ;
-directive ::= DIRECTIVE_NAME expr ;
+Declare ::= Directive+ Statement* ;
+Directive ::= DIRECTIVE_NAME Expr ;
 
-try ::= statement* <emphasis>catches</emphasis>:catch* ;
-catch ::= CLASS_NAME VARIABLE_NAME statement* ;
-throw ::= expr ;
+Try ::= Statement* <emphasis>catches</emphasis>:Catch* ;
+Catch ::= CLASS_NAME VARIABLE_NAME Statement* ;
+Throw ::= Expr ;
 
-eval_expr ::= expr ;
+Eval_expr ::= Expr ;
+
+Nop ::= ;
 </programlisting>
 
 </section>
@@ -80,55 +93,57 @@ eval_expr ::= expr ;
 <title>Expressions</title>
 
 <programlisting>
-expr ::=
-     assignment | list_assignment | cast | unary_op | bin_op
-   | conditional_expr | ignore_errors | constant | instanceof
-   | variable | pre_op | post_op | array
-   | method_invocation | new | clone
-   | literal ;
+Expr ::=
+     Assignment 
+	| Cast | Unary_op | Bin_op 
+	| Constant | Instanceof
+	| Variable | Pre_op 
+	| Method_invocation | New 
+	| Literal 
+	| Op_assignment | List_assignment 
+	| Post_op | Array | Conditional_expr | Ignore_errors 
+	;
+
+Literal ::= INT&lt;long&gt; | REAL&lt;double&gt; | STRING&lt;String*&gt; | BOOL&lt;bool&gt; | NIL&lt;&gt; ;
    
-literal ::= INT | REAL | STRING | BOOL | NULL ;
-   
-assignment ::= variable <emphasis>is_ref</emphasis>:"&"? expr ;
+Assignment ::= Variable <emphasis>is_ref</emphasis>:"&"? Expr ;
+Op_assignment ::= Variable OP Expr ;
 
-list_assignment ::= list_elements expr ;
-list_elements ::= list_element?* ;
-list_element ::= variable | list_elements ;
+List_assignment ::= List_element?* Expr ;
+List_element ::= Variable | Nested_list_elements ;
+Nested_list_elements ::= List_element?* ;
 
-cast ::= CAST expr ;
-unary_op ::= OP expr ;
-bin_op ::= <emphasis>left</emphasis>:expr OP <emphasis>right</emphasis>:expr ;
+Cast ::= CAST Expr ;
+Unary_op ::= OP Expr ;
+Bin_op ::= <emphasis>left</emphasis>:Expr OP <emphasis>right</emphasis>:Expr ;
 
-conditional_expr ::= 
-   <emphasis>cond</emphasis>:expr <emphasis>iftrue</emphasis>:expr <emphasis>iffalse</emphasis>:expr ;
-ignore_errors ::= expr ;
+Conditional_expr ::= 
+   <emphasis>cond</emphasis>:Expr <emphasis>iftrue</emphasis>:Expr <emphasis>iffalse</emphasis>:Expr ;
+Ignore_errors ::= Expr ;
 
-constant ::= CLASS_NAME CONSTANT_NAME ;
+Constant ::= CLASS_NAME? CONSTANT_NAME ;
 
-instanceof ::= expr class_name ;
+Instanceof ::= Expr Class_name ;
 
-variable ::= target? variable_name
-   <emphasis>array_indices</emphasis>:expr?* <emphasis>string_index</emphasis>:expr? ;
-variable_name ::= VARIABLE_NAME | reflection ;
-reflection ::= expr ;
+Variable ::= Target? Variable_name <emphasis>array_indices</emphasis>:Expr?* ;
+Variable_name ::= VARIABLE_NAME | Reflection ;
+Reflection ::= Expr ;
 
-target ::= expr | CLASS_NAME ;
+Target ::= Expr | CLASS_NAME ;
 
-pre_op ::= OP variable ;
-post_op ::= variable OP ;
+Pre_op ::= OP Variable ;
+Post_op ::= Variable OP ;
 
-array ::= array_elem* ;
-array_elem ::= <emphasis>key</emphasis>:expr? <emphasis>is_ref</emphasis>:"&"? <emphasis>val</emphasis>:expr ;
+Array ::= Array_elem* ;
+Array_elem ::= <emphasis>key</emphasis>:Expr? <emphasis>is_ref</emphasis>:"&"? <emphasis>val</emphasis>:Expr ;
 
-method_invocation ::= target method_name actual_parameter* ;
-method_name ::= METHOD_NAME | reflection ;
+Method_invocation ::= Target? Method_name Actual_parameter* ;
+Method_name ::= METHOD_NAME | Reflection ;
 
-actual_parameter ::= <emphasis>is_ref</emphasis>:"&"? expr ;
+Actual_parameter ::= <emphasis>is_ref</emphasis>:"&"? Expr ;
 
-new ::= class_name actual_parameter* ;
-class_name ::= CLASS_NAME | reflection ;
-
-clone ::= expr ;
+New ::= Class_name Actual_parameter* ;
+Class_name ::= CLASS_NAME | Reflection ;
 </programlisting>
 
 </section>
@@ -137,26 +152,17 @@ clone ::= expr ;
 <title>Additional Structure</title>
 
 <programlisting>
-node ::= 
-     php_script | class_mod | signature 
-   | method_mod | formal_parameter | type | attr_mod 
-   | static_var | directive | list_element | variable_name | target
-   | array_elem | method_name | actual_parameter | class_name 
-   | commented_node | expr | identifier 
-   | formal_parameter* | directive* | array_elem* | actual_parameter* 
-   | INTERFACE_NAME* | list_element* | expr*
-   ;
+Commented_node ::= 
+	  Member | Statement | Interface_def | Class_def | Switch_case | Catch 
+	;
 
-commented_node ::= 
-     member | statement | interface_def | class_def | switch_case 
-	| catch interface_def* | class_def* | member* | statement* 
-	| switch_case* | catch*   
-   ;
+Identifier ::=
+	  INTERFACE_NAME | CLASS_NAME | METHOD_NAME | VARIABLE_NAME 
+	  | CAST | OP | CONSTANT_NAME
+	  | DIRECTIVE_NAME 
+	; 
 
-identifier ::=
-     INTERFACE_NAME | CLASS_NAME | METHOD_NAME | VARIABLE_NAME 
-   | DIRECTIVE_NAME | CAST | OP | CONSTANT_NAME
-   ;  
+Source_rep ::= Identifier | Literal ;
 </programlisting>
 
 </section>
@@ -164,11 +170,12 @@ identifier ::=
 
 <title>Mix-in Code</title>
 
-<para> The code generated based on the grammar listed above can be extended
-by &ldquo;mix-in&rdquo; code, which adds fields or methods to the class
-structure generated by &phc;. For a full
-listing of the mix-in code, see <filename>generated_src/phc.tea</filename> in the
-&phc distribution. </para>
+<para>
+	The code generated based on the grammar listed above can be extended by
+	&ldquo;mix-in&rdquo; code, which adds fields or methods to the class
+	structure generated by &phc;. For a full listing of the mix-in code, see
+	<filename>src/generated_src/ast.tea</filename> in the &phc distribution. 
+</para>
 
 </section>
 

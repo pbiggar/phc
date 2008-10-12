@@ -22,7 +22,7 @@ namespace HIR
 		void post_assign_var (HIR::Assign_var* in, HIR::Statement_list* out);
 		void post_assign_var_var (HIR::Assign_var_var* in, HIR::Statement_list* out);
 		void post_assign_array (HIR::Assign_array* in, HIR::Statement_list* out);
-		void post_push_array (HIR::Push_array* in, HIR::Statement_list* out);
+		void post_assign_next (HIR::Assign_next* in, HIR::Statement_list* out);
 		void post_return(HIR::Return* in, HIR::Statement_list* out);
 		void post_global(HIR::Global* in, HIR::Statement_list* out);
 		void post_eval_expr (HIR::Eval_expr* in, Statement_list* out);

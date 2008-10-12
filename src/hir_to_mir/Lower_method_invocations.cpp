@@ -43,11 +43,10 @@ Lower_method_invocations::pre_method_invocation (Method_invocation* in)
 	// Leave unset and isset in place - it still needs access to the target and
 	// indices.
 	METHOD_NAME* mn = dynamic_cast <METHOD_NAME*> (in->method_name);
-	if (in->target == NULL
-		&& mn
-		&& (*mn->value == "unset"
-			|| *mn->value == "isset"))
+	if (in->target == NULL && mn && *mn->value == "unset")
 		return in;
+	
+  bool is_isset = in->target == NULL && mn && *mn->value == "isset";
 
 	int index = 0;
 	foreach (Actual_parameter* actual_param, *in->actual_parameters)
@@ -70,13 +69,6 @@ Lower_method_invocations::pre_method_invocation (Method_invocation* in)
 
 		Statement_list* iftrue = new Statement_list;
 		Statement_list* iffalse = new Statement_list;
-
-		pieces->push_back (
-			new If (
-				eval (check_builtin (param_is_ref)),
-				iftrue,
-				iffalse));
-
 
 		// Shred the parameter. This is a specialized version of
 		// AST_shredder::post_variable.
@@ -125,7 +117,14 @@ Lower_method_invocations::pre_method_invocation (Method_invocation* in)
 			prev = dyc<VARIABLE_NAME> (ap->variable_name);
 
 		// Shred the array indices
-		while (ap->array_indices->size ())
+	  // For isset, leave the last index
+    unsigned exclude;
+    if (is_isset)
+      exclude = 1;
+    else
+      exclude = 0;
+
+		while (ap->array_indices->size () > exclude)
 		{
 			VARIABLE_NAME* temp = fresh_var_name ("TMIi");
 			iftrue->push_back(
@@ -141,7 +140,7 @@ Lower_method_invocations::pre_method_invocation (Method_invocation* in)
 		}
 
 		assert (ap->target == NULL);
-		assert (ap->array_indices->size() == 0);
+		assert (ap->array_indices->size() <= exclude);
 		ap->variable_name = prev;
 
 		// Copy the iftrue to iffalse, except assignments arent by reference.
@@ -151,6 +150,16 @@ Lower_method_invocations::pre_method_invocation (Method_invocation* in)
 			assign->is_ref = false;
 			iffalse->push_back (assign);
 		}
+
+    // For isset, we never pass variables by reference
+    if(!is_isset)
+		  pieces->push_back (
+  			new If (
+  				eval (check_builtin (param_is_ref)),
+  				iftrue,
+  				iffalse));
+    else
+      pieces->push_back_all (iffalse);  
 	}
 
 	return in;

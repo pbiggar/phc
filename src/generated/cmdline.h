@@ -75,6 +75,9 @@ struct gengetopt_args_info
   char * extension_arg;	/**< @brief Generate a PHP extension called NAME instead of a standalone application.  */
   char * extension_orig;	/**< @brief Generate a PHP extension called NAME instead of a standalone application original value given at command line.  */
   const char *extension_help; /**< @brief Generate a PHP extension called NAME instead of a standalone application help description.  */
+  char * web_app_arg;	/**< @brief Generate a web-application (experimental).  */
+  char * web_app_orig;	/**< @brief Generate a web-application (experimental) original value given at command line.  */
+  const char *web_app_help; /**< @brief Generate a web-application (experimental) help description.  */
   char * with_php_arg;	/**< @brief PHP installation path.  */
   char * with_php_orig;	/**< @brief PHP installation path original value given at command line.  */
   const char *with_php_help; /**< @brief PHP installation path help description.  */
@@ -90,17 +93,17 @@ struct gengetopt_args_info
   const char *next_line_curlies_help; /**< @brief Output the opening curly on the next line instead of on the same line help description.  */
   int no_leading_tab_flag;	/**< @brief Don't start every line in between <?php .. ?> with a tab (default=off).  */
   const char *no_leading_tab_help; /**< @brief Don't start every line in between <?php .. ?> with a tab help description.  */
+  char * tab_arg;	/**< @brief String to use for tabs while unparsing (default='\t').  */
+  char * tab_orig;	/**< @brief String to use for tabs while unparsing original value given at command line.  */
+  const char *tab_help; /**< @brief String to use for tabs while unparsing help description.  */
+  int no_hash_bang_flag;	/**< @brief Do not output any #! lines (default=off).  */
+  const char *no_hash_bang_help; /**< @brief Do not output any #! lines help description.  */
   int no_line_numbers_flag;	/**< @brief Don't show line numbers when dumping DOT/XML (default=off).  */
   const char *no_line_numbers_help; /**< @brief Don't show line numbers when dumping DOT/XML help description.  */
   int no_nulls_flag;	/**< @brief Don't show NULLs when dumping DOT (default=off).  */
   const char *no_nulls_help; /**< @brief Don't show NULLs when dumping DOT help description.  */
   int no_empty_lists_flag;	/**< @brief Don't show empty lists when dumping DOT (default=off).  */
   const char *no_empty_lists_help; /**< @brief Don't show empty lists when dumping DOT help description.  */
-  char * tab_arg;	/**< @brief String to use for tabs while unparsing (default='\t').  */
-  char * tab_orig;	/**< @brief String to use for tabs while unparsing original value given at command line.  */
-  const char *tab_help; /**< @brief String to use for tabs while unparsing help description.  */
-  int no_hash_bang_flag;	/**< @brief Do not output any #! lines (default=off).  */
-  const char *no_hash_bang_help; /**< @brief Do not output any #! lines help description.  */
   char ** debug_arg;	/**< @brief Print debugging information for the pass named 'passname.  */
   char ** debug_orig;	/**< @brief Print debugging information for the pass named 'passname original value given at command line.  */
   int debug_min; /**< @brief Print debugging information for the pass named 'passname's minimum occurreces */
@@ -111,21 +114,21 @@ struct gengetopt_args_info
   int dump_min; /**< @brief Dump input as PHP (although potentially with gotos and labels) after the pass named 'passname''s minimum occurreces */
   int dump_max; /**< @brief Dump input as PHP (although potentially with gotos and labels) after the pass named 'passname''s maximum occurreces */
   const char *dump_help; /**< @brief Dump input as PHP (although potentially with gotos and labels) after the pass named 'passname' help description.  */
-  char ** udump_arg;	/**< @brief Dump input as runnable PHP after the pass named 'passname'.  */
-  char ** udump_orig;	/**< @brief Dump input as runnable PHP after the pass named 'passname' original value given at command line.  */
-  int udump_min; /**< @brief Dump input as runnable PHP after the pass named 'passname''s minimum occurreces */
-  int udump_max; /**< @brief Dump input as runnable PHP after the pass named 'passname''s maximum occurreces */
-  const char *udump_help; /**< @brief Dump input as runnable PHP after the pass named 'passname' help description.  */
-  char ** ddump_arg;	/**< @brief Dump input as DOT after the pass named 'passname'.  */
-  char ** ddump_orig;	/**< @brief Dump input as DOT after the pass named 'passname' original value given at command line.  */
-  int ddump_min; /**< @brief Dump input as DOT after the pass named 'passname''s minimum occurreces */
-  int ddump_max; /**< @brief Dump input as DOT after the pass named 'passname''s maximum occurreces */
-  const char *ddump_help; /**< @brief Dump input as DOT after the pass named 'passname' help description.  */
-  char ** xdump_arg;	/**< @brief Dump input as XML after the pass named 'passname'.  */
-  char ** xdump_orig;	/**< @brief Dump input as XML after the pass named 'passname' original value given at command line.  */
-  int xdump_min; /**< @brief Dump input as XML after the pass named 'passname''s minimum occurreces */
-  int xdump_max; /**< @brief Dump input as XML after the pass named 'passname''s maximum occurreces */
-  const char *xdump_help; /**< @brief Dump input as XML after the pass named 'passname' help description.  */
+  char ** dump_uppered_arg;	/**< @brief Dump input as runnable PHP after the pass named 'passname'.  */
+  char ** dump_uppered_orig;	/**< @brief Dump input as runnable PHP after the pass named 'passname' original value given at command line.  */
+  int dump_uppered_min; /**< @brief Dump input as runnable PHP after the pass named 'passname''s minimum occurreces */
+  int dump_uppered_max; /**< @brief Dump input as runnable PHP after the pass named 'passname''s maximum occurreces */
+  const char *dump_uppered_help; /**< @brief Dump input as runnable PHP after the pass named 'passname' help description.  */
+  char ** dump_dot_arg;	/**< @brief Dump input as DOT after the pass named 'passname'.  */
+  char ** dump_dot_orig;	/**< @brief Dump input as DOT after the pass named 'passname' original value given at command line.  */
+  int dump_dot_min; /**< @brief Dump input as DOT after the pass named 'passname''s minimum occurreces */
+  int dump_dot_max; /**< @brief Dump input as DOT after the pass named 'passname''s maximum occurreces */
+  const char *dump_dot_help; /**< @brief Dump input as DOT after the pass named 'passname' help description.  */
+  char ** dump_xml_arg;	/**< @brief Dump input as XML after the pass named 'passname'.  */
+  char ** dump_xml_orig;	/**< @brief Dump input as XML after the pass named 'passname' original value given at command line.  */
+  int dump_xml_min; /**< @brief Dump input as XML after the pass named 'passname''s minimum occurreces */
+  int dump_xml_max; /**< @brief Dump input as XML after the pass named 'passname''s maximum occurreces */
+  const char *dump_xml_help; /**< @brief Dump input as XML after the pass named 'passname' help description.  */
   char ** cfg_dump_arg;	/**< @brief Dump CFG after the pass named 'passname'.  */
   char ** cfg_dump_orig;	/**< @brief Dump CFG after the pass named 'passname' original value given at command line.  */
   int cfg_dump_min; /**< @brief Dump CFG after the pass named 'passname''s minimum occurreces */
@@ -159,22 +162,23 @@ struct gengetopt_args_info
   unsigned int c_option_given ;	/**< @brief Whether c-option was given.  */
   unsigned int generate_c_given ;	/**< @brief Whether generate-c was given.  */
   unsigned int extension_given ;	/**< @brief Whether extension was given.  */
+  unsigned int web_app_given ;	/**< @brief Whether web-app was given.  */
   unsigned int with_php_given ;	/**< @brief Whether with-php was given.  */
   unsigned int optimize_given ;	/**< @brief Whether optimize was given.  */
   unsigned int output_given ;	/**< @brief Whether output was given.  */
   unsigned int execute_given ;	/**< @brief Whether execute was given.  */
   unsigned int next_line_curlies_given ;	/**< @brief Whether next-line-curlies was given.  */
   unsigned int no_leading_tab_given ;	/**< @brief Whether no-leading-tab was given.  */
+  unsigned int tab_given ;	/**< @brief Whether tab was given.  */
+  unsigned int no_hash_bang_given ;	/**< @brief Whether no-hash-bang was given.  */
   unsigned int no_line_numbers_given ;	/**< @brief Whether no-line-numbers was given.  */
   unsigned int no_nulls_given ;	/**< @brief Whether no-nulls was given.  */
   unsigned int no_empty_lists_given ;	/**< @brief Whether no-empty-lists was given.  */
-  unsigned int tab_given ;	/**< @brief Whether tab was given.  */
-  unsigned int no_hash_bang_given ;	/**< @brief Whether no-hash-bang was given.  */
   unsigned int debug_given ;	/**< @brief Whether debug was given.  */
   unsigned int dump_given ;	/**< @brief Whether dump was given.  */
-  unsigned int udump_given ;	/**< @brief Whether udump was given.  */
-  unsigned int ddump_given ;	/**< @brief Whether ddump was given.  */
-  unsigned int xdump_given ;	/**< @brief Whether xdump was given.  */
+  unsigned int dump_uppered_given ;	/**< @brief Whether dump-uppered was given.  */
+  unsigned int dump_dot_given ;	/**< @brief Whether dump-dot was given.  */
+  unsigned int dump_xml_given ;	/**< @brief Whether dump-xml was given.  */
   unsigned int cfg_dump_given ;	/**< @brief Whether cfg-dump was given.  */
   unsigned int list_passes_given ;	/**< @brief Whether list-passes was given.  */
   unsigned int dont_fail_given ;	/**< @brief Whether dont-fail was given.  */

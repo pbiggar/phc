@@ -75,7 +75,7 @@ public:
 	virtual void visit_foreach_reset (Statement_block*, MIR::Foreach_reset*);
 	virtual void visit_global (Statement_block*, MIR::Global*);
 	virtual void visit_pre_op (Statement_block*, MIR::Pre_op*);
-	virtual void visit_push_array (Statement_block*, MIR::Push_array*);
+	virtual void visit_assign_next (Statement_block*, MIR::Assign_next*);
 	virtual void visit_return (Statement_block*, MIR::Return*);
 	virtual void visit_ssa_pre_op (Statement_block*, MIR::SSA_pre_op*);
 	virtual void visit_static_declaration (Statement_block*, MIR::Static_declaration*);
@@ -143,7 +143,7 @@ public:
 	virtual void transform_global (Statement_block*, MIR::Global*, BB_list*);
 	virtual void transform_param_is_ref (Statement_block*, MIR::Param_is_ref*, BB_list*);
 	virtual void transform_pre_op (Statement_block*, MIR::Pre_op*, BB_list*);
-	virtual void transform_push_array (Statement_block*, MIR::Push_array*, BB_list*);
+	virtual void transform_assign_next (Statement_block*, MIR::Assign_next*, BB_list*);
 	virtual void transform_ssa_pre_op (Statement_block*, MIR::SSA_pre_op*, BB_list*);
 	virtual void transform_return (Statement_block*, MIR::Return*, BB_list*);
 	virtual void transform_static_declaration (Statement_block*, MIR::Static_declaration*, BB_list*);

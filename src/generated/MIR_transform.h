@@ -54,7 +54,7 @@ public:
     virtual void pre_assign_field(Assign_field* in, Statement_list* out);
     virtual void pre_assign_array(Assign_array* in, Statement_list* out);
     virtual void pre_assign_var_var(Assign_var_var* in, Statement_list* out);
-    virtual void pre_push_array(Push_array* in, Statement_list* out);
+    virtual void pre_assign_next(Assign_next* in, Statement_list* out);
     virtual void pre_pre_op(Pre_op* in, Statement_list* out);
     virtual void pre_ssa_pre_op(SSA_pre_op* in, Statement_list* out);
     virtual void pre_eval_expr(Eval_expr* in, Statement_list* out);
@@ -62,6 +62,7 @@ public:
     virtual Expr* pre_isset(Isset* in);
     virtual Expr* pre_field_access(Field_access* in);
     virtual Expr* pre_array_access(Array_access* in);
+    virtual Expr* pre_array_next(Array_next* in);
     virtual Expr* pre_cast(Cast* in);
     virtual Expr* pre_unary_op(Unary_op* in);
     virtual Expr* pre_bin_op(Bin_op* in);
@@ -130,7 +131,7 @@ public:
     virtual void post_assign_field(Assign_field* in, Statement_list* out);
     virtual void post_assign_array(Assign_array* in, Statement_list* out);
     virtual void post_assign_var_var(Assign_var_var* in, Statement_list* out);
-    virtual void post_push_array(Push_array* in, Statement_list* out);
+    virtual void post_assign_next(Assign_next* in, Statement_list* out);
     virtual void post_pre_op(Pre_op* in, Statement_list* out);
     virtual void post_ssa_pre_op(SSA_pre_op* in, Statement_list* out);
     virtual void post_eval_expr(Eval_expr* in, Statement_list* out);
@@ -138,6 +139,7 @@ public:
     virtual Expr* post_isset(Isset* in);
     virtual Expr* post_field_access(Field_access* in);
     virtual Expr* post_array_access(Array_access* in);
+    virtual Expr* post_array_next(Array_next* in);
     virtual Expr* post_cast(Cast* in);
     virtual Expr* post_unary_op(Unary_op* in);
     virtual Expr* post_bin_op(Bin_op* in);
@@ -206,7 +208,7 @@ public:
     virtual void children_assign_field(Assign_field* in);
     virtual void children_assign_array(Assign_array* in);
     virtual void children_assign_var_var(Assign_var_var* in);
-    virtual void children_push_array(Push_array* in);
+    virtual void children_assign_next(Assign_next* in);
     virtual void children_pre_op(Pre_op* in);
     virtual void children_ssa_pre_op(SSA_pre_op* in);
     virtual void children_eval_expr(Eval_expr* in);
@@ -214,6 +216,7 @@ public:
     virtual void children_isset(Isset* in);
     virtual void children_field_access(Field_access* in);
     virtual void children_array_access(Array_access* in);
+    virtual void children_array_next(Array_next* in);
     virtual void children_cast(Cast* in);
     virtual void children_unary_op(Unary_op* in);
     virtual void children_bin_op(Bin_op* in);

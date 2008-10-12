@@ -40,7 +40,7 @@ void Lower_expr::post_assign_array (Assign_array* in, Statement_list* out)
 	push_back_pieces(in, out);
 }
 
-void Lower_expr::post_push_array (Push_array* in, Statement_list* out)
+void Lower_expr::post_assign_next (Assign_next* in, Statement_list* out)
 {
 	push_back_pieces(in, out);
 }

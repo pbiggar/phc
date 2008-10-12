@@ -32,7 +32,7 @@ class ParseASTDot extends AsyncTest
 
 		$async = new AsyncBundle ($this, $subject);
 
-		$async->commands[0]		= "$phc --ddump=ast $subject | $graphviz_gc";
+		$async->commands[0]		= "$phc --dump-dot=ast $subject | $graphviz_gc";
 		// there is output. Dont fail.
 		$async->err_handlers[0] = "fail_on_output";
 

@@ -406,7 +406,7 @@ SCCP::visit_pre_op (Statement_block*, MIR::Pre_op*)
 }
 
 void
-SCCP::visit_push_array (Statement_block*, MIR::Push_array*)
+SCCP::visit_assign_next (Statement_block*, MIR::Assign_next*)
 {
 	die ();
 }
@@ -780,7 +780,7 @@ public:
 		die ();
 	}
 
-	void visit_push_array (Statement_block*, MIR::Push_array*)
+	void visit_assign_next (Statement_block*, MIR::Assign_next*)
 	{
 		die ();
 	}

@@ -68,7 +68,7 @@ get_virtual (Node* in)
 		case Param_is_ref::ID:
 		case PHP_script::ID:
 		case Pre_op::ID:
-		case Push_array::ID:
+		case Assign_next::ID:
 		case REAL::ID:
 		case Return::ID:
 		case Signature::ID:

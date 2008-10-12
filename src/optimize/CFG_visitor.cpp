@@ -60,8 +60,8 @@ CFG_visitor::visit_block (Basic_block* bb)
 			case Pre_op::ID:
 				visit_pre_op(sb, dyc<Pre_op>(sb->statement));
 				break;
-			case Push_array::ID:
-				visit_push_array(sb, dyc<Push_array>(sb->statement));
+			case Assign_next::ID:
+				visit_assign_next(sb, dyc<Assign_next>(sb->statement));
 				break;
 			case SSA_pre_op::ID:
 				visit_ssa_pre_op(sb, dyc<SSA_pre_op>(sb->statement));
@@ -250,7 +250,7 @@ CFG_visitor::visit_pre_op (Statement_block*, Pre_op*)
 }
 
 void
-CFG_visitor::visit_push_array (Statement_block*, Push_array*)
+CFG_visitor::visit_assign_next (Statement_block*, Assign_next*)
 {
 }
 
@@ -465,8 +465,8 @@ CFG_visitor::transform_block (Basic_block* bb)
 			case SSA_pre_op::ID:
 				transform_ssa_pre_op(sb, dyc<SSA_pre_op>(sb->statement), out);
 				break;
-			case Push_array::ID:
-				transform_push_array(sb, dyc<Push_array>(sb->statement), out);
+			case Assign_next::ID:
+				transform_assign_next(sb, dyc<Assign_next>(sb->statement), out);
 				break;
 			case Return::ID:
 				transform_return(sb, dyc<Return>(sb->statement), out);
@@ -590,7 +590,7 @@ CFG_visitor::transform_pre_op (Statement_block* in, Pre_op*, BB_list* out)
 }
 
 void
-CFG_visitor::transform_push_array (Statement_block* in, Push_array*, BB_list* out)
+CFG_visitor::transform_assign_next (Statement_block* in, Assign_next*, BB_list* out)
 {
 	out->push_back (in);
 }

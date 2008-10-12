@@ -22,6 +22,21 @@
 // Some common functions
 #include "php.h"
 
+/*
+ * The runtime needs its own initialization and finalization
+ * phc is responsible for calling these functions
+ */
+
+void
+init_runtime ()
+{
+}
+
+void
+finalize_runtime ()
+{
+}
+
 /* Make a copy of *P_ZVP, storing it in *P_ZVP. */
 static void
 zvp_clone_ex (zval ** p_zvp)
@@ -152,7 +167,7 @@ extract_ht (zval ** p_var TSRMLS_DC)
 /* Assign RHS into LHS, by reference. After this, LHS will point to the same
  * zval* as RHS. */
 static void
-copy_into_ref (zval** lhs, zval** rhs)
+copy_into_ref (zval ** lhs, zval ** rhs)
 {
   sep_copy_on_write_ex (rhs);
 
@@ -255,7 +270,7 @@ ht_update (HashTable * ht, zval * ind, zval * val, zval *** dest)
 static void
 ht_delete (HashTable * ht, zval * ind)
 {
-	// This may fail if the index doesnt exist, which is fine.
+  // This may fail if the index doesnt exist, which is fine.
   int result;
   if (Z_TYPE_P (ind) == IS_LONG || Z_TYPE_P (ind) == IS_BOOL)
     {
@@ -283,14 +298,14 @@ ht_delete (HashTable * ht, zval * ind)
       zval_copy_ctor (string_index);
       convert_to_string (string_index);
       zend_hash_del (ht, Z_STRVAL_P (string_index),
-			      Z_STRLEN_P (string_index) + 1);
+		     Z_STRLEN_P (string_index) + 1);
 
       zval_ptr_dtor (&string_index);
     }
 }
 
 // Check if a key exists in a hashtable 
-static int 
+static int
 ht_exists (HashTable * ht, zval * ind)
 {
   int result;
@@ -313,7 +328,7 @@ ht_exists (HashTable * ht, zval * ind)
   else
     {
       // TODO avoid alloc
-	  int result;
+      int result;
       zval *string_index;
       MAKE_STD_ZVAL (string_index);
       string_index->value = ind->value;
@@ -321,11 +336,11 @@ ht_exists (HashTable * ht, zval * ind)
       zval_copy_ctor (string_index);
       convert_to_string (string_index);
       result = zend_hash_exists (ht, Z_STRVAL_P (string_index),
-			      Z_STRLEN_P (string_index) + 1);
+				 Z_STRLEN_P (string_index) + 1);
       zval_ptr_dtor (&string_index);
-	  return result;
+      return result;
     }
-  assert(0);
+  assert (0);
 }
 
 static void
@@ -616,24 +631,75 @@ read_var (HashTable * st, char *name, int length, ulong hashval TSRMLS_DC)
   return EG (uninitialized_zval_ptr);
 }
 
-/* Read the variable named VAR_NAME from the local symbol table, and
- * find the variable which it refers to and return it. If the variable
- * doent exist, a new one is created and *IS_NEW is set.
- * */
+/*
+ * Lookup variable whose name is var_var in st. We do not call
+ * ht_find because ht_find uses zend_symtable_find to search for strings
+ * rather than zend_hash_find. The difference is that zend_symtable_find
+ * will convert strings to integers where possible: arrays are always
+ * integer-indexed if at all possible. Variable names however should
+ * _always_ be treated as strings.
+ * 
+ * If the index is not found and update_st is set the index gets
+ * added to the hashtable and a pointer to the new entry is returned;
+ * *is_new is set to 1. 
+ * Otherwise, the uninitialized zval is returned and is_new is untouched.
+ */
 zval **
-read_var_var (HashTable * st, zval * refl TSRMLS_DC)
+get_var_var (HashTable * st, zval * var_var, int update_st, int* is_new TSRMLS_DC)
 {
-  // is_new not required, since no vars created.
-  if (refl == EG (uninitialized_zval_ptr))
-    return &EG (uninitialized_zval_ptr);
+  zval *string_index;
+  int index_found, deallocate_string_index = 0;
 
-  zval **p_result;
-  if (ht_find (st, refl, &p_result) != SUCCESS)
+  if (Z_TYPE_P (var_var) == IS_STRING)
     {
-      return &EG (uninitialized_zval_ptr);
+      string_index = var_var;
+    }
+  else
+    {
+      MAKE_STD_ZVAL (string_index);
+      string_index->value = var_var->value;
+      string_index->type = var_var->type;
+      zval_copy_ctor (string_index);
+      convert_to_string (string_index);
+      deallocate_string_index = 1;
     }
 
+  zval **p_result;
+  index_found = zend_hash_find (st, Z_STRVAL_P (string_index),
+				Z_STRLEN_P (string_index) + 1,
+				(void **) &p_result);
+
+  if (index_found != SUCCESS)
+    {
+      if (!update_st)
+	{
+	  p_result = &EG (uninitialized_zval_ptr);
+	}
+      else
+	{
+          *is_new = 1;
+	  EG (uninitialized_zval_ptr)->refcount++;
+	  zend_hash_update (st, Z_STRVAL_P (string_index),
+			    Z_STRLEN_P (string_index) + 1,
+			    &EG (uninitialized_zval_ptr), sizeof (zval *),
+			    (void **) &p_result);
+	}
+    }
+
+  if (deallocate_string_index)
+    zval_ptr_dtor (&string_index);
+
   return p_result;
+}
+
+/* 
+ * Read the variable described by var_var from symbol table st
+ * See comments for get_var_var
+ */
+zval **
+read_var_var (HashTable * st, zval * var_var TSRMLS_DC)
+{
+  return get_var_var (st, var_var, 0, NULL TSRMLS_CC);
 }
 
 void
@@ -716,9 +782,8 @@ push_and_index_ht (zval ** p_var TSRMLS_DC)
   zval **data;
 
   EG (uninitialized_zval_ptr)->refcount++;
-  int result =
-    zend_hash_next_index_insert (ht, &EG (uninitialized_zval_ptr),
-				 sizeof (zval *), (void **) &data);
+  int result = zend_hash_next_index_insert (ht, &EG (uninitialized_zval_ptr),
+					    sizeof (zval *), (void **) &data);
   assert (result == SUCCESS);
 
   assert (data);
@@ -801,7 +866,7 @@ cast_var (zval ** p_zvp, int type)
       convert_to_object (zvp);
       break;
     default:
-      assert (0); // TODO unimplemented
+      assert (0);		// TODO unimplemented
       break;
     }
 }
@@ -809,20 +874,20 @@ cast_var (zval ** p_zvp, int type)
 /*
  * isset
  */
-static int 
+static int
 isset_var (HashTable * st, char *name, int length)
 {
-  return zend_hash_exists(st, name, length);
+  return zend_hash_exists (st, name, length);
 }
 
-static int 
+static int
 isset_array (zval ** p_var, zval * ind TSRMLS_DC)
 {
   if (Z_TYPE_P (*p_var) == IS_STRING)
     {
       zvp_clone_ex (&ind);
       convert_to_long (ind);
-      int result = (Z_LVAL_P (ind) >= 0 
+      int result = (Z_LVAL_P (ind) >= 0
 		    && Z_LVAL_P (ind) < Z_STRLEN_PP (p_var));
       assert (ind->refcount == 1);
       zval_ptr_dtor (&ind);
@@ -836,7 +901,13 @@ isset_array (zval ** p_var, zval * ind TSRMLS_DC)
   // if its not an array, make it an array
   HashTable *ht = Z_ARRVAL_P (*p_var);
 
-  return ht_exists (ht, ind);
+  zval** data;
+  if (ht_find (ht, ind, &data) == SUCCESS)
+  {
+    return !ZVAL_IS_NULL(*data);
+  }
+  else
+    return 0;
 }
 
 
@@ -892,7 +963,9 @@ phc_check_invariants (TSRMLS_D)
 }
 
 static void
-initialize_function_call (zend_fcall_info* fci, zend_fcall_info_cache* fcic, char* function_name, char* filename, int line_number TSRMLS_DC)
+initialize_function_call (zend_fcall_info * fci, zend_fcall_info_cache * fcic,
+			  char *function_name, char *filename,
+			  int line_number TSRMLS_DC)
 {
   if (!fcic->initialized)	// check for missing function
     {

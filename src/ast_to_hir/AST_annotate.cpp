@@ -25,11 +25,16 @@ void mark_var_as_lhs (AST::Variable* in)
 
 void Annotate::pre_assignment(Assignment* in)
 {
+	/*
 	// Assignments of the form $$e =& $d dont work if $$e is split
 	// into a temporary first, except if they have array_indices.
 	// TODO: what about if they have targets?
 	if (in->is_ref && in->variable->variable_name->classid() == Reflection::ID
 		&& (!isa<Variable>(in->expr) || dyc<Variable>(in->expr)->array_indices->size () == 0))
+		in->variable->attrs->set_true("phc.ast_lower_expr.no_temp");
+	*/
+	// Don't shred $$x = $y
+	if (in->variable->variable_name->classid() == Reflection::ID)
 		in->variable->attrs->set_true("phc.ast_lower_expr.no_temp");
 
 	// We need references if we shred $x[0][1][etc] = ...;

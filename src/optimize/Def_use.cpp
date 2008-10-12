@@ -288,7 +288,7 @@ Def_use_web::visit_pre_op (Statement_block*, MIR::Pre_op* in)
 }
 
 void
-Def_use_web::visit_push_array (Statement_block*, MIR::Push_array* in)
+Def_use_web::visit_assign_next (Statement_block*, MIR::Assign_next* in)
 {
 	assert (0);
 }

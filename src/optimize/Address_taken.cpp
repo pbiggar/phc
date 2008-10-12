@@ -59,7 +59,7 @@ Address_taken::aliased (Basic_block* bb, VARIABLE_NAME* in)
 // all formal parameters (we cant tell if call-time-pass-by-reference is used)
 // LHS of assign_var with is_ref
 // RHS of assign_array with is_ref
-// RHS of push_array with is_ref
+// RHS of assign_next with is_ref
 // GLOBALs
 
 
@@ -196,7 +196,7 @@ Address_taken::visit_global (Statement_block* bb, MIR::Global* in)
 }
 
 void
-Address_taken::visit_push_array (Statement_block* bb, MIR::Push_array* in)
+Address_taken::visit_assign_next (Statement_block* bb, MIR::Assign_next* in)
 {
 	if (in->is_ref)
 		aliased (bb, in->rhs);

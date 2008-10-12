@@ -32,7 +32,7 @@ class CompareBackwards extends AsyncTest
 		$this->last_pass = $last_pass;
 		$this->name = "cb_$last_pass";
 
-		// this might be udump
+		// this might be dump-uppered
 		$this->dump = $dump;
 
 		$this->dependencies = array ($dependency);

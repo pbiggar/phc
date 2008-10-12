@@ -52,7 +52,7 @@ public:
 	void visit_assign_var_var (Statement_block* sb, MIR::Assign_var_var*);
 	void visit_eval_expr (Statement_block* sb, MIR::Eval_expr*);
 	void visit_global (Statement_block* sb, MIR::Global*);
-	void visit_push_array (Statement_block* sb, MIR::Push_array*);
+	void visit_assign_next (Statement_block* sb, MIR::Assign_next*);
 	void visit_return (Statement_block* sb, MIR::Return*);
 	void visit_static_declaration (Statement_block* sb, MIR::Static_declaration*);
 	void visit_try (Statement_block* sb, MIR::Try*);
