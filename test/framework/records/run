@@ -233,7 +233,8 @@
 	function c ($command, $log_name = false)
 	{
 		print "Running command '$command'\n";
-		list ($out, $err, $exit) = complete_exec ($command, NULL, 60*60*12, true); // allow no more than 12 hours for the process
+		// We limit PHP to 256M, but that only includes PHP allocated data. (Later versions of the tests add this check themselves
+		list ($out, $err, $exit) = complete_exec ("ulimit -v 307200; $command", NULL, 60*60*12, true); // allow no more than 12 hours for the process
 
 		if ($log_name)
 		{
