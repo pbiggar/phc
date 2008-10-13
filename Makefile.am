@@ -349,17 +349,13 @@ nobase_pkglib_LTLIBRARIES += plugins/tests/cloning.la
 plugins_tests_cloning_la_SOURCES = plugins/tests/cloning.cpp plugins/tests/Collect_all_pointers.h
 plugins_tests_cloning_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
-nobase_pkglib_LTLIBRARIES += plugins/tests/linear.la
-plugins_tests_linear_la_SOURCES = plugins/tests/linear.cpp plugins/tests/Collect_all_pointers.h
-plugins_tests_linear_la_LDFLAGS = ${PLUGIN_LDFLAGS}
-
 nobase_pkglib_LTLIBRARIES += plugins/tests/inconsistent_st_attr.la
 plugins_tests_inconsistent_st_attr_la_SOURCES = plugins/tests/inconsistent_st_attr.cpp
 plugins_tests_inconsistent_st_attr_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
-nobase_pkglib_LTLIBRARIES += plugins/tests/strip_includes.la
-plugins_tests_strip_includes_la_SOURCES = plugins/tests/strip_includes.cpp
-plugins_tests_strip_includes_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+nobase_pkglib_LTLIBRARIES += plugins/tests/linear.la
+plugins_tests_linear_la_SOURCES = plugins/tests/linear.cpp plugins/tests/Collect_all_pointers.h
+plugins_tests_linear_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
 nobase_pkglib_LTLIBRARIES += plugins/tests/line_numbers.la
 plugins_tests_line_numbers_la_SOURCES = plugins/tests/line_numbers.cpp
@@ -373,17 +369,13 @@ nobase_pkglib_LTLIBRARIES += plugins/tests/source_vs_semantic_values.la
 plugins_tests_source_vs_semantic_values_la_SOURCES = plugins/tests/source_vs_semantic_values.cpp
 plugins_tests_source_vs_semantic_values_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
+nobase_pkglib_LTLIBRARIES += plugins/tests/strip_includes.la
+plugins_tests_strip_includes_la_SOURCES = plugins/tests/strip_includes.cpp
+plugins_tests_strip_includes_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+
 nobase_pkglib_LTLIBRARIES += plugins/tools/add_comment.la
 plugins_tools_add_comment_la_SOURCES = plugins/tools/add_comment.cpp
 plugins_tools_add_comment_la_LDFLAGS = ${PLUGIN_LDFLAGS}
-
-nobase_pkglib_LTLIBRARIES += plugins/tools/remove_all.la
-plugins_tools_remove_all_la_SOURCES = plugins/tools/remove_all.cpp
-plugins_tools_remove_all_la_LDFLAGS = ${PLUGIN_LDFLAGS}
-
-nobase_pkglib_LTLIBRARIES += plugins/tools/purity_test.la
-plugins_tools_purity_test_la_SOURCES = plugins/tools/purity_test.cpp
-plugins_tools_purity_test_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
 nobase_pkglib_LTLIBRARIES += plugins/tools/debug_zval.la
 plugins_tools_debug_zval_la_SOURCES = plugins/tools/debug_zval.cpp
@@ -393,21 +385,29 @@ nobase_pkglib_LTLIBRARIES += plugins/tools/demi_eval.la
 plugins_tools_demi_eval_la_SOURCES = plugins/tools/demi_eval.cpp
 plugins_tools_demi_eval_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
+nobase_pkglib_LTLIBRARIES += plugins/tools/purity_test.la
+plugins_tools_purity_test_la_SOURCES = plugins/tools/purity_test.cpp
+plugins_tools_purity_test_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+
 nobase_pkglib_LTLIBRARIES += plugins/tools/reduce_statements.la
 plugins_tools_reduce_statements_la_SOURCES = plugins/tools/reduce_statements.cpp
 plugins_tools_reduce_statements_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+
+nobase_pkglib_LTLIBRARIES += plugins/tools/remove_all.la
+plugins_tools_remove_all_la_SOURCES = plugins/tools/remove_all.cpp
+plugins_tools_remove_all_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
 nobase_pkglib_LTLIBRARIES += plugins/tutorials/Comment_ifs.la
 plugins_tutorials_Comment_ifs_la_SOURCES = plugins/tutorials/Comment_ifs.cpp
 plugins_tutorials_Comment_ifs_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
-nobase_pkglib_LTLIBRARIES += plugins/tutorials/count_statements_easy.la
-plugins_tutorials_count_statements_easy_la_SOURCES = plugins/tutorials/count_statements_easy.cpp
-plugins_tutorials_count_statements_easy_la_LDFLAGS = ${PLUGIN_LDFLAGS}
-
 nobase_pkglib_LTLIBRARIES += plugins/tutorials/count_statements_difficult.la
 plugins_tutorials_count_statements_difficult_la_SOURCES = plugins/tutorials/count_statements_difficult.cpp
 plugins_tutorials_count_statements_difficult_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+
+nobase_pkglib_LTLIBRARIES += plugins/tutorials/count_statements_easy.la
+plugins_tutorials_count_statements_easy_la_SOURCES = plugins/tutorials/count_statements_easy.cpp
+plugins_tutorials_count_statements_easy_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
 nobase_pkglib_LTLIBRARIES += plugins/tutorials/Expand_includes.la
 plugins_tutorials_Expand_includes_la_SOURCES = plugins/tutorials/Expand_includes.cpp
