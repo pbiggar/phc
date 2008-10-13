@@ -34,8 +34,6 @@ DOC_TGZ=phc-$1-html.tar.gz
 
 PDF=phc-$1.pdf
 
-TEMPFILES="f1 f2 phc.pdf"
-
 ## Check for the existance of directories and files
 
 for dir in $UNVERSIONED $SRC_DIR $TMP_DIR
@@ -46,7 +44,7 @@ do
 	fi
 done
 
-for file in $SRC_TGZ $SRC_BZ2 $DOC_TGZ $PDF $TEMPFILES
+for file in $SRC_TGZ $SRC_BZ2 $DOC_TGZ $PDF
 do
 	if test -f $file
 	then
@@ -81,30 +79,6 @@ tar cfz $DOC_TGZ $DOC_DIR
 
 make -C $DOC_DIR manual.pdf
 mv $DOC_DIR/manual.pdf $PDF 
-
-## Generate website 
-
-#mv $DOC_DIR $WWW_DIR 
-
-#mkdir $WWW_DIR/src/archive
-
-#mv $SRC_TGZ $WWW_DIR/src/archive
-#mv $SRC_BZ2 $WWW_DIR/src/archive
-#mv $DOC_TGZ $WWW_DIR/src/archive
-#mv $PDF $WWW_DIR/src/archive
-
-#cp $SRC_DIR/ChangeLog $WWW_DIR/src
-#cp $SRC_DIR/license/LICENSE $WWW_DIR/src
-
-#mkdir $WWW_DIR/phc-1.0
-#cp $SRC_DIR/phc-1.0.xsd $WWW_DIR/phc-1.0/index.html
-
-#sed -i "s/VERSION/$1/g" $WWW_DIR/src/index.html
-#sed -i "s/VERSION/$1/g" $WWW_DIR/doc/portingandpackagingphc.html
-
-## Set permissions
-
-#chmod -R a+rX $WWW_DIR 
 
 ## Remove temporary files
 
