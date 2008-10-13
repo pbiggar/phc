@@ -342,17 +342,6 @@ HSSA::convert_to_hssa_form ()
 
 	
 	//	3) Insert PHIs using Cytron algorithm, including CHI as assignments
-	//	-- simple
-
-	// 4) Rename all scalar and virtual variables using Cytron algorithm
-	// -- simple
-	
-
-	// We still have the explosion of MUs and CHIs, so these need to be
-	// trimmed down.
-
-
-
 
 
 	// Calculate dominance frontiers
@@ -381,10 +370,12 @@ HSSA::convert_to_hssa_form ()
 		Basic_block* bb = *i;
 		foreach (Basic_block* frontier, *bb->get_dominance_frontier ())
 		{
-			// Get defs (including phi node LHSs)
+			// Get defs (including phis and chis)
 			VARIABLE_NAME_list* def_list = bb->get_pre_ssa_defs ();
 			foreach (VARIABLE_NAME* phi_lhs, *bb->get_phi_lhss())
 				def_list->push_back (phi_lhs);
+			foreach (VARIABLE_NAME* chi_lhs, *bb->get_chi_lhss())
+				def_list->push_back (chi_lhs);
 
 			bool def_added = false;
 			foreach (VARIABLE_NAME* var_name, *def_list)
@@ -402,6 +393,11 @@ HSSA::convert_to_hssa_form ()
 		}
 		i++;
 	}
+
+	// TODO: We still have the explosion of MUs and CHIs, so these need to be
+	// trimmed down.
+
+	// 4) Rename all scalar and virtual variables using Cytron algorithm
 
 	// Rename SSA variables
 	SSA_renaming sr(cfg);
@@ -450,6 +446,7 @@ HSSA::add_mu_and_chi_nodes (Set* aliases)
 				foreach (VARIABLE_NAME* alias, *aliases)
 					bb->add_mu_node (alias);
 
+		// TODO: This doesnt add chis for actual parameters
 		foreach (VARIABLE_NAME* def, *bb->get_pre_ssa_defs ())
 			if (aliases->has (def))
 				foreach (VARIABLE_NAME* alias, *aliases)

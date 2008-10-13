@@ -156,7 +156,7 @@ Basic_block::get_graphviz_head_properties ()
 		result->push_back (make_pair (phi_lhs->get_ssa_var_name (), list));
 	}
 
-// Add chis:
+// Add muis:
 	
 	foreach (VARIABLE_NAME* mu, *mus)
 	{
@@ -316,8 +316,44 @@ VARIABLE_NAME_list*
 Basic_block::get_phi_lhss()
 {
 	// Return a clone, since we sometimes like to update the list
+	// (but dont call ->clone, since we dont want clones of the variables).
 	VARIABLE_NAME_list* result = new VARIABLE_NAME_list;
 	result->push_back_all (phi_lhss);
+	return result;
+}
+
+MIR::VARIABLE_NAME_list*
+Basic_block::get_chi_lhss ()
+{
+	VARIABLE_NAME_list* result = new VARIABLE_NAME_list;
+	VARIABLE_NAME* lhs;
+	VARIABLE_NAME* rhs;
+	foreach (tie (lhs, rhs), *chis)
+	{
+		result->push_back (lhs);
+	}
+	return result;
+}
+
+
+MIR::VARIABLE_NAME_list*
+Basic_block::get_chi_rhss ()
+{
+	VARIABLE_NAME_list* result = new VARIABLE_NAME_list;
+	VARIABLE_NAME* lhs;
+	VARIABLE_NAME* rhs;
+	foreach (tie (lhs, rhs), *chis)
+	{
+		result->push_back (rhs);
+	}
+	return result;
+}
+
+MIR::VARIABLE_NAME_list*
+Basic_block::get_mus()
+{
+	VARIABLE_NAME_list* result = new VARIABLE_NAME_list;
+	result->push_back_all (mus);
 	return result;
 }
 

@@ -74,7 +74,6 @@ SSA_renaming::rename_vars (Basic_block* bb)
 	{
 		DEBUG ("converting phi lhs");
 		debug (phi_lhs);
-//		create_new_ssa_name (phi_lhs);
 
 		VARIABLE_NAME* clone = phi_lhs->clone ();
 		create_new_ssa_name (clone);
@@ -85,7 +84,10 @@ SSA_renaming::rename_vars (Basic_block* bb)
 	}
 
 	// Rename local variable uses
-	foreach (VARIABLE_NAME* use, *bb->get_pre_ssa_uses ())
+	VARIABLE_NAME_list* uses = bb->get_pre_ssa_uses ();
+	uses->push_back_all (bb->get_mus ());
+	uses->push_back_all (bb->get_chi_rhss ());
+	foreach (VARIABLE_NAME* use, *uses)
 	{
 		DEBUG ("Converting use " << *use->get_ssa_var_name ());
 		debug (use);
@@ -95,7 +97,9 @@ SSA_renaming::rename_vars (Basic_block* bb)
 	}
 
 	// Create new names for defs
-	foreach (VARIABLE_NAME* def, *bb->get_pre_ssa_defs ())
+	VARIABLE_NAME_list* defs = bb->get_pre_ssa_defs ();
+	defs->push_back_all (bb->get_chi_lhss ());
+	foreach (VARIABLE_NAME* def, *defs)
 	{
 		DEBUG ("Converting def " << *def->get_ssa_var_name ());
 		debug (def);

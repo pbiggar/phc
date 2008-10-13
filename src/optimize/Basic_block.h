@@ -125,6 +125,10 @@ public:
 	void add_mu_node (MIR::VARIABLE_NAME*);
 	void add_chi_node (MIR::VARIABLE_NAME*);
 
+	MIR::VARIABLE_NAME_list* get_chi_lhss ();
+	MIR::VARIABLE_NAME_list* get_chi_rhss ();
+	MIR::VARIABLE_NAME_list* get_mus();
+
 
 private:
 	// Instead of an explicit phi node, store the phi->lhs here, and the phi

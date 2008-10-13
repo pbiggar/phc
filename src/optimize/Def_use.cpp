@@ -408,14 +408,17 @@ Def_use_web::visit_method_invocation (Statement_block* bb, Method_invocation* in
 	if (isa<Variable_method> (in->method_name))
 		assert (0);
 
-	// TODO isnt this a potential def
 	foreach (Actual_parameter* param, *in->actual_parameters)
 	{
-		assert (!param->is_ref); // TODO
-		add_use (param->rvalue, new SSA_stmt (bb));
-		// what about virtual defs
+		assert (!param->is_ref);
+		if (VARIABLE_NAME* var = dynamic_cast<VARIABLE_NAME*> (param->rvalue))
+		{
+			add_use (var, new SSA_stmt (bb));
+			// TODO: this is a little out of place. We're cloning so that
+			// conversion to SSA doesnt convert this to SSA twice.
+			add_def (var->clone (), new SSA_stmt (bb));
+		}
 	}
-		
 }
 
 void
