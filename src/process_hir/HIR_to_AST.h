@@ -457,6 +457,17 @@ public:
 		return result;
 	}
 
+	AST::Variable* fold_impl_array_next (HIR::Array_next* orig, AST::None* variable_name)
+	{
+		AST::Variable* result;
+		result = new AST::Variable (
+			NULL, 
+			get_var_name (), 
+			new AST::Expr_list (NULL));
+		result->attrs = orig->attrs;
+		return result;
+	}
+
 	AST::Variable* fold_impl_field_access (HIR::Field_access* orig, AST::Node* target, AST::Variable_name* variable_name)
 	{
 		AST::Variable* result;

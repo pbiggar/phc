@@ -528,6 +528,7 @@ public:
 		}
 		// $x[$y]
 		else if (array_indices->size () == 1
+				&& array_indices->front () != NULL
 				&& target == NULL
 				&& isa<HIR::VARIABLE_NAME> (variable_name))
 		{
@@ -536,6 +537,18 @@ public:
 			result = new HIR::Array_access (
 					dyc<HIR::VARIABLE_NAME> (variable_name),
 					array_index);
+			copy_attrs (result, orig);
+			return result;
+		}
+		// $x[]
+		else if (array_indices->size () == 1
+				&& array_indices->front () == NULL
+				&& target == NULL
+				&& isa<HIR::VARIABLE_NAME> (variable_name))
+		{
+			HIR::Array_next* result;
+			result = new HIR::Array_next (
+					dyc<HIR::VARIABLE_NAME> (variable_name));
 			copy_attrs (result, orig);
 			return result;
 		}
