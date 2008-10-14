@@ -7,7 +7,9 @@
 
 #include <algorithm>
 #include "String.h" 
-#include "AttrMap.h" 
+#include "AttrMap.h"
+
+using std::string;
 
 String::String() 
 {
@@ -68,4 +70,9 @@ bool String::ci_compare (const string& s)
 void String::toLower ()
 {
 	transform (begin(), end(), begin (), phc_tolower);
+}
+
+String* s (const string& str)
+{
+	return new String (str);
 }

@@ -20,6 +20,8 @@
 #include "pass_manager/Pass_manager.h"
 #include <lib/error.h>
 
+using namespace std;
+
 Compile_C::Compile_C (stringstream& os)
 : os(os)
 {

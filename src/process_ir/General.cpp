@@ -7,7 +7,4 @@
 
 #include "process_ir/General.h"
 
-String* s (string str)
-{
-	return new String (str);
-}
+

@@ -8,18 +8,16 @@
 #ifndef PHC_ATTR_MAP_H
 #define PHC_ATTR_MAP_H
 
-using namespace std;
-
 #include <map>
-#include <string>
 
+#include "lib/String.h"
 #include "lib/Object.h"
 
 class String;
 class Integer;
 class Boolean;
 
-class AttrMap : public map<string, Object*>, virtual public Object
+class AttrMap : public std::map<string, Object*>, virtual public Object
 {
 public:
 	AttrMap();

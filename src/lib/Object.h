@@ -34,29 +34,38 @@
  *	leading to segfaults. (Note: object on the stack are NOt excepted).
  *
  *	1. _ALL_ (let me repeat, ALL) classes which we define need to inherit from GC_Obj.
- *	2. Never use STL objects without wrapping them. The naming scheme is as follows:
- *		- phc::map is identical to std::map, except that it uses it uses the GC allocator.
- *		- phc::Map is a phc::map with extra interface components such as the clone() method.
- *	3. When using embedded PHP, do garbage collection manually. If garbage
+ *	2. Its OK to use string or stringstream on the stack, since they dont
+ *		contain other objects, they get cleared up on going out of scope, and they
+ *		appear everywhere.
+ *		TODO: do we clear up the result of stringstream::str()
+ *	3. Never use STL objects without wrapping them. For example:
+ *		-	Create Map to wrap std::map, either using gc_allocator as the
+ *			allocator, or inheriting from Object. It _should_ inherit from Object and
+ *			support the clone() method, but that may not yet be implemented. If it is
+ *			not, it inherits from GC_obj instead.
+ *	4. When using embedded PHP, do garbage collection manually. If garbage
  *		collected objects need to be put in PHP structures (which they currently
  *		dont), then the memory must be allocated using libgc's traceable
  *		allocators, which traces, but doesn't deallocate memory.
- *	4. For exceptional objects allocated with new, use the placement new form:
+ *	5. For exceptional objects allocated with new, use the placement new form:
  *			int* a = new (GC) int;
  *		If they need to be traceable but not collectable, use the other placement new form:
  *			int* a = new (NoGC) int;
- *	5. Object which dont contain other objects and are allocated on the stack
- *		are OK: ie string, stringstream.
  *
  *
  * TODO: it may be necessary to include libgc within phc to ensure that it is
  * compiled correctly for our use.
+ *
+ * TODO: should libgc be mandatory (fail to compile without it)? it exists on all platforms...
+ * 
+ * TODO: what does libgccpp do for us? It doesnt fix the bugs by magic...
  */
 
 
 
 #ifdef USE_GC
 #include "gc/gc_cpp.h"
+#include "gc/gc_allocator.h"
 class GC_Obj : public gc
 #else
 class GC_Obj
