@@ -27,6 +27,8 @@
 #include "process_hir/HIR_to_AST.h"
 #include "process_mir/MIR_to_AST.h"
 
+using namespace std;
+
 Pass_manager::Pass_manager (gengetopt_args_info* args_info)
 : args_info (args_info),
   check (false)
@@ -358,7 +360,7 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 	{
 		if (*name == args_info->dump_xml_arg [i])
 		{
-			xml_unparse (in, cout, !args_info->no_xml_attrs_flag);
+			xml_unparse (in, std::cout, !args_info->no_xml_attrs_flag);
 		}
 	}
 }

@@ -22,6 +22,7 @@
 #include <vector>
 
 using namespace HIR;
+using namespace std;
 
 template <class T>
 const char* get_attr_name ()

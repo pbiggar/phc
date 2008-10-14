@@ -102,7 +102,7 @@ class HIR_to_AST : public HIR::Fold
 >
 {
 	AST::Reflection* reflection;
-	stack<AST::VARIABLE_NAME*> var_names;
+	std::stack<AST::VARIABLE_NAME*> var_names;
 
 	// Indicates non-NULL for target.
 	AST::None* non_null_ptr;

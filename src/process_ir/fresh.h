@@ -16,7 +16,7 @@
 String* fresh(string prefix);
 
 extern int fresh_suffix_counter;
-extern set<string> unfresh_vars;
+extern std::set<string> unfresh_vars;
 
 namespace AST
 {

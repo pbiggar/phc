@@ -11,8 +11,7 @@
 #include "process_hir/HIR_unparser.h"
 #include "process_mir/MIR_unparser.h"
 
-/* Dump the XML for anynode to stderr. A global function. */
-// these are split so they're easy to call from the debugger
+using namespace std;
 
 void debug (AST::Node *in)
 {

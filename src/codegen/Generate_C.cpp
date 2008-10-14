@@ -47,6 +47,7 @@
 #include "lib/demangle.h"
 
 using namespace MIR;
+using namespace std;
 
 // Label supported features
 void phc_unsupported (Node* node, const char* feature)

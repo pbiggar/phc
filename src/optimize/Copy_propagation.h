@@ -96,7 +96,7 @@ foreach function as f:
 class Copy_propagation : public Fix_point
 {
 private:
-	map<string, HIR::Assign_var*> replaceable;
+	std::map<string, HIR::Assign_var*> replaceable;
 
 public:
 	Copy_propagation ();

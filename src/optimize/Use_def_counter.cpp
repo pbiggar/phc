@@ -21,6 +21,7 @@
 #include "HIR_visitor.h"
 
 using namespace HIR;
+using namespace std;
 
 Use_def_counter::Use_def_counter ()
 : analysis_defs ()

@@ -14,6 +14,8 @@
 static bool success = true;
 static bool is_run = false;
 
+using namespace std;
+
 template <class PHP_script, class Node, class Unparser, class Visitor>
 void run (PHP_script* in)
 {

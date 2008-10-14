@@ -14,7 +14,7 @@
 class DOT_unparser : public virtual AST::Visitor
 {
 private:
-	stack<int> node_stack;
+	std::stack<int> node_stack;
 	int new_node_id;
 
 public:

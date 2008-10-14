@@ -16,7 +16,7 @@ class Prune_symbol_table : public MIR::Visitor
 private:
 	bool prune;
 	bool var_reflection_present;
-	map<string, bool>* vars;
+	std::map<string, bool>* vars;
 
 public:
 	Prune_symbol_table ();

@@ -17,8 +17,8 @@
 class Lower_control_flow : public HIR::Lower_expr
 {
 	private:
-		vector<HIR::Node*> break_levels;
-		vector<HIR::Node*> continue_levels;
+		std::vector<HIR::Node*> break_levels;
+		std::vector<HIR::Node*> continue_levels;
 		HIR_to_MIR folder;
 
 	public:

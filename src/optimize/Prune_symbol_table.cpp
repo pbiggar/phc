@@ -34,6 +34,7 @@
 #include "MIR_transform.h"
 
 using namespace MIR;
+using namespace std;
 
 Prune_symbol_table::Prune_symbol_table () 
 : prune (false)

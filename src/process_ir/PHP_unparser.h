@@ -16,24 +16,24 @@
 class Unparser_state
 {
 	public:
-		Unparser_state (ostream& os, bool in_php);
+		Unparser_state (std::ostream& os, bool in_php);
 
 	public:
 		bool at_start_of_line;
 		bool in_php;
 
 	public:
-		ostream& os;
+		std::ostream& os;
 		int indent_level;
 		bool delayed_newline;
 };
 
 class PHP_unparser
 {
-// Constructor; pass in a different ostream to write to a file/string instead
+// Constructor; pass in a different std::ostream to write to a file/string instead
 // of standard output
 public:
-	PHP_unparser(ostream& os = cout, bool in_php = false);
+	PHP_unparser(std::ostream& os = std::cout, bool in_php = false);
 	PHP_unparser(Unparser_state* ups);
 
 	Unparser_state* ups;

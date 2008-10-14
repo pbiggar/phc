@@ -833,8 +833,8 @@ goto find_rule; \
  * decimal). phc will give an error message instead.
 */
 #line 14 "src/generated_src/php_scanner.lex"
-	#include <assert.h>
-	#include <string.h>
+	#include <cassert>
+	#include <cstring>
 	#include "AST.h"
 	using namespace AST;
 	#include "lib/Integer.h"
@@ -889,7 +889,7 @@ goto find_rule; \
 
 	#define YY_INPUT(buf,result,max_size)		\
 	{														\
-		istream& stream = yyextra->stream;		\
+		std::istream& stream = yyextra->stream;		\
 		stream.read (buf, max_size);				\
 		result = stream.gcount ();					\
 		if (result == 0 && stream.eofbit)		\

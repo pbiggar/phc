@@ -194,19 +194,19 @@ class MIR_node_builder : public T_Node_builder
 class PHC_SAX2Handler : public DefaultHandler 
 {
 protected:
-	stack<Object*> node_stack;
+	std::stack<Object*> node_stack;
 private:
-	stack<int> num_children_stack;
+	std::stack<int> num_children_stack;
 	bool is_nil, is_base64_encoded;
 	String buffer;
 	string key;
-	stack<AttrMap*> attrs_stack;
+	std::stack<AttrMap*> attrs_stack;
 	const Locator* locator;
 
 public:
 	IR::PHP_script* result;
 	bool no_errors;
-	map<string, Node_builder*> builders;
+	std::map<string, Node_builder*> builders;
 
 public:
 	PHC_SAX2Handler() 
@@ -334,7 +334,7 @@ public:
 			}
 			cdebug << "With " << attrs_stack.size() << " AttrMaps on the stack";
 
-			cdebug << endl;
+			cdebug << std::endl;
 		}
 
 		if(is_nil)

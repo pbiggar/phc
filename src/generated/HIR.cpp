@@ -8745,7 +8745,7 @@ String* REAL::_get_value_as_string()
 		std::ostringstream os;
 		// setprecision(20) outputs as many digits as required, with
 		// a maximum of 20
-		os << setprecision(20) << value;
+		os << std::setprecision(20) << value;
 		// unfortunately, that means that if no digits are required at
 		// all (after the decimal point), the decimal point is left out
 		// completely; setting the "showpoint" flag fixes this, but then

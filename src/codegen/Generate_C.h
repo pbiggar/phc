@@ -18,10 +18,10 @@ class Generate_C : public MIR::Visitor, public Pass
 {
 public:
 
-	ostream& os;
+	std::ostream& os;
 
 	void run (IR::PHP_script*, Pass_manager*);
-	Generate_C(ostream&);
+	Generate_C (std::ostream&);
 
 public:
 	void children_statement(MIR::Statement* in);

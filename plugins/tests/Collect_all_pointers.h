@@ -17,13 +17,13 @@ class Collect_all_pointers : virtual public Visitor
 {
 public:
 	List<Node*> all_nodes;
-	set<Node*> unique_nodes;
+	std::set<Node*> unique_nodes;
 
 	List<Object*> all_attrs;
-	set<Object*> unique_attrs;
+	std::set<Object*> unique_attrs;
 
 	List<Object*> all_pointers;
-	set<Object*> unique_pointers;
+	std::set<Object*> unique_pointers;
 public:
 	void pre_node (Node* in) { collect (in, in->attrs); }
 

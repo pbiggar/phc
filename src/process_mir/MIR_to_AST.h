@@ -114,7 +114,7 @@ class MIR_to_AST : public MIR::Fold
 >
 {
 	AST::Reflection* reflection;
-	stack<AST::VARIABLE_NAME*> var_names;
+	std::stack<AST::VARIABLE_NAME*> var_names;
 	AST::Statement* foreign_statement;
 
 	// Indicates non-NULL for target.

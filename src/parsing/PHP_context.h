@@ -19,10 +19,10 @@ class PHP_context
  * Constructor and destructor
  */
 public:
-	PHP_context(istream& input, String* filename);
+	PHP_context (std::istream& input, String* filename);
 	virtual ~PHP_context();
 
-	istream& stream;
+	std::istream& stream;
 
 /*
  * State used by the parser

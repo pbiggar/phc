@@ -33,8 +33,8 @@ class Use_def_counter : public HIR::Visitor
 {
 	// For analysis
 private:
-	stack< map<string, int>* > analysis_defs;
-	stack< map<string, int>* > analysis_occurences;
+	std::stack< std::map<string, int>* > analysis_defs;
+	std::stack< std::map<string, int>* > analysis_occurences;
 
 	void pre_method (HIR::Method* in);
 	void pre_assign_var (HIR::Assign_var* in);

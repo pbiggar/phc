@@ -12,6 +12,7 @@
 #include "pass_manager/Plugin_pass.h"
 
 using namespace AST;
+using namespace std;
 
 class Get_source_and_semantic_values : public Visitor
 {
