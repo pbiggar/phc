@@ -129,6 +129,11 @@ HSSA::convert_out_of_ssa_form ()
 {
 	foreach (Basic_block* bb, *cfg->get_all_bbs ())
 	{
+		// Drop the chi and mu args
+		bb->remove_chi_nodes ();
+		bb->remove_mu_nodes ();
+		bb->remove_virtual_phis ();
+
 		foreach (VARIABLE_NAME* phi_lhs, *bb->get_phi_lhss ())
 		{
 			BB_list* preds = bb->get_predecessors ();
@@ -154,6 +159,8 @@ HSSA::convert_out_of_ssa_form ()
 		bb->remove_phi_nodes ();
 	}
 
+	
+
 	// TODO: at this point, we could do with a register-allocation style
 	// interference graph to reduce the number of temporaries (aka
 	// "registers") that we use in the generated code.
@@ -172,6 +179,14 @@ HSSA::convert_out_of_ssa_form ()
  * 3) Insert PHIs using Cytron algorithm, including CHI as assignments
  *
  * 4) Rename all scalar and virtual variables using Cytron algorithm
+ *
+ *
+ * We ignore steps 5, 6, 7 and 8. 5 and 6 create zero versions in order to
+ * reduce the memory usage of the implementation. That doesnt bother us (at
+ * least for now). Steps 7 and 8 perform the global value numbering. While we
+ * do wish to have GVN, they also convert it into HSSA form, which actually
+ * isnt that interesting, as the only real advantage is how compact it is, and
+ * we dont care about that (for now).
  *
  * 5) Simultaneously:
  *		a)	Perform DCE, including on PHIs and CHIs, using Cytron algorithm
@@ -372,10 +387,9 @@ HSSA::convert_to_hssa_form ()
 		{
 			// Get defs (including phis and chis)
 			VARIABLE_NAME_list* def_list = bb->get_pre_ssa_defs ();
-			foreach (VARIABLE_NAME* phi_lhs, *bb->get_phi_lhss())
-				def_list->push_back (phi_lhs);
-			foreach (VARIABLE_NAME* chi_lhs, *bb->get_chi_lhss())
-				def_list->push_back (chi_lhs);
+			def_list->push_back_all (bb->get_phi_lhss ());
+			def_list->push_back_all (bb->get_chi_lhss ());
+
 
 			bool def_added = false;
 			foreach (VARIABLE_NAME* var_name, *def_list)
@@ -394,8 +408,6 @@ HSSA::convert_to_hssa_form ()
 		i++;
 	}
 
-	// TODO: We still have the explosion of MUs and CHIs, so these need to be
-	// trimmed down.
 
 	// 4) Rename all scalar and virtual variables using Cytron algorithm
 
@@ -420,12 +432,8 @@ HSSA::convert_to_hssa_form ()
 	}
 
 
-	cfg->consistency_check ();
-
-	// TODO: needed?
-	// Build def-use web
-	cfg->duw = new Def_use_web ();
-	cfg->duw->run (cfg);
+	// TODO: Zero versioning is actually useful, so add steps 5 and 6. There is
+	// not necessarily a need to combine zero versioning with DCE.
 }
 
 

@@ -103,5 +103,7 @@ get_virtual (Node* in)
 
 	stringstream ss;
 	ss << "virt_" << unparse (in);
-	return new VARIABLE_NAME (s (ss.str ()));
+	VARIABLE_NAME* result = new VARIABLE_NAME (s (ss.str ()));
+	result->is_virtual = true;
+	return result;
 }

@@ -129,6 +129,10 @@ public:
 	MIR::VARIABLE_NAME_list* get_chi_rhss ();
 	MIR::VARIABLE_NAME_list* get_mus();
 
+	void remove_mu_nodes ();
+	void remove_chi_nodes ();
+	void remove_virtual_phis ();
+
 
 private:
 	// Instead of an explicit phi node, store the phi->lhs here, and the phi

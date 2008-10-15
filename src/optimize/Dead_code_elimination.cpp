@@ -50,6 +50,8 @@ bool is_critical (Statement* in)
 	}
 	else
 		return false;
+
+	// TODO: the statement is critical if it assigns to a reference parameter
 }
 
 // TODO add phi nodes
@@ -225,44 +227,3 @@ DCE::dump()
 	foreach (Basic_block* bb, *cfg->get_all_bbs ())
 		cdebug << bb->get_index() << ": " << is_marked (bb) << endl;
 }
-
-/*
-void
-DCE::transform_assign_var (Statement_block* bb, Assign_var* in, BB_list* out)
-{
-	if (bb->cfg->duw->get_var_uses(in->lhs)->size () == 0)
-	{
-		if (not is_pure (in->rhs))
-		{
-			out->push_back (new Statement_block (bb->cfg, new Eval_expr (in->rhs)));
-		}
-		else
-		{
-			DEBUG ("Removing BB (no uses)")
-			debug (in);
-		}
-	}
-	else
-		out->push_back (bb);
-}
-
-// TODO: replace with ADCE
-// TODO: add remove SSA_pre_ops
-
-void
-DCE::transform_phi_node (Basic_block* bb, VARIABLE_NAME* phi_lhs)
-{
-	// remove phis with unused LHSs
-	if (bb->cfg->duw->get_var_uses (phi_lhs)->size () == 0)
-		bb->remove_phi_node (phi_lhs);
-}
-
-void
-DCE::transform_eval_expr (Statement_block* bb, MIR::Eval_expr* in, BB_list* out)
-{
-	if (not is_pure (in->expr))
-	{
-		out->push_back (bb);
-	}
-}
-*/

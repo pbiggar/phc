@@ -10066,6 +10066,7 @@ VARIABLE_NAME::VARIABLE_NAME(String* name)
 		this->value = name;
 		this->in_ssa = false;
 		this->version = 0;
+		this->is_virtual = false;
 	}
 }
 
@@ -10075,6 +10076,7 @@ VARIABLE_NAME::VARIABLE_NAME(const char* name)
 		this->value = new String (name);
 		this->in_ssa = false;
 		this->version = 0;
+		this->is_virtual = false;
 	}
 }
 
@@ -10084,6 +10086,7 @@ void VARIABLE_NAME::convert_to_ssa_name(int version)
 		assert (not this->in_ssa);
 		this->in_ssa = true;
 		this->version = version;
+		this->is_virtual = false;
 	}
 }
 
@@ -10095,6 +10098,7 @@ VARIABLE_NAME* VARIABLE_NAME::clone()
 		clone->Node::clone_mixin_from(this);
 		clone->in_ssa = this->in_ssa;
 		clone->version = this->version;
+		clone->is_virtual = this->is_virtual;
 		return clone;
 	}
 }

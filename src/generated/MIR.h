@@ -2711,6 +2711,7 @@ public:
     String* get_ssa_var_name();
     int version;
     bool in_ssa;
+    bool is_virtual;
 };
 
 class INT : virtual public Literal

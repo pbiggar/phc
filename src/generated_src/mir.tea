@@ -459,6 +459,7 @@ public:
 		this->value = name;
 		this->in_ssa = false;
 		this->version = 0;
+		this->is_virtual = false;
 	}
 
 	VARIABLE_NAME (const char* name)
@@ -466,6 +467,7 @@ public:
 		this->value = new String (name);
 		this->in_ssa = false;
 		this->version = 0;
+		this->is_virtual = false;
 	}
 
 	void convert_to_ssa_name (int version)
@@ -473,6 +475,7 @@ public:
 		assert (not this->in_ssa);
 		this->in_ssa = true;
 		this->version = version;
+		this->is_virtual = false;
 	}
 
 	VARIABLE_NAME* clone ()
@@ -482,6 +485,7 @@ public:
 		clone->Node::clone_mixin_from(this);
 		clone->in_ssa = this->in_ssa;
 		clone->version = this->version;
+		clone->is_virtual = this->is_virtual;
 		return clone;
 	}
 
@@ -520,6 +524,7 @@ public:
 
 	int version;
 	bool in_ssa;
+	bool is_virtual;
 };
 
 class Field_access

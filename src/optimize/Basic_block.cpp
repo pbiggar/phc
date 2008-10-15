@@ -269,10 +269,40 @@ Basic_block::remove_phi_node (VARIABLE_NAME* phi_lhs)
 	foreach (Edge* pred, *get_predecessor_edges ())
 		pred->pm.erase (phi_lhs);
 
-	// TODO: are we tryingto remove the pointer, when we have a different
+	// TODO: are we trying to remove the pointer, when we have a different
 	// pointer to the same thing?
 	phi_lhss->remove (phi_lhs);
 	assert (!has_phi_node (phi_lhs));
+}
+
+
+void
+Basic_block::remove_mu_nodes ()
+{
+	chis->clear ();
+}
+
+void
+Basic_block::remove_chi_nodes ()
+{
+	mus->clear ();
+}
+
+void
+Basic_block::remove_virtual_phis ()
+{
+	foreach (VARIABLE_NAME* phi_lhs, *phi_lhss)
+	{
+		if (phi_lhs->is_virtual)
+		{
+			// TODO: add checks that the args are virtual;
+			remove_phi_node (phi_lhs);
+		}
+		else
+		{
+			// TODO: add checks that the args are NOT virtuals
+		}
+	}
 }
 
 
