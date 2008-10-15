@@ -11,8 +11,8 @@
 #include "process_ir/General.h"
 #include "cmdline.h"
 
-using namespace std;
 using namespace AST;
+using namespace std;
 
 extern struct gengetopt_args_info args_info;
 

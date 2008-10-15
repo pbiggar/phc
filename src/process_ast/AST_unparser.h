@@ -10,8 +10,7 @@
 
 #include "AST_visitor.h"
 #include "process_ir/PHP_unparser.h"
-#include <stack>
-
+#include "lib/Stack.h"
 
 class AST_unparser : public virtual AST::Visitor, public virtual PHP_unparser
 {
@@ -118,8 +117,8 @@ public:
 
 // State concerning unparsing in-string syntax
 protected:
-	std::stack<bool> in_string;
-	std::stack<AST::OP*> last_op;
+	Stack<bool> in_string;
+	Stack<AST::OP*> last_op;
 
 };
 

@@ -107,7 +107,7 @@ template
  class _Variable_method,
  class _Variable_name,
  class _Variable_variable,
- template <class _Tp, class _Alloc = std::allocator<_Tp> > class _List = List
+ template <typename _Tp, typename _Alloc = typename List<_Tp>::allocator_type> class _List = List
 >
 class Fold
 {
@@ -1282,7 +1282,7 @@ public:
 	virtual ~Fold() {}
 };
 
-template<class T, template <class _Tp, class _Alloc = std::allocator<_Tp> > class _List>
+template<class T, template <class _Tp, class _Alloc = typename List<_Tp>::allocator_type> class _List>
 class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, _List> {};
 }
 

@@ -9,12 +9,12 @@
 #define PHC_DOT_UNPARSER
 
 #include "AST_visitor.h"
-#include <stack>
+#include "lib/Stack.h"
 
 class DOT_unparser : public virtual AST::Visitor
 {
 private:
-	std::stack<int> node_stack;
+	Stack<int> node_stack;
 	int new_node_id;
 
 public:

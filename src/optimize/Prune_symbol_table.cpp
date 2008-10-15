@@ -40,7 +40,7 @@ Prune_symbol_table::Prune_symbol_table ()
 : prune (false)
 , var_reflection_present (false)
 {
-	vars = new map<string, bool>;
+	vars = new Map<string, bool>;
 }
 
 class Analysis : public Visitor
@@ -50,13 +50,13 @@ public:
 	bool var_reflection_present;
 
 	// variables which are present anywhere in the method
-	map<string, bool>* vars;
+	Map<string, bool>* vars;
 
 	// We only record globals if they are not in a
 	// global statement
 	bool record_globals;
 
-	Analysis (map<string, bool>* vars)
+	Analysis (Map<string, bool>* vars)
 	: prune (true)
 	, var_reflection_present (false)
 	, vars(vars)
@@ -140,10 +140,10 @@ void Prune_symbol_table::post_variable_name (VARIABLE_NAME* in)
 class Remove_globals : public Transform
 {
 private:
-	map<string, bool>* var_names;
+	Map<string, bool>* var_names;
 
 public:
-	Remove_globals (map<string, bool> *var_names) 
+	Remove_globals (Map<string, bool> *var_names) 
 	: var_names (var_names) 
 	{
 	}

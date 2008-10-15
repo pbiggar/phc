@@ -2,7 +2,7 @@
  * phc -- the open source PHP compiler
  * See doc/license/README.license for licensing information
  *
- * GC_Obj provides a polymorpic base (i.e., a base that supports RTTI), and
+ * GC_obj provides a polymorpic base (i.e., a base that supports RTTI), and
  * garbage collection.  Object additionally provides a clone() method.
  */
 
@@ -31,9 +31,9 @@
  *	We use the Boehm garbage collector for C++. This creates a very small number
  *	of rules that we need to follow. Failure to follow these rules will
  *	typically lead to the garbage allocator prematurely collecting objects,
- *	leading to segfaults. (Note: object on the stack are NOt excepted).
+ *	leading to segfaults. (Note: object on the stack are NOT excepted).
  *
- *	1. _ALL_ (let me repeat, ALL) classes which we define need to inherit from GC_Obj.
+ *	1. _ALL_ (let me repeat, ALL) classes which we define need to inherit from GC_obj.
  *	2. Its OK to use string or stringstream on the stack, since they dont
  *		contain other objects, they get cleared up on going out of scope, and they
  *		appear everywhere.
@@ -61,22 +61,28 @@
  * TODO: what does libgccpp do for us? It doesnt fix the bugs by magic...
  */
 
-
-
+// Avoid proliferation of USE_GC by defining the allocator here.
 #ifdef USE_GC
 #include "gc/gc_cpp.h"
 #include "gc/gc_allocator.h"
-class GC_Obj : public gc
+#define phc_allocator gc_allocator
 #else
-class GC_Obj
+#define phc_allocator std::allocator
+#endif
+
+
+#ifdef USE_GC
+class GC_obj : public gc
+#else
+class GC_obj
 #endif
 {
 // Make Obj a virtual base (required for RTTI and dynamic casts)
 public:
-	virtual ~GC_Obj() {}
+	virtual ~GC_obj() {}
 };
 
-class Object : public GC_Obj
+class Object : public GC_obj
 {
 // Objects should support cloning
 public:
@@ -85,12 +91,12 @@ public:
 
 /* These are copies of ideas from LLVM. All of our uses of casts can be
  * characterized as one of these. */
-template <class T> bool isa(GC_Obj* in) 
+template <class T> bool isa(GC_obj* in) 
 { 
 	return dynamic_cast<T*> (in) != NULL;
 }
 
-template <class T> T* dyc(GC_Obj* in)
+template <class T> T* dyc(GC_obj* in)
 {
 	if (in == NULL) return NULL;
 

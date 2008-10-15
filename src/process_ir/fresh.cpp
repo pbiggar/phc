@@ -31,7 +31,7 @@ seed ()
 int
 unique_random ()
 {
-	static map<int, bool> randoms;
+	static Map<int, bool> randoms;
 	static int x __attribute__((unused)) = seed (); // singleton-lite
 	int num;
 

@@ -141,10 +141,13 @@ libphc_la_SOURCES= 											\
 	src/lib/Integer.cpp										\
 	src/lib/Integer.h											\
 	src/lib/List.h												\
+	src/lib/Map.h												\
 	src/lib/Object.cpp										\
 	src/lib/Object.h											\
+	src/lib/Stack.h											\
 	src/lib/String.cpp										\
 	src/lib/String.h											\
+	src/lib/Vector.h											\
 	src/optimize/Copy_propagation.cpp					\
 	src/optimize/Copy_propagation.h						\
 	src/optimize/Dead_code_elimination.cpp				\
@@ -334,8 +337,11 @@ strangelib_HEADERS =		\
 	src/lib/error.h		\
 	src/lib/Integer.h		\
 	src/lib/List.h			\
+	src/lib/Map.h			\
 	src/lib/Object.h		\
-	src/lib/String.h
+	src/lib/Stack.h		\
+	src/lib/String.h		\
+	src/lib/Vector.h
 
 ## TODO prepend dist onto those we distribute
 nobase_pkglib_LTLIBRARIES = 

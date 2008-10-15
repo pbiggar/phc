@@ -5,7 +5,6 @@
  * Compile generated C code
  */
 
-#include <vector>
 #include <sstream>
 #include <iostream>
 #include <cstring>
@@ -16,9 +15,11 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
+#include <lib/error.h>
+#include <lib/Vector.h>
+
 #include "codegen/Compile_C.h"
 #include "pass_manager/Pass_manager.h"
-#include <lib/error.h>
 
 using namespace std;
 
@@ -29,7 +30,7 @@ Compile_C::Compile_C (stringstream& os)
 	this->description = new String ("Compile C code into an executable");
 }
 
-stringstream& new_arg (vector<stringstream*> &args)
+stringstream& new_arg (Vector<stringstream*> &args)
 {
 	stringstream* stream = new stringstream;
 	args.push_back (stream);
@@ -59,7 +60,7 @@ void Compile_C::run (IR::PHP_script* in, Pass_manager* pm)
 
 
 	// Argument array for gcc
-	vector<stringstream*> args;
+	Vector<stringstream*> args;
 	new_arg (args) << "gcc";
 	new_arg (args) << "-I" << php_path << "/include/php";
 	new_arg (args) << "-I" << php_path << "/include/php/main";

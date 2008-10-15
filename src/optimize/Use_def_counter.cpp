@@ -33,8 +33,8 @@ Use_def_counter::Use_def_counter ()
 /* The entry points are the php script, and method entries */
 void Use_def_counter::init_analysis ()
 {
-	analysis_defs.push (new map<string, int>);
-	analysis_occurences.push (new map<string, int>);
+	analysis_defs.push (new Map<string, int>);
+	analysis_occurences.push (new Map<string, int>);
 }
 
 void Use_def_counter::children_php_script (PHP_script* in)
@@ -74,10 +74,10 @@ void Use_def_counter::post_method (Method* in)
 class Add_attributes : public HIR::Visitor
 {
 private:
-	map<string, int>* uses;
-	map<string, int>* defs;
+	Map<string, int>* uses;
+	Map<string, int>* defs;
 public:
-	Add_attributes (map<string, int>* uses, map<string, int>* defs)
+	Add_attributes (Map<string, int>* uses, Map<string, int>* defs)
 	: uses (uses)
 	, defs (defs)
 	{
@@ -97,16 +97,16 @@ public:
 
 void Use_def_counter::finish_analysis (HIR::Statement_list* in)
 {
-	map<string, int>* defs = analysis_defs.top ();
-	map<string, int>* occurences = analysis_occurences.top ();
-	map<string, int>* uses = new map <string, int> ();
+	Map<string, int>* defs = analysis_defs.top ();
+	Map<string, int>* occurences = analysis_occurences.top ();
+	Map<string, int>* uses = new Map <string, int> ();
 
 	analysis_occurences.pop ();
 	analysis_defs.pop ();
 
 
 	// If either occurences or defs are missing a variable, add it.
-	map<string, int>::const_iterator i;
+	Map<string, int>::const_iterator i;
 	for(i = defs->begin(); i != defs->end(); i++)
 		if (occurences->find ((*i).first) == defs->end ())
 			(*occurences) [(*i).first] = 0;

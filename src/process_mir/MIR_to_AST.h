@@ -11,6 +11,7 @@
 #include "MIR_fold.h"
 #include "AST.h"
 #include "process_ir/General.h"
+#include "lib/Stack.h"
 
 /*
  * Those MIR nodes that should no longer appear in the AST do not have an
@@ -114,7 +115,7 @@ class MIR_to_AST : public MIR::Fold
 >
 {
 	AST::Reflection* reflection;
-	std::stack<AST::VARIABLE_NAME*> var_names;
+	Stack<AST::VARIABLE_NAME*> var_names;
 	AST::Statement* foreign_statement;
 
 	// Indicates non-NULL for target.

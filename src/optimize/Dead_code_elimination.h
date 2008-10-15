@@ -21,8 +21,6 @@
 #define PHC_DEAD_CODE_ELIMINATION
 
 #include "Fix_point.h"
-#include <map>
-#include <stack>
 
 class Dead_code_elimination : public Fix_point
 {

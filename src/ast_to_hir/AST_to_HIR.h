@@ -20,6 +20,7 @@
  * simplify HIR::Statement*. For some constructs, specifying HIR::Node*
  * suffices.
  */
+
 class AST_to_HIR : public AST::Fold
 <
  HIR::Actual_parameter*,	// Actual_parameter*

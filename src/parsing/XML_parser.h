@@ -23,13 +23,12 @@ void shutdown_xml ();
 #include <xercesc/framework/LocalFileInputSource.hpp>
 #include <xercesc/framework/MemBufInputSource.hpp>
 #include <xercesc/framework/StdInInputSource.hpp>
-#include <stack>
-#include <map>
 #include <boost/lexical_cast.hpp>
 
 #include "lib/base64.h"
 #include "lib/error.h"
 #include "lib/AttrMap.h"
+#include "lib/Stack.h"
 #include "process_ir/General.h"
 #include "AST.h"
 #include "HIR.h"
@@ -194,19 +193,19 @@ class MIR_node_builder : public T_Node_builder
 class PHC_SAX2Handler : public DefaultHandler 
 {
 protected:
-	std::stack<Object*> node_stack;
+	Stack<Object*> node_stack;
 private:
-	std::stack<int> num_children_stack;
+	Stack<int> num_children_stack;
 	bool is_nil, is_base64_encoded;
 	String buffer;
 	string key;
-	std::stack<AttrMap*> attrs_stack;
+	Stack<AttrMap*> attrs_stack;
 	const Locator* locator;
 
 public:
 	IR::PHP_script* result;
 	bool no_errors;
-	std::map<string, Node_builder*> builders;
+	Map<string, Node_builder*> builders;
 
 public:
 	PHC_SAX2Handler() 

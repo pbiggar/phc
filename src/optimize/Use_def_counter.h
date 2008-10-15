@@ -22,8 +22,8 @@
 
 #include "process_ir/General.h"
 #include "HIR_visitor.h"
-#include "stack"
-#include "map"
+#include "lib/Stack.h"
+#include "lib/Map.h"
 #include "HIR.h"
 
 /* Entering at the method level, count the total occurences of a
@@ -33,8 +33,8 @@ class Use_def_counter : public HIR::Visitor
 {
 	// For analysis
 private:
-	std::stack< std::map<string, int>* > analysis_defs;
-	std::stack< std::map<string, int>* > analysis_occurences;
+	Stack< Map<string, int>* > analysis_defs;
+	Stack< Map<string, int>* > analysis_occurences;
 
 	void pre_method (HIR::Method* in);
 	void pre_assign_var (HIR::Assign_var* in);

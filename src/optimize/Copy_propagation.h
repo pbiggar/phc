@@ -90,13 +90,13 @@ foreach function as f:
 */
 
 #include "Fix_point.h"
-#include <map>
+#include "lib/Map.h"
 #include "Use_def_counter.h"
 
 class Copy_propagation : public Fix_point
 {
 private:
-	std::map<string, HIR::Assign_var*> replaceable;
+	Map<string, HIR::Assign_var*> replaceable;
 
 public:
 	Copy_propagation ();

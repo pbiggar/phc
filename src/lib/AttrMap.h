@@ -2,22 +2,21 @@
  * phc -- the open source PHP compiler
  * See doc/license/README.license for licensing information
  * 
- * Specialized version of std::map 
+ * Specialized version of Map 
  */
 
 #ifndef PHC_ATTR_MAP_H
 #define PHC_ATTR_MAP_H
 
-#include <map>
-
 #include "lib/String.h"
 #include "lib/Object.h"
+#include "lib/Map.h"
 
 class String;
 class Integer;
 class Boolean;
 
-class AttrMap : public std::map<string, Object*>, virtual public Object
+class AttrMap : public Map<string, Object*>
 {
 public:
 	AttrMap();

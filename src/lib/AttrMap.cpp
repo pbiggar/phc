@@ -10,9 +10,8 @@
 #include "Boolean.h"
 #include "Integer.h"
 
-using namespace std;
 
-AttrMap::AttrMap() : map<string, Object*>() 
+AttrMap::AttrMap() : Map<string, Object*>() 
 {
 }
 

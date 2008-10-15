@@ -2,7 +2,7 @@
  * phc -- the open source PHP compiler
  * See doc/license/README.license for licensing information
  * 
- * Like the STL list, but inherit from Object
+ * Wrap the STL list
  */
  
 #ifndef PHC_LIST_H
@@ -12,7 +12,7 @@
 #include "lib/Object.h"
 #include "process_ir/Foreach.h"
 
-template<typename _Tp, typename _Alloc = std::allocator<_Tp> >
+template<typename _Tp, typename _Alloc = phc_allocator<_Tp> >
 class List : public std::list<_Tp, _Alloc>, virtual public Object 
 {
 public:
@@ -52,6 +52,11 @@ public:
 	}
 
 public:
+	// TODO: clone assumes that _Tp supports a clone method. It would be useful
+	// if we could automatically call a clone method if supported, and do a
+	// shallow copy (or call a copy-constructor, which?) if not. I think that
+	// checking for a clonable trait of _Tp might do that (involves adding such
+	// a trait to Object, which is OK).
 	List* clone()
 	{
 		List* result = new List<_Tp, _Alloc>;
