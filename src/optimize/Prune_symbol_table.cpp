@@ -43,7 +43,7 @@ Prune_symbol_table::Prune_symbol_table ()
 	vars = new Map<string, bool>;
 }
 
-class Analysis : public Visitor
+class Analysis : public Visitor, public virtual GC_obj
 {
 public:
 	bool prune;
@@ -137,7 +137,7 @@ void Prune_symbol_table::post_variable_name (VARIABLE_NAME* in)
 		in->attrs->set_true ("phc.codegen.st_entry_not_required");
 }
 
-class Remove_globals : public Transform
+class Remove_globals : public Transform, public virtual GC_obj
 {
 private:
 	Map<string, bool>* var_names;

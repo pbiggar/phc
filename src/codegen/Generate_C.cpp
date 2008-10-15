@@ -376,7 +376,7 @@ public:
  * Pattern definitions for statements
  */
 
-class Pattern 
+class Pattern : virtual public GC_obj
 {
 public:
 	Pattern () : use_scope (true) {}
@@ -438,7 +438,7 @@ protected:
 		;
 	}
 
-	class Find_temps : public Visitor
+	class Find_temps : public Visitor, virtual public GC_obj
 	{
 	public:
 		set<string> var_names;

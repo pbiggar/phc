@@ -33,7 +33,7 @@ template
 	class CAST,
 	class FOREIGN
 >
-class XML_unparser : public Visitor 
+class XML_unparser : public Visitor, virtual public GC_obj
 {
 protected:
 	string xmlns; // XML namespace

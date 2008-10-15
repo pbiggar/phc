@@ -44,7 +44,7 @@ using namespace std;
  * right places.
  */
 
-class Linearize : public Visitor 
+class Linearize : public Visitor, virtual public GC_obj
 {
 public:
 	Vector<Expr*> exprs;

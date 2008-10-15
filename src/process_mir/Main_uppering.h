@@ -12,7 +12,7 @@
 
 #include "MIR_visitor.h"
 
-class Main_uppering : public MIR::Visitor
+class Main_uppering : public MIR::Visitor, virtual public GC_obj
 {
 public:
 	// TODO: Perhaps a better way to test this si to replace all local

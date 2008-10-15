@@ -12,7 +12,7 @@
 
 #include "AST_visitor.h"
 
-class Remove_parser_temporaries : public AST::Visitor
+class Remove_parser_temporaries : public AST::Visitor, virtual public GC_obj
 {
 public:
 	void pre_node(AST::Node* in);

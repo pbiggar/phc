@@ -32,7 +32,7 @@ template <
 	class Statement,
 	class PHP_script,
 	class Visitor>
-class Parse_buffer
+class Parse_buffer : public virtual GC_obj
 {
 	/* TODO: make these private and give protected access to << via */
 	/* a friend declaration. */

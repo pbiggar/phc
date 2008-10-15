@@ -12,7 +12,7 @@
 
 #include "process_ir/IR.h"
 
-class XML_unparser_state
+class XML_unparser_state : public virtual GC_obj
 {
 public:
 	std::ostream& os;

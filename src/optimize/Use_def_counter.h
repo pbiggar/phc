@@ -29,7 +29,7 @@
 /* Entering at the method level, count the total occurences of a
  * variable, and the number of defintions, and the uses is the
  * difference of the two. */
-class Use_def_counter : public HIR::Visitor
+class Use_def_counter : public HIR::Visitor, public virtual GC_obj
 {
 	// For analysis
 private:
@@ -51,7 +51,7 @@ public:
 };
 
 
-class Clear_use_defs : public HIR::Visitor
+class Clear_use_defs : public HIR::Visitor, public virtual GC_obj
 {
 	void pre_node (HIR::Node* in)
 	{

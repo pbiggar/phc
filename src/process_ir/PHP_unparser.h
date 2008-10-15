@@ -13,7 +13,7 @@
 #include <sstream>
 #include "AST_visitor.h"
 
-class Unparser_state
+class Unparser_state : virtual public GC_obj
 {
 	public:
 		Unparser_state (std::ostream& os, bool in_php);
@@ -28,7 +28,7 @@ class Unparser_state
 		bool delayed_newline;
 };
 
-class PHP_unparser
+class PHP_unparser : virtual public GC_obj
 {
 // Constructor; pass in a different std::ostream to write to a file/string instead
 // of standard output

@@ -12,7 +12,7 @@
 
 #include "AST_transform.h"
 
-class Split_multiple_arguments : public AST::Transform
+class Split_multiple_arguments : public AST::Transform, virtual public GC_obj
 {
 public:
 	void pre_global(AST::Global* in, AST::Statement_list* out);

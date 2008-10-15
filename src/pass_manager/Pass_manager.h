@@ -21,9 +21,8 @@ namespace HIR { class Visitor; class Transform; }
 namespace MIR { class Visitor; class Transform; }
 namespace IR { class PHP_script; }
 
-class Pass_manager
+class Pass_manager : virtual public GC_obj
 {
-
 public:
 
 	// TODO: this is getting out of hand. It might be best to turn this into an

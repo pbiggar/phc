@@ -22,7 +22,7 @@
  * simplify AST::Statement*. For some constructs, specifying AST::Node*
  * suffices.
  */
-class HIR_to_AST : public HIR::Fold
+class HIR_to_AST : virtual public GC_obj, public HIR::Fold
 <
  AST::Node*,					// Actual_parameter*
  AST::Variable*,				// Array_access*

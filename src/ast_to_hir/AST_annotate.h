@@ -10,7 +10,7 @@
 
 #include "AST_visitor.h"
 
-class Annotate : public AST::Visitor
+class Annotate : public AST::Visitor, virtual public GC_obj
 {
 	// only generate array elements if this is set
 	bool generate_array_temps;

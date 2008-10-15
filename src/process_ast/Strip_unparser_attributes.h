@@ -10,7 +10,7 @@
 
 #include "AST_visitor.h"
 
-class Strip_unparser_attributes : public virtual AST::Visitor
+class Strip_unparser_attributes : public virtual AST::Visitor, virtual public GC_obj
 {
 	void pre_real (AST::REAL* in);
 	void post_node (AST::Node* in);

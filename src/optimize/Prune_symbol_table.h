@@ -11,7 +11,7 @@
 
 #include "MIR_visitor.h"
 
-class Prune_symbol_table : public MIR::Visitor
+class Prune_symbol_table : public MIR::Visitor, public virtual GC_obj
 {
 private:
 	bool prune;

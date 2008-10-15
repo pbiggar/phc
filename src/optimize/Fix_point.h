@@ -13,7 +13,7 @@
 #include "HIR_transform.h"
 #include "HIR_visitor.h"
 
-class Fix_point : public HIR::Visitor, public HIR::Transform
+class Fix_point : public HIR::Visitor, public HIR::Transform, public virtual GC_obj
 {
 public:
 	int iterations;

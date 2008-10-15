@@ -21,7 +21,7 @@
  * suffices.
  */
 
-class AST_to_HIR : public AST::Fold
+class AST_to_HIR : virtual public GC_obj, public AST::Fold
 <
  HIR::Actual_parameter*,	// Actual_parameter*
  HIR::Expr*,					// Array*

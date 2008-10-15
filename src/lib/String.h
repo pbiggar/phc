@@ -18,6 +18,7 @@ using std::stringstream;
 
 class AttrMap;
 
+// TODO: strings are not garbage collected (it doesnt matter that they arent traced)
 class String : public string, virtual public Object
 {
 // This is a hack and will at some point be removed.

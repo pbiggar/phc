@@ -22,7 +22,7 @@
  * simplify AST::Statement*. For some constructs, specifying AST::Node*
  * suffices.
  */
-class MIR_to_AST : public MIR::Fold
+class MIR_to_AST : virtual public GC_obj, public MIR::Fold
 <
  AST::Actual_parameter*,	// Actual_parameter*
  AST::Variable*,				// Array_access*

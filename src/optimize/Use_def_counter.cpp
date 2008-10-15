@@ -71,7 +71,7 @@ void Use_def_counter::post_method (Method* in)
 	finish_analysis (in->statements);
 }
 
-class Add_attributes : public HIR::Visitor
+class Add_attributes : public HIR::Visitor, public virtual GC_obj
 {
 private:
 	Map<string, int>* uses;

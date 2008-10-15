@@ -12,7 +12,7 @@
 #include "AST.h"
 
 
-class Param_is_ref_uppering : public MIR::Transform
+class Param_is_ref_uppering : public MIR::Transform, virtual public GC_obj
 {
 public:
 	void pre_assign_var (MIR::Assign_var* in, MIR::Statement_list* out);

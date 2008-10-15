@@ -47,7 +47,7 @@ using namespace boost;
 
 // The map wants a non-template class, so we put the code re-use in
 // T_node_builder, and just put the definition here.
-class Node_builder
+class Node_builder : public virtual GC_obj
 {
 public:
 	virtual bool can_handle_token (string name) = 0;
@@ -190,7 +190,7 @@ class MIR_node_builder : public T_Node_builder
 	}
 };
 
-class PHC_SAX2Handler : public DefaultHandler 
+class PHC_SAX2Handler : public DefaultHandler, public virtual GC_obj
 {
 protected:
 	Stack<Object*> node_stack;
@@ -485,7 +485,7 @@ public:
 	}
 };
 
-class XML_parser
+class XML_parser : public virtual GC_obj
 {
 public:
 	IR::PHP_script* parse_xml_file (String* filename)

@@ -10,7 +10,7 @@
 
 #include "MIR_transform.h"
 
-class Alias_uppering : public MIR::Transform
+class Alias_uppering : public MIR::Transform, virtual public GC_obj
 {
 public:
 	void pre_class_alias (MIR::Class_alias* in, MIR::Statement_list* out);

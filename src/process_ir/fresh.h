@@ -45,6 +45,7 @@ class Read_fresh_suffix_counter
 : public AST::Visitor
 , public HIR::Visitor
 , public MIR::Visitor
+, virtual public GC_obj
 {
 
 public:

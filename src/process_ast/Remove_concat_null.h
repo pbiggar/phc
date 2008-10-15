@@ -10,7 +10,7 @@
 
 #include "AST_transform.h"
 
-class Remove_concat_null : public AST::Transform
+class Remove_concat_null : public AST::Transform, virtual public GC_obj
 {
 public:
 	AST::Expr* post_bin_op(AST::Bin_op* in);

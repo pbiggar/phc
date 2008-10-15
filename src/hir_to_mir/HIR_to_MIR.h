@@ -10,6 +10,8 @@
 
 #include "HIR_fold.h"
 #include "MIR.h"
+#include "lib/Object.h"
+
 #include "process_ir/General.h"
 
 /*
@@ -21,7 +23,7 @@
  * simplify HIR::Statement*. For some constructs, specifying HIR::Node*
  * suffices.
  */
-class HIR_to_MIR : public HIR::Fold
+class HIR_to_MIR : virtual public GC_obj, public HIR::Fold
 <
  MIR::Node*,					// Actual_parameter*
  MIR::Array_access*,			// Array_access*

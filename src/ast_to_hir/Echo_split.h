@@ -10,7 +10,7 @@
 
 #include "AST_transform.h"
 
-class Echo_split : public AST::Transform
+class Echo_split : public AST::Transform, virtual public GC_obj
 {
 	void pre_eval_expr(AST::Eval_expr* in, AST::Statement_list* out);
 };

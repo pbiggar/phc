@@ -11,7 +11,7 @@
 
 #include "AST_transform.h"
 
-class Desugar : public AST::Transform
+class Desugar : public AST::Transform, virtual public GC_obj
 {
 	void pre_nop(AST::Nop*, AST::Statement_list*);
 	AST::Expr* pre_unary_op(AST::Unary_op* in);

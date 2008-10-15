@@ -11,7 +11,7 @@
 #include "AST_visitor.h"
 #include "lib/Stack.h"
 
-class DOT_unparser : public virtual AST::Visitor
+class DOT_unparser : public virtual AST::Visitor, virtual public GC_obj
 {
 private:
 	Stack<int> node_stack;
