@@ -36,12 +36,6 @@ get_virtual (Node* in)
 		case Eval_expr::ID:
 		case Field_access::ID:
 		case FIELD_NAME::ID:
-		case Foreach_end::ID:
-		case Foreach_get_key::ID:
-		case Foreach_get_val::ID:
-		case Foreach_has_key::ID:
-		case Foreach_next::ID:
-		case Foreach_reset::ID:
 		case FOREIGN::ID:
 		case Formal_parameter::ID:
 		case Global::ID:
@@ -94,11 +88,32 @@ get_virtual (Node* in)
 			break;
 
 		case Assign_array::ID:
-		{
-			Assign_array *aa = dyc<Assign_array> (in);
-			in = new Array_access (aa->lhs, NULL);
+			in = new Array_access (dyc<Assign_array> (in)->lhs, NULL);
 			break;
-		}
+
+		case Foreach_end::ID:
+			in = new Array_access (dyc<Foreach_end> (in)->array, NULL);
+			break;
+
+		case Foreach_get_key::ID:
+			in = new Array_access (dyc<Foreach_get_key> (in)->array, NULL);
+			break;
+
+		case Foreach_get_val::ID:
+			in = new Array_access (dyc<Foreach_get_val> (in)->array, NULL);
+			break;
+
+		case Foreach_has_key::ID:
+			in = new Array_access (dyc<Foreach_has_key> (in)->array, NULL);
+			break;
+
+		case Foreach_next::ID:
+			in = new Array_access (dyc<Foreach_next> (in)->array, NULL);
+			break;
+
+		case Foreach_reset::ID:
+			in = new Array_access (dyc<Foreach_reset> (in)->array, NULL);
+			break;
 	}
 
 	stringstream ss;

@@ -128,7 +128,6 @@ private:
 	void visit_isset (Statement_block* bb, MIR::Isset* in);
 	void visit_method_invocation (Statement_block* bb, MIR::Method_invocation* in);
 	void visit_new (Statement_block* bb, MIR::New* in);
-	void visit_param_is_ref (Statement_block* bb, MIR::Param_is_ref* in);
 	void visit_unary_op (Statement_block* bb, MIR::Unary_op* in);
 	void visit_variable_name (Statement_block* bb, MIR::VARIABLE_NAME* in);
 	void visit_variable_variable (Statement_block* bb, MIR::Variable_variable* in);

@@ -56,5 +56,6 @@ parsing/comments_declare.php		no-cb_AST-to-HIR
 parsing/capital_ticks.php			no-cb_AST-to-HIR
 parsing/layout5_declare.php		no-cb_AST-to-HIR
 
-#.*										long
-#unsupported/.*						short
+.*											long
+codegen/bench_.*						short
+optimization/.*						short

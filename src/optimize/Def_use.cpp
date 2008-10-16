@@ -276,12 +276,6 @@ Def_use_web::visit_global (Statement_block* bb, MIR::Global* in)
 }
 
 void
-Def_use_web::visit_param_is_ref (Statement_block*, MIR::Param_is_ref* in)
-{
-	assert (0);
-}
-
-void
 Def_use_web::visit_pre_op (Statement_block*, MIR::Pre_op* in)
 {
 	assert (0);
@@ -297,7 +291,6 @@ void
 Def_use_web::visit_return (Statement_block* bb, MIR::Return* in)
 {
 	// what does the Chow paper say about return values? we need a mu
-	phc_TODO (); 
 	add_use (in->variable_name, new SSA_stmt (bb));
 }
 

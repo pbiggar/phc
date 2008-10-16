@@ -69,7 +69,7 @@ Address_taken::aliased (Basic_block* bb, VARIABLE_NAME* in)
 // EXPR of return (we dont know call-time-return-by-reference)
 
 
-/* This is the rhs of an $x =& ... assignment. */
+/* This is the rhs of an $x =& ... assignment. So ignore things like parameters, which will be handled by visit_expr. This just handles RHSs. */
 void
 Address_taken::alias_expr (Basic_block* bb, Expr* in)
 {
@@ -94,7 +94,7 @@ Address_taken::alias_expr (Basic_block* bb, Expr* in)
 		case Param_is_ref::ID:
 		case Unary_op::ID:
 		case Field_access::ID:
-			phc_unreachable ();
+			phc_TODO ();
 			assert (0);
 			// do nothing
 			break;
@@ -258,21 +258,25 @@ Address_taken::visit_field_access (Statement_block* bb, MIR::Field_access* in)
 {
 	phc_TODO ();
 }
+
 void
 Address_taken::visit_foreach_get_key (Statement_block* bb, MIR::Foreach_get_key* in)
 {
-	phc_TODO ();
+	aliased (bb, get_virtual (in));
 }
+
 void
 Address_taken::visit_foreach_get_val (Statement_block* bb, MIR::Foreach_get_val* in)
 {
-	phc_TODO ();
+	aliased (bb, get_virtual (in));
 }
+
 void
 Address_taken::visit_foreach_has_key (Statement_block* bb, MIR::Foreach_has_key* in)
 {
-	phc_TODO ();
+	aliased (bb, get_virtual (in));
 }
+
 void
 Address_taken::visit_instanceof (Statement_block* bb, MIR::Instanceof* in)
 {
@@ -294,11 +298,7 @@ Address_taken::visit_new (Statement_block* bb, MIR::New* in)
 {
 	phc_TODO ();
 }
-void
-Address_taken::visit_param_is_ref (Statement_block* bb, MIR::Param_is_ref* in)
-{
-	phc_TODO ();
-}
+
 void
 Address_taken::visit_variable_variable (Statement_block* bb, MIR::Variable_variable* in)
 {

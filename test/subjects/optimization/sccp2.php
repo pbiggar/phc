@@ -5,7 +5,7 @@
 
 	// Check unused pure functinos are remove
 	// { phc-regex-output: !/strlen/ }
-	var_dump (strlen ("my_string");
+	var_dump (strlen ("my_string"));
 
 	// Check assign_array folded
 	// { phc-regex-output: !/\$i = 5/ }
