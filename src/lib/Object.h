@@ -16,15 +16,6 @@
 #define NULL 0L
 #endif
 
-#ifdef ENABLE_GC
-#ifdef HAVE_GC_LIB
-#ifdef HAVE_GC_INC
-// Logical AND for the preceding three
-#define USE_GC
-#endif
-#endif
-#endif
-
 /*
  * Garbage collection:
  *
@@ -62,7 +53,7 @@
  */
 
 // Avoid proliferation of USE_GC by defining the allocator here.
-#ifdef USE_GC
+#ifndef DISABLE_GC
 #include "gc/gc_cpp.h"
 #include "gc/gc_allocator.h"
 #define phc_allocator gc_allocator
@@ -71,7 +62,7 @@
 #endif
 
 
-#ifdef USE_GC
+#ifndef DISABLE_GC
 class GC_obj : public gc
 #else
 class GC_obj

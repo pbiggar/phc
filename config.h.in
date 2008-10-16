@@ -16,14 +16,8 @@
  * Garbage collector
  */
 
-// "libgc" available?
-#undef HAVE_GC_LIB
-
-// "gc/gc_cpp.h" available?
-#undef HAVE_GC_INC
-
 // --enable-gc specified? 
-#undef ENABLE_GC
+#undef DISABLE_GC
 
 /*
  * Xerces-C++
