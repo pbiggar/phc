@@ -1003,11 +1003,12 @@ CFG::remove_empty_blocks ()
 
 			foreach (Basic_block* pred, *bb->get_predecessors ())
 			{
-				Edge* pred_edge = get_edge (pred, bb);
+				Edge* pred_edge = get_edge (pred, eb);
 
 				// Add edge and copy attributes
 				Edge* new_edge = add_edge (pred, succ);
 				new_edge->direction = pred_edge->direction;
+				new_edge->copy_phi_map (pred_edge);
 				new_edge->copy_phi_map (succ_edge);
 			}
 

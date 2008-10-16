@@ -86,8 +86,6 @@ bool ssa_op_ptr_comparison (SSA_op* op1, SSA_op* op2)
 	}
 	if (isa<SSA_stmt> (op1) || isa<SSA_branch> (op1))
 	{
-		assert (op1 == op2);
-		
 		// They are the same BB.
 		return false;
 	}
