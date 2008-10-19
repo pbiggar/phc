@@ -186,24 +186,28 @@ DCE::sweep_pass ()
 {
 	foreach (Basic_block* bb, *cfg->get_all_bbs ())
 	{
-		if (isa<Statement_block> (bb) && !marks[SSA_op::for_bb (bb)])
-			cfg->remove_bb (bb);
-
-		else if (isa<Branch_block> (bb) && !marks[SSA_op::for_bb (bb)])
-		{
-			// find the nearest marked post-dominator
-			Basic_block* postdominator = bb;
-			while (is_marked (postdominator))
-				postdominator = postdominator->get_immediate_reverse_dominator ();
-
-			cfg->remove_branch (dyc<Branch_block> (bb), postdominator);
-		}
-
+		// Remove the phi nodes first, since the BB* may be replaced with an
+		// Empty BB.
 		foreach (VARIABLE_NAME* phi_lhs, *bb->get_phi_lhss ())
 		{
 			if (!marks[new SSA_phi (bb, phi_lhs)])
 				bb->remove_phi_node (phi_lhs);
 		}
+
+
+		if (isa<Statement_block> (bb) && !is_marked (bb))
+			cfg->remove_bb (bb);
+
+		else if (isa<Branch_block> (bb) && !is_marked (bb))
+		{
+			// find the nearest marked post-dominator
+			Basic_block* postdominator = bb;
+			while (!is_marked (postdominator))
+				postdominator = postdominator->get_immediate_reverse_dominator ();
+
+			cfg->remove_branch (dyc<Branch_block> (bb), postdominator);
+		}
+
 	}
 }
 

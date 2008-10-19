@@ -216,8 +216,10 @@ Basic_block::has_phi_node (VARIABLE_NAME* phi_lhs)
 	foreach (VARIABLE_NAME* lhs, *phi_lhss)
 	{
 		// Only operator< is defined, not >= or ==
-		if (!(*lhs < *phi_lhs) && !(*phi_lhs < *lhs))
-			return true;
+		if (*lhs < *phi_lhs || *phi_lhs < *lhs)
+			continue;
+
+		return true;
 	}
 
 	return false;

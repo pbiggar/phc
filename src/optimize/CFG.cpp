@@ -698,7 +698,7 @@ CFG::replace_bb_with_empty (Basic_block* bb)
 	new_bb->vertex = bb->vertex;
 	vb[bb->vertex] = new_bb;
 
-	// Copy the properties (The edges are the same, so they'll auto-update)
+	// Copy the properties (The edges don't change, so they're fine)
 	new_bb->copy_phi_nodes (bb);
 
 	consistency_check ();
@@ -709,16 +709,22 @@ CFG::replace_bb_with_empty (Basic_block* bb)
 void
 CFG::remove_bb (Basic_block* bb)
 {
+	consistency_check ();
+
 	// dont-care
 	if (isa<Empty_block> (bb))
 		return;
 
 	replace_bb_with_empty (bb);
+
+	consistency_check ();
 }
 
 void
 CFG::remove_branch (Branch_block* branch, Basic_block* new_successor)
 {
+	consistency_check ();
+
 	// ummmmm, what then?
 	assert (new_successor->get_phi_lhss ()->size () == 0);
 
@@ -730,6 +736,8 @@ CFG::remove_branch (Branch_block* branch, Basic_block* new_successor)
 	add_edge (branch, new_successor);
 
 	replace_bb_with_empty (branch);
+
+	consistency_check ();
 }
 
 void
@@ -787,6 +795,8 @@ CFG::insert_predecessor_bb (Basic_block* bb, Basic_block* new_bb)
 void 
 CFG::set_branch_direction (Branch_block* bb, bool direction)
 {
+	consistency_check ();
+
 	Edge* true_edge = bb->get_true_successor_edge ();
 	Edge* false_edge = bb->get_false_successor_edge ();
 
