@@ -81,17 +81,10 @@
 	</para></listitem>
 </itemizedlist>
 
-<para>
-	It is possible to link &phc to the Boehm garbage collector. If you wish to
-	link your application with &phc, this may be necessary. However, this
-	feature is experimental and seems to lead to runtime errors on some systems.
-	Use with care.
-</para> 
-
 </section>
 
 <section id=dev.phpbuild>
-<title id=dev.phpbuild.title>Building PHP for &phc development</title>
+<title id=dev.phpbuild.title>Building PHP for &phc; development</title>
 <!-- TODO -->
 <para>
 </para>
