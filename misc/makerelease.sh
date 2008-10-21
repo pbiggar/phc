@@ -22,10 +22,7 @@ fi
 
 ## Names of the generated files and directories
 
-UNVERSIONED=unversioned
-
 SRC_DIR=phc-$1
-TMP_DIR=tmp
 DOC_DIR=$SRC_DIR/doc/manual/
 
 SRC_TGZ=phc-$1.tar.gz
@@ -36,7 +33,7 @@ PDF=phc-$1.pdf
 
 ## Check for the existance of directories and files
 
-for dir in $UNVERSIONED $SRC_DIR $TMP_DIR
+for dir in $SRC_DIR
 do
 	if test -d $dir
 	then
@@ -82,7 +79,7 @@ mv $DOC_DIR/manual.pdf $PDF
 
 ## Remove temporary files
 
-rm -rf phc-$1
+rm -rf $SRC_DIR
 
 ## Running tests
 
