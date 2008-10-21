@@ -138,7 +138,6 @@ Basic_block::get_graphviz_head_properties ()
 			Rvalue* arg = edge->pm[phi_lhs]; // avoid assertion.
 
 			stringstream ss;
-			ss << "(" << cfg->index[edge->get_source()->vertex] << "): ";
 			if (arg)
 			{
 				if (isa<VARIABLE_NAME> (arg))
@@ -148,27 +147,33 @@ Basic_block::get_graphviz_head_properties ()
 			}
 			else
 				ss << "XXX"; // missing value.
+
+			ss << " (" << cfg->index[edge->get_source()->vertex] << ")";
 			
 
 			list.push_back (s (ss.str()));
 		}
 
-		result->push_back (make_pair (phi_lhs->get_ssa_var_name (), list));
+		stringstream name;
+		name << "PHI (" << *phi_lhs->get_ssa_var_name () << ")";
+		result->push_back (make_pair (s(name.str()), list));
 	}
 
-// Add muis:
-	
+	// XXX HACK: add a line break
+	if (mus->size() && result->size())
+		result->push_back (make_pair (s(""), *(new String_list)));
+
+	// Add mus:
 	foreach (VARIABLE_NAME* mu, *mus)
 	{
+		stringstream name;
+		name << "MU (" << *mu->get_ssa_var_name () << ")";
 		result->push_back (
 			make_pair (
-				s("MU"), 
-				*(new List<String*> (
-					mu->get_ssa_var_name ()))));
+				s(name.str()), 
+				*(new String_list)));
 	}
 
-//	if (live_in)
-//		result->push_back (make_pair (s("IN"), live_in));
 	return result;
 }
 
@@ -182,11 +187,13 @@ Basic_block::get_graphviz_tail_properties ()
 	VARIABLE_NAME* rhs;
 	foreach (tie (lhs, rhs), *chis)
 	{
+		stringstream name;
+		name << "CHI (" << *lhs->get_ssa_var_name () << ")";
+
 		result->push_back (
 			make_pair (
-				s("CHI"), 
-				*(new List<String*> (
-					lhs->get_ssa_var_name (), 
+				s(name.str ()), 
+				*(new String_list (
 					rhs->get_ssa_var_name ()))));
 	}
 

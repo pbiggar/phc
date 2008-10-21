@@ -254,7 +254,6 @@ struct BB_property_functor
 		// headlabel and taillabel attributes dont expand the area they are
 		// in, and so are frequently unreadable.
 	}
-#define LINE_LENGTH 20
 	void operator()(std::ostream& out, const vertex_t& v) const 
 	{
 		out << "[";
@@ -265,90 +264,80 @@ struct BB_property_functor
 
 		out << "label=\"";
 
-		// IN annotations
-		stringstream ss1;
-		pair<String*, list<String*> > props;
-		foreach (props, *vb[v]->get_graphviz_head_properties ())
-		{
-			if (props.second.size ())
-			{
-				ss1 << *props.first << " = [";
-				unsigned int line_count = 1;
-				foreach (String* str, props.second)
-				{
-					ss1 << *DOT_unparser::escape (str) << ", ";
-					if (ss1.str().size() > (LINE_LENGTH * line_count))
-					{
-						line_count++;
-						ss1 << "\\n";
-					}
-				}
-				ss1 << "]\\n";
-			}
-		}
 
 		// BB source
-		stringstream ss2;
-		ss2
+		out	
 			<< "(" << index[v] << ") "
 			<< *DOT_unparser::escape (vb[v]->get_graphviz_label ());
 
-		// BB properties
-		stringstream ss3;
-		foreach (props, *vb[v]->get_graphviz_bb_properties ())
-		{
-			if (props.second.size ())
-			{
-				ss3 << *props.first << " = [";
-				unsigned int line_count = 1;
-				foreach (String* str, props.second)
-				{
-					ss3 << *DOT_unparser::escape (str) << ", ";
-					if (ss3.str().size() > (LINE_LENGTH * line_count))
-					{
-						line_count++;
-						ss3 << "\\n";
-					}
-				}
-				ss3 << "]\\n";
-			}
-		}
+		// Annotations
+		String* head = unparse_properties (vb[v]->get_graphviz_head_properties ());
+		String* main = unparse_properties (vb[v]->get_graphviz_bb_properties ());
+		String* tail = unparse_properties (vb[v]->get_graphviz_tail_properties ());
 
-		// OUT annotations
-		stringstream ss4;
-		foreach (props, *vb[v]->get_graphviz_tail_properties ())
-		{
-			if (props.second.size ())
-			{
-				ss4 << *props.first << " = [";
-				unsigned int line_count = 1;
-				foreach (String* str, props.second)
-				{
-					ss4 << *DOT_unparser::escape (str) << ", ";
-					if (ss4.str().size() > (LINE_LENGTH * line_count))
-					{
-						line_count++;
-						ss4 << "\\n";
-					}
-				}
-				ss4 << "]\\n";
-			}
-		}
+		// Blank line after source, if theres anything else
 
-		// Print out all 4 stringstreams, with line-break;
-		out << ss1.str();
-		if (ss1.str().size())
-			out << "\\n"; // blank line before source
-		out << ss2.str();
-		if (ss3.str().size() || ss4.str().size())
-			out << "\\n\\n"; // blank line after source
-		out << ss3.str();
-		out << ss4.str();
-		if (ss3.str().size() || ss4.str().size())
-			out << "\b\b";
+		if (head->size()) out << "\\n\\n";
+		out << *head;
 
+		if (main->size()) out << "\\n\\n";
+		out << *main;
+
+		if (tail->size()) out << "\\n\\n";
+		out << *tail;
 		
 		out << "\"]";
+	}
+
+#define LINE_LENGTH 30
+	static String* unparse_properties (list<pair<String*, list<String*> > >* properties)
+	{
+		stringstream ss;
+		pair<String*, list<String*> > props;
+		foreach (props, *properties)
+		{
+			append (ss, *props.first);
+			if (props.second.size ())
+			{
+				append (ss, " = [");
+				foreach (String* str, props.second)
+				{
+					append (ss, *DOT_unparser::escape (str));
+					if (str != props.second.back())
+						append (ss, ", ", false);
+				}
+				append (ss, "]", false);
+			}
+			append (ss, "\\n", false);
+		}
+
+		return s(ss.str());
+	}
+
+	// Append STR to SS, adding a newline before it if the result will be too
+	// long.
+	static void append (stringstream& ss, string str, bool can_break = true)
+	{
+		// Add the \n at the start, or the next 'can_break' might start a line.
+		if (can_break)
+		{
+			// The only length that concerns us is between the lat newline in SS,
+			// and the first one in STR.
+			int newline_pos1 = ss.str().rfind ("\\n") + sizeof ("\\n");
+			if (newline_pos1 == string::npos)
+				newline_pos1 = ss.str().size();
+
+			int newline_pos2 = str.find ("\\n");
+			if (newline_pos2 == string::npos)
+				newline_pos2 = str.size();
+
+			if ((ss.str().size() - newline_pos1) + newline_pos2 > LINE_LENGTH 
+
+				&& (newline_pos1 != ss.str().size())) // no point adding a \n to a \n just cause STR is too long
+				ss << "\\n";
+		}
+
+		ss << str;
 	}
 };
 
