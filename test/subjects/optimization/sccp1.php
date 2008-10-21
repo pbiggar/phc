@@ -1,7 +1,7 @@
 <?php
 
 	// Tests sccp into a binop
-	// { phc-option: -O1 --dump=opt }
+	// { phc-option: -O1 --dump=outssa }
 
 	// Check propagation into bin_ops
 	// { phc-regex-output: /5 </ }
