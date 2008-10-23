@@ -6645,6 +6645,203 @@ Method_invocation::Method_invocation(METHOD_NAME* name, Actual_parameter* arg)
 	}
 }
 
+New::New(Class_name* class_name, Actual_parameter_list* actual_parameters)
+{
+    this->class_name = class_name;
+    this->actual_parameters = actual_parameters;
+}
+
+New::New()
+{
+    this->class_name = 0;
+    this->actual_parameters = 0;
+}
+
+void New::visit(Visitor* visitor)
+{
+    visitor->visit_expr(this);
+}
+
+void New::transform_children(Transform* transform)
+{
+    transform->children_expr(this);
+}
+
+int New::classid()
+{
+    return ID;
+}
+
+bool New::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    New* that = dynamic_cast<New*>(in);
+    if(that == NULL) return false;
+    
+    if(this->class_name == NULL)
+    {
+    	if(that->class_name != NULL && !that->class_name->match(this->class_name))
+    		return false;
+    }
+    else if(!this->class_name->match(that->class_name))
+    	return false;
+    
+    if(this->actual_parameters != NULL && that->actual_parameters != NULL)
+    {
+    	Actual_parameter_list::const_iterator i, j;
+    	for(
+    		i = this->actual_parameters->begin(), j = that->actual_parameters->begin();
+    		i != this->actual_parameters->end() && j != that->actual_parameters->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL)
+    		{
+    			if(*j != NULL && !(*j)->match(*i))
+    				return false;
+    		}
+    		else if(!(*i)->match(*j))
+    			return false;
+    	}
+    	if(i != this->actual_parameters->end() || j != that->actual_parameters->end())
+    		return false;
+    }
+    
+    return true;
+}
+
+bool New::equals(Node* in)
+{
+    New* that = dynamic_cast<New*>(in);
+    if(that == NULL) return false;
+    
+    if(this->class_name == NULL || that->class_name == NULL)
+    {
+    	if(this->class_name != NULL || that->class_name != NULL)
+    		return false;
+    }
+    else if(!this->class_name->equals(that->class_name))
+    	return false;
+    
+    if(this->actual_parameters == NULL || that->actual_parameters == NULL)
+    {
+    	if(this->actual_parameters != NULL || that->actual_parameters != NULL)
+    		return false;
+    }
+    else
+    {
+    	Actual_parameter_list::const_iterator i, j;
+    	for(
+    		i = this->actual_parameters->begin(), j = that->actual_parameters->begin();
+    		i != this->actual_parameters->end() && j != that->actual_parameters->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL || *j == NULL)
+    		{
+    			if(*i != NULL || *j != NULL)
+    				return false;
+    		}
+    		else if(!(*i)->equals(*j))
+    			return false;
+    	}
+    	if(i != this->actual_parameters->end() || j != that->actual_parameters->end())
+    		return false;
+    }
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+New* New::clone()
+{
+    Class_name* class_name = this->class_name ? this->class_name->clone() : NULL;
+    Actual_parameter_list* actual_parameters = NULL;
+    if(this->actual_parameters != NULL)
+    {
+    	Actual_parameter_list::const_iterator i;
+    	actual_parameters = new Actual_parameter_list;
+    	for(i = this->actual_parameters->begin(); i != this->actual_parameters->end(); i++)
+    		actual_parameters->push_back(*i ? (*i)->clone() : NULL);
+    }
+    New* clone = new New(class_name, actual_parameters);
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+Node* New::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    if (this->class_name != NULL)
+    {
+    	Node* class_name_res = this->class_name->find(in);
+    	if (class_name_res) return class_name_res;
+    }
+    
+    if(this->actual_parameters != NULL)
+    {
+    	Actual_parameter_list::const_iterator i;
+    	for(
+    		i = this->actual_parameters->begin();
+    		i != this->actual_parameters->end();
+    		i++)
+    	{
+    		if(*i != NULL)
+    		{
+    			Node* res = (*i)->find (in);
+    			if (res) return res;
+    		}
+    	}
+    }
+    
+    return NULL;
+}
+
+void New::find_all(Node* in, Node_list* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+    
+    if (this->class_name != NULL)
+    	this->class_name->find_all(in, out);
+    
+    if(this->actual_parameters != NULL)
+    {
+    	Actual_parameter_list::const_iterator i;
+    	for(
+    		i = this->actual_parameters->begin();
+    		i != this->actual_parameters->end();
+    		i++)
+    	{
+    		if(*i != NULL)
+    		{
+    			(*i)->find_all (in, out);
+    		}
+    	}
+    }
+    
+}
+
+void New::assert_valid()
+{
+    assert(class_name != NULL);
+    class_name->assert_valid();
+    assert(actual_parameters != NULL);
+    {
+    	Actual_parameter_list::const_iterator i;
+    	for(i = this->actual_parameters->begin(); i != this->actual_parameters->end(); i++)
+    	{
+    		assert(*i != NULL);
+    		(*i)->assert_valid();
+    	}
+    }
+    Node::assert_mixin_valid();
+}
+
 Variable_actual_parameter::Variable_actual_parameter(bool is_ref, Target* target, Variable_name* variable_name, Rvalue_list* array_indices)
 {
     this->is_ref = is_ref;
@@ -6870,203 +7067,6 @@ void Variable_actual_parameter::assert_valid()
     {
     	Rvalue_list::const_iterator i;
     	for(i = this->array_indices->begin(); i != this->array_indices->end(); i++)
-    	{
-    		assert(*i != NULL);
-    		(*i)->assert_valid();
-    	}
-    }
-    Node::assert_mixin_valid();
-}
-
-New::New(Class_name* class_name, Actual_parameter_list* actual_parameters)
-{
-    this->class_name = class_name;
-    this->actual_parameters = actual_parameters;
-}
-
-New::New()
-{
-    this->class_name = 0;
-    this->actual_parameters = 0;
-}
-
-void New::visit(Visitor* visitor)
-{
-    visitor->visit_expr(this);
-}
-
-void New::transform_children(Transform* transform)
-{
-    transform->children_expr(this);
-}
-
-int New::classid()
-{
-    return ID;
-}
-
-bool New::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    New* that = dynamic_cast<New*>(in);
-    if(that == NULL) return false;
-    
-    if(this->class_name == NULL)
-    {
-    	if(that->class_name != NULL && !that->class_name->match(this->class_name))
-    		return false;
-    }
-    else if(!this->class_name->match(that->class_name))
-    	return false;
-    
-    if(this->actual_parameters != NULL && that->actual_parameters != NULL)
-    {
-    	Actual_parameter_list::const_iterator i, j;
-    	for(
-    		i = this->actual_parameters->begin(), j = that->actual_parameters->begin();
-    		i != this->actual_parameters->end() && j != that->actual_parameters->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL)
-    		{
-    			if(*j != NULL && !(*j)->match(*i))
-    				return false;
-    		}
-    		else if(!(*i)->match(*j))
-    			return false;
-    	}
-    	if(i != this->actual_parameters->end() || j != that->actual_parameters->end())
-    		return false;
-    }
-    
-    return true;
-}
-
-bool New::equals(Node* in)
-{
-    New* that = dynamic_cast<New*>(in);
-    if(that == NULL) return false;
-    
-    if(this->class_name == NULL || that->class_name == NULL)
-    {
-    	if(this->class_name != NULL || that->class_name != NULL)
-    		return false;
-    }
-    else if(!this->class_name->equals(that->class_name))
-    	return false;
-    
-    if(this->actual_parameters == NULL || that->actual_parameters == NULL)
-    {
-    	if(this->actual_parameters != NULL || that->actual_parameters != NULL)
-    		return false;
-    }
-    else
-    {
-    	Actual_parameter_list::const_iterator i, j;
-    	for(
-    		i = this->actual_parameters->begin(), j = that->actual_parameters->begin();
-    		i != this->actual_parameters->end() && j != that->actual_parameters->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL || *j == NULL)
-    		{
-    			if(*i != NULL || *j != NULL)
-    				return false;
-    		}
-    		else if(!(*i)->equals(*j))
-    			return false;
-    	}
-    	if(i != this->actual_parameters->end() || j != that->actual_parameters->end())
-    		return false;
-    }
-    
-    if(!Node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-New* New::clone()
-{
-    Class_name* class_name = this->class_name ? this->class_name->clone() : NULL;
-    Actual_parameter_list* actual_parameters = NULL;
-    if(this->actual_parameters != NULL)
-    {
-    	Actual_parameter_list::const_iterator i;
-    	actual_parameters = new Actual_parameter_list;
-    	for(i = this->actual_parameters->begin(); i != this->actual_parameters->end(); i++)
-    		actual_parameters->push_back(*i ? (*i)->clone() : NULL);
-    }
-    New* clone = new New(class_name, actual_parameters);
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
-Node* New::find(Node* in)
-{
-    if (this->match (in))
-    	return this;
-    
-    if (this->class_name != NULL)
-    {
-    	Node* class_name_res = this->class_name->find(in);
-    	if (class_name_res) return class_name_res;
-    }
-    
-    if(this->actual_parameters != NULL)
-    {
-    	Actual_parameter_list::const_iterator i;
-    	for(
-    		i = this->actual_parameters->begin();
-    		i != this->actual_parameters->end();
-    		i++)
-    	{
-    		if(*i != NULL)
-    		{
-    			Node* res = (*i)->find (in);
-    			if (res) return res;
-    		}
-    	}
-    }
-    
-    return NULL;
-}
-
-void New::find_all(Node* in, Node_list* out)
-{
-    if (this->match (in))
-    	out->push_back (this);
-    
-    if (this->class_name != NULL)
-    	this->class_name->find_all(in, out);
-    
-    if(this->actual_parameters != NULL)
-    {
-    	Actual_parameter_list::const_iterator i;
-    	for(
-    		i = this->actual_parameters->begin();
-    		i != this->actual_parameters->end();
-    		i++)
-    	{
-    		if(*i != NULL)
-    		{
-    			(*i)->find_all (in, out);
-    		}
-    	}
-    }
-    
-}
-
-void New::assert_valid()
-{
-    assert(class_name != NULL);
-    class_name->assert_valid();
-    assert(actual_parameters != NULL);
-    {
-    	Actual_parameter_list::const_iterator i;
-    	for(i = this->actual_parameters->begin(); i != this->actual_parameters->end(); i++)
     	{
     		assert(*i != NULL);
     		(*i)->assert_valid();

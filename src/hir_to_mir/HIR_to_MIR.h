@@ -530,11 +530,20 @@ public:
 			}
 		}
 
+		MIR::Actual_parameter_list* params = new MIR::Actual_parameter_list;
+		foreach (MIR::Node* node, *actual_parameters)
+		{
+			if (isa<MIR::Literal> (node))
+				params->push_back (new MIR::Actual_parameter (false, dyc <MIR::Literal> (node)));
+			else
+				params->push_back (dyc<MIR::Actual_parameter> (node));
+		}
+
 		MIR::Method_invocation* result;
 		result = new MIR::Method_invocation(
 			target, 
-			method_name, 
-			rewrap_list<MIR::Node, MIR::Actual_parameter> (actual_parameters));
+			method_name,
+			params);
 		copy_attrs (result, orig);
 		return result;
 	}
