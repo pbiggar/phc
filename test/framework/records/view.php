@@ -6,46 +6,55 @@
 	{
 		global $DB;
 
+		$order = array (
+			"revision",
+			"author",
+			"pass",
+			"fail",
+			"skip",
+			"timeout",
+			"test_date",
+			"test_revision",
+			"redo");
+
 		print "<table class=info>\n";
 		print "<tr>\n";
-		print "<th>Revision</th>\n";
-		print "<th>Author</th>\n";
-		print "<th>Passes</th>\n";
-		print "<th>Fails</th>\n";
-		print "<th>Skips</th>\n";
-		print "<th>Timeouts</th>\n";
-		print "<th>Test Date</th>\n";
-		print "<th>Testing revision</th>\n";
-		print "<th>Repeat?</th>\n";
+		foreach ($order as $header)
+		{
+			$header = ucfirst (str_replace ("_", " ", $header));
+			print "<th>$header</th>\n";
+		}
 
-		// successful
+		// Completed tests
 		$query = $DB->query ("
-				SELECT	c.revision, c.author, t.pass, t.fail, t.skip, t.timeout, c.test_date, c.test_revision, c.failed, c.redo
-				FROM		complete AS c, tests AS t
-				WHERE		t.revision == c.revision AND t.testname == 'Total'
-				ORDER BY c.revision DESC
-				");
-		$pass_completes = $query->fetchAll(PDO::FETCH_ASSOC);
-
-
-		// failed
-		$query = $DB->query ("
-				SELECT	revision, author, '' AS pass, '' AS fail, '' as skip, '' as timeout, test_date, test_revision, failed, redo
+				SELECT	revision, author, test_date, test_revision, failed, redo
 				FROM		complete
-				WHERE		failed == 1
-				ORDER BY revision DESC
 				");
-		$fail_completes = $query->fetchAll(PDO::FETCH_ASSOC);
+		$completes = $query->fetchAll(PDO::FETCH_ASSOC);
 
-		$completes = array_merge ($pass_completes, $fail_completes);
-		
-
-		# arrange by revision
 		foreach ($completes as $complete)
 		{
 			$rev = (int)$complete["revision"];
-			$revisions[$rev] = $complete;
+			foreach ($complete as $key => $column)
+				$revisions[$rev][$key] = $column;
 		}
+
+
+		// Test results
+		$query = $DB->query ("
+				SELECT	revision, pass, fail, skip, timeout
+				FROM		tests
+				WHERE		testname == 'Total'
+				");
+		$tests = $query->fetchAll(PDO::FETCH_ASSOC);
+
+		foreach ($tests as $test)
+		{
+			$rev = (int)$test["revision"];
+			foreach ($test as $key => $column)
+				$revisions[$rev][$key] = $column;
+		}
+
 
 		krsort ($revisions);
 
@@ -78,9 +87,9 @@
 			# add a link to revision
 			$data["revision"] = "<a href=\"details.php?rev=$rev\">$rev</a>";
 
-
-			foreach ($data as $key => $value)
+			foreach ($order as $header)
 			{
+				$value = $data[$header];
 				print "<td$color>$value</td>\n";
 			}
 			print "<a/></tr>\n";
