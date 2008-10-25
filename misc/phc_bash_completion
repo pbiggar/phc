@@ -4,15 +4,17 @@ _phc()
 	cur=${COMP_WORDS[COMP_CWORD]}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	shortOpts="-h -V -v -c -C -O -c -D -U -X"
-	longOpts="--help --full-help --version --verbose --compile --pretty-print --obfuscate	\
-				 --no-validation --include --generate-c --next-line-curlies --no-leading-tab	\
-				 --no-line-numbers --no-nulls --no-empty-lists --no-hash-bang --list-passes	\
-				 --dont-fail"
+	shortOpts="-h -V -v -c -d -C -O -e -c"
+	longOpts="--help --full-help --version --verbose --compile --pretty-print \
+				 --obfuscate --no-validation --include --generate-c --execute \
+				 --next-line-curlies --no-leading-tab --no-hash-bang \
+				 --no-line-numbers --no-nulls --no-empty-lists --list-passes	\
+				 --dont-fail --no-xml-attrs"
 
 	# TODO provide context sensitive completion for these options, with an = and no space
-	paramOpts="--run --read-xml  --c-option --extension --with-php --optimize	\
-				  --output --tab --dump --udump --ddump --xdump"
+	paramOpts="--run --r-option --define --read-xml --c-option --extension	\
+				  --web-app --with-php --optimize --output --tab ---debug --dump \
+				  --dump-uppered --dump-dot --dump-xml --disable"
 
 
 	# options completion
