@@ -239,7 +239,7 @@ abstract class AsyncTest extends Test
 			$this->run_waiting_procs ();
 		}
 		else
-			; // return and carry no adding programs to the queue
+			; // return and carry on, adding programs to the queue
 
 	}
 
