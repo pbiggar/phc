@@ -41,7 +41,7 @@ class Generate_C extends Test
 				"exit or error set");
 		}
 		# Blank output wasnt being picked up
-		else if (count (split ("\n", $phc_out)) < 170)
+		else if (strlen ($phc_out) < 1428)
 		{
 			$this->mark_failure ($subject, $phc_command, $phc_exit, $phc_out, $phc_err, "output is too short"); 
 		}
