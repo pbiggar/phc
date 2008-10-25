@@ -806,11 +806,9 @@ protected:
 	Wildcard<Array_access>* rhs;
 };
 
-
+// A small tweak on $T = $x;
 class Pattern_assign_expr_cast : public Pattern_assign_expr_var
 {
-// Casts without a lhs have a LHS added, hence this is an assign_var, not a
-// eval_expr_or_assign_var.
 public:
 	Expr* rhs_pattern()
 	{
@@ -821,8 +819,7 @@ public:
 
 	void generate_rhs ()
 	{
-		assert (agn->is_ref == false);
-		assert (lhs);
+		assert (!agn->is_ref);
 		Pattern_assign_expr_var::generate_rhs ();
 
 		if (*cast->value->value == "string")
@@ -857,8 +854,8 @@ public:
 
 	void generate_rhs ()
 	{
-		assert (lhs);
 		assert (!agn->is_ref);
+
 		// Check whether its in the form CONST or CLASS::CONST
 		String* name = new String ("");
 		if (rhs->value->class_name)
@@ -906,9 +903,9 @@ class Pattern_assign_expr_bin_op : public Pattern_assign_var
 public:
 	Expr* rhs_pattern()
 	{
-		left = new Wildcard<VARIABLE_NAME>;
+		left = new Wildcard<Rvalue>;
 		op = new Wildcard<OP>;
-		right = new Wildcard<VARIABLE_NAME>;
+		right = new Wildcard<Rvalue>;
 
 		return new Bin_op (left, op, right); 
 	}
@@ -950,9 +947,9 @@ public:
 	}
 
 protected:
-	Wildcard<VARIABLE_NAME>* left;
+	Wildcard<Rvalue>* left;
 	Wildcard<OP>* op;
-	Wildcard<VARIABLE_NAME>* right;
+	Wildcard<Rvalue>* right;
 };
 
 class Pattern_assign_expr_unary_op : public Pattern_assign_var
@@ -968,7 +965,6 @@ public:
 
 	void generate_rhs ()
 	{
-		assert (lhs);
 		assert(
 			op_functions.find(*op->value->value) != 
 			op_functions.end());
@@ -1001,8 +997,8 @@ protected:
 
 
 /*
- * Assign_zval is a specialization of Assignment for assignments to a simple
- * zval which takes care of creating a new zval for the LHS if necessary.
+ * Assign_value is a specialization of Assign_var for assignments to a simple
+ * zval which takes care of creating a new zval for the LHS.
  *
  * Assign_literal is a further specialization for those literal assignment
  * where the value of the literal is known at compile time (assigning a token
@@ -1010,31 +1006,33 @@ protected:
  * Assign_zval is that Assign_literal can do constant pooling.
  */
 
-class Pattern_assign_zval : public Pattern_assign_var
+class Pattern_assign_value : public Pattern_assign_var
 {
 public:
 	void generate_rhs ()
 	{
+
 		code
 		<< "if ((*p_lhs)->is_ref)\n"
 		<< "{\n"
-		<< "  zval* paz_lhs = *p_lhs;\n"
-		<< "  zval_dtor (paz_lhs);\n";
+		<< "  // Always overwrite the current value\n"
+		<< "  zval* value = *p_lhs;\n"
+		<< "  zval_dtor (value);\n";
 
-		initialize (code, "paz_lhs");
+		initialize (code, "value");
 
 		code
 		<< "}\n"
 		<< "else\n"
 		<< "{\n"
-		<<	"	zval* literal;\n"
-		<<	"	ALLOC_INIT_ZVAL (literal);\n";
+		<<	"	zval* value;\n"
+		<<	"	ALLOC_INIT_ZVAL (value);\n";
 
-		initialize (code, "literal");
+		initialize (code, "value");
 
 		code
 		<<	"	zval_ptr_dtor (p_lhs);\n"
-		<<	"	*p_lhs = literal;\n"
+		<<	"	*p_lhs = value;\n"
 		<< "}\n";
 	}
 
@@ -1045,7 +1043,7 @@ stringstream initializations;
 stringstream finalizations;
 
 template<class T, class K>
-class Pattern_assign_literal : public Pattern_assign_zval
+class Pattern_assign_literal : public Pattern_assign_value
 {
 public:
 	Expr* rhs_pattern()
@@ -1093,7 +1091,7 @@ public:
 		}
 		else
 		{
-			Pattern_assign_zval::generate_rhs();
+			Pattern_assign_value::generate_rhs();
 		}
 	}
 
@@ -1191,8 +1189,9 @@ public:
 	}
 };
 
-
-class Pattern_assign_expr_isset : public Pattern_assign_zval
+// Isset uses Pattern_assign_value, as it only has a boolean value. It puts the
+// BOOL into the ready made zval.
+class Pattern_assign_expr_isset : public Pattern_assign_value
 {
 	Expr* rhs_pattern()
 	{
@@ -1211,16 +1210,18 @@ class Pattern_assign_expr_isset : public Pattern_assign_zval
 				if (var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
 				{
 					string name = get_non_st_name (var_name);
-					code << "ZVAL_BOOL(" << lhs << ", " << name << " != NULL && !ZVAL_IS_NULL(" << name << "));\n"; 
+					code 
+					<< "ZVAL_BOOL(" << lhs << ", " 
+					<< name << " != NULL && !ZVAL_IS_NULL(" << name << "));\n"; 
 				}
 				else
 				{
-          code
-          << declare ("p_rhs")
-          << read_var (LOCAL, "p_rhs", var_name)
-			    << "ZVAL_BOOL(" << lhs << ", !ZVAL_IS_NULL(*p_rhs));\n" 
-          << cleanup ("p_rhs")
-          ;
+					code
+					<< declare ("p_rhs")
+					<< read_var (LOCAL, "p_rhs", var_name)
+					<< "ZVAL_BOOL(" << lhs << ", !ZVAL_IS_NULL(*p_rhs));\n" 
+					<< cleanup ("p_rhs")
+					;
 				}
 			}
 			else 
@@ -1261,7 +1262,8 @@ protected:
 	Wildcard<Isset>* isset;
 };
 
-class Pattern_assign_expr_foreach_has_key : public Pattern_assign_zval
+// Like ISSET, this just returns a BOOL into a waiting zval.
+class Pattern_assign_expr_foreach_has_key : public Pattern_assign_value
 {
 
 	Expr* rhs_pattern()
@@ -1272,7 +1274,6 @@ class Pattern_assign_expr_foreach_has_key : public Pattern_assign_zval
 
 	void initialize (ostream& os, string var)
 	{
-		// TODO why does this use assign_zval?
 		os
 		<< read_rvalue (LOCAL, "fe_array", has_key->value->array)
 		
@@ -1286,7 +1287,8 @@ protected:
 	Wildcard<Foreach_has_key>* has_key;
 };
 
-class Pattern_assign_expr_foreach_get_key : public Pattern_assign_zval
+// Like ISSET, this just returns an INT or STRING into a waiting zval.
+class Pattern_assign_expr_foreach_get_key : public Pattern_assign_value
 {
 	Expr* rhs_pattern()
 	{
