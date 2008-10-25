@@ -1081,7 +1081,7 @@ public:
 
 				prologue << "zval* " << var << ";\n";
 				finalizations << "zval_ptr_dtor (&" << var << ");\n";
-				initializations << "ALLOC_INIT_ZVAL (" << var << ")\n";
+				initializations << "ALLOC_INIT_ZVAL (" << var << ");\n";
 				initialize (initializations, var);
 			}
 			code
@@ -1126,16 +1126,25 @@ class Pattern_assign_lit_int : public Pattern_assign_literal<INT, long>
 	}
 };
 
-class Pattern_assign_lit_real : public Pattern_assign_literal<REAL, string>
+class Pattern_assign_lit_real : public Pattern_assign_literal<REAL, double>
 {
 	string prefix () { return "phc_const_pool_real_"; }
-	string key () { return *(dynamic_cast<String*>(rhs->value->attrs->get("phc.codegen.source_rep"))); }
+	double key () { return rhs->value->value; }
 
 	void initialize (ostream& os, string var)
 	{
-		os	<< "zend_eval_string(\"" << key() << ";\","
-			<<		var << ", "
-			<<		"\"literal\" TSRMLS_CC);\n";
+		os << "{\n";
+		// Construct the value a byte at a time from our representation in memory.
+		unsigned char* values_bytes = (unsigned char*)(&rhs->value->value);
+		os << "unsigned char val[] = {";
+		for (unsigned int i = 0; i < sizeof (double); i++)
+		{
+			os << (unsigned int)(values_bytes[i]) << ", ";
+		}
+		os << "};\n";
+
+		os << "ZVAL_DOUBLE (" << var << ", *(double*)(val));\n";
+		os << "}\n";
 	}
 };
 
