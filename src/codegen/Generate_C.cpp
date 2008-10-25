@@ -622,76 +622,9 @@ protected:
 	}
 };
 
-class Pattern_label : public Pattern
-{
-public:
-	bool match(Statement* that)
-	{
-		use_scope = false;
-		label = new Wildcard<LABEL_NAME>;
-		return that->match(new Label(label));
-	}
-
-	void generate_code(Generate_C* gen)
-	{
-		code << *label->value->value << ":;\n";
-	}
-
-protected:
-	Wildcard<LABEL_NAME>* label;
-};
-
-class Pattern_branch : public Pattern
-{
-public:
-	bool match(Statement* that)
-	{
-		cond = new Wildcard<VARIABLE_NAME>;
-		iftrue = new Wildcard<LABEL_NAME>;
-		iffalse = new Wildcard<LABEL_NAME>;
-		return that->match(new Branch(
-			cond,
-			iftrue, 
-			iffalse
-			));
-	}
-
-	void generate_code(Generate_C* gen)
-	{
-		code 
-		<<	read_rvalue (LOCAL, "p_cond", cond->value)
-
-		<<	"zend_bool bcond = zend_is_true (p_cond);\n"
-		<<	"if (bcond)\n"
-		<<	"	goto " << *iftrue->value->value << ";\n"
-		<<	"else\n"
-		<<	"	goto " << *iffalse->value->value << ";\n"
-		;
-	}
-
-protected:
-	Wildcard<VARIABLE_NAME>* cond;
-	Wildcard<LABEL_NAME>* iftrue;
-	Wildcard<LABEL_NAME>* iffalse;
-};
-
-class Pattern_goto : public Pattern
-{
-public:
-	bool match(Statement* that)
-	{
-		label = new Wildcard<LABEL_NAME>;
-		return that->match(new Goto(label));
-	}
-
-	void generate_code(Generate_C* gen)
-	{
-		code << "goto " << *label->value->value << ";\n";
-	}
-
-protected:
-	Wildcard<LABEL_NAME>* label;
-};
+/*
+ * Expressions
+ */
 
 /*
  * Assignment is a "virtual" pattern. It deals with the LHS of the assignment,
@@ -729,145 +662,6 @@ protected:
 	Assign_var* agn;
 	Wildcard<Target>* target;
 	Wildcard<VARIABLE_NAME>* lhs;
-};
-
-/* $x[$i] = $y; (1)
- *		or
- * $x[$i] =& $y; (2)
- *
- * Semantics:
- *	(1) If $x[$i] is a reference, copy the value of $y into the zval at $x[$i].
- *	       If $y doesn't exist, we can copy from uninitialized_zval.
- *	    If $x[$i] is not a reference, overwrite the HT entry with $y, removing the old entry.
- *	       If $y doesn't exist, put in uninitialized_zval.
- *			 If $x[$i] doesnt exist, put uninitiliazed_val in, then replace it
- *			 with $y (saved a second hashing operation).
- *
- *	(2) Remove the current HT entry, replacing it with a reference to $y.
- *	    If $y doesnt exist, initialize it. If $x[$i] doesn't exist, it doesnt matter.
- */
-class Pattern_assign_array : public Pattern
-{
-public:
-	bool match(Statement* that)
-	{
-		lhs = new Wildcard<VARIABLE_NAME>;
-		index = new Wildcard<Rvalue>;
-		rhs = new Wildcard<Rvalue>;
-		agn = new Assign_array (lhs, index, false, rhs);
-		return (that->match(agn));
-	}
-
-	void generate_code(Generate_C* gen)
-	{
-		assert (lhs->value);
-		assert (index->value);
-		assert (rhs->value);
-
-		code 
-		<<	get_array_entry (LOCAL, "p_lhs", lhs->value, index->value)
-		;
-	
-		if (not agn->is_ref)
-		{
-		  code	
-			<< declare ("p_rhs")
-			<< read_rvalue (LOCAL, "p_rhs_var", rhs->value)
-			<< "// Read normal variable\n"
-			<< "p_rhs = &p_rhs_var;\n"
-			<< "\n"
-			<< "if (*p_lhs != *p_rhs)\n"
-			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
-			<< cleanup ("p_rhs")
-			;
-		}
-		else
-		{
-			code
-			<< get_st_entry (LOCAL, "p_rhs", dyc<VARIABLE_NAME> (rhs->value))
-			<< "copy_into_ref (p_lhs, p_rhs);\n"
-			;
-		}
-	}
-
-protected:
-	Assign_array* agn;
-	Wildcard<VARIABLE_NAME>* lhs;
-	Wildcard<Rvalue>* index;
-	Wildcard<Rvalue>* rhs;
-};
-
-/*
- * $x[] = $y; (1)
- *		or
- * $x[] =& $y; (2)
- *
- * Semantics:
- * (1) Copy $y in to $x (even if $y is a reference, we copy)
- * (2) Place a reference to $y into $x.
- * In both cases $x may not be initialized, or may not be an array.
- * If $x is uninitiliazed, it becomes an array, and the value is pushed.
- * If $x is false, or "" (but not 0), it is initialized (no warning).
- * If $x is a different scalar, a warning is printed, but that $x is not initialized (nothing pushed).
- * If $x is a string (but not ""), a fatal error is thrown.
- */
-class Pattern_assign_next : public Pattern
-{
-public:
-	bool match(Statement* that)
-	{
-		lhs = new Wildcard<VARIABLE_NAME>;
-		rhs = new Wildcard<VARIABLE_NAME>;
-		agn = new Assign_next (lhs, false, rhs);
-		return (that->match(agn));
-	}
-
-	void generate_code(Generate_C* gen)
-	{
-		assert (lhs->value);
-		assert (rhs->value);
-
-		code 
-		<<	"zval** p_lhs;\n"
-
-		<< get_st_entry (LOCAL, "p_lhs_var", lhs->value)
-
-		<<	"// Array push \n"
-		<<	"p_lhs = push_and_index_ht (p_lhs_var TSRMLS_CC);\n"
-	
-		// TODO this can return NULL if there is an error.
-		<<	"if (p_lhs != NULL)\n"
-		<<	"{\n";
-
-		if (!agn->is_ref)
-		{
-			code
-			<< declare ("p_rhs")
-
-			<< read_var (LOCAL, "p_rhs", rhs->value)
-
-			<< "if (*p_lhs != *p_rhs)\n"
-			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
-
-			<< cleanup ("p_rhs");
-		}
-		else
-		{
-			// TODO this is wrong
-			code	
-			<< get_st_entry (LOCAL, "p_rhs", rhs->value)
-			<< "copy_into_ref (p_lhs, p_rhs);\n"
-			;
-		}
-
-		code << "}\n"
-		;
-	}
-
-protected:
-	Assign_next* agn;
-	Wildcard<VARIABLE_NAME>* lhs;
-	Wildcard<VARIABLE_NAME>* rhs;
 };
 
 /*
@@ -1050,6 +844,160 @@ public:
 public:
 	Wildcard<CAST>* cast;
 };
+
+class Pattern_assign_expr_constant : public Pattern_assign_var
+{
+public:
+
+	Expr* rhs_pattern()
+	{
+		rhs = new Wildcard<Constant> ();
+		return rhs;
+	}
+
+	void generate_rhs ()
+	{
+		assert (lhs);
+		assert (!agn->is_ref);
+		// Check whether its in the form CONST or CLASS::CONST
+		String* name = new String ("");
+		if (rhs->value->class_name)
+		{
+			name->append (*rhs->value->class_name->value);
+			name->append ("::");
+		}
+
+		name->append (*rhs->value->constant_name->value);
+
+		// zend_get_constant returns a copy of the constant, so we can
+		// put it in directly for non-reference lhss, and use the
+		// data directly without copying for reference lhss.
+		code
+		<< "if (!(*p_lhs)->is_ref)\n"
+		<< "{\n"
+		<<		"zval_ptr_dtor (p_lhs);\n"
+		<<		"get_constant ( "
+		<<			"\"" << *name << "\", "
+		<<			name->length() << ", " // exclude NULL-terminator
+		<<			"p_lhs "
+		<<			" TSRMLS_CC);\n"
+		<< "}\n"
+		<< "else\n"
+		<< "{\n"
+		<<		"zval* constant;\n"
+		<<		"get_constant ( "
+		<<			"\"" << *name << "\", "
+		<<			name->length() << ", " // exclude NULL-terminator
+		<<			"&constant "
+		<<			" TSRMLS_CC);\n"
+		// get_constant guarantees new memory, so we can reuse the data, rather than copy and delete it
+		<<		"overwrite_lhs_no_copy (*p_lhs, constant);\n"
+		<<		"safe_free_zval_ptr (constant);\n"
+		<< "}\n"
+		;
+	}
+
+protected:
+	Wildcard<Constant>* rhs;
+};
+
+class Pattern_assign_expr_bin_op : public Pattern_assign_var
+{
+public:
+	Expr* rhs_pattern()
+	{
+		left = new Wildcard<VARIABLE_NAME>;
+		op = new Wildcard<OP>;
+		right = new Wildcard<VARIABLE_NAME>;
+
+		return new Bin_op (left, op, right); 
+	}
+
+	void generate_rhs ()
+	{
+		assert (lhs);
+		assert(
+			op_functions.find(*op->value->value) != 
+			op_functions.end());
+		string op_fn = op_functions[*op->value->value]; 
+
+		code
+		<< read_rvalue (LOCAL, "left", left->value)
+		<< read_rvalue (LOCAL, "right", right->value)
+
+		<< "if (in_copy_on_write (*p_lhs))\n"
+		<< "{\n"
+		<< "	zval_ptr_dtor (p_lhs);\n"
+		<< "	ALLOC_INIT_ZVAL (*p_lhs);\n"
+		<< "}\n"
+		<< "zval old = **p_lhs;\n"
+		<< "int result_is_operand = (*p_lhs == left || *p_lhs == right)\n;"
+		;
+
+		// some operators need the operands to be reversed (since we
+		// call the opposite function). This is accounted for in the
+		// binops table.
+		if(*op->value->value == ">" || *op->value->value == ">=")
+			code << op_fn << "(*p_lhs, right, left TSRMLS_CC);\n";
+		else
+			code << op_fn << "(*p_lhs, left, right TSRMLS_CC);\n";
+
+		// If the result is one of the operand, the operator function
+		// will already have cleaned up the result
+		code
+		<< "if (!result_is_operand)\n"
+		<<		"zval_dtor (&old);\n";
+	}
+
+protected:
+	Wildcard<VARIABLE_NAME>* left;
+	Wildcard<OP>* op;
+	Wildcard<VARIABLE_NAME>* right;
+};
+
+class Pattern_assign_expr_unary_op : public Pattern_assign_var
+{
+public:
+	Expr* rhs_pattern()
+	{
+		op = new Wildcard<OP>;
+		var_name = new Wildcard<VARIABLE_NAME>;
+
+		return new Unary_op(op, var_name);
+	}
+
+	void generate_rhs ()
+	{
+		assert (lhs);
+		assert(
+			op_functions.find(*op->value->value) != 
+			op_functions.end());
+		string op_fn = op_functions[*op->value->value]; 
+
+		code
+		<< read_rvalue (LOCAL, "expr", var_name->value)
+
+		<< "if (in_copy_on_write (*p_lhs))\n"
+		<< "{\n"
+		<< "	zval_ptr_dtor (p_lhs);\n"
+		<< "	ALLOC_INIT_ZVAL (*p_lhs);\n"
+		<< "}\n"
+		<< "zval old = **p_lhs;\n"
+		<< "int result_is_operand = (*p_lhs == expr)\n;"
+
+		<< op_fn << "(*p_lhs, expr TSRMLS_CC);\n"
+
+		<< "if (!result_is_operand)\n"
+		<<		"zval_dtor (&old);\n"
+		;
+
+	}
+
+protected:
+	Wildcard<OP>* op;
+	Wildcard<VARIABLE_NAME>* var_name;
+};
+
 
 
 /*
@@ -1243,165 +1191,180 @@ public:
 	}
 };
 
-/*
- * $$x = $y
- */
 
-class Pattern_assign_var_var : public Pattern
+class Pattern_assign_expr_isset : public Pattern_assign_zval
 {
-	bool match(Statement* that)
+	Expr* rhs_pattern()
 	{
-		lhs = new Wildcard<VARIABLE_NAME>;
-		rhs = new Wildcard<VARIABLE_NAME>;
-		stmt = new Assign_var_var(lhs, false, rhs);
-		return(that->match(stmt));	
+		isset = new Wildcard<Isset>;
+		return isset;
 	}
 
-	void generate_code(Generate_C* gen)
+	void initialize(ostream& code, string lhs)
 	{
-		if(!stmt->is_ref)
+		VARIABLE_NAME* var_name = dynamic_cast<VARIABLE_NAME*> (isset->value->variable_name);
+
+		if (var_name)
+		{
+			if (isset->value->array_indices->size() == 0)
+			{
+				if (var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
+				{
+					string name = get_non_st_name (var_name);
+					code << "ZVAL_BOOL(" << lhs << ", " << name << " != NULL && !ZVAL_IS_NULL(" << name << "));\n"; 
+				}
+				else
+				{
+          code
+          << declare ("p_rhs")
+          << read_var (LOCAL, "p_rhs", var_name)
+			    << "ZVAL_BOOL(" << lhs << ", !ZVAL_IS_NULL(*p_rhs));\n" 
+          << cleanup ("p_rhs")
+          ;
+				}
+			}
+			else 
+			{
+				// TODO this can have > 1 array_index
+				assert(isset->value->array_indices->size() == 1);
+				Rvalue* index = isset->value->array_indices->front();
+
+        code
+				<< get_st_entry (LOCAL, "u_array", var_name)
+				<< read_rvalue (LOCAL, "u_index", index)
+				<< "ZVAL_BOOL(" << lhs << ", "
+				<< "isset_array ("
+				<<    "u_array, "
+				<<    "u_index "
+				<<		" TSRMLS_CC));\n";
+        ;
+			}
+		}
+		else
+		{
+			// Variable variable
+			// TODO
+			Variable_variable* var_var;
+      var_var = dynamic_cast<Variable_variable*>(isset->value->variable_name);
+      assert(var_var);
+
+			code
+			<< declare ("p_rhs")
+			<< read_var_var (LOCAL, "p_rhs", var_var->variable_name)
+			<< "ZVAL_BOOL(" << lhs << ", !ZVAL_IS_NULL(*p_rhs));\n" 
+			<< cleanup ("p_rhs")
+      ;
+		}
+	}
+
+protected:
+	Wildcard<Isset>* isset;
+};
+
+class Pattern_assign_expr_foreach_has_key : public Pattern_assign_zval
+{
+
+	Expr* rhs_pattern()
+	{
+		has_key = new Wildcard<Foreach_has_key>;
+		return has_key;
+	}
+
+	void initialize (ostream& os, string var)
+	{
+		// TODO why does this use assign_zval?
+		os
+		<< read_rvalue (LOCAL, "fe_array", has_key->value->array)
+		
+		<< "int type = zend_hash_get_current_key_type_ex ("
+		<<							"fe_array->value.ht, "
+		<<							"&" << *has_key->value->iter->value << ");\n"
+		<< "ZVAL_BOOL(" << var << ", type != HASH_KEY_NON_EXISTANT);\n";
+	}
+
+protected:
+	Wildcard<Foreach_has_key>* has_key;
+};
+
+class Pattern_assign_expr_foreach_get_key : public Pattern_assign_zval
+{
+	Expr* rhs_pattern()
+	{
+		get_key = new Wildcard<Foreach_get_key>;
+		return get_key;
+	}
+
+	void initialize (ostream& os, string var)
+	{
+		os
+		<< read_rvalue (LOCAL, "fe_array", get_key->value->array)
+		<< "char* str_index = NULL;\n"
+		<< "uint str_length;\n"
+		<< "ulong num_index;\n"
+		<< "int result = zend_hash_get_current_key_ex (\n"
+		<<						"fe_array->value.ht,"
+		<<						"&str_index, &str_length, &num_index, "
+		<<						"0, "
+		<<						"&" << *get_key->value->iter->value << ");\n"
+		<< "if (result == HASH_KEY_IS_LONG)\n"
+		<< "{\n"
+		<<		"ZVAL_LONG (" << var << ", num_index);\n"
+		<< "}\n"
+		<< "else\n"
+		<< "{\n"
+		<<		"ZVAL_STRINGL (" << var << ", str_index, str_length - 1, 1);\n"
+		<< "}\n";
+	}
+
+protected:
+	Wildcard<Foreach_get_key>* get_key;
+};
+
+class Pattern_assign_expr_foreach_get_val : public Pattern_assign_var
+{
+	Expr* rhs_pattern()
+	{
+		get_val = new Wildcard<Foreach_get_val>;
+		return get_val;
+	}
+
+	void generate_rhs ()
+	{
+		code << read_rvalue (LOCAL, "fe_array", get_val->value->array);
+		if (!agn->is_ref)
 		{
 			code
-			<< declare ("p_lhs") 
-			<< get_var_var (LOCAL, "p_lhs", LOCAL, lhs->value)
 			<< declare ("p_rhs")
-			<< read_var (LOCAL, "p_rhs", rhs->value)
-			<< "if (*p_lhs != *p_rhs)\n"
-			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
-			<< cleanup ("p_lhs")
+			<< "int result = zend_hash_get_current_data_ex (\n"
+			<<							"fe_array->value.ht, "
+			<<							"(void**)(&p_rhs), "
+			<<							"&" << *get_val->value->iter->value << ");\n"
+			<< "assert (result == SUCCESS);\n"
+			<< "write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
 			<< cleanup ("p_rhs")
 			;
 		}
 		else
 		{
-			code
-			<< declare ("p_lhs") 
-			<< get_var_var (LOCAL, "p_lhs", LOCAL, lhs->value)
-			<< get_st_entry (LOCAL, "p_rhs", rhs->value)
+			code 
+			<< "zval** p_rhs = NULL;\n"
+			<< "int result = zend_hash_get_current_data_ex (\n"
+			<<							"fe_array->value.ht, "
+			<<							"(void**)(&p_rhs), "
+			<<							"&" << *get_val->value->iter->value << ");\n"
+			<< "assert (result == SUCCESS);\n"
+
 			<< "copy_into_ref (p_lhs, p_rhs);\n"
-			<< cleanup ("p_lhs")
 			;
 		}
 	}
 
-	Assign_var_var* stmt;
-	// TODO: Here and elsewhere we assume the RHS is a variable_name, but it can be
-	// any rvalue 
-	Wildcard<VARIABLE_NAME>* lhs;
-	Wildcard<VARIABLE_NAME>* rhs;
-};
-	
-/*
- * global $a or global $$a
- */
-class Pattern_global : public Pattern 
-{
-public:
-	bool match(Statement* that)
-	{
-		var_name = new Wildcard<Variable_name>;
-		return(that->match(new Global(var_name)));
-	}
-
-	void generate_code(Generate_C* gen)
-	{
-		code
-		<<	index_lhs (LOCAL, "p_local_global_var", var_name->value) // lhs
-		<<	index_lhs (GLOBAL, "p_global_var", var_name->value) // rhs
-		// Note that p_global_var can be in the copy-on-write set.
-		<< "copy_into_ref (p_local_global_var, p_global_var);\n"
-		;
-	}
-
-	string index_lhs (Scope scope, string zvp, Expr* expr)
-	{
-		stringstream ss;
-	
-		VARIABLE_NAME* var_name = dynamic_cast<VARIABLE_NAME*> (expr);
-		if (var_name)
-		{
-			ss
-			<< "// Normal global\n"
-			<< get_st_entry (scope, zvp, var_name)
-			;
-		}
-		else
-		{
-			Variable_variable* var_var;
-			var_var = dynamic_cast<Variable_variable*> (expr);
-			assert(var_var != NULL);
-
-		  ss
-      << "// Variable global\n"
-      << declare (zvp)
-      // The variable variable is always in the local scope
-      << get_var_var (scope, zvp, LOCAL, var_var->variable_name)
-      << cleanup (zvp)
-      ;
-    }
-
-  	return ss.str();
-  }
-
 protected:
-	Wildcard<Variable_name>* var_name;
+	Wildcard<Foreach_get_val>* get_val;
 };
 
-class Pattern_assign_expr_constant : public Pattern_assign_var
-{
-public:
 
-	Expr* rhs_pattern()
-	{
-		rhs = new Wildcard<Constant> ();
-		return rhs;
-	}
 
-	void generate_rhs ()
-	{
-		assert (lhs);
-		assert (!agn->is_ref);
-		// Check whether its in the form CONST or CLASS::CONST
-		String* name = new String ("");
-		if (rhs->value->class_name)
-		{
-			name->append (*rhs->value->class_name->value);
-			name->append ("::");
-		}
-
-		name->append (*rhs->value->constant_name->value);
-
-		// zend_get_constant returns a copy of the constant, so we can
-		// put it in directly for non-reference lhss, and use the
-		// data directly without copying for reference lhss.
-		code
-		<< "if (!(*p_lhs)->is_ref)\n"
-		<< "{\n"
-		<<		"zval_ptr_dtor (p_lhs);\n"
-		<<		"get_constant ( "
-		<<			"\"" << *name << "\", "
-		<<			name->length() << ", " // exclude NULL-terminator
-		<<			"p_lhs "
-		<<			" TSRMLS_CC);\n"
-		<< "}\n"
-		<< "else\n"
-		<< "{\n"
-		<<		"zval* constant;\n"
-		<<		"get_constant ( "
-		<<			"\"" << *name << "\", "
-		<<			name->length() << ", " // exclude NULL-terminator
-		<<			"&constant "
-		<<			" TSRMLS_CC);\n"
-		// get_constant guarantees new memory, so we can reuse the data, rather than copy and delete it
-		<<		"overwrite_lhs_no_copy (*p_lhs, constant);\n"
-		<<		"safe_free_zval_ptr (constant);\n"
-		<< "}\n"
-		;
-	}
-
-protected:
-	Wildcard<Constant>* rhs;
-};
 
 /* A number of patterns can be n the form of either Eval_expr
  * (Method_invocation) or Assign_var (_, _, Method_invocation). Abstract this
@@ -1787,134 +1750,325 @@ protected:
 	Wildcard<Method_invocation>* rhs;
 };
 
-class Pattern_assign_expr_bin_op : public Pattern_assign_var
-{
-public:
-	Expr* rhs_pattern()
-	{
-		left = new Wildcard<VARIABLE_NAME>;
-		op = new Wildcard<OP>;
-		right = new Wildcard<VARIABLE_NAME>;
 
-		return new Bin_op (left, op, right); 
-	}
+/*
+ * Statements
+ */
 
-	void generate_rhs ()
-	{
-		assert (lhs);
-		assert(
-			op_functions.find(*op->value->value) != 
-			op_functions.end());
-		string op_fn = op_functions[*op->value->value]; 
-
-		code
-		<< read_rvalue (LOCAL, "left", left->value)
-		<< read_rvalue (LOCAL, "right", right->value)
-
-		<< "if (in_copy_on_write (*p_lhs))\n"
-		<< "{\n"
-		<< "	zval_ptr_dtor (p_lhs);\n"
-		<< "	ALLOC_INIT_ZVAL (*p_lhs);\n"
-		<< "}\n"
-		<< "zval old = **p_lhs;\n"
-		<< "int result_is_operand = (*p_lhs == left || *p_lhs == right)\n;"
-		;
-
-		// some operators need the operands to be reversed (since we
-		// call the opposite function). This is accounted for in the
-		// binops table.
-		if(*op->value->value == ">" || *op->value->value == ">=")
-			code << op_fn << "(*p_lhs, right, left TSRMLS_CC);\n";
-		else
-			code << op_fn << "(*p_lhs, left, right TSRMLS_CC);\n";
-
-		// If the result is one of the operand, the operator function
-		// will already have cleaned up the result
-		code
-		<< "if (!result_is_operand)\n"
-		<<		"zval_dtor (&old);\n";
-	}
-
-protected:
-	Wildcard<VARIABLE_NAME>* left;
-	Wildcard<OP>* op;
-	Wildcard<VARIABLE_NAME>* right;
-};
-
-class Pattern_assign_expr_unary_op : public Pattern_assign_var
-{
-public:
-	Expr* rhs_pattern()
-	{
-		op = new Wildcard<OP>;
-		var_name = new Wildcard<VARIABLE_NAME>;
-
-		return new Unary_op(op, var_name);
-	}
-
-	void generate_rhs ()
-	{
-		assert (lhs);
-		assert(
-			op_functions.find(*op->value->value) != 
-			op_functions.end());
-		string op_fn = op_functions[*op->value->value]; 
-
-		code
-		<< read_rvalue (LOCAL, "expr", var_name->value)
-
-		<< "if (in_copy_on_write (*p_lhs))\n"
-		<< "{\n"
-		<< "	zval_ptr_dtor (p_lhs);\n"
-		<< "	ALLOC_INIT_ZVAL (*p_lhs);\n"
-		<< "}\n"
-		<< "zval old = **p_lhs;\n"
-		<< "int result_is_operand = (*p_lhs == expr)\n;"
-
-		<< op_fn << "(*p_lhs, expr TSRMLS_CC);\n"
-
-		<< "if (!result_is_operand)\n"
-		<<		"zval_dtor (&old);\n"
-		;
-
-	}
-
-protected:
-	Wildcard<OP>* op;
-	Wildcard<VARIABLE_NAME>* var_name;
-};
-
-class Pattern_pre_op : public Pattern
+/* $x[$i] = $y; (1)
+ *		or
+ * $x[$i] =& $y; (2)
+ *
+ * Semantics:
+ *	(1) If $x[$i] is a reference, copy the value of $y into the zval at $x[$i].
+ *	       If $y doesn't exist, we can copy from uninitialized_zval.
+ *	    If $x[$i] is not a reference, overwrite the HT entry with $y, removing the old entry.
+ *	       If $y doesn't exist, put in uninitialized_zval.
+ *			 If $x[$i] doesnt exist, put uninitiliazed_val in, then replace it
+ *			 with $y (saved a second hashing operation).
+ *
+ *	(2) Remove the current HT entry, replacing it with a reference to $y.
+ *	    If $y doesnt exist, initialize it. If $x[$i] doesn't exist, it doesnt matter.
+ */
+class Pattern_assign_array : public Pattern
 {
 public:
 	bool match(Statement* that)
 	{
-		op = new Wildcard<OP>;
-		var = new Wildcard<VARIABLE_NAME>;
-		return(that->match(new Pre_op(op, var)));
+		lhs = new Wildcard<VARIABLE_NAME>;
+		index = new Wildcard<Rvalue>;
+		rhs = new Wildcard<Rvalue>;
+		agn = new Assign_array (lhs, index, false, rhs);
+		return (that->match(agn));
 	}
 
 	void generate_code(Generate_C* gen)
 	{
-		assert(
-			op_functions.find(*op->value->value) != 
-			op_functions.end());
-		string op_fn = op_functions[*op->value->value]; 
-
+		assert (lhs->value);
+		assert (index->value);
+		assert (rhs->value);
 
 		code 
-		<<	get_st_entry (LOCAL, "p_var", var->value)
+		<<	get_array_entry (LOCAL, "p_lhs", lhs->value, index->value)
+		;
+	
+		if (not agn->is_ref)
+		{
+		  code	
+			<< declare ("p_rhs")
+			<< read_rvalue (LOCAL, "p_rhs_var", rhs->value)
+			<< "// Read normal variable\n"
+			<< "p_rhs = &p_rhs_var;\n"
+			<< "\n"
+			<< "if (*p_lhs != *p_rhs)\n"
+			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
+			<< cleanup ("p_rhs")
+			;
+		}
+		else
+		{
+			code
+			<< get_st_entry (LOCAL, "p_rhs", dyc<VARIABLE_NAME> (rhs->value))
+			<< "copy_into_ref (p_lhs, p_rhs);\n"
+			;
+		}
+	}
 
-		<<	"sep_copy_on_write_ex (p_var);\n"
-		<<	op_fn << "(*p_var);\n"
+protected:
+	Assign_array* agn;
+	Wildcard<VARIABLE_NAME>* lhs;
+	Wildcard<Rvalue>* index;
+	Wildcard<Rvalue>* rhs;
+};
+
+/*
+ * $x[] = $y; (1)
+ *		or
+ * $x[] =& $y; (2)
+ *
+ * Semantics:
+ * (1) Copy $y in to $x (even if $y is a reference, we copy)
+ * (2) Place a reference to $y into $x.
+ * In both cases $x may not be initialized, or may not be an array.
+ * If $x is uninitiliazed, it becomes an array, and the value is pushed.
+ * If $x is false, or "" (but not 0), it is initialized (no warning).
+ * If $x is a different scalar, a warning is printed, but that $x is not initialized (nothing pushed).
+ * If $x is a string (but not ""), a fatal error is thrown.
+ */
+class Pattern_assign_next : public Pattern
+{
+public:
+	bool match(Statement* that)
+	{
+		lhs = new Wildcard<VARIABLE_NAME>;
+		rhs = new Wildcard<VARIABLE_NAME>;
+		agn = new Assign_next (lhs, false, rhs);
+		return (that->match(agn));
+	}
+
+	void generate_code(Generate_C* gen)
+	{
+		assert (lhs->value);
+		assert (rhs->value);
+
+		code 
+		<<	"zval** p_lhs;\n"
+
+		<< get_st_entry (LOCAL, "p_lhs_var", lhs->value)
+
+		<<	"// Array push \n"
+		<<	"p_lhs = push_and_index_ht (p_lhs_var TSRMLS_CC);\n"
+	
+		// TODO this can return NULL if there is an error.
+		<<	"if (p_lhs != NULL)\n"
+		<<	"{\n";
+
+		if (!agn->is_ref)
+		{
+			code
+			<< declare ("p_rhs")
+
+			<< read_var (LOCAL, "p_rhs", rhs->value)
+
+			<< "if (*p_lhs != *p_rhs)\n"
+			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
+
+			<< cleanup ("p_rhs");
+		}
+		else
+		{
+			// TODO this is wrong
+			code	
+			<< get_st_entry (LOCAL, "p_rhs", rhs->value)
+			<< "copy_into_ref (p_lhs, p_rhs);\n"
+			;
+		}
+
+		code << "}\n"
 		;
 	}
 
 protected:
-	Wildcard<VARIABLE_NAME>* var;
-	Wildcard<OP>* op;
+	Assign_next* agn;
+	Wildcard<VARIABLE_NAME>* lhs;
+	Wildcard<VARIABLE_NAME>* rhs;
 };
 
+/*
+ * $$x = $y
+ */
+
+class Pattern_assign_var_var : public Pattern
+{
+	bool match(Statement* that)
+	{
+		lhs = new Wildcard<VARIABLE_NAME>;
+		rhs = new Wildcard<VARIABLE_NAME>;
+		stmt = new Assign_var_var(lhs, false, rhs);
+		return(that->match(stmt));	
+	}
+
+	void generate_code(Generate_C* gen)
+	{
+		if(!stmt->is_ref)
+		{
+			code
+			<< declare ("p_lhs") 
+			<< get_var_var (LOCAL, "p_lhs", LOCAL, lhs->value)
+			<< declare ("p_rhs")
+			<< read_var (LOCAL, "p_rhs", rhs->value)
+			<< "if (*p_lhs != *p_rhs)\n"
+			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
+			<< cleanup ("p_lhs")
+			<< cleanup ("p_rhs")
+			;
+		}
+		else
+		{
+			code
+			<< declare ("p_lhs") 
+			<< get_var_var (LOCAL, "p_lhs", LOCAL, lhs->value)
+			<< get_st_entry (LOCAL, "p_rhs", rhs->value)
+			<< "copy_into_ref (p_lhs, p_rhs);\n"
+			<< cleanup ("p_lhs")
+			;
+		}
+	}
+
+	Assign_var_var* stmt;
+	// TODO: Here and elsewhere we assume the RHS is a variable_name, but it can be
+	// any rvalue 
+	Wildcard<VARIABLE_NAME>* lhs;
+	Wildcard<VARIABLE_NAME>* rhs;
+};
+	
+/*
+ * global $a or global $$a
+ */
+class Pattern_global : public Pattern 
+{
+public:
+	bool match(Statement* that)
+	{
+		var_name = new Wildcard<Variable_name>;
+		return(that->match(new Global(var_name)));
+	}
+
+	void generate_code(Generate_C* gen)
+	{
+		code
+		<<	index_lhs (LOCAL, "p_local_global_var", var_name->value) // lhs
+		<<	index_lhs (GLOBAL, "p_global_var", var_name->value) // rhs
+		// Note that p_global_var can be in the copy-on-write set.
+		<< "copy_into_ref (p_local_global_var, p_global_var);\n"
+		;
+	}
+
+	string index_lhs (Scope scope, string zvp, Expr* expr)
+	{
+		stringstream ss;
+	
+		VARIABLE_NAME* var_name = dynamic_cast<VARIABLE_NAME*> (expr);
+		if (var_name)
+		{
+			ss
+			<< "// Normal global\n"
+			<< get_st_entry (scope, zvp, var_name)
+			;
+		}
+		else
+		{
+			Variable_variable* var_var;
+			var_var = dynamic_cast<Variable_variable*> (expr);
+			assert(var_var != NULL);
+
+		  ss
+      << "// Variable global\n"
+      << declare (zvp)
+      // The variable variable is always in the local scope
+      << get_var_var (scope, zvp, LOCAL, var_var->variable_name)
+      << cleanup (zvp)
+      ;
+    }
+
+  	return ss.str();
+  }
+
+protected:
+	Wildcard<Variable_name>* var_name;
+};
+
+
+class Pattern_label : public Pattern
+{
+public:
+	bool match(Statement* that)
+	{
+		use_scope = false;
+		label = new Wildcard<LABEL_NAME>;
+		return that->match(new Label(label));
+	}
+
+	void generate_code(Generate_C* gen)
+	{
+		code << *label->value->value << ":;\n";
+	}
+
+protected:
+	Wildcard<LABEL_NAME>* label;
+};
+
+class Pattern_branch : public Pattern
+{
+public:
+	bool match(Statement* that)
+	{
+		cond = new Wildcard<VARIABLE_NAME>;
+		iftrue = new Wildcard<LABEL_NAME>;
+		iffalse = new Wildcard<LABEL_NAME>;
+		return that->match(new Branch(
+			cond,
+			iftrue, 
+			iffalse
+			));
+	}
+
+	void generate_code(Generate_C* gen)
+	{
+		code 
+		<<	read_rvalue (LOCAL, "p_cond", cond->value)
+
+		<<	"zend_bool bcond = zend_is_true (p_cond);\n"
+		<<	"if (bcond)\n"
+		<<	"	goto " << *iftrue->value->value << ";\n"
+		<<	"else\n"
+		<<	"	goto " << *iffalse->value->value << ";\n"
+		;
+	}
+
+protected:
+	Wildcard<VARIABLE_NAME>* cond;
+	Wildcard<LABEL_NAME>* iftrue;
+	Wildcard<LABEL_NAME>* iffalse;
+};
+
+class Pattern_goto : public Pattern
+{
+public:
+	bool match(Statement* that)
+	{
+		label = new Wildcard<LABEL_NAME>;
+		return that->match(new Goto(label));
+	}
+
+	void generate_code(Generate_C* gen)
+	{
+		code << "goto " << *label->value->value << ";\n";
+	}
+
+protected:
+	Wildcard<LABEL_NAME>* label;
+};
 
 class Pattern_return : public Pattern
 {
@@ -2026,74 +2180,37 @@ protected:
 	Wildcard<Unset>* unset;
 };
 
-class Pattern_assign_expr_isset : public Pattern_assign_zval
+class Pattern_pre_op : public Pattern
 {
-	Expr* rhs_pattern()
+public:
+	bool match(Statement* that)
 	{
-		isset = new Wildcard<Isset>;
-		return isset;
+		op = new Wildcard<OP>;
+		var = new Wildcard<VARIABLE_NAME>;
+		return(that->match(new Pre_op(op, var)));
 	}
 
-	void initialize(ostream& code, string lhs)
+	void generate_code(Generate_C* gen)
 	{
-		VARIABLE_NAME* var_name = dynamic_cast<VARIABLE_NAME*> (isset->value->variable_name);
+		assert(
+			op_functions.find(*op->value->value) != 
+			op_functions.end());
+		string op_fn = op_functions[*op->value->value]; 
 
-		if (var_name)
-		{
-			if (isset->value->array_indices->size() == 0)
-			{
-				if (var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
-				{
-					string name = get_non_st_name (var_name);
-					code << "ZVAL_BOOL(" << lhs << ", " << name << " != NULL && !ZVAL_IS_NULL(" << name << "));\n"; 
-				}
-				else
-				{
-          code
-          << declare ("p_rhs")
-          << read_var (LOCAL, "p_rhs", var_name)
-			    << "ZVAL_BOOL(" << lhs << ", !ZVAL_IS_NULL(*p_rhs));\n" 
-          << cleanup ("p_rhs")
-          ;
-				}
-			}
-			else 
-			{
-				// TODO this can have > 1 array_index
-				assert(isset->value->array_indices->size() == 1);
-				Rvalue* index = isset->value->array_indices->front();
 
-        code
-				<< get_st_entry (LOCAL, "u_array", var_name)
-				<< read_rvalue (LOCAL, "u_index", index)
-				<< "ZVAL_BOOL(" << lhs << ", "
-				<< "isset_array ("
-				<<    "u_array, "
-				<<    "u_index "
-				<<		" TSRMLS_CC));\n";
-        ;
-			}
-		}
-		else
-		{
-			// Variable variable
-			// TODO
-			Variable_variable* var_var;
-      var_var = dynamic_cast<Variable_variable*>(isset->value->variable_name);
-      assert(var_var);
+		code 
+		<<	get_st_entry (LOCAL, "p_var", var->value)
 
-			code
-			<< declare ("p_rhs")
-			<< read_var_var (LOCAL, "p_rhs", var_var->variable_name)
-			<< "ZVAL_BOOL(" << lhs << ", !ZVAL_IS_NULL(*p_rhs));\n" 
-			<< cleanup ("p_rhs")
-      ;
-		}
+		<<	"sep_copy_on_write_ex (p_var);\n"
+		<<	op_fn << "(*p_var);\n"
+		;
 	}
 
 protected:
-	Wildcard<Isset>* isset;
+	Wildcard<VARIABLE_NAME>* var;
+	Wildcard<OP>* op;
 };
+
 
 /*
  * Aliases
@@ -2235,108 +2352,6 @@ class Pattern_foreach_reset : public Pattern
 
 protected:
 	Wildcard<Foreach_reset>* reset;
-};
-
-class Pattern_assign_expr_foreach_has_key : public Pattern_assign_zval
-{
-
-	Expr* rhs_pattern()
-	{
-		has_key = new Wildcard<Foreach_has_key>;
-		return has_key;
-	}
-
-	void initialize (ostream& os, string var)
-	{
-		// TODO why does this use assign_zval?
-		os
-		<< read_rvalue (LOCAL, "fe_array", has_key->value->array)
-		
-		<< "int type = zend_hash_get_current_key_type_ex ("
-		<<							"fe_array->value.ht, "
-		<<							"&" << *has_key->value->iter->value << ");\n"
-		<< "ZVAL_BOOL(" << var << ", type != HASH_KEY_NON_EXISTANT);\n";
-	}
-
-protected:
-	Wildcard<Foreach_has_key>* has_key;
-};
-
-class Pattern_assign_expr_foreach_get_key : public Pattern_assign_zval
-{
-	Expr* rhs_pattern()
-	{
-		get_key = new Wildcard<Foreach_get_key>;
-		return get_key;
-	}
-
-	void initialize (ostream& os, string var)
-	{
-		os
-		<< read_rvalue (LOCAL, "fe_array", get_key->value->array)
-		<< "char* str_index = NULL;\n"
-		<< "uint str_length;\n"
-		<< "ulong num_index;\n"
-		<< "int result = zend_hash_get_current_key_ex (\n"
-		<<						"fe_array->value.ht,"
-		<<						"&str_index, &str_length, &num_index, "
-		<<						"0, "
-		<<						"&" << *get_key->value->iter->value << ");\n"
-		<< "if (result == HASH_KEY_IS_LONG)\n"
-		<< "{\n"
-		<<		"ZVAL_LONG (" << var << ", num_index);\n"
-		<< "}\n"
-		<< "else\n"
-		<< "{\n"
-		<<		"ZVAL_STRINGL (" << var << ", str_index, str_length - 1, 1);\n"
-		<< "}\n";
-	}
-
-protected:
-	Wildcard<Foreach_get_key>* get_key;
-};
-
-class Pattern_assign_expr_foreach_get_val : public Pattern_assign_var
-{
-	Expr* rhs_pattern()
-	{
-		get_val = new Wildcard<Foreach_get_val>;
-		return get_val;
-	}
-
-	void generate_rhs ()
-	{
-		code << read_rvalue (LOCAL, "fe_array", get_val->value->array);
-		if (!agn->is_ref)
-		{
-			code
-			<< declare ("p_rhs")
-			<< "int result = zend_hash_get_current_data_ex (\n"
-			<<							"fe_array->value.ht, "
-			<<							"(void**)(&p_rhs), "
-			<<							"&" << *get_val->value->iter->value << ");\n"
-			<< "assert (result == SUCCESS);\n"
-			<< "write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
-			<< cleanup ("p_rhs")
-			;
-		}
-		else
-		{
-			code 
-			<< "zval** p_rhs = NULL;\n"
-			<< "int result = zend_hash_get_current_data_ex (\n"
-			<<							"fe_array->value.ht, "
-			<<							"(void**)(&p_rhs), "
-			<<							"&" << *get_val->value->iter->value << ");\n"
-			<< "assert (result == SUCCESS);\n"
-
-			<< "copy_into_ref (p_lhs, p_rhs);\n"
-			;
-		}
-	}
-
-protected:
-	Wildcard<Foreach_get_val>* get_val;
 };
 
 class Pattern_foreach_next: public Pattern
