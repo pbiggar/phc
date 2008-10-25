@@ -184,11 +184,14 @@ string get_non_st_name (VARIABLE_NAME* var_name)
 }
 
 
-// Declare and getch a zval* containing the value for RVALUE. The value can be
+// Declare and fetch a zval* containing the value for RVALUE. The value can be
 // changed, but the symbol-table entry cannot be affected through this.
 string read_rvalue (Scope scope, string zvp, Rvalue* rvalue)
 {
 	stringstream ss;
+	if (isa<Literal> (rvalue))
+		phc_unsupported (rvalue, "Rvalues");
+
 	VARIABLE_NAME* var_name = dyc<VARIABLE_NAME> (rvalue);
 	if (scope == LOCAL && var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
 	{
@@ -749,8 +752,8 @@ public:
 	bool match(Statement* that)
 	{
 		lhs = new Wildcard<VARIABLE_NAME>;
-		index = new Wildcard<VARIABLE_NAME>;
-		rhs = new Wildcard<VARIABLE_NAME>;
+		index = new Wildcard<Rvalue>;
+		rhs = new Wildcard<Rvalue>;
 		agn = new Assign_array (lhs, index, false, rhs);
 		return (that->match(agn));
 	}
@@ -781,7 +784,7 @@ public:
 		else
 		{
 			code
-			<< get_st_entry (LOCAL, "p_rhs", rhs->value)
+			<< get_st_entry (LOCAL, "p_rhs", dyc<VARIABLE_NAME> (rhs->value))
 			<< "copy_into_ref (p_lhs, p_rhs);\n"
 			;
 		}
@@ -790,8 +793,8 @@ public:
 protected:
 	Assign_array* agn;
 	Wildcard<VARIABLE_NAME>* lhs;
-	Wildcard<VARIABLE_NAME>* index;
-	Wildcard<VARIABLE_NAME>* rhs;
+	Wildcard<Rvalue>* index;
+	Wildcard<Rvalue>* rhs;
 };
 
 /*
@@ -882,7 +885,7 @@ protected:
  *	(2) Remove the current ST entry, replacing it with a reference to $y.
  *	    If $y doesnt exist, initialize it. If $x doesn't exist, it doesnt matter.
  */
-class Pattern_assign_var_to_var : public Pattern_assign_var
+class Pattern_assign_expr_var : public Pattern_assign_var
 {
 public:
 	Expr* rhs_pattern()
@@ -893,8 +896,8 @@ public:
 
 	void generate_rhs ()
 	{
-		// TODO combine with assign_var_var_to_var
-		// and assign_array_index_to_var
+		// TODO combine with assign_expr_var_var
+		// and assign_expr_array_access
 		if (!agn->is_ref)
 		{
 			code
@@ -926,7 +929,7 @@ protected:
  *		Additionally, there is a conversion to strings needed:
  *			TODO
  */
-class Pattern_assign_var_var_to_var  : public Pattern_assign_var
+class Pattern_assign_expr_var_var : public Pattern_assign_var
 {
 public:
 	Expr* rhs_pattern()
@@ -963,7 +966,7 @@ protected:
 };
 
 
-class Pattern_assign_array_index_to_var : public Pattern_assign_var
+class Pattern_assign_expr_array_access : public Pattern_assign_var
 {
 public:
 	Expr* rhs_pattern()
@@ -1010,7 +1013,7 @@ protected:
 };
 
 
-class Pattern_cast : public Pattern_assign_var_to_var
+class Pattern_assign_expr_cast : public Pattern_assign_expr_var
 {
 // Casts without a lhs have a LHS added, hence this is an assign_var, not a
 // eval_expr_or_assign_var.
@@ -1026,7 +1029,7 @@ public:
 	{
 		assert (agn->is_ref == false);
 		assert (lhs);
-		Pattern_assign_var_to_var::generate_rhs ();
+		Pattern_assign_expr_var::generate_rhs ();
 
 		if (*cast->value->value == "string")
 			code << "cast_var (p_lhs, IS_STRING);\n";
@@ -1153,7 +1156,7 @@ protected:
 	Wildcard<T>* rhs;
 };
 
-class Pattern_assign_bool : public Pattern_assign_literal<BOOL, bool>
+class Pattern_assign_lit_bool : public Pattern_assign_literal<BOOL, bool>
 {
 	string prefix () { return "phc_const_pool_bool_"; }
 	bool key () { return rhs->value->value; }
@@ -1166,7 +1169,7 @@ class Pattern_assign_bool : public Pattern_assign_literal<BOOL, bool>
 
 };
 
-class Pattern_assign_int : public Pattern_assign_literal<INT, long>
+class Pattern_assign_lit_int : public Pattern_assign_literal<INT, long>
 {
 	string prefix () { return "phc_const_pool_int_"; }
 	long key () { return rhs->value->value; }
@@ -1177,7 +1180,7 @@ class Pattern_assign_int : public Pattern_assign_literal<INT, long>
 	}
 };
 
-class Pattern_assign_real : public Pattern_assign_literal<REAL, string>
+class Pattern_assign_lit_real : public Pattern_assign_literal<REAL, string>
 {
 	string prefix () { return "phc_const_pool_real_"; }
 	string key () { return *(dynamic_cast<String*>(rhs->value->attrs->get("phc.codegen.source_rep"))); }
@@ -1190,7 +1193,7 @@ class Pattern_assign_real : public Pattern_assign_literal<REAL, string>
 	}
 };
 
-class Pattern_assign_nil : public Pattern_assign_literal<NIL, string>
+class Pattern_assign_lit_nil : public Pattern_assign_literal<NIL, string>
 {
 	string prefix () { return "phc_const_pool_null_"; }
 	string key () { return ""; }
@@ -1201,7 +1204,7 @@ class Pattern_assign_nil : public Pattern_assign_literal<NIL, string>
 	}
 };
 
-class Pattern_assign_string : public Pattern_assign_literal<STRING, string>
+class Pattern_assign_lit_string : public Pattern_assign_literal<STRING, string>
 {
 	string prefix () { return "phc_const_pool_string_"; }
 	string key () { return *rhs->value->value; }
@@ -1244,7 +1247,7 @@ public:
  * $$x = $y
  */
 
-class Pattern_assign_var_to_var_var : public Pattern
+class Pattern_assign_var_var : public Pattern
 {
 	bool match(Statement* that)
 	{
@@ -1344,7 +1347,7 @@ protected:
 	Wildcard<Variable_name>* var_name;
 };
 
-class Pattern_assign_constant : public Pattern_assign_var
+class Pattern_assign_expr_constant : public Pattern_assign_var
 {
 public:
 
@@ -1427,7 +1430,7 @@ public:
 	}
 };
 
-class Pattern_builtin : public Pattern_eval_expr_or_assign_var
+class Pattern_expr_builtin : public Pattern_eval_expr_or_assign_var
 {
 public:
 	bool match(Statement* that)
@@ -1527,7 +1530,7 @@ init_function_record (string name, Node* node)
 	;
 }
 
-class Pattern_assign_param_is_ref : public Pattern_assign_var
+class Pattern_assign_expr_param_is_ref : public Pattern_assign_var
 {
 public:
 	Expr* rhs_pattern()
@@ -1584,7 +1587,7 @@ protected:
 
 
 
-class Pattern_method_invocation : public Pattern_eval_expr_or_assign_var
+class Pattern_expr_method_invocation : public Pattern_eval_expr_or_assign_var
 {
 public:
 	Expr* rhs_pattern()
@@ -1784,7 +1787,7 @@ protected:
 	Wildcard<Method_invocation>* rhs;
 };
 
-class Pattern_bin_op : public Pattern_assign_var
+class Pattern_assign_expr_bin_op : public Pattern_assign_var
 {
 public:
 	Expr* rhs_pattern()
@@ -1838,7 +1841,7 @@ protected:
 	Wildcard<VARIABLE_NAME>* right;
 };
 
-class Pattern_unary_op : public Pattern_assign_var
+class Pattern_assign_expr_unary_op : public Pattern_assign_var
 {
 public:
 	Expr* rhs_pattern()
@@ -2023,7 +2026,7 @@ protected:
 	Wildcard<Unset>* unset;
 };
 
-class Pattern_isset : public Pattern_assign_zval
+class Pattern_assign_expr_isset : public Pattern_assign_zval
 {
 	Expr* rhs_pattern()
 	{
@@ -2234,7 +2237,7 @@ protected:
 	Wildcard<Foreach_reset>* reset;
 };
 
-class Pattern_foreach_has_key : public Pattern_assign_zval
+class Pattern_assign_expr_foreach_has_key : public Pattern_assign_zval
 {
 
 	Expr* rhs_pattern()
@@ -2259,7 +2262,7 @@ protected:
 	Wildcard<Foreach_has_key>* has_key;
 };
 
-class Pattern_foreach_get_key : public Pattern_assign_zval
+class Pattern_assign_expr_foreach_get_key : public Pattern_assign_zval
 {
 	Expr* rhs_pattern()
 	{
@@ -2293,7 +2296,7 @@ protected:
 	Wildcard<Foreach_get_key>* get_key;
 };
 
-class Pattern_foreach_get_val : public Pattern_assign_var
+class Pattern_assign_expr_foreach_get_val : public Pattern_assign_var
 {
 	Expr* rhs_pattern()
 	{
@@ -2403,46 +2406,51 @@ void Generate_C::children_statement(Statement* in)
 		if (str == "")
 			continue;
 
-		code << "// " << Pattern_assign_string::escape (s(str)) << endl;
+		code << "// " << Pattern_assign_lit_string::escape (s(str)) << endl;
 	}
 
 	Pattern* patterns[] = 
 	{
 		new Pattern_method_definition()
-	,	new Pattern_assign_string ()
-	,	new Pattern_assign_int ()
-	,	new Pattern_assign_bool ()
-	,	new Pattern_assign_real ()
-	,	new Pattern_assign_nil ()
-	,	new Pattern_assign_constant ()
-	,	new Pattern_assign_var_to_var ()
-	,	new Pattern_assign_array_index_to_var ()
-	,	new Pattern_assign_var_var_to_var ()
-	,	new Pattern_assign_param_is_ref ()
+	// Expressions, which can only be RHSs to Assign_vars
+	,	new Pattern_assign_expr_constant ()
+	,	new Pattern_assign_expr_var ()
+	,	new Pattern_assign_expr_var_var ()
+	,	new Pattern_assign_expr_array_access ()
+	// TODO: array_next
+	,	new Pattern_assign_expr_param_is_ref ()
+	,	new Pattern_assign_expr_isset()
+	,	new Pattern_assign_expr_bin_op()
+	,	new Pattern_assign_expr_unary_op()
+	,	new Pattern_assign_expr_cast ()
+	,	new Pattern_assign_expr_foreach_has_key ()
+	,	new Pattern_assign_expr_foreach_get_key ()
+	,	new Pattern_assign_expr_foreach_get_val ()
+	// Literals are special, as they constant pool, and can be used as Rvalues
+	,	new Pattern_assign_lit_string ()
+	,	new Pattern_assign_lit_int ()
+	,	new Pattern_assign_lit_bool ()
+	,	new Pattern_assign_lit_real ()
+	,	new Pattern_assign_lit_nil ()
+	// Method invocations and NEWs can be part of Eval_expr or just Assign_vars
+	,	new Pattern_expr_builtin()
+	,	new Pattern_expr_method_invocation()
+	// All the rest are just statements
 	,	new Pattern_assign_array ()
 	,	new Pattern_assign_next ()
-	, new Pattern_assign_var_to_var_var ()
-	,	new Pattern_global()
-	,	new Pattern_builtin()
-	,	new Pattern_unset()
-	,	new Pattern_isset()
-	,	new Pattern_method_invocation()
-	,	new Pattern_pre_op()
-	,	new Pattern_bin_op()
-	,	new Pattern_unary_op()
-	,	new Pattern_label()
-	,	new Pattern_branch()
-	,	new Pattern_goto()
-	,	new Pattern_return()
-	,	new Pattern_cast ()
+	,  new Pattern_assign_var_var ()
 	,	new Pattern_class_or_interface_alias ()
 	,	new Pattern_method_alias ()
-	,	new Pattern_foreach_reset ()
-	,	new Pattern_foreach_has_key ()
-	,	new Pattern_foreach_get_key ()
-	,	new Pattern_foreach_get_val ()
-	,	new Pattern_foreach_next ()
+	,	new Pattern_branch()
+	,	new Pattern_goto()
+	,	new Pattern_label()
 	,	new Pattern_foreach_end ()
+	,	new Pattern_foreach_next ()
+	,	new Pattern_foreach_reset ()
+	,	new Pattern_global()
+	,	new Pattern_return()
+	,	new Pattern_unset()
+	,	new Pattern_pre_op()
 	};
 
 	bool matched = false;
