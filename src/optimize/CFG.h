@@ -113,7 +113,7 @@ public:
 	vertex_t add_bb (Basic_block* bb);
 
 	Edge* add_edge (Basic_block* source, Basic_block* target);
-	pair<Edge*, Edge*> add_branch (
+	std::pair<Edge*, Edge*> add_branch (
 		Branch_block* source, 
 		Basic_block* target1, 
 		Basic_block* target2);

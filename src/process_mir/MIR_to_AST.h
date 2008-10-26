@@ -12,6 +12,7 @@
 #include "AST.h"
 #include <stack>
 #include "process_ir/General.h"
+#include "lib/Stack.h"
 
 /*
  * Those MIR nodes that should no longer appear in the AST do not have an
@@ -22,7 +23,7 @@
  * simplify AST::Statement*. For some constructs, specifying AST::Node*
  * suffices.
  */
-class MIR_to_AST : public MIR::Fold
+class MIR_to_AST : virtual public GC_obj, public MIR::Fold
 <
  AST::Actual_parameter*,	// Actual_parameter*
  AST::Variable*,				// Array_access*
@@ -116,7 +117,7 @@ class MIR_to_AST : public MIR::Fold
 >
 {
 	AST::Reflection* reflection;
-	stack<AST::VARIABLE_NAME*> var_names;
+	Stack<AST::VARIABLE_NAME*> var_names;
 	AST::Statement* foreign_statement;
 
 	// Indicates non-NULL for target.
@@ -469,6 +470,17 @@ public:
 			NULL, 
 			get_var_name (), 
 			new AST::Expr_list (index));
+		result->attrs = orig->attrs;
+		return result;
+	}
+
+	AST::Variable* fold_impl_array_next (MIR::Array_next* orig, AST::None* variable_name)
+	{
+		AST::Variable* result;
+		result = new AST::Variable (
+			NULL, 
+			get_var_name (), 
+			new AST::Expr_list (NULL));
 		result->attrs = orig->attrs;
 		return result;
 	}

@@ -48,6 +48,7 @@
 #include "lib/demangle.h"
 
 using namespace MIR;
+using namespace std;
 
 // Label supported features
 void phc_unsupported (Node* node, const char* feature)
@@ -334,10 +335,10 @@ string read_var_var (Scope scope, string zvp, VARIABLE_NAME* var_var)
  * entries for + and -, but obviously need to be invoked slightly differently.
  */
 
-static class Op_functions : public map<string,string>
+static class Op_functions : public Map<string,string>
 {
 public:
-	Op_functions() : map<string,string>()
+	Op_functions() : Map<string,string>()
 	{
 		// Binary functions
 		(*this)["+"] = "add_function";	
@@ -376,7 +377,7 @@ public:
  * Pattern definitions for statements
  */
 
-class Pattern 
+class Pattern : virtual public GC_obj
 {
 public:
 	Pattern () : use_scope (true) {}
@@ -438,7 +439,7 @@ protected:
 		;
 	}
 
-	class Find_temps : public Visitor
+	class Find_temps : public Visitor, virtual public GC_obj
 	{
 	public:
 		set<string> var_names;
@@ -1110,7 +1111,7 @@ public:
 		// TODO If this isnt static, there is a new hash each time,
 		// because there is a new object each time it is called. Why is
 		// there a new object each time?
-		static map<K, string> vars;
+		static Map<K, string> vars;
 		if (args_info->optimize_given)
 		{
 			// The first time we see a constant, we add a declaration,

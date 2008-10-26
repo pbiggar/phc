@@ -10,7 +10,7 @@
 
 #include "AST_transform.h"
 
-class Split_unset_isset : public AST::Transform
+class Split_unset_isset : public AST::Transform, virtual public GC_obj
 {
 public:
 	// Split unset 

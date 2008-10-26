@@ -10,15 +10,17 @@
 
 #include <iostream>
 #include <iomanip> 
-#include <vector>
+
+#include "lib/Vector.h"
+
 #include "AST_unparser.h" 
 #include "cmdline.h"
 #include "process_ir/General.h"
 
 extern struct gengetopt_args_info args_info;
 
-using namespace std;
 using namespace AST;
+using namespace std;
 
 /*
  * Linearization
@@ -42,12 +44,12 @@ using namespace AST;
  * right places.
  */
 
-class Linearize : public Visitor 
+class Linearize : public Visitor, virtual public GC_obj
 {
 public:
-	std::vector<Expr*> exprs;
-	std::vector<OP*> ops;
-	std::vector<int> partitions;
+	Vector<Expr*> exprs;
+	Vector<OP*> ops;
+	Vector<int> partitions;
 	bool start_new_partition;
 	OP* last_op;
 
@@ -606,7 +608,7 @@ void AST_unparser::children_bin_op(Bin_op* in)
 		Linearize l;
 		l.visit_expr(in);
 
-		vector<int>::const_iterator ps;
+		Vector<int>::const_iterator ps;
 		int i = 0;
 		for(ps = l.partitions.begin(); ps != l.partitions.end(); ps++)
 		{

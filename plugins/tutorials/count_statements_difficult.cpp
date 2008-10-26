@@ -8,6 +8,7 @@
 #include "process_ir/General.h"
 
 using namespace AST;
+using namespace std;
 
 int count(List<Statement*>* in)
 {

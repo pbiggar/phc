@@ -16,8 +16,7 @@
 #include <list>
 #include <string>
 #include <cstring>
-#include <assert.h>
-using namespace std;
+#include <cassert>
 
 
 #include "MIR.h"
@@ -69,8 +68,8 @@ public:
     virtual Constant* pre_constant(Constant* in);
     virtual Expr* pre_instanceof(Instanceof* in);
     virtual Expr* pre_method_invocation(Method_invocation* in);
-    virtual void pre_actual_parameter(Actual_parameter* in, Actual_parameter_list* out);
     virtual Expr* pre_new(New* in);
+    virtual void pre_actual_parameter(Actual_parameter* in, Actual_parameter_list* out);
     virtual Method_name* pre_variable_method(Variable_method* in);
     virtual Variable_name* pre_variable_variable(Variable_variable* in);
     virtual Class_name* pre_variable_class(Variable_class* in);
@@ -146,8 +145,8 @@ public:
     virtual Constant* post_constant(Constant* in);
     virtual Expr* post_instanceof(Instanceof* in);
     virtual Expr* post_method_invocation(Method_invocation* in);
-    virtual void post_actual_parameter(Actual_parameter* in, Actual_parameter_list* out);
     virtual Expr* post_new(New* in);
+    virtual void post_actual_parameter(Actual_parameter* in, Actual_parameter_list* out);
     virtual Method_name* post_variable_method(Variable_method* in);
     virtual Variable_name* post_variable_variable(Variable_variable* in);
     virtual Class_name* post_variable_class(Variable_class* in);
@@ -223,8 +222,8 @@ public:
     virtual void children_constant(Constant* in);
     virtual void children_instanceof(Instanceof* in);
     virtual void children_method_invocation(Method_invocation* in);
-    virtual void children_actual_parameter(Actual_parameter* in);
     virtual void children_new(New* in);
+    virtual void children_actual_parameter(Actual_parameter* in);
     virtual void children_variable_method(Variable_method* in);
     virtual void children_variable_variable(Variable_variable* in);
     virtual void children_variable_class(Variable_class* in);

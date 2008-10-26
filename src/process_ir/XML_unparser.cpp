@@ -33,14 +33,14 @@ template
 	class CAST,
 	class FOREIGN
 >
-class XML_unparser : public Visitor 
+class XML_unparser : public Visitor, virtual public GC_obj
 {
 protected:
 	string xmlns; // XML namespace
 	XML_unparser_state* state;
 
 public:
-	XML_unparser(string xmlns, ostream& os = cout, bool print_attrs = true)
+	XML_unparser(string xmlns, std::ostream& os = std::cout, bool print_attrs = true)
 	: xmlns(xmlns)
 	{
 		state = new XML_unparser_state (os, print_attrs);
@@ -301,7 +301,7 @@ class AST_XML_unparser : public XML_unparser
 >
 {
 public:
-	AST_XML_unparser(ostream& os = cout, bool print_attrs = true)
+	AST_XML_unparser(ostream& os = std::cout, bool print_attrs = true)
 	: XML_unparser<
 			AST::PHP_script,
 			AST::Node,
@@ -345,7 +345,7 @@ class HIR_XML_unparser : public XML_unparser
 >
 {
 public:
-	HIR_XML_unparser(ostream& os = cout, bool print_attrs = true)
+	HIR_XML_unparser(ostream& os = std::cout, bool print_attrs = true)
 	: XML_unparser<
 			HIR::PHP_script,
 			HIR::Node,
@@ -388,7 +388,7 @@ class MIR_XML_unparser : public XML_unparser
 > 
 {
 public:
-	MIR_XML_unparser(ostream& os = cout, bool print_attrs = true)
+	MIR_XML_unparser(ostream& os = std::cout, bool print_attrs = true)
 	: XML_unparser<
 			MIR::PHP_script,
 			MIR::Node,
@@ -471,22 +471,22 @@ void xml_unparse (IR::Node* in, XML_unparser_state* state)
 }
 
 
-void xml_unparse (AST::Node* in, ostream& os, bool print_attrs)
+void xml_unparse (AST::Node* in, std::ostream& os, bool print_attrs)
 {
 	in->visit (new AST_XML_unparser (os, print_attrs));
 }
 
-void xml_unparse (HIR::Node* in, ostream& os, bool print_attrs)
+void xml_unparse (HIR::Node* in, std::ostream& os, bool print_attrs)
 {
 	in->visit (new HIR_XML_unparser (os, print_attrs));
 }
 
-void xml_unparse (MIR::Node* in, ostream& os, bool print_attrs)
+void xml_unparse (MIR::Node* in, std::ostream& os, bool print_attrs)
 {
 	in->visit (new MIR_XML_unparser (os, print_attrs));
 }
 
-void xml_unparse (IR::PHP_script* in, ostream& os, bool print_attrs)
+void xml_unparse (IR::PHP_script* in, std::ostream& os, bool print_attrs)
 {
 	if (isa<AST::PHP_script> (in))
 		xml_unparse (dyc<AST::Node> (in), os, print_attrs);

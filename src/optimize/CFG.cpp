@@ -290,10 +290,10 @@ struct BB_property_functor
 	}
 
 #define LINE_LENGTH 30
-	static String* unparse_properties (list<pair<String*, list<String*> > >* properties)
+	static String* unparse_properties (list<pair<String*, String_list> >* properties)
 	{
 		stringstream ss;
-		pair<String*, list<String*> > props;
+		pair<String*, String_list> props;
 		foreach (props, *properties)
 		{
 			append (ss, *props.first);
@@ -323,11 +323,11 @@ struct BB_property_functor
 		{
 			// The only length that concerns us is between the lat newline in SS,
 			// and the first one in STR.
-			int newline_pos1 = ss.str().rfind ("\\n") + sizeof ("\\n");
+			size_t newline_pos1 = ss.str().rfind ("\\n") + sizeof ("\\n");
 			if (newline_pos1 == string::npos)
 				newline_pos1 = ss.str().size();
 
-			int newline_pos2 = str.find ("\\n");
+			size_t newline_pos2 = str.find ("\\n");
 			if (newline_pos2 == string::npos)
 				newline_pos2 = str.size();
 

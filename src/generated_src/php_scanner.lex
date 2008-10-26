@@ -11,8 +11,8 @@
 */
 
 %{
-	#include <assert.h>
-	#include <string.h>
+	#include <cassert>
+	#include <cstring>
 	#include "AST.h"
 	using namespace AST;
 	#include "lib/Integer.h"
@@ -67,7 +67,7 @@
 
 	#define YY_INPUT(buf,result,max_size)		\
 	{														\
-		istream& stream = yyextra->stream;		\
+		std::istream& stream = yyextra->stream;		\
 		stream.read (buf, max_size);				\
 		result = stream.gcount ();					\
 		if (result == 0 && stream.eofbit)		\

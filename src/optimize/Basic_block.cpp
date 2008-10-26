@@ -112,10 +112,10 @@ Branch_block::get_graphviz_properties ()
 }
 
 
-list<pair<String*,list<String*> > >*
+list<pair<String*,String_list> >*
 Basic_block::get_graphviz_bb_properties ()
 {
-	list<pair<String*,list<String*> > >* result = new list<pair<String*,list<String*> > >;
+	list<pair<String*,String_list> >* result = new list<pair<String*,String_list> >;
 //	if (defs)
 //		result->push_back (pair<String*, Set*> (s("defs"), defs));
 //	if (uses)
@@ -125,14 +125,14 @@ Basic_block::get_graphviz_bb_properties ()
 	return result;
 }
 
-list<pair<String*,list<String*> > >*
+list<pair<String*,String_list> >*
 Basic_block::get_graphviz_head_properties ()
 {
-	list<pair<String*,list<String*> > >* result = new list<pair<String*,list<String*> > >;
+	list<pair<String*,String_list> >* result = new list<pair<String*,String_list> >;
 	// Phi nodes
 	foreach (VARIABLE_NAME* phi_lhs, *get_phi_lhss ())
 	{
-		list<String*> list;
+		String_list list;
 		foreach (Edge* edge, *get_predecessor_edges ())
 		{
 			Rvalue* arg = edge->pm[phi_lhs]; // avoid assertion.
@@ -177,10 +177,10 @@ Basic_block::get_graphviz_head_properties ()
 	return result;
 }
 
-list<pair<String*,list<String*> > >*
+list<pair<String*,String_list> >*
 Basic_block::get_graphviz_tail_properties ()
 {
-	list<pair<String*,list<String*> > >* result = new list<pair<String*,list<String*> > >;
+	list<pair<String*,String_list> >* result = new list<pair<String*,String_list> >;
 
 	// Add chis:
 	VARIABLE_NAME* lhs;

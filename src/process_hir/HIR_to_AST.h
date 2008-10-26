@@ -11,6 +11,7 @@
 #include "HIR_fold.h"
 #include "AST.h"
 #include "process_ir/General.h"
+#include "lib/Stack.h"
 
 /*
  * Those HIR nodes that should no longer appear in the AST do not have an
@@ -21,7 +22,7 @@
  * simplify AST::Statement*. For some constructs, specifying AST::Node*
  * suffices.
  */
-class HIR_to_AST : public HIR::Fold
+class HIR_to_AST : virtual public GC_obj, public HIR::Fold
 <
  AST::Node*,					// Actual_parameter*
  AST::Variable*,				// Array_access*
@@ -102,7 +103,7 @@ class HIR_to_AST : public HIR::Fold
 >
 {
 	AST::Reflection* reflection;
-	stack<AST::VARIABLE_NAME*> var_names;
+	Stack<AST::VARIABLE_NAME*> var_names;
 
 	// Indicates non-NULL for target.
 	AST::None* non_null_ptr;
@@ -453,6 +454,17 @@ public:
 			NULL, 
 			get_var_name (), 
 			new AST::Expr_list (index));
+		result->attrs = orig->attrs;
+		return result;
+	}
+
+	AST::Variable* fold_impl_array_next (HIR::Array_next* orig, AST::None* variable_name)
+	{
+		AST::Variable* result;
+		result = new AST::Variable (
+			NULL, 
+			get_var_name (), 
+			new AST::Expr_list (NULL));
 		result->attrs = orig->attrs;
 		return result;
 	}

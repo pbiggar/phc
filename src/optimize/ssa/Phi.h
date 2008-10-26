@@ -1,11 +1,11 @@
 #ifndef PHI_MAP
 #define PHI_MAP
 
-#include <map>
+#include "lib/Map.h"
 
 #include "MIR.h"
 
-class Phi_map : public map
+class Phi_map : public Map
 <
 	MIR::VARIABLE_NAME*,
 	MIR::Rvalue*,

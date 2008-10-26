@@ -2,15 +2,11 @@
  * phc -- the open source PHP compiler
  * See doc/license/README.license for licensing information
  * 
- * Specialized version of std::map, for (string,object) pairs
+ * Specialized version of Map 
  */
 
 #ifndef PHC_ATTR_MAP_H
 #define PHC_ATTR_MAP_H
-
-using namespace std;
-
-#include <string>
 
 #include "lib/Object.h"
 #include "lib/Map.h"
@@ -19,7 +15,7 @@ class String;
 class Integer;
 class Boolean;
 
-class AttrMap : public Map<string, Object*>
+class AttrMap : public Map<std::string, Object*>
 {
 public:
 	AttrMap();
@@ -27,35 +23,21 @@ public:
 
 // Retrieve attributes of various types
 public:
-	Boolean* get_boolean(string key);
-	Integer* get_integer(string key);
-	String* get_string(string key);
+	Boolean* get_boolean(std::string key);
+	Integer* get_integer(std::string key);
+	String* get_string(std::string key);
 	
 // Special support for bools
 public:
-	void set_true(string key);
-	void set_false(string key);
-	bool is_true(string key); // is_true returns false is not has(key)
+	void set_true(std::string key);
+	void set_false(std::string key);
+	bool is_true(std::string key); // is_true returns false is not has(key)
 
 public:
-	void erase_with_prefix (string key_prefix);
+	void erase_with_prefix (std::string key_prefix);
 
-	AttrMap* clone()
-	{
-		AttrMap* result = new AttrMap;
-		result->clone_all_from(this);
-		return result;
-	}
-
-	void clone_all_from(AttrMap* other)
-	{
-		pair<string, Object*> p;
-		foreach (p, *other)
-		{
-			assert (p.second != NULL);
-			set(p.first, p.second->clone());
-		}
-	}
+	AttrMap* clone();
+	void clone_all_from(AttrMap* other);
 };
 
 #endif // PHC_ATTR_MAP_H

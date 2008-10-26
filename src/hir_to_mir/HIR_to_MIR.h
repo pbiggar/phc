@@ -10,6 +10,8 @@
 
 #include "HIR_fold.h"
 #include "MIR.h"
+#include "lib/Object.h"
+
 #include "process_ir/General.h"
 
 /*
@@ -21,7 +23,7 @@
  * simplify HIR::Statement*. For some constructs, specifying HIR::Node*
  * suffices.
  */
-class HIR_to_MIR : public HIR::Fold
+class HIR_to_MIR : virtual public GC_obj, public HIR::Fold
 <
  MIR::Node*,					// Actual_parameter*
  MIR::Array_access*,			// Array_access*
@@ -416,6 +418,14 @@ public:
 		return result;
 	}
 
+	MIR::Array_next* fold_impl_array_next (HIR::Array_next* orig, MIR::VARIABLE_NAME* variable_name)
+	{
+		MIR::Array_next* result;
+		result = new MIR::Array_next (variable_name);
+		copy_attrs (result, orig);
+		return result;
+	}
+
 	MIR::Variable_variable* fold_impl_variable_variable(HIR::Variable_variable* orig, MIR::VARIABLE_NAME* variable_name) 
 	{
 		MIR::Variable_variable* result;
@@ -520,11 +530,20 @@ public:
 			}
 		}
 
+		MIR::Actual_parameter_list* params = new MIR::Actual_parameter_list;
+		foreach (MIR::Node* node, *actual_parameters)
+		{
+			if (isa<MIR::Literal> (node))
+				params->push_back (new MIR::Actual_parameter (false, dyc <MIR::Literal> (node)));
+			else
+				params->push_back (dyc<MIR::Actual_parameter> (node));
+		}
+
 		MIR::Method_invocation* result;
 		result = new MIR::Method_invocation(
 			target, 
-			method_name, 
-			rewrap_list<MIR::Node, MIR::Actual_parameter> (actual_parameters));
+			method_name,
+			params);
 		copy_attrs (result, orig);
 		return result;
 	}

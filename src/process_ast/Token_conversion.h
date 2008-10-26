@@ -11,7 +11,7 @@
 
 #include "AST_transform.h"
 
-class Token_conversion : public AST::Transform
+class Token_conversion : public AST::Transform, virtual public GC_obj
 {
 public:
 	AST::Expr* pre_int (AST::INT* in);

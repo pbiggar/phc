@@ -7,7 +7,7 @@
 
 #include "PHP_context.h"
 
-PHP_context::PHP_context(istream& input, String* filename)
+PHP_context::PHP_context(std::istream& input, String* filename)
 : stream (input)
 {	
 	init_scanner(NULL);

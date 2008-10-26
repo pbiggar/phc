@@ -17,7 +17,7 @@ class HIR_unparser : public virtual PHP_unparser, public virtual HIR::Visitor
 	AST_unparser ast_unparser;
 
 public:
-	HIR_unparser (ostream& os = cout, bool in_php = false);
+	HIR_unparser (std::ostream& os = std::cout, bool in_php = false);
 	HIR_unparser (Unparser_state* ups);
 
 	void unparse (IR::Node* in);

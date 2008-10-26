@@ -10,7 +10,7 @@
 
 #include "MIR_transform.h"
 
-class Lift_functions_and_classes : public MIR::Transform
+class Lift_functions_and_classes : public MIR::Transform, virtual public GC_obj
 {
 	void children_php_script(MIR::PHP_script* in);
 };

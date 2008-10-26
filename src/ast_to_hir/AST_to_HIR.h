@@ -20,7 +20,8 @@
  * simplify HIR::Statement*. For some constructs, specifying HIR::Node*
  * suffices.
  */
-class AST_to_HIR : public AST::Fold
+
+class AST_to_HIR : virtual public GC_obj, public AST::Fold
 <
  HIR::Actual_parameter*,	// Actual_parameter*
  HIR::Expr*,					// Array*
@@ -369,19 +370,19 @@ public:
 		HIR::VARIABLE_NAME* var_name = dynamic_cast<HIR::VARIABLE_NAME*> (lhs);
 		HIR::Variable_variable* var_var = dynamic_cast<HIR::Variable_variable*> (lhs);
 		HIR::Array_access* ia = dynamic_cast<HIR::Array_access*> (lhs);
+		HIR::Array_next * an = dynamic_cast<HIR::Array_next*> (lhs);
 
 		// Var doesnt have enough information to tell us if a NULL
 		// var->array_index indicates a push or a copy. So we have to look in
 		// ORIG.
 		
 		// assign_next - $x[] = $y;
-		if (ia
-			&& ia->index == NULL
+		if (an
 			&& isa<HIR::Rvalue> (expr))
 		{
 			HIR::Assign_next* result;
 			result = new HIR::Assign_next (
-				ia->variable_name, 
+				an->variable_name, 
 				is_ref, 
 				dyc<HIR::Rvalue> (expr));
 			copy_attrs (result, orig);
@@ -528,6 +529,7 @@ public:
 		}
 		// $x[$y]
 		else if (array_indices->size () == 1
+				&& array_indices->front () != NULL
 				&& target == NULL
 				&& isa<HIR::VARIABLE_NAME> (variable_name))
 		{
@@ -536,6 +538,18 @@ public:
 			result = new HIR::Array_access (
 					dyc<HIR::VARIABLE_NAME> (variable_name),
 					array_index);
+			copy_attrs (result, orig);
+			return result;
+		}
+		// $x[]
+		else if (array_indices->size () == 1
+				&& array_indices->front () == NULL
+				&& target == NULL
+				&& isa<HIR::VARIABLE_NAME> (variable_name))
+		{
+			HIR::Array_next* result;
+			result = new HIR::Array_next (
+					dyc<HIR::VARIABLE_NAME> (variable_name));
 			copy_attrs (result, orig);
 			return result;
 		}

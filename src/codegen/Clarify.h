@@ -10,7 +10,7 @@
 
 #include "MIR_visitor.h"
 
-class Clarify : public MIR::Visitor
+class Clarify : public MIR::Visitor, virtual public GC_obj
 {
 	void post_method (MIR::Method* in);
 };

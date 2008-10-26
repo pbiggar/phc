@@ -8,6 +8,8 @@
 #ifndef PHC_DEAD_CODE_ELIMINATION 
 #define PHC_DEAD_CODE_ELIMINATION
 
+#include "lib/Map.h"
+
 #include "CFG_visitor.h"
 #include "Edge.h"
 #include "ssa/SSA_ops.h"
@@ -24,7 +26,7 @@ private:
 
 ;
 	// Dont index on the pointer, but on a comparison function.
-	map<SSA_op*, bool, bool (*)(SSA_op*, SSA_op*)> marks;
+	Map<SSA_op*, bool, bool (*)(SSA_op*, SSA_op*)> marks;
 
 	bool is_marked (Basic_block*);
 

@@ -23,13 +23,12 @@ void shutdown_xml ();
 #include <xercesc/framework/LocalFileInputSource.hpp>
 #include <xercesc/framework/MemBufInputSource.hpp>
 #include <xercesc/framework/StdInInputSource.hpp>
-#include <stack>
-#include <map>
 #include <boost/lexical_cast.hpp>
 
 #include "lib/base64.h"
 #include "lib/error.h"
 #include "lib/AttrMap.h"
+#include "lib/Stack.h"
 #include "process_ir/General.h"
 #include "AST.h"
 #include "HIR.h"
@@ -48,7 +47,7 @@ using namespace boost;
 
 // The map wants a non-template class, so we put the code re-use in
 // T_node_builder, and just put the definition here.
-class Node_builder
+class Node_builder : public virtual GC_obj
 {
 public:
 	virtual bool can_handle_token (string name) = 0;
@@ -191,22 +190,22 @@ class MIR_node_builder : public T_Node_builder
 	}
 };
 
-class PHC_SAX2Handler : public DefaultHandler 
+class PHC_SAX2Handler : public DefaultHandler, public virtual GC_obj
 {
 protected:
-	stack<Object*> node_stack;
+	Stack<Object*> node_stack;
 private:
-	stack<int> num_children_stack;
+	Stack<int> num_children_stack;
 	bool is_nil, is_base64_encoded;
 	String buffer;
 	string key;
-	stack<AttrMap*> attrs_stack;
+	Stack<AttrMap*> attrs_stack;
 	const Locator* locator;
 
 public:
 	IR::PHP_script* result;
 	bool no_errors;
-	map<string, Node_builder*> builders;
+	Map<string, Node_builder*> builders;
 
 public:
 	PHC_SAX2Handler() 
@@ -334,7 +333,7 @@ public:
 			}
 			cdebug << "With " << attrs_stack.size() << " AttrMaps on the stack";
 
-			cdebug << endl;
+			cdebug << std::endl;
 		}
 
 		if(is_nil)
@@ -486,7 +485,7 @@ public:
 	}
 };
 
-class XML_parser
+class XML_parser : public virtual GC_obj
 {
 public:
 	IR::PHP_script* parse_xml_file (String* filename)

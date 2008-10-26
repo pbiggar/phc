@@ -19,7 +19,7 @@
 #include <ostream>
 
 #define CHECK_DEBUG() if (!debugging_enabled) return;
-#define DEBUG(A) if (debugging_enabled) { cdebug << A << endl; }
+#define DEBUG(A) if (debugging_enabled) { cdebug << A << std::endl; }
 
 extern bool debugging_enabled;
 
@@ -38,7 +38,7 @@ void debug (MIR::Node* in);
 void xdebug (MIR::Node* in);
 void xadebug (MIR::Node* in);
 
-extern ostream& cdebug;
+extern std::ostream& cdebug;
 void enable_cdebug ();
 void disable_cdebug ();
 

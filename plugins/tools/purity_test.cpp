@@ -13,6 +13,7 @@
 #include "process_ir/General.h"
 
 using namespace AST;
+using namespace std;
 
 // search for scripts that are "pure"; ie have no side effects
 class Purity_test : public Visitor

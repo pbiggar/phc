@@ -35,7 +35,12 @@
 	</para></listitem>
 	<listitem><para>
 		<ulink url="http://xml.apache.org/xerces-c/">Xerces-C++</ulink> if you
-		want support for XML parsing  (you don't need Xerces for XML unparsing).
+		want support for XML parsing (you don't need Xerces for XML unparsing).
+	</para></listitem>
+	<listitem><para>
+		<code>Boehm</code> garbage collector is used in &phc;, but not in code
+		compiled by &phc;. If unavailable, it can be disabled with
+		<code>--disable-gc</code>, but &phc; will leak all memory it uses.
 	</para></listitem>
 
 </itemizedlist>
@@ -54,8 +59,8 @@
 <para>
 	Under Debian/Ubuntu, the following command will install nearly all
 	dependencies: <code>apt-get install build-essential libboost-dev
-	libxerces27-dev graphviz</code>. You will still need to install the PHP
-	embed SAPI manually.
+	libxerces27-dev graphviz libgc-dev</code>. You will still need to install
+	the PHP embed SAPI manually.
 </para>
 
 </section>
@@ -118,8 +123,12 @@ make
 	installed on your system, you may want to install this version separately,
 	using the <code>--prefix</code> option. Other configuration options are
 	discussed in the <link linkend=dev.phpbuild>developer manual</link>.
-	Install the embed SAPI,
+	Finally, install the embed SAPI:
 </para>
+
+<screen>
+make install
+</screen>
 
 	
 

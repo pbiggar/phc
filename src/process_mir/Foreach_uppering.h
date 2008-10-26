@@ -11,7 +11,7 @@
 #include "MIR_transform.h"
 
 
-class Foreach_uppering : public MIR::Transform
+class Foreach_uppering : public MIR::Transform, virtual public GC_obj
 {
 public:
 	void pre_foreach_reset (MIR::Foreach_reset* in, MIR::Statement_list* out);

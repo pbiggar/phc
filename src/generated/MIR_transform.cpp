@@ -206,14 +206,14 @@ Expr* Transform::pre_method_invocation(Method_invocation* in)
     return in;
 }
 
-void Transform::pre_actual_parameter(Actual_parameter* in, Actual_parameter_list* out)
-{
-    out->push_back(in);
-}
-
 Expr* Transform::pre_new(New* in)
 {
     return in;
+}
+
+void Transform::pre_actual_parameter(Actual_parameter* in, Actual_parameter_list* out)
+{
+    out->push_back(in);
 }
 
 Method_name* Transform::pre_variable_method(Variable_method* in)
@@ -582,14 +582,14 @@ Expr* Transform::post_method_invocation(Method_invocation* in)
     return in;
 }
 
-void Transform::post_actual_parameter(Actual_parameter* in, Actual_parameter_list* out)
-{
-    out->push_back(in);
-}
-
 Expr* Transform::post_new(New* in)
 {
     return in;
+}
+
+void Transform::post_actual_parameter(Actual_parameter* in, Actual_parameter_list* out)
+{
+    out->push_back(in);
 }
 
 Method_name* Transform::post_variable_method(Variable_method* in)
@@ -997,15 +997,15 @@ void Transform::children_method_invocation(Method_invocation* in)
     in->actual_parameters = transform_actual_parameter_list(in->actual_parameters);
 }
 
-void Transform::children_actual_parameter(Actual_parameter* in)
-{
-    in->rvalue = transform_rvalue(in->rvalue);
-}
-
 void Transform::children_new(New* in)
 {
     in->class_name = transform_class_name(in->class_name);
     in->actual_parameters = transform_actual_parameter_list(in->actual_parameters);
+}
+
+void Transform::children_actual_parameter(Actual_parameter* in)
+{
+    in->rvalue = transform_rvalue(in->rvalue);
 }
 
 void Transform::children_variable_method(Variable_method* in)

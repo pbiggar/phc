@@ -15,8 +15,7 @@
 #include <list>
 #include <string>
 #include <cstring>
-#include <assert.h>
-using namespace std;
+#include <cassert>
 
 
 namespace HIR{
@@ -74,8 +73,8 @@ class Bin_op;
 class Constant;
 class Instanceof;
 class Method_invocation;
-class Variable_actual_parameter;
 class New;
+class Variable_actual_parameter;
 class Variable_name;
 class Variable_method;
 class Variable_class;
@@ -152,8 +151,8 @@ typedef List<Bin_op*> Bin_op_list;
 typedef List<Constant*> Constant_list;
 typedef List<Instanceof*> Instanceof_list;
 typedef List<Method_invocation*> Method_invocation_list;
-typedef List<Variable_actual_parameter*> Variable_actual_parameter_list;
 typedef List<New*> New_list;
+typedef List<Variable_actual_parameter*> Variable_actual_parameter_list;
 typedef List<Variable_name*> Variable_name_list;
 typedef List<Variable_method*> Variable_method_list;
 typedef List<Variable_class*> Variable_class_list;
@@ -1781,6 +1780,36 @@ public:
     Method_invocation(METHOD_NAME* name, Actual_parameter* arg);
 };
 
+// New ::= Class_name Actual_parameter* ;
+class New : virtual public Expr
+{
+public:
+    New(Class_name* class_name, Actual_parameter_list* actual_parameters);
+protected:
+    New();
+public:
+    Class_name* class_name;
+    Actual_parameter_list* actual_parameters;
+public:
+    virtual void visit(Visitor* visitor);
+    virtual void transform_children(Transform* transform);
+public:
+    static const int ID = 40;
+    virtual int classid();
+public:
+    virtual bool match(Node* in);
+public:
+    virtual bool equals(Node* in);
+public:
+    virtual New* clone();
+public:
+    virtual Node* find(Node* in);
+public:
+    virtual void find_all(Node* in, Node_list* out);
+public:
+    virtual void assert_valid();
+};
+
 // Variable_actual_parameter ::= is_ref:"&" Target? Variable_name array_indices:Rvalue* ;
 class Variable_actual_parameter : virtual public Actual_parameter
 {
@@ -1797,36 +1826,6 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 40;
-    virtual int classid();
-public:
-    virtual bool match(Node* in);
-public:
-    virtual bool equals(Node* in);
-public:
-    virtual Variable_actual_parameter* clone();
-public:
-    virtual Node* find(Node* in);
-public:
-    virtual void find_all(Node* in, Node_list* out);
-public:
-    virtual void assert_valid();
-};
-
-// New ::= Class_name Actual_parameter* ;
-class New : virtual public Expr
-{
-public:
-    New(Class_name* class_name, Actual_parameter_list* actual_parameters);
-protected:
-    New();
-public:
-    Class_name* class_name;
-    Actual_parameter_list* actual_parameters;
-public:
-    virtual void visit(Visitor* visitor);
-    virtual void transform_children(Transform* transform);
-public:
     static const int ID = 41;
     virtual int classid();
 public:
@@ -1834,7 +1833,7 @@ public:
 public:
     virtual bool equals(Node* in);
 public:
-    virtual New* clone();
+    virtual Variable_actual_parameter* clone();
 public:
     virtual Node* find(Node* in);
 public:
@@ -2462,7 +2461,7 @@ public:
 };
 
 // The top of the class hierarchy. If the Fold will not allow you fold to anything else, try this.
-class None : virtual public Node, virtual public PHP_script, virtual public Statement, virtual public Class_def, virtual public Class_mod, virtual public Interface_def, virtual public Member, virtual public Method, virtual public Signature, virtual public Method_mod, virtual public Formal_parameter, virtual public Type, virtual public Attribute, virtual public Attr_mod, virtual public Name_with_default, virtual public If, virtual public Loop, virtual public Foreach, virtual public Break, virtual public Continue, virtual public Return, virtual public Static_declaration, virtual public Global, virtual public Try, virtual public Catch, virtual public Throw, virtual public Assign_var, virtual public Assign_field, virtual public Assign_array, virtual public Assign_var_var, virtual public Assign_next, virtual public Pre_op, virtual public Eval_expr, virtual public Expr, virtual public Literal, virtual public Rvalue, virtual public Field_access, virtual public Array_access, virtual public Array_next, virtual public Cast, virtual public Unary_op, virtual public Bin_op, virtual public Constant, virtual public Instanceof, virtual public Target, virtual public Method_invocation, virtual public Actual_parameter, virtual public Variable_actual_parameter, virtual public New, virtual public Method_name, virtual public Variable_name, virtual public Class_name, virtual public Field_name, virtual public Variable_method, virtual public Variable_variable, virtual public Variable_class, virtual public Variable_field, virtual public Static_value, virtual public Static_array, virtual public Static_array_elem, virtual public Static_array_key, virtual public Identifier, virtual public FOREIGN, virtual public CLASS_NAME, virtual public INTERFACE_NAME, virtual public METHOD_NAME, virtual public VARIABLE_NAME, virtual public OP, virtual public INT, virtual public REAL, virtual public STRING, virtual public BOOL, virtual public NIL, virtual public CAST, virtual public CONSTANT_NAME, virtual public FIELD_NAME
+class None : virtual public Node, virtual public PHP_script, virtual public Statement, virtual public Class_def, virtual public Class_mod, virtual public Interface_def, virtual public Member, virtual public Method, virtual public Signature, virtual public Method_mod, virtual public Formal_parameter, virtual public Type, virtual public Attribute, virtual public Attr_mod, virtual public Name_with_default, virtual public If, virtual public Loop, virtual public Foreach, virtual public Break, virtual public Continue, virtual public Return, virtual public Static_declaration, virtual public Global, virtual public Try, virtual public Catch, virtual public Throw, virtual public Assign_var, virtual public Assign_field, virtual public Assign_array, virtual public Assign_var_var, virtual public Assign_next, virtual public Pre_op, virtual public Eval_expr, virtual public Expr, virtual public Literal, virtual public Rvalue, virtual public Field_access, virtual public Array_access, virtual public Array_next, virtual public Cast, virtual public Unary_op, virtual public Bin_op, virtual public Constant, virtual public Instanceof, virtual public Target, virtual public Method_invocation, virtual public New, virtual public Actual_parameter, virtual public Variable_actual_parameter, virtual public Method_name, virtual public Variable_name, virtual public Class_name, virtual public Field_name, virtual public Variable_method, virtual public Variable_variable, virtual public Variable_class, virtual public Variable_field, virtual public Static_value, virtual public Static_array, virtual public Static_array_elem, virtual public Static_array_key, virtual public Identifier, virtual public FOREIGN, virtual public CLASS_NAME, virtual public INTERFACE_NAME, virtual public METHOD_NAME, virtual public VARIABLE_NAME, virtual public OP, virtual public INT, virtual public REAL, virtual public STRING, virtual public BOOL, virtual public NIL, virtual public CAST, virtual public CONSTANT_NAME, virtual public FIELD_NAME
 {
 public:
     None();

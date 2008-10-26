@@ -1,6 +1,8 @@
 #include "process_ir/General.h"
 #include "optimize/Basic_block.h"
 
+#include "lib/Stack.h"
+
 #include "SSA.h"
 #include "Phi.h"
 
@@ -49,17 +51,17 @@ SSA_renaming::debug_var_stacks ()
 {
 	CHECK_DEBUG ();
 	string name;
-	stack<int> st;
+	Stack<int> st;
 	foreach (tie (name,st), var_stacks)
 	{
 		cdebug << name << ": (TOP) ";
-		stack<int> copy (st);
+		Stack<int> copy (st);
 		while (copy.size ())
 		{
 			cdebug << copy.top () << ", ";
 			copy.pop ();
 		}
-		cdebug << "(BOTTOM)" << endl;
+		DEBUG ("(BOTTOM)");
 	}
 }
 

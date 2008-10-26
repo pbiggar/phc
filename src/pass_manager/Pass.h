@@ -13,7 +13,7 @@
 
 class Pass_manager;
 
-class Pass
+class Pass : virtual public GC_obj
 {
 public:
 	Pass () : name (NULL), description(NULL), enabled(true) { }

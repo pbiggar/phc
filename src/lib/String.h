@@ -12,11 +12,14 @@
 #include "lib/Object.h"
 #include "lib/List.h"
 
+// We use these everywhere, so allow them to be used without std::.
+using std::string;
+using std::stringstream;
+
 class AttrMap;
 class String;
 
-using namespace std;
-
+// TODO: strings are not garbage collected (it doesnt matter that they arent traced)
 typedef List<String*> String_list;
 
 class String : public string, virtual public Object
@@ -41,6 +44,9 @@ public:
 	void toLower();
 	String* clone();
 };
+
+// 'new String' must be the most typed function in phc
+String* s (const string& s);
 
 typedef List<String*> String_list;
 

@@ -7,6 +7,8 @@
 #include "AST_visitor.h"
 #include "process_ir/General.h"
 
+using namespace std;
+
 template <class Visitor, class PHP_script, class Statement>
 class Count_statements : public Visitor
 {

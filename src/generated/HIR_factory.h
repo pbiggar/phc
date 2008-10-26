@@ -15,8 +15,7 @@
 #include <list>
 #include <string>
 #include <cstring>
-#include <assert.h>
-using namespace std;
+#include <cassert>
 
 
 #include "HIR.h"

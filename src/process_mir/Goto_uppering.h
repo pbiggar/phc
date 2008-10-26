@@ -13,7 +13,7 @@
 #include "MIR_visitor.h"
 #include "AST.h"
 
-class Goto_uppering : public MIR::Visitor
+class Goto_uppering : public MIR::Visitor, virtual public GC_obj
 {
 private:
 	AST::Variable* ast_next;

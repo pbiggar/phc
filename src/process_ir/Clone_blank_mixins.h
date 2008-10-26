@@ -18,7 +18,7 @@
 
 // Derived from Collect_all_pointers.h. Collects all nodes in a tree.
 template <class Node, class Visitor>
-class Collect_all_nodes: virtual public Visitor
+class Collect_all_nodes: virtual public Visitor, public virtual GC_obj
 {
 public:
 	Collect_all_nodes (List<Node*>* container)
@@ -35,7 +35,7 @@ template
 	class Node,
 	class Visitor
 >
-class Clone_blank_mixins : public Visitor
+class Clone_blank_mixins : public Visitor, public virtual GC_obj
 {
 private:
 	// if a node matches nothing, clone_mixin from here

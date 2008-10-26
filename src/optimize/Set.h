@@ -8,12 +8,12 @@ bool
 variable_name_ptr_comparison (MIR::VARIABLE_NAME* p1, MIR::VARIABLE_NAME* p2);
 
 class Set 
-: public set<
+: public std::set<
 	MIR::VARIABLE_NAME*, 
 	bool (*)(MIR::VARIABLE_NAME*, MIR::VARIABLE_NAME*)>
 , virtual public Object
 {
-	typedef set<
+	typedef std::set<
 		MIR::VARIABLE_NAME*,
 		bool (*)(MIR::VARIABLE_NAME*,
 		MIR::VARIABLE_NAME*)

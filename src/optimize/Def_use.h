@@ -1,6 +1,7 @@
 #ifndef PHC_DEF_USE
 #define PHC_DEF_USE
 
+#include "lib/Map.h"
 #include "MIR.h"
 #include "Set.h"
 #include "Edge.h"
@@ -41,13 +42,13 @@ class Def_use_web : public Visit_once
 	// SSA_edge_list will be the correct vars. The indexing variable is just
 	// for indexing, and it can index multiple vars, so we cant say anythng
 	// abour it.
-	map<
+	Map<
 		MIR::VARIABLE_NAME*,
 		SSA_edge_list, 
 		bool (*)(MIR::VARIABLE_NAME*, MIR::VARIABLE_NAME*)
 	> def_use_chains;
 
-	map<
+	Map<
 		MIR::VARIABLE_NAME*,
 		SSA_edge_list, 
 		bool (*)(MIR::VARIABLE_NAME*, MIR::VARIABLE_NAME*)

@@ -8,6 +8,7 @@
 #include "Dominance.h"
 
 using namespace MIR;
+using namespace std;
 using namespace boost;
 
 /*

@@ -10,13 +10,12 @@
 
 #include "AST_visitor.h"
 #include "process_ir/PHP_unparser.h"
-#include <stack>
-
+#include "lib/Stack.h"
 
 class AST_unparser : public virtual AST::Visitor, public virtual PHP_unparser
 {
 public:
-	AST_unparser (ostream& os = cout, bool in_php = false);
+	AST_unparser (std::ostream& os = std::cout, bool in_php = false);
 	AST_unparser (Unparser_state* ups);
 
 	void unparse (IR::Node* in);
@@ -118,8 +117,8 @@ public:
 
 // State concerning unparsing in-string syntax
 protected:
-	stack<bool> in_string;
-	stack<AST::OP*> last_op;
+	Stack<bool> in_string;
+	Stack<AST::OP*> last_op;
 
 };
 

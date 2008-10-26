@@ -1,7 +1,7 @@
 #ifndef PHC_DOMINANCE
 #define PHC_DOMINANCE
 
-#include <map>
+#include "lib/Map.h"
 
 #include "optimize/CFG.h"
 
@@ -14,13 +14,13 @@ public:
 	// invalidating the dominance information.
 
 	// Forward dominance frontier
-	map <vertex_t, list<vertex_t> > df;
+	Map <vertex_t, std::list<vertex_t> > df;
 
 	// BB -> blocks dominated by BB
-	map <vertex_t, list<vertex_t> > idominated;
+	Map <vertex_t, std::list<vertex_t> > idominated;
 
 	// BB -> BB's dominator
-	map <vertex_t, vertex_t> idominator;
+	Map <vertex_t, vertex_t> idominator;
 
 	CFG* cfg;
 

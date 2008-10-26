@@ -32,7 +32,7 @@ template <
 	class Statement,
 	class PHP_script,
 	class Visitor>
-class Parse_buffer
+class Parse_buffer : public virtual GC_obj
 {
 	/* TODO: make these private and give protected access to << via */
 	/* a friend declaration. */
@@ -62,7 +62,7 @@ public:
 
 	void to_pass (String* pass, Node* anchor)
 	{
-		DEBUG ("Parsing:\n" << ss.str () << endl);
+		DEBUG ("Parsing:\n" << ss.str ());
 		AST::PHP_script* ast = parse_code (s(ss.str ()), NULL, 0);
 		IR::PHP_script* ir = pm->run_until (pass, ast);
 		PHP_script* script = NULL;

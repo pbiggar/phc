@@ -100,7 +100,7 @@ using namespace AST;
 // - include_once fails incorrectly
 // - include_once fails correctly
 
-class Return_check : public Visitor
+class Return_check : public Visitor, virtual public GC_obj
 {
 public:
 	bool found;
@@ -132,7 +132,7 @@ public:
  *   TIG1:
  */
 /*
-class Return_transform : public Transform
+class Return_transform : public Transform, virtual public GC_obj
 {
 public:
 

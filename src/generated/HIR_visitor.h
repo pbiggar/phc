@@ -15,8 +15,7 @@
 #include <list>
 #include <string>
 #include <cstring>
-#include <assert.h>
-using namespace std;
+#include <cassert>
 
 
 #include "HIR.h"
@@ -74,9 +73,9 @@ public:
     virtual void pre_instanceof(Instanceof* in);
     virtual void pre_target(Target* in);
     virtual void pre_method_invocation(Method_invocation* in);
+    virtual void pre_new(New* in);
     virtual void pre_actual_parameter(Actual_parameter* in);
     virtual void pre_variable_actual_parameter(Variable_actual_parameter* in);
-    virtual void pre_new(New* in);
     virtual void pre_method_name(Method_name* in);
     virtual void pre_variable_name(Variable_name* in);
     virtual void pre_class_name(Class_name* in);
@@ -152,9 +151,9 @@ public:
     virtual void post_instanceof(Instanceof* in);
     virtual void post_target(Target* in);
     virtual void post_method_invocation(Method_invocation* in);
+    virtual void post_new(New* in);
     virtual void post_actual_parameter(Actual_parameter* in);
     virtual void post_variable_actual_parameter(Variable_actual_parameter* in);
-    virtual void post_new(New* in);
     virtual void post_method_name(Method_name* in);
     virtual void post_variable_name(Variable_name* in);
     virtual void post_class_name(Class_name* in);
@@ -223,8 +222,8 @@ public:
     virtual void children_constant(Constant* in);
     virtual void children_instanceof(Instanceof* in);
     virtual void children_method_invocation(Method_invocation* in);
-    virtual void children_variable_actual_parameter(Variable_actual_parameter* in);
     virtual void children_new(New* in);
+    virtual void children_variable_actual_parameter(Variable_actual_parameter* in);
     virtual void children_variable_method(Variable_method* in);
     virtual void children_variable_variable(Variable_variable* in);
     virtual void children_variable_class(Variable_class* in);
@@ -296,8 +295,8 @@ public:
     virtual void pre_constant_chain(Constant* in);
     virtual void pre_instanceof_chain(Instanceof* in);
     virtual void pre_method_invocation_chain(Method_invocation* in);
-    virtual void pre_variable_actual_parameter_chain(Variable_actual_parameter* in);
     virtual void pre_new_chain(New* in);
+    virtual void pre_variable_actual_parameter_chain(Variable_actual_parameter* in);
     virtual void pre_variable_method_chain(Variable_method* in);
     virtual void pre_variable_variable_chain(Variable_variable* in);
     virtual void pre_variable_class_chain(Variable_class* in);
@@ -361,8 +360,8 @@ public:
     virtual void post_constant_chain(Constant* in);
     virtual void post_instanceof_chain(Instanceof* in);
     virtual void post_method_invocation_chain(Method_invocation* in);
-    virtual void post_variable_actual_parameter_chain(Variable_actual_parameter* in);
     virtual void post_new_chain(New* in);
+    virtual void post_variable_actual_parameter_chain(Variable_actual_parameter* in);
     virtual void post_variable_method_chain(Variable_method* in);
     virtual void post_variable_variable_chain(Variable_variable* in);
     virtual void post_variable_class_chain(Variable_class* in);

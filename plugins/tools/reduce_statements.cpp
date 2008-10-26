@@ -11,6 +11,8 @@
 #include "pass_manager/Plugin_pass.h"
 #include "lib/List.h"
 
+using namespace std;
+
 /* After removing statements, we may be left with gotos and branches to
  * statements which dont exist, which will cause compiler errors. Labels will
  * leave warnings for unused labels, which also trip us up. Unfortunately,

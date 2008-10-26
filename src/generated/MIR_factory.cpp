@@ -315,19 +315,19 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Method_invocation(target, method_name, actual_parameters);
     }
-    if(!strcmp(type_id, "Actual_parameter"))
-    {
-    	bool is_ref = dynamic_cast<Boolean*>(*i++)->value();
-    	Rvalue* rvalue = dynamic_cast<Rvalue*>(*i++);
-    	assert(i == args->end());
-    	return new Actual_parameter(is_ref, rvalue);
-    }
     if(!strcmp(type_id, "New"))
     {
     	Class_name* class_name = dynamic_cast<Class_name*>(*i++);
     	Actual_parameter_list* actual_parameters = dynamic_cast<Actual_parameter_list*>(*i++);
     	assert(i == args->end());
     	return new New(class_name, actual_parameters);
+    }
+    if(!strcmp(type_id, "Actual_parameter"))
+    {
+    	bool is_ref = dynamic_cast<Boolean*>(*i++)->value();
+    	Rvalue* rvalue = dynamic_cast<Rvalue*>(*i++);
+    	assert(i == args->end());
+    	return new Actual_parameter(is_ref, rvalue);
     }
     if(!strcmp(type_id, "Variable_method"))
     {

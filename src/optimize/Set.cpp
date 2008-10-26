@@ -6,6 +6,7 @@
 #include "Set.h"
 
 using namespace MIR;
+using namespace std;
 
 Set::Set()
 : parent(&variable_name_ptr_comparison)

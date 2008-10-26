@@ -1,7 +1,7 @@
 #ifndef PHC_SSA
 #define PHC_SSA
 
-#include <stack>
+#include "lib/Stack.h"
 
 #include "../CFG.h"
 #include "../Basic_block.h"
@@ -23,7 +23,7 @@ class SSA_renaming
 	 * (which we may or may not do in the future).
 	 */
 	int counter;
-	map<string, stack<int> > var_stacks;
+	Map<string, Stack<int> > var_stacks;
 
 public:
 	SSA_renaming (CFG* cfg);

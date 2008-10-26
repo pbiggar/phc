@@ -10,8 +10,6 @@
 
 #include "lib/String.h"
 
-// 'new String' must be the most typed function in phc
-String* s (string s);
 
 #include "debug.h"
 #include "Foreach.h"
@@ -19,6 +17,5 @@ String* s (string s);
 #include "boost/lexical_cast.hpp"
 
 using boost::lexical_cast;
-using std::string;
 
 #endif // PHC_GENERAL

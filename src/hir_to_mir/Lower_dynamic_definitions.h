@@ -12,7 +12,7 @@
 #include "HIR_transform.h"
 #include "MIR.h"
 
-class Lower_dynamic_definitions : public HIR::Transform
+class Lower_dynamic_definitions : public HIR::Transform, public virtual GC_obj
 {
 	HIR::Statement_list* new_defs;
 

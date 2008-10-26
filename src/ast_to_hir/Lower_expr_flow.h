@@ -10,7 +10,7 @@
 
 #include "ast_to_hir/AST_lower_expr.h"
 
-class Lower_expr_flow : public AST::Lower_expr 
+class Lower_expr_flow : public AST::Lower_expr
 {
 public:
 	AST::Expr* post_bin_op(AST::Bin_op* in);

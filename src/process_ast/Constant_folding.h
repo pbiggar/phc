@@ -11,7 +11,7 @@
 
 #include "AST_transform.h"
 
-class Constant_folding : public AST::Transform
+class Constant_folding : public AST::Transform, virtual public GC_obj
 {
 public:
 	AST::Expr* post_bin_op(AST::Bin_op* in);

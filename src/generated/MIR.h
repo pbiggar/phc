@@ -16,8 +16,7 @@
 #include <list>
 #include <string>
 #include <cstring>
-#include <assert.h>
-using namespace std;
+#include <cassert>
 
 
 namespace MIR{
@@ -641,7 +640,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 41;
+    static const int ID = 42;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1866,7 +1865,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 42;
+    static const int ID = 41;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -2890,7 +2889,7 @@ public:
 };
 
 // The top of the class hierarchy. If the Fold will not allow you fold to anything else, try this.
-class None : virtual public Node, virtual public PHP_script, virtual public Statement, virtual public Class_def, virtual public Class_mod, virtual public Interface_def, virtual public Member, virtual public Method, virtual public Signature, virtual public Method_mod, virtual public Formal_parameter, virtual public Type, virtual public Attribute, virtual public Attr_mod, virtual public Name_with_default, virtual public Class_alias, virtual public Interface_alias, virtual public Method_alias, virtual public Return, virtual public Static_declaration, virtual public Global, virtual public Try, virtual public Catch, virtual public Throw, virtual public Assign_var, virtual public Assign_field, virtual public Assign_array, virtual public Assign_var_var, virtual public Assign_next, virtual public Pre_op, virtual public SSA_pre_op, virtual public Eval_expr, virtual public Unset, virtual public Isset, virtual public Expr, virtual public Literal, virtual public Rvalue, virtual public Field_access, virtual public Array_access, virtual public Array_next, virtual public Cast, virtual public Unary_op, virtual public Bin_op, virtual public Constant, virtual public Instanceof, virtual public Target, virtual public Method_invocation, virtual public Actual_parameter, virtual public New, virtual public Method_name, virtual public Variable_name, virtual public Class_name, virtual public Field_name, virtual public Variable_method, virtual public Variable_variable, virtual public Variable_class, virtual public Variable_field, virtual public Static_value, virtual public Static_array, virtual public Static_array_elem, virtual public Static_array_key, virtual public Branch, virtual public Goto, virtual public Label, virtual public Foreach_reset, virtual public Foreach_next, virtual public Foreach_end, virtual public Foreach_has_key, virtual public Foreach_get_key, virtual public Foreach_get_val, virtual public Param_is_ref, virtual public Identifier, virtual public PARAM_INDEX, virtual public FOREIGN, virtual public CLASS_NAME, virtual public INTERFACE_NAME, virtual public METHOD_NAME, virtual public VARIABLE_NAME, virtual public OP, virtual public INT, virtual public REAL, virtual public STRING, virtual public BOOL, virtual public NIL, virtual public CAST, virtual public CONSTANT_NAME, virtual public FIELD_NAME, virtual public LABEL_NAME, virtual public HT_ITERATOR
+class None : virtual public Node, virtual public PHP_script, virtual public Statement, virtual public Class_def, virtual public Class_mod, virtual public Interface_def, virtual public Member, virtual public Method, virtual public Signature, virtual public Method_mod, virtual public Formal_parameter, virtual public Type, virtual public Attribute, virtual public Attr_mod, virtual public Name_with_default, virtual public Class_alias, virtual public Interface_alias, virtual public Method_alias, virtual public Return, virtual public Static_declaration, virtual public Global, virtual public Try, virtual public Catch, virtual public Throw, virtual public Assign_var, virtual public Assign_field, virtual public Assign_array, virtual public Assign_var_var, virtual public Assign_next, virtual public Pre_op, virtual public SSA_pre_op, virtual public Eval_expr, virtual public Unset, virtual public Isset, virtual public Expr, virtual public Literal, virtual public Rvalue, virtual public Field_access, virtual public Array_access, virtual public Array_next, virtual public Cast, virtual public Unary_op, virtual public Bin_op, virtual public Constant, virtual public Instanceof, virtual public Target, virtual public Method_invocation, virtual public New, virtual public Actual_parameter, virtual public Method_name, virtual public Variable_name, virtual public Class_name, virtual public Field_name, virtual public Variable_method, virtual public Variable_variable, virtual public Variable_class, virtual public Variable_field, virtual public Static_value, virtual public Static_array, virtual public Static_array_elem, virtual public Static_array_key, virtual public Branch, virtual public Goto, virtual public Label, virtual public Foreach_reset, virtual public Foreach_next, virtual public Foreach_end, virtual public Foreach_has_key, virtual public Foreach_get_key, virtual public Foreach_get_val, virtual public Param_is_ref, virtual public Identifier, virtual public PARAM_INDEX, virtual public FOREIGN, virtual public CLASS_NAME, virtual public INTERFACE_NAME, virtual public METHOD_NAME, virtual public VARIABLE_NAME, virtual public OP, virtual public INT, virtual public REAL, virtual public STRING, virtual public BOOL, virtual public NIL, virtual public CAST, virtual public CONSTANT_NAME, virtual public FIELD_NAME, virtual public LABEL_NAME, virtual public HT_ITERATOR
 {
 public:
     None();

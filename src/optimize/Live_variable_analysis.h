@@ -19,8 +19,8 @@ public:
 	bool solution_has_changed (Basic_block* bb);
 
 	// Transfer functions
-	void transfer_in (Basic_block* bb, list<Basic_block*>* preds);
-	void transfer_out (Basic_block* bb, list<Basic_block*>* succs);
+	void transfer_in (Basic_block* bb, BB_list* preds);
+	void transfer_out (Basic_block* bb, BB_list* succs);
 
 	void visit_branch_block (Branch_block*);
 

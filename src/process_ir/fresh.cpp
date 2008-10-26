@@ -10,6 +10,8 @@
 #include <ctime>
 #include "cmdline.h"
 
+using namespace std;
+
 // TODO Globals. Bad. Do this another way.
 extern struct gengetopt_args_info args_info;
 
@@ -29,7 +31,7 @@ seed ()
 int
 unique_random ()
 {
-	static map<int, bool> randoms;
+	static Map<int, bool> randoms;
 	static int x __attribute__((unused)) = seed (); // singleton-lite
 	int num;
 

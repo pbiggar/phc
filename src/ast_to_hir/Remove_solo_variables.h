@@ -11,7 +11,7 @@
 
 #include "AST_transform.h"
 
-class Remove_solo_variables : public AST::Transform
+class Remove_solo_variables : public AST::Transform, virtual public GC_obj
 {
 	void post_eval_expr (AST::Eval_expr* in, AST::Statement_list* out)
 	{

@@ -190,15 +190,15 @@ void Visitor::pre_method_invocation(Method_invocation* in)
 {
 }
 
+void Visitor::pre_new(New* in)
+{
+}
+
 void Visitor::pre_actual_parameter(Actual_parameter* in)
 {
 }
 
 void Visitor::pre_variable_actual_parameter(Variable_actual_parameter* in)
-{
-}
-
-void Visitor::pre_new(New* in)
 {
 }
 
@@ -495,15 +495,15 @@ void Visitor::post_method_invocation(Method_invocation* in)
 {
 }
 
+void Visitor::post_new(New* in)
+{
+}
+
 void Visitor::post_actual_parameter(Actual_parameter* in)
 {
 }
 
 void Visitor::post_variable_actual_parameter(Variable_actual_parameter* in)
-{
-}
-
-void Visitor::post_new(New* in)
 {
 }
 
@@ -867,18 +867,18 @@ void Visitor::children_method_invocation(Method_invocation* in)
     visit_actual_parameter_list(in->actual_parameters);
 }
 
+void Visitor::children_new(New* in)
+{
+    visit_class_name(in->class_name);
+    visit_actual_parameter_list(in->actual_parameters);
+}
+
 void Visitor::children_variable_actual_parameter(Variable_actual_parameter* in)
 {
     visit_marker("is_ref", in->is_ref);
     visit_target(in->target);
     visit_variable_name(in->variable_name);
     visit_rvalue_list(in->array_indices);
-}
-
-void Visitor::children_new(New* in)
-{
-    visit_class_name(in->class_name);
-    visit_actual_parameter_list(in->actual_parameters);
 }
 
 void Visitor::children_variable_method(Variable_method* in)
@@ -1260,18 +1260,18 @@ void Visitor::pre_method_invocation_chain(Method_invocation* in)
     pre_method_invocation((Method_invocation*) in);
 }
 
-void Visitor::pre_variable_actual_parameter_chain(Variable_actual_parameter* in)
-{
-    pre_node((Node*) in);
-    pre_actual_parameter((Actual_parameter*) in);
-    pre_variable_actual_parameter((Variable_actual_parameter*) in);
-}
-
 void Visitor::pre_new_chain(New* in)
 {
     pre_node((Node*) in);
     pre_expr((Expr*) in);
     pre_new((New*) in);
+}
+
+void Visitor::pre_variable_actual_parameter_chain(Variable_actual_parameter* in)
+{
+    pre_node((Node*) in);
+    pre_actual_parameter((Actual_parameter*) in);
+    pre_variable_actual_parameter((Variable_actual_parameter*) in);
 }
 
 void Visitor::pre_variable_method_chain(Variable_method* in)
@@ -1718,17 +1718,17 @@ void Visitor::post_method_invocation_chain(Method_invocation* in)
     post_node((Node*) in);
 }
 
-void Visitor::post_variable_actual_parameter_chain(Variable_actual_parameter* in)
-{
-    post_variable_actual_parameter((Variable_actual_parameter*) in);
-    post_actual_parameter((Actual_parameter*) in);
-    post_node((Node*) in);
-}
-
 void Visitor::post_new_chain(New* in)
 {
     post_new((New*) in);
     post_expr((Expr*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_variable_actual_parameter_chain(Variable_actual_parameter* in)
+{
+    post_variable_actual_parameter((Variable_actual_parameter*) in);
+    post_actual_parameter((Actual_parameter*) in);
     post_node((Node*) in);
 }
 

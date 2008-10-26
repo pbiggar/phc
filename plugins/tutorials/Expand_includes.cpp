@@ -10,6 +10,7 @@
 #include <cstdlib>
 
 using namespace AST;
+using namespace std;
 
 class Expand_includes : public Transform
 {

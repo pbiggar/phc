@@ -8,14 +8,6 @@ AC_INIT([phc], [0.2.0rc1], [phc-general@phpcompiler.org])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_AUX_DIR([config])
 
-dnl Package information
-AC_ARG_ENABLE(
-	[gc],
-	[AS_HELP_STRING([--enable-gc], [Link to the Boehm garbage collector (EXPERIMENTAL; seems to lead to segfaults in some cases])],
-	[AC_DEFINE([ENABLE_GC], [1]) 
-	 AC_SUBST([gc_lib], [-lgc])
-	])
-
 dnl configure automake
 AM_INIT_AUTOMAKE([foreign -Wall -Werror 1.9])
 AM_MAINTAINER_MODE
@@ -71,22 +63,28 @@ AC_ARG_WITH([php],
 	])
 
 
+dnl Package information
+AC_ARG_ENABLE([gc],
+	[AS_HELP_STRING([--disable-gc], [Link to the Boehm garbage collector @<:@default=enabled@:>@])])
+
+
 dnl checks for libraries
 AC_LANG([C++])
 AC_CHECK_COVARIANCE
 AC_CHECK_LIB_CRUN
-AC_CHECK_LIB([gc], [main], [AC_DEFINE([HAVE_GC_LIB], [1])])
+
 dnl check xerces unless disabled
 AS_IF([test "x$with_xerces" != xno], [AC_CHECK_LIB_XERCES], [])
 
-dnl checks for header files
-AC_CHECK_HEADER([gc/gc_cpp.h], [AC_DEFINE([HAVE_GC_INC], [1])])
+# USE GC unless disabled
+AS_IF([test "x$enable_gc" != xno],
+		[
+			AC_CHECK_HEADER([gc/gc_cpp.h], [], [AC_MSG_FAILURE(libgc required)])
+			AC_CHECK_LIB([gc], [main], [], [AC_MSG_FAILURE(libgc required)])
+			AC_SUBST([gc_lib], [-lgc])
+		],
+		[AC_DEFINE(DISABLE_GC, 1)])
 
-dnl checks for types
-dnl checks for structures
-dnl checks for compiler characteristics
-dnl checks for library functions
-dnl checks for system services
 
 # Finishing
 # phc_compile_plugin and test/scripts/lib/autovars.php are created using their

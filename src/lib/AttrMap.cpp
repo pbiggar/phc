@@ -9,6 +9,7 @@
 #include "String.h"
 #include "Boolean.h"
 #include "Integer.h"
+#include <boost/tuple/tuple.hpp> // for tie
 
 AttrMap::AttrMap() 
 : Map<string, Object*>() 
@@ -65,5 +66,25 @@ void AttrMap::erase_with_prefix (string key_prefix)
 		}
 		else
 			i++;
+	}
+}
+
+AttrMap*
+AttrMap::clone()
+{
+	AttrMap* result = new AttrMap;
+	result->clone_all_from(this);
+	return result;
+}
+
+void
+AttrMap::clone_all_from(AttrMap* other)
+{
+	std::string str;
+	Object* obj;
+	foreach (boost::tie (str, obj), *other)
+	{
+		assert (obj != NULL);
+		set(str, obj->clone());
 	}
 }

@@ -9,6 +9,7 @@
 #include "process_ir/General.h"
 
 using namespace AST;
+using namespace std;
 
 class Show_traversal_order : public Visitor
 {

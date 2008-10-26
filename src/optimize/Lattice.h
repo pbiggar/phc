@@ -2,7 +2,8 @@
 #define PHC_LATTICE_H
 
 
-#include <map>
+#include "lib/Map.h"
+
 #include "MIR.h"
 #include "Set.h"
 #include "process_ir/debug.h"
@@ -29,13 +30,13 @@ private:
 
 // TODO templatize on the lattice type
 class Lattice_map
-: public map<
+: public Map<
 	MIR::VARIABLE_NAME*,
 	Lattice_cell*,
 	bool (*)(MIR::VARIABLE_NAME*, MIR::VARIABLE_NAME*)>
 , virtual public Object
 {
-	typedef map<
+	typedef Map<
 		MIR::VARIABLE_NAME*,
 		Lattice_cell*,
 		bool (*)(MIR::VARIABLE_NAME*,
@@ -49,7 +50,7 @@ public:
 
 	void dump ()
 	{
-		pair<MIR::VARIABLE_NAME*, Lattice_cell*> pair;
+		std::pair<MIR::VARIABLE_NAME*, Lattice_cell*> pair;
 		foreach (pair, *this)
 		{
 			cdebug << *pair.first->get_ssa_var_name () << " => ";

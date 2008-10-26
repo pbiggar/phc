@@ -12,8 +12,7 @@
 #include <list>
 #include <string>
 #include <cstring>
-#include <assert.h>
-using namespace std;
+#include <cassert>
 
 
 #include "AST.h"
@@ -97,7 +96,7 @@ template
  class _Variable,
  class _Variable_name,
  class _While,
- template <class _Tp, class _Alloc = allocator<_Tp> > class _List = List
+ template <typename _Tp, typename _Alloc = typename List<_Tp>::allocator_type> class _List = List
 >
 class Fold
 {
@@ -1340,7 +1339,7 @@ public:
 	virtual ~Fold() {}
 };
 
-template<class T, template <class _Tp, class _Alloc = allocator<_Tp> > class _List>
+template<class T, template <class _Tp, class _Alloc = typename List<_Tp>::allocator_type> class _List>
 class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, _List> {};
 }
 

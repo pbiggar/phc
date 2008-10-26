@@ -12,8 +12,7 @@
 #include <list>
 #include <string>
 #include <cstring>
-#include <assert.h>
-using namespace std;
+#include <cassert>
 
 
 #include "HIR.h"
@@ -95,7 +94,7 @@ template
  class _Variable_method,
  class _Variable_name,
  class _Variable_variable,
- template <class _Tp, class _Alloc = allocator<_Tp> > class _List = List
+ template <typename _Tp, typename _Alloc = typename List<_Tp>::allocator_type> class _List = List
 >
 class Fold
 {
@@ -575,6 +574,22 @@ public:
 		return fold_impl_method_invocation(in, target, method_name, actual_parameters);
 	}
 
+	virtual _New fold_new(New* in)
+	{
+		_Class_name class_name = 0;
+		if(in->class_name != NULL) class_name = fold_class_name(in->class_name);
+		_List<_Actual_parameter>* actual_parameters = 0;
+	
+		{
+			actual_parameters = new _List<_Actual_parameter>;
+			typename _List<Actual_parameter*>::const_iterator i;
+			for(i = in->actual_parameters->begin(); i != in->actual_parameters->end(); i++)
+				if(*i != NULL) actual_parameters->push_back(fold_actual_parameter(*i));
+				else actual_parameters->push_back(0);
+		}
+		return fold_impl_new(in, class_name, actual_parameters);
+	}
+
 	virtual _Variable_actual_parameter fold_variable_actual_parameter(Variable_actual_parameter* in)
 	{
 		bool is_ref = in->is_ref;
@@ -592,22 +607,6 @@ public:
 				else array_indices->push_back(0);
 		}
 		return fold_impl_variable_actual_parameter(in, is_ref, target, variable_name, array_indices);
-	}
-
-	virtual _New fold_new(New* in)
-	{
-		_Class_name class_name = 0;
-		if(in->class_name != NULL) class_name = fold_class_name(in->class_name);
-		_List<_Actual_parameter>* actual_parameters = 0;
-	
-		{
-			actual_parameters = new _List<_Actual_parameter>;
-			typename _List<Actual_parameter*>::const_iterator i;
-			for(i = in->actual_parameters->begin(); i != in->actual_parameters->end(); i++)
-				if(*i != NULL) actual_parameters->push_back(fold_actual_parameter(*i));
-				else actual_parameters->push_back(0);
-		}
-		return fold_impl_new(in, class_name, actual_parameters);
 	}
 
 	virtual _Variable_method fold_variable_method(Variable_method* in)
@@ -706,8 +705,8 @@ public:
 	virtual _Constant fold_impl_constant(Constant* orig, _CLASS_NAME class_name, _CONSTANT_NAME constant_name) { assert(0); };
 	virtual _Instanceof fold_impl_instanceof(Instanceof* orig, _VARIABLE_NAME variable_name, _Class_name class_name) { assert(0); };
 	virtual _Method_invocation fold_impl_method_invocation(Method_invocation* orig, _Target target, _Method_name method_name, _List<_Actual_parameter>* actual_parameters) { assert(0); };
-	virtual _Variable_actual_parameter fold_impl_variable_actual_parameter(Variable_actual_parameter* orig, bool is_ref, _Target target, _Variable_name variable_name, _List<_Rvalue>* array_indices) { assert(0); };
 	virtual _New fold_impl_new(New* orig, _Class_name class_name, _List<_Actual_parameter>* actual_parameters) { assert(0); };
+	virtual _Variable_actual_parameter fold_impl_variable_actual_parameter(Variable_actual_parameter* orig, bool is_ref, _Target target, _Variable_name variable_name, _List<_Rvalue>* array_indices) { assert(0); };
 	virtual _Variable_method fold_impl_variable_method(Variable_method* orig, _VARIABLE_NAME variable_name) { assert(0); };
 	virtual _Variable_variable fold_impl_variable_variable(Variable_variable* orig, _VARIABLE_NAME variable_name) { assert(0); };
 	virtual _Variable_class fold_impl_variable_class(Variable_class* orig, _VARIABLE_NAME variable_name) { assert(0); };
@@ -1159,7 +1158,7 @@ public:
 	virtual ~Fold() {}
 };
 
-template<class T, template <class _Tp, class _Alloc = allocator<_Tp> > class _List>
+template<class T, template <class _Tp, class _Alloc = typename List<_Tp>::allocator_type> class _List>
 class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, _List> {};
 }
 

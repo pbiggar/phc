@@ -227,7 +227,7 @@ void
 DCE::dump()
 {
 	CHECK_DEBUG ();
-	cdebug << "DCE:" << endl;
+	DEBUG ("DCE:");
 	foreach (Basic_block* bb, *cfg->get_all_bbs ())
-		cdebug << bb->get_index() << ": " << is_marked (bb) << endl;
+		DEBUG (bb->get_index() << ": " << is_marked (bb))
 }

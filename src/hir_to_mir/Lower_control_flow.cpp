@@ -14,14 +14,18 @@
 //   http://www.php.net/manual/en/ref.spl.php
 //   http://ramikayyali.com/archives/2005/02/25/iterators
 
+
+#include <sstream>
+
+#include "lib/Vector.h"
+
 #include "Lower_control_flow.h"
 #include "HIR_to_MIR.h"
 #include "process_ir/General.h"
 #include "parsing/Parse_buffer.h"
-#include <sstream>
-#include <vector>
 
 using namespace HIR;
+using namespace std;
 
 template <class T>
 const char* get_attr_name ()
@@ -324,7 +328,7 @@ void Lower_control_flow::post_foreach(Foreach* in, Statement_list* out)
 template <class T>
 void Lower_control_flow::lower_exit (T* in, Statement_list* out)
 {
-	vector<Node*> *levels;
+	Vector<Node*> *levels;
 	if (Break::ID == in->ID) levels = &break_levels;
 	if (Continue::ID == in->ID) levels = &continue_levels;
 	assert (levels);
@@ -388,7 +392,7 @@ void Lower_control_flow::lower_exit (T* in, Statement_list* out)
 		// 1 branch and label per level:
 		//		if ($TB1 = 1) goto L1; else goto L2;
 		//	L2:
-		vector<Node*>::reverse_iterator i;
+		Vector<Node*>::reverse_iterator i;
 		int depth;
 		for (i = levels->rbegin (), depth = 1; i != levels->rend (); i++, depth++)
 		{

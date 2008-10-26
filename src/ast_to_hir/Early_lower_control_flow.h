@@ -10,7 +10,7 @@
 
 #include "AST_transform.h"
 
-class Early_lower_control_flow : public AST::Transform
+class Early_lower_control_flow : public AST::Transform, virtual public GC_obj
 {
 public:
 	void post_foreach (AST::Foreach* in, AST::Statement_list* out);

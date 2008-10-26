@@ -10,6 +10,7 @@
 #include "MIR_visitor.h"
 
 using namespace MIR;
+using namespace std;
 
 bool success = true;
 

@@ -84,6 +84,8 @@ class PHC_exit_code_annotation extends Test_annotation
 		else
 			$complement = false;
 
+		$expected = (int)$expected;
+
 		if (($complement && $expected === $bundle->exits[0])
 			|| 
 			(!$complement && $expected !== $bundle->exits[0]))
@@ -193,22 +195,38 @@ class PHC_output_annotation extends Test_annotation
 // Just create a dependency, with the specifed name.
 class Annotation_translator extends Test_annotation
 {
-	function __construct ($name, $description, $translation)
+	function __construct ($name, $description, $translations, $extras = array())
 	{
 		parent::__construct ();
 		$this->name = $name;
 		$this->description = $description;
-		$this->translation = $translation;
+		$this->translations = $translations;
+		$this->extras = $extras;
 		$this->value_regex = ".*";
+
+		// Allow passing strings when arrays expected
+		if (!is_array ($translations))
+			$this->translations = array ($translations);
+
+		if (!is_array ($extras))
+			$this->extras = array ($extras);
 	}
 
 	function get_dependencies ()
 	{
+		$result = array ();
 		foreach ($this->values as $value)
-			$result[] = "$this->translation: $value";
+			foreach ($this->translations as $translation)
+				$result[] = "$translation: $value";
+
+		// extras just go in as is
+		foreach ($this->extras as $extra)
+			$result[] = "$extra";
 
 		// Having processed the dependencies, we dont want to use them again.
 		$this->values = array ();
+		$this->translations = array ();
+		$this->extras = array ();
 
 		return $result;
 	}
@@ -226,15 +244,18 @@ function get_available_annotations ()
 				new Annotation_translator (
 					"phc-regex-error",
 					"Error in PHP script, as a regex",
-					"phc-stdout (stderr,regex,prefix=Error,location)"),
+					"phc-stdout (stderr,regex,prefix=Error,location)",
+					"phc-exit-code: !0"),
 				new Annotation_translator (
 					"phc-error",
 					"Error in PHP script",
-					"phc-stdout (stderr,prefix=Error,location)"),
+					"phc-stdout (stderr,prefix=Error,location)",
+					"phc-exit-code: !0"),
 				new Annotation_translator (
 					"phc-usage-error",
 					"Incorrect usage of phc command line",
-					"phc-stdout (stderr,prefix=Error)"),
+					"phc-stdout (stderr,prefix=Error)",
+					"phc-exit-code: !0"),
 
 				// Warnings
 				new Annotation_translator (
@@ -411,7 +432,7 @@ class Annotated_test extends AsyncTest
 		// Add default that hasnt been added.
 		foreach ($available as $name => $annotation)
 		{
-			if (count ($annotation->values) == 0 && $annotation->get_default_value())
+			if (count ($annotation->values) == 0 && $annotation->get_default_value() !== NULL)
 			{
 				$annotation->add_value ($annotation->get_default_options (), $annotation->get_default_value ());
 				$result[] = $annotation;

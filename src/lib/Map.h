@@ -2,60 +2,49 @@
  * phc -- the open source PHP compiler
  * See doc/license/README.license for licensing information
  * 
- * Specialized version of std::map 
+ * Wrap the STL map
  */
-
-#ifndef PHC_MAP
-#define PHC_MAP
-
-using namespace std;
+ 
+#ifndef PHC_MAP_H
+#define PHC_MAP_H
 
 #include <map>
+#include "lib/Object.h"
 
-#include "process_ir/Foreach.h"
-
-template <class Key, class Value>
-class Map : public map<Key, Value>, virtual public Object
+template <
+	typename _Key, 
+	typename _Tp, 
+	typename _Compare = std::less<_Key>,
+	typename _Alloc = phc_allocator<std::pair<const _Key, _Tp> >
+>
+class Map : public std::map<_Key, _Tp, _Compare, _Alloc>, virtual public Object
 {
 public:
-	Map() {}
-	virtual ~Map() {};
+	Map() : std::map<_Key, _Tp, _Compare, _Alloc>() {}
+	Map(_Compare comparator) : std::map<_Key, _Tp, _Compare, _Alloc>(comparator) {}
+	virtual ~Map() {}
+
+	Map* clone() { assert (0); }
 
 public:
-	bool has(Key key)
+	bool has(_Key key)
 	{
 		return this->find(key) != this->end();
 	}
 
-	Value get(Key key)
+	_Tp get(_Key key)
 	{
 		if (!has (key)) return NULL;
 
 		return (*this)[key];
 	}
 
-	void set(Key key, Value value)
+	void set(_Key key, _Tp value)
 	{
 		(*this)[key] = value;
 	}
 
-public:
-	Map* clone()
-	{
-		Map* result = new Map;
-		result->clone_all_from(this);
-		return result;
-	}
 
-	void clone_all_from(Map* other)
-	{
-		pair<Key, Value> p;
-		foreach (p, *other)
-		{
-			assert (p.second != NULL);
-			set(p.first, p.second->clone());
-		}
-	}
 };
 
-#endif // PHC_MAP
+#endif // PHC_MAP_H

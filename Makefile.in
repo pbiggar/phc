@@ -574,9 +574,6 @@ AM_CXXFLAGS = -Wextra -Wno-unused-parameter -Wno-write-strings
 
 # -export-dynammic: Special libtool flag for later plugin loading
 src_phc_LDFLAGS = -export-dynamic
-
-# We leave out -dlopen" self "-dlopen" since its built-in to later automakes,
-# and we dont want this feature anyway
 src_phc_LDADD = @gc_lib@ $(LIBLTDL) libphc.la
 bin_SCRIPTS = src/phc_compile_plugin
 libexec_SCRIPTS = libtool
@@ -685,8 +682,10 @@ libphc_la_SOURCES = \
 	src/lib/Map.h												\
 	src/lib/Object.cpp										\
 	src/lib/Object.h											\
+	src/lib/Stack.h											\
 	src/lib/String.cpp										\
 	src/lib/String.h											\
+	src/lib/Vector.h											\
 	src/optimize/Address_taken.cpp						\
 	src/optimize/Address_taken.h							\
 	src/optimize/Basic_block.cpp							\
@@ -909,21 +908,24 @@ strangelib_HEADERS = \
 	src/lib/error.h		\
 	src/lib/Integer.h		\
 	src/lib/List.h			\
+	src/lib/Map.h			\
 	src/lib/Object.h		\
-	src/lib/String.h
+	src/lib/Stack.h		\
+	src/lib/String.h		\
+	src/lib/Vector.h
 
 nobase_pkglib_LTLIBRARIES = plugins/tests/canonical_unparser.la \
-	plugins/tests/cloning.la plugins/tests/linear.la \
-	plugins/tests/inconsistent_st_attr.la \
-	plugins/tests/strip_includes.la plugins/tests/line_numbers.la \
+	plugins/tests/cloning.la plugins/tests/inconsistent_st_attr.la \
+	plugins/tests/linear.la plugins/tests/line_numbers.la \
 	plugins/tests/pre_vs_post_count.la \
 	plugins/tests/source_vs_semantic_values.la \
-	plugins/tools/add_comment.la plugins/tools/remove_all.la \
-	plugins/tools/purity_test.la plugins/tools/debug_zval.la \
-	plugins/tools/demi_eval.la plugins/tools/reduce_statements.la \
+	plugins/tests/strip_includes.la plugins/tools/add_comment.la \
+	plugins/tools/debug_zval.la plugins/tools/demi_eval.la \
+	plugins/tools/purity_test.la \
+	plugins/tools/reduce_statements.la plugins/tools/remove_all.la \
 	plugins/tutorials/Comment_ifs.la \
-	plugins/tutorials/count_statements_easy.la \
 	plugins/tutorials/count_statements_difficult.la \
+	plugins/tutorials/count_statements_easy.la \
 	plugins/tutorials/Expand_includes.la \
 	plugins/tutorials/helloworld.la plugins/tutorials/InsertDB.la \
 	plugins/tutorials/MySQL2DBX.la \
@@ -933,36 +935,36 @@ plugins_tests_canonical_unparser_la_SOURCES = plugins/tests/canonical_unparser.c
 plugins_tests_canonical_unparser_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tests_cloning_la_SOURCES = plugins/tests/cloning.cpp plugins/tests/Collect_all_pointers.h
 plugins_tests_cloning_la_LDFLAGS = ${PLUGIN_LDFLAGS}
-plugins_tests_linear_la_SOURCES = plugins/tests/linear.cpp plugins/tests/Collect_all_pointers.h
-plugins_tests_linear_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tests_inconsistent_st_attr_la_SOURCES = plugins/tests/inconsistent_st_attr.cpp
 plugins_tests_inconsistent_st_attr_la_LDFLAGS = ${PLUGIN_LDFLAGS}
-plugins_tests_strip_includes_la_SOURCES = plugins/tests/strip_includes.cpp
-plugins_tests_strip_includes_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+plugins_tests_linear_la_SOURCES = plugins/tests/linear.cpp plugins/tests/Collect_all_pointers.h
+plugins_tests_linear_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tests_line_numbers_la_SOURCES = plugins/tests/line_numbers.cpp
 plugins_tests_line_numbers_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tests_pre_vs_post_count_la_SOURCES = plugins/tests/pre_vs_post_count.cpp
 plugins_tests_pre_vs_post_count_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tests_source_vs_semantic_values_la_SOURCES = plugins/tests/source_vs_semantic_values.cpp
 plugins_tests_source_vs_semantic_values_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+plugins_tests_strip_includes_la_SOURCES = plugins/tests/strip_includes.cpp
+plugins_tests_strip_includes_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tools_add_comment_la_SOURCES = plugins/tools/add_comment.cpp
 plugins_tools_add_comment_la_LDFLAGS = ${PLUGIN_LDFLAGS}
-plugins_tools_remove_all_la_SOURCES = plugins/tools/remove_all.cpp
-plugins_tools_remove_all_la_LDFLAGS = ${PLUGIN_LDFLAGS}
-plugins_tools_purity_test_la_SOURCES = plugins/tools/purity_test.cpp
-plugins_tools_purity_test_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tools_debug_zval_la_SOURCES = plugins/tools/debug_zval.cpp
 plugins_tools_debug_zval_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tools_demi_eval_la_SOURCES = plugins/tools/demi_eval.cpp
 plugins_tools_demi_eval_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+plugins_tools_purity_test_la_SOURCES = plugins/tools/purity_test.cpp
+plugins_tools_purity_test_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tools_reduce_statements_la_SOURCES = plugins/tools/reduce_statements.cpp
 plugins_tools_reduce_statements_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+plugins_tools_remove_all_la_SOURCES = plugins/tools/remove_all.cpp
+plugins_tools_remove_all_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tutorials_Comment_ifs_la_SOURCES = plugins/tutorials/Comment_ifs.cpp
 plugins_tutorials_Comment_ifs_la_LDFLAGS = ${PLUGIN_LDFLAGS}
-plugins_tutorials_count_statements_easy_la_SOURCES = plugins/tutorials/count_statements_easy.cpp
-plugins_tutorials_count_statements_easy_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tutorials_count_statements_difficult_la_SOURCES = plugins/tutorials/count_statements_difficult.cpp
 plugins_tutorials_count_statements_difficult_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+plugins_tutorials_count_statements_easy_la_SOURCES = plugins/tutorials/count_statements_easy.cpp
+plugins_tutorials_count_statements_easy_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tutorials_Expand_includes_la_SOURCES = plugins/tutorials/Expand_includes.cpp
 plugins_tutorials_Expand_includes_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tutorials_helloworld_la_SOURCES = plugins/tutorials/helloworld.cpp

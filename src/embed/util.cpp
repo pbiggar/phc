@@ -22,6 +22,8 @@
 extern void ***tsrm_ls;
 #endif
 
+using namespace std;
+
 template<
 	class Literal,
 	class NIL,
@@ -135,7 +137,7 @@ void handle_php_error_cb(
 			// TODO: correct length?
 			char string[1000];
 			snprintf (string, 990, format, argp);
-			cdebug << string << endl;;
+			cdebug << string << endl;
 		}
 	}
 

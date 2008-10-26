@@ -51,6 +51,9 @@ Lower_method_invocations::pre_method_invocation (Method_invocation* in)
 	int index = 0;
 	foreach (Actual_parameter* actual_param, *in->actual_parameters)
 	{
+		if (isa<Literal> (actual_param))
+			continue;
+
 		Variable_actual_parameter* ap = dyc<Variable_actual_parameter> (actual_param);
 
 		// Ignore simple variables

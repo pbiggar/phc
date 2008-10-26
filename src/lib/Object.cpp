@@ -6,4 +6,3 @@
  */
 
 #include "lib/Object.h"
-

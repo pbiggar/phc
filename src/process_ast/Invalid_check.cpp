@@ -47,7 +47,7 @@ void Invalid_check::run (IR::PHP_script* in, Pass_manager* pm)
 	pm->check = true;
 }
 
-class Contains_only_deep_literals : public Visitor
+class Contains_only_deep_literals : public Visitor, virtual public GC_obj
 {
 public:
 
