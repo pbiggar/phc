@@ -118,8 +118,8 @@ class AsyncBundle
 
 	function read_streams ()
 	{
-		$this->out = stream_get_contents ($this->pipes[1]);
-		$this->err = stream_get_contents ($this->pipes[2]);
+		$this->out .= stream_get_contents ($this->pipes[1]);
+		$this->err .= stream_get_contents ($this->pipes[2]);
 	}
 
 }
@@ -273,7 +273,10 @@ abstract class AsyncTest extends Test
 				unset ($this->running_procs [$index]); // remove from the running list
 			}
 			else
-				; // let it keep running
+			{
+				// let it keep running, but read the streams in case they block
+				$bundle->read_streams ();
+			}
 		}
 	}
 
