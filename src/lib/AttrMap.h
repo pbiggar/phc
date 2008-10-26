@@ -36,6 +36,7 @@ public:
 public:
 	void erase_with_prefix (std::string key_prefix);
 
+public:
 	AttrMap* clone();
 	void clone_all_from(AttrMap* other);
 };

@@ -14,10 +14,10 @@ public:
 	// invalidating the dominance information.
 
 	// Forward dominance frontier
-	Map <vertex_t, std::list<vertex_t> > df;
+	Map <vertex_t, List<vertex_t> > df;
 
 	// BB -> blocks dominated by BB
-	Map <vertex_t, std::list<vertex_t> > idominated;
+	Map <vertex_t, List<vertex_t> > idominated;
 
 	// BB -> BB's dominator
 	Map <vertex_t, vertex_t> idominator;

@@ -36,12 +36,12 @@ public:
 
 	// Override if there are extra properties for this block.
 	// Returns a list of (name,value) pairs
-	virtual std::list<std::pair<String*,String*> >* get_graphviz_properties ();
+	virtual List<std::pair<String*,String*> >* get_graphviz_properties ();
 
 	// Returns a list of (name, list[values]) pairs
-	virtual std::list<std::pair<String*,String_list> >* get_graphviz_bb_properties ();
-	virtual std::list<std::pair<String*,String_list> >* get_graphviz_head_properties ();
-	virtual std::list<std::pair<String*,String_list> >* get_graphviz_tail_properties ();
+	virtual List<std::pair<String*,String_list> >* get_graphviz_bb_properties ();
+	virtual List<std::pair<String*,String_list> >* get_graphviz_head_properties ();
+	virtual List<std::pair<String*,String_list> >* get_graphviz_tail_properties ();
 
 public:
 	/* 
@@ -139,7 +139,7 @@ private:
 	// arguments in edges. Then they can be updated all-at-once.
 	MIR::VARIABLE_NAME_list* phi_lhss;
 	MIR::VARIABLE_NAME_list* mus;
-	std::list<std::pair<MIR::VARIABLE_NAME*, MIR::VARIABLE_NAME*> >* chis;
+	List<std::pair<MIR::VARIABLE_NAME*, MIR::VARIABLE_NAME*> >* chis;
 
 public:
 	/*
@@ -198,7 +198,7 @@ public:
 	 * Graphviz
 	 */
 	String* get_graphviz_label ();
-	std::list<std::pair<String*,String*> >* get_graphviz_properties ();
+	List<std::pair<String*,String*> >* get_graphviz_properties ();
 
 	// Assert a block has a two successors, representing true and false
 	// branches, and return the true branch.

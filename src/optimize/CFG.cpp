@@ -290,7 +290,7 @@ struct BB_property_functor
 	}
 
 #define LINE_LENGTH 30
-	static String* unparse_properties (list<pair<String*, String_list> >* properties)
+	static String* unparse_properties (List<pair<String*, String_list> >* properties)
 	{
 		stringstream ss;
 		pair<String*, String_list> props;

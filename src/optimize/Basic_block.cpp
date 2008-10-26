@@ -18,7 +18,7 @@ Basic_block::Basic_block(CFG* cfg)
 {
 	phi_lhss = new VARIABLE_NAME_list;
 	mus = new VARIABLE_NAME_list;
-	chis = new list<pair<MIR::VARIABLE_NAME*, MIR::VARIABLE_NAME*> >;
+	chis = new List<pair<MIR::VARIABLE_NAME*, MIR::VARIABLE_NAME*> >;
 }
 
 Branch_block::Branch_block (CFG* cfg, MIR::Branch* b)
@@ -50,10 +50,10 @@ Exit_block::Exit_block (CFG* cfg, Method* method)
 {
 }
 
-list<pair<String*,String*> >*
+List<pair<String*,String*> >*
 Basic_block::get_graphviz_properties ()
 {
-	list<pair<String*,String*> >* result = new list<pair<String*,String*> >;
+	List<pair<String*,String*> >* result = new List<pair<String*,String*> >;
 	result->push_back (make_pair (s("shape"), s("box")));
 	return result;
 }
@@ -100,10 +100,10 @@ Statement_block::get_graphviz_label ()
 	return s(ss.str());
 }
 
-list<pair<String*,String*> >*
+List<pair<String*,String*> >*
 Branch_block::get_graphviz_properties ()
 {
-	list<pair<String*,String*> >* result =
+	List<pair<String*,String*> >* result =
 		Basic_block::get_graphviz_properties ();
 
 	result->push_back (make_pair (s("shape"), s("diamond")));
@@ -112,10 +112,10 @@ Branch_block::get_graphviz_properties ()
 }
 
 
-list<pair<String*,String_list> >*
+List<pair<String*,String_list> >*
 Basic_block::get_graphviz_bb_properties ()
 {
-	list<pair<String*,String_list> >* result = new list<pair<String*,String_list> >;
+	List<pair<String*,String_list> >* result = new List<pair<String*,String_list> >;
 //	if (defs)
 //		result->push_back (pair<String*, Set*> (s("defs"), defs));
 //	if (uses)
@@ -125,10 +125,10 @@ Basic_block::get_graphviz_bb_properties ()
 	return result;
 }
 
-list<pair<String*,String_list> >*
+List<pair<String*,String_list> >*
 Basic_block::get_graphviz_head_properties ()
 {
-	list<pair<String*,String_list> >* result = new list<pair<String*,String_list> >;
+	List<pair<String*,String_list> >* result = new List<pair<String*,String_list> >;
 	// Phi nodes
 	foreach (VARIABLE_NAME* phi_lhs, *get_phi_lhss ())
 	{
@@ -177,10 +177,10 @@ Basic_block::get_graphviz_head_properties ()
 	return result;
 }
 
-list<pair<String*,String_list> >*
+List<pair<String*,String_list> >*
 Basic_block::get_graphviz_tail_properties ()
 {
-	list<pair<String*,String_list> >* result = new list<pair<String*,String_list> >;
+	List<pair<String*,String_list> >* result = new List<pair<String*,String_list> >;
 
 	// Add chis:
 	VARIABLE_NAME* lhs;

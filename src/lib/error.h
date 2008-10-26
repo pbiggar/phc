@@ -9,7 +9,6 @@
 #define PHC_ERROR_H
 
 #include <stdarg.h>
-#include <stddef.h>
 
 class String;
 
