@@ -21,9 +21,30 @@ class Map : public std::map<_Key, _Tp, _Compare, _Alloc>, virtual public Object
 {
 public:
 	Map() : std::map<_Key, _Tp, _Compare, _Alloc>() {}
+	Map(_Compare comparator) : std::map<_Key, _Tp, _Compare, _Alloc>(comparator) {}
 	virtual ~Map() {}
 
 	Map* clone() { assert (0); }
+
+public:
+	bool has(_Key key)
+	{
+		return this->find(key) != this->end();
+	}
+
+	_Tp get(_Key key)
+	{
+		if (!has (key)) return NULL;
+
+		return (*this)[key];
+	}
+
+	void set(_Key key, _Tp value)
+	{
+		(*this)[key] = value;
+	}
+
+
 };
 
 #endif // PHC_MAP_H

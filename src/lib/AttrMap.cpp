@@ -9,21 +9,15 @@
 #include "String.h"
 #include "Boolean.h"
 #include "Integer.h"
+#include <boost/tuple/tuple.hpp> // for tie
 
-
-AttrMap::AttrMap() : Map<string, Object*>() 
+AttrMap::AttrMap() 
+: Map<string, Object*>() 
 {
 }
 
 AttrMap::~AttrMap() 
 {
-}
-
-Object* AttrMap::get(string key)
-{
-	if (!has (key)) return NULL;
-
-	return (*this)[key];
 }
 
 Boolean* AttrMap::get_boolean(string key)
@@ -58,16 +52,6 @@ bool AttrMap::is_true(string key)
 	return ret->value();
 }
 
-bool AttrMap::has(string key)
-{
-	return find(key) != end();
-}
-
-void AttrMap::set(string key, Object* value)
-{
-	(*this)[key] = value;
-}
-
 void AttrMap::erase_with_prefix (string key_prefix)
 {
 	AttrMap::iterator i;
@@ -85,19 +69,22 @@ void AttrMap::erase_with_prefix (string key_prefix)
 	}
 }
 
-AttrMap* AttrMap::clone()
+AttrMap*
+AttrMap::clone()
 {
 	AttrMap* result = new AttrMap;
 	result->clone_all_from(this);
 	return result;
 }
 
-void AttrMap::clone_all_from(AttrMap* other)
+void
+AttrMap::clone_all_from(AttrMap* other)
 {
-	AttrMap::const_iterator i;
-	for(i = other->begin(); i != other->end(); i++)
+	std::string str;
+	Object* obj;
+	foreach (boost::tie (str, obj), *other)
 	{
-		assert ((*i).second != NULL);
-		set((*i).first, (*i).second->clone());
+		assert (obj != NULL);
+		set(str, obj->clone());
 	}
 }

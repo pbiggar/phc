@@ -8,7 +8,6 @@
 #ifndef PHC_ATTR_MAP_H
 #define PHC_ATTR_MAP_H
 
-#include "lib/String.h"
 #include "lib/Object.h"
 #include "lib/Map.h"
 
@@ -16,7 +15,7 @@ class String;
 class Integer;
 class Boolean;
 
-class AttrMap : public Map<string, Object*>
+class AttrMap : public Map<std::string, Object*>
 {
 public:
 	AttrMap();
@@ -24,21 +23,18 @@ public:
 
 // Retrieve attributes of various types
 public:
-	Object* get(string key);
-	Boolean* get_boolean(string key);
-	Integer* get_integer(string key);
-	String* get_string(string key);
-	bool has(string key);
+	Boolean* get_boolean(std::string key);
+	Integer* get_integer(std::string key);
+	String* get_string(std::string key);
 	
 // Special support for bools
 public:
-	void set_true(string key);
-	void set_false(string key);
-	bool is_true(string key); // is_true returns false is not has(key)
+	void set_true(std::string key);
+	void set_false(std::string key);
+	bool is_true(std::string key); // is_true returns false is not has(key)
 
 public:
-	void set(string key, Object* value);
-	void erase_with_prefix (string key_prefix);
+	void erase_with_prefix (std::string key_prefix);
 
 public:
 	AttrMap* clone();

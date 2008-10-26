@@ -17,8 +17,11 @@ using std::string;
 using std::stringstream;
 
 class AttrMap;
+class String;
 
 // TODO: strings are not garbage collected (it doesnt matter that they arent traced)
+typedef List<String*> String_list;
+
 class String : public string, virtual public Object
 {
 // This is a hack and will at some point be removed.
