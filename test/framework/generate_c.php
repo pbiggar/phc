@@ -8,9 +8,10 @@
  * run the generate-c step themselves. 
  */
 
+require_once ("lib/async_test.php");
 
 array_push($tests, new Generate_C ());
-class Generate_C extends Test
+class Generate_C extends AsyncTest
 {
 	function get_dependent_test_names ()
 	{
@@ -24,31 +25,25 @@ class Generate_C extends Test
 
 	function run_test ($subject)
 	{
-		global $gcc, $phc, $php;
-		$dir_name = dirname($subject);
+		global $phc;
+		$bundle = new AsyncBundle ($this, $subject);
 
-		// first check that phc returns 0
-		$phc_command = "$phc --generate-c $subject";
-		list ($phc_out, $phc_err, $phc_exit) = complete_exec($phc_command);
+		$bundle->commands[0] = "$phc --generate-c $subject";
+		$bundle->final = "finish";
 
-		if ($phc_exit or $phc_err)
-		{
-			$this->mark_failure ($subject,
-				$phc_command, 
-				$phc_out,
-				$phc_err,
-				$phc_exit,
-				"exit or error set");
-		}
-		# Blank output wasnt being picked up
-		else if (count (split ("\n", $phc_out)) < 170)
-		{
-			$this->mark_failure ($subject, $phc_command, $phc_exit, $phc_out, $phc_err, "output is too short"); 
-		}
+		$bundle->start ();
+	}
+
+	function finish ($bundle)
+	{
+		if ($bundle->errs[0])
+			$this->async_failure ("Stderr not clear", $bundle);
+		else if ($bundle->exits[0])
+			$this->async_failure ("exit code not clear", $bundle);
+		else if (strlen ($bundle->outs[0]) < 1428)
+			$this->async_failure ("output is too short", $bundle);
 		else
-		{
-			$this->mark_success ($subject);
-		}
+			$this->async_success ($bundle);
 	}
 }
 
