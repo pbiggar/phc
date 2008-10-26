@@ -12,6 +12,30 @@
 #include "lib/Object.h"
 #include "process_ir/Foreach.h"
 
+// XXX HACK
+/* The implementation of List requires a clone() method, because it was
+ * originally designed for the maketea derived clone() methods. But we want to
+ * use List instead of std::list to make sure garbage collection is used
+ * everywhere.  This "hack" allows us to call Object::clone(), and fail if
+ * clone() is called for classes that don't support it (all other classes).
+ */
+template<Object*>
+Object* phc_clone (Object* object)
+{
+	if (object == NULL)
+		return NULL;
+
+	return object->clone ();
+}
+
+template<typename T>
+T phc_clone (T object)
+{
+	assert (0);
+}
+
+
+
 template<typename _Tp, typename _Alloc = phc_allocator<_Tp> >
 class List : public std::list<_Tp, _Alloc>, virtual public Object 
 {
@@ -57,17 +81,14 @@ public:
 	// shallow copy (or call a copy-constructor, which?) if not. I think that
 	// checking for a clonable trait of _Tp might do that (involves adding such
 	// a trait to Object, which is OK).
+	//
 	List* clone()
 	{
 		List* result = new List<_Tp, _Alloc>;
 
-		typename List<_Tp, _Alloc>::const_iterator i;
-		for(i = begin(); i != end(); i++)
+		foreach (_Tp elem, *this)
 		{
-			if(*i)
-				result->push_back((*i)->clone());
-			else
-				result->push_back(NULL);
+			result->push_back (phc_clone (elem));
 		}
 	
 		return result;
