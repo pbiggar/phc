@@ -31,7 +31,10 @@ Object* phc_clone (Object* object)
 template<typename T>
 T phc_clone (T object)
 {
-	assert (0);
+	if (object == NULL)
+		return NULL;
+
+	return object->clone ();
 }
 
 
