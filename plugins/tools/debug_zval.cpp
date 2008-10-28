@@ -41,7 +41,7 @@ public:
 		// printf ("$var: ");
 		(*debugs 
 			<< "printf (\"\\" << var << ": \");"
-		).to_pass (s("rsv"), var); // TODO do relative to current pass
+		).to_pass (s("rse"), var); // TODO do relative to current pass
 
 		// Replace $x[] with just $x
 		Variable* dumped_var = var;
@@ -54,7 +54,7 @@ public:
 		// debug_zval_dump ($var);
 		(*debugs 
 			<< "debug_zval_dump (" << dumped_var << ");"
-		).to_pass (s("rsv"), var); // TODO do relative to current pass
+		).to_pass (s("rse"), var); // TODO do relative to current pass
 
 		return var;
 	}
