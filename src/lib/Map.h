@@ -17,14 +17,12 @@ template <
 	typename _Compare = std::less<_Key>,
 	typename _Alloc = phc_allocator<std::pair<const _Key, _Tp> >
 >
-class Map : public std::map<_Key, _Tp, _Compare, _Alloc>, virtual public Object
+class Map : public std::map<_Key, _Tp, _Compare, _Alloc>, virtual public GC_obj 
 {
 public:
 	Map() : std::map<_Key, _Tp, _Compare, _Alloc>() {}
 	Map(_Compare comparator) : std::map<_Key, _Tp, _Compare, _Alloc>(comparator) {}
 	virtual ~Map() {}
-
-	Map* clone() { assert (0); }
 
 public:
 	bool has(_Key key)

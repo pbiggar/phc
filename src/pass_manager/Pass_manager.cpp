@@ -448,6 +448,9 @@ IR::PHP_script* Pass_manager::run_until (String* to, IR::PHP_script* in, bool ma
 /* Run all passes between FROM and TO, inclusive. */
 IR::PHP_script* Pass_manager::run_from_until (String* from, String* to, IR::PHP_script* in, bool main)
 {
+	if (from) assert (has_pass_named (from));
+	if (to) assert (has_pass_named (to));
+
 	bool exec = false;
 	// AST
 	foreach (Pass* p, *ast_queue)

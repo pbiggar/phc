@@ -30,4 +30,6 @@ public:
 	void operator++(POST_INCREMENT); 
 };
 
+SET_CLONABLE(Integer)
+
 #endif // PHC_INTEGER_H

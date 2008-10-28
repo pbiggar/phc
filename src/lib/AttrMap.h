@@ -10,6 +10,7 @@
 
 #include "lib/Object.h"
 #include "lib/Map.h"
+#include <string>
 
 class String;
 class Integer;

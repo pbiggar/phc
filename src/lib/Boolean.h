@@ -24,4 +24,6 @@ public:
 	Boolean* clone();
 };
 
+SET_CLONABLE(Boolean)
+
 #endif // PHC_BOOLEAN_H

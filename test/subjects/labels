@@ -21,11 +21,11 @@
 
 # Counter-intuitive: Invalid tests which accidentally pass are only caught when
 # they dont run by the fact that they fail when we interpret them. However,
-# they will be skipped if basicParseTest finds the error, so its safe to label
+# they will be skipped if BasicParseTest finds the error, so its safe to label
 # them as interpreted.
 .*											short interpretable
 inline-c/.*								non-interpretable
-unsupported/.*							non-interpretable no-BasicParseTest
+unsupported/.*							non-interpretable no-Annotated_test # skip the first test, and all the others will automatically be skipped.
 3rdparty/.*								long
 
 bugs/bug0009.php						size-dependent
