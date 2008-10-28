@@ -11,8 +11,6 @@
 #include <list>
 #include "lib/Object.h"
 #include "process_ir/Foreach.h"
-#include "boost/type_traits/is_base_of.hpp"
-#include "boost/type_traits/remove_pointer.hpp"
 
 // XXX HACK
 /*
@@ -85,8 +83,6 @@ T phc_clone (T object)
 { 
 	return algorithm_selector<supports_cloning<T>::value>::clone(object); 
 }
-
-
 
 
 template<typename _Tp, typename _Alloc = phc_allocator<_Tp> >
