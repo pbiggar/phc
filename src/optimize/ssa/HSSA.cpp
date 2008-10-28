@@ -150,9 +150,9 @@ HSSA::convert_out_of_ssa_form ()
 		// TODO: Add a check that there aren't overlapping live ranges.
 		foreach (VARIABLE_NAME* phi_lhs, *bb->get_phi_lhss ())
 		{
-			BB_list* preds = bb->get_predecessors ();
-			foreach (Rvalue* rval, *bb->get_phi_args (phi_lhs))
+			foreach (Edge* pred, *bb->get_predecessor_edges ())
 			{
+				Rvalue* rval = bb->get_phi_arg_for_edge (pred, phi_lhs);
 				if (isa<VARIABLE_NAME> (rval))
 				{
 					VARIABLE_NAME* var = dyc<VARIABLE_NAME> (rval);
@@ -171,10 +171,7 @@ HSSA::convert_out_of_ssa_form ()
 
 				Statement_block* new_bb = new Statement_block (cfg, copy);
 
-				cfg->insert_bb_between (cfg->get_edge (preds->front (), bb), new_bb);
-				// TODO I'm not sure these are in the same order.
-				// - the edge is included in the phi node, so use it.
-				preds->pop_front ();
+				cfg->insert_bb_between (pred, new_bb);
 
 				// We avoid the critical edge problem because we have only 1
 				// statement per block. Removing phi nodes adds a single block
