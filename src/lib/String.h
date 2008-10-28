@@ -48,6 +48,8 @@ public:
 // 'new String' must be the most typed function in phc
 String* s (const string& s);
 
+SET_CLONABLE(String)
+
 typedef List<String*> String_list;
 
 #endif // PHC_STRING_H

@@ -96,4 +96,23 @@ template <class T> T* dyc(GC_obj* in)
 	return result;
 }
 
+
+// Add class traits to indicate whether cloning works (see List.h).
+template<typename T> 
+struct
+supports_cloning
+{
+  static const bool value = false;
+};
+
+#define SET_CLONABLE(TYPE)								\
+template<>													\
+struct														\
+supports_cloning<TYPE*>									\
+{																\
+  static const bool value = true;					\
+};
+
+SET_CLONABLE(Object)
+
 #endif // PHC_OBJECT_H
