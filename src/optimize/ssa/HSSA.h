@@ -5,7 +5,7 @@
 #include "../Basic_block.h"
 
 
-class HSSA
+class HSSA : virtual public GC_obj
 {
 	CFG* cfg;
 

@@ -12,7 +12,7 @@
 class CFG;
 
 // A link between variables and the operations on variables.
-class SSA_edge : public Object
+class SSA_edge : virtual public GC_obj
 {
 public:
 	SSA_edge (MIR::VARIABLE_NAME* var, SSA_op* op);
@@ -24,9 +24,6 @@ public:
 	SSA_op* op;
 
 	void dump ();
-
-
-	SSA_edge* clone () { assert (0); }
 };
 
 typedef List<SSA_edge*> SSA_edge_list;

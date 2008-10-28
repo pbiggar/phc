@@ -10,7 +10,7 @@
 #include "ssa/SSA.h"
 
 // CFG edge
-class Edge : public Object
+class Edge : virtual public GC_obj
 {
 public:
 	CFG* cfg;
@@ -56,8 +56,6 @@ public:
 	virtual list<pair<String*,Set*> >* get_graphviz_head_properties ();
 	virtual list<pair<String*,Set*> >* get_graphviz_tail_properties ();
 */
-public:
-		Edge* clone() { assert (0); }
 };
 
 // TODO move to SSA.h

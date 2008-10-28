@@ -19,7 +19,7 @@
 #include "CFG.h"
 #include "ssa/Phi.h"
 
-class CFG_visitor
+class CFG_visitor : virtual public GC_obj
 {
 public:
 	// Run the analysis - common interface

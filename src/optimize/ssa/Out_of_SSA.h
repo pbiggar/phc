@@ -11,7 +11,7 @@
 
 #include "MIR_visitor.h"
 
-class Out_of_SSA : public MIR::Transform
+class Out_of_SSA : public MIR::Transform, virtual public GC_obj
 {
 public:
 	// Convert

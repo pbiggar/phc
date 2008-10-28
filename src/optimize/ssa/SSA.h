@@ -13,7 +13,7 @@
  * is the stack of versions used by a named variable. When returning from
  * recursing, the stack is popped to reveal the version used on the previous
  * level. */
-class SSA_renaming
+class SSA_renaming : virtual public GC_obj
 {
 	CFG* cfg;
 

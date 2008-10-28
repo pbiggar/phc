@@ -11,7 +11,7 @@
 
 #include "MIR_transform.h"
 
-class Into_SSA : public MIR::Transform
+class Into_SSA : public MIR::Transform, virtual public GC_obj
 {
 public:
 	void pre_pre_op (MIR::Pre_op* in, MIR::Statement_list* out)

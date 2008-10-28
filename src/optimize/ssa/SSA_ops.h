@@ -8,10 +8,9 @@
  * Regardless of the type of assignment or use, it can be represented in an
  * SSA_op of some kind.
  */
-class SSA_op : public Object
+class SSA_op : virtual public GC_obj
 {
 public:
-	SSA_op* clone () { assert (0); }
 	virtual Basic_block* get_bb () = 0;
 	virtual void dump() = 0;
 

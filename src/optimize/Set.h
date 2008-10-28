@@ -10,13 +10,15 @@ variable_name_ptr_comparison (MIR::VARIABLE_NAME* p1, MIR::VARIABLE_NAME* p2);
 class Set 
 : public std::set<
 	MIR::VARIABLE_NAME*, 
-	bool (*)(MIR::VARIABLE_NAME*, MIR::VARIABLE_NAME*)>
-, virtual public Object
+	bool (*)(MIR::VARIABLE_NAME*, MIR::VARIABLE_NAME*),
+	gc_allocator<MIR::VARIABLE_NAME*>
+>
+, virtual public GC_obj
 {
 	typedef std::set<
 		MIR::VARIABLE_NAME*,
-		bool (*)(MIR::VARIABLE_NAME*,
-		MIR::VARIABLE_NAME*)
+		bool (*)(MIR::VARIABLE_NAME*, MIR::VARIABLE_NAME*),
+		gc_allocator<MIR::VARIABLE_NAME*>
 	> parent;
 
 public:

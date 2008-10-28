@@ -9,7 +9,7 @@
 #include "ssa/SSA.h"
 
 /* Basic blocks */
-class Basic_block : virtual public Object
+class Basic_block : virtual public GC_obj
 {
 public:
 	CFG* cfg;
@@ -148,9 +148,6 @@ public:
 
 	// Can be useful for debugging.
 	int get_index ();
-
-	// TODO do we need to clone a block?
-	Basic_block* clone() { assert (0); }
 };
 
 class Entry_block : public Basic_block

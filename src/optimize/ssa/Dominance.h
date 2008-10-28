@@ -7,7 +7,7 @@
 
 using namespace boost;
 
-class Dominance
+class Dominance : virtual public GC_obj
 {
 public:
 	// Use vertexes so that the Blocks they refer to can be updated without

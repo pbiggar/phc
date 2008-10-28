@@ -72,7 +72,7 @@ namespace MIR
 
 /* Boost::Graph is a nice library for graphs, but a little difficult to use,
  * so we don't use it directly. */
-class CFG
+class CFG : virtual public GC_obj
 {
 public:
 	/*

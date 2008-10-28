@@ -13,7 +13,7 @@ struct Lattice_cell;
 extern Lattice_cell* TOP;
 extern Lattice_cell* BOTTOM;
 
-struct Lattice_cell
+struct Lattice_cell : virtual public GC_obj
 {
 	Lattice_cell (MIR::Literal* value) : value(value) {}
 
@@ -34,13 +34,11 @@ class Lattice_map
 	MIR::VARIABLE_NAME*,
 	Lattice_cell*,
 	bool (*)(MIR::VARIABLE_NAME*, MIR::VARIABLE_NAME*)>
-, virtual public Object
 {
 	typedef Map<
 		MIR::VARIABLE_NAME*,
 		Lattice_cell*,
-		bool (*)(MIR::VARIABLE_NAME*,
-		MIR::VARIABLE_NAME*)
+		bool (*)(MIR::VARIABLE_NAME*, MIR::VARIABLE_NAME*)
 	> parent;
 public:
 	Lattice_map ()
@@ -62,12 +60,6 @@ public:
 				cdebug << "(" << *pair.second->get_value()->get_value_as_string () << ")";
 			cdebug << "\n";
 		}
-	}
-
-	Lattice_map* clone()
-	{
-		// TODO
-		assert (0);
 	}
 };
 
