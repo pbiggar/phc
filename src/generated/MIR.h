@@ -2704,6 +2704,7 @@ public:
     VARIABLE_NAME(String* name);
     VARIABLE_NAME(const char* name);
     void convert_to_ssa_name(int version);
+    void drop_ssa_index();
     VARIABLE_NAME* clone();
     void set_version(int version);
     bool operator<(MIR ::VARIABLE_NAME& other);

@@ -152,7 +152,12 @@ Def_use_web::get_formal_defs ()
 }
 
 
-
+/*
+ * Calculate the def-use web
+ * TODO: this probably needs to be integrated with alias-analysis, or at
+ * least with mu/chi calculation. Its not enough to say a def creates a load
+ * of may-defs.
+ */
 void
 Def_use_web::add_use (MIR::Rvalue* def, SSA_op* use)
 {

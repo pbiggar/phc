@@ -478,6 +478,13 @@ public:
 		this->is_virtual = false;
 	}
 
+	void drop_ssa_index ()
+	{
+		assert (this->in_ssa);
+		in_ssa = false;
+		this->version = 0;
+	}
+
 	VARIABLE_NAME* clone ()
 	{
 		String* value = new String(*this->value);

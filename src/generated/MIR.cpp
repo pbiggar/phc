@@ -10090,6 +10090,15 @@ void VARIABLE_NAME::convert_to_ssa_name(int version)
 	}
 }
 
+void VARIABLE_NAME::drop_ssa_index()
+{
+    {
+		assert (this->in_ssa);
+		in_ssa = false;
+		this->version = 0;
+	}
+}
+
 VARIABLE_NAME* VARIABLE_NAME::clone()
 {
     {

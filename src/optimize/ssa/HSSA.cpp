@@ -134,11 +134,36 @@ HSSA::convert_out_of_ssa_form ()
 		bb->remove_mu_nodes ();
 		bb->remove_virtual_phis ();
 
+		// There are two problems when coming out of SSA form:
+		//		1.) variable-variables: i_0 is not the same as i
+		//		2.) CHI nodes update variable indices, but when you drop the chi
+		//		nodes, you lose the relationship between them. Renumbering is
+		//		possible, I suppose, but not as good as:
+		//
+		//	The solution is to drop the indices when coming out of SSA form.
+		//	(Warning, this could hide bugs unfortunately). The only real problem
+		//	is to make sure that variables with overlapping live ranges are not
+		//	created. This could happen in copy-propagation, value numbering, or
+		//	PRE. I suspect the latter two can be avoided by using the HSSA
+		//	algorithms. For copy-propagation, I'll just have to be careful.
+
+		// TODO: Add a check that there aren't overlapping live ranges.
 		foreach (VARIABLE_NAME* phi_lhs, *bb->get_phi_lhss ())
 		{
 			BB_list* preds = bb->get_predecessors ();
 			foreach (Rvalue* rval, *bb->get_phi_args (phi_lhs))
 			{
+				if (isa<VARIABLE_NAME> (rval))
+				{
+					VARIABLE_NAME* var = dyc<VARIABLE_NAME> (rval);
+
+					// We've dropped the indices, so make sure the varaibles are
+					// equal (if they arent, perhaps if we've added copy
+					// propagation, we should add an assignment).
+					assert (*var->value == *phi_lhs->value);
+					continue;
+				}
+
 				Assign_var* copy = new Assign_var (
 					phi_lhs->clone (),
 					false,
@@ -157,7 +182,21 @@ HSSA::convert_out_of_ssa_form ()
 			}
 		}
 		bb->remove_phi_nodes ();
+
 	}
+
+
+	// Drop variable indices 
+	rebuild_ssa_form (); // we only care about DUW
+	foreach (Basic_block* bb, *cfg->get_all_bbs ())
+	{
+		foreach (VARIABLE_NAME* var, *cfg->duw->get_nonphi_uses (bb))
+			var->drop_ssa_index();
+
+		foreach (VARIABLE_NAME* var, *cfg->duw->get_nonphi_defs (bb))
+			var->drop_ssa_index();
+	}
+
 
 	
 
