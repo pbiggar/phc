@@ -95,6 +95,7 @@ libphc_la_SOURCES= 											\
 	src/generated/AST.h										\
 	src/generated/AST_transform.cpp						\
 	src/generated/AST_transform.h							\
+	src/generated/AST_user_defined.h						\
 	src/generated/AST_visitor.cpp							\
 	src/generated/AST_visitor.h							\
 	src/generated/cmdline.c									\
@@ -106,6 +107,7 @@ libphc_la_SOURCES= 											\
 	src/generated/HIR.h										\
 	src/generated/HIR_transform.cpp						\
 	src/generated/HIR_transform.h							\
+	src/generated/HIR_user_defined.h						\
 	src/generated/HIR_visitor.cpp							\
 	src/generated/HIR_visitor.h							\
 	src/generated/keywords.h								\
@@ -117,6 +119,7 @@ libphc_la_SOURCES= 											\
 	src/generated/MIR.h										\
 	src/generated/MIR_transform.cpp						\
 	src/generated/MIR_transform.h							\
+	src/generated/MIR_user_defined.h						\
 	src/generated/MIR_visitor.cpp							\
 	src/generated/MIR_visitor.h							\
 	src/generated/php_parser.tab.cpp						\
@@ -269,6 +272,7 @@ BUILT_SOURCES = 												\
 	src/generated/AST.h										\
 	src/generated/AST_transform.cpp						\
 	src/generated/AST_transform.h							\
+	src/generated/AST_user_defined.h						\
 	src/generated/AST_visitor.cpp							\
 	src/generated/AST_visitor.h							\
 	src/generated/cmdline.c									\
@@ -280,6 +284,7 @@ BUILT_SOURCES = 												\
 	src/generated/HIR.h										\
 	src/generated/HIR_transform.cpp						\
 	src/generated/HIR_transform.h							\
+	src/generated/HIR_user_defined.h						\
 	src/generated/HIR_visitor.cpp							\
 	src/generated/HIR_visitor.h							\
 	src/generated/keywords.h								\
@@ -291,6 +296,7 @@ BUILT_SOURCES = 												\
 	src/generated/MIR.h										\
 	src/generated/MIR_transform.cpp						\
 	src/generated/MIR_transform.h							\
+	src/generated/MIR_user_defined.h						\
 	src/generated/MIR_visitor.cpp							\
 	src/generated/MIR_visitor.h							\
 	src/generated/php_parser.tab.cpp						\
@@ -311,17 +317,20 @@ strangephc_HEADERS =							\
 	src/generated/AST_fold.h				\
 	src/generated/AST.h						\
 	src/generated/AST_transform.h			\
+	src/generated/AST_user_defined.h		\
 	src/generated/AST_visitor.h			\
 	src/generated/cmdline.h					\
 	src/generated/HIR_factory.h			\
 	src/generated/HIR_fold.h				\
 	src/generated/HIR.h						\
 	src/generated/HIR_transform.h			\
+	src/generated/HIR_user_defined.h		\
 	src/generated/HIR_visitor.h			\
 	src/generated/MIR_factory.h			\
 	src/generated/MIR_fold.h				\
 	src/generated/MIR.h						\
 	src/generated/MIR_transform.h			\
+	src/generated/MIR_user_defined.h		\
 	src/generated/MIR_visitor.h
 
 strangeparsingdir = $(pkgincludedir)/parsing
@@ -482,41 +491,44 @@ plugins_tutorials_show_traversal_order_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 #   the correct way is so onerous, that this way seems much better.
 # - sed (also rm, mv and echo, below) are amongst the allowed programs to use
 #   in a Makefile. See GNU coding standards 7.2.2.
-src/generated/AST.cpp: 				src/generated/AST.h
-src/generated/AST_transform.cpp:	src/generated/AST.h
-src/generated/AST_transform.h:	src/generated/AST.h
-src/generated/AST_visitor.cpp:	src/generated/AST.h
-src/generated/AST_visitor.h:		src/generated/AST.h
-src/generated/AST_factory.cpp:	src/generated/AST.h
-src/generated/AST_factory.h:		src/generated/AST.h
-src/generated/AST_fold.h:			src/generated/AST.h
-#src/generated/schema.xsd:			src/generated/AST.h
+src/generated/AST.cpp: 					src/generated/AST.h
+src/generated/AST_factory.cpp:		src/generated/AST.h
+src/generated/AST_factory.h:			src/generated/AST.h
+src/generated/AST_fold.h:				src/generated/AST.h
+src/generated/AST_transform.cpp:		src/generated/AST.h
+src/generated/AST_transform.h:		src/generated/AST.h
+src/generated/AST_user_defined.h:	src/generated/AST.h
+src/generated/AST_visitor.cpp:		src/generated/AST.h
+src/generated/AST_visitor.h:			src/generated/AST.h
+#src/generated/schema.xsd:				src/generated/AST.h
 
 src/generated/AST.h: src/generated_src/ast.tea @maketea@
 	@maketea@ src/generated_src/ast.tea
 
-src/generated/HIR.cpp: 				src/generated/HIR.h
-src/generated/HIR_transform.cpp:	src/generated/HIR.h
-src/generated/HIR_transform.h:	src/generated/HIR.h
-src/generated/HIR_visitor.cpp:	src/generated/HIR.h
-src/generated/HIR_visitor.h:		src/generated/HIR.h
-src/generated/HIR_factory.cpp:	src/generated/HIR.h
-src/generated/HIR_factory.h:		src/generated/HIR.h
-src/generated/HIR_fold.h:			src/generated/HIR.h
-#src/generated/schema.xsd:			src/generated/HIR.h
+src/generated/HIR.cpp: 					src/generated/HIR.h
+src/generated/HIR_factory.cpp:		src/generated/HIR.h
+src/generated/HIR_factory.h:			src/generated/HIR.h
+src/generated/HIR_fold.h:				src/generated/HIR.h
+src/generated/HIR_transform.cpp:		src/generated/HIR.h
+src/generated/HIR_transform.h:		src/generated/HIR.h
+src/generated/HIR_user_defined.h:	src/generated/HIR.h
+src/generated/HIR_visitor.cpp:		src/generated/HIR.h
+src/generated/HIR_visitor.h:			src/generated/HIR.h
+#src/generated/schema.xsd:				src/generated/HIR.h
 
 src/generated/HIR.h: src/generated_src/hir.tea @maketea@
 	@maketea@ src/generated_src/hir.tea
 
-src/generated/MIR.cpp: 				src/generated/MIR.h
-src/generated/MIR_transform.cpp:	src/generated/MIR.h
-src/generated/MIR_transform.h:	src/generated/MIR.h
-src/generated/MIR_visitor.cpp:	src/generated/MIR.h
-src/generated/MIR_visitor.h:		src/generated/MIR.h
-src/generated/MIR_factory.cpp:	src/generated/MIR.h
-src/generated/MIR_factory.h:		src/generated/MIR.h
-src/generated/MIR_fold.h:			src/generated/MIR.h
-#src/generated/schema.xsd:			src/generated/MIR.h
+src/generated/MIR.cpp: 					src/generated/MIR.h
+src/generated/MIR_factory.cpp:		src/generated/MIR.h
+src/generated/MIR_factory.h:			src/generated/MIR.h
+src/generated/MIR_fold.h:				src/generated/MIR.h
+src/generated/MIR_transform.cpp:		src/generated/MIR.h
+src/generated/MIR_transform.h:		src/generated/MIR.h
+src/generated/MIR_user_defined.h:	src/generated/MIR.h
+src/generated/MIR_visitor.cpp:		src/generated/MIR.h
+src/generated/MIR_visitor.h:			src/generated/MIR.h
+#src/generated/schema.xsd:				src/generated/MIR.h
 
 src/generated/MIR.h: src/generated_src/mir.tea @maketea@
 	@maketea@ src/generated_src/mir.tea

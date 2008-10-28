@@ -11,28 +11,81 @@
 #include <list>
 #include "lib/Object.h"
 #include "process_ir/Foreach.h"
+#include "boost/type_traits/is_base_of.hpp"
+#include "boost/type_traits/remove_pointer.hpp"
 
 // XXX HACK
-/* The implementation of List requires a clone() method, because it was
+/*
+ * The implementation of List requires a clone() method, because it was
  * originally designed for the maketea derived clone() methods. But we want to
  * use List instead of std::list to make sure garbage collection is used
  * everywhere.  This "hack" allows us to call Object::clone(), and fail if
  * clone() is called for classes that don't support it (all other classes).
  */
-template<Object*>
-Object* phc_clone (Object* object)
+
+// Default clone is to fail.
+template<bool b> 
+struct algorithm_selector 
+{ 
+	template<typename T> 
+	static T& clone (T object) 
+	{ 
+		assert (0);
+	} 
+};
+
+template<typename T> 
+struct
+supports_cloning
 {
-	if (object == NULL)
-		return NULL;
+  static const bool value = false;
+};
 
-	return object->clone ();
-}
 
-template<typename T>
+// Call to clone for classes that support it.
+template<> 
+struct algorithm_selector<true>
+{ 
+	template<typename T> 
+	static T clone (T object)
+	{ 
+		return object->clone (); 
+	} 
+};
+
+#define SET_CLONABLE(TYPE)								\
+template<>													\
+struct														\
+supports_cloning<TYPE*>									\
+{																\
+  static const bool value = true;					\
+};
+
+SET_CLONABLE(Object)
+namespace IR { class Node; class FOREIGN; class PHP_script; }
+SET_CLONABLE(IR::Node)
+SET_CLONABLE(IR::FOREIGN)
+SET_CLONABLE(IR::PHP_script)
+
+#define MAKETEA_USER_DEFINED(TYPE) SET_CLONABLE(TYPE)
+#include "AST_user_defined.h"
+#include "HIR_user_defined.h"
+#include "MIR_user_defined.h"
+#undef MAKETEA_USER_DEFINED
+
+/*
+ * For all classes on which SET_CLONABLE is set, supports_cloning<T>::value is
+ * true, making the template call obj->clone(). All other classes will default
+ * to false, calling assert (0) instead. Using this approach means that other
+ * classes do not have to have a clone() method - all other approaches I tried
+ * led to compile-time failure, or didnt do the right thing.
+ */
+template<typename T> 
 T phc_clone (T object)
-{
-	assert (0);
+{ 
+	return algorithm_selector<supports_cloning<T>::value>::clone(object); 
 }
+
 
 
 
@@ -76,12 +129,6 @@ public:
 	}
 
 public:
-	// TODO: clone assumes that _Tp supports a clone method. It would be useful
-	// if we could automatically call a clone method if supported, and do a
-	// shallow copy (or call a copy-constructor, which?) if not. I think that
-	// checking for a clonable trait of _Tp might do that (involves adding such
-	// a trait to Object, which is OK).
-	//
 	List* clone()
 	{
 		List* result = new List<_Tp, _Alloc>;
