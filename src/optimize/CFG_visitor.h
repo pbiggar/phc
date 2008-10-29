@@ -58,6 +58,8 @@ public:
 	 */
 
 	virtual void visit_phi_node (Basic_block* bb, MIR::VARIABLE_NAME* lhs);
+	virtual void visit_chi_node (Basic_block* bb, MIR::VARIABLE_NAME* def, MIR::VARIABLE_NAME* use);
+	virtual void visit_mu_node (Basic_block* bb, MIR::VARIABLE_NAME* use);
 
 	/*
 	 * Statement visitors - Override in clients.
@@ -113,8 +115,8 @@ public:
 
 	/*
 	 * Block transforms - Override in clients
-	 * These are called automatically for transform_block(), which should be called
-	 * by the analysis.
+	 * These are called automatically for transform_block(), which should be
+	 * called by the analysis.
 	 */
 
 	virtual void transform_entry_block (Entry_block* in, BB_list* out);
@@ -123,9 +125,12 @@ public:
 	virtual void transform_branch_block (Branch_block* in, BB_list* out);
 	// Note lack of transform_statement_block. It could be added if needed.
 
-	// This has the same signature as visit_phi_node, but it must obviously be a
-	// different function from visit_phi_node, or else it would be called twice.
+	// This has the same signature as visit_phi_node, but it must obviously be
+	// a different function from visit_phi_node, or else it would be called
+	// twice.
 	virtual void transform_phi_node (Basic_block* bb, MIR::VARIABLE_NAME* lhs);
+	virtual void transform_chi_node (Basic_block* bb, MIR::VARIABLE_NAME* def, MIR::VARIABLE_NAME* use);
+	virtual void transform_mu_node (Basic_block* bb, MIR::VARIABLE_NAME* use);
 
 	/*
 	 * Statement transforms - Override in clients.

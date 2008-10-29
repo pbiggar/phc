@@ -219,6 +219,19 @@ Def_use_web::visit_phi_node (Basic_block* bb, VARIABLE_NAME* phi_lhs)
 }
 
 void
+Def_use_web::visit_chi_node (Basic_block* bb, VARIABLE_NAME* lhs, VARIABLE_NAME* rhs)
+{
+	add_def (lhs, new SSA_chi (bb, lhs, rhs));
+	add_use (rhs, new SSA_chi (bb, lhs, rhs));
+}
+
+void
+Def_use_web::visit_mu_node (Basic_block* bb, VARIABLE_NAME* rhs)
+{
+	add_use (rhs, new SSA_mu (bb, rhs));
+}
+
+void
 Def_use_web::visit_assign_array (Statement_block* bb, MIR::Assign_array* in)
 {
 	add_use (in->lhs, new SSA_stmt (bb));

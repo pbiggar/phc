@@ -82,6 +82,12 @@ public:
 
 	MIR::VARIABLE_NAME* lhs;
 	MIR::VARIABLE_NAME* rhs;
+
+	SSA_chi (Basic_block* bb, MIR::VARIABLE_NAME* lhs, MIR::VARIABLE_NAME* rhs);
+
+	Basic_block* get_bb ();
+	void dump ();
+	MIR::VARIABLE_NAME_list* get_uses ();
 };
 
 class SSA_mu : public SSA_op
@@ -90,6 +96,12 @@ public:
 	Basic_block* bb;
 
 	MIR::VARIABLE_NAME* rhs;
+
+	SSA_mu (Basic_block* bb, MIR::VARIABLE_NAME* rhs);
+
+	Basic_block* get_bb ();
+	void dump ();
+	MIR::VARIABLE_NAME_list* get_uses ();
 };
 
 

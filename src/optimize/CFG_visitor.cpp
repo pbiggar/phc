@@ -1,6 +1,9 @@
+#include <boost/tuple/tuple.hpp>
+
 #include "CFG_visitor.h"
 
 using namespace MIR;
+using namespace boost;
 
 /*
  * Visitors
@@ -11,6 +14,14 @@ CFG_visitor::visit_block (Basic_block* bb)
 {
 	foreach (VARIABLE_NAME* phi_lhs, *bb->get_phi_lhss ())
 		visit_phi_node (bb, phi_lhs);
+
+	foreach (VARIABLE_NAME* mu, *bb->get_mus())
+		visit_mu_node (bb, mu);
+
+	VARIABLE_NAME *def, *use;
+	foreach (tie(def, use), *bb->get_chis())
+		visit_chi_node (bb, def, use);
+
 
 	if (Entry_block* eb = dynamic_cast<Entry_block*> (bb))
 		visit_entry_block (eb);
@@ -195,6 +206,18 @@ CFG_visitor::visit_statement_block (Statement_block*)
 
 void
 CFG_visitor::visit_phi_node (Basic_block* bb, VARIABLE_NAME* phi_lhs)
+{
+}
+
+
+void
+CFG_visitor::visit_chi_node (Basic_block* bb, MIR::VARIABLE_NAME* def, MIR::VARIABLE_NAME* use)
+{
+}
+
+
+void
+CFG_visitor::visit_mu_node (Basic_block* bb, MIR::VARIABLE_NAME* use)
 {
 }
 
@@ -404,11 +427,18 @@ CFG_visitor::transform_block (Basic_block* bb)
 	// bb->replace will move the phi nodes from BB to the new BBs. So here we
 	// just update BB.
 	
+	// Allow it to update the CFG directly, its much easier.
 	foreach (VARIABLE_NAME* phi_lhs, *bb->get_phi_lhss ())
-	{
-		// Allow it to update the CFG directly, its much easier.
 		transform_phi_node (bb, phi_lhs);
-	}
+
+	foreach (VARIABLE_NAME* mu, *bb->get_mus())
+		transform_mu_node (bb, mu);
+
+	VARIABLE_NAME *def, *use;
+	foreach (tie(def, use), *bb->get_chis())
+		transform_chi_node (bb, def, use);
+
+
 
 
 	BB_list* out = new BB_list;
@@ -522,6 +552,19 @@ void
 CFG_visitor::transform_phi_node (Basic_block* bb, MIR::VARIABLE_NAME* lhs)
 {
 }
+
+
+void
+CFG_visitor::transform_chi_node (Basic_block* bb, MIR::VARIABLE_NAME* def, MIR::VARIABLE_NAME* use)
+{
+}
+
+
+void
+CFG_visitor::transform_mu_node (Basic_block* bb, MIR::VARIABLE_NAME* use)
+{
+}
+
 
 void
 CFG_visitor::transform_assign_array (Statement_block* in, Assign_array*, BB_list* out)

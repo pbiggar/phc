@@ -94,6 +94,8 @@ private:
 	void visit_entry_block (Entry_block* bb);
 	void visit_branch_block (Branch_block* bb);
 
+	void visit_chi_node (Basic_block* bb, MIR::VARIABLE_NAME* def, MIR::VARIABLE_NAME* use);
+	void visit_mu_node (Basic_block* bb, MIR::VARIABLE_NAME* use);
 	void visit_phi_node (Basic_block* bb, MIR::VARIABLE_NAME* phi_lhs);
 
 	void visit_assign_array (Statement_block*, MIR::Assign_array*);

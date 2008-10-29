@@ -375,6 +375,13 @@ Basic_block::get_chi_lhss ()
 }
 
 
+List<pair<MIR::VARIABLE_NAME*, MIR::VARIABLE_NAME*> >*
+Basic_block::get_chis ()
+{
+	return chis;
+}
+
+
 MIR::VARIABLE_NAME_list*
 Basic_block::get_chi_rhss ()
 {

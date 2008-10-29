@@ -453,7 +453,6 @@ public:
 class VARIABLE_NAME
 {
 public:
-
 	VARIABLE_NAME (String* name)
 	{
 		this->value = name;
@@ -481,7 +480,7 @@ public:
 	void drop_ssa_index ()
 	{
 		assert (this->in_ssa);
-		in_ssa = false;
+		this->in_ssa = false;
 		this->version = 0;
 	}
 
