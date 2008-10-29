@@ -39,6 +39,7 @@ SSA_edge::dump ()
 Def_use_web::Def_use_web ()
 : def_use_chains (&variable_name_ptr_comparison)
 , use_def_chains (&variable_name_ptr_comparison)
+, may_defs (&variable_name_ptr_comparison)
 {
 }
 
@@ -84,7 +85,7 @@ Def_use_web::has_def (VARIABLE_NAME* use)
 }
 
 VARIABLE_NAME_list*
-Def_use_web::get_nonphi_defs (Basic_block* bb)
+Def_use_web::get_real_defs (Basic_block* bb)
 {
 	VARIABLE_NAME_list* result = new VARIABLE_NAME_list;
 
@@ -95,8 +96,10 @@ Def_use_web::get_nonphi_defs (Basic_block* bb)
 	{
 		foreach (SSA_edge* edge, edge_list)
 		{
-			if (!isa<SSA_phi> (edge->op)
-					&& edge->op->get_bb () == bb)
+			if (edge->op->get_bb () == bb
+					&& !isa<SSA_phi> (edge->op)
+					&& !isa<SSA_mu> (edge->op)
+					&& !isa<SSA_chi> (edge->op))
 			{
 				// Dont insert the key itself, it may be the wrong var_name.
 				result->push_back (edge->variable_name);
@@ -107,7 +110,7 @@ Def_use_web::get_nonphi_defs (Basic_block* bb)
 }
 
 VARIABLE_NAME_list*
-Def_use_web::get_nonphi_uses (Basic_block* bb)
+Def_use_web::get_real_uses (Basic_block* bb)
 {
 	VARIABLE_NAME_list* result = new VARIABLE_NAME_list;
 
@@ -118,8 +121,32 @@ Def_use_web::get_nonphi_uses (Basic_block* bb)
 	{
 		foreach (SSA_edge* edge, edge_list)
 		{
-			if (!isa<SSA_phi> (edge->op)
-					&& edge->op->get_bb () == bb)
+			if (edge->op->get_bb () == bb
+					&& !isa<SSA_phi> (edge->op)
+					&& !isa<SSA_mu> (edge->op)
+					&& !isa<SSA_chi> (edge->op))
+			{
+				// Dont insert the key itself, it may be the wrong var_name.
+				result->push_back (edge->variable_name);
+			}
+		}
+	}
+	return result;
+}
+
+VARIABLE_NAME_list*
+Def_use_web::get_may_defs (Basic_block* bb)
+{
+	VARIABLE_NAME_list* result = new VARIABLE_NAME_list;
+
+	// Go through the use-def result, finding those who's BB == BB
+	VARIABLE_NAME* key;
+	SSA_edge_list edge_list;
+	foreach (tie (key, edge_list), may_defs)
+	{
+		foreach (SSA_edge* edge, edge_list)
+		{
+			if (edge->op->get_bb () == bb)
 			{
 				// Dont insert the key itself, it may be the wrong var_name.
 				result->push_back (edge->variable_name);
@@ -190,6 +217,26 @@ Def_use_web::add_def (MIR::VARIABLE_NAME* use, SSA_op* def)
 	use_def_chains[use].push_back (edge);
 
 	DEBUG ("Adding a use_def edge from ");
+	debug (use);
+	DEBUG ("to ")
+	def->dump ();
+	DEBUG (endl);
+}
+
+// When building use-def chains, we add may-defs for things we know arent
+// actually defs, but where there could potentially be a def. Currently, this
+// is just method_invocation.
+// TODO: globals need the opposite: its really a def, but its doesnt may def
+// anything else.
+void
+Def_use_web::add_may_def (MIR::VARIABLE_NAME* use, SSA_op* def)
+{
+	SSA_edge* edge = new SSA_edge (use, def);
+
+	// When used on pre-SSA form, there can be many defs.
+	may_defs[use].push_back (edge);
+
+	DEBUG ("Adding a may_def edge from ");
 	debug (use);
 	DEBUG ("to ")
 	def->dump ();
@@ -425,9 +472,7 @@ Def_use_web::visit_method_invocation (Statement_block* bb, Method_invocation* in
 		if (VARIABLE_NAME* var = dynamic_cast<VARIABLE_NAME*> (param->rvalue))
 		{
 			add_use (var, new SSA_stmt (bb));
-			// TODO: this is a little out of place. We're cloning so that
-			// conversion to SSA doesnt convert this to SSA twice.
-			add_def (var->clone (), new SSA_stmt (bb));
+			add_may_def (var, new SSA_stmt (bb));
 		}
 	}
 }

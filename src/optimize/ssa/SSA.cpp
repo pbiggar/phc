@@ -87,6 +87,8 @@ SSA_renaming::rename_vars (Basic_block* bb)
 
 	// Rename local variable uses
 	VARIABLE_NAME_list* uses = bb->get_pre_ssa_uses ();
+	uses->push_back_all (bb->get_mus ());
+	uses->push_back_all (bb->get_chi_rhss ());
 	foreach (VARIABLE_NAME* use, *uses)
 	{
 		DEBUG ("Converting use " << *use->get_ssa_var_name ());
@@ -98,6 +100,7 @@ SSA_renaming::rename_vars (Basic_block* bb)
 
 	// Create new names for defs
 	VARIABLE_NAME_list* defs = bb->get_pre_ssa_defs ();
+	defs->push_back_all (bb->get_chi_lhss ());
 	foreach (VARIABLE_NAME* def, *defs)
 	{
 		DEBUG ("Converting def " << *def->get_ssa_var_name ());

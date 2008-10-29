@@ -118,6 +118,8 @@ DCE::mark_pass ()
 	{
 		SSA_op* op = worklist->front ();
 		worklist->pop_front ();
+		DEBUG ("Processing ");
+		op->dump ();
 
 		foreach (VARIABLE_NAME* use, *op->get_uses ())
 		{

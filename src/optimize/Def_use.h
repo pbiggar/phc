@@ -51,6 +51,13 @@ class Def_use_web : public Visit_once
 		bool (*)(MIR::VARIABLE_NAME*, MIR::VARIABLE_NAME*)
 	> use_def_chains;
 
+	Map<
+		MIR::VARIABLE_NAME*,
+		SSA_edge_list, 
+		bool (*)(MIR::VARIABLE_NAME*, MIR::VARIABLE_NAME*)
+	> may_defs;
+
+
 public:
 	Def_use_web ();
 
@@ -74,14 +81,15 @@ public:
 	BB_list* get_pre_ssa_var_defs (MIR::VARIABLE_NAME* use);
 
 
-	// Get all variables defined/used in the basic block, except for those
-	// from phi nodes.
-	MIR::VARIABLE_NAME_list* get_nonphi_defs (Basic_block* bb);
-	MIR::VARIABLE_NAME_list* get_nonphi_uses (Basic_block* bb);
+	// Get all variables defined/used in the basic
+	// block, except for those from phis, mus and chis.
+	MIR::VARIABLE_NAME_list* get_real_defs (Basic_block* bb);
+	MIR::VARIABLE_NAME_list* get_real_uses (Basic_block* bb);
 
 	// Return the variables defined by formal parameters in the entry_block
 	MIR::VARIABLE_NAME_list* get_formal_defs ();
 
+	MIR::VARIABLE_NAME_list* get_may_defs (Basic_block* bb);
 	
 	void dump ();
 
@@ -90,6 +98,7 @@ private:
 	void add_use (MIR::VARIABLE_NAME* def, SSA_op* use);
 	void add_use (MIR::Rvalue* def, SSA_op* use);
 	void add_def (MIR::VARIABLE_NAME* use, SSA_op* def);
+	void add_may_def (MIR::VARIABLE_NAME* use, SSA_op* def);
 
 	void visit_entry_block (Entry_block* bb);
 	void visit_branch_block (Branch_block* bb);

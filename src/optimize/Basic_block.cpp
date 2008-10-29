@@ -328,7 +328,7 @@ Basic_block::update_phi_node (MIR::VARIABLE_NAME* old_phi_lhs, MIR::VARIABLE_NAM
 	foreach (Edge* pred, *get_predecessor_edges ())
 	{
 		// Not all nodes have their phi argument added yet
-		if (pred->pm.find (old_phi_lhs) != pred->pm.end ())
+		if (pred->pm.has (old_phi_lhs))
 			set_phi_arg_for_edge (
 					pred,
 					new_phi_lhs,
@@ -590,13 +590,13 @@ Basic_block::get_reverse_dominance_frontier ()
 VARIABLE_NAME_list*
 Basic_block::get_pre_ssa_defs ()
 {
-	return cfg->duw->get_nonphi_defs (this);
+	return cfg->duw->get_real_defs (this);
 }
 
 VARIABLE_NAME_list*
 Basic_block::get_pre_ssa_uses ()
 {
-	return cfg->duw->get_nonphi_uses (this);
+	return cfg->duw->get_real_uses (this);
 }
 
 int

@@ -76,7 +76,7 @@ void SSA_phi::dump()
 
 void SSA_chi::dump()
 {
-	DEBUG ("SSA_chi: " << *lhs->get_ssa_var_name () << ", " << *rhs->get_ssa_var_name ());
+	DEBUG ("SSA_chi: " << *lhs->get_ssa_var_name () << " <- " << *rhs->get_ssa_var_name ());
 	bb->dump ();
 }
 
@@ -135,7 +135,13 @@ bool ssa_op_ptr_comparison (SSA_op* op1, SSA_op* op2)
 VARIABLE_NAME_list*
 SSA_stmt::get_uses ()
 {
-	return bb->cfg->duw->get_nonphi_uses (bb);
+	// Phis are different statements, but mus and chis are properties of the
+	// current statement.
+	VARIABLE_NAME_list* result = new VARIABLE_NAME_list;
+	result->push_back_all (bb->cfg->duw->get_real_uses (bb));
+	result->push_back_all (bb->get_mus ());
+	result->push_back_all (bb->get_chi_rhss ());
+	return result;
 }
 
 VARIABLE_NAME_list*

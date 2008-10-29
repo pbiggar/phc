@@ -187,10 +187,10 @@ HSSA::convert_out_of_ssa_form ()
 	rebuild_ssa_form (); // we only care about DUW
 	foreach (Basic_block* bb, *cfg->get_all_bbs ())
 	{
-		foreach (VARIABLE_NAME* var, *cfg->duw->get_nonphi_uses (bb))
+		foreach (VARIABLE_NAME* var, *cfg->duw->get_real_uses (bb))
 			var->drop_ssa_index();
 
-		foreach (VARIABLE_NAME* var, *cfg->duw->get_nonphi_defs (bb))
+		foreach (VARIABLE_NAME* var, *cfg->duw->get_real_defs (bb))
 			var->drop_ssa_index();
 	}
 
@@ -468,14 +468,14 @@ HSSA::convert_to_hssa_form ()
 	}
 
 
-	// TODO: Zero versioning is actually useful, so add steps 5 and 6. There is
-	// not necessarily a need to combine zero versioning with DCE.
+	// TODO: Zero versioning is actually useful, so add steps 5 and 6. There
+	// is not necessarily a need to combine zero versioning with GVN.
 }
 
 
 
 // Given the alias set, all for every use, add a mu of all aliased variables,
-// and for every def, add 
+// and for every def, add a chi.
 void
 HSSA::add_mu_and_chi_nodes (Set* aliases)
 {
@@ -490,10 +490,13 @@ HSSA::add_mu_and_chi_nodes (Set* aliases)
 				foreach (VARIABLE_NAME* alias, *aliases)
 					bb->add_mu_node (alias);
 
-		// TODO: This doesnt add chis for actual parameters
-		foreach (VARIABLE_NAME* def, *bb->get_pre_ssa_defs ())
+		VARIABLE_NAME_list* defs = new VARIABLE_NAME_list;
+		defs->push_back_all (bb->get_pre_ssa_defs ());
+		defs->push_back_all (bb->cfg->duw->get_may_defs (bb));
+		foreach (VARIABLE_NAME* def, *defs)
 			if (aliases->has (def))
 				foreach (VARIABLE_NAME* alias, *aliases)
-					bb->add_chi_node (alias);
+					if (!alias->equals (def))
+						bb->add_chi_node (alias);
 	}
 }
