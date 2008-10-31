@@ -34,6 +34,9 @@ bool is_pure (Expr* in)
 */
 bool is_critical (Statement* in)
 {
+	if (isa<Return> (in))
+		return true;
+
 	if (not (isa<Eval_expr> (in) || isa<Assign_var> (in)))
 		return false;
 
