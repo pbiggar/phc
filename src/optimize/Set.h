@@ -42,7 +42,7 @@ public:
 	// The set is the set of all possible strings.
 	void insert_all ();
 
-	bool has (MIR::VARIABLE_NAME* string);
+	bool has (MIR::VARIABLE_NAME* name);
 	void dump();
 
 	Set* clone ();
@@ -50,6 +50,9 @@ public:
 public:
 	// TODO when using iterators, assert (!full). We cant iterate through the
 	// full set.
+
+
+	MIR::VARIABLE_NAME_list* to_list ();
 };
 
 

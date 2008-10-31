@@ -5,6 +5,7 @@
 #include "embed/embed.h"
 
 using namespace MIR;
+using namespace boost;
 
 DCE::DCE ()
 : marks (&ssa_op_ptr_comparison)
@@ -195,6 +196,21 @@ DCE::sweep_pass ()
 			if (!marks[new SSA_phi (bb, phi_lhs)])
 				bb->remove_phi_node (phi_lhs);
 		}
+
+/*		foreach (VARIABLE_NAME* mu, *bb->get_mus ())
+		{
+			if (!marks[new SSA_mu (bb, mu)])
+				bb->remove_mu (mu);
+		}
+
+		VARIABLE_NAME *lhs, *rhs;
+		foreach (tie (lhs, rhs), *bb->get_chis ())
+		{
+			if (!marks[new SSA_chi (bb, lhs, rhs)])
+				bb->remove_chi (lhs, rhs);
+		}
+*/
+
 
 
 		if (isa<Statement_block> (bb) && !is_marked (bb))

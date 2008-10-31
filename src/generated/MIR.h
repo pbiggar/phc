@@ -2709,6 +2709,7 @@ public:
     void set_version(int version);
     bool operator<(MIR ::VARIABLE_NAME& other);
     String* get_ssa_var_name();
+    bool is_mixin_equal(MIR ::Node* other);
     int version;
     bool in_ssa;
     bool is_virtual;

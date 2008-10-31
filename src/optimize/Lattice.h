@@ -3,6 +3,7 @@
 
 
 #include "lib/Map.h"
+#include "Var_map.h"
 
 #include "MIR.h"
 #include "Set.h"
@@ -30,21 +31,10 @@ private:
 
 // TODO templatize on the lattice type
 class Lattice_map
-: public Map<
-	MIR::VARIABLE_NAME*,
-	Lattice_cell*,
-	bool (*)(MIR::VARIABLE_NAME*, MIR::VARIABLE_NAME*)>
+: public Var_map<Lattice_cell*>
 {
-	typedef Map<
-		MIR::VARIABLE_NAME*,
-		Lattice_cell*,
-		bool (*)(MIR::VARIABLE_NAME*, MIR::VARIABLE_NAME*)
-	> parent;
 public:
-	Lattice_map ()
-	: parent (&variable_name_ptr_comparison)
-	{
-	}
+	Lattice_map () : Var_map<Lattice_cell*> () { }
 
 	void dump ()
 	{

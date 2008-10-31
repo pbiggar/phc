@@ -423,7 +423,7 @@ HSSA::convert_to_hssa_form ()
 		{
 			// Get defs (including phis and chis)
 			VARIABLE_NAME_list* def_list = bb->get_pre_ssa_defs ();
-			def_list->push_back_all (bb->get_phi_lhss ());
+			def_list->push_back_all (bb->get_phi_lhss ()->to_list ());
 			def_list->push_back_all (bb->get_chi_lhss ());
 
 

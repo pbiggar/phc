@@ -185,6 +185,7 @@ libphc_la_SOURCES= 											\
 	src/optimize/ssa/Into_SSA.h							\
 	src/optimize/ssa/Out_of_SSA.h							\
 	src/optimize/ssa/Phi.cpp								\
+	src/optimize/Var_map.h									\
 	src/optimize/ssa/Phi.h									\
 	src/optimize/ssa/SSA.cpp								\
 	src/optimize/ssa/SSA.h									\

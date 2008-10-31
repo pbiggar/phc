@@ -10036,6 +10036,7 @@ bool VARIABLE_NAME::equals(Node* in)
     else if(*this->value != *that->value)
     	return false;
     
+    if(!VARIABLE_NAME::is_mixin_equal(that)) return false;
     if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
@@ -10148,6 +10149,15 @@ String* VARIABLE_NAME::get_ssa_var_name()
 		stringstream ss;
 		ss << *value << "__v" << version;
 		return new String (ss.str());
+	}
+}
+
+bool VARIABLE_NAME::is_mixin_equal(MIR ::Node* other)
+{
+    {
+		MIR::VARIABLE_NAME* other_var = dynamic_cast <MIR::VARIABLE_NAME*> (other);
+		assert (other_var);
+		return !(*other_var < *this && *this < *other_var);
 	}
 }
 

@@ -134,6 +134,16 @@ Set::clone ()
 	return result;
 }
 
+VARIABLE_NAME_list*
+Set::to_list ()
+{
+	VARIABLE_NAME_list* result = new VARIABLE_NAME_list;
+	foreach (VARIABLE_NAME* var, *this)
+		result->push_back (var);
+
+	return result;
+}
+
 
 bool
 variable_name_ptr_comparison (MIR::VARIABLE_NAME* p1, MIR::VARIABLE_NAME* p2)

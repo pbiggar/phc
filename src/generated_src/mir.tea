@@ -528,6 +528,13 @@ public:
 		return new String (ss.str());
 	}
 
+	bool is_mixin_equal (MIR::Node* other)
+	{
+		MIR::VARIABLE_NAME* other_var = dynamic_cast <MIR::VARIABLE_NAME*> (other);
+		assert (other_var);
+		return !(*other_var < *this && *this < *other_var);
+	}
+
 	int version;
 	bool in_ssa;
 	bool is_virtual;

@@ -139,7 +139,7 @@ SSA_stmt::get_uses ()
 	// current statement.
 	VARIABLE_NAME_list* result = new VARIABLE_NAME_list;
 	result->push_back_all (bb->cfg->duw->get_real_uses (bb));
-	result->push_back_all (bb->get_mus ());
+	result->push_back_all (bb->get_mus ()->to_list ());
 	result->push_back_all (bb->get_chi_rhss ());
 	return result;
 }

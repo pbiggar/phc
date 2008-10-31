@@ -6,6 +6,7 @@
 #include "CFG.h"
 #include "MIR.h"
 #include "Set.h"
+#include "Var_map.h"
 #include "ssa/SSA.h"
 
 /* Basic blocks */
@@ -112,7 +113,7 @@ public:
 	// Get the arguments with VARIABLE_NAME as the lhs.
 	MIR::Rvalue_list* get_phi_args (MIR::VARIABLE_NAME* phi_lhs);
 
-	MIR::VARIABLE_NAME_list* get_phi_lhss ();
+	Set* get_phi_lhss ();
 
 	MIR::Rvalue* get_phi_arg_for_edge (Edge*, MIR::VARIABLE_NAME* phi_lhs);
 	void set_phi_arg_for_edge (Edge*, MIR::VARIABLE_NAME* phi_lhs, MIR::Rvalue* arg);
@@ -125,10 +126,13 @@ public:
 	void add_mu_node (MIR::VARIABLE_NAME*);
 	void add_chi_node (MIR::VARIABLE_NAME*);
 
-	List<std::pair<MIR::VARIABLE_NAME*, MIR::VARIABLE_NAME*> >* get_chis ();
+	Var_map<MIR::VARIABLE_NAME*>* get_chis ();
 	MIR::VARIABLE_NAME_list* get_chi_lhss ();
 	MIR::VARIABLE_NAME_list* get_chi_rhss ();
-	MIR::VARIABLE_NAME_list* get_mus();
+	Set * get_mus();
+
+	void remove_chi (MIR::VARIABLE_NAME* lhs, MIR::VARIABLE_NAME* rhs);
+	void remove_mu (MIR::VARIABLE_NAME* rhs);
 
 	void remove_mu_nodes ();
 	void remove_chi_nodes ();
@@ -138,9 +142,9 @@ public:
 private:
 	// Instead of an explicit phi node, store the phi->lhs here, and the phi
 	// arguments in edges. Then they can be updated all-at-once.
-	MIR::VARIABLE_NAME_list* phi_lhss;
-	MIR::VARIABLE_NAME_list* mus;
-	List<std::pair<MIR::VARIABLE_NAME*, MIR::VARIABLE_NAME*> >* chis;
+	Set* phi_lhss;
+	Set* mus;
+	Var_map<MIR::VARIABLE_NAME*>* chis;
 
 public:
 	/*

@@ -5,8 +5,6 @@
 
 #include "optimize/CFG.h"
 
-using namespace boost;
-
 class Dominance : virtual public GC_obj
 {
 public:

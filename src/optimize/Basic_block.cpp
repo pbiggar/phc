@@ -9,6 +9,7 @@
 
 using namespace std;
 using namespace MIR;
+using namespace boost;
 
 /* Constructors */
 
@@ -16,9 +17,9 @@ Basic_block::Basic_block(CFG* cfg)
 : cfg(cfg)
 , vertex (NULL)
 {
-	phi_lhss = new VARIABLE_NAME_list;
-	mus = new VARIABLE_NAME_list;
-	chis = new List<pair<MIR::VARIABLE_NAME*, MIR::VARIABLE_NAME*> >;
+	phi_lhss = new Set;
+	mus = new Set;
+	chis = new Var_map<MIR::VARIABLE_NAME*>;
 }
 
 Branch_block::Branch_block (CFG* cfg, MIR::Branch* b)
@@ -209,12 +210,12 @@ Basic_block::get_graphviz_tail_properties ()
 void
 Basic_block::copy_phi_nodes (Basic_block* other)
 {
-	// Since a phi is an assignment, and variables can only be assigned to once,
-	// OTHER's PHIs cant exist in THIS.
+	// Since a phi is an assignment, and variables can only be assigned to
+	// once, OTHER's PHIs cant exist in THIS.
 	foreach (VARIABLE_NAME* phi_lhs, *other->get_phi_lhss ())
 		assert (!has_phi_node (phi_lhs));
 
-	phi_lhss->push_back_all (other->get_phi_lhss());
+	phi_lhss = phi_lhss->set_union (other->get_phi_lhss());
 }
 
 bool
@@ -236,19 +237,22 @@ void
 Basic_block::add_phi_node (VARIABLE_NAME* phi_lhs)
 {
 	assert (!has_phi_node (phi_lhs));
-	phi_lhss->push_back (phi_lhs->clone ());
+	phi_lhss->insert (phi_lhs->clone ());
 }
 
 void
 Basic_block::add_mu_node (VARIABLE_NAME* mu)
 {
-	mus->push_back (mu->clone ());
+	assert (!mus->has (mu));
+	mus->insert (mu->clone ());
 }
 
 void
 Basic_block::add_chi_node (VARIABLE_NAME* chi)
 {
-	chis->push_back (make_pair (chi->clone (), chi->clone ()));
+	assert (!chis->has (chi));
+	(*chis)[chi->clone ()] = chi->clone ();
+	assert (chis->has (chi));
 }
 
 void
@@ -280,10 +284,27 @@ Basic_block::remove_phi_node (VARIABLE_NAME* phi_lhs)
 
 	// TODO: are we trying to remove the pointer, when we have a different
 	// pointer to the same thing?
-	phi_lhss->remove (phi_lhs);
+	phi_lhss->erase (phi_lhs);
 	assert (!has_phi_node (phi_lhs));
 }
 
+
+void
+Basic_block::
+remove_chi (MIR::VARIABLE_NAME* lhs, MIR::VARIABLE_NAME* rhs)
+{
+	assert (chis->has (lhs));
+	chis->erase (lhs);
+	assert (!chis->has (lhs));
+}
+
+void
+Basic_block::remove_mu (MIR::VARIABLE_NAME* rhs)
+{
+	assert (mus->has (rhs));
+	mus->erase (rhs);
+	assert (!mus->has (rhs));
+}
 
 void
 Basic_block::remove_mu_nodes ()
@@ -351,56 +372,51 @@ Basic_block::get_phi_args (MIR::VARIABLE_NAME* phi_lhs)
 	return result;
 }
 
-VARIABLE_NAME_list*
+Set*
 Basic_block::get_phi_lhss()
 {
 	// Return a clone, since we sometimes like to update the list
 	// (but dont call ->clone, since we dont want clones of the variables).
-	VARIABLE_NAME_list* result = new VARIABLE_NAME_list;
-	result->push_back_all (phi_lhss);
-	return result;
+	return phi_lhss->set_union (new Set);
 }
 
 MIR::VARIABLE_NAME_list*
 Basic_block::get_chi_lhss ()
 {
 	VARIABLE_NAME_list* result = new VARIABLE_NAME_list;
-	VARIABLE_NAME* lhs;
-	VARIABLE_NAME* rhs;
+
+	VARIABLE_NAME *lhs, *rhs;
 	foreach (tie (lhs, rhs), *chis)
-	{
 		result->push_back (lhs);
-	}
+
+	return result;
+}
+
+MIR::VARIABLE_NAME_list*
+Basic_block::get_chi_rhss ()
+{
+	VARIABLE_NAME_list* result = new VARIABLE_NAME_list;
+
+	VARIABLE_NAME *lhs, *rhs;
+	foreach (tie (lhs, rhs), *chis)
+		result->push_back (rhs);
+
 	return result;
 }
 
 
-List<pair<MIR::VARIABLE_NAME*, MIR::VARIABLE_NAME*> >*
+Var_map<VARIABLE_NAME*>*
 Basic_block::get_chis ()
 {
 	return chis;
 }
 
 
-MIR::VARIABLE_NAME_list*
-Basic_block::get_chi_rhss ()
-{
-	VARIABLE_NAME_list* result = new VARIABLE_NAME_list;
-	VARIABLE_NAME* lhs;
-	VARIABLE_NAME* rhs;
-	foreach (tie (lhs, rhs), *chis)
-	{
-		result->push_back (rhs);
-	}
-	return result;
-}
 
-MIR::VARIABLE_NAME_list*
+Set*
 Basic_block::get_mus()
 {
-	VARIABLE_NAME_list* result = new VARIABLE_NAME_list;
-	result->push_back_all (mus);
-	return result;
+	return mus->set_union (new Set);
 }
 
 Rvalue*

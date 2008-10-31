@@ -87,7 +87,7 @@ SSA_renaming::rename_vars (Basic_block* bb)
 
 	// Rename local variable uses
 	VARIABLE_NAME_list* uses = bb->get_pre_ssa_uses ();
-	uses->push_back_all (bb->get_mus ());
+	uses->push_back_all (bb->get_mus ()->to_list ());
 	uses->push_back_all (bb->get_chi_rhss ());
 	foreach (VARIABLE_NAME* use, *uses)
 	{
