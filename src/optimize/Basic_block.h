@@ -101,7 +101,12 @@ public:
 	bool has_phi_node (MIR::VARIABLE_NAME* phi_lhs);
 	void add_phi_arg (MIR::VARIABLE_NAME* phi_lhs, int version, Edge* edge);
 	void remove_phi_nodes ();
+
+	// These are stored using operator< in VARIABLE_NAME, which changes when
+	// there VARIABLE_NAME changes.
 	void update_phi_node (MIR::VARIABLE_NAME* old_phi_lhs, MIR::VARIABLE_NAME* new_phi_lhs);
+	void update_chi_lhs (MIR::VARIABLE_NAME* old_chi_lhs, MIR::VARIABLE_NAME* new_chi_lhs);
+	void update_mu_node (MIR::VARIABLE_NAME* old_mu, MIR::VARIABLE_NAME* new_mu);
 
 	// Remove a node (including its args from the edges)
 	void remove_phi_node (MIR::VARIABLE_NAME* phi_lhs);
@@ -124,12 +129,13 @@ public:
 	 */
 public:
 	void add_mu_node (MIR::VARIABLE_NAME*);
-	void add_chi_node (MIR::VARIABLE_NAME*);
+	void add_chi_node (MIR::VARIABLE_NAME*, MIR::VARIABLE_NAME*);
 
 	Var_map<MIR::VARIABLE_NAME*>* get_chis ();
 	MIR::VARIABLE_NAME_list* get_chi_lhss ();
 	MIR::VARIABLE_NAME_list* get_chi_rhss ();
 	Set * get_mus();
+	MIR::VARIABLE_NAME* get_chi_rhs (MIR::VARIABLE_NAME* lhs);
 
 	void remove_chi (MIR::VARIABLE_NAME* lhs, MIR::VARIABLE_NAME* rhs);
 	void remove_mu (MIR::VARIABLE_NAME* rhs);

@@ -221,16 +221,7 @@ Basic_block::copy_phi_nodes (Basic_block* other)
 bool
 Basic_block::has_phi_node (VARIABLE_NAME* phi_lhs)
 {
-	foreach (VARIABLE_NAME* lhs, *phi_lhss)
-	{
-		// Only operator< is defined, not >= or ==
-		if (*lhs < *phi_lhs || *phi_lhs < *lhs)
-			continue;
-
-		return true;
-	}
-
-	return false;
+	return phi_lhss->has (phi_lhs);
 }
 
 void
@@ -238,6 +229,7 @@ Basic_block::add_phi_node (VARIABLE_NAME* phi_lhs)
 {
 	assert (!has_phi_node (phi_lhs));
 	phi_lhss->insert (phi_lhs->clone ());
+	assert (has_phi_node (phi_lhs));
 }
 
 void
@@ -245,22 +237,24 @@ Basic_block::add_mu_node (VARIABLE_NAME* mu)
 {
 	assert (!mus->has (mu));
 	mus->insert (mu->clone ());
+	assert (mus->has (mu));
 }
 
 void
-Basic_block::add_chi_node (VARIABLE_NAME* chi)
+Basic_block::add_chi_node (VARIABLE_NAME* lhs, VARIABLE_NAME* rhs)
 {
-	assert (!chis->has (chi));
-	(*chis)[chi->clone ()] = chi->clone ();
-	assert (chis->has (chi));
+	assert (!chis->has (lhs));
+	(*chis)[lhs->clone ()] = rhs->clone ();
+	assert (chis->has (lhs));
 }
 
 void
 Basic_block::add_phi_arg (VARIABLE_NAME* phi_lhs, int version, Edge* edge)
 {
-//	assert (has_phi_node (phi_lhs));
 	// phi_lhs doesnt have to be in SSA, since it will be updated later using
 	// update_phi_node, if it is not.
+	//	assert (has_phi_node (phi_lhs));
+
 	VARIABLE_NAME* arg = phi_lhs->clone ();
 	arg->set_version (version);
 	set_phi_arg_for_edge (edge, phi_lhs, arg);
@@ -286,6 +280,14 @@ Basic_block::remove_phi_node (VARIABLE_NAME* phi_lhs)
 	// pointer to the same thing?
 	phi_lhss->erase (phi_lhs);
 	assert (!has_phi_node (phi_lhs));
+}
+
+
+VARIABLE_NAME*
+Basic_block::get_chi_rhs (MIR::VARIABLE_NAME* lhs)
+{
+	assert (chis->has (lhs));
+	return (*chis)[lhs];
 }
 
 
@@ -358,6 +360,43 @@ Basic_block::update_phi_node (MIR::VARIABLE_NAME* old_phi_lhs, MIR::VARIABLE_NAM
 
 	remove_phi_node (old_phi_lhs);
 }
+
+void
+Basic_block::update_chi_lhs (MIR::VARIABLE_NAME* old_chi_lhs, MIR::VARIABLE_NAME* new_chi_lhs)
+{
+	assert (!old_chi_lhs->in_ssa);
+	assert (new_chi_lhs->in_ssa);
+	assert (*old_chi_lhs->value == *new_chi_lhs->value);
+
+	assert (chis->has (old_chi_lhs));
+	assert (!chis->has (new_chi_lhs));
+
+	VARIABLE_NAME* rhs = get_chi_rhs (old_chi_lhs);
+	remove_chi (old_chi_lhs, rhs);
+	add_chi_node (new_chi_lhs, rhs);
+
+	assert (!chis->has (old_chi_lhs));
+	assert (chis->has (new_chi_lhs));
+}
+
+void
+Basic_block::update_mu_node (MIR::VARIABLE_NAME* old_mu, MIR::VARIABLE_NAME* new_mu)
+{
+	assert (!old_mu->in_ssa);
+	assert (new_mu->in_ssa);
+	assert (*old_mu->value == *new_mu->value);
+
+	assert (mus->has (old_mu));
+	assert (!mus->has (new_mu));
+
+	remove_mu (old_mu);
+	add_mu_node (new_mu);
+
+	assert (!mus->has (old_mu));
+	assert (mus->has (new_mu));
+}
+
+
 
 
 

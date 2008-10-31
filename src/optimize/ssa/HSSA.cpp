@@ -497,6 +497,6 @@ HSSA::add_mu_and_chi_nodes (Set* aliases)
 			if (aliases->has (def))
 				foreach (VARIABLE_NAME* alias, *aliases)
 					if (!alias->equals (def))
-						bb->add_chi_node (alias);
+						bb->add_chi_node (alias, alias->clone ());
 	}
 }

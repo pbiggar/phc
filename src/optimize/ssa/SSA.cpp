@@ -71,44 +71,46 @@ SSA_renaming::rename_vars (Basic_block* bb)
 	DEBUG ("renaming vars in " << *bb->get_graphviz_label ());
 	debug_var_stacks ();
 
+	// Phis, Chis and Mus use indexing, and when we put them in SSA form,
+	// their indexing changes. As a result, we need to remove the old one, and
+	// add the new one.
+
 	// Convert the phi nodes
 	foreach (VARIABLE_NAME* phi_lhs, *bb->get_phi_lhss())
 	{
-		DEBUG ("converting phi lhs");
-		debug (phi_lhs);
-
 		VARIABLE_NAME* clone = phi_lhs->clone ();
 		create_new_ssa_name (clone);
 		bb->update_phi_node (phi_lhs, clone);
-
-		DEBUG (" to ");
-		debug (phi_lhs);
 	}
+
 
 	// Rename local variable uses
 	VARIABLE_NAME_list* uses = bb->get_pre_ssa_uses ();
-	uses->push_back_all (bb->get_mus ()->to_list ());
 	uses->push_back_all (bb->get_chi_rhss ());
 	foreach (VARIABLE_NAME* use, *uses)
-	{
-		DEBUG ("Converting use " << *use->get_ssa_var_name ());
-		debug (use);
 		use->convert_to_ssa_name (read_var_stack (use));
-		DEBUG (" to ");
-		debug (use);
+
+	// Mus are indexed on their var_name
+	foreach (VARIABLE_NAME* mu, *bb->get_mus())
+	{
+		VARIABLE_NAME* clone = mu->clone ();
+		clone->convert_to_ssa_name (read_var_stack (clone));
+		bb->update_mu_node (mu, clone);
 	}
 
+
 	// Create new names for defs
-	VARIABLE_NAME_list* defs = bb->get_pre_ssa_defs ();
-	defs->push_back_all (bb->get_chi_lhss ());
-	foreach (VARIABLE_NAME* def, *defs)
-	{
-		DEBUG ("Converting def " << *def->get_ssa_var_name ());
-		debug (def);
+	foreach (VARIABLE_NAME* def, *bb->get_pre_ssa_defs ())
 		create_new_ssa_name (def);
-		DEBUG (" to ");
-		debug (def);
+
+	// Chis are indexed on the lhs
+	foreach (VARIABLE_NAME* lhs, *bb->get_chi_lhss ())
+	{
+		VARIABLE_NAME* clone = lhs->clone ();
+		create_new_ssa_name (clone);
+		bb->update_chi_lhs (lhs, clone);
 	}
+
 
 	// Copy names to CFG successors (including names defined in
 	// predecessor, which are not redefined here).
