@@ -235,7 +235,10 @@ Basic_block::add_phi_node (VARIABLE_NAME* phi_lhs)
 void
 Basic_block::add_mu_node (VARIABLE_NAME* mu)
 {
-	assert (!mus->has (mu));
+	// Same as add_chi_node RE duplicates.
+	if (mus->has (mu))
+		assert (mu->in_ssa == false);
+
 	mus->insert (mu->clone ());
 	assert (mus->has (mu));
 }
@@ -243,7 +246,12 @@ Basic_block::add_mu_node (VARIABLE_NAME* mu)
 void
 Basic_block::add_chi_node (VARIABLE_NAME* lhs, VARIABLE_NAME* rhs)
 {
-	assert (!chis->has (lhs));
+	// Its OK for this to be here already, say, if there are two uses of the
+	// same variable which have the same alias set. It doesnt matter that
+	// there is only 1 chi for it.
+	if (chis->has (lhs))
+		assert (lhs->in_ssa == false);
+
 	(*chis)[lhs->clone ()] = rhs->clone ();
 	assert (chis->has (lhs));
 }
