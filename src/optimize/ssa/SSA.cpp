@@ -68,6 +68,16 @@ SSA_renaming::debug_var_stacks ()
 void 
 SSA_renaming::rename_vars (Basic_block* bb)
 {
+	// Ordering is important here:
+	//		- Phi nodes occur before the function, so 1) args get renamed, then
+	//		  2) the lhs (actually, this node's phi args are renamed in the
+	//		  precessors).
+	//		- 3) The statement itself uses the result of the phi operation
+	//		- 4) Mu nodes use the uses
+	//		- 5) The statements def occur after the uses
+	//		- 6) The chi uses occur after the statement def
+	//		- 7) The chi defs occur after the chi uses
+	//
 	DEBUG ("renaming vars in " << *bb->get_graphviz_label ());
 	debug_var_stacks ();
 
@@ -75,7 +85,7 @@ SSA_renaming::rename_vars (Basic_block* bb)
 	// their indexing changes. As a result, we need to remove the old one, and
 	// add the new one.
 
-	// Convert the phi nodes
+	// 2) Convert the phi nodes
 	foreach (VARIABLE_NAME* phi_lhs, *bb->get_phi_lhss())
 	{
 		VARIABLE_NAME* clone = phi_lhs->clone ();
@@ -84,12 +94,11 @@ SSA_renaming::rename_vars (Basic_block* bb)
 	}
 
 
-	// Rename local variable uses
-	VARIABLE_NAME_list* uses = bb->get_pre_ssa_uses ();
-	uses->push_back_all (bb->get_chi_rhss ());
-	foreach (VARIABLE_NAME* use, *uses)
+	// 3) Rename the statement's uses
+	foreach (VARIABLE_NAME* use, *bb->get_pre_ssa_uses ())
 		use->convert_to_ssa_name (read_var_stack (use));
 
+	// 4) Mus
 	// Mus are indexed on their var_name
 	foreach (VARIABLE_NAME* mu, *bb->get_mus())
 	{
@@ -99,11 +108,15 @@ SSA_renaming::rename_vars (Basic_block* bb)
 	}
 
 
-	// Create new names for defs
+	// 5) Create new names for defs
 	foreach (VARIABLE_NAME* def, *bb->get_pre_ssa_defs ())
 		create_new_ssa_name (def);
 
-	// Chis are indexed on the lhs
+	// 6) Rename the chi's uses
+	foreach (VARIABLE_NAME* use, *bb->get_chi_rhss ())
+		use->convert_to_ssa_name (read_var_stack (use));
+
+	// 7) Chis are indexed on the lhs
 	foreach (VARIABLE_NAME* lhs, *bb->get_chi_lhss ())
 	{
 		VARIABLE_NAME* clone = lhs->clone ();
