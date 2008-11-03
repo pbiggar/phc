@@ -21,7 +21,9 @@ public:
 	//		++$def;
 	void pre_ssa_pre_op (MIR::SSA_pre_op* in, MIR::Statement_list* out)
 	{
-		out->push_back (new MIR::Assign_var (in->def, false, in->use));
+		if (not in->def->equals (in->use))
+			out->push_back (new MIR::Assign_var (in->def, false, in->use));
+
 		out->push_back (new MIR::Pre_op (in->op, in->def));
 	}
 };
