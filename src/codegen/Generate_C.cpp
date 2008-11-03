@@ -184,6 +184,7 @@ string get_non_st_name (VARIABLE_NAME* var_name)
 	return prefix (*var_name->value, "local");
 }
 
+string read_literal (Scope, string, Literal*);
 
 // Declare and fetch a zval* containing the value for RVALUE. The value can be
 // changed, but the symbol-table entry cannot be affected through this.
@@ -191,7 +192,9 @@ string read_rvalue (Scope scope, string zvp, Rvalue* rvalue)
 {
 	stringstream ss;
 	if (isa<Literal> (rvalue))
-		phc_unsupported (rvalue, "Rvalues");
+	{
+		return read_literal (scope, zvp, dyc<Literal> (rvalue));
+	}
 
 	VARIABLE_NAME* var_name = dyc<VARIABLE_NAME> (rvalue);
 	if (scope == LOCAL && var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
@@ -1099,7 +1102,7 @@ public:
 	virtual string prefix () = 0;
 	virtual K key () = 0;
 
-protected:
+public:
 	Wildcard<T>* rhs;
 };
 
@@ -1198,6 +1201,60 @@ public:
 		return ss.str();
 	}
 };
+
+string
+read_literal (Scope scope, string zvp, Literal* lit)
+{
+	Pattern_assign_value* pattern;
+	switch (lit->classid ())
+	{
+		case INT::ID:
+		{
+			Pattern_assign_lit_int* p = new Pattern_assign_lit_int;
+			p->rhs = new Wildcard<INT>;
+			p->rhs->value = dyc<INT> (lit);
+			pattern = p;
+			break;
+		}
+		case REAL::ID:
+		{
+			Pattern_assign_lit_real* p = new Pattern_assign_lit_real;
+			p->rhs = new Wildcard<REAL>;
+			p->rhs->value = dyc<REAL> (lit);
+			pattern = p;
+			break;
+		}
+		case NIL::ID:
+		{
+			Pattern_assign_lit_nil* p = new Pattern_assign_lit_nil;
+			p->rhs = new Wildcard<NIL>;
+			p->rhs->value = dyc<NIL> (lit);
+			pattern = p;
+			break;
+		}
+		case STRING::ID:
+		{
+			Pattern_assign_lit_string* p = new Pattern_assign_lit_string;
+			p->rhs = new Wildcard<STRING>;
+			p->rhs->value = dyc<STRING> (lit);
+			pattern = p;
+			break;
+		}
+		case BOOL::ID:
+		{
+			Pattern_assign_lit_bool* p = new Pattern_assign_lit_bool;
+			p->rhs = new Wildcard<BOOL>;
+			p->rhs->value = dyc<BOOL> (lit);
+			pattern = p;
+			break;
+		}
+		default:
+			phc_unreachable ();
+	}
+	stringstream ss;
+	pattern->initialize (ss, zvp);
+	return ss.str();
+}
 
 // Isset uses Pattern_assign_value, as it only has a boolean value. It puts the
 // BOOL into the ready made zval.
