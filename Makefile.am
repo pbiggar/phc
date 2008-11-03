@@ -176,6 +176,8 @@ libphc_la_SOURCES= 											\
 	src/optimize/Live_variable_analysis.h				\
 	src/optimize/SCCP.cpp									\
 	src/optimize/SCCP.h										\
+-	src/optimize/Prune_symbol_table.cpp					\
+-	src/optimize/Prune_symbol_table.h					\
 	src/optimize/Set.cpp										\
 	src/optimize/Set.h										\
 	src/optimize/ssa/Dominance.cpp						\
@@ -185,7 +187,6 @@ libphc_la_SOURCES= 											\
 	src/optimize/ssa/Into_SSA.h							\
 	src/optimize/ssa/Out_of_SSA.h							\
 	src/optimize/ssa/Phi.cpp								\
-	src/optimize/Var_map.h									\
 	src/optimize/ssa/Phi.h									\
 	src/optimize/ssa/SSA.cpp								\
 	src/optimize/ssa/SSA.h									\
@@ -193,6 +194,7 @@ libphc_la_SOURCES= 											\
 	src/optimize/ssa/SSA_ops.h								\
 	src/optimize/ssa/Virtual_variable.cpp				\
 	src/optimize/ssa/Virtual_variable.h					\
+	src/optimize/Var_map.h									\
 	src/optimize/Visit_once.cpp							\
 	src/optimize/Visit_once.h								\
 	src/parsing/Parse_buffer.cpp							\

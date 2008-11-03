@@ -36,6 +36,7 @@
 #include "optimize/Def_use.h"
 #include "optimize/If_simplification.h"
 #include "optimize/Live_variable_analysis.h"
+#include "optimize/Prune_symbol_table.h"
 #include "optimize/SCCP.h"
 #include "optimize/ssa/Into_SSA.h"
 #include "optimize/ssa/Out_of_SSA.h"
@@ -183,6 +184,7 @@ int main(int argc, char** argv)
 	// codegen passes
 	stringstream ss;
 	pm->add_codegen_transform (new Out_of_SSA (), s("outssa"), s("Remove SSA constructs"));
+	pm->add_codegen_visitor (new Prune_symbol_table (), s("pst"), s("Prune Symbol Table - Note whether a symbol table is required in generated code"));
 	pm->add_codegen_pass (new Generate_C (ss));
 	pm->add_codegen_pass (new Compile_C (ss));
 
