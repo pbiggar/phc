@@ -183,15 +183,23 @@ HSSA::convert_out_of_ssa_form ()
 	}
 
 
-	// Drop variable indices 
+	// Drop variable indices - some variables exist in multiple 
 	rebuild_ssa_form (); // we only care about DUW
 	foreach (Basic_block* bb, *cfg->get_all_bbs ())
 	{
+		// TODO: real seems the opposite of virtual, but its OK to get virtual
+		// uses here. _direct_ may be a better adjective.
 		foreach (VARIABLE_NAME* var, *cfg->duw->get_real_uses (bb))
-			var->drop_ssa_index();
+		{
+			if (var->in_ssa)
+				var->drop_ssa_index();
+		}
 
 		foreach (VARIABLE_NAME* var, *cfg->duw->get_real_defs (bb))
-			var->drop_ssa_index();
+		{
+			if (var->in_ssa)
+				var->drop_ssa_index();
+		}
 	}
 
 

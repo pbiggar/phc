@@ -319,13 +319,13 @@ Basic_block::remove_mu (MIR::VARIABLE_NAME* rhs)
 void
 Basic_block::remove_mu_nodes ()
 {
-	chis->clear ();
+	mus->clear ();
 }
 
 void
 Basic_block::remove_chi_nodes ()
 {
-	mus->clear ();
+	chis->clear ();
 }
 
 void

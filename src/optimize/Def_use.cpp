@@ -403,6 +403,12 @@ Def_use_web::visit_array_access (Statement_block* bb, Array_access* in)
 {
 	add_use (in->variable_name, new SSA_stmt (bb));
 	add_use (in->index, new SSA_stmt (bb));
+
+	// Virtuals are intentionally created using an SSA_stmt. Chis and mus are
+	// indirect, but virtuals do not represent indirect variables.
+
+	// TODO: assignments to and uses of virtuals do not appear in the graphviz
+	// graph. 
 	add_use (get_virtual (in), new SSA_stmt (bb));
 }
 
