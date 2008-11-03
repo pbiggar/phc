@@ -9,7 +9,7 @@ class SM_module {
 class SM_codePlate {
 }
 
-$includedir = $_ENV["PCC_HOME"] . "/benchmarks/data/include/";
+$includedir = "test/subjects/3rdparty/benchmarks/roadsend/benchmarks/data/include/";
 
 include_once($includedir . "/inc.php");
 include_once($includedir . "/finc.php");
