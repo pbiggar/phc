@@ -1252,6 +1252,12 @@ read_literal (Scope scope, string zvp, Literal* lit)
 			phc_unreachable ();
 	}
 	stringstream ss;
+	ss
+	<< "zval " << zvp << "_lit_tmp;\n"
+	<< "INIT_ZVAL (" << zvp << "_lit_tmp);\n"
+	<< "zval* " << zvp << " = &" << zvp << "_lit_tmp;\n"
+	;
+	
 	pattern->initialize (ss, zvp);
 	return ss.str();
 }
