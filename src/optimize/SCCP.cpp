@@ -635,8 +635,9 @@ SCCP::transform_method_invocation (Statement_block*, Method_invocation* in)
 		{
 			// TODO: We can replace a argument with its actual parameter (watch
 			// out for refs) (only if passing by copy)
-			if (!param->is_ref && get_literal (param->rvalue))
-				param->rvalue = get_literal (param->rvalue);
+			// TODO: re-enable once codegen supports it. (also, once we can check signatures)
+//			if (!param->is_ref && get_literal (param->rvalue))
+//				param->rvalue = get_literal (param->rvalue);
 		}
 	}
 
