@@ -56,5 +56,30 @@ parsing/comments_declare.php		no-cb_AST-to-HIR
 parsing/capital_ticks.php			no-cb_AST-to-HIR
 parsing/layout5_declare.php		no-cb_AST-to-HIR
 
-#.*										long
-#unsupported/.*						short
+benchmarks/.*						long
+
+benchmarks/shootout/.*											interpretable
+benchmarks/shootout/knucleotide.php							non-interpretable # uses stdin
+benchmarks/shootout/moments.php								non-interpretable # uses stdin
+benchmarks/shootout/regexdna.php-2.php						non-interpretable # uses stdin
+benchmarks/shootout/regexmatch.php							non-interpretable # uses stdin
+benchmarks/shootout/revcomp.php								non-interpretable # uses stdin
+benchmarks/shootout/reversefile.php							non-interpretable # uses stdin
+benchmarks/shootout/spellcheck.php							non-interpretable # uses stdin
+benchmarks/shootout/sumcol.php								non-interpretable # uses stdin
+benchmarks/shootout/wc.php										non-interpretable # uses stdin
+benchmarks/shootout/wordfreq.php								non-interpretable # uses stdin
+
+
+benchmarks/RUBBoS/.*												non-interpretable # uses a DB
+
+benchmarks/roadsend/benchmarks/tests/.*					interpretable
+benchmarks/roadsend/benchmarks/tests/julia-ppm.php		non-interpretable # writes a file
+benchmarks/roadsend/benchmarks/tests/mysql.*				non-interpretable # uses a DB
+benchmarks/roadsend/benchmarks/regression/.*				non-interpretable # reads /etc/passwd
+benchmarks/roadsend/benchmarks/data/include/.*			non-interpretable # generated code TODO remove
+
+# These tests print out timing results, which wont be identical in interpretable tests
+benchmarks/phpbench-0.8.1/.*									non-interpretable
+benchmarks/php_bs/.*												non-interpretable
+benchmarks/zend/.*												interpretable
