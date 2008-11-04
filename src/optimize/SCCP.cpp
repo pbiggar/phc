@@ -525,7 +525,11 @@ SCCP::transform_bin_op (Statement_block*, Bin_op* in)
 
 	if (isa<Literal> (in->left) 
 			&& isa<Literal> (in->right))
-		return PHP::fold_bin_op (left, in->op, right);
+	{
+		Literal* result = PHP::fold_bin_op (left, in->op, right);
+		if (result)
+			return result;
+	}
 
 	return in;
 }
@@ -536,7 +540,11 @@ SCCP::transform_cast (Statement_block*, Cast* in)
 	Literal* lit = get_literal (in->variable_name);
 
 	if (lit)
-		return PHP::cast_to (in->cast, lit);
+	{
+		Literal* result = PHP::cast_to (in->cast, lit);
+		if (result)
+			return result;
+	}
 
 	return in;
 }
@@ -656,7 +664,6 @@ Expr*
 SCCP::transform_param_is_ref (Statement_block*, Param_is_ref* in)
 {
 	// TODO go through embed.
-	die ();
 	return in;
 }
 

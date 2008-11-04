@@ -124,7 +124,8 @@ eval_to_literal (stringstream& code)
 
 	zval value;
 	bool ret = eval_string (code_str, &value);
-	assert (ret); // true/false not SUCCESS/FAILURE
+	if (!ret) // true/false not SUCCESS/FAILURE
+		return NULL;
 
 	Literal* result = zval_to_mir_literal (&value);
 	zval_dtor (&value); // clear out string structure
