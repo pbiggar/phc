@@ -337,15 +337,21 @@ SCCP::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 	if (lattice[in->lhs] == BOTTOM)
 		return;
 
-	assert (in->is_ref == false); // TODO
-
 	Expr* expr = transform_expr (bb, in->rhs->clone ());
+
+	// Dont transform the assignment, just the expression.
+	// TODO: I'm sure we can optimize here.
+	if (in->is_ref)
+	{
+		lattice[in->lhs] = BOTTOM;
+		return;
+	}
 
 	Lattice_cell* old = lattice[in->lhs];
 
 
 	// If it changes the lattice value,
-	if (isa<Literal> (expr) && old== TOP)
+	if (isa<Literal> (expr) && old == TOP)
 		lattice[in->lhs] = new Lattice_cell (dyc<Literal> (expr));
 	else if (!isa<Literal> (expr))
 		lattice[in->lhs] = BOTTOM;
