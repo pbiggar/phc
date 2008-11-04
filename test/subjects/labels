@@ -56,7 +56,7 @@ parsing/comments_declare.php		no-cb_AST-to-HIR
 parsing/capital_ticks.php			no-cb_AST-to-HIR
 parsing/layout5_declare.php		no-cb_AST-to-HIR
 
-benchmarks/.*						long
+benchmarks/.*						long no-Refcounts
 
 benchmarks/shootout/.*											interpretable
 benchmarks/shootout/knucleotide.php							non-interpretable # uses stdin
