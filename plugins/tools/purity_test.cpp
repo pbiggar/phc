@@ -808,7 +808,7 @@ public:
 	{
 		if (not pure)
 		{
-			AST_unparser unparser;
+			AST_unparser unparser (cout, true);
 			cout << "Impure: ";
 			unparser.unparse (impurity);
 			cout << endl;
