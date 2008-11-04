@@ -131,11 +131,12 @@ function create_label_struct ($directory, $label_filename, $third_party_filename
 				global $phc, $plugin_dir;
 				if (`$phc --run $plugin_dir/tools/purity_test.la $filename 2>&1` == "")
 				{
-					$pure[] = $filename;
+					log_status ("pure", "", $filename, "");
 					$labelled_files{$filename}{"non-interpretable"} = 0;
 				}
 				else
 				{
+					log_status ("impure", "", $filename, "");
 					$labelled_files{$filename}{"non-interpretable"} = 1;
 				}
 			}
@@ -202,7 +203,7 @@ function process_label_file_line ($line, $files, $labelled_files)
 			}
 			else if ($label == "check-interpretable")
 			{
-				$labelled_files{$filename}{"interpretable"} = "check";
+				$labelled_files{$filename}{"non-interpretable"} = "check";
 			}
 			else
 			{
