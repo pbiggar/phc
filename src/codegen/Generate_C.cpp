@@ -118,6 +118,34 @@ void Generate_C::run (IR::PHP_script* in, Pass_manager* pm)
  * Helper functions
  */
 
+// Escape according to C rules (this varies slightly from unparsing for PHP and
+// dot).
+string C_escape(String* s)
+{
+	stringstream ss;
+
+	foreach (char c, *s)
+	{
+		if(c == '"' || c == '\\')
+		{
+			ss << "\\" << c;
+		}
+		else if(c >= 32 && c < 127)
+		{
+			ss << c;
+		}
+		else
+		{
+			ss << "\\" << setw(3) << setfill('0') << oct << uppercase << (unsigned long int)(unsigned char) c;
+			ss << resetiosflags(code.flags());
+		}
+	}
+
+	return ss.str();
+}
+
+
+
 enum Scope { LOCAL, GLOBAL };
 string get_scope (Scope scope)
 {
@@ -1046,48 +1074,24 @@ public:
 stringstream initializations;
 stringstream finalizations;
 
-template<class T, class K>
+template<class Specializer>
 class Pattern_assign_literal : public Pattern_assign_value
 {
 public:
 	Expr* rhs_pattern()
 	{
-		rhs = new Wildcard<T>;
+		rhs = new Wildcard<typename Specializer::PHC_TYPE>;
 		return rhs;
 	}
 
 	// record if we've seen this variable before
 	void generate_rhs ()
 	{
+		Specializer* spec = new Specializer;
 		assert (!agn->is_ref);
-		// TODO If this isnt static, there is a new hash each time,
-		// because there is a new object each time it is called. Why is
-		// there a new object each time?
-		static Map<K, string> vars;
 		if (args_info->optimize_given)
 		{
-			// The first time we see a constant, we add a declaration,
-			// initialization and finalization. After that, we find the
-			// first one and refer to it.
-
-
-			string var;
-			if (vars.find (key ()) != vars.end ())
-				var = vars [key ()];
-			else
-			{
-				// This is the first time we see the variable. Create the
-				// variables and add declarations. 
-				stringstream name;
-				name << prefix() << vars.size ();
-				var = name.str ();
-				vars [key ()] = var;
-
-				prologue << "zval* " << var << ";\n";
-				finalizations << "zval_ptr_dtor (&" << var << ");\n";
-				initializations << "ALLOC_INIT_ZVAL (" << var << ");\n";
-				initialize (initializations, var);
-			}
+			string var = spec->get_var (rhs->value);
 			code
 			<< "if (" << var << " != *p_lhs)\n"
 			<<		"write_var (p_lhs, &" << var << ", NULL TSRMLS_CC);\n"
@@ -1099,47 +1103,102 @@ public:
 		}
 	}
 
-	virtual string prefix () = 0;
-	virtual K key () = 0;
+	void initialize (ostream& os, string var)
+	{
+		// Delegate to more specific initialize, below.
+		Specializer* spec = new Specializer;
+		spec->initialize (os, var, rhs->value);
+	}
 
 public:
-	Wildcard<T>* rhs;
+	Wildcard<typename Specializer::PHC_TYPE>* rhs;
 };
 
-class Pattern_assign_lit_bool : public Pattern_assign_literal<BOOL, bool>
+template<class PHC_type, class C_type>
+class Literal_specializer : virtual public GC_obj
 {
-	string prefix () { return "phc_const_pool_bool_"; }
-	bool key () { return rhs->value->value; }
+public:
+	// Make available to other classes
+	typedef PHC_type PHC_TYPE;
 
-	void initialize (ostream& os, string var)
+	// record if we've seen this variable before
+	string get_var (PHC_type* value)
+	{
+		// TODO If this isnt static, there is a new hash each time,
+		// because there is a new object each time it is called. Why is
+		// there a new object each time?
+		static Map<C_type, string> vars;
+		if (args_info->optimize_given)
+		{
+			// The first time we see a constant, we add a declaration,
+			// initialization and finalization. After that, we find the
+			// first one and refer to it.
+			string var;
+			if (vars.find (key (value)) != vars.end ())
+				return vars [key (value)];
+			else
+			{
+				// This is the first time we see the variable. Create the
+				// variables and add declarations. 
+				stringstream name;
+				name << prefix() << vars.size ();
+				var = name.str ();
+				vars [key (value)] = var;
+
+				prologue << "zval* " << var << ";\n";
+				finalizations << "zval_ptr_dtor (&" << var << ");\n";
+				initializations << "ALLOC_INIT_ZVAL (" << var << ");\n";
+				initialize (initializations, var, value);
+
+				return var;
+			}
+		}
+		assert (0);
+	}
+
+	virtual void initialize (ostream& os, string var, PHC_type*) = 0;
+	virtual string prefix () = 0;
+	virtual C_type key (PHC_type* v) = 0;
+};
+
+
+class BOOL_specializer : public Literal_specializer<BOOL, bool>
+{
+public:
+	string prefix () { return "phc_const_pool_bool_"; }
+	bool key (BOOL* value) { return value->value; }
+
+	void initialize (ostream& os, string var, BOOL* value)
 	{
 		os	<< "ZVAL_BOOL (" << var << ", " 
-			<<		(rhs->value->value ? 1 : 0) << ");\n";
+			<<		(value->value ? 1 : 0) << ");\n";
 	}
 
 };
 
-class Pattern_assign_lit_int : public Pattern_assign_literal<INT, long>
+class INT_specializer : public Literal_specializer<INT, long>
 {
+public:
 	string prefix () { return "phc_const_pool_int_"; }
-	long key () { return rhs->value->value; }
+	long key (INT* value) { return value->value; }
 
-	void initialize (ostream& os, string var)
+	void initialize (ostream& os, string var, INT* value)
 	{
-		os << "ZVAL_LONG (" << var << ", " << rhs->value->value << ");\n";
+		os << "ZVAL_LONG (" << var << ", " << value->value << ");\n";
 	}
 };
 
-class Pattern_assign_lit_real : public Pattern_assign_literal<REAL, double>
+class REAL_specializer : public Literal_specializer<REAL, double>
 {
+public:
 	string prefix () { return "phc_const_pool_real_"; }
-	double key () { return rhs->value->value; }
+	double key (REAL* value) { return value->value; }
 
-	void initialize (ostream& os, string var)
+	void initialize (ostream& os, string var, REAL* value)
 	{
 		os << "{\n";
 		// Construct the value a byte at a time from our representation in memory.
-		unsigned char* values_bytes = (unsigned char*)(&rhs->value->value);
+		unsigned char* values_bytes = (unsigned char*)(&value->value);
 		os << "unsigned char val[] = {";
 		for (unsigned int i = 0; i < sizeof (double); i++)
 		{
@@ -1152,114 +1211,103 @@ class Pattern_assign_lit_real : public Pattern_assign_literal<REAL, double>
 	}
 };
 
-class Pattern_assign_lit_nil : public Pattern_assign_literal<NIL, string>
+class NIL_specializer : public Literal_specializer<NIL, string>
 {
+public:
 	string prefix () { return "phc_const_pool_null_"; }
-	string key () { return ""; }
+	string key (NIL* value) { return ""; }
 
-	void initialize (ostream& os, string var)
+	void initialize (ostream& os, string var, NIL* value)
 	{
 		os << "ZVAL_NULL (" << var << ");\n";
 	}
 };
 
-class Pattern_assign_lit_string : public Pattern_assign_literal<STRING, string>
+class STRING_specializer : public Literal_specializer<STRING, string>
 {
+public:
 	string prefix () { return "phc_const_pool_string_"; }
-	string key () { return *rhs->value->value; }
+	string key (STRING* value) { return *value->value; }
 
-	void initialize (ostream& os, string var)
+	void initialize (ostream& os, string var, STRING* value)
 	{
 		os << "ZVAL_STRINGL(" << var << ", " 
-			<<		"\"" << escape(rhs->value->value) << "\", "
-			<<		rhs->value->value->length() << ", 1);\n";
+			<<		"\"" << C_escape(value->value) << "\", "
+			<<		value->value->length() << ", 1);\n";
 	}
-public:
-	// Escape according to C rules (this varies slightly from unparsing for PHP
-	// and dot).
-	static string escape(String* s)
-	{
-		stringstream ss;
 
-		foreach (char c, *s)
-		{
-			if(c == '"' || c == '\\')
-			{
-				ss << "\\" << c;
-			}
-			else if(c >= 32 && c < 127)
-			{
-				ss << c;
-			}
-			else
-			{
-				ss << "\\" << setw(3) << setfill('0') << oct << uppercase << (unsigned long int)(unsigned char) c;
-				ss << resetiosflags(code.flags());
-			}
-		}
-
-		return ss.str();
-	}
 };
+
+
+
+class Pattern_assign_lit_bool : public Pattern_assign_literal<BOOL_specializer> {};
+class Pattern_assign_lit_int : public Pattern_assign_literal<INT_specializer> {};
+class Pattern_assign_lit_nil: public Pattern_assign_literal<NIL_specializer> {};
+class Pattern_assign_lit_real : public Pattern_assign_literal<REAL_specializer> {};
+class Pattern_assign_lit_string : public Pattern_assign_literal<STRING_specializer> {};
+
 
 string
 read_literal (Scope scope, string zvp, Literal* lit)
 {
-	Pattern_assign_value* pattern;
-	switch (lit->classid ())
+	if (args_info->optimize_given)
 	{
-		case INT::ID:
+		stringstream ss;
+		ss << "zval* " << zvp << " = ";
+		switch (lit->classid ())
 		{
-			Pattern_assign_lit_int* p = new Pattern_assign_lit_int;
-			p->rhs = new Wildcard<INT>;
-			p->rhs->value = dyc<INT> (lit);
-			pattern = p;
-			break;
+			case INT::ID:
+				ss << (new INT_specializer)->get_var (dyc<INT> (lit));
+				break;
+			case REAL::ID:
+				ss << (new REAL_specializer)->get_var (dyc<REAL> (lit));
+				break;
+			case NIL::ID:
+				ss << (new NIL_specializer)->get_var (dyc<NIL> (lit));
+				break;
+			case STRING::ID:
+				ss << (new STRING_specializer)->get_var (dyc<STRING> (lit));
+				break;
+			case BOOL::ID:
+				ss << (new BOOL_specializer)->get_var (dyc<BOOL> (lit));
+				break;
+			default:
+				phc_unreachable ();
 		}
-		case REAL::ID:
-		{
-			Pattern_assign_lit_real* p = new Pattern_assign_lit_real;
-			p->rhs = new Wildcard<REAL>;
-			p->rhs->value = dyc<REAL> (lit);
-			pattern = p;
-			break;
-		}
-		case NIL::ID:
-		{
-			Pattern_assign_lit_nil* p = new Pattern_assign_lit_nil;
-			p->rhs = new Wildcard<NIL>;
-			p->rhs->value = dyc<NIL> (lit);
-			pattern = p;
-			break;
-		}
-		case STRING::ID:
-		{
-			Pattern_assign_lit_string* p = new Pattern_assign_lit_string;
-			p->rhs = new Wildcard<STRING>;
-			p->rhs->value = dyc<STRING> (lit);
-			pattern = p;
-			break;
-		}
-		case BOOL::ID:
-		{
-			Pattern_assign_lit_bool* p = new Pattern_assign_lit_bool;
-			p->rhs = new Wildcard<BOOL>;
-			p->rhs->value = dyc<BOOL> (lit);
-			pattern = p;
-			break;
-		}
-		default:
-			phc_unreachable ();
+		ss << ";\n";
+		return ss.str();
 	}
-	stringstream ss;
-	ss
-	<< "zval " << zvp << "_lit_tmp;\n"
-	<< "INIT_ZVAL (" << zvp << "_lit_tmp);\n"
-	<< "zval* " << zvp << " = &" << zvp << "_lit_tmp;\n"
-	;
-	
-	pattern->initialize (ss, zvp);
-	return ss.str();
+	else
+	{
+		stringstream ss;
+		ss
+		<< "zval " << zvp << "_lit_tmp;\n"
+		<< "INIT_ZVAL (" << zvp << "_lit_tmp);\n"
+		<< "zval* " << zvp << " = &" << zvp << "_lit_tmp;\n"
+		;
+
+		switch (lit->classid ())
+		{
+			case INT::ID:
+				(new INT_specializer)->initialize (ss, zvp, dyc<INT> (lit));
+				break;
+			case REAL::ID:
+				(new REAL_specializer)->initialize (ss, zvp, dyc<REAL> (lit));
+				break;
+			case NIL::ID:
+				(new NIL_specializer)->initialize (ss, zvp, dyc<NIL> (lit));
+				break;
+			case STRING::ID:
+				(new STRING_specializer)->initialize (ss, zvp, dyc<STRING> (lit));
+				break;
+			case BOOL::ID:
+				(new BOOL_specializer)->initialize (ss, zvp, dyc<BOOL> (lit));
+				break;
+			default:
+				phc_unreachable ();
+		}
+		return ss.str();
+	}
 }
 
 // Isset uses Pattern_assign_value, as it only has a boolean value. It puts the
@@ -2496,7 +2544,7 @@ void Generate_C::children_statement(Statement* in)
 		if (str == "")
 			continue;
 
-		code << "// " << Pattern_assign_lit_string::escape (s(str)) << endl;
+		code << "// " << C_escape (s(str)) << endl;
 	}
 
 	Pattern* patterns[] = 
