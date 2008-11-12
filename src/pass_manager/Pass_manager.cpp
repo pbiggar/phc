@@ -570,6 +570,24 @@ bool is_queue_pass (String* name, Pass_queue* queue)
 	return false;
 }
 
+void
+Pass_manager::cfg_dump (CFG* cfg, Pass* pass, String* comment, int iteration)
+{
+	//	for (unsigned int i = 0; i < args_info->cfg_dump_given; i++)
+	//		if (*cfg_pass->name == args_info->cfg_dump_arg [i])
+	//			cfg->dump_graphviz (cfg_pass->name);
+	
+	stringstream title;
+	title << *pass->name;
+	if (comment)
+		title << " - " << *comment;
+
+	title << " - " << iteration;
+
+	if (args_info->cfg_dump_given)
+		cfg->dump_graphviz (s(title.str()));
+}
+
 
 void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 {
@@ -602,71 +620,63 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 
 			maybe_enable_debug (cfg_pass);
 			CFG* cfg = new CFG (method);
-//			for (unsigned int i = 0; i < args_info->cfg_dump_given; i++)
-//				if (*cfg_pass->name == args_info->cfg_dump_arg [i])
-//					cfg->dump_graphviz (cfg_pass->name);
-			if (args_info->cfg_dump_given)
-				cfg->dump_graphviz (cfg_pass->name);
-
-			HSSA* hssa = new HSSA(cfg);
-
-
-			maybe_enable_debug (into_ssa_pass);
-			hssa->convert_to_hssa_form ();
-//			for (unsigned int i = 0; i < args_info->cfg_dump_given; i++)
-//				if (*into_ssa_pass->name == args_info->cfg_dump_arg [i])
-//					cfg->dump_graphviz (into_ssa_pass->name);
-			if (args_info->cfg_dump_given)
-				cfg->dump_graphviz (into_ssa_pass->name);
-
+			cfg_dump (cfg, cfg_pass, s("Conversion to CFG"), -1);
 
 			if (lexical_cast<int> (args_info->optimize_arg) > 0)
 			{
+				MIR::Method* old = method->clone ();
+
 				// iterate until it fix-points (or 10 times)
-				for (int iter = 0; iter < 1; iter++) // TODO change back to 10
+				for (int iter = 0; iter < 10; iter++)
 				{
+					// Dump the CFG
+					cfg_dump (cfg, cfg_pass, s("Iterating"), iter);
 					foreach (Pass* pass, *optimization_queue)
 					{
 						if (args_info->verbose_flag)
 							cout << "Running pass: " << *pass->name << endl;
 
-						maybe_enable_debug (pass);
-
-						hssa->rebuild_ssa_form ();
-
-						// Run optimization
 						Optimization_pass* opt = dynamic_cast<Optimization_pass*> (pass);
+						if (opt == NULL)
+							continue;
+
+						// Convert to SSA form
+						HSSA* hssa = new HSSA(cfg);
+
+						maybe_enable_debug (into_ssa_pass);
+						hssa->convert_to_hssa_form ();
+						cfg_dump (cfg, into_ssa_pass, s("Converting into SSA"), iter);
+
+
+
+						// Run optimization (dont fail if not an optimization pass,
+						// it might be a plugin pass).
+						maybe_enable_debug (pass);
 						if (opt)
 							opt->run (cfg, this);
 
-						// Dump CFG
-/*						for (unsigned int i = 0; i < args_info->cfg_dump_given; i++)
-						{
-							if (*pass->name == args_info->cfg_dump_arg [i])
-							{
-								stringstream name;
-								name << *pass->name << " - iteration " << iter;
-								cfg->dump_graphviz (s(name.str()));
-							}
-						}
-*/
-						if (args_info->cfg_dump_given)
-							cfg->dump_graphviz (pass->name);
+						cfg_dump (cfg, pass, s("After running"), iter);
+
+
+						// Convert out of SSA
+						maybe_enable_debug (out_ssa_pass);
+						hssa->convert_out_of_ssa_form ();
+						cfg_dump (cfg, out_ssa_pass, NULL, iter);
+
 					}
-					// TODO Iteration didnt work. Fix it.
+					cfg_dump (cfg, cfg_pass, s("After full set of passes"), iter);
+
+					// After each run through the passes, check whether it has
+					// fix-pointed.
+					method->statements = cfg->get_linear_statements ();
+
+					if (old->equals (method))
+					{
+						cfg_dump (cfg, cfg_pass, s("Finished"), iter);
+						break;
+					}
 				}
 			}
-
-			hssa->rebuild_ssa_form ();
-			maybe_enable_debug (out_ssa_pass);
-			hssa->convert_out_of_ssa_form ();
-//			for (unsigned int i = 0; i < args_info->cfg_dump_given; i++)
-//				if (*out_ssa_pass->name == args_info->cfg_dump_arg [i])
-//					cfg->dump_graphviz (out_ssa_pass->name);
-			if (args_info->cfg_dump_given)
-				cfg->dump_graphviz (out_ssa_pass->name);
-
-			method->statements = cfg->get_linear_statements ();
 		}
 	}
 }

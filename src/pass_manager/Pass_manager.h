@@ -93,6 +93,9 @@ public:
 	void dump (IR::PHP_script* in, Pass* pass);
 	void maybe_enable_debug (Pass* pass);
 
+	// HACK: debugging for optimization passes.
+	void cfg_dump (CFG* cfg, Pass* pass, String* comment, int iteration);
+
 protected:
 	Pass_queue* ast_queue;
 	Pass_queue* hir_queue;
