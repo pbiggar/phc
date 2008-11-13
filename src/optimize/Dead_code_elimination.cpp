@@ -218,7 +218,10 @@ DCE::sweep_pass ()
 			if (!marks[new SSA_phi (bb, phi_lhs)])
 				bb->remove_phi_node (phi_lhs);
 		}
+	}
 
+	foreach (Basic_block* bb, *cfg->get_all_bbs ())
+	{
 		if (isa<Statement_block> (bb) && !is_marked (bb))
 		{
 			cfg->remove_bb (bb);
