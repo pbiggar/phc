@@ -133,6 +133,7 @@ SCCP::run (CFG* cfg)
 {
 	this->cfg = cfg;
 	cfg->consistency_check ();
+	lattice.clear ();
 
 	// 1. Initialize:
 	cfg_wl = new Edge_list(cfg->get_entry_edge ());
