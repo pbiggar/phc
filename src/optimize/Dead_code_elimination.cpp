@@ -118,6 +118,12 @@ DCE::mark_pass ()
 				mark(SSA_op::for_bb (sb));
 			}
 		}
+		else if (isa<Exit_block> (bb))
+		{
+			// Make sure the uses from the Exit block are processed
+			foreach (VARIABLE_NAME* use, *bb->get_uses (SSA_ALL))
+				mark_def (use);
+		}
 	}
 
 	dump ();
