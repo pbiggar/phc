@@ -133,12 +133,20 @@ DCE::mark_pass ()
 	{
 		SSA_op* op = worklist->front ();
 		worklist->pop_front ();
-		DEBUG ("Processing ");
+		DEBUG ("\nProcessing ");
 		op->dump ();
 
 		foreach (VARIABLE_NAME* use, *op->get_uses ())
 		{
 			mark_def (use);
+
+			// MU/CHIs make the BB containing them live.
+			if (isa<SSA_mu> (op) || isa<SSA_chi> (op))
+			{
+				Basic_block* bb = op->get_bb ();
+				if (isa<Branch_block> (bb) || isa<Statement_block> (bb))
+					mark (SSA_op::for_bb (bb));
+			}
 		}
 
 		// Mark the critical branches (ie, the reverse dominance frontier of
