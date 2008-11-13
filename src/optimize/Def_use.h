@@ -94,9 +94,8 @@ public:
 	// Return whether USE has a defining statement (vs being uninitialized).
 	bool has_def (MIR::VARIABLE_NAME* use);
 
-	// Return the SSA_stmt defining USE, or NULL if it is not defined in a
-	// statement (but instead in a phi or a formal).
-	SSA_stmt* get_def_stmt (MIR::VARIABLE_NAME* use);
+	// Return the SSA_op defining USE.
+	SSA_op* get_def (MIR::VARIABLE_NAME* use);
 
 	void dump ();
 

@@ -24,7 +24,9 @@ If_simplification::visit_branch_block (Branch_block* bb)
 
 
 
-	SSA_stmt* def = bb->cfg->duw->get_def_stmt (branch->variable_name);
+	SSA_op* op = bb->cfg->duw->get_def (branch->variable_name);
+	SSA_stmt* def = dynamic_cast<SSA_stmt*> (op);
+
 	if (def && def->get_statement()->match (
 				new Assign_var (new Wildcard<VARIABLE_NAME>, false, uop))
 			&& *uop->value->op->value == "!")

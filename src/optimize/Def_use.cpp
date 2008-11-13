@@ -76,20 +76,14 @@ Def_use_web::get_uses (VARIABLE_NAME* def, int flags)
 }
 
 
-SSA_stmt*
-Def_use_web::get_def_stmt (VARIABLE_NAME* use)
+SSA_op*
+Def_use_web::get_def (VARIABLE_NAME* use)
 {
 	assert (has_def (use));
 	SSA_op_list* defs = get_defs (use, SSA_STMT);
 
-	assert (defs->size() < 2);
-	if (defs->size() == 1)
-		return dyc<SSA_stmt> (defs->front ());
-	else
-	{
-		assert (0);
-		return NULL;
-	}
+	assert (defs->size() == 1);
+	return defs->front ();
 }
 
 bool
