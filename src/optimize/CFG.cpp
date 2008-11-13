@@ -994,9 +994,10 @@ CFG::remove_empty_blocks ()
 				continue;
 
 			// If the successor has another predeccessor, how will we know what to
-			// put in the phi node? Leave it in, it can be removed when the phi
-			// nodes are dropped.
-			if (succ->get_predecessors ()->size () > 1)
+			// put in the phi node (BB's phi node, that is, once its moved to the
+			// successor)? Leave it in, it can be removed when the phi nodes are
+			// dropped.
+			if (succ->get_predecessors ()->size () > 1 && bb->get_phi_lhss ()->size () > 0)
 				continue;
 
 
