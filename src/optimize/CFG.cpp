@@ -980,9 +980,6 @@ CFG::remove_empty_blocks ()
 {
 	// cooper/torczon, page 501, 2
 
-	// An empty BB might factor phi nodes between, say, 2 rather than 3 nodes.
-	// In that case, removing them would lead to extra code in the
-	// predecessors.
 	foreach (Basic_block* bb, *get_all_bbs ())
 	{
 		if (Empty_block* eb = dynamic_cast<Empty_block*> (bb))
@@ -991,9 +988,15 @@ CFG::remove_empty_blocks ()
 			Basic_block* succ = eb->get_successor ();
 			Edge* succ_edge = eb->get_successor_edge ();
 
-			// Dont remove infinite loops (unless their unreachable, but thats
+			// Dont remove infinite loops (unless they're unreachable, but thats
 			// handled in remove_unreachable_blocks.
 			if (succ == eb)
+				continue;
+
+			// If the successor has another predeccessor, how will we know what to
+			// put in the phi node? Leave it in, it can be removed when the phi
+			// nodes are dropped.
+			if (succ->get_predecessors ()->size () > 1)
 				continue;
 
 

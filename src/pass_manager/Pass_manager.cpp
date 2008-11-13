@@ -640,6 +640,11 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 						cfg_dump (cfg, pass, s("Into SSA"), iter);
 
 
+						// Clean up the CFG.
+						cfg->clean ();
+						cfg_dump (cfg, pass, s("Cleaned in SSA"), iter);
+
+
 						// Run optimization (dont fail if not an optimization pass,
 						// it might be a plugin pass).
 						if (opt)
@@ -647,14 +652,14 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 						cfg_dump (cfg, pass, s("After optimization"), iter);
 
 
-						cfg->clean ();
-						cfg_dump (cfg, pass, s("Cleaned"), iter);
-
 						// Convert out of SSA
 						hssa->convert_out_of_ssa_form ();
 						cfg_dump (cfg, pass, s("Out of SSA"), iter);
 
 
+						// Clean up the CFG.
+						cfg->clean ();
+						cfg_dump (cfg, pass, s("Cleaned after SSA"), iter);
 					}
 					cfg_dump (cfg, cfg_pass, s("After full set of passes"), iter);
 
