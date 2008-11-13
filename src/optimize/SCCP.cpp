@@ -200,7 +200,10 @@ SCCP::run (CFG* cfg)
 	}
 
 	if (debugging_enabled)
+	{
+		DEBUG ("SCCP: ");
 		lattice.dump();
+	}
 
 	// The algorithm so far has found the answers. We now need to update the
 	// results.
@@ -256,6 +259,14 @@ SCCP::visit_phi (Basic_block* bb, VARIABLE_NAME* phi_lhs)
 	check_changed_definition (old, phi_lhs); // (BB is only used to get the DUW*)
 }
 
+void
+SCCP::visit_chi (Basic_block* bb, VARIABLE_NAME* chi_lhs, VARIABLE_NAME* chi_rhs)
+{
+	Lattice_cell* old = lattice[chi_lhs];
+	lattice[chi_lhs] = BOTTOM;
+	check_changed_definition (old, chi_lhs);
+}
+
 /*
  * 4/5.	For SSAWL, pop e. If e.target is a Phi, perform visitPhi (e.target).
  * If e.target is an expression, and any of e.targets incoming edges is
@@ -276,6 +287,10 @@ SCCP::visit_ssa_op (SSA_op* op)
 	if (SSA_phi* phi = dynamic_cast<SSA_phi*> (op))
 	{
 		visit_phi (phi->bb, phi->phi_lhs);
+	}
+	else if (SSA_chi* chi = dynamic_cast<SSA_chi*> (op))
+	{
+		visit_chi (chi->bb, chi->lhs, chi->rhs);
 	}
 	else
 	{
@@ -720,19 +735,12 @@ public:
 	{
 	}
 
+	// Dont update phi nodes. Since we drop phi nodes, we need to bring the phi
+	// arguments back into the IR. However, if we weren't able to remove the old
+	// assignment, then this will introduce two assignments.
+	// TODO: Phi args no longer need to be Rvalues.
 	void visit_phi_node (Basic_block* bb, VARIABLE_NAME* phi_lhs)
 	{
-		foreach (Edge* edge, *bb->get_predecessor_edges ())
-		{
-			Rvalue* arg = bb->get_phi_arg_for_edge (edge, phi_lhs);
-
-			if (isa<Literal> (arg))
-				continue;
-
-			Literal* lit = get_literal (arg);
-			if (lit)
-				bb->set_phi_arg_for_edge (edge, phi_lhs, lit);
-		}
 	}
 
 	void visit_branch_block (Branch_block* bb)

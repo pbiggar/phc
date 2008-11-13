@@ -30,6 +30,7 @@ public:
 	// High-level SSA properties
 	void visit_ssa_op (SSA_op* phi);
 	void visit_phi (Basic_block* bb, MIR::VARIABLE_NAME* lhs); // not visit_phi_node
+	void visit_chi (Basic_block* bb, MIR::VARIABLE_NAME* lhs, MIR::VARIABLE_NAME* rhs); // not visit_chi_node
 
 	// Blocks
 	void visit_entry_block (Entry_block* bb);
