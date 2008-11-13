@@ -667,11 +667,13 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 					// fix-pointed.
 					method->statements = cfg->get_linear_statements ();
 
-					if (old->equals (method))
+					// Labels are always new values, so checking for equality wont work.
+//					if (old->equals (method))
 					{
 						cfg_dump (cfg, cfg_pass, s("Finished"), iter);
 						break;
 					}
+					old = method->clone ();
 				}
 			}
 		}
