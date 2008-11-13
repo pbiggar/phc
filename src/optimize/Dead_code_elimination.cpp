@@ -162,11 +162,13 @@ DCE::mark_def (VARIABLE_NAME* use)
 	if (!cfg->duw->has_def (use))
 		return;
 
-	SSA_op* def = cfg->duw->get_var_def (use);
+	assert (0);
+	// TODO: what defs do we want to mark here?
+//	SSA_op* def = cfg->duw->get_var_def (use);
 	DEBUG ("marking ")
-		def->dump ();
+//	def->dump ();
 	DEBUG (" due to def of " << *use->get_ssa_var_name ());
-	mark (def);
+//	mark (def);
 }
 
 // Check if the block is marked (ignoring the phi nodes)

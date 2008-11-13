@@ -28,17 +28,21 @@ public:
 
 typedef List<SSA_edge*> SSA_edge_list;
 
+#define SSA_STMT		(1 << 0)
+#define SSA_BRANCH	(1 << 1)
+#define SSA_FORMAL	(1 << 2)
+#define SSA_PHI		(1 << 3)
+#define SSA_CHI		(1 << 4)
+#define SSA_MU			(1 << 5)
+#define SSA_ALL		(SSA_STMT|SSA_BRANCH|SSA_FORMAL|SSA_PHI|SSA_CHI|SSA_MU)
 
 
 class Def_use_web : public Visit_once
 {
-	// TODO: This class would benefit from additional indexing, in particular
-	// by BB.
-	
 	// The indexing variable may not be the correct var, while the vars in the
 	// SSA_edge_list will be the correct vars. The indexing variable is just
 	// for indexing, and it can index multiple vars, so we cant say anythng
-	// abour it.
+	// about it.
 	Map<
 		MIR::VARIABLE_NAME*,
 		SSA_edge_list, 
@@ -51,56 +55,62 @@ class Def_use_web : public Visit_once
 		bool (*)(MIR::VARIABLE_NAME*, MIR::VARIABLE_NAME*)
 	> use_def_chains;
 
-	Map<
-		MIR::VARIABLE_NAME*,
-		SSA_edge_list, 
-		bool (*)(MIR::VARIABLE_NAME*, MIR::VARIABLE_NAME*)
-	> may_defs;
-
+	// This is a single set of possible aliases. All variables in the set can
+	// (conservatively) be considered to alias all other variables in the
+	// set. When adding a use or a def, and the use/def aliases another
+	// variable in the set, we add Mus and Chis accordingly.
+	Set* aliases;
 
 public:
-	Def_use_web ();
+	Def_use_web (Set* aliases);
+
+	/*
+	 * Flags:
+	 *		SSA_STMT
+	 *		SSA_PHI
+	 *		SSA_BRANCH
+	 *		SSA_FORMAL
+	 *		SSA_CHI
+	 *		SSA_MU
+	 *
+	 *	Groupings:
+	 *
+	 */
+	// Get all operations that define USE, and that satisfy flags.
+	SSA_op_list* get_defs (MIR::VARIABLE_NAME* use, int flags);
+
+	// Get all operations that use DEF, and that satisfy FLAGS.
+	SSA_op_list* get_uses (MIR::VARIABLE_NAME* def, int flags);
+
+	// Get the variables defined/used in BB
+	MIR::VARIABLE_NAME_list* get_block_defs (Basic_block* bb, int flags);
+	MIR::VARIABLE_NAME_list* get_block_uses (Basic_block* bb, int flags);
+
+	/*
+	 * All operations in this class go through either get_defs or get_uses.
+	 * They simply call it with different flags.
+	 */
 
 	// Return whether USE has a defining statement (vs being uninitialized).
 	bool has_def (MIR::VARIABLE_NAME* use);
 
 	// Return the SSA_stmt defining USE, or NULL if it is not defined in a
-	// statement (but instead in a phi or a formal). Fail if it is not defined
-	// anywhere.
+	// statement (but instead in a phi or a formal).
 	SSA_stmt* get_def_stmt (MIR::VARIABLE_NAME* use);
 
-	// Get the operations in which USE is defined.
-	SSA_op* get_var_def (MIR::VARIABLE_NAME* use);
-
-	// Get the operations in which DEF is used.
-	SSA_op_list* get_var_uses (MIR::VARIABLE_NAME* def);
-
-	// Get basic_blocks in which USE is defined (a variable can be defined
-	// multiple times if we arent in SSA form. Check that only non-SSA
-	// assignments are returned.
-	BB_list* get_pre_ssa_var_defs (MIR::VARIABLE_NAME* use);
-
-
-	// Get all variables defined/used in the basic
-	// block, except for those from phis, mus and chis.
-	MIR::VARIABLE_NAME_list* get_real_defs (Basic_block* bb);
-	MIR::VARIABLE_NAME_list* get_real_uses (Basic_block* bb);
-
-	// Return the variables defined by formal parameters in the entry_block
-	MIR::VARIABLE_NAME_list* get_formal_defs ();
-
-	MIR::VARIABLE_NAME_list* get_may_defs (Basic_block* bb);
-	
 	void dump ();
 
 private:
 	// Add defs or uses
-	void add_use (MIR::VARIABLE_NAME* def, SSA_op* use);
-	void add_use (MIR::Rvalue* def, SSA_op* use);
-	void add_def (MIR::VARIABLE_NAME* use, SSA_op* def);
-	void add_may_def (MIR::VARIABLE_NAME* use, SSA_op* def);
+	void add_use (MIR::VARIABLE_NAME* def, SSA_op* use, bool add_mu = true);
+	void add_use (MIR::Rvalue* def, SSA_op* use, bool add_mu = true);
+	void add_def (MIR::VARIABLE_NAME* use, SSA_op* def, bool add_chi = true);
+	void add_mus (Basic_block* bb, MIR::VARIABLE_NAME* use);
+	void add_chis (Basic_block* bb, MIR::VARIABLE_NAME* def);
+
 
 	void visit_entry_block (Entry_block* bb);
+	void visit_exit_block (Exit_block* bb);
 	void visit_branch_block (Branch_block* bb);
 
 	void visit_chi_node (Basic_block* bb, MIR::VARIABLE_NAME* def, MIR::VARIABLE_NAME* use);

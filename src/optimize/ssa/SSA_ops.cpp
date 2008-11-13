@@ -18,25 +18,33 @@ SSA_op::for_bb (Basic_block* bb)
 		return new SSA_stmt (dyc<Statement_block> (bb));
 }
 
-SSA_stmt::SSA_stmt (Statement_block* bb) : bb (bb) {}
-SSA_branch::SSA_branch (Branch_block* bb) : bb (bb) {}
-SSA_formal::SSA_formal (Entry_block* bb) : bb (bb) {}
+SSA_op::SSA_op (int type_flag)
+{
+	this->type_flag = type_flag;
+}
+
+SSA_stmt::SSA_stmt (Statement_block* bb) : SSA_op (SSA_STMT), bb (bb) {}
+SSA_branch::SSA_branch (Branch_block* bb) : SSA_op (SSA_BRANCH), bb (bb) {}
+SSA_formal::SSA_formal (Basic_block* bb) : SSA_op (SSA_FORMAL), bb (bb) {}
 
 SSA_phi::SSA_phi (Basic_block* bb, VARIABLE_NAME* phi_lhs)
-: bb (bb)
+: SSA_op (SSA_PHI)
+, bb (bb)
 , phi_lhs (phi_lhs)
 {
 }
 
 SSA_chi::SSA_chi (Basic_block* bb, VARIABLE_NAME* lhs, VARIABLE_NAME* rhs)
-: bb (bb)
+: SSA_op (SSA_CHI)
+, bb (bb)
 , lhs (lhs)
 , rhs (rhs)
 {
 }
 
 SSA_mu::SSA_mu (Basic_block* bb, VARIABLE_NAME* rhs)
-: bb (bb)
+: SSA_op (SSA_CHI)
+, bb (bb)
 , rhs (rhs)
 {
 }
@@ -138,7 +146,9 @@ SSA_stmt::get_uses ()
 	// Phis are different statements, but mus and chis are properties of the
 	// current statement.
 	VARIABLE_NAME_list* result = new VARIABLE_NAME_list;
-	result->push_back_all (bb->cfg->duw->get_real_uses (bb));
+	// TODO: are we trying to get rid of "get_uses()". Hard to know.
+	assert (0);
+//	result->push_back_all (bb->cfg->duw->get_real_uses (bb));
 	result->push_back_all (bb->get_mus ()->to_list ());
 	result->push_back_all (bb->get_chi_rhss ());
 	return result;

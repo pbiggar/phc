@@ -29,187 +29,6 @@ using namespace boost;
  * CC 96.
  */
 
-void
-HSSA::convert_to_ssa_form ()
-{
-	// Calculate dominance frontiers
-	cfg->dominance = new Dominance (cfg);
-	cfg->dominance->calculate_forward_dominance ();
-	cfg->dominance->calculate_reverse_dominance ();
-	cfg->dominance->dump ();
-
-	// Build def-use web (we're not in SSA form, but this will do the job).
-	cfg->duw = new Def_use_web ();
-	cfg->duw->run (cfg);
-
-	// Muchnick gives up at this point. We continue instead in Cooper/Torczon,
-	// Section 9.3.3, with some minor changes. Since we dont have a list of
-	// global names, we iterate through all blocks, rather than the blocks
-	// corresponding to the variable names. 
-	// TODO: get a list of global names, and convert to semi-pruned form
-	
-	// For an assignment to X in BB, add a PHI function for variable X in the
-	// dominance frontier of BB.
-	// TODO Abstract this.
-	BB_list* worklist = cfg->get_all_bbs_top_down ();
-	BB_list::iterator i = worklist->begin ();
-	while (i != worklist->end ())
-	{
-		Basic_block* bb = *i;
-		foreach (Basic_block* frontier, *bb->get_dominance_frontier ())
-		{
-			// Get defs (including phi node LHSs)
-			VARIABLE_NAME_list* def_list = bb->get_pre_ssa_defs ();
-			foreach (VARIABLE_NAME* phi_lhs, *bb->get_phi_lhss())
-				def_list->push_back (phi_lhs);
-
-			bool def_added = false;
-			foreach (VARIABLE_NAME* var_name, *def_list)
-			{
-				if (!frontier->has_phi_node (var_name))
-				{
-					frontier->add_phi_node (var_name);
-					def_added = true;
-				}
-			}
-
-			// This adds a new def, which requires us to iterate.
-			if (def_added)
-				worklist->push_back (frontier);
-		}
-		i++;
-	}
-
-	// Rename SSA variables
-	SSA_renaming sr(cfg);
-	sr.rename_vars (cfg->get_entry_bb ());
-
-
-	// Check all variables are converted
-	class Check_in_SSA : public Visitor
-	{
-		void pre_variable_name (VARIABLE_NAME* in)
-		{
-			assert (in->in_ssa);
-		}
-	};
-
-	foreach (Basic_block* bb, *cfg->get_all_bbs ())
-	{
-		if (Statement_block* sb = dynamic_cast<Statement_block*> (bb))
-			sb->statement->visit (new Check_in_SSA ());
-	}
-
-
-	cfg->consistency_check ();
-
-	// TODO: needed?
-	// Build def-use web
-	cfg->duw = new Def_use_web ();
-	cfg->duw->run (cfg);
-}
-
-void
-HSSA::rebuild_ssa_form ()
-{
-	cfg->clean ();
-	cfg->consistency_check ();
-
-	cfg->dominance = new Dominance (cfg);
-	cfg->dominance->calculate_forward_dominance ();
-	cfg->dominance->calculate_reverse_dominance ();
-
-	cfg->duw = new Def_use_web ();
-	cfg->duw->run (cfg);
-}
-
-
-void
-HSSA::convert_out_of_ssa_form ()
-{
-	foreach (Basic_block* bb, *cfg->get_all_bbs ())
-	{
-		// Drop the chi and mu args
-		bb->remove_chi_nodes ();
-		bb->remove_mu_nodes ();
-		bb->remove_virtual_phis ();
-
-		// There are two problems when coming out of SSA form:
-		//		1.) variable-variables: i_0 is not the same as i
-		//		2.) CHI nodes update variable indices, but when you drop the chi
-		//		nodes, you lose the relationship between them. Renumbering is
-		//		possible, I suppose, but not as good as:
-		//
-		//	The solution is to drop the indices when coming out of SSA form.
-		//	(Warning, this could hide bugs unfortunately). The only real problem
-		//	is to make sure that variables with overlapping live ranges are not
-		//	created. This could happen in copy-propagation, value numbering, or
-		//	PRE. I suspect the latter two can be avoided by using the HSSA
-		//	algorithms. For copy-propagation, I'll just have to be careful.
-
-		// TODO: Add a check that there aren't overlapping live ranges.
-		foreach (VARIABLE_NAME* phi_lhs, *bb->get_phi_lhss ())
-		{
-			foreach (Edge* pred, *bb->get_predecessor_edges ())
-			{
-				Rvalue* rval = bb->get_phi_arg_for_edge (pred, phi_lhs);
-				if (isa<VARIABLE_NAME> (rval))
-				{
-					VARIABLE_NAME* var = dyc<VARIABLE_NAME> (rval);
-
-					// We've dropped the indices, so make sure the varaibles are
-					// equal (if they arent, perhaps if we've added copy
-					// propagation, we should add an assignment).
-					assert (*var->value == *phi_lhs->value);
-					continue;
-				}
-
-				Assign_var* copy = new Assign_var (
-					phi_lhs->clone (),
-					false,
-					rval->clone ());
-
-				Statement_block* new_bb = new Statement_block (cfg, copy);
-
-				cfg->insert_bb_between (pred, new_bb);
-
-				// We avoid the critical edge problem because we have only 1
-				// statement per block. Removing phi nodes adds a single block
-				// along the necessary edge.
-			}
-		}
-		bb->remove_phi_nodes ();
-
-	}
-
-
-	// Drop variable indices - some variables exist in multiple 
-	rebuild_ssa_form (); // we only care about DUW
-	foreach (Basic_block* bb, *cfg->get_all_bbs ())
-	{
-		// TODO: real seems the opposite of virtual, but its OK to get virtual
-		// uses here. _direct_ may be a better adjective.
-		foreach (VARIABLE_NAME* var, *cfg->duw->get_real_uses (bb))
-		{
-			if (var->in_ssa)
-				var->drop_ssa_index();
-		}
-
-		foreach (VARIABLE_NAME* var, *cfg->duw->get_real_defs (bb))
-		{
-			if (var->in_ssa)
-				var->drop_ssa_index();
-		}
-	}
-
-
-	
-
-	// TODO: at this point, we could do with a register-allocation style
-	// interference graph to reduce the number of temporaries (aka
-	// "registers") that we use in the generated code.
-}
-
 
 /*
  * How to convert into HSSA form algorithm 2 from "Effective Representation
@@ -300,8 +119,8 @@ HSSA::convert_to_hssa_form ()
 	//	then 5 can be propagated to $x.
 	//
 	// The chi's make note of the new version so that this property is
-	// maintained, and the mu's extend the live ranges of the definition so that
-	// assignments arent killed when they are still in use.
+	// maintained, and the mu's extend the live ranges of the definition so
+	// that assignments arent killed when they are still in use.
 	//
 	// A virtual variable represents an 'indirect variable', which can refer to
 	// many memory locations:
@@ -321,8 +140,9 @@ HSSA::convert_to_hssa_form ()
 	//
 	//
 	//
-	// The virtual variables do not remove the requirement for a mu/chi variable
-	// at each load/store, for each variable in the alias set at that point.
+	// The virtual variables do not remove the requirement for a mu/chi
+	// variable at each load/store, for each variable in the alias set at that
+	// point.
 
 	// However, virtual-variables can also be used to condense alias sets.
 	// Chow96, Fig 5, shows that you can represent multiple indirect variables
@@ -332,8 +152,8 @@ HSSA::convert_to_hssa_form ()
 
 
 	//	PHP has a different and "new" problem: 'normal' syntactic constructs can
-	//	have aliasing behaviour, based on the run-time is_ref field of the value.
-	//	So some constructs may or may not have aliases:
+	//	have aliasing behaviour, based on the run-time is_ref field of the
+	//	value. So some constructs may or may not have aliases:
 	//		$p
 	//	and some may become 'super-aliases':
 	//		$a[$i]
@@ -350,9 +170,9 @@ HSSA::convert_to_hssa_form ()
 	//
 	//	Super-aliases are tough: conservatively, they could mean that each
 	//	variable needs a virtual-variable (we can still use virtual variables,
-	//	since assignments to them maintain the 'one-version-one-value' property).
-	//	We would need to perform analysis or this insanity would spill
-	//	into 'normal variables'.
+	//	since assignments to them maintain the 'one-version-one-value'
+	//	property).  We would need to perform analysis or this insanity would
+	//	spill into 'normal variables'.
 	//
 	//	We can't really name the set after its real or virtual variable though.
 	//	It could be a def of $a or $b, not just $p. So the alias set is {$p, $a,
@@ -368,57 +188,75 @@ HSSA::convert_to_hssa_form ()
 	//			though.
 	//
 	//		- So what gets a virtual variable?
-	//			Any expression which is not a 'real' variable, but can have a value
-	//			(aka abstract locations)
+	//			Any expression which is not a 'real' variable, but can have a
+	//			value (aka abstract locations)
 	//					- $a[$i]
 	//					- $$a
 	//					- $p->next
 	//					- $p->$f
 	//
 	//		- What about super-aliasing?
-	//			I dont know. We'll see where it goes. Hopefully nothing (doubt it).
+	//			I dont know. We'll see where it goes. Hopefully nothing (doubt
+	//			it).
 
+
+
+	// We need different Def-use-webs at different times:
+	// Before SSA:
+	//		- Chis/Mus must be added.
+	//		- Need list of uses/defs for renaming
+	//	During SSA:
+	//		- newly created phi nodes must be considered
+	//	During analysis:
+	//		- Analyses can safely update BBs without updating the DUW, as after
+	//		the analysis the SSA form will be dropped, and everything will be
+	//		recerated for the next analysis.
+	//		- DCE needs to remove properties and statements.
+	//		- DCE needs to be run after SSA creation to reduce the amount of CHIs.
+	
+	// So first create DUW with aliasing.
+	// During SSA, update DUW with phi nodes.
+	// After SSA, recreate the DUW, using an empty alias set, as the alias
+	// results will be explicit in the MU/CHIs.
+
+
+	// TODO: Fix DCE
 
 
 	// 1) Assign virtual variables to indirect variables in the program
-	// Do it on the fly.
+
+	// Do it on the fly
+
+
 
 	//	2)	Perform alias analysis and insert MU and CHI for all scalar and
 	//		virtual variables.
 
+
+	
+	// TODO: It would be great to do the alias analysis on the old SSA form, to
+	// get more precise results for the new SSA form.
 	Address_taken* aliasing = new Address_taken ();
 	aliasing->run (cfg);
 
-	// Build existing def-use web
-	cfg->duw = new Def_use_web ();
+	// The alias sets are passed to def-use-web, which adds MUs and CHIs
+	// appropriately.
+	cfg->duw = new Def_use_web (aliasing->aliases);
 	cfg->duw->run (cfg);
 
-	// For any variable in the alias set, add a may_use/may_def of all other
-	// symbols in the alias set.
-	add_mu_and_chi_nodes (aliasing->aliases);
 
-//	assert (*cfg->get_entry_bb ()->method->signature->method_name->value != "simpleucall");
 
-	
 	//	3) Insert PHIs using Cytron algorithm, including CHI as assignments
 
+	// We use Cooper/Torczon, Section 9.3.3, with some minor changes. Since we
+	// dont have a list of global names, we iterate through all blocks, rather
+	// than the blocks corresponding to the variable names. 
+	// TODO: get a list of global names, and convert to semi-pruned form
 
-	// Calculate dominance frontiers
 	cfg->dominance = new Dominance (cfg);
 	cfg->dominance->calculate_forward_dominance ();
 	cfg->dominance->calculate_reverse_dominance ();
-	cfg->dominance->dump ();
 
-	// Build def-use web (we're not in SSA form, but this will do the job).
-	cfg->duw = new Def_use_web ();
-	cfg->duw->run (cfg);
-
-	// Muchnick gives up at this point. We continue instead in Cooper/Torczon,
-	// Section 9.3.3, with some minor changes. Since we dont have a list of
-	// global names, we iterate through all blocks, rather than the blocks
-	// corresponding to the variable names. 
-	// TODO: get a list of global names, and convert to semi-pruned form
-	
 	// For an assignment to X in BB, add a PHI function for variable X in the
 	// dominance frontier of BB.
 	// TODO Abstract this.
@@ -430,13 +268,12 @@ HSSA::convert_to_hssa_form ()
 		foreach (Basic_block* frontier, *bb->get_dominance_frontier ())
 		{
 			// Get defs (including phis and chis)
-			VARIABLE_NAME_list* def_list = bb->get_pre_ssa_defs ();
-			def_list->push_back_all (bb->get_phi_lhss ()->to_list ());
-			def_list->push_back_all (bb->get_chi_lhss ());
-
-
 			bool def_added = false;
-			foreach (VARIABLE_NAME* var_name, *def_list)
+			VARIABLE_NAME_list* defs = new VARIABLE_NAME_list;
+			defs->push_back_all (bb->get_defs (SSA_STMT | SSA_CHI | SSA_FORMAL));
+			// phis add a def thats not in the DUW
+			defs->push_back_all (bb->get_phi_lhss ()->to_list ());
+			foreach (VARIABLE_NAME* var_name, *defs)
 			{
 				if (!frontier->has_phi_node (var_name))
 				{
@@ -476,35 +313,113 @@ HSSA::convert_to_hssa_form ()
 	}
 
 
+	// Recalculate DUW, using explicit MU/CHIs:
+	cfg->duw = new Def_use_web (new Set);
+	cfg->duw->run (cfg);
+
+
 	// TODO: Zero versioning is actually useful, so add steps 5 and 6. There
-	// is not necessarily a need to combine zero versioning with GVN.
+	// is not necessarily a need to combine zero versioning with GVN, but we
+	// may want GVN later.
+	
+	// HSSA renames variables using CHIs. Although it might be possible to do
+	// something with a CHI when coming out of HSSA form (say, adding copies
+	// maybe), HSSA just says to drop the CHIs. But then, you need to drop the
+	// indices of all variables, or there will be no link between the RHS of a
+	// CHI and its LHS when used later. This adds an invariant to the HSSA
+	// form that variables with the same name, but different subscripts,
+	// cannot have overlapping live ranges (Cooper/Torczon gives an example
+	// where this would break).
+
+	// In terms of phc, this is a boon. It means we dont have to work out a
+	// fancy register-allocation solution to avoid massive speed losses due to
+	// copy-on-write problems.
+
+	// GVN and PRE both can potentially introduce overlapping live-ranges, but
+	// HSSA has versions of both of these. I haven't looked at them, but they
+	// must support the overlapping-live-ranges invariant.
 }
 
 
 
-// Given the alias set, all for every use, add a mu of all aliased variables,
-// and for every def, add a chi.
 void
-HSSA::add_mu_and_chi_nodes (Set* aliases)
+HSSA::convert_out_of_ssa_form ()
 {
-	// TODO
-	assert (!aliases->full);
-
-	// Means we might be able to use it for alias analysis?
 	foreach (Basic_block* bb, *cfg->get_all_bbs ())
 	{
-		foreach (VARIABLE_NAME* use, *bb->get_pre_ssa_uses ())
-			if (aliases->has (use))
-				foreach (VARIABLE_NAME* alias, *aliases)
-					bb->add_mu_node (alias);
+		// Drop the chi and mu args
+		bb->remove_chi_nodes ();
+		bb->remove_mu_nodes ();
+		bb->remove_virtual_phis ();
 
-		VARIABLE_NAME_list* defs = new VARIABLE_NAME_list;
-		defs->push_back_all (bb->get_pre_ssa_defs ());
-		defs->push_back_all (bb->cfg->duw->get_may_defs (bb));
-		foreach (VARIABLE_NAME* def, *defs)
-			if (aliases->has (def))
-				foreach (VARIABLE_NAME* alias, *aliases)
-					if (!alias->equals (def))
-						bb->add_chi_node (alias, alias->clone ());
+		// There are two problems when coming out of SSA form:
+		//		1.) variable-variables: i_0 is not the same as i
+		//		2.) CHI nodes update variable indices, but when you drop the chi
+		//		nodes, you lose the relationship between them. Renumbering is
+		//		possible, I suppose, but not as good as:
+		//
+		//	The solution is to drop the indices when coming out of SSA form.
+		//	(Warning, this could hide bugs unfortunately). The only real problem
+		//	is to make sure that variables with overlapping live ranges are not
+		//	created. This could happen in copy-propagation, value numbering, or
+		//	PRE. I suspect the latter two can be avoided by using the HSSA
+		//	algorithms. For copy-propagation, I'll just have to be careful.
+
+		// TODO: Add a check that there aren't overlapping live ranges.
+		foreach (VARIABLE_NAME* phi_lhs, *bb->get_phi_lhss ())
+		{
+			foreach (Edge* pred, *bb->get_predecessor_edges ())
+			{
+				Rvalue* rval = bb->get_phi_arg_for_edge (pred, phi_lhs);
+				if (isa<VARIABLE_NAME> (rval))
+				{
+					VARIABLE_NAME* var = dyc<VARIABLE_NAME> (rval);
+
+					// We've dropped the indices, so make sure the variables are
+					// equal (if they arent, perhaps if we've added copy
+					// propagation, we should add an assignment).
+					assert (*var->value == *phi_lhs->value);
+					continue;
+				}
+
+				Assign_var* copy = new Assign_var (
+					phi_lhs->clone (),
+					false,
+					rval->clone ());
+
+				Statement_block* new_bb = new Statement_block (cfg, copy);
+
+				cfg->insert_bb_between (pred, new_bb);
+
+				// We avoid the critical edge problem because we have only 1
+				// statement per block. Removing phi nodes adds a single block
+				// along the necessary edge.
+			}
+		}
+		bb->remove_phi_nodes ();
+
 	}
+
+	// Since we have probably updated nodes within blocks, we need to refresh
+	// the DUW to properly remove nodes which have been updated.
+	cfg->duw = new Def_use_web (new Set);
+	cfg->duw->run (cfg);
+
+
+	// Drop variable indices - some variables exist in multiple 
+	foreach (Basic_block* bb, *cfg->get_all_bbs ())
+	{
+		foreach (VARIABLE_NAME* var, *bb->get_uses_for_renaming ())
+		{
+			if (var->in_ssa)
+				var->drop_ssa_index();
+		}
+
+		foreach (VARIABLE_NAME* var, *bb->get_defs_for_renaming ())
+		{
+			if (var->in_ssa)
+				var->drop_ssa_index();
+		}
+	}
+
 }

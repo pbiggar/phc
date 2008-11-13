@@ -95,7 +95,7 @@ SSA_renaming::rename_vars (Basic_block* bb)
 
 
 	// 3) Rename the statement's uses
-	foreach (VARIABLE_NAME* use, *bb->get_pre_ssa_uses ())
+	foreach (VARIABLE_NAME* use, *bb->get_uses_for_renaming ())
 		use->convert_to_ssa_name (read_var_stack (use));
 
 	// 4) Mus
@@ -109,7 +109,7 @@ SSA_renaming::rename_vars (Basic_block* bb)
 
 
 	// 5) Create new names for defs
-	foreach (VARIABLE_NAME* def, *bb->get_pre_ssa_defs ())
+	foreach (VARIABLE_NAME* def, *bb->get_defs_for_renaming ())
 		create_new_ssa_name (def);
 
 	// 6) Rename the chi's uses
@@ -137,9 +137,16 @@ SSA_renaming::rename_vars (Basic_block* bb)
 		rename_vars (dominated);
 
 
+
 	// Before going back up the tree, get rid of new variable names from
 	// the stack, so the next node up sees its own names.
-	foreach (VARIABLE_NAME* def, *bb->get_pre_ssa_defs ())
+
+	// In case of duplicates, pop once for each dup.
+	VARIABLE_NAME_list* defs = new VARIABLE_NAME_list;
+	defs->push_back_all (bb->get_defs_for_renaming ());
+	defs->push_back_all (bb->get_phi_lhss ()->to_list ());
+	defs->push_back_all (bb->get_chi_lhss ());
+	foreach (VARIABLE_NAME* def, *defs)
 		pop_var_stack (def);
 }
 

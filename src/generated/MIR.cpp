@@ -31,31 +31,6 @@ void Node::assert_mixin_valid()
 	}
 }
 
-bool Node::is_mixin_equal(Node* in)
-{
-    {
-		// Compare line number and filename
-		// (We can't compare the entire attrs map because Object cannot
-		// necessarily be compared for equality)
-
-		if(get_line_number() != in->get_line_number())
-			return false;
-
-		if(get_filename() == NULL)
-		{
-			if(in->get_filename() != NULL)
-				return false;
-		}
-		else
-		{
-			if(*get_filename() != *in->get_filename())
-				return false;
-		}
-
-		return true;
-	}
-}
-
 PHP_script::PHP_script(Statement_list* statements)
 {
     this->statements = statements;
@@ -144,7 +119,6 @@ bool PHP_script::equals(Node* in)
     		return false;
     }
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -280,7 +254,6 @@ bool Class_mod::equals(Node* in)
     if(this->is_final != that->is_final)
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -447,7 +420,6 @@ bool Signature::equals(Node* in)
     		return false;
     }
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -628,7 +600,6 @@ bool Method_mod::equals(Node* in)
     if(this->is_final != that->is_final)
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -814,7 +785,6 @@ bool Formal_parameter::equals(Node* in)
     else if(!this->var->equals(that->var))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -947,7 +917,6 @@ bool Type::equals(Node* in)
     else if(!this->class_name->equals(that->class_name))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -1051,7 +1020,6 @@ bool Attr_mod::equals(Node* in)
     if(this->is_const != that->is_const)
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -1224,7 +1192,6 @@ bool Name_with_default::equals(Node* in)
     else if(!this->default_value->equals(that->default_value))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -1402,7 +1369,6 @@ bool Catch::equals(Node* in)
     		return false;
     }
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -1578,7 +1544,6 @@ bool Actual_parameter::equals(Node* in)
     else if(!this->rvalue->equals(that->rvalue))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -1721,7 +1686,6 @@ bool Static_array_elem::equals(Node* in)
     else if(!this->val->equals(that->val))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -1838,7 +1802,6 @@ bool PARAM_INDEX::equals(Node* in)
     if(!equals_value(that))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -2081,7 +2044,6 @@ bool Class_def::equals(Node* in)
     		return false;
     }
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -2441,7 +2403,6 @@ bool Interface_def::equals(Node* in)
     		return false;
     }
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -2686,7 +2647,6 @@ bool Method::equals(Node* in)
     		return false;
     }
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -2854,7 +2814,6 @@ bool Attribute::equals(Node* in)
     else if(!this->var->equals(that->var))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -2986,7 +2945,6 @@ bool Class_alias::equals(Node* in)
     else if(!this->class_name->equals(that->class_name))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -3118,7 +3076,6 @@ bool Interface_alias::equals(Node* in)
     else if(!this->interface_name->equals(that->interface_name))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -3250,7 +3207,6 @@ bool Method_alias::equals(Node* in)
     else if(!this->method_name->equals(that->method_name))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -3364,7 +3320,6 @@ bool Return::equals(Node* in)
     else if(!this->variable_name->equals(that->variable_name))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -3466,7 +3421,6 @@ bool Static_declaration::equals(Node* in)
     else if(!this->var->equals(that->var))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -3568,7 +3522,6 @@ bool Global::equals(Node* in)
     else if(!this->variable_name->equals(that->variable_name))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -3746,7 +3699,6 @@ bool Try::equals(Node* in)
     		return false;
     }
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -3932,7 +3884,6 @@ bool Throw::equals(Node* in)
     else if(!this->variable_name->equals(that->variable_name))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -4051,7 +4002,6 @@ bool Assign_var::equals(Node* in)
     else if(!this->rhs->equals(that->rhs))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -4226,7 +4176,6 @@ bool Assign_field::equals(Node* in)
     else if(!this->rhs->equals(that->rhs))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -4395,7 +4344,6 @@ bool Assign_array::equals(Node* in)
     else if(!this->rhs->equals(that->rhs))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -4546,7 +4494,6 @@ bool Assign_var_var::equals(Node* in)
     else if(!this->rhs->equals(that->rhs))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -4685,7 +4632,6 @@ bool Assign_next::equals(Node* in)
     else if(!this->rhs->equals(that->rhs))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -4818,7 +4764,6 @@ bool Pre_op::equals(Node* in)
     else if(!this->variable_name->equals(that->variable_name))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -4976,7 +4921,6 @@ bool SSA_pre_op::equals(Node* in)
     else if(!this->use->equals(that->use))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -5102,7 +5046,6 @@ bool Eval_expr::equals(Node* in)
     else if(!this->expr->equals(that->expr))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -5269,7 +5212,6 @@ bool Unset::equals(Node* in)
     		return false;
     }
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -5495,7 +5437,6 @@ bool Isset::equals(Node* in)
     		return false;
     }
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -5678,7 +5619,6 @@ bool Field_access::equals(Node* in)
     else if(!this->field_name->equals(that->field_name))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -5818,7 +5758,6 @@ bool Array_access::equals(Node* in)
     else if(!this->index->equals(that->index))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -5932,7 +5871,6 @@ bool Array_next::equals(Node* in)
     else if(!this->variable_name->equals(that->variable_name))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -6052,7 +5990,6 @@ bool Cast::equals(Node* in)
     else if(!this->variable_name->equals(that->variable_name))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -6192,7 +6129,6 @@ bool Unary_op::equals(Node* in)
     else if(!this->variable_name->equals(that->variable_name))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -6350,7 +6286,6 @@ bool Bin_op::equals(Node* in)
     else if(!this->right->equals(that->right))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -6503,7 +6438,6 @@ bool Constant::equals(Node* in)
     else if(!this->constant_name->equals(that->constant_name))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -6634,7 +6568,6 @@ bool Instanceof::equals(Node* in)
     else if(!this->class_name->equals(that->class_name))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -6813,7 +6746,6 @@ bool Method_invocation::equals(Node* in)
     		return false;
     }
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -7039,7 +6971,6 @@ bool New::equals(Node* in)
     		return false;
     }
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -7193,7 +7124,6 @@ bool Variable_method::equals(Node* in)
     else if(!this->variable_name->equals(that->variable_name))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -7295,7 +7225,6 @@ bool Variable_class::equals(Node* in)
     else if(!this->variable_name->equals(that->variable_name))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -7397,7 +7326,6 @@ bool Variable_field::equals(Node* in)
     else if(!this->variable_name->equals(that->variable_name))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -7528,7 +7456,6 @@ bool Static_array::equals(Node* in)
     		return false;
     }
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -7702,7 +7629,6 @@ bool Branch::equals(Node* in)
     else if(!this->iffalse->equals(that->iffalse))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -7828,7 +7754,6 @@ bool Goto::equals(Node* in)
     else if(!this->label_name->equals(that->label_name))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -7930,7 +7855,6 @@ bool Label::equals(Node* in)
     else if(!this->label_name->equals(that->label_name))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -8050,7 +7974,6 @@ bool Foreach_reset::equals(Node* in)
     else if(!this->iter->equals(that->iter))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -8182,7 +8105,6 @@ bool Foreach_next::equals(Node* in)
     else if(!this->iter->equals(that->iter))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -8314,7 +8236,6 @@ bool Foreach_end::equals(Node* in)
     else if(!this->iter->equals(that->iter))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -8446,7 +8367,6 @@ bool Foreach_has_key::equals(Node* in)
     else if(!this->iter->equals(that->iter))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -8578,7 +8498,6 @@ bool Foreach_get_key::equals(Node* in)
     else if(!this->iter->equals(that->iter))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -8710,7 +8629,6 @@ bool Foreach_get_val::equals(Node* in)
     else if(!this->iter->equals(that->iter))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -8860,7 +8778,6 @@ bool Param_is_ref::equals(Node* in)
     else if(!this->param_index->equals(that->param_index))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -8980,7 +8897,6 @@ bool FOREIGN::equals(Node* in)
     if(!equals_value(that))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -9095,7 +9011,6 @@ bool CLASS_NAME::equals(Node* in)
     else if(*this->value != *that->value)
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -9193,7 +9108,6 @@ bool INTERFACE_NAME::equals(Node* in)
     else if(*this->value != *that->value)
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -9284,7 +9198,6 @@ bool METHOD_NAME::equals(Node* in)
     else if(*this->value != *that->value)
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -9382,7 +9295,6 @@ bool OP::equals(Node* in)
     else if(*this->value != *that->value)
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -9473,7 +9385,6 @@ bool CAST::equals(Node* in)
     else if(*this->value != *that->value)
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -9564,7 +9475,6 @@ bool CONSTANT_NAME::equals(Node* in)
     else if(*this->value != *that->value)
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -9655,7 +9565,6 @@ bool FIELD_NAME::equals(Node* in)
     else if(*this->value != *that->value)
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -9753,7 +9662,6 @@ bool LABEL_NAME::equals(Node* in)
     else if(*this->value != *that->value)
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -9844,7 +9752,6 @@ bool HT_ITERATOR::equals(Node* in)
     else if(*this->value != *that->value)
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -9939,7 +9846,6 @@ bool Variable_variable::equals(Node* in)
     else if(!this->variable_name->equals(that->variable_name))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -10037,7 +9943,6 @@ bool VARIABLE_NAME::equals(Node* in)
     	return false;
     
     if(!VARIABLE_NAME::is_mixin_equal(that)) return false;
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -10155,9 +10060,9 @@ String* VARIABLE_NAME::get_ssa_var_name()
 bool VARIABLE_NAME::is_mixin_equal(MIR ::Node* other)
 {
     {
-		MIR::VARIABLE_NAME* other_var = dynamic_cast <MIR::VARIABLE_NAME*> (other);
-		assert (other_var);
-		return !(*other_var < *this && *this < *other_var);
+		MIR::VARIABLE_NAME* that = dynamic_cast <MIR::VARIABLE_NAME*> (other);
+		assert (that);
+		return !(*that < *this) && !(*this < *that);
 	}
 }
 
@@ -10210,7 +10115,6 @@ bool INT::equals(Node* in)
     if(!equals_value(that))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -10332,7 +10236,6 @@ bool REAL::equals(Node* in)
     if(!equals_value(that))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -10463,7 +10366,6 @@ bool STRING::equals(Node* in)
     if(!equals_value(that))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -10582,7 +10484,6 @@ bool BOOL::equals(Node* in)
     if(!equals_value(that))
     	return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -10691,7 +10592,6 @@ bool NIL::equals(Node* in)
     NIL* that = dynamic_cast<NIL*>(in);
     if(that == NULL) return false;
     
-    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 

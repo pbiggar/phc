@@ -11,6 +11,8 @@
 class SSA_op : virtual public GC_obj
 {
 public:
+	int type_flag;
+	SSA_op (int type_flag);
 	virtual Basic_block* get_bb () = 0;
 	virtual void dump() = 0;
 
@@ -18,6 +20,7 @@ public:
 	virtual MIR::VARIABLE_NAME_list* get_uses () = 0;
 
 	// Factory method depending on the type of the BB
+	// TODO: I expect this is no longer a good idea.
 	static SSA_op* for_bb (Basic_block* bb);
 };
 
@@ -65,9 +68,11 @@ public:
 class SSA_formal : public SSA_op
 {
 public:
-	Entry_block* bb;
+	// Can take an entry or exit block.
+	// TODO: should exits be separated? (this essentially lists escaping variables).
+	Basic_block* bb;
 
-	SSA_formal (Entry_block*);
+	SSA_formal (Basic_block*);
 	Basic_block* get_bb ();
 	void dump ();
 

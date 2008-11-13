@@ -230,7 +230,6 @@ public:
 public:
     void clone_mixin_from(Node* in);
     void assert_mixin_valid();
-    bool is_mixin_equal(Node* in);
 };
 
 // PHP_script ::= Statement* ;

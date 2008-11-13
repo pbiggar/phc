@@ -261,30 +261,6 @@ public:
 			}
 		}
 	}
-
-	bool is_mixin_equal(Node* in)
-	{
-		// Compare line number and filename
-		// (We can't compare the entire attrs map because Object cannot
-		// necessarily be compared for equality)
-
-		if(get_line_number() != in->get_line_number())
-			return false;
-
-		if(get_filename() == NULL)
-		{
-			if(in->get_filename() != NULL)
-				return false;
-		}
-		else
-		{
-			if(*get_filename() != *in->get_filename())
-				return false;
-		}
-
-		return true;
-	}
-
 };
 
 class PHP_script : IR::PHP_script {};
@@ -530,9 +506,9 @@ public:
 
 	bool is_mixin_equal (MIR::Node* other)
 	{
-		MIR::VARIABLE_NAME* other_var = dynamic_cast <MIR::VARIABLE_NAME*> (other);
-		assert (other_var);
-		return !(*other_var < *this && *this < *other_var);
+		MIR::VARIABLE_NAME* that = dynamic_cast <MIR::VARIABLE_NAME*> (other);
+		assert (that);
+		return !(*that < *this) && !(*this < *that);
 	}
 
 	int version;

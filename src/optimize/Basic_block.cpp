@@ -79,7 +79,16 @@ Entry_block::get_graphviz_label ()
 
 String* Exit_block::get_graphviz_label ()
 {
-	return s("EXIT");
+	stringstream ss;
+	ss << "EXIT: (";
+
+	// TODO: thats the wrong version!! Is it only a printing problem?
+	foreach (Formal_parameter* param, *method->signature->formal_parameters)
+		ss << *param->var->variable_name->get_ssa_var_name () << ", ";
+	
+	ss << ")";
+
+	return s (ss.str ());
 }
 
 String* Empty_block::get_graphviz_label ()
@@ -649,17 +658,29 @@ Basic_block::get_reverse_dominance_frontier ()
 }
 
 
-
 VARIABLE_NAME_list*
-Basic_block::get_pre_ssa_defs ()
+Basic_block::get_defs (int flags)
 {
-	return cfg->duw->get_real_defs (this);
+	return cfg->duw->get_block_defs (this, flags);
 }
 
 VARIABLE_NAME_list*
-Basic_block::get_pre_ssa_uses ()
+Basic_block::get_uses (int flags)
 {
-	return cfg->duw->get_real_uses (this);
+	return cfg->duw->get_block_uses (this, flags);
+}
+
+
+VARIABLE_NAME_list*
+Basic_block::get_defs_for_renaming ()
+{
+	return get_defs (SSA_STMT | SSA_FORMAL);
+}
+
+VARIABLE_NAME_list*
+Basic_block::get_uses_for_renaming ()
+{
+	return get_uses (SSA_STMT | SSA_BRANCH);
 }
 
 int

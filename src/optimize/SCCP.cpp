@@ -291,7 +291,7 @@ SCCP::visit_ssa_op (SSA_op* op)
 void
 SCCP::visit_entry_block (Entry_block* bb)
 {
-	foreach (VARIABLE_NAME* var_name, *cfg->duw->get_formal_defs ())
+	foreach (VARIABLE_NAME* var_name, *bb->get_defs (SSA_FORMAL))
 	{
 		lattice[var_name] = BOTTOM;
 	}
@@ -365,7 +365,7 @@ SCCP::check_changed_definition (Lattice_cell* old_value, VARIABLE_NAME* def)
 {
 	if (lattice[def] != old_value)
 	{
-		foreach (SSA_op* edge, *cfg->duw->get_var_uses (def))
+		foreach (SSA_op* edge, *cfg->duw->get_uses (def, SSA_ALL))
 		{
 			//	1. add uses of the LHS to the SSA worklist.
 			ssa_wl->push_back (edge);

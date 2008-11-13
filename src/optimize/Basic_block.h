@@ -49,8 +49,11 @@ public:
 	 * These are really for SSA_renaming. We can't use them for a different
 	 * purpose with the same semantics.
 	 * */
-	virtual MIR::VARIABLE_NAME_list* get_pre_ssa_defs ();
-	virtual MIR::VARIABLE_NAME_list* get_pre_ssa_uses ();
+	MIR::VARIABLE_NAME_list* get_defs_for_renaming ();
+	MIR::VARIABLE_NAME_list* get_uses_for_renaming ();
+
+	MIR::VARIABLE_NAME_list* get_defs (int flags);
+	MIR::VARIABLE_NAME_list* get_uses (int flags);
 
 	/*
 	 * CFG properties
@@ -134,7 +137,7 @@ public:
 	Var_map<MIR::VARIABLE_NAME*>* get_chis ();
 	MIR::VARIABLE_NAME_list* get_chi_lhss ();
 	MIR::VARIABLE_NAME_list* get_chi_rhss ();
-	Set * get_mus();
+	Set* get_mus();
 	MIR::VARIABLE_NAME* get_chi_rhs (MIR::VARIABLE_NAME* lhs);
 
 	void remove_chi (MIR::VARIABLE_NAME* lhs, MIR::VARIABLE_NAME* rhs);

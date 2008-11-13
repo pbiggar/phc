@@ -36,11 +36,43 @@ SSA_edge::dump ()
 }
 
 
-Def_use_web::Def_use_web ()
+Def_use_web::Def_use_web (Set* aliases)
 : def_use_chains (&variable_name_ptr_comparison)
 , use_def_chains (&variable_name_ptr_comparison)
-, may_defs (&variable_name_ptr_comparison)
+, aliases (aliases)
 {
+}
+
+/*
+ * We want to avoid maintaining two separate versions of the Def-use-web -
+ * one in this class, and one implicitly through the SSA-form. So we run the
+ * entire update lazily before get_defs or get_uses is called. After that,
+ * this is a performance problem, but the results are correct. */
+SSA_op_list*
+Def_use_web::get_defs (VARIABLE_NAME* use, int flags)
+{
+	SSA_op_list* result = new SSA_op_list;
+
+	foreach (SSA_edge* edge, use_def_chains [use])
+		result->push_back (edge->op);
+
+	return result;
+}
+
+SSA_op_list*
+Def_use_web::get_uses (VARIABLE_NAME* def, int flags)
+{
+	// Its possible to have defs without uses.
+	if (!def_use_chains.has (def))
+		return new SSA_op_list ();
+
+	SSA_op_list* result = new SSA_op_list;
+	foreach (SSA_edge* edge, def_use_chains[def])
+	{
+		if (edge->op->type_flag & flags)
+			result->push_back (edge->op);
+	}
+	return result;
 }
 
 
@@ -48,34 +80,16 @@ SSA_stmt*
 Def_use_web::get_def_stmt (VARIABLE_NAME* use)
 {
 	assert (has_def (use));
-	SSA_op* op = get_var_def (use);
+	SSA_op_list* defs = get_defs (use, SSA_STMT);
 
-	if (isa<SSA_stmt> (op))
-		return dyc<SSA_stmt> (op);
-	else 
-		return NULL;
-}
-
-SSA_op*
-Def_use_web::get_var_def (VARIABLE_NAME* use)
-{
-	assert (has_def (use));
-	return use_def_chains[use].front ()->op;
-}
-
-SSA_op_list*
-Def_use_web::get_var_uses (VARIABLE_NAME* def)
-{
-	// Its possible to have defs without uses.
-	if (def_use_chains.find (def) == def_use_chains.end ())
-		return new SSA_op_list ();
-
-	SSA_op_list* result = new SSA_op_list;
-	foreach (SSA_edge* edge, def_use_chains[def])
+	assert (defs->size() < 2);
+	if (defs->size() == 1)
+		return dyc<SSA_stmt> (defs->front ());
+	else
 	{
-		result->push_back (edge->op);
+		assert (0);
+		return NULL;
 	}
-	return result;
 }
 
 bool
@@ -84,8 +98,10 @@ Def_use_web::has_def (VARIABLE_NAME* use)
 	return use_def_chains[use].size () == 1;
 }
 
+
+
 VARIABLE_NAME_list*
-Def_use_web::get_real_defs (Basic_block* bb)
+Def_use_web::get_block_defs (Basic_block* bb, int flags)
 {
 	VARIABLE_NAME_list* result = new VARIABLE_NAME_list;
 
@@ -96,79 +112,33 @@ Def_use_web::get_real_defs (Basic_block* bb)
 	{
 		foreach (SSA_edge* edge, edge_list)
 		{
-			if (edge->op->get_bb () == bb
-					&& !isa<SSA_phi> (edge->op)
-					&& !isa<SSA_mu> (edge->op)
-					&& !isa<SSA_chi> (edge->op))
+			if ((edge->op->type_flag & flags) // filter based on flags
+				&& edge->op->get_bb () == bb)
 			{
-				// Dont insert the key itself, it may be the wrong var_name.
+				// Dont insert the key itself, it may be a different var_name
+				// with the same value, but we return exact var_name.
 				result->push_back (edge->variable_name);
 			}
 		}
 	}
 	return result;
+
 }
 
 VARIABLE_NAME_list*
-Def_use_web::get_real_uses (Basic_block* bb)
-{
-	VARIABLE_NAME_list* result = new VARIABLE_NAME_list;
-
-	// Go through the def-use result, finding those who's BB == BB
-	VARIABLE_NAME* key;
-	SSA_edge_list edge_list;
-	foreach (tie (key, edge_list), def_use_chains)
-	{
-		foreach (SSA_edge* edge, edge_list)
-		{
-			if (edge->op->get_bb () == bb
-					&& !isa<SSA_phi> (edge->op)
-					&& !isa<SSA_mu> (edge->op)
-					&& !isa<SSA_chi> (edge->op))
-			{
-				// Dont insert the key itself, it may be the wrong var_name.
-				result->push_back (edge->variable_name);
-			}
-		}
-	}
-	return result;
-}
-
-VARIABLE_NAME_list*
-Def_use_web::get_may_defs (Basic_block* bb)
+Def_use_web::get_block_uses (Basic_block* bb, int flags)
 {
 	VARIABLE_NAME_list* result = new VARIABLE_NAME_list;
 
 	// Go through the use-def result, finding those who's BB == BB
 	VARIABLE_NAME* key;
 	SSA_edge_list edge_list;
-	foreach (tie (key, edge_list), may_defs)
-	{
-		foreach (SSA_edge* edge, edge_list)
-		{
-			if (edge->op->get_bb () == bb)
-			{
-				// Dont insert the key itself, it may be the wrong var_name.
-				result->push_back (edge->variable_name);
-			}
-		}
-	}
-	return result;
-}
-
-VARIABLE_NAME_list*
-Def_use_web::get_formal_defs ()
-{
-	VARIABLE_NAME_list* result = new VARIABLE_NAME_list;
-
-	// Go through the def-use result, finding those who's BB == BB
-	VARIABLE_NAME* key;
-	SSA_edge_list edge_list;
 	foreach (tie (key, edge_list), def_use_chains)
 	{
 		foreach (SSA_edge* edge, edge_list)
 		{
-			if (isa<SSA_formal> (edge->op))
+			if ((edge->op->type_flag & flags) // filter based on flags
+				&& edge->op->get_bb () == bb)
 			{
 				// Dont insert the key itself, it may be the wrong var_name.
 				result->push_back (edge->variable_name);
@@ -176,26 +146,22 @@ Def_use_web::get_formal_defs ()
 		}
 	}
 	return result;
+
 }
 
 
 /*
  * Calculate the def-use web
- * TODO: this probably needs to be integrated with alias-analysis, or at
- * least with mu/chi calculation. Its not enough to say a def creates a load
- * of may-defs.
  */
 void
-Def_use_web::add_use (MIR::Rvalue* def, SSA_op* use)
+Def_use_web::add_use (MIR::Rvalue* def, SSA_op* use, bool add_mu)
 {
 	if (isa<VARIABLE_NAME> (def))
-		add_use (dyc<VARIABLE_NAME> (def), use);
+		add_use (dyc<VARIABLE_NAME> (def), use, add_mu);
 }
 
-// TODO: do we need the Edges, or is it explicit enough without them??
-
 void
-Def_use_web::add_use (MIR::VARIABLE_NAME* def, SSA_op* use)
+Def_use_web::add_use (MIR::VARIABLE_NAME* def, SSA_op* use, bool add_mu)
 {
 	SSA_edge* edge = new SSA_edge (def, use);
 	edge->variable_name = def;
@@ -206,10 +172,13 @@ Def_use_web::add_use (MIR::VARIABLE_NAME* def, SSA_op* use)
 	DEBUG ("to ")
 	use->dump ();
 	DEBUG (endl);
+
+	if (add_mu)
+		add_mus (use->get_bb(), def);
 }
 
 void
-Def_use_web::add_def (MIR::VARIABLE_NAME* use, SSA_op* def)
+Def_use_web::add_def (MIR::VARIABLE_NAME* use, SSA_op* def, bool add_chi)
 {
 	SSA_edge* edge = new SSA_edge (use, def);
 
@@ -221,33 +190,61 @@ Def_use_web::add_def (MIR::VARIABLE_NAME* use, SSA_op* def)
 	DEBUG ("to ")
 	def->dump ();
 	DEBUG (endl);
+
+	if (add_chi)
+		add_chis (def->get_bb (), use);
 }
 
-// When building use-def chains, we add may-defs for things we know arent
-// actually defs, but where there could potentially be a def. Currently, this
-// is just method_invocation.
-// TODO: globals need the opposite: its really a def, but its doesnt may def
-// anything else.
 void
-Def_use_web::add_may_def (MIR::VARIABLE_NAME* use, SSA_op* def)
+Def_use_web::add_mus (Basic_block* bb, VARIABLE_NAME* use)
 {
-	SSA_edge* edge = new SSA_edge (use, def);
+	// TODO: remove mu and chis from the BBs. Instead, just make them SSA_ops.
+	// XXX: But, if we do that, how do we 'remove' the CHI and MU statements
+	// from the CFG? We do throw them away after each optimization, but do we
+	// actually want to remove CHIs via DCE? Why?
+	//
+	// For now: add the chi/mu to the BB, and also add a SSA_mu/SSA_chi to the
+	// use_def info.
 
-	// When used on pre-SSA form, there can be many defs.
-	may_defs[use].push_back (edge);
-
-	DEBUG ("Adding a may_def edge from ");
-	debug (use);
-	DEBUG ("to ")
-	def->dump ();
-	DEBUG (endl);
+	if (aliases->has (use))
+		foreach (VARIABLE_NAME* alias, *aliases)
+			if (!alias->equals (use))
+			{
+				bb->add_mu_node (alias);
+				add_use (alias, new SSA_mu (bb, alias), false);
+			}
 }
+
+void
+Def_use_web::add_chis (Basic_block* bb, VARIABLE_NAME* def)
+{
+	// TODO: what about the use?
+	if (aliases->has (def))
+		foreach (VARIABLE_NAME* alias, *aliases)
+			if (!alias->equals (def))
+			{
+				VARIABLE_NAME* clone = alias->clone ();
+				bb->add_chi_node (alias, clone);
+				add_def (alias, new SSA_chi (bb, alias, clone), false);
+				add_use (clone, new SSA_chi (bb, alias, clone), false);
+			}
+}
+
+
 
 void
 Def_use_web::visit_entry_block (Entry_block* bb)
 {
 	foreach (Formal_parameter* param, *bb->method->signature->formal_parameters)
 		add_def (param->var->variable_name, new SSA_formal (bb));
+}
+
+void
+Def_use_web::visit_exit_block (Exit_block* bb)
+{
+	foreach (Formal_parameter* param, *bb->method->signature->formal_parameters)
+		// TODO not really a formal. Need SSA_EXIT?
+		add_use (param->var->variable_name, new SSA_formal (bb));
 }
 
 void
@@ -268,6 +265,7 @@ Def_use_web::visit_phi_node (Basic_block* bb, VARIABLE_NAME* phi_lhs)
 void
 Def_use_web::visit_chi_node (Basic_block* bb, VARIABLE_NAME* lhs, VARIABLE_NAME* rhs)
 {
+	assert (aliases->size () == 0);
 	add_def (lhs, new SSA_chi (bb, lhs, rhs));
 	add_use (rhs, new SSA_chi (bb, lhs, rhs));
 }
@@ -275,6 +273,7 @@ Def_use_web::visit_chi_node (Basic_block* bb, VARIABLE_NAME* lhs, VARIABLE_NAME*
 void
 Def_use_web::visit_mu_node (Basic_block* bb, VARIABLE_NAME* rhs)
 {
+	assert (aliases->size () == 0);
 	add_use (rhs, new SSA_mu (bb, rhs));
 }
 
@@ -334,10 +333,10 @@ void
 Def_use_web::visit_global (Statement_block* bb, MIR::Global* in)
 {
 	// For SSA creation, this is a def.
-	// TODO: no virtual use or virtual def here. We need to start to
-	// differentiate between $x =& $y and $x = $y;
 	if (isa<VARIABLE_NAME> (in->variable_name))
-		add_def (dyc<VARIABLE_NAME> (in->variable_name), new SSA_stmt (bb));
+		add_def (dyc<VARIABLE_NAME> (in->variable_name), new SSA_stmt (bb), false);
+	else
+		phc_TODO (); // global var-var!
 }
 
 void
@@ -478,7 +477,12 @@ Def_use_web::visit_method_invocation (Statement_block* bb, Method_invocation* in
 		if (VARIABLE_NAME* var = dynamic_cast<VARIABLE_NAME*> (param->rvalue))
 		{
 			add_use (var, new SSA_stmt (bb));
-			add_may_def (var, new SSA_stmt (bb));
+
+			// TODO: use embed and interprocedural analysis to get precise
+			// results.
+		
+			// Note the potential may-def
+			add_chis (bb, var);
 		}
 	}
 }
