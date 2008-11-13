@@ -102,7 +102,12 @@ void
 DCE::mark_pass ()
 {
 	// Initialize the critical blocks - a critical block is a side-effecting
-	// statement
+	// statement.
+	// We don't have any information with which to mark assignments affecting
+	// reference parameters. However, these are covered since the Exit_block is
+	// critical, and it uses all reference parameters. This creates may-uses for
+	// all the aliases, which transitively follows CHI nodes, ensuring that
+	// assignments are marked as critical.
 	foreach (Basic_block* bb, *cfg->get_all_bbs ())
 	{
 		if (Statement_block* sb = dynamic_cast<Statement_block*> (bb))
@@ -162,13 +167,11 @@ DCE::mark_def (VARIABLE_NAME* use)
 	if (!cfg->duw->has_def (use))
 		return;
 
-	assert (0);
-	// TODO: what defs do we want to mark here?
-//	SSA_op* def = cfg->duw->get_var_def (use);
+	SSA_op* def = cfg->duw->get_defs (use, SSA_ALL)->front ();
 	DEBUG ("marking ")
-//	def->dump ();
+	def->dump ();
 	DEBUG (" due to def of " << *use->get_ssa_var_name ());
-//	mark (def);
+	mark (def);
 }
 
 // Check if the block is marked (ignoring the phi nodes)
@@ -216,8 +219,9 @@ DCE::sweep_pass ()
 
 			cfg->remove_branch (dyc<Branch_block> (bb), postdominator);
 		}
-
 	}
+
+	// TODO: what about removing CHIs?
 }
 
 void

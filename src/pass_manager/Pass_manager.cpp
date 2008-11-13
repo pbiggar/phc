@@ -591,16 +591,8 @@ Pass_manager::cfg_dump (CFG* cfg, Pass* pass, String* comment, int iteration)
 
 void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 {
-	// TODO less hacky
 	Pass* cfg_pass = optimization_queue->front();
 	optimization_queue->pop_front();
-
-	Pass* into_ssa_pass = optimization_queue->front();
-	optimization_queue->pop_front();
-
-	Pass* out_ssa_pass = optimization_queue->back();
-	optimization_queue->pop_back();
-
 
 
 	// Perform optimizations method-at-a-time.
@@ -640,28 +632,28 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 						if (opt == NULL)
 							continue;
 
+						maybe_enable_debug (pass);
+
 						// Convert to SSA form
 						HSSA* hssa = new HSSA(cfg);
-
-						maybe_enable_debug (into_ssa_pass);
 						hssa->convert_to_hssa_form ();
-						cfg_dump (cfg, into_ssa_pass, s("Converting into SSA"), iter);
-
+						cfg_dump (cfg, pass, s("Into SSA"), iter);
 
 
 						// Run optimization (dont fail if not an optimization pass,
 						// it might be a plugin pass).
-						maybe_enable_debug (pass);
 						if (opt)
 							opt->run (cfg, this);
+						cfg_dump (cfg, pass, s("After optimization"), iter);
 
-						cfg_dump (cfg, pass, s("After running"), iter);
 
+						cfg->clean ();
+						cfg_dump (cfg, pass, s("Cleaned"), iter);
 
 						// Convert out of SSA
-						maybe_enable_debug (out_ssa_pass);
 						hssa->convert_out_of_ssa_form ();
-						cfg_dump (cfg, out_ssa_pass, NULL, iter);
+						cfg_dump (cfg, pass, s("Out of SSA"), iter);
+
 
 					}
 					cfg_dump (cfg, cfg_pass, s("After full set of passes"), iter);

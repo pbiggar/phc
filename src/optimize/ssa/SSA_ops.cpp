@@ -145,13 +145,7 @@ SSA_stmt::get_uses ()
 {
 	// Phis are different statements, but mus and chis are properties of the
 	// current statement.
-	VARIABLE_NAME_list* result = new VARIABLE_NAME_list;
-	// TODO: are we trying to get rid of "get_uses()". Hard to know.
-	assert (0);
-//	result->push_back_all (bb->cfg->duw->get_real_uses (bb));
-	result->push_back_all (bb->get_mus ()->to_list ());
-	result->push_back_all (bb->get_chi_rhss ());
-	return result;
+	return bb->cfg->duw->get_block_uses (bb, SSA_STMT | SSA_MU | SSA_CHI);
 }
 
 VARIABLE_NAME_list*
@@ -174,6 +168,7 @@ SSA_branch::get_uses ()
 VARIABLE_NAME_list*
 SSA_formal::get_uses ()
 {
+	// TODO: return RHS of phi nodes?
 	return new VARIABLE_NAME_list ();
 }
 
