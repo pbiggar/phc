@@ -436,10 +436,6 @@ SCCP::visit_ssa_pre_op (Statement_block* bb, MIR::SSA_pre_op* in)
 	if (lattice[in->use] == BOTTOM)
 		lattice[in->def] = BOTTOM;
 
-	else if (lattice[in->use] == TOP)
-		assert (lattice[in->def] == TOP); // do nothing
-	// TODO: why not just let it use get_literal with NULL?
-
 	else
 	{
 		Literal* lit = get_literal (in->use);
