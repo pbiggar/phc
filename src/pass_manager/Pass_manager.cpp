@@ -632,8 +632,6 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 						if (opt == NULL)
 							continue;
 
-						maybe_enable_debug (pass);
-
 						// Convert to SSA form
 						HSSA* hssa = new HSSA(cfg);
 						hssa->convert_to_hssa_form ();
@@ -645,12 +643,15 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 						cfg_dump (cfg, pass, s("Cleaned in SSA"), iter);
 
 
+						maybe_enable_debug (pass);
+
 						// Run optimization (dont fail if not an optimization pass,
 						// it might be a plugin pass).
 						if (opt)
 							opt->run (cfg, this);
 						cfg_dump (cfg, pass, s("After optimization"), iter);
 
+						disable_cdebug ();
 
 						// Convert out of SSA
 						hssa->convert_out_of_ssa_form ();
