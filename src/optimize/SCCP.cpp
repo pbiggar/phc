@@ -225,6 +225,23 @@ SCCP::get_predecessor_executable_count (Basic_block* bb)
 }
 
 void
+SCCP::check_changed_definition (Lattice_cell* old_value, VARIABLE_NAME* def)
+{
+	if (lattice[def] != old_value)
+	{
+		foreach (SSA_op* edge, *cfg->duw->get_uses (def, SSA_ALL))
+		{
+			//	1. add uses of the LHS to the SSA worklist.
+			ssa_wl->push_back (edge);
+
+			// 2. If the expression controls a conditional branch, .... However,
+			// conditions never control branches - that's always a VARIABLE_NAME.
+			// The new value for that variable will propagate through 1.
+		}
+	}
+}
+
+void
 SCCP::visit_phi (Basic_block* bb, VARIABLE_NAME* phi_lhs)
 {
 	Lattice_cell* old = lattice[phi_lhs];
@@ -256,7 +273,7 @@ SCCP::visit_phi (Basic_block* bb, VARIABLE_NAME* phi_lhs)
 
 	// Although the algorithm doesnt explicitly state this, surely this is an
 	// assignment.
-	check_changed_definition (old, phi_lhs); // (BB is only used to get the DUW*)
+	check_changed_definition (old, phi_lhs);
 }
 
 void
@@ -353,18 +370,13 @@ SCCP::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 	if (lattice[in->lhs] == BOTTOM)
 		return;
 
+	// We dont care about is_ref, because CHI nodes will handle it.
+
+	// TODO: if all MU have the same value, we can probably optimize.
+
+
 	Expr* expr = transform_expr (bb, in->rhs->clone ());
-
-	// Dont transform the assignment, just the expression.
-	// TODO: I'm sure we can optimize here.
-	if (in->is_ref)
-	{
-		lattice[in->lhs] = BOTTOM;
-		return;
-	}
-
 	Lattice_cell* old = lattice[in->lhs];
-
 
 	// If it changes the lattice value,
 	if (isa<Literal> (expr) && old == TOP)
@@ -376,22 +388,7 @@ SCCP::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 	check_changed_definition (old, in->lhs);
 }
 
-void
-SCCP::check_changed_definition (Lattice_cell* old_value, VARIABLE_NAME* def)
-{
-	if (lattice[def] != old_value)
-	{
-		foreach (SSA_op* edge, *cfg->duw->get_uses (def, SSA_ALL))
-		{
-			//	1. add uses of the LHS to the SSA worklist.
-			ssa_wl->push_back (edge);
 
-			// 2. If the expression controls a conditional branch, .... However,
-			// conditions never control branches - that's always a VARIABLE_NAME.
-			// The new value for that variable will propagate through 1.
-		}
-	}
-}
 
 void
 SCCP::visit_assign_var_var (Statement_block*, MIR::Assign_var_var*)
@@ -424,11 +421,11 @@ SCCP::visit_foreach_reset (Statement_block*, MIR::Foreach_reset*)
 void
 SCCP::visit_pre_op (Statement_block*, MIR::Pre_op*)
 {
-	die ();
+	phc_unreachable ();
 }
 
 void
-SCCP::visit_assign_next (Statement_block*, MIR::Assign_next*)
+SCCP::visit_assign_next (Statement_block*, MIR::Assign_next* in)
 {
 	// TODO: theres a virtual here
 }
@@ -639,7 +636,7 @@ SCCP::transform_method_invocation (Statement_block*, Method_invocation* in)
 			Literal_list* params = new Literal_list;
 			foreach (Actual_parameter* param, *in->actual_parameters)
 			{
-				// TODO: we can replace a arguement with its actual parameter
+				// TODO: we can replace a argument with its actual parameter
 				// (watch out for refs) (only if passing by copy)
 				if (param->is_ref
 					|| get_literal (param->rvalue) == NULL)
@@ -677,7 +674,7 @@ SCCP::transform_method_invocation (Statement_block*, Method_invocation* in)
 Expr*
 SCCP::transform_new (Statement_block*, New* in)
 {
-	// TODO turn a varaible_class into a CLASS_NAME 
+	// TODO turn a variable_class into a CLASS_NAME 
 	die ();
 	return in;
 }
@@ -721,6 +718,11 @@ SCCP::transform_variable_variable (Statement_block*, Variable_variable* in)
 	return in;
 }
 
+
+/*
+ * Updating, after the analysis is finished.
+ */
+
 class SCCP_updater : public Visit_once
 {
 	Lattice_map& lattice;
@@ -763,6 +765,12 @@ public:
 		die ();
 	}
 
+	void visit_assign_next (Statement_block*, MIR::Assign_next* in)
+	{
+		if (Literal* rhs = get_literal (in->rhs))
+			in->rhs = rhs;
+	}
+
 	void visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 	{
 		in->rhs = sccp->transform_expr (bb, in->rhs);
@@ -800,12 +808,7 @@ public:
 
 	void visit_pre_op (Statement_block*, MIR::Pre_op*)
 	{
-		die ();
-	}
-
-	void visit_assign_next (Statement_block*, MIR::Assign_next*)
-	{
-		// Nothing to be done here
+		phc_unreachable ();
 	}
 
 	void visit_ssa_pre_op (Statement_block* bb, MIR::SSA_pre_op* in)

@@ -354,7 +354,7 @@ struct Graph_property_functor
 	void operator()(std::ostream& out) const 
 	{
 		out << "graph [outputorder=edgesfirst];" << std::endl;
-		out << "graph [label=\"" << *method_name << " - " << *label << "\"];" << std::endl;
+		out << "graph [labelloc=t,label=\"" << *method_name << " - " << *label << "\"];" << std::endl;
 	}
 };
 
