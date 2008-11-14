@@ -189,39 +189,97 @@ Def_use_web::add_def (MIR::VARIABLE_NAME* use, SSA_op* def, bool add_chi)
 		add_chis (def->get_bb (), use);
 }
 
+/*
+ * ADD_MUS and ADD_CHIS only work before SSA form. In SSA-form, the aliasing is
+ * explicitly represented using the CHI/MUs, so adding them is incorrect.
+ */
 void
 Def_use_web::add_mus (Basic_block* bb, VARIABLE_NAME* use)
 {
-	// TODO: remove mu and chis from the BBs. Instead, just make them SSA_ops.
-	// XXX: But, if we do that, how do we 'remove' the CHI and MU statements
-	// from the CFG? We do throw them away after each optimization, but do we
-	// actually want to remove CHIs via DCE? Why?
-	//
-	// For now: add the chi/mu to the BB, and also add a SSA_mu/SSA_chi to the
-	// use_def info.
-
 	if (aliases->has (use))
+	{
+		assert (use->in_ssa == false);
 		foreach (VARIABLE_NAME* alias, *aliases)
 			if (!alias->equals (use))
 			{
 				bb->add_mu_node (alias);
 				add_use (alias, new SSA_mu (bb, alias), false);
 			}
+	}
 }
 
 void
 Def_use_web::add_chis (Basic_block* bb, VARIABLE_NAME* def)
 {
-	// TODO: what about the use?
+	// TODO: CHIs are not created for the parameters to a method call. They
+	// clearly should be.
+
+	// TODO:
+	// There is a special problem that occurs when you have two indirect
+	// assignments in the same statement. Suppose you have:
+	//
+	//		$x = my_func ($y);
+	//
+	//	Then you have to add CHIs for the aliases of $y AND for the aliases of
+	//	$x. However, the CHIs for the variables which alias $x do not occur at
+	//	the same time as the variables which alias $y. Instead, $y's aliases
+	//	should occur after the method invocation, and $x's aliases should occur
+	//	after the assignment to $x. $x is in the first set, but not in the
+	//	second. Anything which aliases both $y and $x gets 2 CHIs. $y will get
+	//	2 CHIs.
+	//
+	//	So:
+	//		$x0 = 5;
+	//		$x2 = my_func ($y0);
+	//		$x1 = CHI ($x0); // METHOD
+	//		$y1 = CHI ($y0); // METHOD
+	//		$y2 = CHI ($y1); // ASSIGNMENT
+	//
+	//	Some interesting notes:
+	//		- There is no use of $x1.
+	//		- This problem only occurs when there can be > 1 assignment, which
+	//		can only occur in assignments from method invocations.
+	//		- The same variable can get given a CHI from each of a method's
+	//		parameters, but that is only 1 CHI overall.
+	//		- There can only be 1 or 2 CHIs, not more (see above).
+	//		- If we were to use zero versions, the first chi would have a zero
+	//		version, since it has no real use.
+	//		- This is only really important for getting the numbering right.
+	//		Anywhere that uses phis would get them all.
+	//
+	//
+	//
+	// Some possible solutions:
+	//		Associate CHIs with other definitions, maybe each def has a list of
+	//		maydefs. But there is no def in the function call to associate it
+	//		with, though I think one could safely be added (the MU would ensure
+	//		that it is not overwritten).
+	//
+	//		Allow multiple CHIs in the CHI list. If there is more than 1 of the
+	//		same name, they are assumed to be in the same order in which they
+	//		occur. I believe that the only variable which will only occur once
+	//		in the variable on the RHS.
+	//		 - but what about when we have small alias sets? Then we dont really
+	//		 know which is which.
+	//		 - besides, keeping track of that seems very buggy
+	//
+	// XXX: I like this one best, I think.
+	//		Have two CHI lists, one for 'mid' statement, one for
+	//		'post-statement'. Aliases of assignments go in the latter. Aliases
+	//		due to the call go in the later.
 	if (aliases->has (def))
+	{
+		assert (def->in_ssa == false);
 		foreach (VARIABLE_NAME* alias, *aliases)
 			if (!alias->equals (def))
 			{
+				// TODO: cloning not required
 				VARIABLE_NAME* clone = alias->clone ();
 				bb->add_chi_node (alias, clone);
 				add_def (alias, new SSA_chi (bb, alias, clone), false);
 				add_use (clone, new SSA_chi (bb, alias, clone), false);
 			}
+	}
 }
 
 
