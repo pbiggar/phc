@@ -1,9 +1,10 @@
 <?php
 
-	// A series of dead assignments
-	$d = 1; // DEAD once $c = $d is dead
-	$c = $d; // DEAD once $b = $c is dead
-	$b = $c; // DEAD once $a = $b is dead
-	$a = $b; // DEAD
+	// { phc-option: -O1 --dump=generate-c }
+	// { phc-regex-output: !/[abcd1]/ }
+	$d = 1;
+	$c = $d;
+	$b = $c;
+	$a = $b;
 
 ?>

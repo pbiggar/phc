@@ -2,7 +2,7 @@
 
 	function test ()
 	{
-		// { phc-option: --dump=opt -O1  }
+		// { phc-option: --dump=outssa -O1  }
 
 		// Check unused pure functinos are remove
 		// { phc-regex-output: !/strlen/ }

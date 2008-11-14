@@ -2,7 +2,8 @@
 
 
 	// { phc-option: -O1 --dump=outssa }
-	// { phc-regex-output: !/y/ }
+	// Actually, casts dont have rvalues, so its not that godo an idea.
+	// phc-regex-output: !/y/
 
 	function test ()
 	{
