@@ -145,7 +145,7 @@ SCCP::run (CFG* cfg)
 	// TOP is NULL, so the lattice map is already initialized.
 
 	// Start in the entry block
-	visit_entry_block (cfg->get_entry_bb ());
+	visit_block (cfg->get_entry_bb ());
 
 	// 2. Stop when CFG-worklist and SSA-worklist are both empty.
 	while (cfg_wl->size () > 0 || ssa_wl->size () > 0)
@@ -263,10 +263,7 @@ SCCP::visit_phi (Basic_block* bb, VARIABLE_NAME* phi_lhs)
 		else
 		{
 			Rvalue* arg = bb->get_phi_arg_for_edge (pred, phi_lhs);
-			if (isa<Literal> (arg))
-				result = ::meet (result, dyc<Literal> (arg));
-			else
-				result = ::meet (result, lattice[dyc<VARIABLE_NAME> (arg)]);
+			result = ::meet (result, lattice[dyc<VARIABLE_NAME> (arg)]);
 		}
 	}
 	lattice[phi_lhs] = result;
@@ -277,7 +274,7 @@ SCCP::visit_phi (Basic_block* bb, VARIABLE_NAME* phi_lhs)
 }
 
 void
-SCCP::visit_chi (Basic_block* bb, VARIABLE_NAME* chi_lhs, VARIABLE_NAME* chi_rhs)
+SCCP::visit_chi_node (Basic_block* bb, VARIABLE_NAME* chi_lhs, VARIABLE_NAME* chi_rhs)
 {
 	Lattice_cell* old = lattice[chi_lhs];
 	lattice[chi_lhs] = BOTTOM;
@@ -307,7 +304,7 @@ SCCP::visit_ssa_op (SSA_op* op)
 	}
 	else if (SSA_chi* chi = dynamic_cast<SSA_chi*> (op))
 	{
-		visit_chi (chi->bb, chi->lhs, chi->rhs);
+		visit_chi_node (chi->bb, chi->lhs, chi->rhs);
 	}
 	else
 	{
@@ -340,12 +337,13 @@ SCCP::visit_branch_block (Branch_block* bb)
 	if (lattice[bb->branch->variable_name] == BOTTOM)
 		cfg_wl->push_back_all (bb->get_successor_edges ());
 
-	else if (lattice[bb->branch->variable_name] == TOP)
-		// Not possible, as the previous visit_block will have lowered this.
-		assert (0);
-
 	else
 	{
+		// If its TOP, it must not have a def. Otherwise it would have been
+		// processed by visit_block.
+		if (lattice[bb->branch->variable_name] == TOP)
+			assert (!bb->cfg->duw->has_def (bb->branch->variable_name));
+
 		if (PHP::is_true (get_literal (bb->branch->variable_name)))
 			cfg_wl->push_back (bb->get_true_successor_edge ());
 		else
@@ -440,6 +438,7 @@ SCCP::visit_ssa_pre_op (Statement_block* bb, MIR::SSA_pre_op* in)
 
 	else if (lattice[in->use] == TOP)
 		assert (lattice[in->def] == TOP); // do nothing
+	// TODO: why not just let it use get_literal with NULL?
 
 	else
 	{
@@ -490,7 +489,12 @@ SCCP::get_literal (Rvalue* in)
 
 	VARIABLE_NAME* var_name = dyc<VARIABLE_NAME> (in);
 
-	if (lattice[var_name] == TOP || lattice[var_name] == BOTTOM)
+	// UNINIT becomes NULL. TOP is also used for combining the lattice in 
+	// TODO: explain how this goes with checking if the branch is executable
+	if (lattice[var_name] == TOP)
+			return new NIL();
+
+	if (lattice[var_name] == BOTTOM)
 		return NULL;
 
 	return lattice[var_name]->get_value ()->clone ();
@@ -858,14 +862,6 @@ public:
 	Literal* get_literal (Rvalue* in)
 	{
 		return sccp->get_literal (in);
-		// TODO: When updating, TOP means uninitialized, which in PHP means
-		// NULL. (Need to expand this poor attempt at uninitialized variables).
-//		if (lit)
-//			return lit;
-//		else if (sccp->lattice[dyc<VARIABLE_NAME>(in)] == TOP)
-//			return new NIL();
-//		else
-//			return NULL;
 	}
 
 };
