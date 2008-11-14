@@ -211,7 +211,7 @@ PHP::cast_to (CAST* cast, Literal* lit)
 		return eval_to_literal (ss);
 	}
 
-	return lit;
+	return NULL;
 }
 
 
