@@ -175,9 +175,11 @@ int main(int argc, char** argv)
 //	pm->add_optimization (new Dead_code_elimination (), s("dce"), s("Dead code elimination"));
 //
 	pm->add_optimization_pass (new Fake_pass (s("cfg"), s("Initial Control-Flow Graph")));
+	pm->add_optimization_pass (new Fake_pass (s("build_ssa"), s("Create SSA form")));
 	pm->add_optimization (new SCCP (), s("sccp"), s("Sparse-conditional constant propagation"));
 	pm->add_optimization (new If_simplification (), s("ifsimple"), s("If-simplification"));
 	pm->add_optimization (new DCE (), s("dce"), s("Aggressive Dead-code elimination"));
+	pm->add_optimization_pass (new Fake_pass (s("drop_ssa"), s("Drop SSA form")));
 
 	// codegen passes
 	stringstream ss;

@@ -594,6 +594,11 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 	Pass* cfg_pass = optimization_queue->front();
 	optimization_queue->pop_front();
 
+	Pass* build_pass = optimization_queue->front();
+	optimization_queue->pop_front();
+
+	Pass* drop_pass = optimization_queue->back();
+	optimization_queue->pop_back();
 
 	// Perform optimizations method-at-a-time.
 	MIR::PHP_script* script = in->as_MIR();
@@ -632,6 +637,8 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 						if (opt == NULL)
 							continue;
 
+						maybe_enable_debug (build_pass);
+
 						// Convert to SSA form
 						HSSA* hssa = new HSSA(cfg);
 						hssa->convert_to_hssa_form ();
@@ -651,12 +658,13 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 							opt->run (cfg, this);
 						cfg_dump (cfg, pass, s("After optimization"), iter);
 
-						disable_cdebug ();
+						maybe_enable_debug (drop_pass);
 
 						// Convert out of SSA
 						hssa->convert_out_of_ssa_form ();
 						cfg_dump (cfg, pass, s("Out of SSA"), iter);
 
+						// TODO: get a normal dump here
 
 						// Clean up the CFG.
 						cfg->clean ();
