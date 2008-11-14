@@ -1,8 +1,10 @@
 <?php
 
 	// Foreach should be kept
-	// phc-option: -O1 --dump=generate-c
-	// phc-out-regex: /foreach/
+	// { phc-option: -O1 --dump=outssa }
+	// { phc-regex-output: /foreach_reset/ }
+	// { phc-regex-output: /foreach_next/ }
+	// { phc-regex-output: /foreach_get_val/ }
 
 	function x ()
 	{

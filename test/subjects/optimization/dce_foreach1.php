@@ -1,8 +1,8 @@
 <?php
 
-	// Any trace of 'foreach' should be removed
-	// phc-option: -O1 --dump=generate-c
-	// phc-out-regex: !/foreach/
+	// Any trace of 'foreach_' should be removed
+	// { phc-option: -O1 --dump=generate-c }
+	// { phc-regex-output: !/foreach_/ }
 
 	function x ()
 	{
