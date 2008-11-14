@@ -161,6 +161,10 @@ bool eval_string (String* code, zval* result, IR::Node* anchor, String* prepare)
 	zend_first_try 
 	{
 		DEBUG ("Eval'ing string: " << *code);
+		if (prepare)
+		{
+			DEBUG ("with prep: " << *prepare);
+		}
 
 		if (prepare)
 		{

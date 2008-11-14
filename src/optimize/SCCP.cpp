@@ -1,5 +1,5 @@
 /*
- * Cooper/Torczon Section 10.3.3 describes SCCP, which is weaker than SCCP.
+ * Cooper/Torczon Section 10.3.3 describes SSCP, which is weaker than SCCP.
  * Muchnick 12.6 describes SCCP, but does a very poor job of it. The original
  * paper, "Constant propagation with Conditional Branches", by Wegman and
  * Zadeck, is quite readable. I'll summarize:
@@ -518,17 +518,20 @@ SCCP::meet (VARIABLE_NAME* var_name, Lattice_cell* lat)
 Expr*
 SCCP::transform_array_access (Statement_block*, Array_access* in)
 {
-	Literal* index = 0;
+	Literal* index = get_literal (in->index);
 
 	// Fold index
-	if (Literal* index = get_literal (in->index))
+	if (index)
 		in->index = index;
 
 	// Is this a string, with a known index.
 	Literal* array = get_literal (in->variable_name);
 	if (array && index)
-		die ();
-//		return fold_string_index (array, literal);
+	{
+		Literal* result = PHP::fold_string_index (array, index);
+		if (result)
+			return result;
+	}
 
 	return in;
 }
@@ -563,6 +566,8 @@ SCCP::transform_cast (Statement_block*, Cast* in)
 		Literal* result = PHP::cast_to (in->cast, lit);
 		if (result)
 			return result;
+
+		// TODO: cast could take an Rvalue, is it a good idea?
 	}
 
 	return in;

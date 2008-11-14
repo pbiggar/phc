@@ -139,18 +139,19 @@ PHP::is_pure_function (METHOD_NAME* in)
 }
 
 Literal*
-eval_to_literal (stringstream& code)
+eval_to_literal (stringstream& code, String* prep = NULL)
 {
 	String* code_str = s(code.str());
 
 	zval value;
-	bool ret = eval_string (code_str, &value);
-	if (!ret) // true/false not SUCCESS/FAILURE
+	if (eval_string (code_str, &value, NULL, prep))
+	{
+		Literal* result = zval_to_mir_literal (&value);
+		zval_dtor (&value); // clear out string structure
+		return result;
+	}
+	else
 		return NULL;
-
-	Literal* result = zval_to_mir_literal (&value);
-	zval_dtor (&value); // clear out string structure
-	return result;
 }
 
 Literal*
@@ -174,6 +175,22 @@ PHP::fold_bin_op (Literal* left, OP* op, Literal* right)
 	MIR_unparser (ss, true).unparse (right);
 
 	return eval_to_literal (ss);
+}
+
+Literal*
+PHP::fold_string_index (Literal* array, Literal* index)
+{
+	stringstream prep;
+	prep << "$temp = ";
+	MIR_unparser (prep, true).unparse (array);
+	prep << ";";
+
+	stringstream code;
+	code  << "$temp[";
+	MIR_unparser (code, true).unparse (index);
+	code << "];";
+
+	return eval_to_literal (code, s(prep.str()));
 }
 
 
@@ -230,41 +247,21 @@ PHP::call_function (METHOD_NAME* name, Literal_list* params)
 	}
 	ss << ");";
 
-	// Assume this can fail for no good reason (maybe wrong number of params),
-	// and that we must recover from it.
-	// TODO: warn in this case.
-	zval value;
-	if (eval_string (s(ss.str()), &value))
-	{
-		Literal* result = zval_to_mir_literal (&value);
-		zval_dtor (&value); // clear out string structure
-		return result;
-	}
-	else
-		return NULL;
+	return eval_to_literal (ss);
 }
 
 Literal*
 PHP::fold_pre_op (Literal* use, OP* op)
 {
+	stringstream prep;
+	prep << "$temp = ";
+	MIR_unparser (prep, true).unparse (use);
+	prep << "; " << *op->value << "$temp;";
+
 	stringstream ss;
-	ss << "$temp = ";
-	MIR_unparser (ss, true).unparse (use);
-	ss << "; " << *op->value << "$temp;";
+	ss << "$temp";
 
-
-	// Assume this can fail for no good reason (bad types?) and that we must
-	// recover from it.
-	// TODO: warn in this case.
-	zval value;
-	if (eval_string (s("$temp"), &value, NULL, s(ss.str ())))
-	{
-		Literal* result = zval_to_mir_literal (&value);
-		zval_dtor (&value); // clear out string structure
-		return result;
-	}
-	else
-		return NULL;
+	return eval_to_literal (ss, s(prep.str ()));
 }
 
 

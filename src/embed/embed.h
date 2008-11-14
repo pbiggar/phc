@@ -59,6 +59,7 @@ public:
 	static MIR::Literal* fold_bin_op (MIR::Literal* left, MIR::OP* op, MIR::Literal* right);
 	static MIR::Literal* fold_pre_op (MIR::Literal* literal, MIR::OP* op);
 	static MIR::Literal* fold_constant (MIR::Constant* constant);
+	static MIR::Literal* fold_string_index (MIR::Literal* array, MIR::Literal* index);
 
 	// Functions
 	static bool is_pure_function (MIR::METHOD_NAME* in);
