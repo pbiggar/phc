@@ -225,7 +225,6 @@ class Annotation_translator extends Test_annotation
 
 		// Having processed the dependencies, we dont want to use them again.
 		$this->values = array ();
-		$this->translations = array ();
 		$this->extras = array ();
 
 		return $result;
