@@ -340,15 +340,18 @@ Def_use_web::visit_pre_op (Statement_block*, MIR::Pre_op* in)
 }
 
 void
-Def_use_web::visit_assign_next (Statement_block*, MIR::Assign_next* in)
+Def_use_web::visit_assign_next (Statement_block* bb, MIR::Assign_next* in)
 {
-	assert (0);
+	add_use (in->lhs, new SSA_stmt (bb));
+	add_use (in->rhs, new SSA_stmt (bb));
+
+	add_def (get_virtual (in), new SSA_stmt (bb));
 }
 
 void
 Def_use_web::visit_return (Statement_block* bb, MIR::Return* in)
 {
-	// what does the Chow paper say about return values? we need a mu
+	// We put the MUs in the exit block, as not all paths have a return block.
 	add_use (in->variable_name, new SSA_stmt (bb));
 }
 

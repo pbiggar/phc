@@ -62,7 +62,6 @@ get_virtual (Node* in)
 		case Param_is_ref::ID:
 		case PHP_script::ID:
 		case Pre_op::ID:
-		case Assign_next::ID:
 		case REAL::ID:
 		case Return::ID:
 		case Signature::ID:
@@ -81,7 +80,7 @@ get_virtual (Node* in)
 		case Variable_method::ID:
 		case VARIABLE_NAME::ID:
 		case Variable_variable::ID:
-			phc_unreachable ();
+			phc_TODO ();
 
 		case Array_access::ID:
 			in = new Array_access (dyc<Array_access> (in)->variable_name, NULL);
@@ -89,6 +88,10 @@ get_virtual (Node* in)
 
 		case Assign_array::ID:
 			in = new Array_access (dyc<Assign_array> (in)->lhs, NULL);
+			break;
+
+		case Assign_next::ID:
+			in = new Array_access (dyc<Assign_next> (in)->lhs, NULL);
 			break;
 
 		case Foreach_end::ID:

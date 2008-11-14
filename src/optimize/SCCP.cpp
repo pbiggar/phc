@@ -430,7 +430,7 @@ SCCP::visit_pre_op (Statement_block*, MIR::Pre_op*)
 void
 SCCP::visit_assign_next (Statement_block*, MIR::Assign_next*)
 {
-	die ();
+	// TODO: theres a virtual here
 }
 
 void
@@ -805,7 +805,7 @@ public:
 
 	void visit_assign_next (Statement_block*, MIR::Assign_next*)
 	{
-		die ();
+		// Nothing to be done here
 	}
 
 	void visit_ssa_pre_op (Statement_block* bb, MIR::SSA_pre_op* in)
