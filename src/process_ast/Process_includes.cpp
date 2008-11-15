@@ -16,7 +16,6 @@
 #include "process_ir/General.h"
 #include "process_ir/fresh.h"
 #include "parsing/parse.h"
-#include "pass_manager/Pass_manager.h"
 
 using namespace AST;
 

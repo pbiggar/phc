@@ -9,7 +9,6 @@
 #include "AST_annotate.h"
 #include "AST_shredder.h"
 #include "process_ir/General.h"
-#include "parsing/Parse_buffer.h"
 
 using namespace AST;
 

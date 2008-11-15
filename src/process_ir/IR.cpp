@@ -6,11 +6,10 @@
  */
 
 #include "IR.h"
+#include "AST.h"
+#include "MIR.h"
 #include "hir_to_mir/HIR_to_MIR.h"
 #include "ast_to_hir/AST_to_HIR.h"
-#include "process_ast/AST_unparser.h"
-#include "process_hir/HIR_unparser.h"
-#include "process_mir/MIR_unparser.h"
 
 using namespace IR;
 

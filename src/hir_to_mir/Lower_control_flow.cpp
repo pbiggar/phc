@@ -22,7 +22,6 @@
 #include "Lower_control_flow.h"
 #include "HIR_to_MIR.h"
 #include "process_ir/General.h"
-#include "parsing/Parse_buffer.h"
 
 using namespace HIR;
 using namespace std;

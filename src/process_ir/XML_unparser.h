@@ -9,6 +9,7 @@
 #define PHC_XML_UNPARSER
 
 #include <iostream>
+
 #include "process_ir/IR.h"
 
 class XML_unparser_state : public virtual GC_obj

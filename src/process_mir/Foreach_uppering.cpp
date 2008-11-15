@@ -7,7 +7,6 @@
 
 #include "Foreach_uppering.h"
 #include "process_ir/General.h"
-#include "parsing/Parse_buffer.h"
 
 using namespace MIR;
 

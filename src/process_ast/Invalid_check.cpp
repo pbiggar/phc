@@ -9,7 +9,6 @@
  */
 #include "Invalid_check.h"
 #include "process_ir/General.h"
-#include "pass_manager/Pass_manager.h"
 
 using namespace AST;
 
