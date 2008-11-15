@@ -35,10 +35,6 @@ public:
 
 	virtual String* get_graphviz_label () = 0;
 
-	// Override if there are extra properties for this block.
-	// Returns a list of (name,value) pairs
-	virtual List<std::pair<String*,String*> >* get_graphviz_properties ();
-
 	// Returns a list of (name, list[values]) pairs
 	virtual List<std::pair<String*,String_list> >* get_graphviz_bb_properties ();
 	virtual List<std::pair<String*,String_list> >* get_graphviz_head_properties ();

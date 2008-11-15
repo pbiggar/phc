@@ -70,6 +70,7 @@ String* DOT_unparser::escape(String* in, int max_length)
 		switch((*in)[i])
 		{
 			case '\\':
+			case '>': // must be escaped within the label of a record
 			case '"':
 				escaped << "\\" << (*in)[i];
 				break;

@@ -97,6 +97,7 @@ Def_use_web::has_def (VARIABLE_NAME* use)
 VARIABLE_NAME_list*
 Def_use_web::get_block_defs (Basic_block* bb, int flags)
 {
+	// There wont be any duplicates here.
 	VARIABLE_NAME_list* result = new VARIABLE_NAME_list;
 
 	// Go through the use-def result, finding those who's BB == BB
@@ -122,7 +123,8 @@ Def_use_web::get_block_defs (Basic_block* bb, int flags)
 VARIABLE_NAME_list*
 Def_use_web::get_block_uses (Basic_block* bb, int flags)
 {
-	VARIABLE_NAME_list* result = new VARIABLE_NAME_list;
+	// Remove duplicates
+	Set* result = new Set;
 
 	// Go through the use-def result, finding those who's BB == BB
 	VARIABLE_NAME* key;
@@ -135,12 +137,11 @@ Def_use_web::get_block_uses (Basic_block* bb, int flags)
 				&& edge->op->get_bb () == bb)
 			{
 				// Dont insert the key itself, it may be the wrong var_name.
-				result->push_back (edge->variable_name);
+				result->insert (edge->variable_name);
 			}
 		}
 	}
-	return result;
-
+	return result->to_list ();
 }
 
 

@@ -226,137 +226,57 @@ public:
 };
 
 
-// Dump to graphviz
-struct BB_property_functor
-{
-	property_map<Graph, vertex_bb_t>::type vb;
-	property_map<Graph, edge_cfg_edge_t>::type ee;
-	property_map<Graph, vertex_index_t>::type index;
-
-	BB_property_functor (CFG* cfg)
-	{
-		vb = cfg->vb;
-		ee = cfg->ee;
-		index = cfg->index;
-	}
-	void operator()(std::ostream& out, const edge_t& e) const 
-	{
-		Edge* edge = ee[e];
-		if (indeterminate (edge->direction))
-			return;
-
-		if (edge->direction)
-			out << "[label=T]";
-		else
-			out << "[label=F]";
-
-		// Head and tail annotatations are done in the vertex, because the
-		// headlabel and taillabel attributes dont expand the area they are
-		// in, and so are frequently unreadable.
-	}
-	void operator()(std::ostream& out, const vertex_t& v) const 
-	{
-		out << "[";
-
-		pair<String*, String*> bb_props;
-		foreach (bb_props, *vb[v]->get_graphviz_properties ())
-			out << *bb_props.first << "=" << *bb_props.second << ",";
-
-		out << "label=\"";
-
-
-		// BB source
-		out	
-			<< "(" << index[v] << ") "
-			<< *DOT_unparser::escape (vb[v]->get_graphviz_label ());
-
-		// Annotations
-		String* head = unparse_properties (vb[v]->get_graphviz_head_properties ());
-		String* main = unparse_properties (vb[v]->get_graphviz_bb_properties ());
-		String* tail = unparse_properties (vb[v]->get_graphviz_tail_properties ());
-
-		// Blank line after source, if theres anything else
-
-		if (head->size()) out << "\\n\\n";
-		out << *head;
-
-		if (main->size()) out << "\\n\\n";
-		out << *main;
-
-		if (tail->size()) out << "\\n\\n";
-		out << *tail;
-		
-		out << "\"]";
-	}
-
 #define LINE_LENGTH 30
-	static String* unparse_properties (List<pair<String*, String_list> >* properties)
+ // Append STR to SS, adding a newline before it if the result will be too
+ // long.
+static void append (stringstream& ss, string str, bool can_break = true)
+{
+	// Add the \n at the start, or the next 'can_break' might start a line.
+	if (can_break)
 	{
-		stringstream ss;
-		pair<String*, String_list> props;
-		foreach (props, *properties)
-		{
-			append (ss, *props.first);
-			if (props.second.size ())
-			{
-				append (ss, " = [");
-				foreach (String* str, props.second)
-				{
-					append (ss, *DOT_unparser::escape (str));
-					if (str != props.second.back())
-						append (ss, ", ", false);
-				}
-				append (ss, "]", false);
-			}
-			append (ss, "\\n", false);
-		}
+		// The only length that concerns us is between the lat newline in SS,
+		// and the first one in STR.
+		size_t newline_pos1 = ss.str().rfind ("\\n") + sizeof ("\\n");
+		if (newline_pos1 == string::npos)
+			newline_pos1 = ss.str().size();
 
-		return s(ss.str());
-	}
+		size_t newline_pos2 = str.find ("\\n");
+		if (newline_pos2 == string::npos)
+			newline_pos2 = str.size();
 
-	// Append STR to SS, adding a newline before it if the result will be too
-	// long.
-	static void append (stringstream& ss, string str, bool can_break = true)
-	{
-		// Add the \n at the start, or the next 'can_break' might start a line.
-		if (can_break)
-		{
-			// The only length that concerns us is between the lat newline in SS,
-			// and the first one in STR.
-			size_t newline_pos1 = ss.str().rfind ("\\n") + sizeof ("\\n");
-			if (newline_pos1 == string::npos)
-				newline_pos1 = ss.str().size();
-
-			size_t newline_pos2 = str.find ("\\n");
-			if (newline_pos2 == string::npos)
-				newline_pos2 = str.size();
-
-			if ((ss.str().size() - newline_pos1) + newline_pos2 > LINE_LENGTH 
+		if ((ss.str().size() - newline_pos1) + newline_pos2 > LINE_LENGTH 
 
 				&& (newline_pos1 != ss.str().size())) // no point adding a \n to a \n just cause STR is too long
-				ss << "\\n";
-		}
-
-		ss << str;
+			ss << "\\n";
 	}
-};
 
-struct Graph_property_functor
+	ss << str;
+}
+
+static String* unparse_properties (List<pair<String*, String_list> >* properties)
 {
-	String* label;
-	String* method_name;
-	Graph_property_functor(String* method_name, String* label) 
-	: label (label)
-	, method_name (method_name)
+	stringstream ss;
+	pair<String*, String_list> props;
+	foreach (props, *properties)
 	{
+		append (ss, *props.first);
+		if (props.second.size ())
+		{
+			append (ss, " = [");
+			foreach (String* str, props.second)
+			{
+				append (ss, *DOT_unparser::escape (str));
+				if (str != props.second.back())
+					append (ss, ", ", false);
+			}
+			append (ss, "]", false);
+		}
+		append (ss, "\\n", false);
 	}
 
-	void operator()(std::ostream& out) const 
-	{
-		out << "graph [outputorder=edgesfirst];" << std::endl;
-		out << "graph [labelloc=t,label=\"" << *method_name << " - " << *label << "\"];" << std::endl;
-	}
-};
+	return s(ss.str());
+}
+ 
 
 void
 CFG::dump_graphviz (String* label)
@@ -369,12 +289,122 @@ CFG::dump_graphviz (String* label)
 		label = s ("TEST");
 	}
 	renumber_vertex_indices ();
-	write_graphviz (
-		cout, 
-		bs, 
-		BB_property_functor(this),
-		BB_property_functor(this),
-		Graph_property_functor(method->signature->method_name->value, label));
+
+	cout
+	<< "digraph G {\n"
+	<< "graph [outputorder=edgesfirst];\n"
+	<< "graph [label=\"" << *method->signature->method_name->value << " - " << *label << "\"];\n";
+
+	foreach (Basic_block* bb, *get_all_bbs ())
+	{
+		int index = bb->get_index ();
+
+		// BB source
+		stringstream block_info;
+		block_info	
+		<< "(" << index << ") "
+		<< *DOT_unparser::escape (bb->get_graphviz_label ());
+
+		String* head = unparse_properties (bb->get_graphviz_head_properties ());
+		String* main = unparse_properties (bb->get_graphviz_bb_properties ());
+		String* tail = unparse_properties (bb->get_graphviz_tail_properties ());
+
+
+		cout
+		<< index
+		<< " [shape="
+		<< (isa<Branch_block> (bb) ? "Mrecord" : "record")
+		<< ",label=\"{";
+
+		cout << *head;
+		if (head->size()) cout << " | ";
+
+		cout << block_info.str ();
+
+		if (main->size()) cout << " | ";
+		cout << *main;
+
+		if (tail->size()) cout << " | ";
+		cout << *tail;
+
+
+
+		/*
+		 * Overlay the use-def web.
+		 */
+		if (duw)
+		{
+			// open dual columns
+			cout << " | {  { ";
+			bool first = true;
+			foreach (VARIABLE_NAME* def, *bb->get_defs (SSA_ALL))
+			{
+				cout
+				<< (first ? "" : " | ")
+				<< "<def_" << *def->get_ssa_var_name () << "> "
+				<< *def->get_ssa_var_name ();
+
+				if (first) first = false;
+			}
+
+			// open second column
+			cout << " } | { ";
+			first = true;
+			foreach (VARIABLE_NAME* use, *bb->get_uses (SSA_ALL))
+			{
+				cout
+				<< (first ? "" : " | ")
+				// there can be multiple uses in different blocks
+				<< "<use_" << index << "_" << *use->get_ssa_var_name () << "> "
+				<< *use->get_ssa_var_name ();
+
+				if (first) first = false;
+			}
+
+			// close dual columns
+			cout << " } } ";
+		}
+
+		cout << "}\"];\n";
+
+		if (duw)
+		{
+			// Add an edge from each use to each def
+			foreach (VARIABLE_NAME* use, *bb->get_uses (SSA_ALL))
+			{
+				if (duw->has_def (use))
+				{
+					Basic_block* target_bb = duw->get_def (use)->get_bb();
+					cout 
+						<< index << ":use_" << index << "_" << *use->get_ssa_var_name () 
+						<< " -> "
+						<< target_bb->get_index() << ":def_" << *use->get_ssa_var_name ()
+						<< ";\n"
+						;
+				}
+			}
+		}
+	}
+
+	foreach (Edge* edge, *get_all_edges ())
+	{
+		cout
+		<< edge->get_source()->get_index() 
+		<< " -> "
+		<< edge->get_target()->get_index ();
+
+		if (! indeterminate (edge->direction))
+		{
+			if (edge->direction)
+				cout << "[label=T]";
+			else
+				cout << "[label=F]";
+		}
+
+		cout << ";\n";
+	}
+
+	cout << "}\n\n";
 }
 
 /* Error checking */

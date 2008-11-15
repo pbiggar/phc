@@ -51,15 +51,6 @@ Exit_block::Exit_block (CFG* cfg, Method* method)
 {
 }
 
-List<pair<String*,String*> >*
-Basic_block::get_graphviz_properties ()
-{
-	List<pair<String*,String*> >* result = new List<pair<String*,String*> >;
-	result->push_back (make_pair (s("shape"), s("box")));
-	return result;
-}
-
-
 /*
  * Labels for graphviz
  */
@@ -110,28 +101,10 @@ Statement_block::get_graphviz_label ()
 	return s(ss.str());
 }
 
-List<pair<String*,String*> >*
-Branch_block::get_graphviz_properties ()
-{
-	List<pair<String*,String*> >* result =
-		Basic_block::get_graphviz_properties ();
-
-	result->push_back (make_pair (s("shape"), s("diamond")));
-
-	return result;
-}
-
-
 List<pair<String*,String_list> >*
 Basic_block::get_graphviz_bb_properties ()
 {
 	List<pair<String*,String_list> >* result = new List<pair<String*,String_list> >;
-//	if (defs)
-//		result->push_back (pair<String*, Set*> (s("defs"), defs));
-//	if (uses)
-//		result->push_back (pair<String*, Set*> (s("uses"), uses));
-//	if (aliases && dynamic_cast<Entry_block*> (this))
-//		result->push_back (pair<String*, Set*> (s("aliases"), aliases));
 	return result;
 }
 
