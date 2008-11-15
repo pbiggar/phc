@@ -370,7 +370,7 @@ ht_debug (HashTable * ht)
 
       if (type == HASH_KEY_IS_STRING)
 	{
-	  printf (key);
+	  printf ("%s", key);
 	}
       else
 	{

@@ -19,10 +19,6 @@ if (substr (phpversion (), 0, 1) < 5)
 $support_dir =	"test/support_files";
 $plugin_dir =	"plugins";
 
-require_once ("lib/startup.php");
-require_once ("lib/header.php");
-require_once ("lib/autovars.php");
-
 if ($opt_clean)
 {
 	echo "rm -Rf ./test/logs/*\n";
@@ -32,6 +28,7 @@ if ($opt_clean)
 	exit (0);
 }
 
+require_once ("lib/header.php");
 
 // setup log dir
 $log_directory =	"test/logs/".date_string ();
@@ -46,6 +43,11 @@ mkdir ($working_directory);
 @unlink ("test/working/latest");
 symlink ($working_directory, "test/working/latest");
 print ("Working from: $working_directory\n");
+
+require_once ("lib/startup.php");
+require_once ("lib/autovars.php");
+
+open_status_files ();
 
 // setup globals
 $phc = get_phc ();
@@ -107,7 +109,6 @@ $tests[] = new RegressionTest ("regression_dump_xml", "--dump-xml=ast --dump-xml
 
 
 // Run the tests
-open_status_files ();
 foreach ($tests as $test)
 {
 	$test_name = $test->get_name ();

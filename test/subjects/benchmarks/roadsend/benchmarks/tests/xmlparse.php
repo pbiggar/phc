@@ -2,7 +2,7 @@
 
 
 function xmlfile($num) {
-    return $_ENV["PCC_HOME"] . "/benchmarks/data/xml-data-{$num}.xml";
+    return "test/subjects/3rdparty/benchmarks/roadsend/benchmarks/data/xml-data-{$num}.xml";
 }
 
 

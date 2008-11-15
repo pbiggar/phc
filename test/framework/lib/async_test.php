@@ -55,6 +55,9 @@ class AsyncBundle
 		$this->outs[$state] = $this->out; // copy
 		$this->errs[$state] = $this->err; // copy
 		$this->exits[$state] = $this->exit; // copy
+		unset ($this->out);
+		unset ($this->err);
+		unset ($this->exit);
 		$object = $this->object;
 
 		// Handlers let you modify the stdout, stderr or the exit
@@ -62,7 +65,7 @@ class AsyncBundle
 		if (isset ($this->out_handlers[$state]))
 		{
 			$handler = $this->out_handlers[$state];
-			$result = $object->$handler ($this->out, $this);
+			$result = $object->$handler ($this->outs[$state], $this);
 			if ($result === false)
 				return;
 			$this->outs[$state] = $result;
@@ -71,7 +74,7 @@ class AsyncBundle
 		if (isset ($this->err_handlers[$state]))
 		{
 			$handler = $this->err_handlers[$state];
-			$result = $object->$handler ($this->err, $this);
+			$result = $object->$handler ($this->errs[$state], $this);
 			if ($result === false)
 				return;
 			$this->errs[$state] = $result;
@@ -80,7 +83,7 @@ class AsyncBundle
 		if (isset ($this->exit_handlers[$state]))
 		{
 			$handler = $this->exit_handlers[$state];
-			$result = $object->$handler ($this->exit, $this);
+			$result = $object->$handler ($this->exits[$state], $this);
 			if ($result === false)
 				return;
 			$this->exits[$state] = $result;
@@ -227,7 +230,7 @@ abstract class AsyncTest extends Test
 	function check_capacity ()
 	{
 		if (count ($this->running_procs) 
-				>= (PHC_NUM_PROCS / $this->get_phc_num_procs_divisor()))
+				>= ($this->get_num_procs () / $this->get_phc_num_procs_divisor()))
 		{
 			// check each and see if we can remove some
 			$this->check_running_procs ();
@@ -266,7 +269,8 @@ abstract class AsyncTest extends Test
 				kill_properly ($bundle->handle, $bundle->pipes);
 
 				$bundle->exits[] = "Timeout";
-				$bundle->outs[] = "$bundle->out\n--- TIMEOUT ---";
+				$bundle->out .= "\n--- TIMEOUT ---";
+				$bundle->outs[] = $bundle->out;
 				$bundle->errs[] = $bundle->err;
 				$this->async_timeout ("Timeout", $bundle);
 
@@ -283,7 +287,7 @@ abstract class AsyncTest extends Test
 	function run_waiting_procs ()
 	{
 		while (count ($this->running_procs) 
-				< (PHC_NUM_PROCS / $this->get_phc_num_procs_divisor()))
+				< ($this->get_num_procs () / $this->get_phc_num_procs_divisor()))
 		{
 #			inst ("Poll waiting");
 			if (count ($this->waiting_procs) == 0)
@@ -357,6 +361,11 @@ abstract class AsyncTest extends Test
 	function get_phc_num_procs_divisor ()
 	{
 		return 1;
+	}
+
+	function get_num_procs ()
+	{
+		return PHC_NUM_PROCS;
 	}
 }
 

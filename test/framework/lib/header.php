@@ -201,7 +201,7 @@ function open_status_files ()
 {
 	global $status_files;
 	global $log_directory;
-	foreach (array ("failure", "skipped", "success", "timeout", "results") as $status)
+	foreach (array ("failure", "skipped", "success", "timeout", "results", "pure", "impure") as $status)
 	{
 		$status_files[$status] = fopen ("$log_directory/$status", "w") or die ("Cannot open $status file\n");
 	}
