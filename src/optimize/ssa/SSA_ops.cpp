@@ -152,9 +152,8 @@ VARIABLE_NAME_list*
 SSA_phi::get_uses ()
 {
 	VARIABLE_NAME_list* result = new VARIABLE_NAME_list;
-	foreach (Rvalue* use, *bb->get_phi_args (phi_lhs))
-		if (isa<VARIABLE_NAME> (use))
-			result->push_back (dyc<VARIABLE_NAME> (use));
+	foreach (VARIABLE_NAME* use, *bb->get_phi_args (phi_lhs))
+		result->push_back (use);
 
 	return result;
 }

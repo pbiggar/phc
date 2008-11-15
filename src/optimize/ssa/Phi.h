@@ -8,7 +8,7 @@
 class Phi_map : public Map
 <
 	MIR::VARIABLE_NAME*,
-	MIR::Rvalue*,
+	MIR::VARIABLE_NAME*,
 	bool (*)(MIR::VARIABLE_NAME*, MIR::VARIABLE_NAME*)
 >
 {

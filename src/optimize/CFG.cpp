@@ -943,7 +943,9 @@ CFG::fix_solo_phi_args ()
 			BB_list* new_bbs = new BB_list ();
 			foreach (VARIABLE_NAME* phi_lhs, *bb->get_phi_lhss ())
 			{
-				Rvalue* arg = bb->get_phi_args (phi_lhs)->front ();
+				VARIABLE_NAME* arg = bb->get_phi_args (phi_lhs)->front ();
+				assert (arg->is_virtual == false);
+				assert (phi_lhs->is_virtual == false);
 				new_bbs->push_back (
 						new Statement_block (
 							this,

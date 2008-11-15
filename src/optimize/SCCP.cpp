@@ -262,8 +262,8 @@ SCCP::visit_phi (Basic_block* bb, VARIABLE_NAME* phi_lhs)
 			; // use TOP, aka do nothing
 		else
 		{
-			Rvalue* arg = bb->get_phi_arg_for_edge (pred, phi_lhs);
-			result = ::meet (result, lattice[dyc<VARIABLE_NAME> (arg)]);
+			VARIABLE_NAME* arg = bb->get_phi_arg_for_edge (pred, phi_lhs);
+			result = ::meet (result, lattice[arg]);
 		}
 	}
 	lattice[phi_lhs] = result;
@@ -742,12 +742,11 @@ public:
 	{
 	}
 
-	// Dont update phi nodes. Since we drop phi nodes, we need to bring the phi
-	// arguments back into the IR. However, if we weren't able to remove the old
-	// assignment, then this will introduce two assignments.
-	// TODO: Phi args no longer need to be Rvalues.
 	void visit_phi_node (Basic_block* bb, VARIABLE_NAME* phi_lhs)
 	{
+		// Dont update phi nodes. Since we drop phi nodes, we need to bring the phi
+		// arguments back into the IR. However, if we weren't able to remove the old
+		// assignment, then this will introduce two assignments.
 	}
 
 	void visit_branch_block (Branch_block* bb)

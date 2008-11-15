@@ -44,7 +44,7 @@ Edge::copy_phi_map (Edge* other)
 	// They're not required to have the same target, only that this.target has
 	// all of other.target's phi_lhss (which must be guaranteed by the caller).
 	VARIABLE_NAME* phi_lhs;
-	Rvalue* arg;
+	VARIABLE_NAME* arg;
 	foreach (tie (phi_lhs, arg), other->pm)
 	{
 		get_target()->set_phi_arg_for_edge (this, phi_lhs, arg);

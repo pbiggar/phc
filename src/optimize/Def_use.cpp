@@ -308,7 +308,7 @@ Def_use_web::visit_branch_block (Branch_block* bb)
 void
 Def_use_web::visit_phi_node (Basic_block* bb, VARIABLE_NAME* phi_lhs)
 {
-	foreach (Rvalue* use, *bb->get_phi_args (phi_lhs))
+	foreach (VARIABLE_NAME* use, *bb->get_phi_args (phi_lhs))
 		add_use (use, new SSA_phi (bb, phi_lhs));
 
 	add_def (phi_lhs, new SSA_phi (bb, phi_lhs));

@@ -145,16 +145,11 @@ Basic_block::get_graphviz_head_properties ()
 		String_list list;
 		foreach (Edge* edge, *get_predecessor_edges ())
 		{
-			Rvalue* arg = edge->pm[phi_lhs]; // avoid assertion.
+			VARIABLE_NAME* arg = edge->pm[phi_lhs]; // avoid assertion.
 
 			stringstream ss;
 			if (arg)
-			{
-				if (isa<VARIABLE_NAME> (arg))
-					ss << *dyc<VARIABLE_NAME> (arg)->get_ssa_var_name ();
-				else
-					ss << *dyc<Literal> (arg)->get_value_as_string ();
-			}
+				ss << *dyc<VARIABLE_NAME> (arg)->get_ssa_var_name ();
 			else
 				ss << "XXX"; // missing value.
 
@@ -340,24 +335,6 @@ Basic_block::remove_chi_nodes ()
 }
 
 void
-Basic_block::remove_virtual_phis ()
-{
-	foreach (VARIABLE_NAME* phi_lhs, *phi_lhss)
-	{
-		if (phi_lhs->is_virtual)
-		{
-			// TODO: add checks that the args are virtual;
-			remove_phi_node (phi_lhs);
-		}
-		else
-		{
-			// TODO: add checks that the args are NOT virtuals
-		}
-	}
-}
-
-
-void
 Basic_block::update_phi_node (MIR::VARIABLE_NAME* old_phi_lhs, MIR::VARIABLE_NAME* new_phi_lhs)
 {
 	// If a phi_lhs changes into SSA form, its indexing will change. So we must
@@ -419,10 +396,10 @@ Basic_block::update_mu_node (MIR::VARIABLE_NAME* old_mu, MIR::VARIABLE_NAME* new
 
 
 
-Rvalue_list*
+VARIABLE_NAME_list*
 Basic_block::get_phi_args (MIR::VARIABLE_NAME* phi_lhs)
 {
-	Rvalue_list* result = new Rvalue_list;
+	VARIABLE_NAME_list* result = new VARIABLE_NAME_list;
 
 	foreach (Edge* pred, *get_predecessor_edges ())
 		result->push_back (get_phi_arg_for_edge (pred, phi_lhs));
@@ -477,16 +454,16 @@ Basic_block::get_mus()
 	return mus->set_union (new Set);
 }
 
-Rvalue*
+VARIABLE_NAME*
 Basic_block::get_phi_arg_for_edge (Edge* edge, VARIABLE_NAME* phi_lhs)
 {
-	Rvalue* result = edge->pm[phi_lhs];
+	VARIABLE_NAME* result = edge->pm[phi_lhs];
 	assert (result);
 	return result;
 }
 
 void
-Basic_block::set_phi_arg_for_edge (Edge* edge, VARIABLE_NAME* phi_lhs, Rvalue* arg)
+Basic_block::set_phi_arg_for_edge (Edge* edge, VARIABLE_NAME* phi_lhs, VARIABLE_NAME* arg)
 {
 	assert (arg);
 	edge->pm[phi_lhs] = arg->clone ();

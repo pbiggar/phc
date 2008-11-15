@@ -119,12 +119,12 @@ public:
 	void fix_solo_phi_args ();
 
 	// Get the arguments with VARIABLE_NAME as the lhs.
-	MIR::Rvalue_list* get_phi_args (MIR::VARIABLE_NAME* phi_lhs);
+	MIR::VARIABLE_NAME_list* get_phi_args (MIR::VARIABLE_NAME* phi_lhs);
 
 	Set* get_phi_lhss ();
 
-	MIR::Rvalue* get_phi_arg_for_edge (Edge*, MIR::VARIABLE_NAME* phi_lhs);
-	void set_phi_arg_for_edge (Edge*, MIR::VARIABLE_NAME* phi_lhs, MIR::Rvalue* arg);
+	MIR::VARIABLE_NAME* get_phi_arg_for_edge (Edge*, MIR::VARIABLE_NAME* phi_lhs);
+	void set_phi_arg_for_edge (Edge*, MIR::VARIABLE_NAME* phi_lhs, MIR::VARIABLE_NAME* arg);
 
 	/*
 	 * MU and CHI nodes, for HSSA form. A MU node is a may_use, a CHI is a

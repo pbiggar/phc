@@ -350,7 +350,6 @@ HSSA::convert_out_of_ssa_form ()
 		// Drop the chi and mu args
 		bb->remove_chi_nodes ();
 		bb->remove_mu_nodes ();
-		bb->remove_virtual_phis ();
 
 		// There are two problems when coming out of SSA form:
 		//		1.) variable-variables: i_0 is not the same as i
@@ -365,37 +364,11 @@ HSSA::convert_out_of_ssa_form ()
 		//	PRE. I suspect the latter two can be avoided by using the HSSA
 		//	algorithms. For copy-propagation, I'll just have to be careful.
 
+		// We avoid the critical edge problem because we have only 1 statement
+		// per block. Removing phi nodes adds a single block along the necessary
+		// edge.
+		
 		// TODO: Add a check that there aren't overlapping live ranges.
-		foreach (VARIABLE_NAME* phi_lhs, *bb->get_phi_lhss ())
-		{
-			foreach (Edge* pred, *bb->get_predecessor_edges ())
-			{
-				Rvalue* rval = bb->get_phi_arg_for_edge (pred, phi_lhs);
-				if (isa<VARIABLE_NAME> (rval))
-				{
-					VARIABLE_NAME* var = dyc<VARIABLE_NAME> (rval);
-
-					// We've dropped the indices, so make sure the variables are
-					// equal (if they arent, perhaps if we've added copy
-					// propagation, we should add an assignment).
-					assert (*var->value == *phi_lhs->value);
-					continue;
-				}
-
-				Assign_var* copy = new Assign_var (
-					phi_lhs->clone (),
-					false,
-					rval->clone ());
-
-				Statement_block* new_bb = new Statement_block (cfg, copy);
-
-				cfg->insert_bb_between (pred, new_bb);
-
-				// We avoid the critical edge problem because we have only 1
-				// statement per block. Removing phi nodes adds a single block
-				// along the necessary edge.
-			}
-		}
 		bb->remove_phi_nodes ();
 
 	}
