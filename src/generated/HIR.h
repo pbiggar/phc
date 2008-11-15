@@ -1285,16 +1285,16 @@ public:
     Assign_var(VARIABLE_NAME* lhs, bool is_ref, Expr* rhs);
 };
 
-// Assign_field ::= Target lhs:Field_name is_ref:"&" rhs:Rvalue ;
+// Assign_field ::= Target Field_name is_ref:"&" rhs:Rvalue ;
 class Assign_field : virtual public Statement
 {
 public:
-    Assign_field(Target* target, Field_name* lhs, bool is_ref, Rvalue* rhs);
+    Assign_field(Target* target, Field_name* field_name, bool is_ref, Rvalue* rhs);
 protected:
     Assign_field();
 public:
     Target* target;
-    Field_name* lhs;
+    Field_name* field_name;
     bool is_ref;
     Rvalue* rhs;
 public:

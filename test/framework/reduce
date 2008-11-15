@@ -43,7 +43,7 @@ $phc = "src/phc";
 
 $cg = new Console_Getopt();
 $command_line = join (" ", $cg->readPHPArgv());
-$opt_result = $cg->getopt($cg->readPHPArgv(), "vhc:rdDf:i:UuF:ZP:p:");
+$opt_result = $cg->getopt($cg->readPHPArgv(), "vhc:rdDf:i:UuF:ZP:m:p:");
 if (!is_array ($opt_result))
 	die ($opt_result->message."\n");
 
@@ -51,6 +51,7 @@ list ($opts, $arguments) = $opt_result;
 $opt_verbose = 0;
 $opt_help = false;
 $opt_command = "";
+$opt_main_command = "";
 $opt_pass = "AST-to-HIR";
 $opt_file = NULL;
 $opt_interpret = false;
@@ -68,6 +69,7 @@ foreach ($opts as $opt)
 		case 'U': $opt_dont_upper = true; break;
 		case 'u': $opt_upper = true; break;
 		case 'c': $opt_command .= $opt[1]; break;
+		case 'm': $opt_main_command .= $opt[1]; break;
 		case 'f': $opt_file = $opt[1]; break;
 		case 'i': $opt_interpret = $opt[1]; break;
 		case 'F': $opt_failure = $opt[1]; break;
@@ -106,6 +108,7 @@ Options:
            conversion steps, with this prefix.
     -c     Pass as arguments to the first phc. Be sure to include an --dump-xml
            command, or nothing will happen.
+    -m     Pass as arguments to the main phc. Default ""
     -r     Mnemonic: refcount. The equivalent of "-c--run
            plugins/tools/debug_zval.la -dump-xml=plugins/tools/debug_zval.la".
     -d     The equivalent of "-c--run=plugins/tools/demi_eval.la
@@ -296,7 +299,7 @@ function dump ($filename, $output)
 function do_main_step ($xprogram, $start, $num, $filename)
 {
 	// Within this step, we use src/phc, instead of $opt_phc_prefix, because we always want to test src/phc
-	global $num_steps, $opt_interpret, $opt_failure, $opt_zero, $opt_pass;
+	global $num_steps, $opt_interpret, $opt_failure, $opt_zero, $opt_main_command, $opt_pass;
 	$num_steps++;
 
 	# Reduce
@@ -376,7 +379,7 @@ function do_main_step ($xprogram, $start, $num, $filename)
 	{
 		# Compile and run
 		debug (2, "Getting compiled phc output");
-		list ($phc_out, $phc_err, $phc_exit) = run ("src/phc --read-xml=$opt_pass -c", $xnew_program);
+		list ($phc_out, $phc_err, $phc_exit) = run ("src/phc --read-xml=$opt_pass -c $opt_main_command", $xnew_program);
 		if ($phc_err === "" && $phc_out === "" && $phc_exit === 0)
 		{
 			list ($my_out, $my_err, $my_exit) = run ("./a.out");

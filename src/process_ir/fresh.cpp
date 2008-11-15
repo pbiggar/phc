@@ -130,6 +130,11 @@ namespace MIR
 
 	Label* fresh_label ()
 	{
-		return new Label (new LABEL_NAME (fresh ("L")));
+		return new Label (fresh_label_name ());
+	}
+
+	LABEL_NAME* fresh_label_name ()
+	{
+		return new LABEL_NAME (fresh ("L"));
 	}
 }

@@ -4451,10 +4451,10 @@ Assign_var::Assign_var(VARIABLE_NAME* lhs, bool is_ref, Expr* rhs)
 	}
 }
 
-Assign_field::Assign_field(Target* target, Field_name* lhs, bool is_ref, Rvalue* rhs)
+Assign_field::Assign_field(Target* target, Field_name* field_name, bool is_ref, Rvalue* rhs)
 {
     this->target = target;
-    this->lhs = lhs;
+    this->field_name = field_name;
     this->is_ref = is_ref;
     this->rhs = rhs;
 }
@@ -4462,7 +4462,7 @@ Assign_field::Assign_field(Target* target, Field_name* lhs, bool is_ref, Rvalue*
 Assign_field::Assign_field()
 {
     this->target = 0;
-    this->lhs = 0;
+    this->field_name = 0;
     this->is_ref = 0;
     this->rhs = 0;
 }
@@ -4500,12 +4500,12 @@ bool Assign_field::match(Node* in)
     else if(!this->target->match(that->target))
     	return false;
     
-    if(this->lhs == NULL)
+    if(this->field_name == NULL)
     {
-    	if(that->lhs != NULL && !that->lhs->match(this->lhs))
+    	if(that->field_name != NULL && !that->field_name->match(this->field_name))
     		return false;
     }
-    else if(!this->lhs->match(that->lhs))
+    else if(!this->field_name->match(that->field_name))
     	return false;
     
     that->is_ref = this->is_ref;
@@ -4533,12 +4533,12 @@ bool Assign_field::equals(Node* in)
     else if(!this->target->equals(that->target))
     	return false;
     
-    if(this->lhs == NULL || that->lhs == NULL)
+    if(this->field_name == NULL || that->field_name == NULL)
     {
-    	if(this->lhs != NULL || that->lhs != NULL)
+    	if(this->field_name != NULL || that->field_name != NULL)
     		return false;
     }
-    else if(!this->lhs->equals(that->lhs))
+    else if(!this->field_name->equals(that->field_name))
     	return false;
     
     if(this->is_ref != that->is_ref)
@@ -4559,10 +4559,10 @@ bool Assign_field::equals(Node* in)
 Assign_field* Assign_field::clone()
 {
     Target* target = this->target ? this->target->clone() : NULL;
-    Field_name* lhs = this->lhs ? this->lhs->clone() : NULL;
+    Field_name* field_name = this->field_name ? this->field_name->clone() : NULL;
     bool is_ref = this->is_ref;
     Rvalue* rhs = this->rhs ? this->rhs->clone() : NULL;
-    Assign_field* clone = new Assign_field(target, lhs, is_ref, rhs);
+    Assign_field* clone = new Assign_field(target, field_name, is_ref, rhs);
     clone->Node::clone_mixin_from(this);
     return clone;
 }
@@ -4578,10 +4578,10 @@ Node* Assign_field::find(Node* in)
     	if (target_res) return target_res;
     }
     
-    if (this->lhs != NULL)
+    if (this->field_name != NULL)
     {
-    	Node* lhs_res = this->lhs->find(in);
-    	if (lhs_res) return lhs_res;
+    	Node* field_name_res = this->field_name->find(in);
+    	if (field_name_res) return field_name_res;
     }
     
     if (this->rhs != NULL)
@@ -4601,8 +4601,8 @@ void Assign_field::find_all(Node* in, Node_list* out)
     if (this->target != NULL)
     	this->target->find_all(in, out);
     
-    if (this->lhs != NULL)
-    	this->lhs->find_all(in, out);
+    if (this->field_name != NULL)
+    	this->field_name->find_all(in, out);
     
     if (this->rhs != NULL)
     	this->rhs->find_all(in, out);
@@ -4613,8 +4613,8 @@ void Assign_field::assert_valid()
 {
     assert(target != NULL);
     target->assert_valid();
-    assert(lhs != NULL);
-    lhs->assert_valid();
+    assert(field_name != NULL);
+    field_name->assert_valid();
     assert(rhs != NULL);
     rhs->assert_valid();
     Node::assert_mixin_valid();

@@ -198,11 +198,11 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     if(!strcmp(type_id, "Assign_field"))
     {
     	Target* target = dynamic_cast<Target*>(*i++);
-    	Field_name* lhs = dynamic_cast<Field_name*>(*i++);
+    	Field_name* field_name = dynamic_cast<Field_name*>(*i++);
     	bool is_ref = dynamic_cast<Boolean*>(*i++)->value();
     	Rvalue* rhs = dynamic_cast<Rvalue*>(*i++);
     	assert(i == args->end());
-    	return new Assign_field(target, lhs, is_ref, rhs);
+    	return new Assign_field(target, field_name, is_ref, rhs);
     }
     if(!strcmp(type_id, "Assign_array"))
     {

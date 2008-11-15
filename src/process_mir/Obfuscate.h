@@ -11,10 +11,7 @@
 #include "pass_manager/Pass_manager.h"
 #include "process_mir/MIR_to_AST.h"
 
-#include "process_mir/Goto_uppering.h"
-#include "process_mir/Foreach_uppering.h"
-#include "process_mir/Param_is_ref_uppering.h"
-#include "process_mir/Main_uppering.h"
+#include "process_mir/MIR_unparser.h"
 
 class Obfuscate : public Pass
 {

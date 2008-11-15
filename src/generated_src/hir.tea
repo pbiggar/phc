@@ -93,7 +93,7 @@ Catch ::= CLASS_NAME VARIABLE_NAME Statement* ;
 Throw ::= VARIABLE_NAME ;
 
 Assign_var     ::=			lhs:VARIABLE_NAME								is_ref:"&"? rhs:Expr ;
-Assign_field	::= Target	lhs:Field_name									is_ref:"&"? rhs:Rvalue ;
+Assign_field	::= Target	Field_name										is_ref:"&"? rhs:Rvalue ;
 Assign_array   ::=			lhs:VARIABLE_NAME index:Rvalue			is_ref:"&"? rhs:Rvalue ;
 Assign_var_var ::=			lhs:VARIABLE_NAME						      is_ref:"&"? rhs:Rvalue ;
 Assign_next		::=			lhs:VARIABLE_NAME								is_ref:"&"? rhs:Rvalue ;

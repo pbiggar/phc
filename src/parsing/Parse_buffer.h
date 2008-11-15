@@ -22,8 +22,8 @@
 #include "pass_manager/Pass_manager.h"
 #include "lib/demangle.h"
 
-
 #include "parsing/parse.h"
+
 extern Pass_manager* pm;
 
 // TODO: figure out how to get rid of these nasty hacks

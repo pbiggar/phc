@@ -6,7 +6,6 @@
  */
 
 #include "MIR_transform.h"
-#include "process_mir/MIR_unparser.h"
 #include "pass_manager/Plugin_pass.h"
 #include "process_ir/General.h"
 
