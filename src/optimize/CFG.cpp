@@ -293,8 +293,10 @@ CFG::dump_graphviz (String* label)
 	cout
 	<< "digraph G {\n"
 	<< "graph [outputorder=edgesfirst];\n"
+	<< "graph [labelloc=t];\n"
 	<< "graph [label=\"" << *method->signature->method_name->value << " - " << *label << "\"];\n";
 
+	// Nodes for Basic Blocks
 	foreach (Basic_block* bb, *get_all_bbs ())
 	{
 		int index = bb->get_index ();
@@ -309,38 +311,40 @@ CFG::dump_graphviz (String* label)
 		String* main = unparse_properties (bb->get_graphviz_bb_properties ());
 		String* tail = unparse_properties (bb->get_graphviz_tail_properties ());
 
+#define FIELD_SEPARATOR " | "
+#define CFG_PENWIDTH "penwidth=\"2.0\""
 
 		cout
 		<< index
 		<< " [shape="
-		<< (isa<Branch_block> (bb) ? "Mrecord" : "record")
-		<< ",label=\"{";
+		<< (isa<Branch_block> (bb) ? "Mrecord" : "record") // branches are rounded
+		<< ","
+		<< CFG_PENWIDTH << ","
+		<< "label=\"{"; // arrange fields vertically
 
 		cout << *head;
-		if (head->size()) cout << " | ";
+		if (head->size()) cout << FIELD_SEPARATOR;
 
 		cout << block_info.str ();
 
-		if (main->size()) cout << " | ";
+		if (main->size()) cout << FIELD_SEPARATOR;
 		cout << *main;
 
-		if (tail->size()) cout << " | ";
+		if (tail->size()) cout << FIELD_SEPARATOR;
 		cout << *tail;
 
 
 
-		/*
-		 * Overlay the use-def web.
-		 */
+		// DUW nodes are fields in the BB
 		if (duw)
 		{
 			// open dual columns
-			cout << " | {  { ";
+			cout << FIELD_SEPARATOR << "{  { ";
 			bool first = true;
 			foreach (VARIABLE_NAME* def, *bb->get_defs (SSA_ALL))
 			{
 				cout
-				<< (first ? "" : " | ")
+				<< (first ? "" : FIELD_SEPARATOR) // no field separate
 				<< "<def_" << *def->get_ssa_var_name () << "> "
 				<< *def->get_ssa_var_name ();
 
@@ -348,12 +352,12 @@ CFG::dump_graphviz (String* label)
 			}
 
 			// open second column
-			cout << " } | { ";
+			cout << " } " << FIELD_SEPARATOR <<  " { ";
 			first = true;
 			foreach (VARIABLE_NAME* use, *bb->get_uses (SSA_ALL))
 			{
 				cout
-				<< (first ? "" : " | ")
+				<< (first ? "" : FIELD_SEPARATOR)
 				// there can be multiple uses in different blocks
 				<< "<use_" << index << "_" << *use->get_ssa_var_name () << "> "
 				<< *use->get_ssa_var_name ();
@@ -367,41 +371,46 @@ CFG::dump_graphviz (String* label)
 
 		cout << "}\"];\n";
 
+		// DUW edges
 		if (duw)
 		{
-			// Add an edge from each use to each def
+			// Add an edge from each use to each def (there can be more than 1 in
+			// non-SSA form)
 			foreach (VARIABLE_NAME* use, *bb->get_uses (SSA_ALL))
 			{
-				if (duw->has_def (use))
+				foreach (SSA_op* op, *duw->get_defs (use, SSA_ALL))
 				{
-					Basic_block* target_bb = duw->get_def (use)->get_bb();
+					Basic_block* target_bb = op->get_bb();
 					cout 
-						<< index << ":use_" << index << "_" << *use->get_ssa_var_name () 
+						<< index << ":use_" << index << "_" << *use->get_ssa_var_name () << ":e"
 						<< " -> "
-						<< target_bb->get_index() << ":def_" << *use->get_ssa_var_name ()
-						<< ";\n"
+						<< target_bb->get_index() << ":def_" << *use->get_ssa_var_name () << ":w"
+						<< " [color=lightgrey];\n"
 						;
 				}
 			}
 		}
 	}
 
+	// Edges
 	foreach (Edge* edge, *get_all_edges ())
 	{
 		cout
 		<< edge->get_source()->get_index() 
 		<< " -> "
-		<< edge->get_target()->get_index ();
+		<< edge->get_target()->get_index ()
+		<< "["
+		<< CFG_PENWIDTH << ",";
 
 		if (! indeterminate (edge->direction))
 		{
 			if (edge->direction)
-				cout << "[label=T]";
+				cout << "label=T";
 			else
-				cout << "[label=F]";
+				cout << "label=F";
 		}
 
-		cout << ";\n";
+		cout << "];\n";
 	}
 
 	cout << "}\n\n";
