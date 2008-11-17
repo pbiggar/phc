@@ -262,16 +262,24 @@ Def_use_web::add_chis (Basic_block* bb, VARIABLE_NAME* def)
 	// XXX: I like this one best, I think.
 	//		Have two CHI lists, one for 'mid' statement, one for
 	//		'post-statement'. Aliases of assignments go in the latter. Aliases
-	//		due to the call go in the later.
+	//		due to the call go in the former.
+	//
+	//	I think this will also solve the problem of 'vanishing globals'. In the case of:
+	//		global $x;
+	//		$x = 5;
+	//
+	//	The global statement is remove because $x_0 is not used. However, $x = 5
+	//	is a must_def of $x_0. We can model it as a may-def however, giving it a
+	//	CHI in the mid-part, and the CHI in the post-statement part gives it the
+	//	new value.
 	if (aliases->has (def))
 	{
 		assert (def->in_ssa == false);
 		foreach (VARIABLE_NAME* alias, *aliases)
 			if (!alias->equals (def))
 			{
-				// TODO: cloning not required
+				bb->add_chi_node (alias, alias);
 				VARIABLE_NAME* clone = alias->clone ();
-				bb->add_chi_node (alias, clone);
 				add_def (alias, new SSA_chi (bb, alias, clone), false);
 				add_use (clone, new SSA_chi (bb, alias, clone), false);
 			}

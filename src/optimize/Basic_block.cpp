@@ -151,8 +151,6 @@ Basic_block::add_chi_node (VARIABLE_NAME* lhs, VARIABLE_NAME* rhs)
 	if (chis->has (lhs))
 		assert (lhs->in_ssa == false);
 
-	// TODO: this doesnt need to be a clone
-	// TODO: The callers dont need to clone then
 	(*chis)[lhs->clone ()] = rhs->clone ();
 	assert (chis->has (lhs));
 }
