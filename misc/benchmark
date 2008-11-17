@@ -42,13 +42,13 @@ EOL
 }
 
 
-$filename = "test/subjects/3rdparty/benchmarks/zend/bench.php";
+$filename = "test/subjects/benchmarks/zend/bench.php";
 $command = "./bench.out";
 
 # use long benchmark for -l
 if ($opt_long)
 {
-	$filename = "test/subjects/3rdparty/benchmarks/zend/long_bench.php";
+	$filename = "test/subjects/benchmarks/zend/long_bench.php";
 	$command = "./long_bench.out";
 }
 
