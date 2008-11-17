@@ -104,6 +104,7 @@ private:
 	void add_def (MIR::VARIABLE_NAME* use, SSA_op* def, bool add_chi = true);
 	void add_mus (Basic_block* bb, MIR::VARIABLE_NAME* use);
 	void add_chis (Basic_block* bb, MIR::VARIABLE_NAME* def);
+	void add_may_def (MIR::VARIABLE_NAME* var, SSA_op* def);
 
 
 	void visit_entry_block (Entry_block* bb);

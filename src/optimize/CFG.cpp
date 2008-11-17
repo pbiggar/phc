@@ -12,6 +12,7 @@
 #include <boost/graph/dominator_tree.hpp>
 #include <boost/graph/filtered_graph.hpp>
 #include <boost/graph/topological_sort.hpp>
+#include <boost/algorithm/string/replace.hpp>
 
 #include "process_ast/DOT_unparser.h"
 #include "process_ir/General.h"
@@ -318,12 +319,40 @@ CFG::get_graphviz_chis (Basic_block* bb)
 	return result;
 }
 
+static String*
+escape_portname (String* in)
+{
+	foreach (char& ch, *in)
+	{
+		switch (ch)
+		{
+			case '[':
+			case ']':
+			case '$':
+				ch = '_';
+				break;
+			default:
+				break;
+		}
+	}
+	return in;
+}
+
 String*
 CFG::get_graphviz_def_portname (Basic_block* bb, VARIABLE_NAME* def)
 {
 	stringstream ss;
 	ss
-	<< "def_" << *def->get_ssa_var_name ();
+	<< "def_" << *escape_portname (def->get_ssa_var_name ());
+	return s (ss.str ());
+}
+
+String*
+CFG::get_graphviz_use_portname (Basic_block* bb, VARIABLE_NAME* use)
+{
+	stringstream ss;
+	ss
+	<< "use_" << bb->get_index () << "_" << *escape_portname (use->get_ssa_var_name ());
 	return s (ss.str ());
 }
 
@@ -334,15 +363,6 @@ CFG::get_graphviz_def (Basic_block* bb, VARIABLE_NAME* def)
 	ss
 	<< "<" << *get_graphviz_def_portname (bb, def) << "> "
 	<< *def->get_ssa_var_name ();
-	return s (ss.str ());
-}
-
-String*
-CFG::get_graphviz_use_portname (Basic_block* bb, VARIABLE_NAME* use)
-{
-	stringstream ss;
-	ss
-	<< "use_" << bb->get_index () << "_" << *use->get_ssa_var_name ();
 	return s (ss.str ());
 }
 

@@ -150,6 +150,7 @@ Def_use_web::add_use (MIR::Rvalue* def, SSA_op* use, bool add_mu)
 		add_use (dyc<VARIABLE_NAME> (def), use, add_mu);
 }
 
+
 void
 Def_use_web::add_use (MIR::VARIABLE_NAME* def, SSA_op* use, bool add_mu)
 {
@@ -183,6 +184,23 @@ Def_use_web::add_def (MIR::VARIABLE_NAME* use, SSA_op* def, bool add_chi)
 
 	if (add_chi)
 		add_chis (def->get_bb (), use);
+}
+
+
+void
+Def_use_web::add_may_def (MIR::VARIABLE_NAME* var, SSA_op* def)
+{
+	// TODO: Only add may_defs if we are not in SSA form. Whether we are in SSA
+	// form is, unfortunately, is only signalled by the size of the alias set.
+	// Fix.
+	if (aliases->size ())
+	{
+		Basic_block* bb = def->get_bb ();
+		bb->add_chi_node (var, var);
+		VARIABLE_NAME* clone = var->clone ();
+		add_def (var, new SSA_chi (bb, var, clone), false);
+		add_use (clone, new SSA_chi (bb, var, clone), false);
+	}
 }
 
 /*
@@ -340,6 +358,10 @@ Def_use_web::visit_assign_array (Statement_block* bb, MIR::Assign_array* in)
 	add_use (in->rhs, new SSA_stmt (bb));
 	add_use (in->index, new SSA_stmt (bb));
 	add_def (get_virtual (in), new SSA_stmt (bb));
+
+	// $x[0] = 5;
+	// may convert $x from a scalar to an array.
+	add_may_def (in->lhs, new SSA_stmt (bb));
 }
 
 void
@@ -461,13 +483,14 @@ Def_use_web::visit_array_access (Statement_block* bb, Array_access* in)
 {
 	add_use (in->variable_name, new SSA_stmt (bb));
 	add_use (in->index, new SSA_stmt (bb));
-
-	// Virtuals are intentionally created using an SSA_stmt. Chis and mus are
-	// indirect, but virtuals do not represent indirect variables.
-
-	// TODO: assignments to and uses of virtuals do not appear in the graphviz
-	// graph. 
 	add_use (get_virtual (in), new SSA_stmt (bb));
+
+	// In the case of
+	//		$x =& $y[$i]
+	// $y can be defined by this.
+	// TODO: So can virt($y[$i])
+	// TODO: restrict to only if is_ref is set
+	add_may_def (in->variable_name, new SSA_stmt (bb));
 }
 
 void
