@@ -20,6 +20,7 @@ Basic_block::Basic_block(CFG* cfg)
 	phi_lhss = new Set;
 	mus = new Set;
 	chis = new Var_map<MIR::VARIABLE_NAME*>;
+	virtuals = new Map<Node*, VARIABLE_NAME*>;
 }
 
 Branch_block::Branch_block (CFG* cfg, MIR::Branch* b)

@@ -31,10 +31,20 @@ bool is_pure (Expr* in)
  *
  *		 Doesn't have visible effects
  *			Anything else
+ *
+ *	Whether or not this touches reference parameters is modelled with a MU in
+ *	the block exit, so it can be safely ignored here.
 */
 bool is_critical (Statement* in)
 {
 	if (isa<Return> (in))
+		return true;
+
+	// Foreach_end defines a virtual variable representing the iterator. As
+	// such, its never going to be critical. However, its needed every time the
+	// Foreach_reset is present. No treat it specially.
+	// TODO: is there a way to handle this without special casing it?
+	if (isa<Foreach_end> (in))
 		return true;
 
 	if (not (isa<Eval_expr> (in) || isa<Assign_var> (in)))
@@ -49,13 +59,10 @@ bool is_critical (Statement* in)
 				expr)))
 	{
 		// TODO: pure and critical are different
-		// TODO: indirect operations arent taken into account
 		return !is_pure (expr->value);
 	}
 	else
 		return false;
-
-	// TODO: the statement is critical if it assigns to a reference parameter
 }
 
 // TODO add phi nodes
@@ -162,7 +169,39 @@ DCE::mark_pass ()
 			mark(SSA_op::for_bb (rdf));
 		}
 	}
+
+	// Special case for Foreach_end: If its defining reset isnt marked, unmark it.
+	foreach (Basic_block* bb, *cfg->get_all_bbs ())
+	{
+		Foreach_end* fe = NULL;
+		Foreach_reset* fr = NULL;
+		Statement_block *sb, *sdom;
+		if ((sb = dynamic_cast<Statement_block*> (bb))
+			&& (fe = dynamic_cast<Foreach_end*> (sb->statement)))
+		{
+			// Find the Foreach_reset, which must dominate it.
+			bool found = false;
+			Basic_block* dom = bb;
+			while ((dom = dom->get_immediate_dominator ()))
+			{
+				if ((sdom = dynamic_cast<Statement_block*> (dom))
+					&& (fr = dynamic_cast<Foreach_reset*> (sdom->statement)))
+				{
+					if (fr->iter->equals (fe->iter))
+					{
+						if (!is_marked (dom))
+							marks [SSA_op::for_bb (bb)] = false;
+
+						found = true;
+						break;
+					}
+				}
+			}
+			assert (found);
+		}
+	}
 }
+
 
 void
 DCE::mark (SSA_op* op)

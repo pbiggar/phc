@@ -357,7 +357,7 @@ Def_use_web::visit_assign_array (Statement_block* bb, MIR::Assign_array* in)
 	add_use (in->lhs, new SSA_stmt (bb));
 	add_use (in->rhs, new SSA_stmt (bb));
 	add_use (in->index, new SSA_stmt (bb));
-	add_def (get_virtual (in), new SSA_stmt (bb));
+	add_def (get_virtual (bb, in), new SSA_stmt (bb));
 
 	// $x[0] = 5;
 	// may convert $x from a scalar to an array.
@@ -393,18 +393,21 @@ void
 Def_use_web::visit_foreach_end (Statement_block* bb, MIR::Foreach_end* in)
 {
 	add_use (in->array, new SSA_stmt (bb));
+	add_def (get_virtual (bb, in->iter), new SSA_stmt (bb));
 }
 
 void
 Def_use_web::visit_foreach_next (Statement_block* bb, MIR::Foreach_next* in)
 {
 	add_use (in->array, new SSA_stmt (bb));
+	add_def (get_virtual (bb, in->iter), new SSA_stmt (bb));
 }
 
 void
 Def_use_web::visit_foreach_reset (Statement_block* bb, MIR::Foreach_reset* in)
 {
 	add_use (in->array, new SSA_stmt (bb));
+	add_def (get_virtual (bb, in->iter), new SSA_stmt (bb));
 }
 
 void
@@ -429,7 +432,7 @@ Def_use_web::visit_assign_next (Statement_block* bb, MIR::Assign_next* in)
 	add_use (in->lhs, new SSA_stmt (bb));
 	add_use (in->rhs, new SSA_stmt (bb));
 
-	add_def (get_virtual (in), new SSA_stmt (bb));
+	add_def (get_virtual (bb, in), new SSA_stmt (bb));
 }
 
 void
@@ -483,7 +486,7 @@ Def_use_web::visit_array_access (Statement_block* bb, Array_access* in)
 {
 	add_use (in->variable_name, new SSA_stmt (bb));
 	add_use (in->index, new SSA_stmt (bb));
-	add_use (get_virtual (in), new SSA_stmt (bb));
+	add_use (get_virtual (bb, in), new SSA_stmt (bb));
 
 	// In the case of
 	//		$x =& $y[$i]
@@ -521,18 +524,21 @@ void
 Def_use_web::visit_foreach_get_key (Statement_block* bb, Foreach_get_key* in)
 {
 	add_use (in->array, new SSA_stmt (bb));
+	add_use (get_virtual (bb, in->iter), new SSA_stmt (bb));
 }
 
 void
 Def_use_web::visit_foreach_get_val (Statement_block* bb, Foreach_get_val* in)
 {
 	add_use (in->array, new SSA_stmt (bb));
+	add_use (get_virtual (bb, in->iter), new SSA_stmt (bb));
 }
 
 void
 Def_use_web::visit_foreach_has_key (Statement_block* bb, Foreach_has_key* in)
 {
 	add_use (in->array, new SSA_stmt (bb));
+	add_use (get_virtual (bb, in->iter), new SSA_stmt (bb));
 }
 
 void

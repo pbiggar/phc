@@ -142,7 +142,7 @@ void
 Address_taken::visit_assign_array (Statement_block* bb, MIR::Assign_array* in)
 {
 	// Indirect assignments have their virtual variables aliased
-	aliased (bb, get_virtual (in));
+	aliased (bb, get_virtual (bb, in));
 
 	if (in->is_ref)
 		aliased (bb, in->rhs);
@@ -151,7 +151,7 @@ Address_taken::visit_assign_array (Statement_block* bb, MIR::Assign_array* in)
 void
 Address_taken::visit_assign_field (Statement_block* bb, MIR::Assign_field* in)
 {
-	aliased (bb, get_virtual (in));
+	aliased (bb, get_virtual (bb, in));
 
 	if (in->is_ref)
 		aliased (bb, in->rhs);
@@ -166,7 +166,7 @@ Address_taken::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 	{
 		aliased (bb, in->lhs);
 
-		VARIABLE_NAME* virt = get_virtual (in->rhs);
+		VARIABLE_NAME* virt = get_virtual (bb, in->rhs);
 		if (virt)
 			aliased (bb, virt);
 	}
@@ -250,7 +250,7 @@ Address_taken::visit_throw (Statement_block* bb, MIR::Throw*)
 void
 Address_taken::visit_array_access (Statement_block* bb, MIR::Array_access* in)
 {
-	aliased (bb, get_virtual (in));
+	aliased (bb, get_virtual (bb, in));
 }
 
 void
@@ -262,19 +262,19 @@ Address_taken::visit_field_access (Statement_block* bb, MIR::Field_access* in)
 void
 Address_taken::visit_foreach_get_key (Statement_block* bb, MIR::Foreach_get_key* in)
 {
-	aliased (bb, get_virtual (in));
+	aliased (bb, get_virtual (bb, in));
 }
 
 void
 Address_taken::visit_foreach_get_val (Statement_block* bb, MIR::Foreach_get_val* in)
 {
-	aliased (bb, get_virtual (in));
+	aliased (bb, get_virtual (bb, in));
 }
 
 void
 Address_taken::visit_foreach_has_key (Statement_block* bb, MIR::Foreach_has_key* in)
 {
-	aliased (bb, get_virtual (in));
+	aliased (bb, get_virtual (bb, in));
 }
 
 void

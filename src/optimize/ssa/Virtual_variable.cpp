@@ -1,6 +1,7 @@
 #include "Virtual_variable.h"
 #include "process_mir/MIR_unparser.h"
 #include "process_ir/General.h"
+#include "optimize/Basic_block.h"
 
 // Virtual variables for expressions and statements
 
@@ -10,8 +11,11 @@
 using namespace MIR;
 
 VARIABLE_NAME*
-get_virtual (Node* in)
+get_virtual (Basic_block* bb, Node* in)
 {
+	if (bb->virtuals->has (in))
+		return bb->virtuals->get (in);
+
 	// For Expr
 	switch (in->classid ())
 	{
@@ -40,7 +44,6 @@ get_virtual (Node* in)
 		case Formal_parameter::ID:
 		case Global::ID:
 		case Goto::ID:
-		case HT_ITERATOR::ID:
 		case Instanceof::ID:
 		case Interface_alias::ID:
 		case Interface_def::ID:
@@ -82,6 +85,11 @@ get_virtual (Node* in)
 		case Variable_variable::ID:
 			phc_TODO ();
 
+		/*
+		 * Model arrays:
+		 *		The aim is to make sure they all result in the same name when
+		 *		unparsed.
+		 */
 		case Array_access::ID:
 			in = new Array_access (dyc<Array_access> (in)->variable_name, NULL);
 			break;
@@ -117,11 +125,21 @@ get_virtual (Node* in)
 		case Foreach_reset::ID:
 			in = new Array_access (dyc<Foreach_reset> (in)->array, NULL);
 			break;
+
+		// Model the array iterators
+		case HT_ITERATOR::ID:
+			// Just leave them. They'll always unparse the same way, and
+			// shouldnt interact with other names.
+			break;
+			
 	}
 
 	stringstream ss;
 	ss << "virt_" << unparse (in);
 	VARIABLE_NAME* result = new VARIABLE_NAME (s (ss.str ()));
 	result->is_virtual = true;
+
+	(*bb->virtuals)[in] = result;
+
 	return result;
 }

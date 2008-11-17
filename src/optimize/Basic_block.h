@@ -146,6 +146,11 @@ private:
 	Set* mus;
 	Var_map<MIR::VARIABLE_NAME*>* chis;
 
+	// When we rename virtual-variables, we need to keep track of it. All
+	// other variables are stored somehow, so there must be too.
+public: // TODO: make private
+	Map<MIR::Node*, MIR::VARIABLE_NAME*>* virtuals;
+
 public:
 	/*
 	 * Misc
