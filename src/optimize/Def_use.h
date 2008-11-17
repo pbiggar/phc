@@ -72,9 +72,6 @@ public:
 	 *		SSA_FORMAL
 	 *		SSA_CHI
 	 *		SSA_MU
-	 *
-	 *	Groupings:
-	 *
 	 */
 	// Get all operations that define USE, and that satisfy flags.
 	SSA_op_list* get_defs (MIR::VARIABLE_NAME* use, int flags);
@@ -98,6 +95,7 @@ public:
 	SSA_op* get_def (MIR::VARIABLE_NAME* use);
 
 	void dump ();
+	void consistency_check ();
 
 private:
 	// Add defs or uses

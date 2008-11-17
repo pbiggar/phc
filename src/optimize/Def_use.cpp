@@ -43,11 +43,6 @@ Def_use_web::Def_use_web (Set* aliases)
 {
 }
 
-/*
- * We want to avoid maintaining two separate versions of the Def-use-web -
- * one in this class, and one implicitly through the SSA-form. So we run the
- * entire update lazily before get_defs or get_uses is called. After that,
- * this is a performance problem, but the results are correct. */
 SSA_op_list*
 Def_use_web::get_defs (VARIABLE_NAME* use, int flags)
 {
@@ -123,8 +118,8 @@ Def_use_web::get_block_defs (Basic_block* bb, int flags)
 VARIABLE_NAME_list*
 Def_use_web::get_block_uses (Basic_block* bb, int flags)
 {
-	// Remove duplicates
-	Set* result = new Set;
+	// Dont use a set here. There may be multiple uses of the same variable.
+	VARIABLE_NAME_list* result = new VARIABLE_NAME_list;
 
 	// Go through the use-def result, finding those who's BB == BB
 	VARIABLE_NAME* key;
@@ -137,11 +132,11 @@ Def_use_web::get_block_uses (Basic_block* bb, int flags)
 				&& edge->op->get_bb () == bb)
 			{
 				// Dont insert the key itself, it may be the wrong var_name.
-				result->insert (edge->variable_name);
+				result->push_back (edge->variable_name);
 			}
 		}
 	}
-	return result->to_list ();
+	return result;
 }
 
 
@@ -599,4 +594,32 @@ Def_use_web::dump ()
 		}
 		cdebug << endl;
 	}
+}
+
+void
+Def_use_web::consistency_check ()
+{
+	return;
+
+	// Is the first variable we find in SSA.
+	bool in_ssa = (*use_def_chains.begin ()).first->in_ssa;
+	if (!in_ssa)
+		return;
+
+
+	// Check that each use has 0 or 1 def.
+	VARIABLE_NAME* key;
+	SSA_edge_list edge_list;
+	foreach (tie (key, edge_list), use_def_chains)
+	{
+		assert (edge_list.size () < 2);
+	}
+
+
+	// Check that each key is in SSA form
+	foreach (tie (key, edge_list), use_def_chains)
+		assert (key->in_ssa);
+	
+	foreach (tie (key, edge_list), def_use_chains)
+		assert (key->in_ssa);
 }
