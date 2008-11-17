@@ -226,57 +226,6 @@ public:
 };
 
 
-#define LINE_LENGTH 30
- // Append STR to SS, adding a newline before it if the result will be too
- // long.
-static void append (stringstream& ss, string str, bool can_break = true)
-{
-	// Add the \n at the start, or the next 'can_break' might start a line.
-	if (can_break)
-	{
-		// The only length that concerns us is between the lat newline in SS,
-		// and the first one in STR.
-		size_t newline_pos1 = ss.str().rfind ("\\n") + sizeof ("\\n");
-		if (newline_pos1 == string::npos)
-			newline_pos1 = ss.str().size();
-
-		size_t newline_pos2 = str.find ("\\n");
-		if (newline_pos2 == string::npos)
-			newline_pos2 = str.size();
-
-		if ((ss.str().size() - newline_pos1) + newline_pos2 > LINE_LENGTH 
-
-				&& (newline_pos1 != ss.str().size())) // no point adding a \n to a \n just cause STR is too long
-			ss << "\\n";
-	}
-
-	ss << str;
-}
-
-static String* unparse_properties (List<pair<String*, String_list> >* properties)
-{
-	stringstream ss;
-	pair<String*, String_list> props;
-	foreach (props, *properties)
-	{
-		append (ss, *props.first);
-		if (props.second.size ())
-		{
-			append (ss, " = [");
-			foreach (String* str, props.second)
-			{
-				append (ss, *DOT_unparser::escape (str));
-				if (str != props.second.back())
-					append (ss, ", ", false);
-			}
-			append (ss, "]", false);
-		}
-		append (ss, "\\n", false);
-	}
-
-	return s(ss.str());
-}
-
 #define FIELD_SEPARATOR " | "
 String_list*
 CFG::get_graphviz_phis (Basic_block* bb)
@@ -474,6 +423,44 @@ CFG::dump_graphviz (String* label)
 
 		cout << "\\n" << block_info.str () << "\\n\\n";
 
+		// DUW nodes are fields in the BB
+		if (duw)
+		{
+			VARIABLE_NAME_list* defs = bb->get_defs (SSA_FORMAL | SSA_STMT | SSA_BRANCH);
+			VARIABLE_NAME_list* uses = bb->get_uses (SSA_FORMAL | SSA_STMT | SSA_BRANCH);
+
+
+			if (defs->size() || uses->size ())
+			{
+				// open dual columns
+				cout << FIELD_SEPARATOR << "{  { ";
+				bool first = true;
+				foreach (VARIABLE_NAME* def, *defs)
+				{
+					cout
+						<< (first ? "" : FIELD_SEPARATOR) // no field separate
+						<< *get_graphviz_def (bb, def);
+
+					first = false;
+				}
+
+				// open second column
+				cout << " } " << FIELD_SEPARATOR <<  " { ";
+				first = true;
+				foreach (VARIABLE_NAME* use, *uses)
+				{
+					cout
+						<< (first ? "" : FIELD_SEPARATOR)
+						<< *get_graphviz_use (bb, use);
+
+					first = false;
+				}
+
+				// close dual columns
+				cout << " } } ";
+			}
+		}
+
 		if (chis->size())
 		{
 			cout
@@ -485,38 +472,6 @@ CFG::dump_graphviz (String* label)
 		}
 
 
-
-
-		// DUW nodes are fields in the BB
-		if (duw)
-		{
-			// open dual columns
-			cout << FIELD_SEPARATOR << "{  { ";
-			bool first = true;
-			foreach (VARIABLE_NAME* def, *bb->get_defs (SSA_FORMAL | SSA_STMT | SSA_BRANCH))
-			{
-				cout
-				<< (first ? "" : FIELD_SEPARATOR) // no field separate
-				<< *get_graphviz_def (bb, def);
-
-				first = false;
-			}
-
-			// open second column
-			cout << " } " << FIELD_SEPARATOR <<  " { ";
-			first = true;
-			foreach (VARIABLE_NAME* use, *bb->get_uses (SSA_FORMAL | SSA_STMT | SSA_BRANCH))
-			{
-				cout
-				<< (first ? "" : FIELD_SEPARATOR)
-				<< *get_graphviz_use (bb, use);
-
-				first = false;
-			}
-
-			// close dual columns
-			cout << " } } ";
-		}
 
 		cout << "}\"];\n";
 
