@@ -35,11 +35,6 @@ public:
 
 	virtual String* get_graphviz_label () = 0;
 
-	// Returns a list of (name, list[values]) pairs
-	virtual List<std::pair<String*,String_list> >* get_graphviz_bb_properties ();
-	virtual List<std::pair<String*,String_list> >* get_graphviz_head_properties ();
-	virtual List<std::pair<String*,String_list> >* get_graphviz_tail_properties ();
-
 public:
 	/* 
 	 * These are really for SSA_renaming. We can't use them for a different
@@ -205,7 +200,6 @@ public:
 	 * Graphviz
 	 */
 	String* get_graphviz_label ();
-	List<std::pair<String*,String*> >* get_graphviz_properties ();
 
 	// Assert a block has a two successors, representing true and false
 	// branches, and return the true branch.

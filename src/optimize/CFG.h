@@ -182,8 +182,6 @@ public:
 	/* Returns true or false. If edge isnt true or false, asserts. */
 	bool is_true_edge (Edge* edge);
 
-	void dump_graphviz (String* label);
-
 	// If we use a graph with listS for the adjacency lists, then we need to
 	// renumber the indices for certain algorithms.
 	void renumber_vertex_indices ();
@@ -197,6 +195,21 @@ public:
 	void consistency_check ();
 
 public:
+	/*
+	 * Graphviz
+	 */
+
+	void dump_graphviz (String* label);
+	String_list* get_graphviz_phis (Basic_block* bb);
+	String_list* get_graphviz_mus (Basic_block* bb);
+	String_list* get_graphviz_chis (Basic_block* bb);
+	String* get_graphviz_def (Basic_block* bb, MIR::VARIABLE_NAME* def);
+	String* get_graphviz_use (Basic_block* bb, MIR::VARIABLE_NAME* use);
+	String* get_graphviz_def_portname (Basic_block* bb, MIR::VARIABLE_NAME* def);
+	String* get_graphviz_use_portname (Basic_block* bb, MIR::VARIABLE_NAME* use);
+
+public:
+
 	/*
 	 * CFG access
 	 */

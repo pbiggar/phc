@@ -276,6 +276,137 @@ static String* unparse_properties (List<pair<String*, String_list> >* properties
 
 	return s(ss.str());
 }
+
+#define FIELD_SEPARATOR " | "
+String_list*
+CFG::get_graphviz_phis (Basic_block* bb)
+{
+	String_list* result = new String_list;
+	// 2 columns, with the phi_lhs on the left, and a column of args on the rhs
+	// -------------------------------
+	// |					 |   ARG1      |
+	//	|					 |-------------|
+	// | PHI_LHS		 |   ARG2      |
+	//	|					 |-------------|
+	// |               |   ARG3      |
+	// -------------------------------
+
+	foreach (VARIABLE_NAME* phi_lhs, *bb->get_phi_lhss ())
+	{
+		stringstream ss;
+		// First column
+		ss
+		<< " { "
+		<< *get_graphviz_def (bb, phi_lhs)
+
+		// Second column
+		<< FIELD_SEPARATOR
+		<< " { ";
+
+		bool first = true;
+		foreach (Edge* edge, *bb->get_predecessor_edges ())
+		{
+			if (!first)
+				ss << FIELD_SEPARATOR;
+
+			VARIABLE_NAME* arg = edge->pm[phi_lhs]; // avoid assertion.
+
+			ss
+			<< (arg ? *get_graphviz_use (bb, arg) : "XXX")
+			<< " (" << edge->get_source()->get_index () << ")";
+
+			first = false;
+		}
+
+		ss << " } } ";
+		result->push_back (s (ss.str()));
+	}
+	return result;
+}
+
+String_list*
+CFG::get_graphviz_mus (Basic_block* bb)
+{
+	// Simply the uses. Keep the look consistent though.
+	// ------------------------
+	// |         |    MU      |
+	// ------------------------
+	String_list* result = new String_list;
+
+	foreach (VARIABLE_NAME* mu, *bb->get_mus ())
+	{
+		stringstream ss;
+		ss << "{ " << FIELD_SEPARATOR << *get_graphviz_use (bb, mu) << " } ";
+
+		result->push_back (s (ss.str()));
+	}
+
+	return result;
+}
+
+String_list*
+CFG::get_graphviz_chis (Basic_block* bb)
+{
+	// ------------------------
+	// |  LHS    |    RHS     |
+	// ------------------------
+	String_list* result = new String_list;
+
+	VARIABLE_NAME *lhs, *rhs;
+	foreach (tie (lhs, rhs), *bb->get_chis ())
+	{
+		stringstream ss;
+		ss
+		<< "{ " 
+		<< *get_graphviz_def (bb, lhs) 
+		<< FIELD_SEPARATOR 
+		<< *get_graphviz_use (bb, rhs) 
+		<< " } ";
+
+		result->push_back (s (ss.str()));
+	}
+
+	return result;
+}
+
+String*
+CFG::get_graphviz_def_portname (Basic_block* bb, VARIABLE_NAME* def)
+{
+	stringstream ss;
+	ss
+	<< "def_" << *def->get_ssa_var_name ();
+	return s (ss.str ());
+}
+
+String*
+CFG::get_graphviz_def (Basic_block* bb, VARIABLE_NAME* def)
+{
+	stringstream ss;
+	ss
+	<< "<" << *get_graphviz_def_portname (bb, def) << "> "
+	<< *def->get_ssa_var_name ();
+	return s (ss.str ());
+}
+
+String*
+CFG::get_graphviz_use_portname (Basic_block* bb, VARIABLE_NAME* use)
+{
+	stringstream ss;
+	ss
+	<< "use_" << bb->get_index () << "_" << *use->get_ssa_var_name ();
+	return s (ss.str ());
+}
+
+String*
+CFG::get_graphviz_use (Basic_block* bb, VARIABLE_NAME* use)
+{
+
+	stringstream ss;
+	ss
+	<< "<" << *get_graphviz_use_portname (bb, use) << "> "
+	<< *use->get_ssa_var_name ();
+	return s (ss.str ());
+}
  
 
 void
@@ -307,11 +438,10 @@ CFG::dump_graphviz (String* label)
 		<< "(" << index << ") "
 		<< *DOT_unparser::escape (bb->get_graphviz_label ());
 
-		String* head = unparse_properties (bb->get_graphviz_head_properties ());
-		String* main = unparse_properties (bb->get_graphviz_bb_properties ());
-		String* tail = unparse_properties (bb->get_graphviz_tail_properties ());
+		String_list* phis = get_graphviz_phis (bb);
+		String_list* mus = get_graphviz_mus (bb);
+		String_list* chis = get_graphviz_chis (bb);
 
-#define FIELD_SEPARATOR " | "
 #define CFG_PENWIDTH "penwidth=\"2.0\""
 
 		cout
@@ -322,16 +452,38 @@ CFG::dump_graphviz (String* label)
 		<< CFG_PENWIDTH << ","
 		<< "label=\"{"; // arrange fields vertically
 
-		cout << *head;
-		if (head->size()) cout << FIELD_SEPARATOR;
+		if (phis->size())
+		{
+			cout
+			<< "PHIs"
+			<< FIELD_SEPARATOR;
 
-		cout << block_info.str ();
+			foreach (String* str, *phis)
+				cout << *str << FIELD_SEPARATOR;
+		}
 
-		if (main->size()) cout << FIELD_SEPARATOR;
-		cout << *main;
+		if (mus->size())
+		{
+			cout
+			<< "MUs"
+			<< FIELD_SEPARATOR;
 
-		if (tail->size()) cout << FIELD_SEPARATOR;
-		cout << *tail;
+			foreach (String* str, *mus)
+				cout << *str << FIELD_SEPARATOR;
+		}
+
+		cout << "\\n" << block_info.str () << "\\n\\n";
+
+		if (chis->size())
+		{
+			cout
+			<< FIELD_SEPARATOR
+			<< "CHIs";
+
+			foreach (String* str, *chis)
+				cout << FIELD_SEPARATOR << *str;
+		}
+
 
 
 
@@ -341,28 +493,25 @@ CFG::dump_graphviz (String* label)
 			// open dual columns
 			cout << FIELD_SEPARATOR << "{  { ";
 			bool first = true;
-			foreach (VARIABLE_NAME* def, *bb->get_defs (SSA_ALL))
+			foreach (VARIABLE_NAME* def, *bb->get_defs (SSA_FORMAL | SSA_STMT | SSA_BRANCH))
 			{
 				cout
 				<< (first ? "" : FIELD_SEPARATOR) // no field separate
-				<< "<def_" << *def->get_ssa_var_name () << "> "
-				<< *def->get_ssa_var_name ();
+				<< *get_graphviz_def (bb, def);
 
-				if (first) first = false;
+				first = false;
 			}
 
 			// open second column
 			cout << " } " << FIELD_SEPARATOR <<  " { ";
 			first = true;
-			foreach (VARIABLE_NAME* use, *bb->get_uses (SSA_ALL))
+			foreach (VARIABLE_NAME* use, *bb->get_uses (SSA_FORMAL | SSA_STMT | SSA_BRANCH))
 			{
 				cout
 				<< (first ? "" : FIELD_SEPARATOR)
-				// there can be multiple uses in different blocks
-				<< "<use_" << index << "_" << *use->get_ssa_var_name () << "> "
-				<< *use->get_ssa_var_name ();
+				<< *get_graphviz_use (bb, use);
 
-				if (first) first = false;
+				first = false;
 			}
 
 			// close dual columns
@@ -380,13 +529,12 @@ CFG::dump_graphviz (String* label)
 			{
 				foreach (SSA_op* op, *duw->get_defs (use, SSA_ALL))
 				{
-					Basic_block* target_bb = op->get_bb();
 					cout 
-						<< index << ":use_" << index << "_" << *use->get_ssa_var_name () << ":e"
-						<< " -> "
-						<< target_bb->get_index() << ":def_" << *use->get_ssa_var_name () << ":w"
-						<< " [color=lightgrey];\n"
-						;
+					<< index << ":" <<* get_graphviz_use_portname (op->get_bb (), use) << ":e"
+					<< " -> "
+					<< op->get_bb()->get_index() << ":" << *get_graphviz_def_portname (op->get_bb (), use) << ":w"
+					<< " [color=lightgrey];\n"
+					;
 				}
 			}
 		}
