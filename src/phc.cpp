@@ -168,6 +168,7 @@ int main(int argc, char** argv)
 	pm->add_mir_transform (new Lift_functions_and_classes (), s("lfc"), s("Move statements from global scope into __MAIN__ method"));
 	pm->add_mir_visitor (new Clarify (), s("clar"), s("Clarify - Make implicit defintions explicit"));
 
+	pm->add_mir_visitor (new Prune_symbol_table (), s("pst"), s("Prune Symbol Table - Note whether a symbol table is required in generated code"));
 	pm->add_mir_transform (new Into_SSA (), s("inssa"), s("Convert non-SSA constructs into SSA constructs"));
 
 //	pm->add_optimization (new Address_taken (), s("ataa"), s("Address-taken alias analysis"));
@@ -184,7 +185,6 @@ int main(int argc, char** argv)
 	// codegen passes
 	stringstream ss;
 	pm->add_codegen_transform (new Out_of_SSA (), s("outssa"), s("Remove SSA constructs"));
-	pm->add_codegen_visitor (new Prune_symbol_table (), s("pst"), s("Prune Symbol Table - Note whether a symbol table is required in generated code"));
 	pm->add_codegen_pass (new Generate_C (ss));
 	pm->add_codegen_pass (new Compile_C (ss));
 
