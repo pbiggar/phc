@@ -530,10 +530,10 @@ CFG::dump_graphviz (String* label)
 				foreach (SSA_op* op, *duw->get_defs (use, SSA_ALL))
 				{
 					cout 
-					<< index << ":" <<* get_graphviz_use_portname (op->get_bb (), use) << ":e"
+					<< index << ":" <<* get_graphviz_use_portname (bb, use) << ":e"
 					<< " -> "
 					<< op->get_bb()->get_index() << ":" << *get_graphviz_def_portname (op->get_bb (), use) << ":w"
-					<< " [color=lightgrey];\n"
+					<< " [color=lightgrey,dir=both];\n"
 					;
 				}
 			}
