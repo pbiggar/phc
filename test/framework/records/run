@@ -10,7 +10,7 @@
 
 	ob_start (); // keep all output
 
-	$REPO = "http://phc.googlecode.com/svn/trunk";
+	$REPO = "http://phc.googlecode.com/svn/";
 	$CWD = getcwd ();
 	$TEST_DIR = "$CWD/testing";
 	$RESULTS_DIR = "$CWD/results";
@@ -29,10 +29,9 @@
 		$PREV_REV = $REV - 1;
 		initialize_revision_test ();
 
-		$log = c ("svn log -r $REV $REPO");
-		$diff = c ("svn diff -r $PREV_REV:$REV", "svn_log");
+		$BRANCH = get_svn_branch ($REV);
 
-		c ("svn export -q --revision=$REV $REPO $TEST_DIR");
+		c ("svn export -q --revision=$REV $REPO/$BRANCH $TEST_DIR");
 	}
 	catch (Exception $e) { svn_problem (); }
 
@@ -80,11 +79,11 @@
 
 	function test_problem ()
 	{
-		global $REV, $AUTHOR, $DATE, $LATEST_REVISION, $START_TIME;
+		global $REV, $AUTHOR, $DATE, $LATEST_REVISION, $START_TIME, $BRANCH;
 		$end_time = time ();
 		$time = $end_time - $START_TIME;
 		print "Test problem, saving error\n";
-		e ("INSERT INTO complete VALUES ($REV, $time, $LATEST_REVISION, '$AUTHOR', '$DATE', $end_time, 1, 0)");
+		e ("INSERT INTO complete VALUES ($REV, $time, $LATEST_REVISION, '$AUTHOR', '$DATE', $end_time, 1, 0, '$BRANCH')");
 
 		save_log ();
 		die ();
@@ -182,7 +181,7 @@
 
 		global $DB, $DB_FILENAME;
 		$DB = new PDO ("sqlite:$DB_FILENAME");
-		e ("CREATE TABLE IF NOT EXISTS complete (revision, time, test_revision, author, commit_date, test_date, failed, redo)");
+		e ("CREATE TABLE IF NOT EXISTS complete (revision, time, test_revision, author, commit_date, test_date, failed, redo, branch)");
 		e ("CREATE TABLE IF NOT EXISTS tests (revision, testname, pass, fail, timeout, skip)");
 	}
 
@@ -209,11 +208,11 @@
 
 	function finalize_revision_test ()
 	{
-		global $LATEST_REVISION, $REV, $AUTHOR, $START_TIME, $DATE;
+		global $LATEST_REVISION, $REV, $AUTHOR, $START_TIME, $DATE, $BRANCH;
 		$end_time = time ();
 		$time = $end_time - $START_TIME;
 
-		e ("INSERT INTO complete VALUES ($REV, $time, $LATEST_REVISION, '$AUTHOR', '$DATE', $end_time, 0, 0)");
+		e ("INSERT INTO complete VALUES ($REV, $time, $LATEST_REVISION, '$AUTHOR', '$DATE', $end_time, 0, 0, '$BRANCH')");
 
 		save_log ();
 	}
@@ -329,6 +328,28 @@
 		$result = c ("svn info $REPO");
 		preg_match ("/Revision: (\d+)/", $result, $matches);
 		return $matches[1];
+	}
+
+	// return "trunk", "branches/dataflow", or NULL (we dont care about other branches)
+	function get_svn_branch ($rev)
+	{
+		global $REPO;
+
+		$prev_rev = $rev - 1;
+		$diff = c ("svn diff -r $prev_rev:$rev $REPO");
+
+		// Just check the first file.
+		if (preg_match ("#^Index: branches/([^\/]+)/#", $diff, $matches))
+		{
+			$allowed_branches = array ("dataflow");
+			if (in_array ($matches[1], $allowed_branches))
+				return "branches/{$matches[1]}";
+		}
+		else if (preg_match ("#^Index: trunk#", $diff))
+			return "trunk";
+
+		// Dont run anything on this one
+		return NULL;
 	}
 
 ?>
