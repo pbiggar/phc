@@ -395,4 +395,6 @@ HSSA::convert_out_of_ssa_form ()
 		}
 	}
 
+	// This is no longer accurate
+	cfg->duw = NULL;
 }

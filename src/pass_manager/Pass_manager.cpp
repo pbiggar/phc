@@ -618,7 +618,6 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 
 			maybe_enable_debug (cfg_pass);
 			CFG* cfg = new CFG (method);
-			cfg_dump (cfg, cfg_pass, s("Conversion to CFG"), -1);
 
 			if (lexical_cast<int> (args_info->optimize_arg) > 0)
 			{
@@ -638,38 +637,24 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 						if (opt == NULL)
 							continue;
 
-						maybe_enable_debug (build_pass);
-
 						// Convert to SSA form
-						HSSA* hssa = new HSSA(cfg);
+						maybe_enable_debug (build_pass);
+						HSSA* hssa = new HSSA (cfg);
 						hssa->convert_to_hssa_form ();
-						cfg_dump (cfg, pass, s("Into SSA"), iter);
-
-
-						// Clean up the CFG.
 						cfg->clean ();
-						cfg_dump (cfg, pass, s("Cleaned in SSA"), iter);
+						cfg_dump (cfg, pass, s("In SSA (cleaned)"), iter);
 
-
+						// Run optimization
 						maybe_enable_debug (pass);
-
-						// Run optimization (dont fail if not an optimization pass,
-						// it might be a plugin pass).
-						if (opt)
-							opt->run (cfg, this);
-						cfg_dump (cfg, pass, s("After optimization"), iter);
-
-						maybe_enable_debug (drop_pass);
+						opt->run (cfg, this);
+						cfg->clean ();
+						cfg_dump (cfg, pass, s("After optimization (cleaned)"), iter);
 
 						// Convert out of SSA
+						maybe_enable_debug (drop_pass);
 						hssa->convert_out_of_ssa_form ();
-						cfg_dump (cfg, pass, s("Out of SSA"), iter);
-
-						// TODO: get a normal dump here
-
-						// Clean up the CFG.
 						cfg->clean ();
-						cfg_dump (cfg, pass, s("Cleaned after SSA"), iter);
+						cfg_dump (cfg, pass, s("Out of SSA (cleaned)"), iter);
 					}
 					cfg_dump (cfg, cfg_pass, s("After full set of passes"), iter);
 
@@ -680,7 +665,7 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 					// Labels are always new values, so checking for equality wont work.
 //					if (old->equals (method))
 					{
-						cfg_dump (cfg, cfg_pass, s("Finished"), iter);
+//						cfg_dump (cfg, cfg_pass, s("Finished"), iter);
 						break;
 					}
 					old = method->clone ();
