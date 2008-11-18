@@ -1,5 +1,6 @@
 <?php
 
+	// Test code generation for rvalues doesnt abort.
 	// { phc-option: --disable=ashred --generate-c }
 
 	$x[1] = 2;

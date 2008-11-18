@@ -87,4 +87,4 @@ benchmarks/roadsend/benchmarks/data/include/.*			non-interpretable # generated c
 # These tests print out timing results, which wont be identical in interpretable tests
 benchmarks/phpbench-0.8.1/.*									non-interpretable
 benchmarks/php_bs/.*												non-interpretable
-benchmarks/zend/.*												interpretable
+benchmarks/zend/.*												non-interpretable

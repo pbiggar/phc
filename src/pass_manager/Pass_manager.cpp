@@ -15,6 +15,7 @@
 #include "Plugin_pass.h"
 #include "Visitor_pass.h"
 #include "Transform_pass.h"
+#include "Optimization_pass.h"
 
 #include "process_ir/XML_unparser.h"
 #include "process_ast/AST_unparser.h"

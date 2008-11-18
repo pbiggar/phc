@@ -13,10 +13,12 @@
 #include "cmdline.h"
 #include "lib/List.h"
 
-#include "Pass.h"
-#include "Optimization_pass.h"
-
+class CFG;
+class CFG_visitor;
+class Optimization_pass;
+class Pass;
 class String;
+
 typedef List<Pass*> Pass_queue;
 namespace AST { class Visitor; class Transform; }
 namespace HIR { class Visitor; class Transform; }
