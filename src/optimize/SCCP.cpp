@@ -225,10 +225,14 @@ SCCP::get_predecessor_executable_count (Basic_block* bb)
 }
 
 void
-SCCP::check_changed_definition (Lattice_cell* old_value, VARIABLE_NAME* def)
+SCCP::set_lattice (VARIABLE_NAME* def, Lattice_cell* value)
 {
-	if (lattice[def] != old_value)
+	Lattice_cell* old = lattice[def];
+	if (old != value)
 	{
+		// shouldnt have two different Literals here
+		assert (old == TOP || value == BOTTOM);
+
 		foreach (SSA_op* edge, *cfg->duw->get_uses (def, SSA_ALL))
 		{
 			//	1. add uses of the LHS to the SSA worklist.
@@ -239,13 +243,12 @@ SCCP::check_changed_definition (Lattice_cell* old_value, VARIABLE_NAME* def)
 			// The new value for that variable will propagate through 1.
 		}
 	}
+	lattice[def] = value;
 }
 
 void
 SCCP::visit_phi (Basic_block* bb, VARIABLE_NAME* phi_lhs)
 {
-	Lattice_cell* old = lattice[phi_lhs];
-
 	/*	VisitPhi:
 	 *	The lattice of the phis output variable is the meet of all the inputs
 	 *	(non-execable means TOP), with the meet function:
@@ -266,19 +269,14 @@ SCCP::visit_phi (Basic_block* bb, VARIABLE_NAME* phi_lhs)
 			result = ::meet (result, lattice[arg]);
 		}
 	}
-	lattice[phi_lhs] = result;
-
-	// Although the algorithm doesnt explicitly state this, surely this is an
-	// assignment.
-	check_changed_definition (old, phi_lhs);
+	// This overwrites the old value.
+	set_lattice (phi_lhs, result);
 }
 
 void
-SCCP::visit_chi_node (Basic_block* bb, VARIABLE_NAME* chi_lhs, VARIABLE_NAME* chi_rhs)
+SCCP::visit_chi_node (Basic_block* bb, VARIABLE_NAME* chi_lhs, VARIABLE_NAME*)
 {
-	Lattice_cell* old = lattice[chi_lhs];
-	lattice[chi_lhs] = BOTTOM;
-	check_changed_definition (old, chi_lhs);
+	set_lattice (chi_lhs, BOTTOM);
 }
 
 /*
@@ -321,9 +319,10 @@ SCCP::visit_ssa_op (SSA_op* op)
 void
 SCCP::visit_entry_block (Entry_block* bb)
 {
-	foreach (VARIABLE_NAME* var_name, *bb->get_defs (SSA_FORMAL))
+	foreach (VARIABLE_NAME* var, *bb->get_defs (SSA_FORMAL))
 	{
-		lattice[var_name] = BOTTOM;
+		// No need to run again
+		lattice[var] = BOTTOM;
 	}
 }
 
@@ -374,16 +373,11 @@ SCCP::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 
 
 	Expr* expr = transform_expr (bb, in->rhs->clone ());
-	Lattice_cell* old = lattice[in->lhs];
 
-	// If it changes the lattice value,
-	if (isa<Literal> (expr) && old == TOP)
-		lattice[in->lhs] = new Lattice_cell (dyc<Literal> (expr));
+	if (isa<Literal> (expr))
+		meet (in->lhs, dyc<Literal> (expr));
 	else if (!isa<Literal> (expr))
-		lattice[in->lhs] = BOTTOM;
-
-
-	check_changed_definition (old, in->lhs);
+		set_lattice (in->lhs, BOTTOM);
 }
 
 
@@ -417,6 +411,17 @@ SCCP::visit_foreach_reset (Statement_block*, MIR::Foreach_reset*)
 }
 
 void
+SCCP::visit_global (Statement_block*, MIR::Global* in)
+{
+	// The Def-use info indicates this is a DEF, so we must put it to BOTTOM, or
+	// else it will be assumed TOP.
+	if (isa<Variable_variable> (in->variable_name))
+		phc_TODO ();
+
+	set_lattice (dyc<VARIABLE_NAME> (in->variable_name), BOTTOM);
+}
+
+void
 SCCP::visit_pre_op (Statement_block*, MIR::Pre_op*)
 {
 	phc_unreachable ();
@@ -431,25 +436,16 @@ SCCP::visit_assign_next (Statement_block*, MIR::Assign_next* in)
 void
 SCCP::visit_ssa_pre_op (Statement_block* bb, MIR::SSA_pre_op* in)
 {
-	Lattice_cell* old = lattice[in->def];
-
 	if (lattice[in->use] == BOTTOM)
-		lattice[in->def] = BOTTOM;
+		set_lattice (in->def, BOTTOM);
 
 	else
 	{
-		Literal* lit = get_literal (in->use);
-		Literal* result = PHP::fold_pre_op (lit, in->op);
+		Literal* result = PHP::fold_pre_op (get_literal (in->use), in->op);
 
 		if (result)
 			meet (in->def, result);
 	}
-
-	// TODO: this could get duplicated a lot. The simplest way to avoid that is
-	// to move to iterarating over SSA_operations in a node, instead of
-	// painstakingly checking each place that can be a def.
-	
-	check_changed_definition (old, in->def);
 }
 
 void
@@ -485,15 +481,14 @@ SCCP::get_literal (Rvalue* in)
 
 	VARIABLE_NAME* var_name = dyc<VARIABLE_NAME> (in);
 
-	// UNINIT becomes NULL. TOP is also used for combining the lattice in 
-	// TODO: explain how this goes with checking if the branch is executable
+	// UNINIT becomes NULL. This doesn't affect the algorithm in Phi nodes.
 	if (lattice[var_name] == TOP)
-			return new NIL();
+		return new NIL();
 
 	if (lattice[var_name] == BOTTOM)
 		return NULL;
 
-	return lattice[var_name]->get_value ()->clone ();
+	return lattice[var_name]->get_value ();
 }
 
 void
@@ -503,9 +498,9 @@ SCCP::meet (VARIABLE_NAME* var_name, Literal* lit)
 }
 
 void
-SCCP::meet (VARIABLE_NAME* var_name, Lattice_cell* lat)
+SCCP::meet (VARIABLE_NAME* var, Lattice_cell* value)
 {
-	lattice[var_name] = ::meet (lattice[var_name], lat);
+	set_lattice (var, ::meet (lattice[var], value));
 }
 
 
