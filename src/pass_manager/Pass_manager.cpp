@@ -630,12 +630,12 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 					cfg_dump (cfg, cfg_pass, s("Iterating"), iter);
 					foreach (Pass* pass, *optimization_queue)
 					{
+						Optimization_pass* opt = dynamic_cast<Optimization_pass*> (pass);
+						if (opt == NULL || !pass->is_enabled (pm))
+							continue;
+
 						if (args_info->verbose_flag)
 							cout << "Running pass: " << *pass->name << endl;
-
-						Optimization_pass* opt = dynamic_cast<Optimization_pass*> (pass);
-						if (opt == NULL)
-							continue;
 
 						// Convert to SSA form
 						maybe_enable_debug (build_pass);

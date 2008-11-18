@@ -174,6 +174,8 @@ libphc_la_SOURCES= 											\
 	src/optimize/Lattice.h									\
 	src/optimize/Live_variable_analysis.cpp			\
 	src/optimize/Live_variable_analysis.h				\
+	src/optimize/Oracle.cpp									\
+	src/optimize/Oracle.h									\
 	src/optimize/SCCP.cpp									\
 	src/optimize/SCCP.h										\
 -	src/optimize/Prune_symbol_table.cpp					\

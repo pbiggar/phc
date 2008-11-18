@@ -120,6 +120,21 @@ public:
 	
 		return result;
 	}
+
+	_Tp at (int index)
+	{
+		int i = 0;
+		assert (this->size () > (unsigned int)(i));
+		foreach (_Tp elem, *this)
+		{
+			if (i == index)
+				return elem;
+
+			i++;
+		}
+
+		assert (0);
+	}
 };
 
 template <class List_type, class Result_type>

@@ -24,6 +24,8 @@ extern void ***tsrm_ls;
 
 using namespace MIR;
 
+
+
 bool
 PHP::is_pure_function (METHOD_NAME* in)
 {
@@ -229,6 +231,42 @@ PHP::cast_to (CAST* cast, Literal* lit)
 	}
 
 	return NULL;
+}
+
+Signature*
+PHP::get_signature (METHOD_NAME* method_name)
+{
+	zval fn;
+	INIT_PZVAL (&fn);
+	ZVAL_STRING (&fn, const_cast<char*> (method_name->value->c_str ()), 0);
+
+	zend_fcall_info fci;
+	zend_fcall_info_cache fcic;
+	int result = zend_fcall_info_init (&fn, &fci, &fcic TSRMLS_CC);
+
+	zend_function* func = fcic.function_handler;
+	if (result != SUCCESS)
+		return NULL;
+
+	Signature* sig = new Signature (method_name->value->c_str ());
+
+	sig->pass_rest_by_ref = func->common.pass_rest_by_reference; 
+	sig->return_by_ref = func->common.return_reference;
+
+	for (unsigned int i = 0; i < func->common.num_args; i++)
+	{
+		stringstream ss;
+		ss << "unknown" << i;
+
+		Formal_parameter* param = 
+			new Formal_parameter (
+				NULL, // TODO
+				ARG_MUST_BE_SENT_BY_REF (func, i+1),
+				new VARIABLE_NAME (s (ss.str ())));
+
+		sig->formal_parameters->push_back (param);
+	}
+	return sig;
 }
 
 

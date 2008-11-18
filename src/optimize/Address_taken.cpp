@@ -6,7 +6,9 @@
  */
 
 #include "process_ir/General.h"
+
 #include "Address_taken.h"
+#include "Oracle.h"
 #include "ssa/Virtual_variable.h"
 
 using namespace MIR;
@@ -290,8 +292,18 @@ Address_taken::visit_isset (Statement_block* bb, MIR::Isset* in)
 void
 Address_taken::visit_method_invocation (Statement_block* bb, MIR::Method_invocation* in)
 {
+	Signature* sig = NULL;
+	if (in->target == NULL && isa<METHOD_NAME> (in->method_name))
+		sig = Oracle::get_signature (dyc<METHOD_NAME> (in->method_name));
+
+	int i = 0;
 	foreach (Actual_parameter* ap, *in->actual_parameters)
-		aliased (bb,ap->rvalue);
+	{
+		if (!sig || sig->is_param_passed_by_ref (i))
+			aliased (bb, ap->rvalue);
+
+		i++;
+	}
 }
 void
 Address_taken::visit_new (Statement_block* bb, MIR::New* in)

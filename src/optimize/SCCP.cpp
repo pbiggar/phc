@@ -819,7 +819,7 @@ public:
 	void visit_return (Statement_block* bb, MIR::Return* in)
 	{
 		// Dont propagate to return-by-ref
-		if (bb->cfg->get_entry_bb ()->method->signature->is_ref)
+		if (bb->cfg->get_entry_bb ()->method->signature->return_by_ref)
 			return;
 
 		// TODO change Return to take an Rvalue

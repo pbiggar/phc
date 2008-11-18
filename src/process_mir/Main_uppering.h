@@ -24,6 +24,7 @@ public:
 				new MIR::Signature (
 					new MIR::Wildcard<MIR::Method_mod>,
 					false,
+					false,
 					new MIR::METHOD_NAME (s ("__MAIN__")),
 					NULL),
 				NULL)))

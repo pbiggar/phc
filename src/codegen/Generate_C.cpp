@@ -439,7 +439,7 @@ public:
 		gen->methods->push_back(signature);
 
 		method_entry();
-		gen->return_by_reference = signature->is_ref;
+		gen->return_by_reference = signature->return_by_ref;
 		gen->visit_statement_list(pattern->value->statements);
 		method_exit();
 	}
@@ -2665,7 +2665,7 @@ void Generate_C::post_php_script(PHP_script* in)
 		// TODO: pass by reference only works for PHP>5.1.0. Do we care?
 		code 
 		<< "ZEND_BEGIN_ARG_INFO_EX(" << *name << "_arg_info, 0, "
-		<< (s->is_ref ? "1" : "0")
+		<< (s->return_by_ref ? "1" : "0")
 		<< ", 0)\n"
 		;
 

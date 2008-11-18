@@ -30,6 +30,7 @@ void Lift_functions_and_classes::children_php_script(PHP_script* in)
 		new Signature(
 			new Method_mod(),
 			false,
+			false,
 			new METHOD_NAME(new String("__MAIN__")),
 			new Formal_parameter_list),
 		main));

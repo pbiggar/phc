@@ -62,8 +62,11 @@ public:
 	static MIR::Literal* fold_string_index (MIR::Literal* array, MIR::Literal* index);
 
 	// Functions
+	// TODO: move to the oracle. We want to keep this to embedding PHP.
 	static bool is_pure_function (MIR::METHOD_NAME* in);
+	static MIR::Signature* get_signature (MIR::METHOD_NAME*);
 	static MIR::Literal* call_function (MIR::METHOD_NAME* in, MIR::Literal_list* params);
+
 };
 
 #endif // PHC_EMBED_H

@@ -214,7 +214,8 @@ public:
 	{
 		_Method_mod method_mod = 0;
 		if(in->method_mod != NULL) method_mod = fold_method_mod(in->method_mod);
-		bool is_ref = in->is_ref;
+		bool pass_rest_by_ref = in->pass_rest_by_ref;
+		bool return_by_ref = in->return_by_ref;
 		_METHOD_NAME method_name = 0;
 		if(in->method_name != NULL) method_name = fold_method_name(in->method_name);
 		_List<_Formal_parameter>* formal_parameters = 0;
@@ -226,7 +227,7 @@ public:
 				if(*i != NULL) formal_parameters->push_back(fold_formal_parameter(*i));
 				else formal_parameters->push_back(0);
 		}
-		return fold_impl_signature(in, method_mod, is_ref, method_name, formal_parameters);
+		return fold_impl_signature(in, method_mod, pass_rest_by_ref, return_by_ref, method_name, formal_parameters);
 	}
 
 	virtual _Method_mod fold_method_mod(Method_mod* in)
@@ -764,7 +765,7 @@ public:
 	virtual _Class_mod fold_impl_class_mod(Class_mod* orig, bool is_abstract, bool is_final) { assert(0); };
 	virtual _Interface_def fold_impl_interface_def(Interface_def* orig, _INTERFACE_NAME interface_name, _List<_INTERFACE_NAME>* extends, _List<_Member>* members) { assert(0); };
 	virtual _Method fold_impl_method(Method* orig, _Signature signature, _List<_Statement>* statements) { assert(0); };
-	virtual _Signature fold_impl_signature(Signature* orig, _Method_mod method_mod, bool is_ref, _METHOD_NAME method_name, _List<_Formal_parameter>* formal_parameters) { assert(0); };
+	virtual _Signature fold_impl_signature(Signature* orig, _Method_mod method_mod, bool pass_rest_by_ref, bool return_by_ref, _METHOD_NAME method_name, _List<_Formal_parameter>* formal_parameters) { assert(0); };
 	virtual _Method_mod fold_impl_method_mod(Method_mod* orig, bool is_public, bool is_protected, bool is_private, bool is_static, bool is_abstract, bool is_final) { assert(0); };
 	virtual _Formal_parameter fold_impl_formal_parameter(Formal_parameter* orig, _Type type, bool is_ref, _Name_with_default var) { assert(0); };
 	virtual _Type fold_impl_type(Type* orig, _CLASS_NAME class_name) { assert(0); };

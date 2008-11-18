@@ -339,16 +339,17 @@ public:
     virtual void assert_valid() = 0;
 };
 
-// Signature ::= Method_mod is_ref:"&" METHOD_NAME Formal_parameter* ;
+// Signature ::= Method_mod pass_rest_by_ref:"rest_by_ref" return_by_ref:"&" METHOD_NAME Formal_parameter* ;
 class Signature : virtual public Node
 {
 public:
-    Signature(Method_mod* method_mod, bool is_ref, METHOD_NAME* method_name, Formal_parameter_list* formal_parameters);
+    Signature(Method_mod* method_mod, bool pass_rest_by_ref, bool return_by_ref, METHOD_NAME* method_name, Formal_parameter_list* formal_parameters);
 protected:
     Signature();
 public:
     Method_mod* method_mod;
-    bool is_ref;
+    bool pass_rest_by_ref;
+    bool return_by_ref;
     METHOD_NAME* method_name;
     Formal_parameter_list* formal_parameters;
 public:
@@ -371,6 +372,8 @@ public:
     virtual void assert_valid();
 public:
     Signature(const char* name);
+    //  Returns if the parameter at index PARAM_INDEX is passed by reference.
+    bool is_param_passed_by_ref(int param_index);
 };
 
 // Method_mod ::= "public"? "protected"? "private"? "static"? "abstract"? "final"? ;

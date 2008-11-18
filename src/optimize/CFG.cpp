@@ -1091,6 +1091,10 @@ CFG::remove_unreachable_blocks ()
 void
 CFG::fix_solo_phi_args ()
 {
+	// This is no longer important, since we drop phi nodes at the end of the
+	// function.
+	return;
+
 	foreach (Basic_block* bb, *get_all_bbs ())
 	{
 		// TODO: The theory is that each Phi node executes simultaneously. If
