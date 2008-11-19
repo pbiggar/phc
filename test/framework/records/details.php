@@ -6,7 +6,7 @@
 	{
 		$rev = (int)$_GET["rev"];
 
-		if ($rev == 0)
+		if ($rev <= 0)
 			die ("Invalid revision: {$_GET["rev"]}.");
 
 		print_revision_details ($rev);
@@ -31,13 +31,13 @@
 		print "<table class=info>";
 		print "	<tr>\n";
 		print "		<th>Revision:					</th><td>"	.$complete_data["revision"].	"</td>";
+		print "		<th>Branch:						</th><td>"	.$complete_data["branch"].		"</td>";
+		print "	</tr><tr>\n";
+		print "		<th>Test duration:			</th><td>"	.(round ($complete_data["time"]/60.0, 1))."m	</td>";
 		print "		<th>Author:						</th><td>"	.$complete_data["author"].		"</td>";
 		print "	</tr><tr>\n";
-		print "		<th>Test duration:			</th><td>"	.($complete_data["time"]/60.0).	"m	</td>";
+		print "		<th>" . maybe_link ($rev, "benchmark.log", "Benchmark").":</th><td>"	.$complete_data["benchmark"]."</td>";
 		print "		<th>Commit date:				</th><td>"	.$complete_data["commit_date"].	"	</td>";
-		print "	</tr><tr>\n";
-		print "		<th>Testing Date:				</th><td>"	.date_from_timestamp ($complete_data["test_date"]).		"</td>";
-		print "		<th>Tested with revision:	</th><td>"	.$complete_data["test_revision"]."</td>";
 		print "	</tr>\n";
 		print "</table>\n";
 

@@ -8,11 +8,13 @@
 
 		$order = array (
 			"revision",
+			"branch",
 			"author",
 			"pass",
 			"fail",
 			"skip",
 			"timeout",
+			"benchmark",
 			"test_date",
 			"test_revision",
 			"redo");
@@ -27,7 +29,7 @@
 
 		// Completed tests
 		$query = $DB->query ("
-				SELECT	revision, author, test_date, test_revision, failed, redo
+				SELECT	revision, author, test_date, test_revision, benchmark, branch, failed, redo
 				FROM		complete
 				");
 		$completes = $query->fetchAll(PDO::FETCH_ASSOC);
