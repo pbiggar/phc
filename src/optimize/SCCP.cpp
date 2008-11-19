@@ -773,7 +773,10 @@ public:
 
 	void visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 	{
-		in->rhs = sccp->transform_expr (bb, in->rhs);
+		// Never transform the entire thing to a literal
+		Expr* result = sccp->transform_expr (bb, in->rhs);
+		if (!in->is_ref || !isa<Literal> (result))
+			in->rhs = result;
 	}
 
 	void visit_assign_var_var (Statement_block*, MIR::Assign_var_var*)
