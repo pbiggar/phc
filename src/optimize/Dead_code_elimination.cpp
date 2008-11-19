@@ -3,6 +3,7 @@
 #include "Def_use.h"
 #include "assert.h"
 #include "embed/embed.h"
+#include "Oracle.h"
 
 using namespace MIR;
 using namespace boost;
@@ -12,11 +13,12 @@ DCE::DCE ()
 {
 }
 
+// TODO: move this to Oracle
 bool is_pure (Expr* in)
 {
 	Wildcard<METHOD_NAME>* name = new Wildcard<METHOD_NAME>;
 	if (in->match (new Method_invocation (NULL, name, NULL))
-		&& PHP::is_pure_function (name->value))
+		&& Oracle::is_pure_function (name->value))
 		return true;
 
 	return (not (isa<New> (in) || isa<Method_invocation> (in)));

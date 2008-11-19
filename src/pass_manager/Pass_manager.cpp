@@ -25,6 +25,7 @@
 
 #include "process_ast/Invalid_check.h"
 
+#include "optimize/Oracle.h"
 #include "process_hir/HIR_to_AST.h"
 #include "process_mir/MIR_to_AST.h"
 #include "optimize/CFG.h"
@@ -589,6 +590,45 @@ Pass_manager::cfg_dump (CFG* cfg, Pass* pass, String* comment, int iteration)
 		cfg->dump_graphviz (s(title.str()));
 }
 
+bool
+can_optimize (MIR::Method* method)
+{
+	if (*method->signature->method_name->value != "__MAIN__")
+		return true;
+
+	// If it is __MAIN__ we can still analyse it if it doesn't call methods
+	// which touch global variables.
+	
+	class Main_is_optimizable : public MIR::Visitor
+	{
+	public:
+		bool is_optimizable;
+		Main_is_optimizable () : is_optimizable (true) {}
+		void pre_new (MIR::New*) { is_optimizable = false; }
+		void pre_method_invocation (MIR::Method_invocation* in)
+		{
+			if (in->target)
+				is_optimizable = false;
+
+			MIR::METHOD_NAME* method_name
+				= dynamic_cast<MIR::METHOD_NAME*> (in->method_name);
+
+			// variable-function call
+			if (!method_name)
+				is_optimizable = false;
+
+			// calls a const function
+			if (method_name && Oracle::is_const_function (method_name))
+				is_optimizable = false;
+		}
+	};
+
+	Main_is_optimizable mio;
+	method->visit (&mio);
+
+	return mio.is_optimizable;
+}
+
 
 void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 {
@@ -611,9 +651,9 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 			MIR::Method* method = dyc<MIR::Method> (stmt);
 
 			// Until we have interprocedural alias analysis, we should punt on
-			// __MAIN__.
-			// TODO: make an exception when there are no function calls.
-			if (*method->signature->method_name->value == "__MAIN__")
+			// __MAIN__ (with some exceptions) make an exception when there are
+			// no function calls.
+			if (!can_optimize (method))
 				continue;
 
 			maybe_enable_debug (cfg_pass);

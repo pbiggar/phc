@@ -32,6 +32,7 @@ unsupported/.*							non-interpretable no-Annotated_test # skip the first test, 
 .*											long
 codegen/bench_.*						short
 optimization/.*						short
+codegen/\d.*							short
 
 bugs/bug0009.php						size-dependent
 bugs/bug0011.php						size-dependent

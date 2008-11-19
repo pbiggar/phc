@@ -314,7 +314,7 @@ HSSA::convert_to_hssa_form ()
 
 
 	// Recalculate DUW, using explicit MU/CHIs:
-	cfg->duw = new Def_use_web (new Set);
+	cfg->duw = new Def_use_web (NULL);
 	cfg->duw->run (cfg);
 
 

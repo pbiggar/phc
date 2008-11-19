@@ -124,6 +124,7 @@
 #include "Lattice.h"
 #include "embed/embed.h"
 #include "Def_use.h"
+#include "Oracle.h"
 #include "process_ir/debug.h"
 
 using namespace MIR;
@@ -630,7 +631,7 @@ SCCP::transform_method_invocation (Statement_block*, Method_invocation* in)
 	if (isa<METHOD_NAME> (in->method_name))
 	{
 		METHOD_NAME* name = dyc<METHOD_NAME> (in->method_name);
-		if (PHP::is_pure_function (name))
+		if (Oracle::is_pure_function (name))
 		{
 			bool all_args_const = true;
 			Literal_list* params = new Literal_list;

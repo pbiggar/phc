@@ -191,9 +191,9 @@ void
 Def_use_web::add_may_def (MIR::VARIABLE_NAME* var, SSA_op* def)
 {
 	// TODO: Only add may_defs if we are not in SSA form. Whether we are in SSA
-	// form is, unfortunately, is only signalled by the size of the alias set.
+	// form is, unfortunately, is only signalled by the alias set.
 	// Fix.
-	if (aliases->size ())
+	if (aliases)
 	{
 		Basic_block* bb = def->get_bb ();
 		bb->add_chi_node (var, var);
@@ -210,7 +210,7 @@ Def_use_web::add_may_def (MIR::VARIABLE_NAME* var, SSA_op* def)
 void
 Def_use_web::add_mus (Basic_block* bb, VARIABLE_NAME* use)
 {
-	if (aliases->has (use))
+	if (aliases && aliases->has (use))
 	{
 		assert (use->in_ssa == false);
 		foreach (VARIABLE_NAME* alias, *aliases)
@@ -290,7 +290,7 @@ Def_use_web::add_chis (Basic_block* bb, VARIABLE_NAME* def)
 	//	is a must_def of $x_0. We can model it as a may-def however, giving it a
 	//	CHI in the mid-part, and the CHI in the post-statement part gives it the
 	//	new value.
-	if (aliases->has (def))
+	if (aliases && aliases->has (def))
 	{
 		assert (def->in_ssa == false);
 		foreach (VARIABLE_NAME* alias, *aliases)
@@ -339,7 +339,7 @@ Def_use_web::visit_phi_node (Basic_block* bb, VARIABLE_NAME* phi_lhs)
 void
 Def_use_web::visit_chi_node (Basic_block* bb, VARIABLE_NAME* lhs, VARIABLE_NAME* rhs)
 {
-	assert (aliases->size () == 0);
+	assert (aliases == NULL);
 	add_def (lhs, new SSA_chi (bb, lhs, rhs));
 	add_use (rhs, new SSA_chi (bb, lhs, rhs));
 }
@@ -347,7 +347,7 @@ Def_use_web::visit_chi_node (Basic_block* bb, VARIABLE_NAME* lhs, VARIABLE_NAME*
 void
 Def_use_web::visit_mu_node (Basic_block* bb, VARIABLE_NAME* rhs)
 {
-	assert (aliases->size () == 0);
+	assert (aliases == NULL);
 	add_use (rhs, new SSA_mu (bb, rhs));
 }
 
