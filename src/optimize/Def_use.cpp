@@ -290,9 +290,17 @@ Def_use_web::add_chis (Basic_block* bb, VARIABLE_NAME* def)
 	//	is a must_def of $x_0. We can model it as a may-def however, giving it a
 	//	CHI in the mid-part, and the CHI in the post-statement part gives it the
 	//	new value.
+	//
+	//	The global statement will not in fact be solved by this. If there were
+	//	an extra statement, $x = 8 after $x = 5, then $x = 5 would be kept live
+	//	by this 'Early CHI'.
+	//
+	//	How about each assignment to an alias gets a MU of the variables in the
+	//	statement which created the alias.
 	if (aliases && aliases->has (def))
 	{
 		assert (def->in_ssa == false);
+
 		foreach (VARIABLE_NAME* alias, *aliases)
 			if (!alias->equals (def))
 			{

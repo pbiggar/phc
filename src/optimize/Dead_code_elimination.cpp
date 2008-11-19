@@ -24,6 +24,28 @@ bool is_pure (Expr* in)
 	return (not (isa<New> (in) || isa<Method_invocation> (in)));
 }
 
+bool
+is_reference_statement (Statement* in)
+{
+	// global $x creates a NULL $x in the global scope (which can probably only
+	// be seen by the compact function, but what of it).
+	if (isa<Global> (in))
+		return true;
+	
+	if (Assign_var* av = dynamic_cast<Assign_var*> (in))
+		return av->is_ref;
+	else if (Assign_var_var* avv = dynamic_cast<Assign_var_var*> (in))
+		return avv->is_ref;
+	else if (Assign_field* af = dynamic_cast<Assign_field*> (in))
+		return af->is_ref;
+	else if (Assign_array* aa = dynamic_cast<Assign_array*> (in))
+		return aa->is_ref;
+	else if (Assign_next* an = dynamic_cast<Assign_next*> (in))
+		return an->is_ref;
+
+	return false;
+}
+
 /*
  * Does the statement have any externally visible effects (like IO)?
  *		Has visible effects:
@@ -47,6 +69,10 @@ bool is_critical (Statement* in)
 	// Foreach_reset is present. No treat it specially.
 	// TODO: is there a way to handle this without special casing it?
 	if (isa<Foreach_end> (in))
+		return true;
+
+	// All reference statements create values for their RHS
+	if (is_reference_statement (in))
 		return true;
 
 	if (not (isa<Eval_expr> (in) || isa<Assign_var> (in)))
