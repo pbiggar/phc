@@ -46,12 +46,13 @@
 		cd ("make install", "install");
 		// TODO do long test
 		$results = cd ("php test/framework/driver.php -i -p", "test");
+		$benchmark = cd ("misc/benchmark", "benchmark");
 
 		save_test_logs ();
-		store_test_results ($results, "tests");
+		store_test_results ($results);
 
 		// Finish up
-		finalize_revision_test ();
+		finalize_revision_test (extract_benchmark_time ($benchmark));
 	}
 	catch (Exception $e) { test_problem (); }
 
@@ -83,7 +84,7 @@
 		$end_time = time ();
 		$time = $end_time - $START_TIME;
 		print "Test problem, saving error\n";
-		e ("INSERT INTO complete VALUES ($REV, $time, $LATEST_REVISION, '$AUTHOR', '$DATE', $end_time, 1, 0, '$BRANCH')");
+		e ("INSERT INTO complete VALUES ($REV, $time, $LATEST_REVISION, '$AUTHOR', '$DATE', $end_time, 1, 0, '$BRANCH', -1)");
 
 		save_log ();
 		die ();
@@ -140,7 +141,7 @@
 		}
 	}
 
-	function store_test_results ($result_string, $table_name)
+	function store_test_results ($result_string)
 	{
 		global $REV;
 		# there a few different test formats, so add them as we go
@@ -164,14 +165,14 @@
 		foreach ($results as $result)
 		{
 			list ($name, $pass, $fail, $timeout, $skip) = $result;
-			e ("INSERT INTO $table_name VALUES ($REV, '$name', $pass, $fail, $timeout, $skip)");
+			e ("INSERT INTO tests VALUES ($REV, '$name', $pass, $fail, $timeout, $skip)");
 			$total_pass += $pass;
 			$total_fail += $fail;
 			$total_timeout += $timeout;
 			$total_skip += $skip;
 		}
 
-		e ("INSERT INTO $table_name VALUES ($REV, 'Total', $total_pass, $total_fail, $total_timeout, $total_skip)");
+		e ("INSERT INTO tests VALUES ($REV, 'Total', $total_pass, $total_fail, $total_timeout, $total_skip)");
 	}
 
 	function initialize_db ()
@@ -181,7 +182,7 @@
 
 		global $DB, $DB_FILENAME;
 		$DB = new PDO ("sqlite:$DB_FILENAME");
-		e ("CREATE TABLE IF NOT EXISTS complete (revision, time, test_revision, author, commit_date, test_date, failed, redo, branch)");
+		e ("CREATE TABLE IF NOT EXISTS complete (revision, time, test_revision, author, commit_date, test_date, failed, redo, branch, benchmark)");
 		e ("CREATE TABLE IF NOT EXISTS tests (revision, testname, pass, fail, timeout, skip)");
 	}
 
@@ -206,13 +207,13 @@
 		save ($log, "log");
 	}
 
-	function finalize_revision_test ()
+	function finalize_revision_test ($benchmark)
 	{
 		global $LATEST_REVISION, $REV, $AUTHOR, $START_TIME, $DATE, $BRANCH;
 		$end_time = time ();
 		$time = $end_time - $START_TIME;
 
-		e ("INSERT INTO complete VALUES ($REV, $time, $LATEST_REVISION, '$AUTHOR', '$DATE', $end_time, 0, 0, '$BRANCH')");
+		e ("INSERT INTO complete VALUES ($REV, $time, $LATEST_REVISION, '$AUTHOR', '$DATE', $end_time, 0, 0, '$BRANCH', $benchmark)");
 
 		save_log ();
 	}
@@ -328,6 +329,17 @@
 		$result = c ("svn info $REPO");
 		preg_match ("/Revision: (\d+)/", $result, $matches);
 		return $matches[1];
+	}
+
+	function extract_benchmark_time ($benchmark)
+	{
+		$result = preg_match ("/.*Total\s+\(10\):\s+([0-9\.]+).*/m", "$1", $benchmark);
+
+		// -1 signals failed benchmark
+		if ($result == FALSE)
+			$result = -1;
+			
+		return $result;
 	}
 
 	// return "trunk", "branches/dataflow", or NULL (we dont care about other branches)
