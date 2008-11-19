@@ -19,13 +19,18 @@
 			"test_revision",
 			"redo");
 
-		print "<table class=info>\n";
-		print "<tr>\n";
 		foreach ($order as $header)
 		{
-			$header = ucfirst (str_replace ("_", " ", $header));
-			print "<th>$header</th>\n";
+			$headers[$header] = ucfirst (str_replace ("_", " ", $header));
 		}
+		$headers["revision"] = "Rev";
+		$headers["test_revision"] = "Test rev";
+		$headers["benchmark"] = "Bench";
+
+		print "<table class=info>\n";
+		print "<tr>\n";
+		foreach (array_values ($headers) as $header)
+			print "<th>$header</th>\n";
 
 		// Completed tests
 		$query = $DB->query ("
@@ -38,7 +43,12 @@
 		{
 			$rev = (int)$complete["revision"];
 			foreach ($complete as $key => $column)
+			{
+				if ($key == "branch" && $column != "trunk")
+					$column = preg_replace ("/branches\//", "", $column);
+
 				$revisions[$rev][$key] = $column;
+			}
 		}
 
 
