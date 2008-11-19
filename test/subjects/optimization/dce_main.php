@@ -1,7 +1,8 @@
 <?php
 
 	// { phc-option: -O1 --dump=generate-c }
-	// { phc-regex-output: !/[abcd1]/ }
+	// { phc-regex-output: !/\$[abcd]/ }
+	// { phc-regex-output: !/[1]/ }
 	$d = 1;
 	$c = $d;
 	$b = $c;

@@ -140,7 +140,7 @@ class PHC_output_annotation extends Test_annotation
 				phc_assert ($value[0] == "/", "regexes must start with \"/\" or \"!/\"");
 				phc_assert ($value[strlen($value)-1] == "/", "regexes must end with \"/\"");
 
-				// remove '/' at front and back (back first, front changes the indices)
+				// remove '/' at front and back
 				$value = substr ($value, 1, strlen ($value) - 2);
 			}
 
@@ -166,16 +166,14 @@ class PHC_output_annotation extends Test_annotation
 			else
 				$pattern = "/$value/ms";
 
-			$my_pattern = "/hir\s+\(disabled/ms";
-
-			$result = preg_match ($pattern, $out);
+			$result = preg_match ($pattern, $out, $matches);
 
 			// Potential errors
 			$suffix = "\"$value\" using pattern \"$pattern\"";
 			if ($negate)
 			{
-				if ($negate && $result === 1)
-					return "{$options['prefix']} found, not expected: $suffix";
+				if ($result === 1)
+					return "{$options['prefix']} found ({$matches[0]}), not expected: $suffix";
 			}
 			else
 			{
