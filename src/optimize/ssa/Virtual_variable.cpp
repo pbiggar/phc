@@ -26,7 +26,6 @@ get_virtual (Basic_block* bb, Node* in)
 		case Attribute::ID:
 		case Attr_mod::ID:
 		case Bin_op::ID:
-		case BOOL::ID:
 		case Branch::ID:
 		case Cast::ID:
 		case CAST::ID:
@@ -48,7 +47,6 @@ get_virtual (Basic_block* bb, Node* in)
 		case Interface_alias::ID:
 		case Interface_def::ID:
 		case INTERFACE_NAME::ID:
-		case INT::ID:
 		case Isset::ID:
 		case Label::ID:
 		case LABEL_NAME::ID:
@@ -59,20 +57,17 @@ get_virtual (Basic_block* bb, Node* in)
 		case METHOD_NAME::ID:
 		case Name_with_default::ID:
 		case New::ID:
-		case NIL::ID:
 		case OP::ID:
 		case PARAM_INDEX::ID:
 		case Param_is_ref::ID:
 		case PHP_script::ID:
 		case Pre_op::ID:
-		case REAL::ID:
 		case Return::ID:
 		case Signature::ID:
 		case SSA_pre_op::ID:
 		case Static_array_elem::ID:
 		case Static_array::ID:
 		case Static_declaration::ID:
-		case STRING::ID:
 		case Throw::ID:
 		case Try::ID:
 		case Type::ID:
@@ -81,9 +76,19 @@ get_virtual (Basic_block* bb, Node* in)
 		case Variable_class::ID:
 		case Variable_field::ID:
 		case Variable_method::ID:
-		case VARIABLE_NAME::ID:
 		case Variable_variable::ID:
 			phc_TODO ();
+
+		/*
+		 * These dont need virtuals
+		 */
+		case BOOL::ID:
+		case INT::ID:
+		case NIL::ID:
+		case REAL::ID:
+		case STRING::ID:
+		case VARIABLE_NAME::ID:
+			return NULL;
 
 		/*
 		 * Model arrays:
@@ -126,11 +131,13 @@ get_virtual (Basic_block* bb, Node* in)
 			in = new Array_access (dyc<Foreach_reset> (in)->array, NULL);
 			break;
 
-		// Model the array iterators
+
+		
+		// Just leave them. They'll always unparse the same way, and
+		// shouldnt interact with other names.
 		case HT_ITERATOR::ID:
-			// Just leave them. They'll always unparse the same way, and
-			// shouldnt interact with other names.
 			break;
+
 			
 	}
 
