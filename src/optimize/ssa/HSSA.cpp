@@ -375,7 +375,7 @@ HSSA::convert_out_of_ssa_form ()
 
 	// Since we have probably updated nodes within blocks, we need to refresh
 	// the DUW to properly remove nodes which have been updated.
-	cfg->duw = new Def_use_web (new Set);
+	cfg->duw = new Def_use_web (NULL);
 	cfg->duw->run (cfg);
 
 
