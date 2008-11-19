@@ -105,6 +105,7 @@ private:
 	void add_mus (Basic_block* bb, MIR::VARIABLE_NAME* use);
 	void add_chis (Basic_block* bb, MIR::VARIABLE_NAME* def);
 	void add_may_def (MIR::VARIABLE_NAME* var, SSA_op* def);
+	void add_call_clobbering (Basic_block* bb);
 
 
 	void visit_entry_block (Entry_block* bb);

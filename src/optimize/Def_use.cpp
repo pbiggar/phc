@@ -312,11 +312,32 @@ Def_use_web::add_chis (Basic_block* bb, VARIABLE_NAME* def)
 	}
 }
 
+void
+Def_use_web::add_call_clobbering (Basic_block* bb)
+{
+	// All global variables, and any other variables which escape the function,
+	// can be defined (aka call-clobbered), or used, by a function call or
+	// function exit point.
+
+	if (aliases)
+	{
+		foreach (VARIABLE_NAME* alias, *aliases)
+		{
+			bb->add_chi_node (alias, alias);
+			VARIABLE_NAME* clone = alias->clone ();
+			add_def (alias, new SSA_chi (bb, alias, clone), false);
+			add_use (clone, new SSA_chi (bb, alias, clone), false);
+		}
+	}
+}
+
 
 
 void
 Def_use_web::visit_entry_block (Entry_block* bb)
 {
+	add_call_clobbering (bb);
+
 	foreach (Formal_parameter* param, *bb->method->signature->formal_parameters)
 		add_def (param->var->variable_name, new SSA_formal (bb));
 }
@@ -324,9 +345,7 @@ Def_use_web::visit_entry_block (Entry_block* bb)
 void
 Def_use_web::visit_exit_block (Exit_block* bb)
 {
-	foreach (Formal_parameter* param, *bb->method->signature->formal_parameters)
-		// TODO not really a formal. Need SSA_EXIT?
-		add_use (param->var->variable_name, new SSA_formal (bb));
+	add_call_clobbering (bb);
 }
 
 void
@@ -381,7 +400,7 @@ Def_use_web::visit_assign_field (Statement_block*, MIR::Assign_field * in)
 void
 Def_use_web::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 {
-	add_def (in->lhs, new SSA_stmt (bb));
+	add_def (in->lhs, new SSA_stmt (bb), !in->is_ref);
 	visit_expr (bb, in->rhs);
 }
 
@@ -564,21 +583,17 @@ Def_use_web::visit_isset (Statement_block* bb, Isset* in)
 void
 Def_use_web::visit_method_invocation (Statement_block* bb, Method_invocation* in)
 {
+	add_call_clobbering (bb);
+
 	if (isa<Variable_method> (in->method_name))
 		assert (0);
 
 	foreach (Actual_parameter* param, *in->actual_parameters)
 	{
-		assert (!param->is_ref);
+		assert (!param->is_ref); // TODO
 		if (VARIABLE_NAME* var = dynamic_cast<VARIABLE_NAME*> (param->rvalue))
 		{
 			add_use (var, new SSA_stmt (bb));
-
-			// TODO: use embed and interprocedural analysis to get precise
-			// results.
-		
-			// Note the potential may-def
-			add_chis (bb, var);
 		}
 	}
 }
@@ -586,6 +601,7 @@ Def_use_web::visit_method_invocation (Statement_block* bb, Method_invocation* in
 void
 Def_use_web::visit_new (Statement_block* bb, New* in)
 {
+	add_call_clobbering (bb);
 	assert (0);
 }
 
