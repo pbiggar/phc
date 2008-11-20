@@ -17,6 +17,9 @@
 	$DB_FILENAME = "$RESULTS_DIR/results.db";
 	$LATEST_REVISION = get_current_revision (); // use SVN to get this
 
+	$configure["trunk"] = "";
+	$configure["branches/dataflow"] = "--disable-gc";
+
 	// start the DB
 	initialize_db ();
 
@@ -39,7 +42,7 @@
 	try
 	{
 		cd ("touch src/generated/*");
-		cd ("./configure --prefix=$TEST_DIR/installed", "configure");
+		cd ("./configure --prefix=$TEST_DIR/installed {$configure[$BRANCH]}", "configure");
 
 		// make
 		cd ("make", "make");
