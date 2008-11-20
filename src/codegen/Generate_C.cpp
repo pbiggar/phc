@@ -46,6 +46,7 @@
 #include "embed/embed.h"
 #include "lib/List.h"
 #include "lib/demangle.h"
+#include "optimize/Oracle.h"
 
 using namespace MIR;
 using namespace std;
@@ -1717,7 +1718,6 @@ public:
 		foreach (Actual_parameter* param, *rhs->value->actual_parameters)
 		{
 			// code << "printf(\"argument '%s' \", arg_info ? arg_info->name : \"(unknown)\");\n";
-			
 			code
 			<< "if(arg_info)\n"
 			<< "{\n"
@@ -1728,7 +1728,7 @@ public:
 			<< "{\n"
 			<< "	by_ref[" << index << "] = signature->common.pass_rest_by_reference;\n"
 			<< "}\n"
-			;
+				;
 			
 			if(param->is_ref) code << "by_ref[" << index << "] = 1;\n";
 			
@@ -1748,33 +1748,68 @@ public:
 		<< "zval** args_ind[" << num_args  << "];\n";
 
 		index = 0;
+		Signature* sig = Oracle::get_signature (name);
 		foreach (Actual_parameter* param, *rhs->value->actual_parameters)
 		{
-			VARIABLE_NAME* var_name = dyc<VARIABLE_NAME>(param->rvalue);
+			if (sig == NULL)
+			{
+				VARIABLE_NAME* var_name = dyc<VARIABLE_NAME>(param->rvalue);
 
-			code
-			<< "destruct[" << index << "] = 0;\n"
-			<< "if (by_ref [" << index << "])\n"
-			<< "{\n"
-			
-			<< get_st_entry (LOCAL, "p_arg", var_name)
+				code
+				<< "destruct[" << index << "] = 0;\n"
+				<< "if (by_ref [" << index << "])\n"
+				<< "{\n"
 
-			<< "	args_ind[" << index << "] = fetch_var_arg_by_ref ("
-			<<				"p_arg);\n"
-			<< "	assert (!in_copy_on_write (*args_ind[" << index << "]));\n"
-			<<	"  args[" << index << "] = *args_ind[" << index << "];\n"
-			<< "}\n"
-			<< "else\n"
-			<< "{\n"
+				<< get_st_entry (LOCAL, "p_arg", var_name)
 
-			<< read_rvalue (LOCAL, "arg", var_name)
+				<< "	args_ind[" << index << "] = fetch_var_arg_by_ref ("
+				<<				"p_arg);\n"
+				<< "	assert (!in_copy_on_write (*args_ind[" << index << "]));\n"
+				<<	"  args[" << index << "] = *args_ind[" << index << "];\n"
+				<< "}\n"
+				<< "else\n"
+				<< "{\n"
 
-			<< "  args[" << index << "] = fetch_var_arg ("
-			<<				"arg, "
-			<<				"&destruct[" << index << "]);\n"
-			<< " args_ind[" << index << "] = &args[" << index << "];\n"
-			<< "}\n"
-			;
+				<< read_rvalue (LOCAL, "arg", var_name)
+
+				<< "  args[" << index << "] = fetch_var_arg ("
+				<<				"arg, "
+				<<				"&destruct[" << index << "]);\n"
+				<< " args_ind[" << index << "] = &args[" << index << "];\n"
+				<< "}\n"
+				;
+			}
+			else
+			{
+				Rvalue* rval = param->rvalue;
+
+				code
+				<< "destruct[" << index << "] = 0;\n"
+				<< "{\n"; // scope for ARG
+
+				if (sig->is_param_passed_by_ref (index) || param->is_ref)
+				{
+					code
+					<< get_st_entry (LOCAL, "p_arg", dyc<VARIABLE_NAME> (rval))
+					<< "	args_ind[" << index << "] = fetch_var_arg_by_ref ("
+					<<				"p_arg);\n"
+					<< "	assert (!in_copy_on_write (*args_ind[" << index << "]));\n"
+					<<	"  args[" << index << "] = *args_ind[" << index << "];\n"
+					;
+				}
+				else
+				{
+					code
+					<< read_rvalue (LOCAL, "arg", rval)
+					<< "  args[" << index << "] = fetch_var_arg ("
+					<<				"arg, "
+					<<				"&destruct[" << index << "]);\n"
+					<< " args_ind[" << index << "] = &args[" << index << "];\n"
+					;
+				}
+				code
+				<< "}\n";
+			}
 
 			index++;
 		}
@@ -1823,20 +1858,43 @@ public:
 		// so we make a note to clean up the memory. It only occurs
 		// when calling eval'd functions, because they do in fact
 		// return the correct refcount.
-		code 
-		<< "if(signature->common.return_reference)\n"
-		<< "{\n"
-		<< "	assert (*p_rhs != EG(uninitialized_zval_ptr));\n"
-		<< "	(*p_rhs)->is_ref = 1;\n"
-		// TODO what happens if there's supposed to be 8 or 10
-		// references to it.
-		<< "  if (signature->type == ZEND_USER_FUNCTION)\n"
-		<< "		is_p_rhs_new = 1;\n"
-		<< "}\n"
-		<< "else\n"
-		<< "{\n"
-		<< "	is_p_rhs_new = 1;\n"
-		<< "}\n" ;
+		if (sig == NULL)
+		{
+			code 
+			<< "if(signature->common.return_reference)\n"
+			<< "{\n"
+			<< "	assert (*p_rhs != EG(uninitialized_zval_ptr));\n"
+			<< "	(*p_rhs)->is_ref = 1;\n"
+			// TODO what happens if there's supposed to be 8 or 10
+			// references to it.
+			<< "  if (signature->type == ZEND_USER_FUNCTION)\n"
+			<< "		is_p_rhs_new = 1;\n"
+			<< "}\n"
+			<< "else\n"
+			<< "{\n"
+			<< "	is_p_rhs_new = 1;\n"
+			<< "}\n" ;
+		}
+		else
+		{
+			if (sig->return_by_ref)
+			{
+				code 
+				<< "assert (*p_rhs != EG(uninitialized_zval_ptr));\n"
+				<< "(*p_rhs)->is_ref = 1;\n"
+				// TODO what happens if there's supposed to be 8 or 10
+				// references to it.
+				<< "if (signature->type == ZEND_USER_FUNCTION)\n"
+				<< "	is_p_rhs_new = 1;\n"
+				;
+			}
+			else
+			{
+				code
+				<< "is_p_rhs_new = 1;\n"
+				;
+			}
+		}
 
 		for (index = 0; index < rhs->value->actual_parameters->size (); index++)
 		{
@@ -1853,16 +1911,9 @@ public:
 		if (lhs)
 		{
 			if (!agn->is_ref)
-			{
-				code 
-				<< "write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
-			}
+				code << "write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
 			else
-			{
-				code 
-				<< "copy_into_ref (p_lhs, p_rhs);\n"
-				;
-			}
+				code << "copy_into_ref (p_lhs, p_rhs);\n";
 		}
 		code << cleanup ("p_rhs");
 		
