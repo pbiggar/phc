@@ -60,7 +60,7 @@ if [[ $? != 0 ]]; then
 fi
 
 # generate MIR
-src/phc $PHP_NAME $PHC_ARGS --dump=mir > $NAME.mir.php
+src/phc $PHP_NAME $PHC_ARGS --dump=generate-c > $NAME.mir.php
 if [[ $? != 0 ]]; then
 	if [[ $DEBUG_PHC != 0 ]]; then 
 		exec $GDB src/phc $PHP_NAME $PHC_ARGS --dump=generate-c
