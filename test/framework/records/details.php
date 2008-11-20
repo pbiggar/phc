@@ -22,7 +22,9 @@
 				FROM		complete
 				WHERE		revision == $rev 
 				")->fetchAll(PDO::FETCH_ASSOC);
-		assert (count ($complete_data) == 1);
+		if (count ($complete_data) != 1)
+			die ("Revision not available: $rev");
+
 		$complete_data = $complete_data[0];
 
 		print "<table class=layout>";
