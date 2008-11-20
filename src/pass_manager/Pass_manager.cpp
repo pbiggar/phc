@@ -591,8 +591,11 @@ Pass_manager::cfg_dump (CFG* cfg, Pass* pass, String* comment, int iteration)
 }
 
 bool
-can_optimize (MIR::Method* method)
+Pass_manager::can_optimize (MIR::Method* method)
 {
+	if (lexical_cast<int> (args_info->optimize_arg) == 0)
+		return false;
+
 	if (*method->signature->method_name->value != "__MAIN__")
 		return true;
 
@@ -644,6 +647,11 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 	Pass* drop_pass = optimization_queue->back();
 	optimization_queue->pop_back();
 
+
+
+	MIR::Method_list* candidates = new MIR::Method_list;
+
+
 	// Perform optimizations method-at-a-time.
 	MIR::PHP_script* script = in->as_MIR();
 	foreach (MIR::Statement* stmt, *script->statements)
@@ -656,63 +664,79 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 			// Until we have interprocedural alias analysis, we should punt on
 			// __MAIN__ (with some exceptions) make an exception when there are
 			// no function calls.
-			if (!can_optimize (method))
-				continue;
-
-			maybe_enable_debug (cfg_pass);
-			CFG* cfg = new CFG (method);
-
-			if (lexical_cast<int> (args_info->optimize_arg) > 0)
+			if (can_optimize (method))
+				candidates->push_back (method);
+			else
 			{
-				MIR::Method* old = method->clone ();
+				maybe_enable_debug (cfg_pass);
+				CFG* cfg = new CFG (method);
+				cfg_dump (cfg, cfg_pass, s("No optimizations"), -1);
+			}
+		}
+	}
 
-				// iterate until it fix-points (or 10 times)
-				for (int iter = 0; iter < 10; iter++)
+	// Get the method signatures for use in later optimizations. Naturally, this
+	// will give way once we have interprocedural optimizations.
+	foreach (MIR::Method* method, *candidates)
+	{
+		Oracle::add_signature (method->signature);
+	}
+
+	foreach (MIR::Method* method, *candidates)
+	{
+		maybe_enable_debug (cfg_pass);
+		CFG* cfg = new CFG (method);
+
+		if (lexical_cast<int> (args_info->optimize_arg) > 0)
+		{
+			MIR::Method* old = method->clone ();
+
+			// iterate until it fix-points (or 10 times)
+			for (int iter = 0; iter < 10; iter++)
+			{
+				// Dump the CFG
+				cfg_dump (cfg, cfg_pass, s("Iterating"), iter);
+				foreach (Pass* pass, *optimization_queue)
 				{
-					// Dump the CFG
-					cfg_dump (cfg, cfg_pass, s("Iterating"), iter);
-					foreach (Pass* pass, *optimization_queue)
-					{
-						Optimization_pass* opt = dynamic_cast<Optimization_pass*> (pass);
-						if (opt == NULL || !pass->is_enabled (pm))
-							continue;
+					Optimization_pass* opt = dynamic_cast<Optimization_pass*> (pass);
+					if (opt == NULL || !pass->is_enabled (pm))
+						continue;
 
-						if (args_info->verbose_flag)
-							cout << "Running pass: " << *pass->name << endl;
+					if (args_info->verbose_flag)
+						cout << "Running pass: " << *pass->name << endl;
 
-						// Convert to SSA form
-						maybe_enable_debug (build_pass);
-						HSSA* hssa = new HSSA (cfg);
-						hssa->convert_to_hssa_form ();
-						cfg->clean ();
-						cfg_dump (cfg, pass, s("In SSA (cleaned)"), iter);
+					// Convert to SSA form
+					maybe_enable_debug (build_pass);
+					HSSA* hssa = new HSSA (cfg);
+					hssa->convert_to_hssa_form ();
+					cfg->clean ();
+					cfg_dump (cfg, pass, s("In SSA (cleaned)"), iter);
 
-						// Run optimization
-						maybe_enable_debug (pass);
-						opt->run (cfg, this);
-						cfg->clean ();
-						cfg_dump (cfg, pass, s("After optimization (cleaned)"), iter);
+					// Run optimization
+					maybe_enable_debug (pass);
+					opt->run (cfg, this);
+					cfg->clean ();
+					cfg_dump (cfg, pass, s("After optimization (cleaned)"), iter);
 
-						// Convert out of SSA
-						maybe_enable_debug (drop_pass);
-						hssa->convert_out_of_ssa_form ();
-						cfg->clean ();
-						cfg_dump (cfg, pass, s("Out of SSA (cleaned)"), iter);
-					}
-					cfg_dump (cfg, cfg_pass, s("After full set of passes"), iter);
-
-					// After each run through the passes, check whether it has
-					// fix-pointed.
-					method->statements = cfg->get_linear_statements ();
-
-					// Labels are always new values, so checking for equality wont work.
-//					if (old->equals (method))
-					{
-//						cfg_dump (cfg, cfg_pass, s("Finished"), iter);
-						break;
-					}
-					old = method->clone ();
+					// Convert out of SSA
+					maybe_enable_debug (drop_pass);
+					hssa->convert_out_of_ssa_form ();
+					cfg->clean ();
+					cfg_dump (cfg, pass, s("Out of SSA (cleaned)"), iter);
 				}
+				cfg_dump (cfg, cfg_pass, s("After full set of passes"), iter);
+
+				// After each run through the passes, check whether it has
+				// fix-pointed.
+				method->statements = cfg->get_linear_statements ();
+
+				// Labels are always new values, so checking for equality wont work.
+				//					if (old->equals (method))
+				{
+					//						cfg_dump (cfg, cfg_pass, s("Finished"), iter);
+					break;
+				}
+				old = method->clone ();
 			}
 		}
 	}

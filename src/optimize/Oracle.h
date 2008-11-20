@@ -21,7 +21,8 @@ public:
 	// Returns NULL if none is available
 	static MIR::Signature* get_signature (MIR::METHOD_NAME* method_name);
 
-	static void add_signature (MIR::METHOD_NAME* method_name, MIR::Signature* sig);
+	// If signature is not already added, add it.
+	static void add_signature (MIR::Signature* sig);
 
 	// TODO: Is 'const' the correct term?
 	// This means that a function does not affect any global variables. No is

@@ -12,15 +12,13 @@ Oracle::initialize ()
 	METHOD_NAME* name = new METHOD_NAME ("print");
 
 	// print is a builtin
-	add_signature (name,
+	add_signature (
 		new Signature (
 			NULL,
 			false,
 			false,
 			name,
 			new Formal_parameter_list ()));
-
-
 }
 
 
@@ -36,18 +34,18 @@ Oracle::get_signature (METHOD_NAME* method_name)
 
 	// Cache it
 	if (sig)
-		add_signature (method_name, sig);
+		add_signature (sig);
 
 	return sig;
 }
 
 void
-Oracle::add_signature (METHOD_NAME* method_name, Signature* sig)
+Oracle::add_signature (Signature* sig)
 {
-	if (Oracle::sigs.has (*method_name->value))
+	if (Oracle::sigs.has (*sig->method_name->value))
 		assert (0);
 	
-	sigs[*method_name->value] = sig;
+	sigs[*sig->method_name->value] = sig;
 }
 
 // TODO: I wonder if we should put this straight into the signature

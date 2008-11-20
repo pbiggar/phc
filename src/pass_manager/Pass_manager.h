@@ -22,7 +22,7 @@ class String;
 typedef List<Pass*> Pass_queue;
 namespace AST { class Visitor; class Transform; }
 namespace HIR { class Visitor; class Transform; }
-namespace MIR { class Visitor; class Transform; }
+namespace MIR { class Visitor; class Transform; class Method; }
 namespace IR { class PHP_script; }
 
 class Pass_manager : virtual public GC_obj
@@ -71,6 +71,7 @@ public:
 	void add_optimization_pass (Pass* pass);
 	void add_optimization (CFG_visitor* visitor, String* name, String* description);
 	void run_optimization_passes (MIR::PHP_script* in);
+	bool can_optimize (MIR::Method* method);
 
 	// Add passes of any kind
 	void add_after_each_pass (Pass* pass);
