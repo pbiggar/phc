@@ -1,0 +1,55 @@
+#!/usr/bin/env php
+<?php
+
+# get command line options
+require_once ("Console/Getopt.php");
+set_include_path ("test/framework/external/" . PATH_SEPARATOR . get_include_path () );
+$cg = new Console_Getopt();
+$command_line = join (" ", $cg->readPHPArgv());
+$opt_result = $cg->getopt($cg->readPHPArgv(), "lhp");
+if (!is_array ($opt_result))
+	die ($opt_result->message."\n");
+
+list ($opts, $arguments) = $opt_result;
+$opt_long = false;
+$opt_php = false;
+foreach ($opts as $opt) 
+{
+	switch ($opt[0])
+	{
+		case 'h': $opt_help = true; break;
+		case 'p': $opt_php = true; break;
+	}
+}
+
+# help message
+if ($opt_help || count ($arguments) > 0)
+{
+	die (<<<EOL
+bench - Compiles (with optimization) the Zend benchmark, producing averaged results for 10 runs - phpcompiler.org
+
+Usage: benchmark [OPTIONS]
+
+Options:
+	 -h     Print this help message
+	 -p     Run the benchmark using PHP, instead of compiling the code with phc
+
+EOL
+	);
+}
+
+
+$filename = "test/subjects/benchmarks/zend/bench.php";
+$command = "./bench.out";
+
+# which programs to use for testing
+if ($opt_php)
+	$command = "valgrind --tool=cachegrind --branch-sim=yes /usr/local/php-opt/bin/php $filename";
+else
+	$command = "misc/comp -B -O $filename";
+
+$results = `$command`;
+
+
+
+?>

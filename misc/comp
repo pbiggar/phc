@@ -21,6 +21,9 @@ do
 	elif [ "-$var" = "--M" ]
 	then
 		EXEC_NAME="$VALGRIND --tool=massif "
+	elif [ "-$var" = "--B" ]
+	then
+		EXEC_NAME="$VALGRIND --tool=cachegrind --branch-sim=yes "
 	elif [ "-$var" = "--O" ]
 	then
 		PHC_ARGS="$PHC_ARGS -O3"
