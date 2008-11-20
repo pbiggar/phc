@@ -255,17 +255,18 @@ abstract class AsyncTest extends Test
 		{
 			$status = proc_get_status ($bundle->handle);
 
+			// read the streams in case they block
+			$bundle->read_streams ();
+
 			if ($status["running"] !== true)
 			{
-				$bundle->read_streams ();
 				$bundle->exit = $status["exitcode"];
 				unset ($this->running_procs [$index]); // remove from the running list
 				$bundle->continuation (); // start the next bit straight away
 			}
-			else if (time () > $bundle->start_time + $this->max_time)
+			else if ($this->max_time != 0
+				&& time () > $bundle->start_time + $this->max_time)
 			{
-				$bundle->read_streams ();
-
 				kill_properly ($bundle->handle, $bundle->pipes);
 
 				$bundle->exits[] = "Timeout";
@@ -278,8 +279,7 @@ abstract class AsyncTest extends Test
 			}
 			else
 			{
-				// let it keep running, but read the streams in case they block
-				$bundle->read_streams ();
+				// let it keep running
 			}
 		}
 	}
