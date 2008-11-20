@@ -464,8 +464,10 @@ function complete_exec($command, $stdin = NULL, $timeout = 20, $pass_through = f
 		// won't finish unless the buffers are periodically cleared.
 		// (This doesn't seem to be the case is async_test. I don't
 		// know why).
-		$out .= stream_get_contents ($pipes[1]);
-		$err .= stream_get_contents ($pipes[2]);
+		$new_out = stream_get_contents ($pipes[1]);
+		$new_err = stream_get_contents ($pipes[2]);
+		$out .= $new_out;
+		$err .= $new_err;
 
 		if ($pass_through)
 		{
