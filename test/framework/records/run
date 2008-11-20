@@ -333,13 +333,13 @@
 
 	function extract_benchmark_time ($benchmark)
 	{
-		$result = preg_match ("/.*Total\s+\(10\):\s+([0-9\.]+).*/m", "$1", $benchmark);
+		$result = preg_match ("/^.*Total\s+\(10\):\s+([0-9\.]+).*$/m", $benchmark, $matches);
 
 		// -1 signals failed benchmark
-		if ($result == FALSE)
-			$result = -1;
-			
-		return $result;
+		if ($result == 0)
+			return -1;
+
+		return $matches[1];
 	}
 
 	// return "trunk", "branches/dataflow", or NULL (we dont care about other branches)
