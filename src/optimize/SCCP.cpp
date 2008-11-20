@@ -628,11 +628,13 @@ SCCP::transform_method_invocation (Statement_block*, Method_invocation* in)
 		die ();
 
 	// ignore for now
-	if (isa<METHOD_NAME> (in->method_name))
+	if (METHOD_NAME* name = dynamic_cast<METHOD_NAME*> (in->method_name))
 	{
-		METHOD_NAME* name = dyc<METHOD_NAME> (in->method_name);
+		Signature* sig = Oracle::get_signature (name);
 		if (Oracle::is_pure_function (name))
 		{
+			assert (sig);
+
 			bool all_args_const = true;
 			Literal_list* params = new Literal_list;
 			foreach (Actual_parameter* param, *in->actual_parameters)
@@ -640,8 +642,12 @@ SCCP::transform_method_invocation (Statement_block*, Method_invocation* in)
 				// TODO: we can replace a argument with its actual parameter
 				// (watch out for refs) (only if passing by copy)
 				if (param->is_ref
+					|| sig->is_param_passed_by_ref (params->size ())
 					|| get_literal (param->rvalue) == NULL)
+				{
 					all_args_const = false;
+					break;
+				}
 				else
 					params->push_back (get_literal (param->rvalue));
 			}
@@ -659,13 +665,18 @@ SCCP::transform_method_invocation (Statement_block*, Method_invocation* in)
 		}
 
 		// Update the parameters
+		int i = 0;
 		foreach (Actual_parameter* param, *in->actual_parameters)
 		{
-			// TODO: We can replace a argument with its actual parameter (watch
-			// out for refs) (only if passing by copy)
-			// TODO: re-enable once codegen supports it. (also, once we can check signatures)
-//			if (!param->is_ref && get_literal (param->rvalue))
-//				param->rvalue = get_literal (param->rvalue);
+			if (!param->is_ref
+				&& sig 
+				&& !sig->is_param_passed_by_ref (i)
+				&& get_literal (param->rvalue))
+			{
+				param->rvalue = get_literal (param->rvalue);
+			}
+
+			i++;
 		}
 	}
 

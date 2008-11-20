@@ -13,8 +13,10 @@ class Oracle
 {
 private:
 	Oracle ();
-public:
 	static Map<string, MIR::Signature*> sigs;
+public:
+
+	static void initialize ();
 
 	// Returns NULL if none is available
 	static MIR::Signature* get_signature (MIR::METHOD_NAME* method_name);

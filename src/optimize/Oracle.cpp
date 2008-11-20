@@ -3,8 +3,26 @@
 
 using namespace MIR;
 
-
 Map<string, Signature*> Oracle::sigs;
+
+// TODO: We dont put Method_mods into the signature.
+void
+Oracle::initialize ()
+{
+	METHOD_NAME* name = new METHOD_NAME ("print");
+
+	// print is a builtin
+	add_signature (name,
+		new Signature (
+			NULL,
+			false,
+			false,
+			name,
+			new Formal_parameter_list ()));
+
+
+}
+
 
 Signature*
 Oracle::get_signature (METHOD_NAME* method_name)

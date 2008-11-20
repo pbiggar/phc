@@ -632,6 +632,9 @@ can_optimize (MIR::Method* method)
 
 void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 {
+	// Initialize the optimization oracle
+	Oracle::initialize ();
+
 	Pass* cfg_pass = optimization_queue->front();
 	optimization_queue->pop_front();
 

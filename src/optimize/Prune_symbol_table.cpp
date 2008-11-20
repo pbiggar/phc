@@ -36,6 +36,7 @@
 using namespace MIR;
 using namespace std;
 
+// TODO: pruning globals is not correct. However, pruning superglobals still should be.
 Prune_symbol_table::Prune_symbol_table () 
 : prune (false)
 , var_reflection_present (false)
