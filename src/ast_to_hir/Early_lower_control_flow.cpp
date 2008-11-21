@@ -119,7 +119,6 @@ void Early_lower_control_flow::post_do (Do* in, Statement_list* out)
  *				else break;
  *
  *				y ();
- *				continue;
  *			}
  */
 
@@ -175,7 +174,6 @@ void Early_lower_control_flow::post_for (For* in, Statement_list* out)
 					new Break (NULL))));
 
 	//		y ();
-	//		continue;
 	w->statements->push_back_all (in->statements);
 
 	w->clone_mixin_from (in); // get line numbers

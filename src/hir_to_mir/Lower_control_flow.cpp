@@ -6,10 +6,6 @@
  * gotos, and add necessary labels.
  */
 
-/* We increase the depth for any statement which works with break and continue.
- * We decrease it on the way back up. The labels are created by post_break,
- * stored in the labels stack, and used as necessary. */
-
 // TODO we have to handle iterators too: 
 //   http://www.php.net/manual/en/ref.spl.php
 //   http://ramikayyali.com/archives/2005/02/25/iterators
@@ -40,7 +36,10 @@ void clear_attrs (Node* in)
 	in->attrs->erase ("phc.codegen.continue_label");
 }
 
-template<class T> 
+/* We increase the depth for any statement which works with break and continue.
+ * We decrease it on the way back up. The labels are created by post_break,
+ * stored in the labels stack, and used as necessary. */
+template <class T>
 void Lower_control_flow::add_label (Node* in, Statement_list *out)
 {
 	assert (break_levels.back () == in);
