@@ -135,6 +135,15 @@ public:
 
 		assert (0);
 	}
+
+	bool has (_Tp needle)
+	{
+		foreach (_Tp elem, *this)
+			if (elem == needle)
+				return true;
+
+		return false;
+	}
 };
 
 template <class List_type, class Result_type>

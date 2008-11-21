@@ -165,6 +165,10 @@ public:
 	// Replace the branch with its true/false successor.
 	void set_branch_direction (Branch_block* bb, bool direction);
 
+	// Replace the block, with N predecessors, with N blocks with 1 predecessor
+	// each.
+	void split_block (Basic_block* bb);
+
 	// Replace BB with an empty block, maintaining the edges, phi nodes, etc.
 	Empty_block* replace_bb_with_empty (Basic_block* bb);
 

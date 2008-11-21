@@ -22,6 +22,8 @@
 class CFG_visitor : virtual public GC_obj
 {
 public:
+	CFG* cfg;
+
 	// Run the analysis - common interface
 	virtual void run (CFG* cfg) = 0;
 

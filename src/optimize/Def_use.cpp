@@ -84,7 +84,7 @@ Def_use_web::get_def (VARIABLE_NAME* use)
 bool
 Def_use_web::has_def (VARIABLE_NAME* use)
 {
-	return use_def_chains[use].size () == 1;
+	return use_def_chains[use].size () >= 1;
 }
 
 

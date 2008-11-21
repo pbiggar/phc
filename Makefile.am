@@ -176,10 +176,12 @@ libphc_la_SOURCES= 											\
 	src/optimize/Live_variable_analysis.h				\
 	src/optimize/Oracle.cpp									\
 	src/optimize/Oracle.h									\
-	src/optimize/SCCP.cpp									\
-	src/optimize/SCCP.h										\
 -	src/optimize/Prune_symbol_table.cpp					\
 -	src/optimize/Prune_symbol_table.h					\
+	src/optimize/Remove_loop_booleans.cpp				\
+	src/optimize/Remove_loop_booleans.h					\
+	src/optimize/SCCP.cpp									\
+	src/optimize/SCCP.h										\
 	src/optimize/Set.cpp										\
 	src/optimize/Set.h										\
 	src/optimize/ssa/Dominance.cpp						\

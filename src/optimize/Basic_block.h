@@ -158,6 +158,7 @@ public:
 
 	// Can be useful for debugging.
 	int get_index ();
+	virtual Basic_block* clone () = 0;
 };
 
 class Entry_block : public Basic_block
@@ -168,6 +169,7 @@ public:
 	MIR::Method* method;
 
 	void dump ();
+	Basic_block* clone ();
 };
 
 class Exit_block : public Basic_block
@@ -181,6 +183,7 @@ public:
 	virtual String* get_graphviz_label ();
 
 	void dump ();
+	Basic_block* clone ();
 };
 
 class Empty_block : public Basic_block
@@ -191,6 +194,7 @@ public:
 	virtual String* get_graphviz_label ();
 
 	void dump ();
+	Basic_block* clone ();
 };
 
 class Branch_block : public Basic_block
@@ -224,6 +228,7 @@ public:
 	void switch_successors ();
 
 	void dump ();
+	Basic_block* clone ();
 };
 
 class Statement_block : public Basic_block 
@@ -237,6 +242,7 @@ public:
 	virtual String* get_graphviz_label ();
 
 	void dump ();
+	Basic_block* clone ();
 };
 
 #endif // PHC_BASIC_BLOCK

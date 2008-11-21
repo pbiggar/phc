@@ -18,10 +18,12 @@ class Optimization_pass : public Pass
 {
 	CFG_visitor* visitor;
 public:
+	bool require_ssa;
 
-	Optimization_pass (CFG_visitor* v, String* name, String* description);
+	Optimization_pass (CFG_visitor* v, String* name, String* description, bool require_ssa);
 	void run (CFG* in, Pass_manager* pm);
 	void run (IR::PHP_script* in, Pass_manager* pm);
+
 };
 
 #endif // PHC_VISITOR_PASS_H

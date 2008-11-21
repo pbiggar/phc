@@ -11,8 +11,9 @@
 #include "optimize/CFG_visitor.h"
 #include "optimize/CFG.h"
 
-Optimization_pass::Optimization_pass (CFG_visitor* v, String* name, String* description)
+Optimization_pass::Optimization_pass (CFG_visitor* v, String* name, String* description, bool require_ssa)
 : visitor (v)
+, require_ssa (require_ssa)
 {
 	this->name = name;
 	this->description = description;

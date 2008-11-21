@@ -595,3 +595,43 @@ Empty_block::dump()
 {
 	DEBUG ("Empty block (" << get_index () << ")");
 }
+
+
+/*
+ * Cloning doesnt clone its place in the CFG, it just (deep) clones the data.
+ */
+
+Basic_block*
+Branch_block::clone ()
+{
+	// TODO: assert that there are no phis, etc
+	return new Branch_block (cfg, branch->clone ());
+}
+
+Basic_block*
+Exit_block::clone ()
+{
+	phc_TODO ();
+}
+
+Basic_block*
+Entry_block::clone ()
+{
+	phc_TODO ();
+}
+
+Basic_block*
+Empty_block::clone ()
+{
+	phc_TODO ();
+}
+
+Basic_block*
+Statement_block::clone ()
+{
+	phc_TODO ();
+}
+
+
+
+

@@ -10,6 +10,8 @@
 void
 Visit_once::run (CFG* cfg)
 {
+	this->cfg = cfg;
+
 	foreach (Basic_block* bb, *cfg->get_all_bbs ())
 	{
 		visit_block (bb);

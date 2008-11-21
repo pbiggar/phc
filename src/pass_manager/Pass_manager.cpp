@@ -29,6 +29,7 @@
 #include "process_hir/HIR_to_AST.h"
 #include "process_mir/MIR_to_AST.h"
 #include "optimize/CFG.h"
+#include "optimize/Def_use.h"
 #include "optimize/ssa/HSSA.h"
 
 using namespace std;
@@ -101,9 +102,9 @@ void Pass_manager::add_mir_pass (Pass* pass)
 	add_pass (pass, mir_queue);
 }
 
-void Pass_manager::add_optimization (CFG_visitor* v, String* name, String* description)
+void Pass_manager::add_optimization (CFG_visitor* v, String* name, String* description, bool require_ssa)
 {
-	Pass* pass = new Optimization_pass (v, name, description);
+	Pass* pass = new Optimization_pass (v, name, description, require_ssa);
 	add_pass (pass, optimization_queue);
 }
 
@@ -705,12 +706,24 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 					if (args_info->verbose_flag)
 						cout << "Running pass: " << *pass->name << endl;
 
-					// Convert to SSA form
 					maybe_enable_debug (build_pass);
-					HSSA* hssa = new HSSA (cfg);
-					hssa->convert_to_hssa_form ();
-					cfg->clean ();
-					cfg_dump (cfg, pass, s("In SSA (cleaned)"), iter);
+					HSSA* hssa;
+					if (opt->require_ssa)
+					{
+						// Convert to SSA form
+						hssa = new HSSA (cfg);
+						hssa->convert_to_hssa_form ();
+						cfg->clean ();
+						cfg_dump (cfg, pass, s("In SSA (cleaned)"), iter);
+					}
+					else
+					{
+						// We still want use-def information.
+						cfg->duw = new Def_use_web (NULL);
+						cfg->duw->run (cfg);
+						cfg_dump (cfg, pass, s("Non-SSA"), iter);
+					}
+
 
 					// Run optimization
 					maybe_enable_debug (pass);
@@ -719,10 +732,13 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 					cfg_dump (cfg, pass, s("After optimization (cleaned)"), iter);
 
 					// Convert out of SSA
-					maybe_enable_debug (drop_pass);
-					hssa->convert_out_of_ssa_form ();
-					cfg->clean ();
-					cfg_dump (cfg, pass, s("Out of SSA (cleaned)"), iter);
+					if (opt->require_ssa)
+					{
+						maybe_enable_debug (drop_pass);
+						hssa->convert_out_of_ssa_form ();
+						cfg->clean ();
+						cfg_dump (cfg, pass, s("Out of SSA (cleaned)"), iter);
+					}
 				}
 				cfg_dump (cfg, cfg_pass, s("After full set of passes"), iter);
 

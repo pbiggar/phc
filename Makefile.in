@@ -102,9 +102,9 @@ am_libphc_la_OBJECTS = getopt1.lo getopt.lo AST_annotate.lo \
 	Integer.lo Object.lo String.lo Address_taken.lo Basic_block.lo \
 	CFG.lo CFG_visitor.lo Dead_code_elimination.lo Def_use.lo \
 	Edge.lo Flow_visitor.lo If_simplification.lo Lattice.lo \
-	Live_variable_analysis.lo Oracle.lo SCCP.lo \
-	Prune_symbol_table.lo Set.lo Dominance.lo HSSA.lo Phi.lo \
-	SSA.lo SSA_ops.lo Virtual_variable.lo Visit_once.lo \
+	Live_variable_analysis.lo Oracle.lo Prune_symbol_table.lo \
+	Remove_loop_booleans.lo SCCP.lo Set.lo Dominance.lo HSSA.lo \
+	Phi.lo SSA.lo SSA_ops.lo Virtual_variable.lo Visit_once.lo \
 	Parse_buffer.lo parse.lo PHP_context.lo XML_parser.lo \
 	Optimization_pass.lo Pass_manager.lo Plugin_pass.lo \
 	AST_unparser.lo Constant_folding.lo DOT_unparser.lo \
@@ -714,10 +714,12 @@ libphc_la_SOURCES = \
 	src/optimize/Live_variable_analysis.h				\
 	src/optimize/Oracle.cpp									\
 	src/optimize/Oracle.h									\
-	src/optimize/SCCP.cpp									\
-	src/optimize/SCCP.h										\
 -	src/optimize/Prune_symbol_table.cpp					\
 -	src/optimize/Prune_symbol_table.h					\
+	src/optimize/Remove_loop_booleans.cpp				\
+	src/optimize/Remove_loop_booleans.h					\
+	src/optimize/SCCP.cpp									\
+	src/optimize/SCCP.h										\
 	src/optimize/Set.cpp										\
 	src/optimize/Set.h										\
 	src/optimize/ssa/Dominance.cpp						\
@@ -1328,6 +1330,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Process_includes.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Prune_symbol_table.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Remove_concat_null.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Remove_loop_booleans.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Remove_parser_temporaries.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SCCP.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SSA.Plo@am__quote@
@@ -1839,19 +1842,26 @@ Oracle.lo: src/optimize/Oracle.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Oracle.lo `test -f 'src/optimize/Oracle.cpp' || echo '$(srcdir)/'`src/optimize/Oracle.cpp
 
-SCCP.lo: src/optimize/SCCP.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT SCCP.lo -MD -MP -MF $(DEPDIR)/SCCP.Tpo -c -o SCCP.lo `test -f 'src/optimize/SCCP.cpp' || echo '$(srcdir)/'`src/optimize/SCCP.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/SCCP.Tpo $(DEPDIR)/SCCP.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/SCCP.cpp' object='SCCP.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o SCCP.lo `test -f 'src/optimize/SCCP.cpp' || echo '$(srcdir)/'`src/optimize/SCCP.cpp
-
 Prune_symbol_table.lo: src/optimize/Prune_symbol_table.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Prune_symbol_table.lo -MD -MP -MF $(DEPDIR)/Prune_symbol_table.Tpo -c -o Prune_symbol_table.lo `test -f 'src/optimize/Prune_symbol_table.cpp' || echo '$(srcdir)/'`src/optimize/Prune_symbol_table.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Prune_symbol_table.Tpo $(DEPDIR)/Prune_symbol_table.Plo
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Prune_symbol_table.cpp' object='Prune_symbol_table.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Prune_symbol_table.lo `test -f 'src/optimize/Prune_symbol_table.cpp' || echo '$(srcdir)/'`src/optimize/Prune_symbol_table.cpp
+
+Remove_loop_booleans.lo: src/optimize/Remove_loop_booleans.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Remove_loop_booleans.lo -MD -MP -MF $(DEPDIR)/Remove_loop_booleans.Tpo -c -o Remove_loop_booleans.lo `test -f 'src/optimize/Remove_loop_booleans.cpp' || echo '$(srcdir)/'`src/optimize/Remove_loop_booleans.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Remove_loop_booleans.Tpo $(DEPDIR)/Remove_loop_booleans.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Remove_loop_booleans.cpp' object='Remove_loop_booleans.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Remove_loop_booleans.lo `test -f 'src/optimize/Remove_loop_booleans.cpp' || echo '$(srcdir)/'`src/optimize/Remove_loop_booleans.cpp
+
+SCCP.lo: src/optimize/SCCP.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT SCCP.lo -MD -MP -MF $(DEPDIR)/SCCP.Tpo -c -o SCCP.lo `test -f 'src/optimize/SCCP.cpp' || echo '$(srcdir)/'`src/optimize/SCCP.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/SCCP.Tpo $(DEPDIR)/SCCP.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/SCCP.cpp' object='SCCP.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o SCCP.lo `test -f 'src/optimize/SCCP.cpp' || echo '$(srcdir)/'`src/optimize/SCCP.cpp
 
 Set.lo: src/optimize/Set.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Set.lo -MD -MP -MF $(DEPDIR)/Set.Tpo -c -o Set.lo `test -f 'src/optimize/Set.cpp' || echo '$(srcdir)/'`src/optimize/Set.cpp

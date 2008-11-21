@@ -69,7 +69,7 @@ public:
 	void add_codegen_transform (MIR::Transform* transform, String* name, String* description);
 
 	void add_optimization_pass (Pass* pass);
-	void add_optimization (CFG_visitor* visitor, String* name, String* description);
+	void add_optimization (CFG_visitor* visitor, String* name, String* description, bool require_ssa);
 	void run_optimization_passes (MIR::PHP_script* in);
 	bool can_optimize (MIR::Method* method);
 

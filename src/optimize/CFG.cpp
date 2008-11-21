@@ -40,11 +40,18 @@ CFG::CFG (Method* method)
 
 	// Initialize the entry and exit blocks
 	entry = add_bb (new Entry_block (this, method));
+	// TODO should this be cloned? It means we can use the variables in it. It
+	// also breaks the link between the entry and exit block, which wont exist
+	// for cloned blocks.
 	exit = add_bb (new Exit_block (this, method));
 
 	add_statements (method->statements);
 
 	clean ();
+
+	// We use this for debugging
+	renumber_vertex_indices ();
+
 }
 
 CFG::CFG (Graph& bs)
@@ -970,6 +977,31 @@ CFG::set_branch_direction (Branch_block* bb, bool direction)
 	replace_bb_with_empty (bb);
 
 	consistency_check ();
+}
+
+void
+CFG::split_block (Basic_block* bb)
+{
+	assert (bb->get_predecessors ()->size() > 1);
+
+	// This is much easier if there are no phis
+	assert (bb->get_phi_lhss ()->size () == 0);
+
+	foreach (Edge* edge, *bb->get_predecessor_edges ())
+	{
+		Basic_block* copy = bb->clone ();
+		add_bb (copy);
+
+		Edge* new_edge = add_edge (edge->get_source (), copy);
+		new_edge->direction = edge->direction;
+		remove_edge (edge);
+
+		foreach (Edge* succ, *bb->get_successor_edges ())
+		{
+			Edge* new_edge = add_edge (copy, succ->get_target ());
+			new_edge->direction = succ->direction;
+		}
+	}
 }
 
 
