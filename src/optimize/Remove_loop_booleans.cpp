@@ -103,8 +103,6 @@ Remove_loop_booleans::is_applicable_branch (Branch_block* bb)
 	if (!isa<SSA_stmt> (defs->front()) || !isa<SSA_stmt> (defs->back ()))
 		return false;
 	
-	if (bb->get_predecessors ()->size () != 2)
-		return false;
 
 	Basic_block* bb0 = defs->front ()->get_bb ();
 	Basic_block* bb1 = defs->back ()->get_bb ();
