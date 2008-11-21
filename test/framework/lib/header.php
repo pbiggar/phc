@@ -475,7 +475,8 @@ function complete_exec($command, $stdin = NULL, $timeout = 20, $pass_through = f
 			file_put_contents ("php://stderr", $new_err);
 		}
 
-		if (time () > $start_time + $timeout)
+		if ($timeout != 0
+			&& time () > $start_time + $timeout)
 		{
 			$out = stream_get_contents ($pipes[1]);
 			$err = stream_get_contents ($pipes[2]);
