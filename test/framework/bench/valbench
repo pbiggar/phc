@@ -57,7 +57,7 @@ EOL
 	list ($out, $err, $exit) = complete_exec ($command, NULL, 0);
 
 	if ($exit != 0)
-		print "FAILURE:\n\n$err";
+		die ("FAILURE:\n\n$err");
 
 	$match_names = array (	"instruction"
 								,	"instruction_l1_miss"
