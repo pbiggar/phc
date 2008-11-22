@@ -174,10 +174,12 @@ libphc_la_SOURCES= 											\
 	src/optimize/Lattice.h									\
 	src/optimize/Live_variable_analysis.cpp			\
 	src/optimize/Live_variable_analysis.h				\
+	src/optimize/Mark_initialized.cpp					\
+	src/optimize/Mark_initialized.h						\
 	src/optimize/Oracle.cpp									\
 	src/optimize/Oracle.h									\
--	src/optimize/Prune_symbol_table.cpp					\
--	src/optimize/Prune_symbol_table.h					\
+	src/optimize/Prune_symbol_table.cpp					\
+	src/optimize/Prune_symbol_table.h					\
 	src/optimize/Remove_loop_booleans.cpp				\
 	src/optimize/Remove_loop_booleans.h					\
 	src/optimize/SCCP.cpp									\

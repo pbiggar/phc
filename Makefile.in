@@ -102,19 +102,20 @@ am_libphc_la_OBJECTS = getopt1.lo getopt.lo AST_annotate.lo \
 	Integer.lo Object.lo String.lo Address_taken.lo Basic_block.lo \
 	CFG.lo CFG_visitor.lo Dead_code_elimination.lo Def_use.lo \
 	Edge.lo Flow_visitor.lo If_simplification.lo Lattice.lo \
-	Live_variable_analysis.lo Oracle.lo Prune_symbol_table.lo \
-	Remove_loop_booleans.lo SCCP.lo Set.lo Dominance.lo HSSA.lo \
-	Phi.lo SSA.lo SSA_ops.lo Virtual_variable.lo Visit_once.lo \
-	Parse_buffer.lo parse.lo PHP_context.lo XML_parser.lo \
-	Optimization_pass.lo Pass_manager.lo Plugin_pass.lo \
-	AST_unparser.lo Constant_folding.lo DOT_unparser.lo \
-	Invalid_check.lo Note_top_level_declarations.lo \
-	Process_includes.lo Remove_concat_null.lo \
-	Remove_parser_temporaries.lo Strip_unparser_attributes.lo \
-	Token_conversion.lo HIR_unparser.lo debug.lo fresh.lo \
-	General.lo IR.lo PHP_unparser.lo XML_unparser.lo \
-	Alias_uppering.lo Foreach_uppering.lo Goto_uppering.lo \
-	MIR_unparser.lo Param_is_ref_uppering.lo
+	Live_variable_analysis.lo Mark_initialized.lo Oracle.lo \
+	Prune_symbol_table.lo Remove_loop_booleans.lo SCCP.lo Set.lo \
+	Dominance.lo HSSA.lo Phi.lo SSA.lo SSA_ops.lo \
+	Virtual_variable.lo Visit_once.lo Parse_buffer.lo parse.lo \
+	PHP_context.lo XML_parser.lo Optimization_pass.lo \
+	Pass_manager.lo Plugin_pass.lo AST_unparser.lo \
+	Constant_folding.lo DOT_unparser.lo Invalid_check.lo \
+	Note_top_level_declarations.lo Process_includes.lo \
+	Remove_concat_null.lo Remove_parser_temporaries.lo \
+	Strip_unparser_attributes.lo Token_conversion.lo \
+	HIR_unparser.lo debug.lo fresh.lo General.lo IR.lo \
+	PHP_unparser.lo XML_unparser.lo Alias_uppering.lo \
+	Foreach_uppering.lo Goto_uppering.lo MIR_unparser.lo \
+	Param_is_ref_uppering.lo
 libphc_la_OBJECTS = $(am_libphc_la_OBJECTS)
 plugins_tests_canonical_unparser_la_LIBADD =
 am_plugins_tests_canonical_unparser_la_OBJECTS =  \
@@ -446,33 +447,37 @@ CYGPATH_W = @CYGPATH_W@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
 DSYMUTIL = @DSYMUTIL@
-ECHO = @ECHO@
+DUMPBIN = @DUMPBIN@
 ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
-F77 = @F77@
-FFLAGS = @FFLAGS@
+FGREP = @FGREP@
 GREP = @GREP@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
+LD = @LD@
 LDFLAGS = @LDFLAGS@
 LIBLTDL = @LIBLTDL@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
 LIBTOOL = @LIBTOOL@
+LIPO = @LIPO@
 LN_S = @LN_S@
 LTDLINCL = @LTDLINCL@
 LTLIBOBJS = @LTLIBOBJS@
 MAINT = @MAINT@
 MAKEINFO = @MAKEINFO@
 MKDIR_P = @MKDIR_P@
+NM = @NM@
 NMEDIT = @NMEDIT@
 OBJEXT = @OBJEXT@
+OTOOL = @OTOOL@
+OTOOL64 = @OTOOL64@
 PACKAGE = @PACKAGE@
 PACKAGE_BUGREPORT = @PACKAGE_BUGREPORT@
 PACKAGE_NAME = @PACKAGE_NAME@
@@ -492,7 +497,7 @@ abs_top_builddir = @abs_top_builddir@
 abs_top_srcdir = @abs_top_srcdir@
 ac_ct_CC = @ac_ct_CC@
 ac_ct_CXX = @ac_ct_CXX@
-ac_ct_F77 = @ac_ct_F77@
+ac_ct_DUMPBIN = @ac_ct_DUMPBIN@
 am__include = @am__include@
 am__leading_dot = @am__leading_dot@
 am__quote = @am__quote@
@@ -532,6 +537,7 @@ libexecdir = @libexecdir@
 libphp_headers = @libphp_headers@
 localedir = @localedir@
 localstatedir = @localstatedir@
+lt_ECHO = @lt_ECHO@
 maketea = @maketea@
 mandir = @mandir@
 mkdir_p = @mkdir_p@
@@ -712,10 +718,12 @@ libphc_la_SOURCES = \
 	src/optimize/Lattice.h									\
 	src/optimize/Live_variable_analysis.cpp			\
 	src/optimize/Live_variable_analysis.h				\
+	src/optimize/Mark_initialized.cpp					\
+	src/optimize/Mark_initialized.h						\
 	src/optimize/Oracle.cpp									\
 	src/optimize/Oracle.h									\
--	src/optimize/Prune_symbol_table.cpp					\
--	src/optimize/Prune_symbol_table.h					\
+	src/optimize/Prune_symbol_table.cpp					\
+	src/optimize/Prune_symbol_table.h					\
 	src/optimize/Remove_loop_booleans.cpp				\
 	src/optimize/Remove_loop_booleans.h					\
 	src/optimize/SCCP.cpp									\
@@ -1314,6 +1322,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MIR_transform.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MIR_unparser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MIR_visitor.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Mark_initialized.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MySQL2DBX.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Note_top_level_declarations.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Object.Plo@am__quote@
@@ -1834,6 +1843,13 @@ Live_variable_analysis.lo: src/optimize/Live_variable_analysis.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Live_variable_analysis.cpp' object='Live_variable_analysis.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Live_variable_analysis.lo `test -f 'src/optimize/Live_variable_analysis.cpp' || echo '$(srcdir)/'`src/optimize/Live_variable_analysis.cpp
+
+Mark_initialized.lo: src/optimize/Mark_initialized.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Mark_initialized.lo -MD -MP -MF $(DEPDIR)/Mark_initialized.Tpo -c -o Mark_initialized.lo `test -f 'src/optimize/Mark_initialized.cpp' || echo '$(srcdir)/'`src/optimize/Mark_initialized.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Mark_initialized.Tpo $(DEPDIR)/Mark_initialized.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Mark_initialized.cpp' object='Mark_initialized.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Mark_initialized.lo `test -f 'src/optimize/Mark_initialized.cpp' || echo '$(srcdir)/'`src/optimize/Mark_initialized.cpp
 
 Oracle.lo: src/optimize/Oracle.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Oracle.lo -MD -MP -MF $(DEPDIR)/Oracle.Tpo -c -o Oracle.lo `test -f 'src/optimize/Oracle.cpp' || echo '$(srcdir)/'`src/optimize/Oracle.cpp
