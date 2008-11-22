@@ -20,7 +20,6 @@ using namespace boost;
  * SSA web.
  */
 
-
 SSA_edge::SSA_edge (VARIABLE_NAME* var, SSA_op* op)
 : variable_name (var)
 , op (op)
@@ -190,9 +189,10 @@ Def_use_web::add_def (MIR::VARIABLE_NAME* use, SSA_op* def, bool add_chi)
 void
 Def_use_web::add_may_def (MIR::VARIABLE_NAME* var, SSA_op* def)
 {
-	// TODO: Only add may_defs if we are not in SSA form. Whether we are in SSA
-	// form is, unfortunately, is only signalled by the alias set.
-	// Fix.
+	// TODO: Whether we are in SSA form is, unfortunately, is only signalled by
+	// the alias set. Fix.
+
+	// Only add may_defs if we are not in SSA form.
 	if (aliases)
 	{
 		Basic_block* bb = def->get_bb ();
@@ -590,10 +590,13 @@ Def_use_web::visit_method_invocation (Statement_block* bb, Method_invocation* in
 
 	foreach (Actual_parameter* param, *in->actual_parameters)
 	{
-		assert (!param->is_ref); // TODO
 		if (VARIABLE_NAME* var = dynamic_cast<VARIABLE_NAME*> (param->rvalue))
 		{
 			add_use (var, new SSA_stmt (bb));
+
+			// Call-time pass-by-ref
+			if (param->is_ref)
+				add_may_def (var, new SSA_chi (bb, var, var->clone ()));
 		}
 	}
 }
