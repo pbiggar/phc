@@ -28,9 +28,11 @@ public:
 public:
 	void run (CFG* cfg);
 
-	void set_lattice (MIR::VARIABLE_NAME* def, Lattice_cell<T>* value);
-	void meet (MIR::VARIABLE_NAME* var_name, Lattice_cell<T>*);
-	void meet (MIR::VARIABLE_NAME* var_name, T*);
+	void set_lattice (MIR::VARIABLE_NAME* var, Lattice_cell<T>* value);
+
+	// Combine the lattice value for VAR_NAME with LIT, and set the new value for VAR_NAME.
+	void meet_lattice (MIR::VARIABLE_NAME* var, T* value);
+
 
 	int get_predecessor_executable_count (Basic_block* bb);
 
@@ -168,21 +170,6 @@ Sparse_conditional_visitor<T>::visit_branch_block (Branch_block* bb)
 
 template <typename T>
 void
-Sparse_conditional_visitor<T>::meet (MIR::VARIABLE_NAME* var_name, T* lit)
-{
-	meet (var_name, new Lattice_cell<T> (lit));
-}
-
-template <typename T>
-void
-Sparse_conditional_visitor<T>::meet (MIR::VARIABLE_NAME* var, Lattice_cell<T>* value)
-{
-	set_lattice (var, ::meet (lattice[var], value));
-}
-
-
-template <typename T>
-void
 Sparse_conditional_visitor<T>::set_lattice (MIR::VARIABLE_NAME* def, Lattice_cell<T>* value)
 {
 	Lattice_cell<T>* old = lattice[def];
@@ -203,5 +190,14 @@ Sparse_conditional_visitor<T>::set_lattice (MIR::VARIABLE_NAME* def, Lattice_cel
 	}
 	lattice[def] = value;
 }
+
+template <typename T>
+void
+Sparse_conditional_visitor<T>::meet_lattice (MIR::VARIABLE_NAME* var, T* value)
+{
+	set_lattice (var, meet (lattice[var], new Lattice_cell<T> (value)));
+}
+
+
 
 #endif // PHC_SPARSE_CONDITIONAL_VISITOR_H

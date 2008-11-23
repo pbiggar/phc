@@ -247,11 +247,10 @@ SCCP::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 	Expr* expr = transform_expr (bb, in->rhs->clone ());
 
 	if (isa<Literal> (expr))
-		meet (in->lhs, dyc<Literal> (expr));
+		meet_lattice (in->lhs, dyc<Literal> (expr));
 	else if (!isa<Literal> (expr))
 		set_lattice (in->lhs, BOTTOM);
 }
-
 
 
 void
@@ -316,7 +315,7 @@ SCCP::visit_ssa_pre_op (Statement_block* bb, MIR::SSA_pre_op* in)
 		Literal* result = PHP::fold_pre_op (get_literal (in->use), in->op);
 
 		if (result)
-			meet (in->def, result);
+			meet_lattice (in->def, result);
 	}
 }
 
@@ -340,7 +339,7 @@ SCCP::visit_unset (Statement_block*, MIR::Unset* in)
 	assert (isa<VARIABLE_NAME> (in->variable_name));
 
 	// Def_use asserts what we cant handle, for now.
-	meet (dyc<VARIABLE_NAME> (in->variable_name), new NIL ());
+	meet_lattice (dyc<VARIABLE_NAME> (in->variable_name), new NIL ());
 }
 
 /* Returns NULL, or the literal in VARIABLE_NAME. We have separate functions,
