@@ -4,8 +4,47 @@
  *
  * Mark variables as definitely initialized, or definitely uninitialized, or maybe initialized.
  *
- * The simplest way to do this is outside SSA-form:
- *		if there is a definition in a block which dominates the block with the use, then 
+ * When we generate code, we wish to know if the variable was are
+ * using/defining in already initialized. We wish to know:
+ *		is the variable being defined already initialized?
+ *		is the variable being used initialized?
+ *
+ *	Though SSA form guarantees that a variable only has a single initialization,
+ *	we do not generate code in SSA form. Rather, we drop SSA indices and operate
+ *	on the base names. So we need to propagate whether or not the _base_name_
+ *	has been initialized, to each SSA name being defined.
+ *
+ *	When we drop SSA form, we lose PHI nodes. So we must not include PHI nodes
+ *	as definitions. But we must propagate information through the phi nodes, or
+ *	else uses in loops will not be correct.
+ *
+ *	So for each SSA NAME, we must know:
+ *		at definition: (init,uninit,dont_know)
+ *		at use: (init,uninit,dont_know)
+ *
+ *
+ * Using the SCCP algorithm, we have a number of lattices maps:
+ *		at-def: SSA_NAME -> (TOP/UNINIT | INIT | BOTTOM)
+ *		at-use: SSA_NAME -> (TOP/UNINIT | INIT | BOTTOM)
+ *
+ * DEF and USE have different information. A USE that has a real (not a PHI or
+ * CHI) definition will always be INIT. OTHERWISE, a DEF or USE receives
+ * information the same way, through propagation.
+ *
+ * The lattice is TOP/UNINIT -> INIT -> BOTTOM. There are a lot of cases where
+ * the same base_name may be UNINIT, then INIT, then BOTTOM, the UNINIT/INIT
+ * again. However, this does not defy the lattice or break the monotinicty. The
+ * lattice models the SSA_NAME, not the base_name, so different values for the
+ * base_name are not a problem (also, they are not modelled directly).
+ *
+ * TODO: what about going through CHIs?
+ *
+ * TODO: this is another place that would benefit from splitting branches with
+ * multiple predecessors (though it might be turned off in the case of space
+ * constaints).
+ *
+ * TODO: it may be useful to initialize variables to ensure we know this in all
+ * cases.
  */
 
 #ifndef PHC_MARK_INITIALIZED
