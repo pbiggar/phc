@@ -7,15 +7,15 @@
 
 class SCCP : public Sparse_conditional_visitor 
 {
-	Lattice_map lattice;
+	Lattice_map<MIR::Literal> lattice;
 
 public:
 	void initialize (CFG*);
 	void post_pass (CFG*);
 
 	MIR::Literal* get_literal (MIR::Rvalue* in);
-	void set_lattice (MIR::VARIABLE_NAME* def, Lattice_cell* value);
-	void meet (MIR::VARIABLE_NAME* var_name, Lattice_cell*);
+	void set_lattice (MIR::VARIABLE_NAME* def, Lattice_cell<MIR::Literal>* value);
+	void meet (MIR::VARIABLE_NAME* var_name, Lattice_cell<MIR::Literal>*);
 	void meet (MIR::VARIABLE_NAME* var_name, MIR::Literal*);
 
 	// High-level SSA properties

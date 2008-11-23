@@ -9,42 +9,48 @@
 #include "Set.h"
 #include "process_ir/debug.h"
 
-struct Lattice_cell;
 
-extern Lattice_cell* TOP;
-extern Lattice_cell* BOTTOM;
-
-struct Lattice_cell : virtual public GC_obj
+template <typename T>
+class Lattice_cell : virtual public GC_obj
 {
-	Lattice_cell (MIR::Literal* value) : value(value) {}
+public:
+	Lattice_cell (T* value) : value(value) {}
 
-	MIR::Literal* get_value ()
+	T* get_value ()
 	{
 		assert (value != NULL);
 		return value;
 	}
 
+	static Lattice_cell<T>* TOP;
+	static Lattice_cell<T>* BOTTOM;
+
 private:
-	MIR::Literal* value;
+	T* value;
 };
 
+// Each client must call this to provide them memory for TOP and BOTTOM (this
+// must be called from a .cpp file).
+#define INITIALIZE_LATTICE(TYPE)																			\
+	template<> Lattice_cell<TYPE>* Lattice_cell<TYPE>::TOP = NULL;								\
+	template<> Lattice_cell<TYPE>* Lattice_cell<TYPE>::BOTTOM = new Lattice_cell<TYPE> (NULL);
 
-// TODO templatize on the lattice type
+template <typename T>
 class Lattice_map
-: public Var_map<Lattice_cell*>
+: public Var_map<Lattice_cell<T>*>
 {
 public:
-	Lattice_map () : Var_map<Lattice_cell*> () { }
+	Lattice_map () : Var_map<Lattice_cell<T>*> () { }
 
 	void dump ()
 	{
-		std::pair<MIR::VARIABLE_NAME*, Lattice_cell*> pair;
+		std::pair<MIR::VARIABLE_NAME*, Lattice_cell<T>*> pair;
 		foreach (pair, *this)
 		{
 			cdebug << *pair.first->get_ssa_var_name () << " => ";
-			if (pair.second == TOP)
+			if (pair.second == Lattice_cell<T>::TOP)
 				cdebug << "TOP";
-			else if (pair.second == BOTTOM)
+			else if (pair.second == Lattice_cell<T>::BOTTOM)
 				cdebug << "BOTTOM";
 			else
 				cdebug << "(" << *pair.second->get_value()->get_value_as_string () << ")";
@@ -53,8 +59,37 @@ public:
 	}
 };
 
-Lattice_cell* meet (Lattice_cell* l1, MIR::Literal* lit);
-Lattice_cell* meet (Lattice_cell* l1, Lattice_cell* l2);
+template <typename T>
+Lattice_cell<T>* meet (Lattice_cell<T>* l1, T* l2)
+{
+	if (l1 == Lattice_cell<T>::BOTTOM)
+		return Lattice_cell<T>::BOTTOM;
+
+	if (l1 == Lattice_cell<T>::TOP)
+		return new Lattice_cell<T> (l2);
+	
+	// l1 == CONST && l2 == CONST
+	if (l1->get_value()->equals (l2))
+		return l1;
+	else
+		return Lattice_cell<T>::BOTTOM;
+}
+
+template <typename T>
+Lattice_cell<T>* meet (Lattice_cell<T>* l1, Lattice_cell<T>* l2)
+{
+	if (l1 == Lattice_cell<T>::BOTTOM || l2 == Lattice_cell<T>::BOTTOM)
+		return Lattice_cell<T>::BOTTOM;
+
+	if (l1 == Lattice_cell<T>::TOP)
+		return l2;
+	
+	if (l2 == Lattice_cell<T>::TOP)
+		return l1;
+
+	// l1 == CONST && l2 == CONST
+	return meet (l1, l2->get_value ());
+}
 
 
 #endif // PHC_LATTICE_H

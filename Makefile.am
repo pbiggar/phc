@@ -170,7 +170,6 @@ libphc_la_SOURCES= 											\
 	src/optimize/Flow_visitor.h							\
 	src/optimize/If_simplification.cpp					\
 	src/optimize/If_simplification.h						\
-	src/optimize/Lattice.cpp								\
 	src/optimize/Lattice.h									\
 	src/optimize/Live_variable_analysis.cpp			\
 	src/optimize/Live_variable_analysis.h				\

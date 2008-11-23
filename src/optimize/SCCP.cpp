@@ -129,6 +129,8 @@
 
 using namespace MIR;
 
+INITIALIZE_LATTICE (Literal);
+
 void
 SCCP::initialize (CFG*)
 {
@@ -138,10 +140,16 @@ SCCP::initialize (CFG*)
 
 #define die() do { lattice.dump(); assert (0); } while (0)
 
+
+#define TOP Lattice_cell<Literal>::TOP
+#define BOTTOM Lattice_cell<Literal>::BOTTOM
+
+
+
 void
-SCCP::set_lattice (VARIABLE_NAME* def, Lattice_cell* value)
+SCCP::set_lattice (VARIABLE_NAME* def, Lattice_cell<Literal>* value)
 {
-	Lattice_cell* old = lattice[def];
+	Lattice_cell<Literal>* old = lattice[def];
 	if (old != value)
 	{
 		// shouldnt have two different Literals here
@@ -172,7 +180,7 @@ SCCP::visit_phi_node (Basic_block* bb, VARIABLE_NAME* phi_lhs)
 	 *		c1 + c2 = BOTTOM if i != j (this can be improved with VRP, using a
 	 *			similar algorithm).
 	 */
-	Lattice_cell* result = TOP;
+	Lattice_cell<Literal>* result = TOP;
 	foreach (Edge* pred, *bb->get_predecessor_edges ())
 	{
 		if (!pred->is_executable)
@@ -387,11 +395,11 @@ SCCP::get_literal (Rvalue* in)
 void
 SCCP::meet (VARIABLE_NAME* var_name, Literal* lit)
 {
-	meet (var_name, new Lattice_cell (lit));
+	meet (var_name, new Lattice_cell<Literal> (lit));
 }
 
 void
-SCCP::meet (VARIABLE_NAME* var, Lattice_cell* value)
+SCCP::meet (VARIABLE_NAME* var, Lattice_cell<Literal>* value)
 {
 	set_lattice (var, ::meet (lattice[var], value));
 }
@@ -629,13 +637,13 @@ SCCP::transform_variable_variable (Statement_block*, Variable_variable* in)
 
 class SCCP_updater : public Visit_once
 {
-	Lattice_map& lattice;
+	Lattice_map<Literal>& lattice;
 
 	// For visit_expr
 	SCCP* sccp;
 public:
 
-	SCCP_updater (Lattice_map& lattice, SCCP* sccp)
+	SCCP_updater (Lattice_map<Literal>& lattice, SCCP* sccp)
 	: lattice (lattice)
 	, sccp (sccp)
 	{
