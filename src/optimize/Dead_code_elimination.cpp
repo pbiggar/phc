@@ -93,8 +93,6 @@ bool is_critical (Statement* in)
 		return false;
 }
 
-// TODO add phi nodes
-
 /*
  * Cooper/Torczon, Sec. 10.3.1 and Figure 10.3
  *		http://www.cs.rice.edu/~keith/512/Lectures/10DeadCprop.pdf
@@ -143,6 +141,8 @@ DCE::mark_pass ()
 	// critical, and it uses all reference parameters. This creates may-uses for
 	// all the aliases, which transitively follows CHI nodes, ensuring that
 	// assignments are marked as critical.
+
+	dump ();
 	foreach (Basic_block* bb, *cfg->get_all_bbs ())
 	{
 		if (Statement_block* sb = dynamic_cast<Statement_block*> (bb))
@@ -156,7 +156,7 @@ DCE::mark_pass ()
 		else if (isa<Exit_block> (bb))
 		{
 			// Make sure the uses from the Exit block are processed
-			foreach (VARIABLE_NAME* use, *bb->get_uses (SSA_ALL))
+			foreach (VARIABLE_NAME* use, *bb->get_uses (SSA_STMT | SSA_MU | SSA_CHI))
 				mark_def (use);
 		}
 	}
