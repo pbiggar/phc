@@ -55,7 +55,7 @@
 
 		// use our version of the benchmark. Its not available in old revisions
 		// -s for serialize
-		$benchmark = c ("test/framework/bench/valbench -s");
+		$benchmark = cd ("../test/framework/bench/valbench -s", "benchmark");
 
 		save_test_logs ();
 		store_test_results ($results);
@@ -189,7 +189,7 @@
 	{
 		global $REV;
 
-		if (preg_match ("/FAILURE:.*/", $result_string))
+		if (preg_match ("/^FAILURE:.*/", $result_string))
 			return -1;
 
 		$results = unserialize ($result_string);
