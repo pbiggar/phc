@@ -1,44 +1,30 @@
 #ifndef PHC_SCCP_H_
 #define PHC_SCCP_H_
 
-#include "CFG.h"
-#include "CFG_visitor.h"
+#include "Sparse_conditional_visitor.h"
 #include "Lattice.h"
-#include "Edge.h"
-#include "Def_use.h"
 
 
-class SCCP : public CFG_visitor
+class SCCP : public Sparse_conditional_visitor 
 {
-	friend class SCCP_updater;
 	Lattice_map lattice;
-	Edge_list* cfg_wl;
-	SSA_op_list* ssa_wl;
-	CFG* cfg;
 
 public:
-	void run (CFG* cfg);
+	void initialize (CFG*);
+	void post_pass (CFG*);
 
 	MIR::Literal* get_literal (MIR::Rvalue* in);
-	int get_predecessor_executable_count (Basic_block* bb);
-	void update_ir (CFG*);
-
 	void set_lattice (MIR::VARIABLE_NAME* def, Lattice_cell* value);
 	void meet (MIR::VARIABLE_NAME* var_name, Lattice_cell*);
 	void meet (MIR::VARIABLE_NAME* var_name, MIR::Literal*);
 
 	// High-level SSA properties
-	void visit_ssa_op (SSA_op* phi);
 	void visit_chi_node (Basic_block* bb, MIR::VARIABLE_NAME* lhs, MIR::VARIABLE_NAME* rhs);
+	void visit_phi_node (Basic_block* bb, MIR::VARIABLE_NAME* lhs); 
+	Edge_list* get_branch_successors (Branch_block*);
 
-	// not visit_phi_node
-	void visit_phi (Basic_block* bb, MIR::VARIABLE_NAME* lhs); 
-
-	// Blocks
+	// Expressions (in SCCP terminology)
 	void visit_entry_block (Entry_block* bb);
-	void visit_branch_block (Branch_block*);
-
-	// Statement blocks
 	void visit_assign_field (Statement_block*, MIR::Assign_field *);
 	void visit_assign_next (Statement_block*, MIR::Assign_next*);
 	void visit_assign_var (Statement_block*, MIR::Assign_var*);

@@ -130,100 +130,13 @@
 using namespace MIR;
 
 void
-SCCP::run (CFG* cfg)
+SCCP::initialize (CFG*)
 {
-	this->cfg = cfg;
-	cfg->consistency_check ();
 	lattice.clear ();
-
-	// 1. Initialize:
-	cfg_wl = new Edge_list(cfg->get_entry_edge ());
-	ssa_wl = new SSA_op_list;
-
-	foreach (Edge* e, *cfg->get_all_edges ())
-		e->is_executable = false;
-
-	// TOP is NULL, so the lattice map is already initialized.
-
-	// Start in the entry block
-	visit_block (cfg->get_entry_bb ());
-
-	// 2. Stop when CFG-worklist and SSA-worklist are both empty.
-	while (cfg_wl->size () > 0 || ssa_wl->size () > 0)
-	{
-		// Take workitem from either list.
-
-		/* 3.
-		 * For CFGWL, pop e. If ExecFlag(e) == true, do nothing. Else:
-		 *	- ExecFlag(e) = true;
-		 *	- visitPhi (p) for all phis in e.target.
-		 *	- if this is the first time the stmt is evaluated 
-		 *		(ie. if count (execflags(e1), where e1.target = e.target) == 1)
-		 *	  then visitExpr (e.target)
-		 *		- If e.target has 1 outgoing edge, add it to CFGW BB
-		 */
-
-		while (cfg_wl->size() > 0)
-		{
-			Edge* e = cfg_wl->front();
-			cfg_wl->pop_front ();
-
-			if (e->is_executable)
-				continue;
-
-			e->is_executable = true;
-
-			foreach (VARIABLE_NAME* phi_lhs, *e->get_target ()->get_phi_lhss ())
-				visit_phi (e->get_target (), phi_lhs);
-
-			if (get_predecessor_executable_count (e->get_target()) == 1)
-				visit_block (e->get_target ());
-
-			Edge_list* succs = e->get_target ()->get_successor_edges ();
-			if (succs->size() == 1)
-				cfg_wl->push_back (succs->front ());
-		}
-
-		while (ssa_wl->size() > 0)
-		{
-			/*
-			 * 4/5.
-			 * For SSAWL, pop e.
-			 * - If e.target is a Phi, perform visitPhi (e.target).
-			 *	- If e.target is an expression, and any of e.targets incoming
-			 *	  edges is executable, run visit_expression. Else do nothing.
-			 */
-			SSA_op* e = ssa_wl->front ();
-			ssa_wl->pop_front ();
-
-			visit_ssa_op (e);
-		}
-	}
-
-	if (debugging_enabled)
-	{
-		DEBUG ("SCCP: ");
-		lattice.dump();
-	}
-
-	// The algorithm so far has found the answers. We now need to update the
-	// results.
-	update_ir (cfg);
 }
+
 
 #define die() do { lattice.dump(); assert (0); } while (0)
-
-int
-SCCP::get_predecessor_executable_count (Basic_block* bb)
-{
-	int exec_count = 0;
-	foreach (Edge* pred, *bb->get_predecessor_edges ())
-	{
-		if (pred->is_executable)
-			exec_count++;
-	}
-	return exec_count;
-}
 
 void
 SCCP::set_lattice (VARIABLE_NAME* def, Lattice_cell* value)
@@ -248,7 +161,7 @@ SCCP::set_lattice (VARIABLE_NAME* def, Lattice_cell* value)
 }
 
 void
-SCCP::visit_phi (Basic_block* bb, VARIABLE_NAME* phi_lhs)
+SCCP::visit_phi_node (Basic_block* bb, VARIABLE_NAME* phi_lhs)
 {
 	/*	VisitPhi:
 	 *	The lattice of the phis output variable is the meet of all the inputs
@@ -280,10 +193,9 @@ SCCP::visit_chi_node (Basic_block* bb, VARIABLE_NAME* chi_lhs, VARIABLE_NAME*)
 	set_lattice (chi_lhs, BOTTOM);
 }
 
+
 /*
- * 4/5.	For SSAWL, pop e. If e.target is a Phi, perform visitPhi (e.target).
- * If e.target is an expression, and any of e.targets incoming edges is
- * executable, run visit_expression.
+ * The rest of the statements make up VisitExpr:
  *
  *	VisitExpr:
  *	Evaluate the expression.
@@ -294,27 +206,7 @@ SCCP::visit_chi_node (Basic_block* bb, VARIABLE_NAME* chi_lhs, VARIABLE_NAME*)
  *		- only the appropriate outgoing edge for a constant
  */
 
-void
-SCCP::visit_ssa_op (SSA_op* op)
-{
-	if (SSA_phi* phi = dynamic_cast<SSA_phi*> (op))
-	{
-		visit_phi (phi->bb, phi->phi_lhs);
-	}
-	else if (SSA_chi* chi = dynamic_cast<SSA_chi*> (op))
-	{
-		visit_chi_node (chi->bb, chi->lhs, chi->rhs);
-	}
-	else
-	{
-		assert (!isa<SSA_formal> (op));
 
-		// Branches and statements
-		Basic_block* bb = op->get_bb ();
-		if (get_predecessor_executable_count (bb))
-			visit_block (bb);
-	}
-}
 
 // Initialize all parameters to BOTTOM.
 void
@@ -327,15 +219,15 @@ SCCP::visit_entry_block (Entry_block* bb)
 	}
 }
 
-void
-SCCP::visit_branch_block (Branch_block* bb)
+Edge_list*
+SCCP::get_branch_successors (Branch_block* bb)
 {
 	/*	- If its a branch, add:
 	 *		- all outgoing edges to CFGWL for BOTTOM
 	 *		- only the appropriate outgoing edge for a constant
 	 */
 	if (lattice[bb->branch->variable_name] == BOTTOM)
-		cfg_wl->push_back_all (bb->get_successor_edges ());
+		return bb->get_successor_edges ();
 
 	else
 	{
@@ -345,9 +237,9 @@ SCCP::visit_branch_block (Branch_block* bb)
 			assert (!bb->cfg->duw->has_def (bb->branch->variable_name));
 
 		if (PHP::is_true (get_literal (bb->branch->variable_name)))
-			cfg_wl->push_back (bb->get_true_successor_edge ());
+			return new Edge_list (bb->get_true_successor_edge ());
 		else
-			cfg_wl->push_back (bb->get_false_successor_edge ());
+			return new Edge_list (bb->get_false_successor_edge ());
 	}
 }
 
@@ -871,9 +763,16 @@ public:
 
 };
 
+
 void
-SCCP::update_ir (CFG* cfg)
+SCCP::post_pass (CFG* cfg)
 {
+	if (debugging_enabled)
+	{
+		DEBUG ("SCCP: ");
+		lattice.dump();
+	}
+
 	SCCP_updater* updater = new SCCP_updater (lattice, this);
 	updater->run (cfg);
 }
