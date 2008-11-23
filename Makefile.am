@@ -185,7 +185,6 @@ libphc_la_SOURCES= 											\
 	src/optimize/SCCP.h										\
 	src/optimize/Set.cpp										\
 	src/optimize/Set.h										\
-	src/optimize/Sparse_conditional_visitor.cpp		\
 	src/optimize/Sparse_conditional_visitor.h			\
 	src/optimize/ssa/Dominance.cpp						\
 	src/optimize/ssa/Dominance.h							\

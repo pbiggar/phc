@@ -2,21 +2,15 @@
 #define PHC_SCCP_H_
 
 #include "Sparse_conditional_visitor.h"
-#include "Lattice.h"
 
 
-class SCCP : public Sparse_conditional_visitor 
+class SCCP : public Sparse_conditional_visitor <MIR::Literal>
 {
-	Lattice_map<MIR::Literal> lattice;
-
 public:
 	void initialize (CFG*);
 	void post_pass (CFG*);
 
 	MIR::Literal* get_literal (MIR::Rvalue* in);
-	void set_lattice (MIR::VARIABLE_NAME* def, Lattice_cell<MIR::Literal>* value);
-	void meet (MIR::VARIABLE_NAME* var_name, Lattice_cell<MIR::Literal>*);
-	void meet (MIR::VARIABLE_NAME* var_name, MIR::Literal*);
 
 	// High-level SSA properties
 	void visit_chi_node (Basic_block* bb, MIR::VARIABLE_NAME* lhs, MIR::VARIABLE_NAME* rhs);

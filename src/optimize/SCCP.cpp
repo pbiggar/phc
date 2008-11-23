@@ -131,12 +131,6 @@ using namespace MIR;
 
 INITIALIZE_LATTICE (Literal);
 
-void
-SCCP::initialize (CFG*)
-{
-	lattice.clear ();
-}
-
 
 #define die() do { lattice.dump(); assert (0); } while (0)
 
@@ -144,29 +138,6 @@ SCCP::initialize (CFG*)
 #define TOP Lattice_cell<Literal>::TOP
 #define BOTTOM Lattice_cell<Literal>::BOTTOM
 
-
-
-void
-SCCP::set_lattice (VARIABLE_NAME* def, Lattice_cell<Literal>* value)
-{
-	Lattice_cell<Literal>* old = lattice[def];
-	if (old != value)
-	{
-		// shouldnt have two different Literals here
-		assert (old == TOP || value == BOTTOM);
-
-		foreach (SSA_op* edge, *cfg->duw->get_uses (def, SSA_ALL))
-		{
-			//	1. add uses of the LHS to the SSA worklist.
-			ssa_wl->push_back (edge);
-
-			// 2. If the expression controls a conditional branch, .... However,
-			// conditions never control branches - that's always a VARIABLE_NAME.
-			// The new value for that variable will propagate through 1.
-		}
-	}
-	lattice[def] = value;
-}
 
 void
 SCCP::visit_phi_node (Basic_block* bb, VARIABLE_NAME* phi_lhs)
@@ -390,18 +361,6 @@ SCCP::get_literal (Rvalue* in)
 		return NULL;
 
 	return lattice[var_name]->get_value ();
-}
-
-void
-SCCP::meet (VARIABLE_NAME* var_name, Literal* lit)
-{
-	meet (var_name, new Lattice_cell<Literal> (lit));
-}
-
-void
-SCCP::meet (VARIABLE_NAME* var, Lattice_cell<Literal>* value)
-{
-	set_lattice (var, ::meet (lattice[var], value));
 }
 
 
@@ -775,12 +734,6 @@ public:
 void
 SCCP::post_pass (CFG* cfg)
 {
-	if (debugging_enabled)
-	{
-		DEBUG ("SCCP: ");
-		lattice.dump();
-	}
-
 	SCCP_updater* updater = new SCCP_updater (lattice, this);
 	updater->run (cfg);
 }
