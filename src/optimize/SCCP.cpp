@@ -129,14 +129,8 @@
 
 using namespace MIR;
 
-INITIALIZE_LATTICE (Literal);
-
 
 #define die() do { lattice.dump(); assert (0); } while (0)
-
-
-#define TOP Lattice_cell<Literal>::TOP
-#define BOTTOM Lattice_cell<Literal>::BOTTOM
 
 
 void
@@ -151,7 +145,7 @@ SCCP::visit_phi_node (Basic_block* bb, VARIABLE_NAME* phi_lhs)
 	 *		c1 + c2 = BOTTOM if i != j (this can be improved with VRP, using a
 	 *			similar algorithm).
 	 */
-	Lattice_cell<Literal>* result = TOP;
+	Lattice_cell* result = TOP;
 	foreach (Edge* pred, *bb->get_predecessor_edges ())
 	{
 		if (!pred->is_executable)
@@ -247,7 +241,7 @@ SCCP::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 	Expr* expr = transform_expr (bb, in->rhs->clone ());
 
 	if (isa<Literal> (expr))
-		meet_lattice (in->lhs, dyc<Literal> (expr));
+		meet_lattice (in->lhs, new Literal_cell (dyc<Literal> (expr)));
 	else if (!isa<Literal> (expr))
 		set_lattice (in->lhs, BOTTOM);
 }
@@ -315,7 +309,7 @@ SCCP::visit_ssa_pre_op (Statement_block* bb, MIR::SSA_pre_op* in)
 		Literal* result = PHP::fold_pre_op (get_literal (in->use), in->op);
 
 		if (result)
-			meet_lattice (in->def, result);
+			meet_lattice (in->def, new Literal_cell (result));
 	}
 }
 
@@ -339,7 +333,8 @@ SCCP::visit_unset (Statement_block*, MIR::Unset* in)
 	assert (isa<VARIABLE_NAME> (in->variable_name));
 
 	// Def_use asserts what we cant handle, for now.
-	meet_lattice (dyc<VARIABLE_NAME> (in->variable_name), new NIL ());
+	meet_lattice (dyc<VARIABLE_NAME> (in->variable_name),
+		new Literal_cell (new NIL ()));
 }
 
 /* Returns NULL, or the literal in VARIABLE_NAME. We have separate functions,
@@ -359,7 +354,7 @@ SCCP::get_literal (Rvalue* in)
 	if (lattice[var_name] == BOTTOM)
 		return NULL;
 
-	return lattice[var_name]->get_value ();
+	return dyc<Literal_cell> (lattice[var_name])->value;
 }
 
 
@@ -595,13 +590,13 @@ SCCP::transform_variable_variable (Statement_block*, Variable_variable* in)
 
 class SCCP_updater : public Visit_once
 {
-	Lattice_map<Literal>& lattice;
+	Lattice_map& lattice;
 
 	// For visit_expr
 	SCCP* sccp;
 public:
 
-	SCCP_updater (Lattice_map<Literal>& lattice, SCCP* sccp)
+	SCCP_updater (Lattice_map& lattice, SCCP* sccp)
 	: lattice (lattice)
 	, sccp (sccp)
 	{
@@ -735,4 +730,22 @@ SCCP::post_pass (CFG* cfg)
 {
 	SCCP_updater* updater = new SCCP_updater (lattice, this);
 	updater->run (cfg);
+}
+
+
+Literal_cell::Literal_cell (Literal* value)
+: value (value)
+{
+}
+
+void
+Literal_cell::dump ()
+{
+	DEBUG (*value->get_value_as_string ());
+}
+
+bool
+Literal_cell::equals (Lattice_cell* other)
+{
+	return (this->value->equals (dyc<Literal_cell> (other)->value));
 }

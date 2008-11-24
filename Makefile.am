@@ -170,6 +170,7 @@ libphc_la_SOURCES= 											\
 	src/optimize/Flow_visitor.h							\
 	src/optimize/If_simplification.cpp					\
 	src/optimize/If_simplification.h						\
+	src/optimize/Lattice.cpp								\
 	src/optimize/Lattice.h									\
 	src/optimize/Live_variable_analysis.cpp			\
 	src/optimize/Live_variable_analysis.h				\
@@ -185,6 +186,7 @@ libphc_la_SOURCES= 											\
 	src/optimize/SCCP.h										\
 	src/optimize/Set.cpp										\
 	src/optimize/Set.h										\
+	src/optimize/Sparse_conditional_visitor.cpp		\
 	src/optimize/Sparse_conditional_visitor.h			\
 	src/optimize/ssa/Dominance.cpp						\
 	src/optimize/ssa/Dominance.h							\

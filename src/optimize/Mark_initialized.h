@@ -51,9 +51,9 @@
 #define PHC_MARK_INITIALIZED
 
 
-#include "Visit_once.h"
+#include "Sparse_conditional_visitor.h"
 
-class Mark_initialized : public Visit_once
+class Mark_initialized : public Sparse_conditional_visitor
 {
 public:
 //	void visit_assign_array (Statement_block* sb, MIR::Assign_array*);

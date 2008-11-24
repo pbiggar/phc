@@ -3,8 +3,18 @@
 
 #include "Sparse_conditional_visitor.h"
 
+class Literal_cell : public Lattice_cell
+{
+public:
+	Literal_cell (MIR::Literal*);
 
-class SCCP : public Sparse_conditional_visitor <MIR::Literal>
+	void dump ();
+	bool equals (Lattice_cell* other);
+
+	MIR::Literal* value;
+};
+
+class SCCP : public Sparse_conditional_visitor
 {
 public:
 	void initialize (CFG*);
