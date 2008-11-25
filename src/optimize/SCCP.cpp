@@ -43,7 +43,8 @@
  *		TODO find it:
  *
  *		TODO: GCC has a similar approach, abstracting the algorithm for other
- *		uses. Cite it.
+ *		uses. Cite it (2005 proceedings)
+ *
  *
  *		TODO: Section 6 expands it to inter-procedural, including alias
  *		information. Incorporate.

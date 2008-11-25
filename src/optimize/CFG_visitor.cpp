@@ -18,6 +18,7 @@ CFG_visitor::visit_block (Basic_block* bb)
 	foreach (VARIABLE_NAME* mu, *bb->get_mus())
 		visit_mu_node (bb, mu);
 
+	// TODO: should this be after visit_*_block?
 	VARIABLE_NAME *def, *use;
 	foreach (tie(def, use), *bb->get_chis())
 		visit_chi_node (bb, def, use);

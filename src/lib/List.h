@@ -17,7 +17,7 @@
  * The implementation of List requires a clone() method, because it was
  * originally designed for the maketea derived clone() methods. But we want to
  * use List instead of std::list to make sure garbage collection is used
- * everywhere.  This "hack" allows us to call Object::clone(), and fail if
+ * everywhere. This "hack" allows us to call Object::clone(), and fail if
  * clone() is called for classes that don't support it (all other classes).
  */
 
