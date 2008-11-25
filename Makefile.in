@@ -170,6 +170,14 @@ plugins_tests_pre_vs_post_count_la_LINK = $(LIBTOOL) --tag=CXX \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
 	$(AM_CXXFLAGS) $(CXXFLAGS) \
 	$(plugins_tests_pre_vs_post_count_la_LDFLAGS) $(LDFLAGS) -o $@
+plugins_tests_raise_globals_la_LIBADD =
+am_plugins_tests_raise_globals_la_OBJECTS = raise_globals.lo
+plugins_tests_raise_globals_la_OBJECTS =  \
+	$(am_plugins_tests_raise_globals_la_OBJECTS)
+plugins_tests_raise_globals_la_LINK = $(LIBTOOL) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(AM_CXXFLAGS) $(CXXFLAGS) \
+	$(plugins_tests_raise_globals_la_LDFLAGS) $(LDFLAGS) -o $@
 plugins_tests_source_vs_semantic_values_la_LIBADD =
 am_plugins_tests_source_vs_semantic_values_la_OBJECTS =  \
 	source_vs_semantic_values.lo
@@ -347,6 +355,7 @@ SOURCES = $(libphc_la_SOURCES) \
 	$(plugins_tests_line_numbers_la_SOURCES) \
 	$(plugins_tests_linear_la_SOURCES) \
 	$(plugins_tests_pre_vs_post_count_la_SOURCES) \
+	$(plugins_tests_raise_globals_la_SOURCES) \
 	$(plugins_tests_source_vs_semantic_values_la_SOURCES) \
 	$(plugins_tests_strip_includes_la_SOURCES) \
 	$(plugins_tools_add_comment_la_SOURCES) \
@@ -371,6 +380,7 @@ DIST_SOURCES = $(libphc_la_SOURCES) \
 	$(plugins_tests_line_numbers_la_SOURCES) \
 	$(plugins_tests_linear_la_SOURCES) \
 	$(plugins_tests_pre_vs_post_count_la_SOURCES) \
+	$(plugins_tests_raise_globals_la_SOURCES) \
 	$(plugins_tests_source_vs_semantic_values_la_SOURCES) \
 	$(plugins_tests_strip_includes_la_SOURCES) \
 	$(plugins_tools_add_comment_la_SOURCES) \
@@ -447,37 +457,33 @@ CYGPATH_W = @CYGPATH_W@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
 DSYMUTIL = @DSYMUTIL@
-DUMPBIN = @DUMPBIN@
+ECHO = @ECHO@
 ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
-FGREP = @FGREP@
+F77 = @F77@
+FFLAGS = @FFLAGS@
 GREP = @GREP@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
-LD = @LD@
 LDFLAGS = @LDFLAGS@
 LIBLTDL = @LIBLTDL@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
 LIBTOOL = @LIBTOOL@
-LIPO = @LIPO@
 LN_S = @LN_S@
 LTDLINCL = @LTDLINCL@
 LTLIBOBJS = @LTLIBOBJS@
 MAINT = @MAINT@
 MAKEINFO = @MAKEINFO@
 MKDIR_P = @MKDIR_P@
-NM = @NM@
 NMEDIT = @NMEDIT@
 OBJEXT = @OBJEXT@
-OTOOL = @OTOOL@
-OTOOL64 = @OTOOL64@
 PACKAGE = @PACKAGE@
 PACKAGE_BUGREPORT = @PACKAGE_BUGREPORT@
 PACKAGE_NAME = @PACKAGE_NAME@
@@ -497,7 +503,7 @@ abs_top_builddir = @abs_top_builddir@
 abs_top_srcdir = @abs_top_srcdir@
 ac_ct_CC = @ac_ct_CC@
 ac_ct_CXX = @ac_ct_CXX@
-ac_ct_DUMPBIN = @ac_ct_DUMPBIN@
+ac_ct_F77 = @ac_ct_F77@
 am__include = @am__include@
 am__leading_dot = @am__leading_dot@
 am__quote = @am__quote@
@@ -537,7 +543,6 @@ libexecdir = @libexecdir@
 libphp_headers = @libphp_headers@
 localedir = @localedir@
 localstatedir = @localstatedir@
-lt_ECHO = @lt_ECHO@
 maketea = @maketea@
 mandir = @mandir@
 mkdir_p = @mkdir_p@
@@ -944,6 +949,7 @@ strangelib_HEADERS = \
 nobase_pkglib_LTLIBRARIES = plugins/tests/canonical_unparser.la \
 	plugins/tests/cloning.la plugins/tests/inconsistent_st_attr.la \
 	plugins/tests/linear.la plugins/tests/line_numbers.la \
+	plugins/tests/raise_globals.la \
 	plugins/tests/pre_vs_post_count.la \
 	plugins/tests/source_vs_semantic_values.la \
 	plugins/tests/strip_includes.la plugins/tools/add_comment.la \
@@ -968,6 +974,8 @@ plugins_tests_linear_la_SOURCES = plugins/tests/linear.cpp plugins/tests/Collect
 plugins_tests_linear_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tests_line_numbers_la_SOURCES = plugins/tests/line_numbers.cpp
 plugins_tests_line_numbers_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+plugins_tests_raise_globals_la_SOURCES = plugins/tests/raise_globals.cpp
+plugins_tests_raise_globals_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tests_pre_vs_post_count_la_SOURCES = plugins/tests/pre_vs_post_count.cpp
 plugins_tests_pre_vs_post_count_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tests_source_vs_semantic_values_la_SOURCES = plugins/tests/source_vs_semantic_values.cpp
@@ -1149,6 +1157,8 @@ plugins/tests/linear.la: $(plugins_tests_linear_la_OBJECTS) $(plugins_tests_line
 	$(plugins_tests_linear_la_LINK) -rpath $(pkglibdir) $(plugins_tests_linear_la_OBJECTS) $(plugins_tests_linear_la_LIBADD) $(LIBS)
 plugins/tests/pre_vs_post_count.la: $(plugins_tests_pre_vs_post_count_la_OBJECTS) $(plugins_tests_pre_vs_post_count_la_DEPENDENCIES) plugins/tests/$(am__dirstamp)
 	$(plugins_tests_pre_vs_post_count_la_LINK) -rpath $(pkglibdir) $(plugins_tests_pre_vs_post_count_la_OBJECTS) $(plugins_tests_pre_vs_post_count_la_LIBADD) $(LIBS)
+plugins/tests/raise_globals.la: $(plugins_tests_raise_globals_la_OBJECTS) $(plugins_tests_raise_globals_la_DEPENDENCIES) plugins/tests/$(am__dirstamp)
+	$(plugins_tests_raise_globals_la_LINK) -rpath $(pkglibdir) $(plugins_tests_raise_globals_la_OBJECTS) $(plugins_tests_raise_globals_la_LIBADD) $(LIBS)
 plugins/tests/source_vs_semantic_values.la: $(plugins_tests_source_vs_semantic_values_la_OBJECTS) $(plugins_tests_source_vs_semantic_values_la_DEPENDENCIES) plugins/tests/$(am__dirstamp)
 	$(plugins_tests_source_vs_semantic_values_la_LINK) -rpath $(pkglibdir) $(plugins_tests_source_vs_semantic_values_la_OBJECTS) $(plugins_tests_source_vs_semantic_values_la_LIBADD) $(LIBS)
 plugins/tests/strip_includes.la: $(plugins_tests_strip_includes_la_OBJECTS) $(plugins_tests_strip_includes_la_DEPENDENCIES) plugins/tests/$(am__dirstamp)
@@ -1385,6 +1395,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/php_parser.tab.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pre_vs_post_count.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/purity_test.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/raise_globals.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/reduce_statements.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/remove_all.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/show_traversal_order.Plo@am__quote@
@@ -2189,6 +2200,13 @@ pre_vs_post_count.lo: plugins/tests/pre_vs_post_count.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='plugins/tests/pre_vs_post_count.cpp' object='pre_vs_post_count.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o pre_vs_post_count.lo `test -f 'plugins/tests/pre_vs_post_count.cpp' || echo '$(srcdir)/'`plugins/tests/pre_vs_post_count.cpp
+
+raise_globals.lo: plugins/tests/raise_globals.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT raise_globals.lo -MD -MP -MF $(DEPDIR)/raise_globals.Tpo -c -o raise_globals.lo `test -f 'plugins/tests/raise_globals.cpp' || echo '$(srcdir)/'`plugins/tests/raise_globals.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/raise_globals.Tpo $(DEPDIR)/raise_globals.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='plugins/tests/raise_globals.cpp' object='raise_globals.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o raise_globals.lo `test -f 'plugins/tests/raise_globals.cpp' || echo '$(srcdir)/'`plugins/tests/raise_globals.cpp
 
 source_vs_semantic_values.lo: plugins/tests/source_vs_semantic_values.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT source_vs_semantic_values.lo -MD -MP -MF $(DEPDIR)/source_vs_semantic_values.Tpo -c -o source_vs_semantic_values.lo `test -f 'plugins/tests/source_vs_semantic_values.cpp' || echo '$(srcdir)/'`plugins/tests/source_vs_semantic_values.cpp

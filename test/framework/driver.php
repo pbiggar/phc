@@ -89,6 +89,7 @@ $tests[] = new CompareWithPHP ("InterpretStrippedIncludes", "--include --dump=su
 $tests[] = new CompareWithPHP ("InterpretObfuscated", "--obfuscate", "cb_mir");
 require_once ("generate_c.php");
 require_once ("compiled_vs_interpreted.php");
+require_once ("raised_compile_optimized.php");
 require_once ("compile_optimized.php");
 require_once ("refcounts.php");
 require_once ("demi_eval.php");

@@ -600,6 +600,15 @@ Pass_manager::can_optimize (MIR::Method* method)
 	if (*method->signature->method_name->value != "__MAIN__")
 		return true;
 
+	return false;
+
+	// TODO: we did this so that most of our tests would be meaningful (since
+	// most test programs are very short, and just have a main method).. Its
+	// hard to get the semantics right to both __MAIN__ and all other functions.
+	// So skip analyzing main, and instead add the raise_globals plugin. Analyse
+	// main in the future.
+
+
 	// If it is __MAIN__ we can still analyse it if it doesn't call methods
 	// which touch global variables.
 	

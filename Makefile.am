@@ -422,6 +422,10 @@ nobase_pkglib_LTLIBRARIES += plugins/tests/line_numbers.la
 plugins_tests_line_numbers_la_SOURCES = plugins/tests/line_numbers.cpp
 plugins_tests_line_numbers_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
+nobase_pkglib_LTLIBRARIES += plugins/tests/raise_globals.la
+plugins_tests_raise_globals_la_SOURCES = plugins/tests/raise_globals.cpp
+plugins_tests_raise_globals_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+
 nobase_pkglib_LTLIBRARIES += plugins/tests/pre_vs_post_count.la
 plugins_tests_pre_vs_post_count_la_SOURCES = plugins/tests/pre_vs_post_count.cpp
 plugins_tests_pre_vs_post_count_la_LDFLAGS = ${PLUGIN_LDFLAGS}

@@ -3,8 +3,7 @@
  * phc -- the open source PHP compiler
  * See doc/license/README.license for licensing information
  *
- * Adds debug_zval_dump after each statement, then compared the outputs of the
- * compiled and interpreted code.
+ * Compare compiled output to interpreted.
  */
 
 
