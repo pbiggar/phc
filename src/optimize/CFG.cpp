@@ -1049,7 +1049,7 @@ CFG::get_all_bbs_top_down ()
 	BB_list* result = new BB_list;
 	foreach (vertex_t v, vertices)
 	{
-		result->push_back (vb[v]);
+		result->push_front (vb[v]);
 	}
 
 	return result;
