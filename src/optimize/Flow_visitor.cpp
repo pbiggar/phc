@@ -41,6 +41,9 @@ Flow_visitor::run (CFG* cfg)
 	// After the pure analysis section, apply the results (once).
 	foreach (Basic_block* bb, *cfg->get_all_bbs ())
 		transform_block (bb);
+
+	// Call the pass' own post-processing.
+	post_pass (cfg);
 }
 
 BB_list*
@@ -74,4 +77,9 @@ Flow_visitor::get_initial_worklist (CFG* cfg)
 		return cfg->get_all_bbs_top_down ();
 	else
 		return cfg->get_all_bbs_bottom_up ();
+}
+
+void
+Flow_visitor::post_pass (CFG* cfg)
+{
 }

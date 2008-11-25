@@ -31,6 +31,7 @@ public:
 	void run (CFG* cfg);
 	virtual void init_block (Basic_block*) {}
 	virtual bool solution_has_changed (Basic_block*) { return false; }
+	virtual void post_pass (CFG* cfg);
 
 	/* Transfer functions */
 	virtual void transfer_in (Basic_block*, BB_list*) {};

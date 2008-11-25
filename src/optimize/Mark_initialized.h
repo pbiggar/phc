@@ -2,43 +2,35 @@
  * phc -- the open source PHP compiler
  * See doc/license/README.license for licensing information
  *
- * Mark variables as definitely initialized, or definitely uninitialized, or maybe initialized.
+ * Mark variables as definitely initialized, or definitely uninitialized, or
+ * maybe initialized.
  *
  * When we generate code, we wish to know if the variable was are
- * using/defining in already initialized. We wish to know:
- *		is the variable being defined already initialized?
- *		is the variable being used initialized?
+ * using/defining is already initialized. This allows us avoid a number of
+ * checks.
  *
- *	Though SSA form guarantees that a variable only has a single initialization,
+ *	Though SSA form guarantees that a variable only has a single definition,
  *	we do not generate code in SSA form. Rather, we drop SSA indices and operate
  *	on the base names. So we need to propagate whether or not the _base_name_
  *	has been initialized, to each SSA name being defined.
  *
- *	When we drop SSA form, we lose PHI nodes. So we must not include PHI nodes
- *	as definitions. But we must propagate information through the phi nodes, or
- *	else uses in loops will not be correct.
+ *	If we were to use SSA form, we would have a problem with definitions of
+ *	different versions of the same variable. We do not have a link between x_0
+ *	and x_1, so if we store a result in x_0, we have no way to know at x_1 that
+ *	it is the correct data to use (nor can we easily search for it).
  *
- *	So for each SSA NAME, we must know:
- *		at definition: (init,uninit,dont_know)
- *		at use: (init,uninit,dont_know)
+ *	We instead use a more traditional dataflow technique of simply propagating
+ *	the list of initialized variables.
  *
+ * Notes:
+ *		- assignment to NULL and UNSET are different in this context - NULL
+ *		leaves the variable initialized. unset makes the variable uninitialized
+ *		(even for indirect assignments).
  *
- * Using the SCCP algorithm, we have a number of lattices maps:
- *		at-def: SSA_NAME -> (TOP/UNINIT | INIT | BOTTOM)
- *		at-use: SSA_NAME -> (TOP/UNINIT | INIT | BOTTOM)
- *
- * DEF and USE have different information. A USE that has a real (not a PHI or
- * CHI) definition will always be INIT. OTHERWISE, a DEF or USE receives
- * information the same way, through propagation.
- *
- * The lattice is TOP/UNINIT -> INIT -> BOTTOM. There are a lot of cases where
- * the same base_name may be UNINIT, then INIT, then BOTTOM, the UNINIT/INIT
- * again. However, this does not defy the lattice or break the monotinicty. The
- * lattice models the SSA_NAME, not the base_name, so different values for the
- * base_name are not a problem (also, they are not modelled directly).
- *
- * TODO: what about going through CHIs?
- *
+ *		- aliasing doesnt affect things - indirect assignments can only occur for
+ *		initialized variables, and do not affect the results.
+ *	
+*
  * TODO: this is another place that would benefit from splitting branches with
  * multiple predecessors (though it might be turned off in the case of space
  * constaints).
@@ -52,35 +44,45 @@
 
 
 #include "Sparse_conditional_visitor.h"
+#include "Lattice.h"
 
-class Mark_initialized : public Sparse_conditional_visitor
+class Init_cell : public Lattice_cell
 {
-public:
-//	void visit_assign_array (Statement_block* sb, MIR::Assign_array*);
-//	void visit_assign_field (Statement_block* sb, MIR::Assign_field*);
-	void visit_assign_var (Statement_block* sb, MIR::Assign_var*);
-/*	void visit_assign_var_var (Statement_block* sb, MIR::Assign_var_var*);
-	void visit_eval_expr (Statement_block* sb, MIR::Eval_expr*);
-	void visit_global (Statement_block* sb, MIR::Global*);
-	void visit_assign_next (Statement_block* sb, MIR::Assign_next*);
-	void visit_return (Statement_block* sb, MIR::Return*);
-	void visit_static_declaration (Statement_block* sb, MIR::Static_declaration*);
-	void visit_try (Statement_block* sb, MIR::Try*);
-	void visit_throw (Statement_block* sb, MIR::Throw*);
-
-	void visit_array_access (Statement_block* bb, MIR::Array_access* in);
-	void visit_field_access (Statement_block* bb, MIR::Field_access* in);
-	void visit_foreach_get_key (Statement_block* bb, MIR::Foreach_get_key* in);
-	void visit_foreach_get_val (Statement_block* bb, MIR::Foreach_get_val* in);
-	void visit_foreach_has_key (Statement_block* bb, MIR::Foreach_has_key* in);
-	void visit_instanceof (Statement_block* bb, MIR::Instanceof* in);
-	void visit_isset (Statement_block* bb, MIR::Isset* in);
-	void visit_method_invocation (Statement_block* bb, MIR::Method_invocation* in);
-	void visit_new (Statement_block* bb, MIR::New* in);
-	void visit_variable_variable (Statement_block* bb, MIR::Variable_variable* in);
-*/
-
-
+	void dump ();
+	bool equals (Lattice_cell*);
 };
 
-#endif // PHC_ADDRESS_TAKEN
+// TOP -> INIT   -> BOTTOM
+//        UNINIT
+// We only need one instance of INIT and UNINIT, since they're all the same.
+extern Init_cell* INIT;
+extern Init_cell* UNINIT;
+
+class Mark_initialized : public Flow_visitor
+{
+	Map<Basic_block*, Set> local_defs;
+	Map<Basic_block*, Set> local_undefs;
+	Map<Basic_block*, Lattice_map*> ins;
+	Map<Basic_block*, Lattice_map*> outs;
+	Map<Basic_block*, bool> repeat;
+	Map<Basic_block*, bool> executed;
+
+public:
+	Mark_initialized ();
+
+	void init_block (Basic_block*);
+
+	// Local solution
+	void visit_entry_block (Entry_block*);
+	void visit_statement_block (Statement_block*);
+
+	// Flow
+	void transfer_in (Basic_block* bb, BB_list*);
+	void transfer_out (Basic_block* bb, BB_list*);
+	bool solution_has_changed (Basic_block*);
+	
+	// Use the analysis
+	void post_pass (CFG* cfg);
+};
+
+#endif // PHC_MARK_INITIALIZED

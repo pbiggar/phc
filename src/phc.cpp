@@ -36,6 +36,7 @@
 #include "optimize/Def_use.h"
 #include "optimize/If_simplification.h"
 #include "optimize/Live_variable_analysis.h"
+#include "optimize/Mark_initialized.h"
 #include "optimize/Prune_symbol_table.h"
 #include "optimize/Remove_loop_booleans.h"
 #include "optimize/SCCP.h"
@@ -182,6 +183,7 @@ int main(int argc, char** argv)
 	pm->add_optimization (new SCCP (), s("sccp"), s("Sparse-conditional constant propagation"), true);
 	pm->add_optimization (new If_simplification (), s("ifsimple"), s("If-simplification"), true);
 	pm->add_optimization (new DCE (), s("dce"), s("Aggressive Dead-code elimination"), true);
+	pm->add_optimization (new Mark_initialized (), s("mvi"), s("Mark variable initialization status"), false);
 	pm->add_optimization_pass (new Fake_pass (s("drop_ssa"), s("Drop SSA form")));
 
 	// codegen passes

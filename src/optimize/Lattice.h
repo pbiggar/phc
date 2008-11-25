@@ -8,6 +8,7 @@
 #include "MIR.h"
 #include "Set.h"
 #include "process_ir/debug.h"
+#include <boost/tuple/tuple.hpp> // for tie
 
 class Lattice_cell : virtual public GC_obj
 {
@@ -34,22 +35,56 @@ public:
 
 	void dump ()
 	{
-		std::pair<MIR::VARIABLE_NAME*, Lattice_cell*> pair;
-		foreach (pair, *this)
+		CHECK_DEBUG ();
+
+		MIR::VARIABLE_NAME* var;
+		Lattice_cell* cell;
+		foreach (boost::tie (var, cell), *this)
 		{
-			cdebug << *pair.first->get_ssa_var_name () << " => ";
-			if (pair.second == TOP)
+			cdebug << *var->get_ssa_var_name () << " => ";
+			if (cell == TOP)
 				cdebug << "TOP";
-			else if (pair.second == BOTTOM)
+			else if (cell == BOTTOM)
 				cdebug << "BOTTOM";
 			else
 			{
 				cdebug << "(";
-				pair.second->dump ();
+				cell->dump ();
 				cdebug << ")";
 			}
 			cdebug << "\n";
 		}
+	}
+
+	// Not a deep copy.
+	Lattice_map* clone ()
+	{
+		Lattice_map* result = new Lattice_map;
+
+		MIR::VARIABLE_NAME* var;
+		Lattice_cell* cell;
+		foreach (boost::tie (var, cell), *this)
+			(*result)[var] = cell;
+
+		return result;
+	}
+
+	bool equals (Lattice_map* other)
+	{
+		bool result = true;
+		MIR::VARIABLE_NAME* var;
+		Lattice_cell* cell;
+		foreach (boost::tie (var, cell), *other)
+		{
+			if (cell == TOP || cell == BOTTOM)
+			{
+				if (cell != (*this)[var])
+					return false;
+			}
+			else if (!(cell->equals ((*this)[var])))
+				return false;
+		}
+		return true;
 	}
 };
 
