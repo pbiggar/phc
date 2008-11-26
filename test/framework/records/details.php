@@ -9,12 +9,13 @@
 		if ($rev <= 0)
 			die ("Invalid revision: {$_GET["rev"]}.");
 
-		print_revision_details ($rev);
-		print_test_details ($rev, "test");
+		$old_rev = get_prev_revision ($rev);
+		print_revision_details ($rev, $old_rev);
+		print_test_details ($rev, $old_rev, "test");
 
 	}
 
-	function print_revision_details ($rev)
+	function print_revision_details ($rev, $old_rev)
 	{
 		global $DB;
 		$complete_data = $DB->query ("
@@ -38,7 +39,7 @@
 		print "		<th>Test duration:			</th><td>"	.(round ($complete_data["time"]/60.0, 1))."m	</td>";
 		print "		<th>Author:						</th><td>"	.$complete_data["author"].		"</td>";
 		print "	</tr><tr>\n";
-		print "		<th>" . maybe_link ($rev, "benchmark.log", "Benchmark").":</th><td>"	.$complete_data["benchmark"]."</td>";
+		print "		<th>" . maybe_link ($rev, $old_rev, "benchmark.log", "Benchmark").":</th><td>"	.$complete_data["benchmark"]."</td>";
 		print "		<th>Commit date:				</th><td>"	.$complete_data["commit_date"].	"	</td>";
 		print "	</tr>\n";
 		print "</table>\n";
@@ -47,13 +48,13 @@
 
 		print "<table class=info>\n";
 		print "	<tr>\n";
-		print "		<th>". maybe_link ($rev, "log.log", "Full Log") ."</th>";
-		print "		<th>". maybe_link ($rev, "configure.log", "Configure Log") ."</th>";
+		print "		<th>". maybe_link ($rev, $old_rev, "log.log", "Full Log") ."</th>";
+		print "		<th>". maybe_link ($rev, $old_rev, "configure.log", "Configure Log") ."</th>";
 		print "	</tr><tr>\n";
-		print "		<th>". maybe_link ($rev, "make.log", "Build Log") ."</th>";
-		print "		<th>". maybe_link ($rev, "install.log", "Install Log") ."</th>";
+		print "		<th>". maybe_link ($rev, $old_rev, "make.log", "Build Log") ."</th>";
+		print "		<th>". maybe_link ($rev, $old_rev, "install.log", "Install Log") ."</th>";
 		print "	</tr><tr>\n";
-		print "		<th>". maybe_link ($rev, "test.log", "Test Log") ."</th>";
+		print "		<th>". maybe_link ($rev, $old_rev, "test.log", "Test Log") ."</th>";
 		print "		<th colspan=2><a href=\"http://code.google.com/p/phc/source/detail?r=$rev\">Commit log</a></th>";
 		print "	</tr></table>";
 
@@ -61,12 +62,11 @@
 		print "</table>\n";
 	}
 
-	function maybe_link ($rev, $filename, $name, $sort = false)
+	function maybe_link ($rev, $old_rev, $filename, $name, $sort = false)
 	{
 		$file = "results/$rev/$filename";
 		if (file_exists ($file))
 		{
-			$old_rev = $rev - 1;
 			$old_file = "results/$old_rev/$filename";
 			if (file_exists ($old_file))
 				return "<a href=\"$file\">$name</a> (<a href=\"diff.php?new_rev=$rev&old_rev=$old_rev&sort=$sort&filename=$filename\">D</a>)";
@@ -77,7 +77,7 @@
 			return $name;
 	}
 
-	function print_test_details ($rev, $table_name)
+	function print_test_details ($rev, $old_rev, $table_name)
 	{
 		global $DB, $td, $th;
 
@@ -90,13 +90,12 @@
 
 		print "<table class=info>";
 		print "<tr><th>Test name</th><th>"
-			. maybe_link ($rev, "{$table_name}_logs/success", "Passes", true) ."</th><th>"
-			. maybe_link ($rev, "{$table_name}_logs/failure", "Fails", true) ."</th><th>"
-			. maybe_link ($rev, "{$table_name}_logs/timeout", "Timeouts", true) ."</th><th>"
-			. maybe_link ($rev, "{$table_name}_logs/skipped", "Skips", true) ."</th></tr>\n";
+			. maybe_link ($rev, $old_rev, "{$table_name}_logs/success", "Passes", true) ."</th><th>"
+			. maybe_link ($rev, $old_rev, "{$table_name}_logs/failure", "Fails", true) ."</th><th>"
+			. maybe_link ($rev, $old_rev, "{$table_name}_logs/timeout", "Timeouts", true) ."</th><th>"
+			. maybe_link ($rev, $old_rev, "{$table_name}_logs/skipped", "Skips", true) ."</th></tr>\n";
 
 		# fetch the previous revisions data, for comparison
-		$old_rev = $rev - 1;
 		$old_test_data = $DB->query ("
 				SELECT	revision, testname, pass, fail, timeout, skip
 				FROM		{$table_name}s
@@ -144,7 +143,6 @@
 
 		print "</table>\n";
 	}
-
 
 
 ?>

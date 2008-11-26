@@ -57,6 +57,46 @@
 		return xdiff_string_diff ("$string1\n", "$string2\n");
 	}
 
+	function get_prev_revision ($rev)
+	{
+		global $DB;
+		$branch = get_branch ($rev);
+		$data = $DB->query ("
+				SELECT	revision
+				FROM		complete
+				WHERE		revision < $rev
+				AND		branch == '$branch'
+				")->fetchAll(PDO::FETCH_ASSOC);
+
+		rsort ($data);
+
+		if ($data === false)
+			return 0;
+
+		return $data[0]["revision"];
+
+
+	}
+
+	function get_branch ($rev)
+	{
+		global $DB;
+		$data = $DB->query ("
+				SELECT	branch
+				FROM		complete
+				WHERE		revision == $rev 
+				")->fetchAll(PDO::FETCH_ASSOC);
+
+		if (empty ($data[0]["branch"]))
+			die ("bad old data");
+
+		return $data[0]["branch"];
+	}
+
+
+
+
+
 
 
 ?>
