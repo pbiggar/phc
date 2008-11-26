@@ -10,8 +10,21 @@
 			die ("Invalid revision: {$_GET["rev"]}.");
 
 		$old_rev = get_prev_revision ($rev);
+
+		print "<table class=layout>";
+		print "	<tr><td colspan=2>\n";
 		print_revision_details ($rev, $old_rev);
-		print_test_details ($rev, $old_rev, "test");
+		print "	</td></tr>\n";
+		print "	<tr><td>\n";
+		print "		<table class=layout>";
+		print "		<tr><td>\n";
+		print_test_details ($rev, $old_rev);
+		print "		</td><td>\n";
+		print_benchmark_details ($rev, $old_rev);
+		print "		</td></tr>\n";
+		print "		</table>";
+		print "	</td></tr>\n";
+		print "</table>";
 
 	}
 
@@ -27,9 +40,6 @@
 			die ("Revision not available: $rev");
 
 		$complete_data = $complete_data[0];
-
-		print "<table class=layout>";
-		print "	<tr><td>\n";
 
 		print "<table class=info>";
 		print "	<tr>\n";
@@ -77,28 +87,28 @@
 			return $name;
 	}
 
-	function print_test_details ($rev, $old_rev, $table_name)
+	function print_test_details ($rev, $old_rev)
 	{
 		global $DB, $td, $th;
 
 		# fetch the current revisions data
 		$test_data = $DB->query ("
 				SELECT	revision, testname, pass, fail, timeout, skip
-				FROM		{$table_name}s
+				FROM		tests
 				WHERE		revision == $rev
 				")->fetchAll(PDO::FETCH_ASSOC);
 
 		print "<table class=info>";
 		print "<tr><th>Test name</th><th>"
-			. maybe_link ($rev, $old_rev, "{$table_name}_logs/success", "Passes", true) ."</th><th>"
-			. maybe_link ($rev, $old_rev, "{$table_name}_logs/failure", "Fails", true) ."</th><th>"
-			. maybe_link ($rev, $old_rev, "{$table_name}_logs/timeout", "Timeouts", true) ."</th><th>"
-			. maybe_link ($rev, $old_rev, "{$table_name}_logs/skipped", "Skips", true) ."</th></tr>\n";
+			. maybe_link ($rev, $old_rev, "test_logs/success", "Passes", true) ."</th><th>"
+			. maybe_link ($rev, $old_rev, "test_logs/failure", "Fails", true) ."</th><th>"
+			. maybe_link ($rev, $old_rev, "test_logs/timeout", "Timeouts", true) ."</th><th>"
+			. maybe_link ($rev, $old_rev, "test_logs/skipped", "Skips", true) ."</th></tr>\n";
 
 		# fetch the previous revisions data, for comparison
 		$old_test_data = $DB->query ("
 				SELECT	revision, testname, pass, fail, timeout, skip
-				FROM		{$table_name}s
+				FROM		tests
 				WHERE		revision == $old_rev
 				")->fetchAll(PDO::FETCH_ASSOC);
 
@@ -129,9 +139,9 @@
 			# add a link onto the name
 			$name = $row["testname"];
 			if ($name == "Total")
-				$row["testname"] = "<a href=\"results/$rev/{$table_name}_logs/\">$name</a>";
+				$row["testname"] = "<a href=\"results/$rev/test_logs/\">$name</a>";
 			else if ($row["fail"])
-				$row["testname"] = "<a href=\"results/$rev/{$table_name}_logs/$name.tar.gz\">$name</a>";
+				$row["testname"] = "<a href=\"results/$rev/test_logs/$name.tar.gz\">$name</a>";
 
 			print "<tr>\n";
 			foreach ($row as $key => $entry)
@@ -140,8 +150,60 @@
 			}
 			print "</tr>\n";
 		}
+		print "</table>";
+	}
 
-		print "</table>\n";
+	function print_benchmark_details ($rev, $old_rev)
+	{
+		global $DB, $td, $th;
+
+		# fetch the current revisions data
+		$test_data = $DB->query ("
+				SELECT	revision, metric, result
+				FROM		benchmarks
+				WHERE		revision == $rev
+				")->fetchAll(PDO::FETCH_ASSOC);
+
+		print "<table class=info>";
+		print "<tr><th>Metric</th><th>"
+			. "Result</th><th>";
+
+		# fetch the previous revisions data, for comparison
+		$old_test_data = $DB->query ("
+				SELECT	revision, metric, result
+				FROM		benchmarks
+				WHERE		revision == $old_rev
+				")->fetchAll(PDO::FETCH_ASSOC);
+
+		# process data
+		foreach ($test_data as &$row)
+		{
+			$old_row = array_shift ($old_test_data);
+			$row ["difference"] = add_percentage_difference ("result", $row, $old_row);
+		}
+		unset ($row); // release the reference to $row
+
+		# print
+		foreach ($test_data as $row)
+		{
+			unset ($row["revision"]);
+
+			# pick a color
+			$color = "";
+			if ($row["difference"] > 0)
+				$color = get_bad_color ();
+			elseif ($row["difference"] < 0)
+				$color = get_good_color ();
+			unset ($row["difference"]);
+
+			print "<tr>\n";
+			foreach ($row as $key => $entry)
+			{
+				print "<td$color>$entry</td>";
+			}
+			print "</tr>\n";
+		}
+		print "</table>";
 	}
 
 
