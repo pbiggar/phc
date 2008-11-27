@@ -196,6 +196,14 @@ plugins_tests_strip_includes_la_LINK = $(LIBTOOL) --tag=CXX \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
 	$(AM_CXXFLAGS) $(CXXFLAGS) \
 	$(plugins_tests_strip_includes_la_LDFLAGS) $(LDFLAGS) -o $@
+plugins_tools_C_unparser_la_LIBADD =
+am_plugins_tools_C_unparser_la_OBJECTS = C_unparser.lo
+plugins_tools_C_unparser_la_OBJECTS =  \
+	$(am_plugins_tools_C_unparser_la_OBJECTS)
+plugins_tools_C_unparser_la_LINK = $(LIBTOOL) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(AM_CXXFLAGS) $(CXXFLAGS) \
+	$(plugins_tools_C_unparser_la_LDFLAGS) $(LDFLAGS) -o $@
 plugins_tools_add_comment_la_LIBADD =
 am_plugins_tools_add_comment_la_OBJECTS = add_comment.lo
 plugins_tools_add_comment_la_OBJECTS =  \
@@ -358,6 +366,7 @@ SOURCES = $(libphc_la_SOURCES) \
 	$(plugins_tests_raise_globals_la_SOURCES) \
 	$(plugins_tests_source_vs_semantic_values_la_SOURCES) \
 	$(plugins_tests_strip_includes_la_SOURCES) \
+	$(plugins_tools_C_unparser_la_SOURCES) \
 	$(plugins_tools_add_comment_la_SOURCES) \
 	$(plugins_tools_debug_zval_la_SOURCES) \
 	$(plugins_tools_demi_eval_la_SOURCES) \
@@ -383,6 +392,7 @@ DIST_SOURCES = $(libphc_la_SOURCES) \
 	$(plugins_tests_raise_globals_la_SOURCES) \
 	$(plugins_tests_source_vs_semantic_values_la_SOURCES) \
 	$(plugins_tests_strip_includes_la_SOURCES) \
+	$(plugins_tools_C_unparser_la_SOURCES) \
 	$(plugins_tools_add_comment_la_SOURCES) \
 	$(plugins_tools_debug_zval_la_SOURCES) \
 	$(plugins_tools_demi_eval_la_SOURCES) \
@@ -953,8 +963,8 @@ nobase_pkglib_LTLIBRARIES = plugins/tests/canonical_unparser.la \
 	plugins/tests/pre_vs_post_count.la \
 	plugins/tests/source_vs_semantic_values.la \
 	plugins/tests/strip_includes.la plugins/tools/add_comment.la \
-	plugins/tools/debug_zval.la plugins/tools/demi_eval.la \
-	plugins/tools/purity_test.la \
+	plugins/tools/C_unparser.la plugins/tools/debug_zval.la \
+	plugins/tools/demi_eval.la plugins/tools/purity_test.la \
 	plugins/tools/reduce_statements.la plugins/tools/remove_all.la \
 	plugins/tutorials/Comment_ifs.la \
 	plugins/tutorials/count_statements_difficult.la \
@@ -984,6 +994,8 @@ plugins_tests_strip_includes_la_SOURCES = plugins/tests/strip_includes.cpp
 plugins_tests_strip_includes_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tools_add_comment_la_SOURCES = plugins/tools/add_comment.cpp
 plugins_tools_add_comment_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+plugins_tools_C_unparser_la_SOURCES = plugins/tools/C_unparser.cpp
+plugins_tools_C_unparser_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tools_debug_zval_la_SOURCES = plugins/tools/debug_zval.cpp
 plugins_tools_debug_zval_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tools_demi_eval_la_SOURCES = plugins/tools/demi_eval.cpp
@@ -1166,6 +1178,8 @@ plugins/tests/strip_includes.la: $(plugins_tests_strip_includes_la_OBJECTS) $(pl
 plugins/tools/$(am__dirstamp):
 	@$(MKDIR_P) plugins/tools
 	@: > plugins/tools/$(am__dirstamp)
+plugins/tools/C_unparser.la: $(plugins_tools_C_unparser_la_OBJECTS) $(plugins_tools_C_unparser_la_DEPENDENCIES) plugins/tools/$(am__dirstamp)
+	$(plugins_tools_C_unparser_la_LINK) -rpath $(pkglibdir) $(plugins_tools_C_unparser_la_OBJECTS) $(plugins_tools_C_unparser_la_LIBADD) $(LIBS)
 plugins/tools/add_comment.la: $(plugins_tools_add_comment_la_OBJECTS) $(plugins_tools_add_comment_la_DEPENDENCIES) plugins/tools/$(am__dirstamp)
 	$(plugins_tools_add_comment_la_LINK) -rpath $(pkglibdir) $(plugins_tools_add_comment_la_OBJECTS) $(plugins_tools_add_comment_la_LIBADD) $(LIBS)
 plugins/tools/debug_zval.la: $(plugins_tools_debug_zval_la_OBJECTS) $(plugins_tools_debug_zval_la_DEPENDENCIES) plugins/tools/$(am__dirstamp)
@@ -1291,6 +1305,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Boolean.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CFG.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CFG_visitor.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/C_unparser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Clarify.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Comment_ifs.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Compile_C.Plo@am__quote@
@@ -2221,6 +2236,13 @@ strip_includes.lo: plugins/tests/strip_includes.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='plugins/tests/strip_includes.cpp' object='strip_includes.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o strip_includes.lo `test -f 'plugins/tests/strip_includes.cpp' || echo '$(srcdir)/'`plugins/tests/strip_includes.cpp
+
+C_unparser.lo: plugins/tools/C_unparser.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT C_unparser.lo -MD -MP -MF $(DEPDIR)/C_unparser.Tpo -c -o C_unparser.lo `test -f 'plugins/tools/C_unparser.cpp' || echo '$(srcdir)/'`plugins/tools/C_unparser.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/C_unparser.Tpo $(DEPDIR)/C_unparser.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='plugins/tools/C_unparser.cpp' object='C_unparser.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o C_unparser.lo `test -f 'plugins/tools/C_unparser.cpp' || echo '$(srcdir)/'`plugins/tools/C_unparser.cpp
 
 add_comment.lo: plugins/tools/add_comment.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT add_comment.lo -MD -MP -MF $(DEPDIR)/add_comment.Tpo -c -o add_comment.lo `test -f 'plugins/tools/add_comment.cpp' || echo '$(srcdir)/'`plugins/tools/add_comment.cpp

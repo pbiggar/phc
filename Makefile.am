@@ -442,6 +442,10 @@ nobase_pkglib_LTLIBRARIES += plugins/tools/add_comment.la
 plugins_tools_add_comment_la_SOURCES = plugins/tools/add_comment.cpp
 plugins_tools_add_comment_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
+nobase_pkglib_LTLIBRARIES += plugins/tools/C_unparser.la
+plugins_tools_C_unparser_la_SOURCES = plugins/tools/C_unparser.cpp
+plugins_tools_C_unparser_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+
 nobase_pkglib_LTLIBRARIES += plugins/tools/debug_zval.la
 plugins_tools_debug_zval_la_SOURCES = plugins/tools/debug_zval.cpp
 plugins_tools_debug_zval_la_LDFLAGS = ${PLUGIN_LDFLAGS}
