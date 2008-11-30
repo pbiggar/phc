@@ -66,9 +66,16 @@ bool is_critical (Statement* in)
 
 	// Foreach_end defines a virtual variable representing the iterator. As
 	// such, its never going to be critical. However, its needed every time the
-	// Foreach_reset is present. No treat it specially.
+	// Foreach_reset is present. So treat it specially.
 	// TODO: is there a way to handle this without special casing it?
-	if (isa<Foreach_end> (in))
+	// TODO: virtual-variables are incorrect, so we just mark the foreach_*
+	// nodes which write as critical.
+	if (isa<Foreach_reset> (in) || isa<Foreach_next> (in) || isa<Foreach_end> (in))
+		return true;
+
+	// TODO: we are assuming for now that all indirect assignments are
+	// incorrectly modelled, and should not be removed.
+	if (isa<Assign_field> (in) || isa<Assign_next> (in) || isa<Assign_array> (in) || isa<Assign_var_var> (in))
 		return true;
 
 	// All reference statements create values for their RHS
