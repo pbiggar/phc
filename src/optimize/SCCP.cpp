@@ -622,11 +622,14 @@ public:
 
 	void visit_assign_array (Statement_block*, MIR::Assign_array* in)
 	{
-		assert (!in->is_ref);
 		Literal* index = get_literal (in->index);
-		Literal* rhs = get_literal (in->rhs);
 		if (index) in->index = index;
-		if (rhs) in->rhs = rhs;
+
+		if (!in->is_ref)
+		{
+			Literal* rhs = get_literal (in->rhs);
+			if (rhs) in->rhs = rhs;
+		}
 	}
 
 	void visit_assign_field (Statement_block*, MIR::Assign_field *)
