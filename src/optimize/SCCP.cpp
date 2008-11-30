@@ -329,13 +329,16 @@ SCCP::visit_try (Statement_block*, MIR::Try*)
 void
 SCCP::visit_unset (Statement_block*, MIR::Unset* in)
 {
-	assert (in->target == NULL);
-	assert (in->array_indices->size () == 0);
-	assert (isa<VARIABLE_NAME> (in->variable_name));
-
-	// Def_use asserts what we cant handle, for now.
-	meet_lattice (dyc<VARIABLE_NAME> (in->variable_name),
-		new Literal_cell (new NIL ()));
+	if (in->target == NULL
+	&& in->array_indices->size () == 0
+	&& isa<VARIABLE_NAME> (in->variable_name))
+	{
+		// Def_use asserts what we cant handle, for now.
+		meet_lattice (dyc<VARIABLE_NAME> (in->variable_name),
+				new Literal_cell (new NIL ()));
+	}
+	else if (isa<Variable_variable> (in->variable_name))
+		phc_TODO (); // kill everything
 }
 
 /* Returns NULL, or the literal in VARIABLE_NAME. We have separate functions,
@@ -619,6 +622,7 @@ public:
 
 	void visit_assign_array (Statement_block*, MIR::Assign_array* in)
 	{
+		assert (!in->is_ref);
 		Literal* index = get_literal (in->index);
 		Literal* rhs = get_literal (in->rhs);
 		if (index) in->index = index;
@@ -632,6 +636,8 @@ public:
 
 	void visit_assign_next (Statement_block*, MIR::Assign_next* in)
 	{
+		assert (!in->is_ref);
+
 		if (Literal* rhs = get_literal (in->rhs))
 			in->rhs = rhs;
 	}
@@ -640,6 +646,7 @@ public:
 	{
 		// Never transform the entire thing to a literal
 		Expr* result = sccp->transform_expr (bb, in->rhs);
+		// TODO: this is surely wrong
 		if (!in->is_ref || !isa<Literal> (result))
 			in->rhs = result;
 	}
@@ -712,8 +719,14 @@ public:
 	void visit_unset (Statement_block*, MIR::Unset* in)
 	{
 		assert (in->target == NULL);
-		assert (in->array_indices->size () == 0);
 		assert (isa<VARIABLE_NAME> (in->variable_name));
+
+		foreach (Rvalue*& rv, *in->array_indices)
+		{
+			if (VARIABLE_NAME* var = dynamic_cast<VARIABLE_NAME*> (rv))
+				if (Literal* lit = get_literal (var))
+					rv = lit;
+		}
 
 		// do nothing for a normal variable
 	}

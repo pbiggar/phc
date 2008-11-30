@@ -498,10 +498,19 @@ void
 Def_use_web::visit_unset (Statement_block* bb, MIR::Unset* in)
 {
 	assert (in->target == NULL);
-	assert (in->array_indices->size () == 0);
 	assert (isa<VARIABLE_NAME> (in->variable_name));
 
-	add_def (dyc<VARIABLE_NAME> (in->variable_name), new SSA_stmt (bb));
+	// TODO: this defines a virtual-variable
+	if (in->array_indices->size ())
+	{
+		add_use (dyc<VARIABLE_NAME> (in->variable_name), new SSA_stmt (bb));
+		foreach (Rvalue* rv, *in->array_indices)
+		{
+			add_use (rv, new SSA_stmt (bb));
+		}
+	}
+	else
+		add_def (dyc<VARIABLE_NAME> (in->variable_name), new SSA_stmt (bb));
 }
 
 /*
