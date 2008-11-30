@@ -35,6 +35,7 @@
 #include "MIR.h"
 
 #include "Mark_initialized.h"
+#include "Address_taken.h"
 
 using namespace boost;
 using namespace MIR;
@@ -43,6 +44,15 @@ using namespace MIR;
 Mark_initialized::Mark_initialized ()
 : Flow_visitor (FORWARD_FLOW)
 {
+}
+
+void
+Mark_initialized::run (CFG* cfg)
+{
+	aliasing = new Address_taken;
+	aliasing->run (cfg);
+
+	Flow_visitor::run (cfg);
 }
 
 void
@@ -61,6 +71,11 @@ Mark_initialized::visit_entry_block (Entry_block* bb)
 	// Initialize local defs
 	foreach (VARIABLE_NAME* def, *bb->get_defs (SSA_FORMAL))
 		local_defs[bb].insert (def);
+
+	// We dont deal with a few things, like $x =& $a[$i] will initialize $a.
+	// The simplest way to do this is to model all aliases as BOTTOM.
+	foreach (VARIABLE_NAME* alias, *aliasing->aliases)
+		(*ins[bb])[alias] = BOTTOM;
 }
 
 void
@@ -115,11 +130,11 @@ Mark_initialized::transfer_out (Basic_block* bb, BB_list* succs)
 
 	// IN U DEFs
 	foreach (VARIABLE_NAME* def, local_defs[bb])
-		(*outs[bb])[def] = INIT;
+		(*outs[bb])[def] = meet ((*outs[bb])[def], INIT);
 
 	// (IN U DEFs) / UNDEFs
 	foreach (VARIABLE_NAME* undef, local_undefs[bb])
-		(*outs[bb])[undef] = UNINIT;
+		(*outs[bb])[undef] = meet ((*outs[bb])[undef], UNINIT);
 
 	executed[bb] = true;
 	repeat[bb] = not old->equals (outs[bb]);

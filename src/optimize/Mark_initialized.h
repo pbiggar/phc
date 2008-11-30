@@ -45,6 +45,7 @@
 
 #include "Sparse_conditional_visitor.h"
 #include "Lattice.h"
+#include "Address_taken.h"
 
 class Init_cell : public Lattice_cell
 {
@@ -67,9 +68,12 @@ class Mark_initialized : public Flow_visitor
 	Map<Basic_block*, bool> repeat;
 	Map<Basic_block*, bool> executed;
 
+	Address_taken* aliasing;
+
 public:
 	Mark_initialized ();
 
+	void run (CFG* cfg);
 	void init_block (Basic_block*);
 
 	// Local solution

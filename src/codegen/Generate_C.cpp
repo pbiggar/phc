@@ -215,6 +215,41 @@ string get_non_st_name (VARIABLE_NAME* var_name)
 
 string read_literal (Scope, string, Literal*);
 
+#define RUNTIME_CHECK(STREAM, KNOWN, RUNTIME_COND, DIRECTION, TRUE_CODE, FALSE_CODE)		\
+	do																													\
+	{																													\
+		if (KNOWN)																									\
+		{																												\
+			if (DIRECTION)																							\
+			{																											\
+				STREAM																								\
+				<< "assert (" << RUNTIME_COND << ");\n"													\
+				<< TRUE_CODE << ";\n";																			\
+			}																											\
+			else																										\
+			{																											\
+				STREAM																								\
+				<< "assert (!(" << RUNTIME_COND << "));\n"												\
+				<< FALSE_CODE << ";\n";																			\
+			}																											\
+		}																												\
+		else																											\
+		{																												\
+			STREAM																									\
+			<< "if (" << RUNTIME_COND << ")\n"																\
+			<< "{\n"																									\
+			<<		TRUE_CODE << ";\n"																			\
+			<< "}\n"																									\
+			<< "else\n"																								\
+			<< "{\n"																									\
+			<<		FALSE_CODE << ";\n"																			\
+			<< "}\n"																									\
+			;																											\
+		}																												\
+	}																													\
+	while (0)
+
+
 // Declare and fetch a zval* containing the value for RVALUE. The value can be
 // changed, but the symbol-table entry cannot be affected through this.
 string read_rvalue (Scope scope, string zvp, Rvalue* rvalue)
@@ -226,26 +261,26 @@ string read_rvalue (Scope scope, string zvp, Rvalue* rvalue)
 	}
 
 	VARIABLE_NAME* var_name = dyc<VARIABLE_NAME> (rvalue);
+	bool is_init = var_name->attrs->is_true ("phc.optimize.is_initialized");
+	bool is_uninit = var_name->attrs->is_true ("phc.optimize.is_uninitialized");
+	assert (!(is_init && is_uninit));
+	bool known = is_init || is_uninit;
 	if (scope == LOCAL && var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
 	{
 		string name = get_non_st_name (var_name);
-		ss
-		<< "zval* " << zvp << ";\n"
-		<< "if (" << name << " == NULL)\n"
-		<< "{\n"
-		<<		zvp << " = EG (uninitialized_zval_ptr);\n"
-		<< "}\n"
-		<< "else\n"
-		<< "{\n"
-		<<		zvp << " = " << name << ";\n"
-		<< "}\n"
-		;
+		ss << "zval* " << zvp << ";\n";
+
+		RUNTIME_CHECK (ss,
+			false, name << "== NULL",
+			is_uninit,
+			zvp << " = EG (uninitialized_zval_ptr);//XXX",
+			zvp << " = " << name);
 	}
 	else
 	{
 		String* name = var_name->value;
 		ss	
-		<< "zval* " << zvp << "= read_var (" 
+		<< "zval* " << zvp << " = read_var (" 
 		<<								get_scope (scope) << ", "
 		<<								"\"" << *name << "\", "
 		<<								name->size () + 1  << ", "
