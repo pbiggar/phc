@@ -644,10 +644,10 @@ public:
 
 	void visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 	{
-		// Never transform the entire thing to a literal
+		// Put the transformed expression in unless its a reference assignment,
+		// and the result is a literal, which isnt allowed).
 		Expr* result = sccp->transform_expr (bb, in->rhs);
-		// TODO: this is surely wrong
-		if (!in->is_ref || !isa<Literal> (result))
+		if (!(in->is_ref && isa<Literal> (result)))
 			in->rhs = result;
 	}
 
