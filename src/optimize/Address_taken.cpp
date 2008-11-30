@@ -12,6 +12,34 @@
 #include "ssa/Virtual_variable.h"
 
 using namespace MIR;
+bool
+is_dynamic_function (Method_invocation* in)
+{
+	// We want to know if this method is an odd function: include, eval,
+	// extract, compact, a variable function, or anything which can touch the
+	// local symbol table.
+	
+	// methods cant touch the local ST
+	if (in->target)
+		return false;
+
+	// This cant be include or eval, but it could be compact or extract.
+	if (isa<Variable_method> (in->method_name))
+		return true;
+
+	string name = *dyc<METHOD_NAME> (in->method_name)->value;
+	if (name == "eval"
+		|| name == "include"
+		|| name == "require"
+		|| name == "include_once"
+		|| name == "require_once"
+		|| name == "compact"
+		|| name == "extract")
+		return true;
+
+	return false;
+}
+
 
 Address_taken::Address_taken ()
 {
@@ -98,7 +126,6 @@ Address_taken::alias_expr (Basic_block* bb, Expr* in)
 		case Unary_op::ID:
 		case Field_access::ID:
 			phc_TODO ();
-			assert (0);
 			// do nothing
 			break;
 
@@ -169,12 +196,12 @@ Address_taken::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 	{
 		aliased (bb, in->lhs);
 
+		if (VARIABLE_NAME* var = dynamic_cast<VARIABLE_NAME*> (in->rhs))
+			aliased (bb, var);
+
 		VARIABLE_NAME* virt = get_virtual (bb, in->rhs);
 		if (virt)
 			aliased (bb, virt);
-
-		if (VARIABLE_NAME* var = dynamic_cast<VARIABLE_NAME*> (in->rhs))
-			aliased (bb, var);
 	}
 }
 
@@ -299,6 +326,9 @@ Address_taken::visit_method_invocation (Statement_block* bb, MIR::Method_invocat
 	Signature* sig = NULL;
 	if (in->target == NULL && isa<METHOD_NAME> (in->method_name))
 		sig = Oracle::get_signature (dyc<METHOD_NAME> (in->method_name));
+
+	if (is_dynamic_function (in))
+		alias_bottom (bb);
 
 	int i = 0;
 	foreach (Actual_parameter* ap, *in->actual_parameters)
