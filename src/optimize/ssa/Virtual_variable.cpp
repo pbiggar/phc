@@ -3,7 +3,16 @@
 #include "process_ir/General.h"
 #include "optimize/Basic_block.h"
 
-// Virtual variables for expressions and statements
+// Virtual variables for expressions and statements (see Section 4 of Chow96).
+//
+// During SSA, we wish to give to each virtual variable an index, such that
+// each virtual variable that statically has the same value, has the same name.
+//
+// In C, the indirect variables must be different if the variables used in their computation are different. For example:
+//
+//		**p_1 vs **p_2 would get different virtual variables.
+//
+//	TODO: how do we do this in PHP?
 
 // Some nodes get virtual, some dont. This fails for nodes which dont, and
 // returns a copy of the appropriate virtual variable otherwise.
@@ -13,6 +22,13 @@ using namespace MIR;
 VARIABLE_NAME*
 get_virtual (Basic_block* bb, Node* in)
 {
+	// To simplify matters for now, everything shares just one virtual variable.
+
+	VARIABLE_NAME* result = new VARIABLE_NAME (s ("$virt"));
+	result->is_virtual = true;
+
+	return result;
+#if 0
 	if (bb->virtuals->has (in))
 		return bb->virtuals->get (in);
 
@@ -149,4 +165,5 @@ get_virtual (Basic_block* bb, Node* in)
 	(*bb->virtuals)[in] = result;
 
 	return result;
+#endif
 }
