@@ -45,6 +45,8 @@ void Clarify::post_method (MIR::Method* in)
 	var_names->push_back (s("HTTP_REQUEST_VARS"));
 	foreach (String *s, *var_names)
 	{
-		in->statements->push_front (new Global (new VARIABLE_NAME (s)));
+		Global* glob = new Global (new VARIABLE_NAME (s));
+		glob->attrs->set_true ("phc.optimize.is_super_global");
+		in->statements->push_front (glob);
 	}
 }

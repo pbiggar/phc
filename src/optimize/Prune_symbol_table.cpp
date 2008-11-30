@@ -79,16 +79,18 @@ public:
 					*name->value == "eval"
 					or *name->value == "include"
 					or *name->value == "require" 
+					or *name->value == "extract" 
+					or *name->value == "compact" 
 					or *name->value == "include_once" 
 					or *name->value == "require_once"))
 		{
 			prune = false;
 		}
-		else
+		else if (name == NULL)
 		{
-			// Since eval, include etc are builtin, and cant be called as
-			// variable variables, its actually safe to prune here.
-			// TODO not so sure
+			// Although eval, include etc are builtin, and cant be called as
+			// variable-methods, compact and extract can.
+			prune = false;
 		}
 	}
 
@@ -151,11 +153,16 @@ public:
 
 	void pre_global (Global* in, Statement_list* out)
 	{
+		// We can only remove superglobals, since removing global $c will stop a
+		// global variable $c from being created in the global symbol table, if
+		// it is not there already.
+
 		// if there were any reflection, we wouldnt be here
 		VARIABLE_NAME* var_name = dyc<VARIABLE_NAME> (in->variable_name);
 
 		// if the key is there, we need the global
-		if (var_names->find (*var_name->value) != var_names->end ())
+		if (var_names->has (*var_name->value)
+			|| !in->attrs->is_true ("phc.optimize.is_super_global"))
 			out->push_back (in);
 		else 
 		{
