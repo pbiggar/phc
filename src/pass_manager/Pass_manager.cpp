@@ -650,12 +650,15 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 
 	Pass* cfg_pass = optimization_queue->front();
 	optimization_queue->pop_front();
+	assert (*cfg_pass->name == "cfg");
 
 	Pass* build_pass = optimization_queue->front();
 	optimization_queue->pop_front();
+	assert (*build_pass->name == "build_ssa");
 
 	Pass* drop_pass = optimization_queue->back();
 	optimization_queue->pop_back();
+	assert (*drop_pass->name == "drop_ssa");
 
 
 

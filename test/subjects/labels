@@ -89,3 +89,6 @@ benchmarks/roadsend/benchmarks/data/include/.*			non-interpretable # generated c
 benchmarks/phpbench-0.8.1/.*									non-interpretable
 benchmarks/php_bs/.*												non-interpretable
 benchmarks/zend/.*												non-interpretable
+
+# Uses the GLOBALS array
+optimization/global_references.php							no-RaisedCompileOptimized

@@ -236,11 +236,13 @@ HSSA::convert_to_hssa_form ()
 	
 	// TODO: It would be great to do the alias analysis on the old SSA form, to
 	// get more precise results for the new SSA form.
+	DEBUG ("Calculating Aliasing");
 	Address_taken* aliasing = new Address_taken ();
 	aliasing->run (cfg);
 
 	// The alias sets are passed to def-use-web, which adds MUs and CHIs
 	// appropriately.
+	DEBUG ("Calculating Def-use-web for SSA");
 	cfg->duw = new Def_use_web (aliasing->aliases);
 	cfg->duw->run (cfg);
 

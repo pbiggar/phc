@@ -54,6 +54,7 @@ Address_taken::aliased (Basic_block* bb, Rvalue* in)
 void
 Address_taken::aliased (Basic_block* bb, VARIABLE_NAME* in)
 {
+	DEBUG (*in->get_ssa_var_name () << " is aliased");
 	aliases->insert (in);
 }
 
@@ -171,6 +172,9 @@ Address_taken::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 		VARIABLE_NAME* virt = get_virtual (bb, in->rhs);
 		if (virt)
 			aliased (bb, virt);
+
+		if (VARIABLE_NAME* var = dynamic_cast<VARIABLE_NAME*> (in->rhs))
+			aliased (bb, var);
 	}
 }
 
