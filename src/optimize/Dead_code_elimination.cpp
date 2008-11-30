@@ -78,6 +78,12 @@ bool is_critical (Statement* in)
 	if (isa<Assign_field> (in) || isa<Assign_next> (in) || isa<Assign_array> (in) || isa<Assign_var_var> (in))
 		return true;
 
+	// TODO: As above
+	Unset* unset = dynamic_cast<Unset*> (in);
+	if (unset && unset->array_indices->size () > 0)
+		return true;
+	
+
 	// All reference statements create values for their RHS
 	if (is_reference_statement (in))
 		return true;

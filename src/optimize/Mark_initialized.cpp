@@ -81,12 +81,11 @@ Mark_initialized::visit_entry_block (Entry_block* bb)
 void
 Mark_initialized::visit_statement_block (Statement_block* bb)
 {
-	if (Unset* unset = dynamic_cast<Unset*> (bb->statement))
+	Unset* unset = dynamic_cast<Unset*> (bb->statement);
+	if (unset
+		&& unset->target == NULL
+		&& unset->array_indices->size () == 0)
 	{
-		// TODO: We should be able to ignore these
-		assert (unset->target == NULL);
-		assert (unset->array_indices->size () == 0);
-
 		local_undefs[bb].insert (dyc<VARIABLE_NAME> (unset->variable_name));
 	}
 	else
