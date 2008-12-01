@@ -271,7 +271,6 @@ static void
 ht_delete (HashTable * ht, zval * ind)
 {
   // This may fail if the index doesnt exist, which is fine.
-  int result;
   if (Z_TYPE_P (ind) == IS_LONG || Z_TYPE_P (ind) == IS_BOOL)
     {
       zend_hash_index_del (ht, Z_LVAL_P (ind));
@@ -308,7 +307,6 @@ ht_delete (HashTable * ht, zval * ind)
 static int
 ht_exists (HashTable * ht, zval * ind)
 {
-  int result;
   if (Z_TYPE_P (ind) == IS_LONG || Z_TYPE_P (ind) == IS_BOOL)
     {
       return zend_hash_index_exists (ht, Z_LVAL_P (ind));
@@ -537,7 +535,7 @@ sep_copy_on_write (zval ** p_zvp, int *is_zvp_new)
 
 /* Write P_RHS into the symbol table as a variable named VAR_NAME */
 static void
-write_var (zval ** p_lhs, zval ** p_rhs, int *is_rhs_new TSRMLS_DC)
+write_var (zval ** p_lhs, zval ** p_rhs, int *is_rhs_new)
 {
   if (!(*p_lhs)->is_ref)
     {
@@ -881,7 +879,7 @@ isset_var (HashTable * st, char *name, int length)
 }
 
 static int
-isset_array (zval ** p_var, zval * ind TSRMLS_DC)
+isset_array (zval ** p_var, zval * ind)
 {
   if (Z_TYPE_P (*p_var) == IS_STRING)
     {
