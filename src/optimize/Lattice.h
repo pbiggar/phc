@@ -31,7 +31,13 @@ class Lattice_map
 : public Var_map<Lattice_cell*>
 {
 public:
-	Lattice_map () : Var_map<Lattice_cell*> () { }
+	Lattice_map (Lattice_cell* default_value = TOP)
+	: Var_map<Lattice_cell*> ()
+	, default_value (default_value)
+	{
+	}
+
+	Lattice_cell* default_value;
 
 	void dump ()
 	{
@@ -56,10 +62,24 @@ public:
 		}
 	}
 
+	// We want to offer the option of the default value not being TOP.
+	Lattice_cell*& operator[](MIR::VARIABLE_NAME* var)
+	{
+		if (has (var))
+		{
+			return Var_map<Lattice_cell*>::operator[](var);
+		}
+		else
+		{
+			Var_map<Lattice_cell*>::operator[](var) = default_value;
+			return Var_map<Lattice_cell*>::operator[](var);
+		}
+	}
+
 	// Not a deep copy.
 	Lattice_map* clone ()
 	{
-		Lattice_map* result = new Lattice_map;
+		Lattice_map* result = new Lattice_map (default_value);
 
 		MIR::VARIABLE_NAME* var;
 		Lattice_cell* cell;
