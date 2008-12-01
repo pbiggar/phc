@@ -273,7 +273,7 @@ string read_rvalue (Scope scope, string zvp, Rvalue* rvalue)
 		RUNTIME_CHECK (ss,
 			false, name << "== NULL",
 			is_uninit,
-			zvp << " = EG (uninitialized_zval_ptr);//XXX",
+			zvp << " = EG (uninitialized_zval_ptr);",
 			zvp << " = " << name);
 	}
 	else
@@ -2050,7 +2050,7 @@ public:
 	bool match(Statement* that)
 	{
 		lhs = new Wildcard<VARIABLE_NAME>;
-		rhs = new Wildcard<VARIABLE_NAME>;
+		rhs = new Wildcard<Rvalue>;
 		agn = new Assign_next (lhs, false, rhs);
 		return (that->match(agn));
 	}
@@ -2076,9 +2076,11 @@ public:
 		{
 			code
 			<< declare ("p_rhs")
-
-			<< read_var (LOCAL, "p_rhs", rhs->value)
-
+			<< read_rvalue (LOCAL, "p_rhs_var", rhs->value)
+			<< "// Read normal variable\n"
+			<< "p_rhs = &p_rhs_var;\n"
+			<< "\n"
+			
 			<< "if (*p_lhs != *p_rhs)\n"
 			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
 
@@ -2088,7 +2090,7 @@ public:
 		{
 			// TODO this is wrong
 			code	
-			<< get_st_entry (LOCAL, "p_rhs", rhs->value)
+			<< get_st_entry (LOCAL, "p_rhs", dyc<VARIABLE_NAME> (rhs->value))
 			<< "copy_into_ref (p_lhs, p_rhs);\n"
 			;
 		}
@@ -2100,7 +2102,7 @@ public:
 protected:
 	Assign_next* agn;
 	Wildcard<VARIABLE_NAME>* lhs;
-	Wildcard<VARIABLE_NAME>* rhs;
+	Wildcard<Rvalue>* rhs;
 };
 
 /*
