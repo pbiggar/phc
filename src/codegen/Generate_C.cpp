@@ -212,7 +212,7 @@ string read_rvalue (Scope scope, string zvp, Rvalue* rvalue)
 	{
 		String* name = var_name->value;
 		ss	
-		<< "zval* " << zvp << "= read_var (" 
+		<< "zval* " << zvp << " = read_var (" 
 		<<								get_scope (scope) << ", "
 		<<								"\"" << *name << "\", "
 		<<								name->size () + 1  << ", "
@@ -928,7 +928,7 @@ public:
 		<< "	ALLOC_INIT_ZVAL (*p_lhs);\n"
 		<< "}\n"
 		<< "zval old = **p_lhs;\n"
-		<< "int result_is_operand = (*p_lhs == left || *p_lhs == right)\n;"
+		<< "int result_is_operand = (*p_lhs == left || *p_lhs == right);\n"
 		;
 
 		// some operators need the operands to be reversed (since we
@@ -1065,8 +1065,6 @@ public:
 			// The first time we see a constant, we add a declaration,
 			// initialization and finalization. After that, we find the
 			// first one and refer to it.
-
-
 			string var;
 			if (vars.find (key ()) != vars.end ())
 				var = vars [key ()];
@@ -1604,7 +1602,6 @@ public:
 		foreach (Actual_parameter* param, *rhs->value->actual_parameters)
 		{
 			// code << "printf(\"argument '%s' \", arg_info ? arg_info->name : \"(unknown)\");\n";
-			
 			code
 			<< "if(arg_info)\n"
 			<< "{\n"
@@ -1740,16 +1737,9 @@ public:
 		if (lhs)
 		{
 			if (!agn->is_ref)
-			{
-				code 
-				<< "write_var (p_lhs, p_rhs, &is_p_rhs_new);\n";
-			}
+				code << "write_var (p_lhs, p_rhs, &is_p_rhs_new);\n";
 			else
-			{
-				code 
-				<< "copy_into_ref (p_lhs, p_rhs);\n"
-				;
-			}
+				code << "copy_into_ref (p_lhs, p_rhs);\n";
 		}
 		code << cleanup ("p_rhs");
 		
