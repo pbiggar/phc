@@ -61,8 +61,8 @@ Mark_initialized::init_block (Basic_block* bb)
 	// all vars automatically UNINIT
 	// all block automatically !EXECUTED
 	// all solutions automatically !REPEAT
-	ins[bb] = new Lattice_map;
-	outs[bb] = new Lattice_map;
+	ins[bb] = new Lattice_map ();
+	outs[bb] = new Lattice_map (UNINIT);
 }
 
 void
@@ -74,8 +74,9 @@ Mark_initialized::visit_entry_block (Entry_block* bb)
 
 	// We dont deal with a few things, like $x =& $a[$i] will initialize $a.
 	// The simplest way to do this is to model all aliases as BOTTOM.
-	foreach (VARIABLE_NAME* alias, *aliasing->aliases)
-		(*ins[bb])[alias] = BOTTOM;
+	// TODO: I'm not sure this is useful at all. Better to model $x[$i] directly
+//	foreach (VARIABLE_NAME* alias, *aliasing->aliases)
+//		(*ins[bb])[alias] = BOTTOM;
 }
 
 void
@@ -92,7 +93,38 @@ Mark_initialized::visit_statement_block (Statement_block* bb)
 	{
 		foreach (VARIABLE_NAME* def, *bb->get_defs (SSA_STMT))
 			local_defs[bb].insert (def);
+
+
+		// TODO: we're replicating a lot of def-use information here. But in
+		// the def-use, these are may-defs, which doesnt tell us very much.
+		// Also, the may-use is only provided in SSA, and doing this analysis
+		// in SSA requires changing the indexing of the lattices to use
+		// strings.
+
+		// Assign_array doesnt necessarily have a def, but it does initialize
+		// the array, if it is not initialized already. While its not a def, we
+		// can model it is a such. Note that we can't use may-defs for this.
+		if (Assign_array* aa = dynamic_cast<Assign_array*> (bb->statement))
+		  local_defs[bb].insert (aa->lhs);
+		else if (Assign_next* an = dynamic_cast<Assign_next*> (bb->statement))
+		  local_defs[bb].insert (an->lhs);
+		else if (Assign_var* av = dynamic_cast<Assign_var*> (bb->statement))
+		{
+			if (av->is_ref)
+			{
+				if (Array_access* aa = dynamic_cast<Array_access*> (av->rhs))
+					local_defs[bb].insert (aa->variable_name);
+				else if (Array_next* an = dynamic_cast<Array_next*> (av->rhs))
+					local_defs[bb].insert (an->variable_name);
+			}
+		}
 	}
+	
+	DEBUG ("in BB " << bb->get_index ());
+	DEBUG ("defs: ");
+	local_defs[bb].dump ();
+	DEBUG ("undefs: ");
+	local_undefs[bb].dump ();
 }
 
 bool
@@ -106,16 +138,26 @@ Mark_initialized::transfer_in (Basic_block* bb, BB_list* preds)
 {
 	DEBUG ("transfer IN for block " << bb->get_index ());
 	ins[bb]->clear ();
-	VARIABLE_NAME* def;
+	VARIABLE_NAME* var;
 	Lattice_cell* cell;
+	VARIABLE_NAME_list* vars = new VARIABLE_NAME_list;
 
-	// IN = intersection (P) forall P = preds (OUT))
+	// Get a list of all definitions first. Otherwise, predecessors with
+	// UNINIT by default (because the variable isnt mentioned) will meet with
+	// TOP and not change if its not mentioned in the predecessor (or if we use
+	// UNINIT as the default, then it will meet and go to BOTTOM).
 	foreach (Basic_block* pred, *preds)
 		if (executed[pred])
-		{
-			foreach (tie (def, cell), *outs[pred])
-				(*ins[bb])[def] = meet ((*ins[bb])[def], cell);
-		}
+			foreach (tie (var, cell), *outs[pred])
+				vars->push_back (var);
+
+	// IN = intersection (P) forall P = preds (OUT))
+	foreach (var, *vars)
+		foreach (Basic_block* pred, *preds)
+			if (executed[pred])
+				(*ins[bb])[var] = meet ((*ins[bb])[var], (*outs[pred])[var]);
+
+	ins[bb]->dump ();
 }
 
 void
@@ -126,23 +168,25 @@ Mark_initialized::transfer_out (Basic_block* bb, BB_list* succs)
 
 	// IN
 	outs[bb] = ins[bb]->clone ();
+	outs[bb]->default_value = UNINIT; // dont inherit INs default
 
 	// IN U DEFs
 	foreach (VARIABLE_NAME* def, local_defs[bb])
-		(*outs[bb])[def] = meet ((*outs[bb])[def], INIT);
+		(*outs[bb])[def] = INIT;
 
 	// (IN U DEFs) / UNDEFs
 	foreach (VARIABLE_NAME* undef, local_undefs[bb])
-		(*outs[bb])[undef] = meet ((*outs[bb])[undef], UNINIT);
+		(*outs[bb])[undef] = UNINIT;
 
 	executed[bb] = true;
 	repeat[bb] = not old->equals (outs[bb]);
+
+	outs[bb]->dump ();
 }
 
 void
 Mark_initialized::post_pass (CFG* cfg)
 {
-
 	foreach (Basic_block* bb, *cfg->get_all_bbs ())
 	{
 		DEBUG ("Basic block " << bb->get_index () << ":");
@@ -152,8 +196,14 @@ Mark_initialized::post_pass (CFG* cfg)
 		outs[bb]->dump ();
 		DEBUG ("LOCAL_DEF:");
 		local_defs[bb].dump();
-		DEBUG ("LOCAL_KILL:");
+		DEBUG ("LOCAL_UNDEF:");
 		local_undefs[bb].dump();
+
+	}
+
+	foreach (Basic_block* bb, *cfg->get_all_bbs ())
+	{
+		ins[bb]->default_value = UNINIT;
 
 		VARIABLE_NAME_list* var_list = new VARIABLE_NAME_list;
 		var_list->push_back_all (bb->get_defs (SSA_STMT | SSA_FORMAL));
@@ -175,7 +225,7 @@ Mark_initialized::post_pass (CFG* cfg)
 }
 
 Init_cell* INIT = new Init_cell;
-Init_cell* UNINIT = NULL;
+Init_cell* UNINIT = new Init_cell;
 
 void
 Init_cell::dump()
