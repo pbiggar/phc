@@ -301,12 +301,19 @@ string get_st_entry (Scope scope, string zvp, VARIABLE_NAME* var_name)
 	if (scope == LOCAL && var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
 	{
 		string name = get_non_st_name (var_name);
+
+		bool is_init = var_name->attrs->is_true ("phc.optimize.is_initialized");
+		bool is_uninit = var_name->attrs->is_true ("phc.optimize.is_uninitialized");
+		assert (!(is_init && is_uninit));
+		bool known = is_init || is_uninit;
+
+		RUNTIME_CHECK (ss,
+			known, is_uninit,
+			name << "== NULL",
+			name << " = EG (uninitialized_zval_ptr);\n" << name << "->refcount++",
+			"");
+
 		ss
-		<< "if (" << name << " == NULL)\n"
-		<< "{\n"
-		<<		name << " = EG (uninitialized_zval_ptr);\n"
-		<<		name << "->refcount++;\n"
-		<< "}\n"
 		<<	"zval** " << zvp << " = &" << name << ";\n";
 	}
 	else
