@@ -1,9 +1,8 @@
 
 #include "Lattice.h"
 
-// We use NULL so that 
-Lattice_cell* TOP = NULL;
 // Cannot allocate a new Lattice_cell, but we wish to have a real pointer.
+Lattice_cell* TOP = reinterpret_cast<Lattice_cell*> (new int);
 Lattice_cell* BOTTOM = reinterpret_cast<Lattice_cell*> (new int);
 
 Lattice_cell*
