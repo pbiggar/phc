@@ -34,11 +34,11 @@
 		if ($old)
 		{
 			$difference = ($new [$name] - $old[$name]);
-			$difference_percentage = ($difference / $old[$name]);
-			if ($difference_percentage < 1/1000)
+			$difference_percentage = ($difference * 100 / $old[$name]);
+			if (abs ($difference_percentage) < 1/10) // ignore 1/10th of percent or less
 				$difference_percentage = 0;
 			else
-				$difference_percentage = round ($difference_percentage, 3);
+				$difference_percentage = round ($difference_percentage, 1);
 
 			if ($difference_percentage < 0)
 				$new[$name] .= " ($difference [$difference_percentage%])";
@@ -77,16 +77,22 @@
 		return xdiff_string_diff ("$string1\n", "$string2\n");
 	}
 
-	function get_prev_revision ($rev)
+	function get_prev_revision ($rev, $has_benchmark_results = false)
 	{
 		global $DB;
 		$branch = get_branch ($rev);
+
+		if ($has_benchmark_results)
+			$bench_sql = "AND		benchmark != -1";
+		else
+			$bench_sql = "";
+
 		$data = $DB->query ("
 				SELECT	revision
 				FROM		complete
 				WHERE		revision < $rev
 				AND		branch == '$branch'
-				")->fetchAll(PDO::FETCH_ASSOC);
+				$bench_sql")->fetchAll(PDO::FETCH_ASSOC);
 
 		rsort ($data);
 

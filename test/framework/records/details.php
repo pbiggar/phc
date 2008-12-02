@@ -10,17 +10,18 @@
 			die ("Invalid revision: {$_GET["rev"]}.");
 
 		$old_rev = get_prev_revision ($rev);
+		$old_bench_rev = get_prev_revision ($rev, "bench");
 
 		print "<table class=layout>";
 		print "	<tr><td colspan=2>\n";
-		print_revision_details ($rev, $old_rev);
+		print_revision_details ($rev, $old_rev, $old_bench_rev);
 		print "	</td></tr>\n";
 		print "	<tr><td>\n";
 		print "		<table class=layout>";
 		print "		<tr><td>\n";
 		print_test_details ($rev, $old_rev);
 		print "		</td><td>\n";
-		print_benchmark_details ($rev, $old_rev);
+		print_benchmark_details ($rev, $old_bench_rev);
 		print "		</td></tr>\n";
 		print "		</table>";
 		print "	</td></tr>\n";
@@ -28,7 +29,7 @@
 
 	}
 
-	function print_revision_details ($rev, $old_rev)
+	function print_revision_details ($rev, $old_rev, $old_bench_rev)
 	{
 		global $DB;
 		$complete_data = $DB->query ("
@@ -49,7 +50,7 @@
 		print "		<th>Test duration:			</th><td>"	.(round ($complete_data["time"]/60.0, 1))."m	</td>";
 		print "		<th>Author:						</th><td>"	.$complete_data["author"].		"</td>";
 		print "	</tr><tr>\n";
-		print "		<th>" . maybe_link ($rev, $old_rev, "benchmark.log", "Benchmark").":</th><td>"	.$complete_data["benchmark"]."</td>";
+		print "		<th>" . maybe_link ($rev, $old_bench_rev, "benchmark.log", "Benchmark").":</th><td>"	.$complete_data["benchmark"]."</td>";
 		print "		<th>Commit date:				</th><td>"	.$complete_data["commit_date"].	"	</td>";
 		print "	</tr>\n";
 		print "</table>\n";
@@ -99,7 +100,10 @@
 				")->fetchAll(PDO::FETCH_ASSOC);
 
 		print "<table class=info>";
-		print "<tr><th>Test name</th><th>"
+		print "<tr><th>"
+			. "Test Name (+/- vs "
+			. "<a href='details.php?rev=$old_rev'>$old_rev</a>"
+			. ")</th><th>"
 			. maybe_link ($rev, $old_rev, "test_logs/success", "Passes", true) ."</th><th>"
 			. maybe_link ($rev, $old_rev, "test_logs/failure", "Fails", true) ."</th><th>"
 			. maybe_link ($rev, $old_rev, "test_logs/timeout", "Timeouts", true) ."</th><th>"
@@ -166,7 +170,9 @@
 
 		print "<table class=info>";
 		print "<tr><th>Metric</th><th>"
-			. "Result</th><th>";
+			. "Result (+/- vs "
+			. "<a href='details.php?rev=$old_rev'>$old_rev</a>"
+			. ")</th><th>";
 
 		# fetch the previous revisions data, for comparison
 		$old_test_data = $DB->query ("
