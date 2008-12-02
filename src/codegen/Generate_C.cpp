@@ -215,7 +215,11 @@ string get_non_st_name (VARIABLE_NAME* var_name)
 
 string read_literal (Scope, string, Literal*);
 
-#define RUNTIME_CHECK(STREAM, KNOWN, RUNTIME_COND, DIRECTION, TRUE_CODE, FALSE_CODE)		\
+// TODO: We would like to assert the known condition, but it breaks for
+// is_initialized, where both the RHS and LHS are the same variable. I don't
+// have an easy solution here, since what we know is still correct, and the
+// assertion doesnt represent a bug.
+#define RUNTIME_CHECK(STREAM, KNOWN, DIRECTION, RUNTIME_COND, TRUE_CODE, FALSE_CODE)		\
 	do																													\
 	{																													\
 		if (KNOWN)																									\
@@ -223,13 +227,11 @@ string read_literal (Scope, string, Literal*);
 			if (DIRECTION)																							\
 			{																											\
 				STREAM																								\
-				<< "assert (" << RUNTIME_COND << ");\n"													\
 				<< TRUE_CODE << ";\n";																			\
 			}																											\
 			else																										\
 			{																											\
 				STREAM																								\
-				<< "assert (!(" << RUNTIME_COND << "));\n"												\
 				<< FALSE_CODE << ";\n";																			\
 			}																											\
 		}																												\
@@ -271,9 +273,9 @@ string read_rvalue (Scope scope, string zvp, Rvalue* rvalue)
 		ss << "zval* " << zvp << ";\n";
 
 		RUNTIME_CHECK (ss,
-			false, name << "== NULL",
-			is_uninit,
-			zvp << " = EG (uninitialized_zval_ptr);",
+			known, is_uninit,
+			name << "== NULL",
+			zvp << " = EG (uninitialized_zval_ptr)",
 			zvp << " = " << name);
 	}
 	else
@@ -996,7 +998,7 @@ public:
 		<< "	ALLOC_INIT_ZVAL (*p_lhs);\n"
 		<< "}\n"
 		<< "zval old = **p_lhs;\n"
-		<< "int result_is_operand = (*p_lhs == left || *p_lhs == right)\n;"
+		<< "int result_is_operand = (*p_lhs == left || *p_lhs == right);\n"
 		;
 
 		// some operators need the operands to be reversed (since we
