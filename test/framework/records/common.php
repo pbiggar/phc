@@ -29,6 +29,26 @@
 		return $difference;
 	}
 
+	function add_percentage_difference ($name, &$new, $old)
+	{
+		if ($old)
+		{
+			$difference = ($new [$name] - $old[$name]);
+			$difference_percentage = ($difference / $old[$name]);
+			if ($difference_percentage < 1/1000)
+				$difference_percentage = 0;
+			else
+				$difference_percentage = round ($difference_percentage, 3);
+
+			if ($difference_percentage < 0)
+				$new[$name] .= " ($difference [$difference_percentage%])";
+			elseif ($difference_percentage > 0)
+				$new[$name] .= " (+$difference [$difference_percentage%])";
+		}
+		return $difference_percentage;
+	}
+
+
 	function date_from_timestamp ($timestamp)
 	{
 		return date ("D, d M Y H:i:s ", $timestamp);
@@ -37,9 +57,9 @@
 	function get_good_color () { return " style=\"color:green; font-weight: bold\""; }
 	function get_bad_color ()	{ return " style=\"color:red; font-weight: bold;\""; }
 
-	// TODO coppied from lib/header.php. Avoid duplication
-	/* Prints diffs if the xdiff extension is available, and simple outputs both
-	 * strings otherwise. 
+	// TODO copied from lib/header.php. Avoid duplication
+	/* Prints diffs if the xdiff extension is available, and simple outputs
+	 * both strings otherwise. 
 	 * To install xdiff:
 	 *   install libxdiff from http://www.xmailserver.org/xdiff-lib.html 
 	 *   install xdiff from pecl with "pecl install xdiff". 
@@ -57,7 +77,41 @@
 		return xdiff_string_diff ("$string1\n", "$string2\n");
 	}
 
+	function get_prev_revision ($rev)
+	{
+		global $DB;
+		$branch = get_branch ($rev);
+		$data = $DB->query ("
+				SELECT	revision
+				FROM		complete
+				WHERE		revision < $rev
+				AND		branch == '$branch'
+				")->fetchAll(PDO::FETCH_ASSOC);
 
+		rsort ($data);
+
+		if ($data === false)
+			return 0;
+
+		return $data[0]["revision"];
+
+
+	}
+
+	function get_branch ($rev)
+	{
+		global $DB;
+		$data = $DB->query ("
+				SELECT	branch
+				FROM		complete
+				WHERE		revision == $rev 
+				")->fetchAll(PDO::FETCH_ASSOC);
+
+		if (empty ($data[0]["branch"]))
+			die ("bad old data");
+
+		return $data[0]["branch"];
+	}
 
 ?>
 	</body>

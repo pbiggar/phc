@@ -42,6 +42,7 @@ $working_directory =	"test/working/".date_string ();
 mkdir ($working_directory);
 @unlink ("test/working/latest");
 symlink ($working_directory, "test/working/latest");
+mkdir ("$working_directory/.libs"); // avoid 'File exists' errors
 print ("Working from: $working_directory\n");
 
 require_once ("lib/startup.php");

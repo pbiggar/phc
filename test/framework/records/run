@@ -47,15 +47,22 @@
 		// make
 		cd ("make", "make");
 		cd ("make install", "install");
+
 		// TODO do long test
+		// -i for installed
+		// -p for no progress bar
 		$results = cd ("php test/framework/driver.php -i -p", "test");
-		$benchmark = cd ("misc/benchmark", "benchmark");
+
+		// use our version of the benchmark. Its not available in old revisions
+		// -s for serialize
+		$benchmark = cd ("../test/framework/bench/valbench -s", "benchmark");
 
 		save_test_logs ();
 		store_test_results ($results);
+		$bench_summary = store_benchmark_results ($benchmark);
 
 		// Finish up
-		finalize_revision_test (extract_benchmark_time ($benchmark));
+		finalize_revision_test ($bench_summary);
 	}
 	catch (Exception $e) { test_problem (); }
 
@@ -178,6 +185,21 @@
 		e ("INSERT INTO tests VALUES ($REV, 'Total', $total_pass, $total_fail, $total_timeout, $total_skip)");
 	}
 
+	function store_benchmark_results ($result_string)
+	{
+		global $REV;
+
+		if (preg_match ("/^FAILURE:.*/", $result_string))
+			return -1;
+
+		$results = unserialize ($result_string);
+
+		foreach ($results as $key => $value)
+			e ("INSERT INTO benchmarks VALUES ($REV, '$key', $value)");
+
+		return $results["instruction"]; // instruction count
+	}
+
 	function initialize_db ()
 	{
 		global $RESULTS_DIR;
@@ -187,6 +209,7 @@
 		$DB = new PDO ("sqlite:$DB_FILENAME");
 		e ("CREATE TABLE IF NOT EXISTS complete (revision, time, test_revision, author, commit_date, test_date, failed, redo, branch, benchmark)");
 		e ("CREATE TABLE IF NOT EXISTS tests (revision, testname, pass, fail, timeout, skip)");
+		e ("CREATE TABLE IF NOT EXISTS benchmarks (revision, metric, result)");
 	}
 
 	function initialize_revision_test ()
@@ -202,6 +225,7 @@
 
 		e ("DELETE FROM complete WHERE revision == $REV");
 		e ("DELETE FROM tests WHERE revision == $REV");
+		e ("DELETE FROM benchmarks WHERE revision == $REV");
 	}
 
 	function save_log ()
@@ -331,17 +355,6 @@
 		global $REPO;
 		$result = c ("svn info $REPO");
 		preg_match ("/Revision: (\d+)/", $result, $matches);
-		return $matches[1];
-	}
-
-	function extract_benchmark_time ($benchmark)
-	{
-		$result = preg_match ("/^.*Total\s+\(10\):\s+([0-9\.]+).*$/m", $benchmark, $matches);
-
-		// -1 signals failed benchmark
-		if ($result == 0)
-			return -1;
-
 		return $matches[1];
 	}
 

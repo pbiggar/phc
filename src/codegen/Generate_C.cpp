@@ -775,7 +775,7 @@ public:
 			<< declare ("p_rhs")
 			<< read_var (LOCAL, "p_rhs", rhs->value)
 			<< "if (*p_lhs != *p_rhs)\n"
-			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
+			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new);\n"
 			<< cleanup ("p_rhs");
 		}
 		else
@@ -817,7 +817,7 @@ public:
 			<< declare ("p_rhs")
 			<< read_var_var (LOCAL, "p_rhs", rhs->value->variable_name)
 			<< "if (*p_lhs != *p_rhs)\n"
-			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
+			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new);\n"
 			<< cleanup ("p_rhs")
 			;
 		}
@@ -866,7 +866,7 @@ public:
 			<<			" TSRMLS_CC);\n"
 
 			<< "if (*p_lhs != *p_rhs)\n"
-			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
+			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new);\n"
 
 			<< cleanup ("p_rhs");
 		}
@@ -1139,7 +1139,7 @@ public:
 			string var = spec->get_var (rhs->value);
 			code
 			<< "if (" << var << " != *p_lhs)\n"
-			<<		"write_var (p_lhs, &" << var << ", NULL TSRMLS_CC);\n"
+			<<		"write_var (p_lhs, &" << var << ", NULL);\n"
 			;
 		}
 		else
@@ -1402,8 +1402,7 @@ class Pattern_assign_expr_isset : public Pattern_assign_value
 				<< "ZVAL_BOOL(" << lhs << ", "
 				<< "isset_array ("
 				<<    "u_array, "
-				<<    "u_index "
-				<<		" TSRMLS_CC));\n";
+				<<    "u_index));\n";
         ;
 			}
 		}
@@ -1508,7 +1507,7 @@ class Pattern_assign_expr_foreach_get_val : public Pattern_assign_var
 			<<							"(void**)(&p_rhs), "
 			<<							"&" << *get_val->value->iter->value << ");\n"
 			<< "assert (result == SUCCESS);\n"
-			<< "write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
+			<< "write_var (p_lhs, p_rhs, &is_p_rhs_new);\n"
 			<< cleanup ("p_rhs")
 			;
 		}
@@ -1614,7 +1613,7 @@ public:
 			<< "phc_builtin_" << *method_name->value->value << " (p_arg, *p_rhs, \"" 
 			<< *arg->value->get_filename() << "\" TSRMLS_CC);\n"
 
-			<< "write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
+			<< "write_var (p_lhs, p_rhs, &is_p_rhs_new);\n"
 			<< cleanup ("p_rhs");
 		}
 		else
@@ -1705,7 +1704,7 @@ public:
 		<< "{\n"
 		<<		"ZVAL_BOOL (*p_rhs, signature->common.pass_rest_by_reference);\n"
 		<< "}\n"
-		<<	"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
+		<<	"write_var (p_lhs, p_rhs, &is_p_rhs_new);\n"
 
 		<< cleanup ("p_rhs")
 		;
@@ -1772,7 +1771,7 @@ public:
 			<< "{\n"
 			<< "	by_ref[" << index << "] = signature->common.pass_rest_by_reference;\n"
 			<< "}\n"
-				;
+			;
 			
 			if(param->is_ref) code << "by_ref[" << index << "] = 1;\n";
 			
@@ -1955,7 +1954,7 @@ public:
 		if (lhs)
 		{
 			if (!agn->is_ref)
-				code << "write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
+				code << "write_var (p_lhs, p_rhs, &is_p_rhs_new);\n";
 			else
 				code << "copy_into_ref (p_lhs, p_rhs);\n";
 		}
@@ -2019,7 +2018,7 @@ public:
 			<< "p_rhs = &p_rhs_var;\n"
 			<< "\n"
 			<< "if (*p_lhs != *p_rhs)\n"
-			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
+			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new);\n"
 			<< cleanup ("p_rhs")
 			;
 		}
@@ -2091,7 +2090,7 @@ public:
 			<< "\n"
 			
 			<< "if (*p_lhs != *p_rhs)\n"
-			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
+			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new);\n"
 
 			<< cleanup ("p_rhs");
 		}
@@ -2138,7 +2137,7 @@ class Pattern_assign_var_var : public Pattern
 			<< declare ("p_rhs")
 			<< read_var (LOCAL, "p_rhs", rhs->value)
 			<< "if (*p_lhs != *p_rhs)\n"
-			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n"
+			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new);\n"
 			<< cleanup ("p_lhs")
 			<< cleanup ("p_rhs")
 			;

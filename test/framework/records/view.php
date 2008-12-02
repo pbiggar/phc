@@ -26,6 +26,10 @@
 		$headers["revision"] = "Rev";
 		$headers["test_revision"] = "Test rev";
 		$headers["benchmark"] = "Bench";
+		$headers["timeout"] = "T/O";
+
+		$abbreviations = array ("branches/dataflow" => "df", "paul.biggar" => "pb", "edskodevries" => "edv");
+
 
 		print "<table class=info>\n";
 		print "<tr>\n";
@@ -44,8 +48,10 @@
 			$rev = (int)$complete["revision"];
 			foreach ($complete as $key => $column)
 			{
-				if ($key == "branch" && $column != "trunk")
-					$column = preg_replace ("/branches\//", "", $column);
+				// abbreviate long words
+				if (isset ($abbreviations[$column]))
+					$column = $abbreviations[$column];
+
 
 				$revisions[$rev][$key] = $column;
 			}
@@ -68,19 +74,25 @@
 		}
 
 
-		krsort ($revisions);
+		ksort ($revisions);
 
 		# process data
 		foreach ($revisions as $rev => &$data)
 		{
-			$data["difference"] = add_difference ("pass", $data, $revisions[$rev-1]);
-			add_difference ("fail", $data, $revisions[$rev-1]);
-			add_difference ("skip", $data, $revisions[$rev-1]);
-			add_difference ("timeout", $data, $revisions[$rev-1]);
+			// Always use the correct branch for relative data
+			$branch = $data["branch"];
 
+			$data["difference"] = add_difference ("pass", $data, $revisions[$prev[$branch]]);
+			add_difference ("fail", $data, $revisions[$prev[$branch]]);
+//			add_difference ("skip", $data, $revisions[$prev[$branch]]);
+//			add_difference ("timeout", $data, $revisions[$prev[$branch]]);
+
+			$prev[$branch] = $rev;
 			$data["test_date"] = date_from_timestamp ($data["test_date"]);
 			unset ($data["failed"]);
 		}
+
+		$revisions = array_reverse ($revisions, true);
 
 
 		# print out rows
