@@ -25,6 +25,7 @@
 #include "codegen/Clarify.h"
 #include "codegen/Compile_C.h"
 #include "codegen/Generate_C.h"
+#include "codegen/Generate_C_annotations.h"
 #include "codegen/Lift_functions_and_classes.h"
 #include "embed/embed.h"
 #include "hir_to_mir/HIR_to_MIR.h"
@@ -169,6 +170,7 @@ int main(int argc, char** argv)
 	pm->add_mir_visitor (new Clarify (), s("clar"), s("Clarify - Make implicit defintions explicit"));
 	pm->add_mir_visitor (new Prune_symbol_table (), s("pst"), s("Prune Symbol Table - Note whether a symbol table is required in generated code"));
 	stringstream ss;
+	pm->add_mir_visitor (new Generate_C_annotations, s("cgann"), s("Codegen annotation"));
 	pm->add_mir_pass (new Generate_C (ss));
 	pm->add_mir_pass (new Compile_C (ss));
 
