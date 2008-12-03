@@ -1,0 +1,3 @@
+Garbage collection doesn't work on this branch yet.
+
+configure with --disable-gc
