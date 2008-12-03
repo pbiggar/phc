@@ -29,7 +29,7 @@ class RaisedCompileOptimized extends CompiledVsInterpreted
 	{
 		global $phc;
 		// Use generate-c so we can add -O3 to the command line, and get the failing case.
-		return "$phc --run=plugins/tests/raise_globals.la --dump-uppered=generate-c $subject | ". get_php_command_line ("");
+		return "$phc --run=plugins/tests/raise_globals.la --dump-uppered=generate-c $subject | ". get_php_command_line ($subject, "pipe");
 	}
 }
 
