@@ -482,12 +482,15 @@ protected:
 
 		// Declare variables which can go outside the symbol table
 		String_list* var_names = dyc<String_list> (pattern->value->attrs->get ("phc.codegen.non_st_vars"));
-		assert (var_names);
 		foreach (String* var, *var_names)
-		{
-			code
-			<< "zval* " << get_non_st_name (var) << " = NULL;\n";
-		}
+			code << "zval* " << get_non_st_name (var) << " = NULL;\n";
+
+
+		// Declare hashtable iterators for the function
+		String_list* iterators = dyc<String_list> (pattern->value->attrs->get ("phc.codegen.ht_iterators"));
+		foreach (String* iter, *iterators)
+			code << "HashPosition " << *iter << ";\n";
+
 
 		// debug_argument_stack();
 
@@ -2331,7 +2334,6 @@ class Pattern_foreach_reset : public Pattern
 	{
 		// declare the external iterator outside local scope blocks
 		code
-		<< "HashPosition " << *reset->value->iter->value << ";\n"
 		<< "{\n"
 
 		<<		read_rvalue (LOCAL, "fe_array", reset->value->array)

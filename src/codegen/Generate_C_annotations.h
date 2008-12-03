@@ -14,10 +14,12 @@
 class Generate_C_annotations : public MIR::Visitor, virtual public GC_obj
 {
 	Set<string> var_names;
+	Set<string> iterators;
 
 	void pre_method (MIR::Method* in);
 	void post_method (MIR::Method* in);
 	void post_variable_name (MIR::VARIABLE_NAME* in);
+	void post_ht_iterator (MIR::HT_ITERATOR* in);
 };
 
 # endif // PHC_GENERATE_C_ANNOTATIONS_H
