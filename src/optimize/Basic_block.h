@@ -5,7 +5,7 @@
 
 #include "CFG.h"
 #include "MIR.h"
-#include "Set.h"
+#include "Var_set.h"
 #include "Var_map.h"
 #include "ssa/SSA.h"
 
@@ -112,7 +112,7 @@ public:
 	// Get the arguments with VARIABLE_NAME as the lhs.
 	MIR::VARIABLE_NAME_list* get_phi_args (MIR::VARIABLE_NAME* phi_lhs);
 
-	Set* get_phi_lhss ();
+	Var_set* get_phi_lhss ();
 
 	MIR::VARIABLE_NAME* get_phi_arg_for_edge (Edge*, MIR::VARIABLE_NAME* phi_lhs);
 	void set_phi_arg_for_edge (Edge*, MIR::VARIABLE_NAME* phi_lhs, MIR::VARIABLE_NAME* arg);
@@ -128,7 +128,7 @@ public:
 	Var_map<MIR::VARIABLE_NAME*>* get_chis ();
 	MIR::VARIABLE_NAME_list* get_chi_lhss ();
 	MIR::VARIABLE_NAME_list* get_chi_rhss ();
-	Set* get_mus();
+	Var_set* get_mus();
 	MIR::VARIABLE_NAME* get_chi_rhs (MIR::VARIABLE_NAME* lhs);
 
 	void remove_chi (MIR::VARIABLE_NAME* lhs, MIR::VARIABLE_NAME* rhs);
@@ -142,8 +142,8 @@ public:
 private:
 	// Instead of an explicit phi node, store the phi->lhs here, and the phi
 	// arguments in edges. Then they can be updated all-at-once.
-	Set* phi_lhss;
-	Set* mus;
+	Var_set* phi_lhss;
+	Var_set* mus;
 	Var_map<MIR::VARIABLE_NAME*>* chis;
 
 	// When we rename virtual-variables, we need to keep track of it. All

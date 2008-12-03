@@ -1,16 +1,11 @@
 #ifndef PHI_MAP
 #define PHI_MAP
 
-#include "lib/Map.h"
+#include "optimize/Var_map.h"
 
 #include "MIR.h"
 
-class Phi_map : public Map
-<
-	MIR::VARIABLE_NAME*,
-	MIR::VARIABLE_NAME*,
-	bool (*)(MIR::VARIABLE_NAME*, MIR::VARIABLE_NAME*)
->
+class Phi_map : public Var_map<MIR::VARIABLE_NAME*>
 {
 public:
 	Phi_map ();

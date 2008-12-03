@@ -17,8 +17,8 @@ Basic_block::Basic_block(CFG* cfg)
 : cfg(cfg)
 , vertex (NULL)
 {
-	phi_lhss = new Set;
-	mus = new Set;
+	phi_lhss = new Var_set;
+	mus = new Var_set;
 	chis = new Var_map<MIR::VARIABLE_NAME*>;
 	virtuals = new Map<Node*, VARIABLE_NAME*>;
 }
@@ -301,12 +301,12 @@ Basic_block::get_phi_args (MIR::VARIABLE_NAME* phi_lhs)
 	return result;
 }
 
-Set*
+Var_set*
 Basic_block::get_phi_lhss()
 {
 	// Return a clone, since we sometimes like to update the list
 	// (but dont call ->clone, since we dont want clones of the variables).
-	return phi_lhss->set_union (new Set);
+	return phi_lhss->set_union (new Var_set);
 }
 
 MIR::VARIABLE_NAME_list*
@@ -342,10 +342,10 @@ Basic_block::get_chis ()
 
 
 
-Set*
+Var_set*
 Basic_block::get_mus()
 {
-	return mus->set_union (new Set);
+	return mus->set_union (new Var_set);
 }
 
 VARIABLE_NAME*

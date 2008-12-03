@@ -4,7 +4,7 @@
 #include "process_ir/debug.h"
 
 #include "Def_use.h"
-#include "Set.h"
+#include "Var_set.h"
 #include "ssa/Virtual_variable.h"
 
 
@@ -35,10 +35,8 @@ SSA_edge::dump ()
 }
 
 
-Def_use_web::Def_use_web (Set* aliases)
-: def_use_chains (&variable_name_ptr_comparison)
-, use_def_chains (&variable_name_ptr_comparison)
-, aliases (aliases)
+Def_use_web::Def_use_web (Var_set* aliases)
+: aliases (aliases)
 {
 }
 

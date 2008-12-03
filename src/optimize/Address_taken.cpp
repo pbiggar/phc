@@ -43,7 +43,7 @@ is_dynamic_function (Method_invocation* in)
 
 Address_taken::Address_taken ()
 {
-	aliases = new Set ();
+	aliases = new Var_set;
 }
 
 void

@@ -5,7 +5,7 @@
 
 #include "CFG.h"
 #include "MIR.h"
-#include "Set.h"
+#include "Var_set.h"
 #include "ssa/Phi.h"
 #include "ssa/SSA.h"
 

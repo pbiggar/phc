@@ -148,6 +148,7 @@ libphc_la_SOURCES= 											\
 	src/lib/Map.h												\
 	src/lib/Object.cpp										\
 	src/lib/Object.h											\
+	src/lib/Set.h												\
 	src/lib/Stack.h											\
 	src/lib/String.cpp										\
 	src/lib/String.h											\
@@ -184,8 +185,6 @@ libphc_la_SOURCES= 											\
 	src/optimize/Remove_loop_booleans.h					\
 	src/optimize/SCCP.cpp									\
 	src/optimize/SCCP.h										\
-	src/optimize/Set.cpp										\
-	src/optimize/Set.h										\
 	src/optimize/Sparse_conditional_visitor.cpp		\
 	src/optimize/Sparse_conditional_visitor.h			\
 	src/optimize/ssa/Dominance.cpp						\
@@ -203,6 +202,7 @@ libphc_la_SOURCES= 											\
 	src/optimize/ssa/Virtual_variable.cpp				\
 	src/optimize/ssa/Virtual_variable.h					\
 	src/optimize/Var_map.h									\
+	src/optimize/Var_set.cpp								\
 	src/optimize/Visit_once.cpp							\
 	src/optimize/Visit_once.h								\
 	src/parsing/Parse_buffer.cpp							\

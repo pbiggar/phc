@@ -61,8 +61,8 @@ extern Init_cell* UNINIT;
 
 class Mark_initialized : public Flow_visitor
 {
-	Map<Basic_block*, Set> local_defs;
-	Map<Basic_block*, Set> local_undefs;
+	Map<Basic_block*, Var_set> local_defs;
+	Map<Basic_block*, Var_set> local_undefs;
 	Map<Basic_block*, Lattice_map*> ins;
 	Map<Basic_block*, Lattice_map*> outs;
 	Map<Basic_block*, bool> repeat;

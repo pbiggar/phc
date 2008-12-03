@@ -15,7 +15,6 @@ class Var_map
 	bool (*)(MIR::VARIABLE_NAME*, MIR::VARIABLE_NAME*),
 	phc_allocator<std::pair<MIR::VARIABLE_NAME*, _Tp> >
 >
-, virtual public GC_obj
 {
 public:
 	typedef Map<

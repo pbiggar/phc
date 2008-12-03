@@ -1,9 +1,9 @@
 #ifndef PHC_DEF_USE
 #define PHC_DEF_USE
 
-#include "lib/Map.h"
+#include "Var_map.h"
 #include "MIR.h"
-#include "Set.h"
+#include "Var_set.h"
 #include "Edge.h"
 #include "Flow_visitor.h"
 #include "Visit_once.h"
@@ -43,26 +43,17 @@ class Def_use_web : public Visit_once
 	// SSA_edge_list will be the correct vars. The indexing variable is just
 	// for indexing, and it can index multiple vars, so we cant say anythng
 	// about it.
-	Map<
-		MIR::VARIABLE_NAME*,
-		SSA_edge_list, 
-		bool (*)(MIR::VARIABLE_NAME*, MIR::VARIABLE_NAME*)
-	> def_use_chains;
-
-	Map<
-		MIR::VARIABLE_NAME*,
-		SSA_edge_list, 
-		bool (*)(MIR::VARIABLE_NAME*, MIR::VARIABLE_NAME*)
-	> use_def_chains;
+	Var_map<SSA_edge_list> def_use_chains;
+	Var_map<SSA_edge_list> use_def_chains;
 
 	// This is a single set of possible aliases. All variables in the set can
 	// (conservatively) be considered to alias all other variables in the
 	// set. When adding a use or a def, and the use/def aliases another
 	// variable in the set, we add Mus and Chis accordingly.
-	Set* aliases;
+	Var_set* aliases;
 
 public:
-	Def_use_web (Set* aliases);
+	Def_use_web (Var_set* aliases);
 
 	/*
 	 * Flags:

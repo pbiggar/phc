@@ -35,7 +35,7 @@ class Address_taken : public Visit_once
 public:
 	Address_taken ();
 
-	Set* aliases;
+	Var_set* aliases;
 
 public:
 	void alias_expr (Basic_block* bb, MIR::Expr*);

@@ -6,7 +6,6 @@
 #include "Var_map.h"
 
 #include "MIR.h"
-#include "Set.h"
 #include "process_ir/debug.h"
 #include <boost/tuple/tuple.hpp> // for tie
 
