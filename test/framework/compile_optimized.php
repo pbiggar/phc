@@ -25,7 +25,7 @@ class CompileOptimized extends CompiledVsInterpreted
 	function get_php_command ($subject)
 	{
 		global $phc;
-		return "$phc -O1 --dump=sua $subject | ". get_php_command_line ("");
+		return "$phc -O1 --dump=sua $subject | ". get_php_command_line ($subject, "pipe");
 	}
 }
 

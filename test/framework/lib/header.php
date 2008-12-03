@@ -76,6 +76,8 @@ function get_php ()
 // For a pipe, just put a blank $subject
 function get_php_command_line ($subject, $pipe = false)
 {
+	phc_assert ($subject != "", "dont pass empty subject, even for pipe");
+
 	global $php;
 	global $opt_long;
 
