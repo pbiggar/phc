@@ -19,15 +19,6 @@ if (substr (phpversion (), 0, 1) < 5)
 $support_dir =	"test/support_files";
 $plugin_dir =	"plugins";
 
-if ($opt_clean)
-{
-	echo "rm -Rf ./test/logs/*\n";
-	`rm -Rf ./test/logs/*`;
-	echo "rm -Rf ./test/working/*\n";
-	`rm -Rf ./test/working/*`;
-	exit (0);
-}
-
 require_once ("lib/header.php");
 
 // setup log dir
@@ -47,6 +38,15 @@ print ("Working from: $working_directory\n");
 
 require_once ("lib/startup.php");
 require_once ("lib/autovars.php");
+
+if ($opt_clean)
+{
+	echo "rm -Rf ./test/logs/*\n";
+	`rm -Rf ./test/logs/*`;
+	echo "rm -Rf ./test/working/*\n";
+	`rm -Rf ./test/working/*`;
+	exit (0);
+}
 
 open_status_files ();
 
