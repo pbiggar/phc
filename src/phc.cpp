@@ -40,6 +40,7 @@
 #include "optimize/Prune_symbol_table.h"
 #include "optimize/Remove_loop_booleans.h"
 #include "optimize/SCCP.h"
+#include "optimize/Type_inference.h"
 #include "optimize/ssa/Into_SSA.h"
 #include "optimize/ssa/Out_of_SSA.h"
 #include "parsing/parse.h"
@@ -180,9 +181,11 @@ int main(int argc, char** argv)
 	pm->add_optimization_pass (new Fake_pass (s("cfg"), s("Initial Control-Flow Graph")));
 	pm->add_optimization_pass (new Fake_pass (s("build_ssa"), s("Create SSA form")));
 	pm->add_optimization (new Remove_loop_booleans (), s("rlb"), s("Remove loop-booleans"), false);
-	pm->add_optimization (new SCCP (), s("sccp"), s("Sparse-conditional constant propagation"), true);
 	pm->add_optimization (new If_simplification (), s("ifsimple"), s("If-simplification"), true);
+	pm->add_optimization (new SCCP (), s("sccp"), s("Sparse-conditional constant propagation"), true);
+	pm->add_optimization (new Type_inference (), s("typinf"), s("Type-inference based on SCCP"), true);
 	pm->add_optimization (new DCE (), s("dce"), s("Aggressive Dead-code elimination"), true);
+	// TODO: we could consider this for resolving isset/empty/unset queries
 	pm->add_optimization (new Mark_initialized (), s("mvi"), s("Mark variable initialization status"), false);
 	pm->add_optimization_pass (new Fake_pass (s("drop_ssa"), s("Drop SSA form")));
 

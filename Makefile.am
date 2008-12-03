@@ -188,6 +188,8 @@ libphc_la_SOURCES= 											\
 	src/optimize/Sparse_conditional_visitor.cpp		\
 	src/optimize/Sparse_conditional_visitor.h			\
 	src/optimize/ssa/Dominance.cpp						\
+	src/optimize/Type_inference.cpp						\
+	src/optimize/Type_inference.h							\
 	src/optimize/ssa/Dominance.h							\
 	src/optimize/ssa/HSSA.cpp								\
 	src/optimize/ssa/HSSA.h									\
