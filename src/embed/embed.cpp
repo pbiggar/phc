@@ -10,18 +10,20 @@
 #include "process_ast/AST_unparser.h"
 #include <assert.h>
 
-using namespace AST;
-
 // other #includes are in the #else block of HAVE_PHP5
+
+using namespace AST;
 
 #if HAVE_EMBED
 
 #include <sapi/embed/php_embed.h>
 #include <Zend/zend.h>
 
+#include "util.h"
+
 // copied straight from book, p266
 #ifdef ZTS
-static void ***tsrm_ls;
+void ***tsrm_ls;
 #endif
 
 bool PHP::is_started = false;
@@ -47,92 +49,11 @@ void PHP::shutdown_php ()
 	php_embed_shutdown (TSRMLS_C);
 }
 
-Literal* zval_to_literal (zval* value)
-{
-	switch (Z_TYPE_P (value))
-	{
-		case IS_NULL:
-			return new NIL ();
-		case IS_LONG:
-			return new INT (Z_LVAL_P (value));
-		case IS_DOUBLE:
-			return new REAL (Z_DVAL_P (value));
-		case IS_BOOL:
-			return new BOOL (Z_BVAL_P (value));
-		case IS_STRING:
-			return new STRING (
-				new String (
-					Z_STRVAL_P (value), 
-					Z_STRLEN_P (value)));
-		default:
-			/* We only want literals */
-			assert (0);
-	}
-}
-
-
 unsigned long PHP::get_hash (String* string)
 {
-  return zend_get_hash_value (const_cast <char*> (string->c_str ()), string->size () + 1);
-}
-
-
-/* Wrap eval_string, trapping errors and warnings */
-
-// TODO: This isn't re-entrant. I'm not sure how to pass state to handle_php_error_cb
-static AST::Node* current_anchor;
-
-/* Handlers for PHP errors */
-int myapp_php_ub_write(const char *str, unsigned int str_length TSRMLS_DC)
-{
-	assert (0);
-}
-
-void handle_php_log_message(char *message) 
-{
-	assert (0);
-}
-
-void handle_php_sapi_error(int type, const char *fmt, ...) 
-{
-	assert (0);
-}
-
-int handle_php_ub_write(const char *str, unsigned int str_length TSRMLS_DC)
-{
-	assert (0);
-}
-
-void handle_php_error_cb(int type, const char *error_filename, const uint error_lineno,
-const char *format, va_list argp)
-{
-	phc_warning (format, argp, current_anchor->get_filename(), current_anchor->get_line_number ());
-	zend_bailout (); // goto zend_catch
-}
-
-// Eval CODE with the PHP interpreter, catch and warn in the case of errors,
-// using ANCHOR's filename and line number, then return true/false for
-// success/failure.
-bool eval_string (String* code, zval* result, Node* anchor)
-{
-	// Save the anchor for filenames and linenumbers
-	current_anchor = anchor;
-
-	// Divert output and error
-	zend_error_cb = handle_php_error_cb;
-	php_embed_module.ub_write = handle_php_ub_write;
-	php_embed_module.log_message = handle_php_log_message;
-	php_embed_module.sapi_error = handle_php_sapi_error;
-	zend_first_try 
-	{
-		zend_eval_string (const_cast<char*>(code->c_str ()), result, const_cast<char*>("Evaluate literal") TSRMLS_CC);
-	}
-	zend_catch
-	{
-		return false;
-	}
-	zend_end_try ();
-	return true;
+	return zend_get_hash_value (
+		const_cast <char*> (string->c_str ()), 
+		string->size () + 1);
 }
 
 Literal* PHP::convert_token (Literal *in)
@@ -141,10 +62,10 @@ Literal* PHP::convert_token (Literal *in)
 	assert (code);
 
 	zval value;
-	bool ret_val = eval_string (code, &value, in);
-	assert (ret_val);
+	bool ret = eval_string (code, &value, in);
+	assert (ret);
 
-	Literal* result = zval_to_literal (&value);
+	Literal* result = zval_to_ast_literal (&value);
 	result->attrs->clone_all_from (in->attrs);
 	return result;
 }
@@ -170,7 +91,7 @@ Expr* PHP::fold_constant_expr (Expr* in)
 		return in;
 	}
 
-	Literal* result = zval_to_literal (&value);
+	Literal* result = zval_to_ast_literal (&value);
 	zval_dtor (&value); // clear out string structure
 	result->attrs->clone_all_from (in->attrs);
 	return result;

@@ -8,11 +8,26 @@
 #ifndef PHC_EMBED_H
 #define PHC_EMBED_H
 
+#include "config.h"
+#include "lib/List.h"
+
 class String;
+
 namespace AST
 {
 	class Literal;
 	class Expr;
+}
+
+namespace MIR
+{
+	class Literal;
+	typedef List<Literal*> Literal_list;
+	class Expr;
+	class METHOD_NAME;
+	class OP;
+	class CAST;
+	class Constant;
 }
 
 class PHP
@@ -25,7 +40,10 @@ public:
 	static void startup_php ();
 	static void shutdown_php ();
 
-
+	/*
+	 * Front-end (defined in embed.cpp)
+	 * TODO: move to frontend.cpp
+	 */
 	static AST::Literal* convert_token (AST::Literal* token);
 	static unsigned long get_hash (String* string);
 	static AST::Expr* fold_constant_expr (AST::Expr* in);

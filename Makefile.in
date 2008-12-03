@@ -91,18 +91,19 @@ am_libphc_la_OBJECTS = getopt1.lo getopt.lo AST_annotate.lo \
 	Lower_expr_flow.lo Pre_post_op_shredder.lo \
 	Split_multiple_arguments.lo Split_unset_isset.lo \
 	Strip_comments.lo Clarify.lo Compile_C.lo Generate_C.lo \
-	Lift_functions_and_classes.lo embed.lo AST.lo AST_factory.lo \
-	AST_transform.lo AST_visitor.lo cmdline.lo HIR.lo \
-	HIR_factory.lo HIR_transform.lo HIR_visitor.lo lex.yy.lo \
-	MIR.lo MIR_factory.lo MIR_transform.lo MIR_visitor.lo \
-	php_parser.tab.lo HIR_lower_expr.lo Lower_control_flow.lo \
-	Lower_dynamic_definitions.lo Lower_method_invocations.lo \
-	AttrMap.lo base64.lo Boolean.lo demangle.lo error.lo \
-	Integer.lo Object.lo String.lo Copy_propagation.lo \
-	Dead_code_elimination.lo Fix_point.lo Prune_symbol_table.lo \
-	Use_def_counter.lo Parse_buffer.lo parse.lo PHP_context.lo \
-	XML_parser.lo Pass_manager.lo Plugin_pass.lo AST_unparser.lo \
-	Constant_folding.lo DOT_unparser.lo Invalid_check.lo \
+	Lift_functions_and_classes.lo embed.lo util.lo AST.lo \
+	AST_factory.lo AST_transform.lo AST_visitor.lo cmdline.lo \
+	HIR.lo HIR_factory.lo HIR_transform.lo HIR_visitor.lo \
+	lex.yy.lo MIR.lo MIR_factory.lo MIR_transform.lo \
+	MIR_visitor.lo php_parser.tab.lo HIR_lower_expr.lo \
+	Lower_control_flow.lo Lower_dynamic_definitions.lo \
+	Lower_method_invocations.lo AttrMap.lo base64.lo Boolean.lo \
+	demangle.lo error.lo Integer.lo Object.lo String.lo \
+	Copy_propagation.lo Dead_code_elimination.lo Fix_point.lo \
+	Prune_symbol_table.lo Use_def_counter.lo Parse_buffer.lo \
+	parse.lo PHP_context.lo XML_parser.lo Pass_manager.lo \
+	Plugin_pass.lo AST_unparser.lo Constant_folding.lo \
+	DOT_unparser.lo Invalid_check.lo \
 	Note_top_level_declarations.lo Process_includes.lo \
 	Remove_concat_null.lo Remove_parser_temporaries.lo \
 	Strip_unparser_attributes.lo Token_conversion.lo \
@@ -618,6 +619,8 @@ libphc_la_SOURCES = \
 	src/codegen/Lift_functions_and_classes.h			\
 	src/embed/embed.cpp										\
 	src/embed/embed.h											\
+	src/embed/util.cpp										\
+	src/embed/util.h											\
 	src/generated/AST.cpp									\
 	src/generated/AST_factory.cpp							\
 	src/generated/AST_factory.h							\
@@ -678,6 +681,7 @@ libphc_la_SOURCES = \
 	src/lib/Map.h												\
 	src/lib/Object.cpp										\
 	src/lib/Object.h											\
+	src/lib/Set.h												\
 	src/lib/Stack.h											\
 	src/lib/String.cpp										\
 	src/lib/String.h											\
@@ -1309,6 +1313,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/show_traversal_order.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/source_vs_semantic_values.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/strip_includes.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/util.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -1491,6 +1496,13 @@ embed.lo: src/embed/embed.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/embed/embed.cpp' object='embed.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o embed.lo `test -f 'src/embed/embed.cpp' || echo '$(srcdir)/'`src/embed/embed.cpp
+
+util.lo: src/embed/util.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT util.lo -MD -MP -MF $(DEPDIR)/util.Tpo -c -o util.lo `test -f 'src/embed/util.cpp' || echo '$(srcdir)/'`src/embed/util.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/util.Tpo $(DEPDIR)/util.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/embed/util.cpp' object='util.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o util.lo `test -f 'src/embed/util.cpp' || echo '$(srcdir)/'`src/embed/util.cpp
 
 AST.lo: src/generated/AST.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT AST.lo -MD -MP -MF $(DEPDIR)/AST.Tpo -c -o AST.lo `test -f 'src/generated/AST.cpp' || echo '$(srcdir)/'`src/generated/AST.cpp

@@ -85,6 +85,8 @@ libphc_la_SOURCES= 											\
 	src/codegen/Lift_functions_and_classes.h			\
 	src/embed/embed.cpp										\
 	src/embed/embed.h											\
+	src/embed/util.cpp										\
+	src/embed/util.h											\
 	src/generated/AST.cpp									\
 	src/generated/AST_factory.cpp							\
 	src/generated/AST_factory.h							\
@@ -145,6 +147,7 @@ libphc_la_SOURCES= 											\
 	src/lib/Map.h												\
 	src/lib/Object.cpp										\
 	src/lib/Object.h											\
+	src/lib/Set.h												\
 	src/lib/Stack.h											\
 	src/lib/String.cpp										\
 	src/lib/String.h											\

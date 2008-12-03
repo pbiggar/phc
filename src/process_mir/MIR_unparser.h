@@ -13,6 +13,8 @@
 
 class MIR_to_AST;
 
+string unparse (MIR::Node* in);
+
 class MIR_unparser : public virtual PHP_unparser, public virtual MIR::Visitor
 {
 	AST_unparser ast_unparser;
