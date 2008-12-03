@@ -100,6 +100,11 @@ void Generate_C::run (IR::PHP_script* in, Pass_manager* pm)
 		is_extension = false;
 	}
 
+// TODO: split functionality into 3 separate portions. Split the visitor and Pass functionality.
+//	Generate_C_prologue gen_prologue;
+//	Generate_C_body gen_body;
+//	Generate_C_epilogue gen_epilogue;
+
 	in->visit(this);
 
 	os << prologue.str ();
@@ -170,6 +175,7 @@ string get_hash (VARIABLE_NAME* name)
 	return get_hash (name->value);
 }
 
+// TODO: kill declare and cleanup
 string declare (string var)
 {
 	stringstream ss;
@@ -207,10 +213,15 @@ string prefix (string str, string prefix)
 	return ss.str ();
 }
 
+string get_non_st_name (String* var_name)
+{
+	return prefix (*var_name, "local");
+}
+
 string get_non_st_name (VARIABLE_NAME* var_name)
 {
 	assert (var_name->attrs->is_true ("phc.codegen.st_entry_not_required"));
-	return prefix (*var_name->value, "local");
+	return get_non_st_name (var_name->value);
 }
 
 string read_literal (Scope, string, Literal*);
@@ -291,6 +302,10 @@ string read_rvalue (Scope scope, string zvp, Rvalue* rvalue)
 	}
 	return ss.str ();
 }
+
+// TODO: This should be integrated into each function. In particular, we want
+// to remove the slowness of adding the uninitialized_zval_ptr, only to remove
+// it a second later.
 
 // Declare and fetch a zval** into ZVP, which is the symbol-table entry for
 // VAR_NAME. This zval** can be over-written, which will change the
@@ -518,33 +533,6 @@ protected:
 		;
 	}
 
-	class Find_temps : public Visitor, virtual public GC_obj
-	{
-	public:
-		set<string> var_names;
-		void pre_variable_name (VARIABLE_NAME* var_name)
-		{
-			if (var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
-			{
-				string name = get_non_st_name (var_name);
-				var_names.insert (name);
-			}
-		}
-	};
-
-	void generate_non_st_declarations (Method* method, Signature* sig)
-	{
-		Find_temps ft;
-		// collect all the variables
-		method->visit (&ft);
-		sig->visit (&ft);
-		foreach (string var, ft.var_names)
-		{
-			code
-			<< "zval* " << var << " = NULL;\n";
-		}
-	}
-
 	void method_entry()
 	{
 		code
@@ -568,11 +556,19 @@ protected:
 			;
 		}
 
-		generate_non_st_declarations (pattern->value, signature);
 
+		// Declare variables which can go outside the symbol table
+		String_list* var_names = dyc<String_list> (pattern->value->attrs->get ("phc.codegen.non_st_vars"));
+		assert (var_names);
+		foreach (String* var, *var_names)
+		{
+			code
+			<< "zval* " << get_non_st_name (var) << " = NULL;\n";
+		}
 
 		// debug_argument_stack();
 
+		// TODO: the same variable may be used twice in the signature. This leads to a memory leak.
 		Formal_parameter_list* parameters = signature->formal_parameters;
 		if(parameters && parameters->size() > 0)
 		{
@@ -656,23 +652,6 @@ protected:
 		code << "// Function body\n";
 	}
 
-	void generate_non_st_cleanup (Method* method, Signature* sig)
-	{
-		Find_temps ft;
-		// collect all the variables
-		method->visit (&ft);
-		sig->visit (&ft);
-		foreach (string var, ft.var_names)
-		{
-			code
-			<< "if (" << var << " != NULL)\n"
-			<< "{\n"
-			<<		"zval_ptr_dtor (&" << var << ");\n"
-			<< "}\n"
-			;
-		}
-	}
-
 	void method_exit()
 	{
 		code
@@ -693,7 +672,19 @@ protected:
 			;
 		}
 
-		generate_non_st_cleanup (pattern->value, signature);
+		// Cleanup local variables
+		String_list* var_names = dyc<String_list> (pattern->value->attrs->get ("phc.codegen.non_st_vars"));
+		assert (var_names);
+		foreach (String* var_name, *var_names)
+		{
+			string name = get_non_st_name (var_name);
+			code
+			<< "if (" << name << " != NULL)\n"
+			<< "{\n"
+			<<		"zval_ptr_dtor (&" << name << ");\n"
+			<< "}\n"
+			;
+		}
 
 		code << "}\n";
 	}

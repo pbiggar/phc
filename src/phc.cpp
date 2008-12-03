@@ -25,6 +25,7 @@
 #include "codegen/Clarify.h"
 #include "codegen/Compile_C.h"
 #include "codegen/Generate_C.h"
+#include "codegen/Generate_C_annotations.h"
 #include "codegen/Lift_functions_and_classes.h"
 #include "embed/embed.h"
 #include "hir_to_mir/HIR_to_MIR.h"
@@ -192,6 +193,7 @@ int main(int argc, char** argv)
 	// codegen passes
 	stringstream ss;
 	pm->add_codegen_transform (new Out_of_SSA (), s("outssa"), s("Remove SSA constructs"));
+	pm->add_codegen_visitor (new Generate_C_annotations, s("cgann"), s("Codegen annotation"));
 	pm->add_codegen_pass (new Generate_C (ss));
 	pm->add_codegen_pass (new Compile_C (ss));
 

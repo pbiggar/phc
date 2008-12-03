@@ -8,8 +8,8 @@
  * LIR, the C code will be generated from the LIR instead.
  */
 
-#ifndef GENERATE_C
-#define GENERATE_C
+#ifndef PHC_GENERATE_C
+#define PHC_GENERATE_C
 
 #include "MIR_visitor.h"
 #include "pass_manager/Pass.h"
@@ -36,4 +36,4 @@ public:
 	bool return_by_reference; 		// current methods returns by reference	
 };
 
-#endif // GENERATE_C
+#endif // PHC_GENERATE_C
