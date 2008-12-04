@@ -20,9 +20,6 @@ private:
 public:
 	DOT_unparser(); 
 	virtual ~DOT_unparser();
-	// Escape according to DOT rules, including at most MAX_LENGTH characters
-	// from IN.
-	static String* escape (String* in, int max_length = -1);
 
 public:
 	void visit_php_script(AST::PHP_script* in);

@@ -44,6 +44,7 @@
 #include "Generate_C.h"
 #include "embed/embed.h"
 #include "lib/List.h"
+#include "lib/escape.h"
 #include "lib/demangle.h"
 
 using namespace MIR;
@@ -121,32 +122,6 @@ void Generate_C::run (IR::PHP_script* in, Pass_manager* pm)
 /*
  * Helper functions
  */
-
-// Escape according to C rules (this varies slightly from unparsing for PHP and
-// dot).
-string C_escape(String* s)
-{
-	stringstream ss;
-
-	foreach (char c, *s)
-	{
-		if(c == '"' || c == '\\')
-		{
-			ss << "\\" << c;
-		}
-		else if(c >= 32 && c < 127)
-		{
-			ss << c;
-		}
-		else
-		{
-			ss << "\\" << setw(3) << setfill('0') << oct << uppercase << (unsigned long int)(unsigned char) c;
-			ss << resetiosflags(code.flags());
-		}
-	}
-
-	return ss.str();
-}
 
 
 
@@ -1222,7 +1197,7 @@ public:
 	void initialize (ostream& os, string var, STRING* value)
 	{
 		os << "ZVAL_STRINGL(" << var << ", " 
-			<<		"\"" << C_escape(value->value) << "\", "
+			<<		"\"" << *escape_C_dq (value->value) << "\", "
 			<<		value->value->length() << ", 1);\n";
 	}
 
@@ -2522,7 +2497,7 @@ void Generate_C::children_statement(Statement* in)
 		if (str == "")
 			continue;
 
-		code << "// " << C_escape (s(str)) << endl;
+		code << "// " << *escape_C_comment (s(str)) << endl;
 	}
 
 	Pattern* patterns[] = 

@@ -99,7 +99,7 @@ am_libphc_la_OBJECTS = getopt1.lo getopt.lo AST_annotate.lo \
 	MIR_visitor.lo php_parser.tab.lo HIR_lower_expr.lo \
 	Lower_control_flow.lo Lower_dynamic_definitions.lo \
 	Lower_method_invocations.lo AttrMap.lo base64.lo Boolean.lo \
-	demangle.lo error.lo Integer.lo Object.lo String.lo \
+	demangle.lo error.lo escape.lo Integer.lo Object.lo String.lo \
 	Copy_propagation.lo Dead_code_elimination.lo Fix_point.lo \
 	Prune_symbol_table.lo Use_def_counter.lo Parse_buffer.lo \
 	parse.lo PHP_context.lo XML_parser.lo Pass_manager.lo \
@@ -678,6 +678,8 @@ libphc_la_SOURCES = \
 	src/lib/demangle.h										\
 	src/lib/error.cpp											\
 	src/lib/error.h											\
+	src/lib/escape.cpp										\
+	src/lib/escape.h											\
 	src/lib/Integer.cpp										\
 	src/lib/Integer.h											\
 	src/lib/List.h												\
@@ -1299,6 +1301,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/demi_eval.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/embed.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/error.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/escape.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fresh.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/getopt.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/getopt1.Plo@am__quote@
@@ -1675,6 +1678,13 @@ error.lo: src/lib/error.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/lib/error.cpp' object='error.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o error.lo `test -f 'src/lib/error.cpp' || echo '$(srcdir)/'`src/lib/error.cpp
+
+escape.lo: src/lib/escape.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT escape.lo -MD -MP -MF $(DEPDIR)/escape.Tpo -c -o escape.lo `test -f 'src/lib/escape.cpp' || echo '$(srcdir)/'`src/lib/escape.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/escape.Tpo $(DEPDIR)/escape.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/lib/escape.cpp' object='escape.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o escape.lo `test -f 'src/lib/escape.cpp' || echo '$(srcdir)/'`src/lib/escape.cpp
 
 Integer.lo: src/lib/Integer.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Integer.lo -MD -MP -MF $(DEPDIR)/Integer.Tpo -c -o Integer.lo `test -f 'src/lib/Integer.cpp' || echo '$(srcdir)/'`src/lib/Integer.cpp

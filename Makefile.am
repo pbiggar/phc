@@ -143,6 +143,8 @@ libphc_la_SOURCES= 											\
 	src/lib/demangle.h										\
 	src/lib/error.cpp											\
 	src/lib/error.h											\
+	src/lib/escape.cpp										\
+	src/lib/escape.h											\
 	src/lib/Integer.cpp										\
 	src/lib/Integer.h											\
 	src/lib/List.h												\
