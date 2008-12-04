@@ -632,6 +632,7 @@ function homogenize_xml ($string)
 
 	// fresh doesnt return the same numbers every time.
 	$string = preg_replace("/(<value>\D+)\d+(<\/value>)/", "$1xx$2", $string);
+	$string = preg_replace("/(<string>\D+)\d+(<\/string>)/", "$1xx$2", $string);
 	return $string;
 }
 
