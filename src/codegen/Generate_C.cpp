@@ -1077,7 +1077,7 @@ public:
 	Wildcard<typename Specializer::PHC_TYPE>* rhs;
 };
 
-template<class PHC_type, class C_type>
+template<class PHC_type>
 class Literal_specializer : virtual public GC_obj
 {
 public:
@@ -1085,7 +1085,7 @@ public:
 	typedef PHC_type PHC_TYPE;
 
 	// record if we've seen this variable before
-	string get_var (PHC_type* value)
+	string get_var (Literal* in)
 	{
 		static Set<string> vars;
 		if (args_info->optimize_given)
@@ -1093,7 +1093,7 @@ public:
 			// The first time we see a constant, we add a declaration,
 			// initialization and finalization. After that, we find the
 			// first one and refer to it.
-			string var = *value->attrs->get_string ("phc.codegen.pool_name");
+			string var = *in->attrs->get_string ("phc.codegen.pool_name");
 			if (vars.has (var))
 				return var;
 			else
@@ -1102,7 +1102,7 @@ public:
 				// variables and add declarations. 
 				vars.insert (var);
 
-				initialize (initializations, var, value);
+				initialize (initializations, var, dyc<PHC_type> (in));
 
 				return var;
 			}
@@ -1114,7 +1114,7 @@ public:
 };
 
 
-class BOOL_specializer : public Literal_specializer<BOOL, bool>
+class BOOL_specializer : public Literal_specializer<BOOL>
 {
 public:
 	void initialize (ostream& os, string var, BOOL* value)
@@ -1125,7 +1125,7 @@ public:
 
 };
 
-class INT_specializer : public Literal_specializer<INT, long>
+class INT_specializer : public Literal_specializer<INT>
 {
 public:
 	void initialize (ostream& os, string var, INT* value)
@@ -1134,7 +1134,7 @@ public:
 	}
 };
 
-class REAL_specializer : public Literal_specializer<REAL, double>
+class REAL_specializer : public Literal_specializer<REAL>
 {
 public:
 	void initialize (ostream& os, string var, REAL* value)
@@ -1154,7 +1154,7 @@ public:
 	}
 };
 
-class NIL_specializer : public Literal_specializer<NIL, string>
+class NIL_specializer : public Literal_specializer<NIL>
 {
 public:
 	void initialize (ostream& os, string var, NIL* value)
@@ -1163,7 +1163,7 @@ public:
 	}
 };
 
-class STRING_specializer : public Literal_specializer<STRING, string>
+class STRING_specializer : public Literal_specializer<STRING>
 {
 public:
 
@@ -1195,19 +1195,19 @@ read_literal (Scope scope, string zvp, Literal* lit)
 		switch (lit->classid ())
 		{
 			case INT::ID:
-				ss << (new INT_specializer)->get_var (dyc<INT> (lit));
+				ss << (new INT_specializer)->get_var (lit);
 				break;
 			case REAL::ID:
-				ss << (new REAL_specializer)->get_var (dyc<REAL> (lit));
+				ss << (new REAL_specializer)->get_var (lit);
 				break;
 			case NIL::ID:
-				ss << (new NIL_specializer)->get_var (dyc<NIL> (lit));
+				ss << (new NIL_specializer)->get_var (lit);
 				break;
 			case STRING::ID:
-				ss << (new STRING_specializer)->get_var (dyc<STRING> (lit));
+				ss << (new STRING_specializer)->get_var (lit);
 				break;
 			case BOOL::ID:
-				ss << (new BOOL_specializer)->get_var (dyc<BOOL> (lit));
+				ss << (new BOOL_specializer)->get_var (lit);
 				break;
 			default:
 				phc_unreachable ();
