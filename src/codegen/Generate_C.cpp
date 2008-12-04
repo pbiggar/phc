@@ -1087,27 +1087,21 @@ public:
 	// record if we've seen this variable before
 	string get_var (PHC_type* value)
 	{
-		static Map<C_type, string> vars;
+		static Set<string> vars;
 		if (args_info->optimize_given)
 		{
 			// The first time we see a constant, we add a declaration,
 			// initialization and finalization. After that, we find the
 			// first one and refer to it.
-			string var;
-			if (vars.has (key (value)))
-				return vars [key (value)];
+			string var = *value->attrs->get_string ("phc.codegen.pool_name");
+			if (vars.has (var))
+				return var;
 			else
 			{
 				// This is the first time we see the variable. Create the
 				// variables and add declarations. 
-				stringstream name;
-				name << prefix() << vars.size ();
-				var = name.str ();
-				vars [key (value)] = var;
+				vars.insert (var);
 
-				prologue << "zval* " << var << ";\n";
-				finalizations << "zval_ptr_dtor (&" << var << ");\n";
-				initializations << "ALLOC_INIT_ZVAL (" << var << ");\n";
 				initialize (initializations, var, value);
 
 				return var;
@@ -1117,17 +1111,12 @@ public:
 	}
 
 	virtual void initialize (ostream& os, string var, PHC_type*) = 0;
-	virtual string prefix () = 0;
-	virtual C_type key (PHC_type* v) = 0;
 };
 
 
 class BOOL_specializer : public Literal_specializer<BOOL, bool>
 {
 public:
-	string prefix () { return "phc_const_pool_bool_"; }
-	bool key (BOOL* value) { return value->value; }
-
 	void initialize (ostream& os, string var, BOOL* value)
 	{
 		os	<< "ZVAL_BOOL (" << var << ", " 
@@ -1139,9 +1128,6 @@ public:
 class INT_specializer : public Literal_specializer<INT, long>
 {
 public:
-	string prefix () { return "phc_const_pool_int_"; }
-	long key (INT* value) { return value->value; }
-
 	void initialize (ostream& os, string var, INT* value)
 	{
 		os << "ZVAL_LONG (" << var << ", " << value->value << ");\n";
@@ -1151,9 +1137,6 @@ public:
 class REAL_specializer : public Literal_specializer<REAL, double>
 {
 public:
-	string prefix () { return "phc_const_pool_real_"; }
-	double key (REAL* value) { return value->value; }
-
 	void initialize (ostream& os, string var, REAL* value)
 	{
 		os << "{\n";
@@ -1174,9 +1157,6 @@ public:
 class NIL_specializer : public Literal_specializer<NIL, string>
 {
 public:
-	string prefix () { return "phc_const_pool_null_"; }
-	string key (NIL* value) { return ""; }
-
 	void initialize (ostream& os, string var, NIL* value)
 	{
 		os << "ZVAL_NULL (" << var << ");\n";
@@ -1186,8 +1166,6 @@ public:
 class STRING_specializer : public Literal_specializer<STRING, string>
 {
 public:
-	string prefix () { return "phc_const_pool_string_"; }
-	string key (STRING* value) { return *value->value; }
 
 	void initialize (ostream& os, string var, STRING* value)
 	{
@@ -2599,6 +2577,21 @@ void Generate_C::pre_php_script(PHP_script* in)
 {
 	include_file (prologue, s("support_routines.c"));
 	include_file (prologue, s("builtin_functions.c"));
+
+
+	// Add constant-pooling declarations
+	if (args_info->optimize_given)
+	{
+		String_list* pooled_literals = dyc<String_list> (
+			in->attrs->get ("phc.codegen.pooled_literals"));
+
+		foreach (String* var, *pooled_literals)
+		{
+			prologue << "zval* " << *var << ";\n";
+			finalizations << "zval_ptr_dtor (&" << *var << ");\n";
+			initializations << "ALLOC_INIT_ZVAL (" << *var << ");\n";
+		}
+	}
 }
 
 void Generate_C::post_php_script(PHP_script* in)
@@ -2666,8 +2659,8 @@ void Generate_C::post_php_script(PHP_script* in)
 	{
 		code << 
 		"#include <sapi/embed/php_embed.h>\n"
-		"#include <signal.h>\n\n"
-	
+		"#include <signal.h>\n"
+		"\n"
 		"void sighandler(int signum)\n"
 		"{\n"
 		"	switch(signum)\n"
@@ -2701,10 +2694,10 @@ void Generate_C::post_php_script(PHP_script* in)
 		"   php_embed_init (argc, argv PTSRMLS_CC);\n"
 		"   zend_first_try\n"
 		"   {\n"
-    "\n"
-    "      // initialize the phc runtime\n"
-    "      init_runtime();\n"
-    "\n"
+		"\n"
+		"      // initialize the phc runtime\n"
+		"      init_runtime();\n"
+		"\n"
 		"      // load the compiled extension\n"
 		"      zend_startup_module (&" << *extension_name << "_module_entry);\n"
 		"\n"
@@ -2732,8 +2725,8 @@ void Generate_C::post_php_script(PHP_script* in)
 		"\n"
 		"      assert (success == SUCCESS);\n"
 		"\n"
-    "      // finalize the runtime\n"
-    "      finalize_runtime();\n"
+		"      // finalize the runtime\n"
+		"      finalize_runtime();\n"
 		"\n"
 		"   }\n"
 		"   zend_catch\n"
