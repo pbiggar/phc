@@ -559,12 +559,15 @@ protected:
 
 		// Declare variables which can go outside the symbol table
 		String_list* var_names = dyc<String_list> (pattern->value->attrs->get ("phc.codegen.non_st_vars"));
-		assert (var_names);
 		foreach (String* var, *var_names)
-		{
-			code
-			<< "zval* " << get_non_st_name (var) << " = NULL;\n";
-		}
+			code << "zval* " << get_non_st_name (var) << " = NULL;\n";
+
+
+		// Declare hashtable iterators for the function
+		String_list* iterators = dyc<String_list> (pattern->value->attrs->get ("phc.codegen.ht_iterators"));
+		foreach (String* iter, *iterators)
+			code << "HashPosition " << *iter << ";\n";
+
 
 		// debug_argument_stack();
 
@@ -703,32 +706,18 @@ class Pattern_assign_var : public Pattern
 {
 public:
 	virtual Expr* rhs_pattern() = 0;
-	virtual void generate_rhs () = 0;
 	virtual ~Pattern_assign_var() {}
 
 public:
 	bool match(Statement* that)
 	{
 		lhs = new Wildcard<VARIABLE_NAME>;
-		agn = new Assign_var (lhs, /* ignored */ false, rhs_pattern());
-		return (that->match(agn));
-	}
-
-	void generate_code(Generate_C* gen)
-	{
-		// TODO we done always need the sym-table entry.
-		code 
-		<<	get_st_entry (LOCAL, "p_lhs", lhs->value)
-		;
-
-		// Generate code for the RHS
-		generate_rhs ();
-
+		agn = new Assign_var (lhs, /* ignored */ false, rhs_pattern ());
+		return (that->match (agn));
 	}
 
 protected:
 	Assign_var* agn;
-	Wildcard<Target>* target;
 	Wildcard<VARIABLE_NAME>* lhs;
 };
 
@@ -756,13 +745,14 @@ public:
 		return rhs;
 	}
 
-	void generate_rhs ()
+	void generate_code (Generate_C* gen)
 	{
 		// TODO combine with assign_expr_var_var
 		// and assign_expr_array_access
 		if (!agn->is_ref)
 		{
 			code
+			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
 			<< declare ("p_rhs")
 			<< read_var (LOCAL, "p_rhs", rhs->value)
 			<< "if (*p_lhs != *p_rhs)\n"
@@ -772,6 +762,7 @@ public:
 		else
 		{
 			code
+			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
 			<< get_st_entry (LOCAL, "p_rhs", rhs->value)
 			<< "copy_into_ref (p_lhs, p_rhs);\n"
 			;
@@ -800,11 +791,12 @@ public:
 		return rhs;
 	}
 
-	void generate_rhs ()
+	void generate_code (Generate_C* gen)
 	{
 		if (!agn->is_ref)
 		{
 			code
+			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
 			<< declare ("p_rhs")
 			<< read_var_var (LOCAL, "p_rhs", rhs->value->variable_name)
 			<< "if (*p_lhs != *p_rhs)\n"
@@ -815,6 +807,7 @@ public:
 		else
 		{
 			code
+			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
 			<< declare ("p_rhs")
 			<< get_var_var (LOCAL, "p_rhs", LOCAL, rhs->value->variable_name)
 			<< "copy_into_ref (p_lhs, p_rhs);\n"
@@ -837,13 +830,14 @@ public:
 		return rhs;
 	}
 
-	void generate_rhs ()
+	void generate_code (Generate_C* gen)
 	{
 		VARIABLE_NAME* var_name  = rhs->value->variable_name;
 
 		if (!agn->is_ref)
 		{
 			code
+			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
 			<< declare ("p_rhs")
 
 			<< "// Read array variable\n"
@@ -864,6 +858,7 @@ public:
 		else
 		{
 			code 
+			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
 			<< get_array_entry (LOCAL, "p_rhs", rhs->value->variable_name, rhs->value->index)
 			<< "copy_into_ref (p_lhs, p_rhs);\n"
 			;
@@ -885,10 +880,10 @@ public:
 		return new Cast (cast, rhs);
 	}
 
-	void generate_rhs ()
+	void generate_code (Generate_C* gen)
 	{
 		assert (!agn->is_ref);
-		Pattern_assign_expr_var::generate_rhs ();
+		Pattern_assign_expr_var::generate_code (gen);
 
 		if (*cast->value->value == "string")
 			code << "cast_var (p_lhs, IS_STRING);\n";
@@ -920,7 +915,7 @@ public:
 		return rhs;
 	}
 
-	void generate_rhs ()
+	void generate_code (Generate_C* gen)
 	{
 		assert (!agn->is_ref);
 
@@ -938,6 +933,7 @@ public:
 		// put it in directly for non-reference lhss, and use the
 		// data directly without copying for reference lhss.
 		code
+		<< get_st_entry (LOCAL, "p_lhs", lhs->value)
 		<< "if (!(*p_lhs)->is_ref)\n"
 		<< "{\n"
 		<<		"zval_ptr_dtor (p_lhs);\n"
@@ -978,7 +974,7 @@ public:
 		return new Bin_op (left, op, right); 
 	}
 
-	void generate_rhs ()
+	void generate_code (Generate_C* gen)
 	{
 		assert (lhs);
 		assert(
@@ -987,6 +983,7 @@ public:
 		string op_fn = op_functions[*op->value->value]; 
 
 		code
+		<< get_st_entry (LOCAL, "p_lhs", lhs->value)
 		<< read_rvalue (LOCAL, "left", left->value)
 		<< read_rvalue (LOCAL, "right", right->value)
 
@@ -1031,14 +1028,16 @@ public:
 		return new Unary_op(op, var_name);
 	}
 
-	void generate_rhs ()
+	void generate_code (Generate_C* gen)
 	{
+	
 		assert(
 			op_functions.find(*op->value->value) != 
 			op_functions.end());
 		string op_fn = op_functions[*op->value->value]; 
 
 		code
+		<< get_st_entry (LOCAL, "p_lhs", lhs->value)
 		<< read_rvalue (LOCAL, "expr", var_name->value)
 
 		<< "if (in_copy_on_write (*p_lhs))\n"
@@ -1077,10 +1076,10 @@ protected:
 class Pattern_assign_value : public Pattern_assign_var
 {
 public:
-	void generate_rhs ()
+	void generate_code (Generate_C* gen)
 	{
-
 		code
+		<< get_st_entry (LOCAL, "p_lhs", lhs->value)
 		<< "if ((*p_lhs)->is_ref)\n"
 		<< "{\n"
 		<< "  // Always overwrite the current value\n"
@@ -1121,7 +1120,7 @@ public:
 	}
 
 	// record if we've seen this variable before
-	void generate_rhs ()
+	void generate_code (Generate_C* gen)
 	{
 		Specializer* spec = new Specializer;
 		assert (!agn->is_ref);
@@ -1129,13 +1128,14 @@ public:
 		{
 			string var = spec->get_var (rhs->value);
 			code
+			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
 			<< "if (" << var << " != *p_lhs)\n"
 			<<		"write_var (p_lhs, &" << var << ", NULL);\n"
 			;
 		}
 		else
 		{
-			Pattern_assign_value::generate_rhs();
+			Pattern_assign_value::generate_code (gen);
 		}
 	}
 
@@ -1486,8 +1486,9 @@ class Pattern_assign_expr_foreach_get_val : public Pattern_assign_var
 		return get_val;
 	}
 
-	void generate_rhs ()
+	void generate_code (Generate_C* gen)
 	{
+		code << get_st_entry (LOCAL, "p_lhs", lhs->value) ;
 		code << read_rvalue (LOCAL, "fe_array", get_val->value->array);
 		if (!agn->is_ref)
 		{
@@ -1541,14 +1542,6 @@ public:
 		else
 			return Pattern_assign_var::match(that);
 	}
-
-	void generate_code(Generate_C* gen)
-	{
-		if (lhs == NULL)
-			generate_rhs ();
-		else
-			Pattern_assign_var::generate_code (gen);
-	}
 };
 
 class Pattern_expr_builtin : public Pattern_eval_expr_or_assign_var
@@ -1585,7 +1578,7 @@ public:
 			new List<Actual_parameter*>(arg));
 	}
 
-	void generate_rhs ()
+	void generate_code (Generate_C* gen)
 	{
 		code
 		<< read_rvalue (LOCAL, "p_arg", arg->value->rvalue);
@@ -1598,6 +1591,7 @@ public:
 
 			// create a result
 			code
+			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
 			<< declare ("p_rhs")
 			<< "ALLOC_INIT_ZVAL (*p_rhs);\n"
 			<< "is_p_rhs_new = 1;\n"
@@ -1660,7 +1654,7 @@ public:
 		return rhs;
 	}
 
-	void generate_rhs ()
+	void generate_code (Generate_C* gen)
 	{
 		assert (!agn->is_ref);
 
@@ -1683,6 +1677,7 @@ public:
 		<< "}\n"
 
 		// TODO this could be locally allocated
+		<< get_st_entry (LOCAL, "p_lhs", lhs->value)
 		<< declare ("p_rhs")
 
 		<< "p_rhs = p_lhs;\n"
@@ -1717,7 +1712,7 @@ public:
 		return rhs;
 	}
 
-	void generate_rhs ()
+	void generate_code (Generate_C* gen)
 	{
 		Actual_parameter_list::const_iterator i;
 		unsigned index;
@@ -1944,6 +1939,8 @@ public:
 
 		if (lhs)
 		{
+			code << get_st_entry (LOCAL, "p_lhs", lhs->value);
+
 			if (!agn->is_ref)
 				code << "write_var (p_lhs, p_rhs, &is_p_rhs_new);\n";
 			else
@@ -2550,9 +2547,7 @@ class Pattern_foreach_reset : public Pattern
 	{
 		// declare the external iterator outside local scope blocks
 		code
-		<< "HashPosition " << *reset->value->iter->value << ";\n"
 		<< "{\n"
-
 		<<		read_rvalue (LOCAL, "fe_array", reset->value->array)
 		<<		"zend_hash_internal_pointer_reset_ex ("
 		<<		"						fe_array->value.ht, "

@@ -7,25 +7,35 @@
 
 #include "Generate_C_annotations.h"
 
+using namespace MIR;
+
+// convert from string to String*
+String_list* wrap_strings (Set<string>& set)
+{
+	String_list* result = new String_list;
+
+	foreach (string name, set)
+		result->push_back (s (name));
+
+	return result;
+}
+
 void
 Generate_C_annotations::pre_method (MIR::Method* in)
 {
 	var_names.clear ();
+	iterators.clear ();
 }
 
 void
 Generate_C_annotations::post_method (MIR::Method* in)
 {
-	String_list* result = new String_list;
-
-	// convert from string to String*
-	foreach (string name, var_names)
-		result->push_back (s (name));
-
-	in->attrs->set ("phc.codegen.non_st_vars", result);
+	in->attrs->set ("phc.codegen.non_st_vars", wrap_strings (var_names));
+	in->attrs->set ("phc.codegen.ht_iterators", wrap_strings (iterators));
 }
 
-// TODO: this should get the signature too
+
+// Get the list of variables which dont need a symbol-table entry
 void
 Generate_C_annotations::post_variable_name (MIR::VARIABLE_NAME* in)
 {
@@ -33,4 +43,11 @@ Generate_C_annotations::post_variable_name (MIR::VARIABLE_NAME* in)
 	{
 		var_names.insert (*in->value);
 	}
+}
+
+// Get the list of Hashtable iterators required.
+void
+Generate_C_annotations::post_ht_iterator (HT_ITERATOR* in)
+{
+	iterators.insert (*in->value);
 }
