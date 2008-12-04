@@ -20,6 +20,54 @@ String_list* wrap_strings (Set<string>& set)
 	return result;
 }
 
+/*
+ * Whole script analysis
+ */
+
+void
+Generate_C_annotations::pre_php_script (PHP_script* in)
+{
+	literal_pools.clear ();
+}
+
+void
+Generate_C_annotations::post_php_script (PHP_script* in)
+{
+	// Add a list of literal-pooled variables to the script.
+	String_list* literal_pool_vars = new String_list;
+	int ids[] = { MIR::STRING::ID, INT::ID, REAL::ID, MIR::BOOL::ID, NIL::ID };
+
+	foreach (int id, ids)
+		foreach (String* var_name, *literal_pools[id].values ())
+			literal_pool_vars->push_back (var_name);
+
+	in->attrs->set ("phc.codegen.pooled_literals", literal_pool_vars);
+}
+
+void
+Generate_C_annotations::post_literal (Literal* in)
+{
+	// Annotate each literal with a name for its pooled variable. Separate
+	// pools for each class
+	string index = *in->get_value_as_string ();
+	Map<string, String*>& pool = literal_pools[in->classid ()];
+
+	if (!pool.has (index))
+	{
+		// dont use the value as the suffix, as string values can be very long
+		stringstream ss;
+		ss << "literal_pool_" << in->classid () << "_" << pool.size ();
+
+		pool [index] = s (ss.str());
+	}
+	in->attrs->set ("phc.codegen.pool_name", pool [index]->clone ());
+}
+
+
+/*
+ * Method analysis
+ */
+
 void
 Generate_C_annotations::pre_method (MIR::Method* in)
 {

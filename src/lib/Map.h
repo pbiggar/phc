@@ -9,7 +9,8 @@
 #define PHC_MAP_H
 
 #include <map>
-#include "lib/Object.h"
+#include "List.h"
+#include <boost/tuple/tuple.hpp> // for tie
 
 template <
 	typename _Key, 
@@ -40,6 +41,30 @@ public:
 	void set(_Key key, _Tp value)
 	{
 		(*this)[key] = value;
+	}
+
+	List<_Key>* keys ()
+	{
+		List<_Key>* result = new List<_Key>;
+
+		_Key key;
+		_Tp value;
+		foreach (boost::tie (key, value), *this)
+			result->push_back (key);
+
+		return result;
+	}
+
+	List<_Tp>* values ()
+	{
+		List<_Tp>* result = new List<_Tp>;
+
+		_Key key;
+		_Tp value;
+		foreach (boost::tie (key, value), *this)
+			result->push_back (value);
+
+		return result;
 	}
 
 

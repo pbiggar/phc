@@ -35,17 +35,16 @@
 //	So that means casts are pure.
 
 #include <fstream>
-#include <set>
-#include <cstdlib>
 
-#include "process_mir/MIR_unparser.h"
-#include "process_ir/General.h"
-#include "process_ir/XML_unparser.h"
-#include "Generate_C.h"
-#include "embed/embed.h"
 #include "lib/List.h"
+#include "lib/Set.h"
 #include "lib/escape.h"
 #include "lib/demangle.h"
+#include "process_ir/General.h"
+#include "process_ir/XML_unparser.h"
+
+#include "Generate_C.h"
+#include "embed/embed.h"
 
 using namespace MIR;
 using namespace std;
@@ -103,6 +102,8 @@ void Generate_C::run (IR::PHP_script* in, Pass_manager* pm)
 //	Generate_C_prologue gen_prologue;
 //	Generate_C_body gen_body;
 //	Generate_C_epilogue gen_epilogue;
+//	Generate_C_initializations gen_initialize;
+//	Generate_C_finalizations gen_finalize;
 
 	in->visit(this);
 
@@ -906,9 +907,8 @@ public:
 	void generate_code (Generate_C* gen)
 	{
 		assert (lhs);
-		assert(
-			op_functions.find(*op->value->value) != 
-			op_functions.end());
+		assert (op_functions.has (*op->value->value));
+
 		string op_fn = op_functions[*op->value->value]; 
 
 		code
@@ -959,10 +959,8 @@ public:
 
 	void generate_code (Generate_C* gen)
 	{
-	
-		assert(
-			op_functions.find(*op->value->value) != 
-			op_functions.end());
+		assert (op_functions.has (*op->value->value));
+
 		string op_fn = op_functions[*op->value->value]; 
 
 		code
@@ -1089,9 +1087,6 @@ public:
 	// record if we've seen this variable before
 	string get_var (PHC_type* value)
 	{
-		// TODO If this isnt static, there is a new hash each time,
-		// because there is a new object each time it is called. Why is
-		// there a new object each time?
 		static Map<C_type, string> vars;
 		if (args_info->optimize_given)
 		{
@@ -1099,7 +1094,7 @@ public:
 			// initialization and finalization. After that, we find the
 			// first one and refer to it.
 			string var;
-			if (vars.find (key (value)) != vars.end ())
+			if (vars.has (key (value)))
 				return vars [key (value)];
 			else
 			{
@@ -1544,13 +1539,13 @@ protected:
 void
 init_function_record (string name, Node* node)
 {
-	static set<string> record;
+	static Set<string> record;
 
 	string fci_name = suffix (name, "fci");
 	string fcic_name = suffix (name, "fcic");
 
 	// initialize and declare the first time only
-	if (record.find (name) == record.end ())
+	if (!record.has (name))
 	{
 		record.insert (name);
 
@@ -2270,11 +2265,9 @@ public:
 
 	void generate_code(Generate_C* gen)
 	{
-		assert(
-			op_functions.find(*op->value->value) != 
-			op_functions.end());
-		string op_fn = op_functions[*op->value->value]; 
+		assert (op_functions.has (*op->value->value));
 
+		string op_fn = op_functions[*op->value->value]; 
 
 		code 
 		<<	get_st_entry (LOCAL, "p_var", var->value)

@@ -232,6 +232,7 @@ protected:
 			{
 				state->print_indent();
 				maybe_encode ("string", s);
+				state->os << endl;
 			}
 
 			state->indent--;

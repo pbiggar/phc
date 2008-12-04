@@ -9,7 +9,6 @@
 #include "String.h"
 #include "Boolean.h"
 #include "Integer.h"
-#include <boost/tuple/tuple.hpp> // for tie
 
 AttrMap::AttrMap() 
 : Map<string, Object*>() 
