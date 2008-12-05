@@ -1853,7 +1853,7 @@ class Pattern_assign_var_var : public Pattern
 	bool match(Statement* that)
 	{
 		lhs = new Wildcard<VARIABLE_NAME>;
-		rhs = new Wildcard<VARIABLE_NAME>;
+		rhs = new Wildcard<Rvalue>;
 		stmt = new Assign_var_var(lhs, false, rhs);
 		return(that->match(stmt));	
 	}
@@ -1868,7 +1868,8 @@ class Pattern_assign_var_var : public Pattern
 			<< get_var_var (LOCAL, "p_lhs", LOCAL, lhs->value)
 			<< declare ("p_rhs")
 			<< "int is_p_rhs_new = 0;\n"
-			<< read_var (LOCAL, "p_rhs", rhs->value)
+			<< read_rvalue (LOCAL, "rhs", rhs->value)
+			<< "p_rhs = &rhs;\n"
 			<< "if (*p_lhs != *p_rhs)\n"
 			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new);\n"
 			<< "if (is_" << "p_lhs" << "_new) zval_ptr_dtor (" << "p_lhs" << ");\n"
@@ -1881,7 +1882,7 @@ class Pattern_assign_var_var : public Pattern
 			<< declare ("p_lhs") 
 			<< "int is_p_lhs_new = 0;\n"
 			<< get_var_var (LOCAL, "p_lhs", LOCAL, lhs->value)
-			<< get_st_entry (LOCAL, "p_rhs", rhs->value)
+			<< get_st_entry (LOCAL, "p_rhs", dyc<VARIABLE_NAME> (rhs->value))
 			<< "copy_into_ref (p_lhs, p_rhs);\n"
 			<< "if (is_" << "p_lhs" << "_new) zval_ptr_dtor (" << "p_lhs" << ");\n"
 			;
@@ -1889,10 +1890,8 @@ class Pattern_assign_var_var : public Pattern
 	}
 
 	Assign_var_var* stmt;
-	// TODO: Here and elsewhere we assume the RHS is a variable_name, but it can be
-	// any rvalue 
 	Wildcard<VARIABLE_NAME>* lhs;
-	Wildcard<VARIABLE_NAME>* rhs;
+	Wildcard<Rvalue>* rhs;
 };
 	
 /*
@@ -2028,8 +2027,8 @@ class Pattern_return : public Pattern
 {
 	bool match(Statement* that)
 	{
-		var_name = new Wildcard<VARIABLE_NAME>;
-		return(that->match(new Return(var_name)));
+		rvalue = new Wildcard<Rvalue>;
+		return that->match (new Return (rvalue));
 	}
 
 	void generate_code(Generate_C* gen)
@@ -2037,7 +2036,7 @@ class Pattern_return : public Pattern
 		if(!gen->return_by_reference)
 		{
 			code 
-			<< read_rvalue (LOCAL, "rhs", var_name->value)
+			<< read_rvalue (LOCAL, "rhs", rvalue->value)
 
 			// Run-time return by reference had slightly different
 			// semantics to compile-time. There is no way within a
@@ -2053,7 +2052,7 @@ class Pattern_return : public Pattern
 		else
 		{
 			code
-			<< get_st_entry (LOCAL, "p_rhs", var_name->value)
+			<< get_st_entry (LOCAL, "p_rhs", dyc<VARIABLE_NAME> (rvalue->value))
 			<< "sep_copy_on_write_ex (p_rhs);\n"
 			<< "zval_ptr_dtor (return_value_ptr);\n"
 			<< "(*p_rhs)->is_ref = 1;\n"
@@ -2068,7 +2067,7 @@ class Pattern_return : public Pattern
 	}
 
 protected:
-	Wildcard<VARIABLE_NAME>* var_name;
+	Wildcard<Rvalue>* rvalue;
 };
 
 class Pattern_unset : public Pattern

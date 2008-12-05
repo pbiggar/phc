@@ -3631,14 +3631,14 @@ void Continue::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Return::Return(VARIABLE_NAME* variable_name)
+Return::Return(Rvalue* rvalue)
 {
-    this->variable_name = variable_name;
+    this->rvalue = rvalue;
 }
 
 Return::Return()
 {
-    this->variable_name = 0;
+    this->rvalue = 0;
 }
 
 void Return::visit(Visitor* visitor)
@@ -3666,12 +3666,12 @@ bool Return::match(Node* in)
     Return* that = dynamic_cast<Return*>(in);
     if(that == NULL) return false;
     
-    if(this->variable_name == NULL)
+    if(this->rvalue == NULL)
     {
-    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
+    	if(that->rvalue != NULL && !that->rvalue->match(this->rvalue))
     		return false;
     }
-    else if(!this->variable_name->match(that->variable_name))
+    else if(!this->rvalue->match(that->rvalue))
     	return false;
     
     return true;
@@ -3682,12 +3682,12 @@ bool Return::equals(Node* in)
     Return* that = dynamic_cast<Return*>(in);
     if(that == NULL) return false;
     
-    if(this->variable_name == NULL || that->variable_name == NULL)
+    if(this->rvalue == NULL || that->rvalue == NULL)
     {
-    	if(this->variable_name != NULL || that->variable_name != NULL)
+    	if(this->rvalue != NULL || that->rvalue != NULL)
     		return false;
     }
-    else if(!this->variable_name->equals(that->variable_name))
+    else if(!this->rvalue->equals(that->rvalue))
     	return false;
     
     if(!Node::is_mixin_equal(that)) return false;
@@ -3696,8 +3696,8 @@ bool Return::equals(Node* in)
 
 Return* Return::clone()
 {
-    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
-    Return* clone = new Return(variable_name);
+    Rvalue* rvalue = this->rvalue ? this->rvalue->clone() : NULL;
+    Return* clone = new Return(rvalue);
     clone->Node::clone_mixin_from(this);
     return clone;
 }
@@ -3707,10 +3707,10 @@ Node* Return::find(Node* in)
     if (this->match (in))
     	return this;
     
-    if (this->variable_name != NULL)
+    if (this->rvalue != NULL)
     {
-    	Node* variable_name_res = this->variable_name->find(in);
-    	if (variable_name_res) return variable_name_res;
+    	Node* rvalue_res = this->rvalue->find(in);
+    	if (rvalue_res) return rvalue_res;
     }
     
     return NULL;
@@ -3721,15 +3721,15 @@ void Return::find_all(Node* in, Node_list* out)
     if (this->match (in))
     	out->push_back (this);
     
-    if (this->variable_name != NULL)
-    	this->variable_name->find_all(in, out);
+    if (this->rvalue != NULL)
+    	this->rvalue->find_all(in, out);
     
 }
 
 void Return::assert_valid()
 {
-    assert(variable_name != NULL);
-    variable_name->assert_valid();
+    assert(rvalue != NULL);
+    rvalue->assert_valid();
     Node::assert_mixin_valid();
 }
 

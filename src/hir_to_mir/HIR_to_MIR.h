@@ -220,10 +220,10 @@ public:
 		return result;
 	}
 
-	MIR::Return* fold_impl_return(HIR::Return* orig, MIR::VARIABLE_NAME* variable_name) 
+	MIR::Return* fold_impl_return(HIR::Return* orig, MIR::Rvalue* rvalue) 
 	{
 		MIR::Return* result;
-		result = new MIR::Return(variable_name);
+		result = new MIR::Return(rvalue);
 		copy_attrs (result, orig);
 		return result;
 	}

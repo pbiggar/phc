@@ -83,7 +83,7 @@ Continue ::= Expr? ;
 
 -- It is not possible to return by reference unless the function is declared
 -- to return by reference. We may therefore return a VARIABLE_NAME here.
-Return ::= VARIABLE_NAME ;
+Return ::= Rvalue ;
 
 Static_declaration ::= var:Name_with_default ;
 Global ::= Variable_name ;

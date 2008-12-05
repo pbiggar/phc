@@ -270,10 +270,10 @@ public:
 		return result;
 	}
 
-	AST::Return* fold_impl_return(HIR::Return* orig, AST::None* variable_name) 
+	AST::Return* fold_impl_return(HIR::Return* orig, AST::Expr* expr) 
 	{
 		AST::Return* result;
-		result = new AST::Return(wrap_var_name (variable_name));
+		result = new AST::Return (expr);
 		result->attrs = orig->attrs;
 		return result;
 	}

@@ -719,7 +719,7 @@ void Transform::children_continue(Continue* in)
 
 void Transform::children_return(Return* in)
 {
-    in->variable_name = transform_variable_name(in->variable_name);
+    in->rvalue = transform_rvalue(in->rvalue);
 }
 
 void Transform::children_static_declaration(Static_declaration* in)
@@ -1270,6 +1270,22 @@ Expr* Transform::transform_expr(Expr* in)
     return out;
 }
 
+Rvalue* Transform::transform_rvalue(Rvalue* in)
+{
+    if(in == NULL) return NULL;
+    
+    Rvalue* out;
+    
+    out = pre_rvalue(in);
+    if(out != NULL)
+    {
+    	children_rvalue(out);
+    	out = post_rvalue(out);
+    }
+    
+    return out;
+}
+
 Variable_name* Transform::transform_variable_name(Variable_name* in)
 {
     if(in == NULL) return NULL;
@@ -1350,22 +1366,6 @@ Field_name* Transform::transform_field_name(Field_name* in)
     {
     	children_field_name(out);
     	out = post_field_name(out);
-    }
-    
-    return out;
-}
-
-Rvalue* Transform::transform_rvalue(Rvalue* in)
-{
-    if(in == NULL) return NULL;
-    
-    Rvalue* out;
-    
-    out = pre_rvalue(in);
-    if(out != NULL)
-    {
-    	children_rvalue(out);
-    	out = post_rvalue(out);
     }
     
     return out;
@@ -1833,6 +1833,20 @@ Expr* Transform::pre_expr(Expr* in)
     assert(0);
 }
 
+Rvalue* Transform::pre_rvalue(Rvalue* in)
+{
+    switch(in->classid())
+    {
+    case INT::ID: return pre_int(dynamic_cast<INT*>(in));
+    case REAL::ID: return pre_real(dynamic_cast<REAL*>(in));
+    case STRING::ID: return pre_string(dynamic_cast<STRING*>(in));
+    case BOOL::ID: return pre_bool(dynamic_cast<BOOL*>(in));
+    case NIL::ID: return pre_nil(dynamic_cast<NIL*>(in));
+    case VARIABLE_NAME::ID: return pre_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
+    }
+    assert(0);
+}
+
 Variable_name* Transform::pre_variable_name(Variable_name* in)
 {
     switch(in->classid())
@@ -1859,20 +1873,6 @@ Field_name* Transform::pre_field_name(Field_name* in)
     {
     case FIELD_NAME::ID: return pre_field_name(dynamic_cast<FIELD_NAME*>(in));
     case Variable_field::ID: return pre_variable_field(dynamic_cast<Variable_field*>(in));
-    }
-    assert(0);
-}
-
-Rvalue* Transform::pre_rvalue(Rvalue* in)
-{
-    switch(in->classid())
-    {
-    case INT::ID: return pre_int(dynamic_cast<INT*>(in));
-    case REAL::ID: return pre_real(dynamic_cast<REAL*>(in));
-    case STRING::ID: return pre_string(dynamic_cast<STRING*>(in));
-    case BOOL::ID: return pre_bool(dynamic_cast<BOOL*>(in));
-    case NIL::ID: return pre_nil(dynamic_cast<NIL*>(in));
-    case VARIABLE_NAME::ID: return pre_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
     }
     assert(0);
 }
@@ -2203,6 +2203,20 @@ Expr* Transform::post_expr(Expr* in)
     assert(0);
 }
 
+Rvalue* Transform::post_rvalue(Rvalue* in)
+{
+    switch(in->classid())
+    {
+    case INT::ID: return post_int(dynamic_cast<INT*>(in));
+    case REAL::ID: return post_real(dynamic_cast<REAL*>(in));
+    case STRING::ID: return post_string(dynamic_cast<STRING*>(in));
+    case BOOL::ID: return post_bool(dynamic_cast<BOOL*>(in));
+    case NIL::ID: return post_nil(dynamic_cast<NIL*>(in));
+    case VARIABLE_NAME::ID: return post_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
+    }
+    assert(0);
+}
+
 Variable_name* Transform::post_variable_name(Variable_name* in)
 {
     switch(in->classid())
@@ -2229,20 +2243,6 @@ Field_name* Transform::post_field_name(Field_name* in)
     {
     case FIELD_NAME::ID: return post_field_name(dynamic_cast<FIELD_NAME*>(in));
     case Variable_field::ID: return post_variable_field(dynamic_cast<Variable_field*>(in));
-    }
-    assert(0);
-}
-
-Rvalue* Transform::post_rvalue(Rvalue* in)
-{
-    switch(in->classid())
-    {
-    case INT::ID: return post_int(dynamic_cast<INT*>(in));
-    case REAL::ID: return post_real(dynamic_cast<REAL*>(in));
-    case STRING::ID: return post_string(dynamic_cast<STRING*>(in));
-    case BOOL::ID: return post_bool(dynamic_cast<BOOL*>(in));
-    case NIL::ID: return post_nil(dynamic_cast<NIL*>(in));
-    case VARIABLE_NAME::ID: return post_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
     }
     assert(0);
 }
@@ -2487,6 +2487,31 @@ void Transform::children_expr(Expr* in)
     }
 }
 
+void Transform::children_rvalue(Rvalue* in)
+{
+    switch(in->classid())
+    {
+    case INT::ID:
+    	children_int(dynamic_cast<INT*>(in));
+    	break;
+    case REAL::ID:
+    	children_real(dynamic_cast<REAL*>(in));
+    	break;
+    case STRING::ID:
+    	children_string(dynamic_cast<STRING*>(in));
+    	break;
+    case BOOL::ID:
+    	children_bool(dynamic_cast<BOOL*>(in));
+    	break;
+    case NIL::ID:
+    	children_nil(dynamic_cast<NIL*>(in));
+    	break;
+    case VARIABLE_NAME::ID:
+    	children_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
+    	break;
+    }
+}
+
 void Transform::children_variable_name(Variable_name* in)
 {
     switch(in->classid())
@@ -2522,31 +2547,6 @@ void Transform::children_field_name(Field_name* in)
     	break;
     case Variable_field::ID:
     	children_variable_field(dynamic_cast<Variable_field*>(in));
-    	break;
-    }
-}
-
-void Transform::children_rvalue(Rvalue* in)
-{
-    switch(in->classid())
-    {
-    case INT::ID:
-    	children_int(dynamic_cast<INT*>(in));
-    	break;
-    case REAL::ID:
-    	children_real(dynamic_cast<REAL*>(in));
-    	break;
-    case STRING::ID:
-    	children_string(dynamic_cast<STRING*>(in));
-    	break;
-    case BOOL::ID:
-    	children_bool(dynamic_cast<BOOL*>(in));
-    	break;
-    case NIL::ID:
-    	children_nil(dynamic_cast<NIL*>(in));
-    	break;
-    case VARIABLE_NAME::ID:
-    	children_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
     	break;
     }
 }

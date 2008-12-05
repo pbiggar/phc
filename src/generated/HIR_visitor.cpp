@@ -733,7 +733,7 @@ void Visitor::children_continue(Continue* in)
 
 void Visitor::children_return(Return* in)
 {
-    visit_variable_name(in->variable_name);
+    visit_rvalue(in->rvalue);
 }
 
 void Visitor::children_static_declaration(Static_declaration* in)
@@ -2164,6 +2164,18 @@ void Visitor::visit_expr(Expr* in)
     }
 }
 
+void Visitor::visit_rvalue(Rvalue* in)
+{
+    if(in == NULL)
+    	visit_null("HIR", "Rvalue");
+    else
+    {
+    	pre_rvalue_chain(in);
+    	children_rvalue(in);
+    	post_rvalue_chain(in);
+    }
+}
+
 void Visitor::visit_variable_name(Variable_name* in)
 {
     if(in == NULL)
@@ -2228,18 +2240,6 @@ void Visitor::visit_field_name(Field_name* in)
     	pre_field_name_chain(in);
     	children_field_name(in);
     	post_field_name_chain(in);
-    }
-}
-
-void Visitor::visit_rvalue(Rvalue* in)
-{
-    if(in == NULL)
-    	visit_null("HIR", "Rvalue");
-    else
-    {
-    	pre_rvalue_chain(in);
-    	children_rvalue(in);
-    	post_rvalue_chain(in);
     }
 }
 
@@ -2582,6 +2582,31 @@ void Visitor::pre_expr_chain(Expr* in)
     }
 }
 
+void Visitor::pre_rvalue_chain(Rvalue* in)
+{
+    switch(in->classid())
+    {
+    case INT::ID:
+    	pre_int_chain(dynamic_cast<INT*>(in));
+    	break;
+    case REAL::ID:
+    	pre_real_chain(dynamic_cast<REAL*>(in));
+    	break;
+    case STRING::ID:
+    	pre_string_chain(dynamic_cast<STRING*>(in));
+    	break;
+    case BOOL::ID:
+    	pre_bool_chain(dynamic_cast<BOOL*>(in));
+    	break;
+    case NIL::ID:
+    	pre_nil_chain(dynamic_cast<NIL*>(in));
+    	break;
+    case VARIABLE_NAME::ID:
+    	pre_variable_name_chain(dynamic_cast<VARIABLE_NAME*>(in));
+    	break;
+    }
+}
+
 void Visitor::pre_variable_name_chain(Variable_name* in)
 {
     switch(in->classid())
@@ -2617,31 +2642,6 @@ void Visitor::pre_field_name_chain(Field_name* in)
     	break;
     case Variable_field::ID:
     	pre_variable_field_chain(dynamic_cast<Variable_field*>(in));
-    	break;
-    }
-}
-
-void Visitor::pre_rvalue_chain(Rvalue* in)
-{
-    switch(in->classid())
-    {
-    case INT::ID:
-    	pre_int_chain(dynamic_cast<INT*>(in));
-    	break;
-    case REAL::ID:
-    	pre_real_chain(dynamic_cast<REAL*>(in));
-    	break;
-    case STRING::ID:
-    	pre_string_chain(dynamic_cast<STRING*>(in));
-    	break;
-    case BOOL::ID:
-    	pre_bool_chain(dynamic_cast<BOOL*>(in));
-    	break;
-    case NIL::ID:
-    	pre_nil_chain(dynamic_cast<NIL*>(in));
-    	break;
-    case VARIABLE_NAME::ID:
-    	pre_variable_name_chain(dynamic_cast<VARIABLE_NAME*>(in));
     	break;
     }
 }
@@ -2896,6 +2896,31 @@ void Visitor::post_expr_chain(Expr* in)
     }
 }
 
+void Visitor::post_rvalue_chain(Rvalue* in)
+{
+    switch(in->classid())
+    {
+    case INT::ID:
+    	post_int_chain(dynamic_cast<INT*>(in));
+    	break;
+    case REAL::ID:
+    	post_real_chain(dynamic_cast<REAL*>(in));
+    	break;
+    case STRING::ID:
+    	post_string_chain(dynamic_cast<STRING*>(in));
+    	break;
+    case BOOL::ID:
+    	post_bool_chain(dynamic_cast<BOOL*>(in));
+    	break;
+    case NIL::ID:
+    	post_nil_chain(dynamic_cast<NIL*>(in));
+    	break;
+    case VARIABLE_NAME::ID:
+    	post_variable_name_chain(dynamic_cast<VARIABLE_NAME*>(in));
+    	break;
+    }
+}
+
 void Visitor::post_variable_name_chain(Variable_name* in)
 {
     switch(in->classid())
@@ -2931,31 +2956,6 @@ void Visitor::post_field_name_chain(Field_name* in)
     	break;
     case Variable_field::ID:
     	post_variable_field_chain(dynamic_cast<Variable_field*>(in));
-    	break;
-    }
-}
-
-void Visitor::post_rvalue_chain(Rvalue* in)
-{
-    switch(in->classid())
-    {
-    case INT::ID:
-    	post_int_chain(dynamic_cast<INT*>(in));
-    	break;
-    case REAL::ID:
-    	post_real_chain(dynamic_cast<REAL*>(in));
-    	break;
-    case STRING::ID:
-    	post_string_chain(dynamic_cast<STRING*>(in));
-    	break;
-    case BOOL::ID:
-    	post_bool_chain(dynamic_cast<BOOL*>(in));
-    	break;
-    case NIL::ID:
-    	post_nil_chain(dynamic_cast<NIL*>(in));
-    	break;
-    case VARIABLE_NAME::ID:
-    	post_variable_name_chain(dynamic_cast<VARIABLE_NAME*>(in));
     	break;
     }
 }
@@ -3210,6 +3210,31 @@ void Visitor::children_expr(Expr* in)
     }
 }
 
+void Visitor::children_rvalue(Rvalue* in)
+{
+    switch(in->classid())
+    {
+    case INT::ID:
+    	children_int(dynamic_cast<INT*>(in));
+    	break;
+    case REAL::ID:
+    	children_real(dynamic_cast<REAL*>(in));
+    	break;
+    case STRING::ID:
+    	children_string(dynamic_cast<STRING*>(in));
+    	break;
+    case BOOL::ID:
+    	children_bool(dynamic_cast<BOOL*>(in));
+    	break;
+    case NIL::ID:
+    	children_nil(dynamic_cast<NIL*>(in));
+    	break;
+    case VARIABLE_NAME::ID:
+    	children_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
+    	break;
+    }
+}
+
 void Visitor::children_variable_name(Variable_name* in)
 {
     switch(in->classid())
@@ -3245,31 +3270,6 @@ void Visitor::children_field_name(Field_name* in)
     	break;
     case Variable_field::ID:
     	children_variable_field(dynamic_cast<Variable_field*>(in));
-    	break;
-    }
-}
-
-void Visitor::children_rvalue(Rvalue* in)
-{
-    switch(in->classid())
-    {
-    case INT::ID:
-    	children_int(dynamic_cast<INT*>(in));
-    	break;
-    case REAL::ID:
-    	children_real(dynamic_cast<REAL*>(in));
-    	break;
-    case STRING::ID:
-    	children_string(dynamic_cast<STRING*>(in));
-    	break;
-    case BOOL::ID:
-    	children_bool(dynamic_cast<BOOL*>(in));
-    	break;
-    case NIL::ID:
-    	children_nil(dynamic_cast<NIL*>(in));
-    	break;
-    case VARIABLE_NAME::ID:
-    	children_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
     	break;
     }
 }
