@@ -159,21 +159,9 @@ string declare (string var)
 	<< "zval* " << var << "_temp = NULL;\n"
 	<< "zval** " << var << ";\n"
 	<< var << " = &" << var << "_temp;\n"
-	<< "int is_" << var << "_new = 0;\n"
 	;
 	return ss.str ();
 }
-
-string cleanup (string target)
-{
-	stringstream ss;
-	ss
-	<< "if (is_" << target << "_new)\n"
-	<< "  zval_ptr_dtor (" << target << ");\n"
-	;
-	return ss.str ();
-}
-
 
 string suffix (string str, string suffix)
 {
@@ -686,10 +674,12 @@ public:
 			code
 			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
 			<< declare ("p_rhs")
+			<< "int is_p_rhs_new = 0;\n"
 			<< read_var (LOCAL, "p_rhs", rhs->value)
 			<< "if (*p_lhs != *p_rhs)\n"
 			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new);\n"
-			<< cleanup ("p_rhs");
+
+			<< "if (is_" << "p_rhs" << "_new) zval_ptr_dtor (" << "p_rhs" << ");\n";
 		}
 		else
 		{
@@ -730,10 +720,11 @@ public:
 			code
 			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
 			<< declare ("p_rhs")
+			<< "int is_p_rhs_new = 0;\n"
 			<< read_var_var (LOCAL, "p_rhs", rhs->value->variable_name)
 			<< "if (*p_lhs != *p_rhs)\n"
 			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new);\n"
-			<< cleanup ("p_rhs")
+			<< "if (is_" << "p_rhs" << "_new) zval_ptr_dtor (" << "p_rhs" << ");\n"
 			;
 		}
 		else
@@ -741,9 +732,10 @@ public:
 			code
 			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
 			<< declare ("p_rhs")
+			<< "int is_p_rhs_new = 0;\n"
 			<< get_var_var (LOCAL, "p_rhs", LOCAL, rhs->value->variable_name)
 			<< "copy_into_ref (p_lhs, p_rhs);\n"
-			<< cleanup ("p_rhs")
+			<< "if (is_" << "p_rhs" << "_new) zval_ptr_dtor (" << "p_rhs" << ");\n"
 			;
 		}
 	}
@@ -771,6 +763,7 @@ public:
 			code
 			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
 			<< declare ("p_rhs")
+			<< "int is_p_rhs_new = 0;\n"
 
 			<< "// Read array variable\n"
 			<< read_rvalue (LOCAL, "r_array", var_name)
@@ -785,7 +778,7 @@ public:
 			<< "if (*p_lhs != *p_rhs)\n"
 			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new);\n"
 
-			<< cleanup ("p_rhs");
+			<< "if (is_" << "p_rhs" << "_new) zval_ptr_dtor (" << "p_rhs" << ");\n";
 		}
 		else
 		{
@@ -1175,9 +1168,10 @@ class Pattern_assign_expr_isset : public Pattern_assign_value
 				{
 					code
 					<< declare ("p_rhs")
+					<< "int is_p_rhs_new = 0;\n"
 					<< read_var (LOCAL, "p_rhs", var_name)
 					<< "ZVAL_BOOL(" << lhs << ", !ZVAL_IS_NULL(*p_rhs));\n" 
-					<< cleanup ("p_rhs")
+					<< "if (is_" << "p_rhs" << "_new) zval_ptr_dtor (" << "p_rhs" << ");\n"
 					;
 				}
 			}
@@ -1202,15 +1196,16 @@ class Pattern_assign_expr_isset : public Pattern_assign_value
 			// Variable variable
 			// TODO
 			Variable_variable* var_var;
-      var_var = dynamic_cast<Variable_variable*>(isset->value->variable_name);
-      assert(var_var);
+			var_var = dynamic_cast<Variable_variable*>(isset->value->variable_name);
+			assert(var_var);
 
 			code
 			<< declare ("p_rhs")
+			<< "int is_p_rhs_new = 0;\n"
 			<< read_var_var (LOCAL, "p_rhs", var_var->variable_name)
 			<< "ZVAL_BOOL(" << lhs << ", !ZVAL_IS_NULL(*p_rhs));\n" 
-			<< cleanup ("p_rhs")
-      ;
+			<< "if (is_" << "p_rhs" << "_new) zval_ptr_dtor (" << "p_rhs" << ");\n"
+			;
 		}
 	}
 
@@ -1294,13 +1289,14 @@ class Pattern_assign_expr_foreach_get_val : public Pattern_assign_var
 		{
 			code
 			<< declare ("p_rhs")
+			<< "int is_p_rhs_new = 0;\n"
 			<< "int result = zend_hash_get_current_data_ex (\n"
 			<<							"fe_array->value.ht, "
 			<<							"(void**)(&p_rhs), "
 			<<							"&" << *get_val->value->iter->value << ");\n"
 			<< "assert (result == SUCCESS);\n"
 			<< "write_var (p_lhs, p_rhs, &is_p_rhs_new);\n"
-			<< cleanup ("p_rhs")
+			<< "if (is_" << "p_rhs" << "_new) zval_ptr_dtor (" << "p_rhs" << ");\n"
 			;
 		}
 		else
@@ -1393,13 +1389,14 @@ public:
 			code
 			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
 			<< declare ("p_rhs")
+			<< "int is_p_rhs_new = 0;\n"
 			<< "ALLOC_INIT_ZVAL (*p_rhs);\n"
 			<< "is_p_rhs_new = 1;\n"
 			<< "phc_builtin_" << *method_name->value->value << " (p_arg, *p_rhs, \"" 
 			<< *arg->value->get_filename() << "\" TSRMLS_CC);\n"
 
 			<< "write_var (p_lhs, p_rhs, &is_p_rhs_new);\n"
-			<< cleanup ("p_rhs");
+			<< "if (is_" << "p_rhs" << "_new) zval_ptr_dtor (" << "p_rhs" << ");\n";
 		}
 		else
 			code
@@ -1479,6 +1476,7 @@ public:
 		// TODO this could be locally allocated
 		<< get_st_entry (LOCAL, "p_lhs", lhs->value)
 		<< declare ("p_rhs")
+		<< "int is_p_rhs_new = 0;\n"
 
 		<< "p_rhs = p_lhs;\n"
 		<< "zvp_clone (p_rhs, &is_p_rhs_new);\n"
@@ -1492,7 +1490,7 @@ public:
 		<< "}\n"
 		<<	"write_var (p_lhs, p_rhs, &is_p_rhs_new);\n"
 
-		<< cleanup ("p_rhs")
+		<< "if (is_" << "p_rhs" << "_new) zval_ptr_dtor (" << "p_rhs" << ");\n"
 		;
 
 	}
@@ -1620,6 +1618,7 @@ public:
 		<< "zval** retval_save = " << fci_name << ".retval_ptr_ptr;\n"
 
 		<< declare ("p_rhs")
+		<< "int is_p_rhs_new = 0;\n"
 
 		// set up params
 		<< fci_name << ".params = args_ind;\n"
@@ -1688,7 +1687,7 @@ public:
 			else
 				code << "copy_into_ref (p_lhs, p_rhs);\n";
 		}
-		code << cleanup ("p_rhs");
+		code << "if (is_" << "p_rhs" << "_new) zval_ptr_dtor (" << "p_rhs" << ");\n";
 		
 		// code << "debug_hash(EG(active_symbol_table));\n";
 	}
@@ -1742,15 +1741,16 @@ public:
 		if (not agn->is_ref)
 		{
 		  code	
-			<< declare ("p_rhs")
-			<< read_rvalue (LOCAL, "p_rhs_var", rhs->value)
-			<< "// Read normal variable\n"
-			<< "p_rhs = &p_rhs_var;\n"
-			<< "\n"
-			<< "if (*p_lhs != *p_rhs)\n"
-			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new);\n"
-			<< cleanup ("p_rhs")
-			;
+		  << declare ("p_rhs")
+		  << "int is_p_rhs_new = 0;\n"
+		  << read_rvalue (LOCAL, "p_rhs_var", rhs->value)
+		  << "// Read normal variable\n"
+		  << "p_rhs = &p_rhs_var;\n"
+		  << "\n"
+		  << "if (*p_lhs != *p_rhs)\n"
+		  <<		"write_var (p_lhs, p_rhs, &is_p_rhs_new);\n"
+		  << "if (is_" << "p_rhs" << "_new) zval_ptr_dtor (" << "p_rhs" << ");\n"
+		  ;
 		}
 		else
 		{
@@ -1814,15 +1814,16 @@ public:
 		{
 			code
 			<< declare ("p_rhs")
+			<< "int is_p_rhs_new = 0;\n"
 			<< read_rvalue (LOCAL, "p_rhs_var", rhs->value)
 			<< "// Read normal variable\n"
 			<< "p_rhs = &p_rhs_var;\n"
 			<< "\n"
 			
 			<< "if (*p_lhs != *p_rhs)\n"
-			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new);\n"
+			<<	"	write_var (p_lhs, p_rhs, &is_p_rhs_new);\n"
 
-			<< cleanup ("p_rhs");
+			<< "if (is_" << "p_rhs" << "_new) zval_ptr_dtor (" << "p_rhs" << ");\n";
 		}
 		else
 		{
@@ -1863,23 +1864,26 @@ class Pattern_assign_var_var : public Pattern
 		{
 			code
 			<< declare ("p_lhs") 
+			<< "int is_p_lhs_new = 0;\n"
 			<< get_var_var (LOCAL, "p_lhs", LOCAL, lhs->value)
 			<< declare ("p_rhs")
+			<< "int is_p_rhs_new = 0;\n"
 			<< read_var (LOCAL, "p_rhs", rhs->value)
 			<< "if (*p_lhs != *p_rhs)\n"
 			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new);\n"
-			<< cleanup ("p_lhs")
-			<< cleanup ("p_rhs")
+			<< "if (is_" << "p_lhs" << "_new) zval_ptr_dtor (" << "p_lhs" << ");\n"
+			<< "if (is_" << "p_rhs" << "_new) zval_ptr_dtor (" << "p_rhs" << ");\n"
 			;
 		}
 		else
 		{
 			code
 			<< declare ("p_lhs") 
+			<< "int is_p_lhs_new = 0;\n"
 			<< get_var_var (LOCAL, "p_lhs", LOCAL, lhs->value)
 			<< get_st_entry (LOCAL, "p_rhs", rhs->value)
 			<< "copy_into_ref (p_lhs, p_rhs);\n"
-			<< cleanup ("p_lhs")
+			<< "if (is_" << "p_lhs" << "_new) zval_ptr_dtor (" << "p_lhs" << ");\n"
 			;
 		}
 	}
@@ -1906,9 +1910,9 @@ public:
 	void generate_code(Generate_C* gen)
 	{
 		code
-		<<	index_lhs (LOCAL, "p_local_global_var", var_name->value) // lhs
-		<<	index_lhs (GLOBAL, "p_global_var", var_name->value) // rhs
-		// Note that p_global_var can be in the copy-on-write set.
+		<< index_lhs (LOCAL, "p_local_global_var", var_name->value) // lhs
+		<< index_lhs (GLOBAL, "p_global_var", var_name->value) // rhs
+		// Note that p_global_var can be in a copy-on-write set.
 		<< "copy_into_ref (p_local_global_var, p_global_var);\n"
 		;
 	}
@@ -1932,12 +1936,13 @@ public:
 			assert(var_var != NULL);
 
 		  ss
-      << "// Variable global\n"
-      << declare (zvp)
-      // The variable variable is always in the local scope
-      << get_var_var (scope, zvp, LOCAL, var_var->variable_name)
-      << cleanup (zvp)
-      ;
+		  << "// Variable global\n"
+		  << declare (zvp)
+		  << "int is_" << zvp << "_new = 0;\n"
+		  // The variable variable is always in the local scope
+		  << get_var_var (scope, zvp, LOCAL, var_var->variable_name)
+		  << "if (is_" << zvp << "_new) zval_ptr_dtor (" << zvp << ");\n"
+		  ;
     }
 
   	return ss.str();
