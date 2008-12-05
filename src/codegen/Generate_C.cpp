@@ -1049,15 +1049,14 @@ public:
 	// record if we've seen this variable before
 	void generate_code (Generate_C* gen)
 	{
-		Specializer* spec = new Specializer;
 		assert (!agn->is_ref);
 		if (args_info->optimize_given)
 		{
-			string var = spec->get_var (rhs->value);
 			code
+			<< read_literal (LOCAL, "rhs", rhs->value)
 			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
-			<< "if (" << var << " != *p_lhs)\n"
-			<<		"write_var (p_lhs, &" << var << ", NULL);\n"
+			<< "if (rhs != *p_lhs)\n"
+			<<		"write_var (p_lhs, &rhs, NULL);\n"
 			;
 		}
 		else
@@ -1068,9 +1067,7 @@ public:
 
 	void initialize (ostream& os, string var)
 	{
-		// Delegate to more specific initialize, below.
-		Specializer* spec = new Specializer;
-		spec->initialize (os, var, rhs->value);
+		os << write_literal_value_directly_into_zval (var, rhs->value);
 	}
 
 public:
@@ -1083,32 +1080,6 @@ class Literal_specializer : virtual public GC_obj
 public:
 	// Make available to other classes
 	typedef PHC_type PHC_TYPE;
-
-	// record if we've seen this variable before
-	string get_var (Literal* in)
-	{
-		static Set<string> vars;
-		if (args_info->optimize_given)
-		{
-			// The first time we see a constant, we add a declaration,
-			// initialization and finalization. After that, we find the
-			// first one and refer to it.
-			string var = *in->attrs->get_string ("phc.codegen.pool_name");
-			if (vars.has (var))
-				return var;
-			else
-			{
-				// This is the first time we see the variable. Create the
-				// variables and add declarations. 
-				vars.insert (var);
-
-				initialize (initializations, var, dyc<PHC_type> (in));
-
-				return var;
-			}
-		}
-		assert (0);
-	}
 
 	virtual void initialize (ostream& os, string var, PHC_type*) = 0;
 };
@@ -1184,68 +1155,54 @@ class Pattern_assign_lit_nil: public Pattern_assign_literal<NIL_specializer> {};
 class Pattern_assign_lit_real : public Pattern_assign_literal<REAL_specializer> {};
 class Pattern_assign_lit_string : public Pattern_assign_literal<STRING_specializer> {};
 
+string
+write_literal_value_directly_into_zval (string zvp, Literal* lit)
+{
+	stringstream ss;
+	switch (lit->classid ())
+	{
+		case INT::ID:
+			(new INT_specializer)->initialize (ss, zvp, dyc<INT> (lit));
+			break;
+		case REAL::ID:
+			(new REAL_specializer)->initialize (ss, zvp, dyc<REAL> (lit));
+			break;
+		case NIL::ID:
+			(new NIL_specializer)->initialize (ss, zvp, dyc<NIL> (lit));
+			break;
+		case STRING::ID:
+			(new STRING_specializer)->initialize (ss, zvp, dyc<STRING> (lit));
+			break;
+		case BOOL::ID:
+			(new BOOL_specializer)->initialize (ss, zvp, dyc<BOOL> (lit));
+			break;
+		default:
+			phc_unreachable ();
+	}
+	return ss.str();
+}
 
 string
 read_literal (Scope scope, string zvp, Literal* lit)
 {
+	stringstream ss;
 	if (args_info->optimize_given)
 	{
-		stringstream ss;
-		ss << "zval* " << zvp << " = ";
-		switch (lit->classid ())
-		{
-			case INT::ID:
-				ss << (new INT_specializer)->get_var (lit);
-				break;
-			case REAL::ID:
-				ss << (new REAL_specializer)->get_var (lit);
-				break;
-			case NIL::ID:
-				ss << (new NIL_specializer)->get_var (lit);
-				break;
-			case STRING::ID:
-				ss << (new STRING_specializer)->get_var (lit);
-				break;
-			case BOOL::ID:
-				ss << (new BOOL_specializer)->get_var (lit);
-				break;
-			default:
-				phc_unreachable ();
-		}
-		ss << ";\n";
-		return ss.str();
+		ss 
+		<< "zval* " << zvp << " = "
+		<<	*lit->attrs->get_string ("phc.codegen.pool_name")
+		<< ";\n";
 	}
 	else
 	{
-		stringstream ss;
 		ss
 		<< "zval " << zvp << "_lit_tmp;\n"
 		<< "INIT_ZVAL (" << zvp << "_lit_tmp);\n"
 		<< "zval* " << zvp << " = &" << zvp << "_lit_tmp;\n"
+		<< write_literal_value_directly_into_zval (zvp, lit)
 		;
-
-		switch (lit->classid ())
-		{
-			case INT::ID:
-				(new INT_specializer)->initialize (ss, zvp, dyc<INT> (lit));
-				break;
-			case REAL::ID:
-				(new REAL_specializer)->initialize (ss, zvp, dyc<REAL> (lit));
-				break;
-			case NIL::ID:
-				(new NIL_specializer)->initialize (ss, zvp, dyc<NIL> (lit));
-				break;
-			case STRING::ID:
-				(new STRING_specializer)->initialize (ss, zvp, dyc<STRING> (lit));
-				break;
-			case BOOL::ID:
-				(new BOOL_specializer)->initialize (ss, zvp, dyc<BOOL> (lit));
-				break;
-			default:
-				phc_unreachable ();
-		}
-		return ss.str();
 	}
+	return ss.str();
 }
 
 // Isset uses Pattern_assign_value, as it only has a boolean value. It puts the
@@ -2590,7 +2547,9 @@ void Generate_C::pre_php_script(PHP_script* in)
 			String* var = lit->attrs->get_string ("phc.codegen.pool_name");
 			prologue << "zval* " << *var << ";\n";
 			finalizations << "zval_ptr_dtor (&" << *var << ");\n";
-			initializations << "ALLOC_INIT_ZVAL (" << *var << ");\n";
+			initializations
+			<< "ALLOC_INIT_ZVAL (" << *var << ");\n"
+			<< write_literal_value_directly_into_zval (*var, lit);
 		}
 	}
 }
