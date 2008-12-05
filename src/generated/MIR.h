@@ -1109,15 +1109,15 @@ public:
     virtual void assert_valid();
 };
 
-// Return ::= VARIABLE_NAME ;
+// Return ::= Rvalue ;
 class Return : virtual public Statement
 {
 public:
-    Return(VARIABLE_NAME* variable_name);
+    Return(Rvalue* rvalue);
 protected:
     Return();
 public:
-    VARIABLE_NAME* variable_name;
+    Rvalue* rvalue;
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);

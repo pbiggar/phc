@@ -135,9 +135,9 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     }
     if(!strcmp(type_id, "Return"))
     {
-    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	Rvalue* rvalue = dynamic_cast<Rvalue*>(*i++);
     	assert(i == args->end());
-    	return new Return(variable_name);
+    	return new Return(rvalue);
     }
     if(!strcmp(type_id, "Static_declaration"))
     {
