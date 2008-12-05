@@ -2582,11 +2582,12 @@ void Generate_C::pre_php_script(PHP_script* in)
 	// Add constant-pooling declarations
 	if (args_info->optimize_given)
 	{
-		String_list* pooled_literals = dyc<String_list> (
-			in->attrs->get ("phc.codegen.pooled_literals"));
+		Literal_list* pooled_literals = rewrap_list <IR::Node, Literal> (dyc<IR::Node_list> (
+			in->attrs->get ("phc.codegen.pooled_literals")));
 
-		foreach (String* var, *pooled_literals)
+		foreach (Literal* lit, *pooled_literals)
 		{
+			String* var = lit->attrs->get_string ("phc.codegen.pool_name");
 			prologue << "zval* " << *var << ";\n";
 			finalizations << "zval_ptr_dtor (&" << *var << ");\n";
 			initializations << "ALLOC_INIT_ZVAL (" << *var << ");\n";

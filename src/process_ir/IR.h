@@ -119,6 +119,8 @@ public:
 	virtual ~PHP_script() {}
 };
 
+typedef List<Node*> Node_list;
+
 }
 
 #endif // PHC_IR_H
