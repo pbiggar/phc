@@ -83,8 +83,7 @@ sep_copy_on_write_ex (zval ** p_zvp)
 static void
 sep_change_on_write (zval ** p_zvp)
 {
-  if (!in_change_on_write (*p_zvp))
-    return;
+  assert (in_change_on_write (*p_zvp));
 
   zval *old = *p_zvp;
 
@@ -532,7 +531,27 @@ sep_copy_on_write (zval ** p_zvp, int *is_zvp_new)
   zvp_clone (p_zvp, is_zvp_new);
 }
 
+/* We're trying to get rid of is_rhs_new */
+static void
+write_var_TODO (zval ** p_lhs, zval ** p_rhs, int *is_rhs_new)
+{
+  if (!(*p_lhs)->is_ref)
+    {
+      if ((*p_rhs)->is_ref)
+	{
+	  zvp_clone (p_rhs, is_rhs_new);
+	}
 
+      (*p_rhs)->refcount++;
+
+      zval_ptr_dtor (p_lhs);
+      *p_lhs = *p_rhs;
+    }
+  else
+    {
+      overwrite_lhs (*p_lhs, *p_rhs);
+    }
+}
 /* Write P_RHS into the symbol table as a variable named VAR_NAME */
 static void
 write_var (zval ** p_lhs, zval ** p_rhs, int *is_rhs_new)
@@ -541,7 +560,7 @@ write_var (zval ** p_lhs, zval ** p_rhs, int *is_rhs_new)
     {
       if ((*p_rhs)->is_ref)
 	{
-	  zvp_clone (p_rhs, is_rhs_new);
+	  sep_change_on_write (p_rhs);
 	}
 
       (*p_rhs)->refcount++;

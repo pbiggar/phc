@@ -677,7 +677,7 @@ public:
 			<< "int is_p_rhs_new = 0;\n"
 			<< read_var (LOCAL, "p_rhs", rhs->value)
 			<< "if (*p_lhs != *p_rhs)\n"
-			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new);\n"
+			<<		"write_var_TODO (p_lhs, p_rhs, &is_p_rhs_new);\n"
 
 			<< "if (is_" << "p_rhs" << "_new) zval_ptr_dtor (" << "p_rhs" << ");\n";
 		}
@@ -723,7 +723,7 @@ public:
 			<< "int is_p_rhs_new = 0;\n"
 			<< read_var_var (LOCAL, "p_rhs", rhs->value->variable_name)
 			<< "if (*p_lhs != *p_rhs)\n"
-			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new);\n"
+			<<		"write_var_TODO (p_lhs, p_rhs, &is_p_rhs_new);\n"
 			<< "if (is_" << "p_rhs" << "_new) zval_ptr_dtor (" << "p_rhs" << ");\n"
 			;
 		}
@@ -776,7 +776,7 @@ public:
 			<<			" TSRMLS_CC);\n"
 
 			<< "if (*p_lhs != *p_rhs)\n"
-			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new);\n"
+			<<		"write_var_TODO (p_lhs, p_rhs, &is_p_rhs_new);\n"
 
 			<< "if (is_" << "p_rhs" << "_new) zval_ptr_dtor (" << "p_rhs" << ");\n";
 		}
@@ -1096,7 +1096,7 @@ public:
 			<< read_literal (LOCAL, "rhs", rhs->value)
 			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
 			<< "if (rhs != *p_lhs)\n"
-			<<		"write_var (p_lhs, &rhs, NULL);\n"
+			<<		"write_var_TODO (p_lhs, &rhs, NULL);\n"
 			;
 		}
 		else
@@ -1295,7 +1295,7 @@ class Pattern_assign_expr_foreach_get_val : public Pattern_assign_var
 			<<							"(void**)(&p_rhs), "
 			<<							"&" << *get_val->value->iter->value << ");\n"
 			<< "assert (result == SUCCESS);\n"
-			<< "write_var (p_lhs, p_rhs, &is_p_rhs_new);\n"
+			<< "write_var_TODO (p_lhs, p_rhs, &is_p_rhs_new);\n"
 			<< "if (is_" << "p_rhs" << "_new) zval_ptr_dtor (" << "p_rhs" << ");\n"
 			;
 		}
@@ -1395,7 +1395,7 @@ public:
 			<< "phc_builtin_" << *method_name->value->value << " (p_arg, *p_rhs, \"" 
 			<< *arg->value->get_filename() << "\" TSRMLS_CC);\n"
 
-			<< "write_var (p_lhs, p_rhs, &is_p_rhs_new);\n"
+			<< "write_var_TODO (p_lhs, p_rhs, &is_p_rhs_new);\n"
 			<< "if (is_" << "p_rhs" << "_new) zval_ptr_dtor (" << "p_rhs" << ");\n";
 		}
 		else
@@ -1488,7 +1488,7 @@ public:
 		<< "{\n"
 		<<		"ZVAL_BOOL (*p_rhs, signature->common.pass_rest_by_reference);\n"
 		<< "}\n"
-		<<	"write_var (p_lhs, p_rhs, &is_p_rhs_new);\n"
+		<<	"write_var_TODO (p_lhs, p_rhs, &is_p_rhs_new);\n"
 
 		<< "if (is_" << "p_rhs" << "_new) zval_ptr_dtor (" << "p_rhs" << ");\n"
 		;
@@ -1683,7 +1683,7 @@ public:
 			code << get_st_entry (LOCAL, "p_lhs", lhs->value);
 
 			if (!agn->is_ref)
-				code << "write_var (p_lhs, p_rhs, &is_p_rhs_new);\n";
+				code << "write_var_TODO (p_lhs, p_rhs, &is_p_rhs_new);\n";
 			else
 				code << "copy_into_ref (p_lhs, p_rhs);\n";
 		}
@@ -1748,7 +1748,7 @@ public:
 		  << "p_rhs = &p_rhs_var;\n"
 		  << "\n"
 		  << "if (*p_lhs != *p_rhs)\n"
-		  <<		"write_var (p_lhs, p_rhs, &is_p_rhs_new);\n"
+		  <<		"write_var_TODO (p_lhs, p_rhs, &is_p_rhs_new);\n"
 		  << "if (is_" << "p_rhs" << "_new) zval_ptr_dtor (" << "p_rhs" << ");\n"
 		  ;
 		}
@@ -1821,7 +1821,7 @@ public:
 			<< "\n"
 			
 			<< "if (*p_lhs != *p_rhs)\n"
-			<<	"	write_var (p_lhs, p_rhs, &is_p_rhs_new);\n"
+			<<	"	write_var_TODO (p_lhs, p_rhs, &is_p_rhs_new);\n"
 
 			<< "if (is_" << "p_rhs" << "_new) zval_ptr_dtor (" << "p_rhs" << ");\n";
 		}
@@ -1871,7 +1871,7 @@ class Pattern_assign_var_var : public Pattern
 			<< read_rvalue (LOCAL, "rhs", rhs->value)
 			<< "p_rhs = &rhs;\n"
 			<< "if (*p_lhs != *p_rhs)\n"
-			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new);\n"
+			<<		"write_var_TODO (p_lhs, p_rhs, &is_p_rhs_new);\n"
 			<< "if (is_" << "p_lhs" << "_new) zval_ptr_dtor (" << "p_lhs" << ");\n"
 			<< "if (is_" << "p_rhs" << "_new) zval_ptr_dtor (" << "p_rhs" << ");\n"
 			;
