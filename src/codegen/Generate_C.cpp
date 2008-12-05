@@ -61,9 +61,11 @@ void phc_unsupported (Node* node, const char* feature)
 
 // A single pass isnt really sufficient, but we can hack around it
 // with a prologue and an epilogue.
-static ostringstream prologue;
-static ostringstream code;
-static ostringstream epilogue;
+static stringstream prologue;
+static stringstream code;
+static stringstream epilogue;
+static stringstream initializations;
+static stringstream finalizations;
 
 // TODO this is here for constant pooling. This should not be global.
 static gengetopt_args_info* args_info;
@@ -1033,16 +1035,61 @@ public:
 	virtual void initialize (ostream& os, string var) = 0;
 };
 
-stringstream initializations;
-stringstream finalizations;
+string
+write_literal_value_directly_into_zval (string var, Literal* lit)
+{
+	stringstream ss;
+	if (INT* value = dynamic_cast<INT*> (lit))
+	{
+		ss << "ZVAL_LONG (" << var << ", " << value->value << ");\n";
+	}
+	else if (REAL* value = dynamic_cast<REAL*> (lit))
+	{
+		ss
+		<< "{\n"
+		<< "	unsigned char val[] = {\n"
+		;
 
-template<class Specializer>
+		// Construct the value a byte at a time from our representation in memory.
+		unsigned char* values_bytes = (unsigned char*)(&value->value);
+		for (unsigned int i = 0; i < sizeof (double); i++)
+		{
+			ss << (unsigned int)(values_bytes[i]) << ", ";
+		}
+		ss
+		<< "};\n"
+		<< "ZVAL_DOUBLE (" << var << ", *(double*)(val));\n"
+		<< "}\n"
+		;
+	}
+	else if (STRING* value = dynamic_cast<STRING*> (lit))
+	{
+		ss
+		<< "ZVAL_STRINGL(" << var << ", " 
+		<<		"\"" << *escape_C_dq (value->value) << "\", "
+		<<		value->value->length() << ", 1);\n";
+	}
+	else if (NIL* value = dynamic_cast<NIL*> (lit))
+	{
+		ss << "ZVAL_NULL (" << var << ");\n";
+	}
+	else if (BOOL* value = dynamic_cast<BOOL*> (lit))
+	{
+		ss
+		<< "ZVAL_BOOL (" << var << ", " 
+		<<		(value->value ? 1 : 0) << ");\n"
+		;
+	}
+
+	return ss.str();
+}
+
 class Pattern_assign_literal : public Pattern_assign_value
 {
 public:
 	Expr* rhs_pattern()
 	{
-		rhs = new Wildcard<typename Specializer::PHC_TYPE>;
+		rhs = new Wildcard<Literal>;
 		return rhs;
 	}
 
@@ -1071,116 +1118,10 @@ public:
 	}
 
 public:
-	Wildcard<typename Specializer::PHC_TYPE>* rhs;
-};
-
-template<class PHC_type>
-class Literal_specializer : virtual public GC_obj
-{
-public:
-	// Make available to other classes
-	typedef PHC_type PHC_TYPE;
-
-	virtual void initialize (ostream& os, string var, PHC_type*) = 0;
+	Wildcard<Literal>* rhs;
 };
 
 
-class BOOL_specializer : public Literal_specializer<BOOL>
-{
-public:
-	void initialize (ostream& os, string var, BOOL* value)
-	{
-		os	<< "ZVAL_BOOL (" << var << ", " 
-			<<		(value->value ? 1 : 0) << ");\n";
-	}
-
-};
-
-class INT_specializer : public Literal_specializer<INT>
-{
-public:
-	void initialize (ostream& os, string var, INT* value)
-	{
-		os << "ZVAL_LONG (" << var << ", " << value->value << ");\n";
-	}
-};
-
-class REAL_specializer : public Literal_specializer<REAL>
-{
-public:
-	void initialize (ostream& os, string var, REAL* value)
-	{
-		os << "{\n";
-		// Construct the value a byte at a time from our representation in memory.
-		unsigned char* values_bytes = (unsigned char*)(&value->value);
-		os << "unsigned char val[] = {";
-		for (unsigned int i = 0; i < sizeof (double); i++)
-		{
-			os << (unsigned int)(values_bytes[i]) << ", ";
-		}
-		os << "};\n";
-
-		os << "ZVAL_DOUBLE (" << var << ", *(double*)(val));\n";
-		os << "}\n";
-	}
-};
-
-class NIL_specializer : public Literal_specializer<NIL>
-{
-public:
-	void initialize (ostream& os, string var, NIL* value)
-	{
-		os << "ZVAL_NULL (" << var << ");\n";
-	}
-};
-
-class STRING_specializer : public Literal_specializer<STRING>
-{
-public:
-
-	void initialize (ostream& os, string var, STRING* value)
-	{
-		os << "ZVAL_STRINGL(" << var << ", " 
-			<<		"\"" << *escape_C_dq (value->value) << "\", "
-			<<		value->value->length() << ", 1);\n";
-	}
-
-};
-
-
-
-class Pattern_assign_lit_bool : public Pattern_assign_literal<BOOL_specializer> {};
-class Pattern_assign_lit_int : public Pattern_assign_literal<INT_specializer> {};
-class Pattern_assign_lit_nil: public Pattern_assign_literal<NIL_specializer> {};
-class Pattern_assign_lit_real : public Pattern_assign_literal<REAL_specializer> {};
-class Pattern_assign_lit_string : public Pattern_assign_literal<STRING_specializer> {};
-
-string
-write_literal_value_directly_into_zval (string zvp, Literal* lit)
-{
-	stringstream ss;
-	switch (lit->classid ())
-	{
-		case INT::ID:
-			(new INT_specializer)->initialize (ss, zvp, dyc<INT> (lit));
-			break;
-		case REAL::ID:
-			(new REAL_specializer)->initialize (ss, zvp, dyc<REAL> (lit));
-			break;
-		case NIL::ID:
-			(new NIL_specializer)->initialize (ss, zvp, dyc<NIL> (lit));
-			break;
-		case STRING::ID:
-			(new STRING_specializer)->initialize (ss, zvp, dyc<STRING> (lit));
-			break;
-		case BOOL::ID:
-			(new BOOL_specializer)->initialize (ss, zvp, dyc<BOOL> (lit));
-			break;
-		default:
-			phc_unreachable ();
-	}
-	return ss.str();
-}
 
 string
 read_literal (Scope scope, string zvp, Literal* lit)
@@ -2446,11 +2387,7 @@ void Generate_C::children_statement(Statement* in)
 	,	new Pattern_assign_expr_foreach_get_key ()
 	,	new Pattern_assign_expr_foreach_get_val ()
 	// Literals are special, as they constant pool, and can be used as Rvalues
-	,	new Pattern_assign_lit_string ()
-	,	new Pattern_assign_lit_int ()
-	,	new Pattern_assign_lit_bool ()
-	,	new Pattern_assign_lit_real ()
-	,	new Pattern_assign_lit_nil ()
+	,	new Pattern_assign_literal ()
 	// Method invocations and NEWs can be part of Eval_expr or just Assign_vars
 	,	new Pattern_expr_builtin()
 	,	new Pattern_expr_method_invocation()

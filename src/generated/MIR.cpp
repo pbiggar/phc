@@ -5443,6 +5443,12 @@ Literal::Literal()
 {
 }
 
+//  We wish to match on this, so it cannot be pure virtual
+String* Literal::get_value_as_string()
+{
+    { assert (0); }
+}
+
 Field_access::Field_access(Target* target, Field_name* field_name)
 {
     this->target = target;

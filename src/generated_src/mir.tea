@@ -585,7 +585,8 @@ public:
 class Literal
 {
 public:
-	virtual String* get_value_as_string() = 0;
+	// We wish to match on this, so it cannot be pure virtual
+	virtual String* get_value_as_string() { assert (0); }
 };
 
 class INT

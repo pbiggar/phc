@@ -1559,7 +1559,8 @@ public:
 public:
     virtual void assert_valid() = 0;
 public:
-    virtual String* get_value_as_string() = 0;
+    //  We wish to match on this, so it cannot be pure virtual
+    virtual String* get_value_as_string();
 };
 
 // Field_access ::= Target Field_name ;
