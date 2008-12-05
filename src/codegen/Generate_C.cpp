@@ -1611,7 +1611,6 @@ public:
 		<< "zval** retval_save = " << fci_name << ".retval_ptr_ptr;\n"
 
 		<< declare ("p_rhs")
-		<< "int is_p_rhs_new = 0;\n"
 
 		// set up params
 		<< fci_name << ".params = args_ind;\n"
@@ -1631,34 +1630,6 @@ public:
 		<< "phc_setup_error (0, NULL, 0, NULL TSRMLS_CC);\n"
 		;
 
-		// Workaround a bug (feature?) of the Zend API that I don't
-		// know how to solve otherwise. It seems that Zend resets the
-		// refcount and is_ref fields of the return value after the
-		// function returns. That is okay if the function does not
-		// return a reference (because it will have created a fresh
-		// zval to hold the result), but obviously garbage collector
-		// problems when the function returned a reference to an
-		// existing zval. Hence, we increment the refcount here, and
-		// set is_ref to true if the function signature declares the
-		// function to return a reference. This causes memory leaks,
-		// so we make a note to clean up the memory. It only occurs
-		// when calling eval'd functions, because they do in fact
-		// return the correct refcount.
-		code 
-		<< "if(signature->common.return_reference)\n"
-		<< "{\n"
-		<< "	assert (*p_rhs != EG(uninitialized_zval_ptr));\n"
-		<< "	(*p_rhs)->is_ref = 1;\n"
-		// TODO what happens if there's supposed to be 8 or 10
-		// references to it.
-		<< "  if (signature->type == ZEND_USER_FUNCTION)\n"
-		<< "		is_p_rhs_new = 1;\n"
-		<< "}\n"
-		<< "else\n"
-		<< "{\n"
-		<< "	is_p_rhs_new = 1;\n"
-		<< "}\n" ;
-
 		for (index = 0; index < rhs->value->actual_parameters->size (); index++)
 		{
 			// TODO put the for loop into generated code
@@ -1671,18 +1642,50 @@ public:
 			;
 		}
 
+		// When the Zend engine returns by reference, it allocates a zval into
+		// retval_ptr_ptr. To return by reference, the callee writes
+		// into the retval_ptr_ptr, freeing the allocated value as it does.
+		// (Note, it may not actually return anything). So the zval returned -
+		// whether we return it, or it is the allocated zval - has a refcount
+		// of 1.
+		// The caller is responsible for cleaning that up (note, this is
+		// unaffected by whether it is added to some COW set).
+
+		// For reasons unknown, the Zend API resets the
+		// refcount and is_ref fields of the return value after the
+		// function returns (unless the callee is interpreted). If the function
+		// is supposed to return by reference, this loses the refcount. There
+		// is nothing we can do in this situation (apart from rewriting the
+		// calling convention, but even that will only work for code we call
+		// ourselves).
+
+		// Increment the refcount and set is_ref, to make it clear it cannot go
+		// in a copy-on-write set.
+		code
+		<< "int is_p_rhs_new = 0;\n"
+		<< "if(signature->common.return_reference && signature->type != ZEND_USER_FUNCTION)\n"
+		<< "{\n"
+		<< "	assert (*p_rhs != EG(uninitialized_zval_ptr));\n"
+		<< "	(*p_rhs)->is_ref = 1;\n"
+		<< "	(*p_rhs)->refcount++;\n"
+		<< "	is_p_rhs_new = 1;\n"
+		<< "}\n"
+		;
+
 		if (lhs)
 		{
 			code << get_st_entry (LOCAL, "p_lhs", lhs->value);
 
 			if (!agn->is_ref)
-				code << "write_var_TODO (p_lhs, p_rhs, &is_p_rhs_new);\n";
+				code << "write_var (p_lhs, p_rhs);\n";
 			else
 				code << "copy_into_ref (p_lhs, p_rhs);\n";
 		}
-		code << "if (is_" << "p_rhs" << "_new) zval_ptr_dtor (" << "p_rhs" << ");\n";
-		
-		// code << "debug_hash(EG(active_symbol_table));\n";
+
+		// p_rhs should be completely destroyed. Both the refount we add, as
+		// well as the refcount initially allocated should be removed.
+		code << "zval_ptr_dtor (p_rhs);\n";
+		code << "if (is_p_rhs_new) zval_ptr_dtor (p_rhs);\n";
 	}
 
 protected:

@@ -38,16 +38,16 @@ finalize_runtime ()
 }
 
 /* Make a copy of *P_ZVP, storing it in *P_ZVP. */
-static void
-zvp_clone_ex (zval ** p_zvp)
+static zval*
+zvp_clone_ex (zval * zvp)
 {
   // TODO: use INIT_PZVAL_COPY
   zval *clone;
   MAKE_STD_ZVAL (clone);
-  clone->value = (*p_zvp)->value;
-  clone->type = (*p_zvp)->type;
+  clone->value = zvp->value;
+  clone->type = zvp->type;
   zval_copy_ctor (clone);
-  *p_zvp = clone;
+  return clone;
 }
 
 static inline int
@@ -73,7 +73,7 @@ sep_copy_on_write_ex (zval ** p_zvp)
 
   zval *old = *p_zvp;
 
-  zvp_clone_ex (p_zvp);
+  *p_zvp = zvp_clone_ex (*p_zvp);
 
   zval_ptr_dtor (&old);
 }
@@ -88,7 +88,7 @@ sep_change_on_write (zval ** p_zvp)
 
   zval *old = *p_zvp;
 
-  zvp_clone_ex (p_zvp);
+  *p_zvp = zvp_clone_ex (*p_zvp);
 
   zval_ptr_dtor (&old);
 }
@@ -444,7 +444,7 @@ zvp_clone (zval ** p_zvp, int *is_zvp_new)
 {
   zval *old = *p_zvp;
 
-  zvp_clone_ex (p_zvp);
+  *p_zvp = zvp_clone_ex (*p_zvp);
 
   if (*is_zvp_new)
     zval_ptr_dtor (&old);
@@ -553,20 +553,25 @@ write_var_TODO (zval ** p_lhs, zval ** p_rhs, int *is_rhs_new)
       overwrite_lhs (*p_lhs, *p_rhs);
     }
 }
-/* Write P_RHS into the symbol table as a variable named VAR_NAME */
+/* Write P_RHS into the symbol table as a variable named VAR_NAME. */
+// NOTE: We do not alter p_rhs's refcount, unless p_lhs joins its
+// Copy-on-write set.
 static void
 write_var (zval ** p_lhs, zval ** p_rhs)
 {
   if (!(*p_lhs)->is_ref)
     {
+      zval_ptr_dtor (p_lhs);
       // Take a copy of RHS for LHS.
       if ((*p_rhs)->is_ref)
-	  zvp_clone_ex (p_rhs);
+	{
+	  *p_lhs = zvp_clone_ex (*p_rhs);
+	}
       else // share a copy
-	(*p_rhs)->refcount++;
-
-      zval_ptr_dtor (p_lhs);
-      *p_lhs = *p_rhs;
+	{
+	  (*p_rhs)->refcount++;
+	  *p_lhs = *p_rhs;
+	}
     }
   else
     {
@@ -903,7 +908,7 @@ isset_array (zval ** p_var, zval * ind)
 {
   if (Z_TYPE_P (*p_var) == IS_STRING)
     {
-      zvp_clone_ex (&ind);
+      ind = zvp_clone_ex (ind);
       convert_to_long (ind);
       int result = (Z_LVAL_P (ind) >= 0
 		    && Z_LVAL_P (ind) < Z_STRLEN_PP (p_var));

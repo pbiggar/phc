@@ -11,8 +11,7 @@ phc_builtin_eval (zval * arg, zval *result, char* filename TSRMLS_DC)
 
   // convert to a string
   // TODO avoid allocation
-  zval *copy = arg;
-  zvp_clone_ex (&copy);
+  zval *copy = zvp_clone_ex (arg);
   convert_to_string (copy);
 
   if (result && !strncmp (Z_STRVAL_P (copy), "return ", 7))
@@ -99,7 +98,7 @@ phc_builtin_include (zval* arg, zval* result, char* filename TSRMLS_DC)
   // Check we have a string
   if (Z_TYPE_P (arg) != IS_STRING)
     {
-      zvp_clone_ex (&arg);
+      arg = zvp_clone_ex (arg);
       convert_to_string (arg);
     }
 
