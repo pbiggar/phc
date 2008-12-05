@@ -674,12 +674,10 @@ public:
 			code
 			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
 			<< declare ("p_rhs")
-			<< "int is_p_rhs_new = 0;\n"
 			<< read_var (LOCAL, "p_rhs", rhs->value)
 			<< "if (*p_lhs != *p_rhs)\n"
-			<<		"write_var_TODO (p_lhs, p_rhs, &is_p_rhs_new);\n"
-
-			<< "if (is_" << "p_rhs" << "_new) zval_ptr_dtor (" << "p_rhs" << ");\n";
+			<<		"write_var (p_lhs, p_rhs);\n"
+			;
 		}
 		else
 		{
@@ -1096,7 +1094,7 @@ public:
 			<< read_literal (LOCAL, "rhs", rhs->value)
 			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
 			<< "if (rhs != *p_lhs)\n"
-			<<		"write_var_TODO (p_lhs, &rhs, NULL);\n"
+			<<		"write_var (p_lhs, &rhs);\n"
 			;
 		}
 		else
@@ -1289,14 +1287,12 @@ class Pattern_assign_expr_foreach_get_val : public Pattern_assign_var
 		{
 			code
 			<< declare ("p_rhs")
-			<< "int is_p_rhs_new = 0;\n"
 			<< "int result = zend_hash_get_current_data_ex (\n"
 			<<							"fe_array->value.ht, "
 			<<							"(void**)(&p_rhs), "
 			<<							"&" << *get_val->value->iter->value << ");\n"
 			<< "assert (result == SUCCESS);\n"
-			<< "write_var_TODO (p_lhs, p_rhs, &is_p_rhs_new);\n"
-			<< "if (is_" << "p_rhs" << "_new) zval_ptr_dtor (" << "p_rhs" << ");\n"
+			<< "write_var (p_lhs, p_rhs);\n"
 			;
 		}
 		else
@@ -1476,21 +1472,18 @@ public:
 		// TODO this could be locally allocated
 		<< get_st_entry (LOCAL, "p_lhs", lhs->value)
 		<< declare ("p_rhs")
-		<< "int is_p_rhs_new = 0;\n"
-
-		<< "p_rhs = p_lhs;\n"
-		<< "zvp_clone (p_rhs, &is_p_rhs_new);\n"
+		<< "zval* rhs;\n"
+		<< "ALLOC_INIT_ZVAL (rhs);\n"
 		<< "if (count == " << index << ")\n"
 		<< "{\n"
-		<<		"ZVAL_BOOL (*p_rhs, arg_info->pass_by_reference);\n"
+		<<		"ZVAL_BOOL (rhs, arg_info->pass_by_reference);\n"
 		<< "}\n"
 		<< "else\n"
 		<< "{\n"
-		<<		"ZVAL_BOOL (*p_rhs, signature->common.pass_rest_by_reference);\n"
+		<<		"ZVAL_BOOL (rhs, signature->common.pass_rest_by_reference);\n"
 		<< "}\n"
-		<<	"write_var_TODO (p_lhs, p_rhs, &is_p_rhs_new);\n"
-
-		<< "if (is_" << "p_rhs" << "_new) zval_ptr_dtor (" << "p_rhs" << ");\n"
+		<<	"write_var (p_lhs, &rhs);\n"
+		<< "zval_ptr_dtor (&rhs);\n"
 		;
 
 	}

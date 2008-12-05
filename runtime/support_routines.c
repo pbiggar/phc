@@ -41,6 +41,7 @@ finalize_runtime ()
 static void
 zvp_clone_ex (zval ** p_zvp)
 {
+  // TODO: use INIT_PZVAL_COPY
   zval *clone;
   MAKE_STD_ZVAL (clone);
   clone->value = (*p_zvp)->value;
@@ -554,16 +555,15 @@ write_var_TODO (zval ** p_lhs, zval ** p_rhs, int *is_rhs_new)
 }
 /* Write P_RHS into the symbol table as a variable named VAR_NAME */
 static void
-write_var (zval ** p_lhs, zval ** p_rhs, int *is_rhs_new)
+write_var (zval ** p_lhs, zval ** p_rhs)
 {
   if (!(*p_lhs)->is_ref)
     {
+      // Take a copy of RHS for LHS.
       if ((*p_rhs)->is_ref)
-	{
-	  sep_change_on_write (p_rhs);
-	}
-
-      (*p_rhs)->refcount++;
+	  zvp_clone_ex (p_rhs);
+      else // share a copy
+	(*p_rhs)->refcount++;
 
       zval_ptr_dtor (p_lhs);
       *p_lhs = *p_rhs;
@@ -573,6 +573,7 @@ write_var (zval ** p_lhs, zval ** p_rhs, int *is_rhs_new)
       overwrite_lhs (*p_lhs, *p_rhs);
     }
 }
+
 
 static zval **
 get_ht_entry (zval ** p_var, zval * ind TSRMLS_DC)
