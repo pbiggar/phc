@@ -1662,13 +1662,11 @@ public:
 		// Increment the refcount and set is_ref, to make it clear it cannot go
 		// in a copy-on-write set.
 		code
-		<< "int is_p_rhs_new = 0;\n"
 		<< "if(signature->common.return_reference && signature->type != ZEND_USER_FUNCTION)\n"
 		<< "{\n"
 		<< "	assert (*p_rhs != EG(uninitialized_zval_ptr));\n"
 		<< "	(*p_rhs)->is_ref = 1;\n"
 		<< "	(*p_rhs)->refcount++;\n"
-		<< "	is_p_rhs_new = 1;\n"
 		<< "}\n"
 		;
 
@@ -1682,10 +1680,13 @@ public:
 				code << "copy_into_ref (p_lhs, p_rhs);\n";
 		}
 
-		// p_rhs should be completely destroyed. Both the refount we add, as
-		// well as the refcount initially allocated should be removed.
-		code << "zval_ptr_dtor (p_rhs);\n";
-		code << "if (is_p_rhs_new) zval_ptr_dtor (p_rhs);\n";
+		// p_rhs should be completely destroyed: both the reference we add for
+		// references, and the reference from the callee.
+		code 
+		<< "zval_ptr_dtor (p_rhs);\n"
+		<< "if(signature->common.return_reference && signature->type != ZEND_USER_FUNCTION)\n"
+		<< "	zval_ptr_dtor (p_rhs);\n"
+		;
 	}
 
 protected:
