@@ -671,7 +671,7 @@ zval **
 get_var_var (HashTable * st, zval * var_var, int update_st, int* is_new TSRMLS_DC)
 {
   zval *string_index;
-  int index_found, deallocate_string_index = 0;
+  int deallocate_string_index = 0;
 
   if (Z_TYPE_P (var_var) == IS_STRING)
     {
@@ -688,7 +688,7 @@ get_var_var (HashTable * st, zval * var_var, int update_st, int* is_new TSRMLS_D
     }
 
   zval **p_result;
-  index_found = zend_hash_find (st, Z_STRVAL_P (string_index),
+  int index_found = zend_hash_find (st, Z_STRVAL_P (string_index),
 				Z_STRLEN_P (string_index) + 1,
 				(void **) &p_result);
 
@@ -700,7 +700,8 @@ get_var_var (HashTable * st, zval * var_var, int update_st, int* is_new TSRMLS_D
 	}
       else
 	{
-          *is_new = 1;
+	  // My theory is that since we add it to the hashtable, we dont need to mark it is_new.
+//          *is_new = 1;
 	  EG (uninitialized_zval_ptr)->refcount++;
 	  zend_hash_update (st, Z_STRVAL_P (string_index),
 			    Z_STRLEN_P (string_index) + 1,
