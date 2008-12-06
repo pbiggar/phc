@@ -200,7 +200,7 @@ void MIR_unparser::children_param_is_ref (Param_is_ref* in)
 {
 	echo ("param_is_ref (");
 	if (in->target)
-		ast_unparser.unparse (folder->fold_target (in->target));
+		unparse (in->target);
 	else
 		echo ("NULL");
 	echo (", \"");
