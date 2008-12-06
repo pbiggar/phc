@@ -672,10 +672,9 @@ public:
 		{
 			code
 			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
-			<< declare ("p_rhs")
-			<< read_var (LOCAL, "p_rhs", rhs->value)
-			<< "if (*p_lhs != *p_rhs)\n"
-			<<		"write_var (p_lhs, p_rhs);\n"
+			<< read_rvalue (LOCAL, "rhs", rhs->value)
+			<< "if (*p_lhs != rhs)\n"
+			<<		"write_var (p_lhs, rhs);\n"
 			;
 		}
 		else
@@ -719,7 +718,7 @@ public:
 			<< declare ("p_rhs")
 			<< read_var_var (LOCAL, "p_rhs", rhs->value->variable_name)
 			<< "if (*p_lhs != *p_rhs)\n"
-			<<		"write_var (p_lhs, p_rhs);\n"
+			<<		"write_var (p_lhs, *p_rhs);\n"
 			;
 		}
 		else
@@ -755,7 +754,7 @@ public:
 		{
 			code
 			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
-			<< declare ("p_rhs")
+			<< "zval* rhs;\n"
 			<< "int is_p_rhs_new = 0;\n"
 
 			<<	read_rvalue (LOCAL, "r_array", var_name)
@@ -766,27 +765,27 @@ public:
 			<< "	if (Z_TYPE_P (r_array) == IS_STRING)\n"
 			<< "	{\n"
 			<< "		is_p_rhs_new = 1;\n"
-			<< "		*p_rhs = read_string_index (r_array, ra_index TSRMLS_CC);\n"
+			<< "		rhs = read_string_index (r_array, ra_index TSRMLS_CC);\n"
 			<< "	}\n"
 			<< "  else\n"
 			// TODO: warning here?
-			<< "		*p_rhs = EG (uninitialized_zval_ptr);\n"
+			<< "		rhs = EG (uninitialized_zval_ptr);\n"
 			<< "}\n"
 			<< "else\n"
 			<< "{\n"
 
 			<<		"// Read array variable\n"
 			<<		"read_array ("
-			<<			"p_rhs" << ", "
+			<<			"&rhs" << ", "
 			<<			"r_array, "
 			<<			"ra_index "
 			<<			" TSRMLS_CC);\n"
 			<< "}\n"
 
-			<< "if (*p_lhs != *p_rhs)\n"
-			<<		"write_var_TODO (p_lhs, p_rhs, &is_p_rhs_new);\n"
+			<< "if (*p_lhs != rhs)\n"
+			<<		"write_var (p_lhs, rhs);\n"
 
-			<< "if (is_p_rhs_new) zval_ptr_dtor (p_rhs);\n";
+			<< "if (is_p_rhs_new) zval_ptr_dtor (&rhs);\n";
 		}
 		else
 		{
@@ -1103,8 +1102,8 @@ public:
 			code
 			<< read_literal (LOCAL, "rhs", rhs->value)
 			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
-			<< "if (rhs != *p_lhs)\n"
-			<<		"write_var (p_lhs, &rhs);\n"
+			<< "if (*p_lhs != rhs)\n"
+			<<		"write_var (p_lhs, rhs);\n"
 			;
 		}
 		else
@@ -1175,9 +1174,8 @@ class Pattern_assign_expr_isset : public Pattern_assign_value
 				else
 				{
 					code
-					<< declare ("p_rhs")
-					<< read_var (LOCAL, "p_rhs", var_name)
-					<< "ZVAL_BOOL(" << lhs << ", !ZVAL_IS_NULL(*p_rhs));\n" 
+					<< read_rvalue (LOCAL, "rhs", var_name)
+					<< "ZVAL_BOOL(" << lhs << ", !ZVAL_IS_NULL (rhs));\n" 
 					;
 				}
 			}
@@ -1287,33 +1285,22 @@ class Pattern_assign_expr_foreach_get_val : public Pattern_assign_var
 
 	void generate_code (Generate_C* gen)
 	{
-		code << get_st_entry (LOCAL, "p_lhs", lhs->value) ;
-		code << read_rvalue (LOCAL, "fe_array", get_val->value->array);
-		if (!agn->is_ref)
-		{
-			code
-			<< declare ("p_rhs")
-			<< "int result = zend_hash_get_current_data_ex (\n"
-			<<							"fe_array->value.ht, "
-			<<							"(void**)(&p_rhs), "
-			<<							"&" << *get_val->value->iter->value << ");\n"
-			<< "assert (result == SUCCESS);\n"
-			<< "write_var (p_lhs, p_rhs);\n"
-			;
-		}
-		else
-		{
-			code 
-			<< "zval** p_rhs = NULL;\n"
-			<< "int result = zend_hash_get_current_data_ex (\n"
-			<<							"fe_array->value.ht, "
-			<<							"(void**)(&p_rhs), "
-			<<							"&" << *get_val->value->iter->value << ");\n"
-			<< "assert (result == SUCCESS);\n"
+		code
+		<< get_st_entry (LOCAL, "p_lhs", lhs->value)
+		<< read_rvalue (LOCAL, "fe_array", get_val->value->array)
 
-			<< "copy_into_ref (p_lhs, p_rhs);\n"
-			;
-		}
+		<< "zval** p_rhs = NULL;\n"
+		<< "int result = zend_hash_get_current_data_ex (\n"
+		<<							"fe_array->value.ht, "
+		<<							"(void**)(&p_rhs), "
+		<<							"&" << *get_val->value->iter->value << ");\n"
+		<< "assert (result == SUCCESS);\n"
+		;
+
+		if (!agn->is_ref)
+			code << "write_var (p_lhs, *p_rhs);\n";
+		else
+			code << "copy_into_ref (p_lhs, p_rhs);\n";
 	}
 
 protected:
@@ -1390,18 +1377,18 @@ public:
 			// create a result
 			code
 			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
-			<< declare ("p_rhs")
-			<< "ALLOC_INIT_ZVAL (*p_rhs);\n"
-			<< "phc_builtin_" << *method_name->value->value << " (p_arg, *p_rhs, \"" 
+			<< "zval* rhs;\n"
+			<< "ALLOC_INIT_ZVAL (rhs);\n"
+			<< "phc_builtin_" << *method_name->value->value << " (p_arg, rhs, \"" 
 				<< *arg->value->get_filename() << "\" TSRMLS_CC);\n"
 
-			<< "write_var (p_lhs, p_rhs);\n"
-			<< "zval_ptr_dtor (p_rhs);\n";
+			<< "write_var (p_lhs, rhs);\n"
+			<< "zval_ptr_dtor (&rhs);\n";
 		}
 		else
 			code
 			<< "phc_builtin_" << *method_name->value->value << " (p_arg, NULL, \""
-			<< *arg->value->get_filename() << "\" TSRMLS_CC);\n";
+				<< *arg->value->get_filename() << "\" TSRMLS_CC);\n";
 	}
 
 protected:
@@ -1486,7 +1473,7 @@ public:
 		<< "{\n"
 		<<		"ZVAL_BOOL (rhs, signature->common.pass_rest_by_reference);\n"
 		<< "}\n"
-		<<	"write_var (p_lhs, &rhs);\n"
+		<<	"write_var (p_lhs, rhs);\n"
 		<< "zval_ptr_dtor (&rhs);\n"
 		;
 
@@ -1679,7 +1666,7 @@ public:
 			code << get_st_entry (LOCAL, "p_lhs", lhs->value);
 
 			if (!agn->is_ref)
-				code << "write_var (p_lhs, p_rhs);\n";
+				code << "write_var (p_lhs, *p_rhs);\n";
 			else
 				code << "copy_into_ref (p_lhs, p_rhs);\n";
 		}
@@ -1742,13 +1729,10 @@ public:
 		if (not agn->is_ref)
 		{
 		  code	
-		  << declare ("p_rhs")
-		  << read_rvalue (LOCAL, "p_rhs_var", rhs->value)
-		  << "// Read normal variable\n"
-		  << "p_rhs = &p_rhs_var;\n"
+		  << read_rvalue (LOCAL, "rhs", rhs->value)
 		  << "\n"
-		  << "if (*p_lhs != *p_rhs)\n"
-		  <<		"write_var (p_lhs, p_rhs);\n"
+		  << "if (*p_lhs != rhs)\n"
+		  <<		"write_var (p_lhs, rhs);\n"
 		  ;
 		}
 		else
@@ -1812,14 +1796,10 @@ public:
 		if (!agn->is_ref)
 		{
 			code
-			<< declare ("p_rhs")
 			<< read_rvalue (LOCAL, "rhs", rhs->value)
-			<< "// Read normal variable\n"
-			<< "p_rhs = &rhs;\n"
-			<< "\n"
 			
-			<< "if (*p_lhs != *p_rhs)\n"
-			<<	"	write_var (p_lhs, p_rhs);\n"
+			<< "if (*p_lhs != rhs)\n"
+			<<	"	write_var (p_lhs, rhs);\n"
 			;
 		}
 		else
@@ -1862,11 +1842,9 @@ class Pattern_assign_var_var : public Pattern
 			code
 			<< declare ("p_lhs") 
 			<< get_var_var (LOCAL, "p_lhs", LOCAL, lhs->value)
-			<< declare ("p_rhs")
 			<< read_rvalue (LOCAL, "rhs", rhs->value)
-			<< "p_rhs = &rhs;\n"
-			<< "if (*p_lhs != *p_rhs)\n"
-			<<		"write_var (p_lhs, p_rhs);\n"
+			<< "if (*p_lhs != rhs)\n"
+			<<		"write_var (p_lhs, rhs);\n"
 			;
 		}
 		else

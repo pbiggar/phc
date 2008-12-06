@@ -532,50 +532,30 @@ sep_copy_on_write (zval ** p_zvp, int *is_zvp_new)
   zvp_clone (p_zvp, is_zvp_new);
 }
 
-/* We're trying to get rid of is_rhs_new */
-static void
-write_var_TODO (zval ** p_lhs, zval ** p_rhs, int *is_rhs_new)
-{
-  if (!(*p_lhs)->is_ref)
-    {
-      if ((*p_rhs)->is_ref)
-	{
-	  zvp_clone (p_rhs, is_rhs_new);
-	}
 
-      (*p_rhs)->refcount++;
-
-      zval_ptr_dtor (p_lhs);
-      *p_lhs = *p_rhs;
-    }
-  else
-    {
-      overwrite_lhs (*p_lhs, *p_rhs);
-    }
-}
 /* Write P_RHS into the symbol table as a variable named VAR_NAME. */
 // NOTE: We do not alter p_rhs's refcount, unless p_lhs joins its
 // Copy-on-write set.
 static void
-write_var (zval ** p_lhs, zval ** p_rhs)
+write_var (zval ** p_lhs, zval * rhs)
 {
   if (!(*p_lhs)->is_ref)
     {
       zval_ptr_dtor (p_lhs);
       // Take a copy of RHS for LHS.
-      if ((*p_rhs)->is_ref)
+      if (rhs->is_ref)
 	{
-	  *p_lhs = zvp_clone_ex (*p_rhs);
+	  *p_lhs = zvp_clone_ex (rhs);
 	}
       else // share a copy
 	{
-	  (*p_rhs)->refcount++;
-	  *p_lhs = *p_rhs;
+	  rhs->refcount++;
+	  *p_lhs = rhs;
 	}
     }
   else
     {
-      overwrite_lhs (*p_lhs, *p_rhs);
+      overwrite_lhs (*p_lhs, rhs);
     }
 }
 
