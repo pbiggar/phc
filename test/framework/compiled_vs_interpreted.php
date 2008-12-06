@@ -58,8 +58,7 @@ class CompiledVsInterpreted extends AsyncTest
 
 	function get_phc_command ($subject, $exe_name)
 	{
-		global $phc;
-		return "$phc -c $subject -o $exe_name";
+		return get_phc_command_line ($subject) . " -c -o $exe_name";
 	}
 
 	function run_test ($subject)

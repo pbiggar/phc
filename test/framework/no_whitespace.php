@@ -25,23 +25,23 @@ class NoWhitespace extends AsyncTest
 	function run_test ($subject)
 	{
 		global $phc;
-		$async = new AsyncBundle ($this, $subject);
+		$bundle = new AsyncBundle ($this, $subject);
 
-		$async->commands[0]		= "$phc $subject --pretty-print";
-		$async->out_handlers[0] = "strip_whitespace";
-		$async->err_handlers[0] = "fail_on_output";
+		$bundle->commands[0] = get_phc_command_line ($subject). " --pretty-print";
+		$bundle->out_handlers[0] = "strip_whitespace";
+		$bundle->err_handlers[0] = "fail_on_output";
 
-		$async->commands[1]		= "cat $subject";
-		$async->out_handlers[1] = "strip_whitespace";
-		$async->err_handlers[1] = "fail_on_output";
+		$bundle->commands[1]		= "cat $subject";
+		$bundle->out_handlers[1] = "strip_whitespace";
+		$bundle->err_handlers[1] = "fail_on_output";
 
-		$async->final = "two_command_finish";
-		$async->start ();
+		$bundle->final = "two_command_finish";
+		$bundle->start ();
 	}
 
 	// This strings whitespace from strings, so it wont be perfect, but thats
 	// a minor, but very difficult to avoid, problem
-	function strip_whitespace ($out, $async)
+	function strip_whitespace ($out, $bundle)
 	{
 		$out = preg_replace ("/\s+/", "", $out);
 		// replace <?php by <? so that we don't report differences when the

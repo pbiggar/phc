@@ -20,7 +20,7 @@ class Refcounts extends CompiledVsInterpreted
 	function get_phc_command ($subject, $exe_name)
 	{
 		global $phc;
-		return "$phc -c --run plugins/tools/debug_zval.la $subject -o $exe_name";
+		return get_phc_command_line ($subject) . " -c --run plugins/tools/debug_zval.la -o $exe_name";
 	}
 
 	function get_php_command ($subject)

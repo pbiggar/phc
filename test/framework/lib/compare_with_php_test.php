@@ -59,10 +59,9 @@ class CompareWithPHP extends AsyncTest
 
 	function get_command_line2 ($subject)
 	{
-		global $phc;
 		$command = $this->command_line;
 		$pipe_command = get_php_command_line ($subject, "pipe");
-		return "$phc --no-hash-bang $command $subject | $pipe_command";
+		return get_phc_command_line ($subject) . " $command | $pipe_command";
 	}
 
 	function homogenize_output ($output, $bundle)

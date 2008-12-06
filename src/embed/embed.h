@@ -12,6 +12,7 @@
 #include "lib/List.h"
 
 class String;
+typedef List<String*> String_list;
 
 namespace AST
 {
@@ -47,6 +48,11 @@ public:
 	static AST::Literal* convert_token (AST::Literal* token);
 	static unsigned long get_hash (String* string);
 	static AST::Expr* fold_constant_expr (AST::Expr* in);
+
+	/* Set INI behaviour */
+	static void set_ini_entry (std::string key, std::string value);
+	static String_list* get_include_paths ();
+
 };
 
 #endif // PHC_EMBED_H

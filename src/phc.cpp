@@ -53,6 +53,11 @@
 using namespace std;
 
 void init_plugins (Pass_manager* pm);
+void initialize_ini_entries ();
+
+extern struct gengetopt_args_info error_args_info;
+struct gengetopt_args_info args_info;
+Pass_manager* pm;
 
 void sighandler(int signum)
 {
@@ -73,12 +78,6 @@ void sighandler(int signum)
 	fprintf(stderr, "a bug report to phc-general@phpcompiler.org.\n");
 	exit(-1);
 }
-
-
-
-extern struct gengetopt_args_info error_args_info;
-struct gengetopt_args_info args_info;
-Pass_manager* pm;
 
 int main(int argc, char** argv)
 {
@@ -107,9 +106,12 @@ int main(int argc, char** argv)
 	if(cmdline_parser(argc, argv, &args_info) != 0)
 		exit(-1);
 
-	// Passign this struct through the pass manager is a bit hard.
+	// Passing this struct through the pass manager is a bit hard.
 	error_args_info = args_info;
 
+	// Pass INI entries to PHP
+	initialize_ini_entries ();
+	
 
 	/* 
 	 *	Set up the pass_manager
@@ -367,5 +369,25 @@ void init_plugins (Pass_manager* pm)
 		// Save for later
 		pm->add_plugin (handle, s(name), s(option));
 
+	}
+}
+
+void initialize_ini_entries ()
+{
+	if (!args_info.define_given)
+		return;
+
+	for (unsigned int i = 0; i < args_info.define_given; i++)
+	{
+		String* define = s (args_info.define_arg[i]);
+
+		// Split into key/value pair
+		size_t index = define->find ("=");
+		if (index == string::npos)
+			phc_error ("Invalid key/value pair: '%s'", define->c_str ());
+
+		string key = define->substr (0, index);
+		string value = define->substr (index+1, define->size() );
+		PHP::set_ini_entry (key, value);
 	}
 }

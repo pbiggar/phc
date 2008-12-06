@@ -86,9 +86,25 @@ function get_php_command_line ($subject, $pipe = false)
 	else
 		$max_exe = 5;
 
-	$dir_name = dirname($subject);
+	$dir_path = dirname($subject);
 	if ($pipe) $subject = ""; # we need the subject for the dir_name
-	return "$php -d include_path=./:$dir_name -d max_execution_time=$max_exe $subject";
+	return "$php -d include_path=./:test/subjects/:$dir_path -d max_execution_time=$max_exe $subject ";
+}
+
+function get_phc_command_line ($subject)
+{
+	phc_assert ($subject != "", "dont pass empty subject");
+
+	global $phc;
+	global $opt_long;
+
+	if ($opt_long)
+		$max_exe = 12;
+	else
+		$max_exe = 5;
+
+	$dir_path = dirname($subject);
+	return "$phc -d include_path=./:test/subjects/:$dir_path -d max_execution_time=$max_exe $subject ";
 }
 
 

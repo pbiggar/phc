@@ -13,6 +13,7 @@
 #include "AST_visitor.h"
 #include "AST.h"
 #include "lib/error.h"
+#include "embed/embed.h"
 #include "process_ir/General.h"
 #include "process_ir/fresh.h"
 #include "parsing/parse.h"
@@ -262,21 +263,10 @@ String* get_filename_from_param (Actual_parameter* param)
 	return NULL;
 }
 
-String_list* get_search_directories (String* filename, Node* in)
+String_list*
+get_search_directories (String* filename, Node* in)
 {
-	String_list* dirs = new String_list;
-	// TODO get include path from PHP and allow path to be provided at compile time
-
-	// If the included file starts with "./" or "../", use empty search path.
-	// Otherwise, pass in the current working directory as the search path
-	if(filename->substr(0, 2) != "./" && filename->substr(0, 3) != "../")
-	{
-		char* cwd = strdup(in->get_filename()->c_str());
-		cwd = dirname (cwd);
-		dirs->push_back (new String (cwd));
-	}
-
-	return dirs;
+	return PHP::get_include_paths ();
 }
 
 // look for include statements
