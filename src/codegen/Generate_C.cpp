@@ -310,15 +310,15 @@ string get_var_var (Scope target_scope, string zvp, Scope var_scope, VARIABLE_NA
 	stringstream ss;
 	ss
 	<< "// Read variable variable\n"
-  << "{\n"
+	<< "{\n"
 	<< read_rvalue (var_scope, "var_var", var_var)
 	<< zvp << " = get_var_var (" 
 	<<					get_scope (target_scope) << ", "
 	<<					"var_var, "
-  <<          "1, "
-  <<          "&is_" << zvp << "_new "
+	<<		        "1, "
+	<<			      "&is_" << zvp << "_new "
 	<<					"TSRMLS_CC);\n"
-  << "}\n"
+	<< "}\n"
 	;
 	return ss.str();
 }
@@ -1166,10 +1166,8 @@ class Pattern_assign_expr_isset : public Pattern_assign_value
 				{
 					code
 					<< declare ("p_rhs")
-					<< "int is_p_rhs_new = 0;\n"
 					<< read_var (LOCAL, "p_rhs", var_name)
 					<< "ZVAL_BOOL(" << lhs << ", !ZVAL_IS_NULL(*p_rhs));\n" 
-					<< "if (is_" << "p_rhs" << "_new) zval_ptr_dtor (" << "p_rhs" << ");\n"
 					;
 				}
 			}
@@ -1385,14 +1383,12 @@ public:
 			code
 			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
 			<< declare ("p_rhs")
-			<< "int is_p_rhs_new = 0;\n"
 			<< "ALLOC_INIT_ZVAL (*p_rhs);\n"
-			<< "is_p_rhs_new = 1;\n"
 			<< "phc_builtin_" << *method_name->value->value << " (p_arg, *p_rhs, \"" 
-			<< *arg->value->get_filename() << "\" TSRMLS_CC);\n"
+				<< *arg->value->get_filename() << "\" TSRMLS_CC);\n"
 
-			<< "write_var_TODO (p_lhs, p_rhs, &is_p_rhs_new);\n"
-			<< "if (is_" << "p_rhs" << "_new) zval_ptr_dtor (" << "p_rhs" << ");\n";
+			<< "write_var (p_lhs, p_rhs);\n"
+			<< "zval_ptr_dtor (p_rhs);\n";
 		}
 		else
 			code
@@ -1739,14 +1735,12 @@ public:
 		{
 		  code	
 		  << declare ("p_rhs")
-		  << "int is_p_rhs_new = 0;\n"
 		  << read_rvalue (LOCAL, "p_rhs_var", rhs->value)
 		  << "// Read normal variable\n"
 		  << "p_rhs = &p_rhs_var;\n"
 		  << "\n"
 		  << "if (*p_lhs != *p_rhs)\n"
-		  <<		"write_var_TODO (p_lhs, p_rhs, &is_p_rhs_new);\n"
-		  << "if (is_" << "p_rhs" << "_new) zval_ptr_dtor (" << "p_rhs" << ");\n"
+		  <<		"write_var (p_lhs, p_rhs);\n"
 		  ;
 		}
 		else
