@@ -151,18 +151,6 @@ string get_hash (VARIABLE_NAME* name)
 	return get_hash (name->value);
 }
 
-// TODO: kill declare and cleanup
-string declare (string var)
-{
-	stringstream ss;
-	ss
-	<< "zval* " << var << "_temp = NULL;\n"
-	<< "zval** " << var << ";\n"
-	<< var << " = &" << var << "_temp;\n"
-	;
-	return ss.str ();
-}
-
 string suffix (string str, string suffix)
 {
 	stringstream ss;
@@ -715,7 +703,7 @@ public:
 		{
 			code
 			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
-			<< declare ("p_rhs")
+			<< "zval** p_rhs;\n"
 			<< read_var_var (LOCAL, "p_rhs", rhs->value->variable_name)
 			<< "if (*p_lhs != *p_rhs)\n"
 			<<		"write_var (p_lhs, *p_rhs);\n"
@@ -725,7 +713,7 @@ public:
 		{
 			code
 			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
-			<< declare ("p_rhs")
+			<< "zval** p_rhs;\n"
 			<< get_var_var (LOCAL, "p_rhs", LOCAL, rhs->value->variable_name)
 			<< "copy_into_ref (p_lhs, p_rhs);\n"
 			;
@@ -1204,7 +1192,7 @@ class Pattern_assign_expr_isset : public Pattern_assign_value
 			assert(var_var);
 
 			code
-			<< declare ("p_rhs")
+			<< "zval** p_rhs;\n"
 			<< read_var_var (LOCAL, "p_rhs", var_var->variable_name)
 			<< "ZVAL_BOOL(" << lhs << ", !ZVAL_IS_NULL(*p_rhs));\n" 
 			;
@@ -1462,7 +1450,6 @@ public:
 
 		// TODO this could be locally allocated
 		<< get_st_entry (LOCAL, "p_lhs", lhs->value)
-		<< declare ("p_rhs")
 		<< "zval* rhs;\n"
 		<< "ALLOC_INIT_ZVAL (rhs);\n"
 		<< "if (count == " << index << ")\n"
@@ -1601,12 +1588,12 @@ public:
 		<< "zval*** params_save = " << fci_name << ".params;\n"
 		<< "zval** retval_save = " << fci_name << ".retval_ptr_ptr;\n"
 
-		<< declare ("p_rhs")
+		<< "zval* rhs = NULL;\n"
 
 		// set up params
 		<< fci_name << ".params = args_ind;\n"
 		<< fci_name << ".param_count = " << num_args << ";\n"
-		<< fci_name << ".retval_ptr_ptr = p_rhs;\n"
+		<< fci_name << ".retval_ptr_ptr = &rhs;\n"
 
 		// call the function
 		<< "int success = zend_call_function (&" << fci_name << ", &" << fcic_name << " TSRMLS_CC);\n"
@@ -1655,9 +1642,9 @@ public:
 		code
 		<< "if(signature->common.return_reference && signature->type != ZEND_USER_FUNCTION)\n"
 		<< "{\n"
-		<< "	assert (*p_rhs != EG(uninitialized_zval_ptr));\n"
-		<< "	(*p_rhs)->is_ref = 1;\n"
-		<< "	(*p_rhs)->refcount++;\n"
+		<< "	assert (rhs != EG(uninitialized_zval_ptr));\n"
+		<< "	rhs->is_ref = 1;\n"
+		<< "	rhs->refcount++;\n"
 		<< "}\n"
 		;
 
@@ -1666,17 +1653,17 @@ public:
 			code << get_st_entry (LOCAL, "p_lhs", lhs->value);
 
 			if (!agn->is_ref)
-				code << "write_var (p_lhs, *p_rhs);\n";
+				code << "write_var (p_lhs, rhs);\n";
 			else
-				code << "copy_into_ref (p_lhs, p_rhs);\n";
+				code << "copy_into_ref (p_lhs, &rhs);\n";
 		}
 
 		// p_rhs should be completely destroyed: both the reference we add for
 		// references, and the reference from the callee.
 		code 
-		<< "zval_ptr_dtor (p_rhs);\n"
+		<< "zval_ptr_dtor (&rhs);\n"
 		<< "if(signature->common.return_reference && signature->type != ZEND_USER_FUNCTION)\n"
-		<< "	zval_ptr_dtor (p_rhs);\n"
+		<< "	zval_ptr_dtor (&rhs);\n"
 		;
 	}
 
@@ -1840,7 +1827,7 @@ class Pattern_assign_var_var : public Pattern
 		if(!stmt->is_ref)
 		{
 			code
-			<< declare ("p_lhs") 
+			<< "zval** p_lhs;\n"
 			<< get_var_var (LOCAL, "p_lhs", LOCAL, lhs->value)
 			<< read_rvalue (LOCAL, "rhs", rhs->value)
 			<< "if (*p_lhs != rhs)\n"
@@ -1850,7 +1837,7 @@ class Pattern_assign_var_var : public Pattern
 		else
 		{
 			code
-			<< declare ("p_lhs") 
+			<< "zval** p_lhs;\n"
 			<< get_var_var (LOCAL, "p_lhs", LOCAL, lhs->value)
 			<< get_st_entry (LOCAL, "p_rhs", dyc<VARIABLE_NAME> (rhs->value))
 			<< "copy_into_ref (p_lhs, p_rhs);\n"
@@ -1905,7 +1892,7 @@ public:
 
 		  ss
 		  << "// Variable global\n"
-		  << declare (zvp)
+		  << "zval** " << zvp << ";\n"
 		  // The variable variable is always in the local scope
 		  << get_var_var (scope, zvp, LOCAL, var_var->variable_name)
 		  ;
