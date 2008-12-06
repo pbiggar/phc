@@ -641,6 +641,11 @@ function homogenize_filenames_and_line_numbers ($string, $filename)
 	$stdin_filename = getcwd () . "/-";
 	$full_filename = getcwd () . "/$filename";
 
+	// Sometimes there is a filename, sometimes not. Easiest to leave as is, rather than trying to coerce __FILENAME__ into it.
+	$string = preg_replace( "/(Warning: )(\S*: )?(.+? in )\S+ on line \d+/", "$1$3", $string);
+	$string = preg_replace( "/(Fatal error: )(\S*: )?(.+? in )\S+ on line \d+/", "$1$3", $string);
+	$string = preg_replace( "/(Catchable fatal error: .+? in )\S+ on line \d+/", "$1", $string);
+
 	$string = preg_replace( "/on line \d+/", "on line __LINE__", $string);
 	$string = preg_replace( "!$full_filename(:\d+)?!", "__FILENAME__", $string);
 	$string = preg_replace( "!$filename(:\d+)?!", "__FILENAME__", $string);
