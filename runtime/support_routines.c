@@ -668,7 +668,7 @@ read_var (HashTable * st, char *name, int length, ulong hashval TSRMLS_DC)
  * Otherwise, the uninitialized zval is returned and is_new is untouched.
  */
 zval **
-get_var_var (HashTable * st, zval * var_var, int update_st, int* is_new TSRMLS_DC)
+get_var_var (HashTable * st, zval * var_var, int update_st TSRMLS_DC)
 {
   zval *string_index;
   int deallocate_string_index = 0;
@@ -700,8 +700,6 @@ get_var_var (HashTable * st, zval * var_var, int update_st, int* is_new TSRMLS_D
 	}
       else
 	{
-	  // My theory is that since we add it to the hashtable, we dont need to mark it is_new.
-//          *is_new = 1;
 	  EG (uninitialized_zval_ptr)->refcount++;
 	  zend_hash_update (st, Z_STRVAL_P (string_index),
 			    Z_STRLEN_P (string_index) + 1,
@@ -723,7 +721,7 @@ get_var_var (HashTable * st, zval * var_var, int update_st, int* is_new TSRMLS_D
 zval **
 read_var_var (HashTable * st, zval * var_var TSRMLS_DC)
 {
-  return get_var_var (st, var_var, 0, NULL TSRMLS_CC);
+  return get_var_var (st, var_var, 0 TSRMLS_CC);
 }
 
 void
@@ -763,15 +761,6 @@ read_array (zval ** result, zval * var, zval * ind,
     }
 
   *result = EG (uninitialized_zval_ptr);
-}
-
-void
-read_var_array (HashTable * st, zval ** result, zval * refl,
-		zval * ind TSRMLS_DC)
-{
-  // TODO add an is_x_new parameter
-  zval **p_var = read_var_var (st, refl TSRMLS_CC);
-  read_array (result, *p_var, ind, NULL TSRMLS_CC);
 }
 
 /* Push EG (uninitialized_zval_ptr) and return a pointer into the ht

@@ -315,8 +315,7 @@ string get_var_var (Scope target_scope, string zvp, Scope var_scope, VARIABLE_NA
 	<< zvp << " = get_var_var (" 
 	<<					get_scope (target_scope) << ", "
 	<<					"var_var, "
-	<<		        "1, "
-	<<			      "&is_" << zvp << "_new "
+	<<					"1 "
 	<<					"TSRMLS_CC);\n"
 	<< "}\n"
 	;
@@ -728,10 +727,8 @@ public:
 			code
 			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
 			<< declare ("p_rhs")
-			<< "int is_p_rhs_new = 0;\n"
 			<< get_var_var (LOCAL, "p_rhs", LOCAL, rhs->value->variable_name)
 			<< "copy_into_ref (p_lhs, p_rhs);\n"
-			<< "if (is_" << "p_rhs" << "_new) zval_ptr_dtor (" << "p_rhs" << ");\n"
 			;
 		}
 	}
@@ -1849,25 +1846,21 @@ class Pattern_assign_var_var : public Pattern
 		{
 			code
 			<< declare ("p_lhs") 
-			<< "int is_p_lhs_new = 0;\n"
 			<< get_var_var (LOCAL, "p_lhs", LOCAL, lhs->value)
 			<< declare ("p_rhs")
 			<< read_rvalue (LOCAL, "rhs", rhs->value)
 			<< "p_rhs = &rhs;\n"
 			<< "if (*p_lhs != *p_rhs)\n"
 			<<		"write_var (p_lhs, p_rhs);\n"
-			<< "if (is_" << "p_lhs" << "_new) zval_ptr_dtor (" << "p_lhs" << ");\n"
 			;
 		}
 		else
 		{
 			code
 			<< declare ("p_lhs") 
-			<< "int is_p_lhs_new = 0;\n"
 			<< get_var_var (LOCAL, "p_lhs", LOCAL, lhs->value)
 			<< get_st_entry (LOCAL, "p_rhs", dyc<VARIABLE_NAME> (rhs->value))
 			<< "copy_into_ref (p_lhs, p_rhs);\n"
-			<< "if (is_" << "p_lhs" << "_new) zval_ptr_dtor (" << "p_lhs" << ");\n"
 			;
 		}
 	}
@@ -1920,10 +1913,8 @@ public:
 		  ss
 		  << "// Variable global\n"
 		  << declare (zvp)
-		  << "int is_" << zvp << "_new = 0;\n"
 		  // The variable variable is always in the local scope
 		  << get_var_var (scope, zvp, LOCAL, var_var->variable_name)
-		  << "if (is_" << zvp << "_new) zval_ptr_dtor (" << zvp << ");\n"
 		  ;
     }
 
