@@ -436,22 +436,6 @@ ht_var_debug (HashTable * st, char *name)
 }
 
 
-/* Make a copy of *P_ZVP and store it in *P_ZVP. If *IS_ZVP_NEW is
- * set, call the destructor on *P_ZVP before copying. *IS_ZVP_NEW is
- * set to true. */
-static void
-zvp_clone (zval ** p_zvp, int *is_zvp_new)
-{
-  zval *old = *p_zvp;
-
-  *p_zvp = zvp_clone_ex (*p_zvp);
-
-  if (*is_zvp_new)
-    zval_ptr_dtor (&old);
-  *is_zvp_new = 1;
-}
-
-
 // Overwrite one zval with another
 static void
 overwrite_lhs (zval * lhs, zval * rhs)
@@ -514,24 +498,6 @@ phc_setup_error (int init, char *filename, int line_number,
       EG (function_state_ptr)->function = old_function;
     }
 }
-
-
-/* Assuming that p_zvp points into a hashtable, we decrease the
- * refcount of the currently pointed to object, then clone it, and
- * insert it into the hashtable */
-// TODO Separation writes into the array, which automatically calls
-// the zval_ptr_dtor. However, if the array doesnt have a registered
-// destructor, then we shouldnt be calling this.
-//
-static void
-sep_copy_on_write (zval ** p_zvp, int *is_zvp_new)
-{
-  if (!in_copy_on_write (*p_zvp))
-    return;
-
-  zvp_clone (p_zvp, is_zvp_new);
-}
-
 
 /* Write P_RHS into the symbol table as a variable named VAR_NAME. */
 // NOTE: We do not alter p_rhs's refcount, unless p_lhs joins its
@@ -799,7 +765,8 @@ fetch_var_arg (zval * arg, int *is_arg_new)
   if (arg->is_ref)
     {
       // We dont separate since we don't own one of ARG's references.
-      zvp_clone (&arg, is_arg_new);
+      arg = zvp_clone_ex (arg);
+      *is_arg_new = 1;
 
       // It seems we get incorrect refcounts without this.
       // TODO This decreases the refcount to zero, which seems wrong,
