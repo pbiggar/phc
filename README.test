@@ -21,7 +21,7 @@ The latter allows command line options, and limiting the tests with regular
 expressions. Run driver.php with the '-h' flag for details.
 
 In order to run tests on your own php files, add the files to
-test/subjects/3rdparty/, and list them in subjects/3rdparty/labels. In order to
+test/subjects/3rdparty/, and list them in test/subjects/3rdparty/labels. In order to
 generate the support files, for example if you'd like the regression tests to
 succeed rather than be skipped, run
 
@@ -30,3 +30,13 @@ succeed rather than be skipped, run
 By default, 3rdparty tests are treated as 'long', so need to be run with
 
 	$ make long-test
+
+
+Its also straight-forward to test PHP's phpt test files:
+	- run the test suite on PHP (in PHP's directory). This creates .php files from the .phpt files
+		$ TEST_PHP_EXECUTABLE=./sapi/cli/php --keep=php
+
+	- link the PHP phpt directory from test/subjects/3rdparty.
+	- update test/subjects/3rdparty/labels
+	- Run the tests using the .php files.
+	- This doesnt provide the EXPECT functionality etc, but we dont really need that in the majority of cases.
