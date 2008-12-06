@@ -128,7 +128,7 @@ class PHC_output_annotation extends Test_annotation
 			$negate = false;
 			// Process the options
 			if (!$options["regex"])
-				$value = preg_quote ($value);
+				$value = preg_quote ($value, "/");
 			else
 			{
 				if ($value[0] == "!")
