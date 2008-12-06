@@ -65,9 +65,9 @@ class CompareWithPHP extends AsyncTest
 		return "$phc --no-hash-bang $command $subject | $pipe_command";
 	}
 
-	function homogenize_output ($output)
+	function homogenize_output ($output, $bundle)
 	{
-		return homogenize_all ($output);
+		return homogenize_all ($output, $bundle->subject);
 	}
 
 	function get_name ()

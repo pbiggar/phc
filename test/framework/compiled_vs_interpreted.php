@@ -44,9 +44,9 @@ class CompiledVsInterpreted extends AsyncTest
 		}
 	}
 
-	function homogenize_output ($string)
+	function homogenize_output ($string, $bundle)
 	{
-		$string = homogenize_filenames_and_line_numbers ($string);
+		$string = homogenize_filenames_and_line_numbers ($string, $bundle->subject);
 		$string = homogenize_reference_count ($string);
 		return $string;
 	}

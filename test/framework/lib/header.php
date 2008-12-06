@@ -636,17 +636,17 @@ function homogenize_xml ($string)
 	return $string;
 }
 
-function homogenize_filenames_and_line_numbers ($string)
+function homogenize_filenames_and_line_numbers ($string, $filename)
 {
-	// specific errors and warnings
-	$string = preg_replace( "/(Warning: )\S*(\(\) expects the argument \(\S*\) to be a valid callback in )\S*( on line )\d+/", "$1$2$3", $string);
-	$string = preg_replace( "/(Fatal error: Cannot redeclare \S+\(\) \(previously declared in )\S+:\d+\)/" , "$1:)", $string);
-//	$string = preg_replace( "/(Fatal error: Allowed memory size of )\d+( bytes exhausted at )\S*( \(tried to allocate )\d+( bytes\) in )\S*( on line )\d+/", "$1$2$3$4", $string);
+	$stdin_filename = getcwd () . "/-";
+	$full_filename = getcwd () . "/$filename";
 
-	// general line number and filename removal
-	$string = preg_replace( "/(Warning: )(\S*: )?(.+? in )\S+ on line \d+/", "$1$3", $string);
-	$string = preg_replace( "/(Fatal error: )(\S*: )?(.+? in )\S+ on line \d+/", "$1$3", $string);
-	$string = preg_replace( "/(Catchable fatal error: .+? in )\S+ on line \d+/", "$1", $string);
+	$string = preg_replace( "/on line \d+/", "on line __LINE__", $string);
+	$string = preg_replace( "!$full_filename(:\d+)?!", "__FILENAME__", $string);
+	$string = preg_replace( "!$filename(:\d+)?!", "__FILENAME__", $string);
+	$string = preg_replace( "!$stdin_filename(:\d+)?!", "__FILENAME__", $string);
+
+//	$string = preg_replace( "/(Fatal error: Allowed memory size of )\d+( bytes exhausted at )\S*( \(tried to allocate )\d+( bytes\) in )\S*( on line )\d+/", "$1$2$3$4", $string);
 
 	return $string;
 }
@@ -701,11 +701,11 @@ function homogenize_object_count ($string)
 	return $string;
 }
 
-function homogenize_all ($string)
+function homogenize_all ($string, $filename)
 {
 	$string = homogenize_reference_count ($string);
 	$string = homogenize_object_count ($string);
-	$string = homogenize_filenames_and_line_numbers ($string);
+	$string = homogenize_filenames_and_line_numbers ($string, $filename);
 	$string = homogenize_break_levels ($string);
 	return $string;
 }

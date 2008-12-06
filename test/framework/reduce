@@ -349,7 +349,7 @@ function do_main_step ($xprogram, $start, $num, $filename)
 	# Run through PHP
 	debug (2, "Getting PHP output");
 	list ($php_out, $php_err, $php_exit) = run (get_php_command_line ($filename, true), $unew_program);
-	$php_out = homogenize_all ($php_out);
+	$php_out = homogenize_all ($php_out, $filename);
 	dump ("$filename.php_out_$id", $php_out);
 	if ($opt_zero && $php_exit)
 	{
@@ -370,7 +370,7 @@ function do_main_step ($xprogram, $start, $num, $filename)
 		if ($phc_err === "" && $phc_exit === 0)
 		{
 			list ($my_out, $my_err, $my_exit) = run (get_php_command_line ($filename, true), $phc_out);
-			$my_out = homogenize_all ($my_out);
+			$my_out = homogenize_all ($my_out, $filename);
 			dump ("$filename.phci_out_$id", $my_out);
 		}
 		else $phc_error = true;
@@ -383,7 +383,7 @@ function do_main_step ($xprogram, $start, $num, $filename)
 		if ($phc_err === "" && $phc_out === "" && $phc_exit === 0)
 		{
 			list ($my_out, $my_err, $my_exit) = run ("./a.out");
-			$my_out = homogenize_all ($my_out);
+			$my_out = homogenize_all ($my_out, $filename);
 			dump ("$filename.phc_out_$id", $my_out);
 		}
 		else $phc_error = true;
