@@ -1179,14 +1179,14 @@ class Pattern_assign_expr_isset : public Pattern_assign_value
 				assert(isset->value->array_indices->size() == 1);
 				Rvalue* index = isset->value->array_indices->front();
 
-        code
+	        code
 				<< get_st_entry (LOCAL, "u_array", var_name)
 				<< read_rvalue (LOCAL, "u_index", index)
 				<< "ZVAL_BOOL(" << lhs << ", "
 				<< "isset_array ("
 				<<    "u_array, "
-				<<    "u_index));\n";
-        ;
+				<<    "u_index));\n"
+				;
 			}
 		}
 		else
