@@ -725,32 +725,18 @@ read_var_var (HashTable * st, zval * var_var TSRMLS_DC)
 }
 
 void
-read_array (zval ** result, zval * var, zval * ind,
-	    int *is_result_new TSRMLS_DC)
+read_array (zval ** result, zval * array, zval * ind TSRMLS_DC)
 {
   // Memory can be allocated in read_string_index
-  if (var == EG (uninitialized_zval_ptr))
+  if (array == EG (uninitialized_zval_ptr))
     {
-      *result = var;
+      *result = array;
       return;
     }
-
-  if (Z_TYPE_P (var) != IS_ARRAY)
-    {
-      if (Z_TYPE_P (var) == IS_STRING)
-	{
-	  *is_result_new = 1;
-	  *result = read_string_index (var, ind TSRMLS_CC);
-	  return;
-	}
-      *result = EG (uninitialized_zval_ptr);
-      return;
-    }
-
 
   // Since we know its an array, and we dont write to it, we dont need
   // to separate it.
-  HashTable *ht = Z_ARRVAL_P (var);
+  HashTable *ht = Z_ARRVAL_P (array);
 
   // find the result
   zval **p_result;

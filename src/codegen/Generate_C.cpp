@@ -758,20 +758,35 @@ public:
 			<< declare ("p_rhs")
 			<< "int is_p_rhs_new = 0;\n"
 
-			<< "// Read array variable\n"
-			<< read_rvalue (LOCAL, "r_array", var_name)
-			<< read_rvalue (LOCAL, "ra_index", rhs->value->index)
-			<< "read_array ("
+			<<	read_rvalue (LOCAL, "r_array", var_name)
+			<<	read_rvalue (LOCAL, "ra_index", rhs->value->index)
+
+			<< "if (Z_TYPE_P (r_array) != IS_ARRAY)\n"
+			<< "{\n"
+			<< "	if (Z_TYPE_P (r_array) == IS_STRING)\n"
+			<< "	{\n"
+			<< "		is_p_rhs_new = 1;\n"
+			<< "		*p_rhs = read_string_index (r_array, ra_index TSRMLS_CC);\n"
+			<< "	}\n"
+			<< "  else\n"
+			// TODO: warning here?
+			<< "		*p_rhs = EG (uninitialized_zval_ptr);\n"
+			<< "}\n"
+			<< "else\n"
+			<< "{\n"
+
+			<<		"// Read array variable\n"
+			<<		"read_array ("
 			<<			"p_rhs" << ", "
 			<<			"r_array, "
-			<<			"ra_index, "
-			<<			"&is_" << "p_rhs" << "_new "
+			<<			"ra_index "
 			<<			" TSRMLS_CC);\n"
+			<< "}\n"
 
 			<< "if (*p_lhs != *p_rhs)\n"
 			<<		"write_var_TODO (p_lhs, p_rhs, &is_p_rhs_new);\n"
 
-			<< "if (is_" << "p_rhs" << "_new) zval_ptr_dtor (" << "p_rhs" << ");\n";
+			<< "if (is_p_rhs_new) zval_ptr_dtor (p_rhs);\n";
 		}
 		else
 		{
