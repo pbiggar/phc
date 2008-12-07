@@ -128,7 +128,7 @@ void MIR_unparser::children_foreach_has_key (Foreach_has_key* in)
 	visit_variable_name (in->array);
 	echo (", ");
 	visit_ht_iterator (in->iter);
-	echo (")");
+	echo (");");
 }
 
 void MIR_unparser::children_foreach_get_key (Foreach_get_key* in)
@@ -137,7 +137,7 @@ void MIR_unparser::children_foreach_get_key (Foreach_get_key* in)
 	visit_variable_name (in->array);
 	echo (", ");
 	visit_ht_iterator (in->iter);
-	echo (")");
+	echo (");");
 }
 
 void MIR_unparser::children_foreach_get_val (Foreach_get_val* in)
@@ -146,7 +146,7 @@ void MIR_unparser::children_foreach_get_val (Foreach_get_val* in)
 	visit_variable_name (in->array);
 	echo (", ");
 	visit_ht_iterator (in->iter);
-	echo (")");
+	echo (");");
 }
 
 
@@ -187,8 +187,10 @@ void MIR_unparser::children_goto (Goto* in)
 
 void MIR_unparser::children_label (Label* in)
 {
+	dec_indent ();
 	visit_label_name (in->label_name);
 	echo_nl(":");
+	inc_indent ();
 }
 
 void MIR_unparser::children_label_name (LABEL_NAME* in)

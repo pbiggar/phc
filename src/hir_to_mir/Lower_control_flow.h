@@ -24,6 +24,7 @@ private:
 
 public:
 	MIR::VARIABLE_NAME* fold_var (HIR::VARIABLE_NAME* in);
+	template<class T> MIR::Label* get_label (HIR::Node* in);
 	template<class T> void add_label (HIR::Node*, HIR::Statement_list*);
 	template<class T> MIR::Label* exit_label (HIR::Node*);
 	template<class T> void lower_exit (T*, HIR::Statement_list*);
