@@ -10,6 +10,7 @@
 
 #include "config.h"
 #include "lib/List.h"
+#include "lib/Set.h"
 
 class String;
 typedef List<String*> String_list;
@@ -50,9 +51,13 @@ public:
 	static AST::Expr* fold_constant_expr (AST::Expr* in);
 
 	/* Set INI behaviour */
-	static void set_ini_entry (std::string key, std::string value);
-	static String_list* get_include_paths ();
+	static Set<std::string> altered_ini_entries;
 
+	static void set_ini_entry (String* key, String* value);
+	static String* get_ini_entry (String* key);
+
+	static String_list* get_include_paths ();
+	static String_list* get_altered_ini_entries ();
 };
 
 #endif // PHC_EMBED_H

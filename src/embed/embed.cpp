@@ -102,20 +102,37 @@ Expr* PHP::fold_constant_expr (Expr* in)
 
 
 void
-PHP::set_ini_entry (std::string key, std::string value)
+PHP::set_ini_entry (String* key, String* value)
 {
+	// Keep track of entered keys
+	PHP::altered_ini_entries.insert (*key);
+
+
 	int result = zend_alter_ini_entry (
-				const_cast<char*> (key.c_str ()),
-				key.size () + 1,
-				const_cast<char*> (value.c_str()),
-				value.size (),
+				const_cast<char*> (key->c_str ()),
+				key->size () + 1, // include NULL byte
+				const_cast<char*> (value->c_str()),
+				value->size (), // dont include NULL byte
 				PHP_INI_ALL,
 				PHP_INI_STAGE_RUNTIME);
 
-	assert (result == SUCCESS);
 
+	assert (result == SUCCESS);
 	// check the value changed
-	assert (zend_ini_string (const_cast<char*> (key.c_str ()), key.size ()+1, 0) == value);
+	assert (zend_ini_string (const_cast<char*> (key->c_str ()), key->size () + 1, 0) == *value);
+}
+
+Set<string> PHP::altered_ini_entries;
+
+String_list*
+PHP::get_altered_ini_entries ()
+{
+	String_list* result = new String_list;
+
+	foreach (string entry, PHP::altered_ini_entries)
+		result->push_back (s(entry));
+
+	return result;
 }
 
 String_list*
@@ -134,6 +151,12 @@ PHP::get_include_paths ()
 	}
 
 	return result;
+}
+
+String* 
+PHP::get_ini_entry (String* key)
+{
+	return s (zend_ini_string (const_cast<char*> (key->c_str ()), key->size () + 1, 0));
 }
 
 #else

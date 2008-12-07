@@ -2447,6 +2447,22 @@ void Generate_C::pre_php_script(PHP_script* in)
 			<< write_literal_value_directly_into_zval (*var, lit);
 		}
 	}
+
+	
+	// Add .ini settings
+	// We only want to alter the ones given to us at the command-line
+	foreach (String* key, *PHP::get_altered_ini_entries ())
+	{
+		String* value = PHP::get_ini_entry (key);
+		initializations
+		<< "zend_alter_ini_entry ("
+		<< "\"" << *key << "\", "
+		<< (key->size () + 1) << ", " // include NULL byte
+		<< "\"" << *value << "\", "
+		<< value->size () << ", " // don't include NULL byte
+		<< "PHP_INI_ALL, PHP_INI_STAGE_RUNTIME);\n"
+		;
+	}
 }
 
 void Generate_C::post_php_script(PHP_script* in)

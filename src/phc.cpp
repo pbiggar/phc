@@ -388,6 +388,6 @@ void initialize_ini_entries ()
 
 		string key = define->substr (0, index);
 		string value = define->substr (index+1, define->size() );
-		PHP::set_ini_entry (key, value);
+		PHP::set_ini_entry (s (key), s(value));
 	}
 }
