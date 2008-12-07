@@ -1354,9 +1354,10 @@ public:
 	void generate_code (Generate_C* gen)
 	{
 		code
-		<< read_rvalue (LOCAL, "p_arg", arg->value->rvalue);
-
-		// TODO add extra param for include.
+		<< read_rvalue (LOCAL, "p_arg", arg->value->rvalue)
+		<< "zval* rhs = NULL;\n"
+		<< "zval** p_rhs = &rhs;\n"
+		;
 
 		if (lhs)
 		{
@@ -1365,18 +1366,19 @@ public:
 			// create a result
 			code
 			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
-			<< "zval* rhs;\n"
 			<< "ALLOC_INIT_ZVAL (rhs);\n"
-			<< "phc_builtin_" << *method_name->value->value << " (p_arg, rhs, \"" 
+			<< "phc_builtin_" << *method_name->value->value << " (p_arg, p_rhs, \"" 
 				<< *arg->value->get_filename() << "\" TSRMLS_CC);\n"
 
 			<< "write_var (p_lhs, rhs);\n"
-			<< "zval_ptr_dtor (&rhs);\n";
+			<< "zval_ptr_dtor (p_rhs);\n";
 		}
 		else
 			code
-			<< "phc_builtin_" << *method_name->value->value << " (p_arg, NULL, \""
-				<< *arg->value->get_filename() << "\" TSRMLS_CC);\n";
+			<< "phc_builtin_" << *method_name->value->value << " (p_arg, p_rhs, \""
+			<< *arg->value->get_filename() << "\" TSRMLS_CC);\n"
+			<< "if (rhs != NULL) zval_ptr_dtor (p_rhs);\n"
+			;
 	}
 
 protected:

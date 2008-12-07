@@ -1,5 +1,5 @@
 static void
-phc_builtin_eval (zval * arg, zval *result, char* filename TSRMLS_DC)
+phc_builtin_eval (zval * arg, zval** p_result, char* filename TSRMLS_DC)
 {
   // If the user wrote "return ..", we need to store the
   // return value; however, in that case, zend_eval_string
@@ -14,9 +14,9 @@ phc_builtin_eval (zval * arg, zval *result, char* filename TSRMLS_DC)
   zval *copy = zvp_clone_ex (arg);
   convert_to_string (copy);
 
-  if (result && !strncmp (Z_STRVAL_P (copy), "return ", 7))
+  if (*p_result && !strncmp (Z_STRVAL_P (copy), "return ", 7))
     {
-      zend_eval_string (Z_STRVAL_P (copy) + 7, result,
+      zend_eval_string (Z_STRVAL_P (copy) + 7, *p_result,
 			"eval'd code" TSRMLS_CC);
     }
   else
@@ -30,7 +30,7 @@ phc_builtin_eval (zval * arg, zval *result, char* filename TSRMLS_DC)
 }
 
 static void
-phc_builtin_exit (zval * arg, zval* result, char* filename TSRMLS_DC)
+phc_builtin_exit (zval * arg, zval** p_result, char* filename TSRMLS_DC)
 {
   if (Z_TYPE_P (arg) == IS_LONG)
     EG (exit_status) = Z_LVAL_P (arg);
@@ -41,36 +41,38 @@ phc_builtin_exit (zval * arg, zval* result, char* filename TSRMLS_DC)
 }
 
 static void
-phc_builtin_die (zval * arg, zval* result, char* filename TSRMLS_DC)
+phc_builtin_die (zval * arg, zval** p_result, char* filename TSRMLS_DC)
 {
-  phc_builtin_exit (arg, result, filename TSRMLS_CC);
+  phc_builtin_exit (arg, p_result, filename TSRMLS_CC);
 }
 
 static void
-phc_builtin_echo (zval* arg, zval* result TSRMLS_DC)
+phc_builtin_echo (zval* arg, zval** p_result TSRMLS_DC)
 {
+  assert (*p_result == NULL);
   zend_print_variable (arg);
 }
 
 static void
-phc_builtin_print (zval* arg, zval* result, char* filename TSRMLS_DC)
+phc_builtin_print (zval* arg, zval** p_result, char* filename TSRMLS_DC)
 {
-  phc_builtin_echo (arg, result TSRMLS_CC);
+  phc_builtin_echo (arg, p_result TSRMLS_CC);
 
-  if (result)
-    ZVAL_LONG (result, 1);
+  if (*p_result)
+    ZVAL_LONG (*p_result, 1);
 }
 
 // TODO is there a memory leak here is result has a value?
 // TOOD isnt this just the same as isset
 static void
-phc_builtin_empty (zval* arg, zval* result, char* filename TSRMLS_DC)
+phc_builtin_empty (zval* arg, zval** p_result, char* filename TSRMLS_DC)
 {
-  ZVAL_BOOL (result, !zend_is_true (arg));
+  assert (*p_result);
+  ZVAL_BOOL (*p_result, !zend_is_true (arg));
 }
 
 static void
-phc_builtin_include (zval* arg, zval* result, char* filename TSRMLS_DC)
+phc_builtin_include (zval* arg, zval** p_result, char* filename TSRMLS_DC)
 {
   // TODO: php_execute_script does some additional work which we need to
   // emulate. However, we cant call it directly. And why not?
@@ -95,11 +97,12 @@ phc_builtin_include (zval* arg, zval* result, char* filename TSRMLS_DC)
   assert (EG(active_op_array) == NULL);
   assert (filename != NULL);
 
+  zval* arg_file = arg;
   // Check we have a string
-  if (Z_TYPE_P (arg) != IS_STRING)
+  if (Z_TYPE_P (arg_file) != IS_STRING)
     {
-      arg = zvp_clone_ex (arg);
-      convert_to_string (arg);
+      arg_file = zvp_clone_ex (arg_file);
+      convert_to_string (arg_file);
     }
 
   // Pretend the interpreter is running
@@ -110,7 +113,7 @@ phc_builtin_include (zval* arg, zval* result, char* filename TSRMLS_DC)
 
   // Open the file
   zend_file_handle handle;
-  int success = zend_stream_open (Z_STRVAL_P (arg), &handle TSRMLS_CC);
+  int success = zend_stream_open (Z_STRVAL_P (arg_file), &handle TSRMLS_CC);
 
   // Stop pretending
   EG(in_execution) = 0;
@@ -119,17 +122,20 @@ phc_builtin_include (zval* arg, zval* result, char* filename TSRMLS_DC)
   if (success == SUCCESS)
     {
       // run it
-      success = zend_execute_scripts (ZEND_INCLUDE TSRMLS_CC, &result, 1, &handle);
+      success = zend_execute_scripts (ZEND_INCLUDE TSRMLS_CC, p_result, 1, &handle);
       assert (success == SUCCESS);
       zend_stream_close (&handle);
    }
   else
     {
-      php_error_docref("function.include" TSRMLS_CC, E_WARNING, "Failed opening '%s' for inclusion (include_path='%s')", php_strip_url_passwd(Z_STRVAL_P (arg)), STR_PRINT(PG(include_path)));
+      php_error_docref("function.include" TSRMLS_CC, E_WARNING, "Failed opening '%s' for inclusion (include_path='%s')", php_strip_url_passwd(Z_STRVAL_P (arg_file)), STR_PRINT(PG(include_path)));
     }
 
 
+   if (arg != arg_file)
+     zval_ptr_dtor (&arg_file);
  
+
    //TODO 
   // What happens in zend_vm_def.h, in the include's handler function:
 
@@ -151,7 +157,7 @@ phc_builtin_include (zval* arg, zval* result, char* filename TSRMLS_DC)
 */
 }
 
-phc_builtin_require (zval* arg, zval* result, char* filename TSRMLS_DC)
+phc_builtin_require (zval* arg, zval** p_result, char* filename TSRMLS_DC)
 {
   // TODO: php_execute_script does some additional work which we need to
   // emulate. However, we cant call it directly. And why not?
@@ -177,10 +183,11 @@ phc_builtin_require (zval* arg, zval* result, char* filename TSRMLS_DC)
   assert (filename != NULL);
 
   // Check we have a string
+  zval* arg_file = arg;
   if (Z_TYPE_P (arg) != IS_STRING)
     {
-      arg = zvp_clone_ex (arg);
-      convert_to_string (arg);
+      arg_file = zvp_clone_ex (arg_file);
+      convert_to_string (arg_file);
     }
 
   // Pretend the interpreter is running
@@ -191,7 +198,7 @@ phc_builtin_require (zval* arg, zval* result, char* filename TSRMLS_DC)
 
   // Open the file
   zend_file_handle handle;
-  int success = zend_stream_open (Z_STRVAL_P (arg), &handle TSRMLS_CC);
+  int success = zend_stream_open (Z_STRVAL_P (arg_file), &handle TSRMLS_CC);
 
   // Stop pretending
   EG(in_execution) = 0;
@@ -200,15 +207,17 @@ phc_builtin_require (zval* arg, zval* result, char* filename TSRMLS_DC)
   if (success == SUCCESS)
     {
       // run it
-      success = zend_execute_scripts (ZEND_REQUIRE TSRMLS_CC, &result, 1, &handle);
+      success = zend_execute_scripts (ZEND_REQUIRE TSRMLS_CC, p_result, 1, &handle);
       assert (success == SUCCESS);
       zend_stream_close (&handle);
    }
   else
     {
-      php_error_docref("function.require" TSRMLS_CC, E_ERROR, "Failed opening required '%s' (include_path='%s')", php_strip_url_passwd(Z_STRVAL_P (arg)), STR_PRINT(PG(include_path)));
+      php_error_docref("function.require" TSRMLS_CC, E_ERROR, "Failed opening required '%s' (include_path='%s')", php_strip_url_passwd(Z_STRVAL_P (arg_file)), STR_PRINT(PG(include_path)));
     }
 
+   if (arg != arg_file)
+     zval_ptr_dtor (&arg_file);
 
  
    //TODO 
