@@ -1668,6 +1668,13 @@ protected:
  * $x[$i] =& $y; (2)
  *
  * Semantics:
+ * // TODO objects
+ * If $x is "", false or NULL, convert it to an array.
+ * If $x is a string, assign into its $i_th position
+ *		- convert $y to a string
+ *	If $x is another scalar
+ *		TODO error?
+ *
  *	(1) If $x[$i] is a reference, copy the value of $y into the zval at $x[$i].
  *	       If $y doesn't exist, we can copy from uninitialized_zval.
  *	    If $x[$i] is not a reference, overwrite the HT entry with $y, removing the old entry.
@@ -1697,9 +1704,50 @@ public:
 		assert (rhs->value);
 
 		code 
-		<<	get_array_entry (LOCAL, "p_lhs", lhs->value, index->value)
-		;
+		// get the array
+		<< get_st_entry (LOCAL, "p_lhs_array", lhs->value)
+		<< "check_array_type (p_lhs_array TSRMLS_CC);\n"
+
+		// get the index
+		<< read_rvalue (LOCAL, "lhs_index", index->value)
 	
+
+
+		// Special case: string assignment
+		<< "if (Z_TYPE_P (*p_lhs_array) == IS_STRING && Z_STRLEN_PP (p_lhs_array) > 0)\n"
+		<< "{\n";
+		if (agn->is_ref)
+		{
+			code
+			<< "php_error_docref (NULL TSRMLS_CC, E_ERROR,"
+			<<  "\"Cannot create references to/from string offsets nor overloaded objects\");\n"
+			;
+		}
+		else
+		{
+			code
+			<< read_rvalue (LOCAL, "rhs", rhs->value)
+			<< "// TODO update the string\n"
+			<< "write_string_index (p_lhs_array, lhs_index, rhs TSRMLS_CC);\n"
+			;
+		}
+		code
+		<< "}\n"
+
+
+		// Array assignment
+		<< "else if (Z_TYPE_PP (p_lhs_array) == IS_ARRAY)\n"
+		<< "{\n"
+		
+		
+		// get the HT entry
+		<< "zval** p_lhs = get_ht_entry ("
+		<<						"p_lhs_array, "
+		<<						"lhs_index"	
+		<<						" TSRMLS_CC);\n"
+		;
+
+
 		if (not agn->is_ref)
 		{
 		  code	
@@ -1716,6 +1764,8 @@ public:
 			<< "copy_into_ref (p_lhs, p_rhs);\n"
 			;
 		}
+		code
+		<< "}\n";
 	}
 
 protected:

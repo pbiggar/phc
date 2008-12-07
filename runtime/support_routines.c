@@ -93,6 +93,27 @@ sep_change_on_write (zval ** p_zvp)
   zval_ptr_dtor (&old);
 }
 
+static long
+get_integer_index (zval* ind TSRMLS_DC)
+{
+  long index;
+  switch (Z_TYPE_P (ind))
+    {
+    case IS_DOUBLE:
+      return (long) Z_DVAL_P (ind);
+
+    case IS_LONG:
+    case IS_BOOL:
+      return Z_LVAL_P (ind);
+
+    case IS_NULL:
+      return 0;
+
+    default:
+      php_error_docref (NULL TSRMLS_CC, E_WARNING, "Illegal offset type");
+    }
+}
+
 
 static zval *
 read_string_index (zval * var, zval * ind TSRMLS_DC)
@@ -100,30 +121,12 @@ read_string_index (zval * var, zval * ind TSRMLS_DC)
   // This must always allocate memory, since we cant return the
   // passed string.
   assert (Z_TYPE_P (var) == IS_STRING);
-  long index;
-  switch (Z_TYPE_P (ind))
-    {
-    case IS_DOUBLE:
-      index = (long) Z_DVAL_P (ind);
-      break;
-
-    case IS_LONG:
-    case IS_BOOL:
-      index = Z_LVAL_P (ind);
-      break;
-
-    default:
-      php_error_docref (NULL TSRMLS_CC, E_WARNING, "Illegal offset type");
-
-    case IS_NULL:
-      index = 0;
-      break;
-    }
+  long index = get_integer_index (ind TSRMLS_CC);
 
   zval *result;
   ALLOC_INIT_ZVAL (result);
 
-  if (index >= Z_STRLEN_P (var))
+  if (index >= Z_STRLEN_P (var) || index < 0)
     {
       // this is 1 byte long, must be copied
       ZVAL_STRINGL (result, "", 0, 1);
@@ -133,8 +136,70 @@ read_string_index (zval * var, zval * ind TSRMLS_DC)
       char *string = Z_STRVAL_P (var);
       ZVAL_STRINGL (result, &string[index], 1, 1);
     }
+
   return result;
 }
+
+
+/* Given a string (p_lhs), write into it for $x[i] = $y; */
+void
+write_string_index (zval** p_lhs, zval* ind, zval* rhs TSRMLS_DC)
+{
+  assert (Z_TYPE_P (*p_lhs) == IS_STRING);
+
+  long index = get_integer_index (ind TSRMLS_CC);
+
+  // Get the appropriate character
+  char new_char;
+  if (Z_TYPE_P (rhs) != IS_STRING)
+    {
+      // TODO: remove allocate
+      zval* copy = zvp_clone_ex (rhs);
+      convert_to_string (copy);
+      new_char = Z_STRVAL_P (copy)[0];
+      zval_ptr_dtor (&copy);
+    }
+  else
+    {
+      new_char = Z_STRVAL_P (rhs)[0];
+    }
+
+  // Bounds check
+  if (index < 0)
+    {
+      php_error_docref (NULL TSRMLS_CC, E_WARNING, "Illegal string offset:  %ld", index);
+      return;
+    }
+
+  // We overwrite is its change-on-write
+  sep_copy_on_write_ex (p_lhs);
+
+  if (index > Z_STRLEN_PP (p_lhs))
+    {
+      // Extend to fix new
+      int len = Z_STRLEN_PP (p_lhs);
+      int new_length = index+1; // space for the new character
+      Z_STRVAL_PP (p_lhs) = erealloc (Z_STRVAL_PP (p_lhs), new_length + 1);
+
+      // pad with ' '
+      memset (&Z_STRVAL_PP (p_lhs)[len], ' ', index - len);
+
+     // change the strlen
+      Z_STRLEN_PP (p_lhs) = new_length;
+
+      // add a null terminator
+      Z_STRVAL_PP (p_lhs)[new_length] = '\0';
+    }
+
+  // write in the first character of the new value
+  Z_STRVAL_PP (p_lhs)[index] = new_char;
+      
+ 
+    // index < 0: E_WARNING illegal string offset
+}
+
+
+
 
 // Extract the hashtable from a hash-valued zval
 static HashTable *
@@ -525,7 +590,6 @@ write_var (zval ** p_lhs, zval * rhs)
     }
 }
 
-
 static zval **
 get_ht_entry (zval ** p_var, zval * ind TSRMLS_DC)
 {
@@ -693,6 +757,34 @@ read_array (zval ** result, zval * array, zval * ind TSRMLS_DC)
     }
 
   *result = EG (uninitialized_zval_ptr);
+}
+
+/* If its not an array, convert it into an array. */
+static void
+check_array_type (zval** p_var TSRMLS_DC)
+{
+  if ((Z_TYPE_P (*p_var) == IS_BOOL && !Z_BVAL_PP (p_var))
+      || Z_TYPE_P (*p_var) == IS_NULL 
+      || (Z_TYPE_P (*p_var) == IS_STRING && Z_STRLEN_PP (p_var) == 0))
+    {
+      // Non ref use new values
+      if (!PZVAL_IS_REF (*p_var))
+	{
+	  zval_ptr_dtor (p_var);
+	  ALLOC_INIT_ZVAL (*p_var)
+	}
+      else
+	// Refs are just replaced
+	zval_dtor (*p_var);
+
+      array_init (*p_var);
+    }
+  else if (Z_TYPE_PP (p_var) != IS_STRING && Z_TYPE_PP (p_var) != IS_ARRAY)
+    {
+      // TODO: why are these different types than pushing
+      php_error_docref (NULL TSRMLS_CC, E_WARNING,
+			"Cannot use a scalar value as an array");
+    }
 }
 
 /* Push EG (uninitialized_zval_ptr) and return a pointer into the ht
