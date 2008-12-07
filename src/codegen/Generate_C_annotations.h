@@ -15,6 +15,7 @@ class Generate_C_annotations : public MIR::Visitor, virtual public GC_obj
 {
 	Set<string> var_names;
 	Set<string> iterators;
+	Set<string> called_functions;
 
 	// Literal.classid() -> (lit.value -> Literal*)
 	Map<int, Map<string, MIR::Literal*> > pool_values;
@@ -23,6 +24,8 @@ class Generate_C_annotations : public MIR::Visitor, virtual public GC_obj
 	void pre_php_script (MIR::PHP_script* in);
 	void post_php_script (MIR::PHP_script* in);
 	void post_literal (MIR::Literal* in);
+	void post_param_is_ref (MIR::Param_is_ref* in);
+	void post_method_invocation (MIR::Method_invocation* in);
 
 	// Method analysis
 	void pre_method (MIR::Method* in);

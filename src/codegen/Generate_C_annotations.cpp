@@ -42,6 +42,14 @@ Generate_C_annotations::post_php_script (PHP_script* in)
 			rewrap_list <MIR::Literal, IR::Node> (pool_values[id].values ()));
 
 	in->attrs->set ("phc.codegen.pooled_literals", program_literals);
+
+
+	// Add a list of methods called.
+	String_list* method_names = new String_list;
+	foreach (string name, called_functions)
+		method_names->push_back (s (name));
+
+	in->attrs->set ("phc.codegen.called_functions", method_names);
 }
 
 void
@@ -64,9 +72,21 @@ Generate_C_annotations::post_literal (Literal* in)
 	in->attrs->set (
 		"phc.codegen.pool_name", 
 		pool [index]->attrs->get_string ("phc.codegen.pool_name")->clone ());
-
 }
 
+void
+Generate_C_annotations::post_param_is_ref (Param_is_ref* in)
+{
+	if (METHOD_NAME* method_name = dynamic_cast<METHOD_NAME*> (in->method_name))
+		called_functions.insert (*method_name->value);
+}
+
+void
+Generate_C_annotations::post_method_invocation (Method_invocation* in)
+{
+	if (METHOD_NAME* method_name = dynamic_cast<METHOD_NAME*> (in->method_name))
+		called_functions.insert (*method_name->value);
+}
 
 
 /*

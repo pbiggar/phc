@@ -1387,21 +1387,8 @@ protected:
 void
 init_function_record (string name, Node* node)
 {
-	static Set<string> record;
-
 	string fci_name = suffix (name, "fci");
 	string fcic_name = suffix (name, "fcic");
-
-	// initialize and declare the first time only
-	if (!record.has (name))
-	{
-		record.insert (name);
-
-		prologue
-		<< "static zend_fcall_info " << fci_name << ";\n"
-		<< "static zend_fcall_info_cache " << fcic_name << " = {0,NULL,NULL,NULL};\n"
-		;
-	}
 
 	// Its not necessarily a good idea to initialize at the start, since we
 	// still have to check if its initialized at call-time (it may have been
@@ -2463,7 +2450,21 @@ void Generate_C::pre_php_script(PHP_script* in)
 		<< "PHP_INI_ALL, PHP_INI_STAGE_RUNTIME);\n"
 		;
 	}
+
+	// Add function cache declarations
+	String_list* called_functions = dyc<String_list> (in->attrs->get ("phc.codegen.called_functions"));
+	foreach (String* name, *called_functions)
+	{
+		string fci_name = suffix (*name, "fci");
+		string fcic_name = suffix (*name, "fcic");
+
+		prologue
+		<< "static zend_fcall_info " << fci_name << ";\n"
+		<< "static zend_fcall_info_cache " << fcic_name << " = {0,NULL,NULL,NULL};\n"
+		;
+	}
 }
+
 
 void Generate_C::post_php_script(PHP_script* in)
 {
