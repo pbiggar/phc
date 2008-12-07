@@ -697,29 +697,47 @@ read_array (zval ** result, zval * array, zval * ind TSRMLS_DC)
 
 /* Push EG (uninitialized_zval_ptr) and return a pointer into the ht
  * for it */
+/*
+ * Converted to array automatically:
+ *    ""
+ *    NULL
+ *    false
+ *
+ * Warning, no conversion:
+ *    ints
+ *    floats
+ *    true
+ *
+ * Error, no conversion:
+ *    strings other than ""
+ */
+// TODO: objects, resources, etc
 static zval **
 push_and_index_ht (zval ** p_var TSRMLS_DC)
 {
-  if (Z_TYPE_P (*p_var) == IS_STRING)
+  // Check for errors conditions
+  
+  if (Z_TYPE_P (*p_var) == IS_STRING && Z_STRLEN_PP (p_var) > 0)
     {
-      if (Z_STRLEN_PP (p_var) > 0)
-	{
-	  php_error_docref (NULL TSRMLS_CC, E_ERROR,
-			    "[] operator not supported for strings");
-	}
-      else
-	{
-	  zval_ptr_dtor (p_var);
-	  ALLOC_INIT_ZVAL (*p_var);
-	  array_init (*p_var);
-	}
+      php_error_docref (NULL TSRMLS_CC, E_ERROR,
+			"[] operator not supported for strings");
+      assert (0); // unreachable
     }
 
-  if (Z_TYPE_P (*p_var) == IS_BOOL && Z_BVAL_PP (p_var))
+  if (Z_TYPE_P (*p_var) == IS_BOOL && Z_BVAL_PP (p_var)
+      || Z_TYPE_P (*p_var) == IS_LONG
+      || Z_TYPE_P (*p_var) == IS_DOUBLE)
     {
       php_error_docref (NULL TSRMLS_CC, E_WARNING,
 			"Cannot use a scalar value as an array");
       return NULL;
+    }
+
+  if (Z_TYPE_P (*p_var) != IS_ARRAY)
+    {
+      zval_ptr_dtor (p_var);
+      ALLOC_INIT_ZVAL (*p_var);
+      array_init (*p_var);
     }
 
   // if its not an array, make it an array
