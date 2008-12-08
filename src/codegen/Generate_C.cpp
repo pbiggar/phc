@@ -530,16 +530,27 @@ protected:
 
 				// TODO this should be abstactable, but it work now, so
 				// leave it.
+				
+				// We can have multiple parameters with the same name. In that
+				// case, destroy the predecessor (the second is not deemed to
+				// assign to the first, so references etc are moot).
 				if (param->var->variable_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
 				{
 					string name = get_non_st_name (param->var->variable_name);
 					code 
+					<< "if (" << name << " != NULL)\n"
+					<< "{\n"
+					<< "	zval_ptr_dtor (&" << name << ");\n"
+					<< "}\n"
 					<< name << " = params[" << index << "];\n";
 				}
 				else
 				{
-					// TODO i dont believe theres a test for this
-					code 
+					code
+					<< "zend_hash_del (EG(active_symbol_table), "
+					<<		"\"" << *param->var->variable_name->value << "\", " 
+					<<		param->var->variable_name->value->length() + 1 << ");\n"
+
 					<< "zend_hash_quick_add(EG(active_symbol_table), "
 					<<		"\"" << *param->var->variable_name->value << "\", " 
 					<<		param->var->variable_name->value->length() + 1 << ", "
