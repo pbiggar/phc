@@ -2548,7 +2548,17 @@ void include_file (ostream& out, String* filename)
 
 void Generate_C::pre_php_script(PHP_script* in)
 {
-	include_file (prologue, s("support_routines.c"));
+	include_file (prologue, s("support.c"));
+	include_file (prologue, s("debug.c"));
+	include_file (prologue, s("zval.c"));
+	include_file (prologue, s("string.c"));
+	include_file (prologue, s("arrays.c"));
+	include_file (prologue, s("isset.c"));
+	include_file (prologue, s("methods.c"));
+	include_file (prologue, s("misc.c"));
+	include_file (prologue, s("unset.c"));
+	include_file (prologue, s("var_vars.c"));
+
 	include_file (prologue, s("builtin_functions.c"));
 
 
