@@ -56,7 +56,8 @@ phc_builtin_echo (zval* arg, zval** p_result TSRMLS_DC)
 static void
 phc_builtin_print (zval* arg, zval** p_result, char* filename TSRMLS_DC)
 {
-  phc_builtin_echo (arg, p_result TSRMLS_CC);
+  zval* echo_arg = NULL;
+  phc_builtin_echo (arg, &echo_arg TSRMLS_CC);
 
   if (*p_result)
     ZVAL_LONG (*p_result, 1);
