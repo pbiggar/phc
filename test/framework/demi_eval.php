@@ -41,6 +41,13 @@ class Demi_eval extends CompiledVsInterpreted
 		$init = $this->init;
 		return get_phc_command_line ($subject) . " -c --run plugins/tools/demi_eval.la --r-option=\"$init\" -o $exe_name";
 	}
+
+	function homogenize_output ($string, $bundle)
+	{
+		$string = parent::homogenize_output ($string, $bundle);
+		$string = preg_replace ("/in __FILENAME__\(\d+\) : eval\(\)'d code/m", "in eval'd code", $string);
+		return $string;
+	}
 }
 
 ?>
