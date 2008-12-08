@@ -287,6 +287,34 @@ ht_find (HashTable * ht, zval * ind, zval *** data)
   return result;
 }
 
+static int
+check_unset_index_type (zval* ind TSRMLS_DC)
+{
+  if (Z_TYPE_P (ind) == IS_OBJECT
+      || Z_TYPE_P (ind) == IS_ARRAY)
+    {
+      php_error_docref (NULL TSRMLS_CC, E_WARNING, "Illegal offset type in unset");
+      return 0;
+    }
+
+  return 1;
+}
+
+static int
+check_array_index_type (zval* ind TSRMLS_DC)
+{
+  if (Z_TYPE_P (ind) == IS_OBJECT
+      || Z_TYPE_P (ind) == IS_ARRAY)
+    {
+      php_error_docref (NULL TSRMLS_CC, E_WARNING, "Illegal offset type");
+      return 0;
+    }
+
+  return 1;
+}
+
+
+
 // Update a hashtable using a zval* index
 static void
 ht_update (HashTable * ht, zval * ind, zval * val, zval *** dest)
@@ -787,6 +815,7 @@ check_array_type (zval** p_var TSRMLS_DC)
     }
 }
 
+
 /* Push EG (uninitialized_zval_ptr) and return a pointer into the ht
  * for it */
 /*
@@ -980,15 +1009,22 @@ unset_var (HashTable * st, char *name, int length)
 static void
 unset_array (zval ** p_var, zval * ind TSRMLS_DC)
 {
-  if (Z_TYPE_P (*p_var) == IS_STRING)
-    {
-      php_error_docref (NULL TSRMLS_CC, E_ERROR,
-			"Cannot unset string offsets");
-    }
-
   // NO error required
-  if (Z_TYPE_P (*p_var) != IS_ARRAY)
-    return;
+  if (Z_TYPE_PP (p_var) != IS_ARRAY)
+    {
+      if (Z_TYPE_PP (p_var) == IS_STRING)
+	{
+	  php_error_docref (NULL TSRMLS_CC, E_ERROR,
+			    "Cannot unset string offsets");
+	}
+      else if (Z_TYPE_PP (p_var) != IS_NULL)
+	{
+	  php_error_docref (NULL TSRMLS_CC, E_WARNING,
+			    "Cannot unset offsets in a non-array variable");
+	}
+
+      return;
+    }
 
   // if its not an array, make it an array
   HashTable *ht = Z_ARRVAL_P (*p_var);

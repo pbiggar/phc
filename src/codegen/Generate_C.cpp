@@ -762,12 +762,17 @@ public:
 			<< "else\n"
 			<< "{\n"
 
+			<<		"if (check_array_index_type (ra_index TSRMLS_CC))\n"
+			<<		"{\n"
+
 			<<		"// Read array variable\n"
 			<<		"read_array ("
 			<<			"&rhs" << ", "
 			<<			"r_array, "
 			<<			"ra_index "
 			<<			" TSRMLS_CC);\n"
+			<<		"}\n"
+			<<		"else rhs = *p_lhs;\n" // HACK to fail  *p_lhs != rhs
 			<< "}\n"
 
 			<< "if (*p_lhs != rhs)\n"
@@ -2063,6 +2068,34 @@ protected:
 	Wildcard<Rvalue>* rvalue;
 };
 
+/*
+ * unset ($x); (1)
+ * or
+ * unset ($x[$i]); (2) (corresponds to ZEND_UNSET_DIM)
+ * or
+ * unset ($x[$i][$j]); (3)
+ *
+ * Semantics:
+ *
+ *	(1) Remove $x from the symbol-table
+ *	(2) If $x is a string, Error.
+ *	    If $x is another scalar, do nothing
+ *	    If $x is an array, remove entry $i
+ *	(3) Different rules for > 1D indexing.
+ *		 If the index is invalid, return NULL from that portion of indexing.
+ *		 Then initialize it to an array. Then proceed.
+ *
+ * Allowed index types:
+ *		double
+ *		long
+ *		bool
+ *		resource (convert to long)
+ *		string
+ *		NULL (as "")
+ *
+ *	Anything else results in "Illegal offset type"
+ *
+ */
 class Pattern_unset : public Pattern
 {
 	bool match(Statement* that)
@@ -2103,16 +2136,54 @@ class Pattern_unset : public Pattern
 			}
 			else 
 			{
-				assert(unset->value->array_indices->size() == 1);
-				Rvalue* index = (unset->value->array_indices->front());
+				code
+				<< "do\n"
+				<< "{\n"
+				;
+
 				code
 				<< get_st_entry (LOCAL, "u_array", var_name)
-				<< read_rvalue (LOCAL, "u_index", index)
+				<< "sep_copy_on_write_ex (u_array);\n"
+				<< "zval* array = *u_array;\n"
+				;
+
+				Rvalue_list* indices = unset->value->array_indices->clone ();
+				Rvalue* back_index = indices->back ();
+				indices->pop_back ();
+
+				// Foreach index, read the array, but do not update it in place.
+				foreach (Rvalue* index, *indices)
+				{
+					code
+					<< "if (Z_TYPE_P (array) == IS_ARRAY)\n"
+					<< "{\n"
+					<<		read_rvalue (LOCAL, "index", index)
+					// This uses check_array_index type because PHP behaves
+					// differently for the inner index check than the outer one.
+					<<	"	if (!check_array_index_type (index TSRMLS_CC))\n"
+					<<	"	{\n"
+					<<	"		array = EG(uninitialized_zval_ptr);\n"
+					<<	"	}\n"
+					<<	"	else\n"
+					<< "		read_array (&array, array, index TSRMLS_CC);\n"
+					<< "}\n"
+					;
+				}
+				code
+				<< read_rvalue (LOCAL, "index", back_index)
+				<< "if (Z_TYPE_P (array) == IS_ARRAY)\n"
+				<<	"	if (!check_unset_index_type (index TSRMLS_CC)) break;\n"
 
 				<< "unset_array ("
-				<<    "u_array, "
-				<<    "u_index "
-				<<		" TSRMLS_CC);\n";
+				<<    "&array, "
+				<<    "index "
+				<<		" TSRMLS_CC);\n"
+				;
+
+				code
+				<< "}\n"
+				<< "while (0);\n"
+				;
 			}
 		}
 		else
