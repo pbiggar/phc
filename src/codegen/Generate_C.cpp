@@ -1302,7 +1302,11 @@ class Pattern_assign_expr_foreach_get_val : public Pattern_assign_var
 		;
 
 		if (!agn->is_ref)
-			code << "write_var (p_lhs, *p_rhs);\n";
+
+			code 
+			<< "if (*p_lhs != *p_rhs)\n"
+			<< "	write_var (p_lhs, *p_rhs);\n"
+			;
 		else
 			code << "copy_into_ref (p_lhs, p_rhs);\n";
 	}
