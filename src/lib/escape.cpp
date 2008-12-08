@@ -48,18 +48,18 @@ String* escape_C_comment (String* s)
 
 	foreach (char c, *s)
 	{
-		if(c == '"' || c == '\\')
+		if(c == '\n')
 		{
 			ss << "\\" << c;
 		}
-		else if(c >= 32 && c < 127)
+		else if((c >= 32 && c < 127) || c == '\t')
 		{
 			ss << c;
 		}
 		else
 		{
 			ss << "\\" << setw(3) << setfill('0') << oct << uppercase << (unsigned long int)(unsigned char) c;
-			ss << resetiosflags(ss.flags());
+			ss << resetiosflags(ss.flags ());
 		}
 	}
 
