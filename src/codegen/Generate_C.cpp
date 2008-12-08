@@ -1641,20 +1641,25 @@ public:
 		// For reasons unknown, the Zend API resets the
 		// refcount and is_ref fields of the return value after the
 		// function returns (unless the callee is interpreted). If the function
-		// is supposed to return by reference, this loses the refcount. There
-		// is nothing we can do in this situation (apart from rewriting the
-		// calling convention, but even that will only work for code we call
-		// ourselves).
+		// is supposed to return by reference, this loses the refcount. This only
+		// happens when non-interpreted code is called. We work around it, when
+		// compiled code is called, by saving the refcount into SAVED_REFCOUNT,
+		// in the return statement. The downside is that we may create an error
+		// if our code is called by a callback, and returns by reference, and the
+		// callback returns by reference. At least this is an obscure case.
 
-		// Increment the refcount and set is_ref, to make it clear it cannot go
-		// in a copy-on-write set.
 		code
 		<< "if(signature->common.return_reference && signature->type != ZEND_USER_FUNCTION)\n"
 		<< "{\n"
 		<< "	assert (rhs != EG(uninitialized_zval_ptr));\n"
 		<< "	rhs->is_ref = 1;\n"
 		<< "	rhs->refcount++;\n"
+		<< "	if (saved_refcount != 0)\n"
+		<< "	{\n"
+		<< "		rhs->refcount = saved_refcount;\n"
+		<< "	}\n"
 		<< "}\n"
+		<< "saved_refcount = 0;\n" // for 'obscure cases'
 		;
 
 		if (lhs)
@@ -2071,6 +2076,10 @@ class Pattern_return : public Pattern
 			<< "(*p_rhs)->is_ref = 1;\n"
 			<< "(*p_rhs)->refcount++;\n"
 			<< "*return_value_ptr = *p_rhs;\n"
+
+			// Save the refcount, to be restored by the caller (see comment in
+			// Method_invocation).
+			<< "saved_refcount = (*p_rhs)->refcount;\n"
 			;
 		}
 
@@ -2564,6 +2573,12 @@ void Generate_C::pre_php_script(PHP_script* in)
 	include_file (prologue, s("var_vars.c"));
 
 	include_file (prologue, s("builtin_functions.c"));
+
+
+	// We need to save refcounts for functions returned by reference, where the
+	// PHP engine destroys the refcount for no good reason.
+	prologue << "int saved_refcount;\n";
+	initializations << "saved_refcount = 0;\n";
 
 
 	// Add constant-pooling declarations
