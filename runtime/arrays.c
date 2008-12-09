@@ -216,12 +216,13 @@ get_ht_entry (zval ** p_var, zval * ind TSRMLS_DC)
 	  php_error_docref (NULL TSRMLS_CC, E_ERROR,
 			    "Cannot create references to/from string offsets nor overloaded objects");
 	}
-      else
-	{
-	  zval_ptr_dtor (p_var);
-	  ALLOC_INIT_ZVAL (*p_var);
-	  array_init (*p_var);
-	}
+    }
+
+  if (Z_TYPE_P (*p_var) != IS_ARRAY)
+    {
+      zval_ptr_dtor (p_var);
+      ALLOC_INIT_ZVAL (*p_var);
+      array_init (*p_var);
     }
 
   HashTable *ht = extract_ht (p_var TSRMLS_CC);

@@ -265,6 +265,7 @@ string get_array_entry (Scope scope, string zvp, VARIABLE_NAME* var_name, Rvalue
 	// TODO dont need get_st_entry here
 	<< get_st_entry (scope, zvp_name, var_name)
 	<< read_rvalue (scope, zvp_index, index)
+	<< "check_array_type (" << zvp_name << " TSRMLS_CC);\n"
 	<<	"zval**" << zvp << " = get_ht_entry ("
 	<<						zvp_name << ", "
 	<<						zvp_index
@@ -607,7 +608,19 @@ protected:
 			;
 		}
 
-		code << "}\n";
+		// See comment in Method_invocation. We save the refcount of
+		// return_by_reference. Note that we get the wrong answer if we do this
+		// before the destructors have run, since we can't tell how many
+		// destructors will affect it.
+		if (signature->is_ref)
+		{
+			code
+			<< "if (*return_value_ptr)\n"
+			<< "	saved_refcount = (*return_value_ptr)->refcount;\n"
+			;
+		}
+
+		code << "}\n" ;
 	}
 };
 
@@ -1653,11 +1666,11 @@ public:
 		<< "{\n"
 		<< "	assert (rhs != EG(uninitialized_zval_ptr));\n"
 		<< "	rhs->is_ref = 1;\n"
-		<< "	rhs->refcount++;\n"
 		<< "	if (saved_refcount != 0)\n"
 		<< "	{\n"
 		<< "		rhs->refcount = saved_refcount;\n"
 		<< "	}\n"
+		<< "	rhs->refcount++;\n"
 		<< "}\n"
 		<< "saved_refcount = 0;\n" // for 'obscure cases'
 		;
@@ -1667,7 +1680,9 @@ public:
 			code << get_st_entry (LOCAL, "p_lhs", lhs->value);
 
 			if (!agn->is_ref)
+			{
 				code << "write_var (p_lhs, rhs);\n";
+			}
 			else
 				code << "copy_into_ref (p_lhs, &rhs);\n";
 		}
@@ -2076,10 +2091,6 @@ class Pattern_return : public Pattern
 			<< "(*p_rhs)->is_ref = 1;\n"
 			<< "(*p_rhs)->refcount++;\n"
 			<< "*return_value_ptr = *p_rhs;\n"
-
-			// Save the refcount, to be restored by the caller (see comment in
-			// Method_invocation).
-			<< "saved_refcount = (*p_rhs)->refcount;\n"
 			;
 		}
 
