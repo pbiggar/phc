@@ -1,7 +1,7 @@
 
 
 /* Make a copy of *P_ZVP, storing it in *P_ZVP. */
-static zval*
+static zval *
 zvp_clone_ex (zval * zvp)
 {
   // TODO: use INIT_PZVAL_COPY
@@ -114,7 +114,7 @@ write_var (zval ** p_lhs, zval * rhs)
 	{
 	  *p_lhs = zvp_clone_ex (rhs);
 	}
-      else // share a copy
+      else			// share a copy
 	{
 	  rhs->refcount++;
 	  *p_lhs = rhs;
@@ -163,5 +163,3 @@ read_var (HashTable * st, char *name, int length, ulong hashval TSRMLS_DC)
 
   return EG (uninitialized_zval_ptr);
 }
-
-

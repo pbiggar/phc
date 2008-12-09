@@ -55,7 +55,7 @@ ht_find (HashTable * ht, zval * ind, zval *** data)
   else
     {
       // TODO: I believe this might need a warning.
-     
+
       // TODO avoid alloc
       // use a string index for other types
       zval *string_index;
@@ -75,10 +75,9 @@ ht_find (HashTable * ht, zval * ind, zval *** data)
 
 
 static int
-check_array_index_type (zval* ind TSRMLS_DC)
+check_array_index_type (zval * ind TSRMLS_DC)
 {
-  if (Z_TYPE_P (ind) == IS_OBJECT
-      || Z_TYPE_P (ind) == IS_ARRAY)
+  if (Z_TYPE_P (ind) == IS_OBJECT || Z_TYPE_P (ind) == IS_ARRAY)
     {
       php_error_docref (NULL TSRMLS_CC, E_WARNING, "Illegal offset type");
       return 0;
@@ -272,18 +271,17 @@ read_array (zval ** result, zval * array, zval * ind TSRMLS_DC)
 
 /* If its not an array, convert it into an array. */
 static void
-check_array_type (zval** p_var TSRMLS_DC)
+check_array_type (zval ** p_var TSRMLS_DC)
 {
   if ((Z_TYPE_P (*p_var) == IS_BOOL && !Z_BVAL_PP (p_var))
-      || Z_TYPE_P (*p_var) == IS_NULL 
+      || Z_TYPE_P (*p_var) == IS_NULL
       || (Z_TYPE_P (*p_var) == IS_STRING && Z_STRLEN_PP (p_var) == 0))
     {
       // Non ref use new values
       if (!PZVAL_IS_REF (*p_var))
 	{
 	  zval_ptr_dtor (p_var);
-	  ALLOC_INIT_ZVAL (*p_var)
-	}
+	ALLOC_INIT_ZVAL (*p_var)}
       else
 	// Refs are just replaced
 	zval_dtor (*p_var);
@@ -320,17 +318,16 @@ static zval **
 push_and_index_ht (zval ** p_var TSRMLS_DC)
 {
   // Check for errors conditions
-  
+
   if (Z_TYPE_P (*p_var) == IS_STRING && Z_STRLEN_PP (p_var) > 0)
     {
       php_error_docref (NULL TSRMLS_CC, E_ERROR,
 			"[] operator not supported for strings");
-      assert (0); // unreachable
+      assert (0);		// unreachable
     }
 
   if (Z_TYPE_P (*p_var) == IS_BOOL && Z_BVAL_PP (p_var)
-      || Z_TYPE_P (*p_var) == IS_LONG
-      || Z_TYPE_P (*p_var) == IS_DOUBLE)
+      || Z_TYPE_P (*p_var) == IS_LONG || Z_TYPE_P (*p_var) == IS_DOUBLE)
     {
       php_error_docref (NULL TSRMLS_CC, E_WARNING,
 			"Cannot use a scalar value as an array");
@@ -357,5 +354,3 @@ push_and_index_ht (zval ** p_var TSRMLS_DC)
 
   return data;
 }
-
-

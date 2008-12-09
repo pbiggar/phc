@@ -29,13 +29,11 @@ isset_array (zval ** p_var, zval * ind)
   // if its not an array, make it an array
   HashTable *ht = Z_ARRVAL_P (*p_var);
 
-  zval** data;
+  zval **data;
   if (ht_find (ht, ind, &data) == SUCCESS)
-  {
-    return !ZVAL_IS_NULL(*data);
-  }
+    {
+      return !ZVAL_IS_NULL (*data);
+    }
   else
     return 0;
 }
-
-

@@ -1,11 +1,11 @@
 
 static int
-check_unset_index_type (zval* ind TSRMLS_DC)
+check_unset_index_type (zval * ind TSRMLS_DC)
 {
-  if (Z_TYPE_P (ind) == IS_OBJECT
-      || Z_TYPE_P (ind) == IS_ARRAY)
+  if (Z_TYPE_P (ind) == IS_OBJECT || Z_TYPE_P (ind) == IS_ARRAY)
     {
-      php_error_docref (NULL TSRMLS_CC, E_WARNING, "Illegal offset type in unset");
+      php_error_docref (NULL TSRMLS_CC, E_WARNING,
+			"Illegal offset type in unset");
       return 0;
     }
 
@@ -49,4 +49,3 @@ unset_array (zval ** p_var, zval * ind TSRMLS_DC)
 
   ht_delete (ht, ind);
 }
-

@@ -33,8 +33,8 @@ get_var_var (HashTable * st, zval * var_var, int update_st TSRMLS_DC)
 
   zval **p_result;
   int index_found = zend_hash_find (st, Z_STRVAL_P (string_index),
-				Z_STRLEN_P (string_index) + 1,
-				(void **) &p_result);
+				    Z_STRLEN_P (string_index) + 1,
+				    (void **) &p_result);
 
   if (index_found != SUCCESS)
     {
@@ -67,4 +67,3 @@ read_var_var (HashTable * st, zval * var_var TSRMLS_DC)
 {
   return get_var_var (st, var_var, 0 TSRMLS_CC);
 }
-

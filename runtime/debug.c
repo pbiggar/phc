@@ -91,5 +91,3 @@ ht_var_debug (HashTable * st, char *name)
 
   ht_debug ((*p_zvp)->value.ht);
 }
-
-

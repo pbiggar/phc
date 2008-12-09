@@ -65,5 +65,3 @@ phc_check_invariants (TSRMLS_D)
   assert (EG (uninitialized_zval).type == IS_NULL);
   assert (EG (uninitialized_zval).is_ref == 0);
 }
-
-

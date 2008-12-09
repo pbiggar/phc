@@ -1,5 +1,5 @@
 static long
-get_integer_index (zval* ind TSRMLS_DC)
+get_integer_index (zval * ind TSRMLS_DC)
 {
   long index;
   switch (Z_TYPE_P (ind))
@@ -46,7 +46,7 @@ read_string_index (zval * var, zval * ind TSRMLS_DC)
 
 /* Given a string (p_lhs), write into it for $x[i] = $y; */
 void
-write_string_index (zval** p_lhs, zval* ind, zval* rhs TSRMLS_DC)
+write_string_index (zval ** p_lhs, zval * ind, zval * rhs TSRMLS_DC)
 {
   assert (Z_TYPE_P (*p_lhs) == IS_STRING);
 
@@ -57,7 +57,7 @@ write_string_index (zval** p_lhs, zval* ind, zval* rhs TSRMLS_DC)
   if (Z_TYPE_P (rhs) != IS_STRING)
     {
       // TODO: remove allocate
-      zval* copy = zvp_clone_ex (rhs);
+      zval *copy = zvp_clone_ex (rhs);
       convert_to_string (copy);
       new_char = Z_STRVAL_P (copy)[0];
       zval_ptr_dtor (&copy);
@@ -70,7 +70,8 @@ write_string_index (zval** p_lhs, zval* ind, zval* rhs TSRMLS_DC)
   // Bounds check
   if (index < 0)
     {
-      php_error_docref (NULL TSRMLS_CC, E_WARNING, "Illegal string offset:  %ld", index);
+      php_error_docref (NULL TSRMLS_CC, E_WARNING,
+			"Illegal string offset:  %ld", index);
       return;
     }
 
@@ -81,13 +82,13 @@ write_string_index (zval** p_lhs, zval* ind, zval* rhs TSRMLS_DC)
     {
       // Extend to fix new
       int len = Z_STRLEN_PP (p_lhs);
-      int new_length = index+1; // space for the new character
+      int new_length = index + 1;	// space for the new character
       Z_STRVAL_PP (p_lhs) = erealloc (Z_STRVAL_PP (p_lhs), new_length + 1);
 
       // pad with ' '
       memset (&Z_STRVAL_PP (p_lhs)[len], ' ', index - len);
 
-     // change the strlen
+      // change the strlen
       Z_STRLEN_PP (p_lhs) = new_length;
 
       // add a null terminator
@@ -96,9 +97,7 @@ write_string_index (zval** p_lhs, zval* ind, zval* rhs TSRMLS_DC)
 
   // write in the first character of the new value
   Z_STRVAL_PP (p_lhs)[index] = new_char;
-      
- 
-    // index < 0: E_WARNING illegal string offset
+
+
+  // index < 0: E_WARNING illegal string offset
 }
-
-
