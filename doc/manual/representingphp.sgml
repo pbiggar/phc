@@ -71,6 +71,19 @@ element of the first rule in detail. </para>
 </variablelist>
 
 <para>We illustrate the various possibilities using diagrams.</para> 
+<warning>
+<para>
+	These diagrams use old names for AST nodes. Where you see
+	<code>AST_variable</code>, it is now called <code>Variable</code> (it uses
+	the AST namespace). <code>Token_variable_name</code> is called
+	<code>VARIABLE_NAME</code> and <code>Token_int</code> is called
+	<code>INT</code>.
+</para>
+<para>
+	It is possible the structure of some nodes have changed slightly since this
+	was written.
+</para>
+</warning>
 
 <variablelist>
 <!-- TODO: these images need to be regenerated -->
