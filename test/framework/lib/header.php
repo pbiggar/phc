@@ -657,15 +657,26 @@ function homogenize_filenames_and_line_numbers ($string, $filename)
 	$stdin_filename = getcwd () . "/-";
 	$full_filename = getcwd () . "/$filename";
 
-	// Sometimes there is a filename, sometimes not. Easiest to leave as is, rather than trying to coerce __FILENAME__ into it.
+
+	// Remove 'Unknown:'
+	$string = preg_replace( "/Warning: Unknown:/", "Warning:", $string);
+	$string = preg_replace( "/fatal error: Unknown:/", "Fatal error:", $string);
+	$string = preg_replace( "/Catchable fatal error: Unknown:/", "Catchable fatal error:", $string);
+
+
+	// Sometimes there is a filename, sometimes not. Easiest to leave as is,
+	// rather than trying to coerce __FILENAME__ into it.
 	$string = preg_replace( "/(Warning: )(\S*: )?(.+? in )\S+ on line \d+/", "$1$3", $string);
 	$string = preg_replace( "/(Fatal error: )(\S*: )?(.+? in )\S+ on line \d+/", "$1$3", $string);
 	$string = preg_replace( "/(Catchable fatal error: .+? in )\S+ on line \d+/", "$1", $string);
 
 	$string = preg_replace( "/on line \d+/", "on line __LINE__", $string);
 	$string = preg_replace( "!$full_filename(:\d+)?!", "__FILENAME__", $string);
+	$string = preg_replace( "!\[no active file\](:\d+)?!", "__FILENAME__", $string);
 	$string = preg_replace( "!$filename(:\d+)?!", "__FILENAME__", $string);
 	$string = preg_replace( "!$stdin_filename(:\d+)?!", "__FILENAME__", $string);
+
+	$string = preg_replace( "!__FILENAME__ on line __LINE__!", "", $string);
 
 //	$string = preg_replace( "/(Fatal error: Allowed memory size of )\d+( bytes exhausted at )\S*( \(tried to allocate )\d+( bytes\) in )\S*( on line )\d+/", "$1$2$3$4", $string);
 
