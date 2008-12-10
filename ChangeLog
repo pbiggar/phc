@@ -1,156 +1,167 @@
 0.2.0 (10 December 2008)
 ------------------------
 
-Project changes:
-* Moved our project page to http://code.google.com/p/phc.
-* We have removed our STATUS file, and now use the Google Code issue tracker
-  at http://code.google.com/p/phc/issues/list.
-* Our svn repository is now publicly available, at
-  http://code.google.com/p/phc/source/checkout.
-* The phc-internals mailing list is now publicly available.
-* Paul Biggar is phc's new maintainer.
-* Maketea is now a project of its own, available at http://maketea.org.
-* The svn repository now uses traditional {trunk branches tags} roots.
-
-Building phc:
-* We now use autotools with libtool for building phc, for portability.
-* Removed grep as a prerequisite.
-* Require Boost, which is used quite heavily now.
-* Moved to newer versions of gengetopt.
-* We now use PHP's embed SAPI to help resolve many questions about PHP's
-  behaviour. Instructions for building it are in the manual.
-* Removed use of LD_LIBRARY_PATH, building it in instead.
-* Updated to later version of automake and autoconf.
-* Fix building in parallel (make -j).
-* phc is now built as a library by default. This makes it easier to integrate
-  into external projects.
-* phc now uses boehm-gc garbage collector by default (as we fixed all of its
-  problems).
+New features:
+------------------------
 
 Code generation:
-* We can now compile most PHP scripts which do not involve OO.
-* Added many simple optimizations, resulting in a speedup of 1.5 or so above
-  PHP.
-* Add constant-folding.
+	* By far the largest change is that we can now compile most PHP programs which
+	  do not involve OO.
+	* Added many simple optimizations, resulting in a speedup of 1.5 or so above
+	  PHP.
+
+Plugins:
+	* The plugins are much more portable, as we now use libtool and libltdl.
+	Plugins are now run as pluginname.la, rather than pluginname.so.
+	* The plugin API has now changed. However, this allows the plugins to run
+	over any of the IRs.
+	* Plugins now install into lib/phc/plugins/.
+	* phc's plugins are now automatically installed.
 
 
-Parsing changes:
-* phc now records when curly brackets are used, and unparses them correctly.
-* Single quotes are now recorded, and used by the unparser.
-* Comments after source are now supported, and correctly unparsed.
-* We now use PHP to get the values from parsed tokens, meaning we
-	transparently support different versions of PHP where tokens have different
-	meanings.
-* Fixed a number of miscellaneous bugs.
-* The lexer didn't escape backslashes.
-* Added a version of PHP's parser that spits out the parse tree in graphwiz
-  dot.
-* Properly escape backticked strings.
-* Add a 'parse-buffer' allowing passes to create PHP code which could be
-  passed to the parser, rather than tediously creating the constructs manually.
-* The value of __METHOD__ incorrectly did not contain the classname.
-* Fix short-circuiting bug.
+Building phc:
+	* We now use PHP's embed SAPI to help resolve many questions about PHP's
+	  behaviour. Instructions for building it are in the manual.
+	* phc is now built as a library by default. This makes it easier to
+	  integrate into external projects.
+	* phc now uses boehm-gc garbage collector by default, and no longer leaks
+	  (much) memory. 
+	* phc is more portable, due to using libtool.
+	* Removed grep as a prerequisite.
+	* Require Boost, which is used quite heavily now.
+	* Moved to newer versions of gengetopt.
+	* Removed use of LD_LIBRARY_PATH, building it in instead.
+	* Updated to later version of automake and autoconf.
+	* Fix building in parallel (make -j).
 
 
+Parsing:
+	* We now use PHP to get the values from parsed tokens, meaning we
+	  transparently support different versions of PHP where tokens have different
+	  meanings.
+	* Add a 'parse-buffer' allowing passes and plugins to create PHP code which
+	  could be passed to the parser, rather than tediously creating the constructs
+	  manually.
+	* phc now records when curly brackets are used, and unparses them correctly.
+	* Single quotes are now recorded, and used by the unparser.
+	* Comments after source are now supported, and correctly unparsed.
+	* Added a version of PHP's parser that spits out the parse tree in graphwiz
+	  dot.
 
-Unparsing changes:
-* when unparsing, phc uses the style of the Zend coding guidelines.
-* Unparse $x = &$y; as $x =& $y;
-* Interpolated strings (or in-string-syntax) is now unparsed correctly.
-* Unparse $x{-1} correctly.
-* Fixed minor DOT unparsing bug.
+Unparsing:
+	* when unparsing, phc uses the style of the Zend coding guidelines.
+	* Unparse $x = &$y; as $x =& $y;
 
+Command-line:
+	* Some command line options (from 0.1.7) have been renamed.
+	* --dump-php is now --dump=pass.
+	* --dump-ast-dot is now --dump-dot=pass.
+	* --dump-ast-xml is now --dump-xml=pass.
+	* --read-ast-xml is now --read-xml=pass.
+	* --compile-time-includes is now --include.
+	* Many new options were added for compiling and printing PHP files.
+	* --list-passes shows all the passes
 
-Command-line changes:
-* The old command line options (from 0.1.7) have been renamed.
-* (ast below can be any pass. Run --list-passes to see available passes).
-* --dump-php is now --dump=ast.
-* --dump-ast-dot is now --dump-dot=ast.
-* --dump-ast-xml is now --dump-xml=ast.
-* --read-ast-xml is now --read-xml=ast.
-* --compile-time-includes is now --include.
-* --tab=STRING is unchanged.
-* Many new options were added for compiling and printing PHP files.
+Intermediate Representation:
+	* The names of IR constructs has changed from AST_xxx to AST::Xxx. A script
+	  to convert old names to new names are in misc/convert_AST_names.pl.
+	* Removed %STDLIB% and %MAIN%, which didn't make sense. A PHP script is now a
+	  list of statements.
+	* Added a High-level Intermediate representation (HIR), representing the
+	  smallest subset of PHP which can represent the entire language.
+	* Added a Medium-level Intermediate representation (MIR), which uses non-PHP
+	  constructs to simplify constructs from the HIR (say, by using gotos).
+	* Use maketea's fold for conversion to one IR to another. (This also allows
+	  conversion to a non-phc IR).
+	* $a += $b is now represented as such, not as $a = $a + $b;
+	* String indices are considered identical to array indices.
+	* Added NOP - which is used to represent empty lines, and can have comments
+	  associated with them (for comments that otherwise had no home.
+	* Use 'long' for PHP integers (which are longs internally).
+	* Added an is_valid() test to the IRs.
+	* Removed the is_array field from AST::Type. Arrays are now represented as
+	  CLASS_NAME array.
+	* The IRs all inherit from IR::Node.
+	* Replace maketea's source_rep with a class in the AST.
+	* We now report a number of compile-time bugs, which PHP only catches at
+	  run-time.
 
+XML:
+	* Boolean markers now have a comment with their name added next to their
+	  value.
+	* We can now nest nodes from one IR within the attributes of nodes in
+	  another IR.
+	* Nodes are output using their namespace, for example AST:Variable_name.
+	* A number of IR changes affect how XML files appear, since they represent
+	  the IR.
+	* The schema is now broken.
 
+Documentation:
+	* The old documentation has be updated, rewritten in DocBook, and is separate
+	  from the website.
+	* We no longer support Doxygen.
+	* The manual was split into the user manual and the dev manual. The latter is
+	  for plugin writers.
 
-IR changes:
-* The names of IR constructs has changed from AST_xxx to AST::Xxx. A script to
-  convert old names to new names are in misc/convert_AST_names.pl.
-* $a += $b is now represented as such, not as $a = $a + $b;
-* String indices are considered identical to array indices.
-* Added NOP - which is used to represent empty lines, and can have comments
-  associated with them (for comments that otherwise had no home.
-* Added a High-level Intermediate representation (HIR), representing the
-  smallest subset of PHP which can represent the entire language.
-* Added a Medium-level Intermediate representation (MIR), which uses non-PHP
-  constructs to simplify constructs from the HIR (say, by using gotos).
-* Removed %STDLIB% and %MAIN%, which didn't make sense. A PHP script is now a
-  list of statements.
-* We now report a number of bugs on the AST, which PHP catches at run-time.
-* Use 'long' for PHP integers (which are longs internally).
-* Added an is_valid() test to the IRs.
-* Removed the is_array field from AST::Type. Arrays are now represented as
-  CLASS_NAME array.
-* The IRs all inherit from IR::Node.
-* Replace maketea's source_rep with a class in the AST.
-* Use maketea's fold for conversion to one IR to another. (This also allows
-  conversion to a non-phc IR).
+Project:
+	* Our svn repository is now publicly available, at
+	  http://code.google.com/p/phc/source/checkout.
+	* The phc-internals mailing list is now publicly available.
+	* We have moved our project to http://code.google.com/p/phc.
+	* We have removed our STATUS file, and now use the Google Code issue
+	  tracker at http://code.google.com/p/phc/issues/list.
+	* Maketea is now a project of its own, available at http://maketea.org.
+	* The svn repository now uses traditional {trunk branches tags} roots.
 
-XML changes:
-* Boolean markers now have a comment with their name added next to their
-  value.
-* We can now nest nodes from one IR within the attributes of nodes in another
-  IR.
-* The schema is broken.
-* Nodes are output using their namespace, for example AST:Variable_name.
-* A number of IR changes affect how XML files appear, since they represent the
-  IR.
 
 
 Testing:
-* make check now runs tests.
-* Greatly expanded tests, and testing framework. Each revision is now tested
-  and benchmarked.
-* We have removed regression tests, viewing them as more trouble than they are
-  worth.
-* Added more than 400 tests scripts to the test suite.
-* We now test the unparser and the IRs every few passes.
-* Added WhiteSpace test, checking that our unparsing is the same as the input
-  (exception whitespace). We're doing pretty well.
-* We unparse after removing all the annotations of the user source.
-* We test compiled code, compiled-optimized code, refcounts of the compiled
-  code, and the same code with every second statement eval'ed.
-* Multiple tests now run in parallel, making the overall test run much faster.
-* Support individual tests of a feature, using 'annotated tests' (adding
-  DejaGnu style comments to control options and expected output).
-* Test DOT output using 'gc' from dotty.
+	* Added more than 400 tests scripts to the test suite.
+	* Greatly expanded tests, and testing framework. Each revision is now
+	  tested and benchmarked.
+	* We have removed regression tests, viewing them as more trouble than they
+	  are worth.
+	* We now test the unparser and the IRs every few passes.
+	* Added WhiteSpace test, checking that our unparsing is the same as the
+	  input (exception whitespace). We're doing pretty well.
+	* We unparse after removing all the annotations of the user source.
+	* We test compiled code, compiled-optimized code, refcounts of the compiled
+	  code, and the same code with every second statement eval'ed.
+	* Multiple tests now run in parallel, making the overall test run much faster.
+	* Support individual tests of a feature, using 'annotated tests' (adding
+	  DejaGnu style comments to control options and expected output).
+	* Test DOT output using 'gc' from dotty.
+	* make check now runs tests.
+
+Miscellaneous:
+	* Added a pass_manager. --disable=passname will allow the user to disable a
+	  pass. -v shows the passes being run.
+	* Add a 'reduce' tool for reducing test cases by progressively removing
+	  statements until the test no longer fails.
+	* The directory structure has changed, which most code going into the src/
+	  directory.
+
+Bug fixes
+------------------------
+
+Parsing:
+	* The lexer didn't escape backslashes.
+	* Properly escape backticked strings.
+	* The value of __METHOD__ incorrectly did not contain the classname.
+	* Fix short-circuiting bug.
+	* Fixed a number of miscellaneous bugs.
 
 
+Unparsing changes:
+	* Interpolated strings (or in-string-syntax) is now unparsed correctly.
+	* Unparse $x{-1} correctly.
+	* Fixed minor DOT unparsing bug.
 
-Plugin changes:
-* We now use libtool and libltdl for plugins, making them much more robust and
-  portable. Plugins are now run as pluginname.la, rather than pluginname.so.
-* Plugins now install into lib/phc/plugins/.
-* phc's plugins are now automatically installed.
-* The plugin API has now changed. However, this allows the plugins to run over
-  any of the IRs.
+Building phc:
+	* Fix building in parallel (make -j).
 
-Documentation changes:
-* The old documentation has be updated, rewritten in docbook, and is separate
-  from the website.
-* We no longer support Doxygen.
-* The manual was split into the user manual and the dev manual. The latter is
-  for plugin writers.
-
-
-Miscellaneous changes:
-* Added a pass_manager. --disable=passname will allow the user to disable a
-  pass. -v shows the passes being run.
-* Add a 'reduce' tool for reducing test cases by progressively removing
-  statements until the test no longer fails.
-* The directory structure has changed, which most code going into the src/
-  directory.
+Miscellaneous:
+	* Many many bug changes which do not get a mention here.
 
 
 0.1.7 (8 September 2006)
