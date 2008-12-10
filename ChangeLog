@@ -49,6 +49,7 @@ Parsing changes:
 * Add a 'parse-buffer' allowing passes to create PHP code which could be
   passed to the parser, rather than tediously creating the constructs manually.
 * The value of __METHOD__ incorrectly did not contain the classname.
+* Fix short-circuiting bug.
 
 
 
@@ -57,6 +58,7 @@ Unparsing changes:
 * Unparse $x = &$y; as $x =& $y;
 * Interpolated strings (or in-string-syntax) is now unparsed correctly.
 * Unparse $x{-1} correctly.
+* Fixed minor DOT unparsing bug.
 
 
 Command-line changes:
@@ -122,6 +124,7 @@ Testing:
 * Multiple tests now run in parallel, making the overall test run much faster.
 * Support individual tests of a feature, using 'annotated tests' (adding
   DejaGnu style comments to control options and expected output).
+* Test DOT output using 'gc' from dotty.
 
 
 
