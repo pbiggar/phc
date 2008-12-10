@@ -62,6 +62,12 @@ svn export . $SRC_DIR
 
 touch $SRC_DIR/src/generated/*
 
+## Dont package up all the benchmarks
+
+rm -Rf $SRC_DIR/test/subjects/benchmarks
+## Dont break the tests
+sed 's/^benchmarks/#benchmarks/' $SRC_DIR/test/subjects/labels -i
+
 ## Generate source package
 
 tar cfz $SRC_TGZ $SRC_DIR
