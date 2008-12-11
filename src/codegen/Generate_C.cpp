@@ -402,12 +402,9 @@ public:
 
 	void generate_code(Generate_C* gen)
 	{
-		this->gen = gen;
 		signature = pattern->value->signature;
-		gen->methods->push_back(signature);
 
 		method_entry();
-		gen->return_by_reference = signature->is_ref;
 		gen->visit_statement_list(pattern->value->statements);
 		method_exit();
 	}
@@ -415,7 +412,6 @@ public:
 protected:
 	Wildcard<Method>* pattern;
 	Signature* signature;
-	Generate_C* gen;
 
 protected:
 	void debug_argument_stack()
@@ -2060,16 +2056,16 @@ class Pattern_return : public Pattern
 {
 	bool match(Statement* that)
 	{
-		rvalue = new Wildcard<Rvalue>;
-		return that->match (new Return (rvalue));
+		ret = new Wildcard<Return>;
+		return that->match (ret);
 	}
 
 	void generate_code(Generate_C* gen)
 	{
-		if(!gen->return_by_reference)
+		if(!ret->value->attrs->is_true ("phc.codegen.return_by_ref"))
 		{
 			code 
-			<< read_rvalue (LOCAL, "rhs", rvalue->value)
+			<< read_rvalue (LOCAL, "rhs", ret->value->rvalue)
 
 			// Run-time return by reference had slightly different
 			// semantics to compile-time. There is no way within a
@@ -2085,7 +2081,7 @@ class Pattern_return : public Pattern
 		else
 		{
 			code
-			<< get_st_entry (LOCAL, "p_rhs", dyc<VARIABLE_NAME> (rvalue->value))
+			<< get_st_entry (LOCAL, "p_rhs", dyc<VARIABLE_NAME> (ret->value->rvalue))
 			<< "sep_copy_on_write_ex (p_rhs);\n"
 			<< "zval_ptr_dtor (return_value_ptr);\n"
 			<< "(*p_rhs)->is_ref = 1;\n"
@@ -2100,7 +2096,7 @@ class Pattern_return : public Pattern
 	}
 
 protected:
-	Wildcard<Rvalue>* rvalue;
+	Wildcard<Return>* ret;
 };
 
 /*
@@ -2643,6 +2639,7 @@ void Generate_C::pre_php_script(PHP_script* in)
 void Generate_C::post_php_script(PHP_script* in)
 {
 	code << "// ArgInfo structures (necessary to support compile time pass-by-reference)\n";
+	Signature_list* methods = dyc<Signature_list>(in->attrs->get("phc.codegen.compiled_functions"));
 	foreach (Signature* s, *methods)
 	{
 		String* name = s->method_name->value;
@@ -2798,7 +2795,6 @@ void Generate_C::post_php_script(PHP_script* in)
 
 Generate_C::Generate_C(ostream& os) : os (os)
 {
-	methods = new Signature_list;
 	name = new String ("generate-c");
 	description = new String ("Generate C code from the MIR");
 }

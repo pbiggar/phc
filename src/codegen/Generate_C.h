@@ -32,8 +32,6 @@ public:
 public:
 	String* extension_name;
 	bool is_extension;
-	MIR::Signature_list* methods;	// List of all methods compiled	
-	bool return_by_reference; 		// current methods returns by reference	
 };
 
 #endif // PHC_GENERATE_C
