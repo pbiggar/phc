@@ -215,7 +215,6 @@
 	function initialize_revision_test ()
 	{
 		global $start_time, $REV, $LOG_DIR, $TEST_DIR, $RESULTS_DIR;
-		$time = time ();
 
 		# create directory structure
 		$LOG_DIR = "$RESULTS_DIR/$REV";
