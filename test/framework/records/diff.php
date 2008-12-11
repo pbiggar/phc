@@ -9,10 +9,10 @@
 		$unsafe_filename = $_GET["filename"];
 		$sort_first = $_GET["sort"] or false;
 
-		# Sanitize the revisions: 0 < old_rev < new_rev < 2000
+		# Sanitize the revisions: 0 < old_rev < new_rev < 5000
 		if (!(0 < $old_rev)) bad ();
 		if (!($old_rev < $new_rev)) bad ();
-		if (!($new_rev < 2000)) bad ();
+		if (!($new_rev < 5000)) bad ();
 
 		# Sanitize the inputs: the file should be within the results/$rev subdirectory
 		$relative_filename = "results/$new_rev/$unsafe_filename";
