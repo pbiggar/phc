@@ -80,7 +80,7 @@ Method_alias ::= alias:METHOD_NAME METHOD_NAME ;
 
 -- It is not possible to return by reference unless the function is declared
 -- to return by reference. We may therefore return a VARIABLE_NAME here.
-Return ::= VARIABLE_NAME ;
+Return ::= Rvalue ;
 
 Static_declaration ::= var:Name_with_default ;
 Global ::= Variable_name ;
@@ -664,7 +664,8 @@ public:
 class Literal
 {
 public:
-	virtual String* get_value_as_string() = 0;
+	// We wish to match on this, so it cannot be pure virtual
+	virtual String* get_value_as_string() { assert (0); }
 };
 
 class INT

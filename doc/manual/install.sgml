@@ -100,7 +100,7 @@ php -i | grep Configure
 </screen>
 
 <para>
-	We will assume these options are <code>--enable-bcmath --with-gmp --with-mysql</code>, a configuration which we occasionally use for benchmarking. You are ready to build PHP,
+	We will assume these options are <code>--enable-bcmath --with-gmp --with-mysql</code>, a configuration which we occasionally use for benchmarking. You are ready to build PHP. When configuring, you must add the <code>--enable-embed</code> option.
 </para>
 
 <screen>

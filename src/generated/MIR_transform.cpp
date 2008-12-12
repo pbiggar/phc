@@ -5,7 +5,7 @@ Transform::~Transform()
 {
 }
 
-// Invoked before the children are transformed
+/* Invoked before the children are transformed */
 PHP_script* Transform::pre_php_script(PHP_script* in)
 {
     return in;
@@ -381,7 +381,7 @@ HT_ITERATOR* Transform::pre_ht_iterator(HT_ITERATOR* in)
     return in;
 }
 
-// Invoked after the children have been transformed
+/* Invoked after the children have been transformed */
 PHP_script* Transform::post_php_script(PHP_script* in)
 {
     return in;
@@ -757,7 +757,7 @@ HT_ITERATOR* Transform::post_ht_iterator(HT_ITERATOR* in)
     return in;
 }
 
-// Transform the children of the node
+/* Transform the children of the node */
 void Transform::children_php_script(PHP_script* in)
 {
     in->statements = transform_statement_list(in->statements);
@@ -847,7 +847,7 @@ void Transform::children_method_alias(Method_alias* in)
 
 void Transform::children_return(Return* in)
 {
-    in->variable_name = transform_variable_name(in->variable_name);
+    in->rvalue = transform_rvalue(in->rvalue);
 }
 
 void Transform::children_static_declaration(Static_declaration* in)
@@ -1099,7 +1099,7 @@ void Transform::children_param_is_ref(Param_is_ref* in)
     in->param_index = transform_param_index(in->param_index);
 }
 
-// Tokens don't have children, so these methods do nothing by default
+/* Tokens don't have children, so these methods do nothing by default */
 void Transform::children_param_index(PARAM_INDEX* in)
 {
 }
@@ -1168,8 +1168,8 @@ void Transform::children_ht_iterator(HT_ITERATOR* in)
 {
 }
 
-// Call the pre-transform, transform-children post-transform methods in order
-// Do not override unless you know what you are doing
+/* Call the pre-transform, transform-children post-transform methods in order */
+/* Do not override unless you know what you are doing */
 Statement_list* Transform::transform_statement_list(Statement_list* in)
 {
     Statement_list::const_iterator i;
@@ -1473,6 +1473,22 @@ Static_value* Transform::transform_static_value(Static_value* in)
     return out;
 }
 
+Rvalue* Transform::transform_rvalue(Rvalue* in)
+{
+    if(in == NULL) return NULL;
+    
+    Rvalue* out;
+    
+    out = pre_rvalue(in);
+    if(out != NULL)
+    {
+    	children_rvalue(out);
+    	out = post_rvalue(out);
+    }
+    
+    return out;
+}
+
 Variable_name* Transform::transform_variable_name(Variable_name* in)
 {
     if(in == NULL) return NULL;
@@ -1569,22 +1585,6 @@ Field_name* Transform::transform_field_name(Field_name* in)
     {
     	children_field_name(out);
     	out = post_field_name(out);
-    }
-    
-    return out;
-}
-
-Rvalue* Transform::transform_rvalue(Rvalue* in)
-{
-    if(in == NULL) return NULL;
-    
-    Rvalue* out;
-    
-    out = pre_rvalue(in);
-    if(out != NULL)
-    {
-    	children_rvalue(out);
-    	out = post_rvalue(out);
     }
     
     return out;
@@ -1840,8 +1840,8 @@ PHP_script* Transform::transform_php_script(PHP_script* in)
     return out;
 }
 
-// Invoke the right pre-transform (manual dispatching)
-// Do not override unless you know what you are doing
+/* Invoke the right pre-transform (manual dispatching) */
+/* Do not override unless you know what you are doing */
 void Transform::pre_statement(Statement* in, Statement_list* out)
 {
     switch(in->classid())
@@ -2128,6 +2128,20 @@ Static_value* Transform::pre_static_value(Static_value* in)
     assert(0);
 }
 
+Rvalue* Transform::pre_rvalue(Rvalue* in)
+{
+    switch(in->classid())
+    {
+    case INT::ID: return pre_int(dynamic_cast<INT*>(in));
+    case REAL::ID: return pre_real(dynamic_cast<REAL*>(in));
+    case STRING::ID: return pre_string(dynamic_cast<STRING*>(in));
+    case BOOL::ID: return pre_bool(dynamic_cast<BOOL*>(in));
+    case NIL::ID: return pre_nil(dynamic_cast<NIL*>(in));
+    case VARIABLE_NAME::ID: return pre_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
+    }
+    assert(0);
+}
+
 Variable_name* Transform::pre_variable_name(Variable_name* in)
 {
     switch(in->classid())
@@ -2189,20 +2203,6 @@ Field_name* Transform::pre_field_name(Field_name* in)
     assert(0);
 }
 
-Rvalue* Transform::pre_rvalue(Rvalue* in)
-{
-    switch(in->classid())
-    {
-    case INT::ID: return pre_int(dynamic_cast<INT*>(in));
-    case REAL::ID: return pre_real(dynamic_cast<REAL*>(in));
-    case STRING::ID: return pre_string(dynamic_cast<STRING*>(in));
-    case BOOL::ID: return pre_bool(dynamic_cast<BOOL*>(in));
-    case NIL::ID: return pre_nil(dynamic_cast<NIL*>(in));
-    case VARIABLE_NAME::ID: return pre_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
-    }
-    assert(0);
-}
-
 Class_name* Transform::pre_class_name(Class_name* in)
 {
     switch(in->classid())
@@ -2237,8 +2237,8 @@ Static_array_key* Transform::pre_static_array_key(Static_array_key* in)
     assert(0);
 }
 
-// Invoke the right post-transform (manual dispatching)
-// Do not override unless you know what you are doing
+/* Invoke the right post-transform (manual dispatching) */
+/* Do not override unless you know what you are doing */
 void Transform::post_statement(Statement* in, Statement_list* out)
 {
     switch(in->classid())
@@ -2525,6 +2525,20 @@ Static_value* Transform::post_static_value(Static_value* in)
     assert(0);
 }
 
+Rvalue* Transform::post_rvalue(Rvalue* in)
+{
+    switch(in->classid())
+    {
+    case INT::ID: return post_int(dynamic_cast<INT*>(in));
+    case REAL::ID: return post_real(dynamic_cast<REAL*>(in));
+    case STRING::ID: return post_string(dynamic_cast<STRING*>(in));
+    case BOOL::ID: return post_bool(dynamic_cast<BOOL*>(in));
+    case NIL::ID: return post_nil(dynamic_cast<NIL*>(in));
+    case VARIABLE_NAME::ID: return post_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
+    }
+    assert(0);
+}
+
 Variable_name* Transform::post_variable_name(Variable_name* in)
 {
     switch(in->classid())
@@ -2586,20 +2600,6 @@ Field_name* Transform::post_field_name(Field_name* in)
     assert(0);
 }
 
-Rvalue* Transform::post_rvalue(Rvalue* in)
-{
-    switch(in->classid())
-    {
-    case INT::ID: return post_int(dynamic_cast<INT*>(in));
-    case REAL::ID: return post_real(dynamic_cast<REAL*>(in));
-    case STRING::ID: return post_string(dynamic_cast<STRING*>(in));
-    case BOOL::ID: return post_bool(dynamic_cast<BOOL*>(in));
-    case NIL::ID: return post_nil(dynamic_cast<NIL*>(in));
-    case VARIABLE_NAME::ID: return post_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
-    }
-    assert(0);
-}
-
 Class_name* Transform::post_class_name(Class_name* in)
 {
     switch(in->classid())
@@ -2634,8 +2634,8 @@ Static_array_key* Transform::post_static_array_key(Static_array_key* in)
     assert(0);
 }
 
-// Invoke the right transform-children (manual dispatching)
-// Do not override unless you what you are doing
+/* Invoke the right transform-children (manual dispatching) */
+/* Do not override unless you what you are doing */
 void Transform::children_statement(Statement* in)
 {
     switch(in->classid())
@@ -2765,6 +2765,31 @@ void Transform::children_static_value(Static_value* in)
     }
 }
 
+void Transform::children_rvalue(Rvalue* in)
+{
+    switch(in->classid())
+    {
+    case INT::ID:
+    	children_int(dynamic_cast<INT*>(in));
+    	break;
+    case REAL::ID:
+    	children_real(dynamic_cast<REAL*>(in));
+    	break;
+    case STRING::ID:
+    	children_string(dynamic_cast<STRING*>(in));
+    	break;
+    case BOOL::ID:
+    	children_bool(dynamic_cast<BOOL*>(in));
+    	break;
+    case NIL::ID:
+    	children_nil(dynamic_cast<NIL*>(in));
+    	break;
+    case VARIABLE_NAME::ID:
+    	children_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
+    	break;
+    }
+}
+
 void Transform::children_variable_name(Variable_name* in)
 {
     switch(in->classid())
@@ -2876,31 +2901,6 @@ void Transform::children_field_name(Field_name* in)
     	break;
     case Variable_field::ID:
     	children_variable_field(dynamic_cast<Variable_field*>(in));
-    	break;
-    }
-}
-
-void Transform::children_rvalue(Rvalue* in)
-{
-    switch(in->classid())
-    {
-    case INT::ID:
-    	children_int(dynamic_cast<INT*>(in));
-    	break;
-    case REAL::ID:
-    	children_real(dynamic_cast<REAL*>(in));
-    	break;
-    case STRING::ID:
-    	children_string(dynamic_cast<STRING*>(in));
-    	break;
-    case BOOL::ID:
-    	children_bool(dynamic_cast<BOOL*>(in));
-    	break;
-    case NIL::ID:
-    	children_nil(dynamic_cast<NIL*>(in));
-    	break;
-    case VARIABLE_NAME::ID:
-    	children_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
     	break;
     }
 }

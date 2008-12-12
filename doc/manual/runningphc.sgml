@@ -267,12 +267,12 @@ sudo make install
 	In your web folder, replace the existing <filename>helloworld.php</filename> file contents with the following:
 </para>
 
-<screen>
-<?php
-	dl ("helloworld.so");
+<programlisting>
+&lt;?php
+	<reserved>dl</reserved> ("helloworld.so");
 	__MAIN__ ();
-?>
-</screen>
+?&gt;
+</programlisting>
 
 <para>
 	If the <code>dl()</code> function is not enabled in your <filename>php.ini</filename> file, enable it:
@@ -341,8 +341,9 @@ extensions_dir="/full/path/to/ext"
 </screen>
 
 <para>
-	The generated XML uses the schema <ulink
+	The generated XML should use the schema <ulink
 	url="http://www.phpcompiler.org/phc-1.0">http://www.phpcompiler.org/phc-1.0</ulink>.
+	However, our XML schema is currently broken.
 </para>
 
 </section>
@@ -352,13 +353,15 @@ extensions_dir="/full/path/to/ext"
 	After parsing, &phc; converts a PHP script into an Abstract Syntax Tree
 	(AST) (this is further explained in <xref linkend="treetutorial1">). This is
 	very useful for processing PHP scripts which you wish to convert back into
-	PHP. However, for some tasks, especially program analysis, a simple form of
+	PHP. However, for some tasks, especially program analysis, a simpler form of
 	the PHP script is more suitable. &phc offers two other Internal
 	Representations (IRs). The High-level Internal Representation (HIR)
-	simplifies most expressions by assigning them to temporary variables. The
-	Medium-level Internal Representation (MIR) converts control-flow statements
-	like the <code>for</code>-loop, into <code>goto</code>s. To view PHP in any
-	of these forms, use the <code>--dump</code> option:
+	simplifies most expressions by assigning them to temporary variables.
+	However, code represented in the HIR is still valid PHP. The Medium-level
+	Internal Representation (MIR) converts HIR statements to simpler components,
+	for example converting control-flow statements like the
+	<code>for</code>-loop, into <code>goto</code>s. To view PHP in any of these
+	forms, use the <code>--dump</code> option:
 </para>
 
 <screen>

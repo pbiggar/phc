@@ -28,7 +28,7 @@ class Generate_C extends AsyncTest
 		global $phc;
 		$bundle = new AsyncBundle ($this, $subject);
 
-		$bundle->commands[0] = "$phc --generate-c $subject";
+		$bundle->commands[0] = get_phc_command_line ($subject). " --generate-c";
 		$bundle->final = "finish";
 
 		$bundle->start ();

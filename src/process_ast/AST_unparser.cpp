@@ -9,9 +9,9 @@
  */
 
 #include <iostream>
-#include <iomanip> 
 
 #include "lib/Vector.h"
+#include "lib/escape.h"
 
 #include "AST_unparser.h" 
 #include "cmdline.h"
@@ -1143,10 +1143,10 @@ void AST_unparser::children_string(STRING* in)
 	}
 	else
 	{
-    // any escaping must already be present in source_rep; any strings that
-    // originate from the user will be escaped as the user escaped them,
-    // and any strings that originate from passes within the compiler should
-    // have been escaped by those passes
+		// Any escaping must already be present in source_rep; any strings that
+		// originate from the user will be escaped as the user escaped them,
+		// and any strings that originate from passes within the compiler
+		// should have been escaped by those passes.
 	
 		if(in_string.top())
 		{
@@ -1176,7 +1176,7 @@ void AST_unparser::children_string(STRING* in)
 				if (in->has_source_rep ())
 					echo(in->get_source_rep ());
 				else
-					echo(escape_sq (in->get_source_rep ()));
+					echo(escape_PHP_sq (in->get_source_rep ()));
 				echo("'");
 			}
 		}

@@ -25,4 +25,19 @@
 		false,
 		true);
 
+	$short_scalar_array = array (
+		"",
+		"really quite a re",
+		array ("2", 3, "four"),
+		0,
+		1,
+		-1,
+		62.75,
+		0.0,
+		-0.0,
+		NULL,
+		false,
+		true);
+
+
 ?>

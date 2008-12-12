@@ -199,7 +199,7 @@ private:
 	Stack<int> num_children_stack;
 	bool is_nil, is_base64_encoded;
 	String buffer;
-	string key;
+	Stack<string> key_stack;
 	Stack<AttrMap*> attrs_stack;
 	const Locator* locator;
 
@@ -276,7 +276,7 @@ public:
 				!strcmp(attr_name, "key") &&
 				!strcmp(name, "attr"))
 			{
-				key = attr_value;
+				key_stack.push (attr_value);
 			}
 		
 			XMLString::release(&attr_uri);
@@ -314,6 +314,7 @@ public:
 		// After we pop, num_children_stack.top() corresponds to the number
 		// of children of the *parent* of the node we are about to create
 		num_children_stack.pop();
+
 		if (debugging_enabled)
 		{
 			cdebug 
@@ -332,7 +333,8 @@ public:
 				else
 					cdebug << "having type: " << typeid (node_stack.top()).name ();
 			}
-			cdebug << "With " << attrs_stack.size() << " AttrMaps on the stack";
+			cdebug << ", with " << attrs_stack.size() << " AttrMaps on the stack";
+			cdebug << ", and " << key_stack.size() << " keys on the stack.";
 
 			cdebug << std::endl;
 		}
@@ -349,6 +351,9 @@ public:
 		}
 		else if(!strcmp(name, "attr"))
 		{
+			string key = key_stack.top ();
+			key_stack.pop();
+
 			DEBUG ("Attr with key: " << key);
 			// key is set when we see the open tag
 			attrs_stack.top()->set(key, node_stack.top());
@@ -390,11 +395,23 @@ public:
 
 			for(int i = 0; i < num_children; i++)
 			{
-				string_list->push_front(dynamic_cast<String*>(node_stack.top()));
+				string_list->push_front(dyc<String>(node_stack.top()));
 				node_stack.pop();
 			}
 
 			node = string_list;
+		}
+		else if(!strcmp(name, "node_list"))
+		{
+			IR::Node_list* node_list = new IR::Node_list;
+
+			for(int i = 0; i < num_children; i++)
+			{
+				node_list->push_front(dyc<IR::Node>(node_stack.top()));
+				node_stack.pop();
+			}
+
+			node = node_list;
 		}
 		else if (ns 
 			&& builders[*ns]->can_handle_token (name))

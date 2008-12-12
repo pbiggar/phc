@@ -19,4 +19,9 @@
 
 	var_dump ($x, $y, $a, $c);
 
+	function x ()
+	{
+		return 5;
+	}
+
 ?>

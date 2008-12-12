@@ -347,9 +347,9 @@ public:
 
 	virtual _Return fold_return(Return* in)
 	{
-		_VARIABLE_NAME variable_name = 0;
-		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
-		return fold_impl_return(in, variable_name);
+		_Rvalue rvalue = 0;
+		if(in->rvalue != NULL) rvalue = fold_rvalue(in->rvalue);
+		return fold_impl_return(in, rvalue);
 	}
 
 	virtual _Static_declaration fold_static_declaration(Static_declaration* in)
@@ -683,7 +683,7 @@ public:
 	virtual _Foreach fold_impl_foreach(Foreach* orig, _VARIABLE_NAME arr, _VARIABLE_NAME key, bool is_ref, _VARIABLE_NAME val, _List<_Statement>* statements) { assert(0); };
 	virtual _Break fold_impl_break(Break* orig, _Expr expr) { assert(0); };
 	virtual _Continue fold_impl_continue(Continue* orig, _Expr expr) { assert(0); };
-	virtual _Return fold_impl_return(Return* orig, _VARIABLE_NAME variable_name) { assert(0); };
+	virtual _Return fold_impl_return(Return* orig, _Rvalue rvalue) { assert(0); };
 	virtual _Static_declaration fold_impl_static_declaration(Static_declaration* orig, _Name_with_default var) { assert(0); };
 	virtual _Global fold_impl_global(Global* orig, _Variable_name variable_name) { assert(0); };
 	virtual _Try fold_impl_try(Try* orig, _List<_Statement>* statements, _List<_Catch>* catches) { assert(0); };

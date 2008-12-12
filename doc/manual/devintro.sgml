@@ -66,7 +66,7 @@
 	</para></listitem>
 	<listitem><para>
 		<ulink url="http://www.maketea.org">maketea</ulink> if you want to modify
-		the &phc grammars (or the AST classes)
+		the &phc grammars (or the AST/HIR/MIR classes)
 	</para></listitem>
 	<listitem><para>
 		<ulink
@@ -85,9 +85,33 @@
 
 <section id=dev.phpbuild>
 <title id=dev.phpbuild.title>Building PHP for &phc; development</title>
-<!-- TODO -->
+
 <para>
+	When compiling PHP for use with &phc, there are a few options:
 </para>
+
+<itemizedlist>
+
+	<listitem>
+		<para>Development: For developing &phc or debugging &phc problems, it is
+		worthwhile to have debugging symbols and leak checkers enabled.</para>
+		<para><code>CFLAGS="-O0 -ggdb3" ./configure --enable-debug --enable-maintainer-zts --enable-embed</code></para>
+	</listitem>
+
+	<listitem>
+		<para>Deployment: For performance, optimization should be used:</para>
+		<para><code>CFLAGS="-O3 -g" ./configure --enable-embed</code></para>
+	</listitem>
+
+	<listitem>
+		<para>Benchmarking: In order to be fair, both &phc;-generated-code and PHP
+		should be compiled with -O3. The are also some options required to run
+		some benchmarks. The prefix is supplied to correspond to benchmarking
+		scripts we provide:</para>
+		<para><code>CFLAGS="-O3 -DNDEBUG" ./configure --enable-embed --enable-bcmath --with-gmp --prefix=/usr/local/php-opt</code></para>
+	</listitem>
+
+</itemizedlist>
 </section>
 
 <section>

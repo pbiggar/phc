@@ -1,6 +1,6 @@
 <?php
 
-	require ("test/subjects/parsing/scalar_array.php");
+	require ("parsing/scalar_array.php");
 
 	function write ($init, $insert)
 	{
@@ -16,11 +16,19 @@
 
 		echo "--------------------\n";
 		echo "checking late write\n";
-		$x = "string";
 		$x = $init;
 		$x[17] = $insert;
 		var_dump ($x[17]); // read same val
 		var_dump ($x);
+
+		echo "--------------------\n";
+		echo "checking very early write\n";
+		$x = $init;
+		$x[-3] = $insert;
+		var_dump ($x[-3]); // read same val
+		var_dump ($x[-1]); // read early
+		var_dump ($x);
+
 
 		if (is_string ($init))
 			return; // not supported, move to separate test case

@@ -62,11 +62,6 @@ protected:
 	void empty_line();
 	void space_or_newline();
 
-// Escaping a string
-public:
-	static String* escape_dq(String* s);
-	static String* escape_sq(String* s);
-
 	virtual ~PHP_unparser () {}
 
 };

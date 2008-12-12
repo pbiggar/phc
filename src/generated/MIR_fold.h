@@ -315,9 +315,9 @@ public:
 
 	virtual _Return fold_return(Return* in)
 	{
-		_VARIABLE_NAME variable_name = 0;
-		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
-		return fold_impl_return(in, variable_name);
+		_Rvalue rvalue = 0;
+		if(in->rvalue != NULL) rvalue = fold_rvalue(in->rvalue);
+		return fold_impl_return(in, rvalue);
 	}
 
 	virtual _Static_declaration fold_static_declaration(Static_declaration* in)
@@ -775,7 +775,7 @@ public:
 	virtual _Class_alias fold_impl_class_alias(Class_alias* orig, _CLASS_NAME alias, _CLASS_NAME class_name) { assert(0); };
 	virtual _Interface_alias fold_impl_interface_alias(Interface_alias* orig, _INTERFACE_NAME alias, _INTERFACE_NAME interface_name) { assert(0); };
 	virtual _Method_alias fold_impl_method_alias(Method_alias* orig, _METHOD_NAME alias, _METHOD_NAME method_name) { assert(0); };
-	virtual _Return fold_impl_return(Return* orig, _VARIABLE_NAME variable_name) { assert(0); };
+	virtual _Return fold_impl_return(Return* orig, _Rvalue rvalue) { assert(0); };
 	virtual _Static_declaration fold_impl_static_declaration(Static_declaration* orig, _Name_with_default var) { assert(0); };
 	virtual _Global fold_impl_global(Global* orig, _Variable_name variable_name) { assert(0); };
 	virtual _Try fold_impl_try(Try* orig, _List<_Statement>* statements, _List<_Catch>* catches) { assert(0); };

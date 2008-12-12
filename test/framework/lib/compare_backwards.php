@@ -118,9 +118,9 @@ class CompareBackwards extends AsyncTest
 		$this->async_failure ("Every pass fails", $bundle);
 	}
 
-	function homogenize_output ($output)
+	function homogenize_output ($output, $bundle)
 	{
-		return homogenize_all ($output);
+		return homogenize_all ($output, $bundle->subject);
 	}
 
 

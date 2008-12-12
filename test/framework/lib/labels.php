@@ -57,7 +57,6 @@ function create_label_struct ($directory, $label_filename, $third_party_filename
 
 	$files = get_all_scripts_in_dir ($directory);
 
-
 	// labelled files is a table indexed by filename, containing tables indexed
 	// by default labels, which are set to 1 or 0 for default and non-default
 	// respectively
@@ -272,7 +271,7 @@ function get_all_scripts_in_dir($directory)
 	phc_assert($directory != '', "Cant search blank directory");
 	phc_assert(preg_match("/\/$/", $directory), "directory '$directory' must end in a '/'");
 
-	$command = "find $directory -name \"*.php\"";
+	$command = "find -L $directory -name \"*.php\"";
 	$result = split ("\n", trim (`$command`));
 	return $result;
 }

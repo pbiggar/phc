@@ -40,7 +40,18 @@ src_phc_LDADD = @gc_lib@ $(LIBLTDL) libphc.la
 bin_SCRIPTS = src/phc_compile_plugin
 libexec_SCRIPTS = libtool
 # pkgdata_DATA = phc-1.0.xsd
-pkgdata_DATA = runtime/support_routines.c runtime/builtin_functions.c
+pkgdata_DATA =
+	runtime/arrays.c							\
+	runtime/builtin_functions.c			\
+	runtime/debug.c							\
+	runtime/isset.c							\
+	runtime/methods.c							\
+	runtime/misc.c								\
+	runtime/string.c							\
+	runtime/support.c							\
+	runtime/unset.c							\
+	runtime/var_vars.c						\
+	runtime/zval.c
 
 src_phc_SOURCES =												\
 	src/phc.cpp
@@ -125,6 +136,7 @@ libphc_la_SOURCES= 											\
 	src/generated/MIR_visitor.cpp							\
 	src/generated/MIR_visitor.h							\
 	src/generated/php_parser.tab.cpp						\
+	src/generated/php_parser.tab.hpp						\
 	src/hir_to_mir/HIR_lower_expr.cpp					\
 	src/hir_to_mir/HIR_lower_expr.h						\
 	src/hir_to_mir/HIR_to_MIR.h							\
@@ -144,6 +156,8 @@ libphc_la_SOURCES= 											\
 	src/lib/demangle.h										\
 	src/lib/error.cpp											\
 	src/lib/error.h											\
+	src/lib/escape.cpp										\
+	src/lib/escape.h											\
 	src/lib/Integer.cpp										\
 	src/lib/Integer.h											\
 	src/lib/List.h												\
@@ -274,10 +288,10 @@ libphc_la_SOURCES= 											\
 	src/process_mir/Main_uppering.h						\
 	src/process_mir/MIR_to_AST.h							\
 	src/process_mir/MIR_unparser.cpp						\
-	src/process_mir/Param_is_ref_uppering.cpp			\
-	src/process_mir/Param_is_ref_uppering.h			\
 	src/process_mir/MIR_unparser.h						\
-	src/process_mir/Obfuscate.h
+	src/process_mir/Obfuscate.h							\
+	src/process_mir/Param_is_ref_uppering.cpp			\
+	src/process_mir/Param_is_ref_uppering.h
 
 BUILT_SOURCES = 												\
 	src/generated/AST.cpp									\
@@ -315,6 +329,7 @@ BUILT_SOURCES = 												\
 	src/generated/MIR_visitor.cpp							\
 	src/generated/MIR_visitor.h							\
 	src/generated/php_parser.tab.cpp						\
+	src/generated/php_parser.tab.hpp						\
 	test/framework/lib/autovars.php
 
 # - The magic to accomplish this is described cryptically in the last few
@@ -358,6 +373,7 @@ strangeprocessastdir = $(pkgincludedir)/process_ast
 strangeprocessast_HEADERS =					\
 	src/process_ast/AST_unparser.h			\
 	src/process_ast/DOT_unparser.h			\
+	src/process_ast/Invalid_check.h			\
 	src/process_ast/Pretty_print.h
 
 strangeprocesshirdir = $(pkgincludedir)/process_hir
@@ -394,10 +410,12 @@ strangelib_HEADERS =		\
 	src/lib/Boolean.h		\
 	src/lib/demangle.h	\
 	src/lib/error.h		\
+	src/lib/escape.h		\
 	src/lib/Integer.h		\
 	src/lib/List.h			\
 	src/lib/Map.h			\
 	src/lib/Object.h		\
+	src/lib/Set.h			\
 	src/lib/Stack.h		\
 	src/lib/String.h		\
 	src/lib/Vector.h

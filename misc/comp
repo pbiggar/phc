@@ -49,7 +49,8 @@ NAME=`basename $PHP_NAME` # remove the filename suffix
 NAME=${NAME%.php}
 OUT_NAME=$NAME.out
 EXEC_NAME="$EXEC_NAME./$OUT_NAME"
-
+DIRNAME=`dirname $PHP_NAME`
+PHC_ARGS="$PHC_ARGS -d include_path=.:test/subjects:$DIRNAME"
 
 cp $PHP_NAME $NAME.orig.php || exit 1;
 

@@ -464,7 +464,7 @@ void
 Def_use_web::visit_return (Statement_block* bb, MIR::Return* in)
 {
 	// We put the MUs in the exit block, as not all paths have a return block.
-	add_use (in->variable_name, new SSA_stmt (bb));
+	add_use (in->rvalue, new SSA_stmt (bb));
 }
 
 void

@@ -19,8 +19,7 @@ class Demi_eval : public Transform
 
 	protected:
 
-		// We convert every second statement to an eval, so this keeps track. It
-		// gets initialized by INIT in the constructor.
+		// We convert every second statement to an eval, so this keeps track.
 		bool convert;
 
 	public:
@@ -32,15 +31,34 @@ class Demi_eval : public Transform
 
 		void post_statement (Statement *in, List<Statement*>* out)
 		{
-			if (in->classid() == Method::ID
-					or in->classid() == Class_def::ID
-					or in->classid() == Goto::ID
-					or in->classid() == Label::ID
-					or in->classid() == Branch::ID)
+			if (		in->classid () == Method::ID
+					or in->classid () == Class_def::ID
+					or in->classid () == Interface_def::ID
+					or in->classid () == Method_alias::ID
+					or in->classid () == Class_alias::ID
+					or in->classid () == Interface_alias::ID
+					or in->classid () == Goto::ID
+					or in->classid () == Label::ID
+					or in->classid () == Foreach_reset::ID
+					or in->classid () == Foreach_next::ID
+					or in->classid () == Foreach_end::ID
+					or in->classid () == Branch::ID)
 			{
 				out->push_back (in);
 				return;
 			}
+			else if (Assign_var* av = dynamic_cast<Assign_var*> (in))
+			{
+				if (	av->rhs->classid () == Foreach_get_val::ID
+					or av->rhs->classid () == Foreach_get_key::ID
+					or av->rhs->classid () == Foreach_has_key::ID
+					or av->rhs->classid () == Param_is_ref::ID)
+				{
+					out->push_back (in);
+					return;
+				}
+			}
+
 
 			if (!convert)
 			{

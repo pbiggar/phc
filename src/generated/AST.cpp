@@ -1676,7 +1676,7 @@ Commented_node::Commented_node()
 	}
 }
 
-//  Return the comments associated with the node
+/*  Return the comments associated with the node */
 List<String*>* Commented_node::get_comments()
 {
     {
@@ -2806,7 +2806,7 @@ void Class_def::add_member(Member* member)
 	}
 }
 
-//  Returns NULL if the method could not be found
+/*  Returns NULL if the method could not be found */
 Method* Class_def::get_method(const char* name)
 {
     {
@@ -9937,9 +9937,9 @@ void INT::assert_value_valid()
     // Assume value is valid
 }
 
-//  Constructors can't call virtual functions, so we create a non-virtual to
-//  do the work. This is then called by the virtual function, and is also
-//  safely called from the constructor.
+/*  Constructors can't call virtual functions, so we create a non-virtual to */
+/*  do the work. This is then called by the virtual function, and is also */
+/*  safely called from the constructor. */
 String* INT::_get_value_as_string()
 {
     {
@@ -10067,7 +10067,7 @@ void REAL::assert_value_valid()
     // Assume value is valid
 }
 
-//  See comment in INT::_get_value_as_string ()
+/*  See comment in INT::_get_value_as_string () */
 String* REAL::_get_value_as_string()
 {
     {
@@ -10333,7 +10333,7 @@ void BOOL::assert_value_valid()
     // Assume value is valid
 }
 
-//  See comment in INT::_get_value_as_string ()
+/*  See comment in INT::_get_value_as_string () */
 String* BOOL::_get_value_as_string()
 {
     {

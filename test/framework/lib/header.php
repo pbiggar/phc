@@ -86,9 +86,25 @@ function get_php_command_line ($subject, $pipe = false)
 	else
 		$max_exe = 5;
 
-	$dir_name = dirname($subject);
+	$dir_path = dirname($subject);
 	if ($pipe) $subject = ""; # we need the subject for the dir_name
-	return "$php -d include_path=./:$dir_name -d max_execution_time=$max_exe $subject";
+	return "$php -d include_path=./:test/subjects/:$dir_path -d max_execution_time=$max_exe $subject ";
+}
+
+function get_phc_command_line ($subject)
+{
+	phc_assert ($subject != "", "dont pass empty subject");
+
+	global $phc;
+	global $opt_long;
+
+	if ($opt_long)
+		$max_exe = 12;
+	else
+		$max_exe = 5;
+
+	$dir_path = dirname($subject);
+	return "$phc -d include_path=./:test/subjects/:$dir_path -d max_execution_time=$max_exe $subject ";
 }
 
 
@@ -632,20 +648,37 @@ function homogenize_xml ($string)
 
 	// fresh doesnt return the same numbers every time.
 	$string = preg_replace("/(<value>\D+)\d+(<\/value>)/", "$1xx$2", $string);
+	$string = preg_replace("/(<string>\D+)\d+(<\/string>)/", "$1xx$2", $string);
 	return $string;
 }
 
-function homogenize_filenames_and_line_numbers ($string)
+function homogenize_filenames_and_line_numbers ($string, $filename)
 {
-	// specific errors and warnings
-	$string = preg_replace( "/(Warning: )\S*(\(\) expects the argument \(\S*\) to be a valid callback in )\S*( on line )\d+/", "$1$2$3", $string);
-	$string = preg_replace( "/(Fatal error: Cannot redeclare \S+\(\) \(previously declared in )\S+:\d+\)/" , "$1:)", $string);
-//	$string = preg_replace( "/(Fatal error: Allowed memory size of )\d+( bytes exhausted at )\S*( \(tried to allocate )\d+( bytes\) in )\S*( on line )\d+/", "$1$2$3$4", $string);
+	$stdin_filename = getcwd () . "/-";
+	$full_filename = getcwd () . "/$filename";
 
-	// general line number and filename removal
+
+	// Remove 'Unknown:'
+	$string = preg_replace( "/Warning: Unknown:/", "Warning:", $string);
+	$string = preg_replace( "/fatal error: Unknown:/", "Fatal error:", $string);
+	$string = preg_replace( "/Catchable fatal error: Unknown:/", "Catchable fatal error:", $string);
+
+
+	// Sometimes there is a filename, sometimes not. Easiest to leave as is,
+	// rather than trying to coerce __FILENAME__ into it.
 	$string = preg_replace( "/(Warning: )(\S*: )?(.+? in )\S+ on line \d+/", "$1$3", $string);
 	$string = preg_replace( "/(Fatal error: )(\S*: )?(.+? in )\S+ on line \d+/", "$1$3", $string);
 	$string = preg_replace( "/(Catchable fatal error: .+? in )\S+ on line \d+/", "$1", $string);
+
+	$string = preg_replace( "/on line \d+/", "on line __LINE__", $string);
+	$string = preg_replace( "!$full_filename(:\d+)?!", "__FILENAME__", $string);
+	$string = preg_replace( "!\[no active file\](:\d+)?!", "__FILENAME__", $string);
+	$string = preg_replace( "!$filename(:\d+)?!", "__FILENAME__", $string);
+	$string = preg_replace( "!$stdin_filename(:\d+)?!", "__FILENAME__", $string);
+
+	$string = preg_replace( "!__FILENAME__ on line __LINE__!", "", $string);
+
+//	$string = preg_replace( "/(Fatal error: Allowed memory size of )\d+( bytes exhausted at )\S*( \(tried to allocate )\d+( bytes\) in )\S*( on line )\d+/", "$1$2$3$4", $string);
 
 	return $string;
 }
@@ -700,11 +733,11 @@ function homogenize_object_count ($string)
 	return $string;
 }
 
-function homogenize_all ($string)
+function homogenize_all ($string, $filename)
 {
 	$string = homogenize_reference_count ($string);
 	$string = homogenize_object_count ($string);
-	$string = homogenize_filenames_and_line_numbers ($string);
+	$string = homogenize_filenames_and_line_numbers ($string, $filename);
 	$string = homogenize_break_levels ($string);
 	return $string;
 }

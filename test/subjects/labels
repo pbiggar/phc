@@ -62,6 +62,9 @@ parsing/comments_declare.php		no-cb_AST-to-HIR
 parsing/capital_ticks.php			no-cb_AST-to-HIR
 parsing/layout5_declare.php		no-cb_AST-to-HIR
 
+# designed to fail, so dont report an error
+codegen/include_fail.php			no-InterpretStrippedIncludes
+
 benchmarks/.*						long no-Refcounts
 
 benchmarks/shootout/.*											interpretable

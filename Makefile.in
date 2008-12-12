@@ -99,7 +99,7 @@ am_libphc_la_OBJECTS = getopt1.lo getopt.lo AST_annotate.lo \
 	MIR_transform.lo MIR_visitor.lo php_parser.tab.lo \
 	HIR_lower_expr.lo Lower_control_flow.lo \
 	Lower_dynamic_definitions.lo Lower_method_invocations.lo \
-	AttrMap.lo base64.lo Boolean.lo demangle.lo error.lo \
+	AttrMap.lo base64.lo Boolean.lo demangle.lo error.lo escape.lo \
 	Integer.lo Object.lo String.lo Address_taken.lo Basic_block.lo \
 	CFG.lo CFG_visitor.lo Dead_code_elimination.lo Def_use.lo \
 	Edge.lo Flow_visitor.lo If_simplification.lo Lattice.lo \
@@ -602,7 +602,7 @@ src_phc_LDADD = @gc_lib@ $(LIBLTDL) libphc.la
 bin_SCRIPTS = src/phc_compile_plugin
 libexec_SCRIPTS = libtool
 # pkgdata_DATA = phc-1.0.xsd
-pkgdata_DATA = runtime/support_routines.c runtime/builtin_functions.c
+pkgdata_DATA = 
 src_phc_SOURCES = \
 	src/phc.cpp
 
@@ -686,6 +686,7 @@ libphc_la_SOURCES = \
 	src/generated/MIR_visitor.cpp							\
 	src/generated/MIR_visitor.h							\
 	src/generated/php_parser.tab.cpp						\
+	src/generated/php_parser.tab.hpp						\
 	src/hir_to_mir/HIR_lower_expr.cpp					\
 	src/hir_to_mir/HIR_lower_expr.h						\
 	src/hir_to_mir/HIR_to_MIR.h							\
@@ -705,6 +706,8 @@ libphc_la_SOURCES = \
 	src/lib/demangle.h										\
 	src/lib/error.cpp											\
 	src/lib/error.h											\
+	src/lib/escape.cpp										\
+	src/lib/escape.h											\
 	src/lib/Integer.cpp										\
 	src/lib/Integer.h											\
 	src/lib/List.h												\
@@ -835,10 +838,10 @@ libphc_la_SOURCES = \
 	src/process_mir/Main_uppering.h						\
 	src/process_mir/MIR_to_AST.h							\
 	src/process_mir/MIR_unparser.cpp						\
-	src/process_mir/Param_is_ref_uppering.cpp			\
-	src/process_mir/Param_is_ref_uppering.h			\
 	src/process_mir/MIR_unparser.h						\
-	src/process_mir/Obfuscate.h
+	src/process_mir/Obfuscate.h							\
+	src/process_mir/Param_is_ref_uppering.cpp			\
+	src/process_mir/Param_is_ref_uppering.h
 
 BUILT_SOURCES = \
 	src/generated/AST.cpp									\
@@ -876,6 +879,7 @@ BUILT_SOURCES = \
 	src/generated/MIR_visitor.cpp							\
 	src/generated/MIR_visitor.h							\
 	src/generated/php_parser.tab.cpp						\
+	src/generated/php_parser.tab.hpp						\
 	test/framework/lib/autovars.php
 
 
@@ -920,6 +924,7 @@ strangeprocessastdir = $(pkgincludedir)/process_ast
 strangeprocessast_HEADERS = \
 	src/process_ast/AST_unparser.h			\
 	src/process_ast/DOT_unparser.h			\
+	src/process_ast/Invalid_check.h			\
 	src/process_ast/Pretty_print.h
 
 strangeprocesshirdir = $(pkgincludedir)/process_hir
@@ -954,10 +959,12 @@ strangelib_HEADERS = \
 	src/lib/Boolean.h		\
 	src/lib/demangle.h	\
 	src/lib/error.h		\
+	src/lib/escape.h		\
 	src/lib/Integer.h		\
 	src/lib/List.h			\
 	src/lib/Map.h			\
 	src/lib/Object.h		\
+	src/lib/Set.h			\
 	src/lib/Stack.h		\
 	src/lib/String.h		\
 	src/lib/Vector.h
@@ -1404,6 +1411,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/demi_eval.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/embed.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/error.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/escape.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fresh.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/getopt.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/getopt1.Plo@am__quote@
@@ -1789,6 +1797,13 @@ error.lo: src/lib/error.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/lib/error.cpp' object='error.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o error.lo `test -f 'src/lib/error.cpp' || echo '$(srcdir)/'`src/lib/error.cpp
+
+escape.lo: src/lib/escape.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT escape.lo -MD -MP -MF $(DEPDIR)/escape.Tpo -c -o escape.lo `test -f 'src/lib/escape.cpp' || echo '$(srcdir)/'`src/lib/escape.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/escape.Tpo $(DEPDIR)/escape.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/lib/escape.cpp' object='escape.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o escape.lo `test -f 'src/lib/escape.cpp' || echo '$(srcdir)/'`src/lib/escape.cpp
 
 Integer.lo: src/lib/Integer.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Integer.lo -MD -MP -MF $(DEPDIR)/Integer.Tpo -c -o Integer.lo `test -f 'src/lib/Integer.cpp' || echo '$(srcdir)/'`src/lib/Integer.cpp
@@ -3007,6 +3022,17 @@ uninstall-am: uninstall-binPROGRAMS uninstall-binSCRIPTS \
 	uninstall-strangeprocessirHEADERS \
 	uninstall-strangeprocessmirHEADERS
 
+	runtime/arrays.c							\
+	runtime/builtin_functions.c			\
+	runtime/debug.c							\
+	runtime/isset.c							\
+	runtime/methods.c							\
+	runtime/misc.c								\
+	runtime/string.c							\
+	runtime/support.c							\
+	runtime/unset.c							\
+	runtime/var_vars.c						\
+	runtime/zval.c
 
 # - In order to have separate build directories (aka VPATH), we would prepend
 #   $(srcdir) onto all these dependencies, targets, etc. However, after

@@ -16,6 +16,7 @@
 
 #include "process_ast/DOT_unparser.h"
 #include "process_ir/General.h"
+#include "lib/escape.h"
 
 #include "Address_taken.h"
 #include "CFG.h"
@@ -412,7 +413,7 @@ CFG::dump_graphviz (String* label)
 		stringstream block_info;
 		block_info	
 		<< "(" << index << ") "
-		<< *DOT_unparser::escape (bb->get_graphviz_label ());
+		<< escape_DOT_record (bb->get_graphviz_label ());
 
 		String_list* phis = get_graphviz_phis (bb);
 		String_list* mus = get_graphviz_mus (bb);

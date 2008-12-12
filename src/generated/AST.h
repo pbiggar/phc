@@ -182,7 +182,7 @@ typedef List<None*> None_list;
 class Transform;
 class Visitor;
 
-// Node ::= PHP_script | Class_mod | Signature | Method_mod | Formal_parameter | Type | Attr_mod | Name_with_default | Directive | List_element | Variable_name | Target | Array_elem | Method_name | Actual_parameter | Class_name | Commented_node | Source_rep;
+/* Node ::= PHP_script | Class_mod | Signature | Method_mod | Formal_parameter | Type | Attr_mod | Name_with_default | Directive | List_element | Variable_name | Target | Array_elem | Method_name | Actual_parameter | Class_name | Commented_node | Source_rep; */
 class Node : virtual public IR::Node
 {
 public:
@@ -210,7 +210,7 @@ public:
     bool is_mixin_equal(Node* in);
 };
 
-// PHP_script ::= Statement* ;
+/* PHP_script ::= Statement* ; */
 class PHP_script : virtual public Node, virtual public IR::PHP_script
 {
 public:
@@ -239,7 +239,7 @@ public:
     virtual void assert_valid();
 };
 
-// Class_mod ::= "abstract"? "final"? ;
+/* Class_mod ::= "abstract"? "final"? ; */
 class Class_mod : virtual public Node
 {
 public:
@@ -269,7 +269,7 @@ public:
     virtual void assert_valid();
 };
 
-// Signature ::= Method_mod is_ref:"&" METHOD_NAME Formal_parameter* ;
+/* Signature ::= Method_mod is_ref:"&" METHOD_NAME Formal_parameter* ; */
 class Signature : virtual public Node
 {
 public:
@@ -303,7 +303,7 @@ public:
     Signature(const char* name);
 };
 
-// Method_mod ::= "public"? "protected"? "private"? "static"? "abstract"? "final"? ;
+/* Method_mod ::= "public"? "protected"? "private"? "static"? "abstract"? "final"? ; */
 class Method_mod : virtual public Node
 {
 public:
@@ -344,7 +344,7 @@ public:
     static Method_mod* new_FINAL();
 };
 
-// Formal_parameter ::= Type is_ref:"&" var:Name_with_default ;
+/* Formal_parameter ::= Type is_ref:"&" var:Name_with_default ; */
 class Formal_parameter : virtual public Node
 {
 public:
@@ -378,7 +378,7 @@ public:
     Formal_parameter(Type* type, bool is_ref, VARIABLE_NAME* name);
 };
 
-// Type ::= CLASS_NAME? ;
+/* Type ::= CLASS_NAME? ; */
 class Type : virtual public Node
 {
 public:
@@ -407,7 +407,7 @@ public:
     virtual void assert_valid();
 };
 
-// Attr_mod ::= "public"? "protected"? "private"? "static"? "const"? ;
+/* Attr_mod ::= "public"? "protected"? "private"? "static"? "const"? ; */
 class Attr_mod : virtual public Node
 {
 public:
@@ -446,7 +446,7 @@ public:
     static Attr_mod* new_CONST();
 };
 
-// Name_with_default ::= VARIABLE_NAME Expr? ;
+/* Name_with_default ::= VARIABLE_NAME Expr? ; */
 class Name_with_default : virtual public Node
 {
 public:
@@ -476,7 +476,7 @@ public:
     virtual void assert_valid();
 };
 
-// Directive ::= DIRECTIVE_NAME Expr ;
+/* Directive ::= DIRECTIVE_NAME Expr ; */
 class Directive : virtual public Node
 {
 public:
@@ -506,7 +506,7 @@ public:
     virtual void assert_valid();
 };
 
-// List_element ::= Variable | Nested_list_elements;
+/* List_element ::= Variable | Nested_list_elements; */
 class List_element : virtual public Node
 {
 public:
@@ -530,7 +530,7 @@ public:
     virtual void assert_valid() = 0;
 };
 
-// Variable_name ::= VARIABLE_NAME | Reflection;
+/* Variable_name ::= VARIABLE_NAME | Reflection; */
 class Variable_name : virtual public Node
 {
 public:
@@ -554,7 +554,7 @@ public:
     virtual void assert_valid() = 0;
 };
 
-// Target ::= Expr | CLASS_NAME;
+/* Target ::= Expr | CLASS_NAME; */
 class Target : virtual public Node
 {
 public:
@@ -578,7 +578,7 @@ public:
     virtual void assert_valid() = 0;
 };
 
-// Array_elem ::= key:Expr? is_ref:"&" val:Expr ;
+/* Array_elem ::= key:Expr? is_ref:"&" val:Expr ; */
 class Array_elem : virtual public Node
 {
 public:
@@ -609,7 +609,7 @@ public:
     virtual void assert_valid();
 };
 
-// Method_name ::= METHOD_NAME | Reflection;
+/* Method_name ::= METHOD_NAME | Reflection; */
 class Method_name : virtual public Node
 {
 public:
@@ -633,7 +633,7 @@ public:
     virtual void assert_valid() = 0;
 };
 
-// Actual_parameter ::= is_ref:"&" Expr ;
+/* Actual_parameter ::= is_ref:"&" Expr ; */
 class Actual_parameter : virtual public Node
 {
 public:
@@ -663,7 +663,7 @@ public:
     virtual void assert_valid();
 };
 
-// Class_name ::= CLASS_NAME | Reflection;
+/* Class_name ::= CLASS_NAME | Reflection; */
 class Class_name : virtual public Node
 {
 public:
@@ -687,7 +687,7 @@ public:
     virtual void assert_valid() = 0;
 };
 
-// Commented_node ::= Member | Statement | Interface_def | Class_def | Switch_case | Catch;
+/* Commented_node ::= Member | Statement | Interface_def | Class_def | Switch_case | Catch; */
 class Commented_node : virtual public Node
 {
 public:
@@ -709,11 +709,11 @@ public:
     virtual void assert_valid() = 0;
 public:
     Commented_node();
-    //  Return the comments associated with the node
+    /*  Return the comments associated with the node */
     List<String*>* get_comments();
 };
 
-// Source_rep ::= Identifier | Literal;
+/* Source_rep ::= Identifier | Literal; */
 class Source_rep : virtual public Node
 {
 public:
@@ -742,7 +742,7 @@ public:
     void set_source_rep(String* source_rep);
 };
 
-// Statement ::= Class_def | Interface_def | Method | Return | Static_declaration | Global | Try | Throw | Eval_expr | If | While | Do | For | Foreach | Switch | Break | Continue | Declare | Nop | FOREIGN<IR::Node*>;
+/* Statement ::= Class_def | Interface_def | Method | Return | Static_declaration | Global | Try | Throw | Eval_expr | If | While | Do | For | Foreach | Switch | Break | Continue | Declare | Nop | FOREIGN<IR::Node*>; */
 class Statement : virtual public Commented_node
 {
 public:
@@ -766,7 +766,7 @@ public:
     virtual void assert_valid() = 0;
 };
 
-// Member ::= Method | Attribute;
+/* Member ::= Method | Attribute; */
 class Member : virtual public Commented_node
 {
 public:
@@ -790,7 +790,7 @@ public:
     virtual void assert_valid() = 0;
 };
 
-// Switch_case ::= Expr? Statement* ;
+/* Switch_case ::= Expr? Statement* ; */
 class Switch_case : virtual public Commented_node
 {
 public:
@@ -820,7 +820,7 @@ public:
     virtual void assert_valid();
 };
 
-// Catch ::= CLASS_NAME VARIABLE_NAME Statement* ;
+/* Catch ::= CLASS_NAME VARIABLE_NAME Statement* ; */
 class Catch : virtual public Commented_node
 {
 public:
@@ -851,7 +851,7 @@ public:
     virtual void assert_valid();
 };
 
-// Expr ::= Assignment | Cast | Unary_op | Bin_op | Constant | Instanceof | Variable | Pre_op | Method_invocation | New | Literal | Op_assignment | List_assignment | Post_op | Array | Conditional_expr | Ignore_errors | FOREIGN<IR::Node*>;
+/* Expr ::= Assignment | Cast | Unary_op | Bin_op | Constant | Instanceof | Variable | Pre_op | Method_invocation | New | Literal | Op_assignment | List_assignment | Post_op | Array | Conditional_expr | Ignore_errors | FOREIGN<IR::Node*>; */
 class Expr : virtual public Target
 {
 public:
@@ -875,7 +875,7 @@ public:
     virtual void assert_valid() = 0;
 };
 
-// Nested_list_elements ::= List_element?* ;
+/* Nested_list_elements ::= List_element?* ; */
 class Nested_list_elements : virtual public List_element
 {
 public:
@@ -904,7 +904,7 @@ public:
     virtual void assert_valid();
 };
 
-// Reflection ::= Expr ;
+/* Reflection ::= Expr ; */
 class Reflection : virtual public Variable_name, virtual public Method_name, virtual public Class_name
 {
 public:
@@ -933,7 +933,7 @@ public:
     virtual void assert_valid();
 };
 
-// Identifier ::= INTERFACE_NAME | CLASS_NAME | METHOD_NAME | VARIABLE_NAME | CAST | OP | CONSTANT_NAME | DIRECTIVE_NAME;
+/* Identifier ::= INTERFACE_NAME | CLASS_NAME | METHOD_NAME | VARIABLE_NAME | CAST | OP | CONSTANT_NAME | DIRECTIVE_NAME; */
 class Identifier : virtual public Source_rep
 {
 public:
@@ -957,7 +957,7 @@ public:
     virtual void assert_valid() = 0;
 };
 
-// Class_def ::= Class_mod CLASS_NAME extends:CLASS_NAME? implements:INTERFACE_NAME* Member* ;
+/* Class_def ::= Class_mod CLASS_NAME extends:CLASS_NAME? implements:INTERFACE_NAME* Member* ; */
 class Class_def : virtual public Statement, virtual public Commented_node
 {
 public:
@@ -992,11 +992,11 @@ public:
     Class_def(Class_mod* mod);
     Class_def(const char* name);
     void add_member(Member* member);
-    //  Returns NULL if the method could not be found
+    /*  Returns NULL if the method could not be found */
     Method* get_method(const char* name);
 };
 
-// Interface_def ::= INTERFACE_NAME extends:INTERFACE_NAME* Member* ;
+/* Interface_def ::= INTERFACE_NAME extends:INTERFACE_NAME* Member* ; */
 class Interface_def : virtual public Statement, virtual public Commented_node
 {
 public:
@@ -1027,7 +1027,7 @@ public:
     virtual void assert_valid();
 };
 
-// Method ::= Signature Statement*? ;
+/* Method ::= Signature Statement*? ; */
 class Method : virtual public Statement, virtual public Member
 {
 public:
@@ -1057,7 +1057,7 @@ public:
     virtual void assert_valid();
 };
 
-// Attribute ::= Attr_mod vars:Name_with_default* ;
+/* Attribute ::= Attr_mod vars:Name_with_default* ; */
 class Attribute : virtual public Member
 {
 public:
@@ -1087,7 +1087,7 @@ public:
     virtual void assert_valid();
 };
 
-// If ::= Expr iftrue:Statement* iffalse:Statement* ;
+/* If ::= Expr iftrue:Statement* iffalse:Statement* ; */
 class If : virtual public Statement
 {
 public:
@@ -1120,7 +1120,7 @@ public:
     If(Expr* expr);
 };
 
-// While ::= Expr Statement* ;
+/* While ::= Expr Statement* ; */
 class While : virtual public Statement
 {
 public:
@@ -1150,7 +1150,7 @@ public:
     virtual void assert_valid();
 };
 
-// Do ::= Statement* Expr ;
+/* Do ::= Statement* Expr ; */
 class Do : virtual public Statement
 {
 public:
@@ -1180,7 +1180,7 @@ public:
     virtual void assert_valid();
 };
 
-// For ::= init:Expr? cond:Expr? incr:Expr? Statement* ;
+/* For ::= init:Expr? cond:Expr? incr:Expr? Statement* ; */
 class For : virtual public Statement
 {
 public:
@@ -1212,7 +1212,7 @@ public:
     virtual void assert_valid();
 };
 
-// Foreach ::= Expr key:Variable? is_ref:"&" val:Variable Statement* ;
+/* Foreach ::= Expr key:Variable? is_ref:"&" val:Variable Statement* ; */
 class Foreach : virtual public Statement
 {
 public:
@@ -1245,7 +1245,7 @@ public:
     virtual void assert_valid();
 };
 
-// Switch ::= Expr Switch_case* ;
+/* Switch ::= Expr Switch_case* ; */
 class Switch : virtual public Statement
 {
 public:
@@ -1275,7 +1275,7 @@ public:
     virtual void assert_valid();
 };
 
-// Break ::= Expr? ;
+/* Break ::= Expr? ; */
 class Break : virtual public Statement
 {
 public:
@@ -1304,7 +1304,7 @@ public:
     virtual void assert_valid();
 };
 
-// Continue ::= Expr? ;
+/* Continue ::= Expr? ; */
 class Continue : virtual public Statement
 {
 public:
@@ -1333,7 +1333,7 @@ public:
     virtual void assert_valid();
 };
 
-// Return ::= Expr? ;
+/* Return ::= Expr? ; */
 class Return : virtual public Statement
 {
 public:
@@ -1362,7 +1362,7 @@ public:
     virtual void assert_valid();
 };
 
-// Static_declaration ::= vars:Name_with_default* ;
+/* Static_declaration ::= vars:Name_with_default* ; */
 class Static_declaration : virtual public Statement
 {
 public:
@@ -1391,7 +1391,7 @@ public:
     virtual void assert_valid();
 };
 
-// Global ::= Variable_name* ;
+/* Global ::= Variable_name* ; */
 class Global : virtual public Statement
 {
 public:
@@ -1420,7 +1420,7 @@ public:
     virtual void assert_valid();
 };
 
-// Declare ::= Directive* Statement* ;
+/* Declare ::= Directive* Statement* ; */
 class Declare : virtual public Statement
 {
 public:
@@ -1450,7 +1450,7 @@ public:
     virtual void assert_valid();
 };
 
-// Try ::= Statement* catches:Catch* ;
+/* Try ::= Statement* catches:Catch* ; */
 class Try : virtual public Statement
 {
 public:
@@ -1480,7 +1480,7 @@ public:
     virtual void assert_valid();
 };
 
-// Throw ::= Expr ;
+/* Throw ::= Expr ; */
 class Throw : virtual public Statement
 {
 public:
@@ -1509,7 +1509,7 @@ public:
     virtual void assert_valid();
 };
 
-// Eval_expr ::= Expr ;
+/* Eval_expr ::= Expr ; */
 class Eval_expr : virtual public Statement
 {
 public:
@@ -1540,7 +1540,7 @@ public:
     void _init();
 };
 
-// Nop ::= ;
+/* Nop ::= ; */
 class Nop : virtual public Statement
 {
 public:
@@ -1565,7 +1565,7 @@ public:
     virtual void assert_valid();
 };
 
-// Literal ::= INT<long> | REAL<double> | STRING<String*> | BOOL<bool> | NIL<>;
+/* Literal ::= INT<long> | REAL<double> | STRING<String*> | BOOL<bool> | NIL<>; */
 class Literal : virtual public Expr, virtual public Source_rep
 {
 public:
@@ -1591,7 +1591,7 @@ public:
     virtual String* get_value_as_string() = 0;
 };
 
-// Assignment ::= Variable is_ref:"&" Expr ;
+/* Assignment ::= Variable is_ref:"&" Expr ; */
 class Assignment : virtual public Expr
 {
 public:
@@ -1622,7 +1622,7 @@ public:
     virtual void assert_valid();
 };
 
-// Op_assignment ::= Variable OP Expr ;
+/* Op_assignment ::= Variable OP Expr ; */
 class Op_assignment : virtual public Expr
 {
 public:
@@ -1655,7 +1655,7 @@ public:
     Op_assignment(Variable* variable, const char* op, Expr* expr);
 };
 
-// List_assignment ::= List_element?* Expr ;
+/* List_assignment ::= List_element?* Expr ; */
 class List_assignment : virtual public Expr
 {
 public:
@@ -1685,7 +1685,7 @@ public:
     virtual void assert_valid();
 };
 
-// Cast ::= CAST Expr ;
+/* Cast ::= CAST Expr ; */
 class Cast : virtual public Expr
 {
 public:
@@ -1717,7 +1717,7 @@ public:
     Cast(const char* type, String* source_rep, Expr* expr);
 };
 
-// Unary_op ::= OP Expr ;
+/* Unary_op ::= OP Expr ; */
 class Unary_op : virtual public Expr
 {
 public:
@@ -1749,7 +1749,7 @@ public:
     Unary_op(Expr* expr, const char* op);
 };
 
-// Bin_op ::= left:Expr OP right:Expr ;
+/* Bin_op ::= left:Expr OP right:Expr ; */
 class Bin_op : virtual public Expr
 {
 public:
@@ -1782,7 +1782,7 @@ public:
     Bin_op(Expr* left, Expr* right, const char* op);
 };
 
-// Conditional_expr ::= cond:Expr iftrue:Expr iffalse:Expr ;
+/* Conditional_expr ::= cond:Expr iftrue:Expr iffalse:Expr ; */
 class Conditional_expr : virtual public Expr
 {
 public:
@@ -1813,7 +1813,7 @@ public:
     virtual void assert_valid();
 };
 
-// Ignore_errors ::= Expr ;
+/* Ignore_errors ::= Expr ; */
 class Ignore_errors : virtual public Expr
 {
 public:
@@ -1842,7 +1842,7 @@ public:
     virtual void assert_valid();
 };
 
-// Constant ::= CLASS_NAME? CONSTANT_NAME ;
+/* Constant ::= CLASS_NAME? CONSTANT_NAME ; */
 class Constant : virtual public Expr
 {
 public:
@@ -1872,7 +1872,7 @@ public:
     virtual void assert_valid();
 };
 
-// Instanceof ::= Expr Class_name ;
+/* Instanceof ::= Expr Class_name ; */
 class Instanceof : virtual public Expr
 {
 public:
@@ -1902,7 +1902,7 @@ public:
     virtual void assert_valid();
 };
 
-// Variable ::= Target? Variable_name array_indices:Expr?* ;
+/* Variable ::= Target? Variable_name array_indices:Expr?* ; */
 class Variable : virtual public Expr, virtual public List_element
 {
 public:
@@ -1936,7 +1936,7 @@ public:
     bool is_simple_variable();
 };
 
-// Pre_op ::= OP Variable ;
+/* Pre_op ::= OP Variable ; */
 class Pre_op : virtual public Expr
 {
 public:
@@ -1968,7 +1968,7 @@ public:
     Pre_op(Variable* var, const char* op);
 };
 
-// Post_op ::= Variable OP ;
+/* Post_op ::= Variable OP ; */
 class Post_op : virtual public Expr
 {
 public:
@@ -2000,7 +2000,7 @@ public:
     Post_op(Variable* var, const char* op);
 };
 
-// Array ::= Array_elem* ;
+/* Array ::= Array_elem* ; */
 class Array : virtual public Expr
 {
 public:
@@ -2029,7 +2029,7 @@ public:
     virtual void assert_valid();
 };
 
-// Method_invocation ::= Target? Method_name Actual_parameter* ;
+/* Method_invocation ::= Target? Method_name Actual_parameter* ; */
 class Method_invocation : virtual public Expr
 {
 public:
@@ -2063,7 +2063,7 @@ public:
     Method_invocation(METHOD_NAME* name, Expr* arg);
 };
 
-// New ::= Class_name Actual_parameter* ;
+/* New ::= Class_name Actual_parameter* ; */
 class New : virtual public Expr
 {
 public:
@@ -2395,9 +2395,9 @@ public:
     virtual void assert_valid();
     virtual void assert_value_valid();
 private:
-    //  Constructors can't call virtual functions, so we create a non-virtual to
-    //  do the work. This is then called by the virtual function, and is also
-    //  safely called from the constructor.
+    /*  Constructors can't call virtual functions, so we create a non-virtual to */
+    /*  do the work. This is then called by the virtual function, and is also */
+    /*  safely called from the constructor. */
     String* _get_value_as_string();
 public:
     virtual String* get_value_as_string();
@@ -2435,7 +2435,7 @@ public:
     virtual void assert_valid();
     virtual void assert_value_valid();
 private:
-    //  See comment in INT::_get_value_as_string ()
+    /*  See comment in INT::_get_value_as_string () */
     String* _get_value_as_string();
 public:
     virtual String* get_value_as_string();
@@ -2509,7 +2509,7 @@ public:
     virtual void assert_valid();
     virtual void assert_value_valid();
 private:
-    //  See comment in INT::_get_value_as_string ()
+    /*  See comment in INT::_get_value_as_string () */
     String* _get_value_as_string();
 public:
     virtual String* get_value_as_string();
@@ -2544,7 +2544,7 @@ public:
     NIL(String* source_rep);
 };
 
-// The top of the class hierarchy. If the Fold will not allow you fold to anything else, try this.
+/* The top of the class hierarchy. If the Fold will not allow you fold to anything else, try this. */
 class None : virtual public Node, virtual public PHP_script, virtual public Statement, virtual public Class_def, virtual public Class_mod, virtual public Interface_def, virtual public Member, virtual public Method, virtual public Signature, virtual public Method_mod, virtual public Formal_parameter, virtual public Type, virtual public Attribute, virtual public Attr_mod, virtual public Name_with_default, virtual public If, virtual public While, virtual public Do, virtual public For, virtual public Foreach, virtual public Switch, virtual public Switch_case, virtual public Break, virtual public Continue, virtual public Return, virtual public Static_declaration, virtual public Global, virtual public Declare, virtual public Directive, virtual public Try, virtual public Catch, virtual public Throw, virtual public Eval_expr, virtual public Nop, virtual public Expr, virtual public Literal, virtual public Assignment, virtual public Op_assignment, virtual public List_assignment, virtual public List_element, virtual public Nested_list_elements, virtual public Cast, virtual public Unary_op, virtual public Bin_op, virtual public Conditional_expr, virtual public Ignore_errors, virtual public Constant, virtual public Instanceof, virtual public Variable, virtual public Variable_name, virtual public Reflection, virtual public Target, virtual public Pre_op, virtual public Post_op, virtual public Array, virtual public Array_elem, virtual public Method_invocation, virtual public Method_name, virtual public Actual_parameter, virtual public New, virtual public Class_name, virtual public Commented_node, virtual public Identifier, virtual public Source_rep, virtual public FOREIGN, virtual public CLASS_NAME, virtual public INTERFACE_NAME, virtual public METHOD_NAME, virtual public VARIABLE_NAME, virtual public DIRECTIVE_NAME, virtual public INT, virtual public REAL, virtual public STRING, virtual public BOOL, virtual public NIL, virtual public OP, virtual public CAST, virtual public CONSTANT_NAME
 {
 public:

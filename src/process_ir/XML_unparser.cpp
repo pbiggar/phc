@@ -223,28 +223,54 @@ protected:
 		{
 			state->os << "<attr key=\"" << name << "\"><bool>" << (b->value() ? "true" : "false") << "</bool></attr>" << endl;
 		}
+		else if (IR::Node* node = dynamic_cast<IR::Node*> (attr))
+		{
+			xml_unparse (node, state);
+		}
+		else if (attr == NULL)
+		{
+			state->os << "<!-- skipping NULL attribute " << name << " -->" << endl;
+		}
 		else if(String_list* ls = dynamic_cast<String_list*>(attr))
 		{
-			state->os << "<attr key=\"" << name << "\"><string_list>" << endl;
+			state->os << "<attr key=\"" << name << "\">" << endl;
+			state->indent++;
+			state->print_indent ();
+			state->os << "<string_list>" << endl;
 			state->indent++;
 
 			foreach (String* s, *ls)
 			{
 				state->print_indent();
 				maybe_encode ("string", s);
+				state->os << endl;
 			}
 
 			state->indent--;
 			state->print_indent();
-			state->os << "</string_list></attr>" << endl;
+			state->os << "</string_list>" << endl;
+			state->indent--;
+			state->print_indent();
+			state->os << "</attr>" << endl;
 		}
-		else if (attr == NULL)
+		else if(IR::Node_list* ls = dynamic_cast<IR::Node_list*>(attr))
 		{
-			state->os << "<!-- skipping NULL attribute " << name << " -->" << endl;
-		}
-		else if (IR::Node* node = dynamic_cast<IR::Node*> (attr))
-		{
-			xml_unparse (node, state);
+			// Allow lists of nodes, only if as List<IR::Node*>
+			state->os << "<attr key=\"" << name << "\">" << endl;
+			state->indent++;
+			state->print_indent ();
+			state->os << "<node_list>" << endl;
+			state->indent++;
+
+			foreach (IR::Node* node, *ls)
+				xml_unparse (node, state);
+
+			state->indent--;
+			state->print_indent();
+			state->os << "</node_list>" << endl;
+			state->indent--;
+			state->print_indent();
+			state->os << "</attr>" << endl;
 		}
 		else
 			phc_warning ("Don't know how to deal with attribute '%s' of type '%s'", name.c_str(), demangle(attr, true));	

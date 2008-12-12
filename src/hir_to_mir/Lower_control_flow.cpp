@@ -50,9 +50,23 @@ void Lower_control_flow::add_label (Node* in, Statement_list *out)
 	if (!in->attrs->has (attr_name))
 		return;
 
-	MIR::Label* label = dynamic_cast<MIR::Label*> (in->attrs->get (attr_name));
-	assert (label != NULL);
+	MIR::Label* label = dyc<MIR::Label> (in->attrs->get (attr_name));
 	out->push_back (new FOREIGN (label->clone ()));
+}
+
+template <class T>
+MIR::Label*
+Lower_control_flow::get_label (Node* in)
+{
+	assert (break_levels.back () == in);
+	assert (continue_levels.back () == in);
+
+	// Not a great way to do this, sorry.
+	const char* attr_name = get_attr_name<T> ();
+	if (!in->attrs->has (attr_name))
+		return NULL;
+
+	return dyc<MIR::Label> (in->attrs->get (attr_name));
 }
 
 // Get IN's exit label, or create one for it, and return it.
@@ -177,9 +191,10 @@ void Lower_control_flow::post_loop (Loop* in, Statement_list* out)
  *			$key = foreach_get_key ($arr, iter); // optional 
  *			$val = foreach_get_val ($arr, iter);
  *			....  
+ *		L3: // continues to here
  *			foreach_next ($arr, iter); 
  *			goto L0:
- *		L2:
+ *		L2: // breaks jump here
  *			foreach_end ($arr, iter);
  */
 
@@ -211,9 +226,7 @@ void Lower_control_flow::lower_foreach (Foreach* in, Statement_list* out)
 
 	// L0:
 	MIR::Label* l0 = MIR::fresh_label ();
-	out->push_back (new FOREIGN (
-		new MIR::Label (l0->label_name)));
-
+	out->push_back (new FOREIGN (l0));
 
 	// $T = foreach_has_key ($arr, iter);
 	VARIABLE_NAME* has_key = fresh_var_name ("THK");
@@ -229,7 +242,9 @@ void Lower_control_flow::lower_foreach (Foreach* in, Statement_list* out)
 
 	// if ($T) goto L1; else goto L2;
 	MIR::Label* l1 = MIR::fresh_label ();
-	MIR::Label* l2 = MIR::fresh_label ();
+	MIR::Label* l2 = get_label<Break> (in);
+	if (l2 == NULL) l2 = MIR::fresh_label ();
+
 	out->push_back (new FOREIGN (
 		new MIR::Branch (
 			fold_var (has_key),
@@ -270,6 +285,10 @@ void Lower_control_flow::lower_foreach (Foreach* in, Statement_list* out)
 	out->push_back_all (in->statements);
 
 
+	// L3: // continues jump to here
+	add_label<Continue> (in, out);
+
+
 	// foreach_next ($arr, iter); 
 	out->push_back (new FOREIGN (
 			new MIR::Foreach_next (
@@ -281,7 +300,7 @@ void Lower_control_flow::lower_foreach (Foreach* in, Statement_list* out)
 
 
 	// L2:
-	out->push_back (new FOREIGN (l2));
+	out->push_back (new FOREIGN (l2)); // continues jump to here
 
 
 	// foreach_end ($arr, iter);
@@ -297,9 +316,7 @@ void Lower_control_flow::lower_foreach (Foreach* in, Statement_list* out)
 void Lower_control_flow::post_foreach(Foreach* in, Statement_list* out)
 {
 	lower_foreach (in, out);
-	// we add the continue label in lower_foreach
-	add_label<Continue> (in, out);
-	add_label<Break> (in, out);
+	// we add the break and continue labels in lower_foreach
 	break_levels.pop_back ();
 	continue_levels.pop_back ();
 	clear_attrs (in);

@@ -128,7 +128,7 @@ class PHC_output_annotation extends Test_annotation
 			$negate = false;
 			// Process the options
 			if (!$options["regex"])
-				$value = preg_quote ($value);
+				$value = preg_quote ($value, "/");
 			else
 			{
 				if ($value[0] == "!")
@@ -318,11 +318,10 @@ class Annotated_test extends AsyncTest
 
 	function run_test ($subject)
 	{
-		global $phc;
 		$bundle = new AsyncBundle ($this, $subject);
 
 		$bundle->annotations = $this->get_annotations ($subject);
-		$bundle->commands[0] = "$phc $subject";
+		$bundle->commands[0] = get_phc_command_line ($subject);
 		$bundle->final = "finish";
 
 		foreach ($bundle->annotations as $annotation)

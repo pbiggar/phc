@@ -53,15 +53,35 @@ Param_is_ref_uppering::pre_assign_var (MIR::Assign_var* in, MIR::Statement_list*
 			false, /* dont-care */
 			param_is_ref)))
 	{
-		VARIABLE_NAME* function_temp = fresh_var_name ("Tpuf");
-		VARIABLE_NAME* parameter_temp = fresh_var_name ("Tpup");
-		VARIABLE_NAME* index_temp = fresh_var_name ("Tpui");
+		if (param_is_ref->value->target == NULL)
+		{
+			VARIABLE_NAME* function_temp = fresh_var_name ("Tpuf");
+			VARIABLE_NAME* parameter_temp = fresh_var_name ("Tpup");
+			VARIABLE_NAME* index_temp = fresh_var_name ("Tpui");
 
-		(*out
-			<< "$" << function_temp << " = new ReflectionFunction (\"" << param_is_ref->value->method_name << "\");"
-			<< "$" << parameter_temp << " = $" << function_temp << "->getParameters ();"
-			<< "$" << index_temp << " = $" << parameter_temp << "[" << param_is_ref->value->param_index->value << "];"
-			<< "$" << lhs->value << " = $" << index_temp << "->isPassedByReference ();").finish (in);
+			(*out
+			 << "$" << function_temp << " = new ReflectionFunction (\"" << param_is_ref->value->method_name << "\");"
+			 << "$" << parameter_temp << " = $" << function_temp << "->getParameters ();"
+			 << "$" << index_temp << " = $" << parameter_temp << "[" << param_is_ref->value->param_index->value << "];"
+			 << "$" << lhs->value << " = $" << index_temp << "->isPassedByReference ();").finish (in);
+		}
+		else if (VARIABLE_NAME* target = dynamic_cast<VARIABLE_NAME*> (param_is_ref->value->target))
+		{
+			VARIABLE_NAME* object_temp = fresh_var_name ("Tpuo");
+			VARIABLE_NAME* method_temp = fresh_var_name ("Tpum");
+			VARIABLE_NAME* parameter_temp = fresh_var_name ("Tpup");
+			VARIABLE_NAME* index_temp = fresh_var_name ("Tpui");
+
+			(*out
+			 << "$" << object_temp << " = new ReflectionObject ($" << target << ");"
+			 << "$" << method_temp << " = $" << object_temp << "->getMethod (\"" << param_is_ref->value->method_name << "\");"
+			 << "$" << parameter_temp << " = $" << method_temp << "->getParameters ();"
+			 << "$" << index_temp << " = $" << parameter_temp << "[" << param_is_ref->value->param_index->value << "];"
+			 << "$" << lhs->value << " = $" << index_temp << "->isPassedByReference ();").finish (in);
+		}
+		else
+			// TODO: class target
+			assert (0);
 	}
 	else
 		out->push_back (in);

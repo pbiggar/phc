@@ -44,9 +44,9 @@ class CompiledVsInterpreted extends AsyncTest
 		}
 	}
 
-	function homogenize_output ($string)
+	function homogenize_output ($string, $bundle)
 	{
-		$string = homogenize_filenames_and_line_numbers ($string);
+		$string = homogenize_filenames_and_line_numbers ($string, $bundle->subject);
 		$string = homogenize_reference_count ($string);
 		return $string;
 	}
@@ -58,8 +58,7 @@ class CompiledVsInterpreted extends AsyncTest
 
 	function get_phc_command ($subject, $exe_name)
 	{
-		global $phc;
-		return "$phc -c $subject -o $exe_name";
+		return get_phc_command_line ($subject) . " -c -o $exe_name";
 	}
 
 	function run_test ($subject)

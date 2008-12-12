@@ -9,6 +9,9 @@
 #include "process_ir/General.h"
 #include "process_ast/AST_unparser.h"
 #include <assert.h>
+#include <vector>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/classification.hpp>
 
 // other #includes are in the #else block of HAVE_PHP5
 
@@ -95,6 +98,65 @@ Expr* PHP::fold_constant_expr (Expr* in)
 	zval_dtor (&value); // clear out string structure
 	result->attrs->clone_all_from (in->attrs);
 	return result;
+}
+
+
+void
+PHP::set_ini_entry (String* key, String* value)
+{
+	// Keep track of entered keys
+	PHP::altered_ini_entries.insert (*key);
+
+
+	int result = zend_alter_ini_entry (
+				const_cast<char*> (key->c_str ()),
+				key->size () + 1, // include NULL byte
+				const_cast<char*> (value->c_str()),
+				value->size (), // dont include NULL byte
+				PHP_INI_ALL,
+				PHP_INI_STAGE_RUNTIME);
+
+
+	assert (result == SUCCESS);
+	// check the value changed
+	assert (zend_ini_string (const_cast<char*> (key->c_str ()), key->size () + 1, 0) == *value);
+}
+
+Set<string> PHP::altered_ini_entries;
+
+String_list*
+PHP::get_altered_ini_entries ()
+{
+	String_list* result = new String_list;
+
+	foreach (string entry, PHP::altered_ini_entries)
+		result->push_back (s(entry));
+
+	return result;
+}
+
+String_list*
+PHP::get_include_paths ()
+{
+	String_list* result = new String_list;
+
+	String* ini = new String (zend_ini_string ("include_path", sizeof ("include_path"), 0));
+
+	// Split the string using ':' as delimiter
+	std::vector <string> dirs;
+	boost::algorithm::split (dirs, *ini, boost::algorithm::is_any_of(":"));
+	foreach (string dir, dirs)
+	{
+		result->push_back (s (dir));
+	}
+
+	return result;
+}
+
+String* 
+PHP::get_ini_entry (String* key)
+{
+	return s (zend_ini_string (const_cast<char*> (key->c_str ()), key->size () + 1, 0));
 }
 
 #else
@@ -204,6 +266,17 @@ bool PHP::is_available ()
 Expr* PHP::fold_constant_expr (Expr* in)
 {
 	return in;
+}
+
+void
+PHP::set_ini_entry (std::string key, std::string value)
+{
+}
+
+String_list*
+PHP::get_include_paths ()
+{
+	return new String_list;
 }
 
 #endif

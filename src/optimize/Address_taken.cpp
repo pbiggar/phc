@@ -238,7 +238,7 @@ Address_taken::visit_assign_next (Statement_block* bb, MIR::Assign_next* in)
 void
 Address_taken::visit_return (Statement_block* bb, MIR::Return* in)
 {
-	aliased (bb, in->variable_name);
+	aliased (bb, in->rvalue);
 }
 void
 Address_taken::visit_static_declaration (Statement_block* bb, MIR::Static_declaration* in)

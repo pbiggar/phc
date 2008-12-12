@@ -10,8 +10,10 @@
 
 #include "config.h"
 #include "lib/List.h"
+#include "lib/Set.h"
 
 class String;
+typedef List<String*> String_list;
 
 namespace AST
 {
@@ -48,6 +50,15 @@ public:
 	static unsigned long get_hash (String* string);
 	static AST::Expr* fold_constant_expr (AST::Expr* in);
 
+	/* Set INI behaviour */
+	static Set<std::string> altered_ini_entries;
+
+	static void set_ini_entry (String* key, String* value);
+	static String* get_ini_entry (String* key);
+
+	static String_list* get_include_paths ();
+	static String_list* get_altered_ini_entries ();
+
 	/*
 	 * Optimization (defined in optimize.cpp)
 	 */
@@ -64,7 +75,6 @@ public:
 	// Functions
 	static MIR::Signature* get_signature (MIR::METHOD_NAME*);
 	static MIR::Literal* call_function (MIR::METHOD_NAME* in, MIR::Literal_list* params);
-
 };
 
 #endif // PHC_EMBED_H

@@ -117,4 +117,54 @@ node in the script. </para>
 </para>
 
 </section>
+
+<section>
+
+<title> Scopes </title>
+
+<para>
+	We incorrectly represent
+</para>
+
+<screen>
+&lt;?php
+	{
+		function x () {}
+	}
+?&gt;
+</screen>
+
+<para>
+	as
+</para>
+
+<screen>
+&lt;?php
+	function x () {}
+?&gt;
+</screen>
+
+<para>
+	In the former, <code>x</code> is only declared when its declaration is
+	executed. In the latter, it is declared as soon as the program starts.
+</para>
+
+</section>
+<section>
+
+<title> Other issues </title>
+
+<para>
+	There are quite a number of minor bugs and issues with &phc;, that we are
+	aware of. Our bug tracker is available at <ulink
+	url="http://code.google.com/p/phc/issues/list">our project site</ulink>. We
+	are looking for contributors to help us fix many of these bugs. Please see
+	<ulink url="http://phpcompiler.org/contribute.html">our contributors page
+	</ulink>, if you're interested in helping out.
+</para>
+
+</section>
+
+
+
 </chapter>

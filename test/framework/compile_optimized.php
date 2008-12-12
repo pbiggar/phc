@@ -18,8 +18,7 @@ class CompileOptimized extends CompiledVsInterpreted
 
 	function get_phc_command ($subject, $exe_name)
 	{
-		global $phc;
-		return "$phc -c -O1 $subject -o $exe_name";
+		return get_phc_command_line ($subject) . " -O1 -c -o $exe_name";
 	}
 
 	function get_php_command ($subject)

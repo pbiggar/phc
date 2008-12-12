@@ -293,11 +293,21 @@ UNSET_CAST		{CS}{C_UNSET}{CE}
 											copy_state(yylval->token_string, yyextra);
 											break;
 										case K___METHOD__:
+										{
+											String* method_name = new String;
+											if (yyextra->current_class->size () > 0)
+											{
+												method_name->append (*yyextra->current_class);
+												method_name->append ("::");
+											}
+											method_name->append (*yyextra->current_method);
+
 											yylval->token_string = new STRING(
-												yyextra->current_method,
+												method_name,
 												new String("__METHOD__"));
 											copy_state(yylval->token_string, yyextra);
 											break;
+										}
 										case K___FUNCTION__:
 											yylval->token_string = new STRING(
 												yyextra->current_method,

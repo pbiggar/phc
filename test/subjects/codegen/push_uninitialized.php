@@ -1,27 +1,28 @@
 <?php
 
+	require ("parsing/scalar_array.php");
+
 	$x[] = 5;
 	var_dump ($x);
 
-	$x = 0;
-	$x[] = 5;
-	var_dump ($x);
+	foreach ($scalar_array as $scalar)
+	{
+		// skip string, and do them last
+		if (is_string ($scalar) && strlen ($scalar) > 0)
+			continue;
 
-	$x = 1;
-	$x[] = 5;
-	var_dump ($x);
+		echo "\nTrying: ";
+		var_dump ($scalar);
 
-	$x = true;
-	$x[] = 5;
-	var_dump ($x);
+		$x = $scalar;
+		$x[] = 5;
+		var_dump ($x);
 
-	$x = false;
-	$x[] = 5;
-	var_dump ($x);
-
-	$x = "";
-	$x[] = 5;
-	var_dump ($x);
+//		$x = $scalar;
+//		$y =& $x[];
+//		$y = 6;
+//		var_dump ($x);
+	}
 
 	$x = "str";
 	$x[] = 5;
