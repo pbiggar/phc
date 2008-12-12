@@ -11,6 +11,11 @@ C_file* Transform::pre_c_file(C_file* in)
     return in;
 }
 
+void Transform::pre_method(Method* in, Piece_list* out)
+{
+    out->push_back(in);
+}
+
 void Transform::pre_block(Block* in, Piece_list* out)
 {
     out->push_back(in);
@@ -91,9 +96,14 @@ Zvpp* Transform::pre_ref(Ref* in)
     return in;
 }
 
-void Transform::pre_uninterpreted(UNINTERPRETED* in, Piece_list* out)
+COMMENT* Transform::pre_comment(COMMENT* in)
 {
-    out->push_back(in);
+    return in;
+}
+
+UNINTERPRETED* Transform::pre_uninterpreted(UNINTERPRETED* in)
+{
+    return in;
 }
 
 void Transform::pre_intrinsic(INTRINSIC* in, Statement_list* out)
@@ -130,6 +140,11 @@ Zvpp* Transform::pre_zvpp(ZVPP* in)
 C_file* Transform::post_c_file(C_file* in)
 {
     return in;
+}
+
+void Transform::post_method(Method* in, Piece_list* out)
+{
+    out->push_back(in);
 }
 
 void Transform::post_block(Block* in, Piece_list* out)
@@ -212,9 +227,14 @@ Zvpp* Transform::post_ref(Ref* in)
     return in;
 }
 
-void Transform::post_uninterpreted(UNINTERPRETED* in, Piece_list* out)
+COMMENT* Transform::post_comment(COMMENT* in)
 {
-    out->push_back(in);
+    return in;
+}
+
+UNINTERPRETED* Transform::post_uninterpreted(UNINTERPRETED* in)
+{
+    return in;
 }
 
 void Transform::post_intrinsic(INTRINSIC* in, Statement_list* out)
@@ -253,8 +273,17 @@ void Transform::children_c_file(C_file* in)
     in->pieces = transform_piece_list(in->pieces);
 }
 
+void Transform::children_method(Method* in)
+{
+    in->comment = transform_comment(in->comment);
+    in->entry = transform_uninterpreted(in->entry);
+    in->pieces = transform_piece_list(in->pieces);
+    in->exit = transform_uninterpreted(in->exit);
+}
+
 void Transform::children_block(Block* in)
 {
+    in->comment = transform_comment(in->comment);
     in->statements = transform_statement_list(in->statements);
 }
 
@@ -337,6 +366,10 @@ void Transform::children_ref(Ref* in)
 }
 
 /* Tokens don't have children, so these methods do nothing by default */
+void Transform::children_comment(COMMENT* in)
+{
+}
+
 void Transform::children_uninterpreted(UNINTERPRETED* in)
 {
 }
@@ -402,6 +435,38 @@ Piece_list* Transform::transform_piece(Piece* in)
     }
     
     return out2;
+}
+
+COMMENT* Transform::transform_comment(COMMENT* in)
+{
+    if(in == NULL) return NULL;
+    
+    COMMENT* out;
+    
+    out = pre_comment(in);
+    if(out != NULL)
+    {
+    	children_comment(out);
+    	out = post_comment(out);
+    }
+    
+    return out;
+}
+
+UNINTERPRETED* Transform::transform_uninterpreted(UNINTERPRETED* in)
+{
+    if(in == NULL) return NULL;
+    
+    UNINTERPRETED* out;
+    
+    out = pre_uninterpreted(in);
+    if(out != NULL)
+    {
+    	children_uninterpreted(out);
+    	out = post_uninterpreted(out);
+    }
+    
+    return out;
 }
 
 Statement_list* Transform::transform_statement_list(Statement_list* in)
@@ -527,6 +592,15 @@ void Transform::pre_piece(Piece* in, Piece_list* out)
 {
     switch(in->classid())
     {
+    case Method::ID: 
+    	{
+    		Piece_list* local_out = new Piece_list;
+    		Piece_list::const_iterator i;
+    		pre_method(dynamic_cast<Method*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
     case Block::ID: 
     	{
     		Piece_list* local_out = new Piece_list;
@@ -537,13 +611,7 @@ void Transform::pre_piece(Piece* in, Piece_list* out)
     	}
     	return;
     case UNINTERPRETED::ID: 
-    	{
-    		Piece_list* local_out = new Piece_list;
-    		Piece_list::const_iterator i;
-    		pre_uninterpreted(dynamic_cast<UNINTERPRETED*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
+    	out->push_back(pre_uninterpreted(dynamic_cast<UNINTERPRETED*>(in)));
     	return;
     }
     assert(0);
@@ -694,6 +762,15 @@ void Transform::post_piece(Piece* in, Piece_list* out)
 {
     switch(in->classid())
     {
+    case Method::ID: 
+    	{
+    		Piece_list* local_out = new Piece_list;
+    		Piece_list::const_iterator i;
+    		post_method(dynamic_cast<Method*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
     case Block::ID: 
     	{
     		Piece_list* local_out = new Piece_list;
@@ -704,13 +781,7 @@ void Transform::post_piece(Piece* in, Piece_list* out)
     	}
     	return;
     case UNINTERPRETED::ID: 
-    	{
-    		Piece_list* local_out = new Piece_list;
-    		Piece_list::const_iterator i;
-    		post_uninterpreted(dynamic_cast<UNINTERPRETED*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
+    	out->push_back(post_uninterpreted(dynamic_cast<UNINTERPRETED*>(in)));
     	return;
     }
     assert(0);
@@ -861,6 +932,9 @@ void Transform::children_piece(Piece* in)
 {
     switch(in->classid())
     {
+    case Method::ID:
+    	children_method(dynamic_cast<Method*>(in));
+    	break;
     case Block::ID:
     	children_block(dynamic_cast<Block*>(in));
     	break;

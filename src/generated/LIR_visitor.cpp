@@ -18,6 +18,10 @@ void Visitor::pre_piece(Piece* in)
 {
 }
 
+void Visitor::pre_method(Method* in)
+{
+}
+
 void Visitor::pre_block(Block* in)
 {
 }
@@ -98,6 +102,10 @@ void Visitor::pre_ref(Ref* in)
 {
 }
 
+void Visitor::pre_comment(COMMENT* in)
+{
+}
+
 void Visitor::pre_uninterpreted(UNINTERPRETED* in)
 {
 }
@@ -136,6 +144,10 @@ void Visitor::post_c_file(C_file* in)
 }
 
 void Visitor::post_piece(Piece* in)
+{
+}
+
+void Visitor::post_method(Method* in)
 {
 }
 
@@ -219,6 +231,10 @@ void Visitor::post_ref(Ref* in)
 {
 }
 
+void Visitor::post_comment(COMMENT* in)
+{
+}
+
 void Visitor::post_uninterpreted(UNINTERPRETED* in)
 {
 }
@@ -253,8 +269,17 @@ void Visitor::children_c_file(C_file* in)
     visit_piece_list(in->pieces);
 }
 
+void Visitor::children_method(Method* in)
+{
+    visit_comment(in->comment);
+    visit_uninterpreted(in->entry);
+    visit_piece_list(in->pieces);
+    visit_uninterpreted(in->exit);
+}
+
 void Visitor::children_block(Block* in)
 {
+    visit_comment(in->comment);
     visit_statement_list(in->statements);
 }
 
@@ -337,6 +362,10 @@ void Visitor::children_ref(Ref* in)
 }
 
 /* Tokens don't have children, so these methods do nothing by default */
+void Visitor::children_comment(COMMENT* in)
+{
+}
+
 void Visitor::children_uninterpreted(UNINTERPRETED* in)
 {
 }
@@ -392,6 +421,13 @@ void Visitor::pre_c_file_chain(C_file* in)
 {
     pre_node((Node*) in);
     pre_c_file((C_file*) in);
+}
+
+void Visitor::pre_method_chain(Method* in)
+{
+    pre_node((Node*) in);
+    pre_piece((Piece*) in);
+    pre_method((Method*) in);
 }
 
 void Visitor::pre_block_chain(Block* in)
@@ -512,6 +548,12 @@ void Visitor::pre_ref_chain(Ref* in)
     pre_ref((Ref*) in);
 }
 
+void Visitor::pre_comment_chain(COMMENT* in)
+{
+    pre_node((Node*) in);
+    pre_comment((COMMENT*) in);
+}
+
 void Visitor::pre_uninterpreted_chain(UNINTERPRETED* in)
 {
     pre_node((Node*) in);
@@ -567,6 +609,13 @@ void Visitor::pre_zvpp_chain(ZVPP* in)
 void Visitor::post_c_file_chain(C_file* in)
 {
     post_c_file((C_file*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_method_chain(Method* in)
+{
+    post_method((Method*) in);
+    post_piece((Piece*) in);
     post_node((Node*) in);
 }
 
@@ -688,6 +737,12 @@ void Visitor::post_ref_chain(Ref* in)
     post_node((Node*) in);
 }
 
+void Visitor::post_comment_chain(COMMENT* in)
+{
+    post_comment((COMMENT*) in);
+    post_node((Node*) in);
+}
+
 void Visitor::post_uninterpreted_chain(UNINTERPRETED* in)
 {
     post_uninterpreted((UNINTERPRETED*) in);
@@ -767,6 +822,30 @@ void Visitor::visit_piece(Piece* in)
     	pre_piece_chain(in);
     	children_piece(in);
     	post_piece_chain(in);
+    }
+}
+
+void Visitor::visit_comment(COMMENT* in)
+{
+    if(in == NULL)
+    	visit_null("LIR", "COMMENT");
+    else
+    {
+    	pre_comment_chain(in);
+    	children_comment(in);
+    	post_comment_chain(in);
+    }
+}
+
+void Visitor::visit_uninterpreted(UNINTERPRETED* in)
+{
+    if(in == NULL)
+    	visit_null("LIR", "UNINTERPRETED");
+    else
+    {
+    	pre_uninterpreted_chain(in);
+    	children_uninterpreted(in);
+    	post_uninterpreted_chain(in);
     }
 }
 
@@ -867,6 +946,9 @@ void Visitor::pre_piece_chain(Piece* in)
 {
     switch(in->classid())
     {
+    case Method::ID:
+    	pre_method_chain(dynamic_cast<Method*>(in));
+    	break;
     case Block::ID:
     	pre_block_chain(dynamic_cast<Block*>(in));
     	break;
@@ -960,6 +1042,9 @@ void Visitor::post_piece_chain(Piece* in)
 {
     switch(in->classid())
     {
+    case Method::ID:
+    	post_method_chain(dynamic_cast<Method*>(in));
+    	break;
     case Block::ID:
     	post_block_chain(dynamic_cast<Block*>(in));
     	break;
@@ -1053,6 +1138,9 @@ void Visitor::children_piece(Piece* in)
 {
     switch(in->classid())
     {
+    case Method::ID:
+    	children_method(dynamic_cast<Method*>(in));
+    	break;
     case Block::ID:
     	children_block(dynamic_cast<Block*>(in));
     	break;

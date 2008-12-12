@@ -22,11 +22,21 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new C_file(pieces);
     }
+    if(!strcmp(type_id, "Method"))
+    {
+    	COMMENT* comment = dynamic_cast<COMMENT*>(*i++);
+    	UNINTERPRETED* entry = dynamic_cast<UNINTERPRETED*>(*i++);
+    	Piece_list* pieces = dynamic_cast<Piece_list*>(*i++);
+    	UNINTERPRETED* exit = dynamic_cast<UNINTERPRETED*>(*i++);
+    	assert(i == args->end());
+    	return new Method(comment, entry, pieces, exit);
+    }
     if(!strcmp(type_id, "Block"))
     {
+    	COMMENT* comment = dynamic_cast<COMMENT*>(*i++);
     	Statement_list* statements = dynamic_cast<Statement_list*>(*i++);
     	assert(i == args->end());
-    	return new Block(statements);
+    	return new Block(comment, statements);
     }
     if(!strcmp(type_id, "If"))
     {
@@ -120,6 +130,12 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	Zvp* zvp = dynamic_cast<Zvp*>(*i++);
     	assert(i == args->end());
     	return new Ref(zvp);
+    }
+    if(!strcmp(type_id, "COMMENT"))
+    {
+    	String* value = dynamic_cast<String*>(*i++);
+    	assert(i == args->end());
+    	return new COMMENT(value);
     }
     if(!strcmp(type_id, "UNINTERPRETED"))
     {

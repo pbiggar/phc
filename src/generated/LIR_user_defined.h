@@ -14,6 +14,8 @@ class Cond;
 class Is_ref;
 class Zvp;
 class Zvpp;
+class COMMENT;
+class Method;
 class Block;
 class Action;
 class If;
@@ -48,6 +50,8 @@ MAKETEA_USER_DEFINED(LIR::Cond)
 MAKETEA_USER_DEFINED(LIR::Is_ref)
 MAKETEA_USER_DEFINED(LIR::Zvp)
 MAKETEA_USER_DEFINED(LIR::Zvpp)
+MAKETEA_USER_DEFINED(LIR::COMMENT)
+MAKETEA_USER_DEFINED(LIR::Method)
 MAKETEA_USER_DEFINED(LIR::Block)
 MAKETEA_USER_DEFINED(LIR::Action)
 MAKETEA_USER_DEFINED(LIR::If)

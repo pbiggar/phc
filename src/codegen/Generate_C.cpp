@@ -387,13 +387,26 @@ class Pattern : virtual public GC_obj
 public:
 	Pattern () : use_scope (true) {}
 	virtual bool match(Statement* that) = 0;
-	virtual void generate_code(Generate_C* gen) = 0;
+	virtual void generate_code(Generate_C* gen) {assert (0); };
 	virtual ~Pattern() {}
 	bool use_scope;
 
-	virtual LIR::Piece* generate_lir (Generate_C* gen)
+	virtual LIR::Piece* generate_lir (String* comment, Generate_C* gen)
 	{
+		code << *comment;
+
+		if (use_scope)
+			code << "{\n";
+
 		generate_code (gen);
+
+		if (use_scope)
+		{
+			code
+			<<		"phc_check_invariants (TSRMLS_C);\n"
+			<< "}\n";
+		}
+
 		return gen->clear_code_buffer ();
 	}
 };
@@ -409,13 +422,25 @@ public:
 		return that->match(pattern);
 	}
 
-	void generate_code(Generate_C* gen)
+	LIR::Piece* generate_lir (String* comment, Generate_C* gen)
 	{
 		signature = pattern->value->signature;
 
 		method_entry();
-		gen->visit_statement_list(pattern->value->statements);
+		LIR::UNINTERPRETED* entry = gen->clear_code_buffer ();
+
+		// Use a different gen for the nested function
+		Generate_C* new_gen = new Generate_C (gen->os);
+		new_gen->visit_statement_list (pattern->value->statements);
+
 		method_exit();
+		LIR::UNINTERPRETED* exit = gen->clear_code_buffer ();
+
+		return new LIR::Method
+			(new LIR::COMMENT (comment),
+			entry,
+			new_gen->lir->pieces,
+			exit);
 	}
 
 protected:
@@ -674,6 +699,7 @@ protected:
  */
 class Pattern_assign_expr_var : public Pattern_assign_var
 {
+#define STRAIGHT(STR) stmts->push_back (new LIR::CODE (s (STR)))
 public:
 	Expr* rhs_pattern()
 	{
@@ -681,27 +707,25 @@ public:
 		return rhs;
 	}
 
-	void generate_code (Generate_C* gen)
+	LIR::Piece* generate_lir (String* comment, Generate_C* gen)
 	{
-		// TODO combine with assign_expr_var_var
-		// and assign_expr_array_access
+		LIR::Statement_list* stmts = new LIR::Statement_list;
+
 		if (!agn->is_ref)
 		{
-			code
-			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
-			<< read_rvalue (LOCAL, "rhs", rhs->value)
-			<< "if (*p_lhs != rhs)\n"
-			<<		"write_var (p_lhs, rhs);\n"
-			;
+			STRAIGHT (get_st_entry (LOCAL, "p_lhs", lhs->value));
+			STRAIGHT (read_rvalue (LOCAL, "rhs", rhs->value));
+			STRAIGHT ("if (*p_lhs != rhs)\n");
+			STRAIGHT ("write_var (p_lhs, rhs);\n");
 		}
 		else
 		{
-			code
-			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
-			<< get_st_entry (LOCAL, "p_rhs", rhs->value)
-			<< "copy_into_ref (p_lhs, p_rhs);\n"
-			;
+			STRAIGHT (get_st_entry (LOCAL, "p_lhs", lhs->value));
+			STRAIGHT (get_st_entry (LOCAL, "p_rhs", rhs->value));
+			STRAIGHT ("copy_into_ref (p_lhs, p_rhs);\n");
 		}
+
+		return new LIR::Block (comment, stmts);
 	}
 
 protected:
@@ -834,25 +858,31 @@ public:
 		return new Cast (cast, rhs);
 	}
 
-	void generate_code (Generate_C* gen)
+	LIR::Piece* generate_lir (String* comment, Generate_C* gen)
 	{
 		assert (!agn->is_ref);
-		Pattern_assign_expr_var::generate_code (gen);
+		LIR::Statement_list* stmts = new LIR::Statement_list;
+
+		LIR::Block* assign_var = dyc<LIR::Block> (Pattern_assign_expr_var::generate_lir (comment, gen));
+		stmts->push_back_all (assign_var->statements);
+
 
 		if (*cast->value->value == "string")
-			code << "cast_var (p_lhs, IS_STRING);\n";
+			STRAIGHT ("cast_var (p_lhs, IS_STRING);\n");
 		else if (*cast->value->value == "int")
-			code << "cast_var (p_lhs, IS_LONG);\n";
+			STRAIGHT ("cast_var (p_lhs, IS_LONG);\n");
 		else if (*cast->value->value == "array")
-			code << "cast_var (p_lhs, IS_ARRAY);\n";
+			STRAIGHT ("cast_var (p_lhs, IS_ARRAY);\n");
 		else if (*cast->value->value == "null")
-			code << "cast_var (p_lhs, IS_NULL);\n";
+			STRAIGHT ("cast_var (p_lhs, IS_NULL);\n");
 		else if (*cast->value->value == "bool" || *cast->value->value == "boolean")
-			code << "cast_var (p_lhs, IS_BOOL);\n";
+			STRAIGHT ("cast_var (p_lhs, IS_BOOL);\n");
 		else if (*cast->value->value == "real")
-			code << "cast_var (p_lhs, IS_DOUBLE);\n";
+			STRAIGHT ("cast_var (p_lhs, IS_DOUBLE);\n");
 		else
 			assert (0 && "unimplemented"); // TODO: unimplemented
+
+		return new LIR::Block (comment, stmts);
 	}
 
 public:
@@ -2076,12 +2106,12 @@ class Pattern_return : public Pattern
 			code 
 			<< read_rvalue (LOCAL, "rhs", ret->value->rvalue)
 
-			// Run-time return by reference had slightly different
-			// semantics to compile-time. There is no way within a
-			// function to tell if the run-time return by reference is
-			// set, but its unnecessary anyway.
-			// TODO: I dont believe in run-time return by reference. It seems that
-			// it only work in the presence of compile-time return by reference.
+			// Run-time return by reference has different
+			// semantics to compile-time. If the function has CTRBR and RTRBR, the
+			// the assignment will be reference. If one or the other is
+			// return-by-copy, the result will be by copy. Its a question of
+			// whether its separated at return-time (which we do here) or at the
+			// call-site.
 			<< "return_value->value = rhs->value;\n"
 			<< "return_value->type = rhs->type;\n"
 			<< "zval_copy_ctor (return_value);\n"
@@ -2462,6 +2492,7 @@ protected:
 void Generate_C::children_statement(Statement* in)
 {
 	stringstream ss;
+	stringstream comment;
 	MIR_unparser (ss, true).unparse (in);
 
 	while (not ss.eof ())
@@ -2474,7 +2505,7 @@ void Generate_C::children_statement(Statement* in)
 		if (str == "")
 			continue;
 
-		code << "// " << *escape_C_comment (s(str)) << endl;
+		comment << "// " << *escape_C_comment (s(str)) << endl;
 	}
 
 	Pattern* patterns[] = 
@@ -2522,19 +2553,9 @@ void Generate_C::children_statement(Statement* in)
 	{
 		if(patterns[i]->match(in))
 		{
-			bool brackets = patterns[i]->use_scope;
-			if (brackets)
-				code << "{\n";
-
-			lir->pieces->push_back (patterns[i]->generate_lir (this));
-
-			if (brackets)
-			{
-				code
-				<<		"phc_check_invariants (TSRMLS_C);\n"
-				<< "}\n";
-			}
-
+			lir->pieces->push_back (patterns[i]->generate_lir (
+					s (comment.str ()),
+					this));
 			matched = true;
 			break;
 		}
@@ -2660,7 +2681,6 @@ void Generate_C::post_php_script(PHP_script* in)
 {
 	LIR::UNINTERPRETED* end = clear_code_buffer ();
 	lir->pieces->push_back (end);
-	xdebug (lir);
 
 	(new LIR_unparser (code, true))->visit_c_file(lir);
 

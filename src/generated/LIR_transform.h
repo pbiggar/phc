@@ -30,6 +30,7 @@ public:
 /* Invoked before the children are transformed */
 public:
     virtual C_file* pre_c_file(C_file* in);
+    virtual void pre_method(Method* in, Piece_list* out);
     virtual void pre_block(Block* in, Piece_list* out);
     virtual void pre_if(If* in, Statement_list* out);
     virtual Cond* pre_cond(Cond* in);
@@ -46,7 +47,8 @@ public:
     virtual Zvp* pre_null(Null* in);
     virtual Zvp* pre_deref(Deref* in);
     virtual Zvpp* pre_ref(Ref* in);
-    virtual void pre_uninterpreted(UNINTERPRETED* in, Piece_list* out);
+    virtual COMMENT* pre_comment(COMMENT* in);
+    virtual UNINTERPRETED* pre_uninterpreted(UNINTERPRETED* in);
     virtual void pre_intrinsic(INTRINSIC* in, Statement_list* out);
     virtual void pre_api_call(API_CALL* in, Statement_list* out);
     virtual void pre_code(CODE* in, Statement_list* out);
@@ -56,6 +58,7 @@ public:
 /* Invoked after the children have been transformed */
 public:
     virtual C_file* post_c_file(C_file* in);
+    virtual void post_method(Method* in, Piece_list* out);
     virtual void post_block(Block* in, Piece_list* out);
     virtual void post_if(If* in, Statement_list* out);
     virtual Cond* post_cond(Cond* in);
@@ -72,7 +75,8 @@ public:
     virtual Zvp* post_null(Null* in);
     virtual Zvp* post_deref(Deref* in);
     virtual Zvpp* post_ref(Ref* in);
-    virtual void post_uninterpreted(UNINTERPRETED* in, Piece_list* out);
+    virtual COMMENT* post_comment(COMMENT* in);
+    virtual UNINTERPRETED* post_uninterpreted(UNINTERPRETED* in);
     virtual void post_intrinsic(INTRINSIC* in, Statement_list* out);
     virtual void post_api_call(API_CALL* in, Statement_list* out);
     virtual void post_code(CODE* in, Statement_list* out);
@@ -82,6 +86,7 @@ public:
 /* Transform the children of the node */
 public:
     virtual void children_c_file(C_file* in);
+    virtual void children_method(Method* in);
     virtual void children_block(Block* in);
     virtual void children_if(If* in);
     virtual void children_cond(Cond* in);
@@ -100,6 +105,7 @@ public:
     virtual void children_ref(Ref* in);
 /* Tokens don't have children, so these methods do nothing by default */
 public:
+    virtual void children_comment(COMMENT* in);
     virtual void children_uninterpreted(UNINTERPRETED* in);
     virtual void children_intrinsic(INTRINSIC* in);
     virtual void children_api_call(API_CALL* in);
@@ -112,6 +118,8 @@ public:
 public:
     virtual Piece_list* transform_piece_list(Piece_list* in);
     virtual Piece_list* transform_piece(Piece* in);
+    virtual COMMENT* transform_comment(COMMENT* in);
+    virtual UNINTERPRETED* transform_uninterpreted(UNINTERPRETED* in);
     virtual Statement_list* transform_statement_list(Statement_list* in);
     virtual Statement_list* transform_statement(Statement* in);
     virtual Cond* transform_cond(Cond* in);

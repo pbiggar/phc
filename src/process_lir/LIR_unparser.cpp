@@ -30,7 +30,7 @@ LIR_unparser::unparse (IR::Node* in)
 }
 
 void
-LIR_unparser::pre_uninterpreted (LIR::UNINTERPRETED* in)
+LIR_unparser::post_uninterpreted (LIR::UNINTERPRETED* in)
 {
 //	echo ("{");
 //	inc_indent ();
@@ -38,4 +38,37 @@ LIR_unparser::pre_uninterpreted (LIR::UNINTERPRETED* in)
 	echo_nl ("");
 //	dec_indent ();
 //	echo_nl ("}");
+}
+
+void
+LIR_unparser::post_code (LIR::CODE* in)
+{
+//	echo ("{");
+//	inc_indent ();
+	echo (in->value);
+//	dec_indent ();
+//	echo_nl ("}");
+}
+
+void
+LIR_unparser::pre_comment (LIR::COMMENT* in)
+{
+	echo (in->value);
+}
+
+void
+LIR_unparser::children_block (LIR::Block* in)
+{
+	// TODO: brackets should depend on the pattern - maybe a Scope construct?
+	// TODO: move the comment escaping here
+	
+	visit_comment (in->comment);
+	echo ("{");
+	inc_indent ();
+
+	visit_statement_list (in->statements);
+	echo_nl ("phc_check_invariants (TSRMLS_C);");
+
+	dec_indent ();
+	echo_nl ("}");
 }

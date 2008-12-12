@@ -32,6 +32,7 @@ public:
     virtual void pre_node(Node* in);
     virtual void pre_c_file(C_file* in);
     virtual void pre_piece(Piece* in);
+    virtual void pre_method(Method* in);
     virtual void pre_block(Block* in);
     virtual void pre_statement(Statement* in);
     virtual void pre_action(Action* in);
@@ -52,6 +53,7 @@ public:
     virtual void pre_null(Null* in);
     virtual void pre_deref(Deref* in);
     virtual void pre_ref(Ref* in);
+    virtual void pre_comment(COMMENT* in);
     virtual void pre_uninterpreted(UNINTERPRETED* in);
     virtual void pre_intrinsic(INTRINSIC* in);
     virtual void pre_api_call(API_CALL* in);
@@ -64,6 +66,7 @@ public:
     virtual void post_node(Node* in);
     virtual void post_c_file(C_file* in);
     virtual void post_piece(Piece* in);
+    virtual void post_method(Method* in);
     virtual void post_block(Block* in);
     virtual void post_statement(Statement* in);
     virtual void post_action(Action* in);
@@ -84,6 +87,7 @@ public:
     virtual void post_null(Null* in);
     virtual void post_deref(Deref* in);
     virtual void post_ref(Ref* in);
+    virtual void post_comment(COMMENT* in);
     virtual void post_uninterpreted(UNINTERPRETED* in);
     virtual void post_intrinsic(INTRINSIC* in);
     virtual void post_api_call(API_CALL* in);
@@ -94,6 +98,7 @@ public:
 /* Visit the children of a node */
 public:
     virtual void children_c_file(C_file* in);
+    virtual void children_method(Method* in);
     virtual void children_block(Block* in);
     virtual void children_if(If* in);
     virtual void children_cond(Cond* in);
@@ -112,6 +117,7 @@ public:
     virtual void children_ref(Ref* in);
 /* Tokens don't have children, so these methods do nothing by default */
 public:
+    virtual void children_comment(COMMENT* in);
     virtual void children_uninterpreted(UNINTERPRETED* in);
     virtual void children_intrinsic(INTRINSIC* in);
     virtual void children_api_call(API_CALL* in);
@@ -130,6 +136,7 @@ public:
 /* Do not override unless you know what you are doing */
 public:
     virtual void pre_c_file_chain(C_file* in);
+    virtual void pre_method_chain(Method* in);
     virtual void pre_block_chain(Block* in);
     virtual void pre_if_chain(If* in);
     virtual void pre_cond_chain(Cond* in);
@@ -146,6 +153,7 @@ public:
     virtual void pre_null_chain(Null* in);
     virtual void pre_deref_chain(Deref* in);
     virtual void pre_ref_chain(Ref* in);
+    virtual void pre_comment_chain(COMMENT* in);
     virtual void pre_uninterpreted_chain(UNINTERPRETED* in);
     virtual void pre_intrinsic_chain(INTRINSIC* in);
     virtual void pre_api_call_chain(API_CALL* in);
@@ -158,6 +166,7 @@ public:
 /* Do not override unless you know what you are doing */
 public:
     virtual void post_c_file_chain(C_file* in);
+    virtual void post_method_chain(Method* in);
     virtual void post_block_chain(Block* in);
     virtual void post_if_chain(If* in);
     virtual void post_cond_chain(Cond* in);
@@ -174,6 +183,7 @@ public:
     virtual void post_null_chain(Null* in);
     virtual void post_deref_chain(Deref* in);
     virtual void post_ref_chain(Ref* in);
+    virtual void post_comment_chain(COMMENT* in);
     virtual void post_uninterpreted_chain(UNINTERPRETED* in);
     virtual void post_intrinsic_chain(INTRINSIC* in);
     virtual void post_api_call_chain(API_CALL* in);
@@ -186,6 +196,8 @@ public:
 public:
     virtual void visit_piece_list(Piece_list* in);
     virtual void visit_piece(Piece* in);
+    virtual void visit_comment(COMMENT* in);
+    virtual void visit_uninterpreted(UNINTERPRETED* in);
     virtual void visit_statement_list(Statement_list* in);
     virtual void visit_statement(Statement* in);
     virtual void visit_cond(Cond* in);

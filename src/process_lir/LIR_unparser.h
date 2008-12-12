@@ -21,7 +21,10 @@ public:
 
 public:
 
-	void pre_uninterpreted (LIR::UNINTERPRETED* in);
+	void post_uninterpreted (LIR::UNINTERPRETED* in);
+	void post_code (LIR::CODE* in);
+	void children_block (LIR::Block* in);
+	void pre_comment (LIR::COMMENT* in);
 };
 
 #endif // PHC_LIR_UNPARSER 

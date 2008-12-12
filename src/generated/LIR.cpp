@@ -387,13 +387,357 @@ Zvpp::Zvpp()
 {
 }
 
-Block::Block(Statement_list* statements)
+COMMENT::COMMENT(String* value)
 {
+    this->value = value;
+}
+
+COMMENT::COMMENT()
+{
+    this->value = 0;
+}
+
+void COMMENT::visit(Visitor* visitor)
+{
+    visitor->visit_comment(this);
+}
+
+void COMMENT::transform_children(Transform* transform)
+{
+    transform->children_comment(this);
+}
+
+String* COMMENT::get_value_as_string()
+{
+    return value;
+}
+
+int COMMENT::classid()
+{
+    return ID;
+}
+
+bool COMMENT::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    COMMENT* that = dynamic_cast<COMMENT*>(in);
+    if(that == NULL) return false;
+    
+    if(this->value != NULL && that->value != NULL)
+    	return (*this->value == *that->value);
+    else
+    	return true;
+}
+
+bool COMMENT::equals(Node* in)
+{
+    COMMENT* that = dynamic_cast<COMMENT*>(in);
+    if(that == NULL) return false;
+    
+    if(this->value == NULL || that->value == NULL)
+    {
+    	if(this->value != NULL || that->value != NULL)
+    		return false;
+    }
+    else if(*this->value != *that->value)
+    	return false;
+    
+    return true;
+}
+
+COMMENT* COMMENT::clone()
+{
+    String* value = new String(*this->value);
+    COMMENT* clone = new COMMENT(value);
+    return clone;
+}
+
+Node* COMMENT::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    return NULL;
+}
+
+void COMMENT::find_all(Node* in, Node_list* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+}
+
+void COMMENT::assert_valid()
+{
+    assert(value != NULL);
+}
+
+Method::Method(COMMENT* comment, UNINTERPRETED* entry, Piece_list* pieces, UNINTERPRETED* exit)
+{
+    this->comment = comment;
+    this->entry = entry;
+    this->pieces = pieces;
+    this->exit = exit;
+}
+
+Method::Method()
+{
+    this->comment = 0;
+    this->entry = 0;
+    this->pieces = 0;
+    this->exit = 0;
+}
+
+void Method::visit(Visitor* visitor)
+{
+    visitor->visit_piece(this);
+}
+
+void Method::transform_children(Transform* transform)
+{
+    transform->children_piece(this);
+}
+
+int Method::classid()
+{
+    return ID;
+}
+
+bool Method::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Method* that = dynamic_cast<Method*>(in);
+    if(that == NULL) return false;
+    
+    if(this->comment == NULL)
+    {
+    	if(that->comment != NULL && !that->comment->match(this->comment))
+    		return false;
+    }
+    else if(!this->comment->match(that->comment))
+    	return false;
+    
+    if(this->entry == NULL)
+    {
+    	if(that->entry != NULL && !that->entry->match(this->entry))
+    		return false;
+    }
+    else if(!this->entry->match(that->entry))
+    	return false;
+    
+    if(this->pieces != NULL && that->pieces != NULL)
+    {
+    	Piece_list::const_iterator i, j;
+    	for(
+    		i = this->pieces->begin(), j = that->pieces->begin();
+    		i != this->pieces->end() && j != that->pieces->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL)
+    		{
+    			if(*j != NULL && !(*j)->match(*i))
+    				return false;
+    		}
+    		else if(!(*i)->match(*j))
+    			return false;
+    	}
+    	if(i != this->pieces->end() || j != that->pieces->end())
+    		return false;
+    }
+    
+    if(this->exit == NULL)
+    {
+    	if(that->exit != NULL && !that->exit->match(this->exit))
+    		return false;
+    }
+    else if(!this->exit->match(that->exit))
+    	return false;
+    
+    return true;
+}
+
+bool Method::equals(Node* in)
+{
+    Method* that = dynamic_cast<Method*>(in);
+    if(that == NULL) return false;
+    
+    if(this->comment == NULL || that->comment == NULL)
+    {
+    	if(this->comment != NULL || that->comment != NULL)
+    		return false;
+    }
+    else if(!this->comment->equals(that->comment))
+    	return false;
+    
+    if(this->entry == NULL || that->entry == NULL)
+    {
+    	if(this->entry != NULL || that->entry != NULL)
+    		return false;
+    }
+    else if(!this->entry->equals(that->entry))
+    	return false;
+    
+    if(this->pieces == NULL || that->pieces == NULL)
+    {
+    	if(this->pieces != NULL || that->pieces != NULL)
+    		return false;
+    }
+    else
+    {
+    	Piece_list::const_iterator i, j;
+    	for(
+    		i = this->pieces->begin(), j = that->pieces->begin();
+    		i != this->pieces->end() && j != that->pieces->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL || *j == NULL)
+    		{
+    			if(*i != NULL || *j != NULL)
+    				return false;
+    		}
+    		else if(!(*i)->equals(*j))
+    			return false;
+    	}
+    	if(i != this->pieces->end() || j != that->pieces->end())
+    		return false;
+    }
+    
+    if(this->exit == NULL || that->exit == NULL)
+    {
+    	if(this->exit != NULL || that->exit != NULL)
+    		return false;
+    }
+    else if(!this->exit->equals(that->exit))
+    	return false;
+    
+    return true;
+}
+
+Method* Method::clone()
+{
+    COMMENT* comment = this->comment ? this->comment->clone() : NULL;
+    UNINTERPRETED* entry = this->entry ? this->entry->clone() : NULL;
+    Piece_list* pieces = NULL;
+    if(this->pieces != NULL)
+    {
+    	Piece_list::const_iterator i;
+    	pieces = new Piece_list;
+    	for(i = this->pieces->begin(); i != this->pieces->end(); i++)
+    		pieces->push_back(*i ? (*i)->clone() : NULL);
+    }
+    UNINTERPRETED* exit = this->exit ? this->exit->clone() : NULL;
+    Method* clone = new Method(comment, entry, pieces, exit);
+    return clone;
+}
+
+Node* Method::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    if (this->comment != NULL)
+    {
+    	Node* comment_res = this->comment->find(in);
+    	if (comment_res) return comment_res;
+    }
+    
+    if (this->entry != NULL)
+    {
+    	Node* entry_res = this->entry->find(in);
+    	if (entry_res) return entry_res;
+    }
+    
+    if(this->pieces != NULL)
+    {
+    	Piece_list::const_iterator i;
+    	for(
+    		i = this->pieces->begin();
+    		i != this->pieces->end();
+    		i++)
+    	{
+    		if(*i != NULL)
+    		{
+    			Node* res = (*i)->find (in);
+    			if (res) return res;
+    		}
+    	}
+    }
+    
+    if (this->exit != NULL)
+    {
+    	Node* exit_res = this->exit->find(in);
+    	if (exit_res) return exit_res;
+    }
+    
+    return NULL;
+}
+
+void Method::find_all(Node* in, Node_list* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+    
+    if (this->comment != NULL)
+    	this->comment->find_all(in, out);
+    
+    if (this->entry != NULL)
+    	this->entry->find_all(in, out);
+    
+    if(this->pieces != NULL)
+    {
+    	Piece_list::const_iterator i;
+    	for(
+    		i = this->pieces->begin();
+    		i != this->pieces->end();
+    		i++)
+    	{
+    		if(*i != NULL)
+    		{
+    			(*i)->find_all (in, out);
+    		}
+    	}
+    }
+    
+    if (this->exit != NULL)
+    	this->exit->find_all(in, out);
+    
+}
+
+void Method::assert_valid()
+{
+    assert(comment != NULL);
+    comment->assert_valid();
+    assert(entry != NULL);
+    entry->assert_valid();
+    assert(pieces != NULL);
+    {
+    	Piece_list::const_iterator i;
+    	for(i = this->pieces->begin(); i != this->pieces->end(); i++)
+    	{
+    		assert(*i != NULL);
+    		(*i)->assert_valid();
+    	}
+    }
+    assert(exit != NULL);
+    exit->assert_valid();
+}
+
+Block::Block(COMMENT* comment, Statement_list* statements)
+{
+    this->comment = comment;
     this->statements = statements;
 }
 
 Block::Block()
 {
+    this->comment = 0;
     this->statements = 0;
 }
 
@@ -422,6 +766,14 @@ bool Block::match(Node* in)
     Block* that = dynamic_cast<Block*>(in);
     if(that == NULL) return false;
     
+    if(this->comment == NULL)
+    {
+    	if(that->comment != NULL && !that->comment->match(this->comment))
+    		return false;
+    }
+    else if(!this->comment->match(that->comment))
+    	return false;
+    
     if(this->statements != NULL && that->statements != NULL)
     {
     	Statement_list::const_iterator i, j;
@@ -449,6 +801,14 @@ bool Block::equals(Node* in)
 {
     Block* that = dynamic_cast<Block*>(in);
     if(that == NULL) return false;
+    
+    if(this->comment == NULL || that->comment == NULL)
+    {
+    	if(this->comment != NULL || that->comment != NULL)
+    		return false;
+    }
+    else if(!this->comment->equals(that->comment))
+    	return false;
     
     if(this->statements == NULL || that->statements == NULL)
     {
@@ -480,6 +840,7 @@ bool Block::equals(Node* in)
 
 Block* Block::clone()
 {
+    COMMENT* comment = this->comment ? this->comment->clone() : NULL;
     Statement_list* statements = NULL;
     if(this->statements != NULL)
     {
@@ -488,7 +849,7 @@ Block* Block::clone()
     	for(i = this->statements->begin(); i != this->statements->end(); i++)
     		statements->push_back(*i ? (*i)->clone() : NULL);
     }
-    Block* clone = new Block(statements);
+    Block* clone = new Block(comment, statements);
     return clone;
 }
 
@@ -496,6 +857,12 @@ Node* Block::find(Node* in)
 {
     if (this->match (in))
     	return this;
+    
+    if (this->comment != NULL)
+    {
+    	Node* comment_res = this->comment->find(in);
+    	if (comment_res) return comment_res;
+    }
     
     if(this->statements != NULL)
     {
@@ -521,6 +888,9 @@ void Block::find_all(Node* in, Node_list* out)
     if (this->match (in))
     	out->push_back (this);
     
+    if (this->comment != NULL)
+    	this->comment->find_all(in, out);
+    
     if(this->statements != NULL)
     {
     	Statement_list::const_iterator i;
@@ -540,6 +910,8 @@ void Block::find_all(Node* in, Node_list* out)
 
 void Block::assert_valid()
 {
+    assert(comment != NULL);
+    comment->assert_valid();
     assert(statements != NULL);
     {
     	Statement_list::const_iterator i;
@@ -549,6 +921,14 @@ void Block::assert_valid()
     		(*i)->assert_valid();
     	}
     }
+}
+
+Block::Block(String* comment, Statement_list* statements)
+{
+    {
+		this->comment = new COMMENT (comment);
+		this->statements = statements;
+	}
 }
 
 Action::Action()
@@ -1184,12 +1564,12 @@ UNINTERPRETED::UNINTERPRETED()
 
 void UNINTERPRETED::visit(Visitor* visitor)
 {
-    visitor->visit_piece(this);
+    visitor->visit_uninterpreted(this);
 }
 
 void UNINTERPRETED::transform_children(Transform* transform)
 {
-    transform->children_piece(this);
+    transform->children_uninterpreted(this);
 }
 
 String* UNINTERPRETED::get_value_as_string()

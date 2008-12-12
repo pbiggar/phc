@@ -37,9 +37,13 @@ no source_rep;
 
 C_file ::= Piece* ;
 
-Piece ::= Block | UNINTERPRETED ;
+-- This is slightly more general than we need, since we dont have nested
+-- methods, but it makes the defintion of generate_lir easier.
+Piece ::= Method | Block | UNINTERPRETED ;
 
-Block ::= Statement* ;
+Method ::= COMMENT entry:UNINTERPRETED Piece* exit:UNINTERPRETED ;
+
+Block ::= COMMENT Statement* ;
 
 Statement ::=    Action				-- (possibly) side-effecting statement 
 					| If
@@ -151,5 +155,15 @@ public:
 	C_file()
 	{
 		pieces = new Piece_list;
+	}
+};
+
+class Block
+{
+public:
+	Block (String* comment, Statement_list* statements)
+	{
+		this->comment = new COMMENT (comment);
+		this->statements = statements;
 	}
 };
