@@ -47,6 +47,7 @@ public:
     virtual void pre_dec_ref(Dec_ref* in);
     virtual void pre_destruct(Destruct* in);
     virtual void pre_is_ref(Is_ref* in);
+    virtual void pre_equals(Equals* in);
     virtual void pre_zvp(Zvp* in);
     virtual void pre_zvpp(Zvpp* in);
     virtual void pre_uninitialized(Uninitialized* in);
@@ -81,6 +82,7 @@ public:
     virtual void post_dec_ref(Dec_ref* in);
     virtual void post_destruct(Destruct* in);
     virtual void post_is_ref(Is_ref* in);
+    virtual void post_equals(Equals* in);
     virtual void post_zvp(Zvp* in);
     virtual void post_zvpp(Zvpp* in);
     virtual void post_uninitialized(Uninitialized* in);
@@ -101,7 +103,6 @@ public:
     virtual void children_method(Method* in);
     virtual void children_block(Block* in);
     virtual void children_if(If* in);
-    virtual void children_cond(Cond* in);
     virtual void children_assign_zvp(Assign_zvp* in);
     virtual void children_assign_zvpp(Assign_zvpp* in);
     virtual void children_inc_ref(Inc_ref* in);
@@ -111,6 +112,7 @@ public:
     virtual void children_dec_ref(Dec_ref* in);
     virtual void children_destruct(Destruct* in);
     virtual void children_is_ref(Is_ref* in);
+    virtual void children_equals(Equals* in);
     virtual void children_uninitialized(Uninitialized* in);
     virtual void children_null(Null* in);
     virtual void children_deref(Deref* in);
@@ -139,7 +141,6 @@ public:
     virtual void pre_method_chain(Method* in);
     virtual void pre_block_chain(Block* in);
     virtual void pre_if_chain(If* in);
-    virtual void pre_cond_chain(Cond* in);
     virtual void pre_assign_zvp_chain(Assign_zvp* in);
     virtual void pre_assign_zvpp_chain(Assign_zvpp* in);
     virtual void pre_inc_ref_chain(Inc_ref* in);
@@ -149,6 +150,7 @@ public:
     virtual void pre_dec_ref_chain(Dec_ref* in);
     virtual void pre_destruct_chain(Destruct* in);
     virtual void pre_is_ref_chain(Is_ref* in);
+    virtual void pre_equals_chain(Equals* in);
     virtual void pre_uninitialized_chain(Uninitialized* in);
     virtual void pre_null_chain(Null* in);
     virtual void pre_deref_chain(Deref* in);
@@ -169,7 +171,6 @@ public:
     virtual void post_method_chain(Method* in);
     virtual void post_block_chain(Block* in);
     virtual void post_if_chain(If* in);
-    virtual void post_cond_chain(Cond* in);
     virtual void post_assign_zvp_chain(Assign_zvp* in);
     virtual void post_assign_zvpp_chain(Assign_zvpp* in);
     virtual void post_inc_ref_chain(Inc_ref* in);
@@ -179,6 +180,7 @@ public:
     virtual void post_dec_ref_chain(Dec_ref* in);
     virtual void post_destruct_chain(Destruct* in);
     virtual void post_is_ref_chain(Is_ref* in);
+    virtual void post_equals_chain(Equals* in);
     virtual void post_uninitialized_chain(Uninitialized* in);
     virtual void post_null_chain(Null* in);
     virtual void post_deref_chain(Deref* in);
@@ -201,7 +203,6 @@ public:
     virtual void visit_statement_list(Statement_list* in);
     virtual void visit_statement(Statement* in);
     virtual void visit_cond(Cond* in);
-    virtual void visit_is_ref(Is_ref* in);
     virtual void visit_zvp(Zvp* in);
     virtual void visit_zvpp(Zvpp* in);
     virtual void visit_c_file(C_file* in);
@@ -210,6 +211,7 @@ public:
 public:
     virtual void pre_piece_chain(Piece* in);
     virtual void pre_statement_chain(Statement* in);
+    virtual void pre_cond_chain(Cond* in);
     virtual void pre_zvp_chain(Zvp* in);
     virtual void pre_zvpp_chain(Zvpp* in);
 /* Invoke the right post-chain (manual dispatching) */
@@ -217,6 +219,7 @@ public:
 public:
     virtual void post_piece_chain(Piece* in);
     virtual void post_statement_chain(Statement* in);
+    virtual void post_cond_chain(Cond* in);
     virtual void post_zvp_chain(Zvp* in);
     virtual void post_zvpp_chain(Zvpp* in);
 /* Invoke the right visit-children (manual dispatching) */
@@ -224,6 +227,7 @@ public:
 public:
     virtual void children_piece(Piece* in);
     virtual void children_statement(Statement* in);
+    virtual void children_cond(Cond* in);
     virtual void children_zvp(Zvp* in);
     virtual void children_zvpp(Zvpp* in);
 };

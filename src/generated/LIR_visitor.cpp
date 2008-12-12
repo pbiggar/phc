@@ -78,6 +78,10 @@ void Visitor::pre_is_ref(Is_ref* in)
 {
 }
 
+void Visitor::pre_equals(Equals* in)
+{
+}
+
 void Visitor::pre_zvp(Zvp* in)
 {
 }
@@ -207,6 +211,10 @@ void Visitor::post_is_ref(Is_ref* in)
 {
 }
 
+void Visitor::post_equals(Equals* in)
+{
+}
+
 void Visitor::post_zvp(Zvp* in)
 {
 }
@@ -290,11 +298,6 @@ void Visitor::children_if(If* in)
     visit_statement_list(in->if_false);
 }
 
-void Visitor::children_cond(Cond* in)
-{
-    visit_is_ref(in->is_ref);
-}
-
 void Visitor::children_assign_zvp(Assign_zvp* in)
 {
     visit_zvp(in->lhs);
@@ -341,6 +344,12 @@ void Visitor::children_destruct(Destruct* in)
 void Visitor::children_is_ref(Is_ref* in)
 {
     visit_zvp(in->zvp);
+}
+
+void Visitor::children_equals(Equals* in)
+{
+    visit_zvp(in->lhs);
+    visit_zvp(in->rhs);
 }
 
 void Visitor::children_uninitialized(Uninitialized* in)
@@ -444,12 +453,6 @@ void Visitor::pre_if_chain(If* in)
     pre_if((If*) in);
 }
 
-void Visitor::pre_cond_chain(Cond* in)
-{
-    pre_node((Node*) in);
-    pre_cond((Cond*) in);
-}
-
 void Visitor::pre_assign_zvp_chain(Assign_zvp* in)
 {
     pre_node((Node*) in);
@@ -517,7 +520,15 @@ void Visitor::pre_destruct_chain(Destruct* in)
 void Visitor::pre_is_ref_chain(Is_ref* in)
 {
     pre_node((Node*) in);
+    pre_cond((Cond*) in);
     pre_is_ref((Is_ref*) in);
+}
+
+void Visitor::pre_equals_chain(Equals* in)
+{
+    pre_node((Node*) in);
+    pre_cond((Cond*) in);
+    pre_equals((Equals*) in);
 }
 
 void Visitor::pre_uninitialized_chain(Uninitialized* in)
@@ -633,12 +644,6 @@ void Visitor::post_if_chain(If* in)
     post_node((Node*) in);
 }
 
-void Visitor::post_cond_chain(Cond* in)
-{
-    post_cond((Cond*) in);
-    post_node((Node*) in);
-}
-
 void Visitor::post_assign_zvp_chain(Assign_zvp* in)
 {
     post_assign_zvp((Assign_zvp*) in);
@@ -706,6 +711,14 @@ void Visitor::post_destruct_chain(Destruct* in)
 void Visitor::post_is_ref_chain(Is_ref* in)
 {
     post_is_ref((Is_ref*) in);
+    post_cond((Cond*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_equals_chain(Equals* in)
+{
+    post_equals((Equals*) in);
+    post_cond((Cond*) in);
     post_node((Node*) in);
 }
 
@@ -892,18 +905,6 @@ void Visitor::visit_cond(Cond* in)
     }
 }
 
-void Visitor::visit_is_ref(Is_ref* in)
-{
-    if(in == NULL)
-    	visit_null("LIR", "Is_ref");
-    else
-    {
-    	pre_is_ref_chain(in);
-    	children_is_ref(in);
-    	post_is_ref_chain(in);
-    }
-}
-
 void Visitor::visit_zvp(Zvp* in)
 {
     if(in == NULL)
@@ -997,6 +998,19 @@ void Visitor::pre_statement_chain(Statement* in)
     	break;
     case CODE::ID:
     	pre_code_chain(dynamic_cast<CODE*>(in));
+    	break;
+    }
+}
+
+void Visitor::pre_cond_chain(Cond* in)
+{
+    switch(in->classid())
+    {
+    case Is_ref::ID:
+    	pre_is_ref_chain(dynamic_cast<Is_ref*>(in));
+    	break;
+    case Equals::ID:
+    	pre_equals_chain(dynamic_cast<Equals*>(in));
     	break;
     }
 }
@@ -1097,6 +1111,19 @@ void Visitor::post_statement_chain(Statement* in)
     }
 }
 
+void Visitor::post_cond_chain(Cond* in)
+{
+    switch(in->classid())
+    {
+    case Is_ref::ID:
+    	post_is_ref_chain(dynamic_cast<Is_ref*>(in));
+    	break;
+    case Equals::ID:
+    	post_equals_chain(dynamic_cast<Equals*>(in));
+    	break;
+    }
+}
+
 void Visitor::post_zvp_chain(Zvp* in)
 {
     switch(in->classid())
@@ -1189,6 +1216,19 @@ void Visitor::children_statement(Statement* in)
     	break;
     case CODE::ID:
     	children_code(dynamic_cast<CODE*>(in));
+    	break;
+    }
+}
+
+void Visitor::children_cond(Cond* in)
+{
+    switch(in->classid())
+    {
+    case Is_ref::ID:
+    	children_is_ref(dynamic_cast<Is_ref*>(in));
+    	break;
+    case Equals::ID:
+    	children_equals(dynamic_cast<Equals*>(in));
     	break;
     }
 }

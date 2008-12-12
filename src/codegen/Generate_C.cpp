@@ -709,14 +709,23 @@ public:
 
 	LIR::Piece* generate_lir (String* comment, Generate_C* gen)
 	{
+		using namespace LIR;
+
 		LIR::Statement_list* stmts = new LIR::Statement_list;
 
 		if (!agn->is_ref)
 		{
 			STRAIGHT (get_st_entry (LOCAL, "p_lhs", lhs->value));
 			STRAIGHT (read_rvalue (LOCAL, "rhs", rhs->value));
-			STRAIGHT ("if (*p_lhs != rhs)\n");
-			STRAIGHT ("write_var (p_lhs, rhs);\n");
+			stmts->push_back (
+				new If (
+					new Equals (
+						new Deref (
+							new ZVPP ("p_lhs")),
+						new ZVP ("rhs")),
+						new LIR::Statement_list (
+							new CODE ("write_var (p_lhs, rhs);\n")),
+						new LIR::Statement_list));
 		}
 		else
 		{

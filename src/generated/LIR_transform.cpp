@@ -26,11 +26,6 @@ void Transform::pre_if(If* in, Statement_list* out)
     out->push_back(in);
 }
 
-Cond* Transform::pre_cond(Cond* in)
-{
-    return in;
-}
-
 void Transform::pre_assign_zvp(Assign_zvp* in, Statement_list* out)
 {
     out->push_back(in);
@@ -71,7 +66,12 @@ void Transform::pre_destruct(Destruct* in, Statement_list* out)
     out->push_back(in);
 }
 
-Is_ref* Transform::pre_is_ref(Is_ref* in)
+Cond* Transform::pre_is_ref(Is_ref* in)
+{
+    return in;
+}
+
+Cond* Transform::pre_equals(Equals* in)
 {
     return in;
 }
@@ -157,11 +157,6 @@ void Transform::post_if(If* in, Statement_list* out)
     out->push_back(in);
 }
 
-Cond* Transform::post_cond(Cond* in)
-{
-    return in;
-}
-
 void Transform::post_assign_zvp(Assign_zvp* in, Statement_list* out)
 {
     out->push_back(in);
@@ -202,7 +197,12 @@ void Transform::post_destruct(Destruct* in, Statement_list* out)
     out->push_back(in);
 }
 
-Is_ref* Transform::post_is_ref(Is_ref* in)
+Cond* Transform::post_is_ref(Is_ref* in)
+{
+    return in;
+}
+
+Cond* Transform::post_equals(Equals* in)
 {
     return in;
 }
@@ -294,11 +294,6 @@ void Transform::children_if(If* in)
     in->if_false = transform_statement_list(in->if_false);
 }
 
-void Transform::children_cond(Cond* in)
-{
-    in->is_ref = transform_is_ref(in->is_ref);
-}
-
 void Transform::children_assign_zvp(Assign_zvp* in)
 {
     in->lhs = transform_zvp(in->lhs);
@@ -345,6 +340,12 @@ void Transform::children_destruct(Destruct* in)
 void Transform::children_is_ref(Is_ref* in)
 {
     in->zvp = transform_zvp(in->zvp);
+}
+
+void Transform::children_equals(Equals* in)
+{
+    in->lhs = transform_zvp(in->lhs);
+    in->rhs = transform_zvp(in->rhs);
 }
 
 void Transform::children_uninitialized(Uninitialized* in)
@@ -517,22 +518,6 @@ Cond* Transform::transform_cond(Cond* in)
     {
     	children_cond(out);
     	out = post_cond(out);
-    }
-    
-    return out;
-}
-
-Is_ref* Transform::transform_is_ref(Is_ref* in)
-{
-    if(in == NULL) return NULL;
-    
-    Is_ref* out;
-    
-    out = pre_is_ref(in);
-    if(out != NULL)
-    {
-    	children_is_ref(out);
-    	out = post_is_ref(out);
     }
     
     return out;
@@ -733,6 +718,16 @@ void Transform::pre_statement(Statement* in, Statement_list* out)
     assert(0);
 }
 
+Cond* Transform::pre_cond(Cond* in)
+{
+    switch(in->classid())
+    {
+    case Is_ref::ID: return pre_is_ref(dynamic_cast<Is_ref*>(in));
+    case Equals::ID: return pre_equals(dynamic_cast<Equals*>(in));
+    }
+    assert(0);
+}
+
 Zvp* Transform::pre_zvp(Zvp* in)
 {
     switch(in->classid())
@@ -903,6 +898,16 @@ void Transform::post_statement(Statement* in, Statement_list* out)
     assert(0);
 }
 
+Cond* Transform::post_cond(Cond* in)
+{
+    switch(in->classid())
+    {
+    case Is_ref::ID: return post_is_ref(dynamic_cast<Is_ref*>(in));
+    case Equals::ID: return post_equals(dynamic_cast<Equals*>(in));
+    }
+    assert(0);
+}
+
 Zvp* Transform::post_zvp(Zvp* in)
 {
     switch(in->classid())
@@ -983,6 +988,19 @@ void Transform::children_statement(Statement* in)
     	break;
     case CODE::ID:
     	children_code(dynamic_cast<CODE*>(in));
+    	break;
+    }
+}
+
+void Transform::children_cond(Cond* in)
+{
+    switch(in->classid())
+    {
+    case Is_ref::ID:
+    	children_is_ref(dynamic_cast<Is_ref*>(in));
+    	break;
+    case Equals::ID:
+    	children_equals(dynamic_cast<Equals*>(in));
     	break;
     }
 }

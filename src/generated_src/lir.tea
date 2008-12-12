@@ -69,7 +69,7 @@ Action ::=	  Assign_zvp
 If ::=	Cond if_true:Statement* if_false:Statement* ;
 
 Cond ::=		  Is_ref
---				| Equal
+				| Equals
 --				| Is_copy_on_write
 --				| Is_change_on_write
 				;
@@ -112,6 +112,9 @@ Destruct		::= Zvpp ;
 
 -- lhs->is_ref
 Is_ref ::= Zvp;
+
+-- lhs == rhs
+Equals ::= lhs:Zvp rhs:Zvp ;
 
 
 {-
@@ -165,5 +168,32 @@ public:
 	{
 		this->comment = new COMMENT (comment);
 		this->statements = statements;
+	}
+};
+
+class ZVPP
+{
+public:
+	ZVPP (string value)
+	{
+		this->value = new String (value);
+	}
+};
+
+class ZVP
+{
+public:
+	ZVP (string value)
+	{
+		this->value = new String (value);
+	}
+};
+
+class CODE
+{
+public:
+	CODE (string value)
+	{
+		this->value = new String (value);
 	}
 };

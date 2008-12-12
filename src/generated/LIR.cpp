@@ -181,202 +181,8 @@ Statement::Statement()
 {
 }
 
-Cond::Cond(Is_ref* is_ref)
-{
-    this->is_ref = is_ref;
-}
-
 Cond::Cond()
 {
-    this->is_ref = 0;
-}
-
-void Cond::visit(Visitor* visitor)
-{
-    visitor->visit_cond(this);
-}
-
-void Cond::transform_children(Transform* transform)
-{
-    transform->children_cond(this);
-}
-
-int Cond::classid()
-{
-    return ID;
-}
-
-bool Cond::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    Cond* that = dynamic_cast<Cond*>(in);
-    if(that == NULL) return false;
-    
-    if(this->is_ref == NULL)
-    {
-    	if(that->is_ref != NULL && !that->is_ref->match(this->is_ref))
-    		return false;
-    }
-    else if(!this->is_ref->match(that->is_ref))
-    	return false;
-    
-    return true;
-}
-
-bool Cond::equals(Node* in)
-{
-    Cond* that = dynamic_cast<Cond*>(in);
-    if(that == NULL) return false;
-    
-    if(this->is_ref == NULL || that->is_ref == NULL)
-    {
-    	if(this->is_ref != NULL || that->is_ref != NULL)
-    		return false;
-    }
-    else if(!this->is_ref->equals(that->is_ref))
-    	return false;
-    
-    return true;
-}
-
-Cond* Cond::clone()
-{
-    Is_ref* is_ref = this->is_ref ? this->is_ref->clone() : NULL;
-    Cond* clone = new Cond(is_ref);
-    return clone;
-}
-
-Node* Cond::find(Node* in)
-{
-    if (this->match (in))
-    	return this;
-    
-    if (this->is_ref != NULL)
-    {
-    	Node* is_ref_res = this->is_ref->find(in);
-    	if (is_ref_res) return is_ref_res;
-    }
-    
-    return NULL;
-}
-
-void Cond::find_all(Node* in, Node_list* out)
-{
-    if (this->match (in))
-    	out->push_back (this);
-    
-    if (this->is_ref != NULL)
-    	this->is_ref->find_all(in, out);
-    
-}
-
-void Cond::assert_valid()
-{
-    assert(is_ref != NULL);
-    is_ref->assert_valid();
-}
-
-Is_ref::Is_ref(Zvp* zvp)
-{
-    this->zvp = zvp;
-}
-
-Is_ref::Is_ref()
-{
-    this->zvp = 0;
-}
-
-void Is_ref::visit(Visitor* visitor)
-{
-    visitor->visit_is_ref(this);
-}
-
-void Is_ref::transform_children(Transform* transform)
-{
-    transform->children_is_ref(this);
-}
-
-int Is_ref::classid()
-{
-    return ID;
-}
-
-bool Is_ref::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    Is_ref* that = dynamic_cast<Is_ref*>(in);
-    if(that == NULL) return false;
-    
-    if(this->zvp == NULL)
-    {
-    	if(that->zvp != NULL && !that->zvp->match(this->zvp))
-    		return false;
-    }
-    else if(!this->zvp->match(that->zvp))
-    	return false;
-    
-    return true;
-}
-
-bool Is_ref::equals(Node* in)
-{
-    Is_ref* that = dynamic_cast<Is_ref*>(in);
-    if(that == NULL) return false;
-    
-    if(this->zvp == NULL || that->zvp == NULL)
-    {
-    	if(this->zvp != NULL || that->zvp != NULL)
-    		return false;
-    }
-    else if(!this->zvp->equals(that->zvp))
-    	return false;
-    
-    return true;
-}
-
-Is_ref* Is_ref::clone()
-{
-    Zvp* zvp = this->zvp ? this->zvp->clone() : NULL;
-    Is_ref* clone = new Is_ref(zvp);
-    return clone;
-}
-
-Node* Is_ref::find(Node* in)
-{
-    if (this->match (in))
-    	return this;
-    
-    if (this->zvp != NULL)
-    {
-    	Node* zvp_res = this->zvp->find(in);
-    	if (zvp_res) return zvp_res;
-    }
-    
-    return NULL;
-}
-
-void Is_ref::find_all(Node* in, Node_list* out)
-{
-    if (this->match (in))
-    	out->push_back (this);
-    
-    if (this->zvp != NULL)
-    	this->zvp->find_all(in, out);
-    
-}
-
-void Is_ref::assert_valid()
-{
-    assert(zvp != NULL);
-    zvp->assert_valid();
 }
 
 Zvp::Zvp()
@@ -1224,6 +1030,234 @@ void If::assert_valid()
     }
 }
 
+Is_ref::Is_ref(Zvp* zvp)
+{
+    this->zvp = zvp;
+}
+
+Is_ref::Is_ref()
+{
+    this->zvp = 0;
+}
+
+void Is_ref::visit(Visitor* visitor)
+{
+    visitor->visit_cond(this);
+}
+
+void Is_ref::transform_children(Transform* transform)
+{
+    transform->children_cond(this);
+}
+
+int Is_ref::classid()
+{
+    return ID;
+}
+
+bool Is_ref::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Is_ref* that = dynamic_cast<Is_ref*>(in);
+    if(that == NULL) return false;
+    
+    if(this->zvp == NULL)
+    {
+    	if(that->zvp != NULL && !that->zvp->match(this->zvp))
+    		return false;
+    }
+    else if(!this->zvp->match(that->zvp))
+    	return false;
+    
+    return true;
+}
+
+bool Is_ref::equals(Node* in)
+{
+    Is_ref* that = dynamic_cast<Is_ref*>(in);
+    if(that == NULL) return false;
+    
+    if(this->zvp == NULL || that->zvp == NULL)
+    {
+    	if(this->zvp != NULL || that->zvp != NULL)
+    		return false;
+    }
+    else if(!this->zvp->equals(that->zvp))
+    	return false;
+    
+    return true;
+}
+
+Is_ref* Is_ref::clone()
+{
+    Zvp* zvp = this->zvp ? this->zvp->clone() : NULL;
+    Is_ref* clone = new Is_ref(zvp);
+    return clone;
+}
+
+Node* Is_ref::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    if (this->zvp != NULL)
+    {
+    	Node* zvp_res = this->zvp->find(in);
+    	if (zvp_res) return zvp_res;
+    }
+    
+    return NULL;
+}
+
+void Is_ref::find_all(Node* in, Node_list* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+    
+    if (this->zvp != NULL)
+    	this->zvp->find_all(in, out);
+    
+}
+
+void Is_ref::assert_valid()
+{
+    assert(zvp != NULL);
+    zvp->assert_valid();
+}
+
+Equals::Equals(Zvp* lhs, Zvp* rhs)
+{
+    this->lhs = lhs;
+    this->rhs = rhs;
+}
+
+Equals::Equals()
+{
+    this->lhs = 0;
+    this->rhs = 0;
+}
+
+void Equals::visit(Visitor* visitor)
+{
+    visitor->visit_cond(this);
+}
+
+void Equals::transform_children(Transform* transform)
+{
+    transform->children_cond(this);
+}
+
+int Equals::classid()
+{
+    return ID;
+}
+
+bool Equals::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Equals* that = dynamic_cast<Equals*>(in);
+    if(that == NULL) return false;
+    
+    if(this->lhs == NULL)
+    {
+    	if(that->lhs != NULL && !that->lhs->match(this->lhs))
+    		return false;
+    }
+    else if(!this->lhs->match(that->lhs))
+    	return false;
+    
+    if(this->rhs == NULL)
+    {
+    	if(that->rhs != NULL && !that->rhs->match(this->rhs))
+    		return false;
+    }
+    else if(!this->rhs->match(that->rhs))
+    	return false;
+    
+    return true;
+}
+
+bool Equals::equals(Node* in)
+{
+    Equals* that = dynamic_cast<Equals*>(in);
+    if(that == NULL) return false;
+    
+    if(this->lhs == NULL || that->lhs == NULL)
+    {
+    	if(this->lhs != NULL || that->lhs != NULL)
+    		return false;
+    }
+    else if(!this->lhs->equals(that->lhs))
+    	return false;
+    
+    if(this->rhs == NULL || that->rhs == NULL)
+    {
+    	if(this->rhs != NULL || that->rhs != NULL)
+    		return false;
+    }
+    else if(!this->rhs->equals(that->rhs))
+    	return false;
+    
+    return true;
+}
+
+Equals* Equals::clone()
+{
+    Zvp* lhs = this->lhs ? this->lhs->clone() : NULL;
+    Zvp* rhs = this->rhs ? this->rhs->clone() : NULL;
+    Equals* clone = new Equals(lhs, rhs);
+    return clone;
+}
+
+Node* Equals::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    if (this->lhs != NULL)
+    {
+    	Node* lhs_res = this->lhs->find(in);
+    	if (lhs_res) return lhs_res;
+    }
+    
+    if (this->rhs != NULL)
+    {
+    	Node* rhs_res = this->rhs->find(in);
+    	if (rhs_res) return rhs_res;
+    }
+    
+    return NULL;
+}
+
+void Equals::find_all(Node* in, Node_list* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+    
+    if (this->lhs != NULL)
+    	this->lhs->find_all(in, out);
+    
+    if (this->rhs != NULL)
+    	this->rhs->find_all(in, out);
+    
+}
+
+void Equals::assert_valid()
+{
+    assert(lhs != NULL);
+    lhs->assert_valid();
+    assert(rhs != NULL);
+    rhs->assert_valid();
+}
+
 Uninitialized::Uninitialized()
 {
 }
@@ -1904,6 +1938,13 @@ void CODE::assert_valid()
     assert(value != NULL);
 }
 
+CODE::CODE(string value)
+{
+    {
+		this->value = new String (value);
+	}
+}
+
 ZVP::ZVP(String* value)
 {
     this->value = value;
@@ -1990,6 +2031,13 @@ void ZVP::find_all(Node* in, Node_list* out)
 void ZVP::assert_valid()
 {
     assert(value != NULL);
+}
+
+ZVP::ZVP(string value)
+{
+    {
+		this->value = new String (value);
+	}
 }
 
 LITERAL::LITERAL(String* value)
@@ -2166,6 +2214,13 @@ void ZVPP::find_all(Node* in, Node_list* out)
 void ZVPP::assert_valid()
 {
     assert(value != NULL);
+}
+
+ZVPP::ZVPP(string value)
+{
+    {
+		this->value = new String (value);
+	}
 }
 
 Assign_zvp::Assign_zvp(Zvp* lhs, Zvp* rhs)

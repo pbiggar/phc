@@ -46,12 +46,6 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new If(cond, if_true, if_false);
     }
-    if(!strcmp(type_id, "Cond"))
-    {
-    	Is_ref* is_ref = dynamic_cast<Is_ref*>(*i++);
-    	assert(i == args->end());
-    	return new Cond(is_ref);
-    }
     if(!strcmp(type_id, "Assign_zvp"))
     {
     	Zvp* lhs = dynamic_cast<Zvp*>(*i++);
@@ -108,6 +102,13 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	Zvp* zvp = dynamic_cast<Zvp*>(*i++);
     	assert(i == args->end());
     	return new Is_ref(zvp);
+    }
+    if(!strcmp(type_id, "Equals"))
+    {
+    	Zvp* lhs = dynamic_cast<Zvp*>(*i++);
+    	Zvp* rhs = dynamic_cast<Zvp*>(*i++);
+    	assert(i == args->end());
+    	return new Equals(lhs, rhs);
     }
     if(!strcmp(type_id, "Uninitialized"))
     {

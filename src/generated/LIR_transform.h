@@ -33,7 +33,6 @@ public:
     virtual void pre_method(Method* in, Piece_list* out);
     virtual void pre_block(Block* in, Piece_list* out);
     virtual void pre_if(If* in, Statement_list* out);
-    virtual Cond* pre_cond(Cond* in);
     virtual void pre_assign_zvp(Assign_zvp* in, Statement_list* out);
     virtual void pre_assign_zvpp(Assign_zvpp* in, Statement_list* out);
     virtual void pre_inc_ref(Inc_ref* in, Statement_list* out);
@@ -42,7 +41,8 @@ public:
     virtual void pre_separate(Separate* in, Statement_list* out);
     virtual void pre_dec_ref(Dec_ref* in, Statement_list* out);
     virtual void pre_destruct(Destruct* in, Statement_list* out);
-    virtual Is_ref* pre_is_ref(Is_ref* in);
+    virtual Cond* pre_is_ref(Is_ref* in);
+    virtual Cond* pre_equals(Equals* in);
     virtual Zvp* pre_uninitialized(Uninitialized* in);
     virtual Zvp* pre_null(Null* in);
     virtual Zvp* pre_deref(Deref* in);
@@ -61,7 +61,6 @@ public:
     virtual void post_method(Method* in, Piece_list* out);
     virtual void post_block(Block* in, Piece_list* out);
     virtual void post_if(If* in, Statement_list* out);
-    virtual Cond* post_cond(Cond* in);
     virtual void post_assign_zvp(Assign_zvp* in, Statement_list* out);
     virtual void post_assign_zvpp(Assign_zvpp* in, Statement_list* out);
     virtual void post_inc_ref(Inc_ref* in, Statement_list* out);
@@ -70,7 +69,8 @@ public:
     virtual void post_separate(Separate* in, Statement_list* out);
     virtual void post_dec_ref(Dec_ref* in, Statement_list* out);
     virtual void post_destruct(Destruct* in, Statement_list* out);
-    virtual Is_ref* post_is_ref(Is_ref* in);
+    virtual Cond* post_is_ref(Is_ref* in);
+    virtual Cond* post_equals(Equals* in);
     virtual Zvp* post_uninitialized(Uninitialized* in);
     virtual Zvp* post_null(Null* in);
     virtual Zvp* post_deref(Deref* in);
@@ -89,7 +89,6 @@ public:
     virtual void children_method(Method* in);
     virtual void children_block(Block* in);
     virtual void children_if(If* in);
-    virtual void children_cond(Cond* in);
     virtual void children_assign_zvp(Assign_zvp* in);
     virtual void children_assign_zvpp(Assign_zvpp* in);
     virtual void children_inc_ref(Inc_ref* in);
@@ -99,6 +98,7 @@ public:
     virtual void children_dec_ref(Dec_ref* in);
     virtual void children_destruct(Destruct* in);
     virtual void children_is_ref(Is_ref* in);
+    virtual void children_equals(Equals* in);
     virtual void children_uninitialized(Uninitialized* in);
     virtual void children_null(Null* in);
     virtual void children_deref(Deref* in);
@@ -123,7 +123,6 @@ public:
     virtual Statement_list* transform_statement_list(Statement_list* in);
     virtual Statement_list* transform_statement(Statement* in);
     virtual Cond* transform_cond(Cond* in);
-    virtual Is_ref* transform_is_ref(Is_ref* in);
     virtual Zvp* transform_zvp(Zvp* in);
     virtual Zvpp* transform_zvpp(Zvpp* in);
     virtual C_file* transform_c_file(C_file* in);
@@ -132,6 +131,7 @@ public:
 public:
     virtual void pre_piece(Piece* in, Piece_list* out);
     virtual void pre_statement(Statement* in, Statement_list* out);
+    virtual Cond* pre_cond(Cond* in);
     virtual Zvp* pre_zvp(Zvp* in);
     virtual Zvpp* pre_zvpp(Zvpp* in);
 /* Invoke the right post-transform (manual dispatching) */
@@ -139,6 +139,7 @@ public:
 public:
     virtual void post_piece(Piece* in, Piece_list* out);
     virtual void post_statement(Statement* in, Statement_list* out);
+    virtual Cond* post_cond(Cond* in);
     virtual Zvp* post_zvp(Zvp* in);
     virtual Zvpp* post_zvpp(Zvpp* in);
 /* Invoke the right transform-children (manual dispatching) */
@@ -146,6 +147,7 @@ public:
 public:
     virtual void children_piece(Piece* in);
     virtual void children_statement(Statement* in);
+    virtual void children_cond(Cond* in);
     virtual void children_zvp(Zvp* in);
     virtual void children_zvpp(Zvpp* in);
 };

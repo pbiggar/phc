@@ -11,7 +11,6 @@ class C_file;
 class Piece;
 class Statement;
 class Cond;
-class Is_ref;
 class Zvp;
 class Zvpp;
 class COMMENT;
@@ -19,6 +18,8 @@ class Method;
 class Block;
 class Action;
 class If;
+class Is_ref;
+class Equals;
 class Uninitialized;
 class Null;
 class Deref;
@@ -47,7 +48,6 @@ MAKETEA_USER_DEFINED(LIR::C_file)
 MAKETEA_USER_DEFINED(LIR::Piece)
 MAKETEA_USER_DEFINED(LIR::Statement)
 MAKETEA_USER_DEFINED(LIR::Cond)
-MAKETEA_USER_DEFINED(LIR::Is_ref)
 MAKETEA_USER_DEFINED(LIR::Zvp)
 MAKETEA_USER_DEFINED(LIR::Zvpp)
 MAKETEA_USER_DEFINED(LIR::COMMENT)
@@ -55,6 +55,8 @@ MAKETEA_USER_DEFINED(LIR::Method)
 MAKETEA_USER_DEFINED(LIR::Block)
 MAKETEA_USER_DEFINED(LIR::Action)
 MAKETEA_USER_DEFINED(LIR::If)
+MAKETEA_USER_DEFINED(LIR::Is_ref)
+MAKETEA_USER_DEFINED(LIR::Equals)
 MAKETEA_USER_DEFINED(LIR::Uninitialized)
 MAKETEA_USER_DEFINED(LIR::Null)
 MAKETEA_USER_DEFINED(LIR::Deref)
