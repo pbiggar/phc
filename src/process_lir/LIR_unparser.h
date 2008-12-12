@@ -21,7 +21,7 @@ public:
 
 public:
 
-	void pre_code (LIR::CODE* in);
+	void pre_uninterpreted (LIR::UNINTERPRETED* in);
 };
 
 #endif // PHC_LIR_UNPARSER 

@@ -30,7 +30,7 @@ LIR_unparser::unparse (IR::Node* in)
 }
 
 void
-LIR_unparser::pre_code (LIR::CODE* in)
+LIR_unparser::pre_uninterpreted (LIR::UNINTERPRETED* in)
 {
 //	echo ("{");
 //	inc_indent ();

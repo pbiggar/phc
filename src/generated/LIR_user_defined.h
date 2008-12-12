@@ -8,14 +8,68 @@
 namespace LIR{
 class Node;
 class C_file;
+class Piece;
+class Statement;
+class Cond;
+class Is_ref;
+class Zvp;
+class Zvpp;
+class Block;
+class Action;
+class If;
+class Uninitialized;
+class Null;
+class Deref;
+class Ref;
+class UNINTERPRETED;
+class INTRINSIC;
+class API_CALL;
 class CODE;
+class ZVP;
+class LITERAL;
+class ZVPP;
+class Assign_zvp;
+class Assign_zvpp;
+class Inc_ref;
+class Allocate;
+class Clone;
+class Separate;
+class Dec_ref;
+class Destruct;
 class None;
 
 }
 
 MAKETEA_USER_DEFINED(LIR::Node)
 MAKETEA_USER_DEFINED(LIR::C_file)
+MAKETEA_USER_DEFINED(LIR::Piece)
+MAKETEA_USER_DEFINED(LIR::Statement)
+MAKETEA_USER_DEFINED(LIR::Cond)
+MAKETEA_USER_DEFINED(LIR::Is_ref)
+MAKETEA_USER_DEFINED(LIR::Zvp)
+MAKETEA_USER_DEFINED(LIR::Zvpp)
+MAKETEA_USER_DEFINED(LIR::Block)
+MAKETEA_USER_DEFINED(LIR::Action)
+MAKETEA_USER_DEFINED(LIR::If)
+MAKETEA_USER_DEFINED(LIR::Uninitialized)
+MAKETEA_USER_DEFINED(LIR::Null)
+MAKETEA_USER_DEFINED(LIR::Deref)
+MAKETEA_USER_DEFINED(LIR::Ref)
+MAKETEA_USER_DEFINED(LIR::UNINTERPRETED)
+MAKETEA_USER_DEFINED(LIR::INTRINSIC)
+MAKETEA_USER_DEFINED(LIR::API_CALL)
 MAKETEA_USER_DEFINED(LIR::CODE)
+MAKETEA_USER_DEFINED(LIR::ZVP)
+MAKETEA_USER_DEFINED(LIR::LITERAL)
+MAKETEA_USER_DEFINED(LIR::ZVPP)
+MAKETEA_USER_DEFINED(LIR::Assign_zvp)
+MAKETEA_USER_DEFINED(LIR::Assign_zvpp)
+MAKETEA_USER_DEFINED(LIR::Inc_ref)
+MAKETEA_USER_DEFINED(LIR::Allocate)
+MAKETEA_USER_DEFINED(LIR::Clone)
+MAKETEA_USER_DEFINED(LIR::Separate)
+MAKETEA_USER_DEFINED(LIR::Dec_ref)
+MAKETEA_USER_DEFINED(LIR::Destruct)
 MAKETEA_USER_DEFINED(LIR::None)
 
 

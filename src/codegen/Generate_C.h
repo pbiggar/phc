@@ -35,7 +35,7 @@ public:
 	bool is_extension;
 
 	LIR::C_file* lir;
-	LIR::CODE* clear_code_buffer ();
+	LIR::UNINTERPRETED* clear_code_buffer ();
 };
 
 #endif // PHC_GENERATE_C

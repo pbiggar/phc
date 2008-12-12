@@ -16,6 +16,7 @@
 output_dir "src/generated";
 prefix "LIR";
 external class "Object";
+external class "String";
 external class "IR::Node";
 external class "IR::FOREIGN";
 external class "IR::PHP_script";
@@ -34,16 +35,97 @@ no source_rep;
  - can't, or can't be bothered, maintaining directly.
 -}
 
-C_file ::= CODE<String*>*;
+C_file ::= Piece* ;
 
---Statement ::= inop | Uninterpreted
+Piece ::= Block | UNINTERPRETED ;
 
---Uninterpreted ::= String
+Block ::= Statement* ;
+
+Statement ::=    Action				-- (possibly) side-effecting statement 
+					| If
+					| INTRINSIC			-- Builtin phc function, which we can model.
+					| API_CALL			-- Call into the Zend API. We may be able to
+											-- model this.
+					| CODE				-- Straight-line C code. Can't analyse it, but
+											-- we can optimize before and after, while
+											-- assuming the C code doesnt change anything.
+					;
+
+Action ::=	  Assign_zvp
+				| Assign_zvpp
+				| Inc_ref
+				| Dec_ref
+				| Destruct
+				| Allocate
+				| Clone
+--				| Overwrite
+				| Separate
+				;
+
+If ::=	Cond if_true:Statement* if_false:Statement* ;
+
+Cond ::=		  Is_ref
+--				| Equal
+--				| Is_copy_on_write
+--				| Is_change_on_write
+				;
+
+-- zval* lhs = rhs;
+Assign_zvp	::= lhs:Zvp rhs:Zvp ;
+
+-- zval** p_lhs = p_rhs;
+Assign_zvpp ::= lhs:Zvpp rhs:Zvpp ;
+
+{-
+ - Allocators
+ -}
+
+-- TODO: model calling the object handlers separately
+-- lhs->refcount++;
+Inc_ref		::= Zvp ;
+
+-- ALLOC_INIT_ZVAL (lhs);
+Allocate		::= Zvp ;
+Clone			::= lhs:Zvp rhs:Zvp ;
+Separate    ::= Zvpp ;
+
+
+{-
+ - Destructors
+ -}
+
+-- lhs->refcount--; // WARNING: this is less safe than Destruct
+Dec_ref		::= Zvp ;
+
+-- zval_ptr_dtor (p_lhs);
+Destruct		::= Zvpp ;
+
+
+
+{-
+ - Conditions
+ -}
+
+-- lhs->is_ref
+Is_ref ::= Zvp;
+
+
+{-
+ - Primitives
+ -}
+
+Zvp ::= Deref | ZVP | Null | LITERAL | Uninitialized ;
+Zvpp ::= Ref | ZVPP ;
+
+Uninitialized ::= ;
+Null ::= ;
+Deref ::= Zvpp ;
+Ref ::= Zvp ;
+
 
 {-
  - Extra attributes and methods (mixin code)
  -}
-
 
 #include <iostream>
 #include <sstream>
@@ -65,4 +147,9 @@ class Node : IR::Node
 
 class C_file : IR::PHP_script
 {
+public:
+	C_file()
+	{
+		pieces = new Piece_list;
+	}
 };

@@ -18,15 +18,163 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     List<Object*>::const_iterator i = args->begin();
     if(!strcmp(type_id, "C_file"))
     {
-    	CODE_list* codes = dynamic_cast<CODE_list*>(*i++);
+    	Piece_list* pieces = dynamic_cast<Piece_list*>(*i++);
     	assert(i == args->end());
-    	return new C_file(codes);
+    	return new C_file(pieces);
     }
-    if(!strcmp(type_id, "CODE_list"))
+    if(!strcmp(type_id, "Block"))
     {
-    	CODE_list* list = new CODE_list;
+    	Statement_list* statements = dynamic_cast<Statement_list*>(*i++);
+    	assert(i == args->end());
+    	return new Block(statements);
+    }
+    if(!strcmp(type_id, "If"))
+    {
+    	Cond* cond = dynamic_cast<Cond*>(*i++);
+    	Statement_list* if_true = dynamic_cast<Statement_list*>(*i++);
+    	Statement_list* if_false = dynamic_cast<Statement_list*>(*i++);
+    	assert(i == args->end());
+    	return new If(cond, if_true, if_false);
+    }
+    if(!strcmp(type_id, "Cond"))
+    {
+    	Is_ref* is_ref = dynamic_cast<Is_ref*>(*i++);
+    	assert(i == args->end());
+    	return new Cond(is_ref);
+    }
+    if(!strcmp(type_id, "Assign_zvp"))
+    {
+    	Zvp* lhs = dynamic_cast<Zvp*>(*i++);
+    	Zvp* rhs = dynamic_cast<Zvp*>(*i++);
+    	assert(i == args->end());
+    	return new Assign_zvp(lhs, rhs);
+    }
+    if(!strcmp(type_id, "Assign_zvpp"))
+    {
+    	Zvpp* lhs = dynamic_cast<Zvpp*>(*i++);
+    	Zvpp* rhs = dynamic_cast<Zvpp*>(*i++);
+    	assert(i == args->end());
+    	return new Assign_zvpp(lhs, rhs);
+    }
+    if(!strcmp(type_id, "Inc_ref"))
+    {
+    	Zvp* zvp = dynamic_cast<Zvp*>(*i++);
+    	assert(i == args->end());
+    	return new Inc_ref(zvp);
+    }
+    if(!strcmp(type_id, "Allocate"))
+    {
+    	Zvp* zvp = dynamic_cast<Zvp*>(*i++);
+    	assert(i == args->end());
+    	return new Allocate(zvp);
+    }
+    if(!strcmp(type_id, "Clone"))
+    {
+    	Zvp* lhs = dynamic_cast<Zvp*>(*i++);
+    	Zvp* rhs = dynamic_cast<Zvp*>(*i++);
+    	assert(i == args->end());
+    	return new Clone(lhs, rhs);
+    }
+    if(!strcmp(type_id, "Separate"))
+    {
+    	Zvpp* zvpp = dynamic_cast<Zvpp*>(*i++);
+    	assert(i == args->end());
+    	return new Separate(zvpp);
+    }
+    if(!strcmp(type_id, "Dec_ref"))
+    {
+    	Zvp* zvp = dynamic_cast<Zvp*>(*i++);
+    	assert(i == args->end());
+    	return new Dec_ref(zvp);
+    }
+    if(!strcmp(type_id, "Destruct"))
+    {
+    	Zvpp* zvpp = dynamic_cast<Zvpp*>(*i++);
+    	assert(i == args->end());
+    	return new Destruct(zvpp);
+    }
+    if(!strcmp(type_id, "Is_ref"))
+    {
+    	Zvp* zvp = dynamic_cast<Zvp*>(*i++);
+    	assert(i == args->end());
+    	return new Is_ref(zvp);
+    }
+    if(!strcmp(type_id, "Uninitialized"))
+    {
+    	assert(i == args->end());
+    	return new Uninitialized();
+    }
+    if(!strcmp(type_id, "Null"))
+    {
+    	assert(i == args->end());
+    	return new Null();
+    }
+    if(!strcmp(type_id, "Deref"))
+    {
+    	Zvpp* zvpp = dynamic_cast<Zvpp*>(*i++);
+    	assert(i == args->end());
+    	return new Deref(zvpp);
+    }
+    if(!strcmp(type_id, "Ref"))
+    {
+    	Zvp* zvp = dynamic_cast<Zvp*>(*i++);
+    	assert(i == args->end());
+    	return new Ref(zvp);
+    }
+    if(!strcmp(type_id, "UNINTERPRETED"))
+    {
+    	String* value = dynamic_cast<String*>(*i++);
+    	assert(i == args->end());
+    	return new UNINTERPRETED(value);
+    }
+    if(!strcmp(type_id, "INTRINSIC"))
+    {
+    	String* value = dynamic_cast<String*>(*i++);
+    	assert(i == args->end());
+    	return new INTRINSIC(value);
+    }
+    if(!strcmp(type_id, "API_CALL"))
+    {
+    	String* value = dynamic_cast<String*>(*i++);
+    	assert(i == args->end());
+    	return new API_CALL(value);
+    }
+    if(!strcmp(type_id, "CODE"))
+    {
+    	String* value = dynamic_cast<String*>(*i++);
+    	assert(i == args->end());
+    	return new CODE(value);
+    }
+    if(!strcmp(type_id, "ZVP"))
+    {
+    	String* value = dynamic_cast<String*>(*i++);
+    	assert(i == args->end());
+    	return new ZVP(value);
+    }
+    if(!strcmp(type_id, "LITERAL"))
+    {
+    	String* value = dynamic_cast<String*>(*i++);
+    	assert(i == args->end());
+    	return new LITERAL(value);
+    }
+    if(!strcmp(type_id, "ZVPP"))
+    {
+    	String* value = dynamic_cast<String*>(*i++);
+    	assert(i == args->end());
+    	return new ZVPP(value);
+    }
+    if(!strcmp(type_id, "Piece_list"))
+    {
+    	Piece_list* list = new Piece_list;
     	while(i != args->end())
-    		list->push_back(dynamic_cast<CODE*>(*i++));
+    		list->push_back(dynamic_cast<Piece*>(*i++));
+    	return list;
+    }
+    if(!strcmp(type_id, "Statement_list"))
+    {
+    	Statement_list* list = new Statement_list;
+    	while(i != args->end())
+    		list->push_back(dynamic_cast<Statement*>(*i++));
     	return list;
     }
     return NULL;

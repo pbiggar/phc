@@ -391,7 +391,7 @@ public:
 	virtual ~Pattern() {}
 	bool use_scope;
 
-	virtual LIR::CODE* generate_lir (Generate_C* gen)
+	virtual LIR::Piece* generate_lir (Generate_C* gen)
 	{
 		generate_code (gen);
 		return gen->clear_code_buffer ();
@@ -2526,7 +2526,7 @@ void Generate_C::children_statement(Statement* in)
 			if (brackets)
 				code << "{\n";
 
-			lir->codes->push_back (patterns[i]->generate_lir (this));
+			lir->pieces->push_back (patterns[i]->generate_lir (this));
 
 			if (brackets)
 			{
@@ -2644,11 +2644,11 @@ void Generate_C::pre_php_script(PHP_script* in)
 	}
 }
 
-LIR::CODE*
+LIR::UNINTERPRETED*
 Generate_C::clear_code_buffer ()
 {
 	// These is probably some code left in 'code'.
-	LIR::CODE* result = new LIR::CODE (s (code.str()));
+	LIR::UNINTERPRETED* result = new LIR::UNINTERPRETED(s (code.str()));
 	code.str ("");
 
 	assert (code.str().size () == 0);
@@ -2658,8 +2658,8 @@ Generate_C::clear_code_buffer ()
 
 void Generate_C::post_php_script(PHP_script* in)
 {
-	LIR::CODE* end = clear_code_buffer ();
-	lir->codes->push_back (end);
+	LIR::UNINTERPRETED* end = clear_code_buffer ();
+	lir->pieces->push_back (end);
 	xdebug (lir);
 
 	(new LIR_unparser (code, true))->visit_c_file(lir);
@@ -2823,5 +2823,5 @@ Generate_C::Generate_C(ostream& os) : os (os)
 {
 	name = new String ("generate-c");
 	description = new String ("Generate C code from the MIR");
-	lir = new LIR::C_file (new LIR::CODE_list);
+	lir = new LIR::C_file;
 }
