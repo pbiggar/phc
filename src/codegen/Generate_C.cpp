@@ -44,10 +44,13 @@
 #include "process_ir/XML_unparser.h"
 
 #include "Generate_C.h"
+#include "process_lir/LIR_unparser.h"
 #include "embed/embed.h"
 
-using namespace MIR;
 using namespace std;
+
+// These probably wont clash.
+using namespace MIR;
 
 // Label supported features
 void phc_unsupported (Node* node, const char* feature)
@@ -387,6 +390,12 @@ public:
 	virtual void generate_code(Generate_C* gen) = 0;
 	virtual ~Pattern() {}
 	bool use_scope;
+
+	virtual LIR::CODE* generate_lir (Generate_C* gen)
+	{
+		generate_code (gen);
+		return gen->clear_code_buffer ();
+	}
 };
 
 
@@ -2517,7 +2526,7 @@ void Generate_C::children_statement(Statement* in)
 			if (brackets)
 				code << "{\n";
 
-			patterns[i]->generate_code(this);
+			lir->codes->push_back (patterns[i]->generate_lir (this));
 
 			if (brackets)
 			{
@@ -2635,9 +2644,26 @@ void Generate_C::pre_php_script(PHP_script* in)
 	}
 }
 
+LIR::CODE*
+Generate_C::clear_code_buffer ()
+{
+	// These is probably some code left in 'code'.
+	LIR::CODE* result = new LIR::CODE (s (code.str()));
+	code.str ("");
+
+	assert (code.str().size () == 0);
+	return result;
+}
+
 
 void Generate_C::post_php_script(PHP_script* in)
 {
+	LIR::CODE* end = clear_code_buffer ();
+	lir->codes->push_back (end);
+	xdebug (lir);
+
+	(new LIR_unparser (code, true))->visit_c_file(lir);
+
 	code << "// ArgInfo structures (necessary to support compile time pass-by-reference)\n";
 	Signature_list* methods = dyc<Signature_list>(in->attrs->get("phc.codegen.compiled_functions"));
 	foreach (Signature* s, *methods)
@@ -2797,4 +2823,5 @@ Generate_C::Generate_C(ostream& os) : os (os)
 {
 	name = new String ("generate-c");
 	description = new String ("Generate C code from the MIR");
+	lir = new LIR::C_file (new LIR::CODE_list);
 }

@@ -263,6 +263,7 @@ int main(int argc, char** argv)
 				ir->visit (
 					new Read_fresh_suffix_counter, 
 					new Read_fresh_suffix_counter, 
+					new Read_fresh_suffix_counter, 
 					new Read_fresh_suffix_counter);
 				// TODO:
 				// this should add a pass
@@ -285,6 +286,7 @@ int main(int argc, char** argv)
 
 			// Avoid overwriting source variables.
 			ir->visit (
+				new Read_fresh_suffix_counter, 
 				new Read_fresh_suffix_counter, 
 				new Read_fresh_suffix_counter, 
 				new Read_fresh_suffix_counter);
