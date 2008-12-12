@@ -5,7 +5,7 @@ Visitor::~Visitor()
 {
 }
 
-// Invoked before the children are visited
+/* Invoked before the children are visited */
 void Visitor::pre_node(Node* in)
 {
 }
@@ -318,7 +318,7 @@ void Visitor::pre_constant_name(CONSTANT_NAME* in)
 {
 }
 
-// Invoked after the children have been visited
+/* Invoked after the children have been visited */
 void Visitor::post_node(Node* in)
 {
 }
@@ -631,7 +631,7 @@ void Visitor::post_constant_name(CONSTANT_NAME* in)
 {
 }
 
-// Visit the children of a node
+/* Visit the children of a node */
 void Visitor::children_php_script(PHP_script* in)
 {
     visit_statement_list(in->statements);
@@ -951,7 +951,7 @@ void Visitor::children_new(New* in)
     visit_actual_parameter_list(in->actual_parameters);
 }
 
-// Tokens don't have children, so these methods do nothing by default
+/* Tokens don't have children, so these methods do nothing by default */
 void Visitor::children_foreign(FOREIGN* in)
 {
 }
@@ -1008,7 +1008,7 @@ void Visitor::children_constant_name(CONSTANT_NAME* in)
 {
 }
 
-// Unparser support
+/* Unparser support */
 void Visitor::visit_marker(char const* name, bool value)
 {
 }
@@ -1029,8 +1029,8 @@ void Visitor::post_list(char const* name_space, char const* type_id, int size)
 {
 }
 
-// Invoke the chain of pre-visit methods along the inheritance hierachy
-// Do not override unless you know what you are doing
+/* Invoke the chain of pre-visit methods along the inheritance hierachy */
+/* Do not override unless you know what you are doing */
 void Visitor::pre_php_script_chain(PHP_script* in)
 {
     pre_node((Node*) in);
@@ -1545,9 +1545,9 @@ void Visitor::pre_constant_name_chain(CONSTANT_NAME* in)
     pre_constant_name((CONSTANT_NAME*) in);
 }
 
-// Invoke the chain of post-visit methods along the inheritance hierarchy
-// (invoked in opposite order to the pre-chain)
-// Do not override unless you know what you are doing
+/* Invoke the chain of post-visit methods along the inheritance hierarchy */
+/* (invoked in opposite order to the pre-chain) */
+/* Do not override unless you know what you are doing */
 void Visitor::post_php_script_chain(PHP_script* in)
 {
     post_php_script((PHP_script*) in);
@@ -2062,8 +2062,8 @@ void Visitor::post_constant_name_chain(CONSTANT_NAME* in)
     post_node((Node*) in);
 }
 
-// Call the pre-chain, visit children and post-chain in order
-// Do not override unless you know what you are doing
+/* Call the pre-chain, visit children and post-chain in order */
+/* Do not override unless you know what you are doing */
 void Visitor::visit_statement_list(Statement_list* in)
 {
     Statement_list::const_iterator i;
@@ -2671,8 +2671,8 @@ void Visitor::visit_php_script(PHP_script* in)
     }
 }
 
-// Invoke the right pre-chain (manual dispatching)
-// Do not override unless you know what you are doing
+/* Invoke the right pre-chain (manual dispatching) */
+/* Do not override unless you know what you are doing */
 void Visitor::pre_statement_chain(Statement* in)
 {
     switch(in->classid())
@@ -2954,8 +2954,8 @@ void Visitor::pre_method_name_chain(Method_name* in)
     }
 }
 
-// Invoke the right post-chain (manual dispatching)
-// Do not override unless you know what you are doing
+/* Invoke the right post-chain (manual dispatching) */
+/* Do not override unless you know what you are doing */
 void Visitor::post_statement_chain(Statement* in)
 {
     switch(in->classid())
@@ -3237,8 +3237,8 @@ void Visitor::post_method_name_chain(Method_name* in)
     }
 }
 
-// Invoke the right visit-children (manual dispatching)
-// Do not override unless you know what you are doing
+/* Invoke the right visit-children (manual dispatching) */
+/* Do not override unless you know what you are doing */
 void Visitor::children_statement(Statement* in)
 {
     switch(in->classid())

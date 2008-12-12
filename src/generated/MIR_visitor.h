@@ -26,7 +26,7 @@ class Visitor
 {
 public:
     virtual ~Visitor();
-// Invoked before the children are visited
+/* Invoked before the children are visited */
 public:
     virtual void pre_node(Node* in);
     virtual void pre_php_script(PHP_script* in);
@@ -116,7 +116,7 @@ public:
     virtual void pre_field_name(FIELD_NAME* in);
     virtual void pre_label_name(LABEL_NAME* in);
     virtual void pre_ht_iterator(HT_ITERATOR* in);
-// Invoked after the children have been visited
+/* Invoked after the children have been visited */
 public:
     virtual void post_node(Node* in);
     virtual void post_php_script(PHP_script* in);
@@ -206,7 +206,7 @@ public:
     virtual void post_field_name(FIELD_NAME* in);
     virtual void post_label_name(LABEL_NAME* in);
     virtual void post_ht_iterator(HT_ITERATOR* in);
-// Visit the children of a node
+/* Visit the children of a node */
 public:
     virtual void children_php_script(PHP_script* in);
     virtual void children_class_def(Class_def* in);
@@ -265,7 +265,7 @@ public:
     virtual void children_foreach_get_key(Foreach_get_key* in);
     virtual void children_foreach_get_val(Foreach_get_val* in);
     virtual void children_param_is_ref(Param_is_ref* in);
-// Tokens don't have children, so these methods do nothing by default
+/* Tokens don't have children, so these methods do nothing by default */
 public:
     virtual void children_param_index(PARAM_INDEX* in);
     virtual void children_foreign(FOREIGN* in);
@@ -284,15 +284,15 @@ public:
     virtual void children_field_name(FIELD_NAME* in);
     virtual void children_label_name(LABEL_NAME* in);
     virtual void children_ht_iterator(HT_ITERATOR* in);
-// Unparser support
+/* Unparser support */
 public:
     virtual void visit_marker(char const* name, bool value);
     virtual void visit_null(char const* name_space, char const* type_id);
     virtual void visit_null_list(char const* name_space, char const* type_id);
     virtual void pre_list(char const* name_space, char const* type_id, int size);
     virtual void post_list(char const* name_space, char const* type_id, int size);
-// Invoke the chain of pre-visit methods along the inheritance hierachy
-// Do not override unless you know what you are doing
+/* Invoke the chain of pre-visit methods along the inheritance hierachy */
+/* Do not override unless you know what you are doing */
 public:
     virtual void pre_php_script_chain(PHP_script* in);
     virtual void pre_class_def_chain(Class_def* in);
@@ -368,9 +368,9 @@ public:
     virtual void pre_field_name_chain(FIELD_NAME* in);
     virtual void pre_label_name_chain(LABEL_NAME* in);
     virtual void pre_ht_iterator_chain(HT_ITERATOR* in);
-// Invoke the chain of post-visit methods along the inheritance hierarchy
-// (invoked in opposite order to the pre-chain)
-// Do not override unless you know what you are doing
+/* Invoke the chain of post-visit methods along the inheritance hierarchy */
+/* (invoked in opposite order to the pre-chain) */
+/* Do not override unless you know what you are doing */
 public:
     virtual void post_php_script_chain(PHP_script* in);
     virtual void post_class_def_chain(Class_def* in);
@@ -446,8 +446,8 @@ public:
     virtual void post_field_name_chain(FIELD_NAME* in);
     virtual void post_label_name_chain(LABEL_NAME* in);
     virtual void post_ht_iterator_chain(HT_ITERATOR* in);
-// Call the pre-chain, visit children and post-chain in order
-// Do not override unless you know what you are doing
+/* Call the pre-chain, visit children and post-chain in order */
+/* Do not override unless you know what you are doing */
 public:
     virtual void visit_statement_list(Statement_list* in);
     virtual void visit_statement(Statement* in);
@@ -489,8 +489,8 @@ public:
     virtual void visit_ht_iterator(HT_ITERATOR* in);
     virtual void visit_param_index(PARAM_INDEX* in);
     virtual void visit_php_script(PHP_script* in);
-// Invoke the right pre-chain (manual dispatching)
-// Do not override unless you know what you are doing
+/* Invoke the right pre-chain (manual dispatching) */
+/* Do not override unless you know what you are doing */
 public:
     virtual void pre_statement_chain(Statement* in);
     virtual void pre_member_chain(Member* in);
@@ -503,8 +503,8 @@ public:
     virtual void pre_class_name_chain(Class_name* in);
     virtual void pre_method_name_chain(Method_name* in);
     virtual void pre_static_array_key_chain(Static_array_key* in);
-// Invoke the right post-chain (manual dispatching)
-// Do not override unless you know what you are doing
+/* Invoke the right post-chain (manual dispatching) */
+/* Do not override unless you know what you are doing */
 public:
     virtual void post_statement_chain(Statement* in);
     virtual void post_member_chain(Member* in);
@@ -517,8 +517,8 @@ public:
     virtual void post_class_name_chain(Class_name* in);
     virtual void post_method_name_chain(Method_name* in);
     virtual void post_static_array_key_chain(Static_array_key* in);
-// Invoke the right visit-children (manual dispatching)
-// Do not override unless you know what you are doing
+/* Invoke the right visit-children (manual dispatching) */
+/* Do not override unless you know what you are doing */
 public:
     virtual void children_statement(Statement* in);
     virtual void children_member(Member* in);

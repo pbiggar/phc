@@ -26,7 +26,7 @@ class Transform
 {
 public:
     virtual ~Transform();
-// Invoked before the children are transformed
+/* Invoked before the children are transformed */
 public:
     virtual PHP_script* pre_php_script(PHP_script* in);
     virtual void pre_class_def(Class_def* in, Statement_list* out);
@@ -102,7 +102,7 @@ public:
     virtual Field_name* pre_field_name(FIELD_NAME* in);
     virtual LABEL_NAME* pre_label_name(LABEL_NAME* in);
     virtual HT_ITERATOR* pre_ht_iterator(HT_ITERATOR* in);
-// Invoked after the children have been transformed
+/* Invoked after the children have been transformed */
 public:
     virtual PHP_script* post_php_script(PHP_script* in);
     virtual void post_class_def(Class_def* in, Statement_list* out);
@@ -178,7 +178,7 @@ public:
     virtual Field_name* post_field_name(FIELD_NAME* in);
     virtual LABEL_NAME* post_label_name(LABEL_NAME* in);
     virtual HT_ITERATOR* post_ht_iterator(HT_ITERATOR* in);
-// Transform the children of the node
+/* Transform the children of the node */
 public:
     virtual void children_php_script(PHP_script* in);
     virtual void children_class_def(Class_def* in);
@@ -237,7 +237,7 @@ public:
     virtual void children_foreach_get_key(Foreach_get_key* in);
     virtual void children_foreach_get_val(Foreach_get_val* in);
     virtual void children_param_is_ref(Param_is_ref* in);
-// Tokens don't have children, so these methods do nothing by default
+/* Tokens don't have children, so these methods do nothing by default */
 public:
     virtual void children_param_index(PARAM_INDEX* in);
     virtual void children_foreign(FOREIGN* in);
@@ -256,8 +256,8 @@ public:
     virtual void children_field_name(FIELD_NAME* in);
     virtual void children_label_name(LABEL_NAME* in);
     virtual void children_ht_iterator(HT_ITERATOR* in);
-// Call the pre-transform, transform-children post-transform methods in order
-// Do not override unless you know what you are doing
+/* Call the pre-transform, transform-children post-transform methods in order */
+/* Do not override unless you know what you are doing */
 public:
     virtual Statement_list* transform_statement_list(Statement_list* in);
     virtual Statement_list* transform_statement(Statement* in);
@@ -299,8 +299,8 @@ public:
     virtual HT_ITERATOR* transform_ht_iterator(HT_ITERATOR* in);
     virtual PARAM_INDEX* transform_param_index(PARAM_INDEX* in);
     virtual PHP_script* transform_php_script(PHP_script* in);
-// Invoke the right pre-transform (manual dispatching)
-// Do not override unless you know what you are doing
+/* Invoke the right pre-transform (manual dispatching) */
+/* Do not override unless you know what you are doing */
 public:
     virtual void pre_statement(Statement* in, Statement_list* out);
     virtual void pre_member(Member* in, Member_list* out);
@@ -313,8 +313,8 @@ public:
     virtual Class_name* pre_class_name(Class_name* in);
     virtual Method_name* pre_method_name(Method_name* in);
     virtual Static_array_key* pre_static_array_key(Static_array_key* in);
-// Invoke the right post-transform (manual dispatching)
-// Do not override unless you know what you are doing
+/* Invoke the right post-transform (manual dispatching) */
+/* Do not override unless you know what you are doing */
 public:
     virtual void post_statement(Statement* in, Statement_list* out);
     virtual void post_member(Member* in, Member_list* out);
@@ -327,8 +327,8 @@ public:
     virtual Class_name* post_class_name(Class_name* in);
     virtual Method_name* post_method_name(Method_name* in);
     virtual Static_array_key* post_static_array_key(Static_array_key* in);
-// Invoke the right transform-children (manual dispatching)
-// Do not override unless you what you are doing
+/* Invoke the right transform-children (manual dispatching) */
+/* Do not override unless you what you are doing */
 public:
     virtual void children_statement(Statement* in);
     virtual void children_member(Member* in);
