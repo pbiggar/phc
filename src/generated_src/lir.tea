@@ -66,10 +66,11 @@ Action ::=	  Assign_zvp
 				| Separate
 				;
 
-If ::=	Cond if_true:Statement* if_false:Statement* ;
+If ::=	Cond iftrue:Statement* iffalse:Statement* ;
 
 Cond ::=		  Is_ref
 				| Equals
+				| Not_equals -- TODO: or generic Not?
 --				| Is_copy_on_write
 --				| Is_change_on_write
 				;
@@ -115,6 +116,9 @@ Is_ref ::= Zvp;
 
 -- lhs == rhs
 Equals ::= lhs:Zvp rhs:Zvp ;
+
+-- TODO: this seems worse than the alternative
+Not_equals ::= lhs:Zvp rhs:Zvp ;
 
 
 {-

@@ -5,7 +5,7 @@ Transform::~Transform()
 {
 }
 
-/* Invoked before the children are transformed */
+// Invoked before the children are transformed
 C_file* Transform::pre_c_file(C_file* in)
 {
     return in;
@@ -76,6 +76,11 @@ Cond* Transform::pre_equals(Equals* in)
     return in;
 }
 
+Cond* Transform::pre_not_equals(Not_equals* in)
+{
+    return in;
+}
+
 Zvp* Transform::pre_uninitialized(Uninitialized* in)
 {
     return in;
@@ -136,7 +141,7 @@ Zvpp* Transform::pre_zvpp(ZVPP* in)
     return in;
 }
 
-/* Invoked after the children have been transformed */
+// Invoked after the children have been transformed
 C_file* Transform::post_c_file(C_file* in)
 {
     return in;
@@ -207,6 +212,11 @@ Cond* Transform::post_equals(Equals* in)
     return in;
 }
 
+Cond* Transform::post_not_equals(Not_equals* in)
+{
+    return in;
+}
+
 Zvp* Transform::post_uninitialized(Uninitialized* in)
 {
     return in;
@@ -267,7 +277,7 @@ Zvpp* Transform::post_zvpp(ZVPP* in)
     return in;
 }
 
-/* Transform the children of the node */
+// Transform the children of the node
 void Transform::children_c_file(C_file* in)
 {
     in->pieces = transform_piece_list(in->pieces);
@@ -290,8 +300,8 @@ void Transform::children_block(Block* in)
 void Transform::children_if(If* in)
 {
     in->cond = transform_cond(in->cond);
-    in->if_true = transform_statement_list(in->if_true);
-    in->if_false = transform_statement_list(in->if_false);
+    in->iftrue = transform_statement_list(in->iftrue);
+    in->iffalse = transform_statement_list(in->iffalse);
 }
 
 void Transform::children_assign_zvp(Assign_zvp* in)
@@ -348,6 +358,12 @@ void Transform::children_equals(Equals* in)
     in->rhs = transform_zvp(in->rhs);
 }
 
+void Transform::children_not_equals(Not_equals* in)
+{
+    in->lhs = transform_zvp(in->lhs);
+    in->rhs = transform_zvp(in->rhs);
+}
+
 void Transform::children_uninitialized(Uninitialized* in)
 {
 }
@@ -366,7 +382,7 @@ void Transform::children_ref(Ref* in)
     in->zvp = transform_zvp(in->zvp);
 }
 
-/* Tokens don't have children, so these methods do nothing by default */
+// Tokens don't have children, so these methods do nothing by default
 void Transform::children_comment(COMMENT* in)
 {
 }
@@ -399,8 +415,8 @@ void Transform::children_zvpp(ZVPP* in)
 {
 }
 
-/* Call the pre-transform, transform-children post-transform methods in order */
-/* Do not override unless you know what you are doing */
+// Call the pre-transform, transform-children post-transform methods in order
+// Do not override unless you know what you are doing
 Piece_list* Transform::transform_piece_list(Piece_list* in)
 {
     Piece_list::const_iterator i;
@@ -571,8 +587,8 @@ C_file* Transform::transform_c_file(C_file* in)
     return out;
 }
 
-/* Invoke the right pre-transform (manual dispatching) */
-/* Do not override unless you know what you are doing */
+// Invoke the right pre-transform (manual dispatching)
+// Do not override unless you know what you are doing
 void Transform::pre_piece(Piece* in, Piece_list* out)
 {
     switch(in->classid())
@@ -724,6 +740,7 @@ Cond* Transform::pre_cond(Cond* in)
     {
     case Is_ref::ID: return pre_is_ref(dynamic_cast<Is_ref*>(in));
     case Equals::ID: return pre_equals(dynamic_cast<Equals*>(in));
+    case Not_equals::ID: return pre_not_equals(dynamic_cast<Not_equals*>(in));
     }
     assert(0);
 }
@@ -751,8 +768,8 @@ Zvpp* Transform::pre_zvpp(Zvpp* in)
     assert(0);
 }
 
-/* Invoke the right post-transform (manual dispatching) */
-/* Do not override unless you know what you are doing */
+// Invoke the right post-transform (manual dispatching)
+// Do not override unless you know what you are doing
 void Transform::post_piece(Piece* in, Piece_list* out)
 {
     switch(in->classid())
@@ -904,6 +921,7 @@ Cond* Transform::post_cond(Cond* in)
     {
     case Is_ref::ID: return post_is_ref(dynamic_cast<Is_ref*>(in));
     case Equals::ID: return post_equals(dynamic_cast<Equals*>(in));
+    case Not_equals::ID: return post_not_equals(dynamic_cast<Not_equals*>(in));
     }
     assert(0);
 }
@@ -931,8 +949,8 @@ Zvpp* Transform::post_zvpp(Zvpp* in)
     assert(0);
 }
 
-/* Invoke the right transform-children (manual dispatching) */
-/* Do not override unless you what you are doing */
+// Invoke the right transform-children (manual dispatching)
+// Do not override unless you what you are doing
 void Transform::children_piece(Piece* in)
 {
     switch(in->classid())
@@ -1001,6 +1019,9 @@ void Transform::children_cond(Cond* in)
     	break;
     case Equals::ID:
     	children_equals(dynamic_cast<Equals*>(in));
+    	break;
+    case Not_equals::ID:
+    	children_not_equals(dynamic_cast<Not_equals*>(in));
     	break;
     }
 }

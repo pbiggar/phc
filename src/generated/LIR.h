@@ -35,6 +35,7 @@ class Action;
 class If;
 class Is_ref;
 class Equals;
+class Not_equals;
 class Uninitialized;
 class Null;
 class Deref;
@@ -70,6 +71,7 @@ typedef List<Action*> Action_list;
 typedef List<If*> If_list;
 typedef List<Is_ref*> Is_ref_list;
 typedef List<Equals*> Equals_list;
+typedef List<Not_equals*> Not_equals_list;
 typedef List<Uninitialized*> Uninitialized_list;
 typedef List<Null*> Null_list;
 typedef List<Deref*> Deref_list;
@@ -94,7 +96,7 @@ typedef List<None*> None_list;
 class Transform;
 class Visitor;
 
-/* Node ::= C_file | Piece | Statement | Cond | Zvp | Zvpp | COMMENT; */
+// Node ::= C_file | Piece | Statement | Cond | Zvp | Zvpp | COMMENT;
 class Node : virtual public IR::Node
 {
 public:
@@ -118,7 +120,7 @@ public:
     virtual void assert_valid() = 0;
 };
 
-/* C_file ::= Piece* ; */
+// C_file ::= Piece* ;
 class C_file : virtual public Node, virtual public IR::PHP_script
 {
 public:
@@ -147,7 +149,7 @@ public:
     C_file();
 };
 
-/* Piece ::= Method | Block | UNINTERPRETED; */
+// Piece ::= Method | Block | UNINTERPRETED;
 class Piece : virtual public Node
 {
 public:
@@ -171,7 +173,7 @@ public:
     virtual void assert_valid() = 0;
 };
 
-/* Statement ::= Action | If | INTRINSIC | API_CALL | CODE; */
+// Statement ::= Action | If | INTRINSIC | API_CALL | CODE;
 class Statement : virtual public Node
 {
 public:
@@ -195,7 +197,7 @@ public:
     virtual void assert_valid() = 0;
 };
 
-/* Cond ::= Is_ref | Equals; */
+// Cond ::= Is_ref | Equals | Not_equals;
 class Cond : virtual public Node
 {
 public:
@@ -219,7 +221,7 @@ public:
     virtual void assert_valid() = 0;
 };
 
-/* Zvp ::= Deref | ZVP | Null | LITERAL | Uninitialized; */
+// Zvp ::= Deref | ZVP | Null | LITERAL | Uninitialized;
 class Zvp : virtual public Node
 {
 public:
@@ -243,7 +245,7 @@ public:
     virtual void assert_valid() = 0;
 };
 
-/* Zvpp ::= Ref | ZVPP; */
+// Zvpp ::= Ref | ZVPP;
 class Zvpp : virtual public Node
 {
 public:
@@ -280,7 +282,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 19;
+    static const int ID = 20;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -296,7 +298,7 @@ public:
     virtual void assert_valid();
 };
 
-/* Method ::= COMMENT entry:UNINTERPRETED Piece* exit:UNINTERPRETED ; */
+// Method ::= COMMENT entry:UNINTERPRETED Piece* exit:UNINTERPRETED ;
 class Method : virtual public Piece
 {
 public:
@@ -328,7 +330,7 @@ public:
     virtual void assert_valid();
 };
 
-/* Block ::= COMMENT Statement* ; */
+// Block ::= COMMENT Statement* ;
 class Block : virtual public Piece
 {
 public:
@@ -360,7 +362,7 @@ public:
     Block(String* comment, Statement_list* statements);
 };
 
-/* Action ::= Assign_zvp | Assign_zvpp | Inc_ref | Dec_ref | Destruct | Allocate | Clone | Separate; */
+// Action ::= Assign_zvp | Assign_zvpp | Inc_ref | Dec_ref | Destruct | Allocate | Clone | Separate;
 class Action : virtual public Statement
 {
 public:
@@ -384,17 +386,17 @@ public:
     virtual void assert_valid() = 0;
 };
 
-/* If ::= Cond if_true:Statement* if_false:Statement* ; */
+// If ::= Cond iftrue:Statement* iffalse:Statement* ;
 class If : virtual public Statement
 {
 public:
-    If(Cond* cond, Statement_list* if_true, Statement_list* if_false);
+    If(Cond* cond, Statement_list* iftrue, Statement_list* iffalse);
 protected:
     If();
 public:
     Cond* cond;
-    Statement_list* if_true;
-    Statement_list* if_false;
+    Statement_list* iftrue;
+    Statement_list* iffalse;
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
@@ -415,7 +417,7 @@ public:
     virtual void assert_valid();
 };
 
-/* Is_ref ::= Zvp ; */
+// Is_ref ::= Zvp ;
 class Is_ref : virtual public Cond
 {
 public:
@@ -444,7 +446,7 @@ public:
     virtual void assert_valid();
 };
 
-/* Equals ::= lhs:Zvp rhs:Zvp ; */
+// Equals ::= lhs:Zvp rhs:Zvp ;
 class Equals : virtual public Cond
 {
 public:
@@ -474,7 +476,37 @@ public:
     virtual void assert_valid();
 };
 
-/* Uninitialized ::= ; */
+// Not_equals ::= lhs:Zvp rhs:Zvp ;
+class Not_equals : virtual public Cond
+{
+public:
+    Not_equals(Zvp* lhs, Zvp* rhs);
+protected:
+    Not_equals();
+public:
+    Zvp* lhs;
+    Zvp* rhs;
+public:
+    virtual void visit(Visitor* visitor);
+    virtual void transform_children(Transform* transform);
+public:
+    static const int ID = 15;
+    virtual int classid();
+public:
+    virtual bool match(Node* in);
+public:
+    virtual bool equals(Node* in);
+public:
+    virtual Not_equals* clone();
+public:
+    virtual Node* find(Node* in);
+public:
+    virtual void find_all(Node* in, Node_list* out);
+public:
+    virtual void assert_valid();
+};
+
+// Uninitialized ::= ;
 class Uninitialized : virtual public Zvp
 {
 public:
@@ -483,7 +515,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 15;
+    static const int ID = 16;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -499,7 +531,7 @@ public:
     virtual void assert_valid();
 };
 
-/* Null ::= ; */
+// Null ::= ;
 class Null : virtual public Zvp
 {
 public:
@@ -508,7 +540,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 16;
+    static const int ID = 17;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -524,7 +556,7 @@ public:
     virtual void assert_valid();
 };
 
-/* Deref ::= Zvpp ; */
+// Deref ::= Zvpp ;
 class Deref : virtual public Zvp
 {
 public:
@@ -537,7 +569,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 17;
+    static const int ID = 18;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -553,7 +585,7 @@ public:
     virtual void assert_valid();
 };
 
-/* Ref ::= Zvp ; */
+// Ref ::= Zvp ;
 class Ref : virtual public Zvpp
 {
 public:
@@ -566,7 +598,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 18;
+    static const int ID = 19;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -595,7 +627,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 20;
+    static const int ID = 21;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -624,7 +656,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 21;
+    static const int ID = 22;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -653,7 +685,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 22;
+    static const int ID = 23;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -682,7 +714,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 23;
+    static const int ID = 24;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -713,7 +745,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 24;
+    static const int ID = 25;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -744,7 +776,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 25;
+    static const int ID = 26;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -773,7 +805,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 26;
+    static const int ID = 27;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -791,7 +823,7 @@ public:
     ZVPP(string value);
 };
 
-/* Assign_zvp ::= lhs:Zvp rhs:Zvp ; */
+// Assign_zvp ::= lhs:Zvp rhs:Zvp ;
 class Assign_zvp : virtual public Action
 {
 public:
@@ -821,7 +853,7 @@ public:
     virtual void assert_valid();
 };
 
-/* Assign_zvpp ::= lhs:Zvpp rhs:Zvpp ; */
+// Assign_zvpp ::= lhs:Zvpp rhs:Zvpp ;
 class Assign_zvpp : virtual public Action
 {
 public:
@@ -851,7 +883,7 @@ public:
     virtual void assert_valid();
 };
 
-/* Inc_ref ::= Zvp ; */
+// Inc_ref ::= Zvp ;
 class Inc_ref : virtual public Action
 {
 public:
@@ -880,7 +912,7 @@ public:
     virtual void assert_valid();
 };
 
-/* Allocate ::= Zvp ; */
+// Allocate ::= Zvp ;
 class Allocate : virtual public Action
 {
 public:
@@ -909,7 +941,7 @@ public:
     virtual void assert_valid();
 };
 
-/* Clone ::= lhs:Zvp rhs:Zvp ; */
+// Clone ::= lhs:Zvp rhs:Zvp ;
 class Clone : virtual public Action
 {
 public:
@@ -939,7 +971,7 @@ public:
     virtual void assert_valid();
 };
 
-/* Separate ::= Zvpp ; */
+// Separate ::= Zvpp ;
 class Separate : virtual public Action
 {
 public:
@@ -968,7 +1000,7 @@ public:
     virtual void assert_valid();
 };
 
-/* Dec_ref ::= Zvp ; */
+// Dec_ref ::= Zvp ;
 class Dec_ref : virtual public Action
 {
 public:
@@ -997,7 +1029,7 @@ public:
     virtual void assert_valid();
 };
 
-/* Destruct ::= Zvpp ; */
+// Destruct ::= Zvpp ;
 class Destruct : virtual public Action
 {
 public:
@@ -1026,8 +1058,8 @@ public:
     virtual void assert_valid();
 };
 
-/* The top of the class hierarchy. If the Fold will not allow you fold to anything else, try this. */
-class None : virtual public Node, virtual public C_file, virtual public Piece, virtual public Method, virtual public Block, virtual public Statement, virtual public Action, virtual public If, virtual public Cond, virtual public Assign_zvp, virtual public Assign_zvpp, virtual public Inc_ref, virtual public Allocate, virtual public Clone, virtual public Separate, virtual public Dec_ref, virtual public Destruct, virtual public Is_ref, virtual public Equals, virtual public Zvp, virtual public Zvpp, virtual public Uninitialized, virtual public Null, virtual public Deref, virtual public Ref, virtual public COMMENT, virtual public UNINTERPRETED, virtual public INTRINSIC, virtual public API_CALL, virtual public CODE, virtual public ZVP, virtual public LITERAL, virtual public ZVPP
+// The top of the class hierarchy. If the Fold will not allow you fold to anything else, try this.
+class None : virtual public Node, virtual public C_file, virtual public Piece, virtual public Method, virtual public Block, virtual public Statement, virtual public Action, virtual public If, virtual public Cond, virtual public Assign_zvp, virtual public Assign_zvpp, virtual public Inc_ref, virtual public Allocate, virtual public Clone, virtual public Separate, virtual public Dec_ref, virtual public Destruct, virtual public Is_ref, virtual public Equals, virtual public Not_equals, virtual public Zvp, virtual public Zvpp, virtual public Uninitialized, virtual public Null, virtual public Deref, virtual public Ref, virtual public COMMENT, virtual public UNINTERPRETED, virtual public INTRINSIC, virtual public API_CALL, virtual public CODE, virtual public ZVP, virtual public LITERAL, virtual public ZVPP
 {
 public:
     None();
@@ -1126,7 +1158,7 @@ public:
 		assert (0); // I'm not sure what this would mean
 	}
 public:
-	static const int ID = 28;
+	static const int ID = 29;
 	int classid()
 	{
 		return ID;

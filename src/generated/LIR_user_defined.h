@@ -20,6 +20,7 @@ class Action;
 class If;
 class Is_ref;
 class Equals;
+class Not_equals;
 class Uninitialized;
 class Null;
 class Deref;
@@ -57,6 +58,7 @@ MAKETEA_USER_DEFINED(LIR::Action)
 MAKETEA_USER_DEFINED(LIR::If)
 MAKETEA_USER_DEFINED(LIR::Is_ref)
 MAKETEA_USER_DEFINED(LIR::Equals)
+MAKETEA_USER_DEFINED(LIR::Not_equals)
 MAKETEA_USER_DEFINED(LIR::Uninitialized)
 MAKETEA_USER_DEFINED(LIR::Null)
 MAKETEA_USER_DEFINED(LIR::Deref)

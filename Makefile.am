@@ -187,6 +187,8 @@ libphc_la_SOURCES= 											\
 	src/optimize/Prune_symbol_table.h					\
 	src/optimize/Use_def_counter.cpp 					\
 	src/optimize/Use_def_counter.h						\
+	src/parsing/LIR_parser.cpp								\
+	src/parsing/LIR_parser.h								\
 	src/parsing/Parse_buffer.cpp							\
 	src/parsing/Parse_buffer.h								\
 	src/parsing/parse.cpp									\

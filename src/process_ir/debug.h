@@ -20,7 +20,7 @@
 #include <ostream>
 
 #define CHECK_DEBUG() if (!debugging_enabled) return;
-#define DEBUG(A) if (debugging_enabled) { cdebug << A << std::endl; }
+#define DEBUG(A) do { if (debugging_enabled) { cdebug << A << std::endl; } } while (0)
 
 extern bool debugging_enabled;
 

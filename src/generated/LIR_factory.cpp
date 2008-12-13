@@ -1,18 +1,18 @@
 #include "LIR_factory.h"
 
 namespace LIR{
-/* If type_id corresponds to an AST node, the elements in args must */
-/* correspond to the children of the node. */
-/*  */
-/* If type_id corresponds to a list (of the form "..._list"), */
-/* the elements of arg must be of the same type as the elements */
-/* in the list, and all elements in args are added to the list. */
-/*  */
-/* If type_id corresponds to a token (terminal symbol), args must */
-/* contain a single node of type String. Terminal symbols */
-/* with non-default values are not supported. */
-/*  */
-/* If the node type is not recognized, NULL is returned. */
+// If type_id corresponds to an AST node, the elements in args must
+// correspond to the children of the node.
+// 
+// If type_id corresponds to a list (of the form "..._list"),
+// the elements of arg must be of the same type as the elements
+// in the list, and all elements in args are added to the list.
+// 
+// If type_id corresponds to a token (terminal symbol), args must
+// contain a single node of type String. Terminal symbols
+// with non-default values are not supported.
+// 
+// If the node type is not recognized, NULL is returned.
 Object* Node_factory::create(char const* type_id, List<Object*>* args)
 {
     List<Object*>::const_iterator i = args->begin();
@@ -41,10 +41,10 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     if(!strcmp(type_id, "If"))
     {
     	Cond* cond = dynamic_cast<Cond*>(*i++);
-    	Statement_list* if_true = dynamic_cast<Statement_list*>(*i++);
-    	Statement_list* if_false = dynamic_cast<Statement_list*>(*i++);
+    	Statement_list* iftrue = dynamic_cast<Statement_list*>(*i++);
+    	Statement_list* iffalse = dynamic_cast<Statement_list*>(*i++);
     	assert(i == args->end());
-    	return new If(cond, if_true, if_false);
+    	return new If(cond, iftrue, iffalse);
     }
     if(!strcmp(type_id, "Assign_zvp"))
     {
@@ -109,6 +109,13 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	Zvp* rhs = dynamic_cast<Zvp*>(*i++);
     	assert(i == args->end());
     	return new Equals(lhs, rhs);
+    }
+    if(!strcmp(type_id, "Not_equals"))
+    {
+    	Zvp* lhs = dynamic_cast<Zvp*>(*i++);
+    	Zvp* rhs = dynamic_cast<Zvp*>(*i++);
+    	assert(i == args->end());
+    	return new Not_equals(lhs, rhs);
     }
     if(!strcmp(type_id, "Uninitialized"))
     {

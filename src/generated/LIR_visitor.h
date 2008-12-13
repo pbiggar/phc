@@ -27,7 +27,7 @@ class Visitor
 {
 public:
     virtual ~Visitor();
-/* Invoked before the children are visited */
+// Invoked before the children are visited
 public:
     virtual void pre_node(Node* in);
     virtual void pre_c_file(C_file* in);
@@ -48,6 +48,7 @@ public:
     virtual void pre_destruct(Destruct* in);
     virtual void pre_is_ref(Is_ref* in);
     virtual void pre_equals(Equals* in);
+    virtual void pre_not_equals(Not_equals* in);
     virtual void pre_zvp(Zvp* in);
     virtual void pre_zvpp(Zvpp* in);
     virtual void pre_uninitialized(Uninitialized* in);
@@ -62,7 +63,7 @@ public:
     virtual void pre_zvp(ZVP* in);
     virtual void pre_literal(LITERAL* in);
     virtual void pre_zvpp(ZVPP* in);
-/* Invoked after the children have been visited */
+// Invoked after the children have been visited
 public:
     virtual void post_node(Node* in);
     virtual void post_c_file(C_file* in);
@@ -83,6 +84,7 @@ public:
     virtual void post_destruct(Destruct* in);
     virtual void post_is_ref(Is_ref* in);
     virtual void post_equals(Equals* in);
+    virtual void post_not_equals(Not_equals* in);
     virtual void post_zvp(Zvp* in);
     virtual void post_zvpp(Zvpp* in);
     virtual void post_uninitialized(Uninitialized* in);
@@ -97,7 +99,7 @@ public:
     virtual void post_zvp(ZVP* in);
     virtual void post_literal(LITERAL* in);
     virtual void post_zvpp(ZVPP* in);
-/* Visit the children of a node */
+// Visit the children of a node
 public:
     virtual void children_c_file(C_file* in);
     virtual void children_method(Method* in);
@@ -113,11 +115,12 @@ public:
     virtual void children_destruct(Destruct* in);
     virtual void children_is_ref(Is_ref* in);
     virtual void children_equals(Equals* in);
+    virtual void children_not_equals(Not_equals* in);
     virtual void children_uninitialized(Uninitialized* in);
     virtual void children_null(Null* in);
     virtual void children_deref(Deref* in);
     virtual void children_ref(Ref* in);
-/* Tokens don't have children, so these methods do nothing by default */
+// Tokens don't have children, so these methods do nothing by default
 public:
     virtual void children_comment(COMMENT* in);
     virtual void children_uninterpreted(UNINTERPRETED* in);
@@ -127,15 +130,15 @@ public:
     virtual void children_zvp(ZVP* in);
     virtual void children_literal(LITERAL* in);
     virtual void children_zvpp(ZVPP* in);
-/* Unparser support */
+// Unparser support
 public:
     virtual void visit_marker(char const* name, bool value);
     virtual void visit_null(char const* name_space, char const* type_id);
     virtual void visit_null_list(char const* name_space, char const* type_id);
     virtual void pre_list(char const* name_space, char const* type_id, int size);
     virtual void post_list(char const* name_space, char const* type_id, int size);
-/* Invoke the chain of pre-visit methods along the inheritance hierachy */
-/* Do not override unless you know what you are doing */
+// Invoke the chain of pre-visit methods along the inheritance hierachy
+// Do not override unless you know what you are doing
 public:
     virtual void pre_c_file_chain(C_file* in);
     virtual void pre_method_chain(Method* in);
@@ -151,6 +154,7 @@ public:
     virtual void pre_destruct_chain(Destruct* in);
     virtual void pre_is_ref_chain(Is_ref* in);
     virtual void pre_equals_chain(Equals* in);
+    virtual void pre_not_equals_chain(Not_equals* in);
     virtual void pre_uninitialized_chain(Uninitialized* in);
     virtual void pre_null_chain(Null* in);
     virtual void pre_deref_chain(Deref* in);
@@ -163,9 +167,9 @@ public:
     virtual void pre_zvp_chain(ZVP* in);
     virtual void pre_literal_chain(LITERAL* in);
     virtual void pre_zvpp_chain(ZVPP* in);
-/* Invoke the chain of post-visit methods along the inheritance hierarchy */
-/* (invoked in opposite order to the pre-chain) */
-/* Do not override unless you know what you are doing */
+// Invoke the chain of post-visit methods along the inheritance hierarchy
+// (invoked in opposite order to the pre-chain)
+// Do not override unless you know what you are doing
 public:
     virtual void post_c_file_chain(C_file* in);
     virtual void post_method_chain(Method* in);
@@ -181,6 +185,7 @@ public:
     virtual void post_destruct_chain(Destruct* in);
     virtual void post_is_ref_chain(Is_ref* in);
     virtual void post_equals_chain(Equals* in);
+    virtual void post_not_equals_chain(Not_equals* in);
     virtual void post_uninitialized_chain(Uninitialized* in);
     virtual void post_null_chain(Null* in);
     virtual void post_deref_chain(Deref* in);
@@ -193,8 +198,8 @@ public:
     virtual void post_zvp_chain(ZVP* in);
     virtual void post_literal_chain(LITERAL* in);
     virtual void post_zvpp_chain(ZVPP* in);
-/* Call the pre-chain, visit children and post-chain in order */
-/* Do not override unless you know what you are doing */
+// Call the pre-chain, visit children and post-chain in order
+// Do not override unless you know what you are doing
 public:
     virtual void visit_piece_list(Piece_list* in);
     virtual void visit_piece(Piece* in);
@@ -206,24 +211,24 @@ public:
     virtual void visit_zvp(Zvp* in);
     virtual void visit_zvpp(Zvpp* in);
     virtual void visit_c_file(C_file* in);
-/* Invoke the right pre-chain (manual dispatching) */
-/* Do not override unless you know what you are doing */
+// Invoke the right pre-chain (manual dispatching)
+// Do not override unless you know what you are doing
 public:
     virtual void pre_piece_chain(Piece* in);
     virtual void pre_statement_chain(Statement* in);
     virtual void pre_cond_chain(Cond* in);
     virtual void pre_zvp_chain(Zvp* in);
     virtual void pre_zvpp_chain(Zvpp* in);
-/* Invoke the right post-chain (manual dispatching) */
-/* Do not override unless you know what you are doing */
+// Invoke the right post-chain (manual dispatching)
+// Do not override unless you know what you are doing
 public:
     virtual void post_piece_chain(Piece* in);
     virtual void post_statement_chain(Statement* in);
     virtual void post_cond_chain(Cond* in);
     virtual void post_zvp_chain(Zvp* in);
     virtual void post_zvpp_chain(Zvpp* in);
-/* Invoke the right visit-children (manual dispatching) */
-/* Do not override unless you know what you are doing */
+// Invoke the right visit-children (manual dispatching)
+// Do not override unless you know what you are doing
 public:
     virtual void children_piece(Piece* in);
     virtual void children_statement(Statement* in);

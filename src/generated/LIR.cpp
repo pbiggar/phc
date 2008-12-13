@@ -741,18 +741,18 @@ Action::Action()
 {
 }
 
-If::If(Cond* cond, Statement_list* if_true, Statement_list* if_false)
+If::If(Cond* cond, Statement_list* iftrue, Statement_list* iffalse)
 {
     this->cond = cond;
-    this->if_true = if_true;
-    this->if_false = if_false;
+    this->iftrue = iftrue;
+    this->iffalse = iffalse;
 }
 
 If::If()
 {
     this->cond = 0;
-    this->if_true = 0;
-    this->if_false = 0;
+    this->iftrue = 0;
+    this->iffalse = 0;
 }
 
 void If::visit(Visitor* visitor)
@@ -788,12 +788,12 @@ bool If::match(Node* in)
     else if(!this->cond->match(that->cond))
     	return false;
     
-    if(this->if_true != NULL && that->if_true != NULL)
+    if(this->iftrue != NULL && that->iftrue != NULL)
     {
     	Statement_list::const_iterator i, j;
     	for(
-    		i = this->if_true->begin(), j = that->if_true->begin();
-    		i != this->if_true->end() && j != that->if_true->end();
+    		i = this->iftrue->begin(), j = that->iftrue->begin();
+    		i != this->iftrue->end() && j != that->iftrue->end();
     		i++, j++)
     	{
     		if(*i == NULL)
@@ -804,16 +804,16 @@ bool If::match(Node* in)
     		else if(!(*i)->match(*j))
     			return false;
     	}
-    	if(i != this->if_true->end() || j != that->if_true->end())
+    	if(i != this->iftrue->end() || j != that->iftrue->end())
     		return false;
     }
     
-    if(this->if_false != NULL && that->if_false != NULL)
+    if(this->iffalse != NULL && that->iffalse != NULL)
     {
     	Statement_list::const_iterator i, j;
     	for(
-    		i = this->if_false->begin(), j = that->if_false->begin();
-    		i != this->if_false->end() && j != that->if_false->end();
+    		i = this->iffalse->begin(), j = that->iffalse->begin();
+    		i != this->iffalse->end() && j != that->iffalse->end();
     		i++, j++)
     	{
     		if(*i == NULL)
@@ -824,7 +824,7 @@ bool If::match(Node* in)
     		else if(!(*i)->match(*j))
     			return false;
     	}
-    	if(i != this->if_false->end() || j != that->if_false->end())
+    	if(i != this->iffalse->end() || j != that->iffalse->end())
     		return false;
     }
     
@@ -844,17 +844,17 @@ bool If::equals(Node* in)
     else if(!this->cond->equals(that->cond))
     	return false;
     
-    if(this->if_true == NULL || that->if_true == NULL)
+    if(this->iftrue == NULL || that->iftrue == NULL)
     {
-    	if(this->if_true != NULL || that->if_true != NULL)
+    	if(this->iftrue != NULL || that->iftrue != NULL)
     		return false;
     }
     else
     {
     	Statement_list::const_iterator i, j;
     	for(
-    		i = this->if_true->begin(), j = that->if_true->begin();
-    		i != this->if_true->end() && j != that->if_true->end();
+    		i = this->iftrue->begin(), j = that->iftrue->begin();
+    		i != this->iftrue->end() && j != that->iftrue->end();
     		i++, j++)
     	{
     		if(*i == NULL || *j == NULL)
@@ -865,21 +865,21 @@ bool If::equals(Node* in)
     		else if(!(*i)->equals(*j))
     			return false;
     	}
-    	if(i != this->if_true->end() || j != that->if_true->end())
+    	if(i != this->iftrue->end() || j != that->iftrue->end())
     		return false;
     }
     
-    if(this->if_false == NULL || that->if_false == NULL)
+    if(this->iffalse == NULL || that->iffalse == NULL)
     {
-    	if(this->if_false != NULL || that->if_false != NULL)
+    	if(this->iffalse != NULL || that->iffalse != NULL)
     		return false;
     }
     else
     {
     	Statement_list::const_iterator i, j;
     	for(
-    		i = this->if_false->begin(), j = that->if_false->begin();
-    		i != this->if_false->end() && j != that->if_false->end();
+    		i = this->iffalse->begin(), j = that->iffalse->begin();
+    		i != this->iffalse->end() && j != that->iffalse->end();
     		i++, j++)
     	{
     		if(*i == NULL || *j == NULL)
@@ -890,7 +890,7 @@ bool If::equals(Node* in)
     		else if(!(*i)->equals(*j))
     			return false;
     	}
-    	if(i != this->if_false->end() || j != that->if_false->end())
+    	if(i != this->iffalse->end() || j != that->iffalse->end())
     		return false;
     }
     
@@ -900,23 +900,23 @@ bool If::equals(Node* in)
 If* If::clone()
 {
     Cond* cond = this->cond ? this->cond->clone() : NULL;
-    Statement_list* if_true = NULL;
-    if(this->if_true != NULL)
+    Statement_list* iftrue = NULL;
+    if(this->iftrue != NULL)
     {
     	Statement_list::const_iterator i;
-    	if_true = new Statement_list;
-    	for(i = this->if_true->begin(); i != this->if_true->end(); i++)
-    		if_true->push_back(*i ? (*i)->clone() : NULL);
+    	iftrue = new Statement_list;
+    	for(i = this->iftrue->begin(); i != this->iftrue->end(); i++)
+    		iftrue->push_back(*i ? (*i)->clone() : NULL);
     }
-    Statement_list* if_false = NULL;
-    if(this->if_false != NULL)
+    Statement_list* iffalse = NULL;
+    if(this->iffalse != NULL)
     {
     	Statement_list::const_iterator i;
-    	if_false = new Statement_list;
-    	for(i = this->if_false->begin(); i != this->if_false->end(); i++)
-    		if_false->push_back(*i ? (*i)->clone() : NULL);
+    	iffalse = new Statement_list;
+    	for(i = this->iffalse->begin(); i != this->iffalse->end(); i++)
+    		iffalse->push_back(*i ? (*i)->clone() : NULL);
     }
-    If* clone = new If(cond, if_true, if_false);
+    If* clone = new If(cond, iftrue, iffalse);
     return clone;
 }
 
@@ -931,12 +931,12 @@ Node* If::find(Node* in)
     	if (cond_res) return cond_res;
     }
     
-    if(this->if_true != NULL)
+    if(this->iftrue != NULL)
     {
     	Statement_list::const_iterator i;
     	for(
-    		i = this->if_true->begin();
-    		i != this->if_true->end();
+    		i = this->iftrue->begin();
+    		i != this->iftrue->end();
     		i++)
     	{
     		if(*i != NULL)
@@ -947,12 +947,12 @@ Node* If::find(Node* in)
     	}
     }
     
-    if(this->if_false != NULL)
+    if(this->iffalse != NULL)
     {
     	Statement_list::const_iterator i;
     	for(
-    		i = this->if_false->begin();
-    		i != this->if_false->end();
+    		i = this->iffalse->begin();
+    		i != this->iffalse->end();
     		i++)
     	{
     		if(*i != NULL)
@@ -974,12 +974,12 @@ void If::find_all(Node* in, Node_list* out)
     if (this->cond != NULL)
     	this->cond->find_all(in, out);
     
-    if(this->if_true != NULL)
+    if(this->iftrue != NULL)
     {
     	Statement_list::const_iterator i;
     	for(
-    		i = this->if_true->begin();
-    		i != this->if_true->end();
+    		i = this->iftrue->begin();
+    		i != this->iftrue->end();
     		i++)
     	{
     		if(*i != NULL)
@@ -989,12 +989,12 @@ void If::find_all(Node* in, Node_list* out)
     	}
     }
     
-    if(this->if_false != NULL)
+    if(this->iffalse != NULL)
     {
     	Statement_list::const_iterator i;
     	for(
-    		i = this->if_false->begin();
-    		i != this->if_false->end();
+    		i = this->iffalse->begin();
+    		i != this->iffalse->end();
     		i++)
     	{
     		if(*i != NULL)
@@ -1010,19 +1010,19 @@ void If::assert_valid()
 {
     assert(cond != NULL);
     cond->assert_valid();
-    assert(if_true != NULL);
+    assert(iftrue != NULL);
     {
     	Statement_list::const_iterator i;
-    	for(i = this->if_true->begin(); i != this->if_true->end(); i++)
+    	for(i = this->iftrue->begin(); i != this->iftrue->end(); i++)
     	{
     		assert(*i != NULL);
     		(*i)->assert_valid();
     	}
     }
-    assert(if_false != NULL);
+    assert(iffalse != NULL);
     {
     	Statement_list::const_iterator i;
-    	for(i = this->if_false->begin(); i != this->if_false->end(); i++)
+    	for(i = this->iffalse->begin(); i != this->iffalse->end(); i++)
     	{
     		assert(*i != NULL);
     		(*i)->assert_valid();
@@ -1251,6 +1251,135 @@ void Equals::find_all(Node* in, Node_list* out)
 }
 
 void Equals::assert_valid()
+{
+    assert(lhs != NULL);
+    lhs->assert_valid();
+    assert(rhs != NULL);
+    rhs->assert_valid();
+}
+
+Not_equals::Not_equals(Zvp* lhs, Zvp* rhs)
+{
+    this->lhs = lhs;
+    this->rhs = rhs;
+}
+
+Not_equals::Not_equals()
+{
+    this->lhs = 0;
+    this->rhs = 0;
+}
+
+void Not_equals::visit(Visitor* visitor)
+{
+    visitor->visit_cond(this);
+}
+
+void Not_equals::transform_children(Transform* transform)
+{
+    transform->children_cond(this);
+}
+
+int Not_equals::classid()
+{
+    return ID;
+}
+
+bool Not_equals::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Not_equals* that = dynamic_cast<Not_equals*>(in);
+    if(that == NULL) return false;
+    
+    if(this->lhs == NULL)
+    {
+    	if(that->lhs != NULL && !that->lhs->match(this->lhs))
+    		return false;
+    }
+    else if(!this->lhs->match(that->lhs))
+    	return false;
+    
+    if(this->rhs == NULL)
+    {
+    	if(that->rhs != NULL && !that->rhs->match(this->rhs))
+    		return false;
+    }
+    else if(!this->rhs->match(that->rhs))
+    	return false;
+    
+    return true;
+}
+
+bool Not_equals::equals(Node* in)
+{
+    Not_equals* that = dynamic_cast<Not_equals*>(in);
+    if(that == NULL) return false;
+    
+    if(this->lhs == NULL || that->lhs == NULL)
+    {
+    	if(this->lhs != NULL || that->lhs != NULL)
+    		return false;
+    }
+    else if(!this->lhs->equals(that->lhs))
+    	return false;
+    
+    if(this->rhs == NULL || that->rhs == NULL)
+    {
+    	if(this->rhs != NULL || that->rhs != NULL)
+    		return false;
+    }
+    else if(!this->rhs->equals(that->rhs))
+    	return false;
+    
+    return true;
+}
+
+Not_equals* Not_equals::clone()
+{
+    Zvp* lhs = this->lhs ? this->lhs->clone() : NULL;
+    Zvp* rhs = this->rhs ? this->rhs->clone() : NULL;
+    Not_equals* clone = new Not_equals(lhs, rhs);
+    return clone;
+}
+
+Node* Not_equals::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    if (this->lhs != NULL)
+    {
+    	Node* lhs_res = this->lhs->find(in);
+    	if (lhs_res) return lhs_res;
+    }
+    
+    if (this->rhs != NULL)
+    {
+    	Node* rhs_res = this->rhs->find(in);
+    	if (rhs_res) return rhs_res;
+    }
+    
+    return NULL;
+}
+
+void Not_equals::find_all(Node* in, Node_list* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+    
+    if (this->lhs != NULL)
+    	this->lhs->find_all(in, out);
+    
+    if (this->rhs != NULL)
+    	this->rhs->find_all(in, out);
+    
+}
+
+void Not_equals::assert_valid()
 {
     assert(lhs != NULL);
     lhs->assert_valid();

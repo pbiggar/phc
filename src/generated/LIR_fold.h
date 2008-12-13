@@ -42,6 +42,7 @@ template
  class _LITERAL,
  class _Method,
  class _Node,
+ class _Not_equals,
  class _Null,
  class _Piece,
  class _Ref,
@@ -59,7 +60,7 @@ class Fold
 {
 // Access this class from subclasses without copying out the template instantiation
 public:
-   typedef Fold<_API_CALL, _Action, _Allocate, _Assign_zvp, _Assign_zvpp, _Block, _CODE, _COMMENT, _C_file, _Clone, _Cond, _Dec_ref, _Deref, _Destruct, _Equals, _INTRINSIC, _If, _Inc_ref, _Is_ref, _LITERAL, _Method, _Node, _Null, _Piece, _Ref, _Separate, _Statement, _UNINTERPRETED, _Uninitialized, _ZVP, _ZVPP, _Zvp, _Zvpp, _List> parent;
+   typedef Fold<_API_CALL, _Action, _Allocate, _Assign_zvp, _Assign_zvpp, _Block, _CODE, _COMMENT, _C_file, _Clone, _Cond, _Dec_ref, _Deref, _Destruct, _Equals, _INTRINSIC, _If, _Inc_ref, _Is_ref, _LITERAL, _Method, _Node, _Not_equals, _Null, _Piece, _Ref, _Separate, _Statement, _UNINTERPRETED, _Uninitialized, _ZVP, _ZVPP, _Zvp, _Zvpp, _List> parent;
 // Recursively fold the children before folding the parent
 // This methods form the client API for a fold, but should not be
 // overridden unless you know what you are doing
@@ -118,25 +119,25 @@ public:
 	{
 		_Cond cond = 0;
 		if(in->cond != NULL) cond = fold_cond(in->cond);
-		_List<_Statement>* if_true = 0;
+		_List<_Statement>* iftrue = 0;
 	
 		{
-			if_true = new _List<_Statement>;
+			iftrue = new _List<_Statement>;
 			typename _List<Statement*>::const_iterator i;
-			for(i = in->if_true->begin(); i != in->if_true->end(); i++)
-				if(*i != NULL) if_true->push_back(fold_statement(*i));
-				else if_true->push_back(0);
+			for(i = in->iftrue->begin(); i != in->iftrue->end(); i++)
+				if(*i != NULL) iftrue->push_back(fold_statement(*i));
+				else iftrue->push_back(0);
 		}
-		_List<_Statement>* if_false = 0;
+		_List<_Statement>* iffalse = 0;
 	
 		{
-			if_false = new _List<_Statement>;
+			iffalse = new _List<_Statement>;
 			typename _List<Statement*>::const_iterator i;
-			for(i = in->if_false->begin(); i != in->if_false->end(); i++)
-				if(*i != NULL) if_false->push_back(fold_statement(*i));
-				else if_false->push_back(0);
+			for(i = in->iffalse->begin(); i != in->iffalse->end(); i++)
+				if(*i != NULL) iffalse->push_back(fold_statement(*i));
+				else iffalse->push_back(0);
 		}
-		return fold_impl_if(in, cond, if_true, if_false);
+		return fold_impl_if(in, cond, iftrue, iffalse);
 	}
 
 	virtual _Assign_zvp fold_assign_zvp(Assign_zvp* in)
@@ -217,6 +218,15 @@ public:
 		return fold_impl_equals(in, lhs, rhs);
 	}
 
+	virtual _Not_equals fold_not_equals(Not_equals* in)
+	{
+		_Zvp lhs = 0;
+		if(in->lhs != NULL) lhs = fold_zvp(in->lhs);
+		_Zvp rhs = 0;
+		if(in->rhs != NULL) rhs = fold_zvp(in->rhs);
+		return fold_impl_not_equals(in, lhs, rhs);
+	}
+
 	virtual _Uninitialized fold_uninitialized(Uninitialized* in)
 	{
 		return fold_impl_uninitialized(in);
@@ -249,7 +259,7 @@ public:
 	virtual _C_file fold_impl_c_file(C_file* orig, _List<_Piece>* pieces) { assert(0); };
 	virtual _Method fold_impl_method(Method* orig, _COMMENT comment, _UNINTERPRETED entry, _List<_Piece>* pieces, _UNINTERPRETED exit) { assert(0); };
 	virtual _Block fold_impl_block(Block* orig, _COMMENT comment, _List<_Statement>* statements) { assert(0); };
-	virtual _If fold_impl_if(If* orig, _Cond cond, _List<_Statement>* if_true, _List<_Statement>* if_false) { assert(0); };
+	virtual _If fold_impl_if(If* orig, _Cond cond, _List<_Statement>* iftrue, _List<_Statement>* iffalse) { assert(0); };
 	virtual _Assign_zvp fold_impl_assign_zvp(Assign_zvp* orig, _Zvp lhs, _Zvp rhs) { assert(0); };
 	virtual _Assign_zvpp fold_impl_assign_zvpp(Assign_zvpp* orig, _Zvpp lhs, _Zvpp rhs) { assert(0); };
 	virtual _Inc_ref fold_impl_inc_ref(Inc_ref* orig, _Zvp zvp) { assert(0); };
@@ -260,6 +270,7 @@ public:
 	virtual _Destruct fold_impl_destruct(Destruct* orig, _Zvpp zvpp) { assert(0); };
 	virtual _Is_ref fold_impl_is_ref(Is_ref* orig, _Zvp zvp) { assert(0); };
 	virtual _Equals fold_impl_equals(Equals* orig, _Zvp lhs, _Zvp rhs) { assert(0); };
+	virtual _Not_equals fold_impl_not_equals(Not_equals* orig, _Zvp lhs, _Zvp rhs) { assert(0); };
 	virtual _Uninitialized fold_impl_uninitialized(Uninitialized* orig) { assert(0); };
 	virtual _Null fold_impl_null(Null* orig) { assert(0); };
 	virtual _Deref fold_impl_deref(Deref* orig, _Zvpp zvpp) { assert(0); };
@@ -317,6 +328,8 @@ public:
 				return fold_is_ref(dynamic_cast<Is_ref*>(in));
 			case Equals::ID:
 				return fold_equals(dynamic_cast<Equals*>(in));
+			case Not_equals::ID:
+				return fold_not_equals(dynamic_cast<Not_equals*>(in));
 			case Deref::ID:
 				return fold_deref(dynamic_cast<Deref*>(in));
 			case ZVP::ID:
@@ -415,6 +428,8 @@ public:
 				return fold_is_ref(dynamic_cast<Is_ref*>(in));
 			case Equals::ID:
 				return fold_equals(dynamic_cast<Equals*>(in));
+			case Not_equals::ID:
+				return fold_not_equals(dynamic_cast<Not_equals*>(in));
 		}
 		assert(0);
 	}
@@ -456,6 +471,6 @@ public:
 };
 
 template<class T, template <class _Tp, class _Alloc = typename List<_Tp>::allocator_type> class _List>
-class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, _List> {};
+class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, _List> {};
 }
 

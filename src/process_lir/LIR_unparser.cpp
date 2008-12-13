@@ -72,3 +72,72 @@ LIR_unparser::children_block (LIR::Block* in)
 	dec_indent ();
 	echo_nl ("}");
 }
+
+void
+LIR_unparser::children_statement_list (Statement_list* in)
+{
+	echo ("{");
+	foreach (Statement* s, *in)
+		visit_statement (s);
+	echo ("}");
+}
+
+
+void
+LIR_unparser::children_if (LIR::If* in)
+{
+	echo ("if (");
+	visit_cond (in->cond);
+	echo (")");
+	visit_statement_list (in->iftrue);
+	visit_statement_list (in->iffalse);
+}
+
+void
+LIR_unparser::children_equals (LIR::Equals* in)
+{
+	visit_zvp (in->lhs);
+	echo (" == ");
+	visit_zvp (in->rhs);
+}
+
+void
+LIR_unparser::children_not_equals (LIR::Not_equals* in)
+{
+	visit_zvp (in->lhs);
+	echo (" != ");
+	visit_zvp (in->rhs);
+}
+
+
+
+void
+LIR_unparser::children_zvp (LIR::ZVP* in)
+{
+	echo (in->value);
+}
+
+void
+LIR_unparser::children_zvpp (LIR::ZVPP* in)
+{
+	echo (in->value);
+}
+
+void
+LIR_unparser::children_deref (LIR::Deref* in)
+{
+	echo ("*(");
+	visit_zvpp (in->zvpp);
+	echo (")");
+}
+
+
+void
+LIR_unparser::children_ref (LIR::Ref* in)
+{
+	echo ("&(");
+	visit_zvp (in->zvp);
+	echo (")");
+}
+
+

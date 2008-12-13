@@ -13,6 +13,7 @@
 (Inc_ref,Statement,*)
 (Is_ref,Cond,)
 (Method,Piece,*)
+(Not_equals,Cond,)
 (Null,Zvp,)
 (Piece,Piece,*)
 (Ref,Zvpp,)

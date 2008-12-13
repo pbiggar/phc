@@ -42,6 +42,7 @@
 #include "lib/demangle.h"
 #include "process_ir/General.h"
 #include "process_ir/XML_unparser.h"
+#include "parsing/LIR_parser.h"
 
 #include "Generate_C.h"
 #include "process_lir/LIR_unparser.h"
@@ -700,6 +701,7 @@ protected:
 class Pattern_assign_expr_var : public Pattern_assign_var
 {
 #define STRAIGHT(STR) stmts->push_back (new LIR::CODE (s (STR)))
+#define DLS(STR) stmts->push_back (dyc<LIR::Statement> (parse_lir (s(#STR))))
 public:
 	Expr* rhs_pattern()
 	{
@@ -709,15 +711,13 @@ public:
 
 	LIR::Piece* generate_lir (String* comment, Generate_C* gen)
 	{
-		using namespace LIR;
-
 		LIR::Statement_list* stmts = new LIR::Statement_list;
 
 		if (!agn->is_ref)
 		{
 			STRAIGHT (get_st_entry (LOCAL, "p_lhs", lhs->value));
 			STRAIGHT (read_rvalue (LOCAL, "rhs", rhs->value));
-			stmts->push_back (
+/*			stmts->push_back (
 				new If (
 					new Equals (
 						new Deref (
@@ -725,7 +725,16 @@ public:
 						new ZVP ("rhs")),
 						new LIR::Statement_list (
 							new CODE ("write_var (p_lhs, rhs);\n")),
-						new LIR::Statement_list));
+						new LIR::Statement_list));*/
+			DLS (
+					(if 
+						(not_equals 
+							(deref (ZVPP p_lhs)) 
+							(ZVP rhs)) 
+						[ (CODE "write_var (p_lhs, rhs);") ] 
+						[]));
+				// TODO: allows shortcuts
+				//		DLS ((if (== (* p_lhs) rhs) [(CODE "write_var (p_lhs, rhs);")] [] ))
 		}
 		else
 		{

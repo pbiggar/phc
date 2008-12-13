@@ -27,7 +27,7 @@ class Transform
 {
 public:
     virtual ~Transform();
-/* Invoked before the children are transformed */
+// Invoked before the children are transformed
 public:
     virtual C_file* pre_c_file(C_file* in);
     virtual void pre_method(Method* in, Piece_list* out);
@@ -43,6 +43,7 @@ public:
     virtual void pre_destruct(Destruct* in, Statement_list* out);
     virtual Cond* pre_is_ref(Is_ref* in);
     virtual Cond* pre_equals(Equals* in);
+    virtual Cond* pre_not_equals(Not_equals* in);
     virtual Zvp* pre_uninitialized(Uninitialized* in);
     virtual Zvp* pre_null(Null* in);
     virtual Zvp* pre_deref(Deref* in);
@@ -55,7 +56,7 @@ public:
     virtual Zvp* pre_zvp(ZVP* in);
     virtual Zvp* pre_literal(LITERAL* in);
     virtual Zvpp* pre_zvpp(ZVPP* in);
-/* Invoked after the children have been transformed */
+// Invoked after the children have been transformed
 public:
     virtual C_file* post_c_file(C_file* in);
     virtual void post_method(Method* in, Piece_list* out);
@@ -71,6 +72,7 @@ public:
     virtual void post_destruct(Destruct* in, Statement_list* out);
     virtual Cond* post_is_ref(Is_ref* in);
     virtual Cond* post_equals(Equals* in);
+    virtual Cond* post_not_equals(Not_equals* in);
     virtual Zvp* post_uninitialized(Uninitialized* in);
     virtual Zvp* post_null(Null* in);
     virtual Zvp* post_deref(Deref* in);
@@ -83,7 +85,7 @@ public:
     virtual Zvp* post_zvp(ZVP* in);
     virtual Zvp* post_literal(LITERAL* in);
     virtual Zvpp* post_zvpp(ZVPP* in);
-/* Transform the children of the node */
+// Transform the children of the node
 public:
     virtual void children_c_file(C_file* in);
     virtual void children_method(Method* in);
@@ -99,11 +101,12 @@ public:
     virtual void children_destruct(Destruct* in);
     virtual void children_is_ref(Is_ref* in);
     virtual void children_equals(Equals* in);
+    virtual void children_not_equals(Not_equals* in);
     virtual void children_uninitialized(Uninitialized* in);
     virtual void children_null(Null* in);
     virtual void children_deref(Deref* in);
     virtual void children_ref(Ref* in);
-/* Tokens don't have children, so these methods do nothing by default */
+// Tokens don't have children, so these methods do nothing by default
 public:
     virtual void children_comment(COMMENT* in);
     virtual void children_uninterpreted(UNINTERPRETED* in);
@@ -113,8 +116,8 @@ public:
     virtual void children_zvp(ZVP* in);
     virtual void children_literal(LITERAL* in);
     virtual void children_zvpp(ZVPP* in);
-/* Call the pre-transform, transform-children post-transform methods in order */
-/* Do not override unless you know what you are doing */
+// Call the pre-transform, transform-children post-transform methods in order
+// Do not override unless you know what you are doing
 public:
     virtual Piece_list* transform_piece_list(Piece_list* in);
     virtual Piece_list* transform_piece(Piece* in);
@@ -126,24 +129,24 @@ public:
     virtual Zvp* transform_zvp(Zvp* in);
     virtual Zvpp* transform_zvpp(Zvpp* in);
     virtual C_file* transform_c_file(C_file* in);
-/* Invoke the right pre-transform (manual dispatching) */
-/* Do not override unless you know what you are doing */
+// Invoke the right pre-transform (manual dispatching)
+// Do not override unless you know what you are doing
 public:
     virtual void pre_piece(Piece* in, Piece_list* out);
     virtual void pre_statement(Statement* in, Statement_list* out);
     virtual Cond* pre_cond(Cond* in);
     virtual Zvp* pre_zvp(Zvp* in);
     virtual Zvpp* pre_zvpp(Zvpp* in);
-/* Invoke the right post-transform (manual dispatching) */
-/* Do not override unless you know what you are doing */
+// Invoke the right post-transform (manual dispatching)
+// Do not override unless you know what you are doing
 public:
     virtual void post_piece(Piece* in, Piece_list* out);
     virtual void post_statement(Statement* in, Statement_list* out);
     virtual Cond* post_cond(Cond* in);
     virtual Zvp* post_zvp(Zvp* in);
     virtual Zvpp* post_zvpp(Zvpp* in);
-/* Invoke the right transform-children (manual dispatching) */
-/* Do not override unless you what you are doing */
+// Invoke the right transform-children (manual dispatching)
+// Do not override unless you what you are doing
 public:
     virtual void children_piece(Piece* in);
     virtual void children_statement(Statement* in);
