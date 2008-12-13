@@ -1,5 +1,5 @@
 
-#define BOOST_SPIRIT_DEBUG
+//#define BOOST_SPIRIT_DEBUG
 #define BOOST_SPIRIT_DEBUG_PRINT_SOME 80
 
 
@@ -26,6 +26,7 @@ int main (int argc, char** argv)
 	{
 		DLS ((if (equals (deref (ZVPP p_lhs)) (ZVP rhs))))
 		DLS ((if (equals (deref (ZVPP p_lhs)) (ZVP rhs)) [(CODE "write_var (p_lhs, rhs);")] [] ))
+		DLS ((if (equals (deref (ZVPP p_lhs)) (ZVP rhs)) [] [] ))
 		DLS ((if (== (* p_lhs) rhs) [(CODE "write_var (p_lhs, rhs);")] [] ))
 	}
 	else
@@ -45,11 +46,12 @@ void parse_lir (string s)
 
 	// a param can be any variable-name
 	symbol = +(alpha_p | '_');
-//	list = '[' >> *sexp >> ']';
-//	nil = str_p ("nil");
-//	string = '"' >> *sexp >> '"'; // TODO: escaping?
+	list = '[' >> ws >> *sexp >> ws >> ']';
 
-	param = symbol | sexp ; // | list | string;
+	// Any char except ", or, alternatively, the sequence \"
+	string = '"' >> *((anychar_p - '"') | str_p ("\\\"")) >> '"';
+
+	param = symbol | sexp | list | string;
 	sexp = '(' >> ws >> classname >> ws >> *(param >> ws) >> ')' ;
 
 	BOOST_SPIRIT_DEBUG_RULE(classname);
