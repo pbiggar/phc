@@ -6,6 +6,10 @@
  */
 
 
+// Uncomment to debug parsing. Useful for finding bugs in the parsed data as
+// well as in the parser.
+//#define BOOST_SPIRIT_DEBUG
+#define BOOST_SPIRIT_DEBUG_PRINT_SOME 80
 
 #include <boost/spirit.hpp>
 #include <iostream>
@@ -73,6 +77,11 @@ void sexp_a (const char* first, const char* last)
 
 	// Now that we have the classname, just pass all the objects on the stack
 	Object* result = LIR::Node_factory::create (classname->c_str (), &args);
+	if (result == NULL)
+		phc_internal_error ("Could not create object '%s', with sexp '%s",
+			classname->c_str (),
+			sexp.c_str());
+
 	assert (result);
 
 	node_stack.push (result);
@@ -145,7 +154,7 @@ void list_a (const char* first, const char* last)
 	num_children_stack.top()++;
 }
 
-LIR::Node*
+Object*
 parse_lir (String* s)
 {
 	num_children_stack.push(0);
@@ -156,36 +165,95 @@ parse_lir (String* s)
 
 	
 	classname = +(alpha_p | '_'); // An LIR classname
-	ws = !space_p; // optional space
+	ws = *space_p; // optional space
 	value = +(alpha_p | '_'); // a value (really a string, but no "" required)
-	list = ch_p('[')[&open_list_a] >> ws >> *sexp >> ws >> ']'; // list of Objects
+	list = ch_p('[')[&open_list_a] >> ws >> *(sexp >> ws) >> (ws >> (']'))[&list_a]; // list of Objects
 
 	// Any char except ", or, alternatively, the sequence \"
 	string = '"' >> *((anychar_p - '"') | str_p ("\\\"")) >> '"';
 
 	// constructor parameters 
-	param = value[&value_a] | sexp | list[&list_a] | string[&string_a];
+	param = value[&value_a] | sexp | list | string[&string_a];
 
 	// definition: a classname and a number of arguments
 	sexp = ('(' >> ws >> classname[&classname_a] >> ws >> *(param >> ws) >> ')')[&sexp_a] ;
 
-/*
-	#define BOOST_SPIRIT_DEBUG
-	#define BOOST_SPIRIT_DEBUG_PRINT_SOME 80
+
 
    BOOST_SPIRIT_DEBUG_RULE(classname);
-	BOOST_SPIRIT_DEBUG_RULE(helper);
 	BOOST_SPIRIT_DEBUG_RULE(ws);
 	BOOST_SPIRIT_DEBUG_RULE(param);
 	BOOST_SPIRIT_DEBUG_RULE(value);
+	BOOST_SPIRIT_DEBUG_RULE(list);
+	BOOST_SPIRIT_DEBUG_RULE(value);
 	BOOST_SPIRIT_DEBUG_RULE(sexp);
-*/
-	if (parse (s->c_str (), sexp).full)
-		DEBUG ("matches");
-	else
-		DEBUG ("failed");
+
+	if (!parse (s->c_str (), sexp | list).full)
+		phc_internal_error ("Bad parse of \n%s\n", s->c_str ());
+
+	Object* result = node_stack.top ();
+
+	if (LIR::Node* node = dynamic_cast<LIR::Node*> (result))
+		node->assert_valid ();
+	else if (LIR::Statement_list* stmt_list = dynamic_cast<LIR::Statement_list*> (result))
+	{
+		foreach (LIR::Statement* stmt, *stmt_list)
+			stmt->assert_valid ();
+	}
+
 
 //	assert (node_stack.size () == 1);
 //	assert (num_children_stack.top () == 1);
-	return dyc<LIR::Node> (node_stack.top ());
+	return result;
 }
+
+List<std::pair<string, string> >* result;
+string first;
+string second;
+
+void first_line_a (const char* start, const char* end)
+{
+	first = string (start, end);
+}
+
+void otherlines_a (const char* start, const char* end)
+{
+	second = string (start, end);
+}
+
+void complete_a (const char* start, const char* end)
+{
+	result->push_back (make_pair<string, string> (first, second));
+}
+
+List<std::pair<string, string> >*
+parse_templates (String* s)
+{
+	result = new List<std::pair<string, string> >;
+	// A very simple parser. We match sets of two strings:
+	//		- The first is the name: a single line, starting in the first column,
+	//		and ending in a ':'. It contains no whitespace
+	//		- The second is the value: contains whitespace in the first line, and
+	//		continues until another first line is matched.
+
+
+	rule<> r, first_line, otherline, end_line_p, not_eol;
+	not_eol = ~ch_p ('\n') & ~ch_p ('\r');
+
+
+	first_line = (+(alpha_p | ch_p('_')))[&first_line_a] >> ':' >> eol_p;
+	otherline = +blank_p >> +not_eol >> eol_p;
+
+	r = +((first_line >> (+otherline)[&otherlines_a])[&complete_a] >> *(eol_p));
+
+   BOOST_SPIRIT_DEBUG_RULE(first_line);
+	BOOST_SPIRIT_DEBUG_RULE(otherline);
+	BOOST_SPIRIT_DEBUG_RULE(not_eol);
+	BOOST_SPIRIT_DEBUG_RULE(eol_p);
+
+	if (!parse (s->c_str (), r).full)
+		phc_internal_error ("Bad parse of '%s'", s->c_str ());
+
+	return result;
+}
+

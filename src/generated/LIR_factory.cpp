@@ -60,6 +60,18 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Assign_zvpp(lhs, rhs);
     }
+    if(!strcmp(type_id, "Declare"))
+    {
+    	ZVP* zvp = dynamic_cast<ZVP*>(*i++);
+    	assert(i == args->end());
+    	return new Declare(zvp);
+    }
+    if(!strcmp(type_id, "Declare_p"))
+    {
+    	ZVPP* zvpp = dynamic_cast<ZVPP*>(*i++);
+    	assert(i == args->end());
+    	return new Declare_p(zvpp);
+    }
     if(!strcmp(type_id, "Inc_ref"))
     {
     	Zvp* zvp = dynamic_cast<Zvp*>(*i++);
@@ -110,17 +122,23 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Equals(lhs, rhs);
     }
-    if(!strcmp(type_id, "Not_equals"))
+    if(!strcmp(type_id, "Equals_p"))
     {
-    	Zvp* lhs = dynamic_cast<Zvp*>(*i++);
-    	Zvp* rhs = dynamic_cast<Zvp*>(*i++);
+    	Zvpp* lhs = dynamic_cast<Zvpp*>(*i++);
+    	Zvpp* rhs = dynamic_cast<Zvpp*>(*i++);
     	assert(i == args->end());
-    	return new Not_equals(lhs, rhs);
+    	return new Equals_p(lhs, rhs);
     }
-    if(!strcmp(type_id, "Uninitialized"))
+    if(!strcmp(type_id, "Not"))
+    {
+    	Cond* cond = dynamic_cast<Cond*>(*i++);
+    	assert(i == args->end());
+    	return new Not(cond);
+    }
+    if(!strcmp(type_id, "Uninit"))
     {
     	assert(i == args->end());
-    	return new Uninitialized();
+    	return new Uninit();
     }
     if(!strcmp(type_id, "Null"))
     {
@@ -139,11 +157,39 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Ref(zvp);
     }
+    if(!strcmp(type_id, "Symtable_fetch"))
+    {
+    	SYMTABLE* symtable = dynamic_cast<SYMTABLE*>(*i++);
+    	STRING* name = dynamic_cast<STRING*>(*i++);
+    	ZVPP* zvpp = dynamic_cast<ZVPP*>(*i++);
+    	assert(i == args->end());
+    	return new Symtable_fetch(symtable, name, zvpp);
+    }
+    if(!strcmp(type_id, "Symtable_insert"))
+    {
+    	SYMTABLE* symtable = dynamic_cast<SYMTABLE*>(*i++);
+    	STRING* name = dynamic_cast<STRING*>(*i++);
+    	ZVPP* zvpp = dynamic_cast<ZVPP*>(*i++);
+    	assert(i == args->end());
+    	return new Symtable_insert(symtable, name, zvpp);
+    }
     if(!strcmp(type_id, "COMMENT"))
     {
     	String* value = dynamic_cast<String*>(*i++);
     	assert(i == args->end());
     	return new COMMENT(value);
+    }
+    if(!strcmp(type_id, "SYMTABLE"))
+    {
+    	String* value = dynamic_cast<String*>(*i++);
+    	assert(i == args->end());
+    	return new SYMTABLE(value);
+    }
+    if(!strcmp(type_id, "STRING"))
+    {
+    	String* value = dynamic_cast<String*>(*i++);
+    	assert(i == args->end());
+    	return new STRING(value);
     }
     if(!strcmp(type_id, "UNINTERPRETED"))
     {
@@ -175,17 +221,17 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new ZVP(value);
     }
-    if(!strcmp(type_id, "LITERAL"))
-    {
-    	String* value = dynamic_cast<String*>(*i++);
-    	assert(i == args->end());
-    	return new LITERAL(value);
-    }
     if(!strcmp(type_id, "ZVPP"))
     {
     	String* value = dynamic_cast<String*>(*i++);
     	assert(i == args->end());
     	return new ZVPP(value);
+    }
+    if(!strcmp(type_id, "LITERAL"))
+    {
+    	String* value = dynamic_cast<String*>(*i++);
+    	assert(i == args->end());
+    	return new LITERAL(value);
     }
     if(!strcmp(type_id, "Piece_list"))
     {

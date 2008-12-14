@@ -14,14 +14,17 @@ class Cond;
 class Zvp;
 class Zvpp;
 class COMMENT;
+class SYMTABLE;
+class STRING;
 class Method;
 class Block;
 class Action;
 class If;
 class Is_ref;
 class Equals;
-class Not_equals;
-class Uninitialized;
+class Equals_p;
+class Not;
+class Uninit;
 class Null;
 class Deref;
 class Ref;
@@ -30,16 +33,20 @@ class INTRINSIC;
 class API_CALL;
 class CODE;
 class ZVP;
-class LITERAL;
 class ZVPP;
+class LITERAL;
 class Assign_zvp;
 class Assign_zvpp;
+class Declare;
+class Declare_p;
 class Inc_ref;
 class Allocate;
 class Clone;
 class Separate;
 class Dec_ref;
 class Destruct;
+class Symtable_fetch;
+class Symtable_insert;
 class None;
 
 }
@@ -52,14 +59,17 @@ MAKETEA_USER_DEFINED(LIR::Cond)
 MAKETEA_USER_DEFINED(LIR::Zvp)
 MAKETEA_USER_DEFINED(LIR::Zvpp)
 MAKETEA_USER_DEFINED(LIR::COMMENT)
+MAKETEA_USER_DEFINED(LIR::SYMTABLE)
+MAKETEA_USER_DEFINED(LIR::STRING)
 MAKETEA_USER_DEFINED(LIR::Method)
 MAKETEA_USER_DEFINED(LIR::Block)
 MAKETEA_USER_DEFINED(LIR::Action)
 MAKETEA_USER_DEFINED(LIR::If)
 MAKETEA_USER_DEFINED(LIR::Is_ref)
 MAKETEA_USER_DEFINED(LIR::Equals)
-MAKETEA_USER_DEFINED(LIR::Not_equals)
-MAKETEA_USER_DEFINED(LIR::Uninitialized)
+MAKETEA_USER_DEFINED(LIR::Equals_p)
+MAKETEA_USER_DEFINED(LIR::Not)
+MAKETEA_USER_DEFINED(LIR::Uninit)
 MAKETEA_USER_DEFINED(LIR::Null)
 MAKETEA_USER_DEFINED(LIR::Deref)
 MAKETEA_USER_DEFINED(LIR::Ref)
@@ -68,16 +78,20 @@ MAKETEA_USER_DEFINED(LIR::INTRINSIC)
 MAKETEA_USER_DEFINED(LIR::API_CALL)
 MAKETEA_USER_DEFINED(LIR::CODE)
 MAKETEA_USER_DEFINED(LIR::ZVP)
-MAKETEA_USER_DEFINED(LIR::LITERAL)
 MAKETEA_USER_DEFINED(LIR::ZVPP)
+MAKETEA_USER_DEFINED(LIR::LITERAL)
 MAKETEA_USER_DEFINED(LIR::Assign_zvp)
 MAKETEA_USER_DEFINED(LIR::Assign_zvpp)
+MAKETEA_USER_DEFINED(LIR::Declare)
+MAKETEA_USER_DEFINED(LIR::Declare_p)
 MAKETEA_USER_DEFINED(LIR::Inc_ref)
 MAKETEA_USER_DEFINED(LIR::Allocate)
 MAKETEA_USER_DEFINED(LIR::Clone)
 MAKETEA_USER_DEFINED(LIR::Separate)
 MAKETEA_USER_DEFINED(LIR::Dec_ref)
 MAKETEA_USER_DEFINED(LIR::Destruct)
+MAKETEA_USER_DEFINED(LIR::Symtable_fetch)
+MAKETEA_USER_DEFINED(LIR::Symtable_insert)
 MAKETEA_USER_DEFINED(LIR::None)
 
 

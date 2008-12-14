@@ -36,6 +36,16 @@ void Transform::pre_assign_zvpp(Assign_zvpp* in, Statement_list* out)
     out->push_back(in);
 }
 
+void Transform::pre_declare(Declare* in, Statement_list* out)
+{
+    out->push_back(in);
+}
+
+void Transform::pre_declare_p(Declare_p* in, Statement_list* out)
+{
+    out->push_back(in);
+}
+
 void Transform::pre_inc_ref(Inc_ref* in, Statement_list* out)
 {
     out->push_back(in);
@@ -76,17 +86,22 @@ Cond* Transform::pre_equals(Equals* in)
     return in;
 }
 
-Cond* Transform::pre_not_equals(Not_equals* in)
+Cond* Transform::pre_equals_p(Equals_p* in)
 {
     return in;
 }
 
-Zvp* Transform::pre_uninitialized(Uninitialized* in)
+Cond* Transform::pre_not(Not* in)
 {
     return in;
 }
 
-Zvp* Transform::pre_null(Null* in)
+Zvp* Transform::pre_uninit(Uninit* in)
+{
+    return in;
+}
+
+Null* Transform::pre_null(Null* in)
 {
     return in;
 }
@@ -101,7 +116,27 @@ Zvpp* Transform::pre_ref(Ref* in)
     return in;
 }
 
+void Transform::pre_symtable_fetch(Symtable_fetch* in, Statement_list* out)
+{
+    out->push_back(in);
+}
+
+void Transform::pre_symtable_insert(Symtable_insert* in, Statement_list* out)
+{
+    out->push_back(in);
+}
+
 COMMENT* Transform::pre_comment(COMMENT* in)
+{
+    return in;
+}
+
+SYMTABLE* Transform::pre_symtable(SYMTABLE* in)
+{
+    return in;
+}
+
+STRING* Transform::pre_string(STRING* in)
 {
     return in;
 }
@@ -126,17 +161,17 @@ void Transform::pre_code(CODE* in, Statement_list* out)
     out->push_back(in);
 }
 
-Zvp* Transform::pre_zvp(ZVP* in)
+ZVP* Transform::pre_zvp(ZVP* in)
+{
+    return in;
+}
+
+ZVPP* Transform::pre_zvpp(ZVPP* in)
 {
     return in;
 }
 
 Zvp* Transform::pre_literal(LITERAL* in)
-{
-    return in;
-}
-
-Zvpp* Transform::pre_zvpp(ZVPP* in)
 {
     return in;
 }
@@ -168,6 +203,16 @@ void Transform::post_assign_zvp(Assign_zvp* in, Statement_list* out)
 }
 
 void Transform::post_assign_zvpp(Assign_zvpp* in, Statement_list* out)
+{
+    out->push_back(in);
+}
+
+void Transform::post_declare(Declare* in, Statement_list* out)
+{
+    out->push_back(in);
+}
+
+void Transform::post_declare_p(Declare_p* in, Statement_list* out)
 {
     out->push_back(in);
 }
@@ -212,17 +257,22 @@ Cond* Transform::post_equals(Equals* in)
     return in;
 }
 
-Cond* Transform::post_not_equals(Not_equals* in)
+Cond* Transform::post_equals_p(Equals_p* in)
 {
     return in;
 }
 
-Zvp* Transform::post_uninitialized(Uninitialized* in)
+Cond* Transform::post_not(Not* in)
 {
     return in;
 }
 
-Zvp* Transform::post_null(Null* in)
+Zvp* Transform::post_uninit(Uninit* in)
+{
+    return in;
+}
+
+Null* Transform::post_null(Null* in)
 {
     return in;
 }
@@ -237,7 +287,27 @@ Zvpp* Transform::post_ref(Ref* in)
     return in;
 }
 
+void Transform::post_symtable_fetch(Symtable_fetch* in, Statement_list* out)
+{
+    out->push_back(in);
+}
+
+void Transform::post_symtable_insert(Symtable_insert* in, Statement_list* out)
+{
+    out->push_back(in);
+}
+
 COMMENT* Transform::post_comment(COMMENT* in)
+{
+    return in;
+}
+
+SYMTABLE* Transform::post_symtable(SYMTABLE* in)
+{
+    return in;
+}
+
+STRING* Transform::post_string(STRING* in)
 {
     return in;
 }
@@ -262,17 +332,17 @@ void Transform::post_code(CODE* in, Statement_list* out)
     out->push_back(in);
 }
 
-Zvp* Transform::post_zvp(ZVP* in)
+ZVP* Transform::post_zvp(ZVP* in)
+{
+    return in;
+}
+
+ZVPP* Transform::post_zvpp(ZVPP* in)
 {
     return in;
 }
 
 Zvp* Transform::post_literal(LITERAL* in)
-{
-    return in;
-}
-
-Zvpp* Transform::post_zvpp(ZVPP* in)
 {
     return in;
 }
@@ -314,6 +384,16 @@ void Transform::children_assign_zvpp(Assign_zvpp* in)
 {
     in->lhs = transform_zvpp(in->lhs);
     in->rhs = transform_zvpp(in->rhs);
+}
+
+void Transform::children_declare(Declare* in)
+{
+    in->zvp = transform_zvp(in->zvp);
+}
+
+void Transform::children_declare_p(Declare_p* in)
+{
+    in->zvpp = transform_zvpp(in->zvpp);
 }
 
 void Transform::children_inc_ref(Inc_ref* in)
@@ -358,13 +438,18 @@ void Transform::children_equals(Equals* in)
     in->rhs = transform_zvp(in->rhs);
 }
 
-void Transform::children_not_equals(Not_equals* in)
+void Transform::children_equals_p(Equals_p* in)
 {
-    in->lhs = transform_zvp(in->lhs);
-    in->rhs = transform_zvp(in->rhs);
+    in->lhs = transform_zvpp(in->lhs);
+    in->rhs = transform_zvpp(in->rhs);
 }
 
-void Transform::children_uninitialized(Uninitialized* in)
+void Transform::children_not(Not* in)
+{
+    in->cond = transform_cond(in->cond);
+}
+
+void Transform::children_uninit(Uninit* in)
 {
 }
 
@@ -382,8 +467,30 @@ void Transform::children_ref(Ref* in)
     in->zvp = transform_zvp(in->zvp);
 }
 
+void Transform::children_symtable_fetch(Symtable_fetch* in)
+{
+    in->symtable = transform_symtable(in->symtable);
+    in->name = transform_string(in->name);
+    in->zvpp = transform_zvpp(in->zvpp);
+}
+
+void Transform::children_symtable_insert(Symtable_insert* in)
+{
+    in->symtable = transform_symtable(in->symtable);
+    in->name = transform_string(in->name);
+    in->zvpp = transform_zvpp(in->zvpp);
+}
+
 // Tokens don't have children, so these methods do nothing by default
 void Transform::children_comment(COMMENT* in)
+{
+}
+
+void Transform::children_symtable(SYMTABLE* in)
+{
+}
+
+void Transform::children_string(STRING* in)
 {
 }
 
@@ -407,11 +514,11 @@ void Transform::children_zvp(ZVP* in)
 {
 }
 
-void Transform::children_literal(LITERAL* in)
+void Transform::children_zvpp(ZVPP* in)
 {
 }
 
-void Transform::children_zvpp(ZVPP* in)
+void Transform::children_literal(LITERAL* in)
 {
 }
 
@@ -571,6 +678,70 @@ Zvpp* Transform::transform_zvpp(Zvpp* in)
     return out;
 }
 
+ZVP* Transform::transform_zvp(ZVP* in)
+{
+    if(in == NULL) return NULL;
+    
+    ZVP* out;
+    
+    out = pre_zvp(in);
+    if(out != NULL)
+    {
+    	children_zvp(out);
+    	out = post_zvp(out);
+    }
+    
+    return out;
+}
+
+ZVPP* Transform::transform_zvpp(ZVPP* in)
+{
+    if(in == NULL) return NULL;
+    
+    ZVPP* out;
+    
+    out = pre_zvpp(in);
+    if(out != NULL)
+    {
+    	children_zvpp(out);
+    	out = post_zvpp(out);
+    }
+    
+    return out;
+}
+
+SYMTABLE* Transform::transform_symtable(SYMTABLE* in)
+{
+    if(in == NULL) return NULL;
+    
+    SYMTABLE* out;
+    
+    out = pre_symtable(in);
+    if(out != NULL)
+    {
+    	children_symtable(out);
+    	out = post_symtable(out);
+    }
+    
+    return out;
+}
+
+STRING* Transform::transform_string(STRING* in)
+{
+    if(in == NULL) return NULL;
+    
+    STRING* out;
+    
+    out = pre_string(in);
+    if(out != NULL)
+    {
+    	children_string(out);
+    	out = post_string(out);
+    }
+    
+    return out;
+}
+
 C_file* Transform::transform_c_file(C_file* in)
 {
     if(in == NULL) return NULL;
@@ -640,6 +811,24 @@ void Transform::pre_statement(Statement* in, Statement_list* out)
     			out->push_back(*i);
     	}
     	return;
+    case Declare::ID: 
+    	{
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
+    		pre_declare(dynamic_cast<Declare*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    case Declare_p::ID: 
+    	{
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
+    		pre_declare_p(dynamic_cast<Declare_p*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
     case Inc_ref::ID: 
     	{
     		Statement_list* local_out = new Statement_list;
@@ -694,6 +883,24 @@ void Transform::pre_statement(Statement* in, Statement_list* out)
     			out->push_back(*i);
     	}
     	return;
+    case Symtable_fetch::ID: 
+    	{
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
+    		pre_symtable_fetch(dynamic_cast<Symtable_fetch*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    case Symtable_insert::ID: 
+    	{
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
+    		pre_symtable_insert(dynamic_cast<Symtable_insert*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
     case If::ID: 
     	{
     		Statement_list* local_out = new Statement_list;
@@ -740,7 +947,8 @@ Cond* Transform::pre_cond(Cond* in)
     {
     case Is_ref::ID: return pre_is_ref(dynamic_cast<Is_ref*>(in));
     case Equals::ID: return pre_equals(dynamic_cast<Equals*>(in));
-    case Not_equals::ID: return pre_not_equals(dynamic_cast<Not_equals*>(in));
+    case Equals_p::ID: return pre_equals_p(dynamic_cast<Equals_p*>(in));
+    case Not::ID: return pre_not(dynamic_cast<Not*>(in));
     }
     assert(0);
 }
@@ -753,7 +961,7 @@ Zvp* Transform::pre_zvp(Zvp* in)
     case ZVP::ID: return pre_zvp(dynamic_cast<ZVP*>(in));
     case Null::ID: return pre_null(dynamic_cast<Null*>(in));
     case LITERAL::ID: return pre_literal(dynamic_cast<LITERAL*>(in));
-    case Uninitialized::ID: return pre_uninitialized(dynamic_cast<Uninitialized*>(in));
+    case Uninit::ID: return pre_uninit(dynamic_cast<Uninit*>(in));
     }
     assert(0);
 }
@@ -764,6 +972,7 @@ Zvpp* Transform::pre_zvpp(Zvpp* in)
     {
     case Ref::ID: return pre_ref(dynamic_cast<Ref*>(in));
     case ZVPP::ID: return pre_zvpp(dynamic_cast<ZVPP*>(in));
+    case Null::ID: return pre_null(dynamic_cast<Null*>(in));
     }
     assert(0);
 }
@@ -817,6 +1026,24 @@ void Transform::post_statement(Statement* in, Statement_list* out)
     		Statement_list* local_out = new Statement_list;
     		Statement_list::const_iterator i;
     		post_assign_zvpp(dynamic_cast<Assign_zvpp*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    case Declare::ID: 
+    	{
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
+    		post_declare(dynamic_cast<Declare*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    case Declare_p::ID: 
+    	{
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
+    		post_declare_p(dynamic_cast<Declare_p*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
@@ -875,6 +1102,24 @@ void Transform::post_statement(Statement* in, Statement_list* out)
     			out->push_back(*i);
     	}
     	return;
+    case Symtable_fetch::ID: 
+    	{
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
+    		post_symtable_fetch(dynamic_cast<Symtable_fetch*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    case Symtable_insert::ID: 
+    	{
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
+    		post_symtable_insert(dynamic_cast<Symtable_insert*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
     case If::ID: 
     	{
     		Statement_list* local_out = new Statement_list;
@@ -921,7 +1166,8 @@ Cond* Transform::post_cond(Cond* in)
     {
     case Is_ref::ID: return post_is_ref(dynamic_cast<Is_ref*>(in));
     case Equals::ID: return post_equals(dynamic_cast<Equals*>(in));
-    case Not_equals::ID: return post_not_equals(dynamic_cast<Not_equals*>(in));
+    case Equals_p::ID: return post_equals_p(dynamic_cast<Equals_p*>(in));
+    case Not::ID: return post_not(dynamic_cast<Not*>(in));
     }
     assert(0);
 }
@@ -934,7 +1180,7 @@ Zvp* Transform::post_zvp(Zvp* in)
     case ZVP::ID: return post_zvp(dynamic_cast<ZVP*>(in));
     case Null::ID: return post_null(dynamic_cast<Null*>(in));
     case LITERAL::ID: return post_literal(dynamic_cast<LITERAL*>(in));
-    case Uninitialized::ID: return post_uninitialized(dynamic_cast<Uninitialized*>(in));
+    case Uninit::ID: return post_uninit(dynamic_cast<Uninit*>(in));
     }
     assert(0);
 }
@@ -945,6 +1191,7 @@ Zvpp* Transform::post_zvpp(Zvpp* in)
     {
     case Ref::ID: return post_ref(dynamic_cast<Ref*>(in));
     case ZVPP::ID: return post_zvpp(dynamic_cast<ZVPP*>(in));
+    case Null::ID: return post_null(dynamic_cast<Null*>(in));
     }
     assert(0);
 }
@@ -977,6 +1224,12 @@ void Transform::children_statement(Statement* in)
     case Assign_zvpp::ID:
     	children_assign_zvpp(dynamic_cast<Assign_zvpp*>(in));
     	break;
+    case Declare::ID:
+    	children_declare(dynamic_cast<Declare*>(in));
+    	break;
+    case Declare_p::ID:
+    	children_declare_p(dynamic_cast<Declare_p*>(in));
+    	break;
     case Inc_ref::ID:
     	children_inc_ref(dynamic_cast<Inc_ref*>(in));
     	break;
@@ -994,6 +1247,12 @@ void Transform::children_statement(Statement* in)
     	break;
     case Separate::ID:
     	children_separate(dynamic_cast<Separate*>(in));
+    	break;
+    case Symtable_fetch::ID:
+    	children_symtable_fetch(dynamic_cast<Symtable_fetch*>(in));
+    	break;
+    case Symtable_insert::ID:
+    	children_symtable_insert(dynamic_cast<Symtable_insert*>(in));
     	break;
     case If::ID:
     	children_if(dynamic_cast<If*>(in));
@@ -1020,8 +1279,11 @@ void Transform::children_cond(Cond* in)
     case Equals::ID:
     	children_equals(dynamic_cast<Equals*>(in));
     	break;
-    case Not_equals::ID:
-    	children_not_equals(dynamic_cast<Not_equals*>(in));
+    case Equals_p::ID:
+    	children_equals_p(dynamic_cast<Equals_p*>(in));
+    	break;
+    case Not::ID:
+    	children_not(dynamic_cast<Not*>(in));
     	break;
     }
 }
@@ -1042,8 +1304,8 @@ void Transform::children_zvp(Zvp* in)
     case LITERAL::ID:
     	children_literal(dynamic_cast<LITERAL*>(in));
     	break;
-    case Uninitialized::ID:
-    	children_uninitialized(dynamic_cast<Uninitialized*>(in));
+    case Uninit::ID:
+    	children_uninit(dynamic_cast<Uninit*>(in));
     	break;
     }
 }
@@ -1057,6 +1319,9 @@ void Transform::children_zvpp(Zvpp* in)
     	break;
     case ZVPP::ID:
     	children_zvpp(dynamic_cast<ZVPP*>(in));
+    	break;
+    case Null::ID:
+    	children_null(dynamic_cast<Null*>(in));
     	break;
     }
 }

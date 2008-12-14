@@ -35,9 +35,11 @@
 //	So that means casts are pure.
 
 #include <fstream>
+#include <boost/format.hpp>
 
 #include "lib/List.h"
 #include "lib/Set.h"
+#include "lib/Map.h"
 #include "lib/escape.h"
 #include "lib/demangle.h"
 #include "process_ir/General.h"
@@ -49,6 +51,7 @@
 #include "embed/embed.h"
 
 using namespace std;
+using namespace boost;
 
 // These probably wont clash.
 using namespace MIR;
@@ -70,6 +73,8 @@ static stringstream code;
 static stringstream epilogue;
 static stringstream initializations;
 static stringstream finalizations;
+
+string templ (string);
 
 // TODO this is here for constant pooling. This should not be global.
 static gengetopt_args_info* args_info;
@@ -141,6 +146,16 @@ string get_scope (Scope scope)
 		return "&EG(symbol_table)";
 }
 
+string get_scope_lir (Scope scope)
+{
+	if(scope == LOCAL)
+		return "local";
+	else
+		return "global";
+}
+
+
+
 string get_hash (String* name)
 {
 	// the "u" at the end of the constant makes it unsigned, which
@@ -181,6 +196,7 @@ string get_non_st_name (VARIABLE_NAME* var_name)
 }
 
 string read_literal (Scope, string, Literal*);
+string read_literal_lir (Scope, string, Literal*);
 
 // Declare and fetch a zval* containing the value for RVALUE. The value can be
 // changed, but the symbol-table entry cannot be affected through this.
@@ -222,6 +238,28 @@ string read_rvalue (Scope scope, string zvp, Rvalue* rvalue)
 	return ss.str ();
 }
 
+string read_rvalue_lir (Scope scope, string zvp, Rvalue* rvalue)
+{
+	if (isa<Literal> (rvalue))
+		return read_literal_lir (scope, zvp, dyc<Literal> (rvalue));
+
+
+	VARIABLE_NAME* var_name = dyc<VARIABLE_NAME> (rvalue);
+	if (scope == LOCAL && var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
+	{
+		return str(format (templ ("read_rvalue_lir_st_entry_not_required"))
+			% get_non_st_name (var_name)
+			% zvp);
+	}
+	else
+	{
+		return str(format (templ ("read_rvalue_lir_else"))
+			% get_scope_lir (scope)
+			% *var_name->value
+			% zvp);
+	}
+}
+
 // TODO: This should be integrated into each function. In particular, we want
 // to remove the slowness of adding the uninitialized_zval_ptr, only to remove
 // it a second later.
@@ -254,6 +292,23 @@ string get_st_entry (Scope scope, string zvp, VARIABLE_NAME* var_name)
 		<<									get_hash (name) << " TSRMLS_CC);\n";
 	}
 	return ss.str();
+}
+
+string get_st_entry_lir (Scope scope, string zvp, VARIABLE_NAME* var_name)
+{
+	if (scope == LOCAL && var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
+	{
+		return str(format (templ ("get_st_entry_lir_st_entry_not_required"))
+			% get_non_st_name (var_name) 
+			% zvp);
+	}
+	else
+	{
+		return str(format (templ ("get_st_entry_lir_else"))
+			% get_scope_lir (LOCAL)
+			% *var_name->value
+			% zvp);
+	}
 }
 
 // Declare and fetch a zval** into ZVP, which is the hash-table entry for
@@ -701,7 +756,8 @@ protected:
 class Pattern_assign_expr_var : public Pattern_assign_var
 {
 #define STRAIGHT(STR) stmts->push_back (new LIR::CODE (s (STR)))
-#define DLS(STR) stmts->push_back (dyc<LIR::Statement> (parse_lir (s(#STR))))
+#define DSL(STR) stmts->push_back (dyc<LIR::Statement> (parse_lir (s(#STR))))
+#define LDSL(STR) do { stringstream ss; ss << STR; stmts->push_back_all (dyc<LIR::Statement_list> (parse_lir (s(ss.str())))); } while (0)
 public:
 	Expr* rhs_pattern()
 	{
@@ -715,26 +771,16 @@ public:
 
 		if (!agn->is_ref)
 		{
-			STRAIGHT (get_st_entry (LOCAL, "p_lhs", lhs->value));
-			STRAIGHT (read_rvalue (LOCAL, "rhs", rhs->value));
-/*			stmts->push_back (
-				new If (
-					new Equals (
-						new Deref (
-							new ZVPP ("p_lhs")),
-						new ZVP ("rhs")),
-						new LIR::Statement_list (
-							new CODE ("write_var (p_lhs, rhs);\n")),
-						new LIR::Statement_list));*/
-			DLS (
-					(if 
-						(not_equals 
-							(deref (ZVPP p_lhs)) 
-							(ZVP rhs)) 
-						[ (CODE "write_var (p_lhs, rhs);") ] 
-						[]));
-				// TODO: allows shortcuts
-				//		DLS ((if (== (* p_lhs) rhs) [(CODE "write_var (p_lhs, rhs);")] [] ))
+			LDSL ("["
+				<< get_st_entry_lir (LOCAL, "lhs", lhs->value)
+				<< read_rvalue_lir (LOCAL, "rhs", rhs->value)
+				<< "	(if "
+				<<	"		(not (equals "
+				<<	"			(deref (ZVPP lhs)) "
+				<<	"			(ZVP rhs))) "
+				<<	"		[ (CODE \"write_var (p_lhs, rhs);\") ] "
+				<<	"		[])"
+				<<	"]");
 		}
 		else
 		{
@@ -1191,7 +1237,29 @@ public:
 	Wildcard<Literal>* rhs;
 };
 
-
+string
+read_literal_lir (Scope scope, string zvp, Literal* lit)
+{
+	assert (0);
+	stringstream ss;
+	if (args_info->optimize_given)
+	{
+		ss 
+		<< "zval* " << zvp << " = "
+		<<	*lit->attrs->get_string ("phc.codegen.pool_name")
+		<< ";\n";
+	}
+	else
+	{
+		ss
+		<< "zval " << zvp << "_lit_tmp;\n"
+		<< "INIT_ZVAL (" << zvp << "_lit_tmp);\n"
+		<< "zval* " << zvp << " = &" << zvp << "_lit_tmp;\n"
+		<< write_literal_value_directly_into_zval (zvp, lit)
+		;
+	}
+	return ss.str();
+}
 
 string
 read_literal (Scope scope, string zvp, Literal* lit)
@@ -2585,7 +2653,7 @@ void Generate_C::children_statement(Statement* in)
 	}
 }
 
-void include_file (ostream& out, String* filename)
+string read_file (String* filename)
 {
 	// For now, we simply include this.
 	ifstream file;
@@ -2602,17 +2670,42 @@ void include_file (ostream& out, String* filename)
 		file.open (ss2.str ().c_str ());
 
 	assert (file.is_open ());
+	stringstream ss;
 	while (not file.eof ())
 	{
 		string str;
 		getline (file, str);
-		prologue << str << endl;
+		ss << str << endl;
 	}
 
 	file.close ();
 	assert (file.is_open () == false);
-
+	return ss.str ();
 }
+
+void include_file (ostream& out, String* filename)
+{
+	out << read_file (filename);
+}
+
+Map<string, string> templates;
+void include_templates (String* filename)
+{
+	string templ_string = read_file (filename);
+	string name, value;
+	foreach (tie (name, value), *parse_templates (s(templ_string)))
+		templates[name] = value;
+}
+
+
+string
+templ (string name)
+{
+	assert (templates.has (name));
+
+	return templates[name];
+}
+
 
 void Generate_C::pre_php_script(PHP_script* in)
 {
@@ -2628,6 +2721,8 @@ void Generate_C::pre_php_script(PHP_script* in)
 	include_file (prologue, s("var_vars.c"));
 
 	include_file (prologue, s("builtin_functions.c"));
+
+	include_templates (s("templates.lir"));
 
 
 	// We need to save refcounts for functions returned by reference, where the

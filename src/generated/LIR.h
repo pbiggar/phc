@@ -29,14 +29,17 @@ class Cond;
 class Zvp;
 class Zvpp;
 class COMMENT;
+class SYMTABLE;
+class STRING;
 class Method;
 class Block;
 class Action;
 class If;
 class Is_ref;
 class Equals;
-class Not_equals;
-class Uninitialized;
+class Equals_p;
+class Not;
+class Uninit;
 class Null;
 class Deref;
 class Ref;
@@ -45,16 +48,20 @@ class INTRINSIC;
 class API_CALL;
 class CODE;
 class ZVP;
-class LITERAL;
 class ZVPP;
+class LITERAL;
 class Assign_zvp;
 class Assign_zvpp;
+class Declare;
+class Declare_p;
 class Inc_ref;
 class Allocate;
 class Clone;
 class Separate;
 class Dec_ref;
 class Destruct;
+class Symtable_fetch;
+class Symtable_insert;
 class None;
 
 typedef List<Node*> Node_list;
@@ -65,14 +72,17 @@ typedef List<Cond*> Cond_list;
 typedef List<Zvp*> Zvp_list;
 typedef List<Zvpp*> Zvpp_list;
 typedef List<COMMENT*> COMMENT_list;
+typedef List<SYMTABLE*> SYMTABLE_list;
+typedef List<STRING*> STRING_list;
 typedef List<Method*> Method_list;
 typedef List<Block*> Block_list;
 typedef List<Action*> Action_list;
 typedef List<If*> If_list;
 typedef List<Is_ref*> Is_ref_list;
 typedef List<Equals*> Equals_list;
-typedef List<Not_equals*> Not_equals_list;
-typedef List<Uninitialized*> Uninitialized_list;
+typedef List<Equals_p*> Equals_p_list;
+typedef List<Not*> Not_list;
+typedef List<Uninit*> Uninit_list;
 typedef List<Null*> Null_list;
 typedef List<Deref*> Deref_list;
 typedef List<Ref*> Ref_list;
@@ -81,22 +91,26 @@ typedef List<INTRINSIC*> INTRINSIC_list;
 typedef List<API_CALL*> API_CALL_list;
 typedef List<CODE*> CODE_list;
 typedef List<ZVP*> ZVP_list;
-typedef List<LITERAL*> LITERAL_list;
 typedef List<ZVPP*> ZVPP_list;
+typedef List<LITERAL*> LITERAL_list;
 typedef List<Assign_zvp*> Assign_zvp_list;
 typedef List<Assign_zvpp*> Assign_zvpp_list;
+typedef List<Declare*> Declare_list;
+typedef List<Declare_p*> Declare_p_list;
 typedef List<Inc_ref*> Inc_ref_list;
 typedef List<Allocate*> Allocate_list;
 typedef List<Clone*> Clone_list;
 typedef List<Separate*> Separate_list;
 typedef List<Dec_ref*> Dec_ref_list;
 typedef List<Destruct*> Destruct_list;
+typedef List<Symtable_fetch*> Symtable_fetch_list;
+typedef List<Symtable_insert*> Symtable_insert_list;
 typedef List<None*> None_list;
 
 class Transform;
 class Visitor;
 
-// Node ::= C_file | Piece | Statement | Cond | Zvp | Zvpp | COMMENT;
+// Node ::= C_file | Piece | Statement | Cond | Zvp | Zvpp | COMMENT | SYMTABLE | STRING;
 class Node : virtual public IR::Node
 {
 public:
@@ -197,7 +211,7 @@ public:
     virtual void assert_valid() = 0;
 };
 
-// Cond ::= Is_ref | Equals | Not_equals;
+// Cond ::= Is_ref | Equals | Equals_p | Not;
 class Cond : virtual public Node
 {
 public:
@@ -221,7 +235,7 @@ public:
     virtual void assert_valid() = 0;
 };
 
-// Zvp ::= Deref | ZVP | Null | LITERAL | Uninitialized;
+// Zvp ::= Deref | ZVP | Null | LITERAL | Uninit;
 class Zvp : virtual public Node
 {
 public:
@@ -245,7 +259,7 @@ public:
     virtual void assert_valid() = 0;
 };
 
-// Zvpp ::= Ref | ZVPP;
+// Zvpp ::= Ref | ZVPP | Null;
 class Zvpp : virtual public Node
 {
 public:
@@ -282,7 +296,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 20;
+    static const int ID = 25;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -290,6 +304,64 @@ public:
     virtual bool equals(Node* in);
 public:
     virtual COMMENT* clone();
+public:
+    virtual Node* find(Node* in);
+public:
+    virtual void find_all(Node* in, Node_list* out);
+public:
+    virtual void assert_valid();
+};
+
+class SYMTABLE : virtual public Node
+{
+public:
+    SYMTABLE(String* value);
+protected:
+    SYMTABLE();
+public:
+    virtual void visit(Visitor* visitor);
+    virtual void transform_children(Transform* transform);
+public:
+    String* value;
+    virtual String* get_value_as_string();
+public:
+    static const int ID = 26;
+    virtual int classid();
+public:
+    virtual bool match(Node* in);
+public:
+    virtual bool equals(Node* in);
+public:
+    virtual SYMTABLE* clone();
+public:
+    virtual Node* find(Node* in);
+public:
+    virtual void find_all(Node* in, Node_list* out);
+public:
+    virtual void assert_valid();
+};
+
+class STRING : virtual public Node
+{
+public:
+    STRING(String* value);
+protected:
+    STRING();
+public:
+    virtual void visit(Visitor* visitor);
+    virtual void transform_children(Transform* transform);
+public:
+    String* value;
+    virtual String* get_value_as_string();
+public:
+    static const int ID = 27;
+    virtual int classid();
+public:
+    virtual bool match(Node* in);
+public:
+    virtual bool equals(Node* in);
+public:
+    virtual STRING* clone();
 public:
     virtual Node* find(Node* in);
 public:
@@ -362,7 +434,7 @@ public:
     Block(String* comment, Statement_list* statements);
 };
 
-// Action ::= Assign_zvp | Assign_zvpp | Inc_ref | Dec_ref | Destruct | Allocate | Clone | Separate;
+// Action ::= Assign_zvp | Assign_zvpp | Declare | Declare_p | Inc_ref | Dec_ref | Destruct | Allocate | Clone | Separate | Symtable_fetch | Symtable_insert;
 class Action : virtual public Statement
 {
 public:
@@ -430,7 +502,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 13;
+    static const int ID = 15;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -460,7 +532,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 14;
+    static const int ID = 16;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -476,28 +548,28 @@ public:
     virtual void assert_valid();
 };
 
-// Not_equals ::= lhs:Zvp rhs:Zvp ;
-class Not_equals : virtual public Cond
+// Equals_p ::= lhs:Zvpp rhs:Zvpp ;
+class Equals_p : virtual public Cond
 {
 public:
-    Not_equals(Zvp* lhs, Zvp* rhs);
+    Equals_p(Zvpp* lhs, Zvpp* rhs);
 protected:
-    Not_equals();
+    Equals_p();
 public:
-    Zvp* lhs;
-    Zvp* rhs;
+    Zvpp* lhs;
+    Zvpp* rhs;
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 15;
+    static const int ID = 17;
     virtual int classid();
 public:
     virtual bool match(Node* in);
 public:
     virtual bool equals(Node* in);
 public:
-    virtual Not_equals* clone();
+    virtual Equals_p* clone();
 public:
     virtual Node* find(Node* in);
 public:
@@ -506,23 +578,52 @@ public:
     virtual void assert_valid();
 };
 
-// Uninitialized ::= ;
-class Uninitialized : virtual public Zvp
+// Not ::= Cond ;
+class Not : virtual public Cond
 {
 public:
-    Uninitialized();
+    Not(Cond* cond);
+protected:
+    Not();
+public:
+    Cond* cond;
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 16;
+    static const int ID = 18;
     virtual int classid();
 public:
     virtual bool match(Node* in);
 public:
     virtual bool equals(Node* in);
 public:
-    virtual Uninitialized* clone();
+    virtual Not* clone();
+public:
+    virtual Node* find(Node* in);
+public:
+    virtual void find_all(Node* in, Node_list* out);
+public:
+    virtual void assert_valid();
+};
+
+// Uninit ::= ;
+class Uninit : virtual public Zvp
+{
+public:
+    Uninit();
+public:
+    virtual void visit(Visitor* visitor);
+    virtual void transform_children(Transform* transform);
+public:
+    static const int ID = 19;
+    virtual int classid();
+public:
+    virtual bool match(Node* in);
+public:
+    virtual bool equals(Node* in);
+public:
+    virtual Uninit* clone();
 public:
     virtual Node* find(Node* in);
 public:
@@ -532,7 +633,7 @@ public:
 };
 
 // Null ::= ;
-class Null : virtual public Zvp
+class Null : virtual public Zvp, virtual public Zvpp
 {
 public:
     Null();
@@ -540,7 +641,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 17;
+    static const int ID = 20;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -569,7 +670,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 18;
+    static const int ID = 21;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -598,7 +699,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 19;
+    static const int ID = 22;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -627,7 +728,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 21;
+    static const int ID = 28;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -656,7 +757,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 22;
+    static const int ID = 29;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -685,7 +786,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 23;
+    static const int ID = 30;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -714,7 +815,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 24;
+    static const int ID = 31;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -745,7 +846,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 25;
+    static const int ID = 32;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -763,35 +864,6 @@ public:
     ZVP(string value);
 };
 
-class LITERAL : virtual public Zvp
-{
-public:
-    LITERAL(String* value);
-protected:
-    LITERAL();
-public:
-    virtual void visit(Visitor* visitor);
-    virtual void transform_children(Transform* transform);
-public:
-    String* value;
-    virtual String* get_value_as_string();
-public:
-    static const int ID = 26;
-    virtual int classid();
-public:
-    virtual bool match(Node* in);
-public:
-    virtual bool equals(Node* in);
-public:
-    virtual LITERAL* clone();
-public:
-    virtual Node* find(Node* in);
-public:
-    virtual void find_all(Node* in, Node_list* out);
-public:
-    virtual void assert_valid();
-};
-
 class ZVPP : virtual public Zvpp
 {
 public:
@@ -805,7 +877,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 27;
+    static const int ID = 33;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -821,6 +893,35 @@ public:
     virtual void assert_valid();
 public:
     ZVPP(string value);
+};
+
+class LITERAL : virtual public Zvp
+{
+public:
+    LITERAL(String* value);
+protected:
+    LITERAL();
+public:
+    virtual void visit(Visitor* visitor);
+    virtual void transform_children(Transform* transform);
+public:
+    String* value;
+    virtual String* get_value_as_string();
+public:
+    static const int ID = 34;
+    virtual int classid();
+public:
+    virtual bool match(Node* in);
+public:
+    virtual bool equals(Node* in);
+public:
+    virtual LITERAL* clone();
+public:
+    virtual Node* find(Node* in);
+public:
+    virtual void find_all(Node* in, Node_list* out);
+public:
+    virtual void assert_valid();
 };
 
 // Assign_zvp ::= lhs:Zvp rhs:Zvp ;
@@ -883,6 +984,64 @@ public:
     virtual void assert_valid();
 };
 
+// Declare ::= ZVP ;
+class Declare : virtual public Action
+{
+public:
+    Declare(ZVP* zvp);
+protected:
+    Declare();
+public:
+    ZVP* zvp;
+public:
+    virtual void visit(Visitor* visitor);
+    virtual void transform_children(Transform* transform);
+public:
+    static const int ID = 7;
+    virtual int classid();
+public:
+    virtual bool match(Node* in);
+public:
+    virtual bool equals(Node* in);
+public:
+    virtual Declare* clone();
+public:
+    virtual Node* find(Node* in);
+public:
+    virtual void find_all(Node* in, Node_list* out);
+public:
+    virtual void assert_valid();
+};
+
+// Declare_p ::= ZVPP ;
+class Declare_p : virtual public Action
+{
+public:
+    Declare_p(ZVPP* zvpp);
+protected:
+    Declare_p();
+public:
+    ZVPP* zvpp;
+public:
+    virtual void visit(Visitor* visitor);
+    virtual void transform_children(Transform* transform);
+public:
+    static const int ID = 8;
+    virtual int classid();
+public:
+    virtual bool match(Node* in);
+public:
+    virtual bool equals(Node* in);
+public:
+    virtual Declare_p* clone();
+public:
+    virtual Node* find(Node* in);
+public:
+    virtual void find_all(Node* in, Node_list* out);
+public:
+    virtual void assert_valid();
+};
+
 // Inc_ref ::= Zvp ;
 class Inc_ref : virtual public Action
 {
@@ -896,7 +1055,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 7;
+    static const int ID = 9;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -925,7 +1084,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 8;
+    static const int ID = 10;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -955,7 +1114,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 9;
+    static const int ID = 11;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -984,7 +1143,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 10;
+    static const int ID = 12;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1013,7 +1172,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 11;
+    static const int ID = 13;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1042,7 +1201,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 12;
+    static const int ID = 14;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1058,8 +1217,70 @@ public:
     virtual void assert_valid();
 };
 
+// Symtable_fetch ::= SYMTABLE name:STRING ZVPP ;
+class Symtable_fetch : virtual public Action
+{
+public:
+    Symtable_fetch(SYMTABLE* symtable, STRING* name, ZVPP* zvpp);
+protected:
+    Symtable_fetch();
+public:
+    SYMTABLE* symtable;
+    STRING* name;
+    ZVPP* zvpp;
+public:
+    virtual void visit(Visitor* visitor);
+    virtual void transform_children(Transform* transform);
+public:
+    static const int ID = 23;
+    virtual int classid();
+public:
+    virtual bool match(Node* in);
+public:
+    virtual bool equals(Node* in);
+public:
+    virtual Symtable_fetch* clone();
+public:
+    virtual Node* find(Node* in);
+public:
+    virtual void find_all(Node* in, Node_list* out);
+public:
+    virtual void assert_valid();
+};
+
+// Symtable_insert ::= SYMTABLE name:STRING ZVPP ;
+class Symtable_insert : virtual public Action
+{
+public:
+    Symtable_insert(SYMTABLE* symtable, STRING* name, ZVPP* zvpp);
+protected:
+    Symtable_insert();
+public:
+    SYMTABLE* symtable;
+    STRING* name;
+    ZVPP* zvpp;
+public:
+    virtual void visit(Visitor* visitor);
+    virtual void transform_children(Transform* transform);
+public:
+    static const int ID = 24;
+    virtual int classid();
+public:
+    virtual bool match(Node* in);
+public:
+    virtual bool equals(Node* in);
+public:
+    virtual Symtable_insert* clone();
+public:
+    virtual Node* find(Node* in);
+public:
+    virtual void find_all(Node* in, Node_list* out);
+public:
+    virtual void assert_valid();
+};
+
 // The top of the class hierarchy. If the Fold will not allow you fold to anything else, try this.
-class None : virtual public Node, virtual public C_file, virtual public Piece, virtual public Method, virtual public Block, virtual public Statement, virtual public Action, virtual public If, virtual public Cond, virtual public Assign_zvp, virtual public Assign_zvpp, virtual public Inc_ref, virtual public Allocate, virtual public Clone, virtual public Separate, virtual public Dec_ref, virtual public Destruct, virtual public Is_ref, virtual public Equals, virtual public Not_equals, virtual public Zvp, virtual public Zvpp, virtual public Uninitialized, virtual public Null, virtual public Deref, virtual public Ref, virtual public COMMENT, virtual public UNINTERPRETED, virtual public INTRINSIC, virtual public API_CALL, virtual public CODE, virtual public ZVP, virtual public LITERAL, virtual public ZVPP
+class None : virtual public Node, virtual public C_file, virtual public Piece, virtual public Method, virtual public Block, virtual public Statement, virtual public Action, virtual public If, virtual public Cond, virtual public Assign_zvp, virtual public Assign_zvpp, virtual public Declare, virtual public Declare_p, virtual public Inc_ref, virtual public Allocate, virtual public Clone, virtual public Separate, virtual public Dec_ref, virtual public Destruct, virtual public Is_ref, virtual public Equals, virtual public Equals_p, virtual public Not, virtual public Zvp, virtual public Zvpp, virtual public Uninit, virtual public Null, virtual public Deref, virtual public Ref, virtual public Symtable_fetch, virtual public Symtable_insert, virtual public COMMENT, virtual public SYMTABLE, virtual public STRING, virtual public UNINTERPRETED, virtual public INTRINSIC, virtual public API_CALL, virtual public CODE, virtual public ZVP, virtual public ZVPP, virtual public LITERAL
 {
 public:
     None();
@@ -1158,7 +1379,7 @@ public:
 		assert (0); // I'm not sure what this would mean
 	}
 public:
-	static const int ID = 29;
+	static const int ID = 36;
 	int classid()
 	{
 		return ID;

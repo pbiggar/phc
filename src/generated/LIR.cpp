@@ -281,6 +281,182 @@ void COMMENT::assert_valid()
     assert(value != NULL);
 }
 
+SYMTABLE::SYMTABLE(String* value)
+{
+    this->value = value;
+}
+
+SYMTABLE::SYMTABLE()
+{
+    this->value = 0;
+}
+
+void SYMTABLE::visit(Visitor* visitor)
+{
+    visitor->visit_symtable(this);
+}
+
+void SYMTABLE::transform_children(Transform* transform)
+{
+    transform->children_symtable(this);
+}
+
+String* SYMTABLE::get_value_as_string()
+{
+    return value;
+}
+
+int SYMTABLE::classid()
+{
+    return ID;
+}
+
+bool SYMTABLE::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    SYMTABLE* that = dynamic_cast<SYMTABLE*>(in);
+    if(that == NULL) return false;
+    
+    if(this->value != NULL && that->value != NULL)
+    	return (*this->value == *that->value);
+    else
+    	return true;
+}
+
+bool SYMTABLE::equals(Node* in)
+{
+    SYMTABLE* that = dynamic_cast<SYMTABLE*>(in);
+    if(that == NULL) return false;
+    
+    if(this->value == NULL || that->value == NULL)
+    {
+    	if(this->value != NULL || that->value != NULL)
+    		return false;
+    }
+    else if(*this->value != *that->value)
+    	return false;
+    
+    return true;
+}
+
+SYMTABLE* SYMTABLE::clone()
+{
+    String* value = new String(*this->value);
+    SYMTABLE* clone = new SYMTABLE(value);
+    return clone;
+}
+
+Node* SYMTABLE::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    return NULL;
+}
+
+void SYMTABLE::find_all(Node* in, Node_list* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+}
+
+void SYMTABLE::assert_valid()
+{
+    assert(value != NULL);
+}
+
+STRING::STRING(String* value)
+{
+    this->value = value;
+}
+
+STRING::STRING()
+{
+    this->value = 0;
+}
+
+void STRING::visit(Visitor* visitor)
+{
+    visitor->visit_string(this);
+}
+
+void STRING::transform_children(Transform* transform)
+{
+    transform->children_string(this);
+}
+
+String* STRING::get_value_as_string()
+{
+    return value;
+}
+
+int STRING::classid()
+{
+    return ID;
+}
+
+bool STRING::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    STRING* that = dynamic_cast<STRING*>(in);
+    if(that == NULL) return false;
+    
+    if(this->value != NULL && that->value != NULL)
+    	return (*this->value == *that->value);
+    else
+    	return true;
+}
+
+bool STRING::equals(Node* in)
+{
+    STRING* that = dynamic_cast<STRING*>(in);
+    if(that == NULL) return false;
+    
+    if(this->value == NULL || that->value == NULL)
+    {
+    	if(this->value != NULL || that->value != NULL)
+    		return false;
+    }
+    else if(*this->value != *that->value)
+    	return false;
+    
+    return true;
+}
+
+STRING* STRING::clone()
+{
+    String* value = new String(*this->value);
+    STRING* clone = new STRING(value);
+    return clone;
+}
+
+Node* STRING::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    return NULL;
+}
+
+void STRING::find_all(Node* in, Node_list* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+}
+
+void STRING::assert_valid()
+{
+    assert(value != NULL);
+}
+
 Method::Method(COMMENT* comment, UNINTERPRETED* entry, Piece_list* pieces, UNINTERPRETED* exit)
 {
     this->comment = comment;
@@ -1258,41 +1434,41 @@ void Equals::assert_valid()
     rhs->assert_valid();
 }
 
-Not_equals::Not_equals(Zvp* lhs, Zvp* rhs)
+Equals_p::Equals_p(Zvpp* lhs, Zvpp* rhs)
 {
     this->lhs = lhs;
     this->rhs = rhs;
 }
 
-Not_equals::Not_equals()
+Equals_p::Equals_p()
 {
     this->lhs = 0;
     this->rhs = 0;
 }
 
-void Not_equals::visit(Visitor* visitor)
+void Equals_p::visit(Visitor* visitor)
 {
     visitor->visit_cond(this);
 }
 
-void Not_equals::transform_children(Transform* transform)
+void Equals_p::transform_children(Transform* transform)
 {
     transform->children_cond(this);
 }
 
-int Not_equals::classid()
+int Equals_p::classid()
 {
     return ID;
 }
 
-bool Not_equals::match(Node* in)
+bool Equals_p::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    Not_equals* that = dynamic_cast<Not_equals*>(in);
+    Equals_p* that = dynamic_cast<Equals_p*>(in);
     if(that == NULL) return false;
     
     if(this->lhs == NULL)
@@ -1314,9 +1490,9 @@ bool Not_equals::match(Node* in)
     return true;
 }
 
-bool Not_equals::equals(Node* in)
+bool Equals_p::equals(Node* in)
 {
-    Not_equals* that = dynamic_cast<Not_equals*>(in);
+    Equals_p* that = dynamic_cast<Equals_p*>(in);
     if(that == NULL) return false;
     
     if(this->lhs == NULL || that->lhs == NULL)
@@ -1338,15 +1514,15 @@ bool Not_equals::equals(Node* in)
     return true;
 }
 
-Not_equals* Not_equals::clone()
+Equals_p* Equals_p::clone()
 {
-    Zvp* lhs = this->lhs ? this->lhs->clone() : NULL;
-    Zvp* rhs = this->rhs ? this->rhs->clone() : NULL;
-    Not_equals* clone = new Not_equals(lhs, rhs);
+    Zvpp* lhs = this->lhs ? this->lhs->clone() : NULL;
+    Zvpp* rhs = this->rhs ? this->rhs->clone() : NULL;
+    Equals_p* clone = new Equals_p(lhs, rhs);
     return clone;
 }
 
-Node* Not_equals::find(Node* in)
+Node* Equals_p::find(Node* in)
 {
     if (this->match (in))
     	return this;
@@ -1366,7 +1542,7 @@ Node* Not_equals::find(Node* in)
     return NULL;
 }
 
-void Not_equals::find_all(Node* in, Node_list* out)
+void Equals_p::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -1379,7 +1555,7 @@ void Not_equals::find_all(Node* in, Node_list* out)
     
 }
 
-void Not_equals::assert_valid()
+void Equals_p::assert_valid()
 {
     assert(lhs != NULL);
     lhs->assert_valid();
@@ -1387,53 +1563,152 @@ void Not_equals::assert_valid()
     rhs->assert_valid();
 }
 
-Uninitialized::Uninitialized()
+Not::Not(Cond* cond)
 {
+    this->cond = cond;
 }
 
-void Uninitialized::visit(Visitor* visitor)
+Not::Not()
 {
-    visitor->visit_zvp(this);
+    this->cond = 0;
 }
 
-void Uninitialized::transform_children(Transform* transform)
+void Not::visit(Visitor* visitor)
 {
-    transform->children_zvp(this);
+    visitor->visit_cond(this);
 }
 
-int Uninitialized::classid()
+void Not::transform_children(Transform* transform)
+{
+    transform->children_cond(this);
+}
+
+int Not::classid()
 {
     return ID;
 }
 
-bool Uninitialized::match(Node* in)
+bool Not::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    Uninitialized* that = dynamic_cast<Uninitialized*>(in);
+    Not* that = dynamic_cast<Not*>(in);
     if(that == NULL) return false;
+    
+    if(this->cond == NULL)
+    {
+    	if(that->cond != NULL && !that->cond->match(this->cond))
+    		return false;
+    }
+    else if(!this->cond->match(that->cond))
+    	return false;
     
     return true;
 }
 
-bool Uninitialized::equals(Node* in)
+bool Not::equals(Node* in)
 {
-    Uninitialized* that = dynamic_cast<Uninitialized*>(in);
+    Not* that = dynamic_cast<Not*>(in);
     if(that == NULL) return false;
+    
+    if(this->cond == NULL || that->cond == NULL)
+    {
+    	if(this->cond != NULL || that->cond != NULL)
+    		return false;
+    }
+    else if(!this->cond->equals(that->cond))
+    	return false;
     
     return true;
 }
 
-Uninitialized* Uninitialized::clone()
+Not* Not::clone()
 {
-    Uninitialized* clone = new Uninitialized();
+    Cond* cond = this->cond ? this->cond->clone() : NULL;
+    Not* clone = new Not(cond);
     return clone;
 }
 
-Node* Uninitialized::find(Node* in)
+Node* Not::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    if (this->cond != NULL)
+    {
+    	Node* cond_res = this->cond->find(in);
+    	if (cond_res) return cond_res;
+    }
+    
+    return NULL;
+}
+
+void Not::find_all(Node* in, Node_list* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+    
+    if (this->cond != NULL)
+    	this->cond->find_all(in, out);
+    
+}
+
+void Not::assert_valid()
+{
+    assert(cond != NULL);
+    cond->assert_valid();
+}
+
+Uninit::Uninit()
+{
+}
+
+void Uninit::visit(Visitor* visitor)
+{
+    visitor->visit_zvp(this);
+}
+
+void Uninit::transform_children(Transform* transform)
+{
+    transform->children_zvp(this);
+}
+
+int Uninit::classid()
+{
+    return ID;
+}
+
+bool Uninit::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Uninit* that = dynamic_cast<Uninit*>(in);
+    if(that == NULL) return false;
+    
+    return true;
+}
+
+bool Uninit::equals(Node* in)
+{
+    Uninit* that = dynamic_cast<Uninit*>(in);
+    if(that == NULL) return false;
+    
+    return true;
+}
+
+Uninit* Uninit::clone()
+{
+    Uninit* clone = new Uninit();
+    return clone;
+}
+
+Node* Uninit::find(Node* in)
 {
     if (this->match (in))
     	return this;
@@ -1441,14 +1716,14 @@ Node* Uninitialized::find(Node* in)
     return NULL;
 }
 
-void Uninitialized::find_all(Node* in, Node_list* out)
+void Uninit::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
     
 }
 
-void Uninitialized::assert_valid()
+void Uninit::assert_valid()
 {
 }
 
@@ -1458,12 +1733,12 @@ Null::Null()
 
 void Null::visit(Visitor* visitor)
 {
-    visitor->visit_zvp(this);
+    visitor->visit_zvpp(this);
 }
 
 void Null::transform_children(Transform* transform)
 {
-    transform->children_zvp(this);
+    transform->children_zvpp(this);
 }
 
 int Null::classid()
@@ -2169,94 +2444,6 @@ ZVP::ZVP(string value)
 	}
 }
 
-LITERAL::LITERAL(String* value)
-{
-    this->value = value;
-}
-
-LITERAL::LITERAL()
-{
-    this->value = 0;
-}
-
-void LITERAL::visit(Visitor* visitor)
-{
-    visitor->visit_zvp(this);
-}
-
-void LITERAL::transform_children(Transform* transform)
-{
-    transform->children_zvp(this);
-}
-
-String* LITERAL::get_value_as_string()
-{
-    return value;
-}
-
-int LITERAL::classid()
-{
-    return ID;
-}
-
-bool LITERAL::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    LITERAL* that = dynamic_cast<LITERAL*>(in);
-    if(that == NULL) return false;
-    
-    if(this->value != NULL && that->value != NULL)
-    	return (*this->value == *that->value);
-    else
-    	return true;
-}
-
-bool LITERAL::equals(Node* in)
-{
-    LITERAL* that = dynamic_cast<LITERAL*>(in);
-    if(that == NULL) return false;
-    
-    if(this->value == NULL || that->value == NULL)
-    {
-    	if(this->value != NULL || that->value != NULL)
-    		return false;
-    }
-    else if(*this->value != *that->value)
-    	return false;
-    
-    return true;
-}
-
-LITERAL* LITERAL::clone()
-{
-    String* value = new String(*this->value);
-    LITERAL* clone = new LITERAL(value);
-    return clone;
-}
-
-Node* LITERAL::find(Node* in)
-{
-    if (this->match (in))
-    	return this;
-    
-    return NULL;
-}
-
-void LITERAL::find_all(Node* in, Node_list* out)
-{
-    if (this->match (in))
-    	out->push_back (this);
-}
-
-void LITERAL::assert_valid()
-{
-    assert(value != NULL);
-}
-
 ZVPP::ZVPP(String* value)
 {
     this->value = value;
@@ -2350,6 +2537,94 @@ ZVPP::ZVPP(string value)
     {
 		this->value = new String (value);
 	}
+}
+
+LITERAL::LITERAL(String* value)
+{
+    this->value = value;
+}
+
+LITERAL::LITERAL()
+{
+    this->value = 0;
+}
+
+void LITERAL::visit(Visitor* visitor)
+{
+    visitor->visit_zvp(this);
+}
+
+void LITERAL::transform_children(Transform* transform)
+{
+    transform->children_zvp(this);
+}
+
+String* LITERAL::get_value_as_string()
+{
+    return value;
+}
+
+int LITERAL::classid()
+{
+    return ID;
+}
+
+bool LITERAL::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    LITERAL* that = dynamic_cast<LITERAL*>(in);
+    if(that == NULL) return false;
+    
+    if(this->value != NULL && that->value != NULL)
+    	return (*this->value == *that->value);
+    else
+    	return true;
+}
+
+bool LITERAL::equals(Node* in)
+{
+    LITERAL* that = dynamic_cast<LITERAL*>(in);
+    if(that == NULL) return false;
+    
+    if(this->value == NULL || that->value == NULL)
+    {
+    	if(this->value != NULL || that->value != NULL)
+    		return false;
+    }
+    else if(*this->value != *that->value)
+    	return false;
+    
+    return true;
+}
+
+LITERAL* LITERAL::clone()
+{
+    String* value = new String(*this->value);
+    LITERAL* clone = new LITERAL(value);
+    return clone;
+}
+
+Node* LITERAL::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    return NULL;
+}
+
+void LITERAL::find_all(Node* in, Node_list* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+}
+
+void LITERAL::assert_valid()
+{
+    assert(value != NULL);
 }
 
 Assign_zvp::Assign_zvp(Zvp* lhs, Zvp* rhs)
@@ -2608,6 +2883,204 @@ void Assign_zvpp::assert_valid()
     lhs->assert_valid();
     assert(rhs != NULL);
     rhs->assert_valid();
+}
+
+Declare::Declare(ZVP* zvp)
+{
+    this->zvp = zvp;
+}
+
+Declare::Declare()
+{
+    this->zvp = 0;
+}
+
+void Declare::visit(Visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void Declare::transform_children(Transform* transform)
+{
+    transform->children_statement(this);
+}
+
+int Declare::classid()
+{
+    return ID;
+}
+
+bool Declare::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Declare* that = dynamic_cast<Declare*>(in);
+    if(that == NULL) return false;
+    
+    if(this->zvp == NULL)
+    {
+    	if(that->zvp != NULL && !that->zvp->match(this->zvp))
+    		return false;
+    }
+    else if(!this->zvp->match(that->zvp))
+    	return false;
+    
+    return true;
+}
+
+bool Declare::equals(Node* in)
+{
+    Declare* that = dynamic_cast<Declare*>(in);
+    if(that == NULL) return false;
+    
+    if(this->zvp == NULL || that->zvp == NULL)
+    {
+    	if(this->zvp != NULL || that->zvp != NULL)
+    		return false;
+    }
+    else if(!this->zvp->equals(that->zvp))
+    	return false;
+    
+    return true;
+}
+
+Declare* Declare::clone()
+{
+    ZVP* zvp = this->zvp ? this->zvp->clone() : NULL;
+    Declare* clone = new Declare(zvp);
+    return clone;
+}
+
+Node* Declare::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    if (this->zvp != NULL)
+    {
+    	Node* zvp_res = this->zvp->find(in);
+    	if (zvp_res) return zvp_res;
+    }
+    
+    return NULL;
+}
+
+void Declare::find_all(Node* in, Node_list* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+    
+    if (this->zvp != NULL)
+    	this->zvp->find_all(in, out);
+    
+}
+
+void Declare::assert_valid()
+{
+    assert(zvp != NULL);
+    zvp->assert_valid();
+}
+
+Declare_p::Declare_p(ZVPP* zvpp)
+{
+    this->zvpp = zvpp;
+}
+
+Declare_p::Declare_p()
+{
+    this->zvpp = 0;
+}
+
+void Declare_p::visit(Visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void Declare_p::transform_children(Transform* transform)
+{
+    transform->children_statement(this);
+}
+
+int Declare_p::classid()
+{
+    return ID;
+}
+
+bool Declare_p::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Declare_p* that = dynamic_cast<Declare_p*>(in);
+    if(that == NULL) return false;
+    
+    if(this->zvpp == NULL)
+    {
+    	if(that->zvpp != NULL && !that->zvpp->match(this->zvpp))
+    		return false;
+    }
+    else if(!this->zvpp->match(that->zvpp))
+    	return false;
+    
+    return true;
+}
+
+bool Declare_p::equals(Node* in)
+{
+    Declare_p* that = dynamic_cast<Declare_p*>(in);
+    if(that == NULL) return false;
+    
+    if(this->zvpp == NULL || that->zvpp == NULL)
+    {
+    	if(this->zvpp != NULL || that->zvpp != NULL)
+    		return false;
+    }
+    else if(!this->zvpp->equals(that->zvpp))
+    	return false;
+    
+    return true;
+}
+
+Declare_p* Declare_p::clone()
+{
+    ZVPP* zvpp = this->zvpp ? this->zvpp->clone() : NULL;
+    Declare_p* clone = new Declare_p(zvpp);
+    return clone;
+}
+
+Node* Declare_p::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    if (this->zvpp != NULL)
+    {
+    	Node* zvpp_res = this->zvpp->find(in);
+    	if (zvpp_res) return zvpp_res;
+    }
+    
+    return NULL;
+}
+
+void Declare_p::find_all(Node* in, Node_list* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+    
+    if (this->zvpp != NULL)
+    	this->zvpp->find_all(in, out);
+    
+}
+
+void Declare_p::assert_valid()
+{
+    assert(zvpp != NULL);
+    zvpp->assert_valid();
 }
 
 Inc_ref::Inc_ref(Zvp* zvp)
@@ -3230,6 +3703,324 @@ void Destruct::find_all(Node* in, Node_list* out)
 
 void Destruct::assert_valid()
 {
+    assert(zvpp != NULL);
+    zvpp->assert_valid();
+}
+
+Symtable_fetch::Symtable_fetch(SYMTABLE* symtable, STRING* name, ZVPP* zvpp)
+{
+    this->symtable = symtable;
+    this->name = name;
+    this->zvpp = zvpp;
+}
+
+Symtable_fetch::Symtable_fetch()
+{
+    this->symtable = 0;
+    this->name = 0;
+    this->zvpp = 0;
+}
+
+void Symtable_fetch::visit(Visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void Symtable_fetch::transform_children(Transform* transform)
+{
+    transform->children_statement(this);
+}
+
+int Symtable_fetch::classid()
+{
+    return ID;
+}
+
+bool Symtable_fetch::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Symtable_fetch* that = dynamic_cast<Symtable_fetch*>(in);
+    if(that == NULL) return false;
+    
+    if(this->symtable == NULL)
+    {
+    	if(that->symtable != NULL && !that->symtable->match(this->symtable))
+    		return false;
+    }
+    else if(!this->symtable->match(that->symtable))
+    	return false;
+    
+    if(this->name == NULL)
+    {
+    	if(that->name != NULL && !that->name->match(this->name))
+    		return false;
+    }
+    else if(!this->name->match(that->name))
+    	return false;
+    
+    if(this->zvpp == NULL)
+    {
+    	if(that->zvpp != NULL && !that->zvpp->match(this->zvpp))
+    		return false;
+    }
+    else if(!this->zvpp->match(that->zvpp))
+    	return false;
+    
+    return true;
+}
+
+bool Symtable_fetch::equals(Node* in)
+{
+    Symtable_fetch* that = dynamic_cast<Symtable_fetch*>(in);
+    if(that == NULL) return false;
+    
+    if(this->symtable == NULL || that->symtable == NULL)
+    {
+    	if(this->symtable != NULL || that->symtable != NULL)
+    		return false;
+    }
+    else if(!this->symtable->equals(that->symtable))
+    	return false;
+    
+    if(this->name == NULL || that->name == NULL)
+    {
+    	if(this->name != NULL || that->name != NULL)
+    		return false;
+    }
+    else if(!this->name->equals(that->name))
+    	return false;
+    
+    if(this->zvpp == NULL || that->zvpp == NULL)
+    {
+    	if(this->zvpp != NULL || that->zvpp != NULL)
+    		return false;
+    }
+    else if(!this->zvpp->equals(that->zvpp))
+    	return false;
+    
+    return true;
+}
+
+Symtable_fetch* Symtable_fetch::clone()
+{
+    SYMTABLE* symtable = this->symtable ? this->symtable->clone() : NULL;
+    STRING* name = this->name ? this->name->clone() : NULL;
+    ZVPP* zvpp = this->zvpp ? this->zvpp->clone() : NULL;
+    Symtable_fetch* clone = new Symtable_fetch(symtable, name, zvpp);
+    return clone;
+}
+
+Node* Symtable_fetch::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    if (this->symtable != NULL)
+    {
+    	Node* symtable_res = this->symtable->find(in);
+    	if (symtable_res) return symtable_res;
+    }
+    
+    if (this->name != NULL)
+    {
+    	Node* name_res = this->name->find(in);
+    	if (name_res) return name_res;
+    }
+    
+    if (this->zvpp != NULL)
+    {
+    	Node* zvpp_res = this->zvpp->find(in);
+    	if (zvpp_res) return zvpp_res;
+    }
+    
+    return NULL;
+}
+
+void Symtable_fetch::find_all(Node* in, Node_list* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+    
+    if (this->symtable != NULL)
+    	this->symtable->find_all(in, out);
+    
+    if (this->name != NULL)
+    	this->name->find_all(in, out);
+    
+    if (this->zvpp != NULL)
+    	this->zvpp->find_all(in, out);
+    
+}
+
+void Symtable_fetch::assert_valid()
+{
+    assert(symtable != NULL);
+    symtable->assert_valid();
+    assert(name != NULL);
+    name->assert_valid();
+    assert(zvpp != NULL);
+    zvpp->assert_valid();
+}
+
+Symtable_insert::Symtable_insert(SYMTABLE* symtable, STRING* name, ZVPP* zvpp)
+{
+    this->symtable = symtable;
+    this->name = name;
+    this->zvpp = zvpp;
+}
+
+Symtable_insert::Symtable_insert()
+{
+    this->symtable = 0;
+    this->name = 0;
+    this->zvpp = 0;
+}
+
+void Symtable_insert::visit(Visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void Symtable_insert::transform_children(Transform* transform)
+{
+    transform->children_statement(this);
+}
+
+int Symtable_insert::classid()
+{
+    return ID;
+}
+
+bool Symtable_insert::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Symtable_insert* that = dynamic_cast<Symtable_insert*>(in);
+    if(that == NULL) return false;
+    
+    if(this->symtable == NULL)
+    {
+    	if(that->symtable != NULL && !that->symtable->match(this->symtable))
+    		return false;
+    }
+    else if(!this->symtable->match(that->symtable))
+    	return false;
+    
+    if(this->name == NULL)
+    {
+    	if(that->name != NULL && !that->name->match(this->name))
+    		return false;
+    }
+    else if(!this->name->match(that->name))
+    	return false;
+    
+    if(this->zvpp == NULL)
+    {
+    	if(that->zvpp != NULL && !that->zvpp->match(this->zvpp))
+    		return false;
+    }
+    else if(!this->zvpp->match(that->zvpp))
+    	return false;
+    
+    return true;
+}
+
+bool Symtable_insert::equals(Node* in)
+{
+    Symtable_insert* that = dynamic_cast<Symtable_insert*>(in);
+    if(that == NULL) return false;
+    
+    if(this->symtable == NULL || that->symtable == NULL)
+    {
+    	if(this->symtable != NULL || that->symtable != NULL)
+    		return false;
+    }
+    else if(!this->symtable->equals(that->symtable))
+    	return false;
+    
+    if(this->name == NULL || that->name == NULL)
+    {
+    	if(this->name != NULL || that->name != NULL)
+    		return false;
+    }
+    else if(!this->name->equals(that->name))
+    	return false;
+    
+    if(this->zvpp == NULL || that->zvpp == NULL)
+    {
+    	if(this->zvpp != NULL || that->zvpp != NULL)
+    		return false;
+    }
+    else if(!this->zvpp->equals(that->zvpp))
+    	return false;
+    
+    return true;
+}
+
+Symtable_insert* Symtable_insert::clone()
+{
+    SYMTABLE* symtable = this->symtable ? this->symtable->clone() : NULL;
+    STRING* name = this->name ? this->name->clone() : NULL;
+    ZVPP* zvpp = this->zvpp ? this->zvpp->clone() : NULL;
+    Symtable_insert* clone = new Symtable_insert(symtable, name, zvpp);
+    return clone;
+}
+
+Node* Symtable_insert::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    if (this->symtable != NULL)
+    {
+    	Node* symtable_res = this->symtable->find(in);
+    	if (symtable_res) return symtable_res;
+    }
+    
+    if (this->name != NULL)
+    {
+    	Node* name_res = this->name->find(in);
+    	if (name_res) return name_res;
+    }
+    
+    if (this->zvpp != NULL)
+    {
+    	Node* zvpp_res = this->zvpp->find(in);
+    	if (zvpp_res) return zvpp_res;
+    }
+    
+    return NULL;
+}
+
+void Symtable_insert::find_all(Node* in, Node_list* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+    
+    if (this->symtable != NULL)
+    	this->symtable->find_all(in, out);
+    
+    if (this->name != NULL)
+    	this->name->find_all(in, out);
+    
+    if (this->zvpp != NULL)
+    	this->zvpp->find_all(in, out);
+    
+}
+
+void Symtable_insert::assert_valid()
+{
+    assert(symtable != NULL);
+    symtable->assert_valid();
+    assert(name != NULL);
+    name->assert_valid();
     assert(zvpp != NULL);
     zvpp->assert_valid();
 }

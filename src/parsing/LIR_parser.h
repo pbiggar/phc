@@ -9,12 +9,15 @@
 #ifndef PHC_LIR_PARSER
 #define PHC_LIR_PARSER
 
+#include "lib/String.h"
+
 class String;
 namespace LIR
 {
 	class Node;
 }
 
-LIR::Node* parse_lir (String* s);
+Object* parse_lir (String* s);
+List<std::pair<string, string> >* parse_templates (String* s);
 
 #endif // PHC_LIR_PARSER

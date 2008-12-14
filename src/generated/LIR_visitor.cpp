@@ -50,6 +50,14 @@ void Visitor::pre_assign_zvpp(Assign_zvpp* in)
 {
 }
 
+void Visitor::pre_declare(Declare* in)
+{
+}
+
+void Visitor::pre_declare_p(Declare_p* in)
+{
+}
+
 void Visitor::pre_inc_ref(Inc_ref* in)
 {
 }
@@ -82,7 +90,11 @@ void Visitor::pre_equals(Equals* in)
 {
 }
 
-void Visitor::pre_not_equals(Not_equals* in)
+void Visitor::pre_equals_p(Equals_p* in)
+{
+}
+
+void Visitor::pre_not(Not* in)
 {
 }
 
@@ -94,7 +106,7 @@ void Visitor::pre_zvpp(Zvpp* in)
 {
 }
 
-void Visitor::pre_uninitialized(Uninitialized* in)
+void Visitor::pre_uninit(Uninit* in)
 {
 }
 
@@ -110,7 +122,23 @@ void Visitor::pre_ref(Ref* in)
 {
 }
 
+void Visitor::pre_symtable_fetch(Symtable_fetch* in)
+{
+}
+
+void Visitor::pre_symtable_insert(Symtable_insert* in)
+{
+}
+
 void Visitor::pre_comment(COMMENT* in)
+{
+}
+
+void Visitor::pre_symtable(SYMTABLE* in)
+{
+}
+
+void Visitor::pre_string(STRING* in)
 {
 }
 
@@ -134,11 +162,11 @@ void Visitor::pre_zvp(ZVP* in)
 {
 }
 
-void Visitor::pre_literal(LITERAL* in)
+void Visitor::pre_zvpp(ZVPP* in)
 {
 }
 
-void Visitor::pre_zvpp(ZVPP* in)
+void Visitor::pre_literal(LITERAL* in)
 {
 }
 
@@ -187,6 +215,14 @@ void Visitor::post_assign_zvpp(Assign_zvpp* in)
 {
 }
 
+void Visitor::post_declare(Declare* in)
+{
+}
+
+void Visitor::post_declare_p(Declare_p* in)
+{
+}
+
 void Visitor::post_inc_ref(Inc_ref* in)
 {
 }
@@ -219,7 +255,11 @@ void Visitor::post_equals(Equals* in)
 {
 }
 
-void Visitor::post_not_equals(Not_equals* in)
+void Visitor::post_equals_p(Equals_p* in)
+{
+}
+
+void Visitor::post_not(Not* in)
 {
 }
 
@@ -231,7 +271,7 @@ void Visitor::post_zvpp(Zvpp* in)
 {
 }
 
-void Visitor::post_uninitialized(Uninitialized* in)
+void Visitor::post_uninit(Uninit* in)
 {
 }
 
@@ -247,7 +287,23 @@ void Visitor::post_ref(Ref* in)
 {
 }
 
+void Visitor::post_symtable_fetch(Symtable_fetch* in)
+{
+}
+
+void Visitor::post_symtable_insert(Symtable_insert* in)
+{
+}
+
 void Visitor::post_comment(COMMENT* in)
+{
+}
+
+void Visitor::post_symtable(SYMTABLE* in)
+{
+}
+
+void Visitor::post_string(STRING* in)
 {
 }
 
@@ -271,11 +327,11 @@ void Visitor::post_zvp(ZVP* in)
 {
 }
 
-void Visitor::post_literal(LITERAL* in)
+void Visitor::post_zvpp(ZVPP* in)
 {
 }
 
-void Visitor::post_zvpp(ZVPP* in)
+void Visitor::post_literal(LITERAL* in)
 {
 }
 
@@ -316,6 +372,16 @@ void Visitor::children_assign_zvpp(Assign_zvpp* in)
 {
     visit_zvpp(in->lhs);
     visit_zvpp(in->rhs);
+}
+
+void Visitor::children_declare(Declare* in)
+{
+    visit_zvp(in->zvp);
+}
+
+void Visitor::children_declare_p(Declare_p* in)
+{
+    visit_zvpp(in->zvpp);
 }
 
 void Visitor::children_inc_ref(Inc_ref* in)
@@ -360,13 +426,18 @@ void Visitor::children_equals(Equals* in)
     visit_zvp(in->rhs);
 }
 
-void Visitor::children_not_equals(Not_equals* in)
+void Visitor::children_equals_p(Equals_p* in)
 {
-    visit_zvp(in->lhs);
-    visit_zvp(in->rhs);
+    visit_zvpp(in->lhs);
+    visit_zvpp(in->rhs);
 }
 
-void Visitor::children_uninitialized(Uninitialized* in)
+void Visitor::children_not(Not* in)
+{
+    visit_cond(in->cond);
+}
+
+void Visitor::children_uninit(Uninit* in)
 {
 }
 
@@ -384,8 +455,30 @@ void Visitor::children_ref(Ref* in)
     visit_zvp(in->zvp);
 }
 
+void Visitor::children_symtable_fetch(Symtable_fetch* in)
+{
+    visit_symtable(in->symtable);
+    visit_string(in->name);
+    visit_zvpp(in->zvpp);
+}
+
+void Visitor::children_symtable_insert(Symtable_insert* in)
+{
+    visit_symtable(in->symtable);
+    visit_string(in->name);
+    visit_zvpp(in->zvpp);
+}
+
 // Tokens don't have children, so these methods do nothing by default
 void Visitor::children_comment(COMMENT* in)
+{
+}
+
+void Visitor::children_symtable(SYMTABLE* in)
+{
+}
+
+void Visitor::children_string(STRING* in)
 {
 }
 
@@ -409,11 +502,11 @@ void Visitor::children_zvp(ZVP* in)
 {
 }
 
-void Visitor::children_literal(LITERAL* in)
+void Visitor::children_zvpp(ZVPP* in)
 {
 }
 
-void Visitor::children_zvpp(ZVPP* in)
+void Visitor::children_literal(LITERAL* in)
 {
 }
 
@@ -483,6 +576,22 @@ void Visitor::pre_assign_zvpp_chain(Assign_zvpp* in)
     pre_assign_zvpp((Assign_zvpp*) in);
 }
 
+void Visitor::pre_declare_chain(Declare* in)
+{
+    pre_node((Node*) in);
+    pre_statement((Statement*) in);
+    pre_action((Action*) in);
+    pre_declare((Declare*) in);
+}
+
+void Visitor::pre_declare_p_chain(Declare_p* in)
+{
+    pre_node((Node*) in);
+    pre_statement((Statement*) in);
+    pre_action((Action*) in);
+    pre_declare_p((Declare_p*) in);
+}
+
 void Visitor::pre_inc_ref_chain(Inc_ref* in)
 {
     pre_node((Node*) in);
@@ -545,24 +654,32 @@ void Visitor::pre_equals_chain(Equals* in)
     pre_equals((Equals*) in);
 }
 
-void Visitor::pre_not_equals_chain(Not_equals* in)
+void Visitor::pre_equals_p_chain(Equals_p* in)
 {
     pre_node((Node*) in);
     pre_cond((Cond*) in);
-    pre_not_equals((Not_equals*) in);
+    pre_equals_p((Equals_p*) in);
 }
 
-void Visitor::pre_uninitialized_chain(Uninitialized* in)
+void Visitor::pre_not_chain(Not* in)
+{
+    pre_node((Node*) in);
+    pre_cond((Cond*) in);
+    pre_not((Not*) in);
+}
+
+void Visitor::pre_uninit_chain(Uninit* in)
 {
     pre_node((Node*) in);
     pre_zvp((Zvp*) in);
-    pre_uninitialized((Uninitialized*) in);
+    pre_uninit((Uninit*) in);
 }
 
 void Visitor::pre_null_chain(Null* in)
 {
     pre_node((Node*) in);
     pre_zvp((Zvp*) in);
+    pre_zvpp((Zvpp*) in);
     pre_null((Null*) in);
 }
 
@@ -580,10 +697,38 @@ void Visitor::pre_ref_chain(Ref* in)
     pre_ref((Ref*) in);
 }
 
+void Visitor::pre_symtable_fetch_chain(Symtable_fetch* in)
+{
+    pre_node((Node*) in);
+    pre_statement((Statement*) in);
+    pre_action((Action*) in);
+    pre_symtable_fetch((Symtable_fetch*) in);
+}
+
+void Visitor::pre_symtable_insert_chain(Symtable_insert* in)
+{
+    pre_node((Node*) in);
+    pre_statement((Statement*) in);
+    pre_action((Action*) in);
+    pre_symtable_insert((Symtable_insert*) in);
+}
+
 void Visitor::pre_comment_chain(COMMENT* in)
 {
     pre_node((Node*) in);
     pre_comment((COMMENT*) in);
+}
+
+void Visitor::pre_symtable_chain(SYMTABLE* in)
+{
+    pre_node((Node*) in);
+    pre_symtable((SYMTABLE*) in);
+}
+
+void Visitor::pre_string_chain(STRING* in)
+{
+    pre_node((Node*) in);
+    pre_string((STRING*) in);
 }
 
 void Visitor::pre_uninterpreted_chain(UNINTERPRETED* in)
@@ -621,18 +766,18 @@ void Visitor::pre_zvp_chain(ZVP* in)
     pre_zvp((ZVP*) in);
 }
 
-void Visitor::pre_literal_chain(LITERAL* in)
-{
-    pre_node((Node*) in);
-    pre_zvp((Zvp*) in);
-    pre_literal((LITERAL*) in);
-}
-
 void Visitor::pre_zvpp_chain(ZVPP* in)
 {
     pre_node((Node*) in);
     pre_zvpp((Zvpp*) in);
     pre_zvpp((ZVPP*) in);
+}
+
+void Visitor::pre_literal_chain(LITERAL* in)
+{
+    pre_node((Node*) in);
+    pre_zvp((Zvp*) in);
+    pre_literal((LITERAL*) in);
 }
 
 // Invoke the chain of post-visit methods along the inheritance hierarchy
@@ -676,6 +821,22 @@ void Visitor::post_assign_zvp_chain(Assign_zvp* in)
 void Visitor::post_assign_zvpp_chain(Assign_zvpp* in)
 {
     post_assign_zvpp((Assign_zvpp*) in);
+    post_action((Action*) in);
+    post_statement((Statement*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_declare_chain(Declare* in)
+{
+    post_declare((Declare*) in);
+    post_action((Action*) in);
+    post_statement((Statement*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_declare_p_chain(Declare_p* in)
+{
+    post_declare_p((Declare_p*) in);
     post_action((Action*) in);
     post_statement((Statement*) in);
     post_node((Node*) in);
@@ -743,16 +904,23 @@ void Visitor::post_equals_chain(Equals* in)
     post_node((Node*) in);
 }
 
-void Visitor::post_not_equals_chain(Not_equals* in)
+void Visitor::post_equals_p_chain(Equals_p* in)
 {
-    post_not_equals((Not_equals*) in);
+    post_equals_p((Equals_p*) in);
     post_cond((Cond*) in);
     post_node((Node*) in);
 }
 
-void Visitor::post_uninitialized_chain(Uninitialized* in)
+void Visitor::post_not_chain(Not* in)
 {
-    post_uninitialized((Uninitialized*) in);
+    post_not((Not*) in);
+    post_cond((Cond*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_uninit_chain(Uninit* in)
+{
+    post_uninit((Uninit*) in);
     post_zvp((Zvp*) in);
     post_node((Node*) in);
 }
@@ -760,6 +928,7 @@ void Visitor::post_uninitialized_chain(Uninitialized* in)
 void Visitor::post_null_chain(Null* in)
 {
     post_null((Null*) in);
+    post_zvpp((Zvpp*) in);
     post_zvp((Zvp*) in);
     post_node((Node*) in);
 }
@@ -778,9 +947,37 @@ void Visitor::post_ref_chain(Ref* in)
     post_node((Node*) in);
 }
 
+void Visitor::post_symtable_fetch_chain(Symtable_fetch* in)
+{
+    post_symtable_fetch((Symtable_fetch*) in);
+    post_action((Action*) in);
+    post_statement((Statement*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_symtable_insert_chain(Symtable_insert* in)
+{
+    post_symtable_insert((Symtable_insert*) in);
+    post_action((Action*) in);
+    post_statement((Statement*) in);
+    post_node((Node*) in);
+}
+
 void Visitor::post_comment_chain(COMMENT* in)
 {
     post_comment((COMMENT*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_symtable_chain(SYMTABLE* in)
+{
+    post_symtable((SYMTABLE*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_string_chain(STRING* in)
+{
+    post_string((STRING*) in);
     post_node((Node*) in);
 }
 
@@ -819,17 +1016,17 @@ void Visitor::post_zvp_chain(ZVP* in)
     post_node((Node*) in);
 }
 
-void Visitor::post_literal_chain(LITERAL* in)
-{
-    post_literal((LITERAL*) in);
-    post_zvp((Zvp*) in);
-    post_node((Node*) in);
-}
-
 void Visitor::post_zvpp_chain(ZVPP* in)
 {
     post_zvpp((ZVPP*) in);
     post_zvpp((Zvpp*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_literal_chain(LITERAL* in)
+{
+    post_literal((LITERAL*) in);
+    post_zvp((Zvp*) in);
     post_node((Node*) in);
 }
 
@@ -957,6 +1154,54 @@ void Visitor::visit_zvpp(Zvpp* in)
     }
 }
 
+void Visitor::visit_zvp(ZVP* in)
+{
+    if(in == NULL)
+    	visit_null("LIR", "ZVP");
+    else
+    {
+    	pre_zvp_chain(in);
+    	children_zvp(in);
+    	post_zvp_chain(in);
+    }
+}
+
+void Visitor::visit_zvpp(ZVPP* in)
+{
+    if(in == NULL)
+    	visit_null("LIR", "ZVPP");
+    else
+    {
+    	pre_zvpp_chain(in);
+    	children_zvpp(in);
+    	post_zvpp_chain(in);
+    }
+}
+
+void Visitor::visit_symtable(SYMTABLE* in)
+{
+    if(in == NULL)
+    	visit_null("LIR", "SYMTABLE");
+    else
+    {
+    	pre_symtable_chain(in);
+    	children_symtable(in);
+    	post_symtable_chain(in);
+    }
+}
+
+void Visitor::visit_string(STRING* in)
+{
+    if(in == NULL)
+    	visit_null("LIR", "STRING");
+    else
+    {
+    	pre_string_chain(in);
+    	children_string(in);
+    	post_string_chain(in);
+    }
+}
+
 void Visitor::visit_c_file(C_file* in)
 {
     if(in == NULL)
@@ -997,6 +1242,12 @@ void Visitor::pre_statement_chain(Statement* in)
     case Assign_zvpp::ID:
     	pre_assign_zvpp_chain(dynamic_cast<Assign_zvpp*>(in));
     	break;
+    case Declare::ID:
+    	pre_declare_chain(dynamic_cast<Declare*>(in));
+    	break;
+    case Declare_p::ID:
+    	pre_declare_p_chain(dynamic_cast<Declare_p*>(in));
+    	break;
     case Inc_ref::ID:
     	pre_inc_ref_chain(dynamic_cast<Inc_ref*>(in));
     	break;
@@ -1014,6 +1265,12 @@ void Visitor::pre_statement_chain(Statement* in)
     	break;
     case Separate::ID:
     	pre_separate_chain(dynamic_cast<Separate*>(in));
+    	break;
+    case Symtable_fetch::ID:
+    	pre_symtable_fetch_chain(dynamic_cast<Symtable_fetch*>(in));
+    	break;
+    case Symtable_insert::ID:
+    	pre_symtable_insert_chain(dynamic_cast<Symtable_insert*>(in));
     	break;
     case If::ID:
     	pre_if_chain(dynamic_cast<If*>(in));
@@ -1040,8 +1297,11 @@ void Visitor::pre_cond_chain(Cond* in)
     case Equals::ID:
     	pre_equals_chain(dynamic_cast<Equals*>(in));
     	break;
-    case Not_equals::ID:
-    	pre_not_equals_chain(dynamic_cast<Not_equals*>(in));
+    case Equals_p::ID:
+    	pre_equals_p_chain(dynamic_cast<Equals_p*>(in));
+    	break;
+    case Not::ID:
+    	pre_not_chain(dynamic_cast<Not*>(in));
     	break;
     }
 }
@@ -1062,8 +1322,8 @@ void Visitor::pre_zvp_chain(Zvp* in)
     case LITERAL::ID:
     	pre_literal_chain(dynamic_cast<LITERAL*>(in));
     	break;
-    case Uninitialized::ID:
-    	pre_uninitialized_chain(dynamic_cast<Uninitialized*>(in));
+    case Uninit::ID:
+    	pre_uninit_chain(dynamic_cast<Uninit*>(in));
     	break;
     }
 }
@@ -1077,6 +1337,9 @@ void Visitor::pre_zvpp_chain(Zvpp* in)
     	break;
     case ZVPP::ID:
     	pre_zvpp_chain(dynamic_cast<ZVPP*>(in));
+    	break;
+    case Null::ID:
+    	pre_null_chain(dynamic_cast<Null*>(in));
     	break;
     }
 }
@@ -1109,6 +1372,12 @@ void Visitor::post_statement_chain(Statement* in)
     case Assign_zvpp::ID:
     	post_assign_zvpp_chain(dynamic_cast<Assign_zvpp*>(in));
     	break;
+    case Declare::ID:
+    	post_declare_chain(dynamic_cast<Declare*>(in));
+    	break;
+    case Declare_p::ID:
+    	post_declare_p_chain(dynamic_cast<Declare_p*>(in));
+    	break;
     case Inc_ref::ID:
     	post_inc_ref_chain(dynamic_cast<Inc_ref*>(in));
     	break;
@@ -1126,6 +1395,12 @@ void Visitor::post_statement_chain(Statement* in)
     	break;
     case Separate::ID:
     	post_separate_chain(dynamic_cast<Separate*>(in));
+    	break;
+    case Symtable_fetch::ID:
+    	post_symtable_fetch_chain(dynamic_cast<Symtable_fetch*>(in));
+    	break;
+    case Symtable_insert::ID:
+    	post_symtable_insert_chain(dynamic_cast<Symtable_insert*>(in));
     	break;
     case If::ID:
     	post_if_chain(dynamic_cast<If*>(in));
@@ -1152,8 +1427,11 @@ void Visitor::post_cond_chain(Cond* in)
     case Equals::ID:
     	post_equals_chain(dynamic_cast<Equals*>(in));
     	break;
-    case Not_equals::ID:
-    	post_not_equals_chain(dynamic_cast<Not_equals*>(in));
+    case Equals_p::ID:
+    	post_equals_p_chain(dynamic_cast<Equals_p*>(in));
+    	break;
+    case Not::ID:
+    	post_not_chain(dynamic_cast<Not*>(in));
     	break;
     }
 }
@@ -1174,8 +1452,8 @@ void Visitor::post_zvp_chain(Zvp* in)
     case LITERAL::ID:
     	post_literal_chain(dynamic_cast<LITERAL*>(in));
     	break;
-    case Uninitialized::ID:
-    	post_uninitialized_chain(dynamic_cast<Uninitialized*>(in));
+    case Uninit::ID:
+    	post_uninit_chain(dynamic_cast<Uninit*>(in));
     	break;
     }
 }
@@ -1189,6 +1467,9 @@ void Visitor::post_zvpp_chain(Zvpp* in)
     	break;
     case ZVPP::ID:
     	post_zvpp_chain(dynamic_cast<ZVPP*>(in));
+    	break;
+    case Null::ID:
+    	post_null_chain(dynamic_cast<Null*>(in));
     	break;
     }
 }
@@ -1221,6 +1502,12 @@ void Visitor::children_statement(Statement* in)
     case Assign_zvpp::ID:
     	children_assign_zvpp(dynamic_cast<Assign_zvpp*>(in));
     	break;
+    case Declare::ID:
+    	children_declare(dynamic_cast<Declare*>(in));
+    	break;
+    case Declare_p::ID:
+    	children_declare_p(dynamic_cast<Declare_p*>(in));
+    	break;
     case Inc_ref::ID:
     	children_inc_ref(dynamic_cast<Inc_ref*>(in));
     	break;
@@ -1238,6 +1525,12 @@ void Visitor::children_statement(Statement* in)
     	break;
     case Separate::ID:
     	children_separate(dynamic_cast<Separate*>(in));
+    	break;
+    case Symtable_fetch::ID:
+    	children_symtable_fetch(dynamic_cast<Symtable_fetch*>(in));
+    	break;
+    case Symtable_insert::ID:
+    	children_symtable_insert(dynamic_cast<Symtable_insert*>(in));
     	break;
     case If::ID:
     	children_if(dynamic_cast<If*>(in));
@@ -1264,8 +1557,11 @@ void Visitor::children_cond(Cond* in)
     case Equals::ID:
     	children_equals(dynamic_cast<Equals*>(in));
     	break;
-    case Not_equals::ID:
-    	children_not_equals(dynamic_cast<Not_equals*>(in));
+    case Equals_p::ID:
+    	children_equals_p(dynamic_cast<Equals_p*>(in));
+    	break;
+    case Not::ID:
+    	children_not(dynamic_cast<Not*>(in));
     	break;
     }
 }
@@ -1286,8 +1582,8 @@ void Visitor::children_zvp(Zvp* in)
     case LITERAL::ID:
     	children_literal(dynamic_cast<LITERAL*>(in));
     	break;
-    case Uninitialized::ID:
-    	children_uninitialized(dynamic_cast<Uninitialized*>(in));
+    case Uninit::ID:
+    	children_uninit(dynamic_cast<Uninit*>(in));
     	break;
     }
 }
@@ -1301,6 +1597,9 @@ void Visitor::children_zvpp(Zvpp* in)
     	break;
     case ZVPP::ID:
     	children_zvpp(dynamic_cast<ZVPP*>(in));
+    	break;
+    case Null::ID:
+    	children_null(dynamic_cast<Null*>(in));
     	break;
     }
 }

@@ -57,6 +57,8 @@ Statement ::=    Action				-- (possibly) side-effecting statement
 
 Action ::=	  Assign_zvp
 				| Assign_zvpp
+				| Declare 
+				| Declare_p
 				| Inc_ref
 				| Dec_ref
 				| Destruct
@@ -64,13 +66,16 @@ Action ::=	  Assign_zvp
 				| Clone
 --				| Overwrite
 				| Separate
+				| Symtable_fetch
+				| Symtable_insert
 				;
 
 If ::=	Cond iftrue:Statement* iffalse:Statement* ;
 
 Cond ::=		  Is_ref
 				| Equals
-				| Not_equals -- TODO: or generic Not?
+				| Equals_p
+				| Not
 --				| Is_copy_on_write
 --				| Is_change_on_write
 				;
@@ -81,6 +86,8 @@ Assign_zvp	::= lhs:Zvp rhs:Zvp ;
 -- zval** p_lhs = p_rhs;
 Assign_zvpp ::= lhs:Zvpp rhs:Zvpp ;
 
+Declare ::= ZVP ;
+Declare_p ::= ZVPP ;
 {-
  - Allocators
  -}
@@ -116,22 +123,28 @@ Is_ref ::= Zvp;
 
 -- lhs == rhs
 Equals ::= lhs:Zvp rhs:Zvp ;
+Equals_p ::= lhs:Zvpp rhs:Zvpp ;
 
--- TODO: this seems worse than the alternative
-Not_equals ::= lhs:Zvp rhs:Zvp ;
-
+Not ::= Cond ;
 
 {-
  - Primitives
  -}
 
-Zvp ::= Deref | ZVP | Null | LITERAL | Uninitialized ;
-Zvpp ::= Ref | ZVPP ;
+Zvp ::= Deref | ZVP | Null | LITERAL | Uninit ;
+Zvpp ::= Ref | ZVPP | Null;
 
-Uninitialized ::= ;
+Uninit ::= ;
 Null ::= ;
 Deref ::= Zvpp ;
 Ref ::= Zvp ;
+
+{-
+ - Symtable
+ -}
+
+Symtable_fetch ::= SYMTABLE name:STRING ZVPP ;
+Symtable_insert ::= SYMTABLE name:STRING ZVPP ;
 
 
 {-
