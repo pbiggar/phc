@@ -166,7 +166,7 @@ parse_lir (String* s)
 	
 	classname = +(alpha_p | '_'); // An LIR classname
 	ws = *space_p; // optional space
-	value = +(alpha_p | '_'); // a value (really a string, but no "" required)
+	value = (alpha_p | '_') >> *(alnum_p | '_'); // a value (really a string, but no "" required)
 	list = ch_p('[')[&open_list_a] >> ws >> *(sexp >> ws) >> (ws >> (']'))[&list_a]; // list of Objects
 
 	// Any char except ", or, alternatively, the sequence \"
