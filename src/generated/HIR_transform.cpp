@@ -5,7 +5,7 @@ Transform::~Transform()
 {
 }
 
-// Invoked before the children are transformed
+/* Invoked before the children are transformed */
 PHP_script* Transform::pre_php_script(PHP_script* in)
 {
     return in;
@@ -311,7 +311,7 @@ Field_name* Transform::pre_field_name(FIELD_NAME* in)
     return in;
 }
 
-// Invoked after the children have been transformed
+/* Invoked after the children have been transformed */
 PHP_script* Transform::post_php_script(PHP_script* in)
 {
     return in;
@@ -617,7 +617,7 @@ Field_name* Transform::post_field_name(FIELD_NAME* in)
     return in;
 }
 
-// Transform the children of the node
+/* Transform the children of the node */
 void Transform::children_php_script(PHP_script* in)
 {
     in->statements = transform_statement_list(in->statements);
@@ -892,7 +892,7 @@ void Transform::children_static_array_elem(Static_array_elem* in)
     in->val = transform_static_value(in->val);
 }
 
-// Tokens don't have children, so these methods do nothing by default
+/* Tokens don't have children, so these methods do nothing by default */
 void Transform::children_foreign(FOREIGN* in)
 {
 }
@@ -949,8 +949,8 @@ void Transform::children_field_name(FIELD_NAME* in)
 {
 }
 
-// Call the pre-transform, transform-children post-transform methods in order
-// Do not override unless you know what you are doing
+/* Call the pre-transform, transform-children post-transform methods in order */
+/* Do not override unless you know what you are doing */
 Statement_list* Transform::transform_statement_list(Statement_list* in)
 {
     Statement_list::const_iterator i;
@@ -1573,8 +1573,8 @@ PHP_script* Transform::transform_php_script(PHP_script* in)
     return out;
 }
 
-// Invoke the right pre-transform (manual dispatching)
-// Do not override unless you know what you are doing
+/* Invoke the right pre-transform (manual dispatching) */
+/* Do not override unless you know what you are doing */
 void Transform::pre_statement(Statement* in, Statement_list* out)
 {
     switch(in->classid())
@@ -1943,8 +1943,8 @@ Static_array_key* Transform::pre_static_array_key(Static_array_key* in)
     assert(0);
 }
 
-// Invoke the right post-transform (manual dispatching)
-// Do not override unless you know what you are doing
+/* Invoke the right post-transform (manual dispatching) */
+/* Do not override unless you know what you are doing */
 void Transform::post_statement(Statement* in, Statement_list* out)
 {
     switch(in->classid())
@@ -2313,8 +2313,8 @@ Static_array_key* Transform::post_static_array_key(Static_array_key* in)
     assert(0);
 }
 
-// Invoke the right transform-children (manual dispatching)
-// Do not override unless you what you are doing
+/* Invoke the right transform-children (manual dispatching) */
+/* Do not override unless you what you are doing */
 void Transform::children_statement(Statement* in)
 {
     switch(in->classid())
