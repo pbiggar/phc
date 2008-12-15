@@ -86,7 +86,9 @@ LIR_unparser::children_block (LIR::Block* in)
 void
 LIR_unparser::children_clone (LIR::Clone* in)
 {
-	assert (0);
+	echo ("zvp_clone_ex (");
+	visit_zvp (in->zvp);
+	echo (")");
 }
 
 void
@@ -139,7 +141,9 @@ LIR_unparser::children_deref (LIR::Deref* in)
 void
 LIR_unparser::children_destruct (LIR::Destruct* in)
 {
-	assert (0);
+	echo ("zval_ptr_dtor (");
+	visit_zvpp (in->zvpp);
+	echo (");\n");
 }
 
 void
@@ -190,7 +194,9 @@ LIR_unparser::children_intrinsic (LIR::INTRINSIC* in)
 void
 LIR_unparser::children_is_ref (LIR::Is_ref* in)
 {
-	assert (0);
+	echo ("(");
+	visit_zvp (in->zvp);
+	echo (")->is_ref");
 }
 
 void
@@ -211,6 +217,36 @@ void
 LIR_unparser::children_null (LIR::Null* in)
 {
 	echo ("NULL");
+}
+
+void
+LIR_unparser::children_overwrite (LIR::Overwrite* in)
+{
+	echo ("overwrite_lhs (");
+	visit_zvp (in->lhs);
+	echo (", ");
+	visit_zvp (in->rhs);
+	echo (");\n");
+/*
+	// TODO: perhaps this should be written in LIR. What would that let me do?
+	// TODO: knowing the type would help for zval_dtor and zval_copy_ctor
+	echo ("zval_dtor (");
+	visit_zvp (in->lhs);
+	echo_nl (");");
+
+	visit_zvp (in->lhs);
+	echo ("->value = ");
+	visit_zvp (in->rhs);
+	echo_nl ("->value;");
+
+	visit_zvp (in->lhs);
+	echo ("->type = ");
+	visit_zvp (in->rhs);
+	echo_nl ("->type;");
+
+	echo ("zval_copy_ctor (");
+	visit_zvp (in->lhs);
+	echo (");");*/
 }
 
 void

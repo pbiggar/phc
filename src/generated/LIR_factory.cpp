@@ -84,13 +84,6 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Allocate(zvp);
     }
-    if(!strcmp(type_id, "Clone"))
-    {
-    	Zvp* lhs = dynamic_cast<Zvp*>(*i++);
-    	Zvp* rhs = dynamic_cast<Zvp*>(*i++);
-    	assert(i == args->end());
-    	return new Clone(lhs, rhs);
-    }
     if(!strcmp(type_id, "Separate"))
     {
     	Zvpp* zvpp = dynamic_cast<Zvpp*>(*i++);
@@ -108,6 +101,13 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	Zvpp* zvpp = dynamic_cast<Zvpp*>(*i++);
     	assert(i == args->end());
     	return new Destruct(zvpp);
+    }
+    if(!strcmp(type_id, "Overwrite"))
+    {
+    	Zvp* lhs = dynamic_cast<Zvp*>(*i++);
+    	Zvp* rhs = dynamic_cast<Zvp*>(*i++);
+    	assert(i == args->end());
+    	return new Overwrite(lhs, rhs);
     }
     if(!strcmp(type_id, "Is_ref"))
     {
@@ -156,6 +156,12 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	Zvp* zvp = dynamic_cast<Zvp*>(*i++);
     	assert(i == args->end());
     	return new Ref(zvp);
+    }
+    if(!strcmp(type_id, "Clone"))
+    {
+    	Zvp* zvp = dynamic_cast<Zvp*>(*i++);
+    	assert(i == args->end());
+    	return new Clone(zvp);
     }
     if(!strcmp(type_id, "Symtable_fetch"))
     {

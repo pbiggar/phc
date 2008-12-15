@@ -56,11 +56,6 @@ void Transform::pre_allocate(Allocate* in, Statement_list* out)
     out->push_back(in);
 }
 
-void Transform::pre_clone(Clone* in, Statement_list* out)
-{
-    out->push_back(in);
-}
-
 void Transform::pre_separate(Separate* in, Statement_list* out)
 {
     out->push_back(in);
@@ -72,6 +67,11 @@ void Transform::pre_dec_ref(Dec_ref* in, Statement_list* out)
 }
 
 void Transform::pre_destruct(Destruct* in, Statement_list* out)
+{
+    out->push_back(in);
+}
+
+void Transform::pre_overwrite(Overwrite* in, Statement_list* out)
 {
     out->push_back(in);
 }
@@ -112,6 +112,11 @@ Zvp* Transform::pre_deref(Deref* in)
 }
 
 Zvpp* Transform::pre_ref(Ref* in)
+{
+    return in;
+}
+
+Zvp* Transform::pre_clone(Clone* in)
 {
     return in;
 }
@@ -227,11 +232,6 @@ void Transform::post_allocate(Allocate* in, Statement_list* out)
     out->push_back(in);
 }
 
-void Transform::post_clone(Clone* in, Statement_list* out)
-{
-    out->push_back(in);
-}
-
 void Transform::post_separate(Separate* in, Statement_list* out)
 {
     out->push_back(in);
@@ -243,6 +243,11 @@ void Transform::post_dec_ref(Dec_ref* in, Statement_list* out)
 }
 
 void Transform::post_destruct(Destruct* in, Statement_list* out)
+{
+    out->push_back(in);
+}
+
+void Transform::post_overwrite(Overwrite* in, Statement_list* out)
 {
     out->push_back(in);
 }
@@ -283,6 +288,11 @@ Zvp* Transform::post_deref(Deref* in)
 }
 
 Zvpp* Transform::post_ref(Ref* in)
+{
+    return in;
+}
+
+Zvp* Transform::post_clone(Clone* in)
 {
     return in;
 }
@@ -406,12 +416,6 @@ void Transform::children_allocate(Allocate* in)
     in->zvp = transform_zvp(in->zvp);
 }
 
-void Transform::children_clone(Clone* in)
-{
-    in->lhs = transform_zvp(in->lhs);
-    in->rhs = transform_zvp(in->rhs);
-}
-
 void Transform::children_separate(Separate* in)
 {
     in->zvpp = transform_zvpp(in->zvpp);
@@ -425,6 +429,12 @@ void Transform::children_dec_ref(Dec_ref* in)
 void Transform::children_destruct(Destruct* in)
 {
     in->zvpp = transform_zvpp(in->zvpp);
+}
+
+void Transform::children_overwrite(Overwrite* in)
+{
+    in->lhs = transform_zvp(in->lhs);
+    in->rhs = transform_zvp(in->rhs);
 }
 
 void Transform::children_is_ref(Is_ref* in)
@@ -463,6 +473,11 @@ void Transform::children_deref(Deref* in)
 }
 
 void Transform::children_ref(Ref* in)
+{
+    in->zvp = transform_zvp(in->zvp);
+}
+
+void Transform::children_clone(Clone* in)
 {
     in->zvp = transform_zvp(in->zvp);
 }
@@ -865,11 +880,11 @@ void Transform::pre_statement(Statement* in, Statement_list* out)
     			out->push_back(*i);
     	}
     	return;
-    case Clone::ID: 
+    case Overwrite::ID: 
     	{
     		Statement_list* local_out = new Statement_list;
     		Statement_list::const_iterator i;
-    		pre_clone(dynamic_cast<Clone*>(in), local_out);
+    		pre_overwrite(dynamic_cast<Overwrite*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
@@ -962,6 +977,7 @@ Zvp* Transform::pre_zvp(Zvp* in)
     case Null::ID: return pre_null(dynamic_cast<Null*>(in));
     case LITERAL::ID: return pre_literal(dynamic_cast<LITERAL*>(in));
     case Uninit::ID: return pre_uninit(dynamic_cast<Uninit*>(in));
+    case Clone::ID: return pre_clone(dynamic_cast<Clone*>(in));
     }
     assert(0);
 }
@@ -1084,11 +1100,11 @@ void Transform::post_statement(Statement* in, Statement_list* out)
     			out->push_back(*i);
     	}
     	return;
-    case Clone::ID: 
+    case Overwrite::ID: 
     	{
     		Statement_list* local_out = new Statement_list;
     		Statement_list::const_iterator i;
-    		post_clone(dynamic_cast<Clone*>(in), local_out);
+    		post_overwrite(dynamic_cast<Overwrite*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
@@ -1181,6 +1197,7 @@ Zvp* Transform::post_zvp(Zvp* in)
     case Null::ID: return post_null(dynamic_cast<Null*>(in));
     case LITERAL::ID: return post_literal(dynamic_cast<LITERAL*>(in));
     case Uninit::ID: return post_uninit(dynamic_cast<Uninit*>(in));
+    case Clone::ID: return post_clone(dynamic_cast<Clone*>(in));
     }
     assert(0);
 }
@@ -1242,8 +1259,8 @@ void Transform::children_statement(Statement* in)
     case Allocate::ID:
     	children_allocate(dynamic_cast<Allocate*>(in));
     	break;
-    case Clone::ID:
-    	children_clone(dynamic_cast<Clone*>(in));
+    case Overwrite::ID:
+    	children_overwrite(dynamic_cast<Overwrite*>(in));
     	break;
     case Separate::ID:
     	children_separate(dynamic_cast<Separate*>(in));
@@ -1306,6 +1323,9 @@ void Transform::children_zvp(Zvp* in)
     	break;
     case Uninit::ID:
     	children_uninit(dynamic_cast<Uninit*>(in));
+    	break;
+    case Clone::ID:
+    	children_clone(dynamic_cast<Clone*>(in));
     	break;
     }
 }

@@ -1990,6 +1990,105 @@ void Ref::assert_valid()
     zvp->assert_valid();
 }
 
+Clone::Clone(Zvp* zvp)
+{
+    this->zvp = zvp;
+}
+
+Clone::Clone()
+{
+    this->zvp = 0;
+}
+
+void Clone::visit(Visitor* visitor)
+{
+    visitor->visit_zvp(this);
+}
+
+void Clone::transform_children(Transform* transform)
+{
+    transform->children_zvp(this);
+}
+
+int Clone::classid()
+{
+    return ID;
+}
+
+bool Clone::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Clone* that = dynamic_cast<Clone*>(in);
+    if(that == NULL) return false;
+    
+    if(this->zvp == NULL)
+    {
+    	if(that->zvp != NULL && !that->zvp->match(this->zvp))
+    		return false;
+    }
+    else if(!this->zvp->match(that->zvp))
+    	return false;
+    
+    return true;
+}
+
+bool Clone::equals(Node* in)
+{
+    Clone* that = dynamic_cast<Clone*>(in);
+    if(that == NULL) return false;
+    
+    if(this->zvp == NULL || that->zvp == NULL)
+    {
+    	if(this->zvp != NULL || that->zvp != NULL)
+    		return false;
+    }
+    else if(!this->zvp->equals(that->zvp))
+    	return false;
+    
+    return true;
+}
+
+Clone* Clone::clone()
+{
+    Zvp* zvp = this->zvp ? this->zvp->clone() : NULL;
+    Clone* clone = new Clone(zvp);
+    return clone;
+}
+
+Node* Clone::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    if (this->zvp != NULL)
+    {
+    	Node* zvp_res = this->zvp->find(in);
+    	if (zvp_res) return zvp_res;
+    }
+    
+    return NULL;
+}
+
+void Clone::find_all(Node* in, Node_list* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+    
+    if (this->zvp != NULL)
+    	this->zvp->find_all(in, out);
+    
+}
+
+void Clone::assert_valid()
+{
+    assert(zvp != NULL);
+    zvp->assert_valid();
+}
+
 UNINTERPRETED::UNINTERPRETED(String* value)
 {
     this->value = value;
@@ -3281,135 +3380,6 @@ void Allocate::assert_valid()
     zvp->assert_valid();
 }
 
-Clone::Clone(Zvp* lhs, Zvp* rhs)
-{
-    this->lhs = lhs;
-    this->rhs = rhs;
-}
-
-Clone::Clone()
-{
-    this->lhs = 0;
-    this->rhs = 0;
-}
-
-void Clone::visit(Visitor* visitor)
-{
-    visitor->visit_statement(this);
-}
-
-void Clone::transform_children(Transform* transform)
-{
-    transform->children_statement(this);
-}
-
-int Clone::classid()
-{
-    return ID;
-}
-
-bool Clone::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    Clone* that = dynamic_cast<Clone*>(in);
-    if(that == NULL) return false;
-    
-    if(this->lhs == NULL)
-    {
-    	if(that->lhs != NULL && !that->lhs->match(this->lhs))
-    		return false;
-    }
-    else if(!this->lhs->match(that->lhs))
-    	return false;
-    
-    if(this->rhs == NULL)
-    {
-    	if(that->rhs != NULL && !that->rhs->match(this->rhs))
-    		return false;
-    }
-    else if(!this->rhs->match(that->rhs))
-    	return false;
-    
-    return true;
-}
-
-bool Clone::equals(Node* in)
-{
-    Clone* that = dynamic_cast<Clone*>(in);
-    if(that == NULL) return false;
-    
-    if(this->lhs == NULL || that->lhs == NULL)
-    {
-    	if(this->lhs != NULL || that->lhs != NULL)
-    		return false;
-    }
-    else if(!this->lhs->equals(that->lhs))
-    	return false;
-    
-    if(this->rhs == NULL || that->rhs == NULL)
-    {
-    	if(this->rhs != NULL || that->rhs != NULL)
-    		return false;
-    }
-    else if(!this->rhs->equals(that->rhs))
-    	return false;
-    
-    return true;
-}
-
-Clone* Clone::clone()
-{
-    Zvp* lhs = this->lhs ? this->lhs->clone() : NULL;
-    Zvp* rhs = this->rhs ? this->rhs->clone() : NULL;
-    Clone* clone = new Clone(lhs, rhs);
-    return clone;
-}
-
-Node* Clone::find(Node* in)
-{
-    if (this->match (in))
-    	return this;
-    
-    if (this->lhs != NULL)
-    {
-    	Node* lhs_res = this->lhs->find(in);
-    	if (lhs_res) return lhs_res;
-    }
-    
-    if (this->rhs != NULL)
-    {
-    	Node* rhs_res = this->rhs->find(in);
-    	if (rhs_res) return rhs_res;
-    }
-    
-    return NULL;
-}
-
-void Clone::find_all(Node* in, Node_list* out)
-{
-    if (this->match (in))
-    	out->push_back (this);
-    
-    if (this->lhs != NULL)
-    	this->lhs->find_all(in, out);
-    
-    if (this->rhs != NULL)
-    	this->rhs->find_all(in, out);
-    
-}
-
-void Clone::assert_valid()
-{
-    assert(lhs != NULL);
-    lhs->assert_valid();
-    assert(rhs != NULL);
-    rhs->assert_valid();
-}
-
 Separate::Separate(Zvpp* zvpp)
 {
     this->zvpp = zvpp;
@@ -3705,6 +3675,135 @@ void Destruct::assert_valid()
 {
     assert(zvpp != NULL);
     zvpp->assert_valid();
+}
+
+Overwrite::Overwrite(Zvp* lhs, Zvp* rhs)
+{
+    this->lhs = lhs;
+    this->rhs = rhs;
+}
+
+Overwrite::Overwrite()
+{
+    this->lhs = 0;
+    this->rhs = 0;
+}
+
+void Overwrite::visit(Visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void Overwrite::transform_children(Transform* transform)
+{
+    transform->children_statement(this);
+}
+
+int Overwrite::classid()
+{
+    return ID;
+}
+
+bool Overwrite::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Overwrite* that = dynamic_cast<Overwrite*>(in);
+    if(that == NULL) return false;
+    
+    if(this->lhs == NULL)
+    {
+    	if(that->lhs != NULL && !that->lhs->match(this->lhs))
+    		return false;
+    }
+    else if(!this->lhs->match(that->lhs))
+    	return false;
+    
+    if(this->rhs == NULL)
+    {
+    	if(that->rhs != NULL && !that->rhs->match(this->rhs))
+    		return false;
+    }
+    else if(!this->rhs->match(that->rhs))
+    	return false;
+    
+    return true;
+}
+
+bool Overwrite::equals(Node* in)
+{
+    Overwrite* that = dynamic_cast<Overwrite*>(in);
+    if(that == NULL) return false;
+    
+    if(this->lhs == NULL || that->lhs == NULL)
+    {
+    	if(this->lhs != NULL || that->lhs != NULL)
+    		return false;
+    }
+    else if(!this->lhs->equals(that->lhs))
+    	return false;
+    
+    if(this->rhs == NULL || that->rhs == NULL)
+    {
+    	if(this->rhs != NULL || that->rhs != NULL)
+    		return false;
+    }
+    else if(!this->rhs->equals(that->rhs))
+    	return false;
+    
+    return true;
+}
+
+Overwrite* Overwrite::clone()
+{
+    Zvp* lhs = this->lhs ? this->lhs->clone() : NULL;
+    Zvp* rhs = this->rhs ? this->rhs->clone() : NULL;
+    Overwrite* clone = new Overwrite(lhs, rhs);
+    return clone;
+}
+
+Node* Overwrite::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    if (this->lhs != NULL)
+    {
+    	Node* lhs_res = this->lhs->find(in);
+    	if (lhs_res) return lhs_res;
+    }
+    
+    if (this->rhs != NULL)
+    {
+    	Node* rhs_res = this->rhs->find(in);
+    	if (rhs_res) return rhs_res;
+    }
+    
+    return NULL;
+}
+
+void Overwrite::find_all(Node* in, Node_list* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+    
+    if (this->lhs != NULL)
+    	this->lhs->find_all(in, out);
+    
+    if (this->rhs != NULL)
+    	this->rhs->find_all(in, out);
+    
+}
+
+void Overwrite::assert_valid()
+{
+    assert(lhs != NULL);
+    lhs->assert_valid();
+    assert(rhs != NULL);
+    rhs->assert_valid();
 }
 
 Symtable_fetch::Symtable_fetch(SYMTABLE* symtable, STRING* name, ZVPP* zvpp)

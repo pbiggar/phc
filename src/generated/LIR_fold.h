@@ -47,6 +47,7 @@ template
  class _Node,
  class _Not,
  class _Null,
+ class _Overwrite,
  class _Piece,
  class _Ref,
  class _STRING,
@@ -67,7 +68,7 @@ class Fold
 {
 // Access this class from subclasses without copying out the template instantiation
 public:
-   typedef Fold<_API_CALL, _Action, _Allocate, _Assign_zvp, _Assign_zvpp, _Block, _CODE, _COMMENT, _C_file, _Clone, _Cond, _Dec_ref, _Declare, _Declare_p, _Deref, _Destruct, _Equals, _Equals_p, _INTRINSIC, _If, _Inc_ref, _Is_ref, _LITERAL, _Method, _Node, _Not, _Null, _Piece, _Ref, _STRING, _SYMTABLE, _Separate, _Statement, _Symtable_fetch, _Symtable_insert, _UNINTERPRETED, _Uninit, _ZVP, _ZVPP, _Zvp, _Zvpp, _List> parent;
+   typedef Fold<_API_CALL, _Action, _Allocate, _Assign_zvp, _Assign_zvpp, _Block, _CODE, _COMMENT, _C_file, _Clone, _Cond, _Dec_ref, _Declare, _Declare_p, _Deref, _Destruct, _Equals, _Equals_p, _INTRINSIC, _If, _Inc_ref, _Is_ref, _LITERAL, _Method, _Node, _Not, _Null, _Overwrite, _Piece, _Ref, _STRING, _SYMTABLE, _Separate, _Statement, _Symtable_fetch, _Symtable_insert, _UNINTERPRETED, _Uninit, _ZVP, _ZVPP, _Zvp, _Zvpp, _List> parent;
 // Recursively fold the children before folding the parent
 // This methods form the client API for a fold, but should not be
 // overridden unless you know what you are doing
@@ -193,15 +194,6 @@ public:
 		return fold_impl_allocate(in, zvp);
 	}
 
-	virtual _Clone fold_clone(Clone* in)
-	{
-		_Zvp lhs = 0;
-		if(in->lhs != NULL) lhs = fold_zvp(in->lhs);
-		_Zvp rhs = 0;
-		if(in->rhs != NULL) rhs = fold_zvp(in->rhs);
-		return fold_impl_clone(in, lhs, rhs);
-	}
-
 	virtual _Separate fold_separate(Separate* in)
 	{
 		_Zvpp zvpp = 0;
@@ -221,6 +213,15 @@ public:
 		_Zvpp zvpp = 0;
 		if(in->zvpp != NULL) zvpp = fold_zvpp(in->zvpp);
 		return fold_impl_destruct(in, zvpp);
+	}
+
+	virtual _Overwrite fold_overwrite(Overwrite* in)
+	{
+		_Zvp lhs = 0;
+		if(in->lhs != NULL) lhs = fold_zvp(in->lhs);
+		_Zvp rhs = 0;
+		if(in->rhs != NULL) rhs = fold_zvp(in->rhs);
+		return fold_impl_overwrite(in, lhs, rhs);
 	}
 
 	virtual _Is_ref fold_is_ref(Is_ref* in)
@@ -279,6 +280,13 @@ public:
 		return fold_impl_ref(in, zvp);
 	}
 
+	virtual _Clone fold_clone(Clone* in)
+	{
+		_Zvp zvp = 0;
+		if(in->zvp != NULL) zvp = fold_zvp(in->zvp);
+		return fold_impl_clone(in, zvp);
+	}
+
 	virtual _Symtable_fetch fold_symtable_fetch(Symtable_fetch* in)
 	{
 		_SYMTABLE symtable = 0;
@@ -316,10 +324,10 @@ public:
 	virtual _Declare_p fold_impl_declare_p(Declare_p* orig, _ZVPP zvpp) { assert(0); };
 	virtual _Inc_ref fold_impl_inc_ref(Inc_ref* orig, _Zvp zvp) { assert(0); };
 	virtual _Allocate fold_impl_allocate(Allocate* orig, _Zvp zvp) { assert(0); };
-	virtual _Clone fold_impl_clone(Clone* orig, _Zvp lhs, _Zvp rhs) { assert(0); };
 	virtual _Separate fold_impl_separate(Separate* orig, _Zvpp zvpp) { assert(0); };
 	virtual _Dec_ref fold_impl_dec_ref(Dec_ref* orig, _Zvp zvp) { assert(0); };
 	virtual _Destruct fold_impl_destruct(Destruct* orig, _Zvpp zvpp) { assert(0); };
+	virtual _Overwrite fold_impl_overwrite(Overwrite* orig, _Zvp lhs, _Zvp rhs) { assert(0); };
 	virtual _Is_ref fold_impl_is_ref(Is_ref* orig, _Zvp zvp) { assert(0); };
 	virtual _Equals fold_impl_equals(Equals* orig, _Zvp lhs, _Zvp rhs) { assert(0); };
 	virtual _Equals_p fold_impl_equals_p(Equals_p* orig, _Zvpp lhs, _Zvpp rhs) { assert(0); };
@@ -328,6 +336,7 @@ public:
 	virtual _Null fold_impl_null(Null* orig) { assert(0); };
 	virtual _Deref fold_impl_deref(Deref* orig, _Zvpp zvpp) { assert(0); };
 	virtual _Ref fold_impl_ref(Ref* orig, _Zvp zvp) { assert(0); };
+	virtual _Clone fold_impl_clone(Clone* orig, _Zvp zvp) { assert(0); };
 	virtual _Symtable_fetch fold_impl_symtable_fetch(Symtable_fetch* orig, _SYMTABLE symtable, _STRING name, _ZVPP zvpp) { assert(0); };
 	virtual _Symtable_insert fold_impl_symtable_insert(Symtable_insert* orig, _SYMTABLE symtable, _STRING name, _ZVPP zvpp) { assert(0); };
 
@@ -373,8 +382,8 @@ public:
 				return fold_destruct(dynamic_cast<Destruct*>(in));
 			case Allocate::ID:
 				return fold_allocate(dynamic_cast<Allocate*>(in));
-			case Clone::ID:
-				return fold_clone(dynamic_cast<Clone*>(in));
+			case Overwrite::ID:
+				return fold_overwrite(dynamic_cast<Overwrite*>(in));
 			case Separate::ID:
 				return fold_separate(dynamic_cast<Separate*>(in));
 			case Symtable_fetch::ID:
@@ -407,6 +416,8 @@ public:
 				return fold_literal(dynamic_cast<LITERAL*>(in));
 			case Uninit::ID:
 				return fold_uninit(dynamic_cast<Uninit*>(in));
+			case Clone::ID:
+				return fold_clone(dynamic_cast<Clone*>(in));
 			case Ref::ID:
 				return fold_ref(dynamic_cast<Ref*>(in));
 			case ZVPP::ID:
@@ -455,8 +466,8 @@ public:
 				return fold_destruct(dynamic_cast<Destruct*>(in));
 			case Allocate::ID:
 				return fold_allocate(dynamic_cast<Allocate*>(in));
-			case Clone::ID:
-				return fold_clone(dynamic_cast<Clone*>(in));
+			case Overwrite::ID:
+				return fold_overwrite(dynamic_cast<Overwrite*>(in));
 			case Separate::ID:
 				return fold_separate(dynamic_cast<Separate*>(in));
 			case Symtable_fetch::ID:
@@ -495,8 +506,8 @@ public:
 				return fold_destruct(dynamic_cast<Destruct*>(in));
 			case Allocate::ID:
 				return fold_allocate(dynamic_cast<Allocate*>(in));
-			case Clone::ID:
-				return fold_clone(dynamic_cast<Clone*>(in));
+			case Overwrite::ID:
+				return fold_overwrite(dynamic_cast<Overwrite*>(in));
 			case Separate::ID:
 				return fold_separate(dynamic_cast<Separate*>(in));
 			case Symtable_fetch::ID:
@@ -537,6 +548,8 @@ public:
 				return fold_literal(dynamic_cast<LITERAL*>(in));
 			case Uninit::ID:
 				return fold_uninit(dynamic_cast<Uninit*>(in));
+			case Clone::ID:
+				return fold_clone(dynamic_cast<Clone*>(in));
 		}
 		assert(0);
 	}
@@ -562,6 +575,6 @@ public:
 };
 
 template<class T, template <class _Tp, class _Alloc = typename List<_Tp>::allocator_type> class _List>
-class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, _List> {};
+class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, _List> {};
 }
 

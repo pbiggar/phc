@@ -39,10 +39,10 @@ public:
     virtual void pre_declare_p(Declare_p* in, Statement_list* out);
     virtual void pre_inc_ref(Inc_ref* in, Statement_list* out);
     virtual void pre_allocate(Allocate* in, Statement_list* out);
-    virtual void pre_clone(Clone* in, Statement_list* out);
     virtual void pre_separate(Separate* in, Statement_list* out);
     virtual void pre_dec_ref(Dec_ref* in, Statement_list* out);
     virtual void pre_destruct(Destruct* in, Statement_list* out);
+    virtual void pre_overwrite(Overwrite* in, Statement_list* out);
     virtual Cond* pre_is_ref(Is_ref* in);
     virtual Cond* pre_equals(Equals* in);
     virtual Cond* pre_equals_p(Equals_p* in);
@@ -51,6 +51,7 @@ public:
     virtual Null* pre_null(Null* in);
     virtual Zvp* pre_deref(Deref* in);
     virtual Zvpp* pre_ref(Ref* in);
+    virtual Zvp* pre_clone(Clone* in);
     virtual void pre_symtable_fetch(Symtable_fetch* in, Statement_list* out);
     virtual void pre_symtable_insert(Symtable_insert* in, Statement_list* out);
     virtual COMMENT* pre_comment(COMMENT* in);
@@ -75,10 +76,10 @@ public:
     virtual void post_declare_p(Declare_p* in, Statement_list* out);
     virtual void post_inc_ref(Inc_ref* in, Statement_list* out);
     virtual void post_allocate(Allocate* in, Statement_list* out);
-    virtual void post_clone(Clone* in, Statement_list* out);
     virtual void post_separate(Separate* in, Statement_list* out);
     virtual void post_dec_ref(Dec_ref* in, Statement_list* out);
     virtual void post_destruct(Destruct* in, Statement_list* out);
+    virtual void post_overwrite(Overwrite* in, Statement_list* out);
     virtual Cond* post_is_ref(Is_ref* in);
     virtual Cond* post_equals(Equals* in);
     virtual Cond* post_equals_p(Equals_p* in);
@@ -87,6 +88,7 @@ public:
     virtual Null* post_null(Null* in);
     virtual Zvp* post_deref(Deref* in);
     virtual Zvpp* post_ref(Ref* in);
+    virtual Zvp* post_clone(Clone* in);
     virtual void post_symtable_fetch(Symtable_fetch* in, Statement_list* out);
     virtual void post_symtable_insert(Symtable_insert* in, Statement_list* out);
     virtual COMMENT* post_comment(COMMENT* in);
@@ -111,10 +113,10 @@ public:
     virtual void children_declare_p(Declare_p* in);
     virtual void children_inc_ref(Inc_ref* in);
     virtual void children_allocate(Allocate* in);
-    virtual void children_clone(Clone* in);
     virtual void children_separate(Separate* in);
     virtual void children_dec_ref(Dec_ref* in);
     virtual void children_destruct(Destruct* in);
+    virtual void children_overwrite(Overwrite* in);
     virtual void children_is_ref(Is_ref* in);
     virtual void children_equals(Equals* in);
     virtual void children_equals_p(Equals_p* in);
@@ -123,6 +125,7 @@ public:
     virtual void children_null(Null* in);
     virtual void children_deref(Deref* in);
     virtual void children_ref(Ref* in);
+    virtual void children_clone(Clone* in);
     virtual void children_symtable_fetch(Symtable_fetch* in);
     virtual void children_symtable_insert(Symtable_insert* in);
 // Tokens don't have children, so these methods do nothing by default

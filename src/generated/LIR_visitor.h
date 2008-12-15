@@ -44,10 +44,10 @@ public:
     virtual void pre_declare_p(Declare_p* in);
     virtual void pre_inc_ref(Inc_ref* in);
     virtual void pre_allocate(Allocate* in);
-    virtual void pre_clone(Clone* in);
     virtual void pre_separate(Separate* in);
     virtual void pre_dec_ref(Dec_ref* in);
     virtual void pre_destruct(Destruct* in);
+    virtual void pre_overwrite(Overwrite* in);
     virtual void pre_is_ref(Is_ref* in);
     virtual void pre_equals(Equals* in);
     virtual void pre_equals_p(Equals_p* in);
@@ -58,6 +58,7 @@ public:
     virtual void pre_null(Null* in);
     virtual void pre_deref(Deref* in);
     virtual void pre_ref(Ref* in);
+    virtual void pre_clone(Clone* in);
     virtual void pre_symtable_fetch(Symtable_fetch* in);
     virtual void pre_symtable_insert(Symtable_insert* in);
     virtual void pre_comment(COMMENT* in);
@@ -87,10 +88,10 @@ public:
     virtual void post_declare_p(Declare_p* in);
     virtual void post_inc_ref(Inc_ref* in);
     virtual void post_allocate(Allocate* in);
-    virtual void post_clone(Clone* in);
     virtual void post_separate(Separate* in);
     virtual void post_dec_ref(Dec_ref* in);
     virtual void post_destruct(Destruct* in);
+    virtual void post_overwrite(Overwrite* in);
     virtual void post_is_ref(Is_ref* in);
     virtual void post_equals(Equals* in);
     virtual void post_equals_p(Equals_p* in);
@@ -101,6 +102,7 @@ public:
     virtual void post_null(Null* in);
     virtual void post_deref(Deref* in);
     virtual void post_ref(Ref* in);
+    virtual void post_clone(Clone* in);
     virtual void post_symtable_fetch(Symtable_fetch* in);
     virtual void post_symtable_insert(Symtable_insert* in);
     virtual void post_comment(COMMENT* in);
@@ -125,10 +127,10 @@ public:
     virtual void children_declare_p(Declare_p* in);
     virtual void children_inc_ref(Inc_ref* in);
     virtual void children_allocate(Allocate* in);
-    virtual void children_clone(Clone* in);
     virtual void children_separate(Separate* in);
     virtual void children_dec_ref(Dec_ref* in);
     virtual void children_destruct(Destruct* in);
+    virtual void children_overwrite(Overwrite* in);
     virtual void children_is_ref(Is_ref* in);
     virtual void children_equals(Equals* in);
     virtual void children_equals_p(Equals_p* in);
@@ -137,6 +139,7 @@ public:
     virtual void children_null(Null* in);
     virtual void children_deref(Deref* in);
     virtual void children_ref(Ref* in);
+    virtual void children_clone(Clone* in);
     virtual void children_symtable_fetch(Symtable_fetch* in);
     virtual void children_symtable_insert(Symtable_insert* in);
 // Tokens don't have children, so these methods do nothing by default
@@ -171,10 +174,10 @@ public:
     virtual void pre_declare_p_chain(Declare_p* in);
     virtual void pre_inc_ref_chain(Inc_ref* in);
     virtual void pre_allocate_chain(Allocate* in);
-    virtual void pre_clone_chain(Clone* in);
     virtual void pre_separate_chain(Separate* in);
     virtual void pre_dec_ref_chain(Dec_ref* in);
     virtual void pre_destruct_chain(Destruct* in);
+    virtual void pre_overwrite_chain(Overwrite* in);
     virtual void pre_is_ref_chain(Is_ref* in);
     virtual void pre_equals_chain(Equals* in);
     virtual void pre_equals_p_chain(Equals_p* in);
@@ -183,6 +186,7 @@ public:
     virtual void pre_null_chain(Null* in);
     virtual void pre_deref_chain(Deref* in);
     virtual void pre_ref_chain(Ref* in);
+    virtual void pre_clone_chain(Clone* in);
     virtual void pre_symtable_fetch_chain(Symtable_fetch* in);
     virtual void pre_symtable_insert_chain(Symtable_insert* in);
     virtual void pre_comment_chain(COMMENT* in);
@@ -209,10 +213,10 @@ public:
     virtual void post_declare_p_chain(Declare_p* in);
     virtual void post_inc_ref_chain(Inc_ref* in);
     virtual void post_allocate_chain(Allocate* in);
-    virtual void post_clone_chain(Clone* in);
     virtual void post_separate_chain(Separate* in);
     virtual void post_dec_ref_chain(Dec_ref* in);
     virtual void post_destruct_chain(Destruct* in);
+    virtual void post_overwrite_chain(Overwrite* in);
     virtual void post_is_ref_chain(Is_ref* in);
     virtual void post_equals_chain(Equals* in);
     virtual void post_equals_p_chain(Equals_p* in);
@@ -221,6 +225,7 @@ public:
     virtual void post_null_chain(Null* in);
     virtual void post_deref_chain(Deref* in);
     virtual void post_ref_chain(Ref* in);
+    virtual void post_clone_chain(Clone* in);
     virtual void post_symtable_fetch_chain(Symtable_fetch* in);
     virtual void post_symtable_insert_chain(Symtable_insert* in);
     virtual void post_comment_chain(COMMENT* in);

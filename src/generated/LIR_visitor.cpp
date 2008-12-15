@@ -66,10 +66,6 @@ void Visitor::pre_allocate(Allocate* in)
 {
 }
 
-void Visitor::pre_clone(Clone* in)
-{
-}
-
 void Visitor::pre_separate(Separate* in)
 {
 }
@@ -79,6 +75,10 @@ void Visitor::pre_dec_ref(Dec_ref* in)
 }
 
 void Visitor::pre_destruct(Destruct* in)
+{
+}
+
+void Visitor::pre_overwrite(Overwrite* in)
 {
 }
 
@@ -119,6 +119,10 @@ void Visitor::pre_deref(Deref* in)
 }
 
 void Visitor::pre_ref(Ref* in)
+{
+}
+
+void Visitor::pre_clone(Clone* in)
 {
 }
 
@@ -231,10 +235,6 @@ void Visitor::post_allocate(Allocate* in)
 {
 }
 
-void Visitor::post_clone(Clone* in)
-{
-}
-
 void Visitor::post_separate(Separate* in)
 {
 }
@@ -244,6 +244,10 @@ void Visitor::post_dec_ref(Dec_ref* in)
 }
 
 void Visitor::post_destruct(Destruct* in)
+{
+}
+
+void Visitor::post_overwrite(Overwrite* in)
 {
 }
 
@@ -284,6 +288,10 @@ void Visitor::post_deref(Deref* in)
 }
 
 void Visitor::post_ref(Ref* in)
+{
+}
+
+void Visitor::post_clone(Clone* in)
 {
 }
 
@@ -394,12 +402,6 @@ void Visitor::children_allocate(Allocate* in)
     visit_zvp(in->zvp);
 }
 
-void Visitor::children_clone(Clone* in)
-{
-    visit_zvp(in->lhs);
-    visit_zvp(in->rhs);
-}
-
 void Visitor::children_separate(Separate* in)
 {
     visit_zvpp(in->zvpp);
@@ -413,6 +415,12 @@ void Visitor::children_dec_ref(Dec_ref* in)
 void Visitor::children_destruct(Destruct* in)
 {
     visit_zvpp(in->zvpp);
+}
+
+void Visitor::children_overwrite(Overwrite* in)
+{
+    visit_zvp(in->lhs);
+    visit_zvp(in->rhs);
 }
 
 void Visitor::children_is_ref(Is_ref* in)
@@ -451,6 +459,11 @@ void Visitor::children_deref(Deref* in)
 }
 
 void Visitor::children_ref(Ref* in)
+{
+    visit_zvp(in->zvp);
+}
+
+void Visitor::children_clone(Clone* in)
 {
     visit_zvp(in->zvp);
 }
@@ -608,14 +621,6 @@ void Visitor::pre_allocate_chain(Allocate* in)
     pre_allocate((Allocate*) in);
 }
 
-void Visitor::pre_clone_chain(Clone* in)
-{
-    pre_node((Node*) in);
-    pre_statement((Statement*) in);
-    pre_action((Action*) in);
-    pre_clone((Clone*) in);
-}
-
 void Visitor::pre_separate_chain(Separate* in)
 {
     pre_node((Node*) in);
@@ -638,6 +643,14 @@ void Visitor::pre_destruct_chain(Destruct* in)
     pre_statement((Statement*) in);
     pre_action((Action*) in);
     pre_destruct((Destruct*) in);
+}
+
+void Visitor::pre_overwrite_chain(Overwrite* in)
+{
+    pre_node((Node*) in);
+    pre_statement((Statement*) in);
+    pre_action((Action*) in);
+    pre_overwrite((Overwrite*) in);
 }
 
 void Visitor::pre_is_ref_chain(Is_ref* in)
@@ -695,6 +708,13 @@ void Visitor::pre_ref_chain(Ref* in)
     pre_node((Node*) in);
     pre_zvpp((Zvpp*) in);
     pre_ref((Ref*) in);
+}
+
+void Visitor::pre_clone_chain(Clone* in)
+{
+    pre_node((Node*) in);
+    pre_zvp((Zvp*) in);
+    pre_clone((Clone*) in);
 }
 
 void Visitor::pre_symtable_fetch_chain(Symtable_fetch* in)
@@ -858,14 +878,6 @@ void Visitor::post_allocate_chain(Allocate* in)
     post_node((Node*) in);
 }
 
-void Visitor::post_clone_chain(Clone* in)
-{
-    post_clone((Clone*) in);
-    post_action((Action*) in);
-    post_statement((Statement*) in);
-    post_node((Node*) in);
-}
-
 void Visitor::post_separate_chain(Separate* in)
 {
     post_separate((Separate*) in);
@@ -885,6 +897,14 @@ void Visitor::post_dec_ref_chain(Dec_ref* in)
 void Visitor::post_destruct_chain(Destruct* in)
 {
     post_destruct((Destruct*) in);
+    post_action((Action*) in);
+    post_statement((Statement*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_overwrite_chain(Overwrite* in)
+{
+    post_overwrite((Overwrite*) in);
     post_action((Action*) in);
     post_statement((Statement*) in);
     post_node((Node*) in);
@@ -944,6 +964,13 @@ void Visitor::post_ref_chain(Ref* in)
 {
     post_ref((Ref*) in);
     post_zvpp((Zvpp*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_clone_chain(Clone* in)
+{
+    post_clone((Clone*) in);
+    post_zvp((Zvp*) in);
     post_node((Node*) in);
 }
 
@@ -1260,8 +1287,8 @@ void Visitor::pre_statement_chain(Statement* in)
     case Allocate::ID:
     	pre_allocate_chain(dynamic_cast<Allocate*>(in));
     	break;
-    case Clone::ID:
-    	pre_clone_chain(dynamic_cast<Clone*>(in));
+    case Overwrite::ID:
+    	pre_overwrite_chain(dynamic_cast<Overwrite*>(in));
     	break;
     case Separate::ID:
     	pre_separate_chain(dynamic_cast<Separate*>(in));
@@ -1324,6 +1351,9 @@ void Visitor::pre_zvp_chain(Zvp* in)
     	break;
     case Uninit::ID:
     	pre_uninit_chain(dynamic_cast<Uninit*>(in));
+    	break;
+    case Clone::ID:
+    	pre_clone_chain(dynamic_cast<Clone*>(in));
     	break;
     }
 }
@@ -1390,8 +1420,8 @@ void Visitor::post_statement_chain(Statement* in)
     case Allocate::ID:
     	post_allocate_chain(dynamic_cast<Allocate*>(in));
     	break;
-    case Clone::ID:
-    	post_clone_chain(dynamic_cast<Clone*>(in));
+    case Overwrite::ID:
+    	post_overwrite_chain(dynamic_cast<Overwrite*>(in));
     	break;
     case Separate::ID:
     	post_separate_chain(dynamic_cast<Separate*>(in));
@@ -1454,6 +1484,9 @@ void Visitor::post_zvp_chain(Zvp* in)
     	break;
     case Uninit::ID:
     	post_uninit_chain(dynamic_cast<Uninit*>(in));
+    	break;
+    case Clone::ID:
+    	post_clone_chain(dynamic_cast<Clone*>(in));
     	break;
     }
 }
@@ -1520,8 +1553,8 @@ void Visitor::children_statement(Statement* in)
     case Allocate::ID:
     	children_allocate(dynamic_cast<Allocate*>(in));
     	break;
-    case Clone::ID:
-    	children_clone(dynamic_cast<Clone*>(in));
+    case Overwrite::ID:
+    	children_overwrite(dynamic_cast<Overwrite*>(in));
     	break;
     case Separate::ID:
     	children_separate(dynamic_cast<Separate*>(in));
@@ -1584,6 +1617,9 @@ void Visitor::children_zvp(Zvp* in)
     	break;
     case Uninit::ID:
     	children_uninit(dynamic_cast<Uninit*>(in));
+    	break;
+    case Clone::ID:
+    	children_clone(dynamic_cast<Clone*>(in));
     	break;
     }
 }

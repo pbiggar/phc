@@ -237,14 +237,15 @@ parse_templates (String* s)
 	//		continues until another first line is matched.
 
 
-	rule<> r, first_line, otherline, end_line_p, not_eol;
+	rule<> r, first_line, otherline, end_line_p, not_eol, empty_line;
 	not_eol = ~ch_p ('\n') & ~ch_p ('\r');
 
 
 	first_line = (+(alpha_p | ch_p('_')))[&first_line_a] >> ':' >> eol_p;
 	otherline = +blank_p >> +not_eol >> eol_p;
+	empty_line = (*blank_p >> eol_p);
 
-	r = +((first_line >> (+otherline)[&otherlines_a])[&complete_a] >> *(eol_p));
+	r = +((first_line >> (+otherline)[&otherlines_a])[&complete_a] >> *empty_line);
 
    BOOST_SPIRIT_DEBUG_RULE(first_line);
 	BOOST_SPIRIT_DEBUG_RULE(otherline);

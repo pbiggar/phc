@@ -28,6 +28,7 @@ class Uninit;
 class Null;
 class Deref;
 class Ref;
+class Clone;
 class UNINTERPRETED;
 class INTRINSIC;
 class API_CALL;
@@ -41,10 +42,10 @@ class Declare;
 class Declare_p;
 class Inc_ref;
 class Allocate;
-class Clone;
 class Separate;
 class Dec_ref;
 class Destruct;
+class Overwrite;
 class Symtable_fetch;
 class Symtable_insert;
 class None;
@@ -73,6 +74,7 @@ MAKETEA_USER_DEFINED(LIR::Uninit)
 MAKETEA_USER_DEFINED(LIR::Null)
 MAKETEA_USER_DEFINED(LIR::Deref)
 MAKETEA_USER_DEFINED(LIR::Ref)
+MAKETEA_USER_DEFINED(LIR::Clone)
 MAKETEA_USER_DEFINED(LIR::UNINTERPRETED)
 MAKETEA_USER_DEFINED(LIR::INTRINSIC)
 MAKETEA_USER_DEFINED(LIR::API_CALL)
@@ -86,10 +88,10 @@ MAKETEA_USER_DEFINED(LIR::Declare)
 MAKETEA_USER_DEFINED(LIR::Declare_p)
 MAKETEA_USER_DEFINED(LIR::Inc_ref)
 MAKETEA_USER_DEFINED(LIR::Allocate)
-MAKETEA_USER_DEFINED(LIR::Clone)
 MAKETEA_USER_DEFINED(LIR::Separate)
 MAKETEA_USER_DEFINED(LIR::Dec_ref)
 MAKETEA_USER_DEFINED(LIR::Destruct)
+MAKETEA_USER_DEFINED(LIR::Overwrite)
 MAKETEA_USER_DEFINED(LIR::Symtable_fetch)
 MAKETEA_USER_DEFINED(LIR::Symtable_insert)
 MAKETEA_USER_DEFINED(LIR::None)

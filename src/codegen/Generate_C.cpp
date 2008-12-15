@@ -388,6 +388,16 @@ string read_var_var (Scope scope, string zvp, VARIABLE_NAME* var_var)
 	return ss.str();
 }
 
+string
+write_var_lir (string lhs, string rhs)
+{
+	return str(format (templ ("write_var"))
+			% lhs 
+			% rhs);
+}
+
+
+
 
 /*
  * Map of the Zend functions that implement the operators
@@ -778,7 +788,9 @@ public:
 				<<	"		(not (equals "
 				<<	"			(deref (ZVPP lhs)) "
 				<<	"			(ZVP rhs))) "
-				<<	"		[ (CODE \"write_var (p_lhs, rhs);\") ] "
+				<<	"		[ "
+				<<				write_var_lir ("lhs", "rhs")
+				<< "		] "
 				<<	"		[])"
 				<<	"]");
 		}

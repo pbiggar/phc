@@ -43,6 +43,7 @@ public:
 //	void children_is_copy_on_write (LIR::Is_copy_on_write* in);
 	void children_is_ref (LIR::Is_ref* in);
 	void children_literal (LIR::LITERAL* in);
+	void children_overwrite (LIR::Overwrite* in);
 	void children_not (LIR::Not* in);
 	void children_null (LIR::Null* in);
 //	void children_overwrite (LIR::Overwrite* in);

@@ -63,8 +63,7 @@ Action ::=	  Assign_zvp
 				| Dec_ref
 				| Destruct
 				| Allocate
-				| Clone
---				| Overwrite
+				| Overwrite
 				| Separate
 				| Symtable_fetch
 				| Symtable_insert
@@ -98,7 +97,6 @@ Inc_ref		::= Zvp ;
 
 -- ALLOC_INIT_ZVAL (lhs);
 Allocate		::= Zvp ;
-Clone			::= lhs:Zvp rhs:Zvp ;
 Separate    ::= Zvpp ;
 
 
@@ -111,6 +109,9 @@ Dec_ref		::= Zvp ;
 
 -- zval_ptr_dtor (p_lhs);
 Destruct		::= Zvpp ;
+
+
+Overwrite ::= lhs:Zvp rhs:Zvp ;
 
 
 
@@ -131,13 +132,14 @@ Not ::= Cond ;
  - Primitives
  -}
 
-Zvp ::= Deref | ZVP | Null | LITERAL | Uninit ;
+Zvp ::= Deref | ZVP | Null | LITERAL | Uninit | Clone;
 Zvpp ::= Ref | ZVPP | Null;
 
 Uninit ::= ;
 Null ::= ;
 Deref ::= Zvpp ;
 Ref ::= Zvp ;
+Clone ::= Zvp ;
 
 {-
  - Symtable
