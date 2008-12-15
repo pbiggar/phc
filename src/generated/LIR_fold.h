@@ -38,9 +38,12 @@ template
  class _Destruct,
  class _Equals,
  class _Equals_p,
+ class _INT,
  class _INTRINSIC,
  class _If,
  class _Inc_ref,
+ class _Is_change_on_write,
+ class _Is_copy_on_write,
  class _Is_ref,
  class _LITERAL,
  class _Method,
@@ -53,6 +56,7 @@ template
  class _STRING,
  class _SYMTABLE,
  class _Separate,
+ class _Set_is_ref,
  class _Statement,
  class _Symtable_fetch,
  class _Symtable_insert,
@@ -68,7 +72,7 @@ class Fold
 {
 // Access this class from subclasses without copying out the template instantiation
 public:
-   typedef Fold<_API_CALL, _Action, _Allocate, _Assign_zvp, _Assign_zvpp, _Block, _CODE, _COMMENT, _C_file, _Clone, _Cond, _Dec_ref, _Declare, _Declare_p, _Deref, _Destruct, _Equals, _Equals_p, _INTRINSIC, _If, _Inc_ref, _Is_ref, _LITERAL, _Method, _Node, _Not, _Null, _Overwrite, _Piece, _Ref, _STRING, _SYMTABLE, _Separate, _Statement, _Symtable_fetch, _Symtable_insert, _UNINTERPRETED, _Uninit, _ZVP, _ZVPP, _Zvp, _Zvpp, _List> parent;
+   typedef Fold<_API_CALL, _Action, _Allocate, _Assign_zvp, _Assign_zvpp, _Block, _CODE, _COMMENT, _C_file, _Clone, _Cond, _Dec_ref, _Declare, _Declare_p, _Deref, _Destruct, _Equals, _Equals_p, _INT, _INTRINSIC, _If, _Inc_ref, _Is_change_on_write, _Is_copy_on_write, _Is_ref, _LITERAL, _Method, _Node, _Not, _Null, _Overwrite, _Piece, _Ref, _STRING, _SYMTABLE, _Separate, _Set_is_ref, _Statement, _Symtable_fetch, _Symtable_insert, _UNINTERPRETED, _Uninit, _ZVP, _ZVPP, _Zvp, _Zvpp, _List> parent;
 // Recursively fold the children before folding the parent
 // This methods form the client API for a fold, but should not be
 // overridden unless you know what you are doing
@@ -201,6 +205,15 @@ public:
 		return fold_impl_separate(in, zvpp);
 	}
 
+	virtual _Set_is_ref fold_set_is_ref(Set_is_ref* in)
+	{
+		_Zvp zvp = 0;
+		if(in->zvp != NULL) zvp = fold_zvp(in->zvp);
+		_INT _int = 0;
+		if(in->_int != NULL) _int = fold_int(in->_int);
+		return fold_impl_set_is_ref(in, zvp, _int);
+	}
+
 	virtual _Dec_ref fold_dec_ref(Dec_ref* in)
 	{
 		_Zvp zvp = 0;
@@ -254,6 +267,20 @@ public:
 		_Cond cond = 0;
 		if(in->cond != NULL) cond = fold_cond(in->cond);
 		return fold_impl_not(in, cond);
+	}
+
+	virtual _Is_change_on_write fold_is_change_on_write(Is_change_on_write* in)
+	{
+		_Zvp zvp = 0;
+		if(in->zvp != NULL) zvp = fold_zvp(in->zvp);
+		return fold_impl_is_change_on_write(in, zvp);
+	}
+
+	virtual _Is_copy_on_write fold_is_copy_on_write(Is_copy_on_write* in)
+	{
+		_Zvp zvp = 0;
+		if(in->zvp != NULL) zvp = fold_zvp(in->zvp);
+		return fold_impl_is_copy_on_write(in, zvp);
 	}
 
 	virtual _Uninit fold_uninit(Uninit* in)
@@ -325,6 +352,7 @@ public:
 	virtual _Inc_ref fold_impl_inc_ref(Inc_ref* orig, _Zvp zvp) { assert(0); };
 	virtual _Allocate fold_impl_allocate(Allocate* orig, _Zvp zvp) { assert(0); };
 	virtual _Separate fold_impl_separate(Separate* orig, _Zvpp zvpp) { assert(0); };
+	virtual _Set_is_ref fold_impl_set_is_ref(Set_is_ref* orig, _Zvp zvp, _INT _int) { assert(0); };
 	virtual _Dec_ref fold_impl_dec_ref(Dec_ref* orig, _Zvp zvp) { assert(0); };
 	virtual _Destruct fold_impl_destruct(Destruct* orig, _Zvpp zvpp) { assert(0); };
 	virtual _Overwrite fold_impl_overwrite(Overwrite* orig, _Zvp lhs, _Zvp rhs) { assert(0); };
@@ -332,6 +360,8 @@ public:
 	virtual _Equals fold_impl_equals(Equals* orig, _Zvp lhs, _Zvp rhs) { assert(0); };
 	virtual _Equals_p fold_impl_equals_p(Equals_p* orig, _Zvpp lhs, _Zvpp rhs) { assert(0); };
 	virtual _Not fold_impl_not(Not* orig, _Cond cond) { assert(0); };
+	virtual _Is_change_on_write fold_impl_is_change_on_write(Is_change_on_write* orig, _Zvp zvp) { assert(0); };
+	virtual _Is_copy_on_write fold_impl_is_copy_on_write(Is_copy_on_write* orig, _Zvp zvp) { assert(0); };
 	virtual _Uninit fold_impl_uninit(Uninit* orig) { assert(0); };
 	virtual _Null fold_impl_null(Null* orig) { assert(0); };
 	virtual _Deref fold_impl_deref(Deref* orig, _Zvpp zvpp) { assert(0); };
@@ -341,6 +371,7 @@ public:
 	virtual _Symtable_insert fold_impl_symtable_insert(Symtable_insert* orig, _SYMTABLE symtable, _STRING name, _ZVPP zvpp) { assert(0); };
 
 	virtual _COMMENT fold_comment(COMMENT* orig) { assert(0); };
+	virtual _INT fold_int(INT* orig) { assert(0); };
 	virtual _SYMTABLE fold_symtable(SYMTABLE* orig) { assert(0); };
 	virtual _STRING fold_string(STRING* orig) { assert(0); };
 	virtual _UNINTERPRETED fold_uninterpreted(UNINTERPRETED* orig) { assert(0); };
@@ -378,6 +409,8 @@ public:
 				return fold_inc_ref(dynamic_cast<Inc_ref*>(in));
 			case Dec_ref::ID:
 				return fold_dec_ref(dynamic_cast<Dec_ref*>(in));
+			case Set_is_ref::ID:
+				return fold_set_is_ref(dynamic_cast<Set_is_ref*>(in));
 			case Destruct::ID:
 				return fold_destruct(dynamic_cast<Destruct*>(in));
 			case Allocate::ID:
@@ -406,6 +439,10 @@ public:
 				return fold_equals_p(dynamic_cast<Equals_p*>(in));
 			case Not::ID:
 				return fold_not(dynamic_cast<Not*>(in));
+			case Is_copy_on_write::ID:
+				return fold_is_copy_on_write(dynamic_cast<Is_copy_on_write*>(in));
+			case Is_change_on_write::ID:
+				return fold_is_change_on_write(dynamic_cast<Is_change_on_write*>(in));
 			case Deref::ID:
 				return fold_deref(dynamic_cast<Deref*>(in));
 			case ZVP::ID:
@@ -424,6 +461,8 @@ public:
 				return fold_zvpp(dynamic_cast<ZVPP*>(in));
 			case COMMENT::ID:
 				return fold_comment(dynamic_cast<COMMENT*>(in));
+			case INT::ID:
+				return fold_int(dynamic_cast<INT*>(in));
 			case SYMTABLE::ID:
 				return fold_symtable(dynamic_cast<SYMTABLE*>(in));
 			case STRING::ID:
@@ -462,6 +501,8 @@ public:
 				return fold_inc_ref(dynamic_cast<Inc_ref*>(in));
 			case Dec_ref::ID:
 				return fold_dec_ref(dynamic_cast<Dec_ref*>(in));
+			case Set_is_ref::ID:
+				return fold_set_is_ref(dynamic_cast<Set_is_ref*>(in));
 			case Destruct::ID:
 				return fold_destruct(dynamic_cast<Destruct*>(in));
 			case Allocate::ID:
@@ -502,6 +543,8 @@ public:
 				return fold_inc_ref(dynamic_cast<Inc_ref*>(in));
 			case Dec_ref::ID:
 				return fold_dec_ref(dynamic_cast<Dec_ref*>(in));
+			case Set_is_ref::ID:
+				return fold_set_is_ref(dynamic_cast<Set_is_ref*>(in));
 			case Destruct::ID:
 				return fold_destruct(dynamic_cast<Destruct*>(in));
 			case Allocate::ID:
@@ -530,6 +573,10 @@ public:
 				return fold_equals_p(dynamic_cast<Equals_p*>(in));
 			case Not::ID:
 				return fold_not(dynamic_cast<Not*>(in));
+			case Is_copy_on_write::ID:
+				return fold_is_copy_on_write(dynamic_cast<Is_copy_on_write*>(in));
+			case Is_change_on_write::ID:
+				return fold_is_change_on_write(dynamic_cast<Is_change_on_write*>(in));
 		}
 		assert(0);
 	}
@@ -575,6 +622,6 @@ public:
 };
 
 template<class T, template <class _Tp, class _Alloc = typename List<_Tp>::allocator_type> class _List>
-class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, _List> {};
+class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, _List> {};
 }
 

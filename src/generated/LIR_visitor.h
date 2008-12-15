@@ -27,7 +27,7 @@ class Visitor
 {
 public:
     virtual ~Visitor();
-// Invoked before the children are visited
+/* Invoked before the children are visited */
 public:
     virtual void pre_node(Node* in);
     virtual void pre_c_file(C_file* in);
@@ -45,6 +45,7 @@ public:
     virtual void pre_inc_ref(Inc_ref* in);
     virtual void pre_allocate(Allocate* in);
     virtual void pre_separate(Separate* in);
+    virtual void pre_set_is_ref(Set_is_ref* in);
     virtual void pre_dec_ref(Dec_ref* in);
     virtual void pre_destruct(Destruct* in);
     virtual void pre_overwrite(Overwrite* in);
@@ -52,6 +53,8 @@ public:
     virtual void pre_equals(Equals* in);
     virtual void pre_equals_p(Equals_p* in);
     virtual void pre_not(Not* in);
+    virtual void pre_is_change_on_write(Is_change_on_write* in);
+    virtual void pre_is_copy_on_write(Is_copy_on_write* in);
     virtual void pre_zvp(Zvp* in);
     virtual void pre_zvpp(Zvpp* in);
     virtual void pre_uninit(Uninit* in);
@@ -62,6 +65,7 @@ public:
     virtual void pre_symtable_fetch(Symtable_fetch* in);
     virtual void pre_symtable_insert(Symtable_insert* in);
     virtual void pre_comment(COMMENT* in);
+    virtual void pre_int(INT* in);
     virtual void pre_symtable(SYMTABLE* in);
     virtual void pre_string(STRING* in);
     virtual void pre_uninterpreted(UNINTERPRETED* in);
@@ -71,7 +75,7 @@ public:
     virtual void pre_zvp(ZVP* in);
     virtual void pre_zvpp(ZVPP* in);
     virtual void pre_literal(LITERAL* in);
-// Invoked after the children have been visited
+/* Invoked after the children have been visited */
 public:
     virtual void post_node(Node* in);
     virtual void post_c_file(C_file* in);
@@ -89,6 +93,7 @@ public:
     virtual void post_inc_ref(Inc_ref* in);
     virtual void post_allocate(Allocate* in);
     virtual void post_separate(Separate* in);
+    virtual void post_set_is_ref(Set_is_ref* in);
     virtual void post_dec_ref(Dec_ref* in);
     virtual void post_destruct(Destruct* in);
     virtual void post_overwrite(Overwrite* in);
@@ -96,6 +101,8 @@ public:
     virtual void post_equals(Equals* in);
     virtual void post_equals_p(Equals_p* in);
     virtual void post_not(Not* in);
+    virtual void post_is_change_on_write(Is_change_on_write* in);
+    virtual void post_is_copy_on_write(Is_copy_on_write* in);
     virtual void post_zvp(Zvp* in);
     virtual void post_zvpp(Zvpp* in);
     virtual void post_uninit(Uninit* in);
@@ -106,6 +113,7 @@ public:
     virtual void post_symtable_fetch(Symtable_fetch* in);
     virtual void post_symtable_insert(Symtable_insert* in);
     virtual void post_comment(COMMENT* in);
+    virtual void post_int(INT* in);
     virtual void post_symtable(SYMTABLE* in);
     virtual void post_string(STRING* in);
     virtual void post_uninterpreted(UNINTERPRETED* in);
@@ -115,7 +123,7 @@ public:
     virtual void post_zvp(ZVP* in);
     virtual void post_zvpp(ZVPP* in);
     virtual void post_literal(LITERAL* in);
-// Visit the children of a node
+/* Visit the children of a node */
 public:
     virtual void children_c_file(C_file* in);
     virtual void children_method(Method* in);
@@ -128,6 +136,7 @@ public:
     virtual void children_inc_ref(Inc_ref* in);
     virtual void children_allocate(Allocate* in);
     virtual void children_separate(Separate* in);
+    virtual void children_set_is_ref(Set_is_ref* in);
     virtual void children_dec_ref(Dec_ref* in);
     virtual void children_destruct(Destruct* in);
     virtual void children_overwrite(Overwrite* in);
@@ -135,6 +144,8 @@ public:
     virtual void children_equals(Equals* in);
     virtual void children_equals_p(Equals_p* in);
     virtual void children_not(Not* in);
+    virtual void children_is_change_on_write(Is_change_on_write* in);
+    virtual void children_is_copy_on_write(Is_copy_on_write* in);
     virtual void children_uninit(Uninit* in);
     virtual void children_null(Null* in);
     virtual void children_deref(Deref* in);
@@ -142,9 +153,10 @@ public:
     virtual void children_clone(Clone* in);
     virtual void children_symtable_fetch(Symtable_fetch* in);
     virtual void children_symtable_insert(Symtable_insert* in);
-// Tokens don't have children, so these methods do nothing by default
+/* Tokens don't have children, so these methods do nothing by default */
 public:
     virtual void children_comment(COMMENT* in);
+    virtual void children_int(INT* in);
     virtual void children_symtable(SYMTABLE* in);
     virtual void children_string(STRING* in);
     virtual void children_uninterpreted(UNINTERPRETED* in);
@@ -154,15 +166,15 @@ public:
     virtual void children_zvp(ZVP* in);
     virtual void children_zvpp(ZVPP* in);
     virtual void children_literal(LITERAL* in);
-// Unparser support
+/* Unparser support */
 public:
     virtual void visit_marker(char const* name, bool value);
     virtual void visit_null(char const* name_space, char const* type_id);
     virtual void visit_null_list(char const* name_space, char const* type_id);
     virtual void pre_list(char const* name_space, char const* type_id, int size);
     virtual void post_list(char const* name_space, char const* type_id, int size);
-// Invoke the chain of pre-visit methods along the inheritance hierachy
-// Do not override unless you know what you are doing
+/* Invoke the chain of pre-visit methods along the inheritance hierachy */
+/* Do not override unless you know what you are doing */
 public:
     virtual void pre_c_file_chain(C_file* in);
     virtual void pre_method_chain(Method* in);
@@ -175,6 +187,7 @@ public:
     virtual void pre_inc_ref_chain(Inc_ref* in);
     virtual void pre_allocate_chain(Allocate* in);
     virtual void pre_separate_chain(Separate* in);
+    virtual void pre_set_is_ref_chain(Set_is_ref* in);
     virtual void pre_dec_ref_chain(Dec_ref* in);
     virtual void pre_destruct_chain(Destruct* in);
     virtual void pre_overwrite_chain(Overwrite* in);
@@ -182,6 +195,8 @@ public:
     virtual void pre_equals_chain(Equals* in);
     virtual void pre_equals_p_chain(Equals_p* in);
     virtual void pre_not_chain(Not* in);
+    virtual void pre_is_change_on_write_chain(Is_change_on_write* in);
+    virtual void pre_is_copy_on_write_chain(Is_copy_on_write* in);
     virtual void pre_uninit_chain(Uninit* in);
     virtual void pre_null_chain(Null* in);
     virtual void pre_deref_chain(Deref* in);
@@ -190,6 +205,7 @@ public:
     virtual void pre_symtable_fetch_chain(Symtable_fetch* in);
     virtual void pre_symtable_insert_chain(Symtable_insert* in);
     virtual void pre_comment_chain(COMMENT* in);
+    virtual void pre_int_chain(INT* in);
     virtual void pre_symtable_chain(SYMTABLE* in);
     virtual void pre_string_chain(STRING* in);
     virtual void pre_uninterpreted_chain(UNINTERPRETED* in);
@@ -199,9 +215,9 @@ public:
     virtual void pre_zvp_chain(ZVP* in);
     virtual void pre_zvpp_chain(ZVPP* in);
     virtual void pre_literal_chain(LITERAL* in);
-// Invoke the chain of post-visit methods along the inheritance hierarchy
-// (invoked in opposite order to the pre-chain)
-// Do not override unless you know what you are doing
+/* Invoke the chain of post-visit methods along the inheritance hierarchy */
+/* (invoked in opposite order to the pre-chain) */
+/* Do not override unless you know what you are doing */
 public:
     virtual void post_c_file_chain(C_file* in);
     virtual void post_method_chain(Method* in);
@@ -214,6 +230,7 @@ public:
     virtual void post_inc_ref_chain(Inc_ref* in);
     virtual void post_allocate_chain(Allocate* in);
     virtual void post_separate_chain(Separate* in);
+    virtual void post_set_is_ref_chain(Set_is_ref* in);
     virtual void post_dec_ref_chain(Dec_ref* in);
     virtual void post_destruct_chain(Destruct* in);
     virtual void post_overwrite_chain(Overwrite* in);
@@ -221,6 +238,8 @@ public:
     virtual void post_equals_chain(Equals* in);
     virtual void post_equals_p_chain(Equals_p* in);
     virtual void post_not_chain(Not* in);
+    virtual void post_is_change_on_write_chain(Is_change_on_write* in);
+    virtual void post_is_copy_on_write_chain(Is_copy_on_write* in);
     virtual void post_uninit_chain(Uninit* in);
     virtual void post_null_chain(Null* in);
     virtual void post_deref_chain(Deref* in);
@@ -229,6 +248,7 @@ public:
     virtual void post_symtable_fetch_chain(Symtable_fetch* in);
     virtual void post_symtable_insert_chain(Symtable_insert* in);
     virtual void post_comment_chain(COMMENT* in);
+    virtual void post_int_chain(INT* in);
     virtual void post_symtable_chain(SYMTABLE* in);
     virtual void post_string_chain(STRING* in);
     virtual void post_uninterpreted_chain(UNINTERPRETED* in);
@@ -238,8 +258,8 @@ public:
     virtual void post_zvp_chain(ZVP* in);
     virtual void post_zvpp_chain(ZVPP* in);
     virtual void post_literal_chain(LITERAL* in);
-// Call the pre-chain, visit children and post-chain in order
-// Do not override unless you know what you are doing
+/* Call the pre-chain, visit children and post-chain in order */
+/* Do not override unless you know what you are doing */
 public:
     virtual void visit_piece_list(Piece_list* in);
     virtual void visit_piece(Piece* in);
@@ -252,27 +272,28 @@ public:
     virtual void visit_zvpp(Zvpp* in);
     virtual void visit_zvp(ZVP* in);
     virtual void visit_zvpp(ZVPP* in);
+    virtual void visit_int(INT* in);
     virtual void visit_symtable(SYMTABLE* in);
     virtual void visit_string(STRING* in);
     virtual void visit_c_file(C_file* in);
-// Invoke the right pre-chain (manual dispatching)
-// Do not override unless you know what you are doing
+/* Invoke the right pre-chain (manual dispatching) */
+/* Do not override unless you know what you are doing */
 public:
     virtual void pre_piece_chain(Piece* in);
     virtual void pre_statement_chain(Statement* in);
     virtual void pre_cond_chain(Cond* in);
     virtual void pre_zvp_chain(Zvp* in);
     virtual void pre_zvpp_chain(Zvpp* in);
-// Invoke the right post-chain (manual dispatching)
-// Do not override unless you know what you are doing
+/* Invoke the right post-chain (manual dispatching) */
+/* Do not override unless you know what you are doing */
 public:
     virtual void post_piece_chain(Piece* in);
     virtual void post_statement_chain(Statement* in);
     virtual void post_cond_chain(Cond* in);
     virtual void post_zvp_chain(Zvp* in);
     virtual void post_zvpp_chain(Zvpp* in);
-// Invoke the right visit-children (manual dispatching)
-// Do not override unless you know what you are doing
+/* Invoke the right visit-children (manual dispatching) */
+/* Do not override unless you know what you are doing */
 public:
     virtual void children_piece(Piece* in);
     virtual void children_statement(Statement* in);

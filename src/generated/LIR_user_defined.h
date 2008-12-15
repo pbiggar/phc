@@ -14,6 +14,7 @@ class Cond;
 class Zvp;
 class Zvpp;
 class COMMENT;
+class INT;
 class SYMTABLE;
 class STRING;
 class Method;
@@ -24,6 +25,8 @@ class Is_ref;
 class Equals;
 class Equals_p;
 class Not;
+class Is_change_on_write;
+class Is_copy_on_write;
 class Uninit;
 class Null;
 class Deref;
@@ -43,6 +46,7 @@ class Declare_p;
 class Inc_ref;
 class Allocate;
 class Separate;
+class Set_is_ref;
 class Dec_ref;
 class Destruct;
 class Overwrite;
@@ -60,6 +64,7 @@ MAKETEA_USER_DEFINED(LIR::Cond)
 MAKETEA_USER_DEFINED(LIR::Zvp)
 MAKETEA_USER_DEFINED(LIR::Zvpp)
 MAKETEA_USER_DEFINED(LIR::COMMENT)
+MAKETEA_USER_DEFINED(LIR::INT)
 MAKETEA_USER_DEFINED(LIR::SYMTABLE)
 MAKETEA_USER_DEFINED(LIR::STRING)
 MAKETEA_USER_DEFINED(LIR::Method)
@@ -70,6 +75,8 @@ MAKETEA_USER_DEFINED(LIR::Is_ref)
 MAKETEA_USER_DEFINED(LIR::Equals)
 MAKETEA_USER_DEFINED(LIR::Equals_p)
 MAKETEA_USER_DEFINED(LIR::Not)
+MAKETEA_USER_DEFINED(LIR::Is_change_on_write)
+MAKETEA_USER_DEFINED(LIR::Is_copy_on_write)
 MAKETEA_USER_DEFINED(LIR::Uninit)
 MAKETEA_USER_DEFINED(LIR::Null)
 MAKETEA_USER_DEFINED(LIR::Deref)
@@ -89,6 +96,7 @@ MAKETEA_USER_DEFINED(LIR::Declare_p)
 MAKETEA_USER_DEFINED(LIR::Inc_ref)
 MAKETEA_USER_DEFINED(LIR::Allocate)
 MAKETEA_USER_DEFINED(LIR::Separate)
+MAKETEA_USER_DEFINED(LIR::Set_is_ref)
 MAKETEA_USER_DEFINED(LIR::Dec_ref)
 MAKETEA_USER_DEFINED(LIR::Destruct)
 MAKETEA_USER_DEFINED(LIR::Overwrite)

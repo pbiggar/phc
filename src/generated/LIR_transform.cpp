@@ -5,7 +5,7 @@ Transform::~Transform()
 {
 }
 
-// Invoked before the children are transformed
+/* Invoked before the children are transformed */
 C_file* Transform::pre_c_file(C_file* in)
 {
     return in;
@@ -61,6 +61,11 @@ void Transform::pre_separate(Separate* in, Statement_list* out)
     out->push_back(in);
 }
 
+void Transform::pre_set_is_ref(Set_is_ref* in, Statement_list* out)
+{
+    out->push_back(in);
+}
+
 void Transform::pre_dec_ref(Dec_ref* in, Statement_list* out)
 {
     out->push_back(in);
@@ -92,6 +97,16 @@ Cond* Transform::pre_equals_p(Equals_p* in)
 }
 
 Cond* Transform::pre_not(Not* in)
+{
+    return in;
+}
+
+Cond* Transform::pre_is_change_on_write(Is_change_on_write* in)
+{
+    return in;
+}
+
+Cond* Transform::pre_is_copy_on_write(Is_copy_on_write* in)
 {
     return in;
 }
@@ -132,6 +147,11 @@ void Transform::pre_symtable_insert(Symtable_insert* in, Statement_list* out)
 }
 
 COMMENT* Transform::pre_comment(COMMENT* in)
+{
+    return in;
+}
+
+INT* Transform::pre_int(INT* in)
 {
     return in;
 }
@@ -181,7 +201,7 @@ Zvp* Transform::pre_literal(LITERAL* in)
     return in;
 }
 
-// Invoked after the children have been transformed
+/* Invoked after the children have been transformed */
 C_file* Transform::post_c_file(C_file* in)
 {
     return in;
@@ -237,6 +257,11 @@ void Transform::post_separate(Separate* in, Statement_list* out)
     out->push_back(in);
 }
 
+void Transform::post_set_is_ref(Set_is_ref* in, Statement_list* out)
+{
+    out->push_back(in);
+}
+
 void Transform::post_dec_ref(Dec_ref* in, Statement_list* out)
 {
     out->push_back(in);
@@ -268,6 +293,16 @@ Cond* Transform::post_equals_p(Equals_p* in)
 }
 
 Cond* Transform::post_not(Not* in)
+{
+    return in;
+}
+
+Cond* Transform::post_is_change_on_write(Is_change_on_write* in)
+{
+    return in;
+}
+
+Cond* Transform::post_is_copy_on_write(Is_copy_on_write* in)
 {
     return in;
 }
@@ -308,6 +343,11 @@ void Transform::post_symtable_insert(Symtable_insert* in, Statement_list* out)
 }
 
 COMMENT* Transform::post_comment(COMMENT* in)
+{
+    return in;
+}
+
+INT* Transform::post_int(INT* in)
 {
     return in;
 }
@@ -357,7 +397,7 @@ Zvp* Transform::post_literal(LITERAL* in)
     return in;
 }
 
-// Transform the children of the node
+/* Transform the children of the node */
 void Transform::children_c_file(C_file* in)
 {
     in->pieces = transform_piece_list(in->pieces);
@@ -421,6 +461,12 @@ void Transform::children_separate(Separate* in)
     in->zvpp = transform_zvpp(in->zvpp);
 }
 
+void Transform::children_set_is_ref(Set_is_ref* in)
+{
+    in->zvp = transform_zvp(in->zvp);
+    in->_int = transform_int(in->_int);
+}
+
 void Transform::children_dec_ref(Dec_ref* in)
 {
     in->zvp = transform_zvp(in->zvp);
@@ -457,6 +503,16 @@ void Transform::children_equals_p(Equals_p* in)
 void Transform::children_not(Not* in)
 {
     in->cond = transform_cond(in->cond);
+}
+
+void Transform::children_is_change_on_write(Is_change_on_write* in)
+{
+    in->zvp = transform_zvp(in->zvp);
+}
+
+void Transform::children_is_copy_on_write(Is_copy_on_write* in)
+{
+    in->zvp = transform_zvp(in->zvp);
 }
 
 void Transform::children_uninit(Uninit* in)
@@ -496,8 +552,12 @@ void Transform::children_symtable_insert(Symtable_insert* in)
     in->zvpp = transform_zvpp(in->zvpp);
 }
 
-// Tokens don't have children, so these methods do nothing by default
+/* Tokens don't have children, so these methods do nothing by default */
 void Transform::children_comment(COMMENT* in)
+{
+}
+
+void Transform::children_int(INT* in)
 {
 }
 
@@ -537,8 +597,8 @@ void Transform::children_literal(LITERAL* in)
 {
 }
 
-// Call the pre-transform, transform-children post-transform methods in order
-// Do not override unless you know what you are doing
+/* Call the pre-transform, transform-children post-transform methods in order */
+/* Do not override unless you know what you are doing */
 Piece_list* Transform::transform_piece_list(Piece_list* in)
 {
     Piece_list::const_iterator i;
@@ -725,6 +785,22 @@ ZVPP* Transform::transform_zvpp(ZVPP* in)
     return out;
 }
 
+INT* Transform::transform_int(INT* in)
+{
+    if(in == NULL) return NULL;
+    
+    INT* out;
+    
+    out = pre_int(in);
+    if(out != NULL)
+    {
+    	children_int(out);
+    	out = post_int(out);
+    }
+    
+    return out;
+}
+
 SYMTABLE* Transform::transform_symtable(SYMTABLE* in)
 {
     if(in == NULL) return NULL;
@@ -773,8 +849,8 @@ C_file* Transform::transform_c_file(C_file* in)
     return out;
 }
 
-// Invoke the right pre-transform (manual dispatching)
-// Do not override unless you know what you are doing
+/* Invoke the right pre-transform (manual dispatching) */
+/* Do not override unless you know what you are doing */
 void Transform::pre_piece(Piece* in, Piece_list* out)
 {
     switch(in->classid())
@@ -858,6 +934,15 @@ void Transform::pre_statement(Statement* in, Statement_list* out)
     		Statement_list* local_out = new Statement_list;
     		Statement_list::const_iterator i;
     		pre_dec_ref(dynamic_cast<Dec_ref*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    case Set_is_ref::ID: 
+    	{
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
+    		pre_set_is_ref(dynamic_cast<Set_is_ref*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
@@ -964,6 +1049,8 @@ Cond* Transform::pre_cond(Cond* in)
     case Equals::ID: return pre_equals(dynamic_cast<Equals*>(in));
     case Equals_p::ID: return pre_equals_p(dynamic_cast<Equals_p*>(in));
     case Not::ID: return pre_not(dynamic_cast<Not*>(in));
+    case Is_copy_on_write::ID: return pre_is_copy_on_write(dynamic_cast<Is_copy_on_write*>(in));
+    case Is_change_on_write::ID: return pre_is_change_on_write(dynamic_cast<Is_change_on_write*>(in));
     }
     assert(0);
 }
@@ -993,8 +1080,8 @@ Zvpp* Transform::pre_zvpp(Zvpp* in)
     assert(0);
 }
 
-// Invoke the right post-transform (manual dispatching)
-// Do not override unless you know what you are doing
+/* Invoke the right post-transform (manual dispatching) */
+/* Do not override unless you know what you are doing */
 void Transform::post_piece(Piece* in, Piece_list* out)
 {
     switch(in->classid())
@@ -1078,6 +1165,15 @@ void Transform::post_statement(Statement* in, Statement_list* out)
     		Statement_list* local_out = new Statement_list;
     		Statement_list::const_iterator i;
     		post_dec_ref(dynamic_cast<Dec_ref*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    case Set_is_ref::ID: 
+    	{
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
+    		post_set_is_ref(dynamic_cast<Set_is_ref*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
@@ -1184,6 +1280,8 @@ Cond* Transform::post_cond(Cond* in)
     case Equals::ID: return post_equals(dynamic_cast<Equals*>(in));
     case Equals_p::ID: return post_equals_p(dynamic_cast<Equals_p*>(in));
     case Not::ID: return post_not(dynamic_cast<Not*>(in));
+    case Is_copy_on_write::ID: return post_is_copy_on_write(dynamic_cast<Is_copy_on_write*>(in));
+    case Is_change_on_write::ID: return post_is_change_on_write(dynamic_cast<Is_change_on_write*>(in));
     }
     assert(0);
 }
@@ -1213,8 +1311,8 @@ Zvpp* Transform::post_zvpp(Zvpp* in)
     assert(0);
 }
 
-// Invoke the right transform-children (manual dispatching)
-// Do not override unless you what you are doing
+/* Invoke the right transform-children (manual dispatching) */
+/* Do not override unless you what you are doing */
 void Transform::children_piece(Piece* in)
 {
     switch(in->classid())
@@ -1252,6 +1350,9 @@ void Transform::children_statement(Statement* in)
     	break;
     case Dec_ref::ID:
     	children_dec_ref(dynamic_cast<Dec_ref*>(in));
+    	break;
+    case Set_is_ref::ID:
+    	children_set_is_ref(dynamic_cast<Set_is_ref*>(in));
     	break;
     case Destruct::ID:
     	children_destruct(dynamic_cast<Destruct*>(in));
@@ -1301,6 +1402,12 @@ void Transform::children_cond(Cond* in)
     	break;
     case Not::ID:
     	children_not(dynamic_cast<Not*>(in));
+    	break;
+    case Is_copy_on_write::ID:
+    	children_is_copy_on_write(dynamic_cast<Is_copy_on_write*>(in));
+    	break;
+    case Is_change_on_write::ID:
+    	children_is_change_on_write(dynamic_cast<Is_change_on_write*>(in));
     	break;
     }
 }

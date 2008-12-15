@@ -12,6 +12,7 @@
 #define BOOST_SPIRIT_DEBUG_PRINT_SOME 80
 
 #include <boost/spirit.hpp>
+#include <boost/lexical_cast.hpp>
 #include <iostream>
 
 #include "LIR.h"
@@ -24,6 +25,7 @@
 
 using namespace std;
 using namespace boost::spirit;
+using namespace boost;
 
 
 void parse_lir (string s);
@@ -117,8 +119,22 @@ void string_a (const char* first, const char* last)
 	string value = string (first+1, last-1);
 	DEBUG ("string: " << value);
 
-	num_children_stack.top()++;
 	node_stack.push (new String (value));
+	num_children_stack.top()++;
+	dump_stack ();
+}
+
+
+void number_a (const char* first, const char* last)
+{
+	string value = string (first, last);
+	DEBUG ("number: " << value);
+
+	// HACK: uses INT instead of putting INT in the parsed string. The correct
+	// way to do this is to overwrite LIR_factory to explain what to do when we
+	// see an INT.
+	node_stack.push (new LIR::INT (lexical_cast<int> (value)));
+	num_children_stack.top()++;
 	dump_stack ();
 }
 
@@ -160,7 +176,7 @@ parse_lir (String* s)
 	num_children_stack.push(0);
 	DEBUG (*s);
 
-	rule<> r, sexp, classname, param, value, list, string, ws;
+	rule<> r, sexp, classname, param, value, list, string, ws, number;
 	// TODO: add ability to have shortcuts, like *,& or ==
 
 	
@@ -171,9 +187,10 @@ parse_lir (String* s)
 
 	// Any char except ", or, alternatively, the sequence \"
 	string = '"' >> *((anychar_p - '"') | str_p ("\\\"")) >> '"';
+	number = +digit_p;
 
 	// constructor parameters 
-	param = value[&value_a] | sexp | list | string[&string_a];
+	param = number[&number_a] | value[&value_a] | sexp | list | string[&string_a];
 
 	// definition: a classname and a number of arguments
 	sexp = ('(' >> ws >> classname[&classname_a] >> ws >> *(param >> ws) >> ')')[&sexp_a] ;
@@ -183,6 +200,7 @@ parse_lir (String* s)
    BOOST_SPIRIT_DEBUG_RULE(classname);
 	BOOST_SPIRIT_DEBUG_RULE(ws);
 	BOOST_SPIRIT_DEBUG_RULE(param);
+	BOOST_SPIRIT_DEBUG_RULE(number);
 	BOOST_SPIRIT_DEBUG_RULE(value);
 	BOOST_SPIRIT_DEBUG_RULE(list);
 	BOOST_SPIRIT_DEBUG_RULE(value);

@@ -22,7 +22,7 @@ extract_ht_ex (zval * arr TSRMLS_DC)
 static HashTable *
 extract_ht (zval ** p_var TSRMLS_DC)
 {
-  sep_copy_on_write_ex (p_var);
+  sep_copy_on_write (p_var);
 
   return extract_ht_ex (*p_var TSRMLS_CC);
 }

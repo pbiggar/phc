@@ -61,6 +61,7 @@ Action ::=	  Assign_zvp
 				| Declare_p
 				| Inc_ref
 				| Dec_ref
+				| Set_is_ref
 				| Destruct
 				| Allocate
 				| Overwrite
@@ -75,8 +76,8 @@ Cond ::=		  Is_ref
 				| Equals
 				| Equals_p
 				| Not
---				| Is_copy_on_write
---				| Is_change_on_write
+				| Is_copy_on_write
+				| Is_change_on_write
 				;
 
 -- zval* lhs = rhs;
@@ -87,6 +88,7 @@ Assign_zvpp ::= lhs:Zvpp rhs:Zvpp ;
 
 Declare ::= ZVP ;
 Declare_p ::= ZVPP ;
+
 {-
  - Allocators
  -}
@@ -97,7 +99,12 @@ Inc_ref		::= Zvp ;
 
 -- ALLOC_INIT_ZVAL (lhs);
 Allocate		::= Zvp ;
+
+-- TODO: use separate
 Separate    ::= Zvpp ;
+
+-- TODO: tidy this file up
+Set_is_ref ::= Zvp INT<long> ;
 
 
 {-
@@ -127,6 +134,11 @@ Equals ::= lhs:Zvp rhs:Zvp ;
 Equals_p ::= lhs:Zvpp rhs:Zvpp ;
 
 Not ::= Cond ;
+
+Is_change_on_write ::= Zvp ;
+Is_copy_on_write ::= Zvp ;
+
+
 
 {-
  - Primitives
@@ -214,5 +226,14 @@ public:
 	CODE (string value)
 	{
 		this->value = new String (value);
+	}
+};
+
+class INT
+{
+public:
+	bool is_valid ()
+	{
+		return (value == 0 || value == 1);
 	}
 };

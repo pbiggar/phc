@@ -75,7 +75,7 @@ write_string_index (zval** p_lhs, zval* ind, zval* rhs TSRMLS_DC)
     }
 
   // We overwrite if it's change-on-write
-  sep_copy_on_write_ex (p_lhs);
+  sep_copy_on_write (p_lhs);
 
   if (index > Z_STRLEN_PP (p_lhs))
     {

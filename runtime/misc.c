@@ -6,7 +6,7 @@ cast_var (zval ** p_zvp, int type)
   if ((*p_zvp)->type == type)
     return;
 
-  sep_copy_on_write_ex (p_zvp);
+  sep_copy_on_write (p_zvp);
   zval *zvp = *p_zvp;
 
   switch (type)

@@ -30,7 +30,7 @@ in_change_on_write (zval * zvp)
  * *P_ZVP with a clone of itself, and lowering the refcount on the
  * original. */
 static void
-sep_copy_on_write_ex (zval ** p_zvp)
+sep_copy_on_write (zval ** p_zvp)
 {
   if (!in_copy_on_write (*p_zvp))
     return;
@@ -62,16 +62,11 @@ sep_change_on_write (zval ** p_zvp)
 static void
 copy_into_ref (zval ** lhs, zval ** rhs)
 {
-  // TODO: assert this isn true, and make it so by moving to the separation into the callers. Should this ever actually be the case?
-  sep_copy_on_write_ex (rhs);
-
   (*rhs)->is_ref = 1;
   (*rhs)->refcount++;
   zval_ptr_dtor (lhs);
   *lhs = *rhs;
 }
-
-
 
 
 // Overwrite one zval with another

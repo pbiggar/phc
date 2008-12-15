@@ -186,9 +186,32 @@ LIR_unparser::children_inc_ref (LIR::Inc_ref* in)
 }
 
 void
+LIR_unparser::children_int (LIR::INT* in)
+{
+	assert (0);
+}
+
+void
 LIR_unparser::children_intrinsic (LIR::INTRINSIC* in)
 {
 	assert (0);
+}
+
+
+void
+LIR_unparser::children_is_change_on_write (LIR::Is_change_on_write* in)
+{
+	echo ("in_change_on_write (");
+	visit_zvp (in->zvp);
+	echo (")");
+}
+
+void
+LIR_unparser::children_is_copy_on_write (LIR::Is_copy_on_write* in)
+{
+	echo ("in_copy_on_write (");
+	visit_zvp (in->zvp);
+	echo (")");
 }
 
 void
@@ -261,6 +284,17 @@ void
 LIR_unparser::children_separate (LIR::Separate* in)
 {
 	assert (0);
+}
+
+
+void
+LIR_unparser::children_set_is_ref (LIR::Set_is_ref* in)
+{
+	echo ("(");
+	visit_zvp (in->zvp);
+	echo (")->is_ref = ");
+	echo (lexical_cast<string> (in->_int->value));
+	echo (";\n");
 }
 
 void

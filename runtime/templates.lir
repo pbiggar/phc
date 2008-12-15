@@ -63,4 +63,24 @@ write_var:
 		]
 		[ (overwrite (deref (ZVPP %1%)) (ZVP %2%)) ])
 
-		
+
+
+sep_copy_on_write:
+	(if (is_copy_on_write (deref (ZVPP %1%)))
+		[ 
+			(declare (ZVP old))
+			(assign_zvp (ZVP old) (deref (ZVPP %1%)))
+			(assign_zvp (deref (ZVPP %1%)) (clone (ZVP old)))
+			(destruct (ref (ZVP old)))
+		]
+		[])
+
+
+copy_into_ref:
+	 (set_is_ref (deref (ZVPP %2%)) 1)
+	 (inc_ref (deref (ZVPP %2%)))
+	 (destruct (ZVPP %1%))
+	 (assign_zvp (deref (ZVPP %1%)) (deref (ZVPP %2%)))
+
+
+

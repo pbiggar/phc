@@ -391,10 +391,24 @@ string read_var_var (Scope scope, string zvp, VARIABLE_NAME* var_var)
 string
 write_var_lir (string lhs, string rhs)
 {
-	return str(format (templ ("write_var"))
-			% lhs 
-			% rhs);
+	return str(format (templ ("write_var")) % lhs % rhs);
 }
+
+string
+sep_copy_on_write_lir (string zvp)
+{
+	return str(format (templ ("sep_copy_on_write")) % zvp);
+}
+
+
+string
+copy_into_ref_lir (string lhs, string rhs)
+{
+	return str(format (templ ("copy_into_ref")) % lhs % rhs);
+}
+
+
+
 
 
 
@@ -796,9 +810,12 @@ public:
 		}
 		else
 		{
-			STRAIGHT (get_st_entry (LOCAL, "p_lhs", lhs->value));
-			STRAIGHT (get_st_entry (LOCAL, "p_rhs", rhs->value));
-			STRAIGHT ("copy_into_ref (p_lhs, p_rhs);\n");
+			LDSL ("["
+				<< get_st_entry_lir (LOCAL, "lhs", lhs->value)
+				<< get_st_entry_lir (LOCAL, "rhs", rhs->value)
+				<< sep_copy_on_write_lir ("rhs")
+				<< copy_into_ref_lir ("lhs", "rhs")
+				<<	"]");
 		}
 
 		return new LIR::Block (comment, stmts);
@@ -844,6 +861,7 @@ public:
 			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
 			<< "zval** p_rhs;\n"
 			<< get_var_var (LOCAL, "p_rhs", LOCAL, rhs->value->variable_name)
+			<< "sep_copy_on_write (p_rhs);\n"
 			<< "copy_into_ref (p_lhs, p_rhs);\n"
 			;
 		}
@@ -914,6 +932,7 @@ public:
 			code 
 			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
 			<< get_array_entry (LOCAL, "p_rhs", rhs->value->variable_name, rhs->value->index)
+			<< "sep_copy_on_write (p_rhs);\n"
 			<< "copy_into_ref (p_lhs, p_rhs);\n"
 			;
 		}
@@ -1454,7 +1473,11 @@ class Pattern_assign_expr_foreach_get_val : public Pattern_assign_var
 			<< "	write_var (p_lhs, *p_rhs);\n"
 			;
 		else
-			code << "copy_into_ref (p_lhs, p_rhs);\n";
+		{
+			code 
+			<< "sep_copy_on_write (p_rhs);\n"
+			<< "copy_into_ref (p_lhs, p_rhs);\n";
+		}
 	}
 
 protected:
@@ -1817,7 +1840,11 @@ public:
 				code << "write_var (p_lhs, rhs);\n";
 			}
 			else
-				code << "copy_into_ref (p_lhs, &rhs);\n";
+			{
+				code
+				<< "sep_copy_on_write (&rhs);\n"
+				<< "copy_into_ref (p_lhs, &rhs);\n";
+			}
 		}
 
 		// p_rhs should be completely destroyed: both the reference we add for
@@ -1936,6 +1963,7 @@ public:
 		{
 			code
 			<< get_st_entry (LOCAL, "p_rhs", dyc<VARIABLE_NAME> (rhs->value))
+			<< "sep_copy_on_write (p_rhs);\n"
 			<< "copy_into_ref (p_lhs, p_rhs);\n"
 			;
 		}
@@ -2006,6 +2034,7 @@ public:
 			// TODO this is wrong
 			code	
 			<< get_st_entry (LOCAL, "p_rhs", dyc<VARIABLE_NAME> (rhs->value))
+			<< "sep_copy_on_write (p_rhs);\n"
 			<< "copy_into_ref (p_lhs, p_rhs);\n"
 			;
 		}
@@ -2052,6 +2081,7 @@ class Pattern_assign_var_var : public Pattern
 			<< "zval** p_lhs;\n"
 			<< get_var_var (LOCAL, "p_lhs", LOCAL, lhs->value)
 			<< get_st_entry (LOCAL, "p_rhs", dyc<VARIABLE_NAME> (rhs->value))
+			<< "sep_copy_on_write (p_rhs);\n"
 			<< "copy_into_ref (p_lhs, p_rhs);\n"
 			;
 		}
@@ -2080,6 +2110,7 @@ public:
 		<< index_lhs (LOCAL, "p_local_global_var", var_name->value) // lhs
 		<< index_lhs (GLOBAL, "p_global_var", var_name->value) // rhs
 		// Note that p_global_var can be in a copy-on-write set.
+		<< "sep_copy_on_write (p_global_var);\n"
 		<< "copy_into_ref (p_local_global_var, p_global_var);\n"
 		;
 	}
@@ -2219,7 +2250,7 @@ class Pattern_return : public Pattern
 		{
 			code
 			<< get_st_entry (LOCAL, "p_rhs", dyc<VARIABLE_NAME> (ret->value->rvalue))
-			<< "sep_copy_on_write_ex (p_rhs);\n"
+			<< "sep_copy_on_write (p_rhs);\n"
 			<< "zval_ptr_dtor (return_value_ptr);\n"
 			<< "(*p_rhs)->is_ref = 1;\n"
 			<< "(*p_rhs)->refcount++;\n"
@@ -2311,7 +2342,7 @@ class Pattern_unset : public Pattern
 
 				code
 				<< get_st_entry (LOCAL, "u_array", var_name)
-				<< "sep_copy_on_write_ex (u_array);\n"
+				<< "sep_copy_on_write (u_array);\n"
 				<< "zval* array = *u_array;\n"
 				;
 
@@ -2384,7 +2415,7 @@ public:
 		code 
 		<<	get_st_entry (LOCAL, "p_var", var->value)
 
-		<<	"sep_copy_on_write_ex (p_var);\n"
+		<<	"sep_copy_on_write (p_var);\n"
 		<<	op_fn << "(*p_var);\n"
 		;
 	}

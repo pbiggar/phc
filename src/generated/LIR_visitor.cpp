@@ -5,7 +5,7 @@ Visitor::~Visitor()
 {
 }
 
-// Invoked before the children are visited
+/* Invoked before the children are visited */
 void Visitor::pre_node(Node* in)
 {
 }
@@ -70,6 +70,10 @@ void Visitor::pre_separate(Separate* in)
 {
 }
 
+void Visitor::pre_set_is_ref(Set_is_ref* in)
+{
+}
+
 void Visitor::pre_dec_ref(Dec_ref* in)
 {
 }
@@ -95,6 +99,14 @@ void Visitor::pre_equals_p(Equals_p* in)
 }
 
 void Visitor::pre_not(Not* in)
+{
+}
+
+void Visitor::pre_is_change_on_write(Is_change_on_write* in)
+{
+}
+
+void Visitor::pre_is_copy_on_write(Is_copy_on_write* in)
 {
 }
 
@@ -138,6 +150,10 @@ void Visitor::pre_comment(COMMENT* in)
 {
 }
 
+void Visitor::pre_int(INT* in)
+{
+}
+
 void Visitor::pre_symtable(SYMTABLE* in)
 {
 }
@@ -174,7 +190,7 @@ void Visitor::pre_literal(LITERAL* in)
 {
 }
 
-// Invoked after the children have been visited
+/* Invoked after the children have been visited */
 void Visitor::post_node(Node* in)
 {
 }
@@ -239,6 +255,10 @@ void Visitor::post_separate(Separate* in)
 {
 }
 
+void Visitor::post_set_is_ref(Set_is_ref* in)
+{
+}
+
 void Visitor::post_dec_ref(Dec_ref* in)
 {
 }
@@ -264,6 +284,14 @@ void Visitor::post_equals_p(Equals_p* in)
 }
 
 void Visitor::post_not(Not* in)
+{
+}
+
+void Visitor::post_is_change_on_write(Is_change_on_write* in)
+{
+}
+
+void Visitor::post_is_copy_on_write(Is_copy_on_write* in)
 {
 }
 
@@ -307,6 +335,10 @@ void Visitor::post_comment(COMMENT* in)
 {
 }
 
+void Visitor::post_int(INT* in)
+{
+}
+
 void Visitor::post_symtable(SYMTABLE* in)
 {
 }
@@ -343,7 +375,7 @@ void Visitor::post_literal(LITERAL* in)
 {
 }
 
-// Visit the children of a node
+/* Visit the children of a node */
 void Visitor::children_c_file(C_file* in)
 {
     visit_piece_list(in->pieces);
@@ -407,6 +439,12 @@ void Visitor::children_separate(Separate* in)
     visit_zvpp(in->zvpp);
 }
 
+void Visitor::children_set_is_ref(Set_is_ref* in)
+{
+    visit_zvp(in->zvp);
+    visit_int(in->_int);
+}
+
 void Visitor::children_dec_ref(Dec_ref* in)
 {
     visit_zvp(in->zvp);
@@ -443,6 +481,16 @@ void Visitor::children_equals_p(Equals_p* in)
 void Visitor::children_not(Not* in)
 {
     visit_cond(in->cond);
+}
+
+void Visitor::children_is_change_on_write(Is_change_on_write* in)
+{
+    visit_zvp(in->zvp);
+}
+
+void Visitor::children_is_copy_on_write(Is_copy_on_write* in)
+{
+    visit_zvp(in->zvp);
 }
 
 void Visitor::children_uninit(Uninit* in)
@@ -482,8 +530,12 @@ void Visitor::children_symtable_insert(Symtable_insert* in)
     visit_zvpp(in->zvpp);
 }
 
-// Tokens don't have children, so these methods do nothing by default
+/* Tokens don't have children, so these methods do nothing by default */
 void Visitor::children_comment(COMMENT* in)
+{
+}
+
+void Visitor::children_int(INT* in)
 {
 }
 
@@ -523,7 +575,7 @@ void Visitor::children_literal(LITERAL* in)
 {
 }
 
-// Unparser support
+/* Unparser support */
 void Visitor::visit_marker(char const* name, bool value)
 {
 }
@@ -544,8 +596,8 @@ void Visitor::post_list(char const* name_space, char const* type_id, int size)
 {
 }
 
-// Invoke the chain of pre-visit methods along the inheritance hierachy
-// Do not override unless you know what you are doing
+/* Invoke the chain of pre-visit methods along the inheritance hierachy */
+/* Do not override unless you know what you are doing */
 void Visitor::pre_c_file_chain(C_file* in)
 {
     pre_node((Node*) in);
@@ -629,6 +681,14 @@ void Visitor::pre_separate_chain(Separate* in)
     pre_separate((Separate*) in);
 }
 
+void Visitor::pre_set_is_ref_chain(Set_is_ref* in)
+{
+    pre_node((Node*) in);
+    pre_statement((Statement*) in);
+    pre_action((Action*) in);
+    pre_set_is_ref((Set_is_ref*) in);
+}
+
 void Visitor::pre_dec_ref_chain(Dec_ref* in)
 {
     pre_node((Node*) in);
@@ -679,6 +739,20 @@ void Visitor::pre_not_chain(Not* in)
     pre_node((Node*) in);
     pre_cond((Cond*) in);
     pre_not((Not*) in);
+}
+
+void Visitor::pre_is_change_on_write_chain(Is_change_on_write* in)
+{
+    pre_node((Node*) in);
+    pre_cond((Cond*) in);
+    pre_is_change_on_write((Is_change_on_write*) in);
+}
+
+void Visitor::pre_is_copy_on_write_chain(Is_copy_on_write* in)
+{
+    pre_node((Node*) in);
+    pre_cond((Cond*) in);
+    pre_is_copy_on_write((Is_copy_on_write*) in);
 }
 
 void Visitor::pre_uninit_chain(Uninit* in)
@@ -737,6 +811,12 @@ void Visitor::pre_comment_chain(COMMENT* in)
 {
     pre_node((Node*) in);
     pre_comment((COMMENT*) in);
+}
+
+void Visitor::pre_int_chain(INT* in)
+{
+    pre_node((Node*) in);
+    pre_int((INT*) in);
 }
 
 void Visitor::pre_symtable_chain(SYMTABLE* in)
@@ -800,9 +880,9 @@ void Visitor::pre_literal_chain(LITERAL* in)
     pre_literal((LITERAL*) in);
 }
 
-// Invoke the chain of post-visit methods along the inheritance hierarchy
-// (invoked in opposite order to the pre-chain)
-// Do not override unless you know what you are doing
+/* Invoke the chain of post-visit methods along the inheritance hierarchy */
+/* (invoked in opposite order to the pre-chain) */
+/* Do not override unless you know what you are doing */
 void Visitor::post_c_file_chain(C_file* in)
 {
     post_c_file((C_file*) in);
@@ -886,6 +966,14 @@ void Visitor::post_separate_chain(Separate* in)
     post_node((Node*) in);
 }
 
+void Visitor::post_set_is_ref_chain(Set_is_ref* in)
+{
+    post_set_is_ref((Set_is_ref*) in);
+    post_action((Action*) in);
+    post_statement((Statement*) in);
+    post_node((Node*) in);
+}
+
 void Visitor::post_dec_ref_chain(Dec_ref* in)
 {
     post_dec_ref((Dec_ref*) in);
@@ -934,6 +1022,20 @@ void Visitor::post_equals_p_chain(Equals_p* in)
 void Visitor::post_not_chain(Not* in)
 {
     post_not((Not*) in);
+    post_cond((Cond*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_is_change_on_write_chain(Is_change_on_write* in)
+{
+    post_is_change_on_write((Is_change_on_write*) in);
+    post_cond((Cond*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_is_copy_on_write_chain(Is_copy_on_write* in)
+{
+    post_is_copy_on_write((Is_copy_on_write*) in);
     post_cond((Cond*) in);
     post_node((Node*) in);
 }
@@ -993,6 +1095,12 @@ void Visitor::post_symtable_insert_chain(Symtable_insert* in)
 void Visitor::post_comment_chain(COMMENT* in)
 {
     post_comment((COMMENT*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_int_chain(INT* in)
+{
+    post_int((INT*) in);
     post_node((Node*) in);
 }
 
@@ -1057,8 +1165,8 @@ void Visitor::post_literal_chain(LITERAL* in)
     post_node((Node*) in);
 }
 
-// Call the pre-chain, visit children and post-chain in order
-// Do not override unless you know what you are doing
+/* Call the pre-chain, visit children and post-chain in order */
+/* Do not override unless you know what you are doing */
 void Visitor::visit_piece_list(Piece_list* in)
 {
     Piece_list::const_iterator i;
@@ -1205,6 +1313,18 @@ void Visitor::visit_zvpp(ZVPP* in)
     }
 }
 
+void Visitor::visit_int(INT* in)
+{
+    if(in == NULL)
+    	visit_null("LIR", "INT");
+    else
+    {
+    	pre_int_chain(in);
+    	children_int(in);
+    	post_int_chain(in);
+    }
+}
+
 void Visitor::visit_symtable(SYMTABLE* in)
 {
     if(in == NULL)
@@ -1241,8 +1361,8 @@ void Visitor::visit_c_file(C_file* in)
     }
 }
 
-// Invoke the right pre-chain (manual dispatching)
-// Do not override unless you know what you are doing
+/* Invoke the right pre-chain (manual dispatching) */
+/* Do not override unless you know what you are doing */
 void Visitor::pre_piece_chain(Piece* in)
 {
     switch(in->classid())
@@ -1280,6 +1400,9 @@ void Visitor::pre_statement_chain(Statement* in)
     	break;
     case Dec_ref::ID:
     	pre_dec_ref_chain(dynamic_cast<Dec_ref*>(in));
+    	break;
+    case Set_is_ref::ID:
+    	pre_set_is_ref_chain(dynamic_cast<Set_is_ref*>(in));
     	break;
     case Destruct::ID:
     	pre_destruct_chain(dynamic_cast<Destruct*>(in));
@@ -1330,6 +1453,12 @@ void Visitor::pre_cond_chain(Cond* in)
     case Not::ID:
     	pre_not_chain(dynamic_cast<Not*>(in));
     	break;
+    case Is_copy_on_write::ID:
+    	pre_is_copy_on_write_chain(dynamic_cast<Is_copy_on_write*>(in));
+    	break;
+    case Is_change_on_write::ID:
+    	pre_is_change_on_write_chain(dynamic_cast<Is_change_on_write*>(in));
+    	break;
     }
 }
 
@@ -1374,8 +1503,8 @@ void Visitor::pre_zvpp_chain(Zvpp* in)
     }
 }
 
-// Invoke the right post-chain (manual dispatching)
-// Do not override unless you know what you are doing
+/* Invoke the right post-chain (manual dispatching) */
+/* Do not override unless you know what you are doing */
 void Visitor::post_piece_chain(Piece* in)
 {
     switch(in->classid())
@@ -1413,6 +1542,9 @@ void Visitor::post_statement_chain(Statement* in)
     	break;
     case Dec_ref::ID:
     	post_dec_ref_chain(dynamic_cast<Dec_ref*>(in));
+    	break;
+    case Set_is_ref::ID:
+    	post_set_is_ref_chain(dynamic_cast<Set_is_ref*>(in));
     	break;
     case Destruct::ID:
     	post_destruct_chain(dynamic_cast<Destruct*>(in));
@@ -1463,6 +1595,12 @@ void Visitor::post_cond_chain(Cond* in)
     case Not::ID:
     	post_not_chain(dynamic_cast<Not*>(in));
     	break;
+    case Is_copy_on_write::ID:
+    	post_is_copy_on_write_chain(dynamic_cast<Is_copy_on_write*>(in));
+    	break;
+    case Is_change_on_write::ID:
+    	post_is_change_on_write_chain(dynamic_cast<Is_change_on_write*>(in));
+    	break;
     }
 }
 
@@ -1507,8 +1645,8 @@ void Visitor::post_zvpp_chain(Zvpp* in)
     }
 }
 
-// Invoke the right visit-children (manual dispatching)
-// Do not override unless you know what you are doing
+/* Invoke the right visit-children (manual dispatching) */
+/* Do not override unless you know what you are doing */
 void Visitor::children_piece(Piece* in)
 {
     switch(in->classid())
@@ -1546,6 +1684,9 @@ void Visitor::children_statement(Statement* in)
     	break;
     case Dec_ref::ID:
     	children_dec_ref(dynamic_cast<Dec_ref*>(in));
+    	break;
+    case Set_is_ref::ID:
+    	children_set_is_ref(dynamic_cast<Set_is_ref*>(in));
     	break;
     case Destruct::ID:
     	children_destruct(dynamic_cast<Destruct*>(in));
@@ -1595,6 +1736,12 @@ void Visitor::children_cond(Cond* in)
     	break;
     case Not::ID:
     	children_not(dynamic_cast<Not*>(in));
+    	break;
+    case Is_copy_on_write::ID:
+    	children_is_copy_on_write(dynamic_cast<Is_copy_on_write*>(in));
+    	break;
+    case Is_change_on_write::ID:
+    	children_is_change_on_write(dynamic_cast<Is_change_on_write*>(in));
     	break;
     }
 }

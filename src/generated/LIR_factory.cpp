@@ -1,18 +1,18 @@
 #include "LIR_factory.h"
 
 namespace LIR{
-// If type_id corresponds to an AST node, the elements in args must
-// correspond to the children of the node.
-// 
-// If type_id corresponds to a list (of the form "..._list"),
-// the elements of arg must be of the same type as the elements
-// in the list, and all elements in args are added to the list.
-// 
-// If type_id corresponds to a token (terminal symbol), args must
-// contain a single node of type String. Terminal symbols
-// with non-default values are not supported.
-// 
-// If the node type is not recognized, NULL is returned.
+/* If type_id corresponds to an AST node, the elements in args must */
+/* correspond to the children of the node. */
+/*  */
+/* If type_id corresponds to a list (of the form "..._list"), */
+/* the elements of arg must be of the same type as the elements */
+/* in the list, and all elements in args are added to the list. */
+/*  */
+/* If type_id corresponds to a token (terminal symbol), args must */
+/* contain a single node of type String. Terminal symbols */
+/* with non-default values are not supported. */
+/*  */
+/* If the node type is not recognized, NULL is returned. */
 Object* Node_factory::create(char const* type_id, List<Object*>* args)
 {
     List<Object*>::const_iterator i = args->begin();
@@ -90,6 +90,13 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Separate(zvpp);
     }
+    if(!strcmp(type_id, "Set_is_ref"))
+    {
+    	Zvp* zvp = dynamic_cast<Zvp*>(*i++);
+    	INT* _int = dynamic_cast<INT*>(*i++);
+    	assert(i == args->end());
+    	return new Set_is_ref(zvp, _int);
+    }
     if(!strcmp(type_id, "Dec_ref"))
     {
     	Zvp* zvp = dynamic_cast<Zvp*>(*i++);
@@ -134,6 +141,18 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	Cond* cond = dynamic_cast<Cond*>(*i++);
     	assert(i == args->end());
     	return new Not(cond);
+    }
+    if(!strcmp(type_id, "Is_change_on_write"))
+    {
+    	Zvp* zvp = dynamic_cast<Zvp*>(*i++);
+    	assert(i == args->end());
+    	return new Is_change_on_write(zvp);
+    }
+    if(!strcmp(type_id, "Is_copy_on_write"))
+    {
+    	Zvp* zvp = dynamic_cast<Zvp*>(*i++);
+    	assert(i == args->end());
+    	return new Is_copy_on_write(zvp);
     }
     if(!strcmp(type_id, "Uninit"))
     {
