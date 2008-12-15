@@ -12,6 +12,7 @@
 #define PHC_GENERATE_C
 
 #include "MIR_visitor.h"
+#include "LIR.h"
 #include "pass_manager/Pass.h"
 
 class Generate_C : public MIR::Visitor, public Pass
@@ -32,8 +33,9 @@ public:
 public:
 	String* extension_name;
 	bool is_extension;
-	MIR::Signature_list* methods;	// List of all methods compiled	
-	bool return_by_reference; 		// current methods returns by reference	
+
+	LIR::C_file* lir;
+	LIR::UNINTERPRETED* clear_code_buffer ();
 };
 
 #endif // PHC_GENERATE_C

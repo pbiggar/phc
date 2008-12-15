@@ -35,19 +35,26 @@
 //	So that means casts are pure.
 
 #include <fstream>
+#include <boost/format.hpp>
 
 #include "lib/List.h"
 #include "lib/Set.h"
+#include "lib/Map.h"
 #include "lib/escape.h"
 #include "lib/demangle.h"
 #include "process_ir/General.h"
 #include "process_ir/XML_unparser.h"
+#include "parsing/LIR_parser.h"
 
 #include "Generate_C.h"
+#include "process_lir/LIR_unparser.h"
 #include "embed/embed.h"
 
-using namespace MIR;
 using namespace std;
+using namespace boost;
+
+// These probably wont clash.
+using namespace MIR;
 
 // Label supported features
 void phc_unsupported (Node* node, const char* feature)
@@ -66,6 +73,8 @@ static stringstream code;
 static stringstream epilogue;
 static stringstream initializations;
 static stringstream finalizations;
+
+string templ (string);
 
 // TODO this is here for constant pooling. This should not be global.
 static gengetopt_args_info* args_info;
@@ -137,6 +146,16 @@ string get_scope (Scope scope)
 		return "&EG(symbol_table)";
 }
 
+string get_scope_lir (Scope scope)
+{
+	if(scope == LOCAL)
+		return "local";
+	else
+		return "global";
+}
+
+
+
 string get_hash (String* name)
 {
 	// the "u" at the end of the constant makes it unsigned, which
@@ -177,6 +196,7 @@ string get_non_st_name (VARIABLE_NAME* var_name)
 }
 
 string read_literal (Scope, string, Literal*);
+string read_literal_lir (Scope, string, Literal*);
 
 // Declare and fetch a zval* containing the value for RVALUE. The value can be
 // changed, but the symbol-table entry cannot be affected through this.
@@ -218,6 +238,28 @@ string read_rvalue (Scope scope, string zvp, Rvalue* rvalue)
 	return ss.str ();
 }
 
+string read_rvalue_lir (Scope scope, string zvp, Rvalue* rvalue)
+{
+	if (isa<Literal> (rvalue))
+		return read_literal_lir (scope, zvp, dyc<Literal> (rvalue));
+
+
+	VARIABLE_NAME* var_name = dyc<VARIABLE_NAME> (rvalue);
+	if (scope == LOCAL && var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
+	{
+		return str(format (templ ("read_rvalue_lir_st_entry_not_required"))
+			% get_non_st_name (var_name)
+			% zvp);
+	}
+	else
+	{
+		return str(format (templ ("read_rvalue_lir_else"))
+			% get_scope_lir (scope)
+			% *var_name->value
+			% zvp);
+	}
+}
+
 // TODO: This should be integrated into each function. In particular, we want
 // to remove the slowness of adding the uninitialized_zval_ptr, only to remove
 // it a second later.
@@ -250,6 +292,23 @@ string get_st_entry (Scope scope, string zvp, VARIABLE_NAME* var_name)
 		<<									get_hash (name) << " TSRMLS_CC);\n";
 	}
 	return ss.str();
+}
+
+string get_st_entry_lir (Scope scope, string zvp, VARIABLE_NAME* var_name)
+{
+	if (scope == LOCAL && var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
+	{
+		return str(format (templ ("get_st_entry_lir_st_entry_not_required"))
+			% get_non_st_name (var_name) 
+			% zvp);
+	}
+	else
+	{
+		return str(format (templ ("get_st_entry_lir_else"))
+			% get_scope_lir (LOCAL)
+			% *var_name->value
+			% zvp);
+	}
 }
 
 // Declare and fetch a zval** into ZVP, which is the hash-table entry for
@@ -329,6 +388,30 @@ string read_var_var (Scope scope, string zvp, VARIABLE_NAME* var_var)
 	return ss.str();
 }
 
+string
+write_var_lir (string lhs, string rhs)
+{
+	return str(format (templ ("write_var")) % lhs % rhs);
+}
+
+string
+sep_copy_on_write_lir (string zvp)
+{
+	return str(format (templ ("sep_copy_on_write")) % zvp);
+}
+
+
+string
+copy_into_ref_lir (string lhs, string rhs)
+{
+	return str(format (templ ("copy_into_ref")) % lhs % rhs);
+}
+
+
+
+
+
+
 
 /*
  * Map of the Zend functions that implement the operators
@@ -384,9 +467,28 @@ class Pattern : virtual public GC_obj
 public:
 	Pattern () : use_scope (true) {}
 	virtual bool match(Statement* that) = 0;
-	virtual void generate_code(Generate_C* gen) = 0;
+	virtual void generate_code(Generate_C* gen) {assert (0); };
 	virtual ~Pattern() {}
 	bool use_scope;
+
+	virtual LIR::Piece* generate_lir (String* comment, Generate_C* gen)
+	{
+		code << *comment;
+
+		if (use_scope)
+			code << "{\n";
+
+		generate_code (gen);
+
+		if (use_scope)
+		{
+			code
+			<<		"phc_check_invariants (TSRMLS_C);\n"
+			<< "}\n";
+		}
+
+		return gen->clear_code_buffer ();
+	}
 };
 
 
@@ -400,22 +502,30 @@ public:
 		return that->match(pattern);
 	}
 
-	void generate_code(Generate_C* gen)
+	LIR::Piece* generate_lir (String* comment, Generate_C* gen)
 	{
-		this->gen = gen;
 		signature = pattern->value->signature;
-		gen->methods->push_back(signature);
 
 		method_entry();
-		gen->return_by_reference = signature->is_ref;
-		gen->visit_statement_list(pattern->value->statements);
+		LIR::UNINTERPRETED* entry = gen->clear_code_buffer ();
+
+		// Use a different gen for the nested function
+		Generate_C* new_gen = new Generate_C (gen->os);
+		new_gen->visit_statement_list (pattern->value->statements);
+
 		method_exit();
+		LIR::UNINTERPRETED* exit = gen->clear_code_buffer ();
+
+		return new LIR::Method
+			(new LIR::COMMENT (comment),
+			entry,
+			new_gen->lir->pieces,
+			exit);
 	}
 
 protected:
 	Wildcard<Method>* pattern;
 	Signature* signature;
-	Generate_C* gen;
 
 protected:
 	void debug_argument_stack()
@@ -669,6 +779,9 @@ protected:
  */
 class Pattern_assign_expr_var : public Pattern_assign_var
 {
+#define STRAIGHT(STR) stmts->push_back (new LIR::CODE (s (STR)))
+#define DSL(STR) stmts->push_back (dyc<LIR::Statement> (parse_lir (s(#STR))))
+#define LDSL(STR) do { stringstream ss; ss << STR; stmts->push_back_all (dyc<LIR::Statement_list> (parse_lir (s(ss.str())))); } while (0)
 public:
 	Expr* rhs_pattern()
 	{
@@ -676,27 +789,36 @@ public:
 		return rhs;
 	}
 
-	void generate_code (Generate_C* gen)
+	LIR::Piece* generate_lir (String* comment, Generate_C* gen)
 	{
-		// TODO combine with assign_expr_var_var
-		// and assign_expr_array_access
+		LIR::Statement_list* stmts = new LIR::Statement_list;
+
 		if (!agn->is_ref)
 		{
-			code
-			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
-			<< read_rvalue (LOCAL, "rhs", rhs->value)
-			<< "if (*p_lhs != rhs)\n"
-			<<		"write_var (p_lhs, rhs);\n"
-			;
+			LDSL ("["
+				<< get_st_entry_lir (LOCAL, "lhs", lhs->value)
+				<< read_rvalue_lir (LOCAL, "rhs", rhs->value)
+				<< "	(if "
+				<<	"		(not (equals "
+				<<	"			(deref (ZVPP lhs)) "
+				<<	"			(ZVP rhs))) "
+				<<	"		[ "
+				<<				write_var_lir ("lhs", "rhs")
+				<< "		] "
+				<<	"		[])"
+				<<	"]");
 		}
 		else
 		{
-			code
-			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
-			<< get_st_entry (LOCAL, "p_rhs", rhs->value)
-			<< "copy_into_ref (p_lhs, p_rhs);\n"
-			;
+			LDSL ("["
+				<< get_st_entry_lir (LOCAL, "lhs", lhs->value)
+				<< get_st_entry_lir (LOCAL, "rhs", rhs->value)
+				<< sep_copy_on_write_lir ("rhs")
+				<< copy_into_ref_lir ("lhs", "rhs")
+				<<	"]");
 		}
+
+		return new LIR::Block (comment, stmts);
 	}
 
 protected:
@@ -739,6 +861,7 @@ public:
 			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
 			<< "zval** p_rhs;\n"
 			<< get_var_var (LOCAL, "p_rhs", LOCAL, rhs->value->variable_name)
+			<< "sep_copy_on_write (p_rhs);\n"
 			<< "copy_into_ref (p_lhs, p_rhs);\n"
 			;
 		}
@@ -809,6 +932,7 @@ public:
 			code 
 			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
 			<< get_array_entry (LOCAL, "p_rhs", rhs->value->variable_name, rhs->value->index)
+			<< "sep_copy_on_write (p_rhs);\n"
 			<< "copy_into_ref (p_lhs, p_rhs);\n"
 			;
 		}
@@ -829,25 +953,31 @@ public:
 		return new Cast (cast, rhs);
 	}
 
-	void generate_code (Generate_C* gen)
+	LIR::Piece* generate_lir (String* comment, Generate_C* gen)
 	{
 		assert (!agn->is_ref);
-		Pattern_assign_expr_var::generate_code (gen);
+		LIR::Statement_list* stmts = new LIR::Statement_list;
+
+		LIR::Block* assign_var = dyc<LIR::Block> (Pattern_assign_expr_var::generate_lir (comment, gen));
+		stmts->push_back_all (assign_var->statements);
+
 
 		if (*cast->value->value == "string")
-			code << "cast_var (p_lhs, IS_STRING);\n";
+			STRAIGHT ("cast_var (p_lhs, IS_STRING);\n");
 		else if (*cast->value->value == "int")
-			code << "cast_var (p_lhs, IS_LONG);\n";
+			STRAIGHT ("cast_var (p_lhs, IS_LONG);\n");
 		else if (*cast->value->value == "array")
-			code << "cast_var (p_lhs, IS_ARRAY);\n";
+			STRAIGHT ("cast_var (p_lhs, IS_ARRAY);\n");
 		else if (*cast->value->value == "null")
-			code << "cast_var (p_lhs, IS_NULL);\n";
+			STRAIGHT ("cast_var (p_lhs, IS_NULL);\n");
 		else if (*cast->value->value == "bool" || *cast->value->value == "boolean")
-			code << "cast_var (p_lhs, IS_BOOL);\n";
+			STRAIGHT ("cast_var (p_lhs, IS_BOOL);\n");
 		else if (*cast->value->value == "real")
-			code << "cast_var (p_lhs, IS_DOUBLE);\n";
+			STRAIGHT ("cast_var (p_lhs, IS_DOUBLE);\n");
 		else
 			assert (0 && "unimplemented"); // TODO: unimplemented
+
+		return new LIR::Block (comment, stmts);
 	}
 
 public:
@@ -1138,7 +1268,29 @@ public:
 	Wildcard<Literal>* rhs;
 };
 
-
+string
+read_literal_lir (Scope scope, string zvp, Literal* lit)
+{
+	assert (0);
+	stringstream ss;
+	if (args_info->optimize_given)
+	{
+		ss 
+		<< "zval* " << zvp << " = "
+		<<	*lit->attrs->get_string ("phc.codegen.pool_name")
+		<< ";\n";
+	}
+	else
+	{
+		ss
+		<< "zval " << zvp << "_lit_tmp;\n"
+		<< "INIT_ZVAL (" << zvp << "_lit_tmp);\n"
+		<< "zval* " << zvp << " = &" << zvp << "_lit_tmp;\n"
+		<< write_literal_value_directly_into_zval (zvp, lit)
+		;
+	}
+	return ss.str();
+}
 
 string
 read_literal (Scope scope, string zvp, Literal* lit)
@@ -1321,7 +1473,11 @@ class Pattern_assign_expr_foreach_get_val : public Pattern_assign_var
 			<< "	write_var (p_lhs, *p_rhs);\n"
 			;
 		else
-			code << "copy_into_ref (p_lhs, p_rhs);\n";
+		{
+			code 
+			<< "sep_copy_on_write (p_rhs);\n"
+			<< "copy_into_ref (p_lhs, p_rhs);\n";
+		}
 	}
 
 protected:
@@ -1684,7 +1840,11 @@ public:
 				code << "write_var (p_lhs, rhs);\n";
 			}
 			else
-				code << "copy_into_ref (p_lhs, &rhs);\n";
+			{
+				code
+				<< "sep_copy_on_write (&rhs);\n"
+				<< "copy_into_ref (p_lhs, &rhs);\n";
+			}
 		}
 
 		// p_rhs should be completely destroyed: both the reference we add for
@@ -1803,6 +1963,7 @@ public:
 		{
 			code
 			<< get_st_entry (LOCAL, "p_rhs", dyc<VARIABLE_NAME> (rhs->value))
+			<< "sep_copy_on_write (p_rhs);\n"
 			<< "copy_into_ref (p_lhs, p_rhs);\n"
 			;
 		}
@@ -1873,6 +2034,7 @@ public:
 			// TODO this is wrong
 			code	
 			<< get_st_entry (LOCAL, "p_rhs", dyc<VARIABLE_NAME> (rhs->value))
+			<< "sep_copy_on_write (p_rhs);\n"
 			<< "copy_into_ref (p_lhs, p_rhs);\n"
 			;
 		}
@@ -1919,6 +2081,7 @@ class Pattern_assign_var_var : public Pattern
 			<< "zval** p_lhs;\n"
 			<< get_var_var (LOCAL, "p_lhs", LOCAL, lhs->value)
 			<< get_st_entry (LOCAL, "p_rhs", dyc<VARIABLE_NAME> (rhs->value))
+			<< "sep_copy_on_write (p_rhs);\n"
 			<< "copy_into_ref (p_lhs, p_rhs);\n"
 			;
 		}
@@ -1947,6 +2110,7 @@ public:
 		<< index_lhs (LOCAL, "p_local_global_var", var_name->value) // lhs
 		<< index_lhs (GLOBAL, "p_global_var", var_name->value) // rhs
 		// Note that p_global_var can be in a copy-on-write set.
+		<< "sep_copy_on_write (p_global_var);\n"
 		<< "copy_into_ref (p_local_global_var, p_global_var);\n"
 		;
 	}
@@ -2060,23 +2224,23 @@ class Pattern_return : public Pattern
 {
 	bool match(Statement* that)
 	{
-		rvalue = new Wildcard<Rvalue>;
-		return that->match (new Return (rvalue));
+		ret = new Wildcard<Return>;
+		return that->match (ret);
 	}
 
 	void generate_code(Generate_C* gen)
 	{
-		if(!gen->return_by_reference)
+		if(!ret->value->attrs->is_true ("phc.codegen.return_by_ref"))
 		{
 			code 
-			<< read_rvalue (LOCAL, "rhs", rvalue->value)
+			<< read_rvalue (LOCAL, "rhs", ret->value->rvalue)
 
-			// Run-time return by reference had slightly different
-			// semantics to compile-time. There is no way within a
-			// function to tell if the run-time return by reference is
-			// set, but its unnecessary anyway.
-			// TODO: I dont believe in run-time return by reference. It seems that
-			// it only work in the presence of compile-time return by reference.
+			// Run-time return by reference has different
+			// semantics to compile-time. If the function has CTRBR and RTRBR, the
+			// the assignment will be reference. If one or the other is
+			// return-by-copy, the result will be by copy. Its a question of
+			// whether its separated at return-time (which we do here) or at the
+			// call-site.
 			<< "return_value->value = rhs->value;\n"
 			<< "return_value->type = rhs->type;\n"
 			<< "zval_copy_ctor (return_value);\n"
@@ -2085,8 +2249,8 @@ class Pattern_return : public Pattern
 		else
 		{
 			code
-			<< get_st_entry (LOCAL, "p_rhs", dyc<VARIABLE_NAME> (rvalue->value))
-			<< "sep_copy_on_write_ex (p_rhs);\n"
+			<< get_st_entry (LOCAL, "p_rhs", dyc<VARIABLE_NAME> (ret->value->rvalue))
+			<< "sep_copy_on_write (p_rhs);\n"
 			<< "zval_ptr_dtor (return_value_ptr);\n"
 			<< "(*p_rhs)->is_ref = 1;\n"
 			<< "(*p_rhs)->refcount++;\n"
@@ -2100,7 +2264,7 @@ class Pattern_return : public Pattern
 	}
 
 protected:
-	Wildcard<Rvalue>* rvalue;
+	Wildcard<Return>* ret;
 };
 
 /*
@@ -2178,7 +2342,7 @@ class Pattern_unset : public Pattern
 
 				code
 				<< get_st_entry (LOCAL, "u_array", var_name)
-				<< "sep_copy_on_write_ex (u_array);\n"
+				<< "sep_copy_on_write (u_array);\n"
 				<< "zval* array = *u_array;\n"
 				;
 
@@ -2251,7 +2415,7 @@ public:
 		code 
 		<<	get_st_entry (LOCAL, "p_var", var->value)
 
-		<<	"sep_copy_on_write_ex (p_var);\n"
+		<<	"sep_copy_on_write (p_var);\n"
 		<<	op_fn << "(*p_var);\n"
 		;
 	}
@@ -2457,6 +2621,7 @@ protected:
 void Generate_C::children_statement(Statement* in)
 {
 	stringstream ss;
+	stringstream comment;
 	MIR_unparser (ss, true).unparse (in);
 
 	while (not ss.eof ())
@@ -2469,7 +2634,7 @@ void Generate_C::children_statement(Statement* in)
 		if (str == "")
 			continue;
 
-		code << "// " << *escape_C_comment (s(str)) << endl;
+		comment << "// " << *escape_C_comment (s(str)) << endl;
 	}
 
 	Pattern* patterns[] = 
@@ -2517,19 +2682,9 @@ void Generate_C::children_statement(Statement* in)
 	{
 		if(patterns[i]->match(in))
 		{
-			bool brackets = patterns[i]->use_scope;
-			if (brackets)
-				code << "{\n";
-
-			patterns[i]->generate_code(this);
-
-			if (brackets)
-			{
-				code
-				<<		"phc_check_invariants (TSRMLS_C);\n"
-				<< "}\n";
-			}
-
+			lir->pieces->push_back (patterns[i]->generate_lir (
+					s (comment.str ()),
+					this));
 			matched = true;
 			break;
 		}
@@ -2541,7 +2696,7 @@ void Generate_C::children_statement(Statement* in)
 	}
 }
 
-void include_file (ostream& out, String* filename)
+string read_file (String* filename)
 {
 	// For now, we simply include this.
 	ifstream file;
@@ -2558,17 +2713,42 @@ void include_file (ostream& out, String* filename)
 		file.open (ss2.str ().c_str ());
 
 	assert (file.is_open ());
+	stringstream ss;
 	while (not file.eof ())
 	{
 		string str;
 		getline (file, str);
-		prologue << str << endl;
+		ss << str << endl;
 	}
 
 	file.close ();
 	assert (file.is_open () == false);
-
+	return ss.str ();
 }
+
+void include_file (ostream& out, String* filename)
+{
+	out << read_file (filename);
+}
+
+Map<string, string> templates;
+void include_templates (String* filename)
+{
+	string templ_string = read_file (filename);
+	string name, value;
+	foreach (tie (name, value), *parse_templates (s(templ_string)))
+		templates[name] = value;
+}
+
+
+string
+templ (string name)
+{
+	assert (templates.has (name));
+
+	return templates[name];
+}
+
 
 void Generate_C::pre_php_script(PHP_script* in)
 {
@@ -2584,6 +2764,8 @@ void Generate_C::pre_php_script(PHP_script* in)
 	include_file (prologue, s("var_vars.c"));
 
 	include_file (prologue, s("builtin_functions.c"));
+
+	include_templates (s("templates.lir"));
 
 
 	// We need to save refcounts for functions returned by reference, where the
@@ -2639,10 +2821,27 @@ void Generate_C::pre_php_script(PHP_script* in)
 	}
 }
 
+LIR::UNINTERPRETED*
+Generate_C::clear_code_buffer ()
+{
+	// These is probably some code left in 'code'.
+	LIR::UNINTERPRETED* result = new LIR::UNINTERPRETED(s (code.str()));
+	code.str ("");
+
+	assert (code.str().size () == 0);
+	return result;
+}
+
 
 void Generate_C::post_php_script(PHP_script* in)
 {
+	LIR::UNINTERPRETED* end = clear_code_buffer ();
+	lir->pieces->push_back (end);
+
+	(new LIR_unparser (code, true))->visit_c_file(lir);
+
 	code << "// ArgInfo structures (necessary to support compile time pass-by-reference)\n";
+	Signature_list* methods = dyc<Signature_list>(in->attrs->get("phc.codegen.compiled_functions"));
 	foreach (Signature* s, *methods)
 	{
 		String* name = s->method_name->value;
@@ -2798,7 +2997,7 @@ void Generate_C::post_php_script(PHP_script* in)
 
 Generate_C::Generate_C(ostream& os) : os (os)
 {
-	methods = new Signature_list;
 	name = new String ("generate-c");
 	description = new String ("Generate C code from the MIR");
+	lir = new LIR::C_file;
 }

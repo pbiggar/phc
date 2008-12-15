@@ -10,6 +10,6 @@
 
 class Object;
 
-const char* demangle(Object* obj, bool include_namespace);
+const char* demangle(Object* obj, bool include_namespace = true);
 
 #endif // PHC_DEMANGLE_H

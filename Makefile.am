@@ -124,6 +124,16 @@ libphc_la_SOURCES= 											\
 	src/generated/HIR_visitor.h							\
 	src/generated/keywords.h								\
 	src/generated/lex.yy.cc									\
+	src/generated/LIR.cpp									\
+	src/generated/LIR_factory.cpp							\
+	src/generated/LIR_factory.h							\
+	src/generated/LIR_fold.h								\
+	src/generated/LIR.h										\
+	src/generated/LIR_transform.cpp						\
+	src/generated/LIR_transform.h							\
+	src/generated/LIR_user_defined.h						\
+	src/generated/LIR_visitor.cpp							\
+	src/generated/LIR_visitor.h							\
 	src/generated/MIR.cpp									\
 	src/generated/MIR_factory.cpp							\
 	src/generated/MIR_factory.h							\
@@ -178,6 +188,8 @@ libphc_la_SOURCES= 											\
 	src/optimize/Prune_symbol_table.h					\
 	src/optimize/Use_def_counter.cpp 					\
 	src/optimize/Use_def_counter.h						\
+	src/parsing/LIR_parser.cpp								\
+	src/parsing/LIR_parser.h								\
 	src/parsing/Parse_buffer.cpp							\
 	src/parsing/Parse_buffer.h								\
 	src/parsing/parse.cpp									\
@@ -232,6 +244,8 @@ libphc_la_SOURCES= 											\
 	src/process_ir/PHP_unparser.h							\
 	src/process_ir/XML_unparser.cpp						\
 	src/process_ir/XML_unparser.h							\
+	src/process_lir/LIR_unparser.cpp						\
+	src/process_lir/LIR_unparser.h						\
 	src/process_mir/Alias_uppering.cpp					\
 	src/process_mir/Alias_uppering.h						\
 	src/process_mir/Foreach_uppering.cpp				\
@@ -271,6 +285,16 @@ BUILT_SOURCES = 												\
 	src/generated/HIR_visitor.h							\
 	src/generated/keywords.h								\
 	src/generated/lex.yy.cc									\
+	src/generated/LIR.cpp									\
+	src/generated/LIR_factory.cpp							\
+	src/generated/LIR_factory.h							\
+	src/generated/LIR_fold.h								\
+	src/generated/LIR.h										\
+	src/generated/LIR_transform.cpp						\
+	src/generated/LIR_transform.h							\
+	src/generated/LIR_user_defined.h						\
+	src/generated/LIR_visitor.cpp							\
+	src/generated/LIR_visitor.h							\
 	src/generated/MIR.cpp									\
 	src/generated/MIR_factory.cpp							\
 	src/generated/MIR_factory.h							\
@@ -309,6 +333,12 @@ strangephc_HEADERS =							\
 	src/generated/HIR_transform.h			\
 	src/generated/HIR_user_defined.h		\
 	src/generated/HIR_visitor.h			\
+	src/generated/LIR_factory.h			\
+	src/generated/LIR_fold.h				\
+	src/generated/LIR.h						\
+	src/generated/LIR_transform.h			\
+	src/generated/LIR_user_defined.h		\
+	src/generated/LIR_visitor.h			\
 	src/generated/MIR_factory.h			\
 	src/generated/MIR_fold.h				\
 	src/generated/MIR.h						\
@@ -332,6 +362,10 @@ strangeprocessast_HEADERS =					\
 strangeprocesshirdir = $(pkgincludedir)/process_hir
 strangeprocesshir_HEADERS =					\
 	src/process_hir/HIR_unparser.h
+
+strangeprocesslirdir = $(pkgincludedir)/process_lir
+strangeprocesslir_HEADERS =					\
+	src/process_lir/LIR_unparser.h
 
 strangeprocessmirdir = $(pkgincludedir)/process_mir
 strangeprocessmir_HEADERS =					\
@@ -505,6 +539,20 @@ src/generated/HIR_visitor.h:			src/generated/HIR.h
 src/generated/HIR.h: src/generated_src/hir.tea @maketea@
 	@maketea@ src/generated_src/hir.tea
 
+src/generated/LIR.cpp: 					src/generated/LIR.h
+src/generated/LIR_factory.cpp:		src/generated/LIR.h
+src/generated/LIR_factory.h:			src/generated/LIR.h
+src/generated/LIR_fold.h:				src/generated/LIR.h
+src/generated/LIR_transform.cpp:		src/generated/LIR.h
+src/generated/LIR_transform.h:		src/generated/LIR.h
+src/generated/LIR_user_defined.h:	src/generated/LIR.h
+src/generated/LIR_visitor.cpp:		src/generated/LIR.h
+src/generated/LIR_visitor.h:			src/generated/LIR.h
+#src/generated/schema.xsd:				src/generated/LIR.h
+
+src/generated/LIR.h: src/generated_src/lir.tea @maketea@
+	@maketea@ src/generated_src/lir.tea
+
 src/generated/MIR.cpp: 					src/generated/MIR.h
 src/generated/MIR_factory.cpp:		src/generated/MIR.h
 src/generated/MIR_factory.h:			src/generated/MIR.h
@@ -518,6 +566,7 @@ src/generated/MIR_visitor.h:			src/generated/MIR.h
 
 src/generated/MIR.h: src/generated_src/mir.tea @maketea@
 	@maketea@ src/generated_src/mir.tea
+
 
 src/generated/keywords.h: src/generated_src/php.gperf 
 	@gperf@ --language=ANSI-C --includes --readonly-tables --struct-type --ignore-case --output-file=src/generated/keywords.h src/generated_src/php.gperf

@@ -1,0 +1,239 @@
+{-
+ - phc -- the open source PHP compiler
+ - See doc/license/README.license for licensing information
+ -
+ - Definition of the LIR.
+ -
+ - The LIR represents C code which we generate, and is intended to allow us
+ - to easily manipulate it.
+ -
+ -}
+
+{-
+	Configuration
+-}
+
+output_dir "src/generated";
+prefix "LIR";
+external class "Object";
+external class "String";
+external class "IR::Node";
+external class "IR::FOREIGN";
+external class "IR::PHP_script";
+use list "List";
+use string "String";
+use namespace "LIR";
+no source_rep;
+
+{-
+   Top-level structure	
+-}
+
+{-
+ - To start off, a C file is simply a list of strings. When we add other
+ - constructs, we will likely maintain the list of strings for things that we
+ - can't, or can't be bothered, maintaining directly.
+-}
+
+C_file ::= Piece* ;
+
+-- This is slightly more general than we need, since we dont have nested
+-- methods, but it makes the defintion of generate_lir easier.
+Piece ::= Method | Block | UNINTERPRETED ;
+
+Method ::= COMMENT entry:UNINTERPRETED Piece* exit:UNINTERPRETED ;
+
+Block ::= COMMENT Statement* ;
+
+Statement ::=    Action				-- (possibly) side-effecting statement 
+					| If
+					| INTRINSIC			-- Builtin phc function, which we can model.
+					| API_CALL			-- Call into the Zend API. We may be able to
+											-- model this.
+					| CODE				-- Straight-line C code. Can't analyse it, but
+											-- we can optimize before and after, while
+											-- assuming the C code doesnt change anything.
+					;
+
+Action ::=	  Assign_zvp
+				| Assign_zvpp
+				| Declare 
+				| Declare_p
+				| Inc_ref
+				| Dec_ref
+				| Set_is_ref
+				| Destruct
+				| Allocate
+				| Overwrite
+				| Separate
+				| Symtable_fetch
+				| Symtable_insert
+				;
+
+If ::=	Cond iftrue:Statement* iffalse:Statement* ;
+
+Cond ::=		  Is_ref
+				| Equals
+				| Equals_p
+				| Not
+				| Is_copy_on_write
+				| Is_change_on_write
+				;
+
+-- zval* lhs = rhs;
+Assign_zvp	::= lhs:Zvp rhs:Zvp ;
+
+-- zval** p_lhs = p_rhs;
+Assign_zvpp ::= lhs:Zvpp rhs:Zvpp ;
+
+Declare ::= ZVP ;
+Declare_p ::= ZVPP ;
+
+{-
+ - Allocators
+ -}
+
+-- TODO: model calling the object handlers separately
+-- lhs->refcount++;
+Inc_ref		::= Zvp ;
+
+-- ALLOC_INIT_ZVAL (lhs);
+Allocate		::= Zvp ;
+
+-- TODO: use separate
+Separate    ::= Zvpp ;
+
+-- TODO: tidy this file up
+Set_is_ref ::= Zvp INT<long> ;
+
+
+{-
+ - Destructors
+ -}
+
+-- lhs->refcount--; // WARNING: this is less safe than Destruct
+Dec_ref		::= Zvp ;
+
+-- zval_ptr_dtor (p_lhs);
+Destruct		::= Zvpp ;
+
+
+Overwrite ::= lhs:Zvp rhs:Zvp ;
+
+
+
+{-
+ - Conditions
+ -}
+
+-- lhs->is_ref
+Is_ref ::= Zvp;
+
+-- lhs == rhs
+Equals ::= lhs:Zvp rhs:Zvp ;
+Equals_p ::= lhs:Zvpp rhs:Zvpp ;
+
+Not ::= Cond ;
+
+Is_change_on_write ::= Zvp ;
+Is_copy_on_write ::= Zvp ;
+
+
+
+{-
+ - Primitives
+ -}
+
+Zvp ::= Deref | ZVP | Null | LITERAL | Uninit | Clone;
+Zvpp ::= Ref | ZVPP | Null;
+
+Uninit ::= ;
+Null ::= ;
+Deref ::= Zvpp ;
+Ref ::= Zvp ;
+Clone ::= Zvp ;
+
+{-
+ - Symtable
+ -}
+
+Symtable_fetch ::= SYMTABLE name:STRING ZVPP ;
+Symtable_insert ::= SYMTABLE name:STRING ZVPP ;
+
+
+{-
+ - Extra attributes and methods (mixin code)
+ -}
+
+#include <iostream>
+#include <sstream>
+#include <iomanip>
+#include "boost/lexical_cast.hpp"
+#include "lib/error.h"
+#include "lib/Object.h"
+#include "lib/List.h"
+#include "lib/String.h"
+#include "lib/Boolean.h"
+#include "lib/Integer.h"
+#include "lib/AttrMap.h"
+#include "process_ir/IR.h"
+#include "process_lir/LIR_PHP_script_hack.h"
+
+class Node : IR::Node
+{
+};
+
+class C_file : IR::PHP_script
+{
+public:
+	C_file()
+	{
+		pieces = new Piece_list;
+	}
+};
+
+class Block
+{
+public:
+	Block (String* comment, Statement_list* statements)
+	{
+		this->comment = new COMMENT (comment);
+		this->statements = statements;
+	}
+};
+
+class ZVPP
+{
+public:
+	ZVPP (string value)
+	{
+		this->value = new String (value);
+	}
+};
+
+class ZVP
+{
+public:
+	ZVP (string value)
+	{
+		this->value = new String (value);
+	}
+};
+
+class CODE
+{
+public:
+	CODE (string value)
+	{
+		this->value = new String (value);
+	}
+};
+
+class INT
+{
+public:
+	bool is_valid ()
+	{
+		return (value == 0 || value == 1);
+	}
+};

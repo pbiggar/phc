@@ -27,10 +27,13 @@ public:
 void xml_unparse (AST::Node*, XML_unparser_state* state);
 void xml_unparse (HIR::Node*, XML_unparser_state* state);
 void xml_unparse (MIR::Node*, XML_unparser_state* state);
+void xml_unparse (LIR::Node*, XML_unparser_state* state);
+
 void xml_unparse (IR::Node*, XML_unparser_state* state);
 void xml_unparse (AST::Node*, std::ostream& os = std::cout, bool print_attrs = true);
 void xml_unparse (HIR::Node*, std::ostream& os = std::cout, bool print_attrs = true);
 void xml_unparse (MIR::Node*, std::ostream& os = std::cout, bool print_attrs = true);
+
 void xml_unparse (IR::PHP_script*, std::ostream& os = std::cout, bool print_attrs = true);
 
 

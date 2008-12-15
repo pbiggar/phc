@@ -3,7 +3,7 @@ static zval **
 fetch_var_arg_by_ref (zval ** p_arg)
 {
   // We are passing by reference
-  sep_copy_on_write_ex (p_arg);
+  sep_copy_on_write (p_arg);
 
   // We don't need to restore ->is_ref afterwards,
   // because the called function will reduce the
