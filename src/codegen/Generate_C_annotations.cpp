@@ -28,6 +28,7 @@ void
 Generate_C_annotations::pre_php_script (PHP_script* in)
 {
 	pool_values.clear ();
+	compiled_functions = new Signature_list;
 }
 
 void
@@ -50,6 +51,10 @@ Generate_C_annotations::post_php_script (PHP_script* in)
 		method_names->push_back (s (name));
 
 	in->attrs->set ("phc.codegen.called_functions", method_names);
+
+
+	// Get a list of compiled functions
+	in->attrs->set ("phc.codegen.compiled_functions", compiled_functions);
 }
 
 void
@@ -98,6 +103,7 @@ Generate_C_annotations::pre_method (MIR::Method* in)
 {
 	var_names.clear ();
 	iterators.clear ();
+	compiled_functions->push_back (in->signature->clone ());
 }
 
 void
@@ -123,4 +129,14 @@ void
 Generate_C_annotations::post_ht_iterator (HT_ITERATOR* in)
 {
 	iterators.insert (*in->value);
+}
+
+// Should the return be returned by reference.
+void
+Generate_C_annotations::post_return (Return* in)
+{
+	// The signature at the back is this function.
+	in->attrs->set ("phc.codegen.return_by_ref",
+		new Boolean (
+			compiled_functions->back ()->return_by_ref));
 }

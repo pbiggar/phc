@@ -11,6 +11,7 @@
 #include "AST_visitor.h"
 #include "HIR_visitor.h"
 #include "MIR_visitor.h"
+#include "LIR_visitor.h"
 #include <set>
 
 String* fresh(string prefix);
@@ -46,6 +47,7 @@ class Read_fresh_suffix_counter
 : public AST::Visitor
 , public HIR::Visitor
 , public MIR::Visitor
+, public LIR::Visitor
 , virtual public GC_obj
 {
 

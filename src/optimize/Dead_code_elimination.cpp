@@ -262,7 +262,7 @@ DCE::mark_def (VARIABLE_NAME* use)
 		return;
 
 	SSA_op* def = cfg->duw->get_defs (use, SSA_ALL)->front ();
-	DEBUG ("marking ")
+	DEBUG ("marking ");
 	def->dump ();
 	DEBUG (" due to def of " << *use->get_ssa_var_name ());
 	mark (def);
@@ -339,5 +339,5 @@ DCE::dump()
 	CHECK_DEBUG ();
 	DEBUG ("DCE:");
 	foreach (Basic_block* bb, *cfg->get_all_bbs ())
-		DEBUG (bb->get_index() << ": " << is_marked (bb))
+		DEBUG (bb->get_index() << ": " << is_marked (bb));
 }

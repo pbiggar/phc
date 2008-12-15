@@ -157,7 +157,7 @@ Def_use_web::add_use (MIR::VARIABLE_NAME* def, SSA_op* use, bool add_mu)
 
 	DEBUG ("Adding a def_use edge from ");
 	debug (def);
-	DEBUG ("to ")
+	DEBUG ("to ");
 	use->dump ();
 	DEBUG (endl);
 
@@ -175,7 +175,7 @@ Def_use_web::add_def (MIR::VARIABLE_NAME* use, SSA_op* def, bool add_chi)
 
 	DEBUG ("Adding a use_def edge from ");
 	debug (use);
-	DEBUG ("to ")
+	DEBUG ("to ");
 	def->dump ();
 	DEBUG (endl);
 
