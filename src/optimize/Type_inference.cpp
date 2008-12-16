@@ -37,6 +37,13 @@ Type_inference::post_pass (CFG* cfg)
 //	updater->run (cfg);
 }
 
+/* TODO: how to use this? its probably useful for this to be used both to pick
+ * a better codegen as well as for micro-optimizing the generated LIR. For
+ * example, we may know that something is a REAL, which means we can just use a
+ * C double, and ignore the zval wrapper. At the micro-optimization level, we
+ * can detect the result of (if (Z_TYPE_P (zvp) == IS_STRING)).
+ */
+
 
 void
 Type_inference::visit_phi_node (Basic_block* bb, VARIABLE_NAME* phi_lhs)

@@ -200,43 +200,6 @@ string get_non_st_name (VARIABLE_NAME* var_name)
 string read_literal (Scope, string, Literal*);
 string read_literal_lir (Scope, string, Literal*);
 
-// TODO: We would like to assert the known condition, but it breaks for
-// is_initialized, where both the RHS and LHS are the same variable. I don't
-// have an easy solution here, since what we know is still correct, and the
-// assertion doesnt represent a bug.
-#define RUNTIME_CHECK(STREAM, KNOWN, DIRECTION, RUNTIME_COND, TRUE_CODE, FALSE_CODE)		\
-	do																													\
-	{																													\
-		if (KNOWN)																									\
-		{																												\
-			if (DIRECTION)																							\
-			{																											\
-				STREAM																								\
-				<< TRUE_CODE << ";\n";																			\
-			}																											\
-			else																										\
-			{																											\
-				STREAM																								\
-				<< FALSE_CODE << ";\n";																			\
-			}																											\
-		}																												\
-		else																											\
-		{																												\
-			STREAM																									\
-			<< "if (" << RUNTIME_COND << ")\n"																\
-			<< "{\n"																									\
-			<<		TRUE_CODE << ";\n"																			\
-			<< "}\n"																									\
-			<< "else\n"																								\
-			<< "{\n"																									\
-			<<		FALSE_CODE << ";\n"																			\
-			<< "}\n"																									\
-			;																											\
-		}																												\
-	}																													\
-	while (0)
-
-
 // Declare and fetch a zval* containing the value for RVALUE. The value can be
 // changed, but the symbol-table entry cannot be affected through this.
 string read_rvalue (Scope scope, string zvp, Rvalue* rvalue)
@@ -248,20 +211,20 @@ string read_rvalue (Scope scope, string zvp, Rvalue* rvalue)
 	}
 
 	VARIABLE_NAME* var_name = dyc<VARIABLE_NAME> (rvalue);
-	bool is_init = var_name->attrs->is_true ("phc.optimize.is_initialized");
-	bool is_uninit = var_name->attrs->is_true ("phc.optimize.is_uninitialized");
-	assert (!(is_init && is_uninit));
-	bool known = is_init || is_uninit;
 	if (scope == LOCAL && var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
 	{
 		string name = get_non_st_name (var_name);
-		ss << "zval* " << zvp << ";\n";
-
-		RUNTIME_CHECK (ss,
-			known, is_uninit,
-			name << "== NULL",
-			zvp << " = EG (uninitialized_zval_ptr)",
-			zvp << " = " << name);
+		ss
+		<< "zval* " << zvp << ";\n"
+		<< "if (" << name << " == NULL)\n"
+		<< "{\n"
+		<<		zvp << " = EG (uninitialized_zval_ptr);\n"
+		<< "}\n"
+		<< "else\n"
+		<< "{\n"
+		<<		zvp << " = " << name << ";\n"
+		<< "}\n"
+		;
 	}
 	else
 	{
@@ -312,19 +275,12 @@ string get_st_entry (Scope scope, string zvp, VARIABLE_NAME* var_name)
 	if (scope == LOCAL && var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
 	{
 		string name = get_non_st_name (var_name);
-
-		bool is_init = var_name->attrs->is_true ("phc.optimize.is_initialized");
-		bool is_uninit = var_name->attrs->is_true ("phc.optimize.is_uninitialized");
-		assert (!(is_init && is_uninit));
-		bool known = is_init || is_uninit;
-
-		RUNTIME_CHECK (ss,
-			known, is_uninit,
-			name << "== NULL",
-			name << " = EG (uninitialized_zval_ptr);\n" << name << "->refcount++",
-			"");
-
 		ss
+		<< "if (" << name << " == NULL)\n"
+		<< "{\n"
+		<<		name << " = EG (uninitialized_zval_ptr);\n"
+		<<		name << "->refcount++;\n"
+		<< "}\n"
 		<<	"zval** " << zvp << " = &" << name << ";\n";
 	}
 	else
@@ -826,7 +782,6 @@ protected:
 class Pattern_assign_expr_var : public Pattern_assign_var
 {
 #define STRAIGHT(STR) stmts->push_back (new LIR::CODE (s (STR)))
-#define DSL(STR) stmts->push_back (dyc<LIR::Statement> (parse_lir (s(#STR))))
 #define LDSL(STR) do { stringstream ss; ss << STR; stmts->push_back_all (dyc<LIR::Statement_list> (parse_lir (s(ss.str())))); } while (0)
 public:
 	Expr* rhs_pattern()
