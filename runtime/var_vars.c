@@ -6,64 +6,56 @@
  * integer-indexed if at all possible. Variable names however should
  * _always_ be treated as strings.
  * 
- * If the index is not found and update_st is set the index gets
- * added to the hashtable and a pointer to the new entry is returned;
- * *is_new is set to 1. 
- * Otherwise, the uninitialized zval is returned and is_new is untouched.
  */
-zval **
-get_var_var (HashTable * st, zval * var_var, int update_st TSRMLS_DC)
-{
-  zval *string_index;
-  int deallocate_string_index = 0;
 
-  if (Z_TYPE_P (var_var) == IS_STRING)
+/*
+ * If the parameter is a string, returns the parameter, with the refcount
+ * incremented. If its not a string, returns a new zval, with a refcount of
+ * 1. Either way, zval_dtor_ptr must be run by the caller on the return
+ * value.
+ */
+zval*
+get_string_val (zval* zvp)
+{
+  if (Z_TYPE_P (zvp) == IS_STRING)
     {
-      string_index = var_var;
+      zvp->refcount++;
+      return zvp;
     }
   else
     {
-      MAKE_STD_ZVAL (string_index);
-      string_index->value = var_var->value;
-      string_index->type = var_var->type;
-      zval_copy_ctor (string_index);
-      convert_to_string (string_index);
-      deallocate_string_index = 1;
+      zval* clone = zvp_clone_ex (zvp);
+      convert_to_string (clone);
+      return clone;
     }
+}
 
-  zval **p_result;
-  int index_found = zend_hash_find (st, Z_STRVAL_P (string_index),
-				    Z_STRLEN_P (string_index) + 1,
-				    (void **) &p_result);
+zval **
+get_var_var (HashTable * st, zval * index TSRMLS_DC)
+{
+  zval* str_index = get_string_val (index);
+  char* name = Z_STRVAL_P (str_index);
+  int length = Z_STRLEN_P (str_index) + 1;
+  unsigned long hash = zend_get_hash_value (name, length);
 
-  if (index_found != SUCCESS)
-    {
-      if (!update_st)
-	{
-	  p_result = &EG (uninitialized_zval_ptr);
-	}
-      else
-	{
-	  EG (uninitialized_zval_ptr)->refcount++;
-	  zend_hash_update (st, Z_STRVAL_P (string_index),
-			    Z_STRLEN_P (string_index) + 1,
-			    &EG (uninitialized_zval_ptr), sizeof (zval *),
-			    (void **) &p_result);
-	}
-    }
-
-  if (deallocate_string_index)
-    zval_ptr_dtor (&string_index);
-
-  return p_result;
+  zval** result = get_st_entry (st, name, length, hash TSRMLS_CC);
+  zval_ptr_dtor (&str_index);
+  return result;
 }
 
 /* 
  * Read the variable described by var_var from symbol table st
  * See comments for get_var_var
  */
-zval **
-read_var_var (HashTable * st, zval * var_var TSRMLS_DC)
+zval *
+read_var_var (HashTable * st, zval * index TSRMLS_DC)
 {
-  return get_var_var (st, var_var, 0 TSRMLS_CC);
+  zval* str_index = get_string_val (index);
+  char* name = Z_STRVAL_P (str_index);
+  int length = Z_STRLEN_P (str_index) + 1;
+  unsigned long hash = zend_get_hash_value (name, length);
+
+  zval* result = read_var (st, name, length, hash TSRMLS_CC);
+  zval_ptr_dtor (&str_index);
+  return result;
 }

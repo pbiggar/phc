@@ -362,8 +362,7 @@ string get_var_var (Scope target_scope, string zvp, Scope var_scope, VARIABLE_NA
 	<< read_rvalue (var_scope, "var_var", var_var)
 	<< zvp << " = get_var_var (" 
 	<<					get_scope (target_scope) << ", "
-	<<					"var_var, "
-	<<					"1 "
+	<<					"var_var "
 	<<					"TSRMLS_CC);\n"
 	<< "}\n"
 	;
@@ -849,10 +848,10 @@ public:
 		{
 			code
 			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
-			<< "zval** p_rhs;\n"
-			<< read_var_var (LOCAL, "p_rhs", rhs->value->variable_name)
-			<< "if (*p_lhs != *p_rhs)\n"
-			<<		"write_var (p_lhs, *p_rhs);\n"
+			<< "zval* rhs;\n"
+			<< read_var_var (LOCAL, "rhs", rhs->value->variable_name)
+			<< "if (*p_lhs != rhs)\n"
+			<<		"write_var (p_lhs, rhs);\n"
 			;
 		}
 		else
@@ -1373,9 +1372,9 @@ class Pattern_assign_expr_isset : public Pattern_assign_value
 			assert(var_var);
 
 			code
-			<< "zval** p_rhs;\n"
-			<< read_var_var (LOCAL, "p_rhs", var_var->variable_name)
-			<< "ZVAL_BOOL(" << lhs << ", !ZVAL_IS_NULL(*p_rhs));\n" 
+			<< "zval* rhs;\n"
+			<< read_var_var (LOCAL, "rhs", var_var->variable_name)
+			<< "ZVAL_BOOL(" << lhs << ", !ZVAL_IS_NULL(rhs));\n" 
 			;
 		}
 	}
