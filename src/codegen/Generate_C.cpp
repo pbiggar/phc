@@ -353,18 +353,15 @@ string read_var (Scope scope, string zvp, VARIABLE_NAME* var_name)
  * Find the variable in target_scope whose name is given by var_var in var_scope
  * and store the result in zvp
  */
-string get_var_var (Scope target_scope, string zvp, Scope var_scope, VARIABLE_NAME* var_var)
+string get_var_var (Scope target_scope, string zvp, string index)
 {
 	stringstream ss;
 	ss
 	<< "// Read variable variable\n"
-	<< "{\n"
-	<< read_rvalue (var_scope, "var_var", var_var)
 	<< zvp << " = get_var_var (" 
 	<<					get_scope (target_scope) << ", "
-	<<					"var_var "
+	<<					index << " "
 	<<					"TSRMLS_CC);\n"
-	<< "}\n"
 	;
 	return ss.str();
 }
@@ -373,15 +370,14 @@ string get_var_var (Scope target_scope, string zvp, Scope var_scope, VARIABLE_NA
  * Like get_var_var, but do not add the variable to the scope
  * if not already there
  */
-string read_var_var (Scope scope, string zvp, VARIABLE_NAME* var_var)
+string read_var_var (Scope scope, string zvp, string index)
 {
 	stringstream ss;
 	ss
 	<< "// Read variable variable\n"
-	<< read_rvalue (scope, "var_var", var_var)
 	<< zvp << " = read_var_var (" 
 	<<					get_scope (scope) << ", "
-	<<					"var_var "
+	<<					index << " "
 	<<					" TSRMLS_CC);\n"
 	;
 	return ss.str();
@@ -849,7 +845,8 @@ public:
 			code
 			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
 			<< "zval* rhs;\n"
-			<< read_var_var (LOCAL, "rhs", rhs->value->variable_name)
+			<< read_rvalue (LOCAL, "index", rhs->value->variable_name)
+			<< read_var_var (LOCAL, "rhs", "index")
 			<< "if (*p_lhs != rhs)\n"
 			<<		"write_var (p_lhs, rhs);\n"
 			;
@@ -859,7 +856,8 @@ public:
 			code
 			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
 			<< "zval** p_rhs;\n"
-			<< get_var_var (LOCAL, "p_rhs", LOCAL, rhs->value->variable_name)
+			<< read_rvalue (LOCAL, "index", rhs->value->variable_name)
+			<< get_var_var (LOCAL, "p_rhs", "index")
 			<< "sep_copy_on_write (p_rhs);\n"
 			<< "copy_into_ref (p_lhs, p_rhs);\n"
 			;
@@ -1367,13 +1365,12 @@ class Pattern_assign_expr_isset : public Pattern_assign_value
 		{
 			// Variable variable
 			// TODO
-			Variable_variable* var_var;
-			var_var = dynamic_cast<Variable_variable*>(isset->value->variable_name);
-			assert(var_var);
+			Variable_variable* var_var = dyc<Variable_variable> (isset->value->variable_name);
 
 			code
 			<< "zval* rhs;\n"
-			<< read_var_var (LOCAL, "rhs", var_var->variable_name)
+			<< read_rvalue (LOCAL, "index", var_var->variable_name)
+			<< read_var_var (LOCAL, "rhs", "index")
 			<< "ZVAL_BOOL(" << lhs << ", !ZVAL_IS_NULL(rhs));\n" 
 			;
 		}
@@ -2068,7 +2065,8 @@ class Pattern_assign_var_var : public Pattern
 		{
 			code
 			<< "zval** p_lhs;\n"
-			<< get_var_var (LOCAL, "p_lhs", LOCAL, lhs->value)
+			<< read_rvalue (LOCAL, "index", lhs->value)
+			<< get_var_var (LOCAL, "p_lhs", "index")
 			<< read_rvalue (LOCAL, "rhs", rhs->value)
 			<< "if (*p_lhs != rhs)\n"
 			<<		"write_var (p_lhs, rhs);\n"
@@ -2078,7 +2076,8 @@ class Pattern_assign_var_var : public Pattern
 		{
 			code
 			<< "zval** p_lhs;\n"
-			<< get_var_var (LOCAL, "p_lhs", LOCAL, lhs->value)
+			<< read_rvalue (LOCAL, "index", lhs->value)
+			<< get_var_var (LOCAL, "p_lhs", "index")
 			<< get_st_entry (LOCAL, "p_rhs", dyc<VARIABLE_NAME> (rhs->value))
 			<< "sep_copy_on_write (p_rhs);\n"
 			<< "copy_into_ref (p_lhs, p_rhs);\n"
@@ -2118,8 +2117,7 @@ public:
 	{
 		stringstream ss;
 	
-		VARIABLE_NAME* var_name = dynamic_cast<VARIABLE_NAME*> (expr);
-		if (var_name)
+		if (VARIABLE_NAME* var_name = dynamic_cast<VARIABLE_NAME*> (expr))
 		{
 			ss
 			<< "// Normal global\n"
@@ -2128,20 +2126,20 @@ public:
 		}
 		else
 		{
-			Variable_variable* var_var;
-			var_var = dynamic_cast<Variable_variable*> (expr);
-			assert(var_var != NULL);
+			Variable_variable* var_var = dyc<Variable_variable> (expr);
 
-		  ss
-		  << "// Variable global\n"
-		  << "zval** " << zvp << ";\n"
-		  // The variable variable is always in the local scope
-		  << get_var_var (scope, zvp, LOCAL, var_var->variable_name)
-		  ;
-    }
+			ss
+			<< "// Variable global\n"
+			<< "zval** " << zvp << ";\n"
+			<< "{\n"
+			<< read_rvalue (LOCAL, "index", var_var->variable_name)
+			<< get_var_var (scope, zvp, "index")
+			<< "}\n"
+			;
+		}
 
-  	return ss.str();
-  }
+		return ss.str();
+	}
 
 protected:
 	Wildcard<Variable_name>* var_name;
