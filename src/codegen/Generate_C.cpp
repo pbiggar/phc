@@ -195,21 +195,21 @@ string get_non_st_name (VARIABLE_NAME* var_name)
 	return get_non_st_name (var_name->value);
 }
 
-string read_literal (Scope, string, Literal*);
-string read_literal_lir (Scope, string, Literal*);
+string read_literal (string, Literal*);
+string read_literal_lir (string, Literal*);
 
 // Declare and fetch a zval* containing the value for RVALUE. The value can be
 // changed, but the symbol-table entry cannot be affected through this.
-string read_rvalue (Scope scope, string zvp, Rvalue* rvalue)
+string read_rvalue (string zvp, Rvalue* rvalue)
 {
 	stringstream ss;
 	if (isa<Literal> (rvalue))
 	{
-		return read_literal (scope, zvp, dyc<Literal> (rvalue));
+		return read_literal (zvp, dyc<Literal> (rvalue));
 	}
 
 	VARIABLE_NAME* var_name = dyc<VARIABLE_NAME> (rvalue);
-	if (scope == LOCAL && var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
+	if (var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
 	{
 		string name = get_non_st_name (var_name);
 		ss
@@ -229,7 +229,7 @@ string read_rvalue (Scope scope, string zvp, Rvalue* rvalue)
 		String* name = var_name->value;
 		ss	
 		<< "zval* " << zvp << " = read_var (" 
-		<<								get_scope (scope) << ", "
+		<<								get_scope (LOCAL) << ", "
 		<<								"\"" << *name << "\", "
 		<<								name->size () + 1  << ", "
 		<<								get_hash (name) << " TSRMLS_CC);\n"
@@ -238,14 +238,14 @@ string read_rvalue (Scope scope, string zvp, Rvalue* rvalue)
 	return ss.str ();
 }
 
-string read_rvalue_lir (Scope scope, string zvp, Rvalue* rvalue)
+string read_rvalue_lir (string zvp, Rvalue* rvalue)
 {
 	if (isa<Literal> (rvalue))
-		return read_literal_lir (scope, zvp, dyc<Literal> (rvalue));
+		return read_literal_lir (zvp, dyc<Literal> (rvalue));
 
 
 	VARIABLE_NAME* var_name = dyc<VARIABLE_NAME> (rvalue);
-	if (scope == LOCAL && var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
+	if (var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
 	{
 		return str(format (templ ("read_rvalue_lir_st_entry_not_required"))
 			% get_non_st_name (var_name)
@@ -254,7 +254,7 @@ string read_rvalue_lir (Scope scope, string zvp, Rvalue* rvalue)
 	else
 	{
 		return str(format (templ ("read_rvalue_lir_else"))
-			% get_scope_lir (scope)
+			% get_scope_lir (LOCAL)
 			% *var_name->value
 			% zvp);
 	}
@@ -314,7 +314,7 @@ string get_st_entry_lir (Scope scope, string zvp, VARIABLE_NAME* var_name)
 // Declare and fetch a zval** into ZVP, which is the hash-table entry for
 // VAR_NAME[INDEX]. This zval** can be over-written, which will change the
 // hash-table entry.
-string get_array_entry (Scope scope, string zvp, VARIABLE_NAME* var_name, Rvalue* index)
+string get_array_entry (string zvp, VARIABLE_NAME* var_name, Rvalue* index)
 {
 	stringstream ss;
 	string zvp_name = suffix (zvp, "var");
@@ -322,8 +322,8 @@ string get_array_entry (Scope scope, string zvp, VARIABLE_NAME* var_name, Rvalue
 
 	ss	
 	// TODO dont need get_st_entry here
-	<< get_st_entry (scope, zvp_name, var_name)
-	<< read_rvalue (scope, zvp_index, index)
+	<< get_st_entry (LOCAL, zvp_name, var_name)
+	<< read_rvalue (zvp_index, index)
 	<< "check_array_type (" << zvp_name << " TSRMLS_CC);\n"
 	<<	"zval**" << zvp << " = get_ht_entry ("
 	<<						zvp_name << ", "
@@ -335,7 +335,7 @@ string get_array_entry (Scope scope, string zvp, VARIABLE_NAME* var_name, Rvalue
 }
 
 /* Generate code to read the variable named in VAR to the zval* ZVP */
-string read_var (Scope scope, string zvp, VARIABLE_NAME* var_name)
+string read_var (string zvp, VARIABLE_NAME* var_name)
 {
 	// the same as read_rvalue, but doesnt declare
 	stringstream ss;
@@ -343,7 +343,7 @@ string read_var (Scope scope, string zvp, VARIABLE_NAME* var_name)
 
 	ss
 	<< "// Read normal variable\n"
-	<< read_rvalue (scope, name, var_name)
+	<< read_rvalue (name, var_name)
 	<< zvp << " = &" << name << ";\n"; 
 
 	return ss.str();
@@ -353,13 +353,13 @@ string read_var (Scope scope, string zvp, VARIABLE_NAME* var_name)
  * Find the variable in target_scope whose name is given by var_var in var_scope
  * and store the result in zvp
  */
-string get_var_var (Scope target_scope, string zvp, string index)
+string get_var_var (Scope scope, string zvp, string index)
 {
 	stringstream ss;
 	ss
 	<< "// Read variable variable\n"
 	<< zvp << " = get_var_var (" 
-	<<					get_scope (target_scope) << ", "
+	<<					get_scope (scope) << ", "
 	<<					index << " "
 	<<					"TSRMLS_CC);\n"
 	;
@@ -370,13 +370,13 @@ string get_var_var (Scope target_scope, string zvp, string index)
  * Like get_var_var, but do not add the variable to the scope
  * if not already there
  */
-string read_var_var (Scope scope, string zvp, string index)
+string read_var_var (string zvp, string index)
 {
 	stringstream ss;
 	ss
 	<< "// Read variable variable\n"
 	<< zvp << " = read_var_var (" 
-	<<					get_scope (scope) << ", "
+	<<					get_scope (LOCAL) << ", "
 	<<					index << " "
 	<<					" TSRMLS_CC);\n"
 	;
@@ -792,7 +792,7 @@ public:
 		{
 			LDSL ("["
 				<< get_st_entry_lir (LOCAL, "lhs", lhs->value)
-				<< read_rvalue_lir (LOCAL, "rhs", rhs->value)
+				<< read_rvalue_lir ("rhs", rhs->value)
 				<< "	(if "
 				<<	"		(not (equals "
 				<<	"			(deref (ZVPP lhs)) "
@@ -845,8 +845,8 @@ public:
 			code
 			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
 			<< "zval* rhs;\n"
-			<< read_rvalue (LOCAL, "index", rhs->value->variable_name)
-			<< read_var_var (LOCAL, "rhs", "index")
+			<< read_rvalue ("index", rhs->value->variable_name)
+			<< read_var_var ("rhs", "index")
 			<< "if (*p_lhs != rhs)\n"
 			<<		"write_var (p_lhs, rhs);\n"
 			;
@@ -856,7 +856,7 @@ public:
 			code
 			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
 			<< "zval** p_rhs;\n"
-			<< read_rvalue (LOCAL, "index", rhs->value->variable_name)
+			<< read_rvalue ("index", rhs->value->variable_name)
 			<< get_var_var (LOCAL, "p_rhs", "index")
 			<< "sep_copy_on_write (p_rhs);\n"
 			<< "copy_into_ref (p_lhs, p_rhs);\n"
@@ -889,8 +889,8 @@ public:
 			<< "zval* rhs;\n"
 			<< "int is_p_rhs_new = 0;\n"
 
-			<<	read_rvalue (LOCAL, "r_array", var_name)
-			<<	read_rvalue (LOCAL, "ra_index", rhs->value->index)
+			<<	read_rvalue ("r_array", var_name)
+			<<	read_rvalue ("ra_index", rhs->value->index)
 
 			<< "if (Z_TYPE_P (r_array) != IS_ARRAY)\n"
 			<< "{\n"
@@ -928,7 +928,7 @@ public:
 		{
 			code 
 			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
-			<< get_array_entry (LOCAL, "p_rhs", rhs->value->variable_name, rhs->value->index)
+			<< get_array_entry ("p_rhs", rhs->value->variable_name, rhs->value->index)
 			<< "sep_copy_on_write (p_rhs);\n"
 			<< "copy_into_ref (p_lhs, p_rhs);\n"
 			;
@@ -1059,8 +1059,8 @@ public:
 
 		code
 		<< get_st_entry (LOCAL, "p_lhs", lhs->value)
-		<< read_rvalue (LOCAL, "left", left->value)
-		<< read_rvalue (LOCAL, "right", right->value)
+		<< read_rvalue ("left", left->value)
+		<< read_rvalue ("right", right->value)
 
 		<< "if (in_copy_on_write (*p_lhs))\n"
 		<< "{\n"
@@ -1111,7 +1111,7 @@ public:
 
 		code
 		<< get_st_entry (LOCAL, "p_lhs", lhs->value)
-		<< read_rvalue (LOCAL, "expr", var_name->value)
+		<< read_rvalue ("expr", var_name->value)
 
 		<< "if (in_copy_on_write (*p_lhs))\n"
 		<< "{\n"
@@ -1244,7 +1244,7 @@ public:
 		if (args_info->optimize_given)
 		{
 			code
-			<< read_literal (LOCAL, "rhs", rhs->value)
+			<< read_literal ("rhs", rhs->value)
 			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
 			<< "if (*p_lhs != rhs)\n"
 			<<		"write_var (p_lhs, rhs);\n"
@@ -1266,7 +1266,7 @@ public:
 };
 
 string
-read_literal_lir (Scope scope, string zvp, Literal* lit)
+read_literal_lir (string zvp, Literal* lit)
 {
 	assert (0);
 	stringstream ss;
@@ -1290,7 +1290,7 @@ read_literal_lir (Scope scope, string zvp, Literal* lit)
 }
 
 string
-read_literal (Scope scope, string zvp, Literal* lit)
+read_literal (string zvp, Literal* lit)
 {
 	stringstream ss;
 	if (args_info->optimize_given)
@@ -1340,7 +1340,7 @@ class Pattern_assign_expr_isset : public Pattern_assign_value
 				else
 				{
 					code
-					<< read_rvalue (LOCAL, "rhs", var_name)
+					<< read_rvalue ("rhs", var_name)
 					<< "ZVAL_BOOL(" << lhs << ", !ZVAL_IS_NULL (rhs));\n" 
 					;
 				}
@@ -1351,9 +1351,9 @@ class Pattern_assign_expr_isset : public Pattern_assign_value
 				assert(isset->value->array_indices->size() == 1);
 				Rvalue* index = isset->value->array_indices->front();
 
-	        code
+				code
 				<< get_st_entry (LOCAL, "u_array", var_name)
-				<< read_rvalue (LOCAL, "u_index", index)
+				<< read_rvalue ("u_index", index)
 				<< "ZVAL_BOOL(" << lhs << ", "
 				<< "isset_array ("
 				<<    "u_array, "
@@ -1369,8 +1369,8 @@ class Pattern_assign_expr_isset : public Pattern_assign_value
 
 			code
 			<< "zval* rhs;\n"
-			<< read_rvalue (LOCAL, "index", var_var->variable_name)
-			<< read_var_var (LOCAL, "rhs", "index")
+			<< read_rvalue ("index", var_var->variable_name)
+			<< read_var_var ("rhs", "index")
 			<< "ZVAL_BOOL(" << lhs << ", !ZVAL_IS_NULL(rhs));\n" 
 			;
 		}
@@ -1393,7 +1393,7 @@ class Pattern_assign_expr_foreach_has_key : public Pattern_assign_value
 	void initialize (ostream& os, string var)
 	{
 		os
-		<< read_rvalue (LOCAL, "fe_array", has_key->value->array)
+		<< read_rvalue ("fe_array", has_key->value->array)
 		
 		<< "int type = zend_hash_get_current_key_type_ex ("
 		<<							"fe_array->value.ht, "
@@ -1417,7 +1417,7 @@ class Pattern_assign_expr_foreach_get_key : public Pattern_assign_value
 	void initialize (ostream& os, string var)
 	{
 		os
-		<< read_rvalue (LOCAL, "fe_array", get_key->value->array)
+		<< read_rvalue ("fe_array", get_key->value->array)
 		<< "char* str_index = NULL;\n"
 		<< "uint str_length;\n"
 		<< "ulong num_index;\n"
@@ -1452,7 +1452,7 @@ class Pattern_assign_expr_foreach_get_val : public Pattern_assign_var
 	{
 		code
 		<< get_st_entry (LOCAL, "p_lhs", lhs->value)
-		<< read_rvalue (LOCAL, "fe_array", get_val->value->array)
+		<< read_rvalue ("fe_array", get_val->value->array)
 
 		<< "zval** p_rhs = NULL;\n"
 		<< "int result = zend_hash_get_current_data_ex (\n"
@@ -1539,7 +1539,7 @@ public:
 	void generate_code (Generate_C* gen)
 	{
 		code
-		<< read_rvalue (LOCAL, "p_arg", arg->value->rvalue)
+		<< read_rvalue ("p_arg", arg->value->rvalue)
 		<< "zval* rhs = NULL;\n"
 		<< "zval** p_rhs = &rhs;\n"
 		;
@@ -1739,7 +1739,7 @@ public:
 			<< "else\n"
 			<< "{\n"
 
-			<< read_rvalue (LOCAL, "arg", var_name)
+			<< read_rvalue ("arg", var_name)
 
 			<< "  args[" << index << "] = fetch_var_arg ("
 			<<				"arg, "
@@ -1907,7 +1907,7 @@ public:
 		<< "check_array_type (p_lhs_array TSRMLS_CC);\n"
 
 		// get the index
-		<< read_rvalue (LOCAL, "lhs_index", index->value)
+		<< read_rvalue ("lhs_index", index->value)
 	
 
 
@@ -1924,7 +1924,7 @@ public:
 		else
 		{
 			code
-			<< read_rvalue (LOCAL, "rhs", rhs->value)
+			<< read_rvalue ("rhs", rhs->value)
 			<< "// TODO update the string\n"
 			<< "write_string_index (p_lhs_array, lhs_index, rhs TSRMLS_CC);\n"
 			;
@@ -1949,7 +1949,7 @@ public:
 		if (not agn->is_ref)
 		{
 		  code	
-		  << read_rvalue (LOCAL, "rhs", rhs->value)
+		  << read_rvalue ("rhs", rhs->value)
 		  << "\n"
 		  << "if (*p_lhs != rhs)\n"
 		  <<		"write_var (p_lhs, rhs);\n"
@@ -2019,7 +2019,7 @@ public:
 		if (!agn->is_ref)
 		{
 			code
-			<< read_rvalue (LOCAL, "rhs", rhs->value)
+			<< read_rvalue ("rhs", rhs->value)
 			
 			<< "if (*p_lhs != rhs)\n"
 			<<	"	write_var (p_lhs, rhs);\n"
@@ -2065,9 +2065,9 @@ class Pattern_assign_var_var : public Pattern
 		{
 			code
 			<< "zval** p_lhs;\n"
-			<< read_rvalue (LOCAL, "index", lhs->value)
+			<< read_rvalue ("index", lhs->value)
 			<< get_var_var (LOCAL, "p_lhs", "index")
-			<< read_rvalue (LOCAL, "rhs", rhs->value)
+			<< read_rvalue ("rhs", rhs->value)
 			<< "if (*p_lhs != rhs)\n"
 			<<		"write_var (p_lhs, rhs);\n"
 			;
@@ -2076,7 +2076,7 @@ class Pattern_assign_var_var : public Pattern
 		{
 			code
 			<< "zval** p_lhs;\n"
-			<< read_rvalue (LOCAL, "index", lhs->value)
+			<< read_rvalue ("index", lhs->value)
 			<< get_var_var (LOCAL, "p_lhs", "index")
 			<< get_st_entry (LOCAL, "p_rhs", dyc<VARIABLE_NAME> (rhs->value))
 			<< "sep_copy_on_write (p_rhs);\n"
@@ -2132,7 +2132,7 @@ public:
 			<< "// Variable global\n"
 			<< "zval** " << zvp << ";\n"
 			<< "{\n"
-			<< read_rvalue (LOCAL, "index", var_var->variable_name)
+			<< read_rvalue ("index", var_var->variable_name)
 			<< get_var_var (scope, zvp, "index")
 			<< "}\n"
 			;
@@ -2183,7 +2183,7 @@ public:
 	void generate_code(Generate_C* gen)
 	{
 		code 
-		<<	read_rvalue (LOCAL, "p_cond", cond->value)
+		<<	read_rvalue ("p_cond", cond->value)
 
 		<<	"zend_bool bcond = zend_is_true (p_cond);\n"
 		<<	"if (bcond)\n"
@@ -2230,7 +2230,7 @@ class Pattern_return : public Pattern
 		if(!ret->value->attrs->is_true ("phc.codegen.return_by_ref"))
 		{
 			code 
-			<< read_rvalue (LOCAL, "rhs", ret->value->rvalue)
+			<< read_rvalue ("rhs", ret->value->rvalue)
 
 			// Run-time return by reference has different
 			// semantics to compile-time. If the function has CTRBR and RTRBR, the
@@ -2353,7 +2353,7 @@ class Pattern_unset : public Pattern
 					code
 					<< "if (Z_TYPE_P (array) == IS_ARRAY)\n"
 					<< "{\n"
-					<<		read_rvalue (LOCAL, "index", index)
+					<<		read_rvalue ("index", index)
 					// This uses check_array_index type because PHP behaves
 					// differently for the inner index check than the outer one.
 					<<	"	if (!check_array_index_type (index TSRMLS_CC))\n"
@@ -2366,7 +2366,7 @@ class Pattern_unset : public Pattern
 					;
 				}
 				code
-				<< read_rvalue (LOCAL, "index", back_index)
+				<< read_rvalue ("index", back_index)
 				<< "if (Z_TYPE_P (array) == IS_ARRAY)\n"
 				<<	"	if (!check_unset_index_type (index TSRMLS_CC)) break;\n"
 
@@ -2552,7 +2552,7 @@ class Pattern_foreach_reset : public Pattern
 		// declare the external iterator outside local scope blocks
 		code
 		<< "{\n"
-		<<		read_rvalue (LOCAL, "fe_array", reset->value->array)
+		<<		read_rvalue ("fe_array", reset->value->array)
 		<<		"zend_hash_internal_pointer_reset_ex ("
 		<<		"						fe_array->value.ht, "
 		<<		"						&" << *reset->value->iter->value << ");\n"
@@ -2574,7 +2574,7 @@ class Pattern_foreach_next: public Pattern
 	void generate_code (Generate_C* gen)
 	{
 		code
-		<<	read_rvalue (LOCAL, "fe_array", next->value->array)
+		<<	read_rvalue ("fe_array", next->value->array)
 		<<	"int result = zend_hash_move_forward_ex ("
 		<<						"fe_array->value.ht, "
 		<<						"&" << *next->value->iter->value << ");\n"
@@ -2597,7 +2597,7 @@ class Pattern_foreach_end : public Pattern
 	void generate_code(Generate_C* gen)
 	{
 		code
-		<<	read_rvalue (LOCAL, "fe_array", end->value->array)
+		<<	read_rvalue ("fe_array", end->value->array)
 		<<	"zend_hash_internal_pointer_end_ex ("
 		<<						"fe_array->value.ht, "
 		<<						"&" << *end->value->iter->value << ");\n"
