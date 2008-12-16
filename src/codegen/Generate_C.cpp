@@ -1153,27 +1153,22 @@ public:
 	{
 		code
 		<< get_st_entry (LOCAL, "p_lhs", lhs->value)
+		<< "zval* value;\n"
 		<< "if ((*p_lhs)->is_ref)\n"
 		<< "{\n"
 		<< "  // Always overwrite the current value\n"
-		<< "  zval* value = *p_lhs;\n"
-		<< "  zval_dtor (value);\n";
-
-		initialize (code, "value");
-
-		code
+		<< "  value = *p_lhs;\n"
+		<< "  zval_dtor (value);\n"
 		<< "}\n"
 		<< "else\n"
 		<< "{\n"
-		<<	"	zval* value;\n"
-		<<	"	ALLOC_INIT_ZVAL (value);\n";
-
-		initialize (code, "value");
-
-		code
+		<<	"	ALLOC_INIT_ZVAL (value);\n"
 		<<	"	zval_ptr_dtor (p_lhs);\n"
 		<<	"	*p_lhs = value;\n"
-		<< "}\n";
+		<< "}\n"
+		;
+
+		initialize (code, "value");
 	}
 
 	virtual void initialize (ostream& os, string var) = 0;
@@ -1365,6 +1360,7 @@ class Pattern_assign_expr_isset : public Pattern_assign_value
 		{
 			// Variable variable
 			// TODO
+			assert(isset->value->array_indices->size() == 0);
 			Variable_variable* var_var = dyc<Variable_variable> (isset->value->variable_name);
 
 			code
