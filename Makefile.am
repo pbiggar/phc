@@ -86,16 +86,16 @@ libphc_la_SOURCES= 											\
 	src/ast_to_hir/Split_unset_isset.h					\
 	src/ast_to_hir/Strip_comments.cpp					\
 	src/ast_to_hir/Strip_comments.h						\
-	src/codegen/Clarify.cpp									\
-	src/codegen/Clarify.h									\
-	src/codegen/Compile_C.cpp								\
-	src/codegen/Compile_C.h									\
-	src/codegen/Generate_C_annotations.cpp				\
-	src/codegen/Generate_C_annotations.h				\
-	src/codegen/Generate_C.cpp								\
-	src/codegen/Generate_C.h								\
-	src/codegen/Lift_functions_and_classes.cpp		\
-	src/codegen/Lift_functions_and_classes.h			\
+	src/mir_to_lir/Clarify.cpp								\
+	src/mir_to_lir/Clarify.h								\
+	src/mir_to_lir/Compile_C.cpp							\
+	src/mir_to_lir/Compile_C.h								\
+	src/mir_to_lir/Generate_C_annotations.cpp			\
+	src/mir_to_lir/Generate_C_annotations.h			\
+	src/mir_to_lir/Generate_C.cpp							\
+	src/mir_to_lir/Generate_C.h							\
+	src/mir_to_lir/Lift_functions_and_classes.cpp	\
+	src/mir_to_lir/Lift_functions_and_classes.h		\
 	src/embed/embed.cpp										\
 	src/embed/embed.h											\
 	src/embed/util.cpp										\
