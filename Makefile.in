@@ -640,16 +640,16 @@ libphc_la_SOURCES = \
 	src/ast_to_hir/Split_unset_isset.h					\
 	src/ast_to_hir/Strip_comments.cpp					\
 	src/ast_to_hir/Strip_comments.h						\
-	src/codegen/Clarify.cpp									\
-	src/codegen/Clarify.h									\
-	src/codegen/Compile_C.cpp								\
-	src/codegen/Compile_C.h									\
-	src/codegen/Generate_C_annotations.cpp				\
-	src/codegen/Generate_C_annotations.h				\
-	src/codegen/Generate_C.cpp								\
-	src/codegen/Generate_C.h								\
-	src/codegen/Lift_functions_and_classes.cpp		\
-	src/codegen/Lift_functions_and_classes.h			\
+	src/mir_to_lir/Clarify.cpp								\
+	src/mir_to_lir/Clarify.h								\
+	src/mir_to_lir/Compile_C.cpp							\
+	src/mir_to_lir/Compile_C.h								\
+	src/mir_to_lir/Generate_C_annotations.cpp			\
+	src/mir_to_lir/Generate_C_annotations.h			\
+	src/mir_to_lir/Generate_C.cpp							\
+	src/mir_to_lir/Generate_C.h							\
+	src/mir_to_lir/Lift_functions_and_classes.cpp	\
+	src/mir_to_lir/Lift_functions_and_classes.h		\
 	src/embed/embed.cpp										\
 	src/embed/embed.h											\
 	src/embed/optimize.cpp									\
@@ -1625,40 +1625,40 @@ Strip_comments.lo: src/ast_to_hir/Strip_comments.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Strip_comments.lo `test -f 'src/ast_to_hir/Strip_comments.cpp' || echo '$(srcdir)/'`src/ast_to_hir/Strip_comments.cpp
 
-Clarify.lo: src/codegen/Clarify.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Clarify.lo -MD -MP -MF $(DEPDIR)/Clarify.Tpo -c -o Clarify.lo `test -f 'src/codegen/Clarify.cpp' || echo '$(srcdir)/'`src/codegen/Clarify.cpp
+Clarify.lo: src/mir_to_lir/Clarify.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Clarify.lo -MD -MP -MF $(DEPDIR)/Clarify.Tpo -c -o Clarify.lo `test -f 'src/mir_to_lir/Clarify.cpp' || echo '$(srcdir)/'`src/mir_to_lir/Clarify.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Clarify.Tpo $(DEPDIR)/Clarify.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Clarify.cpp' object='Clarify.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/mir_to_lir/Clarify.cpp' object='Clarify.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Clarify.lo `test -f 'src/codegen/Clarify.cpp' || echo '$(srcdir)/'`src/codegen/Clarify.cpp
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Clarify.lo `test -f 'src/mir_to_lir/Clarify.cpp' || echo '$(srcdir)/'`src/mir_to_lir/Clarify.cpp
 
-Compile_C.lo: src/codegen/Compile_C.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Compile_C.lo -MD -MP -MF $(DEPDIR)/Compile_C.Tpo -c -o Compile_C.lo `test -f 'src/codegen/Compile_C.cpp' || echo '$(srcdir)/'`src/codegen/Compile_C.cpp
+Compile_C.lo: src/mir_to_lir/Compile_C.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Compile_C.lo -MD -MP -MF $(DEPDIR)/Compile_C.Tpo -c -o Compile_C.lo `test -f 'src/mir_to_lir/Compile_C.cpp' || echo '$(srcdir)/'`src/mir_to_lir/Compile_C.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Compile_C.Tpo $(DEPDIR)/Compile_C.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Compile_C.cpp' object='Compile_C.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/mir_to_lir/Compile_C.cpp' object='Compile_C.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Compile_C.lo `test -f 'src/codegen/Compile_C.cpp' || echo '$(srcdir)/'`src/codegen/Compile_C.cpp
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Compile_C.lo `test -f 'src/mir_to_lir/Compile_C.cpp' || echo '$(srcdir)/'`src/mir_to_lir/Compile_C.cpp
 
-Generate_C_annotations.lo: src/codegen/Generate_C_annotations.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Generate_C_annotations.lo -MD -MP -MF $(DEPDIR)/Generate_C_annotations.Tpo -c -o Generate_C_annotations.lo `test -f 'src/codegen/Generate_C_annotations.cpp' || echo '$(srcdir)/'`src/codegen/Generate_C_annotations.cpp
+Generate_C_annotations.lo: src/mir_to_lir/Generate_C_annotations.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Generate_C_annotations.lo -MD -MP -MF $(DEPDIR)/Generate_C_annotations.Tpo -c -o Generate_C_annotations.lo `test -f 'src/mir_to_lir/Generate_C_annotations.cpp' || echo '$(srcdir)/'`src/mir_to_lir/Generate_C_annotations.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Generate_C_annotations.Tpo $(DEPDIR)/Generate_C_annotations.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Generate_C_annotations.cpp' object='Generate_C_annotations.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/mir_to_lir/Generate_C_annotations.cpp' object='Generate_C_annotations.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Generate_C_annotations.lo `test -f 'src/codegen/Generate_C_annotations.cpp' || echo '$(srcdir)/'`src/codegen/Generate_C_annotations.cpp
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Generate_C_annotations.lo `test -f 'src/mir_to_lir/Generate_C_annotations.cpp' || echo '$(srcdir)/'`src/mir_to_lir/Generate_C_annotations.cpp
 
-Generate_C.lo: src/codegen/Generate_C.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Generate_C.lo -MD -MP -MF $(DEPDIR)/Generate_C.Tpo -c -o Generate_C.lo `test -f 'src/codegen/Generate_C.cpp' || echo '$(srcdir)/'`src/codegen/Generate_C.cpp
+Generate_C.lo: src/mir_to_lir/Generate_C.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Generate_C.lo -MD -MP -MF $(DEPDIR)/Generate_C.Tpo -c -o Generate_C.lo `test -f 'src/mir_to_lir/Generate_C.cpp' || echo '$(srcdir)/'`src/mir_to_lir/Generate_C.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Generate_C.Tpo $(DEPDIR)/Generate_C.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Generate_C.cpp' object='Generate_C.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/mir_to_lir/Generate_C.cpp' object='Generate_C.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Generate_C.lo `test -f 'src/codegen/Generate_C.cpp' || echo '$(srcdir)/'`src/codegen/Generate_C.cpp
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Generate_C.lo `test -f 'src/mir_to_lir/Generate_C.cpp' || echo '$(srcdir)/'`src/mir_to_lir/Generate_C.cpp
 
-Lift_functions_and_classes.lo: src/codegen/Lift_functions_and_classes.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Lift_functions_and_classes.lo -MD -MP -MF $(DEPDIR)/Lift_functions_and_classes.Tpo -c -o Lift_functions_and_classes.lo `test -f 'src/codegen/Lift_functions_and_classes.cpp' || echo '$(srcdir)/'`src/codegen/Lift_functions_and_classes.cpp
+Lift_functions_and_classes.lo: src/mir_to_lir/Lift_functions_and_classes.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Lift_functions_and_classes.lo -MD -MP -MF $(DEPDIR)/Lift_functions_and_classes.Tpo -c -o Lift_functions_and_classes.lo `test -f 'src/mir_to_lir/Lift_functions_and_classes.cpp' || echo '$(srcdir)/'`src/mir_to_lir/Lift_functions_and_classes.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Lift_functions_and_classes.Tpo $(DEPDIR)/Lift_functions_and_classes.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Lift_functions_and_classes.cpp' object='Lift_functions_and_classes.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/mir_to_lir/Lift_functions_and_classes.cpp' object='Lift_functions_and_classes.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Lift_functions_and_classes.lo `test -f 'src/codegen/Lift_functions_and_classes.cpp' || echo '$(srcdir)/'`src/codegen/Lift_functions_and_classes.cpp
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Lift_functions_and_classes.lo `test -f 'src/mir_to_lir/Lift_functions_and_classes.cpp' || echo '$(srcdir)/'`src/mir_to_lir/Lift_functions_and_classes.cpp
 
 embed.lo: src/embed/embed.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT embed.lo -MD -MP -MF $(DEPDIR)/embed.Tpo -c -o embed.lo `test -f 'src/embed/embed.cpp' || echo '$(srcdir)/'`src/embed/embed.cpp
