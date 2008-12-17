@@ -731,7 +731,7 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 	Pass* drop_pass;
 	do
 	{
-		drop_pass = optimization_queue->front();
+		drop_pass = optimization_queue->back ();
 		optimization_queue->pop_front();
 	}
 	while (*drop_pass->name != "drop_ssa");
