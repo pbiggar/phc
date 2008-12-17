@@ -100,6 +100,15 @@ public:
 		push_back(elem3);
 	}
 
+	// We're probably pushing it at 4...
+	List(_Tp elem1, _Tp elem2, _Tp elem3, _Tp elem4) : std::list<_Tp, _Alloc>()
+	{
+		push_back(elem1);
+		push_back(elem2);
+		push_back(elem3);
+		push_back(elem4);
+	}
+
 public:
 	using std::list<_Tp, _Alloc>::begin;
 	using std::list<_Tp, _Alloc>::end;

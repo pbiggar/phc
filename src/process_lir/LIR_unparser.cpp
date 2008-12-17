@@ -15,14 +15,15 @@ using namespace LIR;
 using namespace std;
 using namespace boost;
 
-LIR_unparser::LIR_unparser (ostream& os, bool in_php)
-: PHP_unparser (os, in_php)
+LIR_unparser::LIR_unparser (ostream& os)
+: PHP_unparser (os, true)
 {
 }
 
 LIR_unparser::LIR_unparser (Unparser_state* ups)
 : PHP_unparser (ups)
 {
+	ups->in_php = true;
 }
 
 void

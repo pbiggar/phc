@@ -6,10 +6,10 @@
  */
 
 #include "IR.h"
-#include "AST.h"
-#include "MIR.h"
-#include "hir_to_mir/HIR_to_MIR.h"
+#include "LIR.h"
 #include "ast_to_hir/AST_to_HIR.h"
+#include "hir_to_mir/HIR_to_MIR.h"
+#include "mir_to_lir/Generate_LIR.h"
 
 using namespace IR;
 
@@ -182,40 +182,35 @@ bool PHP_script::is_LIR()
 
 AST::PHP_script* PHP_script::as_AST()
 {
-	AST::PHP_script* ast = dynamic_cast<AST::PHP_script*>(this);
-	assert(ast != NULL);
-	return ast;
+	return dyc<AST::PHP_script> (this);
 }
 
 HIR::PHP_script* PHP_script::as_HIR()
 {
-	HIR::PHP_script* hir = dynamic_cast<HIR::PHP_script*>(this);
-	assert(hir != NULL);
-	return hir;
+	return dyc<HIR::PHP_script> (this);
 }
 
 MIR::PHP_script* PHP_script::as_MIR()
 {
-	MIR::PHP_script* mir = dynamic_cast<MIR::PHP_script*>(this);
-	assert(mir != NULL);
-	return mir;
+	return dyc<MIR::PHP_script> (this);
 }
 
 LIR::PHP_script* PHP_script::as_LIR()
 {
-	LIR::PHP_script* lir = dynamic_cast<LIR::PHP_script*>(this);
-	assert(lir != NULL);
-	return lir;
+	return dyc<LIR::PHP_script> (this);
 }
 
 
 
-PHP_script* PHP_script::fold_lower ()
+PHP_script*
+PHP_script::fold_lower ()
 {
 	if (is_AST ())
 		return (new AST_to_HIR ())->fold_php_script (as_AST ());
 	else if (is_HIR ())
 		return (new HIR_to_MIR ())->fold_php_script (as_HIR ());
+	else if (is_MIR ())
+		return (new Generate_LIR ())->fold_php_script (as_MIR ());
 	else
 		assert (0);
 }

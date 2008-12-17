@@ -86,16 +86,10 @@ libphc_la_SOURCES= 											\
 	src/ast_to_hir/Split_unset_isset.h					\
 	src/ast_to_hir/Strip_comments.cpp					\
 	src/ast_to_hir/Strip_comments.h						\
-	src/mir_to_lir/Clarify.cpp								\
-	src/mir_to_lir/Clarify.h								\
-	src/mir_to_lir/Compile_C.cpp							\
-	src/mir_to_lir/Compile_C.h								\
-	src/mir_to_lir/Generate_C_annotations.cpp			\
-	src/mir_to_lir/Generate_C_annotations.h			\
-	src/mir_to_lir/Generate_C.cpp							\
-	src/mir_to_lir/Generate_C.h							\
-	src/mir_to_lir/Lift_functions_and_classes.cpp	\
-	src/mir_to_lir/Lift_functions_and_classes.h		\
+	src/codegen/Compile_C.cpp								\
+	src/codegen/Compile_C.h									\
+	src/codegen/Generate_C.cpp								\
+	src/codegen/Generate_C.h								\
 	src/embed/embed.cpp										\
 	src/embed/embed.h											\
 	src/embed/util.cpp										\
@@ -178,6 +172,14 @@ libphc_la_SOURCES= 											\
 	src/lib/String.cpp										\
 	src/lib/String.h											\
 	src/lib/Vector.h											\
+	src/mir_to_lir/Clarify.cpp								\
+	src/mir_to_lir/Clarify.h								\
+	src/mir_to_lir/Generate_LIR_annotations.cpp		\
+	src/mir_to_lir/Generate_LIR_annotations.h			\
+	src/mir_to_lir/Generate_LIR.cpp						\
+	src/mir_to_lir/Generate_LIR.h							\
+	src/mir_to_lir/Lift_functions_and_classes.cpp	\
+	src/mir_to_lir/Lift_functions_and_classes.h		\
 	src/optimize/Copy_propagation.cpp					\
 	src/optimize/Copy_propagation.h						\
 	src/optimize/Dead_code_elimination.cpp				\

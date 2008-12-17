@@ -40,6 +40,7 @@ template
  class _Equals_p,
  class _INT,
  class _INTRINSIC,
+ class _Identifier,
  class _If,
  class _Inc_ref,
  class _Is_change_on_write,
@@ -72,7 +73,7 @@ class Fold
 {
 // Access this class from subclasses without copying out the template instantiation
 public:
-   typedef Fold<_API_CALL, _Action, _Allocate, _Assign_zvp, _Assign_zvpp, _Block, _CODE, _COMMENT, _C_file, _Clone, _Cond, _Dec_ref, _Declare, _Declare_p, _Deref, _Destruct, _Equals, _Equals_p, _INT, _INTRINSIC, _If, _Inc_ref, _Is_change_on_write, _Is_copy_on_write, _Is_ref, _LITERAL, _Method, _Node, _Not, _Null, _Overwrite, _Piece, _Ref, _STRING, _SYMTABLE, _Separate, _Set_is_ref, _Statement, _Symtable_fetch, _Symtable_insert, _UNINTERPRETED, _Uninit, _ZVP, _ZVPP, _Zvp, _Zvpp, _List> parent;
+   typedef Fold<_API_CALL, _Action, _Allocate, _Assign_zvp, _Assign_zvpp, _Block, _CODE, _COMMENT, _C_file, _Clone, _Cond, _Dec_ref, _Declare, _Declare_p, _Deref, _Destruct, _Equals, _Equals_p, _INT, _INTRINSIC, _Identifier, _If, _Inc_ref, _Is_change_on_write, _Is_copy_on_write, _Is_ref, _LITERAL, _Method, _Node, _Not, _Null, _Overwrite, _Piece, _Ref, _STRING, _SYMTABLE, _Separate, _Set_is_ref, _Statement, _Symtable_fetch, _Symtable_insert, _UNINTERPRETED, _Uninit, _ZVP, _ZVPP, _Zvp, _Zvpp, _List> parent;
 // Recursively fold the children before folding the parent
 // This methods form the client API for a fold, but should not be
 // overridden unless you know what you are doing
@@ -370,17 +371,17 @@ public:
 	virtual _Symtable_fetch fold_impl_symtable_fetch(Symtable_fetch* orig, _SYMTABLE symtable, _STRING name, _ZVPP zvpp) { assert(0); };
 	virtual _Symtable_insert fold_impl_symtable_insert(Symtable_insert* orig, _SYMTABLE symtable, _STRING name, _ZVPP zvpp) { assert(0); };
 
-	virtual _COMMENT fold_comment(COMMENT* orig) { assert(0); };
 	virtual _INT fold_int(INT* orig) { assert(0); };
-	virtual _SYMTABLE fold_symtable(SYMTABLE* orig) { assert(0); };
 	virtual _STRING fold_string(STRING* orig) { assert(0); };
 	virtual _UNINTERPRETED fold_uninterpreted(UNINTERPRETED* orig) { assert(0); };
+	virtual _COMMENT fold_comment(COMMENT* orig) { assert(0); };
 	virtual _INTRINSIC fold_intrinsic(INTRINSIC* orig) { assert(0); };
 	virtual _API_CALL fold_api_call(API_CALL* orig) { assert(0); };
 	virtual _CODE fold_code(CODE* orig) { assert(0); };
 	virtual _ZVP fold_zvp(ZVP* orig) { assert(0); };
 	virtual _ZVPP fold_zvpp(ZVPP* orig) { assert(0); };
 	virtual _LITERAL fold_literal(LITERAL* orig) { assert(0); };
+	virtual _SYMTABLE fold_symtable(SYMTABLE* orig) { assert(0); };
 
 
 // Manual dispatching for abstract classes
@@ -459,12 +460,12 @@ public:
 				return fold_ref(dynamic_cast<Ref*>(in));
 			case ZVPP::ID:
 				return fold_zvpp(dynamic_cast<ZVPP*>(in));
+			case SYMTABLE::ID:
+				return fold_symtable(dynamic_cast<SYMTABLE*>(in));
 			case COMMENT::ID:
 				return fold_comment(dynamic_cast<COMMENT*>(in));
 			case INT::ID:
 				return fold_int(dynamic_cast<INT*>(in));
-			case SYMTABLE::ID:
-				return fold_symtable(dynamic_cast<SYMTABLE*>(in));
 			case STRING::ID:
 				return fold_string(dynamic_cast<STRING*>(in));
 		}
@@ -615,6 +616,28 @@ public:
 		assert(0);
 	}
 
+	virtual _Identifier fold_identifier(Identifier* in)
+	{
+		switch(in->classid())
+		{
+			case ZVPP::ID:
+				return fold_zvpp(dynamic_cast<ZVPP*>(in));
+			case ZVP::ID:
+				return fold_zvp(dynamic_cast<ZVP*>(in));
+			case SYMTABLE::ID:
+				return fold_symtable(dynamic_cast<SYMTABLE*>(in));
+			case LITERAL::ID:
+				return fold_literal(dynamic_cast<LITERAL*>(in));
+			case UNINTERPRETED::ID:
+				return fold_uninterpreted(dynamic_cast<UNINTERPRETED*>(in));
+			case COMMENT::ID:
+				return fold_comment(dynamic_cast<COMMENT*>(in));
+			case CODE::ID:
+				return fold_code(dynamic_cast<CODE*>(in));
+		}
+		assert(0);
+	}
+
 
 
 // Virtual destructor to avoid compiler warnings
@@ -622,6 +645,6 @@ public:
 };
 
 template<class T, template <class _Tp, class _Alloc = typename List<_Tp>::allocator_type> class _List>
-class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, _List> {};
+class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, _List> {};
 }
 

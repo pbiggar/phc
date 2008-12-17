@@ -146,17 +146,7 @@ void Transform::pre_symtable_insert(Symtable_insert* in, Statement_list* out)
     out->push_back(in);
 }
 
-COMMENT* Transform::pre_comment(COMMENT* in)
-{
-    return in;
-}
-
 INT* Transform::pre_int(INT* in)
-{
-    return in;
-}
-
-SYMTABLE* Transform::pre_symtable(SYMTABLE* in)
 {
     return in;
 }
@@ -167,6 +157,11 @@ STRING* Transform::pre_string(STRING* in)
 }
 
 UNINTERPRETED* Transform::pre_uninterpreted(UNINTERPRETED* in)
+{
+    return in;
+}
+
+COMMENT* Transform::pre_comment(COMMENT* in)
 {
     return in;
 }
@@ -197,6 +192,11 @@ ZVPP* Transform::pre_zvpp(ZVPP* in)
 }
 
 Zvp* Transform::pre_literal(LITERAL* in)
+{
+    return in;
+}
+
+SYMTABLE* Transform::pre_symtable(SYMTABLE* in)
 {
     return in;
 }
@@ -342,17 +342,7 @@ void Transform::post_symtable_insert(Symtable_insert* in, Statement_list* out)
     out->push_back(in);
 }
 
-COMMENT* Transform::post_comment(COMMENT* in)
-{
-    return in;
-}
-
 INT* Transform::post_int(INT* in)
-{
-    return in;
-}
-
-SYMTABLE* Transform::post_symtable(SYMTABLE* in)
 {
     return in;
 }
@@ -363,6 +353,11 @@ STRING* Transform::post_string(STRING* in)
 }
 
 UNINTERPRETED* Transform::post_uninterpreted(UNINTERPRETED* in)
+{
+    return in;
+}
+
+COMMENT* Transform::post_comment(COMMENT* in)
 {
     return in;
 }
@@ -393,6 +388,11 @@ ZVPP* Transform::post_zvpp(ZVPP* in)
 }
 
 Zvp* Transform::post_literal(LITERAL* in)
+{
+    return in;
+}
+
+SYMTABLE* Transform::post_symtable(SYMTABLE* in)
 {
     return in;
 }
@@ -553,15 +553,7 @@ void Transform::children_symtable_insert(Symtable_insert* in)
 }
 
 /* Tokens don't have children, so these methods do nothing by default */
-void Transform::children_comment(COMMENT* in)
-{
-}
-
 void Transform::children_int(INT* in)
-{
-}
-
-void Transform::children_symtable(SYMTABLE* in)
 {
 }
 
@@ -570,6 +562,10 @@ void Transform::children_string(STRING* in)
 }
 
 void Transform::children_uninterpreted(UNINTERPRETED* in)
+{
+}
+
+void Transform::children_comment(COMMENT* in)
 {
 }
 
@@ -594,6 +590,10 @@ void Transform::children_zvpp(ZVPP* in)
 }
 
 void Transform::children_literal(LITERAL* in)
+{
+}
+
+void Transform::children_symtable(SYMTABLE* in)
 {
 }
 

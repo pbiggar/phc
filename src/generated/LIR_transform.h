@@ -57,17 +57,17 @@ public:
     virtual Zvp* pre_clone(Clone* in);
     virtual void pre_symtable_fetch(Symtable_fetch* in, Statement_list* out);
     virtual void pre_symtable_insert(Symtable_insert* in, Statement_list* out);
-    virtual COMMENT* pre_comment(COMMENT* in);
     virtual INT* pre_int(INT* in);
-    virtual SYMTABLE* pre_symtable(SYMTABLE* in);
     virtual STRING* pre_string(STRING* in);
     virtual UNINTERPRETED* pre_uninterpreted(UNINTERPRETED* in);
+    virtual COMMENT* pre_comment(COMMENT* in);
     virtual void pre_intrinsic(INTRINSIC* in, Statement_list* out);
     virtual void pre_api_call(API_CALL* in, Statement_list* out);
     virtual void pre_code(CODE* in, Statement_list* out);
     virtual ZVP* pre_zvp(ZVP* in);
     virtual ZVPP* pre_zvpp(ZVPP* in);
     virtual Zvp* pre_literal(LITERAL* in);
+    virtual SYMTABLE* pre_symtable(SYMTABLE* in);
 /* Invoked after the children have been transformed */
 public:
     virtual C_file* post_c_file(C_file* in);
@@ -98,17 +98,17 @@ public:
     virtual Zvp* post_clone(Clone* in);
     virtual void post_symtable_fetch(Symtable_fetch* in, Statement_list* out);
     virtual void post_symtable_insert(Symtable_insert* in, Statement_list* out);
-    virtual COMMENT* post_comment(COMMENT* in);
     virtual INT* post_int(INT* in);
-    virtual SYMTABLE* post_symtable(SYMTABLE* in);
     virtual STRING* post_string(STRING* in);
     virtual UNINTERPRETED* post_uninterpreted(UNINTERPRETED* in);
+    virtual COMMENT* post_comment(COMMENT* in);
     virtual void post_intrinsic(INTRINSIC* in, Statement_list* out);
     virtual void post_api_call(API_CALL* in, Statement_list* out);
     virtual void post_code(CODE* in, Statement_list* out);
     virtual ZVP* post_zvp(ZVP* in);
     virtual ZVPP* post_zvpp(ZVPP* in);
     virtual Zvp* post_literal(LITERAL* in);
+    virtual SYMTABLE* post_symtable(SYMTABLE* in);
 /* Transform the children of the node */
 public:
     virtual void children_c_file(C_file* in);
@@ -141,17 +141,17 @@ public:
     virtual void children_symtable_insert(Symtable_insert* in);
 /* Tokens don't have children, so these methods do nothing by default */
 public:
-    virtual void children_comment(COMMENT* in);
     virtual void children_int(INT* in);
-    virtual void children_symtable(SYMTABLE* in);
     virtual void children_string(STRING* in);
     virtual void children_uninterpreted(UNINTERPRETED* in);
+    virtual void children_comment(COMMENT* in);
     virtual void children_intrinsic(INTRINSIC* in);
     virtual void children_api_call(API_CALL* in);
     virtual void children_code(CODE* in);
     virtual void children_zvp(ZVP* in);
     virtual void children_zvpp(ZVPP* in);
     virtual void children_literal(LITERAL* in);
+    virtual void children_symtable(SYMTABLE* in);
 /* Call the pre-transform, transform-children post-transform methods in order */
 /* Do not override unless you know what you are doing */
 public:

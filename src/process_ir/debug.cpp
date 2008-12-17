@@ -79,7 +79,7 @@ void xadebug (MIR::Node* in)
 void debug (LIR::Node *in)
 {
 	CHECK_DEBUG ();
-	static LIR_unparser *pup = new LIR_unparser (cdebug, true);
+	static LIR_unparser *pup = new LIR_unparser (cdebug);
 	pup->unparse (in);
 	cdebug << endl;
 }

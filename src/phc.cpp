@@ -22,16 +22,18 @@
 #include "ast_to_hir/Split_unset_isset.h"
 #include "ast_to_hir/Strip_comments.h"
 #include "cmdline.h"
-#include "mir_to_lir/Clarify.h"
-#include "mir_to_lir/Compile_C.h"
-#include "mir_to_lir/Generate_C.h"
-#include "mir_to_lir/Generate_C_annotations.h"
-#include "mir_to_lir/Lift_functions_and_classes.h"
+#include "codegen/Compile_C.h"
+#include "codegen/Generate_C.h"
 #include "embed/embed.h"
 #include "hir_to_mir/HIR_to_MIR.h"
 #include "hir_to_mir/Lower_control_flow.h"
 #include "hir_to_mir/Lower_dynamic_definitions.h"
 #include "hir_to_mir/Lower_method_invocations.h"
+#include "mir_to_lir/Clarify.h"
+#include "mir_to_lir/Generate_LIR_annotations.h"
+#include "mir_to_lir/Generate_LIR.h"
+#include "mir_to_lir/Lift_functions_and_classes.h"
+#include "mir_to_lir/Generate_LIR.h"
 #include "optimize/Copy_propagation.h"
 #include "optimize/Dead_code_elimination.h"
 #include "optimize/Prune_symbol_table.h"
@@ -164,17 +166,23 @@ int main(int argc, char** argv)
 
 
 	// codegen passes
-	// Use ss to pass generated code between Generate_C and Compile_C
 	pm->add_mir_pass (new Fake_pass (s("mir"), s("Medium-level Internal Representation - simple code with high-level constructs lowered to straight-line code.")));
 	pm->add_mir_pass (new Obfuscate ());
 //	pm->add_mir_pass (new Process_includes (true, new String ("mir"), pm, "incl2"));
 	pm->add_mir_transform (new Lift_functions_and_classes (), s("lfc"), s("Move statements from global scope into __MAIN__ method"));
 	pm->add_mir_visitor (new Clarify (), s("clar"), s("Clarify - Make implicit defintions explicit"));
 	pm->add_mir_visitor (new Prune_symbol_table (), s("pst"), s("Prune Symbol Table - Note whether a symbol table is required in generated code"));
+	pm->add_mir_visitor (new Generate_LIR_annotations, s("cgann"), s("Codegen annotation"));
+
+//	name = new String ("generate-c");
+//	description = new String ("Generate LIR code from the MIR");
+	// TODO: Generate_LIR is called direct by the pass manager... Not a great plan if we want to allow --debug.
+
+	// lir passes
 	stringstream ss;
-	pm->add_mir_visitor (new Generate_C_annotations, s("cgann"), s("Codegen annotation"));
-	pm->add_mir_pass (new Generate_C (ss));
-	pm->add_mir_pass (new Compile_C (ss));
+	// Use ss to pass generated code between Generate_C and Compile_C
+	pm->add_lir_pass (new Generate_C (ss));
+	pm->add_lir_pass (new Compile_C (ss));
 
 
 	// Plugins add their passes to the pass manager

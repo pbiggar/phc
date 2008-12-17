@@ -14,7 +14,7 @@
 class LIR_unparser : public virtual PHP_unparser, public virtual LIR::Visitor
 {
 public:
-	LIR_unparser (std::ostream& os = std::cout, bool in_php = false);
+	LIR_unparser (std::ostream& os = std::cout);
 	LIR_unparser (Unparser_state* ups);
 
 	void unparse (IR::Node* in);

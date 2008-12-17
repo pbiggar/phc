@@ -146,15 +146,11 @@ void Visitor::pre_symtable_insert(Symtable_insert* in)
 {
 }
 
-void Visitor::pre_comment(COMMENT* in)
+void Visitor::pre_identifier(Identifier* in)
 {
 }
 
 void Visitor::pre_int(INT* in)
-{
-}
-
-void Visitor::pre_symtable(SYMTABLE* in)
 {
 }
 
@@ -163,6 +159,10 @@ void Visitor::pre_string(STRING* in)
 }
 
 void Visitor::pre_uninterpreted(UNINTERPRETED* in)
+{
+}
+
+void Visitor::pre_comment(COMMENT* in)
 {
 }
 
@@ -187,6 +187,10 @@ void Visitor::pre_zvpp(ZVPP* in)
 }
 
 void Visitor::pre_literal(LITERAL* in)
+{
+}
+
+void Visitor::pre_symtable(SYMTABLE* in)
 {
 }
 
@@ -331,15 +335,11 @@ void Visitor::post_symtable_insert(Symtable_insert* in)
 {
 }
 
-void Visitor::post_comment(COMMENT* in)
+void Visitor::post_identifier(Identifier* in)
 {
 }
 
 void Visitor::post_int(INT* in)
-{
-}
-
-void Visitor::post_symtable(SYMTABLE* in)
 {
 }
 
@@ -348,6 +348,10 @@ void Visitor::post_string(STRING* in)
 }
 
 void Visitor::post_uninterpreted(UNINTERPRETED* in)
+{
+}
+
+void Visitor::post_comment(COMMENT* in)
 {
 }
 
@@ -372,6 +376,10 @@ void Visitor::post_zvpp(ZVPP* in)
 }
 
 void Visitor::post_literal(LITERAL* in)
+{
+}
+
+void Visitor::post_symtable(SYMTABLE* in)
 {
 }
 
@@ -531,15 +539,7 @@ void Visitor::children_symtable_insert(Symtable_insert* in)
 }
 
 /* Tokens don't have children, so these methods do nothing by default */
-void Visitor::children_comment(COMMENT* in)
-{
-}
-
 void Visitor::children_int(INT* in)
-{
-}
-
-void Visitor::children_symtable(SYMTABLE* in)
 {
 }
 
@@ -548,6 +548,10 @@ void Visitor::children_string(STRING* in)
 }
 
 void Visitor::children_uninterpreted(UNINTERPRETED* in)
+{
+}
+
+void Visitor::children_comment(COMMENT* in)
 {
 }
 
@@ -572,6 +576,10 @@ void Visitor::children_zvpp(ZVPP* in)
 }
 
 void Visitor::children_literal(LITERAL* in)
+{
+}
+
+void Visitor::children_symtable(SYMTABLE* in)
 {
 }
 
@@ -807,22 +815,10 @@ void Visitor::pre_symtable_insert_chain(Symtable_insert* in)
     pre_symtable_insert((Symtable_insert*) in);
 }
 
-void Visitor::pre_comment_chain(COMMENT* in)
-{
-    pre_node((Node*) in);
-    pre_comment((COMMENT*) in);
-}
-
 void Visitor::pre_int_chain(INT* in)
 {
     pre_node((Node*) in);
     pre_int((INT*) in);
-}
-
-void Visitor::pre_symtable_chain(SYMTABLE* in)
-{
-    pre_node((Node*) in);
-    pre_symtable((SYMTABLE*) in);
 }
 
 void Visitor::pre_string_chain(STRING* in)
@@ -835,7 +831,15 @@ void Visitor::pre_uninterpreted_chain(UNINTERPRETED* in)
 {
     pre_node((Node*) in);
     pre_piece((Piece*) in);
+    pre_identifier((Identifier*) in);
     pre_uninterpreted((UNINTERPRETED*) in);
+}
+
+void Visitor::pre_comment_chain(COMMENT* in)
+{
+    pre_node((Node*) in);
+    pre_identifier((Identifier*) in);
+    pre_comment((COMMENT*) in);
 }
 
 void Visitor::pre_intrinsic_chain(INTRINSIC* in)
@@ -856,6 +860,7 @@ void Visitor::pre_code_chain(CODE* in)
 {
     pre_node((Node*) in);
     pre_statement((Statement*) in);
+    pre_identifier((Identifier*) in);
     pre_code((CODE*) in);
 }
 
@@ -863,6 +868,7 @@ void Visitor::pre_zvp_chain(ZVP* in)
 {
     pre_node((Node*) in);
     pre_zvp((Zvp*) in);
+    pre_identifier((Identifier*) in);
     pre_zvp((ZVP*) in);
 }
 
@@ -870,6 +876,7 @@ void Visitor::pre_zvpp_chain(ZVPP* in)
 {
     pre_node((Node*) in);
     pre_zvpp((Zvpp*) in);
+    pre_identifier((Identifier*) in);
     pre_zvpp((ZVPP*) in);
 }
 
@@ -877,7 +884,15 @@ void Visitor::pre_literal_chain(LITERAL* in)
 {
     pre_node((Node*) in);
     pre_zvp((Zvp*) in);
+    pre_identifier((Identifier*) in);
     pre_literal((LITERAL*) in);
+}
+
+void Visitor::pre_symtable_chain(SYMTABLE* in)
+{
+    pre_node((Node*) in);
+    pre_identifier((Identifier*) in);
+    pre_symtable((SYMTABLE*) in);
 }
 
 /* Invoke the chain of post-visit methods along the inheritance hierarchy */
@@ -1092,21 +1107,9 @@ void Visitor::post_symtable_insert_chain(Symtable_insert* in)
     post_node((Node*) in);
 }
 
-void Visitor::post_comment_chain(COMMENT* in)
-{
-    post_comment((COMMENT*) in);
-    post_node((Node*) in);
-}
-
 void Visitor::post_int_chain(INT* in)
 {
     post_int((INT*) in);
-    post_node((Node*) in);
-}
-
-void Visitor::post_symtable_chain(SYMTABLE* in)
-{
-    post_symtable((SYMTABLE*) in);
     post_node((Node*) in);
 }
 
@@ -1119,7 +1122,15 @@ void Visitor::post_string_chain(STRING* in)
 void Visitor::post_uninterpreted_chain(UNINTERPRETED* in)
 {
     post_uninterpreted((UNINTERPRETED*) in);
+    post_identifier((Identifier*) in);
     post_piece((Piece*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_comment_chain(COMMENT* in)
+{
+    post_comment((COMMENT*) in);
+    post_identifier((Identifier*) in);
     post_node((Node*) in);
 }
 
@@ -1140,6 +1151,7 @@ void Visitor::post_api_call_chain(API_CALL* in)
 void Visitor::post_code_chain(CODE* in)
 {
     post_code((CODE*) in);
+    post_identifier((Identifier*) in);
     post_statement((Statement*) in);
     post_node((Node*) in);
 }
@@ -1147,6 +1159,7 @@ void Visitor::post_code_chain(CODE* in)
 void Visitor::post_zvp_chain(ZVP* in)
 {
     post_zvp((ZVP*) in);
+    post_identifier((Identifier*) in);
     post_zvp((Zvp*) in);
     post_node((Node*) in);
 }
@@ -1154,6 +1167,7 @@ void Visitor::post_zvp_chain(ZVP* in)
 void Visitor::post_zvpp_chain(ZVPP* in)
 {
     post_zvpp((ZVPP*) in);
+    post_identifier((Identifier*) in);
     post_zvpp((Zvpp*) in);
     post_node((Node*) in);
 }
@@ -1161,7 +1175,15 @@ void Visitor::post_zvpp_chain(ZVPP* in)
 void Visitor::post_literal_chain(LITERAL* in)
 {
     post_literal((LITERAL*) in);
+    post_identifier((Identifier*) in);
     post_zvp((Zvp*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_symtable_chain(SYMTABLE* in)
+{
+    post_symtable((SYMTABLE*) in);
+    post_identifier((Identifier*) in);
     post_node((Node*) in);
 }
 

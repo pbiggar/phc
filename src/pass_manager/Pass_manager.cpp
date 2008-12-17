@@ -20,6 +20,8 @@
 #include "process_ast/AST_unparser.h"
 #include "process_hir/HIR_unparser.h"
 #include "process_mir/MIR_unparser.h"
+#include "process_lir/LIR_unparser.h"
+
 #include "process_ast/DOT_unparser.h"
 
 #include "process_ast/Invalid_check.h"
@@ -36,9 +38,11 @@ Pass_manager::Pass_manager (gengetopt_args_info* args_info)
 	ast_queue = new Pass_queue;
 	hir_queue = new Pass_queue;
 	mir_queue = new Pass_queue;
-	queues = new List <Pass_queue* > (ast_queue, hir_queue, mir_queue);
+	lir_queue = new Pass_queue;
+	queues = new List <Pass_queue* > (ast_queue, hir_queue, mir_queue, lir_queue);
 }
 
+// AST
 void Pass_manager::add_ast_visitor (AST::Visitor* visitor, String* name, String* description)
 {
 	Pass* pass = new Visitor_pass (visitor, name, description);
@@ -56,6 +60,28 @@ void Pass_manager::add_ast_pass (Pass* pass)
 	add_pass (pass, ast_queue);
 }
 
+void Pass_manager::add_after_each_ast_pass (Pass* pass)
+{
+	add_after_each_pass (pass, ast_queue);
+}
+
+bool is_queue_pass (String* name, Pass_queue* queue)
+{
+	foreach (Pass* p, *queue)
+	{
+		if (*name == *p->name)
+			return true;
+	}
+	return false;
+}
+
+bool Pass_manager::is_ast_pass (String* name)
+{
+	return is_queue_pass (name, ast_queue);
+}
+
+
+// HIR
 void Pass_manager::add_hir_visitor (HIR::Visitor* visitor, String* name, String* description)
 {
 	Pass* pass = new Visitor_pass (visitor, name, description);
@@ -73,8 +99,18 @@ void Pass_manager::add_hir_pass (Pass* pass)
 	add_pass (pass, hir_queue);
 }
 
+void Pass_manager::add_after_each_hir_pass (Pass* pass)
+{
+	add_after_each_pass (pass, hir_queue);
+}
+
+bool Pass_manager::is_hir_pass (String* name)
+{
+	return is_queue_pass (name, hir_queue);
+}
 
 
+// MIR
 void Pass_manager::add_mir_visitor (MIR::Visitor* visitor, String* name, String* description)
 {
 	Pass* pass = new Visitor_pass (visitor, name, description);
@@ -92,14 +128,52 @@ void Pass_manager::add_mir_pass (Pass* pass)
 	add_pass (pass, mir_queue);
 }
 
+void Pass_manager::add_after_each_mir_pass (Pass* pass)
+{
+	add_after_each_pass (pass, mir_queue);
+}
+
+bool Pass_manager::is_mir_pass (String* name)
+{
+	return is_queue_pass (name, mir_queue);
+}
 
 
+// LIR
+void Pass_manager::add_lir_visitor (LIR::Visitor* visitor, String* name, String* description)
+{
+	Pass* pass = new Visitor_pass (visitor, name, description);
+	add_pass (pass, lir_queue);
+}
+
+void Pass_manager::add_lir_transform (LIR::Transform* transform, String* name, String* description)
+{
+	Pass* pass = new Transform_pass (transform, name, description);
+	add_pass (pass, lir_queue);
+}
+
+void Pass_manager::add_lir_pass (Pass* pass)
+{
+	add_pass (pass, lir_queue);
+}
+
+void Pass_manager::add_after_each_lir_pass (Pass* pass)
+{
+	add_after_each_pass (pass, lir_queue);
+}
+
+bool Pass_manager::is_lir_pass (String* name)
+{
+	return is_queue_pass (name, mir_queue);
+}
+
+
+// Generic
 void Pass_manager::add_pass (Pass* pass, Pass_queue* queue)
 {
 	assert (pass->name);
 	queue->push_back (pass);
 }
-
 
 
 void Pass_manager::add_plugin (lt_dlhandle handle, String* name, String* option)
@@ -114,21 +188,6 @@ void Pass_manager::add_plugin (lt_dlhandle handle, String* name, String* option)
 
 	(*func)(this, pp);
 	
-}
-
-void Pass_manager::add_after_each_ast_pass (Pass* pass)
-{
-	add_after_each_pass (pass, ast_queue);
-}
-
-void Pass_manager::add_after_each_hir_pass (Pass* pass)
-{
-	add_after_each_pass (pass, hir_queue);
-}
-
-void Pass_manager::add_after_each_mir_pass (Pass* pass)
-{
-	add_after_each_pass (pass, mir_queue);
 }
 
 void Pass_manager::add_after_each_pass (Pass* pass, Pass_queue* queue)
@@ -317,6 +376,7 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 			if (in->is_AST ()) AST_unparser ().unparse (in->as_AST ());
 			else if (in->is_HIR ()) HIR_unparser ().unparse (in->as_HIR ());
 			else if (in->is_MIR ()) MIR_unparser ().unparse (in->as_MIR ());
+			else if (in->is_MIR ()) LIR_unparser ().unparse (in->as_LIR ());
 			else assert (0);
 		}
 	}
@@ -325,6 +385,9 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 	{
 		if (*name == args_info->dump_uppered_arg [i])
 		{
+			if (in->is_LIR ())
+				phc_error ("Uppered dump is not supported during LIR pass: %s", name->c_str ());
+				
 			if (in->is_MIR ())
 				MIR_unparser().unparse_uppered (in->as_MIR ());
 
@@ -342,7 +405,7 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 			}
 
 			if (in->is_AST())
-				AST_unparser().unparse (in->as_AST()->clone ()); // TODO do we still need to clone?
+				AST_unparser().unparse (in->as_AST());
 
 		}
 	}
@@ -360,7 +423,7 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 	{
 		if (*name == args_info->dump_xml_arg [i])
 		{
-			xml_unparse (in, std::cout, !args_info->no_xml_attrs_flag);
+			xml_unparse (in, std::cout, !args_info->no_xml_attrs_flag, !args_info->no_base_64_flag);
 		}
 	}
 }
@@ -433,15 +496,22 @@ IR::PHP_script* Pass_manager::run_from_until (String* from, String* to, IR::PHP_
 		// TODO dirty hack
 		if (q == ast_queue && in->is_AST () 
 			&& hir_queue->size () == 0 
-			&& mir_queue->size () == 0)
+			&& mir_queue->size () == 0
+			&& lir_queue->size () == 0)
 			return in;
 
 		if (q == hir_queue && in->is_HIR () 
-			&& mir_queue->size () == 0)
+			&& mir_queue->size () == 0
+			&& lir_queue->size () == 0)
+			return in;
+
+		if (q == mir_queue && in->is_HIR () 
+			&& lir_queue->size () == 0)
 			return in;
 
 		if ((in->is_AST () && q == ast_queue)
-			|| (in->is_HIR () && q == hir_queue))
+			|| (in->is_HIR () && q == hir_queue)
+			|| (in->is_MIR () && q == mir_queue))
 		in = in->fold_lower ();
 	}
 	return in;
@@ -473,27 +543,3 @@ Pass* Pass_manager::get_pass_named (String* name)
 	return NULL;
 }
 
-bool is_queue_pass (String* name, Pass_queue* queue)
-{
-	foreach (Pass* p, *queue)
-	{
-		if (*name == *p->name)
-			return true;
-	}
-	return false;
-}
-
-bool Pass_manager::is_ast_pass (String* name)
-{
-	return is_queue_pass (name, ast_queue);
-}
-
-bool Pass_manager::is_hir_pass (String* name)
-{
-	return is_queue_pass (name, hir_queue);
-}
-
-bool Pass_manager::is_mir_pass (String* name)
-{
-	return is_queue_pass (name, mir_queue);
-}
