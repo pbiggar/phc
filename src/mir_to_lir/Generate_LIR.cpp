@@ -2738,8 +2738,8 @@ void Generate_LIR::pre_php_script(PHP_script* in)
 	// Add constant-pooling declarations
 	if (args_info.optimize_given)
 	{
-		Literal_list* pooled_literals = rewrap_list <IR::Node, Literal> (dyc<IR::Node_list> (
-			in->attrs->get ("phc.codegen.pooled_literals")));
+		Literal_list* pooled_literals = 
+			in->attrs->get_list<Literal> ("phc.codegen.pooled_literals");
 
 		foreach (Literal* lit, *pooled_literals)
 		{
@@ -2802,10 +2802,9 @@ void Generate_LIR::post_php_script(PHP_script* in)
 	lir->pieces->push_back (end);
 
 	code << "// ArgInfo structures (necessary to support compile time pass-by-reference)\n";
-	IR::Node_list* methods = dyc<IR::Node_list>(in->attrs->get("phc.codegen.compiled_functions"));
-	foreach (IR::Node* n, *methods)
+	Signature_list* methods = in->attrs->get_list<Signature>("phc.codegen.compiled_functions");
+	foreach (Signature* s, *methods)
 	{
-		Signature* s = dyc<Signature> (n);
 		String* name = s->method_name->value;
 
 		// TODO: pass by reference only works for PHP>5.1.0. Do we care?
@@ -2833,9 +2832,8 @@ void Generate_LIR::post_php_script(PHP_script* in)
 		<< "static function_entry " << *extension_name << "_functions[] = {\n"
 		;
 
-	foreach (IR::Node* n, *methods)
+	foreach (Signature* s, *methods)
 	{
-		Signature* s = dyc<Signature> (n);
 		String* name = s->method_name->value;
 		code << "PHP_FE(" << *name << ", " << *name << "_arg_info)\n";
 	}

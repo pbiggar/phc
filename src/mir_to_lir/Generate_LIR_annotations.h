@@ -16,7 +16,7 @@ class Generate_LIR_annotations : public MIR::Visitor, virtual public GC_obj
 	Set<string> var_names;
 	Set<string> iterators;
 	Set<string> called_functions;
-	IR::Node_list* compiled_function_signatures;
+	MIR::Signature_list* compiled_functions;
 
 	// Literal.classid() -> (lit.value -> Literal*)
 	Map<int, Map<string, MIR::Literal*> > pool_values;
