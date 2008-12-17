@@ -711,18 +711,30 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 	// Initialize the optimization oracle
 	Oracle::initialize ();
 
-	Pass* cfg_pass = optimization_queue->front();
-	optimization_queue->pop_front();
-	assert (*cfg_pass->name == "cfg");
+	// The pass_manager allows passes to be added in-between the passes we expect. Ignore them.
+	Pass* cfg_pass;
+	do
+	{
+		cfg_pass = optimization_queue->front();
+		optimization_queue->pop_front();
+	}
+	while (*cfg_pass->name != "cfg");
 
-	Pass* build_pass = optimization_queue->front();
-	optimization_queue->pop_front();
-	assert (*build_pass->name == "build_ssa");
+	Pass* build_pass;
+	do
+	{
+		build_pass = optimization_queue->front();
+		optimization_queue->pop_front();
+	}
+	while (*build_pass->name != "build_ssa");
 
-	Pass* drop_pass = optimization_queue->back();
-	optimization_queue->pop_back();
-	assert (*drop_pass->name == "drop_ssa");
-
+	Pass* drop_pass;
+	do
+	{
+		drop_pass = optimization_queue->front();
+		optimization_queue->pop_front();
+	}
+	while (*drop_pass->name != "drop_ssa");
 
 
 	MIR::Method_list* candidates = new MIR::Method_list;
