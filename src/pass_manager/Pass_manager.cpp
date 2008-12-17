@@ -584,22 +584,25 @@ IR::PHP_script* Pass_manager::run_from_until (String* from, String* to, IR::PHP_
 	}
 
 	// LIR
-	in = in->fold_lower ();
-
-	// TODO: avoid code duplication
-	foreach (Pass* p, *lir_queue)
+	if (args_info->generate_c_given || args_info->compile_given)
 	{
-		// check for starting pass
-		if (!exec && 
-				((from == NULL) || *(p->name) == *from))
-			exec = true;
+		in = in->fold_lower ();
 
-		if (exec)
-			run_pass (p, in, main);
+		// TODO: avoid code duplication
+		foreach (Pass* p, *lir_queue)
+		{
+			// check for starting pass
+			if (!exec && 
+					((from == NULL) || *(p->name) == *from))
+				exec = true;
 
-		// check for last pass
-		if (exec && (to != NULL) && *(p->name) == *to)
-			return in;
+			if (exec)
+				run_pass (p, in, main);
+
+			// check for last pass
+			if (exec && (to != NULL) && *(p->name) == *to)
+				return in;
+		}
 	}
 
 
