@@ -71,6 +71,7 @@ const char *gengetopt_args_info_full_help[] = {
   "      --list-passes            List the passes to be run  (default=off)",
   "      --dont-fail              Dont fail on error (after parsing)  \n                                 (default=off)",
   "      --no-xml-attrs           When dumping XML, omit node attributes  \n                                 (default=off)",
+  "      --no-base-64             When dumping XML, do not encode any strings into \n                                 base64 encoding  (default=off)",
   "      --disable=passname       Disable the pass named 'passname'",
     0
 };
@@ -170,6 +171,7 @@ void clear_given (struct gengetopt_args_info *args_info)
   args_info->list_passes_given = 0 ;
   args_info->dont_fail_given = 0 ;
   args_info->no_xml_attrs_given = 0 ;
+  args_info->no_base_64_given = 0 ;
   args_info->disable_given = 0 ;
 }
 
@@ -227,6 +229,7 @@ void clear_args (struct gengetopt_args_info *args_info)
   args_info->list_passes_flag = 0;
   args_info->dont_fail_flag = 0;
   args_info->no_xml_attrs_flag = 0;
+  args_info->no_base_64_flag = 0;
   args_info->disable_arg = NULL;
   args_info->disable_orig = NULL;
   
@@ -294,7 +297,8 @@ void init_args_info(struct gengetopt_args_info *args_info)
   args_info->list_passes_help = gengetopt_args_info_full_help[40] ;
   args_info->dont_fail_help = gengetopt_args_info_full_help[41] ;
   args_info->no_xml_attrs_help = gengetopt_args_info_full_help[42] ;
-  args_info->disable_help = gengetopt_args_info_full_help[43] ;
+  args_info->no_base_64_help = gengetopt_args_info_full_help[43] ;
+  args_info->disable_help = gengetopt_args_info_full_help[44] ;
   args_info->disable_min = -1;
   args_info->disable_max = -1;
   
@@ -561,6 +565,8 @@ cmdline_parser_dump(FILE *outfile, struct gengetopt_args_info *args_info)
     write_into_file(outfile, "dont-fail", 0, 0 );
   if (args_info->no_xml_attrs_given)
     write_into_file(outfile, "no-xml-attrs", 0, 0 );
+  if (args_info->no_base_64_given)
+    write_into_file(outfile, "no-base-64", 0, 0 );
   write_multiple_into_file(outfile, args_info->disable_given, "disable", args_info->disable_orig, 0);
   
 
@@ -1153,6 +1159,7 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
         { "list-passes",	0, NULL, 0 },
         { "dont-fail",	0, NULL, 0 },
         { "no-xml-attrs",	0, NULL, 0 },
+        { "no-base-64",	0, NULL, 0 },
         { "disable",	1, NULL, 0 },
         { NULL,	0, NULL, 0 }
       };
@@ -1575,6 +1582,18 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
             if (update_arg((void *)&(args_info->no_xml_attrs_flag), 0, &(args_info->no_xml_attrs_given),
                 &(local_args_info.no_xml_attrs_given), optarg, 0, 0, ARG_FLAG,
                 check_ambiguity, override, 1, 0, "no-xml-attrs", '-',
+                additional_error))
+              goto failure;
+          
+          }
+          /* When dumping XML, do not encode any strings into base64 encoding.  */
+          else if (strcmp (long_options[option_index].name, "no-base-64") == 0)
+          {
+          
+          
+            if (update_arg((void *)&(args_info->no_base_64_flag), 0, &(args_info->no_base_64_given),
+                &(local_args_info.no_base_64_given), optarg, 0, 0, ARG_FLAG,
+                check_ambiguity, override, 1, 0, "no-base-64", '-',
                 additional_error))
               goto failure;
           

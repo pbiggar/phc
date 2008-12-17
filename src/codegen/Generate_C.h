@@ -15,27 +15,14 @@
 #include "LIR.h"
 #include "pass_manager/Pass.h"
 
-class Generate_C : public MIR::Visitor, public Pass
+class Generate_C : public Pass
 {
 public:
-
 	std::ostream& os;
 
+	bool pass_is_enabled (Pass_manager* pm);
 	void run (IR::PHP_script*, Pass_manager*);
 	Generate_C (std::ostream&);
-
-public:
-	void children_statement(MIR::Statement* in);
-	void pre_php_script(MIR::PHP_script* in);
-	void post_php_script(MIR::PHP_script* in);
-	bool pass_is_enabled (Pass_manager* pm);
-
-public:
-	String* extension_name;
-	bool is_extension;
-
-	LIR::C_file* lir;
-	LIR::UNINTERPRETED* clear_code_buffer ();
 };
 
 #endif // PHC_GENERATE_C

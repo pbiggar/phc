@@ -160,6 +160,10 @@ Clone ::= Zvp ;
 Symtable_fetch ::= SYMTABLE name:STRING ZVPP ;
 Symtable_insert ::= SYMTABLE name:STRING ZVPP ;
 
+{-
+ - For the XML_unparser, its good to identify these as Identifiers
+ -}
+Identifier ::= ZVPP | ZVP | SYMTABLE | LITERAL | UNINTERPRETED | COMMENT | CODE ;
 
 {-
  - Extra attributes and methods (mixin code)
@@ -236,4 +240,10 @@ public:
 	{
 		return (value == 0 || value == 1);
 	}
+};
+
+class Identifier
+{
+public:
+	virtual String* get_value_as_string() = 0;
 };

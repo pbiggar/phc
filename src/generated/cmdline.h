@@ -140,6 +140,8 @@ struct gengetopt_args_info
   const char *dont_fail_help; /**< @brief Dont fail on error (after parsing) help description.  */
   int no_xml_attrs_flag;	/**< @brief When dumping XML, omit node attributes (default=off).  */
   const char *no_xml_attrs_help; /**< @brief When dumping XML, omit node attributes help description.  */
+  int no_base_64_flag;	/**< @brief When dumping XML, do not encode any strings into base64 encoding (default=off).  */
+  const char *no_base_64_help; /**< @brief When dumping XML, do not encode any strings into base64 encoding help description.  */
   char ** disable_arg;	/**< @brief Disable the pass named 'passname'.  */
   char ** disable_orig;	/**< @brief Disable the pass named 'passname' original value given at command line.  */
   int disable_min; /**< @brief Disable the pass named 'passname''s minimum occurreces */
@@ -183,6 +185,7 @@ struct gengetopt_args_info
   unsigned int list_passes_given ;	/**< @brief Whether list-passes was given.  */
   unsigned int dont_fail_given ;	/**< @brief Whether dont-fail was given.  */
   unsigned int no_xml_attrs_given ;	/**< @brief Whether no-xml-attrs was given.  */
+  unsigned int no_base_64_given ;	/**< @brief Whether no-base-64 was given.  */
   unsigned int disable_given ;	/**< @brief Whether disable was given.  */
 
   char **inputs ; /**< @brief unamed options (options without names) */

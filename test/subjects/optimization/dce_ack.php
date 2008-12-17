@@ -2,7 +2,7 @@
 
 	// The $TEMP = 1 from $n+1 should be DCEd.
 
-	// { phc-option: -O3 --dump=generate-c } 
+	// { phc-option: -O3 --dump=outssa } 
 	// { phc-regex-output: !/= 1/ }
 
 

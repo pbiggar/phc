@@ -46,7 +46,7 @@
 #include "process_ir/XML_unparser.h"
 #include "parsing/LIR_parser.h"
 
-#include "Generate_C.h"
+#include "Generate_LIR.h"
 #include "process_lir/LIR_unparser.h"
 #include "embed/embed.h"
 
@@ -70,64 +70,31 @@ void phc_unsupported (Node* node, const char* feature)
 // with a prologue and an epilogue.
 static stringstream prologue;
 static stringstream code;
-static stringstream epilogue;
 static stringstream initializations;
 static stringstream finalizations;
 
 string templ (string);
 
 // TODO this is here for constant pooling. This should not be global.
-static gengetopt_args_info* args_info;
+extern struct gengetopt_args_info args_info;
 
-bool Generate_C::pass_is_enabled (Pass_manager* pm)
+LIR::PHP_script*
+Generate_LIR::fold_php_script (MIR::PHP_script* in)
 {
-	return pm->args_info->generate_c_flag or pm->args_info->compile_flag;
-}
-
-void Generate_C::run (IR::PHP_script* in, Pass_manager* pm)
-{
-	args_info = pm->args_info;
-	if (not PHP::is_available ())
+	if (args_info.extension_given)
 	{
-		// TODO would be better if we checked for these at run-time if they
-		// werent available at compile time.
-		phc_error (	"phc requires PHP to be avaiable for compilation. " 
-						"Please install the PHP embed SAPI, "
-						"and run 'configure' on phc again");
-
-		// TODO more information perhaps? Or integrate with configure warning?
-	}
-
-	if (pm->args_info->extension_given)
-	{
-		extension_name = new String (pm->args_info->extension_arg);
-		is_extension = true;
+		extension_name = new String (args_info.extension_arg);
+		this->is_extension = true;
 	}
 	else
 	{
 		extension_name = new String("app");
-		is_extension = false;
+		this->is_extension = false;
 	}
 
-// TODO: split functionality into 3 separate portions. Split the visitor and Pass functionality.
-//	Generate_C_prologue gen_prologue;
-//	Generate_C_body gen_body;
-//	Generate_C_epilogue gen_epilogue;
-//	Generate_C_initializations gen_initialize;
-//	Generate_C_finalizations gen_finalize;
 
-	in->visit(this);
-
-	os << prologue.str ();
-	os << code.str ();
-	os << epilogue.str ();
-
-	if (pm->args_info->generate_c_flag)
-	{
-		cout << prologue.str ();
-		cout << code.str ();
-		cout << epilogue.str ();
-	}
+	in->visit (this);
+	return this->lir;
 }
 
 
@@ -462,11 +429,11 @@ class Pattern : virtual public GC_obj
 public:
 	Pattern () : use_scope (true) {}
 	virtual bool match(Statement* that) = 0;
-	virtual void generate_code(Generate_C* gen) {assert (0); };
+	virtual void generate_code(Generate_LIR* gen) {assert (0); };
 	virtual ~Pattern() {}
 	bool use_scope;
 
-	virtual LIR::Piece* generate_lir (String* comment, Generate_C* gen)
+	virtual LIR::Piece* generate_lir (String* comment, Generate_LIR* gen)
 	{
 		code << *comment;
 
@@ -497,15 +464,16 @@ public:
 		return that->match(pattern);
 	}
 
-	LIR::Piece* generate_lir (String* comment, Generate_C* gen)
+	LIR::Piece* generate_lir (String* comment, Generate_LIR* gen)
 	{
+		gen->lir->pieces->push_back (gen->clear_code_buffer ());
 		signature = pattern->value->signature;
 
 		method_entry();
 		LIR::UNINTERPRETED* entry = gen->clear_code_buffer ();
 
 		// Use a different gen for the nested function
-		Generate_C* new_gen = new Generate_C (gen->os);
+		Generate_LIR* new_gen = new Generate_LIR ();
 		new_gen->visit_statement_list (pattern->value->statements);
 
 		method_exit();
@@ -784,7 +752,7 @@ public:
 		return rhs;
 	}
 
-	LIR::Piece* generate_lir (String* comment, Generate_C* gen)
+	LIR::Piece* generate_lir (String* comment, Generate_LIR* gen)
 	{
 		LIR::Statement_list* stmts = new LIR::Statement_list;
 
@@ -838,7 +806,7 @@ public:
 		return rhs;
 	}
 
-	void generate_code (Generate_C* gen)
+	void generate_code (Generate_LIR* gen)
 	{
 		if (!agn->is_ref)
 		{
@@ -878,7 +846,7 @@ public:
 		return rhs;
 	}
 
-	void generate_code (Generate_C* gen)
+	void generate_code (Generate_LIR* gen)
 	{
 		VARIABLE_NAME* var_name  = rhs->value->variable_name;
 
@@ -950,7 +918,7 @@ public:
 		return new Cast (cast, rhs);
 	}
 
-	LIR::Piece* generate_lir (String* comment, Generate_C* gen)
+	LIR::Piece* generate_lir (String* comment, Generate_LIR* gen)
 	{
 		assert (!agn->is_ref);
 		LIR::Statement_list* stmts = new LIR::Statement_list;
@@ -991,7 +959,7 @@ public:
 		return rhs;
 	}
 
-	void generate_code (Generate_C* gen)
+	void generate_code (Generate_LIR* gen)
 	{
 		assert (!agn->is_ref);
 
@@ -1050,7 +1018,7 @@ public:
 		return new Bin_op (left, op, right); 
 	}
 
-	void generate_code (Generate_C* gen)
+	void generate_code (Generate_LIR* gen)
 	{
 		assert (lhs);
 		assert (op_functions.has (*op->value->value));
@@ -1103,7 +1071,7 @@ public:
 		return new Unary_op(op, var_name);
 	}
 
-	void generate_code (Generate_C* gen)
+	void generate_code (Generate_LIR* gen)
 	{
 		assert (op_functions.has (*op->value->value));
 
@@ -1149,7 +1117,7 @@ protected:
 class Pattern_assign_value : public Pattern_assign_var
 {
 public:
-	void generate_code (Generate_C* gen)
+	void generate_code (Generate_LIR* gen)
 	{
 		code
 		<< get_st_entry (LOCAL, "p_lhs", lhs->value)
@@ -1233,10 +1201,10 @@ public:
 	}
 
 	// record if we've seen this variable before
-	void generate_code (Generate_C* gen)
+	void generate_code (Generate_LIR* gen)
 	{
 		assert (!agn->is_ref);
-		if (args_info->optimize_given)
+		if (args_info.optimize_given)
 		{
 			code
 			<< read_literal ("rhs", rhs->value)
@@ -1265,7 +1233,7 @@ read_literal_lir (string zvp, Literal* lit)
 {
 	assert (0);
 	stringstream ss;
-	if (args_info->optimize_given)
+	if (args_info.optimize_given)
 	{
 		ss 
 		<< "zval* " << zvp << " = "
@@ -1288,7 +1256,7 @@ string
 read_literal (string zvp, Literal* lit)
 {
 	stringstream ss;
-	if (args_info->optimize_given)
+	if (args_info.optimize_given)
 	{
 		ss 
 		<< "zval* " << zvp << " = "
@@ -1444,7 +1412,7 @@ class Pattern_assign_expr_foreach_get_val : public Pattern_assign_var
 		return get_val;
 	}
 
-	void generate_code (Generate_C* gen)
+	void generate_code (Generate_LIR* gen)
 	{
 		code
 		<< get_st_entry (LOCAL, "p_lhs", lhs->value)
@@ -1532,7 +1500,7 @@ public:
 			new List<Actual_parameter*>(arg));
 	}
 
-	void generate_code (Generate_C* gen)
+	void generate_code (Generate_LIR* gen)
 	{
 		code
 		<< read_rvalue ("p_arg", arg->value->rvalue)
@@ -1596,7 +1564,7 @@ public:
 		return rhs;
 	}
 
-	void generate_code (Generate_C* gen)
+	void generate_code (Generate_LIR* gen)
 	{
 		assert (!agn->is_ref);
 
@@ -1651,7 +1619,7 @@ public:
 		return rhs;
 	}
 
-	void generate_code (Generate_C* gen)
+	void generate_code (Generate_LIR* gen)
 	{
 		Actual_parameter_list::const_iterator i;
 		unsigned index;
@@ -1891,7 +1859,7 @@ public:
 		return (that->match(agn));
 	}
 
-	void generate_code(Generate_C* gen)
+	void generate_code(Generate_LIR* gen)
 	{
 		assert (lhs->value);
 		assert (index->value);
@@ -1995,7 +1963,7 @@ public:
 		return (that->match(agn));
 	}
 
-	void generate_code(Generate_C* gen)
+	void generate_code(Generate_LIR* gen)
 	{
 		assert (lhs->value);
 		assert (rhs->value);
@@ -2055,7 +2023,7 @@ class Pattern_assign_var_var : public Pattern
 		return(that->match(stmt));	
 	}
 
-	void generate_code(Generate_C* gen)
+	void generate_code(Generate_LIR* gen)
 	{
 		if(!stmt->is_ref)
 		{
@@ -2098,7 +2066,7 @@ public:
 		return(that->match(new Global(var_name)));
 	}
 
-	void generate_code(Generate_C* gen)
+	void generate_code(Generate_LIR* gen)
 	{
 		code
 		<< index_lhs (LOCAL, "p_local_global_var", var_name->value) // lhs
@@ -2152,7 +2120,7 @@ public:
 		return that->match(new Label(label));
 	}
 
-	void generate_code(Generate_C* gen)
+	void generate_code(Generate_LIR* gen)
 	{
 		code << *label->value->value << ":;\n";
 	}
@@ -2176,7 +2144,7 @@ public:
 			));
 	}
 
-	void generate_code(Generate_C* gen)
+	void generate_code(Generate_LIR* gen)
 	{
 		code 
 		<<	read_rvalue ("p_cond", cond->value)
@@ -2204,7 +2172,7 @@ public:
 		return that->match(new Goto(label));
 	}
 
-	void generate_code(Generate_C* gen)
+	void generate_code(Generate_LIR* gen)
 	{
 		code << "goto " << *label->value->value << ";\n";
 	}
@@ -2221,7 +2189,7 @@ class Pattern_return : public Pattern
 		return that->match (ret);
 	}
 
-	void generate_code(Generate_C* gen)
+	void generate_code(Generate_LIR* gen)
 	{
 		if(!ret->value->attrs->is_true ("phc.codegen.return_by_ref"))
 		{
@@ -2296,7 +2264,7 @@ class Pattern_unset : public Pattern
 		return that->match(unset);
 	}
 
-	void generate_code(Generate_C* gen)
+	void generate_code(Generate_LIR* gen)
 	{
 		VARIABLE_NAME* var_name = dynamic_cast <VARIABLE_NAME*> (unset->value->variable_name);
 
@@ -2399,7 +2367,7 @@ public:
 		return(that->match(new Pre_op(op, var)));
 	}
 
-	void generate_code(Generate_C* gen)
+	void generate_code(Generate_LIR* gen)
 	{
 		assert (op_functions.has (*op->value->value));
 
@@ -2431,7 +2399,7 @@ class Pattern_method_alias : public Pattern
 		return that->match (alias);
 	}
 
-	void generate_code(Generate_C* gen)
+	void generate_code(Generate_LIR* gen)
 	{
 		String alias_name = *alias->value->alias->value->clone();
 		alias_name.toLower();
@@ -2475,7 +2443,7 @@ class Pattern_class_or_interface_alias : public Pattern
 			|| that->match (interface_alias);
 	}
 
-	void generate_code(Generate_C* gen)
+	void generate_code(Generate_LIR* gen)
 	{
 		String* aliased_name;
 		String* alias_name;
@@ -2543,7 +2511,7 @@ class Pattern_foreach_reset : public Pattern
 		return that->match (reset);
 	}
 
-	void generate_code(Generate_C* gen)
+	void generate_code(Generate_LIR* gen)
 	{
 		// declare the external iterator outside local scope blocks
 		code
@@ -2567,7 +2535,7 @@ class Pattern_foreach_next: public Pattern
 		return that->match (next);
 	}
 
-	void generate_code (Generate_C* gen)
+	void generate_code (Generate_LIR* gen)
 	{
 		code
 		<<	read_rvalue ("fe_array", next->value->array)
@@ -2590,7 +2558,7 @@ class Pattern_foreach_end : public Pattern
 		return that->match (end);
 	}
 
-	void generate_code(Generate_C* gen)
+	void generate_code(Generate_LIR* gen)
 	{
 		code
 		<<	read_rvalue ("fe_array", end->value->array)
@@ -2611,7 +2579,7 @@ protected:
  * Visitor for statements uses the patterns defined above.
  */
 
-void Generate_C::children_statement(Statement* in)
+void Generate_LIR::children_statement(Statement* in)
 {
 	stringstream ss;
 	stringstream comment;
@@ -2743,7 +2711,7 @@ templ (string name)
 }
 
 
-void Generate_C::pre_php_script(PHP_script* in)
+void Generate_LIR::pre_php_script(PHP_script* in)
 {
 	include_file (prologue, s("support.c"));
 	include_file (prologue, s("debug.c"));
@@ -2768,7 +2736,7 @@ void Generate_C::pre_php_script(PHP_script* in)
 
 
 	// Add constant-pooling declarations
-	if (args_info->optimize_given)
+	if (args_info.optimize_given)
 	{
 		Literal_list* pooled_literals = rewrap_list <IR::Node, Literal> (dyc<IR::Node_list> (
 			in->attrs->get ("phc.codegen.pooled_literals")));
@@ -2812,10 +2780,12 @@ void Generate_C::pre_php_script(PHP_script* in)
 		<< "static zend_fcall_info_cache " << fcic_name << " = {0,NULL,NULL,NULL};\n"
 		;
 	}
+
+	lir->pieces->push_back (new LIR::UNINTERPRETED (s(prologue.str())));
 }
 
 LIR::UNINTERPRETED*
-Generate_C::clear_code_buffer ()
+Generate_LIR::clear_code_buffer ()
 {
 	// These is probably some code left in 'code'.
 	LIR::UNINTERPRETED* result = new LIR::UNINTERPRETED(s (code.str()));
@@ -2826,12 +2796,10 @@ Generate_C::clear_code_buffer ()
 }
 
 
-void Generate_C::post_php_script(PHP_script* in)
+void Generate_LIR::post_php_script(PHP_script* in)
 {
 	LIR::UNINTERPRETED* end = clear_code_buffer ();
 	lir->pieces->push_back (end);
-
-	(new LIR_unparser (code, true))->visit_c_file(lir);
 
 	code << "// ArgInfo structures (necessary to support compile time pass-by-reference)\n";
 	Signature_list* methods = dyc<Signature_list>(in->attrs->get("phc.codegen.compiled_functions"));
@@ -2982,15 +2950,15 @@ void Generate_C::post_php_script(PHP_script* in)
 		"  return phc_exit_status;\n"
 		"}\n" ;
 	}
+	LIR::UNINTERPRETED* all = clear_code_buffer ();
+	lir->pieces->push_back (all);
 }
 
 /*
  * Bookkeeping 
  */
 
-Generate_C::Generate_C(ostream& os) : os (os)
+Generate_LIR::Generate_LIR()
 {
-	name = new String ("generate-c");
-	description = new String ("Generate C code from the MIR");
 	lir = new LIR::C_file;
 }

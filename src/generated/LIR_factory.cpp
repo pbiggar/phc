@@ -198,18 +198,6 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Symtable_insert(symtable, name, zvpp);
     }
-    if(!strcmp(type_id, "COMMENT"))
-    {
-    	String* value = dynamic_cast<String*>(*i++);
-    	assert(i == args->end());
-    	return new COMMENT(value);
-    }
-    if(!strcmp(type_id, "SYMTABLE"))
-    {
-    	String* value = dynamic_cast<String*>(*i++);
-    	assert(i == args->end());
-    	return new SYMTABLE(value);
-    }
     if(!strcmp(type_id, "STRING"))
     {
     	String* value = dynamic_cast<String*>(*i++);
@@ -221,6 +209,12 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	String* value = dynamic_cast<String*>(*i++);
     	assert(i == args->end());
     	return new UNINTERPRETED(value);
+    }
+    if(!strcmp(type_id, "COMMENT"))
+    {
+    	String* value = dynamic_cast<String*>(*i++);
+    	assert(i == args->end());
+    	return new COMMENT(value);
     }
     if(!strcmp(type_id, "INTRINSIC"))
     {
@@ -257,6 +251,12 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	String* value = dynamic_cast<String*>(*i++);
     	assert(i == args->end());
     	return new LITERAL(value);
+    }
+    if(!strcmp(type_id, "SYMTABLE"))
+    {
+    	String* value = dynamic_cast<String*>(*i++);
+    	assert(i == args->end());
+    	return new SYMTABLE(value);
     }
     if(!strcmp(type_id, "Piece_list"))
     {

@@ -193,92 +193,8 @@ Zvpp::Zvpp()
 {
 }
 
-COMMENT::COMMENT(String* value)
+Identifier::Identifier()
 {
-    this->value = value;
-}
-
-COMMENT::COMMENT()
-{
-    this->value = 0;
-}
-
-void COMMENT::visit(Visitor* visitor)
-{
-    visitor->visit_comment(this);
-}
-
-void COMMENT::transform_children(Transform* transform)
-{
-    transform->children_comment(this);
-}
-
-String* COMMENT::get_value_as_string()
-{
-    return value;
-}
-
-int COMMENT::classid()
-{
-    return ID;
-}
-
-bool COMMENT::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    COMMENT* that = dynamic_cast<COMMENT*>(in);
-    if(that == NULL) return false;
-    
-    if(this->value != NULL && that->value != NULL)
-    	return (*this->value == *that->value);
-    else
-    	return true;
-}
-
-bool COMMENT::equals(Node* in)
-{
-    COMMENT* that = dynamic_cast<COMMENT*>(in);
-    if(that == NULL) return false;
-    
-    if(this->value == NULL || that->value == NULL)
-    {
-    	if(this->value != NULL || that->value != NULL)
-    		return false;
-    }
-    else if(*this->value != *that->value)
-    	return false;
-    
-    return true;
-}
-
-COMMENT* COMMENT::clone()
-{
-    String* value = new String(*this->value);
-    COMMENT* clone = new COMMENT(value);
-    return clone;
-}
-
-Node* COMMENT::find(Node* in)
-{
-    if (this->match (in))
-    	return this;
-    
-    return NULL;
-}
-
-void COMMENT::find_all(Node* in, Node_list* out)
-{
-    if (this->match (in))
-    	out->push_back (this);
-}
-
-void COMMENT::assert_valid()
-{
-    assert(value != NULL);
 }
 
 INT::INT(long value)
@@ -384,94 +300,6 @@ bool INT::is_valid()
     {
 		return (value == 0 || value == 1);
 	}
-}
-
-SYMTABLE::SYMTABLE(String* value)
-{
-    this->value = value;
-}
-
-SYMTABLE::SYMTABLE()
-{
-    this->value = 0;
-}
-
-void SYMTABLE::visit(Visitor* visitor)
-{
-    visitor->visit_symtable(this);
-}
-
-void SYMTABLE::transform_children(Transform* transform)
-{
-    transform->children_symtable(this);
-}
-
-String* SYMTABLE::get_value_as_string()
-{
-    return value;
-}
-
-int SYMTABLE::classid()
-{
-    return ID;
-}
-
-bool SYMTABLE::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    SYMTABLE* that = dynamic_cast<SYMTABLE*>(in);
-    if(that == NULL) return false;
-    
-    if(this->value != NULL && that->value != NULL)
-    	return (*this->value == *that->value);
-    else
-    	return true;
-}
-
-bool SYMTABLE::equals(Node* in)
-{
-    SYMTABLE* that = dynamic_cast<SYMTABLE*>(in);
-    if(that == NULL) return false;
-    
-    if(this->value == NULL || that->value == NULL)
-    {
-    	if(this->value != NULL || that->value != NULL)
-    		return false;
-    }
-    else if(*this->value != *that->value)
-    	return false;
-    
-    return true;
-}
-
-SYMTABLE* SYMTABLE::clone()
-{
-    String* value = new String(*this->value);
-    SYMTABLE* clone = new SYMTABLE(value);
-    return clone;
-}
-
-Node* SYMTABLE::find(Node* in)
-{
-    if (this->match (in))
-    	return this;
-    
-    return NULL;
-}
-
-void SYMTABLE::find_all(Node* in, Node_list* out)
-{
-    if (this->match (in))
-    	out->push_back (this);
-}
-
-void SYMTABLE::assert_valid()
-{
-    assert(value != NULL);
 }
 
 STRING::STRING(String* value)
@@ -2480,6 +2308,94 @@ void UNINTERPRETED::assert_valid()
     assert(value != NULL);
 }
 
+COMMENT::COMMENT(String* value)
+{
+    this->value = value;
+}
+
+COMMENT::COMMENT()
+{
+    this->value = 0;
+}
+
+void COMMENT::visit(Visitor* visitor)
+{
+    visitor->visit_comment(this);
+}
+
+void COMMENT::transform_children(Transform* transform)
+{
+    transform->children_comment(this);
+}
+
+String* COMMENT::get_value_as_string()
+{
+    return value;
+}
+
+int COMMENT::classid()
+{
+    return ID;
+}
+
+bool COMMENT::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    COMMENT* that = dynamic_cast<COMMENT*>(in);
+    if(that == NULL) return false;
+    
+    if(this->value != NULL && that->value != NULL)
+    	return (*this->value == *that->value);
+    else
+    	return true;
+}
+
+bool COMMENT::equals(Node* in)
+{
+    COMMENT* that = dynamic_cast<COMMENT*>(in);
+    if(that == NULL) return false;
+    
+    if(this->value == NULL || that->value == NULL)
+    {
+    	if(this->value != NULL || that->value != NULL)
+    		return false;
+    }
+    else if(*this->value != *that->value)
+    	return false;
+    
+    return true;
+}
+
+COMMENT* COMMENT::clone()
+{
+    String* value = new String(*this->value);
+    COMMENT* clone = new COMMENT(value);
+    return clone;
+}
+
+Node* COMMENT::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    return NULL;
+}
+
+void COMMENT::find_all(Node* in, Node_list* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+}
+
+void COMMENT::assert_valid()
+{
+    assert(value != NULL);
+}
+
 INTRINSIC::INTRINSIC(String* value)
 {
     this->value = value;
@@ -3025,6 +2941,94 @@ void LITERAL::find_all(Node* in, Node_list* out)
 }
 
 void LITERAL::assert_valid()
+{
+    assert(value != NULL);
+}
+
+SYMTABLE::SYMTABLE(String* value)
+{
+    this->value = value;
+}
+
+SYMTABLE::SYMTABLE()
+{
+    this->value = 0;
+}
+
+void SYMTABLE::visit(Visitor* visitor)
+{
+    visitor->visit_symtable(this);
+}
+
+void SYMTABLE::transform_children(Transform* transform)
+{
+    transform->children_symtable(this);
+}
+
+String* SYMTABLE::get_value_as_string()
+{
+    return value;
+}
+
+int SYMTABLE::classid()
+{
+    return ID;
+}
+
+bool SYMTABLE::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    SYMTABLE* that = dynamic_cast<SYMTABLE*>(in);
+    if(that == NULL) return false;
+    
+    if(this->value != NULL && that->value != NULL)
+    	return (*this->value == *that->value);
+    else
+    	return true;
+}
+
+bool SYMTABLE::equals(Node* in)
+{
+    SYMTABLE* that = dynamic_cast<SYMTABLE*>(in);
+    if(that == NULL) return false;
+    
+    if(this->value == NULL || that->value == NULL)
+    {
+    	if(this->value != NULL || that->value != NULL)
+    		return false;
+    }
+    else if(*this->value != *that->value)
+    	return false;
+    
+    return true;
+}
+
+SYMTABLE* SYMTABLE::clone()
+{
+    String* value = new String(*this->value);
+    SYMTABLE* clone = new SYMTABLE(value);
+    return clone;
+}
+
+Node* SYMTABLE::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    return NULL;
+}
+
+void SYMTABLE::find_all(Node* in, Node_list* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+}
+
+void SYMTABLE::assert_valid()
 {
     assert(value != NULL);
 }

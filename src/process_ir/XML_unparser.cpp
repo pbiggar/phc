@@ -40,10 +40,10 @@ protected:
 	XML_unparser_state* state;
 
 public:
-	XML_unparser(string xmlns, std::ostream& os = std::cout, bool print_attrs = true)
+	XML_unparser(string xmlns, std::ostream& os = std::cout, bool print_attrs = true, bool convert_base_64 = true)
 	: xmlns(xmlns)
 	{
-		state = new XML_unparser_state (os, print_attrs);
+		state = new XML_unparser_state (os, print_attrs, convert_base_64);
 	}
 
 	XML_unparser(string xmlns, XML_unparser_state* state)
@@ -60,6 +60,9 @@ public:
 
 	bool needs_encoding(String* str)
 	{
+		if (!state->convert_base_64)
+			return false;
+
 		String::const_iterator i;
 
 		for(i = str->begin(); i != str->end(); i++)
@@ -327,7 +330,7 @@ class AST_XML_unparser : public XML_unparser
 >
 {
 public:
-	AST_XML_unparser(ostream& os = std::cout, bool print_attrs = true)
+	AST_XML_unparser(ostream& os = std::cout, bool print_attrs = true, bool convert_base_64 = true)
 	: XML_unparser<
 			AST::PHP_script,
 			AST::Node,
@@ -337,7 +340,7 @@ public:
 			AST::NIL,
 			AST::CAST,
 			AST::FOREIGN
-		> ("AST", os, print_attrs)
+		> ("AST", os, print_attrs, convert_base_64)
 	{
 	}
 
@@ -371,7 +374,7 @@ class HIR_XML_unparser : public XML_unparser
 >
 {
 public:
-	HIR_XML_unparser(ostream& os = std::cout, bool print_attrs = true)
+	HIR_XML_unparser(ostream& os = std::cout, bool print_attrs = true, bool convert_base_64 = true)
 	: XML_unparser<
 			HIR::PHP_script,
 			HIR::Node,
@@ -381,7 +384,7 @@ public:
 			HIR::NIL,
 			HIR::CAST,
 			HIR::FOREIGN
-		> ("HIR", os, print_attrs)
+		> ("HIR", os, print_attrs, convert_base_64)
 	{
 	}
 
@@ -414,7 +417,7 @@ class MIR_XML_unparser : public XML_unparser
 > 
 {
 public:
-	MIR_XML_unparser(ostream& os = std::cout, bool print_attrs = true)
+	MIR_XML_unparser(ostream& os = std::cout, bool print_attrs = true, bool convert_base_64 = true)
 	: XML_unparser<
 			MIR::PHP_script,
 			MIR::Node,
@@ -424,7 +427,7 @@ public:
 			MIR::NIL,
 			MIR::CAST,
 			MIR::FOREIGN
-		> ("MIR", os, print_attrs)
+		> ("MIR", os, print_attrs, convert_base_64)
 	{
 	}
 
@@ -454,13 +457,59 @@ public:
 };
 
 #include "LIR_visitor.h"
+/*
+ * A number of these types dont have an equivalent in the LIR, but we want the
+ * unparser to work anyway. So we use MIR types to satisfy the type checker,
+ * and it wont come up in real life, since the LIR wont have an MIR node in it.
+ */
+class LIR_XML_unparser : public XML_unparser
+<
+	LIR::PHP_script, 
+	LIR::Node, 
+	LIR::Visitor,
+	LIR::Identifier,
+	MIR::Literal,
+	MIR::NIL,
+	MIR::CAST,
+	MIR::FOREIGN
+> 
+{
+public:
+	LIR_XML_unparser(ostream& os = std::cout, bool print_attrs = true, bool convert_base_64 = true)
+	: XML_unparser<
+			LIR::PHP_script,
+			LIR::Node,
+			LIR::Visitor,
+			LIR::Identifier,
+			MIR::Literal,
+			MIR::NIL,
+			MIR::CAST,
+			MIR::FOREIGN
+		> ("LIR", os, print_attrs, convert_base_64)
+	{
+	}
+
+	LIR_XML_unparser(XML_unparser_state* state)
+	: XML_unparser<
+			LIR::PHP_script,
+			LIR::Node,
+			LIR::Visitor,
+			LIR::Identifier,
+			MIR::Literal,
+			MIR::NIL,
+			MIR::CAST,
+			MIR::FOREIGN
+		> ("LIR", state)
+	{
+	}
+};
 
 
 
-
-XML_unparser_state::XML_unparser_state (ostream& os, bool print_attrs)
+XML_unparser_state::XML_unparser_state (ostream& os, bool print_attrs, bool convert_base_64)
 : os (os)
 , print_attrs (print_attrs)
+, convert_base_64 (convert_base_64)
 , indent (0)
 {
 }
@@ -490,9 +539,7 @@ void xml_unparse (MIR::Node* in, XML_unparser_state* state)
 
 void xml_unparse (LIR::Node* in, XML_unparser_state* state)
 {
-//	in->visit (new LIR_XML_unparser (state));
-	phc_TODO ();
-//	TODO
+	in->visit (new LIR_XML_unparser (state));
 }
 
 void xml_unparse (IR::Node* in, XML_unparser_state* state)
@@ -507,25 +554,24 @@ void xml_unparse (IR::Node* in, XML_unparser_state* state)
 		xml_unparse (dyc<LIR::Node> (in), state);
 }
 
-void xml_unparse (AST::Node* in, std::ostream& os, bool print_attrs)
+void xml_unparse (AST::Node* in, std::ostream& os, bool print_attrs, bool convert_base_64)
 {
-  in->visit (new AST_XML_unparser (os, print_attrs));
+  in->visit (new AST_XML_unparser (os, print_attrs, convert_base_64));
 }
 
-void xml_unparse (HIR::Node* in, std::ostream& os, bool print_attrs)
+void xml_unparse (HIR::Node* in, std::ostream& os, bool print_attrs, bool convert_base_64)
 {
-  in->visit (new HIR_XML_unparser (os, print_attrs));
+  in->visit (new HIR_XML_unparser (os, print_attrs, convert_base_64));
 }
 
-void xml_unparse (MIR::Node* in, std::ostream& os, bool print_attrs)
+void xml_unparse (MIR::Node* in, std::ostream& os, bool print_attrs, bool convert_base_64)
 {
-  in->visit (new MIR_XML_unparser (os, print_attrs));
+  in->visit (new MIR_XML_unparser (os, print_attrs, convert_base_64));
 }
 
-void xml_unparse (LIR::Node* in, std::ostream& os, bool print_attrs)
+void xml_unparse (LIR::Node* in, std::ostream& os, bool print_attrs, bool convert_base_64)
 {
-	phc_TODO ();
-//  in->visit (new MIR_XML_unparser (os, print_attrs));
+	in->visit (new LIR_XML_unparser (os, print_attrs, convert_base_64));
 }
 
 
@@ -533,12 +579,14 @@ void xml_unparse (LIR::Node* in, std::ostream& os, bool print_attrs)
 
 
 
-void xml_unparse (IR::PHP_script* in, std::ostream& os, bool print_attrs)
+void xml_unparse (IR::PHP_script* in, std::ostream& os, bool print_attrs, bool convert_base_64)
 {
 	if (isa<AST::PHP_script> (in))
-		xml_unparse (dyc<AST::Node> (in), os, print_attrs);
+		xml_unparse (dyc<AST::Node> (in), os, print_attrs, convert_base_64);
 	else if (isa<HIR::PHP_script> (in))
-		xml_unparse (dyc<HIR::Node> (in), os, print_attrs);
+		xml_unparse (dyc<HIR::Node> (in), os, print_attrs, convert_base_64);
+	else if (isa<MIR::PHP_script> (in))
+		xml_unparse (dyc<MIR::Node> (in), os, print_attrs, convert_base_64);
 	else
-		xml_unparse (dyc<MIR::Node> (in), os, print_attrs);
+		xml_unparse (dyc<LIR::Node> (in), os, print_attrs, convert_base_64);
 }

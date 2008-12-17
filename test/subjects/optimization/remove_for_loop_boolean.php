@@ -1,6 +1,6 @@
 <?php
 
-	// { phc-option: -O1 --dump=generate-c }
+	// { phc-option: -O1 --dump=outssa }
 	// { phc-regex-output: !/true/ }
 	// { phc-regex-output: !/false/ }
 

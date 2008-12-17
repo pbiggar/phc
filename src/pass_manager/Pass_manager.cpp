@@ -21,6 +21,8 @@
 #include "process_ast/AST_unparser.h"
 #include "process_hir/HIR_unparser.h"
 #include "process_mir/MIR_unparser.h"
+#include "process_lir/LIR_unparser.h"
+
 #include "process_ast/DOT_unparser.h"
 
 #include "process_ast/Invalid_check.h"
@@ -43,12 +45,15 @@ Pass_manager::Pass_manager (gengetopt_args_info* args_info)
 	mir_queue = new Pass_queue;
 	optimization_queue = new Pass_queue;
 	codegen_queue = new Pass_queue;
+	lir_queue = new Pass_queue;
 
 	queues = new List <Pass_queue* > (ast_queue, hir_queue, mir_queue);
 	queues->push_back (optimization_queue);
 	queues->push_back (codegen_queue);
+	queues->push_back (lir_queue);
 }
 
+// AST
 void Pass_manager::add_ast_visitor (AST::Visitor* visitor, String* name, String* description)
 {
 	Pass* pass = new Visitor_pass (visitor, name, description);
@@ -66,6 +71,13 @@ void Pass_manager::add_ast_pass (Pass* pass)
 	add_pass (pass, ast_queue);
 }
 
+void Pass_manager::add_after_each_ast_pass (Pass* pass)
+{
+	add_after_each_pass (pass, ast_queue);
+}
+
+
+// HIR
 void Pass_manager::add_hir_visitor (HIR::Visitor* visitor, String* name, String* description)
 {
 	Pass* pass = new Visitor_pass (visitor, name, description);
@@ -83,8 +95,15 @@ void Pass_manager::add_hir_pass (Pass* pass)
 	add_pass (pass, hir_queue);
 }
 
+void Pass_manager::add_after_each_hir_pass (Pass* pass)
+{
+	add_after_each_pass (pass, hir_queue);
+}
 
 
+
+
+// MIR
 void Pass_manager::add_mir_visitor (MIR::Visitor* visitor, String* name, String* description)
 {
 	Pass* pass = new Visitor_pass (visitor, name, description);
@@ -102,6 +121,15 @@ void Pass_manager::add_mir_pass (Pass* pass)
 	add_pass (pass, mir_queue);
 }
 
+void Pass_manager::add_after_each_mir_pass (Pass* pass)
+{
+	add_after_each_pass (pass, mir_queue);
+}
+
+
+
+
+// Optimization
 void Pass_manager::add_optimization (CFG_visitor* v, String* name, String* description, bool require_ssa)
 {
 	Pass* pass = new Optimization_pass (v, name, description, require_ssa);
@@ -113,6 +141,7 @@ void Pass_manager::add_optimization_pass (Pass* pass)
 	add_pass (pass, optimization_queue);
 }
 
+// Codegen
 void Pass_manager::add_codegen_visitor (MIR::Visitor* visitor, String* name, String* description)
 {
 	Pass* pass = new Visitor_pass (visitor, name, description);
@@ -131,9 +160,31 @@ void Pass_manager::add_codegen_pass (Pass* pass)
 }
 
 
+// LIR
+void Pass_manager::add_lir_visitor (LIR::Visitor* visitor, String* name, String* description)
+{
+	Pass* pass = new Visitor_pass (visitor, name, description);
+	add_pass (pass, lir_queue);
+}
+
+void Pass_manager::add_lir_transform (LIR::Transform* transform, String* name, String* description)
+{
+	Pass* pass = new Transform_pass (transform, name, description);
+	add_pass (pass, lir_queue);
+}
+
+void Pass_manager::add_lir_pass (Pass* pass)
+{
+	add_pass (pass, lir_queue);
+}
+
+void Pass_manager::add_after_each_lir_pass (Pass* pass)
+{
+	add_after_each_pass (pass, lir_queue);
+}
 
 
-
+// Generic
 void Pass_manager::add_pass (Pass* pass, Pass_queue* queue)
 {
 	assert (pass->name);
@@ -154,21 +205,6 @@ void Pass_manager::add_plugin (lt_dlhandle handle, String* name, String* option)
 
 	(*func)(this, pp);
 	
-}
-
-void Pass_manager::add_after_each_ast_pass (Pass* pass)
-{
-	add_after_each_pass (pass, ast_queue);
-}
-
-void Pass_manager::add_after_each_hir_pass (Pass* pass)
-{
-	add_after_each_pass (pass, hir_queue);
-}
-
-void Pass_manager::add_after_each_mir_pass (Pass* pass)
-{
-	add_after_each_pass (pass, mir_queue);
 }
 
 void Pass_manager::add_after_each_pass (Pass* pass, Pass_queue* queue)
@@ -320,11 +356,14 @@ void Pass_manager::list_passes ()
 	foreach (Pass_queue* q, *queues)
 		foreach (Pass* p, *q) 
 		{
-			const char* name = "AST";
-			if (q == hir_queue) name = "HIR";
-			if (q == mir_queue) name = "MIR";
-			if (q == optimization_queue) name = "OPT";
-			if (q == codegen_queue) name = "GEN";
+			const char* name;
+			if (q == ast_queue) name = "AST";
+			else if (q == hir_queue) name = "HIR";
+			else if (q == mir_queue) name = "MIR";
+			else if (q == optimization_queue) name = "OPT";
+			else if (q == codegen_queue) name = "GEN";
+			else if (q == lir_queue) name = "LIR";
+			else phc_unreachable ();
 			String* desc = p->description;
 
 			printf ("%-15s    (%-8s - %3s)    %s\n", 
@@ -359,7 +398,8 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 			if (in->is_AST ()) AST_unparser ().unparse (in->as_AST ());
 			else if (in->is_HIR ()) HIR_unparser ().unparse (in->as_HIR ());
 			else if (in->is_MIR ()) MIR_unparser ().unparse (in->as_MIR ());
-			else assert (0);
+			else if (in->is_LIR ()) LIR_unparser ().unparse (in->as_LIR ());
+			else phc_unreachable ();
 		}
 	}
 
@@ -367,6 +407,9 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 	{
 		if (*name == args_info->dump_uppered_arg [i])
 		{
+			if (in->is_LIR ())
+				phc_error ("Uppered dump is not supported during LIR pass: %s", name->c_str ());
+				
 			if (in->is_MIR ())
 				MIR_unparser().unparse_uppered (in->as_MIR ());
 
@@ -384,7 +427,7 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 			}
 
 			if (in->is_AST())
-				AST_unparser().unparse (in->as_AST()->clone ()); // TODO do we still need to clone?
+				AST_unparser().unparse (in->as_AST());
 
 		}
 	}
@@ -402,7 +445,7 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 	{
 		if (*name == args_info->dump_xml_arg [i])
 		{
-			xml_unparse (in, std::cout, !args_info->no_xml_attrs_flag);
+			xml_unparse (in, std::cout, !args_info->no_xml_attrs_flag, !args_info->no_base_64_flag);
 		}
 	}
 }
@@ -473,8 +516,11 @@ IR::PHP_script* Pass_manager::run_from_until (String* from, String* to, IR::PHP_
 
 	// Sometimes folding can crash. If you went out of your way to remove the
 	// passes in the later queues, dont fold.
-	if (hir_queue->size() == 0 && mir_queue->size () == 0 
-		&& optimization_queue->size () == 0 && codegen_queue->size() == 0)
+	if (hir_queue->size() == 0
+		&& mir_queue->size () == 0 
+		&& optimization_queue->size () == 0
+		&& codegen_queue->size() == 0
+		&& lir_queue->size() == 0)
 		return in;
 
 	// HIR
@@ -496,7 +542,9 @@ IR::PHP_script* Pass_manager::run_from_until (String* from, String* to, IR::PHP_
 	}
 
 	if (mir_queue->size () == 0 
-		&& optimization_queue->size () == 0 && codegen_queue->size() == 0)
+		&& optimization_queue->size () == 0 
+		&& codegen_queue->size() == 0
+		&& lir_queue->size() == 0)
 		return in;
 
 	// MIR
@@ -519,6 +567,7 @@ IR::PHP_script* Pass_manager::run_from_until (String* from, String* to, IR::PHP_
 
 	run_optimization_passes (in->as_MIR());
 
+	// Codegen
 	foreach (Pass* p, *codegen_queue)
 	{
 		// check for starting pass
@@ -533,6 +582,27 @@ IR::PHP_script* Pass_manager::run_from_until (String* from, String* to, IR::PHP_
 		if (exec && (to != NULL) && *(p->name) == *to)
 			return in;
 	}
+
+	// LIR
+	in = in->fold_lower ();
+
+	// TODO: avoid code duplication
+	foreach (Pass* p, *lir_queue)
+	{
+		// check for starting pass
+		if (!exec && 
+				((from == NULL) || *(p->name) == *from))
+			exec = true;
+
+		if (exec)
+			run_pass (p, in, main);
+
+		// check for last pass
+		if (exec && (to != NULL) && *(p->name) == *to)
+			return in;
+	}
+
+
 
 	return in;
 }
@@ -561,16 +631,6 @@ Pass* Pass_manager::get_pass_named (String* name)
 				return p;
 		}
 	return NULL;
-}
-
-bool is_queue_pass (String* name, Pass_queue* queue)
-{
-	foreach (Pass* p, *queue)
-	{
-		if (*name == *p->name)
-			return true;
-	}
-	return false;
 }
 
 void
