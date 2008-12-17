@@ -376,7 +376,7 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 			if (in->is_AST ()) AST_unparser ().unparse (in->as_AST ());
 			else if (in->is_HIR ()) HIR_unparser ().unparse (in->as_HIR ());
 			else if (in->is_MIR ()) MIR_unparser ().unparse (in->as_MIR ());
-			else if (in->is_MIR ()) LIR_unparser ().unparse (in->as_LIR ());
+			else if (in->is_LIR ()) LIR_unparser ().unparse (in->as_LIR ());
 			else assert (0);
 		}
 	}
@@ -511,7 +511,9 @@ IR::PHP_script* Pass_manager::run_from_until (String* from, String* to, IR::PHP_
 
 		if ((in->is_AST () && q == ast_queue)
 			|| (in->is_HIR () && q == hir_queue)
-			|| (in->is_MIR () && q == mir_queue))
+			// Since Generate_LIR has lots of unsupported cases, which will assert
+			// and give errors, only convert to LIR if we need to generate C.
+			|| ((in->is_MIR () && q == mir_queue) && (args_info->generate_c_given || args_info->compile_given)))
 		in = in->fold_lower ();
 	}
 	return in;
