@@ -28,7 +28,7 @@ void
 Generate_LIR_annotations::pre_php_script (PHP_script* in)
 {
 	pool_values.clear ();
-	compiled_functions = new Signature_list;
+	compiled_function_signatures = new IR::Node_list;
 }
 
 void
@@ -54,7 +54,7 @@ Generate_LIR_annotations::post_php_script (PHP_script* in)
 
 
 	// Get a list of compiled functions
-	in->attrs->set ("phc.codegen.compiled_functions", compiled_functions);
+	in->attrs->set ("phc.codegen.compiled_functions", compiled_function_signatures);
 }
 
 void
@@ -103,7 +103,7 @@ Generate_LIR_annotations::pre_method (MIR::Method* in)
 {
 	var_names.clear ();
 	iterators.clear ();
-	compiled_functions->push_back (in->signature->clone ());
+	compiled_function_signatures->push_back (in->signature->clone ());
 }
 
 void
@@ -138,5 +138,5 @@ Generate_LIR_annotations::post_return (Return* in)
 	// The signature at the back is this function.
 	in->attrs->set ("phc.codegen.return_by_ref",
 		new Boolean (
-			compiled_functions->back ()->is_ref));
+			dyc<Signature> (compiled_function_signatures->back ())->is_ref));
 }
