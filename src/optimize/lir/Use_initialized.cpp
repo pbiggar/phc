@@ -15,6 +15,7 @@ using namespace LIR;
 void
 Use_initialized::pre_block(Block* in, Piece_list* out)
 {
+	out->push_back (in);
 //	Map<string, opt_value> map;
 //	map["phc.codegen.is_initialized"] = IS_INIT;
 //	map["phc.codegen.is_uninitialized"] = IS_UNINIT;
@@ -37,6 +38,7 @@ Use_initialized::pre_block(Block* in, Piece_list* out)
 void
 Use_initialized::pre_if(If* in, Statement_list* out)
 {
+	out->push_back (in);
 /*
 		// If we know a variable is initialized, remove the equals NULL check.
 		// If we know a variable is not initialized, remove the equals NULL
