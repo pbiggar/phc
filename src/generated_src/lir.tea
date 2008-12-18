@@ -47,6 +47,7 @@ Block ::= COMMENT Statement* ;
 
 Statement ::=    Action				-- (possibly) side-effecting statement 
 					| If
+					| Opt					-- Optimization annotation 
 					| INTRINSIC			-- Builtin phc function, which we can model.
 					| API_CALL			-- Call into the Zend API. We may be able to
 											-- model this.
@@ -163,7 +164,13 @@ Symtable_insert ::= SYMTABLE name:STRING ZVPP ;
 {-
  - For the XML_unparser, its good to identify these as Identifiers
  -}
-Identifier ::= ZVPP | ZVP | SYMTABLE | LITERAL | UNINTERPRETED | COMMENT | CODE ;
+Identifier ::= ZVPP | ZVP | SYMTABLE | LITERAL | UNINTERPRETED | COMMENT | CODE | STRING ;
+
+{-
+ - Possible optimization annotations
+ -}
+Opt ::= param:Opt_param value:STRING ;
+Opt_param ::= ZVPP | ZVP;
 
 {-
  - Extra attributes and methods (mixin code)

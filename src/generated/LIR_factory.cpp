@@ -198,11 +198,12 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Symtable_insert(symtable, name, zvpp);
     }
-    if(!strcmp(type_id, "STRING"))
+    if(!strcmp(type_id, "Opt"))
     {
-    	String* value = dynamic_cast<String*>(*i++);
+    	Opt_param* param = dynamic_cast<Opt_param*>(*i++);
+    	STRING* value = dynamic_cast<STRING*>(*i++);
     	assert(i == args->end());
-    	return new STRING(value);
+    	return new Opt(param, value);
     }
     if(!strcmp(type_id, "UNINTERPRETED"))
     {
@@ -257,6 +258,12 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	String* value = dynamic_cast<String*>(*i++);
     	assert(i == args->end());
     	return new SYMTABLE(value);
+    }
+    if(!strcmp(type_id, "STRING"))
+    {
+    	String* value = dynamic_cast<String*>(*i++);
+    	assert(i == args->end());
+    	return new STRING(value);
     }
     if(!strcmp(type_id, "Piece_list"))
     {

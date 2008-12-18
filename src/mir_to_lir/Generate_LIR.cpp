@@ -759,6 +759,19 @@ public:
 
 		if (!agn->is_ref)
 		{
+			if (lhs->value->attrs->is_true ("phc.optimize.is_initialized"))
+			{
+				LDSL ("["
+				<< "(opt (ZVPP lhs) (STRING init)) "
+				<< "(opt (ZVP " << get_non_st_name (lhs->value)<< ") (STRING init)) ]");
+			}
+			if (lhs->value->attrs->is_true ("phc.optimize.is_uninitialized"))
+				DSL ((opt (ZVPP lhs) (STRING uninit)));
+			if (rhs->value->attrs->is_true ("phc.optimize.is_initialized"))
+				DSL ((opt (ZVP rhs) (STRING init)));
+			if (rhs->value->attrs->is_true ("phc.optimize.is_uninitialized"))
+				DSL ((opt (ZVP rhs) (STRING uninit)));
+
 			LDSL ("["
 				<< get_st_entry_lir (LOCAL, "lhs", lhs->value)
 				<< read_rvalue_lir ("rhs", rhs->value)

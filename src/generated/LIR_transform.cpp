@@ -146,12 +146,12 @@ void Transform::pre_symtable_insert(Symtable_insert* in, Statement_list* out)
     out->push_back(in);
 }
 
-INT* Transform::pre_int(INT* in)
+void Transform::pre_opt(Opt* in, Statement_list* out)
 {
-    return in;
+    out->push_back(in);
 }
 
-STRING* Transform::pre_string(STRING* in)
+INT* Transform::pre_int(INT* in)
 {
     return in;
 }
@@ -197,6 +197,11 @@ Zvp* Transform::pre_literal(LITERAL* in)
 }
 
 SYMTABLE* Transform::pre_symtable(SYMTABLE* in)
+{
+    return in;
+}
+
+STRING* Transform::pre_string(STRING* in)
 {
     return in;
 }
@@ -342,12 +347,12 @@ void Transform::post_symtable_insert(Symtable_insert* in, Statement_list* out)
     out->push_back(in);
 }
 
-INT* Transform::post_int(INT* in)
+void Transform::post_opt(Opt* in, Statement_list* out)
 {
-    return in;
+    out->push_back(in);
 }
 
-STRING* Transform::post_string(STRING* in)
+INT* Transform::post_int(INT* in)
 {
     return in;
 }
@@ -393,6 +398,11 @@ Zvp* Transform::post_literal(LITERAL* in)
 }
 
 SYMTABLE* Transform::post_symtable(SYMTABLE* in)
+{
+    return in;
+}
+
+STRING* Transform::post_string(STRING* in)
 {
     return in;
 }
@@ -552,12 +562,14 @@ void Transform::children_symtable_insert(Symtable_insert* in)
     in->zvpp = transform_zvpp(in->zvpp);
 }
 
-/* Tokens don't have children, so these methods do nothing by default */
-void Transform::children_int(INT* in)
+void Transform::children_opt(Opt* in)
 {
+    in->param = transform_opt_param(in->param);
+    in->value = transform_string(in->value);
 }
 
-void Transform::children_string(STRING* in)
+/* Tokens don't have children, so these methods do nothing by default */
+void Transform::children_int(INT* in)
 {
 }
 
@@ -594,6 +606,10 @@ void Transform::children_literal(LITERAL* in)
 }
 
 void Transform::children_symtable(SYMTABLE* in)
+{
+}
+
+void Transform::children_string(STRING* in)
 {
 }
 
@@ -833,6 +849,22 @@ STRING* Transform::transform_string(STRING* in)
     return out;
 }
 
+Opt_param* Transform::transform_opt_param(Opt_param* in)
+{
+    if(in == NULL) return NULL;
+    
+    Opt_param* out;
+    
+    out = pre_opt_param(in);
+    if(out != NULL)
+    {
+    	children_opt_param(out);
+    	out = post_opt_param(out);
+    }
+    
+    return out;
+}
+
 C_file* Transform::transform_c_file(C_file* in)
 {
     if(in == NULL) return NULL;
@@ -1010,6 +1042,15 @@ void Transform::pre_statement(Statement* in, Statement_list* out)
     			out->push_back(*i);
     	}
     	return;
+    case Opt::ID: 
+    	{
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
+    		pre_opt(dynamic_cast<Opt*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
     case INTRINSIC::ID: 
     	{
     		Statement_list* local_out = new Statement_list;
@@ -1076,6 +1117,16 @@ Zvpp* Transform::pre_zvpp(Zvpp* in)
     case Ref::ID: return pre_ref(dynamic_cast<Ref*>(in));
     case ZVPP::ID: return pre_zvpp(dynamic_cast<ZVPP*>(in));
     case Null::ID: return pre_null(dynamic_cast<Null*>(in));
+    }
+    assert(0);
+}
+
+Opt_param* Transform::pre_opt_param(Opt_param* in)
+{
+    switch(in->classid())
+    {
+    case ZVPP::ID: return pre_zvpp(dynamic_cast<ZVPP*>(in));
+    case ZVP::ID: return pre_zvp(dynamic_cast<ZVP*>(in));
     }
     assert(0);
 }
@@ -1241,6 +1292,15 @@ void Transform::post_statement(Statement* in, Statement_list* out)
     			out->push_back(*i);
     	}
     	return;
+    case Opt::ID: 
+    	{
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
+    		post_opt(dynamic_cast<Opt*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
     case INTRINSIC::ID: 
     	{
     		Statement_list* local_out = new Statement_list;
@@ -1311,6 +1371,16 @@ Zvpp* Transform::post_zvpp(Zvpp* in)
     assert(0);
 }
 
+Opt_param* Transform::post_opt_param(Opt_param* in)
+{
+    switch(in->classid())
+    {
+    case ZVPP::ID: return post_zvpp(dynamic_cast<ZVPP*>(in));
+    case ZVP::ID: return post_zvp(dynamic_cast<ZVP*>(in));
+    }
+    assert(0);
+}
+
 /* Invoke the right transform-children (manual dispatching) */
 /* Do not override unless you what you are doing */
 void Transform::children_piece(Piece* in)
@@ -1374,6 +1444,9 @@ void Transform::children_statement(Statement* in)
     	break;
     case If::ID:
     	children_if(dynamic_cast<If*>(in));
+    	break;
+    case Opt::ID:
+    	children_opt(dynamic_cast<Opt*>(in));
     	break;
     case INTRINSIC::ID:
     	children_intrinsic(dynamic_cast<INTRINSIC*>(in));
@@ -1449,6 +1522,19 @@ void Transform::children_zvpp(Zvpp* in)
     	break;
     case Null::ID:
     	children_null(dynamic_cast<Null*>(in));
+    	break;
+    }
+}
+
+void Transform::children_opt_param(Opt_param* in)
+{
+    switch(in->classid())
+    {
+    case ZVPP::ID:
+    	children_zvpp(dynamic_cast<ZVPP*>(in));
+    	break;
+    case ZVP::ID:
+    	children_zvp(dynamic_cast<ZVP*>(in));
     	break;
     }
 }

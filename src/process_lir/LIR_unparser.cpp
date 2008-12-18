@@ -243,6 +243,19 @@ LIR_unparser::children_null (LIR::Null* in)
 	echo ("NULL");
 }
 
+
+void
+LIR_unparser::children_opt (LIR::Opt* in)
+{
+	// Dont unparse
+}
+
+void
+LIR_unparser::children_opt_param (LIR::Opt_param* in)
+{
+	// Dont unparse
+}
+
 void
 LIR_unparser::children_overwrite (LIR::Overwrite* in)
 {

@@ -150,11 +150,15 @@ void Visitor::pre_identifier(Identifier* in)
 {
 }
 
-void Visitor::pre_int(INT* in)
+void Visitor::pre_opt(Opt* in)
 {
 }
 
-void Visitor::pre_string(STRING* in)
+void Visitor::pre_opt_param(Opt_param* in)
+{
+}
+
+void Visitor::pre_int(INT* in)
 {
 }
 
@@ -191,6 +195,10 @@ void Visitor::pre_literal(LITERAL* in)
 }
 
 void Visitor::pre_symtable(SYMTABLE* in)
+{
+}
+
+void Visitor::pre_string(STRING* in)
 {
 }
 
@@ -339,11 +347,15 @@ void Visitor::post_identifier(Identifier* in)
 {
 }
 
-void Visitor::post_int(INT* in)
+void Visitor::post_opt(Opt* in)
 {
 }
 
-void Visitor::post_string(STRING* in)
+void Visitor::post_opt_param(Opt_param* in)
+{
+}
+
+void Visitor::post_int(INT* in)
 {
 }
 
@@ -380,6 +392,10 @@ void Visitor::post_literal(LITERAL* in)
 }
 
 void Visitor::post_symtable(SYMTABLE* in)
+{
+}
+
+void Visitor::post_string(STRING* in)
 {
 }
 
@@ -538,12 +554,14 @@ void Visitor::children_symtable_insert(Symtable_insert* in)
     visit_zvpp(in->zvpp);
 }
 
-/* Tokens don't have children, so these methods do nothing by default */
-void Visitor::children_int(INT* in)
+void Visitor::children_opt(Opt* in)
 {
+    visit_opt_param(in->param);
+    visit_string(in->value);
 }
 
-void Visitor::children_string(STRING* in)
+/* Tokens don't have children, so these methods do nothing by default */
+void Visitor::children_int(INT* in)
 {
 }
 
@@ -580,6 +598,10 @@ void Visitor::children_literal(LITERAL* in)
 }
 
 void Visitor::children_symtable(SYMTABLE* in)
+{
+}
+
+void Visitor::children_string(STRING* in)
 {
 }
 
@@ -815,16 +837,17 @@ void Visitor::pre_symtable_insert_chain(Symtable_insert* in)
     pre_symtable_insert((Symtable_insert*) in);
 }
 
+void Visitor::pre_opt_chain(Opt* in)
+{
+    pre_node((Node*) in);
+    pre_statement((Statement*) in);
+    pre_opt((Opt*) in);
+}
+
 void Visitor::pre_int_chain(INT* in)
 {
     pre_node((Node*) in);
     pre_int((INT*) in);
-}
-
-void Visitor::pre_string_chain(STRING* in)
-{
-    pre_node((Node*) in);
-    pre_string((STRING*) in);
 }
 
 void Visitor::pre_uninterpreted_chain(UNINTERPRETED* in)
@@ -869,6 +892,7 @@ void Visitor::pre_zvp_chain(ZVP* in)
     pre_node((Node*) in);
     pre_zvp((Zvp*) in);
     pre_identifier((Identifier*) in);
+    pre_opt_param((Opt_param*) in);
     pre_zvp((ZVP*) in);
 }
 
@@ -877,6 +901,7 @@ void Visitor::pre_zvpp_chain(ZVPP* in)
     pre_node((Node*) in);
     pre_zvpp((Zvpp*) in);
     pre_identifier((Identifier*) in);
+    pre_opt_param((Opt_param*) in);
     pre_zvpp((ZVPP*) in);
 }
 
@@ -893,6 +918,13 @@ void Visitor::pre_symtable_chain(SYMTABLE* in)
     pre_node((Node*) in);
     pre_identifier((Identifier*) in);
     pre_symtable((SYMTABLE*) in);
+}
+
+void Visitor::pre_string_chain(STRING* in)
+{
+    pre_node((Node*) in);
+    pre_identifier((Identifier*) in);
+    pre_string((STRING*) in);
 }
 
 /* Invoke the chain of post-visit methods along the inheritance hierarchy */
@@ -1107,15 +1139,16 @@ void Visitor::post_symtable_insert_chain(Symtable_insert* in)
     post_node((Node*) in);
 }
 
-void Visitor::post_int_chain(INT* in)
+void Visitor::post_opt_chain(Opt* in)
 {
-    post_int((INT*) in);
+    post_opt((Opt*) in);
+    post_statement((Statement*) in);
     post_node((Node*) in);
 }
 
-void Visitor::post_string_chain(STRING* in)
+void Visitor::post_int_chain(INT* in)
 {
-    post_string((STRING*) in);
+    post_int((INT*) in);
     post_node((Node*) in);
 }
 
@@ -1159,6 +1192,7 @@ void Visitor::post_code_chain(CODE* in)
 void Visitor::post_zvp_chain(ZVP* in)
 {
     post_zvp((ZVP*) in);
+    post_opt_param((Opt_param*) in);
     post_identifier((Identifier*) in);
     post_zvp((Zvp*) in);
     post_node((Node*) in);
@@ -1167,6 +1201,7 @@ void Visitor::post_zvp_chain(ZVP* in)
 void Visitor::post_zvpp_chain(ZVPP* in)
 {
     post_zvpp((ZVPP*) in);
+    post_opt_param((Opt_param*) in);
     post_identifier((Identifier*) in);
     post_zvpp((Zvpp*) in);
     post_node((Node*) in);
@@ -1183,6 +1218,13 @@ void Visitor::post_literal_chain(LITERAL* in)
 void Visitor::post_symtable_chain(SYMTABLE* in)
 {
     post_symtable((SYMTABLE*) in);
+    post_identifier((Identifier*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_string_chain(STRING* in)
+{
+    post_string((STRING*) in);
     post_identifier((Identifier*) in);
     post_node((Node*) in);
 }
@@ -1371,6 +1413,18 @@ void Visitor::visit_string(STRING* in)
     }
 }
 
+void Visitor::visit_opt_param(Opt_param* in)
+{
+    if(in == NULL)
+    	visit_null("LIR", "Opt_param");
+    else
+    {
+    	pre_opt_param_chain(in);
+    	children_opt_param(in);
+    	post_opt_param_chain(in);
+    }
+}
+
 void Visitor::visit_c_file(C_file* in)
 {
     if(in == NULL)
@@ -1446,6 +1500,9 @@ void Visitor::pre_statement_chain(Statement* in)
     	break;
     case If::ID:
     	pre_if_chain(dynamic_cast<If*>(in));
+    	break;
+    case Opt::ID:
+    	pre_opt_chain(dynamic_cast<Opt*>(in));
     	break;
     case INTRINSIC::ID:
     	pre_intrinsic_chain(dynamic_cast<INTRINSIC*>(in));
@@ -1525,6 +1582,19 @@ void Visitor::pre_zvpp_chain(Zvpp* in)
     }
 }
 
+void Visitor::pre_opt_param_chain(Opt_param* in)
+{
+    switch(in->classid())
+    {
+    case ZVPP::ID:
+    	pre_zvpp_chain(dynamic_cast<ZVPP*>(in));
+    	break;
+    case ZVP::ID:
+    	pre_zvp_chain(dynamic_cast<ZVP*>(in));
+    	break;
+    }
+}
+
 /* Invoke the right post-chain (manual dispatching) */
 /* Do not override unless you know what you are doing */
 void Visitor::post_piece_chain(Piece* in)
@@ -1588,6 +1658,9 @@ void Visitor::post_statement_chain(Statement* in)
     	break;
     case If::ID:
     	post_if_chain(dynamic_cast<If*>(in));
+    	break;
+    case Opt::ID:
+    	post_opt_chain(dynamic_cast<Opt*>(in));
     	break;
     case INTRINSIC::ID:
     	post_intrinsic_chain(dynamic_cast<INTRINSIC*>(in));
@@ -1667,6 +1740,19 @@ void Visitor::post_zvpp_chain(Zvpp* in)
     }
 }
 
+void Visitor::post_opt_param_chain(Opt_param* in)
+{
+    switch(in->classid())
+    {
+    case ZVPP::ID:
+    	post_zvpp_chain(dynamic_cast<ZVPP*>(in));
+    	break;
+    case ZVP::ID:
+    	post_zvp_chain(dynamic_cast<ZVP*>(in));
+    	break;
+    }
+}
+
 /* Invoke the right visit-children (manual dispatching) */
 /* Do not override unless you know what you are doing */
 void Visitor::children_piece(Piece* in)
@@ -1730,6 +1816,9 @@ void Visitor::children_statement(Statement* in)
     	break;
     case If::ID:
     	children_if(dynamic_cast<If*>(in));
+    	break;
+    case Opt::ID:
+    	children_opt(dynamic_cast<Opt*>(in));
     	break;
     case INTRINSIC::ID:
     	children_intrinsic(dynamic_cast<INTRINSIC*>(in));
@@ -1805,6 +1894,19 @@ void Visitor::children_zvpp(Zvpp* in)
     	break;
     case Null::ID:
     	children_null(dynamic_cast<Null*>(in));
+    	break;
+    }
+}
+
+void Visitor::children_opt_param(Opt_param* in)
+{
+    switch(in->classid())
+    {
+    case ZVPP::ID:
+    	children_zvpp(dynamic_cast<ZVPP*>(in));
+    	break;
+    case ZVP::ID:
+    	children_zvp(dynamic_cast<ZVP*>(in));
     	break;
     }
 }

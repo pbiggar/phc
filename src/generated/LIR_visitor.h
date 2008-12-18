@@ -65,8 +65,9 @@ public:
     virtual void pre_symtable_fetch(Symtable_fetch* in);
     virtual void pre_symtable_insert(Symtable_insert* in);
     virtual void pre_identifier(Identifier* in);
+    virtual void pre_opt(Opt* in);
+    virtual void pre_opt_param(Opt_param* in);
     virtual void pre_int(INT* in);
-    virtual void pre_string(STRING* in);
     virtual void pre_uninterpreted(UNINTERPRETED* in);
     virtual void pre_comment(COMMENT* in);
     virtual void pre_intrinsic(INTRINSIC* in);
@@ -76,6 +77,7 @@ public:
     virtual void pre_zvpp(ZVPP* in);
     virtual void pre_literal(LITERAL* in);
     virtual void pre_symtable(SYMTABLE* in);
+    virtual void pre_string(STRING* in);
 /* Invoked after the children have been visited */
 public:
     virtual void post_node(Node* in);
@@ -114,8 +116,9 @@ public:
     virtual void post_symtable_fetch(Symtable_fetch* in);
     virtual void post_symtable_insert(Symtable_insert* in);
     virtual void post_identifier(Identifier* in);
+    virtual void post_opt(Opt* in);
+    virtual void post_opt_param(Opt_param* in);
     virtual void post_int(INT* in);
-    virtual void post_string(STRING* in);
     virtual void post_uninterpreted(UNINTERPRETED* in);
     virtual void post_comment(COMMENT* in);
     virtual void post_intrinsic(INTRINSIC* in);
@@ -125,6 +128,7 @@ public:
     virtual void post_zvpp(ZVPP* in);
     virtual void post_literal(LITERAL* in);
     virtual void post_symtable(SYMTABLE* in);
+    virtual void post_string(STRING* in);
 /* Visit the children of a node */
 public:
     virtual void children_c_file(C_file* in);
@@ -155,10 +159,10 @@ public:
     virtual void children_clone(Clone* in);
     virtual void children_symtable_fetch(Symtable_fetch* in);
     virtual void children_symtable_insert(Symtable_insert* in);
+    virtual void children_opt(Opt* in);
 /* Tokens don't have children, so these methods do nothing by default */
 public:
     virtual void children_int(INT* in);
-    virtual void children_string(STRING* in);
     virtual void children_uninterpreted(UNINTERPRETED* in);
     virtual void children_comment(COMMENT* in);
     virtual void children_intrinsic(INTRINSIC* in);
@@ -168,6 +172,7 @@ public:
     virtual void children_zvpp(ZVPP* in);
     virtual void children_literal(LITERAL* in);
     virtual void children_symtable(SYMTABLE* in);
+    virtual void children_string(STRING* in);
 /* Unparser support */
 public:
     virtual void visit_marker(char const* name, bool value);
@@ -206,8 +211,8 @@ public:
     virtual void pre_clone_chain(Clone* in);
     virtual void pre_symtable_fetch_chain(Symtable_fetch* in);
     virtual void pre_symtable_insert_chain(Symtable_insert* in);
+    virtual void pre_opt_chain(Opt* in);
     virtual void pre_int_chain(INT* in);
-    virtual void pre_string_chain(STRING* in);
     virtual void pre_uninterpreted_chain(UNINTERPRETED* in);
     virtual void pre_comment_chain(COMMENT* in);
     virtual void pre_intrinsic_chain(INTRINSIC* in);
@@ -217,6 +222,7 @@ public:
     virtual void pre_zvpp_chain(ZVPP* in);
     virtual void pre_literal_chain(LITERAL* in);
     virtual void pre_symtable_chain(SYMTABLE* in);
+    virtual void pre_string_chain(STRING* in);
 /* Invoke the chain of post-visit methods along the inheritance hierarchy */
 /* (invoked in opposite order to the pre-chain) */
 /* Do not override unless you know what you are doing */
@@ -249,8 +255,8 @@ public:
     virtual void post_clone_chain(Clone* in);
     virtual void post_symtable_fetch_chain(Symtable_fetch* in);
     virtual void post_symtable_insert_chain(Symtable_insert* in);
+    virtual void post_opt_chain(Opt* in);
     virtual void post_int_chain(INT* in);
-    virtual void post_string_chain(STRING* in);
     virtual void post_uninterpreted_chain(UNINTERPRETED* in);
     virtual void post_comment_chain(COMMENT* in);
     virtual void post_intrinsic_chain(INTRINSIC* in);
@@ -260,6 +266,7 @@ public:
     virtual void post_zvpp_chain(ZVPP* in);
     virtual void post_literal_chain(LITERAL* in);
     virtual void post_symtable_chain(SYMTABLE* in);
+    virtual void post_string_chain(STRING* in);
 /* Call the pre-chain, visit children and post-chain in order */
 /* Do not override unless you know what you are doing */
 public:
@@ -277,6 +284,7 @@ public:
     virtual void visit_int(INT* in);
     virtual void visit_symtable(SYMTABLE* in);
     virtual void visit_string(STRING* in);
+    virtual void visit_opt_param(Opt_param* in);
     virtual void visit_c_file(C_file* in);
 /* Invoke the right pre-chain (manual dispatching) */
 /* Do not override unless you know what you are doing */
@@ -286,6 +294,7 @@ public:
     virtual void pre_cond_chain(Cond* in);
     virtual void pre_zvp_chain(Zvp* in);
     virtual void pre_zvpp_chain(Zvpp* in);
+    virtual void pre_opt_param_chain(Opt_param* in);
 /* Invoke the right post-chain (manual dispatching) */
 /* Do not override unless you know what you are doing */
 public:
@@ -294,6 +303,7 @@ public:
     virtual void post_cond_chain(Cond* in);
     virtual void post_zvp_chain(Zvp* in);
     virtual void post_zvpp_chain(Zvpp* in);
+    virtual void post_opt_param_chain(Opt_param* in);
 /* Invoke the right visit-children (manual dispatching) */
 /* Do not override unless you know what you are doing */
 public:
@@ -302,6 +312,7 @@ public:
     virtual void children_cond(Cond* in);
     virtual void children_zvp(Zvp* in);
     virtual void children_zvpp(Zvpp* in);
+    virtual void children_opt_param(Opt_param* in);
 };
 }
 

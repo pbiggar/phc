@@ -197,6 +197,10 @@ Identifier::Identifier()
 {
 }
 
+Opt_param::Opt_param()
+{
+}
+
 INT::INT(long value)
 {
     this->value = value;
@@ -300,94 +304,6 @@ bool INT::is_valid()
     {
 		return (value == 0 || value == 1);
 	}
-}
-
-STRING::STRING(String* value)
-{
-    this->value = value;
-}
-
-STRING::STRING()
-{
-    this->value = 0;
-}
-
-void STRING::visit(Visitor* visitor)
-{
-    visitor->visit_string(this);
-}
-
-void STRING::transform_children(Transform* transform)
-{
-    transform->children_string(this);
-}
-
-String* STRING::get_value_as_string()
-{
-    return value;
-}
-
-int STRING::classid()
-{
-    return ID;
-}
-
-bool STRING::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    STRING* that = dynamic_cast<STRING*>(in);
-    if(that == NULL) return false;
-    
-    if(this->value != NULL && that->value != NULL)
-    	return (*this->value == *that->value);
-    else
-    	return true;
-}
-
-bool STRING::equals(Node* in)
-{
-    STRING* that = dynamic_cast<STRING*>(in);
-    if(that == NULL) return false;
-    
-    if(this->value == NULL || that->value == NULL)
-    {
-    	if(this->value != NULL || that->value != NULL)
-    		return false;
-    }
-    else if(*this->value != *that->value)
-    	return false;
-    
-    return true;
-}
-
-STRING* STRING::clone()
-{
-    String* value = new String(*this->value);
-    STRING* clone = new STRING(value);
-    return clone;
-}
-
-Node* STRING::find(Node* in)
-{
-    if (this->match (in))
-    	return this;
-    
-    return NULL;
-}
-
-void STRING::find_all(Node* in, Node_list* out)
-{
-    if (this->match (in))
-    	out->push_back (this);
-}
-
-void STRING::assert_valid()
-{
-    assert(value != NULL);
 }
 
 Method::Method(COMMENT* comment, UNINTERPRETED* entry, Piece_list* pieces, UNINTERPRETED* exit)
@@ -2220,6 +2136,135 @@ void Clone::assert_valid()
     zvp->assert_valid();
 }
 
+Opt::Opt(Opt_param* param, STRING* value)
+{
+    this->param = param;
+    this->value = value;
+}
+
+Opt::Opt()
+{
+    this->param = 0;
+    this->value = 0;
+}
+
+void Opt::visit(Visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void Opt::transform_children(Transform* transform)
+{
+    transform->children_statement(this);
+}
+
+int Opt::classid()
+{
+    return ID;
+}
+
+bool Opt::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Opt* that = dynamic_cast<Opt*>(in);
+    if(that == NULL) return false;
+    
+    if(this->param == NULL)
+    {
+    	if(that->param != NULL && !that->param->match(this->param))
+    		return false;
+    }
+    else if(!this->param->match(that->param))
+    	return false;
+    
+    if(this->value == NULL)
+    {
+    	if(that->value != NULL && !that->value->match(this->value))
+    		return false;
+    }
+    else if(!this->value->match(that->value))
+    	return false;
+    
+    return true;
+}
+
+bool Opt::equals(Node* in)
+{
+    Opt* that = dynamic_cast<Opt*>(in);
+    if(that == NULL) return false;
+    
+    if(this->param == NULL || that->param == NULL)
+    {
+    	if(this->param != NULL || that->param != NULL)
+    		return false;
+    }
+    else if(!this->param->equals(that->param))
+    	return false;
+    
+    if(this->value == NULL || that->value == NULL)
+    {
+    	if(this->value != NULL || that->value != NULL)
+    		return false;
+    }
+    else if(!this->value->equals(that->value))
+    	return false;
+    
+    return true;
+}
+
+Opt* Opt::clone()
+{
+    Opt_param* param = this->param ? this->param->clone() : NULL;
+    STRING* value = this->value ? this->value->clone() : NULL;
+    Opt* clone = new Opt(param, value);
+    return clone;
+}
+
+Node* Opt::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    if (this->param != NULL)
+    {
+    	Node* param_res = this->param->find(in);
+    	if (param_res) return param_res;
+    }
+    
+    if (this->value != NULL)
+    {
+    	Node* value_res = this->value->find(in);
+    	if (value_res) return value_res;
+    }
+    
+    return NULL;
+}
+
+void Opt::find_all(Node* in, Node_list* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+    
+    if (this->param != NULL)
+    	this->param->find_all(in, out);
+    
+    if (this->value != NULL)
+    	this->value->find_all(in, out);
+    
+}
+
+void Opt::assert_valid()
+{
+    assert(param != NULL);
+    param->assert_valid();
+    assert(value != NULL);
+    value->assert_valid();
+}
+
 UNINTERPRETED::UNINTERPRETED(String* value)
 {
     this->value = value;
@@ -3029,6 +3074,94 @@ void SYMTABLE::find_all(Node* in, Node_list* out)
 }
 
 void SYMTABLE::assert_valid()
+{
+    assert(value != NULL);
+}
+
+STRING::STRING(String* value)
+{
+    this->value = value;
+}
+
+STRING::STRING()
+{
+    this->value = 0;
+}
+
+void STRING::visit(Visitor* visitor)
+{
+    visitor->visit_string(this);
+}
+
+void STRING::transform_children(Transform* transform)
+{
+    transform->children_string(this);
+}
+
+String* STRING::get_value_as_string()
+{
+    return value;
+}
+
+int STRING::classid()
+{
+    return ID;
+}
+
+bool STRING::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    STRING* that = dynamic_cast<STRING*>(in);
+    if(that == NULL) return false;
+    
+    if(this->value != NULL && that->value != NULL)
+    	return (*this->value == *that->value);
+    else
+    	return true;
+}
+
+bool STRING::equals(Node* in)
+{
+    STRING* that = dynamic_cast<STRING*>(in);
+    if(that == NULL) return false;
+    
+    if(this->value == NULL || that->value == NULL)
+    {
+    	if(this->value != NULL || that->value != NULL)
+    		return false;
+    }
+    else if(*this->value != *that->value)
+    	return false;
+    
+    return true;
+}
+
+STRING* STRING::clone()
+{
+    String* value = new String(*this->value);
+    STRING* clone = new STRING(value);
+    return clone;
+}
+
+Node* STRING::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    return NULL;
+}
+
+void STRING::find_all(Node* in, Node_list* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+}
+
+void STRING::assert_valid()
 {
     assert(value != NULL);
 }

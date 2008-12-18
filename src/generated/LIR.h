@@ -29,8 +29,8 @@ class Cond;
 class Zvp;
 class Zvpp;
 class Identifier;
+class Opt_param;
 class INT;
-class STRING;
 class Method;
 class Block;
 class Action;
@@ -46,6 +46,7 @@ class Null;
 class Deref;
 class Ref;
 class Clone;
+class Opt;
 class UNINTERPRETED;
 class COMMENT;
 class INTRINSIC;
@@ -55,6 +56,7 @@ class ZVP;
 class ZVPP;
 class LITERAL;
 class SYMTABLE;
+class STRING;
 class Assign_zvp;
 class Assign_zvpp;
 class Declare;
@@ -78,8 +80,8 @@ typedef List<Cond*> Cond_list;
 typedef List<Zvp*> Zvp_list;
 typedef List<Zvpp*> Zvpp_list;
 typedef List<Identifier*> Identifier_list;
+typedef List<Opt_param*> Opt_param_list;
 typedef List<INT*> INT_list;
-typedef List<STRING*> STRING_list;
 typedef List<Method*> Method_list;
 typedef List<Block*> Block_list;
 typedef List<Action*> Action_list;
@@ -95,6 +97,7 @@ typedef List<Null*> Null_list;
 typedef List<Deref*> Deref_list;
 typedef List<Ref*> Ref_list;
 typedef List<Clone*> Clone_list;
+typedef List<Opt*> Opt_list;
 typedef List<UNINTERPRETED*> UNINTERPRETED_list;
 typedef List<COMMENT*> COMMENT_list;
 typedef List<INTRINSIC*> INTRINSIC_list;
@@ -104,6 +107,7 @@ typedef List<ZVP*> ZVP_list;
 typedef List<ZVPP*> ZVPP_list;
 typedef List<LITERAL*> LITERAL_list;
 typedef List<SYMTABLE*> SYMTABLE_list;
+typedef List<STRING*> STRING_list;
 typedef List<Assign_zvp*> Assign_zvp_list;
 typedef List<Assign_zvpp*> Assign_zvpp_list;
 typedef List<Declare*> Declare_list;
@@ -122,7 +126,7 @@ typedef List<None*> None_list;
 class Transform;
 class Visitor;
 
-/* Node ::= C_file | Piece | Statement | Cond | Zvp | Zvpp | Identifier | INT<long> | STRING; */
+/* Node ::= C_file | Piece | Statement | Cond | Zvp | Zvpp | Identifier | Opt_param | INT<long>; */
 class Node : virtual public IR::Node
 {
 public:
@@ -199,7 +203,7 @@ public:
     virtual void assert_valid() = 0;
 };
 
-/* Statement ::= Action | If | INTRINSIC | API_CALL | CODE; */
+/* Statement ::= Action | If | Opt | INTRINSIC | API_CALL | CODE; */
 class Statement : virtual public Node
 {
 public:
@@ -295,7 +299,7 @@ public:
     virtual void assert_valid() = 0;
 };
 
-/* Identifier ::= ZVPP | ZVP | SYMTABLE | LITERAL | UNINTERPRETED | COMMENT | CODE; */
+/* Identifier ::= ZVPP | ZVP | SYMTABLE | LITERAL | UNINTERPRETED | COMMENT | CODE | STRING; */
 class Identifier : virtual public Node
 {
 public:
@@ -321,6 +325,30 @@ public:
     virtual String* get_value_as_string() = 0;
 };
 
+/* Opt_param ::= ZVPP | ZVP; */
+class Opt_param : virtual public Node
+{
+public:
+    Opt_param();
+public:
+    virtual void visit(Visitor* visitor) = 0;
+    virtual void transform_children(Transform* transform) = 0;
+public:
+    virtual int classid() = 0;
+public:
+    virtual bool match(Node* in) = 0;
+public:
+    virtual bool equals(Node* in) = 0;
+public:
+    virtual Opt_param* clone() = 0;
+public:
+    virtual Node* find(Node* in) = 0;
+public:
+    virtual void find_all(Node* in, Node_list* out) = 0;
+public:
+    virtual void assert_valid() = 0;
+};
+
 class INT : virtual public Node
 {
 public:
@@ -333,7 +361,7 @@ public:
 public:
     long value;
 public:
-    static const int ID = 29;
+    static const int ID = 30;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -353,35 +381,6 @@ public:
     virtual void assert_value_valid();
 public:
     bool is_valid();
-};
-
-class STRING : virtual public Node
-{
-public:
-    STRING(String* value);
-protected:
-    STRING();
-public:
-    virtual void visit(Visitor* visitor);
-    virtual void transform_children(Transform* transform);
-public:
-    String* value;
-    virtual String* get_value_as_string();
-public:
-    static const int ID = 30;
-    virtual int classid();
-public:
-    virtual bool match(Node* in);
-public:
-    virtual bool equals(Node* in);
-public:
-    virtual STRING* clone();
-public:
-    virtual Node* find(Node* in);
-public:
-    virtual void find_all(Node* in, Node_list* out);
-public:
-    virtual void assert_valid();
 };
 
 /* Method ::= COMMENT entry:UNINTERPRETED Piece* exit:UNINTERPRETED ; */
@@ -816,6 +815,36 @@ public:
     virtual void assert_valid();
 };
 
+/* Opt ::= param:Opt_param value:STRING ; */
+class Opt : virtual public Statement
+{
+public:
+    Opt(Opt_param* param, STRING* value);
+protected:
+    Opt();
+public:
+    Opt_param* param;
+    STRING* value;
+public:
+    virtual void visit(Visitor* visitor);
+    virtual void transform_children(Transform* transform);
+public:
+    static const int ID = 29;
+    virtual int classid();
+public:
+    virtual bool match(Node* in);
+public:
+    virtual bool equals(Node* in);
+public:
+    virtual Opt* clone();
+public:
+    virtual Node* find(Node* in);
+public:
+    virtual void find_all(Node* in, Node_list* out);
+public:
+    virtual void assert_valid();
+};
+
 class UNINTERPRETED : virtual public Piece, virtual public Identifier
 {
 public:
@@ -963,7 +992,7 @@ public:
     CODE(string value);
 };
 
-class ZVP : virtual public Zvp, virtual public Identifier
+class ZVP : virtual public Zvp, virtual public Identifier, virtual public Opt_param
 {
 public:
     ZVP(String* value);
@@ -994,7 +1023,7 @@ public:
     ZVP(string value);
 };
 
-class ZVPP : virtual public Zvpp, virtual public Identifier
+class ZVPP : virtual public Zvpp, virtual public Identifier, virtual public Opt_param
 {
 public:
     ZVPP(String* value);
@@ -1075,6 +1104,35 @@ public:
     virtual bool equals(Node* in);
 public:
     virtual SYMTABLE* clone();
+public:
+    virtual Node* find(Node* in);
+public:
+    virtual void find_all(Node* in, Node_list* out);
+public:
+    virtual void assert_valid();
+};
+
+class STRING : virtual public Identifier
+{
+public:
+    STRING(String* value);
+protected:
+    STRING();
+public:
+    virtual void visit(Visitor* visitor);
+    virtual void transform_children(Transform* transform);
+public:
+    String* value;
+    virtual String* get_value_as_string();
+public:
+    static const int ID = 40;
+    virtual int classid();
+public:
+    virtual bool match(Node* in);
+public:
+    virtual bool equals(Node* in);
+public:
+    virtual STRING* clone();
 public:
     virtual Node* find(Node* in);
 public:
@@ -1469,7 +1527,7 @@ public:
 };
 
 /* The top of the class hierarchy. If the Fold will not allow you fold to anything else, try this. */
-class None : virtual public Node, virtual public C_file, virtual public Piece, virtual public Method, virtual public Block, virtual public Statement, virtual public Action, virtual public If, virtual public Cond, virtual public Assign_zvp, virtual public Assign_zvpp, virtual public Declare, virtual public Declare_p, virtual public Inc_ref, virtual public Allocate, virtual public Separate, virtual public Set_is_ref, virtual public Dec_ref, virtual public Destruct, virtual public Overwrite, virtual public Is_ref, virtual public Equals, virtual public Equals_p, virtual public Not, virtual public Is_change_on_write, virtual public Is_copy_on_write, virtual public Zvp, virtual public Zvpp, virtual public Uninit, virtual public Null, virtual public Deref, virtual public Ref, virtual public Clone, virtual public Symtable_fetch, virtual public Symtable_insert, virtual public Identifier, virtual public INT, virtual public STRING, virtual public UNINTERPRETED, virtual public COMMENT, virtual public INTRINSIC, virtual public API_CALL, virtual public CODE, virtual public ZVP, virtual public ZVPP, virtual public LITERAL, virtual public SYMTABLE
+class None : virtual public Node, virtual public C_file, virtual public Piece, virtual public Method, virtual public Block, virtual public Statement, virtual public Action, virtual public If, virtual public Cond, virtual public Assign_zvp, virtual public Assign_zvpp, virtual public Declare, virtual public Declare_p, virtual public Inc_ref, virtual public Allocate, virtual public Separate, virtual public Set_is_ref, virtual public Dec_ref, virtual public Destruct, virtual public Overwrite, virtual public Is_ref, virtual public Equals, virtual public Equals_p, virtual public Not, virtual public Is_change_on_write, virtual public Is_copy_on_write, virtual public Zvp, virtual public Zvpp, virtual public Uninit, virtual public Null, virtual public Deref, virtual public Ref, virtual public Clone, virtual public Symtable_fetch, virtual public Symtable_insert, virtual public Identifier, virtual public Opt, virtual public Opt_param, virtual public INT, virtual public UNINTERPRETED, virtual public COMMENT, virtual public INTRINSIC, virtual public API_CALL, virtual public CODE, virtual public ZVP, virtual public ZVPP, virtual public LITERAL, virtual public SYMTABLE, virtual public STRING
 {
 public:
     None();
@@ -1568,7 +1626,7 @@ public:
 		assert (0); // I'm not sure what this would mean
 	}
 public:
-	static const int ID = 41;
+	static const int ID = 42;
 	int classid()
 	{
 		return ID;
