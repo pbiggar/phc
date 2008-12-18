@@ -262,21 +262,39 @@ string get_st_entry (Scope scope, string zvp, VARIABLE_NAME* var_name)
 	return ss.str();
 }
 
+#define READ(STR, PARAMS) str(format(templ(STR)) % PARAMS)
+
 string get_st_entry_lir (Scope scope, string zvp, VARIABLE_NAME* var_name)
 {
+	stringstream ss;
 	if (scope == LOCAL && var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
 	{
-		return str(format (templ ("get_st_entry_lir_st_entry_not_required"))
-			% get_non_st_name (var_name) 
-			% zvp);
+		if (var_name->attrs->is_true ("phc.optimize.is_initialized"))
+			ss << READ ("get_st_entry_lir_st_entry_not_required_is_init",
+					get_non_st_name (var_name));
+
+		if (var_name->attrs->is_true ("phc.optimize.is_uninitialized"))
+			ss << READ ("get_st_entry_lir_st_entry_not_required_is_uninit",
+					get_non_st_name (var_name));
+
+		ss << READ ("get_st_entry_lir_st_entry_not_required",
+				get_non_st_name (var_name) % zvp);
 	}
 	else
 	{
-		return str(format (templ ("get_st_entry_lir_else"))
-			% get_scope_lir (LOCAL)
-			% *var_name->value
-			% zvp);
+		if (var_name->attrs->is_true ("phc.optimize.is_initialized"))
+			ss << READ ("get_st_entry_lir_else_is_init",
+					get_non_st_name (var_name));
+
+		if (var_name->attrs->is_true ("phc.optimize.is_uninitialized"))
+			ss << READ ("get_st_entry_lir_else_is_uninit",
+					get_non_st_name (var_name));
+
+
+		ss << READ ("get_st_entry_lir_else",
+				get_scope_lir (LOCAL) % *var_name->value % zvp);
 	}
+	return ss.str();
 }
 
 // Declare and fetch a zval** into ZVP, which is the hash-table entry for
@@ -759,12 +777,6 @@ public:
 
 		if (!agn->is_ref)
 		{
-			if (lhs->value->attrs->is_true ("phc.optimize.is_initialized"))
-			{
-				LDSL ("["
-				<< "(opt (ZVPP lhs) (STRING init)) "
-				<< "(opt (ZVP " << get_non_st_name (lhs->value)<< ") (STRING init)) ]");
-			}
 			if (lhs->value->attrs->is_true ("phc.optimize.is_uninitialized"))
 				DSL ((opt (ZVPP lhs) (STRING uninit)));
 			if (rhs->value->attrs->is_true ("phc.optimize.is_initialized"))

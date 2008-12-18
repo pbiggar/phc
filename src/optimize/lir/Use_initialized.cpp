@@ -54,13 +54,13 @@ Use_initialized::pre_opt (Opt* in, Statement_list* out)
 		if (ZVP* zvp = dynamic_cast<ZVP*> (in->param))
 		{
 			DEBUG ("zvp " << *zvp->value << " is uninit");
-			init_zvps.insert (*zvp->value);
+			uninit_zvps.insert (*zvp->value);
 		}
 
 		if (ZVPP* zvpp = dynamic_cast<ZVPP*> (in->param))
 		{
 			DEBUG ("zvpp " << *zvpp->value << " is uninit");
-			init_zvpps.insert (*zvpp->value);
+			uninit_zvpps.insert (*zvpp->value);
 		}
 	}
 }
@@ -80,8 +80,12 @@ Use_initialized::pre_if(If* in, Statement_list* out)
 			out->push_back_all (in->iffalse);
 			return;
 		}
-//		else if opt_info[zvpp->varaible_name] == is_uninit
-//			return iftrue;
+
+		if (uninit_zvps.has (*zvp.value->value))
+		{
+			out->push_back_all (in->iftrue);
+			return;
+		}
 	}
 
 		// If we know a variable is not initialized, remove the is_ref check.
