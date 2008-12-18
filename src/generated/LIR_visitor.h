@@ -55,6 +55,8 @@ public:
     virtual void pre_not(Not* in);
     virtual void pre_is_change_on_write(Is_change_on_write* in);
     virtual void pre_is_copy_on_write(Is_copy_on_write* in);
+    virtual void pre_true(True* in);
+    virtual void pre_false(False* in);
     virtual void pre_zvp(Zvp* in);
     virtual void pre_zvpp(Zvpp* in);
     virtual void pre_uninit(Uninit* in);
@@ -106,6 +108,8 @@ public:
     virtual void post_not(Not* in);
     virtual void post_is_change_on_write(Is_change_on_write* in);
     virtual void post_is_copy_on_write(Is_copy_on_write* in);
+    virtual void post_true(True* in);
+    virtual void post_false(False* in);
     virtual void post_zvp(Zvp* in);
     virtual void post_zvpp(Zvpp* in);
     virtual void post_uninit(Uninit* in);
@@ -152,6 +156,8 @@ public:
     virtual void children_not(Not* in);
     virtual void children_is_change_on_write(Is_change_on_write* in);
     virtual void children_is_copy_on_write(Is_copy_on_write* in);
+    virtual void children_true(True* in);
+    virtual void children_false(False* in);
     virtual void children_uninit(Uninit* in);
     virtual void children_null(Null* in);
     virtual void children_deref(Deref* in);
@@ -204,6 +210,8 @@ public:
     virtual void pre_not_chain(Not* in);
     virtual void pre_is_change_on_write_chain(Is_change_on_write* in);
     virtual void pre_is_copy_on_write_chain(Is_copy_on_write* in);
+    virtual void pre_true_chain(True* in);
+    virtual void pre_false_chain(False* in);
     virtual void pre_uninit_chain(Uninit* in);
     virtual void pre_null_chain(Null* in);
     virtual void pre_deref_chain(Deref* in);
@@ -248,6 +256,8 @@ public:
     virtual void post_not_chain(Not* in);
     virtual void post_is_change_on_write_chain(Is_change_on_write* in);
     virtual void post_is_copy_on_write_chain(Is_copy_on_write* in);
+    virtual void post_true_chain(True* in);
+    virtual void post_false_chain(False* in);
     virtual void post_uninit_chain(Uninit* in);
     virtual void post_null_chain(Null* in);
     virtual void post_deref_chain(Deref* in);

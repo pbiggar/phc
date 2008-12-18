@@ -1709,6 +1709,136 @@ void Is_copy_on_write::assert_valid()
     zvp->assert_valid();
 }
 
+True::True()
+{
+}
+
+void True::visit(Visitor* visitor)
+{
+    visitor->visit_cond(this);
+}
+
+void True::transform_children(Transform* transform)
+{
+    transform->children_cond(this);
+}
+
+int True::classid()
+{
+    return ID;
+}
+
+bool True::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    True* that = dynamic_cast<True*>(in);
+    if(that == NULL) return false;
+    
+    return true;
+}
+
+bool True::equals(Node* in)
+{
+    True* that = dynamic_cast<True*>(in);
+    if(that == NULL) return false;
+    
+    return true;
+}
+
+True* True::clone()
+{
+    True* clone = new True();
+    return clone;
+}
+
+Node* True::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    return NULL;
+}
+
+void True::find_all(Node* in, Node_list* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+    
+}
+
+void True::assert_valid()
+{
+}
+
+False::False()
+{
+}
+
+void False::visit(Visitor* visitor)
+{
+    visitor->visit_cond(this);
+}
+
+void False::transform_children(Transform* transform)
+{
+    transform->children_cond(this);
+}
+
+int False::classid()
+{
+    return ID;
+}
+
+bool False::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    False* that = dynamic_cast<False*>(in);
+    if(that == NULL) return false;
+    
+    return true;
+}
+
+bool False::equals(Node* in)
+{
+    False* that = dynamic_cast<False*>(in);
+    if(that == NULL) return false;
+    
+    return true;
+}
+
+False* False::clone()
+{
+    False* clone = new False();
+    return clone;
+}
+
+Node* False::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    return NULL;
+}
+
+void False::find_all(Node* in, Node_list* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+    
+}
+
+void False::assert_valid()
+{
+}
+
 Uninit::Uninit()
 {
 }

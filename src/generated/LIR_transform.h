@@ -50,6 +50,8 @@ public:
     virtual Cond* pre_not(Not* in);
     virtual Cond* pre_is_change_on_write(Is_change_on_write* in);
     virtual Cond* pre_is_copy_on_write(Is_copy_on_write* in);
+    virtual Cond* pre_true(True* in);
+    virtual Cond* pre_false(False* in);
     virtual Zvp* pre_uninit(Uninit* in);
     virtual Null* pre_null(Null* in);
     virtual Zvp* pre_deref(Deref* in);
@@ -92,6 +94,8 @@ public:
     virtual Cond* post_not(Not* in);
     virtual Cond* post_is_change_on_write(Is_change_on_write* in);
     virtual Cond* post_is_copy_on_write(Is_copy_on_write* in);
+    virtual Cond* post_true(True* in);
+    virtual Cond* post_false(False* in);
     virtual Zvp* post_uninit(Uninit* in);
     virtual Null* post_null(Null* in);
     virtual Zvp* post_deref(Deref* in);
@@ -134,6 +138,8 @@ public:
     virtual void children_not(Not* in);
     virtual void children_is_change_on_write(Is_change_on_write* in);
     virtual void children_is_copy_on_write(Is_copy_on_write* in);
+    virtual void children_true(True* in);
+    virtual void children_false(False* in);
     virtual void children_uninit(Uninit* in);
     virtual void children_null(Null* in);
     virtual void children_deref(Deref* in);

@@ -26,6 +26,8 @@ class Equals_p;
 class Not;
 class Is_change_on_write;
 class Is_copy_on_write;
+class True;
+class False;
 class Uninit;
 class Null;
 class Deref;
@@ -79,6 +81,8 @@ MAKETEA_USER_DEFINED(LIR::Equals_p)
 MAKETEA_USER_DEFINED(LIR::Not)
 MAKETEA_USER_DEFINED(LIR::Is_change_on_write)
 MAKETEA_USER_DEFINED(LIR::Is_copy_on_write)
+MAKETEA_USER_DEFINED(LIR::True)
+MAKETEA_USER_DEFINED(LIR::False)
 MAKETEA_USER_DEFINED(LIR::Uninit)
 MAKETEA_USER_DEFINED(LIR::Null)
 MAKETEA_USER_DEFINED(LIR::Deref)

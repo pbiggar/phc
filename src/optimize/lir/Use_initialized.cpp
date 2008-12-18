@@ -51,8 +51,9 @@ Use_initialized::pre_opt (Opt* in, Statement_list* out)
 }
 
 
-void
-Use_initialized::pre_if(If* in, Statement_list* out)
+
+Cond*
+Use_initialized::post_cond (Cond* in)
 {
 	Wildcard<ZVP> zvp;
 	Wildcard<ZVPP> zvpp;
@@ -60,18 +61,16 @@ Use_initialized::pre_if(If* in, Statement_list* out)
 	// If we know a variable is initialized, remove the equals NULL check.
 	// If we know a variable is not initialized, remove the equals NULL
 	// check.
-	if (in->cond->match (new Equals (&zvp, new Null)))
+	if (in->match (new Equals (&zvp, new Null)))
 	{
 		if (zvp_map[IS_INIT].has (*zvp.value->value))
 		{
-			out->push_back_all (in->iffalse);
-			return;
+			return new False;
 		}
 
 		if (zvp_map[IS_UNINIT].has (*zvp.value->value))
 		{
-			out->push_back_all (in->iftrue);
-			return;
+			return new True;
 		}
 	}
 
@@ -79,17 +78,36 @@ Use_initialized::pre_if(If* in, Statement_list* out)
 
 
 	// If we know a variable is not initialized, it cannot be by reference.
-	if (in->cond->match (new Is_ref (&zvp)))
+	if (in->match (new Is_ref (&zvp)))
 	{
 		if (zvp_map[IS_UNINIT].has (*zvp.value->value))
 		{
-			out->push_back_all (in->iffalse);
-			return;
+			return new False;
 		}
 	}
 
-	out->push_back (in);
 
+	// Handle Not
+	if (Not* n = dynamic_cast<Not*> (in))
+	{
+		if (isa<True> (n->cond))
+			return new False;
+		else if (isa<False> (n->cond))
+			return new True;
+	}
+
+	return in;
+}
+
+void
+Use_initialized::post_if (If* in, Statement_list* out)
+{
+	if (isa<True> (in->cond))
+		out->push_back_all (in->iftrue);
+	else if (isa<False> (in->cond))
+		out->push_back_all (in->iffalse);
+	else
+		out->push_back (in);
 }
 
 

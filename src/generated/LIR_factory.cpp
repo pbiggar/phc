@@ -154,6 +154,16 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Is_copy_on_write(zvp);
     }
+    if(!strcmp(type_id, "True"))
+    {
+    	assert(i == args->end());
+    	return new True();
+    }
+    if(!strcmp(type_id, "False"))
+    {
+    	assert(i == args->end());
+    	return new False();
+    }
     if(!strcmp(type_id, "Uninit"))
     {
     	assert(i == args->end());

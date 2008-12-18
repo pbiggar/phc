@@ -110,6 +110,14 @@ void Visitor::pre_is_copy_on_write(Is_copy_on_write* in)
 {
 }
 
+void Visitor::pre_true(True* in)
+{
+}
+
+void Visitor::pre_false(False* in)
+{
+}
+
 void Visitor::pre_zvp(Zvp* in)
 {
 }
@@ -304,6 +312,14 @@ void Visitor::post_is_change_on_write(Is_change_on_write* in)
 }
 
 void Visitor::post_is_copy_on_write(Is_copy_on_write* in)
+{
+}
+
+void Visitor::post_true(True* in)
+{
+}
+
+void Visitor::post_false(False* in)
 {
 }
 
@@ -515,6 +531,14 @@ void Visitor::children_is_change_on_write(Is_change_on_write* in)
 void Visitor::children_is_copy_on_write(Is_copy_on_write* in)
 {
     visit_zvp(in->zvp);
+}
+
+void Visitor::children_true(True* in)
+{
+}
+
+void Visitor::children_false(False* in)
+{
 }
 
 void Visitor::children_uninit(Uninit* in)
@@ -783,6 +807,20 @@ void Visitor::pre_is_copy_on_write_chain(Is_copy_on_write* in)
     pre_node((Node*) in);
     pre_cond((Cond*) in);
     pre_is_copy_on_write((Is_copy_on_write*) in);
+}
+
+void Visitor::pre_true_chain(True* in)
+{
+    pre_node((Node*) in);
+    pre_cond((Cond*) in);
+    pre_true((True*) in);
+}
+
+void Visitor::pre_false_chain(False* in)
+{
+    pre_node((Node*) in);
+    pre_cond((Cond*) in);
+    pre_false((False*) in);
 }
 
 void Visitor::pre_uninit_chain(Uninit* in)
@@ -1083,6 +1121,20 @@ void Visitor::post_is_change_on_write_chain(Is_change_on_write* in)
 void Visitor::post_is_copy_on_write_chain(Is_copy_on_write* in)
 {
     post_is_copy_on_write((Is_copy_on_write*) in);
+    post_cond((Cond*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_true_chain(True* in)
+{
+    post_true((True*) in);
+    post_cond((Cond*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_false_chain(False* in)
+{
+    post_false((False*) in);
     post_cond((Cond*) in);
     post_node((Node*) in);
 }
@@ -1538,6 +1590,12 @@ void Visitor::pre_cond_chain(Cond* in)
     case Is_change_on_write::ID:
     	pre_is_change_on_write_chain(dynamic_cast<Is_change_on_write*>(in));
     	break;
+    case True::ID:
+    	pre_true_chain(dynamic_cast<True*>(in));
+    	break;
+    case False::ID:
+    	pre_false_chain(dynamic_cast<False*>(in));
+    	break;
     }
 }
 
@@ -1696,6 +1754,12 @@ void Visitor::post_cond_chain(Cond* in)
     case Is_change_on_write::ID:
     	post_is_change_on_write_chain(dynamic_cast<Is_change_on_write*>(in));
     	break;
+    case True::ID:
+    	post_true_chain(dynamic_cast<True*>(in));
+    	break;
+    case False::ID:
+    	post_false_chain(dynamic_cast<False*>(in));
+    	break;
     }
 }
 
@@ -1853,6 +1917,12 @@ void Visitor::children_cond(Cond* in)
     	break;
     case Is_change_on_write::ID:
     	children_is_change_on_write(dynamic_cast<Is_change_on_write*>(in));
+    	break;
+    case True::ID:
+    	children_true(dynamic_cast<True*>(in));
+    	break;
+    case False::ID:
+    	children_false(dynamic_cast<False*>(in));
     	break;
     }
 }
