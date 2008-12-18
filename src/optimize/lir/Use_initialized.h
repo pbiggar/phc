@@ -13,10 +13,9 @@
 
 class Use_initialized : public LIR::Transform
 {
-	Set<string> init_zvps;
-	Set<string> init_zvpps;
-	Set<string> uninit_zvps;
-	Set<string> uninit_zvpps;
+	Map<string, Set<string> > zvp_map;
+	Map<string, Set<string> > zvpp_map;
+
 	void pre_block (LIR::Block* in, LIR::Piece_list* out);
 	void pre_if (LIR::If* in, LIR::Statement_list* out);
 	void pre_opt (LIR::Opt* in, LIR::Statement_list* out);

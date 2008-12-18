@@ -14,17 +14,21 @@
 using namespace LIR;
 using namespace std;
 
+#define IS_INIT "is_initialized"
+#define IS_UNINIT "is_uninitialized"
+
 void
 Use_initialized::pre_block(Block* in, Piece_list* out)
 {
 	out->push_back (in);
+	char* attrs[] = {IS_INIT, IS_UNINIT};
 
 	//	reset everything
-	init_zvps.clear ();
-
-//	Map<string, opt_value> map;
-//	map["phc.codegen.is_initialized"] = IS_INIT;
-//	map["phc.codegen.is_uninitialized"] = IS_UNINIT;
+	foreach (string key, attrs)
+	{ 
+		zvp_map[key].clear();
+		zvpp_map[key].clear();
+	}
 }
 
 void
@@ -33,59 +37,57 @@ Use_initialized::pre_opt (Opt* in, Statement_list* out)
 	 // The becomes a comment
 	out->push_back (in);
 
+	string value = *in->value->value;
+
 	// Record the annotation
-	String* value = in->value->value;
-	if (*value == "is_initialized")
-	{
-		if (ZVP* zvp = dynamic_cast<ZVP*> (in->param))
-			init_zvps.insert (*zvp->value);
+	if (ZVP* zvp = dynamic_cast<ZVP*> (in->param))
+		zvp_map[value].insert (*zvp->value);
 
-		if (ZVPP* zvpp = dynamic_cast<ZVPP*> (in->param))
-			init_zvpps.insert (*zvpp->value);
-	}
+	else if (ZVPP* zvpp = dynamic_cast<ZVPP*> (in->param))
+		zvpp_map[value].insert (*zvpp->value);
 
-	if (*value == "is_uninitialized")
-	{
-		if (ZVP* zvp = dynamic_cast<ZVP*> (in->param))
-			uninit_zvps.insert (*zvp->value);
-
-		if (ZVPP* zvpp = dynamic_cast<ZVPP*> (in->param))
-			uninit_zvpps.insert (*zvpp->value);
-	}
+	else
+		phc_unreachable ();
 }
 
 
 void
 Use_initialized::pre_if(If* in, Statement_list* out)
 {
+	Wildcard<ZVP> zvp;
+	Wildcard<ZVPP> zvpp;
+
 	// If we know a variable is initialized, remove the equals NULL check.
 	// If we know a variable is not initialized, remove the equals NULL
 	// check.
-	Wildcard<ZVP> zvp;
 	if (in->cond->match (new Equals (&zvp, new Null)))
 	{
-		if (init_zvps.has (*zvp.value->value))
+		if (zvp_map[IS_INIT].has (*zvp.value->value))
 		{
 			out->push_back_all (in->iffalse);
 			return;
 		}
 
-		if (uninit_zvps.has (*zvp.value->value))
+		if (zvp_map[IS_UNINIT].has (*zvp.value->value))
 		{
 			out->push_back_all (in->iftrue);
 			return;
 		}
 	}
 
-	// Now the same for deref (ZVPP).
+	// TODO: The same for deref (ZVPP).
 
-		// If we know a variable is not initialized, remove the is_ref check.
-/*		if cond->match (zvpp->is_ref)
+
+	// If we know a variable is not initialized, it cannot be by reference.
+	if (in->cond->match (new Is_ref (&zvp)))
+	{
+		if (zvp_map[IS_UNINIT].has (*zvp.value->value))
 		{
-			if opt_info[zvpp->variable_name] == is_uninit
-				return iffalse;
+			out->push_back_all (in->iffalse);
+			return;
 		}
-*/
+	}
+
 	out->push_back (in);
 
 }
