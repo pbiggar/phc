@@ -1,10 +1,7 @@
-get_st_entry_lir_st_entry_not_required_is_init:
-	(opt (ZVPP %1%) (STRING init))
-	(opt (ZVP %1%) (STRING init))
-
-get_st_entry_lir_st_entry_not_required_is_uninit:
-	(opt (ZVPP %1%) (STRING uninit))
-	(opt (ZVP %1%) (STRING uninit))
+opt_annotation:
+	(opt (ZVP %2%) (STRING %1%))
+	(opt (ZVPP %2%) (STRING %1%))
+	(opt (ZVP %3%) (STRING %1%))
 
 get_st_entry_lir_st_entry_not_required:
 	(declare_p (ZVPP %2%))

@@ -266,35 +266,51 @@ string get_st_entry (Scope scope, string zvp, VARIABLE_NAME* var_name)
 
 string get_st_entry_lir (Scope scope, string zvp, VARIABLE_NAME* var_name)
 {
-	stringstream ss;
 	if (scope == LOCAL && var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
 	{
-		if (var_name->attrs->is_true ("phc.optimize.is_initialized"))
-			ss << READ ("get_st_entry_lir_st_entry_not_required_is_init",
-					get_non_st_name (var_name));
-
-		if (var_name->attrs->is_true ("phc.optimize.is_uninitialized"))
-			ss << READ ("get_st_entry_lir_st_entry_not_required_is_uninit",
-					get_non_st_name (var_name));
-
-		ss << READ ("get_st_entry_lir_st_entry_not_required",
-				get_non_st_name (var_name) % zvp);
+		return READ ("get_st_entry_lir_st_entry_not_required",
+			 	get_non_st_name (var_name) % zvp);
 	}
 	else
 	{
-		if (var_name->attrs->is_true ("phc.optimize.is_initialized"))
-			ss << READ ("get_st_entry_lir_else_is_init",
-					get_non_st_name (var_name));
-
-		if (var_name->attrs->is_true ("phc.optimize.is_uninitialized"))
-			ss << READ ("get_st_entry_lir_else_is_uninit",
-					get_non_st_name (var_name));
-
-
-		ss << READ ("get_st_entry_lir_else",
+		return READ ("get_st_entry_lir_else",
 				get_scope_lir (LOCAL) % *var_name->value % zvp);
 	}
-	return ss.str();
+}
+
+/*
+ * In order for this to be simple, we should generate all annotations here,
+ * and keep to a certain set of rules. The most important is that a name is
+ * only used for one purpose. If another purpose is needed, use another name.
+ * This means that we can assign a property to a single ZVP or ZVPP, and not
+ * worry about it leaking.
+ */
+string opt_annotations (MIR::VARIABLE_NAME* var, string zvp)
+{
+	/* Get all attributes starting in phc.optimize which are booleans. Dump
+	 * them out in the following configurations:
+	 *		ZVP lhs
+	 *		ZVPP lhs
+	 *		ZVP local_TS0	
+	 */
+	stringstream ss;
+
+	string key;
+	Object* val;
+	foreach (tie (key, val), *var->attrs)
+	{
+		Boolean* b;
+		if ((b = dynamic_cast<Boolean*> (val))
+			&& key.substr (0, sizeof ("phc.optimize.")-1) == "phc.optimize."
+			&& b->value())
+		{
+			string suffix = key.substr (sizeof ("phc.optimize.")-1);
+
+			ss << READ ("opt_annotation", suffix % zvp % get_non_st_name (var));
+		}
+	}
+
+	return ss.str ();
 }
 
 // Declare and fetch a zval** into ZVP, which is the hash-table entry for
@@ -774,15 +790,13 @@ public:
 	LIR::Piece* generate_lir (String* comment, Generate_LIR* gen)
 	{
 		LIR::Statement_list* stmts = new LIR::Statement_list;
+		LDSL ("["
+		<< opt_annotations (lhs->value, "lhs")
+		<< opt_annotations (rhs->value, "rhs")
+		<< "]");
 
 		if (!agn->is_ref)
 		{
-			if (lhs->value->attrs->is_true ("phc.optimize.is_uninitialized"))
-				DSL ((opt (ZVPP lhs) (STRING uninit)));
-			if (rhs->value->attrs->is_true ("phc.optimize.is_initialized"))
-				DSL ((opt (ZVP rhs) (STRING init)));
-			if (rhs->value->attrs->is_true ("phc.optimize.is_uninitialized"))
-				DSL ((opt (ZVP rhs) (STRING uninit)));
 
 			LDSL ("["
 				<< get_st_entry_lir (LOCAL, "lhs", lhs->value)

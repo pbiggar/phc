@@ -247,14 +247,14 @@ LIR_unparser::children_null (LIR::Null* in)
 void
 LIR_unparser::children_opt (LIR::Opt* in)
 {
-	// Dont unparse
+	// Unparse as a comment
+	echo ("// ");
+	visit_opt_param (in->param);
+	echo (" ");
+	visit_string (in->value);
+	echo_nl ("");
 }
 
-void
-LIR_unparser::children_opt_param (LIR::Opt_param* in)
-{
-	// Dont unparse
-}
 
 void
 LIR_unparser::children_overwrite (LIR::Overwrite* in)

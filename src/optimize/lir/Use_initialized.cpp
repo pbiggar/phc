@@ -30,7 +30,8 @@ Use_initialized::pre_block(Block* in, Piece_list* out)
 void
 Use_initialized::pre_opt (Opt* in, Statement_list* out)
 {
-	// Don't push the opt back.
+	 // The becomes a comment
+	out->push_back (in);
 
 	// Record the annotation
 	String* value = in->value->value;
@@ -63,6 +64,7 @@ Use_initialized::pre_opt (Opt* in, Statement_list* out)
 			uninit_zvpps.insert (*zvpp->value);
 		}
 	}
+
 }
 
 
@@ -87,6 +89,8 @@ Use_initialized::pre_if(If* in, Statement_list* out)
 			return;
 		}
 	}
+
+	// Now the same for deref (ZVPP).
 
 		// If we know a variable is not initialized, remove the is_ref check.
 /*		if cond->match (zvpp->is_ref)

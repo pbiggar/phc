@@ -47,7 +47,7 @@ public:
 	void children_not (LIR::Not* in);
 	void children_null (LIR::Null* in);
 	void children_opt (LIR::Opt* in);
-	void children_opt_param (LIR::Opt_param* in);
+//	void children_opt_param (LIR::Opt_param* in);
 	void children_overwrite (LIR::Overwrite* in);
 	void children_ref (LIR::Ref* in);
 	void children_separate (LIR::Separate* in);
