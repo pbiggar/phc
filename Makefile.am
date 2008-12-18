@@ -201,6 +201,8 @@ libphc_la_SOURCES= 											\
 	src/optimize/If_simplification.h						\
 	src/optimize/Lattice.cpp								\
 	src/optimize/Lattice.h									\
+	src/optimize/lir/Use_initialized.cpp				\
+	src/optimize/lir/Use_initialized.h					\
 	src/optimize/Live_variable_analysis.cpp			\
 	src/optimize/Live_variable_analysis.h				\
 	src/optimize/Mark_initialized.cpp					\
@@ -216,14 +218,14 @@ libphc_la_SOURCES= 											\
 	src/optimize/Sparse_conditional_visitor.cpp		\
 	src/optimize/Sparse_conditional_visitor.h			\
 	src/optimize/ssa/Dominance.cpp						\
-	src/optimize/Type_inference.cpp						\
-	src/optimize/Type_inference.h							\
 	src/optimize/ssa/Dominance.h							\
 	src/optimize/ssa/HSSA.cpp								\
 	src/optimize/ssa/HSSA.h									\
 	src/optimize/ssa/Into_SSA.h							\
 	src/optimize/ssa/Out_of_SSA.h							\
 	src/optimize/ssa/Phi.cpp								\
+	src/optimize/Type_inference.cpp						\
+	src/optimize/Type_inference.h							\
 	src/optimize/ssa/Phi.h									\
 	src/optimize/ssa/SSA.cpp								\
 	src/optimize/ssa/SSA.h									\

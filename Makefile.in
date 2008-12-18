@@ -105,14 +105,15 @@ am_libphc_la_OBJECTS = getopt1.lo getopt.lo AST_annotate.lo \
 	Lift_functions_and_classes.lo Address_taken.lo Basic_block.lo \
 	CFG.lo CFG_visitor.lo Dead_code_elimination.lo Def_use.lo \
 	Edge.lo Flow_visitor.lo If_simplification.lo Lattice.lo \
-	Live_variable_analysis.lo Mark_initialized.lo Oracle.lo \
-	Prune_symbol_table.lo Remove_loop_booleans.lo SCCP.lo \
-	Sparse_conditional_visitor.lo Dominance.lo Type_inference.lo \
-	HSSA.lo Phi.lo SSA.lo SSA_ops.lo Virtual_variable.lo \
-	Var_set.lo Visit_once.lo LIR_parser.lo Parse_buffer.lo \
-	parse.lo PHP_context.lo XML_parser.lo Optimization_pass.lo \
-	Pass_manager.lo Plugin_pass.lo AST_unparser.lo \
-	Constant_folding.lo DOT_unparser.lo Invalid_check.lo \
+	Use_initialized.lo Live_variable_analysis.lo \
+	Mark_initialized.lo Oracle.lo Prune_symbol_table.lo \
+	Remove_loop_booleans.lo SCCP.lo Sparse_conditional_visitor.lo \
+	Dominance.lo HSSA.lo Phi.lo Type_inference.lo SSA.lo \
+	SSA_ops.lo Virtual_variable.lo Var_set.lo Visit_once.lo \
+	LIR_parser.lo Parse_buffer.lo parse.lo PHP_context.lo \
+	XML_parser.lo Optimization_pass.lo Pass_manager.lo \
+	Plugin_pass.lo AST_unparser.lo Constant_folding.lo \
+	DOT_unparser.lo Invalid_check.lo \
 	Note_top_level_declarations.lo Process_includes.lo \
 	Remove_concat_null.lo Remove_parser_temporaries.lo \
 	Strip_unparser_attributes.lo Token_conversion.lo \
@@ -458,8 +459,6 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
-BOOST_CPPFLAGS = @BOOST_CPPFLAGS@
-BOOST_LDFLAGS = @BOOST_LDFLAGS@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
@@ -755,6 +754,8 @@ libphc_la_SOURCES = \
 	src/optimize/If_simplification.h						\
 	src/optimize/Lattice.cpp								\
 	src/optimize/Lattice.h									\
+	src/optimize/lir/Use_initialized.cpp				\
+	src/optimize/lir/Use_initialized.h					\
 	src/optimize/Live_variable_analysis.cpp			\
 	src/optimize/Live_variable_analysis.h				\
 	src/optimize/Mark_initialized.cpp					\
@@ -770,14 +771,14 @@ libphc_la_SOURCES = \
 	src/optimize/Sparse_conditional_visitor.cpp		\
 	src/optimize/Sparse_conditional_visitor.h			\
 	src/optimize/ssa/Dominance.cpp						\
-	src/optimize/Type_inference.cpp						\
-	src/optimize/Type_inference.h							\
 	src/optimize/ssa/Dominance.h							\
 	src/optimize/ssa/HSSA.cpp								\
 	src/optimize/ssa/HSSA.h									\
 	src/optimize/ssa/Into_SSA.h							\
 	src/optimize/ssa/Out_of_SSA.h							\
 	src/optimize/ssa/Phi.cpp								\
+	src/optimize/Type_inference.cpp						\
+	src/optimize/Type_inference.h							\
 	src/optimize/ssa/Phi.h									\
 	src/optimize/ssa/SSA.cpp								\
 	src/optimize/ssa/SSA.h									\
@@ -1440,6 +1441,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Strip_unparser_attributes.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Token_conversion.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Type_inference.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Use_initialized.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Var_set.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Virtual_variable.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Visit_once.Plo@am__quote@
@@ -1978,6 +1980,13 @@ Lattice.lo: src/optimize/Lattice.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Lattice.lo `test -f 'src/optimize/Lattice.cpp' || echo '$(srcdir)/'`src/optimize/Lattice.cpp
 
+Use_initialized.lo: src/optimize/lir/Use_initialized.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Use_initialized.lo -MD -MP -MF $(DEPDIR)/Use_initialized.Tpo -c -o Use_initialized.lo `test -f 'src/optimize/lir/Use_initialized.cpp' || echo '$(srcdir)/'`src/optimize/lir/Use_initialized.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Use_initialized.Tpo $(DEPDIR)/Use_initialized.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/lir/Use_initialized.cpp' object='Use_initialized.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Use_initialized.lo `test -f 'src/optimize/lir/Use_initialized.cpp' || echo '$(srcdir)/'`src/optimize/lir/Use_initialized.cpp
+
 Live_variable_analysis.lo: src/optimize/Live_variable_analysis.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Live_variable_analysis.lo -MD -MP -MF $(DEPDIR)/Live_variable_analysis.Tpo -c -o Live_variable_analysis.lo `test -f 'src/optimize/Live_variable_analysis.cpp' || echo '$(srcdir)/'`src/optimize/Live_variable_analysis.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Live_variable_analysis.Tpo $(DEPDIR)/Live_variable_analysis.Plo
@@ -2034,13 +2043,6 @@ Dominance.lo: src/optimize/ssa/Dominance.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Dominance.lo `test -f 'src/optimize/ssa/Dominance.cpp' || echo '$(srcdir)/'`src/optimize/ssa/Dominance.cpp
 
-Type_inference.lo: src/optimize/Type_inference.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Type_inference.lo -MD -MP -MF $(DEPDIR)/Type_inference.Tpo -c -o Type_inference.lo `test -f 'src/optimize/Type_inference.cpp' || echo '$(srcdir)/'`src/optimize/Type_inference.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Type_inference.Tpo $(DEPDIR)/Type_inference.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Type_inference.cpp' object='Type_inference.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Type_inference.lo `test -f 'src/optimize/Type_inference.cpp' || echo '$(srcdir)/'`src/optimize/Type_inference.cpp
-
 HSSA.lo: src/optimize/ssa/HSSA.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT HSSA.lo -MD -MP -MF $(DEPDIR)/HSSA.Tpo -c -o HSSA.lo `test -f 'src/optimize/ssa/HSSA.cpp' || echo '$(srcdir)/'`src/optimize/ssa/HSSA.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/HSSA.Tpo $(DEPDIR)/HSSA.Plo
@@ -2054,6 +2056,13 @@ Phi.lo: src/optimize/ssa/Phi.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/ssa/Phi.cpp' object='Phi.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Phi.lo `test -f 'src/optimize/ssa/Phi.cpp' || echo '$(srcdir)/'`src/optimize/ssa/Phi.cpp
+
+Type_inference.lo: src/optimize/Type_inference.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Type_inference.lo -MD -MP -MF $(DEPDIR)/Type_inference.Tpo -c -o Type_inference.lo `test -f 'src/optimize/Type_inference.cpp' || echo '$(srcdir)/'`src/optimize/Type_inference.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Type_inference.Tpo $(DEPDIR)/Type_inference.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Type_inference.cpp' object='Type_inference.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Type_inference.lo `test -f 'src/optimize/Type_inference.cpp' || echo '$(srcdir)/'`src/optimize/Type_inference.cpp
 
 SSA.lo: src/optimize/ssa/SSA.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT SSA.lo -MD -MP -MF $(DEPDIR)/SSA.Tpo -c -o SSA.lo `test -f 'src/optimize/ssa/SSA.cpp' || echo '$(srcdir)/'`src/optimize/ssa/SSA.cpp

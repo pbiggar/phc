@@ -36,6 +36,7 @@
 
 #include "Mark_initialized.h"
 #include "Address_taken.h"
+#include "Def_use.h"
 
 using namespace boost;
 using namespace MIR;

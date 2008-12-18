@@ -49,6 +49,7 @@
 #include "Generate_LIR.h"
 #include "process_lir/LIR_unparser.h"
 #include "embed/embed.h"
+#include "optimize/Oracle.h"
 
 using namespace std;
 using namespace boost;
@@ -1684,33 +1685,68 @@ public:
 		<< "zval** args_ind[" << num_args  << "];\n";
 
 		index = 0;
+		Signature* sig = Oracle::get_signature (name);
 		foreach (Actual_parameter* param, *rhs->value->actual_parameters)
 		{
-			VARIABLE_NAME* var_name = dyc<VARIABLE_NAME>(param->rvalue);
+			if (sig == NULL)
+			{
+				VARIABLE_NAME* var_name = dyc<VARIABLE_NAME>(param->rvalue);
 
-			code
-			<< "destruct[" << index << "] = 0;\n"
-			<< "if (by_ref [" << index << "])\n"
-			<< "{\n"
+				code
+				<< "destruct[" << index << "] = 0;\n"
+				<< "if (by_ref [" << index << "])\n"
+				<< "{\n"
 
-			<< get_st_entry (LOCAL, "p_arg", var_name)
+				<< get_st_entry (LOCAL, "p_arg", var_name)
 
-			<< "	args_ind[" << index << "] = fetch_var_arg_by_ref ("
-			<<				"p_arg);\n"
-			<< "	assert (!in_copy_on_write (*args_ind[" << index << "]));\n"
-			<<	"  args[" << index << "] = *args_ind[" << index << "];\n"
-			<< "}\n"
-			<< "else\n"
-			<< "{\n"
+				<< "	args_ind[" << index << "] = fetch_var_arg_by_ref ("
+				<<				"p_arg);\n"
+				<< "	assert (!in_copy_on_write (*args_ind[" << index << "]));\n"
+				<<	"  args[" << index << "] = *args_ind[" << index << "];\n"
+				<< "}\n"
+				<< "else\n"
+				<< "{\n"
 
-			<< read_rvalue ("arg", var_name)
+				<< read_rvalue ("arg", var_name)
 
-			<< "  args[" << index << "] = fetch_var_arg ("
-			<<				"arg, "
-			<<				"&destruct[" << index << "]);\n"
-			<< " args_ind[" << index << "] = &args[" << index << "];\n"
-			<< "}\n"
-			;
+				<< "  args[" << index << "] = fetch_var_arg ("
+				<<				"arg, "
+				<<				"&destruct[" << index << "]);\n"
+				<< " args_ind[" << index << "] = &args[" << index << "];\n"
+				<< "}\n"
+				;
+			}
+			else
+			{
+				Rvalue* rval = param->rvalue;
+
+				code
+				<< "destruct[" << index << "] = 0;\n"
+				<< "{\n"; // scope for ARG
+
+				if (sig->is_param_passed_by_ref (index) || param->is_ref)
+				{
+					code
+					<< get_st_entry (LOCAL, "p_arg", dyc<VARIABLE_NAME> (rval))
+					<< "	args_ind[" << index << "] = fetch_var_arg_by_ref ("
+					<<				"p_arg);\n"
+					<< "	assert (!in_copy_on_write (*args_ind[" << index << "]));\n"
+					<<	"  args[" << index << "] = *args_ind[" << index << "];\n"
+					;
+				}
+				else
+				{
+					code
+					<< read_rvalue ("arg", rval)
+					<< "  args[" << index << "] = fetch_var_arg ("
+					<<				"arg, "
+					<<				"&destruct[" << index << "]);\n"
+					<< " args_ind[" << index << "] = &args[" << index << "];\n"
+					;
+				}
+				code
+				<< "}\n";
+			}
 
 			index++;
 		}

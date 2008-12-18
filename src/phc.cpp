@@ -38,14 +38,15 @@
 #include "optimize/Dead_code_elimination.h"
 #include "optimize/Def_use.h"
 #include "optimize/If_simplification.h"
+#include "optimize/lir/Use_initialized.h"
 #include "optimize/Live_variable_analysis.h"
 #include "optimize/Mark_initialized.h"
 #include "optimize/Prune_symbol_table.h"
 #include "optimize/Remove_loop_booleans.h"
 #include "optimize/SCCP.h"
-#include "optimize/Type_inference.h"
 #include "optimize/ssa/Into_SSA.h"
 #include "optimize/ssa/Out_of_SSA.h"
+#include "optimize/Type_inference.h"
 #include "parsing/parse.h"
 #include "parsing/XML_parser.h"
 #include "pass_manager/Fake_pass.h"
@@ -169,7 +170,7 @@ int main(int argc, char** argv)
 	pm->add_hir_pass (new Fake_pass (s("HIR-to-MIR"), s("The MIR in HIR form")));
 
 
-	pm->add_mir_pass (new Fake_pass (s("mir"), s("Medium-level Internal Representation - simple code with high-level constructs lowered to straight-line code.")));
+	pm->add_mir_pass (new Fake_pass (s("mir"), s("Medium-level Internal Representation - simple code with high-level constructs lowered to straight-line code")));
 	pm->add_mir_pass (new Obfuscate ());
 //	pm->add_mir_pass (new Process_includes (true, new String ("mir"), pm, "incl2"));
 	pm->add_mir_transform (new Lift_functions_and_classes (), s("lfc"), s("Move statements from global scope into __MAIN__ method"));
@@ -203,7 +204,10 @@ int main(int argc, char** argv)
 	pm->add_codegen_visitor (new Generate_LIR_annotations, s("lirann"), s("Codegen annotation"));
 
 	// Use ss to pass generated code between Generate_C and Compile_C
+//	pm->add_lir_transform (new Use_initialized (), s("useinit"), s("Optimize the LIR using results from mvi"));
 	stringstream ss;
+	pm->add_lir_pass (new Fake_pass (s("lir"), s("Low-level Internal Representation - constructs representing generated code, at a slightly higher level than C")));
+	pm->add_lir_transform (new Use_initialized (), s("use-init"), s("Use results of mvi pass"));
 	pm->add_lir_pass (new Generate_C (ss));
 	pm->add_lir_pass (new Compile_C (ss));
 
