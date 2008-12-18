@@ -35,36 +35,23 @@ Use_initialized::pre_opt (Opt* in, Statement_list* out)
 
 	// Record the annotation
 	String* value = in->value->value;
-	if (*value == "init")
+	if (*value == "is_initialized")
 	{
 		if (ZVP* zvp = dynamic_cast<ZVP*> (in->param))
-		{
-			DEBUG ("zvp " << *zvp->value << " is init");
 			init_zvps.insert (*zvp->value);
-		}
 
 		if (ZVPP* zvpp = dynamic_cast<ZVPP*> (in->param))
-		{
-			DEBUG ("zvpp " << *zvpp->value << " is init");
 			init_zvpps.insert (*zvpp->value);
-		}
 	}
 
-	if (*value == "uninit")
+	if (*value == "is_uninitialized")
 	{
 		if (ZVP* zvp = dynamic_cast<ZVP*> (in->param))
-		{
-			DEBUG ("zvp " << *zvp->value << " is uninit");
 			uninit_zvps.insert (*zvp->value);
-		}
 
 		if (ZVPP* zvpp = dynamic_cast<ZVPP*> (in->param))
-		{
-			DEBUG ("zvpp " << *zvpp->value << " is uninit");
 			uninit_zvpps.insert (*zvpp->value);
-		}
 	}
-
 }
 
 
