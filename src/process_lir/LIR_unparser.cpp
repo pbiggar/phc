@@ -273,6 +273,19 @@ LIR_unparser::children_overwrite (LIR::Overwrite* in)
 	echo (");");*/
 }
 
+
+void
+LIR_unparser::children_profile (LIR::Profile* in)
+{
+	echo ("increment_counter (");
+	visit_string (in->name);
+	echo (", ");
+	echo (lexical_cast<string> (in->name->value->size () + 1));
+	echo (", ");
+	echo (lexical_cast<string> (PHP::get_hash (in->name->value)));
+	echo_nl ("u);");
+}
+
 void
 LIR_unparser::children_ref (LIR::Ref* in)
 {

@@ -53,6 +53,7 @@ Statement ::=    Action				-- (possibly) side-effecting statement
 					| CODE				-- Straight-line C code. Can't analyse it, but
 											-- we can optimize before and after, while
 											-- assuming the C code doesnt change anything.
+					| Profile
 					;
 
 Action ::=	  Assign_zvp
@@ -164,6 +165,12 @@ Symtable_insert ::= SYMTABLE name:STRING ZVPP ;
  - For the XML_unparser, its good to identify these as Identifiers
  -}
 Identifier ::= ZVPP | ZVP | SYMTABLE | LITERAL | UNINTERPRETED | COMMENT | CODE ;
+
+{-
+ - Profiling
+ -}
+
+Profile ::= name:STRING ;
 
 {-
  - Extra attributes and methods (mixin code)

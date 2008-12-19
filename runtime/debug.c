@@ -100,21 +100,6 @@ static void init_counters ()
   array_init (counters);
 }
 
-static void init_counter (char* name, int length, ulong hashval)
-{
-  zval* new_val;
-  ALLOC_INIT_ZVAL (new_val);
-  ZVAL_LONG (new_val, 0);
-
-  zend_hash_quick_add (Z_ARRVAL_P (counters),
-		       name,
-		       length,
-		       hashval,
-		       &new_val,
-		       sizeof (zval *),
-		       NULL);
-}
-
 // Dump and cleanup memory
 static void finalize_counters ()
 {
@@ -129,7 +114,7 @@ static void finalize_counters ()
       zend_hash_get_current_key_ex (ht, &key, NULL, NULL, 0, NULL);
       zend_hash_get_current_data (ht, (void **) &p_zvp);
 
-      printf ("%s: %ld\n", key, Z_LVAL_P (*p_zvp));
+      fprintf (stderr, "COUNTER:%s:%ld\n", key, Z_LVAL_P (*p_zvp));
     }
 
   zval_ptr_dtor (&counters);
@@ -138,10 +123,29 @@ static void finalize_counters ()
 static void increment_counter (char* name, int length, ulong hashval)
 {
   zval** p_zvp;
-  zend_hash_quick_find (Z_ARRVAL_P (counters),
-			name,
-			length,
-			hashval,
-			(void **) &p_zvp);
-  Z_LVAL_PP (p_zvp)++;
+  int success = zend_hash_quick_find (Z_ARRVAL_P (counters),
+				      name,
+				      length,
+				      hashval,
+				      (void **) &p_zvp);
+
+  if (success == SUCCESS)
+    {
+      Z_LVAL_PP (p_zvp)++;
+    }
+  else
+    {
+
+      zval* new_val;
+      ALLOC_INIT_ZVAL (new_val);
+      ZVAL_LONG (new_val, 1);
+
+      zend_hash_quick_add (Z_ARRVAL_P (counters),
+			   name,
+			   length,
+			   hashval,
+			   &new_val,
+			   sizeof (zval *),
+			   NULL);
+    }
 }

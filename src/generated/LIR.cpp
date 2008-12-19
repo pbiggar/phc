@@ -2220,6 +2220,105 @@ void Clone::assert_valid()
     zvp->assert_valid();
 }
 
+Profile::Profile(STRING* name)
+{
+    this->name = name;
+}
+
+Profile::Profile()
+{
+    this->name = 0;
+}
+
+void Profile::visit(Visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void Profile::transform_children(Transform* transform)
+{
+    transform->children_statement(this);
+}
+
+int Profile::classid()
+{
+    return ID;
+}
+
+bool Profile::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Profile* that = dynamic_cast<Profile*>(in);
+    if(that == NULL) return false;
+    
+    if(this->name == NULL)
+    {
+    	if(that->name != NULL && !that->name->match(this->name))
+    		return false;
+    }
+    else if(!this->name->match(that->name))
+    	return false;
+    
+    return true;
+}
+
+bool Profile::equals(Node* in)
+{
+    Profile* that = dynamic_cast<Profile*>(in);
+    if(that == NULL) return false;
+    
+    if(this->name == NULL || that->name == NULL)
+    {
+    	if(this->name != NULL || that->name != NULL)
+    		return false;
+    }
+    else if(!this->name->equals(that->name))
+    	return false;
+    
+    return true;
+}
+
+Profile* Profile::clone()
+{
+    STRING* name = this->name ? this->name->clone() : NULL;
+    Profile* clone = new Profile(name);
+    return clone;
+}
+
+Node* Profile::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    if (this->name != NULL)
+    {
+    	Node* name_res = this->name->find(in);
+    	if (name_res) return name_res;
+    }
+    
+    return NULL;
+}
+
+void Profile::find_all(Node* in, Node_list* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+    
+    if (this->name != NULL)
+    	this->name->find_all(in, out);
+    
+}
+
+void Profile::assert_valid()
+{
+    assert(name != NULL);
+    name->assert_valid();
+}
+
 UNINTERPRETED::UNINTERPRETED(String* value)
 {
     this->value = value;

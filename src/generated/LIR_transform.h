@@ -57,6 +57,7 @@ public:
     virtual Zvp* pre_clone(Clone* in);
     virtual void pre_symtable_fetch(Symtable_fetch* in, Statement_list* out);
     virtual void pre_symtable_insert(Symtable_insert* in, Statement_list* out);
+    virtual void pre_profile(Profile* in, Statement_list* out);
     virtual INT* pre_int(INT* in);
     virtual STRING* pre_string(STRING* in);
     virtual UNINTERPRETED* pre_uninterpreted(UNINTERPRETED* in);
@@ -98,6 +99,7 @@ public:
     virtual Zvp* post_clone(Clone* in);
     virtual void post_symtable_fetch(Symtable_fetch* in, Statement_list* out);
     virtual void post_symtable_insert(Symtable_insert* in, Statement_list* out);
+    virtual void post_profile(Profile* in, Statement_list* out);
     virtual INT* post_int(INT* in);
     virtual STRING* post_string(STRING* in);
     virtual UNINTERPRETED* post_uninterpreted(UNINTERPRETED* in);
@@ -139,6 +141,7 @@ public:
     virtual void children_clone(Clone* in);
     virtual void children_symtable_fetch(Symtable_fetch* in);
     virtual void children_symtable_insert(Symtable_insert* in);
+    virtual void children_profile(Profile* in);
 /* Tokens don't have children, so these methods do nothing by default */
 public:
     virtual void children_int(INT* in);

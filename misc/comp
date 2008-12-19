@@ -31,6 +31,7 @@ do
 	elif [ "-$var" = "--S" ]
 	then
 		PHC_ARGS="$PHC_ARGS --rt-stats"
+		STATS=1
 	elif [ "-$var" = "--r" ]
 	then
 		PHC_ARGS="$PHC_ARGS --run plugins/tools/debug_zval.la"
@@ -114,5 +115,10 @@ if [[ $? != 0 ]]; then
 	exit 1
 fi
 
+
+#if [[ $STATS == 1 ]]; then
+#   exec $EXEC_NAME 2>$NAME.stats
+#   exec misc/counter_stats $NAME.stats
+#fi
 
 exec $EXEC_NAME

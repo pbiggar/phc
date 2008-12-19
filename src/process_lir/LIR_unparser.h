@@ -47,6 +47,7 @@ public:
 	void children_not (LIR::Not* in);
 	void children_null (LIR::Null* in);
 	void children_overwrite (LIR::Overwrite* in);
+	void children_profile (LIR::Profile* in);
 	void children_ref (LIR::Ref* in);
 	void children_separate (LIR::Separate* in);
 	void children_set_is_ref (LIR::Set_is_ref* in);

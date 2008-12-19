@@ -198,6 +198,12 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Symtable_insert(symtable, name, zvpp);
     }
+    if(!strcmp(type_id, "Profile"))
+    {
+    	STRING* name = dynamic_cast<STRING*>(*i++);
+    	assert(i == args->end());
+    	return new Profile(name);
+    }
     if(!strcmp(type_id, "STRING"))
     {
     	String* value = dynamic_cast<String*>(*i++);

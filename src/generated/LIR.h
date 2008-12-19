@@ -46,6 +46,7 @@ class Null;
 class Deref;
 class Ref;
 class Clone;
+class Profile;
 class UNINTERPRETED;
 class COMMENT;
 class INTRINSIC;
@@ -95,6 +96,7 @@ typedef List<Null*> Null_list;
 typedef List<Deref*> Deref_list;
 typedef List<Ref*> Ref_list;
 typedef List<Clone*> Clone_list;
+typedef List<Profile*> Profile_list;
 typedef List<UNINTERPRETED*> UNINTERPRETED_list;
 typedef List<COMMENT*> COMMENT_list;
 typedef List<INTRINSIC*> INTRINSIC_list;
@@ -199,7 +201,7 @@ public:
     virtual void assert_valid() = 0;
 };
 
-/* Statement ::= Action | If | INTRINSIC | API_CALL | CODE; */
+/* Statement ::= Action | If | INTRINSIC | API_CALL | CODE | Profile; */
 class Statement : virtual public Node
 {
 public:
@@ -333,7 +335,7 @@ public:
 public:
     long value;
 public:
-    static const int ID = 29;
+    static const int ID = 30;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -368,7 +370,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 30;
+    static const int ID = 31;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -816,6 +818,35 @@ public:
     virtual void assert_valid();
 };
 
+/* Profile ::= name:STRING ; */
+class Profile : virtual public Statement
+{
+public:
+    Profile(STRING* name);
+protected:
+    Profile();
+public:
+    STRING* name;
+public:
+    virtual void visit(Visitor* visitor);
+    virtual void transform_children(Transform* transform);
+public:
+    static const int ID = 29;
+    virtual int classid();
+public:
+    virtual bool match(Node* in);
+public:
+    virtual bool equals(Node* in);
+public:
+    virtual Profile* clone();
+public:
+    virtual Node* find(Node* in);
+public:
+    virtual void find_all(Node* in, Node_list* out);
+public:
+    virtual void assert_valid();
+};
+
 class UNINTERPRETED : virtual public Piece, virtual public Identifier
 {
 public:
@@ -829,7 +860,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 31;
+    static const int ID = 32;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -858,7 +889,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 32;
+    static const int ID = 33;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -887,7 +918,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 33;
+    static const int ID = 34;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -916,7 +947,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 34;
+    static const int ID = 35;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -945,7 +976,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 35;
+    static const int ID = 36;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -976,7 +1007,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 36;
+    static const int ID = 37;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1007,7 +1038,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 37;
+    static const int ID = 38;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1038,7 +1069,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 38;
+    static const int ID = 39;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1067,7 +1098,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 39;
+    static const int ID = 40;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1469,7 +1500,7 @@ public:
 };
 
 /* The top of the class hierarchy. If the Fold will not allow you fold to anything else, try this. */
-class None : virtual public Node, virtual public C_file, virtual public Piece, virtual public Method, virtual public Block, virtual public Statement, virtual public Action, virtual public If, virtual public Cond, virtual public Assign_zvp, virtual public Assign_zvpp, virtual public Declare, virtual public Declare_p, virtual public Inc_ref, virtual public Allocate, virtual public Separate, virtual public Set_is_ref, virtual public Dec_ref, virtual public Destruct, virtual public Overwrite, virtual public Is_ref, virtual public Equals, virtual public Equals_p, virtual public Not, virtual public Is_change_on_write, virtual public Is_copy_on_write, virtual public Zvp, virtual public Zvpp, virtual public Uninit, virtual public Null, virtual public Deref, virtual public Ref, virtual public Clone, virtual public Symtable_fetch, virtual public Symtable_insert, virtual public Identifier, virtual public INT, virtual public STRING, virtual public UNINTERPRETED, virtual public COMMENT, virtual public INTRINSIC, virtual public API_CALL, virtual public CODE, virtual public ZVP, virtual public ZVPP, virtual public LITERAL, virtual public SYMTABLE
+class None : virtual public Node, virtual public C_file, virtual public Piece, virtual public Method, virtual public Block, virtual public Statement, virtual public Action, virtual public If, virtual public Cond, virtual public Assign_zvp, virtual public Assign_zvpp, virtual public Declare, virtual public Declare_p, virtual public Inc_ref, virtual public Allocate, virtual public Separate, virtual public Set_is_ref, virtual public Dec_ref, virtual public Destruct, virtual public Overwrite, virtual public Is_ref, virtual public Equals, virtual public Equals_p, virtual public Not, virtual public Is_change_on_write, virtual public Is_copy_on_write, virtual public Zvp, virtual public Zvpp, virtual public Uninit, virtual public Null, virtual public Deref, virtual public Ref, virtual public Clone, virtual public Symtable_fetch, virtual public Symtable_insert, virtual public Identifier, virtual public Profile, virtual public INT, virtual public STRING, virtual public UNINTERPRETED, virtual public COMMENT, virtual public INTRINSIC, virtual public API_CALL, virtual public CODE, virtual public ZVP, virtual public ZVPP, virtual public LITERAL, virtual public SYMTABLE
 {
 public:
     None();
@@ -1568,7 +1599,7 @@ public:
 		assert (0); // I'm not sure what this would mean
 	}
 public:
-	static const int ID = 41;
+	static const int ID = 42;
 	int classid()
 	{
 		return ID;

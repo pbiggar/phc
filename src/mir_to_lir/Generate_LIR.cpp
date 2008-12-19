@@ -446,18 +446,15 @@ string increment_stat (string name)
 	if (!args_info.rt_stats_flag)
 		return "";
 
-	int length = name.size () + 1;
-	string hashval = get_hash (s(name));
-
-	static Set<string> already_init;
-	if (!already_init.has (name))
-	{
-		already_init.insert (name);
-		initializations << "init_counter (\"" << name << "\", " << length << ", " << hashval << ");\n";
-	}
-
 	stringstream ss;
-	ss << "increment_counter (\"" << name << "\", " << length << ", " << hashval << ");\n";
+	ss 
+	<< "increment_counter (\""
+	<< name << "\", "
+	<< name.size () + 1 << ", "
+	<< get_hash (s(name))
+	<< ");\n"
+	;
+
 	return ss.str ();
 }
 
@@ -783,9 +780,9 @@ protected:
 class Pattern_assign_expr_var : public Pattern_assign_var
 {
 #define STRAIGHT(STR) stmts->push_back (new LIR::CODE (s (STR)))
-#define RTS_LIR(STR) STRAIGHT (increment_stat (STR))
 #define DSL(STR) stmts->push_back (dyc<LIR::Statement> (parse_lir (s(#STR))))
 #define LDSL(STR) do { stringstream ss; ss << STR; stmts->push_back_all (dyc<LIR::Statement_list> (parse_lir (s(ss.str())))); } while (0)
+#define RTS_LIR(STR) "(profile (STRING " << STR << "))"
 public:
 	Expr* rhs_pattern()
 	{
@@ -796,11 +793,11 @@ public:
 	LIR::Piece* generate_lir (String* comment, Generate_LIR* gen)
 	{
 		LIR::Statement_list* stmts = new LIR::Statement_list;
-		RTS_LIR (demangle (this));
 
 		if (!agn->is_ref)
 		{
 			LDSL ("["
+			<< RTS_LIR (demangle (this))
 			<< get_st_entry_lir (LOCAL, "lhs", lhs->value)
 			<< read_rvalue_lir ("rhs", rhs->value)
 			<< "	(if "
@@ -816,6 +813,7 @@ public:
 		else
 		{
 			LDSL ("["
+			<< RTS_LIR (demangle (this))
 			<< get_st_entry_lir (LOCAL, "lhs", lhs->value)
 			<< get_st_entry_lir (LOCAL, "rhs", rhs->value)
 			<< sep_copy_on_write_lir ("rhs")
