@@ -20,7 +20,7 @@ Expr* Constant_folding::post_bin_op (Bin_op* in)
 	if (left == NULL || right == NULL)
 		return in;
 
-	CTS (folded_bin_op);
+	CTS ("folded_bin_op");
 	return PHP::fold_constant_expr (in);
 }
 
@@ -35,7 +35,7 @@ Expr* Constant_folding::post_unary_op (Unary_op* in)
 	Wildcard<Expr>* expr = new Wildcard<Expr>;
 	if (in->match (new Unary_op (new Unary_op (expr, "-"), "-")))
 	{
-		CTS (folded_double_minus);
+		CTS ("folded_double_minus");
 		return expr;
 	}
 
@@ -43,7 +43,7 @@ Expr* Constant_folding::post_unary_op (Unary_op* in)
 	Literal* lit = dynamic_cast<Literal*> (in->expr);
 	if (lit)
 	{
-		CTS (folded_unary_op);
+		CTS ("folded_unary_op");
 		return PHP::fold_constant_expr (in);
 	}
 
