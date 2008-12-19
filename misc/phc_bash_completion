@@ -9,7 +9,7 @@ _phc()
 				 --obfuscate --no-validation --include --generate-c --execute \
 				 --next-line-curlies --no-leading-tab --no-hash-bang \
 				 --no-line-numbers --no-nulls --no-empty-lists --list-passes	\
-				 --dont-fail --no-xml-attrs"
+				 --dont-fail --no-xml-attrs --rt-stats"
 
 	# TODO provide context sensitive completion for these options, with an = and no space
 	paramOpts=" --run --r-option --define  --c-option --extension --web-app \

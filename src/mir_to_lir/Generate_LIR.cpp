@@ -424,6 +424,26 @@ public:
  * Pattern definitions for statements
  */
 
+#define RTS(STR) code << increment_stat (STR);
+string increment_stat (string name)
+{
+	if (!args_info.rt_stats_flag)
+		return "";
+
+	string C_name = prefix (name, "counter");
+	static Set<string> already_init;
+	if (!already_init.has (name))
+	{
+		already_init.insert (name);
+		prologue << "unsigned long long " << C_name << ";\n";
+		initializations << C_name << " = 0;\n";
+		finalizations << "printf (\"" << C_name << ": %d\\n\", " << C_name << ");\n";
+	}
+
+	C_name.append ("++;\n");
+	return C_name;
+}
+
 class Pattern : virtual public GC_obj
 {
 public:
@@ -439,6 +459,8 @@ public:
 
 		if (use_scope)
 			code << "{\n";
+
+		RTS (demangle (this));
 
 		generate_code (gen);
 
@@ -470,6 +492,7 @@ public:
 		signature = pattern->value->signature;
 
 		method_entry();
+		RTS (demangle (this));
 		LIR::UNINTERPRETED* entry = gen->clear_code_buffer ();
 
 		// Use a different gen for the nested function
@@ -743,6 +766,7 @@ protected:
 class Pattern_assign_expr_var : public Pattern_assign_var
 {
 #define STRAIGHT(STR) stmts->push_back (new LIR::CODE (s (STR)))
+#define RTS_LIR(STR) STRAIGHT (increment_stat (STR))
 #define DSL(STR) stmts->push_back (dyc<LIR::Statement> (parse_lir (s(#STR))))
 #define LDSL(STR) do { stringstream ss; ss << STR; stmts->push_back_all (dyc<LIR::Statement_list> (parse_lir (s(ss.str())))); } while (0)
 public:
@@ -758,6 +782,7 @@ public:
 
 		if (!agn->is_ref)
 		{
+			RTS_LIR ("assignment_non_ref");
 			LDSL ("["
 			<< get_st_entry_lir (LOCAL, "lhs", lhs->value)
 			<< read_rvalue_lir ("rhs", rhs->value)
@@ -773,6 +798,7 @@ public:
 		}
 		else
 		{
+			RTS_LIR ("assignment_ref");
 			LDSL ("["
 			<< get_st_entry_lir (LOCAL, "lhs", lhs->value)
 			<< get_st_entry_lir (LOCAL, "rhs", rhs->value)
@@ -2781,8 +2807,6 @@ void Generate_LIR::pre_php_script(PHP_script* in)
 		<< "static zend_fcall_info_cache " << fcic_name << " = {0,NULL,NULL,NULL};\n"
 		;
 	}
-
-	lir->pieces->push_back (new LIR::UNINTERPRETED (s(prologue.str())));
 }
 
 LIR::UNINTERPRETED*
@@ -2799,6 +2823,11 @@ Generate_LIR::clear_code_buffer ()
 
 void Generate_LIR::post_php_script(PHP_script* in)
 {
+	// We need to write to the prologue during execution, for declaring counters
+	// (TODO: a nicer way would be better).
+	lir->pieces->push_front (new LIR::UNINTERPRETED (s(prologue.str())));
+
+	// Get the last piece
 	LIR::UNINTERPRETED* end = clear_code_buffer ();
 	lir->pieces->push_back (end);
 

@@ -13,7 +13,7 @@
 
 #include "lib/demangle.h"
 
-const char* demangle(Object* obj, bool include_namespace)
+const char* demangle(GC_obj* obj, bool include_namespace)
 {
 	int rv;
 	const char* mangled = typeid(*obj).name();

@@ -13,7 +13,7 @@
 #include "LIR.h"
 #include "pass_manager/Pass.h"
 
-class Generate_LIR : public MIR::Visitor
+class Generate_LIR : public MIR::Visitor, virtual public GC_obj
 {
 public:
 	Generate_LIR();
