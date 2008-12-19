@@ -1,4 +1,6 @@
-get_st_entry_lir_st_entry_not_required:
+# 1: local zvp
+# 2: result (zvp)
+get_st_entry_no_st:
 	(declare_p (ZVPP %2%))
 	(if
 		(equals (ZVP %1%) (null))
@@ -11,8 +13,10 @@ get_st_entry_lir_st_entry_not_required:
 		(ZVPP %2%) 
 		(ref (ZVP %1%)))
 
-
-get_st_entry_lir_else:
+# 1: scope/symtable to look in (local/global)
+# 2: name of variable
+# 3: result (zvp)
+get_st_entry:
 	(declare_p (ZVPP %3%))
 	(symtable_fetch 
 		(SYMTABLE %1%) 
@@ -30,8 +34,9 @@ get_st_entry_lir_else:
 		]
 		[])
 
-
-read_rvalue_lir_st_entry_not_required:
+# 1: local zvp
+# 2: result (zvp)
+read_var_no_st:
 	(declare (ZVP %2%))
 	(if (equals (ZVP %1%) (null))
 		[ (assign_zvp (ZVP %2%) (uninit)) ]
@@ -39,7 +44,10 @@ read_rvalue_lir_st_entry_not_required:
 	)
 
 
-read_rvalue_lir_else:
+# 1: scope/symtable
+# 2: variable name
+# 3: result (zvp)
+read_var:
 	(declare_p (ZVPP %3%))
 	(declare (ZVP %3%))
 	(symtable_fetch 
@@ -50,21 +58,60 @@ read_rvalue_lir_else:
 		[ (assign_zvp (ZVP %3%) (uninit)) ]
 		[ (assign_zvp (ZVP %3%) (deref (ZVPP %3%))) ])
 
+# 1: scope/symtable
+# 2: index (zvp)
+# 3: result (zvp)
+#read_var_var:
+#	(declare (ZVP %3%))
+#	(CODE "char* str;")
+#	(CODE "int len;")
+#	(intrinsic (NAME get_string_val) (blank)
+#		[param (ZVP %2%)]
+#		[param (NAME str) (NAME len)])
+#	(CODE "int hash = zend_get_hash_value (str, len);")
+#	(intrinsic (NAME read_var) (ZVP %3%) 
+#		[param (SYMTABLE %1%) (NAME str) (NAME len) (NAME hash) (tsrm)]
+#		[param])
+#
+#
+# 1: scope/symtable
+# 2: index (zvp)
+# 3: result (zvpp)
+#get_var_var:
+#	(declare_p (ZVPP %3%))
+#	(CODE "char* str;")
+#	(CODE "int len;")
+#	(intrinsic (NAME get_string_val) (blank)
+#		[param (ZVP %2%)]
+#		[param (NAME str) (NAME len)])
+#	(CODE "int hash = zend_get_hash_value (str, len);")
+#	(intrinsic (NAME get_st_entry) (ZVPP %3%)
+#		[param (SYMTABLE %1%) (NAME str) (NAME len) (NAME hash) (tsrm)]
+#		[param])
+#
+# ------------ Comments only allowed before a declaration.
+# 1: lhs (zvpp)
+# 2: rhs (zvp)
 write_var:
-	(if (not (is_ref (deref (ZVPP %1%))))
+	(if
+		(not (equals (deref (ZVPP lhs)) (ZVP rhs)))
 		[
-			(destruct (ZVPP %1%))
-			(if (is_ref (ZVP %2%))
-				[ (assign_zvp (deref (ZVPP %1%)) (clone (ZVP %2%))) ]
+			(if (not (is_ref (deref (ZVPP %1%))))
 				[
-					(inc_ref (ZVP %2%))
-					(assign_zvp (deref (ZVPP %1%)) (ZVP %2%))
-				])
+					(destruct (ZVPP %1%))
+					(if (is_ref (ZVP %2%))
+						[ (assign_zvp (deref (ZVPP %1%)) (clone (ZVP %2%))) ]
+						[
+							(inc_ref (ZVP %2%))
+							(assign_zvp (deref (ZVPP %1%)) (ZVP %2%))
+						])
+				]
+				[ (overwrite (deref (ZVPP %1%)) (ZVP %2%)) ])
 		]
-		[ (overwrite (deref (ZVPP %1%)) (ZVP %2%)) ])
+		[])
 
 
-
+# 1: variable to separate (zvpp)
 sep_copy_on_write:
 	(if (is_copy_on_write (deref (ZVPP %1%)))
 		[ 
@@ -76,11 +123,11 @@ sep_copy_on_write:
 		[])
 
 
+# 1: target
+# 2: value to copy into target
 copy_into_ref:
 	 (set_is_ref (deref (ZVPP %2%)) 1)
 	 (inc_ref (deref (ZVPP %2%)))
 	 (destruct (ZVPP %1%))
 	 (assign_zvp (deref (ZVPP %1%)) (deref (ZVPP %2%)))
-
-
 

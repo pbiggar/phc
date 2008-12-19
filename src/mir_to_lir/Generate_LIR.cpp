@@ -214,13 +214,13 @@ string read_rvalue_lir (string zvp, Rvalue* rvalue)
 	VARIABLE_NAME* var_name = dyc<VARIABLE_NAME> (rvalue);
 	if (var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
 	{
-		return str(format (templ ("read_rvalue_lir_st_entry_not_required"))
+		return str(format (templ ("read_var_no_st"))
 			% get_non_st_name (var_name)
 			% zvp);
 	}
 	else
 	{
-		return str(format (templ ("read_rvalue_lir_else"))
+		return str(format (templ ("read_var"))
 			% get_scope_lir (LOCAL)
 			% *var_name->value
 			% zvp);
@@ -265,13 +265,13 @@ string get_st_entry_lir (Scope scope, string zvp, VARIABLE_NAME* var_name)
 {
 	if (scope == LOCAL && var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
 	{
-		return str(format (templ ("get_st_entry_lir_st_entry_not_required"))
+		return str(format (templ ("get_st_entry_no_st"))
 			% get_non_st_name (var_name) 
 			% zvp);
 	}
 	else
 	{
-		return str(format (templ ("get_st_entry_lir_else"))
+		return str(format (templ ("get_st_entry"))
 			% get_scope_lir (LOCAL)
 			% *var_name->value
 			% zvp);
@@ -759,26 +759,26 @@ public:
 		if (!agn->is_ref)
 		{
 			LDSL ("["
-				<< get_st_entry_lir (LOCAL, "lhs", lhs->value)
-				<< read_rvalue_lir ("rhs", rhs->value)
-				<< "	(if "
-				<<	"		(not (equals "
-				<<	"			(deref (ZVPP lhs)) "
-				<<	"			(ZVP rhs))) "
-				<<	"		[ "
-				<<				write_var_lir ("lhs", "rhs")
-				<< "		] "
-				<<	"		[])"
-				<<	"]");
+			<< get_st_entry_lir (LOCAL, "lhs", lhs->value)
+			<< read_rvalue_lir ("rhs", rhs->value)
+			<< "	(if "
+			<<	"		(not (equals "
+			<<	"			(deref (ZVPP lhs)) "
+			<<	"			(ZVP rhs))) "
+			<<	"		[ "
+			<<				write_var_lir ("lhs", "rhs")
+			<< "		] "
+			<<	"		[])"
+			<<	"]");
 		}
 		else
 		{
 			LDSL ("["
-				<< get_st_entry_lir (LOCAL, "lhs", lhs->value)
-				<< get_st_entry_lir (LOCAL, "rhs", rhs->value)
-				<< sep_copy_on_write_lir ("rhs")
-				<< copy_into_ref_lir ("lhs", "rhs")
-				<<	"]");
+			<< get_st_entry_lir (LOCAL, "lhs", lhs->value)
+			<< get_st_entry_lir (LOCAL, "rhs", rhs->value)
+			<< sep_copy_on_write_lir ("rhs")
+			<< copy_into_ref_lir ("lhs", "rhs")
+			<<	"]");
 		}
 
 		return new LIR::Block (comment, stmts);
@@ -2705,7 +2705,8 @@ void include_templates (String* filename)
 string
 templ (string name)
 {
-	assert (templates.has (name));
+   if (!templates.has (name))
+      phc_internal_error ("Missing template: %s", name.c_str ());
 
 	return templates[name];
 }
