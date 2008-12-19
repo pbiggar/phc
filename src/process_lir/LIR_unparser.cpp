@@ -10,10 +10,13 @@
 
 #include "LIR_unparser.h"
 #include "embed/embed.h"
+#include "cmdline.h"
 
 using namespace LIR;
 using namespace std;
 using namespace boost;
+
+extern struct gengetopt_args_info args_info;
 
 LIR_unparser::LIR_unparser (ostream& os)
 : PHP_unparser (os, true)
@@ -277,6 +280,9 @@ LIR_unparser::children_overwrite (LIR::Overwrite* in)
 void
 LIR_unparser::children_profile (LIR::Profile* in)
 {
+	if (!args_info.rt_stats_flag)
+		return;
+
 	echo ("increment_counter (");
 	visit_string (in->name);
 	echo (", ");
