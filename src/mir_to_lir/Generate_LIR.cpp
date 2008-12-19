@@ -425,23 +425,40 @@ public:
  */
 
 #define RTS(STR) code << increment_stat (STR);
+string init_stats () 
+{
+	if (args_info.rt_stats_flag)
+		return "init_counters ();\n";
+	else
+		return "";
+}
+
+string finalize_stats ()
+{
+	if (args_info.rt_stats_flag)
+		return "finalize_counters ();\n";
+	else
+		return "";
+}
+
 string increment_stat (string name)
 {
 	if (!args_info.rt_stats_flag)
 		return "";
 
-	string C_name = prefix (name, "counter");
+	int length = name.size () + 1;
+	string hashval = get_hash (s(name));
+
 	static Set<string> already_init;
 	if (!already_init.has (name))
 	{
 		already_init.insert (name);
-		prologue << "unsigned long long " << C_name << ";\n";
-		initializations << C_name << " = 0;\n";
-		finalizations << "printf (\"" << C_name << ": %d\\n\", " << C_name << ");\n";
+		initializations << "init_counter (\"" << name << "\", " << length << ", " << hashval << ");\n";
 	}
 
-	C_name.append ("++;\n");
-	return C_name;
+	stringstream ss;
+	ss << "increment_counter (\"" << name << "\", " << length << ", " << hashval << ");\n";
+	return ss.str ();
 }
 
 class Pattern : virtual public GC_obj
@@ -779,10 +796,10 @@ public:
 	LIR::Piece* generate_lir (String* comment, Generate_LIR* gen)
 	{
 		LIR::Statement_list* stmts = new LIR::Statement_list;
+		RTS_LIR (demangle (this));
 
 		if (!agn->is_ref)
 		{
-			RTS_LIR ("assignment_non_ref");
 			LDSL ("["
 			<< get_st_entry_lir (LOCAL, "lhs", lhs->value)
 			<< read_rvalue_lir ("rhs", rhs->value)
@@ -798,7 +815,6 @@ public:
 		}
 		else
 		{
-			RTS_LIR ("assignment_ref");
 			LDSL ("["
 			<< get_st_entry_lir (LOCAL, "lhs", lhs->value)
 			<< get_st_entry_lir (LOCAL, "rhs", rhs->value)
@@ -2807,6 +2823,8 @@ void Generate_LIR::pre_php_script(PHP_script* in)
 		<< "static zend_fcall_info_cache " << fcic_name << " = {0,NULL,NULL,NULL};\n"
 		;
 	}
+
+	lir->pieces->push_back (new LIR::UNINTERPRETED (s(prologue.str())));
 }
 
 LIR::UNINTERPRETED*
@@ -2823,10 +2841,6 @@ Generate_LIR::clear_code_buffer ()
 
 void Generate_LIR::post_php_script(PHP_script* in)
 {
-	// We need to write to the prologue during execution, for declaring counters
-	// (TODO: a nicer way would be better).
-	lir->pieces->push_front (new LIR::UNINTERPRETED (s(prologue.str())));
-
 	// Get the last piece
 	LIR::UNINTERPRETED* end = clear_code_buffer ();
 	lir->pieces->push_back (end);
@@ -2946,6 +2960,7 @@ void Generate_LIR::post_php_script(PHP_script* in)
 		"      zend_alter_ini_entry (\"report_zend_debug\", sizeof(\"report_zend_debug\"), \"0\", sizeof(\"0\") - 1, PHP_INI_ALL, PHP_INI_STAGE_RUNTIME);\n"
 		"      zend_alter_ini_entry (\"display_startup_errors\", sizeof(\"display_startup_errors\"), \"1\", sizeof(\"1\") - 1, PHP_INI_ALL, PHP_INI_STAGE_RUNTIME);\n"
 		"\n"
+		<< init_stats () << 
 		"      // initialize all the constants\n"
 		<< initializations.str () << // TODO put this in __MAIN__, or else extensions cant use it.
 		"\n"
@@ -2961,6 +2976,7 @@ void Generate_LIR::post_php_script(PHP_script* in)
 		"\n"
 		"      assert (success == SUCCESS);\n"
 		"\n"
+		<< finalize_stats () <<
 		"      // finalize the runtime\n"
 		"      finalize_runtime();\n"
 		"\n"

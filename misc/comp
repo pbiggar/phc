@@ -28,6 +28,9 @@ do
 	then
 		PHC_ARGS="$PHC_ARGS -O3"
 		OPTIMIZE=1
+	elif [ "-$var" = "--S" ]
+	then
+		PHC_ARGS="$PHC_ARGS --rt-stats"
 	elif [ "-$var" = "--r" ]
 	then
 		PHC_ARGS="$PHC_ARGS --run plugins/tools/debug_zval.la"

@@ -91,3 +91,57 @@ ht_var_debug (HashTable * st, char *name)
 
   ht_debug ((*p_zvp)->value.ht);
 }
+
+static zval* counters;
+
+static void init_counters ()
+{
+  ALLOC_INIT_ZVAL (counters);
+  array_init (counters);
+}
+
+static void init_counter (char* name, int length, ulong hashval)
+{
+  zval* new_val;
+  ALLOC_INIT_ZVAL (new_val);
+  ZVAL_LONG (new_val, 0);
+
+  zend_hash_quick_add (Z_ARRVAL_P (counters),
+		       name,
+		       length,
+		       hashval,
+		       &new_val,
+		       sizeof (zval *),
+		       NULL);
+}
+
+// Dump and cleanup memory
+static void finalize_counters ()
+{
+  HashTable* ht = Z_ARRVAL_P (counters);
+  for (zend_hash_internal_pointer_reset (ht);
+       zend_hash_has_more_elements (ht) == SUCCESS;
+       zend_hash_move_forward (ht))
+    {
+      char *key;
+      zval **p_zvp;
+
+      zend_hash_get_current_key_ex (ht, &key, NULL, NULL, 0, NULL);
+      zend_hash_get_current_data (ht, (void **) &p_zvp);
+
+      printf ("%s: %ld\n", key, Z_LVAL_P (*p_zvp));
+    }
+
+  zval_ptr_dtor (&counters);
+}
+
+static void increment_counter (char* name, int length, ulong hashval)
+{
+  zval** p_zvp;
+  zend_hash_quick_find (Z_ARRVAL_P (counters),
+			name,
+			length,
+			hashval,
+			(void **) &p_zvp);
+  Z_LVAL_PP (p_zvp)++;
+}
