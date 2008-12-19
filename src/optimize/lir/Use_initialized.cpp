@@ -53,31 +53,28 @@ Use_initialized::pre_opt (Opt* in, Statement_list* out)
 bool
 Use_initialized::check_zvpp (string prop, Zvpp* in)
 {
+	Wildcard<ZVP> zvp;
 	if (ZVPP* zvpp = dynamic_cast<ZVPP*> (in))
 		return zvpp_map[prop].has (*zvpp->value);
-	else
-	{
-		Wildcard<ZVP> zvp;
-		if (in->match (new Ref (&zvp)))
-			return zvp_map[prop].has (*zvp.value->value);
+	else if (in->match (new Ref (&zvp)))
+		return zvp_map[prop].has (*zvp.value->value);
 
-	}
-	phc_unreachable ();
+	// can't say its true
+	return false;
 }
 
 bool
 Use_initialized::check_zvp (string prop, Zvp* in)
 {
+	Wildcard<ZVPP> zvpp;
+
 	if (ZVP* zvp = dynamic_cast<ZVP*> (in))
 		return zvp_map[prop].has (*zvp->value);
-	else
-	{
-		Wildcard<ZVPP> zvpp;
-		if (in->match (new Deref (&zvpp)))
+	else if (in->match (new Deref (&zvpp)))
 			return zvpp_map[prop].has (*zvpp.value->value);
-	}
 
-	phc_unreachable ();
+	// cant say its true
+	return false;
 }
 
 
@@ -99,11 +96,22 @@ Use_initialized::post_cond (Cond* in)
 			return new True;
 	}
 
-
 	// If we know a variable is not initialized, it cannot be by reference.
 	if (in->match (new Is_ref (&zvp)))
 	{
 		if (check_zvp (IS_UNINIT, zvp.value))
+			return new False;
+	}
+
+	// If one is initialized, and the other is not, than they cannot be equal.
+	Wildcard<Zvp> zvp1, zvp2;
+	if (in->match (new Equals (&zvp1, &zvp2)))
+	{
+		// If either is uninit, assume they are not equal. In practice, they
+		// could both be uninitialized. In that case, the zval_ptr_dtor for the
+		// lhs would not destroy the memory, as it would have a refcount about 1,
+		// so its ok.
+		if (check_zvp (IS_UNINIT, zvp1.value) || check_zvp (IS_UNINIT, zvp2.value))
 			return new False;
 	}
 
