@@ -12,22 +12,30 @@ _phc()
 				 --dont-fail --no-xml-attrs"
 
 	# TODO provide context sensitive completion for these options, with an = and no space
-	paramOpts="--run --r-option --define --read-xml --c-option --extension	\
-				  --web-app --with-php --optimize --output --tab ---debug --dump \
-				  --dump-uppered --dump-dot --dump-xml --disable"
+	paramOpts=" --run --r-option --define  --c-option --extension --web-app \
+					--with-php --optimize --output --tab"
+	
+	passOpts="--read-xml --debug --dump --dump-uppered --dump-dot --dump-xml \
+				 --disable --stats"
+
+	# get the list of passes
+	passes=`$1 --list-passes  | grep '^ ' -v | grep -v '^Passes' | awk '{print \$1}'`
 
 
 	# options completion
-	if [[ "$cur" == -* ]]; then
-		COMPREPLY=( $( compgen -f -W "$shortOpts $longOpts $paramOpts" -- $cur ) )
+	if [[ "$prev" == -*  ]]; then
+		COMPREPLY=( $( compgen -W "$passes" -- $cur ) )
+	elif [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -f -W "$shortOpts $longOpts $paramOpts $passOpts" -- $cur ) )
 		return 0
 	else
-		# complete on php, xml and la files.
-		COMPREPLY=( $( compgen -f -X '!*.@(php|xml|la)' -- $cur) )
+		# complete on php, xml and la files, or directories.
+		COMPREPLY=( $( compgen -f -X '!*.@(php|xml|la)' -- $cur)  $( compgen -d  -- $cur))
+
 		# TODO only complete .xml files after --read-xml
 		# TODO only complete .la files after --run=
 		return 0
 	fi
 }
-# note that we need to add the space ourselves where necessary
-complete -F _phc -d phc
+# the -o options allow bash to gracefully accept directories, in the expected fashion.
+complete -F _phc -o filenames -o dirnames phc
