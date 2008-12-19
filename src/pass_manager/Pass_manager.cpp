@@ -426,6 +426,17 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 			xml_unparse (in, std::cout, !args_info->no_xml_attrs_flag, !args_info->no_base_64_flag);
 		}
 	}
+
+	for (unsigned int i = 0; i < args_info->stats_given; i++)
+	{
+		if (*name == args_info->stats_arg [i])
+		{
+			dump_stats ();
+			reset_stats ();
+		}
+	}
+
+
 }
 
 void Pass_manager::run (IR::PHP_script* in, bool main)

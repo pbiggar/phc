@@ -195,6 +195,7 @@ int main(int argc, char** argv)
 		if (! pm->has_pass_named (new String (args_info.FLAG##_arg [i])))			\
 			phc_error ("Pass %s, specified with flag --" #FLAG ", is not valid", args_info.FLAG##_arg [i]);	\
 	}
+	check_passes (stats);
 	check_passes (dump);
 	check_passes (dump_uppered);
 	check_passes (dump_xml);

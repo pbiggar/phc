@@ -62,6 +62,8 @@ const char *gengetopt_args_info_full_help[] = {
   "      --no-nulls               Don't show NULLs when dumping DOT  (default=off)",
   "      --no-empty-lists         Don't show empty lists when dumping DOT  \n                                 (default=off)",
   "\nDEBUGGING PHC:",
+  "      --stats=passname         Print statistics for the pass named 'passname",
+  "      --rt-stats               Print statistics about a program at run-time  \n                                 (default=off)",
   "      --debug=passname         Print debugging information for the pass named \n                                 'passname",
   "      --dump=passname          Dump input as PHP (although potentially with \n                                 gotos and labels) after the pass named \n                                 'passname'",
   "      --dump-uppered=passname  Dump input as runnable PHP after the pass named \n                                 'passname'",
@@ -161,6 +163,8 @@ void clear_given (struct gengetopt_args_info *args_info)
   args_info->no_line_numbers_given = 0 ;
   args_info->no_nulls_given = 0 ;
   args_info->no_empty_lists_given = 0 ;
+  args_info->stats_given = 0 ;
+  args_info->rt_stats_given = 0 ;
   args_info->debug_given = 0 ;
   args_info->dump_given = 0 ;
   args_info->dump_uppered_given = 0 ;
@@ -212,6 +216,9 @@ void clear_args (struct gengetopt_args_info *args_info)
   args_info->no_line_numbers_flag = 0;
   args_info->no_nulls_flag = 0;
   args_info->no_empty_lists_flag = 0;
+  args_info->stats_arg = NULL;
+  args_info->stats_orig = NULL;
+  args_info->rt_stats_flag = 0;
   args_info->debug_arg = NULL;
   args_info->debug_orig = NULL;
   args_info->dump_arg = NULL;
@@ -272,26 +279,30 @@ void init_args_info(struct gengetopt_args_info *args_info)
   args_info->no_line_numbers_help = gengetopt_args_info_full_help[30] ;
   args_info->no_nulls_help = gengetopt_args_info_full_help[31] ;
   args_info->no_empty_lists_help = gengetopt_args_info_full_help[32] ;
-  args_info->debug_help = gengetopt_args_info_full_help[34] ;
+  args_info->stats_help = gengetopt_args_info_full_help[34] ;
+  args_info->stats_min = 0;
+  args_info->stats_max = 0;
+  args_info->rt_stats_help = gengetopt_args_info_full_help[35] ;
+  args_info->debug_help = gengetopt_args_info_full_help[36] ;
   args_info->debug_min = 0;
   args_info->debug_max = 0;
-  args_info->dump_help = gengetopt_args_info_full_help[35] ;
+  args_info->dump_help = gengetopt_args_info_full_help[37] ;
   args_info->dump_min = 0;
   args_info->dump_max = 0;
-  args_info->dump_uppered_help = gengetopt_args_info_full_help[36] ;
+  args_info->dump_uppered_help = gengetopt_args_info_full_help[38] ;
   args_info->dump_uppered_min = 0;
   args_info->dump_uppered_max = 0;
-  args_info->dump_dot_help = gengetopt_args_info_full_help[37] ;
+  args_info->dump_dot_help = gengetopt_args_info_full_help[39] ;
   args_info->dump_dot_min = 0;
   args_info->dump_dot_max = 0;
-  args_info->dump_xml_help = gengetopt_args_info_full_help[38] ;
+  args_info->dump_xml_help = gengetopt_args_info_full_help[40] ;
   args_info->dump_xml_min = 0;
   args_info->dump_xml_max = 0;
-  args_info->list_passes_help = gengetopt_args_info_full_help[39] ;
-  args_info->dont_fail_help = gengetopt_args_info_full_help[40] ;
-  args_info->no_xml_attrs_help = gengetopt_args_info_full_help[41] ;
-  args_info->no_base_64_help = gengetopt_args_info_full_help[42] ;
-  args_info->disable_help = gengetopt_args_info_full_help[43] ;
+  args_info->list_passes_help = gengetopt_args_info_full_help[41] ;
+  args_info->dont_fail_help = gengetopt_args_info_full_help[42] ;
+  args_info->no_xml_attrs_help = gengetopt_args_info_full_help[43] ;
+  args_info->no_base_64_help = gengetopt_args_info_full_help[44] ;
+  args_info->disable_help = gengetopt_args_info_full_help[45] ;
   args_info->disable_min = 0;
   args_info->disable_max = 0;
   
@@ -445,6 +456,7 @@ cmdline_parser_release (struct gengetopt_args_info *args_info)
   free_string_field (&(args_info->output_orig));
   free_string_field (&(args_info->tab_arg));
   free_string_field (&(args_info->tab_orig));
+  free_multiple_string_field (args_info->stats_given, &(args_info->stats_arg), &(args_info->stats_orig));
   free_multiple_string_field (args_info->debug_given, &(args_info->debug_arg), &(args_info->debug_orig));
   free_multiple_string_field (args_info->dump_given, &(args_info->dump_arg), &(args_info->dump_orig));
   free_multiple_string_field (args_info->dump_uppered_given, &(args_info->dump_uppered_arg), &(args_info->dump_uppered_orig));
@@ -545,6 +557,9 @@ cmdline_parser_dump(FILE *outfile, struct gengetopt_args_info *args_info)
     write_into_file(outfile, "no-nulls", 0, 0 );
   if (args_info->no_empty_lists_given)
     write_into_file(outfile, "no-empty-lists", 0, 0 );
+  write_multiple_into_file(outfile, args_info->stats_given, "stats", args_info->stats_orig, 0);
+  if (args_info->rt_stats_given)
+    write_into_file(outfile, "rt-stats", 0, 0 );
   write_multiple_into_file(outfile, args_info->debug_given, "debug", args_info->debug_orig, 0);
   write_multiple_into_file(outfile, args_info->dump_given, "dump", args_info->dump_orig, 0);
   write_multiple_into_file(outfile, args_info->dump_uppered_given, "dump-uppered", args_info->dump_uppered_orig, 0);
@@ -820,6 +835,9 @@ cmdline_parser_required2 (struct gengetopt_args_info *args_info, const char *pro
   if (check_multiple_option_occurrences(prog_name, args_info->c_option_given, args_info->c_option_min, args_info->c_option_max, "'--c-option' ('-C')"))
      error = 1;
   
+  if (check_multiple_option_occurrences(prog_name, args_info->stats_given, args_info->stats_min, args_info->stats_max, "'--stats'"))
+     error = 1;
+  
   if (check_multiple_option_occurrences(prog_name, args_info->debug_given, args_info->debug_min, args_info->debug_max, "'--debug'"))
      error = 1;
   
@@ -1073,6 +1091,7 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
   struct generic_list * r_option_list = NULL;
   struct generic_list * define_list = NULL;
   struct generic_list * c_option_list = NULL;
+  struct generic_list * stats_list = NULL;
   struct generic_list * debug_list = NULL;
   struct generic_list * dump_list = NULL;
   struct generic_list * dump_uppered_list = NULL;
@@ -1137,6 +1156,8 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
         { "no-line-numbers",	0, NULL, 0 },
         { "no-nulls",	0, NULL, 0 },
         { "no-empty-lists",	0, NULL, 0 },
+        { "stats",	1, NULL, 0 },
+        { "rt-stats",	0, NULL, 0 },
         { "debug",	1, NULL, 0 },
         { "dump",	1, NULL, 0 },
         { "dump-uppered",	1, NULL, 0 },
@@ -1470,6 +1491,29 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
               goto failure;
           
           }
+          /* Print statistics for the pass named 'passname.  */
+          else if (strcmp (long_options[option_index].name, "stats") == 0)
+          {
+          
+            if (update_multiple_arg_temp(&stats_list, 
+                &(local_args_info.stats_given), optarg, 0, 0, ARG_STRING,
+                "stats", '-',
+                additional_error))
+              goto failure;
+          
+          }
+          /* Print statistics about a program at run-time.  */
+          else if (strcmp (long_options[option_index].name, "rt-stats") == 0)
+          {
+          
+          
+            if (update_arg((void *)&(args_info->rt_stats_flag), 0, &(args_info->rt_stats_given),
+                &(local_args_info.rt_stats_given), optarg, 0, 0, ARG_FLAG,
+                check_ambiguity, override, 1, 0, "rt-stats", '-',
+                additional_error))
+              goto failure;
+          
+          }
           /* Print debugging information for the pass named 'passname.  */
           else if (strcmp (long_options[option_index].name, "debug") == 0)
           {
@@ -1613,6 +1657,10 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
     &(args_info->c_option_orig), args_info->c_option_given,
     local_args_info.c_option_given, 0 , 
     ARG_STRING, c_option_list);
+  update_multiple_arg((void *)&(args_info->stats_arg),
+    &(args_info->stats_orig), args_info->stats_given,
+    local_args_info.stats_given, 0 , 
+    ARG_STRING, stats_list);
   update_multiple_arg((void *)&(args_info->debug_arg),
     &(args_info->debug_orig), args_info->debug_given,
     local_args_info.debug_given, 0 , 
@@ -1646,6 +1694,8 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
   local_args_info.define_given = 0;
   args_info->c_option_given += local_args_info.c_option_given;
   local_args_info.c_option_given = 0;
+  args_info->stats_given += local_args_info.stats_given;
+  local_args_info.stats_given = 0;
   args_info->debug_given += local_args_info.debug_given;
   local_args_info.debug_given = 0;
   args_info->dump_given += local_args_info.dump_given;
@@ -1700,6 +1750,7 @@ failure:
   free_list (r_option_list, 1 );
   free_list (define_list, 1 );
   free_list (c_option_list, 1 );
+  free_list (stats_list, 1 );
   free_list (debug_list, 1 );
   free_list (dump_list, 1 );
   free_list (dump_uppered_list, 1 );

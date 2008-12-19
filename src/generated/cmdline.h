@@ -104,6 +104,13 @@ struct gengetopt_args_info
   const char *no_nulls_help; /**< @brief Don't show NULLs when dumping DOT help description.  */
   int no_empty_lists_flag;	/**< @brief Don't show empty lists when dumping DOT (default=off).  */
   const char *no_empty_lists_help; /**< @brief Don't show empty lists when dumping DOT help description.  */
+  char ** stats_arg;	/**< @brief Print statistics for the pass named 'passname.  */
+  char ** stats_orig;	/**< @brief Print statistics for the pass named 'passname original value given at command line.  */
+  unsigned int stats_min; /**< @brief Print statistics for the pass named 'passname's minimum occurreces */
+  unsigned int stats_max; /**< @brief Print statistics for the pass named 'passname's maximum occurreces */
+  const char *stats_help; /**< @brief Print statistics for the pass named 'passname help description.  */
+  int rt_stats_flag;	/**< @brief Print statistics about a program at run-time (default=off).  */
+  const char *rt_stats_help; /**< @brief Print statistics about a program at run-time help description.  */
   char ** debug_arg;	/**< @brief Print debugging information for the pass named 'passname.  */
   char ** debug_orig;	/**< @brief Print debugging information for the pass named 'passname original value given at command line.  */
   unsigned int debug_min; /**< @brief Print debugging information for the pass named 'passname's minimum occurreces */
@@ -171,6 +178,8 @@ struct gengetopt_args_info
   unsigned int no_line_numbers_given ;	/**< @brief Whether no-line-numbers was given.  */
   unsigned int no_nulls_given ;	/**< @brief Whether no-nulls was given.  */
   unsigned int no_empty_lists_given ;	/**< @brief Whether no-empty-lists was given.  */
+  unsigned int stats_given ;	/**< @brief Whether stats was given.  */
+  unsigned int rt_stats_given ;	/**< @brief Whether rt-stats was given.  */
   unsigned int debug_given ;	/**< @brief Whether debug was given.  */
   unsigned int dump_given ;	/**< @brief Whether dump was given.  */
   unsigned int dump_uppered_given ;	/**< @brief Whether dump-uppered was given.  */
