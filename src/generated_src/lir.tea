@@ -54,6 +54,7 @@ Statement ::=    Action				-- (possibly) side-effecting statement
 					| CODE				-- Straight-line C code. Can't analyse it, but
 											-- we can optimize before and after, while
 											-- assuming the C code doesnt change anything.
+					| Profile
 					;
 
 Action ::=	  Assign_zvp
@@ -175,6 +176,12 @@ Identifier ::= ZVPP | ZVP | SYMTABLE | LITERAL | UNINTERPRETED | COMMENT | CODE 
  -}
 Opt ::= param:Opt_param value:STRING ;
 Opt_param ::= ZVPP | ZVP;
+
+{-
+ - Profiling
+ -}
+
+Profile ::= name:STRING ;
 
 {-
  - Extra attributes and methods (mixin code)

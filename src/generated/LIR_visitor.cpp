@@ -166,6 +166,10 @@ void Visitor::pre_opt_param(Opt_param* in)
 {
 }
 
+void Visitor::pre_profile(Profile* in)
+{
+}
+
 void Visitor::pre_int(INT* in)
 {
 }
@@ -368,6 +372,10 @@ void Visitor::post_opt(Opt* in)
 }
 
 void Visitor::post_opt_param(Opt_param* in)
+{
+}
+
+void Visitor::post_profile(Profile* in)
 {
 }
 
@@ -582,6 +590,11 @@ void Visitor::children_opt(Opt* in)
 {
     visit_opt_param(in->param);
     visit_string(in->value);
+}
+
+void Visitor::children_profile(Profile* in)
+{
+    visit_string(in->name);
 }
 
 /* Tokens don't have children, so these methods do nothing by default */
@@ -880,6 +893,13 @@ void Visitor::pre_opt_chain(Opt* in)
     pre_node((Node*) in);
     pre_statement((Statement*) in);
     pre_opt((Opt*) in);
+}
+
+void Visitor::pre_profile_chain(Profile* in)
+{
+    pre_node((Node*) in);
+    pre_statement((Statement*) in);
+    pre_profile((Profile*) in);
 }
 
 void Visitor::pre_int_chain(INT* in)
@@ -1194,6 +1214,13 @@ void Visitor::post_symtable_insert_chain(Symtable_insert* in)
 void Visitor::post_opt_chain(Opt* in)
 {
     post_opt((Opt*) in);
+    post_statement((Statement*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_profile_chain(Profile* in)
+{
+    post_profile((Profile*) in);
     post_statement((Statement*) in);
     post_node((Node*) in);
 }
@@ -1565,6 +1592,9 @@ void Visitor::pre_statement_chain(Statement* in)
     case CODE::ID:
     	pre_code_chain(dynamic_cast<CODE*>(in));
     	break;
+    case Profile::ID:
+    	pre_profile_chain(dynamic_cast<Profile*>(in));
+    	break;
     }
 }
 
@@ -1729,6 +1759,9 @@ void Visitor::post_statement_chain(Statement* in)
     case CODE::ID:
     	post_code_chain(dynamic_cast<CODE*>(in));
     	break;
+    case Profile::ID:
+    	post_profile_chain(dynamic_cast<Profile*>(in));
+    	break;
     }
 }
 
@@ -1892,6 +1925,9 @@ void Visitor::children_statement(Statement* in)
     	break;
     case CODE::ID:
     	children_code(dynamic_cast<CODE*>(in));
+    	break;
+    case Profile::ID:
+    	children_profile(dynamic_cast<Profile*>(in));
     	break;
     }
 }

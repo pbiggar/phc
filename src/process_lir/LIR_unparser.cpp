@@ -10,10 +10,13 @@
 
 #include "LIR_unparser.h"
 #include "embed/embed.h"
+#include "cmdline.h"
 
 using namespace LIR;
 using namespace std;
 using namespace boost;
+
+extern struct gengetopt_args_info args_info;
 
 LIR_unparser::LIR_unparser (ostream& os)
 : PHP_unparser (os, true)
@@ -284,6 +287,22 @@ LIR_unparser::children_overwrite (LIR::Overwrite* in)
 	echo ("zval_copy_ctor (");
 	visit_zvp (in->lhs);
 	echo (");");*/
+}
+
+
+void
+LIR_unparser::children_profile (LIR::Profile* in)
+{
+	if (!args_info.rt_stats_flag)
+		return;
+
+	echo ("increment_counter (");
+	visit_string (in->name);
+	echo (", ");
+	echo (lexical_cast<string> (in->name->value->size () + 1));
+	echo (", ");
+	echo (lexical_cast<string> (PHP::get_hash (in->name->value)));
+	echo_nl ("u);");
 }
 
 void

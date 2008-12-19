@@ -35,14 +35,13 @@ void
 Generate_LIR_annotations::post_php_script (PHP_script* in)
 {
 	// Add a list of literal-pooled variables to the script.
-	IR::Node_list* program_literals = new IR::Node_list;
+	Literal_list* program_literals = new Literal_list;
 
 	int ids[] = { MIR::STRING::ID, INT::ID, REAL::ID, MIR::BOOL::ID, NIL::ID };
 	foreach (int id, ids)
-		program_literals->push_back_all (
-			rewrap_list <MIR::Literal, IR::Node> (pool_values[id].values ()));
+		program_literals->push_back_all (pool_values[id].values ());
 
-	in->attrs->set ("phc.codegen.pooled_literals", program_literals);
+	in->attrs->set_list ("phc.codegen.pooled_literals", program_literals);
 
 
 	// Add a list of methods called.
@@ -54,7 +53,7 @@ Generate_LIR_annotations::post_php_script (PHP_script* in)
 
 
 	// Get a list of compiled functions
-	in->attrs->set ("phc.codegen.compiled_functions", compiled_functions);
+	in->attrs->set_list ("phc.codegen.compiled_functions", compiled_functions);
 }
 
 void

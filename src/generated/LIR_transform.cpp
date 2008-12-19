@@ -161,6 +161,11 @@ void Transform::pre_opt(Opt* in, Statement_list* out)
     out->push_back(in);
 }
 
+void Transform::pre_profile(Profile* in, Statement_list* out)
+{
+    out->push_back(in);
+}
+
 INT* Transform::pre_int(INT* in)
 {
     return in;
@@ -368,6 +373,11 @@ void Transform::post_symtable_insert(Symtable_insert* in, Statement_list* out)
 }
 
 void Transform::post_opt(Opt* in, Statement_list* out)
+{
+    out->push_back(in);
+}
+
+void Transform::post_profile(Profile* in, Statement_list* out)
 {
     out->push_back(in);
 }
@@ -594,6 +604,11 @@ void Transform::children_opt(Opt* in)
 {
     in->param = transform_opt_param(in->param);
     in->value = transform_string(in->value);
+}
+
+void Transform::children_profile(Profile* in)
+{
+    in->name = transform_string(in->name);
 }
 
 /* Tokens don't have children, so these methods do nothing by default */
@@ -1106,6 +1121,15 @@ void Transform::pre_statement(Statement* in, Statement_list* out)
     			out->push_back(*i);
     	}
     	return;
+    case Profile::ID: 
+    	{
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
+    		pre_profile(dynamic_cast<Profile*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
     }
     assert(0);
 }
@@ -1358,6 +1382,15 @@ void Transform::post_statement(Statement* in, Statement_list* out)
     			out->push_back(*i);
     	}
     	return;
+    case Profile::ID: 
+    	{
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
+    		post_profile(dynamic_cast<Profile*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
     }
     assert(0);
 }
@@ -1488,6 +1521,9 @@ void Transform::children_statement(Statement* in)
     	break;
     case CODE::ID:
     	children_code(dynamic_cast<CODE*>(in));
+    	break;
+    case Profile::ID:
+    	children_profile(dynamic_cast<Profile*>(in));
     	break;
     }
 }

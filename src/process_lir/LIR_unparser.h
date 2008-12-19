@@ -49,6 +49,7 @@ public:
 	void children_opt (LIR::Opt* in);
 //	void children_opt_param (LIR::Opt_param* in);
 	void children_overwrite (LIR::Overwrite* in);
+	void children_profile (LIR::Profile* in);
 	void children_ref (LIR::Ref* in);
 	void children_separate (LIR::Separate* in);
 	void children_set_is_ref (LIR::Set_is_ref* in);

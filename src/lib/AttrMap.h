@@ -10,6 +10,7 @@
 
 #include "lib/Object.h"
 #include "lib/Map.h"
+#include "process_ir/IR.h"
 #include <string>
 
 class String;
@@ -27,6 +28,23 @@ public:
 	Boolean* get_boolean(std::string key);
 	Integer* get_integer(std::string key);
 	String* get_string(std::string key);
+
+	/*
+	 * Special list support. The only list type we support are IR::Node_lists
+	 * and String_lists, as we cant serialize anything else to XML. These
+	 * functions wrap and unwrap them.
+	 */
+	template <class T>
+	List<T*>* get_list (std::string key)
+	{
+		return rewrap_list<IR::Node, T> (dyc<List<IR::Node*> > (get (key)));
+	};
+
+	template <class T>
+	void set_list (std::string key, List<T*>* list)
+	{
+		set (key, rewrap_list <T, IR::Node> (list));
+	};
 	
 // Special support for bools
 public:

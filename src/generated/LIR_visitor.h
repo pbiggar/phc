@@ -69,6 +69,7 @@ public:
     virtual void pre_identifier(Identifier* in);
     virtual void pre_opt(Opt* in);
     virtual void pre_opt_param(Opt_param* in);
+    virtual void pre_profile(Profile* in);
     virtual void pre_int(INT* in);
     virtual void pre_uninterpreted(UNINTERPRETED* in);
     virtual void pre_comment(COMMENT* in);
@@ -122,6 +123,7 @@ public:
     virtual void post_identifier(Identifier* in);
     virtual void post_opt(Opt* in);
     virtual void post_opt_param(Opt_param* in);
+    virtual void post_profile(Profile* in);
     virtual void post_int(INT* in);
     virtual void post_uninterpreted(UNINTERPRETED* in);
     virtual void post_comment(COMMENT* in);
@@ -166,6 +168,7 @@ public:
     virtual void children_symtable_fetch(Symtable_fetch* in);
     virtual void children_symtable_insert(Symtable_insert* in);
     virtual void children_opt(Opt* in);
+    virtual void children_profile(Profile* in);
 /* Tokens don't have children, so these methods do nothing by default */
 public:
     virtual void children_int(INT* in);
@@ -220,6 +223,7 @@ public:
     virtual void pre_symtable_fetch_chain(Symtable_fetch* in);
     virtual void pre_symtable_insert_chain(Symtable_insert* in);
     virtual void pre_opt_chain(Opt* in);
+    virtual void pre_profile_chain(Profile* in);
     virtual void pre_int_chain(INT* in);
     virtual void pre_uninterpreted_chain(UNINTERPRETED* in);
     virtual void pre_comment_chain(COMMENT* in);
@@ -266,6 +270,7 @@ public:
     virtual void post_symtable_fetch_chain(Symtable_fetch* in);
     virtual void post_symtable_insert_chain(Symtable_insert* in);
     virtual void post_opt_chain(Opt* in);
+    virtual void post_profile_chain(Profile* in);
     virtual void post_int_chain(INT* in);
     virtual void post_uninterpreted_chain(UNINTERPRETED* in);
     virtual void post_comment_chain(COMMENT* in);

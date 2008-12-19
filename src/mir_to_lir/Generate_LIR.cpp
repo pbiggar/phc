@@ -215,13 +215,13 @@ string read_rvalue_lir (string zvp, Rvalue* rvalue)
 	VARIABLE_NAME* var_name = dyc<VARIABLE_NAME> (rvalue);
 	if (var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
 	{
-		return str(format (templ ("read_rvalue_lir_st_entry_not_required"))
+		return str(format (templ ("read_var_no_st"))
 			% get_non_st_name (var_name)
 			% zvp);
 	}
 	else
 	{
-		return str(format (templ ("read_rvalue_lir_else"))
+		return str(format (templ ("read_var"))
 			% get_scope_lir (LOCAL)
 			% *var_name->value
 			% zvp);
@@ -268,12 +268,12 @@ string get_st_entry_lir (Scope scope, string zvp, VARIABLE_NAME* var_name)
 {
 	if (scope == LOCAL && var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
 	{
-		return READ ("get_st_entry_lir_st_entry_not_required",
+		return READ ("get_st_entry_no_st",
 			 	get_non_st_name (var_name) % zvp);
 	}
 	else
 	{
-		return READ ("get_st_entry_lir_else",
+		return READ ("get_st_entry",
 				get_scope_lir (LOCAL) % *var_name->value % zvp);
 	}
 }
@@ -459,6 +459,40 @@ public:
  * Pattern definitions for statements
  */
 
+#define RTS(STR) code << increment_stat (STR);
+string init_stats () 
+{
+	if (args_info.rt_stats_flag)
+		return "init_counters ();\n";
+	else
+		return "";
+}
+
+string finalize_stats ()
+{
+	if (args_info.rt_stats_flag)
+		return "finalize_counters ();\n";
+	else
+		return "";
+}
+
+string increment_stat (string name)
+{
+	if (!args_info.rt_stats_flag)
+		return "";
+
+	stringstream ss;
+	ss 
+	<< "increment_counter (\""
+	<< name << "\", "
+	<< name.size () + 1 << ", "
+	<< get_hash (s(name))
+	<< ");\n"
+	;
+
+	return ss.str ();
+}
+
 class Pattern : virtual public GC_obj
 {
 public:
@@ -474,6 +508,8 @@ public:
 
 		if (use_scope)
 			code << "{\n";
+
+		RTS (demangle (this));
 
 		generate_code (gen);
 
@@ -505,6 +541,7 @@ public:
 		signature = pattern->value->signature;
 
 		method_entry();
+		RTS (demangle (this));
 		LIR::UNINTERPRETED* entry = gen->clear_code_buffer ();
 
 		// Use a different gen for the nested function
@@ -780,6 +817,7 @@ class Pattern_assign_expr_var : public Pattern_assign_var
 #define STRAIGHT(STR) stmts->push_back (new LIR::CODE (s (STR)))
 #define DSL(STR) stmts->push_back (dyc<LIR::Statement> (parse_lir (s(#STR))))
 #define LDSL(STR) do { stringstream ss; ss << STR; stmts->push_back_all (dyc<LIR::Statement_list> (parse_lir (s(ss.str())))); } while (0)
+#define RTS_LIR(STR) "(profile (STRING " << STR << "))"
 public:
 	Expr* rhs_pattern()
 	{
@@ -799,26 +837,28 @@ public:
 		{
 
 			LDSL ("["
-				<< get_st_entry_lir (LOCAL, "lhs", lhs->value)
-				<< read_rvalue_lir ("rhs", rhs->value)
-				<< "	(if "
-				<<	"		(not (equals "
-				<<	"			(deref (ZVPP lhs)) "
-				<<	"			(ZVP rhs))) "
-				<<	"		[ "
-				<<				write_var_lir ("lhs", "rhs")
-				<< "		] "
-				<<	"		[])"
-				<<	"]");
+			<< RTS_LIR (demangle (this))
+			<< get_st_entry_lir (LOCAL, "lhs", lhs->value)
+			<< read_rvalue_lir ("rhs", rhs->value)
+			<< "	(if "
+			<<	"		(not (equals "
+			<<	"			(deref (ZVPP lhs)) "
+			<<	"			(ZVP rhs))) "
+			<<	"		[ "
+			<<				write_var_lir ("lhs", "rhs")
+			<< "		] "
+			<<	"		[])"
+			<<	"]");
 		}
 		else
 		{
 			LDSL ("["
-				<< get_st_entry_lir (LOCAL, "lhs", lhs->value)
-				<< get_st_entry_lir (LOCAL, "rhs", rhs->value)
-				<< sep_copy_on_write_lir ("rhs")
-				<< copy_into_ref_lir ("lhs", "rhs")
-				<<	"]");
+			<< RTS_LIR (demangle (this))
+			<< get_st_entry_lir (LOCAL, "lhs", lhs->value)
+			<< get_st_entry_lir (LOCAL, "rhs", rhs->value)
+			<< sep_copy_on_write_lir ("rhs")
+			<< copy_into_ref_lir ("lhs", "rhs")
+			<<	"]");
 		}
 
 		return new LIR::Block (comment, stmts);
@@ -2780,7 +2820,8 @@ void include_templates (String* filename)
 string
 templ (string name)
 {
-	assert (templates.has (name));
+   if (!templates.has (name))
+      phc_internal_error ("Missing template: %s", name.c_str ());
 
 	return templates[name];
 }
@@ -2813,8 +2854,8 @@ void Generate_LIR::pre_php_script(PHP_script* in)
 	// Add constant-pooling declarations
 	if (args_info.optimize_given)
 	{
-		Literal_list* pooled_literals = rewrap_list <IR::Node, Literal> (dyc<IR::Node_list> (
-			in->attrs->get ("phc.codegen.pooled_literals")));
+		Literal_list* pooled_literals = 
+			in->attrs->get_list<Literal> ("phc.codegen.pooled_literals");
 
 		foreach (Literal* lit, *pooled_literals)
 		{
@@ -2873,11 +2914,12 @@ Generate_LIR::clear_code_buffer ()
 
 void Generate_LIR::post_php_script(PHP_script* in)
 {
+	// Get the last piece
 	LIR::UNINTERPRETED* end = clear_code_buffer ();
 	lir->pieces->push_back (end);
 
 	code << "// ArgInfo structures (necessary to support compile time pass-by-reference)\n";
-	Signature_list* methods = dyc<Signature_list>(in->attrs->get("phc.codegen.compiled_functions"));
+	Signature_list* methods = in->attrs->get_list<Signature>("phc.codegen.compiled_functions");
 	foreach (Signature* s, *methods)
 	{
 		String* name = s->method_name->value;
@@ -2991,6 +3033,7 @@ void Generate_LIR::post_php_script(PHP_script* in)
 		"      zend_alter_ini_entry (\"report_zend_debug\", sizeof(\"report_zend_debug\"), \"0\", sizeof(\"0\") - 1, PHP_INI_ALL, PHP_INI_STAGE_RUNTIME);\n"
 		"      zend_alter_ini_entry (\"display_startup_errors\", sizeof(\"display_startup_errors\"), \"1\", sizeof(\"1\") - 1, PHP_INI_ALL, PHP_INI_STAGE_RUNTIME);\n"
 		"\n"
+		<< init_stats () << 
 		"      // initialize all the constants\n"
 		<< initializations.str () << // TODO put this in __MAIN__, or else extensions cant use it.
 		"\n"
@@ -3006,6 +3049,7 @@ void Generate_LIR::post_php_script(PHP_script* in)
 		"\n"
 		"      assert (success == SUCCESS);\n"
 		"\n"
+		<< finalize_stats () <<
 		"      // finalize the runtime\n"
 		"      finalize_runtime();\n"
 		"\n"

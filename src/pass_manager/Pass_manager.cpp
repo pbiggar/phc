@@ -448,6 +448,17 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 			xml_unparse (in, std::cout, !args_info->no_xml_attrs_flag, !args_info->no_base_64_flag);
 		}
 	}
+
+	for (unsigned int i = 0; i < args_info->stats_given; i++)
+	{
+		if (*name == args_info->stats_arg [i])
+		{
+			dump_stats ();
+			reset_stats ();
+		}
+	}
+
+
 }
 
 void Pass_manager::run (IR::PHP_script* in, bool main)
@@ -584,7 +595,7 @@ IR::PHP_script* Pass_manager::run_from_until (String* from, String* to, IR::PHP_
 	}
 
 	// LIR
-	if (args_info->generate_c_given || args_info->compile_given)
+	if (args_info->generate_c_flag || args_info->compile_flag)
 	{
 		in = in->fold_lower ();
 
@@ -604,8 +615,6 @@ IR::PHP_script* Pass_manager::run_from_until (String* from, String* to, IR::PHP_
 				return in;
 		}
 	}
-
-
 
 	return in;
 }

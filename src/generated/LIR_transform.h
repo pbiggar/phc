@@ -60,6 +60,7 @@ public:
     virtual void pre_symtable_fetch(Symtable_fetch* in, Statement_list* out);
     virtual void pre_symtable_insert(Symtable_insert* in, Statement_list* out);
     virtual void pre_opt(Opt* in, Statement_list* out);
+    virtual void pre_profile(Profile* in, Statement_list* out);
     virtual INT* pre_int(INT* in);
     virtual UNINTERPRETED* pre_uninterpreted(UNINTERPRETED* in);
     virtual COMMENT* pre_comment(COMMENT* in);
@@ -104,6 +105,7 @@ public:
     virtual void post_symtable_fetch(Symtable_fetch* in, Statement_list* out);
     virtual void post_symtable_insert(Symtable_insert* in, Statement_list* out);
     virtual void post_opt(Opt* in, Statement_list* out);
+    virtual void post_profile(Profile* in, Statement_list* out);
     virtual INT* post_int(INT* in);
     virtual UNINTERPRETED* post_uninterpreted(UNINTERPRETED* in);
     virtual COMMENT* post_comment(COMMENT* in);
@@ -148,6 +150,7 @@ public:
     virtual void children_symtable_fetch(Symtable_fetch* in);
     virtual void children_symtable_insert(Symtable_insert* in);
     virtual void children_opt(Opt* in);
+    virtual void children_profile(Profile* in);
 /* Tokens don't have children, so these methods do nothing by default */
 public:
     virtual void children_int(INT* in);

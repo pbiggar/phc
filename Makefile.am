@@ -293,6 +293,8 @@ libphc_la_SOURCES= 											\
 	src/process_ir/IR.h										\
 	src/process_ir/PHP_unparser.cpp						\
 	src/process_ir/PHP_unparser.h							\
+	src/process_ir/stats.cpp								\
+	src/process_ir/stats.h									\
 	src/process_ir/XML_unparser.cpp						\
 	src/process_ir/XML_unparser.h							\
 	src/process_lir/LIR_unparser.cpp						\

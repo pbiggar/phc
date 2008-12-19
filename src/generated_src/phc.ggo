@@ -36,6 +36,8 @@ option "no-nulls" - "Don't show NULLs when dumping DOT" flag off hidden
 option "no-empty-lists" - "Don't show empty lists when dumping DOT" flag off hidden
 
 section "DEBUGGING PHC"
+option "stats" - "Print statistics for the pass named 'passname" string typestr="passname" multiple hidden optional
+option "rt-stats" - "Print statistics about a program at run-time" flag off hidden
 option "debug" - "Print debugging information for the pass named 'passname" string typestr="passname" multiple hidden optional
 option "dump" - "Dump input as PHP (although potentially with gotos and labels) after the pass named 'passname'" string typestr="passname" multiple hidden optional
 option "dump-uppered" - "Dump input as runnable PHP after the pass named 'passname'" string typestr="passname" multiple hidden optional
