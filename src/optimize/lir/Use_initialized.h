@@ -16,6 +16,12 @@ class Use_initialized : public LIR::Transform
 	Map<string, Set<string> > zvp_map;
 	Map<string, Set<string> > zvpp_map;
 
+
+	// Check Zvp or Zvpps for a property. As well as checking the token, it will
+	// also look at the wrapper.
+	bool check_zvp (string prop, LIR::Zvp* in);
+	bool check_zvpp (string prop, LIR::Zvpp* in);
+
 	void pre_block (LIR::Block* in, LIR::Piece_list* out);
 	void pre_opt (LIR::Opt* in, LIR::Statement_list* out);
 	void post_if (LIR::If* in, LIR::Statement_list* out);
