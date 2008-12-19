@@ -30,18 +30,10 @@ using namespace boost;
 
 void parse_lir (string s);
 
-/*
-	new If (
-		new Equals (
-			new Deref (
-				new ZVPP ("p_lhs")),
-			new ZVP ("rhs")),
-			new LIR::Statement_list (
-				new CODE ("write_var (p_lhs, rhs);\n")),
-			new LIR::Statement_list));
-*/
+
 Stack<Object*> node_stack;
 Stack<int> num_children_stack;
+Stack<string> type_stack;
 
 void dump_stack ()
 {
@@ -138,15 +130,36 @@ void number_a (const char* first, const char* last)
 	dump_stack ();
 }
 
-void open_list_a (char first)
+void open_list_a (const char* first, const char* last)
 {
-	DEBUG ("open list");
+	string value = string (first, last);
+
+	// Find out the type: if omitted, use statement
+	string type;
+	if (value == "[")
+		type = "statement";
+	else
+		type = value.substr (1, value.size());
+
+	// uppercase first letter
+	type[0] = toupper (type[0]);
+
+	// Save as 'Statement_list'
+	type.append ("_list");
+
+	DEBUG ("open list: " << type);
+	type_stack.push (type);
 	num_children_stack.push(0);
 }
 
 void list_a (const char* first, const char* last)
 {
-	DEBUG ("list: " << string (first, last));
+	string value = string (first, last);
+	DEBUG ("list: " << value);
+
+	// Get the type
+	string type = type_stack.top ();
+	type_stack.pop ();
 
 	// Get the argument list
 	int num_children = num_children_stack.top();
@@ -161,9 +174,12 @@ void list_a (const char* first, const char* last)
 	}
 
 	// Now that we have the classname, just pass all the objects on the stack
-	// TODO: How can we know the list's type?
-	Object* result = LIR::Node_factory::create ("Statement_list", &args);
-	assert (result);
+	Object* result = LIR::Node_factory::create (type.c_str (), &args);
+	if (result == NULL)
+		phc_internal_error ("Could not create list of type '%s', with sexp '%s",
+			type.c_str (),
+			value.c_str());
+
 
 	node_stack.push (result);
 	dump_stack ();
@@ -183,7 +199,7 @@ parse_lir (String* s)
 	classname = +(alpha_p | '_'); // An LIR classname
 	ws = *space_p; // optional space
 	value = (alpha_p | '_') >> *(alnum_p | '_'); // a value (really a string, but no "" required)
-	list = ch_p('[')[&open_list_a] >> ws >> *(sexp >> ws) >> (ws >> (']'))[&list_a]; // list of Objects
+	list = (ch_p('[') >> !classname)[&open_list_a] >> ws >> *(sexp >> ws) >> (ws >> (']'))[&list_a]; // list of Objects
 
 	// Any char except ", or, alternatively, the sequence \"
 	string = '"' >> *((anychar_p - '"') | str_p ("\\\"")) >> '"';
@@ -193,7 +209,7 @@ parse_lir (String* s)
 	param = number[&number_a] | value[&value_a] | sexp | list | string[&string_a];
 
 	// definition: a classname and a number of arguments
-	sexp = ('(' >> ws >> classname[&classname_a] >> ws >> *(param >> ws) >> ')')[&sexp_a] ;
+	sexp = ('(' >> classname[&classname_a] >> ws >> *(param >> ws) >> ')')[&sexp_a] ;
 
 
 
@@ -255,15 +271,16 @@ parse_templates (String* s)
 	//		continues until another first line is matched.
 
 
-	rule<> r, first_line, otherline, end_line_p, not_eol, empty_line;
+	rule<> r, first_line, otherline, end_line_p, not_eol, empty_line, comment;
 	not_eol = ~ch_p ('\n') & ~ch_p ('\r');
 
 
+	comment = ch_p('#') >> *not_eol >> eol_p;
 	first_line = (+(alpha_p | ch_p('_')))[&first_line_a] >> ':' >> eol_p;
 	otherline = +blank_p >> +not_eol >> eol_p;
 	empty_line = (*blank_p >> eol_p);
 
-	r = +((first_line >> (+otherline)[&otherlines_a])[&complete_a] >> *empty_line);
+	r =  +(*comment >> (first_line >> (+otherline)[&otherlines_a])[&complete_a] >> *empty_line);
 
    BOOST_SPIRIT_DEBUG_RULE(first_line);
 	BOOST_SPIRIT_DEBUG_RULE(otherline);
