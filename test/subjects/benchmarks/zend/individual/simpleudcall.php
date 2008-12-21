@@ -381,5 +381,5 @@ function total()
 }
 
 $t0 = $t = start_test();
-for ($i = 0; $i < 10; $i++) simpleudcall();
+simpleudcall();
 $t = end_test($t, "simpleudcall");

@@ -202,8 +202,9 @@
 
 		$results = unserialize ($result_string);
 
-		foreach ($results as $key => $value)
-			e ("INSERT INTO benchmarks VALUES ($REV, '$key', $value)");
+		foreach ($results as $bench => $result_array)
+			foreach ($result_array as $key => $value)
+				e ("INSERT INTO benchmarks VALUES ($REV, '$bench', '$key', $value)");
 
 		return $results["instruction"]; // instruction count
 	}
@@ -217,7 +218,7 @@
 		$DB = new PDO ("sqlite:$DB_FILENAME");
 		e ("CREATE TABLE IF NOT EXISTS complete (revision, time, test_revision, author, commit_date, test_date, failed, redo, branch, benchmark)");
 		e ("CREATE TABLE IF NOT EXISTS tests (revision, testname, pass, fail, timeout, skip)");
-		e ("CREATE TABLE IF NOT EXISTS benchmarks (revision, metric, result)");
+		e ("CREATE TABLE IF NOT EXISTS benchmarks (revision, bench, metric, result)");
 	}
 
 	function initialize_revision_test ()
