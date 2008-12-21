@@ -114,7 +114,7 @@
 				")->fetchAll(PDO::FETCH_ASSOC);
 
 		if (empty ($data[0]["branch"]))
-			die ("bad old data");
+			die ("Unknown branch");
 
 		return $data[0]["branch"];
 	}

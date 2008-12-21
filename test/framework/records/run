@@ -15,10 +15,11 @@
 	$TEST_DIR = "$CWD/testing";
 	$RESULTS_DIR = "$CWD/results";
 	$DB_FILENAME = "$RESULTS_DIR/results.db";
-	$LATEST_REVISION = get_current_revision (); // use SVN to get this
 
 	$configure["trunk"] = "";
 	$configure["branches/dataflow"] = "--disable-gc";
+
+	$allowed_branches = array ("trunk", "branches/dataflow", "branches/lir");
 
 	// start the DB
 	initialize_db ();
@@ -28,11 +29,18 @@
 	// Do SVN work - fails mean test wasnt affected
 	try
 	{
+		$LATEST_REVISION = get_current_revision (); // use SVN to get this
+
 		list ($REV, $AUTHOR, $DATE) = get_working_revision () or svn_problem ();
 		$PREV_REV = $REV - 1;
-		initialize_revision_test ();
 
 		$BRANCH = get_svn_branch ($REV);
+		if (!in_array ($BRANCH, $allowed_branches))
+			test_problem ();
+
+
+		initialize_revision_test ();
+
 
 		c ("svn export -q --revision=$REV $REPO/$BRANCH $TEST_DIR");
 	}
@@ -70,10 +78,10 @@
 
 	function svn_problem ()
 	{
-		print "SVN problem. Wait 5 mins";
+		print "SVN problem. Wait 1 min\n";
 		save_log ();
-		print "SVN problem. Wait 5 mins";
-		sleep (300);
+		print "SVN problem. Wait 1 min\n";
+		sleep (60);
 		die ();
 	}
 
@@ -251,8 +259,10 @@
 	function save ($string, $log_name)
 	{
 		global $LOG_DIR;
-		assert (isset ($LOG_DIR));
-		file_put_contents ("$LOG_DIR/$log_name.log", $string);
+		if ($LOG_DIR)
+			file_put_contents ("$LOG_DIR/$log_name.log", $string);
+		else
+			print "No log yet:\n $string";
 	}
 
 	// C for Command. If the command fails, log the result and die
@@ -362,21 +372,21 @@
 	{
 		global $REPO;
 
-		$prev_rev = $rev - 1;
-		$diff = c ("svn diff -r $prev_rev:$rev $REPO");
+		$diff = c ("svn diff -c $rev $REPO");
 
 		// Just check the first file.
 		if (preg_match ("#^Index: branches/([^\/]+)/#", $diff, $matches))
 		{
-			$allowed_branches = array ("dataflow");
-			if (in_array ($matches[1], $allowed_branches))
 				return "branches/{$matches[1]}";
 		}
 		else if (preg_match ("#^Index: trunk#", $diff))
 			return "trunk";
-
-		// Dont run anything on this one
-		return NULL;
+		else
+		{
+			// This happened when we deleted a branch. It might happen other times?
+			// TODO: we could get more info with --summarize
+			return "";
+		}
 	}
 
 ?>

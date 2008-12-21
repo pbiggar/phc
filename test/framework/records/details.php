@@ -172,7 +172,7 @@
 		print "<tr><th>Metric</th><th>"
 			. "Result (+/- vs "
 			. "<a href='details.php?rev=$old_rev'>$old_rev</a>"
-			. ")</th><th>";
+			. ")</th>";
 
 		# fetch the previous revisions data, for comparison
 		$old_test_data = $DB->query ("
