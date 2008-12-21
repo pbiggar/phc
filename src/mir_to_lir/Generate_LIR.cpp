@@ -285,8 +285,12 @@ string get_st_entry_lir (Scope scope, string zvp, VARIABLE_NAME* var_name)
  * This means that we can assign a property to a single ZVP or ZVPP, and not
  * worry about it leaking.
  */
-string opt_annotations (MIR::VARIABLE_NAME* var, string zvp)
+string opt_annotations (MIR::Rvalue* rvalue, string zvp)
 {
+	if (isa<MIR::VARIABLE_NAME> (rvalue))
+		return "";
+	MIR::VARIABLE_NAME* var = dyc<MIR::VARIABLE_NAME> (rvalue);
+
 	/* Get all attributes starting in phc.optimize which are booleans. Dump
 	 * them out in the following configurations:
 	 *		ZVP lhs
@@ -1108,6 +1112,12 @@ public:
 		string op_fn = op_functions[*op->value->value]; 
 
 		LIR::Statement_list* stmts = new LIR::Statement_list;
+
+		LDSL ("["
+		<< opt_annotations (lhs->value, "lhs")
+		<< opt_annotations (right->value, "right")
+		<< opt_annotations (left->value, "left")
+		<< "]");
 
 		LDSL ("["
 		<< RTS_LIR (demangle (this))
