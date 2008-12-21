@@ -142,17 +142,17 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Not(cond);
     }
-    if(!strcmp(type_id, "Is_change_on_write"))
+    if(!strcmp(type_id, "In_change_on_write"))
     {
     	Zvp* zvp = dynamic_cast<Zvp*>(*i++);
     	assert(i == args->end());
-    	return new Is_change_on_write(zvp);
+    	return new In_change_on_write(zvp);
     }
-    if(!strcmp(type_id, "Is_copy_on_write"))
+    if(!strcmp(type_id, "In_copy_on_write"))
     {
     	Zvp* zvp = dynamic_cast<Zvp*>(*i++);
     	assert(i == args->end());
-    	return new Is_copy_on_write(zvp);
+    	return new In_copy_on_write(zvp);
     }
     if(!strcmp(type_id, "True"))
     {

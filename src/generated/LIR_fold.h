@@ -43,9 +43,9 @@ template
  class _INTRINSIC,
  class _Identifier,
  class _If,
+ class _In_change_on_write,
+ class _In_copy_on_write,
  class _Inc_ref,
- class _Is_change_on_write,
- class _Is_copy_on_write,
  class _Is_ref,
  class _LITERAL,
  class _Method,
@@ -78,7 +78,7 @@ class Fold
 {
 // Access this class from subclasses without copying out the template instantiation
 public:
-   typedef Fold<_API_CALL, _Action, _Allocate, _Assign_zvp, _Assign_zvpp, _Block, _CODE, _COMMENT, _C_file, _Clone, _Cond, _Dec_ref, _Declare, _Declare_p, _Deref, _Destruct, _Equals, _Equals_p, _False, _INT, _INTRINSIC, _Identifier, _If, _Inc_ref, _Is_change_on_write, _Is_copy_on_write, _Is_ref, _LITERAL, _Method, _Node, _Not, _Null, _Opt, _Opt_param, _Overwrite, _Piece, _Profile, _Ref, _STRING, _SYMTABLE, _Separate, _Set_is_ref, _Statement, _Symtable_fetch, _Symtable_insert, _True, _UNINTERPRETED, _Uninit, _ZVP, _ZVPP, _Zvp, _Zvpp, _List> parent;
+   typedef Fold<_API_CALL, _Action, _Allocate, _Assign_zvp, _Assign_zvpp, _Block, _CODE, _COMMENT, _C_file, _Clone, _Cond, _Dec_ref, _Declare, _Declare_p, _Deref, _Destruct, _Equals, _Equals_p, _False, _INT, _INTRINSIC, _Identifier, _If, _In_change_on_write, _In_copy_on_write, _Inc_ref, _Is_ref, _LITERAL, _Method, _Node, _Not, _Null, _Opt, _Opt_param, _Overwrite, _Piece, _Profile, _Ref, _STRING, _SYMTABLE, _Separate, _Set_is_ref, _Statement, _Symtable_fetch, _Symtable_insert, _True, _UNINTERPRETED, _Uninit, _ZVP, _ZVPP, _Zvp, _Zvpp, _List> parent;
 // Recursively fold the children before folding the parent
 // This methods form the client API for a fold, but should not be
 // overridden unless you know what you are doing
@@ -275,18 +275,18 @@ public:
 		return fold_impl_not(in, cond);
 	}
 
-	virtual _Is_change_on_write fold_is_change_on_write(Is_change_on_write* in)
+	virtual _In_change_on_write fold_in_change_on_write(In_change_on_write* in)
 	{
 		_Zvp zvp = 0;
 		if(in->zvp != NULL) zvp = fold_zvp(in->zvp);
-		return fold_impl_is_change_on_write(in, zvp);
+		return fold_impl_in_change_on_write(in, zvp);
 	}
 
-	virtual _Is_copy_on_write fold_is_copy_on_write(Is_copy_on_write* in)
+	virtual _In_copy_on_write fold_in_copy_on_write(In_copy_on_write* in)
 	{
 		_Zvp zvp = 0;
 		if(in->zvp != NULL) zvp = fold_zvp(in->zvp);
-		return fold_impl_is_copy_on_write(in, zvp);
+		return fold_impl_in_copy_on_write(in, zvp);
 	}
 
 	virtual _True fold_true(True* in)
@@ -392,8 +392,8 @@ public:
 	virtual _Equals fold_impl_equals(Equals* orig, _Zvp lhs, _Zvp rhs) { assert(0); };
 	virtual _Equals_p fold_impl_equals_p(Equals_p* orig, _Zvpp lhs, _Zvpp rhs) { assert(0); };
 	virtual _Not fold_impl_not(Not* orig, _Cond cond) { assert(0); };
-	virtual _Is_change_on_write fold_impl_is_change_on_write(Is_change_on_write* orig, _Zvp zvp) { assert(0); };
-	virtual _Is_copy_on_write fold_impl_is_copy_on_write(Is_copy_on_write* orig, _Zvp zvp) { assert(0); };
+	virtual _In_change_on_write fold_impl_in_change_on_write(In_change_on_write* orig, _Zvp zvp) { assert(0); };
+	virtual _In_copy_on_write fold_impl_in_copy_on_write(In_copy_on_write* orig, _Zvp zvp) { assert(0); };
 	virtual _True fold_impl_true(True* orig) { assert(0); };
 	virtual _False fold_impl_false(False* orig) { assert(0); };
 	virtual _Uninit fold_impl_uninit(Uninit* orig) { assert(0); };
@@ -479,10 +479,10 @@ public:
 				return fold_equals_p(dynamic_cast<Equals_p*>(in));
 			case Not::ID:
 				return fold_not(dynamic_cast<Not*>(in));
-			case Is_copy_on_write::ID:
-				return fold_is_copy_on_write(dynamic_cast<Is_copy_on_write*>(in));
-			case Is_change_on_write::ID:
-				return fold_is_change_on_write(dynamic_cast<Is_change_on_write*>(in));
+			case In_copy_on_write::ID:
+				return fold_in_copy_on_write(dynamic_cast<In_copy_on_write*>(in));
+			case In_change_on_write::ID:
+				return fold_in_change_on_write(dynamic_cast<In_change_on_write*>(in));
 			case True::ID:
 				return fold_true(dynamic_cast<True*>(in));
 			case False::ID:
@@ -621,10 +621,10 @@ public:
 				return fold_equals_p(dynamic_cast<Equals_p*>(in));
 			case Not::ID:
 				return fold_not(dynamic_cast<Not*>(in));
-			case Is_copy_on_write::ID:
-				return fold_is_copy_on_write(dynamic_cast<Is_copy_on_write*>(in));
-			case Is_change_on_write::ID:
-				return fold_is_change_on_write(dynamic_cast<Is_change_on_write*>(in));
+			case In_copy_on_write::ID:
+				return fold_in_copy_on_write(dynamic_cast<In_copy_on_write*>(in));
+			case In_change_on_write::ID:
+				return fold_in_change_on_write(dynamic_cast<In_change_on_write*>(in));
 			case True::ID:
 				return fold_true(dynamic_cast<True*>(in));
 			case False::ID:

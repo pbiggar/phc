@@ -56,5 +56,5 @@ void Generate_C::run (IR::PHP_script* in, Pass_manager* pm)
 Generate_C::Generate_C(ostream& os) : os (os)
 {
 	name = new String ("generate-c");
-	description = new String ("Generate C code from the MIR");
+	description = new String ("Generate C code from the LIR");
 }

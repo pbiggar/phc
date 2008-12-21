@@ -201,10 +201,11 @@ int main(int argc, char** argv)
 
 	// lir passes
 	pm->add_codegen_transform (new Out_of_SSA (), s("outssa"), s("Remove SSA constructs"));
+
 	pm->add_codegen_visitor (new Generate_LIR_annotations, s("lirann"), s("Codegen annotation"));
+	pm->add_codegen_pass (new Fake_pass (s("MIR-to-LIR"), s("The MIR in its final form")));
 
 	// Use ss to pass generated code between Generate_C and Compile_C
-//	pm->add_lir_transform (new Use_initialized (), s("useinit"), s("Optimize the LIR using results from mvi"));
 	stringstream ss;
 	pm->add_lir_pass (new Fake_pass (s("lir"), s("Low-level Internal Representation - constructs representing generated code, at a slightly higher level than C")));
 	pm->add_lir_transform (new Use_initialized (), s("use-init"), s("Use results of mvi pass"));

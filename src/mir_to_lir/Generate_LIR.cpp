@@ -814,7 +814,7 @@ protected:
  */
 class Pattern_assign_expr_var : public Pattern_assign_var
 {
-#define STRAIGHT(STR) stmts->push_back (new LIR::CODE (s (STR)))
+#define STRAIGHT(STR) do { stringstream ss; ss << STR; stmts->push_back (new LIR::CODE (s(ss.str()))); } while (0)
 #define DSL(STR) stmts->push_back (dyc<LIR::Statement> (parse_lir (s(#STR))))
 #define LDSL(STR) do { stringstream ss; ss << STR; stmts->push_back_all (dyc<LIR::Statement_list> (parse_lir (s(ss.str())))); } while (0)
 #define RTS_LIR(STR) "(profile (STRING " << STR << "))"
@@ -1098,41 +1098,51 @@ public:
 		return new Bin_op (left, op, right); 
 	}
 
-	void generate_code (Generate_LIR* gen)
+
+	LIR::Piece* generate_lir (String* comment, Generate_LIR* gen)
 	{
 		assert (lhs);
 		assert (op_functions.has (*op->value->value));
+		assert (!agn->is_ref);
 
 		string op_fn = op_functions[*op->value->value]; 
 
-		code
-		<< get_st_entry (LOCAL, "p_lhs", lhs->value)
-		<< read_rvalue ("left", left->value)
-		<< read_rvalue ("right", right->value)
+		LIR::Statement_list* stmts = new LIR::Statement_list;
 
-		<< "if (in_copy_on_write (*p_lhs))\n"
-		<< "{\n"
-		<< "	zval_ptr_dtor (p_lhs);\n"
-		<< "	ALLOC_INIT_ZVAL (*p_lhs);\n"
-		<< "}\n"
-		<< "zval old = **p_lhs;\n"
-		<< "int result_is_operand = (*p_lhs == left || *p_lhs == right);\n"
-		;
+		LDSL ("["
+		<< RTS_LIR (demangle (this))
+		<< get_st_entry_lir (LOCAL, "lhs", lhs->value)
+		<< read_rvalue_lir ("left", left->value)
+		<< read_rvalue_lir ("right", right->value)
+		<< 
+		"(if (in_copy_on_write (deref (ZVPP lhs))) "
+		"[	(destruct (ZVPP lhs))"
+		"	(allocate (deref (ZVPP lhs))) "
+		"] [])"
+
+		<< "]");
+
+		STRAIGHT (
+		"zval old = **p_lhs;\n"
+		<< "int result_is_operand = (*p_lhs == left || *p_lhs == right);\n");
 
 		// some operators need the operands to be reversed (since we
 		// call the opposite function). This is accounted for in the
 		// binops table.
 		if(*op->value->value == ">" || *op->value->value == ">=")
-			code << op_fn << "(*p_lhs, right, left TSRMLS_CC);\n";
+			STRAIGHT (op_fn << "(*p_lhs, right, left TSRMLS_CC);\n");
 		else
-			code << op_fn << "(*p_lhs, left, right TSRMLS_CC);\n";
+			STRAIGHT (op_fn << "(*p_lhs, left, right TSRMLS_CC);\n");
 
-		// If the result is one of the operand, the operator function
+		// If the result is one of the operands, the operator function
 		// will already have cleaned up the result
-		code
-		<< "if (!result_is_operand)\n"
-		<<		"zval_dtor (&old);\n";
+		STRAIGHT (	
+		"if (!result_is_operand)\n"
+		<<	"zval_dtor (&old);\n");
+
+		return new LIR::Block (comment, stmts);
 	}
+
 
 protected:
 	Wildcard<Rvalue>* left;
@@ -1311,24 +1321,8 @@ public:
 string
 read_literal_lir (string zvp, Literal* lit)
 {
-	assert (0);
 	stringstream ss;
-	if (args_info.optimize_given)
-	{
-		ss 
-		<< "zval* " << zvp << " = "
-		<<	*lit->attrs->get_string ("phc.codegen.pool_name")
-		<< ";\n";
-	}
-	else
-	{
-		ss
-		<< "zval " << zvp << "_lit_tmp;\n"
-		<< "INIT_ZVAL (" << zvp << "_lit_tmp);\n"
-		<< "zval* " << zvp << " = &" << zvp << "_lit_tmp;\n"
-		<< write_literal_value_directly_into_zval (zvp, lit)
-		;
-	}
+	ss << "(CODE \"" << read_literal (zvp, lit) << "\")";
 	return ss.str();
 }
 

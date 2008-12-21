@@ -40,8 +40,8 @@ public:
 	void children_inc_ref (LIR::Inc_ref* in);
 	void children_int (LIR::INT* in);
 	void children_intrinsic (LIR::INTRINSIC* in);
-	void children_is_change_on_write (LIR::Is_change_on_write* in);
-	void children_is_copy_on_write (LIR::Is_copy_on_write* in);
+	void children_in_change_on_write (LIR::In_change_on_write* in);
+	void children_in_copy_on_write (LIR::In_copy_on_write* in);
 	void children_is_ref (LIR::Is_ref* in);
 	void children_literal (LIR::LITERAL* in);
 	void children_not (LIR::Not* in);

@@ -24,8 +24,8 @@ class Is_ref;
 class Equals;
 class Equals_p;
 class Not;
-class Is_change_on_write;
-class Is_copy_on_write;
+class In_change_on_write;
+class In_copy_on_write;
 class True;
 class False;
 class Uninit;
@@ -80,8 +80,8 @@ MAKETEA_USER_DEFINED(LIR::Is_ref)
 MAKETEA_USER_DEFINED(LIR::Equals)
 MAKETEA_USER_DEFINED(LIR::Equals_p)
 MAKETEA_USER_DEFINED(LIR::Not)
-MAKETEA_USER_DEFINED(LIR::Is_change_on_write)
-MAKETEA_USER_DEFINED(LIR::Is_copy_on_write)
+MAKETEA_USER_DEFINED(LIR::In_change_on_write)
+MAKETEA_USER_DEFINED(LIR::In_copy_on_write)
 MAKETEA_USER_DEFINED(LIR::True)
 MAKETEA_USER_DEFINED(LIR::False)
 MAKETEA_USER_DEFINED(LIR::Uninit)

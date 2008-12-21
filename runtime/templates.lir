@@ -126,7 +126,7 @@ write_var:
 
 # 1: variable to separate (zvpp)
 sep_copy_on_write:
-	(if (is_copy_on_write (deref (ZVPP %1%)))
+	(if (in_copy_on_write (deref (ZVPP %1%)))
 		[ 
 			(declare (ZVP old))
 			(assign_zvp (ZVP old) (deref (ZVPP %1%)))

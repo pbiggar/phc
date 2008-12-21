@@ -529,13 +529,14 @@ IR::PHP_script* Pass_manager::run_from_until (String* from, String* to, IR::PHP_
 	// passes in the later queues, dont fold.
 	if (hir_queue->size() == 0
 		&& mir_queue->size () == 0 
-		&& optimization_queue->size () == 0
+		&& optimization_queue->size () == 0 
 		&& codegen_queue->size() == 0
 		&& lir_queue->size() == 0)
 		return in;
 
 	// HIR
-	in = in->fold_lower ();
+	if (exec)
+		in = in->fold_lower ();
 
 	foreach (Pass* p, *hir_queue)
 	{
@@ -559,7 +560,8 @@ IR::PHP_script* Pass_manager::run_from_until (String* from, String* to, IR::PHP_
 		return in;
 
 	// MIR
-	in = in->fold_lower ();
+	if (exec)
+		in = in->fold_lower ();
 
 	foreach (Pass* p, *mir_queue)
 	{
@@ -597,7 +599,8 @@ IR::PHP_script* Pass_manager::run_from_until (String* from, String* to, IR::PHP_
 	// LIR
 	if (args_info->generate_c_flag || args_info->compile_flag)
 	{
-		in = in->fold_lower ();
+		if (exec)
+			in = in->fold_lower ();
 
 		// TODO: avoid code duplication
 		foreach (Pass* p, *lir_queue)

@@ -53,8 +53,8 @@ public:
     virtual void pre_equals(Equals* in);
     virtual void pre_equals_p(Equals_p* in);
     virtual void pre_not(Not* in);
-    virtual void pre_is_change_on_write(Is_change_on_write* in);
-    virtual void pre_is_copy_on_write(Is_copy_on_write* in);
+    virtual void pre_in_change_on_write(In_change_on_write* in);
+    virtual void pre_in_copy_on_write(In_copy_on_write* in);
     virtual void pre_true(True* in);
     virtual void pre_false(False* in);
     virtual void pre_zvp(Zvp* in);
@@ -107,8 +107,8 @@ public:
     virtual void post_equals(Equals* in);
     virtual void post_equals_p(Equals_p* in);
     virtual void post_not(Not* in);
-    virtual void post_is_change_on_write(Is_change_on_write* in);
-    virtual void post_is_copy_on_write(Is_copy_on_write* in);
+    virtual void post_in_change_on_write(In_change_on_write* in);
+    virtual void post_in_copy_on_write(In_copy_on_write* in);
     virtual void post_true(True* in);
     virtual void post_false(False* in);
     virtual void post_zvp(Zvp* in);
@@ -156,8 +156,8 @@ public:
     virtual void children_equals(Equals* in);
     virtual void children_equals_p(Equals_p* in);
     virtual void children_not(Not* in);
-    virtual void children_is_change_on_write(Is_change_on_write* in);
-    virtual void children_is_copy_on_write(Is_copy_on_write* in);
+    virtual void children_in_change_on_write(In_change_on_write* in);
+    virtual void children_in_copy_on_write(In_copy_on_write* in);
     virtual void children_true(True* in);
     virtual void children_false(False* in);
     virtual void children_uninit(Uninit* in);
@@ -211,8 +211,8 @@ public:
     virtual void pre_equals_chain(Equals* in);
     virtual void pre_equals_p_chain(Equals_p* in);
     virtual void pre_not_chain(Not* in);
-    virtual void pre_is_change_on_write_chain(Is_change_on_write* in);
-    virtual void pre_is_copy_on_write_chain(Is_copy_on_write* in);
+    virtual void pre_in_change_on_write_chain(In_change_on_write* in);
+    virtual void pre_in_copy_on_write_chain(In_copy_on_write* in);
     virtual void pre_true_chain(True* in);
     virtual void pre_false_chain(False* in);
     virtual void pre_uninit_chain(Uninit* in);
@@ -258,8 +258,8 @@ public:
     virtual void post_equals_chain(Equals* in);
     virtual void post_equals_p_chain(Equals_p* in);
     virtual void post_not_chain(Not* in);
-    virtual void post_is_change_on_write_chain(Is_change_on_write* in);
-    virtual void post_is_copy_on_write_chain(Is_copy_on_write* in);
+    virtual void post_in_change_on_write_chain(In_change_on_write* in);
+    virtual void post_in_copy_on_write_chain(In_copy_on_write* in);
     virtual void post_true_chain(True* in);
     virtual void post_false_chain(False* in);
     virtual void post_uninit_chain(Uninit* in);
