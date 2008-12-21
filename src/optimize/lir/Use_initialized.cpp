@@ -34,7 +34,7 @@ Use_initialized::pre_block(Block* in, Piece_list* out)
 void
 Use_initialized::pre_opt (Opt* in, Statement_list* out)
 {
-	 // The becomes a comment
+	 // Don't remove the opt: it is unparsed as a comment
 	out->push_back (in);
 
 	string value = *in->value->value;
@@ -84,14 +84,14 @@ Use_initialized::post_cond (Cond* in)
 	Wildcard<Zvp> zvp;
 	Wildcard<Zvpp> zvpp;
 
-	// If we know a variable is initialized, remove the equals NULL check.
-	// If we know a variable is not initialized, remove the equals NULL
-	// check.
 	if (in->match (new Equals (&zvp, new Null)))
 	{
+		// If we know a variable is initialized, remove the equals NULL check.
 		if (check_zvp (IS_INIT, zvp.value))
 			return new False;
 
+		// If we know a variable is not initialized, remove the equals NULL
+		// check.
 		if (check_zvp (IS_UNINIT, zvp.value))
 			return new True;
 	}
