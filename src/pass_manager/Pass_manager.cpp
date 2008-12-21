@@ -38,8 +38,12 @@ Pass_manager::Pass_manager (gengetopt_args_info* args_info)
 	ast_queue = new Pass_queue;
 	hir_queue = new Pass_queue;
 	mir_queue = new Pass_queue;
+	codegen_queue = new Pass_queue;
 	lir_queue = new Pass_queue;
-	queues = new List <Pass_queue* > (ast_queue, hir_queue, mir_queue, lir_queue);
+
+	queues = new List <Pass_queue* > (ast_queue, hir_queue, mir_queue);
+	queues->push_back (codegen_queue);
+	queues->push_back (lir_queue);
 }
 
 // AST
@@ -63,21 +67,6 @@ void Pass_manager::add_ast_pass (Pass* pass)
 void Pass_manager::add_after_each_ast_pass (Pass* pass)
 {
 	add_after_each_pass (pass, ast_queue);
-}
-
-bool is_queue_pass (String* name, Pass_queue* queue)
-{
-	foreach (Pass* p, *queue)
-	{
-		if (*name == *p->name)
-			return true;
-	}
-	return false;
-}
-
-bool Pass_manager::is_ast_pass (String* name)
-{
-	return is_queue_pass (name, ast_queue);
 }
 
 
@@ -104,10 +93,7 @@ void Pass_manager::add_after_each_hir_pass (Pass* pass)
 	add_after_each_pass (pass, hir_queue);
 }
 
-bool Pass_manager::is_hir_pass (String* name)
-{
-	return is_queue_pass (name, hir_queue);
-}
+
 
 
 // MIR
@@ -133,9 +119,24 @@ void Pass_manager::add_after_each_mir_pass (Pass* pass)
 	add_after_each_pass (pass, mir_queue);
 }
 
-bool Pass_manager::is_mir_pass (String* name)
+
+
+// Codegen
+void Pass_manager::add_codegen_visitor (MIR::Visitor* visitor, String* name, String* description)
 {
-	return is_queue_pass (name, mir_queue);
+	Pass* pass = new Visitor_pass (visitor, name, description);
+	add_pass (pass, codegen_queue);
+}
+
+void Pass_manager::add_codegen_transform (MIR::Transform* transform, String* name, String* description)
+{
+	Pass* pass = new Transform_pass (transform, name, description);
+	add_pass (pass, codegen_queue);
+}
+
+void Pass_manager::add_codegen_pass (Pass* pass)
+{
+	add_pass (pass, codegen_queue);
 }
 
 
@@ -162,11 +163,6 @@ void Pass_manager::add_after_each_lir_pass (Pass* pass)
 	add_after_each_pass (pass, lir_queue);
 }
 
-bool Pass_manager::is_lir_pass (String* name)
-{
-	return is_queue_pass (name, mir_queue);
-}
-
 
 // Generic
 void Pass_manager::add_pass (Pass* pass, Pass_queue* queue)
@@ -174,6 +170,7 @@ void Pass_manager::add_pass (Pass* pass, Pass_queue* queue)
 	assert (pass->name);
 	queue->push_back (pass);
 }
+
 
 
 void Pass_manager::add_plugin (lt_dlhandle handle, String* name, String* option)
@@ -339,9 +336,13 @@ void Pass_manager::list_passes ()
 	foreach (Pass_queue* q, *queues)
 		foreach (Pass* p, *q) 
 		{
-			const char* name = "AST";
-			if (q == hir_queue) name = "HIR";
-			if (q == mir_queue) name = "MIR";
+			const char* name;
+			if (q == ast_queue) name = "AST";
+			else if (q == hir_queue) name = "HIR";
+			else if (q == mir_queue) name = "MIR";
+			else if (q == codegen_queue) name = "GEN";
+			else if (q == lir_queue) name = "LIR";
+			else phc_unreachable ();
 			String* desc = p->description;
 
 			printf ("%-15s    (%-8s - %3s)    %s\n", 
@@ -377,7 +378,7 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 			else if (in->is_HIR ()) HIR_unparser ().unparse (in->as_HIR ());
 			else if (in->is_MIR ()) MIR_unparser ().unparse (in->as_MIR ());
 			else if (in->is_LIR ()) LIR_unparser ().unparse (in->as_LIR ());
-			else assert (0);
+			else phc_unreachable ();
 		}
 	}
 
@@ -487,9 +488,97 @@ IR::PHP_script* Pass_manager::run_from_until (String* from, String* to, IR::PHP_
 	if (to) assert (has_pass_named (to));
 
 	bool exec = false;
-	foreach (Pass_queue* q, *queues)
+	// AST
+	foreach (Pass* p, *ast_queue)
 	{
-		foreach (Pass* p, *q)
+		// check for starting pass
+		if (!exec && 
+				((from == NULL) || *(p->name) == *from))
+			exec = true;
+
+		if (exec)
+			run_pass (p, in, main);
+
+		// check for last pass
+		if (exec && (to != NULL) && *(p->name) == *to)
+			return in;
+	}
+
+	// Sometimes folding can crash. If you went out of your way to remove the
+	// passes in the later queues, dont fold.
+	if (hir_queue->size() == 0
+		&& mir_queue->size () == 0 
+		&& codegen_queue->size() == 0
+		&& lir_queue->size() == 0)
+		return in;
+
+	// HIR
+	if (exec)
+		in = in->fold_lower ();
+
+	foreach (Pass* p, *hir_queue)
+	{
+		// check for starting pass
+		if (!exec && 
+				((from == NULL) || *(p->name) == *from))
+			exec = true;
+
+		if (exec)
+			run_pass (p, in, main);
+
+		// check for last pass
+		if (exec && (to != NULL) && *(p->name) == *to)
+			return in;
+	}
+
+	if (mir_queue->size () == 0 
+		&& codegen_queue->size() == 0
+		&& lir_queue->size() == 0)
+		return in;
+
+	// MIR
+	if (exec)
+		in = in->fold_lower ();
+
+	foreach (Pass* p, *mir_queue)
+	{
+		// check for starting pass
+		if (!exec && 
+				((from == NULL) || *(p->name) == *from))
+			exec = true;
+
+		if (exec)
+			run_pass (p, in, main);
+
+		// check for last pass
+		if (exec && (to != NULL) && *(p->name) == *to)
+			return in;
+	}
+
+	// Codegen
+	foreach (Pass* p, *codegen_queue)
+	{
+		// check for starting pass
+		if (!exec && 
+				((from == NULL) || *(p->name) == *from))
+			exec = true;
+
+		if (exec)
+			run_pass (p, in, main);
+
+		// check for last pass
+		if (exec && (to != NULL) && *(p->name) == *to)
+			return in;
+	}
+
+	// LIR
+	if (args_info->generate_c_flag || args_info->compile_flag)
+	{
+		if (exec)
+			in = in->fold_lower ();
+
+		// TODO: avoid code duplication
+		foreach (Pass* p, *lir_queue)
 		{
 			// check for starting pass
 			if (!exec && 
@@ -503,31 +592,8 @@ IR::PHP_script* Pass_manager::run_from_until (String* from, String* to, IR::PHP_
 			if (exec && (to != NULL) && *(p->name) == *to)
 				return in;
 		}
-
-		// TODO dirty hack
-		if (q == ast_queue && in->is_AST () 
-			&& hir_queue->size () == 0 
-			&& mir_queue->size () == 0
-			&& lir_queue->size () == 0)
-			return in;
-
-		if (q == hir_queue && in->is_HIR () 
-			&& mir_queue->size () == 0
-			&& lir_queue->size () == 0)
-			return in;
-
-		if (q == mir_queue && in->is_HIR () 
-			&& lir_queue->size () == 0)
-			return in;
-
-		if ((in->is_AST () && q == ast_queue)
-			|| (in->is_HIR () && q == hir_queue)
-			// Since Generate_LIR has lots of unsupported cases, which will
-			// assert and give errors, only convert to LIR if we need to
-			// generate C.
-			|| ((in->is_MIR () && q == mir_queue) && (args_info->generate_c_flag || args_info->compile_flag)))
-		in = in->fold_lower ();
 	}
+
 	return in;
 }
 

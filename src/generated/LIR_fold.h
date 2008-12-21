@@ -38,6 +38,7 @@ template
  class _Destruct,
  class _Equals,
  class _Equals_p,
+ class _False,
  class _INT,
  class _INTRINSIC,
  class _Identifier,
@@ -62,6 +63,7 @@ template
  class _Statement,
  class _Symtable_fetch,
  class _Symtable_insert,
+ class _True,
  class _UNINTERPRETED,
  class _Uninit,
  class _ZVP,
@@ -74,7 +76,7 @@ class Fold
 {
 // Access this class from subclasses without copying out the template instantiation
 public:
-   typedef Fold<_API_CALL, _Action, _Allocate, _Assign_zvp, _Assign_zvpp, _Block, _CODE, _COMMENT, _C_file, _Clone, _Cond, _Dec_ref, _Declare, _Declare_p, _Deref, _Destruct, _Equals, _Equals_p, _INT, _INTRINSIC, _Identifier, _If, _Inc_ref, _Is_change_on_write, _Is_copy_on_write, _Is_ref, _LITERAL, _Method, _Node, _Not, _Null, _Overwrite, _Piece, _Profile, _Ref, _STRING, _SYMTABLE, _Separate, _Set_is_ref, _Statement, _Symtable_fetch, _Symtable_insert, _UNINTERPRETED, _Uninit, _ZVP, _ZVPP, _Zvp, _Zvpp, _List> parent;
+   typedef Fold<_API_CALL, _Action, _Allocate, _Assign_zvp, _Assign_zvpp, _Block, _CODE, _COMMENT, _C_file, _Clone, _Cond, _Dec_ref, _Declare, _Declare_p, _Deref, _Destruct, _Equals, _Equals_p, _False, _INT, _INTRINSIC, _Identifier, _If, _Inc_ref, _Is_change_on_write, _Is_copy_on_write, _Is_ref, _LITERAL, _Method, _Node, _Not, _Null, _Overwrite, _Piece, _Profile, _Ref, _STRING, _SYMTABLE, _Separate, _Set_is_ref, _Statement, _Symtable_fetch, _Symtable_insert, _True, _UNINTERPRETED, _Uninit, _ZVP, _ZVPP, _Zvp, _Zvpp, _List> parent;
 // Recursively fold the children before folding the parent
 // This methods form the client API for a fold, but should not be
 // overridden unless you know what you are doing
@@ -285,6 +287,16 @@ public:
 		return fold_impl_is_copy_on_write(in, zvp);
 	}
 
+	virtual _True fold_true(True* in)
+	{
+		return fold_impl_true(in);
+	}
+
+	virtual _False fold_false(False* in)
+	{
+		return fold_impl_false(in);
+	}
+
 	virtual _Uninit fold_uninit(Uninit* in)
 	{
 		return fold_impl_uninit(in);
@@ -371,6 +383,8 @@ public:
 	virtual _Not fold_impl_not(Not* orig, _Cond cond) { assert(0); };
 	virtual _Is_change_on_write fold_impl_is_change_on_write(Is_change_on_write* orig, _Zvp zvp) { assert(0); };
 	virtual _Is_copy_on_write fold_impl_is_copy_on_write(Is_copy_on_write* orig, _Zvp zvp) { assert(0); };
+	virtual _True fold_impl_true(True* orig) { assert(0); };
+	virtual _False fold_impl_false(False* orig) { assert(0); };
 	virtual _Uninit fold_impl_uninit(Uninit* orig) { assert(0); };
 	virtual _Null fold_impl_null(Null* orig) { assert(0); };
 	virtual _Deref fold_impl_deref(Deref* orig, _Zvpp zvpp) { assert(0); };
@@ -381,7 +395,6 @@ public:
 	virtual _Profile fold_impl_profile(Profile* orig, _STRING name) { assert(0); };
 
 	virtual _INT fold_int(INT* orig) { assert(0); };
-	virtual _STRING fold_string(STRING* orig) { assert(0); };
 	virtual _UNINTERPRETED fold_uninterpreted(UNINTERPRETED* orig) { assert(0); };
 	virtual _COMMENT fold_comment(COMMENT* orig) { assert(0); };
 	virtual _INTRINSIC fold_intrinsic(INTRINSIC* orig) { assert(0); };
@@ -391,6 +404,7 @@ public:
 	virtual _ZVPP fold_zvpp(ZVPP* orig) { assert(0); };
 	virtual _LITERAL fold_literal(LITERAL* orig) { assert(0); };
 	virtual _SYMTABLE fold_symtable(SYMTABLE* orig) { assert(0); };
+	virtual _STRING fold_string(STRING* orig) { assert(0); };
 
 
 // Manual dispatching for abstract classes
@@ -455,6 +469,10 @@ public:
 				return fold_is_copy_on_write(dynamic_cast<Is_copy_on_write*>(in));
 			case Is_change_on_write::ID:
 				return fold_is_change_on_write(dynamic_cast<Is_change_on_write*>(in));
+			case True::ID:
+				return fold_true(dynamic_cast<True*>(in));
+			case False::ID:
+				return fold_false(dynamic_cast<False*>(in));
 			case Deref::ID:
 				return fold_deref(dynamic_cast<Deref*>(in));
 			case ZVP::ID:
@@ -475,10 +493,10 @@ public:
 				return fold_symtable(dynamic_cast<SYMTABLE*>(in));
 			case COMMENT::ID:
 				return fold_comment(dynamic_cast<COMMENT*>(in));
-			case INT::ID:
-				return fold_int(dynamic_cast<INT*>(in));
 			case STRING::ID:
 				return fold_string(dynamic_cast<STRING*>(in));
+			case INT::ID:
+				return fold_int(dynamic_cast<INT*>(in));
 		}
 		assert(0);
 	}
@@ -591,6 +609,10 @@ public:
 				return fold_is_copy_on_write(dynamic_cast<Is_copy_on_write*>(in));
 			case Is_change_on_write::ID:
 				return fold_is_change_on_write(dynamic_cast<Is_change_on_write*>(in));
+			case True::ID:
+				return fold_true(dynamic_cast<True*>(in));
+			case False::ID:
+				return fold_false(dynamic_cast<False*>(in));
 		}
 		assert(0);
 	}
@@ -647,6 +669,8 @@ public:
 				return fold_comment(dynamic_cast<COMMENT*>(in));
 			case CODE::ID:
 				return fold_code(dynamic_cast<CODE*>(in));
+			case STRING::ID:
+				return fold_string(dynamic_cast<STRING*>(in));
 		}
 		assert(0);
 	}
@@ -658,6 +682,6 @@ public:
 };
 
 template<class T, template <class _Tp, class _Alloc = typename List<_Tp>::allocator_type> class _List>
-class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, _List> {};
+class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, _List> {};
 }
 

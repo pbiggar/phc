@@ -79,6 +79,8 @@ Cond ::=		  Is_ref
 				| Not
 				| Is_copy_on_write
 				| Is_change_on_write
+				| True
+				| False
 				;
 
 -- zval* lhs = rhs;
@@ -139,6 +141,8 @@ Not ::= Cond ;
 Is_change_on_write ::= Zvp ;
 Is_copy_on_write ::= Zvp ;
 
+True ::= ;
+False ::= ;
 
 
 {-
@@ -164,7 +168,7 @@ Symtable_insert ::= SYMTABLE name:STRING ZVPP ;
 {-
  - For the XML_unparser, its good to identify these as Identifiers
  -}
-Identifier ::= ZVPP | ZVP | SYMTABLE | LITERAL | UNINTERPRETED | COMMENT | CODE ;
+Identifier ::= ZVPP | ZVP | SYMTABLE | LITERAL | UNINTERPRETED | COMMENT | CODE | STRING ;
 
 {-
  - Profiling

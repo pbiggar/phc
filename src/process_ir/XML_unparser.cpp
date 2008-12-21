@@ -147,6 +147,7 @@ public:
 			state->os << " xmlns:AST=\"http://www.phpcompiler.org/phc-1.1\"";
 			state->os << " xmlns:HIR=\"http://www.phpcompiler.org/phc-1.1\"";
 			state->os << " xmlns:MIR=\"http://www.phpcompiler.org/phc-1.1\"";
+			state->os << " xmlns:LIR=\"http://www.phpcompiler.org/phc-1.1\"";
 			state->os << " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"";
 		}
 

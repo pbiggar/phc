@@ -59,22 +59,22 @@ PHC_ARGS="$PHC_ARGS -d include_path=.:test/subjects:$DIRNAME"
 cp $PHP_NAME $NAME.orig.php || exit 1;
 
 # generate HIR
-src/phc $PHP_NAME $PHC_ARGS --dump=hir > $NAME.hir.php
-if [[ $? != 0 ]]; then
-	if [[ $DEBUG_PHC != 0 ]]; then 
-		exec $GDB src/phc $PHP_NAME $PHC_ARGS --dump=hir
-	fi
-	exit 1
-fi
+#src/phc $PHP_NAME $PHC_ARGS --dump=hir > $NAME.hir.php
+#if [[ $? != 0 ]]; then
+#	if [[ $DEBUG_PHC != 0 ]]; then 
+#		exec $GDB src/phc $PHP_NAME $PHC_ARGS --dump=hir
+#	fi
+#	exit 1
+#fi
 
 # generate MIR
-src/phc $PHP_NAME $PHC_ARGS --dump=mir > $NAME.mir.php
-if [[ $? != 0 ]]; then
-	if [[ $DEBUG_PHC != 0 ]]; then 
-		exec $GDB src/phc $PHP_NAME $PHC_ARGS --dump=generate-c
-	fi
-	exit 1
-fi
+#src/phc $PHP_NAME $PHC_ARGS --dump=generate-c > $NAME.mir.php
+#if [[ $? != 0 ]]; then
+#	if [[ $DEBUG_PHC != 0 ]]; then 
+#		exec $GDB src/phc $PHP_NAME $PHC_ARGS --dump=generate-c
+#	fi
+#	exit 1
+#fi
 
 # generate uppered HIR
 #src/phc $PHP_NAME $PHC_ARGS --udump=AST-to-HIR > $NAME.uhir.php

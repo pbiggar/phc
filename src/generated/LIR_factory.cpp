@@ -154,6 +154,16 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Is_copy_on_write(zvp);
     }
+    if(!strcmp(type_id, "True"))
+    {
+    	assert(i == args->end());
+    	return new True();
+    }
+    if(!strcmp(type_id, "False"))
+    {
+    	assert(i == args->end());
+    	return new False();
+    }
     if(!strcmp(type_id, "Uninit"))
     {
     	assert(i == args->end());
@@ -203,12 +213,6 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	STRING* name = dynamic_cast<STRING*>(*i++);
     	assert(i == args->end());
     	return new Profile(name);
-    }
-    if(!strcmp(type_id, "STRING"))
-    {
-    	String* value = dynamic_cast<String*>(*i++);
-    	assert(i == args->end());
-    	return new STRING(value);
     }
     if(!strcmp(type_id, "UNINTERPRETED"))
     {
@@ -263,6 +267,12 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	String* value = dynamic_cast<String*>(*i++);
     	assert(i == args->end());
     	return new SYMTABLE(value);
+    }
+    if(!strcmp(type_id, "STRING"))
+    {
+    	String* value = dynamic_cast<String*>(*i++);
+    	assert(i == args->end());
+    	return new STRING(value);
     }
     if(!strcmp(type_id, "Piece_list"))
     {

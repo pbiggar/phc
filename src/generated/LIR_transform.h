@@ -50,6 +50,8 @@ public:
     virtual Cond* pre_not(Not* in);
     virtual Cond* pre_is_change_on_write(Is_change_on_write* in);
     virtual Cond* pre_is_copy_on_write(Is_copy_on_write* in);
+    virtual Cond* pre_true(True* in);
+    virtual Cond* pre_false(False* in);
     virtual Zvp* pre_uninit(Uninit* in);
     virtual Null* pre_null(Null* in);
     virtual Zvp* pre_deref(Deref* in);
@@ -59,7 +61,6 @@ public:
     virtual void pre_symtable_insert(Symtable_insert* in, Statement_list* out);
     virtual void pre_profile(Profile* in, Statement_list* out);
     virtual INT* pre_int(INT* in);
-    virtual STRING* pre_string(STRING* in);
     virtual UNINTERPRETED* pre_uninterpreted(UNINTERPRETED* in);
     virtual COMMENT* pre_comment(COMMENT* in);
     virtual void pre_intrinsic(INTRINSIC* in, Statement_list* out);
@@ -69,6 +70,7 @@ public:
     virtual ZVPP* pre_zvpp(ZVPP* in);
     virtual Zvp* pre_literal(LITERAL* in);
     virtual SYMTABLE* pre_symtable(SYMTABLE* in);
+    virtual STRING* pre_string(STRING* in);
 /* Invoked after the children have been transformed */
 public:
     virtual C_file* post_c_file(C_file* in);
@@ -92,6 +94,8 @@ public:
     virtual Cond* post_not(Not* in);
     virtual Cond* post_is_change_on_write(Is_change_on_write* in);
     virtual Cond* post_is_copy_on_write(Is_copy_on_write* in);
+    virtual Cond* post_true(True* in);
+    virtual Cond* post_false(False* in);
     virtual Zvp* post_uninit(Uninit* in);
     virtual Null* post_null(Null* in);
     virtual Zvp* post_deref(Deref* in);
@@ -101,7 +105,6 @@ public:
     virtual void post_symtable_insert(Symtable_insert* in, Statement_list* out);
     virtual void post_profile(Profile* in, Statement_list* out);
     virtual INT* post_int(INT* in);
-    virtual STRING* post_string(STRING* in);
     virtual UNINTERPRETED* post_uninterpreted(UNINTERPRETED* in);
     virtual COMMENT* post_comment(COMMENT* in);
     virtual void post_intrinsic(INTRINSIC* in, Statement_list* out);
@@ -111,6 +114,7 @@ public:
     virtual ZVPP* post_zvpp(ZVPP* in);
     virtual Zvp* post_literal(LITERAL* in);
     virtual SYMTABLE* post_symtable(SYMTABLE* in);
+    virtual STRING* post_string(STRING* in);
 /* Transform the children of the node */
 public:
     virtual void children_c_file(C_file* in);
@@ -134,6 +138,8 @@ public:
     virtual void children_not(Not* in);
     virtual void children_is_change_on_write(Is_change_on_write* in);
     virtual void children_is_copy_on_write(Is_copy_on_write* in);
+    virtual void children_true(True* in);
+    virtual void children_false(False* in);
     virtual void children_uninit(Uninit* in);
     virtual void children_null(Null* in);
     virtual void children_deref(Deref* in);
@@ -145,7 +151,6 @@ public:
 /* Tokens don't have children, so these methods do nothing by default */
 public:
     virtual void children_int(INT* in);
-    virtual void children_string(STRING* in);
     virtual void children_uninterpreted(UNINTERPRETED* in);
     virtual void children_comment(COMMENT* in);
     virtual void children_intrinsic(INTRINSIC* in);
@@ -155,6 +160,7 @@ public:
     virtual void children_zvpp(ZVPP* in);
     virtual void children_literal(LITERAL* in);
     virtual void children_symtable(SYMTABLE* in);
+    virtual void children_string(STRING* in);
 /* Call the pre-transform, transform-children post-transform methods in order */
 /* Do not override unless you know what you are doing */
 public:

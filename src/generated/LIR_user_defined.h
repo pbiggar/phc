@@ -15,7 +15,6 @@ class Zvp;
 class Zvpp;
 class Identifier;
 class INT;
-class STRING;
 class Method;
 class Block;
 class Action;
@@ -26,6 +25,8 @@ class Equals_p;
 class Not;
 class Is_change_on_write;
 class Is_copy_on_write;
+class True;
+class False;
 class Uninit;
 class Null;
 class Deref;
@@ -41,6 +42,7 @@ class ZVP;
 class ZVPP;
 class LITERAL;
 class SYMTABLE;
+class STRING;
 class Assign_zvp;
 class Assign_zvpp;
 class Declare;
@@ -67,7 +69,6 @@ MAKETEA_USER_DEFINED(LIR::Zvp)
 MAKETEA_USER_DEFINED(LIR::Zvpp)
 MAKETEA_USER_DEFINED(LIR::Identifier)
 MAKETEA_USER_DEFINED(LIR::INT)
-MAKETEA_USER_DEFINED(LIR::STRING)
 MAKETEA_USER_DEFINED(LIR::Method)
 MAKETEA_USER_DEFINED(LIR::Block)
 MAKETEA_USER_DEFINED(LIR::Action)
@@ -78,6 +79,8 @@ MAKETEA_USER_DEFINED(LIR::Equals_p)
 MAKETEA_USER_DEFINED(LIR::Not)
 MAKETEA_USER_DEFINED(LIR::Is_change_on_write)
 MAKETEA_USER_DEFINED(LIR::Is_copy_on_write)
+MAKETEA_USER_DEFINED(LIR::True)
+MAKETEA_USER_DEFINED(LIR::False)
 MAKETEA_USER_DEFINED(LIR::Uninit)
 MAKETEA_USER_DEFINED(LIR::Null)
 MAKETEA_USER_DEFINED(LIR::Deref)
@@ -93,6 +96,7 @@ MAKETEA_USER_DEFINED(LIR::ZVP)
 MAKETEA_USER_DEFINED(LIR::ZVPP)
 MAKETEA_USER_DEFINED(LIR::LITERAL)
 MAKETEA_USER_DEFINED(LIR::SYMTABLE)
+MAKETEA_USER_DEFINED(LIR::STRING)
 MAKETEA_USER_DEFINED(LIR::Assign_zvp)
 MAKETEA_USER_DEFINED(LIR::Assign_zvpp)
 MAKETEA_USER_DEFINED(LIR::Declare)

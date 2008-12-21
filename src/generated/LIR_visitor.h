@@ -55,6 +55,8 @@ public:
     virtual void pre_not(Not* in);
     virtual void pre_is_change_on_write(Is_change_on_write* in);
     virtual void pre_is_copy_on_write(Is_copy_on_write* in);
+    virtual void pre_true(True* in);
+    virtual void pre_false(False* in);
     virtual void pre_zvp(Zvp* in);
     virtual void pre_zvpp(Zvpp* in);
     virtual void pre_uninit(Uninit* in);
@@ -67,7 +69,6 @@ public:
     virtual void pre_identifier(Identifier* in);
     virtual void pre_profile(Profile* in);
     virtual void pre_int(INT* in);
-    virtual void pre_string(STRING* in);
     virtual void pre_uninterpreted(UNINTERPRETED* in);
     virtual void pre_comment(COMMENT* in);
     virtual void pre_intrinsic(INTRINSIC* in);
@@ -77,6 +78,7 @@ public:
     virtual void pre_zvpp(ZVPP* in);
     virtual void pre_literal(LITERAL* in);
     virtual void pre_symtable(SYMTABLE* in);
+    virtual void pre_string(STRING* in);
 /* Invoked after the children have been visited */
 public:
     virtual void post_node(Node* in);
@@ -105,6 +107,8 @@ public:
     virtual void post_not(Not* in);
     virtual void post_is_change_on_write(Is_change_on_write* in);
     virtual void post_is_copy_on_write(Is_copy_on_write* in);
+    virtual void post_true(True* in);
+    virtual void post_false(False* in);
     virtual void post_zvp(Zvp* in);
     virtual void post_zvpp(Zvpp* in);
     virtual void post_uninit(Uninit* in);
@@ -117,7 +121,6 @@ public:
     virtual void post_identifier(Identifier* in);
     virtual void post_profile(Profile* in);
     virtual void post_int(INT* in);
-    virtual void post_string(STRING* in);
     virtual void post_uninterpreted(UNINTERPRETED* in);
     virtual void post_comment(COMMENT* in);
     virtual void post_intrinsic(INTRINSIC* in);
@@ -127,6 +130,7 @@ public:
     virtual void post_zvpp(ZVPP* in);
     virtual void post_literal(LITERAL* in);
     virtual void post_symtable(SYMTABLE* in);
+    virtual void post_string(STRING* in);
 /* Visit the children of a node */
 public:
     virtual void children_c_file(C_file* in);
@@ -150,6 +154,8 @@ public:
     virtual void children_not(Not* in);
     virtual void children_is_change_on_write(Is_change_on_write* in);
     virtual void children_is_copy_on_write(Is_copy_on_write* in);
+    virtual void children_true(True* in);
+    virtual void children_false(False* in);
     virtual void children_uninit(Uninit* in);
     virtual void children_null(Null* in);
     virtual void children_deref(Deref* in);
@@ -161,7 +167,6 @@ public:
 /* Tokens don't have children, so these methods do nothing by default */
 public:
     virtual void children_int(INT* in);
-    virtual void children_string(STRING* in);
     virtual void children_uninterpreted(UNINTERPRETED* in);
     virtual void children_comment(COMMENT* in);
     virtual void children_intrinsic(INTRINSIC* in);
@@ -171,6 +176,7 @@ public:
     virtual void children_zvpp(ZVPP* in);
     virtual void children_literal(LITERAL* in);
     virtual void children_symtable(SYMTABLE* in);
+    virtual void children_string(STRING* in);
 /* Unparser support */
 public:
     virtual void visit_marker(char const* name, bool value);
@@ -202,6 +208,8 @@ public:
     virtual void pre_not_chain(Not* in);
     virtual void pre_is_change_on_write_chain(Is_change_on_write* in);
     virtual void pre_is_copy_on_write_chain(Is_copy_on_write* in);
+    virtual void pre_true_chain(True* in);
+    virtual void pre_false_chain(False* in);
     virtual void pre_uninit_chain(Uninit* in);
     virtual void pre_null_chain(Null* in);
     virtual void pre_deref_chain(Deref* in);
@@ -211,7 +219,6 @@ public:
     virtual void pre_symtable_insert_chain(Symtable_insert* in);
     virtual void pre_profile_chain(Profile* in);
     virtual void pre_int_chain(INT* in);
-    virtual void pre_string_chain(STRING* in);
     virtual void pre_uninterpreted_chain(UNINTERPRETED* in);
     virtual void pre_comment_chain(COMMENT* in);
     virtual void pre_intrinsic_chain(INTRINSIC* in);
@@ -221,6 +228,7 @@ public:
     virtual void pre_zvpp_chain(ZVPP* in);
     virtual void pre_literal_chain(LITERAL* in);
     virtual void pre_symtable_chain(SYMTABLE* in);
+    virtual void pre_string_chain(STRING* in);
 /* Invoke the chain of post-visit methods along the inheritance hierarchy */
 /* (invoked in opposite order to the pre-chain) */
 /* Do not override unless you know what you are doing */
@@ -246,6 +254,8 @@ public:
     virtual void post_not_chain(Not* in);
     virtual void post_is_change_on_write_chain(Is_change_on_write* in);
     virtual void post_is_copy_on_write_chain(Is_copy_on_write* in);
+    virtual void post_true_chain(True* in);
+    virtual void post_false_chain(False* in);
     virtual void post_uninit_chain(Uninit* in);
     virtual void post_null_chain(Null* in);
     virtual void post_deref_chain(Deref* in);
@@ -255,7 +265,6 @@ public:
     virtual void post_symtable_insert_chain(Symtable_insert* in);
     virtual void post_profile_chain(Profile* in);
     virtual void post_int_chain(INT* in);
-    virtual void post_string_chain(STRING* in);
     virtual void post_uninterpreted_chain(UNINTERPRETED* in);
     virtual void post_comment_chain(COMMENT* in);
     virtual void post_intrinsic_chain(INTRINSIC* in);
@@ -265,6 +274,7 @@ public:
     virtual void post_zvpp_chain(ZVPP* in);
     virtual void post_literal_chain(LITERAL* in);
     virtual void post_symtable_chain(SYMTABLE* in);
+    virtual void post_string_chain(STRING* in);
 /* Call the pre-chain, visit children and post-chain in order */
 /* Do not override unless you know what you are doing */
 public:

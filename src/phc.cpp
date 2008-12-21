@@ -165,22 +165,25 @@ int main(int argc, char** argv)
 	pm->add_hir_pass (new Fake_pass (s("HIR-to-MIR"), s("The MIR in HIR form")));
 
 
-	// codegen passes
-	pm->add_mir_pass (new Fake_pass (s("mir"), s("Medium-level Internal Representation - simple code with high-level constructs lowered to straight-line code.")));
+	pm->add_mir_pass (new Fake_pass (s("mir"), s("Medium-level Internal Representation - simple code with high-level constructs lowered to straight-line code")));
 	pm->add_mir_pass (new Obfuscate ());
 //	pm->add_mir_pass (new Process_includes (true, new String ("mir"), pm, "incl2"));
 	pm->add_mir_transform (new Lift_functions_and_classes (), s("lfc"), s("Move statements from global scope into __MAIN__ method"));
 	pm->add_mir_visitor (new Clarify (), s("clar"), s("Clarify - Make implicit defintions explicit"));
+
 	pm->add_mir_visitor (new Prune_symbol_table (), s("pst"), s("Prune Symbol Table - Note whether a symbol table is required in generated code"));
-	pm->add_mir_visitor (new Generate_LIR_annotations, s("cgann"), s("Codegen annotation"));
 
 //	name = new String ("generate-c");
 //	description = new String ("Generate LIR code from the MIR");
 	// TODO: Generate_LIR is called direct by the pass manager... Not a great plan if we want to allow --debug.
 
 	// lir passes
-	stringstream ss;
+	pm->add_codegen_visitor (new Generate_LIR_annotations, s("lirann"), s("Codegen annotation"));
+	pm->add_codegen_pass (new Fake_pass (s("MIR-to-LIR"), s("The MIR in its final form")));
+
 	// Use ss to pass generated code between Generate_C and Compile_C
+	stringstream ss;
+	pm->add_lir_pass (new Fake_pass (s("lir"), s("Low-level Internal Representation - constructs representing generated code, at a slightly higher level than C")));
 	pm->add_lir_pass (new Generate_C (ss));
 	pm->add_lir_pass (new Compile_C (ss));
 

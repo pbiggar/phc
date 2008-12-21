@@ -302,94 +302,6 @@ bool INT::is_valid()
 	}
 }
 
-STRING::STRING(String* value)
-{
-    this->value = value;
-}
-
-STRING::STRING()
-{
-    this->value = 0;
-}
-
-void STRING::visit(Visitor* visitor)
-{
-    visitor->visit_string(this);
-}
-
-void STRING::transform_children(Transform* transform)
-{
-    transform->children_string(this);
-}
-
-String* STRING::get_value_as_string()
-{
-    return value;
-}
-
-int STRING::classid()
-{
-    return ID;
-}
-
-bool STRING::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    STRING* that = dynamic_cast<STRING*>(in);
-    if(that == NULL) return false;
-    
-    if(this->value != NULL && that->value != NULL)
-    	return (*this->value == *that->value);
-    else
-    	return true;
-}
-
-bool STRING::equals(Node* in)
-{
-    STRING* that = dynamic_cast<STRING*>(in);
-    if(that == NULL) return false;
-    
-    if(this->value == NULL || that->value == NULL)
-    {
-    	if(this->value != NULL || that->value != NULL)
-    		return false;
-    }
-    else if(*this->value != *that->value)
-    	return false;
-    
-    return true;
-}
-
-STRING* STRING::clone()
-{
-    String* value = new String(*this->value);
-    STRING* clone = new STRING(value);
-    return clone;
-}
-
-Node* STRING::find(Node* in)
-{
-    if (this->match (in))
-    	return this;
-    
-    return NULL;
-}
-
-void STRING::find_all(Node* in, Node_list* out)
-{
-    if (this->match (in))
-    	out->push_back (this);
-}
-
-void STRING::assert_valid()
-{
-    assert(value != NULL);
-}
-
 Method::Method(COMMENT* comment, UNINTERPRETED* entry, Piece_list* pieces, UNINTERPRETED* exit)
 {
     this->comment = comment;
@@ -1793,6 +1705,136 @@ void Is_copy_on_write::assert_valid()
     zvp->assert_valid();
 }
 
+True::True()
+{
+}
+
+void True::visit(Visitor* visitor)
+{
+    visitor->visit_cond(this);
+}
+
+void True::transform_children(Transform* transform)
+{
+    transform->children_cond(this);
+}
+
+int True::classid()
+{
+    return ID;
+}
+
+bool True::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    True* that = dynamic_cast<True*>(in);
+    if(that == NULL) return false;
+    
+    return true;
+}
+
+bool True::equals(Node* in)
+{
+    True* that = dynamic_cast<True*>(in);
+    if(that == NULL) return false;
+    
+    return true;
+}
+
+True* True::clone()
+{
+    True* clone = new True();
+    return clone;
+}
+
+Node* True::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    return NULL;
+}
+
+void True::find_all(Node* in, Node_list* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+    
+}
+
+void True::assert_valid()
+{
+}
+
+False::False()
+{
+}
+
+void False::visit(Visitor* visitor)
+{
+    visitor->visit_cond(this);
+}
+
+void False::transform_children(Transform* transform)
+{
+    transform->children_cond(this);
+}
+
+int False::classid()
+{
+    return ID;
+}
+
+bool False::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    False* that = dynamic_cast<False*>(in);
+    if(that == NULL) return false;
+    
+    return true;
+}
+
+bool False::equals(Node* in)
+{
+    False* that = dynamic_cast<False*>(in);
+    if(that == NULL) return false;
+    
+    return true;
+}
+
+False* False::clone()
+{
+    False* clone = new False();
+    return clone;
+}
+
+Node* False::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    return NULL;
+}
+
+void False::find_all(Node* in, Node_list* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+    
+}
+
+void False::assert_valid()
+{
+}
+
 Uninit::Uninit()
 {
 }
@@ -3128,6 +3170,94 @@ void SYMTABLE::find_all(Node* in, Node_list* out)
 }
 
 void SYMTABLE::assert_valid()
+{
+    assert(value != NULL);
+}
+
+STRING::STRING(String* value)
+{
+    this->value = value;
+}
+
+STRING::STRING()
+{
+    this->value = 0;
+}
+
+void STRING::visit(Visitor* visitor)
+{
+    visitor->visit_string(this);
+}
+
+void STRING::transform_children(Transform* transform)
+{
+    transform->children_string(this);
+}
+
+String* STRING::get_value_as_string()
+{
+    return value;
+}
+
+int STRING::classid()
+{
+    return ID;
+}
+
+bool STRING::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    STRING* that = dynamic_cast<STRING*>(in);
+    if(that == NULL) return false;
+    
+    if(this->value != NULL && that->value != NULL)
+    	return (*this->value == *that->value);
+    else
+    	return true;
+}
+
+bool STRING::equals(Node* in)
+{
+    STRING* that = dynamic_cast<STRING*>(in);
+    if(that == NULL) return false;
+    
+    if(this->value == NULL || that->value == NULL)
+    {
+    	if(this->value != NULL || that->value != NULL)
+    		return false;
+    }
+    else if(*this->value != *that->value)
+    	return false;
+    
+    return true;
+}
+
+STRING* STRING::clone()
+{
+    String* value = new String(*this->value);
+    STRING* clone = new STRING(value);
+    return clone;
+}
+
+Node* STRING::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    return NULL;
+}
+
+void STRING::find_all(Node* in, Node_list* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+}
+
+void STRING::assert_valid()
 {
     assert(value != NULL);
 }

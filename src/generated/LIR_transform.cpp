@@ -111,6 +111,16 @@ Cond* Transform::pre_is_copy_on_write(Is_copy_on_write* in)
     return in;
 }
 
+Cond* Transform::pre_true(True* in)
+{
+    return in;
+}
+
+Cond* Transform::pre_false(False* in)
+{
+    return in;
+}
+
 Zvp* Transform::pre_uninit(Uninit* in)
 {
     return in;
@@ -156,11 +166,6 @@ INT* Transform::pre_int(INT* in)
     return in;
 }
 
-STRING* Transform::pre_string(STRING* in)
-{
-    return in;
-}
-
 UNINTERPRETED* Transform::pre_uninterpreted(UNINTERPRETED* in)
 {
     return in;
@@ -202,6 +207,11 @@ Zvp* Transform::pre_literal(LITERAL* in)
 }
 
 SYMTABLE* Transform::pre_symtable(SYMTABLE* in)
+{
+    return in;
+}
+
+STRING* Transform::pre_string(STRING* in)
 {
     return in;
 }
@@ -312,6 +322,16 @@ Cond* Transform::post_is_copy_on_write(Is_copy_on_write* in)
     return in;
 }
 
+Cond* Transform::post_true(True* in)
+{
+    return in;
+}
+
+Cond* Transform::post_false(False* in)
+{
+    return in;
+}
+
 Zvp* Transform::post_uninit(Uninit* in)
 {
     return in;
@@ -357,11 +377,6 @@ INT* Transform::post_int(INT* in)
     return in;
 }
 
-STRING* Transform::post_string(STRING* in)
-{
-    return in;
-}
-
 UNINTERPRETED* Transform::post_uninterpreted(UNINTERPRETED* in)
 {
     return in;
@@ -403,6 +418,11 @@ Zvp* Transform::post_literal(LITERAL* in)
 }
 
 SYMTABLE* Transform::post_symtable(SYMTABLE* in)
+{
+    return in;
+}
+
+STRING* Transform::post_string(STRING* in)
 {
     return in;
 }
@@ -525,6 +545,14 @@ void Transform::children_is_copy_on_write(Is_copy_on_write* in)
     in->zvp = transform_zvp(in->zvp);
 }
 
+void Transform::children_true(True* in)
+{
+}
+
+void Transform::children_false(False* in)
+{
+}
+
 void Transform::children_uninit(Uninit* in)
 {
 }
@@ -572,10 +600,6 @@ void Transform::children_int(INT* in)
 {
 }
 
-void Transform::children_string(STRING* in)
-{
-}
-
 void Transform::children_uninterpreted(UNINTERPRETED* in)
 {
 }
@@ -609,6 +633,10 @@ void Transform::children_literal(LITERAL* in)
 }
 
 void Transform::children_symtable(SYMTABLE* in)
+{
+}
+
+void Transform::children_string(STRING* in)
 {
 }
 
@@ -1075,6 +1103,8 @@ Cond* Transform::pre_cond(Cond* in)
     case Not::ID: return pre_not(dynamic_cast<Not*>(in));
     case Is_copy_on_write::ID: return pre_is_copy_on_write(dynamic_cast<Is_copy_on_write*>(in));
     case Is_change_on_write::ID: return pre_is_change_on_write(dynamic_cast<Is_change_on_write*>(in));
+    case True::ID: return pre_true(dynamic_cast<True*>(in));
+    case False::ID: return pre_false(dynamic_cast<False*>(in));
     }
     assert(0);
 }
@@ -1315,6 +1345,8 @@ Cond* Transform::post_cond(Cond* in)
     case Not::ID: return post_not(dynamic_cast<Not*>(in));
     case Is_copy_on_write::ID: return post_is_copy_on_write(dynamic_cast<Is_copy_on_write*>(in));
     case Is_change_on_write::ID: return post_is_change_on_write(dynamic_cast<Is_change_on_write*>(in));
+    case True::ID: return post_true(dynamic_cast<True*>(in));
+    case False::ID: return post_false(dynamic_cast<False*>(in));
     }
     assert(0);
 }
@@ -1444,6 +1476,12 @@ void Transform::children_cond(Cond* in)
     	break;
     case Is_change_on_write::ID:
     	children_is_change_on_write(dynamic_cast<Is_change_on_write*>(in));
+    	break;
+    case True::ID:
+    	children_true(dynamic_cast<True*>(in));
+    	break;
+    case False::ID:
+    	children_false(dynamic_cast<False*>(in));
     	break;
     }
 }
