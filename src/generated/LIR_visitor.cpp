@@ -102,11 +102,11 @@ void Visitor::pre_not(Not* in)
 {
 }
 
-void Visitor::pre_is_change_on_write(Is_change_on_write* in)
+void Visitor::pre_in_change_on_write(In_change_on_write* in)
 {
 }
 
-void Visitor::pre_is_copy_on_write(Is_copy_on_write* in)
+void Visitor::pre_in_copy_on_write(In_copy_on_write* in)
 {
 }
 
@@ -303,11 +303,11 @@ void Visitor::post_not(Not* in)
 {
 }
 
-void Visitor::post_is_change_on_write(Is_change_on_write* in)
+void Visitor::post_in_change_on_write(In_change_on_write* in)
 {
 }
 
-void Visitor::post_is_copy_on_write(Is_copy_on_write* in)
+void Visitor::post_in_copy_on_write(In_copy_on_write* in)
 {
 }
 
@@ -515,12 +515,12 @@ void Visitor::children_not(Not* in)
     visit_cond(in->cond);
 }
 
-void Visitor::children_is_change_on_write(Is_change_on_write* in)
+void Visitor::children_in_change_on_write(In_change_on_write* in)
 {
     visit_zvp(in->zvp);
 }
 
-void Visitor::children_is_copy_on_write(Is_copy_on_write* in)
+void Visitor::children_in_copy_on_write(In_copy_on_write* in)
 {
     visit_zvp(in->zvp);
 }
@@ -786,18 +786,18 @@ void Visitor::pre_not_chain(Not* in)
     pre_not((Not*) in);
 }
 
-void Visitor::pre_is_change_on_write_chain(Is_change_on_write* in)
+void Visitor::pre_in_change_on_write_chain(In_change_on_write* in)
 {
     pre_node((Node*) in);
     pre_cond((Cond*) in);
-    pre_is_change_on_write((Is_change_on_write*) in);
+    pre_in_change_on_write((In_change_on_write*) in);
 }
 
-void Visitor::pre_is_copy_on_write_chain(Is_copy_on_write* in)
+void Visitor::pre_in_copy_on_write_chain(In_copy_on_write* in)
 {
     pre_node((Node*) in);
     pre_cond((Cond*) in);
-    pre_is_copy_on_write((Is_copy_on_write*) in);
+    pre_in_copy_on_write((In_copy_on_write*) in);
 }
 
 void Visitor::pre_true_chain(True* in)
@@ -1100,16 +1100,16 @@ void Visitor::post_not_chain(Not* in)
     post_node((Node*) in);
 }
 
-void Visitor::post_is_change_on_write_chain(Is_change_on_write* in)
+void Visitor::post_in_change_on_write_chain(In_change_on_write* in)
 {
-    post_is_change_on_write((Is_change_on_write*) in);
+    post_in_change_on_write((In_change_on_write*) in);
     post_cond((Cond*) in);
     post_node((Node*) in);
 }
 
-void Visitor::post_is_copy_on_write_chain(Is_copy_on_write* in)
+void Visitor::post_in_copy_on_write_chain(In_copy_on_write* in)
 {
-    post_is_copy_on_write((Is_copy_on_write*) in);
+    post_in_copy_on_write((In_copy_on_write*) in);
     post_cond((Cond*) in);
     post_node((Node*) in);
 }
@@ -1559,11 +1559,11 @@ void Visitor::pre_cond_chain(Cond* in)
     case Not::ID:
     	pre_not_chain(dynamic_cast<Not*>(in));
     	break;
-    case Is_copy_on_write::ID:
-    	pre_is_copy_on_write_chain(dynamic_cast<Is_copy_on_write*>(in));
+    case In_copy_on_write::ID:
+    	pre_in_copy_on_write_chain(dynamic_cast<In_copy_on_write*>(in));
     	break;
-    case Is_change_on_write::ID:
-    	pre_is_change_on_write_chain(dynamic_cast<Is_change_on_write*>(in));
+    case In_change_on_write::ID:
+    	pre_in_change_on_write_chain(dynamic_cast<In_change_on_write*>(in));
     	break;
     case True::ID:
     	pre_true_chain(dynamic_cast<True*>(in));
@@ -1710,11 +1710,11 @@ void Visitor::post_cond_chain(Cond* in)
     case Not::ID:
     	post_not_chain(dynamic_cast<Not*>(in));
     	break;
-    case Is_copy_on_write::ID:
-    	post_is_copy_on_write_chain(dynamic_cast<Is_copy_on_write*>(in));
+    case In_copy_on_write::ID:
+    	post_in_copy_on_write_chain(dynamic_cast<In_copy_on_write*>(in));
     	break;
-    case Is_change_on_write::ID:
-    	post_is_change_on_write_chain(dynamic_cast<Is_change_on_write*>(in));
+    case In_change_on_write::ID:
+    	post_in_change_on_write_chain(dynamic_cast<In_change_on_write*>(in));
     	break;
     case True::ID:
     	post_true_chain(dynamic_cast<True*>(in));
@@ -1861,11 +1861,11 @@ void Visitor::children_cond(Cond* in)
     case Not::ID:
     	children_not(dynamic_cast<Not*>(in));
     	break;
-    case Is_copy_on_write::ID:
-    	children_is_copy_on_write(dynamic_cast<Is_copy_on_write*>(in));
+    case In_copy_on_write::ID:
+    	children_in_copy_on_write(dynamic_cast<In_copy_on_write*>(in));
     	break;
-    case Is_change_on_write::ID:
-    	children_is_change_on_write(dynamic_cast<Is_change_on_write*>(in));
+    case In_change_on_write::ID:
+    	children_in_change_on_write(dynamic_cast<In_change_on_write*>(in));
     	break;
     case True::ID:
     	children_true(dynamic_cast<True*>(in));

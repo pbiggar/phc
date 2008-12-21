@@ -77,8 +77,8 @@ Cond ::=		  Is_ref
 				| Equals
 				| Equals_p
 				| Not
-				| Is_copy_on_write
-				| Is_change_on_write
+				| In_copy_on_write
+				| In_change_on_write
 				| True
 				| False
 				;
@@ -138,8 +138,8 @@ Equals_p ::= lhs:Zvpp rhs:Zvpp ;
 
 Not ::= Cond ;
 
-Is_change_on_write ::= Zvp ;
-Is_copy_on_write ::= Zvp ;
+In_change_on_write ::= Zvp ;
+In_copy_on_write ::= Zvp ;
 
 True ::= ;
 False ::= ;

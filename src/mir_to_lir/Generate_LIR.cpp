@@ -1073,15 +1073,16 @@ public:
 		<< get_st_entry_lir (LOCAL, "lhs", lhs->value)
 		<< read_rvalue_lir ("left", left->value)
 		<< read_rvalue_lir ("right", right->value)
+		<< 
+		"(if (in_copy_on_write (deref (ZVPP lhs))) "
+		"[	(destruct (ZVPP lhs))"
+		"	(allocate (deref (ZVPP lhs))) "
+		"] [])"
+
 		<< "]");
 
 		STRAIGHT (
-			"if (in_copy_on_write (*p_lhs))\n"
-		<< "{\n"
-		<< "	zval_ptr_dtor (p_lhs);\n"
-		<< "	ALLOC_INIT_ZVAL (*p_lhs);\n"
-		<< "}\n"
-		<< "zval old = **p_lhs;\n"
+		"zval old = **p_lhs;\n"
 		<< "int result_is_operand = (*p_lhs == left || *p_lhs == right);\n");
 
 		// some operators need the operands to be reversed (since we
@@ -1092,7 +1093,7 @@ public:
 		else
 			STRAIGHT (op_fn << "(*p_lhs, left, right TSRMLS_CC);\n");
 
-		// If the result is one of the operand, the operator function
+		// If the result is one of the operands, the operator function
 		// will already have cleaned up the result
 		STRAIGHT (	
 		"if (!result_is_operand)\n"

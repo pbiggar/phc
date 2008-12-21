@@ -101,12 +101,12 @@ Cond* Transform::pre_not(Not* in)
     return in;
 }
 
-Cond* Transform::pre_is_change_on_write(Is_change_on_write* in)
+Cond* Transform::pre_in_change_on_write(In_change_on_write* in)
 {
     return in;
 }
 
-Cond* Transform::pre_is_copy_on_write(Is_copy_on_write* in)
+Cond* Transform::pre_in_copy_on_write(In_copy_on_write* in)
 {
     return in;
 }
@@ -312,12 +312,12 @@ Cond* Transform::post_not(Not* in)
     return in;
 }
 
-Cond* Transform::post_is_change_on_write(Is_change_on_write* in)
+Cond* Transform::post_in_change_on_write(In_change_on_write* in)
 {
     return in;
 }
 
-Cond* Transform::post_is_copy_on_write(Is_copy_on_write* in)
+Cond* Transform::post_in_copy_on_write(In_copy_on_write* in)
 {
     return in;
 }
@@ -535,12 +535,12 @@ void Transform::children_not(Not* in)
     in->cond = transform_cond(in->cond);
 }
 
-void Transform::children_is_change_on_write(Is_change_on_write* in)
+void Transform::children_in_change_on_write(In_change_on_write* in)
 {
     in->zvp = transform_zvp(in->zvp);
 }
 
-void Transform::children_is_copy_on_write(Is_copy_on_write* in)
+void Transform::children_in_copy_on_write(In_copy_on_write* in)
 {
     in->zvp = transform_zvp(in->zvp);
 }
@@ -1101,8 +1101,8 @@ Cond* Transform::pre_cond(Cond* in)
     case Equals::ID: return pre_equals(dynamic_cast<Equals*>(in));
     case Equals_p::ID: return pre_equals_p(dynamic_cast<Equals_p*>(in));
     case Not::ID: return pre_not(dynamic_cast<Not*>(in));
-    case Is_copy_on_write::ID: return pre_is_copy_on_write(dynamic_cast<Is_copy_on_write*>(in));
-    case Is_change_on_write::ID: return pre_is_change_on_write(dynamic_cast<Is_change_on_write*>(in));
+    case In_copy_on_write::ID: return pre_in_copy_on_write(dynamic_cast<In_copy_on_write*>(in));
+    case In_change_on_write::ID: return pre_in_change_on_write(dynamic_cast<In_change_on_write*>(in));
     case True::ID: return pre_true(dynamic_cast<True*>(in));
     case False::ID: return pre_false(dynamic_cast<False*>(in));
     }
@@ -1343,8 +1343,8 @@ Cond* Transform::post_cond(Cond* in)
     case Equals::ID: return post_equals(dynamic_cast<Equals*>(in));
     case Equals_p::ID: return post_equals_p(dynamic_cast<Equals_p*>(in));
     case Not::ID: return post_not(dynamic_cast<Not*>(in));
-    case Is_copy_on_write::ID: return post_is_copy_on_write(dynamic_cast<Is_copy_on_write*>(in));
-    case Is_change_on_write::ID: return post_is_change_on_write(dynamic_cast<Is_change_on_write*>(in));
+    case In_copy_on_write::ID: return post_in_copy_on_write(dynamic_cast<In_copy_on_write*>(in));
+    case In_change_on_write::ID: return post_in_change_on_write(dynamic_cast<In_change_on_write*>(in));
     case True::ID: return post_true(dynamic_cast<True*>(in));
     case False::ID: return post_false(dynamic_cast<False*>(in));
     }
@@ -1471,11 +1471,11 @@ void Transform::children_cond(Cond* in)
     case Not::ID:
     	children_not(dynamic_cast<Not*>(in));
     	break;
-    case Is_copy_on_write::ID:
-    	children_is_copy_on_write(dynamic_cast<Is_copy_on_write*>(in));
+    case In_copy_on_write::ID:
+    	children_in_copy_on_write(dynamic_cast<In_copy_on_write*>(in));
     	break;
-    case Is_change_on_write::ID:
-    	children_is_change_on_write(dynamic_cast<Is_change_on_write*>(in));
+    case In_change_on_write::ID:
+    	children_in_change_on_write(dynamic_cast<In_change_on_write*>(in));
     	break;
     case True::ID:
     	children_true(dynamic_cast<True*>(in));

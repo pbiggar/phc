@@ -38,8 +38,8 @@ class Is_ref;
 class Equals;
 class Equals_p;
 class Not;
-class Is_change_on_write;
-class Is_copy_on_write;
+class In_change_on_write;
+class In_copy_on_write;
 class True;
 class False;
 class Uninit;
@@ -90,8 +90,8 @@ typedef List<Is_ref*> Is_ref_list;
 typedef List<Equals*> Equals_list;
 typedef List<Equals_p*> Equals_p_list;
 typedef List<Not*> Not_list;
-typedef List<Is_change_on_write*> Is_change_on_write_list;
-typedef List<Is_copy_on_write*> Is_copy_on_write_list;
+typedef List<In_change_on_write*> In_change_on_write_list;
+typedef List<In_copy_on_write*> In_copy_on_write_list;
 typedef List<True*> True_list;
 typedef List<False*> False_list;
 typedef List<Uninit*> Uninit_list;
@@ -229,7 +229,7 @@ public:
     virtual void assert_valid() = 0;
 };
 
-/* Cond ::= Is_ref | Equals | Equals_p | Not | Is_copy_on_write | Is_change_on_write | True | False; */
+/* Cond ::= Is_ref | Equals | Equals_p | Not | In_copy_on_write | In_change_on_write | True | False; */
 class Cond : virtual public Node
 {
 public:
@@ -598,13 +598,13 @@ public:
     virtual void assert_valid();
 };
 
-/* Is_change_on_write ::= Zvp ; */
-class Is_change_on_write : virtual public Cond
+/* In_change_on_write ::= Zvp ; */
+class In_change_on_write : virtual public Cond
 {
 public:
-    Is_change_on_write(Zvp* zvp);
+    In_change_on_write(Zvp* zvp);
 protected:
-    Is_change_on_write();
+    In_change_on_write();
 public:
     Zvp* zvp;
 public:
@@ -618,7 +618,7 @@ public:
 public:
     virtual bool equals(Node* in);
 public:
-    virtual Is_change_on_write* clone();
+    virtual In_change_on_write* clone();
 public:
     virtual Node* find(Node* in);
 public:
@@ -627,13 +627,13 @@ public:
     virtual void assert_valid();
 };
 
-/* Is_copy_on_write ::= Zvp ; */
-class Is_copy_on_write : virtual public Cond
+/* In_copy_on_write ::= Zvp ; */
+class In_copy_on_write : virtual public Cond
 {
 public:
-    Is_copy_on_write(Zvp* zvp);
+    In_copy_on_write(Zvp* zvp);
 protected:
-    Is_copy_on_write();
+    In_copy_on_write();
 public:
     Zvp* zvp;
 public:
@@ -647,7 +647,7 @@ public:
 public:
     virtual bool equals(Node* in);
 public:
-    virtual Is_copy_on_write* clone();
+    virtual In_copy_on_write* clone();
 public:
     virtual Node* find(Node* in);
 public:
@@ -1554,7 +1554,7 @@ public:
 };
 
 /* The top of the class hierarchy. If the Fold will not allow you fold to anything else, try this. */
-class None : virtual public Node, virtual public C_file, virtual public Piece, virtual public Method, virtual public Block, virtual public Statement, virtual public Action, virtual public If, virtual public Cond, virtual public Assign_zvp, virtual public Assign_zvpp, virtual public Declare, virtual public Declare_p, virtual public Inc_ref, virtual public Allocate, virtual public Separate, virtual public Set_is_ref, virtual public Dec_ref, virtual public Destruct, virtual public Overwrite, virtual public Is_ref, virtual public Equals, virtual public Equals_p, virtual public Not, virtual public Is_change_on_write, virtual public Is_copy_on_write, virtual public True, virtual public False, virtual public Zvp, virtual public Zvpp, virtual public Uninit, virtual public Null, virtual public Deref, virtual public Ref, virtual public Clone, virtual public Symtable_fetch, virtual public Symtable_insert, virtual public Identifier, virtual public Profile, virtual public INT, virtual public UNINTERPRETED, virtual public COMMENT, virtual public INTRINSIC, virtual public API_CALL, virtual public CODE, virtual public ZVP, virtual public ZVPP, virtual public LITERAL, virtual public SYMTABLE, virtual public STRING
+class None : virtual public Node, virtual public C_file, virtual public Piece, virtual public Method, virtual public Block, virtual public Statement, virtual public Action, virtual public If, virtual public Cond, virtual public Assign_zvp, virtual public Assign_zvpp, virtual public Declare, virtual public Declare_p, virtual public Inc_ref, virtual public Allocate, virtual public Separate, virtual public Set_is_ref, virtual public Dec_ref, virtual public Destruct, virtual public Overwrite, virtual public Is_ref, virtual public Equals, virtual public Equals_p, virtual public Not, virtual public In_change_on_write, virtual public In_copy_on_write, virtual public True, virtual public False, virtual public Zvp, virtual public Zvpp, virtual public Uninit, virtual public Null, virtual public Deref, virtual public Ref, virtual public Clone, virtual public Symtable_fetch, virtual public Symtable_insert, virtual public Identifier, virtual public Profile, virtual public INT, virtual public UNINTERPRETED, virtual public COMMENT, virtual public INTRINSIC, virtual public API_CALL, virtual public CODE, virtual public ZVP, virtual public ZVPP, virtual public LITERAL, virtual public SYMTABLE, virtual public STRING
 {
 public:
     None();

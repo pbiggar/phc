@@ -43,7 +43,10 @@ LIR_unparser::unparse (IR::Node* in)
 void
 LIR_unparser::children_allocate (LIR::Allocate* in)
 {
-	assert (0);
+	// TODO: I wonder if this should be just an alloc, rather than an alloc_init
+	echo ("ALLOC_INIT_ZVAL (");
+	visit_zvp (in->zvp);
+	echo_nl (");");
 }
 
 void
@@ -203,7 +206,7 @@ LIR_unparser::children_intrinsic (LIR::INTRINSIC* in)
 
 
 void
-LIR_unparser::children_is_change_on_write (LIR::Is_change_on_write* in)
+LIR_unparser::children_in_change_on_write (LIR::In_change_on_write* in)
 {
 	echo ("in_change_on_write (");
 	visit_zvp (in->zvp);
@@ -211,7 +214,7 @@ LIR_unparser::children_is_change_on_write (LIR::Is_change_on_write* in)
 }
 
 void
-LIR_unparser::children_is_copy_on_write (LIR::Is_copy_on_write* in)
+LIR_unparser::children_in_copy_on_write (LIR::In_copy_on_write* in)
 {
 	echo ("in_copy_on_write (");
 	visit_zvp (in->zvp);

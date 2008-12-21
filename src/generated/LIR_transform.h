@@ -48,8 +48,8 @@ public:
     virtual Cond* pre_equals(Equals* in);
     virtual Cond* pre_equals_p(Equals_p* in);
     virtual Cond* pre_not(Not* in);
-    virtual Cond* pre_is_change_on_write(Is_change_on_write* in);
-    virtual Cond* pre_is_copy_on_write(Is_copy_on_write* in);
+    virtual Cond* pre_in_change_on_write(In_change_on_write* in);
+    virtual Cond* pre_in_copy_on_write(In_copy_on_write* in);
     virtual Cond* pre_true(True* in);
     virtual Cond* pre_false(False* in);
     virtual Zvp* pre_uninit(Uninit* in);
@@ -92,8 +92,8 @@ public:
     virtual Cond* post_equals(Equals* in);
     virtual Cond* post_equals_p(Equals_p* in);
     virtual Cond* post_not(Not* in);
-    virtual Cond* post_is_change_on_write(Is_change_on_write* in);
-    virtual Cond* post_is_copy_on_write(Is_copy_on_write* in);
+    virtual Cond* post_in_change_on_write(In_change_on_write* in);
+    virtual Cond* post_in_copy_on_write(In_copy_on_write* in);
     virtual Cond* post_true(True* in);
     virtual Cond* post_false(False* in);
     virtual Zvp* post_uninit(Uninit* in);
@@ -136,8 +136,8 @@ public:
     virtual void children_equals(Equals* in);
     virtual void children_equals_p(Equals_p* in);
     virtual void children_not(Not* in);
-    virtual void children_is_change_on_write(Is_change_on_write* in);
-    virtual void children_is_copy_on_write(Is_copy_on_write* in);
+    virtual void children_in_change_on_write(In_change_on_write* in);
+    virtual void children_in_copy_on_write(In_copy_on_write* in);
     virtual void children_true(True* in);
     virtual void children_false(False* in);
     virtual void children_uninit(Uninit* in);

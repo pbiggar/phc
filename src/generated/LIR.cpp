@@ -1507,39 +1507,39 @@ void Not::assert_valid()
     cond->assert_valid();
 }
 
-Is_change_on_write::Is_change_on_write(Zvp* zvp)
+In_change_on_write::In_change_on_write(Zvp* zvp)
 {
     this->zvp = zvp;
 }
 
-Is_change_on_write::Is_change_on_write()
+In_change_on_write::In_change_on_write()
 {
     this->zvp = 0;
 }
 
-void Is_change_on_write::visit(Visitor* visitor)
+void In_change_on_write::visit(Visitor* visitor)
 {
     visitor->visit_cond(this);
 }
 
-void Is_change_on_write::transform_children(Transform* transform)
+void In_change_on_write::transform_children(Transform* transform)
 {
     transform->children_cond(this);
 }
 
-int Is_change_on_write::classid()
+int In_change_on_write::classid()
 {
     return ID;
 }
 
-bool Is_change_on_write::match(Node* in)
+bool In_change_on_write::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    Is_change_on_write* that = dynamic_cast<Is_change_on_write*>(in);
+    In_change_on_write* that = dynamic_cast<In_change_on_write*>(in);
     if(that == NULL) return false;
     
     if(this->zvp == NULL)
@@ -1553,9 +1553,9 @@ bool Is_change_on_write::match(Node* in)
     return true;
 }
 
-bool Is_change_on_write::equals(Node* in)
+bool In_change_on_write::equals(Node* in)
 {
-    Is_change_on_write* that = dynamic_cast<Is_change_on_write*>(in);
+    In_change_on_write* that = dynamic_cast<In_change_on_write*>(in);
     if(that == NULL) return false;
     
     if(this->zvp == NULL || that->zvp == NULL)
@@ -1569,14 +1569,14 @@ bool Is_change_on_write::equals(Node* in)
     return true;
 }
 
-Is_change_on_write* Is_change_on_write::clone()
+In_change_on_write* In_change_on_write::clone()
 {
     Zvp* zvp = this->zvp ? this->zvp->clone() : NULL;
-    Is_change_on_write* clone = new Is_change_on_write(zvp);
+    In_change_on_write* clone = new In_change_on_write(zvp);
     return clone;
 }
 
-Node* Is_change_on_write::find(Node* in)
+Node* In_change_on_write::find(Node* in)
 {
     if (this->match (in))
     	return this;
@@ -1590,7 +1590,7 @@ Node* Is_change_on_write::find(Node* in)
     return NULL;
 }
 
-void Is_change_on_write::find_all(Node* in, Node_list* out)
+void In_change_on_write::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -1600,45 +1600,45 @@ void Is_change_on_write::find_all(Node* in, Node_list* out)
     
 }
 
-void Is_change_on_write::assert_valid()
+void In_change_on_write::assert_valid()
 {
     assert(zvp != NULL);
     zvp->assert_valid();
 }
 
-Is_copy_on_write::Is_copy_on_write(Zvp* zvp)
+In_copy_on_write::In_copy_on_write(Zvp* zvp)
 {
     this->zvp = zvp;
 }
 
-Is_copy_on_write::Is_copy_on_write()
+In_copy_on_write::In_copy_on_write()
 {
     this->zvp = 0;
 }
 
-void Is_copy_on_write::visit(Visitor* visitor)
+void In_copy_on_write::visit(Visitor* visitor)
 {
     visitor->visit_cond(this);
 }
 
-void Is_copy_on_write::transform_children(Transform* transform)
+void In_copy_on_write::transform_children(Transform* transform)
 {
     transform->children_cond(this);
 }
 
-int Is_copy_on_write::classid()
+int In_copy_on_write::classid()
 {
     return ID;
 }
 
-bool Is_copy_on_write::match(Node* in)
+bool In_copy_on_write::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    Is_copy_on_write* that = dynamic_cast<Is_copy_on_write*>(in);
+    In_copy_on_write* that = dynamic_cast<In_copy_on_write*>(in);
     if(that == NULL) return false;
     
     if(this->zvp == NULL)
@@ -1652,9 +1652,9 @@ bool Is_copy_on_write::match(Node* in)
     return true;
 }
 
-bool Is_copy_on_write::equals(Node* in)
+bool In_copy_on_write::equals(Node* in)
 {
-    Is_copy_on_write* that = dynamic_cast<Is_copy_on_write*>(in);
+    In_copy_on_write* that = dynamic_cast<In_copy_on_write*>(in);
     if(that == NULL) return false;
     
     if(this->zvp == NULL || that->zvp == NULL)
@@ -1668,14 +1668,14 @@ bool Is_copy_on_write::equals(Node* in)
     return true;
 }
 
-Is_copy_on_write* Is_copy_on_write::clone()
+In_copy_on_write* In_copy_on_write::clone()
 {
     Zvp* zvp = this->zvp ? this->zvp->clone() : NULL;
-    Is_copy_on_write* clone = new Is_copy_on_write(zvp);
+    In_copy_on_write* clone = new In_copy_on_write(zvp);
     return clone;
 }
 
-Node* Is_copy_on_write::find(Node* in)
+Node* In_copy_on_write::find(Node* in)
 {
     if (this->match (in))
     	return this;
@@ -1689,7 +1689,7 @@ Node* Is_copy_on_write::find(Node* in)
     return NULL;
 }
 
-void Is_copy_on_write::find_all(Node* in, Node_list* out)
+void In_copy_on_write::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -1699,7 +1699,7 @@ void Is_copy_on_write::find_all(Node* in, Node_list* out)
     
 }
 
-void Is_copy_on_write::assert_valid()
+void In_copy_on_write::assert_valid()
 {
     assert(zvp != NULL);
     zvp->assert_valid();
