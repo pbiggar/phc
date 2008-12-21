@@ -387,7 +387,7 @@ public:
 		}
 		else if(!strcmp(name, "integer"))
 		{
-			node = new Integer(strtol(buffer.c_str(), 0, 0));
+			node = new ::Integer(strtol(buffer.c_str(), 0, 0));
 		}
 		else if(!strcmp(name, "string_list"))
 		{
