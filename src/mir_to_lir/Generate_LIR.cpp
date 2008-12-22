@@ -72,6 +72,7 @@ static stringstream prologue;
 static stringstream code;
 static stringstream initializations;
 static stringstream finalizations;
+static stringstream minit;
 
 string templ (string);
 
@@ -488,6 +489,30 @@ public:
 	}
 };
 
+class Pattern_class_def : public Pattern
+{
+public:
+	bool match(Statement* that)
+	{
+		use_scope = false;
+		pattern = new Wildcard<Class_def>;
+		return that->match(pattern);
+	}
+
+	void generate_code(Generate_LIR* gen)
+	{
+		minit 
+		<< "{\n"
+		<< "zend_class_entry ce; // temp\n"
+		<< "INIT_CLASS_ENTRY(ce, " 
+		<< "\"" << *pattern->value->class_name->value << "\", NULL);\n"
+		<< "zend_register_internal_class(&ce TSRMLS_CC);\n"
+		<< "}";
+	}
+
+protected:
+	Wildcard<Class_def>* pattern;
+};
 
 class Pattern_method_definition : public Pattern
 {
@@ -2649,7 +2674,9 @@ void Generate_LIR::children_statement(Statement* in)
 
 	Pattern* patterns[] = 
 	{
-		new Pattern_method_definition()
+	// Top-level constructs
+		new Pattern_method_definition ()
+	, new Pattern_class_def ()
 	// Expressions, which can only be RHSs to Assign_vars
 	,	new Pattern_assign_expr_constant ()
 	,	new Pattern_assign_expr_var ()
@@ -2763,6 +2790,8 @@ templ (string name)
 
 void Generate_LIR::pre_php_script(PHP_script* in)
 {
+	prologue << "// BEGIN INCLUDED FILES" << endl;
+
 	include_file (prologue, s("support.c"));
 	include_file (prologue, s("debug.c"));
 	include_file (prologue, s("zval.c"));
@@ -2778,6 +2807,7 @@ void Generate_LIR::pre_php_script(PHP_script* in)
 
 	include_templates (s("templates.lir"));
 
+	prologue << "// END INCLUDED FILES" << endl;
 
 	// We need to save refcounts for functions returned by reference, where the
 	// PHP engine destroys the refcount for no good reason.
@@ -2848,6 +2878,21 @@ Generate_LIR::clear_code_buffer ()
 
 void Generate_LIR::post_php_script(PHP_script* in)
 {
+	// MINIT
+	stringstream minit_entry;
+	stringstream minit_exit;
+	minit_entry << "PHP_MINIT_FUNCTION(" << *extension_name << ")\n{\n"; 
+	minit_exit << "}";
+	lir->pieces->push_back (new LIR::Method(
+	  new LIR::COMMENT(new String("// Module initialization\n")),
+		new LIR::UNINTERPRETED(new String(minit_entry.str())), 
+		new LIR::Piece_list(
+		  new LIR::UNINTERPRETED(new String(minit.str())),
+			new LIR::UNINTERPRETED(new String("return SUCCESS;"))
+			), // body
+		new LIR::UNINTERPRETED(new String(minit_exit.str())) 
+		));
+
 	// Get the last piece
 	LIR::UNINTERPRETED* end = clear_code_buffer ();
 	lir->pieces->push_back (end);
@@ -2898,7 +2943,7 @@ void Generate_LIR::post_php_script(PHP_script* in)
 		<< "STANDARD_MODULE_HEADER, \n"
 		<< "\"" << *extension_name << "\",\n"
 		<< *extension_name << "_functions,\n"
-		<< "NULL, /* MINIT */\n"
+		<< "PHP_MINIT(" << *extension_name << "), /* MINIT */\n"
 		<< "NULL, /* MSHUTDOWN */\n"
 		<< "NULL, /* RINIT */\n"
 		<< "NULL, /* RSHUTDOWN */\n"
