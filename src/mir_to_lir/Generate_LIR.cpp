@@ -74,8 +74,6 @@ static stringstream code;
 static stringstream initializations;
 static stringstream finalizations;
 
-string templ (string);
-
 // TODO this is here for constant pooling. This should not be global.
 extern struct gengetopt_args_info args_info;
 
@@ -113,16 +111,6 @@ string get_scope (Scope scope)
 	else
 		return "&EG(symbol_table)";
 }
-
-string get_scope_lir (Scope scope)
-{
-	if(scope == LOCAL)
-		return "local";
-	else
-		return "global";
-}
-
-
 
 string get_hash (String* name)
 {
@@ -206,28 +194,6 @@ string read_rvalue (string zvp, Rvalue* rvalue)
 	return ss.str ();
 }
 
-string read_rvalue_lir (string zvp, Rvalue* rvalue)
-{
-	if (isa<Literal> (rvalue))
-		return read_literal_lir (zvp, dyc<Literal> (rvalue));
-
-
-	VARIABLE_NAME* var_name = dyc<VARIABLE_NAME> (rvalue);
-	if (var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
-	{
-		return str(format (templ ("read_var_no_st"))
-			% get_non_st_name (var_name)
-			% zvp);
-	}
-	else
-	{
-		return str(format (templ ("read_var"))
-			% get_scope_lir (LOCAL)
-			% *var_name->value
-			% zvp);
-	}
-}
-
 // TODO: This should be integrated into each function. In particular, we want
 // to remove the slowness of adding the uninitialized_zval_ptr, only to remove
 // it a second later.
@@ -262,60 +228,7 @@ string get_st_entry (Scope scope, string zvp, VARIABLE_NAME* var_name)
 	return ss.str();
 }
 
-#define READ(STR, PARAMS) str(format(templ(STR)) % PARAMS)
 
-string get_st_entry_lir (Scope scope, string zvp, VARIABLE_NAME* var_name)
-{
-	if (scope == LOCAL && var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
-	{
-		return READ ("get_st_entry_no_st",
-			 	get_non_st_name (var_name) % zvp);
-	}
-	else
-	{
-		return READ ("get_st_entry",
-				get_scope_lir (LOCAL) % *var_name->value % zvp);
-	}
-}
-
-/*
- * In order for this to be simple, we should generate all annotations here,
- * and keep to a certain set of rules. The most important is that a name is
- * only used for one purpose. If another purpose is needed, use another name.
- * This means that we can assign a property to a single ZVP or ZVPP, and not
- * worry about it leaking.
- */
-string opt_annotations (MIR::Rvalue* rvalue, string zvp)
-{
-	if (isa<MIR::VARIABLE_NAME> (rvalue))
-		return "";
-	MIR::VARIABLE_NAME* var = dyc<MIR::VARIABLE_NAME> (rvalue);
-
-	/* Get all attributes starting in phc.optimize which are booleans. Dump
-	 * them out in the following configurations:
-	 *		ZVP lhs
-	 *		ZVPP lhs
-	 *		ZVP local_TS0	
-	 */
-	stringstream ss;
-
-	string key;
-	Object* val;
-	foreach (tie (key, val), *var->attrs)
-	{
-		Boolean* b;
-		if ((b = dynamic_cast<Boolean*> (val))
-			&& key.substr (0, sizeof ("phc.optimize.")-1) == "phc.optimize."
-			&& b->value())
-		{
-			string suffix = key.substr (sizeof ("phc.optimize.")-1);
-
-			ss << READ ("opt_annotation", suffix % zvp % get_non_st_name (var));
-		}
-	}
-
-	return ss.str ();
-}
 
 // Declare and fetch a zval** into ZVP, which is the hash-table entry for
 // VAR_NAME[INDEX]. This zval** can be over-written, which will change the
@@ -388,27 +301,6 @@ string read_var_var (string zvp, string index)
 	;
 	return ss.str();
 }
-
-string
-write_var_lir (string lhs, string rhs)
-{
-	return str(format (templ ("write_var")) % lhs % rhs);
-}
-
-string
-sep_copy_on_write_lir (string zvp)
-{
-	return str(format (templ ("sep_copy_on_write")) % zvp);
-}
-
-
-string
-copy_into_ref_lir (string lhs, string rhs)
-{
-	return str(format (templ ("copy_into_ref")) % lhs % rhs);
-}
-
-
 
 
 
@@ -818,10 +710,6 @@ protected:
  */
 class Pattern_assign_expr_var : public Pattern_assign_var
 {
-#define STRAIGHT(STR) do { stringstream ss; ss << STR; stmts->push_back (new LIR::CODE (s(ss.str()))); } while (0)
-#define DSL(STR) stmts->push_back (dyc<LIR::Statement> (parse_lir (s(#STR))))
-#define LDSL(STR) do { stringstream ss; ss << STR; stmts->push_back_all (dyc<LIR::Statement_list> (parse_lir (s(ss.str())))); } while (0)
-#define RTS_LIR(STR) "(profile (STRING " << STR << "))"
 public:
 	Expr* rhs_pattern()
 	{
@@ -829,43 +717,12 @@ public:
 		return rhs;
 	}
 
-	LIR::Piece* generate_lir (String* comment, Generate_LIR* gen)
+	void generate_code (Generate_LIR* gen)
 	{
-		LIR::Statement_list* stmts = new LIR::Statement_list;
-		LDSL ("["
-		<< opt_annotations (lhs->value, "lhs")
-		<< opt_annotations (rhs->value, "rhs")
-		<< "]");
-
-		if (!agn->is_ref)
-		{
-
-			LDSL ("["
-			<< RTS_LIR (demangle (this))
-			<< get_st_entry_lir (LOCAL, "lhs", lhs->value)
-			<< read_rvalue_lir ("rhs", rhs->value)
-			<< "	(if "
-			<<	"		(not (equals "
-			<<	"			(deref (ZVPP lhs)) "
-			<<	"			(ZVP rhs))) "
-			<<	"		[ "
-			<<				write_var_lir ("lhs", "rhs")
-			<< "		] "
-			<<	"		[])"
-			<<	"]");
-		}
+		if (agn->is_ref)
+			templ ("assign_expr_var", *lhs->value->value, *rhs->value->value, lhs->value, rhs->value);
 		else
-		{
-			LDSL ("["
-			<< RTS_LIR (demangle (this))
-			<< get_st_entry_lir (LOCAL, "lhs", lhs->value)
-			<< get_st_entry_lir (LOCAL, "rhs", rhs->value)
-			<< sep_copy_on_write_lir ("rhs")
-			<< copy_into_ref_lir ("lhs", "rhs")
-			<<	"]");
-		}
-
-		return new LIR::Block (comment, stmts);
+			templ ("assign_expr_ref_var", *lhs->value->value, *rhs->value->value, lhs->value, rhs->value);
 	}
 
 protected:
@@ -1002,31 +859,27 @@ public:
 		return new Cast (cast, rhs);
 	}
 
-	LIR::Piece* generate_lir (String* comment, Generate_LIR* gen)
+	void generate_code (Generate_LIR* gen)
 	{
 		assert (!agn->is_ref);
-		LIR::Statement_list* stmts = new LIR::Statement_list;
 
-		LIR::Block* assign_var = dyc<LIR::Block> (Pattern_assign_expr_var::generate_lir (comment, gen));
-		stmts->push_back_all (assign_var->statements);
-
-
+		string symbol;
 		if (*cast->value->value == "string")
-			STRAIGHT ("cast_var (p_lhs, IS_STRING);\n");
+			symbol = "IS_STRING";
 		else if (*cast->value->value == "int")
-			STRAIGHT ("cast_var (p_lhs, IS_LONG);\n");
+			symbol = "IS_LONG";
 		else if (*cast->value->value == "array")
-			STRAIGHT ("cast_var (p_lhs, IS_ARRAY);\n");
+			symbol = "IS_ARRAY";
 		else if (*cast->value->value == "null")
-			STRAIGHT ("cast_var (p_lhs, IS_NULL);\n");
+			symbol = "IS_NULL";
 		else if (*cast->value->value == "bool" || *cast->value->value == "boolean")
-			STRAIGHT ("cast_var (p_lhs, IS_BOOL);\n");
+			symbol = "IS_BOOL";
 		else if (*cast->value->value == "real")
-			STRAIGHT ("cast_var (p_lhs, IS_DOUBLE);\n");
+			symbol = "IS_DOUBLE";
 		else
-			assert (0 && "unimplemented"); // TODO: unimplemented
+			phc_unsupported (cast->value, "non-scalar casts");
 
-		return new LIR::Block (comment, stmts);
+		templ ("assign_expr_cast", *lhs->value->value, *rhs->value->value, lhs->value, rhs->value, symbol);
 	}
 
 public:
@@ -1103,54 +956,21 @@ public:
 	}
 
 
-	LIR::Piece* generate_lir (String* comment, Generate_LIR* gen)
+	void generate_code (String* comment, Generate_LIR* gen)
 	{
 		assert (lhs);
 		assert (op_functions.has (*op->value->value));
 		assert (!agn->is_ref);
 
-		string op_fn = op_functions[*op->value->value]; 
-
-		LIR::Statement_list* stmts = new LIR::Statement_list;
-
-		LDSL ("["
-		<< opt_annotations (lhs->value, "lhs")
-		<< opt_annotations (right->value, "right")
-		<< opt_annotations (left->value, "left")
-		<< "]");
-
-		LDSL ("["
-		<< RTS_LIR (demangle (this))
-		<< get_st_entry_lir (LOCAL, "lhs", lhs->value)
-		<< read_rvalue_lir ("left", left->value)
-		<< read_rvalue_lir ("right", right->value)
-		<< 
-		"(if (in_copy_on_write (deref (ZVPP lhs))) "
-		"[	(destruct (ZVPP lhs))"
-		"	(allocate (deref (ZVPP lhs))) "
-		"] [])"
-
-		<< "]");
-
-		STRAIGHT (
-		"zval old = **p_lhs;\n"
-		<< "int result_is_operand = (*p_lhs == left || *p_lhs == right);\n");
+		string op_fn = op_functions[*op->value->value];
 
 		// some operators need the operands to be reversed (since we
 		// call the opposite function). This is accounted for in the
 		// binops table.
 		if(*op->value->value == ">" || *op->value->value == ">=")
-			STRAIGHT (op_fn << "(*p_lhs, right, left TSRMLS_CC);\n");
+			templ ("assign_expr_bin_op", lhs->value, left->value, right->value, op_fn);
 		else
-			STRAIGHT (op_fn << "(*p_lhs, left, right TSRMLS_CC);\n");
-
-		// If the result is one of the operands, the operator function
-		// will already have cleaned up the result
-		STRAIGHT (	
-		"if (!result_is_operand)\n"
-		<<	"zval_dtor (&old);\n");
-
-		return new LIR::Block (comment, stmts);
+			templ ("assign_expr_bin_op", lhs->value, right->value, left->value, op_fn);
 	}
 
 
@@ -1328,13 +1148,6 @@ public:
 	Wildcard<Literal>* rhs;
 };
 
-string
-read_literal_lir (string zvp, Literal* lit)
-{
-	stringstream ss;
-	ss << "(CODE \"" << read_literal (zvp, lit) << "\")";
-	return ss.str();
-}
 
 string
 read_literal (string zvp, Literal* lit)
