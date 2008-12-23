@@ -10,25 +10,37 @@
  *    A name, followed by a list of parameters, followed by a list of rules.
  *
  * Parameters:
- *    a type and a name.
- *    Allowed types:
- *	 attrs: attributes, taken directly from the MIR::Node's attributes. To passname.
- *	 bool: boolean. To pass, use the name, or true|false
- *	 string: quoted string. To pass, use the name or a quoted string.
- *	 enum: symbol. To pass, use the name or symbol name (TODO: prevent ambiguity)
+ *    A type and a name.
+ *
+ * Allowed types:
+ *    attrs: attributes, taken directly from the MIR::Node's attributes.
+ *    bool: boolean. To pass, use the name, or true|false
+ *    string: quoted string. To pass, use the name or a quoted string.
+ *    enum: symbol. To pass, use the name or symbol name (TODO: prevent ambiguity)
+ *    node: like an attr, but has a type field
+ *    token: a special node with a value field. It can be interpolated, which uses the value field.
  *
  * Rules:
  *    Each rule is a boolean condition, preceeded by 'where '. Their evaluation is based on their type:
  *	 attrs: where attr.some_attribute_name
  *	 string: where param == "some string"
  *	 bool: where param == true|false
- *	 enum where param == SYMBOL_NAME
+ *	 enum: where param == SYMBOL_NAME
+ *	 node: where node.type == Literal
+ *	 token: where node.value = "STRING"
  *    Rules are all ANDed together. There is no way to OR two rules together.
  *
  * Templates:
  *    A template is basically C code, with two types of interpolation:
  *	 To use a parameter PARAM, use $PARAM (even in quoted strings).
- *	 To call another template, use \other_template (params, ... );
+ *	 To call another template, use \other_template (param0, ... );
+ *	 To use a property of a PARAM, use ${PARAM.propname}.
+ *	 To do a callback to the code generator, use \cb:callback_name (param0, ...);.
+ *	 The callback must be registered.
+ *	 Supported properties:
+ *	    hash - a string's hash value (including the 'u' suffix
+ *	    length - a string's length
+ *	    TODO: maybe attrs.name? to reduce the number of parameters
  *
  * Comments:
  *    Comment are allowed outside patterns. Comments inside templates are C
@@ -43,21 +55,24 @@
  * $x = $y;
  */
 
-assign_expr_var (string L, string R, attrs LHS, attrs RHS)
+assign_expr_var (token LHS, token RHS)
    where scope == LOCAL
    where VAR.st_entry_not_required
    where LHS.is_uninitialized
 {
   zval** p_lhs = &local_$L;
-  \read_rvalue ("rhs", R, RHS);
+  \read_rvalue ("rhs", RHS);
   \write_var ("p_lhs", "rhs", LHS, RHS);
 }
 
-assign_expr_var (string L, string R, attrs LHS, attrs RHS)
+assign_expr_var (token LHS, token RHS)
 {
-  \get_st_entry (LOCAL, "lhs", L, LHS);
-  \read_rvalue ("rhs", R, RHS);
-  \write_var ("p_lhs", "rhs", LHS, RHS);
+  \get_st_entry (LOCAL, "lhs", LHS);
+  \read_rvalue ("rhs", RHS);
+  if (*p_lhs != rhs)
+    {
+      \write_var ("p_lhs", "rhs", LHS, RHS);
+    }
 }
 
 
@@ -65,20 +80,20 @@ assign_expr_var (string L, string R, attrs LHS, attrs RHS)
 /*
  * $x =& $y;
  */
-assign_expr_ref_var (string L, string R, attrs LHS, attrs RHS)
+assign_expr_ref_var (token LHS, token RHS)
 {
-  \get_st_entry (LOCAL, "lhs", L, LHS);
-  \get_st_entry (LOCAL, "rhs", R, RHS);
-  \sep_copy_on_write ("rhs");
-  \copy_into_ref ("lhs", "rhs");
+  \get_st_entry (LOCAL, "p_lhs", LHS);
+  \get_st_entry (LOCAL, "p_rhs", RHS);
+  sep_copy_on_write ("p_rhs");
+  copy_into_ref ("p_lhs", "p_rhs");
 }
 
 /*
  * Casts
  */
-assign_expr_cast (string L, string R, attrs LHS, attrs RHS, string TYPE)
+assign_expr_cast (token LHS, token RHS, string TYPE)
 {
-  \assign_expr_var (L, R, LHS, RHS, false);
+  \assign_expr_var (LHS, RHS);
   cast_var (p_lhs, $TYPE);
 }
 
@@ -88,11 +103,12 @@ assign_expr_cast (string L, string R, attrs LHS, attrs RHS, string TYPE)
 
 // OP_FN: for example "add_function"
 // The caller must sort out the order of LEFT and RIGHT for > and >=
-assign_expr_bin_op (string LHS_NAME, string LE, string RI, string OP_FN, attrs LHS, attrs LEFT, attrs RIGHT)
+// We use NODE for LEFT and RIGHT, since they might be literals
+assign_expr_bin_op (token LHS, node LEFT, node RIGHT, string OP_FN)
 {
-  \get_st_entry (LOCAL, "p_lhs", L, LHS);
-  \read_rvalue ("left", LE, LEFT);
-  \read_rvalue ("right", RI, RIGHT);
+  \get_st_entry (LOCAL, "p_lhs", LHS);
+  \read_rvalue ("left", LEFT);
+  \read_rvalue ("right", RIGHT);
   if (in_copy_on_write (*p_lhs))
     {
       zval_ptr_dtor (p_lhs);
@@ -110,18 +126,44 @@ assign_expr_bin_op (string LHS_NAME, string LE, string RI, string OP_FN, attrs L
 }
 
 // We could do this for non-LOCAL, but we'd only be saving an refcount++ and a refcount--.
-assign_expr_bin_op (string L, string LE, string RI, string OP_FN, attrs LHS, attrs LEFT, attrs RIGHT)
+assign_expr_bin_op (token LHS, token LEFT, token RIGHT, string OP_FN)
    where scope == LOCAL
    where VAR.st_entry_not_required
    where LHS.is_uninitialized
 {
-  \read_rvalue ("left", LE, LEFT);
-  \read_rvalue ("right", RI, RIGHT);
+  \read_rvalue ("left", LEFT);
+  \read_rvalue ("right", RIGHT);
 
   p_lhs = &local_$L;
   ALLOC_INIT_ZVAL (*p_lhs);
 
   $OP_FN (*p_lhs, left, right TSRMLS_CC);
+}
+
+
+/*
+ * Var-vars
+ */
+assign_expr_var_var (token LHS, token INDEX)
+{
+  \get_st_entry (LOCAL, "p_lhs", LHS);
+  \read_rvalue ("index", INDEX);
+  zval* rhs;
+  \read_var_var ("rhs", "index");
+  if (*p_lhs != rhs)
+    {
+      \write_var ("p_lhs", "rhs", LHS, INDEX);
+    }
+}
+
+assign_expr_ref_var_var (token LHS, token INDEX)
+{
+  \get_st_entry (LOCAL, "p_lhs", LHS);
+  \read_rvalue ("index", INDEX);
+  zval** p_rhs;
+  \get_var_var (LOCAL, "p_rhs", "index");
+  sep_copy_on_write (p_rhs);
+  copy_into_ref (p_lhs, p_rhs);
 }
 
 
@@ -131,22 +173,22 @@ assign_expr_bin_op (string L, string LE, string RI, string OP_FN, attrs LHS, att
  * NAME: A name for the zvpp.
  * VAR: Attribute map
  */
-get_st_entry (enum SCOPE, string ZVP, string NAME, attrs VAR)
+get_st_entry (enum SCOPE, string ZVP, token VAR)
    where scope == LOCAL
    where VAR.st_entry_not_required
 {
-  if (local_$NAME == NULL)
+  if (local_$VAR == NULL)
     {
-      local_$NAME = EG (uninitialized~_zval_ptr);
-      local_$NAME->refcount++;
+      local_$VAR = EG (uninitialized~_zval_ptr);
+      local_$VAR->refcount++;
     }
-  zval** $ZVP = &local_$NAME;
+  zval** $ZVP = &local_$VAR;
 }
 
 // TODO: inline better
-get_st_entry (enum SCOPE, string ZVP, string NAME, attrs VAR)
+get_st_entry (enum SCOPE, string ZVP, token VAR)
 {
-  zval** $ZVP = get_st_entry (\scope(scope);, "$NAME", ${NAME.length} + 1, ${NAME.hash});
+  zval** $ZVP = get_st_entry (\scope(scope);, "$VAR", ${VAR.length} + 1, ${VAR.hash});
 }
 
 scope (enum SCOPE) where SCOPE = LOCAL {EG(active_symbol_table)}
@@ -154,12 +196,26 @@ scope (enum SCOPE) where SCOPE = GLOBAL {&EG(symbol_table)}
 
 
 /*
- * TODO: what about literals
  * read_value
  */
 
+read_rvalue (string ZVP, token LIT)
+   where LIT.type == Literal
+   where LIT.pool_name
+{
+  zval* $ZVP = ${LIT.pool_name};
+}
 
-read_rvalue (string ZVP, string NAME, attrs VAR)
+read_rvalue (string ZVP, token LIT)
+   where LIT.type == Literal
+{
+  zval* lit_tmp_$ZVP;
+  INIT_ZVAL (lit_tmp_$ZVP);
+  zval* $ZVP = &lit_tmp_$ZVP;
+  \cb:write_literal_directly_into_zval (ZVP, LIT);
+}
+
+read_rvalue (string ZVP, token VAR)
    where scope == LOCAL
    where VAR.st_entry_not_required
    where VAR.is_uninitialized
@@ -167,72 +223,77 @@ read_rvalue (string ZVP, string NAME, attrs VAR)
   zval* $ZVP = EG (uninitialized_zval_ptr);
 }
 
-read_rvalue (string ZVP, string NAME, attrs VAR)
+read_rvalue (string ZVP, token VAR)
    where scope == LOCAL
    where VAR.st_entry_not_required
    where VAR.is_initialized
 {
-  zval* $ZVP = local_$NAME;
+  zval* $ZVP = local_$VAR;
 }
 
-read_rvalue (string ZVP, string NAME, attrs VAR)
+read_rvalue (string ZVP, token VAR)
    where scope == LOCAL
    where VAR.st_entry_not_required
 {
   zval* $ZVP;
-  if (local_$NAME == NULL)
+  if (local_$VAR == NULL)
     $ZVP = EG (uninitialized_zval_ptr);
   else
-    $ZVP = local_$NAME;
+    $ZVP = local_$VAR;
 }
 
-read_rvalue (string ZVP, string NAME, attrs VAR)
+read_rvalue (string ZVP, token VAR)
 {
-  zval* $ZVP = read_var (\scope(LOCAL), "$NAME", ${NAME.length} + 1, ${NAME.hash} TSRMLS_CC);
+  zval* $ZVP = read_var (\scope(LOCAL), "$VAR", ${VAR.length} + 1, ${VAR.hash} TSRMLS_CC);
 }
 
 
 /*
  * write_var
  */
-write_var (string L, string R, attrs LHS, attrs RHS)
-{
-  if ((*$L)->is_ref)
-      overwrite_lhs (*$L, $R);
-  else
-    {
-      zval_ptr_dtor ($L);
-      \write_var_inner (L, R, RHS);
-    }
-}
 
-write_var (string L, string R, attrs LHS, attrs RHS)
+write_var (token LHS, token RHS)
    where LHS.is_uninitialized
 {
   \write_var_inner (L, R, RHS);
 }
 
-write_var_inner (string L, string R, attrs RHS)
+write_var (token LHS, token RHS)
 {
-  if ($R->is_ref)
+  if ((*$LHS)->is_ref)
+      overwrite_lhs (*$LHS, $RHS);
+  else
+    {
+      zval_ptr_dtor ($LHS);
+      \write_var_inner (LHS, RHS);
+    }
+}
+
+write_var_inner (token LHS, token RHS)
+   where RHS.is_uninitialized
+{
+  // Share a copy
+  $RHS->refcount++;
+  *$LHS = $RHS;
+}
+
+
+write_var_inner (token LHS, token RHS)
+{
+  if ($RHS->is_ref)
     {
       // Take a copy of RHS for LHS
-      *$L = zvp_clone_ex ($R);
+      *$LHS = zvp_clone_ex ($RHS);
     }
   else
     {
       // Share a copy
-      $R->refcount++;
-      *$L = $R;
+      $RHS->refcount++;
+      *$LHS = $RHS;
     }
 }
 
-write_var_inner (string L, string R, attrs RHS)
-   where RHS.is_uninitialized == true
-{
-  // Share a copy
-  $R->refcount++;
-  *$L = $R;
-}
+
+
 
 

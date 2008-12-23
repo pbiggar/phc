@@ -59,6 +59,9 @@ Generate_LIR_annotations::post_php_script (PHP_script* in)
 void
 Generate_LIR_annotations::post_literal (Literal* in)
 {
+	if (!args_info.optimize_given)
+		return;
+
 	// Annotate each literal with a name for its pooled variable. Separate
 	// pools for each class
 	string index = *in->get_value_as_string ();

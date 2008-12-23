@@ -749,28 +749,13 @@ public:
 
 	void generate_code (Generate_LIR* gen)
 	{
+		VARIABLE_NAME* lhs_var = lhs->value;
+		VARIABLE_NAME* index_var = rhs->value->variable_name;
+
 		if (!agn->is_ref)
-		{
-			code
-			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
-			<< "zval* rhs;\n"
-			<< read_rvalue ("index", rhs->value->variable_name)
-			<< read_var_var ("rhs", "index")
-			<< "if (*p_lhs != rhs)\n"
-			<<		"write_var (p_lhs, rhs);\n"
-			;
-		}
+			templ ("assign_expr_var_var", *lhs_var->value, *index_var->value, lhs_var, index_var);
 		else
-		{
-			code
-			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
-			<< "zval** p_rhs;\n"
-			<< read_rvalue ("index", rhs->value->variable_name)
-			<< get_var_var (LOCAL, "p_rhs", "index")
-			<< "sep_copy_on_write (p_rhs);\n"
-			<< "copy_into_ref (p_lhs, p_rhs);\n"
-			;
-		}
+			templ ("assign_expr_ref_var_var", *lhs_var->value, *index_var->value, lhs_var, index_var);
 	}
 
 protected:
