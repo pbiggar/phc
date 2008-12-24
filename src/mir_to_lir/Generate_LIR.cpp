@@ -508,6 +508,27 @@ public:
 		<< "\"" << *pattern->value->class_name->value << "\", NULL);\n"
 		<< "zend_register_internal_class(&ce TSRMLS_CC);\n"
 		<< "}";
+
+		foreach (Member* member, *pattern->value->members)
+		{
+			Method* method = dynamic_cast<Method*>(member);
+			Attribute* attr = dynamic_cast<Attribute*>(member);
+
+			if(member != NULL)
+			{
+				// Not yet implemented
+			} 
+			else if(attr != NULL)
+			{
+				// Not yet implemented
+				assert(0);
+			}
+			else
+			{
+				// Invalid member type
+				assert(0);
+			}
+		}
 	}
 
 protected:

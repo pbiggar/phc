@@ -28,7 +28,7 @@ void
 Generate_LIR_annotations::pre_php_script (PHP_script* in)
 {
 	pool_values.clear ();
-	compiled_functions = new Signature_list;
+	compiled_functions.push(new Signature_list);
 }
 
 void
@@ -53,7 +53,10 @@ Generate_LIR_annotations::post_php_script (PHP_script* in)
 
 
 	// Get a list of compiled functions
-	in->attrs->set_list ("phc.codegen.compiled_functions", compiled_functions);
+  Signature_list* cf;
+	cf = compiled_functions.top(); compiled_functions.pop();
+	assert(compiled_functions.empty());
+	in->attrs->set_list ("phc.codegen.compiled_functions", cf);
 }
 
 void
@@ -102,7 +105,7 @@ Generate_LIR_annotations::pre_method (MIR::Method* in)
 {
 	var_names.clear ();
 	iterators.clear ();
-	compiled_functions->push_back (in->signature->clone ());
+	(compiled_functions.top())->push_back (in->signature->clone ());
 }
 
 void
@@ -137,5 +140,21 @@ Generate_LIR_annotations::post_return (Return* in)
 	// The signature at the back is this function.
 	in->attrs->set ("phc.codegen.return_by_ref",
 		new Boolean (
-			compiled_functions->back ()->is_ref));
+			(compiled_functions.top())->back ()->is_ref));
+}
+
+// Make sure phc.codegen.compiled_functions gets added to the class
+// definition rather than the PHP script
+void
+Generate_LIR_annotations::pre_class_def(Class_def* in)
+{
+	compiled_functions.push(new Signature_list);
+}
+
+void
+Generate_LIR_annotations::post_class_def(Class_def* in)
+{
+  Signature_list* cf;
+	cf = compiled_functions.top(); compiled_functions.pop();
+	in->attrs->set_list ("phc.codegen.compiled_functions", cf);
 }
