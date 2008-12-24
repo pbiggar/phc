@@ -105,6 +105,9 @@ Generate_LIR_annotations::pre_method (MIR::Method* in)
 {
 	var_names.clear ();
 	iterators.clear ();
+
+	if(!class_name.empty())
+		in->signature->attrs->set ("phc.codegen.class_name", class_name.top());
 	(compiled_functions.top())->push_back (in->signature->clone ());
 }
 
@@ -149,6 +152,7 @@ void
 Generate_LIR_annotations::pre_class_def(Class_def* in)
 {
 	compiled_functions.push(new Signature_list);
+	class_name.push(in->class_name->value);
 }
 
 void
@@ -157,4 +161,5 @@ Generate_LIR_annotations::post_class_def(Class_def* in)
   Signature_list* cf;
 	cf = compiled_functions.top(); compiled_functions.pop();
 	in->attrs->set_list ("phc.codegen.compiled_functions", cf);
+	class_name.pop();
 }

@@ -79,6 +79,9 @@ string templ (string);
 // TODO this is here for constant pooling. This should not be global.
 extern struct gengetopt_args_info args_info;
 
+// compile_statement is defined after all patterns
+LIR::Piece* compile_statement(Statement* in, Generate_LIR* gen);
+
 LIR::PHP_script*
 Generate_LIR::fold_php_script (MIR::PHP_script* in)
 {
@@ -489,6 +492,60 @@ public:
 	}
 };
 
+void function_declaration_block(stringstream& code, Signature_list* methods, String* block_name)
+{
+	code << "// ArgInfo structures (necessary to support compile time pass-by-reference)\n";
+	foreach (Signature* s, *methods)
+	{
+		String* name = s->method_name->value;
+
+		// TODO: pass by reference only works for PHP>5.1.0. Do we care?
+		code 
+		<< "ZEND_BEGIN_ARG_INFO_EX(" << *block_name << "_" << *name << "_arg_info, 0, "
+		<< (s->is_ref ? "1" : "0")
+		<< ", 0)\n"
+		;
+
+		// TODO: deal with type hinting
+
+		foreach (Formal_parameter* fp, *s->formal_parameters)
+		{
+			code 
+			<< "ZEND_ARG_INFO("
+			<< (fp->is_ref ? "1" : "0")
+			<< ", \"" << *fp->var->variable_name->value << "\")\n"; 
+		}
+
+		code << "ZEND_END_ARG_INFO()\n\n";
+	}
+
+	code 
+		<< "static function_entry " << *block_name << "_functions[] = {\n"
+		;
+
+	foreach (Signature* s, *methods)
+	{
+		String* name = s->method_name->value;
+
+		String* class_name = NULL;
+		if(s->attrs->has("phc.codegen.class_name"))
+			class_name = s->attrs->get_string("phc.codegen.class_name");
+
+		if(class_name == NULL)
+		{
+			code << "PHP_FE(" << *name << ", " << *block_name << "_" << *name << "_arg_info)\n";
+		}
+		else
+		{
+			// TODO: deal with visibility flags
+			code << "PHP_ME(" << *class_name << ", " << *name << ", " << *block_name << "_" << *name << "_arg_info, ZEND_ACC_PUBLIC)\n";
+		}
+	}
+
+	code << "{ NULL, NULL, NULL }\n";
+	code << "};\n";
+}
+
 class Pattern_class_def : public Pattern
 {
 public:
@@ -501,22 +558,16 @@ public:
 
 	void generate_code(Generate_LIR* gen)
 	{
-		minit 
-		<< "{\n"
-		<< "zend_class_entry ce; // temp\n"
-		<< "INIT_CLASS_ENTRY(ce, " 
-		<< "\"" << *pattern->value->class_name->value << "\", NULL);\n"
-		<< "zend_register_internal_class(&ce TSRMLS_CC);\n"
-		<< "}";
-
+		// Compile the class members
 		foreach (Member* member, *pattern->value->members)
 		{
 			Method* method = dynamic_cast<Method*>(member);
 			Attribute* attr = dynamic_cast<Attribute*>(member);
 
-			if(member != NULL)
+			if(method != NULL)
 			{
-				// Not yet implemented
+				LIR::Piece* compiled_method = compile_statement(method, gen);
+				gen->lir->pieces->push_back(compiled_method);
 			} 
 			else if(attr != NULL)
 			{
@@ -529,6 +580,20 @@ public:
 				assert(0);
 			}
 		}
+
+		// Declare all class members
+		function_declaration_block(code, pattern->value->attrs->get_list<Signature>("phc.codegen.compiled_functions"), pattern->value->class_name->value);
+
+		// Register the class in the module's MINIT function
+		minit
+		<< "{\n"
+		<< "zend_class_entry ce; // temp\n"
+		<< "INIT_CLASS_ENTRY(ce, " 
+		<< "\"" << *pattern->value->class_name->value << "\", " 
+		<< *pattern->value->class_name->value << "_functions);\n"
+		<< "zend_register_internal_class(&ce TSRMLS_CC);\n"
+		<< "}";
+
 	}
 
 protected:
@@ -598,11 +663,25 @@ protected:
 
 	void method_entry()
 	{
-		code
+		String* class_name = NULL;
+		if(signature->attrs->has("phc.codegen.class_name"))
+			class_name = signature->attrs->get_string("phc.codegen.class_name");
+	
 		// Function header
-		<< "PHP_FUNCTION(" << *signature->method_name->value << ")\n"
-		<< "{\n"
-		;
+		if(class_name != NULL)
+		{
+			code
+			<< "PHP_METHOD(" << *class_name << ", "
+			<< *signature->method_name->value << ")\n";
+		}
+		else
+		{
+			code
+			<< "PHP_FUNCTION"
+			<< "(" << *signature->method_name->value << ")\n";
+		}
+		
+		code << "{\n";
 
 		// __MAIN__ uses the global symbol table. Dont allocate for
 		// functions which dont need a symbol table.
@@ -2674,25 +2753,10 @@ protected:
  * Visitor for statements uses the patterns defined above.
  */
 
-void Generate_LIR::children_statement(Statement* in)
+LIR::Piece* compile_statement(Statement* in, Generate_LIR* gen)
 {
-	stringstream ss;
-	stringstream comment;
-	MIR_unparser (ss, true).unparse (in);
-
-	while (not ss.eof ())
-	{
-	  // Make reading the generated code easier. If we use a /*
-	  // comment, then we may get nested /* */ comments, which arent
-	  // allowed and result in syntax errors in C. Use // instead.
-		string str;
-		getline (ss, str);
-		if (str == "")
-			continue;
-
-		comment << "// " << *escape_C_comment (s(str)) << endl;
-	}
-
+	// TODO: this should be static, but making it static causes a segfault
+	// TODO: possibly due to a pattern assuming all of its local state is reset?
 	Pattern* patterns[] = 
 	{
 	// Top-level constructs
@@ -2734,24 +2798,37 @@ void Generate_LIR::children_statement(Statement* in)
 	,	new Pattern_unset()
 	,	new Pattern_pre_op()
 	};
+	
+	stringstream ss;
+	stringstream comment;
+	MIR_unparser (ss, true).unparse (in);
 
-	bool matched = false;
+	while (not ss.eof ())
+	{
+	  // Make reading the generated code easier. If we use a /*
+	  // comment, then we may get nested /* */ comments, which arent
+	  // allowed and result in syntax errors in C. Use // instead.
+		string str;
+		getline (ss, str);
+		if (str == "")
+			continue;
+
+		comment << "// " << *escape_C_comment (s(str)) << endl;
+	}
+
 	for(unsigned i = 0; i < sizeof(patterns) / sizeof(Pattern*); i++)
 	{
 		if(patterns[i]->match(in))
-		{
-			lir->pieces->push_back (patterns[i]->generate_lir (
-					s (comment.str ()),
-					this));
-			matched = true;
-			break;
-		}
+			return (patterns[i]->generate_lir (s (comment.str ()), gen));
 	}
 
-	if(not matched)
-	{
-		phc_unsupported (in, "unknown construct");
-	}
+	phc_unsupported (in, "unknown construct");
+	return NULL;
+}
+
+void Generate_LIR::children_statement(Statement* in)
+{
+	lir->pieces->push_back (compile_statement(in, this));
 }
 
 string read_file (String* filename)
@@ -2896,7 +2973,6 @@ Generate_LIR::clear_code_buffer ()
 	return result;
 }
 
-
 void Generate_LIR::post_php_script(PHP_script* in)
 {
 	// MINIT
@@ -2918,45 +2994,7 @@ void Generate_LIR::post_php_script(PHP_script* in)
 	LIR::UNINTERPRETED* end = clear_code_buffer ();
 	lir->pieces->push_back (end);
 
-	code << "// ArgInfo structures (necessary to support compile time pass-by-reference)\n";
-	Signature_list* methods = in->attrs->get_list<Signature>("phc.codegen.compiled_functions");
-	foreach (Signature* s, *methods)
-	{
-		String* name = s->method_name->value;
-
-		// TODO: pass by reference only works for PHP>5.1.0. Do we care?
-		code 
-		<< "ZEND_BEGIN_ARG_INFO_EX(" << *name << "_arg_info, 0, "
-		<< (s->is_ref ? "1" : "0")
-		<< ", 0)\n"
-		;
-
-		// TODO: deal with type hinting
-
-		foreach (Formal_parameter* fp, *s->formal_parameters)
-		{
-			code 
-			<< "ZEND_ARG_INFO("
-			<< (fp->is_ref ? "1" : "0")
-			<< ", \"" << *fp->var->variable_name->value << "\")\n"; 
-		}
-
-		code << "ZEND_END_ARG_INFO()\n";
-	}
-
-	code 
-		<< "// Register all functions with PHP\n"
-		<< "static function_entry " << *extension_name << "_functions[] = {\n"
-		;
-
-	foreach (Signature* s, *methods)
-	{
-		String* name = s->method_name->value;
-		code << "PHP_FE(" << *name << ", " << *name << "_arg_info)\n";
-	}
-
-	code << "{ NULL, NULL, NULL }\n";
-	code << "};\n";
+	function_declaration_block(code, in->attrs->get_list<Signature>("phc.codegen.compiled_functions"), extension_name);
 
 	code
 		<< "// Register the module itself with PHP\n"
