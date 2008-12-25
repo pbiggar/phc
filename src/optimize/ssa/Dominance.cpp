@@ -1,4 +1,5 @@
 
+#include <algorithm>
 #include <boost/graph/dominator_tree.hpp>
 #include <boost/graph/reverse_graph.hpp>
 

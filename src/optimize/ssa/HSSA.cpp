@@ -1,4 +1,5 @@
 
+#include <algorithm>
 #include <boost/graph/depth_first_search.hpp>
 #include <boost/graph/visitors.hpp>
 #include <boost/graph/dominator_tree.hpp>

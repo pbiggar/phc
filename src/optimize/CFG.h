@@ -8,6 +8,7 @@
 #ifndef PHC_CFG
 #define PHC_CFG
 
+#include <algorithm>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/properties.hpp>
 #include <boost/logic/tribool.hpp>
