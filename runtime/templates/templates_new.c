@@ -100,6 +100,20 @@ assign_expr_cast (token LHS, token RHS, string TYPE)
  * Bin-ops
  */
 
+// We could do this for non-LOCAL, but we'd only be saving an refcount++ and a refcount--.
+assign_expr_bin_op (token LHS, token LEFT, token RIGHT, string OP_FN)
+   where VAR.st_entry_not_required
+   where LHS.is_uninitialized
+@@@
+  \read_rvalue ("left", LEFT);
+  \read_rvalue ("right", RIGHT);
+
+  p_lhs = &local_$L;
+  ALLOC_INIT_ZVAL (*p_lhs);
+
+  $OP_FN (*p_lhs, left, right TSRMLS_CC);
+@@@
+
 // OP_FN: for example "add_function"
 // The caller must sort out the order of LEFT and RIGHT for > and >=
 // We use NODE for LEFT and RIGHT, since they might be literals
@@ -122,21 +136,6 @@ assign_expr_bin_op (token LHS, node LEFT, node RIGHT, string OP_FN)
   // will already have cleaned up the result
   if (!result_is_operand)
     zval_dtor (&old);
-@@@
-
-// We could do this for non-LOCAL, but we'd only be saving an refcount++ and a refcount--.
-assign_expr_bin_op (token LHS, token LEFT, token RIGHT, string OP_FN)
-   where scope == LOCAL
-   where VAR.st_entry_not_required
-   where LHS.is_uninitialized
-@@@
-  \read_rvalue ("left", LEFT);
-  \read_rvalue ("right", RIGHT);
-
-  p_lhs = &local_$L;
-  ALLOC_INIT_ZVAL (*p_lhs);
-
-  $OP_FN (*p_lhs, left, right TSRMLS_CC);
 @@@
 
 
@@ -173,7 +172,7 @@ assign_expr_ref_var_var (token LHS, token INDEX)
  * VAR: Attribute map
  */
 get_st_entry (enum SCOPE, string ZVP, token VAR)
-   where scope == LOCAL
+   where SCOPE == LOCAL
    where VAR.st_entry_not_required
 @@@
   if (local_$VAR == NULL)
@@ -190,8 +189,8 @@ get_st_entry (enum SCOPE, string ZVP, token VAR)
   zval** $ZVP = get_st_entry (\scope(scope);, "$VAR", ${VAR.length} + 1, ${VAR.hash});
 @@@
 
-scope (enum SCOPE) where SCOPE = LOCAL @@@EG(active_symbol_table)@@@
-scope (enum SCOPE) where SCOPE = GLOBAL @@@&EG(symbol_table)@@@
+scope (enum SCOPE) where SCOPE == LOCAL @@@EG(active_symbol_table)@@@
+scope (enum SCOPE) where SCOPE == GLOBAL @@@&EG(symbol_table)@@@
 
 
 /*
@@ -215,7 +214,6 @@ read_rvalue (string ZVP, token LIT)
 @@@
 
 read_rvalue (string ZVP, token VAR)
-   where scope == LOCAL
    where VAR.st_entry_not_required
    where VAR.is_uninitialized
 @@@
@@ -223,7 +221,6 @@ read_rvalue (string ZVP, token VAR)
 @@@
 
 read_rvalue (string ZVP, token VAR)
-   where scope == LOCAL
    where VAR.st_entry_not_required
    where VAR.is_initialized
 @@@
@@ -231,7 +228,6 @@ read_rvalue (string ZVP, token VAR)
 @@@
 
 read_rvalue (string ZVP, token VAR)
-   where scope == LOCAL
    where VAR.st_entry_not_required
 @@@
   zval* $ZVP;
@@ -291,3 +287,4 @@ write_var_inner (token LHS, token RHS)
       *$LHS = $RHS;
     }
 @@@
+

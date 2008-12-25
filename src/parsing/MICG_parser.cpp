@@ -49,7 +49,9 @@ struct skip_grammar : public grammar<skip_grammar>
 /*
  * Limitations:
  *		- Its hard to put {} around the body of a template. Use @@@ instead.
- *		- Bodies must have at least one character, though it can be the empy character.
+ *		- Bodies must have at least one character, though it can be a space.
+ *		- Quoted strings dont support escaping of '"'. However, a quoted string
+ *		is only used as a parameter to a macro, so thats not a great problem.
  */
 struct MICG_grammar : public grammar<MICG_grammar>
 {
@@ -90,25 +92,25 @@ struct MICG_grammar : public grammar<MICG_grammar>
 			// A signature line
 			pattern_name = lexeme_d[+(alpha_p | '_')];
 			type_name = lexeme_d[+lower_p];
-			param_name = lexeme_d[+upper_p];
+			param_name = lexeme_d[+(upper_p | '_')];
 			signature = pattern_name >> '(' >> list_p(type_name >> param_name, ",") >> ')';
 
 			// A rule line
 			attr_name = lexeme_d[+(alpha_p | '_')];
+			symbol = lexeme_d[+(alpha_p | '_')];
 			lookup = param_name >> "." >> attr_name;
-			base_expr = lookup | symbol;
+			base_expr = lookup | symbol | param_name;
 			expr = base_expr >> !("==" >> base_expr);
 			rule_line = "where" >> expr;
 
 			// The C code
-			// TODO we may want escaped quotes in the future.
 			quoted_string = confix_p ('"', *anychar_p, '"');
 			C_code = lexeme_d[+(anychar_p - ch_p('@'))];
 			macro_call = ch_p('\\') >> pattern_name >> '('
 				>> list_p (param_name | quoted_string, ", ") >> ch_p(')') >> ';';
 
 			// A template
-			body = "@@@" >> C_code >> "@@@";
+			body = "@@@" >> *(macro_call | interpolation | C_code) >> "@@@";
 			_template = signature >> *rule_line >> body;
 
 			r = *_template;
@@ -125,12 +127,8 @@ struct MICG_grammar : public grammar<MICG_grammar>
 void
 MICG_parser::parse (string str)
 {
-	// To simplify matters, this is a line parser - anything special must
-	// occur on a single line.
-
 	// By using a phrase parser with a white-space skip, comments are ignored,
-	// and we can ignore white space. TODO: do we have to turn it off for
-	// templates?
+	// and we can ignore white space.
 
 	MICG_grammar g;
 	skip_grammar skipg;
@@ -138,7 +136,7 @@ MICG_parser::parse (string str)
 	BOOST_SPIRIT_DEBUG_GRAMMAR(g);
 	BOOST_SPIRIT_DEBUG_TRACE_NODE(skipg, false);
 
-	parse_info<> pi = boost::spirit::parse (str.c_str(), g, skipg);
+	parse_info<> pi = boost::spirit::parse (str.c_str(), g >> end_p, skipg);
 
 	cout
 	<< "stop: " << string (pi.stop).substr (0,500) << "\n"
