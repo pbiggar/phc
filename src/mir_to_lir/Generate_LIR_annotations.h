@@ -20,7 +20,7 @@ class Generate_LIR_annotations : public MIR::Visitor, virtual public GC_obj
 {
 	Set<string> var_names;
 	Set<string> iterators;
-	Set<string> called_functions;
+	Set<string> cached_functions;
 	Stack<MIR::Signature_list*> compiled_functions;
 	Stack<String*> class_name;
 

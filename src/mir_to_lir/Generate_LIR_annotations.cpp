@@ -6,8 +6,10 @@
  */
 
 #include "Generate_LIR_annotations.h"
+#include <sstream>
 
 using namespace MIR;
+using namespace std;
 
 // convert from string to String*
 String_list* wrap_strings (Set<string>& set)
@@ -46,10 +48,10 @@ Generate_LIR_annotations::post_php_script (PHP_script* in)
 
 	// Add a list of methods called.
 	String_list* method_names = new String_list;
-	foreach (string name, called_functions)
+	foreach (string name, cached_functions)
 		method_names->push_back (s (name));
 
-	in->attrs->set ("phc.codegen.called_functions", method_names);
+	in->attrs->set ("phc.codegen.cached_functions", method_names);
 
 
 	// Get a list of compiled functions
@@ -85,14 +87,29 @@ void
 Generate_LIR_annotations::post_param_is_ref (Param_is_ref* in)
 {
 	if (METHOD_NAME* method_name = dynamic_cast<METHOD_NAME*> (in->method_name))
-		called_functions.insert (*method_name->value);
+		cached_functions.insert (*method_name->value);
 }
 
 void
 Generate_LIR_annotations::post_method_invocation (Method_invocation* in)
 {
 	if (METHOD_NAME* method_name = dynamic_cast<METHOD_NAME*> (in->method_name))
-		called_functions.insert (*method_name->value);
+	{
+		CLASS_NAME* class_name = dynamic_cast<CLASS_NAME*>(in->target);
+
+		if (in->target == NULL)
+			cached_functions.insert (*method_name->value);
+		else if (class_name != NULL)
+		{
+			stringstream fqn;
+			fqn << *class_name->value << "_" << *method_name->value;
+			cached_functions.insert (fqn.str());
+		}
+		else
+		{
+			// The function is part of an object; we cannot cache it 
+		}
+	}
 }
 
 

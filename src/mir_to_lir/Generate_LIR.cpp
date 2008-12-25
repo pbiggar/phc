@@ -1710,11 +1710,8 @@ protected:
 };
 
 void
-init_function_record (string name, Node* node)
+init_function_record (string name, string& fci_name, string& fcic_name, Node* node)
 {
-	string fci_name = suffix (name, "fci");
-	string fcic_name = suffix (name, "fcic");
-
 	// Its not necessarily a good idea to initialize at the start, since we
 	// still have to check if its initialized at call-time (it may have been
 	// created in the meantime.
@@ -1745,10 +1742,9 @@ public:
 		string name = *dyc<METHOD_NAME> (rhs->value->method_name)->value;
 		int index = rhs->value->param_index->value;
 
-		init_function_record (name, rhs->value);
-
 		string fci_name = suffix (name, "fci");
 		string fcic_name = suffix (name, "fcic");
+		init_function_record (name, fci_name, fcic_name, rhs->value);
 
 		code
 		<< "zend_function* signature = " << fcic_name << ".function_handler;\n"
@@ -1804,9 +1800,45 @@ public:
 		METHOD_NAME* name = dynamic_cast<METHOD_NAME*>(rhs->value->method_name);
 		if (name == NULL) phc_unsupported (rhs->value, "variable function");
 
+		// Names of the runtime variables that will hold the (potentially cached)
+		// location of the function
 		string fci_name = suffix (*name->value, "fci");
 		string fcic_name = suffix (*name->value, "fcic");
-		init_function_record (*name->value, rhs->value);
+
+		// Global function or class member?
+		if (rhs->value->target != NULL)
+		{
+			VARIABLE_NAME* object_name;
+			CLASS_NAME* class_name; 
+
+			object_name = dynamic_cast<VARIABLE_NAME*>(rhs->value->target);
+			class_name  = dynamic_cast<CLASS_NAME*>(rhs->value->target);
+
+			if(object_name != NULL)
+			{
+				phc_unsupported(rhs->value, "invocation of object member");
+			}
+			else if(class_name != NULL)
+			{
+				stringstream fqn;
+				fqn << *class_name->value << "::" << *name->value;
+				
+				fci_name  = suffix (suffix(*class_name->value, *name->value), "fci");
+				fcic_name = suffix (suffix(*class_name->value, *name->value), "fcic");
+				init_function_record (fqn.str(), fci_name, fcic_name, rhs->value);
+			}
+			else
+			{
+				// Invalid target
+				assert(0);
+			}
+		}
+		else
+		{
+			fci_name  = suffix (*name->value, "fci");
+			fcic_name = suffix (*name->value, "fcic");
+			init_function_record (*name->value, fci_name, fcic_name, rhs->value);
+		}
 
 		code
 		<< "zend_function* signature = " << fcic_name << ".function_handler;\n"
@@ -2947,8 +2979,8 @@ void Generate_LIR::pre_php_script(PHP_script* in)
 	}
 
 	// Add function cache declarations
-	String_list* called_functions = dyc<String_list> (in->attrs->get ("phc.codegen.called_functions"));
-	foreach (String* name, *called_functions)
+	String_list* cached_functions = dyc<String_list> (in->attrs->get ("phc.codegen.cached_functions"));
+	foreach (String* name, *cached_functions)
 	{
 		string fci_name = suffix (*name, "fci");
 		string fcic_name = suffix (*name, "fcic");
