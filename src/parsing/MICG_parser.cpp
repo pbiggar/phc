@@ -103,11 +103,14 @@ struct MICG_grammar : public grammar<MICG_grammar>
 			expr = base_expr >> !("==" >> base_expr);
 			rule_line = "where" >> expr;
 
-			// The C code
+			// Bodies
+			C_code = lexeme_d[(anychar_p - ch_p('@'))];
+
 			quoted_string = confix_p ('"', *anychar_p, '"');
-			C_code = lexeme_d[+(anychar_p - ch_p('@'))];
 			macro_call = ch_p('\\') >> pattern_name >> '('
 				>> list_p (param_name | quoted_string, ", ") >> ch_p(')') >> ';';
+
+			interpolation = ('$' >> param_name) | ("${" >> lookup >> '}');
 
 			// A template
 			body = "@@@" >> *(macro_call | interpolation | C_code) >> "@@@";
