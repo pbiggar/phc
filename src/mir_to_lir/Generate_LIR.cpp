@@ -492,6 +492,41 @@ public:
 	}
 };
 
+string method_mod_flags(Method_mod* mod)
+{
+	stringstream flags;
+
+	if(mod->is_public)
+	{
+		flags << "ZEND_ACC_PUBLIC";
+		assert(!mod->is_protected);
+		assert(!mod->is_private);
+	}
+	else if(mod->is_protected)
+	{
+		flags << "ZEND_ACC_PROTECTED";
+		assert(!mod->is_public);
+		assert(!mod->is_private);
+	}
+	else if(mod->is_private)
+	{
+		flags << "ZEND_ACC_PRIVATE";
+		assert(!mod->is_public);
+		assert(!mod->is_protected);
+	}
+	else
+	{
+		// No access modifiers specified; assume public
+		flags << "ZEND_ACC_PUBLIC";
+	}
+
+	if(mod->is_static)   flags << " | ZEND_ACC_STATIC";
+	if(mod->is_abstract) flags << " | ZEND_ACC_ABSTRACT";
+	if(mod->is_final)    flags << " | ZEND_ACC_FINAL";
+
+	return flags.str();
+}
+
 void function_declaration_block(stringstream& code, Signature_list* methods, String* block_name)
 {
 	code << "// ArgInfo structures (necessary to support compile time pass-by-reference)\n";
@@ -538,7 +573,7 @@ void function_declaration_block(stringstream& code, Signature_list* methods, Str
 		else
 		{
 			// TODO: deal with visibility flags
-			code << "PHP_ME(" << *class_name << ", " << *name << ", " << *block_name << "_" << *name << "_arg_info, ZEND_ACC_PUBLIC)\n";
+			code << "PHP_ME(" << *class_name << ", " << *name << ", " << *block_name << "_" << *name << "_arg_info, " << method_mod_flags(s->method_mod) << ")\n";
 		}
 	}
 
