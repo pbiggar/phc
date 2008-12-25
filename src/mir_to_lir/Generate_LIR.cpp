@@ -48,6 +48,7 @@
 
 #include "Generate_LIR.h"
 #include "process_lir/LIR_unparser.h"
+#include "parsing/MICG_parser.h"
 #include "embed/embed.h"
 #include "optimize/Oracle.h"
 
@@ -708,6 +709,11 @@ protected:
  *	(2) Remove the current ST entry, replacing it with a reference to $y.
  *	    If $y doesnt exist, initialize it. If $x doesn't exist, it doesnt matter.
  */
+
+void templ (string, ...)
+{
+}
+
 class Pattern_assign_expr_var : public Pattern_assign_var
 {
 public:
@@ -720,9 +726,9 @@ public:
 	void generate_code (Generate_LIR* gen)
 	{
 		if (agn->is_ref)
-			templ ("assign_expr_var", *lhs->value->value, *rhs->value->value, lhs->value, rhs->value);
+			templ ("assign_expr_var", lhs->value->value, rhs->value->value, lhs->value, rhs->value);
 		else
-			templ ("assign_expr_ref_var", *lhs->value->value, *rhs->value->value, lhs->value, rhs->value);
+			templ ("assign_expr_ref_var", lhs->value->value, rhs->value->value, lhs->value, rhs->value);
 	}
 
 protected:
@@ -753,9 +759,9 @@ public:
 		VARIABLE_NAME* index_var = rhs->value->variable_name;
 
 		if (!agn->is_ref)
-			templ ("assign_expr_var_var", *lhs_var->value, *index_var->value, lhs_var, index_var);
+			templ ("assign_expr_var_var", lhs_var->value, index_var->value, lhs_var, index_var);
 		else
-			templ ("assign_expr_ref_var_var", *lhs_var->value, *index_var->value, lhs_var, index_var);
+			templ ("assign_expr_ref_var_var", lhs_var->value, index_var->value, lhs_var, index_var);
 	}
 
 protected:
@@ -864,7 +870,7 @@ public:
 		else
 			phc_unsupported (cast->value, "non-scalar casts");
 
-		templ ("assign_expr_cast", *lhs->value->value, *rhs->value->value, lhs->value, rhs->value, symbol);
+		templ ("assign_expr_cast", lhs->value->value, rhs->value->value, lhs->value, rhs->value, s(symbol));
 	}
 
 public:
@@ -953,9 +959,9 @@ public:
 		// call the opposite function). This is accounted for in the
 		// binops table.
 		if(*op->value->value == ">" || *op->value->value == ">=")
-			templ ("assign_expr_bin_op", lhs->value, left->value, right->value, op_fn);
+			templ ("assign_expr_bin_op", lhs->value, left->value, right->value, s(op_fn));
 		else
-			templ ("assign_expr_bin_op", lhs->value, right->value, left->value, op_fn);
+			templ ("assign_expr_bin_op", lhs->value, right->value, left->value, s(op_fn));
 	}
 
 
@@ -2631,6 +2637,8 @@ templ (string name)
 
 void Generate_LIR::pre_php_script(PHP_script* in)
 {
+	MICG_parser x;
+	x.parse (read_file (s("templates/templates_new.c")));
 	include_file (prologue, s("support.c"));
 	include_file (prologue, s("debug.c"));
 	include_file (prologue, s("zval.c"));

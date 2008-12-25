@@ -7,6 +7,9 @@
 
 #include "Generate_LIR_annotations.h"
 
+#include "cmdline.h"
+extern struct gengetopt_args_info args_info;
+
 using namespace MIR;
 
 // convert from string to String*

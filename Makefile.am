@@ -239,6 +239,8 @@ libphc_la_SOURCES= 											\
 	src/optimize/Visit_once.h								\
 	src/parsing/LIR_parser.cpp								\
 	src/parsing/LIR_parser.h								\
+	src/parsing/MICG_parser.cpp							\
+	src/parsing/MICG_parser.h								\
 	src/parsing/Parse_buffer.cpp							\
 	src/parsing/Parse_buffer.h								\
 	src/parsing/parse.cpp									\

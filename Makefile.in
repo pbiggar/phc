@@ -110,10 +110,10 @@ am_libphc_la_OBJECTS = getopt1.lo getopt.lo AST_annotate.lo \
 	Remove_loop_booleans.lo SCCP.lo Sparse_conditional_visitor.lo \
 	Dominance.lo HSSA.lo Phi.lo Type_inference.lo SSA.lo \
 	SSA_ops.lo Virtual_variable.lo Var_set.lo Visit_once.lo \
-	LIR_parser.lo Parse_buffer.lo parse.lo PHP_context.lo \
-	XML_parser.lo Optimization_pass.lo Pass_manager.lo \
-	Plugin_pass.lo AST_unparser.lo Constant_folding.lo \
-	DOT_unparser.lo Invalid_check.lo \
+	LIR_parser.lo MICG_parser.lo Parse_buffer.lo parse.lo \
+	PHP_context.lo XML_parser.lo Optimization_pass.lo \
+	Pass_manager.lo Plugin_pass.lo AST_unparser.lo \
+	Constant_folding.lo DOT_unparser.lo Invalid_check.lo \
 	Note_top_level_declarations.lo Process_includes.lo \
 	Remove_concat_null.lo Remove_parser_temporaries.lo \
 	Strip_unparser_attributes.lo Token_conversion.lo \
@@ -792,6 +792,8 @@ libphc_la_SOURCES = \
 	src/optimize/Visit_once.h								\
 	src/parsing/LIR_parser.cpp								\
 	src/parsing/LIR_parser.h								\
+	src/parsing/MICG_parser.cpp							\
+	src/parsing/MICG_parser.h								\
 	src/parsing/Parse_buffer.cpp							\
 	src/parsing/Parse_buffer.h								\
 	src/parsing/parse.cpp									\
@@ -1408,6 +1410,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Lower_dynamic_definitions.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Lower_expr_flow.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Lower_method_invocations.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MICG_parser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MIR.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MIR_factory.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MIR_transform.Plo@am__quote@
@@ -2108,6 +2111,13 @@ LIR_parser.lo: src/parsing/LIR_parser.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/parsing/LIR_parser.cpp' object='LIR_parser.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o LIR_parser.lo `test -f 'src/parsing/LIR_parser.cpp' || echo '$(srcdir)/'`src/parsing/LIR_parser.cpp
+
+MICG_parser.lo: src/parsing/MICG_parser.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT MICG_parser.lo -MD -MP -MF $(DEPDIR)/MICG_parser.Tpo -c -o MICG_parser.lo `test -f 'src/parsing/MICG_parser.cpp' || echo '$(srcdir)/'`src/parsing/MICG_parser.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/MICG_parser.Tpo $(DEPDIR)/MICG_parser.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/parsing/MICG_parser.cpp' object='MICG_parser.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o MICG_parser.lo `test -f 'src/parsing/MICG_parser.cpp' || echo '$(srcdir)/'`src/parsing/MICG_parser.cpp
 
 Parse_buffer.lo: src/parsing/Parse_buffer.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Parse_buffer.lo -MD -MP -MF $(DEPDIR)/Parse_buffer.Tpo -c -o Parse_buffer.lo `test -f 'src/parsing/Parse_buffer.cpp' || echo '$(srcdir)/'`src/parsing/Parse_buffer.cpp
