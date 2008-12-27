@@ -95,7 +95,8 @@ am_libphc_la_OBJECTS = getopt1.lo getopt.lo AST_annotate.lo \
 	optimize.lo util.lo AST.lo AST_factory.lo AST_transform.lo \
 	AST_visitor.lo cmdline.lo HIR.lo HIR_factory.lo \
 	HIR_transform.lo HIR_visitor.lo lex.yy.lo LIR.lo \
-	LIR_factory.lo LIR_transform.lo LIR_visitor.lo MIR.lo \
+	LIR_factory.lo LIR_transform.lo LIR_visitor.lo MICG.lo \
+	MICG_factory.lo MICG_transform.lo MICG_visitor.lo MIR.lo \
 	MIR_factory.lo MIR_transform.lo MIR_visitor.lo \
 	php_parser.tab.lo HIR_lower_expr.lo Lower_control_flow.lo \
 	Lower_dynamic_definitions.lo Lower_method_invocations.lo \
@@ -472,33 +473,39 @@ CYGPATH_W = @CYGPATH_W@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
 DSYMUTIL = @DSYMUTIL@
-ECHO = @ECHO@
+DUMPBIN = @DUMPBIN@
 ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
-F77 = @F77@
-FFLAGS = @FFLAGS@
+FGREP = @FGREP@
 GREP = @GREP@
+INCLTDL = @INCLTDL@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
+LD = @LD@
 LDFLAGS = @LDFLAGS@
 LIBLTDL = @LIBLTDL@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
 LIBTOOL = @LIBTOOL@
+LIPO = @LIPO@
 LN_S = @LN_S@
+LTDLDEPS = @LTDLDEPS@
 LTDLINCL = @LTDLINCL@
 LTLIBOBJS = @LTLIBOBJS@
 MAINT = @MAINT@
 MAKEINFO = @MAKEINFO@
 MKDIR_P = @MKDIR_P@
+NM = @NM@
 NMEDIT = @NMEDIT@
 OBJEXT = @OBJEXT@
+OTOOL = @OTOOL@
+OTOOL64 = @OTOOL64@
 PACKAGE = @PACKAGE@
 PACKAGE_BUGREPORT = @PACKAGE_BUGREPORT@
 PACKAGE_NAME = @PACKAGE_NAME@
@@ -518,7 +525,7 @@ abs_top_builddir = @abs_top_builddir@
 abs_top_srcdir = @abs_top_srcdir@
 ac_ct_CC = @ac_ct_CC@
 ac_ct_CXX = @ac_ct_CXX@
-ac_ct_F77 = @ac_ct_F77@
+ac_ct_DUMPBIN = @ac_ct_DUMPBIN@
 am__include = @am__include@
 am__leading_dot = @am__leading_dot@
 am__quote = @am__quote@
@@ -558,6 +565,7 @@ libexecdir = @libexecdir@
 libphp_headers = @libphp_headers@
 localedir = @localedir@
 localstatedir = @localstatedir@
+lt_ECHO = @lt_ECHO@
 maketea = @maketea@
 mandir = @mandir@
 mkdir_p = @mkdir_p@
@@ -682,6 +690,16 @@ libphc_la_SOURCES = \
 	src/generated/LIR_user_defined.h						\
 	src/generated/LIR_visitor.cpp							\
 	src/generated/LIR_visitor.h							\
+	src/generated/MICG.cpp									\
+	src/generated/MICG_factory.cpp						\
+	src/generated/MICG_factory.h							\
+	src/generated/MICG_fold.h								\
+	src/generated/MICG.h										\
+	src/generated/MICG_transform.cpp						\
+	src/generated/MICG_transform.h						\
+	src/generated/MICG_user_defined.h					\
+	src/generated/MICG_visitor.cpp						\
+	src/generated/MICG_visitor.h							\
 	src/generated/MIR.cpp									\
 	src/generated/MIR_factory.cpp							\
 	src/generated/MIR_factory.h							\
@@ -903,6 +921,16 @@ BUILT_SOURCES = \
 	src/generated/LIR_user_defined.h						\
 	src/generated/LIR_visitor.cpp							\
 	src/generated/LIR_visitor.h							\
+	src/generated/MICG.cpp									\
+	src/generated/MICG_factory.cpp						\
+	src/generated/MICG_factory.h							\
+	src/generated/MICG_fold.h								\
+	src/generated/MICG.h										\
+	src/generated/MICG_transform.cpp						\
+	src/generated/MICG_transform.h						\
+	src/generated/MICG_user_defined.h					\
+	src/generated/MICG_visitor.cpp						\
+	src/generated/MICG_visitor.h							\
 	src/generated/MIR.cpp									\
 	src/generated/MIR_factory.cpp							\
 	src/generated/MIR_factory.h							\
@@ -1410,7 +1438,11 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Lower_dynamic_definitions.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Lower_expr_flow.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Lower_method_invocations.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MICG.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MICG_factory.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MICG_parser.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MICG_transform.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MICG_visitor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MIR.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MIR_factory.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MIR_transform.Plo@am__quote@
@@ -1761,6 +1793,34 @@ LIR_visitor.lo: src/generated/LIR_visitor.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/generated/LIR_visitor.cpp' object='LIR_visitor.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o LIR_visitor.lo `test -f 'src/generated/LIR_visitor.cpp' || echo '$(srcdir)/'`src/generated/LIR_visitor.cpp
+
+MICG.lo: src/generated/MICG.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT MICG.lo -MD -MP -MF $(DEPDIR)/MICG.Tpo -c -o MICG.lo `test -f 'src/generated/MICG.cpp' || echo '$(srcdir)/'`src/generated/MICG.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/MICG.Tpo $(DEPDIR)/MICG.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/generated/MICG.cpp' object='MICG.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o MICG.lo `test -f 'src/generated/MICG.cpp' || echo '$(srcdir)/'`src/generated/MICG.cpp
+
+MICG_factory.lo: src/generated/MICG_factory.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT MICG_factory.lo -MD -MP -MF $(DEPDIR)/MICG_factory.Tpo -c -o MICG_factory.lo `test -f 'src/generated/MICG_factory.cpp' || echo '$(srcdir)/'`src/generated/MICG_factory.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/MICG_factory.Tpo $(DEPDIR)/MICG_factory.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/generated/MICG_factory.cpp' object='MICG_factory.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o MICG_factory.lo `test -f 'src/generated/MICG_factory.cpp' || echo '$(srcdir)/'`src/generated/MICG_factory.cpp
+
+MICG_transform.lo: src/generated/MICG_transform.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT MICG_transform.lo -MD -MP -MF $(DEPDIR)/MICG_transform.Tpo -c -o MICG_transform.lo `test -f 'src/generated/MICG_transform.cpp' || echo '$(srcdir)/'`src/generated/MICG_transform.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/MICG_transform.Tpo $(DEPDIR)/MICG_transform.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/generated/MICG_transform.cpp' object='MICG_transform.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o MICG_transform.lo `test -f 'src/generated/MICG_transform.cpp' || echo '$(srcdir)/'`src/generated/MICG_transform.cpp
+
+MICG_visitor.lo: src/generated/MICG_visitor.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT MICG_visitor.lo -MD -MP -MF $(DEPDIR)/MICG_visitor.Tpo -c -o MICG_visitor.lo `test -f 'src/generated/MICG_visitor.cpp' || echo '$(srcdir)/'`src/generated/MICG_visitor.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/MICG_visitor.Tpo $(DEPDIR)/MICG_visitor.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/generated/MICG_visitor.cpp' object='MICG_visitor.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o MICG_visitor.lo `test -f 'src/generated/MICG_visitor.cpp' || echo '$(srcdir)/'`src/generated/MICG_visitor.cpp
 
 MIR.lo: src/generated/MIR.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT MIR.lo -MD -MP -MF $(DEPDIR)/MIR.Tpo -c -o MIR.lo `test -f 'src/generated/MIR.cpp' || echo '$(srcdir)/'`src/generated/MIR.cpp
@@ -3245,6 +3305,20 @@ src/generated/MIR_visitor.h:			src/generated/MIR.h
 
 src/generated/MIR.h: src/generated_src/mir.tea @maketea@
 	@maketea@ src/generated_src/mir.tea
+
+src/generated/MICG.cpp: 				src/generated/MICG.h
+src/generated/MICG_factory.cpp:		src/generated/MICG.h
+src/generated/MICG_factory.h:			src/generated/MICG.h
+src/generated/MICG_fold.h:				src/generated/MICG.h
+src/generated/MICG_transform.cpp:	src/generated/MICG.h
+src/generated/MICG_transform.h:		src/generated/MICG.h
+src/generated/MICG_user_defined.h:	src/generated/MICG.h
+src/generated/MICG_visitor.cpp:		src/generated/MICG.h
+src/generated/MICG_visitor.h:			src/generated/MICG.h
+#src/generated/schema.xsd:				src/generated/MICG.h
+
+src/generated/MICG.h: src/generated_src/micg.tea @maketea@
+	@maketea@ src/generated_src/micg.tea
 
 src/generated/keywords.h: src/generated_src/php.gperf 
 	@gperf@ --language=ANSI-C --includes --readonly-tables --struct-type --ignore-case --output-file=src/generated/keywords.h src/generated_src/php.gperf

@@ -129,6 +129,16 @@ libphc_la_SOURCES= 											\
 	src/generated/LIR_user_defined.h						\
 	src/generated/LIR_visitor.cpp							\
 	src/generated/LIR_visitor.h							\
+	src/generated/MICG.cpp									\
+	src/generated/MICG_factory.cpp						\
+	src/generated/MICG_factory.h							\
+	src/generated/MICG_fold.h								\
+	src/generated/MICG.h										\
+	src/generated/MICG_transform.cpp						\
+	src/generated/MICG_transform.h						\
+	src/generated/MICG_user_defined.h					\
+	src/generated/MICG_visitor.cpp						\
+	src/generated/MICG_visitor.h							\
 	src/generated/MIR.cpp									\
 	src/generated/MIR_factory.cpp							\
 	src/generated/MIR_factory.h							\
@@ -350,6 +360,16 @@ BUILT_SOURCES = 												\
 	src/generated/LIR_user_defined.h						\
 	src/generated/LIR_visitor.cpp							\
 	src/generated/LIR_visitor.h							\
+	src/generated/MICG.cpp									\
+	src/generated/MICG_factory.cpp						\
+	src/generated/MICG_factory.h							\
+	src/generated/MICG_fold.h								\
+	src/generated/MICG.h										\
+	src/generated/MICG_transform.cpp						\
+	src/generated/MICG_transform.h						\
+	src/generated/MICG_user_defined.h					\
+	src/generated/MICG_visitor.cpp						\
+	src/generated/MICG_visitor.h							\
 	src/generated/MIR.cpp									\
 	src/generated/MIR_factory.cpp							\
 	src/generated/MIR_factory.h							\
@@ -629,6 +649,21 @@ src/generated/MIR_visitor.h:			src/generated/MIR.h
 
 src/generated/MIR.h: src/generated_src/mir.tea @maketea@
 	@maketea@ src/generated_src/mir.tea
+
+src/generated/MICG.cpp: 				src/generated/MICG.h
+src/generated/MICG_factory.cpp:		src/generated/MICG.h
+src/generated/MICG_factory.h:			src/generated/MICG.h
+src/generated/MICG_fold.h:				src/generated/MICG.h
+src/generated/MICG_transform.cpp:	src/generated/MICG.h
+src/generated/MICG_transform.h:		src/generated/MICG.h
+src/generated/MICG_user_defined.h:	src/generated/MICG.h
+src/generated/MICG_visitor.cpp:		src/generated/MICG.h
+src/generated/MICG_visitor.h:			src/generated/MICG.h
+#src/generated/schema.xsd:				src/generated/MICG.h
+
+src/generated/MICG.h: src/generated_src/micg.tea @maketea@
+	@maketea@ src/generated_src/micg.tea
+
 
 
 src/generated/keywords.h: src/generated_src/php.gperf 

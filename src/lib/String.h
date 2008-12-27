@@ -17,10 +17,6 @@ using std::string;
 using std::stringstream;
 
 class AttrMap;
-class String;
-
-// TODO: strings are not garbage collected (it doesnt matter that they arent traced)
-typedef List<String*> String_list;
 
 class String : public string, virtual public Object
 {
@@ -49,7 +45,5 @@ public:
 String* s (const string& s);
 
 SET_CLONABLE(String)
-
-typedef List<String*> String_list;
 
 #endif // PHC_STRING_H

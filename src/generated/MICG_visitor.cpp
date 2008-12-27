@@ -1,0 +1,834 @@
+#include "MICG_visitor.h"
+
+namespace MICG{
+Visitor::~Visitor()
+{
+}
+
+/* Invoked before the children are visited */
+void Visitor::pre_node(Node* in)
+{
+}
+
+void Visitor::pre_template(Template* in)
+{
+}
+
+void Visitor::pre_signature(Signature* in)
+{
+}
+
+void Visitor::pre_formal_parameter(Formal_parameter* in)
+{
+}
+
+void Visitor::pre_rule(Rule* in)
+{
+}
+
+void Visitor::pre_expr(Expr* in)
+{
+}
+
+void Visitor::pre_lookup(Lookup* in)
+{
+}
+
+void Visitor::pre_equals(Equals* in)
+{
+}
+
+void Visitor::pre_body(Body* in)
+{
+}
+
+void Visitor::pre_body_part(Body_part* in)
+{
+}
+
+void Visitor::pre_macro_call(Macro_call* in)
+{
+}
+
+void Visitor::pre_actual_parameter(Actual_parameter* in)
+{
+}
+
+void Visitor::pre_interpolation(Interpolation* in)
+{
+}
+
+void Visitor::pre_pattern_name(PATTERN_NAME* in)
+{
+}
+
+void Visitor::pre_type(TYPE* in)
+{
+}
+
+void Visitor::pre_attr_name(ATTR_NAME* in)
+{
+}
+
+void Visitor::pre_param_name(PARAM_NAME* in)
+{
+}
+
+void Visitor::pre_string(STRING* in)
+{
+}
+
+void Visitor::pre_c_code(C_CODE* in)
+{
+}
+
+/* Invoked after the children have been visited */
+void Visitor::post_node(Node* in)
+{
+}
+
+void Visitor::post_template(Template* in)
+{
+}
+
+void Visitor::post_signature(Signature* in)
+{
+}
+
+void Visitor::post_formal_parameter(Formal_parameter* in)
+{
+}
+
+void Visitor::post_rule(Rule* in)
+{
+}
+
+void Visitor::post_expr(Expr* in)
+{
+}
+
+void Visitor::post_lookup(Lookup* in)
+{
+}
+
+void Visitor::post_equals(Equals* in)
+{
+}
+
+void Visitor::post_body(Body* in)
+{
+}
+
+void Visitor::post_body_part(Body_part* in)
+{
+}
+
+void Visitor::post_macro_call(Macro_call* in)
+{
+}
+
+void Visitor::post_actual_parameter(Actual_parameter* in)
+{
+}
+
+void Visitor::post_interpolation(Interpolation* in)
+{
+}
+
+void Visitor::post_pattern_name(PATTERN_NAME* in)
+{
+}
+
+void Visitor::post_type(TYPE* in)
+{
+}
+
+void Visitor::post_attr_name(ATTR_NAME* in)
+{
+}
+
+void Visitor::post_param_name(PARAM_NAME* in)
+{
+}
+
+void Visitor::post_string(STRING* in)
+{
+}
+
+void Visitor::post_c_code(C_CODE* in)
+{
+}
+
+/* Visit the children of a node */
+void Visitor::children_template(Template* in)
+{
+    visit_signature(in->signature);
+    visit_rule_list(in->rules);
+    visit_body(in->body);
+}
+
+void Visitor::children_signature(Signature* in)
+{
+    visit_pattern_name(in->pattern_name);
+    visit_formal_parameter_list(in->formal_parameters);
+}
+
+void Visitor::children_formal_parameter(Formal_parameter* in)
+{
+    visit_type(in->type);
+    visit_param_name(in->param_name);
+}
+
+void Visitor::children_rule(Rule* in)
+{
+    visit_expr(in->expr);
+}
+
+void Visitor::children_lookup(Lookup* in)
+{
+    visit_param_name(in->param_name);
+    visit_attr_name(in->attr_name);
+}
+
+void Visitor::children_equals(Equals* in)
+{
+    visit_expr(in->left);
+    visit_expr(in->right);
+}
+
+void Visitor::children_body(Body* in)
+{
+    visit_body_part_list(in->body_parts);
+}
+
+void Visitor::children_macro_call(Macro_call* in)
+{
+    visit_pattern_name(in->pattern_name);
+    visit_actual_parameter_list(in->actual_parameters);
+}
+
+/* Tokens don't have children, so these methods do nothing by default */
+void Visitor::children_pattern_name(PATTERN_NAME* in)
+{
+}
+
+void Visitor::children_type(TYPE* in)
+{
+}
+
+void Visitor::children_attr_name(ATTR_NAME* in)
+{
+}
+
+void Visitor::children_param_name(PARAM_NAME* in)
+{
+}
+
+void Visitor::children_string(STRING* in)
+{
+}
+
+void Visitor::children_c_code(C_CODE* in)
+{
+}
+
+/* Unparser support */
+void Visitor::visit_marker(char const* name, bool value)
+{
+}
+
+void Visitor::visit_null(char const* name_space, char const* type_id)
+{
+}
+
+void Visitor::visit_null_list(char const* name_space, char const* type_id)
+{
+}
+
+void Visitor::pre_list(char const* name_space, char const* type_id, int size)
+{
+}
+
+void Visitor::post_list(char const* name_space, char const* type_id, int size)
+{
+}
+
+/* Invoke the chain of pre-visit methods along the inheritance hierachy */
+/* Do not override unless you know what you are doing */
+void Visitor::pre_template_chain(Template* in)
+{
+    pre_node((Node*) in);
+    pre_template((Template*) in);
+}
+
+void Visitor::pre_signature_chain(Signature* in)
+{
+    pre_node((Node*) in);
+    pre_signature((Signature*) in);
+}
+
+void Visitor::pre_formal_parameter_chain(Formal_parameter* in)
+{
+    pre_node((Node*) in);
+    pre_formal_parameter((Formal_parameter*) in);
+}
+
+void Visitor::pre_rule_chain(Rule* in)
+{
+    pre_node((Node*) in);
+    pre_rule((Rule*) in);
+}
+
+void Visitor::pre_lookup_chain(Lookup* in)
+{
+    pre_node((Node*) in);
+    pre_expr((Expr*) in);
+    pre_body_part((Body_part*) in);
+    pre_interpolation((Interpolation*) in);
+    pre_lookup((Lookup*) in);
+}
+
+void Visitor::pre_equals_chain(Equals* in)
+{
+    pre_node((Node*) in);
+    pre_expr((Expr*) in);
+    pre_equals((Equals*) in);
+}
+
+void Visitor::pre_body_chain(Body* in)
+{
+    pre_node((Node*) in);
+    pre_body((Body*) in);
+}
+
+void Visitor::pre_macro_call_chain(Macro_call* in)
+{
+    pre_node((Node*) in);
+    pre_body_part((Body_part*) in);
+    pre_macro_call((Macro_call*) in);
+}
+
+void Visitor::pre_pattern_name_chain(PATTERN_NAME* in)
+{
+    pre_node((Node*) in);
+    pre_pattern_name((PATTERN_NAME*) in);
+}
+
+void Visitor::pre_type_chain(TYPE* in)
+{
+    pre_node((Node*) in);
+    pre_type((TYPE*) in);
+}
+
+void Visitor::pre_attr_name_chain(ATTR_NAME* in)
+{
+    pre_node((Node*) in);
+    pre_attr_name((ATTR_NAME*) in);
+}
+
+void Visitor::pre_param_name_chain(PARAM_NAME* in)
+{
+    pre_node((Node*) in);
+    pre_expr((Expr*) in);
+    pre_body_part((Body_part*) in);
+    pre_interpolation((Interpolation*) in);
+    pre_actual_parameter((Actual_parameter*) in);
+    pre_param_name((PARAM_NAME*) in);
+}
+
+void Visitor::pre_string_chain(STRING* in)
+{
+    pre_node((Node*) in);
+    pre_expr((Expr*) in);
+    pre_actual_parameter((Actual_parameter*) in);
+    pre_string((STRING*) in);
+}
+
+void Visitor::pre_c_code_chain(C_CODE* in)
+{
+    pre_node((Node*) in);
+    pre_body_part((Body_part*) in);
+    pre_c_code((C_CODE*) in);
+}
+
+/* Invoke the chain of post-visit methods along the inheritance hierarchy */
+/* (invoked in opposite order to the pre-chain) */
+/* Do not override unless you know what you are doing */
+void Visitor::post_template_chain(Template* in)
+{
+    post_template((Template*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_signature_chain(Signature* in)
+{
+    post_signature((Signature*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_formal_parameter_chain(Formal_parameter* in)
+{
+    post_formal_parameter((Formal_parameter*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_rule_chain(Rule* in)
+{
+    post_rule((Rule*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_lookup_chain(Lookup* in)
+{
+    post_lookup((Lookup*) in);
+    post_interpolation((Interpolation*) in);
+    post_body_part((Body_part*) in);
+    post_expr((Expr*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_equals_chain(Equals* in)
+{
+    post_equals((Equals*) in);
+    post_expr((Expr*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_body_chain(Body* in)
+{
+    post_body((Body*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_macro_call_chain(Macro_call* in)
+{
+    post_macro_call((Macro_call*) in);
+    post_body_part((Body_part*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_pattern_name_chain(PATTERN_NAME* in)
+{
+    post_pattern_name((PATTERN_NAME*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_type_chain(TYPE* in)
+{
+    post_type((TYPE*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_attr_name_chain(ATTR_NAME* in)
+{
+    post_attr_name((ATTR_NAME*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_param_name_chain(PARAM_NAME* in)
+{
+    post_param_name((PARAM_NAME*) in);
+    post_actual_parameter((Actual_parameter*) in);
+    post_interpolation((Interpolation*) in);
+    post_body_part((Body_part*) in);
+    post_expr((Expr*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_string_chain(STRING* in)
+{
+    post_string((STRING*) in);
+    post_actual_parameter((Actual_parameter*) in);
+    post_expr((Expr*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_c_code_chain(C_CODE* in)
+{
+    post_c_code((C_CODE*) in);
+    post_body_part((Body_part*) in);
+    post_node((Node*) in);
+}
+
+/* Call the pre-chain, visit children and post-chain in order */
+/* Do not override unless you know what you are doing */
+void Visitor::visit_signature(Signature* in)
+{
+    if(in == NULL)
+    	visit_null("MICG", "Signature");
+    else
+    {
+    	pre_signature_chain(in);
+    	children_signature(in);
+    	post_signature_chain(in);
+    }
+}
+
+void Visitor::visit_rule_list(Rule_list* in)
+{
+    Rule_list::const_iterator i;
+    
+    if(in == NULL)
+    	visit_null_list("MICG", "Rule");
+    else
+    {
+    	pre_list("MICG", "Rule", in->size());
+    
+    	for(i = in->begin(); i != in->end(); i++)
+    	{
+    		visit_rule(*i);
+    	}
+    
+    	post_list("MICG", "Rule", in->size());
+    }
+}
+
+void Visitor::visit_rule(Rule* in)
+{
+    if(in == NULL)
+    	visit_null("MICG", "Rule");
+    else
+    {
+    	pre_rule_chain(in);
+    	children_rule(in);
+    	post_rule_chain(in);
+    }
+}
+
+void Visitor::visit_body(Body* in)
+{
+    if(in == NULL)
+    	visit_null("MICG", "Body");
+    else
+    {
+    	pre_body_chain(in);
+    	children_body(in);
+    	post_body_chain(in);
+    }
+}
+
+void Visitor::visit_pattern_name(PATTERN_NAME* in)
+{
+    if(in == NULL)
+    	visit_null("MICG", "PATTERN_NAME");
+    else
+    {
+    	pre_pattern_name_chain(in);
+    	children_pattern_name(in);
+    	post_pattern_name_chain(in);
+    }
+}
+
+void Visitor::visit_formal_parameter_list(Formal_parameter_list* in)
+{
+    Formal_parameter_list::const_iterator i;
+    
+    if(in == NULL)
+    	visit_null_list("MICG", "Formal_parameter");
+    else
+    {
+    	pre_list("MICG", "Formal_parameter", in->size());
+    
+    	for(i = in->begin(); i != in->end(); i++)
+    	{
+    		visit_formal_parameter(*i);
+    	}
+    
+    	post_list("MICG", "Formal_parameter", in->size());
+    }
+}
+
+void Visitor::visit_formal_parameter(Formal_parameter* in)
+{
+    if(in == NULL)
+    	visit_null("MICG", "Formal_parameter");
+    else
+    {
+    	pre_formal_parameter_chain(in);
+    	children_formal_parameter(in);
+    	post_formal_parameter_chain(in);
+    }
+}
+
+void Visitor::visit_type(TYPE* in)
+{
+    if(in == NULL)
+    	visit_null("MICG", "TYPE");
+    else
+    {
+    	pre_type_chain(in);
+    	children_type(in);
+    	post_type_chain(in);
+    }
+}
+
+void Visitor::visit_param_name(PARAM_NAME* in)
+{
+    if(in == NULL)
+    	visit_null("MICG", "PARAM_NAME");
+    else
+    {
+    	pre_param_name_chain(in);
+    	children_param_name(in);
+    	post_param_name_chain(in);
+    }
+}
+
+void Visitor::visit_expr(Expr* in)
+{
+    if(in == NULL)
+    	visit_null("MICG", "Expr");
+    else
+    {
+    	pre_expr_chain(in);
+    	children_expr(in);
+    	post_expr_chain(in);
+    }
+}
+
+void Visitor::visit_attr_name(ATTR_NAME* in)
+{
+    if(in == NULL)
+    	visit_null("MICG", "ATTR_NAME");
+    else
+    {
+    	pre_attr_name_chain(in);
+    	children_attr_name(in);
+    	post_attr_name_chain(in);
+    }
+}
+
+void Visitor::visit_body_part_list(Body_part_list* in)
+{
+    Body_part_list::const_iterator i;
+    
+    if(in == NULL)
+    	visit_null_list("MICG", "Body_part");
+    else
+    {
+    	pre_list("MICG", "Body_part", in->size());
+    
+    	for(i = in->begin(); i != in->end(); i++)
+    	{
+    		visit_body_part(*i);
+    	}
+    
+    	post_list("MICG", "Body_part", in->size());
+    }
+}
+
+void Visitor::visit_body_part(Body_part* in)
+{
+    if(in == NULL)
+    	visit_null("MICG", "Body_part");
+    else
+    {
+    	pre_body_part_chain(in);
+    	children_body_part(in);
+    	post_body_part_chain(in);
+    }
+}
+
+void Visitor::visit_actual_parameter_list(Actual_parameter_list* in)
+{
+    Actual_parameter_list::const_iterator i;
+    
+    if(in == NULL)
+    	visit_null_list("MICG", "Actual_parameter");
+    else
+    {
+    	pre_list("MICG", "Actual_parameter", in->size());
+    
+    	for(i = in->begin(); i != in->end(); i++)
+    	{
+    		visit_actual_parameter(*i);
+    	}
+    
+    	post_list("MICG", "Actual_parameter", in->size());
+    }
+}
+
+void Visitor::visit_actual_parameter(Actual_parameter* in)
+{
+    if(in == NULL)
+    	visit_null("MICG", "Actual_parameter");
+    else
+    {
+    	pre_actual_parameter_chain(in);
+    	children_actual_parameter(in);
+    	post_actual_parameter_chain(in);
+    }
+}
+
+void Visitor::visit_template(Template* in)
+{
+    if(in == NULL)
+    	visit_null("MICG", "Template");
+    else
+    {
+    	pre_template_chain(in);
+    	children_template(in);
+    	post_template_chain(in);
+    }
+}
+
+/* Invoke the right pre-chain (manual dispatching) */
+/* Do not override unless you know what you are doing */
+void Visitor::pre_expr_chain(Expr* in)
+{
+    switch(in->classid())
+    {
+    case Equals::ID:
+    	pre_equals_chain(dynamic_cast<Equals*>(in));
+    	break;
+    case Lookup::ID:
+    	pre_lookup_chain(dynamic_cast<Lookup*>(in));
+    	break;
+    case PARAM_NAME::ID:
+    	pre_param_name_chain(dynamic_cast<PARAM_NAME*>(in));
+    	break;
+    case STRING::ID:
+    	pre_string_chain(dynamic_cast<STRING*>(in));
+    	break;
+    }
+}
+
+void Visitor::pre_body_part_chain(Body_part* in)
+{
+    switch(in->classid())
+    {
+    case C_CODE::ID:
+    	pre_c_code_chain(dynamic_cast<C_CODE*>(in));
+    	break;
+    case Macro_call::ID:
+    	pre_macro_call_chain(dynamic_cast<Macro_call*>(in));
+    	break;
+    case Lookup::ID:
+    	pre_lookup_chain(dynamic_cast<Lookup*>(in));
+    	break;
+    case PARAM_NAME::ID:
+    	pre_param_name_chain(dynamic_cast<PARAM_NAME*>(in));
+    	break;
+    }
+}
+
+void Visitor::pre_actual_parameter_chain(Actual_parameter* in)
+{
+    switch(in->classid())
+    {
+    case STRING::ID:
+    	pre_string_chain(dynamic_cast<STRING*>(in));
+    	break;
+    case PARAM_NAME::ID:
+    	pre_param_name_chain(dynamic_cast<PARAM_NAME*>(in));
+    	break;
+    }
+}
+
+/* Invoke the right post-chain (manual dispatching) */
+/* Do not override unless you know what you are doing */
+void Visitor::post_expr_chain(Expr* in)
+{
+    switch(in->classid())
+    {
+    case Equals::ID:
+    	post_equals_chain(dynamic_cast<Equals*>(in));
+    	break;
+    case Lookup::ID:
+    	post_lookup_chain(dynamic_cast<Lookup*>(in));
+    	break;
+    case PARAM_NAME::ID:
+    	post_param_name_chain(dynamic_cast<PARAM_NAME*>(in));
+    	break;
+    case STRING::ID:
+    	post_string_chain(dynamic_cast<STRING*>(in));
+    	break;
+    }
+}
+
+void Visitor::post_body_part_chain(Body_part* in)
+{
+    switch(in->classid())
+    {
+    case C_CODE::ID:
+    	post_c_code_chain(dynamic_cast<C_CODE*>(in));
+    	break;
+    case Macro_call::ID:
+    	post_macro_call_chain(dynamic_cast<Macro_call*>(in));
+    	break;
+    case Lookup::ID:
+    	post_lookup_chain(dynamic_cast<Lookup*>(in));
+    	break;
+    case PARAM_NAME::ID:
+    	post_param_name_chain(dynamic_cast<PARAM_NAME*>(in));
+    	break;
+    }
+}
+
+void Visitor::post_actual_parameter_chain(Actual_parameter* in)
+{
+    switch(in->classid())
+    {
+    case STRING::ID:
+    	post_string_chain(dynamic_cast<STRING*>(in));
+    	break;
+    case PARAM_NAME::ID:
+    	post_param_name_chain(dynamic_cast<PARAM_NAME*>(in));
+    	break;
+    }
+}
+
+/* Invoke the right visit-children (manual dispatching) */
+/* Do not override unless you know what you are doing */
+void Visitor::children_expr(Expr* in)
+{
+    switch(in->classid())
+    {
+    case Equals::ID:
+    	children_equals(dynamic_cast<Equals*>(in));
+    	break;
+    case Lookup::ID:
+    	children_lookup(dynamic_cast<Lookup*>(in));
+    	break;
+    case PARAM_NAME::ID:
+    	children_param_name(dynamic_cast<PARAM_NAME*>(in));
+    	break;
+    case STRING::ID:
+    	children_string(dynamic_cast<STRING*>(in));
+    	break;
+    }
+}
+
+void Visitor::children_body_part(Body_part* in)
+{
+    switch(in->classid())
+    {
+    case C_CODE::ID:
+    	children_c_code(dynamic_cast<C_CODE*>(in));
+    	break;
+    case Macro_call::ID:
+    	children_macro_call(dynamic_cast<Macro_call*>(in));
+    	break;
+    case Lookup::ID:
+    	children_lookup(dynamic_cast<Lookup*>(in));
+    	break;
+    case PARAM_NAME::ID:
+    	children_param_name(dynamic_cast<PARAM_NAME*>(in));
+    	break;
+    }
+}
+
+void Visitor::children_actual_parameter(Actual_parameter* in)
+{
+    switch(in->classid())
+    {
+    case STRING::ID:
+    	children_string(dynamic_cast<STRING*>(in));
+    	break;
+    case PARAM_NAME::ID:
+    	children_param_name(dynamic_cast<PARAM_NAME*>(in));
+    	break;
+    }
+}
+}
+

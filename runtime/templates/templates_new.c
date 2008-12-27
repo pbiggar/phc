@@ -16,7 +16,6 @@
  *    attrs: attributes, taken directly from the MIR::Node's attributes.
  *    bool: boolean. To pass, use the name, or true|false
  *    string: quoted string. To pass, use the name or a quoted string.
- *    enum: symbol. To pass, use the name or symbol name (TODO: prevent ambiguity)
  *    node: like an attr, but has a type field
  *    token: a special node with a value field. It can be interpolated, which uses the value field.
  *
@@ -25,7 +24,6 @@
  *	 attrs: where attr.some_attribute_name
  *	 string: where param == "some string"
  *	 bool: where param == true|false
- *	 enum: where param == SYMBOL_NAME
  *	 node: where node.type == Literal
  *	 token: where node.value = "STRING"
  *    Rules are all ANDed together. There is no way to OR two rules together.
@@ -45,8 +43,6 @@
  * Comments:
  *    Comment are allowed outside patterns. Comments inside templates are C
  *    comments, and will appear in the generated code.
- *    TODO: interpolate variables in Comments?
- *
  */
 
 
@@ -66,7 +62,7 @@ assign_expr_var (token LHS, token RHS)
 
 assign_expr_var (token LHS, token RHS)
 @@@
-  \get_st_entry (LOCAL, "lhs", LHS);
+  \get_st_entry ("LOCAL", "lhs", LHS);
   \read_rvalue ("rhs", RHS);
   if (*p_lhs != rhs)
     {
@@ -81,8 +77,8 @@ assign_expr_var (token LHS, token RHS)
  */
 assign_expr_ref_var (token LHS, token RHS)
 @@@
-  \get_st_entry (LOCAL, "p_lhs", LHS);
-  \get_st_entry (LOCAL, "p_rhs", RHS);
+  \get_st_entry ("LOCAL", "p_lhs", LHS);
+  \get_st_entry ("LOCAL", "p_rhs", RHS);
   sep_copy_on_write ("p_rhs");
   copy_into_ref ("p_lhs", "p_rhs");
 @@@
@@ -119,7 +115,7 @@ assign_expr_bin_op (token LHS, token LEFT, token RIGHT, string OP_FN)
 // We use NODE for LEFT and RIGHT, since they might be literals
 assign_expr_bin_op (token LHS, node LEFT, node RIGHT, string OP_FN)
 @@@
-  \get_st_entry (LOCAL, "p_lhs", LHS);
+  \get_st_entry ("LOCAL", "p_lhs", LHS);
   \read_rvalue ("left", LEFT);
   \read_rvalue ("right", RIGHT);
   if (in_copy_on_write (*p_lhs))
@@ -144,7 +140,7 @@ assign_expr_bin_op (token LHS, node LEFT, node RIGHT, string OP_FN)
  */
 assign_expr_var_var (token LHS, token INDEX)
 @@@
-  \get_st_entry (LOCAL, "p_lhs", LHS);
+  \get_st_entry ("LOCAL", "p_lhs", LHS);
   \read_rvalue ("index", INDEX);
   zval* rhs;
   \read_var_var ("rhs", "index");
@@ -156,10 +152,10 @@ assign_expr_var_var (token LHS, token INDEX)
 
 assign_expr_ref_var_var (token LHS, token INDEX)
 @@@
-  \get_st_entry (LOCAL, "p_lhs", LHS);
+  \get_st_entry ("LOCAL", "p_lhs", LHS);
   \read_rvalue ("index", INDEX);
   zval** p_rhs;
-  \get_var_var (LOCAL, "p_rhs", "index");
+  \get_var_var ("LOCAL", "p_rhs", "index");
   sep_copy_on_write (p_rhs);
   copy_into_ref (p_lhs, p_rhs);
 @@@
@@ -171,8 +167,8 @@ assign_expr_ref_var_var (token LHS, token INDEX)
  * NAME: A name for the zvpp.
  * VAR: Attribute map
  */
-get_st_entry (enum SCOPE, string ZVP, token VAR)
-   where SCOPE == LOCAL
+get_st_entry (string SCOPE, string ZVP, token VAR)
+   where SCOPE == "LOCAL"
    where VAR.st_entry_not_required
 @@@
   if (local_$VAR == NULL)
@@ -184,13 +180,13 @@ get_st_entry (enum SCOPE, string ZVP, token VAR)
 @@@
 
 // TODO: inline better
-get_st_entry (enum SCOPE, string ZVP, token VAR)
+get_st_entry (string SCOPE, string ZVP, token VAR)
 @@@
   zval** $ZVP = get_st_entry (\scope(scope);, "$VAR", ${VAR.length} + 1, ${VAR.hash});
 @@@
 
-scope (enum SCOPE) where SCOPE == LOCAL @@@EG(active_symbol_table)@@@
-scope (enum SCOPE) where SCOPE == GLOBAL @@@&EG(symbol_table)@@@
+scope (string SCOPE) where SCOPE == "LOCAL" @@@EG(active_symbol_table)@@@
+scope (string SCOPE) where SCOPE == "GLOBAL" @@@&EG(symbol_table)@@@
 
 
 /*
@@ -198,14 +194,14 @@ scope (enum SCOPE) where SCOPE == GLOBAL @@@&EG(symbol_table)@@@
  */
 
 read_rvalue (string ZVP, token LIT)
-   where LIT.type == Literal
+   where LIT.type == "Literal"
    where LIT.pool_name
 @@@
   zval* $ZVP = ${LIT.pool_name};
 @@@
 
 read_rvalue (string ZVP, token LIT)
-   where LIT.type == Literal
+   where LIT.type == "Literal"
 @@@
   zval* lit_tmp_$ZVP;
   INIT_ZVAL (lit_tmp_$ZVP);
@@ -239,7 +235,7 @@ read_rvalue (string ZVP, token VAR)
 
 read_rvalue (string ZVP, token VAR)
 @@@
-  zval* $ZVP = read_var (\scope(LOCAL), "$VAR", ${VAR.length} + 1, ${VAR.hash} TSRMLS_CC);
+  zval* $ZVP = read_var (\scope("LOCAL"), "$VAR", ${VAR.length} + 1, ${VAR.hash} TSRMLS_CC);
 @@@
 
 

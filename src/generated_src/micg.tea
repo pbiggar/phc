@@ -1,0 +1,75 @@
+{-
+ - phc -- the open source PHP compiler
+ - See doc/license/README.license for licensing information
+ -
+ - Definition of the structure for the Macro-Inline Code Generator.
+ -
+ - The LIR represents C code which we generate, and is intended to allow us
+ - to easily manipulate it.
+ -
+ -}
+
+{-
+	Configuration
+-}
+
+output_dir "src/generated";
+prefix "MICG";
+external class "Object";
+external class "String";
+use list "List";
+use string "String";
+use namespace "MICG";
+no source_rep;
+
+{-
+   Top-level structure	
+-}
+
+Template ::= Signature Rule* Body ;
+
+-- Signature
+Signature ::= PATTERN_NAME Formal_parameter* ;
+Formal_parameter ::= TYPE PARAM_NAME ;
+
+-- Rules
+
+Rule ::= Expr ;
+
+Expr ::= Equals | Lookup | PARAM_NAME | STRING ;
+
+Lookup ::= PARAM_NAME ATTR_NAME ;
+
+Equals ::= left:Expr right:Expr ;
+
+-- Body
+Body ::= Body_part* ;
+
+Body_part ::= C_CODE | Macro_call | Interpolation ;
+
+Macro_call ::= PATTERN_NAME Actual_parameter*;
+
+Actual_parameter ::= STRING | PARAM_NAME ;
+
+Interpolation ::= Lookup | PARAM_NAME ;
+
+
+{-
+ - Extra attributes and methods (mixin code)
+ -}
+
+#include <iostream>
+#include <sstream>
+#include <iomanip>
+#include "boost/lexical_cast.hpp"
+#include "lib/error.h"
+#include "lib/Object.h"
+#include "lib/List.h"
+#include "lib/String.h"
+#include "lib/Boolean.h"
+#include "lib/Integer.h"
+
+class Node : Object
+{
+};
+
