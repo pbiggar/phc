@@ -6,9 +6,14 @@ Transform::~Transform()
 }
 
 /* Invoked before the children are transformed */
-Template* Transform::pre_template(Template* in)
+All* Transform::pre_all(All* in)
 {
     return in;
+}
+
+void Transform::pre_macro(Macro* in, Macro_list* out)
+{
+    out->push_back(in);
 }
 
 Signature* Transform::pre_signature(Signature* in)
@@ -46,7 +51,7 @@ void Transform::pre_macro_call(Macro_call* in, Body_part_list* out)
     out->push_back(in);
 }
 
-PATTERN_NAME* Transform::pre_pattern_name(PATTERN_NAME* in)
+MACRO_NAME* Transform::pre_macro_name(MACRO_NAME* in)
 {
     return in;
 }
@@ -77,9 +82,14 @@ void Transform::pre_c_code(C_CODE* in, Body_part_list* out)
 }
 
 /* Invoked after the children have been transformed */
-Template* Transform::post_template(Template* in)
+All* Transform::post_all(All* in)
 {
     return in;
+}
+
+void Transform::post_macro(Macro* in, Macro_list* out)
+{
+    out->push_back(in);
 }
 
 Signature* Transform::post_signature(Signature* in)
@@ -117,7 +127,7 @@ void Transform::post_macro_call(Macro_call* in, Body_part_list* out)
     out->push_back(in);
 }
 
-PATTERN_NAME* Transform::post_pattern_name(PATTERN_NAME* in)
+MACRO_NAME* Transform::post_macro_name(MACRO_NAME* in)
 {
     return in;
 }
@@ -148,7 +158,12 @@ void Transform::post_c_code(C_CODE* in, Body_part_list* out)
 }
 
 /* Transform the children of the node */
-void Transform::children_template(Template* in)
+void Transform::children_all(All* in)
+{
+    in->macros = transform_macro_list(in->macros);
+}
+
+void Transform::children_macro(Macro* in)
 {
     in->signature = transform_signature(in->signature);
     in->rules = transform_rule_list(in->rules);
@@ -157,7 +172,7 @@ void Transform::children_template(Template* in)
 
 void Transform::children_signature(Signature* in)
 {
-    in->pattern_name = transform_pattern_name(in->pattern_name);
+    in->macro_name = transform_macro_name(in->macro_name);
     in->formal_parameters = transform_formal_parameter_list(in->formal_parameters);
 }
 
@@ -191,12 +206,12 @@ void Transform::children_body(Body* in)
 
 void Transform::children_macro_call(Macro_call* in)
 {
-    in->pattern_name = transform_pattern_name(in->pattern_name);
+    in->macro_name = transform_macro_name(in->macro_name);
     in->actual_parameters = transform_actual_parameter_list(in->actual_parameters);
 }
 
 /* Tokens don't have children, so these methods do nothing by default */
-void Transform::children_pattern_name(PATTERN_NAME* in)
+void Transform::children_macro_name(MACRO_NAME* in)
 {
 }
 
@@ -222,6 +237,43 @@ void Transform::children_c_code(C_CODE* in)
 
 /* Call the pre-transform, transform-children post-transform methods in order */
 /* Do not override unless you know what you are doing */
+Macro_list* Transform::transform_macro_list(Macro_list* in)
+{
+    Macro_list::const_iterator i;
+    Macro_list* out = new Macro_list;
+    
+    if(in == NULL)
+    	return NULL;
+    
+    for(i = in->begin(); i != in->end(); i++)
+    {
+    	out->push_back_all(transform_macro(*i));
+    }
+    
+    return out;
+}
+
+Macro_list* Transform::transform_macro(Macro* in)
+{
+    Macro_list::const_iterator i;
+    Macro_list* out1 = new Macro_list;
+    Macro_list* out2 = new Macro_list;
+    
+    if(in == NULL) out1->push_back(NULL);
+    else pre_macro(in, out1);
+    for(i = out1->begin(); i != out1->end(); i++)
+    {
+    	if(*i != NULL)
+    	{
+    		children_macro(*i);
+    		post_macro(*i, out2);
+    	}
+    	else out2->push_back(NULL);
+    }
+    
+    return out2;
+}
+
 Signature* Transform::transform_signature(Signature* in)
 {
     if(in == NULL) return NULL;
@@ -291,17 +343,17 @@ Body* Transform::transform_body(Body* in)
     return out;
 }
 
-PATTERN_NAME* Transform::transform_pattern_name(PATTERN_NAME* in)
+MACRO_NAME* Transform::transform_macro_name(MACRO_NAME* in)
 {
     if(in == NULL) return NULL;
     
-    PATTERN_NAME* out;
+    MACRO_NAME* out;
     
-    out = pre_pattern_name(in);
+    out = pre_macro_name(in);
     if(out != NULL)
     {
-    	children_pattern_name(out);
-    	out = post_pattern_name(out);
+    	children_macro_name(out);
+    	out = post_macro_name(out);
     }
     
     return out;
@@ -482,17 +534,17 @@ Actual_parameter_list* Transform::transform_actual_parameter(Actual_parameter* i
     return out2;
 }
 
-Template* Transform::transform_template(Template* in)
+All* Transform::transform_all(All* in)
 {
     if(in == NULL) return NULL;
     
-    Template* out;
+    All* out;
     
-    out = pre_template(in);
+    out = pre_all(in);
     if(out != NULL)
     {
-    	children_template(out);
-    	out = post_template(out);
+    	children_all(out);
+    	out = post_all(out);
     }
     
     return out;

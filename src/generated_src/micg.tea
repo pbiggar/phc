@@ -4,9 +4,6 @@
  -
  - Definition of the structure for the Macro-Inline Code Generator.
  -
- - The LIR represents C code which we generate, and is intended to allow us
- - to easily manipulate it.
- -
  -}
 
 {-
@@ -26,10 +23,13 @@ no source_rep;
    Top-level structure	
 -}
 
-Template ::= Signature Rule* Body ;
+-- We dont need this, we just need Node_factory to create a Macro_list.
+All ::= Macro* ; 
+
+Macro ::= Signature Rule* Body ;
 
 -- Signature
-Signature ::= PATTERN_NAME Formal_parameter* ;
+Signature ::= MACRO_NAME Formal_parameter* ;
 Formal_parameter ::= TYPE PARAM_NAME ;
 
 -- Rules
@@ -47,7 +47,7 @@ Body ::= Body_part* ;
 
 Body_part ::= C_CODE | Macro_call | Interpolation ;
 
-Macro_call ::= PATTERN_NAME Actual_parameter*;
+Macro_call ::= MACRO_NAME Actual_parameter*;
 
 Actual_parameter ::= STRING | PARAM_NAME ;
 

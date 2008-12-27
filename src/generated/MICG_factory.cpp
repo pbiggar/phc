@@ -16,20 +16,26 @@ namespace MICG{
 Object* Node_factory::create(char const* type_id, List<Object*>* args)
 {
     List<Object*>::const_iterator i = args->begin();
-    if(!strcmp(type_id, "Template"))
+    if(!strcmp(type_id, "All"))
+    {
+    	Macro_list* macros = dynamic_cast<Macro_list*>(*i++);
+    	assert(i == args->end());
+    	return new All(macros);
+    }
+    if(!strcmp(type_id, "Macro"))
     {
     	Signature* signature = dynamic_cast<Signature*>(*i++);
     	Rule_list* rules = dynamic_cast<Rule_list*>(*i++);
     	Body* body = dynamic_cast<Body*>(*i++);
     	assert(i == args->end());
-    	return new Template(signature, rules, body);
+    	return new Macro(signature, rules, body);
     }
     if(!strcmp(type_id, "Signature"))
     {
-    	PATTERN_NAME* pattern_name = dynamic_cast<PATTERN_NAME*>(*i++);
+    	MACRO_NAME* macro_name = dynamic_cast<MACRO_NAME*>(*i++);
     	Formal_parameter_list* formal_parameters = dynamic_cast<Formal_parameter_list*>(*i++);
     	assert(i == args->end());
-    	return new Signature(pattern_name, formal_parameters);
+    	return new Signature(macro_name, formal_parameters);
     }
     if(!strcmp(type_id, "Formal_parameter"))
     {
@@ -66,16 +72,16 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     }
     if(!strcmp(type_id, "Macro_call"))
     {
-    	PATTERN_NAME* pattern_name = dynamic_cast<PATTERN_NAME*>(*i++);
+    	MACRO_NAME* macro_name = dynamic_cast<MACRO_NAME*>(*i++);
     	Actual_parameter_list* actual_parameters = dynamic_cast<Actual_parameter_list*>(*i++);
     	assert(i == args->end());
-    	return new Macro_call(pattern_name, actual_parameters);
+    	return new Macro_call(macro_name, actual_parameters);
     }
-    if(!strcmp(type_id, "PATTERN_NAME"))
+    if(!strcmp(type_id, "MACRO_NAME"))
     {
     	String* value = dynamic_cast<String*>(*i++);
     	assert(i == args->end());
-    	return new PATTERN_NAME(value);
+    	return new MACRO_NAME(value);
     }
     if(!strcmp(type_id, "TYPE"))
     {
@@ -106,6 +112,13 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	String* value = dynamic_cast<String*>(*i++);
     	assert(i == args->end());
     	return new C_CODE(value);
+    }
+    if(!strcmp(type_id, "Macro_list"))
+    {
+    	Macro_list* list = new Macro_list;
+    	while(i != args->end())
+    		list->push_back(dynamic_cast<Macro*>(*i++));
+    	return list;
     }
     if(!strcmp(type_id, "Rule_list"))
     {

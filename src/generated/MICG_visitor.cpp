@@ -10,7 +10,11 @@ void Visitor::pre_node(Node* in)
 {
 }
 
-void Visitor::pre_template(Template* in)
+void Visitor::pre_all(All* in)
+{
+}
+
+void Visitor::pre_macro(Macro* in)
 {
 }
 
@@ -58,7 +62,7 @@ void Visitor::pre_interpolation(Interpolation* in)
 {
 }
 
-void Visitor::pre_pattern_name(PATTERN_NAME* in)
+void Visitor::pre_macro_name(MACRO_NAME* in)
 {
 }
 
@@ -87,7 +91,11 @@ void Visitor::post_node(Node* in)
 {
 }
 
-void Visitor::post_template(Template* in)
+void Visitor::post_all(All* in)
+{
+}
+
+void Visitor::post_macro(Macro* in)
 {
 }
 
@@ -135,7 +143,7 @@ void Visitor::post_interpolation(Interpolation* in)
 {
 }
 
-void Visitor::post_pattern_name(PATTERN_NAME* in)
+void Visitor::post_macro_name(MACRO_NAME* in)
 {
 }
 
@@ -160,7 +168,12 @@ void Visitor::post_c_code(C_CODE* in)
 }
 
 /* Visit the children of a node */
-void Visitor::children_template(Template* in)
+void Visitor::children_all(All* in)
+{
+    visit_macro_list(in->macros);
+}
+
+void Visitor::children_macro(Macro* in)
 {
     visit_signature(in->signature);
     visit_rule_list(in->rules);
@@ -169,7 +182,7 @@ void Visitor::children_template(Template* in)
 
 void Visitor::children_signature(Signature* in)
 {
-    visit_pattern_name(in->pattern_name);
+    visit_macro_name(in->macro_name);
     visit_formal_parameter_list(in->formal_parameters);
 }
 
@@ -203,12 +216,12 @@ void Visitor::children_body(Body* in)
 
 void Visitor::children_macro_call(Macro_call* in)
 {
-    visit_pattern_name(in->pattern_name);
+    visit_macro_name(in->macro_name);
     visit_actual_parameter_list(in->actual_parameters);
 }
 
 /* Tokens don't have children, so these methods do nothing by default */
-void Visitor::children_pattern_name(PATTERN_NAME* in)
+void Visitor::children_macro_name(MACRO_NAME* in)
 {
 }
 
@@ -255,10 +268,16 @@ void Visitor::post_list(char const* name_space, char const* type_id, int size)
 
 /* Invoke the chain of pre-visit methods along the inheritance hierachy */
 /* Do not override unless you know what you are doing */
-void Visitor::pre_template_chain(Template* in)
+void Visitor::pre_all_chain(All* in)
 {
     pre_node((Node*) in);
-    pre_template((Template*) in);
+    pre_all((All*) in);
+}
+
+void Visitor::pre_macro_chain(Macro* in)
+{
+    pre_node((Node*) in);
+    pre_macro((Macro*) in);
 }
 
 void Visitor::pre_signature_chain(Signature* in)
@@ -308,10 +327,10 @@ void Visitor::pre_macro_call_chain(Macro_call* in)
     pre_macro_call((Macro_call*) in);
 }
 
-void Visitor::pre_pattern_name_chain(PATTERN_NAME* in)
+void Visitor::pre_macro_name_chain(MACRO_NAME* in)
 {
     pre_node((Node*) in);
-    pre_pattern_name((PATTERN_NAME*) in);
+    pre_macro_name((MACRO_NAME*) in);
 }
 
 void Visitor::pre_type_chain(TYPE* in)
@@ -354,9 +373,15 @@ void Visitor::pre_c_code_chain(C_CODE* in)
 /* Invoke the chain of post-visit methods along the inheritance hierarchy */
 /* (invoked in opposite order to the pre-chain) */
 /* Do not override unless you know what you are doing */
-void Visitor::post_template_chain(Template* in)
+void Visitor::post_all_chain(All* in)
 {
-    post_template((Template*) in);
+    post_all((All*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_macro_chain(Macro* in)
+{
+    post_macro((Macro*) in);
     post_node((Node*) in);
 }
 
@@ -407,9 +432,9 @@ void Visitor::post_macro_call_chain(Macro_call* in)
     post_node((Node*) in);
 }
 
-void Visitor::post_pattern_name_chain(PATTERN_NAME* in)
+void Visitor::post_macro_name_chain(MACRO_NAME* in)
 {
-    post_pattern_name((PATTERN_NAME*) in);
+    post_macro_name((MACRO_NAME*) in);
     post_node((Node*) in);
 }
 
@@ -452,6 +477,37 @@ void Visitor::post_c_code_chain(C_CODE* in)
 
 /* Call the pre-chain, visit children and post-chain in order */
 /* Do not override unless you know what you are doing */
+void Visitor::visit_macro_list(Macro_list* in)
+{
+    Macro_list::const_iterator i;
+    
+    if(in == NULL)
+    	visit_null_list("MICG", "Macro");
+    else
+    {
+    	pre_list("MICG", "Macro", in->size());
+    
+    	for(i = in->begin(); i != in->end(); i++)
+    	{
+    		visit_macro(*i);
+    	}
+    
+    	post_list("MICG", "Macro", in->size());
+    }
+}
+
+void Visitor::visit_macro(Macro* in)
+{
+    if(in == NULL)
+    	visit_null("MICG", "Macro");
+    else
+    {
+    	pre_macro_chain(in);
+    	children_macro(in);
+    	post_macro_chain(in);
+    }
+}
+
 void Visitor::visit_signature(Signature* in)
 {
     if(in == NULL)
@@ -507,15 +563,15 @@ void Visitor::visit_body(Body* in)
     }
 }
 
-void Visitor::visit_pattern_name(PATTERN_NAME* in)
+void Visitor::visit_macro_name(MACRO_NAME* in)
 {
     if(in == NULL)
-    	visit_null("MICG", "PATTERN_NAME");
+    	visit_null("MICG", "MACRO_NAME");
     else
     {
-    	pre_pattern_name_chain(in);
-    	children_pattern_name(in);
-    	post_pattern_name_chain(in);
+    	pre_macro_name_chain(in);
+    	children_macro_name(in);
+    	post_macro_name_chain(in);
     }
 }
 
@@ -660,15 +716,15 @@ void Visitor::visit_actual_parameter(Actual_parameter* in)
     }
 }
 
-void Visitor::visit_template(Template* in)
+void Visitor::visit_all(All* in)
 {
     if(in == NULL)
-    	visit_null("MICG", "Template");
+    	visit_null("MICG", "All");
     else
     {
-    	pre_template_chain(in);
-    	children_template(in);
-    	post_template_chain(in);
+    	pre_all_chain(in);
+    	children_all(in);
+    	post_all_chain(in);
     }
 }
 

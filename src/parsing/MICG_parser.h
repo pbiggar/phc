@@ -9,13 +9,15 @@
 #define PHC_MICG_PARSER
 
 #include "lib/String.h"
+#include "MICG.h"
+
 
 class MICG_parser : virtual public GC_obj
 {
 public:
 	MICG_parser ();
 
-	void parse (string str);
+	MICG::Macro_list* parse (string str);
 };
 
 

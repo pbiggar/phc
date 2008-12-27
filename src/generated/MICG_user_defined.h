@@ -7,7 +7,8 @@
 
 namespace MICG{
 class Node;
-class Template;
+class All;
+class Macro;
 class Signature;
 class Formal_parameter;
 class Rule;
@@ -15,7 +16,7 @@ class Expr;
 class Body;
 class Body_part;
 class Actual_parameter;
-class PATTERN_NAME;
+class MACRO_NAME;
 class TYPE;
 class ATTR_NAME;
 class Equals;
@@ -30,7 +31,8 @@ class None;
 }
 
 MAKETEA_USER_DEFINED(MICG::Node)
-MAKETEA_USER_DEFINED(MICG::Template)
+MAKETEA_USER_DEFINED(MICG::All)
+MAKETEA_USER_DEFINED(MICG::Macro)
 MAKETEA_USER_DEFINED(MICG::Signature)
 MAKETEA_USER_DEFINED(MICG::Formal_parameter)
 MAKETEA_USER_DEFINED(MICG::Rule)
@@ -38,7 +40,7 @@ MAKETEA_USER_DEFINED(MICG::Expr)
 MAKETEA_USER_DEFINED(MICG::Body)
 MAKETEA_USER_DEFINED(MICG::Body_part)
 MAKETEA_USER_DEFINED(MICG::Actual_parameter)
-MAKETEA_USER_DEFINED(MICG::PATTERN_NAME)
+MAKETEA_USER_DEFINED(MICG::MACRO_NAME)
 MAKETEA_USER_DEFINED(MICG::TYPE)
 MAKETEA_USER_DEFINED(MICG::ATTR_NAME)
 MAKETEA_USER_DEFINED(MICG::Equals)

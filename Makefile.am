@@ -90,6 +90,8 @@ libphc_la_SOURCES= 											\
 	src/codegen/Compile_C.h									\
 	src/codegen/Generate_C.cpp								\
 	src/codegen/Generate_C.h								\
+	src/codegen/MICG_gen.cpp								\
+	src/codegen/MICG_gen.h									\
 	src/embed/embed.cpp										\
 	src/embed/embed.h											\
 	src/embed/optimize.cpp									\

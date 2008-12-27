@@ -443,6 +443,7 @@ public:
 
 		// Use a different gen for the nested function
 		Generate_LIR* new_gen = new Generate_LIR ();
+		new_gen->micg = gen->micg;
 		new_gen->visit_statement_list (pattern->value->statements);
 
 		method_exit();
@@ -710,8 +711,9 @@ protected:
  *	    If $y doesnt exist, initialize it. If $x doesn't exist, it doesnt matter.
  */
 
-void templ (string, ...)
+string templ (string, ...)
 {
+	return "";
 }
 
 class Pattern_assign_expr_var : public Pattern_assign_var
@@ -725,8 +727,8 @@ public:
 
 	void generate_code (Generate_LIR* gen)
 	{
-		if (agn->is_ref)
-			templ ("assign_expr_var", lhs->value->value, rhs->value->value, lhs->value, rhs->value);
+		if (!agn->is_ref)
+			code << gen->micg.instantiate ("assign_expr_var", lhs->value, rhs->value);
 		else
 			templ ("assign_expr_ref_var", lhs->value->value, rhs->value->value, lhs->value, rhs->value);
 	}
@@ -2637,8 +2639,7 @@ templ (string name)
 
 void Generate_LIR::pre_php_script(PHP_script* in)
 {
-	MICG_parser x;
-	x.parse (read_file (s("templates/templates_new.c")));
+	micg.add_macro_def (read_file (s("templates/templates_new.c")));
 	include_file (prologue, s("support.c"));
 	include_file (prologue, s("debug.c"));
 	include_file (prologue, s("zval.c"));

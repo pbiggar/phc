@@ -84,15 +84,15 @@ struct MICG_grammar : public grammar<MICG_grammar>
 		interpolation_id,
 		lookup_id,
 		macro_call_id,
+		macro_id,
+		macro_list_id,
+		macro_name_id,
 		param_name_id,
-		pattern_name_id,
 		quoted_string_id,
 		r_id,
-		_rule_id,
+		_rule_id = 20,
 		_rule_list_id,
-		signature_id = 20,
-		_template_id,
-		_template_list_id,
+		signature_id,
 		type_name_id,
 	};
 
@@ -113,16 +113,16 @@ struct MICG_grammar : public grammar<MICG_grammar>
 		DECL_RULE(formal_parameter_list);
 		DECL_RULE(interpolation);
 		DECL_RULE(lookup);
+		DECL_RULE(macro);
 		DECL_RULE(macro_call);
+		DECL_RULE(macro_list);
+		DECL_RULE(macro_name);
 		DECL_RULE(param_name);
-		DECL_RULE(pattern_name);
 		DECL_RULE(quoted_string);
 		DECL_RULE(r);
 		DECL_RULE(_rule);
 		DECL_RULE(_rule_list);
 		DECL_RULE(signature);
-		DECL_RULE(_template);
-		DECL_RULE(_template_list);
 		DECL_RULE(type_name);
 
 
@@ -130,42 +130,38 @@ struct MICG_grammar : public grammar<MICG_grammar>
 		{
 			BOOST_SPIRIT_DEBUG_RULE(actual_parameter_list);
 			BOOST_SPIRIT_DEBUG_RULE(attr_name);
-			BOOST_SPIRIT_DEBUG_RULE(body_part_list);
 			BOOST_SPIRIT_DEBUG_RULE(base_expr);
 			BOOST_SPIRIT_DEBUG_RULE(body);
+			BOOST_SPIRIT_DEBUG_RULE(body_part_list);
 			BOOST_SPIRIT_DEBUG_RULE(c_code);
 			BOOST_SPIRIT_DEBUG_RULE(equals);
 			BOOST_SPIRIT_DEBUG_RULE(expr);
 			BOOST_SPIRIT_DEBUG_RULE(formal_parameter);
 			BOOST_SPIRIT_DEBUG_RULE(interpolation);
 			BOOST_SPIRIT_DEBUG_RULE(lookup);
+			BOOST_SPIRIT_DEBUG_RULE(macro);
 			BOOST_SPIRIT_DEBUG_RULE(macro_call);
+			BOOST_SPIRIT_DEBUG_RULE(macro_list);
+			BOOST_SPIRIT_DEBUG_RULE(macro_name);
 			BOOST_SPIRIT_DEBUG_RULE(param_name);
-			BOOST_SPIRIT_DEBUG_RULE(pattern_name);
 			BOOST_SPIRIT_DEBUG_RULE(quoted_string);
 			BOOST_SPIRIT_DEBUG_RULE(r);
 			BOOST_SPIRIT_DEBUG_RULE(_rule);
 			BOOST_SPIRIT_DEBUG_RULE(_rule_list);
 			BOOST_SPIRIT_DEBUG_RULE(signature);
-			BOOST_SPIRIT_DEBUG_RULE(_template);
-			BOOST_SPIRIT_DEBUG_RULE(_template_list);
 			BOOST_SPIRIT_DEBUG_RULE(type_name);
 
-			// We separate these so that the grammar doesnt get cluttered with
-			// 'no_node_p's, which say not to add the nodinto the AST.
-
-			pattern_name = lexeme_d[leaf_node_d[+(alpha_p | '_')]];
-			type_name = lexeme_d[leaf_node_d[+lower_p]];
-			param_name = lexeme_d[leaf_node_d[+(upper_p | '_')]];
 			attr_name = lexeme_d[leaf_node_d[+(alpha_p | '_')]];
+			macro_name = lexeme_d[leaf_node_d[+(alpha_p | '_')]];
+			param_name = lexeme_d[leaf_node_d[+(upper_p | '_')]];
 			quoted_string = lexeme_d[leaf_node_d[confix_p ('"', *anychar_p, '"')]];
+			type_name = lexeme_d[leaf_node_d[+lower_p]];
 			
 			// A signature line
-			// We separate these so that the AST is easier to put through the
-			// MICG_factory.
 			formal_parameter = type_name >> param_name;
+			// TODO: do we need aroot_node_d? i dont think it does anything.
 			formal_parameter_list = root_node_d [list_p(formal_parameter, ',')];
-			signature = pattern_name >> '(' >> formal_parameter_list >> ')';
+			signature = macro_name >> '(' >> formal_parameter_list >> ')';
 
 			// A rule line
 			lookup = param_name >> "." >> attr_name;
@@ -183,17 +179,17 @@ struct MICG_grammar : public grammar<MICG_grammar>
 			c_code = lexeme_d[leaf_node_d[(anychar_p - '@') >> *(anychar_p - (ch_p('\\') | '$' | '@'))]];
 
 			actual_parameter_list = list_p (param_name | quoted_string, ", ");
-			macro_call = ('\\' >> pattern_name >> '(' >> actual_parameter_list >> ");");
+			macro_call = ('\\' >> macro_name >> '(' >> actual_parameter_list >> ");");
 
 			interpolation = ('$' >> param_name) | ("${" >> lookup >> '}');
 
 			// A template
 			body_part_list = *(macro_call | interpolation | c_code);
 			body = "@@@" >> body_part_list >> "@@@";
-			_template = signature >> _rule_list >> body;
+			macro = signature >> _rule_list >> body;
 
-			_template_list = *_template;
-			r = _template_list;
+			macro_list = *macro;
+			r = macro_list;
 		}
 
 		rule<ScannerT, parser_context<>, parser_tag<r_id> > const& start() const
@@ -203,11 +199,8 @@ struct MICG_grammar : public grammar<MICG_grammar>
 	};
 };
 
-typedef char const* iterator_t;
-typedef tree_match<iterator_t> match_t;
-typedef match_t::tree_iterator iter_t;
-typedef match_t::node_t node_t;
-typedef match_t::container_t container;
+typedef tree_match<char const*>::node_t node_t;
+typedef tree_match<char const*>::container_t container;
 
 /* Extract the structure from the Boost AST, and put it into the maketea MICG.
  *
@@ -286,35 +279,14 @@ check_param_list (Object_list* in, unsigned int index)
 }
 
 
+Map<long, string> names;
 
 Object*
 create_micg_node (node_t tree)
 {
-	Map<long, string> names;
-	names[MICG_grammar::actual_parameter_list_id] = "Actual_parameter_list";
-	names[MICG_grammar::attr_name_id] = "ATTR_NAME";
-	names[MICG_grammar::body_id] = "Body";
-	names[MICG_grammar::body_part_list_id] = "Body_part_list";
-	names[MICG_grammar::c_code_id] = "C_CODE";
-	names[MICG_grammar::expr_id] = "Equals"; // Exprs only appear in the spirit AST for ==
-	names[MICG_grammar::formal_parameter_id] = "Formal_parameter";
-	names[MICG_grammar::formal_parameter_list_id] = "Formal_parameter_list";
-	names[MICG_grammar::interpolation_id] = "Interpolation";
-	names[MICG_grammar::lookup_id] = "Lookup";
-	names[MICG_grammar::macro_call_id] = "Macro_call";
-	names[MICG_grammar::param_name_id] = "PARAM_NAME";
-	names[MICG_grammar::pattern_name_id] = "PATTERN_NAME";
-	names[MICG_grammar::quoted_string_id] = "STRING";
-	names[MICG_grammar::_rule_id] = "Rule";
-	names[MICG_grammar::_rule_list_id] = "Rule_list";
-	names[MICG_grammar::signature_id] = "Signature";
-	names[MICG_grammar::_template_id] = "Template";
-	names[MICG_grammar::_template_list_id] = "Template_list";
-	names[MICG_grammar::type_name_id] = "TYPE";
-
 	long id = tree.value.id ().to_long ();
 	String* value = s(string (tree.value.begin(), tree.value.end()));
-	DEBUG ("processing " << id << " - " << *value);
+	DEBUG (id << " (" << names[id] << ") - " << *value);
 	switch (id)
 	{
 		/*
@@ -328,17 +300,17 @@ create_micg_node (node_t tree)
 		case MICG_grammar::formal_parameter_list_id:
 		case MICG_grammar::lookup_id:
 		case MICG_grammar::macro_call_id:
+		case MICG_grammar::macro_id:
+		case MICG_grammar::macro_list_id:
 		case MICG_grammar::_rule_id:
 		case MICG_grammar::_rule_list_id:
 		case MICG_grammar::signature_id:
-		case MICG_grammar::_template_id:
-		case MICG_grammar::_template_list_id:
 		{
 			assert (*value == "");
 			Object_list* params = create_micg_list (tree.children);
 
 			// Hack for Spirit 'bug' (see comment at definition).
-			if (id == MICG_grammar::_template_id)
+			if (id == MICG_grammar::macro_id)
 				params = check_param_list<Rule> (params, 1);
 			else if (id == MICG_grammar::signature_id)
 				params = check_param_list<Formal_parameter> (params, 1);
@@ -372,8 +344,8 @@ create_micg_node (node_t tree)
 
 		case MICG_grammar::attr_name_id:
 		case MICG_grammar::c_code_id:
+		case MICG_grammar::macro_name_id:
 		case MICG_grammar::param_name_id:
-		case MICG_grammar::pattern_name_id:
 		case MICG_grammar::type_name_id:
 		{
 			assert (*value != "");
@@ -399,9 +371,30 @@ create_micg_node (node_t tree)
 }
 
 
-void
+Macro_list*
 MICG_parser::parse (string str)
 {
+	names[MICG_grammar::actual_parameter_list_id] = "Actual_parameter_list";
+	names[MICG_grammar::attr_name_id] = "ATTR_NAME";
+	names[MICG_grammar::body_id] = "Body";
+	names[MICG_grammar::body_part_list_id] = "Body_part_list";
+	names[MICG_grammar::c_code_id] = "C_CODE";
+	names[MICG_grammar::expr_id] = "Equals"; // Exprs only appear in the spirit AST for ==
+	names[MICG_grammar::formal_parameter_id] = "Formal_parameter";
+	names[MICG_grammar::formal_parameter_list_id] = "Formal_parameter_list";
+	names[MICG_grammar::interpolation_id] = "Interpolation";
+	names[MICG_grammar::lookup_id] = "Lookup";
+	names[MICG_grammar::macro_call_id] = "Macro_call";
+	names[MICG_grammar::macro_id] = "Macro";
+	names[MICG_grammar::macro_list_id] = "Macro_list";
+	names[MICG_grammar::macro_name_id] = "MACRO_NAME";
+	names[MICG_grammar::param_name_id] = "PARAM_NAME";
+	names[MICG_grammar::quoted_string_id] = "STRING";
+	names[MICG_grammar::_rule_id] = "Rule";
+	names[MICG_grammar::_rule_list_id] = "Rule_list";
+	names[MICG_grammar::signature_id] = "Signature";
+	names[MICG_grammar::type_name_id] = "TYPE";
+
 	// By using a phrase parser with a white-space skip, comments are ignored,
 	// and we can ignore white space.
 
@@ -413,18 +406,15 @@ MICG_parser::parse (string str)
 
 	tree_parse_info<> info = ast_parse(str.c_str(), g >> end_p, skipg);
 
-#ifdef BOOST_SPIRIT_DEBUG
-	cout
-	<< "stop: " << string (info.stop).substr (0,500) << "\n"
+	DEBUG (
+		"stop: " << string (info.stop).substr (0,500) << "\n"
 	<< "full: " << info.full << "\n"
-	<< "length: " << info.length << "\n"
-	;
-#endif
+	<< "length: " << info.length << "\n");
 
 	if (!info.full)
 		phc_internal_error ("Cannot parse template at %s", string (info.stop).substr (0,500).c_str ());
 
 	assert (info.trees.size() == 1);
-	Template_list* ts = dyc<Template_list> (create_micg_node (info.trees[0]));
+	return dyc<Macro_list> (create_micg_node (info.trees[0]));
 }
 

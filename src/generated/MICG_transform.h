@@ -26,7 +26,8 @@ public:
     virtual ~Transform();
 /* Invoked before the children are transformed */
 public:
-    virtual Template* pre_template(Template* in);
+    virtual All* pre_all(All* in);
+    virtual void pre_macro(Macro* in, Macro_list* out);
     virtual Signature* pre_signature(Signature* in);
     virtual void pre_formal_parameter(Formal_parameter* in, Formal_parameter_list* out);
     virtual void pre_rule(Rule* in, Rule_list* out);
@@ -34,7 +35,7 @@ public:
     virtual Expr* pre_equals(Equals* in);
     virtual Body* pre_body(Body* in);
     virtual void pre_macro_call(Macro_call* in, Body_part_list* out);
-    virtual PATTERN_NAME* pre_pattern_name(PATTERN_NAME* in);
+    virtual MACRO_NAME* pre_macro_name(MACRO_NAME* in);
     virtual TYPE* pre_type(TYPE* in);
     virtual ATTR_NAME* pre_attr_name(ATTR_NAME* in);
     virtual PARAM_NAME* pre_param_name(PARAM_NAME* in);
@@ -42,7 +43,8 @@ public:
     virtual void pre_c_code(C_CODE* in, Body_part_list* out);
 /* Invoked after the children have been transformed */
 public:
-    virtual Template* post_template(Template* in);
+    virtual All* post_all(All* in);
+    virtual void post_macro(Macro* in, Macro_list* out);
     virtual Signature* post_signature(Signature* in);
     virtual void post_formal_parameter(Formal_parameter* in, Formal_parameter_list* out);
     virtual void post_rule(Rule* in, Rule_list* out);
@@ -50,7 +52,7 @@ public:
     virtual Expr* post_equals(Equals* in);
     virtual Body* post_body(Body* in);
     virtual void post_macro_call(Macro_call* in, Body_part_list* out);
-    virtual PATTERN_NAME* post_pattern_name(PATTERN_NAME* in);
+    virtual MACRO_NAME* post_macro_name(MACRO_NAME* in);
     virtual TYPE* post_type(TYPE* in);
     virtual ATTR_NAME* post_attr_name(ATTR_NAME* in);
     virtual PARAM_NAME* post_param_name(PARAM_NAME* in);
@@ -58,7 +60,8 @@ public:
     virtual void post_c_code(C_CODE* in, Body_part_list* out);
 /* Transform the children of the node */
 public:
-    virtual void children_template(Template* in);
+    virtual void children_all(All* in);
+    virtual void children_macro(Macro* in);
     virtual void children_signature(Signature* in);
     virtual void children_formal_parameter(Formal_parameter* in);
     virtual void children_rule(Rule* in);
@@ -68,7 +71,7 @@ public:
     virtual void children_macro_call(Macro_call* in);
 /* Tokens don't have children, so these methods do nothing by default */
 public:
-    virtual void children_pattern_name(PATTERN_NAME* in);
+    virtual void children_macro_name(MACRO_NAME* in);
     virtual void children_type(TYPE* in);
     virtual void children_attr_name(ATTR_NAME* in);
     virtual void children_param_name(PARAM_NAME* in);
@@ -77,11 +80,13 @@ public:
 /* Call the pre-transform, transform-children post-transform methods in order */
 /* Do not override unless you know what you are doing */
 public:
+    virtual Macro_list* transform_macro_list(Macro_list* in);
+    virtual Macro_list* transform_macro(Macro* in);
     virtual Signature* transform_signature(Signature* in);
     virtual Rule_list* transform_rule_list(Rule_list* in);
     virtual Rule_list* transform_rule(Rule* in);
     virtual Body* transform_body(Body* in);
-    virtual PATTERN_NAME* transform_pattern_name(PATTERN_NAME* in);
+    virtual MACRO_NAME* transform_macro_name(MACRO_NAME* in);
     virtual Formal_parameter_list* transform_formal_parameter_list(Formal_parameter_list* in);
     virtual Formal_parameter_list* transform_formal_parameter(Formal_parameter* in);
     virtual TYPE* transform_type(TYPE* in);
@@ -92,7 +97,7 @@ public:
     virtual Body_part_list* transform_body_part(Body_part* in);
     virtual Actual_parameter_list* transform_actual_parameter_list(Actual_parameter_list* in);
     virtual Actual_parameter_list* transform_actual_parameter(Actual_parameter* in);
-    virtual Template* transform_template(Template* in);
+    virtual All* transform_all(All* in);
 /* Invoke the right pre-transform (manual dispatching) */
 /* Do not override unless you know what you are doing */
 public:

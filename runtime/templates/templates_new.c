@@ -35,6 +35,7 @@
  *	 To use a property of a PARAM, use ${PARAM.propname}.
  *	 To do a callback to the code generator, use \cb:callback_name (param0, ...);.
  *	 The callback must be registered.
+ *	 TODO: move the 'properties' to callbacks.
  *	 Supported properties:
  *	    hash - a string's hash value (including the 'u' suffix
  *	    length - a string's length
@@ -97,7 +98,7 @@ assign_expr_cast (token LHS, token RHS, string TYPE)
  */
 
 // We could do this for non-LOCAL, but we'd only be saving an refcount++ and a refcount--.
-assign_expr_bin_op (token LHS, token LEFT, token RIGHT, string OP_FN)
+assign_expr_bin_op (token LHS, node LEFT, node RIGHT, string OP_FN)
    where VAR.st_entry_not_required
    where LHS.is_uninitialized
 @@@

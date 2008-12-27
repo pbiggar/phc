@@ -7,43 +7,207 @@ Node::Node()
 {
 }
 
-Template::Template(Signature* signature, Rule_list* rules, Body* body)
+All::All(Macro_list* macros)
 {
-    this->signature = signature;
-    this->rules = rules;
-    this->body = body;
+    this->macros = macros;
 }
 
-Template::Template()
+All::All()
 {
-    this->signature = 0;
-    this->rules = 0;
-    this->body = 0;
+    this->macros = 0;
 }
 
-void Template::visit(Visitor* visitor)
+void All::visit(Visitor* visitor)
 {
-    visitor->visit_template(this);
+    visitor->visit_all(this);
 }
 
-void Template::transform_children(Transform* transform)
+void All::transform_children(Transform* transform)
 {
-    transform->children_template(this);
+    transform->children_all(this);
 }
 
-int Template::classid()
+int All::classid()
 {
     return ID;
 }
 
-bool Template::match(Node* in)
+bool All::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    Template* that = dynamic_cast<Template*>(in);
+    All* that = dynamic_cast<All*>(in);
+    if(that == NULL) return false;
+    
+    if(this->macros != NULL && that->macros != NULL)
+    {
+    	Macro_list::const_iterator i, j;
+    	for(
+    		i = this->macros->begin(), j = that->macros->begin();
+    		i != this->macros->end() && j != that->macros->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL)
+    		{
+    			if(*j != NULL && !(*j)->match(*i))
+    				return false;
+    		}
+    		else if(!(*i)->match(*j))
+    			return false;
+    	}
+    	if(i != this->macros->end() || j != that->macros->end())
+    		return false;
+    }
+    
+    return true;
+}
+
+bool All::equals(Node* in)
+{
+    All* that = dynamic_cast<All*>(in);
+    if(that == NULL) return false;
+    
+    if(this->macros == NULL || that->macros == NULL)
+    {
+    	if(this->macros != NULL || that->macros != NULL)
+    		return false;
+    }
+    else
+    {
+    	Macro_list::const_iterator i, j;
+    	for(
+    		i = this->macros->begin(), j = that->macros->begin();
+    		i != this->macros->end() && j != that->macros->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL || *j == NULL)
+    		{
+    			if(*i != NULL || *j != NULL)
+    				return false;
+    		}
+    		else if(!(*i)->equals(*j))
+    			return false;
+    	}
+    	if(i != this->macros->end() || j != that->macros->end())
+    		return false;
+    }
+    
+    return true;
+}
+
+All* All::clone()
+{
+    Macro_list* macros = NULL;
+    if(this->macros != NULL)
+    {
+    	Macro_list::const_iterator i;
+    	macros = new Macro_list;
+    	for(i = this->macros->begin(); i != this->macros->end(); i++)
+    		macros->push_back(*i ? (*i)->clone() : NULL);
+    }
+    All* clone = new All(macros);
+    return clone;
+}
+
+Node* All::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    if(this->macros != NULL)
+    {
+    	Macro_list::const_iterator i;
+    	for(
+    		i = this->macros->begin();
+    		i != this->macros->end();
+    		i++)
+    	{
+    		if(*i != NULL)
+    		{
+    			Node* res = (*i)->find (in);
+    			if (res) return res;
+    		}
+    	}
+    }
+    
+    return NULL;
+}
+
+void All::find_all(Node* in, Node_list* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+    
+    if(this->macros != NULL)
+    {
+    	Macro_list::const_iterator i;
+    	for(
+    		i = this->macros->begin();
+    		i != this->macros->end();
+    		i++)
+    	{
+    		if(*i != NULL)
+    		{
+    			(*i)->find_all (in, out);
+    		}
+    	}
+    }
+    
+}
+
+void All::assert_valid()
+{
+    assert(macros != NULL);
+    {
+    	Macro_list::const_iterator i;
+    	for(i = this->macros->begin(); i != this->macros->end(); i++)
+    	{
+    		assert(*i != NULL);
+    		(*i)->assert_valid();
+    	}
+    }
+}
+
+Macro::Macro(Signature* signature, Rule_list* rules, Body* body)
+{
+    this->signature = signature;
+    this->rules = rules;
+    this->body = body;
+}
+
+Macro::Macro()
+{
+    this->signature = 0;
+    this->rules = 0;
+    this->body = 0;
+}
+
+void Macro::visit(Visitor* visitor)
+{
+    visitor->visit_macro(this);
+}
+
+void Macro::transform_children(Transform* transform)
+{
+    transform->children_macro(this);
+}
+
+int Macro::classid()
+{
+    return ID;
+}
+
+bool Macro::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Macro* that = dynamic_cast<Macro*>(in);
     if(that == NULL) return false;
     
     if(this->signature == NULL)
@@ -85,9 +249,9 @@ bool Template::match(Node* in)
     return true;
 }
 
-bool Template::equals(Node* in)
+bool Macro::equals(Node* in)
 {
-    Template* that = dynamic_cast<Template*>(in);
+    Macro* that = dynamic_cast<Macro*>(in);
     if(that == NULL) return false;
     
     if(this->signature == NULL || that->signature == NULL)
@@ -134,7 +298,7 @@ bool Template::equals(Node* in)
     return true;
 }
 
-Template* Template::clone()
+Macro* Macro::clone()
 {
     Signature* signature = this->signature ? this->signature->clone() : NULL;
     Rule_list* rules = NULL;
@@ -146,11 +310,11 @@ Template* Template::clone()
     		rules->push_back(*i ? (*i)->clone() : NULL);
     }
     Body* body = this->body ? this->body->clone() : NULL;
-    Template* clone = new Template(signature, rules, body);
+    Macro* clone = new Macro(signature, rules, body);
     return clone;
 }
 
-Node* Template::find(Node* in)
+Node* Macro::find(Node* in)
 {
     if (this->match (in))
     	return this;
@@ -186,7 +350,7 @@ Node* Template::find(Node* in)
     return NULL;
 }
 
-void Template::find_all(Node* in, Node_list* out)
+void Macro::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -214,7 +378,7 @@ void Template::find_all(Node* in, Node_list* out)
     
 }
 
-void Template::assert_valid()
+void Macro::assert_valid()
 {
     assert(signature != NULL);
     signature->assert_valid();
@@ -231,15 +395,15 @@ void Template::assert_valid()
     body->assert_valid();
 }
 
-Signature::Signature(PATTERN_NAME* pattern_name, Formal_parameter_list* formal_parameters)
+Signature::Signature(MACRO_NAME* macro_name, Formal_parameter_list* formal_parameters)
 {
-    this->pattern_name = pattern_name;
+    this->macro_name = macro_name;
     this->formal_parameters = formal_parameters;
 }
 
 Signature::Signature()
 {
-    this->pattern_name = 0;
+    this->macro_name = 0;
     this->formal_parameters = 0;
 }
 
@@ -268,12 +432,12 @@ bool Signature::match(Node* in)
     Signature* that = dynamic_cast<Signature*>(in);
     if(that == NULL) return false;
     
-    if(this->pattern_name == NULL)
+    if(this->macro_name == NULL)
     {
-    	if(that->pattern_name != NULL && !that->pattern_name->match(this->pattern_name))
+    	if(that->macro_name != NULL && !that->macro_name->match(this->macro_name))
     		return false;
     }
-    else if(!this->pattern_name->match(that->pattern_name))
+    else if(!this->macro_name->match(that->macro_name))
     	return false;
     
     if(this->formal_parameters != NULL && that->formal_parameters != NULL)
@@ -304,12 +468,12 @@ bool Signature::equals(Node* in)
     Signature* that = dynamic_cast<Signature*>(in);
     if(that == NULL) return false;
     
-    if(this->pattern_name == NULL || that->pattern_name == NULL)
+    if(this->macro_name == NULL || that->macro_name == NULL)
     {
-    	if(this->pattern_name != NULL || that->pattern_name != NULL)
+    	if(this->macro_name != NULL || that->macro_name != NULL)
     		return false;
     }
-    else if(!this->pattern_name->equals(that->pattern_name))
+    else if(!this->macro_name->equals(that->macro_name))
     	return false;
     
     if(this->formal_parameters == NULL || that->formal_parameters == NULL)
@@ -342,7 +506,7 @@ bool Signature::equals(Node* in)
 
 Signature* Signature::clone()
 {
-    PATTERN_NAME* pattern_name = this->pattern_name ? this->pattern_name->clone() : NULL;
+    MACRO_NAME* macro_name = this->macro_name ? this->macro_name->clone() : NULL;
     Formal_parameter_list* formal_parameters = NULL;
     if(this->formal_parameters != NULL)
     {
@@ -351,7 +515,7 @@ Signature* Signature::clone()
     	for(i = this->formal_parameters->begin(); i != this->formal_parameters->end(); i++)
     		formal_parameters->push_back(*i ? (*i)->clone() : NULL);
     }
-    Signature* clone = new Signature(pattern_name, formal_parameters);
+    Signature* clone = new Signature(macro_name, formal_parameters);
     return clone;
 }
 
@@ -360,10 +524,10 @@ Node* Signature::find(Node* in)
     if (this->match (in))
     	return this;
     
-    if (this->pattern_name != NULL)
+    if (this->macro_name != NULL)
     {
-    	Node* pattern_name_res = this->pattern_name->find(in);
-    	if (pattern_name_res) return pattern_name_res;
+    	Node* macro_name_res = this->macro_name->find(in);
+    	if (macro_name_res) return macro_name_res;
     }
     
     if(this->formal_parameters != NULL)
@@ -390,8 +554,8 @@ void Signature::find_all(Node* in, Node_list* out)
     if (this->match (in))
     	out->push_back (this);
     
-    if (this->pattern_name != NULL)
-    	this->pattern_name->find_all(in, out);
+    if (this->macro_name != NULL)
+    	this->macro_name->find_all(in, out);
     
     if(this->formal_parameters != NULL)
     {
@@ -412,8 +576,8 @@ void Signature::find_all(Node* in, Node_list* out)
 
 void Signature::assert_valid()
 {
-    assert(pattern_name != NULL);
-    pattern_name->assert_valid();
+    assert(macro_name != NULL);
+    macro_name->assert_valid();
     assert(formal_parameters != NULL);
     {
     	Formal_parameter_list::const_iterator i;
@@ -829,44 +993,44 @@ Actual_parameter::Actual_parameter()
 {
 }
 
-PATTERN_NAME::PATTERN_NAME(String* value)
+MACRO_NAME::MACRO_NAME(String* value)
 {
     this->value = value;
 }
 
-PATTERN_NAME::PATTERN_NAME()
+MACRO_NAME::MACRO_NAME()
 {
     this->value = 0;
 }
 
-void PATTERN_NAME::visit(Visitor* visitor)
+void MACRO_NAME::visit(Visitor* visitor)
 {
-    visitor->visit_pattern_name(this);
+    visitor->visit_macro_name(this);
 }
 
-void PATTERN_NAME::transform_children(Transform* transform)
+void MACRO_NAME::transform_children(Transform* transform)
 {
-    transform->children_pattern_name(this);
+    transform->children_macro_name(this);
 }
 
-String* PATTERN_NAME::get_value_as_string()
+String* MACRO_NAME::get_value_as_string()
 {
     return value;
 }
 
-int PATTERN_NAME::classid()
+int MACRO_NAME::classid()
 {
     return ID;
 }
 
-bool PATTERN_NAME::match(Node* in)
+bool MACRO_NAME::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    PATTERN_NAME* that = dynamic_cast<PATTERN_NAME*>(in);
+    MACRO_NAME* that = dynamic_cast<MACRO_NAME*>(in);
     if(that == NULL) return false;
     
     if(this->value != NULL && that->value != NULL)
@@ -875,9 +1039,9 @@ bool PATTERN_NAME::match(Node* in)
     	return true;
 }
 
-bool PATTERN_NAME::equals(Node* in)
+bool MACRO_NAME::equals(Node* in)
 {
-    PATTERN_NAME* that = dynamic_cast<PATTERN_NAME*>(in);
+    MACRO_NAME* that = dynamic_cast<MACRO_NAME*>(in);
     if(that == NULL) return false;
     
     if(this->value == NULL || that->value == NULL)
@@ -891,14 +1055,14 @@ bool PATTERN_NAME::equals(Node* in)
     return true;
 }
 
-PATTERN_NAME* PATTERN_NAME::clone()
+MACRO_NAME* MACRO_NAME::clone()
 {
     String* value = new String(*this->value);
-    PATTERN_NAME* clone = new PATTERN_NAME(value);
+    MACRO_NAME* clone = new MACRO_NAME(value);
     return clone;
 }
 
-Node* PATTERN_NAME::find(Node* in)
+Node* MACRO_NAME::find(Node* in)
 {
     if (this->match (in))
     	return this;
@@ -906,13 +1070,13 @@ Node* PATTERN_NAME::find(Node* in)
     return NULL;
 }
 
-void PATTERN_NAME::find_all(Node* in, Node_list* out)
+void MACRO_NAME::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
 }
 
-void PATTERN_NAME::assert_valid()
+void MACRO_NAME::assert_valid()
 {
     assert(value != NULL);
 }
@@ -1222,15 +1386,15 @@ void Equals::assert_valid()
     right->assert_valid();
 }
 
-Macro_call::Macro_call(PATTERN_NAME* pattern_name, Actual_parameter_list* actual_parameters)
+Macro_call::Macro_call(MACRO_NAME* macro_name, Actual_parameter_list* actual_parameters)
 {
-    this->pattern_name = pattern_name;
+    this->macro_name = macro_name;
     this->actual_parameters = actual_parameters;
 }
 
 Macro_call::Macro_call()
 {
-    this->pattern_name = 0;
+    this->macro_name = 0;
     this->actual_parameters = 0;
 }
 
@@ -1259,12 +1423,12 @@ bool Macro_call::match(Node* in)
     Macro_call* that = dynamic_cast<Macro_call*>(in);
     if(that == NULL) return false;
     
-    if(this->pattern_name == NULL)
+    if(this->macro_name == NULL)
     {
-    	if(that->pattern_name != NULL && !that->pattern_name->match(this->pattern_name))
+    	if(that->macro_name != NULL && !that->macro_name->match(this->macro_name))
     		return false;
     }
-    else if(!this->pattern_name->match(that->pattern_name))
+    else if(!this->macro_name->match(that->macro_name))
     	return false;
     
     if(this->actual_parameters != NULL && that->actual_parameters != NULL)
@@ -1295,12 +1459,12 @@ bool Macro_call::equals(Node* in)
     Macro_call* that = dynamic_cast<Macro_call*>(in);
     if(that == NULL) return false;
     
-    if(this->pattern_name == NULL || that->pattern_name == NULL)
+    if(this->macro_name == NULL || that->macro_name == NULL)
     {
-    	if(this->pattern_name != NULL || that->pattern_name != NULL)
+    	if(this->macro_name != NULL || that->macro_name != NULL)
     		return false;
     }
-    else if(!this->pattern_name->equals(that->pattern_name))
+    else if(!this->macro_name->equals(that->macro_name))
     	return false;
     
     if(this->actual_parameters == NULL || that->actual_parameters == NULL)
@@ -1333,7 +1497,7 @@ bool Macro_call::equals(Node* in)
 
 Macro_call* Macro_call::clone()
 {
-    PATTERN_NAME* pattern_name = this->pattern_name ? this->pattern_name->clone() : NULL;
+    MACRO_NAME* macro_name = this->macro_name ? this->macro_name->clone() : NULL;
     Actual_parameter_list* actual_parameters = NULL;
     if(this->actual_parameters != NULL)
     {
@@ -1342,7 +1506,7 @@ Macro_call* Macro_call::clone()
     	for(i = this->actual_parameters->begin(); i != this->actual_parameters->end(); i++)
     		actual_parameters->push_back(*i ? (*i)->clone() : NULL);
     }
-    Macro_call* clone = new Macro_call(pattern_name, actual_parameters);
+    Macro_call* clone = new Macro_call(macro_name, actual_parameters);
     return clone;
 }
 
@@ -1351,10 +1515,10 @@ Node* Macro_call::find(Node* in)
     if (this->match (in))
     	return this;
     
-    if (this->pattern_name != NULL)
+    if (this->macro_name != NULL)
     {
-    	Node* pattern_name_res = this->pattern_name->find(in);
-    	if (pattern_name_res) return pattern_name_res;
+    	Node* macro_name_res = this->macro_name->find(in);
+    	if (macro_name_res) return macro_name_res;
     }
     
     if(this->actual_parameters != NULL)
@@ -1381,8 +1545,8 @@ void Macro_call::find_all(Node* in, Node_list* out)
     if (this->match (in))
     	out->push_back (this);
     
-    if (this->pattern_name != NULL)
-    	this->pattern_name->find_all(in, out);
+    if (this->macro_name != NULL)
+    	this->macro_name->find_all(in, out);
     
     if(this->actual_parameters != NULL)
     {
@@ -1403,8 +1567,8 @@ void Macro_call::find_all(Node* in, Node_list* out)
 
 void Macro_call::assert_valid()
 {
-    assert(pattern_name != NULL);
-    pattern_name->assert_valid();
+    assert(macro_name != NULL);
+    macro_name->assert_valid();
     assert(actual_parameters != NULL);
     {
     	Actual_parameter_list::const_iterator i;

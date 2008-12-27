@@ -27,7 +27,8 @@ public:
 /* Invoked before the children are visited */
 public:
     virtual void pre_node(Node* in);
-    virtual void pre_template(Template* in);
+    virtual void pre_all(All* in);
+    virtual void pre_macro(Macro* in);
     virtual void pre_signature(Signature* in);
     virtual void pre_formal_parameter(Formal_parameter* in);
     virtual void pre_rule(Rule* in);
@@ -39,7 +40,7 @@ public:
     virtual void pre_macro_call(Macro_call* in);
     virtual void pre_actual_parameter(Actual_parameter* in);
     virtual void pre_interpolation(Interpolation* in);
-    virtual void pre_pattern_name(PATTERN_NAME* in);
+    virtual void pre_macro_name(MACRO_NAME* in);
     virtual void pre_type(TYPE* in);
     virtual void pre_attr_name(ATTR_NAME* in);
     virtual void pre_param_name(PARAM_NAME* in);
@@ -48,7 +49,8 @@ public:
 /* Invoked after the children have been visited */
 public:
     virtual void post_node(Node* in);
-    virtual void post_template(Template* in);
+    virtual void post_all(All* in);
+    virtual void post_macro(Macro* in);
     virtual void post_signature(Signature* in);
     virtual void post_formal_parameter(Formal_parameter* in);
     virtual void post_rule(Rule* in);
@@ -60,7 +62,7 @@ public:
     virtual void post_macro_call(Macro_call* in);
     virtual void post_actual_parameter(Actual_parameter* in);
     virtual void post_interpolation(Interpolation* in);
-    virtual void post_pattern_name(PATTERN_NAME* in);
+    virtual void post_macro_name(MACRO_NAME* in);
     virtual void post_type(TYPE* in);
     virtual void post_attr_name(ATTR_NAME* in);
     virtual void post_param_name(PARAM_NAME* in);
@@ -68,7 +70,8 @@ public:
     virtual void post_c_code(C_CODE* in);
 /* Visit the children of a node */
 public:
-    virtual void children_template(Template* in);
+    virtual void children_all(All* in);
+    virtual void children_macro(Macro* in);
     virtual void children_signature(Signature* in);
     virtual void children_formal_parameter(Formal_parameter* in);
     virtual void children_rule(Rule* in);
@@ -78,7 +81,7 @@ public:
     virtual void children_macro_call(Macro_call* in);
 /* Tokens don't have children, so these methods do nothing by default */
 public:
-    virtual void children_pattern_name(PATTERN_NAME* in);
+    virtual void children_macro_name(MACRO_NAME* in);
     virtual void children_type(TYPE* in);
     virtual void children_attr_name(ATTR_NAME* in);
     virtual void children_param_name(PARAM_NAME* in);
@@ -94,7 +97,8 @@ public:
 /* Invoke the chain of pre-visit methods along the inheritance hierachy */
 /* Do not override unless you know what you are doing */
 public:
-    virtual void pre_template_chain(Template* in);
+    virtual void pre_all_chain(All* in);
+    virtual void pre_macro_chain(Macro* in);
     virtual void pre_signature_chain(Signature* in);
     virtual void pre_formal_parameter_chain(Formal_parameter* in);
     virtual void pre_rule_chain(Rule* in);
@@ -102,7 +106,7 @@ public:
     virtual void pre_equals_chain(Equals* in);
     virtual void pre_body_chain(Body* in);
     virtual void pre_macro_call_chain(Macro_call* in);
-    virtual void pre_pattern_name_chain(PATTERN_NAME* in);
+    virtual void pre_macro_name_chain(MACRO_NAME* in);
     virtual void pre_type_chain(TYPE* in);
     virtual void pre_attr_name_chain(ATTR_NAME* in);
     virtual void pre_param_name_chain(PARAM_NAME* in);
@@ -112,7 +116,8 @@ public:
 /* (invoked in opposite order to the pre-chain) */
 /* Do not override unless you know what you are doing */
 public:
-    virtual void post_template_chain(Template* in);
+    virtual void post_all_chain(All* in);
+    virtual void post_macro_chain(Macro* in);
     virtual void post_signature_chain(Signature* in);
     virtual void post_formal_parameter_chain(Formal_parameter* in);
     virtual void post_rule_chain(Rule* in);
@@ -120,7 +125,7 @@ public:
     virtual void post_equals_chain(Equals* in);
     virtual void post_body_chain(Body* in);
     virtual void post_macro_call_chain(Macro_call* in);
-    virtual void post_pattern_name_chain(PATTERN_NAME* in);
+    virtual void post_macro_name_chain(MACRO_NAME* in);
     virtual void post_type_chain(TYPE* in);
     virtual void post_attr_name_chain(ATTR_NAME* in);
     virtual void post_param_name_chain(PARAM_NAME* in);
@@ -129,11 +134,13 @@ public:
 /* Call the pre-chain, visit children and post-chain in order */
 /* Do not override unless you know what you are doing */
 public:
+    virtual void visit_macro_list(Macro_list* in);
+    virtual void visit_macro(Macro* in);
     virtual void visit_signature(Signature* in);
     virtual void visit_rule_list(Rule_list* in);
     virtual void visit_rule(Rule* in);
     virtual void visit_body(Body* in);
-    virtual void visit_pattern_name(PATTERN_NAME* in);
+    virtual void visit_macro_name(MACRO_NAME* in);
     virtual void visit_formal_parameter_list(Formal_parameter_list* in);
     virtual void visit_formal_parameter(Formal_parameter* in);
     virtual void visit_type(TYPE* in);
@@ -144,7 +151,7 @@ public:
     virtual void visit_body_part(Body_part* in);
     virtual void visit_actual_parameter_list(Actual_parameter_list* in);
     virtual void visit_actual_parameter(Actual_parameter* in);
-    virtual void visit_template(Template* in);
+    virtual void visit_all(All* in);
 /* Invoke the right pre-chain (manual dispatching) */
 /* Do not override unless you know what you are doing */
 public:

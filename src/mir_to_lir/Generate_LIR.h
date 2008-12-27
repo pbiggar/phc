@@ -11,6 +11,7 @@
 
 #include "MIR_visitor.h"
 #include "LIR.h"
+#include "codegen/MICG_gen.h"
 #include "pass_manager/Pass.h"
 
 class Generate_LIR : public MIR::Visitor, virtual public GC_obj
@@ -27,6 +28,8 @@ public:
 public:
 	String* extension_name;
 	bool is_extension;
+
+	MICG_gen micg;
 
 	LIR::C_file* lir;
 	LIR::UNINTERPRETED* clear_code_buffer ();
