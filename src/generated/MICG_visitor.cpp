@@ -30,15 +30,15 @@ void Visitor::pre_rule(Rule* in)
 {
 }
 
-void Visitor::pre_expr(Expr* in)
-{
-}
-
 void Visitor::pre_lookup(Lookup* in)
 {
 }
 
 void Visitor::pre_equals(Equals* in)
+{
+}
+
+void Visitor::pre_expr(Expr* in)
 {
 }
 
@@ -66,7 +66,7 @@ void Visitor::pre_macro_name(MACRO_NAME* in)
 {
 }
 
-void Visitor::pre_type(TYPE* in)
+void Visitor::pre_type_name(TYPE_NAME* in)
 {
 }
 
@@ -111,15 +111,15 @@ void Visitor::post_rule(Rule* in)
 {
 }
 
-void Visitor::post_expr(Expr* in)
-{
-}
-
 void Visitor::post_lookup(Lookup* in)
 {
 }
 
 void Visitor::post_equals(Equals* in)
+{
+}
+
+void Visitor::post_expr(Expr* in)
 {
 }
 
@@ -147,7 +147,7 @@ void Visitor::post_macro_name(MACRO_NAME* in)
 {
 }
 
-void Visitor::post_type(TYPE* in)
+void Visitor::post_type_name(TYPE_NAME* in)
 {
 }
 
@@ -188,13 +188,8 @@ void Visitor::children_signature(Signature* in)
 
 void Visitor::children_formal_parameter(Formal_parameter* in)
 {
-    visit_type(in->type);
+    visit_type_name(in->type_name);
     visit_param_name(in->param_name);
-}
-
-void Visitor::children_rule(Rule* in)
-{
-    visit_expr(in->expr);
 }
 
 void Visitor::children_lookup(Lookup* in)
@@ -225,7 +220,7 @@ void Visitor::children_macro_name(MACRO_NAME* in)
 {
 }
 
-void Visitor::children_type(TYPE* in)
+void Visitor::children_type_name(TYPE_NAME* in)
 {
 }
 
@@ -292,15 +287,10 @@ void Visitor::pre_formal_parameter_chain(Formal_parameter* in)
     pre_formal_parameter((Formal_parameter*) in);
 }
 
-void Visitor::pre_rule_chain(Rule* in)
-{
-    pre_node((Node*) in);
-    pre_rule((Rule*) in);
-}
-
 void Visitor::pre_lookup_chain(Lookup* in)
 {
     pre_node((Node*) in);
+    pre_rule((Rule*) in);
     pre_expr((Expr*) in);
     pre_body_part((Body_part*) in);
     pre_interpolation((Interpolation*) in);
@@ -310,7 +300,7 @@ void Visitor::pre_lookup_chain(Lookup* in)
 void Visitor::pre_equals_chain(Equals* in)
 {
     pre_node((Node*) in);
-    pre_expr((Expr*) in);
+    pre_rule((Rule*) in);
     pre_equals((Equals*) in);
 }
 
@@ -333,10 +323,10 @@ void Visitor::pre_macro_name_chain(MACRO_NAME* in)
     pre_macro_name((MACRO_NAME*) in);
 }
 
-void Visitor::pre_type_chain(TYPE* in)
+void Visitor::pre_type_name_chain(TYPE_NAME* in)
 {
     pre_node((Node*) in);
-    pre_type((TYPE*) in);
+    pre_type_name((TYPE_NAME*) in);
 }
 
 void Visitor::pre_attr_name_chain(ATTR_NAME* in)
@@ -397,25 +387,20 @@ void Visitor::post_formal_parameter_chain(Formal_parameter* in)
     post_node((Node*) in);
 }
 
-void Visitor::post_rule_chain(Rule* in)
-{
-    post_rule((Rule*) in);
-    post_node((Node*) in);
-}
-
 void Visitor::post_lookup_chain(Lookup* in)
 {
     post_lookup((Lookup*) in);
     post_interpolation((Interpolation*) in);
     post_body_part((Body_part*) in);
     post_expr((Expr*) in);
+    post_rule((Rule*) in);
     post_node((Node*) in);
 }
 
 void Visitor::post_equals_chain(Equals* in)
 {
     post_equals((Equals*) in);
-    post_expr((Expr*) in);
+    post_rule((Rule*) in);
     post_node((Node*) in);
 }
 
@@ -438,9 +423,9 @@ void Visitor::post_macro_name_chain(MACRO_NAME* in)
     post_node((Node*) in);
 }
 
-void Visitor::post_type_chain(TYPE* in)
+void Visitor::post_type_name_chain(TYPE_NAME* in)
 {
-    post_type((TYPE*) in);
+    post_type_name((TYPE_NAME*) in);
     post_node((Node*) in);
 }
 
@@ -606,15 +591,15 @@ void Visitor::visit_formal_parameter(Formal_parameter* in)
     }
 }
 
-void Visitor::visit_type(TYPE* in)
+void Visitor::visit_type_name(TYPE_NAME* in)
 {
     if(in == NULL)
-    	visit_null("MICG", "TYPE");
+    	visit_null("MICG", "TYPE_NAME");
     else
     {
-    	pre_type_chain(in);
-    	children_type(in);
-    	post_type_chain(in);
+    	pre_type_name_chain(in);
+    	children_type_name(in);
+    	post_type_name_chain(in);
     }
 }
 
@@ -630,18 +615,6 @@ void Visitor::visit_param_name(PARAM_NAME* in)
     }
 }
 
-void Visitor::visit_expr(Expr* in)
-{
-    if(in == NULL)
-    	visit_null("MICG", "Expr");
-    else
-    {
-    	pre_expr_chain(in);
-    	children_expr(in);
-    	post_expr_chain(in);
-    }
-}
-
 void Visitor::visit_attr_name(ATTR_NAME* in)
 {
     if(in == NULL)
@@ -651,6 +624,18 @@ void Visitor::visit_attr_name(ATTR_NAME* in)
     	pre_attr_name_chain(in);
     	children_attr_name(in);
     	post_attr_name_chain(in);
+    }
+}
+
+void Visitor::visit_expr(Expr* in)
+{
+    if(in == NULL)
+    	visit_null("MICG", "Expr");
+    else
+    {
+    	pre_expr_chain(in);
+    	children_expr(in);
+    	post_expr_chain(in);
     }
 }
 
@@ -730,13 +715,23 @@ void Visitor::visit_all(All* in)
 
 /* Invoke the right pre-chain (manual dispatching) */
 /* Do not override unless you know what you are doing */
-void Visitor::pre_expr_chain(Expr* in)
+void Visitor::pre_rule_chain(Rule* in)
 {
     switch(in->classid())
     {
     case Equals::ID:
     	pre_equals_chain(dynamic_cast<Equals*>(in));
     	break;
+    case Lookup::ID:
+    	pre_lookup_chain(dynamic_cast<Lookup*>(in));
+    	break;
+    }
+}
+
+void Visitor::pre_expr_chain(Expr* in)
+{
+    switch(in->classid())
+    {
     case Lookup::ID:
     	pre_lookup_chain(dynamic_cast<Lookup*>(in));
     	break;
@@ -783,13 +778,23 @@ void Visitor::pre_actual_parameter_chain(Actual_parameter* in)
 
 /* Invoke the right post-chain (manual dispatching) */
 /* Do not override unless you know what you are doing */
-void Visitor::post_expr_chain(Expr* in)
+void Visitor::post_rule_chain(Rule* in)
 {
     switch(in->classid())
     {
     case Equals::ID:
     	post_equals_chain(dynamic_cast<Equals*>(in));
     	break;
+    case Lookup::ID:
+    	post_lookup_chain(dynamic_cast<Lookup*>(in));
+    	break;
+    }
+}
+
+void Visitor::post_expr_chain(Expr* in)
+{
+    switch(in->classid())
+    {
     case Lookup::ID:
     	post_lookup_chain(dynamic_cast<Lookup*>(in));
     	break;
@@ -836,13 +841,23 @@ void Visitor::post_actual_parameter_chain(Actual_parameter* in)
 
 /* Invoke the right visit-children (manual dispatching) */
 /* Do not override unless you know what you are doing */
-void Visitor::children_expr(Expr* in)
+void Visitor::children_rule(Rule* in)
 {
     switch(in->classid())
     {
     case Equals::ID:
     	children_equals(dynamic_cast<Equals*>(in));
     	break;
+    case Lookup::ID:
+    	children_lookup(dynamic_cast<Lookup*>(in));
+    	break;
+    }
+}
+
+void Visitor::children_expr(Expr* in)
+{
+    switch(in->classid())
+    {
     case Lookup::ID:
     	children_lookup(dynamic_cast<Lookup*>(in));
     	break;

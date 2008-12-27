@@ -13,6 +13,17 @@
 #include "lib/String.h"
 #include "lib/Map.h"
 
+namespace MICG
+{
+
+class Symtable : public Map<string, Object*>
+{
+public:
+	Object* get_attr (string param_name, string attr_name);
+};
+
+}
+
 class MICG_gen
 {
 public:
@@ -31,17 +42,17 @@ public:
 	bool suitable (MICG::Macro* sig, Object_list* params);
 
 	// Give an error if OBJ cannot be coerced to TYPE.
-	void check_type (MICG::TYPE* type, Object* obj);
+	void check_type (MICG::TYPE_NAME* type_name, Object* obj);
 
-	typedef Map<string, Object*> Symtable;
-	Symtable* get_symtable (string macro_name, MICG::Formal_parameter_list*, Object_list*);
+	MICG::Symtable* get_symtable (string macro_name, MICG::Formal_parameter_list*, Object_list*);
 
 	// Actually substitute the parameters into the body.
-	string instantiate_body (MICG::Body* body, Symtable* symtable);
+	string instantiate_body (MICG::Body* body, MICG::Symtable* symtable);
 
 
 	Map<string, MICG::Macro_list> macros;
 };
 
 
-#endif // PHC_MICG_gen
+
+#endif // PHC_MICG_GEN

@@ -30,25 +30,22 @@ Macro ::= Signature Rule* Body ;
 
 -- Signature
 Signature ::= MACRO_NAME Formal_parameter* ;
-Formal_parameter ::= TYPE PARAM_NAME ;
+Formal_parameter ::= TYPE_NAME PARAM_NAME ;
 
 -- Rules
 
-Rule ::= Expr ;
-
-Expr ::= Equals | Lookup | PARAM_NAME | STRING ;
+Rule ::= Equals | Lookup ;
 
 Lookup ::= PARAM_NAME ATTR_NAME ;
 
 Equals ::= left:Expr right:Expr ;
+Expr ::= Lookup | PARAM_NAME | STRING ;
 
 -- Body
 Body ::= Body_part* ;
-
 Body_part ::= C_CODE | Macro_call | Interpolation ;
 
 Macro_call ::= MACRO_NAME Actual_parameter*;
-
 Actual_parameter ::= STRING | PARAM_NAME ;
 
 Interpolation ::= Lookup | PARAM_NAME ;

@@ -32,16 +32,16 @@ public:
     virtual void pre_signature(Signature* in);
     virtual void pre_formal_parameter(Formal_parameter* in);
     virtual void pre_rule(Rule* in);
-    virtual void pre_expr(Expr* in);
     virtual void pre_lookup(Lookup* in);
     virtual void pre_equals(Equals* in);
+    virtual void pre_expr(Expr* in);
     virtual void pre_body(Body* in);
     virtual void pre_body_part(Body_part* in);
     virtual void pre_macro_call(Macro_call* in);
     virtual void pre_actual_parameter(Actual_parameter* in);
     virtual void pre_interpolation(Interpolation* in);
     virtual void pre_macro_name(MACRO_NAME* in);
-    virtual void pre_type(TYPE* in);
+    virtual void pre_type_name(TYPE_NAME* in);
     virtual void pre_attr_name(ATTR_NAME* in);
     virtual void pre_param_name(PARAM_NAME* in);
     virtual void pre_string(STRING* in);
@@ -54,16 +54,16 @@ public:
     virtual void post_signature(Signature* in);
     virtual void post_formal_parameter(Formal_parameter* in);
     virtual void post_rule(Rule* in);
-    virtual void post_expr(Expr* in);
     virtual void post_lookup(Lookup* in);
     virtual void post_equals(Equals* in);
+    virtual void post_expr(Expr* in);
     virtual void post_body(Body* in);
     virtual void post_body_part(Body_part* in);
     virtual void post_macro_call(Macro_call* in);
     virtual void post_actual_parameter(Actual_parameter* in);
     virtual void post_interpolation(Interpolation* in);
     virtual void post_macro_name(MACRO_NAME* in);
-    virtual void post_type(TYPE* in);
+    virtual void post_type_name(TYPE_NAME* in);
     virtual void post_attr_name(ATTR_NAME* in);
     virtual void post_param_name(PARAM_NAME* in);
     virtual void post_string(STRING* in);
@@ -74,7 +74,6 @@ public:
     virtual void children_macro(Macro* in);
     virtual void children_signature(Signature* in);
     virtual void children_formal_parameter(Formal_parameter* in);
-    virtual void children_rule(Rule* in);
     virtual void children_lookup(Lookup* in);
     virtual void children_equals(Equals* in);
     virtual void children_body(Body* in);
@@ -82,7 +81,7 @@ public:
 /* Tokens don't have children, so these methods do nothing by default */
 public:
     virtual void children_macro_name(MACRO_NAME* in);
-    virtual void children_type(TYPE* in);
+    virtual void children_type_name(TYPE_NAME* in);
     virtual void children_attr_name(ATTR_NAME* in);
     virtual void children_param_name(PARAM_NAME* in);
     virtual void children_string(STRING* in);
@@ -101,13 +100,12 @@ public:
     virtual void pre_macro_chain(Macro* in);
     virtual void pre_signature_chain(Signature* in);
     virtual void pre_formal_parameter_chain(Formal_parameter* in);
-    virtual void pre_rule_chain(Rule* in);
     virtual void pre_lookup_chain(Lookup* in);
     virtual void pre_equals_chain(Equals* in);
     virtual void pre_body_chain(Body* in);
     virtual void pre_macro_call_chain(Macro_call* in);
     virtual void pre_macro_name_chain(MACRO_NAME* in);
-    virtual void pre_type_chain(TYPE* in);
+    virtual void pre_type_name_chain(TYPE_NAME* in);
     virtual void pre_attr_name_chain(ATTR_NAME* in);
     virtual void pre_param_name_chain(PARAM_NAME* in);
     virtual void pre_string_chain(STRING* in);
@@ -120,13 +118,12 @@ public:
     virtual void post_macro_chain(Macro* in);
     virtual void post_signature_chain(Signature* in);
     virtual void post_formal_parameter_chain(Formal_parameter* in);
-    virtual void post_rule_chain(Rule* in);
     virtual void post_lookup_chain(Lookup* in);
     virtual void post_equals_chain(Equals* in);
     virtual void post_body_chain(Body* in);
     virtual void post_macro_call_chain(Macro_call* in);
     virtual void post_macro_name_chain(MACRO_NAME* in);
-    virtual void post_type_chain(TYPE* in);
+    virtual void post_type_name_chain(TYPE_NAME* in);
     virtual void post_attr_name_chain(ATTR_NAME* in);
     virtual void post_param_name_chain(PARAM_NAME* in);
     virtual void post_string_chain(STRING* in);
@@ -143,10 +140,10 @@ public:
     virtual void visit_macro_name(MACRO_NAME* in);
     virtual void visit_formal_parameter_list(Formal_parameter_list* in);
     virtual void visit_formal_parameter(Formal_parameter* in);
-    virtual void visit_type(TYPE* in);
+    virtual void visit_type_name(TYPE_NAME* in);
     virtual void visit_param_name(PARAM_NAME* in);
-    virtual void visit_expr(Expr* in);
     virtual void visit_attr_name(ATTR_NAME* in);
+    virtual void visit_expr(Expr* in);
     virtual void visit_body_part_list(Body_part_list* in);
     virtual void visit_body_part(Body_part* in);
     virtual void visit_actual_parameter_list(Actual_parameter_list* in);
@@ -155,18 +152,21 @@ public:
 /* Invoke the right pre-chain (manual dispatching) */
 /* Do not override unless you know what you are doing */
 public:
+    virtual void pre_rule_chain(Rule* in);
     virtual void pre_expr_chain(Expr* in);
     virtual void pre_body_part_chain(Body_part* in);
     virtual void pre_actual_parameter_chain(Actual_parameter* in);
 /* Invoke the right post-chain (manual dispatching) */
 /* Do not override unless you know what you are doing */
 public:
+    virtual void post_rule_chain(Rule* in);
     virtual void post_expr_chain(Expr* in);
     virtual void post_body_part_chain(Body_part* in);
     virtual void post_actual_parameter_chain(Actual_parameter* in);
 /* Invoke the right visit-children (manual dispatching) */
 /* Do not override unless you know what you are doing */
 public:
+    virtual void children_rule(Rule* in);
     virtual void children_expr(Expr* in);
     virtual void children_body_part(Body_part* in);
     virtual void children_actual_parameter(Actual_parameter* in);

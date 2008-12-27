@@ -589,15 +589,15 @@ void Signature::assert_valid()
     }
 }
 
-Formal_parameter::Formal_parameter(TYPE* type, PARAM_NAME* param_name)
+Formal_parameter::Formal_parameter(TYPE_NAME* type_name, PARAM_NAME* param_name)
 {
-    this->type = type;
+    this->type_name = type_name;
     this->param_name = param_name;
 }
 
 Formal_parameter::Formal_parameter()
 {
-    this->type = 0;
+    this->type_name = 0;
     this->param_name = 0;
 }
 
@@ -626,12 +626,12 @@ bool Formal_parameter::match(Node* in)
     Formal_parameter* that = dynamic_cast<Formal_parameter*>(in);
     if(that == NULL) return false;
     
-    if(this->type == NULL)
+    if(this->type_name == NULL)
     {
-    	if(that->type != NULL && !that->type->match(this->type))
+    	if(that->type_name != NULL && !that->type_name->match(this->type_name))
     		return false;
     }
-    else if(!this->type->match(that->type))
+    else if(!this->type_name->match(that->type_name))
     	return false;
     
     if(this->param_name == NULL)
@@ -650,12 +650,12 @@ bool Formal_parameter::equals(Node* in)
     Formal_parameter* that = dynamic_cast<Formal_parameter*>(in);
     if(that == NULL) return false;
     
-    if(this->type == NULL || that->type == NULL)
+    if(this->type_name == NULL || that->type_name == NULL)
     {
-    	if(this->type != NULL || that->type != NULL)
+    	if(this->type_name != NULL || that->type_name != NULL)
     		return false;
     }
-    else if(!this->type->equals(that->type))
+    else if(!this->type_name->equals(that->type_name))
     	return false;
     
     if(this->param_name == NULL || that->param_name == NULL)
@@ -671,9 +671,9 @@ bool Formal_parameter::equals(Node* in)
 
 Formal_parameter* Formal_parameter::clone()
 {
-    TYPE* type = this->type ? this->type->clone() : NULL;
+    TYPE_NAME* type_name = this->type_name ? this->type_name->clone() : NULL;
     PARAM_NAME* param_name = this->param_name ? this->param_name->clone() : NULL;
-    Formal_parameter* clone = new Formal_parameter(type, param_name);
+    Formal_parameter* clone = new Formal_parameter(type_name, param_name);
     return clone;
 }
 
@@ -682,10 +682,10 @@ Node* Formal_parameter::find(Node* in)
     if (this->match (in))
     	return this;
     
-    if (this->type != NULL)
+    if (this->type_name != NULL)
     {
-    	Node* type_res = this->type->find(in);
-    	if (type_res) return type_res;
+    	Node* type_name_res = this->type_name->find(in);
+    	if (type_name_res) return type_name_res;
     }
     
     if (this->param_name != NULL)
@@ -702,8 +702,8 @@ void Formal_parameter::find_all(Node* in, Node_list* out)
     if (this->match (in))
     	out->push_back (this);
     
-    if (this->type != NULL)
-    	this->type->find_all(in, out);
+    if (this->type_name != NULL)
+    	this->type_name->find_all(in, out);
     
     if (this->param_name != NULL)
     	this->param_name->find_all(in, out);
@@ -712,109 +712,14 @@ void Formal_parameter::find_all(Node* in, Node_list* out)
 
 void Formal_parameter::assert_valid()
 {
-    assert(type != NULL);
-    type->assert_valid();
+    assert(type_name != NULL);
+    type_name->assert_valid();
     assert(param_name != NULL);
     param_name->assert_valid();
 }
 
-Rule::Rule(Expr* expr)
-{
-    this->expr = expr;
-}
-
 Rule::Rule()
 {
-    this->expr = 0;
-}
-
-void Rule::visit(Visitor* visitor)
-{
-    visitor->visit_rule(this);
-}
-
-void Rule::transform_children(Transform* transform)
-{
-    transform->children_rule(this);
-}
-
-int Rule::classid()
-{
-    return ID;
-}
-
-bool Rule::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    Rule* that = dynamic_cast<Rule*>(in);
-    if(that == NULL) return false;
-    
-    if(this->expr == NULL)
-    {
-    	if(that->expr != NULL && !that->expr->match(this->expr))
-    		return false;
-    }
-    else if(!this->expr->match(that->expr))
-    	return false;
-    
-    return true;
-}
-
-bool Rule::equals(Node* in)
-{
-    Rule* that = dynamic_cast<Rule*>(in);
-    if(that == NULL) return false;
-    
-    if(this->expr == NULL || that->expr == NULL)
-    {
-    	if(this->expr != NULL || that->expr != NULL)
-    		return false;
-    }
-    else if(!this->expr->equals(that->expr))
-    	return false;
-    
-    return true;
-}
-
-Rule* Rule::clone()
-{
-    Expr* expr = this->expr ? this->expr->clone() : NULL;
-    Rule* clone = new Rule(expr);
-    return clone;
-}
-
-Node* Rule::find(Node* in)
-{
-    if (this->match (in))
-    	return this;
-    
-    if (this->expr != NULL)
-    {
-    	Node* expr_res = this->expr->find(in);
-    	if (expr_res) return expr_res;
-    }
-    
-    return NULL;
-}
-
-void Rule::find_all(Node* in, Node_list* out)
-{
-    if (this->match (in))
-    	out->push_back (this);
-    
-    if (this->expr != NULL)
-    	this->expr->find_all(in, out);
-    
-}
-
-void Rule::assert_valid()
-{
-    assert(expr != NULL);
-    expr->assert_valid();
 }
 
 Expr::Expr()
@@ -1081,44 +986,44 @@ void MACRO_NAME::assert_valid()
     assert(value != NULL);
 }
 
-TYPE::TYPE(String* value)
+TYPE_NAME::TYPE_NAME(String* value)
 {
     this->value = value;
 }
 
-TYPE::TYPE()
+TYPE_NAME::TYPE_NAME()
 {
     this->value = 0;
 }
 
-void TYPE::visit(Visitor* visitor)
+void TYPE_NAME::visit(Visitor* visitor)
 {
-    visitor->visit_type(this);
+    visitor->visit_type_name(this);
 }
 
-void TYPE::transform_children(Transform* transform)
+void TYPE_NAME::transform_children(Transform* transform)
 {
-    transform->children_type(this);
+    transform->children_type_name(this);
 }
 
-String* TYPE::get_value_as_string()
+String* TYPE_NAME::get_value_as_string()
 {
     return value;
 }
 
-int TYPE::classid()
+int TYPE_NAME::classid()
 {
     return ID;
 }
 
-bool TYPE::match(Node* in)
+bool TYPE_NAME::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    TYPE* that = dynamic_cast<TYPE*>(in);
+    TYPE_NAME* that = dynamic_cast<TYPE_NAME*>(in);
     if(that == NULL) return false;
     
     if(this->value != NULL && that->value != NULL)
@@ -1127,9 +1032,9 @@ bool TYPE::match(Node* in)
     	return true;
 }
 
-bool TYPE::equals(Node* in)
+bool TYPE_NAME::equals(Node* in)
 {
-    TYPE* that = dynamic_cast<TYPE*>(in);
+    TYPE_NAME* that = dynamic_cast<TYPE_NAME*>(in);
     if(that == NULL) return false;
     
     if(this->value == NULL || that->value == NULL)
@@ -1143,14 +1048,14 @@ bool TYPE::equals(Node* in)
     return true;
 }
 
-TYPE* TYPE::clone()
+TYPE_NAME* TYPE_NAME::clone()
 {
     String* value = new String(*this->value);
-    TYPE* clone = new TYPE(value);
+    TYPE_NAME* clone = new TYPE_NAME(value);
     return clone;
 }
 
-Node* TYPE::find(Node* in)
+Node* TYPE_NAME::find(Node* in)
 {
     if (this->match (in))
     	return this;
@@ -1158,13 +1063,13 @@ Node* TYPE::find(Node* in)
     return NULL;
 }
 
-void TYPE::find_all(Node* in, Node_list* out)
+void TYPE_NAME::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
 }
 
-void TYPE::assert_valid()
+void TYPE_NAME::assert_valid()
 {
     assert(value != NULL);
 }
@@ -1271,12 +1176,12 @@ Equals::Equals()
 
 void Equals::visit(Visitor* visitor)
 {
-    visitor->visit_expr(this);
+    visitor->visit_rule(this);
 }
 
 void Equals::transform_children(Transform* transform)
 {
-    transform->children_expr(this);
+    transform->children_rule(this);
 }
 
 int Equals::classid()

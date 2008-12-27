@@ -6,6 +6,7 @@
  */
 
 #include "MICG_gen.h"
+#include "MICG_checker.h"
 #include "MICG.h"
 #include "MIR.h"
 #include "parsing/MICG_parser.h"
@@ -28,6 +29,8 @@ MICG_gen::add_macro (MICG::Macro* in)
 		if (t->signature->formal_parameters->size () != in->signature->formal_parameters->size ())
 			phc_internal_error ("Macro signature %s does not match other signatures", name.c_str ());
 	}
+
+	in->visit (new MICG_checker);
 
 	// Deliberately defer checking the signatures at 'run-time'. We don't want
 	// to check the types are the same, as we don't want to encode an
@@ -77,6 +80,30 @@ MICG_gen::instantiate (string macro_name, Object* obj1, Object* obj2)
 	return instantiate_body (m->body, symtable);
 }
 
+Object*
+Symtable::get_attr (string param_name, string attr_name)
+{
+	MIR::Node* node = dyc<MIR::Node> (get (param_name));
+
+	// We are interested in attributes of either prefix, but are not interested
+	// in writing out the full prefices.
+	string ann1 = "phc.codegen.";
+	string ann2 = "phc.optimize.";
+
+	ann1.append (attr_name);
+	ann2.append (attr_name);
+
+	if (node->attrs->has (ann1))
+		return node->attrs->get (ann1);
+		
+	if (node->attrs->has (ann2))
+		return node->attrs->get (ann2);
+
+	phc_internal_error ("Cannot find attribute %s in param %s",
+		attr_name.c_str (), param_name.c_str ());
+
+	assert (0);
+}
 
 bool
 MICG_gen::suitable (Macro* macro, Object_list* params)
@@ -89,25 +116,25 @@ MICG_gen::suitable (Macro* macro, Object_list* params)
 	{
 		if (Lookup* l = dynamic_cast <Lookup*> (rule))
 		{
-			Object* param = symtable->get (*l->param_name->value);
-			check_type (new TYPE (s("node")), param);
-			MIR::Node* node = dyc<MIR::Node> (param);
-			string ann1 = "phc.codeden.";
-			ann1.append (*l->attr_name->value);
-			string ann2 = "phc.optimize.";
-			ann2.append (*l->attr_name->value);
-			if (!node->attrs->is_true (ann1) && !node->attrs->is_true (ann2))
-				return false;
+			Object* obj = symtable->get_attr (*l->param_name->value, *l->attr_name->value);
+			if (isa<String> (obj))
+				phc_internal_error ("Expecting Boolean in lookup, got string");
+
+			return dyc<Boolean> (obj)->value();
 		}
-		else
+		else if (Equals* e = dynamic_cast<Equals*> (rule))
+		{
+//			String* lhs = e->left
+
 			assert (0);
+		}
 	}
 
 	// The types can be check in instantiate_body
 	assert (0);
 }
 
-MICG_gen::Symtable*
+MICG::Symtable*
 MICG_gen::get_symtable (string macro_name, Formal_parameter_list* fps, Object_list* params)
 {
 	// Check the size first
@@ -124,7 +151,7 @@ MICG_gen::get_symtable (string macro_name, Formal_parameter_list* fps, Object_li
 	Symtable* result = new Symtable;
 	foreach (Formal_parameter* fp, *fps)
 	{
-		check_type (fp->type, params->front ());
+		check_type (fp->type_name, params->front ());
 		(*result)[*fp->param_name->value] = params->front();
 		params->pop_front();
 	}
@@ -133,21 +160,21 @@ MICG_gen::get_symtable (string macro_name, Formal_parameter_list* fps, Object_li
 
 
 void
-MICG_gen::check_type (TYPE* type, Object* obj)
+MICG_gen::check_type (TYPE_NAME* type_name, Object* obj)
 {
-	string type_name = *type->value;
-	if (type_name == "string"
+	string tn = *type_name->value;
+	if (tn == "string"
 		&& (isa<String> (obj) || isa<MIR::Identifier> (obj)))
 		return;
 
-	if (type_name == "token" && isa<MIR::Identifier> (obj))
+	if (tn == "token" && isa<MIR::Identifier> (obj))
 		return;
 
-	if (type_name == "node" && isa<MIR::Node> (obj))
+	if (tn == "node" && isa<MIR::Node> (obj))
 		return;
 
 	phc_internal_error ("Object of type %s does not match expected type %s",
-		demangle (obj, true), type_name.c_str ());
+		demangle (obj, true), tn.c_str ());
 }
 
 string

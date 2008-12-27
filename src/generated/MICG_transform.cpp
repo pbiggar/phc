@@ -26,19 +26,14 @@ void Transform::pre_formal_parameter(Formal_parameter* in, Formal_parameter_list
     out->push_back(in);
 }
 
-void Transform::pre_rule(Rule* in, Rule_list* out)
-{
-    out->push_back(in);
-}
-
 Lookup* Transform::pre_lookup(Lookup* in)
 {
     return in;
 }
 
-Expr* Transform::pre_equals(Equals* in)
+void Transform::pre_equals(Equals* in, Rule_list* out)
 {
-    return in;
+    out->push_back(in);
 }
 
 Body* Transform::pre_body(Body* in)
@@ -56,7 +51,7 @@ MACRO_NAME* Transform::pre_macro_name(MACRO_NAME* in)
     return in;
 }
 
-TYPE* Transform::pre_type(TYPE* in)
+TYPE_NAME* Transform::pre_type_name(TYPE_NAME* in)
 {
     return in;
 }
@@ -102,19 +97,14 @@ void Transform::post_formal_parameter(Formal_parameter* in, Formal_parameter_lis
     out->push_back(in);
 }
 
-void Transform::post_rule(Rule* in, Rule_list* out)
-{
-    out->push_back(in);
-}
-
 Lookup* Transform::post_lookup(Lookup* in)
 {
     return in;
 }
 
-Expr* Transform::post_equals(Equals* in)
+void Transform::post_equals(Equals* in, Rule_list* out)
 {
-    return in;
+    out->push_back(in);
 }
 
 Body* Transform::post_body(Body* in)
@@ -132,7 +122,7 @@ MACRO_NAME* Transform::post_macro_name(MACRO_NAME* in)
     return in;
 }
 
-TYPE* Transform::post_type(TYPE* in)
+TYPE_NAME* Transform::post_type_name(TYPE_NAME* in)
 {
     return in;
 }
@@ -178,13 +168,8 @@ void Transform::children_signature(Signature* in)
 
 void Transform::children_formal_parameter(Formal_parameter* in)
 {
-    in->type = transform_type(in->type);
+    in->type_name = transform_type_name(in->type_name);
     in->param_name = transform_param_name(in->param_name);
-}
-
-void Transform::children_rule(Rule* in)
-{
-    in->expr = transform_expr(in->expr);
 }
 
 void Transform::children_lookup(Lookup* in)
@@ -215,7 +200,7 @@ void Transform::children_macro_name(MACRO_NAME* in)
 {
 }
 
-void Transform::children_type(TYPE* in)
+void Transform::children_type_name(TYPE_NAME* in)
 {
 }
 
@@ -396,17 +381,17 @@ Formal_parameter_list* Transform::transform_formal_parameter(Formal_parameter* i
     return out2;
 }
 
-TYPE* Transform::transform_type(TYPE* in)
+TYPE_NAME* Transform::transform_type_name(TYPE_NAME* in)
 {
     if(in == NULL) return NULL;
     
-    TYPE* out;
+    TYPE_NAME* out;
     
-    out = pre_type(in);
+    out = pre_type_name(in);
     if(out != NULL)
     {
-    	children_type(out);
-    	out = post_type(out);
+    	children_type_name(out);
+    	out = post_type_name(out);
     }
     
     return out;
@@ -428,22 +413,6 @@ PARAM_NAME* Transform::transform_param_name(PARAM_NAME* in)
     return out;
 }
 
-Expr* Transform::transform_expr(Expr* in)
-{
-    if(in == NULL) return NULL;
-    
-    Expr* out;
-    
-    out = pre_expr(in);
-    if(out != NULL)
-    {
-    	children_expr(out);
-    	out = post_expr(out);
-    }
-    
-    return out;
-}
-
 ATTR_NAME* Transform::transform_attr_name(ATTR_NAME* in)
 {
     if(in == NULL) return NULL;
@@ -455,6 +424,22 @@ ATTR_NAME* Transform::transform_attr_name(ATTR_NAME* in)
     {
     	children_attr_name(out);
     	out = post_attr_name(out);
+    }
+    
+    return out;
+}
+
+Expr* Transform::transform_expr(Expr* in)
+{
+    if(in == NULL) return NULL;
+    
+    Expr* out;
+    
+    out = pre_expr(in);
+    if(out != NULL)
+    {
+    	children_expr(out);
+    	out = post_expr(out);
     }
     
     return out;
@@ -552,11 +537,30 @@ All* Transform::transform_all(All* in)
 
 /* Invoke the right pre-transform (manual dispatching) */
 /* Do not override unless you know what you are doing */
+void Transform::pre_rule(Rule* in, Rule_list* out)
+{
+    switch(in->classid())
+    {
+    case Equals::ID: 
+    	{
+    		Rule_list* local_out = new Rule_list;
+    		Rule_list::const_iterator i;
+    		pre_equals(dynamic_cast<Equals*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    case Lookup::ID: 
+    	out->push_back(pre_lookup(dynamic_cast<Lookup*>(in)));
+    	return;
+    }
+    assert(0);
+}
+
 Expr* Transform::pre_expr(Expr* in)
 {
     switch(in->classid())
     {
-    case Equals::ID: return pre_equals(dynamic_cast<Equals*>(in));
     case Lookup::ID: return pre_lookup(dynamic_cast<Lookup*>(in));
     case PARAM_NAME::ID: return pre_param_name(dynamic_cast<PARAM_NAME*>(in));
     case STRING::ID: return pre_string(dynamic_cast<STRING*>(in));
@@ -612,11 +616,30 @@ void Transform::pre_actual_parameter(Actual_parameter* in, Actual_parameter_list
 
 /* Invoke the right post-transform (manual dispatching) */
 /* Do not override unless you know what you are doing */
+void Transform::post_rule(Rule* in, Rule_list* out)
+{
+    switch(in->classid())
+    {
+    case Equals::ID: 
+    	{
+    		Rule_list* local_out = new Rule_list;
+    		Rule_list::const_iterator i;
+    		post_equals(dynamic_cast<Equals*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    case Lookup::ID: 
+    	out->push_back(post_lookup(dynamic_cast<Lookup*>(in)));
+    	return;
+    }
+    assert(0);
+}
+
 Expr* Transform::post_expr(Expr* in)
 {
     switch(in->classid())
     {
-    case Equals::ID: return post_equals(dynamic_cast<Equals*>(in));
     case Lookup::ID: return post_lookup(dynamic_cast<Lookup*>(in));
     case PARAM_NAME::ID: return post_param_name(dynamic_cast<PARAM_NAME*>(in));
     case STRING::ID: return post_string(dynamic_cast<STRING*>(in));
@@ -672,13 +695,23 @@ void Transform::post_actual_parameter(Actual_parameter* in, Actual_parameter_lis
 
 /* Invoke the right transform-children (manual dispatching) */
 /* Do not override unless you what you are doing */
-void Transform::children_expr(Expr* in)
+void Transform::children_rule(Rule* in)
 {
     switch(in->classid())
     {
     case Equals::ID:
     	children_equals(dynamic_cast<Equals*>(in));
     	break;
+    case Lookup::ID:
+    	children_lookup(dynamic_cast<Lookup*>(in));
+    	break;
+    }
+}
+
+void Transform::children_expr(Expr* in)
+{
+    switch(in->classid())
+    {
     case Lookup::ID:
     	children_lookup(dynamic_cast<Lookup*>(in));
     	break;

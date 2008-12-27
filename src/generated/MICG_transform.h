@@ -30,13 +30,12 @@ public:
     virtual void pre_macro(Macro* in, Macro_list* out);
     virtual Signature* pre_signature(Signature* in);
     virtual void pre_formal_parameter(Formal_parameter* in, Formal_parameter_list* out);
-    virtual void pre_rule(Rule* in, Rule_list* out);
     virtual Lookup* pre_lookup(Lookup* in);
-    virtual Expr* pre_equals(Equals* in);
+    virtual void pre_equals(Equals* in, Rule_list* out);
     virtual Body* pre_body(Body* in);
     virtual void pre_macro_call(Macro_call* in, Body_part_list* out);
     virtual MACRO_NAME* pre_macro_name(MACRO_NAME* in);
-    virtual TYPE* pre_type(TYPE* in);
+    virtual TYPE_NAME* pre_type_name(TYPE_NAME* in);
     virtual ATTR_NAME* pre_attr_name(ATTR_NAME* in);
     virtual PARAM_NAME* pre_param_name(PARAM_NAME* in);
     virtual STRING* pre_string(STRING* in);
@@ -47,13 +46,12 @@ public:
     virtual void post_macro(Macro* in, Macro_list* out);
     virtual Signature* post_signature(Signature* in);
     virtual void post_formal_parameter(Formal_parameter* in, Formal_parameter_list* out);
-    virtual void post_rule(Rule* in, Rule_list* out);
     virtual Lookup* post_lookup(Lookup* in);
-    virtual Expr* post_equals(Equals* in);
+    virtual void post_equals(Equals* in, Rule_list* out);
     virtual Body* post_body(Body* in);
     virtual void post_macro_call(Macro_call* in, Body_part_list* out);
     virtual MACRO_NAME* post_macro_name(MACRO_NAME* in);
-    virtual TYPE* post_type(TYPE* in);
+    virtual TYPE_NAME* post_type_name(TYPE_NAME* in);
     virtual ATTR_NAME* post_attr_name(ATTR_NAME* in);
     virtual PARAM_NAME* post_param_name(PARAM_NAME* in);
     virtual STRING* post_string(STRING* in);
@@ -64,7 +62,6 @@ public:
     virtual void children_macro(Macro* in);
     virtual void children_signature(Signature* in);
     virtual void children_formal_parameter(Formal_parameter* in);
-    virtual void children_rule(Rule* in);
     virtual void children_lookup(Lookup* in);
     virtual void children_equals(Equals* in);
     virtual void children_body(Body* in);
@@ -72,7 +69,7 @@ public:
 /* Tokens don't have children, so these methods do nothing by default */
 public:
     virtual void children_macro_name(MACRO_NAME* in);
-    virtual void children_type(TYPE* in);
+    virtual void children_type_name(TYPE_NAME* in);
     virtual void children_attr_name(ATTR_NAME* in);
     virtual void children_param_name(PARAM_NAME* in);
     virtual void children_string(STRING* in);
@@ -89,10 +86,10 @@ public:
     virtual MACRO_NAME* transform_macro_name(MACRO_NAME* in);
     virtual Formal_parameter_list* transform_formal_parameter_list(Formal_parameter_list* in);
     virtual Formal_parameter_list* transform_formal_parameter(Formal_parameter* in);
-    virtual TYPE* transform_type(TYPE* in);
+    virtual TYPE_NAME* transform_type_name(TYPE_NAME* in);
     virtual PARAM_NAME* transform_param_name(PARAM_NAME* in);
-    virtual Expr* transform_expr(Expr* in);
     virtual ATTR_NAME* transform_attr_name(ATTR_NAME* in);
+    virtual Expr* transform_expr(Expr* in);
     virtual Body_part_list* transform_body_part_list(Body_part_list* in);
     virtual Body_part_list* transform_body_part(Body_part* in);
     virtual Actual_parameter_list* transform_actual_parameter_list(Actual_parameter_list* in);
@@ -101,18 +98,21 @@ public:
 /* Invoke the right pre-transform (manual dispatching) */
 /* Do not override unless you know what you are doing */
 public:
+    virtual void pre_rule(Rule* in, Rule_list* out);
     virtual Expr* pre_expr(Expr* in);
     virtual void pre_body_part(Body_part* in, Body_part_list* out);
     virtual void pre_actual_parameter(Actual_parameter* in, Actual_parameter_list* out);
 /* Invoke the right post-transform (manual dispatching) */
 /* Do not override unless you know what you are doing */
 public:
+    virtual void post_rule(Rule* in, Rule_list* out);
     virtual Expr* post_expr(Expr* in);
     virtual void post_body_part(Body_part* in, Body_part_list* out);
     virtual void post_actual_parameter(Actual_parameter* in, Actual_parameter_list* out);
 /* Invoke the right transform-children (manual dispatching) */
 /* Do not override unless you what you are doing */
 public:
+    virtual void children_rule(Rule* in);
     virtual void children_expr(Expr* in);
     virtual void children_body_part(Body_part* in);
     virtual void children_actual_parameter(Actual_parameter* in);

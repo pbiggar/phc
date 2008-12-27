@@ -91,8 +91,8 @@ am_libphc_la_OBJECTS = getopt1.lo getopt.lo AST_annotate.lo \
 	Early_lower_control_flow.lo Echo_split.lo List_shredder.lo \
 	Lower_expr_flow.lo Pre_post_op_shredder.lo \
 	Split_multiple_arguments.lo Split_unset_isset.lo \
-	Strip_comments.lo Compile_C.lo Generate_C.lo MICG_gen.lo \
-	embed.lo optimize.lo util.lo AST.lo AST_factory.lo \
+	Strip_comments.lo Compile_C.lo Generate_C.lo MICG_checker.lo \
+	MICG_gen.lo embed.lo optimize.lo util.lo AST.lo AST_factory.lo \
 	AST_transform.lo AST_visitor.lo cmdline.lo HIR.lo \
 	HIR_factory.lo HIR_transform.lo HIR_visitor.lo lex.yy.lo \
 	LIR.lo LIR_factory.lo LIR_transform.lo LIR_visitor.lo MICG.lo \
@@ -649,6 +649,8 @@ libphc_la_SOURCES = \
 	src/codegen/Compile_C.h									\
 	src/codegen/Generate_C.cpp								\
 	src/codegen/Generate_C.h								\
+	src/codegen/MICG_checker.cpp							\
+	src/codegen/MICG_checker.h								\
 	src/codegen/MICG_gen.cpp								\
 	src/codegen/MICG_gen.h									\
 	src/embed/embed.cpp										\
@@ -1439,6 +1441,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Lower_expr_flow.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Lower_method_invocations.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MICG.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MICG_checker.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MICG_factory.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MICG_gen.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MICG_parser.Plo@am__quote@
@@ -1682,6 +1685,13 @@ Generate_C.lo: src/codegen/Generate_C.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Generate_C.cpp' object='Generate_C.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Generate_C.lo `test -f 'src/codegen/Generate_C.cpp' || echo '$(srcdir)/'`src/codegen/Generate_C.cpp
+
+MICG_checker.lo: src/codegen/MICG_checker.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT MICG_checker.lo -MD -MP -MF $(DEPDIR)/MICG_checker.Tpo -c -o MICG_checker.lo `test -f 'src/codegen/MICG_checker.cpp' || echo '$(srcdir)/'`src/codegen/MICG_checker.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/MICG_checker.Tpo $(DEPDIR)/MICG_checker.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/MICG_checker.cpp' object='MICG_checker.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o MICG_checker.lo `test -f 'src/codegen/MICG_checker.cpp' || echo '$(srcdir)/'`src/codegen/MICG_checker.cpp
 
 MICG_gen.lo: src/codegen/MICG_gen.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT MICG_gen.lo -MD -MP -MF $(DEPDIR)/MICG_gen.Tpo -c -o MICG_gen.lo `test -f 'src/codegen/MICG_gen.cpp' || echo '$(srcdir)/'`src/codegen/MICG_gen.cpp

@@ -39,16 +39,10 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     }
     if(!strcmp(type_id, "Formal_parameter"))
     {
-    	TYPE* type = dynamic_cast<TYPE*>(*i++);
+    	TYPE_NAME* type_name = dynamic_cast<TYPE_NAME*>(*i++);
     	PARAM_NAME* param_name = dynamic_cast<PARAM_NAME*>(*i++);
     	assert(i == args->end());
-    	return new Formal_parameter(type, param_name);
-    }
-    if(!strcmp(type_id, "Rule"))
-    {
-    	Expr* expr = dynamic_cast<Expr*>(*i++);
-    	assert(i == args->end());
-    	return new Rule(expr);
+    	return new Formal_parameter(type_name, param_name);
     }
     if(!strcmp(type_id, "Lookup"))
     {
@@ -83,11 +77,11 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new MACRO_NAME(value);
     }
-    if(!strcmp(type_id, "TYPE"))
+    if(!strcmp(type_id, "TYPE_NAME"))
     {
     	String* value = dynamic_cast<String*>(*i++);
     	assert(i == args->end());
-    	return new TYPE(value);
+    	return new TYPE_NAME(value);
     }
     if(!strcmp(type_id, "ATTR_NAME"))
     {
