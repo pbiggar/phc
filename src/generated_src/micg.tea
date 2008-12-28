@@ -13,6 +13,7 @@
 output_dir "src/generated";
 prefix "MICG";
 external class "Object";
+external class "IR::Node";
 external class "String";
 use list "List";
 use string "String";
@@ -65,8 +66,9 @@ Interpolation ::= Lookup | PARAM_NAME ;
 #include "lib/String.h"
 #include "lib/Boolean.h"
 #include "lib/Integer.h"
+#include "process_ir/IR.h"
 
-class Node : Object
+class Node : IR::Node
 {
 };
 

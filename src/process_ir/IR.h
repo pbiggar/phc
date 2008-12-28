@@ -56,6 +56,7 @@ public:
 
 	// Return the line number of the node (or 0 if unknown)
 	int get_line_number();
+	int get_column_number();
 
 	// Return the filename of the node. If unknown, use "<unknown>",
 	// which is what the interpreter uses.

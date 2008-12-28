@@ -23,6 +23,16 @@ Node::get_line_number ()
 		return 0;
 }
 
+int
+Node::get_column_number ()
+{
+	Integer* i = dynamic_cast<Integer*>(attrs->get("phc.column_number"));
+	if(i != NULL)
+		return i->value();
+	else
+		return 0;
+}
+
 String*
 Node::get_filename()
 {

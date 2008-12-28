@@ -46,6 +46,9 @@ public:
 
 	MICG::Symtable* get_symtable (string macro_name, MICG::Formal_parameter_list*, Object_list*);
 
+	// Get the macro named NAME, whose rules match PARAMs.
+	MICG::Macro* get_macro (string name, Object_list* params);
+
 	// Actually substitute the parameters into the body.
 	string instantiate_body (MICG::Body* body, MICG::Symtable* symtable);
 

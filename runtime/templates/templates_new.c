@@ -53,7 +53,7 @@
  */
 
 assign_expr_var (token LHS, token RHS)
-   where VAR.st_entry_not_required
+   where LHS.st_entry_not_required
    where LHS.is_uninitialized
 @@@
   zval** p_lhs = &local_$L;
@@ -99,7 +99,7 @@ assign_expr_cast (token LHS, token RHS, string TYPE)
 
 // We could do this for non-LOCAL, but we'd only be saving an refcount++ and a refcount--.
 assign_expr_bin_op (token LHS, node LEFT, node RIGHT, string OP_FN)
-   where VAR.st_entry_not_required
+   where LHS.st_entry_not_required
    where LHS.is_uninitialized
 @@@
   \read_rvalue ("left", LEFT);

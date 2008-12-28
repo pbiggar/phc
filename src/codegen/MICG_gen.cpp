@@ -17,7 +17,6 @@ using namespace MICG;
 using namespace std;
 using namespace boost;
 
-// TODO: Pattern, Template, Macro, etc, are all used for the same thing. Just use 'Macro'.
 void
 MICG_gen::add_macro (MICG::Macro* in)
 {
@@ -40,6 +39,27 @@ MICG_gen::add_macro (MICG::Macro* in)
 	macros[name].push_back (in);
 }
 
+// Iterate through the macros til we find one whose rules match the PARAMS.
+// Fail otherwise.
+Macro*
+MICG_gen::get_macro (string name, Object_list* params)
+{
+	foreach (Macro* m, macros[name])
+	{
+		if (suitable (m, params))
+			return m;
+	}
+
+	if (macros[name].size () == 0)
+		phc_internal_error ("There is no macro named %s", name.c_str ());
+
+	//		string formals = get_formals_as_string (
+	//			macros[macro_name].front()->signature->formal_parameters);
+
+	phc_internal_error ("No macro named %s matches the params: ", name.c_str ());
+	assert (0);
+}
+
 void
 MICG_gen::add_macro_def (string str)
 {
@@ -57,23 +77,7 @@ MICG_gen::instantiate (string macro_name, Object* obj1, Object* obj2)
 	params->push_back (obj1);
 	params->push_back (obj2);
 
-	// Find the appropriate macro.
-	Macro* m = NULL;
-	foreach (m, macros[macro_name])
-	{
-		if (suitable (m, params))
-			break;
-	}
-	if (m == NULL)
-	{
-		if (macros[macro_name].size () == 0)
-			phc_internal_error ("There is no macro named %s", macro_name.c_str ());
-
-//		string formals = get_formals_as_string (
-//			macros[macro_name].front()->signature->formal_parameters);
-
-		phc_internal_error ("No macro named %s matches the params: ", macro_name.c_str ());
-	}
+	Macro* m = get_macro (macro_name, params);
 
 	// Coerce the data appropriately.
 	Symtable* symtable = get_symtable (macro_name, m->signature->formal_parameters, params);
@@ -84,6 +88,7 @@ Object*
 Symtable::get_attr (string param_name, string attr_name)
 {
 	MIR::Node* node = dyc<MIR::Node> (get (param_name));
+	assert (node);
 
 	// We are interested in attributes of either prefix, but are not interested
 	// in writing out the full prefices.
@@ -99,10 +104,7 @@ Symtable::get_attr (string param_name, string attr_name)
 	if (node->attrs->has (ann2))
 		return node->attrs->get (ann2);
 
-	phc_internal_error ("Cannot find attribute %s in param %s",
-		attr_name.c_str (), param_name.c_str ());
-
-	assert (0);
+	return new Boolean (false);
 }
 
 bool
@@ -117,21 +119,23 @@ MICG_gen::suitable (Macro* macro, Object_list* params)
 		if (Lookup* l = dynamic_cast <Lookup*> (rule))
 		{
 			Object* obj = symtable->get_attr (*l->param_name->value, *l->attr_name->value);
-			if (isa<String> (obj))
+			if (!isa<Boolean> (obj))
 				phc_internal_error ("Expecting Boolean in lookup, got string");
 
 			return dyc<Boolean> (obj)->value();
 		}
 		else if (Equals* e = dynamic_cast<Equals*> (rule))
 		{
-//			String* lhs = e->left
+//			Object* left = get_expr_value (e->left);
+//			Object* right = get_expr_value (e->right);
+//			if (type (left) != type (right))
+//				fail
 
 			assert (0);
 		}
 	}
 
-	// The types can be check in instantiate_body
-	assert (0);
+	return true;
 }
 
 MICG::Symtable*
@@ -180,5 +184,23 @@ MICG_gen::check_type (TYPE_NAME* type_name, Object* obj)
 string
 MICG_gen::instantiate_body (Body* body, Symtable* symtable)
 {
-	assert (0);
+	stringstream ss;
+	foreach (Body_part* body_part, *body->body_parts)
+	{
+		if (C_CODE* c_code = dynamic_cast<C_CODE*> (body_part))
+		{
+			ss << *c_code->value;
+		}
+		else if (Interpolation* interp = dynamic_cast<Interpolation> (body_part))
+		{
+			assert (0);
+		}
+		else if (Macro_call* mc = dynamic_cast<Macro_call> (body_part))
+		{
+			assert (0);
+		}
+		else
+			phc_unreachable ();
+	}
+	return ss.str ();
 }

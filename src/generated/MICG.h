@@ -11,6 +11,7 @@
 #include "lib/String.h"
 #include "lib/Boolean.h"
 #include "lib/Integer.h"
+#include "process_ir/IR.h"
 #include <list>
 #include <string>
 #include <cstring>
@@ -66,7 +67,7 @@ class Transform;
 class Visitor;
 
 /* Node ::= All | Macro | Signature | Formal_parameter | Rule | Expr | Body | Body_part | Actual_parameter | MACRO_NAME | TYPE_NAME | ATTR_NAME; */
-class Node : virtual public Object
+class Node : virtual public IR::Node
 {
 public:
     Node();
