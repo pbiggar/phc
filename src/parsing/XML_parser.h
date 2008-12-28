@@ -502,7 +502,7 @@ public:
 	void error(const SAXParseException& exception)
 	{
 		char* message = XMLString::transcode(exception.getMessage());
-		::phc_warning("XML error: %s", NULL, exception.getLineNumber(), message);
+		::phc_warning("XML error: %s", NULL, exception.getLineNumber(), exception.getColumnNumber(), message);
 		XMLString::release(&message);
 		no_errors = false;
 	}
@@ -510,7 +510,7 @@ public:
 	void fatalError(const SAXParseException& exception)
 	{	
 		char* message = XMLString::transcode(exception.getMessage());
-		::phc_warning("XML error: %s", NULL, exception.getLineNumber(), message);
+		::phc_warning("XML error: %s", NULL, exception.getLineNumber(), exception.getColumnNumber(), message);
 		XMLString::release(&message);
 		no_errors = false;
 	}

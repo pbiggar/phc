@@ -39,6 +39,7 @@ public:
     virtual void pre_body(Body* in);
     virtual void pre_body_part(Body_part* in);
     virtual void pre_macro_call(Macro_call* in);
+    virtual void pre_callback(Callback* in);
     virtual void pre_actual_parameter(Actual_parameter* in);
     virtual void pre_interpolation(Interpolation* in);
     virtual void pre_macro_name(MACRO_NAME* in);
@@ -61,6 +62,7 @@ public:
     virtual void post_body(Body* in);
     virtual void post_body_part(Body_part* in);
     virtual void post_macro_call(Macro_call* in);
+    virtual void post_callback(Callback* in);
     virtual void post_actual_parameter(Actual_parameter* in);
     virtual void post_interpolation(Interpolation* in);
     virtual void post_macro_name(MACRO_NAME* in);
@@ -79,6 +81,7 @@ public:
     virtual void children_equals(Equals* in);
     virtual void children_body(Body* in);
     virtual void children_macro_call(Macro_call* in);
+    virtual void children_callback(Callback* in);
 /* Tokens don't have children, so these methods do nothing by default */
 public:
     virtual void children_macro_name(MACRO_NAME* in);
@@ -105,6 +108,7 @@ public:
     virtual void pre_equals_chain(Equals* in);
     virtual void pre_body_chain(Body* in);
     virtual void pre_macro_call_chain(Macro_call* in);
+    virtual void pre_callback_chain(Callback* in);
     virtual void pre_macro_name_chain(MACRO_NAME* in);
     virtual void pre_type_name_chain(TYPE_NAME* in);
     virtual void pre_attr_name_chain(ATTR_NAME* in);
@@ -123,6 +127,7 @@ public:
     virtual void post_equals_chain(Equals* in);
     virtual void post_body_chain(Body* in);
     virtual void post_macro_call_chain(Macro_call* in);
+    virtual void post_callback_chain(Callback* in);
     virtual void post_macro_name_chain(MACRO_NAME* in);
     virtual void post_type_name_chain(TYPE_NAME* in);
     virtual void post_attr_name_chain(ATTR_NAME* in);

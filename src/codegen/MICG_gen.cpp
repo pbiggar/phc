@@ -61,10 +61,10 @@ MICG_gen::get_macro (string name, Object_list* params)
 }
 
 void
-MICG_gen::add_macro_def (string str)
+MICG_gen::add_macro_def (string str, string filename)
 {
 	MICG_parser parser;
-	foreach (Macro* m, *parser.parse (str))
+	foreach (Macro* m, *parser.parse (str, filename))
 		add_macro (m);
 }
 
@@ -103,18 +103,41 @@ MICG_gen::suitable (Macro* macro, Object_list* params)
 		if (Lookup* l = dynamic_cast <Lookup*> (rule))
 		{
 			String* str = dyc<String> (symtable->get_lookup (l, true));
-			return *str != MICG_FALSE;
+			if (*str == MICG_FALSE)
+				return false;
 		}
 		else if (Equals* e = dynamic_cast<Equals*> (rule))
 		{
 			String* left = dyc<String> (symtable->get_expr (e->left, true));
 			String* right = dyc<String> (symtable->get_expr (e->right, true));
 
-			return *left == *right;
+			if (*left != *right)
+				return false;
 		}
+		else
+			phc_unreachable ();
 	}
 
 	return true;
+}
+
+void
+MICG_gen::register_callback (string name, callback_t callback)
+{
+	if (callbacks.has (name))
+		phc_internal_error ("Attempt to redefine existing callback %s",
+				name.c_str ());
+
+	callbacks[name] = callback;
+}
+
+string
+MICG_gen::callback (string name, String* param)
+{
+	if (!callbacks.has (name))
+		phc_internal_error ("No callback '%s' registered", name.c_str ());
+
+	return callbacks[name](*param);
 }
 
 MICG::Symtable*
@@ -190,6 +213,21 @@ MICG_gen::instantiate_body (Body* body, Symtable* symtable)
 					symtable->get_expr (reinterpret_cast<Expr*> (ap)));
 			}
 			ss << instantiate (*mc->macro_name->value, params);
+		}
+		else if (Callback* cb = dynamic_cast<Callback*> (body_part))
+		{
+			Object_list* params = new Object_list;
+			foreach (Actual_parameter* ap, *cb->actual_parameters)
+			{
+				params->push_back (
+					symtable->get_expr (reinterpret_cast<Expr*> (ap)));
+			}
+			if (params->size() != 1)
+				phc_internal_error (
+					"Exactly 1 parameter required for a callback", cb);
+
+			ss << callback (*cb->macro_name->value,
+					symtable->convert_to_string (params->front ()));
 		}
 		else
 			phc_unreachable ();

@@ -71,6 +71,13 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Macro_call(macro_name, actual_parameters);
     }
+    if(!strcmp(type_id, "Callback"))
+    {
+    	MACRO_NAME* macro_name = dynamic_cast<MACRO_NAME*>(*i++);
+    	Actual_parameter_list* actual_parameters = dynamic_cast<Actual_parameter_list*>(*i++);
+    	assert(i == args->end());
+    	return new Callback(macro_name, actual_parameters);
+    }
     if(!strcmp(type_id, "MACRO_NAME"))
     {
     	String* value = dynamic_cast<String*>(*i++);

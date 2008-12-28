@@ -402,7 +402,7 @@ void init_plugins (Pass_manager* pm)
 			datadir_err = strdup (lt_dlerror ());
 			phc_error (
 				"Could not find %s plugin with errors \"%s\", \"%s\" and \"%s\"",
-				NULL, 0, name, default_err, cwd_err, datadir_err);
+				NULL, 0, 0, name, default_err, cwd_err, datadir_err);
 		}
 
 		// Save for later

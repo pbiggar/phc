@@ -63,7 +63,7 @@ assign_expr_var (token LHS, token RHS)
 
 assign_expr_var (token LHS, token RHS)
 @@@
-  \get_st_entry ("LOCAL", "lhs", LHS);
+  \get_st_entry ("LOCAL", "p_lhs", LHS);
   \read_rvalue ("rhs", RHS);
   if (*p_lhs != rhs)
     {
@@ -183,7 +183,7 @@ get_st_entry (string SCOPE, string ZVP, token VAR)
 // TODO: inline better
 get_st_entry (string SCOPE, string ZVP, token VAR)
 @@@
-  zval** $ZVP = get_st_entry (\scope(scope);, "$VAR", ${VAR.length} + 1, ${VAR.hash});
+  zval** $ZVP = get_st_entry (\scope(SCOPE), "$VAR", \cb:length(VAR) + 1, \cb:hash(VAR) TSRMLS_CC);
 @@@
 
 scope (string SCOPE) where SCOPE == "LOCAL" @@@EG(active_symbol_table)@@@
@@ -236,7 +236,7 @@ read_rvalue (string ZVP, token VAR)
 
 read_rvalue (string ZVP, token TVAR)
 @@@
-  zval* $ZVP = read_var (\scope("LOCAL");, "$TVAR", ${TVAR.length} + 1, ${TVAR.hash} TSRMLS_CC);
+  zval* $ZVP = read_var (\scope("LOCAL");, "$TVAR", \cb:length(TVAR); + 1, \cb:hash(TVAR); TSRMLS_CC);
 @@@
 
 

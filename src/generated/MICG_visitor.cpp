@@ -54,6 +54,10 @@ void Visitor::pre_macro_call(Macro_call* in)
 {
 }
 
+void Visitor::pre_callback(Callback* in)
+{
+}
+
 void Visitor::pre_actual_parameter(Actual_parameter* in)
 {
 }
@@ -135,6 +139,10 @@ void Visitor::post_macro_call(Macro_call* in)
 {
 }
 
+void Visitor::post_callback(Callback* in)
+{
+}
+
 void Visitor::post_actual_parameter(Actual_parameter* in)
 {
 }
@@ -210,6 +218,12 @@ void Visitor::children_body(Body* in)
 }
 
 void Visitor::children_macro_call(Macro_call* in)
+{
+    visit_macro_name(in->macro_name);
+    visit_actual_parameter_list(in->actual_parameters);
+}
+
+void Visitor::children_callback(Callback* in)
 {
     visit_macro_name(in->macro_name);
     visit_actual_parameter_list(in->actual_parameters);
@@ -317,6 +331,13 @@ void Visitor::pre_macro_call_chain(Macro_call* in)
     pre_macro_call((Macro_call*) in);
 }
 
+void Visitor::pre_callback_chain(Callback* in)
+{
+    pre_node((Node*) in);
+    pre_body_part((Body_part*) in);
+    pre_callback((Callback*) in);
+}
+
 void Visitor::pre_macro_name_chain(MACRO_NAME* in)
 {
     pre_node((Node*) in);
@@ -413,6 +434,13 @@ void Visitor::post_body_chain(Body* in)
 void Visitor::post_macro_call_chain(Macro_call* in)
 {
     post_macro_call((Macro_call*) in);
+    post_body_part((Body_part*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_callback_chain(Callback* in)
+{
+    post_callback((Callback*) in);
     post_body_part((Body_part*) in);
     post_node((Node*) in);
 }
@@ -760,6 +788,9 @@ void Visitor::pre_body_part_chain(Body_part* in)
     case PARAM_NAME::ID:
     	pre_param_name_chain(dynamic_cast<PARAM_NAME*>(in));
     	break;
+    case Callback::ID:
+    	pre_callback_chain(dynamic_cast<Callback*>(in));
+    	break;
     }
 }
 
@@ -823,6 +854,9 @@ void Visitor::post_body_part_chain(Body_part* in)
     case PARAM_NAME::ID:
     	post_param_name_chain(dynamic_cast<PARAM_NAME*>(in));
     	break;
+    case Callback::ID:
+    	post_callback_chain(dynamic_cast<Callback*>(in));
+    	break;
     }
 }
 
@@ -885,6 +919,9 @@ void Visitor::children_body_part(Body_part* in)
     	break;
     case PARAM_NAME::ID:
     	children_param_name(dynamic_cast<PARAM_NAME*>(in));
+    	break;
+    case Callback::ID:
+    	children_callback(dynamic_cast<Callback*>(in));
     	break;
     }
 }

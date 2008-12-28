@@ -34,6 +34,7 @@ class TYPE_NAME;
 class ATTR_NAME;
 class Equals;
 class Macro_call;
+class Callback;
 class Interpolation;
 class STRING;
 class C_CODE;
@@ -56,6 +57,7 @@ typedef List<TYPE_NAME*> TYPE_NAME_list;
 typedef List<ATTR_NAME*> ATTR_NAME_list;
 typedef List<Equals*> Equals_list;
 typedef List<Macro_call*> Macro_call_list;
+typedef List<Callback*> Callback_list;
 typedef List<Interpolation*> Interpolation_list;
 typedef List<STRING*> STRING_list;
 typedef List<C_CODE*> C_CODE_list;
@@ -287,7 +289,7 @@ public:
     virtual void assert_valid();
 };
 
-/* Body_part ::= C_CODE | Macro_call | Interpolation; */
+/* Body_part ::= C_CODE | Macro_call | Interpolation | Callback; */
 class Body_part : virtual public Node
 {
 public:
@@ -348,7 +350,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 9;
+    static const int ID = 10;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -377,7 +379,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 10;
+    static const int ID = 11;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -406,7 +408,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 11;
+    static const int ID = 12;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -482,6 +484,36 @@ public:
     virtual void assert_valid();
 };
 
+/* Callback ::= MACRO_NAME Actual_parameter* ; */
+class Callback : virtual public Body_part
+{
+public:
+    Callback(MACRO_NAME* macro_name, Actual_parameter_list* actual_parameters);
+protected:
+    Callback();
+public:
+    MACRO_NAME* macro_name;
+    Actual_parameter_list* actual_parameters;
+public:
+    virtual void visit(Visitor* visitor);
+    virtual void transform_children(Transform* transform);
+public:
+    static const int ID = 9;
+    virtual int classid();
+public:
+    virtual bool match(Node* in);
+public:
+    virtual bool equals(Node* in);
+public:
+    virtual Callback* clone();
+public:
+    virtual Node* find(Node* in);
+public:
+    virtual void find_all(Node* in, Node_list* out);
+public:
+    virtual void assert_valid();
+};
+
 /* Interpolation ::= Lookup | PARAM_NAME; */
 class Interpolation : virtual public Body_part
 {
@@ -519,7 +551,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 13;
+    static const int ID = 14;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -548,7 +580,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 14;
+    static const int ID = 15;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -607,7 +639,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 12;
+    static const int ID = 13;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -624,7 +656,7 @@ public:
 };
 
 /* The top of the class hierarchy. If the Fold will not allow you fold to anything else, try this. */
-class None : virtual public Node, virtual public All, virtual public Macro, virtual public Signature, virtual public Formal_parameter, virtual public Rule, virtual public Lookup, virtual public Equals, virtual public Expr, virtual public Body, virtual public Body_part, virtual public Macro_call, virtual public Actual_parameter, virtual public Interpolation, virtual public MACRO_NAME, virtual public TYPE_NAME, virtual public ATTR_NAME, virtual public PARAM_NAME, virtual public STRING, virtual public C_CODE
+class None : virtual public Node, virtual public All, virtual public Macro, virtual public Signature, virtual public Formal_parameter, virtual public Rule, virtual public Lookup, virtual public Equals, virtual public Expr, virtual public Body, virtual public Body_part, virtual public Macro_call, virtual public Callback, virtual public Actual_parameter, virtual public Interpolation, virtual public MACRO_NAME, virtual public TYPE_NAME, virtual public ATTR_NAME, virtual public PARAM_NAME, virtual public STRING, virtual public C_CODE
 {
 public:
     None();
@@ -723,7 +755,7 @@ public:
 		assert (0); // I'm not sure what this would mean
 	}
 public:
-	static const int ID = 16;
+	static const int ID = 17;
 	int classid()
 	{
 		return ID;

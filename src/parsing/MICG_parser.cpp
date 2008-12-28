@@ -76,12 +76,13 @@ struct MICG_grammar : public grammar<MICG_grammar>
 		attr_name_id,
 		body_id,
 		body_part_list_id,
+		callback_id,
 		c_code_id,
 		equals_id,
 		expr_id,
 		formal_parameter_id,
 		formal_parameter_list_id,
-		interpolation_id = 10,
+		interpolation_id,
 		lookup_id,
 		macro_call_id,
 		macro_id,
@@ -91,7 +92,7 @@ struct MICG_grammar : public grammar<MICG_grammar>
 		quoted_string_id,
 		r_id,
 		_rule_id,
-		_rule_list_id = 20,
+		_rule_list_id,
 		signature_id,
 		type_name_id,
 	};
@@ -105,6 +106,7 @@ struct MICG_grammar : public grammar<MICG_grammar>
 		DECL_RULE(attr_name);
 		DECL_RULE(body);
 		DECL_RULE(body_part_list);
+		DECL_RULE(callback);
 		DECL_RULE(c_code);
 		DECL_RULE(equals);
 		DECL_RULE(expr);
@@ -131,6 +133,7 @@ struct MICG_grammar : public grammar<MICG_grammar>
 			BOOST_SPIRIT_DEBUG_RULE(attr_name);
 			BOOST_SPIRIT_DEBUG_RULE(body);
 			BOOST_SPIRIT_DEBUG_RULE(body_part_list);
+			BOOST_SPIRIT_DEBUG_RULE(callback);
 			BOOST_SPIRIT_DEBUG_RULE(c_code);
 			BOOST_SPIRIT_DEBUG_RULE(equals);
 			BOOST_SPIRIT_DEBUG_RULE(expr);
@@ -157,8 +160,7 @@ struct MICG_grammar : public grammar<MICG_grammar>
 			
 			// A signature line
 			formal_parameter = type_name >> param_name;
-			// TODO: do we need aroot_node_d? i dont think it does anything.
-			formal_parameter_list = root_node_d [list_p(formal_parameter, ',')];
+			formal_parameter_list = list_p(formal_parameter, ',');
 			signature = macro_name >> '(' >> formal_parameter_list >> ')';
 
 			// A rule line
@@ -177,12 +179,13 @@ struct MICG_grammar : public grammar<MICG_grammar>
 			c_code = lexeme_d[leaf_node_d[(anychar_p - '@') >> *(anychar_p - (ch_p('\\') | '$' | '@'))]];
 
 			actual_parameter_list = list_p (param_name | quoted_string, ", ");
-			macro_call = ('\\' >> macro_name >> '(' >> actual_parameter_list >> ");");
+			macro_call = '\\' >> macro_name >> '(' >> actual_parameter_list >> ')' >> !ch_p(';');
+			callback = "\\cb:" >> macro_name >> '(' >> actual_parameter_list >> ')' >> !ch_p(';');
 
 			interpolation = ('$' >> param_name) | ("${" >> lookup >> '}');
 
 			// A template
-			body_part_list = *(macro_call | interpolation | c_code);
+			body_part_list = *(macro_call | callback | interpolation | c_code);
 			body = "@@@" >> body_part_list >> "@@@";
 			macro = signature >> _rule_list >> body;
 
@@ -300,6 +303,7 @@ create_micg_node (tree_iter_t iter)
 		 * Conjunctions and lists
 		 */
 		case MICG_grammar::body_id:
+		case MICG_grammar::callback_id:
 		case MICG_grammar::equals_id:
 		case MICG_grammar::formal_parameter_id:
 		case MICG_grammar::lookup_id:
@@ -315,10 +319,13 @@ create_micg_node (tree_iter_t iter)
 		{
 			Object_list* params = create_micg_list (iter->children);
 
-			// Hack for Spirit 'bug' (see comment at definition). We need one of
-			// these for each conjunction with a list argument.
+			// Hack for Spirit 'bug' (see comment at check_argument_list()
+			// definition). We need one of these for each conjunction with a list
+			// argument.
 			if (id == MICG_grammar::macro_id)
 				params = check_argument_list<Rule> (params, 1);
+			else if (id == MICG_grammar::callback_id)
+				params = check_argument_list<Actual_parameter> (params, 1);
 			else if (id == MICG_grammar::signature_id)
 				params = check_argument_list<Formal_parameter> (params, 1);
 			else if (id == MICG_grammar::body_id)
@@ -333,6 +340,7 @@ create_micg_node (tree_iter_t iter)
 			{
 				node->assert_valid ();
 				file_position pos = iter->value.begin().get_position ();
+				node->attrs->set ("phc.filename", new ::String (pos.file));
 				node->attrs->set ("phc.line_number", new ::Integer (pos.line));
 				node->attrs->set ("phc.column_number", new ::Integer (pos.column));
 			}
@@ -367,7 +375,7 @@ create_micg_node (tree_iter_t iter)
 		case MICG_grammar::type_name_id:
 		{
 			assert (*value != "");
-			DEBUG (" - " << value);
+			DEBUG (" - " << *value);
 
 			result = Node_factory::create (
 					names[id].c_str(),
@@ -403,12 +411,13 @@ create_micg_node (tree_iter_t iter)
 
 
 Macro_list*
-MICG_parser::parse (string str)
+MICG_parser::parse (string str, string filename)
 {
 	names[MICG_grammar::actual_parameter_list_id] = "Actual_parameter_list";
 	names[MICG_grammar::attr_name_id] = "ATTR_NAME";
 	names[MICG_grammar::body_id] = "Body";
 	names[MICG_grammar::body_part_list_id] = "Body_part_list";
+	names[MICG_grammar::callback_id] = "Callback";
 	names[MICG_grammar::c_code_id] = "C_CODE";
 	names[MICG_grammar::equals_id] = "Equals";
 	names[MICG_grammar::formal_parameter_id] = "Formal_parameter";
@@ -434,14 +443,15 @@ MICG_parser::parse (string str)
 	BOOST_SPIRIT_DEBUG_GRAMMAR(g);
 	BOOST_SPIRIT_DEBUG_TRACE_NODE(skipg, false);
 
-	pos_iter_t begin(str.c_str (), str.c_str() + str.size ());
+	pos_iter_t begin(str.c_str (), str.c_str() + str.size (), filename);
 	pos_iter_t end;
+	begin.set_tabchars (1);
 	tree_parse_info<pos_iter_t, node_iter_data_factory<> > info = ast_parse(begin, end, g >> end_p, skipg, node_iter_data_factory<>());
-	begin.set_tab_chars (1);
 
 	file_position pos = info.stop.get_position ();
 
 	DEBUG ("stop: "
+			<< pos.file << ", "
 			<< pos.line << ", "
 			<< pos.column << "\n"
 			<< "full: " << info.full << "\n"

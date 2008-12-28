@@ -17,7 +17,7 @@ class MICG_parser : virtual public GC_obj
 public:
 	MICG_parser ();
 
-	MICG::Macro_list* parse (string str);
+	MICG::Macro_list* parse (string str, string filename);
 };
 
 

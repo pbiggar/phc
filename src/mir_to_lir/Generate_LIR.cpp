@@ -122,6 +122,21 @@ string get_hash (String* name)
 	return ss.str ();
 }
 
+/*
+ * Callbacks
+ */
+string cb_get_hash (string name)
+{
+	return (get_hash (s(name)));
+}
+
+string cb_get_length (string name)
+{
+	return lexical_cast<string> (name.size ());
+}
+
+
+
 string get_hash (VARIABLE_NAME* name)
 {
 	return get_hash (name->value);
@@ -2638,7 +2653,7 @@ templ (string name)
 
 void Generate_LIR::pre_php_script(PHP_script* in)
 {
-	micg.add_macro_def (read_file (s("templates/templates_new.c")));
+	micg.add_macro_def (read_file (s("templates/templates_new.c")), "templates/templates_new.c");
 	include_file (prologue, s("support.c"));
 	include_file (prologue, s("debug.c"));
 	include_file (prologue, s("zval.c"));
@@ -2890,4 +2905,6 @@ void Generate_LIR::post_php_script(PHP_script* in)
 Generate_LIR::Generate_LIR()
 {
 	lir = new LIR::C_file;
+	micg.register_callback ("length", &cb_get_length);
+	micg.register_callback ("hash", &cb_get_hash);
 }

@@ -35,6 +35,7 @@ public:
     virtual void pre_equals(Equals* in, Rule_list* out);
     virtual Body* pre_body(Body* in);
     virtual void pre_macro_call(Macro_call* in, Body_part_list* out);
+    virtual void pre_callback(Callback* in, Body_part_list* out);
     virtual MACRO_NAME* pre_macro_name(MACRO_NAME* in);
     virtual TYPE_NAME* pre_type_name(TYPE_NAME* in);
     virtual ATTR_NAME* pre_attr_name(ATTR_NAME* in);
@@ -51,6 +52,7 @@ public:
     virtual void post_equals(Equals* in, Rule_list* out);
     virtual Body* post_body(Body* in);
     virtual void post_macro_call(Macro_call* in, Body_part_list* out);
+    virtual void post_callback(Callback* in, Body_part_list* out);
     virtual MACRO_NAME* post_macro_name(MACRO_NAME* in);
     virtual TYPE_NAME* post_type_name(TYPE_NAME* in);
     virtual ATTR_NAME* post_attr_name(ATTR_NAME* in);
@@ -67,6 +69,7 @@ public:
     virtual void children_equals(Equals* in);
     virtual void children_body(Body* in);
     virtual void children_macro_call(Macro_call* in);
+    virtual void children_callback(Callback* in);
 /* Tokens don't have children, so these methods do nothing by default */
 public:
     virtual void children_macro_name(MACRO_NAME* in);

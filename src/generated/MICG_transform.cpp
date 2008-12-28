@@ -46,6 +46,11 @@ void Transform::pre_macro_call(Macro_call* in, Body_part_list* out)
     out->push_back(in);
 }
 
+void Transform::pre_callback(Callback* in, Body_part_list* out)
+{
+    out->push_back(in);
+}
+
 MACRO_NAME* Transform::pre_macro_name(MACRO_NAME* in)
 {
     return in;
@@ -113,6 +118,11 @@ Body* Transform::post_body(Body* in)
 }
 
 void Transform::post_macro_call(Macro_call* in, Body_part_list* out)
+{
+    out->push_back(in);
+}
+
+void Transform::post_callback(Callback* in, Body_part_list* out)
 {
     out->push_back(in);
 }
@@ -190,6 +200,12 @@ void Transform::children_body(Body* in)
 }
 
 void Transform::children_macro_call(Macro_call* in)
+{
+    in->macro_name = transform_macro_name(in->macro_name);
+    in->actual_parameters = transform_actual_parameter_list(in->actual_parameters);
+}
+
+void Transform::children_callback(Callback* in)
 {
     in->macro_name = transform_macro_name(in->macro_name);
     in->actual_parameters = transform_actual_parameter_list(in->actual_parameters);
@@ -596,6 +612,15 @@ void Transform::pre_body_part(Body_part* in, Body_part_list* out)
     case PARAM_NAME::ID: 
     	out->push_back(pre_param_name(dynamic_cast<PARAM_NAME*>(in)));
     	return;
+    case Callback::ID: 
+    	{
+    		Body_part_list* local_out = new Body_part_list;
+    		Body_part_list::const_iterator i;
+    		pre_callback(dynamic_cast<Callback*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
     }
     assert(0);
 }
@@ -675,6 +700,15 @@ void Transform::post_body_part(Body_part* in, Body_part_list* out)
     case PARAM_NAME::ID: 
     	out->push_back(post_param_name(dynamic_cast<PARAM_NAME*>(in)));
     	return;
+    case Callback::ID: 
+    	{
+    		Body_part_list* local_out = new Body_part_list;
+    		Body_part_list::const_iterator i;
+    		post_callback(dynamic_cast<Callback*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
     }
     assert(0);
 }
@@ -739,6 +773,9 @@ void Transform::children_body_part(Body_part* in)
     	break;
     case PARAM_NAME::ID:
     	children_param_name(dynamic_cast<PARAM_NAME*>(in));
+    	break;
+    case Callback::ID:
+    	children_callback(dynamic_cast<Callback*>(in));
     	break;
     }
 }

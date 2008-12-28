@@ -1485,6 +1485,200 @@ void Macro_call::assert_valid()
     }
 }
 
+Callback::Callback(MACRO_NAME* macro_name, Actual_parameter_list* actual_parameters)
+{
+    this->macro_name = macro_name;
+    this->actual_parameters = actual_parameters;
+}
+
+Callback::Callback()
+{
+    this->macro_name = 0;
+    this->actual_parameters = 0;
+}
+
+void Callback::visit(Visitor* visitor)
+{
+    visitor->visit_body_part(this);
+}
+
+void Callback::transform_children(Transform* transform)
+{
+    transform->children_body_part(this);
+}
+
+int Callback::classid()
+{
+    return ID;
+}
+
+bool Callback::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Callback* that = dynamic_cast<Callback*>(in);
+    if(that == NULL) return false;
+    
+    if(this->macro_name == NULL)
+    {
+    	if(that->macro_name != NULL && !that->macro_name->match(this->macro_name))
+    		return false;
+    }
+    else if(!this->macro_name->match(that->macro_name))
+    	return false;
+    
+    if(this->actual_parameters != NULL && that->actual_parameters != NULL)
+    {
+    	Actual_parameter_list::const_iterator i, j;
+    	for(
+    		i = this->actual_parameters->begin(), j = that->actual_parameters->begin();
+    		i != this->actual_parameters->end() && j != that->actual_parameters->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL)
+    		{
+    			if(*j != NULL && !(*j)->match(*i))
+    				return false;
+    		}
+    		else if(!(*i)->match(*j))
+    			return false;
+    	}
+    	if(i != this->actual_parameters->end() || j != that->actual_parameters->end())
+    		return false;
+    }
+    
+    return true;
+}
+
+bool Callback::equals(Node* in)
+{
+    Callback* that = dynamic_cast<Callback*>(in);
+    if(that == NULL) return false;
+    
+    if(this->macro_name == NULL || that->macro_name == NULL)
+    {
+    	if(this->macro_name != NULL || that->macro_name != NULL)
+    		return false;
+    }
+    else if(!this->macro_name->equals(that->macro_name))
+    	return false;
+    
+    if(this->actual_parameters == NULL || that->actual_parameters == NULL)
+    {
+    	if(this->actual_parameters != NULL || that->actual_parameters != NULL)
+    		return false;
+    }
+    else
+    {
+    	Actual_parameter_list::const_iterator i, j;
+    	for(
+    		i = this->actual_parameters->begin(), j = that->actual_parameters->begin();
+    		i != this->actual_parameters->end() && j != that->actual_parameters->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL || *j == NULL)
+    		{
+    			if(*i != NULL || *j != NULL)
+    				return false;
+    		}
+    		else if(!(*i)->equals(*j))
+    			return false;
+    	}
+    	if(i != this->actual_parameters->end() || j != that->actual_parameters->end())
+    		return false;
+    }
+    
+    return true;
+}
+
+Callback* Callback::clone()
+{
+    MACRO_NAME* macro_name = this->macro_name ? this->macro_name->clone() : NULL;
+    Actual_parameter_list* actual_parameters = NULL;
+    if(this->actual_parameters != NULL)
+    {
+    	Actual_parameter_list::const_iterator i;
+    	actual_parameters = new Actual_parameter_list;
+    	for(i = this->actual_parameters->begin(); i != this->actual_parameters->end(); i++)
+    		actual_parameters->push_back(*i ? (*i)->clone() : NULL);
+    }
+    Callback* clone = new Callback(macro_name, actual_parameters);
+    return clone;
+}
+
+Node* Callback::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    if (this->macro_name != NULL)
+    {
+    	Node* macro_name_res = this->macro_name->find(in);
+    	if (macro_name_res) return macro_name_res;
+    }
+    
+    if(this->actual_parameters != NULL)
+    {
+    	Actual_parameter_list::const_iterator i;
+    	for(
+    		i = this->actual_parameters->begin();
+    		i != this->actual_parameters->end();
+    		i++)
+    	{
+    		if(*i != NULL)
+    		{
+    			Node* res = (*i)->find (in);
+    			if (res) return res;
+    		}
+    	}
+    }
+    
+    return NULL;
+}
+
+void Callback::find_all(Node* in, Node_list* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+    
+    if (this->macro_name != NULL)
+    	this->macro_name->find_all(in, out);
+    
+    if(this->actual_parameters != NULL)
+    {
+    	Actual_parameter_list::const_iterator i;
+    	for(
+    		i = this->actual_parameters->begin();
+    		i != this->actual_parameters->end();
+    		i++)
+    	{
+    		if(*i != NULL)
+    		{
+    			(*i)->find_all (in, out);
+    		}
+    	}
+    }
+    
+}
+
+void Callback::assert_valid()
+{
+    assert(macro_name != NULL);
+    macro_name->assert_valid();
+    assert(actual_parameters != NULL);
+    {
+    	Actual_parameter_list::const_iterator i;
+    	for(i = this->actual_parameters->begin(); i != this->actual_parameters->end(); i++)
+    	{
+    		assert(*i != NULL);
+    		(*i)->assert_valid();
+    	}
+    }
+}
+
 Interpolation::Interpolation()
 {
 }
