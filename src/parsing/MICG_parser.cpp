@@ -37,23 +37,24 @@ MICG_parser::MICG_parser ()
 }
 
 
-
+/* A skip grammar seemed like a good way to skip comments and whitespace. It
+ * turns out that trying to create exceptions to whitespace parsing is awful,
+ * and frequently almost impossible. However, it is also very difficult to
+ * remove the existance of the skip parser. So we just return nothing_p, which
+ * never matches anything.
+ */
 struct skip_grammar : public grammar<skip_grammar>
 {
 	template <typename ScannerT>
 	struct definition
 	{
-		rule<ScannerT> skip;
-
 		definition (skip_grammar const& self)
 		{
-			BOOST_SPIRIT_DEBUG_TRACE_NODE(skip, false);
-			skip = no_node_d[space_p | comment_p ("//") | comment_p ("/*", "*/")];
 		}
 
-		rule<ScannerT> const& start() const
+		rule<ScannerT> const start() const
 		{ 
-			return skip;
+			return nothing_p;
 		}
 	};
 };
@@ -78,6 +79,7 @@ struct MICG_grammar : public grammar<MICG_grammar>
 		body_part_list_id,
 		callback_id,
 		c_code_id,
+		comment_id,
 		equals_id,
 		expr_id,
 		formal_parameter_id,
@@ -95,6 +97,8 @@ struct MICG_grammar : public grammar<MICG_grammar>
 		_rule_list_id,
 		signature_id,
 		type_name_id,
+		wsc_id,
+		ws_id,
 	};
 
 
@@ -126,6 +130,11 @@ struct MICG_grammar : public grammar<MICG_grammar>
 		DECL_RULE(signature);
 		DECL_RULE(type_name);
 
+		// For ignored tokens, use 0
+		rule<ScannerT, parser_context<>, parser_tag<0> > comment;
+		rule<ScannerT, parser_context<>, parser_tag<0> > til_eol;
+		rule<ScannerT, parser_context<>, parser_tag<0> > ws;
+		rule<ScannerT, parser_context<>, parser_tag<0> > wsc;
 
 		definition (MICG_grammar const& self)
 		{
@@ -151,23 +160,35 @@ struct MICG_grammar : public grammar<MICG_grammar>
 			BOOST_SPIRIT_DEBUG_RULE(_rule_list);
 			BOOST_SPIRIT_DEBUG_RULE(signature);
 			BOOST_SPIRIT_DEBUG_RULE(type_name);
+			BOOST_SPIRIT_DEBUG_RULE(comment);
+			BOOST_SPIRIT_DEBUG_RULE(ws);
+			BOOST_SPIRIT_DEBUG_RULE(wsc);
+			BOOST_SPIRIT_DEBUG_RULE(comment_p);
+			BOOST_SPIRIT_DEBUG_RULE(space_p);
+			BOOST_SPIRIT_DEBUG_RULE(no_node_d);
+			BOOST_SPIRIT_DEBUG_RULE(til_eol);
 
-			attr_name = lexeme_d[leaf_node_d[+(alpha_p | '_')]];
-			macro_name = lexeme_d[leaf_node_d[+(alpha_p | '_')]];
-			param_name = lexeme_d[leaf_node_d[+(upper_p | '_')]];
-			quoted_string = lexeme_d[leaf_node_d[confix_p ('"', *anychar_p, '"')]];
-			type_name = lexeme_d[leaf_node_d[+lower_p]];
+			comment = no_node_d[comment_p ("/*", "*/")] | no_node_d[comment_p ("//")];
+			ws = *no_node_d[space_p];
+			wsc = *(no_node_d[space_p] | comment);
+			til_eol = *(blank_p | comment) >> eol_p;
+
+			attr_name = leaf_node_d[+(alpha_p | '_')];
+			macro_name = leaf_node_d[+(alpha_p | '_')];
+			param_name = leaf_node_d[+(upper_p | '_')];
+			quoted_string = leaf_node_d[confix_p ('"', *anychar_p, '"')];
+			type_name = leaf_node_d[+lower_p];
 			
 			// A signature line
-			formal_parameter = type_name >> param_name;
-			formal_parameter_list = list_p(formal_parameter, ',');
-			signature = macro_name >> '(' >> formal_parameter_list >> ')';
+			formal_parameter = type_name >> wsc >> param_name;
+			formal_parameter_list = list_p(formal_parameter, wsc >> ',' >> wsc);
+			signature = macro_name >> wsc >> '(' >> wsc >> formal_parameter_list >> wsc >> ')' >> wsc;
 
 			// A rule line
 			lookup = param_name >> "." >> attr_name;
 			expr = lookup | param_name | quoted_string;
-			equals = expr >> "==" >> expr;
-			_rule = "where" >> (equals | lookup);
+			equals = expr >> wsc >> "==" >> wsc >> expr;
+			_rule = "where" >> wsc >> (equals | lookup) >> wsc;
 			_rule_list = *_rule;
 
 			// Bodies
@@ -176,20 +197,20 @@ struct MICG_grammar : public grammar<MICG_grammar>
 			// them as the first character only. Since we match interpolation and
 			// macro_call before c_code, if C_code stops on $ and \\, it will try
 			// macro_call and interpolation before it incorporates '$' and '\\'.
-			c_code = lexeme_d[leaf_node_d[(anychar_p - '@') >> *(anychar_p - (ch_p('\\') | '$' | '@'))]];
+			c_code = leaf_node_d[(anychar_p - '@') >> *(anychar_p - (ch_p('\\') | '$' | '@'))];
 
 			actual_parameter_list = list_p (param_name | quoted_string, ", ");
-			macro_call = '\\' >> macro_name >> '(' >> actual_parameter_list >> ')' >> !ch_p(';');
-			callback = "\\cb:" >> macro_name >> '(' >> actual_parameter_list >> ')' >> !ch_p(';');
+			macro_call = '\\' >> macro_name >> wsc >> '(' >> actual_parameter_list >> ')' >> !ch_p(';');
+			callback = "\\cb:" >> macro_name >> wsc >> '(' >> actual_parameter_list >> ')' >> !ch_p(';');
 
 			interpolation = ('$' >> param_name) | ("${" >> lookup >> '}');
 
 			// A template
 			body_part_list = *(macro_call | callback | interpolation | c_code);
-			body = "@@@" >> body_part_list >> "@@@";
+			body = "@@@" >> !til_eol >> body_part_list >> "@@@";
 			macro = signature >> _rule_list >> body;
 
-			macro_list = *macro;
+			macro_list = wsc >> *(macro >> wsc);
 			r = macro_list;
 		}
 
@@ -293,7 +314,7 @@ create_micg_node (tree_iter_t iter)
 
 
 	long id = iter->value.id ().to_long ();
-	assert (id == 0 || names[id] != "");
+	assert (id == 0 || names[id] != ""); // non-id'ed rules use their address.
 	String* value = s(string (iter->value.begin(), iter->value.end()));
 	DEBUG ("entering " << id << " (" << names[id] << ")");
 

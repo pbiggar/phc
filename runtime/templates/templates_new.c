@@ -80,8 +80,8 @@ assign_expr_ref_var (token LHS, token RHS)
 @@@
   \get_st_entry ("LOCAL", "p_lhs", LHS);
   \get_st_entry ("LOCAL", "p_rhs", RHS);
-  sep_copy_on_write ("p_rhs");
-  copy_into_ref ("p_lhs", "p_rhs");
+  sep_copy_on_write (p_rhs);
+  copy_into_ref (p_lhs, p_rhs);
 @@@
 
 /*
@@ -236,7 +236,7 @@ read_rvalue (string ZVP, token VAR)
 
 read_rvalue (string ZVP, token TVAR)
 @@@
-  zval* $ZVP = read_var (\scope("LOCAL");, "$TVAR", \cb:length(TVAR); + 1, \cb:hash(TVAR); TSRMLS_CC);
+  zval* $ZVP = read_var (\scope("LOCAL");, "$TVAR", \cb:length(TVAR) + 1, \cb:hash(TVAR) TSRMLS_CC);
 @@@
 
 

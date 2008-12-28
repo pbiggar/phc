@@ -745,7 +745,7 @@ public:
 		if (!agn->is_ref)
 			code << gen->micg.instantiate ("assign_expr_var", lhs->value, rhs->value);
 		else
-			templ ("assign_expr_ref_var", lhs->value->value, rhs->value->value, lhs->value, rhs->value);
+			code << gen->micg.instantiate ("assign_expr_ref_var", lhs->value, rhs->value);
 	}
 
 protected:
