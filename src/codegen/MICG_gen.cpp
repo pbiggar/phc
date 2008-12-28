@@ -68,6 +68,15 @@ MICG_gen::add_macro_def (string str)
 		add_macro (m);
 }
 
+string
+MICG_gen::instantiate (string macro_name, Object_list* params) 
+{
+	Macro* m = get_macro (macro_name, params);
+
+	// Coerce the data appropriately.
+	Symtable* symtable = get_symtable (macro_name, m->signature->formal_parameters, params);
+	return instantiate_body (m->body, symtable);
+}
 
 string
 MICG_gen::instantiate (string macro_name, Object* obj1, Object* obj2) 
@@ -77,61 +86,31 @@ MICG_gen::instantiate (string macro_name, Object* obj1, Object* obj2)
 	params->push_back (obj1);
 	params->push_back (obj2);
 
-	Macro* m = get_macro (macro_name, params);
-
-	// Coerce the data appropriately.
-	Symtable* symtable = get_symtable (macro_name, m->signature->formal_parameters, params);
-	return instantiate_body (m->body, symtable);
-}
-
-Object*
-Symtable::get_attr (string param_name, string attr_name)
-{
-	MIR::Node* node = dyc<MIR::Node> (get (param_name));
-	assert (node);
-
-	// We are interested in attributes of either prefix, but are not interested
-	// in writing out the full prefices.
-	string ann1 = "phc.codegen.";
-	string ann2 = "phc.optimize.";
-
-	ann1.append (attr_name);
-	ann2.append (attr_name);
-
-	if (node->attrs->has (ann1))
-		return node->attrs->get (ann1);
-		
-	if (node->attrs->has (ann2))
-		return node->attrs->get (ann2);
-
-	return new Boolean (false);
+	return instantiate (macro_name, params);
 }
 
 bool
 MICG_gen::suitable (Macro* macro, Object_list* params)
 {
-	Symtable* symtable = get_symtable (*macro->signature->macro_name->value, 
-		macro->signature->formal_parameters, params);
+	Symtable* symtable = get_symtable (
+			*macro->signature->macro_name->value, 
+			macro->signature->formal_parameters,
+			params);
 
 	// Check if the rules match.
 	foreach (Rule* rule, *macro->rules)
 	{
 		if (Lookup* l = dynamic_cast <Lookup*> (rule))
 		{
-			Object* obj = symtable->get_attr (*l->param_name->value, *l->attr_name->value);
-			if (!isa<Boolean> (obj))
-				phc_internal_error ("Expecting Boolean in lookup, got string");
-
-			return dyc<Boolean> (obj)->value();
+			String* str = dyc<String> (symtable->get_lookup (l, true));
+			return *str != MICG_FALSE;
 		}
 		else if (Equals* e = dynamic_cast<Equals*> (rule))
 		{
-//			Object* left = get_expr_value (e->left);
-//			Object* right = get_expr_value (e->right);
-//			if (type (left) != type (right))
-//				fail
+			String* left = dyc<String> (symtable->get_expr (e->left, true));
+			String* right = dyc<String> (symtable->get_expr (e->right, true));
 
-			assert (0);
+			return *left == *right;
 		}
 	}
 
@@ -178,7 +157,7 @@ MICG_gen::check_type (TYPE_NAME* type_name, Object* obj)
 		return;
 
 	phc_internal_error ("Object of type %s does not match expected type %s",
-		demangle (obj, true), tn.c_str ());
+		type_name, demangle (obj, true), tn.c_str ());
 }
 
 string
@@ -191,16 +170,119 @@ MICG_gen::instantiate_body (Body* body, Symtable* symtable)
 		{
 			ss << *c_code->value;
 		}
-		else if (Interpolation* interp = dynamic_cast<Interpolation> (body_part))
+		else if (Interpolation* interp = dynamic_cast<Interpolation*> (body_part))
 		{
-			assert (0);
+			Object* obj =
+				symtable->get_expr (reinterpret_cast<Expr*> (interp), false);
+
+			if (!isa<String> (obj) && !isa<MIR::Identifier> (obj))
+				phc_internal_error ("Cannot interpolate %s", interp,
+				demangle (obj));
+
+			ss << *symtable->convert_to_string (obj);
 		}
-		else if (Macro_call* mc = dynamic_cast<Macro_call> (body_part))
+		else if (Macro_call* mc = dynamic_cast<Macro_call*> (body_part))
 		{
-			assert (0);
+			Object_list* params = new Object_list;
+			foreach (Actual_parameter* ap, *mc->actual_parameters)
+			{
+				params->push_back (
+					symtable->get_expr (reinterpret_cast<Expr*> (ap)));
+			}
+			ss << instantiate (*mc->macro_name->value, params);
 		}
 		else
 			phc_unreachable ();
 	}
 	return ss.str ();
+}
+
+
+/*
+ * Symtable
+ */
+
+Object*
+Symtable::get_lookup (Lookup* in, bool coerce)
+{
+	string param_name = *in->param_name->value;
+	string attr_name = *in->attr_name->value;
+
+	assert (this->has (param_name));
+	MIR::Node* node = dyc<MIR::Node> (this->get (param_name));
+
+	// We are interested in attributes of either prefix, but are not interested
+	// in writing out the full prefices.
+	string ann1 = "phc.codegen.";
+	string ann2 = "phc.optimize.";
+
+	ann1.append (attr_name);
+	ann2.append (attr_name);
+
+	Object* result;
+	if (node->attrs->has (ann1))
+		result = node->attrs->get (ann1);
+	else if (node->attrs->has (ann2))
+		result = node->attrs->get (ann2);
+	else if (coerce)
+		result = new Boolean (false);
+	else
+		phc_internal_error (
+			"Attempt to access invalid attribute '%s' without coercion",
+			in, attr_name.c_str ());
+
+
+	if (coerce || isa<Boolean> (result))
+		result = convert_to_string (result);
+
+	return result;
+}
+
+Object*
+Symtable::get_param (PARAM_NAME* param, bool coerce)
+{
+	Object* result = this->get (*param->value);
+
+	if (coerce || isa<Boolean> (result))
+		result = convert_to_string (result);
+
+	return result;
+}
+
+// If coerce is true, coerce the data to a String or Boolean.
+Object*
+Symtable::get_expr (Expr* in, bool coerce)
+{
+	// Caution: because a caller uses reinterpret_cast, a dynamic_cast doesnt
+	// work. However, a dyc() works just fine.
+	if (isa<STRING> (in))
+		return dyc<STRING> (in)->value;
+
+	if (isa<Lookup> (in))
+		return this->get_lookup (dyc<Lookup> (in), coerce);
+
+	if (isa<PARAM_NAME> (in))
+		return this->get_param (dyc<PARAM_NAME> (in), coerce);
+	
+	phc_unreachable ();
+}
+
+String*
+Symtable::convert_to_string (Object* in)
+{
+	if (Boolean* b = dynamic_cast<Boolean*> (in))
+	{
+		if (b->value ())
+			return s(MICG_TRUE);
+		else
+			return s(MICG_FALSE);
+	}
+
+	if (MIR::Identifier* id = dynamic_cast<MIR::Identifier*> (in))
+		return id->get_value_as_string ();
+
+	if (String* str = dynamic_cast<String*> (in))
+		return str;
+
+	return s(MICG_TRUE);
 }

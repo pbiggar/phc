@@ -34,26 +34,24 @@ public:
 		string param_name = *in->param_name->value;
 		if (symtable.has (param_name))
 			phc_internal_error ("More than 1 parameter named %s in %s",
-			param_name.c_str(), macro_name.c_str());
+			in, param_name.c_str(), macro_name.c_str());
 
 		symtable[param_name] = type_name;
 	}
 
 	void pre_lookup (MICG::Lookup* lookup)
 	{
-		string param_name = *lookup->param_name->value;
-
-		if (!symtable.has (param_name))
-			phc_internal_error ("%d:%d No param named %s in %s",
-				lookup->get_line_number(), lookup->get_column_number (),
-				param_name.c_str (), macro_name.c_str ());
-
 		// TODO: Check the type is Token or Node
 	}
 
 	void pre_param_name (MICG::PARAM_NAME* in)
 	{
-		// Check the param is declared
+		string param_name = *in->value;
+
+		if (!symtable.has (param_name))
+			phc_internal_error ("%d:%d No param named %s in %s",
+				in->get_line_number(), in->get_column_number (),
+				param_name.c_str (), macro_name.c_str ());
 	}
 
 	void pre_interpolation (MICG::Interpolation* in)

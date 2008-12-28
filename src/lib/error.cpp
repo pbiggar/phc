@@ -11,6 +11,7 @@
 #include "HIR.h"
 #include "MIR.h"
 #include "LIR.h"
+#include "MICG.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -115,13 +116,16 @@ define_node_message_func (warning, WARNING, AST::Node);
 define_node_message_func (warning, WARNING, HIR::Node);
 define_node_message_func (warning, WARNING, MIR::Node);
 define_node_message_func (warning, WARNING, LIR::Node);
+define_node_message_func (warning, WARNING, MICG::Node);
 
 define_node_message_func (error, ERROR, AST::Node);
 define_node_message_func (error, ERROR, HIR::Node);
 define_node_message_func (error, ERROR, MIR::Node);
 define_node_message_func (error, ERROR, LIR::Node);
+define_node_message_func (error, ERROR, MICG::Node);
 
 define_node_message_func (internal_error, INTERNAL_ERROR, AST::Node);
 define_node_message_func (internal_error, INTERNAL_ERROR, HIR::Node);
 define_node_message_func (internal_error, INTERNAL_ERROR, MIR::Node);
 define_node_message_func (internal_error, INTERNAL_ERROR, LIR::Node);
+define_node_message_func (internal_error, INTERNAL_ERROR, MICG::Node);

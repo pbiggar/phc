@@ -948,8 +948,7 @@ public:
 		return new Bin_op (left, op, right); 
 	}
 
-
-	void generate_code (String* comment, Generate_LIR* gen)
+	void generate_code (Generate_LIR* gen)
 	{
 		assert (lhs);
 		assert (op_functions.has (*op->value->value));

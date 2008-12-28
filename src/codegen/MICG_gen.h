@@ -13,13 +13,27 @@
 #include "lib/String.h"
 #include "lib/Map.h"
 
+#define MICG_TRUE "TRUE"
+#define MICG_FALSE "FALSE"
 namespace MICG
 {
 
 class Symtable : public Map<string, Object*>
 {
 public:
-	Object* get_attr (string param_name, string attr_name);
+	// Each of these returns a String or Node. If coerce is set, a Node will
+	// be converted to a String with convert_to_string. Booleans are always
+	// converted.
+	Object* get_lookup (Lookup*, bool coerce = false);
+	Object* get_param (PARAM_NAME*, bool coerce = false);
+	Object* get_expr (Expr* expr, bool coerce = false);
+
+	// Convert an Object to a String:
+	//		Booleans are converted to MICG_TRUE/MICG_FALSE
+	//		Identifiers are converted using get_value_as_string.
+	//		Other Objects are converted to "true" (this allows lookups to
+	//		succeed if they find anything).
+	String* convert_to_string (Object*);
 };
 
 }
@@ -35,6 +49,7 @@ public:
 	// and overloading operators is hassle. The simplest thing is just to have
 	// one signature of each length we need, and assume we wont need more thn 8
 	// arguments or so.
+	string instantiate (string macro_name, Object_list* objs);
 	string instantiate (string macro_name, Object* obj1, Object* obj2);
 
 	// Check that the signature matches (its not called 'matches' to avoid

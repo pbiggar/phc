@@ -56,7 +56,7 @@ assign_expr_var (token LHS, token RHS)
    where LHS.st_entry_not_required
    where LHS.is_uninitialized
 @@@
-  zval** p_lhs = &local_$L;
+  zval** p_lhs = &local_$LHS;
   \read_rvalue ("rhs", RHS);
   \write_var ("p_lhs", "rhs", LHS, RHS);
 @@@
@@ -105,7 +105,7 @@ assign_expr_bin_op (token LHS, node LEFT, node RIGHT, string OP_FN)
   \read_rvalue ("left", LEFT);
   \read_rvalue ("right", RIGHT);
 
-  p_lhs = &local_$L;
+  p_lhs = &local_$LHS;
   ALLOC_INIT_ZVAL (*p_lhs);
 
   $OP_FN (*p_lhs, left, right TSRMLS_CC);
@@ -147,7 +147,7 @@ assign_expr_var_var (token LHS, token INDEX)
   \read_var_var ("rhs", "index");
   if (*p_lhs != rhs)
     {
-      \write_var ("p_lhs", "rhs", LHS, INDEX);
+      \write_var (LHS, INDEX);
     }
 @@@
 
@@ -174,7 +174,7 @@ get_st_entry (string SCOPE, string ZVP, token VAR)
 @@@
   if (local_$VAR == NULL)
     {
-      local_$VAR = EG (uninitialized~_zval_ptr);
+      local_$VAR = EG (uninitialized_zval_ptr);
       local_$VAR->refcount++;
     }
   zval** $ZVP = &local_$VAR;
@@ -234,9 +234,9 @@ read_rvalue (string ZVP, token VAR)
     $ZVP = local_$VAR;
 @@@
 
-read_rvalue (string ZVP, token VAR)
+read_rvalue (string ZVP, token TVAR)
 @@@
-  zval* $ZVP = read_var (\scope("LOCAL"), "$VAR", ${VAR.length} + 1, ${VAR.hash} TSRMLS_CC);
+  zval* $ZVP = read_var (\scope("LOCAL");, "$TVAR", ${TVAR.length} + 1, ${TVAR.hash} TSRMLS_CC);
 @@@
 
 
@@ -244,25 +244,25 @@ read_rvalue (string ZVP, token VAR)
  * write_var
  */
 
-write_var (token LHS, token RHS)
-   where LHS.is_uninitialized
+write_var (string LHS, string RHS, token TLHS, token TRHS)
+   where TLHS.is_uninitialized
 @@@
-  \write_var_inner (L, R, RHS);
+  \write_var_inner (LHS, RHS, TLHS, TRHS);
 @@@
 
-write_var (token LHS, token RHS)
+write_var (string LHS, string RHS, token TLHS, token TRHS)
 @@@
   if ((*$LHS)->is_ref)
       overwrite_lhs (*$LHS, $RHS);
   else
     {
       zval_ptr_dtor ($LHS);
-      \write_var_inner (LHS, RHS);
+      \write_var_inner (LHS, RHS, TLHS, TRHS);
     }
 @@@
 
-write_var_inner (token LHS, token RHS)
-   where RHS.is_uninitialized
+write_var_inner (string LHS, string RHS, token TLHS, token TRHS)
+   where TRHS.is_uninitialized
 @@@
   // Share a copy
   $RHS->refcount++;
@@ -270,7 +270,7 @@ write_var_inner (token LHS, token RHS)
 @@@
 
 
-write_var_inner (token LHS, token RHS)
+write_var_inner (string LHS, string RHS, token TLHS, token TRHS)
 @@@
   if ($RHS->is_ref)
     {
