@@ -22,23 +22,20 @@
 #include "ast_to_hir/Split_unset_isset.h"
 #include "ast_to_hir/Strip_comments.h"
 #include "cmdline.h"
+#include "codegen/Clarify.h"
 #include "codegen/Compile_C.h"
 #include "codegen/Generate_C.h"
+#include "codegen/Generate_C_annotations.h"
+#include "codegen/Lift_functions_and_classes.h"
 #include "embed/embed.h"
 #include "hir_to_mir/HIR_to_MIR.h"
 #include "hir_to_mir/Lower_control_flow.h"
 #include "hir_to_mir/Lower_dynamic_definitions.h"
 #include "hir_to_mir/Lower_method_invocations.h"
-#include "mir_to_lir/Clarify.h"
-#include "mir_to_lir/Generate_LIR_annotations.h"
-#include "mir_to_lir/Generate_LIR.h"
-#include "mir_to_lir/Generate_LIR.h"
-#include "mir_to_lir/Lift_functions_and_classes.h"
 #include "optimize/Address_taken.h"
 #include "optimize/Dead_code_elimination.h"
 #include "optimize/Def_use.h"
 #include "optimize/If_simplification.h"
-#include "optimize/lir/Use_initialized.h"
 #include "optimize/Live_variable_analysis.h"
 #include "optimize/Mark_initialized.h"
 #include "optimize/Prune_symbol_table.h"
@@ -194,23 +191,12 @@ int main(int argc, char** argv)
 	pm->add_optimization (new Mark_initialized (), s("mvi"), s("Mark variable initialization status"), false);
 	pm->add_optimization_pass (new Fake_pass (s("drop_ssa"), s("Drop SSA form")));
 
-
-//	name = new String ("generate-c");
-//	description = new String ("Generate LIR code from the MIR");
-	// TODO: Generate_LIR is called direct by the pass manager... Not a great plan if we want to allow --debug.
-
-	// lir passes
-	pm->add_codegen_transform (new Out_of_SSA (), s("outssa"), s("Remove SSA constructs"));
-
-	pm->add_codegen_visitor (new Generate_LIR_annotations, s("lirann"), s("Codegen annotation"));
-	pm->add_codegen_pass (new Fake_pass (s("MIR-to-LIR"), s("The MIR in its final form")));
-
-	// Use ss to pass generated code between Generate_C and Compile_C
+	// codegen passes
 	stringstream ss;
-	pm->add_lir_pass (new Fake_pass (s("lir"), s("Low-level Internal Representation - constructs representing generated code, at a slightly higher level than C")));
-	pm->add_lir_transform (new Use_initialized (), s("use-init"), s("Use results of mvi pass"));
-	pm->add_lir_pass (new Generate_C (ss));
-	pm->add_lir_pass (new Compile_C (ss));
+	pm->add_codegen_transform (new Out_of_SSA (), s("outssa"), s("Remove SSA constructs"));
+	pm->add_codegen_visitor (new Generate_C_annotations, s("cgann"), s("Codegen annotation"));
+	pm->add_codegen_pass (new Generate_C (ss));
+	pm->add_codegen_pass (new Compile_C (ss));
 
 
 	// Plugins add their passes to the pass manager
@@ -300,7 +286,6 @@ int main(int argc, char** argv)
 				ir->visit (
 					new Read_fresh_suffix_counter, 
 					new Read_fresh_suffix_counter, 
-					new Read_fresh_suffix_counter, 
 					new Read_fresh_suffix_counter);
 				// TODO:
 				// this should add a pass
@@ -323,7 +308,6 @@ int main(int argc, char** argv)
 
 			// Avoid overwriting source variables.
 			ir->visit (
-				new Read_fresh_suffix_counter, 
 				new Read_fresh_suffix_counter, 
 				new Read_fresh_suffix_counter, 
 				new Read_fresh_suffix_counter);

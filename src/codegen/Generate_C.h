@@ -12,7 +12,6 @@
 #define PHC_GENERATE_C
 
 #include "MIR_visitor.h"
-#include "LIR.h"
 #include "pass_manager/Pass.h"
 
 class Generate_C : public Pass

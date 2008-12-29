@@ -86,10 +86,18 @@ libphc_la_SOURCES= 											\
 	src/ast_to_hir/Split_unset_isset.h					\
 	src/ast_to_hir/Strip_comments.cpp					\
 	src/ast_to_hir/Strip_comments.h						\
+	src/codegen/Clarify.cpp									\
+	src/codegen/Clarify.h									\
 	src/codegen/Compile_C.cpp								\
 	src/codegen/Compile_C.h									\
 	src/codegen/Generate_C.cpp								\
 	src/codegen/Generate_C.h								\
+	src/codegen/Generate_LIR_annotations.cpp			\
+	src/codegen/Generate_LIR_annotations.h				\
+	src/codegen/Generate_LIR.cpp							\
+	src/codegen/Generate_LIR.h								\
+	src/codegen/Lift_functions_and_classes.cpp		\
+	src/codegen/Lift_functions_and_classes.h			\
 	src/codegen/MICG_checker.cpp							\
 	src/codegen/MICG_checker.h								\
 	src/codegen/MICG_gen.cpp								\
@@ -123,16 +131,6 @@ libphc_la_SOURCES= 											\
 	src/generated/HIR_visitor.h							\
 	src/generated/keywords.h								\
 	src/generated/lex.yy.cc									\
-	src/generated/LIR.cpp									\
-	src/generated/LIR_factory.cpp							\
-	src/generated/LIR_factory.h							\
-	src/generated/LIR_fold.h								\
-	src/generated/LIR.h										\
-	src/generated/LIR_transform.cpp						\
-	src/generated/LIR_transform.h							\
-	src/generated/LIR_user_defined.h						\
-	src/generated/LIR_visitor.cpp							\
-	src/generated/LIR_visitor.h							\
 	src/generated/MICG.cpp									\
 	src/generated/MICG_factory.cpp						\
 	src/generated/MICG_factory.h							\
@@ -187,14 +185,6 @@ libphc_la_SOURCES= 											\
 	src/lib/String.cpp										\
 	src/lib/String.h											\
 	src/lib/Vector.h											\
-	src/mir_to_lir/Clarify.cpp								\
-	src/mir_to_lir/Clarify.h								\
-	src/mir_to_lir/Generate_LIR_annotations.cpp		\
-	src/mir_to_lir/Generate_LIR_annotations.h			\
-	src/mir_to_lir/Generate_LIR.cpp						\
-	src/mir_to_lir/Generate_LIR.h							\
-	src/mir_to_lir/Lift_functions_and_classes.cpp	\
-	src/mir_to_lir/Lift_functions_and_classes.h		\
 	src/optimize/Address_taken.cpp						\
 	src/optimize/Address_taken.h							\
 	src/optimize/Basic_block.cpp							\
@@ -215,8 +205,6 @@ libphc_la_SOURCES= 											\
 	src/optimize/If_simplification.h						\
 	src/optimize/Lattice.cpp								\
 	src/optimize/Lattice.h									\
-	src/optimize/lir/Use_initialized.cpp				\
-	src/optimize/lir/Use_initialized.h					\
 	src/optimize/Live_variable_analysis.cpp			\
 	src/optimize/Live_variable_analysis.h				\
 	src/optimize/Mark_initialized.cpp					\
@@ -238,10 +226,10 @@ libphc_la_SOURCES= 											\
 	src/optimize/ssa/Into_SSA.h							\
 	src/optimize/ssa/Out_of_SSA.h							\
 	src/optimize/ssa/Phi.cpp								\
-	src/optimize/Type_inference.cpp						\
-	src/optimize/Type_inference.h							\
 	src/optimize/ssa/Phi.h									\
 	src/optimize/ssa/SSA.cpp								\
+	src/optimize/Type_inference.cpp						\
+	src/optimize/Type_inference.h							\
 	src/optimize/ssa/SSA.h									\
 	src/optimize/ssa/SSA_ops.cpp							\
 	src/optimize/ssa/SSA_ops.h								\
@@ -251,8 +239,6 @@ libphc_la_SOURCES= 											\
 	src/optimize/Var_set.cpp								\
 	src/optimize/Visit_once.cpp							\
 	src/optimize/Visit_once.h								\
-	src/parsing/LIR_parser.cpp								\
-	src/parsing/LIR_parser.h								\
 	src/parsing/MICG_parser.cpp							\
 	src/parsing/MICG_parser.h								\
 	src/parsing/Parse_buffer.cpp							\
@@ -313,8 +299,6 @@ libphc_la_SOURCES= 											\
 	src/process_ir/stats.h									\
 	src/process_ir/XML_unparser.cpp						\
 	src/process_ir/XML_unparser.h							\
-	src/process_lir/LIR_unparser.cpp						\
-	src/process_lir/LIR_unparser.h						\
 	src/process_mir/Alias_uppering.cpp					\
 	src/process_mir/Alias_uppering.h						\
 	src/process_mir/Foreach_uppering.cpp				\
@@ -354,16 +338,6 @@ BUILT_SOURCES = 												\
 	src/generated/HIR_visitor.h							\
 	src/generated/keywords.h								\
 	src/generated/lex.yy.cc									\
-	src/generated/LIR.cpp									\
-	src/generated/LIR_factory.cpp							\
-	src/generated/LIR_factory.h							\
-	src/generated/LIR_fold.h								\
-	src/generated/LIR.h										\
-	src/generated/LIR_transform.cpp						\
-	src/generated/LIR_transform.h							\
-	src/generated/LIR_user_defined.h						\
-	src/generated/LIR_visitor.cpp							\
-	src/generated/LIR_visitor.h							\
 	src/generated/MICG.cpp									\
 	src/generated/MICG_factory.cpp						\
 	src/generated/MICG_factory.h							\
@@ -412,12 +386,6 @@ strangephc_HEADERS =							\
 	src/generated/HIR_transform.h			\
 	src/generated/HIR_user_defined.h		\
 	src/generated/HIR_visitor.h			\
-	src/generated/LIR_factory.h			\
-	src/generated/LIR_fold.h				\
-	src/generated/LIR.h						\
-	src/generated/LIR_transform.h			\
-	src/generated/LIR_user_defined.h		\
-	src/generated/LIR_visitor.h			\
 	src/generated/MIR_factory.h			\
 	src/generated/MIR_fold.h				\
 	src/generated/MIR.h						\
@@ -441,10 +409,6 @@ strangeprocessast_HEADERS =					\
 strangeprocesshirdir = $(pkgincludedir)/process_hir
 strangeprocesshir_HEADERS =					\
 	src/process_hir/HIR_unparser.h
-
-strangeprocesslirdir = $(pkgincludedir)/process_lir
-strangeprocesslir_HEADERS =					\
-	src/process_lir/LIR_unparser.h
 
 strangeprocessmirdir = $(pkgincludedir)/process_mir
 strangeprocessmir_HEADERS =					\
@@ -626,20 +590,6 @@ src/generated/HIR_visitor.h:			src/generated/HIR.h
 src/generated/HIR.h: src/generated_src/hir.tea @maketea@
 	@maketea@ src/generated_src/hir.tea
 
-src/generated/LIR.cpp: 					src/generated/LIR.h
-src/generated/LIR_factory.cpp:		src/generated/LIR.h
-src/generated/LIR_factory.h:			src/generated/LIR.h
-src/generated/LIR_fold.h:				src/generated/LIR.h
-src/generated/LIR_transform.cpp:		src/generated/LIR.h
-src/generated/LIR_transform.h:		src/generated/LIR.h
-src/generated/LIR_user_defined.h:	src/generated/LIR.h
-src/generated/LIR_visitor.cpp:		src/generated/LIR.h
-src/generated/LIR_visitor.h:			src/generated/LIR.h
-#src/generated/schema.xsd:				src/generated/LIR.h
-
-src/generated/LIR.h: src/generated_src/lir.tea @maketea@
-	@maketea@ src/generated_src/lir.tea
-
 src/generated/MIR.cpp: 					src/generated/MIR.h
 src/generated/MIR_factory.cpp:		src/generated/MIR.h
 src/generated/MIR_factory.h:			src/generated/MIR.h
@@ -667,7 +617,6 @@ src/generated/MICG_visitor.h:			src/generated/MICG.h
 
 src/generated/MICG.h: src/generated_src/micg.tea @maketea@
 	@maketea@ src/generated_src/micg.tea
-
 
 
 src/generated/keywords.h: src/generated_src/php.gperf 

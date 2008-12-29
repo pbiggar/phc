@@ -17,7 +17,6 @@
 namespace AST { class Node; }
 namespace HIR { class Node; }
 namespace MIR { class Node; }
-namespace LIR { class Node; }
 
 #define CHECK_DEBUG() if (!debugging_enabled) return;
 #define DEBUG(A) do { if (debugging_enabled) { cdebug << A << std::endl; } } while (0)
@@ -38,11 +37,6 @@ void xadebug (HIR::Node* in);
 void debug (MIR::Node* in);
 void xdebug (MIR::Node* in);
 void xadebug (MIR::Node* in);
-
-void debug (LIR::Node* in);
-void xdebug (LIR::Node* in);
-void xadebug (LIR::Node* in);
-
 
 extern std::ostream& cdebug;
 void enable_cdebug ();

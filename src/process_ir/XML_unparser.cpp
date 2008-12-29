@@ -147,7 +147,6 @@ public:
 			state->os << " xmlns:AST=\"http://www.phpcompiler.org/phc-1.1\"";
 			state->os << " xmlns:HIR=\"http://www.phpcompiler.org/phc-1.1\"";
 			state->os << " xmlns:MIR=\"http://www.phpcompiler.org/phc-1.1\"";
-			state->os << " xmlns:LIR=\"http://www.phpcompiler.org/phc-1.1\"";
 			state->os << " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"";
 		}
 
@@ -457,53 +456,6 @@ public:
 
 };
 
-#include "LIR_visitor.h"
-/*
- * A number of these types dont have an equivalent in the LIR, but we want the
- * unparser to work anyway. So we use MIR types to satisfy the type checker,
- * and it wont come up in real life, since the LIR wont have an MIR node in it.
- */
-class LIR_XML_unparser : public XML_unparser
-<
-	LIR::PHP_script, 
-	LIR::Node, 
-	LIR::Visitor,
-	LIR::Identifier,
-	MIR::Literal,
-	MIR::NIL,
-	MIR::CAST,
-	MIR::FOREIGN
-> 
-{
-public:
-	LIR_XML_unparser(ostream& os = std::cout, bool print_attrs = true, bool convert_base_64 = true)
-	: XML_unparser<
-			LIR::PHP_script,
-			LIR::Node,
-			LIR::Visitor,
-			LIR::Identifier,
-			MIR::Literal,
-			MIR::NIL,
-			MIR::CAST,
-			MIR::FOREIGN
-		> ("LIR", os, print_attrs, convert_base_64)
-	{
-	}
-
-	LIR_XML_unparser(XML_unparser_state* state)
-	: XML_unparser<
-			LIR::PHP_script,
-			LIR::Node,
-			LIR::Visitor,
-			LIR::Identifier,
-			MIR::Literal,
-			MIR::NIL,
-			MIR::CAST,
-			MIR::FOREIGN
-		> ("LIR", state)
-	{
-	}
-};
 
 
 
@@ -538,21 +490,14 @@ void xml_unparse (MIR::Node* in, XML_unparser_state* state)
 	in->visit (new MIR_XML_unparser (state));
 }
 
-void xml_unparse (LIR::Node* in, XML_unparser_state* state)
-{
-	in->visit (new LIR_XML_unparser (state));
-}
-
 void xml_unparse (IR::Node* in, XML_unparser_state* state)
 {
 	if (isa<AST::Node> (in))
 		xml_unparse (dyc<AST::Node> (in), state);
 	else if (isa<HIR::Node> (in))
 		xml_unparse (dyc<HIR::Node> (in), state);
-	else if (isa<MIR::Node> (in))
-		xml_unparse (dyc<MIR::Node> (in), state);
 	else
-		xml_unparse (dyc<LIR::Node> (in), state);
+		xml_unparse (dyc<MIR::Node> (in), state);
 }
 
 void xml_unparse (AST::Node* in, std::ostream& os, bool print_attrs, bool convert_base_64)
@@ -570,13 +515,6 @@ void xml_unparse (MIR::Node* in, std::ostream& os, bool print_attrs, bool conver
   in->visit (new MIR_XML_unparser (os, print_attrs, convert_base_64));
 }
 
-void xml_unparse (LIR::Node* in, std::ostream& os, bool print_attrs, bool convert_base_64)
-{
-	in->visit (new LIR_XML_unparser (os, print_attrs, convert_base_64));
-}
-
-
-
 
 
 
@@ -586,8 +524,6 @@ void xml_unparse (IR::PHP_script* in, std::ostream& os, bool print_attrs, bool c
 		xml_unparse (dyc<AST::Node> (in), os, print_attrs, convert_base_64);
 	else if (isa<HIR::PHP_script> (in))
 		xml_unparse (dyc<HIR::Node> (in), os, print_attrs, convert_base_64);
-	else if (isa<MIR::PHP_script> (in))
-		xml_unparse (dyc<MIR::Node> (in), os, print_attrs, convert_base_64);
 	else
-		xml_unparse (dyc<LIR::Node> (in), os, print_attrs, convert_base_64);
+		xml_unparse (dyc<MIR::Node> (in), os, print_attrs, convert_base_64);
 }

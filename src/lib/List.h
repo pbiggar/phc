@@ -30,7 +30,6 @@ SET_CLONABLE(IR::PHP_script)
 #include "AST_user_defined.h"
 #include "HIR_user_defined.h"
 #include "MIR_user_defined.h"
-#include "LIR_user_defined.h"
 #undef MAKETEA_USER_DEFINED
 
 /*

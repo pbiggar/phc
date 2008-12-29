@@ -34,11 +34,9 @@ void shutdown_xml ();
 #include "AST.h"
 #include "HIR.h"
 #include "MIR.h"
-#include "LIR.h"
 #include "AST_factory.h"
 #include "HIR_factory.h"
 #include "MIR_factory.h"
-#include "LIR_factory.h"
 
 #include "cmdline.h"
 extern struct gengetopt_args_info args_info;
@@ -193,22 +191,6 @@ class MIR_node_builder : public T_Node_builder
 	}
 };
 
-class LIR_node_builder : public T_Node_builder
-<
-	// We dont have LIR types that correspond, so just use the MIR types to
-	// satisfy the typechecker.
-	LIR::Node_factory,
-	LIR::STRING,
-	MIR::CAST,
-	LIR::INT,
-	MIR::REAL,
-	MIR::BOOL,
-	MIR::NIL,
-	MIR::FOREIGN
->
-{
-};
-
 class PHC_SAX2Handler : public DefaultHandler, public virtual GC_obj
 {
 protected:
@@ -232,7 +214,6 @@ public:
 		builders["AST"] = new AST_node_builder;
 		builders["HIR"] = new HIR_node_builder;
 		builders["MIR"] = new MIR_node_builder;
-		builders["LIR"] = new LIR_node_builder;
 	}
 
 public:
@@ -320,7 +301,7 @@ public:
 		char* name = XMLString::transcode(localname);
 
 		String* ns = s (string (XMLString::transcode(qname)).substr (0, 3));
-		if (*ns != "AST" && *ns != "HIR" && *ns != "MIR" && *ns != "LIR")
+		if (*ns != "AST" && *ns != "HIR" && *ns != "MIR")
 			ns = NULL;
 
 

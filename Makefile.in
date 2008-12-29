@@ -51,10 +51,10 @@ DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
 	$(strangelib_HEADERS) $(strangeparsing_HEADERS) \
 	$(strangepassmanager_HEADERS) $(strangephc_HEADERS) \
 	$(strangeprocessast_HEADERS) $(strangeprocesshir_HEADERS) \
-	$(strangeprocessir_HEADERS) $(strangeprocesslir_HEADERS) \
-	$(strangeprocessmir_HEADERS) $(top_srcdir)/configure ChangeLog \
-	config/config.guess config/config.sub config/depcomp \
-	config/install-sh config/ltmain.sh config/missing
+	$(strangeprocessir_HEADERS) $(strangeprocessmir_HEADERS) \
+	$(top_srcdir)/configure ChangeLog config/config.guess \
+	config/config.sub config/depcomp config/install-sh \
+	config/ltmain.sh config/missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
 	$(top_srcdir)/configure.ac
@@ -80,7 +80,6 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkglibdir)" \
 	"$(DESTDIR)$(strangeprocessastdir)" \
 	"$(DESTDIR)$(strangeprocesshirdir)" \
 	"$(DESTDIR)$(strangeprocessirdir)" \
-	"$(DESTDIR)$(strangeprocesslirdir)" \
 	"$(DESTDIR)$(strangeprocessmirdir)"
 libLTLIBRARIES_INSTALL = $(INSTALL)
 nobase_pkglibLTLIBRARIES_INSTALL = $(install_sh) -c
@@ -91,37 +90,35 @@ am_libphc_la_OBJECTS = getopt1.lo getopt.lo AST_annotate.lo \
 	Early_lower_control_flow.lo Echo_split.lo List_shredder.lo \
 	Lower_expr_flow.lo Pre_post_op_shredder.lo \
 	Split_multiple_arguments.lo Split_unset_isset.lo \
-	Strip_comments.lo Compile_C.lo Generate_C.lo MICG_checker.lo \
-	MICG_gen.lo embed.lo optimize.lo util.lo AST.lo AST_factory.lo \
+	Strip_comments.lo Clarify.lo Compile_C.lo Generate_C.lo \
+	Generate_LIR_annotations.lo Generate_LIR.lo \
+	Lift_functions_and_classes.lo MICG_checker.lo MICG_gen.lo \
+	embed.lo optimize.lo util.lo AST.lo AST_factory.lo \
 	AST_transform.lo AST_visitor.lo cmdline.lo HIR.lo \
 	HIR_factory.lo HIR_transform.lo HIR_visitor.lo lex.yy.lo \
-	LIR.lo LIR_factory.lo LIR_transform.lo LIR_visitor.lo MICG.lo \
-	MICG_factory.lo MICG_transform.lo MICG_visitor.lo MIR.lo \
-	MIR_factory.lo MIR_transform.lo MIR_visitor.lo \
+	MICG.lo MICG_factory.lo MICG_transform.lo MICG_visitor.lo \
+	MIR.lo MIR_factory.lo MIR_transform.lo MIR_visitor.lo \
 	php_parser.tab.lo HIR_lower_expr.lo Lower_control_flow.lo \
 	Lower_dynamic_definitions.lo Lower_method_invocations.lo \
 	AttrMap.lo base64.lo Boolean.lo demangle.lo error.lo escape.lo \
-	Integer.lo Object.lo String.lo Clarify.lo \
-	Generate_LIR_annotations.lo Generate_LIR.lo \
-	Lift_functions_and_classes.lo Address_taken.lo Basic_block.lo \
+	Integer.lo Object.lo String.lo Address_taken.lo Basic_block.lo \
 	CFG.lo CFG_visitor.lo Dead_code_elimination.lo Def_use.lo \
 	Edge.lo Flow_visitor.lo If_simplification.lo Lattice.lo \
-	Use_initialized.lo Live_variable_analysis.lo \
-	Mark_initialized.lo Oracle.lo Prune_symbol_table.lo \
-	Remove_loop_booleans.lo SCCP.lo Sparse_conditional_visitor.lo \
-	Dominance.lo HSSA.lo Phi.lo Type_inference.lo SSA.lo \
-	SSA_ops.lo Virtual_variable.lo Var_set.lo Visit_once.lo \
-	LIR_parser.lo MICG_parser.lo Parse_buffer.lo parse.lo \
-	PHP_context.lo XML_parser.lo Optimization_pass.lo \
+	Live_variable_analysis.lo Mark_initialized.lo Oracle.lo \
+	Prune_symbol_table.lo Remove_loop_booleans.lo SCCP.lo \
+	Sparse_conditional_visitor.lo Dominance.lo HSSA.lo Phi.lo \
+	SSA.lo Type_inference.lo SSA_ops.lo Virtual_variable.lo \
+	Var_set.lo Visit_once.lo MICG_parser.lo Parse_buffer.lo \
+	parse.lo PHP_context.lo XML_parser.lo Optimization_pass.lo \
 	Pass_manager.lo Plugin_pass.lo AST_unparser.lo \
 	Constant_folding.lo DOT_unparser.lo Invalid_check.lo \
 	Note_top_level_declarations.lo Process_includes.lo \
 	Remove_concat_null.lo Remove_parser_temporaries.lo \
 	Strip_unparser_attributes.lo Token_conversion.lo \
 	HIR_unparser.lo debug.lo fresh.lo General.lo IR.lo \
-	PHP_unparser.lo stats.lo XML_unparser.lo LIR_unparser.lo \
-	Alias_uppering.lo Foreach_uppering.lo Goto_uppering.lo \
-	MIR_unparser.lo Param_is_ref_uppering.lo
+	PHP_unparser.lo stats.lo XML_unparser.lo Alias_uppering.lo \
+	Foreach_uppering.lo Goto_uppering.lo MIR_unparser.lo \
+	Param_is_ref_uppering.lo
 libphc_la_OBJECTS = $(am_libphc_la_OBJECTS)
 plugins_tests_canonical_unparser_la_LIBADD =
 am_plugins_tests_canonical_unparser_la_OBJECTS =  \
@@ -430,13 +427,11 @@ strangephcHEADERS_INSTALL = $(INSTALL_HEADER)
 strangeprocessastHEADERS_INSTALL = $(INSTALL_HEADER)
 strangeprocesshirHEADERS_INSTALL = $(INSTALL_HEADER)
 strangeprocessirHEADERS_INSTALL = $(INSTALL_HEADER)
-strangeprocesslirHEADERS_INSTALL = $(INSTALL_HEADER)
 strangeprocessmirHEADERS_INSTALL = $(INSTALL_HEADER)
 HEADERS = $(strangelib_HEADERS) $(strangeparsing_HEADERS) \
 	$(strangepassmanager_HEADERS) $(strangephc_HEADERS) \
 	$(strangeprocessast_HEADERS) $(strangeprocesshir_HEADERS) \
-	$(strangeprocessir_HEADERS) $(strangeprocesslir_HEADERS) \
-	$(strangeprocessmir_HEADERS)
+	$(strangeprocessir_HEADERS) $(strangeprocessmir_HEADERS)
 RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
 ETAGS = etags
@@ -645,10 +640,18 @@ libphc_la_SOURCES = \
 	src/ast_to_hir/Split_unset_isset.h					\
 	src/ast_to_hir/Strip_comments.cpp					\
 	src/ast_to_hir/Strip_comments.h						\
+	src/codegen/Clarify.cpp									\
+	src/codegen/Clarify.h									\
 	src/codegen/Compile_C.cpp								\
 	src/codegen/Compile_C.h									\
 	src/codegen/Generate_C.cpp								\
 	src/codegen/Generate_C.h								\
+	src/codegen/Generate_LIR_annotations.cpp			\
+	src/codegen/Generate_LIR_annotations.h				\
+	src/codegen/Generate_LIR.cpp							\
+	src/codegen/Generate_LIR.h								\
+	src/codegen/Lift_functions_and_classes.cpp		\
+	src/codegen/Lift_functions_and_classes.h			\
 	src/codegen/MICG_checker.cpp							\
 	src/codegen/MICG_checker.h								\
 	src/codegen/MICG_gen.cpp								\
@@ -682,16 +685,6 @@ libphc_la_SOURCES = \
 	src/generated/HIR_visitor.h							\
 	src/generated/keywords.h								\
 	src/generated/lex.yy.cc									\
-	src/generated/LIR.cpp									\
-	src/generated/LIR_factory.cpp							\
-	src/generated/LIR_factory.h							\
-	src/generated/LIR_fold.h								\
-	src/generated/LIR.h										\
-	src/generated/LIR_transform.cpp						\
-	src/generated/LIR_transform.h							\
-	src/generated/LIR_user_defined.h						\
-	src/generated/LIR_visitor.cpp							\
-	src/generated/LIR_visitor.h							\
 	src/generated/MICG.cpp									\
 	src/generated/MICG_factory.cpp						\
 	src/generated/MICG_factory.h							\
@@ -746,14 +739,6 @@ libphc_la_SOURCES = \
 	src/lib/String.cpp										\
 	src/lib/String.h											\
 	src/lib/Vector.h											\
-	src/mir_to_lir/Clarify.cpp								\
-	src/mir_to_lir/Clarify.h								\
-	src/mir_to_lir/Generate_LIR_annotations.cpp		\
-	src/mir_to_lir/Generate_LIR_annotations.h			\
-	src/mir_to_lir/Generate_LIR.cpp						\
-	src/mir_to_lir/Generate_LIR.h							\
-	src/mir_to_lir/Lift_functions_and_classes.cpp	\
-	src/mir_to_lir/Lift_functions_and_classes.h		\
 	src/optimize/Address_taken.cpp						\
 	src/optimize/Address_taken.h							\
 	src/optimize/Basic_block.cpp							\
@@ -774,8 +759,6 @@ libphc_la_SOURCES = \
 	src/optimize/If_simplification.h						\
 	src/optimize/Lattice.cpp								\
 	src/optimize/Lattice.h									\
-	src/optimize/lir/Use_initialized.cpp				\
-	src/optimize/lir/Use_initialized.h					\
 	src/optimize/Live_variable_analysis.cpp			\
 	src/optimize/Live_variable_analysis.h				\
 	src/optimize/Mark_initialized.cpp					\
@@ -797,10 +780,10 @@ libphc_la_SOURCES = \
 	src/optimize/ssa/Into_SSA.h							\
 	src/optimize/ssa/Out_of_SSA.h							\
 	src/optimize/ssa/Phi.cpp								\
-	src/optimize/Type_inference.cpp						\
-	src/optimize/Type_inference.h							\
 	src/optimize/ssa/Phi.h									\
 	src/optimize/ssa/SSA.cpp								\
+	src/optimize/Type_inference.cpp						\
+	src/optimize/Type_inference.h							\
 	src/optimize/ssa/SSA.h									\
 	src/optimize/ssa/SSA_ops.cpp							\
 	src/optimize/ssa/SSA_ops.h								\
@@ -810,8 +793,6 @@ libphc_la_SOURCES = \
 	src/optimize/Var_set.cpp								\
 	src/optimize/Visit_once.cpp							\
 	src/optimize/Visit_once.h								\
-	src/parsing/LIR_parser.cpp								\
-	src/parsing/LIR_parser.h								\
 	src/parsing/MICG_parser.cpp							\
 	src/parsing/MICG_parser.h								\
 	src/parsing/Parse_buffer.cpp							\
@@ -872,8 +853,6 @@ libphc_la_SOURCES = \
 	src/process_ir/stats.h									\
 	src/process_ir/XML_unparser.cpp						\
 	src/process_ir/XML_unparser.h							\
-	src/process_lir/LIR_unparser.cpp						\
-	src/process_lir/LIR_unparser.h						\
 	src/process_mir/Alias_uppering.cpp					\
 	src/process_mir/Alias_uppering.h						\
 	src/process_mir/Foreach_uppering.cpp				\
@@ -913,16 +892,6 @@ BUILT_SOURCES = \
 	src/generated/HIR_visitor.h							\
 	src/generated/keywords.h								\
 	src/generated/lex.yy.cc									\
-	src/generated/LIR.cpp									\
-	src/generated/LIR_factory.cpp							\
-	src/generated/LIR_factory.h							\
-	src/generated/LIR_fold.h								\
-	src/generated/LIR.h										\
-	src/generated/LIR_transform.cpp						\
-	src/generated/LIR_transform.h							\
-	src/generated/LIR_user_defined.h						\
-	src/generated/LIR_visitor.cpp							\
-	src/generated/LIR_visitor.h							\
 	src/generated/MICG.cpp									\
 	src/generated/MICG_factory.cpp						\
 	src/generated/MICG_factory.h							\
@@ -972,12 +941,6 @@ strangephc_HEADERS = \
 	src/generated/HIR_transform.h			\
 	src/generated/HIR_user_defined.h		\
 	src/generated/HIR_visitor.h			\
-	src/generated/LIR_factory.h			\
-	src/generated/LIR_fold.h				\
-	src/generated/LIR.h						\
-	src/generated/LIR_transform.h			\
-	src/generated/LIR_user_defined.h		\
-	src/generated/LIR_visitor.h			\
 	src/generated/MIR_factory.h			\
 	src/generated/MIR_fold.h				\
 	src/generated/MIR.h						\
@@ -1001,10 +964,6 @@ strangeprocessast_HEADERS = \
 strangeprocesshirdir = $(pkgincludedir)/process_hir
 strangeprocesshir_HEADERS = \
 	src/process_hir/HIR_unparser.h
-
-strangeprocesslirdir = $(pkgincludedir)/process_lir
-strangeprocesslir_HEADERS = \
-	src/process_lir/LIR_unparser.h
 
 strangeprocessmirdir = $(pkgincludedir)/process_mir
 strangeprocessmir_HEADERS = \
@@ -1426,12 +1385,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/InsertDB.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Integer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Invalid_check.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LIR.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LIR_factory.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LIR_parser.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LIR_transform.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LIR_unparser.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LIR_visitor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Lattice.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Lift_functions_and_classes.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/List_shredder.Plo@am__quote@
@@ -1482,7 +1435,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Strip_unparser_attributes.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Token_conversion.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Type_inference.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Use_initialized.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Var_set.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Virtual_variable.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Visit_once.Plo@am__quote@
@@ -1672,6 +1624,13 @@ Strip_comments.lo: src/ast_to_hir/Strip_comments.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Strip_comments.lo `test -f 'src/ast_to_hir/Strip_comments.cpp' || echo '$(srcdir)/'`src/ast_to_hir/Strip_comments.cpp
 
+Clarify.lo: src/codegen/Clarify.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Clarify.lo -MD -MP -MF $(DEPDIR)/Clarify.Tpo -c -o Clarify.lo `test -f 'src/codegen/Clarify.cpp' || echo '$(srcdir)/'`src/codegen/Clarify.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Clarify.Tpo $(DEPDIR)/Clarify.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Clarify.cpp' object='Clarify.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Clarify.lo `test -f 'src/codegen/Clarify.cpp' || echo '$(srcdir)/'`src/codegen/Clarify.cpp
+
 Compile_C.lo: src/codegen/Compile_C.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Compile_C.lo -MD -MP -MF $(DEPDIR)/Compile_C.Tpo -c -o Compile_C.lo `test -f 'src/codegen/Compile_C.cpp' || echo '$(srcdir)/'`src/codegen/Compile_C.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Compile_C.Tpo $(DEPDIR)/Compile_C.Plo
@@ -1685,6 +1644,27 @@ Generate_C.lo: src/codegen/Generate_C.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Generate_C.cpp' object='Generate_C.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Generate_C.lo `test -f 'src/codegen/Generate_C.cpp' || echo '$(srcdir)/'`src/codegen/Generate_C.cpp
+
+Generate_LIR_annotations.lo: src/codegen/Generate_LIR_annotations.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Generate_LIR_annotations.lo -MD -MP -MF $(DEPDIR)/Generate_LIR_annotations.Tpo -c -o Generate_LIR_annotations.lo `test -f 'src/codegen/Generate_LIR_annotations.cpp' || echo '$(srcdir)/'`src/codegen/Generate_LIR_annotations.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Generate_LIR_annotations.Tpo $(DEPDIR)/Generate_LIR_annotations.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Generate_LIR_annotations.cpp' object='Generate_LIR_annotations.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Generate_LIR_annotations.lo `test -f 'src/codegen/Generate_LIR_annotations.cpp' || echo '$(srcdir)/'`src/codegen/Generate_LIR_annotations.cpp
+
+Generate_LIR.lo: src/codegen/Generate_LIR.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Generate_LIR.lo -MD -MP -MF $(DEPDIR)/Generate_LIR.Tpo -c -o Generate_LIR.lo `test -f 'src/codegen/Generate_LIR.cpp' || echo '$(srcdir)/'`src/codegen/Generate_LIR.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Generate_LIR.Tpo $(DEPDIR)/Generate_LIR.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Generate_LIR.cpp' object='Generate_LIR.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Generate_LIR.lo `test -f 'src/codegen/Generate_LIR.cpp' || echo '$(srcdir)/'`src/codegen/Generate_LIR.cpp
+
+Lift_functions_and_classes.lo: src/codegen/Lift_functions_and_classes.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Lift_functions_and_classes.lo -MD -MP -MF $(DEPDIR)/Lift_functions_and_classes.Tpo -c -o Lift_functions_and_classes.lo `test -f 'src/codegen/Lift_functions_and_classes.cpp' || echo '$(srcdir)/'`src/codegen/Lift_functions_and_classes.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Lift_functions_and_classes.Tpo $(DEPDIR)/Lift_functions_and_classes.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Lift_functions_and_classes.cpp' object='Lift_functions_and_classes.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Lift_functions_and_classes.lo `test -f 'src/codegen/Lift_functions_and_classes.cpp' || echo '$(srcdir)/'`src/codegen/Lift_functions_and_classes.cpp
 
 MICG_checker.lo: src/codegen/MICG_checker.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT MICG_checker.lo -MD -MP -MF $(DEPDIR)/MICG_checker.Tpo -c -o MICG_checker.lo `test -f 'src/codegen/MICG_checker.cpp' || echo '$(srcdir)/'`src/codegen/MICG_checker.cpp
@@ -1783,34 +1763,6 @@ lex.yy.lo: src/generated/lex.yy.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/generated/lex.yy.cc' object='lex.yy.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o lex.yy.lo `test -f 'src/generated/lex.yy.cc' || echo '$(srcdir)/'`src/generated/lex.yy.cc
-
-LIR.lo: src/generated/LIR.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT LIR.lo -MD -MP -MF $(DEPDIR)/LIR.Tpo -c -o LIR.lo `test -f 'src/generated/LIR.cpp' || echo '$(srcdir)/'`src/generated/LIR.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/LIR.Tpo $(DEPDIR)/LIR.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/generated/LIR.cpp' object='LIR.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o LIR.lo `test -f 'src/generated/LIR.cpp' || echo '$(srcdir)/'`src/generated/LIR.cpp
-
-LIR_factory.lo: src/generated/LIR_factory.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT LIR_factory.lo -MD -MP -MF $(DEPDIR)/LIR_factory.Tpo -c -o LIR_factory.lo `test -f 'src/generated/LIR_factory.cpp' || echo '$(srcdir)/'`src/generated/LIR_factory.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/LIR_factory.Tpo $(DEPDIR)/LIR_factory.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/generated/LIR_factory.cpp' object='LIR_factory.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o LIR_factory.lo `test -f 'src/generated/LIR_factory.cpp' || echo '$(srcdir)/'`src/generated/LIR_factory.cpp
-
-LIR_transform.lo: src/generated/LIR_transform.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT LIR_transform.lo -MD -MP -MF $(DEPDIR)/LIR_transform.Tpo -c -o LIR_transform.lo `test -f 'src/generated/LIR_transform.cpp' || echo '$(srcdir)/'`src/generated/LIR_transform.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/LIR_transform.Tpo $(DEPDIR)/LIR_transform.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/generated/LIR_transform.cpp' object='LIR_transform.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o LIR_transform.lo `test -f 'src/generated/LIR_transform.cpp' || echo '$(srcdir)/'`src/generated/LIR_transform.cpp
-
-LIR_visitor.lo: src/generated/LIR_visitor.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT LIR_visitor.lo -MD -MP -MF $(DEPDIR)/LIR_visitor.Tpo -c -o LIR_visitor.lo `test -f 'src/generated/LIR_visitor.cpp' || echo '$(srcdir)/'`src/generated/LIR_visitor.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/LIR_visitor.Tpo $(DEPDIR)/LIR_visitor.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/generated/LIR_visitor.cpp' object='LIR_visitor.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o LIR_visitor.lo `test -f 'src/generated/LIR_visitor.cpp' || echo '$(srcdir)/'`src/generated/LIR_visitor.cpp
 
 MICG.lo: src/generated/MICG.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT MICG.lo -MD -MP -MF $(DEPDIR)/MICG.Tpo -c -o MICG.lo `test -f 'src/generated/MICG.cpp' || echo '$(srcdir)/'`src/generated/MICG.cpp
@@ -1966,34 +1918,6 @@ String.lo: src/lib/String.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o String.lo `test -f 'src/lib/String.cpp' || echo '$(srcdir)/'`src/lib/String.cpp
 
-Clarify.lo: src/mir_to_lir/Clarify.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Clarify.lo -MD -MP -MF $(DEPDIR)/Clarify.Tpo -c -o Clarify.lo `test -f 'src/mir_to_lir/Clarify.cpp' || echo '$(srcdir)/'`src/mir_to_lir/Clarify.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Clarify.Tpo $(DEPDIR)/Clarify.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/mir_to_lir/Clarify.cpp' object='Clarify.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Clarify.lo `test -f 'src/mir_to_lir/Clarify.cpp' || echo '$(srcdir)/'`src/mir_to_lir/Clarify.cpp
-
-Generate_LIR_annotations.lo: src/mir_to_lir/Generate_LIR_annotations.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Generate_LIR_annotations.lo -MD -MP -MF $(DEPDIR)/Generate_LIR_annotations.Tpo -c -o Generate_LIR_annotations.lo `test -f 'src/mir_to_lir/Generate_LIR_annotations.cpp' || echo '$(srcdir)/'`src/mir_to_lir/Generate_LIR_annotations.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Generate_LIR_annotations.Tpo $(DEPDIR)/Generate_LIR_annotations.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/mir_to_lir/Generate_LIR_annotations.cpp' object='Generate_LIR_annotations.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Generate_LIR_annotations.lo `test -f 'src/mir_to_lir/Generate_LIR_annotations.cpp' || echo '$(srcdir)/'`src/mir_to_lir/Generate_LIR_annotations.cpp
-
-Generate_LIR.lo: src/mir_to_lir/Generate_LIR.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Generate_LIR.lo -MD -MP -MF $(DEPDIR)/Generate_LIR.Tpo -c -o Generate_LIR.lo `test -f 'src/mir_to_lir/Generate_LIR.cpp' || echo '$(srcdir)/'`src/mir_to_lir/Generate_LIR.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Generate_LIR.Tpo $(DEPDIR)/Generate_LIR.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/mir_to_lir/Generate_LIR.cpp' object='Generate_LIR.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Generate_LIR.lo `test -f 'src/mir_to_lir/Generate_LIR.cpp' || echo '$(srcdir)/'`src/mir_to_lir/Generate_LIR.cpp
-
-Lift_functions_and_classes.lo: src/mir_to_lir/Lift_functions_and_classes.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Lift_functions_and_classes.lo -MD -MP -MF $(DEPDIR)/Lift_functions_and_classes.Tpo -c -o Lift_functions_and_classes.lo `test -f 'src/mir_to_lir/Lift_functions_and_classes.cpp' || echo '$(srcdir)/'`src/mir_to_lir/Lift_functions_and_classes.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Lift_functions_and_classes.Tpo $(DEPDIR)/Lift_functions_and_classes.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/mir_to_lir/Lift_functions_and_classes.cpp' object='Lift_functions_and_classes.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Lift_functions_and_classes.lo `test -f 'src/mir_to_lir/Lift_functions_and_classes.cpp' || echo '$(srcdir)/'`src/mir_to_lir/Lift_functions_and_classes.cpp
-
 Address_taken.lo: src/optimize/Address_taken.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Address_taken.lo -MD -MP -MF $(DEPDIR)/Address_taken.Tpo -c -o Address_taken.lo `test -f 'src/optimize/Address_taken.cpp' || echo '$(srcdir)/'`src/optimize/Address_taken.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Address_taken.Tpo $(DEPDIR)/Address_taken.Plo
@@ -2063,13 +1987,6 @@ Lattice.lo: src/optimize/Lattice.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Lattice.cpp' object='Lattice.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Lattice.lo `test -f 'src/optimize/Lattice.cpp' || echo '$(srcdir)/'`src/optimize/Lattice.cpp
-
-Use_initialized.lo: src/optimize/lir/Use_initialized.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Use_initialized.lo -MD -MP -MF $(DEPDIR)/Use_initialized.Tpo -c -o Use_initialized.lo `test -f 'src/optimize/lir/Use_initialized.cpp' || echo '$(srcdir)/'`src/optimize/lir/Use_initialized.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Use_initialized.Tpo $(DEPDIR)/Use_initialized.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/lir/Use_initialized.cpp' object='Use_initialized.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Use_initialized.lo `test -f 'src/optimize/lir/Use_initialized.cpp' || echo '$(srcdir)/'`src/optimize/lir/Use_initialized.cpp
 
 Live_variable_analysis.lo: src/optimize/Live_variable_analysis.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Live_variable_analysis.lo -MD -MP -MF $(DEPDIR)/Live_variable_analysis.Tpo -c -o Live_variable_analysis.lo `test -f 'src/optimize/Live_variable_analysis.cpp' || echo '$(srcdir)/'`src/optimize/Live_variable_analysis.cpp
@@ -2141,19 +2058,19 @@ Phi.lo: src/optimize/ssa/Phi.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Phi.lo `test -f 'src/optimize/ssa/Phi.cpp' || echo '$(srcdir)/'`src/optimize/ssa/Phi.cpp
 
-Type_inference.lo: src/optimize/Type_inference.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Type_inference.lo -MD -MP -MF $(DEPDIR)/Type_inference.Tpo -c -o Type_inference.lo `test -f 'src/optimize/Type_inference.cpp' || echo '$(srcdir)/'`src/optimize/Type_inference.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Type_inference.Tpo $(DEPDIR)/Type_inference.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Type_inference.cpp' object='Type_inference.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Type_inference.lo `test -f 'src/optimize/Type_inference.cpp' || echo '$(srcdir)/'`src/optimize/Type_inference.cpp
-
 SSA.lo: src/optimize/ssa/SSA.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT SSA.lo -MD -MP -MF $(DEPDIR)/SSA.Tpo -c -o SSA.lo `test -f 'src/optimize/ssa/SSA.cpp' || echo '$(srcdir)/'`src/optimize/ssa/SSA.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/SSA.Tpo $(DEPDIR)/SSA.Plo
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/ssa/SSA.cpp' object='SSA.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o SSA.lo `test -f 'src/optimize/ssa/SSA.cpp' || echo '$(srcdir)/'`src/optimize/ssa/SSA.cpp
+
+Type_inference.lo: src/optimize/Type_inference.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Type_inference.lo -MD -MP -MF $(DEPDIR)/Type_inference.Tpo -c -o Type_inference.lo `test -f 'src/optimize/Type_inference.cpp' || echo '$(srcdir)/'`src/optimize/Type_inference.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Type_inference.Tpo $(DEPDIR)/Type_inference.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Type_inference.cpp' object='Type_inference.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Type_inference.lo `test -f 'src/optimize/Type_inference.cpp' || echo '$(srcdir)/'`src/optimize/Type_inference.cpp
 
 SSA_ops.lo: src/optimize/ssa/SSA_ops.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT SSA_ops.lo -MD -MP -MF $(DEPDIR)/SSA_ops.Tpo -c -o SSA_ops.lo `test -f 'src/optimize/ssa/SSA_ops.cpp' || echo '$(srcdir)/'`src/optimize/ssa/SSA_ops.cpp
@@ -2182,13 +2099,6 @@ Visit_once.lo: src/optimize/Visit_once.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Visit_once.cpp' object='Visit_once.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Visit_once.lo `test -f 'src/optimize/Visit_once.cpp' || echo '$(srcdir)/'`src/optimize/Visit_once.cpp
-
-LIR_parser.lo: src/parsing/LIR_parser.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT LIR_parser.lo -MD -MP -MF $(DEPDIR)/LIR_parser.Tpo -c -o LIR_parser.lo `test -f 'src/parsing/LIR_parser.cpp' || echo '$(srcdir)/'`src/parsing/LIR_parser.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/LIR_parser.Tpo $(DEPDIR)/LIR_parser.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/parsing/LIR_parser.cpp' object='LIR_parser.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o LIR_parser.lo `test -f 'src/parsing/LIR_parser.cpp' || echo '$(srcdir)/'`src/parsing/LIR_parser.cpp
 
 MICG_parser.lo: src/parsing/MICG_parser.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT MICG_parser.lo -MD -MP -MF $(DEPDIR)/MICG_parser.Tpo -c -o MICG_parser.lo `test -f 'src/parsing/MICG_parser.cpp' || echo '$(srcdir)/'`src/parsing/MICG_parser.cpp
@@ -2371,13 +2281,6 @@ XML_unparser.lo: src/process_ir/XML_unparser.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_ir/XML_unparser.cpp' object='XML_unparser.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o XML_unparser.lo `test -f 'src/process_ir/XML_unparser.cpp' || echo '$(srcdir)/'`src/process_ir/XML_unparser.cpp
-
-LIR_unparser.lo: src/process_lir/LIR_unparser.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT LIR_unparser.lo -MD -MP -MF $(DEPDIR)/LIR_unparser.Tpo -c -o LIR_unparser.lo `test -f 'src/process_lir/LIR_unparser.cpp' || echo '$(srcdir)/'`src/process_lir/LIR_unparser.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/LIR_unparser.Tpo $(DEPDIR)/LIR_unparser.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_lir/LIR_unparser.cpp' object='LIR_unparser.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o LIR_unparser.lo `test -f 'src/process_lir/LIR_unparser.cpp' || echo '$(srcdir)/'`src/process_lir/LIR_unparser.cpp
 
 Alias_uppering.lo: src/process_mir/Alias_uppering.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Alias_uppering.lo -MD -MP -MF $(DEPDIR)/Alias_uppering.Tpo -c -o Alias_uppering.lo `test -f 'src/process_mir/Alias_uppering.cpp' || echo '$(srcdir)/'`src/process_mir/Alias_uppering.cpp
@@ -2765,23 +2668,6 @@ uninstall-strangeprocessirHEADERS:
 	  echo " rm -f '$(DESTDIR)$(strangeprocessirdir)/$$f'"; \
 	  rm -f "$(DESTDIR)$(strangeprocessirdir)/$$f"; \
 	done
-install-strangeprocesslirHEADERS: $(strangeprocesslir_HEADERS)
-	@$(NORMAL_INSTALL)
-	test -z "$(strangeprocesslirdir)" || $(MKDIR_P) "$(DESTDIR)$(strangeprocesslirdir)"
-	@list='$(strangeprocesslir_HEADERS)'; for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  f=$(am__strip_dir) \
-	  echo " $(strangeprocesslirHEADERS_INSTALL) '$$d$$p' '$(DESTDIR)$(strangeprocesslirdir)/$$f'"; \
-	  $(strangeprocesslirHEADERS_INSTALL) "$$d$$p" "$(DESTDIR)$(strangeprocesslirdir)/$$f"; \
-	done
-
-uninstall-strangeprocesslirHEADERS:
-	@$(NORMAL_UNINSTALL)
-	@list='$(strangeprocesslir_HEADERS)'; for p in $$list; do \
-	  f=$(am__strip_dir) \
-	  echo " rm -f '$(DESTDIR)$(strangeprocesslirdir)/$$f'"; \
-	  rm -f "$(DESTDIR)$(strangeprocesslirdir)/$$f"; \
-	done
 install-strangeprocessmirHEADERS: $(strangeprocessmir_HEADERS)
 	@$(NORMAL_INSTALL)
 	test -z "$(strangeprocessmirdir)" || $(MKDIR_P) "$(DESTDIR)$(strangeprocessmirdir)"
@@ -3088,7 +2974,7 @@ install-binPROGRAMS: install-libLTLIBRARIES
 
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkglibdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(libexecdir)" "$(DESTDIR)$(pkgdatadir)" "$(DESTDIR)$(strangelibdir)" "$(DESTDIR)$(strangeparsingdir)" "$(DESTDIR)$(strangepassmanagerdir)" "$(DESTDIR)$(strangephcdir)" "$(DESTDIR)$(strangeprocessastdir)" "$(DESTDIR)$(strangeprocesshirdir)" "$(DESTDIR)$(strangeprocessirdir)" "$(DESTDIR)$(strangeprocesslirdir)" "$(DESTDIR)$(strangeprocessmirdir)"; do \
+	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkglibdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(libexecdir)" "$(DESTDIR)$(pkgdatadir)" "$(DESTDIR)$(strangelibdir)" "$(DESTDIR)$(strangeparsingdir)" "$(DESTDIR)$(strangepassmanagerdir)" "$(DESTDIR)$(strangephcdir)" "$(DESTDIR)$(strangeprocessastdir)" "$(DESTDIR)$(strangeprocesshirdir)" "$(DESTDIR)$(strangeprocessirdir)" "$(DESTDIR)$(strangeprocessmirdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: $(BUILT_SOURCES)
@@ -3153,7 +3039,6 @@ install-data-am: install-pkgdataDATA install-strangelibHEADERS \
 	install-strangeprocessastHEADERS \
 	install-strangeprocesshirHEADERS \
 	install-strangeprocessirHEADERS \
-	install-strangeprocesslirHEADERS \
 	install-strangeprocessmirHEADERS
 
 install-dvi: install-dvi-recursive
@@ -3202,7 +3087,6 @@ uninstall-am: uninstall-binPROGRAMS uninstall-binSCRIPTS \
 	uninstall-strangephcHEADERS uninstall-strangeprocessastHEADERS \
 	uninstall-strangeprocesshirHEADERS \
 	uninstall-strangeprocessirHEADERS \
-	uninstall-strangeprocesslirHEADERS \
 	uninstall-strangeprocessmirHEADERS
 
 .MAKE: $(RECURSIVE_CLEAN_TARGETS) $(RECURSIVE_TARGETS) install-am \
@@ -3229,7 +3113,6 @@ uninstall-am: uninstall-binPROGRAMS uninstall-binSCRIPTS \
 	install-strangeprocessastHEADERS \
 	install-strangeprocesshirHEADERS \
 	install-strangeprocessirHEADERS \
-	install-strangeprocesslirHEADERS \
 	install-strangeprocessmirHEADERS install-strip installcheck \
 	installcheck-am installcheck-local installdirs installdirs-am \
 	maintainer-clean maintainer-clean-generic mostlyclean \
@@ -3243,7 +3126,6 @@ uninstall-am: uninstall-binPROGRAMS uninstall-binSCRIPTS \
 	uninstall-strangephcHEADERS uninstall-strangeprocessastHEADERS \
 	uninstall-strangeprocesshirHEADERS \
 	uninstall-strangeprocessirHEADERS \
-	uninstall-strangeprocesslirHEADERS \
 	uninstall-strangeprocessmirHEADERS
 
 	runtime/arrays.c							\
@@ -3295,20 +3177,6 @@ src/generated/HIR_visitor.h:			src/generated/HIR.h
 
 src/generated/HIR.h: src/generated_src/hir.tea @maketea@
 	@maketea@ src/generated_src/hir.tea
-
-src/generated/LIR.cpp: 					src/generated/LIR.h
-src/generated/LIR_factory.cpp:		src/generated/LIR.h
-src/generated/LIR_factory.h:			src/generated/LIR.h
-src/generated/LIR_fold.h:				src/generated/LIR.h
-src/generated/LIR_transform.cpp:		src/generated/LIR.h
-src/generated/LIR_transform.h:		src/generated/LIR.h
-src/generated/LIR_user_defined.h:	src/generated/LIR.h
-src/generated/LIR_visitor.cpp:		src/generated/LIR.h
-src/generated/LIR_visitor.h:			src/generated/LIR.h
-#src/generated/schema.xsd:				src/generated/LIR.h
-
-src/generated/LIR.h: src/generated_src/lir.tea @maketea@
-	@maketea@ src/generated_src/lir.tea
 
 src/generated/MIR.cpp: 					src/generated/MIR.h
 src/generated/MIR_factory.cpp:		src/generated/MIR.h
