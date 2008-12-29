@@ -27,6 +27,17 @@ public:
 	Object* get_lookup (Lookup*, bool coerce = false);
 	Object* get_param (PARAM_NAME*, bool coerce = false);
 
+
+};
+
+}
+
+class MICG_gen
+{
+public:
+	// callback_t: A function which takes a string and returns a string.
+	typedef string (*callback_t)(Object*);
+
 	// Convert an Object to a String:
 	//		Booleans are converted to MICG_TRUE/MICG_FALSE
 	//		Identifiers are converted using get_value_as_string.
@@ -37,14 +48,8 @@ public:
 	// Return a string representation of the list. This should never fail, and
 	// is primarily for debugging.
 	static String* to_string_rep (Object_list*);
-};
 
-}
-
-class MICG_gen
-{
-	// callback_t: A function which takes a string and returns a string.
-	typedef string (*callback_t)(string);
+private:
 	Map<string, callback_t> callbacks;
 	Map<string, MICG::Macro_list> macros;
 
@@ -94,7 +99,7 @@ public:
 	Object_list* get_expr_list (MICG::Expr_list* exprs, MICG::Symtable* symtable, bool coerce = false);
 
 
-	string callback (string name, String* param);
+	string callback (string name, Object_list* params);
 	void register_callback (string name, callback_t callback);
 
 	// Wrappers around common calls. The parameters are fetched from SYMTABLE

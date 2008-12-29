@@ -129,15 +129,29 @@ string get_hash (String* name)
 /*
  * Callbacks
  */
-string cb_get_hash (string name)
+string cb_get_hash (Object* name)
 {
-	return (get_hash (s(name)));
+	assert (isa<Identifier> (name) || isa<String> (name));
+	return (get_hash (MICG_gen::convert_to_string (name)));
 }
 
-string cb_get_length (string name)
+string cb_get_length (Object* name)
 {
-	return lexical_cast<string> (name.size ());
+	assert (isa<Identifier> (name) || isa<String> (name));
+	return lexical_cast<string> (MICG_gen::convert_to_string (name)->size ());
 }
+
+string cb_is_literal (Object* obj)
+{
+	assert (isa<Rvalue> (obj));
+
+	if (isa<MIR::Literal> (obj))
+		return MICG_TRUE;
+	else
+		return MICG_FALSE;
+}
+
+
 
 
 
@@ -3117,4 +3131,5 @@ Generate_LIR::Generate_LIR()
 	lir = new LIR::C_file;
 	micg.register_callback ("length", &cb_get_length);
 	micg.register_callback ("hash", &cb_get_hash);
+	micg.register_callback ("is_literal", &cb_is_literal);
 }

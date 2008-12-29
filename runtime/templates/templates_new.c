@@ -35,11 +35,6 @@
  *	 To use a property of a PARAM, use ${PARAM.propname}.
  *	 To do a callback to the code generator, use \cb:callback_name (param0, ...);.
  *	 The callback must be registered.
- *	 TODO: move the 'properties' to callbacks.
- *	 Supported properties:
- *	    hash - a string's hash value (including the 'u' suffix
- *	    length - a string's length
- *	    TODO: maybe attrs.name? to reduce the number of parameters
  *
  * Comments:
  *    Comment are allowed outside patterns. Comments inside templates are C
@@ -196,14 +191,14 @@ scope (string SCOPE) where SCOPE == "GLOBAL" @@@&EG(symbol_table)@@@
 
 // For literals
 read_rvalue (string ZVP, node LIT)
-   where \cb:type(LIT) == "Literal"
+   where \cb:is_literal(LIT) == "TRUE"
    where LIT.pool_name
 @@@
   zval* $ZVP = ${LIT.pool_name};
 @@@
 
 read_rvalue (string ZVP, node LIT)
-   where \cb:type(LIT) == "Literal"
+   where \cb:is_literal(LIT) == "TRUE"
 @@@
   zval* lit_tmp_$ZVP;
   INIT_ZVAL (lit_tmp_$ZVP);

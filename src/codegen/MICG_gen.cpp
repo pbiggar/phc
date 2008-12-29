@@ -71,7 +71,7 @@ MICG_gen::add_macro_def (string str, string filename)
 string
 MICG_gen::instantiate (string macro_name, Object_list* params) 
 {
-	DEBUG ("Instantiating " << macro_name << *Symtable::to_string_rep (params));
+	DEBUG ("Instantiating " << macro_name << *to_string_rep (params));
 	Macro* m = get_macro (macro_name, params);
 
 	// Coerce the data appropriately.
@@ -209,12 +209,19 @@ MICG_gen::register_callback (string name, callback_t callback)
 }
 
 string
-MICG_gen::callback (string name, String* param)
+MICG_gen::callback (string name, Object_list* params)
 {
+	DEBUG ("Calling callback " << name << *to_string_rep (params));
+
+	if (params->size() != 1)
+		phc_internal_error ("Callback '%s' not called with 1 parameter %s",
+			name.c_str (), to_string_rep (params)->c_str());
+
 	if (!callbacks.has (name))
 		phc_internal_error ("No callback '%s' registered", name.c_str ());
 
-	return callbacks[name](*param);
+
+	return callbacks[name](params->front ());
 }
 
 MICG::Symtable*
@@ -279,7 +286,7 @@ MICG_gen::instantiate_body (Body* body, Symtable* symtable)
 				phc_internal_error ("Cannot interpolate %s", interp,
 				demangle (obj));
 
-			ss << *Symtable::convert_to_string (obj);
+			ss << *convert_to_string (obj);
 		}
 		else if (Macro_call* mc = dynamic_cast<Macro_call*> (body_part))
 		{
@@ -298,19 +305,13 @@ MICG_gen::instantiate_body (Body* body, Symtable* symtable)
 String*
 MICG_gen::exec (Macro_call* mc, Symtable* symtable)
 {
-	return s(instantiate (*mc->macro_name->value,
-				get_expr_list (mc->exprs, symtable)));
+	return s(instantiate (*mc->macro_name->value, get_expr_list (mc->exprs, symtable)));
 }
 
 String*
 MICG_gen::exec (Callback* cb, Symtable* symtable)
 {
-	Object_list* params = get_expr_list (cb->exprs, symtable, true);
-
-	if (params->size() != 1)
-		phc_internal_error ("Exactly 1 parameter required for a callback", cb);
-
-	return s (callback (*cb->macro_name->value, dyc<String> (params->front ())));
+	return s (callback (*cb->macro_name->value, get_expr_list (cb->exprs, symtable)));
 }
 
 
@@ -350,7 +351,7 @@ Symtable::get_lookup (Lookup* in, bool coerce)
 
 
 	if (coerce || isa<Boolean> (result))
-		result = Symtable::convert_to_string (result);
+		result = MICG_gen::convert_to_string (result);
 
 	return result;
 }
@@ -361,7 +362,7 @@ Symtable::get_param (PARAM_NAME* param, bool coerce)
 	Object* result = this->get (*param->value);
 
 	if (coerce || isa<Boolean> (result))
-		result = convert_to_string (result);
+		result = MICG_gen::convert_to_string (result);
 
 	return result;
 }
@@ -391,7 +392,7 @@ MICG_gen::get_expr (Expr* in, Symtable* symtable, bool coerce)
 }
 
 String*
-Symtable::convert_to_string (Object* in)
+MICG_gen::convert_to_string (Object* in)
 {
 	if (Boolean* b = dynamic_cast<Boolean*> (in))
 	{
@@ -411,13 +412,13 @@ Symtable::convert_to_string (Object* in)
 }
 
 String*
-Symtable::to_string_rep (Object_list* in)
+MICG_gen::to_string_rep (Object_list* in)
 {
 	stringstream ss;
 	ss << "(";
 	foreach (Object* obj, *in)
 	{
-		String* str = Symtable::convert_to_string (obj);
+		String* str = convert_to_string (obj);
 		ss << demangle (obj) << ": " << *str << ", ";
 	}
 	ss << ")";
