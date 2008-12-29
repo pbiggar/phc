@@ -120,6 +120,12 @@ initialize_function_call (zend_fcall_info * fci, zend_fcall_info_cache * fcic,
  * We could avoid this if we could set up a bucket manually and maintain
  * resposibility for the data memory for the bucket ourselves. However, the
  * zend hash API does not seem to offer this functionality.
+ *
+ * (It may also be possible to avoid returning the hashtable by requesting the
+ * zend_class_entry for the object manually, extracting the class name, and
+ * then setting up an an array with the class name and the function name.
+ * However, I feel that giving the object rather than manually specifying
+ * the class name is more robust, esp. in the case of inheritance etc.)
  */
 static zval *
 initialize_method_call (zend_fcall_info * fci, zend_fcall_info_cache * fcic,
