@@ -27,7 +27,7 @@
 		Variable* var = dynamic_cast<Variable*>(node);
 		
 		if(var == NULL && node != NULL)
-			phc_error("Variable name expected", node->get_filename(), node->get_line_number()); \
+			phc_error("Variable name expected", node);
 			
 		return var;
 	}
@@ -68,7 +68,7 @@
 
 	void PHP_error(PHP_context* context, const char* s)
 	{
-		phc_error(s, context->filename, context->source_line);
+		phc_error(s, context->filename, context->source_line, 0);
 	}
 
 	/* Return a new list of statements, containing a single statement */
@@ -805,7 +805,7 @@ unticked_statement:
 			{
 				if($5->attrs->is_true("phc.parser.is_ref"))
 				{
-					phc_error(ERR_FOREACH_KEY_REF, $5->get_filename(), $5->get_line_number());
+					phc_error(ERR_FOREACH_KEY_REF, $5);
 				}
 			
 				$1->key = $5;
@@ -831,7 +831,7 @@ unticked_statement:
 			{
 				if($5->attrs->is_true("phc.parser.is_ref"))
 				{
-					phc_error(ERR_FOREACH_KEY_REF, $5->get_filename(), $5->get_line_number());
+					phc_error(ERR_FOREACH_KEY_REF, $5);
 				}
 			
 				$1->key = expect_variable($5);
@@ -1613,7 +1613,7 @@ variable_modifiers:
 		{
 			if($1->is_abstract)
 			{
-				phc_error("Cannot declare variables to be abstract", $1->get_filename(), $1->get_line_number());
+				phc_error("Cannot declare variables to be abstract", $1);
 			}
 
 			$$ = NEW(Attr_mod, ($1)); 

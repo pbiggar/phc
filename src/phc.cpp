@@ -220,7 +220,7 @@ int main(int argc, char** argv)
 #define check_passes(FLAG)																		\
 	for (unsigned int i = 0; i < args_info.FLAG##_given; i++)						\
 	{																									\
-		if (! pm->has_pass_named (new String (args_info.FLAG##_arg [i])))			\
+		if (!pm->has_pass_named (new String (args_info.FLAG##_arg [i])))			\
 			phc_error ("Pass %s, specified with flag --" #FLAG ", is not valid", args_info.FLAG##_arg [i]);	\
 	}
 	check_passes (stats);
@@ -316,7 +316,7 @@ int main(int argc, char** argv)
 			if (ir == NULL)
 			{
 				if (args_info.inputs_num != 0)
-					phc_error("File not found", filename, 0);
+					phc_error("File not found", filename, 0, 0);
 				else
 					return -1;
 			}
@@ -402,7 +402,7 @@ void init_plugins (Pass_manager* pm)
 			datadir_err = strdup (lt_dlerror ());
 			phc_error (
 				"Could not find %s plugin with errors \"%s\", \"%s\" and \"%s\"",
-				NULL, 0, 0, name, default_err, cwd_err, datadir_err);
+				name, default_err, cwd_err, datadir_err);
 		}
 
 		// Save for later

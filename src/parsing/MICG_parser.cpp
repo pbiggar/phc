@@ -486,8 +486,8 @@ MICG_parser::parse (string str, string filename)
 			<< "length: " << info.length << "\n");
 
 	if (!info.full)
-		phc_internal_error ("Cannot parse template. Error at line %d, column %d",
-			pos.line, pos.column);
+		phc_internal_error ("Cannot parse template",
+								  s(pos.file), pos.line, pos.column);
 
 
 	assert (info.trees.size() == 1);

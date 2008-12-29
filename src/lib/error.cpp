@@ -47,7 +47,7 @@ void phc_message (Error_type type, const char* message_template, String* filenam
 
 	// A quick note to avoid complaints
 	if(line > 0)
-		fprintf(stderr, "Note that line numbers are inaccurate,"
+		fprintf(stderr, "Note that line numbers are inaccurate, "
 			"and will be fixed in a later release\n");
 
 	if (type != WARNING && not error_args_info.dont_fail_flag)
