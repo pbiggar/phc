@@ -726,11 +726,6 @@ protected:
  *	    If $y doesnt exist, initialize it. If $x doesn't exist, it doesnt matter.
  */
 
-string templ (string, ...)
-{
-	return "";
-}
-
 class Pattern_assign_expr_var : public Pattern_assign_var
 {
 public:
@@ -776,9 +771,9 @@ public:
 		VARIABLE_NAME* index_var = rhs->value->variable_name;
 
 		if (!agn->is_ref)
-			templ ("assign_expr_var_var", lhs_var->value, index_var->value, lhs_var, index_var);
+			code << gen->micg.instantiate ("assign_expr_var_var", lhs_var, index_var);
 		else
-			templ ("assign_expr_ref_var_var", lhs_var->value, index_var->value, lhs_var, index_var);
+			code << gen->micg.instantiate ("assign_expr_ref_var_var", lhs_var, index_var);
 	}
 
 protected:
@@ -887,7 +882,7 @@ public:
 		else
 			phc_unsupported (cast->value, "non-scalar casts");
 
-		templ ("assign_expr_cast", lhs->value->value, rhs->value->value, lhs->value, rhs->value, s(symbol));
+		code << gen->micg.instantiate ("assign_expr_cast", lhs->value, rhs->value, s(symbol));
 	}
 
 public:
@@ -975,9 +970,9 @@ public:
 		// call the opposite function). This is accounted for in the
 		// binops table.
 		if(*op->value->value == ">" || *op->value->value == ">=")
-			templ ("assign_expr_bin_op", lhs->value, left->value, right->value, s(op_fn));
+			gen->micg.instantiate ("assign_expr_bin_op", lhs->value, left->value, right->value, s(op_fn));
 		else
-			templ ("assign_expr_bin_op", lhs->value, right->value, left->value, s(op_fn));
+			gen->micg.instantiate ("assign_expr_bin_op", lhs->value, right->value, left->value, s(op_fn));
 	}
 
 

@@ -79,15 +79,91 @@ MICG_gen::instantiate (string macro_name, Object_list* params)
 }
 
 string
-MICG_gen::instantiate (string macro_name, Object* obj1, Object* obj2) 
+MICG_gen::instantiate (string macro_name, Object* param1)
 {
-	// Get the parameters, converting them to appropriate types.
 	Object_list* params = new Object_list ();
-	params->push_back (obj1);
-	params->push_back (obj2);
-
+	params->push_back (param1);
 	return instantiate (macro_name, params);
 }
+
+string
+MICG_gen::instantiate (string macro_name, Object* param1, Object* param2)
+{
+	Object_list* params = new Object_list ();
+	params->push_back (param1); params->push_back (param2);
+	return instantiate (macro_name, params);
+}
+
+string
+MICG_gen::instantiate (string macro_name, Object* param1, Object* param2,
+		Object* param3)
+{
+	Object_list* params = new Object_list ();
+	params->push_back (param1); params->push_back (param2);
+	params->push_back (param3);
+	return instantiate (macro_name, params);
+}
+
+string
+MICG_gen::instantiate (string macro_name, Object* param1, Object* param2,
+		Object* param3, Object* param4)
+{
+	Object_list* params = new Object_list ();
+	params->push_back (param1); params->push_back (param2);
+	params->push_back (param3); params->push_back (param4);
+	return instantiate (macro_name, params);
+}
+
+string 
+MICG_gen::instantiate (string macro_name, Object* param1, Object* param2,
+		Object* param3, Object* param4, Object* param5)
+{
+	Object_list* params = new Object_list ();
+	params->push_back (param1); params->push_back (param2);
+	params->push_back (param3); params->push_back (param4);
+	params->push_back (param5);
+	return instantiate (macro_name, params);
+}
+
+string
+MICG_gen::instantiate (string macro_name, Object* param1, Object* param2,
+		Object* param3, Object* param4, Object* param5, Object* param6)
+{
+	Object_list* params = new Object_list ();
+	params->push_back (param1); params->push_back (param2);
+	params->push_back (param3); params->push_back (param4);
+	params->push_back (param5); params->push_back (param6);
+	return instantiate (macro_name, params);
+}
+
+string
+MICG_gen::instantiate (string macro_name, Object* param1, Object* param2,
+		Object* param3, Object* param4, Object* param5, Object* param6,
+		Object* param7)
+{
+	Object_list* params = new Object_list ();
+	params->push_back (param1); params->push_back (param2);
+	params->push_back (param3); params->push_back (param4);
+	params->push_back (param5); params->push_back (param6);
+	params->push_back (param7);
+	return instantiate (macro_name, params);
+}
+
+string
+MICG_gen::instantiate (string macro_name, Object* param1, Object* param2,
+		Object* param3, Object* param4, Object* param5, Object* param6,
+		Object* param7, Object* param8)
+{
+	Object_list* params = new Object_list ();
+	params->push_back (param1); params->push_back (param2);
+	params->push_back (param3); params->push_back (param4);
+	params->push_back (param5); params->push_back (param6);
+	params->push_back (param7); params->push_back (param8);
+	return instantiate (macro_name, params);
+}
+
+
+
 
 bool
 MICG_gen::suitable (Macro* macro, Object_list* params)

@@ -50,7 +50,22 @@ public:
 	// one signature of each length we need, and assume we wont need more thn 8
 	// arguments or so.
 	string instantiate (string macro_name, Object_list* params);
+	string instantiate (string macro_name, Object* param1);
 	string instantiate (string macro_name, Object* param1, Object* param2);
+	string instantiate (string macro_name, Object* param1, Object* param2,
+			Object* param3);
+	string instantiate (string macro_name, Object* param1, Object* param2,
+			Object* param3, Object* param4);
+	string instantiate (string macro_name, Object* param1, Object* param2,
+			Object* param3, Object* param4, Object* param5);
+	string instantiate (string macro_name, Object* param1, Object* param2,
+			Object* param3, Object* param4, Object* param5, Object* param6);
+	string instantiate (string macro_name, Object* param1, Object* param2,
+			Object* param3, Object* param4, Object* param5, Object* param6,
+			Object* param7);
+	string instantiate (string macro_name, Object* param1, Object* param2,
+			Object* param3, Object* param4, Object* param5, Object* param6,
+			Object* param7, Object* param8);
 
 	// callback_t: A function which takes a string and returns a string.
 	typedef string (*callback_t)(string);

@@ -147,7 +147,7 @@ assign_expr_var_var (token LHS, token INDEX)
   \read_var_var ("rhs", "index");
   if (*p_lhs != rhs)
     {
-      \write_var (LHS, INDEX);
+      \write_var ("p_lhs", "rhs", LHS, INDEX);
     }
 @@@
 
@@ -285,3 +285,16 @@ write_var_inner (string LHS, string RHS, token TLHS, token TRHS)
     }
 @@@
 
+/*
+ * var-vars
+ */
+
+read_var_var (string ZVP, string INDEX)
+@@@
+   $ZVP = read_var_var (\scope("LOCAL"), $INDEX, TSRMLS_CC);
+@@@
+
+get_var_var (string ST, string ZVP, string INDEX)
+@@@
+   zval** $ZVP = read_var_var (\scope(ST), $INDEX, TSRMLS_CC);
+@@@
