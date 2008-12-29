@@ -76,12 +76,14 @@ struct MICG_grammar : public grammar<MICG_grammar>
 		actual_parameter_list_id = 1,
 		attr_name_id,
 		body_id,
+		body_part_id,
 		body_part_list_id,
 		callback_id,
 		c_code_id,
 		comment_id,
 		equals_id,
 		expr_id,
+		expr_list_id,
 		formal_parameter_id,
 		formal_parameter_list_id,
 		interpolation_id,
@@ -96,6 +98,7 @@ struct MICG_grammar : public grammar<MICG_grammar>
 		_rule_id,
 		_rule_list_id,
 		signature_id,
+		string_val_id,
 		type_name_id,
 		wsc_id,
 		ws_id,
@@ -106,14 +109,15 @@ struct MICG_grammar : public grammar<MICG_grammar>
 	struct definition
 	{
 #define DECL_RULE(NAME) rule<ScannerT, parser_context<>, parser_tag<NAME##_id> >	NAME;
-		DECL_RULE(actual_parameter_list);
 		DECL_RULE(attr_name);
 		DECL_RULE(body);
+		DECL_RULE(body_part);
 		DECL_RULE(body_part_list);
 		DECL_RULE(callback);
 		DECL_RULE(c_code);
 		DECL_RULE(equals);
 		DECL_RULE(expr);
+		DECL_RULE(expr_list);
 		DECL_RULE(formal_parameter);
 		DECL_RULE(formal_parameter_list);
 		DECL_RULE(interpolation);
@@ -138,9 +142,9 @@ struct MICG_grammar : public grammar<MICG_grammar>
 
 		definition (MICG_grammar const& self)
 		{
-			BOOST_SPIRIT_DEBUG_RULE(actual_parameter_list);
 			BOOST_SPIRIT_DEBUG_RULE(attr_name);
 			BOOST_SPIRIT_DEBUG_RULE(body);
+			BOOST_SPIRIT_DEBUG_RULE(body_part);
 			BOOST_SPIRIT_DEBUG_RULE(body_part_list);
 			BOOST_SPIRIT_DEBUG_RULE(callback);
 			BOOST_SPIRIT_DEBUG_RULE(c_code);
@@ -160,6 +164,7 @@ struct MICG_grammar : public grammar<MICG_grammar>
 			BOOST_SPIRIT_DEBUG_RULE(_rule_list);
 			BOOST_SPIRIT_DEBUG_RULE(signature);
 			BOOST_SPIRIT_DEBUG_RULE(type_name);
+
 			BOOST_SPIRIT_DEBUG_RULE(comment);
 			BOOST_SPIRIT_DEBUG_RULE(ws);
 			BOOST_SPIRIT_DEBUG_RULE(wsc);
@@ -186,7 +191,7 @@ struct MICG_grammar : public grammar<MICG_grammar>
 
 			// A rule line
 			lookup = param_name >> "." >> attr_name;
-			expr = lookup | param_name | quoted_string;
+			expr = param_name | quoted_string | lookup | macro_call | callback ;
 			equals = expr >> wsc >> "==" >> wsc >> expr;
 			_rule = "where" >> wsc >> (equals | lookup) >> wsc;
 			_rule_list = *_rule;
@@ -199,9 +204,9 @@ struct MICG_grammar : public grammar<MICG_grammar>
 			// macro_call and interpolation before it incorporates '$' and '\\'.
 			c_code = leaf_node_d[(anychar_p - '@') >> *(anychar_p - (ch_p('\\') | '$' | '@'))];
 
-			actual_parameter_list = list_p (param_name | quoted_string, ", ");
-			macro_call = '\\' >> macro_name >> wsc >> '(' >> actual_parameter_list >> ')' >> !ch_p(';');
-			callback = "\\cb:" >> macro_name >> wsc >> '(' >> actual_parameter_list >> ')' >> !ch_p(';');
+			expr_list = list_p (expr, wsc >> ", " >> wsc);
+			macro_call = '\\' >> macro_name >> wsc >> '('  >> wsc >> expr_list >> wsc >> ')' >> !ch_p(';');
+			callback = "\\cb:" >> macro_name >> wsc >> '(' >> expr_list >> ')' >> !ch_p(';');
 
 			interpolation = ('$' >> param_name) | ("${" >> lookup >> '}');
 
@@ -321,22 +326,22 @@ create_micg_node (tree_iter_t iter)
 	switch (id)
 	{
 		/*
-		 * Conjunctions and lists
+		 * Conjunctions and lists (in the order they appear in micg.tea)
 		 */
-		case MICG_grammar::body_id:
-		case MICG_grammar::callback_id:
-		case MICG_grammar::equals_id:
-		case MICG_grammar::formal_parameter_id:
-		case MICG_grammar::lookup_id:
-		case MICG_grammar::macro_call_id:
 		case MICG_grammar::macro_id:
 		case MICG_grammar::signature_id:
+		case MICG_grammar::formal_parameter_id:
+		case MICG_grammar::lookup_id:
+		case MICG_grammar::equals_id:
+		case MICG_grammar::body_id:
+		case MICG_grammar::macro_call_id:
+		case MICG_grammar::callback_id:
 
-		case MICG_grammar::actual_parameter_list_id:
-		case MICG_grammar::body_part_list_id:
-		case MICG_grammar::formal_parameter_list_id:
 		case MICG_grammar::macro_list_id:
 		case MICG_grammar::_rule_list_id:
+		case MICG_grammar::formal_parameter_list_id:
+		case MICG_grammar::body_part_list_id:
+		case MICG_grammar::expr_list_id:
 		{
 			Object_list* params = create_micg_list (iter->children);
 
@@ -345,14 +350,14 @@ create_micg_node (tree_iter_t iter)
 			// argument.
 			if (id == MICG_grammar::macro_id)
 				params = check_argument_list<Rule> (params, 1);
-			else if (id == MICG_grammar::callback_id)
-				params = check_argument_list<Actual_parameter> (params, 1);
 			else if (id == MICG_grammar::signature_id)
 				params = check_argument_list<Formal_parameter> (params, 1);
 			else if (id == MICG_grammar::body_id)
 				params = check_argument_list<Body_part> (params, 0);
 			else if (id == MICG_grammar::macro_call_id)
-				params = check_argument_list<Actual_parameter> (params, 1);
+				params = check_argument_list<Expr> (params, 1);
+			else if (id == MICG_grammar::callback_id)
+				params = check_argument_list<Expr> (params, 1);
 
 			result = Node_factory::create (names[id].c_str(), params);
 			assert (result);
@@ -370,9 +375,10 @@ create_micg_node (tree_iter_t iter)
 		}
 
 		/* Disjunctions (ignore) */
-		case MICG_grammar::expr_id:
-		case MICG_grammar::interpolation_id:
 		case MICG_grammar::_rule_id:
+		case MICG_grammar::expr_id:
+		case MICG_grammar::body_part_id:
+		case MICG_grammar::interpolation_id:
 		{
 			Object_list* list = create_micg_list (iter->children);
 			assert (list->size () == 1);
@@ -389,11 +395,11 @@ create_micg_node (tree_iter_t iter)
 			value = new String (value->substr (1, value->size() - 2));
 			// Fallthrough
 
+		case MICG_grammar::macro_name_id:
+		case MICG_grammar::type_name_id:
+		case MICG_grammar::param_name_id:
 		case MICG_grammar::attr_name_id:
 		case MICG_grammar::c_code_id:
-		case MICG_grammar::macro_name_id:
-		case MICG_grammar::param_name_id:
-		case MICG_grammar::type_name_id:
 		{
 			assert (*value != "");
 			DEBUG (" - " << *value);
@@ -434,13 +440,14 @@ create_micg_node (tree_iter_t iter)
 Macro_list*
 MICG_parser::parse (string str, string filename)
 {
-	names[MICG_grammar::actual_parameter_list_id] = "Actual_parameter_list";
+	// We only need names for non-disjunctions.
 	names[MICG_grammar::attr_name_id] = "ATTR_NAME";
 	names[MICG_grammar::body_id] = "Body";
 	names[MICG_grammar::body_part_list_id] = "Body_part_list";
 	names[MICG_grammar::callback_id] = "Callback";
 	names[MICG_grammar::c_code_id] = "C_CODE";
 	names[MICG_grammar::equals_id] = "Equals";
+	names[MICG_grammar::expr_list_id] = "Expr_list";
 	names[MICG_grammar::formal_parameter_id] = "Formal_parameter";
 	names[MICG_grammar::formal_parameter_list_id] = "Formal_parameter_list";
 	names[MICG_grammar::interpolation_id] = "Interpolation";

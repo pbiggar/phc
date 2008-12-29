@@ -32,6 +32,9 @@ do
 	then
 		PHC_ARGS="$PHC_ARGS --rt-stats"
 		STATS=1
+	elif [ "-$var" = "--R" ]
+	then
+		PHC_ARGS="$PHC_ARGS --run plugins/tests/raise_globals.la"
 	elif [ "-$var" = "--r" ]
 	then
 		PHC_ARGS="$PHC_ARGS --run plugins/tools/debug_zval.la"

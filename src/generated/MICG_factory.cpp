@@ -67,16 +67,16 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     if(!strcmp(type_id, "Macro_call"))
     {
     	MACRO_NAME* macro_name = dynamic_cast<MACRO_NAME*>(*i++);
-    	Actual_parameter_list* actual_parameters = dynamic_cast<Actual_parameter_list*>(*i++);
+    	Expr_list* exprs = dynamic_cast<Expr_list*>(*i++);
     	assert(i == args->end());
-    	return new Macro_call(macro_name, actual_parameters);
+    	return new Macro_call(macro_name, exprs);
     }
     if(!strcmp(type_id, "Callback"))
     {
     	MACRO_NAME* macro_name = dynamic_cast<MACRO_NAME*>(*i++);
-    	Actual_parameter_list* actual_parameters = dynamic_cast<Actual_parameter_list*>(*i++);
+    	Expr_list* exprs = dynamic_cast<Expr_list*>(*i++);
     	assert(i == args->end());
-    	return new Callback(macro_name, actual_parameters);
+    	return new Callback(macro_name, exprs);
     }
     if(!strcmp(type_id, "MACRO_NAME"))
     {
@@ -142,11 +142,11 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     		list->push_back(dynamic_cast<Body_part*>(*i++));
     	return list;
     }
-    if(!strcmp(type_id, "Actual_parameter_list"))
+    if(!strcmp(type_id, "Expr_list"))
     {
-    	Actual_parameter_list* list = new Actual_parameter_list;
+    	Expr_list* list = new Expr_list;
     	while(i != args->end())
-    		list->push_back(dynamic_cast<Actual_parameter*>(*i++));
+    		list->push_back(dynamic_cast<Expr*>(*i++));
     	return list;
     }
     return NULL;

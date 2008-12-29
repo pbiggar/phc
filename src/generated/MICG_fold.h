@@ -19,7 +19,6 @@
 namespace MICG{
 template
 <class _ATTR_NAME,
- class _Actual_parameter,
  class _All,
  class _Body,
  class _Body_part,
@@ -45,7 +44,7 @@ class Fold
 {
 // Access this class from subclasses without copying out the template instantiation
 public:
-   typedef Fold<_ATTR_NAME, _Actual_parameter, _All, _Body, _Body_part, _C_CODE, _Callback, _Equals, _Expr, _Formal_parameter, _Interpolation, _Lookup, _MACRO_NAME, _Macro, _Macro_call, _Node, _PARAM_NAME, _Rule, _STRING, _Signature, _TYPE_NAME, _List> parent;
+   typedef Fold<_ATTR_NAME, _All, _Body, _Body_part, _C_CODE, _Callback, _Equals, _Expr, _Formal_parameter, _Interpolation, _Lookup, _MACRO_NAME, _Macro, _Macro_call, _Node, _PARAM_NAME, _Rule, _STRING, _Signature, _TYPE_NAME, _List> parent;
 // Recursively fold the children before folding the parent
 // This methods form the client API for a fold, but should not be
 // overridden unless you know what you are doing
@@ -143,32 +142,32 @@ public:
 	{
 		_MACRO_NAME macro_name = 0;
 		if(in->macro_name != NULL) macro_name = fold_macro_name(in->macro_name);
-		_List<_Actual_parameter>* actual_parameters = 0;
+		_List<_Expr>* exprs = 0;
 	
 		{
-			actual_parameters = new _List<_Actual_parameter>;
-			typename _List<Actual_parameter*>::const_iterator i;
-			for(i = in->actual_parameters->begin(); i != in->actual_parameters->end(); i++)
-				if(*i != NULL) actual_parameters->push_back(fold_actual_parameter(*i));
-				else actual_parameters->push_back(0);
+			exprs = new _List<_Expr>;
+			typename _List<Expr*>::const_iterator i;
+			for(i = in->exprs->begin(); i != in->exprs->end(); i++)
+				if(*i != NULL) exprs->push_back(fold_expr(*i));
+				else exprs->push_back(0);
 		}
-		return fold_impl_macro_call(in, macro_name, actual_parameters);
+		return fold_impl_macro_call(in, macro_name, exprs);
 	}
 
 	virtual _Callback fold_callback(Callback* in)
 	{
 		_MACRO_NAME macro_name = 0;
 		if(in->macro_name != NULL) macro_name = fold_macro_name(in->macro_name);
-		_List<_Actual_parameter>* actual_parameters = 0;
+		_List<_Expr>* exprs = 0;
 	
 		{
-			actual_parameters = new _List<_Actual_parameter>;
-			typename _List<Actual_parameter*>::const_iterator i;
-			for(i = in->actual_parameters->begin(); i != in->actual_parameters->end(); i++)
-				if(*i != NULL) actual_parameters->push_back(fold_actual_parameter(*i));
-				else actual_parameters->push_back(0);
+			exprs = new _List<_Expr>;
+			typename _List<Expr*>::const_iterator i;
+			for(i = in->exprs->begin(); i != in->exprs->end(); i++)
+				if(*i != NULL) exprs->push_back(fold_expr(*i));
+				else exprs->push_back(0);
 		}
-		return fold_impl_callback(in, macro_name, actual_parameters);
+		return fold_impl_callback(in, macro_name, exprs);
 	}
 
 
@@ -183,8 +182,8 @@ public:
 	virtual _Lookup fold_impl_lookup(Lookup* orig, _PARAM_NAME param_name, _ATTR_NAME attr_name) { assert(0); };
 	virtual _Equals fold_impl_equals(Equals* orig, _Expr left, _Expr right) { assert(0); };
 	virtual _Body fold_impl_body(Body* orig, _List<_Body_part>* body_parts) { assert(0); };
-	virtual _Macro_call fold_impl_macro_call(Macro_call* orig, _MACRO_NAME macro_name, _List<_Actual_parameter>* actual_parameters) { assert(0); };
-	virtual _Callback fold_impl_callback(Callback* orig, _MACRO_NAME macro_name, _List<_Actual_parameter>* actual_parameters) { assert(0); };
+	virtual _Macro_call fold_impl_macro_call(Macro_call* orig, _MACRO_NAME macro_name, _List<_Expr>* exprs) { assert(0); };
+	virtual _Callback fold_impl_callback(Callback* orig, _MACRO_NAME macro_name, _List<_Expr>* exprs) { assert(0); };
 
 	virtual _MACRO_NAME fold_macro_name(MACRO_NAME* orig) { assert(0); };
 	virtual _TYPE_NAME fold_type_name(TYPE_NAME* orig) { assert(0); };
@@ -216,14 +215,14 @@ public:
 				return fold_param_name(dynamic_cast<PARAM_NAME*>(in));
 			case STRING::ID:
 				return fold_string(dynamic_cast<STRING*>(in));
-			case Body::ID:
-				return fold_body(dynamic_cast<Body*>(in));
-			case C_CODE::ID:
-				return fold_c_code(dynamic_cast<C_CODE*>(in));
 			case Macro_call::ID:
 				return fold_macro_call(dynamic_cast<Macro_call*>(in));
 			case Callback::ID:
 				return fold_callback(dynamic_cast<Callback*>(in));
+			case Body::ID:
+				return fold_body(dynamic_cast<Body*>(in));
+			case C_CODE::ID:
+				return fold_c_code(dynamic_cast<C_CODE*>(in));
 			case MACRO_NAME::ID:
 				return fold_macro_name(dynamic_cast<MACRO_NAME*>(in));
 			case TYPE_NAME::ID:
@@ -250,12 +249,16 @@ public:
 	{
 		switch(in->classid())
 		{
-			case Lookup::ID:
-				return fold_lookup(dynamic_cast<Lookup*>(in));
 			case PARAM_NAME::ID:
 				return fold_param_name(dynamic_cast<PARAM_NAME*>(in));
 			case STRING::ID:
 				return fold_string(dynamic_cast<STRING*>(in));
+			case Lookup::ID:
+				return fold_lookup(dynamic_cast<Lookup*>(in));
+			case Macro_call::ID:
+				return fold_macro_call(dynamic_cast<Macro_call*>(in));
+			case Callback::ID:
+				return fold_callback(dynamic_cast<Callback*>(in));
 		}
 		assert(0);
 	}
@@ -266,26 +269,14 @@ public:
 		{
 			case C_CODE::ID:
 				return fold_c_code(dynamic_cast<C_CODE*>(in));
-			case Macro_call::ID:
-				return fold_macro_call(dynamic_cast<Macro_call*>(in));
 			case Lookup::ID:
 				return fold_lookup(dynamic_cast<Lookup*>(in));
 			case PARAM_NAME::ID:
 				return fold_param_name(dynamic_cast<PARAM_NAME*>(in));
+			case Macro_call::ID:
+				return fold_macro_call(dynamic_cast<Macro_call*>(in));
 			case Callback::ID:
 				return fold_callback(dynamic_cast<Callback*>(in));
-		}
-		assert(0);
-	}
-
-	virtual _Actual_parameter fold_actual_parameter(Actual_parameter* in)
-	{
-		switch(in->classid())
-		{
-			case STRING::ID:
-				return fold_string(dynamic_cast<STRING*>(in));
-			case PARAM_NAME::ID:
-				return fold_param_name(dynamic_cast<PARAM_NAME*>(in));
 		}
 		assert(0);
 	}
@@ -309,6 +300,6 @@ public:
 };
 
 template<class T, template <class _Tp, class _Alloc = typename List<_Tp>::allocator_type> class _List>
-class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, _List> {};
+class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, _List> {};
 }
 

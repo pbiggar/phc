@@ -24,7 +24,7 @@ no source_rep;
    Top-level structure	
 -}
 
--- We dont need this, we just need Node_factory to create a Macro_list.
+-- Hack so that Node_factory can create a Macro_list.
 All ::= Macro* ; 
 
 Macro ::= Signature Rule* Body ;
@@ -40,18 +40,16 @@ Rule ::= Equals | Lookup ;
 Lookup ::= PARAM_NAME ATTR_NAME ;
 
 Equals ::= left:Expr right:Expr ;
-Expr ::= Lookup | PARAM_NAME | STRING ;
+Expr ::= PARAM_NAME | STRING | Lookup | Macro_call | Callback ;
 
 -- Body
 Body ::= Body_part* ;
-Body_part ::= C_CODE | Macro_call | Interpolation | Callback ;
-
-Macro_call ::= MACRO_NAME Actual_parameter*;
-Callback ::= MACRO_NAME Actual_parameter*;
-
-Actual_parameter ::= STRING | PARAM_NAME ;
+Body_part ::= C_CODE | Interpolation | Macro_call | Callback ;
 
 Interpolation ::= Lookup | PARAM_NAME ;
+Macro_call ::= MACRO_NAME Expr*;
+Callback ::= MACRO_NAME Expr*;
+
 
 
 {-

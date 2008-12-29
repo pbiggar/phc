@@ -894,10 +894,6 @@ Body_part::Body_part()
 {
 }
 
-Actual_parameter::Actual_parameter()
-{
-}
-
 MACRO_NAME::MACRO_NAME(String* value)
 {
     this->value = value;
@@ -1291,16 +1287,20 @@ void Equals::assert_valid()
     right->assert_valid();
 }
 
-Macro_call::Macro_call(MACRO_NAME* macro_name, Actual_parameter_list* actual_parameters)
+Interpolation::Interpolation()
+{
+}
+
+Macro_call::Macro_call(MACRO_NAME* macro_name, Expr_list* exprs)
 {
     this->macro_name = macro_name;
-    this->actual_parameters = actual_parameters;
+    this->exprs = exprs;
 }
 
 Macro_call::Macro_call()
 {
     this->macro_name = 0;
-    this->actual_parameters = 0;
+    this->exprs = 0;
 }
 
 void Macro_call::visit(Visitor* visitor)
@@ -1336,12 +1336,12 @@ bool Macro_call::match(Node* in)
     else if(!this->macro_name->match(that->macro_name))
     	return false;
     
-    if(this->actual_parameters != NULL && that->actual_parameters != NULL)
+    if(this->exprs != NULL && that->exprs != NULL)
     {
-    	Actual_parameter_list::const_iterator i, j;
+    	Expr_list::const_iterator i, j;
     	for(
-    		i = this->actual_parameters->begin(), j = that->actual_parameters->begin();
-    		i != this->actual_parameters->end() && j != that->actual_parameters->end();
+    		i = this->exprs->begin(), j = that->exprs->begin();
+    		i != this->exprs->end() && j != that->exprs->end();
     		i++, j++)
     	{
     		if(*i == NULL)
@@ -1352,7 +1352,7 @@ bool Macro_call::match(Node* in)
     		else if(!(*i)->match(*j))
     			return false;
     	}
-    	if(i != this->actual_parameters->end() || j != that->actual_parameters->end())
+    	if(i != this->exprs->end() || j != that->exprs->end())
     		return false;
     }
     
@@ -1372,17 +1372,17 @@ bool Macro_call::equals(Node* in)
     else if(!this->macro_name->equals(that->macro_name))
     	return false;
     
-    if(this->actual_parameters == NULL || that->actual_parameters == NULL)
+    if(this->exprs == NULL || that->exprs == NULL)
     {
-    	if(this->actual_parameters != NULL || that->actual_parameters != NULL)
+    	if(this->exprs != NULL || that->exprs != NULL)
     		return false;
     }
     else
     {
-    	Actual_parameter_list::const_iterator i, j;
+    	Expr_list::const_iterator i, j;
     	for(
-    		i = this->actual_parameters->begin(), j = that->actual_parameters->begin();
-    		i != this->actual_parameters->end() && j != that->actual_parameters->end();
+    		i = this->exprs->begin(), j = that->exprs->begin();
+    		i != this->exprs->end() && j != that->exprs->end();
     		i++, j++)
     	{
     		if(*i == NULL || *j == NULL)
@@ -1393,7 +1393,7 @@ bool Macro_call::equals(Node* in)
     		else if(!(*i)->equals(*j))
     			return false;
     	}
-    	if(i != this->actual_parameters->end() || j != that->actual_parameters->end())
+    	if(i != this->exprs->end() || j != that->exprs->end())
     		return false;
     }
     
@@ -1403,15 +1403,15 @@ bool Macro_call::equals(Node* in)
 Macro_call* Macro_call::clone()
 {
     MACRO_NAME* macro_name = this->macro_name ? this->macro_name->clone() : NULL;
-    Actual_parameter_list* actual_parameters = NULL;
-    if(this->actual_parameters != NULL)
+    Expr_list* exprs = NULL;
+    if(this->exprs != NULL)
     {
-    	Actual_parameter_list::const_iterator i;
-    	actual_parameters = new Actual_parameter_list;
-    	for(i = this->actual_parameters->begin(); i != this->actual_parameters->end(); i++)
-    		actual_parameters->push_back(*i ? (*i)->clone() : NULL);
+    	Expr_list::const_iterator i;
+    	exprs = new Expr_list;
+    	for(i = this->exprs->begin(); i != this->exprs->end(); i++)
+    		exprs->push_back(*i ? (*i)->clone() : NULL);
     }
-    Macro_call* clone = new Macro_call(macro_name, actual_parameters);
+    Macro_call* clone = new Macro_call(macro_name, exprs);
     return clone;
 }
 
@@ -1426,12 +1426,12 @@ Node* Macro_call::find(Node* in)
     	if (macro_name_res) return macro_name_res;
     }
     
-    if(this->actual_parameters != NULL)
+    if(this->exprs != NULL)
     {
-    	Actual_parameter_list::const_iterator i;
+    	Expr_list::const_iterator i;
     	for(
-    		i = this->actual_parameters->begin();
-    		i != this->actual_parameters->end();
+    		i = this->exprs->begin();
+    		i != this->exprs->end();
     		i++)
     	{
     		if(*i != NULL)
@@ -1453,12 +1453,12 @@ void Macro_call::find_all(Node* in, Node_list* out)
     if (this->macro_name != NULL)
     	this->macro_name->find_all(in, out);
     
-    if(this->actual_parameters != NULL)
+    if(this->exprs != NULL)
     {
-    	Actual_parameter_list::const_iterator i;
+    	Expr_list::const_iterator i;
     	for(
-    		i = this->actual_parameters->begin();
-    		i != this->actual_parameters->end();
+    		i = this->exprs->begin();
+    		i != this->exprs->end();
     		i++)
     	{
     		if(*i != NULL)
@@ -1474,10 +1474,10 @@ void Macro_call::assert_valid()
 {
     assert(macro_name != NULL);
     macro_name->assert_valid();
-    assert(actual_parameters != NULL);
+    assert(exprs != NULL);
     {
-    	Actual_parameter_list::const_iterator i;
-    	for(i = this->actual_parameters->begin(); i != this->actual_parameters->end(); i++)
+    	Expr_list::const_iterator i;
+    	for(i = this->exprs->begin(); i != this->exprs->end(); i++)
     	{
     		assert(*i != NULL);
     		(*i)->assert_valid();
@@ -1485,16 +1485,16 @@ void Macro_call::assert_valid()
     }
 }
 
-Callback::Callback(MACRO_NAME* macro_name, Actual_parameter_list* actual_parameters)
+Callback::Callback(MACRO_NAME* macro_name, Expr_list* exprs)
 {
     this->macro_name = macro_name;
-    this->actual_parameters = actual_parameters;
+    this->exprs = exprs;
 }
 
 Callback::Callback()
 {
     this->macro_name = 0;
-    this->actual_parameters = 0;
+    this->exprs = 0;
 }
 
 void Callback::visit(Visitor* visitor)
@@ -1530,12 +1530,12 @@ bool Callback::match(Node* in)
     else if(!this->macro_name->match(that->macro_name))
     	return false;
     
-    if(this->actual_parameters != NULL && that->actual_parameters != NULL)
+    if(this->exprs != NULL && that->exprs != NULL)
     {
-    	Actual_parameter_list::const_iterator i, j;
+    	Expr_list::const_iterator i, j;
     	for(
-    		i = this->actual_parameters->begin(), j = that->actual_parameters->begin();
-    		i != this->actual_parameters->end() && j != that->actual_parameters->end();
+    		i = this->exprs->begin(), j = that->exprs->begin();
+    		i != this->exprs->end() && j != that->exprs->end();
     		i++, j++)
     	{
     		if(*i == NULL)
@@ -1546,7 +1546,7 @@ bool Callback::match(Node* in)
     		else if(!(*i)->match(*j))
     			return false;
     	}
-    	if(i != this->actual_parameters->end() || j != that->actual_parameters->end())
+    	if(i != this->exprs->end() || j != that->exprs->end())
     		return false;
     }
     
@@ -1566,17 +1566,17 @@ bool Callback::equals(Node* in)
     else if(!this->macro_name->equals(that->macro_name))
     	return false;
     
-    if(this->actual_parameters == NULL || that->actual_parameters == NULL)
+    if(this->exprs == NULL || that->exprs == NULL)
     {
-    	if(this->actual_parameters != NULL || that->actual_parameters != NULL)
+    	if(this->exprs != NULL || that->exprs != NULL)
     		return false;
     }
     else
     {
-    	Actual_parameter_list::const_iterator i, j;
+    	Expr_list::const_iterator i, j;
     	for(
-    		i = this->actual_parameters->begin(), j = that->actual_parameters->begin();
-    		i != this->actual_parameters->end() && j != that->actual_parameters->end();
+    		i = this->exprs->begin(), j = that->exprs->begin();
+    		i != this->exprs->end() && j != that->exprs->end();
     		i++, j++)
     	{
     		if(*i == NULL || *j == NULL)
@@ -1587,7 +1587,7 @@ bool Callback::equals(Node* in)
     		else if(!(*i)->equals(*j))
     			return false;
     	}
-    	if(i != this->actual_parameters->end() || j != that->actual_parameters->end())
+    	if(i != this->exprs->end() || j != that->exprs->end())
     		return false;
     }
     
@@ -1597,15 +1597,15 @@ bool Callback::equals(Node* in)
 Callback* Callback::clone()
 {
     MACRO_NAME* macro_name = this->macro_name ? this->macro_name->clone() : NULL;
-    Actual_parameter_list* actual_parameters = NULL;
-    if(this->actual_parameters != NULL)
+    Expr_list* exprs = NULL;
+    if(this->exprs != NULL)
     {
-    	Actual_parameter_list::const_iterator i;
-    	actual_parameters = new Actual_parameter_list;
-    	for(i = this->actual_parameters->begin(); i != this->actual_parameters->end(); i++)
-    		actual_parameters->push_back(*i ? (*i)->clone() : NULL);
+    	Expr_list::const_iterator i;
+    	exprs = new Expr_list;
+    	for(i = this->exprs->begin(); i != this->exprs->end(); i++)
+    		exprs->push_back(*i ? (*i)->clone() : NULL);
     }
-    Callback* clone = new Callback(macro_name, actual_parameters);
+    Callback* clone = new Callback(macro_name, exprs);
     return clone;
 }
 
@@ -1620,12 +1620,12 @@ Node* Callback::find(Node* in)
     	if (macro_name_res) return macro_name_res;
     }
     
-    if(this->actual_parameters != NULL)
+    if(this->exprs != NULL)
     {
-    	Actual_parameter_list::const_iterator i;
+    	Expr_list::const_iterator i;
     	for(
-    		i = this->actual_parameters->begin();
-    		i != this->actual_parameters->end();
+    		i = this->exprs->begin();
+    		i != this->exprs->end();
     		i++)
     	{
     		if(*i != NULL)
@@ -1647,12 +1647,12 @@ void Callback::find_all(Node* in, Node_list* out)
     if (this->macro_name != NULL)
     	this->macro_name->find_all(in, out);
     
-    if(this->actual_parameters != NULL)
+    if(this->exprs != NULL)
     {
-    	Actual_parameter_list::const_iterator i;
+    	Expr_list::const_iterator i;
     	for(
-    		i = this->actual_parameters->begin();
-    		i != this->actual_parameters->end();
+    		i = this->exprs->begin();
+    		i != this->exprs->end();
     		i++)
     	{
     		if(*i != NULL)
@@ -1668,19 +1668,15 @@ void Callback::assert_valid()
 {
     assert(macro_name != NULL);
     macro_name->assert_valid();
-    assert(actual_parameters != NULL);
+    assert(exprs != NULL);
     {
-    	Actual_parameter_list::const_iterator i;
-    	for(i = this->actual_parameters->begin(); i != this->actual_parameters->end(); i++)
+    	Expr_list::const_iterator i;
+    	for(i = this->exprs->begin(); i != this->exprs->end(); i++)
     	{
     		assert(*i != NULL);
     		(*i)->assert_valid();
     	}
     }
-}
-
-Interpolation::Interpolation()
-{
 }
 
 STRING::STRING(String* value)
@@ -1695,12 +1691,12 @@ STRING::STRING()
 
 void STRING::visit(Visitor* visitor)
 {
-    visitor->visit_actual_parameter(this);
+    visitor->visit_expr(this);
 }
 
 void STRING::transform_children(Transform* transform)
 {
-    transform->children_actual_parameter(this);
+    transform->children_expr(this);
 }
 
 String* STRING::get_value_as_string()

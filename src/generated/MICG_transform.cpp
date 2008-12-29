@@ -41,14 +41,14 @@ Body* Transform::pre_body(Body* in)
     return in;
 }
 
-void Transform::pre_macro_call(Macro_call* in, Body_part_list* out)
+Macro_call* Transform::pre_macro_call(Macro_call* in)
 {
-    out->push_back(in);
+    return in;
 }
 
-void Transform::pre_callback(Callback* in, Body_part_list* out)
+Callback* Transform::pre_callback(Callback* in)
 {
-    out->push_back(in);
+    return in;
 }
 
 MACRO_NAME* Transform::pre_macro_name(MACRO_NAME* in)
@@ -71,7 +71,7 @@ PARAM_NAME* Transform::pre_param_name(PARAM_NAME* in)
     return in;
 }
 
-STRING* Transform::pre_string(STRING* in)
+Expr* Transform::pre_string(STRING* in)
 {
     return in;
 }
@@ -117,14 +117,14 @@ Body* Transform::post_body(Body* in)
     return in;
 }
 
-void Transform::post_macro_call(Macro_call* in, Body_part_list* out)
+Macro_call* Transform::post_macro_call(Macro_call* in)
 {
-    out->push_back(in);
+    return in;
 }
 
-void Transform::post_callback(Callback* in, Body_part_list* out)
+Callback* Transform::post_callback(Callback* in)
 {
-    out->push_back(in);
+    return in;
 }
 
 MACRO_NAME* Transform::post_macro_name(MACRO_NAME* in)
@@ -147,7 +147,7 @@ PARAM_NAME* Transform::post_param_name(PARAM_NAME* in)
     return in;
 }
 
-STRING* Transform::post_string(STRING* in)
+Expr* Transform::post_string(STRING* in)
 {
     return in;
 }
@@ -202,13 +202,13 @@ void Transform::children_body(Body* in)
 void Transform::children_macro_call(Macro_call* in)
 {
     in->macro_name = transform_macro_name(in->macro_name);
-    in->actual_parameters = transform_actual_parameter_list(in->actual_parameters);
+    in->exprs = transform_expr_list(in->exprs);
 }
 
 void Transform::children_callback(Callback* in)
 {
     in->macro_name = transform_macro_name(in->macro_name);
-    in->actual_parameters = transform_actual_parameter_list(in->actual_parameters);
+    in->exprs = transform_expr_list(in->exprs);
 }
 
 /* Tokens don't have children, so these methods do nothing by default */
@@ -498,41 +498,20 @@ Body_part_list* Transform::transform_body_part(Body_part* in)
     return out2;
 }
 
-Actual_parameter_list* Transform::transform_actual_parameter_list(Actual_parameter_list* in)
+Expr_list* Transform::transform_expr_list(Expr_list* in)
 {
-    Actual_parameter_list::const_iterator i;
-    Actual_parameter_list* out = new Actual_parameter_list;
+    Expr_list::const_iterator i;
+    Expr_list* out = new Expr_list;
     
     if(in == NULL)
     	return NULL;
     
     for(i = in->begin(); i != in->end(); i++)
     {
-    	out->push_back_all(transform_actual_parameter(*i));
+    	out->push_back(transform_expr(*i));
     }
     
     return out;
-}
-
-Actual_parameter_list* Transform::transform_actual_parameter(Actual_parameter* in)
-{
-    Actual_parameter_list::const_iterator i;
-    Actual_parameter_list* out1 = new Actual_parameter_list;
-    Actual_parameter_list* out2 = new Actual_parameter_list;
-    
-    if(in == NULL) out1->push_back(NULL);
-    else pre_actual_parameter(in, out1);
-    for(i = out1->begin(); i != out1->end(); i++)
-    {
-    	if(*i != NULL)
-    	{
-    		children_actual_parameter(*i);
-    		post_actual_parameter(*i, out2);
-    	}
-    	else out2->push_back(NULL);
-    }
-    
-    return out2;
 }
 
 All* Transform::transform_all(All* in)
@@ -577,9 +556,11 @@ Expr* Transform::pre_expr(Expr* in)
 {
     switch(in->classid())
     {
-    case Lookup::ID: return pre_lookup(dynamic_cast<Lookup*>(in));
     case PARAM_NAME::ID: return pre_param_name(dynamic_cast<PARAM_NAME*>(in));
     case STRING::ID: return pre_string(dynamic_cast<STRING*>(in));
+    case Lookup::ID: return pre_lookup(dynamic_cast<Lookup*>(in));
+    case Macro_call::ID: return pre_macro_call(dynamic_cast<Macro_call*>(in));
+    case Callback::ID: return pre_callback(dynamic_cast<Callback*>(in));
     }
     assert(0);
 }
@@ -597,43 +578,17 @@ void Transform::pre_body_part(Body_part* in, Body_part_list* out)
     			out->push_back(*i);
     	}
     	return;
-    case Macro_call::ID: 
-    	{
-    		Body_part_list* local_out = new Body_part_list;
-    		Body_part_list::const_iterator i;
-    		pre_macro_call(dynamic_cast<Macro_call*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
     case Lookup::ID: 
     	out->push_back(pre_lookup(dynamic_cast<Lookup*>(in)));
     	return;
     case PARAM_NAME::ID: 
     	out->push_back(pre_param_name(dynamic_cast<PARAM_NAME*>(in)));
     	return;
+    case Macro_call::ID: 
+    	out->push_back(pre_macro_call(dynamic_cast<Macro_call*>(in)));
+    	return;
     case Callback::ID: 
-    	{
-    		Body_part_list* local_out = new Body_part_list;
-    		Body_part_list::const_iterator i;
-    		pre_callback(dynamic_cast<Callback*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
-    }
-    assert(0);
-}
-
-void Transform::pre_actual_parameter(Actual_parameter* in, Actual_parameter_list* out)
-{
-    switch(in->classid())
-    {
-    case STRING::ID: 
-    	out->push_back(pre_string(dynamic_cast<STRING*>(in)));
-    	return;
-    case PARAM_NAME::ID: 
-    	out->push_back(pre_param_name(dynamic_cast<PARAM_NAME*>(in)));
+    	out->push_back(pre_callback(dynamic_cast<Callback*>(in)));
     	return;
     }
     assert(0);
@@ -665,9 +620,11 @@ Expr* Transform::post_expr(Expr* in)
 {
     switch(in->classid())
     {
-    case Lookup::ID: return post_lookup(dynamic_cast<Lookup*>(in));
     case PARAM_NAME::ID: return post_param_name(dynamic_cast<PARAM_NAME*>(in));
     case STRING::ID: return post_string(dynamic_cast<STRING*>(in));
+    case Lookup::ID: return post_lookup(dynamic_cast<Lookup*>(in));
+    case Macro_call::ID: return post_macro_call(dynamic_cast<Macro_call*>(in));
+    case Callback::ID: return post_callback(dynamic_cast<Callback*>(in));
     }
     assert(0);
 }
@@ -685,43 +642,17 @@ void Transform::post_body_part(Body_part* in, Body_part_list* out)
     			out->push_back(*i);
     	}
     	return;
-    case Macro_call::ID: 
-    	{
-    		Body_part_list* local_out = new Body_part_list;
-    		Body_part_list::const_iterator i;
-    		post_macro_call(dynamic_cast<Macro_call*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
     case Lookup::ID: 
     	out->push_back(post_lookup(dynamic_cast<Lookup*>(in)));
     	return;
     case PARAM_NAME::ID: 
     	out->push_back(post_param_name(dynamic_cast<PARAM_NAME*>(in)));
     	return;
+    case Macro_call::ID: 
+    	out->push_back(post_macro_call(dynamic_cast<Macro_call*>(in)));
+    	return;
     case Callback::ID: 
-    	{
-    		Body_part_list* local_out = new Body_part_list;
-    		Body_part_list::const_iterator i;
-    		post_callback(dynamic_cast<Callback*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
-    }
-    assert(0);
-}
-
-void Transform::post_actual_parameter(Actual_parameter* in, Actual_parameter_list* out)
-{
-    switch(in->classid())
-    {
-    case STRING::ID: 
-    	out->push_back(post_string(dynamic_cast<STRING*>(in)));
-    	return;
-    case PARAM_NAME::ID: 
-    	out->push_back(post_param_name(dynamic_cast<PARAM_NAME*>(in)));
+    	out->push_back(post_callback(dynamic_cast<Callback*>(in)));
     	return;
     }
     assert(0);
@@ -746,14 +677,20 @@ void Transform::children_expr(Expr* in)
 {
     switch(in->classid())
     {
-    case Lookup::ID:
-    	children_lookup(dynamic_cast<Lookup*>(in));
-    	break;
     case PARAM_NAME::ID:
     	children_param_name(dynamic_cast<PARAM_NAME*>(in));
     	break;
     case STRING::ID:
     	children_string(dynamic_cast<STRING*>(in));
+    	break;
+    case Lookup::ID:
+    	children_lookup(dynamic_cast<Lookup*>(in));
+    	break;
+    case Macro_call::ID:
+    	children_macro_call(dynamic_cast<Macro_call*>(in));
+    	break;
+    case Callback::ID:
+    	children_callback(dynamic_cast<Callback*>(in));
     	break;
     }
 }
@@ -765,30 +702,17 @@ void Transform::children_body_part(Body_part* in)
     case C_CODE::ID:
     	children_c_code(dynamic_cast<C_CODE*>(in));
     	break;
-    case Macro_call::ID:
-    	children_macro_call(dynamic_cast<Macro_call*>(in));
-    	break;
     case Lookup::ID:
     	children_lookup(dynamic_cast<Lookup*>(in));
     	break;
     case PARAM_NAME::ID:
     	children_param_name(dynamic_cast<PARAM_NAME*>(in));
     	break;
+    case Macro_call::ID:
+    	children_macro_call(dynamic_cast<Macro_call*>(in));
+    	break;
     case Callback::ID:
     	children_callback(dynamic_cast<Callback*>(in));
-    	break;
-    }
-}
-
-void Transform::children_actual_parameter(Actual_parameter* in)
-{
-    switch(in->classid())
-    {
-    case STRING::ID:
-    	children_string(dynamic_cast<STRING*>(in));
-    	break;
-    case PARAM_NAME::ID:
-    	children_param_name(dynamic_cast<PARAM_NAME*>(in));
     	break;
     }
 }

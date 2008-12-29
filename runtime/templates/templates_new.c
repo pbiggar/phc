@@ -105,7 +105,7 @@ assign_expr_bin_op (token LHS, node LEFT, node RIGHT, string OP_FN)
   \read_rvalue ("left", LEFT);
   \read_rvalue ("right", RIGHT);
 
-  p_lhs = &local_$LHS;
+  zval** p_lhs = &local_$LHS;
   ALLOC_INIT_ZVAL (*p_lhs);
 
   $OP_FN (*p_lhs, left, right TSRMLS_CC);
@@ -194,15 +194,16 @@ scope (string SCOPE) where SCOPE == "GLOBAL" @@@&EG(symbol_table)@@@
  * read_value
  */
 
-read_rvalue (string ZVP, token LIT)
-   where LIT.type == "Literal"
+// For literals
+read_rvalue (string ZVP, node LIT)
+   where \cb:type(LIT) == "Literal"
    where LIT.pool_name
 @@@
   zval* $ZVP = ${LIT.pool_name};
 @@@
 
-read_rvalue (string ZVP, token LIT)
-   where LIT.type == "Literal"
+read_rvalue (string ZVP, node LIT)
+   where \cb:type(LIT) == "Literal"
 @@@
   zval* lit_tmp_$ZVP;
   INIT_ZVAL (lit_tmp_$ZVP);
@@ -210,6 +211,7 @@ read_rvalue (string ZVP, token LIT)
   \cb:write_literal_directly_into_zval (ZVP, LIT);
 @@@
 
+// Not for literals (not that the signature changes here - thats intentional)
 read_rvalue (string ZVP, token VAR)
    where VAR.st_entry_not_required
    where VAR.is_uninitialized

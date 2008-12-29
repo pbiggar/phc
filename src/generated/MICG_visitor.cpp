@@ -50,19 +50,15 @@ void Visitor::pre_body_part(Body_part* in)
 {
 }
 
+void Visitor::pre_interpolation(Interpolation* in)
+{
+}
+
 void Visitor::pre_macro_call(Macro_call* in)
 {
 }
 
 void Visitor::pre_callback(Callback* in)
-{
-}
-
-void Visitor::pre_actual_parameter(Actual_parameter* in)
-{
-}
-
-void Visitor::pre_interpolation(Interpolation* in)
 {
 }
 
@@ -135,19 +131,15 @@ void Visitor::post_body_part(Body_part* in)
 {
 }
 
+void Visitor::post_interpolation(Interpolation* in)
+{
+}
+
 void Visitor::post_macro_call(Macro_call* in)
 {
 }
 
 void Visitor::post_callback(Callback* in)
-{
-}
-
-void Visitor::post_actual_parameter(Actual_parameter* in)
-{
-}
-
-void Visitor::post_interpolation(Interpolation* in)
 {
 }
 
@@ -220,13 +212,13 @@ void Visitor::children_body(Body* in)
 void Visitor::children_macro_call(Macro_call* in)
 {
     visit_macro_name(in->macro_name);
-    visit_actual_parameter_list(in->actual_parameters);
+    visit_expr_list(in->exprs);
 }
 
 void Visitor::children_callback(Callback* in)
 {
     visit_macro_name(in->macro_name);
-    visit_actual_parameter_list(in->actual_parameters);
+    visit_expr_list(in->exprs);
 }
 
 /* Tokens don't have children, so these methods do nothing by default */
@@ -327,6 +319,7 @@ void Visitor::pre_body_chain(Body* in)
 void Visitor::pre_macro_call_chain(Macro_call* in)
 {
     pre_node((Node*) in);
+    pre_expr((Expr*) in);
     pre_body_part((Body_part*) in);
     pre_macro_call((Macro_call*) in);
 }
@@ -334,6 +327,7 @@ void Visitor::pre_macro_call_chain(Macro_call* in)
 void Visitor::pre_callback_chain(Callback* in)
 {
     pre_node((Node*) in);
+    pre_expr((Expr*) in);
     pre_body_part((Body_part*) in);
     pre_callback((Callback*) in);
 }
@@ -362,7 +356,6 @@ void Visitor::pre_param_name_chain(PARAM_NAME* in)
     pre_expr((Expr*) in);
     pre_body_part((Body_part*) in);
     pre_interpolation((Interpolation*) in);
-    pre_actual_parameter((Actual_parameter*) in);
     pre_param_name((PARAM_NAME*) in);
 }
 
@@ -370,7 +363,6 @@ void Visitor::pre_string_chain(STRING* in)
 {
     pre_node((Node*) in);
     pre_expr((Expr*) in);
-    pre_actual_parameter((Actual_parameter*) in);
     pre_string((STRING*) in);
 }
 
@@ -435,6 +427,7 @@ void Visitor::post_macro_call_chain(Macro_call* in)
 {
     post_macro_call((Macro_call*) in);
     post_body_part((Body_part*) in);
+    post_expr((Expr*) in);
     post_node((Node*) in);
 }
 
@@ -442,6 +435,7 @@ void Visitor::post_callback_chain(Callback* in)
 {
     post_callback((Callback*) in);
     post_body_part((Body_part*) in);
+    post_expr((Expr*) in);
     post_node((Node*) in);
 }
 
@@ -466,7 +460,6 @@ void Visitor::post_attr_name_chain(ATTR_NAME* in)
 void Visitor::post_param_name_chain(PARAM_NAME* in)
 {
     post_param_name((PARAM_NAME*) in);
-    post_actual_parameter((Actual_parameter*) in);
     post_interpolation((Interpolation*) in);
     post_body_part((Body_part*) in);
     post_expr((Expr*) in);
@@ -476,7 +469,6 @@ void Visitor::post_param_name_chain(PARAM_NAME* in)
 void Visitor::post_string_chain(STRING* in)
 {
     post_string((STRING*) in);
-    post_actual_parameter((Actual_parameter*) in);
     post_expr((Expr*) in);
     post_node((Node*) in);
 }
@@ -698,34 +690,22 @@ void Visitor::visit_body_part(Body_part* in)
     }
 }
 
-void Visitor::visit_actual_parameter_list(Actual_parameter_list* in)
+void Visitor::visit_expr_list(Expr_list* in)
 {
-    Actual_parameter_list::const_iterator i;
+    Expr_list::const_iterator i;
     
     if(in == NULL)
-    	visit_null_list("MICG", "Actual_parameter");
+    	visit_null_list("MICG", "Expr");
     else
     {
-    	pre_list("MICG", "Actual_parameter", in->size());
+    	pre_list("MICG", "Expr", in->size());
     
     	for(i = in->begin(); i != in->end(); i++)
     	{
-    		visit_actual_parameter(*i);
+    		visit_expr(*i);
     	}
     
-    	post_list("MICG", "Actual_parameter", in->size());
-    }
-}
-
-void Visitor::visit_actual_parameter(Actual_parameter* in)
-{
-    if(in == NULL)
-    	visit_null("MICG", "Actual_parameter");
-    else
-    {
-    	pre_actual_parameter_chain(in);
-    	children_actual_parameter(in);
-    	post_actual_parameter_chain(in);
+    	post_list("MICG", "Expr", in->size());
     }
 }
 
@@ -760,14 +740,20 @@ void Visitor::pre_expr_chain(Expr* in)
 {
     switch(in->classid())
     {
-    case Lookup::ID:
-    	pre_lookup_chain(dynamic_cast<Lookup*>(in));
-    	break;
     case PARAM_NAME::ID:
     	pre_param_name_chain(dynamic_cast<PARAM_NAME*>(in));
     	break;
     case STRING::ID:
     	pre_string_chain(dynamic_cast<STRING*>(in));
+    	break;
+    case Lookup::ID:
+    	pre_lookup_chain(dynamic_cast<Lookup*>(in));
+    	break;
+    case Macro_call::ID:
+    	pre_macro_call_chain(dynamic_cast<Macro_call*>(in));
+    	break;
+    case Callback::ID:
+    	pre_callback_chain(dynamic_cast<Callback*>(in));
     	break;
     }
 }
@@ -779,30 +765,17 @@ void Visitor::pre_body_part_chain(Body_part* in)
     case C_CODE::ID:
     	pre_c_code_chain(dynamic_cast<C_CODE*>(in));
     	break;
-    case Macro_call::ID:
-    	pre_macro_call_chain(dynamic_cast<Macro_call*>(in));
-    	break;
     case Lookup::ID:
     	pre_lookup_chain(dynamic_cast<Lookup*>(in));
     	break;
     case PARAM_NAME::ID:
     	pre_param_name_chain(dynamic_cast<PARAM_NAME*>(in));
     	break;
+    case Macro_call::ID:
+    	pre_macro_call_chain(dynamic_cast<Macro_call*>(in));
+    	break;
     case Callback::ID:
     	pre_callback_chain(dynamic_cast<Callback*>(in));
-    	break;
-    }
-}
-
-void Visitor::pre_actual_parameter_chain(Actual_parameter* in)
-{
-    switch(in->classid())
-    {
-    case STRING::ID:
-    	pre_string_chain(dynamic_cast<STRING*>(in));
-    	break;
-    case PARAM_NAME::ID:
-    	pre_param_name_chain(dynamic_cast<PARAM_NAME*>(in));
     	break;
     }
 }
@@ -826,14 +799,20 @@ void Visitor::post_expr_chain(Expr* in)
 {
     switch(in->classid())
     {
-    case Lookup::ID:
-    	post_lookup_chain(dynamic_cast<Lookup*>(in));
-    	break;
     case PARAM_NAME::ID:
     	post_param_name_chain(dynamic_cast<PARAM_NAME*>(in));
     	break;
     case STRING::ID:
     	post_string_chain(dynamic_cast<STRING*>(in));
+    	break;
+    case Lookup::ID:
+    	post_lookup_chain(dynamic_cast<Lookup*>(in));
+    	break;
+    case Macro_call::ID:
+    	post_macro_call_chain(dynamic_cast<Macro_call*>(in));
+    	break;
+    case Callback::ID:
+    	post_callback_chain(dynamic_cast<Callback*>(in));
     	break;
     }
 }
@@ -845,30 +824,17 @@ void Visitor::post_body_part_chain(Body_part* in)
     case C_CODE::ID:
     	post_c_code_chain(dynamic_cast<C_CODE*>(in));
     	break;
-    case Macro_call::ID:
-    	post_macro_call_chain(dynamic_cast<Macro_call*>(in));
-    	break;
     case Lookup::ID:
     	post_lookup_chain(dynamic_cast<Lookup*>(in));
     	break;
     case PARAM_NAME::ID:
     	post_param_name_chain(dynamic_cast<PARAM_NAME*>(in));
     	break;
+    case Macro_call::ID:
+    	post_macro_call_chain(dynamic_cast<Macro_call*>(in));
+    	break;
     case Callback::ID:
     	post_callback_chain(dynamic_cast<Callback*>(in));
-    	break;
-    }
-}
-
-void Visitor::post_actual_parameter_chain(Actual_parameter* in)
-{
-    switch(in->classid())
-    {
-    case STRING::ID:
-    	post_string_chain(dynamic_cast<STRING*>(in));
-    	break;
-    case PARAM_NAME::ID:
-    	post_param_name_chain(dynamic_cast<PARAM_NAME*>(in));
     	break;
     }
 }
@@ -892,14 +858,20 @@ void Visitor::children_expr(Expr* in)
 {
     switch(in->classid())
     {
-    case Lookup::ID:
-    	children_lookup(dynamic_cast<Lookup*>(in));
-    	break;
     case PARAM_NAME::ID:
     	children_param_name(dynamic_cast<PARAM_NAME*>(in));
     	break;
     case STRING::ID:
     	children_string(dynamic_cast<STRING*>(in));
+    	break;
+    case Lookup::ID:
+    	children_lookup(dynamic_cast<Lookup*>(in));
+    	break;
+    case Macro_call::ID:
+    	children_macro_call(dynamic_cast<Macro_call*>(in));
+    	break;
+    case Callback::ID:
+    	children_callback(dynamic_cast<Callback*>(in));
     	break;
     }
 }
@@ -911,30 +883,17 @@ void Visitor::children_body_part(Body_part* in)
     case C_CODE::ID:
     	children_c_code(dynamic_cast<C_CODE*>(in));
     	break;
-    case Macro_call::ID:
-    	children_macro_call(dynamic_cast<Macro_call*>(in));
-    	break;
     case Lookup::ID:
     	children_lookup(dynamic_cast<Lookup*>(in));
     	break;
     case PARAM_NAME::ID:
     	children_param_name(dynamic_cast<PARAM_NAME*>(in));
     	break;
+    case Macro_call::ID:
+    	children_macro_call(dynamic_cast<Macro_call*>(in));
+    	break;
     case Callback::ID:
     	children_callback(dynamic_cast<Callback*>(in));
-    	break;
-    }
-}
-
-void Visitor::children_actual_parameter(Actual_parameter* in)
-{
-    switch(in->classid())
-    {
-    case STRING::ID:
-    	children_string(dynamic_cast<STRING*>(in));
-    	break;
-    case PARAM_NAME::ID:
-    	children_param_name(dynamic_cast<PARAM_NAME*>(in));
     	break;
     }
 }

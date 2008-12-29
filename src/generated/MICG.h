@@ -28,14 +28,13 @@ class Rule;
 class Expr;
 class Body;
 class Body_part;
-class Actual_parameter;
 class MACRO_NAME;
 class TYPE_NAME;
 class ATTR_NAME;
 class Equals;
+class Interpolation;
 class Macro_call;
 class Callback;
-class Interpolation;
 class STRING;
 class C_CODE;
 class Lookup;
@@ -51,14 +50,13 @@ typedef List<Rule*> Rule_list;
 typedef List<Expr*> Expr_list;
 typedef List<Body*> Body_list;
 typedef List<Body_part*> Body_part_list;
-typedef List<Actual_parameter*> Actual_parameter_list;
 typedef List<MACRO_NAME*> MACRO_NAME_list;
 typedef List<TYPE_NAME*> TYPE_NAME_list;
 typedef List<ATTR_NAME*> ATTR_NAME_list;
 typedef List<Equals*> Equals_list;
+typedef List<Interpolation*> Interpolation_list;
 typedef List<Macro_call*> Macro_call_list;
 typedef List<Callback*> Callback_list;
-typedef List<Interpolation*> Interpolation_list;
 typedef List<STRING*> STRING_list;
 typedef List<C_CODE*> C_CODE_list;
 typedef List<Lookup*> Lookup_list;
@@ -68,7 +66,7 @@ typedef List<None*> None_list;
 class Transform;
 class Visitor;
 
-/* Node ::= All | Macro | Signature | Formal_parameter | Rule | Expr | Body | Body_part | Actual_parameter | MACRO_NAME | TYPE_NAME | ATTR_NAME; */
+/* Node ::= All | Macro | Signature | Formal_parameter | Rule | Expr | Body | Body_part | MACRO_NAME | TYPE_NAME | ATTR_NAME; */
 class Node : virtual public IR::Node
 {
 public:
@@ -236,7 +234,7 @@ public:
     virtual void assert_valid() = 0;
 };
 
-/* Expr ::= Lookup | PARAM_NAME | STRING; */
+/* Expr ::= PARAM_NAME | STRING | Lookup | Macro_call | Callback; */
 class Expr : virtual public Node
 {
 public:
@@ -289,7 +287,7 @@ public:
     virtual void assert_valid();
 };
 
-/* Body_part ::= C_CODE | Macro_call | Interpolation | Callback; */
+/* Body_part ::= C_CODE | Interpolation | Macro_call | Callback; */
 class Body_part : virtual public Node
 {
 public:
@@ -305,30 +303,6 @@ public:
     virtual bool equals(Node* in) = 0;
 public:
     virtual Body_part* clone() = 0;
-public:
-    virtual Node* find(Node* in) = 0;
-public:
-    virtual void find_all(Node* in, Node_list* out) = 0;
-public:
-    virtual void assert_valid() = 0;
-};
-
-/* Actual_parameter ::= STRING | PARAM_NAME; */
-class Actual_parameter : virtual public Node
-{
-public:
-    Actual_parameter();
-public:
-    virtual void visit(Visitor* visitor) = 0;
-    virtual void transform_children(Transform* transform) = 0;
-public:
-    virtual int classid() = 0;
-public:
-    virtual bool match(Node* in) = 0;
-public:
-    virtual bool equals(Node* in) = 0;
-public:
-    virtual Actual_parameter* clone() = 0;
 public:
     virtual Node* find(Node* in) = 0;
 public:
@@ -454,66 +428,6 @@ public:
     virtual void assert_valid();
 };
 
-/* Macro_call ::= MACRO_NAME Actual_parameter* ; */
-class Macro_call : virtual public Body_part
-{
-public:
-    Macro_call(MACRO_NAME* macro_name, Actual_parameter_list* actual_parameters);
-protected:
-    Macro_call();
-public:
-    MACRO_NAME* macro_name;
-    Actual_parameter_list* actual_parameters;
-public:
-    virtual void visit(Visitor* visitor);
-    virtual void transform_children(Transform* transform);
-public:
-    static const int ID = 8;
-    virtual int classid();
-public:
-    virtual bool match(Node* in);
-public:
-    virtual bool equals(Node* in);
-public:
-    virtual Macro_call* clone();
-public:
-    virtual Node* find(Node* in);
-public:
-    virtual void find_all(Node* in, Node_list* out);
-public:
-    virtual void assert_valid();
-};
-
-/* Callback ::= MACRO_NAME Actual_parameter* ; */
-class Callback : virtual public Body_part
-{
-public:
-    Callback(MACRO_NAME* macro_name, Actual_parameter_list* actual_parameters);
-protected:
-    Callback();
-public:
-    MACRO_NAME* macro_name;
-    Actual_parameter_list* actual_parameters;
-public:
-    virtual void visit(Visitor* visitor);
-    virtual void transform_children(Transform* transform);
-public:
-    static const int ID = 9;
-    virtual int classid();
-public:
-    virtual bool match(Node* in);
-public:
-    virtual bool equals(Node* in);
-public:
-    virtual Callback* clone();
-public:
-    virtual Node* find(Node* in);
-public:
-    virtual void find_all(Node* in, Node_list* out);
-public:
-    virtual void assert_valid();
-};
-
 /* Interpolation ::= Lookup | PARAM_NAME; */
 class Interpolation : virtual public Body_part
 {
@@ -538,7 +452,67 @@ public:
     virtual void assert_valid() = 0;
 };
 
-class STRING : virtual public Expr, virtual public Actual_parameter
+/* Macro_call ::= MACRO_NAME Expr* ; */
+class Macro_call : virtual public Expr, virtual public Body_part
+{
+public:
+    Macro_call(MACRO_NAME* macro_name, Expr_list* exprs);
+protected:
+    Macro_call();
+public:
+    MACRO_NAME* macro_name;
+    Expr_list* exprs;
+public:
+    virtual void visit(Visitor* visitor);
+    virtual void transform_children(Transform* transform);
+public:
+    static const int ID = 8;
+    virtual int classid();
+public:
+    virtual bool match(Node* in);
+public:
+    virtual bool equals(Node* in);
+public:
+    virtual Macro_call* clone();
+public:
+    virtual Node* find(Node* in);
+public:
+    virtual void find_all(Node* in, Node_list* out);
+public:
+    virtual void assert_valid();
+};
+
+/* Callback ::= MACRO_NAME Expr* ; */
+class Callback : virtual public Expr, virtual public Body_part
+{
+public:
+    Callback(MACRO_NAME* macro_name, Expr_list* exprs);
+protected:
+    Callback();
+public:
+    MACRO_NAME* macro_name;
+    Expr_list* exprs;
+public:
+    virtual void visit(Visitor* visitor);
+    virtual void transform_children(Transform* transform);
+public:
+    static const int ID = 9;
+    virtual int classid();
+public:
+    virtual bool match(Node* in);
+public:
+    virtual bool equals(Node* in);
+public:
+    virtual Callback* clone();
+public:
+    virtual Node* find(Node* in);
+public:
+    virtual void find_all(Node* in, Node_list* out);
+public:
+    virtual void assert_valid();
+};
+
+class STRING : virtual public Expr
 {
 public:
     STRING(String* value);
@@ -626,7 +600,7 @@ public:
     virtual void assert_valid();
 };
 
-class PARAM_NAME : virtual public Expr, virtual public Actual_parameter, virtual public Interpolation
+class PARAM_NAME : virtual public Expr, virtual public Interpolation
 {
 public:
     PARAM_NAME(String* value);
@@ -656,7 +630,7 @@ public:
 };
 
 /* The top of the class hierarchy. If the Fold will not allow you fold to anything else, try this. */
-class None : virtual public Node, virtual public All, virtual public Macro, virtual public Signature, virtual public Formal_parameter, virtual public Rule, virtual public Lookup, virtual public Equals, virtual public Expr, virtual public Body, virtual public Body_part, virtual public Macro_call, virtual public Callback, virtual public Actual_parameter, virtual public Interpolation, virtual public MACRO_NAME, virtual public TYPE_NAME, virtual public ATTR_NAME, virtual public PARAM_NAME, virtual public STRING, virtual public C_CODE
+class None : virtual public Node, virtual public All, virtual public Macro, virtual public Signature, virtual public Formal_parameter, virtual public Rule, virtual public Lookup, virtual public Equals, virtual public Expr, virtual public Body, virtual public Body_part, virtual public Interpolation, virtual public Macro_call, virtual public Callback, virtual public MACRO_NAME, virtual public TYPE_NAME, virtual public ATTR_NAME, virtual public PARAM_NAME, virtual public STRING, virtual public C_CODE
 {
 public:
     None();

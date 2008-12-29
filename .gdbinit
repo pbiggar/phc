@@ -1,17 +1,21 @@
 set breakpoint pending on
 
-b phc_internal_error(const char*, ...)
-b phc_internal_error(const char*, String*, int, ...)
+b phc_internal_error(char const*, ...)
 b phc_internal_error(char const*, AST::Node*, ...)
 b phc_internal_error(char const*, HIR::Node*, ...)
+b phc_internal_error(char const*, LIR::Node*, ...)
+b phc_internal_error(char const*, MICG::Node*, ...)
 b phc_internal_error(char const*, MIR::Node*, ...)
+b phc_internal_error(char const*, String*, int, int, ...)
+b phc_internal_error(char const*, __va_list_tag*, String*, int, int)
 b phc_error(char const*, ...)
-b phc_error(char const*, String*, int, ...)
 b phc_error(char const*, AST::Node*, ...)
 b phc_error(char const*, HIR::Node*, ...)
+b phc_error(char const*, LIR::Node*, ...)
+b phc_error(char const*, MICG::Node*, ...)
 b phc_error(char const*, MIR::Node*, ...)
-b phc_unreachable(char const*) 
-b phc_TODO(char const*) 
+b phc_error(char const*, String*, int, int, ...)
+b phc_error(char const*, __va_list_tag*, String*, int, int)
 
 
 define ast

@@ -34,13 +34,13 @@ public:
     virtual Lookup* pre_lookup(Lookup* in);
     virtual void pre_equals(Equals* in, Rule_list* out);
     virtual Body* pre_body(Body* in);
-    virtual void pre_macro_call(Macro_call* in, Body_part_list* out);
-    virtual void pre_callback(Callback* in, Body_part_list* out);
+    virtual Macro_call* pre_macro_call(Macro_call* in);
+    virtual Callback* pre_callback(Callback* in);
     virtual MACRO_NAME* pre_macro_name(MACRO_NAME* in);
     virtual TYPE_NAME* pre_type_name(TYPE_NAME* in);
     virtual ATTR_NAME* pre_attr_name(ATTR_NAME* in);
     virtual PARAM_NAME* pre_param_name(PARAM_NAME* in);
-    virtual STRING* pre_string(STRING* in);
+    virtual Expr* pre_string(STRING* in);
     virtual void pre_c_code(C_CODE* in, Body_part_list* out);
 /* Invoked after the children have been transformed */
 public:
@@ -51,13 +51,13 @@ public:
     virtual Lookup* post_lookup(Lookup* in);
     virtual void post_equals(Equals* in, Rule_list* out);
     virtual Body* post_body(Body* in);
-    virtual void post_macro_call(Macro_call* in, Body_part_list* out);
-    virtual void post_callback(Callback* in, Body_part_list* out);
+    virtual Macro_call* post_macro_call(Macro_call* in);
+    virtual Callback* post_callback(Callback* in);
     virtual MACRO_NAME* post_macro_name(MACRO_NAME* in);
     virtual TYPE_NAME* post_type_name(TYPE_NAME* in);
     virtual ATTR_NAME* post_attr_name(ATTR_NAME* in);
     virtual PARAM_NAME* post_param_name(PARAM_NAME* in);
-    virtual STRING* post_string(STRING* in);
+    virtual Expr* post_string(STRING* in);
     virtual void post_c_code(C_CODE* in, Body_part_list* out);
 /* Transform the children of the node */
 public:
@@ -96,8 +96,7 @@ public:
     virtual Expr* transform_expr(Expr* in);
     virtual Body_part_list* transform_body_part_list(Body_part_list* in);
     virtual Body_part_list* transform_body_part(Body_part* in);
-    virtual Actual_parameter_list* transform_actual_parameter_list(Actual_parameter_list* in);
-    virtual Actual_parameter_list* transform_actual_parameter(Actual_parameter* in);
+    virtual Expr_list* transform_expr_list(Expr_list* in);
     virtual All* transform_all(All* in);
 /* Invoke the right pre-transform (manual dispatching) */
 /* Do not override unless you know what you are doing */
@@ -105,21 +104,18 @@ public:
     virtual void pre_rule(Rule* in, Rule_list* out);
     virtual Expr* pre_expr(Expr* in);
     virtual void pre_body_part(Body_part* in, Body_part_list* out);
-    virtual void pre_actual_parameter(Actual_parameter* in, Actual_parameter_list* out);
 /* Invoke the right post-transform (manual dispatching) */
 /* Do not override unless you know what you are doing */
 public:
     virtual void post_rule(Rule* in, Rule_list* out);
     virtual Expr* post_expr(Expr* in);
     virtual void post_body_part(Body_part* in, Body_part_list* out);
-    virtual void post_actual_parameter(Actual_parameter* in, Actual_parameter_list* out);
 /* Invoke the right transform-children (manual dispatching) */
 /* Do not override unless you what you are doing */
 public:
     virtual void children_rule(Rule* in);
     virtual void children_expr(Expr* in);
     virtual void children_body_part(Body_part* in);
-    virtual void children_actual_parameter(Actual_parameter* in);
 };
 }
 

@@ -38,10 +38,9 @@ public:
     virtual void pre_expr(Expr* in);
     virtual void pre_body(Body* in);
     virtual void pre_body_part(Body_part* in);
+    virtual void pre_interpolation(Interpolation* in);
     virtual void pre_macro_call(Macro_call* in);
     virtual void pre_callback(Callback* in);
-    virtual void pre_actual_parameter(Actual_parameter* in);
-    virtual void pre_interpolation(Interpolation* in);
     virtual void pre_macro_name(MACRO_NAME* in);
     virtual void pre_type_name(TYPE_NAME* in);
     virtual void pre_attr_name(ATTR_NAME* in);
@@ -61,10 +60,9 @@ public:
     virtual void post_expr(Expr* in);
     virtual void post_body(Body* in);
     virtual void post_body_part(Body_part* in);
+    virtual void post_interpolation(Interpolation* in);
     virtual void post_macro_call(Macro_call* in);
     virtual void post_callback(Callback* in);
-    virtual void post_actual_parameter(Actual_parameter* in);
-    virtual void post_interpolation(Interpolation* in);
     virtual void post_macro_name(MACRO_NAME* in);
     virtual void post_type_name(TYPE_NAME* in);
     virtual void post_attr_name(ATTR_NAME* in);
@@ -152,8 +150,7 @@ public:
     virtual void visit_expr(Expr* in);
     virtual void visit_body_part_list(Body_part_list* in);
     virtual void visit_body_part(Body_part* in);
-    virtual void visit_actual_parameter_list(Actual_parameter_list* in);
-    virtual void visit_actual_parameter(Actual_parameter* in);
+    virtual void visit_expr_list(Expr_list* in);
     virtual void visit_all(All* in);
 /* Invoke the right pre-chain (manual dispatching) */
 /* Do not override unless you know what you are doing */
@@ -161,21 +158,18 @@ public:
     virtual void pre_rule_chain(Rule* in);
     virtual void pre_expr_chain(Expr* in);
     virtual void pre_body_part_chain(Body_part* in);
-    virtual void pre_actual_parameter_chain(Actual_parameter* in);
 /* Invoke the right post-chain (manual dispatching) */
 /* Do not override unless you know what you are doing */
 public:
     virtual void post_rule_chain(Rule* in);
     virtual void post_expr_chain(Expr* in);
     virtual void post_body_part_chain(Body_part* in);
-    virtual void post_actual_parameter_chain(Actual_parameter* in);
 /* Invoke the right visit-children (manual dispatching) */
 /* Do not override unless you know what you are doing */
 public:
     virtual void children_rule(Rule* in);
     virtual void children_expr(Expr* in);
     virtual void children_body_part(Body_part* in);
-    virtual void children_actual_parameter(Actual_parameter* in);
 };
 }
 

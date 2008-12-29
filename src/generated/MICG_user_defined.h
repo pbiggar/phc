@@ -15,14 +15,13 @@ class Rule;
 class Expr;
 class Body;
 class Body_part;
-class Actual_parameter;
 class MACRO_NAME;
 class TYPE_NAME;
 class ATTR_NAME;
 class Equals;
+class Interpolation;
 class Macro_call;
 class Callback;
-class Interpolation;
 class STRING;
 class C_CODE;
 class Lookup;
@@ -40,14 +39,13 @@ MAKETEA_USER_DEFINED(MICG::Rule)
 MAKETEA_USER_DEFINED(MICG::Expr)
 MAKETEA_USER_DEFINED(MICG::Body)
 MAKETEA_USER_DEFINED(MICG::Body_part)
-MAKETEA_USER_DEFINED(MICG::Actual_parameter)
 MAKETEA_USER_DEFINED(MICG::MACRO_NAME)
 MAKETEA_USER_DEFINED(MICG::TYPE_NAME)
 MAKETEA_USER_DEFINED(MICG::ATTR_NAME)
 MAKETEA_USER_DEFINED(MICG::Equals)
+MAKETEA_USER_DEFINED(MICG::Interpolation)
 MAKETEA_USER_DEFINED(MICG::Macro_call)
 MAKETEA_USER_DEFINED(MICG::Callback)
-MAKETEA_USER_DEFINED(MICG::Interpolation)
 MAKETEA_USER_DEFINED(MICG::STRING)
 MAKETEA_USER_DEFINED(MICG::C_CODE)
 MAKETEA_USER_DEFINED(MICG::Lookup)
