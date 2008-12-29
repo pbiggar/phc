@@ -97,3 +97,60 @@ initialize_function_call (zend_fcall_info * fci, zend_fcall_info_cache * fcic,
 	}
     }
 }
+
+
+/*
+ * To initialize a method call, we need to look up the method in the tables
+ * associated with the object. zend_fcall_info_init will do this for us if
+ * we set up an array of the form
+ *
+ * array( 0 => the target object (zval* IS_OBJECT)
+ *      , 1 => the name of the function to be called (zval* IS_STRING)
+ *      )
+ *
+ * However, when zend_fcall_info_init then uses zend_hash_index_find to
+ * find a zval** to the object, and stores this zval** in the function info
+ * cache (zend_is_callable_ex in zend_API.c, case for IS_ARRAY(callable) and
+ * IS_OBJECT(obj)). The zval** however points to some memory that is part
+ * of the hashtable itself (allocated by zend_hash_index_update) and will
+ * therefore be freed once we free the hashtable. Hence, it is important
+ * that we only free the hashtable once the function info cache structure
+ * is no longer required.
+ *
+ * We could avoid this if we could set up a bucket manually and maintain
+ * resposibility for the data memory for the bucket ourselves. However, the
+ * zend hash API does not seem to offer this functionality.
+ *
+ * (It may also be possible to avoid returning the hashtable by requesting the
+ * zend_class_entry for the object manually, extracting the class name, and
+ * then setting up an an array with the class name and the function name.
+ * However, I feel that giving the object rather than manually specifying
+ * the class name is more robust, esp. in the case of inheritance etc.)
+ */
+static zval *
+initialize_method_call (zend_fcall_info * fci, zend_fcall_info_cache * fcic,
+			zval * obj, char *function_name, char *filename,
+			int line_number TSRMLS_DC)
+{
+  // We don't cache the results for object lookups
+  assert (!fcic->initialized);
+
+  zval *callable;
+  MAKE_STD_ZVAL (callable);
+  array_init (callable);
+
+  add_index_zval (callable, 0, obj);
+  add_index_string (callable, 1, function_name, 1);
+
+  int result = zend_fcall_info_init (callable, fci, fcic TSRMLS_CC);
+  if (result != SUCCESS)
+    {
+      phc_setup_error (1, filename, line_number, NULL TSRMLS_CC);
+      php_error_docref (NULL TSRMLS_CC, E_ERROR,
+			"Call to undefined function %s()", function_name);
+    }
+
+  return callable;
+}
+
+// vi:set ts=8:

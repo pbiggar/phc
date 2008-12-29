@@ -1616,6 +1616,21 @@ init_function_record (string name, string& fci_name, string& fcic_name, Node* no
 	;
 }
 
+void
+init_method_record (string obj, string name, string& fci_name, string& fcic_name, string ht, Node* node)
+{
+	code
+	<< "zval* " << ht << " = " << "initialize_method_call (" 
+	<<			"&" << fci_name << ", "
+	<<			"&" << fcic_name << ", "
+	<<      obj << ", "
+	<<			"\"" << name << "\", "
+	<<			"\"" << *node->get_filename () << "\", " 
+	<<			node->get_line_number ()
+	<<			" TSRMLS_CC);\n"
+	;
+}
+
 class Pattern_assign_expr_param_is_ref : public Pattern_assign_var
 {
 public:
@@ -1694,19 +1709,35 @@ public:
 		// location of the function
 		string fci_name = suffix (*name->value, "fci");
 		string fcic_name = suffix (*name->value, "fcic");
+			
+		VARIABLE_NAME* object_name = NULL;
+		CLASS_NAME* class_name = NULL; 
 
 		// Global function or class member?
 		if (rhs->value->target != NULL)
 		{
-			VARIABLE_NAME* object_name;
-			CLASS_NAME* class_name; 
-
 			object_name = dynamic_cast<VARIABLE_NAME*>(rhs->value->target);
 			class_name  = dynamic_cast<CLASS_NAME*>(rhs->value->target);
 
 			if(object_name != NULL)
 			{
-				phc_unsupported(rhs->value, "invocation of object member");
+				// TODO: if we statically knew the type of the object that is invoked
+				// TODO: (type inference) then we should be able to use the cached 
+				// TODO: function info. As it stands, we have to lookup the function
+				// TODO: every time since the variable can be bound to a different
+				// TODO: class every time we encounter this statement
+		
+				fci_name  = "fci_object"; 
+				fcic_name = "fcic_object";
+	
+				code << read_rvalue("obj", object_name);	
+
+				code
+				<< "zend_fcall_info " << fci_name << ";\n"
+				<< "zend_fcall_info_cache " << fcic_name << " = {0,NULL,NULL,NULL};\n"
+				;
+
+				init_method_record ("obj", *name->value, fci_name, fcic_name, "callable", rhs->value);
 			}
 			else if(class_name != NULL)
 			{
@@ -1945,6 +1976,13 @@ public:
 		<< "if(signature->common.return_reference && signature->type != ZEND_USER_FUNCTION)\n"
 		<< "	zval_ptr_dtor (&rhs);\n"
 		;
+
+		// Destroy the array used to find the method of an object
+		// See comment atop initialized_method_call in runtime/methods.c
+		if(object_name != NULL)
+		{
+			code << "zval_ptr_dtor(&callable);\n";
+		}
 	}
 
 protected:
