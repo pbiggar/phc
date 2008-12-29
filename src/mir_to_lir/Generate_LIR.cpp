@@ -1129,9 +1129,15 @@ public:
 		// call the opposite function). This is accounted for in the
 		// binops table.
 		if(*op->value->value == ">" || *op->value->value == ">=")
-			code << gen->micg.instantiate ("assign_expr_bin_op", lhs->value, left->value, right->value, s(op_fn));
+		{
+			code << gen->micg.instantiate ("assign_expr_bin_op",
+					lhs->value, right->value, left->value, s(op_fn));
+		}
 		else
-			code << gen->micg.instantiate ("assign_expr_bin_op", lhs->value, right->value, left->value, s(op_fn));
+		{
+			code << gen->micg.instantiate ("assign_expr_bin_op",
+					lhs->value, left->value, right->value, s(op_fn));
+		}
 	}
 
 

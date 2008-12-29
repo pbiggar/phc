@@ -125,7 +125,7 @@ assign_expr_bin_op (token LHS, node LEFT, node RIGHT, string OP_FN)
       ALLOC_INIT_ZVAL (*p_lhs);
     }
 
-  zval* old = **p_lhs;
+  zval old = **p_lhs;
   int result_is_operand = (*p_lhs == left || *p_lhs == right);
   $OP_FN (*p_lhs, left, right TSRMLS_CC);
 
@@ -291,10 +291,10 @@ write_var_inner (string LHS, string RHS, token TLHS, token TRHS)
 
 read_var_var (string ZVP, string INDEX)
 @@@
-   $ZVP = read_var_var (\scope("LOCAL"), $INDEX, TSRMLS_CC);
+   $ZVP = read_var_var (\scope("LOCAL"), $INDEX TSRMLS_CC);
 @@@
 
 get_var_var (string ST, string ZVP, string INDEX)
 @@@
-   zval** $ZVP = read_var_var (\scope(ST), $INDEX, TSRMLS_CC);
+   $ZVP = get_var_var (\scope(ST), $INDEX TSRMLS_CC);
 @@@
