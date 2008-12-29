@@ -381,5 +381,5 @@ function total()
 }
 
 $t0 = $t = start_test();
-for ($i = 0; $i < 10; $i++) strcat(200000);
+strcat(200000);
 $t = end_test($t, "strcat(200000)");

@@ -381,5 +381,5 @@ function total()
 }
 
 $t0 = $t = start_test();
-for ($i = 0; $i < 10; $i++) ary2(50000);
+ary2(50000);
 $t = end_test($t, "ary2(50000)");

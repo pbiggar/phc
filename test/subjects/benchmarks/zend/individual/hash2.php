@@ -381,5 +381,5 @@ function total()
 }
 
 $t0 = $t = start_test();
-for ($i = 0; $i < 10; $i++) hash2(500);
+hash2(500);
 $t = end_test($t, "hash2(500)");

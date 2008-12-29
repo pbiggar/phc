@@ -94,6 +94,8 @@ if [[ $? != 0 ]]; then
 	exit 1
 fi
 indent $NAME.c
+# indent assumes 8-space tabs; make sure vim agrees
+echo "// vi:set ts=8:" >> $NAME.c
 
 # compile it, using phc's verbose output as the command. Pass an empty program so it doesnt compile twice, and if optimizing, 
 GCC_COMMAND=`echo '<?php ?>' | src/phc -v -c $PHC_ARGS -o $OUT_NAME | grep ^gcc | sed "s# - # $NAME.c #"` || exit 1

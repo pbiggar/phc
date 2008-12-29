@@ -6,11 +6,13 @@
  */
 
 #include "Generate_LIR_annotations.h"
+#include <sstream>
 
 #include "cmdline.h"
 extern struct gengetopt_args_info args_info;
 
 using namespace MIR;
+using namespace std;
 
 // convert from string to String*
 String_list* wrap_strings (Set<string>& set)
@@ -31,7 +33,7 @@ void
 Generate_LIR_annotations::pre_php_script (PHP_script* in)
 {
 	pool_values.clear ();
-	compiled_functions = new Signature_list;
+	compiled_functions.push(new Signature_list);
 }
 
 void
@@ -49,14 +51,17 @@ Generate_LIR_annotations::post_php_script (PHP_script* in)
 
 	// Add a list of methods called.
 	String_list* method_names = new String_list;
-	foreach (string name, called_functions)
+	foreach (string name, cached_functions)
 		method_names->push_back (s (name));
 
-	in->attrs->set ("phc.codegen.called_functions", method_names);
+	in->attrs->set ("phc.codegen.cached_functions", method_names);
 
 
 	// Get a list of compiled functions
-	in->attrs->set_list ("phc.codegen.compiled_functions", compiled_functions);
+  Signature_list* cf;
+	cf = compiled_functions.top(); compiled_functions.pop();
+	assert(compiled_functions.empty());
+	in->attrs->set_list ("phc.codegen.compiled_functions", cf);
 }
 
 void
@@ -88,14 +93,29 @@ void
 Generate_LIR_annotations::post_param_is_ref (Param_is_ref* in)
 {
 	if (METHOD_NAME* method_name = dynamic_cast<METHOD_NAME*> (in->method_name))
-		called_functions.insert (*method_name->value);
+		cached_functions.insert (*method_name->value);
 }
 
 void
 Generate_LIR_annotations::post_method_invocation (Method_invocation* in)
 {
 	if (METHOD_NAME* method_name = dynamic_cast<METHOD_NAME*> (in->method_name))
-		called_functions.insert (*method_name->value);
+	{
+		CLASS_NAME* class_name = dynamic_cast<CLASS_NAME*>(in->target);
+
+		if (in->target == NULL)
+			cached_functions.insert (*method_name->value);
+		else if (class_name != NULL)
+		{
+			stringstream fqn;
+			fqn << *class_name->value << "_" << *method_name->value;
+			cached_functions.insert (fqn.str());
+		}
+		else
+		{
+			// The function is part of an object; we cannot cache it 
+		}
+	}
 }
 
 
@@ -108,7 +128,10 @@ Generate_LIR_annotations::pre_method (MIR::Method* in)
 {
 	var_names.clear ();
 	iterators.clear ();
-	compiled_functions->push_back (in->signature->clone ());
+
+	if(!class_name.empty())
+		in->signature->attrs->set ("phc.codegen.class_name", class_name.top());
+	(compiled_functions.top())->push_back (in->signature->clone ());
 }
 
 void
@@ -143,5 +166,23 @@ Generate_LIR_annotations::post_return (Return* in)
 	// The signature at the back is this function.
 	in->attrs->set ("phc.codegen.return_by_ref",
 		new Boolean (
-			compiled_functions->back ()->return_by_ref));
+			(compiled_functions.top())->back ()->return_by_ref));
+}
+
+// Make sure phc.codegen.compiled_functions gets added to the class
+// definition rather than the PHP script
+void
+Generate_LIR_annotations::pre_class_def(Class_def* in)
+{
+	compiled_functions.push(new Signature_list);
+	class_name.push(in->class_name->value);
+}
+
+void
+Generate_LIR_annotations::post_class_def(Class_def* in)
+{
+  Signature_list* cf;
+	cf = compiled_functions.top(); compiled_functions.pop();
+	in->attrs->set_list ("phc.codegen.compiled_functions", cf);
+	class_name.pop();
 }

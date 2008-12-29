@@ -381,5 +381,5 @@ function total()
 }
 
 $t0 = $t = start_test();
-for ($i = 0; $i < 10; $i++) heapsort(20000);
+heapsort(20000);
 $t = end_test($t, "heapsort(20000)");

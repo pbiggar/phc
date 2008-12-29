@@ -381,5 +381,5 @@ function total()
 }
 
 $t0 = $t = start_test();
-for ($i = 0; $i < 10; $i++) sieve(30);
+sieve(30);
 $t = end_test($t, "sieve(30)");

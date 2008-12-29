@@ -381,5 +381,5 @@ function total()
 }
 
 $t0 = $t = start_test();
-for ($i = 0; $i < 10; $i++) nestedloop(12);
+nestedloop(12);
 $t = end_test($t, "nestedloop(12)");

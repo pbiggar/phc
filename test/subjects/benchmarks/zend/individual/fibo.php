@@ -381,5 +381,5 @@ function total()
 }
 
 $t0 = $t = start_test();
-for ($i = 0; $i < 10; $i++) fibo(30);
+fibo(30);
 $t = end_test($t, "fibo(30)");
