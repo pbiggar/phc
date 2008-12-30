@@ -447,4 +447,24 @@ assign_expr_foreach_get_val (token LHS, token ARRAY, string ITERATOR)
       write_var (p_lhs, *p_rhs);
 @@@
 
+foreach_reset (token ARRAY, string ITERATOR)
+@@@
+   \read_rvalue ("fe_array", ARRAY);
+   zend_hash_internal_pointer_reset_ex (fe_array->value.ht, &$ITERATOR);
+@@@
+
+foreach_next (token ARRAY, string ITERATOR)
+@@@
+   \read_rvalue ("fe_array", ARRAY);
+   int result = zend_hash_move_forward_ex (fe_array->value.ht, &$ITERATOR);
+   assert (result == SUCCESS);
+@@@
+
+foreach_end (token ARRAY, string ITERATOR)
+@@@
+   \read_rvalue ("fe_array", ARRAY);
+   zend_hash_internal_pointer_end_ex (fe_array->value.ht, &$ITERATOR);
+@@@
+
+
 

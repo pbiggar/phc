@@ -2500,20 +2500,15 @@ class Pattern_foreach_reset : public Pattern
 
 	void generate_code(Generate_C* gen)
 	{
-		// declare the external iterator outside local scope blocks
-		buf
-		<<		read_rvalue ("fe_array", reset->value->array)
-		<<		"zend_hash_internal_pointer_reset_ex ("
-		<<		"						fe_array->value.ht, "
-		<<		"						&" << *reset->value->iter->value << ");\n"
-		;
+		buf << gen->micg.instantiate ("foreach_reset",
+			reset->value->array, reset->value->iter->value);
 	}
 
 protected:
 	Wildcard<Foreach_reset>* reset;
 };
 
-class Pattern_foreach_next: public Pattern
+class Pattern_foreach_next : public Pattern
 {
 	bool match (Statement* that)
 	{
@@ -2523,13 +2518,8 @@ class Pattern_foreach_next: public Pattern
 
 	void generate_code (Generate_C* gen)
 	{
-		buf
-		<<	read_rvalue ("fe_array", next->value->array)
-		<<	"int result = zend_hash_move_forward_ex ("
-		<<						"fe_array->value.ht, "
-		<<						"&" << *next->value->iter->value << ");\n"
-		<<	"assert (result == SUCCESS);\n"
-		;
+		buf << gen->micg.instantiate ("foreach_next",
+			next->value->array, next->value->iter->value);
 	}
 
 protected:
@@ -2546,12 +2536,8 @@ class Pattern_foreach_end : public Pattern
 
 	void generate_code(Generate_C* gen)
 	{
-		buf
-		<<	read_rvalue ("fe_array", end->value->array)
-		<<	"zend_hash_internal_pointer_end_ex ("
-		<<						"fe_array->value.ht, "
-		<<						"&" << *end->value->iter->value << ");\n"
-		;
+		buf << gen->micg.instantiate ("foreach_end",
+			end->value->array, end->value->iter->value);
 	}
 
 protected:
