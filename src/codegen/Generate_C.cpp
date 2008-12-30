@@ -1038,40 +1038,25 @@ public:
 	Expr* rhs_pattern()
 	{
 		op = new Wildcard<OP>;
-		var_name = new Wildcard<VARIABLE_NAME>;
+		rhs = new Wildcard<VARIABLE_NAME>;
 
-		return new Unary_op(op, var_name);
+		return new Unary_op(op, rhs);
 	}
 
 	void generate_code (Generate_C* gen)
 	{
+		assert (!agn->is_ref);
 		assert (op_functions.has (*op->value->value));
 
 		string op_fn = op_functions[*op->value->value]; 
 
-		buf
-		<< get_st_entry (LOCAL, "p_lhs", lhs->value)
-		<< read_rvalue ("expr", var_name->value)
-
-		<< "if (in_copy_on_write (*p_lhs))\n"
-		<< "{\n"
-		<< "	zval_ptr_dtor (p_lhs);\n"
-		<< "	ALLOC_INIT_ZVAL (*p_lhs);\n"
-		<< "}\n"
-		<< "zval old = **p_lhs;\n"
-		<< "int result_is_operand = (*p_lhs == expr)\n;"
-
-		<< op_fn << "(*p_lhs, expr TSRMLS_CC);\n"
-
-		<< "if (!result_is_operand)\n"
-		<<		"zval_dtor (&old);\n"
-		;
-
+		buf << gen->micg.instantiate ("assign_expr_unary_op",
+				lhs->value, rhs->value, s(op_fn));
 	}
 
 protected:
 	Wildcard<OP>* op;
-	Wildcard<VARIABLE_NAME>* var_name;
+	Wildcard<VARIABLE_NAME>* rhs;
 };
 
 

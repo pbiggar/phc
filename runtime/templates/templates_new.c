@@ -148,6 +148,26 @@ assign_expr_bin_op (token LHS, node LEFT, node RIGHT, string OP_FN)
     zval_dtor (&old);
 @@@
 
+/*
+ * Unary-ops
+ */
+assign_expr_unary_op (token LHS, node RHS, string OP_FN)
+@@@
+   \get_st_entry ("LOCAL", "p_lhs", LHS);
+   \read_rvalue ("rhs", RHS);
+   if (in_copy_on_write (*p_lhs))
+   {
+     zval_ptr_dtor (p_lhs);
+     ALLOC_INIT_ZVAL (*p_lhs);
+   }
+
+   zval old = **p_lhs;
+   int result_is_operand = (*p_lhs == rhs);
+   $OP_FN (*p_lhs, rhs TSRMLS_CC);
+   if (!result_is_operand)
+	zval_dtor (&old);
+@@@
+
 
 /*
  * Var-vars
