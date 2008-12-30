@@ -2361,12 +2361,8 @@ public:
 
 		string op_fn = op_functions[*op->value->value]; 
 
-		buf 
-		<<	get_st_entry (LOCAL, "p_var", var->value)
-
-		<<	"sep_copy_on_write (p_var);\n"
-		<<	op_fn << "(*p_var);\n"
-		;
+		buf << gen->micg.instantiate ("pre_op",
+			var->value, s(op_fn));
 	}
 
 protected:

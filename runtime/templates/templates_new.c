@@ -168,6 +168,15 @@ assign_expr_unary_op (token LHS, node RHS, string OP_FN)
 	zval_dtor (&old);
 @@@
 
+/*
+ * Pre-op
+ */
+pre_op (token VAR, string OP_FN)
+@@@
+   \get_st_entry ("LOCAL", "p_var", VAR);
+   sep_copy_on_write (p_var);
+   $OP_FN (*p_var);
+@@@
 
 /*
  * Var-vars
