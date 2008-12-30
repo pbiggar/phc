@@ -174,6 +174,56 @@ assign_expr_ref_var_var (token LHS, token INDEX)
   copy_into_ref (p_lhs, p_rhs);
 @@@
 
+/*
+ * Array access
+ */
+assign_expr_array_access (token LHS, token ARRAY, token INDEX)
+@@@
+   \get_st_entry ("LOCAL", "p_lhs", LHS);
+   \read_rvalue ("r_array", ARRAY);
+   \read_rvalue ("r_index", INDEX);
+
+   zval* rhs;
+   int is_rhs_new = 0;
+    if (Z_TYPE_P (r_array) != IS_ARRAY)
+    {
+      if (Z_TYPE_P (r_array) == IS_STRING)
+	{
+	  is_rhs_new = 1;
+	  rhs = read_string_index (r_array, r_index TSRMLS_CC);
+	}
+      else
+	// TODO: warning here?
+	rhs = EG (uninitialized_zval_ptr);
+    }
+    else
+    {
+      if (check_array_index_type (r_index TSRMLS_CC))
+	{
+	  // Read array variable
+	  read_array (&rhs, r_array, r_index TSRMLS_CC);
+	}
+      else
+	rhs = *p_lhs; // HACK to fail  *p_lhs != rhs
+    }
+
+   if (*p_lhs != rhs)
+      write_var (p_lhs, rhs);
+
+   if (is_rhs_new) zval_ptr_dtor (&rhs);
+@@@
+
+assign_expr_ref_array_access (token LHS, token ARRAY, token INDEX)
+@@@
+   \get_st_entry ("LOCAL", "p_lhs", LHS);
+   \get_st_entry ("LOCAL", "p_r_array", ARRAY);
+   \read_rvalue ("r_index", INDEX);
+   check_array_type (p_r_array TSRMLS_CC);
+   zval** p_rhs = get_ht_entry (p_r_array, r_index TSRMLS_CC);
+   sep_copy_on_write (p_rhs);
+   copy_into_ref (p_lhs, p_rhs);
+@@@
+
 
 
 /*

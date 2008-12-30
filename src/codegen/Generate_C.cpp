@@ -230,28 +230,6 @@ string get_st_entry (Scope scope, string zvp, VARIABLE_NAME* var_name)
 	return ss.str();
 }
 
-// Declare and fetch a zval** into ZVP, which is the hash-table entry for
-// VAR_NAME[INDEX]. This zval** can be over-written, which will change the
-// hash-table entry.
-string get_array_entry (string zvp, VARIABLE_NAME* var_name, Rvalue* index)
-{
-	stringstream ss;
-	string zvp_name = suffix (zvp, "var");
-	string zvp_index = suffix (zvp, "index");
-
-	ss	
-	// TODO dont need get_st_entry here
-	<< get_st_entry (LOCAL, zvp_name, var_name)
-	<< read_rvalue (zvp_index, index)
-	<< "check_array_type (" << zvp_name << " TSRMLS_CC);\n"
-	<<	"zval**" << zvp << " = get_ht_entry ("
-	<<						zvp_name << ", "
-	<<						zvp_index
-	<<						" TSRMLS_CC);\n"
-	;
-
-	return ss.str();
-}
 
 /* Generate code to read the variable named in VAR to the zval* ZVP */
 string read_var (string zvp, VARIABLE_NAME* var_name)
@@ -932,54 +910,13 @@ public:
 
 		if (!agn->is_ref)
 		{
-			buf
-			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
-			<< "zval* rhs;\n"
-			<< "int is_p_rhs_new = 0;\n"
-
-			<<	read_rvalue ("r_array", var_name)
-			<<	read_rvalue ("ra_index", rhs->value->index)
-
-			<< "if (Z_TYPE_P (r_array) != IS_ARRAY)\n"
-			<< "{\n"
-			<< "	if (Z_TYPE_P (r_array) == IS_STRING)\n"
-			<< "	{\n"
-			<< "		is_p_rhs_new = 1;\n"
-			<< "		rhs = read_string_index (r_array, ra_index TSRMLS_CC);\n"
-			<< "	}\n"
-			<< "  else\n"
-			// TODO: warning here?
-			<< "		rhs = EG (uninitialized_zval_ptr);\n"
-			<< "}\n"
-			<< "else\n"
-			<< "{\n"
-
-			<<		"if (check_array_index_type (ra_index TSRMLS_CC))\n"
-			<<		"{\n"
-
-			<<		"// Read array variable\n"
-			<<		"read_array ("
-			<<			"&rhs" << ", "
-			<<			"r_array, "
-			<<			"ra_index "
-			<<			" TSRMLS_CC);\n"
-			<<		"}\n"
-			<<		"else rhs = *p_lhs;\n" // HACK to fail  *p_lhs != rhs
-			<< "}\n"
-
-			<< "if (*p_lhs != rhs)\n"
-			<<		"write_var (p_lhs, rhs);\n"
-
-			<< "if (is_p_rhs_new) zval_ptr_dtor (&rhs);\n";
+			buf << gen->micg.instantiate ("assign_expr_array_access", 
+				lhs->value, rhs->value->variable_name, rhs->value->index);
 		}
 		else
 		{
-			buf 
-			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
-			<< get_array_entry ("p_rhs", rhs->value->variable_name, rhs->value->index)
-			<< "sep_copy_on_write (p_rhs);\n"
-			<< "copy_into_ref (p_lhs, p_rhs);\n"
-			;
+			buf << gen->micg.instantiate ("assign_expr_ref_array_access", 
+				lhs->value, rhs->value->variable_name, rhs->value->index);
 		}
 	}
 
