@@ -1,44 +1,84 @@
-/* Quick intro:
- * Each pattern is matched in the order it appears. If it matches, code is
- * generated based on its template. If nothing matches, there is an error.
+/* Quick intro, using this macro as an example:
+ *
+ * assign_expr_var (token LHS, token RHS)
+ *    where LHS.st_entry_not_required
+ *    where LHS.is_uninitialized
+ * @@@
+ *   zval** p_lhs = &local_$LHS;
+ *   \read_rvalue ("rhs", RHS);
+ *   \write_var ("p_lhs", "rhs", LHS, RHS);
+ * @@@
+ *
+ * Macros are defined by their name, a list of argument, a list of rules, and a
+ * body. Generate_C will attempt to 'instantiate' a macro with its name and
+ * some arguments. Each macro of that name will be matched against in the order
+ * it appears. When all of pattern's rules match the parameters, that macro
+ * will be evaluated. If no macro matches, and error is given.
  *
  * Matching:
- *    To match, it must match with the correct name and rules. (its an error to
- *    have multiple patterns with different signatures).
+ *    Before we look at the rules, we need to look at the signature. The
+ *    signature is a list of parameters, in capital letters (LHS and RHS), and
+ *    types (token in both cases).
  *
- * Signature:
- *    A name, followed by a list of parameters, followed by a list of rules.
+ *    A rule is a line starting with 'where', and followed by a boolean expression. There are only two kinds of boolean expr:
+ *	 Lookup: Parameters which are 'node's (ie correspond to an MIR::Node*)
+ *	 can have their attrs looked up. If they have do not have the
+ *	 attribute, or they have a Boolean false stored, the lookup fails.
+ *	 Otherwise it succeeds.
  *
- * Parameters:
- *    A type and a name.
+ *	 Equals: In the form 'LHS == RHS' - this does a string comparison
+ *	 between the parameters, where they are coerced to strings. Coersions
+ *	 will be explained in the type section later.
  *
- * Allowed types:
- *    attrs: attributes, taken directly from the MIR::Node's attributes.
- *    bool: boolean. To pass, use the name, or true|false
- *    string: quoted string. To pass, use the name or a quoted string.
- *    node: like an attr, but has a type field
- *    token: a special node with a value field. It can be interpolated, which uses the value field.
+ *	 The operands of an Equals are expressions: Parameters, strings, calls
+ *	 to other macros or callbacks. Macro calls and callbacks are explained
+ *	 later.
  *
- * Rules:
- *    Each rule is a boolean condition, preceeded by 'where '. Their evaluation is based on their type:
- *	 attrs: where attr.some_attribute_name
- *	 string: where param == "some string"
- *	 bool: where param == true|false
- *	 node: where node.type == Literal
- *	 token: where node.value = "STRING"
- *    Rules are all ANDed together. There is no way to OR two rules together.
+ * Types:
+ *    There are only 3 types, whose name must be used in a type signature:
+ *       node: Can have attributes lookup up. Evaluating it is a evaluation-time error.
  *
- * Templates:
- *    A template is basically C code, with two types of interpolation:
- *	 To use a parameter PARAM, use $PARAM (even in quoted strings).
- *	 To call another template, use \other_template (param0, ... );
- *	 To use a property of a PARAM, use ${PARAM.propname}.
- *	 To do a callback to the code generator, use \cb:callback_name (param0, ...);.
- *	 The callback must be registered.
+ *       string: Represents a String* (or a quoted string when created in 'user code').
+ *
+ *	 token: A token is an MIR::Identifier*. Attributes can be looked up, or
+ *	 it can be evaluated itself, which coerces it to its 'value' string.
+ *	 Tokens can be used as either strings or nodes.
+ *
+ *    Evaluating a lookup can also produce a boolean, but these are always
+ *    coerced to either "TRUE" or "FALSE".
+ *
+ *
+ * Bodies:
+ *    The body is simply a C string, interspersed with interpolations, macro calls and callbacks. It starts and
+ *    ends with @@@. The evalutation of a macro is simply a string of its
+ *    contents, with appropriate strings substituted in for interpolations etc.
+ *    Whitespace is preserved.
+ *
+ *    Bodies allow two kinds of interpolations:
+ *      $LHS: coerces LHS into a string (which works for tokens and strings,
+ *      and leads to evalutation-time error for nodes).
+ *
+ *       ${LHS.attr_name}: the same as a lookup.
+ *
+ * Macro calls:
+ *    Rules and bodies both support macro calls. In the example above,
+ *    \read_value (...) is  macro call. Parameters can be nodes, tokens, or
+ *    strings. Strings are written as quoted strings: "rhs". Nodes and tokens
+ *    must, of course, be passed using their name in the caller.
+ *
+ * Callbacks:
+ *    Callbacks are the same as macros, except they call a c++ function, which
+ *    must be registed in Generate_C. They are called using:
+*     \cb:call_back_name (PARAM). For now, only 1 parameter is allowed, but its
+*     easy to fix that.
  *
  * Comments:
- *    Comment are allowed outside patterns. Comments inside templates are C
- *    comments, and will appear in the generated code.
+ *    C or C++ comments, are allowed outside bodies. Comments inside bodies and
+ *    will appear in the generated code.
+ *
+ *  Note: I may be wrong about some of the evaluation-time errors for node
+ *  coersions. If you see some stray "TRUE"s in your code, this may be the
+ *  problem.
  */
 
 
