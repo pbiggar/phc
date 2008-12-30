@@ -1348,30 +1348,14 @@ class Pattern_assign_expr_foreach_get_val : public Pattern_assign_var
 
 	void generate_code (Generate_C* gen)
 	{
-		buf
-		<< get_st_entry (LOCAL, "p_lhs", lhs->value)
-		<< read_rvalue ("fe_array", get_val->value->array)
-
-		<< "zval** p_rhs = NULL;\n"
-		<< "int result = zend_hash_get_current_data_ex (\n"
-		<<							"fe_array->value.ht, "
-		<<							"(void**)(&p_rhs), "
-		<<							"&" << *get_val->value->iter->value << ");\n"
-		<< "assert (result == SUCCESS);\n"
-		;
-
 		if (!agn->is_ref)
-
-			buf 
-			<< "if (*p_lhs != *p_rhs)\n"
-			<< "	write_var (p_lhs, *p_rhs);\n"
-			;
+			buf << gen->micg.instantiate ("assign_expr_foreach_get_val",
+					lhs->value, get_val->value->array,
+					get_val->value->iter->value);
 		else
-		{
-			buf 
-			<< "sep_copy_on_write (p_rhs);\n"
-			<< "copy_into_ref (p_lhs, p_rhs);\n";
-		}
+			buf << gen->micg.instantiate ("assign_expr_ref_foreach_get_val",
+					lhs->value, get_val->value->array,
+					get_val->value->iter->value);
 	}
 
 protected:

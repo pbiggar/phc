@@ -405,3 +405,46 @@ get_var_var (string ST, string ZVP, string INDEX)
 @@@
    $ZVP = get_var_var (\scope(ST), $INDEX TSRMLS_CC);
 @@@
+
+
+
+/*
+ * Foreach
+ */
+
+// TODO: Find a nice way to avoid this duplication
+assign_expr_ref_foreach_get_val (token LHS, token ARRAY, string ITERATOR)
+@@@
+   \get_st_entry ("LOCAL", "p_lhs", LHS);
+   // TODO: we know this is an array
+   \read_rvalue ("fe_array", ARRAY);
+
+   zval** p_rhs = NULL;
+   int result = zend_hash_get_current_data_ex (
+					       fe_array->value.ht,
+					       (void**)(&p_rhs),
+					       &$ITERATOR);
+   assert (result == SUCCESS);
+
+   sep_copy_on_write (p_rhs);
+   copy_into_ref (p_lhs, p_rhs);
+@@@
+
+assign_expr_foreach_get_val (token LHS, token ARRAY, string ITERATOR)
+@@@
+   \get_st_entry ("LOCAL", "p_lhs", LHS);
+   // TODO: we know this is an array
+   \read_rvalue ("fe_array", ARRAY);
+
+   zval** p_rhs = NULL;
+   int result = zend_hash_get_current_data_ex (
+					       fe_array->value.ht,
+					       (void**)(&p_rhs),
+					       &$ITERATOR);
+   assert (result == SUCCESS);
+
+   if (*p_lhs != *p_rhs)
+      write_var (p_lhs, *p_rhs);
+@@@
+
+
