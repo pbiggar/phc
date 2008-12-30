@@ -982,33 +982,8 @@ public:
 
 		name->append (*rhs->value->constant_name->value);
 
-		// zend_get_constant returns a copy of the constant, so we can
-		// put it in directly for non-reference lhss, and use the
-		// data directly without copying for reference lhss.
-		buf
-		<< get_st_entry (LOCAL, "p_lhs", lhs->value)
-		<< "if (!(*p_lhs)->is_ref)\n"
-		<< "{\n"
-		<<		"zval_ptr_dtor (p_lhs);\n"
-		<<		"get_constant ( "
-		<<			"\"" << *name << "\", "
-		<<			name->length() << ", " // exclude NULL-terminator
-		<<			"p_lhs "
-		<<			" TSRMLS_CC);\n"
-		<< "}\n"
-		<< "else\n"
-		<< "{\n"
-		<<		"zval* constant;\n"
-		<<		"get_constant ( "
-		<<			"\"" << *name << "\", "
-		<<			name->length() << ", " // exclude NULL-terminator
-		<<			"&constant "
-		<<			" TSRMLS_CC);\n"
-		// get_constant guarantees new memory, so we can reuse the data, rather than copy and delete it
-		<<		"overwrite_lhs_no_copy (*p_lhs, constant);\n"
-		<<		"safe_free_zval_ptr (constant);\n"
-		<< "}\n"
-		;
+		buf << gen->micg.instantiate ("assign_expr_constant",
+				lhs->value, name);
 	}
 
 protected:
