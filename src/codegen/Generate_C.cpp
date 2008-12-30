@@ -1001,24 +1001,20 @@ public:
 	void generate_code (Generate_C* gen)
 	{
 		assert (!agn->is_ref);
+		Map<string, string> symnames;
+		symnames["array"]		= "IS_ARRAY";
+		symnames["boolean"]	= "IS_BOOL";
+		symnames["bool"]		= "IS_BOOL";
+		symnames["int"]		= "IS_LONG";
+		symnames["null"]		= "IS_NULL";
+		symnames["real"]		= "IS_DOUBLE";
+		symnames["string"]	= "IS_STRING";
 
-		string symbol;
-		if (*cast->value->value == "string")
-			symbol = "IS_STRING";
-		else if (*cast->value->value == "int")
-			symbol = "IS_LONG";
-		else if (*cast->value->value == "array")
-			symbol = "IS_ARRAY";
-		else if (*cast->value->value == "null")
-			symbol = "IS_NULL";
-		else if (*cast->value->value == "bool" || *cast->value->value == "boolean")
-			symbol = "IS_BOOL";
-		else if (*cast->value->value == "real")
-			symbol = "IS_DOUBLE";
-		else
+		if (!symnames.has (*cast->value->value))
 			phc_unsupported (cast->value, "non-scalar casts");
 
-		buf << gen->micg.instantiate ("assign_expr_cast", lhs->value, rhs->value, s(symbol));
+		buf << gen->micg.instantiate ("assign_expr_cast",
+				lhs->value, rhs->value, s(symnames[*cast->value->value]));
 	}
 
 public:

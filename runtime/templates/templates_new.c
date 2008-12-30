@@ -85,8 +85,26 @@ assign_expr_ref_var (token LHS, token RHS)
 assign_expr_cast (token LHS, token RHS, string TYPE)
 @@@
   \assign_expr_var (LHS, RHS);
-  cast_var (p_lhs, $TYPE);
+  \cast_var ("p_lhs", TYPE);
 @@@
+
+cast_var (string LHS, string TYPE)
+@@@
+  assert ($TYPE >= 0 && $TYPE <= 6);
+  if ((*$LHS)->type != $TYPE)
+  {
+    sep_copy_on_write ($LHS);
+    \convert_to (TYPE) (*$LHS);
+  }
+@@@
+
+convert_to (string TYPE) where TYPE == "IS_ARRAY" @@@convert_to_array@@@
+convert_to (string TYPE) where TYPE == "IS_BOOL" @@@convert_to_boolean@@@
+convert_to (string TYPE) where TYPE == "IS_DOUBLE" @@@convert_to_double@@@
+convert_to (string TYPE) where TYPE == "IS_LONG" @@@convert_to_long@@@
+convert_to (string TYPE) where TYPE == "IS_NULL" @@@convert_to_null@@@
+convert_to (string TYPE) where TYPE == "IS_STRING" @@@convert_to_string@@@
+convert_to (string TYPE) where TYPE == "IS_OBJECT" @@@convert_to_object@@@
 
 /*
  * Bin-ops
