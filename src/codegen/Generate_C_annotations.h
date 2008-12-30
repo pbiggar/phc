@@ -9,14 +9,14 @@
  * inside classes; they are stored in a similar attribute on the class def.
  */
 
-#ifndef PHC_GENERATE_LIR_ANNOTATIONS_H
-#define PHC_GENERATE_LIR_ANNOTATIONS_H
+#ifndef PHC_GENERATE_C_ANNOTATIONS_H
+#define PHC_GENERATE_C_ANNOTATIONS_H
 
 #include "MIR_visitor.h"
 #include "lib/Set.h"
 #include "lib/Stack.h"
 
-class Generate_LIR_annotations : public MIR::Visitor, virtual public GC_obj
+class Generate_C_annotations : public MIR::Visitor, virtual public GC_obj
 {
 	Set<string> var_names;
 	Set<string> iterators;
@@ -46,4 +46,4 @@ class Generate_LIR_annotations : public MIR::Visitor, virtual public GC_obj
 	void post_return (MIR::Return* in);
 };
 
-#endif // PHC_GENERATE_LIR_ANNOTATIONS_H
+#endif // PHC_GENERATE_C_ANNOTATIONS_H

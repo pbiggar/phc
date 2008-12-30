@@ -90,12 +90,12 @@ libphc_la_SOURCES= 											\
 	src/codegen/Clarify.h									\
 	src/codegen/Compile_C.cpp								\
 	src/codegen/Compile_C.h									\
+	src/codegen/Generate_C_annotations.cpp				\
+	src/codegen/Generate_C_annotations.h				\
 	src/codegen/Generate_C.cpp								\
 	src/codegen/Generate_C.h								\
-	src/codegen/Generate_LIR_annotations.cpp			\
-	src/codegen/Generate_LIR_annotations.h				\
-	src/codegen/Generate_LIR.cpp							\
-	src/codegen/Generate_LIR.h								\
+	src/codegen/Generate_C_pass.cpp						\
+	src/codegen/Generate_C_pass.h							\
 	src/codegen/Lift_functions_and_classes.cpp		\
 	src/codegen/Lift_functions_and_classes.h			\
 	src/codegen/MICG_checker.cpp							\

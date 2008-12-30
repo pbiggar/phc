@@ -111,14 +111,7 @@ void PHP_script::visit(MIR::Visitor* mir_visitor)
 	as_MIR()->visit(mir_visitor);
 }
 
-void PHP_script::visit(LIR::Visitor* lir_visitor)
-{
-	as_LIR()->visit(lir_visitor);
-}
-
-
-
-void PHP_script::visit(AST::Visitor* ast_visitor, HIR::Visitor* hir_visitor, MIR::Visitor* mir_visitor, LIR::Visitor* lir_visitor)
+void PHP_script::visit(AST::Visitor* ast_visitor, HIR::Visitor* hir_visitor, MIR::Visitor* mir_visitor)
 {
 	if(is_AST())
 		visit(ast_visitor);
@@ -146,6 +139,7 @@ void PHP_script::transform_children(MIR::Transform* mir_transform)
 	as_MIR()->transform_children(mir_transform);
 }
 
+void PHP_script::transform_children(AST::Transform* ast_transform, HIR::Transform* hir_transform, MIR::Transform* mir_transform)
 {
 	if(is_AST())
 		transform_children(ast_transform);

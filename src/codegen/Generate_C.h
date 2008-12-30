@@ -4,24 +4,36 @@
  *
  * Generate C code
  *
- * Currently, the C code is generated directly from the AST; once we have an
- * LIR, the C code will be generated from the LIR instead.
  */
 
 #ifndef PHC_GENERATE_C
 #define PHC_GENERATE_C
 
 #include "MIR_visitor.h"
+#include "codegen/MICG_gen.h"
 #include "pass_manager/Pass.h"
 
-class Generate_C : public Pass
+class Generate_C : public MIR::Visitor, virtual public GC_obj
 {
-public:
 	std::ostream& os;
-
-	bool pass_is_enabled (Pass_manager* pm);
-	void run (IR::PHP_script*, Pass_manager*);
+public:
 	Generate_C (std::ostream&);
+
+	/* TODO: os is not written into until post_php_script. There should be
+	 * another way to flush its contents early, rather than accesing body
+	 * directly. */
+	stringstream body;
+
+public:
+	void children_statement (MIR::Statement* in);
+	void pre_php_script (MIR::PHP_script* in);
+	void post_php_script (MIR::PHP_script* in);
+
+public:
+	String* extension_name;
+	bool is_extension;
+
+	MICG_gen micg;
 };
 
 #endif // PHC_GENERATE_C

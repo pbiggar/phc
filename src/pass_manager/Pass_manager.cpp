@@ -156,28 +156,6 @@ void Pass_manager::add_codegen_pass (Pass* pass)
 }
 
 
-// LIR
-void Pass_manager::add_lir_visitor (LIR::Visitor* visitor, String* name, String* description)
-{
-	Pass* pass = new Visitor_pass (visitor, name, description);
-	add_pass (pass, lir_queue);
-}
-
-void Pass_manager::add_lir_transform (LIR::Transform* transform, String* name, String* description)
-{
-	Pass* pass = new Transform_pass (transform, name, description);
-	add_pass (pass, lir_queue);
-}
-
-void Pass_manager::add_lir_pass (Pass* pass)
-{
-	add_pass (pass, lir_queue);
-}
-
-void Pass_manager::add_after_each_lir_pass (Pass* pass)
-{
-	add_after_each_pass (pass, lir_queue);
-}
 
 
 // Generic
@@ -358,7 +336,6 @@ void Pass_manager::list_passes ()
 			else if (q == mir_queue) name = "MIR";
 			else if (q == optimization_queue) name = "OPT";
 			else if (q == codegen_queue) name = "GEN";
-			else if (q == lir_queue) name = "LIR";
 			else phc_unreachable ();
 			String* desc = p->description;
 
@@ -546,8 +523,7 @@ IR::PHP_script* Pass_manager::run_from_until (String* from, String* to, IR::PHP_
 
 	if (mir_queue->size () == 0 
 		&& optimization_queue->size () == 0 
-		&& codegen_queue->size() == 0
-		&& lir_queue->size() == 0)
+		&& codegen_queue->size() == 0)
 		return in;
 
 	// MIR
