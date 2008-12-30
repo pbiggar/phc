@@ -331,7 +331,7 @@
 		Variable* var = dynamic_cast<Variable*>(node);
 		
 		if(var == NULL && node != NULL)
-			phc_error("Variable name expected", node->get_filename(), node->get_line_number()); \
+			phc_error("Variable name expected", node);
 			
 		return var;
 	}
@@ -372,7 +372,7 @@
 
 	void PHP_error(PHP_context* context, const char* s)
 	{
-		phc_error(s, context->filename, context->source_line);
+		phc_error(s, context->filename, context->source_line, 0);
 	}
 
 	/* Return a new list of statements, containing a single statement */
@@ -3837,7 +3837,7 @@ yyreduce:
 			{
 				if((yyvsp[(5) - (8)].ast_variable)->attrs->is_true("phc.parser.is_ref"))
 				{
-					phc_error(ERR_FOREACH_KEY_REF, (yyvsp[(5) - (8)].ast_variable)->get_filename(), (yyvsp[(5) - (8)].ast_variable)->get_line_number());
+					phc_error(ERR_FOREACH_KEY_REF, (yyvsp[(5) - (8)].ast_variable));
 				}
 			
 				(yyvsp[(1) - (8)].ast_foreach)->key = (yyvsp[(5) - (8)].ast_variable);
@@ -3866,7 +3866,7 @@ yyreduce:
 			{
 				if((yyvsp[(5) - (8)].ast_expr)->attrs->is_true("phc.parser.is_ref"))
 				{
-					phc_error(ERR_FOREACH_KEY_REF, (yyvsp[(5) - (8)].ast_expr)->get_filename(), (yyvsp[(5) - (8)].ast_expr)->get_line_number());
+					phc_error(ERR_FOREACH_KEY_REF, (yyvsp[(5) - (8)].ast_expr));
 				}
 			
 				(yyvsp[(1) - (8)].ast_foreach)->key = expect_variable((yyvsp[(5) - (8)].ast_expr));
@@ -4817,7 +4817,7 @@ yyreduce:
     {
 			if((yyvsp[(1) - (1)].ast_method_mod)->is_abstract)
 			{
-				phc_error("Cannot declare variables to be abstract", (yyvsp[(1) - (1)].ast_method_mod)->get_filename(), (yyvsp[(1) - (1)].ast_method_mod)->get_line_number());
+				phc_error("Cannot declare variables to be abstract", (yyvsp[(1) - (1)].ast_method_mod));
 			}
 
 			(yyval.ast_attr_mod) = NEW(Attr_mod, ((yyvsp[(1) - (1)].ast_method_mod))); 

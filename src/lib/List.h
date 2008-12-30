@@ -30,7 +30,6 @@ SET_CLONABLE(IR::PHP_script)
 #include "AST_user_defined.h"
 #include "HIR_user_defined.h"
 #include "MIR_user_defined.h"
-#include "LIR_user_defined.h"
 #undef MAKETEA_USER_DEFINED
 
 /*
@@ -166,5 +165,14 @@ List<Result_type*>* rewrap_list (List<List_type*>* nodes)
 	}
 	return result;
 }
+
+typedef List<Object*> Object_list;
+class Boolean;
+typedef List<Boolean*> Boolean_list;
+class Integer;
+typedef List<Integer*> Integer_list;
+class String;
+typedef List<String*> String_list;
+
 
 #endif // PHC_LIST_H

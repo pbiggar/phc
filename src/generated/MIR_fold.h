@@ -394,12 +394,12 @@ public:
 	{
 		_Target target = 0;
 		if(in->target != NULL) target = fold_target(in->target);
-		_Field_name lhs = 0;
-		if(in->lhs != NULL) lhs = fold_field_name(in->lhs);
+		_Field_name field_name = 0;
+		if(in->field_name != NULL) field_name = fold_field_name(in->field_name);
 		bool is_ref = in->is_ref;
 		_Rvalue rhs = 0;
 		if(in->rhs != NULL) rhs = fold_rvalue(in->rhs);
-		return fold_impl_assign_field(in, target, lhs, is_ref, rhs);
+		return fold_impl_assign_field(in, target, field_name, is_ref, rhs);
 	}
 
 	virtual _Assign_array fold_assign_array(Assign_array* in)
@@ -769,7 +769,7 @@ public:
 	virtual _Catch fold_impl_catch(Catch* orig, _CLASS_NAME class_name, _VARIABLE_NAME variable_name, _List<_Statement>* statements) { assert(0); };
 	virtual _Throw fold_impl_throw(Throw* orig, _VARIABLE_NAME variable_name) { assert(0); };
 	virtual _Assign_var fold_impl_assign_var(Assign_var* orig, _VARIABLE_NAME lhs, bool is_ref, _Expr rhs) { assert(0); };
-	virtual _Assign_field fold_impl_assign_field(Assign_field* orig, _Target target, _Field_name lhs, bool is_ref, _Rvalue rhs) { assert(0); };
+	virtual _Assign_field fold_impl_assign_field(Assign_field* orig, _Target target, _Field_name field_name, bool is_ref, _Rvalue rhs) { assert(0); };
 	virtual _Assign_array fold_impl_assign_array(Assign_array* orig, _VARIABLE_NAME lhs, _Rvalue index, bool is_ref, _Rvalue rhs) { assert(0); };
 	virtual _Assign_var_var fold_impl_assign_var_var(Assign_var_var* orig, _VARIABLE_NAME lhs, bool is_ref, _Rvalue rhs) { assert(0); };
 	virtual _Assign_next fold_impl_assign_next(Assign_next* orig, _VARIABLE_NAME lhs, bool is_ref, _Rvalue rhs) { assert(0); };

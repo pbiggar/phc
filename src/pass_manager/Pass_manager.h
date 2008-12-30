@@ -19,7 +19,6 @@ typedef List<Pass*> Pass_queue;
 namespace AST { class Visitor; class Transform; }
 namespace HIR { class Visitor; class Transform; }
 namespace MIR { class Visitor; class Transform; }
-namespace LIR { class Visitor; class Transform; }
 namespace IR { class PHP_script; }
 
 class Pass_manager : virtual public GC_obj
@@ -61,16 +60,12 @@ public:
 	void add_mir_transform (MIR::Transform* transform, String* name, String* description);
 	void add_after_each_mir_pass (Pass* pass);
 
-	// Add LIR passes
-	void add_lir_pass (Pass* pass);
-	void add_lir_visitor (LIR::Visitor* visitor, String* name, String* description);
-	void add_lir_transform (LIR::Transform* transform, String* name, String* description);
-	void add_after_each_lir_pass (Pass* pass);
 
 	// Add codegen passes
 	void add_codegen_pass (Pass* pass);
 	void add_codegen_visitor (MIR::Visitor* visitor, String* name, String* description);
 	void add_codegen_transform (MIR::Transform* transform, String* name, String* description);
+	void add_after_each_codegen_pass (Pass* pass);
 
 
 	// Add passes of any kind
@@ -101,7 +96,6 @@ protected:
 	Pass_queue* hir_queue;
 	Pass_queue* mir_queue;
 	Pass_queue* codegen_queue;
-	Pass_queue* lir_queue;
 	List<Pass_queue*>* queues;
 };
 

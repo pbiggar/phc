@@ -15,7 +15,6 @@ class Transform_pass : public Pass
 	AST::Transform* ast_transform;
 	HIR::Transform* hir_transform;
 	MIR::Transform* mir_transform;
-	LIR::Transform* lir_transform;
 
 public:
 
@@ -26,7 +25,6 @@ public:
 		ast_transform = t;
 		hir_transform = NULL;
 		mir_transform = NULL;
-		lir_transform = NULL;
 	}
 
 	Transform_pass (HIR::Transform* t, String* name, String* description)
@@ -36,7 +34,6 @@ public:
 		ast_transform = NULL;
 		hir_transform = t;
 		mir_transform = NULL;
-		lir_transform = NULL;
 	}
 
 	Transform_pass (MIR::Transform* t, String* name, String* description)
@@ -46,18 +43,8 @@ public:
 		ast_transform = NULL;
 		hir_transform = NULL;
 		mir_transform = t;
-		lir_transform = NULL;
 	}
 
-	Transform_pass (LIR::Transform* t, String* name, String* description)
-	{
-		this->name = name;
-		this->description = description;
-		ast_transform = NULL;
-		hir_transform = NULL;
-		mir_transform = NULL;
-		lir_transform = t;
-	}
 
 	void run (IR::PHP_script* in, Pass_manager* pm)
 	{
@@ -65,10 +52,8 @@ public:
 			in->transform_children (ast_transform);
 		else if (hir_transform)
 			in->transform_children (hir_transform);
-		else if (mir_transform)
-			in->transform_children (mir_transform);
 		else
-			in->transform_children (lir_transform);
+			in->transform_children (mir_transform);
 	}
 };
 

@@ -1,0 +1,74 @@
+{-
+ - phc -- the open source PHP compiler
+ - See doc/license/README.license for licensing information
+ -
+ - Definition of the structure for the Macro-Inline Code Generator.
+ -
+ -}
+
+{-
+	Configuration
+-}
+
+output_dir "src/generated";
+prefix "MICG";
+external class "Object";
+external class "IR::Node";
+external class "String";
+use list "List";
+use string "String";
+use namespace "MICG";
+no source_rep;
+
+{-
+   Top-level structure	
+-}
+
+-- Hack so that Node_factory can create a Macro_list.
+All ::= Macro* ; 
+
+Macro ::= Signature Rule* Body ;
+
+-- Signature
+Signature ::= MACRO_NAME Formal_parameter* ;
+Formal_parameter ::= TYPE_NAME PARAM_NAME ;
+
+-- Rules
+
+Rule ::= Equals | Lookup ;
+
+Lookup ::= PARAM_NAME ATTR_NAME ;
+
+Equals ::= left:Expr right:Expr ;
+Expr ::= PARAM_NAME | STRING | Lookup | Macro_call | Callback ;
+
+-- Body
+Body ::= Body_part* ;
+Body_part ::= C_CODE | Interpolation | Macro_call | Callback ;
+
+Interpolation ::= Lookup | PARAM_NAME ;
+Macro_call ::= MACRO_NAME Expr*;
+Callback ::= MACRO_NAME Expr*;
+
+
+
+{-
+ - Extra attributes and methods (mixin code)
+ -}
+
+#include <iostream>
+#include <sstream>
+#include <iomanip>
+#include "boost/lexical_cast.hpp"
+#include "lib/error.h"
+#include "lib/Object.h"
+#include "lib/List.h"
+#include "lib/String.h"
+#include "lib/Boolean.h"
+#include "lib/Integer.h"
+#include "process_ir/IR.h"
+
+class Node : IR::Node
+{
+};
+

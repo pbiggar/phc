@@ -20,8 +20,6 @@
 #include "process_ast/AST_unparser.h"
 #include "process_hir/HIR_unparser.h"
 #include "process_mir/MIR_unparser.h"
-#include "process_lir/LIR_unparser.h"
-
 #include "process_ast/DOT_unparser.h"
 
 #include "process_ast/Invalid_check.h"
@@ -39,11 +37,9 @@ Pass_manager::Pass_manager (gengetopt_args_info* args_info)
 	hir_queue = new Pass_queue;
 	mir_queue = new Pass_queue;
 	codegen_queue = new Pass_queue;
-	lir_queue = new Pass_queue;
 
 	queues = new List <Pass_queue* > (ast_queue, hir_queue, mir_queue);
 	queues->push_back (codegen_queue);
-	queues->push_back (lir_queue);
 }
 
 // AST
@@ -140,28 +136,6 @@ void Pass_manager::add_codegen_pass (Pass* pass)
 }
 
 
-// LIR
-void Pass_manager::add_lir_visitor (LIR::Visitor* visitor, String* name, String* description)
-{
-	Pass* pass = new Visitor_pass (visitor, name, description);
-	add_pass (pass, lir_queue);
-}
-
-void Pass_manager::add_lir_transform (LIR::Transform* transform, String* name, String* description)
-{
-	Pass* pass = new Transform_pass (transform, name, description);
-	add_pass (pass, lir_queue);
-}
-
-void Pass_manager::add_lir_pass (Pass* pass)
-{
-	add_pass (pass, lir_queue);
-}
-
-void Pass_manager::add_after_each_lir_pass (Pass* pass)
-{
-	add_after_each_pass (pass, lir_queue);
-}
 
 
 // Generic
@@ -341,7 +315,6 @@ void Pass_manager::list_passes ()
 			else if (q == hir_queue) name = "HIR";
 			else if (q == mir_queue) name = "MIR";
 			else if (q == codegen_queue) name = "GEN";
-			else if (q == lir_queue) name = "LIR";
 			else phc_unreachable ();
 			String* desc = p->description;
 
@@ -377,7 +350,6 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 			if (in->is_AST ()) AST_unparser ().unparse (in->as_AST ());
 			else if (in->is_HIR ()) HIR_unparser ().unparse (in->as_HIR ());
 			else if (in->is_MIR ()) MIR_unparser ().unparse (in->as_MIR ());
-			else if (in->is_LIR ()) LIR_unparser ().unparse (in->as_LIR ());
 			else phc_unreachable ();
 		}
 	}
@@ -386,9 +358,6 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 	{
 		if (*name == args_info->dump_uppered_arg [i])
 		{
-			if (in->is_LIR ())
-				phc_error ("Uppered dump is not supported during LIR pass: %s", name->c_str ());
-				
 			if (in->is_MIR ())
 				MIR_unparser().unparse_uppered (in->as_MIR ());
 
@@ -508,8 +477,7 @@ IR::PHP_script* Pass_manager::run_from_until (String* from, String* to, IR::PHP_
 	// passes in the later queues, dont fold.
 	if (hir_queue->size() == 0
 		&& mir_queue->size () == 0 
-		&& codegen_queue->size() == 0
-		&& lir_queue->size() == 0)
+		&& codegen_queue->size() == 0)
 		return in;
 
 	// HIR
@@ -532,8 +500,7 @@ IR::PHP_script* Pass_manager::run_from_until (String* from, String* to, IR::PHP_
 	}
 
 	if (mir_queue->size () == 0 
-		&& codegen_queue->size() == 0
-		&& lir_queue->size() == 0)
+		&& codegen_queue->size() == 0)
 		return in;
 
 	// MIR
@@ -569,29 +536,6 @@ IR::PHP_script* Pass_manager::run_from_until (String* from, String* to, IR::PHP_
 		// check for last pass
 		if (exec && (to != NULL) && *(p->name) == *to)
 			return in;
-	}
-
-	// LIR
-	if (args_info->generate_c_flag || args_info->compile_flag)
-	{
-		if (exec)
-			in = in->fold_lower ();
-
-		// TODO: avoid code duplication
-		foreach (Pass* p, *lir_queue)
-		{
-			// check for starting pass
-			if (!exec && 
-					((from == NULL) || *(p->name) == *from))
-				exec = true;
-
-			if (exec)
-				run_pass (p, in, main);
-
-			// check for last pass
-			if (exec && (to != NULL) && *(p->name) == *to)
-				return in;
-		}
 	}
 
 	return in;

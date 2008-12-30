@@ -857,7 +857,7 @@ void Visitor::children_assign_var(Assign_var* in)
 void Visitor::children_assign_field(Assign_field* in)
 {
     visit_target(in->target);
-    visit_field_name(in->lhs);
+    visit_field_name(in->field_name);
     visit_marker("is_ref", in->is_ref);
     visit_rvalue(in->rhs);
 }

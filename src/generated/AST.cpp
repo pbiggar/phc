@@ -1094,7 +1094,7 @@ Attr_mod::Attr_mod(Method_mod* mm)
 {
     {
 		if(mm->is_final)
-			phc_error("The final modifier is only allowed for methods", mm->get_filename(), mm->get_line_number());
+			phc_error("The final modifier is only allowed for methods", mm);
 
 		this->is_public = mm->is_public;
 		this->is_protected = mm->is_protected;

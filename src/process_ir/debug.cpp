@@ -10,7 +10,6 @@
 #include "process_ast/AST_unparser.h"
 #include "process_hir/HIR_unparser.h"
 #include "process_mir/MIR_unparser.h"
-#include "process_lir/LIR_unparser.h"
 
 using namespace std;
 
@@ -74,31 +73,6 @@ void xadebug (MIR::Node* in)
 	CHECK_DEBUG ();
 	xml_unparse (in, cdebug, true);
 }
-
-
-void debug (LIR::Node *in)
-{
-	CHECK_DEBUG ();
-	static LIR_unparser *pup = new LIR_unparser (cdebug);
-	pup->unparse (in);
-	cdebug << endl;
-}
-
-void xdebug (LIR::Node* in)
-{
-	CHECK_DEBUG ();
-	phc_TODO ();
-//	xml_unparse (in, cdebug, false);
-}
-
-void xadebug (LIR::Node* in)
-{
-	CHECK_DEBUG ();
-	phc_TODO ();
-//	xml_unparse (in, cdebug, true);
-}
-
-
 
 ostream& cdebug = cerr;
 

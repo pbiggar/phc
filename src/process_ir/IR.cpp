@@ -6,10 +6,8 @@
  */
 
 #include "IR.h"
-#include "LIR.h"
 #include "ast_to_hir/AST_to_HIR.h"
 #include "hir_to_mir/HIR_to_MIR.h"
-#include "mir_to_lir/Generate_LIR.h"
 
 using namespace IR;
 
@@ -17,6 +15,16 @@ int
 Node::get_line_number ()
 {
 	Integer* i = dynamic_cast<Integer*>(attrs->get("phc.line_number"));
+	if(i != NULL)
+		return i->value();
+	else
+		return 0;
+}
+
+int
+Node::get_column_number ()
+{
+	Integer* i = dynamic_cast<Integer*>(attrs->get("phc.column_number"));
 	if(i != NULL)
 		return i->value();
 	else
@@ -103,23 +111,14 @@ void PHP_script::visit(MIR::Visitor* mir_visitor)
 	as_MIR()->visit(mir_visitor);
 }
 
-void PHP_script::visit(LIR::Visitor* lir_visitor)
-{
-	as_LIR()->visit(lir_visitor);
-}
-
-
-
-void PHP_script::visit(AST::Visitor* ast_visitor, HIR::Visitor* hir_visitor, MIR::Visitor* mir_visitor, LIR::Visitor* lir_visitor)
+void PHP_script::visit(AST::Visitor* ast_visitor, HIR::Visitor* hir_visitor, MIR::Visitor* mir_visitor)
 {
 	if(is_AST())
 		visit(ast_visitor);
 	else if (is_HIR ())
 		visit(hir_visitor);
-	else if (is_MIR ())
-		visit(mir_visitor);
 	else
-		visit(lir_visitor);
+		visit(mir_visitor);
 }
 
 
@@ -140,21 +139,14 @@ void PHP_script::transform_children(MIR::Transform* mir_transform)
 	as_MIR()->transform_children(mir_transform);
 }
 
-void PHP_script::transform_children(LIR::Transform* mir_transform)
-{
-	as_LIR()->transform_children(mir_transform);
-}
-
-void PHP_script::transform_children(AST::Transform* ast_transform, HIR::Transform* hir_transform, MIR::Transform* mir_transform, LIR::Transform* lir_transform)
+void PHP_script::transform_children(AST::Transform* ast_transform, HIR::Transform* hir_transform, MIR::Transform* mir_transform)
 {
 	if(is_AST())
 		transform_children(ast_transform);
 	else if (is_HIR ())
 		transform_children(hir_transform);
-	else if (is_MIR ())
-		transform_children(mir_transform);
 	else
-		transform_children(lir_transform);
+		transform_children(mir_transform);
 }
 
 
@@ -174,11 +166,6 @@ bool PHP_script::is_MIR()
 	return isa<MIR::PHP_script>(this);
 }
 
-bool PHP_script::is_LIR()
-{
-	return isa<LIR::PHP_script>(this);
-}
-
 
 AST::PHP_script* PHP_script::as_AST()
 {
@@ -195,11 +182,6 @@ MIR::PHP_script* PHP_script::as_MIR()
 	return dyc<MIR::PHP_script> (this);
 }
 
-LIR::PHP_script* PHP_script::as_LIR()
-{
-	return dyc<LIR::PHP_script> (this);
-}
-
 
 
 PHP_script*
@@ -209,8 +191,6 @@ PHP_script::fold_lower ()
 		return (new AST_to_HIR ())->fold_php_script (as_AST ());
 	else if (is_HIR ())
 		return (new HIR_to_MIR ())->fold_php_script (as_HIR ());
-	else if (is_MIR ())
-		return (new Generate_LIR ())->fold_php_script (as_MIR ());
 	else
-		assert (0);
+		phc_unreachable ();
 }

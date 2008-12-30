@@ -1,5 +1,5 @@
-#ifndef _LIR_FACTORY_H_
-#define _LIR_FACTORY_H_
+#ifndef _MICG_FACTORY_H_
+#define _MICG_FACTORY_H_
 
 #include <iostream>
 #include <sstream>
@@ -11,18 +11,16 @@
 #include "lib/String.h"
 #include "lib/Boolean.h"
 #include "lib/Integer.h"
-#include "lib/AttrMap.h"
 #include "process_ir/IR.h"
-#include "process_lir/LIR_PHP_script_hack.h"
 #include <list>
 #include <string>
 #include <cstring>
 #include <cassert>
 
 
-#include "LIR.h"
+#include "MICG.h"
 
-namespace LIR{
+namespace MICG{
 class Node_factory
 {
 public:

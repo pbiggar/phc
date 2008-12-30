@@ -5,8 +5,11 @@
  * Annotate MIR for code generation.
  */
 
-#include "Generate_LIR_annotations.h"
+#include "Generate_C_annotations.h"
 #include <sstream>
+
+#include "cmdline.h"
+extern struct gengetopt_args_info args_info;
 
 using namespace MIR;
 using namespace std;
@@ -27,14 +30,14 @@ String_list* wrap_strings (Set<string>& set)
  */
 
 void
-Generate_LIR_annotations::pre_php_script (PHP_script* in)
+Generate_C_annotations::pre_php_script (PHP_script* in)
 {
 	pool_values.clear ();
 	compiled_functions.push(new Signature_list);
 }
 
 void
-Generate_LIR_annotations::post_php_script (PHP_script* in)
+Generate_C_annotations::post_php_script (PHP_script* in)
 {
 	// Add a list of literal-pooled variables to the script.
 	Literal_list* program_literals = new Literal_list;
@@ -62,8 +65,11 @@ Generate_LIR_annotations::post_php_script (PHP_script* in)
 }
 
 void
-Generate_LIR_annotations::post_literal (Literal* in)
+Generate_C_annotations::post_literal (Literal* in)
 {
+	if (!args_info.optimize_given)
+		return;
+
 	// Annotate each literal with a name for its pooled variable. Separate
 	// pools for each class
 	string index = *in->get_value_as_string ();
@@ -84,14 +90,14 @@ Generate_LIR_annotations::post_literal (Literal* in)
 }
 
 void
-Generate_LIR_annotations::post_param_is_ref (Param_is_ref* in)
+Generate_C_annotations::post_param_is_ref (Param_is_ref* in)
 {
 	if (METHOD_NAME* method_name = dynamic_cast<METHOD_NAME*> (in->method_name))
 		cached_functions.insert (*method_name->value);
 }
 
 void
-Generate_LIR_annotations::post_method_invocation (Method_invocation* in)
+Generate_C_annotations::post_method_invocation (Method_invocation* in)
 {
 	if (METHOD_NAME* method_name = dynamic_cast<METHOD_NAME*> (in->method_name))
 	{
@@ -118,7 +124,7 @@ Generate_LIR_annotations::post_method_invocation (Method_invocation* in)
  */
 
 void
-Generate_LIR_annotations::pre_method (MIR::Method* in)
+Generate_C_annotations::pre_method (MIR::Method* in)
 {
 	var_names.clear ();
 	iterators.clear ();
@@ -129,7 +135,7 @@ Generate_LIR_annotations::pre_method (MIR::Method* in)
 }
 
 void
-Generate_LIR_annotations::post_method (MIR::Method* in)
+Generate_C_annotations::post_method (MIR::Method* in)
 {
 	in->attrs->set ("phc.codegen.non_st_vars", wrap_strings (var_names));
 	in->attrs->set ("phc.codegen.ht_iterators", wrap_strings (iterators));
@@ -138,7 +144,7 @@ Generate_LIR_annotations::post_method (MIR::Method* in)
 
 // Get the list of variables which dont need a symbol-table entry
 void
-Generate_LIR_annotations::post_variable_name (MIR::VARIABLE_NAME* in)
+Generate_C_annotations::post_variable_name (MIR::VARIABLE_NAME* in)
 {
 	if (in->attrs->is_true ("phc.codegen.st_entry_not_required"))
 	{
@@ -148,14 +154,14 @@ Generate_LIR_annotations::post_variable_name (MIR::VARIABLE_NAME* in)
 
 // Get the list of Hashtable iterators required.
 void
-Generate_LIR_annotations::post_ht_iterator (HT_ITERATOR* in)
+Generate_C_annotations::post_ht_iterator (HT_ITERATOR* in)
 {
 	iterators.insert (*in->value);
 }
 
 // Should the return be returned by reference.
 void
-Generate_LIR_annotations::post_return (Return* in)
+Generate_C_annotations::post_return (Return* in)
 {
 	// The signature at the back is this function.
 	in->attrs->set ("phc.codegen.return_by_ref",
@@ -166,14 +172,14 @@ Generate_LIR_annotations::post_return (Return* in)
 // Make sure phc.codegen.compiled_functions gets added to the class
 // definition rather than the PHP script
 void
-Generate_LIR_annotations::pre_class_def(Class_def* in)
+Generate_C_annotations::pre_class_def(Class_def* in)
 {
 	compiled_functions.push(new Signature_list);
 	class_name.push(in->class_name->value);
 }
 
 void
-Generate_LIR_annotations::post_class_def(Class_def* in)
+Generate_C_annotations::post_class_def(Class_def* in)
 {
   Signature_list* cf;
 	cf = compiled_functions.top(); compiled_functions.pop();

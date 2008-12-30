@@ -877,7 +877,7 @@ void Transform::children_assign_var(Assign_var* in)
 void Transform::children_assign_field(Assign_field* in)
 {
     in->target = transform_target(in->target);
-    in->lhs = transform_field_name(in->lhs);
+    in->field_name = transform_field_name(in->field_name);
     in->rhs = transform_rvalue(in->rhs);
 }
 

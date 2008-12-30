@@ -35,13 +35,6 @@ namespace MIR
 	class Transform;
 }
 
-#include "process_lir/LIR_PHP_script_hack.h"
-namespace LIR
-{
-	class Visitor;
-	class Transform;
-}
-
 class Unparser_state;
 
 namespace IR
@@ -56,6 +49,7 @@ public:
 
 	// Return the line number of the node (or 0 if unknown)
 	int get_line_number();
+	int get_column_number();
 
 	// Return the filename of the node. If unknown, use "<unknown>",
 	// which is what the interpreter uses.
@@ -98,33 +92,27 @@ public:
 	virtual void visit(AST::Visitor* ast_visitor);
 	virtual void visit(HIR::Visitor* hir_visitor);
 	virtual void visit(MIR::Visitor* mir_visitor);
-	virtual void visit(LIR::Visitor* lir_visitor);
 	virtual void visit(AST::Visitor* ast_visitor,
 	                   HIR::Visitor* hir_visitor,
-	                   MIR::Visitor* mir_visitor,
-	                   LIR::Visitor* lir_visitor);
+	                   MIR::Visitor* mir_visitor);
 	
 // Transform
 public:
 	virtual void transform_children(AST::Transform* ast_transform);
 	virtual void transform_children(HIR::Transform* hir_transform);
 	virtual void transform_children(MIR::Transform* mir_transform);
-	virtual void transform_children(LIR::Transform* lir_transform);
 	virtual void transform_children(AST::Transform* ast_transform,
 	                                HIR::Transform* hir_transform,
-	                                MIR::Transform* mir_transform,
-											  LIR::Transform* lir_transform);
+	                                MIR::Transform* mir_transform);
 
 // Conversion
 public:
 	virtual bool is_AST();
 	virtual bool is_HIR();
 	virtual bool is_MIR();
-	virtual bool is_LIR();
 	virtual AST::PHP_script* as_AST();
 	virtual HIR::PHP_script* as_HIR();
 	virtual MIR::PHP_script* as_MIR();
-	virtual LIR::PHP_script* as_LIR();
 	virtual PHP_script* fold_lower ();
 
 // Make sure IR is virtual

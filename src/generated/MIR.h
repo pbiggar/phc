@@ -228,7 +228,6 @@ public:
 public:
     void clone_mixin_from(Node* in);
     void assert_mixin_valid();
-    bool is_mixin_equal(Node* in);
 };
 
 /* PHP_script ::= Statement* ; */
@@ -1287,16 +1286,16 @@ public:
     Assign_var(VARIABLE_NAME* lhs, bool is_ref, Expr* rhs);
 };
 
-/* Assign_field ::= Target lhs:Field_name is_ref:"&" rhs:Rvalue ; */
+/* Assign_field ::= Target Field_name is_ref:"&" rhs:Rvalue ; */
 class Assign_field : virtual public Statement
 {
 public:
-    Assign_field(Target* target, Field_name* lhs, bool is_ref, Rvalue* rhs);
+    Assign_field(Target* target, Field_name* field_name, bool is_ref, Rvalue* rhs);
 protected:
     Assign_field();
 public:
     Target* target;
-    Field_name* lhs;
+    Field_name* field_name;
     bool is_ref;
     Rvalue* rhs;
 public:
@@ -1442,7 +1441,7 @@ public:
 public:
     virtual void assert_valid();
 public:
-    Pre_op(VARIABLE_NAME* var_name, const char* op);
+    Pre_op(VARIABLE_NAME* variable_name, const char* op);
 };
 
 /* Eval_expr ::= Expr ; */
