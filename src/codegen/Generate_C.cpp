@@ -2134,15 +2134,8 @@ public:
 
 	void generate_code(Generate_C* gen)
 	{
-		buf 
-		<<	read_rvalue ("p_cond", cond->value)
-
-		<<	"zend_bool bcond = zend_is_true (p_cond);\n"
-		<<	"if (bcond)\n"
-		<<	"	goto " << *iftrue->value->value << ";\n"
-		<<	"else\n"
-		<<	"	goto " << *iffalse->value->value << ";\n"
-		;
+		buf << gen->micg.instantiate ("branch",
+			cond->value, iftrue->value->value, iffalse->value->value);
 	}
 
 protected:
@@ -2179,37 +2172,7 @@ class Pattern_return : public Pattern
 
 	void generate_code(Generate_C* gen)
 	{
-		if(!ret->value->attrs->is_true ("phc.codegen.return_by_ref"))
-		{
-			buf 
-			<< read_rvalue ("rhs", ret->value->rvalue)
-
-			// Run-time return by reference has different
-			// semantics to compile-time. If the function has CTRBR and RTRBR, the
-			// the assignment will be reference. If one or the other is
-			// return-by-copy, the result will be by copy. Its a question of
-			// whether its separated at return-time (which we do here) or at the
-			// call-site.
-			<< "return_value->value = rhs->value;\n"
-			<< "return_value->type = rhs->type;\n"
-			<< "zval_copy_ctor (return_value);\n"
-			;
-		}
-		else
-		{
-			buf
-			<< get_st_entry (LOCAL, "p_rhs", dyc<VARIABLE_NAME> (ret->value->rvalue))
-			<< "sep_copy_on_write (p_rhs);\n"
-			<< "zval_ptr_dtor (return_value_ptr);\n"
-			<< "(*p_rhs)->is_ref = 1;\n"
-			<< "(*p_rhs)->refcount++;\n"
-			<< "*return_value_ptr = *p_rhs;\n"
-			;
-		}
-
-		buf 
-		<< "goto end_of_function;\n"
-		;
+		buf << gen->micg.instantiate ("return", ret->value->rvalue, ret);
 	}
 
 protected:

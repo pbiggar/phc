@@ -179,6 +179,53 @@ pre_op (token VAR, string OP_FN)
 @@@
 
 /*
+ * Return
+ */
+
+return (token RETVAL, node RET)
+   where RET.return_by_ref
+@@@
+   \get_st_entry ("LOCAL", "p_rhs", RETVAL);
+   sep_copy_on_write (p_rhs);
+   zval_ptr_dtor (return_value_ptr);
+   (*p_rhs)->is_ref = 1;
+   (*p_rhs)->refcount++;
+   *return_value_ptr = *p_rhs;
+   goto end_of_function;
+@@@
+
+// Not return-by-ref
+return (token RETVAL, node RET)
+@@@
+   \read_rvalue ("rhs", RETVAL)
+   // Run-time return by reference has different semantics to compile-time.
+   // If the function has CTRBR and RTRBR, the the assignment will be
+   // reference. If one or the other is return-by-copy, the result will be
+   // by copy. Its a question of whether its separated at return-time (which
+   // we do here) or at the call-site.
+   return_value->value = rhs->value;
+   return_value->type = rhs->type;
+   zval_copy_ctor (return_value);
+   goto end_of_function;
+@@@
+
+
+/*
+ * Branch
+ */
+branch (token COND, string TRUE_TARGET, string FALSE_TARGET)
+@@@
+   \read_rvalue ("p_cond", COND);
+   zend_bool bcond = zend_is_true (p_cond);
+   if (bcond)
+      goto $TRUE_TARGET;
+   else
+      goto $FALSE_TARGET;
+@@@
+
+   
+
+/*
  * Var-vars
  */
 assign_expr_var_var (token LHS, token INDEX)
