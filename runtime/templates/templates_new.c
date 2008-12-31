@@ -559,6 +559,57 @@ assign_next_ref (token LHS, token RHS)
 @@@
 
 
+/*
+ * Assign_array
+ */
+
+assign_array (token ARRAY, token INDEX, token RHS)
+@@@
+   \get_st_entry ("LOCAL", "p_array", ARRAY);
+   check_array_type (p_array TSRMLS_CC);
+
+   \read_rvalue ("index", INDEX);
+
+   // String indexing
+   if (Z_TYPE_PP (p_array) == IS_STRING && Z_STRLEN_PP (p_array) > 0)
+   {
+      \read_rvalue ("rhs", RHS);
+      write_string_index (p_array, index, rhs TSRMLS_CC);
+   }
+   else if (Z_TYPE_PP (p_array) == IS_ARRAY)
+   {
+      zval** p_lhs = get_ht_entry (p_array, index TSRMLS_CC);
+      \read_rvalue ("rhs", RHS);
+      if (*p_lhs != rhs)
+      {
+	 write_var (p_lhs, rhs);
+      }
+   }
+@@@
+
+assign_array_ref (token ARRAY, token INDEX, token RHS)
+@@@
+   \get_st_entry ("LOCAL", "p_array", ARRAY);
+   check_array_type (p_array TSRMLS_CC);
+
+   \read_rvalue ("index", INDEX);
+
+   // String indexing
+   if (Z_TYPE_PP (p_array) == IS_STRING && Z_STRLEN_PP (p_array) > 0)
+   {
+      php_error_docref (NULL TSRMLS_CC, E_ERROR,
+		       "Cannot create references to/from string offsets nor overloaded objects");
+   }
+   else if (Z_TYPE_PP (p_array) == IS_ARRAY)
+   {
+      zval** p_lhs = get_ht_entry (p_array, index TSRMLS_CC);
+      \get_st_entry ("LOCAL", "p_rhs", RHS);
+      sep_copy_on_write (p_rhs);
+      copy_into_ref (p_lhs, p_rhs);
+   }
+@@@
+
+
 
 /*
  * Foreach

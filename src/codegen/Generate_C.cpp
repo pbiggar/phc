@@ -1826,74 +1826,10 @@ public:
 
 	void generate_code(Generate_C* gen)
 	{
-		assert (lhs->value);
-		assert (index->value);
-		assert (rhs->value);
-
-		buf 
-		// get the array
-		<< get_st_entry (LOCAL, "p_lhs_array", lhs->value)
-		<< "check_array_type (p_lhs_array TSRMLS_CC);\n"
-
-		// get the index
-		<< read_rvalue ("lhs_index", index->value)
-	
-
-
-		// Special case: string assignment
-		<< "if (Z_TYPE_P (*p_lhs_array) == IS_STRING && Z_STRLEN_PP (p_lhs_array) > 0)\n"
-		<< "{\n";
-		if (agn->is_ref)
-		{
-			buf
-			<< "php_error_docref (NULL TSRMLS_CC, E_ERROR,"
-			<<  "\"Cannot create references to/from string offsets nor overloaded objects\");\n"
-			;
-		}
+		if (!agn->is_ref)
+			buf << gen->micg.instantiate ("assign_array", lhs->value, index->value, rhs->value);
 		else
-		{
-			buf
-			<< read_rvalue ("rhs", rhs->value)
-			<< "// TODO update the string\n"
-			<< "write_string_index (p_lhs_array, lhs_index, rhs TSRMLS_CC);\n"
-			;
-		}
-		buf
-		<< "}\n"
-
-
-		// Array assignment
-		<< "else if (Z_TYPE_PP (p_lhs_array) == IS_ARRAY)\n"
-		<< "{\n"
-		
-		
-		// get the HT entry
-		<< "zval** p_lhs = get_ht_entry ("
-		<<						"p_lhs_array, "
-		<<						"lhs_index"	
-		<<						" TSRMLS_CC);\n"
-		;
-
-
-		if (not agn->is_ref)
-		{
-		  buf	
-		  << read_rvalue ("rhs", rhs->value)
-		  << "\n"
-		  << "if (*p_lhs != rhs)\n"
-		  <<		"write_var (p_lhs, rhs);\n"
-		  ;
-		}
-		else
-		{
-			buf
-			<< get_st_entry (LOCAL, "p_rhs", dyc<VARIABLE_NAME> (rhs->value))
-			<< "sep_copy_on_write (p_rhs);\n"
-			<< "copy_into_ref (p_lhs, p_rhs);\n"
-			;
-		}
-		buf
-		<< "}\n";
+			buf << gen->micg.instantiate ("assign_array_ref", lhs->value, index->value, rhs->value);
 	}
 
 protected:
