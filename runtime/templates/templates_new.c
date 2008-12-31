@@ -543,6 +543,36 @@ assign_expr_foreach_get_val (token LHS, token ARRAY, string ITERATOR)
       write_var (p_lhs, *p_rhs);
 @@@
 
+assign_expr_foreach_has_key (token LHS, token ARRAY, string ITERATOR)
+@@@
+   \new_lhs (LHS, "value");
+   \read_rvalue ("fe_array", ARRAY);
+   int type = zend_hash_get_current_key_type_ex (fe_array->value.ht, &$ITERATOR);
+   ZVAL_BOOL (value, type != HASH_KEY_NON_EXISTANT);
+@@@
+
+assign_expr_foreach_get_key (token LHS, token ARRAY, string ITERATOR)
+@@@
+   \new_lhs (LHS, "value");
+   \read_rvalue ("fe_array", ARRAY);
+
+   char* str_index = NULL;
+   uint str_length;
+   ulong num_index;
+
+   int result = zend_hash_get_current_key_ex (fe_array->value.ht, &str_index,
+					      &str_length, &num_index, 0,
+					      &$ITERATOR);
+   if (result == HASH_KEY_IS_LONG)
+   {
+      ZVAL_LONG (value, num_index);
+   }
+   else
+   {
+      ZVAL_STRINGL (value, str_index, str_length - 1, 1);
+   }
+@@@
+
 foreach_reset (token ARRAY, string ITERATOR)
 @@@
    \read_rvalue ("fe_array", ARRAY);
@@ -562,5 +592,27 @@ foreach_end (token ARRAY, string ITERATOR)
    zend_hash_internal_pointer_end_ex (fe_array->value.ht, &$ITERATOR);
 @@@
 
+/*
+ * Lots of macros need to fetch the LHS, initialize/separate it, and add a
+ * value. In Generate_C, this used to be Pattern_assign_var, but now they just
+ * call this macro.
+ */
+new_lhs (token LHS, string VAL)
+@@@
+   \get_st_entry ("LOCAL", "p_lhs", LHS);
+   zval* $VAL;
+   if ((*p_lhs)->is_ref)
+   {
+     // Always overwrite the current value
+     $VAL = *p_lhs;
+     zval_dtor ($VAL);
+   }
+   else
+   {
+     ALLOC_INIT_ZVAL ($VAL);
+     zval_ptr_dtor (p_lhs);
+     *p_lhs = $VAL;
+   }
+@@@
 
 

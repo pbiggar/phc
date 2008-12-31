@@ -1279,8 +1279,7 @@ protected:
 	Wildcard<Isset>* isset;
 };
 
-// Like ISSET, this just returns a BOOL into a waiting zval.
-class Pattern_assign_expr_foreach_has_key : public Pattern_assign_value
+class Pattern_assign_expr_foreach_has_key : public Pattern_assign_var
 {
 	Expr* rhs_pattern()
 	{
@@ -1288,23 +1287,17 @@ class Pattern_assign_expr_foreach_has_key : public Pattern_assign_value
 		return has_key;
 	}
 
-	void initialize (string var)
+	void generate_code (Generate_C* gen)
 	{
-		buf
-		<< read_rvalue ("fe_array", has_key->value->array)
-		
-		<< "int type = zend_hash_get_current_key_type_ex ("
-		<<							"fe_array->value.ht, "
-		<<							"&" << *has_key->value->iter->value << ");\n"
-		<< "ZVAL_BOOL(" << var << ", type != HASH_KEY_NON_EXISTANT);\n";
+		buf << gen->micg.instantiate ("assign_expr_foreach_has_key",
+			lhs->value, has_key->value->array, has_key->value->iter->value);
 	}
 
 protected:
 	Wildcard<Foreach_has_key>* has_key;
 };
 
-// Like ISSET, this just returns an INT or STRING into a waiting zval.
-class Pattern_assign_expr_foreach_get_key : public Pattern_assign_value
+class Pattern_assign_expr_foreach_get_key : public Pattern_assign_var
 {
 	Expr* rhs_pattern()
 	{
@@ -1312,26 +1305,10 @@ class Pattern_assign_expr_foreach_get_key : public Pattern_assign_value
 		return get_key;
 	}
 
-	void initialize (string var)
+	void generate_code (Generate_C* gen)
 	{
-		buf
-		<< read_rvalue ("fe_array", get_key->value->array)
-		<< "char* str_index = NULL;\n"
-		<< "uint str_length;\n"
-		<< "ulong num_index;\n"
-		<< "int result = zend_hash_get_current_key_ex (\n"
-		<<						"fe_array->value.ht,"
-		<<						"&str_index, &str_length, &num_index, "
-		<<						"0, "
-		<<						"&" << *get_key->value->iter->value << ");\n"
-		<< "if (result == HASH_KEY_IS_LONG)\n"
-		<< "{\n"
-		<<		"ZVAL_LONG (" << var << ", num_index);\n"
-		<< "}\n"
-		<< "else\n"
-		<< "{\n"
-		<<		"ZVAL_STRINGL (" << var << ", str_index, str_length - 1, 1);\n"
-		<< "}\n";
+		buf << gen->micg.instantiate ("assign_expr_foreach_get_key",
+			lhs->value, get_key->value->array, get_key->value->iter->value);
 	}
 
 protected:
@@ -2172,7 +2149,7 @@ class Pattern_return : public Pattern
 
 	void generate_code(Generate_C* gen)
 	{
-		buf << gen->micg.instantiate ("return", ret->value->rvalue, ret);
+		buf << gen->micg.instantiate ("return", ret->value->rvalue, ret->value);
 	}
 
 protected:
