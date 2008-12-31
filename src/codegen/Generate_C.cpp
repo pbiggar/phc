@@ -1370,19 +1370,20 @@ public:
 		if (not result)
 			return false;
 
-		string& name = *method_name->value->value;
-		return
-			// TODO are there more?
-				name == "eval"
-			|| name == "exit"
-			|| name == "die"
-			|| name == "print"
-			|| name == "echo"
-			|| name == "include"
-			|| name == "include_once"
-			|| name == "require"
-			|| name == "require_once"
-			|| name == "empty";
+		// TODO are there more?
+		Set<string> names;
+		names.insert ("eval");
+		names.insert ("exit");
+		names.insert ("die");
+		names.insert ("print");
+		names.insert ("echo");
+		names.insert ("include");
+		names.insert ("include_once");
+		names.insert ("require");
+		names.insert ("require_once");
+		names.insert ("empty");
+
+		return names.has (*method_name->value->value);
 	}
 
 	Expr* rhs_pattern()
@@ -1397,32 +1398,21 @@ public:
 
 	void generate_code (Generate_C* gen)
 	{
-		buf
-		<< read_rvalue ("p_arg", arg->value->rvalue)
-		<< "zval* rhs = NULL;\n"
-		<< "zval** p_rhs = &rhs;\n"
-		;
+		assert (!arg->is_ref);
 
 		if (lhs)
 		{
 			assert (!agn->is_ref);
-
-			// create a result
-			buf
-			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
-			<< "ALLOC_INIT_ZVAL (rhs);\n"
-			<< "phc_builtin_" << *method_name->value->value << " (p_arg, p_rhs, \"" 
-				<< *arg->value->get_filename() << "\" TSRMLS_CC);\n"
-
-			<< "write_var (p_lhs, rhs);\n"
-			<< "zval_ptr_dtor (p_rhs);\n";
+			buf << gen->micg.instantiate ("builtin_with_lhs",
+					lhs->value, arg->value->rvalue,
+					method_name->value->value, arg->value->get_filename ());
 		}
 		else
-			buf
-			<< "phc_builtin_" << *method_name->value->value << " (p_arg, p_rhs, \""
-			<< *arg->value->get_filename() << "\" TSRMLS_CC);\n"
-			<< "if (rhs != NULL) zval_ptr_dtor (p_rhs);\n"
-			;
+		{
+			buf << gen->micg.instantiate ("builtin_no_lhs",
+					arg->value->rvalue,
+					method_name->value->value, arg->value->get_filename ());
+		}
 	}
 
 protected:

@@ -610,6 +610,31 @@ assign_array_ref (token ARRAY, token INDEX, token RHS)
 @@@
 
 
+/*
+ * Builtins
+ */
+
+builtin_with_lhs (token LHS, token ARG, string NAME, string FILENAME)
+@@@
+   \read_rvalue ("arg", ARG);
+
+   \get_st_entry ("LOCAL", "p_lhs", LHS);
+   zval* rhs;
+   ALLOC_INIT_ZVAL (rhs);
+   phc_builtin_$NAME (arg, &rhs, "$FILENAME" TSRMLS_CC);
+   write_var (p_lhs, rhs);
+   zval_ptr_dtor (&rhs);
+@@@
+
+
+builtin_no_lhs (token ARG, string NAME, string FILENAME)
+@@@
+   \read_rvalue ("arg", ARG);
+
+   zval* rhs = NULL;
+   phc_builtin_$NAME (arg, &rhs, "$FILENAME" TSRMLS_CC);
+   if (rhs != NULL) zval_ptr_dtor (&rhs);
+@@@
 
 /*
  * Foreach
