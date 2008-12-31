@@ -489,7 +489,7 @@ write_var_inner (string LHS, string RHS, token TLHS, token TRHS)
 @@@
 
 /*
- * var-vars
+ * Var-vars
  */
 
 read_var_var (string ZVP, string INDEX)
@@ -500,6 +500,29 @@ read_var_var (string ZVP, string INDEX)
 get_var_var (string ST, string ZVP, string INDEX)
 @@@
    $ZVP = get_var_var (\scope(ST), $INDEX TSRMLS_CC);
+@@@
+
+assign_var_var (token INDEX, node RHS)
+@@@
+   zval** p_lhs;
+   \read_rvalue ("index", INDEX);
+   \get_var_var ("LOCAL", "p_lhs", "index");
+   \read_rvalue ("rhs", RHS);
+   if (*p_lhs != rhs)
+   {
+      // TODO: we dont have node for p_lhs to call \write_var
+      write_var (p_lhs, rhs);
+   }
+@@@
+
+assign_var_var_ref (token INDEX, node RHS)
+@@@
+   zval** p_lhs;
+   \read_rvalue ("index", INDEX);
+   \get_var_var ("LOCAL", "p_lhs", "index");
+   \get_st_entry ("LOCAL", "p_rhs", RHS);
+   sep_copy_on_write (p_rhs);
+   copy_into_ref (p_lhs, p_rhs);
 @@@
 
 

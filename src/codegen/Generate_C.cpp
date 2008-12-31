@@ -1982,40 +1982,24 @@ class Pattern_assign_var_var : public Pattern
 {
 	bool match(Statement* that)
 	{
-		lhs = new Wildcard<VARIABLE_NAME>;
+		index = new Wildcard<VARIABLE_NAME>;
 		rhs = new Wildcard<Rvalue>;
-		stmt = new Assign_var_var(lhs, false, rhs);
-		return(that->match(stmt));	
+		agn = new Assign_var_var(index, false, rhs);
+		return(that->match(agn));	
 	}
 
 	void generate_code(Generate_C* gen)
 	{
-		if(!stmt->is_ref)
-		{
-			buf
-			<< "zval** p_lhs;\n"
-			<< read_rvalue ("index", lhs->value)
-			<< get_var_var (LOCAL, "p_lhs", "index")
-			<< read_rvalue ("rhs", rhs->value)
-			<< "if (*p_lhs != rhs)\n"
-			<<		"write_var (p_lhs, rhs);\n"
-			;
-		}
+		if(!agn->is_ref)
+			buf << gen->micg.instantiate ("assign_var_var",
+				index->value, rhs->value);
 		else
-		{
-			buf
-			<< "zval** p_lhs;\n"
-			<< read_rvalue ("index", lhs->value)
-			<< get_var_var (LOCAL, "p_lhs", "index")
-			<< get_st_entry (LOCAL, "p_rhs", dyc<VARIABLE_NAME> (rhs->value))
-			<< "sep_copy_on_write (p_rhs);\n"
-			<< "copy_into_ref (p_lhs, p_rhs);\n"
-			;
-		}
+			buf << gen->micg.instantiate ("assign_var_var_ref",
+				index->value, rhs->value);
 	}
 
-	Assign_var_var* stmt;
-	Wildcard<VARIABLE_NAME>* lhs;
+	Assign_var_var* agn;
+	Wildcard<VARIABLE_NAME>* index;
 	Wildcard<Rvalue>* rhs;
 };
 	
