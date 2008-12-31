@@ -284,7 +284,6 @@ assign_expr_ref_var_var (token LHS, token INDEX)
 @@@
   \get_st_entry ("LOCAL", "p_lhs", LHS);
   \read_rvalue ("index", INDEX);
-  zval** p_rhs;
   \get_var_var ("LOCAL", "p_rhs", "index");
   sep_copy_on_write (p_rhs);
   copy_into_ref (p_lhs, p_rhs);
@@ -511,12 +510,11 @@ read_var_var (string ZVP, string INDEX)
 
 get_var_var (string ST, string ZVP, string INDEX)
 @@@
-   $ZVP = get_var_var (\scope(ST), $INDEX TSRMLS_CC);
+   zval** $ZVP = get_var_var (\scope(ST), $INDEX TSRMLS_CC);
 @@@
 
 assign_var_var (token INDEX, node RHS)
 @@@
-   zval** p_lhs;
    \read_rvalue ("index", INDEX);
    \get_var_var ("LOCAL", "p_lhs", "index");
    \read_rvalue ("rhs", RHS);
@@ -529,7 +527,6 @@ assign_var_var (token INDEX, node RHS)
 
 assign_var_var_ref (token INDEX, node RHS)
 @@@
-   zval** p_lhs;
    \read_rvalue ("index", INDEX);
    \get_var_var ("LOCAL", "p_lhs", "index");
    \get_st_entry ("LOCAL", "p_rhs", RHS);
@@ -621,6 +618,25 @@ assign_array_ref (token ARRAY, token INDEX, token RHS)
    }
 @@@
 
+/*
+ * Globals
+ */
+global_var (token VAR)
+@@@
+   \get_st_entry ("LOCAL", "p_local", VAR);
+   \get_st_entry ("GLOBAL", "p_global", VAR);
+   sep_copy_on_write (p_global);
+   copy_into_ref (p_local, p_global);
+@@@
+
+global_var_var (token INDEX)
+@@@
+   \read_rvalue ("index", INDEX);
+   \get_var_var ("LOCAL", "p_local", "index");
+   \get_var_var ("GLOBAL", "p_global", "index");
+   sep_copy_on_write (p_global);
+   copy_into_ref (p_local, p_global);
+@@@
 
 /*
  * Builtins

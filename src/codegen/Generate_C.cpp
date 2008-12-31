@@ -166,8 +166,6 @@ string get_non_st_name (VARIABLE_NAME* var_name)
 	return get_non_st_name (var_name->value);
 }
 
-string read_literal (string, Literal*);
-
 // Declare and fetch a zval* containing the value for RVALUE. The value can be
 // changed, but the symbol-table entry cannot be affected through this.
 string read_rvalue (string zvp, Rvalue* rvalue)
@@ -175,7 +173,24 @@ string read_rvalue (string zvp, Rvalue* rvalue)
 	stringstream ss;
 	if (isa<Literal> (rvalue))
 	{
-		return read_literal (zvp, dyc<Literal> (rvalue));
+		Literal* lit = dyc<Literal> (rvalue);
+		if (args_info.optimize_given)
+		{
+			ss 
+				<< "zval* " << zvp << " = "
+				<<	*lit->attrs->get_string ("phc.codegen.pool_name")
+				<< ";\n";
+		}
+		else
+		{
+			ss
+				<< "zval " << zvp << "_lit_tmp;\n"
+				<< "INIT_ZVAL (" << zvp << "_lit_tmp);\n"
+				<< "zval* " << zvp << " = &" << zvp << "_lit_tmp;\n"
+				<< write_literal_directly_into_zval (zvp, lit)
+				;
+		}
+		return ss.str();
 	}
 
 	VARIABLE_NAME* var_name = dyc<VARIABLE_NAME> (rvalue);
@@ -267,7 +282,7 @@ string get_var_var (Scope scope, string zvp, string index)
 	stringstream ss;
 	ss
 	<< "// Read variable variable\n"
-	<< zvp << " = get_var_var (" 
+	<< "zval** " << zvp << " = get_var_var (" 
 	<<					get_scope (scope) << ", "
 	<<					index << " "
 	<<					"TSRMLS_CC);\n"
@@ -1181,29 +1196,6 @@ public:
 
 
 
-string
-read_literal (string zvp, Literal* lit)
-{
-	stringstream ss;
-	if (args_info.optimize_given)
-	{
-		ss 
-		<< "zval* " << zvp << " = "
-		<<	*lit->attrs->get_string ("phc.codegen.pool_name")
-		<< ";\n";
-	}
-	else
-	{
-		ss
-		<< "zval " << zvp << "_lit_tmp;\n"
-		<< "INIT_ZVAL (" << zvp << "_lit_tmp);\n"
-		<< "zval* " << zvp << " = &" << zvp << "_lit_tmp;\n"
-		<< write_literal_directly_into_zval (zvp, lit)
-		;
-	}
-	return ss.str();
-}
-
 // Isset uses Pattern_assign_value, as it only has a boolean value. It puts the
 // BOOL into the ready made zval.
 class Pattern_assign_expr_isset : public Pattern_assign_value
@@ -1905,41 +1897,11 @@ public:
 
 	void generate_code(Generate_C* gen)
 	{
-		buf
-		<< index_lhs (LOCAL, "p_local_global_var", var_name->value) // lhs
-		<< index_lhs (GLOBAL, "p_global_var", var_name->value) // rhs
-		// Note that p_global_var can be in a copy-on-write set.
-		<< "sep_copy_on_write (p_global_var);\n"
-		<< "copy_into_ref (p_local_global_var, p_global_var);\n"
-		;
-	}
-
-	string index_lhs (Scope scope, string zvp, Expr* expr)
-	{
-		stringstream ss;
-	
-		if (VARIABLE_NAME* var_name = dynamic_cast<VARIABLE_NAME*> (expr))
-		{
-			ss
-			<< "// Normal global\n"
-			<< get_st_entry (scope, zvp, var_name)
-			;
-		}
+		if (isa<VARIABLE_NAME> (var_name->value))
+			buf << gen->micg.instantiate ("global_var", var_name->value);
 		else
-		{
-			Variable_variable* var_var = dyc<Variable_variable> (expr);
-
-			ss
-			<< "// Variable global\n"
-			<< "zval** " << zvp << ";\n"
-			<< "{\n"
-			<< read_rvalue ("index", var_var->variable_name)
-			<< get_var_var (scope, zvp, "index")
-			<< "}\n"
-			;
-		}
-
-		return ss.str();
+			buf << gen->micg.instantiate ("global_var_var",
+				dyc<Variable_variable> (var_name->value)->variable_name);
 	}
 
 protected:
