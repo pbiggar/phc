@@ -1930,42 +1930,10 @@ public:
 
 	void generate_code(Generate_C* gen)
 	{
-		assert (lhs->value);
-		assert (rhs->value);
-
-		buf 
-		<<	"zval** p_lhs;\n"
-
-		<< get_st_entry (LOCAL, "p_lhs_var", lhs->value)
-
-		<<	"// Array push \n"
-		<<	"p_lhs = push_and_index_ht (p_lhs_var TSRMLS_CC);\n"
-	
-		// TODO this can return NULL if there is an error.
-		<<	"if (p_lhs != NULL)\n"
-		<<	"{\n";
-
 		if (!agn->is_ref)
-		{
-			buf
-			<< read_rvalue ("rhs", rhs->value)
-			
-			<< "if (*p_lhs != rhs)\n"
-			<<	"	write_var (p_lhs, rhs);\n"
-			;
-		}
+			buf << gen->micg.instantiate ("assign_next", lhs->value, rhs->value);
 		else
-		{
-			// TODO this is wrong
-			buf	
-			<< get_st_entry (LOCAL, "p_rhs", dyc<VARIABLE_NAME> (rhs->value))
-			<< "sep_copy_on_write (p_rhs);\n"
-			<< "copy_into_ref (p_lhs, p_rhs);\n"
-			;
-		}
-
-		buf << "}\n"
-		;
+			buf << gen->micg.instantiate ("assign_next_ref", lhs->value, rhs->value);
 	}
 
 protected:

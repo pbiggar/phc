@@ -525,6 +525,39 @@ assign_var_var_ref (token INDEX, node RHS)
    copy_into_ref (p_lhs, p_rhs);
 @@@
 
+/*
+ * Assign_next
+ * TODO: These are are more than a bit of a mess.
+ */
+assign_next (token LHS, token RHS)
+@@@
+   \get_st_entry ("LOCAL", "p_array", LHS);
+   // Push EG(uninit) and get a pointer to the symtable entry
+   zval** p_lhs = push_and_index_ht (p_array TSRMLS_CC);
+   if (p_lhs != NULL)
+   {
+      \read_rvalue ("rhs", RHS);
+      if (*p_lhs != rhs)
+	 write_var (p_lhs, rhs);
+   }
+   // I think if this is NULL, then the LHS is a bool or similar, and you cant
+   // push onto it.
+@@@
+
+assign_next_ref (token LHS, token RHS)
+@@@
+   \get_st_entry ("LOCAL", "p_array", LHS);
+   // Push EG(uninit) and get a pointer to the symtable entry
+   zval** p_lhs = push_and_index_ht (p_array TSRMLS_CC);
+   if (p_lhs != NULL)
+   {
+      // TODO: this is wrong (further note, not sure why, I wrote that ages ago - pb)
+      \get_st_entry ("LOCAL", "p_rhs", RHS);
+      sep_copy_on_write (p_rhs);
+      copy_into_ref (p_lhs, p_rhs);
+   }
+@@@
+
 
 
 /*
