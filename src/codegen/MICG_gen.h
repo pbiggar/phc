@@ -26,8 +26,6 @@ public:
 	// converted.
 	Object* get_lookup (Lookup*, bool coerce = false);
 	Object* get_param (PARAM_NAME*, bool coerce = false);
-
-
 };
 
 }
@@ -36,7 +34,7 @@ class MICG_gen
 {
 public:
 	// callback_t: A function which takes a string and returns a string.
-	typedef string (*callback_t)(Object*);
+	typedef string (*callback_t)(Object_list*);
 
 	// Convert an Object to a String:
 	//		Booleans are converted to MICG_TRUE/MICG_FALSE
@@ -50,7 +48,7 @@ public:
 	static String* to_string_rep (Object_list*);
 
 private:
-	Map<string, callback_t> callbacks;
+	Map<string, std::pair<callback_t, int> > callbacks;
 	Map<string, MICG::Macro_list> macros;
 
 public:
@@ -100,7 +98,7 @@ public:
 
 
 	string callback (string name, Object_list* params);
-	void register_callback (string name, callback_t callback);
+	void register_callback (string name, callback_t callback, int param_count);
 
 	// Wrappers around common calls. The parameters are fetched from SYMTABLE
 	// using their actual parameters in MC and CB.

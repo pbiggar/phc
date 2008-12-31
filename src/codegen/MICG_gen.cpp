@@ -199,13 +199,13 @@ MICG_gen::suitable (Macro* macro, Object_list* params)
 }
 
 void
-MICG_gen::register_callback (string name, callback_t callback)
+MICG_gen::register_callback (string name, callback_t callback, int param_count)
 {
 	if (callbacks.has (name))
 		phc_internal_error ("Attempt to redefine existing callback %s",
 				name.c_str ());
 
-	callbacks[name] = callback;
+	callbacks[name] = make_pair (callback, param_count);
 }
 
 string
@@ -213,15 +213,18 @@ MICG_gen::callback (string name, Object_list* params)
 {
 	DEBUG ("Calling callback " << name << *to_string_rep (params));
 
-	if (params->size() != 1)
-		phc_internal_error ("Callback '%s' not called with 1 parameter %s",
-			name.c_str (), to_string_rep (params)->c_str());
-
 	if (!callbacks.has (name))
 		phc_internal_error ("No callback '%s' registered", name.c_str ());
 
+	callback_t sig;
+	unsigned int param_count;
+	tie (sig, param_count) = callbacks[name];
 
-	return callbacks[name](params->front ());
+	if (params->size() != param_count)
+		phc_internal_error ("Callback '%s' requires %d parameter, called with %d: %s",
+			name.c_str (), param_count, params->size(), to_string_rep (params)->c_str());
+
+	return sig(params);
 }
 
 MICG::Symtable*

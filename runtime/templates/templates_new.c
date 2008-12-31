@@ -87,7 +87,7 @@
  * $x = $y;
  */
 
-assign_expr_var (token LHS, token RHS)
+assign_expr_var (token LHS, node RHS)
    where LHS.st_entry_not_required
    where LHS.is_uninitialized
 @@@
@@ -96,7 +96,7 @@ assign_expr_var (token LHS, token RHS)
   \write_var ("p_lhs", "rhs", LHS, RHS);
 @@@
 
-assign_expr_var (token LHS, token RHS)
+assign_expr_var (token LHS, node RHS)
 @@@
   \get_st_entry ("LOCAL", "p_lhs", LHS);
   \read_rvalue ("rhs", RHS);
@@ -390,6 +390,17 @@ get_st_entry (string SCOPE, string ZVP, token VAR)
 scope (string SCOPE) where SCOPE == "LOCAL" @@@EG(active_symbol_table)@@@
 scope (string SCOPE) where SCOPE == "GLOBAL" @@@&EG(symbol_table)@@@
 
+/*
+ * Assign from Literal - it seems like we could use assign_expr_var, and
+ * rvalue, but we always want a new value for LHS, and read_rvalue generates a
+ * zval, not a zval* (except when optimized, but we cant guarantee that).
+ */
+assign_expr_literal (token LHS, node RHS)
+@@@
+   \new_lhs (LHS, "value");
+   \cb:write_literal_directly_into_zval ("value", RHS);
+@@@
+
 
 /*
  * read_value
@@ -406,13 +417,14 @@ read_rvalue (string ZVP, node LIT)
 read_rvalue (string ZVP, node LIT)
    where \cb:is_literal(LIT) == "TRUE"
 @@@
-  zval* lit_tmp_$ZVP;
+  zval lit_tmp_$ZVP;
   INIT_ZVAL (lit_tmp_$ZVP);
   zval* $ZVP = &lit_tmp_$ZVP;
   \cb:write_literal_directly_into_zval (ZVP, LIT);
 @@@
 
-// Not for literals (not that the signature changes here - thats intentional)
+// Not for literals (not that the signature changes here -- that's intentional
+// -- the rules are checked before the signature is)
 read_rvalue (string ZVP, token VAR)
    where VAR.st_entry_not_required
    where VAR.is_uninitialized
@@ -447,13 +459,13 @@ read_rvalue (string ZVP, token TVAR)
  * write_var
  */
 
-write_var (string LHS, string RHS, token TLHS, token TRHS)
+write_var (string LHS, string RHS, node TLHS, node TRHS)
    where TLHS.is_uninitialized
 @@@
   \write_var_inner (LHS, RHS, TLHS, TRHS);
 @@@
 
-write_var (string LHS, string RHS, token TLHS, token TRHS)
+write_var (string LHS, string RHS, node TLHS, node TRHS)
 @@@
   if ((*$LHS)->is_ref)
       overwrite_lhs (*$LHS, $RHS);
@@ -464,7 +476,7 @@ write_var (string LHS, string RHS, token TLHS, token TRHS)
     }
 @@@
 
-write_var_inner (string LHS, string RHS, token TLHS, token TRHS)
+write_var_inner (string LHS, string RHS, node TLHS, node TRHS)
    where TRHS.is_uninitialized
 @@@
   // Share a copy
@@ -473,7 +485,7 @@ write_var_inner (string LHS, string RHS, token TLHS, token TRHS)
 @@@
 
 
-write_var_inner (string LHS, string RHS, token TLHS, token TRHS)
+write_var_inner (string LHS, string RHS, node TLHS, node TRHS)
 @@@
   if ($RHS->is_ref)
     {

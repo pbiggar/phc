@@ -98,26 +98,38 @@ string get_hash (String* name)
 /*
  * Callbacks
  */
-string cb_get_hash (Object* name)
+string cb_get_hash (Object_list* params)
 {
+	Object* name = params->front ();
 	assert (isa<Identifier> (name) || isa<String> (name));
 	return (get_hash (MICG_gen::convert_to_string (name)));
 }
 
-string cb_get_length (Object* name)
+string cb_get_length (Object_list* params)
 {
+	Object* name = params->front ();
 	assert (isa<Identifier> (name) || isa<String> (name));
 	return lexical_cast<string> (MICG_gen::convert_to_string (name)->size ());
 }
 
-string cb_is_literal (Object* obj)
+string cb_is_literal (Object_list* params)
 {
+	Object* obj = params->front ();
 	assert (isa<Rvalue> (obj));
 
 	if (isa<MIR::Literal> (obj))
 		return MICG_TRUE;
 	else
 		return MICG_FALSE;
+}
+
+string write_literal_directly_into_zval (string, Literal*);
+string cb_write_literal_directly_into_zval (Object_list* params)
+{
+	String* name = dyc<String> (params->front ());
+	Literal* lit = dyc<Literal> (params->back());
+
+	return write_literal_directly_into_zval (*name, lit);
 }
 
 
@@ -1100,7 +1112,7 @@ public:
 };
 
 string
-write_literal_value_directly_into_zval (string var, Literal* lit)
+write_literal_directly_into_zval (string var, Literal* lit)
 {
 	stringstream ss;
 	if (INT* value = dynamic_cast<INT*> (lit))
@@ -1148,7 +1160,7 @@ write_literal_value_directly_into_zval (string var, Literal* lit)
 	return ss.str();
 }
 
-class Pattern_assign_literal : public Pattern_assign_value
+class Pattern_assign_literal : public Pattern_assign_var
 {
 public:
 	Expr* rhs_pattern()
@@ -1157,28 +1169,10 @@ public:
 		return rhs;
 	}
 
-	// record if we've seen this variable before
 	void generate_code (Generate_C* gen)
 	{
 		assert (!agn->is_ref);
-		if (args_info.optimize_given)
-		{
-			buf
-			<< read_literal ("rhs", rhs->value)
-			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
-			<< "if (*p_lhs != rhs)\n"
-			<<		"write_var (p_lhs, rhs);\n"
-			;
-		}
-		else
-		{
-			Pattern_assign_value::generate_code (gen);
-		}
-	}
-
-	void initialize (string var)
-	{
-		buf << write_literal_value_directly_into_zval (var, rhs->value);
+		buf << gen->micg.instantiate ("assign_expr_literal", lhs->value, rhs->value);
 	}
 
 public:
@@ -1204,7 +1198,7 @@ read_literal (string zvp, Literal* lit)
 		<< "zval " << zvp << "_lit_tmp;\n"
 		<< "INIT_ZVAL (" << zvp << "_lit_tmp);\n"
 		<< "zval* " << zvp << " = &" << zvp << "_lit_tmp;\n"
-		<< write_literal_value_directly_into_zval (zvp, lit)
+		<< write_literal_directly_into_zval (zvp, lit)
 		;
 	}
 	return ss.str();
@@ -2524,7 +2518,7 @@ void Generate_C::pre_php_script(PHP_script* in)
 			finalizations << "zval_ptr_dtor (&" << *var << ");\n";
 			initializations
 			<< "ALLOC_INIT_ZVAL (" << *var << ");\n"
-			<< write_literal_value_directly_into_zval (*var, lit);
+			<< write_literal_directly_into_zval (*var, lit);
 		}
 	}
 
@@ -2706,7 +2700,8 @@ Generate_C::Generate_C (ostream& os)
 	}
 
 
-	micg.register_callback ("length", &cb_get_length);
-	micg.register_callback ("hash", &cb_get_hash);
-	micg.register_callback ("is_literal", &cb_is_literal);
+	micg.register_callback ("length", &cb_get_length, 1);
+	micg.register_callback ("hash", &cb_get_hash, 1);
+	micg.register_callback ("is_literal", &cb_is_literal, 1);
+	micg.register_callback ("write_literal_directly_into_zval", &cb_write_literal_directly_into_zval, 2);
 }
