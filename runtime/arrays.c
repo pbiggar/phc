@@ -252,17 +252,17 @@ extract_field_ex (zval * obj TSRMLS_DC)
   assert (!in_copy_on_write (obj));
   if (Z_TYPE_P (obj) == IS_NULL)
     {
-    	assert(0);
-			// TODO: implement initialization
-		}
+      assert (0);
+      // TODO: implement initialization
+    }
   else if (Z_TYPE_P (obj) != IS_OBJECT)
     {
-			// TODO: test if this is the right error message
+      // TODO: test if this is the right error message
       php_error_docref (NULL TSRMLS_CC, E_WARNING,
 			"Cannot use a scalar value as an object");
-			// TODO: implement initialization
-    	assert(0);
-		}
+      // TODO: implement initialization
+      assert (0);
+    }
   return Z_OBJPROP_P (obj);
 }
 
@@ -277,18 +277,19 @@ extract_field (zval ** p_var TSRMLS_DC)
 
 // Like get_ht_entry, but for objects
 static zval **
-get_field (zval ** p_var, zval * ind TSRMLS_DC)
+get_field (zval ** p_var, char *ind TSRMLS_DC)
 {
   if (Z_TYPE_P (*p_var) != IS_OBJECT)
     {
-			// TODO: implement initialization
-    	assert(0);
-		}
+      // TODO: implement initialization
+      assert (0);
+    }
 
   HashTable *ht = extract_field (p_var TSRMLS_CC);
 
   zval **data;
-  if (ht_find (ht, ind, &data) == SUCCESS)
+  if (zend_symtable_find (ht, ind, strlen (ind) + 1, (void **) &data) ==
+      SUCCESS)
     {
       assert (data != NULL);
       return data;
@@ -297,7 +298,9 @@ get_field (zval ** p_var, zval * ind TSRMLS_DC)
   // If we dont find it, put EG (uninitialized_zval_ptr) into the
   // hashtable, and return a pointer to its container.
   EG (uninitialized_zval_ptr)->refcount++;
-  ht_update (ht, ind, EG (uninitialized_zval_ptr), &data);
+  zend_symtable_update (ht, ind, strlen (ind) + 1,
+			&EG (uninitialized_zval_ptr), sizeof (zval *),
+			(void **) &data);
 
   assert (data != NULL);
 
@@ -341,7 +344,8 @@ check_array_type (zval ** p_var TSRMLS_DC)
       if (!PZVAL_IS_REF (*p_var))
 	{
 	  zval_ptr_dtor (p_var);
-	ALLOC_INIT_ZVAL (*p_var)}
+	  ALLOC_INIT_ZVAL (*p_var);
+	}
       else
 	// Refs are just replaced
 	zval_dtor (*p_var);
@@ -356,6 +360,12 @@ check_array_type (zval ** p_var TSRMLS_DC)
     }
 }
 
+/* If its not an array, convert it into an object. */
+static void
+check_object_type (zval ** p_var TSRMLS_DC)
+{
+  // TODO: implement
+}
 
 /* Push EG (uninitialized_zval_ptr) and return a pointer into the ht
  * for it */

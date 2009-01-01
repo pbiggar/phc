@@ -752,18 +752,14 @@ foreach_end (token ARRAY, string ITERATOR)
 
 /*
  * Field access
- * TODO: deal with "local" variables (OBJ.st_entry_not_required)
  */
 
 assign_field (token OBJ, token FIELD, node RHS)
 @@@
-	// TODO: deal with initializing the object if necessary
 	\get_st_entry ("LOCAL", "p_obj", OBJ);
+	check_object_type (p_obj TSRMLS_CC);
 	\read_rvalue ("rhs", RHS);
-  // TODO: the detour through a zval may not be necessary
-	zval index;
-	ZVAL_STRING(&index, "$FIELD", 0);
-  zval** p_lhs = get_field (p_obj, &index TSRMLS_CC);
+  zval** p_lhs = get_field (p_obj, "$FIELD" TSRMLS_CC);
 	if (*p_lhs != rhs)
 	{
 		write_var (p_lhs, rhs);
