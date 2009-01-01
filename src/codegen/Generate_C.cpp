@@ -543,8 +543,9 @@ public:
 			} 
 			else if(attr != NULL)
 			{
-				// Not yet implemented
-				assert(0);
+				// On the internals side, attributes are not declared as part of the
+				// class but must be added to class instances when they are created 
+				// TODO: static attributes and constants should be declared here
 			}
 			else
 			{
@@ -1763,6 +1764,54 @@ protected:
 
 
 /*
+ * OOP Field access
+ */
+
+class Pattern_assign_field : public Pattern
+{
+public:
+	bool match(Statement* that)
+	{
+		pattern = new Wildcard<Assign_field>;
+		return that->match(pattern);
+	}
+
+	void generate_code(Generate_C* gen)
+	{
+		Assign_field* af = pattern->value;
+
+		VARIABLE_NAME* object_name;
+		CLASS_NAME* class_name;
+ 		
+		object_name = dynamic_cast<VARIABLE_NAME*>(af->target);
+ 		class_name  = dynamic_cast<CLASS_NAME*>(af->target);
+
+		if (object_name != NULL)
+		{
+			if (!af->is_ref)
+				buf << gen->micg.instantiate ("assign_field", object_name, af->field_name, af->rhs);
+			else
+				buf << gen->micg.instantiate ("assign_field_ref", object_name, af->field_name, af->rhs);
+		}
+		else if (class_name != NULL)
+		{
+			if (!af->is_ref)
+				buf << gen->micg.instantiate ("assign_static_field", class_name, af->field_name, af->rhs);
+			else
+				buf << gen->micg.instantiate ("assign_static_field_ref", class_name, af->field_name, af->rhs);
+		}
+		else
+		{
+			// Invalid target
+			assert(0);
+		}
+	}
+
+protected:
+	Wildcard<Assign_field>* pattern;
+};
+
+/*
  * Statements
  */
 
@@ -2329,7 +2378,7 @@ string compile_statement(Statement* in, Generate_C* gen)
 	{
 	// Top-level constructs
 		new Pattern_method_definition ()
-	,  new Pattern_class_def ()
+	, new Pattern_class_def ()
 	// Expressions, which can only be RHSs to Assign_vars
 	,	new Pattern_assign_expr_constant ()
 	,	new Pattern_assign_expr_var ()
@@ -2349,10 +2398,12 @@ string compile_statement(Statement* in, Generate_C* gen)
 	// Method invocations and NEWs can be part of Eval_expr or just Assign_vars
 	,	new Pattern_expr_builtin()
 	,	new Pattern_expr_method_invocation()
+	// OOP
+	, new Pattern_assign_field()
 	// All the rest are just statements
 	,	new Pattern_assign_array ()
 	,	new Pattern_assign_next ()
-	,  new Pattern_assign_var_var ()
+	, new Pattern_assign_var_var ()
 	,	new Pattern_class_or_interface_alias ()
 	,	new Pattern_method_alias ()
 	,	new Pattern_branch()

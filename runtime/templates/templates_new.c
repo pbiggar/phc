@@ -106,8 +106,6 @@ assign_expr_var (token LHS, node RHS)
     }
 @@@
 
-
-
 /*
  * $x =& $y;
  */
@@ -753,6 +751,44 @@ foreach_end (token ARRAY, string ITERATOR)
 @@@
 
 /*
+ * Field access
+ * TODO: deal with "local" variables (OBJ.st_entry_not_required)
+ */
+
+assign_field (token OBJ, token FIELD, node RHS)
+@@@
+	// TODO: deal with initializing the object if necessary
+	\get_st_entry ("LOCAL", "p_obj", OBJ);
+	\read_rvalue ("rhs", RHS);
+  // TODO: the detour through a zval may not be necessary
+	zval index;
+	ZVAL_STRING(&index, "$FIELD", 0);
+  zval** p_lhs = get_field (p_obj, &index TSRMLS_CC);
+	if (*p_lhs != rhs)
+	{
+		write_var (p_lhs, rhs);
+	}
+@@@
+
+assign_field_ref (token OBJ, token FIELD, node RHS)
+@@@
+	// TODO: Implement assign_field_ref
+	assert(0);
+@@@
+
+assign_static_field (token CLASS, token FIELD, node RHS)
+@@@
+	// TODO: Implement assign_static_field
+	assert(0);
+@@@
+
+assign_static_field_ref (token CLASS, token FIELD, node RHS)
+@@@
+	// TODO: Implement assign_static_field_ref
+	assert(0);
+@@@
+
+/*
  * Lots of macros need to fetch the LHS, initialize/separate it, and add a
  * value. In Generate_C, this used to be Pattern_assign_var, but now they just
  * call this macro.
@@ -774,5 +810,4 @@ new_lhs (token LHS, string VAL)
      *p_lhs = $VAL;
    }
 @@@
-
 
