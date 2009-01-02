@@ -1,44 +1,84 @@
-/* Quick intro:
- * Each pattern is matched in the order it appears. If it matches, code is
- * generated based on its template. If nothing matches, there is an error.
+/* Quick intro, using this macro as an example:
+ *
+ * assign_expr_var (token LHS, token RHS)
+ *    where LHS.st_entry_not_required
+ *    where LHS.is_uninitialized
+ * @@@
+ *   zval** p_lhs = &local_$LHS;
+ *   \read_rvalue ("rhs", RHS);
+ *   \write_var ("p_lhs", "rhs", LHS, RHS);
+ * @@@
+ *
+ * Macros are defined by their name, a list of argument, a list of rules, and a
+ * body. Generate_C will attempt to 'instantiate' a macro with its name and
+ * some arguments. Each macro of that name will be matched against in the order
+ * it appears. When all of pattern's rules match the parameters, that macro
+ * will be evaluated. If no macro matches, and error is given.
  *
  * Matching:
- *    To match, it must match with the correct name and rules. (its an error to
- *    have multiple patterns with different signatures).
+ *    Before we look at the rules, we need to look at the signature. The
+ *    signature is a list of parameters, in capital letters (LHS and RHS), and
+ *    types (token in both cases).
  *
- * Signature:
- *    A name, followed by a list of parameters, followed by a list of rules.
+ *    A rule is a line starting with 'where', and followed by a boolean expression. There are only two kinds of boolean expr:
+ *	 Lookup: Parameters which are 'node's (ie correspond to an MIR::Node*)
+ *	 can have their attrs looked up. If they have do not have the
+ *	 attribute, or they have a Boolean false stored, the lookup fails.
+ *	 Otherwise it succeeds.
  *
- * Parameters:
- *    A type and a name.
+ *	 Equals: In the form 'LHS == RHS' - this does a string comparison
+ *	 between the parameters, where they are coerced to strings. Coersions
+ *	 will be explained in the type section later.
  *
- * Allowed types:
- *    attrs: attributes, taken directly from the MIR::Node's attributes.
- *    bool: boolean. To pass, use the name, or true|false
- *    string: quoted string. To pass, use the name or a quoted string.
- *    node: like an attr, but has a type field
- *    token: a special node with a value field. It can be interpolated, which uses the value field.
+ *	 The operands of an Equals are expressions: Parameters, strings, calls
+ *	 to other macros or callbacks. Macro calls and callbacks are explained
+ *	 later.
  *
- * Rules:
- *    Each rule is a boolean condition, preceeded by 'where '. Their evaluation is based on their type:
- *	 attrs: where attr.some_attribute_name
- *	 string: where param == "some string"
- *	 bool: where param == true|false
- *	 node: where node.type == Literal
- *	 token: where node.value = "STRING"
- *    Rules are all ANDed together. There is no way to OR two rules together.
+ * Types:
+ *    There are only 3 types, whose name must be used in a type signature:
+ *       node: Can have attributes lookup up. Evaluating it is a evaluation-time error.
  *
- * Templates:
- *    A template is basically C code, with two types of interpolation:
- *	 To use a parameter PARAM, use $PARAM (even in quoted strings).
- *	 To call another template, use \other_template (param0, ... );
- *	 To use a property of a PARAM, use ${PARAM.propname}.
- *	 To do a callback to the code generator, use \cb:callback_name (param0, ...);.
- *	 The callback must be registered.
+ *       string: Represents a String* (or a quoted string when created in 'user code').
+ *
+ *	 token: A token is an MIR::Identifier*. Attributes can be looked up, or
+ *	 it can be evaluated itself, which coerces it to its 'value' string.
+ *	 Tokens can be used as either strings or nodes.
+ *
+ *    Evaluating a lookup can also produce a boolean, but these are always
+ *    coerced to either "TRUE" or "FALSE".
+ *
+ *
+ * Bodies:
+ *    The body is simply a C string, interspersed with interpolations, macro calls and callbacks. It starts and
+ *    ends with @@@. The evalutation of a macro is simply a string of its
+ *    contents, with appropriate strings substituted in for interpolations etc.
+ *    Whitespace is preserved.
+ *
+ *    Bodies allow two kinds of interpolations:
+ *      $LHS: coerces LHS into a string (which works for tokens and strings,
+ *      and leads to evalutation-time error for nodes).
+ *
+ *       ${LHS.attr_name}: the same as a lookup.
+ *
+ * Macro calls:
+ *    Rules and bodies both support macro calls. In the example above,
+ *    \read_value (...) is  macro call. Parameters can be nodes, tokens, or
+ *    strings. Strings are written as quoted strings: "rhs". Nodes and tokens
+ *    must, of course, be passed using their name in the caller.
+ *
+ * Callbacks:
+ *    Callbacks are the same as macros, except they call a c++ function, which
+ *    must be registed in Generate_C. They are called using:
+*     \cb:call_back_name (PARAM). For now, only 1 parameter is allowed, but its
+*     easy to fix that.
  *
  * Comments:
- *    Comment are allowed outside patterns. Comments inside templates are C
- *    comments, and will appear in the generated code.
+ *    C or C++ comments, are allowed outside bodies. Comments inside bodies and
+ *    will appear in the generated code.
+ *
+ *  Note: I may be wrong about some of the evaluation-time errors for node
+ *  coersions. If you see some stray "TRUE"s in your code, this may be the
+ *  problem.
  */
 
 
@@ -47,7 +87,7 @@
  * $x = $y;
  */
 
-assign_expr_var (token LHS, token RHS)
+assign_expr_var (token LHS, node RHS)
    where LHS.st_entry_not_required
    where LHS.is_uninitialized
 @@@
@@ -56,7 +96,7 @@ assign_expr_var (token LHS, token RHS)
   \write_var ("p_lhs", "rhs", LHS, RHS);
 @@@
 
-assign_expr_var (token LHS, token RHS)
+assign_expr_var (token LHS, node RHS)
 @@@
   \get_st_entry ("LOCAL", "p_lhs", LHS);
   \read_rvalue ("rhs", RHS);
@@ -65,8 +105,6 @@ assign_expr_var (token LHS, token RHS)
       \write_var ("p_lhs", "rhs", LHS, RHS);
     }
 @@@
-
-
 
 /*
  * $x =& $y;
@@ -85,8 +123,26 @@ assign_expr_ref_var (token LHS, token RHS)
 assign_expr_cast (token LHS, token RHS, string TYPE)
 @@@
   \assign_expr_var (LHS, RHS);
-  cast_var (p_lhs, $TYPE);
+  \cast_var ("p_lhs", TYPE);
 @@@
+
+cast_var (string LHS, string TYPE)
+@@@
+  assert ($TYPE >= 0 && $TYPE <= 6);
+  if ((*$LHS)->type != $TYPE)
+  {
+    sep_copy_on_write ($LHS);
+    \convert_to (TYPE) (*$LHS);
+  }
+@@@
+
+convert_to (string TYPE) where TYPE == "IS_ARRAY" @@@convert_to_array@@@
+convert_to (string TYPE) where TYPE == "IS_BOOL" @@@convert_to_boolean@@@
+convert_to (string TYPE) where TYPE == "IS_DOUBLE" @@@convert_to_double@@@
+convert_to (string TYPE) where TYPE == "IS_LONG" @@@convert_to_long@@@
+convert_to (string TYPE) where TYPE == "IS_NULL" @@@convert_to_null@@@
+convert_to (string TYPE) where TYPE == "IS_STRING" @@@convert_to_string@@@
+convert_to (string TYPE) where TYPE == "IS_OBJECT" @@@convert_to_object@@@
 
 /*
  * Bin-ops
@@ -130,6 +186,82 @@ assign_expr_bin_op (token LHS, node LEFT, node RIGHT, string OP_FN)
     zval_dtor (&old);
 @@@
 
+/*
+ * Unary-ops
+ */
+assign_expr_unary_op (token LHS, node RHS, string OP_FN)
+@@@
+   \get_st_entry ("LOCAL", "p_lhs", LHS);
+   \read_rvalue ("rhs", RHS);
+   if (in_copy_on_write (*p_lhs))
+   {
+     zval_ptr_dtor (p_lhs);
+     ALLOC_INIT_ZVAL (*p_lhs);
+   }
+
+   zval old = **p_lhs;
+   int result_is_operand = (*p_lhs == rhs);
+   $OP_FN (*p_lhs, rhs TSRMLS_CC);
+   if (!result_is_operand)
+	zval_dtor (&old);
+@@@
+
+/*
+ * Pre-op
+ */
+pre_op (token VAR, string OP_FN)
+@@@
+   \get_st_entry ("LOCAL", "p_var", VAR);
+   sep_copy_on_write (p_var);
+   $OP_FN (*p_var);
+@@@
+
+/*
+ * Return
+ */
+
+return (token RETVAL, node RET)
+   where RET.return_by_ref
+@@@
+   \get_st_entry ("LOCAL", "p_rhs", RETVAL);
+   sep_copy_on_write (p_rhs);
+   zval_ptr_dtor (return_value_ptr);
+   (*p_rhs)->is_ref = 1;
+   (*p_rhs)->refcount++;
+   *return_value_ptr = *p_rhs;
+   goto end_of_function;
+@@@
+
+// Not return-by-ref
+return (token RETVAL, node RET)
+@@@
+   \read_rvalue ("rhs", RETVAL)
+   // Run-time return by reference has different semantics to compile-time.
+   // If the function has CTRBR and RTRBR, the the assignment will be
+   // reference. If one or the other is return-by-copy, the result will be
+   // by copy. Its a question of whether its separated at return-time (which
+   // we do here) or at the call-site.
+   return_value->value = rhs->value;
+   return_value->type = rhs->type;
+   zval_copy_ctor (return_value);
+   goto end_of_function;
+@@@
+
+
+/*
+ * Branch
+ */
+branch (token COND, string TRUE_TARGET, string FALSE_TARGET)
+@@@
+   \read_rvalue ("p_cond", COND);
+   zend_bool bcond = zend_is_true (p_cond);
+   if (bcond)
+      goto $TRUE_TARGET;
+   else
+      goto $FALSE_TARGET;
+@@@
+
+   
 
 /*
  * Var-vars
@@ -150,10 +282,81 @@ assign_expr_ref_var_var (token LHS, token INDEX)
 @@@
   \get_st_entry ("LOCAL", "p_lhs", LHS);
   \read_rvalue ("index", INDEX);
-  zval** p_rhs;
   \get_var_var ("LOCAL", "p_rhs", "index");
   sep_copy_on_write (p_rhs);
   copy_into_ref (p_lhs, p_rhs);
+@@@
+
+/*
+ * Array access
+ */
+assign_expr_array_access (token LHS, token ARRAY, token INDEX)
+@@@
+   \get_st_entry ("LOCAL", "p_lhs", LHS);
+   \read_rvalue ("r_array", ARRAY);
+   \read_rvalue ("r_index", INDEX);
+
+   zval* rhs;
+   int is_rhs_new = 0;
+    if (Z_TYPE_P (r_array) != IS_ARRAY)
+    {
+      if (Z_TYPE_P (r_array) == IS_STRING)
+	{
+	  is_rhs_new = 1;
+	  rhs = read_string_index (r_array, r_index TSRMLS_CC);
+	}
+      else
+	// TODO: warning here?
+	rhs = EG (uninitialized_zval_ptr);
+    }
+    else
+    {
+      if (check_array_index_type (r_index TSRMLS_CC))
+	{
+	  // Read array variable
+	  read_array (&rhs, r_array, r_index TSRMLS_CC);
+	}
+      else
+	rhs = *p_lhs; // HACK to fail  *p_lhs != rhs
+    }
+
+   if (*p_lhs != rhs)
+      write_var (p_lhs, rhs);
+
+   if (is_rhs_new) zval_ptr_dtor (&rhs);
+@@@
+
+assign_expr_ref_array_access (token LHS, token ARRAY, token INDEX)
+@@@
+   \get_st_entry ("LOCAL", "p_lhs", LHS);
+   \get_st_entry ("LOCAL", "p_r_array", ARRAY);
+   \read_rvalue ("r_index", INDEX);
+   check_array_type (p_r_array TSRMLS_CC);
+   zval** p_rhs = get_ht_entry (p_r_array, r_index TSRMLS_CC);
+   sep_copy_on_write (p_rhs);
+   copy_into_ref (p_lhs, p_rhs);
+@@@
+
+/*
+ * Constants
+ */
+assign_expr_constant (token LHS, string CONSTANT)
+@@@
+   // No null-terminator in length for get_constant.
+   // zend_get_constant always returns a copy of the constant.
+   \get_st_entry ("LOCAL", "p_lhs", LHS);
+   if (!(*p_lhs)->is_ref)
+   {
+     zval_ptr_dtor (p_lhs);
+     get_constant ("$CONSTANT", \cb:length(CONSTANT), p_lhs TSRMLS_CC);
+   }
+   else
+   {
+     zval* constant;
+     get_constant ("$CONSTANT", \cb:length(CONSTANT), p_lhs TSRMLS_CC);
+     overwrite_lhs_no_copy (*p_lhs, constant);
+     safe_free_zval_ptr (constant);
+   }
 @@@
 
 
@@ -184,6 +387,17 @@ get_st_entry (string SCOPE, string ZVP, token VAR)
 scope (string SCOPE) where SCOPE == "LOCAL" @@@EG(active_symbol_table)@@@
 scope (string SCOPE) where SCOPE == "GLOBAL" @@@&EG(symbol_table)@@@
 
+/*
+ * Assign from Literal - it seems like we could use assign_expr_var, and
+ * rvalue, but we always want a new value for LHS, and read_rvalue generates a
+ * zval, not a zval* (except when optimized, but we cant guarantee that).
+ */
+assign_expr_literal (token LHS, node RHS)
+@@@
+   \new_lhs (LHS, "value");
+   \cb:write_literal_directly_into_zval ("value", RHS);
+@@@
+
 
 /*
  * read_value
@@ -200,13 +414,14 @@ read_rvalue (string ZVP, node LIT)
 read_rvalue (string ZVP, node LIT)
    where \cb:is_literal(LIT) == "TRUE"
 @@@
-  zval* lit_tmp_$ZVP;
+  zval lit_tmp_$ZVP;
   INIT_ZVAL (lit_tmp_$ZVP);
   zval* $ZVP = &lit_tmp_$ZVP;
   \cb:write_literal_directly_into_zval (ZVP, LIT);
 @@@
 
-// Not for literals (not that the signature changes here - thats intentional)
+// Not for literals (not that the signature changes here -- that's intentional
+// -- the rules are checked before the signature is)
 read_rvalue (string ZVP, token VAR)
    where VAR.st_entry_not_required
    where VAR.is_uninitialized
@@ -241,13 +456,13 @@ read_rvalue (string ZVP, token TVAR)
  * write_var
  */
 
-write_var (string LHS, string RHS, token TLHS, token TRHS)
+write_var (string LHS, string RHS, node TLHS, node TRHS)
    where TLHS.is_uninitialized
 @@@
   \write_var_inner (LHS, RHS, TLHS, TRHS);
 @@@
 
-write_var (string LHS, string RHS, token TLHS, token TRHS)
+write_var (string LHS, string RHS, node TLHS, node TRHS)
 @@@
   if ((*$LHS)->is_ref)
       overwrite_lhs (*$LHS, $RHS);
@@ -258,7 +473,7 @@ write_var (string LHS, string RHS, token TLHS, token TRHS)
     }
 @@@
 
-write_var_inner (string LHS, string RHS, token TLHS, token TRHS)
+write_var_inner (string LHS, string RHS, node TLHS, node TRHS)
    where TRHS.is_uninitialized
 @@@
   // Share a copy
@@ -267,7 +482,7 @@ write_var_inner (string LHS, string RHS, token TLHS, token TRHS)
 @@@
 
 
-write_var_inner (string LHS, string RHS, token TLHS, token TRHS)
+write_var_inner (string LHS, string RHS, node TLHS, node TRHS)
 @@@
   if ($RHS->is_ref)
     {
@@ -283,7 +498,7 @@ write_var_inner (string LHS, string RHS, token TLHS, token TRHS)
 @@@
 
 /*
- * var-vars
+ * Var-vars
  */
 
 read_var_var (string ZVP, string INDEX)
@@ -293,5 +508,482 @@ read_var_var (string ZVP, string INDEX)
 
 get_var_var (string ST, string ZVP, string INDEX)
 @@@
-   $ZVP = get_var_var (\scope(ST), $INDEX TSRMLS_CC);
+   zval** $ZVP = get_var_var (\scope(ST), $INDEX TSRMLS_CC);
 @@@
+
+assign_var_var (token INDEX, node RHS)
+@@@
+   \read_rvalue ("index", INDEX);
+   \get_var_var ("LOCAL", "p_lhs", "index");
+   \read_rvalue ("rhs", RHS);
+   if (*p_lhs != rhs)
+   {
+      // TODO: we dont have node for p_lhs to call \write_var
+      write_var (p_lhs, rhs);
+   }
+@@@
+
+assign_var_var_ref (token INDEX, node RHS)
+@@@
+   \read_rvalue ("index", INDEX);
+   \get_var_var ("LOCAL", "p_lhs", "index");
+   \get_st_entry ("LOCAL", "p_rhs", RHS);
+   sep_copy_on_write (p_rhs);
+   copy_into_ref (p_lhs, p_rhs);
+@@@
+
+/*
+ * Assign_next
+ * TODO: These are are more than a bit of a mess.
+ */
+assign_next (token LHS, token RHS)
+@@@
+   \get_st_entry ("LOCAL", "p_array", LHS);
+   // Push EG(uninit) and get a pointer to the symtable entry
+   zval** p_lhs = push_and_index_ht (p_array TSRMLS_CC);
+   if (p_lhs != NULL)
+   {
+      \read_rvalue ("rhs", RHS);
+      if (*p_lhs != rhs)
+	 write_var (p_lhs, rhs);
+   }
+   // I think if this is NULL, then the LHS is a bool or similar, and you cant
+   // push onto it.
+@@@
+
+assign_next_ref (token LHS, token RHS)
+@@@
+   \get_st_entry ("LOCAL", "p_array", LHS);
+   // Push EG(uninit) and get a pointer to the symtable entry
+   zval** p_lhs = push_and_index_ht (p_array TSRMLS_CC);
+   if (p_lhs != NULL)
+   {
+      // TODO: this is wrong (further note, not sure why, I wrote that ages ago - pb)
+      \get_st_entry ("LOCAL", "p_rhs", RHS);
+      sep_copy_on_write (p_rhs);
+      copy_into_ref (p_lhs, p_rhs);
+   }
+@@@
+
+
+/*
+ * Assign_array
+ */
+
+assign_array (token ARRAY, token INDEX, token RHS)
+@@@
+   \get_st_entry ("LOCAL", "p_array", ARRAY);
+   check_array_type (p_array TSRMLS_CC);
+
+   \read_rvalue ("index", INDEX);
+
+   // String indexing
+   if (Z_TYPE_PP (p_array) == IS_STRING && Z_STRLEN_PP (p_array) > 0)
+   {
+      \read_rvalue ("rhs", RHS);
+      write_string_index (p_array, index, rhs TSRMLS_CC);
+   }
+   else if (Z_TYPE_PP (p_array) == IS_ARRAY)
+   {
+      zval** p_lhs = get_ht_entry (p_array, index TSRMLS_CC);
+      \read_rvalue ("rhs", RHS);
+      if (*p_lhs != rhs)
+      {
+	 write_var (p_lhs, rhs);
+      }
+   }
+@@@
+
+assign_array_ref (token ARRAY, token INDEX, token RHS)
+@@@
+   \get_st_entry ("LOCAL", "p_array", ARRAY);
+   check_array_type (p_array TSRMLS_CC);
+
+   \read_rvalue ("index", INDEX);
+
+   // String indexing
+   if (Z_TYPE_PP (p_array) == IS_STRING && Z_STRLEN_PP (p_array) > 0)
+   {
+      php_error_docref (NULL TSRMLS_CC, E_ERROR,
+		       "Cannot create references to/from string offsets nor overloaded objects");
+   }
+   else if (Z_TYPE_PP (p_array) == IS_ARRAY)
+   {
+      zval** p_lhs = get_ht_entry (p_array, index TSRMLS_CC);
+      \get_st_entry ("LOCAL", "p_rhs", RHS);
+      sep_copy_on_write (p_rhs);
+      copy_into_ref (p_lhs, p_rhs);
+   }
+@@@
+
+/*
+ * Globals
+ */
+global_var (token VAR)
+@@@
+   \get_st_entry ("LOCAL", "p_local", VAR);
+   \get_st_entry ("GLOBAL", "p_global", VAR);
+   sep_copy_on_write (p_global);
+   copy_into_ref (p_local, p_global);
+@@@
+
+global_var_var (token INDEX)
+@@@
+   \read_rvalue ("index", INDEX);
+   \get_var_var ("LOCAL", "p_local", "index");
+   \get_var_var ("GLOBAL", "p_global", "index");
+   sep_copy_on_write (p_global);
+   copy_into_ref (p_local, p_global);
+@@@
+
+/*
+ * Builtins
+ */
+
+builtin_with_lhs (token LHS, token ARG, string NAME, string FILENAME)
+@@@
+   \read_rvalue ("arg", ARG);
+
+   \get_st_entry ("LOCAL", "p_lhs", LHS);
+   zval* rhs;
+   ALLOC_INIT_ZVAL (rhs);
+   phc_builtin_$NAME (arg, &rhs, "$FILENAME" TSRMLS_CC);
+   write_var (p_lhs, rhs);
+   zval_ptr_dtor (&rhs);
+@@@
+
+
+builtin_no_lhs (token ARG, string NAME, string FILENAME)
+@@@
+   \read_rvalue ("arg", ARG);
+
+   zval* rhs = NULL;
+   phc_builtin_$NAME (arg, &rhs, "$FILENAME" TSRMLS_CC);
+   if (rhs != NULL) zval_ptr_dtor (&rhs);
+@@@
+
+/*
+ * Foreach
+ */
+
+// TODO: Find a nice way to avoid this duplication
+assign_expr_ref_foreach_get_val (token LHS, token ARRAY, string ITERATOR)
+@@@
+   \get_st_entry ("LOCAL", "p_lhs", LHS);
+   // TODO: we know this is an array
+   \read_rvalue ("fe_array", ARRAY);
+
+   zval** p_rhs = NULL;
+   int result = zend_hash_get_current_data_ex (
+					       fe_array->value.ht,
+					       (void**)(&p_rhs),
+					       &$ITERATOR);
+   assert (result == SUCCESS);
+
+   sep_copy_on_write (p_rhs);
+   copy_into_ref (p_lhs, p_rhs);
+@@@
+
+assign_expr_foreach_get_val (token LHS, token ARRAY, string ITERATOR)
+@@@
+   \get_st_entry ("LOCAL", "p_lhs", LHS);
+   // TODO: we know this is an array
+   \read_rvalue ("fe_array", ARRAY);
+
+   zval** p_rhs = NULL;
+   int result = zend_hash_get_current_data_ex (
+					       fe_array->value.ht,
+					       (void**)(&p_rhs),
+					       &$ITERATOR);
+   assert (result == SUCCESS);
+
+   if (*p_lhs != *p_rhs)
+      write_var (p_lhs, *p_rhs);
+@@@
+
+assign_expr_foreach_has_key (token LHS, token ARRAY, string ITERATOR)
+@@@
+   \new_lhs (LHS, "value");
+   \read_rvalue ("fe_array", ARRAY);
+   int type = zend_hash_get_current_key_type_ex (fe_array->value.ht, &$ITERATOR);
+   ZVAL_BOOL (value, type != HASH_KEY_NON_EXISTANT);
+@@@
+
+assign_expr_foreach_get_key (token LHS, token ARRAY, string ITERATOR)
+@@@
+   \new_lhs (LHS, "value");
+   \read_rvalue ("fe_array", ARRAY);
+
+   char* str_index = NULL;
+   uint str_length;
+   ulong num_index;
+
+   int result = zend_hash_get_current_key_ex (fe_array->value.ht, &str_index,
+					      &str_length, &num_index, 0,
+					      &$ITERATOR);
+   if (result == HASH_KEY_IS_LONG)
+   {
+      ZVAL_LONG (value, num_index);
+   }
+   else
+   {
+      ZVAL_STRINGL (value, str_index, str_length - 1, 1);
+   }
+@@@
+
+foreach_reset (token ARRAY, string ITERATOR)
+@@@
+   \read_rvalue ("fe_array", ARRAY);
+   zend_hash_internal_pointer_reset_ex (fe_array->value.ht, &$ITERATOR);
+@@@
+
+foreach_next (token ARRAY, string ITERATOR)
+@@@
+   \read_rvalue ("fe_array", ARRAY);
+   int result = zend_hash_move_forward_ex (fe_array->value.ht, &$ITERATOR);
+   assert (result == SUCCESS);
+@@@
+
+foreach_end (token ARRAY, string ITERATOR)
+@@@
+   \read_rvalue ("fe_array", ARRAY);
+   zend_hash_internal_pointer_end_ex (fe_array->value.ht, &$ITERATOR);
+@@@
+
+/*
+ * Field access
+ */
+
+assign_field (token OBJ, token FIELD, node RHS)
+@@@
+	\get_st_entry ("LOCAL", "p_obj", OBJ);
+	check_object_type (p_obj TSRMLS_CC);
+	\read_rvalue ("rhs", RHS);
+  zval** p_lhs = get_field (p_obj, "$FIELD" TSRMLS_CC);
+	if (*p_lhs != rhs)
+	{
+		write_var (p_lhs, rhs);
+	}
+@@@
+
+assign_field_ref (token OBJ, token FIELD, node RHS)
+@@@
+	// TODO: Implement assign_field_ref
+	assert(0);
+@@@
+
+assign_static_field (token CLASS, token FIELD, node RHS)
+@@@
+	// TODO: Implement assign_static_field
+	assert(0);
+@@@
+
+assign_static_field_ref (token CLASS, token FIELD, node RHS)
+@@@
+	// TODO: Implement assign_static_field_ref
+	assert(0);
+@@@
+
+/*
+ * Lots of macros need to fetch the LHS, initialize/separate it, and add a
+ * value. In Generate_C, this used to be Pattern_assign_var, but now they just
+ * call this macro.
+ */
+new_lhs (token LHS, string VAL)
+@@@
+   \get_st_entry ("LOCAL", "p_lhs", LHS);
+   zval* $VAL;
+   if ((*p_lhs)->is_ref)
+   {
+     // Always overwrite the current value
+     $VAL = *p_lhs;
+     zval_dtor ($VAL);
+   }
+   else
+   {
+     ALLOC_INIT_ZVAL ($VAL);
+     zval_ptr_dtor (p_lhs);
+     *p_lhs = $VAL;
+   }
+@@@
+
+/*
+ * Method and function calls
+ */
+
+arg_by_ref (node ARG)
+   where ARG.is_ref
+@@@
+   by_ref[abr_index] = 1;
+   abr_index++;
+@@@
+
+
+arg_by_ref (node ARG)
+@@@
+   // TODO: find names to replace index
+   if (arg_info)
+   {
+      by_ref[abr_index] = arg_info->pass_by_reference;
+      arg_info++;
+   }
+   else
+      by_ref[abr_index] = signature->common.pass_rest_by_reference;
+
+   abr_index++;
+@@@
+
+// TODO: these can easily be combined
+arg_fetch (token ARG)
+@@@
+   destruct[af_index] = 0;
+   if (by_ref[af_index])
+   {
+      \get_st_entry ("LOCAL", "p_arg", ARG);
+      args_ind[af_index] = fetch_var_arg_by_ref (p_arg);
+      assert (!in_copy_on_write (*args_ind[af_index]));
+      args[af_index] = *args_ind[af_index];
+   }
+   else
+   {
+      \read_rvalue ("arg", ARG);
+      args[af_index] = fetch_var_arg (arg, &destruct[af_index]);
+      args_ind[af_index] = &args[af_index];
+   }
+   af_index++;
+@@@
+
+call_function (string MN, list ARGS, string FILENAME, string LINE, string FCI_NAME, string FCIC_NAME, string ARG_COUNT, string USE_REF, token LHS)
+@@@
+   zend_function* signature = $FCIC_NAME.function_handler;
+   zend_arg_info* arg_info = signature->common.arg_info; // optional
+
+   int by_ref[$ARG_COUNT];
+   int abr_index = 0;
+   \arg_by_ref (ARGS);
+
+   // Setup array of arguments
+   // TODO: i think arrays of size 0 is an error
+   int destruct [$ARG_COUNT];
+   zval* args [$ARG_COUNT];
+   zval** args_ind [$ARG_COUNT];
+
+   int af_index = 0;
+   \arg_fetch (ARGS);
+
+   phc_setup_error (1, "$FILENAME", $LINE, NULL TSRMLS_CC);
+
+   // save existing parameters, in case of recursion
+   int param_count_save = $FCI_NAME.param_count;
+   zval*** params_save = $FCI_NAME.params;
+   zval** retval_save = $FCI_NAME.retval_ptr_ptr;
+
+   zval* rhs = NULL;
+
+   // set up params
+   $FCI_NAME.params = args_ind;
+   $FCI_NAME.param_count = $ARG_COUNT;
+   $FCI_NAME.retval_ptr_ptr = &rhs;
+
+   // call the function
+   int success = zend_call_function (&$FCI_NAME, &$FCIC_NAME TSRMLS_CC);
+   assert(success == SUCCESS);
+
+   // restore params
+   $FCI_NAME.params = params_save;
+   $FCI_NAME.param_count = param_count_save;
+   $FCI_NAME.retval_ptr_ptr = retval_save;
+
+   // unset the errors
+   phc_setup_error (0, NULL, 0, NULL TSRMLS_CC);
+
+   int i;
+   for (i = 0; i < $ARG_COUNT; i++)
+   {
+      if (destruct[i])
+      {
+	 assert (destruct[i]);
+	 zval_ptr_dtor (args_ind[i]);
+      }
+   }
+
+
+   // When the Zend engine returns by reference, it allocates a zval into
+   // retval_ptr_ptr. To return by reference, the callee writes into the
+   // retval_ptr_ptr, freeing the allocated value as it does.  (Note, it may
+   // not actually return anything). So the zval returned - whether we return
+   // it, or it is the allocated zval - has a refcount of 1.
+ 
+   // The caller is responsible for cleaning that up (note, this is unaffected
+   // by whether it is added to some COW set).
+
+   // For reasons unknown, the Zend API resets the refcount and is_ref fields
+   // of the return value after the function returns (unless the callee is
+   // interpreted). If the function is supposed to return by reference, this
+   // loses the refcount. This only happens when non-interpreted code is
+   // called. We work around it, when compiled code is called, by saving the
+   // refcount into SAVED_REFCOUNT, in the return statement. The downside is
+   // that we may create an error if our code is called by a callback, and
+   // returns by reference, and the callback returns by reference. At least
+   // this is an obscure case.
+   if(signature->common.return_reference && signature->type != ZEND_USER_FUNCTION)
+   {
+      assert (rhs != EG(uninitialized_zval_ptr));
+      rhs->is_ref = 1;
+      if (saved_refcount != 0)
+      {
+	 rhs->refcount = saved_refcount;
+      }
+      rhs->refcount++;
+   }
+   saved_refcount = 0; // for 'obscure cases'
+
+   \function_lhs (USE_REF, LHS);
+
+   zval_ptr_dtor (&rhs);
+   if(signature->common.return_reference && signature->type != ZEND_USER_FUNCTION)
+      zval_ptr_dtor (&rhs);
+@@@
+
+
+function_lhs (string USE_LHS, token LHS)
+   where USE_LHS == "NONE"
+@@@
+
+@@@
+
+function_lhs (string USE_LHS, token LHS)
+   where USE_LHS == "REF"
+@@@
+   \get_st_entry ("LOCAL", "p_lhs", LHS);
+   sep_copy_on_write (&rhs);
+   copy_into_ref (p_lhs, &rhs);
+@@@
+
+function_lhs (string USE_LHS, token LHS)
+   where USE_LHS == "NO_REF"
+@@@
+   \get_st_entry ("LOCAL", "p_lhs", LHS);
+   write_var (p_lhs, rhs);
+@@@
+
+function_invocation (string MN, list ARGS, string FILENAME, string LINE, string FCI_NAME, string FCIC_NAME, string ARG_COUNT, string LHS_REF, token LHS)
+@@@
+   initialize_function_call (&$FCI_NAME, &$FCIC_NAME, "$MN", "$FILENAME", $LINE TSRMLS_CC);
+   \call_function (MN, ARGS, FILENAME, LINE, FCI_NAME, FCIC_NAME, ARG_COUNT, LHS_REF, LHS);
+@@@
+
+
+method_invocation (string MN, list ARGS, string FILENAME, string LINE, string FCI_NAME, string FCIC_NAME, string ARG_COUNT, node TARGET, string USE_REF, token LHS)
+@@@
+   \read_rvalue ("obj", TARGET); 
+   zend_fcall_info fci_object;
+   zend_fcall_info_cache fcic_object = {0, NULL, NULL, NULL};
+   zval* callable = initialize_method_call (&fci_object, &fcic_object, obj, "$MN", "$FILENAME", $LINE TSRMLS_CC);
+
+   \call_function (MN, ARGS, FILENAME, LINE, "fci_object", "fcic_object", ARG_COUNT, USE_REF, LHS);
+
+   zval_ptr_dtor (&callable);
+@@@
+
+

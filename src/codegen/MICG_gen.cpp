@@ -23,10 +23,10 @@ MICG_gen::add_macro (MICG::Macro* in)
 	string name = *in->signature->macro_name->value;
 
 	// Check the signature matches the others'.
-	foreach (Macro* t, macros[name])
+	foreach (Macro* m, macros[name])
 	{
-		if (t->signature->formal_parameters->size () != in->signature->formal_parameters->size ())
-			phc_internal_error ("Macro signature %s does not match other signatures", name.c_str ());
+		if (m->signature->formal_parameters->size () != in->signature->formal_parameters->size ())
+			phc_internal_error ("Macro signature %s does not match other signatures", m, name.c_str ());
 	}
 
 	in->visit (new MICG_checker);
@@ -71,108 +71,33 @@ MICG_gen::add_macro_def (string str, string filename)
 string
 MICG_gen::instantiate (string macro_name, Object_list* params) 
 {
-	DEBUG ("Instantiating " << macro_name << *to_string_rep (params));
-	Macro* m = get_macro (macro_name, params);
+	// In order to get the macro that matches these params, we first need to
+	// expand the list parameters. But that needs a macro. But to get the right
+	// macro, we need the full parameters. Not only that, but we actually want
+	// different macros based on their list element. So we make the rule that if
+	// there are multiple macros of the same name, they must use the 'list' type
+	// consistently. Then we can just take the first macro, and use it to expand
+	// the parameters, and still get the correct macro for each parameter list.
+	Macro* first_macro = macros[macro_name].front ();
 
-	// Coerce the data appropriately.
-	Symtable* symtable = get_symtable (macro_name, m->signature->formal_parameters, params);
-	return instantiate_body (m->body, symtable);
+
+	// Expand lists here.
+	stringstream ss;
+	foreach (Object_list* actual_params, *this->expand_list_params (first_macro, params))
+	{
+		DEBUG ("Entering " << macro_name << *to_string_rep (actual_params));
+		Macro* m = get_macro (macro_name, actual_params);
+		Symtable* symtable = get_symtable (m, actual_params);
+		ss << instantiate_body (m->body, symtable);
+		DEBUG ("Exiting " << macro_name << *to_string_rep (actual_params));
+	}
+	return ss.str ();
 }
-
-string
-MICG_gen::instantiate (string macro_name, Object* param1)
-{
-	Object_list* params = new Object_list ();
-	params->push_back (param1);
-	return instantiate (macro_name, params);
-}
-
-string
-MICG_gen::instantiate (string macro_name, Object* param1, Object* param2)
-{
-	Object_list* params = new Object_list ();
-	params->push_back (param1); params->push_back (param2);
-	return instantiate (macro_name, params);
-}
-
-string
-MICG_gen::instantiate (string macro_name, Object* param1, Object* param2,
-		Object* param3)
-{
-	Object_list* params = new Object_list ();
-	params->push_back (param1); params->push_back (param2);
-	params->push_back (param3);
-	return instantiate (macro_name, params);
-}
-
-string
-MICG_gen::instantiate (string macro_name, Object* param1, Object* param2,
-		Object* param3, Object* param4)
-{
-	Object_list* params = new Object_list ();
-	params->push_back (param1); params->push_back (param2);
-	params->push_back (param3); params->push_back (param4);
-	return instantiate (macro_name, params);
-}
-
-string 
-MICG_gen::instantiate (string macro_name, Object* param1, Object* param2,
-		Object* param3, Object* param4, Object* param5)
-{
-	Object_list* params = new Object_list ();
-	params->push_back (param1); params->push_back (param2);
-	params->push_back (param3); params->push_back (param4);
-	params->push_back (param5);
-	return instantiate (macro_name, params);
-}
-
-string
-MICG_gen::instantiate (string macro_name, Object* param1, Object* param2,
-		Object* param3, Object* param4, Object* param5, Object* param6)
-{
-	Object_list* params = new Object_list ();
-	params->push_back (param1); params->push_back (param2);
-	params->push_back (param3); params->push_back (param4);
-	params->push_back (param5); params->push_back (param6);
-	return instantiate (macro_name, params);
-}
-
-string
-MICG_gen::instantiate (string macro_name, Object* param1, Object* param2,
-		Object* param3, Object* param4, Object* param5, Object* param6,
-		Object* param7)
-{
-	Object_list* params = new Object_list ();
-	params->push_back (param1); params->push_back (param2);
-	params->push_back (param3); params->push_back (param4);
-	params->push_back (param5); params->push_back (param6);
-	params->push_back (param7);
-	return instantiate (macro_name, params);
-}
-
-string
-MICG_gen::instantiate (string macro_name, Object* param1, Object* param2,
-		Object* param3, Object* param4, Object* param5, Object* param6,
-		Object* param7, Object* param8)
-{
-	Object_list* params = new Object_list ();
-	params->push_back (param1); params->push_back (param2);
-	params->push_back (param3); params->push_back (param4);
-	params->push_back (param5); params->push_back (param6);
-	params->push_back (param7); params->push_back (param8);
-	return instantiate (macro_name, params);
-}
-
-
-
 
 bool
 MICG_gen::suitable (Macro* macro, Object_list* params)
 {
-	Symtable* symtable = get_symtable (
-			*macro->signature->macro_name->value, 
-			macro->signature->formal_parameters,
-			params);
+	Symtable* symtable = get_symtable (macro, params);
 
 	// Check if the rules match.
 	foreach (Rule* rule, *macro->rules)
@@ -199,60 +124,89 @@ MICG_gen::suitable (Macro* macro, Object_list* params)
 }
 
 void
-MICG_gen::register_callback (string name, callback_t callback)
+MICG_gen::register_callback (string name, callback_t callback, int param_count)
 {
 	if (callbacks.has (name))
 		phc_internal_error ("Attempt to redefine existing callback %s",
 				name.c_str ());
 
-	callbacks[name] = callback;
+	callbacks[name] = make_pair (callback, param_count);
 }
 
 string
-MICG_gen::callback (string name, Object_list* params)
+MICG_gen::callback (MACRO_NAME* macro_name, Object_list* params)
 {
+	string name = *macro_name->value;
 	DEBUG ("Calling callback " << name << *to_string_rep (params));
 
-	if (params->size() != 1)
-		phc_internal_error ("Callback '%s' not called with 1 parameter %s",
-			name.c_str (), to_string_rep (params)->c_str());
-
 	if (!callbacks.has (name))
-		phc_internal_error ("No callback '%s' registered", name.c_str ());
+		phc_internal_error ("No callback '%s' registered", macro_name, name.c_str ());
 
+	callback_t sig;
+	unsigned int param_count;
+	tie (sig, param_count) = callbacks[name];
 
-	return callbacks[name](params->front ());
+	if (params->size() != param_count)
+		phc_internal_error ("Callback '%s' requires %d parameter, called with %d: %s",
+			macro_name, name.c_str (), param_count, params->size(), to_string_rep (params)->c_str());
+
+	string result = sig(params);
+	DEBUG ("Leaving callback " << name << *to_string_rep (params));
+	return result;
 }
 
 MICG::Symtable*
-MICG_gen::get_symtable (string macro_name, Formal_parameter_list* fps, Object_list* params)
+MICG_gen::get_symtable (Macro* macro, Object_list* params)
 {
+	Formal_parameter_list* fps = macro->signature->formal_parameters;
+	string name = *macro->signature->macro_name->value;
+
 	// Check the size first
 	int num_params = params->size ();
 	int expected_num_params = fps->size ();
 	if (expected_num_params != num_params)
 		phc_internal_error ("Incorrect number of parameters in %s (expected %d, got %d)",
-			macro_name.c_str (), expected_num_params, num_params);
+			macro, name.c_str (), expected_num_params, num_params);
 
 
-	// Dont destroy the list
-	params = params->clone ();
+	Object_list::const_iterator i = params->begin ();
 
 	Symtable* result = new Symtable;
 	foreach (Formal_parameter* fp, *fps)
 	{
-		check_type (fp->type_name, params->front ());
-		(*result)[*fp->param_name->value] = params->front();
-		params->pop_front();
+		result->add_parameter (fp->param_name, fp->type_name, *i);
+		i++;
 	}
 	return result;
 }
 
+Object*
+Symtable::get (PARAM_NAME* in, bool coerce)
+{
+	check_param (in);
+
+	string name = *in->value;
+
+	if (coerce)
+		phc_TODO ();
+
+	return obj_map[name];
+}
+
 
 void
-MICG_gen::check_type (TYPE_NAME* type_name, Object* obj)
+Symtable::check_param (PARAM_NAME* in)
 {
-	string tn = *type_name->value;
+	string name = *in->value;
+
+	if (!obj_map.has (name))
+		phc_internal_error ("No parameter named %s", in, name.c_str ());
+
+	Object* obj = obj_map [name];
+	string tn = *type_map [name]->value;
+
+	assert (type_map.has (name));
+
 	if (tn == "string"
 		&& (isa<String> (obj) || isa<MIR::Identifier> (obj)))
 		return;
@@ -263,8 +217,20 @@ MICG_gen::check_type (TYPE_NAME* type_name, Object* obj)
 	if (tn == "node" && isa<MIR::Node> (obj))
 		return;
 
+	// For lists, allow all object lists, and check their type later. We can
+	// pass lists for nodes of any type, so dont type check it.
+	if (isa<Object_list> (obj))
+		return;
+
+	// We want to be able to pass NULLS straight through to other calls. Errors
+	// should only be when we try to 'dereference' it.
+	if (obj == NULL)
+		return;
+
+	string actual_type = (obj == NULL) ? "NULL" : demangle (obj, true);
+
 	phc_internal_error ("Object of type %s does not match expected type %s",
-		type_name, demangle (obj, true), tn.c_str ());
+		in, actual_type.c_str (), tn.c_str (), tn.c_str ());
 }
 
 string
@@ -311,7 +277,7 @@ MICG_gen::exec (Macro_call* mc, Symtable* symtable)
 String*
 MICG_gen::exec (Callback* cb, Symtable* symtable)
 {
-	return s (callback (*cb->macro_name->value, get_expr_list (cb->exprs, symtable)));
+	return s (callback (cb->macro_name, get_expr_list (cb->exprs, symtable)));
 }
 
 
@@ -320,14 +286,31 @@ MICG_gen::exec (Callback* cb, Symtable* symtable)
  * Symtable
  */
 
+MIR::Node*
+Symtable::get_node (PARAM_NAME* in)
+{
+	string name = *in->value;
+	Object* obj = this->get (in);
+	if (!isa<MIR::Node> (obj))
+		phc_internal_error ("Expecting a node for param %s (type %s), got a %s",
+			in, name.c_str(), type_map[name]->value->c_str (), demangle (obj, true));
+
+	return dyc<MIR::Node> (obj);
+}
+
+void
+Symtable::add_parameter (PARAM_NAME* param_name, TYPE_NAME* type_name, Object* param)
+{
+	obj_map [*param_name->value] = param;
+	type_map [*param_name->value] = type_name;
+}
+
 Object*
 Symtable::get_lookup (Lookup* in, bool coerce)
 {
-	string param_name = *in->param_name->value;
 	string attr_name = *in->attr_name->value;
 
-	assert (this->has (param_name));
-	MIR::Node* node = dyc<MIR::Node> (this->get (param_name));
+	MIR::Node* node = this->get_node (in->param_name);
 
 	// We are interested in attributes of either prefix, but are not interested
 	// in writing out the full prefices.
@@ -359,7 +342,7 @@ Symtable::get_lookup (Lookup* in, bool coerce)
 Object*
 Symtable::get_param (PARAM_NAME* param, bool coerce)
 {
-	Object* result = this->get (*param->value);
+	Object* result = this->get (param);
 
 	if (coerce || isa<Boolean> (result))
 		result = MICG_gen::convert_to_string (result);
@@ -419,7 +402,9 @@ MICG_gen::to_string_rep (Object_list* in)
 	foreach (Object* obj, *in)
 	{
 		String* str = convert_to_string (obj);
-		ss << demangle (obj) << ": " << *str << ", ";
+		ss 
+		<< ((obj == NULL) ? "NULL" : demangle (obj))
+		<< ": " << *str << ", ";
 	}
 	ss << ")";
 	return s(ss.str());
@@ -435,3 +420,48 @@ MICG_gen::get_expr_list (Expr_list* exprs, Symtable* symtable, bool coerce)
 
 	return result;
 }
+
+
+
+List<Object_list*>*
+MICG_gen::expand_list_params (MICG::Macro* m, Object_list* params)
+{
+	params = params->clone (); // dont damage the parameter.
+
+	Object_list* former = new Object_list; // the params before the list parameter
+
+	// Get the params up until the list parameter, and put them into former;
+	foreach (Formal_parameter* fp, *m->signature->formal_parameters)
+	{
+		Object* param = params->front ();
+		if (isa<Object_list> (param) && *fp->type_name->value != "list")
+			break;
+
+		former->push_back (param);
+		params->pop_front ();
+	}
+
+	// No list.
+	if (params->size () == 0)
+		return new List<Object_list*> (former);
+
+	// The head of PARAMS is now the list parameter.
+	Object_list* list_param = dyc<Object_list> (params->front ());
+	params->pop_front ();
+
+	// Create the new lists
+	List<Object_list*>* result = new List<Object_list*>;
+	foreach (Object* elem, *list_param)
+	{
+		Object_list* param_list = former->clone();
+		param_list->push_back (elem);
+		param_list->push_back_all (params->clone ());
+
+		result->push_back (param_list);
+	}
+
+
+	return result;
+}
+
+

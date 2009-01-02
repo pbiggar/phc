@@ -22,6 +22,8 @@ class MICG_checker : public MICG::Visitor, public GC_obj
 	Map <string, string> symtable;
 
 public:
+	// TODO: check that if there are multiple macros of the same name, they are
+	// consistent in using the 'list' signature.
 
 	void pre_macro (MICG::Macro* in)
 	{
@@ -50,7 +52,7 @@ public:
 
 		if (!symtable.has (param_name))
 			phc_internal_error ("%d:%d No param named %s in %s",
-				in->get_line_number(), in->get_column_number (),
+				in, in->get_line_number(), in->get_column_number (),
 				param_name.c_str (), macro_name.c_str ());
 	}
 

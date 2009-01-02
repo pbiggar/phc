@@ -208,7 +208,7 @@ struct MICG_grammar : public grammar<MICG_grammar>
 			macro_call = '\\' >> macro_name >> wsc >> '('  >> wsc >> expr_list >> wsc >> ')' >> !ch_p(';');
 			callback = "\\cb:" >> macro_name >> wsc >> '(' >> expr_list >> ')' >> !ch_p(';');
 
-			interpolation = ('$' >> param_name) | ("${" >> lookup >> '}');
+			interpolation = ('$' >> param_name) | ("${" >> param_name >> '}') | ("${" >> lookup >> '}');
 
 			// A template
 			body_part_list = *(macro_call | callback | interpolation | c_code);

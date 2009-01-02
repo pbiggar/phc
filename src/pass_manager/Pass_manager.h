@@ -70,7 +70,7 @@ public:
 	void run_optimization_passes (MIR::PHP_script* in);
 	bool can_optimize (MIR::Method* method);
 
-	// Add MIR passes
+	// Add codegen passes
 	void add_codegen_pass (Pass* pass);
 	void add_codegen_visitor (MIR::Visitor* visitor, String* name, String* description);
 	void add_codegen_transform (MIR::Transform* transform, String* name, String* description);

@@ -599,7 +599,7 @@ public:
 		result = new AST::Method_invocation(
 			wrap_target (target),
 			method_name, 
-			rewrap_list<AST::Node, AST::Actual_parameter> (actual_parameters));
+			rewrap_list<AST::Actual_parameter> (actual_parameters));
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -632,7 +632,7 @@ public:
 		AST::New* result;
 		result = new AST::New(
 			class_name, 
-			rewrap_list<AST::Node, AST::Actual_parameter> (actual_parameters));
+			rewrap_list<AST::Actual_parameter> (actual_parameters));
 		result->attrs = orig->attrs;
 		return result;
 	}

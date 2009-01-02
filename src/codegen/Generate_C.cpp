@@ -45,7 +45,6 @@
 #include "Generate_C.h"
 #include "parsing/MICG_parser.h"
 #include "embed/embed.h"
-#include "optimize/Oracle.h"
 
 using namespace boost;
 using namespace MIR;
@@ -76,6 +75,17 @@ string compile_statement(Statement* in, Generate_C* gen);
  * Helper functions
  */
 
+#define INST(BUF, NAME, ...)												\
+	do																				\
+	{																				\
+		Object* __obj_array[] = {__VA_ARGS__};							\
+		Object_list* __obj_list = new Object_list;					\
+																					\
+		foreach (Object* __obj, __obj_array)							\
+			__obj_list->push_back (__obj);								\
+																					\
+		BUF << gen->micg.instantiate (NAME, __obj_list);			\
+	} while (0)
 
 
 enum Scope { LOCAL, GLOBAL };
@@ -99,26 +109,38 @@ string get_hash (String* name)
 /*
  * Callbacks
  */
-string cb_get_hash (Object* name)
+string cb_get_hash (Object_list* params)
 {
+	Object* name = params->front ();
 	assert (isa<Identifier> (name) || isa<String> (name));
 	return (get_hash (MICG_gen::convert_to_string (name)));
 }
 
-string cb_get_length (Object* name)
+string cb_get_length (Object_list* params)
 {
+	Object* name = params->front ();
 	assert (isa<Identifier> (name) || isa<String> (name));
 	return lexical_cast<string> (MICG_gen::convert_to_string (name)->size ());
 }
 
-string cb_is_literal (Object* obj)
+string cb_is_literal (Object_list* params)
 {
+	Object* obj = params->front ();
 	assert (isa<Rvalue> (obj));
 
 	if (isa<MIR::Literal> (obj))
 		return MICG_TRUE;
 	else
 		return MICG_FALSE;
+}
+
+string write_literal_directly_into_zval (string, Literal*);
+string cb_write_literal_directly_into_zval (Object_list* params)
+{
+	String* name = dyc<String> (params->front ());
+	Literal* lit = dyc<Literal> (params->back());
+
+	return write_literal_directly_into_zval (*name, lit);
 }
 
 
@@ -155,8 +177,6 @@ string get_non_st_name (VARIABLE_NAME* var_name)
 	return get_non_st_name (var_name->value);
 }
 
-string read_literal (string, Literal*);
-
 // Declare and fetch a zval* containing the value for RVALUE. The value can be
 // changed, but the symbol-table entry cannot be affected through this.
 string read_rvalue (string zvp, Rvalue* rvalue)
@@ -164,7 +184,24 @@ string read_rvalue (string zvp, Rvalue* rvalue)
 	stringstream ss;
 	if (isa<Literal> (rvalue))
 	{
-		return read_literal (zvp, dyc<Literal> (rvalue));
+		Literal* lit = dyc<Literal> (rvalue);
+		if (args_info.optimize_given)
+		{
+			ss 
+				<< "zval* " << zvp << " = "
+				<<	*lit->attrs->get_string ("phc.codegen.pool_name")
+				<< ";\n";
+		}
+		else
+		{
+			ss
+				<< "zval " << zvp << "_lit_tmp;\n"
+				<< "INIT_ZVAL (" << zvp << "_lit_tmp);\n"
+				<< "zval* " << zvp << " = &" << zvp << "_lit_tmp;\n"
+				<< write_literal_directly_into_zval (zvp, lit)
+				;
+		}
+		return ss.str();
 	}
 
 	VARIABLE_NAME* var_name = dyc<VARIABLE_NAME> (rvalue);
@@ -231,28 +268,6 @@ string get_st_entry (Scope scope, string zvp, VARIABLE_NAME* var_name)
 	return ss.str();
 }
 
-// Declare and fetch a zval** into ZVP, which is the hash-table entry for
-// VAR_NAME[INDEX]. This zval** can be over-written, which will change the
-// hash-table entry.
-string get_array_entry (string zvp, VARIABLE_NAME* var_name, Rvalue* index)
-{
-	stringstream ss;
-	string zvp_name = suffix (zvp, "var");
-	string zvp_index = suffix (zvp, "index");
-
-	ss	
-	// TODO dont need get_st_entry here
-	<< get_st_entry (LOCAL, zvp_name, var_name)
-	<< read_rvalue (zvp_index, index)
-	<< "check_array_type (" << zvp_name << " TSRMLS_CC);\n"
-	<<	"zval**" << zvp << " = get_ht_entry ("
-	<<						zvp_name << ", "
-	<<						zvp_index
-	<<						" TSRMLS_CC);\n"
-	;
-
-	return ss.str();
-}
 
 /* Generate code to read the variable named in VAR to the zval* ZVP */
 string read_var (string zvp, VARIABLE_NAME* var_name)
@@ -278,7 +293,7 @@ string get_var_var (Scope scope, string zvp, string index)
 	stringstream ss;
 	ss
 	<< "// Read variable variable\n"
-	<< zvp << " = get_var_var (" 
+	<< "zval** " << zvp << " = get_var_var (" 
 	<<					get_scope (scope) << ", "
 	<<					index << " "
 	<<					"TSRMLS_CC);\n"
@@ -539,8 +554,9 @@ public:
 			} 
 			else if(attr != NULL)
 			{
-				// Not yet implemented
-				assert(0);
+				// On the internals side, attributes are not declared as part of the
+				// class but must be added to class instances when they are created 
+				// TODO: static attributes and constants should be declared here
 			}
 			else
 			{
@@ -875,9 +891,9 @@ public:
 	void generate_code (Generate_C* gen)
 	{
 		if (!agn->is_ref)
-			buf << gen->micg.instantiate ("assign_expr_var", lhs->value, rhs->value);
+			INST (buf, "assign_expr_var", lhs->value, rhs->value);
 		else
-			buf << gen->micg.instantiate ("assign_expr_ref_var", lhs->value, rhs->value);
+			INST (buf, "assign_expr_ref_var", lhs->value, rhs->value);
 	}
 
 protected:
@@ -908,9 +924,9 @@ public:
 		VARIABLE_NAME* index_var = rhs->value->variable_name;
 
 		if (!agn->is_ref)
-			buf << gen->micg.instantiate ("assign_expr_var_var", lhs_var, index_var);
+			INST (buf, "assign_expr_var_var", lhs_var, index_var);
 		else
-			buf << gen->micg.instantiate ("assign_expr_ref_var_var", lhs_var, index_var);
+			INST (buf, "assign_expr_ref_var_var", lhs_var, index_var);
 	}
 
 protected:
@@ -933,54 +949,13 @@ public:
 
 		if (!agn->is_ref)
 		{
-			buf
-			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
-			<< "zval* rhs;\n"
-			<< "int is_p_rhs_new = 0;\n"
-
-			<<	read_rvalue ("r_array", var_name)
-			<<	read_rvalue ("ra_index", rhs->value->index)
-
-			<< "if (Z_TYPE_P (r_array) != IS_ARRAY)\n"
-			<< "{\n"
-			<< "	if (Z_TYPE_P (r_array) == IS_STRING)\n"
-			<< "	{\n"
-			<< "		is_p_rhs_new = 1;\n"
-			<< "		rhs = read_string_index (r_array, ra_index TSRMLS_CC);\n"
-			<< "	}\n"
-			<< "  else\n"
-			// TODO: warning here?
-			<< "		rhs = EG (uninitialized_zval_ptr);\n"
-			<< "}\n"
-			<< "else\n"
-			<< "{\n"
-
-			<<		"if (check_array_index_type (ra_index TSRMLS_CC))\n"
-			<<		"{\n"
-
-			<<		"// Read array variable\n"
-			<<		"read_array ("
-			<<			"&rhs" << ", "
-			<<			"r_array, "
-			<<			"ra_index "
-			<<			" TSRMLS_CC);\n"
-			<<		"}\n"
-			<<		"else rhs = *p_lhs;\n" // HACK to fail  *p_lhs != rhs
-			<< "}\n"
-
-			<< "if (*p_lhs != rhs)\n"
-			<<		"write_var (p_lhs, rhs);\n"
-
-			<< "if (is_p_rhs_new) zval_ptr_dtor (&rhs);\n";
+			INST (buf, "assign_expr_array_access", 
+				lhs->value, rhs->value->variable_name, rhs->value->index);
 		}
 		else
 		{
-			buf 
-			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
-			<< get_array_entry ("p_rhs", rhs->value->variable_name, rhs->value->index)
-			<< "sep_copy_on_write (p_rhs);\n"
-			<< "copy_into_ref (p_lhs, p_rhs);\n"
-			;
+			INST (buf, "assign_expr_ref_array_access", 
+				lhs->value, rhs->value->variable_name, rhs->value->index);
 		}
 	}
 
@@ -1002,24 +977,20 @@ public:
 	void generate_code (Generate_C* gen)
 	{
 		assert (!agn->is_ref);
+		Map<string, string> symnames;
+		symnames["array"]		= "IS_ARRAY";
+		symnames["boolean"]	= "IS_BOOL";
+		symnames["bool"]		= "IS_BOOL";
+		symnames["int"]		= "IS_LONG";
+		symnames["null"]		= "IS_NULL";
+		symnames["real"]		= "IS_DOUBLE";
+		symnames["string"]	= "IS_STRING";
 
-		string symbol;
-		if (*cast->value->value == "string")
-			symbol = "IS_STRING";
-		else if (*cast->value->value == "int")
-			symbol = "IS_LONG";
-		else if (*cast->value->value == "array")
-			symbol = "IS_ARRAY";
-		else if (*cast->value->value == "null")
-			symbol = "IS_NULL";
-		else if (*cast->value->value == "bool" || *cast->value->value == "boolean")
-			symbol = "IS_BOOL";
-		else if (*cast->value->value == "real")
-			symbol = "IS_DOUBLE";
-		else
+		if (!symnames.has (*cast->value->value))
 			phc_unsupported (cast->value, "non-scalar casts");
 
-		buf << gen->micg.instantiate ("assign_expr_cast", lhs->value, rhs->value, s(symbol));
+		INST (buf, "assign_expr_cast",
+				lhs->value, rhs->value, s(symnames[*cast->value->value]));
 	}
 
 public:
@@ -1050,33 +1021,8 @@ public:
 
 		name->append (*rhs->value->constant_name->value);
 
-		// zend_get_constant returns a copy of the constant, so we can
-		// put it in directly for non-reference lhss, and use the
-		// data directly without copying for reference lhss.
-		buf
-		<< get_st_entry (LOCAL, "p_lhs", lhs->value)
-		<< "if (!(*p_lhs)->is_ref)\n"
-		<< "{\n"
-		<<		"zval_ptr_dtor (p_lhs);\n"
-		<<		"get_constant ( "
-		<<			"\"" << *name << "\", "
-		<<			name->length() << ", " // exclude NULL-terminator
-		<<			"p_lhs "
-		<<			" TSRMLS_CC);\n"
-		<< "}\n"
-		<< "else\n"
-		<< "{\n"
-		<<		"zval* constant;\n"
-		<<		"get_constant ( "
-		<<			"\"" << *name << "\", "
-		<<			name->length() << ", " // exclude NULL-terminator
-		<<			"&constant "
-		<<			" TSRMLS_CC);\n"
-		// get_constant guarantees new memory, so we can reuse the data, rather than copy and delete it
-		<<		"overwrite_lhs_no_copy (*p_lhs, constant);\n"
-		<<		"safe_free_zval_ptr (constant);\n"
-		<< "}\n"
-		;
+		INST (buf, "assign_expr_constant",
+				lhs->value, name);
 	}
 
 protected:
@@ -1108,12 +1054,12 @@ public:
 		// binops table.
 		if(*op->value->value == ">" || *op->value->value == ">=")
 		{
-			buf << gen->micg.instantiate ("assign_expr_bin_op",
+			INST (buf, "assign_expr_bin_op",
 					lhs->value, right->value, left->value, s(op_fn));
 		}
 		else
 		{
-			buf << gen->micg.instantiate ("assign_expr_bin_op",
+			INST (buf, "assign_expr_bin_op",
 					lhs->value, left->value, right->value, s(op_fn));
 		}
 	}
@@ -1131,40 +1077,25 @@ public:
 	Expr* rhs_pattern()
 	{
 		op = new Wildcard<OP>;
-		var_name = new Wildcard<VARIABLE_NAME>;
+		rhs = new Wildcard<VARIABLE_NAME>;
 
-		return new Unary_op(op, var_name);
+		return new Unary_op(op, rhs);
 	}
 
 	void generate_code (Generate_C* gen)
 	{
+		assert (!agn->is_ref);
 		assert (op_functions.has (*op->value->value));
 
 		string op_fn = op_functions[*op->value->value]; 
 
-		buf
-		<< get_st_entry (LOCAL, "p_lhs", lhs->value)
-		<< read_rvalue ("expr", var_name->value)
-
-		<< "if (in_copy_on_write (*p_lhs))\n"
-		<< "{\n"
-		<< "	zval_ptr_dtor (p_lhs);\n"
-		<< "	ALLOC_INIT_ZVAL (*p_lhs);\n"
-		<< "}\n"
-		<< "zval old = **p_lhs;\n"
-		<< "int result_is_operand = (*p_lhs == expr)\n;"
-
-		<< op_fn << "(*p_lhs, expr TSRMLS_CC);\n"
-
-		<< "if (!result_is_operand)\n"
-		<<		"zval_dtor (&old);\n"
-		;
-
+		INST (buf, "assign_expr_unary_op",
+				lhs->value, rhs->value, s(op_fn));
 	}
 
 protected:
 	Wildcard<OP>* op;
-	Wildcard<VARIABLE_NAME>* var_name;
+	Wildcard<VARIABLE_NAME>* rhs;
 };
 
 
@@ -1208,7 +1139,7 @@ public:
 };
 
 string
-write_literal_value_directly_into_zval (string var, Literal* lit)
+write_literal_directly_into_zval (string var, Literal* lit)
 {
 	stringstream ss;
 	if (INT* value = dynamic_cast<INT*> (lit))
@@ -1256,7 +1187,7 @@ write_literal_value_directly_into_zval (string var, Literal* lit)
 	return ss.str();
 }
 
-class Pattern_assign_literal : public Pattern_assign_value
+class Pattern_assign_literal : public Pattern_assign_var
 {
 public:
 	Expr* rhs_pattern()
@@ -1265,28 +1196,10 @@ public:
 		return rhs;
 	}
 
-	// record if we've seen this variable before
 	void generate_code (Generate_C* gen)
 	{
 		assert (!agn->is_ref);
-		if (args_info.optimize_given)
-		{
-			buf
-			<< read_literal ("rhs", rhs->value)
-			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
-			<< "if (*p_lhs != rhs)\n"
-			<<		"write_var (p_lhs, rhs);\n"
-			;
-		}
-		else
-		{
-			Pattern_assign_value::generate_code (gen);
-		}
-	}
-
-	void initialize (string var)
-	{
-		buf << write_literal_value_directly_into_zval (var, rhs->value);
+		INST (buf, "assign_expr_literal", lhs->value, rhs->value);
 	}
 
 public:
@@ -1294,29 +1207,6 @@ public:
 };
 
 
-
-string
-read_literal (string zvp, Literal* lit)
-{
-	stringstream ss;
-	if (args_info.optimize_given)
-	{
-		ss 
-		<< "zval* " << zvp << " = "
-		<<	*lit->attrs->get_string ("phc.codegen.pool_name")
-		<< ";\n";
-	}
-	else
-	{
-		ss
-		<< "zval " << zvp << "_lit_tmp;\n"
-		<< "INIT_ZVAL (" << zvp << "_lit_tmp);\n"
-		<< "zval* " << zvp << " = &" << zvp << "_lit_tmp;\n"
-		<< write_literal_value_directly_into_zval (zvp, lit)
-		;
-	}
-	return ss.str();
-}
 
 // Isset uses Pattern_assign_value, as it only has a boolean value. It puts the
 // BOOL into the ready made zval.
@@ -1387,8 +1277,7 @@ protected:
 	Wildcard<Isset>* isset;
 };
 
-// Like ISSET, this just returns a BOOL into a waiting zval.
-class Pattern_assign_expr_foreach_has_key : public Pattern_assign_value
+class Pattern_assign_expr_foreach_has_key : public Pattern_assign_var
 {
 	Expr* rhs_pattern()
 	{
@@ -1396,23 +1285,17 @@ class Pattern_assign_expr_foreach_has_key : public Pattern_assign_value
 		return has_key;
 	}
 
-	void initialize (string var)
+	void generate_code (Generate_C* gen)
 	{
-		buf
-		<< read_rvalue ("fe_array", has_key->value->array)
-		
-		<< "int type = zend_hash_get_current_key_type_ex ("
-		<<							"fe_array->value.ht, "
-		<<							"&" << *has_key->value->iter->value << ");\n"
-		<< "ZVAL_BOOL(" << var << ", type != HASH_KEY_NON_EXISTANT);\n";
+		INST (buf, "assign_expr_foreach_has_key",
+			lhs->value, has_key->value->array, has_key->value->iter->value);
 	}
 
 protected:
 	Wildcard<Foreach_has_key>* has_key;
 };
 
-// Like ISSET, this just returns an INT or STRING into a waiting zval.
-class Pattern_assign_expr_foreach_get_key : public Pattern_assign_value
+class Pattern_assign_expr_foreach_get_key : public Pattern_assign_var
 {
 	Expr* rhs_pattern()
 	{
@@ -1420,26 +1303,10 @@ class Pattern_assign_expr_foreach_get_key : public Pattern_assign_value
 		return get_key;
 	}
 
-	void initialize (string var)
+	void generate_code (Generate_C* gen)
 	{
-		buf
-		<< read_rvalue ("fe_array", get_key->value->array)
-		<< "char* str_index = NULL;\n"
-		<< "uint str_length;\n"
-		<< "ulong num_index;\n"
-		<< "int result = zend_hash_get_current_key_ex (\n"
-		<<						"fe_array->value.ht,"
-		<<						"&str_index, &str_length, &num_index, "
-		<<						"0, "
-		<<						"&" << *get_key->value->iter->value << ");\n"
-		<< "if (result == HASH_KEY_IS_LONG)\n"
-		<< "{\n"
-		<<		"ZVAL_LONG (" << var << ", num_index);\n"
-		<< "}\n"
-		<< "else\n"
-		<< "{\n"
-		<<		"ZVAL_STRINGL (" << var << ", str_index, str_length - 1, 1);\n"
-		<< "}\n";
+		INST (buf, "assign_expr_foreach_get_key",
+			lhs->value, get_key->value->array, get_key->value->iter->value);
 	}
 
 protected:
@@ -1456,30 +1323,14 @@ class Pattern_assign_expr_foreach_get_val : public Pattern_assign_var
 
 	void generate_code (Generate_C* gen)
 	{
-		buf
-		<< get_st_entry (LOCAL, "p_lhs", lhs->value)
-		<< read_rvalue ("fe_array", get_val->value->array)
-
-		<< "zval** p_rhs = NULL;\n"
-		<< "int result = zend_hash_get_current_data_ex (\n"
-		<<							"fe_array->value.ht, "
-		<<							"(void**)(&p_rhs), "
-		<<							"&" << *get_val->value->iter->value << ");\n"
-		<< "assert (result == SUCCESS);\n"
-		;
-
 		if (!agn->is_ref)
-
-			buf 
-			<< "if (*p_lhs != *p_rhs)\n"
-			<< "	write_var (p_lhs, *p_rhs);\n"
-			;
+			INST (buf, "assign_expr_foreach_get_val",
+					lhs->value, get_val->value->array,
+					get_val->value->iter->value);
 		else
-		{
-			buf 
-			<< "sep_copy_on_write (p_rhs);\n"
-			<< "copy_into_ref (p_lhs, p_rhs);\n";
-		}
+			INST (buf, "assign_expr_ref_foreach_get_val",
+					lhs->value, get_val->value->array,
+					get_val->value->iter->value);
 	}
 
 protected:
@@ -1517,19 +1368,20 @@ public:
 		if (not result)
 			return false;
 
-		string& name = *method_name->value->value;
-		return
-			// TODO are there more?
-				name == "eval"
-			|| name == "exit"
-			|| name == "die"
-			|| name == "print"
-			|| name == "echo"
-			|| name == "include"
-			|| name == "include_once"
-			|| name == "require"
-			|| name == "require_once"
-			|| name == "empty";
+		// TODO are there more?
+		Set<string> names;
+		names.insert ("eval");
+		names.insert ("exit");
+		names.insert ("die");
+		names.insert ("print");
+		names.insert ("echo");
+		names.insert ("include");
+		names.insert ("include_once");
+		names.insert ("require");
+		names.insert ("require_once");
+		names.insert ("empty");
+
+		return names.has (*method_name->value->value);
 	}
 
 	Expr* rhs_pattern()
@@ -1544,32 +1396,21 @@ public:
 
 	void generate_code (Generate_C* gen)
 	{
-		buf
-		<< read_rvalue ("p_arg", arg->value->rvalue)
-		<< "zval* rhs = NULL;\n"
-		<< "zval** p_rhs = &rhs;\n"
-		;
+		assert (!arg->is_ref);
 
 		if (lhs)
 		{
 			assert (!agn->is_ref);
-
-			// create a result
-			buf
-			<< get_st_entry (LOCAL, "p_lhs", lhs->value)
-			<< "ALLOC_INIT_ZVAL (rhs);\n"
-			<< "phc_builtin_" << *method_name->value->value << " (p_arg, p_rhs, \"" 
-				<< *arg->value->get_filename() << "\" TSRMLS_CC);\n"
-
-			<< "write_var (p_lhs, rhs);\n"
-			<< "zval_ptr_dtor (p_rhs);\n";
+			INST (buf, "builtin_with_lhs",
+					lhs->value, arg->value->rvalue,
+					method_name->value->value, arg->value->get_filename ());
 		}
 		else
-			buf
-			<< "phc_builtin_" << *method_name->value->value << " (p_arg, p_rhs, \""
-			<< *arg->value->get_filename() << "\" TSRMLS_CC);\n"
-			<< "if (rhs != NULL) zval_ptr_dtor (p_rhs);\n"
-			;
+		{
+			INST (buf, "builtin_no_lhs",
+					arg->value->rvalue,
+					method_name->value->value, arg->value->get_filename ());
+		}
 	}
 
 protected:
@@ -1674,8 +1515,35 @@ public:
 
 	void generate_code (Generate_C* gen)
 	{
-		Actual_parameter_list::const_iterator i;
-		unsigned index;
+		// The macros are paramatrized for the LHS. This descriptor says whether
+		// the is no LHS, or, if there is, whether or not the assignment is
+		// by-ref.
+		String* lhs_descriptor;
+		VARIABLE_NAME* lhs_var = NULL;
+		if (lhs)
+		{
+			if (agn->is_ref)
+				lhs_descriptor = s("REF");
+			else
+				lhs_descriptor = s("NO_REF");
+
+			lhs_var = lhs->value;
+		}
+		else
+		{
+			lhs_descriptor = s("NONE");
+		}
+
+		// We want a list of rvalues here, not actual parameters. But we need to
+		// communicate the is_ref field of the actual_parameter if its there.
+		Object_list* params = new Object_list;
+		foreach (Actual_parameter* ap, *rhs->value->actual_parameters)
+		{
+			params->push_back (ap->rvalue);
+			if (ap->is_ref)
+				ap->rvalue->attrs->set_true ("phc.codegen.is_ref");
+		}
+
 		
 		// buf << "debug_hash(EG(active_symbol_table));\n";
 
@@ -1685,17 +1553,17 @@ public:
 
 		// Names of the runtime variables that will hold the (potentially cached)
 		// location of the function
-		string fci_name = suffix (*name->value, "fci");
-		string fcic_name = suffix (*name->value, "fcic");
+		string fci_name;
+		string fcic_name;
 
-		VARIABLE_NAME* object_name = NULL;
-		CLASS_NAME* class_name = NULL; 
+		string macro_name;
+		string function_name;
 
 		// Global function or class member?
 		if (rhs->value->target != NULL)
 		{
-			object_name = dynamic_cast<VARIABLE_NAME*>(rhs->value->target);
-			class_name  = dynamic_cast<CLASS_NAME*>(rhs->value->target);
+			VARIABLE_NAME* object_name = dynamic_cast<VARIABLE_NAME*>(rhs->value->target);
+			CLASS_NAME* class_name  = dynamic_cast<CLASS_NAME*>(rhs->value->target);
 
 			if(object_name != NULL)
 			{
@@ -1707,266 +1575,95 @@ public:
 		
 				fci_name  = "fci_object"; 
 				fcic_name = "fcic_object";
-	
-				buf << read_rvalue("obj", object_name);	
-
-				buf	
-				<< "zend_fcall_info " << fci_name << ";\n"
-				<< "zend_fcall_info_cache " << fcic_name << " = {0,NULL,NULL,NULL};\n"
-				;
-
-				init_method_record (buf, "obj", *name->value, fci_name, fcic_name, "callable", rhs->value);
+				macro_name = "method_invocation";
+				function_name = *name->value;
 			}
-			else if(class_name != NULL)
+			else
 			{
+				assert (class_name != NULL);
+
 				stringstream fqn;
 				fqn << *class_name->value << "::" << *name->value;
 				
 				fci_name  = suffix (suffix(*class_name->value, *name->value), "fci");
 				fcic_name = suffix (suffix(*class_name->value, *name->value), "fcic");
-				init_function_record (buf, fqn.str(), fci_name, fcic_name, rhs->value);
-			}
-			else
-			{
-				// Invalid target
-				assert(0);
+				function_name = fqn.str();
+				macro_name = "function_invocation";
 			}
 		}
 		else
 		{
 			fci_name  = suffix (*name->value, "fci");
 			fcic_name = suffix (*name->value, "fcic");
-			init_function_record (buf, *name->value, fci_name, fcic_name, rhs->value);
+			macro_name = "function_invocation";
+			function_name = *name->value;
 		}
 
-		buf
-		<< "zend_function* signature = " << fcic_name << ".function_handler;\n"
-		;
+		INST (buf, macro_name,
+				s(function_name),
+				params,
+				rhs->value->get_filename (),
+				s(lexical_cast<string> (rhs->value->get_line_number ())),
+				s(fci_name),
+				s(fcic_name),
+				s(lexical_cast<string>(rhs->value->actual_parameters->size ())),
+				lhs_descriptor,
+				lhs ? lhs->value : NULL);
 
-		// Figure out which parameters need to be passed by reference
-		int num_args = rhs->value->actual_parameters->size();
-		if (num_args)
-		{
-			buf
-			<< "zend_arg_info* arg_info = signature->common.arg_info;\n"
-			<< "int by_ref[" << num_args << "];\n"
-			;
-		}
-
-		// TODO: Not 100% this is fully correct; in particular, 
-		// pass_rest_by_reference does not seem to work.
-		index = 0;
-		foreach (Actual_parameter* param, *rhs->value->actual_parameters)
-		{
-			// buf << "printf(\"argument '%s' \", arg_info ? arg_info->name : \"(unknown)\");\n";
-			buf
-			<< "if(arg_info)\n"
-			<< "{\n"
-			<< "	by_ref[" << index << "] = arg_info->pass_by_reference;\n"
-			<< "	arg_info++;\n"
-			<< "}\n"
-			<< "else\n"
-			<< "{\n"
-			<< "	by_ref[" << index << "] = signature->common.pass_rest_by_reference;\n"
-			<< "}\n"
-			;
-			
-			if(param->is_ref) buf << "by_ref[" << index << "] = 1;\n";
-			
-			// buf << "printf(\"by reference: %d\\n\", by_ref[" << index << "]);\n";
-			index++;
-		}
-
-		if (num_args)
-		{
-			buf 
-			<< "// Setup array of arguments\n"
-			<< "int destruct[" << num_args << "]; // set to 1 if the arg is new\n"
-			<< "zval* args[" << num_args  << "];\n"
-			;
-		}
-		buf 
-		<< "zval** args_ind[" << num_args  << "];\n";
-
-		index = 0;
-		Signature* sig = Oracle::get_signature (name);
-		foreach (Actual_parameter* param, *rhs->value->actual_parameters)
-		{
-			if (sig == NULL)
-			{
-				VARIABLE_NAME* var_name = dyc<VARIABLE_NAME>(param->rvalue);
-
-				buf
-				<< "destruct[" << index << "] = 0;\n"
-				<< "if (by_ref [" << index << "])\n"
-				<< "{\n"
-
-				<< get_st_entry (LOCAL, "p_arg", var_name)
-
-				<< "	args_ind[" << index << "] = fetch_var_arg_by_ref ("
-				<<				"p_arg);\n"
-				<< "	assert (!in_copy_on_write (*args_ind[" << index << "]));\n"
-				<<	"  args[" << index << "] = *args_ind[" << index << "];\n"
-				<< "}\n"
-				<< "else\n"
-				<< "{\n"
-
-				<< read_rvalue ("arg", var_name)
-
-				<< "  args[" << index << "] = fetch_var_arg ("
-				<<				"arg, "
-				<<				"&destruct[" << index << "]);\n"
-				<< " args_ind[" << index << "] = &args[" << index << "];\n"
-				<< "}\n"
-				;
-			}
-			else
-			{
-				Rvalue* rval = param->rvalue;
-
-				buf
-				<< "destruct[" << index << "] = 0;\n"
-				<< "{\n"; // scope for ARG
-
-				if (sig->is_param_passed_by_ref (index) || param->is_ref)
-				{
-					buf
-					<< get_st_entry (LOCAL, "p_arg", dyc<VARIABLE_NAME> (rval))
-					<< "	args_ind[" << index << "] = fetch_var_arg_by_ref ("
-					<<				"p_arg);\n"
-					<< "	assert (!in_copy_on_write (*args_ind[" << index << "]));\n"
-					<<	"  args[" << index << "] = *args_ind[" << index << "];\n"
-					;
-				}
-				else
-				{
-					buf
-					<< read_rvalue ("arg", rval)
-					<< "  args[" << index << "] = fetch_var_arg ("
-					<<				"arg, "
-					<<				"&destruct[" << index << "]);\n"
-					<< " args_ind[" << index << "] = &args[" << index << "];\n"
-					;
-				}
-				buf
-				<< "}\n";
-			}
-
-			index++;
-		}
-
-		buf
-		<< "phc_setup_error (1, \""
-		<<				*rhs->get_filename () << "\", " 
-		<<				rhs->get_line_number () << ", "
-		<< "			NULL TSRMLS_CC);\n"
-
-		// save existing paramters, in case of recursion
-		<< "int param_count_save = " << fci_name << ".param_count;\n"
-		<< "zval*** params_save = " << fci_name << ".params;\n"
-		<< "zval** retval_save = " << fci_name << ".retval_ptr_ptr;\n"
-
-		<< "zval* rhs = NULL;\n"
-
-		// set up params
-		<< fci_name << ".params = args_ind;\n"
-		<< fci_name << ".param_count = " << num_args << ";\n"
-		<< fci_name << ".retval_ptr_ptr = &rhs;\n"
-
-		// call the function
-		<< "int success = zend_call_function (&" << fci_name << ", &" << fcic_name << " TSRMLS_CC);\n"
-		<< "assert(success == SUCCESS);\n"
-
-		// restore params
-		<< fci_name << ".params = params_save;\n"
-		<< fci_name << ".param_count = param_count_save;\n"
-		<< fci_name << ".retval_ptr_ptr = retval_save;\n"
-
-		// unset the errors
-		<< "phc_setup_error (0, NULL, 0, NULL TSRMLS_CC);\n"
-		;
-
-		for (index = 0; index < rhs->value->actual_parameters->size (); index++)
-		{
-			// TODO put the for loop into generated code
-			buf 
-			<< "if (destruct[" << index << "])\n"
-			<< "{\n"
-			<< "	assert (destruct[" << index << "] == 1);\n"
-			<< "	zval_ptr_dtor (args_ind[" << index << "]);\n"
-			<< "}\n"
-			;
-		}
-
-		// When the Zend engine returns by reference, it allocates a zval into
-		// retval_ptr_ptr. To return by reference, the callee writes
-		// into the retval_ptr_ptr, freeing the allocated value as it does.
-		// (Note, it may not actually return anything). So the zval returned -
-		// whether we return it, or it is the allocated zval - has a refcount
-		// of 1.
-		// The caller is responsible for cleaning that up (note, this is
-		// unaffected by whether it is added to some COW set).
-
-		// For reasons unknown, the Zend API resets the
-		// refcount and is_ref fields of the return value after the
-		// function returns (unless the callee is interpreted). If the function
-		// is supposed to return by reference, this loses the refcount. This only
-		// happens when non-interpreted code is called. We work around it, when
-		// compiled code is called, by saving the refcount into SAVED_REFCOUNT,
-		// in the return statement. The downside is that we may create an error
-		// if our code is called by a callback, and returns by reference, and the
-		// callback returns by reference. At least this is an obscure case.
-
-		buf
-		<< "if(signature->common.return_reference && signature->type != ZEND_USER_FUNCTION)\n"
-		<< "{\n"
-		<< "	assert (rhs != EG(uninitialized_zval_ptr));\n"
-		<< "	rhs->is_ref = 1;\n"
-		<< "	if (saved_refcount != 0)\n"
-		<< "	{\n"
-		<< "		rhs->refcount = saved_refcount;\n"
-		<< "	}\n"
-		<< "	rhs->refcount++;\n"
-		<< "}\n"
-		<< "saved_refcount = 0;\n" // for 'obscure cases'
-		;
-
-		if (lhs)
-		{
-			buf << get_st_entry (LOCAL, "p_lhs", lhs->value);
-
-			if (!agn->is_ref)
-			{
-				buf << "write_var (p_lhs, rhs);\n";
-			}
-			else
-			{
-				buf
-				<< "sep_copy_on_write (&rhs);\n"
-				<< "copy_into_ref (p_lhs, &rhs);\n";
-			}
-		}
-
-		// p_rhs should be completely destroyed: both the reference we add for
-		// references, and the reference from the callee.
-		buf 
-		<< "zval_ptr_dtor (&rhs);\n"
-		<< "if(signature->common.return_reference && signature->type != ZEND_USER_FUNCTION)\n"
-		<< "	zval_ptr_dtor (&rhs);\n"
-		;
-
-		// Destroy the array used to find the method of an object
-		// See comment atop initialized_method_call in runtime/methods.c
-		if(object_name != NULL)
-		{
-			buf << "zval_ptr_dtor(&callable);\n";
-		}
 	}
 
 protected:
 	Wildcard<Method_invocation>* rhs;
 };
 
+
+/*
+ * OOP Field access
+ */
+
+class Pattern_assign_field : public Pattern
+{
+public:
+	bool match(Statement* that)
+	{
+		pattern = new Wildcard<Assign_field>;
+		return that->match(pattern);
+	}
+
+	void generate_code(Generate_C* gen)
+	{
+		Assign_field* af = pattern->value;
+
+		VARIABLE_NAME* object_name;
+		CLASS_NAME* class_name;
+ 		
+		object_name = dynamic_cast<VARIABLE_NAME*>(af->target);
+ 		class_name  = dynamic_cast<CLASS_NAME*>(af->target);
+
+		if (object_name != NULL)
+		{
+			if (!af->is_ref)
+				INST (buf, "assign_field", object_name, af->field_name, af->rhs);
+			else
+				INST (buf, "assign_field_ref", object_name, af->field_name, af->rhs);
+		}
+		else if (class_name != NULL)
+		{
+			if (!af->is_ref)
+				INST (buf, "assign_static_field", class_name, af->field_name, af->rhs);
+			else
+				INST (buf, "assign_static_field_ref", class_name, af->field_name, af->rhs);
+		}
+		else
+		{
+			// Invalid target
+			assert(0);
+		}
+	}
+
+protected:
+	Wildcard<Assign_field>* pattern;
+};
 
 /*
  * Statements
@@ -2008,74 +1705,10 @@ public:
 
 	void generate_code(Generate_C* gen)
 	{
-		assert (lhs->value);
-		assert (index->value);
-		assert (rhs->value);
-
-		buf 
-		// get the array
-		<< get_st_entry (LOCAL, "p_lhs_array", lhs->value)
-		<< "check_array_type (p_lhs_array TSRMLS_CC);\n"
-
-		// get the index
-		<< read_rvalue ("lhs_index", index->value)
-	
-
-
-		// Special case: string assignment
-		<< "if (Z_TYPE_P (*p_lhs_array) == IS_STRING && Z_STRLEN_PP (p_lhs_array) > 0)\n"
-		<< "{\n";
-		if (agn->is_ref)
-		{
-			buf
-			<< "php_error_docref (NULL TSRMLS_CC, E_ERROR,"
-			<<  "\"Cannot create references to/from string offsets nor overloaded objects\");\n"
-			;
-		}
+		if (!agn->is_ref)
+			INST (buf, "assign_array", lhs->value, index->value, rhs->value);
 		else
-		{
-			buf
-			<< read_rvalue ("rhs", rhs->value)
-			<< "// TODO update the string\n"
-			<< "write_string_index (p_lhs_array, lhs_index, rhs TSRMLS_CC);\n"
-			;
-		}
-		buf
-		<< "}\n"
-
-
-		// Array assignment
-		<< "else if (Z_TYPE_PP (p_lhs_array) == IS_ARRAY)\n"
-		<< "{\n"
-		
-		
-		// get the HT entry
-		<< "zval** p_lhs = get_ht_entry ("
-		<<						"p_lhs_array, "
-		<<						"lhs_index"	
-		<<						" TSRMLS_CC);\n"
-		;
-
-
-		if (not agn->is_ref)
-		{
-		  buf	
-		  << read_rvalue ("rhs", rhs->value)
-		  << "\n"
-		  << "if (*p_lhs != rhs)\n"
-		  <<		"write_var (p_lhs, rhs);\n"
-		  ;
-		}
-		else
-		{
-			buf
-			<< get_st_entry (LOCAL, "p_rhs", dyc<VARIABLE_NAME> (rhs->value))
-			<< "sep_copy_on_write (p_rhs);\n"
-			<< "copy_into_ref (p_lhs, p_rhs);\n"
-			;
-		}
-		buf
-		<< "}\n";
+			INST (buf, "assign_array_ref", lhs->value, index->value, rhs->value);
 	}
 
 protected:
@@ -2112,42 +1745,10 @@ public:
 
 	void generate_code(Generate_C* gen)
 	{
-		assert (lhs->value);
-		assert (rhs->value);
-
-		buf 
-		<<	"zval** p_lhs;\n"
-
-		<< get_st_entry (LOCAL, "p_lhs_var", lhs->value)
-
-		<<	"// Array push \n"
-		<<	"p_lhs = push_and_index_ht (p_lhs_var TSRMLS_CC);\n"
-	
-		// TODO this can return NULL if there is an error.
-		<<	"if (p_lhs != NULL)\n"
-		<<	"{\n";
-
 		if (!agn->is_ref)
-		{
-			buf
-			<< read_rvalue ("rhs", rhs->value)
-			
-			<< "if (*p_lhs != rhs)\n"
-			<<	"	write_var (p_lhs, rhs);\n"
-			;
-		}
+			INST (buf, "assign_next", lhs->value, rhs->value);
 		else
-		{
-			// TODO this is wrong
-			buf	
-			<< get_st_entry (LOCAL, "p_rhs", dyc<VARIABLE_NAME> (rhs->value))
-			<< "sep_copy_on_write (p_rhs);\n"
-			<< "copy_into_ref (p_lhs, p_rhs);\n"
-			;
-		}
-
-		buf << "}\n"
-		;
+			INST (buf, "assign_next_ref", lhs->value, rhs->value);
 	}
 
 protected:
@@ -2164,40 +1765,24 @@ class Pattern_assign_var_var : public Pattern
 {
 	bool match(Statement* that)
 	{
-		lhs = new Wildcard<VARIABLE_NAME>;
+		index = new Wildcard<VARIABLE_NAME>;
 		rhs = new Wildcard<Rvalue>;
-		stmt = new Assign_var_var(lhs, false, rhs);
-		return(that->match(stmt));	
+		agn = new Assign_var_var(index, false, rhs);
+		return(that->match(agn));	
 	}
 
 	void generate_code(Generate_C* gen)
 	{
-		if(!stmt->is_ref)
-		{
-			buf
-			<< "zval** p_lhs;\n"
-			<< read_rvalue ("index", lhs->value)
-			<< get_var_var (LOCAL, "p_lhs", "index")
-			<< read_rvalue ("rhs", rhs->value)
-			<< "if (*p_lhs != rhs)\n"
-			<<		"write_var (p_lhs, rhs);\n"
-			;
-		}
+		if(!agn->is_ref)
+			INST (buf, "assign_var_var",
+				index->value, rhs->value);
 		else
-		{
-			buf
-			<< "zval** p_lhs;\n"
-			<< read_rvalue ("index", lhs->value)
-			<< get_var_var (LOCAL, "p_lhs", "index")
-			<< get_st_entry (LOCAL, "p_rhs", dyc<VARIABLE_NAME> (rhs->value))
-			<< "sep_copy_on_write (p_rhs);\n"
-			<< "copy_into_ref (p_lhs, p_rhs);\n"
-			;
-		}
+			INST (buf, "assign_var_var_ref",
+				index->value, rhs->value);
 	}
 
-	Assign_var_var* stmt;
-	Wildcard<VARIABLE_NAME>* lhs;
+	Assign_var_var* agn;
+	Wildcard<VARIABLE_NAME>* index;
 	Wildcard<Rvalue>* rhs;
 };
 	
@@ -2215,41 +1800,11 @@ public:
 
 	void generate_code(Generate_C* gen)
 	{
-		buf
-		<< index_lhs (LOCAL, "p_local_global_var", var_name->value) // lhs
-		<< index_lhs (GLOBAL, "p_global_var", var_name->value) // rhs
-		// Note that p_global_var can be in a copy-on-write set.
-		<< "sep_copy_on_write (p_global_var);\n"
-		<< "copy_into_ref (p_local_global_var, p_global_var);\n"
-		;
-	}
-
-	string index_lhs (Scope scope, string zvp, Expr* expr)
-	{
-		stringstream ss;
-	
-		if (VARIABLE_NAME* var_name = dynamic_cast<VARIABLE_NAME*> (expr))
-		{
-			ss
-			<< "// Normal global\n"
-			<< get_st_entry (scope, zvp, var_name)
-			;
-		}
+		if (isa<VARIABLE_NAME> (var_name->value))
+			INST (buf, "global_var", var_name->value);
 		else
-		{
-			Variable_variable* var_var = dyc<Variable_variable> (expr);
-
-			ss
-			<< "// Variable global\n"
-			<< "zval** " << zvp << ";\n"
-			<< "{\n"
-			<< read_rvalue ("index", var_var->variable_name)
-			<< get_var_var (scope, zvp, "index")
-			<< "}\n"
-			;
-		}
-
-		return ss.str();
+			INST (buf, "global_var_var",
+				dyc<Variable_variable> (var_name->value)->variable_name);
 	}
 
 protected:
@@ -2293,15 +1848,8 @@ public:
 
 	void generate_code(Generate_C* gen)
 	{
-		buf 
-		<<	read_rvalue ("p_cond", cond->value)
-
-		<<	"zend_bool bcond = zend_is_true (p_cond);\n"
-		<<	"if (bcond)\n"
-		<<	"	goto " << *iftrue->value->value << ";\n"
-		<<	"else\n"
-		<<	"	goto " << *iffalse->value->value << ";\n"
-		;
+		INST (buf, "branch",
+			cond->value, iftrue->value->value, iffalse->value->value);
 	}
 
 protected:
@@ -2338,37 +1886,7 @@ class Pattern_return : public Pattern
 
 	void generate_code(Generate_C* gen)
 	{
-		if(!ret->value->attrs->is_true ("phc.codegen.return_by_ref"))
-		{
-			buf 
-			<< read_rvalue ("rhs", ret->value->rvalue)
-
-			// Run-time return by reference has different
-			// semantics to compile-time. If the function has CTRBR and RTRBR, the
-			// the assignment will be reference. If one or the other is
-			// return-by-copy, the result will be by copy. Its a question of
-			// whether its separated at return-time (which we do here) or at the
-			// call-site.
-			<< "return_value->value = rhs->value;\n"
-			<< "return_value->type = rhs->type;\n"
-			<< "zval_copy_ctor (return_value);\n"
-			;
-		}
-		else
-		{
-			buf
-			<< get_st_entry (LOCAL, "p_rhs", dyc<VARIABLE_NAME> (ret->value->rvalue))
-			<< "sep_copy_on_write (p_rhs);\n"
-			<< "zval_ptr_dtor (return_value_ptr);\n"
-			<< "(*p_rhs)->is_ref = 1;\n"
-			<< "(*p_rhs)->refcount++;\n"
-			<< "*return_value_ptr = *p_rhs;\n"
-			;
-		}
-
-		buf 
-		<< "goto end_of_function;\n"
-		;
+		INST (buf, "return", ret->value->rvalue, ret->value);
 	}
 
 protected:
@@ -2520,12 +2038,8 @@ public:
 
 		string op_fn = op_functions[*op->value->value]; 
 
-		buf 
-		<<	get_st_entry (LOCAL, "p_var", var->value)
-
-		<<	"sep_copy_on_write (p_var);\n"
-		<<	op_fn << "(*p_var);\n"
-		;
+		INST (buf, "pre_op",
+			var->value, s(op_fn));
 	}
 
 protected:
@@ -2631,7 +2145,7 @@ class Pattern_class_or_interface_alias : public Pattern
 		<<		"\"" << *alias_name << "\", "
 		<<		(alias_name->size()+1) << ", "
 		<<		"(void**)existing,"
-		<<		"sizeof(zend_entry),"
+		<<		"sizeof(zend_class_entry),"
 		<<		"NULL);\n"
 		<<	"assert (result == SUCCESS);\n"
 		;
@@ -2659,20 +2173,15 @@ class Pattern_foreach_reset : public Pattern
 
 	void generate_code(Generate_C* gen)
 	{
-		// declare the external iterator outside local scope blocks
-		buf
-		<<		read_rvalue ("fe_array", reset->value->array)
-		<<		"zend_hash_internal_pointer_reset_ex ("
-		<<		"						fe_array->value.ht, "
-		<<		"						&" << *reset->value->iter->value << ");\n"
-		;
+		INST (buf, "foreach_reset",
+			reset->value->array, reset->value->iter->value);
 	}
 
 protected:
 	Wildcard<Foreach_reset>* reset;
 };
 
-class Pattern_foreach_next: public Pattern
+class Pattern_foreach_next : public Pattern
 {
 	bool match (Statement* that)
 	{
@@ -2682,13 +2191,8 @@ class Pattern_foreach_next: public Pattern
 
 	void generate_code (Generate_C* gen)
 	{
-		buf
-		<<	read_rvalue ("fe_array", next->value->array)
-		<<	"int result = zend_hash_move_forward_ex ("
-		<<						"fe_array->value.ht, "
-		<<						"&" << *next->value->iter->value << ");\n"
-		<<	"assert (result == SUCCESS);\n"
-		;
+		INST (buf, "foreach_next",
+			next->value->array, next->value->iter->value);
 	}
 
 protected:
@@ -2705,12 +2209,8 @@ class Pattern_foreach_end : public Pattern
 
 	void generate_code(Generate_C* gen)
 	{
-		buf
-		<<	read_rvalue ("fe_array", end->value->array)
-		<<	"zend_hash_internal_pointer_end_ex ("
-		<<						"fe_array->value.ht, "
-		<<						"&" << *end->value->iter->value << ");\n"
-		;
+		INST (buf, "foreach_end",
+			end->value->array, end->value->iter->value);
 	}
 
 protected:
@@ -2732,7 +2232,7 @@ string compile_statement(Statement* in, Generate_C* gen)
 	{
 	// Top-level constructs
 		new Pattern_method_definition ()
-	,  new Pattern_class_def ()
+	, new Pattern_class_def ()
 	// Expressions, which can only be RHSs to Assign_vars
 	,	new Pattern_assign_expr_constant ()
 	,	new Pattern_assign_expr_var ()
@@ -2752,10 +2252,12 @@ string compile_statement(Statement* in, Generate_C* gen)
 	// Method invocations and NEWs can be part of Eval_expr or just Assign_vars
 	,	new Pattern_expr_builtin()
 	,	new Pattern_expr_method_invocation()
+	// OOP
+	, new Pattern_assign_field()
 	// All the rest are just statements
 	,	new Pattern_assign_array ()
 	,	new Pattern_assign_next ()
-	,  new Pattern_assign_var_var ()
+	, new Pattern_assign_var_var ()
 	,	new Pattern_class_or_interface_alias ()
 	,	new Pattern_method_alias ()
 	,	new Pattern_branch()
@@ -2883,7 +2385,7 @@ void Generate_C::pre_php_script(PHP_script* in)
 			finalizations << "zval_ptr_dtor (&" << *var << ");\n";
 			initializations
 			<< "ALLOC_INIT_ZVAL (" << *var << ");\n"
-			<< write_literal_value_directly_into_zval (*var, lit);
+			<< write_literal_directly_into_zval (*var, lit);
 		}
 	}
 
@@ -2915,6 +2417,7 @@ void Generate_C::pre_php_script(PHP_script* in)
 		<< "static zend_fcall_info_cache " << fcic_name << " = {0,NULL,NULL,NULL};\n"
 		;
 	}
+
 }
 
 void Generate_C::post_php_script(PHP_script* in)
@@ -3064,7 +2567,8 @@ Generate_C::Generate_C (ostream& os)
 	}
 
 
-	micg.register_callback ("length", &cb_get_length);
-	micg.register_callback ("hash", &cb_get_hash);
-	micg.register_callback ("is_literal", &cb_is_literal);
+	micg.register_callback ("length", &cb_get_length, 1);
+	micg.register_callback ("hash", &cb_get_hash, 1);
+	micg.register_callback ("is_literal", &cb_is_literal, 1);
+	micg.register_callback ("write_literal_directly_into_zval", &cb_write_literal_directly_into_zval, 2);
 }
