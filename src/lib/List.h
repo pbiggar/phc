@@ -59,6 +59,9 @@ struct algorithm_selector<true>
 	template<typename T> 
 	static T clone (T object)
 	{ 
+		if (object == NULL)
+			return NULL;
+
 		return object->clone (); 
 	} 
 };
@@ -155,7 +158,7 @@ public:
 	}
 };
 
-template <class List_type, class Result_type>
+template <class Result_type, class List_type>
 List<Result_type*>* rewrap_list (List<List_type*>* nodes)
 {
 	List<Result_type*>* result = new List<Result_type*>;

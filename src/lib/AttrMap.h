@@ -37,13 +37,13 @@ public:
 	template <class T>
 	List<T*>* get_list (std::string key)
 	{
-		return rewrap_list<IR::Node, T> (dyc<List<IR::Node*> > (get (key)));
+		return rewrap_list<T> (dyc<List<IR::Node*> > (get (key)));
 	};
 
 	template <class T>
 	void set_list (std::string key, List<T*>* list)
 	{
-		set (key, rewrap_list <T, IR::Node> (list));
+		set (key, rewrap_list <IR::Node> (list));
 	};
 	
 // Special support for bools

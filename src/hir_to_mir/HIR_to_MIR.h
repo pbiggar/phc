@@ -567,7 +567,7 @@ public:
 		MIR::New* result;
 		result = new MIR::New(
 			class_name, 
-			rewrap_list<MIR::Node, MIR::Actual_parameter> (actual_parameters));
+			rewrap_list<MIR::Actual_parameter> (actual_parameters));
 		copy_attrs (result, orig);
 		return result;
 	}
