@@ -290,7 +290,7 @@ assign_expr_ref_var_var (token LHS, token INDEX)
 /*
  * Array access
  */
-assign_expr_array_access (token LHS, token ARRAY, token INDEX)
+assign_expr_array_access (token LHS, node ARRAY, node INDEX)
 @@@
    \get_st_entry ("LOCAL", "p_lhs", LHS);
    \read_rvalue ("r_array", ARRAY);
@@ -326,7 +326,7 @@ assign_expr_array_access (token LHS, token ARRAY, token INDEX)
    if (is_rhs_new) zval_ptr_dtor (&rhs);
 @@@
 
-assign_expr_ref_array_access (token LHS, token ARRAY, token INDEX)
+assign_expr_ref_array_access (token LHS, token ARRAY, node INDEX)
 @@@
    \get_st_entry ("LOCAL", "p_lhs", LHS);
    \get_st_entry ("LOCAL", "p_r_array", ARRAY);
@@ -570,7 +570,7 @@ assign_next_ref (token LHS, token RHS)
  * Assign_array
  */
 
-assign_array (token ARRAY, token INDEX, token RHS)
+assign_array (token ARRAY, node INDEX, node RHS)
 @@@
    \get_st_entry ("LOCAL", "p_array", ARRAY);
    check_array_type (p_array TSRMLS_CC);
@@ -640,7 +640,7 @@ global_var_var (token INDEX)
  * Builtins
  */
 
-builtin_with_lhs (token LHS, token ARG, string NAME, string FILENAME)
+builtin_with_lhs (token LHS, node ARG, string NAME, string FILENAME)
 @@@
    \read_rvalue ("arg", ARG);
 
@@ -653,7 +653,7 @@ builtin_with_lhs (token LHS, token ARG, string NAME, string FILENAME)
 @@@
 
 
-builtin_no_lhs (token ARG, string NAME, string FILENAME)
+builtin_no_lhs (node ARG, string NAME, string FILENAME)
 @@@
    \read_rvalue ("arg", ARG);
 
@@ -811,6 +811,7 @@ new_lhs (token LHS, string VAL)
  * Method and function calls
  */
 
+// TODO: these can easily be combined
 arg_by_ref (node ARG)
    where ARG.is_ref
 @@@
@@ -833,24 +834,38 @@ arg_by_ref (node ARG)
    abr_index++;
 @@@
 
-// TODO: these can easily be combined
-arg_fetch (token ARG)
+// Literals must
+arg_fetch (node ARG)
+   where ARG.pool_name
 @@@
-   destruct[af_index] = 0;
-   if (by_ref[af_index])
    {
-      \get_st_entry ("LOCAL", "p_arg", ARG);
-      args_ind[af_index] = fetch_var_arg_by_ref (p_arg);
-      assert (!in_copy_on_write (*args_ind[af_index]));
-      args[af_index] = *args_ind[af_index];
-   }
-   else
-   {
+      destruct[af_index] = 0;
       \read_rvalue ("arg", ARG);
       args[af_index] = fetch_var_arg (arg, &destruct[af_index]);
       args_ind[af_index] = &args[af_index];
+      af_index++;
    }
-   af_index++;
+@@@
+
+arg_fetch (token ARG)
+@@@
+   {
+       destruct[af_index] = 0;
+       if (by_ref[af_index])
+       {
+	  \get_st_entry ("LOCAL", "p_arg", ARG);
+	  args_ind[af_index] = fetch_var_arg_by_ref (p_arg);
+	  assert (!in_copy_on_write (*args_ind[af_index]));
+	  args[af_index] = *args_ind[af_index];
+       }
+       else
+       {
+	  \read_rvalue ("arg", ARG);
+	  args[af_index] = fetch_var_arg (arg, &destruct[af_index]);
+	  args_ind[af_index] = &args[af_index];
+       }
+       af_index++;
+   }
 @@@
 
 call_function (string MN, list ARGS, string FILENAME, string LINE, string FCI_NAME, string FCIC_NAME, string ARG_COUNT, string USE_REF, token LHS)
