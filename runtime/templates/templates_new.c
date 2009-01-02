@@ -369,6 +369,24 @@ assign_expr_constant (token LHS, string CONSTANT)
 get_st_entry (string SCOPE, string ZVP, token VAR)
    where SCOPE == "LOCAL"
    where VAR.st_entry_not_required
+   where VAR.is_initialized
+@@@
+  zval** $ZVP = &local_$VAR;
+@@@
+
+get_st_entry (string SCOPE, string ZVP, token VAR)
+   where SCOPE == "LOCAL"
+   where VAR.st_entry_not_required
+   where VAR.is_uninitialized
+@@@
+  local_$VAR = EG (uninitialized_zval_ptr);
+  local_$VAR->refcount++;
+  zval** $ZVP = &local_$VAR;
+@@@
+
+get_st_entry (string SCOPE, string ZVP, token VAR)
+   where SCOPE == "LOCAL"
+   where VAR.st_entry_not_required
 @@@
   if (local_$VAR == NULL)
     {
@@ -377,6 +395,7 @@ get_st_entry (string SCOPE, string ZVP, token VAR)
     }
   zval** $ZVP = &local_$VAR;
 @@@
+
 
 // TODO: inline better
 get_st_entry (string SCOPE, string ZVP, token VAR)
@@ -392,10 +411,15 @@ scope (string SCOPE) where SCOPE == "GLOBAL" @@@&EG(symbol_table)@@@
  * rvalue, but we always want a new value for LHS, and read_rvalue generates a
  * zval, not a zval* (except when optimized, but we cant guarantee that).
  */
-assign_expr_literal (token LHS, node RHS)
+assign_expr_literal (token LHS, node LIT)
+@@@
+   \assign_expr_var (LHS, LIT)
+@@@
+
+assign_expr_literal (token LHS, node LIT)
 @@@
    \new_lhs (LHS, "value");
-   \cb:write_literal_directly_into_zval ("value", RHS);
+   \cb:write_literal_directly_into_zval ("value", LIT);
 @@@
 
 
@@ -480,6 +504,16 @@ write_var_inner (string LHS, string RHS, node TLHS, node TRHS)
   $RHS->refcount++;
   *$LHS = $RHS;
 @@@
+
+write_var_inner (string LHS, string RHS, node TLHS, node TRHS)
+   where TRHS.pool_name
+@@@
+  // Share a copy
+  $RHS->refcount++;
+  *$LHS = $RHS;
+@@@
+
+
 
 
 write_var_inner (string LHS, string RHS, node TLHS, node TRHS)
@@ -811,7 +845,6 @@ new_lhs (token LHS, string VAL)
  * Method and function calls
  */
 
-// TODO: these can easily be combined
 arg_by_ref (node ARG)
    where ARG.is_ref
 @@@
@@ -822,7 +855,6 @@ arg_by_ref (node ARG)
 
 arg_by_ref (node ARG)
 @@@
-   // TODO: find names to replace index
    if (arg_info)
    {
       by_ref[abr_index] = arg_info->pass_by_reference;
