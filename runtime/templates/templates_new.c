@@ -807,3 +807,183 @@ new_lhs (token LHS, string VAL)
    }
 @@@
 
+/*
+ * Method and function calls
+ */
+
+arg_by_ref (node ARG)
+   where ARG.is_ref
+@@@
+   by_ref[abr_index] = 1;
+   abr_index++;
+@@@
+
+
+arg_by_ref (node ARG)
+@@@
+   // TODO: find names to replace index
+   if (arg_info)
+   {
+      by_ref[abr_index] = arg_info->pass_by_reference;
+      arg_info++;
+   }
+   else
+      by_ref[abr_index] = signature->common.pass_rest_by_reference;
+
+   abr_index++;
+@@@
+
+// TODO: these can easily be combined
+arg_fetch (token ARG)
+@@@
+   destruct[af_index] = 0;
+   if (by_ref[af_index])
+   {
+      \get_st_entry ("LOCAL", "p_arg", ARG);
+      args_ind[af_index] = fetch_var_arg_by_ref (p_arg);
+      assert (!in_copy_on_write (*args_ind[af_index]));
+      args[af_index] = *args_ind[af_index];
+   }
+   else
+   {
+      \read_rvalue ("arg", ARG);
+      args[af_index] = fetch_var_arg (arg, &destruct[af_index]);
+      args_ind[af_index] = &args[af_index];
+   }
+   af_index++;
+@@@
+
+call_function (string MN, list ARGS, string FILENAME, string LINE, string FCI_NAME, string FCIC_NAME, string ARG_COUNT, string USE_REF, token LHS)
+@@@
+   zend_function* signature = $FCIC_NAME.function_handler;
+   zend_arg_info* arg_info = signature->common.arg_info; // optional
+
+   int by_ref[$ARG_COUNT];
+   int abr_index = 0;
+   \arg_by_ref (ARGS);
+
+   // Setup array of arguments
+   // TODO: i think arrays of size 0 is an error
+   int destruct [$ARG_COUNT];
+   zval* args [$ARG_COUNT];
+   zval** args_ind [$ARG_COUNT];
+
+   int af_index = 0;
+   \arg_fetch (ARGS);
+
+   phc_setup_error (1, "$FILENAME", $LINE, NULL TSRMLS_CC);
+
+   // save existing parameters, in case of recursion
+   int param_count_save = $FCI_NAME.param_count;
+   zval*** params_save = $FCI_NAME.params;
+   zval** retval_save = $FCI_NAME.retval_ptr_ptr;
+
+   zval* rhs = NULL;
+
+   // set up params
+   $FCI_NAME.params = args_ind;
+   $FCI_NAME.param_count = $ARG_COUNT;
+   $FCI_NAME.retval_ptr_ptr = &rhs;
+
+   // call the function
+   int success = zend_call_function (&$FCI_NAME, &$FCIC_NAME TSRMLS_CC);
+   assert(success == SUCCESS);
+
+   // restore params
+   $FCI_NAME.params = params_save;
+   $FCI_NAME.param_count = param_count_save;
+   $FCI_NAME.retval_ptr_ptr = retval_save;
+
+   // unset the errors
+   phc_setup_error (0, NULL, 0, NULL TSRMLS_CC);
+
+   int i;
+   for (i = 0; i < $ARG_COUNT; i++)
+   {
+      if (destruct[i])
+      {
+	 assert (destruct[i]);
+	 zval_ptr_dtor (args_ind[i]);
+      }
+   }
+
+
+   // When the Zend engine returns by reference, it allocates a zval into
+   // retval_ptr_ptr. To return by reference, the callee writes into the
+   // retval_ptr_ptr, freeing the allocated value as it does.  (Note, it may
+   // not actually return anything). So the zval returned - whether we return
+   // it, or it is the allocated zval - has a refcount of 1.
+ 
+   // The caller is responsible for cleaning that up (note, this is unaffected
+   // by whether it is added to some COW set).
+
+   // For reasons unknown, the Zend API resets the refcount and is_ref fields
+   // of the return value after the function returns (unless the callee is
+   // interpreted). If the function is supposed to return by reference, this
+   // loses the refcount. This only happens when non-interpreted code is
+   // called. We work around it, when compiled code is called, by saving the
+   // refcount into SAVED_REFCOUNT, in the return statement. The downside is
+   // that we may create an error if our code is called by a callback, and
+   // returns by reference, and the callback returns by reference. At least
+   // this is an obscure case.
+   if(signature->common.return_reference && signature->type != ZEND_USER_FUNCTION)
+   {
+      assert (rhs != EG(uninitialized_zval_ptr));
+      rhs->is_ref = 1;
+      if (saved_refcount != 0)
+      {
+	 rhs->refcount = saved_refcount;
+      }
+      rhs->refcount++;
+   }
+   saved_refcount = 0; // for 'obscure cases'
+
+   \function_lhs (USE_REF, LHS);
+
+   zval_ptr_dtor (&rhs);
+   if(signature->common.return_reference && signature->type != ZEND_USER_FUNCTION)
+      zval_ptr_dtor (&rhs);
+@@@
+
+
+function_lhs (string USE_LHS, token LHS)
+   where USE_LHS == "NONE"
+@@@
+
+@@@
+
+function_lhs (string USE_LHS, token LHS)
+   where USE_LHS == "REF"
+@@@
+   \get_st_entry ("LOCAL", "p_lhs", LHS);
+   sep_copy_on_write (&rhs);
+   copy_into_ref (p_lhs, &rhs);
+@@@
+
+function_lhs (string USE_LHS, token LHS)
+   where USE_LHS == "NO_REF"
+@@@
+   \get_st_entry ("LOCAL", "p_lhs", LHS);
+   write_var (p_lhs, rhs);
+@@@
+
+function_invocation (string MN, list ARGS, string FILENAME, string LINE, string FCI_NAME, string FCIC_NAME, string ARG_COUNT, string LHS_REF, token LHS)
+@@@
+   initialize_function_call (&$FCI_NAME, &$FCIC_NAME, "$MN", "$FILENAME", $LINE TSRMLS_CC);
+   \call_function (MN, ARGS, FILENAME, LINE, FCI_NAME, FCIC_NAME, ARG_COUNT, LHS_REF, LHS);
+@@@
+
+
+method_invocation (string MN, list ARGS, string FILENAME, string LINE, string FCI_NAME, string FCIC_NAME, string ARG_COUNT, node TARGET, string USE_REF, token LHS)
+@@@
+   \read_rvalue ("obj", TARGET); 
+   zend_fcall_info fci_object;
+   zend_fcall_info_cache fcic_object = {0, NULL, NULL, NULL};
+   zval* callable = initialize_method_call (&fci_object, &fcic_object, obj, "$MN", "$FILENAME", $LINE TSRMLS_CC);
+
+   \call_function (MN, ARGS, FILENAME, LINE, "fci_object", "fcic_object", ARG_COUNT, USE_REF, LHS);
+
+   zval_ptr_dtor (&callable);
+@@@
+
+
