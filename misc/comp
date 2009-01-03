@@ -11,7 +11,11 @@ GDB="libtool --mode=execute gdb --args"
 VALGRIND="libtool --mode=execute valgrind"
 for var in $@
 do
-	if [ "-$var" = "--g" ]
+	if [ "-$NEXT_IS_COMMAND" = "-1" ]
+	then
+		PHC_ARGS="$PHC_ARGS $var"
+		NEXT_IS_COMMAND=0
+	elif [ "-$var" = "--g" ]
 	then
 		EXEC_NAME="$GDB "
 		DEBUG_PHC=1
@@ -21,6 +25,9 @@ do
 	elif [ "-$var" = "--M" ]
 	then
 		EXEC_NAME="$VALGRIND --tool=massif "
+	elif [ "-$var" = "--C" ]
+	then
+		NEXT_IS_COMMAND=1
 	elif [ "-$var" = "--B" ]
 	then
 		EXEC_NAME="$VALGRIND --tool=cachegrind --branch-sim=yes "

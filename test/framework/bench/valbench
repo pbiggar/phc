@@ -8,7 +8,7 @@
 	# get command line options
 	$cg = new Console_Getopt();
 	$command_line = join (" ", $cg->readPHPArgv());
-	$opt_result = $cg->getopt($cg->readPHPArgv(), "hps");
+	$opt_result = $cg->getopt($cg->readPHPArgv(), "hpsC:");
 	if (!is_array ($opt_result))
 		die ($opt_result->message."\n");
 
@@ -16,6 +16,7 @@
 	$opt_help = false;
 	$opt_php = false;
 	$opt_serialize = false;
+	$opt_command = "";
 	foreach ($opts as $opt) 
 	{
 		switch ($opt[0])
@@ -23,6 +24,7 @@
 			case 'h': $opt_help = true; break;
 			case 'p': $opt_php = true; break;
 			case 's': $opt_serialize = true; break;
+			case 'C': $opt_command = $opt[1]; break;
 		}
 	}
 
@@ -37,6 +39,8 @@ Usage: benchmark [OPTIONS]
 Options:
 	 -h     Print this help message
 	 -p     Run the benchmark using PHP, instead of compiling the code with phc
+	 -s     Print the output in serialized form, so it can be read back into PHP easily
+	 -C     Pass the argument to misc/comp
 
 EOL
 		);
@@ -64,13 +68,13 @@ EOL
 
 	function run_benchmark ($filename)
 	{
-		global $opt_php;
+		global $opt_php, $opt_command;
 
 		# which programs to use for testing
 		if ($opt_php)
 			$command = "valgrind --tool=cachegrind --branch-sim=yes /usr/local/php-opt/bin/php $filename";
 		else
-			$command = "misc/comp -B -O $filename";
+			$command = "misc/comp -C $opt_command -B -O $filename";
 
 
 		// dont care about the output
