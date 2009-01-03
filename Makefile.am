@@ -23,7 +23,7 @@ bin_PROGRAMS = src/phc
 
 # By using CXXFLAGS we avoid warnings in generated_src, which we dont want to
 # hear about. 
-AM_CXXFLAGS = -Wextra -Wno-unused-parameter -Wno-write-strings
+AM_CXXFLAGS = -Wextra -Wno-unused-parameter -Wno-write-strings -Wno-deprecated
 
 # Note about warnings: automake does not support per-file flags. If they did,
 # we could set -Wall -Wextra -Werror, and fix things as they came up. However,
@@ -209,6 +209,8 @@ libphc_la_SOURCES= 											\
 	src/optimize/Live_variable_analysis.h				\
 	src/optimize/Mark_initialized.cpp					\
 	src/optimize/Mark_initialized.h						\
+	src/optimize/Mark_reference_parameters.cpp		\
+	src/optimize/Mark_reference_parameters.h			\
 	src/optimize/Oracle.cpp									\
 	src/optimize/Oracle.h									\
 	src/optimize/Prune_symbol_table.cpp					\

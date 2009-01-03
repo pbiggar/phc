@@ -38,6 +38,7 @@
 #include "optimize/If_simplification.h"
 #include "optimize/Live_variable_analysis.h"
 #include "optimize/Mark_initialized.h"
+#include "optimize/Mark_reference_parameters.h"
 #include "optimize/Prune_symbol_table.h"
 #include "optimize/Remove_loop_booleans.h"
 #include "optimize/SCCP.h"
@@ -189,6 +190,7 @@ int main(int argc, char** argv)
 	pm->add_optimization (new DCE (), s("dce"), s("Aggressive Dead-code elimination"), true);
 	// TODO: we could consider this for resolving isset/empty/unset queries
 	pm->add_optimization (new Mark_initialized (), s("mvi"), s("Mark variable initialization status"), false);
+	pm->add_optimization (new Mark_reference_parameters(), s("mrp"), s("Mark parameters as pass-by-ref or not"), false);
 	pm->add_optimization_pass (new Fake_pass (s("drop_ssa"), s("Drop SSA form")));
 
 	// codegen passes

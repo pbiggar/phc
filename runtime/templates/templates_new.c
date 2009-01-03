@@ -846,13 +846,9 @@ new_lhs (token LHS, string VAL)
  * Method and function calls
  */
 
-arg_by_ref (node ARG)
-   where ARG.is_ref
-@@@
-   by_ref[abr_index] = 1;
-   abr_index++;
-@@@
-
+// If we know param_*_by_ref, then we don't need these results.
+arg_by_ref (node ARG) where ARG.param_by_ref @@@ @@@
+arg_by_ref (node ARG) where ARG.param_not_by_ref @@@ @@@
 
 arg_by_ref (node ARG)
 @@@
@@ -867,9 +863,9 @@ arg_by_ref (node ARG)
    abr_index++;
 @@@
 
-// Literals must
+// Literals cant be passed-by-ref
 arg_fetch (node ARG)
-   where ARG.pool_name
+   where ARG.param_not_by_ref
 @@@
    {
       destruct[af_index] = 0;
@@ -877,6 +873,31 @@ arg_fetch (node ARG)
       args[af_index] = fetch_var_arg (arg, &destruct[af_index]);
       args_ind[af_index] = &args[af_index];
       af_index++;
+   }
+@@@
+
+arg_fetch (node ARG)
+   where ARG.param_by_ref
+@@@
+   {
+     destruct[af_index] = 0;
+     \read_rvalue ("arg", ARG);
+     args[af_index] = fetch_var_arg (arg, &destruct[af_index]);
+     args_ind[af_index] = &args[af_index];
+     af_index++;
+   }
+@@@
+
+// For literals, when not optimizing
+arg_fetch (node ARG)
+   where ARG.pool_name
+@@@
+   {
+     destruct[af_index] = 0;
+     \read_rvalue ("arg", ARG);
+     args[af_index] = fetch_var_arg (arg, &destruct[af_index]);
+     args_ind[af_index] = &args[af_index];
+     af_index++;
    }
 @@@
 
@@ -906,15 +927,15 @@ call_function (string MN, list ARGS, string FILENAME, string LINE, string FCI_NA
    zend_function* signature = $FCIC_NAME.function_handler;
    zend_arg_info* arg_info = signature->common.arg_info; // optional
 
-   int by_ref[$ARG_COUNT];
-   int abr_index = 0;
-   \arg_by_ref (ARGS);
-
    // Setup array of arguments
    // TODO: i think arrays of size 0 is an error
+   int by_ref[$ARG_COUNT];
    int destruct [$ARG_COUNT];
    zval* args [$ARG_COUNT];
    zval** args_ind [$ARG_COUNT];
+
+   int abr_index = 0;
+   \arg_by_ref (ARGS);
 
    int af_index = 0;
    \arg_fetch (ARGS);
@@ -994,11 +1015,7 @@ call_function (string MN, list ARGS, string FILENAME, string LINE, string FCI_NA
 @@@
 
 
-function_lhs (string USE_LHS, token LHS)
-   where USE_LHS == "NONE"
-@@@
-
-@@@
+function_lhs (string USE_LHS, token LHS) where USE_LHS == "NONE" @@@ @@@
 
 function_lhs (string USE_LHS, token LHS)
    where USE_LHS == "REF"

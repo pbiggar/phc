@@ -164,3 +164,17 @@ merge constants into printf
 ============================================================
 ============================================================
 ============================================================
+optimize $x[5] for int and $x["str"] for strings
+============================================================
+Zend_call_function:
+   we can optimize this a lot. If we control the callee and the caller, then we can call it directly, and, importantly, skip the allocation and deallocation of return values.
+   if we control only the caller, we can pass the return value to avoid an allocation and deallocation.
+============================================================
+type-inference everywhere.
+============================================================
+Split every node which has > 1 predecessor.
+Optimize
+Merge nodes with > 1 predecessor where the predecessors are identical
+
+I think this will see good results for uninitialized variables in particular.
+============================================================

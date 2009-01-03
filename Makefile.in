@@ -56,8 +56,8 @@ DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
 	config/config.sub config/depcomp config/install-sh \
 	config/ltmain.sh config/missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
-	$(top_srcdir)/configure.ac
+am__aclocal_m4_deps = $(top_srcdir)/libltdl/acinclude.m4 \
+	$(top_srcdir)/acinclude.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
@@ -104,14 +104,15 @@ am_libphc_la_OBJECTS = getopt1.lo getopt.lo AST_annotate.lo \
 	Integer.lo Object.lo String.lo Address_taken.lo Basic_block.lo \
 	CFG.lo CFG_visitor.lo Dead_code_elimination.lo Def_use.lo \
 	Edge.lo Flow_visitor.lo If_simplification.lo Lattice.lo \
-	Live_variable_analysis.lo Mark_initialized.lo Oracle.lo \
-	Prune_symbol_table.lo Remove_loop_booleans.lo SCCP.lo \
-	Sparse_conditional_visitor.lo Dominance.lo HSSA.lo Phi.lo \
-	SSA.lo Type_inference.lo SSA_ops.lo Virtual_variable.lo \
-	Var_set.lo Visit_once.lo MICG_parser.lo Parse_buffer.lo \
-	parse.lo PHP_context.lo XML_parser.lo Optimization_pass.lo \
-	Pass_manager.lo Plugin_pass.lo AST_unparser.lo \
-	Constant_folding.lo DOT_unparser.lo Invalid_check.lo \
+	Live_variable_analysis.lo Mark_initialized.lo \
+	Mark_reference_parameters.lo Oracle.lo Prune_symbol_table.lo \
+	Remove_loop_booleans.lo SCCP.lo Sparse_conditional_visitor.lo \
+	Dominance.lo HSSA.lo Phi.lo SSA.lo Type_inference.lo \
+	SSA_ops.lo Virtual_variable.lo Var_set.lo Visit_once.lo \
+	MICG_parser.lo Parse_buffer.lo parse.lo PHP_context.lo \
+	XML_parser.lo Optimization_pass.lo Pass_manager.lo \
+	Plugin_pass.lo AST_unparser.lo Constant_folding.lo \
+	DOT_unparser.lo Invalid_check.lo \
 	Note_top_level_declarations.lo Process_includes.lo \
 	Remove_concat_null.lo Remove_parser_temporaries.lo \
 	Strip_unparser_attributes.lo Token_conversion.lo \
@@ -455,6 +456,8 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
+BOOST_CPPFLAGS = @BOOST_CPPFLAGS@
+BOOST_LDFLAGS = @BOOST_LDFLAGS@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
@@ -467,38 +470,32 @@ CXXFLAGS = @CXXFLAGS@
 CYGPATH_W = @CYGPATH_W@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
-DSYMUTIL = @DSYMUTIL@
-DUMPBIN = @DUMPBIN@
+ECHO = @ECHO@
 ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
-FGREP = @FGREP@
+F77 = @F77@
+FFLAGS = @FFLAGS@
 GREP = @GREP@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
-LD = @LD@
 LDFLAGS = @LDFLAGS@
 LIBLTDL = @LIBLTDL@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
 LIBTOOL = @LIBTOOL@
-LIPO = @LIPO@
 LN_S = @LN_S@
 LTDLINCL = @LTDLINCL@
 LTLIBOBJS = @LTLIBOBJS@
 MAINT = @MAINT@
 MAKEINFO = @MAKEINFO@
 MKDIR_P = @MKDIR_P@
-NM = @NM@
-NMEDIT = @NMEDIT@
 OBJEXT = @OBJEXT@
-OTOOL = @OTOOL@
-OTOOL64 = @OTOOL64@
 PACKAGE = @PACKAGE@
 PACKAGE_BUGREPORT = @PACKAGE_BUGREPORT@
 PACKAGE_NAME = @PACKAGE_NAME@
@@ -507,7 +504,6 @@ PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 RANLIB = @RANLIB@
-SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
@@ -518,7 +514,7 @@ abs_top_builddir = @abs_top_builddir@
 abs_top_srcdir = @abs_top_srcdir@
 ac_ct_CC = @ac_ct_CC@
 ac_ct_CXX = @ac_ct_CXX@
-ac_ct_DUMPBIN = @ac_ct_DUMPBIN@
+ac_ct_F77 = @ac_ct_F77@
 am__include = @am__include@
 am__leading_dot = @am__leading_dot@
 am__quote = @am__quote@
@@ -558,7 +554,6 @@ libexecdir = @libexecdir@
 libphp_headers = @libphp_headers@
 localedir = @localedir@
 localstatedir = @localstatedir@
-lt_ECHO = @lt_ECHO@
 maketea = @maketea@
 mandir = @mandir@
 mkdir_p = @mkdir_p@
@@ -591,7 +586,7 @@ lib_LTLIBRARIES = libphc.la
 
 # By using CXXFLAGS we avoid warnings in generated_src, which we dont want to
 # hear about. 
-AM_CXXFLAGS = -Wextra -Wno-unused-parameter -Wno-write-strings
+AM_CXXFLAGS = -Wextra -Wno-unused-parameter -Wno-write-strings -Wno-deprecated
 
 # Note about warnings: automake does not support per-file flags. If they did,
 # we could set -Wall -Wextra -Werror, and fix things as they came up. However,
@@ -763,6 +758,8 @@ libphc_la_SOURCES = \
 	src/optimize/Live_variable_analysis.h				\
 	src/optimize/Mark_initialized.cpp					\
 	src/optimize/Mark_initialized.h						\
+	src/optimize/Mark_reference_parameters.cpp		\
+	src/optimize/Mark_reference_parameters.h			\
 	src/optimize/Oracle.cpp									\
 	src/optimize/Oracle.h									\
 	src/optimize/Prune_symbol_table.cpp					\
@@ -1406,6 +1403,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MIR_unparser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MIR_visitor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Mark_initialized.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Mark_reference_parameters.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MySQL2DBX.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Note_top_level_declarations.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Object.Plo@am__quote@
@@ -2001,6 +1999,13 @@ Mark_initialized.lo: src/optimize/Mark_initialized.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Mark_initialized.cpp' object='Mark_initialized.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Mark_initialized.lo `test -f 'src/optimize/Mark_initialized.cpp' || echo '$(srcdir)/'`src/optimize/Mark_initialized.cpp
+
+Mark_reference_parameters.lo: src/optimize/Mark_reference_parameters.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Mark_reference_parameters.lo -MD -MP -MF $(DEPDIR)/Mark_reference_parameters.Tpo -c -o Mark_reference_parameters.lo `test -f 'src/optimize/Mark_reference_parameters.cpp' || echo '$(srcdir)/'`src/optimize/Mark_reference_parameters.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Mark_reference_parameters.Tpo $(DEPDIR)/Mark_reference_parameters.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Mark_reference_parameters.cpp' object='Mark_reference_parameters.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Mark_reference_parameters.lo `test -f 'src/optimize/Mark_reference_parameters.cpp' || echo '$(srcdir)/'`src/optimize/Mark_reference_parameters.cpp
 
 Oracle.lo: src/optimize/Oracle.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Oracle.lo -MD -MP -MF $(DEPDIR)/Oracle.Tpo -c -o Oracle.lo `test -f 'src/optimize/Oracle.cpp' || echo '$(srcdir)/'`src/optimize/Oracle.cpp
