@@ -412,8 +412,9 @@ scope (string SCOPE) where SCOPE == "GLOBAL" @@@&EG(symbol_table)@@@
  * zval, not a zval* (except when optimized, but we cant guarantee that).
  */
 assign_expr_literal (token LHS, node LIT)
+   where LIT.pool_name
 @@@
-   \assign_expr_var (LHS, LIT)
+   \assign_expr_var (LHS, LIT);
 @@@
 
 assign_expr_literal (token LHS, node LIT)
