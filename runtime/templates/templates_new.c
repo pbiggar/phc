@@ -946,11 +946,7 @@ call_function (string MN, list ARGS, string FILENAME, string LINE, string FCI_NA
 @@@
 
 
-function_lhs (string USE_LHS, token LHS)
-   where USE_LHS == "NONE"
-@@@
-
-@@@
+function_lhs (string USE_LHS, token LHS) where USE_LHS == "NONE" @@@@@@
 
 function_lhs (string USE_LHS, token LHS)
    where USE_LHS == "REF"

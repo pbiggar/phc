@@ -277,9 +277,8 @@ Object_list*
 check_argument_list (Object_list* in, unsigned int index)
 {
 	// Too short. Add it in last position.
-	if (index > in->size ())
+	if (index >= in->size ())
 	{
-		assert (in->size () == index + 1);
 		in->push_back (new List<T*>);
 		return in;
 	}
