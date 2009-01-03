@@ -46,6 +46,7 @@ option "dump-xml" - "Dump input as XML after the pass named 'passname'" string t
 option "cfg-dump" - "Dump CFG after the pass named 'passname'" string typestr="passname" multiple hidden optional
 option "list-passes" - "List the passes to be run" flag off hidden
 option "dont-fail" - "Dont fail on error (after parsing)" flag off hidden
+option "missed-opt" - "Give a warning when an optimization was missed" flag on hidden # this should be off by default, obviously
 option "no-xml-attrs" - "When dumping XML, omit node attributes" flag off hidden
 option "no-base-64" - "When dumping XML, do not encode any strings into base64 encoding" flag off hidden
 option "disable" - "Disable the pass named 'passname'" string typestr="passname" multiple hidden optional
