@@ -765,8 +765,14 @@ assign_field (token OBJ, token FIELD, node RHS)
 
 assign_field_ref (token OBJ, token FIELD, node RHS)
 @@@
-	// TODO: Implement assign_field_ref
-	assert(0);
+	\get_st_entry ("LOCAL", "p_obj", OBJ);
+	\get_st_entry ("LOCAL", "p_rhs", RHS);
+	zval field_name;
+	ZVAL_STRING(&field_name, "$FIELD", 0);
+	zval** p_lhs;
+	p_lhs = Z_OBJ_HT_PP(p_obj)->get_property_ptr_ptr(*p_obj, &field_name TSRMLS_CC);
+	sep_copy_on_write (p_rhs);
+	copy_into_ref (p_lhs, p_rhs);
 @@@
 
 assign_static_field (token CLASS, token FIELD, node RHS)
