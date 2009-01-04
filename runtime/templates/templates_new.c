@@ -751,7 +751,7 @@ foreach_end (token ARRAY, string ITERATOR)
 @@@
 
 /*
- * Field access
+ * Assign_field 
  */
 
 assign_field (token OBJ, token FIELD, node RHS)
@@ -781,6 +781,82 @@ assign_static_field (token CLASS, token FIELD, node RHS)
 assign_static_field_ref (token CLASS, token FIELD, node RHS)
 @@@
 	// TODO: Implement assign_static_field_ref
+	assert(0);
+@@@
+
+assign_var_field (token OBJ, token VAR_FIELD, node RHS)
+@@@
+	// TODO: Implement assign_var_field
+	assert(0);
+@@@
+
+assign_var_field_ref (token OBJ, token VAR_FIELD, node RHS)
+@@@
+	// TODO: Implement assign_var_field_ref
+	assert(0);
+@@@
+
+assign_var_static_field (token CLASS, token VAR_FIELD, node RHS)
+@@@
+	// TODO: Implement assign_var_static_field
+	assert(0);
+@@@
+
+assign_var_static_field_ref (token CLASS, token VAR_FIELD, node RHS)
+@@@
+	// TODO: Implement assign_var_static_field_ref
+	assert(0);
+@@@
+
+/*
+ * Field_access
+ */
+
+field_access (token LHS, token OBJ, token FIELD)
+@@@
+	// TODO: Implement field_access
+	assert(0);
+@@@
+
+field_access_ref (token LHS, token OBJ, token FIELD)
+@@@
+	// TODO: Implement field_access_ref
+	assert(0);
+@@@
+
+static_field_access (token LHS, token CLASS, token FIELD)
+@@@
+	// TODO: Implement static_field_access
+	assert(0);
+@@@
+
+static_field_access_ref (token LHS, token CLASS, token FIELD)
+@@@
+	// TODO: Implement static_field_access_ref
+	assert(0);
+@@@
+
+var_field_access (token LHS, token OBJ, token VAR_FIELD)
+@@@
+	// TODO: Implement var_field_access
+	assert(0);
+@@@
+
+var_field_access_ref (token LHS, token OBJ, token VAR_FIELD)
+@@@
+	// TODO: Implement var_field_access_ref
+	assert(0);
+@@@
+
+var_static_field_access (token LHS, token CLASS, token VAR_FIELD)
+@@@
+	// TODO: Implement var_static_field_access
+	assert(0);
+@@@
+
+var_static_field_access_ref (token LHS, token CLASS, token VAR_FIELD)
+@@@
+	// TODO: Implement var_static_field_access_ref
 	assert(0);
 @@@
 
