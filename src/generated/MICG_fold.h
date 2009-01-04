@@ -27,6 +27,7 @@ template
  class _Equals,
  class _Expr,
  class _Formal_parameter,
+ class _Identifier,
  class _Interpolation,
  class _Lookup,
  class _MACRO_NAME,
@@ -34,6 +35,7 @@ template
  class _Macro_call,
  class _Node,
  class _PARAM_NAME,
+ class _Param,
  class _Rule,
  class _STRING,
  class _Signature,
@@ -44,7 +46,7 @@ class Fold
 {
 // Access this class from subclasses without copying out the template instantiation
 public:
-   typedef Fold<_ATTR_NAME, _All, _Body, _Body_part, _C_CODE, _Callback, _Equals, _Expr, _Formal_parameter, _Interpolation, _Lookup, _MACRO_NAME, _Macro, _Macro_call, _Node, _PARAM_NAME, _Rule, _STRING, _Signature, _TYPE_NAME, _List> parent;
+   typedef Fold<_ATTR_NAME, _All, _Body, _Body_part, _C_CODE, _Callback, _Equals, _Expr, _Formal_parameter, _Identifier, _Interpolation, _Lookup, _MACRO_NAME, _Macro, _Macro_call, _Node, _PARAM_NAME, _Param, _Rule, _STRING, _Signature, _TYPE_NAME, _List> parent;
 // Recursively fold the children before folding the parent
 // This methods form the client API for a fold, but should not be
 // overridden unless you know what you are doing
@@ -124,6 +126,22 @@ public:
 		return fold_impl_equals(in, left, right);
 	}
 
+	virtual _Param fold_param(Param* in)
+	{
+		_PARAM_NAME param_name = 0;
+		if(in->param_name != NULL) param_name = fold_param_name(in->param_name);
+		_List<_ATTR_NAME>* attr_names = 0;
+	
+		{
+			attr_names = new _List<_ATTR_NAME>;
+			typename _List<ATTR_NAME*>::const_iterator i;
+			for(i = in->attr_names->begin(); i != in->attr_names->end(); i++)
+				if(*i != NULL) attr_names->push_back(fold_attr_name(*i));
+				else attr_names->push_back(0);
+		}
+		return fold_impl_param(in, param_name, attr_names);
+	}
+
 	virtual _Body fold_body(Body* in)
 	{
 		_List<_Body_part>* body_parts = 0;
@@ -181,14 +199,15 @@ public:
 	virtual _Formal_parameter fold_impl_formal_parameter(Formal_parameter* orig, _TYPE_NAME type_name, _PARAM_NAME param_name) { assert(0); };
 	virtual _Lookup fold_impl_lookup(Lookup* orig, _PARAM_NAME param_name, _ATTR_NAME attr_name) { assert(0); };
 	virtual _Equals fold_impl_equals(Equals* orig, _Expr left, _Expr right) { assert(0); };
+	virtual _Param fold_impl_param(Param* orig, _PARAM_NAME param_name, _List<_ATTR_NAME>* attr_names) { assert(0); };
 	virtual _Body fold_impl_body(Body* orig, _List<_Body_part>* body_parts) { assert(0); };
 	virtual _Macro_call fold_impl_macro_call(Macro_call* orig, _MACRO_NAME macro_name, _List<_Expr>* exprs) { assert(0); };
 	virtual _Callback fold_impl_callback(Callback* orig, _MACRO_NAME macro_name, _List<_Expr>* exprs) { assert(0); };
 
 	virtual _MACRO_NAME fold_macro_name(MACRO_NAME* orig) { assert(0); };
 	virtual _TYPE_NAME fold_type_name(TYPE_NAME* orig) { assert(0); };
-	virtual _ATTR_NAME fold_attr_name(ATTR_NAME* orig) { assert(0); };
 	virtual _PARAM_NAME fold_param_name(PARAM_NAME* orig) { assert(0); };
+	virtual _ATTR_NAME fold_attr_name(ATTR_NAME* orig) { assert(0); };
 	virtual _STRING fold_string(STRING* orig) { assert(0); };
 	virtual _C_CODE fold_c_code(C_CODE* orig) { assert(0); };
 
@@ -211,8 +230,8 @@ public:
 				return fold_equals(dynamic_cast<Equals*>(in));
 			case Lookup::ID:
 				return fold_lookup(dynamic_cast<Lookup*>(in));
-			case PARAM_NAME::ID:
-				return fold_param_name(dynamic_cast<PARAM_NAME*>(in));
+			case Param::ID:
+				return fold_param(dynamic_cast<Param*>(in));
 			case STRING::ID:
 				return fold_string(dynamic_cast<STRING*>(in));
 			case Macro_call::ID:
@@ -223,6 +242,8 @@ public:
 				return fold_body(dynamic_cast<Body*>(in));
 			case C_CODE::ID:
 				return fold_c_code(dynamic_cast<C_CODE*>(in));
+			case PARAM_NAME::ID:
+				return fold_param_name(dynamic_cast<PARAM_NAME*>(in));
 			case MACRO_NAME::ID:
 				return fold_macro_name(dynamic_cast<MACRO_NAME*>(in));
 			case TYPE_NAME::ID:
@@ -249,8 +270,8 @@ public:
 	{
 		switch(in->classid())
 		{
-			case PARAM_NAME::ID:
-				return fold_param_name(dynamic_cast<PARAM_NAME*>(in));
+			case Param::ID:
+				return fold_param(dynamic_cast<Param*>(in));
 			case STRING::ID:
 				return fold_string(dynamic_cast<STRING*>(in));
 			case Lookup::ID:
@@ -293,6 +314,26 @@ public:
 		assert(0);
 	}
 
+	virtual _Identifier fold_identifier(Identifier* in)
+	{
+		switch(in->classid())
+		{
+			case MACRO_NAME::ID:
+				return fold_macro_name(dynamic_cast<MACRO_NAME*>(in));
+			case TYPE_NAME::ID:
+				return fold_type_name(dynamic_cast<TYPE_NAME*>(in));
+			case PARAM_NAME::ID:
+				return fold_param_name(dynamic_cast<PARAM_NAME*>(in));
+			case ATTR_NAME::ID:
+				return fold_attr_name(dynamic_cast<ATTR_NAME*>(in));
+			case STRING::ID:
+				return fold_string(dynamic_cast<STRING*>(in));
+			case C_CODE::ID:
+				return fold_c_code(dynamic_cast<C_CODE*>(in));
+		}
+		assert(0);
+	}
+
 
 
 // Virtual destructor to avoid compiler warnings
@@ -300,6 +341,6 @@ public:
 };
 
 template<class T, template <class _Tp, class _Alloc = typename List<_Tp>::allocator_type> class _List>
-class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, _List> {};
+class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, _List> {};
 }
 

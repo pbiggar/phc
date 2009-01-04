@@ -28,13 +28,15 @@ class Rule;
 class Expr;
 class Body;
 class Body_part;
-class MACRO_NAME;
-class TYPE_NAME;
-class ATTR_NAME;
+class Identifier;
 class Equals;
+class Param;
 class Interpolation;
 class Macro_call;
 class Callback;
+class MACRO_NAME;
+class TYPE_NAME;
+class ATTR_NAME;
 class STRING;
 class C_CODE;
 class Lookup;
@@ -50,13 +52,15 @@ typedef List<Rule*> Rule_list;
 typedef List<Expr*> Expr_list;
 typedef List<Body*> Body_list;
 typedef List<Body_part*> Body_part_list;
-typedef List<MACRO_NAME*> MACRO_NAME_list;
-typedef List<TYPE_NAME*> TYPE_NAME_list;
-typedef List<ATTR_NAME*> ATTR_NAME_list;
+typedef List<Identifier*> Identifier_list;
 typedef List<Equals*> Equals_list;
+typedef List<Param*> Param_list;
 typedef List<Interpolation*> Interpolation_list;
 typedef List<Macro_call*> Macro_call_list;
 typedef List<Callback*> Callback_list;
+typedef List<MACRO_NAME*> MACRO_NAME_list;
+typedef List<TYPE_NAME*> TYPE_NAME_list;
+typedef List<ATTR_NAME*> ATTR_NAME_list;
 typedef List<STRING*> STRING_list;
 typedef List<C_CODE*> C_CODE_list;
 typedef List<Lookup*> Lookup_list;
@@ -66,7 +70,7 @@ typedef List<None*> None_list;
 class Transform;
 class Visitor;
 
-/* Node ::= All | Macro | Signature | Formal_parameter | Rule | Expr | Body | Body_part | MACRO_NAME | TYPE_NAME | ATTR_NAME; */
+/* Node ::= All | Macro | Signature | Formal_parameter | Rule | Expr | Body | Body_part | Identifier; */
 class Node : virtual public IR::Node
 {
 public:
@@ -234,7 +238,7 @@ public:
     virtual void assert_valid() = 0;
 };
 
-/* Expr ::= PARAM_NAME | STRING | Lookup | Macro_call | Callback; */
+/* Expr ::= Param | STRING | Lookup | Macro_call | Callback; */
 class Expr : virtual public Node
 {
 public:
@@ -271,7 +275,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 7;
+    static const int ID = 8;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -311,91 +315,30 @@ public:
     virtual void assert_valid() = 0;
 };
 
-class MACRO_NAME : virtual public Node
+/* Identifier ::= MACRO_NAME | TYPE_NAME | PARAM_NAME | ATTR_NAME | STRING | C_CODE; */
+class Identifier : virtual public Node
 {
 public:
-    MACRO_NAME(String* value);
-protected:
-    MACRO_NAME();
+    Identifier();
 public:
-    virtual void visit(Visitor* visitor);
-    virtual void transform_children(Transform* transform);
+    virtual void visit(Visitor* visitor) = 0;
+    virtual void transform_children(Transform* transform) = 0;
 public:
-    String* value;
-    virtual String* get_value_as_string();
+    virtual int classid() = 0;
 public:
-    static const int ID = 10;
-    virtual int classid();
+    virtual bool match(Node* in) = 0;
 public:
-    virtual bool match(Node* in);
+    virtual bool equals(Node* in) = 0;
 public:
-    virtual bool equals(Node* in);
+    virtual Identifier* clone() = 0;
 public:
-    virtual MACRO_NAME* clone();
+    virtual Node* find(Node* in) = 0;
 public:
-    virtual Node* find(Node* in);
+    virtual void find_all(Node* in, Node_list* out) = 0;
 public:
-    virtual void find_all(Node* in, Node_list* out);
+    virtual void assert_valid() = 0;
 public:
-    virtual void assert_valid();
-};
-
-class TYPE_NAME : virtual public Node
-{
-public:
-    TYPE_NAME(String* value);
-protected:
-    TYPE_NAME();
-public:
-    virtual void visit(Visitor* visitor);
-    virtual void transform_children(Transform* transform);
-public:
-    String* value;
-    virtual String* get_value_as_string();
-public:
-    static const int ID = 11;
-    virtual int classid();
-public:
-    virtual bool match(Node* in);
-public:
-    virtual bool equals(Node* in);
-public:
-    virtual TYPE_NAME* clone();
-public:
-    virtual Node* find(Node* in);
-public:
-    virtual void find_all(Node* in, Node_list* out);
-public:
-    virtual void assert_valid();
-};
-
-class ATTR_NAME : virtual public Node
-{
-public:
-    ATTR_NAME(String* value);
-protected:
-    ATTR_NAME();
-public:
-    virtual void visit(Visitor* visitor);
-    virtual void transform_children(Transform* transform);
-public:
-    String* value;
-    virtual String* get_value_as_string();
-public:
-    static const int ID = 12;
-    virtual int classid();
-public:
-    virtual bool match(Node* in);
-public:
-    virtual bool equals(Node* in);
-public:
-    virtual ATTR_NAME* clone();
-public:
-    virtual Node* find(Node* in);
-public:
-    virtual void find_all(Node* in, Node_list* out);
-public:
-    virtual void assert_valid();
+    virtual String* get_value_as_string() = 0;
 };
 
 /* Equals ::= left:Expr right:Expr ; */
@@ -426,6 +369,38 @@ public:
     virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
+};
+
+/* Param ::= PARAM_NAME ATTR_NAME* ; */
+class Param : virtual public Expr
+{
+public:
+    Param(PARAM_NAME* param_name, ATTR_NAME_list* attr_names);
+protected:
+    Param();
+public:
+    PARAM_NAME* param_name;
+    ATTR_NAME_list* attr_names;
+public:
+    virtual void visit(Visitor* visitor);
+    virtual void transform_children(Transform* transform);
+public:
+    static const int ID = 7;
+    virtual int classid();
+public:
+    virtual bool match(Node* in);
+public:
+    virtual bool equals(Node* in);
+public:
+    virtual Param* clone();
+public:
+    virtual Node* find(Node* in);
+public:
+    virtual void find_all(Node* in, Node_list* out);
+public:
+    virtual void assert_valid();
+public:
+    Param(PARAM_NAME* param_name);
 };
 
 /* Interpolation ::= Lookup | PARAM_NAME; */
@@ -466,7 +441,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 8;
+    static const int ID = 9;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -496,7 +471,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 9;
+    static const int ID = 10;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -512,7 +487,94 @@ public:
     virtual void assert_valid();
 };
 
-class STRING : virtual public Expr
+class MACRO_NAME : virtual public Identifier
+{
+public:
+    MACRO_NAME(String* value);
+protected:
+    MACRO_NAME();
+public:
+    virtual void visit(Visitor* visitor);
+    virtual void transform_children(Transform* transform);
+public:
+    String* value;
+    virtual String* get_value_as_string();
+public:
+    static const int ID = 11;
+    virtual int classid();
+public:
+    virtual bool match(Node* in);
+public:
+    virtual bool equals(Node* in);
+public:
+    virtual MACRO_NAME* clone();
+public:
+    virtual Node* find(Node* in);
+public:
+    virtual void find_all(Node* in, Node_list* out);
+public:
+    virtual void assert_valid();
+};
+
+class TYPE_NAME : virtual public Identifier
+{
+public:
+    TYPE_NAME(String* value);
+protected:
+    TYPE_NAME();
+public:
+    virtual void visit(Visitor* visitor);
+    virtual void transform_children(Transform* transform);
+public:
+    String* value;
+    virtual String* get_value_as_string();
+public:
+    static const int ID = 12;
+    virtual int classid();
+public:
+    virtual bool match(Node* in);
+public:
+    virtual bool equals(Node* in);
+public:
+    virtual TYPE_NAME* clone();
+public:
+    virtual Node* find(Node* in);
+public:
+    virtual void find_all(Node* in, Node_list* out);
+public:
+    virtual void assert_valid();
+};
+
+class ATTR_NAME : virtual public Identifier
+{
+public:
+    ATTR_NAME(String* value);
+protected:
+    ATTR_NAME();
+public:
+    virtual void visit(Visitor* visitor);
+    virtual void transform_children(Transform* transform);
+public:
+    String* value;
+    virtual String* get_value_as_string();
+public:
+    static const int ID = 14;
+    virtual int classid();
+public:
+    virtual bool match(Node* in);
+public:
+    virtual bool equals(Node* in);
+public:
+    virtual ATTR_NAME* clone();
+public:
+    virtual Node* find(Node* in);
+public:
+    virtual void find_all(Node* in, Node_list* out);
+public:
+    virtual void assert_valid();
+};
+
+class STRING : virtual public Expr, virtual public Identifier
 {
 public:
     STRING(String* value);
@@ -525,7 +587,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 14;
+    static const int ID = 15;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -541,7 +603,7 @@ public:
     virtual void assert_valid();
 };
 
-class C_CODE : virtual public Body_part
+class C_CODE : virtual public Body_part, virtual public Identifier
 {
 public:
     C_CODE(String* value);
@@ -554,7 +616,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 15;
+    static const int ID = 16;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -600,7 +662,7 @@ public:
     virtual void assert_valid();
 };
 
-class PARAM_NAME : virtual public Expr, virtual public Interpolation
+class PARAM_NAME : virtual public Interpolation, virtual public Identifier
 {
 public:
     PARAM_NAME(String* value);
@@ -630,7 +692,7 @@ public:
 };
 
 /* The top of the class hierarchy. If the Fold will not allow you fold to anything else, try this. */
-class None : virtual public Node, virtual public All, virtual public Macro, virtual public Signature, virtual public Formal_parameter, virtual public Rule, virtual public Lookup, virtual public Equals, virtual public Expr, virtual public Body, virtual public Body_part, virtual public Interpolation, virtual public Macro_call, virtual public Callback, virtual public MACRO_NAME, virtual public TYPE_NAME, virtual public ATTR_NAME, virtual public PARAM_NAME, virtual public STRING, virtual public C_CODE
+class None : virtual public Node, virtual public All, virtual public Macro, virtual public Signature, virtual public Formal_parameter, virtual public Rule, virtual public Lookup, virtual public Equals, virtual public Expr, virtual public Param, virtual public Body, virtual public Body_part, virtual public Interpolation, virtual public Macro_call, virtual public Callback, virtual public Identifier, virtual public MACRO_NAME, virtual public TYPE_NAME, virtual public PARAM_NAME, virtual public ATTR_NAME, virtual public STRING, virtual public C_CODE
 {
 public:
     None();
@@ -729,7 +791,7 @@ public:
 		assert (0); // I'm not sure what this would mean
 	}
 public:
-	static const int ID = 17;
+	static const int ID = 18;
 	int classid()
 	{
 		return ID;

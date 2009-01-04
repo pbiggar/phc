@@ -66,7 +66,7 @@ MICG_gen::add_macro_def (string str, string filename)
 }
 
 string
-MICG_gen::instantiate (string macro_name, Object_list* params) 
+MICG_gen::instantiate (string macro_name, Object_list* params, Node* anchor)
 {
 	// In order to get the macro that matches these params, we first need to
 	// expand the list parameters. But that needs a macro. But to get the right
@@ -80,6 +80,21 @@ MICG_gen::instantiate (string macro_name, Object_list* params)
 		phc_internal_error ("There is no macro named %s", macro_name.c_str ());
 
 	Macro* first_macro = macros[macro_name].front ();
+
+	if (params->size() != first_macro->signature->formal_parameters->size ())
+	{
+		if (anchor == NULL)
+			phc_internal_error (	"Wrong number of parameters in macro instantiatedin C++ code: "
+										"%s called with %d instead of %d",
+										macro_name.c_str(), params->size(),
+										first_macro->signature->formal_parameters->size ());
+		else
+			phc_internal_error (	"Wrong number of parameters in macro call: "
+										"%s called with %d instead of %d",
+										anchor, 
+										macro_name.c_str(), params->size(), 
+										first_macro->signature->formal_parameters->size ());
+	}
 
 
 	// Expand lists here.
@@ -246,8 +261,14 @@ MICG_gen::instantiate_body (Body* body, Symtable* symtable)
 		}
 		else if (Interpolation* interp = dynamic_cast<Interpolation*> (body_part))
 		{
-			Object* obj =
-				get_expr (reinterpret_cast<Expr*> (interp), symtable, false);
+			Object* obj;
+			if (PARAM_NAME* pn = dynamic_cast<PARAM_NAME*> (interp))
+				obj = get_expr (new Param (pn), symtable, false);
+
+			else if (Lookup* lu = dynamic_cast<Lookup*> (interp))
+				obj = get_expr (lu, symtable, false);
+
+			else phc_unreachable ();
 
 			if (!isa<String> (obj) && !isa<MIR::Identifier> (obj))
 				phc_internal_error ("Cannot interpolate %s", interp,
@@ -272,7 +293,7 @@ MICG_gen::instantiate_body (Body* body, Symtable* symtable)
 String*
 MICG_gen::exec (Macro_call* mc, Symtable* symtable)
 {
-	return s(instantiate (*mc->macro_name->value, get_expr_list (mc->exprs, symtable)));
+	return s(instantiate (*mc->macro_name->value, get_expr_list (mc->exprs, symtable), mc));
 }
 
 String*
@@ -341,9 +362,25 @@ Symtable::get_lookup (Lookup* in, bool coerce)
 }
 
 Object*
-Symtable::get_param (PARAM_NAME* param, bool coerce)
+Symtable::get_param (Param* in, bool coerce)
 {
-	Object* result = this->get (param);
+	Object* result = this->get (in->param_name);
+
+	// Add specified attributes
+	if (in->attr_names->size() > 0)
+	{
+		if (!isa<MIR::Node> (result))
+			phc_internal_error ("Trying to add attributes to a non-node (type %s)",
+				in, demangle (in));
+
+		result = result->clone (); // dont damage the parameter.
+		foreach (ATTR_NAME* an, *in->attr_names)
+		{
+			stringstream ss;
+			ss << "phc.codegen." << *an->value;
+			dyc<MIR::Node>(result)->attrs->set_true (ss.str());
+		}
+	}
 
 	if (coerce || isa<Boolean> (result))
 		result = MICG_gen::convert_to_string (result);
@@ -363,8 +400,8 @@ MICG_gen::get_expr (Expr* in, Symtable* symtable, bool coerce)
 	if (isa<Lookup> (in))
 		return symtable->get_lookup (dyc<Lookup> (in), coerce);
 
-	if (isa<PARAM_NAME> (in))
-		return symtable->get_param (dyc<PARAM_NAME> (in), coerce);
+	if (isa<Param> (in))
+		return symtable->get_param (dyc<Param> (in), coerce);
 	
 	if (isa<Macro_call> (in))
 		return exec (dyc<Macro_call> (in), symtable);
@@ -427,6 +464,8 @@ MICG_gen::get_expr_list (Expr_list* exprs, Symtable* symtable, bool coerce)
 List<Object_list*>*
 MICG_gen::expand_list_params (MICG::Macro* m, Object_list* params)
 {
+	assert (m->signature->formal_parameters->size () == params->size());
+
 	params = params->clone (); // dont damage the parameter.
 
 	Object_list* former = new Object_list; // the params before the list parameter

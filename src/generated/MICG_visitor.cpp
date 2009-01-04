@@ -42,6 +42,10 @@ void Visitor::pre_expr(Expr* in)
 {
 }
 
+void Visitor::pre_param(Param* in)
+{
+}
+
 void Visitor::pre_body(Body* in)
 {
 }
@@ -62,6 +66,10 @@ void Visitor::pre_callback(Callback* in)
 {
 }
 
+void Visitor::pre_identifier(Identifier* in)
+{
+}
+
 void Visitor::pre_macro_name(MACRO_NAME* in)
 {
 }
@@ -70,11 +78,11 @@ void Visitor::pre_type_name(TYPE_NAME* in)
 {
 }
 
-void Visitor::pre_attr_name(ATTR_NAME* in)
+void Visitor::pre_param_name(PARAM_NAME* in)
 {
 }
 
-void Visitor::pre_param_name(PARAM_NAME* in)
+void Visitor::pre_attr_name(ATTR_NAME* in)
 {
 }
 
@@ -123,6 +131,10 @@ void Visitor::post_expr(Expr* in)
 {
 }
 
+void Visitor::post_param(Param* in)
+{
+}
+
 void Visitor::post_body(Body* in)
 {
 }
@@ -143,6 +155,10 @@ void Visitor::post_callback(Callback* in)
 {
 }
 
+void Visitor::post_identifier(Identifier* in)
+{
+}
+
 void Visitor::post_macro_name(MACRO_NAME* in)
 {
 }
@@ -151,11 +167,11 @@ void Visitor::post_type_name(TYPE_NAME* in)
 {
 }
 
-void Visitor::post_attr_name(ATTR_NAME* in)
+void Visitor::post_param_name(PARAM_NAME* in)
 {
 }
 
-void Visitor::post_param_name(PARAM_NAME* in)
+void Visitor::post_attr_name(ATTR_NAME* in)
 {
 }
 
@@ -204,6 +220,12 @@ void Visitor::children_equals(Equals* in)
     visit_expr(in->right);
 }
 
+void Visitor::children_param(Param* in)
+{
+    visit_param_name(in->param_name);
+    visit_attr_name_list(in->attr_names);
+}
+
 void Visitor::children_body(Body* in)
 {
     visit_body_part_list(in->body_parts);
@@ -230,11 +252,11 @@ void Visitor::children_type_name(TYPE_NAME* in)
 {
 }
 
-void Visitor::children_attr_name(ATTR_NAME* in)
+void Visitor::children_param_name(PARAM_NAME* in)
 {
 }
 
-void Visitor::children_param_name(PARAM_NAME* in)
+void Visitor::children_attr_name(ATTR_NAME* in)
 {
 }
 
@@ -310,6 +332,13 @@ void Visitor::pre_equals_chain(Equals* in)
     pre_equals((Equals*) in);
 }
 
+void Visitor::pre_param_chain(Param* in)
+{
+    pre_node((Node*) in);
+    pre_expr((Expr*) in);
+    pre_param((Param*) in);
+}
+
 void Visitor::pre_body_chain(Body* in)
 {
     pre_node((Node*) in);
@@ -335,34 +364,38 @@ void Visitor::pre_callback_chain(Callback* in)
 void Visitor::pre_macro_name_chain(MACRO_NAME* in)
 {
     pre_node((Node*) in);
+    pre_identifier((Identifier*) in);
     pre_macro_name((MACRO_NAME*) in);
 }
 
 void Visitor::pre_type_name_chain(TYPE_NAME* in)
 {
     pre_node((Node*) in);
+    pre_identifier((Identifier*) in);
     pre_type_name((TYPE_NAME*) in);
-}
-
-void Visitor::pre_attr_name_chain(ATTR_NAME* in)
-{
-    pre_node((Node*) in);
-    pre_attr_name((ATTR_NAME*) in);
 }
 
 void Visitor::pre_param_name_chain(PARAM_NAME* in)
 {
     pre_node((Node*) in);
-    pre_expr((Expr*) in);
     pre_body_part((Body_part*) in);
     pre_interpolation((Interpolation*) in);
+    pre_identifier((Identifier*) in);
     pre_param_name((PARAM_NAME*) in);
+}
+
+void Visitor::pre_attr_name_chain(ATTR_NAME* in)
+{
+    pre_node((Node*) in);
+    pre_identifier((Identifier*) in);
+    pre_attr_name((ATTR_NAME*) in);
 }
 
 void Visitor::pre_string_chain(STRING* in)
 {
     pre_node((Node*) in);
     pre_expr((Expr*) in);
+    pre_identifier((Identifier*) in);
     pre_string((STRING*) in);
 }
 
@@ -370,6 +403,7 @@ void Visitor::pre_c_code_chain(C_CODE* in)
 {
     pre_node((Node*) in);
     pre_body_part((Body_part*) in);
+    pre_identifier((Identifier*) in);
     pre_c_code((C_CODE*) in);
 }
 
@@ -417,6 +451,13 @@ void Visitor::post_equals_chain(Equals* in)
     post_node((Node*) in);
 }
 
+void Visitor::post_param_chain(Param* in)
+{
+    post_param((Param*) in);
+    post_expr((Expr*) in);
+    post_node((Node*) in);
+}
+
 void Visitor::post_body_chain(Body* in)
 {
     post_body((Body*) in);
@@ -442,33 +483,37 @@ void Visitor::post_callback_chain(Callback* in)
 void Visitor::post_macro_name_chain(MACRO_NAME* in)
 {
     post_macro_name((MACRO_NAME*) in);
+    post_identifier((Identifier*) in);
     post_node((Node*) in);
 }
 
 void Visitor::post_type_name_chain(TYPE_NAME* in)
 {
     post_type_name((TYPE_NAME*) in);
-    post_node((Node*) in);
-}
-
-void Visitor::post_attr_name_chain(ATTR_NAME* in)
-{
-    post_attr_name((ATTR_NAME*) in);
+    post_identifier((Identifier*) in);
     post_node((Node*) in);
 }
 
 void Visitor::post_param_name_chain(PARAM_NAME* in)
 {
     post_param_name((PARAM_NAME*) in);
+    post_identifier((Identifier*) in);
     post_interpolation((Interpolation*) in);
     post_body_part((Body_part*) in);
-    post_expr((Expr*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_attr_name_chain(ATTR_NAME* in)
+{
+    post_attr_name((ATTR_NAME*) in);
+    post_identifier((Identifier*) in);
     post_node((Node*) in);
 }
 
 void Visitor::post_string_chain(STRING* in)
 {
     post_string((STRING*) in);
+    post_identifier((Identifier*) in);
     post_expr((Expr*) in);
     post_node((Node*) in);
 }
@@ -476,6 +521,7 @@ void Visitor::post_string_chain(STRING* in)
 void Visitor::post_c_code_chain(C_CODE* in)
 {
     post_c_code((C_CODE*) in);
+    post_identifier((Identifier*) in);
     post_body_part((Body_part*) in);
     post_node((Node*) in);
 }
@@ -659,6 +705,25 @@ void Visitor::visit_expr(Expr* in)
     }
 }
 
+void Visitor::visit_attr_name_list(ATTR_NAME_list* in)
+{
+    ATTR_NAME_list::const_iterator i;
+    
+    if(in == NULL)
+    	visit_null_list("MICG", "ATTR_NAME");
+    else
+    {
+    	pre_list("MICG", "ATTR_NAME", in->size());
+    
+    	for(i = in->begin(); i != in->end(); i++)
+    	{
+    		visit_attr_name(*i);
+    	}
+    
+    	post_list("MICG", "ATTR_NAME", in->size());
+    }
+}
+
 void Visitor::visit_body_part_list(Body_part_list* in)
 {
     Body_part_list::const_iterator i;
@@ -740,8 +805,8 @@ void Visitor::pre_expr_chain(Expr* in)
 {
     switch(in->classid())
     {
-    case PARAM_NAME::ID:
-    	pre_param_name_chain(dynamic_cast<PARAM_NAME*>(in));
+    case Param::ID:
+    	pre_param_chain(dynamic_cast<Param*>(in));
     	break;
     case STRING::ID:
     	pre_string_chain(dynamic_cast<STRING*>(in));
@@ -799,8 +864,8 @@ void Visitor::post_expr_chain(Expr* in)
 {
     switch(in->classid())
     {
-    case PARAM_NAME::ID:
-    	post_param_name_chain(dynamic_cast<PARAM_NAME*>(in));
+    case Param::ID:
+    	post_param_chain(dynamic_cast<Param*>(in));
     	break;
     case STRING::ID:
     	post_string_chain(dynamic_cast<STRING*>(in));
@@ -858,8 +923,8 @@ void Visitor::children_expr(Expr* in)
 {
     switch(in->classid())
     {
-    case PARAM_NAME::ID:
-    	children_param_name(dynamic_cast<PARAM_NAME*>(in));
+    case Param::ID:
+    	children_param(dynamic_cast<Param*>(in));
     	break;
     case STRING::ID:
     	children_string(dynamic_cast<STRING*>(in));

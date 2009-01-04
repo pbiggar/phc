@@ -476,6 +476,40 @@ string method_mod_flags(Method_mod* mod)
 	return flags.str();
 }
 
+string attr_mod_flags(Attr_mod* mod)
+{
+	stringstream flags;
+
+	if(mod->is_public)
+	{
+		flags << "ZEND_ACC_PUBLIC";
+		assert(!mod->is_protected);
+		assert(!mod->is_private);
+	}
+	else if(mod->is_protected)
+	{
+		flags << "ZEND_ACC_PROTECTED";
+		assert(!mod->is_public);
+		assert(!mod->is_private);
+	}
+	else if(mod->is_private)
+	{
+		flags << "ZEND_ACC_PRIVATE";
+		assert(!mod->is_public);
+		assert(!mod->is_protected);
+	}
+	else
+	{
+		// No access modifiers specified; assume public
+		flags << "ZEND_ACC_PUBLIC";
+	}
+
+	if(mod->is_static) flags << " | ZEND_ACC_STATIC";
+	// const is not an access modifier
+
+	return flags.str();
+}
+
 void function_declaration_block(ostream& buf, Signature_list* methods, String* block_name)
 {
 	buf << "// ArgInfo structures (necessary to support compile time pass-by-reference)\n";
@@ -572,12 +606,56 @@ public:
 		minit
 		<< "{\n"
 		<< "zend_class_entry ce; // temp\n"
+		<< "zend_class_entry* ce_reg; // once registered, ce_ptr should be used\n"
 		<< "INIT_CLASS_ENTRY(ce, " 
 		<< "\"" << *pattern->value->class_name->value << "\", " 
 		<< *pattern->value->class_name->value << "_functions);\n"
-		<< "zend_register_internal_class(&ce TSRMLS_CC);\n"
-		<< "}";
+		<< "ce_reg = zend_register_internal_class(&ce TSRMLS_CC);\n"
+		;
 
+		// Compile static attributes
+		// TODO: it might be possible to combine this with the foreach loop above,
+		// but I cannot currently test this because there is a bug in the MICG code
+		// somewhere that needs to be fixed first -- phc crashes on
+		// tests/subjects/codegen/oop_method_invocation1.php
+		foreach (Member* member, *pattern->value->members)
+		{
+			Attribute* attr = dynamic_cast<Attribute*>(member);
+
+			if(attr != NULL)
+			{
+				if(attr->attr_mod->is_static)
+				{
+					if(attr->var->default_value == NULL)
+					{
+						minit 
+						<< "zend_declare_property_null(ce_reg, "
+						<< "\"" << *attr->var->variable_name->value << "\", " 
+						<< attr->var->variable_name->value->size() << ", "
+						<< attr_mod_flags(attr->attr_mod) << " " 
+						<< "TSRMLS_CC);"
+						;
+					}
+					else
+					{
+						// TODO: implement
+						assert(0);
+					}
+				}
+				else if(attr->attr_mod->is_const)
+				{
+					// TODO: implement
+					assert(0);
+				}
+				else
+				{
+					// Other attributes are not added here but should be added
+					// when instances of the class are created
+				}
+			}
+		}
+
+		minit << "}";
 	}
 
 protected:
@@ -945,8 +1023,6 @@ public:
 
 	void generate_code (Generate_C* gen)
 	{
-		VARIABLE_NAME* var_name  = rhs->value->variable_name;
-
 		if (!agn->is_ref)
 		{
 			INST (buf, "assign_expr_array_access", 
@@ -1172,7 +1248,7 @@ write_literal_directly_into_zval (string var, Literal* lit)
 		<<		"\"" << *escape_C_dq (value->value) << "\", "
 		<<		value->value->length() << ", 1);\n";
 	}
-	else if (NIL* value = dynamic_cast<NIL*> (lit))
+	else if (/* NIL* value = */ dynamic_cast<NIL*> (lit))
 	{
 		ss << "ZVAL_NULL (" << var << ");\n";
 	}
@@ -1556,7 +1632,6 @@ public:
 		string fci_name;
 		string fcic_name;
 
-		string macro_name;
 		string function_name;
 
 		// Global function or class member?
@@ -1575,8 +1650,21 @@ public:
 		
 				fci_name  = "fci_object"; 
 				fcic_name = "fcic_object";
-				macro_name = "method_invocation";
 				function_name = *name->value;
+
+				INST (buf, "method_invocation",
+						s(function_name),
+						params,
+						rhs->value->get_filename (),
+						s(lexical_cast<string> (rhs->value->get_line_number ())),
+						s(fci_name),
+						s(fcic_name),
+						s(lexical_cast<string>(rhs->value->actual_parameters->size ())),
+						object_name,
+						lhs_descriptor,
+						lhs ? lhs->value : NULL);
+
+				return;
 			}
 			else
 			{
@@ -1588,18 +1676,16 @@ public:
 				fci_name  = suffix (suffix(*class_name->value, *name->value), "fci");
 				fcic_name = suffix (suffix(*class_name->value, *name->value), "fcic");
 				function_name = fqn.str();
-				macro_name = "function_invocation";
 			}
 		}
 		else
 		{
 			fci_name  = suffix (*name->value, "fci");
 			fcic_name = suffix (*name->value, "fcic");
-			macro_name = "function_invocation";
 			function_name = *name->value;
 		}
 
-		INST (buf, macro_name,
+		INST (buf, "function_invocation",
 				s(function_name),
 				params,
 				rhs->value->get_filename (),
@@ -1609,7 +1695,6 @@ public:
 				s(lexical_cast<string>(rhs->value->actual_parameters->size ())),
 				lhs_descriptor,
 				lhs ? lhs->value : NULL);
-
 	}
 
 protected:
@@ -1632,37 +1717,155 @@ public:
 
 	void generate_code(Generate_C* gen)
 	{
-		Assign_field* af = pattern->value;
-
 		VARIABLE_NAME* object_name;
 		CLASS_NAME* class_name;
+		FIELD_NAME* field_name;
+		Variable_field* var_field;
  		
-		object_name = dynamic_cast<VARIABLE_NAME*>(af->target);
- 		class_name  = dynamic_cast<CLASS_NAME*>(af->target);
+		object_name = dynamic_cast<VARIABLE_NAME*>(pattern->value->target);
+ 		class_name  = dynamic_cast<CLASS_NAME*>(pattern->value->target);
+		field_name  = dynamic_cast<FIELD_NAME*>(pattern->value->field_name);
+		var_field   = dynamic_cast<Variable_field*>(pattern->value->field_name);
 
-		if (object_name != NULL)
+		bool is_ref = pattern->value->is_ref;
+		Rvalue* rhs = pattern->value->rhs;
+
+		if (field_name != NULL)
 		{
-			if (!af->is_ref)
-				INST (buf, "assign_field", object_name, af->field_name, af->rhs);
+			if (object_name != NULL)
+			{
+				if (!is_ref)
+					INST (buf, "assign_field", object_name, field_name, rhs);
+				else
+					INST (buf, "assign_field_ref", object_name, field_name, rhs);
+			}
+			else if (class_name != NULL)
+			{
+				if (!is_ref)
+					INST (buf, "assign_static_field", class_name, field_name, rhs);
+				else
+					INST (buf, "assign_static_field_ref", class_name, field_name, rhs);
+			}
 			else
-				INST (buf, "assign_field_ref", object_name, af->field_name, af->rhs);
+			{
+				// Invalid target
+				assert(0);
+			}
 		}
-		else if (class_name != NULL)
+		else if (var_field != NULL)
 		{
-			if (!af->is_ref)
-				INST (buf, "assign_static_field", class_name, af->field_name, af->rhs);
+			VARIABLE_NAME* var_field_name = var_field->variable_name;
+
+			if (object_name != NULL)
+			{
+				if (!is_ref)
+					INST (buf, "assign_var_field", object_name, var_field_name, rhs);
+				else
+					INST (buf, "assign_var_field_ref", object_name, var_field_name, rhs);
+			}
+			else if (class_name != NULL)
+			{
+				if (!is_ref)
+					INST (buf, "assign_var_static_field", class_name, var_field_name, rhs);
+				else
+					INST (buf, "assign_var_static_field_ref", class_name, var_field_name, rhs);
+			}
 			else
-				INST (buf, "assign_static_field_ref", class_name, af->field_name, af->rhs);
+			{
+				// Invalid target
+				assert(0);
+			}
 		}
 		else
 		{
-			// Invalid target
+			// Invalid field name
 			assert(0);
 		}
 	}
 
 protected:
 	Wildcard<Assign_field>* pattern;
+};
+
+class Pattern_assign_expr_field_access : public Pattern_assign_var
+{
+public:
+	Expr* rhs_pattern()
+	{
+		rhs = new Wildcard<Field_access>;
+		return rhs;
+	}
+
+	void generate_code (Generate_C* gen)
+	{
+		VARIABLE_NAME* object_name;
+		CLASS_NAME* class_name;
+		FIELD_NAME* field_name;
+		Variable_field* var_field;
+ 		
+		object_name = dynamic_cast<VARIABLE_NAME*>(rhs->value->target);
+ 		class_name  = dynamic_cast<CLASS_NAME*>(rhs->value->target);
+		field_name  = dynamic_cast<FIELD_NAME*>(rhs->value->field_name);
+		var_field   = dynamic_cast<Variable_field*>(rhs->value->field_name);
+
+		bool is_ref = agn->is_ref;
+		VARIABLE_NAME* lhs = Pattern_assign_var::lhs->value;
+
+		if (field_name != NULL)
+		{
+			if (object_name != NULL)
+			{
+				if (!is_ref)
+					INST (buf, "field_access", lhs, object_name, field_name);
+				else
+					INST (buf, "field_access_ref", lhs, object_name, field_name);
+			}
+			else if (class_name != NULL)
+			{
+				if (!is_ref)
+					INST (buf, "static_field_access", lhs, class_name, field_name);
+				else
+					INST (buf, "static_field_access_ref", lhs, class_name, field_name);
+			}
+			else
+			{
+				// Invalid target
+				assert(0);
+			}
+		}
+		else if (var_field != NULL)
+		{
+			VARIABLE_NAME* var_field_name = var_field->variable_name;
+
+			if (object_name != NULL)
+			{
+				if (!is_ref)
+					INST (buf, "var_field_access", lhs, object_name, var_field_name);
+				else
+					INST (buf, "var_field_access_ref", lhs, object_name, var_field_name);
+			}
+			else if (class_name != NULL)
+			{
+				if (!is_ref)
+					INST (buf, "var_static_field_access", lhs, class_name, var_field_name);
+				else
+					INST (buf, "var_static_field_access_ref", lhs, class_name, var_field_name);
+			}
+			else
+			{
+				// Invalid target
+				assert(0);
+			}
+		}
+		else
+		{
+			// Invalid field name
+			assert(0);
+		}
+	}
+
+protected:
+	Wildcard<Field_access>* rhs;
 };
 
 /*
@@ -2254,6 +2457,7 @@ string compile_statement(Statement* in, Generate_C* gen)
 	,	new Pattern_expr_method_invocation()
 	// OOP
 	, new Pattern_assign_field()
+	, new Pattern_assign_expr_field_access()
 	// All the rest are just statements
 	,	new Pattern_assign_array ()
 	,	new Pattern_assign_next ()

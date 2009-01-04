@@ -11,6 +11,7 @@
 #include <iostream>
 
 #include "process_ir/IR.h"
+#include "MICG.h"
 
 class XML_unparser_state : public virtual GC_obj
 {
@@ -28,11 +29,13 @@ public:
 void xml_unparse (AST::Node*, XML_unparser_state* state);
 void xml_unparse (HIR::Node*, XML_unparser_state* state);
 void xml_unparse (MIR::Node*, XML_unparser_state* state);
+void xml_unparse (MICG::Node*, XML_unparser_state* state);
 
 void xml_unparse (IR::Node*, XML_unparser_state* state);
 void xml_unparse (AST::Node*, std::ostream& os = std::cout, bool print_attrs = true, bool convert_base_64 = true);
 void xml_unparse (HIR::Node*, std::ostream& os = std::cout, bool print_attrs = true, bool convert_base_64 = true);
 void xml_unparse (MIR::Node*, std::ostream& os = std::cout, bool print_attrs = true, bool convert_base_64 = true);
+void xml_unparse (MICG::Node*, std::ostream& os = std::cout, bool print_attrs = true, bool convert_base_64 = true);
 
 void xml_unparse (IR::PHP_script*, std::ostream& os = std::cout, bool print_attrs = true, bool convert_base_64 = true);
 

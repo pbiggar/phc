@@ -894,268 +894,8 @@ Body_part::Body_part()
 {
 }
 
-MACRO_NAME::MACRO_NAME(String* value)
+Identifier::Identifier()
 {
-    this->value = value;
-}
-
-MACRO_NAME::MACRO_NAME()
-{
-    this->value = 0;
-}
-
-void MACRO_NAME::visit(Visitor* visitor)
-{
-    visitor->visit_macro_name(this);
-}
-
-void MACRO_NAME::transform_children(Transform* transform)
-{
-    transform->children_macro_name(this);
-}
-
-String* MACRO_NAME::get_value_as_string()
-{
-    return value;
-}
-
-int MACRO_NAME::classid()
-{
-    return ID;
-}
-
-bool MACRO_NAME::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    MACRO_NAME* that = dynamic_cast<MACRO_NAME*>(in);
-    if(that == NULL) return false;
-    
-    if(this->value != NULL && that->value != NULL)
-    	return (*this->value == *that->value);
-    else
-    	return true;
-}
-
-bool MACRO_NAME::equals(Node* in)
-{
-    MACRO_NAME* that = dynamic_cast<MACRO_NAME*>(in);
-    if(that == NULL) return false;
-    
-    if(this->value == NULL || that->value == NULL)
-    {
-    	if(this->value != NULL || that->value != NULL)
-    		return false;
-    }
-    else if(*this->value != *that->value)
-    	return false;
-    
-    return true;
-}
-
-MACRO_NAME* MACRO_NAME::clone()
-{
-    String* value = new String(*this->value);
-    MACRO_NAME* clone = new MACRO_NAME(value);
-    return clone;
-}
-
-Node* MACRO_NAME::find(Node* in)
-{
-    if (this->match (in))
-    	return this;
-    
-    return NULL;
-}
-
-void MACRO_NAME::find_all(Node* in, Node_list* out)
-{
-    if (this->match (in))
-    	out->push_back (this);
-}
-
-void MACRO_NAME::assert_valid()
-{
-    assert(value != NULL);
-}
-
-TYPE_NAME::TYPE_NAME(String* value)
-{
-    this->value = value;
-}
-
-TYPE_NAME::TYPE_NAME()
-{
-    this->value = 0;
-}
-
-void TYPE_NAME::visit(Visitor* visitor)
-{
-    visitor->visit_type_name(this);
-}
-
-void TYPE_NAME::transform_children(Transform* transform)
-{
-    transform->children_type_name(this);
-}
-
-String* TYPE_NAME::get_value_as_string()
-{
-    return value;
-}
-
-int TYPE_NAME::classid()
-{
-    return ID;
-}
-
-bool TYPE_NAME::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    TYPE_NAME* that = dynamic_cast<TYPE_NAME*>(in);
-    if(that == NULL) return false;
-    
-    if(this->value != NULL && that->value != NULL)
-    	return (*this->value == *that->value);
-    else
-    	return true;
-}
-
-bool TYPE_NAME::equals(Node* in)
-{
-    TYPE_NAME* that = dynamic_cast<TYPE_NAME*>(in);
-    if(that == NULL) return false;
-    
-    if(this->value == NULL || that->value == NULL)
-    {
-    	if(this->value != NULL || that->value != NULL)
-    		return false;
-    }
-    else if(*this->value != *that->value)
-    	return false;
-    
-    return true;
-}
-
-TYPE_NAME* TYPE_NAME::clone()
-{
-    String* value = new String(*this->value);
-    TYPE_NAME* clone = new TYPE_NAME(value);
-    return clone;
-}
-
-Node* TYPE_NAME::find(Node* in)
-{
-    if (this->match (in))
-    	return this;
-    
-    return NULL;
-}
-
-void TYPE_NAME::find_all(Node* in, Node_list* out)
-{
-    if (this->match (in))
-    	out->push_back (this);
-}
-
-void TYPE_NAME::assert_valid()
-{
-    assert(value != NULL);
-}
-
-ATTR_NAME::ATTR_NAME(String* value)
-{
-    this->value = value;
-}
-
-ATTR_NAME::ATTR_NAME()
-{
-    this->value = 0;
-}
-
-void ATTR_NAME::visit(Visitor* visitor)
-{
-    visitor->visit_attr_name(this);
-}
-
-void ATTR_NAME::transform_children(Transform* transform)
-{
-    transform->children_attr_name(this);
-}
-
-String* ATTR_NAME::get_value_as_string()
-{
-    return value;
-}
-
-int ATTR_NAME::classid()
-{
-    return ID;
-}
-
-bool ATTR_NAME::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    ATTR_NAME* that = dynamic_cast<ATTR_NAME*>(in);
-    if(that == NULL) return false;
-    
-    if(this->value != NULL && that->value != NULL)
-    	return (*this->value == *that->value);
-    else
-    	return true;
-}
-
-bool ATTR_NAME::equals(Node* in)
-{
-    ATTR_NAME* that = dynamic_cast<ATTR_NAME*>(in);
-    if(that == NULL) return false;
-    
-    if(this->value == NULL || that->value == NULL)
-    {
-    	if(this->value != NULL || that->value != NULL)
-    		return false;
-    }
-    else if(*this->value != *that->value)
-    	return false;
-    
-    return true;
-}
-
-ATTR_NAME* ATTR_NAME::clone()
-{
-    String* value = new String(*this->value);
-    ATTR_NAME* clone = new ATTR_NAME(value);
-    return clone;
-}
-
-Node* ATTR_NAME::find(Node* in)
-{
-    if (this->match (in))
-    	return this;
-    
-    return NULL;
-}
-
-void ATTR_NAME::find_all(Node* in, Node_list* out)
-{
-    if (this->match (in))
-    	out->push_back (this);
-}
-
-void ATTR_NAME::assert_valid()
-{
-    assert(value != NULL);
 }
 
 Equals::Equals(Expr* left, Expr* right)
@@ -1285,6 +1025,208 @@ void Equals::assert_valid()
     left->assert_valid();
     assert(right != NULL);
     right->assert_valid();
+}
+
+Param::Param(PARAM_NAME* param_name, ATTR_NAME_list* attr_names)
+{
+    this->param_name = param_name;
+    this->attr_names = attr_names;
+}
+
+Param::Param()
+{
+    this->param_name = 0;
+    this->attr_names = 0;
+}
+
+void Param::visit(Visitor* visitor)
+{
+    visitor->visit_expr(this);
+}
+
+void Param::transform_children(Transform* transform)
+{
+    transform->children_expr(this);
+}
+
+int Param::classid()
+{
+    return ID;
+}
+
+bool Param::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Param* that = dynamic_cast<Param*>(in);
+    if(that == NULL) return false;
+    
+    if(this->param_name == NULL)
+    {
+    	if(that->param_name != NULL && !that->param_name->match(this->param_name))
+    		return false;
+    }
+    else if(!this->param_name->match(that->param_name))
+    	return false;
+    
+    if(this->attr_names != NULL && that->attr_names != NULL)
+    {
+    	ATTR_NAME_list::const_iterator i, j;
+    	for(
+    		i = this->attr_names->begin(), j = that->attr_names->begin();
+    		i != this->attr_names->end() && j != that->attr_names->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL)
+    		{
+    			if(*j != NULL && !(*j)->match(*i))
+    				return false;
+    		}
+    		else if(!(*i)->match(*j))
+    			return false;
+    	}
+    	if(i != this->attr_names->end() || j != that->attr_names->end())
+    		return false;
+    }
+    
+    return true;
+}
+
+bool Param::equals(Node* in)
+{
+    Param* that = dynamic_cast<Param*>(in);
+    if(that == NULL) return false;
+    
+    if(this->param_name == NULL || that->param_name == NULL)
+    {
+    	if(this->param_name != NULL || that->param_name != NULL)
+    		return false;
+    }
+    else if(!this->param_name->equals(that->param_name))
+    	return false;
+    
+    if(this->attr_names == NULL || that->attr_names == NULL)
+    {
+    	if(this->attr_names != NULL || that->attr_names != NULL)
+    		return false;
+    }
+    else
+    {
+    	ATTR_NAME_list::const_iterator i, j;
+    	for(
+    		i = this->attr_names->begin(), j = that->attr_names->begin();
+    		i != this->attr_names->end() && j != that->attr_names->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL || *j == NULL)
+    		{
+    			if(*i != NULL || *j != NULL)
+    				return false;
+    		}
+    		else if(!(*i)->equals(*j))
+    			return false;
+    	}
+    	if(i != this->attr_names->end() || j != that->attr_names->end())
+    		return false;
+    }
+    
+    return true;
+}
+
+Param* Param::clone()
+{
+    PARAM_NAME* param_name = this->param_name ? this->param_name->clone() : NULL;
+    ATTR_NAME_list* attr_names = NULL;
+    if(this->attr_names != NULL)
+    {
+    	ATTR_NAME_list::const_iterator i;
+    	attr_names = new ATTR_NAME_list;
+    	for(i = this->attr_names->begin(); i != this->attr_names->end(); i++)
+    		attr_names->push_back(*i ? (*i)->clone() : NULL);
+    }
+    Param* clone = new Param(param_name, attr_names);
+    return clone;
+}
+
+Node* Param::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    if (this->param_name != NULL)
+    {
+    	Node* param_name_res = this->param_name->find(in);
+    	if (param_name_res) return param_name_res;
+    }
+    
+    if(this->attr_names != NULL)
+    {
+    	ATTR_NAME_list::const_iterator i;
+    	for(
+    		i = this->attr_names->begin();
+    		i != this->attr_names->end();
+    		i++)
+    	{
+    		if(*i != NULL)
+    		{
+    			Node* res = (*i)->find (in);
+    			if (res) return res;
+    		}
+    	}
+    }
+    
+    return NULL;
+}
+
+void Param::find_all(Node* in, Node_list* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+    
+    if (this->param_name != NULL)
+    	this->param_name->find_all(in, out);
+    
+    if(this->attr_names != NULL)
+    {
+    	ATTR_NAME_list::const_iterator i;
+    	for(
+    		i = this->attr_names->begin();
+    		i != this->attr_names->end();
+    		i++)
+    	{
+    		if(*i != NULL)
+    		{
+    			(*i)->find_all (in, out);
+    		}
+    	}
+    }
+    
+}
+
+void Param::assert_valid()
+{
+    assert(param_name != NULL);
+    param_name->assert_valid();
+    assert(attr_names != NULL);
+    {
+    	ATTR_NAME_list::const_iterator i;
+    	for(i = this->attr_names->begin(); i != this->attr_names->end(); i++)
+    	{
+    		assert(*i != NULL);
+    		(*i)->assert_valid();
+    	}
+    }
+}
+
+Param::Param(PARAM_NAME* param_name)
+{
+    {
+		this->param_name = param_name;
+		this->attr_names = new ATTR_NAME_list;
+	}
 }
 
 Interpolation::Interpolation()
@@ -1677,6 +1619,270 @@ void Callback::assert_valid()
     		(*i)->assert_valid();
     	}
     }
+}
+
+MACRO_NAME::MACRO_NAME(String* value)
+{
+    this->value = value;
+}
+
+MACRO_NAME::MACRO_NAME()
+{
+    this->value = 0;
+}
+
+void MACRO_NAME::visit(Visitor* visitor)
+{
+    visitor->visit_macro_name(this);
+}
+
+void MACRO_NAME::transform_children(Transform* transform)
+{
+    transform->children_macro_name(this);
+}
+
+String* MACRO_NAME::get_value_as_string()
+{
+    return value;
+}
+
+int MACRO_NAME::classid()
+{
+    return ID;
+}
+
+bool MACRO_NAME::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    MACRO_NAME* that = dynamic_cast<MACRO_NAME*>(in);
+    if(that == NULL) return false;
+    
+    if(this->value != NULL && that->value != NULL)
+    	return (*this->value == *that->value);
+    else
+    	return true;
+}
+
+bool MACRO_NAME::equals(Node* in)
+{
+    MACRO_NAME* that = dynamic_cast<MACRO_NAME*>(in);
+    if(that == NULL) return false;
+    
+    if(this->value == NULL || that->value == NULL)
+    {
+    	if(this->value != NULL || that->value != NULL)
+    		return false;
+    }
+    else if(*this->value != *that->value)
+    	return false;
+    
+    return true;
+}
+
+MACRO_NAME* MACRO_NAME::clone()
+{
+    String* value = new String(*this->value);
+    MACRO_NAME* clone = new MACRO_NAME(value);
+    return clone;
+}
+
+Node* MACRO_NAME::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    return NULL;
+}
+
+void MACRO_NAME::find_all(Node* in, Node_list* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+}
+
+void MACRO_NAME::assert_valid()
+{
+    assert(value != NULL);
+}
+
+TYPE_NAME::TYPE_NAME(String* value)
+{
+    this->value = value;
+}
+
+TYPE_NAME::TYPE_NAME()
+{
+    this->value = 0;
+}
+
+void TYPE_NAME::visit(Visitor* visitor)
+{
+    visitor->visit_type_name(this);
+}
+
+void TYPE_NAME::transform_children(Transform* transform)
+{
+    transform->children_type_name(this);
+}
+
+String* TYPE_NAME::get_value_as_string()
+{
+    return value;
+}
+
+int TYPE_NAME::classid()
+{
+    return ID;
+}
+
+bool TYPE_NAME::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    TYPE_NAME* that = dynamic_cast<TYPE_NAME*>(in);
+    if(that == NULL) return false;
+    
+    if(this->value != NULL && that->value != NULL)
+    	return (*this->value == *that->value);
+    else
+    	return true;
+}
+
+bool TYPE_NAME::equals(Node* in)
+{
+    TYPE_NAME* that = dynamic_cast<TYPE_NAME*>(in);
+    if(that == NULL) return false;
+    
+    if(this->value == NULL || that->value == NULL)
+    {
+    	if(this->value != NULL || that->value != NULL)
+    		return false;
+    }
+    else if(*this->value != *that->value)
+    	return false;
+    
+    return true;
+}
+
+TYPE_NAME* TYPE_NAME::clone()
+{
+    String* value = new String(*this->value);
+    TYPE_NAME* clone = new TYPE_NAME(value);
+    return clone;
+}
+
+Node* TYPE_NAME::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    return NULL;
+}
+
+void TYPE_NAME::find_all(Node* in, Node_list* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+}
+
+void TYPE_NAME::assert_valid()
+{
+    assert(value != NULL);
+}
+
+ATTR_NAME::ATTR_NAME(String* value)
+{
+    this->value = value;
+}
+
+ATTR_NAME::ATTR_NAME()
+{
+    this->value = 0;
+}
+
+void ATTR_NAME::visit(Visitor* visitor)
+{
+    visitor->visit_attr_name(this);
+}
+
+void ATTR_NAME::transform_children(Transform* transform)
+{
+    transform->children_attr_name(this);
+}
+
+String* ATTR_NAME::get_value_as_string()
+{
+    return value;
+}
+
+int ATTR_NAME::classid()
+{
+    return ID;
+}
+
+bool ATTR_NAME::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    ATTR_NAME* that = dynamic_cast<ATTR_NAME*>(in);
+    if(that == NULL) return false;
+    
+    if(this->value != NULL && that->value != NULL)
+    	return (*this->value == *that->value);
+    else
+    	return true;
+}
+
+bool ATTR_NAME::equals(Node* in)
+{
+    ATTR_NAME* that = dynamic_cast<ATTR_NAME*>(in);
+    if(that == NULL) return false;
+    
+    if(this->value == NULL || that->value == NULL)
+    {
+    	if(this->value != NULL || that->value != NULL)
+    		return false;
+    }
+    else if(*this->value != *that->value)
+    	return false;
+    
+    return true;
+}
+
+ATTR_NAME* ATTR_NAME::clone()
+{
+    String* value = new String(*this->value);
+    ATTR_NAME* clone = new ATTR_NAME(value);
+    return clone;
+}
+
+Node* ATTR_NAME::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    return NULL;
+}
+
+void ATTR_NAME::find_all(Node* in, Node_list* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+}
+
+void ATTR_NAME::assert_valid()
+{
+    assert(value != NULL);
 }
 
 STRING::STRING(String* value)

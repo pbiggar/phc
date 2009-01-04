@@ -329,35 +329,19 @@ class AST_XML_unparser : public XML_unparser
 	AST::FOREIGN
 >
 {
+	typedef XML_unparser <	AST::PHP_script, AST::Node, AST::Visitor,
+									AST::Identifier, AST::Literal,
+									AST::NIL, AST::CAST, AST::FOREIGN> parent;
 public:
 	AST_XML_unparser(ostream& os = std::cout, bool print_attrs = true, bool convert_base_64 = true)
-	: XML_unparser<
-			AST::PHP_script,
-			AST::Node,
-			AST::Visitor,
-			AST::Identifier,
-			AST::Literal,
-			AST::NIL,
-			AST::CAST,
-			AST::FOREIGN
-		> ("AST", os, print_attrs, convert_base_64)
+	: parent ("AST", os, print_attrs, convert_base_64)
 	{
 	}
 
 	AST_XML_unparser(XML_unparser_state* state)
-	: XML_unparser<
-			AST::PHP_script,
-			AST::Node,
-			AST::Visitor,
-			AST::Identifier,
-			AST::Literal,
-			AST::NIL,
-			AST::CAST,
-			AST::FOREIGN
-		> ("AST", state)
+	: parent ("AST", state)
 	{
 	}
-	
 };
 
 #include "HIR_visitor.h"
@@ -373,32 +357,17 @@ class HIR_XML_unparser : public XML_unparser
 	HIR::FOREIGN
 >
 {
+	typedef XML_unparser <	HIR::PHP_script, HIR::Node, HIR::Visitor,
+									HIR::Identifier, HIR::Literal,
+									HIR::NIL, HIR::CAST, HIR::FOREIGN> parent;
 public:
 	HIR_XML_unparser(ostream& os = std::cout, bool print_attrs = true, bool convert_base_64 = true)
-	: XML_unparser<
-			HIR::PHP_script,
-			HIR::Node,
-			HIR::Visitor,
-			HIR::Identifier,
-			HIR::Literal,
-			HIR::NIL,
-			HIR::CAST,
-			HIR::FOREIGN
-		> ("HIR", os, print_attrs, convert_base_64)
+	: parent ("HIR", os, print_attrs, convert_base_64)
 	{
 	}
 
 	HIR_XML_unparser(XML_unparser_state* state)
-	: XML_unparser<
-			HIR::PHP_script,
-			HIR::Node,
-			HIR::Visitor,
-			HIR::Identifier,
-			HIR::Literal,
-			HIR::NIL,
-			HIR::CAST,
-			HIR::FOREIGN
-		> ("HIR", state)
+	: parent ("HIR", state)
 	{
 	}
 };
@@ -416,32 +385,17 @@ class MIR_XML_unparser : public XML_unparser
 	MIR::FOREIGN
 > 
 {
+	typedef XML_unparser <	MIR::PHP_script, MIR::Node, MIR::Visitor,
+									MIR::Identifier, MIR::Literal,
+									MIR::NIL, MIR::CAST, MIR::FOREIGN> parent;
 public:
 	MIR_XML_unparser(ostream& os = std::cout, bool print_attrs = true, bool convert_base_64 = true)
-	: XML_unparser<
-			MIR::PHP_script,
-			MIR::Node,
-			MIR::Visitor,
-			MIR::Identifier,
-			MIR::Literal,
-			MIR::NIL,
-			MIR::CAST,
-			MIR::FOREIGN
-		> ("MIR", os, print_attrs, convert_base_64)
+	: parent ("MIR", os, print_attrs, convert_base_64)
 	{
 	}
 
 	MIR_XML_unparser(XML_unparser_state* state)
-	: XML_unparser<
-			MIR::PHP_script,
-			MIR::Node,
-			MIR::Visitor,
-			MIR::Identifier,
-			MIR::Literal,
-			MIR::NIL,
-			MIR::CAST,
-			MIR::FOREIGN
-		> ("MIR", state)
+	: parent ("MIR", state)
 	{
 	}
 
@@ -453,7 +407,38 @@ public:
 		maybe_encode ("value", value);
 		state->os << endl;
 	}
+};
 
+
+#include "MICG_visitor.h"
+class MICG_XML_unparser : public XML_unparser
+<
+	MICG::All, 
+	MICG::Node, 
+	MICG::Visitor,
+	// The MICG doesnt have these node, so just use the MIR versions to satisfy
+	// the type-checker. They'll be ignored at run-time, since the MICG wont
+	// have any MIR nodes.
+	MICG::Identifier,
+	MIR::Literal,
+	MIR::NIL,
+	MIR::CAST,
+	MIR::FOREIGN
+> 
+{
+	typedef XML_unparser <	MICG::All, MICG::Node, MICG::Visitor,
+									MICG::Identifier, MIR::Literal,
+									MIR::NIL, MIR::CAST, MIR::FOREIGN> parent;
+public:
+	MICG_XML_unparser(ostream& os = std::cout, bool print_attrs = true, bool convert_base_64 = true)
+	: parent ("MICG", os, print_attrs, convert_base_64)
+	{
+	}
+
+	MICG_XML_unparser(XML_unparser_state* state)
+	: parent ("MICG", state)
+	{
+	}
 };
 
 
@@ -490,6 +475,11 @@ void xml_unparse (MIR::Node* in, XML_unparser_state* state)
 	in->visit (new MIR_XML_unparser (state));
 }
 
+void xml_unparse (MICG::Node* in, XML_unparser_state* state)
+{
+	in->visit (new MICG_XML_unparser (state));
+}
+
 void xml_unparse (IR::Node* in, XML_unparser_state* state)
 {
 	if (isa<AST::Node> (in))
@@ -513,6 +503,11 @@ void xml_unparse (HIR::Node* in, std::ostream& os, bool print_attrs, bool conver
 void xml_unparse (MIR::Node* in, std::ostream& os, bool print_attrs, bool convert_base_64)
 {
   in->visit (new MIR_XML_unparser (os, print_attrs, convert_base_64));
+}
+
+void xml_unparse (MICG::Node* in, std::ostream& os, bool print_attrs, bool convert_base_64)
+{
+  in->visit (new MICG_XML_unparser (os, print_attrs, convert_base_64));
 }
 
 

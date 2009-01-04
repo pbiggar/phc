@@ -36,6 +36,11 @@ void Transform::pre_equals(Equals* in, Rule_list* out)
     out->push_back(in);
 }
 
+Expr* Transform::pre_param(Param* in)
+{
+    return in;
+}
+
 Body* Transform::pre_body(Body* in)
 {
     return in;
@@ -61,12 +66,12 @@ TYPE_NAME* Transform::pre_type_name(TYPE_NAME* in)
     return in;
 }
 
-ATTR_NAME* Transform::pre_attr_name(ATTR_NAME* in)
+PARAM_NAME* Transform::pre_param_name(PARAM_NAME* in)
 {
     return in;
 }
 
-PARAM_NAME* Transform::pre_param_name(PARAM_NAME* in)
+ATTR_NAME* Transform::pre_attr_name(ATTR_NAME* in)
 {
     return in;
 }
@@ -112,6 +117,11 @@ void Transform::post_equals(Equals* in, Rule_list* out)
     out->push_back(in);
 }
 
+Expr* Transform::post_param(Param* in)
+{
+    return in;
+}
+
 Body* Transform::post_body(Body* in)
 {
     return in;
@@ -137,12 +147,12 @@ TYPE_NAME* Transform::post_type_name(TYPE_NAME* in)
     return in;
 }
 
-ATTR_NAME* Transform::post_attr_name(ATTR_NAME* in)
+PARAM_NAME* Transform::post_param_name(PARAM_NAME* in)
 {
     return in;
 }
 
-PARAM_NAME* Transform::post_param_name(PARAM_NAME* in)
+ATTR_NAME* Transform::post_attr_name(ATTR_NAME* in)
 {
     return in;
 }
@@ -194,6 +204,12 @@ void Transform::children_equals(Equals* in)
     in->right = transform_expr(in->right);
 }
 
+void Transform::children_param(Param* in)
+{
+    in->param_name = transform_param_name(in->param_name);
+    in->attr_names = transform_attr_name_list(in->attr_names);
+}
+
 void Transform::children_body(Body* in)
 {
     in->body_parts = transform_body_part_list(in->body_parts);
@@ -220,11 +236,11 @@ void Transform::children_type_name(TYPE_NAME* in)
 {
 }
 
-void Transform::children_attr_name(ATTR_NAME* in)
+void Transform::children_param_name(PARAM_NAME* in)
 {
 }
 
-void Transform::children_param_name(PARAM_NAME* in)
+void Transform::children_attr_name(ATTR_NAME* in)
 {
 }
 
@@ -461,6 +477,22 @@ Expr* Transform::transform_expr(Expr* in)
     return out;
 }
 
+ATTR_NAME_list* Transform::transform_attr_name_list(ATTR_NAME_list* in)
+{
+    ATTR_NAME_list::const_iterator i;
+    ATTR_NAME_list* out = new ATTR_NAME_list;
+    
+    if(in == NULL)
+    	return NULL;
+    
+    for(i = in->begin(); i != in->end(); i++)
+    {
+    	out->push_back(transform_attr_name(*i));
+    }
+    
+    return out;
+}
+
 Body_part_list* Transform::transform_body_part_list(Body_part_list* in)
 {
     Body_part_list::const_iterator i;
@@ -556,7 +588,7 @@ Expr* Transform::pre_expr(Expr* in)
 {
     switch(in->classid())
     {
-    case PARAM_NAME::ID: return pre_param_name(dynamic_cast<PARAM_NAME*>(in));
+    case Param::ID: return pre_param(dynamic_cast<Param*>(in));
     case STRING::ID: return pre_string(dynamic_cast<STRING*>(in));
     case Lookup::ID: return pre_lookup(dynamic_cast<Lookup*>(in));
     case Macro_call::ID: return pre_macro_call(dynamic_cast<Macro_call*>(in));
@@ -620,7 +652,7 @@ Expr* Transform::post_expr(Expr* in)
 {
     switch(in->classid())
     {
-    case PARAM_NAME::ID: return post_param_name(dynamic_cast<PARAM_NAME*>(in));
+    case Param::ID: return post_param(dynamic_cast<Param*>(in));
     case STRING::ID: return post_string(dynamic_cast<STRING*>(in));
     case Lookup::ID: return post_lookup(dynamic_cast<Lookup*>(in));
     case Macro_call::ID: return post_macro_call(dynamic_cast<Macro_call*>(in));
@@ -677,8 +709,8 @@ void Transform::children_expr(Expr* in)
 {
     switch(in->classid())
     {
-    case PARAM_NAME::ID:
-    	children_param_name(dynamic_cast<PARAM_NAME*>(in));
+    case Param::ID:
+    	children_param(dynamic_cast<Param*>(in));
     	break;
     case STRING::ID:
     	children_string(dynamic_cast<STRING*>(in));

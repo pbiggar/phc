@@ -232,7 +232,7 @@ return (token RETVAL, node RET)
    goto end_of_function;
 @@@
 
-// Not return-by-ref
+// Return-by-value
 return (token RETVAL, node RET)
 @@@
    \read_rvalue ("rhs", RETVAL)
@@ -340,6 +340,23 @@ assign_expr_ref_array_access (token LHS, token ARRAY, node INDEX)
 /*
  * Constants
  */
+
+assign_expr_constant_body (token LHS, string CONSTANT)
+   where LHS.use_non_ref_version
+@@@
+   zval_ptr_dtor (p_lhs);
+   get_constant ("$CONSTANT", \cb:length(CONSTANT), p_lhs TSRMLS_CC);
+@@@
+
+assign_expr_constant_body (token LHS, string CONSTANT)
+   where LHS.use_ref_version
+@@@
+    zval* constant;
+    get_constant ("$CONSTANT", \cb:length(CONSTANT), p_lhs TSRMLS_CC);
+    overwrite_lhs_no_copy (*p_lhs, constant);
+    safe_free_zval_ptr (constant);
+@@@
+
 assign_expr_constant (token LHS, string CONSTANT)
 @@@
    // No null-terminator in length for get_constant.
@@ -347,15 +364,11 @@ assign_expr_constant (token LHS, string CONSTANT)
    \get_st_entry ("LOCAL", "p_lhs", LHS);
    if (!(*p_lhs)->is_ref)
    {
-     zval_ptr_dtor (p_lhs);
-     get_constant ("$CONSTANT", \cb:length(CONSTANT), p_lhs TSRMLS_CC);
+     \assign_expr_constant_body (LHS#use_non_ref_version, CONSTANT);
    }
    else
    {
-     zval* constant;
-     get_constant ("$CONSTANT", \cb:length(CONSTANT), p_lhs TSRMLS_CC);
-     overwrite_lhs_no_copy (*p_lhs, constant);
-     safe_free_zval_ptr (constant);
+     \assign_expr_constant_body (LHS#use_ref_version, CONSTANT);
    }
 @@@
 
@@ -786,36 +799,150 @@ foreach_end (token ARRAY, string ITERATOR)
 @@@
 
 /*
- * Field access
+ * Assign_field 
+ *
+ * TODO: we might be able to cache zend_class_entry info for static vars
  */
 
 assign_field (token OBJ, token FIELD, node RHS)
 @@@
 	\get_st_entry ("LOCAL", "p_obj", OBJ);
-	check_object_type (p_obj TSRMLS_CC);
 	\read_rvalue ("rhs", RHS);
-  zval** p_lhs = get_field (p_obj, "$FIELD" TSRMLS_CC);
-	if (*p_lhs != rhs)
-	{
-		write_var (p_lhs, rhs);
-	}
+	zval field_name;
+	INIT_ZVAL (field_name);
+	ZVAL_STRING (&field_name, "$FIELD", 0);
+	Z_OBJ_HT_PP(p_obj)->write_property(*p_obj, &field_name, rhs TSRMLS_CC);
 @@@
 
 assign_field_ref (token OBJ, token FIELD, node RHS)
 @@@
-	// TODO: Implement assign_field_ref
-	assert(0);
+	\get_st_entry ("LOCAL", "p_obj", OBJ);
+	\get_st_entry ("LOCAL", "p_rhs", RHS);
+	zval field_name;
+	INIT_ZVAL (field_name);
+	ZVAL_STRING(&field_name, "$FIELD", 0);
+	zval** p_lhs;
+	p_lhs = Z_OBJ_HT_PP(p_obj)->get_property_ptr_ptr(*p_obj, &field_name TSRMLS_CC);
+	sep_copy_on_write (p_rhs);
+	copy_into_ref (p_lhs, p_rhs);
 @@@
 
 assign_static_field (token CLASS, token FIELD, node RHS)
 @@@
-	// TODO: Implement assign_static_field
-	assert(0);
+	\read_rvalue ("rhs", RHS);
+	zend_class_entry* ce;
+	// TODO: not 100% sure that ZEND_FETCH_CLASS_DEFAULT is what we want 
+	ce = zend_fetch_class ("$CLASS", strlen("$CLASS"), ZEND_FETCH_CLASS_DEFAULT TSRMLS_CC);
+	zend_update_static_property(ce, "$FIELD", strlen("$FIELD"), rhs TSRMLS_CC); 
 @@@
 
 assign_static_field_ref (token CLASS, token FIELD, node RHS)
 @@@
-	// TODO: Implement assign_static_field_ref
+	\get_st_entry ("LOCAL", "p_rhs", RHS);
+	zend_class_entry* ce;
+	// TODO: not 100% sure that ZEND_FETCH_CLASS_DEFAULT is what we want 
+	ce = zend_fetch_class ("$CLASS", strlen("$CLASS"), ZEND_FETCH_CLASS_DEFAULT TSRMLS_CC);
+	zval** p_lhs;
+	p_lhs = zend_std_get_static_property(ce, "$FIELD", strlen("$FIELD"), 0 TSRMLS_CC);
+	sep_copy_on_write (p_rhs);
+	copy_into_ref (p_lhs, p_rhs);
+@@@
+
+assign_var_field (token OBJ, token VAR_FIELD, node RHS)
+@@@
+	\get_st_entry ("LOCAL", "p_obj", OBJ);
+	\read_rvalue ("field_name", VAR_FIELD);
+	\read_rvalue ("rhs", RHS);
+	Z_OBJ_HT_PP(p_obj)->write_property(*p_obj, field_name, rhs TSRMLS_CC);
+@@@
+
+assign_var_field_ref (token OBJ, token VAR_FIELD, node RHS)
+@@@
+	\get_st_entry ("LOCAL", "p_obj", OBJ);
+	\read_rvalue ("field_name", VAR_FIELD);
+	\get_st_entry ("LOCAL", "p_rhs", RHS);
+	zval** p_lhs;
+	p_lhs = Z_OBJ_HT_PP(p_obj)->get_property_ptr_ptr(*p_obj, field_name TSRMLS_CC);
+	sep_copy_on_write (p_rhs);
+	copy_into_ref (p_lhs, p_rhs);
+@@@
+
+assign_var_static_field (token CLASS, token VAR_FIELD, node RHS)
+@@@
+	\read_rvalue ("field_name", VAR_FIELD);
+	zval* field_name_str = get_string_val (field_name);
+	\read_rvalue ("rhs", RHS);
+	zend_class_entry* ce;
+	// TODO: not 100% sure that ZEND_FETCH_CLASS_DEFAULT is what we want 
+	ce = zend_fetch_class ("$CLASS", strlen("$CLASS"), ZEND_FETCH_CLASS_DEFAULT TSRMLS_CC);
+	zend_update_static_property(ce, Z_STRVAL_P(field_name_str), Z_STRLEN_P(field_name_str), rhs TSRMLS_CC); 
+	zval_ptr_dtor(&field_name_str);
+@@@
+
+assign_var_static_field_ref (token CLASS, token VAR_FIELD, node RHS)
+@@@
+	\read_rvalue ("field_name", VAR_FIELD);
+	zval* field_name_str = get_string_val (field_name);
+	\get_st_entry ("LOCAL", "p_rhs", RHS);
+	zend_class_entry* ce;
+	// TODO: not 100% sure that ZEND_FETCH_CLASS_DEFAULT is what we want 
+	ce = zend_fetch_class ("$CLASS", strlen("$CLASS"), ZEND_FETCH_CLASS_DEFAULT TSRMLS_CC);
+	zval** p_lhs;
+	p_lhs = zend_std_get_static_property(ce, Z_STRVAL_P(field_name_str), Z_STRLEN_P(field_name_str), 0 TSRMLS_CC);
+	sep_copy_on_write (p_rhs);
+	copy_into_ref (p_lhs, p_rhs);
+	zval_ptr_dtor(&field_name_str);
+@@@
+
+/*
+ * Field_access
+ */
+
+field_access (token LHS, token OBJ, token FIELD)
+@@@
+	// TODO: Implement field_access
+	assert(0);
+@@@
+
+field_access_ref (token LHS, token OBJ, token FIELD)
+@@@
+	// TODO: Implement field_access_ref
+	assert(0);
+@@@
+
+static_field_access (token LHS, token CLASS, token FIELD)
+@@@
+	// TODO: Implement static_field_access
+	assert(0);
+@@@
+
+static_field_access_ref (token LHS, token CLASS, token FIELD)
+@@@
+	// TODO: Implement static_field_access_ref
+	assert(0);
+@@@
+
+var_field_access (token LHS, token OBJ, token VAR_FIELD)
+@@@
+	// TODO: Implement var_field_access
+	assert(0);
+@@@
+
+var_field_access_ref (token LHS, token OBJ, token VAR_FIELD)
+@@@
+	// TODO: Implement var_field_access_ref
+	assert(0);
+@@@
+
+var_static_field_access (token LHS, token CLASS, token VAR_FIELD)
+@@@
+	// TODO: Implement var_static_field_access
+	assert(0);
+@@@
+
+var_static_field_access_ref (token LHS, token CLASS, token VAR_FIELD)
+@@@
+	// TODO: Implement var_static_field_access_ref
 	assert(0);
 @@@
 
@@ -1015,7 +1142,7 @@ call_function (string MN, list ARGS, string FILENAME, string LINE, string FCI_NA
 @@@
 
 
-function_lhs (string USE_LHS, token LHS) where USE_LHS == "NONE" @@@ @@@
+function_lhs (string USE_LHS, token LHS) where USE_LHS == "NONE" @@@@@@
 
 function_lhs (string USE_LHS, token LHS)
    where USE_LHS == "REF"

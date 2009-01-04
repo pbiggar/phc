@@ -545,7 +545,8 @@ IR::PHP_script* Pass_manager::run_from_until (String* from, String* to, IR::PHP_
 			return in;
 	}
 
-	run_optimization_passes (in->as_MIR());
+	if (exec)
+		run_optimization_passes (in->as_MIR());
 
 	// Codegen
 	foreach (Pass* p, *codegen_queue)
