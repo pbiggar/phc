@@ -757,13 +757,10 @@ foreach_end (token ARRAY, string ITERATOR)
 assign_field (token OBJ, token FIELD, node RHS)
 @@@
 	\get_st_entry ("LOCAL", "p_obj", OBJ);
-	check_object_type (p_obj TSRMLS_CC);
 	\read_rvalue ("rhs", RHS);
-  zval** p_lhs = get_field (p_obj, "$FIELD" TSRMLS_CC);
-	if (*p_lhs != rhs)
-	{
-		write_var (p_lhs, rhs);
-	}
+	zval field_name;
+	ZVAL_STRING(&field_name, "$FIELD", 0);
+	Z_OBJ_HT_PP(p_obj)->write_property(*p_obj, &field_name, rhs TSRMLS_CC);
 @@@
 
 assign_field_ref (token OBJ, token FIELD, node RHS)
