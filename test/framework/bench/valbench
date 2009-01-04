@@ -16,7 +16,7 @@
 	$opt_help = false;
 	$opt_php = false;
 	$opt_serialize = false;
-	$opt_command = "";
+	$opt_command = FALSE;
 	foreach ($opts as $opt) 
 	{
 		switch ($opt[0])
@@ -73,8 +73,10 @@ EOL
 		# which programs to use for testing
 		if ($opt_php)
 			$command = "valgrind --tool=cachegrind --branch-sim=yes /usr/local/php-opt/bin/php $filename";
-		else
+		else if ($opt_command)
 			$command = "misc/comp -C $opt_command -B -O $filename";
+		else
+			$command = "misc/comp -B -O $filename";
 
 
 		// dont care about the output
