@@ -14,6 +14,8 @@ Optimize pow:
 pow ($a, 0) => 1
 pow ($a, 1) => $a
 
+We can only do the latter is $a is a number.
+
 ============================================================
 Convert print to echo
 
@@ -171,10 +173,26 @@ Zend_call_function:
    if we control only the caller, we can pass the return value to avoid an allocation and deallocation.
 ============================================================
 type-inference everywhere.
+ - remove extra array stuff
+ - use booleans for conditionals
+ - remove unnecessary casts
+ - remove concat with ""
+ - optimize array access even without constants
 ============================================================
 Split every node which has > 1 predecessor.
 Optimize
 Merge nodes with > 1 predecessor where the predecessors are identical
 
 I think this will see good results for uninitialized variables in particular.
+============================================================
+we could move constants into rvalues. Then we could get the constant zval
+without copying it, and just use its result. This would help in heapsort's
+gen_random as it just uses them for multiplies.
+============================================================
+Copy-propagation has a few useful places, notably strcat (I measure a 35% improvement).
+However, there is a live-range problem, due to SSA. So we need to move the
+modification of a variable after its use, if they are independent.
+============================================================
+============================================================
+============================================================
 ============================================================

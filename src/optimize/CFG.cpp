@@ -413,7 +413,7 @@ CFG::dump_graphviz (String* label)
 		stringstream block_info;
 		block_info	
 		<< "(" << index << ") "
-		<< escape_DOT_record (bb->get_graphviz_label ());
+		<< *escape_DOT_record (bb->get_graphviz_label ());
 
 		String_list* phis = get_graphviz_phis (bb);
 		String_list* mus = get_graphviz_mus (bb);

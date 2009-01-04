@@ -1,5 +1,4 @@
 /*
-	void pre_php_script (MIR::PHP_script* in);
  * phc -- the open source PHP compiler
  * See doc/license/README.license for licensing information
  *
@@ -606,8 +605,14 @@ Pass_manager::cfg_dump (CFG* cfg, Pass* pass, String* comment, int iteration)
 		title << " - " << *comment;
 
 	title << " - " << iteration;
-
-	if (args_info->cfg_dump_given)
+	for (unsigned int i = 0; i < args_info->cfg_dump_given; i++)
+	{
+		if (*pass->name == args_info->cfg_dump_arg [i])
+		{
+			cfg->dump_graphviz (s(title.str()));
+		}
+	}
+	if (*pass->name == "all")
 		cfg->dump_graphviz (s(title.str()));
 }
 
