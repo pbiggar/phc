@@ -752,6 +752,8 @@ foreach_end (token ARRAY, string ITERATOR)
 
 /*
  * Assign_field 
+ *
+ * TODO: we might be able to cache zend_class_entry info for static vars
  */
 
 assign_field (token OBJ, token FIELD, node RHS)
@@ -817,14 +819,29 @@ assign_var_field_ref (token OBJ, token VAR_FIELD, node RHS)
 
 assign_var_static_field (token CLASS, token VAR_FIELD, node RHS)
 @@@
-	// TODO: Implement assign_var_static_field
-	assert(0);
+	\read_rvalue ("field_name", VAR_FIELD);
+	zval* field_name_str = get_string_val (field_name);
+	\read_rvalue ("rhs", RHS);
+	zend_class_entry* ce;
+	// TODO: not 100% sure that ZEND_FETCH_CLASS_DEFAULT is what we want 
+	ce = zend_fetch_class ("$CLASS", strlen("$CLASS"), ZEND_FETCH_CLASS_DEFAULT TSRMLS_CC);
+	zend_update_static_property(ce, Z_STRVAL_P(field_name_str), Z_STRLEN_P(field_name_str), rhs TSRMLS_CC); 
+	zval_ptr_dtor(&field_name_str);
 @@@
 
 assign_var_static_field_ref (token CLASS, token VAR_FIELD, node RHS)
 @@@
-	// TODO: Implement assign_var_static_field_ref
-	assert(0);
+	\read_rvalue ("field_name", VAR_FIELD);
+	zval* field_name_str = get_string_val (field_name);
+	\get_st_entry ("LOCAL", "p_rhs", RHS);
+	zend_class_entry* ce;
+	// TODO: not 100% sure that ZEND_FETCH_CLASS_DEFAULT is what we want 
+	ce = zend_fetch_class ("$CLASS", strlen("$CLASS"), ZEND_FETCH_CLASS_DEFAULT TSRMLS_CC);
+	zval** p_lhs;
+	p_lhs = zend_std_get_static_property(ce, Z_STRVAL_P(field_name_str), Z_STRLEN_P(field_name_str), 0 TSRMLS_CC);
+	sep_copy_on_write (p_rhs);
+	copy_into_ref (p_lhs, p_rhs);
+	zval_ptr_dtor(&field_name_str);
 @@@
 
 /*

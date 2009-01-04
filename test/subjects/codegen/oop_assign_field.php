@@ -25,7 +25,7 @@
 	$g = 1234;
 
 	eval(<<<PHP
-	var_dump($\c);
+	var_dump(\$c);
 	var_dump(C::\$s1);
 	var_dump(C::\$s2);
 	var_dump(C::\$s3);
