@@ -33,13 +33,14 @@ public:
     virtual void pre_formal_parameter(Formal_parameter* in, Formal_parameter_list* out);
     virtual Lookup* pre_lookup(Lookup* in);
     virtual void pre_equals(Equals* in, Rule_list* out);
+    virtual Expr* pre_param(Param* in);
     virtual Body* pre_body(Body* in);
     virtual Macro_call* pre_macro_call(Macro_call* in);
     virtual Callback* pre_callback(Callback* in);
     virtual MACRO_NAME* pre_macro_name(MACRO_NAME* in);
     virtual TYPE_NAME* pre_type_name(TYPE_NAME* in);
-    virtual ATTR_NAME* pre_attr_name(ATTR_NAME* in);
     virtual PARAM_NAME* pre_param_name(PARAM_NAME* in);
+    virtual ATTR_NAME* pre_attr_name(ATTR_NAME* in);
     virtual Expr* pre_string(STRING* in);
     virtual void pre_c_code(C_CODE* in, Body_part_list* out);
 /* Invoked after the children have been transformed */
@@ -50,13 +51,14 @@ public:
     virtual void post_formal_parameter(Formal_parameter* in, Formal_parameter_list* out);
     virtual Lookup* post_lookup(Lookup* in);
     virtual void post_equals(Equals* in, Rule_list* out);
+    virtual Expr* post_param(Param* in);
     virtual Body* post_body(Body* in);
     virtual Macro_call* post_macro_call(Macro_call* in);
     virtual Callback* post_callback(Callback* in);
     virtual MACRO_NAME* post_macro_name(MACRO_NAME* in);
     virtual TYPE_NAME* post_type_name(TYPE_NAME* in);
-    virtual ATTR_NAME* post_attr_name(ATTR_NAME* in);
     virtual PARAM_NAME* post_param_name(PARAM_NAME* in);
+    virtual ATTR_NAME* post_attr_name(ATTR_NAME* in);
     virtual Expr* post_string(STRING* in);
     virtual void post_c_code(C_CODE* in, Body_part_list* out);
 /* Transform the children of the node */
@@ -67,6 +69,7 @@ public:
     virtual void children_formal_parameter(Formal_parameter* in);
     virtual void children_lookup(Lookup* in);
     virtual void children_equals(Equals* in);
+    virtual void children_param(Param* in);
     virtual void children_body(Body* in);
     virtual void children_macro_call(Macro_call* in);
     virtual void children_callback(Callback* in);
@@ -74,8 +77,8 @@ public:
 public:
     virtual void children_macro_name(MACRO_NAME* in);
     virtual void children_type_name(TYPE_NAME* in);
-    virtual void children_attr_name(ATTR_NAME* in);
     virtual void children_param_name(PARAM_NAME* in);
+    virtual void children_attr_name(ATTR_NAME* in);
     virtual void children_string(STRING* in);
     virtual void children_c_code(C_CODE* in);
 /* Call the pre-transform, transform-children post-transform methods in order */
@@ -94,6 +97,7 @@ public:
     virtual PARAM_NAME* transform_param_name(PARAM_NAME* in);
     virtual ATTR_NAME* transform_attr_name(ATTR_NAME* in);
     virtual Expr* transform_expr(Expr* in);
+    virtual ATTR_NAME_list* transform_attr_name_list(ATTR_NAME_list* in);
     virtual Body_part_list* transform_body_part_list(Body_part_list* in);
     virtual Body_part_list* transform_body_part(Body_part* in);
     virtual Expr_list* transform_expr_list(Expr_list* in);

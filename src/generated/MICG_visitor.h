@@ -36,15 +36,17 @@ public:
     virtual void pre_lookup(Lookup* in);
     virtual void pre_equals(Equals* in);
     virtual void pre_expr(Expr* in);
+    virtual void pre_param(Param* in);
     virtual void pre_body(Body* in);
     virtual void pre_body_part(Body_part* in);
     virtual void pre_interpolation(Interpolation* in);
     virtual void pre_macro_call(Macro_call* in);
     virtual void pre_callback(Callback* in);
+    virtual void pre_identifier(Identifier* in);
     virtual void pre_macro_name(MACRO_NAME* in);
     virtual void pre_type_name(TYPE_NAME* in);
-    virtual void pre_attr_name(ATTR_NAME* in);
     virtual void pre_param_name(PARAM_NAME* in);
+    virtual void pre_attr_name(ATTR_NAME* in);
     virtual void pre_string(STRING* in);
     virtual void pre_c_code(C_CODE* in);
 /* Invoked after the children have been visited */
@@ -58,15 +60,17 @@ public:
     virtual void post_lookup(Lookup* in);
     virtual void post_equals(Equals* in);
     virtual void post_expr(Expr* in);
+    virtual void post_param(Param* in);
     virtual void post_body(Body* in);
     virtual void post_body_part(Body_part* in);
     virtual void post_interpolation(Interpolation* in);
     virtual void post_macro_call(Macro_call* in);
     virtual void post_callback(Callback* in);
+    virtual void post_identifier(Identifier* in);
     virtual void post_macro_name(MACRO_NAME* in);
     virtual void post_type_name(TYPE_NAME* in);
-    virtual void post_attr_name(ATTR_NAME* in);
     virtual void post_param_name(PARAM_NAME* in);
+    virtual void post_attr_name(ATTR_NAME* in);
     virtual void post_string(STRING* in);
     virtual void post_c_code(C_CODE* in);
 /* Visit the children of a node */
@@ -77,6 +81,7 @@ public:
     virtual void children_formal_parameter(Formal_parameter* in);
     virtual void children_lookup(Lookup* in);
     virtual void children_equals(Equals* in);
+    virtual void children_param(Param* in);
     virtual void children_body(Body* in);
     virtual void children_macro_call(Macro_call* in);
     virtual void children_callback(Callback* in);
@@ -84,8 +89,8 @@ public:
 public:
     virtual void children_macro_name(MACRO_NAME* in);
     virtual void children_type_name(TYPE_NAME* in);
-    virtual void children_attr_name(ATTR_NAME* in);
     virtual void children_param_name(PARAM_NAME* in);
+    virtual void children_attr_name(ATTR_NAME* in);
     virtual void children_string(STRING* in);
     virtual void children_c_code(C_CODE* in);
 /* Unparser support */
@@ -104,13 +109,14 @@ public:
     virtual void pre_formal_parameter_chain(Formal_parameter* in);
     virtual void pre_lookup_chain(Lookup* in);
     virtual void pre_equals_chain(Equals* in);
+    virtual void pre_param_chain(Param* in);
     virtual void pre_body_chain(Body* in);
     virtual void pre_macro_call_chain(Macro_call* in);
     virtual void pre_callback_chain(Callback* in);
     virtual void pre_macro_name_chain(MACRO_NAME* in);
     virtual void pre_type_name_chain(TYPE_NAME* in);
-    virtual void pre_attr_name_chain(ATTR_NAME* in);
     virtual void pre_param_name_chain(PARAM_NAME* in);
+    virtual void pre_attr_name_chain(ATTR_NAME* in);
     virtual void pre_string_chain(STRING* in);
     virtual void pre_c_code_chain(C_CODE* in);
 /* Invoke the chain of post-visit methods along the inheritance hierarchy */
@@ -123,13 +129,14 @@ public:
     virtual void post_formal_parameter_chain(Formal_parameter* in);
     virtual void post_lookup_chain(Lookup* in);
     virtual void post_equals_chain(Equals* in);
+    virtual void post_param_chain(Param* in);
     virtual void post_body_chain(Body* in);
     virtual void post_macro_call_chain(Macro_call* in);
     virtual void post_callback_chain(Callback* in);
     virtual void post_macro_name_chain(MACRO_NAME* in);
     virtual void post_type_name_chain(TYPE_NAME* in);
-    virtual void post_attr_name_chain(ATTR_NAME* in);
     virtual void post_param_name_chain(PARAM_NAME* in);
+    virtual void post_attr_name_chain(ATTR_NAME* in);
     virtual void post_string_chain(STRING* in);
     virtual void post_c_code_chain(C_CODE* in);
 /* Call the pre-chain, visit children and post-chain in order */
@@ -148,6 +155,7 @@ public:
     virtual void visit_param_name(PARAM_NAME* in);
     virtual void visit_attr_name(ATTR_NAME* in);
     virtual void visit_expr(Expr* in);
+    virtual void visit_attr_name_list(ATTR_NAME_list* in);
     virtual void visit_body_part_list(Body_part_list* in);
     virtual void visit_body_part(Body_part* in);
     virtual void visit_expr_list(Expr_list* in);

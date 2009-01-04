@@ -31,7 +31,7 @@ public:
 	// be converted to a String with convert_to_string. Booleans are always
 	// converted.
 	Object* get_lookup (Lookup*, bool coerce = false);
-	Object* get_param (PARAM_NAME*, bool coerce = false);
+	Object* get_param (Param*, bool coerce = false);
 
 	// Check type and return an MIR::Node for the parameter NAME.
 	MIR::Node* get_node (PARAM_NAME* in);

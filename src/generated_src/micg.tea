@@ -40,7 +40,10 @@ Rule ::= Equals | Lookup ;
 Lookup ::= PARAM_NAME ATTR_NAME ;
 
 Equals ::= left:Expr right:Expr ;
-Expr ::= PARAM_NAME | STRING | Lookup | Macro_call | Callback ;
+Expr ::= Param | STRING | Lookup | Macro_call | Callback ;
+
+-- This allows the user to add attributes that arent already set.
+Param ::= PARAM_NAME ATTR_NAME* ;
 
 -- Body
 Body ::= Body_part* ;
@@ -49,6 +52,9 @@ Body_part ::= C_CODE | Interpolation | Macro_call | Callback ;
 Interpolation ::= Lookup | PARAM_NAME ;
 Macro_call ::= MACRO_NAME Expr*;
 Callback ::= MACRO_NAME Expr*;
+
+-- For XML debugging, have a list of identifiers
+Identifier ::= MACRO_NAME | TYPE_NAME | PARAM_NAME | ATTR_NAME | STRING | C_CODE ;
 
 
 
@@ -72,3 +78,18 @@ class Node : IR::Node
 {
 };
 
+class Identifier
+{
+public:
+	virtual String* get_value_as_string() = 0;
+};
+
+class Param
+{
+public:
+	Param (PARAM_NAME* param_name)
+	{
+		this->param_name = param_name;
+		this->attr_names = new ATTR_NAME_list;
+	}
+};

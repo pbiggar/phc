@@ -58,6 +58,13 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Equals(left, right);
     }
+    if(!strcmp(type_id, "Param"))
+    {
+    	PARAM_NAME* param_name = dynamic_cast<PARAM_NAME*>(*i++);
+    	ATTR_NAME_list* attr_names = dynamic_cast<ATTR_NAME_list*>(*i++);
+    	assert(i == args->end());
+    	return new Param(param_name, attr_names);
+    }
     if(!strcmp(type_id, "Body"))
     {
     	Body_part_list* body_parts = dynamic_cast<Body_part_list*>(*i++);
@@ -90,17 +97,17 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new TYPE_NAME(value);
     }
-    if(!strcmp(type_id, "ATTR_NAME"))
-    {
-    	String* value = dynamic_cast<String*>(*i++);
-    	assert(i == args->end());
-    	return new ATTR_NAME(value);
-    }
     if(!strcmp(type_id, "PARAM_NAME"))
     {
     	String* value = dynamic_cast<String*>(*i++);
     	assert(i == args->end());
     	return new PARAM_NAME(value);
+    }
+    if(!strcmp(type_id, "ATTR_NAME"))
+    {
+    	String* value = dynamic_cast<String*>(*i++);
+    	assert(i == args->end());
+    	return new ATTR_NAME(value);
     }
     if(!strcmp(type_id, "STRING"))
     {
@@ -133,6 +140,13 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	Formal_parameter_list* list = new Formal_parameter_list;
     	while(i != args->end())
     		list->push_back(dynamic_cast<Formal_parameter*>(*i++));
+    	return list;
+    }
+    if(!strcmp(type_id, "ATTR_NAME_list"))
+    {
+    	ATTR_NAME_list* list = new ATTR_NAME_list;
+    	while(i != args->end())
+    		list->push_back(dynamic_cast<ATTR_NAME*>(*i++));
     	return list;
     }
     if(!strcmp(type_id, "Body_part_list"))

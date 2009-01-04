@@ -232,7 +232,7 @@ return (token RETVAL, node RET)
    goto end_of_function;
 @@@
 
-// Not return-by-ref
+// Return-by-value
 return (token RETVAL, node RET)
 @@@
    \read_rvalue ("rhs", RETVAL)
@@ -340,6 +340,23 @@ assign_expr_ref_array_access (token LHS, token ARRAY, token INDEX)
 /*
  * Constants
  */
+
+assign_expr_constant_body (token LHS, string CONSTANT)
+   where LHS.use_non_ref_version
+@@@
+   zval_ptr_dtor (p_lhs);
+   get_constant ("$CONSTANT", \cb:length(CONSTANT), p_lhs TSRMLS_CC);
+@@@
+
+assign_expr_constant_body (token LHS, string CONSTANT)
+   where LHS.use_ref_version
+@@@
+    zval* constant;
+    get_constant ("$CONSTANT", \cb:length(CONSTANT), p_lhs TSRMLS_CC);
+    overwrite_lhs_no_copy (*p_lhs, constant);
+    safe_free_zval_ptr (constant);
+@@@
+
 assign_expr_constant (token LHS, string CONSTANT)
 @@@
    // No null-terminator in length for get_constant.
@@ -347,15 +364,11 @@ assign_expr_constant (token LHS, string CONSTANT)
    \get_st_entry ("LOCAL", "p_lhs", LHS);
    if (!(*p_lhs)->is_ref)
    {
-     zval_ptr_dtor (p_lhs);
-     get_constant ("$CONSTANT", \cb:length(CONSTANT), p_lhs TSRMLS_CC);
+     \assign_expr_constant_body (LHS#use_non_ref_version, CONSTANT);
    }
    else
    {
-     zval* constant;
-     get_constant ("$CONSTANT", \cb:length(CONSTANT), p_lhs TSRMLS_CC);
-     overwrite_lhs_no_copy (*p_lhs, constant);
-     safe_free_zval_ptr (constant);
+     \assign_expr_constant_body (LHS#use_ref_version, CONSTANT);
    }
 @@@
 
