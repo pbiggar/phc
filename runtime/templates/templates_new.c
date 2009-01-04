@@ -774,7 +774,8 @@ assign_field (token OBJ, token FIELD, node RHS)
 	\get_st_entry ("LOCAL", "p_obj", OBJ);
 	\read_rvalue ("rhs", RHS);
 	zval field_name;
-	ZVAL_STRING(&field_name, "$FIELD", 0);
+	INIT_ZVAL (field_name);
+	ZVAL_STRING (&field_name, "$FIELD", 0);
 	Z_OBJ_HT_PP(p_obj)->write_property(*p_obj, &field_name, rhs TSRMLS_CC);
 @@@
 
@@ -783,6 +784,7 @@ assign_field_ref (token OBJ, token FIELD, node RHS)
 	\get_st_entry ("LOCAL", "p_obj", OBJ);
 	\get_st_entry ("LOCAL", "p_rhs", RHS);
 	zval field_name;
+	INIT_ZVAL (field_name);
 	ZVAL_STRING(&field_name, "$FIELD", 0);
 	zval** p_lhs;
 	p_lhs = Z_OBJ_HT_PP(p_obj)->get_property_ptr_ptr(*p_obj, &field_name TSRMLS_CC);
