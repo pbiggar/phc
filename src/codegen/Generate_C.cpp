@@ -476,6 +476,40 @@ string method_mod_flags(Method_mod* mod)
 	return flags.str();
 }
 
+string attr_mod_flags(Attr_mod* mod)
+{
+	stringstream flags;
+
+	if(mod->is_public)
+	{
+		flags << "ZEND_ACC_PUBLIC";
+		assert(!mod->is_protected);
+		assert(!mod->is_private);
+	}
+	else if(mod->is_protected)
+	{
+		flags << "ZEND_ACC_PROTECTED";
+		assert(!mod->is_public);
+		assert(!mod->is_private);
+	}
+	else if(mod->is_private)
+	{
+		flags << "ZEND_ACC_PRIVATE";
+		assert(!mod->is_public);
+		assert(!mod->is_protected);
+	}
+	else
+	{
+		// No access modifiers specified; assume public
+		flags << "ZEND_ACC_PUBLIC";
+	}
+
+	if(mod->is_static) flags << " | ZEND_ACC_STATIC";
+	// const is not an access modifier
+
+	return flags.str();
+}
+
 void function_declaration_block(ostream& buf, Signature_list* methods, String* block_name)
 {
 	buf << "// ArgInfo structures (necessary to support compile time pass-by-reference)\n";
@@ -572,12 +606,56 @@ public:
 		minit
 		<< "{\n"
 		<< "zend_class_entry ce; // temp\n"
+		<< "zend_class_entry* ce_reg; // once registered, ce_ptr should be used\n"
 		<< "INIT_CLASS_ENTRY(ce, " 
 		<< "\"" << *pattern->value->class_name->value << "\", " 
 		<< *pattern->value->class_name->value << "_functions);\n"
-		<< "zend_register_internal_class(&ce TSRMLS_CC);\n"
-		<< "}";
+		<< "ce_reg = zend_register_internal_class(&ce TSRMLS_CC);\n"
+		;
 
+		// Compile static attributes
+		// TODO: it might be possible to combine this with the foreach loop above,
+		// but I cannot currently test this because there is a bug in the MICG code
+		// somewhere that needs to be fixed first -- phc crashes on
+		// tests/subjects/codegen/oop_method_invocation1.php
+		foreach (Member* member, *pattern->value->members)
+		{
+			Attribute* attr = dynamic_cast<Attribute*>(member);
+
+			if(attr != NULL)
+			{
+				if(attr->attr_mod->is_static)
+				{
+					if(attr->var->default_value == NULL)
+					{
+						minit 
+						<< "zend_declare_property_null(ce_reg, "
+						<< "\"" << *attr->var->variable_name->value << "\", " 
+						<< attr->var->variable_name->value->size() << ", "
+						<< attr_mod_flags(attr->attr_mod) << " " 
+						<< "TSRMLS_CC);"
+						;
+					}
+					else
+					{
+						// TODO: implement
+						assert(0);
+					}
+				}
+				else if(attr->attr_mod->is_const)
+				{
+					// TODO: implement
+					assert(0);
+				}
+				else
+				{
+					// Other attributes are not added here but should be added
+					// when instances of the class are created
+				}
+			}
+		}
+
+		minit << "}";
 	}
 
 protected:
