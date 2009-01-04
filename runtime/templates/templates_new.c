@@ -789,14 +789,21 @@ assign_static_field_ref (token CLASS, token FIELD, node RHS)
 
 assign_var_field (token OBJ, token VAR_FIELD, node RHS)
 @@@
-	// TODO: Implement assign_var_field
-	assert(0);
+	\get_st_entry ("LOCAL", "p_obj", OBJ);
+	\read_rvalue ("field_name", VAR_FIELD);
+	\read_rvalue ("rhs", RHS);
+	Z_OBJ_HT_PP(p_obj)->write_property(*p_obj, field_name, rhs TSRMLS_CC);
 @@@
 
 assign_var_field_ref (token OBJ, token VAR_FIELD, node RHS)
 @@@
-	// TODO: Implement assign_var_field_ref
-	assert(0);
+	\get_st_entry ("LOCAL", "p_obj", OBJ);
+	\read_rvalue ("field_name", VAR_FIELD);
+	\get_st_entry ("LOCAL", "p_rhs", RHS);
+	zval** p_lhs;
+	p_lhs = Z_OBJ_HT_PP(p_obj)->get_property_ptr_ptr(*p_obj, field_name TSRMLS_CC);
+	sep_copy_on_write (p_rhs);
+	copy_into_ref (p_lhs, p_rhs);
 @@@
 
 assign_var_static_field (token CLASS, token VAR_FIELD, node RHS)
