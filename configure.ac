@@ -3,6 +3,10 @@ dnl See doc/license/README.license for licensing information
 dnl
 dnl Process this file using autoconf to produce configure
 
+# Running aclocal, automake and autoconf can produce errors. These are avoided by running aclocal:
+#	$ aclocal -I /usr/share/autoconf-archive -I libltdl
+# which adds the macros needed for libtool, boost, etc.
+
 dnl Autoconf requirements
 AC_INIT([phc], [0.2.0], [phc-general@phpcompiler.org])
 AC_CONFIG_HEADERS([config.h])
@@ -35,7 +39,7 @@ AC_PATH_PROG([diff], [diff])
 AC_PATH_PROG([valgrind], [valgrind])
 AC_PATH_PROG([dot], [dot])
 AC_PATH_PROG([graphviz_gc], [gc])
-AX_BOOST_BASE([1.34.0])
+AX_BOOST_BASE([1.35.0])
 
 AC_ARG_WITH([maketea], 
    AS_HELP_STRING([--with-maketea], [path to maketea (if installed)]),
