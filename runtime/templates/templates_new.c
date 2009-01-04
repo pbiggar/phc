@@ -777,14 +777,23 @@ assign_field_ref (token OBJ, token FIELD, node RHS)
 
 assign_static_field (token CLASS, token FIELD, node RHS)
 @@@
-	// TODO: Implement assign_static_field
-	assert(0);
+	\read_rvalue ("rhs", RHS);
+	zend_class_entry* ce;
+	// TODO: not 100% sure that ZEND_FETCH_CLASS_DEFAULT is what we want 
+	ce = zend_fetch_class ("$CLASS", strlen("$CLASS"), ZEND_FETCH_CLASS_DEFAULT TSRMLS_CC);
+	zend_update_static_property(ce, "$FIELD", strlen("$FIELD"), rhs TSRMLS_CC); 
 @@@
 
 assign_static_field_ref (token CLASS, token FIELD, node RHS)
 @@@
-	// TODO: Implement assign_static_field_ref
-	assert(0);
+	\get_st_entry ("LOCAL", "p_rhs", RHS);
+	zend_class_entry* ce;
+	// TODO: not 100% sure that ZEND_FETCH_CLASS_DEFAULT is what we want 
+	ce = zend_fetch_class ("$CLASS", strlen("$CLASS"), ZEND_FETCH_CLASS_DEFAULT TSRMLS_CC);
+	zval** p_lhs;
+	p_lhs = zend_std_get_static_property(ce, "$FIELD", strlen("$FIELD"), 0 TSRMLS_CC);
+	sep_copy_on_write (p_rhs);
+	copy_into_ref (p_lhs, p_rhs);
 @@@
 
 assign_var_field (token OBJ, token VAR_FIELD, node RHS)
