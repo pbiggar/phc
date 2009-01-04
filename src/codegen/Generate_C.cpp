@@ -1632,7 +1632,6 @@ public:
 		string fci_name;
 		string fcic_name;
 
-		string macro_name;
 		string function_name;
 
 		// Global function or class member?
@@ -1651,8 +1650,21 @@ public:
 		
 				fci_name  = "fci_object"; 
 				fcic_name = "fcic_object";
-				macro_name = "method_invocation";
 				function_name = *name->value;
+
+				INST (buf, "method_invocation",
+						s(function_name),
+						params,
+						rhs->value->get_filename (),
+						s(lexical_cast<string> (rhs->value->get_line_number ())),
+						s(fci_name),
+						s(fcic_name),
+						s(lexical_cast<string>(rhs->value->actual_parameters->size ())),
+						object_name,
+						lhs_descriptor,
+						lhs ? lhs->value : NULL);
+
+				return;
 			}
 			else
 			{
@@ -1664,18 +1676,16 @@ public:
 				fci_name  = suffix (suffix(*class_name->value, *name->value), "fci");
 				fcic_name = suffix (suffix(*class_name->value, *name->value), "fcic");
 				function_name = fqn.str();
-				macro_name = "function_invocation";
 			}
 		}
 		else
 		{
 			fci_name  = suffix (*name->value, "fci");
 			fcic_name = suffix (*name->value, "fcic");
-			macro_name = "function_invocation";
 			function_name = *name->value;
 		}
 
-		INST (buf, macro_name,
+		INST (buf, "function_invocation",
 				s(function_name),
 				params,
 				rhs->value->get_filename (),
@@ -1685,7 +1695,6 @@ public:
 				s(lexical_cast<string>(rhs->value->actual_parameters->size ())),
 				lhs_descriptor,
 				lhs ? lhs->value : NULL);
-
 	}
 
 protected:
