@@ -2,13 +2,8 @@
  * phc -- the open source PHP compiler
  * See doc/license/README.license for licensing information
  *
- * Mark actual parameters to function calls as being by-reference, or not by-reference, if we know this to be the case. We should know in all cases except:
- *		OO (we might know with type-inference)
- *		varaible-function calls
- *		dynamic function definition
- *
- *
- *	This is a simple case of checking the Optimization Oracle, and does not require analysis.
+ * Do miscellaneous annotations for optimizations - simple cases which involve
+ * checking the Optimization Oracle, and do not require analysis.
  */
 
 #ifndef PHC_MARK_REFERENCE_PARAMETERS
@@ -16,7 +11,7 @@
 
 #include "Visit_once.h"
 
-class Mark_reference_parameters : virtual public GC_obj, public Visit_once
+class Misc_annotations : virtual public GC_obj, public Visit_once
 {
 	// visit_expr needs to be called manually
 	void visit_assign_var (Statement_block* bb, MIR::Assign_var* in);

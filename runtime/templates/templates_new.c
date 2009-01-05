@@ -409,7 +409,6 @@ get_st_entry (string SCOPE, string ZVP, token VAR)
   zval** $ZVP = &local_$VAR;
 @@@
 
-
 // TODO: inline better
 get_st_entry (string SCOPE, string ZVP, token VAR)
 @@@
@@ -977,6 +976,16 @@ new_lhs (token LHS, string VAL)
 arg_by_ref (node ARG) where ARG.param_by_ref @@@ @@@
 arg_by_ref (node ARG) where ARG.param_not_by_ref @@@ @@@
 
+// This is taken into account for param*_by_ref, but we need it for the unoptimized case.
+arg_by_ref (node ARG)
+   where ARG.is_ref
+@@@
+   by_ref[abr_index] = 1;
+   abr_index++;
+@@@
+
+
+
 arg_by_ref (node ARG)
 @@@
    if (arg_info)
@@ -994,62 +1003,44 @@ arg_by_ref (node ARG)
 arg_fetch (node ARG)
    where ARG.param_not_by_ref
 @@@
+   destruct[af_index] = 0;
    {
-      destruct[af_index] = 0;
       \read_rvalue ("arg", ARG);
       args[af_index] = fetch_var_arg (arg, &destruct[af_index]);
       args_ind[af_index] = &args[af_index];
-      af_index++;
    }
+   af_index++;
 @@@
 
 arg_fetch (node ARG)
    where ARG.param_by_ref
 @@@
+   destruct[af_index] = 0;
    {
-     destruct[af_index] = 0;
-     \read_rvalue ("arg", ARG);
-     args[af_index] = fetch_var_arg (arg, &destruct[af_index]);
-     args_ind[af_index] = &args[af_index];
-     af_index++;
+     \get_st_entry ("LOCAL", "p_arg", ARG);
+     args_ind[af_index] = fetch_var_arg_by_ref (p_arg);
+     assert (!in_copy_on_write (*args_ind[af_index]));
+     args[af_index] = *args_ind[af_index];
    }
+   af_index++;
 @@@
 
-// For literals, when not optimizing
-arg_fetch (node ARG)
-   where ARG.pool_name
-@@@
-   {
-     destruct[af_index] = 0;
-     \read_rvalue ("arg", ARG);
-     args[af_index] = fetch_var_arg (arg, &destruct[af_index]);
-     args_ind[af_index] = &args[af_index];
-     af_index++;
-   }
-@@@
+// For literals, when not optimizing - we cant do get_st_entry on literal.
+arg_fetch (node ARG) where ARG.pool_name @@@ \arg_fetch (ARG#param_not_by_ref); @@@
 
 arg_fetch (token ARG)
 @@@
+   if (by_ref[af_index])
    {
-       destruct[af_index] = 0;
-       if (by_ref[af_index])
-       {
-	  \get_st_entry ("LOCAL", "p_arg", ARG);
-	  args_ind[af_index] = fetch_var_arg_by_ref (p_arg);
-	  assert (!in_copy_on_write (*args_ind[af_index]));
-	  args[af_index] = *args_ind[af_index];
-       }
-       else
-       {
-	  \read_rvalue ("arg", ARG);
-	  args[af_index] = fetch_var_arg (arg, &destruct[af_index]);
-	  args_ind[af_index] = &args[af_index];
-       }
-       af_index++;
+     \arg_fetch (ARG#param_by_ref);
+   }
+   else
+   {
+     \arg_fetch (ARG#param_not_by_ref);
    }
 @@@
 
-call_function (string MN, list ARGS, string FILENAME, string LINE, string FCI_NAME, string FCIC_NAME, string ARG_COUNT, string USE_REF, token LHS)
+call_function (node ATTRS, string MN, list ARGS, string FILENAME, string LINE, string FCI_NAME, string FCIC_NAME, string ARG_COUNT, string USE_REF, token LHS)
 @@@
    zend_function* signature = $FCIC_NAME.function_handler;
    zend_arg_info* arg_info = signature->common.arg_info; // optional
@@ -1103,7 +1094,6 @@ call_function (string MN, list ARGS, string FILENAME, string LINE, string FCI_NA
       }
    }
 
-
    // When the Zend engine returns by reference, it allocates a zval into
    // retval_ptr_ptr. To return by reference, the callee writes into the
    // retval_ptr_ptr, freeing the allocated value as it does.  (Note, it may
@@ -1122,7 +1112,7 @@ call_function (string MN, list ARGS, string FILENAME, string LINE, string FCI_NA
    // that we may create an error if our code is called by a callback, and
    // returns by reference, and the callback returns by reference. At least
    // this is an obscure case.
-   if(signature->common.return_reference && signature->type != ZEND_USER_FUNCTION)
+   if(\return_reference_bug(ATTRS))
    {
       assert (rhs != EG(uninitialized_zval_ptr));
       rhs->is_ref = 1;
@@ -1137,9 +1127,14 @@ call_function (string MN, list ARGS, string FILENAME, string LINE, string FCI_NA
    \function_lhs (USE_REF, LHS);
 
    zval_ptr_dtor (&rhs);
-   if(signature->common.return_reference && signature->type != ZEND_USER_FUNCTION)
+   if(\return_reference_bug(ATTRS))
       zval_ptr_dtor (&rhs);
 @@@
+
+// We can tell this at compile-time.
+return_reference_bug (node ATTRS) where ATTRS.return_reference_bug @@@ 1 @@@
+return_reference_bug (node ATTRS) where ATTRS.no_return_reference_bug @@@ 0 @@@
+return_reference_bug (node ATTRS) @@@ signature->common.return_reference && signature->type != ZEND_USER_FUNCTION @@@
 
 
 function_lhs (string USE_LHS, token LHS) where USE_LHS == "NONE" @@@@@@
@@ -1159,21 +1154,21 @@ function_lhs (string USE_LHS, token LHS)
    write_var (p_lhs, rhs);
 @@@
 
-function_invocation (string MN, list ARGS, string FILENAME, string LINE, string FCI_NAME, string FCIC_NAME, string ARG_COUNT, string LHS_REF, token LHS)
+function_invocation (node ATTRS, string MN, list ARGS, string FILENAME, string LINE, string FCI_NAME, string FCIC_NAME, string ARG_COUNT, string LHS_REF, token LHS)
 @@@
    initialize_function_call (&$FCI_NAME, &$FCIC_NAME, "$MN", "$FILENAME", $LINE TSRMLS_CC);
-   \call_function (MN, ARGS, FILENAME, LINE, FCI_NAME, FCIC_NAME, ARG_COUNT, LHS_REF, LHS);
+   \call_function (ATTRS, MN, ARGS, FILENAME, LINE, FCI_NAME, FCIC_NAME, ARG_COUNT, LHS_REF, LHS);
 @@@
 
 
-method_invocation (string MN, list ARGS, string FILENAME, string LINE, string FCI_NAME, string FCIC_NAME, string ARG_COUNT, node TARGET, string USE_REF, token LHS)
+method_invocation (node ATTRS, string MN, list ARGS, string FILENAME, string LINE, string FCI_NAME, string FCIC_NAME, string ARG_COUNT, node TARGET, string USE_REF, token LHS)
 @@@
    \read_rvalue ("obj", TARGET); 
    zend_fcall_info fci_object;
    zend_fcall_info_cache fcic_object = {0, NULL, NULL, NULL};
    zval* callable = initialize_method_call (&fci_object, &fcic_object, obj, "$MN", "$FILENAME", $LINE TSRMLS_CC);
 
-   \call_function (MN, ARGS, FILENAME, LINE, "fci_object", "fcic_object", ARG_COUNT, USE_REF, LHS);
+   \call_function (ATTRS, MN, ARGS, FILENAME, LINE, "fci_object", "fcic_object", ARG_COUNT, USE_REF, LHS);
 
    zval_ptr_dtor (&callable);
 @@@

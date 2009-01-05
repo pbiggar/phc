@@ -105,7 +105,7 @@ am_libphc_la_OBJECTS = getopt1.lo getopt.lo AST_annotate.lo \
 	CFG.lo CFG_visitor.lo Dead_code_elimination.lo Def_use.lo \
 	Edge.lo Flow_visitor.lo If_simplification.lo Lattice.lo \
 	Live_variable_analysis.lo Mark_initialized.lo \
-	Mark_reference_parameters.lo Oracle.lo Prune_symbol_table.lo \
+	Misc_annotations.lo Oracle.lo Prune_symbol_table.lo \
 	Remove_loop_booleans.lo SCCP.lo Sparse_conditional_visitor.lo \
 	Dominance.lo HSSA.lo Phi.lo SSA.lo Type_inference.lo \
 	SSA_ops.lo Virtual_variable.lo Var_set.lo Visit_once.lo \
@@ -758,8 +758,8 @@ libphc_la_SOURCES = \
 	src/optimize/Live_variable_analysis.h				\
 	src/optimize/Mark_initialized.cpp					\
 	src/optimize/Mark_initialized.h						\
-	src/optimize/Mark_reference_parameters.cpp		\
-	src/optimize/Mark_reference_parameters.h			\
+	src/optimize/Misc_annotations.cpp					\
+	src/optimize/Misc_annotations.h						\
 	src/optimize/Oracle.cpp									\
 	src/optimize/Oracle.h									\
 	src/optimize/Prune_symbol_table.cpp					\
@@ -1403,7 +1403,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MIR_unparser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MIR_visitor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Mark_initialized.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Mark_reference_parameters.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Misc_annotations.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MySQL2DBX.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Note_top_level_declarations.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Object.Plo@am__quote@
@@ -2000,12 +2000,12 @@ Mark_initialized.lo: src/optimize/Mark_initialized.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Mark_initialized.lo `test -f 'src/optimize/Mark_initialized.cpp' || echo '$(srcdir)/'`src/optimize/Mark_initialized.cpp
 
-Mark_reference_parameters.lo: src/optimize/Mark_reference_parameters.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Mark_reference_parameters.lo -MD -MP -MF $(DEPDIR)/Mark_reference_parameters.Tpo -c -o Mark_reference_parameters.lo `test -f 'src/optimize/Mark_reference_parameters.cpp' || echo '$(srcdir)/'`src/optimize/Mark_reference_parameters.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Mark_reference_parameters.Tpo $(DEPDIR)/Mark_reference_parameters.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Mark_reference_parameters.cpp' object='Mark_reference_parameters.lo' libtool=yes @AMDEPBACKSLASH@
+Misc_annotations.lo: src/optimize/Misc_annotations.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Misc_annotations.lo -MD -MP -MF $(DEPDIR)/Misc_annotations.Tpo -c -o Misc_annotations.lo `test -f 'src/optimize/Misc_annotations.cpp' || echo '$(srcdir)/'`src/optimize/Misc_annotations.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Misc_annotations.Tpo $(DEPDIR)/Misc_annotations.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Misc_annotations.cpp' object='Misc_annotations.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Mark_reference_parameters.lo `test -f 'src/optimize/Mark_reference_parameters.cpp' || echo '$(srcdir)/'`src/optimize/Mark_reference_parameters.cpp
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Misc_annotations.lo `test -f 'src/optimize/Misc_annotations.cpp' || echo '$(srcdir)/'`src/optimize/Misc_annotations.cpp
 
 Oracle.lo: src/optimize/Oracle.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Oracle.lo -MD -MP -MF $(DEPDIR)/Oracle.Tpo -c -o Oracle.lo `test -f 'src/optimize/Oracle.cpp' || echo '$(srcdir)/'`src/optimize/Oracle.cpp

@@ -1653,6 +1653,7 @@ public:
 				function_name = *name->value;
 
 				INST (buf, "method_invocation",
+						rhs->value,
 						s(function_name),
 						params,
 						rhs->value->get_filename (),
@@ -1686,6 +1687,7 @@ public:
 		}
 
 		INST (buf, "function_invocation",
+				rhs->value,
 				s(function_name),
 				params,
 				rhs->value->get_filename (),

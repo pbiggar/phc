@@ -209,8 +209,8 @@ libphc_la_SOURCES= 											\
 	src/optimize/Live_variable_analysis.h				\
 	src/optimize/Mark_initialized.cpp					\
 	src/optimize/Mark_initialized.h						\
-	src/optimize/Mark_reference_parameters.cpp		\
-	src/optimize/Mark_reference_parameters.h			\
+	src/optimize/Misc_annotations.cpp					\
+	src/optimize/Misc_annotations.h						\
 	src/optimize/Oracle.cpp									\
 	src/optimize/Oracle.h									\
 	src/optimize/Prune_symbol_table.cpp					\
