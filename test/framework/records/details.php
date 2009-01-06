@@ -18,9 +18,9 @@
 		print "	</td></tr>\n";
 		print "	<tr><td>\n";
 		print "		<table class=layout>";
-		print "		<tr><td>\n";
+		print "		<tr><td valign=top>\n";
 		print_test_details ($rev, $old_rev);
-		print "		</td><td>\n";
+		print "		</td><td valign=top>\n";
 		print_benchmark_details ($rev, $old_bench_rev);
 		print "		</td></tr>\n";
 		print "		</table>";
@@ -163,20 +163,22 @@
 
 		# fetch the current revisions data
 		$test_data = $DB->query ("
-				SELECT	revision, metric, result
+				SELECT	revision, bench, metric, result
 				FROM		benchmarks
 				WHERE		revision == $rev
 				")->fetchAll(PDO::FETCH_ASSOC);
 
 		print "<table class=info>";
-		print "<tr><th>Metric</th><th>"
-			. "Result (+/- vs "
+		print "<tr>"
+			. "<th>Benchmark</th>"
+			. "<th>Metric</th>"
+			. "<th>Result (+/- vs "
 			. "<a href='details.php?rev=$old_rev'>$old_rev</a>"
 			. ")</th>";
 
 		# fetch the previous revisions data, for comparison
 		$old_test_data = $DB->query ("
-				SELECT	revision, metric, result
+				SELECT	revision, bench, metric, result
 				FROM		benchmarks
 				WHERE		revision == $old_rev
 				")->fetchAll(PDO::FETCH_ASSOC);

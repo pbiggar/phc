@@ -204,9 +204,9 @@
 
 		foreach ($results as $bench => $result_array)
 			foreach ($result_array as $key => $value)
-				e ("INSERT INTO benchmarks VALUES ($REV, '$bench', '$key', $value)");
+				e ("INSERT INTO benchmarks VALUES ($REV, '$key', $value, '$bench')");
 
-		return $results["instruction"]; // instruction count
+		return 0; // TODO
 	}
 
 	function initialize_db ()
