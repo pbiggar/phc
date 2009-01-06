@@ -341,34 +341,22 @@ assign_expr_ref_array_access (token LHS, token ARRAY, node INDEX)
  * Constants
  */
 
-assign_expr_constant_body (token LHS, string CONSTANT)
-   where LHS.use_non_ref_version
-@@@
-   zval_ptr_dtor (p_lhs);
-   get_constant ("$CONSTANT", \cb:length(CONSTANT), p_lhs TSRMLS_CC);
-@@@
-
-assign_expr_constant_body (token LHS, string CONSTANT)
-   where LHS.use_ref_version
-@@@
-    zval* constant;
-    get_constant ("$CONSTANT", \cb:length(CONSTANT), p_lhs TSRMLS_CC);
-    overwrite_lhs_no_copy (*p_lhs, constant);
-    safe_free_zval_ptr (constant);
-@@@
-
 assign_expr_constant (token LHS, string CONSTANT)
 @@@
    // No null-terminator in length for get_constant.
    // zend_get_constant always returns a copy of the constant.
    \get_st_entry ("LOCAL", "p_lhs", LHS);
-   if (!(*p_lhs)->is_ref)
+   if (\is_ref ("*p_lhs", LHS))
    {
-     \assign_expr_constant_body (LHS#use_non_ref_version, CONSTANT);
+      zval* constant;
+      get_constant ("$CONSTANT", \cb:length(CONSTANT), p_lhs TSRMLS_CC);
+      overwrite_lhs_no_copy (*p_lhs, constant);
+      safe_free_zval_ptr (constant);
    }
    else
    {
-     \assign_expr_constant_body (LHS#use_ref_version, CONSTANT);
+      zval_ptr_dtor (p_lhs);
+      get_constant ("$CONSTANT", \cb:length(CONSTANT), p_lhs TSRMLS_CC);
    }
 @@@
 
@@ -493,15 +481,20 @@ read_rvalue (string ZVP, token TVAR)
  * write_var
  */
 
+star (string VAR) @@@ (*$VAR) @@@
+
+// Do IS_UNINITIALIZED before CANNOT_BE_REF, or else we'll have a segfault
+// from the zval_ptr_dtor.
 write_var (string LHS, string RHS, node TLHS, node TRHS)
    where TLHS.is_uninitialized
 @@@
-  \write_var_inner (LHS, RHS, TLHS, TRHS);
+   \write_var_inner (LHS, RHS, TLHS, TRHS);
 @@@
 
 write_var (string LHS, string RHS, node TLHS, node TRHS)
 @@@
-  if ((*$LHS)->is_ref)
+  // Would be better with string interpolation, but what can you do.
+  if (\is_ref (\star (LHS), TLHS))
       overwrite_lhs (*$LHS, $RHS);
   else
     {
@@ -511,27 +504,8 @@ write_var (string LHS, string RHS, node TLHS, node TRHS)
 @@@
 
 write_var_inner (string LHS, string RHS, node TLHS, node TRHS)
-   where TRHS.is_uninitialized
 @@@
-  // Share a copy
-  $RHS->refcount++;
-  *$LHS = $RHS;
-@@@
-
-write_var_inner (string LHS, string RHS, node TLHS, node TRHS)
-   where TRHS.pool_name
-@@@
-  // Share a copy
-  $RHS->refcount++;
-  *$LHS = $RHS;
-@@@
-
-
-
-
-write_var_inner (string LHS, string RHS, node TLHS, node TRHS)
-@@@
-  if ($RHS->is_ref)
+  if (\is_ref (RHS, TRHS))
     {
       // Take a copy of RHS for LHS
       *$LHS = zvp_clone_ex ($RHS);
@@ -717,12 +691,10 @@ builtin_no_lhs (node ARG, string NAME, string FILENAME)
 assign_expr_ref_foreach_get_val (token LHS, token ARRAY, string ITERATOR)
 @@@
    \get_st_entry ("LOCAL", "p_lhs", LHS);
-   // TODO: we know this is an array
    \read_rvalue ("fe_array", ARRAY);
 
    zval** p_rhs = NULL;
-   int result = zend_hash_get_current_data_ex (
-					       fe_array->value.ht,
+   int result = zend_hash_get_current_data_ex (fe_array->value.ht,
 					       (void**)(&p_rhs),
 					       &$ITERATOR);
    assert (result == SUCCESS);
@@ -734,12 +706,10 @@ assign_expr_ref_foreach_get_val (token LHS, token ARRAY, string ITERATOR)
 assign_expr_foreach_get_val (token LHS, token ARRAY, string ITERATOR)
 @@@
    \get_st_entry ("LOCAL", "p_lhs", LHS);
-   // TODO: we know this is an array
    \read_rvalue ("fe_array", ARRAY);
 
    zval** p_rhs = NULL;
-   int result = zend_hash_get_current_data_ex (
-					       fe_array->value.ht,
+   int result = zend_hash_get_current_data_ex (fe_array->value.ht,
 					       (void**)(&p_rhs),
 					       &$ITERATOR);
    assert (result == SUCCESS);
@@ -945,6 +915,12 @@ var_static_field_access_ref (token LHS, token CLASS, token VAR_FIELD)
 	assert(0);
 @@@
 
+// Takes a ZVP, so if passing a ZVPP, make sure to deref.
+is_ref (string ZVP, node ATTRS) where ATTRS.cannot_be_ref @@@ 0 @@@
+is_ref (string ZVP, node ATTRS) where ATTRS.pool_name @@@ 0 @@@
+is_ref (string ZVP, node ATTRS) where ATTRS.is_uninitialized @@@ 0 @@@
+is_ref (string ZVP, node ATTRS) @@@ ($ZVP)->is_ref @@@
+
 /*
  * Lots of macros need to fetch the LHS, initialize/separate it, and add a
  * value. In Generate_C, this used to be Pattern_assign_var, but now they just
@@ -954,7 +930,7 @@ new_lhs (token LHS, string VAL)
 @@@
    \get_st_entry ("LOCAL", "p_lhs", LHS);
    zval* $VAL;
-   if ((*p_lhs)->is_ref)
+   if (\is_ref ("*p_lhs", LHS))
    {
      // Always overwrite the current value
      $VAL = *p_lhs;

@@ -48,6 +48,7 @@ public:
 	 * by the analysis.
 	 */
 
+	virtual void visit_basic_block (Basic_block*);
 	virtual void visit_entry_block (Entry_block*);
 	virtual void visit_empty_block (Empty_block*);
 	virtual void visit_exit_block (Exit_block*);
@@ -121,6 +122,7 @@ public:
 	 * called by the analysis.
 	 */
 
+	// TODO: add transform_basic_block
 	virtual void transform_entry_block (Entry_block* in, BB_list* out);
 	virtual void transform_empty_block (Empty_block* in, BB_list* out);
 	virtual void transform_exit_block (Exit_block* in, BB_list* out);

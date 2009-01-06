@@ -24,6 +24,9 @@ CFG_visitor::visit_block (Basic_block* bb)
 		visit_chi_node (bb, def, use);
 
 
+	// Sometimes you dont care what block is used.
+	visit_basic_block (bb);
+
 	if (Entry_block* eb = dynamic_cast<Entry_block*> (bb))
 		visit_entry_block (eb);
 
@@ -177,6 +180,10 @@ CFG_visitor::visit_expr (Statement_block* sb, Expr* in)
 	}
 }
 
+void
+CFG_visitor::visit_basic_block (Basic_block*)
+{
+}
 
 void
 CFG_visitor::visit_entry_block (Entry_block*)

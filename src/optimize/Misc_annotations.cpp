@@ -11,8 +11,18 @@
 
 #include "Misc_annotations.h"
 #include "Oracle.h"
+#include "Def_use.h"
 
 using namespace MIR;
+
+void
+Misc_annotations::run (CFG* cfg)
+{
+	aliasing = new Address_taken ();
+	aliasing->run (cfg);
+
+	Visit_once::run (cfg);
+}
 
 // visit_expr needs to be called manually
 void
@@ -51,6 +61,7 @@ mark_by_ref (Method_invocation* in)
 		return;
 	}
 
+	CTS ("resolve-by-ref");
 	int i = 0;
 	foreach (Actual_parameter* ap, *in->actual_parameters)
 	{
@@ -81,6 +92,7 @@ mark_zend_reference_bug (Method_invocation* in)
 		return;
 
 
+	CTS ("resolve-return-by-ref");
 	if (sig->return_by_ref)
 		in->attrs->set_true ("phc.optimize.return_reference_bug");
 	else
@@ -96,3 +108,27 @@ Misc_annotations::visit_method_invocation (Statement_block* bb, MIR::Method_invo
 	mark_zend_reference_bug (in);
 }
 
+/*
+ * Mark variables which cannot be references
+ */
+void
+Misc_annotations::annotate_non_by_ref_vars (Basic_block* bb)
+{
+	VARIABLE_NAME_list* vars = new VARIABLE_NAME_list;
+	vars->push_back_all (bb->get_defs (SSA_ALL));
+	vars->push_back_all (bb->get_uses (SSA_ALL));
+	foreach (VARIABLE_NAME* var, *vars)
+	{
+		if (!aliasing->aliases->has (var))
+		{
+			CTS ("resolve-non-ref");
+			var->attrs->set_true ("phc.optimize.cannot_be_ref");
+		}
+	}
+}
+
+void
+Misc_annotations::visit_basic_block (Basic_block* bb)
+{
+	annotate_non_by_ref_vars (bb);
+}

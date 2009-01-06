@@ -614,6 +614,9 @@ Pass_manager::cfg_dump (CFG* cfg, Pass* pass, String* comment, int iteration)
 	}
 	if (*pass->name == "all")
 		cfg->dump_graphviz (s(title.str()));
+
+	// We may not be able to dump the IR, but we can still get stats.
+	dump (NULL, pass);
 }
 
 bool
@@ -725,8 +728,8 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 		}
 	}
 
-	// Get the method signatures for use in later optimizations. Naturally, this
-	// will give way once we have interprocedural optimizations.
+	// Get the method signatures for use in later optimizations. Naturally,
+	// this will give way once we have interprocedural optimizations.
 	foreach (MIR::Method* method, *candidates)
 	{
 		Oracle::add_signature (method->signature);
