@@ -10,6 +10,7 @@
 
 	ob_start (); // keep all output
 
+	$CACHED_VALBENCH_RESULTS = "cached_PHP_valbench";
 	$REPO = "http://phc.googlecode.com/svn/";
 	$CWD = getcwd ();
 	$TEST_DIR = "$CWD/testing";
@@ -195,7 +196,7 @@
 
 	function store_benchmark_results ($result_string)
 	{
-		global $REV;
+		global $REV, $CACHED_VALBENCH_RESULTS, $LOG_DIR;
 
 		if (preg_match ("/^FAILURE:.*/", $result_string))
 			return -1;
@@ -206,7 +207,22 @@
 			foreach ($result_array as $key => $value)
 				e ("INSERT INTO benchmarks VALUES ($REV, '$key', $value, '$bench')");
 
-		return 0; // TODO
+		// Get the cached results for the PHP interpreter.
+		if (!file_exists ($CACHED_VALBENCH_RESULTS))
+			throw new Exception;
+
+		$php_results = file_get_contents ($CACHED_VALBENCH_RESULTS);
+
+		// Generate graphs
+		$compare_results = c ("test/framework/bench/valbench_compare -p '$php_results $result_string'");
+
+		// This creates a ton of PNGs in the current directory. Move them to results.
+		c ("mv *.png $LOG_DIR");
+
+		// Return the combined instruction count.
+		// TODO: a result with cache/branch_prediction would be nice.
+		$short_results = unserialize ($compare_results);
+		return $short_results["instruction"];
 	}
 
 	function initialize_db ()
@@ -378,13 +394,14 @@
 		// Just check the first file.
 		if (preg_match ("#^Index: branches/([^\/]+)/#", $diff, $matches))
 		{
-				return "branches/{$matches[1]}";
+			return "branches/{$matches[1]}";
 		}
 		else if (preg_match ("#^Index: trunk#", $diff))
 			return "trunk";
 		else
 		{
-			// This happened when we deleted a branch. It might happen other times?
+			// This happened when we deleted a branch. It might happen other
+			// times?
 			// TODO: we could get more info with --summarize
 			return "";
 		}

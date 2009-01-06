@@ -7,19 +7,21 @@
 	set_include_path ("test/framework/external/" . PATH_SEPARATOR . get_include_path () );
 	$cg = new Console_Getopt();
 	$command_line = join (" ", $cg->readPHPArgv());
-	$opt_result = $cg->getopt($cg->readPHPArgv(), "sh");
+	$opt_result = $cg->getopt($cg->readPHPArgv(), "shp");
 	if (!is_array ($opt_result))
 		die ($opt_result->message."\n");
 
 	list ($opts, $arguments) = $opt_result;
 	$opt_short = false;
 	$opt_help = false;
+	$opt_png = false;
 	foreach ($opts as $opt) 
 	{
 		switch ($opt[0])
 		{
 			case 'h': $opt_help = true; break;
 			case 's': $opt_short = true; break;
+			case 'p': $opt_png = true; break;
 		}
 	}
 
@@ -34,8 +36,8 @@ Usage: valbench_compare [OPTIONS] BASELINE RESULT
 Options:
     -h     Print this help message
     -s     Print a combined result, but only for instruction count,
-			  L1 instruction misses, L2 misses and branch mispredictions
-    -m     Merge - average all the results.
+			  cache misses and branch mispredictions
+    -p     Create PNGs instead of EPSs.
 EOL
 		);
 	}
@@ -76,9 +78,13 @@ EOL
 
 
 
-
 	$baseline = unserialize ($arguments[0]);
 	$other = unserialize ($arguments[1]);
+
+	if ($baseline === FALSE)
+		die ("Error in unserializing arg0: $arguments[0]");
+	if ($other === FALSE)
+		die ("Error in unserializing arg1: $arguments[1]");
 
 	$baseline = strip_useless ($baseline);
 	$other = strip_useless ($other);
@@ -138,7 +144,7 @@ EOL
 	// RESULTS, with the values of RESULTS.
 	function print_barchart ($title, $results, $mean = false, $sort = false)
 	{
-		global $abbreviations;
+		global $abbreviations, $opt_png;
 
 		$mean = $mean ? "=arithmean" : "";
 		$sort = $sort ? "=sort" : "";
@@ -163,8 +169,12 @@ $data
  
 BARGRAPH;
 
-		# bargraph.pl is available from http://www.burningcutlery.com/derek/bargraph/
-		echo `bash -c "bargraph.pl <(echo '$string') > $title.eps"`;
+		# bargraph.pl is available from
+		# http://www.burningcutlery.com/derek/bargraph/
+		if ($opt_png)
+			`bash -c "bargraph.pl -png <(echo '$string') > $title.png"`;
+		else
+			`bash -c "bargraph.pl <(echo '$string') > $title.eps"`;
 	}
 
 	function combine_reducer ($combined, $arr)
