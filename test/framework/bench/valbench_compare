@@ -1,0 +1,223 @@
+#!/usr/bin/env php
+<?php
+//	error_reporting (E_ALL);
+
+	# get command line options
+	require_once ("Console/Getopt.php");
+	set_include_path ("test/framework/external/" . PATH_SEPARATOR . get_include_path () );
+	$cg = new Console_Getopt();
+	$command_line = join (" ", $cg->readPHPArgv());
+	$opt_result = $cg->getopt($cg->readPHPArgv(), "sh");
+	if (!is_array ($opt_result))
+		die ($opt_result->message."\n");
+
+	list ($opts, $arguments) = $opt_result;
+	$opt_short = false;
+	$opt_help = false;
+	foreach ($opts as $opt) 
+	{
+		switch ($opt[0])
+		{
+			case 'h': $opt_help = true; break;
+			case 's': $opt_short = true; break;
+		}
+	}
+
+	# help message
+	if ($opt_help || count ($arguments) != 2)
+	{
+		die (<<<EOL
+valbench_compare - Compares valbench results with a baseline. The baseline and the results are a serialized array, as produced by valbench -s.
+
+Usage: valbench_compare [OPTIONS] BASELINE RESULT
+
+Options:
+    -h     Print this help message
+    -s     Print a combined result, but only for instruction count,
+			  L1 instruction misses, L2 misses and branch mispredictions
+    -m     Merge - average all the results.
+EOL
+		);
+	}
+
+	$useless_tests = array ("simple", "simplecall", "simpleucall", "simpleudcall");
+
+	$short_keys = array ("instruction",
+								"instruction_l1_miss",
+								"data_l1_miss",
+								"l2_miss",
+								"branch_misprediction");
+
+	$abbreviations = array(
+			"branch" => "branch",
+			"branch_conditional" => "b_cond",
+			"branch_conditional_misprediction" => "bc_miss",
+			"branch_indirect" => "b_indir",
+			"branch_indirect_misprediction" => "bi_miss",
+			"branch_misprediction" => "b_miss",
+			"data" => "data",
+			"data_l1_miss" => "d1_miss",
+			"data_l1_miss_read" => "d1m_rd",
+			"data_l1_miss_write" => "d1m_wr",
+			"data_l2_miss" => "d2_miss",
+			"data_l2_miss_read" => "d2m_rd",
+			"data_l2_miss_write" => "d2m_wr",
+			"data_read" => "data_rd",
+			"data_write" => "data_wr",
+			"instruction" => "instr",
+			"instruction_l1_miss" => "i1_miss",
+			"instruction_l2_miss" => "i2_miss",
+			"l2" => "l2",
+			"l2_miss" => "l2_miss",
+			"l2_miss_read" => "l2m_rd",
+			"l2_miss_write" => "l2m_wr",
+			"l2_read" => "l2_rd",
+			"l2_write" => "l2_wr");
+
+
+
+
+	$baseline = unserialize ($arguments[0]);
+	$other = unserialize ($arguments[1]);
+
+	$baseline = strip_useless ($baseline);
+	$other = strip_useless ($other);
+
+	$results = compare ($baseline, $other);
+	$short_results = shorten ($results);
+
+
+	/*
+	 *	Generate graphs
+	 */
+
+	// Foreach test, a bar chart with each metric
+	foreach ($results as $key => $individual)
+	{
+		print_barchart ($key, $individual);
+	}
+
+	// A barchart with each metric, averaged over all tests
+	print_barchart ("All", combine ($results));
+
+	// For each short metric, a barchart containing all tests.
+	foreach ($short_keys as $key)
+	{
+		$result = array();
+		foreach ($short_results as $test_name => $test_result)
+		{
+			$result[$test_name] = $test_result[$key];
+		}
+		print_barchart ($key, $result, "mean", "sort");
+	}
+	
+	// Print the short results
+	echo (serialize (combine ($short_results)));
+
+
+
+
+
+	// Takes 2 arrays, the baseline and the result to be compared to the
+	// baseline. Returns a new array.
+	function compare ($r1, $r2)
+	{
+		foreach ($r2 as $test_name => &$test_result)
+		{
+			foreach ($test_result as $key => &$value)
+			{
+				$base_val = $r1[$test_name][$key];
+				if ($base_val != 0)
+					$value = $base_val / $value; // go for 'bigger numbers are better'
+			}
+		}
+		return $r2;
+	}
+
+	// Create a barchart with TITLE, and the bars named with the keys of
+	// RESULTS, with the values of RESULTS.
+	function print_barchart ($title, $results, $mean = false, $sort = false)
+	{
+		global $abbreviations;
+
+		$mean = $mean ? "=arithmean" : "";
+		$sort = $sort ? "=sort" : "";
+
+		$data = "";
+		foreach ($results as $name => $value)
+		{
+			if (isset ($abbreviations[$name]))
+				$data .= "{$abbreviations[$name]} $value\n";
+			else
+				$data .= "$name $value\n";
+		}
+
+
+		$string = <<<BARGRAPH
+yformat=%gx
+ylabel=Improvement of $title
+$mean
+$sort
+
+$data
+ 
+BARGRAPH;
+
+		# bargraph.pl is available from http://www.burningcutlery.com/derek/bargraph/
+		echo `bash -c "bargraph.pl <(echo '$string') > $title.eps"`;
+	}
+
+	function combine_reducer ($combined, $arr)
+	{
+		foreach ($arr as $key => $val)
+		{
+			$combined[$key] += $val;
+		}
+		return $combined;
+	}
+	
+	// Take an array of array of results. Combine all the sets into a singleset of results
+	function combine ($array)
+	{
+		// TODO: this loses the ability to use bargraph's error bars.
+
+		// Sum them
+		$result = array_reduce (array_values ($array), "combine_reducer");
+
+		// Average them
+		$count = count ($array);
+		foreach ($result as &$val)
+			$val /= $count;
+
+		return $result;
+	}
+
+	// Remove all but the most interesting of results.
+	function shorten ($all_results)
+	{
+		global $short_keys;
+
+
+		foreach ($all_results as $test_name => $test_result)
+		{
+			foreach ($test_result as $key => $value)
+			{
+				if (!in_array ($key, $short_keys))
+					unset ($all_results[$test_name][$key]);
+			}
+		}
+
+		return $all_results;
+	}
+
+	function strip_useless ($results)
+	{
+		global $useless_tests;
+
+		foreach ($results as $test_name => $test_results)
+		{
+			if (in_array ($test_name, $useless_tests))
+				unset ($results[$test_name]);
+		}
+		return $results;
+	}
