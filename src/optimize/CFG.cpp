@@ -78,7 +78,12 @@ CFG::add_bb (Basic_block* bb)
 Edge*
 CFG::add_edge (Basic_block* source, Basic_block* target)
 {
-	edge_t e = boost::add_edge (source->vertex, target->vertex, bs).first;
+	std::pair<edge_t,bool> pair = boost::add_edge (source->vertex, target->vertex, bs);
+
+	// The graph should allow parallel edges.
+	assert (pair.second);
+
+	edge_t e = pair.first;
 	ee[e] = new Edge (this, e);
 	return ee[e];
 }
@@ -87,8 +92,15 @@ pair<Edge*, Edge*>
 CFG::add_branch (Branch_block* source, Basic_block* target1, Basic_block* target2)
 {
 	assert (source);
-	edge_t et = boost::add_edge (source->vertex, target1->vertex, bs).first;
-	edge_t ef = boost::add_edge (source->vertex, target2->vertex, bs).first;
+	std::pair<edge_t,bool> true_pair = boost::add_edge (source->vertex, target1->vertex, bs);
+	std::pair<edge_t,bool> false_pair = boost::add_edge (source->vertex, target2->vertex, bs);
+
+	// The graph should allow parallel edges.
+	assert (true_pair.second);
+	assert (false_pair.second);
+
+	edge_t et = true_pair.first;
+	edge_t ef = false_pair.first;
 
 	ee[et] = new Edge (this, et, true);
 	ee[ef] = new Edge (this, ef, false);
@@ -1072,10 +1084,22 @@ CFG::clean ()
 {
 	consistency_check ();
 
-	remove_unreachable_blocks ();
-	fix_solo_phi_args ();
-	fold_redundant_branches ();
-	remove_empty_blocks ();
+	// Iterate until the number of nodes and edges fix-points.
+	unsigned int last_node_count;
+	unsigned int last_edge_count;
+	do
+	{
+		last_node_count = get_all_bbs()->size();
+		last_edge_count = get_all_edges ()->size();
+
+		remove_unreachable_blocks ();
+		fix_solo_phi_args ();
+		fold_redundant_branches ();
+		remove_empty_blocks ();
+	}
+	while (	last_node_count != get_all_bbs ()->size()
+			|| last_edge_count != get_all_edges ()->size());
+
 
 	consistency_check ();
 }
@@ -1197,10 +1221,10 @@ CFG::remove_empty_blocks ()
 			if (succ == eb)
 				continue;
 
-			// If the successor has another predeccessor, how will we know what to
-			// put in the phi node (BB's phi node, that is, once its moved to the
-			// successor)? Leave it in, it can be removed when the phi nodes are
-			// dropped.
+			// If the successor has another predeccessor, how will we know what
+			// to put in the phi node (BB's phi node, that is, once its moved to
+			// the successor)? Leave it in, it can be removed when the phi nodes
+			// are dropped.
 			if (succ->get_predecessors ()->size () > 1 && bb->get_phi_lhss ()->size () > 0)
 				continue;
 
@@ -1217,6 +1241,13 @@ CFG::remove_empty_blocks ()
 				new_edge->direction = pred_edge->direction;
 				new_edge->copy_phi_map (pred_edge);
 				new_edge->copy_phi_map (succ_edge);
+
+				// If there are more than 1 edges with the
+				// same source and target (ie from a branch), then we run the
+				// risk of getting the same edge more than once. If that happens,
+				// we'll give the same direction to both edges, which is wrong.
+				// To avoid this, remove the edge once we've added the new one.
+				remove_edge (pred_edge);
 			}
 
 			rip_bb_out (eb);
