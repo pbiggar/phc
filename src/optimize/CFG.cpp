@@ -213,6 +213,10 @@ CFG::get_entry_bb ()
 Exit_block*
 CFG::get_exit_bb ()
 {
+	// The exit block can be missing, if there is no path to it (say, an
+	// infinite loop).
+	assert (exit != NULL);
+
 	return dyc<Exit_block> (vb[exit]);
 }
 
@@ -919,9 +923,16 @@ void
 CFG::rip_bb_out (Basic_block* bb)
 {
 	assert (!isa<Entry_block> (bb));
-	assert (!isa<Exit_block> (bb));
+
 	boost::clear_vertex (bb->vertex, bs);
 	boost::remove_vertex (bb->vertex, bs);
+
+	// We need to be able to model CFGs with no exit block. These CFGs cannot
+	// have post-dominance, however, due to an implementation issue.
+	if (isa<Exit_block> (bb))
+	{
+		exit = NULL;
+	}
 }
 
 void
@@ -1135,10 +1146,7 @@ CFG::remove_unreachable_blocks ()
 	{
 		if (reachable.find (bb) == reachable.end ())
 		{
-			// TODO: this is definitely possible. What then?
-			assert (!isa<Exit_block> (bb));
-
-			// Dont just convert to an empty node. Rip it out entirely.
+			// Even if its an exit block!
 			rip_bb_out (bb);
 		}
 	}

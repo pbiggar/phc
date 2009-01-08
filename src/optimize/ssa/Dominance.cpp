@@ -61,8 +61,8 @@ calculate_dominance (Dominance* info, Graph_type& graph, vertex_t entry)
 	// using cfg->vb, we can use CFG properties though, so long as they dont
 	// specify a direction.
 
-	// Calculating info->idominator is copied, with very few changes, from Boost
-	// documentation.
+	// Calculating info->idominator is copied, with very few changes, from
+	// Boost documentation.
 
 
 	// Step 1: Calculate immediate dominators.
@@ -139,11 +139,16 @@ Dominance::calculate_forward_dominance()
 void
 Dominance::calculate_reverse_dominance ()
 {
-	// reverse_graph<Graph> is not related to Graph, so we must use templates
-	// for caluclate dominance (meaning it cannot be a method).
-	reverse_dominance = new Dominance (cfg);
-	reverse_graph<Graph> rev(cfg->bs);
-	calculate_dominance (reverse_dominance, rev, cfg->exit);
+	if (cfg->exit == NULL)
+		reverse_dominance = NULL;
+	else
+	{
+		// reverse_graph<Graph> is not related to Graph, so we must use
+		// templates for caluclate dominance (meaning it cannot be a method).
+		reverse_dominance = new Dominance (cfg);
+		reverse_graph<Graph> rev (cfg->bs);
+		calculate_dominance (reverse_dominance, rev, cfg->exit);
+	}
 }
 
 

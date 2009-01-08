@@ -509,24 +509,35 @@ Basic_block::get_dominated_blocks ()
 Basic_block*
 Basic_block::get_immediate_reverse_dominator ()
 {
+	if (cfg->dominance->reverse_dominance == NULL)
+		PUNT;
+
 	return cfg->dominance->reverse_dominance->get_bb_immediate_dominator (this);
 }
 
 BB_list*
 Basic_block::get_reverse_dominated_blocks ()
 {
+	if (cfg->dominance->reverse_dominance == NULL)
+		PUNT;
+
 	return cfg->dominance->reverse_dominance->get_blocks_dominated_by_bb (this);
 }
 
 bool
 Basic_block::is_reverse_dominated_by (Basic_block* bb)
 {
+	if (cfg->dominance->reverse_dominance == NULL)
+		PUNT;
 	return cfg->dominance->reverse_dominance->is_bb_dominated_by (this, bb);
 }
 
 BB_list*
 Basic_block::get_reverse_dominance_frontier ()
 {
+	if (cfg->dominance->reverse_dominance == NULL)
+		PUNT;
+
 	return cfg->dominance->reverse_dominance->get_bb_dominance_frontier (this);
 }
 
