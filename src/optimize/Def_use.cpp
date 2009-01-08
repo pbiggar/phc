@@ -392,7 +392,7 @@ Def_use_web::visit_assign_array (Statement_block* bb, MIR::Assign_array* in)
 void
 Def_use_web::visit_assign_field (Statement_block*, MIR::Assign_field * in)
 {
-	assert (0);
+	PUNT;
 }
 
 void
@@ -405,7 +405,7 @@ Def_use_web::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 void
 Def_use_web::visit_assign_var_var (Statement_block*, MIR::Assign_var_var* in)
 {
-	assert (0);
+	PUNT;
 }
 
 void
@@ -442,13 +442,13 @@ Def_use_web::visit_global (Statement_block* bb, MIR::Global* in)
 	if (isa<VARIABLE_NAME> (in->variable_name))
 		add_def (dyc<VARIABLE_NAME> (in->variable_name), new SSA_stmt (bb), false);
 	else
-		phc_TODO (); // global var-var!
+		PUNT; // global var-var!
 }
 
 void
 Def_use_web::visit_pre_op (Statement_block*, MIR::Pre_op* in)
 {
-	assert (0);
+	PUNT;
 }
 
 void
@@ -477,19 +477,19 @@ Def_use_web::visit_ssa_pre_op (Statement_block* bb, MIR::SSA_pre_op* in)
 void
 Def_use_web::visit_static_declaration (Statement_block*, MIR::Static_declaration* in)
 {
-	assert (0);
+	PUNT;
 }
 
 void
 Def_use_web::visit_throw (Statement_block*, MIR::Throw* in)
 {
-	assert (0);
+	PUNT;
 }
 
 void
 Def_use_web::visit_try (Statement_block*, MIR::Try* in)
 {
-	assert (0);
+	PUNT;
 }
 
 void
@@ -551,7 +551,7 @@ Def_use_web::visit_constant (Statement_block* bb, Constant* in)
 void
 Def_use_web::visit_field_access (Statement_block* bb, Field_access* in)
 {
-	assert (0);
+	PUNT;
 }
 
 void
@@ -578,13 +578,13 @@ Def_use_web::visit_foreach_has_key (Statement_block* bb, Foreach_has_key* in)
 void
 Def_use_web::visit_instanceof (Statement_block* bb, Instanceof* in)
 {
-	assert (0);
+	PUNT;
 }
 
 void
 Def_use_web::visit_isset (Statement_block* bb, Isset* in)
 {
-	assert (0);
+	PUNT;
 }
 
 void
@@ -593,7 +593,7 @@ Def_use_web::visit_method_invocation (Statement_block* bb, Method_invocation* in
 	add_call_clobbering (bb);
 
 	if (isa<Variable_method> (in->method_name))
-		assert (0);
+		PUNT;
 
 	foreach (Actual_parameter* param, *in->actual_parameters)
 	{
@@ -612,7 +612,7 @@ void
 Def_use_web::visit_new (Statement_block* bb, New* in)
 {
 	add_call_clobbering (bb);
-	assert (0);
+	PUNT;
 }
 
 void
@@ -630,7 +630,7 @@ Def_use_web::visit_variable_name (Statement_block* bb, VARIABLE_NAME* in)
 void
 Def_use_web::visit_variable_variable (Statement_block* bb, Variable_variable* in)
 {
-	assert (0);
+	PUNT;
 }
 
 

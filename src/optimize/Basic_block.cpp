@@ -421,7 +421,7 @@ Branch_block::get_true_successor ()
 		if (cfg->is_true_edge (succ))
 			return succ->get_target ();
 
-	assert (0);
+	phc_unreachable ();
 }
 
 
@@ -435,7 +435,7 @@ Branch_block::get_false_successor ()
 		if (not cfg->is_true_edge (succ))
 			return succ->get_target ();
 
-	assert (0);
+	phc_unreachable ();
 }
 
 Edge*
@@ -448,7 +448,7 @@ Branch_block::get_true_successor_edge ()
 		if (cfg->is_true_edge (succ))
 			return succ;
 
-	assert (0);
+	phc_unreachable ();
 }
 
 Edge*
@@ -461,7 +461,7 @@ Branch_block::get_false_successor_edge ()
 		if (not cfg->is_true_edge (succ))
 			return succ;
 
-	assert (0);
+	phc_unreachable ();
 }
 
 void

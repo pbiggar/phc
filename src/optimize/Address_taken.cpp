@@ -57,7 +57,7 @@ void
 Address_taken::alias_bottom (Basic_block* bb)
 {
 	// Havent thought this one through yet
-	assert (0);
+	PUNT;
 	aliases->insert_all ();
 }
 
@@ -104,7 +104,7 @@ Address_taken::aliased (Basic_block* bb, VARIABLE_NAME* in)
 void
 Address_taken::alias_expr (Basic_block* bb, Expr* in)
 {
-	phc_TODO ();
+	PUNT;
 	switch(in->classid())
 	{
 		case BOOL::ID:
@@ -125,7 +125,7 @@ Address_taken::alias_expr (Basic_block* bb, Expr* in)
 		case Param_is_ref::ID:
 		case Unary_op::ID:
 		case Field_access::ID:
-			phc_TODO ();
+			PUNT;
 			// do nothing
 			break;
 
@@ -136,14 +136,14 @@ Address_taken::alias_expr (Basic_block* bb, Expr* in)
 			// $r means everything is aliased unless $t or $i
 		case Method_invocation::ID:
 		{
-			phc_TODO ();
+			PUNT;
 			Method_invocation* mi = dyc<Method_invocation> (in);
 			break;
 		}
 
 		case New::ID:
 		{
-			phc_TODO ();
+			PUNT;
 			New* n = dyc<New> (in);
 
 			foreach (Actual_parameter* ap, *n->actual_parameters)
@@ -153,17 +153,17 @@ Address_taken::alias_expr (Basic_block* bb, Expr* in)
 		}
 
 		case VARIABLE_NAME::ID:
-			phc_TODO ();
+			PUNT;
 			aliased (bb, dyc<VARIABLE_NAME> (in));
 			break;
 
 		case Variable_variable::ID:
-			phc_TODO ();
+			PUNT;
 			alias_bottom (bb);
 			break;
 
 		default:
-			assert (0);
+			PUNT;
 			break;
 	}
 }
@@ -208,7 +208,7 @@ Address_taken::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 void
 Address_taken::visit_assign_var_var (Statement_block* bb, MIR::Assign_var_var* in)
 {
-	phc_TODO ();
+	PUNT;
 	if (in->is_ref)
 	{
 		aliased (bb, in->lhs);
@@ -289,7 +289,7 @@ Address_taken::visit_array_access (Statement_block* bb, MIR::Array_access* in)
 void
 Address_taken::visit_field_access (Statement_block* bb, MIR::Field_access* in)
 {
-	phc_TODO ();
+	PUNT;
 }
 
 void
@@ -313,12 +313,12 @@ Address_taken::visit_foreach_has_key (Statement_block* bb, MIR::Foreach_has_key*
 void
 Address_taken::visit_instanceof (Statement_block* bb, MIR::Instanceof* in)
 {
-	phc_TODO ();
+	PUNT;
 }
 void
 Address_taken::visit_isset (Statement_block* bb, MIR::Isset* in)
 {
-	phc_TODO ();
+	PUNT;
 }
 void
 Address_taken::visit_method_invocation (Statement_block* bb, MIR::Method_invocation* in)
@@ -342,7 +342,7 @@ Address_taken::visit_method_invocation (Statement_block* bb, MIR::Method_invocat
 void
 Address_taken::visit_new (Statement_block* bb, MIR::New* in)
 {
-	phc_TODO ();
+	PUNT;
 }
 
 void
@@ -350,7 +350,7 @@ Address_taken::visit_variable_variable (Statement_block* bb, MIR::Variable_varia
 {
 	// TODO:
 	// Is this a may-use of possibly every variable in the function?
-	phc_TODO ();
+	PUNT;
 }
 
 

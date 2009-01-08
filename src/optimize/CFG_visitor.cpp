@@ -98,12 +98,12 @@ CFG_visitor::visit_block (Basic_block* bb)
 				break;
 			default:
 				xdebug (sb->statement);
-				assert (0);
+				PUNT;
 		}
 	}
 
 	else
-		assert (0);
+		phc_unreachable ();
 }
 
 void

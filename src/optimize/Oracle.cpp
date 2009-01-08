@@ -43,7 +43,7 @@ void
 Oracle::add_signature (Signature* sig)
 {
 	if (Oracle::sigs.has (*sig->method_name->value))
-		assert (0);
+		assert (0); // TODO put a warning much earlier in the pass queue
 	
 	sigs[*sig->method_name->value] = sig;
 }

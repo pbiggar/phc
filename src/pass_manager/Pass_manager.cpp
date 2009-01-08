@@ -758,38 +758,48 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 					if (args_info->verbose_flag)
 						cout << "Running pass: " << *pass->name << endl;
 
-					maybe_enable_debug (build_pass);
-					HSSA* hssa;
-					if (opt->require_ssa)
+					// If an optimization pass sees something it cant handle, it
+					// throws an exception, and we skip optimizing the function.
+					try
 					{
-						// Convert to SSA form
-						hssa = new HSSA (cfg);
-						hssa->convert_to_hssa_form ();
+						maybe_enable_debug (build_pass);
+						HSSA* hssa;
+						if (opt->require_ssa)
+						{
+							// Convert to SSA form
+							hssa = new HSSA (cfg);
+							hssa->convert_to_hssa_form ();
+							cfg->clean ();
+							cfg_dump (cfg, pass, s("In SSA (cleaned)"), iter);
+						}
+						else
+						{
+							// We still want use-def information.
+							cfg->duw = new Def_use_web (NULL);
+							cfg->duw->run (cfg);
+							cfg_dump (cfg, pass, s("Non-SSA"), iter);
+						}
+
+
+						// Run optimization
+						maybe_enable_debug (pass);
+						opt->run (cfg, this);
 						cfg->clean ();
-						cfg_dump (cfg, pass, s("In SSA (cleaned)"), iter);
+						cfg_dump (cfg, pass, s("After optimization (cleaned)"), iter);
+
+						// Convert out of SSA
+						if (opt->require_ssa)
+						{
+							maybe_enable_debug (drop_pass);
+							hssa->convert_out_of_ssa_form ();
+							cfg->clean ();
+							cfg_dump (cfg, pass, s("Out of SSA (cleaned)"), iter);
+						}
 					}
-					else
+					catch (...)
 					{
-						// We still want use-def information.
-						cfg->duw = new Def_use_web (NULL);
-						cfg->duw->run (cfg);
-						cfg_dump (cfg, pass, s("Non-SSA"), iter);
-					}
-
-
-					// Run optimization
-					maybe_enable_debug (pass);
-					opt->run (cfg, this);
-					cfg->clean ();
-					cfg_dump (cfg, pass, s("After optimization (cleaned)"), iter);
-
-					// Convert out of SSA
-					if (opt->require_ssa)
-					{
-						maybe_enable_debug (drop_pass);
-						hssa->convert_out_of_ssa_form ();
-						cfg->clean ();
-						cfg_dump (cfg, pass, s("Out of SSA (cleaned)"), iter);
+						phc_missed_opt ("exceptional code in pass %s and method %s", method,
+							*pass->name->c_str (), *method->signature->method_name->value->c_str ());
 					}
 				}
 				cfg_dump (cfg, cfg_pass, s("After full set of passes"), iter);
