@@ -608,9 +608,8 @@ public:
 
 	void visit_phi_node (Basic_block* bb, VARIABLE_NAME* phi_lhs)
 	{
-		// Dont update phi nodes. Since we drop phi nodes, we need to bring the phi
-		// arguments back into the IR. However, if we weren't able to remove the old
-		// assignment, then this will introduce two assignments.
+		// Dont update phi nodes. We're going to drop them later, and we dont
+		// want to remove the use of the variable.
 	}
 
 	void visit_branch_block (Branch_block* bb)
@@ -640,10 +639,10 @@ public:
 	void visit_assign_next (Statement_block*, MIR::Assign_next* in)
 	{
 		if (!in->is_ref)
-			PUNT;
-
-		if (Literal* rhs = get_literal (in->rhs))
-			in->rhs = rhs;
+		{
+			Literal* rhs = get_literal (in->rhs);
+			if (rhs) in->rhs = rhs;
+		}
 	}
 
 	void visit_assign_var (Statement_block* bb, MIR::Assign_var* in)

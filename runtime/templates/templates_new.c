@@ -557,7 +557,7 @@ assign_var_var_ref (token INDEX, node RHS)
  * Assign_next
  * TODO: These are are more than a bit of a mess.
  */
-assign_next (token LHS, token RHS)
+assign_next (token LHS, node RHS)
 @@@
    \get_st_entry ("LOCAL", "p_array", LHS);
    // Push EG(uninit) and get a pointer to the symtable entry
@@ -572,7 +572,7 @@ assign_next (token LHS, token RHS)
    // push onto it.
 @@@
 
-assign_next_ref (token LHS, node RHS)
+assign_next_ref (token LHS, token RHS)
 @@@
    \get_st_entry ("LOCAL", "p_array", LHS);
    // Push EG(uninit) and get a pointer to the symtable entry
