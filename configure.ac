@@ -81,11 +81,13 @@ dnl check xerces unless disabled
 AS_IF([test "x$with_xerces" != xno], [AC_CHECK_LIB_XERCES], [])
 
 # USE GC unless disabled
+# libgccpp overrides ::new, which is required to collect the Boost Graph Library.
 AS_IF([test "x$enable_gc" != xno],
 		[
 			AC_CHECK_HEADER([gc/gc_cpp.h], [], [AC_MSG_FAILURE(libgc required)])
 			AC_CHECK_LIB([gc], [main], [], [AC_MSG_FAILURE(libgc required)])
-			AC_SUBST([gc_lib], [-lgc])
+			AC_CHECK_LIB([gccpp], [main], [], [AC_MSG_FAILURE(libgccpp required)])
+			AC_SUBST([gc_lib], ["-lgc -lgccpp"])
 		],
 		[AC_DEFINE(DISABLE_GC, 1)])
 

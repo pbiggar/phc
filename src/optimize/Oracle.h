@@ -9,7 +9,7 @@
 // TODO: though currently a singleton, we may want to make this instantiable
 // (and clonable presumably) to handle context-sensitivity, or speculative
 // optimizations.
-class Oracle
+class Oracle : virtual public GC_obj
 {
 private:
 	Oracle ();

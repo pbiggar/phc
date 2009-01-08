@@ -40,22 +40,6 @@ public:
 	// Indicate to BGL that this represents a vertex internal property.
 	typedef boost::edge_property_tag kind;
 
-public:
-	/*
-	 * Graphviz properties
-	 */
-
-/*	virtual String* get_graphviz_label () = 0;
-
-	// Override if there are extra properties for this block.
-	// Returns a list of (name,value) pairs
-	virtual list<std::pair<String*,String*> >* get_graphviz_properties ();
-
-	// Returns a list of (name, list[values]) pairs
-	virtual list<pair<String*,Set*> >* get_graphviz_bb_properties ();
-	virtual list<pair<String*,Set*> >* get_graphviz_head_properties ();
-	virtual list<pair<String*,Set*> >* get_graphviz_tail_properties ();
-*/
 };
 
 // TODO move to SSA.h

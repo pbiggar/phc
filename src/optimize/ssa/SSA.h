@@ -6,7 +6,7 @@
 #include "../CFG.h"
 #include "../Basic_block.h"
 
-// Renaming (Cooper/Torczon, setion 9.3.4).
+// Renaming (Cooper/Torczon, section 9.3.4).
 
 /* Given a BB, this will perform recursively perform SSA renaming, descending
  * the dominator tree. COUNTER is the version of the next SSA_NAME. VAR_STACKS

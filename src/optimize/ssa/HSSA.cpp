@@ -301,7 +301,7 @@ HSSA::convert_to_hssa_form ()
 
 
 	// Check all variables are converted
-	class Check_in_SSA : public Visitor
+	class Check_in_SSA : public Visitor, virtual public GC_obj
 	{
 		void pre_variable_name (VARIABLE_NAME* in)
 		{

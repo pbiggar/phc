@@ -16,6 +16,11 @@ class Vector : public std::vector<_Tp, _Alloc>, virtual public GC_obj
 {
 public:
 	Vector () : std::vector<_Tp, _Alloc>() {}
+	Vector (size_t n, const _Tp& value = _Tp(), const _Alloc& _a = _Alloc())
+	: std::vector<_Tp, _Alloc> (n, value, _a)
+	{
+	}
+
 	virtual ~Vector () {}
 };
 

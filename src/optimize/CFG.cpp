@@ -17,6 +17,7 @@
 #include "process_ast/DOT_unparser.h"
 #include "process_ir/General.h"
 #include "lib/escape.h"
+#include "lib/Vector.h"
 
 #include "Address_taken.h"
 #include "CFG.h"
@@ -112,10 +113,10 @@ void
 CFG::add_statements (Statement_list* statements)
 {
 	// Keep track of labels, for edges between gotos and branches.
-	map <string, vertex_t> labels;
+	Map <string, vertex_t> labels;
 
 	// In the second pass, we'll need the vertices to add edges.
-	map <Statement*, vertex_t> nodes;
+	Map <Statement*, vertex_t> nodes;
 
 
 	// In the first pass, just create nodes for the statements.
@@ -230,7 +231,7 @@ CFG::get_all_bbs ()
 
 // TODO simplify linearizer
 template <class Graph>
-class Depth_first_list : public default_dfs_visitor
+class Depth_first_list : public default_dfs_visitor, virtual public GC_obj
 {
 public:
 	BB_list* result;
@@ -598,13 +599,13 @@ CFG::consistency_check ()
 
 // Do a depth first search. For each block, add a label, and a goto to the
 // next block(s).
-class Linearizer : public default_dfs_visitor
+class Linearizer : public default_dfs_visitor, virtual public GC_obj
 {
 	CFG* cfg;
 	// Since the linearizer is passed by copy, a non-pointer would be
 	// deallocated after the depth-first-search. However, we need to keep the
 	// exit_label alive.
-	map<vertex_t, LABEL_NAME*>* labels;
+	Map<vertex_t, LABEL_NAME*>* labels;
 
 public:
 
@@ -612,7 +613,7 @@ public:
 	Linearizer(CFG* cfg) : cfg(cfg)
 	{
 		statements = new List<Statement*>;
-		labels = new map<vertex_t, LABEL_NAME*>;
+		labels = new Map<vertex_t, LABEL_NAME*>;
 	}
 
 	/* Assign a label for each block. */
@@ -661,11 +662,11 @@ public:
 	}
 };
 
-class Label_counter : public Visitor
+class Label_counter : public Visitor, virtual public GC_obj
 {
-	map<string, int>* counts;
+	Map<string, int>* counts;
 public:
-	Label_counter (map<string, int>* c) : counts(c) {}
+	Label_counter (Map<string, int>* c) : counts(c) {}
 
 	void pre_label_name (LABEL_NAME* in)
 	{
@@ -703,7 +704,7 @@ CFG::get_linear_statements ()
 	}
 
 	/* Remove labels that are only used once. */
-	map<string, int> label_counts;
+	Map<string, int> label_counts;
 	(new Label_counter (&label_counts))->visit_statement_list (results);
 
 	i = results->begin ();
@@ -1025,7 +1026,7 @@ CFG::remove_edge (Edge* edge)
 }
 
 
-struct filter_back_edges
+struct filter_back_edges : virtual public GC_obj
 {
 	CFG* cfg;
 
@@ -1055,7 +1056,7 @@ CFG::get_all_bbs_top_down ()
 	DAG fg (bs, filter_back_edges (this));
 
 	// Do a topologic sort on the graph.
-	vector<vertex_t> vertices;
+	Vector<vertex_t> vertices;
 	topological_sort(fg, back_inserter(vertices), color_map(cm));
 
 	// Convert to a list of BBs
@@ -1107,7 +1108,7 @@ CFG::clean ()
 void
 CFG::remove_unreachable_blocks ()
 {
-	set<Basic_block*> reachable;
+	Set<Basic_block*> reachable;
 
 	// Mark-sweep to remove unreachable nodes.
 	BB_list* worklist = new BB_list(get_entry_bb ());

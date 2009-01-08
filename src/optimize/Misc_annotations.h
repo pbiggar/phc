@@ -12,7 +12,7 @@
 #include "Visit_once.h"
 #include "Address_taken.h"
 
-class Misc_annotations : virtual public GC_obj, public Visit_once
+class Misc_annotations : public Visit_once
 {
 private:
 	Address_taken* aliasing;

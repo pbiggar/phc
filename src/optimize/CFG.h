@@ -37,16 +37,38 @@ enum vertex_bb_t { vertex_bb };
 // Property for Edge*
 enum edge_cfg_edge_t { edge_cfg_edge };
 
-// TODO: Remove. If phc is being used as a library, this isn't very polite,
-// and could lead to the same problems as monkey-patching in Ruby. 
+
+struct phc_listS {};
+
 namespace boost {
+
   BOOST_INSTALL_PROPERTY(vertex, bb);
   BOOST_INSTALL_PROPERTY(edge, cfg_edge);
+
+	// In order to use garbage collection, we have to specify the type to be a
+	// List instead of an std::list. This is copied from container_gen.cpp.
+	template <class ValueType>
+	struct container_gen <phc_listS, ValueType>
+	{
+		typedef List<ValueType> type;
+	};
+
+	template<>
+	struct parallel_edge_traits<phc_listS>
+	{
+		typedef allow_parallel_edge_tag type;
+	};
 }
 
 typedef boost::adjacency_list<
-	boost::listS,
-	boost::listS,
+
+	// OutEdgeList
+	phc_listS,
+
+	// VertexList
+	phc_listS,
+
+	// Direction
 	boost::bidirectionalS, // we want access to source and targets of edges
 
 	// Vertex properties
@@ -54,8 +76,14 @@ typedef boost::adjacency_list<
 		boost::property<boost::vertex_color_t, boost::default_color_type,
 			boost::property<vertex_bb_t, Basic_block*> > >,
 
-	// Edge property
-	boost::property<edge_cfg_edge_t, Edge*>
+	// Edge properties
+	boost::property<edge_cfg_edge_t, Edge*>,
+
+	// Graph properties
+	boost::no_property,
+
+	// EdgeList
+	phc_listS
 > Graph;
 
 

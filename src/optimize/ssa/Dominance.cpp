@@ -4,6 +4,7 @@
 #include <boost/graph/reverse_graph.hpp>
 
 #include "process_ir/General.h"
+#include "lib/Vector.h"
 
 #include "optimize/Basic_block.h"
 #include "Dominance.h"
@@ -68,9 +69,9 @@ calculate_dominance (Dominance* info, Graph_type& graph, vertex_t entry)
 	// This automatically builds dominators: ie, given y, find x such
 	// that x idom y.
 	typedef typename property_map<Graph_type, vertex_index_t>::type IndexMap;
-	typedef iterator_property_map<vector<vertex_t>::iterator, IndexMap> PredMap;
+	typedef iterator_property_map<Vector<vertex_t>::iterator, IndexMap> PredMap;
 	info->cfg->renumber_vertex_indices ();	
-	vector<vertex_t> domTreePredVector = vector<vertex_t> (
+	Vector<vertex_t> domTreePredVector = Vector<vertex_t> (
 		num_vertices (graph),
 		graph_traits<Graph_type>::null_vertex());
 
