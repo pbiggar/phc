@@ -96,6 +96,10 @@ Remove_loop_booleans::is_applicable_branch (Branch_block* bb)
 	if (!cfg->duw->has_def (bb->branch->variable_name))
 		return false;
 
+	// If this happens, SCCP will sort it out.
+	if (bb->get_predecessors()->size() < 2)
+		return false;
+
 	SSA_op_list* defs = cfg->duw->get_defs (bb->branch->variable_name, SSA_ALL);
 	if (defs->size() != 2)
 		return false;
