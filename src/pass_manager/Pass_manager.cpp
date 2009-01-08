@@ -608,12 +608,14 @@ Pass_manager::cfg_dump (CFG* cfg, Pass* pass, String* comment, int iteration)
 	for (unsigned int i = 0; i < args_info->cfg_dump_given; i++)
 	{
 		if (*pass->name == args_info->cfg_dump_arg [i])
+			cfg->dump_graphviz (s(title.str()));
+
+		if (string ("all") == args_info->cfg_dump_arg [i])
 		{
 			cfg->dump_graphviz (s(title.str()));
+			break;
 		}
 	}
-	if (*pass->name == "all")
-		cfg->dump_graphviz (s(title.str()));
 
 	// We may not be able to dump the IR, but we can still get stats.
 	dump (NULL, pass);
@@ -760,6 +762,8 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 
 					// If an optimization pass sees something it cant handle, it
 					// throws an exception, and we skip optimizing the function.
+
+					MIR::Statement_list* backup = method->statements->clone ();
 					try
 					{
 						maybe_enable_debug (build_pass);
@@ -799,7 +803,13 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 					catch (...)
 					{
 						phc_missed_opt ("exceptional code in pass %s and method %s", method,
-							*pass->name->c_str (), *method->signature->method_name->value->c_str ());
+							pass->name->c_str (), method->signature->method_name->value->c_str ());
+
+						cfg_dump (cfg, pass, s("In exception handler"), iter);
+
+						// The current CFG is ruined - rebuild it.
+						method->statements = backup;
+						cfg = new CFG (method);
 					}
 				}
 				cfg_dump (cfg, cfg_pass, s("After full set of passes"), iter);
