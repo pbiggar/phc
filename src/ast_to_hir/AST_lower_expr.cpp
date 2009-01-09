@@ -62,17 +62,14 @@ void Lower_expr::post_throw (Throw* in, Statement_list* out)
 /* Avoid putting the pieces from the expression into the body */
 void Lower_expr::children_if (If* in)
 {
-	// save the expression's pieces
 	in->expr = transform_expr(in->expr);
-	Statement_list* saved_pieces = pieces;
-	pieces = new Statement_list ();
 
-	// run the rest of the transform
+	store_pieces();
+
 	in->iftrue = transform_statement_list(in->iftrue);
 	in->iffalse = transform_statement_list(in->iffalse);
 
-	// restore the pieces for post_if
-	pieces = saved_pieces;
+	restore_pieces();
 }
 
 void Lower_expr::post_if (If* in, Statement_list* out)
@@ -82,16 +79,13 @@ void Lower_expr::post_if (If* in, Statement_list* out)
 
 void Lower_expr::children_while (While* in)
 {
-	// save the expression's pieces
 	in->expr = transform_expr(in->expr);
-	Statement_list* saved_pieces = pieces;
-	pieces = new Statement_list;
 
-	// run the rest of the transform
+	store_pieces();
+
 	in->statements = transform_statement_list(in->statements);
 
-	// restore the pieces for post_while
-	pieces = saved_pieces;
+	restore_pieces();
 }
 
 void Lower_expr::post_while (While* in, Statement_list* out)
@@ -99,22 +93,17 @@ void Lower_expr::post_while (While* in, Statement_list* out)
 	push_back_pieces(in, out);
 }
 
+// No need to mess with the key and val, as they are written to,
+// not read from. Early_lower_control_flow deals with them.
 void Lower_expr::children_foreach (Foreach* in)
 {
-	// save the expression's pieces
 	in->expr = transform_expr(in->expr);
 
-	// No need to mess with the key and val, as they are written to,
-	// not read from. Early_lower_control_flow deals with them.
-
-	Statement_list* saved_pieces = pieces;
-	pieces = new Statement_list;
-
-	// run the rest of the transform
+	store_pieces();
+	
 	in->statements = transform_statement_list(in->statements);
 
-	// restore the pieces for post_foreach
-	pieces = saved_pieces;
+	restore_pieces();
 }
 
 void Lower_expr::post_foreach (Foreach* in, Statement_list* out)
@@ -122,7 +111,9 @@ void Lower_expr::post_foreach (Foreach* in, Statement_list* out)
 	push_back_pieces(in, out);
 }
 
-
+/*
+ * Pushing back, storing and restoring pieces
+ */
 
 void Lower_expr::push_back_pieces(Statement* in, Statement_list* out)
 {
@@ -137,6 +128,18 @@ void Lower_expr::push_back_pieces(Statement* in, Statement_list* out)
 	}
 
 	pieces->clear();
+}
+
+void Lower_expr::store_pieces()
+{
+	pieces_backup.push(pieces);
+	pieces = new Statement_list;
+}
+
+void Lower_expr::restore_pieces()
+{
+	pieces = pieces_backup.top();
+	pieces_backup.pop();
 }
 
 /*

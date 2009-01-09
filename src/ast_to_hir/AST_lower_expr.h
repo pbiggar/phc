@@ -10,6 +10,7 @@
 #define PHC_AST_LOWER_EXPR_H
 
 #include "AST_transform.h"
+#include "lib/Stack.h"
 
 namespace AST
 {
@@ -42,11 +43,20 @@ public:
 	void post_break (Break* in, Statement_list* out);
 	void post_throw (Throw* in, Statement_list* out);
 
+// Common code generation patterns
 protected:
 	Expr* eval(Expr* in);
 	void eval(Expr* in, Variable* temp);
-	void push_back_pieces(Statement* in, Statement_list* out);
+
+// Inhering classes may define other 'pieces'-like constructs
+protected:
+	virtual void push_back_pieces(Statement* in, Statement_list* out);
+	virtual void store_pieces();
+	virtual void restore_pieces();
+
+protected:
 	Statement_list* pieces;
+	Stack<Statement_list*> pieces_backup;
 };
 }
 
