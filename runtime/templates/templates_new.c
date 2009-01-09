@@ -564,7 +564,7 @@ assign_next (token LHS, token RHS)
    // push onto it.
 @@@
 
-assign_next_ref (token LHS, token RHS)
+assign_next_ref (token LHS, node RHS)
 @@@
    \get_st_entry ("LOCAL", "p_array", LHS);
    // Push EG(uninit) and get a pointer to the symtable entry
@@ -607,7 +607,7 @@ assign_array (token ARRAY, token INDEX, token RHS)
    }
 @@@
 
-assign_array_ref (token ARRAY, token INDEX, token RHS)
+assign_array_ref (token ARRAY, node INDEX, token RHS)
 @@@
    \get_st_entry ("LOCAL", "p_array", ARRAY);
    check_array_type (p_array TSRMLS_CC);
