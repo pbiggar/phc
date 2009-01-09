@@ -48,11 +48,13 @@ protected:
 	Expr* eval(Expr* in);
 	void eval(Expr* in, Variable* temp);
 
-// Inhering classes may define other 'pieces'-like constructs
+// Define a number of hooks that can be redefined by inheriting classes
+// to tweak the behaviour of the transformation
 protected:
 	virtual void push_back_pieces(Statement* in, Statement_list* out);
-	virtual void store_pieces();
-	virtual void restore_pieces();
+	virtual void open_scope();
+	virtual void close_scope();
+	virtual Statement_list* transform_body(Statement_list* in);
 
 protected:
 	Statement_list* pieces;

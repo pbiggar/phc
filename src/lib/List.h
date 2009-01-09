@@ -119,6 +119,11 @@ public:
 	{
 		insert(end(), other->begin(), other->end());
 	}
+	
+	void push_front_all(List* other) 
+	{
+		insert(begin(), other->begin(), other->end());
+	}
 
 public:
 	List* clone()

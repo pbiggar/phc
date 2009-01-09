@@ -10,11 +10,26 @@
 
 #include "ast_to_hir/AST_lower_expr.h"
 
-class Pre_post_op_shredder : public AST::Lower_expr
+using namespace AST;
+
+class Pre_post_op_shredder : public Lower_expr
 {
-	AST::Expr* post_pre_op(AST::Pre_op* in);
-	void pre_eval_expr (AST::Eval_expr* in, AST::Statement_list* out);
-	AST::Expr* post_post_op(AST::Post_op* in);
+public:
+	void children_php_script(PHP_script* in);
+
+public:
+	Expr* post_pre_op(Pre_op* in);
+	Expr* post_post_op(Post_op* in);
+
+protected:
+	void push_back_pieces(Statement* in, Statement_list* out);
+	void open_scope();
+	void close_scope();
+	Statement_list* transform_body(Statement_list* in);
+
+protected:
+	Statement_list* post_pieces;
+	Stack<Statement_list*> post_pieces_backup;
 };
 
 #endif // PHC_PRE_POST_OP_SHREDDER_H

@@ -10,13 +10,17 @@
 
 using namespace AST;
 
+void Pre_post_op_shredder::children_php_script(PHP_script* in)
+{
+	post_pieces = new Statement_list;
+	Lower_expr::children_php_script(in);	
+}
 
-/* Convert
- *		++$x;
- *	into
- *		++$x; // mark $u as unused
- *		$x;
+/*
+ * For a pre-op, add the pre-op to pieces so it evaluated before the
+ * expression proper.
  */
+
 Expr* Pre_post_op_shredder::post_pre_op(Pre_op* in)
 {
 	// ++$x;
@@ -24,50 +28,61 @@ Expr* Pre_post_op_shredder::post_pre_op(Pre_op* in)
 					in));
 
 	// $x
-	return in->variable->clone ();;
+	return in->variable->clone ();
 }
 
-/* Special case:
- *	If 
- *		$x++ 
- *	is found on its own, convert directly into
- *		++$x;
- *
- *	This avoids an extra statement being issued by post_post_op.
- *	This should be replaced with data-flow at a later date.
+/*
+ * For a post-op, add the post-op to post-pieces so it evaluated after
+ * the expression proper.
  */
-void Pre_post_op_shredder::pre_eval_expr (Eval_expr* in, Statement_list* out)
-{
-	if (Post_op* post_op = dynamic_cast<Post_op*> (in->expr))
-	{
-		in->expr = new Pre_op (post_op->op, post_op->variable);
-	}
-	out->push_back (in);
-}
 
-/* Convert
- *		$x++;
- *	into
- *		$t = $x;
- *		++$x; // mark $u as unused
- *		$t;
- */
 Expr* Pre_post_op_shredder::post_post_op(Post_op* in)
 {
-	Variable* old_value = fresh_var("TS");
-
-	// $t = $x
-	pieces->push_back (new Eval_expr (new Assignment(
-					old_value->clone (),
-					false,
-					in->variable->clone())));
-
-	// ++$x;
-	pieces->push_back (new Eval_expr (
+	post_pieces->push_back (new Eval_expr (
 					new Pre_op (
 						in->op,
 						in->variable)));
 
-	// $t
-	return old_value;
+	return in->variable->clone();
+}
+
+/*
+ * Administration
+ */
+
+void Pre_post_op_shredder::push_back_pieces(Statement* in, Statement_list* out)
+{
+	// If there are any post_pieces left, that means that the statement they
+	// were in was not a control flow construct (since then the post_pieces
+	// would have been cleared by close_scope, below). We simply add them
+	// to *out. Since they should be evaluated *after* the expression, we
+	// add them after the other pieces. 
+	Lower_expr::push_back_pieces(in, out);
+	out->push_back_all(post_pieces);
+	post_pieces->clear();
+}
+
+void Pre_post_op_shredder::open_scope()
+{
+	post_pieces_backup.push(post_pieces);
+	post_pieces = new Statement_list;
+	Lower_expr::open_scope();
+}
+
+void Pre_post_op_shredder::close_scope()
+{
+	// The post_pieces have been added to the pieces of the bodies and
+	// do not need to be kept anymore
+	post_pieces->clear();
+	post_pieces_backup.pop();
+	Lower_expr::close_scope();
+}
+
+Statement_list* Pre_post_op_shredder::transform_body(Statement_list* in)
+{
+	// Push back the statements that are yet to be processed to the pieces
+	// of each body
+	Statement_list* result = Lower_expr::transform_body(in);
+	result->push_front_all(post_pieces_backup.top());
+	return result;
 }
