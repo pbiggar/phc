@@ -752,4 +752,14 @@ function copy_to_working_dir ($file)
 	return $new_file;
 }
 
+function strip_console_codes ($string)
+{
+	// strip console codes
+	$string = preg_replace("/\[1;\d\dm/", "", $string);
+	$string = preg_replace("/\[0m/", "", $string); 
+	return $string;
+}
+
+
+
 ?>
