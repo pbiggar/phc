@@ -384,7 +384,7 @@ create_micg_node (tree_iter_t iter)
 
 			if (Node* node = dynamic_cast<Node*> (result))
 			{
-				if (debugging_enabled) xml_unparse (node, cdebug, true, false);
+//				if (debugging_enabled) xml_unparse (node, cdebug, true, false);
 				node->assert_valid ();
 				file_position pos = iter->value.begin().get_position ();
 				node->attrs->set ("phc.filename", new ::String (pos.file));
@@ -454,7 +454,7 @@ create_micg_node (tree_iter_t iter)
 			Node* node = dyc<Node> (result);
 			node->assert_valid ();
 
-			if (debugging_enabled) xml_unparse (node, cdebug, true, false);
+//			if (debugging_enabled) xml_unparse (node, cdebug, true, false);
 			node->assert_valid ();
 			file_position pos = iter->value.begin().get_position ();
 			node->attrs->set ("phc.filename", new ::String (pos.file));
@@ -544,7 +544,9 @@ MICG_parser::parse (string str, string filename)
 	All* result = dyc<All> (create_micg_node (info.trees.begin()));
 	if (debugging_enabled)
 	{
-		xml_unparse (result, cdebug, true, false);
+		// Far too verbose.
+      
+//		xml_unparse (result, cdebug, true, false);
 	}
 	return result->macros;
 }
