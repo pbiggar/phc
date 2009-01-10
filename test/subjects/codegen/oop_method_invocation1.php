@@ -24,4 +24,7 @@ PHP
 
 	$c->foo();
 	$d->foo();
+
+	var_dump($c);
+	var_dump($d);
 ?>
