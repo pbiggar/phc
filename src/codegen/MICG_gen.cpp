@@ -50,14 +50,8 @@ MICG_gen::get_macro (string name, Object_list* params)
 			return m;
 	}
 
-	if (macros[name].size () == 0)
-		phc_internal_error ("There is no macro named %s", name.c_str ());
-
-	//		string formals = get_formals_as_string (
-	//			macros[macro_name].front()->signature->formal_parameters);
-
 	phc_internal_error ("No macro named %s matches the params: ", name.c_str ());
-	assert (0);
+	phc_unreachable ();
 }
 
 void
@@ -71,6 +65,19 @@ MICG_gen::add_macro_def (string str, string filename)
 string
 MICG_gen::instantiate (string macro_name, Object_list* params, Node* anchor)
 {
+	if (anchor == NULL)
+	{
+		if (macros[macro_name].size () == 0)
+			phc_internal_error ("There is no macro named %s, called from C++ code",
+				macro_name.c_str ());
+	}
+	else
+	{
+		if (macros[macro_name].size () == 0)
+			phc_internal_error ("There is no macro named %s",
+				anchor, macro_name.c_str ());
+	}
+
 	// In order to get the macro that matches these params, we first need to
 	// expand the list parameters. But that needs a macro. But to get the right
 	// macro, we need the full parameters. Not only that, but we actually want
@@ -83,7 +90,7 @@ MICG_gen::instantiate (string macro_name, Object_list* params, Node* anchor)
 	if (params->size() != first_macro->signature->formal_parameters->size ())
 	{
 		if (anchor == NULL)
-			phc_internal_error (	"Wrong number of parameters in macro instantiatedin C++ code: "
+			phc_internal_error (	"Wrong number of parameters in macro instantiated in C++ code: "
 										"%s called with %d instead of %d",
 										macro_name.c_str(), params->size(),
 										first_macro->signature->formal_parameters->size ());
