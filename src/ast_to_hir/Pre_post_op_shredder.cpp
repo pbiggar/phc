@@ -67,6 +67,11 @@
  * which obviously is no use. Unfortunately, option (1) *cannot* be applied
  * in this case, and we have to resort to option (2) or (3); option (3) will
  * cause fewer separation problems than (2) and so is preferred.
+ *
+ * Finally, note that all three options (1, 2, 3) will cause duplication of
+ * side effects if $i is not a simple variable but something of the form
+ * $i[f()], for instance. However, this pass will run after the shredder so that
+ * this situation should not arise.
  */
 
 #include "Pre_post_op_shredder.h"

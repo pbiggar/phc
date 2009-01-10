@@ -144,9 +144,9 @@ int main(int argc, char** argv)
 	pm->add_ast_transform (new Early_lower_control_flow (), s("elcf"), s("Early Lower Control Flow - lower for, while, do and switch statements")); // AST
 	pm->add_ast_transform (new Lower_expr_flow (), s("lef"), s("Lower Expression Flow - Lower ||, && and ?: expressions"));
 	pm->add_ast_transform (new Desugar (), s("desug"), s("Desugar"));
-	pm->add_ast_transform (new Pre_post_op_shredder (), s("pps"), s("Shred pre- and post-ops, removing post-ops"));
 	pm->add_ast_transform (new List_shredder (), s("lish"), s("List shredder - simplify to array assignments"));
 	pm->add_ast_transform (new Shredder (), s("ashred"), s("Shredder - turn the AST into three-address-code, replacing complex expressions with a temporary variable"));
+	pm->add_ast_transform (new Pre_post_op_shredder (), s("pps"), s("Shred pre- and post-ops, removing post-ops"));
 	pm->add_ast_transform (new Remove_solo_exprs (), s("rse"), s("Remove expressions which are not stored"));
 	pm->add_ast_pass (new Fake_pass (s("AST-to-HIR"), s("The HIR in AST form")));
 
