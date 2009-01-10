@@ -230,8 +230,6 @@ libphc_la_SOURCES= 											\
 	src/optimize/ssa/Phi.cpp								\
 	src/optimize/ssa/Phi.h									\
 	src/optimize/ssa/SSA.cpp								\
-	src/optimize/Type_inference.cpp						\
-	src/optimize/Type_inference.h							\
 	src/optimize/ssa/SSA.h									\
 	src/optimize/ssa/SSA_ops.cpp							\
 	src/optimize/ssa/SSA_ops.h								\
@@ -241,6 +239,24 @@ libphc_la_SOURCES= 											\
 	src/optimize/Var_set.cpp								\
 	src/optimize/Visit_once.cpp							\
 	src/optimize/Visit_once.h								\
+	src/optimize/wpa/BCCH_aliasing.cpp					\
+	src/optimize/wpa/BCCH_aliasing.h						\
+	src/optimize/wpa/Callgraph.cpp						\
+	src/optimize/wpa/Callgraph.h							\
+	src/optimize/wpa/CCP.cpp								\
+	src/optimize/wpa/CCP.h									\
+	src/optimize/wpa/Constant_state.cpp					\
+	src/optimize/wpa/Constant_state.h					\
+	src/optimize/wpa/Include_analysis.cpp				\
+	src/optimize/wpa/Include_analysis.h					\
+	src/optimize/wpa/Type_inference.cpp					\
+	src/optimize/wpa/Type_inference.h					\
+	src/optimize/wpa/VRP.cpp								\
+	src/optimize/wpa/VRP.h									\
+	src/optimize/wpa/Whole_program.cpp					\
+	src/optimize/wpa/Whole_program.h						\
+	src/optimize/wpa/WPA.cpp								\
+	src/optimize/wpa/WPA.h									\
 	src/parsing/MICG_parser.cpp							\
 	src/parsing/MICG_parser.h								\
 	src/parsing/Parse_buffer.cpp							\

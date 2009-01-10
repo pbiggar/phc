@@ -29,7 +29,9 @@
 #include "process_mir/MIR_to_AST.h"
 #include "optimize/CFG.h"
 #include "optimize/Def_use.h"
+#include "optimize/Def_use.h"
 #include "optimize/ssa/HSSA.h"
+#include "optimize/wpa/Whole_program.h"
 
 using namespace std;
 
@@ -675,8 +677,20 @@ Pass_manager::can_optimize (MIR::Method* method)
 
 void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 {
+	Pass* wpa_pass;
+	do
+	{
+		wpa_pass = optimization_queue->front();
+		optimization_queue->pop_front();
+	}
+	while (*wpa_pass->name != "wpa");
+	Whole_program* wpa = new Whole_program;
+	wpa->run (in);
+	return;
+
 	// Initialize the optimization oracle
 	Oracle::initialize ();
+
 
 	// The pass_manager allows passes to be added in-between the passes we expect. Ignore them.
 	Pass* cfg_pass;

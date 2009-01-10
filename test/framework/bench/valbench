@@ -85,6 +85,9 @@ EOL
 		if ($exit != 0)
 			die ("FAILURE:\n\n$err");
 
+		// Save raw results, so they can be checked by hand
+		file_put_contents ("saved_valbench_results_". preg_replace ("!/!", "_", $filename), $err);
+
 		$match_names = array (	"instruction"
 									,	"instruction_l1_miss"
 									,	"instruction_l2_miss"

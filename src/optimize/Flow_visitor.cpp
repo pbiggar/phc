@@ -34,8 +34,10 @@ Flow_visitor::run (CFG* cfg)
 		visit_transfer_functions (bb, cfg);
 
 		if (this->solution_has_changed (bb))
+		{
 			foreach (Basic_block* next, *get_next_cfg_nodes (bb, cfg))
 				worklist->push_back (next);
+		}
 	}
 
 	// After the pure analysis section, apply the results (once).
