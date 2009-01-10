@@ -943,6 +943,58 @@ protected:
 };
 
 /*
+ * $x = new C(..);
+ */
+
+class Pattern_assign_expr_new : public Pattern_assign_var
+{
+public:
+	Expr* rhs_pattern()
+	{
+		rhs = new Wildcard<New>;
+		return rhs;
+	}
+
+	void generate_code(Generate_C* gen)
+	{
+		CLASS_NAME* class_name;
+		Variable_class* variable_class;
+
+		New* nw = rhs->value;
+
+		class_name = dynamic_cast<CLASS_NAME*>(nw->class_name);
+		variable_class = dynamic_cast<Variable_class*>(nw->class_name);
+
+		// TODO: call the constructor (or pass the arguments for the constructor
+		// to the various templates)
+		if(class_name != NULL)
+		{
+			if(!agn->is_ref)
+				INST (buf, "assign_expr_new", lhs->value, class_name);
+			else
+				INST (buf, "assign_expr_new_ref", lhs->value, class_name);
+		}
+		else if(variable_class != NULL)
+		{
+			VARIABLE_NAME* vcn = variable_class->variable_name;
+
+			if(!agn->is_ref)
+				INST (buf, "assign_expr_var_new", lhs->value, vcn);
+			else
+				INST (buf, "assign_expr_var_new_ref", lhs->value, vcn);
+		}
+		else
+		{
+			// Invalid class name type
+			assert(0);
+		}
+	}
+
+protected:
+	Wildcard<New>* rhs;
+};
+
+/*
  * $x = $y; (1)
  *		or
  *	$x =& $y; (2)
@@ -2458,6 +2510,7 @@ string compile_statement(Statement* in, Generate_C* gen)
 	// OOP
 	, new Pattern_assign_field()
 	, new Pattern_assign_expr_field_access()
+	, new Pattern_assign_expr_new()
 	// All the rest are just statements
 	,	new Pattern_assign_array ()
 	,	new Pattern_assign_next ()

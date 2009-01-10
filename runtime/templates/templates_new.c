@@ -82,6 +82,9 @@
  *
  * TODO: we use ZEND_FETCH_CLASS_DEFAULT to get class definitions for static
  * methods and attributes. Not sure that is correct.
+ *
+ * TODO: we might be able to cache zend_class_entry info for static vars,
+ * calls to "new", etc.
  */
 
 /*
@@ -768,7 +771,6 @@ foreach_end (token ARRAY, string ITERATOR)
 /*
  * Assign_field 
  *
- * TODO: we might be able to cache zend_class_entry info for static vars
  */
 
 assign_field (token OBJ, token FIELD, node RHS)
@@ -855,8 +857,6 @@ assign_var_static_field_ref (token CLASS, token VAR_FIELD, node RHS)
 
 /*
  * Field_access
- *
- * TODO: we might be able to cache zend_class_entry info for static vars
  */
 
 // TODO: we use the C function write_var rather than the write_var macro,
@@ -943,6 +943,52 @@ var_static_field_access_ref (token LHS, token CLASS, token VAR_FIELD)
 	\get_st_entry ("LOCAL", "p_lhs", LHS);
 	copy_into_ref (p_lhs, field); 
 	zval_ptr_dtor(&field_name_str);
+@@@
+
+/*
+ * Object creation
+ */
+
+assign_expr_new (token LHS, token CLASS)
+@@@
+	\new_lhs (LHS, "lhs");
+	zend_class_entry* ce;
+	ce = zend_fetch_class ("$CLASS", strlen("$CLASS"), ZEND_FETCH_CLASS_DEFAULT TSRMLS_CC);
+	object_init_ex(lhs, ce); 
+@@@
+
+assign_expr_new_ref (token LHS, token CLASS)
+@@@
+  \get_st_entry ("LOCAL", "p_lhs", LHS);
+	zval_ptr_dtor (p_lhs);
+	ALLOC_INIT_ZVAL (*p_lhs);
+	zend_class_entry* ce;
+	ce = zend_fetch_class ("$CLASS", strlen("$CLASS"), ZEND_FETCH_CLASS_DEFAULT TSRMLS_CC);
+	object_init_ex(*p_lhs, ce); 
+@@@
+
+assign_expr_var_new (token LHS, token VAR_CLASS)
+@@@
+	\read_rvalue("class_name", VAR_CLASS);
+	zval* class_name_str = get_string_val (class_name);
+	\new_lhs (LHS, "lhs");
+	zend_class_entry* ce;
+	ce = zend_fetch_class (Z_STRVAL_P(class_name_str), Z_STRLEN_P(class_name_str), ZEND_FETCH_CLASS_DEFAULT TSRMLS_CC);
+	object_init_ex(lhs, ce); 
+	zval_ptr_dtor(&class_name_str);
+@@@
+
+assign_expr_var_new_ref (token LHS, token VAR_CLASS)
+@@@
+	\read_rvalue("class_name", VAR_CLASS);
+	zval* class_name_str = get_string_val (class_name);
+  \get_st_entry ("LOCAL", "p_lhs", LHS);
+	zval_ptr_dtor (p_lhs);
+	ALLOC_INIT_ZVAL (*p_lhs);
+	zend_class_entry* ce;
+	ce = zend_fetch_class (Z_STRVAL_P(class_name_str), Z_STRLEN_P(class_name_str), ZEND_FETCH_CLASS_DEFAULT TSRMLS_CC);
+	object_init_ex(*p_lhs, ce); 
+	zval_ptr_dtor(&class_name_str);
 @@@
 
 /*
