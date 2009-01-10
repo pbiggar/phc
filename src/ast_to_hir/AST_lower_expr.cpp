@@ -64,10 +64,10 @@ void Lower_expr::children_if (If* in)
 {
 	in->expr = transform_expr(in->expr);
 
-	open_scope();
-	in->iftrue = transform_body(in->iftrue);
-	in->iffalse = transform_body(in->iffalse);
-	close_scope();
+	backup_pieces();
+	in->iftrue = transform_statement_list(in->iftrue);
+	in->iffalse = transform_statement_list(in->iffalse);
+	restore_pieces();
 }
 
 void Lower_expr::post_if (If* in, Statement_list* out)
@@ -79,9 +79,9 @@ void Lower_expr::children_while (While* in)
 {
 	in->expr = transform_expr(in->expr);
 
-	open_scope();
-	in->statements = transform_body(in->statements);
-	close_scope();
+	backup_pieces();
+	in->statements = transform_statement_list(in->statements);
+	restore_pieces();
 }
 
 void Lower_expr::post_while (While* in, Statement_list* out)
@@ -95,9 +95,9 @@ void Lower_expr::children_foreach (Foreach* in)
 {
 	in->expr = transform_expr(in->expr);
 
-	open_scope();
-	in->statements = transform_body(in->statements);
-	close_scope();
+	backup_pieces();
+	in->statements = transform_statement_list(in->statements);
+	restore_pieces();
 }
 
 void Lower_expr::post_foreach (Foreach* in, Statement_list* out)
@@ -124,22 +124,16 @@ void Lower_expr::push_back_pieces(Statement* in, Statement_list* out)
 	pieces->clear();
 }
 
-void Lower_expr::open_scope()
+void Lower_expr::backup_pieces()
 {
 	pieces_backup.push(pieces);
 	pieces = new Statement_list;
 }
 
-void Lower_expr::close_scope()
+void Lower_expr::restore_pieces()
 {
 	pieces = pieces_backup.top();
 	pieces_backup.pop();
-}
-
-Statement_list* Lower_expr::transform_body(Statement_list* in)
-{
-	// By default, simply call the standard list transformer
-	return transform_statement_list(in);
 }
 
 /*

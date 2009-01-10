@@ -52,9 +52,8 @@ protected:
 // to tweak the behaviour of the transformation
 protected:
 	virtual void push_back_pieces(Statement* in, Statement_list* out);
-	virtual void open_scope();
-	virtual void close_scope();
-	virtual Statement_list* transform_body(Statement_list* in);
+	virtual void backup_pieces();
+	virtual void restore_pieces();
 
 protected:
 	Statement_list* pieces;

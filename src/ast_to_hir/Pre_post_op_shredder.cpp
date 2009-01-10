@@ -88,8 +88,7 @@ void Pre_post_op_shredder::children_php_script(PHP_script* in)
 Expr* Pre_post_op_shredder::post_pre_op(Pre_op* in)
 {
 	// ++$x;
-	pieces->push_back (new Eval_expr (
-					in));
+	pieces->push_back(new Eval_expr(in));
 
 	// $x
 	return in->variable->clone ();
@@ -102,8 +101,8 @@ Expr* Pre_post_op_shredder::post_pre_op(Pre_op* in)
 
 Expr* Pre_post_op_shredder::post_post_op(Post_op* in)
 {
-	post_pieces->push_back (new Eval_expr (
-					new Pre_op (
+	post_pieces->push_back(new Eval_expr(
+					new Pre_op(
 						in->op,
 						in->variable)));
 
@@ -111,7 +110,43 @@ Expr* Pre_post_op_shredder::post_post_op(Post_op* in)
 }
 
 /*
- * Control flow constructs 
+ * For Eval_expr we can execute the post-op after the expression is evaluated
+ * (option 1, above)
+ */
+
+void Pre_post_op_shredder::post_eval_expr(Eval_expr* in, Statement_list* out)
+{
+	// clear the post_pieces before calling post_back_pieces to avoid an
+	// assertion failure
+	Statement_list* eval_post_pieces = post_pieces;
+	post_pieces = new Statement_list;
+
+	Lower_expr::push_back_pieces(in, out);
+	out->push_back_all(eval_post_pieces);
+}
+
+/*
+ * For If-statements we push the post-op into both branches of the if
+ */
+
+void Pre_post_op_shredder::children_if(If* in)
+{
+	in->expr = transform_expr(in->expr);
+
+	Statement_list* if_post_pieces = post_pieces;
+	post_pieces = new Statement_list;
+
+	backup_pieces();
+	in->iftrue = transform_statement_list(in->iftrue);
+	in->iffalse = transform_statement_list(in->iffalse);
+	restore_pieces();
+
+	in->iftrue->push_front_all(if_post_pieces);
+	in->iffalse->push_front_all(if_post_pieces);
+}
+
+/*
+ * Control flow constructs (option 3, above)
  */
 
 void Pre_post_op_shredder::post_return(Return* in, Statement_list* out)
@@ -140,7 +175,7 @@ void Pre_post_op_shredder::post_throw(Throw* in, Statement_list* out)
 
 void Pre_post_op_shredder::clear_post_pieces(Expr** in)
 {
-	if(post_pieces->size() > 0)
+	if(!post_pieces->empty())
 	{
 		*in = eval(*in);
 		pieces->push_back_all(post_pieces);
@@ -149,42 +184,38 @@ void Pre_post_op_shredder::clear_post_pieces(Expr** in)
 }
 
 /*
- * Administration
+ * We can deal with whiles if necessary but we don't have to: while loops have
+ * already been lowered into a 
+ * while(True) { ... if(..) break; ... } structure
+ *	
+ * There really shouldn't be any any pre or post-ops in the expression of a
+ * foreach loop, but even if there are, they should already have been lowered
+ */
+
+void Pre_post_op_shredder::post_while(While* in, Statement_list* out)
+{
+	assert(post_pieces->empty());
+	Lower_expr::post_while(in, out);
+}
+
+void Pre_post_op_shredder::post_foreach(Foreach* in, Statement_list* out)
+{
+	assert(post_pieces->empty());
+	Lower_expr::post_foreach(in, out);
+}
+
+/*
+ * Administration: add assertions that the post-pieces are handled elsewhere
  */
 
 void Pre_post_op_shredder::push_back_pieces(Statement* in, Statement_list* out)
 {
-	// If there are any post_pieces left, that means that the statement they
-	// were in was not a control flow construct (since then the post_pieces
-	// would have been cleared by close_scope, below). We simply add them
-	// to *out. Since they should be evaluated *after* the expression, we
-	// add them after the other pieces. 
+	assert(post_pieces->empty());
 	Lower_expr::push_back_pieces(in, out);
-	out->push_back_all(post_pieces);
-	post_pieces->clear();
 }
 
-void Pre_post_op_shredder::open_scope()
+void Pre_post_op_shredder::backup_pieces()
 {
-	post_pieces_backup.push(post_pieces);
-	post_pieces = new Statement_list;
-	Lower_expr::open_scope();
-}
-
-void Pre_post_op_shredder::close_scope()
-{
-	// The post_pieces have been added to the pieces of the bodies and
-	// do not need to be kept anymore
-	post_pieces->clear();
-	post_pieces_backup.pop();
-	Lower_expr::close_scope();
-}
-
-Statement_list* Pre_post_op_shredder::transform_body(Statement_list* in)
-{
-	// Push back the statements that are yet to be processed to the pieces
-	// of each body
-	Statement_list* result = Lower_expr::transform_body(in);
-	result->push_front_all(post_pieces_backup.top());
-	return result;
+	assert(post_pieces->empty());
+	Lower_expr::backup_pieces();
 }

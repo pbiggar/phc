@@ -22,16 +22,20 @@ public:
 	Expr* post_post_op(Post_op* in);
 
 public:
+	void post_eval_expr(Eval_expr* in, Statement_list* out);
 	void post_return(Return* in, Statement_list* out);
 	void post_continue(Continue* in, Statement_list* out);
 	void post_break(Break* in, Statement_list* out);
 	void post_throw(Throw* in, Statement_list* out);
+	void post_while(While* in, Statement_list* out);
+	void post_foreach(Foreach* in, Statement_list* out);
+
+public:
+	void children_if(If* in);
 
 protected:
 	void push_back_pieces(Statement* in, Statement_list* out);
-	void open_scope();
-	void close_scope();
-	Statement_list* transform_body(Statement_list* in);
+	void backup_pieces();
 
 protected:
 	Statement_list* post_pieces;
