@@ -4,7 +4,7 @@
 	function f()
 	{
 		global $i;
-		return $i++;
+		return $i++ * 2;
 	}
 
 	var_dump(f() + $i);

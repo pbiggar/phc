@@ -21,6 +21,12 @@ public:
 	Expr* post_pre_op(Pre_op* in);
 	Expr* post_post_op(Post_op* in);
 
+public:
+	void post_return(Return* in, Statement_list* out);
+	void post_continue(Continue* in, Statement_list* out);
+	void post_break(Break* in, Statement_list* out);
+	void post_throw(Throw* in, Statement_list* out);
+
 protected:
 	void push_back_pieces(Statement* in, Statement_list* out);
 	void open_scope();
@@ -30,6 +36,7 @@ protected:
 protected:
 	Statement_list* post_pieces;
 	Stack<Statement_list*> post_pieces_backup;
+	virtual void clear_post_pieces(Expr** in);
 };
 
 #endif // PHC_PRE_POST_OP_SHREDDER_H
