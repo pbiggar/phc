@@ -32,9 +32,8 @@ public:
 	// Switch is already lowered
 	// Do is already lowered
 	// For is already lowered
-
-	// TODO: We handle most Statement types here. What about try, throw and
-	// static_declaration?
+	// Try blocks don't have expressions so don't need special treatment
+	// Static declarations cannot be lowered
 
 	void post_eval_expr (Eval_expr* in, Statement_list* out);
 	void post_return (Return* in, Statement_list* out);
