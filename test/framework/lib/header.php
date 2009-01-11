@@ -320,6 +320,10 @@ function diff ($string1, $string2)
 			return "Note: xdiff not available for diffing. Outputting both strings:\nString1:\n$string1\nString2:\n$string2";
 		}
 	}
+
+	if (strlen ($string1) > 5000000 || strlen ($string2) > 5000000)
+		return "Too big to xdiff. Outputting both strings:\nString1:\n$string1\nString2:\n$string2";
+
 	return xdiff_string_diff ("$string1\n", "$string2\n");
 }
 
