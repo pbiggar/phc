@@ -26,7 +26,12 @@ using namespace MIR;
 
 void Clarify::post_method (MIR::Method* in)
 {
+	// abstract method
 	if (in->statements == NULL)
+		return;
+
+	// Not required for main. We're using the global symbol table.
+	if (*in->signature->method_name->value == "__MAIN__")
 		return;
 
 	String_list* var_names = new String_list;
