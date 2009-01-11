@@ -967,6 +967,8 @@ public:
     virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
+public:
+    bool is_main();
 };
 
 /* Attribute ::= Attr_mod var:Name_with_default ; */

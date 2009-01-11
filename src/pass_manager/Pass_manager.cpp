@@ -677,6 +677,9 @@ Pass_manager::can_optimize (MIR::Method* method)
 
 void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 {
+	if (lexical_cast<int> (args_info->optimize_arg) == 0)
+		return;
+
 	Pass* wpa_pass;
 	do
 	{

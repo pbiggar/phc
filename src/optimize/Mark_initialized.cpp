@@ -148,15 +148,19 @@ Mark_initialized::transfer_in (Basic_block* bb, BB_list* preds)
 	// TOP and not change if its not mentioned in the predecessor (or if we use
 	// UNINIT as the default, then it will meet and go to BOTTOM).
 	foreach (Basic_block* pred, *preds)
+	{
 		if (executed[pred])
 			foreach (tie (var, cell), *outs[pred])
 				vars->push_back (var);
+	}
 
 	// IN = intersection (P) forall P = preds (OUT))
 	foreach (var, *vars)
+	{
 		foreach (Basic_block* pred, *preds)
 			if (executed[pred])
 				(*ins[bb])[var] = meet ((*ins[bb])[var], (*outs[pred])[var]);
+	}
 
 	ins[bb]->dump ();
 }

@@ -342,6 +342,16 @@ public:
 	}
 };
 
+class Method
+{
+public:
+	bool is_main ()
+	{
+		// TODO: this isnt good enough. Need to check its not in a class_def...
+		return *signature->method_name->value == "__MAIN__";
+	}
+};
+
 class Class_def
 {
 public:

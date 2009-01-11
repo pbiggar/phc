@@ -281,10 +281,11 @@ private:
 
 	friend struct filter_back_edges;
 
-	MIR::Method* method;
 	vertex_t entry;
 	vertex_t exit;
 
+public:
+	MIR::Method* method;
 };
 
 #endif // PHC_CFG

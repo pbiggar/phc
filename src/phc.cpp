@@ -180,7 +180,7 @@ int main(int argc, char** argv)
 //	pm->add_optimization (new Live_variable_analysis (), s("lva"), s("Live variable analysis"));
 //	pm->add_optimization (new Dead_code_elimination (), s("dce"), s("Dead code elimination"));
 //
-	pm->add_optimization_pass (new Fake_pass (s("simult"), s("Simultaneous whole-program analysis")));
+	pm->add_optimization_pass (new Fake_pass (s("wpa"), s("Whole-program analysis")));
 	pm->add_optimization_pass (new Fake_pass (s("cfg"), s("Initial Control-Flow Graph")));
 	pm->add_optimization_pass (new Fake_pass (s("build_ssa"), s("Create SSA form")));
 	pm->add_optimization (new Remove_loop_booleans (), s("rlb"), s("Remove loop-booleans"), false);

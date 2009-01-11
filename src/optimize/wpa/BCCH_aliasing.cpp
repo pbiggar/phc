@@ -22,7 +22,10 @@ BCCH_aliasing::BCCH_aliasing ()
 
 
 void
-BCCH_aliasing::eval_bb (Basic_block* bb)
+BCCH_aliasing::visit_global (Statement_block* bb, MIR::Global* in)
 {
+	if (bb->cfg->method->is_main ())
+		return;
+
 	phc_TODO ();
 }

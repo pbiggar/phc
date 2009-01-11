@@ -41,6 +41,8 @@
 class Whole_program
 {
 	Map<string, WPA*> analyses;
+
+	// TODO: these should probably be put elsewhere
 	Map<string, MIR::Method*> functions;
 	Map<string, MIR::Class_def*> classes;
 	// TODO: interfaces
@@ -51,6 +53,8 @@ public:
 
 
 	void evaluate_function (CFG* in);
+
+	Edge_list* get_branch_successors (Branch_block* bb);
 
 	void register_analysis (string name, WPA* analysis);
 };

@@ -9,12 +9,20 @@
 #ifndef PHC_WPA
 #define PHC_WPA
 
-#include "optimize/Basic_block.h"
+#include "optimize/CFG_visitor.h"
 
-class WPA : virtual public GC_obj
+class WPA : virtual public GC_obj, public CFG_visitor
 {
 public:
-	virtual void eval_bb (Basic_block* bb) = 0;
+	// Statements are dispatched by Whole_program.
+	void run (CFG* cfg) {}
+
+	// Tell the analysis that we are dealing with a new function here.
+	void new_function (MIR::Method* in) {}
+
+	// Really, we only need to override this in CCP.
+	bool branch_is_true (MIR::Branch*) { return false; }
+	bool branch_is_false (MIR::Branch*) { return false; }
 };
 
 #endif // PHC_WPA
