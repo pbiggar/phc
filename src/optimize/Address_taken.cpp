@@ -325,7 +325,8 @@ Address_taken::visit_method_invocation (Statement_block* bb, MIR::Method_invocat
 {
 	Signature* sig = NULL;
 	if (in->target == NULL && isa<METHOD_NAME> (in->method_name))
-		sig = Oracle::get_signature (dyc<METHOD_NAME> (in->method_name));
+		phc_TODO ();
+//		sig = Oracle::get_signature (dyc<METHOD_NAME> (in->method_name));
 
 	if (is_dynamic_function (in))
 		alias_bottom (bb);

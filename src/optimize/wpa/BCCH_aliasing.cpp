@@ -90,7 +90,9 @@ BCCH_aliasing::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 
 		// Interprocedural stuff
 		case New::ID:
-			phc_TODO ();
+			visit_new (bb, dyc<New> (in->rhs));
+			break;
+
 		case Method_invocation::ID:
 			visit_method_invocation (bb, dyc<Method_invocation> (in->rhs));
 			break;
@@ -100,7 +102,20 @@ BCCH_aliasing::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 	phc_TODO ();
 }
 
-void BCCH_aliasing::visit_method_invocation (Statement_block* bb, MIR::Method_invocation* in)
+void
+BCCH_aliasing::visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
+{
+	visit_expr (bb, in->expr);
+}
+
+void
+BCCH_aliasing::visit_new (Statement_block* bb, MIR::New* in)
+{
+	phc_TODO ();
+}
+
+void
+BCCH_aliasing::visit_method_invocation (Statement_block* bb, MIR::Method_invocation* in)
 {
 	wp->invoke_method (in);
 

@@ -54,7 +54,8 @@ mark_by_ref (Method_invocation* in)
 	if (isa<MIR::Variable_method> (in->method_name))
 		return;
 
-	Signature* sig = Oracle::get_signature (dyc<METHOD_NAME> (in->method_name));
+	phc_TODO ();
+/*	Signature* sig = Oracle::get_signature (dyc<METHOD_NAME> (in->method_name));
 	if (sig == NULL)
 	{
 		phc_missed_opt ("Signature not available", in, "%s");
@@ -72,6 +73,7 @@ mark_by_ref (Method_invocation* in)
 
 		i++;
 	}
+	*/
 }
 
 void
@@ -85,7 +87,8 @@ mark_zend_reference_bug (Method_invocation* in)
 	if (isa<MIR::Variable_method> (in->method_name))
 		return;
 
-
+	phc_TODO ();
+/*
 	// Any function for which we have a signature is a ZEND_FUNCTION_CALL
 	Signature* sig = Oracle::get_signature (dyc<METHOD_NAME> (in->method_name));
 	if (sig == NULL)
@@ -97,7 +100,7 @@ mark_zend_reference_bug (Method_invocation* in)
 		in->attrs->set_true ("phc.optimize.return_reference_bug");
 	else
 		in->attrs->set_true ("phc.optimize.no_return_reference_bug");
-
+*/
 
 }
 

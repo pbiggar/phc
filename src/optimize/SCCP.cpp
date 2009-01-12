@@ -131,9 +131,6 @@
 using namespace MIR;
 
 
-#define die() do { lattice.dump(); assert (0); } while (0)
-
-
 void
 SCCP::visit_phi_node (Basic_block* bb, VARIABLE_NAME* phi_lhs)
 {
@@ -487,6 +484,8 @@ SCCP::transform_method_invocation (Statement_block*, Method_invocation* in)
 	// ignore for now
 	if (METHOD_NAME* name = dynamic_cast<METHOD_NAME*> (in->method_name))
 	{
+		phc_TODO ();
+		/*
 		Signature* sig = Oracle::get_signature (name);
 		if (Oracle::is_pure_function (name))
 		{
@@ -535,6 +534,7 @@ SCCP::transform_method_invocation (Statement_block*, Method_invocation* in)
 
 			i++;
 		}
+		*/
 	}
 
 	return in;

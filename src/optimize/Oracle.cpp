@@ -3,63 +3,78 @@
 
 using namespace MIR;
 
-Map<string, Signature*> Oracle::sigs;
+Map<string, Method_info*> Oracle::infos;
 
 // TODO: We dont put Method_mods into the signature.
 void
 Oracle::initialize ()
 {
-	METHOD_NAME* name = new METHOD_NAME ("print");
+	// Echo and print are built-in
+	add_method_info (
+		new Method_info (
+			s("echo"),
+			false,
+			false,
+			new Parameter_info_list (
+				new Parameter_info (
+					false,
+					false,
+					new String_list (s("__toString"))))));
 
-	// print is a builtin
-	add_signature (
-		new Signature (
-			NULL,
-			false,
-			false,
-			name,
-			new Formal_parameter_list ()));
+	// TODO: add a case where we know nothing
 }
 
-
-Signature*
-Oracle::get_signature (METHOD_NAME* method_name)
+Method_info*
+Oracle::get_method_info (String* method_name)
 {
 	// Cached
-	if (Oracle::sigs.has (*method_name->value))
-		return Oracle::sigs[*method_name->value];
+	if (Oracle::infos.has (*method_name))
+		return Oracle::infos [*method_name];
 
 	// Lookup the embed SAPI
-	Signature* sig = PHP::get_signature (method_name);
+	Signature* sig = PHP::get_signature (new METHOD_NAME (method_name));
 
 	// Cache it
 	if (sig)
+	{
 		add_signature (sig);
+		return get_method_info (method_name);
+	}
 
-	return sig;
+	return NULL;
 }
 
 void
 Oracle::add_signature (Signature* sig)
 {
-	if (Oracle::sigs.has (*sig->method_name->value))
-		assert (0); // TODO put a warning much earlier in the pass queue
-	
-	sigs[*sig->method_name->value] = sig;
+	// Callbacks are for internal functions. This isnt summary information.
+
+	Parameter_info_list* params = new Parameter_info_list;
+	foreach (Formal_parameter* param, *sig->formal_parameters)
+	{
+		params->push_back (
+			new Parameter_info (
+				param->is_ref,
+				false, 
+				new String_list));
+	}
+
+	add_method_info (
+		new Method_info (
+			sig->method_name->value,
+			params,
+			Oracle::is_pure_function (sig->method_name),
+			sig->return_by_ref));
 }
 
-// TODO: I wonder if we should put this straight into the signature
-bool
-Oracle::is_const_function (MIR::METHOD_NAME* in)
+void
+Oracle::add_method_info (Method_info* info)
 {
-	if (is_pure_function (in))
-		return true;
+	assert (!infos.has (*info->method_name));
 
-	string name = *in->value;
-	return   name == "var_dump"
-			|| name == "var_export"
-			;
+	infos[*info->method_name] = info;
 }
+
 
 bool
 Oracle::is_pure_function (METHOD_NAME* in)
@@ -173,4 +188,13 @@ Oracle::is_pure_function (METHOD_NAME* in)
 			|| name == "zend_function"
 			|| name == "zend_logo_guide"
 			;
+}
+
+bool
+Oracle::is_const_function (METHOD_NAME* name)
+{
+	// TODO: I had this returning whether or not it affected global state, or
+	// just its parameters. But if affecting its parameters can touch global
+	// state, is it a good idea?
+	return false;
 }

@@ -13,6 +13,7 @@
 #include "Points_to.h"
 #include "MIR.h"
 #include "lib/error.h"
+#include "lib/demangle.h"
 #include "process_ir/General.h"
 
 using namespace MIR;
@@ -20,14 +21,62 @@ using namespace std;
 using namespace boost;
 
 
-class PT_node
+class PT_node : virtual public GC_obj
 {
 public:
-	// TODO: different kinds of nodes for fields, variables, arrays, objects and atoms?
+	int index;
 	vertex_pt vertex;
+
+	// Each allocated node gets a unique index
+	static int index_counter;
+	PT_node()
+	{
+		index = index_counter++;
+	}
+
+	virtual string graphviz_attrs () = 0;
 };
 
-class PT_edge
+int PT_node::index_counter = 0;
+
+// TODO: different kinds of nodes for fields, variables, arrays, objects and
+// atoms?
+class Var_node : public PT_node
+{
+public:
+	MIR::VARIABLE_NAME* var_name;
+	Var_node (MIR::VARIABLE_NAME* var_name)
+	: var_name (var_name)
+	{
+	}
+
+	string graphviz_attrs ()
+	{
+		stringstream ss;
+		ss << "label=\"" << *var_name->value << "\"";
+		return ss.str ();
+	}
+};
+
+class Atom_node : public PT_node
+{
+public:
+	MIR::Node* atom; // constant or literal
+	Atom_node (MIR::Node* atom)
+	: atom (atom)
+	{
+		assert (isa<MIR::Literal> (atom) || isa<MIR::Constant> (atom));
+	}
+
+	string graphviz_attrs ()
+	{
+		stringstream ss;
+		ss << "label=\"" << demangle (atom, false) << "\"";
+		return ss.str ();
+	}
+};
+
+class PT_edge : virtual public GC_obj
 {
 	Points_to* ptg;
 	// TODO: do we want the edge to have types?
@@ -54,7 +103,7 @@ public:
 
 Points_to::Points_to()
 {
-	atom = new PT_node;
+	atom = new Atom_node (new MIR::STRING (s("TODO")));
 	add_node (atom);
 }
 
@@ -74,7 +123,7 @@ Points_to::get_node (MIR::Expr* in)
 	if (node_map.has (var))
 		return node_map[var];
 
-	PT_node* node = new PT_node;
+	Var_node* node = new Var_node (var);
 	add_node (node);
 	node_map[var] = node;
 
@@ -123,14 +172,16 @@ Points_to::dump_graphviz (String* label)
 	foreach (vertex_pt v, vertices(bs))
 	{
 		PT_node* node = vn[v];
-		cout << (long)(node) << "[]\n";
+		cout << node->index << "[" << node->graphviz_attrs() << "];\n";
 	}
 
 	// Edges
 	foreach (edge_pt e, edges (bs))
 	{
 		PT_edge* edge = ee[e];
-		cout << (long)(edge->get_source ()) << " -> " << (long)(edge->get_target ());
+		cout 
+		<< edge->get_source ()->index << " -> " 
+		<< edge->get_target ()->index << "[];\n";
 	}
 
 	cout

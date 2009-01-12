@@ -37,7 +37,7 @@ public:
 	void visit_assign_field (Statement_block*, MIR::Assign_field *) { phc_TODO (); }
 	void visit_assign_var (Statement_block*, MIR::Assign_var*);
 	void visit_assign_var_var (Statement_block*, MIR::Assign_var_var*) { phc_TODO (); }
-	void visit_eval_expr (Statement_block*, MIR::Eval_expr*) { phc_TODO (); }
+	void visit_eval_expr (Statement_block*, MIR::Eval_expr*);
 	void visit_foreach_end (Statement_block*, MIR::Foreach_end*) { phc_TODO (); }
 	void visit_foreach_next (Statement_block*, MIR::Foreach_next*) { phc_TODO (); }
 	void visit_foreach_reset (Statement_block*, MIR::Foreach_reset*) { phc_TODO (); }
@@ -64,7 +64,7 @@ public:
 	void visit_int (Statement_block* bb, MIR::INT* in) { phc_TODO (); }
 	void visit_isset (Statement_block* bb, MIR::Isset* in) { phc_TODO (); }
 	void visit_method_invocation (Statement_block* bb, MIR::Method_invocation* in);
-	void visit_new (Statement_block* bb, MIR::New* in) { phc_TODO (); }
+	void visit_new (Statement_block* bb, MIR::New* in);
 	void visit_nil (Statement_block* bb, MIR::NIL* in) { phc_TODO (); }
 	void visit_param_is_ref (Statement_block* bb, MIR::Param_is_ref* in) { phc_TODO (); }
 	void visit_real (Statement_block* bb, MIR::REAL* in) { phc_TODO (); }

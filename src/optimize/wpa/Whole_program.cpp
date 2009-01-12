@@ -16,6 +16,7 @@
 #include "VRP.h"
 #include "WPA.h"
 #include "Whole_program.h"
+#include "optimize/Oracle.h"
 #include "optimize/Edge.h"
 
 using namespace MIR;
@@ -169,11 +170,13 @@ Whole_program::register_analysis (string name, WPA* analysis)
 	analyses[name] = analysis;
 }
 
-Method_list*
+Method_info_list*
 Whole_program::get_possible_receivers (Method_invocation* in)
 {
-	Method_list* result = new Method_list;
+	Method_info_list* result = new Method_info_list;
 
+	// If there is a target or a variable_method, there may be > 1 methods that
+	// match it.
 	if (in->target)
 		phc_TODO ();
 
@@ -181,11 +184,15 @@ Whole_program::get_possible_receivers (Method_invocation* in)
 		phc_TODO ();
 
 	String* name = dyc<METHOD_NAME> (in->method_name)->value;
-	if (!functions.has (*name))
+
+	// This assumes there is only 1 function of that name, which is true. If
+	// there are multiple versions, they are lowered to different names before
+	// MIR.
+	Method_info* info = Oracle::get_method_info (name);
+	if (info == NULL)
 		phc_TODO ();
 
-
-	result->push_back (functions [*name]);
+	result->push_back (info);
 
 	return result;	
 }
@@ -193,12 +200,29 @@ Whole_program::get_possible_receivers (Method_invocation* in)
 void
 Whole_program::invoke_method (Method_invocation* in)
 {
-	Method_list* receivers = get_possible_receivers (in);
-	foreach (Method* reciever, *receivers)
+	Method_info_list* receivers = get_possible_receivers (in);
+
+	// Need to clone the information and merge it when it returns.
+	if (receivers->size () > 1)
+		phc_TODO ();
+
+	foreach (Method_info* receiver, *receivers)
 	{
-		if (reciever->signature->formal_parameters->size ())
+		if (receiver->has_implementation ())
+		{
+			// Continue the analysis
 			phc_TODO ();
 
-		evaluate_function (new CFG (reciever));
+			if (receiver->has_parameters ())
+				phc_TODO ();
+	
+			evaluate_function (new CFG (NULL));
+		}
+		else
+		{
+			// Get as precise information as is possible with pre-baked summary
+			// information.
+			phc_TODO ();
+		}
 	}
 }

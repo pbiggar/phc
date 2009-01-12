@@ -38,6 +38,7 @@
 
 #include "WPA.h"
 #include "lib/Map.h"
+#include "optimize/Oracle.h"
 
 class Whole_program
 {
@@ -66,7 +67,7 @@ public:
 	void run (MIR::PHP_script* in);
 	void evaluate_function (CFG* in);
 	Edge_list* get_branch_successors (Branch_block* bb);
-	MIR::Method_list* get_possible_receivers (MIR::Method_invocation* in);
+	Method_info_list* get_possible_receivers (MIR::Method_invocation* in);
 	void invoke_method (MIR::Method_invocation* in);
 };
 
