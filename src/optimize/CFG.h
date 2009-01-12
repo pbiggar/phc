@@ -42,8 +42,8 @@ struct phc_listS {};
 
 namespace boost {
 
-  BOOST_INSTALL_PROPERTY(vertex, bb);
-  BOOST_INSTALL_PROPERTY(edge, cfg_edge);
+	BOOST_INSTALL_PROPERTY(vertex, bb);
+	BOOST_INSTALL_PROPERTY(edge, cfg_edge);
 
 	// In order to use garbage collection, we have to specify the type to be a
 	// List instead of an std::list. This is copied from container_gen.cpp.
@@ -132,7 +132,7 @@ public:
 	// Creates a CFG for the method.
 	CFG (MIR::Method* method);
 
-	// Return a CFG for the backing store.
+	// Use a CFG for the backing store.
 	CFG (Graph& bs);
 
 	// Return a linear list of statement for the CFG

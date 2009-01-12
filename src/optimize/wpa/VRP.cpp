@@ -18,9 +18,3 @@
 VRP::VRP ()
 {
 }
-
-void
-VRP::eval_bb (Basic_block* bb)
-{
-	phc_TODO ();
-}

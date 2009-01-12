@@ -29,7 +29,8 @@
  * until it fix-points.
  *
  * The analyses will have to each other, so that we can get a type if required
- * for callgraph resolution, etc. 
+ * for callgraph resolution, etc.
+ *
  */
 
 #ifndef PHC_WHOLE_PROGRAM
@@ -49,14 +50,24 @@ class Whole_program
 
 public:
 	Whole_program();
-	void run (MIR::PHP_script* in);
-
-
-	void evaluate_function (CFG* in);
-
-	Edge_list* get_branch_successors (Branch_block* bb);
-
 	void register_analysis (string name, WPA* analysis);
+
+	/*
+	 * Analysis
+	 */
+	// My current plan is the each analysis can annotate the MIR nodes as they
+	// go. Then, before each block is analysed, all of its annotations are
+	// cleared.
+	//
+	// This way, each analysis does not have to store results at each program
+	// point, and can update them as it proceeds through the program.
+	// TODO: do we have to clone for join points then?
+
+	void run (MIR::PHP_script* in);
+	void evaluate_function (CFG* in);
+	Edge_list* get_branch_successors (Branch_block* bb);
+	MIR::Method_list* get_possible_receivers (MIR::Method_invocation* in);
+	void invoke_method (MIR::Method_invocation* in);
 };
 
 

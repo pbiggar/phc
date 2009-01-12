@@ -4,12 +4,13 @@
  *
  * Value-range propagation.
  *
- * Based mostly on
+ * See:
  * Accurate static branch prediction by value range propagation,
  * Jason Patterson,
  * PLDI95.
  *
- * We need this to help determine when integers overflow into doubles.
+ * We need this to help determine when integers overflow into doubles. So we
+ * don't need anymore than the max and min values.
  *
  */
 
@@ -22,7 +23,6 @@ class VRP : public WPA
 {
 public:
 	VRP ();
-	void eval_bb (Basic_block* bb);
 	void visit_basic_block (Basic_block*) { phc_TODO (); }
 	void visit_entry_block (Entry_block*) { phc_TODO (); }
 	void visit_empty_block (Empty_block*) { phc_TODO (); }

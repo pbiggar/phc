@@ -23,7 +23,7 @@ using namespace boost;
 
 Whole_program::Whole_program ()
 {
-	register_analysis ("BCCH_aliasing", new BCCH_aliasing);
+	register_analysis ("BCCH_aliasing", new BCCH_aliasing (this));
 //	register_analysis ("Callgraph", new Callgraph);
 //	register_analysis ("CCP", new CCP);
 //	register_analysis ("Constant_state", new Constant_state);
@@ -108,6 +108,7 @@ Whole_program::evaluate_function (CFG* cfg)
 		foreach (tie (name, wpa), analyses)
 		{
 			wpa->visit_block (e->get_target ());
+			wpa->dump ();
 		}
 
 		// Add next	block(s)
@@ -166,4 +167,38 @@ Whole_program::register_analysis (string name, WPA* analysis)
 {
 	assert (!analyses.has (name));
 	analyses[name] = analysis;
+}
+
+Method_list*
+Whole_program::get_possible_receivers (Method_invocation* in)
+{
+	Method_list* result = new Method_list;
+
+	if (in->target)
+		phc_TODO ();
+
+	if (isa<Variable_method> (in->method_name))
+		phc_TODO ();
+
+	String* name = dyc<METHOD_NAME> (in->method_name)->value;
+	if (!functions.has (*name))
+		phc_TODO ();
+
+
+	result->push_back (functions [*name]);
+
+	return result;	
+}
+
+void
+Whole_program::invoke_method (Method_invocation* in)
+{
+	Method_list* receivers = get_possible_receivers (in);
+	foreach (Method* reciever, *receivers)
+	{
+		if (reciever->signature->formal_parameters->size ())
+			phc_TODO ();
+
+		evaluate_function (new CFG (reciever));
+	}
 }

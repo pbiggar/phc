@@ -18,19 +18,24 @@
 #define PHC_BCCH_ALIASING
 
 #include "WPA.h"
+#include "Points_to.h"
 
 class BCCH_aliasing : public WPA
 {
-public:
-	BCCH_aliasing ();
+	Whole_program* wp;
+	Points_to* ptg;
 
-	void visit_entry_block (Entry_block*) { phc_TODO (); }
+public:
+	BCCH_aliasing (Whole_program*);
+	void dump ();
+
+	void visit_entry_block (Entry_block*);
 	void visit_exit_block (Exit_block*) { phc_TODO (); }
 	void visit_branch_block (Branch_block*) { phc_TODO (); }
 
 	void visit_assign_array (Statement_block*, MIR::Assign_array*) { phc_TODO (); }
 	void visit_assign_field (Statement_block*, MIR::Assign_field *) { phc_TODO (); }
-	void visit_assign_var (Statement_block*, MIR::Assign_var*) { phc_TODO (); }
+	void visit_assign_var (Statement_block*, MIR::Assign_var*);
 	void visit_assign_var_var (Statement_block*, MIR::Assign_var_var*) { phc_TODO (); }
 	void visit_eval_expr (Statement_block*, MIR::Eval_expr*) { phc_TODO (); }
 	void visit_foreach_end (Statement_block*, MIR::Foreach_end*) { phc_TODO (); }
@@ -58,7 +63,7 @@ public:
 	void visit_instanceof (Statement_block* bb, MIR::Instanceof* in) { phc_TODO (); }
 	void visit_int (Statement_block* bb, MIR::INT* in) { phc_TODO (); }
 	void visit_isset (Statement_block* bb, MIR::Isset* in) { phc_TODO (); }
-	void visit_method_invocation (Statement_block* bb, MIR::Method_invocation* in) { phc_TODO (); }
+	void visit_method_invocation (Statement_block* bb, MIR::Method_invocation* in);
 	void visit_new (Statement_block* bb, MIR::New* in) { phc_TODO (); }
 	void visit_nil (Statement_block* bb, MIR::NIL* in) { phc_TODO (); }
 	void visit_param_is_ref (Statement_block* bb, MIR::Param_is_ref* in) { phc_TODO (); }

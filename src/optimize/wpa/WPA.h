@@ -11,6 +11,8 @@
 
 #include "optimize/CFG_visitor.h"
 
+class Whole_program;
+
 class WPA : virtual public GC_obj, public CFG_visitor
 {
 public:
@@ -23,6 +25,9 @@ public:
 	// Really, we only need to override this in CCP.
 	bool branch_is_true (MIR::Branch*) { return false; }
 	bool branch_is_false (MIR::Branch*) { return false; }
+
+	// Print debugging information
+	virtual void dump() = 0;
 };
 
 #endif // PHC_WPA

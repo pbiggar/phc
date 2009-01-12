@@ -1,3 +1,12 @@
+The expansion of whole-program analysis should handle, in this order:
+	codegen/function_call_index.php
+	codegen/oop_method_invocation1.php
+	codegen/bench_fibo.php
+	3rdparty/shootout/raytrace.php
+	TODO: something with includes.
+
+That should cover the vast majority of everything.
+
 ============================================================
 Combine prints:
 

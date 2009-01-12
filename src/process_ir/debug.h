@@ -18,7 +18,7 @@ namespace AST { class Node; }
 namespace HIR { class Node; }
 namespace MIR { class Node; }
 
-#define CHECK_DEBUG() if (!debugging_enabled) return;
+#define CHECK_DEBUG() do { if (!debugging_enabled) return;} while (0)
 #define DEBUG(A) do { if (debugging_enabled) { cdebug << A << std::endl; } } while (0)
 
 extern bool debugging_enabled;

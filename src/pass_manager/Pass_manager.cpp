@@ -687,6 +687,7 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 		optimization_queue->pop_front();
 	}
 	while (*wpa_pass->name != "wpa");
+	maybe_enable_debug (wpa_pass);
 	Whole_program* wpa = new Whole_program;
 	wpa->run (in);
 	return;

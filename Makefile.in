@@ -110,7 +110,7 @@ am_libphc_la_OBJECTS = getopt1.lo getopt.lo AST_annotate.lo \
 	Dominance.lo HSSA.lo Phi.lo SSA.lo SSA_ops.lo \
 	Virtual_variable.lo Var_set.lo Visit_once.lo BCCH_aliasing.lo \
 	Callgraph.lo CCP.lo Constant_state.lo Include_analysis.lo \
-	Type_inference.lo VRP.lo Whole_program.lo WPA.lo \
+	Points_to.lo Type_inference.lo VRP.lo Whole_program.lo WPA.lo \
 	MICG_parser.lo Parse_buffer.lo parse.lo PHP_context.lo \
 	XML_parser.lo Optimization_pass.lo Pass_manager.lo \
 	Plugin_pass.lo AST_unparser.lo Constant_folding.lo \
@@ -800,6 +800,8 @@ libphc_la_SOURCES = \
 	src/optimize/wpa/Constant_state.h					\
 	src/optimize/wpa/Include_analysis.cpp				\
 	src/optimize/wpa/Include_analysis.h					\
+	src/optimize/wpa/Points_to.cpp						\
+	src/optimize/wpa/Points_to.h							\
 	src/optimize/wpa/Type_inference.cpp					\
 	src/optimize/wpa/Type_inference.h					\
 	src/optimize/wpa/VRP.cpp								\
@@ -1439,6 +1441,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Pass_manager.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Phi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Plugin_pass.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Points_to.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Pre_post_op_shredder.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Process_includes.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Prune_symbol_table.Plo@am__quote@
@@ -2158,6 +2161,13 @@ Include_analysis.lo: src/optimize/wpa/Include_analysis.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/wpa/Include_analysis.cpp' object='Include_analysis.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Include_analysis.lo `test -f 'src/optimize/wpa/Include_analysis.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Include_analysis.cpp
+
+Points_to.lo: src/optimize/wpa/Points_to.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Points_to.lo -MD -MP -MF $(DEPDIR)/Points_to.Tpo -c -o Points_to.lo `test -f 'src/optimize/wpa/Points_to.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Points_to.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Points_to.Tpo $(DEPDIR)/Points_to.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/wpa/Points_to.cpp' object='Points_to.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Points_to.lo `test -f 'src/optimize/wpa/Points_to.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Points_to.cpp
 
 Type_inference.lo: src/optimize/wpa/Type_inference.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Type_inference.lo -MD -MP -MF $(DEPDIR)/Type_inference.Tpo -c -o Type_inference.lo `test -f 'src/optimize/wpa/Type_inference.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Type_inference.cpp
