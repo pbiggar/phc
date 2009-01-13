@@ -14,7 +14,7 @@ Constant_state::Constant_state (Whole_program* wp)
 }
 
 void
-Constant_state::use_summary_results (Method_info* info)
+Constant_state::use_summary_results (Method_info* info, MIR::Actual_parameter_list* actuals)
 {
 	phc_TODO ();
 }

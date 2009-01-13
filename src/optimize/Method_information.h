@@ -18,6 +18,7 @@ public:
 	Parameter_info (bool pass_by_reference, bool is_callback, String_list* magic_methods)
 	: pass_by_reference (pass_by_reference)
 	, is_callback (is_callback)
+	, can_touch_objects (can_touch_objects)
 	, magic_methods (magic_methods)
 	{
 		assert (magic_methods != NULL);
@@ -26,6 +27,10 @@ public:
 	// Is the parameter passed by reference (compile-time-pass-by-ref)
 	bool pass_by_reference;
 	bool is_callback;
+
+	// While scalars and arrays are pass-by-copy, and object which is passed
+	// by value may still have its fields touched, and methods called.
+	bool can_touch_objects;
 
 	// TODO: there may be more complicated aliasing, esp with array_*
 	// functions or the like.

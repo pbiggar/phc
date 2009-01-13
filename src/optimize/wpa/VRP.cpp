@@ -21,7 +21,7 @@ VRP::VRP (Whole_program* wp)
 }
 
 void
-VRP::use_summary_results (Method_info* info)
+VRP::use_summary_results (Method_info* info, MIR::Actual_parameter_list* actuals)
 {
 	phc_TODO ();
 }

@@ -19,19 +19,43 @@ Type_inference::Type_inference (Whole_program* wp)
 {
 }
 
+/* I cant bring myself to call this 'scalar' when it includes arrays. */
+bool
+Type_inference::is_basic_type (String* name)
+{
+	if (*name == "STRING")
+		return true;
+	else
+		phc_TODO ();
+}
+
+
 void
-Type_inference::use_summary_results (Method_info* info)
+Type_inference::use_summary_results (Method_info* info, MIR::Actual_parameter_list* actuals)
 {
 	// Handle magic methods. If any parameter can have a magic method, and is
 	// an object, invoke the method from Whole_program. We do not need to get
 	// the list of receivers here, as Whole_program will query us to find them
 	// out separately. We only need to know whether or not there is an
 	// invocation.
-	
+
+	int index = 0;
 	foreach (Parameter_info* pinfo, *info->params)
 	{
-		// Get the types of each actual parameter
-		phc_TODO ();
+		Actual_parameter* ap = actuals->at(index);
+		if (!isa<Literal> (ap->rvalue)) // literals arent objects
+		{
+			PT_node* node = wp->bcch_aliasing->ptg->get_node (
+				dyc<VARIABLE_NAME> (ap->rvalue));
+
+			foreach (String* type, *get_types (dyc<Var_node> (node)))
+			{
+				if (!is_basic_type (type))
+					phc_TODO ();
+			}
+		}
+
+		index++;
 	}
 }
 

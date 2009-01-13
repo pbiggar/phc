@@ -13,7 +13,7 @@ Callgraph::Callgraph (Whole_program* wp)
 }
 
 void
-Callgraph::use_summary_results (Method_info* info)
+Callgraph::use_summary_results (Method_info* info, MIR::Actual_parameter_list*)
 {
 	phc_TODO ();
 }

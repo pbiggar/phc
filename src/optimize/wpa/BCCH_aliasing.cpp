@@ -28,7 +28,7 @@ BCCH_aliasing::BCCH_aliasing (Whole_program* wp)
 
 
 void
-BCCH_aliasing::use_summary_results (Method_info* info)
+BCCH_aliasing::use_summary_results (Method_info* info, MIR::Actual_parameter_list* in)
 {
 	if (info->can_touch_globals)
 		phc_TODO ();
@@ -50,6 +50,9 @@ BCCH_aliasing::use_summary_results (Method_info* info)
 			phc_TODO ();
 
 		if (pinfo->is_callback)
+			phc_TODO ();
+
+		if (pinfo->can_touch_objects)
 			phc_TODO ();
 
 		// Magic methods are handled in the callgraph.
@@ -153,6 +156,7 @@ BCCH_aliasing::visit_method_invocation (Statement_block* bb, MIR::Method_invocat
 {
 	wp->invoke_method (in);
 
+	// TODO: return value
 	phc_TODO ();
 }
 

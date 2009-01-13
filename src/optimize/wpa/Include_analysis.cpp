@@ -13,7 +13,7 @@ Include_analysis::Include_analysis (Whole_program* wp)
 }
 
 void
-Include_analysis::use_summary_results (Method_info* info)
+Include_analysis::use_summary_results (Method_info* info, MIR::Actual_parameter_list* actuals)
 {
 	phc_TODO ();
 }

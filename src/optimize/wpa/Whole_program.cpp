@@ -44,12 +44,16 @@ Whole_program::Whole_program ()
 void
 Whole_program::run (MIR::PHP_script* in)
 {
-	evaluate_method_info (Oracle::get_method_info (s("__MAIN__")));
+	invoke_method (
+		new Method_invocation (
+			NULL,
+			new METHOD_NAME (s("__MAIN__")),
+			new Actual_parameter_list));
 }
 
 
 void
-Whole_program::evaluate_function (CFG* cfg)
+Whole_program::evaluate_function (CFG* cfg, MIR::Actual_parameter_list* actuals)
 {
 	// This is very similar to run() from Sparse_conditional_visitor, except
 	// that it isnt sparse.
@@ -59,7 +63,8 @@ Whole_program::evaluate_function (CFG* cfg)
 
 	cfg->dump_graphviz (NULL);
 
-
+	if (actuals->size())
+		phc_TODO ();
 
 	// 1. Initialize:
 //	foreach (tie (name, wpa), analyses)
@@ -203,38 +208,48 @@ Whole_program::invoke_method (Method_invocation* in)
 	if (receivers->size () > 1)
 		phc_TODO ();
 
+	
 	foreach (Method_info* receiver, *receivers)
 	{
-		evaluate_method_info (receiver);
+		// TODO: where do I clone the actuals?
+		evaluate_method_info (receiver, in->actual_parameters);
 	}
 }
 
+// TODO: how to convey call-time-pass-by-ref?
 void
-Whole_program::evaluate_method_info (Method_info* info)
+Whole_program::evaluate_method_info (Method_info* info, MIR::Actual_parameter_list* actuals)
 {
 	if (info->has_implementation ())
 	{
-		if (info->has_parameters ())
+		if (info->has_parameters () || actuals->size ())
 			phc_TODO ();
 
-		evaluate_function (new CFG (info->implementation));
+		evaluate_function (new CFG (info->implementation), actuals);
 	}
 	else
 	{
 		// Get as precise information as is possible with pre-baked summary
 		// information.
-		evaluate_summary (info);
+		evaluate_summary (info, actuals);
 	}
 }
 
 void
-Whole_program::evaluate_summary (Method_info* info)
+Whole_program::evaluate_summary (Method_info* info, Actual_parameter_list* actuals)
 {
 	WPA* wpa;
 	string name;
 
+	// TODO: We'll pretend for now that these have the same length. We should
+	// probably have a final Parameter_info which models the remaining
+	// actuals, with pass_by_ref etc (which is a bit different than the
+	// current Oracle solution of is_param_x_pass_by_ref).
+	if (info->params->size () != actuals->size ())
+		phc_TODO ();
+
 	foreach (tie (name, wpa), analyses)
 	{
-		wpa->use_summary_results (info);
+		wpa->use_summary_results (info, actuals);
 	}
 }

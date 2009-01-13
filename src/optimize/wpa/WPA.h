@@ -32,7 +32,7 @@ public:
 	// Each analysis needs to be able to update when a function for which we
 	// only have a summary is called (the summary will be Bottom in the worst
 	// case).
-	virtual void use_summary_results (Method_info* info) = 0;
+	virtual void use_summary_results (Method_info* info, MIR::Actual_parameter_list* actuals) = 0;
 
 	// Really, we only need to override this in CCP.
 	bool branch_is_true (MIR::Branch*) { return false; }

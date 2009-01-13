@@ -88,11 +88,11 @@ public:
 	Edge_list* get_branch_successors (Branch_block* bb);
 	Method_info_list* get_possible_receivers (MIR::Method_invocation* in);
 
-	void evaluate_method_info (Method_info* info);
 
 private:
-	void evaluate_function (CFG* in);
-	void evaluate_summary (Method_info* info);
+	void evaluate_method_info (Method_info* info, MIR::Actual_parameter_list* actuals);
+	void evaluate_function (CFG* in, MIR::Actual_parameter_list*);
+	void evaluate_summary (Method_info* info, MIR::Actual_parameter_list*);
 };
 
 

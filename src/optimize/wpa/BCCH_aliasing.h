@@ -28,7 +28,7 @@ public:
 
 	BCCH_aliasing (Whole_program*);
 
-	void use_summary_results (Method_info* info);
+	void use_summary_results (Method_info* info, MIR::Actual_parameter_list* in);
 
 	void dump ();
 
