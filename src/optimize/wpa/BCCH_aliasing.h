@@ -22,10 +22,10 @@
 
 class BCCH_aliasing : public WPA
 {
-	Whole_program* wp;
-	Points_to* ptg;
 
 public:
+	Points_to* ptg;
+
 	BCCH_aliasing (Whole_program*);
 
 	void use_summary_results (Method_info* info);

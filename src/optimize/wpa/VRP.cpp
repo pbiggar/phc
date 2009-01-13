@@ -15,6 +15,19 @@
 
 #include "VRP.h"
 
-VRP::VRP ()
+VRP::VRP (Whole_program* wp)
+: WPA (wp)
 {
+}
+
+void
+VRP::use_summary_results (Method_info* info)
+{
+	phc_TODO ();
+}
+
+void
+VRP::dump()
+{
+	phc_TODO ();
 }

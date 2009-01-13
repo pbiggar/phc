@@ -24,13 +24,21 @@ using namespace boost;
 
 Whole_program::Whole_program ()
 {
-	register_analysis ("BCCH_aliasing", new BCCH_aliasing (this));
-//	register_analysis ("Callgraph", new Callgraph);
-//	register_analysis ("CCP", new CCP);
-//	register_analysis ("Constant_state", new Constant_state);
-//	register_analysis ("Include_analysis", new Include_analysis);
-//	register_analysis ("Type_inference", new Type_inference);
-//	register_analysis ("VRP", new VRP);
+	bcch_aliasing = new BCCH_aliasing (this);
+	callgraph = new Callgraph (this);
+	ccp = new CCP (this);
+	constant_state = new Constant_state (this);
+	include_analysis = new Include_analysis (this);
+	type_inference = new Type_inference (this);
+	vrp = new VRP (this);
+
+	register_analysis ("BCCH_aliasing", bcch_aliasing);
+//	register_analysis ("Callgraph", callgraph);
+//	register_analysis ("CCP", ccp);
+//	register_analysis ("Constant_state", constant_state);
+//	register_analysis ("Include_analysis", include_analysis);
+	register_analysis ("Type_inference", type_inference);
+//	register_analysis ("VRP", vrp);
 }
 
 void

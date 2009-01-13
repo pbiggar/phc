@@ -12,13 +12,20 @@
 
 #include "CCP.h"
 
-CCP::CCP ()
+CCP::CCP (Whole_program* wp)
+: WPA (wp)
 {
 }
 
+
 void
-CCP::eval_bb (Basic_block* bb)
+CCP::use_summary_results (Method_info* info)
 {
 	phc_TODO ();
 }
 
+void
+CCP::dump()
+{
+	phc_TODO ();
+}

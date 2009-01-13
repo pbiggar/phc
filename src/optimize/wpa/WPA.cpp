@@ -6,11 +6,3 @@
  * run, and must keep its state for the whole program. This simply provides the interface.
  */
 
-#include "optimize/Basic_block.h"
-
-class WPA : virtual public GC_obj
-{
-public:
-	virtual void eval_bb (Basic_block* bb) = 0;
-};
-

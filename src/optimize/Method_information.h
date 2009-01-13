@@ -27,6 +27,9 @@ public:
 	bool pass_by_reference;
 	bool is_callback;
 
+	// TODO: there may be more complicated aliasing, esp with array_*
+	// functions or the like.
+
 	// List of magic methods which may be called on this parameter;
 	String_list* magic_methods;
 };

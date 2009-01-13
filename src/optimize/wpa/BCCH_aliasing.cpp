@@ -21,7 +21,7 @@
 using namespace MIR;
 
 BCCH_aliasing::BCCH_aliasing (Whole_program* wp)
-: wp (wp)
+: WPA (wp)
 {
 	ptg = new Points_to;
 }
@@ -52,8 +52,7 @@ BCCH_aliasing::use_summary_results (Method_info* info)
 		if (pinfo->is_callback)
 			phc_TODO ();
 
-		if (pinfo->magic_methods->size())
-			phc_TODO ();
+		// Magic methods are handled in the callgraph.
 	}
 
 	// TODO: does this create alias relationships

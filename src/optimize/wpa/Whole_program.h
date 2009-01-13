@@ -41,9 +41,31 @@
 #include "lib/Map.h"
 #include "optimize/Oracle.h"
 
+class BCCH_aliasing;
+class Callgraph;
+class CCP;
+class Constant_state;
+class Include_analysis;
+class Type_inference;
+class VRP;
+class WPA;
+
 class Whole_program
 {
 	Map<string, WPA*> analyses;
+
+	// Analyses should be able to reach in here to get other analyses'
+	// results.
+
+public:
+	BCCH_aliasing* bcch_aliasing;
+	Callgraph* callgraph;
+	CCP* ccp;
+	Constant_state* constant_state;
+	Include_analysis* include_analysis;
+	Type_inference* type_inference;
+	VRP* vrp;
+
 
 public:
 	Whole_program();

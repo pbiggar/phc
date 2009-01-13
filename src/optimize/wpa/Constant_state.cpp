@@ -8,13 +8,19 @@
 
 #include "Constant_state.h"
 
-Constant_state::Constant_state ()
+Constant_state::Constant_state (Whole_program* wp)
+: WPA(wp)
 {
 }
 
 void
-Constant_state::eval_bb (Basic_block* bb)
+Constant_state::use_summary_results (Method_info* info)
 {
 	phc_TODO ();
 }
 
+void
+Constant_state::dump()
+{
+	phc_TODO ();
+}

@@ -13,8 +13,11 @@
 class Include_analysis : public WPA
 {
 public:
-	Include_analysis ();
-	void eval_bb (Basic_block* bb);
+	Include_analysis (Whole_program* wp);
+	void use_summary_results (Method_info* info);
+
+	void dump ();
+
 	void visit_basic_block (Basic_block*) { phc_TODO (); }
 	void visit_entry_block (Entry_block*) { phc_TODO (); }
 	void visit_empty_block (Empty_block*) { phc_TODO (); }

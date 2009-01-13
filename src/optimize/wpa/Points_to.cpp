@@ -21,89 +21,12 @@ using namespace std;
 using namespace boost;
 
 
-class PT_node : virtual public GC_obj
-{
-public:
-	int index;
-	vertex_pt vertex;
-
-	// Each allocated node gets a unique index
-	static int index_counter;
-	PT_node()
-	{
-		index = index_counter++;
-	}
-
-	virtual string graphviz_attrs () = 0;
-};
-
 int PT_node::index_counter = 0;
-
-// TODO: different kinds of nodes for fields, variables, arrays, objects and
-// atoms?
-class Var_node : public PT_node
-{
-public:
-	MIR::VARIABLE_NAME* var_name;
-	Var_node (MIR::VARIABLE_NAME* var_name)
-	: var_name (var_name)
-	{
-	}
-
-	string graphviz_attrs ()
-	{
-		stringstream ss;
-		ss << "label=\"" << *var_name->value << "\"";
-		return ss.str ();
-	}
-};
-
-class Atom_node : public PT_node
-{
-public:
-	MIR::Node* atom; // constant or literal
-	Atom_node (MIR::Node* atom)
-	: atom (atom)
-	{
-		assert (isa<MIR::Literal> (atom) || isa<MIR::Constant> (atom));
-	}
-
-	string graphviz_attrs ()
-	{
-		stringstream ss;
-		ss << "label=\"" << demangle (atom, false) << "\"";
-		return ss.str ();
-	}
-};
-
-class PT_edge : virtual public GC_obj
-{
-	Points_to* ptg;
-	// TODO: do we want the edge to have types?
-public:
-	edge_pt edge;
-
-	PT_edge (Points_to* ptg, edge_pt edge)
-	: ptg (ptg)
-	, edge (edge)
-	{
-	}
-
-	PT_node* get_source ()
-	{
-		return ptg->vn[source (edge, ptg->bs)];
-	}
-
-	PT_node* get_target ()
-	{
-		return ptg->vn[target (edge, ptg->bs)];
-	}
-};
 
 
 Points_to::Points_to()
 {
-	atom = new Atom_node (new MIR::STRING (s("TODO")));
+	atom = new Atom_node (this, new MIR::STRING (s("TODO")));
 	add_node (atom);
 }
 
@@ -123,7 +46,7 @@ Points_to::get_node (MIR::Expr* in)
 	if (node_map.has (var))
 		return node_map[var];
 
-	Var_node* node = new Var_node (var);
+	Var_node* node = new Var_node (this, var);
 	add_node (node);
 	node_map[var] = node;
 
@@ -188,5 +111,48 @@ Points_to::dump_graphviz (String* label)
 	<< "}\n"
 	;
 }
+
+
+
+/*
+ * Nodes
+ */
+
+PT_node::PT_node (Points_to* prg)
+: ptg (ptg)
+{
+	index = index_counter++;
+}
+
+
+Var_node::Var_node (Points_to* ptg, MIR::VARIABLE_NAME* var_name)
+: PT_node (ptg)
+, var_name (var_name)
+{
+}
+
+string
+Var_node::graphviz_attrs ()
+{
+	stringstream ss;
+	ss << "label=\"" << index << ": " << *var_name->value << "\"";
+	return ss.str ();
+}
+
+Atom_node::Atom_node (Points_to* ptg, MIR::Node* atom)
+: PT_node (ptg)
+, atom (atom)
+{
+	assert (isa<MIR::Literal> (atom) || isa<MIR::Constant> (atom));
+}
+
+string
+Atom_node::graphviz_attrs ()
+{
+	stringstream ss;
+	ss << "label=\"" << index << ": " << demangle (atom, false) << "\"";
+	return ss.str ();
+}
+
 
 
