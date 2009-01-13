@@ -15,15 +15,16 @@
 class Parameter_info : virtual public GC_obj
 {
 public:
-	Parameter_info (bool is_ref, bool is_callback, String_list* magic_methods)
-	: is_ref(is_ref)
+	Parameter_info (bool pass_by_reference, bool is_callback, String_list* magic_methods)
+	: pass_by_reference (pass_by_reference)
 	, is_callback (is_callback)
 	, magic_methods (magic_methods)
 	{
+		assert (magic_methods != NULL);
 	}
 
-	// Is the parameter passed by reference (compile-tim-pass-by-ref)
-	bool is_ref;
+	// Is the parameter passed by reference (compile-time-pass-by-ref)
+	bool pass_by_reference;
 	bool is_callback;
 
 	// List of magic methods which may be called on this parameter;
@@ -38,13 +39,15 @@ typedef List<Parameter_info*> Parameter_info_list;
 class Method_info : virtual public GC_obj
 {
 public:
-	Method_info (String* method_name, Parameter_info_list* params, bool is_pure, bool return_by_ref)
+	Method_info (String* method_name, Parameter_info_list* params, bool can_touch_globals, bool can_touch_locals, bool return_by_ref)
 	: method_name (method_name)
 	, implementation (NULL)
 	, params (params)
+	, can_touch_globals (can_touch_globals)
+	, can_touch_locals (can_touch_locals)
 	, return_by_ref (return_by_ref)
-	, is_pure (is_pure)
 	{
+		assert (params != NULL);
 	}
 
 	Method_info (String* method_name, MIR::Method* implementation)
@@ -69,27 +72,32 @@ public:
 	 */
 
 	Parameter_info_list* params;
+
+	// The following properties do not take into account callbacks or magic
+	// methods. So if (CAN_TOUCH_GLOBALS == false), a parameter can still be a
+	// callback to eval. Parameters are via Parameter_info.
+
+	// TODO: we'd probably prefer a list of globals that can be affected
+	bool can_touch_globals;
+	bool can_touch_locals;
+
+	// TODO: model more of the return - types, values
 	bool return_by_ref;
 
-	// This deliberately does not take magic methods into account. They are
-	// modelled in Parameter_info.
-	bool is_pure;
 
-	/*
-	 * Properties
-	 */
+
 
 	bool has_implementation ()
 	{
-		return implementation == NULL;
+		return implementation != NULL;
 	}
 
 	bool has_parameters ()
 	{
 		if (implementation)
-			return implementation->signature->formal_parameters->size () == 0;
+			return implementation->signature->formal_parameters->size () != 0;
 		else
-			return params->size () == 0;
+			return params->size () != 0;
 	}
 
 };

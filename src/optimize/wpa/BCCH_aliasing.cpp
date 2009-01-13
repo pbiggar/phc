@@ -28,6 +28,41 @@ BCCH_aliasing::BCCH_aliasing (Whole_program* wp)
 
 
 void
+BCCH_aliasing::use_summary_results (Method_info* info)
+{
+	if (info->can_touch_globals)
+		phc_TODO ();
+
+	if (info->can_touch_locals)
+		phc_TODO ();
+
+	if (info->return_by_ref)
+		phc_TODO ();
+
+	// We model each parameter, and the return value, for:
+	//		- can they alias other parameters (keep it simple, we can do more
+	//		complicated thing for functions we analyse, such as 'aliases a field
+	//		of param1'.
+	//		- can they alias a global variable
+	foreach (Parameter_info* pinfo, *info->params)
+	{
+		if (pinfo->pass_by_reference)
+			phc_TODO ();
+
+		if (pinfo->is_callback)
+			phc_TODO ();
+
+		if (pinfo->magic_methods->size())
+			phc_TODO ();
+	}
+
+	// TODO: does this create alias relationships
+	// TODO: how does this affect the callgraph
+	//		- need to look at types for that
+}
+
+
+void
 BCCH_aliasing::visit_global (Statement_block* bb, MIR::Global* in)
 {
 	// These dont really change anything
@@ -127,3 +162,5 @@ void BCCH_aliasing::dump ()
 	CHECK_DEBUG();
 	ptg->dump_graphviz (NULL);
 }
+
+

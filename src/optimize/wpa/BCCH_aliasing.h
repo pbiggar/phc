@@ -27,6 +27,9 @@ class BCCH_aliasing : public WPA
 
 public:
 	BCCH_aliasing (Whole_program*);
+
+	void use_summary_results (Method_info* info);
+
 	void dump ();
 
 	void visit_entry_block (Entry_block*);

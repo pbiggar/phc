@@ -9,6 +9,7 @@
 #ifndef PHC_WPA
 #define PHC_WPA
 
+#include "optimize/Oracle.h"
 #include "optimize/CFG_visitor.h"
 
 class Whole_program;
@@ -20,7 +21,9 @@ public:
 	void run (CFG* cfg) {}
 
 	// Tell the analysis that we are dealing with a new function here.
-	void new_function (MIR::Method* in) {}
+	// TODO: re-enable when we have an actual use for this
+//	virtual void init_function (MIR::Method* in) {}
+	virtual void use_summary_results (Method_info* info) = 0;
 
 	// Really, we only need to override this in CCP.
 	bool branch_is_true (MIR::Branch*) { return false; }

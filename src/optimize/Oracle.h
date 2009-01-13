@@ -17,7 +17,12 @@ private:
 	static Map<string, Method_info*> infos;
 public:
 
-	static void initialize ();
+	// TODO: the oracle was supposed to be an interface which hid the difference
+	// between information from the Embed SAPI, annotations of internals, and
+	// analyses information. But some it is possible to change some of that
+	// information, so its likely there need to be multiple instances of this.
+	static void initialize (MIR::PHP_script*);
+
 	static void add_method_info (Method_info* info);
 	static Method_info* get_method_info (String* name);
 

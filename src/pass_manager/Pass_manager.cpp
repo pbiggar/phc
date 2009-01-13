@@ -680,6 +680,9 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 	if (lexical_cast<int> (args_info->optimize_arg) == 0)
 		return;
 
+	// Initialize the optimization oracle
+	Oracle::initialize (in);
+
 	Pass* wpa_pass;
 	do
 	{
@@ -692,8 +695,6 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 	wpa->run (in);
 	return;
 
-	// Initialize the optimization oracle
-	Oracle::initialize ();
 
 
 	// The pass_manager allows passes to be added in-between the passes we expect. Ignore them.

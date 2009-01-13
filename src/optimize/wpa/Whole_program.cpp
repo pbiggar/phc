@@ -36,18 +36,7 @@ Whole_program::Whole_program ()
 void
 Whole_program::run (MIR::PHP_script* in)
 {
-	foreach (Statement* stmt, *in->statements)
-	{
-		if (Method* m = dynamic_cast<Method*> (stmt))
-			functions[*m->signature->method_name->value] = m;
-
-		else if (Class_def* c = dynamic_cast<Class_def*> (stmt))
-			classes[*c->class_name->value] = c;
-
-	}
-
-	CFG* cfg = new CFG (functions["__MAIN__"]);
-	evaluate_function (cfg);
+	evaluate_method_info (Oracle::get_method_info (s("__MAIN__")));
 }
 
 
@@ -65,12 +54,12 @@ Whole_program::evaluate_function (CFG* cfg)
 
 
 	// 1. Initialize:
-	foreach (tie (name, wpa), analyses)
-	{
+//	foreach (tie (name, wpa), analyses)
+//	{
 		// TODO: this needs more context, like whether its a class or whats its
 		// params are. And the relationship to the pints-to graph.
-		wpa->new_function (cfg->method);
-	}
+//		wpa->init_function (cfg->method);
+//	}
 
 	Edge_list* cfg_wl = new Edge_list (cfg->get_entry_edge ());
 
@@ -208,21 +197,36 @@ Whole_program::invoke_method (Method_invocation* in)
 
 	foreach (Method_info* receiver, *receivers)
 	{
-		if (receiver->has_implementation ())
-		{
-			// Continue the analysis
+		evaluate_method_info (receiver);
+	}
+}
+
+void
+Whole_program::evaluate_method_info (Method_info* info)
+{
+	if (info->has_implementation ())
+	{
+		if (info->has_parameters ())
 			phc_TODO ();
 
-			if (receiver->has_parameters ())
-				phc_TODO ();
-	
-			evaluate_function (new CFG (NULL));
-		}
-		else
-		{
-			// Get as precise information as is possible with pre-baked summary
-			// information.
-			phc_TODO ();
-		}
+		evaluate_function (new CFG (info->implementation));
+	}
+	else
+	{
+		// Get as precise information as is possible with pre-baked summary
+		// information.
+		evaluate_summary (info);
+	}
+}
+
+void
+Whole_program::evaluate_summary (Method_info* info)
+{
+	WPA* wpa;
+	string name;
+
+	foreach (tie (name, wpa), analyses)
+	{
+		wpa->use_summary_results (info);
 	}
 }

@@ -7,21 +7,43 @@ Map<string, Method_info*> Oracle::infos;
 
 // TODO: We dont put Method_mods into the signature.
 void
-Oracle::initialize ()
+Oracle::initialize (MIR::PHP_script* in)
 {
-	// Echo and print are built-in
+	// TODO: add a case for the most conservative we may ever have to be.
+	
+	/*
+	 * Add existing functions
+	 */
+	foreach (Statement* stmt, *in->statements)
+	{
+		if (Method* m = dynamic_cast<Method*> (stmt))
+			add_method_info (new Method_info (m->signature->method_name->value, m));
+
+		else if (Interface_def* i = dynamic_cast<Interface_def*> (stmt))
+			phc_TODO ();
+
+		else if (Class_def* c = dynamic_cast<Class_def*> (stmt))
+			phc_TODO ();
+	}
+
+	/*
+	 * Add builtins
+	 */
+	// TODO: return value (use null for no return value)
+	// TODO: return type
+
 	add_method_info (
 		new Method_info (
-			s("echo"),
-			false,
-			false,
+			s("print"),
 			new Parameter_info_list (
 				new Parameter_info (
 					false,
 					false,
-					new String_list (s("__toString"))))));
+					new String_list (s("__toString")))),
+			false,
+			false,
+			false));
 
-	// TODO: add a case where we know nothing
 }
 
 Method_info*
@@ -47,8 +69,6 @@ Oracle::get_method_info (String* method_name)
 void
 Oracle::add_signature (Signature* sig)
 {
-	// Callbacks are for internal functions. This isnt summary information.
-
 	Parameter_info_list* params = new Parameter_info_list;
 	foreach (Formal_parameter* param, *sig->formal_parameters)
 	{
@@ -63,7 +83,8 @@ Oracle::add_signature (Signature* sig)
 		new Method_info (
 			sig->method_name->value,
 			params,
-			Oracle::is_pure_function (sig->method_name),
+			!Oracle::is_pure_function (sig->method_name),
+			!Oracle::is_pure_function (sig->method_name),
 			sig->return_by_ref));
 }
 
