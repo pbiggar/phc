@@ -1107,12 +1107,19 @@ public:
 		assert (!agn->is_ref);
 		Map<string, string> symnames;
 		symnames["array"]		= "IS_ARRAY";
+		symnames["binary"]	= "IS_STRING";
 		symnames["boolean"]	= "IS_BOOL";
 		symnames["bool"]		= "IS_BOOL";
+		symnames["double"]	= "IS_DOUBLE";
+		symnames["float"]		= "IS_DOUBLE";
+		symnames["integer"]	= "IS_LONG";
 		symnames["int"]		= "IS_LONG";
 		symnames["null"]		= "IS_NULL";
+		symnames["object"]	= "IS_OBJECT";
 		symnames["real"]		= "IS_DOUBLE";
 		symnames["string"]	= "IS_STRING";
+		symnames["unset"]		= "IS_NULL";
+
 
 		if (!symnames.has (*cast->value->value))
 			phc_unsupported (cast->value, "non-scalar casts");
