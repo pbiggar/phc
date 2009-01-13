@@ -3,6 +3,35 @@
  * See doc/license/README.license for licensing information
  *
  * Perform a number of whole-program analyses simulteneously.
+ *
+ * Design of the whole-program optimizer
+ *
+ *		1. Perform flow-sensitive, context-sensitive analysis. When analysing a
+ *		function in multiple contexts, clone the function, and store the clones
+ *		in the call-graph. 
+ *
+ *		2. Before analysing each Basic_block, clear all phc.opt.* annotations.
+ *		After analysing each block, each analysis re-annotates the block. At
+ *		function-exit, the annotations stay.
+ *
+ *
+ *		3. The analyses data structures' are cloned at split nodes, and
+ *		combined at join nodes, whereupon the analysis proceeds for a single
+ *		iteration.
+ *
+ *		4. After the analysis is complete, all the function annotations can be
+ *		merged.
+ *
+ *		5. Once merged, the analyses are re-run over the complete call-graph,
+ *		transforming the graph. This iterates until it converges (or a fixed
+ *		number of times). This allows evals and includes to be replaced with
+ *		their respective code.
+ *
+ *		6. Once finished, the combined alias-solution is used to annotate the
+ *		results for SSA, where-upon DCE is run over the entire program.
+ *
+ *		7. Finally, code is generated using the (hopefully) well-annotated
+ *		code.
  */
 
 #include "process_ir/General.h"
@@ -50,11 +79,15 @@ Whole_program::run (MIR::PHP_script* in)
 			new METHOD_NAME (s("__MAIN__")),
 			new Actual_parameter_list),
 		NULL);
+
+
+	// Apply_results
+	phc_TODO ();
 }
 
 
 void
-Whole_program::evaluate_function (CFG* cfg, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
+Whole_program::analyse_function (CFG* cfg, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
 {
 	// This is very similar to run() from Sparse_conditional_visitor, except
 	// that it isnt sparse.
@@ -64,17 +97,7 @@ Whole_program::evaluate_function (CFG* cfg, MIR::Actual_parameter_list* actuals,
 
 	cfg->dump_graphviz (NULL);
 
-	if (actuals->size() || lhs)
-		phc_TODO ();
-
 	// 1. Initialize:
-//	foreach (tie (name, wpa), analyses)
-//	{
-		// TODO: this needs more context, like whether its a class or whats its
-		// params are. And the relationship to the pints-to graph.
-//		wpa->init_function (cfg->method);
-//	}
-
 	Edge_list* cfg_wl = new Edge_list (cfg->get_entry_edge ());
 
 	foreach (Edge* e, *cfg->get_all_edges ())
@@ -83,7 +106,7 @@ Whole_program::evaluate_function (CFG* cfg, MIR::Actual_parameter_list* actuals,
 	// Process the entry blocks first (there is no edge here)
 	foreach (tie (name, wpa), analyses)
 	{
-		wpa->visit_block (cfg->get_entry_bb ());
+		wpa->initialize_function (cfg, actuals, lhs);
 	}
 
 
@@ -120,23 +143,20 @@ Whole_program::evaluate_function (CFG* cfg, MIR::Actual_parameter_list* actuals,
 		{
 			cfg_wl->push_back_all (get_branch_successors (branch));
 		}
-		else
-			cfg_wl->push_back (e->get_target ()->get_successor_edges ()->front ());
-	}
-
-
-	// Apply the results
-	foreach (Basic_block* bb, *cfg->get_all_bbs())
-	{
-		foreach (tie (name, wpa), analyses)
+		else if (Exit_block* exit = dynamic_cast<Exit_block*> (e->get_target ()))
 		{
-			// TODO: apply results from analyses
+			; // do nothing
+		}
+		else
+		{
+			cfg_wl->push_back (e->get_target ()->get_successor_edges ()->front ());
 		}
 	}
 
-	// TODO: To iterate, we would need to clone the results. But since we are
-	// annotating every program point with a copy of the results, its grand
-	// really.
+	foreach (tie (name, wpa), analyses)
+	{
+		wpa->finalize_function (cfg);
+	}
 }
 
 Edge_list*
@@ -213,20 +233,20 @@ Whole_program::invoke_method (Method_invocation* in, MIR::VARIABLE_NAME* lhs)
 	foreach (Method_info* receiver, *receivers)
 	{
 		// TODO: where do I clone the actuals?
-		evaluate_method_info (receiver, in->actual_parameters, lhs);
+		analyse_method_info (receiver, in->actual_parameters, lhs);
 	}
 }
 
 // TODO: how to convey call-time-pass-by-ref?
 void
-Whole_program::evaluate_method_info (Method_info* info, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
+Whole_program::analyse_method_info (Method_info* info, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
 {
 	if (info->has_implementation ())
 	{
 		if (info->has_parameters () || actuals->size ())
 			phc_TODO ();
 
-		evaluate_function (new CFG (info->implementation), actuals, lhs);
+		analyse_function (new CFG (info->implementation), actuals, lhs);
 	}
 	else
 	{
@@ -235,12 +255,12 @@ Whole_program::evaluate_method_info (Method_info* info, MIR::Actual_parameter_li
 
 		// Get as precise information as is possible with pre-baked summary
 		// information.
-		evaluate_summary (info, actuals, lhs);
+		analyse_summary (info, actuals, lhs);
 	}
 }
 
 void
-Whole_program::evaluate_summary (Method_info* info, Actual_parameter_list* actuals, VARIABLE_NAME* lhs)
+Whole_program::analyse_summary (Method_info* info, Actual_parameter_list* actuals, VARIABLE_NAME* lhs)
 {
 	WPA* wpa;
 	string name;

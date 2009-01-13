@@ -69,15 +69,15 @@ BCCH_aliasing::use_summary_results (Method_info* info, MIR::Actual_parameter_lis
 
 
 void
-BCCH_aliasing::initialize_function (MIR::Method* in, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
+BCCH_aliasing::initialize_function (CFG* cfg, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
 {
-	phc_TODO ();
+	if (actuals->size () || cfg->method->signature->formal_parameters->size ())
+		phc_TODO ();
 }
 
 void
-BCCH_aliasing::finalize_function (MIR::Method* in)
+BCCH_aliasing::finalize_function (CFG* cfg)
 {
-	phc_TODO ();
 }
 
 
@@ -94,15 +94,6 @@ BCCH_aliasing::visit_global (Statement_block* bb, MIR::Global* in)
 	phc_TODO ();
 }
 
-void
-BCCH_aliasing::visit_entry_block (Entry_block* bb)
-{
-	if (bb->cfg->method->is_main ())
-		return;
-
-	if (bb->method->signature->formal_parameters->size ())
-		phc_TODO ();
-}
 
 void
 BCCH_aliasing::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
@@ -162,9 +153,9 @@ void
 BCCH_aliasing::visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
 {
 	if (isa<New> (in->expr))
-		handle_new (bb, dyc<New> (in), NULL);
+		handle_new (bb, dyc<New> (in->expr), NULL);
 	else
-		handle_method_invocation (bb, dyc<Method_invocation> (in), NULL);
+		handle_method_invocation (bb, dyc<Method_invocation> (in->expr), NULL);
 }
 
 void

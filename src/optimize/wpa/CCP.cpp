@@ -18,13 +18,13 @@ CCP::CCP (Whole_program* wp)
 }
 
 void
-CCP::initialize_function (MIR::Method* in, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
+CCP::initialize_function (CFG* cfg, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
 {
 	phc_TODO ();
 }
 
 void
-CCP::finalize_function (MIR::Method* in)
+CCP::finalize_function (CFG* cfg)
 {
 	phc_TODO ();
 }

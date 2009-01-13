@@ -14,13 +14,13 @@ Constant_state::Constant_state (Whole_program* wp)
 }
 
 void
-Constant_state::initialize_function (MIR::Method* in, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
+Constant_state::initialize_function (CFG* cfg, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
 {
 	phc_TODO ();
 }
 
 void
-Constant_state::finalize_function (MIR::Method* in)
+Constant_state::finalize_function (CFG* cfg)
 {
 	phc_TODO ();
 }

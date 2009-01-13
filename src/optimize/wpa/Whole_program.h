@@ -90,9 +90,9 @@ public:
 
 
 private:
-	void evaluate_method_info (Method_info* info, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs);
-	void evaluate_function (CFG* in, MIR::Actual_parameter_list*, MIR::VARIABLE_NAME* lhs);
-	void evaluate_summary (Method_info* info, MIR::Actual_parameter_list*, MIR::VARIABLE_NAME* lhs);
+	void analyse_method_info (Method_info* info, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs);
+	void analyse_function (CFG* in, MIR::Actual_parameter_list*, MIR::VARIABLE_NAME* lhs);
+	void analyse_summary (Method_info* info, MIR::Actual_parameter_list*, MIR::VARIABLE_NAME* lhs);
 };
 
 

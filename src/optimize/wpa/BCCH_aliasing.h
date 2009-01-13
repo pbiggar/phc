@@ -30,13 +30,11 @@ public:
 
 	void use_summary_results (Method_info* info, MIR::Actual_parameter_list* in, MIR::VARIABLE_NAME* lhs);
 
-	void initialize_function ( MIR::Method* in, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs);
-	void finalize_function (MIR::Method* in);
+	void initialize_function ( CFG* cfg, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs);
+	void finalize_function (CFG* cfg);
 
 	void dump ();
 
-	void visit_entry_block (Entry_block*);
-	void visit_exit_block (Exit_block*) { phc_TODO (); }
 	void visit_branch_block (Branch_block*) { phc_TODO (); }
 
 	void visit_assign_array (Statement_block*, MIR::Assign_array*) { phc_TODO (); }

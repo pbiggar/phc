@@ -33,13 +33,13 @@ VRP::dump()
 }
 
 void
-VRP::initialize_function (MIR::Method* in, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
+VRP::initialize_function (CFG* cfg, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
 {
 	phc_TODO ();
 }
 
 void
-VRP::finalize_function (MIR::Method* in)
+VRP::finalize_function (CFG* cfg)
 {
 	phc_TODO ();
 }

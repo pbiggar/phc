@@ -19,13 +19,13 @@ Callgraph::use_summary_results (Method_info* info, MIR::Actual_parameter_list*, 
 }
 
 void
-Callgraph::initialize_function (MIR::Method* in, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
+Callgraph::initialize_function (CFG* cfg, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
 {
 	phc_TODO ();
 }
 
 void
-Callgraph::finalize_function (MIR::Method* in)
+Callgraph::finalize_function (CFG* cfg)
 {
 	phc_TODO ();
 }

@@ -20,19 +20,19 @@ class WPA : virtual public GC_obj, public CFG_visitor
 public:
 	Whole_program* wp;
 
-	WPA(Whole_program* wp) : wp(wp) {}
+	WPA (Whole_program* wp) : wp (wp) {}
 
 	// Statements are dispatched by Whole_program.
 	void run (CFG* cfg) {}
 
 	// Prepare for a new function
 	virtual void initialize_function (
-			MIR::Method* in,
+			CFG* cfg,
 			MIR::Actual_parameter_list* actuals,
 			MIR::VARIABLE_NAME* lhs) = 0;
 
 	// Indicate we are finished analysing this function
-	virtual void finalize_function (MIR::Method* in) = 0;
+	virtual void finalize_function (CFG* cfg) = 0;
 
 
 	// We do not have an implementation of the called method to analyse, so we

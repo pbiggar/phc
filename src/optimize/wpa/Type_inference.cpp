@@ -60,15 +60,13 @@ Type_inference::use_summary_results (Method_info* info, MIR::Actual_parameter_li
 }
 
 void
-Type_inference::initialize_function (MIR::Method* in, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
+Type_inference::initialize_function (CFG* cfg, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
 {
-	phc_TODO ();
 }
 
 void
-Type_inference::finalize_function (MIR::Method* in)
+Type_inference::finalize_function (CFG* cfg)
 {
-	phc_TODO ();
 }
 
 
