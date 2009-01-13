@@ -48,12 +48,13 @@ Whole_program::run (MIR::PHP_script* in)
 		new Method_invocation (
 			NULL,
 			new METHOD_NAME (s("__MAIN__")),
-			new Actual_parameter_list));
+			new Actual_parameter_list),
+		NULL);
 }
 
 
 void
-Whole_program::evaluate_function (CFG* cfg, MIR::Actual_parameter_list* actuals)
+Whole_program::evaluate_function (CFG* cfg, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
 {
 	// This is very similar to run() from Sparse_conditional_visitor, except
 	// that it isnt sparse.
@@ -63,7 +64,7 @@ Whole_program::evaluate_function (CFG* cfg, MIR::Actual_parameter_list* actuals)
 
 	cfg->dump_graphviz (NULL);
 
-	if (actuals->size())
+	if (actuals->size() || lhs)
 		phc_TODO ();
 
 	// 1. Initialize:
@@ -200,7 +201,7 @@ Whole_program::get_possible_receivers (Method_invocation* in)
 }
 
 void
-Whole_program::invoke_method (Method_invocation* in)
+Whole_program::invoke_method (Method_invocation* in, MIR::VARIABLE_NAME* lhs)
 {
 	Method_info_list* receivers = get_possible_receivers (in);
 
@@ -212,31 +213,34 @@ Whole_program::invoke_method (Method_invocation* in)
 	foreach (Method_info* receiver, *receivers)
 	{
 		// TODO: where do I clone the actuals?
-		evaluate_method_info (receiver, in->actual_parameters);
+		evaluate_method_info (receiver, in->actual_parameters, lhs);
 	}
 }
 
 // TODO: how to convey call-time-pass-by-ref?
 void
-Whole_program::evaluate_method_info (Method_info* info, MIR::Actual_parameter_list* actuals)
+Whole_program::evaluate_method_info (Method_info* info, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
 {
 	if (info->has_implementation ())
 	{
 		if (info->has_parameters () || actuals->size ())
 			phc_TODO ();
 
-		evaluate_function (new CFG (info->implementation), actuals);
+		evaluate_function (new CFG (info->implementation), actuals, lhs);
 	}
 	else
 	{
+		if (lhs)
+			phc_TODO ();
+
 		// Get as precise information as is possible with pre-baked summary
 		// information.
-		evaluate_summary (info, actuals);
+		evaluate_summary (info, actuals, lhs);
 	}
 }
 
 void
-Whole_program::evaluate_summary (Method_info* info, Actual_parameter_list* actuals)
+Whole_program::evaluate_summary (Method_info* info, Actual_parameter_list* actuals, VARIABLE_NAME* lhs)
 {
 	WPA* wpa;
 	string name;
@@ -250,6 +254,6 @@ Whole_program::evaluate_summary (Method_info* info, Actual_parameter_list* actua
 
 	foreach (tie (name, wpa), analyses)
 	{
-		wpa->use_summary_results (info, actuals);
+		wpa->use_summary_results (info, actuals, lhs);
 	}
 }

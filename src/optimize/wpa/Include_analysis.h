@@ -14,7 +14,10 @@ class Include_analysis : public WPA
 {
 public:
 	Include_analysis (Whole_program* wp);
-	void use_summary_results (Method_info* info, MIR::Actual_parameter_list* in);
+	void use_summary_results (Method_info* info, MIR::Actual_parameter_list* in, MIR::VARIABLE_NAME* lhs);
+
+	void initialize_function ( MIR::Method* in, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs);
+	void finalize_function (MIR::Method* in);
 
 	void dump ();
 

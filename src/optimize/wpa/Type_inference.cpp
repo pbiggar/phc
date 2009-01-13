@@ -6,8 +6,8 @@
  *
  */
 
-#include "Type_inference.h"
 #include "BCCH_aliasing.h"
+#include "Type_inference.h"
 #include "Whole_program.h"
 
 using namespace MIR;
@@ -31,7 +31,7 @@ Type_inference::is_basic_type (String* name)
 
 
 void
-Type_inference::use_summary_results (Method_info* info, MIR::Actual_parameter_list* actuals)
+Type_inference::use_summary_results (Method_info* info, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
 {
 	// Handle magic methods. If any parameter can have a magic method, and is
 	// an object, invoke the method from Whole_program. We do not need to get
@@ -58,6 +58,20 @@ Type_inference::use_summary_results (Method_info* info, MIR::Actual_parameter_li
 		index++;
 	}
 }
+
+void
+Type_inference::initialize_function (MIR::Method* in, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
+{
+	phc_TODO ();
+}
+
+void
+Type_inference::finalize_function (MIR::Method* in)
+{
+	phc_TODO ();
+}
+
+
 
 String_list*
 Type_inference::get_types (Var_node* node)

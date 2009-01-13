@@ -13,7 +13,7 @@ Include_analysis::Include_analysis (Whole_program* wp)
 }
 
 void
-Include_analysis::use_summary_results (Method_info* info, MIR::Actual_parameter_list* actuals)
+Include_analysis::use_summary_results (Method_info* info, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
 {
 	phc_TODO ();
 }
@@ -23,3 +23,18 @@ Include_analysis::dump()
 {
 	phc_TODO ();
 }
+
+
+void
+Include_analysis::initialize_function (MIR::Method* in, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
+{
+	phc_TODO ();
+}
+
+void
+Include_analysis::finalize_function (MIR::Method* in)
+{
+	phc_TODO ();
+}
+
+

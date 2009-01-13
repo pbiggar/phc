@@ -84,15 +84,15 @@ public:
 
 	void run (MIR::PHP_script* in);
 
-	void invoke_method (MIR::Method_invocation* in);
+	void invoke_method (MIR::Method_invocation* in, MIR::VARIABLE_NAME* lhs);
 	Edge_list* get_branch_successors (Branch_block* bb);
 	Method_info_list* get_possible_receivers (MIR::Method_invocation* in);
 
 
 private:
-	void evaluate_method_info (Method_info* info, MIR::Actual_parameter_list* actuals);
-	void evaluate_function (CFG* in, MIR::Actual_parameter_list*);
-	void evaluate_summary (Method_info* info, MIR::Actual_parameter_list*);
+	void evaluate_method_info (Method_info* info, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs);
+	void evaluate_function (CFG* in, MIR::Actual_parameter_list*, MIR::VARIABLE_NAME* lhs);
+	void evaluate_summary (Method_info* info, MIR::Actual_parameter_list*, MIR::VARIABLE_NAME* lhs);
 };
 
 

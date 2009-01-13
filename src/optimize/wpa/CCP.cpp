@@ -17,9 +17,22 @@ CCP::CCP (Whole_program* wp)
 {
 }
 
+void
+CCP::initialize_function (MIR::Method* in, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
+{
+	phc_TODO ();
+}
 
 void
-CCP::use_summary_results (Method_info* info, MIR::Actual_parameter_list* in)
+CCP::finalize_function (MIR::Method* in)
+{
+	phc_TODO ();
+}
+
+
+
+void
+CCP::use_summary_results (Method_info* info, MIR::Actual_parameter_list* in, MIR::VARIABLE_NAME* lhs)
 {
 	phc_TODO ();
 }

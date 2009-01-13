@@ -21,7 +21,7 @@ VRP::VRP (Whole_program* wp)
 }
 
 void
-VRP::use_summary_results (Method_info* info, MIR::Actual_parameter_list* actuals)
+VRP::use_summary_results (Method_info* info, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
 {
 	phc_TODO ();
 }
@@ -31,3 +31,17 @@ VRP::dump()
 {
 	phc_TODO ();
 }
+
+void
+VRP::initialize_function (MIR::Method* in, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
+{
+	phc_TODO ();
+}
+
+void
+VRP::finalize_function (MIR::Method* in)
+{
+	phc_TODO ();
+}
+
+

@@ -28,8 +28,11 @@ BCCH_aliasing::BCCH_aliasing (Whole_program* wp)
 
 
 void
-BCCH_aliasing::use_summary_results (Method_info* info, MIR::Actual_parameter_list* in)
+BCCH_aliasing::use_summary_results (Method_info* info, MIR::Actual_parameter_list* in, MIR::VARIABLE_NAME* lhs)
 {
+	if (lhs)
+		phc_TODO ();
+
 	if (info->can_touch_globals)
 		phc_TODO ();
 
@@ -62,6 +65,22 @@ BCCH_aliasing::use_summary_results (Method_info* info, MIR::Actual_parameter_lis
 	// TODO: how does this affect the callgraph
 	//		- need to look at types for that
 }
+
+
+
+void
+BCCH_aliasing::initialize_function (MIR::Method* in, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
+{
+	phc_TODO ();
+}
+
+void
+BCCH_aliasing::finalize_function (MIR::Method* in)
+{
+	phc_TODO ();
+}
+
+
 
 
 void
@@ -127,11 +146,11 @@ BCCH_aliasing::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 
 		// Interprocedural stuff
 		case New::ID:
-			visit_new (bb, dyc<New> (in->rhs));
+			handle_new (bb, dyc<New> (in->rhs), in->lhs);
 			break;
 
 		case Method_invocation::ID:
-			visit_method_invocation (bb, dyc<Method_invocation> (in->rhs));
+			handle_method_invocation (bb, dyc<Method_invocation> (in->rhs), in->lhs);
 			break;
 	}
 
@@ -142,28 +161,27 @@ BCCH_aliasing::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 void
 BCCH_aliasing::visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
 {
-	visit_expr (bb, in->expr);
+	if (isa<New> (in->expr))
+		handle_new (bb, dyc<New> (in), NULL);
+	else
+		handle_method_invocation (bb, dyc<Method_invocation> (in), NULL);
 }
 
 void
-BCCH_aliasing::visit_new (Statement_block* bb, MIR::New* in)
+BCCH_aliasing::handle_method_invocation (Statement_block* bb, MIR::Method_invocation* in, MIR::VARIABLE_NAME* lhs)
+{
+	wp->invoke_method (in, lhs);
+}
+
+void
+BCCH_aliasing::handle_new (Statement_block* bb, MIR::New* in, MIR::VARIABLE_NAME* lhs)
 {
 	phc_TODO ();
 }
 
-void
-BCCH_aliasing::visit_method_invocation (Statement_block* bb, MIR::Method_invocation* in)
-{
-	wp->invoke_method (in);
-
-	// TODO: return value
-	phc_TODO ();
-}
 
 void BCCH_aliasing::dump ()
 {
 	CHECK_DEBUG();
 	ptg->dump_graphviz (NULL);
 }
-
-

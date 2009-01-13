@@ -28,7 +28,10 @@ public:
 
 	BCCH_aliasing (Whole_program*);
 
-	void use_summary_results (Method_info* info, MIR::Actual_parameter_list* in);
+	void use_summary_results (Method_info* info, MIR::Actual_parameter_list* in, MIR::VARIABLE_NAME* lhs);
+
+	void initialize_function ( MIR::Method* in, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs);
+	void finalize_function (MIR::Method* in);
 
 	void dump ();
 
@@ -54,27 +57,9 @@ public:
 	void visit_try (Statement_block*, MIR::Try*) { phc_TODO (); }
 	void visit_unset (Statement_block*, MIR::Unset*) { phc_TODO (); }
 
-	void visit_array_access (Statement_block* bb, MIR::Array_access* in) { phc_TODO (); }
-	void visit_bin_op (Statement_block* bb, MIR::Bin_op* in) { phc_TODO (); }
-	void visit_bool (Statement_block* bb, MIR::BOOL* in) { phc_TODO (); }
-	void visit_cast (Statement_block* bb, MIR::Cast* in) { phc_TODO (); }
-	void visit_constant (Statement_block* bb, MIR::Constant* in) { phc_TODO (); }
-	void visit_field_access (Statement_block* bb, MIR::Field_access* in) { phc_TODO (); }
-	void visit_foreach_get_key (Statement_block* bb, MIR::Foreach_get_key* in) { phc_TODO (); }
-	void visit_foreach_get_val (Statement_block* bb, MIR::Foreach_get_val* in) { phc_TODO (); }
-	void visit_foreach_has_key (Statement_block* bb, MIR::Foreach_has_key* in) { phc_TODO (); }
-	void visit_instanceof (Statement_block* bb, MIR::Instanceof* in) { phc_TODO (); }
-	void visit_int (Statement_block* bb, MIR::INT* in) { phc_TODO (); }
-	void visit_isset (Statement_block* bb, MIR::Isset* in) { phc_TODO (); }
-	void visit_method_invocation (Statement_block* bb, MIR::Method_invocation* in);
-	void visit_new (Statement_block* bb, MIR::New* in);
-	void visit_nil (Statement_block* bb, MIR::NIL* in) { phc_TODO (); }
-	void visit_param_is_ref (Statement_block* bb, MIR::Param_is_ref* in) { phc_TODO (); }
-	void visit_real (Statement_block* bb, MIR::REAL* in) { phc_TODO (); }
-	void visit_string (Statement_block* bb, MIR::STRING* in) { phc_TODO (); }
-	void visit_unary_op (Statement_block* bb, MIR::Unary_op* in) { phc_TODO (); }
-	void visit_variable_name (Statement_block* bb, MIR::VARIABLE_NAME* in) { phc_TODO (); }
-	void visit_variable_variable (Statement_block* bb, MIR::Variable_variable* in) { phc_TODO (); }
+	void handle_method_invocation (Statement_block* bb, MIR::Method_invocation* in, MIR::VARIABLE_NAME* lhs);
+
+	void handle_new (Statement_block* bb, MIR::New* in, MIR::VARIABLE_NAME* lhs);
 };
 
 #endif // PHC_BCCH_ALIASING
