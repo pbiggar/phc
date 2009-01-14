@@ -40,7 +40,7 @@ src_phc_LDADD = @gc_lib@ $(LIBLTDL) libphc.la
 bin_SCRIPTS = src/phc_compile_plugin
 libexec_SCRIPTS = libtool
 # pkgdata_DATA = phc-1.0.xsd
-pkgdata_DATA =
+pkgdata_DATA =									\
 	runtime/arrays.c							\
 	runtime/builtin_functions.c			\
 	runtime/debug.c							\

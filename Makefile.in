@@ -56,8 +56,8 @@ DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
 	config/config.sub config/depcomp config/install-sh \
 	config/ltmain.sh config/missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
-	$(top_srcdir)/configure.ac
+am__aclocal_m4_deps = $(top_srcdir)/libltdl/acinclude.m4 \
+	$(top_srcdir)/acinclude.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
@@ -442,7 +442,6 @@ CXXFLAGS = @CXXFLAGS@
 CYGPATH_W = @CYGPATH_W@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
-DSYMUTIL = @DSYMUTIL@
 ECHO = @ECHO@
 ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
@@ -468,7 +467,6 @@ LTLIBOBJS = @LTLIBOBJS@
 MAINT = @MAINT@
 MAKEINFO = @MAKEINFO@
 MKDIR_P = @MKDIR_P@
-NMEDIT = @NMEDIT@
 OBJEXT = @OBJEXT@
 PACKAGE = @PACKAGE@
 PACKAGE_BUGREPORT = @PACKAGE_BUGREPORT@
@@ -478,7 +476,6 @@ PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 RANLIB = @RANLIB@
-SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
@@ -576,7 +573,19 @@ src_phc_LDADD = @gc_lib@ $(LIBLTDL) libphc.la
 bin_SCRIPTS = src/phc_compile_plugin
 libexec_SCRIPTS = libtool
 # pkgdata_DATA = phc-1.0.xsd
-pkgdata_DATA = 
+pkgdata_DATA = \
+	runtime/arrays.c							\
+	runtime/builtin_functions.c			\
+	runtime/debug.c							\
+	runtime/isset.c							\
+	runtime/methods.c							\
+	runtime/misc.c								\
+	runtime/string.c							\
+	runtime/support.c							\
+	runtime/unset.c							\
+	runtime/var_vars.c						\
+	runtime/zval.c
+
 src_phc_SOURCES = \
 	src/phc.cpp
 
@@ -2740,17 +2749,6 @@ uninstall-am: uninstall-binPROGRAMS uninstall-binSCRIPTS \
 	uninstall-strangeprocessirHEADERS \
 	uninstall-strangeprocessmirHEADERS
 
-	runtime/arrays.c							\
-	runtime/builtin_functions.c			\
-	runtime/debug.c							\
-	runtime/isset.c							\
-	runtime/methods.c							\
-	runtime/misc.c								\
-	runtime/string.c							\
-	runtime/support.c							\
-	runtime/unset.c							\
-	runtime/var_vars.c						\
-	runtime/zval.c
 
 # - In order to have separate build directories (aka VPATH), we would prepend
 #   $(srcdir) onto all these dependencies, targets, etc. However, after
