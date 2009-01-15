@@ -18,6 +18,8 @@
 #include "Points_to.h"
 #include "Whole_program.h"
 
+#define NAME(BB) *BB->cfg->method->signature->method_name->value
+
 using namespace MIR;
 
 BCCH_aliasing::BCCH_aliasing (Whole_program* wp)
@@ -129,22 +131,28 @@ BCCH_aliasing::visit_global (Statement_block* bb, MIR::Global* in)
 	if (bb->cfg->method->is_main ())
 		return;
 
-	phc_TODO ();
+	if (isa<Variable_variable> (in->variable_name))
+		phc_TODO ();
+
+	// TODO: this will do for now, but we might want to think about using the
+	// __MAIN__ GLOBALS variable (though that can be set, can it not?).
+	
+	// TODO: a really nice way to handle this would be to consider the global
+	// scope to be values in an array called EG(symbol_table). GLOBALS would
+	// initially point to this too (though some tricks might be necessary to
+	// avoid them both being overwritten if GLOBALS is changed). The same thing
+	// could handle the locals array, perhaps named EG(active_symbol_table).
+	// This would mean that var-vars and arrays are treated identically.
+
+	VARIABLE_NAME* var_name = dyc<VARIABLE_NAME> (in->variable_name);
+	ptg->set_reference (NAME (bb), var_name, "__MAIN__", var_name);
 }
 
 
 void
 BCCH_aliasing::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 {
-	// When I'm dealing with references, I may need to split the points to
-	// results into value and reference. The idea is that there would be
-	// 'locations' which points to zvals. Locations cant point to each other.
-
-	// Name the regions by method_name: a for a(), __MAIN__ for global scope etc.
-	if (!bb->cfg->method->is_main ())
-		phc_TODO ();
-
-	string name = *bb->cfg->method->signature->method_name->value;
+	string name = NAME (bb);
 
 	switch(in->rhs->classid())
 	{
