@@ -19,14 +19,14 @@ class Refcounts extends CompiledVsInterpreted
 
 	function get_phc_command ($subject, $exe_name)
 	{
-		global $phc;
-		return get_phc_command_line ($subject) . " -c --run plugins/tools/debug_zval.la -o $exe_name";
+		global $phc, $plugin_dir;
+		return get_phc_command_line ($subject) . " -c --run $plugin_dir/tools/debug_zval.la -o $exe_name";
 	}
 
 	function get_php_command ($subject)
 	{
-		global $phc;
-		return "$phc --run plugins/tools/debug_zval.la --dump-uppered=plugins/tools/debug_zval.la $subject | ". get_php_command_line ($subject, "pipe");
+		global $phc, $plugin_dir;
+		return "$phc --run $plugin_dir/tools/debug_zval.la --dump-uppered=$plugin_dir/tools/debug_zval.la $subject | ". get_php_command_line ($subject, "pipe");
 	}
 }
 

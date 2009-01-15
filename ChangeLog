@@ -1,3 +1,10 @@
+0.2.0.1 (15 January 2009)
+------------------------
+
+Bug Fix release:
+	* Fix bug where phc did not install files needed to compile PHP scripts.
+
+
 0.2.0 (10 December 2008)
 ------------------------
 

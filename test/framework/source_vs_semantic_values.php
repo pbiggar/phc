@@ -21,8 +21,8 @@ class SourceVsSemanticTest extends PluginTest
 
 	function get_command_line ($subject)
 	{
-		global $phc, $php;
-		return "$phc --run plugins/tests/source_vs_semantic_values.la $subject 2>&1 | $php -d memory_limit=128M 2>&1";
+		global $phc, $php, $plugin_dir;
+		return "$phc --run $plugin_dir/tests/source_vs_semantic_values.la $subject 2>&1 | $php -d memory_limit=128M 2>&1";
 	}
 	
 }

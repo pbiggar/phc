@@ -27,11 +27,11 @@ class CompilePluginTest extends AsyncTest
 
 	function copy_headers ()
 	{
-		global $working_directory;
+		global $working_directory, $plugin_dir;
 
 		// copy the header files from the plugin's directory to
 		// working dir
-		$headers = split ("\n", chop (`find plugins/ -name "*.h"`));
+		$headers = split ("\n", chop (`find $plugin_dir -name "*.h"`));
 		$new_headers = array ();
 		if ($headers !== array (""))
 		{
@@ -62,7 +62,7 @@ class CompilePluginTest extends AsyncTest
 		unlink ("$plugin_name");
 		if (!copy ($subject, "$plugin_name.cpp"))
 		{
-			$this->async_failure ($subject, "Copy failed");
+			$this->mark_failure ($subject, "Copy failed");
 			return;
 		}
 

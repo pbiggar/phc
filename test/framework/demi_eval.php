@@ -31,15 +31,17 @@ class Demi_eval extends CompiledVsInterpreted
 
 	function get_php_command ($subject)
 	{
-		global $phc;
+		global $phc, $plugin_dir;
 		$init = $this->init;
-		return "$phc --run plugins/tools/demi_eval.la --r-option=\"$init\" --dump-uppered=plugins/tools/demi_eval.la $subject | ". get_php_command_line ($subject, "pipe");
+		return "$phc --run $plugin_dir/tools/demi_eval.la --r-option=\"$init\" --dump-uppered=$plugin_dir/tools/demi_eval.la $subject | ". get_php_command_line ($subject, "pipe");
 	}
 
 	function get_phc_command ($subject, $exe_name)
 	{
+		global $plugin_dir;
+
 		$init = $this->init;
-		return get_phc_command_line ($subject) . " -c --run plugins/tools/demi_eval.la --r-option=\"$init\" -o $exe_name";
+		return get_phc_command_line ($subject) . " -c --run $plugin_dir/tools/demi_eval.la --r-option=\"$init\" -o $exe_name";
 	}
 
 	function homogenize_output ($string, $bundle)

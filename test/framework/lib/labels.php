@@ -273,13 +273,19 @@ function get_all_scripts_in_dir($directory)
 
 	$command = "find -L $directory -name \"*.php\"";
 	$result = split ("\n", trim (`$command`));
+	if (count ($result) == 1 && $result[0] == "")
+		return array ();
 	return $result;
 }
 
 function get_all_plugins ()
 {
-	$command = "find plugins -name \"*.cpp\"";
+	global $plugin_dir;
+	$command = "find $plugin_dir -name \"*.cpp\"";
 	$result = split ("\n", trim (`$command`));
+	if (count ($result) == 1 && $result[0] == "")
+		return array ();
+
 	return $result;
 }
 
