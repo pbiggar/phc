@@ -84,15 +84,20 @@ public:
 
 	void run (MIR::PHP_script* in);
 
-	void invoke_method (MIR::Method_invocation* in, MIR::VARIABLE_NAME* lhs);
+	void invoke_method (MIR::Method_invocation* in, CFG* caller_cfg, MIR::VARIABLE_NAME* lhs);
 	Edge_list* get_branch_successors (Branch_block* bb);
 	Method_info_list* get_possible_receivers (MIR::Method_invocation* in);
 
 
 private:
-	void analyse_method_info (Method_info* info, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs);
-	void analyse_function (CFG* in, MIR::Actual_parameter_list*, MIR::VARIABLE_NAME* lhs);
-	void analyse_summary (Method_info* info, MIR::Actual_parameter_list*, MIR::VARIABLE_NAME* lhs);
+	// The CFGs arent in an intuitive order, but thats so that when there are 2
+	// CFGs, they go in the order Caller,callee. The other problems can at least
+	// be spotted by the type-checker.
+	void analyse_method_info (Method_info* info, CFG* caller_cfg, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs);
+	void analyse_function (CFG* caller_cfg, CFG* cfg, 
+								  MIR::Actual_parameter_list*, MIR::VARIABLE_NAME* lhs);
+	void analyse_summary (Method_info* info, CFG* caller_cfg,
+							    MIR::Actual_parameter_list*, MIR::VARIABLE_NAME* lhs);
 };
 
 

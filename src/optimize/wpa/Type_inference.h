@@ -19,8 +19,9 @@ public:
 
 	void use_summary_results (Method_info* info, MIR::Actual_parameter_list* in, MIR::VARIABLE_NAME* lhs);
 
-	void initialize_function ( CFG* cfg, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs);
-	void finalize_function (CFG* cfg);
+	void initialize_function (CFG* caller_cfg, CFG* callee_cfg,
+									  MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs);
+	void finalize_function (CFG* caller_cfg, CFG* callee_cfg);
 
 	void dump ();
 

@@ -69,10 +69,36 @@ BCCH_aliasing::use_summary_results (Method_info* info, MIR::Actual_parameter_lis
 
 
 void
-BCCH_aliasing::initialize_function (CFG* cfg, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
+BCCH_aliasing::initialize_function (CFG* caller_cfg, CFG* callee_cfg, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
 {
-	if (actuals->size () || cfg->method->signature->formal_parameters->size ())
+	string caller_ns;
+	if (caller_cfg) 
+		caller_ns = *caller_cfg->method->signature->method_name->value;
+
+	string callee_ns = *callee_cfg->method->signature->method_name->value;
+
+	if (actuals->size () != callee_cfg->method->signature->formal_parameters->size ())
 		phc_TODO ();
+
+	Actual_parameter_list::const_iterator i = actuals->begin ();
+	foreach (Formal_parameter* fp, *callee_cfg->method->signature->formal_parameters)
+	{
+		if (fp->var->default_value)
+			phc_TODO ();
+
+		Actual_parameter* ap = *i;
+		if (fp->is_ref || ap->is_ref)
+		{
+			// $fp =& $ap;
+			ptg->set_reference (callee_ns, fp->var->variable_name,
+									  caller_ns, dyc<VARIABLE_NAME> (ap->rvalue));
+		}
+		else
+		{
+			// $fp = $ap;
+			phc_TODO ();
+		}
+	}
 
 	if (lhs)
 	{
@@ -87,7 +113,7 @@ BCCH_aliasing::initialize_function (CFG* cfg, MIR::Actual_parameter_list* actual
 }
 
 void
-BCCH_aliasing::finalize_function (CFG* cfg)
+BCCH_aliasing::finalize_function (CFG* caller_cfg, CFG* callee_cfg)
 {
 	// TODO: remove return and parameter nodes, and clear away unreachable nodes.
 }
@@ -118,6 +144,8 @@ BCCH_aliasing::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 	if (!bb->cfg->method->is_main ())
 		phc_TODO ();
 
+	string name = *bb->cfg->method->signature->method_name->value;
+
 	switch(in->rhs->classid())
 	{
 		// Does not affect pointer analysis
@@ -132,9 +160,9 @@ BCCH_aliasing::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 
 		case VARIABLE_NAME::ID:
 			if (in->is_ref)
-				ptg->set_reference (in->lhs, dyc<VARIABLE_NAME> (in->rhs));
+				ptg->set_reference (name, in->lhs, name, dyc<VARIABLE_NAME> (in->rhs));
 			else
-				ptg->set_value (in->lhs, dyc<VARIABLE_NAME> (in->rhs));
+				ptg->set_value (name, in->lhs, name, dyc<VARIABLE_NAME> (in->rhs));
 			break;
 
 		default:
@@ -148,7 +176,7 @@ BCCH_aliasing::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 		case REAL::ID:
 		case STRING::ID:
 			assert (!in->is_ref);
-			ptg->set_value (in->lhs, dyc<Literal> (in->rhs));
+			ptg->set_value (name, in->lhs, dyc<Literal> (in->rhs));
 			return;
 
 		// Need to use analysis results before putting into the graph
@@ -189,7 +217,7 @@ BCCH_aliasing::visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
 void
 BCCH_aliasing::handle_method_invocation (Statement_block* bb, MIR::Method_invocation* in, MIR::VARIABLE_NAME* lhs)
 {
-	wp->invoke_method (in, lhs);
+	wp->invoke_method (in, bb->cfg, lhs);
 }
 
 void

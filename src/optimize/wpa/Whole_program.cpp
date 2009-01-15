@@ -54,12 +54,12 @@ using namespace boost;
 Whole_program::Whole_program ()
 {
 	bcch_aliasing = new BCCH_aliasing (this);
-	callgraph = new Callgraph (this);
-	ccp = new CCP (this);
-	constant_state = new Constant_state (this);
-	include_analysis = new Include_analysis (this);
+//	callgraph = new Callgraph (this);
+//	ccp = new CCP (this);
+//	constant_state = new Constant_state (this);
+//	include_analysis = new Include_analysis (this);
 	type_inference = new Type_inference (this);
-	vrp = new VRP (this);
+//	vrp = new VRP (this);
 
 	register_analysis ("BCCH_aliasing", bcch_aliasing);
 //	register_analysis ("Callgraph", callgraph);
@@ -78,6 +78,7 @@ Whole_program::run (MIR::PHP_script* in)
 			NULL,
 			new METHOD_NAME (s("__MAIN__")),
 			new Actual_parameter_list),
+		NULL,
 		NULL);
 
 
@@ -87,7 +88,7 @@ Whole_program::run (MIR::PHP_script* in)
 
 
 void
-Whole_program::analyse_function (CFG* cfg, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
+Whole_program::analyse_function (CFG* caller_cfg, CFG* cfg, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
 {
 	// This is very similar to run() from Sparse_conditional_visitor, except
 	// that it isnt sparse.
@@ -106,7 +107,8 @@ Whole_program::analyse_function (CFG* cfg, MIR::Actual_parameter_list* actuals, 
 	// Process the entry blocks first (there is no edge here)
 	foreach (tie (name, wpa), analyses)
 	{
-		wpa->initialize_function (cfg, actuals, lhs);
+		wpa->initialize_function (caller_cfg, cfg, actuals, lhs);
+		wpa->dump ();
 	}
 
 
@@ -155,7 +157,8 @@ Whole_program::analyse_function (CFG* cfg, MIR::Actual_parameter_list* actuals, 
 
 	foreach (tie (name, wpa), analyses)
 	{
-		wpa->finalize_function (cfg);
+		wpa->finalize_function (caller_cfg, cfg);
+		wpa->dump ();
 	}
 }
 
@@ -221,7 +224,7 @@ Whole_program::get_possible_receivers (Method_invocation* in)
 }
 
 void
-Whole_program::invoke_method (Method_invocation* in, MIR::VARIABLE_NAME* lhs)
+Whole_program::invoke_method (Method_invocation* in, CFG* caller_cfg, MIR::VARIABLE_NAME* lhs)
 {
 	Method_info_list* receivers = get_possible_receivers (in);
 
@@ -232,21 +235,19 @@ Whole_program::invoke_method (Method_invocation* in, MIR::VARIABLE_NAME* lhs)
 	
 	foreach (Method_info* receiver, *receivers)
 	{
-		// TODO: where do I clone the actuals?
-		analyse_method_info (receiver, in->actual_parameters, lhs);
+		// TODO: where should I clone the actuals?
+		analyse_method_info (receiver, caller_cfg, in->actual_parameters, lhs);
 	}
 }
 
 // TODO: how to convey call-time-pass-by-ref?
 void
-Whole_program::analyse_method_info (Method_info* info, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
+Whole_program::analyse_method_info (Method_info* info, CFG* caller_cfg,
+												MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
 {
 	if (info->has_implementation ())
 	{
-		if (info->has_parameters () || actuals->size ())
-			phc_TODO ();
-
-		analyse_function (new CFG (info->implementation), actuals, lhs);
+		analyse_function (caller_cfg, new CFG (info->implementation), actuals, lhs);
 	}
 	else
 	{
@@ -255,12 +256,12 @@ Whole_program::analyse_method_info (Method_info* info, MIR::Actual_parameter_lis
 
 		// Get as precise information as is possible with pre-baked summary
 		// information.
-		analyse_summary (info, actuals, lhs);
+		analyse_summary (info, caller_cfg, actuals, lhs);
 	}
 }
 
 void
-Whole_program::analyse_summary (Method_info* info, Actual_parameter_list* actuals, VARIABLE_NAME* lhs)
+Whole_program::analyse_summary (Method_info* info, CFG* caller_cfg, Actual_parameter_list* actuals, VARIABLE_NAME* lhs)
 {
 	WPA* wpa;
 	string name;

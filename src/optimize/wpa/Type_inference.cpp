@@ -40,12 +40,14 @@ Type_inference::use_summary_results (Method_info* info, MIR::Actual_parameter_li
 	// invocation.
 
 	int index = 0;
+	string method_name = *info->method_name;
 	foreach (Parameter_info* pinfo, *info->params)
 	{
 		Actual_parameter* ap = actuals->at(index);
 		if (!isa<Literal> (ap->rvalue)) // literals arent objects
 		{
 			Loc_node* node = wp->bcch_aliasing->ptg->get_loc_node (
+				method_name,
 				dyc<VARIABLE_NAME> (ap->rvalue));
 
 			foreach (String* type, *get_types (node))
@@ -60,12 +62,12 @@ Type_inference::use_summary_results (Method_info* info, MIR::Actual_parameter_li
 }
 
 void
-Type_inference::initialize_function (CFG* cfg, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
+Type_inference::initialize_function (CFG* caller_cfg, CFG* callee_cfg, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
 {
 }
 
 void
-Type_inference::finalize_function (CFG* cfg)
+Type_inference::finalize_function (CFG* caller_cfg, CFG* callee_cfg)
 {
 }
 

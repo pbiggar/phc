@@ -100,7 +100,7 @@ typedef PT_graph::edge_descriptor edge_pt;
 
 class Points_to : virtual public GC_obj
 {
-	Var_map<Loc_node*> var_map;
+	Map<string, Var_map<Loc_node*> > var_maps;
 
 public:
 	Points_to ();
@@ -118,13 +118,13 @@ public:
 
 public:
 	// High-level API
-	void set_reference (MIR::VARIABLE_NAME* source, MIR::VARIABLE_NAME* target);
-	void set_value (MIR::VARIABLE_NAME* source, MIR::VARIABLE_NAME* target);
-	void set_value (MIR::VARIABLE_NAME* source, MIR::Literal* target);
+	void set_reference (string source_ns, MIR::VARIABLE_NAME* source, string target_ns, MIR::VARIABLE_NAME* target);
+	void set_value (string source_ns, MIR::VARIABLE_NAME* source, string target_ns, MIR::VARIABLE_NAME* target);
+	void set_value (string source_ns, MIR::VARIABLE_NAME* source, MIR::Literal* target);
 
 
 	// Return the location node for LOC, or NULL if none currently exists.
-	Loc_node* get_loc_node (MIR::VARIABLE_NAME* loc);
+	Loc_node* get_loc_node (string ns, MIR::VARIABLE_NAME* loc);
 
 private:
 	// Low-level API
@@ -210,10 +210,17 @@ public:
 	int index;
 	vertex_pt vertex;
 
+	// The namespace of the node. This should be the name of the method in which
+	// it appears (or Class_name::method_name, if applicable).
+	// TODO: I'm not sure whether only the location node needs a namespace, but
+	// it may be useful for arrays etc too (or we might use callstrings for
+	// them).
+	string ns;
+
 	// Each allocated node gets a unique index
 	static int index_counter;
 
-	PT_node (Points_to* ptg);
+	PT_node (Points_to* ptg, string ns);
 	virtual string graphviz_attrs () = 0;
 
 	// This is a workaround to a dependency problem. I'd like to do something
@@ -289,7 +296,7 @@ class Loc_node : public PT_node
 public:
 	MIR::VARIABLE_NAME* var_name;
 
-	Loc_node (Points_to* ptg, MIR::VARIABLE_NAME* var_name);
+	Loc_node (Points_to* ptg, string ns, MIR::VARIABLE_NAME* var_name);
 	string graphviz_attrs ();
 
 	void add_node_hook ();
@@ -303,7 +310,7 @@ public:
 class Zval_node : public PT_node
 {
 public:
-	Zval_node (Points_to* ptg);
+	Zval_node (Points_to* ptg, string ns);
 	string graphviz_attrs ();
 };
 
@@ -322,7 +329,7 @@ class Value_node : public PT_node
 public:
 	MIR::Literal* lit;
 
-	Value_node (Points_to* ptg, MIR::Literal* lit);
+	Value_node (Points_to* ptg, string ns, MIR::Literal* lit);
 	string graphviz_attrs ();
 	Value_node* clone ();
 };

@@ -27,12 +27,12 @@ public:
 
 	// Prepare for a new function
 	virtual void initialize_function (
-			CFG* cfg,
+			CFG* caller_cfg, CFG* callee_cfg,
 			MIR::Actual_parameter_list* actuals,
 			MIR::VARIABLE_NAME* lhs) = 0;
 
 	// Indicate we are finished analysing this function
-	virtual void finalize_function (CFG* cfg) = 0;
+	virtual void finalize_function (CFG* caller_cfg, CFG* callee_cfg) = 0;
 
 
 	// We do not have an implementation of the called method to analyse, so we
