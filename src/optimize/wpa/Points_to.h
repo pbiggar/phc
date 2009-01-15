@@ -51,14 +51,22 @@ namespace boost {
 }
 
 class PT_node;
-class Var_node;
-class Atom_node;
+class Loc_node;
+class Zval_node;
+class Value_node;
+
+/* TODO: split the edges into P and D (possible and definite from Emami94), for
+ * may-alias and must-alias. */
 class PT_edge;
+
+
 typedef List<PT_node*> PT_node_list;
-typedef List<Var_node*> Var_node_list;
-typedef List<Atom_node*> Atom_node_list;
 typedef List<PT_edge*> PT_edge_list;
 
+typedef List<PT_node*> PT_node_list;
+typedef List<Zval_node*> Zval_node_list;
+typedef List<Value_node*> Value_node_list;
+typedef List<Loc_node*> Loc_node_list;
 
 
 typedef boost::adjacency_list<
@@ -92,8 +100,7 @@ typedef PT_graph::edge_descriptor edge_pt;
 
 class Points_to : virtual public GC_obj
 {
-	PT_node* atom;
-	Var_map<PT_node*> node_map;
+	Var_map<Loc_node*> var_map;
 
 public:
 	Points_to ();
@@ -109,14 +116,36 @@ public:
 	void consistency_check ();
 	void dump_graphviz (String* label);
 
-	PT_node* get_node (MIR::Expr* expr);
-	PT_edge* add_edge (PT_node*, PT_node*);
+public:
+	// High-level API
+	void set_reference (MIR::VARIABLE_NAME* source, MIR::VARIABLE_NAME* target);
+	void set_value (MIR::VARIABLE_NAME* source, MIR::VARIABLE_NAME* target);
+	void set_value (MIR::VARIABLE_NAME* source, MIR::Literal* target);
+
+
+	// Return the location node for LOC, or NULL if none currently exists.
+	Loc_node* get_loc_node (MIR::VARIABLE_NAME* loc);
 
 private:
-	void add_node (PT_node* node);
+	// Low-level API
+	PT_edge* add_edge (PT_node*, PT_node*);
 
+	// Add the node to the graph, and return it.
+	template <class T>
+	T* add_node (T* node)
+	{
+		assert (node->vertex == NULL);
+		vertex_pt v = add_vertex (bs);
+		vn[v] = node;
+		node->vertex = v;
+
+		node->add_node_hook ();
+
+		return node;
+	}
 
 public:
+
 
 	// TODO: we only need to clone for BBs with > 1 predecessor. But from
 	// experience with GCC, it is very difficult to handle flow-sensitivity
@@ -132,9 +161,8 @@ public:
 		List<T*>* result = new List<T*>;
 		foreach (vertex_pt v, vertices(bs))
 		{
-			PT_node* node = vn[v];
-			if (isa<T> (node))
-				result->push_back (dyc<T> (node));
+			if (T* n = dynamic_cast<T*> (vn[v]))
+				result->push_back (n);
 		}
 		return result;
 	}
@@ -145,6 +173,7 @@ private:
 
 	friend class PT_edge;
 	friend class PT_node;
+	friend class Loc_node;
 };
 
 
@@ -187,6 +216,13 @@ public:
 	PT_node (Points_to* ptg);
 	virtual string graphviz_attrs () = 0;
 
+	// This is a workaround to a dependency problem. I'd like to do something
+	// specific Loc_nodes in Points_to, but it requires looking inside the
+	// Loc_node, which I cant do until I define Loc_node. Which I cant do until
+	// I define PT_node. Which I cant do until I define Points_to. So something
+	// has to give. This is probably the least ugly way.
+	virtual void add_node_hook () {};
+
 	// I would prefer if this was not in the header, but what can you do.
 	template<class T>
 	List<T*>*
@@ -216,7 +252,7 @@ public:
 			else
 			{
 				// Add successors the worklist
-				foreach (edge_pt out_edge, out_edges (vertex, ptg->bs))
+				foreach (edge_pt out_edge, out_edges (top, ptg->bs))
 					worklist.push_back (ptg->ee[out_edge]->get_target ()->vertex);
 			}
 		}
@@ -224,26 +260,71 @@ public:
 		return result;
 	}
 
+	void remove_outgoing_edges ()
+	{
+		// The iterator is invalidated every time.
+		while (out_degree (vertex, ptg->bs))
+		{
+			// nicer syntax than doing it manually
+			foreach (edge_pt out_edge, out_edges (vertex, ptg->bs))
+			{
+				boost::remove_edge (out_edge, ptg->bs);
+				break; // intensional. The foreach only has 1 iteration.
+			}
+		}
+	}
+
 };
 
 // TODO: different kinds of nodes for fields, variables, arrays, objects and
 // atoms?
-class Var_node : public PT_node
+
+/*
+ * A location is a symbol-table location, which roughly corresponds to a
+ * variable. This is split from the Zval_node since multiple variables can
+ * point to the same zval.
+ */
+class Loc_node : public PT_node
 {
 public:
 	MIR::VARIABLE_NAME* var_name;
 
-	Var_node (Points_to* ptg, MIR::VARIABLE_NAME* var_name);
+	Loc_node (Points_to* ptg, MIR::VARIABLE_NAME* var_name);
+	string graphviz_attrs ();
+
+	void add_node_hook ();
+};
+
+/*
+ * A zval is pointed to by one or more locations. If more than 1, it is in a
+ * change-on-write set (ie they all alias zval. It points to one or more Value
+ * nodes. If more than 1, it can have any of the values.
+ */
+class Zval_node : public PT_node
+{
+public:
+	Zval_node (Points_to* ptg);
 	string graphviz_attrs ();
 };
 
-class Atom_node : public PT_node
+/* To represent multiple possible values, a ZVP node can point to multiple
+ * Value_nodes. */
+// TODO: values can also be Objects and Arrays
+// TODO: add special value nodes which do not represent a specific value, but
+// can be used for summary values, for VRP, type-inference etc. These represent
+// values for which we do not have a specific value, but might have a range of
+// values, types, etc.
+
+
+
+class Value_node : public PT_node
 {
 public:
-	MIR::Node* atom; // constant or literal
+	MIR::Literal* lit;
 
-	Atom_node (Points_to* ptg, MIR::Node* atom);
+	Value_node (Points_to* ptg, MIR::Literal* lit);
 	string graphviz_attrs ();
+	Value_node* clone ();
 };
 
 

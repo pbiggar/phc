@@ -45,10 +45,10 @@ Type_inference::use_summary_results (Method_info* info, MIR::Actual_parameter_li
 		Actual_parameter* ap = actuals->at(index);
 		if (!isa<Literal> (ap->rvalue)) // literals arent objects
 		{
-			PT_node* node = wp->bcch_aliasing->ptg->get_node (
+			Loc_node* node = wp->bcch_aliasing->ptg->get_loc_node (
 				dyc<VARIABLE_NAME> (ap->rvalue));
 
-			foreach (String* type, *get_types (dyc<Var_node> (node)))
+			foreach (String* type, *get_types (node))
 			{
 				if (!is_basic_type (type))
 					phc_TODO ();
@@ -72,14 +72,14 @@ Type_inference::finalize_function (CFG* cfg)
 
 
 String_list*
-Type_inference::get_types (Var_node* node)
+Type_inference::get_types (Loc_node* node)
 {
 	String_list* result = new String_list;
 
-	foreach (Atom_node* end, *node->get_pointees<Atom_node>())
+	foreach (Value_node* end, *node->get_pointees<Value_node>())
 	{
 		// HACK
-		result->push_back (s (demangle (end->atom, false)));
+		result->push_back (s (demangle (end->lit, false)));
 	}
 
 	return result;
@@ -90,7 +90,7 @@ Type_inference::dump()
 {
 	// Traverse the points-to graph. For each variable in it, find the types
 	// it may point to.
-	foreach (Var_node* node, *wp->bcch_aliasing->ptg->get_nodes<Var_node> ())
+	foreach (Loc_node* node, *wp->bcch_aliasing->ptg->get_nodes<Loc_node> ())
 	{
 		cdebug << *node->var_name->value << ": [ ";
 

@@ -73,11 +73,23 @@ BCCH_aliasing::initialize_function (CFG* cfg, MIR::Actual_parameter_list* actual
 {
 	if (actuals->size () || cfg->method->signature->formal_parameters->size ())
 		phc_TODO ();
+
+	if (lhs)
+	{
+		phc_TODO ();
+		/*
+		if (return_by_ref)
+			set_reference
+		else
+			set_value
+		*/
+	}
 }
 
 void
 BCCH_aliasing::finalize_function (CFG* cfg)
 {
+	// TODO: remove return and parameter nodes, and clear away unreachable nodes.
 }
 
 
@@ -98,6 +110,14 @@ BCCH_aliasing::visit_global (Statement_block* bb, MIR::Global* in)
 void
 BCCH_aliasing::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 {
+	// When I'm dealing with references, I may need to split the points to
+	// results into value and reference. The idea is that there would be
+	// 'locations' which points to zvals. Locations cant point to each other.
+
+	// Name the regions by method_name: a for a(), __MAIN__ for global scope etc.
+	if (!bb->cfg->method->is_main ())
+		phc_TODO ();
+
 	switch(in->rhs->classid())
 	{
 		// Does not affect pointer analysis
@@ -107,6 +127,14 @@ BCCH_aliasing::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 		case Param_is_ref::ID:
 		case Unary_op::ID:
 		case Instanceof::ID:
+		case Constant::ID:
+			break;
+
+		case VARIABLE_NAME::ID:
+			if (in->is_ref)
+				ptg->set_reference (in->lhs, dyc<VARIABLE_NAME> (in->rhs));
+			else
+				ptg->set_value (in->lhs, dyc<VARIABLE_NAME> (in->rhs));
 			break;
 
 		default:
@@ -115,23 +143,26 @@ BCCH_aliasing::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 
 		// Simple graph nodes
 		case BOOL::ID:
-		case Constant::ID:
 		case INT::ID:
 		case NIL::ID:
 		case REAL::ID:
 		case STRING::ID:
-		case VARIABLE_NAME::ID:
-			ptg->add_edge (ptg->get_node (in->lhs), ptg->get_node (in->rhs));
+			assert (!in->is_ref);
+			ptg->set_value (in->lhs, dyc<Literal> (in->rhs));
 			return;
 
 		// Need to use analysis results before putting into the graph
 		case Variable_variable::ID:
-		case Array_access::ID:
 		case Field_access::ID:
 		case Foreach_get_key::ID:
 		case Foreach_get_val::ID:
 		case Foreach_has_key::ID:
 		case Cast::ID:
+			phc_TODO ();
+			break;
+
+		case Array_access::ID:
+			// TODO: globals are special
 			phc_TODO ();
 			break;
 
@@ -144,9 +175,6 @@ BCCH_aliasing::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 			handle_method_invocation (bb, dyc<Method_invocation> (in->rhs), in->lhs);
 			break;
 	}
-
-	// handle assignment to LHS
-	phc_TODO ();
 }
 
 void

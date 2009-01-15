@@ -27,7 +27,7 @@ public:
 	// TODO: I'm not sure how well this will work
 	// Type-inference just follows the points-to graph to get the possible
 	// types of a method.
-	String_list* get_types (Var_node* node);
+	String_list* get_types (Loc_node* node);
 
 	bool is_basic_type (String* name);
 };
