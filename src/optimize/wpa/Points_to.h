@@ -119,12 +119,32 @@ public:
 public:
 	// High-level API
 	void set_reference (string source_ns, MIR::VARIABLE_NAME* source, string target_ns, MIR::VARIABLE_NAME* target);
-	void set_value (string source_ns, MIR::VARIABLE_NAME* source, string target_ns, MIR::VARIABLE_NAME* target);
+
+	void copy_value (string source_ns, MIR::VARIABLE_NAME* source, string target_ns, MIR::VARIABLE_NAME* target);
 	void set_value (string source_ns, MIR::VARIABLE_NAME* source, MIR::Literal* target);
+	void set_array (string ns, MIR::VARIABLE_NAME* source);
+
+	// Initialize the GLOBALS array in __MAIN__
+	void setup_globals ();
+
+
+	// Mid-level API
+
+	// Set LOC's value to VAL
+	void set_value (Loc_node* loc, Value_node* val);
+
+	// Set LOC1's value to LOC2's value
+	void copy_value (Loc_node* loc1, Loc_node* loc2);
+
+	// Make LOC1 point to the same zval as LOC2
+	void set_reference (Loc_node* loc1, Loc_node* loc2);
 
 
 	// Return the location node for LOC, or NULL if none currently exists.
 	Loc_node* get_loc_node (string ns, MIR::VARIABLE_NAME* loc);
+
+	// If it doesnt exist, create it.
+	Loc_node* get_or_add_loc_node (string ns, MIR::VARIABLE_NAME* loc);
 
 private:
 	// Low-level API
@@ -220,6 +240,7 @@ public:
 	// Each allocated node gets a unique index
 	static int index_counter;
 
+	PT_node (); // required for Value_node()
 	PT_node (Points_to* ptg, string ns);
 	virtual string graphviz_attrs () = 0;
 
@@ -283,8 +304,7 @@ public:
 
 };
 
-// TODO: different kinds of nodes for fields, variables, arrays, objects and
-// atoms?
+// TODO: different kinds of nodes for fields, objects and indices
 
 /*
  * A location is a symbol-table location, which roughly corresponds to a
@@ -324,12 +344,27 @@ public:
 
 
 
-class Value_node : public PT_node
+class Value_node : virtual public PT_node
+{
+public:
+	Value_node ();
+	virtual Value_node* clone () = 0;
+};
+
+class Lit_node : public Value_node
 {
 public:
 	MIR::Literal* lit;
 
-	Value_node (Points_to* ptg, string ns, MIR::Literal* lit);
+	Lit_node (Points_to* ptg, string ns, MIR::Literal* lit);
+	string graphviz_attrs ();
+	Value_node* clone ();
+};
+
+class Array_node : public Value_node
+{
+public:
+	Array_node (Points_to* ptg, string ns);
 	string graphviz_attrs ();
 	Value_node* clone ();
 };

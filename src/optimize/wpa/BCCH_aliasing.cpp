@@ -26,6 +26,7 @@ BCCH_aliasing::BCCH_aliasing (Whole_program* wp)
 : WPA (wp)
 {
 	ptg = new Points_to;
+	ptg->setup_globals ();
 }
 
 
@@ -170,7 +171,7 @@ BCCH_aliasing::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 			if (in->is_ref)
 				ptg->set_reference (name, in->lhs, name, dyc<VARIABLE_NAME> (in->rhs));
 			else
-				ptg->set_value (name, in->lhs, name, dyc<VARIABLE_NAME> (in->rhs));
+				ptg->copy_value (name, in->lhs, name, dyc<VARIABLE_NAME> (in->rhs));
 			break;
 
 		default:

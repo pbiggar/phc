@@ -69,8 +69,8 @@ Points_to::set_reference (string source_ns, MIR::VARIABLE_NAME* source,
 
 
 void
-Points_to::set_value (string source_ns, MIR::VARIABLE_NAME* source,
-							 string target_ns, MIR::VARIABLE_NAME* target)
+Points_to::copy_value (string source_ns, MIR::VARIABLE_NAME* source,
+							  string target_ns, MIR::VARIABLE_NAME* target)
 {
 	// Set SOURCE's value to a copy of TARGET's value.
 	
@@ -79,20 +79,53 @@ Points_to::set_value (string source_ns, MIR::VARIABLE_NAME* source,
 	
 	if (sn == NULL)
 		phc_TODO ();
+	Loc_node* tn = get_loc_node (target_ns, target);
+	if (!tn)
+		phc_TODO ();
 
-	Zval_node_list* zns = sn->get_pointees <Zval_node> ();
+	copy_value (sn, tn);
+	
+}
+
+void
+Points_to::set_value (string source_ns, MIR::VARIABLE_NAME* source, MIR::Literal* target)
+{
+	Loc_node* sn = get_or_add_loc_node (source_ns, source);
+	Lit_node* lit = add_node (new Lit_node (this, source_ns, target));
+	
+	set_value (sn, lit);
+}
+
+void
+Points_to::set_array (string ns, MIR::VARIABLE_NAME* source)
+{
+	Array_node* an = add_node (new Array_node (this, ns));
+	Loc_node* sn = get_or_add_loc_node (ns, source);
+
+	set_value (sn, an);
+}
+
+
+/*
+ * Mid-level API
+ */
+
+void
+Points_to::copy_value (Loc_node* loc1, Loc_node* loc2)
+{
+	assert (loc1);
+	assert (loc2);
+
+	
+	Zval_node_list* zns = loc1->get_pointees <Zval_node> ();
 	if (zns->size () != 1)
 		phc_TODO ();
 
 	Zval_node* zn = zns->front ();
 
 
-	// Get the target's value
-	Loc_node* tn = get_loc_node (target_ns, target);
-	if (!tn)
-		phc_TODO ();
-	
-	Value_node_list* vns = tn->get_pointees <Value_node> ();
+
+	Value_node_list* vns = loc2->get_pointees <Value_node> ();
 	if (vns->size () != 1)
 		phc_TODO ();
 
@@ -103,28 +136,26 @@ Points_to::set_value (string source_ns, MIR::VARIABLE_NAME* source,
 	add_edge (zn, clone);
 }
 
-
+/* TODO: It needs to be a lot clearer what happens when there are multiple
+ * zvals, etc, for a single location. But that wont happen til
+ * flow-sensitivity */
 void
-Points_to::set_value (string source_ns, MIR::VARIABLE_NAME* source, MIR::Literal* target)
+Points_to::set_value (Loc_node* loc, Value_node* val)
 {
-	Loc_node* sn = get_loc_node (source_ns, source);
-
-	if (sn)
-	{
-		// Change its value node: handles ref- and non-ref-sources
+	Zval_node_list* zns = loc->get_pointees <Zval_node> ();
+	if (zns->size () != 1)
 		phc_TODO ();
-	}
-	else
-	{
-		// Not in the graph: add: LOC -> ZVP -> VALUE
-		Value_node* vn	= add_node (new Value_node (this, source_ns, target));
-		Zval_node* zn	= add_node (new Zval_node (this, source_ns));
-		sn					= add_node (new Loc_node (this, source_ns, source));
 
-		add_edge (sn, zn);
-		add_edge (zn, vn);
-	}
+
+	Value_node_list* vns = loc->get_pointees <Value_node> ();
+	if (vns->size () != 0)
+		phc_TODO ();
+
+
+	add_edge (zns->front (), val);
 }
+
+
 
 
 /*
@@ -139,6 +170,23 @@ Points_to::get_loc_node (string ns, MIR::VARIABLE_NAME* in)
 		return var_maps[ns][in];
 
 	return NULL;
+}
+
+Loc_node*
+Points_to::get_or_add_loc_node (string ns, MIR::VARIABLE_NAME* in)
+{
+	Loc_node* result = get_loc_node (ns, in);
+	if (result)
+		return result;
+
+	// Not in the graph: add: LOC -> ZVP -> VALUE
+	result = add_node (new Loc_node (this, ns, in));
+	Zval_node* zn = add_node (new Zval_node (this, ns));
+	add_edge (result, zn);
+
+	return result;
+
+
 }
 
 PT_edge*
@@ -166,7 +214,6 @@ Points_to::dump_graphviz (String* label)
 
 	cout
 	<< "digraph G {\n"
-	<< "graph [outputorder=edgesfirst];\n"
 	<< "graph [labelloc=t];\n"
 	<< "graph [label=\"" << *label << "\"];\n"
 	;
@@ -197,11 +244,21 @@ Points_to::dump_graphviz (String* label)
 	;
 }
 
+void
+Points_to::setup_globals ()
+{
+	set_array ("__MAIN__", new MIR::VARIABLE_NAME ("GLOBALS"));
+}
+
 
 
 /*
  * Nodes
  */
+
+PT_node::PT_node()
+{
+}
 
 PT_node::PT_node (Points_to* ptg, string ns)
 : ptg (ptg)
@@ -244,36 +301,53 @@ string
 Zval_node::graphviz_attrs ()
 {
 	stringstream ss;
-	ss << "shape=egg,label=\"" << index << ": ZVAL\"";
+	ss << "shape=circle,fixedsize=true,height=0.35,label=\"" << index << "\"";
 	return ss.str ();
 }
 
+Value_node::Value_node()
+{
+}
 
-Value_node::Value_node (Points_to* ptg, string ns, MIR::Literal* lit)
+Lit_node::Lit_node (Points_to* ptg, string ns, MIR::Literal* lit)
 : PT_node (ptg, ns)
 , lit (lit)
 {
 }
 
 string
-Value_node::graphviz_attrs ()
+Lit_node::graphviz_attrs ()
 {
-	stringstream ss1;
-	MIR_unparser mup (ss1, true);
-	mup.unparse (lit);
-
 	stringstream ss;
 	ss 
 	<< "shape=box,label=\"" << index << ": "
-	<< demangle (lit, false) << " " 
-	<< *escape_DOT (s(ss1.str ()), 20) << "\"";
+	<< *escape_DOT (lit->get_value_as_string (), 20) << "\"";
 	return ss.str ();
 }
 
 Value_node*
-Value_node::clone ()
+Lit_node::clone ()
 {
 	// TODO: i suspect we dont even need to clone the literal.
-	return new Value_node (ptg, ns, lit->clone ());
+	return new Lit_node (ptg, ns, lit->clone ());
 }
 
+Array_node::Array_node (Points_to* ptg, string ns)
+: PT_node (ptg, ns)
+{
+}
+
+string
+Array_node::graphviz_attrs ()
+{
+	stringstream ss;
+	ss 
+	<< "shape=box,label=\"" << index << ": Array\"";
+	return ss.str ();
+}
+
+Value_node*
+Array_node::clone ()
+{
+	phc_TODO ();
+}

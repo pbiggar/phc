@@ -80,8 +80,8 @@ Type_inference::get_types (Loc_node* node)
 
 	foreach (Value_node* end, *node->get_pointees<Value_node>())
 	{
-		// HACK
-		result->push_back (s (demangle (end->lit, false)));
+		// TODO: get the type from the object, etc.
+//		result->push_back (s (demangle (end->lit, false)));
 	}
 
 	return result;
