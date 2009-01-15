@@ -27,11 +27,11 @@ class CompilePluginTest extends AsyncTest
 
 	function copy_headers ()
 	{
-		global $working_directory, $plugin_dir;
+		global $working_directory, $plugin_dir, $base_dir;
 
 		// copy the header files from the plugin's directory to
 		// working dir
-		$headers = split ("\n", chop (`find $plugin_dir -name "*.h"`));
+		$headers = split ("\n", chop (`find $base_dir/plugins -name "*.h"`));
 		$new_headers = array ();
 		if ($headers !== array (""))
 		{
@@ -55,7 +55,7 @@ class CompilePluginTest extends AsyncTest
 
 	function run_test ($subject)
 	{
-		global $phc, $trunk_CPPFLAGS, $phc_compile_plugin, $working_directory;
+		global $phc, $trunk_CPPFLAGS, $phc_compile_plugin, $working_directory, $base_dir;
 
 		// setup the files
 		$plugin_name = tempnam ($working_directory, "plugin");

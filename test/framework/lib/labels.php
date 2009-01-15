@@ -280,8 +280,8 @@ function get_all_scripts_in_dir($directory)
 
 function get_all_plugins ()
 {
-	global $plugin_dir;
-	$command = "find $plugin_dir -name \"*.cpp\"";
+	global $base_dir;
+	$command = "find $base_dir/plugins -name \"*.cpp\"";
 	$result = split ("\n", trim (`$command`));
 	if (count ($result) == 1 && $result[0] == "")
 		return array ();
