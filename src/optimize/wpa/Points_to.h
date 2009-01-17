@@ -52,7 +52,7 @@ namespace boost {
 
 /* TODO: split the edges into P and D (possible and definite from Emami94),
  * for may-alias and must-alias. */
-#define DECL(T) class T; typedef List<T*> T##_node_list;
+#define DECL(T) class T; typedef List<T*> T##_list;
 
 DECL (PT_node);
 DECL (Zval_node);
@@ -187,11 +187,15 @@ public:
 	// new node for it.
 	void set_reference (Location* loc1, Location* loc2);
 
+	// TODO: everything else uses locations, maybe this should
+	void remove_unreachable_nodes ();
+
 private:
 	// Low-level API
 	PT_edge* add_edge (PT_node*, PT_node*);
 	Named_edge* add_named_edge (Location* loc, Zval_node*);
 	void remove_named_edge (Location* loc);
+	void remove_node (PT_node*);
 
 	// Add the node to the graph, and return it.
 	template <class T>

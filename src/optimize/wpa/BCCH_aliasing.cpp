@@ -110,6 +110,7 @@ BCCH_aliasing::initialize_function (CFG* caller_cfg, CFG* callee_cfg, MIR::Actua
 
 	if (lhs)
 	{
+		// TODO: do this upon return instead
 		phc_TODO ();
 		/*
 		if (return_by_ref)
@@ -123,8 +124,9 @@ BCCH_aliasing::initialize_function (CFG* caller_cfg, CFG* callee_cfg, MIR::Actua
 void
 BCCH_aliasing::finalize_function (CFG* caller_cfg, CFG* callee_cfg)
 {
-	// TODO: remove return and parameter nodes, and clear away unreachable nodes.
-	phc_TODO ();
+	// TODO: handle returns
+
+	ptg->clear_function (*callee_cfg->method->signature->method_name->value);
 }
 
 

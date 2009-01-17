@@ -62,6 +62,17 @@ Points_to::setup_function (string ns)
 }
 
 void
+Points_to::clear_function (string ns)
+{
+	if (ns != "__MAIN__")
+	{
+		Storage_node* st = get_symtable (ns)->node;
+		remove_node (st);
+		remove_unreachable_nodes ();
+	}
+}
+
+void
 Points_to::set_reference (Location* sn, Location* tn)
 {
 	// Important: get this before killing sn
@@ -219,6 +230,51 @@ void
 Points_to::remove_named_edge (Location* loc)
 {
 	loc->node->remove_named_edge (loc->name);
+}
+
+void
+Points_to::remove_node (PT_node* node)
+{
+	boost::clear_vertex (node->vertex, bs);
+	boost::remove_vertex (node->vertex, bs);
+}
+
+void
+Points_to::remove_unreachable_nodes ()
+{
+	Set<PT_node*> reachable;
+
+	// Mark-sweep to remove unreachable nodes.
+	PT_node_list* worklist = new PT_node_list (symtables["__MAIN__"]);
+
+	while (worklist->size () > 0)
+	{
+		PT_node* node = worklist->front ();
+		worklist->pop_front ();
+
+		// Dont process BBs we've seen before
+		if (reachable.has (node))
+			continue;
+
+		// mark reachable
+		reachable.insert (node);
+	
+		// Add successors to the worklist
+		foreach (PT_node* succ, *node->get_targets<PT_node> ())
+			worklist->push_back (succ);
+	}
+
+	// remove all nodes not marked as reachable
+	foreach (PT_node* node, *get_nodes<PT_node> ())
+	{
+		// We use get_all_nodes because the vertex descriptors are invalidated
+		// by remove_vertex
+		if (!reachable.has (node))
+		{
+			boost::clear_vertex (node->vertex, bs);
+			boost::remove_vertex (node->vertex, bs);
+		}
+	}
 }
 
 
