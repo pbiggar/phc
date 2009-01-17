@@ -105,6 +105,7 @@ Whole_program::analyse_function (CFG* caller_cfg, CFG* cfg, MIR::Actual_paramete
 		e->is_executable = false;
 
 	// Process the entry blocks first (there is no edge here)
+	DEBUG ("Initing functions");
 	foreach (tie (name, wpa), analyses)
 	{
 		wpa->initialize_function (caller_cfg, cfg, actuals, lhs);

@@ -50,24 +50,23 @@ namespace boost {
 	};
 }
 
-class PT_node;
-class Loc_node;
-class Zval_node;
-class Value_node;
+/* TODO: split the edges into P and D (possible and definite from Emami94),
+ * for may-alias and must-alias. */
+#define DECL(T) class T; typedef List<T*> T##_node_list;
 
-/* TODO: split the edges into P and D (possible and definite from Emami94), for
- * may-alias and must-alias. */
-class PT_edge;
+DECL (PT_node);
+DECL (Zval_node);
+DECL (Value_node);
+DECL (Lit_node);
+DECL (Unknown_node);
+DECL (Storage_node);
+DECL (Object_node);
+DECL (Array_node);
 
-
-typedef List<PT_node*> PT_node_list;
-typedef List<PT_edge*> PT_edge_list;
-
-typedef List<PT_node*> PT_node_list;
-typedef List<Zval_node*> Zval_node_list;
-typedef List<Value_node*> Value_node_list;
-typedef List<Loc_node*> Loc_node_list;
-
+DECL (PT_edge);
+DECL (Named_edge);
+DECL (Known_edge);
+DECL (Unknown_edge);
 
 typedef boost::adjacency_list<
 
@@ -98,9 +97,26 @@ typedef boost::adjacency_list<
 typedef PT_graph::vertex_descriptor vertex_pt;
 typedef PT_graph::edge_descriptor edge_pt;
 
+// The reason for this class is so that we can have NULL representing
+// an uninitialized location.
+class Location : virtual public GC_obj
+{
+public:
+	Storage_node* node;
+	string name;
+
+	Location (Storage_node* node, string name)
+	: node (node)
+	, name (name)
+	{
+	}
+};
+
 class Points_to : virtual public GC_obj
 {
-	Map<string, Var_map<Loc_node*> > var_maps;
+	// 1 symtable per function
+	// TODO: deal with recursion
+	Map<string, Zval_node*> symtables;
 
 public:
 	Points_to ();
@@ -112,43 +128,56 @@ public:
 	boost::property_map<PT_graph, edge_pt_edge_t>::type ee;
 
 
-
 	void consistency_check ();
 	void dump_graphviz (String* label);
 
 public:
-	// High-level API
-	void set_reference (string source_ns, MIR::VARIABLE_NAME* source, string target_ns, MIR::VARIABLE_NAME* target);
 
-	void copy_value (string source_ns, MIR::VARIABLE_NAME* source, string target_ns, MIR::VARIABLE_NAME* target);
-	void set_value (string source_ns, MIR::VARIABLE_NAME* source, MIR::Literal* target);
-	void set_array (string ns, MIR::VARIABLE_NAME* source);
+	// Setup the function's symtable
+	void setup_function (string ns);
 
-	// Initialize the GLOBALS array in __MAIN__
-	void setup_globals ();
+	// Remove the function's symtable, and clear unreachable nodes.
+	void clear_function (string ns); 
+
+	// Provide a name for the locations for fields, array_indices, etc.
+	// This does not return a node in the graph, or affect anything in the
+	// graph. It just packages it.
+	Location* get_location (string ns, MIR::VARIABLE_NAME* var);
+	Location* get_location (string ns, MIR::FIELD_NAME* field);
+	Location* get_location (string ns, MIR::Literal* index);
 
 
-	// Mid-level API
+	// Add an array, and return the node.
+	Array_node* add_array_node (string ns);
+
+	// Add a literal and return the node.
+	Lit_node* add_lit_node (string ns, MIR::Literal* lit);
+
+	// Add a literal and return the node.
+	Zval_node* add_zval_node (string ns);
+
+	// Gets the zval node for the location. If there is none, UNINIT_ZVAL is
+	// returned, unless INIT is set, in which case a Zval_node is added to the
+	// graph (pointed to by LOC's edge, and pointing to a new NIL Lit_node.
+	Zval_node* get_zval_node (Location* loc, bool init);
+
 
 	// Set LOC's value to VAL
-	void set_value (Loc_node* loc, Value_node* val);
+	void set_value (Location* loc, Value_node* val);
 
-	// Set LOC1's value to LOC2's value
-	void copy_value (Loc_node* loc1, Loc_node* loc2);
+	// Set LOC1's value to LOC2's value. If Loc2 is missing, just copy NULL,
+	// without touching Loc2.
+	void copy_value (Location* loc1, Location* loc2);
 
-	// Make LOC1 point to the same zval as LOC2
-	void set_reference (Loc_node* loc1, Loc_node* loc2);
-
-
-	// Return the location node for LOC, or NULL if none currently exists.
-	Loc_node* get_loc_node (string ns, MIR::VARIABLE_NAME* loc);
-
-	// If it doesnt exist, create it.
-	Loc_node* get_or_add_loc_node (string ns, MIR::VARIABLE_NAME* loc);
+	// Make LOC1 point to the same zval as LOC2. If LOC2 is UNINIT, create a
+	// new node for it.
+	void set_reference (Location* loc1, Location* loc2);
 
 private:
 	// Low-level API
 	PT_edge* add_edge (PT_node*, PT_node*);
+	Named_edge* add_named_edge (Location* loc, Zval_node*);
+	void remove_named_edge (Location* loc);
 
 	// Add the node to the graph, and return it.
 	template <class T>
@@ -158,8 +187,6 @@ private:
 		vertex_pt v = add_vertex (bs);
 		vn[v] = node;
 		node->vertex = v;
-
-		node->add_node_hook ();
 
 		return node;
 	}
@@ -193,15 +220,15 @@ private:
 
 	friend class PT_edge;
 	friend class PT_node;
-	friend class Loc_node;
+	friend class Storage_node;
 };
 
 
 // TODO: do we want the edge to have types?
 class PT_edge : virtual public GC_obj
 {
-	Points_to* ptg;
 public:
+	Points_to* ptg;
 	edge_pt edge;
 
 	PT_edge (Points_to* ptg, edge_pt edge)
@@ -218,6 +245,29 @@ public:
 	PT_node* get_target ()
 	{
 		return ptg->vn[target (edge, ptg->bs)];
+	}
+
+	virtual string graphviz_attrs ()
+	{
+		return "";
+	}
+};
+
+class Named_edge : public PT_edge
+{
+public:
+	string name;
+	Named_edge (string name, Points_to* ptg, edge_pt edge)
+	: PT_edge (ptg, edge)
+	, name (name)
+	{
+	}
+
+	string graphviz_attrs ()
+	{
+		stringstream ss;
+		ss << "label=\"" << name << "\"";
+		return ss.str ();
 	}
 };
 
@@ -244,14 +294,9 @@ public:
 	PT_node (Points_to* ptg, string ns);
 	virtual string graphviz_attrs () = 0;
 
-	// This is a workaround to a dependency problem. I'd like to do something
-	// specific Loc_nodes in Points_to, but it requires looking inside the
-	// Loc_node, which I cant do until I define Loc_node. Which I cant do until
-	// I define PT_node. Which I cant do until I define Points_to. So something
-	// has to give. This is probably the least ugly way.
-	virtual void add_node_hook () {};
-
 	// I would prefer if this was not in the header, but what can you do.
+	// TODO: i dont think this is really necessary anymore, given that we cant
+	// traverse other nodes.
 	template<class T>
 	List<T*>*
 	get_pointees ()
@@ -288,6 +333,15 @@ public:
 		return result;
 	}
 
+	template<class T>
+	T*
+	get_solo_pointee ()
+	{
+		List<T*>* pointees = get_pointees<T> ();
+		assert (pointees->size () == 1);
+		return pointees->front ();
+	}
+
 	void remove_outgoing_edges ()
 	{
 		// The iterator is invalidated every time.
@@ -304,23 +358,8 @@ public:
 
 };
 
-// TODO: different kinds of nodes for fields, objects and indices
 
-/*
- * A location is a symbol-table location, which roughly corresponds to a
- * variable. This is split from the Zval_node since multiple variables can
- * point to the same zval.
- */
-class Loc_node : public PT_node
-{
-public:
-	MIR::VARIABLE_NAME* var_name;
 
-	Loc_node (Points_to* ptg, string ns, MIR::VARIABLE_NAME* var_name);
-	string graphviz_attrs ();
-
-	void add_node_hook ();
-};
 
 /*
  * A zval is pointed to by one or more locations. If more than 1, it is in a
@@ -334,15 +373,12 @@ public:
 	string graphviz_attrs ();
 };
 
-/* To represent multiple possible values, a ZVP node can point to multiple
- * Value_nodes. */
-// TODO: values can also be Objects and Arrays
-// TODO: add special value nodes which do not represent a specific value, but
-// can be used for summary values, for VRP, type-inference etc. These represent
-// values for which we do not have a specific value, but might have a range of
-// values, types, etc.
+// TODO: Only flow sensitivity to go.
 
-
+/*
+ * To represent multiple possible values, a ZVP node can point to multiple
+ * Value_nodes.
+ */
 
 class Value_node : virtual public PT_node
 {
@@ -361,13 +397,80 @@ public:
 	Value_node* clone ();
 };
 
-class Array_node : public Value_node
+// This is simply storage for analysis results which depend on dataflow. For
+// example, if $x can be 5 or a string, x would point to two zvals, one a
+// Lit(5), the other an unknown (type=string).
+class Unknown_node : virtual public Value_node
+{
+public:
+	Unknown_node (Points_to* ptg, string ns, MIR::Literal* lit);
+	string graphviz_attrs ();
+	Value_node* clone ();
+};
+
+class Storage_node : virtual public Value_node
+{
+public:
+	// Return NULL if the node doesnt exist
+	// TODO: presumably this could return multiple nodes?
+	Zval_node* get_indexed (string index);
+	void remove_named_edge (string index);
+};
+
+/* A symtable is just an array. Each method will have a zval which points to
+ * the object representing the symtable. */
+
+class Array_node : public Storage_node
 {
 public:
 	Array_node (Points_to* ptg, string ns);
 	string graphviz_attrs ();
 	Value_node* clone ();
 };
+
+// Not sure how this differs from an Objet node. I expect it just means it
+// will have a type.
+class Object_node : public Storage_node
+{
+public:
+	Object_node (Points_to* ptg, string ns);
+	string graphviz_attrs ();
+	Value_node* clone ();
+};
+
+/* 
+ * I can generalize Vars to indices in a global array. In fact, the
+ * generalization is the same in all cases:
+ *		- array index:
+ *			a named edge from an ARRAY to a value.
+ *		- object field:
+ *			a named edge from an OBJECT to a value.
+ *		- variable_name:
+ *			a named edge from a SYMTABLE to a value.
+ *
+ *	Indexes can only be INTs or STRINGs (though they can be unknown for
+ *	var-vars, variable indices, and var-fields).
+ *
+ * Although they can be strings or ints, really ca be represented by just one
+ * type. For different operations, "5" may be a string or int index, but it
+ * does not vary for that operation (var-vars: always strings, var-fields:
+ * always strings, arrays:always ints). So we only need strings her (aka
+ * Known_edge).
+ */
+
+// TODO: is a named edge a known edge? i think so.
+class Known_edge : virtual public PT_edge
+{
+};
+
+class Unknown_edge : virtual public PT_edge
+{
+};
+
+// TODO: for handling possibly/definitely edges, we could always create a
+// definitely node (pointing to NULL), which is killed or merged. But that
+// doesnt model unset variables, which might be nice (not definitely useful
+// though).
 
 
 #endif // PHC_POINTS_TO

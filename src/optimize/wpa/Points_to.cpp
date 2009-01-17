@@ -5,8 +5,8 @@
  * Points-to graph.
  *
  * There should be multiple graphs, 1 per function. there need to be links
- * between them, so I'm not clear if its better to have multiple regions within
- * a graph, or multiple graphs.
+ * between them, so I'm not clear if its better to have multiple regions
+ * within a graph, or multiple graphs.
  *
  */
 
@@ -29,94 +29,48 @@ Points_to::Points_to()
 {
 }
 
-/*
- * High-level API
- */
-
 void
-Points_to::set_reference (string source_ns, MIR::VARIABLE_NAME* source,
-								  string target_ns, MIR::VARIABLE_NAME* target)
+Points_to::setup_function (string ns)
 {
-	// Remove whatever SOURCE uses to point to, and make it point to TARGET's ZVP
-	Loc_node* sn = get_loc_node (source_ns, source);
-	Loc_node* tn = get_loc_node (target_ns, target);
+	Zval_node* symtable = add_zval_node (ns);
+	Array_node* array = add_array_node (ns);
+	add_edge (symtable, array);
 
-	Zval_node* zn;
+	assert (!symtables.has(ns));
+	symtables[ns] = symtable;
 
-	// If there's an existing source, we free it from its zvp.
-	if (sn)
+	// TODO: add the superglobals (its wrong to add the parameters before the
+	// superglobals, but we've only 1 example of this breaking).
+	
+	// Actually, we need GLOBALS anyway.
+	if (ns == "__MAIN__")
 	{
-		phc_TODO ();
+		add_named_edge (new Location (array, "GLOBALS"), symtable);
 	}
 	else
-		sn = add_node (new Loc_node (this, source_ns, source));
-
-	// If there's an existing target, we use it.
-	if (!tn)
 	{
-		set_value (target_ns, target, new MIR::NIL);
-		tn = get_loc_node (target_ns, target);
+		set_reference (
+			get_location (ns, new MIR::VARIABLE_NAME ("GLOBALS")),
+			get_location ("__MAIN__", new MIR::VARIABLE_NAME ("GLOBALS")));
 	}
-
-	assert (tn);
-	Zval_node_list* zns = tn->get_pointees <Zval_node> ();
-	if (zns->size () != 1)
-		phc_TODO ();
-	zn = zns->front ();
-
-	add_edge (sn, zn);
-}
-
-
-void
-Points_to::copy_value (string source_ns, MIR::VARIABLE_NAME* source,
-							  string target_ns, MIR::VARIABLE_NAME* target)
-{
-	// Set SOURCE's value to a copy of TARGET's value.
-	
-	// Get the source's zval.
-	Loc_node* sn = get_loc_node (source_ns, source);
-	
-	if (sn == NULL)
-		phc_TODO ();
-	Loc_node* tn = get_loc_node (target_ns, target);
-	if (!tn)
-		phc_TODO ();
-
-	copy_value (sn, tn);
-	
 }
 
 void
-Points_to::set_value (string source_ns, MIR::VARIABLE_NAME* source, MIR::Literal* target)
+Points_to::set_reference (Location* sn, Location* tn)
 {
-	Loc_node* sn = get_or_add_loc_node (source_ns, source);
-	Lit_node* lit = add_node (new Lit_node (this, source_ns, target));
-	
-	set_value (sn, lit);
+	// Important: get this before killing sn
+	Zval_node* rhs = get_zval_node (tn, true);
+
+	// This is killing too.
+	remove_named_edge (sn);
+
+	add_named_edge (sn, rhs);
 }
-
 void
-Points_to::set_array (string ns, MIR::VARIABLE_NAME* source)
+Points_to::copy_value (Location* loc1, Location* loc2)
 {
-	Array_node* an = add_node (new Array_node (this, ns));
-	Loc_node* sn = get_or_add_loc_node (ns, source);
-
-	set_value (sn, an);
-}
-
-
-/*
- * Mid-level API
- */
-
-void
-Points_to::copy_value (Loc_node* loc1, Loc_node* loc2)
-{
-	assert (loc1);
-	assert (loc2);
-
-	
+	phc_TODO ();
+/*	
 	Zval_node_list* zns = loc1->get_pointees <Zval_node> ();
 	if (zns->size () != 1)
 		phc_TODO ();
@@ -134,25 +88,63 @@ Points_to::copy_value (Loc_node* loc1, Loc_node* loc2)
 	Value_node* clone = add_node (vn->clone ());
 	zn->remove_outgoing_edges ();
 	add_edge (zn, clone);
+	*/
 }
 
 /* TODO: It needs to be a lot clearer what happens when there are multiple
  * zvals, etc, for a single location. But that wont happen til
  * flow-sensitivity */
 void
-Points_to::set_value (Loc_node* loc, Value_node* val)
+Points_to::set_value (Location* loc, Value_node* val)
 {
-	Zval_node_list* zns = loc->get_pointees <Zval_node> ();
-	if (zns->size () != 1)
+
+	Zval_node* zn = get_zval_node (loc, true);
+
+	// Strong update (aka kill)
+	zn->remove_outgoing_edges ();
+
+	add_edge (zn, val);
+}
+
+
+
+
+Array_node*
+Points_to::add_array_node (string ns)
+{
+	return add_node (new Array_node (this, ns));
+}
+
+// TODO: Literals do not need namespaces. In fact, nothing does except the st
+// entries.
+Lit_node*
+Points_to::add_lit_node (string ns, MIR::Literal* lit)
+{
+	return add_node (new Lit_node (this, ns, lit));
+}
+
+Zval_node*
+Points_to::add_zval_node (string ns)
+{
+	return add_node (new Zval_node (this, ns));
+}
+
+Zval_node*
+Points_to::get_zval_node (Location* loc, bool init)
+{
+	Zval_node* result = loc->node->get_indexed (loc->name);
+	if (result)
+		return result;
+
+	if (init)
+	{
+		result = add_zval_node (loc->node->ns);
+		add_named_edge (loc, result);
+		return result;
+	}
+	else
+		// TODO: not sure this should be allowed
 		phc_TODO ();
-
-
-	Value_node_list* vns = loc->get_pointees <Value_node> ();
-	if (vns->size () != 0)
-		phc_TODO ();
-
-
-	add_edge (zns->front (), val);
 }
 
 
@@ -162,32 +154,15 @@ Points_to::set_value (Loc_node* loc, Value_node* val)
  * Low-level API
  */
 
-Loc_node*
-Points_to::get_loc_node (string ns, MIR::VARIABLE_NAME* in)
+Location*
+Points_to::get_location (string ns, MIR::VARIABLE_NAME* in)
 {
-	// Lookup existing node
-	if (var_maps[ns].has (in))
-		return var_maps[ns][in];
-
-	return NULL;
+	return new Location (
+		symtables [ns]->get_solo_pointee<Storage_node> (),
+		*in->value);
 }
 
-Loc_node*
-Points_to::get_or_add_loc_node (string ns, MIR::VARIABLE_NAME* in)
-{
-	Loc_node* result = get_loc_node (ns, in);
-	if (result)
-		return result;
 
-	// Not in the graph: add: LOC -> ZVP -> VALUE
-	result = add_node (new Loc_node (this, ns, in));
-	Zval_node* zn = add_node (new Zval_node (this, ns));
-	add_edge (result, zn);
-
-	return result;
-
-
-}
 
 PT_edge*
 Points_to::add_edge (PT_node* source, PT_node* target)
@@ -200,6 +175,27 @@ Points_to::add_edge (PT_node* source, PT_node* target)
 	edge_pt e = pair.first;
 	ee[e] = new PT_edge (this, e);
 	return ee[e];
+}
+
+Named_edge*
+Points_to::add_named_edge (Location* loc, Zval_node* target)
+{
+	// TODO: abstract
+	std::pair<edge_pt,bool> pair = boost::add_edge (loc->node->vertex, target->vertex, bs);
+
+	// The graph should allow parallel edges.
+	assert (pair.second);
+
+	edge_pt e = pair.first;
+	Named_edge* result = new Named_edge (loc->name, this, e);
+	ee[e] = result;
+	return result;
+}
+
+void
+Points_to::remove_named_edge (Location* loc)
+{
+	loc->node->remove_named_edge (loc->name);
 }
 
 
@@ -236,20 +232,14 @@ Points_to::dump_graphviz (String* label)
 		PT_edge* edge = ee[e];
 		cout 
 		<< edge->get_source ()->index << " -> " 
-		<< edge->get_target ()->index << "[];\n";
+		<< edge->get_target ()->index 
+		<< "[" << edge->graphviz_attrs () << "];\n";
 	}
 
 	cout
 	<< "}\n"
 	;
 }
-
-void
-Points_to::setup_globals ()
-{
-	set_array ("__MAIN__", new MIR::VARIABLE_NAME ("GLOBALS"));
-}
-
 
 
 /*
@@ -268,29 +258,6 @@ PT_node::PT_node (Points_to* ptg, string ns)
 }
 
 
-Loc_node::Loc_node (Points_to* ptg, string ns, MIR::VARIABLE_NAME* var_name)
-: PT_node (ptg, ns)
-, var_name (var_name)
-{
-}
-
-string
-Loc_node::graphviz_attrs ()
-{
-	stringstream ss;
-	ss << "shape=ellipse,label=\"" << index << ": $" << *var_name->value << "\"";
-	return ss.str ();
-}
-
-void
-Loc_node::add_node_hook ()
-{
-	// We need to be able to look up nodes.
-	assert (!ptg->var_maps[ns].has (var_name));
-	ptg->var_maps[ns][var_name] = this;
-}
-
-
 
 Zval_node::Zval_node (Points_to* ptg, string ns)
 : PT_node (ptg, ns)
@@ -301,7 +268,7 @@ string
 Zval_node::graphviz_attrs ()
 {
 	stringstream ss;
-	ss << "shape=circle,fixedsize=true,height=0.35,label=\"" << index << "\"";
+	ss << "shape=circle,fixedsize=true,height=0.4,label=\"" << index << "\"";
 	return ss.str ();
 }
 
@@ -330,6 +297,34 @@ Lit_node::clone ()
 {
 	// TODO: i suspect we dont even need to clone the literal.
 	return new Lit_node (ptg, ns, lit->clone ());
+}
+
+Zval_node*
+Storage_node::get_indexed (string index)
+{
+	// TODO: this is crying out for a hashing (or at least a map)
+	foreach (edge_pt out_edge, out_edges (vertex, ptg->bs))
+	{
+		Named_edge* edge = dyc<Named_edge> (ptg->ee[out_edge]);
+		if (index == edge->name)
+			return dyc<Zval_node> (edge->get_target ());
+	}
+	return NULL;
+}
+
+void
+Storage_node::remove_named_edge (string name)
+{
+	// TODO: hashtable
+	foreach (edge_pt out_edge, out_edges (vertex, ptg->bs))
+	{
+		Named_edge* edge = dyc<Named_edge> (ptg->ee[out_edge]);
+		if (edge->name == name)
+		{
+			boost::remove_edge (out_edge, ptg->bs);
+			break;
+		}
+	}
 }
 
 Array_node::Array_node (Points_to* ptg, string ns)

@@ -26,7 +26,6 @@ BCCH_aliasing::BCCH_aliasing (Whole_program* wp)
 : WPA (wp)
 {
 	ptg = new Points_to;
-	ptg->setup_globals ();
 }
 
 
@@ -79,9 +78,12 @@ BCCH_aliasing::initialize_function (CFG* caller_cfg, CFG* callee_cfg, MIR::Actua
 		caller_ns = *caller_cfg->method->signature->method_name->value;
 
 	string callee_ns = *callee_cfg->method->signature->method_name->value;
+	ptg->setup_function (callee_ns);
+	dump();
 
 	if (actuals->size () != callee_cfg->method->signature->formal_parameters->size ())
 		phc_TODO ();
+
 
 	Actual_parameter_list::const_iterator i = actuals->begin ();
 	foreach (Formal_parameter* fp, *callee_cfg->method->signature->formal_parameters)
@@ -93,8 +95,9 @@ BCCH_aliasing::initialize_function (CFG* caller_cfg, CFG* callee_cfg, MIR::Actua
 		if (fp->is_ref || ap->is_ref)
 		{
 			// $fp =& $ap;
-			ptg->set_reference (callee_ns, fp->var->variable_name,
-									  caller_ns, dyc<VARIABLE_NAME> (ap->rvalue));
+			ptg->set_reference (
+						ptg->get_location (callee_ns, fp->var->variable_name),
+						ptg->get_location (caller_ns, dyc<VARIABLE_NAME> (ap->rvalue)));
 		}
 		else
 		{
@@ -119,6 +122,7 @@ void
 BCCH_aliasing::finalize_function (CFG* caller_cfg, CFG* callee_cfg)
 {
 	// TODO: remove return and parameter nodes, and clear away unreachable nodes.
+	phc_TODO ();
 }
 
 
@@ -129,24 +133,17 @@ BCCH_aliasing::visit_global (Statement_block* bb, MIR::Global* in)
 {
 	// These dont really change anything
 	// TODO: these might set a var to NULL, from uninit
+	// TODO: merge from trunk, it removes the semantics changing ones
 	if (bb->cfg->method->is_main ())
 		return;
 
 	if (isa<Variable_variable> (in->variable_name))
 		phc_TODO ();
 
-	// TODO: this will do for now, but we might want to think about using the
-	// __MAIN__ GLOBALS variable (though that can be set, can it not?).
-	
-	// TODO: a really nice way to handle this would be to consider the global
-	// scope to be values in an array called EG(symbol_table). GLOBALS would
-	// initially point to this too (though some tricks might be necessary to
-	// avoid them both being overwritten if GLOBALS is changed). The same thing
-	// could handle the locals array, perhaps named EG(active_symbol_table).
-	// This would mean that var-vars and arrays are treated identically.
-
 	VARIABLE_NAME* var_name = dyc<VARIABLE_NAME> (in->variable_name);
-	ptg->set_reference (NAME (bb), var_name, "__MAIN__", var_name);
+	ptg->set_reference (
+		ptg->get_location (NAME (bb), var_name),
+		ptg->get_location ("__MAIN__", var_name));
 }
 
 
@@ -154,6 +151,7 @@ void
 BCCH_aliasing::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 {
 	string name = NAME (bb);
+	Location* lhs = ptg->get_location (name, in->lhs);
 
 	switch(in->rhs->classid())
 	{
@@ -169,9 +167,13 @@ BCCH_aliasing::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 
 		case VARIABLE_NAME::ID:
 			if (in->is_ref)
-				ptg->set_reference (name, in->lhs, name, dyc<VARIABLE_NAME> (in->rhs));
+				ptg->set_reference (
+					lhs,
+					ptg->get_location (name, dyc<VARIABLE_NAME> (in->rhs)));
 			else
-				ptg->copy_value (name, in->lhs, name, dyc<VARIABLE_NAME> (in->rhs));
+				ptg->copy_value (
+					lhs,
+					ptg->get_location (name, dyc<VARIABLE_NAME> (in->rhs)));
 			break;
 
 		default:
@@ -184,8 +186,9 @@ BCCH_aliasing::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 		case NIL::ID:
 		case REAL::ID:
 		case STRING::ID:
-			assert (!in->is_ref);
-			ptg->set_value (name, in->lhs, dyc<Literal> (in->rhs));
+			ptg->set_value (
+				lhs,
+				ptg->add_lit_node (name, dyc<Literal> (in->rhs)));
 			return;
 
 		// Need to use analysis results before putting into the graph
@@ -200,16 +203,19 @@ BCCH_aliasing::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 
 		case Array_access::ID:
 			// TODO: globals are special
+			// TODO: not any more
 			phc_TODO ();
 			break;
 
 		// Interprocedural stuff
 		case New::ID:
 			handle_new (bb, dyc<New> (in->rhs), in->lhs);
+			phc_TODO ();
 			break;
 
 		case Method_invocation::ID:
 			handle_method_invocation (bb, dyc<Method_invocation> (in->rhs), in->lhs);
+			phc_TODO ();
 			break;
 	}
 }
