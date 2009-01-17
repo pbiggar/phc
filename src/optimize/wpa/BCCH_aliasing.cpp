@@ -75,7 +75,9 @@ BCCH_aliasing::initialize_function (CFG* caller_cfg, CFG* callee_cfg, MIR::Actua
 {
 	string caller_ns;
 	if (caller_cfg) 
+	{
 		caller_ns = *caller_cfg->method->signature->method_name->value;
+	}
 
 	string callee_ns = *callee_cfg->method->signature->method_name->value;
 	ptg->setup_function (callee_ns);
@@ -96,8 +98,8 @@ BCCH_aliasing::initialize_function (CFG* caller_cfg, CFG* callee_cfg, MIR::Actua
 		{
 			// $fp =& $ap;
 			ptg->set_reference (
-						ptg->get_location (callee_ns, fp->var->variable_name),
-						ptg->get_location (caller_ns, dyc<VARIABLE_NAME> (ap->rvalue)));
+				ptg->get_var (callee_ns, fp->var->variable_name),
+				ptg->get_var (caller_ns, dyc<VARIABLE_NAME> (ap->rvalue)));
 		}
 		else
 		{
@@ -142,16 +144,17 @@ BCCH_aliasing::visit_global (Statement_block* bb, MIR::Global* in)
 
 	VARIABLE_NAME* var_name = dyc<VARIABLE_NAME> (in->variable_name);
 	ptg->set_reference (
-		ptg->get_location (NAME (bb), var_name),
-		ptg->get_location ("__MAIN__", var_name));
+		ptg->get_var (NAME (bb), var_name),
+		ptg->get_var ("__MAIN__", var_name));
 }
 
 
 void
 BCCH_aliasing::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 {
-	string name = NAME (bb);
-	Location* lhs = ptg->get_location (name, in->lhs);
+	string ns = NAME (bb);
+	Location* lhs = ptg->get_var (ns, in->lhs);
+	Location* rhs = NULL;
 
 	switch(in->rhs->classid())
 	{
@@ -166,14 +169,7 @@ BCCH_aliasing::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 			break;
 
 		case VARIABLE_NAME::ID:
-			if (in->is_ref)
-				ptg->set_reference (
-					lhs,
-					ptg->get_location (name, dyc<VARIABLE_NAME> (in->rhs)));
-			else
-				ptg->copy_value (
-					lhs,
-					ptg->get_location (name, dyc<VARIABLE_NAME> (in->rhs)));
+			rhs =	ptg->get_var (ns, dyc<VARIABLE_NAME> (in->rhs));
 			break;
 
 		default:
@@ -188,8 +184,8 @@ BCCH_aliasing::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 		case STRING::ID:
 			ptg->set_value (
 				lhs,
-				ptg->add_lit_node (name, dyc<Literal> (in->rhs)));
-			return;
+				ptg->add_lit_node (ns, dyc<Literal> (in->rhs)));
+			return; // dont use copy value
 
 		// Need to use analysis results before putting into the graph
 		case Variable_variable::ID:
@@ -202,10 +198,16 @@ BCCH_aliasing::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 			break;
 
 		case Array_access::ID:
-			// TODO: globals are special
-			// TODO: not any more
-			phc_TODO ();
+		{
+			Array_access* aa = dyc<Array_access> (in->rhs);
+			Location* array = ptg->get_var (ns, aa->variable_name);
+			Location* index =
+				ptg->get_var (ns, dyc<VARIABLE_NAME> (aa->index));
+
+			Lit_node* lit = ptg->get_lit_node (index);
+			rhs = ptg->get_location (array, get_index (lit->lit));
 			break;
+		}
 
 		// Interprocedural stuff
 		case New::ID:
@@ -218,6 +220,12 @@ BCCH_aliasing::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 			phc_TODO ();
 			break;
 	}
+
+	assert (rhs);
+	if (in->is_ref)
+		ptg->set_reference (lhs, rhs);
+	else
+		ptg->copy_value (lhs, rhs);
 }
 
 void
@@ -227,6 +235,18 @@ BCCH_aliasing::visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
 		handle_new (bb, dyc<New> (in->expr), NULL);
 	else
 		handle_method_invocation (bb, dyc<Method_invocation> (in->expr), NULL);
+}
+
+// TODO: this should be used in a lot more places
+// TODO: non-string go through being ints before being converted to a string
+string
+BCCH_aliasing::get_index (Literal* lit)
+{
+	if (STRING* str = dynamic_cast<STRING*> (lit))
+		return *str->value;
+
+	// TODO: use embed
+	phc_TODO ();
 }
 
 void

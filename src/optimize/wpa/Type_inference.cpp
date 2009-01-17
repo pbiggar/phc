@@ -41,6 +41,7 @@ Type_inference::use_summary_results (Method_info* info, MIR::Actual_parameter_li
 
 	int index = 0;
 	string method_name = *info->method_name;
+	/*
 	foreach (Parameter_info* pinfo, *info->params)
 	{
 		Actual_parameter* ap = actuals->at(index);
@@ -55,10 +56,11 @@ Type_inference::use_summary_results (Method_info* info, MIR::Actual_parameter_li
 				if (!is_basic_type (type))
 					phc_TODO ();
 			}
+			
 		}
 
 		index++;
-	}
+	}*/
 }
 
 void

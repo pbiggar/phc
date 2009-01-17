@@ -110,13 +110,15 @@ public:
 	, name (name)
 	{
 	}
+
+	Zval_node* get_zval_node ();
 };
 
 class Points_to : virtual public GC_obj
 {
 	// 1 symtable per function
 	// TODO: deal with recursion
-	Map<string, Zval_node*> symtables;
+	Map<string, Array_node*> symtables;
 
 public:
 	Points_to ();
@@ -142,9 +144,14 @@ public:
 	// Provide a name for the locations for fields, array_indices, etc.
 	// This does not return a node in the graph, or affect anything in the
 	// graph. It just packages it.
-	Location* get_location (string ns, MIR::VARIABLE_NAME* var);
-	Location* get_location (string ns, MIR::FIELD_NAME* field);
-	Location* get_location (string ns, MIR::Literal* index);
+	Location* get_var (string ns, MIR::VARIABLE_NAME* var);
+	Location* get_field (MIR::VARIABLE_NAME* var, MIR::FIELD_NAME* field);
+	Location* get_index (MIR::VARIABLE_NAME* var, MIR::Literal* index);
+
+	Location* get_location (Location* table, string value);
+
+	// Return the Location* for this function's symtable.
+	Location* get_symtable (string ns);
 
 
 	// Add an array, and return the node.
@@ -160,6 +167,13 @@ public:
 	// returned, unless INIT is set, in which case a Zval_node is added to the
 	// graph (pointed to by LOC's edge, and pointing to a new NIL Lit_node.
 	Zval_node* get_zval_node (Location* loc, bool init);
+
+	// TODO: this should get all possible values, then trim them using results
+	// of other analyses.
+	// TODO: return a list
+	// This asserts there is only one literal (and no other values) at that
+	// location, and returns it.
+	Lit_node* get_lit_node (Location* loc);
 
 
 	// Set LOC's value to VAL
@@ -294,50 +308,25 @@ public:
 	PT_node (Points_to* ptg, string ns);
 	virtual string graphviz_attrs () = 0;
 
-	// I would prefer if this was not in the header, but what can you do.
-	// TODO: i dont think this is really necessary anymore, given that we cant
-	// traverse other nodes.
+	// Check all the targets are of type T, and return a list of them/
 	template<class T>
 	List<T*>*
-	get_pointees ()
+	get_targets ()
 	{
 		List<T*>* result = new List<T*>;
-
-		List<vertex_pt> worklist (this->vertex);
-		Set<vertex_pt> seen;
-		while (worklist.size ())
+		foreach (edge_pt out_edge, out_edges (vertex, ptg->bs))
 		{
-			// Handle the worklist
-			vertex_pt top = worklist.front();
-			worklist.pop_front ();
-
-			// Avoid cycles
-			if (seen.has (top))
-				continue;
-
-			seen.insert (top);
-
-
-			// Process nodes
-			PT_node* node = ptg->vn[top];
-			if (isa<T> (node))
-				result->push_back (dyc<T> (node));
-			else
-			{
-				// Add successors the worklist
-				foreach (edge_pt out_edge, out_edges (top, ptg->bs))
-					worklist.push_back (ptg->ee[out_edge]->get_target ()->vertex);
-			}
+			PT_node* node = ptg->ee[out_edge]->get_target ();
+			result->push_back (dyc<T> (node));
 		}
-
 		return result;
 	}
 
 	template<class T>
 	T*
-	get_solo_pointee ()
+	get_only_target ()
 	{
-		List<T*>* pointees = get_pointees<T> ();
+		List<T*>* pointees = get_targets <T> ();
 		assert (pointees->size () == 1);
 		return pointees->front ();
 	}

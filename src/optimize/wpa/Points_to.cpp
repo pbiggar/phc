@@ -29,15 +29,18 @@ Points_to::Points_to()
 {
 }
 
+#define ST_NAME "__PHC_ST__"
 void
 Points_to::setup_function (string ns)
 {
-	Zval_node* symtable = add_zval_node (ns);
-	Array_node* array = add_array_node (ns);
-	add_edge (symtable, array);
+	// The symtable and its zval
+	Array_node* st = add_array_node (ns);
+	Zval_node* zval = add_zval_node (ns);
+	add_named_edge (new Location (st, ST_NAME), zval);
+	add_edge (zval, st);
 
 	assert (!symtables.has(ns));
-	symtables[ns] = symtable;
+	symtables[ns] = st;
 
 	// TODO: add the superglobals (its wrong to add the parameters before the
 	// superglobals, but we've only 1 example of this breaking).
@@ -45,13 +48,16 @@ Points_to::setup_function (string ns)
 	// Actually, we need GLOBALS anyway.
 	if (ns == "__MAIN__")
 	{
-		add_named_edge (new Location (array, "GLOBALS"), symtable);
+		// Dont use API, as this is a special case
+		Zval_node* global = add_zval_node (ns);
+		add_named_edge (new Location (st, "GLOBALS"), global);
+		add_edge (global, st);
 	}
 	else
 	{
 		set_reference (
-			get_location (ns, new MIR::VARIABLE_NAME ("GLOBALS")),
-			get_location ("__MAIN__", new MIR::VARIABLE_NAME ("GLOBALS")));
+			get_var (ns, new MIR::VARIABLE_NAME ("GLOBALS")),
+			get_var ("__MAIN__", new MIR::VARIABLE_NAME ("GLOBALS")));
 	}
 }
 
@@ -97,7 +103,6 @@ Points_to::copy_value (Location* loc1, Location* loc2)
 void
 Points_to::set_value (Location* loc, Value_node* val)
 {
-
 	Zval_node* zn = get_zval_node (loc, true);
 
 	// Strong update (aka kill)
@@ -132,7 +137,7 @@ Points_to::add_zval_node (string ns)
 Zval_node*
 Points_to::get_zval_node (Location* loc, bool init)
 {
-	Zval_node* result = loc->node->get_indexed (loc->name);
+	Zval_node* result = loc->get_zval_node ();
 	if (result)
 		return result;
 
@@ -147,7 +152,18 @@ Points_to::get_zval_node (Location* loc, bool init)
 		phc_TODO ();
 }
 
+Lit_node*
+Points_to::get_lit_node (Location* index)
+{
+	Zval_node* zn = index->get_zval_node ();
+	return zn->get_only_target<Lit_node> ();
+}
 
+Location*
+Points_to::get_var (string ns, MIR::VARIABLE_NAME* var)
+{
+	return get_location (get_symtable (ns), *var->value);
+}
 
 
 /*
@@ -155,11 +171,18 @@ Points_to::get_zval_node (Location* loc, bool init)
  */
 
 Location*
-Points_to::get_location (string ns, MIR::VARIABLE_NAME* in)
+Points_to::get_location (Location* loc, string value)
 {
-	return new Location (
-		symtables [ns]->get_solo_pointee<Storage_node> (),
-		*in->value);
+	Zval_node* zn = loc->get_zval_node ();
+	Storage_node* store = zn->get_only_target <Storage_node> ();
+	return new Location (store, value);
+}
+
+Location*
+Points_to::get_symtable (string ns)
+{
+	// Don't call anything else, as everything calls this
+	return new Location (symtables[ns], ST_NAME);
 }
 
 
@@ -298,6 +321,13 @@ Lit_node::clone ()
 	// TODO: i suspect we dont even need to clone the literal.
 	return new Lit_node (ptg, ns, lit->clone ());
 }
+
+Zval_node*
+Location::get_zval_node ()
+{
+	return node->get_indexed (name);
+}
+
 
 Zval_node*
 Storage_node::get_indexed (string index)
