@@ -1179,14 +1179,11 @@ function_invocation (string MN, list ARGS, string FILENAME, string LINE, string 
 
 method_invocation (string MN, list ARGS, string FILENAME, string LINE, string FCI_NAME, string FCIC_NAME, string ARG_COUNT, node TARGET, string USE_REF, token LHS)
 @@@
-   \read_rvalue ("obj", TARGET); 
+   \get_st_entry ("LOCAL", "p_obj", TARGET);
    zend_fcall_info fci_object;
    zend_fcall_info_cache fcic_object = {0, NULL, NULL, NULL};
-   zval* callable = initialize_method_call (&fci_object, &fcic_object, obj, "$MN", "$FILENAME", $LINE TSRMLS_CC);
-
+   initialize_method_call (&fci_object, &fcic_object, p_obj, "$MN", "$FILENAME", $LINE TSRMLS_CC);
    \call_function (MN, ARGS, FILENAME, LINE, "fci_object", "fcic_object", ARG_COUNT, USE_REF, LHS);
-
-   zval_ptr_dtor (&callable);
 @@@
 
 make_field_name (string VAR_NAME, token FIELD)

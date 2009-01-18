@@ -83,74 +83,71 @@ initialize_function_call (zend_fcall_info * fci, zend_fcall_info_cache * fcic,
 			  char *function_name, char *filename,
 			  int line_number TSRMLS_DC)
 {
-  if (!fcic->initialized)	// check for missing function
-    {
-      zval fn;
-      INIT_PZVAL (&fn);
-      ZVAL_STRING (&fn, function_name, 0);
-      int result = zend_fcall_info_init (&fn, fci, fcic TSRMLS_CC);
-      if (result != SUCCESS)
-	{
-	  phc_setup_error (1, filename, line_number, NULL TSRMLS_CC);
-	  php_error_docref (NULL TSRMLS_CC, E_ERROR,
-			    "Call to undefined function %s()", function_name);
-	}
-    }
-}
+  if (fcic->initialized)
+    return;
 
-
-/*
- * To initialize a method call, we need to look up the method in the tables
- * associated with the object. zend_fcall_info_init will do this for us if
- * we set up an array of the form
- *
- * array( 0 => the target object (zval* IS_OBJECT)
- *      , 1 => the name of the function to be called (zval* IS_STRING)
- *      )
- *
- * However, when zend_fcall_info_init then uses zend_hash_index_find to
- * find a zval** to the object, and stores this zval** in the function info
- * cache (zend_is_callable_ex in zend_API.c, case for IS_ARRAY(callable) and
- * IS_OBJECT(obj)). The zval** however points to some memory that is part
- * of the hashtable itself (allocated by zend_hash_index_update) and will
- * therefore be freed once we free the hashtable. Hence, it is important
- * that we only free the hashtable once the function info cache structure
- * is no longer required.
- *
- * We could avoid this if we could set up a bucket manually and maintain
- * resposibility for the data memory for the bucket ourselves. However, the
- * zend hash API does not seem to offer this functionality.
- *
- * (It may also be possible to avoid returning the hashtable by requesting the
- * zend_class_entry for the object manually, extracting the class name, and
- * then setting up an an array with the class name and the function name.
- * However, I feel that giving the object rather than manually specifying
- * the class name is more robust, esp. in the case of inheritance etc.)
- */
-static zval *
-initialize_method_call (zend_fcall_info * fci, zend_fcall_info_cache * fcic,
-			zval * obj, char *function_name, char *filename,
-			int line_number TSRMLS_DC)
-{
-  // We don't cache the results for object lookups
-  assert (!fcic->initialized);
-
-  zval *callable;
-  MAKE_STD_ZVAL (callable);
-  array_init (callable);
-
-  add_index_zval (callable, 0, obj);
-  add_index_string (callable, 1, function_name, 1);
-
-  int result = zend_fcall_info_init (callable, fci, fcic TSRMLS_CC);
+  zval fn;
+  INIT_PZVAL (&fn);
+  ZVAL_STRING (&fn, function_name, 0);
+  int result = zend_fcall_info_init (&fn, fci, fcic TSRMLS_CC);
   if (result != SUCCESS)
     {
       phc_setup_error (1, filename, line_number, NULL TSRMLS_CC);
       php_error_docref (NULL TSRMLS_CC, E_ERROR,
 			"Call to undefined function %s()", function_name);
     }
+}
 
-  return callable;
+/*
+ * Initialize zend_fcall_info for a method lookup
+ *
+ * Implementation partly based on zend_call_method in Zend/zend_interfaces.c
+ * Main difference is that we use Z_OBJ_HTT_PP(obj)->get_method to retrieve
+ * the function handler for the method instead of looking it up directly;
+ * this means that we correctly deal with __call.
+ */
+
+static void
+initialize_method_call (zend_fcall_info * fci, zend_fcall_info_cache * fcic,
+			zval ** obj, char *function_name,
+			char *filename, int line_number TSRMLS_DC)
+{
+  if (fcic->initialized)
+    return;
+
+  zend_class_entry *obj_ce;
+  obj_ce = Z_OBJCE_PP (obj);
+
+  /*
+   * we do not initialize fci.
+   *   function_table  --  not initialized by zend_call_method
+   *   function_name   --  zend_call_method initializes this to a pointer to
+   *                       a zval 'z_fname', but does not initialize z_fname
+   *                       in case of a method invocation
+   *   retval_ptr_ptr  --  should be initialized by caller
+   *   param_count     --  should be initialized by caller
+   *   params          --  should be initialized by caller
+   */
+  fci->size = sizeof (*fci);
+  fci->object_pp = obj;
+  fci->no_separation = 1;
+  fci->symbol_table = NULL;
+
+  fcic->initialized = 1;
+  fcic->calling_scope = obj_ce;
+  fcic->object_pp = obj;
+  fcic->function_handler
+    = Z_OBJ_HT_PP (obj)->get_method (obj,
+				     function_name,
+				     strlen (function_name) TSRMLS_CC);
+
+  if (fcic->function_handler == NULL)
+    {
+      phc_setup_error (1, filename, line_number, NULL TSRMLS_CC);
+      php_error_docref (NULL TSRMLS_CC, E_ERROR,
+			"Call to undefined method %s::%s",
+			obj_ce->name, function_name);
+    }
 }
 
 // vi:set ts=8:
