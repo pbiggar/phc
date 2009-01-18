@@ -376,6 +376,7 @@ strangeprocessir_HEADERS =						\
 	src/process_ir/General.h					\
 	src/process_ir/IR.h							\
 	src/process_ir/PHP_unparser.h				\
+	src/process_ir/stats.h						\
 	src/process_ir/XML_unparser.h
 
 strangepassmanagerdir = $(pkgincludedir)/pass_manager
