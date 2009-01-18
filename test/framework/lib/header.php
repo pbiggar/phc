@@ -658,8 +658,11 @@ function homogenize_xml ($string)
 
 function homogenize_filenames_and_line_numbers ($string, $filename)
 {
-	$stdin_filename = getcwd () . "/-";
-	$full_filename = getcwd () . "/$filename";
+	global $base_dir;
+
+	// This doesnt work for install tests.
+	$stdin_filename = "$base_dir/-";
+	$full_filename = "$base_dir/$filename";
 
 
 	// Remove 'Unknown:'

@@ -50,19 +50,29 @@ if ($opt_clean)
 
 open_status_files ();
 
-// setup globals
-$phc = get_phc ();
 $php = get_php ();
-$phc_compile_plugin = get_phc_compile_plugin ();
-
+$base_dir = getcwd();
 if ($opt_installed)
 {
+	// Make it so we cant rely on anything that's installed
 	$phc = "$bindir/phc";
 	$plugin_dir = "$pkglibdir/plugins";
 	$phc_compile_plugin = "$bindir/phc_compile_plugin";
 	$trunk_CPPFLAGS = ""; // we use these for compiling plugins with phc_compile_plugin
+	$pwd = getcwd ();
+	$dir = sys_get_temp_dir()."/phc-test-".getmypid();
+	echo `rm -Rf $dir`;
+	mkdir ($dir);
+	chdir ($dir);
+	echo `ln -s $pwd/test test`;
+	echo "Running from: ".getcwd()."\n";
 }
-
+else
+{
+	// setup globals
+	$phc = get_phc ();
+	$phc_compile_plugin = get_phc_compile_plugin ();
+}
 
 require_once ("lib/compare_with_php_test.php");
 require_once ("lib/plugin_test.php");

@@ -16,10 +16,10 @@ class LineNumbersTest extends Test
 
 	function run_test ($subject)
 	{
-		global $phc;
+		global $phc, $plugin_dir;
 
 		//print "testing script $subject\n";
-		$command = "$phc --run plugins/tests/line_numbers.la $subject";
+		$command = "$phc --run $plugin_dir/tests/line_numbers.la $subject";
 		list ($out, $err, $exit) = complete_exec($command);
 
 		if (strlen($out) == 0)
