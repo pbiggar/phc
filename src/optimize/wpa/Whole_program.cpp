@@ -53,20 +53,29 @@ using namespace boost;
 
 Whole_program::Whole_program ()
 {
-	bcch_aliasing = new BCCH_aliasing (this);
+	// First class citizens:
+	//		- Aliasing stores the analysis results, and passes them to the
+	//		second-class citizens
+	//		- Callgraph has a yet unrealized purpose.
+	//		- CCP helps resolve branches
+	aliasing = new BCCH_aliasing (this);
 //	callgraph = new Callgraph (this);
-//	ccp = new CCP (this);
+	ccp = new CCP (this);
+
+	// Second class citizens
+	//		- These produce and consume data created by the first-class citizens.
+
 //	constant_state = new Constant_state (this);
 //	include_analysis = new Include_analysis (this);
-	type_inference = new Type_inference (this);
 //	vrp = new VRP (this);
 
-	register_analysis ("BCCH_aliasing", bcch_aliasing);
+
+	register_analysis ("BCCH_aliasing", aliasing);
 //	register_analysis ("Callgraph", callgraph);
-//	register_analysis ("CCP", ccp);
+	register_analysis ("CCP", ccp);
 //	register_analysis ("Constant_state", constant_state);
 //	register_analysis ("Include_analysis", include_analysis);
-	register_analysis ("Type_inference", type_inference);
+	register_analysis ("Type_inference", new Type_inference (this));
 //	register_analysis ("VRP", vrp);
 }
 
@@ -125,35 +134,27 @@ Whole_program::analyse_function (CFG* caller_cfg, CFG* cfg, MIR::Actual_paramete
 
 		e->is_executable = true;
 
-		// Analyse the block. This does not, in any case, update the block.
-		// Updating is too difficult to get right, and, in some cases, provides
-		// two ways to do the same thing. For example, CCP might be able to
-		// update a value, but VRP must make its results available. The dichotomy
-		// will be annoying. So passes visit first, and update later. Then we
-		// iterate.
+		// Analyse the block, and annotate the MIR with interesting results.
+		// This does not update the block structure. Updating is too difficult
+		// to get right, and, in some cases, provides two ways to do the same
+		// thing.  For example, CCP might be able to update a value, but VRP
+		// must make its results available. The dichotomy will be annoying. So
+		// passes visit first, and update later.
 		//
 		// The only thing that suffers from this is eval/includes, which won't
-		// have the advantage of the conditional execution. Fortunately, they are
-		// not likely to benefit from it hugely, unlike the other passes.
-		foreach (tie (name, wpa), analyses)
-		{
-			wpa->visit_block (e->get_target ());
-			wpa->dump ();
-		}
+		// have the advantage of the conditional execution. Fortunately, they
+		// are not likely to benefit from it hugely, unlike the other passes.
+		// We'll be iterating anyway.
+		//
+		// The analysis annotates any MIR::Nodes in the Block.
+		aliasing->analyse_block (e->get_target ());
+
 
 		// Add next	block(s)
 		if (Branch_block* branch = dynamic_cast<Branch_block*> (e->get_target ()))
-		{
 			cfg_wl->push_back_all (get_branch_successors (branch));
-		}
-		else if (Exit_block* exit = dynamic_cast<Exit_block*> (e->get_target ()))
-		{
-			; // do nothing
-		}
-		else
-		{
+		else if (!isa<Exit_block> (e->get_target ()))
 			cfg_wl->push_back (e->get_target ()->get_successor_edges ()->front ());
-		}
 	}
 
 	foreach (tie (name, wpa), analyses)
@@ -166,26 +167,13 @@ Whole_program::analyse_function (CFG* caller_cfg, CFG* cfg, MIR::Actual_paramete
 Edge_list*
 Whole_program::get_branch_successors (Branch_block* bb)
 {
-	WPA* wpa;
-	string name;
-
 	Edge_list* result = new Edge_list;
 
-	bool known_true = false;
-	bool known_false = false;
-	foreach (tie (name, wpa), analyses)
-	{
-		if (wpa->branch_is_true (bb->branch))
-			known_true = true;
-		else if (wpa->branch_is_false (bb->branch))
-			known_false = true;
-	}
-
-	assert (!(known_false && known_true));
-	if (!known_false)
-		result->push_back (bb->get_true_successor_edge ());
-	if (!known_true)
+	if (!ccp->branch_is_true (bb->branch))
 		result->push_back (bb->get_false_successor_edge ());
+
+	if (!ccp->branch_is_false (bb->branch))
+		result->push_back (bb->get_true_successor_edge ());
 
 	return result;
 }

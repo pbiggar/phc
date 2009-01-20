@@ -110,8 +110,6 @@ public:
 	, name (name)
 	{
 	}
-
-	Zval_node* get_zval_node ();
 };
 
 class Points_to : virtual public GC_obj
@@ -175,6 +173,11 @@ public:
 	// location, and returns it.
 	Lit_node* get_lit_node (Location* loc);
 
+	// TODO: need definite and possible split
+	// A location can point to 0 or more zvals, and they can point to zero or
+	// more values. Get all the locations they can point to.
+	Value_node_list* get_values (Location*);
+	Zval_node_list* get_zvals (Location*);
 
 	// Set LOC's value to VAL
 	void set_value (Location* loc, Value_node* val);
@@ -189,6 +192,9 @@ public:
 
 	// TODO: everything else uses locations, maybe this should
 	void remove_unreachable_nodes ();
+
+	// Get the list of values a location may point to.
+	Value_node_list* get_value_nodes (Location* loc);
 
 private:
 	// Low-level API
@@ -403,11 +409,6 @@ public:
 
 class Storage_node : virtual public Value_node
 {
-public:
-	// Return NULL if the node doesnt exist
-	// TODO: presumably this could return multiple nodes?
-	Zval_node* get_indexed (string index);
-	void remove_named_edge (string index);
 };
 
 /* A symtable is just an array. Each method will have a zval which points to

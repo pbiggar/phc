@@ -18,9 +18,9 @@
 #include "Points_to.h"
 #include "Whole_program.h"
 
-#define NAME(BB) *BB->cfg->method->signature->method_name->value
-
 using namespace MIR;
+using namespace boost;
+using namespace std;
 
 BCCH_aliasing::BCCH_aliasing (Whole_program* wp)
 : WPA (wp)
@@ -127,6 +127,23 @@ BCCH_aliasing::finalize_function (CFG* caller_cfg, CFG* callee_cfg)
 	// TODO: handle returns
 
 	ptg->clear_function (*callee_cfg->method->signature->method_name->value);
+}
+
+void
+BCCH_aliasing::analyse_block (Basic_block* bb)
+{
+	string name;
+	WPA* wpa;
+
+	// Pre-hooks (applies to this aswell)
+	foreach (tie (name, wpa), wp->analyses)
+		wpa->pre_annotate (bb, ptg);
+
+	visit_block (bb);
+
+	// Post-hooks (applies to this aswell)
+	foreach (tie (name, wpa), wp->analyses)
+		wpa->post_annotate (bb, ptg);
 }
 
 

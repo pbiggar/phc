@@ -145,10 +145,21 @@ Points_to::add_zval_node (string ns)
 	return add_node (new Zval_node (this, ns));
 }
 
+
+Value_node_list*
+Points_to::get_value_nodes (Location* loc)
+{
+	phc_TODO();
+}
+
+
+
 Zval_node*
 Points_to::get_zval_node (Location* loc, bool init)
 {
-	Zval_node* result = loc->get_zval_node ();
+	phc_TODO ();
+/*
+	Zval_node_list* result = get_zvals (loc);
 	if (result)
 		return result;
 
@@ -161,12 +172,13 @@ Points_to::get_zval_node (Location* loc, bool init)
 	else
 		// TODO: not sure this should be allowed
 		phc_TODO ();
+		*/
 }
 
 Lit_node*
-Points_to::get_lit_node (Location* index)
+Points_to::get_lit_node (Location* loc)
 {
-	Zval_node* zn = index->get_zval_node ();
+	Zval_node* zn = get_zval_node (loc, false);
 	return zn->get_only_target<Lit_node> ();
 }
 
@@ -184,7 +196,7 @@ Points_to::get_var (string ns, MIR::VARIABLE_NAME* var)
 Location*
 Points_to::get_location (Location* loc, string value)
 {
-	Zval_node* zn = loc->get_zval_node ();
+	Zval_node* zn = get_zval_node (loc, false);
 	Storage_node* store = zn->get_only_target <Storage_node> ();
 	return new Location (store, value);
 }
@@ -229,7 +241,30 @@ Points_to::add_named_edge (Location* loc, Zval_node* target)
 void
 Points_to::remove_named_edge (Location* loc)
 {
-	loc->node->remove_named_edge (loc->name);
+	foreach (edge_pt out_edge, out_edges (loc->node->vertex, bs))
+	{
+		Named_edge* edge = dyc<Named_edge> (ee[out_edge]);
+		if (edge->name == loc->name)
+		{
+			boost::remove_edge (out_edge, bs);
+			break;
+		}
+	}
+}
+
+Zval_node_list*
+Points_to::get_zvals (Location* loc)
+{
+	phc_TODO ();
+	/*
+	foreach (edge_pt out_edge, out_edges (loc->node->vertex, bs))
+	{
+		Named_edge* edge = dyc<Named_edge> (ee[out_edge]);
+		if (index == edge->name)
+			return dyc<Zval_node> (edge->get_target ());
+	}
+	return NULL;
+	*/
 }
 
 void
@@ -378,40 +413,6 @@ Lit_node::clone ()
 	return new Lit_node (ptg, ns, lit->clone ());
 }
 
-Zval_node*
-Location::get_zval_node ()
-{
-	return node->get_indexed (name);
-}
-
-
-Zval_node*
-Storage_node::get_indexed (string index)
-{
-	// TODO: this is crying out for a hashing (or at least a map)
-	foreach (edge_pt out_edge, out_edges (vertex, ptg->bs))
-	{
-		Named_edge* edge = dyc<Named_edge> (ptg->ee[out_edge]);
-		if (index == edge->name)
-			return dyc<Zval_node> (edge->get_target ());
-	}
-	return NULL;
-}
-
-void
-Storage_node::remove_named_edge (string name)
-{
-	// TODO: hashtable
-	foreach (edge_pt out_edge, out_edges (vertex, ptg->bs))
-	{
-		Named_edge* edge = dyc<Named_edge> (ptg->ee[out_edge]);
-		if (edge->name == name)
-		{
-			boost::remove_edge (out_edge, ptg->bs);
-			break;
-		}
-	}
-}
 
 Array_node::Array_node (Points_to* ptg, string ns)
 : PT_node (ptg, ns)

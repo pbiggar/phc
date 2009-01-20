@@ -17,8 +17,12 @@
 #ifndef PHC_BCCH_ALIASING
 #define PHC_BCCH_ALIASING
 
+#define NAME(BB) *BB->cfg->method->signature->method_name->value
+
 #include "WPA.h"
 #include "Points_to.h"
+
+
 
 class BCCH_aliasing : public WPA
 {
@@ -39,6 +43,11 @@ public:
 
 	// Return the string index of the literal cast to a string.
 	string get_index (MIR::Literal* lit);
+
+	// Call all the analyses' pre-hooks on this block, then perform the
+	// points-to analysis, then perform the other analyses' post-hooks.
+	void analyse_block (Basic_block* bb);
+
 
 	void visit_branch_block (Branch_block*) { phc_TODO (); }
 

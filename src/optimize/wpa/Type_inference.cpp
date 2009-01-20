@@ -9,22 +9,57 @@
 #include "BCCH_aliasing.h"
 #include "Type_inference.h"
 #include "Whole_program.h"
+#include "Points_to.h"
 
 using namespace MIR;
 using namespace std;
 using namespace boost;
 
+class Type_annotator : public Annotator
+{
+public:
+	Type_inference* ti;
+
+	Type_annotator (Type_inference* ti)
+	: ti (ti)
+	{
+	}
+
+	void pre_variable_name (VARIABLE_NAME* var_name)
+	{
+		Value_node_list* values = ptg->get_value_nodes (ptg->get_var (NAME(bb), var_name));
+		foreach (Value_node* val, *values)
+		{
+			string str = ti->get_type (val);
+			DEBUG (*var_name->value << " = " << str);
+		}
+		phc_TODO ();
+	}
+};
+
+string
+Type_inference::get_type (Value_node* val)
+{
+	if (Lit_node* lit = dynamic_cast<Lit_node*> (val))
+		return demangle (lit->lit);
+	else if (Array_node* an = dynamic_cast<Array_node*> (val))
+		return "array";
+	else
+		phc_TODO ();
+}
+
 Type_inference::Type_inference (Whole_program* wp)
 : WPA (wp)
 {
+	pre_annotator = new Type_annotator (this);
+	post_annotator = NULL;
 }
 
-/* I cant bring myself to call this 'scalar' when it includes arrays. */
 bool
-Type_inference::is_basic_type (String* name)
+Type_inference::is_object (String* name)
 {
 	if (*name == "STRING")
-		return true;
+		return false;
 	else
 		phc_TODO ();
 }
@@ -38,9 +73,11 @@ Type_inference::use_summary_results (Method_info* info, MIR::Actual_parameter_li
 	// the list of receivers here, as Whole_program will query us to find them
 	// out separately. We only need to know whether or not there is an
 	// invocation.
+	return; // TODO
 
 	int index = 0;
 	string method_name = *info->method_name;
+	phc_TODO ();
 	/*
 	foreach (Parameter_info* pinfo, *info->params)
 	{

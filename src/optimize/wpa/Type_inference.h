@@ -12,7 +12,7 @@
 #include "WPA.h"
 #include "Points_to.h"
 
-class Type_inference : public WPA
+class Type_inference : public WPA, public MIR::Visitor
 {
 public:
 	Type_inference (Whole_program* wp);
@@ -30,7 +30,11 @@ public:
 	// types of a method.
 	String_list* get_types (Location* node);
 
-	bool is_basic_type (String* name);
+	bool is_object (String* name);
+	string get_type (Value_node* val);
+
+	void pre_annotate (Basic_block* bb, Points_to*){}
+	void post_annotate (Basic_block* bb, Points_to*){}
 };
 
 

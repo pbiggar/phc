@@ -24,7 +24,16 @@ public:
 	void initialize_function ( CFG* cfg, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs);
 	void finalize_function (CFG* cfg);
 
+	// TODO: I'm not sure these even belong here
+	void initialize_function (
+			CFG* caller_cfg, CFG* callee_cfg,
+			MIR::Actual_parameter_list* actuals,
+			MIR::VARIABLE_NAME* lhs){}
+	void finalize_function (CFG* caller_cfg, CFG* callee_cfg){}
 	void dump ();
+
+	bool branch_is_true (MIR::Branch*) { return false; }
+	bool branch_is_false (MIR::Branch*) { return false; }
 
 	void visit_basic_block (Basic_block*) { phc_TODO (); }
 	void visit_entry_block (Entry_block*) { phc_TODO (); }

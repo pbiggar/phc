@@ -20,13 +20,11 @@ CCP::CCP (Whole_program* wp)
 void
 CCP::initialize_function (CFG* cfg, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
 {
-	phc_TODO ();
 }
 
 void
 CCP::finalize_function (CFG* cfg)
 {
-	phc_TODO ();
 }
 
 
@@ -34,11 +32,9 @@ CCP::finalize_function (CFG* cfg)
 void
 CCP::use_summary_results (Method_info* info, MIR::Actual_parameter_list* in, MIR::VARIABLE_NAME* lhs)
 {
-	phc_TODO ();
 }
 
 void
 CCP::dump()
 {
-	phc_TODO ();
 }

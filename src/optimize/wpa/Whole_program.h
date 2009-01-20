@@ -52,19 +52,14 @@ class WPA;
 
 class Whole_program
 {
-	Map<string, WPA*> analyses;
 
 	// Analyses should be able to reach in here to get other analyses'
 	// results.
 
 public:
-	BCCH_aliasing* bcch_aliasing;
-	Callgraph* callgraph;
+	Map<string, WPA*> analyses;
+	BCCH_aliasing* aliasing;
 	CCP* ccp;
-	Constant_state* constant_state;
-	Include_analysis* include_analysis;
-	Type_inference* type_inference;
-	VRP* vrp;
 
 
 public:
