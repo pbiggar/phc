@@ -1177,13 +1177,28 @@ function_invocation (string MN, list ARGS, string FILENAME, string LINE, string 
 @@@
 
 
-method_invocation (string MN, list ARGS, string FILENAME, string LINE, string FCI_NAME, string FCIC_NAME, string ARG_COUNT, node TARGET, string USE_REF, token LHS)
+method_invocation (string MN, list ARGS, string FILENAME, string LINE, string ARG_COUNT, node TARGET, string USE_REF, token LHS)
 @@@
    \get_st_entry ("LOCAL", "p_obj", TARGET);
    zend_fcall_info fci_object;
    zend_fcall_info_cache fcic_object = {0, NULL, NULL, NULL};
    initialize_method_call (&fci_object, &fcic_object, p_obj, "$MN", "$FILENAME", $LINE TSRMLS_CC);
    \call_function (MN, ARGS, FILENAME, LINE, "fci_object", "fcic_object", ARG_COUNT, USE_REF, LHS);
+@@@
+
+constructor_invocation (list ARGS, string FILENAME, string LINE, string ARG_COUNT, token LHS)
+@@@
+  \get_st_entry ("LOCAL", "p_obj", LHS);
+   zend_fcall_info fci_object;
+   zend_fcall_info_cache fcic_object = {0, NULL, NULL, NULL};
+   int has_constructor = initialize_constructor_call (&fci_object, &fcic_object, p_obj, "$FILENAME", $LINE TSRMLS_CC);
+   // TODO: We pass in __construct to call_function, but in general it may be a
+   // a different name (the name of the class, for example).
+   // However, \call_function does not actually use this name at all atm.
+   if(has_constructor)
+   {
+     \call_function ("__construct", ARGS, FILENAME, LINE, "fci_object", "fcic_object", ARG_COUNT, "NONE", LHS);
+   }
 @@@
 
 make_field_name (string VAR_NAME, token FIELD)

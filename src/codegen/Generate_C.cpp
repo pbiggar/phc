@@ -988,6 +988,23 @@ public:
 			// Invalid class name type
 			assert(0);
 		}
+
+    // See comment in expr_method_invocation
+		Object_list* params = new Object_list;
+		foreach (Actual_parameter* ap, *rhs->value->actual_parameters)
+		{
+			params->push_back (ap->rvalue);
+			if (ap->is_ref)
+				ap->rvalue->attrs->set_true ("phc.codegen.is_ref");
+		}
+
+
+    INST (buf, "constructor_invocation",
+      params,
+      rhs->value->get_filename (),
+      s(lexical_cast<string>(rhs->value->get_line_number())),
+      s(lexical_cast<string>(rhs->value->actual_parameters->size())),
+      lhs->value);
 	}
 
 protected:
@@ -1707,8 +1724,6 @@ public:
 				// TODO: every time since the variable can be bound to a different
 				// TODO: class every time we encounter this statement
 		
-				fci_name  = "fci_object"; 
-				fcic_name = "fcic_object";
 				function_name = *name->value;
 
 				INST (buf, "method_invocation",
@@ -1716,8 +1731,6 @@ public:
 						params,
 						rhs->value->get_filename (),
 						s(lexical_cast<string> (rhs->value->get_line_number ())),
-						s(fci_name),
-						s(fcic_name),
 						s(lexical_cast<string>(rhs->value->actual_parameters->size ())),
 						object_name,
 						lhs_descriptor,

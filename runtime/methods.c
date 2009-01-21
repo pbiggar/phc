@@ -150,4 +150,43 @@ initialize_method_call (zend_fcall_info * fci, zend_fcall_info_cache * fcic,
     }
 }
 
+/*
+ * Like initialize_method_call, but return 0 if no constructor is defined
+ * rather than giving an error.
+ */
+
+static int 
+initialize_constructor_call (zend_fcall_info * fci,
+			     zend_fcall_info_cache * fcic, zval ** obj,
+			     char *filename, int line_number TSRMLS_DC)
+{
+  if (fcic->initialized)
+    return;
+
+  zend_class_entry *obj_ce;
+  obj_ce = Z_OBJCE_PP (obj);
+
+  /*
+   * we do not initialize fci.
+   *   function_table  --  not initialized by zend_call_method
+   *   function_name   --  zend_call_method initializes this to a pointer to
+   *                       a zval 'z_fname', but does not initialize z_fname
+   *                       in case of a method invocation
+   *   retval_ptr_ptr  --  should be initialized by caller
+   *   param_count     --  should be initialized by caller
+   *   params          --  should be initialized by caller
+   */
+  fci->size = sizeof (*fci);
+  fci->object_pp = obj;
+  fci->no_separation = 1;
+  fci->symbol_table = NULL;
+
+  fcic->initialized = 1;
+  fcic->calling_scope = obj_ce;
+  fcic->object_pp = obj;
+  fcic->function_handler
+    = Z_OBJ_HT_PP (obj)->get_constructor (*obj TSRMLS_CC);
+
+  return (fcic->function_handler != NULL);
+}
 // vi:set ts=8:
