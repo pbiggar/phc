@@ -1520,20 +1520,7 @@ public:
 		if (not result)
 			return false;
 
-		// TODO are there more?
-		Set<string> names;
-		names.insert ("eval");
-		names.insert ("exit");
-		names.insert ("die");
-		names.insert ("print");
-		names.insert ("echo");
-		names.insert ("include");
-		names.insert ("include_once");
-		names.insert ("require");
-		names.insert ("require_once");
-		names.insert ("empty");
-
-		return names.has (*method_name->value->value);
+		return is_builtin_function (method_name->value->value);
 	}
 
 	Expr* rhs_pattern()

@@ -20,4 +20,6 @@
 
 using boost::lexical_cast;
 
+bool is_builtin_function (String* name);
+
 #endif // PHC_GENERAL
