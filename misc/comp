@@ -11,39 +11,42 @@ GDB="libtool --mode=execute gdb --args"
 VALGRIND="libtool --mode=execute valgrind"
 for var in $@
 do
-	if [ "-$var" = "--g" ]
+	if [ "-$var" = "--g" ] # debug
 	then
 		EXEC_NAME="$GDB "
 		DEBUG_PHC=1
-	elif [ "-$var" = "--V" ]
+	elif [ "-$var" = "--V" ] # valgrind
 	then
 		EXEC_NAME="$VALGRIND "
-	elif [ "-$var" = "--M" ]
+	elif [ "-$var" = "--M" ] # Massif
 	then
 		EXEC_NAME="$VALGRIND --tool=massif "
-	elif [ "-$var" = "--B" ]
+	elif [ "-$var" = "--B" ] # Benchmark
 	then
 		EXEC_NAME="$VALGRIND --tool=cachegrind --branch-sim=yes "
-	elif [ "-$var" = "--O" ]
+	elif [ "-$var" = "--O" ] # Optimize
 	then
 		PHC_ARGS="$PHC_ARGS -O3"
 		OPTIMIZE=1
-	elif [ "-$var" = "--S" ]
+	elif [ "-$var" = "--S" ] # Statistics
 	then
 		PHC_ARGS="$PHC_ARGS --rt-stats"
 		STATS=1
-	elif [ "-$var" = "--r" ]
+	elif [ "-$var" = "--r" ] # references
 	then
 		PHC_ARGS="$PHC_ARGS --run plugins/tools/debug_zval.la"
-	elif [ "-$var" = "--d" ]
+	elif [ "-$var" = "--d" ] # demi-eval
 	then
 		PHC_ARGS="$PHC_ARGS --run plugins/tools/demi_eval.la --r-option=true"
-	elif [ "-$var" = "--D" ]
+	elif [ "-$var" = "--D" ] # also demi-eval
 	then
 		PHC_ARGS="$PHC_ARGS --run plugins/tools/demi_eval.la --r-option=false"
-	elif [ "-$var" = "--v" ]
+	elif [ "-$var" = "--v" ] # verbose
 	then
 		set -x
+	elif [ "-$var" = "--i" ] # include
+	then
+		PHC_ARGS="$PHC_ARGS --include"
 	else
 		PHP_NAME=$var
 	fi
