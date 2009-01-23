@@ -122,7 +122,7 @@ int main(int argc, char** argv)
 	// process_ast passes
 	pm->add_ast_pass (new Invalid_check ());
 	pm->add_ast_pass (new Fake_pass (s("ast"), s("Abstract Syntax Tree - a representation of the PHP program, as written")));
-	pm->add_ast_pass (new Process_includes (false, s("ast"), pm, s("incl1")));
+	pm->add_ast_pass (new Process_includes (false, s("incl1"), pm, s("incl1")));
 	pm->add_ast_pass (new Pretty_print ());
 
 	// Begin lowering to hir

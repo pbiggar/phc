@@ -23,7 +23,6 @@ extern struct gengetopt_args_info args_info;
 using namespace AST;
 using namespace std;
 
-String* search_file(String* filename, String_list* dirs);
 void run_standard_transforms(PHP_script* php_script);
 
 PHP_script* parse_code (String* code, String* filename, int line_number)

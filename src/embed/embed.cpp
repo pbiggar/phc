@@ -159,6 +159,24 @@ PHP::get_ini_entry (String* key)
 	return s (zend_ini_string (const_cast<char*> (key->c_str ()), key->size () + 1, 0));
 }
 
+//TODO: inform PHP at run-time that these have been included
+// We dont actually need to involve the PHP run-time here
+static Set<string> included;
+
+bool
+PHP::is_included (String* filename)
+{
+	// TODO: assert absolute filename
+	return included.has (*filename);
+}
+
+void
+PHP::add_include (String* filename)
+{
+	// TODO: assert absolute filename
+	included.insert (*filename);
+}
+
 #else
 
 #include <errno.h>
@@ -277,6 +295,18 @@ String_list*
 PHP::get_include_paths ()
 {
 	return new String_list;
+}
+
+bool
+PHP::is_included (String* filename)
+{
+	return false;
+}
+
+void
+PHP::add_include (String* filename)
+{
+	return false;
 }
 
 #endif

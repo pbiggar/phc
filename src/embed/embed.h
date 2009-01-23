@@ -56,8 +56,15 @@ public:
 	static void set_ini_entry (String* key, String* value);
 	static String* get_ini_entry (String* key);
 
-	static String_list* get_include_paths ();
 	static String_list* get_altered_ini_entries ();
+
+	/* Expose include behaviour 
+	 * TODO:
+	 *		mention these at compile-time.
+	 */
+	static void add_include (String* full_path);
+	static bool is_included (String* full_path);
+	static String_list* get_include_paths ();
 };
 
 #endif // PHC_EMBED_H
