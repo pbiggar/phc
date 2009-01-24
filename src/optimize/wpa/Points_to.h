@@ -12,22 +12,23 @@
 
 #include "lib/List.h"
 #include "lib/String.h"
+#include "lib/Set.h"
+#include "lib/Map.h"
+
 #include "MIR.h"
 
 #define DECL(T) class T; typedef List<T*> T##_list;
 
 DECL (PT_node);
-DECL (Alias_pair);
-
-/*DECL (Zval_node);
+DECL (Index_node);
 DECL (Storage_node);
-DECL (Object_node);
-DECL (Array_node);
-*/
 
 // A node in the graph (ie the abstract base of the components of an alias-pair).
 class PT_node : virtual public GC_obj
 {
+public:
+	// Each PT node gets a unique name for the alias pairs representation.
+	virtual string get_unique_name () = 0;
 };
 
 /*
@@ -43,16 +44,19 @@ class PT_node : virtual public GC_obj
  */
 class Index_node : public PT_node
 {
-};
+public:
+	// The storage node containing this node.
+	string storage;
 
-// A known index node (ie a known variable, field or array index)
-class Named_node : public Index_node
-{
-};
+	// The name of the node (* for unnamed)
+	string name;
 
-// An unknown index node (ie an array index not-by-name, a variable-variable, or variable-field.
-class Unknown_node : public Index_node
-{
+	// Get the unnamed index representing var-vars, var-fields and array
+	// indexes.
+	static Index_node* get_unnamed (string storage);
+
+	Index_node (string storage, string name);
+	string get_unique_name ();
 };
 
 
@@ -60,10 +64,16 @@ class Unknown_node : public Index_node
 class Storage_node : public PT_node
 {
 public:
+	Storage_node (string name);
+
+	string name;
+
 	// If true, its (outgoing) edges cannot be killed, as it represents more
 	// than one run-time object. If false, represents just one run-time object,
 	// meaning its edges can be killed. 
 	bool is_abstract;
+
+	string get_unique_name ();
 };
 
 /*
@@ -71,28 +81,56 @@ public:
  * must-alias. Between Storage_nodes and Index_nodes, it says whether there is
  * definitely an index with this name, or not.
  */
-enum _existence { POSSIBLE, DEFINITE };
-typedef enum _existence existence;
+enum _certainty { POSSIBLE, DEFINITE };
+typedef enum _certainty certainty;
 
 class Alias_pair : virtual public GC_obj
 {
 public:
-	existence exist;
+	Alias_pair (PT_node* source, PT_node* target, certainty cert);
 	PT_node* source;
 	PT_node* target;
+	certainty cert;
 };
 
+/*
+ * Since each node has a unique name, I can use a Map<string, PT_node_list>
+ */
+class Pairs : virtual public GC_obj
+{
+public:
+	// source -> target_list
+	Map<string, Set<string> > name_map;
+
+	Pairs();
+	void insert (Alias_pair*);
+
+	Pairs* clone ();
+};
+
+/*
+ * NOTE:
+ *		All PT_nodes are simply descriptors for nodes. They do not provide a
+ *		means to access the node itself.
+ */
 
 class Points_to : virtual public GC_obj
 {
 public:
 	Points_to ();
-	Alias_pair_list* pairs;
+	Pairs* pairs;
 
 	void open_scope (string name);
 	void close_scope (string name);
 
-	void dump_graphviz (String* name);
+	// Add the edge to the graph.
+	void add_edge (PT_node* loc1, PT_node* loc2, certainty = DEFINITE);
+	void add_bidir_edge (PT_node* n1, PT_node* n2, certainty cert = DEFINITE);
+
+
+	void dump_graphviz (String* label);
+
+	Points_to* clone();
 };
 
 #endif // PHC_POINTS_TO

@@ -21,16 +21,40 @@ using namespace MIR;
 using namespace std;
 using namespace boost;
 
+#define ST_NAME "__PHC_ST__"
 
 Points_to::Points_to ()
 {
-	pairs = new Alias_pair_list;
+	pairs = new Pairs;
 }
 
+#define IN(SCOPE, NAME) new Index_node (SCOPE, NAME)
+#define SN(SCOPE) new Storage_node (SCOPE)
+
+/*
+ * Add a storage node for the scope (or it might exist already in the case of
+ * recursion). Add an GLOBALS node to it.
+ */
 void
 Points_to::open_scope (string scope_name)
 {
-	phc_TODO ();
+	// TODO: add the superglobals (its wrong to add the parameters before the
+	// superglobals, but we've only 1 example of this breaking).
+	
+	// Add the GLOBALS node
+	add_edge (SN (scope_name), IN (scope_name, "GLOBALS"), DEFINITE);
+
+	if (scope_name == "__MAIN__")
+	{
+		add_edge (IN (scope_name, "GLOBALS"), SN (scope_name));
+	}
+	else
+	{
+		add_bidir_edge (IN ("__MAIN__", "GLOBALS"), IN (scope_name, "GLOBALS"));
+	}
+
+
+	dump_graphviz (NULL);
 }
 
 void
@@ -40,10 +64,133 @@ Points_to::close_scope (string scope_name)
 }
 
 void
-Points_to::dump_graphviz (String* name)
+Points_to::dump_graphviz (String* label)
+{
+	if (label == NULL)
+	{
+		CHECK_DEBUG ();
+		label = s("TEST");
+	}
+
+	cout
+	<< "digraph G {\n"
+	<< "graph [labelloc=t];\n"
+	<< "graph [label=\"" << *label << "\"];\n"
+	;
+
+
+	string source;
+	Set<string> targets;
+	foreach (tie (source, targets), pairs->name_map)
+	{
+		foreach (string target, targets)
+		{
+			cout 
+			<< "\""
+			<< *escape_DOT (s(source)) 
+			<< "\" -> \"" 
+			<< *escape_DOT (s(target))
+			<< "\";\n"
+			;
+		}
+	}
+
+	cout
+	<< "}\n"
+	;
+}
+
+void
+Points_to::add_edge (PT_node* n1, PT_node* n2, certainty cert)
+{
+	pairs->insert (new Alias_pair (n1, n2, cert));
+}
+
+void
+Points_to::add_bidir_edge (PT_node* n1, PT_node* n2, certainty cert)
+{
+	pairs->insert (new Alias_pair (n1, n2, cert));
+	pairs->insert (new Alias_pair (n2, n1, cert));
+}
+
+Points_to*
+Points_to::clone ()
 {
 	phc_TODO ();
 }
+
+
+
+/*
+ * Alias-pair representation
+ */
+
+
+Pairs::Pairs ()
+{
+}
+
+void
+Pairs::insert (Alias_pair* pair)
+{
+	string source = pair->source->get_unique_name ();
+	string target = pair->target->get_unique_name ();
+
+	if (name_map.has (source))
+		phc_TODO ();
+
+	name_map[source].insert (target);
+}
+
+Pairs*
+Pairs::clone ()
+{
+	phc_TODO ();
+}
+
+Alias_pair::Alias_pair (PT_node* source, PT_node* target, certainty cert)
+: source (source)
+, target (target)
+, cert (cert)
+{
+}
+
+
+/*
+ * Nodes
+ */
+
+Storage_node::Storage_node (string name)
+: name (name)
+, is_abstract (false)
+{
+}
+
+string
+Storage_node::get_unique_name ()
+{
+	stringstream ss;
+	ss << "STORE::" << name;
+	return ss.str ();
+}
+
+Index_node::Index_node (string storage, string name)
+: storage (storage)
+, name (name)
+{
+}
+
+string 
+Index_node::get_unique_name ()
+{
+	stringstream ss;
+	ss << storage << "::" << name;
+	return ss.str ();
+}
+
+
+
+
 
 #if 0
 
@@ -51,7 +198,6 @@ Points_to::Points_to()
 {
 }
 
-#define ST_NAME "__PHC_ST__"
 void
 Points_to::setup_function (string ns)
 {
