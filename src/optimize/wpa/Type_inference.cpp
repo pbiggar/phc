@@ -27,16 +27,17 @@ public:
 
 	void pre_variable_name (VARIABLE_NAME* var_name)
 	{
-		Value_node_list* values = ptg->get_value_nodes (ptg->get_var (NAME(bb), var_name));
+/*		Value_node_list* values = ptg->get_value_nodes (ptg->get_var (NAME(bb), var_name));
 		foreach (Value_node* val, *values)
 		{
 			string str = ti->get_type (val);
 			DEBUG (*var_name->value << " = " << str);
 		}
+	*/
 		phc_TODO ();
 	}
 };
-
+/*
 string
 Type_inference::get_type (Value_node* val)
 {
@@ -47,7 +48,7 @@ Type_inference::get_type (Value_node* val)
 	else
 		phc_TODO ();
 }
-
+*/
 Type_inference::Type_inference (Whole_program* wp)
 : WPA (wp)
 {
@@ -101,17 +102,17 @@ Type_inference::use_summary_results (Method_info* info, MIR::Actual_parameter_li
 }
 
 void
-Type_inference::initialize_function (CFG* caller_cfg, CFG* callee_cfg, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
+Type_inference::forward_bind (CFG* caller_cfg, CFG* callee_cfg, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
 {
 }
 
 void
-Type_inference::finalize_function (CFG* caller_cfg, CFG* callee_cfg)
+Type_inference::backward_bind (CFG* caller_cfg, CFG* callee_cfg)
 {
 }
 
 
-
+/*
 String_list*
 Type_inference::get_types (Location* loc)
 {
@@ -125,7 +126,7 @@ Type_inference::get_types (Location* loc)
 
 	return result;
 }
-
+*/
 void
 Type_inference::dump()
 {

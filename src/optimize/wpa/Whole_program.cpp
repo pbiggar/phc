@@ -117,7 +117,7 @@ Whole_program::analyse_function (CFG* caller_cfg, CFG* cfg, MIR::Actual_paramete
 	DEBUG ("Initing functions");
 	foreach (tie (name, wpa), analyses)
 	{
-		wpa->initialize_function (caller_cfg, cfg, actuals, lhs);
+		wpa->forward_bind (caller_cfg, cfg, actuals, lhs);
 		wpa->dump ();
 	}
 
@@ -159,7 +159,7 @@ Whole_program::analyse_function (CFG* caller_cfg, CFG* cfg, MIR::Actual_paramete
 
 	foreach (tie (name, wpa), analyses)
 	{
-		wpa->finalize_function (caller_cfg, cfg);
+		wpa->backward_bind (caller_cfg, cfg);
 		wpa->dump ();
 	}
 }

@@ -71,20 +71,19 @@ BCCH_aliasing::use_summary_results (Method_info* info, MIR::Actual_parameter_lis
 
 
 void
-BCCH_aliasing::initialize_function (CFG* caller_cfg, CFG* callee_cfg, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
+BCCH_aliasing::forward_bind (CFG* caller_cfg, CFG* callee_cfg, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
 {
+	string callee_ns = *callee_cfg->method->signature->method_name->value;
 	string caller_ns;
 	if (caller_cfg) 
-	{
 		caller_ns = *caller_cfg->method->signature->method_name->value;
-	}
 
-	string callee_ns = *callee_cfg->method->signature->method_name->value;
-	ptg->setup_function (callee_ns);
-	dump();
 
-	if (actuals->size () != callee_cfg->method->signature->formal_parameters->size ())
-		phc_TODO ();
+	ptg->open_scope (callee_ns);
+	phc_TODO ();
+/*
+//	if (actuals->size () != callee_cfg->method->signature->formal_parameters->size ())
+//		phc_TODO ();
 
 
 	Actual_parameter_list::const_iterator i = actuals->begin ();
@@ -107,7 +106,7 @@ BCCH_aliasing::initialize_function (CFG* caller_cfg, CFG* callee_cfg, MIR::Actua
 			phc_TODO ();
 		}
 	}
-
+*/
 	if (lhs)
 	{
 		// TODO: do this upon return instead
@@ -122,11 +121,13 @@ BCCH_aliasing::initialize_function (CFG* caller_cfg, CFG* callee_cfg, MIR::Actua
 }
 
 void
-BCCH_aliasing::finalize_function (CFG* caller_cfg, CFG* callee_cfg)
+BCCH_aliasing::backward_bind (CFG* caller_cfg, CFG* callee_cfg)
 {
+	phc_TODO ();
+
 	// TODO: handle returns
 
-	ptg->clear_function (*callee_cfg->method->signature->method_name->value);
+	ptg->close_scope (*callee_cfg->method->signature->method_name->value);
 }
 
 void
@@ -162,18 +163,22 @@ BCCH_aliasing::visit_global (Statement_block* bb, MIR::Global* in)
 		phc_TODO ();
 
 	VARIABLE_NAME* var_name = dyc<VARIABLE_NAME> (in->variable_name);
-	ptg->set_reference (
+	phc_TODO ();
+/*	ptg->set_reference (
 		ptg->get_var (NAME (bb), var_name),
 		ptg->get_var ("__MAIN__", var_name));
+*/
 }
 
 
 void
 BCCH_aliasing::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 {
+	phc_TODO ();
+	/*
 	string ns = NAME (bb);
-	Location* lhs = ptg->get_var (ns, in->lhs);
-	Location* rhs = NULL;
+	PT_node* lhs = ptg->get_var (ns, in->lhs);
+	PT_node* rhs = NULL;
 
 	switch(in->rhs->classid())
 	{
@@ -223,8 +228,8 @@ BCCH_aliasing::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 			Location* index =
 				ptg->get_var (ns, dyc<VARIABLE_NAME> (aa->index));
 
-			Lit_node* lit = ptg->get_lit_node (index);
-			rhs = ptg->get_location (array, get_index (lit->lit));
+			phc_TODO ();
+//			rhs = ptg->get_indexed_location (array, index);
 			break;
 		}
 
@@ -245,6 +250,7 @@ BCCH_aliasing::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 		ptg->set_reference (lhs, rhs);
 	else
 		ptg->copy_value (lhs, rhs);
+	*/
 }
 
 void

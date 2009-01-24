@@ -22,8 +22,30 @@ using namespace std;
 using namespace boost;
 
 
-int PT_node::index_counter = 0;
+Points_to::Points_to ()
+{
+	pairs = new Alias_pair_list;
+}
 
+void
+Points_to::open_scope (string scope_name)
+{
+	phc_TODO ();
+}
+
+void
+Points_to::close_scope (string scope_name)
+{
+	phc_TODO ();
+}
+
+void
+Points_to::dump_graphviz (String* name)
+{
+	phc_TODO ();
+}
+
+#if 0
 
 Points_to::Points_to()
 {
@@ -433,3 +455,5 @@ Array_node::clone ()
 {
 	phc_TODO ();
 }
+
+#endif

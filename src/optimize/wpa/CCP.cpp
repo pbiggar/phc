@@ -17,15 +17,6 @@ CCP::CCP (Whole_program* wp)
 {
 }
 
-void
-CCP::initialize_function (CFG* cfg, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
-{
-}
-
-void
-CCP::finalize_function (CFG* cfg)
-{
-}
 
 
 
