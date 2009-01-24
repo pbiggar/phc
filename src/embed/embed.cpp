@@ -166,6 +166,11 @@ PHP::get_ini_entry (String* key)
 
 bool PHP::is_started = false;
 
+bool PHP::is_available ()
+{
+	return false;
+}
+
 void PHP::startup_php ()
 {
 
@@ -183,6 +188,14 @@ Literal* PHP::convert_token (Literal *token)
 {
 	assert (is_started);
 
+	// Add the naive value
+	if (INT* in = dynamic_cast<INT*> (token))
+		in->value = strtol(in->get_source_rep ()->c_str(), NULL, 0);
+	else if (REAL* in = dynamic_cast<REAL*> (token))
+		in->value = lexical_cast<double> (*in->get_source_rep ());
+
+
+	/* Handle INT overflows and underflows */
 	INT* in = dynamic_cast<INT*> (token);
 	if (in == NULL)
 		return token;
@@ -258,18 +271,13 @@ unsigned long PHP::get_hash (String* string)
 	assert (0);
 }
 
-bool PHP::is_available ()
-{
-	return false;
-}
-
 Expr* PHP::fold_constant_expr (Expr* in)
 {
 	return in;
 }
 
 void
-PHP::set_ini_entry (std::string key, std::string value)
+PHP::set_ini_entry (String* key, String* value)
 {
 }
 
@@ -277,6 +285,18 @@ String_list*
 PHP::get_include_paths ()
 {
 	return new String_list;
+}
+
+String_list*
+PHP::get_altered_ini_entries ()
+{
+	return new String_list;
+}
+
+String*
+PHP::get_ini_entry (String*)
+{
+	return new String;
 }
 
 #endif
