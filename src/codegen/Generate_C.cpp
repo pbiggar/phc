@@ -41,6 +41,9 @@
 #include "lib/demangle.h"
 #include "process_ir/General.h"
 #include "process_ir/XML_unparser.h"
+#include "codegen/Generate_C_annotations.h"
+#include "process_mir/MIR_to_AST.h"
+#include "pass_manager/Pass_manager.h"
 
 #include "Generate_C.h"
 #include "parsing/MICG_parser.h"
@@ -70,6 +73,8 @@ extern struct gengetopt_args_info args_info;
 // compile_statement is defined after all patterns
 string compile_statement(Statement* in, Generate_C* gen);
 
+// we need access to the pass manager in compile_static_value
+extern Pass_manager* pm;
 
 /*
  * Helper functions
@@ -613,13 +618,65 @@ public:
 		<< "ce_reg = zend_register_internal_class(&ce TSRMLS_CC);\n"
 		;
 
-		// Compile static attributes
+		// Compile attributes
 		foreach (Member* member, *pattern->value->members)
 		{
 			Attribute* attr = dynamic_cast<Attribute*>(member);
 
 			if(attr != NULL)
 			{
+				if(attr->var->default_value != NULL)
+				{
+					AST::Statement_list* create_default = new AST::Statement_list;
+					AST::PHP_script* create_default_script = new AST::PHP_script(create_default);
+				
+					MIR_to_AST* mir_to_ast = new MIR_to_AST;
+
+					AST::Expr* expr = mir_to_ast->fold_static_value(attr->var->default_value);
+
+					AST::VARIABLE_NAME* def = new AST::VARIABLE_NAME(s("__DEF__"));
+					def->attrs->set_true("phc.codegen.st_entry_not_required");
+
+					create_default->push_back(
+						new AST::Eval_expr(
+							new AST::Assignment(
+								new AST::Variable(
+									NULL, // target
+								 	def,	
+									new AST::Expr_list()
+								),
+								false, // is_ref
+							  expr	
+							)));
+
+					// compile to MIR
+					MIR::PHP_script* create_default_mir = dynamic_cast<MIR::PHP_script*>(pm->run_until(s("mir"), create_default_script, false));
+
+					// We need to know the temps
+					Generate_C_annotations* gen_ann;
+					gen_ann = new Generate_C_annotations();
+					gen_ann->visit_statement_list(create_default_mir->statements);
+
+					foreach (string temp, gen_ann->var_names)
+						minit << "zval* " << get_non_st_name(s(temp)) << " = NULL;\n";
+
+					foreach (Statement* s, *create_default_mir->statements)
+					{
+						minit << compile_statement(s, gen);
+					}
+		
+					foreach (string temp, gen_ann->var_names)
+					{
+						string name = get_non_st_name (s(temp));
+						minit	
+						<< "if (" << name << " != NULL)\n"
+						<< "{\n"
+						<<		"zval_ptr_dtor (&" << name << ");\n"
+						<< "}\n"
+						;
+					}
+				}
+
 				if(!attr->attr_mod->is_const)
 				{
 					if(attr->var->default_value == NULL)
@@ -634,8 +691,13 @@ public:
 					}
 					else
 					{
-						// TODO: implement
-						assert(0);
+						minit 
+						<< "zend_declare_property_null(ce_reg, "
+						<< "\"" << *attr->var->variable_name->value << "\", " 
+						<< attr->var->variable_name->value->size() << ", "
+						<< attr_mod_flags(attr->attr_mod) << " " 
+						<< "TSRMLS_CC);"
+						;
 					}
 				}
 				else if(attr->attr_mod->is_const)

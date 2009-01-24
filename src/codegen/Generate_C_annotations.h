@@ -18,6 +18,9 @@
 
 class Generate_C_annotations : public MIR::Visitor, virtual public GC_obj
 {
+// TODO: we need access to some of these variables in the code generator,
+// but it would be better if we limit visibility (rather than fully public)
+public:
 	Set<string> var_names;
 	Set<string> iterators;
 	Set<string> cached_functions;
@@ -27,6 +30,7 @@ class Generate_C_annotations : public MIR::Visitor, virtual public GC_obj
 	// Literal.classid() -> (lit.value -> Literal*)
 	Map<int, Map<string, MIR::Literal*> > pool_values;
 
+public:
 	// Whole script analysis
 	void pre_php_script (MIR::PHP_script* in);
 	void post_php_script (MIR::PHP_script* in);
