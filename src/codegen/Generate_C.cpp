@@ -614,10 +614,6 @@ public:
 		;
 
 		// Compile static attributes
-		// TODO: it might be possible to combine this with the foreach loop above,
-		// but I cannot currently test this because there is a bug in the MICG code
-		// somewhere that needs to be fixed first -- phc crashes on
-		// tests/subjects/codegen/oop_method_invocation1.php
 		foreach (Member* member, *pattern->value->members)
 		{
 			Attribute* attr = dynamic_cast<Attribute*>(member);
