@@ -620,7 +620,7 @@ public:
 
 			if(attr != NULL)
 			{
-				if(attr->attr_mod->is_static)
+				if(!attr->attr_mod->is_const)
 				{
 					if(attr->var->default_value == NULL)
 					{
@@ -641,12 +641,8 @@ public:
 				else if(attr->attr_mod->is_const)
 				{
 					// TODO: implement
+					// (Const attributes must be added using a different API)
 					assert(0);
-				}
-				else
-				{
-					// Other attributes are not added here but should be added
-					// when instances of the class are created
 				}
 			}
 		}
