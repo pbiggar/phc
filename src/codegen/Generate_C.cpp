@@ -828,18 +828,20 @@ protected:
 			;
 		}
 
-
 		// Declare variables which can go outside the symbol table
 		String_list* var_names = dyc<String_list> (pattern->value->attrs->get ("phc.codegen.non_st_vars"));
 		foreach (String* var, *var_names)
-			buf << "zval* " << get_non_st_name (var) << " = NULL;\n";
-
+		{
+			if(*var == "this") 
+				buf << "zval* " << get_non_st_name (var) << " = getThis();\n";
+			else
+				buf << "zval* " << get_non_st_name (var) << " = NULL;\n";
+		}
 
 		// Declare hashtable iterators for the function
 		String_list* iterators = dyc<String_list> (pattern->value->attrs->get ("phc.codegen.ht_iterators"));
 		foreach (String* iter, *iterators)
 			buf << "HashPosition " << *iter << ";\n";
-
 
 		// debug_argument_stack();
 
@@ -877,7 +879,8 @@ protected:
 					// An assignment to default values doesnt fit in the IR. They
 					// would need to be lowered first. The simplest option is to
 					// convert them to AST, run them through the passes, and
-					// generate code for that */
+					// generate code for that 
+					// TODO: this is now implemented in compile_static_value
 					phc_unsupported (param->var->default_value, "default values");
 
 /*					Statement* assign_default_values = 
@@ -963,6 +966,9 @@ protected:
 		assert (var_names);
 		foreach (String* var_name, *var_names)
 		{
+			// don't destroy $this
+			if(*var_name == "this") continue;
+
 			string name = get_non_st_name (var_name);
 			buf
 			<< "if (" << name << " != NULL)\n"
