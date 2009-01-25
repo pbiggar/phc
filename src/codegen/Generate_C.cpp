@@ -657,29 +657,17 @@ public:
 		foreach (Member* member, *pattern->value->members)
 		{
 			Method* method = dynamic_cast<Method*>(member);
-			Attribute* attr = dynamic_cast<Attribute*>(member);
 
 			if(method != NULL)
 			{
 				buf << gen->compile_statement(method);
 			} 
-			else if(attr != NULL)
-			{
-				// On the internals side, attributes are not declared as part of the
-				// class but must be added to class instances when they are created 
-				// TODO: static attributes and constants should be declared here
-			}
-			else
-			{
-				// Invalid member type
-				assert(0);
-			}
 		}
 
 		// Declare all class members
 		function_declaration_block(buf, pattern->value->attrs->get_list<Signature>("phc.codegen.compiled_functions"), pattern->value->class_name->value);
 
-		// Register the class in the module's MINIT function
+		// Create the class entry in MINIT
 		minit
 		<< "{\n"
 		<< "zend_class_entry ce; // temp\n"
@@ -687,9 +675,23 @@ public:
 		<< "INIT_CLASS_ENTRY(ce, " 
 		<< "\"" << *pattern->value->class_name->value << "\", " 
 		<< *pattern->value->class_name->value << "_functions);\n"
-		<< "ce_reg = zend_register_internal_class(&ce TSRMLS_CC);\n"
 		;
-		
+
+		// Register the class
+		CLASS_NAME* parent = pattern->value->extends;
+		if(parent != NULL)
+		{
+			minit 
+			<< "zend_class_entry* parent;\n"
+			<< "parent = zend_fetch_class(\"" << *parent->value << "\", " << parent->value->length() << ", ZEND_FETCH_CLASS_DEFAULT TSRMLS_CC);\n"
+			<< "ce_reg = zend_register_internal_class_ex(&ce, parent, \"" << *parent->value << "\" TSRMLS_CC);\n";
+			;
+		}
+		else
+		{
+			minit << "ce_reg = zend_register_internal_class(&ce TSRMLS_CC);\n";
+		}
+
 		// Clear the ZEND_INTERNAL_CLASS flag so that we can add complex zvals
 		// as class attributes. TODO: not sure what the consequences of this are.
 		minit << "ce_reg->type &= ~ZEND_INTERNAL_CLASS;\n";
