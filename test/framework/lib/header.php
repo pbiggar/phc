@@ -320,6 +320,10 @@ function diff ($string1, $string2)
 			return "Note: xdiff not available for diffing. Outputting both strings:\nString1:\n$string1\nString2:\n$string2";
 		}
 	}
+
+	if (strlen ($string1) > 5000000 || strlen ($string2) > 5000000)
+		return "Too big to xdiff. Outputting both strings:\nString1:\n$string1\nString2:\n$string2";
+
 	return xdiff_string_diff ("$string1\n", "$string2\n");
 }
 
@@ -654,8 +658,11 @@ function homogenize_xml ($string)
 
 function homogenize_filenames_and_line_numbers ($string, $filename)
 {
-	$stdin_filename = getcwd () . "/-";
-	$full_filename = getcwd () . "/$filename";
+	global $base_dir;
+
+	// This doesnt work for install tests.
+	$stdin_filename = "$base_dir/-";
+	$full_filename = "$base_dir/$filename";
 
 
 	// Remove 'Unknown:'

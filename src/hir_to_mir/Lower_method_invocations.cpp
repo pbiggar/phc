@@ -179,8 +179,7 @@ Lower_method_invocations::check_builtin (FOREIGN* in)
 		&& isa<MIR::METHOD_NAME> (param_is_ref->method_name))
 	{
 		String* method_name = dyc<MIR::METHOD_NAME> (param_is_ref->method_name)->value;
-		if (	 *method_name == "print"
-		    || *method_name == "empty")
+		if (is_builtin_function (method_name))
 			return new BOOL (false);
 	}
 

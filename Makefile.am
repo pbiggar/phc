@@ -40,7 +40,7 @@ src_phc_LDADD = @gc_lib@ $(LIBLTDL) libphc.la
 bin_SCRIPTS = src/phc_compile_plugin
 libexec_SCRIPTS = libtool
 # pkgdata_DATA = phc-1.0.xsd
-pkgdata_DATA =
+pkgdata_DATA =									\
 	runtime/arrays.c							\
 	runtime/builtin_functions.c			\
 	runtime/debug.c							\
@@ -51,6 +51,7 @@ pkgdata_DATA =
 	runtime/support.c							\
 	runtime/unset.c							\
 	runtime/var_vars.c						\
+	runtime/oop.c								\
 	runtime/zval.c
 
 src_phc_SOURCES =												\
@@ -443,6 +444,7 @@ strangeprocessir_HEADERS =						\
 	src/process_ir/General.h					\
 	src/process_ir/IR.h							\
 	src/process_ir/PHP_unparser.h				\
+	src/process_ir/stats.h						\
 	src/process_ir/XML_unparser.h
 
 strangepassmanagerdir = $(pkgincludedir)/pass_manager

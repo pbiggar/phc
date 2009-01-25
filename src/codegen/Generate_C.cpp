@@ -41,6 +41,9 @@
 #include "lib/demangle.h"
 #include "process_ir/General.h"
 #include "process_ir/XML_unparser.h"
+#include "codegen/Generate_C_annotations.h"
+#include "process_mir/MIR_to_AST.h"
+#include "pass_manager/Pass_manager.h"
 
 #include "Generate_C.h"
 #include "parsing/MICG_parser.h"
@@ -67,9 +70,8 @@ static stringstream minit;
 // TODO this is here for constant pooling. This should not be global.
 extern struct gengetopt_args_info args_info;
 
-// compile_statement is defined after all patterns
-string compile_statement(Statement* in, Generate_C* gen);
-
+// we need access to the pass manager in compile_static_value
+extern Pass_manager* pm;
 
 /*
  * Helper functions
@@ -564,6 +566,81 @@ void function_declaration_block(ostream& buf, Signature_list* methods, String* b
 	buf << "};\n";
 }
 
+// Compile a static value and leave the result in a (newly declared)
+// zval called result 
+void Generate_C::compile_static_value(string result, ostream& os, Static_value* sv)
+{
+	assert(sv != NULL);
+
+	// Declare all variables in a local scope except the result
+	os 
+	<< "zval* " << result << ";\n" 
+	<< "{\n";
+
+	// Make the result variable as st_entry_not_required so that the code
+	// generator creates a local C variabel to hold the result rather than
+	// trying to store it in EG(active_symbol_table)
+	AST::VARIABLE_NAME* def = new AST::VARIABLE_NAME(s("__static_value__"));
+	def->attrs->set_true("phc.codegen.st_entry_not_required");
+
+	// Create an AST script to create the default
+	MIR_to_AST* mir_to_ast = new MIR_to_AST;
+	AST::Expr* expr = mir_to_ast->fold_static_value(sv);
+	AST::PHP_script* create_default_ast 
+		= new AST::PHP_script(
+				new AST::Statement_list(
+					new AST::Eval_expr(
+						new AST::Assignment(
+							new AST::Variable(
+								NULL, // target
+							 	def,	
+								new AST::Expr_list()
+							),
+							false, // is_ref
+						  expr	
+						))));
+					
+	// compile to MIR
+	MIR::PHP_script* create_default_mir = dynamic_cast<MIR::PHP_script*>(pm->run_until(s("mir"), create_default_ast, false));
+
+	// We need to know the temps
+	Generate_C_annotations* gen_ann;
+	gen_ann = new Generate_C_annotations();
+	gen_ann->visit_statement_list(create_default_mir->statements);
+
+	// Declare all required temps
+	foreach (string temp, gen_ann->var_names)
+		os << "zval* " << get_non_st_name(s(temp)) << " = NULL;\n";
+
+	// Generate C code the the MIR
+	foreach (Statement* s, *create_default_mir->statements)
+	{
+		os << compile_statement(s);
+	}
+
+	// Create a copy of the result in default_value, and increase its refcount
+	// so that it does not get cleaned up with the rest of the temps
+	os 
+	<< result << " = local___static_value__;\n" 
+	<< "assert(!" << result << "->is_ref);\n" 
+	<< result << "->refcount++;\n";
+
+	// Clean up the temps again
+	foreach (string temp, gen_ann->var_names)
+	{
+		string name = get_non_st_name (s(temp));
+		os	
+		<< "if (" << name << " != NULL)\n"
+		<< "{\n"
+		<<		"zval_ptr_dtor (&" << name << ");\n"
+		<< "}\n"
+		;
+	}
+
+	// Close the scope
+	os << "}\n";
+}
+
 class Pattern_class_def : public Pattern
 {
 public:
@@ -584,7 +661,7 @@ public:
 
 			if(method != NULL)
 			{
-				buf << compile_statement(method, gen);
+				buf << gen->compile_statement(method);
 			} 
 			else if(attr != NULL)
 			{
@@ -612,46 +689,43 @@ public:
 		<< *pattern->value->class_name->value << "_functions);\n"
 		<< "ce_reg = zend_register_internal_class(&ce TSRMLS_CC);\n"
 		;
+		
+		// Clear the ZEND_INTERNAL_CLASS flag so that we can add complex zvals
+		// as class attributes. TODO: not sure what the consequences of this are.
+		minit << "ce_reg->type &= ~ZEND_INTERNAL_CLASS;\n";
 
-		// Compile static attributes
-		// TODO: it might be possible to combine this with the foreach loop above,
-		// but I cannot currently test this because there is a bug in the MICG code
-		// somewhere that needs to be fixed first -- phc crashes on
-		// tests/subjects/codegen/oop_method_invocation1.php
+		// Compile attributes
 		foreach (Member* member, *pattern->value->members)
 		{
 			Attribute* attr = dynamic_cast<Attribute*>(member);
 
 			if(attr != NULL)
 			{
-				if(attr->attr_mod->is_static)
+				minit << "{\n";
+				
+				// We must have a default value
+				assert(attr->var->default_value != NULL);
+				gen->compile_static_value("default_value", minit, attr->var->default_value);
+
+				if(!attr->attr_mod->is_const)
 				{
-					if(attr->var->default_value == NULL)
-					{
-						minit 
-						<< "zend_declare_property_null(ce_reg, "
-						<< "\"" << *attr->var->variable_name->value << "\", " 
-						<< attr->var->variable_name->value->size() << ", "
-						<< attr_mod_flags(attr->attr_mod) << " " 
-						<< "TSRMLS_CC);"
-						;
-					}
-					else
-					{
-						// TODO: implement
-						assert(0);
-					}
+					minit 
+					<< "phc_declare_property(ce_reg, "
+					<< "\"" << *attr->var->variable_name->value << "\", " 
+					<< attr->var->variable_name->value->size() << ", "
+					<< "default_value, "
+					<< attr_mod_flags(attr->attr_mod) << " " 
+					<< "TSRMLS_CC);"
+					;
 				}
 				else if(attr->attr_mod->is_const)
 				{
 					// TODO: implement
+					// (Const attributes must be added using a different API)
 					assert(0);
 				}
-				else
-				{
-					// Other attributes are not added here but should be added
-					// when instances of the class are created
-				}
+
+				minit << "}";
 			}
 		}
 
@@ -754,18 +828,20 @@ protected:
 			;
 		}
 
-
 		// Declare variables which can go outside the symbol table
 		String_list* var_names = dyc<String_list> (pattern->value->attrs->get ("phc.codegen.non_st_vars"));
 		foreach (String* var, *var_names)
-			buf << "zval* " << get_non_st_name (var) << " = NULL;\n";
-
+		{
+			if(*var == "this") 
+				buf << "zval* " << get_non_st_name (var) << " = getThis();\n";
+			else
+				buf << "zval* " << get_non_st_name (var) << " = NULL;\n";
+		}
 
 		// Declare hashtable iterators for the function
 		String_list* iterators = dyc<String_list> (pattern->value->attrs->get ("phc.codegen.ht_iterators"));
 		foreach (String* iter, *iterators)
 			buf << "HashPosition " << *iter << ";\n";
-
 
 		// debug_argument_stack();
 
@@ -803,7 +879,8 @@ protected:
 					// An assignment to default values doesnt fit in the IR. They
 					// would need to be lowered first. The simplest option is to
 					// convert them to AST, run them through the passes, and
-					// generate code for that */
+					// generate code for that 
+					// TODO: this is now implemented in compile_static_value
 					phc_unsupported (param->var->default_value, "default values");
 
 /*					Statement* assign_default_values = 
@@ -889,6 +966,9 @@ protected:
 		assert (var_names);
 		foreach (String* var_name, *var_names)
 		{
+			// don't destroy $this
+			if(*var_name == "this") continue;
+
 			string name = get_non_st_name (var_name);
 			buf
 			<< "if (" << name << " != NULL)\n"
@@ -940,6 +1020,76 @@ public:
 protected:
 	Assign_var* agn;
 	Wildcard<VARIABLE_NAME>* lhs;
+};
+
+/*
+ * $x = new C(..);
+ */
+
+class Pattern_assign_expr_new : public Pattern_assign_var
+{
+public:
+	Expr* rhs_pattern()
+	{
+		rhs = new Wildcard<New>;
+		return rhs;
+	}
+
+	void generate_code(Generate_C* gen)
+	{
+		CLASS_NAME* class_name;
+		Variable_class* variable_class;
+
+		New* nw = rhs->value;
+
+		class_name = dynamic_cast<CLASS_NAME*>(nw->class_name);
+		variable_class = dynamic_cast<Variable_class*>(nw->class_name);
+
+		// TODO: call the constructor (or pass the arguments for the constructor
+		// to the various templates)
+		if(class_name != NULL)
+		{
+			if(!agn->is_ref)
+				INST (buf, "assign_expr_new", lhs->value, class_name);
+			else
+				INST (buf, "assign_expr_new_ref", lhs->value, class_name);
+		}
+		else if(variable_class != NULL)
+		{
+			VARIABLE_NAME* vcn = variable_class->variable_name;
+
+			if(!agn->is_ref)
+				INST (buf, "assign_expr_var_new", lhs->value, vcn);
+			else
+				INST (buf, "assign_expr_var_new_ref", lhs->value, vcn);
+		}
+		else
+		{
+			// Invalid class name type
+			assert(0);
+		}
+
+    // See comment in expr_method_invocation
+		Object_list* params = new Object_list;
+		foreach (Actual_parameter* ap, *rhs->value->actual_parameters)
+		{
+			params->push_back (ap->rvalue);
+			if (ap->is_ref)
+				ap->rvalue->attrs->set_true ("phc.codegen.is_ref");
+		}
+
+
+    INST (buf, "constructor_invocation",
+		rhs->value,
+      params,
+      rhs->value->get_filename (),
+      s(lexical_cast<string>(rhs->value->get_line_number())),
+      s(lexical_cast<string>(rhs->value->actual_parameters->size())),
+      lhs->value);
+	}
+
+protected:
+	Wildcard<New>* rhs;
 };
 
 /*
@@ -1055,12 +1205,19 @@ public:
 		assert (!agn->is_ref);
 		Map<string, string> symnames;
 		symnames["array"]		= "IS_ARRAY";
+		symnames["binary"]	= "IS_STRING";
 		symnames["boolean"]	= "IS_BOOL";
 		symnames["bool"]		= "IS_BOOL";
+		symnames["double"]	= "IS_DOUBLE";
+		symnames["float"]		= "IS_DOUBLE";
+		symnames["integer"]	= "IS_LONG";
 		symnames["int"]		= "IS_LONG";
 		symnames["null"]		= "IS_NULL";
+		symnames["object"]	= "IS_OBJECT";
 		symnames["real"]		= "IS_DOUBLE";
 		symnames["string"]	= "IS_STRING";
+		symnames["unset"]		= "IS_NULL";
+
 
 		if (!symnames.has (*cast->value->value))
 			phc_unsupported (cast->value, "non-scalar casts");
@@ -1444,20 +1601,7 @@ public:
 		if (not result)
 			return false;
 
-		// TODO are there more?
-		Set<string> names;
-		names.insert ("eval");
-		names.insert ("exit");
-		names.insert ("die");
-		names.insert ("print");
-		names.insert ("echo");
-		names.insert ("include");
-		names.insert ("include_once");
-		names.insert ("require");
-		names.insert ("require_once");
-		names.insert ("empty");
-
-		return names.has (*method_name->value->value);
+		return is_builtin_function (method_name->value->value);
 	}
 
 	Expr* rhs_pattern()
@@ -1648,8 +1792,6 @@ public:
 				// TODO: every time since the variable can be bound to a different
 				// TODO: class every time we encounter this statement
 		
-				fci_name  = "fci_object"; 
-				fcic_name = "fcic_object";
 				function_name = *name->value;
 
 				INST (buf, "method_invocation",
@@ -1658,8 +1800,6 @@ public:
 						params,
 						rhs->value->get_filename (),
 						s(lexical_cast<string> (rhs->value->get_line_number ())),
-						s(fci_name),
-						s(fcic_name),
 						s(lexical_cast<string>(rhs->value->actual_parameters->size ())),
 						object_name,
 						lhs_descriptor,
@@ -2429,7 +2569,7 @@ protected:
  * Visitor for statements uses the patterns defined above.
  */
 
-string compile_statement(Statement* in, Generate_C* gen)
+string Generate_C::compile_statement(Statement* in)
 {
 	// TODO: this should be static, but making it static causes a segfault
 	// TODO: possibly due to a pattern assuming all of its local state is reset?
@@ -2460,6 +2600,7 @@ string compile_statement(Statement* in, Generate_C* gen)
 	// OOP
 	, new Pattern_assign_field()
 	, new Pattern_assign_expr_field_access()
+	, new Pattern_assign_expr_new()
 	// All the rest are just statements
 	,	new Pattern_assign_array ()
 	,	new Pattern_assign_next ()
@@ -2499,7 +2640,7 @@ string compile_statement(Statement* in, Generate_C* gen)
 	{
 		if(pattern->match(in))
 		{
-			return pattern->generate (s(comment.str()), gen);
+			return pattern->generate (s(comment.str()), this);
 		}
 	}
 	phc_unsupported (in, "unknown construct");
@@ -2508,7 +2649,7 @@ string compile_statement(Statement* in, Generate_C* gen)
 
 void Generate_C::children_statement(Statement* in)
 {
-	body << compile_statement(in, this);
+	body << compile_statement(in);
 }
 
 string read_file (String* filename)
@@ -2564,6 +2705,7 @@ void Generate_C::pre_php_script(PHP_script* in)
 	include_file (prologue, s("arrays.c"));
 	include_file (prologue, s("isset.c"));
 	include_file (prologue, s("methods.c"));
+	include_file (prologue, s("oop.c"));
 	include_file (prologue, s("misc.c"));
 	include_file (prologue, s("unset.c"));
 	include_file (prologue, s("var_vars.c"));

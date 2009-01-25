@@ -18,6 +18,7 @@
 
 class Generate_C_annotations : public MIR::Visitor, virtual public GC_obj
 {
+protected:
 	Set<string> var_names;
 	Set<string> iterators;
 	Set<string> cached_functions;
@@ -27,6 +28,7 @@ class Generate_C_annotations : public MIR::Visitor, virtual public GC_obj
 	// Literal.classid() -> (lit.value -> Literal*)
 	Map<int, Map<string, MIR::Literal*> > pool_values;
 
+public:
 	// Whole script analysis
 	void pre_php_script (MIR::PHP_script* in);
 	void post_php_script (MIR::PHP_script* in);
@@ -44,6 +46,10 @@ class Generate_C_annotations : public MIR::Visitor, virtual public GC_obj
 	void post_variable_name (MIR::VARIABLE_NAME* in);
 	void post_ht_iterator (MIR::HT_ITERATOR* in);
 	void post_return (MIR::Return* in);
+
+// Declare Generate_C as a friend so that it can access var_names
+// (necessary in compile_static_value)
+	friend class Generate_C;
 };
 
 #endif // PHC_GENERATE_C_ANNOTATIONS_H

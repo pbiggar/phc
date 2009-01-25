@@ -34,6 +34,10 @@ public:
 	bool is_extension;
 
 	MICG_gen micg;
+
+public:
+	string compile_statement(MIR::Statement* in);
+	void compile_static_value(string result, std::ostream& os, MIR::Static_value* sv);
 };
 
 #endif // PHC_GENERATE_C
