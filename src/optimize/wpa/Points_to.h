@@ -23,6 +23,13 @@ DECL (PT_node);
 DECL (Index_node);
 DECL (Storage_node);
 
+Storage_node* SN (string scope);
+Index_node* IN (string scope, string name);
+Index_node* VN (string scope, MIR::VARIABLE_NAME*);
+Index_node* FN (string scope, MIR::FIELD_NAME*);
+//Index_node* AN (string scope, string array_index); TODO
+
+
 // A node in the graph (ie the abstract base of the components of an alias-pair).
 class PT_node : virtual public GC_obj
 {
@@ -100,10 +107,12 @@ class Pairs : virtual public GC_obj
 {
 public:
 	// source -> target_list
-	Map<string, Set<string> > name_map;
+	Map<string, Set<string> > definite_edges;
+	Map<string, Set<string> > possible_edges;
 
 	Pairs();
 	void insert (Alias_pair*);
+	bool has_node (PT_node* node);
 
 	Pairs* clone ();
 };
@@ -125,8 +134,30 @@ public:
 
 	// Add the edge to the graph.
 	void add_edge (PT_node* loc1, PT_node* loc2, certainty = DEFINITE);
+
+	// Add 2 edges, to and from N1 and N2.
 	void add_bidir_edge (PT_node* n1, PT_node* n2, certainty cert = DEFINITE);
 
+	// TODO: This is a good time to call other passes with the news that there
+	// is a new value, but it the PTG is the wrong place to add that call.
+
+	// Kill the value of PT_node (which indicates a scalar is being assigned
+	// here).. This updates the graph if an object or array
+	// is killed.
+	void set_scalar_value (Index_node* lhs);
+
+	// Set N1 and N2 to alias. Kills the LHS.
+	void set_reference (Index_node* n1, Index_node* n2);
+
+	// Copy the current value from N2 to N1. This clones N2's array, points N1
+	// and N2 to the same object for object's, and kills existing values for N1.
+	void copy_value (Index_node* n1, Index_node* n2);
+
+	// Does the graph already contains this node.
+	bool contains (Index_node* node);
+
+	// Does the node have edges pointing to a storage node
+	bool has_value_edges (Index_node* node);
 
 	void dump_graphviz (String* label);
 

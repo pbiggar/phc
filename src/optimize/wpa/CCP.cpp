@@ -18,8 +18,6 @@ CCP::CCP (Whole_program* wp)
 }
 
 
-
-
 void
 CCP::use_summary_results (Method_info* info, MIR::Actual_parameter_list* in, MIR::VARIABLE_NAME* lhs)
 {

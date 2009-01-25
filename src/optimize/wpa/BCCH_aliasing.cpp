@@ -80,10 +80,9 @@ BCCH_aliasing::forward_bind (CFG* caller_cfg, CFG* callee_cfg, MIR::Actual_param
 
 
 	ptg->open_scope (callee_ns);
-	phc_TODO ();
-/*
-//	if (actuals->size () != callee_cfg->method->signature->formal_parameters->size ())
-//		phc_TODO ();
+
+	if (actuals->size () != callee_cfg->method->signature->formal_parameters->size ())
+		phc_TODO ();
 
 
 	Actual_parameter_list::const_iterator i = actuals->begin ();
@@ -95,10 +94,11 @@ BCCH_aliasing::forward_bind (CFG* caller_cfg, CFG* callee_cfg, MIR::Actual_param
 		Actual_parameter* ap = *i;
 		if (fp->is_ref || ap->is_ref)
 		{
+			phc_TODO ();
 			// $fp =& $ap;
-			ptg->set_reference (
-				ptg->get_var (callee_ns, fp->var->variable_name),
-				ptg->get_var (caller_ns, dyc<VARIABLE_NAME> (ap->rvalue)));
+//			ptg->set_reference (
+//				ptg->get_var (callee_ns, fp->var->variable_name),
+//				ptg->get_var (caller_ns, dyc<VARIABLE_NAME> (ap->rvalue)));
 		}
 		else
 		{
@@ -106,7 +106,7 @@ BCCH_aliasing::forward_bind (CFG* caller_cfg, CFG* callee_cfg, MIR::Actual_param
 			phc_TODO ();
 		}
 	}
-*/
+
 	if (lhs)
 	{
 		// TODO: do this upon return instead
@@ -141,6 +141,7 @@ BCCH_aliasing::analyse_block (Basic_block* bb)
 		wpa->pre_annotate (bb, ptg);
 
 	visit_block (bb);
+	dump();
 
 	// Post-hooks (applies to this aswell)
 	foreach (tie (name, wpa), wp->analyses)
@@ -174,10 +175,8 @@ BCCH_aliasing::visit_global (Statement_block* bb, MIR::Global* in)
 void
 BCCH_aliasing::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 {
-	phc_TODO ();
-	/*
 	string ns = NAME (bb);
-	PT_node* lhs = ptg->get_var (ns, in->lhs);
+	Index_node* lhs = VN (ns, in->lhs);
 	PT_node* rhs = NULL;
 
 	switch(in->rhs->classid())
@@ -193,23 +192,20 @@ BCCH_aliasing::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 			break;
 
 		case VARIABLE_NAME::ID:
-			rhs =	ptg->get_var (ns, dyc<VARIABLE_NAME> (in->rhs));
+			rhs =	VN (ns, dyc<VARIABLE_NAME> (in->rhs));
 			break;
 
 		default:
 			phc_TODO ();
 			break;
 
-		// Simple graph nodes
+		// Not in the graph
 		case BOOL::ID:
 		case INT::ID:
 		case NIL::ID:
 		case REAL::ID:
 		case STRING::ID:
-			ptg->set_value (
-				lhs,
-				ptg->add_lit_node (ns, dyc<Literal> (in->rhs)));
-			return; // dont use copy value
+			break;
 
 		// Need to use analysis results before putting into the graph
 		case Variable_variable::ID:
@@ -223,10 +219,11 @@ BCCH_aliasing::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 
 		case Array_access::ID:
 		{
-			Array_access* aa = dyc<Array_access> (in->rhs);
-			Location* array = ptg->get_var (ns, aa->variable_name);
-			Location* index =
-				ptg->get_var (ns, dyc<VARIABLE_NAME> (aa->index));
+			phc_TODO ();
+//			Array_access* aa = dyc<Array_access> (in->rhs);
+//			Location* array = ptg->get_var (ns, aa->variable_name);
+//			Location* index =
+//				ptg->get_var (ns, dyc<VARIABLE_NAME> (aa->index));
 
 			phc_TODO ();
 //			rhs = ptg->get_indexed_location (array, index);
@@ -245,12 +242,15 @@ BCCH_aliasing::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 			break;
 	}
 
-	assert (rhs);
 	if (in->is_ref)
-		ptg->set_reference (lhs, rhs);
+			ptg->set_reference (lhs, dyc<Index_node> (rhs));
 	else
-		ptg->copy_value (lhs, rhs);
-	*/
+	{
+		if (rhs == NULL) // literals
+			ptg->set_scalar_value (lhs);
+		else
+			ptg->copy_value (lhs, dyc<Index_node> (rhs));
+	}
 }
 
 void

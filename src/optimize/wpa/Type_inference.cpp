@@ -34,7 +34,7 @@ public:
 			DEBUG (*var_name->value << " = " << str);
 		}
 	*/
-		phc_TODO ();
+//		phc_TODO ();
 	}
 };
 /*

@@ -28,8 +28,11 @@ Points_to::Points_to ()
 	pairs = new Pairs;
 }
 
-#define IN(SCOPE, NAME) new Index_node (SCOPE, NAME)
-#define SN(SCOPE) new Storage_node (SCOPE)
+Storage_node* SN (string scope) { return new Storage_node (scope); }
+Index_node* IN (string scope, string name) { return new Index_node (scope, name); }
+Index_node* VN (string scope, MIR::VARIABLE_NAME* var) { return IN (scope, *var->value); }
+Index_node* FN (string scope, MIR::FIELD_NAME* field) { return IN (scope, *field->value); }
+
 
 /*
  * Add a storage node for the scope (or it might exist already in the case of
@@ -52,9 +55,6 @@ Points_to::open_scope (string scope_name)
 	{
 		add_bidir_edge (IN ("__MAIN__", "GLOBALS"), IN (scope_name, "GLOBALS"));
 	}
-
-
-	dump_graphviz (NULL);
 }
 
 void
@@ -78,10 +78,10 @@ Points_to::dump_graphviz (String* label)
 	<< "graph [label=\"" << *label << "\"];\n"
 	;
 
-
+	// Add definite edges
 	string source;
 	Set<string> targets;
-	foreach (tie (source, targets), pairs->name_map)
+	foreach (tie (source, targets), pairs->definite_edges)
 	{
 		foreach (string target, targets)
 		{
@@ -90,10 +90,27 @@ Points_to::dump_graphviz (String* label)
 			<< *escape_DOT (s(source)) 
 			<< "\" -> \"" 
 			<< *escape_DOT (s(target))
-			<< "\";\n"
+			<< "\" [label=\"D\"];\n"
 			;
 		}
 	}
+
+	// Add possible edges
+	foreach (tie (source, targets), pairs->possible_edges)
+	{
+		foreach (string target, targets)
+		{
+			cout 
+			<< "\""
+			<< *escape_DOT (s(source)) 
+			<< "\" -> \"" 
+			<< *escape_DOT (s(target))
+			<< "\" [label=\"P\"];\n"
+			;
+		}
+	}
+
+	// TODO: add nodes, with different shapes for different nodes.
 
 	cout
 	<< "}\n"
@@ -119,6 +136,57 @@ Points_to::clone ()
 	phc_TODO ();
 }
 
+void
+Points_to::set_scalar_value (Index_node* node)
+{
+	if (contains (node))
+		phc_TODO (); // kill, and the things it points to - watch of for may-aliases
+	else
+		add_edge (SN (node->storage), node);
+}
+
+bool
+Points_to::contains (Index_node* node)
+{
+	// TODO: check its connected to a storage node
+	return pairs->has_node (node);
+}
+
+void
+Points_to::set_reference (Index_node* n1, Index_node* n2)
+{
+	if (contains (n1))
+		phc_TODO (); // killing here
+
+	add_bidir_edge (n1, n2);
+}
+
+void
+Points_to::copy_value (Index_node* n1, Index_node* n2)
+{
+	if (!contains (n1) || !contains (n2))
+		phc_TODO ();
+
+	// This kills the value of N1, and may lead to a clone on N2's value.
+	if (has_value_edges (n1) || has_value_edges (n2))
+		phc_TODO ();
+}
+
+bool
+Points_to::has_value_edges (Index_node* node)
+{
+	string source;
+	Set<string> targets;
+	foreach (tie (source, targets), pairs->definite_edges)
+	{
+		foreach (string target, targets)
+		{
+			phc_TODO ();
+		}
+	}
+
+	return false;
+}
 
 
 /*
@@ -136,10 +204,35 @@ Pairs::insert (Alias_pair* pair)
 	string source = pair->source->get_unique_name ();
 	string target = pair->target->get_unique_name ();
 
-	if (name_map.has (source))
-		phc_TODO ();
+	if (pair->cert == POSSIBLE)
+		possible_edges[source].insert (target);
+	else
+		definite_edges[source].insert (target);
+}
 
-	name_map[source].insert (target);
+bool
+Pairs::has_node (PT_node* node)
+{
+	// TODO: make this lookup faster
+	string name = node->get_unique_name ();
+
+	if (definite_edges.has (name))
+		return true;
+	
+	if (possible_edges.has (name))
+		return true;
+
+	string source;
+	Set<string> targets;
+	foreach (tie (source, targets), definite_edges)
+		if (targets.has (name))
+			return true;
+
+	foreach (tie (source, targets), possible_edges)
+		if (targets.has (name))
+			return true;
+
+	return false;
 }
 
 Pairs*
@@ -170,7 +263,7 @@ string
 Storage_node::get_unique_name ()
 {
 	stringstream ss;
-	ss << "STORE::" << name;
+	ss << "ST:" << name;
 	return ss.str ();
 }
 
