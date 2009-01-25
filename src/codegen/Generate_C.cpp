@@ -70,9 +70,6 @@ static stringstream minit;
 // TODO this is here for constant pooling. This should not be global.
 extern struct gengetopt_args_info args_info;
 
-// compile_statement is defined after all patterns
-string compile_statement(Statement* in, Generate_C* gen);
-
 // we need access to the pass manager in compile_static_value
 extern Pass_manager* pm;
 
@@ -569,6 +566,81 @@ void function_declaration_block(ostream& buf, Signature_list* methods, String* b
 	buf << "};\n";
 }
 
+// Compile a static value and leave the result in a (newly declared)
+// zval called result 
+void Generate_C::compile_static_value(string result, ostream& os, Static_value* sv)
+{
+	assert(sv != NULL);
+
+	// Declare all variables in a local scope except the result
+	os 
+	<< "zval* " << result << ";\n" 
+	<< "{\n";
+
+	// Make the result variable as st_entry_not_required so that the code
+	// generator creates a local C variabel to hold the result rather than
+	// trying to store it in EG(active_symbol_table)
+	AST::VARIABLE_NAME* def = new AST::VARIABLE_NAME(s("__static_value__"));
+	def->attrs->set_true("phc.codegen.st_entry_not_required");
+
+	// Create an AST script to create the default
+	MIR_to_AST* mir_to_ast = new MIR_to_AST;
+	AST::Expr* expr = mir_to_ast->fold_static_value(sv);
+	AST::PHP_script* create_default_ast 
+		= new AST::PHP_script(
+				new AST::Statement_list(
+					new AST::Eval_expr(
+						new AST::Assignment(
+							new AST::Variable(
+								NULL, // target
+							 	def,	
+								new AST::Expr_list()
+							),
+							false, // is_ref
+						  expr	
+						))));
+					
+	// compile to MIR
+	MIR::PHP_script* create_default_mir = dynamic_cast<MIR::PHP_script*>(pm->run_until(s("mir"), create_default_ast, false));
+
+	// We need to know the temps
+	Generate_C_annotations* gen_ann;
+	gen_ann = new Generate_C_annotations();
+	gen_ann->visit_statement_list(create_default_mir->statements);
+
+	// Declare all required temps
+	foreach (string temp, gen_ann->var_names)
+		os << "zval* " << get_non_st_name(s(temp)) << " = NULL;\n";
+
+	// Generate C code the the MIR
+	foreach (Statement* s, *create_default_mir->statements)
+	{
+		os << compile_statement(s);
+	}
+
+	// Create a copy of the result in default_value, and increase its refcount
+	// so that it does not get cleaned up with the rest of the temps
+	os 
+	<< result << " = local___static_value__;\n" 
+	<< "assert(!" << result << "->is_ref);\n" 
+	<< result << "->refcount++;\n";
+
+	// Clean up the temps again
+	foreach (string temp, gen_ann->var_names)
+	{
+		string name = get_non_st_name (s(temp));
+		os	
+		<< "if (" << name << " != NULL)\n"
+		<< "{\n"
+		<<		"zval_ptr_dtor (&" << name << ");\n"
+		<< "}\n"
+		;
+	}
+
+	// Close the scope
+	os << "}\n";
+}
+
 class Pattern_class_def : public Pattern
 {
 public:
@@ -589,7 +661,7 @@ public:
 
 			if(method != NULL)
 			{
-				buf << compile_statement(method, gen);
+				buf << gen->compile_statement(method);
 			} 
 			else if(attr != NULL)
 			{
@@ -617,6 +689,10 @@ public:
 		<< *pattern->value->class_name->value << "_functions);\n"
 		<< "ce_reg = zend_register_internal_class(&ce TSRMLS_CC);\n"
 		;
+		
+		// Clear the ZEND_INTERNAL_CLASS flag so that we can add complex zvals
+		// as class attributes. TODO: not sure what the consequences of this are.
+		minit << "ce_reg->type &= ~ZEND_INTERNAL_CLASS;\n";
 
 		// Compile attributes
 		foreach (Member* member, *pattern->value->members)
@@ -625,80 +701,22 @@ public:
 
 			if(attr != NULL)
 			{
-				if(attr->var->default_value != NULL)
-				{
-					AST::Statement_list* create_default = new AST::Statement_list;
-					AST::PHP_script* create_default_script = new AST::PHP_script(create_default);
+				minit << "{\n";
 				
-					MIR_to_AST* mir_to_ast = new MIR_to_AST;
-
-					AST::Expr* expr = mir_to_ast->fold_static_value(attr->var->default_value);
-
-					AST::VARIABLE_NAME* def = new AST::VARIABLE_NAME(s("__DEF__"));
-					def->attrs->set_true("phc.codegen.st_entry_not_required");
-
-					create_default->push_back(
-						new AST::Eval_expr(
-							new AST::Assignment(
-								new AST::Variable(
-									NULL, // target
-								 	def,	
-									new AST::Expr_list()
-								),
-								false, // is_ref
-							  expr	
-							)));
-
-					// compile to MIR
-					MIR::PHP_script* create_default_mir = dynamic_cast<MIR::PHP_script*>(pm->run_until(s("mir"), create_default_script, false));
-
-					// We need to know the temps
-					Generate_C_annotations* gen_ann;
-					gen_ann = new Generate_C_annotations();
-					gen_ann->visit_statement_list(create_default_mir->statements);
-
-					foreach (string temp, gen_ann->var_names)
-						minit << "zval* " << get_non_st_name(s(temp)) << " = NULL;\n";
-
-					foreach (Statement* s, *create_default_mir->statements)
-					{
-						minit << compile_statement(s, gen);
-					}
-		
-					foreach (string temp, gen_ann->var_names)
-					{
-						string name = get_non_st_name (s(temp));
-						minit	
-						<< "if (" << name << " != NULL)\n"
-						<< "{\n"
-						<<		"zval_ptr_dtor (&" << name << ");\n"
-						<< "}\n"
-						;
-					}
-				}
+				// We must have a default value
+				assert(attr->var->default_value != NULL);
+				gen->compile_static_value("default_value", minit, attr->var->default_value);
 
 				if(!attr->attr_mod->is_const)
 				{
-					if(attr->var->default_value == NULL)
-					{
-						minit 
-						<< "zend_declare_property_null(ce_reg, "
-						<< "\"" << *attr->var->variable_name->value << "\", " 
-						<< attr->var->variable_name->value->size() << ", "
-						<< attr_mod_flags(attr->attr_mod) << " " 
-						<< "TSRMLS_CC);"
-						;
-					}
-					else
-					{
-						minit 
-						<< "zend_declare_property_null(ce_reg, "
-						<< "\"" << *attr->var->variable_name->value << "\", " 
-						<< attr->var->variable_name->value->size() << ", "
-						<< attr_mod_flags(attr->attr_mod) << " " 
-						<< "TSRMLS_CC);"
-						;
-					}
+					minit 
+					<< "phc_declare_property(ce_reg, "
+					<< "\"" << *attr->var->variable_name->value << "\", " 
+					<< attr->var->variable_name->value->size() << ", "
+					<< "default_value, "
+					<< attr_mod_flags(attr->attr_mod) << " " 
+					<< "TSRMLS_CC);"
+					;
 				}
 				else if(attr->attr_mod->is_const)
 				{
@@ -706,6 +724,8 @@ public:
 					// (Const attributes must be added using a different API)
 					assert(0);
 				}
+
+				minit << "}";
 			}
 		}
 
@@ -2540,7 +2560,7 @@ protected:
  * Visitor for statements uses the patterns defined above.
  */
 
-string compile_statement(Statement* in, Generate_C* gen)
+string Generate_C::compile_statement(Statement* in)
 {
 	// TODO: this should be static, but making it static causes a segfault
 	// TODO: possibly due to a pattern assuming all of its local state is reset?
@@ -2611,7 +2631,7 @@ string compile_statement(Statement* in, Generate_C* gen)
 	{
 		if(pattern->match(in))
 		{
-			return pattern->generate (s(comment.str()), gen);
+			return pattern->generate (s(comment.str()), this);
 		}
 	}
 	phc_unsupported (in, "unknown construct");
@@ -2620,7 +2640,7 @@ string compile_statement(Statement* in, Generate_C* gen)
 
 void Generate_C::children_statement(Statement* in)
 {
-	body << compile_statement(in, this);
+	body << compile_statement(in);
 }
 
 string read_file (String* filename)
@@ -2676,6 +2696,7 @@ void Generate_C::pre_php_script(PHP_script* in)
 	include_file (prologue, s("arrays.c"));
 	include_file (prologue, s("isset.c"));
 	include_file (prologue, s("methods.c"));
+	include_file (prologue, s("oop.c"));
 	include_file (prologue, s("misc.c"));
 	include_file (prologue, s("unset.c"));
 	include_file (prologue, s("var_vars.c"));

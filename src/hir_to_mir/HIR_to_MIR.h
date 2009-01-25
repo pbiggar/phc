@@ -201,6 +201,9 @@ public:
 		MIR::Attribute* result;
 		result = new MIR::Attribute(attr_mod, var);
 		copy_attrs (result, orig);
+		// Attributes *must* have default values
+		if(result->var->default_value == NULL)
+			result->var->default_value = new MIR::NIL();
 		return result;
 	}
 

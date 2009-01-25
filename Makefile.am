@@ -51,6 +51,7 @@ pkgdata_DATA =									\
 	runtime/support.c							\
 	runtime/unset.c							\
 	runtime/var_vars.c						\
+	runtime/oop.c								\
 	runtime/zval.c
 
 src_phc_SOURCES =												\

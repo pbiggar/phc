@@ -18,9 +18,7 @@
 
 class Generate_C_annotations : public MIR::Visitor, virtual public GC_obj
 {
-// TODO: we need access to some of these variables in the code generator,
-// but it would be better if we limit visibility (rather than fully public)
-public:
+protected:
 	Set<string> var_names;
 	Set<string> iterators;
 	Set<string> cached_functions;
@@ -48,6 +46,10 @@ public:
 	void post_variable_name (MIR::VARIABLE_NAME* in);
 	void post_ht_iterator (MIR::HT_ITERATOR* in);
 	void post_return (MIR::Return* in);
+
+// Declare Generate_C as a friend so that it can access var_names
+// (necessary in compile_static_value)
+	friend class Generate_C;
 };
 
 #endif // PHC_GENERATE_C_ANNOTATIONS_H
