@@ -107,8 +107,8 @@ class Pairs : virtual public GC_obj
 {
 public:
 	// source -> target_list
-	Map<string, Set<string> > definite_edges;
-	Map<string, Set<string> > possible_edges;
+	Map<string, Map<string, Alias_pair*> > by_source;
+	Map<string, Map<string, Alias_pair*> > by_target;
 
 	Pairs();
 	void insert (Alias_pair*);

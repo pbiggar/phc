@@ -78,39 +78,28 @@ Points_to::dump_graphviz (String* label)
 	<< "graph [label=\"" << *label << "\"];\n"
 	;
 
+	// TODO: add nodes, with different shapes for different nodes.
+
 	// Add definite edges
 	string source;
-	Set<string> targets;
-	foreach (tie (source, targets), pairs->definite_edges)
+	Map<string, Alias_pair*> alias_map;
+	foreach (tie (source, alias_map), pairs->by_source)
 	{
-		foreach (string target, targets)
+		string target;
+		Alias_pair* alias_pair;
+		foreach (tie (target, alias_pair), alias_map)
 		{
 			cout 
 			<< "\""
 			<< *escape_DOT (s(source)) 
 			<< "\" -> \"" 
 			<< *escape_DOT (s(target))
-			<< "\" [label=\"D\"];\n"
+			<< "\" [label=\""
+			<< (alias_pair->cert == POSSIBLE ? "P" : "D")
+			<< "\"];\n"
 			;
 		}
 	}
-
-	// Add possible edges
-	foreach (tie (source, targets), pairs->possible_edges)
-	{
-		foreach (string target, targets)
-		{
-			cout 
-			<< "\""
-			<< *escape_DOT (s(source)) 
-			<< "\" -> \"" 
-			<< *escape_DOT (s(target))
-			<< "\" [label=\"P\"];\n"
-			;
-		}
-	}
-
-	// TODO: add nodes, with different shapes for different nodes.
 
 	cout
 	<< "}\n"
@@ -173,16 +162,14 @@ Points_to::copy_value (Index_node* n1, Index_node* n2)
 }
 
 bool
-Points_to::has_value_edges (Index_node* node)
+Points_to::has_value_edges (Index_node* source)
 {
-	string source;
-	Set<string> targets;
-	foreach (tie (source, targets), pairs->definite_edges)
+	string name;
+	Alias_pair* pair;
+	foreach (tie (name, pair), pairs->by_source [source->get_unique_name ()])
 	{
-		foreach (string target, targets)
-		{
-			phc_TODO ();
-		}
+		if (isa<Storage_node> (pair->target))
+			return true;
 	}
 
 	return false;
@@ -204,10 +191,12 @@ Pairs::insert (Alias_pair* pair)
 	string source = pair->source->get_unique_name ();
 	string target = pair->target->get_unique_name ();
 
-	if (pair->cert == POSSIBLE)
-		possible_edges[source].insert (target);
-	else
-		definite_edges[source].insert (target);
+	// TODO: dont duplicate
+	if (by_source[source].has (target))
+		phc_TODO ();
+
+	by_source[source][target] = pair;
+	by_target[target][source] = pair;
 }
 
 bool
@@ -216,21 +205,11 @@ Pairs::has_node (PT_node* node)
 	// TODO: make this lookup faster
 	string name = node->get_unique_name ();
 
-	if (definite_edges.has (name))
+	if (by_source.has (name))
 		return true;
 	
-	if (possible_edges.has (name))
+	if (by_target.has (name))
 		return true;
-
-	string source;
-	Set<string> targets;
-	foreach (tie (source, targets), definite_edges)
-		if (targets.has (name))
-			return true;
-
-	foreach (tie (source, targets), possible_edges)
-		if (targets.has (name))
-			return true;
 
 	return false;
 }
