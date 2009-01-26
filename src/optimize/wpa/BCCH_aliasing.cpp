@@ -141,6 +141,7 @@ BCCH_aliasing::analyse_block (Basic_block* bb)
 //		wpa->pre_annotate (bb, ptg);
 
 	visit_block (bb);
+	dump();
 	foreach (tie (name, wpa), wp->analyses)
 		wpa->dump();
 
@@ -288,9 +289,21 @@ BCCH_aliasing::dump ()
 void
 BCCH_aliasing::set_reference (Basic_block* bb, Index_node* lhs, Index_node* rhs)
 {
+	// We don't need to worry about aliases, as this is killing.
+
+	// Handle LHS itself
+	string name;
+	WPA* wpa;
+	foreach (tie (name, wpa), wp->analyses)
+		wpa->set_value_from (bb, lhs->get_unique_name (), rhs->get_unique_name(), DEFINITE);
+
+
+	// Handle aliasing
 	ptg->set_reference (lhs, rhs);
-	phc_TODO ();
 }
+
+// TODO: i expect we dont need to do a union of the RHSs (ie, I expect that's
+// already sorted from when the aliasing happened).
 
 void
 BCCH_aliasing::set_scalar_value (Basic_block* bb, Index_node* lhs, Literal* lit)
@@ -314,6 +327,8 @@ BCCH_aliasing::set_scalar_value (Basic_block* bb, Index_node* lhs, Literal* lit)
 	foreach (tie (name, wpa), wp->analyses)
 		wpa->set_value (bb, lhs->get_unique_name (), lit, DEFINITE);
 
+
+	// Handle aliasing
 	ptg->set_scalar_value (lhs);
 }
 

@@ -13,7 +13,7 @@ using namespace boost;
 
 /* Constructors */
 
-long Basic_block::max_id = 1;
+long Basic_block::max_id = 0;
 
 Basic_block::Basic_block(CFG* cfg)
 : cfg(cfg)

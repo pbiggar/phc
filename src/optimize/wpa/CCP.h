@@ -26,7 +26,8 @@ public:
 	bool branch_is_true (MIR::Branch*) { return false; }
 	bool branch_is_false (MIR::Branch*) { return false; }
 
-	void set_value (Basic_block* bb, string index_node, MIR::Literal* lit, certainty cert);
+	void set_value (Basic_block* bb, string lhs, MIR::Literal* lit, certainty cert);
+	void set_value_from (Basic_block* bb, string lhs, string rhs, certainty cert);
 
 	Map<long, Lattice_map> lattices;
 };

@@ -32,12 +32,13 @@ CCP::dump()
 	Lattice_map lat;
 	foreach (tie (id, lat), lattices)
 	{
+		cdebug << "Lattice for BB: " << id << endl;
 		lat.dump();
 	}
 }
 
 void
-CCP::set_value (Basic_block* bb, string index_node, Literal* lit, certainty cert)
+CCP::set_value (Basic_block* bb, string lhs, Literal* lit, certainty cert)
 {
 	if (cert != DEFINITE)
 		phc_TODO ();
@@ -69,5 +70,19 @@ CCP::set_value (Basic_block* bb, string index_node, Literal* lit, certainty cert
 	Lattice_map& lat = lattices[bb->ID];
 	
 	// Values dont get killed to ensure monotonicity.
-	lat[index_node] = meet (lat[index_node], new Literal_cell (lit));
+	lat[lhs] = meet (lat[lhs], new Literal_cell (lit));
+}
+
+
+void
+CCP::set_value_from (Basic_block* bb, string lhs, string rhs, certainty cert)
+{
+	if (cert != DEFINITE)
+		phc_TODO ();
+
+
+	Lattice_map& lat = lattices[bb->ID];
+	
+	// Values dont get killed to ensure monotonicity.
+	lat[lhs] = meet (lat[lhs], lat[rhs]);
 }
