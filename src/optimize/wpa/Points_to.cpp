@@ -175,6 +175,28 @@ Points_to::has_value_edges (Index_node* source)
 	return false;
 }
 
+String_list*
+Points_to::get_aliases (Index_node* node, certainty cert)
+{
+	// TODO: this does not include points-to aliasing. We don't need it yet,
+	// however.
+	String_list* result = new String_list;
+
+	string name = node->get_unique_name ();
+
+
+	// There must be an edge to anything it aliases
+	string target;
+	Alias_pair* pair;
+	foreach (tie (target, pair), pairs->by_source[target])
+	{
+		if (pair->cert == cert)
+			result->push_back (s (target));
+	}
+
+	return result;
+}
+
 
 /*
  * Alias-pair representation

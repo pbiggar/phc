@@ -594,13 +594,13 @@ SCCP::transform_variable_variable (Statement_block*, Variable_variable* in)
 
 class SCCP_updater : public Visit_once
 {
-	Lattice_map& lattice;
+	SSA_map& lattice;
 
 	// For visit_expr
 	SCCP* sccp;
 public:
 
-	SCCP_updater (Lattice_map& lattice, SCCP* sccp)
+	SCCP_updater (SSA_map& lattice, SCCP* sccp)
 	: lattice (lattice)
 	, sccp (sccp)
 	{

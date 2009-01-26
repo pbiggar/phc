@@ -14,6 +14,7 @@ class Basic_block : virtual public GC_obj
 {
 public:
 	CFG* cfg;
+	static long max_id;
 
 public:
 	Basic_block (CFG* parent);
@@ -159,6 +160,8 @@ public:
 	// Can be useful for debugging.
 	int get_index ();
 	virtual Basic_block* clone () = 0;
+
+	long ID;
 };
 
 class Entry_block : public Basic_block

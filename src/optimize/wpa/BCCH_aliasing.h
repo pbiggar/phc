@@ -24,11 +24,15 @@
 
 
 
-class BCCH_aliasing : public WPA
+class BCCH_aliasing : public CFG_visitor
 {
 
 public:
 	Points_to* ptg;
+	Whole_program* wp;
+
+	// Whole_program runs this.
+	void run (CFG* cfg){}
 
 	BCCH_aliasing (Whole_program*);
 
@@ -41,12 +45,16 @@ public:
 
 	void dump ();
 
-	// Return the string index of the literal cast to a string.
-	string get_index (MIR::Literal* lit);
-
 	// Call all the analyses' pre-hooks on this block, then perform the
 	// points-to analysis, then perform the other analyses' post-hooks.
 	void analyse_block (Basic_block* bb);
+
+	// These functions describe the operation being performed in each block.
+	// They pass the information to the Points-to graph, and to the other
+	// analyses. The BB is to give a unique index to the results.
+	void set_reference (Basic_block* bb, Index_node* lhs, Index_node* rhs);
+	void set_scalar_value (Basic_block* bb, Index_node* lhs, MIR::Literal* lit);
+	void copy_value (Basic_block* bb, Index_node* lhs, Index_node* rhs);
 
 
 	void visit_branch_block (Branch_block*) { phc_TODO (); }

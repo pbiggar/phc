@@ -62,8 +62,8 @@ Mark_initialized::init_block (Basic_block* bb)
 	// all vars automatically UNINIT
 	// all block automatically !EXECUTED
 	// all solutions automatically !REPEAT
-	ins[bb] = new Lattice_map ();
-	outs[bb] = new Lattice_map (UNINIT);
+	ins[bb] = new SSA_map ();
+	outs[bb] = new SSA_map (UNINIT);
 }
 
 void
@@ -169,7 +169,7 @@ void
 Mark_initialized::transfer_out (Basic_block* bb, BB_list* succs)
 {
 	DEBUG ("transfer OUT for block " << bb->get_index ());
-	Lattice_map* old = outs[bb]->clone ();
+	SSA_map* old = outs[bb]->clone ();
 
 	// IN
 	outs[bb] = ins[bb]->clone ();

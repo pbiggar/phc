@@ -23,7 +23,7 @@ using namespace boost;
 using namespace std;
 
 BCCH_aliasing::BCCH_aliasing (Whole_program* wp)
-: WPA (wp)
+: wp (wp)
 {
 	ptg = new Points_to;
 }
@@ -137,15 +137,16 @@ BCCH_aliasing::analyse_block (Basic_block* bb)
 	WPA* wpa;
 
 	// Pre-hooks (applies to this aswell)
-	foreach (tie (name, wpa), wp->analyses)
-		wpa->pre_annotate (bb, ptg);
+//	foreach (tie (name, wpa), wp->analyses)
+//		wpa->pre_annotate (bb, ptg);
 
 	visit_block (bb);
-	dump();
+	foreach (tie (name, wpa), wp->analyses)
+		wpa->dump();
 
 	// Post-hooks (applies to this aswell)
-	foreach (tie (name, wpa), wp->analyses)
-		wpa->post_annotate (bb, ptg);
+//	foreach (tie (name, wpa), wp->analyses)
+//		wpa->post_annotate (bb, ptg);
 }
 
 
@@ -205,7 +206,8 @@ BCCH_aliasing::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 		case NIL::ID:
 		case REAL::ID:
 		case STRING::ID:
-			break;
+			set_scalar_value (bb, lhs, dyc<Literal> (in->rhs));
+			return;
 
 		// Need to use analysis results before putting into the graph
 		case Variable_variable::ID:
@@ -242,15 +244,11 @@ BCCH_aliasing::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 			break;
 	}
 
+	assert (rhs);
 	if (in->is_ref)
-			ptg->set_reference (lhs, dyc<Index_node> (rhs));
+		set_reference (bb, lhs, dyc<Index_node> (rhs));
 	else
-	{
-		if (rhs == NULL) // literals
-			ptg->set_scalar_value (lhs);
-		else
-			ptg->copy_value (lhs, dyc<Index_node> (rhs));
-	}
+		copy_value (bb, lhs, dyc<Index_node> (rhs));
 }
 
 void
@@ -260,18 +258,6 @@ BCCH_aliasing::visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
 		handle_new (bb, dyc<New> (in->expr), NULL);
 	else
 		handle_method_invocation (bb, dyc<Method_invocation> (in->expr), NULL);
-}
-
-// TODO: this should be used in a lot more places
-// TODO: non-string go through being ints before being converted to a string
-string
-BCCH_aliasing::get_index (Literal* lit)
-{
-	if (STRING* str = dynamic_cast<STRING*> (lit))
-		return *str->value;
-
-	// TODO: use embed
-	phc_TODO ();
 }
 
 void
@@ -287,8 +273,55 @@ BCCH_aliasing::handle_new (Statement_block* bb, MIR::New* in, MIR::VARIABLE_NAME
 }
 
 
-void BCCH_aliasing::dump ()
+void
+BCCH_aliasing::dump ()
 {
 	CHECK_DEBUG();
 	ptg->dump_graphviz (NULL);
 }
+
+
+
+/*
+ * Update the Points-to solution, and interface with other analyses.
+ */
+void
+BCCH_aliasing::set_reference (Basic_block* bb, Index_node* lhs, Index_node* rhs)
+{
+	ptg->set_reference (lhs, rhs);
+	phc_TODO ();
+}
+
+void
+BCCH_aliasing::set_scalar_value (Basic_block* bb, Index_node* lhs, Literal* lit)
+{
+	// Send the results to the analyses for all variables which could be
+	// overwritten.
+	WPA* wpa;
+	string name;
+	certainty certainties[] = {POSSIBLE, DEFINITE};
+	foreach (certainty cert, certainties)
+	{
+		String_list* aliases = ptg->get_aliases (lhs, cert);
+		foreach (tie (name, wpa), wp->analyses)
+		{
+			foreach (String* alias, *aliases)
+				wpa->set_value (bb, *alias, lit, cert);
+		}
+	}
+
+	// Handle LHS itself
+	foreach (tie (name, wpa), wp->analyses)
+		wpa->set_value (bb, lhs->get_unique_name (), lit, DEFINITE);
+
+	ptg->set_scalar_value (lhs);
+}
+
+void
+BCCH_aliasing::copy_value (Basic_block* bb, Index_node* lhs, Index_node* rhs)
+{
+	ptg->copy_value (lhs, rhs);
+	phc_TODO ();
+}
+
+

@@ -16,6 +16,14 @@
 class Whole_program;
 class Points_to;
 
+/*
+ * Must- or may- information.
+ */
+enum _certainty { POSSIBLE, DEFINITE };
+typedef enum _certainty certainty;
+
+
+
 class Annotator : virtual public GC_obj, public MIR::Visitor
 {
 public:
@@ -24,7 +32,7 @@ public:
 	Annotator (){}
 };
 
-class WPA : virtual public GC_obj, public CFG_visitor
+class WPA : virtual public GC_obj
 {
 public:
 	Whole_program* wp;
@@ -38,32 +46,14 @@ public:
 	{
 	}
 
-	// Statements are dispatched by Whole_program.
-	void run (CFG* cfg) {}
-
-	// Prepare for a new function
-	virtual void forward_bind (
-			CFG* caller_cfg, CFG* callee_cfg,
-			MIR::Actual_parameter_list* actuals,
-			MIR::VARIABLE_NAME* lhs) = 0;
-
-	// Indicate we are finished analysing this function
-	virtual void backward_bind (CFG* caller_cfg, CFG* callee_cfg) = 0;
-
-
-	// We do not have an implementation of the called method to analyse, so we
-	// must instead use this summary. This summary may represent the
-	// worst-case.
-	virtual void use_summary_results (
-			Method_info* info,
-			MIR::Actual_parameter_list* actuals,
-			MIR::VARIABLE_NAME* lhs) = 0;
+	// Set the value of INDEX_NODE to LIT. CERT indicates whether the assignment
+	// can be considered killing.
+	virtual void set_value (Basic_block* bb, string index_node, MIR::Literal* lit, certainty cert){};
 
 	// Print debugging information
 	virtual void dump() = 0;
 
 	// Annotate BB using information from POINTS-TO
-	// TODO: make pure virtual
 	void pre_annotate (Basic_block* bb, Points_to* ptg)
 	{
 		if (pre_annotator == NULL)

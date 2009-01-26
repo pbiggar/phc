@@ -18,7 +18,7 @@ class Sparse_conditional_visitor : public CFG_visitor
 	SSA_op_list* ssa_wl;
 
 protected:
-	Lattice_map lattice;
+	SSA_map lattice;
 
 public:
 	virtual void post_pass (CFG*) = 0;

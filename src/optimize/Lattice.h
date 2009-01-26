@@ -27,10 +27,91 @@ extern Lattice_cell* BOTTOM;
 
 
 class Lattice_map
-: public Var_map<Lattice_cell*>
+: public Map<string, Lattice_cell*>
 {
 public:
 	Lattice_map (Lattice_cell* default_value = TOP)
+	: Map<string, Lattice_cell*> ()
+	, default_value (default_value)
+	{
+	}
+
+	Lattice_cell* default_value;
+
+	void dump ()
+	{
+		CHECK_DEBUG ();
+
+		string index;
+		Lattice_cell* cell;
+		foreach (boost::tie (index, cell), *this)
+		{
+			cdebug << index << " => ";
+			if (cell == TOP)
+				cdebug << "TOP";
+			else if (cell == BOTTOM)
+				cdebug << "BOTTOM";
+			else
+			{
+				cdebug << "(";
+				cell->dump ();
+				cdebug << ")";
+			}
+			cdebug << "\n";
+		}
+	}
+
+	// We want to offer the option of the default value not being TOP.
+	Lattice_cell*& operator[](string var)
+	{
+		if (has (var))
+		{
+			return Map<string, Lattice_cell*>::operator[](var);
+		}
+		else
+		{
+			Map<string, Lattice_cell*>::operator[](var) = default_value;
+			return Map<string, Lattice_cell*>::operator[](var);
+		}
+	}
+
+	// Not a deep copy.
+	Lattice_map* clone ()
+	{
+		Lattice_map* result = new Lattice_map (default_value);
+
+		string var;
+		Lattice_cell* cell;
+		foreach (boost::tie (var, cell), *this)
+			(*result)[var] = cell;
+
+		return result;
+	}
+
+	bool equals (Lattice_map* other)
+	{
+		bool result = true;
+		string var;
+		Lattice_cell* cell;
+		foreach (boost::tie (var, cell), *other)
+		{
+			if (cell == TOP || cell == BOTTOM)
+			{
+				if (cell != (*this)[var])
+					return false;
+			}
+			else if (!(cell->equals ((*this)[var])))
+				return false;
+		}
+		return true;
+	}
+};
+
+class SSA_map
+: public Var_map<Lattice_cell*>
+{
+public:
+	SSA_map (Lattice_cell* default_value = TOP)
 	: Var_map<Lattice_cell*> ()
 	, default_value (default_value)
 	{
@@ -76,9 +157,9 @@ public:
 	}
 
 	// Not a deep copy.
-	Lattice_map* clone ()
+	SSA_map* clone ()
 	{
-		Lattice_map* result = new Lattice_map (default_value);
+		SSA_map* result = new SSA_map (default_value);
 
 		MIR::VARIABLE_NAME* var;
 		Lattice_cell* cell;
@@ -88,7 +169,7 @@ public:
 		return result;
 	}
 
-	bool equals (Lattice_map* other)
+	bool equals (SSA_map* other)
 	{
 		bool result = true;
 		MIR::VARIABLE_NAME* var;

@@ -17,6 +17,8 @@
 
 #include "MIR.h"
 
+#include "WPA.h"
+
 #define DECL(T) class T; typedef List<T*> T##_list;
 
 DECL (PT_node);
@@ -82,14 +84,6 @@ public:
 
 	string get_unique_name ();
 };
-
-/*
- * Does this edge definitely exist? Between Index_nodes, this means may- or
- * must-alias. Between Storage_nodes and Index_nodes, it says whether there is
- * definitely an index with this name, or not.
- */
-enum _certainty { POSSIBLE, DEFINITE };
-typedef enum _certainty certainty;
 
 class Alias_pair : virtual public GC_obj
 {
@@ -160,6 +154,11 @@ public:
 	bool has_value_edges (Index_node* node);
 
 	void dump_graphviz (String* label);
+
+	// Get the list of indices that alias NODE, with the certainty CERT.
+	// Must-aliases are not returned for POSSIBLE. NODE is not returned, so
+	// callers which rely on NODE aliasing itself must handle it themselves.
+	String_list* get_aliases (Index_node* node, certainty cert);
 
 	Points_to* clone();
 };

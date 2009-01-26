@@ -13,10 +13,13 @@ using namespace boost;
 
 /* Constructors */
 
+long Basic_block::max_id = 1;
+
 Basic_block::Basic_block(CFG* cfg)
 : cfg(cfg)
 , vertex (NULL)
 {
+	ID = max_id++;
 	phi_lhss = new Var_set;
 	mus = new Var_set;
 	chis = new Var_map<MIR::VARIABLE_NAME*>;

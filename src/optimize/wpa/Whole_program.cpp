@@ -70,7 +70,6 @@ Whole_program::Whole_program ()
 //	vrp = new VRP (this);
 
 
-	register_analysis ("BCCH_aliasing", aliasing);
 //	register_analysis ("Callgraph", callgraph);
 	register_analysis ("CCP", ccp);
 //	register_analysis ("Constant_state", constant_state);
@@ -115,12 +114,10 @@ Whole_program::analyse_function (CFG* caller_cfg, CFG* cfg, MIR::Actual_paramete
 
 	// Process the entry blocks first (there is no edge here)
 	DEBUG ("Initing functions");
-	foreach (tie (name, wpa), analyses)
-	{
-		wpa->forward_bind (caller_cfg, cfg, actuals, lhs);
-		wpa->dump ();
-	}
+	aliasing->forward_bind (caller_cfg, cfg, actuals, lhs);
 
+	foreach (tie (name, wpa), analyses)
+		wpa->dump ();
 
 
 	// 2. Stop when CFG-worklist is empty
@@ -157,11 +154,10 @@ Whole_program::analyse_function (CFG* caller_cfg, CFG* cfg, MIR::Actual_paramete
 			cfg_wl->push_back (e->get_target ()->get_successor_edges ()->front ());
 	}
 
+	aliasing->backward_bind (caller_cfg, cfg);
+
 	foreach (tie (name, wpa), analyses)
-	{
-		wpa->backward_bind (caller_cfg, cfg);
 		wpa->dump ();
-	}
 }
 
 Edge_list*
@@ -264,6 +260,8 @@ Whole_program::analyse_summary (Method_info* info, CFG* caller_cfg, Actual_param
 
 	foreach (tie (name, wpa), analyses)
 	{
-		wpa->use_summary_results (info, actuals, lhs);
+		// TODO: this might be better off being passed through ALIASING aswell.
+		phc_TODO ();
+//		wpa->use_summary_results (info, actuals, lhs);
 	}
 }
