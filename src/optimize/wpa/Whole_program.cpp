@@ -278,4 +278,6 @@ Whole_program::apply_results (CFG* cfg)
 		// transformations are running.
 		aliasing->apply_results (bb);
 	}
+
+	cfg->dump_graphviz (NULL);
 }

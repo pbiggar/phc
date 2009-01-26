@@ -17,6 +17,8 @@
 #include "BCCH_aliasing.h"
 #include "Points_to.h"
 #include "Whole_program.h"
+#include "CCP.h"
+#include "optimize/SCCP.h"
 
 using namespace MIR;
 using namespace boost;
@@ -377,9 +379,17 @@ BCCH_aliasing::copy_value (Basic_block* bb, Index_node* lhs, Index_node* rhs)
 void
 BCCH_aliasing::apply_results (Basic_block* bb)
 {
-	// TODO: this assumes all the aliasing results have been merged for each
-	// context.
-	transformer->visit_block (bb);
+	if (Statement_block* sb = dynamic_cast<Statement_block*> (bb))
+	{
+		Statement* old = sb->statement->clone ();
+
+		transformer->visit_block (bb);
+
+		if (sb->statement->equals (old))
+			DEBUG ("No changes in BB: " << bb->ID);
+		else
+			DEBUG ("BB " << bb->ID << " changed");
+	}
 }
 
 
@@ -410,10 +420,48 @@ Optimization_transformer::visit_assign_field (Statement_block* bb, MIR::Assign_f
 	phc_TODO ();
 }
 
+
+Rvalue*
+Optimization_transformer::get_literal (Basic_block* bb, Rvalue* in)
+{
+	if (isa<Literal> (in))
+		return in;
+
+
+	string ns = NAME (bb);
+	VARIABLE_NAME* var_name = dyc<VARIABLE_NAME> (in);
+
+	Index_node* rhs = VN (ns, var_name);
+	CCP* ccp = aliasing->wp->ccp;
+	Lattice_cell* result = ccp->ins[bb->ID][rhs->get_unique_name ()];
+
+	if (result == BOTTOM)
+		return in;
+
+	if (result == TOP)
+		return new NIL;
+
+	return dyc<Literal_cell> (result)->value;
+}
+
 void
 Optimization_transformer::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 {
-	phc_TODO ();
+	string ns = NAME (bb);
+	Index_node* lhs = IN (ns, *in->lhs->value);
+
+	// The assignment is by reference. We will be able to remove this later, via DCE.
+	if (in->is_ref)
+		return;
+
+	// Ignore
+	if (isa<Literal> (in->rhs))
+		return;
+
+	// TODO: check that there are no implicit operations on the rhs
+
+	if (isa<VARIABLE_NAME> (in->rhs))
+		in->rhs = get_literal (bb, dyc<VARIABLE_NAME> (in->rhs));
 }
 
 void
@@ -425,7 +473,7 @@ Optimization_transformer::visit_assign_var_var (Statement_block* bb, MIR::Assign
 void
 Optimization_transformer::visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
 {
-	phc_TODO ();
+	visit_expr (bb, in->expr);
 }
 
 void
@@ -573,10 +621,38 @@ Optimization_transformer::visit_isset (Statement_block* bb, MIR::Isset* in)
 	phc_TODO ();
 }
 
+
 void
 Optimization_transformer::visit_method_invocation (Statement_block* bb, MIR::Method_invocation* in)
 {
-	phc_TODO ();
+	if (!isa<METHOD_NAME> (in->method_name))
+		phc_TODO ();
+
+	METHOD_NAME* name = dyc<METHOD_NAME> (in->method_name);
+
+	// TODO: this should get all possible receivers
+	
+	Method_info* info = Oracle::get_method_info (name->value);
+
+	if (info->has_implementation ())
+		phc_TODO ();
+
+
+	// Update the parameters with constants
+	int i = -1;
+	foreach (Actual_parameter* param, *in->actual_parameters)
+	{
+		i++;
+
+		if (isa<Literal> (param->rvalue))
+			continue;
+
+		if (!param->is_ref
+				&& !info->params->at (i)->pass_by_reference)
+		{
+			param->rvalue = get_literal (bb, param->rvalue);
+		}
+	}
 }
 
 void
