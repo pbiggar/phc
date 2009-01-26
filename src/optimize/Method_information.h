@@ -8,6 +8,7 @@
 #ifndef PHC_METHOD_INFORMATION
 #define PHC_METHOD_INFORMATION
 
+#include "CFG.h"
 
 // There is a ton of information here, and we don't want to extend the
 // MIR::Signature and MIR::Formal_parameters with it, since they're used in
@@ -50,6 +51,7 @@ public:
 	Method_info (String* method_name, Parameter_info_list* params, bool can_touch_globals, bool can_touch_locals, bool return_by_ref)
 	: method_name (method_name)
 	, implementation (NULL)
+	, cfg (NULL)
 	, params (params)
 	, can_touch_globals (can_touch_globals)
 	, can_touch_locals (can_touch_locals)
@@ -62,10 +64,12 @@ public:
 	: method_name (method_name)
 	, implementation (implementation)
 	{
+		cfg = new CFG (implementation);
 	}
 
 	String* method_name;
 	MIR::Method* implementation;
+	CFG* cfg;
 
 	/*
 	 * Summary information:

@@ -90,8 +90,13 @@ Whole_program::run (MIR::PHP_script* in)
 		NULL);
 
 
-	// Apply_results
-	phc_TODO ();
+	// To apply the results, we should first get the callgraph the merge all
+	// possible result sets. Then we can traverse the callgraph once to apply
+	// the results.
+
+	// We must go through aliasing as all of our results are in terms of
+	// variables named in aliasing information.
+	apply_results (Oracle::get_method_info (s("__MAIN__"))->cfg);
 }
 
 
@@ -138,18 +143,17 @@ Whole_program::analyse_function (CFG* caller_cfg, CFG* cfg, MIR::Actual_paramete
 		// We'll be iterating anyway.
 		//
 		// The analysis annotates any MIR::Nodes in the Block.
-		bool reiterate = aliasing->analyse_block (e->get_target ());
+		bool changed = aliasing->analyse_block (e->get_target ());
 
 
 		// Add next	block(s)
-		if (Branch_block* branch = dynamic_cast<Branch_block*> (e->get_target ()))
-			cfg_wl->push_back_all (get_branch_successors (branch));
-		else if (!isa<Exit_block> (e->get_target ()))
-			cfg_wl->push_back (e->get_target ()->get_successor_edges ()->front ());
-
-
-		if (reiterate)
-			cfg_wl->push_back (e);
+		if (changed)
+		{
+			if (Branch_block* branch = dynamic_cast<Branch_block*> (e->get_target ()))
+				cfg_wl->push_back_all (get_branch_successors (branch));
+			else if (!isa<Exit_block> (e->get_target ()))
+				cfg_wl->push_back (e->get_target ()->get_successor_edges ()->front ());
+		}
 	}
 
 	aliasing->backward_bind (caller_cfg, cfg);
@@ -223,11 +227,12 @@ Whole_program::invoke_method (Method_invocation* in, CFG* caller_cfg, MIR::VARIA
 // TODO: how to convey call-time-pass-by-ref?
 void
 Whole_program::analyse_method_info (Method_info* info, CFG* caller_cfg,
-												MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
+												MIR::Actual_parameter_list* actuals,
+												MIR::VARIABLE_NAME* lhs)
 {
 	if (info->has_implementation ())
 	{
-		analyse_function (caller_cfg, new CFG (info->implementation), actuals, lhs);
+		analyse_function (caller_cfg, info->cfg, actuals, lhs);
 	}
 	else
 	{
@@ -255,4 +260,22 @@ Whole_program::analyse_summary (Method_info* info, CFG* caller_cfg, Actual_param
 
 	foreach (tie (name, wpa), analyses)
 		aliasing->use_summary_results (info, actuals, lhs);
+}
+
+void
+Whole_program::apply_results (CFG* cfg)
+{
+	foreach (Basic_block* bb, *cfg->get_all_bbs ())
+	{
+		// We apply all results through aliasing. Its the only place we have all
+		// the information we need (ie is this type weird, is it making an
+		// implicit call, can we actually replace $x with its value, etc. Since
+		// we need this information for tons of differernt optimizations, its
+		// best to have a single transformer applying the results.
+		//
+		// Additionally, the results are indexed by the name the Points-to
+		// analyser gives them, so we need acceess to this while these
+		// transformations are running.
+		aliasing->apply_results (bb);
+	}
 }

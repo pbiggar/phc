@@ -26,6 +26,7 @@ BCCH_aliasing::BCCH_aliasing (Whole_program* wp)
 : wp (wp)
 {
 	ptg = new Points_to;
+	transformer = new Optimization_transformer (this);
 }
 
 
@@ -123,6 +124,9 @@ BCCH_aliasing::forward_bind (CFG* caller_cfg, CFG* callee_cfg, MIR::Actual_param
 void
 BCCH_aliasing::backward_bind (CFG* caller_cfg, CFG* callee_cfg)
 {
+	if (callee_cfg->method->is_main ())
+		return;
+
 	phc_TODO ();
 
 	// TODO: handle returns
@@ -133,6 +137,7 @@ BCCH_aliasing::backward_bind (CFG* caller_cfg, CFG* callee_cfg)
 bool
 BCCH_aliasing::analyse_block (Basic_block* bb)
 {
+	DEBUG ("Analysing BB: " << bb->ID);
 	string name;
 	WPA* wpa;
 
@@ -157,12 +162,12 @@ BCCH_aliasing::analyse_block (Basic_block* bb)
 
 
 	// Calculate fix-point
-	bool reiterate = false;
+	bool changed = false;
 	foreach (tie (name, wpa), wp->analyses)
-		reiterate |= wpa->solution_changed (bb);
+		changed |= wpa->solution_changed (bb);
 
 
-	return reiterate;
+	return changed;
 }
 
 
@@ -369,3 +374,255 @@ BCCH_aliasing::copy_value (Basic_block* bb, Index_node* lhs, Index_node* rhs)
 }
 
 
+void
+BCCH_aliasing::apply_results (Basic_block* bb)
+{
+	// TODO: this assumes all the aliasing results have been merged for each
+	// context.
+	transformer->visit_block (bb);
+}
+
+
+
+/*
+ * Apply the optimization results.
+ */
+Optimization_transformer::Optimization_transformer (BCCH_aliasing* aliasing)
+: aliasing (aliasing)
+{
+}
+
+void
+Optimization_transformer::run (CFG* cfg)
+{
+}
+
+
+void
+Optimization_transformer::visit_assign_array (Statement_block* bb, MIR::Assign_array* in)
+{
+	phc_TODO ();
+}
+
+void
+Optimization_transformer::visit_assign_field (Statement_block* bb, MIR::Assign_field * in)
+{
+	phc_TODO ();
+}
+
+void
+Optimization_transformer::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
+{
+	phc_TODO ();
+}
+
+void
+Optimization_transformer::visit_assign_var_var (Statement_block* bb, MIR::Assign_var_var* in)
+{
+	phc_TODO ();
+}
+
+void
+Optimization_transformer::visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
+{
+	phc_TODO ();
+}
+
+void
+Optimization_transformer::visit_foreach_end (Statement_block* bb, MIR::Foreach_end* in)
+{
+	phc_TODO ();
+}
+
+void
+Optimization_transformer::visit_foreach_next (Statement_block* bb, MIR::Foreach_next* in)
+{
+	phc_TODO ();
+}
+
+void
+Optimization_transformer::visit_foreach_reset (Statement_block* bb, MIR::Foreach_reset* in)
+{
+	phc_TODO ();
+}
+
+void
+Optimization_transformer::visit_global (Statement_block* bb, MIR::Global* in)
+{
+	phc_TODO ();
+}
+
+void
+Optimization_transformer::visit_pre_op (Statement_block* bb, MIR::Pre_op* in)
+{
+	phc_TODO ();
+}
+
+void
+Optimization_transformer::visit_assign_next (Statement_block* bb, MIR::Assign_next* in)
+{
+	phc_TODO ();
+}
+
+void
+Optimization_transformer::visit_return (Statement_block* bb, MIR::Return* in)
+{
+	phc_TODO ();
+}
+
+void
+Optimization_transformer::visit_ssa_pre_op (Statement_block* bb, MIR::SSA_pre_op* in)
+{
+	phc_TODO ();
+}
+
+void
+Optimization_transformer::visit_static_declaration (Statement_block* bb, MIR::Static_declaration* in)
+{
+	phc_TODO ();
+}
+
+void
+Optimization_transformer::visit_throw (Statement_block* bb, MIR::Throw* in)
+{
+	phc_TODO ();
+}
+
+void
+Optimization_transformer::visit_try (Statement_block* bb, MIR::Try* in)
+{
+	phc_TODO ();
+}
+
+void
+Optimization_transformer::visit_unset (Statement_block* bb, MIR::Unset* in)
+{
+	phc_TODO ();
+}
+
+
+void
+Optimization_transformer::visit_array_access (Statement_block* bb, MIR::Array_access* in)
+{
+	phc_TODO ();
+}
+
+void
+Optimization_transformer::visit_bin_op (Statement_block* bb, MIR::Bin_op* in)
+{
+	phc_TODO ();
+}
+
+void
+Optimization_transformer::visit_bool (Statement_block* bb, MIR::BOOL* in)
+{
+	phc_TODO ();
+}
+
+void
+Optimization_transformer::visit_cast (Statement_block* bb, MIR::Cast* in)
+{
+	phc_TODO ();
+}
+
+void
+Optimization_transformer::visit_constant (Statement_block* bb, MIR::Constant* in)
+{
+	phc_TODO ();
+}
+
+void
+Optimization_transformer::visit_field_access (Statement_block* bb, MIR::Field_access* in)
+{
+	phc_TODO ();
+}
+
+void
+Optimization_transformer::visit_foreach_get_key (Statement_block* bb, MIR::Foreach_get_key* in)
+{
+	phc_TODO ();
+}
+
+void
+Optimization_transformer::visit_foreach_get_val (Statement_block* bb, MIR::Foreach_get_val* in)
+{
+	phc_TODO ();
+}
+
+void
+Optimization_transformer::visit_foreach_has_key (Statement_block* bb, MIR::Foreach_has_key* in)
+{
+	phc_TODO ();
+}
+
+void
+Optimization_transformer::visit_instanceof (Statement_block* bb, MIR::Instanceof* in)
+{
+	phc_TODO ();
+}
+
+void
+Optimization_transformer::visit_int (Statement_block* bb, MIR::INT* in)
+{
+	phc_TODO ();
+}
+
+void
+Optimization_transformer::visit_isset (Statement_block* bb, MIR::Isset* in)
+{
+	phc_TODO ();
+}
+
+void
+Optimization_transformer::visit_method_invocation (Statement_block* bb, MIR::Method_invocation* in)
+{
+	phc_TODO ();
+}
+
+void
+Optimization_transformer::visit_new (Statement_block* bb, MIR::New* in)
+{
+	phc_TODO ();
+}
+
+void
+Optimization_transformer::visit_nil (Statement_block* bb, MIR::NIL* in)
+{
+	phc_TODO ();
+}
+
+void
+Optimization_transformer::visit_param_is_ref (Statement_block* bb, MIR::Param_is_ref* in)
+{
+	phc_TODO ();
+}
+
+void
+Optimization_transformer::visit_real (Statement_block* bb, MIR::REAL* in)
+{
+	phc_TODO ();
+}
+
+void
+Optimization_transformer::visit_string (Statement_block* bb, MIR::STRING* in)
+{
+	phc_TODO ();
+}
+
+void
+Optimization_transformer::visit_unary_op (Statement_block* bb, MIR::Unary_op* in)
+{
+	phc_TODO ();
+}
+
+void
+Optimization_transformer::visit_variable_name (Statement_block* bb, MIR::VARIABLE_NAME* in)
+{
+	phc_TODO ();
+}
+
+void
+Optimization_transformer::visit_variable_variable (Statement_block* bb, MIR::Variable_variable* in)
+{
+	phc_TODO ();
+}

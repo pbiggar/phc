@@ -83,6 +83,8 @@ public:
 	Edge_list* get_branch_successors (Branch_block* bb);
 	Method_info_list* get_possible_receivers (MIR::Method_invocation* in);
 
+	// TODO: move these elsewhere
+	void apply_results (CFG* cfg);
 
 private:
 	// The CFGs arent in an intuitive order, but thats so that when there are 2
