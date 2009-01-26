@@ -102,8 +102,9 @@ using namespace boost;
  *		d)	Update all PHI, MU and CHI operands and results to make them refer
  *			to entries in the hash-table.
  */
-HSSA::HSSA (CFG* cfg)
+HSSA::HSSA (CFG* cfg, Points_to* ptg)
 : cfg(cfg)
+, ptg (ptg)
 {
 }
 
@@ -235,16 +236,10 @@ HSSA::convert_to_hssa_form ()
 
 
 	
-	// TODO: It would be great to do the alias analysis on the old SSA form, to
-	// get more precise results for the new SSA form.
-	DEBUG ("Calculating Aliasing");
-	Address_taken* aliasing = new Address_taken ();
-	aliasing->run (cfg);
-
 	// The alias sets are passed to def-use-web, which adds MUs and CHIs
 	// appropriately.
 	DEBUG ("Calculating Def-use-web for SSA");
-	cfg->duw = new Def_use_web (aliasing->aliases);
+	cfg->duw = new Def_use_web (ptg);
 	cfg->duw->run (cfg);
 
 
@@ -317,7 +312,7 @@ HSSA::convert_to_hssa_form ()
 
 
 	// Recalculate DUW, using explicit MU/CHIs:
-	cfg->duw = new Def_use_web (NULL);
+	cfg->duw = new Def_use_web ();
 	cfg->duw->run (cfg);
 
 
@@ -378,11 +373,11 @@ HSSA::convert_out_of_ssa_form ()
 
 	// Since we have probably updated nodes within blocks, we need to refresh
 	// the DUW to properly remove nodes which have been updated.
-	cfg->duw = new Def_use_web (NULL);
+	cfg->duw = new Def_use_web ();
 	cfg->duw->run (cfg);
 
 
-	// Drop variable indices - some variables exist in multiple 
+	// Drop variable indices
 	foreach (Basic_block* bb, *cfg->get_all_bbs ())
 	{
 		foreach (VARIABLE_NAME* var, *bb->get_uses_for_renaming ())

@@ -595,7 +595,7 @@ Pass* Pass_manager::get_pass_named (String* name)
 }
 
 void
-Pass_manager::cfg_dump (CFG* cfg, Pass* pass, String* comment, int iteration)
+Pass_manager::cfg_dump (CFG* cfg, Pass* pass, String* comment)
 {
 	//	for (unsigned int i = 0; i < args_info->cfg_dump_given; i++)
 	//		if (*cfg_pass->name == args_info->cfg_dump_arg [i])
@@ -606,7 +606,6 @@ Pass_manager::cfg_dump (CFG* cfg, Pass* pass, String* comment, int iteration)
 	if (comment)
 		title << " - " << *comment;
 
-	title << " - " << iteration;
 	for (unsigned int i = 0; i < args_info->cfg_dump_given; i++)
 	{
 		if (*pass->name == args_info->cfg_dump_arg [i])
@@ -623,62 +622,12 @@ Pass_manager::cfg_dump (CFG* cfg, Pass* pass, String* comment, int iteration)
 	dump (NULL, pass);
 }
 
-bool
-Pass_manager::can_optimize (MIR::Method* method)
-{
-	if (lexical_cast<int> (args_info->optimize_arg) == 0)
-		return false;
-
-	if (*method->signature->method_name->value != "__MAIN__")
-		return true;
-
-	return false;
-
-	// TODO: we did this so that most of our tests would be meaningful (since
-	// most test programs are very short, and just have a main method).. Its
-	// hard to get the semantics right to both __MAIN__ and all other functions.
-	// So skip analyzing main, and instead add the raise_globals plugin. Analyse
-	// main in the future.
-
-
-	// If it is __MAIN__ we can still analyse it if it doesn't call methods
-	// which touch global variables.
-	
-	class Main_is_optimizable : public MIR::Visitor
-	{
-	public:
-		bool is_optimizable;
-		Main_is_optimizable () : is_optimizable (true) {}
-		void pre_new (MIR::New*) { is_optimizable = false; }
-		void pre_method_invocation (MIR::Method_invocation* in)
-		{
-			if (in->target)
-				is_optimizable = false;
-
-			MIR::METHOD_NAME* method_name
-				= dynamic_cast<MIR::METHOD_NAME*> (in->method_name);
-
-			// variable-function call
-			if (!method_name)
-				is_optimizable = false;
-
-			// calls a const function
-			if (method_name && Oracle::is_const_function (method_name))
-				is_optimizable = false;
-		}
-	};
-
-	Main_is_optimizable mio;
-	method->visit (&mio);
-
-	return mio.is_optimizable;
-}
-
-
 void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 {
 	if (lexical_cast<int> (args_info->optimize_arg) == 0)
 		return;
+
+	MIR::PHP_script* script = in->as_MIR();
 
 	// Initialize the optimization oracle
 	Oracle::initialize (in);
@@ -692,9 +641,6 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 	while (*wpa_pass->name != "wpa");
 	maybe_enable_debug (wpa_pass);
 	Whole_program* wpa = new Whole_program;
-	wpa->run (in);
-	return;
-
 
 
 	// The pass_manager allows passes to be added in-between the passes we expect. Ignore them.
@@ -723,128 +669,65 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 	while (*drop_pass->name != "drop_ssa");
 
 
-	MIR::Method_list* candidates = new MIR::Method_list;
-
-
-	// Perform optimizations method-at-a-time.
-	MIR::PHP_script* script = in->as_MIR();
-	foreach (MIR::Statement* stmt, *script->statements)
+	foreach (Method_info* info, *Oracle::get_all_methods ())
 	{
-		// TODO: we should be optimizing all methods, not just functions.
-		if (isa<MIR::Method> (stmt))
-		{
-			MIR::Method* method = dyc<MIR::Method> (stmt);
+		if (!info->has_implementation ())
+			continue;
 
-			// Until we have interprocedural alias analysis, we should punt on
-			// __MAIN__ (with some exceptions) make an exception when there are
-			// no function calls.
-			if (can_optimize (method))
-				candidates->push_back (method);
-			else
-			{
-				maybe_enable_debug (cfg_pass);
-				CFG* cfg = new CFG (method);
-				cfg_dump (cfg, cfg_pass, s("No optimizations"), -1);
-			}
-		}
-	}
-
-	// Get the method signatures for use in later optimizations. Naturally,
-	// this will give way once we have interprocedural optimizations.
-	foreach (MIR::Method* method, *candidates)
-	{
-		Oracle::add_signature (method->signature);
-	}
-
-	foreach (MIR::Method* method, *candidates)
-	{
 		maybe_enable_debug (cfg_pass);
-		CFG* cfg = new CFG (method);
+		CFG* cfg = info->cfg;
 
 		if (lexical_cast<int> (args_info->optimize_arg) > 0)
 		{
-			MIR::Method* old = method->clone ();
-
-			// iterate until it fix-points (or 10 times)
-			for (int iter = 0; iter < 10; iter++)
+			// Dump the CFG
+			foreach (Pass* pass, *optimization_queue)
 			{
-				// Dump the CFG
-				cfg_dump (cfg, cfg_pass, s("Iterating"), iter);
-				foreach (Pass* pass, *optimization_queue)
+				Optimization_pass* opt = dynamic_cast<Optimization_pass*> (pass);
+				if (opt == NULL || !pass->is_enabled (pm))
+					continue;
+
+				if (args_info->verbose_flag)
+					cout << "Running pass: " << *pass->name << endl;
+
+				// If an optimization pass sees something it cant handle, it
+				// throws an exception, and we skip optimizing the function.
+
+				maybe_enable_debug (build_pass);
+				HSSA* hssa;
+				if (opt->require_ssa)
 				{
-					Optimization_pass* opt = dynamic_cast<Optimization_pass*> (pass);
-					if (opt == NULL || !pass->is_enabled (pm))
-						continue;
-
-					if (args_info->verbose_flag)
-						cout << "Running pass: " << *pass->name << endl;
-
-					// If an optimization pass sees something it cant handle, it
-					// throws an exception, and we skip optimizing the function.
-
-					MIR::Statement_list* backup = method->statements->clone ();
-					try
-					{
-						maybe_enable_debug (build_pass);
-						HSSA* hssa;
-						if (opt->require_ssa)
-						{
-							// Convert to SSA form
-							hssa = new HSSA (cfg);
-							hssa->convert_to_hssa_form ();
-							cfg->clean ();
-							cfg_dump (cfg, pass, s("In SSA (cleaned)"), iter);
-						}
-						else
-						{
-							// We still want use-def information.
-							cfg->duw = new Def_use_web (NULL);
-							cfg->duw->run (cfg);
-							cfg_dump (cfg, pass, s("Non-SSA"), iter);
-						}
-
-
-						// Run optimization
-						maybe_enable_debug (pass);
-						opt->run (cfg, this);
-						cfg->clean ();
-						cfg_dump (cfg, pass, s("After optimization (cleaned)"), iter);
-
-						// Convert out of SSA
-						if (opt->require_ssa)
-						{
-							maybe_enable_debug (drop_pass);
-							hssa->convert_out_of_ssa_form ();
-							cfg->clean ();
-							cfg_dump (cfg, pass, s("Out of SSA (cleaned)"), iter);
-						}
-					}
-					catch (...)
-					{
-						phc_missed_opt ("exceptional code in pass %s and method %s", method,
-							pass->name->c_str (), method->signature->method_name->value->c_str ());
-
-						cfg_dump (cfg, pass, s("In exception handler"), iter);
-
-						// The current CFG is ruined - rebuild it.
-						method->statements = backup;
-						cfg = new CFG (method);
-					}
+					// Convert to SSA form
+					hssa = new HSSA (cfg, wpa->aliasing->ptg);
+					hssa->convert_to_hssa_form ();
+					cfg->clean ();
+					cfg_dump (cfg, pass, s("In SSA (cleaned)"));
 				}
-				cfg_dump (cfg, cfg_pass, s("After full set of passes"), iter);
-
-				// After each run through the passes, check whether it has
-				// fix-pointed.
-				method->statements = cfg->get_linear_statements ();
-
-				// Labels are always new values, so checking for equality wont work.
-				//					if (old->equals (method))
+				else
 				{
-					//						cfg_dump (cfg, cfg_pass, s("Finished"), iter);
-					break;
+					// We still want use-def information.
+					cfg->duw = new Def_use_web (NULL);
+					cfg->duw->run (cfg);
+					cfg_dump (cfg, pass, s("Non-SSA"));
 				}
-				old = method->clone ();
+
+				// Run optimization
+				maybe_enable_debug (pass);
+				opt->run (cfg, this);
+				cfg->clean ();
+				cfg_dump (cfg, pass, s("After optimization (cleaned)"));
+
+				// Convert out of SSA
+				if (opt->require_ssa)
+				{
+					maybe_enable_debug (drop_pass);
+					hssa->convert_out_of_ssa_form ();
+					cfg->clean ();
+					cfg_dump (cfg, pass, s("Out of SSA (cleaned)"));
+				}
 			}
+			cfg_dump (cfg, cfg_pass, s("After full set of passes"));
+
+			info->implementation->statements = cfg->get_linear_statements ();
 		}
 	}
 }

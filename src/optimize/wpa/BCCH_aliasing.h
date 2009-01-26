@@ -27,17 +27,13 @@ class Optimization_transformer;
 
 class BCCH_aliasing : public CFG_visitor
 {
-
 public:
 	Points_to* ptg;
 	Whole_program* wp;
-
-	// Whole_program runs this.
-	void run (CFG* cfg){}
+	Optimization_transformer* transformer;
 
 	BCCH_aliasing (Whole_program*);
 
-	Optimization_transformer* transformer;
 
 	void use_summary_results (Method_info* info, MIR::Actual_parameter_list* in, MIR::VARIABLE_NAME* lhs);
 
@@ -45,8 +41,6 @@ public:
 			MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* retval);
 
 	void backward_bind (CFG* caller_cfg, CFG* callee_cfg);
-
-	void dump ();
 
 	// Performs points-to analysis, and call the other analyses with the
 	// results. Returns true if a solution has changed, requiring this block
@@ -56,13 +50,19 @@ public:
 	// Apply the interprocedural optimization results to this BB.
 	void apply_results (Basic_block* bb);
 
+	void dump ();
 
+private:
 	// These functions describe the operation being performed in each block.
 	// They pass the information to the Points-to graph, and to the other
 	// analyses. The BB is to give a unique index to the results.
 	void set_reference (Basic_block* bb, Index_node* lhs, Index_node* rhs);
 	void set_scalar_value (Basic_block* bb, Index_node* lhs, MIR::Literal* lit);
 	void copy_value (Basic_block* bb, Index_node* lhs, Index_node* rhs);
+
+
+	// Whole_program runs this, so we dont need it.
+	void run (CFG* cfg){}
 
 
 	/*

@@ -101,7 +101,7 @@ public:
 	void maybe_enable_debug (Pass* pass);
 
 	// HACK: debugging for optimization passes.
-	void cfg_dump (CFG* cfg, Pass* pass, String* comment, int iteration);
+	void cfg_dump (CFG* cfg, Pass* pass, String* comment);
 
 protected:
 	Pass_queue* ast_queue;

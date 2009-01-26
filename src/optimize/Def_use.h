@@ -8,6 +8,7 @@
 #include "Flow_visitor.h"
 #include "Visit_once.h"
 #include "ssa/SSA_ops.h"
+#include "wpa/Points_to.h"
 
 class CFG;
 
@@ -46,14 +47,15 @@ class Def_use_web : public Visit_once
 	Var_map<SSA_edge_list> def_use_chains;
 	Var_map<SSA_edge_list> use_def_chains;
 
-	// This is a single set of possible aliases. All variables in the set can
-	// (conservatively) be considered to alias all other variables in the
-	// set. When adding a use or a def, and the use/def aliases another
-	// variable in the set, we add Mus and Chis accordingly.
-	Var_set* aliases;
+	// When adding a use or a def, and the use/def aliases another variable in
+	// the set, we add Mus and Chis accordingly.
+	Points_to* ptg;
+
+	bool in_ssa_form;
 
 public:
-	Def_use_web (Var_set* aliases);
+	Def_use_web (Points_to* ptg);
+	Def_use_web ();
 
 	/*
 	 * Flags:

@@ -1,3 +1,12 @@
+/*
+ * phc -- the open source PHP compiler
+ * See doc/license/README.license for licensing information
+ *
+ * Optimization oracle acts as a go-between for the Optimization passes and
+ * Embed.
+ */
+ 
+
 #ifndef PHC_ORACLE
 #define PHC_ORACLE
 
@@ -28,6 +37,8 @@ public:
 
 	// Convert the signature into a Method_info, and add it.
 	static void add_signature (MIR::Signature* sig);
+
+	static Method_info_list* get_all_methods ();
 
 	// TODO: Is 'const' the correct term?
 	// This means that a function does not affect any global variables. No is

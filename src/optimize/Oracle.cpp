@@ -1,7 +1,16 @@
+/*
+ * phc -- the open source PHP compiler
+ * See doc/license/README.license for licensing information
+ *
+ * Optimization oracle acts as a go-between for the Optimization passes and
+ * Embed.
+ */
+
 #include "Oracle.h"
 #include "embed/embed.h"
 
 using namespace MIR;
+using namespace boost;
 
 Map<string, Method_info*> Oracle::infos;
 
@@ -94,6 +103,21 @@ Oracle::add_method_info (Method_info* info)
 	assert (!infos.has (*info->method_name));
 
 	infos[*info->method_name] = info;
+}
+
+Method_info_list*
+Oracle::get_all_methods ()
+{
+	Method_info_list* result = new Method_info_list;
+
+	string name;
+	Method_info* info;
+	foreach (tie (name, info), infos)
+	{
+		result->push_back (info);
+	}
+
+	return result;
 }
 
 

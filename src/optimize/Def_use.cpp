@@ -35,8 +35,13 @@ SSA_edge::dump ()
 }
 
 
-Def_use_web::Def_use_web (Var_set* aliases)
-: aliases (aliases)
+Def_use_web::Def_use_web (Points_to* ptg)
+: ptg (ptg)
+{
+}
+
+Def_use_web::Def_use_web ()
+: ptg (NULL)
 {
 }
 
@@ -187,28 +192,30 @@ Def_use_web::add_def (MIR::VARIABLE_NAME* use, SSA_op* def, bool add_chi)
 void
 Def_use_web::add_may_def (MIR::VARIABLE_NAME* var, SSA_op* def)
 {
-	// TODO: Whether we are in SSA form is, unfortunately, is only signalled by
-	// the alias set. Fix.
+	// The MUs are already present
+	if (ptg == NULL)
+		return;
 
-	// Only add may_defs if we are not in SSA form.
-	if (aliases)
-	{
-		Basic_block* bb = def->get_bb ();
-		bb->add_chi_node (var, var);
-		VARIABLE_NAME* clone = var->clone ();
-		add_def (var, new SSA_chi (bb, var, clone), false);
-		add_use (clone, new SSA_chi (bb, var, clone), false);
-	}
+	Basic_block* bb = def->get_bb ();
+	bb->add_chi_node (var, var);
+	VARIABLE_NAME* clone = var->clone ();
+	add_def (var, new SSA_chi (bb, var, clone), false);
+	add_use (clone, new SSA_chi (bb, var, clone), false);
 }
 
 /*
- * ADD_MUS and ADD_CHIS only work before SSA form. In SSA-form, the aliasing is
- * explicitly represented using the CHI/MUs, so adding them is incorrect.
+ * ADD_MUS and ADD_CHIS only work before SSA form. In SSA-form, the ptg
+ * is explicitly represented using the CHI/MUs, so adding them is incorrect.
  */
 void
 Def_use_web::add_mus (Basic_block* bb, VARIABLE_NAME* use)
 {
-	if (aliases && aliases->has (use))
+	if (ptg == NULL)
+		return;
+
+	phc_TODO ();
+
+/*	if (ptg->has (use))
 	{
 		assert (use->in_ssa == false);
 		foreach (VARIABLE_NAME* alias, *aliases)
@@ -217,12 +224,15 @@ Def_use_web::add_mus (Basic_block* bb, VARIABLE_NAME* use)
 				bb->add_mu_node (alias);
 				add_use (alias, new SSA_mu (bb, alias), false);
 			}
-	}
+	}*/
 }
 
 void
 Def_use_web::add_chis (Basic_block* bb, VARIABLE_NAME* def)
 {
+	if (ptg == NULL)
+		return;
+
 	// TODO: CHIs are not created for the parameters to a method call. They
 	// clearly should be.
 
@@ -280,7 +290,8 @@ Def_use_web::add_chis (Basic_block* bb, VARIABLE_NAME* def)
 	//		'post-statement'. Aliases of assignments go in the latter. Aliases
 	//		due to the call go in the former.
 	//
-	//	I think this will also solve the problem of 'vanishing globals'. In the case of:
+	//	I think this will also solve the problem of 'vanishing globals'. In the
+	//	case of:
 	//		global $x;
 	//		$x = 5;
 	//
@@ -295,7 +306,10 @@ Def_use_web::add_chis (Basic_block* bb, VARIABLE_NAME* def)
 	//
 	//	How about each assignment to an alias gets a MU of the variables in the
 	//	statement which created the alias.
-	if (aliases && aliases->has (def))
+
+phc_TODO ();
+/*
+	if (aliases->has (def))
 	{
 		assert (def->in_ssa == false);
 
@@ -307,16 +321,19 @@ Def_use_web::add_chis (Basic_block* bb, VARIABLE_NAME* def)
 				add_def (alias, new SSA_chi (bb, alias, clone), false);
 				add_use (clone, new SSA_chi (bb, alias, clone), false);
 			}
-	}
+	}*/
 }
 
 void
 Def_use_web::add_call_clobbering (Basic_block* bb)
 {
+	if (ptg == NULL)
+		return;
+
 	// All global variables, and any other variables which escape the function,
 	// can be defined (aka call-clobbered), or used, by a function call or
 	// function exit point.
-
+/*
 	if (aliases)
 	{
 		foreach (VARIABLE_NAME* alias, *aliases)
@@ -326,7 +343,7 @@ Def_use_web::add_call_clobbering (Basic_block* bb)
 			add_def (alias, new SSA_chi (bb, alias, clone), false);
 			add_use (clone, new SSA_chi (bb, alias, clone), false);
 		}
-	}
+	}*/
 }
 
 
@@ -364,7 +381,7 @@ Def_use_web::visit_phi_node (Basic_block* bb, VARIABLE_NAME* phi_lhs)
 void
 Def_use_web::visit_chi_node (Basic_block* bb, VARIABLE_NAME* lhs, VARIABLE_NAME* rhs)
 {
-	assert (aliases == NULL);
+	assert (ptg == NULL);
 	add_def (lhs, new SSA_chi (bb, lhs, rhs));
 	add_use (rhs, new SSA_chi (bb, lhs, rhs));
 }
@@ -372,7 +389,7 @@ Def_use_web::visit_chi_node (Basic_block* bb, VARIABLE_NAME* lhs, VARIABLE_NAME*
 void
 Def_use_web::visit_mu_node (Basic_block* bb, VARIABLE_NAME* rhs)
 {
-	assert (aliases == NULL);
+	assert (ptg == NULL);
 	add_use (rhs, new SSA_mu (bb, rhs));
 }
 

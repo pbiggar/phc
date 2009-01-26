@@ -87,9 +87,9 @@ public:
 	void apply_results (CFG* cfg);
 
 private:
-	// The CFGs arent in an intuitive order, but thats so that when there are 2
-	// CFGs, they go in the order Caller,callee. The other problems can at least
-	// be spotted by the type-checker.
+	// The CFG parameterss arent in an intuitive order, but thats so that when
+	// there are 2 CFGs, they go in the order Caller,callee. The other problems
+	// can at least be spotted by the type-checker.
 	void analyse_method_info (Method_info* info, CFG* caller_cfg, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs);
 	void analyse_function (CFG* caller_cfg, CFG* cfg, 
 								  MIR::Actual_parameter_list*, MIR::VARIABLE_NAME* lhs);
