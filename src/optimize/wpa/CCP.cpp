@@ -107,6 +107,7 @@ CCP::set_value_from (Basic_block* bb, string lhs, string rhs, certainty cert)
 void
 CCP::pull_results (Basic_block* bb)
 {
+	// TODO: only pull along executable edges
 	// TODO: I could imagine this causing error in the presence of recursion.
 	changed_flags[bb->ID] = false;
 
@@ -128,10 +129,15 @@ CCP::aggregate_results (Basic_block* bb)
 {
 	// Copy the results from INS, but overwrite them with LOCALS.
 	Lattice_map* old = outs[bb->ID].clone ();
+//	cdebug << "old" << endl;
+//	old->dump ();
 
 	outs[bb->ID].clear();
 	outs[bb->ID].merge (&ins[bb->ID]);
 	outs[bb->ID].overwrite (&locals[bb->ID]);
+
+//	cdebug << "new" << endl;
+//	outs[bb->ID].dump ();
 
 	// Set solution_changed
 	if (!outs[bb->ID].equals (old))

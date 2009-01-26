@@ -92,22 +92,33 @@ public:
 
 	bool equals (Lattice_map* other)
 	{
-		bool result = true;
+		return this->one_way_equals (other) && other->one_way_equals (this);
+	}
+
+private:
+
+	bool one_way_equals (Lattice_map* other)
+	{
 		string var;
 		Lattice_cell* cell;
 		foreach (boost::tie (var, cell), *other)
 		{
+			Lattice_cell* other_cell = (*this)[var];
 			if (cell == TOP || cell == BOTTOM)
 			{
-				if (cell != (*this)[var])
+				if (cell != other_cell)
 					return false;
 			}
-			else if (!(cell->equals ((*this)[var])))
+			else if (other_cell == TOP || other_cell == BOTTOM)
+				return false; // this cell isnt TOP or BOTTOM
+
+			else if (!cell->equals (other_cell))
 				return false;
 		}
 		return true;
 	}
 
+public:
 	void merge (Lattice_map* other)
 	{
 		string key;

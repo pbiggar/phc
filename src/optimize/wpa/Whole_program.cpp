@@ -123,9 +123,6 @@ Whole_program::analyse_function (CFG* caller_cfg, CFG* cfg, MIR::Actual_paramete
 		Edge* e = cfg_wl->front();
 		cfg_wl->pop_front ();
 
-		if (e->is_executable)
-			continue;
-
 		e->is_executable = true;
 
 		// Analyse the block, and annotate the MIR with interesting results.
@@ -257,9 +254,5 @@ Whole_program::analyse_summary (Method_info* info, CFG* caller_cfg, Actual_param
 		phc_TODO ();
 
 	foreach (tie (name, wpa), analyses)
-	{
-		// TODO: this might be better off being passed through ALIASING aswell.
-		phc_TODO ();
-//		wpa->use_summary_results (info, actuals, lhs);
-	}
+		aliasing->use_summary_results (info, actuals, lhs);
 }

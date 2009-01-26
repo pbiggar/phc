@@ -139,9 +139,11 @@ BCCH_aliasing::analyse_block (Basic_block* bb)
 	// Merge results from predecessors
 	foreach (tie (name, wpa), wp->analyses)
 		wpa->pull_results (bb);
+
 	
 	// Do the aliasing (and hence other analyses)
 	visit_block (bb);
+
 
 	// Create OUT sets from the results 
 	foreach (tie (name, wpa), wp->analyses)
@@ -347,8 +349,23 @@ BCCH_aliasing::set_scalar_value (Basic_block* bb, Index_node* lhs, Literal* lit)
 void
 BCCH_aliasing::copy_value (Basic_block* bb, Index_node* lhs, Index_node* rhs)
 {
+	// This is not killing in terms of aliasing, so it assigns to all aliases
+	// of lhs.
+	WPA* wpa;
+	string name;
+	certainty certainties[] = {POSSIBLE, DEFINITE};
+	foreach (certainty cert, certainties)
+	{
+		String_list* aliases = ptg->get_aliases (lhs, cert);
+		foreach (tie (name, wpa), wp->analyses)
+		{
+			foreach (String* alias, *aliases)
+				wpa->set_value_from (bb, *alias, rhs->get_unique_name (), cert);
+		}
+	}
+	// Handle aliasing
 	ptg->copy_value (lhs, rhs);
-	phc_TODO ();
+
 }
 
 
