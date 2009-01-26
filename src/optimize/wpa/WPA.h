@@ -38,6 +38,7 @@ public:
 	Whole_program* wp;
 	Annotator* pre_annotator;
 	Annotator* post_annotator;
+	Map<long, bool> changed_flags;
 
 	WPA (Whole_program* wp)
 	: wp (wp)
@@ -48,11 +49,27 @@ public:
 
 	// Set the value of INDEX_NODE to LIT. CERT indicates whether the assignment
 	// can be considered killing.
-	virtual void set_value (Basic_block* bb, string lhs, MIR::Literal* rhs, certainty cert){};
-	virtual void set_value_from (Basic_block* bb, string lhs, string rhs, certainty cert){};
+	virtual void set_value (Basic_block* bb, string lhs, MIR::Literal* rhs, certainty cert) = 0;
+	virtual void set_value_from (Basic_block* bb, string lhs, string rhs, certainty cert) = 0;
+
+
+
+	bool solution_changed (Basic_block* bb)
+	{
+		return changed_flags[bb->ID];
+	}
+
+	// Pull the results from the predecessor.
+	virtual void pull_results (Basic_block* bb) = 0;
+
+	// This sets SOLUTION_CHANGED
+	virtual void aggregate_results (Basic_block* bb) = 0;
 
 	// Print debugging information
-	virtual void dump() = 0;
+	virtual void dump (Basic_block* bb) = 0;
+
+
+
 
 	// Annotate BB using information from POINTS-TO
 	void pre_annotate (Basic_block* bb, Points_to* ptg)

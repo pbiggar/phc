@@ -24,18 +24,59 @@ CCP::CCP (Whole_program* wp)
 
 
 void
-CCP::dump()
+CCP::dump(Basic_block* bb)
 {
 	CHECK_DEBUG ();
 	cdebug << "Dumping CCP" << endl;
-	long id;
-	Lattice_map lat;
-	foreach (tie (id, lat), lattices)
+
+	long id = bb->ID;
+
+	// Print out the results for existing BBs (done this way so that IN and OUT
+	// results are presented together).
+	if (ins.has (id))
 	{
-		cdebug << "Lattice for BB: " << id << endl;
-		lat.dump();
+		cdebug << "IN Lattice for BB: " << id << endl;
+		ins[id].dump();
 	}
+	else
+		cdebug << "No IN results for BB: " << id << endl;
+
+	if (outs.has (id))
+	{
+		cdebug << "OUT Lattice for BB: " << id << endl;
+		outs[id].dump();
+	}
+	else
+		cdebug << "No OUT results for BB: " << id << endl;
 }
+
+/* So we're trying to reconcile the standard daaflow techniques:
+ *		IN,OUT, gen, kill
+ *	with using the points to results to drive the analysis. Pioli's approach is
+ *	very nice: worklist of BBs, keep going til its solved. But he's not doing
+ *	interprocedural. However, that will work for interprocedural, so maybe just
+ *	let it go.
+ *
+ *	So, we need to mark when a solution changes. Pioli's solution was to push
+ *	results into the next section, instead of pulling. This meant saving half
+ *	the result sets, and setting a block to be executed when a merge changed the
+ *	solution. But this might break with branches:
+ *		if (...)
+ *		1:	$x = 5;
+ *		else
+ *		2:	;
+ *		3:
+ *	At 3: we expect $x to have the value BOTTOM, not 5, as it is uninit (and
+ *	therefore NULL) at 2:.
+ *
+ *	This is possible using pull. To make it possible using a push model, we
+ *	would need to count the number of times a value is pushed. If it is pushed
+ *	less than the number of predecessor edges, it should be merged with NULL. But would this work for aliasing?
+ *
+ *	And if we're doing a monotonic analysis, wont running it when NULL has not
+ *	yet been pushed ruin the results?  I guess when pushing the results, we must
+ *	also push for missing variables.
+ */
 
 void
 CCP::set_value (Basic_block* bb, string lhs, Literal* lit, certainty cert)
@@ -43,33 +84,12 @@ CCP::set_value (Basic_block* bb, string lhs, Literal* lit, certainty cert)
 	if (cert != DEFINITE)
 		phc_TODO ();
 
-	
+	// We ensure monotonicity. In the LOCALS lattice, the fact that LHS can be
+	// assigned to multiple times is taken care of via the lattice. The first
+	// assignment will merge with TOP, and the later ones might take it to
+	// BOTTOM.
 
-	// The current lattice I have implemented is designed for SSA, in the sense
-	// that there being only 1 assignment, we can make the defualt value TOP,
-	// and then just merge.
-	//
-	// But there can be multiple assignments to the same variable in non-SSA.
-	// The important tihng to remember is that there is one lattice per
-	// program-point. So you start it at TOP, and the first assignment to it
-	// merges with TOP.
-	//
-	// The question is what happens when you merge from two branches, the first
-	// branch doesnt have it, but the second does. so that merges TOP, TOP and
-	// value, which should be BOTTOM. In C, you can assume its anything if its
-	// not assigned, but we cant in PHP.
-	//
-	// TODO: we should have a true/false lattice.
-	//
-	// I guess the TOP isnt uninit - its the set of all possible values. So if
-	// we fetch a value from something, we should get NULL for the default.
-	
-
-	// TODO: we're going to have to deal with this when flow-sensitivity is running.
-	
-	Lattice_map& lat = lattices[bb->ID];
-	
-	// Values dont get killed to ensure monotonicity.
+	Lattice_map& lat = locals[bb->ID];
 	lat[lhs] = meet (lat[lhs], new Literal_cell (lit));
 }
 
@@ -80,9 +100,42 @@ CCP::set_value_from (Basic_block* bb, string lhs, string rhs, certainty cert)
 	if (cert != DEFINITE)
 		phc_TODO ();
 
-
-	Lattice_map& lat = lattices[bb->ID];
-	
-	// Values dont get killed to ensure monotonicity.
-	lat[lhs] = meet (lat[lhs], lat[rhs]);
+	Lattice_map& lat = locals[bb->ID];
+	lat[lhs] = meet (lat[lhs], ins[bb->ID][rhs]);
 }
+
+void
+CCP::pull_results (Basic_block* bb)
+{
+	// TODO: I could imagine this causing error in the presence of recursion.
+	changed_flags[bb->ID] = false;
+
+	// Throw away old values (change is detected in aggregation)
+	ins[bb->ID].clear ();
+	locals[bb->ID].clear ();
+
+	foreach (Basic_block* pred, *bb->get_predecessors ())
+	{
+		ins[bb->ID].merge (&outs[pred->ID]);
+	}
+
+	if (bb->get_predecessors()->size() > 1)
+		phc_TODO (); // check it
+}
+
+void
+CCP::aggregate_results (Basic_block* bb)
+{
+	// Copy the results from INS, but overwrite them with LOCALS.
+	Lattice_map* old = outs[bb->ID].clone ();
+
+	outs[bb->ID].clear();
+	outs[bb->ID].merge (&ins[bb->ID]);
+	outs[bb->ID].overwrite (&locals[bb->ID]);
+
+	// Set solution_changed
+	if (!outs[bb->ID].equals (old))
+		changed_flags[bb->ID] = true;
+}
+
+

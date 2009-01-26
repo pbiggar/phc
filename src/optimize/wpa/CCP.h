@@ -21,7 +21,6 @@ class CCP : public WPA
 public:
 	CCP (Whole_program* wp);
 
-	void dump ();
 
 	bool branch_is_true (MIR::Branch*) { return false; }
 	bool branch_is_false (MIR::Branch*) { return false; }
@@ -29,7 +28,14 @@ public:
 	void set_value (Basic_block* bb, string lhs, MIR::Literal* lit, certainty cert);
 	void set_value_from (Basic_block* bb, string lhs, string rhs, certainty cert);
 
-	Map<long, Lattice_map> lattices;
+
+	void pull_results (Basic_block* bb);
+	void aggregate_results (Basic_block* bb);
+	void dump (Basic_block* bb);
+
+	Map<long, Lattice_map> ins;
+	Map<long, Lattice_map> locals;
+	Map<long, Lattice_map> outs;
 };
 
 #endif // PHC_CPP

@@ -25,6 +25,8 @@ public:
 extern Lattice_cell* TOP;
 extern Lattice_cell* BOTTOM;
 
+Lattice_cell* meet (Lattice_cell* l1, Lattice_cell* l2);
+
 
 class Lattice_map
 : public Map<string, Lattice_cell*>
@@ -104,6 +106,27 @@ public:
 				return false;
 		}
 		return true;
+	}
+
+	void merge (Lattice_map* other)
+	{
+		string key;
+		Lattice_cell* val;
+		foreach (boost::tie (key, val), *other)
+		{
+			(*this)[key] = meet ((*this)[key], val);
+		}
+	}
+
+	// Rather than merging with current results, overwrite them
+	void overwrite (Lattice_map* other)
+	{
+		string key;
+		Lattice_cell* val;
+		foreach (boost::tie (key, val), *other)
+		{
+			(*this)[key] = val;
+		}
 	}
 };
 
@@ -187,7 +210,5 @@ public:
 		return true;
 	}
 };
-
-Lattice_cell* meet (Lattice_cell* l1, Lattice_cell* l2);
 
 #endif // PHC_LATTICE_H

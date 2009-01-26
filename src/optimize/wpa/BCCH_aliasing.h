@@ -45,9 +45,11 @@ public:
 
 	void dump ();
 
-	// Call all the analyses' pre-hooks on this block, then perform the
-	// points-to analysis, then perform the other analyses' post-hooks.
-	void analyse_block (Basic_block* bb);
+	// Performs points-to analysis, and call the other analyses with the
+	// results. Returns true if a solution has changed, requiring this block
+	// to be reanalysed.
+	bool analyse_block (Basic_block* bb);
+
 
 	// These functions describe the operation being performed in each block.
 	// They pass the information to the Points-to graph, and to the other

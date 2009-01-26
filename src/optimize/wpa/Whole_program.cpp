@@ -74,7 +74,7 @@ Whole_program::Whole_program ()
 	register_analysis ("CCP", ccp);
 //	register_analysis ("Constant_state", constant_state);
 //	register_analysis ("Include_analysis", include_analysis);
-	register_analysis ("Type_inference", new Type_inference (this));
+//	register_analysis ("Type_inference", new Type_inference (this));
 //	register_analysis ("VRP", vrp);
 }
 
@@ -116,9 +116,6 @@ Whole_program::analyse_function (CFG* caller_cfg, CFG* cfg, MIR::Actual_paramete
 	DEBUG ("Initing functions");
 	aliasing->forward_bind (caller_cfg, cfg, actuals, lhs);
 
-	foreach (tie (name, wpa), analyses)
-		wpa->dump ();
-
 
 	// 2. Stop when CFG-worklist is empty
 	while (cfg_wl->size () > 0)
@@ -144,7 +141,7 @@ Whole_program::analyse_function (CFG* caller_cfg, CFG* cfg, MIR::Actual_paramete
 		// We'll be iterating anyway.
 		//
 		// The analysis annotates any MIR::Nodes in the Block.
-		aliasing->analyse_block (e->get_target ());
+		bool reiterate = aliasing->analyse_block (e->get_target ());
 
 
 		// Add next	block(s)
@@ -152,12 +149,13 @@ Whole_program::analyse_function (CFG* caller_cfg, CFG* cfg, MIR::Actual_paramete
 			cfg_wl->push_back_all (get_branch_successors (branch));
 		else if (!isa<Exit_block> (e->get_target ()))
 			cfg_wl->push_back (e->get_target ()->get_successor_edges ()->front ());
+
+
+		if (reiterate)
+			cfg_wl->push_back (e);
 	}
 
 	aliasing->backward_bind (caller_cfg, cfg);
-
-	foreach (tie (name, wpa), analyses)
-		wpa->dump ();
 }
 
 Edge_list*

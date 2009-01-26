@@ -130,26 +130,38 @@ BCCH_aliasing::backward_bind (CFG* caller_cfg, CFG* callee_cfg)
 	ptg->close_scope (*callee_cfg->method->signature->method_name->value);
 }
 
-void
+bool
 BCCH_aliasing::analyse_block (Basic_block* bb)
 {
 	string name;
 	WPA* wpa;
 
-	// Pre-hooks (applies to this aswell)
-//	foreach (tie (name, wpa), wp->analyses)
-//		wpa->pre_annotate (bb, ptg);
-
+	// Merge results from predecessors
+	foreach (tie (name, wpa), wp->analyses)
+		wpa->pull_results (bb);
+	
+	// Do the aliasing (and hence other analyses)
 	visit_block (bb);
+
+	// Create OUT sets from the results 
+	foreach (tie (name, wpa), wp->analyses)
+		wpa->aggregate_results (bb);
+
+
+	// Dump
 	dump();
 	foreach (tie (name, wpa), wp->analyses)
-		wpa->dump();
+		wpa->dump (bb);
 
-	// Post-hooks (applies to this aswell)
-//	foreach (tie (name, wpa), wp->analyses)
-//		wpa->post_annotate (bb, ptg);
+
+	// Calculate fix-point
+	bool reiterate = false;
+	foreach (tie (name, wpa), wp->analyses)
+		reiterate |= wpa->solution_changed (bb);
+
+
+	return reiterate;
 }
-
 
 
 
