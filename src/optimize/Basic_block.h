@@ -9,6 +9,9 @@
 #include "Var_map.h"
 #include "ssa/SSA.h"
 
+class Points_to;
+class WPA;
+
 /* Basic blocks */
 class Basic_block : virtual public GC_obj
 {
@@ -35,6 +38,12 @@ public:
 	 */
 
 	virtual String* get_graphviz_label () = 0;
+
+public:
+	/* Since results are stored per BB, it seems natural to use the BB to give
+	 * access to them.
+	 */
+	Points_to* get_ptg();
 
 public:
 	/* 

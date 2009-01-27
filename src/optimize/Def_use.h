@@ -8,9 +8,9 @@
 #include "Flow_visitor.h"
 #include "Visit_once.h"
 #include "ssa/SSA_ops.h"
-#include "wpa/Points_to.h"
 
 class CFG;
+class Points_to;
 
 // A link between variables and the operations on variables.
 class SSA_edge : virtual public GC_obj
@@ -47,14 +47,7 @@ class Def_use_web : public Visit_once
 	Var_map<SSA_edge_list> def_use_chains;
 	Var_map<SSA_edge_list> use_def_chains;
 
-	// When adding a use or a def, and the use/def aliases another variable in
-	// the set, we add Mus and Chis accordingly.
-	Points_to* ptg;
-
-	bool in_ssa_form;
-
 public:
-	Def_use_web (Points_to* ptg);
 	Def_use_web ();
 
 	/*

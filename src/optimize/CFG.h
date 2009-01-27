@@ -14,6 +14,7 @@
 #include <boost/logic/tribool.hpp>
 
 #include "lib/List.h"
+#include "lib/Map.h"
 #include "lib/String.h"
 
 
@@ -30,6 +31,8 @@ typedef List<Edge*> Edge_list;
 
 class Dominance;
 class Def_use_web;
+
+class Points_to;
 
 // Property for BB*
 enum vertex_bb_t { vertex_bb };
@@ -275,6 +278,11 @@ public:
 	friend class Dominance;
 
 	Def_use_web* duw;
+
+	/*
+	 * Points-to - access via Basic_block
+	 */
+	Map<long, Points_to*>* ptgs;
 
 private:
 	Graph bs; // backing store

@@ -698,7 +698,7 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 				if (opt->require_ssa)
 				{
 					// Convert to SSA form
-					hssa = new HSSA (cfg, wpa->aliasing->ptg);
+					hssa = new HSSA (cfg);
 					hssa->convert_to_hssa_form ();
 					cfg->clean ();
 					cfg_dump (cfg, pass, s("In SSA (cleaned)"));
@@ -706,7 +706,7 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 				else
 				{
 					// We still want use-def information.
-					cfg->duw = new Def_use_web (NULL);
+					cfg->duw = new Def_use_web ();
 					cfg->duw->run (cfg);
 					cfg_dump (cfg, pass, s("Non-SSA"));
 				}

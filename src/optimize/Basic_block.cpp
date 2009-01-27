@@ -648,4 +648,8 @@ Statement_block::clone ()
 
 
 
-
+Points_to*
+Basic_block::get_ptg ()
+{
+	return (*cfg->ptgs)[ID];
+}

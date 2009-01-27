@@ -193,6 +193,22 @@ Points_to::get_references (Index_node* node, certainty cert)
 	return get_aliases <Index_node> (node, cert);
 }
 
+Index_node_list*
+Points_to::get_local_references (Storage_node* sn, Index_node* node, certainty cert)
+{
+	Index_node_list* tmp = get_aliases <Index_node> (node, cert);
+
+	// Its very awkward to do this in-place.
+	Index_node_list* result = new Index_node_list;
+	foreach (Index_node* node, *tmp)
+	{
+		if (sn->name == node->storage)
+			result->push_back (node);
+	}
+
+	return result;
+}
+
 Storage_node_list*
 Points_to::get_points_to (Index_node* node, certainty cert)
 {
@@ -232,10 +248,10 @@ Pairs::has_node (PT_node* node)
 	// TODO: make this lookup faster
 	string name = node->get_unique_name ();
 
-	if (by_source.has (name))
+	if (by_source[name].size ())
 		return true;
 	
-	if (by_target.has (name))
+	if (by_target[name].size ())
 		return true;
 
 	return false;

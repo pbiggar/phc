@@ -81,6 +81,8 @@ BCCH_aliasing::forward_bind (CFG* caller_cfg, CFG* callee_cfg, MIR::Actual_param
 	if (caller_cfg) 
 		caller_ns = *caller_cfg->method->signature->method_name->value;
 
+	// Give the CFG access to the PTG results
+	callee_cfg->ptgs = &ptgs;
 
 	ptg->open_scope (callee_ns);
 

@@ -102,9 +102,8 @@ using namespace boost;
  *		d)	Update all PHI, MU and CHI operands and results to make them refer
  *			to entries in the hash-table.
  */
-HSSA::HSSA (CFG* cfg, Points_to* ptg)
+HSSA::HSSA (CFG* cfg)
 : cfg(cfg)
-, ptg (ptg)
 {
 }
 
@@ -239,7 +238,7 @@ HSSA::convert_to_hssa_form ()
 	// The alias sets are passed to def-use-web, which adds MUs and CHIs
 	// appropriately.
 	DEBUG ("Calculating Def-use-web for SSA");
-	cfg->duw = new Def_use_web (ptg);
+	cfg->duw = new Def_use_web ();
 	cfg->duw->run (cfg);
 
 

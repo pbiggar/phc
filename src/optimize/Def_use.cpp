@@ -13,6 +13,8 @@
 using namespace MIR;
 using namespace std;
 using namespace boost;
+using namespace boost::lambda;
+
 
 /*
  * SSA-web. 
@@ -37,13 +39,7 @@ SSA_edge::dump ()
 }
 
 
-Def_use_web::Def_use_web (Points_to* ptg)
-: ptg (ptg)
-{
-}
-
 Def_use_web::Def_use_web ()
-: ptg (NULL)
 {
 }
 
@@ -195,7 +191,7 @@ void
 Def_use_web::add_may_def (MIR::VARIABLE_NAME* var, SSA_op* def)
 {
 	// The MUs are already present
-	if (ptg == NULL)
+	if (var->in_ssa)
 		return;
 
 	Basic_block* bb = def->get_bb ();
@@ -212,32 +208,27 @@ Def_use_web::add_may_def (MIR::VARIABLE_NAME* var, SSA_op* def)
 void
 Def_use_web::add_mus (Basic_block* bb, VARIABLE_NAME* use)
 {
-	if (ptg == NULL)
+	if (use->in_ssa)
 		return;
+
+	Points_to* ptg = bb->get_ptg ();
 
 	Index_node_list* refs = ptg->get_references (VN (NAME (bb), use), PTG_ALL);
-	if (refs->size () == 0)
-		return;
-
-	phc_TODO ();
-
-/*	if (ptg->has (use))
+	foreach (Index_node* ref, *refs)
 	{
-		assert (use->in_ssa == false);
-		foreach (VARIABLE_NAME* alias, *aliases)
-			if (!alias->equals (use))
-			{
-				bb->add_mu_node (alias);
-				add_use (alias, new SSA_mu (bb, alias), false);
-			}
-	}*/
+		VARIABLE_NAME* alias = new VARIABLE_NAME (s(ref->name));
+		bb->add_mu_node (alias);
+		add_use (alias, new SSA_mu (bb, alias), false);
+	}
 }
 
 void
 Def_use_web::add_chis (Basic_block* bb, VARIABLE_NAME* def)
 {
-	if (ptg == NULL)
+	if (def->in_ssa)
 		return;
+
+	assert (def->in_ssa == false);
 
 	// TODO: CHIs are not created for the parameters to a method call. They
 	// clearly should be.
@@ -313,34 +304,27 @@ Def_use_web::add_chis (Basic_block* bb, VARIABLE_NAME* def)
 	//	How about each assignment to an alias gets a MU of the variables in the
 	//	statement which created the alias.
 
-	// TODO: we need to use the points-to result for this program-point.
-	Index_node_list* refs = ptg->get_references (VN (NAME (bb), def), PTG_ALL);
-	if (refs->size () == 0)
-		return;
+	Points_to* ptg = bb->get_ptg ();
+	Index_node_list* refs = ptg->get_local_references (SN (NAME(bb)),
+																		VN (NAME (bb), def),
+																		PTG_ALL);
 
-phc_TODO ();
-/*
-	if (ptg->has (def))
+
+	foreach (Index_node* ref, *refs)
 	{
-		assert (def->in_ssa == false);
-
-		foreach (VARIABLE_NAME* alias, *aliases)
-			if (!alias->equals (def))
-			{
-				bb->add_chi_node (alias, alias);
-				VARIABLE_NAME* clone = alias->clone ();
-				add_def (alias, new SSA_chi (bb, alias, clone), false);
-				add_use (clone, new SSA_chi (bb, alias, clone), false);
-			}
+		VARIABLE_NAME* alias = new VARIABLE_NAME (s(ref->name));
+		bb->add_chi_node (alias, alias);
+		VARIABLE_NAME* clone = alias->clone ();
+		add_def (alias, new SSA_chi (bb, alias, clone), false);
+		add_use (clone, new SSA_chi (bb, alias, clone), false);
 	}
-	*/
 }
 
 void
 Def_use_web::add_call_clobbering (Basic_block* bb)
 {
-	if (ptg == NULL)
-		return;
+//	if (ptg == NULL)
+//		return;
 
 	// All global variables, and any other variables which escape the function,
 	// can be defined (aka call-clobbered), or used, by a function call or
@@ -393,7 +377,6 @@ Def_use_web::visit_phi_node (Basic_block* bb, VARIABLE_NAME* phi_lhs)
 void
 Def_use_web::visit_chi_node (Basic_block* bb, VARIABLE_NAME* lhs, VARIABLE_NAME* rhs)
 {
-	assert (ptg == NULL);
 	add_def (lhs, new SSA_chi (bb, lhs, rhs));
 	add_use (rhs, new SSA_chi (bb, lhs, rhs));
 }
@@ -401,7 +384,6 @@ Def_use_web::visit_chi_node (Basic_block* bb, VARIABLE_NAME* lhs, VARIABLE_NAME*
 void
 Def_use_web::visit_mu_node (Basic_block* bb, VARIABLE_NAME* rhs)
 {
-	assert (ptg == NULL);
 	add_use (rhs, new SSA_mu (bb, rhs));
 }
 

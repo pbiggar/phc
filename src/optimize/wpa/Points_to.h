@@ -162,6 +162,9 @@ public:
 	Index_node_list* get_references (Index_node* index, certainty cert);
 	Storage_node_list* get_points_to (Index_node* index, certainty cert);
 
+	// Only get the indices in Storage node NS
+	Index_node_list* get_local_references (Storage_node* ns, Index_node* index, certainty cert);
+
 private:
 	template <class T>
 	List<T*>* get_aliases (Index_node* node, certainty cert)
