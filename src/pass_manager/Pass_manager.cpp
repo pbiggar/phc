@@ -641,6 +641,7 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 	while (*wpa_pass->name != "wpa");
 	maybe_enable_debug (wpa_pass);
 	Whole_program* wpa = new Whole_program;
+	wpa->run (in);
 
 
 	// The pass_manager allows passes to be added in-between the passes we expect. Ignore them.

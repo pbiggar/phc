@@ -151,6 +151,10 @@ BCCH_aliasing::analyse_block (Basic_block* bb)
 	// Do the aliasing (and hence other analyses)
 	visit_block (bb);
 
+	// TODO: we really need to use pull_results and aggregate_results, etc.
+	// But for now just store a clone of the graph.
+	ptgs[bb->ID] = ptg->clone ();
+
 
 	// Create OUT sets from the results 
 	foreach (tie (name, wpa), wp->analyses)
@@ -158,7 +162,7 @@ BCCH_aliasing::analyse_block (Basic_block* bb)
 
 
 	// Dump
-	dump();
+	dump(bb);
 	foreach (tie (name, wpa), wp->analyses)
 		wpa->dump (bb);
 
@@ -296,10 +300,10 @@ BCCH_aliasing::handle_new (Statement_block* bb, MIR::New* in, MIR::VARIABLE_NAME
 
 
 void
-BCCH_aliasing::dump ()
+BCCH_aliasing::dump (Basic_block* bb)
 {
 	CHECK_DEBUG();
-	ptg->dump_graphviz (NULL);
+	ptgs[bb->ID]->dump_graphviz (s(lexical_cast<string> (bb->ID)));
 }
 
 
@@ -336,11 +340,11 @@ BCCH_aliasing::set_scalar_value (Basic_block* bb, Index_node* lhs, Literal* lit)
 	certainty certainties[] = {POSSIBLE, DEFINITE};
 	foreach (certainty cert, certainties)
 	{
-		String_list* aliases = ptg->get_aliases (lhs, cert);
+		Index_node_list* refs = ptg->get_references (lhs, cert);
 		foreach (tie (name, wpa), wp->analyses)
 		{
-			foreach (String* alias, *aliases)
-				wpa->set_value (bb, *alias, lit, cert);
+			foreach (Index_node* ref, *refs)
+				wpa->set_value (bb, ref->get_unique_name(), lit, cert);
 		}
 	}
 
@@ -356,23 +360,28 @@ BCCH_aliasing::set_scalar_value (Basic_block* bb, Index_node* lhs, Literal* lit)
 void
 BCCH_aliasing::copy_value (Basic_block* bb, Index_node* lhs, Index_node* rhs)
 {
-	// This is not killing in terms of aliasing, so it assigns to all aliases
-	// of lhs.
+	// This is not killing in terms of references, so it assigns to all
+	// aliases of lhs.
 	WPA* wpa;
 	string name;
 	certainty certainties[] = {POSSIBLE, DEFINITE};
 	foreach (certainty cert, certainties)
 	{
-		String_list* aliases = ptg->get_aliases (lhs, cert);
+		Index_node_list* refs = ptg->get_references (lhs, cert);
 		foreach (tie (name, wpa), wp->analyses)
 		{
-			foreach (String* alias, *aliases)
-				wpa->set_value_from (bb, *alias, rhs->get_unique_name (), cert);
+			foreach (Index_node* ref, *refs)
+				wpa->set_value_from (bb, ref->get_unique_name (),
+											rhs->get_unique_name (), cert);
 		}
 	}
-	// Handle aliasing
-	ptg->copy_value (lhs, rhs);
+	// And for the LHS
+	wpa->set_value_from (bb, lhs->get_unique_name (),
+								rhs->get_unique_name (), DEFINITE);
 
+
+	// Handle points-to aliasing
+	ptg->copy_value (lhs, rhs);
 }
 
 

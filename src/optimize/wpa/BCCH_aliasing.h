@@ -32,6 +32,9 @@ public:
 	Whole_program* wp;
 	Optimization_transformer* transformer;
 
+	// Record 1 per program-point.
+	Map<long, Points_to*> ptgs;
+
 	BCCH_aliasing (Whole_program*);
 
 
@@ -50,7 +53,7 @@ public:
 	// Apply the interprocedural optimization results to this BB.
 	void apply_results (Basic_block* bb);
 
-	void dump ();
+	void dump (Basic_block* bb);
 
 private:
 	// These functions describe the operation being performed in each block.

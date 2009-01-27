@@ -19,7 +19,7 @@ class Points_to;
 /*
  * Must- or may- information.
  */
-enum _certainty { POSSIBLE, DEFINITE };
+enum _certainty { POSSIBLE = 1, DEFINITE = 2, PTG_ALL = 3 };
 typedef enum _certainty certainty;
 
 

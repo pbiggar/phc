@@ -92,6 +92,8 @@ public:
 	PT_node* source;
 	PT_node* target;
 	certainty cert;
+
+	void dump();
 };
 
 /*
@@ -100,6 +102,7 @@ public:
 class Pairs : virtual public GC_obj
 {
 public:
+	Set<Alias_pair*> all_pairs; // makes it easier to clone
 	// source -> target_list
 	Map<string, Map<string, Alias_pair*> > by_source;
 	Map<string, Map<string, Alias_pair*> > by_target;
@@ -107,8 +110,6 @@ public:
 	Pairs();
 	void insert (Alias_pair*);
 	bool has_node (PT_node* node);
-
-	Pairs* clone ();
 };
 
 /*
@@ -155,11 +156,38 @@ public:
 
 	void dump_graphviz (String* label);
 
-	// Get the list of indices that alias NODE, with the certainty CERT.
+	// Get the list of indices that alias INDEX, with the certainty CERT.
 	// Must-aliases are not returned for POSSIBLE. NODE is not returned, so
 	// callers which rely on NODE aliasing itself must handle it themselves.
-	String_list* get_aliases (Index_node* node, certainty cert);
+	Index_node_list* get_references (Index_node* index, certainty cert);
+	Storage_node_list* get_points_to (Index_node* index, certainty cert);
 
+private:
+	template <class T>
+	List<T*>* get_aliases (Index_node* node, certainty cert)
+	{
+		List<T*>* result = new List<T*>;
+
+		string source = node->get_unique_name ();
+		DEBUG ("looking up aliases for " << source);
+
+		// There must be an edge to anything it aliases
+		string target;
+		Alias_pair* pair;
+		foreach (boost::tie (target, pair), pairs->by_source[source])
+		{
+			if ((pair->cert & cert) // bitwise: PTG_ALL matches both
+				&& isa<T> (pair->target))
+			{
+				DEBUG ("Found one: " << target);
+				result->push_back (dyc<T>(pair->target));
+			}
+		}
+
+		return result;
+	}
+
+public:
 	Points_to* clone();
 };
 

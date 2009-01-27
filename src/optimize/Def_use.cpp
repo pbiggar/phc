@@ -7,6 +7,8 @@
 #include "Var_set.h"
 #include "ssa/Virtual_variable.h"
 
+#include "wpa/BCCH_aliasing.h"
+
 
 using namespace MIR;
 using namespace std;
@@ -213,6 +215,10 @@ Def_use_web::add_mus (Basic_block* bb, VARIABLE_NAME* use)
 	if (ptg == NULL)
 		return;
 
+	Index_node_list* refs = ptg->get_references (VN (NAME (bb), use), PTG_ALL);
+	if (refs->size () == 0)
+		return;
+
 	phc_TODO ();
 
 /*	if (ptg->has (use))
@@ -307,9 +313,14 @@ Def_use_web::add_chis (Basic_block* bb, VARIABLE_NAME* def)
 	//	How about each assignment to an alias gets a MU of the variables in the
 	//	statement which created the alias.
 
+	// TODO: we need to use the points-to result for this program-point.
+	Index_node_list* refs = ptg->get_references (VN (NAME (bb), def), PTG_ALL);
+	if (refs->size () == 0)
+		return;
+
 phc_TODO ();
 /*
-	if (aliases->has (def))
+	if (ptg->has (def))
 	{
 		assert (def->in_ssa == false);
 
@@ -321,7 +332,8 @@ phc_TODO ();
 				add_def (alias, new SSA_chi (bb, alias, clone), false);
 				add_use (clone, new SSA_chi (bb, alias, clone), false);
 			}
-	}*/
+	}
+	*/
 }
 
 void
