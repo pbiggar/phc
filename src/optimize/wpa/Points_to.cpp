@@ -168,7 +168,8 @@ Points_to::kill_references (Index_node* index)
 {
 	foreach (Index_node* other, *get_references (index, PTG_ALL))
 	{
-		phc_TODO ();
+		pairs->remove_pair (index, other);
+		pairs->remove_pair (other, index);
 	}
 }
 
@@ -308,6 +309,9 @@ Pairs::insert (Alias_pair* pair)
 	if (by_source[source].has (target))
 		phc_TODO ();
 
+	if (by_target[target].has (source))
+		phc_TODO ();
+
 	by_source[source][target] = pair;
 	by_target[target][source] = pair;
 
@@ -328,6 +332,25 @@ Pairs::has_node (PT_node* node)
 		return true;
 
 	return false;
+}
+
+void
+Pairs::remove_pair (PT_node* source, PT_node* target)
+{
+	string s = source->get_unique_name ();
+	string t = target->get_unique_name ();
+
+	Alias_pair* edge = by_source[s][t];
+	assert (edge);
+
+	// Find the edge and remove it from all_pairs;
+	all_pairs.erase (edge);
+
+	// Remove it from by_source
+	by_source[s].erase (t);
+
+	// Remove it from by_target
+	by_target[t].erase (s);
 }
 
 Alias_pair::Alias_pair (PT_node* source, PT_node* target, certainty cert)

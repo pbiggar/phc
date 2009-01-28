@@ -115,6 +115,8 @@ public:
 	Pairs();
 	void insert (Alias_pair*);
 	bool has_node (PT_node* node);
+
+	void remove_pair (PT_node* n1, PT_node* n2);
 };
 
 /*
@@ -133,7 +135,7 @@ public:
 	void close_scope (string name);
 
 	void add_node (Index_node* node);
-	void add_edge (PT_node* loc1, PT_node* loc2, certainty = DEFINITE);
+	void add_edge (PT_node* n1, PT_node* n2, certainty = DEFINITE);
 	void add_bidir_edge (PT_node* n1, PT_node* n2, certainty cert = DEFINITE);
 
 	void kill_value (Index_node* index);
