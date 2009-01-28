@@ -13,7 +13,6 @@
 using namespace MIR;
 using namespace std;
 using namespace boost;
-using namespace boost::lambda;
 
 
 /*
