@@ -128,23 +128,18 @@ Whole_program::analyse_function (Basic_block* context, CFG* cfg, MIR::Actual_par
 		Edge* e = cfg_wl->front();
 		cfg_wl->pop_front ();
 
-		e->is_executable = true;
 
-		// Analyse the block, and annotate the MIR with interesting results.
-		// This does not update the block structure. Updating is too difficult
-		// to get right, and, in some cases, provides two ways to do the same
-		// thing.  For example, CCP might be able to update a value, but VRP
-		// must make its results available. The dichotomy will be annoying. So
-		// passes visit first, and update later.
-		//
-		// The only thing that suffers from this is eval/includes, which won't
-		// have the advantage of the conditional execution. Fortunately, they
-		// are not likely to benefit from it hugely, unlike the other passes.
-		// We'll be iterating anyway.
-		//
-		// The analysis annotates any MIR::Nodes in the Block.
+		// Analyse the block, storing per-basic-block results.
+		// This does not update the block structure.
+
 		bool changed = aliasing->analyse_block (e->get_target ());
 
+		// Always pass through at least once.
+		if (e->is_executable == false)
+			changed = true;
+
+		// Tell successors that we are executable.
+		e->is_executable = true;
 
 		// Add next	block(s)
 		if (changed)

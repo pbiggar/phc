@@ -184,9 +184,6 @@ BCCH_aliasing::analyse_block (Basic_block* bb)
 void
 BCCH_aliasing::visit_global (Statement_block* bb, MIR::Global* in)
 {
-	// These dont really change anything
-	// TODO: these might set a var to NULL, from uninit
-	// TODO: merge from trunk, it removes the semantics changing ones
 	if (bb->cfg->method->is_main ())
 		return;
 
@@ -194,11 +191,9 @@ BCCH_aliasing::visit_global (Statement_block* bb, MIR::Global* in)
 		phc_TODO ();
 
 	VARIABLE_NAME* var_name = dyc<VARIABLE_NAME> (in->variable_name);
-	phc_TODO ();
-/*	ptg->set_reference (
-		ptg->get_var (NAME (bb), var_name),
-		ptg->get_var ("__MAIN__", var_name));
-*/
+	set_reference (bb,
+			VN (NAME (bb), var_name),
+			VN ("__MAIN__", var_name));
 }
 
 

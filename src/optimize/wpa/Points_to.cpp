@@ -45,15 +45,16 @@ Points_to::open_scope (string scope_name)
 	// superglobals, but we've only 1 example of this breaking).
 	
 	// Add the GLOBALS node
-	add_edge (SN (scope_name), IN (scope_name, "GLOBALS"), DEFINITE);
 
 	if (scope_name == "__MAIN__")
 	{
+		add_edge (SN (scope_name), IN (scope_name, "GLOBALS"), DEFINITE);
 		add_edge (IN (scope_name, "GLOBALS"), SN (scope_name));
 	}
 	else
 	{
-		add_bidir_edge (IN ("__MAIN__", "GLOBALS"), IN (scope_name, "GLOBALS"));
+		// We need to remove the "global $GLOBALS;" statements, since they're wrong, but we should remove it here first.
+//		set_reference (IN (scope_name, "GLOBALS"), IN ("__MAIN__", "GLOBALS"));
 	}
 }
 
@@ -124,12 +125,14 @@ Points_to::dump_graphviz (String* label)
 	;
 }
 
+// Add the edge to the graph.
 void
 Points_to::add_edge (PT_node* n1, PT_node* n2, certainty cert)
 {
 	pairs->insert (new Alias_pair (n1, n2, cert));
 }
 
+// Add 2 edges, to and from N1 and N2.
 void
 Points_to::add_bidir_edge (PT_node* n1, PT_node* n2, certainty cert)
 {
@@ -152,18 +155,43 @@ Points_to::clone ()
 }
 
 void
+Points_to::kill_value (Index_node* index)
+{
+	Storage_node_list* values = get_points_to (index, PTG_ALL);
+	if (values->size ())
+		phc_TODO (); // kill, and the things it points to - watch of for may-aliases
+}
+
+// Remove all references edges into or out of INDEX. Also call kill_value.
+void
+Points_to::kill_references (Index_node* index)
+{
+	foreach (Index_node* other, *get_references (index, PTG_ALL))
+	{
+		phc_TODO ();
+	}
+}
+
+
+// Kill the value of INDEX (which indicates a scalar is being assigned
+// here). This only updates the graph if an object or array is killed. If the
+// node is not in the graph, add it.
+void
 Points_to::set_scalar_value (Index_node* index)
 {
 	if (contains (index))
-	{
-		Storage_node_list* values = get_points_to (index, PTG_ALL);
-		if (values->size ())
-			phc_TODO (); // kill, and the things it points to - watch of for may-aliases
-	}
-	else
-		add_edge (SN (index->storage), index);
+		kill_value (index);
+
+	add_node (index);
 }
 
+void
+Points_to::add_node (Index_node* index)
+{
+	add_edge (SN (index->storage), index);
+}
+
+// Does the graph already contains this node.
 bool
 Points_to::contains (Index_node* index)
 {
@@ -171,15 +199,26 @@ Points_to::contains (Index_node* index)
 	return pairs->has_node (index);
 }
 
+// Make N1 alias N2. Kills N1. Initialized N2 if it is not already.
 void
 Points_to::set_reference (Index_node* n1, Index_node* n2)
 {
-	if (contains (n1))
-		phc_TODO (); // killing here
+	if (!contains (n2))
+	{
+		add_node (n2);
+		phc_TODO (); // initialize to NULL
+	}
+
+	if (!contains (n1))
+		add_node (n1);
+	else
+		kill_references (n1);
 
 	add_bidir_edge (n1, n2);
 }
 
+// Copy the current value from N2 to N1. This clones N2's array, points N1
+// and N2 to the same object for object's, and kills existing values for N1.
 void
 Points_to::copy_value (Index_node* n1, Index_node* n2)
 {
@@ -191,6 +230,7 @@ Points_to::copy_value (Index_node* n1, Index_node* n2)
 		phc_TODO ();
 }
 
+// Does the node have edges pointing to a storage node
 bool
 Points_to::has_value_edges (Index_node* source)
 {
@@ -205,12 +245,14 @@ Points_to::has_value_edges (Index_node* source)
 	return false;
 }
 
+// Return a list of aliases which are references
 Index_node_list*
-Points_to::get_references (Index_node* node, certainty cert)
+Points_to::get_references (Index_node* index, certainty cert)
 {
-	return get_aliases <Index_node> (node, cert);
+	return get_aliases <Index_node> (index, cert);
 }
 
+// Only get the aliasias which are indices or Storage node NS
 Index_node_list*
 Points_to::get_local_references (Storage_node* sn, Index_node* node, certainty cert)
 {
@@ -227,6 +269,7 @@ Points_to::get_local_references (Storage_node* sn, Index_node* node, certainty c
 	return result;
 }
 
+// Get a list of aliases which are points-to.
 Storage_node_list*
 Points_to::get_points_to (Index_node* node, certainty cert)
 {

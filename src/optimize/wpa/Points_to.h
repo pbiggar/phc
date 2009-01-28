@@ -132,45 +132,32 @@ public:
 	void open_scope (string name);
 	void close_scope (string name);
 
-	// Add the edge to the graph.
+	void add_node (Index_node* node);
 	void add_edge (PT_node* loc1, PT_node* loc2, certainty = DEFINITE);
-
-	// Add 2 edges, to and from N1 and N2.
 	void add_bidir_edge (PT_node* n1, PT_node* n2, certainty cert = DEFINITE);
 
-	// TODO: This is a good time to call other passes with the news that there
-	// is a new value, but it the PTG is the wrong place to add that call.
+	void kill_value (Index_node* index);
+	void kill_references (Index_node* index);
 
-	// Kill the value of PT_node (which indicates a scalar is being assigned
-	// here).. This updates the graph if an object or array
-	// is killed.
 	void set_scalar_value (Index_node* lhs);
-
-	// Set N1 and N2 to alias. Kills the LHS.
 	void set_reference (Index_node* n1, Index_node* n2);
-
-	// Copy the current value from N2 to N1. This clones N2's array, points N1
-	// and N2 to the same object for object's, and kills existing values for N1.
 	void copy_value (Index_node* n1, Index_node* n2);
 
-	// Does the graph already contains this node.
 	bool contains (Index_node* node);
 
-	// Does the node have edges pointing to a storage node
 	bool has_value_edges (Index_node* node);
 
 	void dump_graphviz (String* label);
 
-	// Get the list of indices that alias INDEX, with the certainty CERT.
-	// Must-aliases are not returned for POSSIBLE. NODE is not returned, so
-	// callers which rely on NODE aliasing itself must handle it themselves.
 	Index_node_list* get_references (Index_node* index, certainty cert);
 	Storage_node_list* get_points_to (Index_node* index, certainty cert);
 
-	// Only get the indices in Storage node NS
 	Index_node_list* get_local_references (Storage_node* ns, Index_node* index, certainty cert);
 
 private:
+	// Get the list of indices that alias INDEX, with the certainty CERT.
+	// Must-aliases are not returned for POSSIBLE. NODE is not returned, so
+	// callers which rely on NODE aliasing itself must handle it themselves.
 	template <class T>
 	List<T*>* get_aliases (Index_node* node, certainty cert)
 	{
