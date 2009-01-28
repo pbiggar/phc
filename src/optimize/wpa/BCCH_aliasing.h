@@ -40,10 +40,10 @@ public:
 
 	void use_summary_results (Method_info* info, MIR::Actual_parameter_list* in, MIR::VARIABLE_NAME* lhs);
 
-	void forward_bind (CFG* caller_cfg, CFG* callee_cfg,
+	void forward_bind (Basic_block* bb, CFG* callee_cfg,
 			MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* retval);
 
-	void backward_bind (CFG* caller_cfg, CFG* callee_cfg);
+	void backward_bind (Basic_block* bb, CFG* callee_cfg);
 
 	// Performs points-to analysis, and call the other analyses with the
 	// results. Returns true if a solution has changed, requiring this block

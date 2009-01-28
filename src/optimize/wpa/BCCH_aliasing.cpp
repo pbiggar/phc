@@ -74,12 +74,12 @@ BCCH_aliasing::use_summary_results (Method_info* info, MIR::Actual_parameter_lis
 
 
 void
-BCCH_aliasing::forward_bind (CFG* caller_cfg, CFG* callee_cfg, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
+BCCH_aliasing::forward_bind (Basic_block* context, CFG* callee_cfg, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
 {
 	string callee_ns = *callee_cfg->method->signature->method_name->value;
 	string caller_ns;
-	if (caller_cfg) 
-		caller_ns = *caller_cfg->method->signature->method_name->value;
+	if (context) 
+		caller_ns = *context->cfg->method->signature->method_name->value;
 
 	// Give the CFG access to the PTG results
 	callee_cfg->ptgs = &ptgs;
@@ -99,11 +99,10 @@ BCCH_aliasing::forward_bind (CFG* caller_cfg, CFG* callee_cfg, MIR::Actual_param
 		Actual_parameter* ap = *i;
 		if (fp->is_ref || ap->is_ref)
 		{
-			phc_TODO ();
 			// $fp =& $ap;
-//			ptg->set_reference (
-//				ptg->get_var (callee_ns, fp->var->variable_name),
-//				ptg->get_var (caller_ns, dyc<VARIABLE_NAME> (ap->rvalue)));
+			set_reference (context,
+					VN (callee_ns, fp->var->variable_name),
+					VN (caller_ns, dyc<VARIABLE_NAME> (ap->rvalue)));
 		}
 		else
 		{
@@ -123,10 +122,14 @@ BCCH_aliasing::forward_bind (CFG* caller_cfg, CFG* callee_cfg, MIR::Actual_param
 			set_value
 		*/
 	}
+
+	// Store results in the entry block
+	ptgs[callee_cfg->get_entry_bb()->ID] = ptg->clone ();
+	dump (callee_cfg->get_entry_bb());
 }
 
 void
-BCCH_aliasing::backward_bind (CFG* caller_cfg, CFG* callee_cfg)
+BCCH_aliasing::backward_bind (Basic_block* context, CFG* callee_cfg)
 {
 	if (callee_cfg->method->is_main ())
 		return;
@@ -165,8 +168,6 @@ BCCH_aliasing::analyse_block (Basic_block* bb)
 
 	// Dump
 	dump(bb);
-	foreach (tie (name, wpa), wp->analyses)
-		wpa->dump (bb);
 
 
 	// Calculate fix-point
@@ -291,7 +292,7 @@ BCCH_aliasing::visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
 void
 BCCH_aliasing::handle_method_invocation (Statement_block* bb, MIR::Method_invocation* in, MIR::VARIABLE_NAME* lhs)
 {
-	wp->invoke_method (in, bb->cfg, lhs);
+	wp->invoke_method (in, bb, lhs);
 }
 
 void
@@ -306,6 +307,11 @@ BCCH_aliasing::dump (Basic_block* bb)
 {
 	CHECK_DEBUG();
 	ptgs[bb->ID]->dump_graphviz (s(lexical_cast<string> (bb->ID)));
+
+	string name;
+	WPA* wpa;
+	foreach (tie (name, wpa), wp->analyses)
+		wpa->dump (bb);
 }
 
 

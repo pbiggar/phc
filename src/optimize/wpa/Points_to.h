@@ -38,6 +38,7 @@ class PT_node : virtual public GC_obj
 public:
 	// Each PT node gets a unique name for the alias pairs representation.
 	virtual string get_unique_name () = 0;
+	virtual String* get_graphviz () = 0;
 };
 
 /*
@@ -66,6 +67,8 @@ public:
 
 	Index_node (string storage, string name);
 	string get_unique_name ();
+
+	String* get_graphviz ();
 };
 
 
@@ -83,6 +86,8 @@ public:
 	bool is_abstract;
 
 	string get_unique_name ();
+
+	String* get_graphviz ();
 };
 
 class Alias_pair : virtual public GC_obj
@@ -172,7 +177,6 @@ private:
 		List<T*>* result = new List<T*>;
 
 		string source = node->get_unique_name ();
-		DEBUG ("looking up aliases for " << source);
 
 		// There must be an edge to anything it aliases
 		string target;
@@ -182,7 +186,7 @@ private:
 			if ((pair->cert & cert) // bitwise: PTG_ALL matches both
 				&& isa<T> (pair->target))
 			{
-				DEBUG ("Found one: " << target);
+				DEBUG ("Found an alias for " << source << ": " << target);
 				result->push_back (dyc<T>(pair->target));
 			}
 		}

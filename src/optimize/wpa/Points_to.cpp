@@ -89,16 +89,34 @@ Points_to::dump_graphviz (String* label)
 		Alias_pair* alias_pair;
 		foreach (tie (target, alias_pair), alias_map)
 		{
+			// Source
+			cout
+			<< "\""
+			<< *escape_DOT (s (source))
+			<< "\" [" << *alias_pair->source->get_graphviz ()
+			<< "];\n"
+			;
+			
+			// Target
+			cout
+			<< "\""
+			<< *escape_DOT (s (target))
+			<< "\" [" << *alias_pair->target->get_graphviz ()
+			<< "];\n"
+			;
+
+			// Edge
 			cout 
 			<< "\""
 			<< *escape_DOT (s(source)) 
 			<< "\" -> \"" 
-			<< *escape_DOT (s(target))
+			<< *escape_DOT (s(target)) 
 			<< "\" [label=\""
 			<< (alias_pair->cert == POSSIBLE ? "P" : "D")
 			<< "\"];\n"
 			;
 		}
+
 	}
 
 	cout
@@ -293,6 +311,14 @@ Storage_node::get_unique_name ()
 	return ss.str ();
 }
 
+String*
+Storage_node::get_graphviz ()
+{
+	stringstream ss;
+	ss << "shape=box";
+	return s (ss.str ());
+}
+
 Index_node::Index_node (string storage, string name)
 : storage (storage)
 , name (name)
@@ -305,6 +331,12 @@ Index_node::get_unique_name ()
 	stringstream ss;
 	ss << storage << "::" << name;
 	return ss.str ();
+}
+
+String*
+Index_node::get_graphviz ()
+{
+	return s("");
 }
 
 
