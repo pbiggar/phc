@@ -250,6 +250,8 @@ libphc_la_SOURCES= 											\
 	src/optimize/wpa/Constant_state.h					\
 	src/optimize/wpa/Include_analysis.cpp				\
 	src/optimize/wpa/Include_analysis.h					\
+	src/optimize/wpa/Optimization_transformer.cpp	\
+	src/optimize/wpa/Optimization_transformer.h		\
 	src/optimize/wpa/Points_to.cpp						\
 	src/optimize/wpa/Points_to.h							\
 	src/optimize/wpa/Type_inference.cpp					\

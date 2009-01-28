@@ -110,11 +110,11 @@ am_libphc_la_OBJECTS = getopt1.lo getopt.lo AST_annotate.lo \
 	Dominance.lo HSSA.lo Phi.lo SSA.lo SSA_ops.lo \
 	Virtual_variable.lo Var_set.lo Visit_once.lo BCCH_aliasing.lo \
 	Callgraph.lo CCP.lo Constant_state.lo Include_analysis.lo \
-	Points_to.lo Type_inference.lo VRP.lo Whole_program.lo WPA.lo \
-	MICG_parser.lo Parse_buffer.lo parse.lo PHP_context.lo \
-	XML_parser.lo Optimization_pass.lo Pass_manager.lo \
-	Plugin_pass.lo AST_unparser.lo Constant_folding.lo \
-	DOT_unparser.lo Invalid_check.lo \
+	Optimization_transformer.lo Points_to.lo Type_inference.lo \
+	VRP.lo Whole_program.lo WPA.lo MICG_parser.lo Parse_buffer.lo \
+	parse.lo PHP_context.lo XML_parser.lo Optimization_pass.lo \
+	Pass_manager.lo Plugin_pass.lo AST_unparser.lo \
+	Constant_folding.lo DOT_unparser.lo Invalid_check.lo \
 	Note_top_level_declarations.lo Process_includes.lo \
 	Remove_concat_null.lo Remove_parser_temporaries.lo \
 	Strip_unparser_attributes.lo Token_conversion.lo \
@@ -814,6 +814,8 @@ libphc_la_SOURCES = \
 	src/optimize/wpa/Constant_state.h					\
 	src/optimize/wpa/Include_analysis.cpp				\
 	src/optimize/wpa/Include_analysis.h					\
+	src/optimize/wpa/Optimization_transformer.cpp	\
+	src/optimize/wpa/Optimization_transformer.h		\
 	src/optimize/wpa/Points_to.cpp						\
 	src/optimize/wpa/Points_to.h							\
 	src/optimize/wpa/Type_inference.cpp					\
@@ -1448,6 +1450,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Note_top_level_declarations.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Object.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Optimization_pass.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Optimization_transformer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Oracle.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PHP_context.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PHP_unparser.Plo@am__quote@
@@ -2176,6 +2179,13 @@ Include_analysis.lo: src/optimize/wpa/Include_analysis.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/wpa/Include_analysis.cpp' object='Include_analysis.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Include_analysis.lo `test -f 'src/optimize/wpa/Include_analysis.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Include_analysis.cpp
+
+Optimization_transformer.lo: src/optimize/wpa/Optimization_transformer.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Optimization_transformer.lo -MD -MP -MF $(DEPDIR)/Optimization_transformer.Tpo -c -o Optimization_transformer.lo `test -f 'src/optimize/wpa/Optimization_transformer.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Optimization_transformer.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Optimization_transformer.Tpo $(DEPDIR)/Optimization_transformer.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/wpa/Optimization_transformer.cpp' object='Optimization_transformer.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Optimization_transformer.lo `test -f 'src/optimize/wpa/Optimization_transformer.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Optimization_transformer.cpp
 
 Points_to.lo: src/optimize/wpa/Points_to.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Points_to.lo -MD -MP -MF $(DEPDIR)/Points_to.Tpo -c -o Points_to.lo `test -f 'src/optimize/wpa/Points_to.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Points_to.cpp
