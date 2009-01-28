@@ -413,11 +413,45 @@ Aliasing::copy_value (Basic_block* bb, Index_node* lhs, Index_node* rhs)
 }
 
 
+// Note that INDEX is not the index of STORAGE. INDEX points to a set values that may index STORAGE.
 void
 Aliasing::set_indirect_reference (Basic_block* bb, Index_node* lhs, Index_node* storage, Index_node* index)
 {
-	phc_TODO ();
+	// Possible configurations we must deal with:
+	//		- we may not know index
+	//		- we may know some values of the index
+	//		- we may know the exact value of the index
+	//		- we may know a set of values for the index, which are all the same
+	//		- the index (or one of the possible values) may have an unknown
+	//		type, necesitating a call to __get or __toString
+	//
+	//		- the storage node may have an unknown type, requiring a call to
+	//		__set
+	//		- the storage node may have an unknown value
+	//		- 1 or more possible values may be scalars
+	//
+	//		in total:
+	//			weak typing
+	//			dynamic typing
+
+	// If storage has only 1 storage node, OK.
+	Storage_node_list* stores = ptg->get_points_to (storage, PTG_ALL);
+	if (stores->size () != 1)
+		phc_TODO ();
+	
+	// If index has only 1 possible value, OK (and its a scalar)
+	if (ptg->get_points_to (index, PTG_ALL)->size () != 0)
+		phc_TODO ();
+
+	Lattice_cell* result = wp->ccp->ins[bb->ID][index->get_unique_name ()];
+	if (result == BOTTOM || result == TOP)
+		phc_TODO ();
+
+	// TODO: this isnt quite right, we need to cast to a string.
+	string name = *dyc<Literal_cell> (result)->value->get_value_as_string ();
+
+	
+	Index_node* rhs = IN (stores->front()->name, name);
+	set_reference (bb, lhs, rhs);
 }
-
-
 

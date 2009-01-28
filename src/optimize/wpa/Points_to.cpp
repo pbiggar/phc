@@ -214,6 +214,26 @@ Points_to::set_reference (Index_node* n1, Index_node* n2)
 	else
 		kill_references (n1);
 
+	// TODO: abstract
+
+	// Copy all edges to reference nodes
+	certainty certainties[] = {POSSIBLE, DEFINITE};
+	foreach (certainty cert, certainties)
+	{
+		Index_node_list* refs = get_references (n2, cert);
+		foreach (Index_node* ref, *refs)
+			add_bidir_edge (n1, ref);
+	}
+
+
+	// Copy all edges to storage nodes
+	foreach (certainty cert, certainties)
+	{
+		Storage_node_list* pts = get_points_to (n2, cert);
+		foreach (Storage_node* st, *pts)
+			add_edge (n1, st);
+	}
+
 	add_bidir_edge (n1, n2);
 }
 
@@ -234,15 +254,7 @@ Points_to::copy_value (Index_node* n1, Index_node* n2)
 bool
 Points_to::has_value_edges (Index_node* source)
 {
-	string target;
-	Alias_pair* pair;
-	foreach (tie (target, pair), pairs->by_source [source->get_unique_name ()])
-	{
-		if (isa<Storage_node> (pair->target))
-			return true;
-	}
-
-	return false;
+	return get_points_to (source, PTG_ALL)->size () != 0;
 }
 
 // Return a list of aliases which are references
