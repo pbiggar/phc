@@ -41,7 +41,7 @@
 #include "lib/Map.h"
 #include "optimize/Oracle.h"
 
-class BCCH_aliasing;
+class Aliasing;
 class Callgraph;
 class CCP;
 class Constant_state;
@@ -58,7 +58,7 @@ class Whole_program
 
 public:
 	Map<string, WPA*> analyses;
-	BCCH_aliasing* aliasing;
+	Aliasing* aliasing;
 	CCP* ccp;
 
 

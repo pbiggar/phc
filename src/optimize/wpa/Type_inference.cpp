@@ -6,7 +6,7 @@
  *
  */
 
-#include "BCCH_aliasing.h"
+#include "Aliasing.h"
 #include "Type_inference.h"
 #include "Whole_program.h"
 #include "Points_to.h"

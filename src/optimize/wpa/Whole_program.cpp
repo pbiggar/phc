@@ -36,7 +36,7 @@
 
 #include "process_ir/General.h"
 
-#include "BCCH_aliasing.h"
+#include "Aliasing.h"
 #include "Callgraph.h"
 #include "CCP.h"
 #include "Constant_state.h"
@@ -58,7 +58,7 @@ Whole_program::Whole_program ()
 	//		second-class citizens
 	//		- Callgraph has a yet unrealized purpose.
 	//		- CCP helps resolve branches
-	aliasing = new BCCH_aliasing (this);
+	aliasing = new Aliasing (this);
 //	callgraph = new Callgraph (this);
 	ccp = new CCP (this);
 

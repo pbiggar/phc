@@ -3,7 +3,7 @@
 
 #include "../CFG.h"
 #include "../Basic_block.h"
-#include "../wpa/BCCH_aliasing.h"
+#include "../wpa/Aliasing.h"
 
 
 class HSSA : virtual public GC_obj

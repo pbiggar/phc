@@ -9,13 +9,13 @@
 #ifndef PHC_OPTIMIZATION_TRANSFORMER
 #define PHC_OPTIMIZATION_TRANSFORMER
 
-#include "BCCH_aliasing.h"
+#include "Aliasing.h"
 
 class Optimization_transformer : public CFG_visitor
 {
 public:
-	BCCH_aliasing* aliasing;
-	Optimization_transformer (BCCH_aliasing*);
+	Aliasing* aliasing;
+	Optimization_transformer (Aliasing*);
 
 	void run (CFG* cfg);
 

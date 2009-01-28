@@ -240,8 +240,8 @@ libphc_la_SOURCES= 											\
 	src/optimize/Var_set.cpp								\
 	src/optimize/Visit_once.cpp							\
 	src/optimize/Visit_once.h								\
-	src/optimize/wpa/BCCH_aliasing.cpp					\
-	src/optimize/wpa/BCCH_aliasing.h						\
+	src/optimize/wpa/Aliasing.cpp							\
+	src/optimize/wpa/Aliasing.h							\
 	src/optimize/wpa/Callgraph.cpp						\
 	src/optimize/wpa/Callgraph.h							\
 	src/optimize/wpa/CCP.cpp								\

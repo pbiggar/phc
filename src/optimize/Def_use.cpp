@@ -7,7 +7,7 @@
 #include "Var_set.h"
 #include "ssa/Virtual_variable.h"
 
-#include "wpa/BCCH_aliasing.h"
+#include "wpa/Aliasing.h"
 
 
 using namespace MIR;

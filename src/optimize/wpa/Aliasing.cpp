@@ -14,7 +14,7 @@
  * for us).
  */
 
-#include "BCCH_aliasing.h"
+#include "Aliasing.h"
 #include "Points_to.h"
 #include "Whole_program.h"
 #include "CCP.h"
@@ -25,7 +25,7 @@ using namespace MIR;
 using namespace boost;
 using namespace std;
 
-BCCH_aliasing::BCCH_aliasing (Whole_program* wp)
+Aliasing::Aliasing (Whole_program* wp)
 : wp (wp)
 {
 	ptg = new Points_to;
@@ -34,7 +34,7 @@ BCCH_aliasing::BCCH_aliasing (Whole_program* wp)
 
 
 void
-BCCH_aliasing::use_summary_results (Method_info* info, MIR::Actual_parameter_list* in, MIR::VARIABLE_NAME* lhs)
+Aliasing::use_summary_results (Method_info* info, MIR::Actual_parameter_list* in, MIR::VARIABLE_NAME* lhs)
 {
 	if (lhs)
 		phc_TODO ();
@@ -75,7 +75,7 @@ BCCH_aliasing::use_summary_results (Method_info* info, MIR::Actual_parameter_lis
 
 
 void
-BCCH_aliasing::forward_bind (Basic_block* context, CFG* callee_cfg, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
+Aliasing::forward_bind (Basic_block* context, CFG* callee_cfg, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
 {
 	string callee_ns = *callee_cfg->method->signature->method_name->value;
 	string caller_ns;
@@ -130,7 +130,7 @@ BCCH_aliasing::forward_bind (Basic_block* context, CFG* callee_cfg, MIR::Actual_
 }
 
 void
-BCCH_aliasing::backward_bind (Basic_block* context, CFG* callee_cfg)
+Aliasing::backward_bind (Basic_block* context, CFG* callee_cfg)
 {
 	if (callee_cfg->method->is_main ())
 		return;
@@ -143,7 +143,7 @@ BCCH_aliasing::backward_bind (Basic_block* context, CFG* callee_cfg)
 }
 
 bool
-BCCH_aliasing::analyse_block (Basic_block* bb)
+Aliasing::analyse_block (Basic_block* bb)
 {
 	DEBUG ("Analysing BB: " << bb->ID);
 	string name;
@@ -181,7 +181,7 @@ BCCH_aliasing::analyse_block (Basic_block* bb)
 }
 
 void
-BCCH_aliasing::apply_results (Basic_block* bb)
+Aliasing::apply_results (Basic_block* bb)
 {
 	if (Statement_block* sb = dynamic_cast<Statement_block*> (bb))
 	{
@@ -197,7 +197,7 @@ BCCH_aliasing::apply_results (Basic_block* bb)
 }
 
 void
-BCCH_aliasing::dump (Basic_block* bb)
+Aliasing::dump (Basic_block* bb)
 {
 	CHECK_DEBUG();
 	ptgs[bb->ID]->dump_graphviz (s(lexical_cast<string> (bb->ID)));
@@ -216,7 +216,7 @@ BCCH_aliasing::dump (Basic_block* bb)
  */
 
 void
-BCCH_aliasing::visit_global (Statement_block* bb, MIR::Global* in)
+Aliasing::visit_global (Statement_block* bb, MIR::Global* in)
 {
 	if (bb->cfg->method->is_main ())
 		return;
@@ -232,7 +232,7 @@ BCCH_aliasing::visit_global (Statement_block* bb, MIR::Global* in)
 
 
 void
-BCCH_aliasing::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
+Aliasing::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 {
 	string ns = NAME (bb);
 	Index_node* lhs = VN (ns, in->lhs);
@@ -312,7 +312,7 @@ BCCH_aliasing::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 }
 
 void
-BCCH_aliasing::visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
+Aliasing::visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
 {
 	if (isa<New> (in->expr))
 		handle_new (bb, dyc<New> (in->expr), NULL);
@@ -321,13 +321,13 @@ BCCH_aliasing::visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
 }
 
 void
-BCCH_aliasing::handle_method_invocation (Statement_block* bb, MIR::Method_invocation* in, MIR::VARIABLE_NAME* lhs)
+Aliasing::handle_method_invocation (Statement_block* bb, MIR::Method_invocation* in, MIR::VARIABLE_NAME* lhs)
 {
 	wp->invoke_method (in, bb, lhs);
 }
 
 void
-BCCH_aliasing::handle_new (Statement_block* bb, MIR::New* in, MIR::VARIABLE_NAME* lhs)
+Aliasing::handle_new (Statement_block* bb, MIR::New* in, MIR::VARIABLE_NAME* lhs)
 {
 	phc_TODO ();
 }
@@ -340,7 +340,7 @@ BCCH_aliasing::handle_new (Statement_block* bb, MIR::New* in, MIR::VARIABLE_NAME
 
 
 void
-BCCH_aliasing::set_reference (Basic_block* bb, Index_node* lhs, Index_node* rhs)
+Aliasing::set_reference (Basic_block* bb, Index_node* lhs, Index_node* rhs)
 {
 	// We don't need to worry about aliases, as this is killing.
 
@@ -359,7 +359,7 @@ BCCH_aliasing::set_reference (Basic_block* bb, Index_node* lhs, Index_node* rhs)
 // already sorted from when the aliasing happened).
 
 void
-BCCH_aliasing::set_scalar_value (Basic_block* bb, Index_node* lhs, Literal* lit)
+Aliasing::set_scalar_value (Basic_block* bb, Index_node* lhs, Literal* lit)
 {
 	// Send the results to the analyses for all variables which could be
 	// overwritten.
@@ -386,7 +386,7 @@ BCCH_aliasing::set_scalar_value (Basic_block* bb, Index_node* lhs, Literal* lit)
 }
 
 void
-BCCH_aliasing::copy_value (Basic_block* bb, Index_node* lhs, Index_node* rhs)
+Aliasing::copy_value (Basic_block* bb, Index_node* lhs, Index_node* rhs)
 {
 	// This is not killing in terms of references, so it assigns to all
 	// aliases of lhs.
@@ -414,7 +414,7 @@ BCCH_aliasing::copy_value (Basic_block* bb, Index_node* lhs, Index_node* rhs)
 
 
 void
-BCCH_aliasing::set_indirect_reference (Basic_block* bb, Index_node* lhs, Index_node* storage, Index_node* index)
+Aliasing::set_indirect_reference (Basic_block* bb, Index_node* lhs, Index_node* storage, Index_node* index)
 {
 	phc_TODO ();
 }

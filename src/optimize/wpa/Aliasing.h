@@ -25,7 +25,7 @@
 
 class Optimization_transformer;
 
-class BCCH_aliasing : public CFG_visitor
+class Aliasing : public CFG_visitor
 {
 public:
 	Points_to* ptg;
@@ -35,7 +35,7 @@ public:
 	// Record 1 per program-point.
 	Map<long, Points_to*> ptgs;
 
-	BCCH_aliasing (Whole_program*);
+	Aliasing (Whole_program*);
 
 
 	void use_summary_results (Method_info* info, MIR::Actual_parameter_list* in, MIR::VARIABLE_NAME* lhs);

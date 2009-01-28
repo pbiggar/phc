@@ -20,7 +20,7 @@ using namespace std;
 /*
  * Apply the optimization results.
  */
-Optimization_transformer::Optimization_transformer (BCCH_aliasing* aliasing)
+Optimization_transformer::Optimization_transformer (Aliasing* aliasing)
 : aliasing (aliasing)
 {
 }
