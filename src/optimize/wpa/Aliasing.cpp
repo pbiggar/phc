@@ -135,11 +135,9 @@ Aliasing::backward_bind (Basic_block* context, CFG* callee_cfg)
 	if (callee_cfg->method->is_main ())
 		return;
 
-	phc_TODO ();
-
-	// TODO: handle returns
-
 	ptg->close_scope (*callee_cfg->method->signature->method_name->value);
+
+	// TODO: we need to handle returns for all the analyses, not just here
 }
 
 bool

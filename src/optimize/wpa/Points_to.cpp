@@ -25,7 +25,6 @@ using namespace boost;
 
 Points_to::Points_to ()
 {
-	pairs = new Pairs;
 }
 
 Storage_node* SN (string scope) { return new Storage_node (scope); }
@@ -61,7 +60,13 @@ Points_to::open_scope (string scope_name)
 void
 Points_to::close_scope (string scope_name)
 {
-	phc_TODO ();
+	// Remove the symbol table. Then do a mark-and-sweep from all the other
+	// symbol tables.
+	remove_node (SN (scope_name));
+
+	remove_unreachable_nodes ();
+
+	dump_graphviz (NULL);
 }
 
 void
@@ -84,12 +89,14 @@ Points_to::dump_graphviz (String* label)
 	// Add definite edges
 	string source;
 	Map<string, Alias_pair*> alias_map;
-	foreach (tie (source, alias_map), pairs->by_source)
+	foreach (tie (source, alias_map), by_source)
 	{
 		string target;
 		Alias_pair* alias_pair;
 		foreach (tie (target, alias_pair), alias_map)
 		{
+			assert (alias_pair);
+
 			// Source
 			cout
 			<< "\""
@@ -129,15 +136,15 @@ Points_to::dump_graphviz (String* label)
 void
 Points_to::add_edge (PT_node* n1, PT_node* n2, certainty cert)
 {
-	pairs->insert (new Alias_pair (n1, n2, cert));
+	insert (new Alias_pair (n1, n2, cert));
 }
 
 // Add 2 edges, to and from N1 and N2.
 void
 Points_to::add_bidir_edge (PT_node* n1, PT_node* n2, certainty cert)
 {
-	pairs->insert (new Alias_pair (n1, n2, cert));
-	pairs->insert (new Alias_pair (n2, n1, cert));
+	insert (new Alias_pair (n1, n2, cert));
+	insert (new Alias_pair (n2, n1, cert));
 }
 
 Points_to*
@@ -145,10 +152,10 @@ Points_to::clone ()
 {
 	Points_to* result = new Points_to;
 
-	foreach (Alias_pair* p, this->pairs->all_pairs)
+	foreach (Alias_pair* p, this->all_pairs)
 	{
 		// No need to deep copy, as pairs are never updated in-place.
-		result->pairs->insert (p);
+		result->insert (p);
 	}
 
 	return result;
@@ -168,8 +175,8 @@ Points_to::kill_references (Index_node* index)
 {
 	foreach (Index_node* other, *get_references (index, PTG_ALL))
 	{
-		pairs->remove_pair (index, other);
-		pairs->remove_pair (other, index);
+		remove_pair (index, other);
+		remove_pair (other, index);
 	}
 }
 
@@ -197,7 +204,7 @@ bool
 Points_to::contains (Index_node* index)
 {
 	// TODO: check its connected to a storage node
-	return pairs->has_node (index);
+	return has_node (index);
 }
 
 // Make N1 alias N2. Kills N1. Initialized N2 if it is not already.
@@ -290,17 +297,80 @@ Points_to::get_points_to (Index_node* node, certainty cert)
 }
 
 
+// Mark all symtable nodes, then sweep anything they can reach. Remove the
+// rest.
+void
+Points_to::remove_unreachable_nodes ()
+{
+	// XXX: The problem is that this leaves reference nodes behind. But we
+	// only really want to remove the reference nodes that are out of scope.
+	// So a node representing a variable should be removed when its symtable
+	// does. What about other reference nodes? If there is an array with no
+	// references to it, do we want to keep its index_nodes? Well, only if
+	// they're references elsewhere. But if they're referenced elsewhere, the
+	// useful info is already copied.
+
+	// Summary: when removing a storage, remove all its index nodes.
+	
+	// Which means that until arrays and objects are modelled, this function
+	// does nothing.
+	return;
+	dump_graphviz (NULL);
+
+	// Put all symtables into the worklist
+	PT_node_list* worklist = new PT_node_list;
+	PT_node_list* all_nodes = get_nodes <PT_node> ();
+	foreach (PT_node* node, *all_nodes)
+	{
+		// TODO: split between symtable and other storage nodes
+		if (Storage_node* sn = dynamic_cast<Storage_node*> (node))
+			worklist->push_back (sn);
+	}
+
+	// Mark all reachable nodes (use names, not pointers, as there may be
+	// mulitple descirptor with the same name, but obviously different
+	// pointers).
+	Set<string> reachable;
+
+	while (worklist->size () > 0)
+	{
+		PT_node* node = worklist->front ();
+		worklist->pop_front ();
+
+		if (reachable.has (node->get_unique_name ()))
+			continue;
+
+		// mark reachable
+		reachable.insert (node->get_unique_name ());
+	
+		// Add successors to the worklist
+		foreach (PT_node* succ, *get_targets<PT_node> (node))
+		{
+			worklist->push_back (succ);
+		}
+	}
+
+	// remove all nodes not marked as reachable
+	foreach (PT_node* node, *all_nodes)
+	{
+		// We use get_all_nodes because the vertex descriptors are invalidated
+		// by remove_vertex
+		if (!reachable.has (node->get_unique_name ()))
+		{
+			phc_TODO ();
+		}
+	}
+	dump_graphviz (NULL);
+}
+
+
 /*
- * Alias-pair representation
+ * Low-level API
  */
 
 
-Pairs::Pairs ()
-{
-}
-
 void
-Pairs::insert (Alias_pair* pair)
+Points_to::insert (Alias_pair* pair)
 {
 	string source = pair->source->get_unique_name ();
 	string target = pair->target->get_unique_name ();
@@ -320,7 +390,7 @@ Pairs::insert (Alias_pair* pair)
 }
 
 bool
-Pairs::has_node (PT_node* node)
+Points_to::has_node (PT_node* node)
 {
 	// TODO: make this lookup faster
 	string name = node->get_unique_name ();
@@ -334,11 +404,20 @@ Pairs::has_node (PT_node* node)
 	return false;
 }
 
+// And fail if its not present (unless !EXPECTED).
 void
-Pairs::remove_pair (PT_node* source, PT_node* target)
+Points_to::remove_pair (PT_node* source, PT_node* target, bool expected)
 {
 	string s = source->get_unique_name ();
 	string t = target->get_unique_name ();
+
+	if (!by_source[s].has (t))
+	{
+		if (!expected)
+			return;
+
+		phc_unreachable ();
+	}
 
 	Alias_pair* edge = by_source[s][t];
 	assert (edge);
@@ -352,6 +431,36 @@ Pairs::remove_pair (PT_node* source, PT_node* target)
 	// Remove it from by_target
 	by_target[t].erase (s);
 }
+
+void
+Points_to::remove_node (PT_node* node)
+{
+	if (isa<Storage_node> (node))
+	{
+		// This cant recurse, as storage nodes can only have index_nodes, which
+		// won't be removed like this.
+		foreach (Index_node* member, *get_targets<Index_node> (node))
+		{
+			remove_node (member);
+		}
+	}
+
+	string name;
+	Alias_pair* pair;
+
+	// dont use foreach, as remove_pair kills the iterators.
+	while (by_source [node->get_unique_name ()].size ())
+	{
+		tie (name, pair) = *by_source [node->get_unique_name ()].begin();
+		remove_pair (pair->source, pair->target, true);
+		remove_pair (pair->target, pair->source, false);
+	}
+}
+
+
+/*
+ * Alias-pairs
+ */
 
 Alias_pair::Alias_pair (PT_node* source, PT_node* target, certainty cert)
 : source (source)
@@ -417,50 +526,3 @@ Index_node::get_graphviz ()
 	return s("");
 }
 
-
-
-
-
-#if 0
-
-// The old points-to. Only 1 bit of code we'd like to re-use remains.
-void
-Points_to::remove_unreachable_nodes ()
-{
-	Set<PT_node*> reachable;
-
-	// Mark-sweep to remove unreachable nodes.
-	PT_node_list* worklist = new PT_node_list (symtables["__MAIN__"]);
-
-	while (worklist->size () > 0)
-	{
-		PT_node* node = worklist->front ();
-		worklist->pop_front ();
-
-		// Dont process BBs we've seen before
-		if (reachable.has (node))
-			continue;
-
-		// mark reachable
-		reachable.insert (node);
-	
-		// Add successors to the worklist
-		foreach (PT_node* succ, *node->get_targets<PT_node> ())
-			worklist->push_back (succ);
-	}
-
-	// remove all nodes not marked as reachable
-	foreach (PT_node* node, *get_nodes<PT_node> ())
-	{
-		// We use get_all_nodes because the vertex descriptors are invalidated
-		// by remove_vertex
-		if (!reachable.has (node))
-		{
-			boost::clear_vertex (node->vertex, bs);
-			boost::remove_vertex (node->vertex, bs);
-		}
-	}
-}
-
-
-#endif
