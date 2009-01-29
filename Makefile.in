@@ -101,15 +101,15 @@ am_libphc_la_OBJECTS = getopt1.lo getopt.lo AST_annotate.lo \
 	php_parser.tab.lo HIR_lower_expr.lo Lower_control_flow.lo \
 	Lower_dynamic_definitions.lo Lower_method_invocations.lo \
 	AttrMap.lo base64.lo Boolean.lo demangle.lo error.lo escape.lo \
-	Integer.lo Object.lo String.lo Address_taken.lo Basic_block.lo \
-	CFG.lo CFG_visitor.lo Dead_code_elimination.lo Def_use.lo \
-	Edge.lo Flow_visitor.lo If_simplification.lo Lattice.lo \
+	Integer.lo Object.lo String.lo Basic_block.lo CFG.lo \
+	CFG_visitor.lo Dead_code_elimination.lo Def_use.lo Edge.lo \
+	Flow_visitor.lo If_simplification.lo Lattice.lo \
 	Live_variable_analysis.lo Mark_initialized.lo \
 	Misc_annotations.lo Oracle.lo Prune_symbol_table.lo \
 	Remove_loop_booleans.lo SCCP.lo Sparse_conditional_visitor.lo \
-	Dominance.lo HSSA.lo Phi.lo SSA.lo SSA_ops.lo \
-	Virtual_variable.lo Var_set.lo Visit_once.lo Aliasing.lo \
-	Callgraph.lo CCP.lo Constant_state.lo Include_analysis.lo \
+	Dominance.lo HSSA.lo Phi.lo SSA.lo SSA_ops.lo Var_set.lo \
+	Visit_once.lo Aliasing.lo Callgraph.lo CCP.lo \
+	Constant_state.lo Include_analysis.lo \
 	Optimization_transformer.lo Points_to.lo Type_inference.lo \
 	VRP.lo Whole_program.lo WPA.lo MICG_parser.lo Parse_buffer.lo \
 	parse.lo PHP_context.lo XML_parser.lo Optimization_pass.lo \
@@ -760,8 +760,6 @@ libphc_la_SOURCES = \
 	src/lib/String.cpp										\
 	src/lib/String.h											\
 	src/lib/Vector.h											\
-	src/optimize/Address_taken.cpp						\
-	src/optimize/Address_taken.h							\
 	src/optimize/Basic_block.cpp							\
 	src/optimize/Basic_block.h								\
 	src/optimize/CFG.cpp										\
@@ -808,8 +806,6 @@ libphc_la_SOURCES = \
 	src/optimize/ssa/SSA.h									\
 	src/optimize/ssa/SSA_ops.cpp							\
 	src/optimize/ssa/SSA_ops.h								\
-	src/optimize/ssa/Virtual_variable.cpp				\
-	src/optimize/ssa/Virtual_variable.h					\
 	src/optimize/Var_map.h									\
 	src/optimize/Var_set.cpp								\
 	src/optimize/Visit_once.cpp							\
@@ -1389,7 +1385,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AST_transform.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AST_unparser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AST_visitor.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Address_taken.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Alias_uppering.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Aliasing.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AttrMap.Plo@am__quote@
@@ -1489,7 +1484,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Type_inference.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VRP.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Var_set.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Virtual_variable.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Visit_once.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/WPA.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Whole_program.Plo@am__quote@
@@ -1973,13 +1967,6 @@ String.lo: src/lib/String.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o String.lo `test -f 'src/lib/String.cpp' || echo '$(srcdir)/'`src/lib/String.cpp
 
-Address_taken.lo: src/optimize/Address_taken.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Address_taken.lo -MD -MP -MF $(DEPDIR)/Address_taken.Tpo -c -o Address_taken.lo `test -f 'src/optimize/Address_taken.cpp' || echo '$(srcdir)/'`src/optimize/Address_taken.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Address_taken.Tpo $(DEPDIR)/Address_taken.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Address_taken.cpp' object='Address_taken.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Address_taken.lo `test -f 'src/optimize/Address_taken.cpp' || echo '$(srcdir)/'`src/optimize/Address_taken.cpp
-
 Basic_block.lo: src/optimize/Basic_block.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Basic_block.lo -MD -MP -MF $(DEPDIR)/Basic_block.Tpo -c -o Basic_block.lo `test -f 'src/optimize/Basic_block.cpp' || echo '$(srcdir)/'`src/optimize/Basic_block.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Basic_block.Tpo $(DEPDIR)/Basic_block.Plo
@@ -2133,13 +2120,6 @@ SSA_ops.lo: src/optimize/ssa/SSA_ops.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/ssa/SSA_ops.cpp' object='SSA_ops.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o SSA_ops.lo `test -f 'src/optimize/ssa/SSA_ops.cpp' || echo '$(srcdir)/'`src/optimize/ssa/SSA_ops.cpp
-
-Virtual_variable.lo: src/optimize/ssa/Virtual_variable.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Virtual_variable.lo -MD -MP -MF $(DEPDIR)/Virtual_variable.Tpo -c -o Virtual_variable.lo `test -f 'src/optimize/ssa/Virtual_variable.cpp' || echo '$(srcdir)/'`src/optimize/ssa/Virtual_variable.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Virtual_variable.Tpo $(DEPDIR)/Virtual_variable.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/ssa/Virtual_variable.cpp' object='Virtual_variable.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Virtual_variable.lo `test -f 'src/optimize/ssa/Virtual_variable.cpp' || echo '$(srcdir)/'`src/optimize/ssa/Virtual_variable.cpp
 
 Var_set.lo: src/optimize/Var_set.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Var_set.lo -MD -MP -MF $(DEPDIR)/Var_set.Tpo -c -o Var_set.lo `test -f 'src/optimize/Var_set.cpp' || echo '$(srcdir)/'`src/optimize/Var_set.cpp

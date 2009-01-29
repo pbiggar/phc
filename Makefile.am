@@ -186,8 +186,6 @@ libphc_la_SOURCES= 											\
 	src/lib/String.cpp										\
 	src/lib/String.h											\
 	src/lib/Vector.h											\
-	src/optimize/Address_taken.cpp						\
-	src/optimize/Address_taken.h							\
 	src/optimize/Basic_block.cpp							\
 	src/optimize/Basic_block.h								\
 	src/optimize/CFG.cpp										\
@@ -234,8 +232,6 @@ libphc_la_SOURCES= 											\
 	src/optimize/ssa/SSA.h									\
 	src/optimize/ssa/SSA_ops.cpp							\
 	src/optimize/ssa/SSA_ops.h								\
-	src/optimize/ssa/Virtual_variable.cpp				\
-	src/optimize/ssa/Virtual_variable.h					\
 	src/optimize/Var_map.h									\
 	src/optimize/Var_set.cpp								\
 	src/optimize/Visit_once.cpp							\

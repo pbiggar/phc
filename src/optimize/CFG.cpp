@@ -19,7 +19,6 @@
 #include "lib/escape.h"
 #include "lib/Vector.h"
 
-#include "Address_taken.h"
 #include "CFG.h"
 #include "Def_use.h"
 

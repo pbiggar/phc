@@ -11,7 +11,6 @@
 #include "process_ir/General.h"
 
 #include "optimize/Basic_block.h"
-#include "optimize/Address_taken.h"
 
 #include "HSSA.h"
 #include "Phi.h"

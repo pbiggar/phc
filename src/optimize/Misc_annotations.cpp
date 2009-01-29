@@ -15,15 +15,6 @@
 
 using namespace MIR;
 
-void
-Misc_annotations::run (CFG* cfg)
-{
-	aliasing = new Address_taken ();
-	aliasing->run (cfg);
-
-	Visit_once::run (cfg);
-}
-
 // visit_expr needs to be called manually
 void
 Misc_annotations::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
@@ -122,11 +113,12 @@ Misc_annotations::annotate_non_by_ref_vars (Basic_block* bb)
 	vars->push_back_all (bb->get_uses (SSA_ALL));
 	foreach (VARIABLE_NAME* var, *vars)
 	{
-		if (!aliasing->aliases->has (var))
+		phc_TODO ();
+/*		if (!aliasing->aliases->has (var))
 		{
 			CTS ("resolve-non-ref");
 			var->attrs->set_true ("phc.optimize.cannot_be_ref");
-		}
+		}*/
 	}
 }
 

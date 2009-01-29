@@ -32,7 +32,6 @@
 #include "hir_to_mir/Lower_control_flow.h"
 #include "hir_to_mir/Lower_dynamic_definitions.h"
 #include "hir_to_mir/Lower_method_invocations.h"
-#include "optimize/Address_taken.h"
 #include "optimize/Dead_code_elimination.h"
 #include "optimize/Def_use.h"
 #include "optimize/If_simplification.h"

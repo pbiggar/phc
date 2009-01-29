@@ -7,7 +7,6 @@
 
 #include "Live_variable_analysis.h"
 #include "Dead_code_elimination.h"
-#include "Address_taken.h"
 #include "process_ir/General.h"
 #include "cmdline.h"
 

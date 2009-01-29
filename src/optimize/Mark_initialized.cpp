@@ -35,7 +35,6 @@
 #include "MIR.h"
 
 #include "Mark_initialized.h"
-#include "Address_taken.h"
 #include "Def_use.h"
 
 using namespace boost;
@@ -45,15 +44,6 @@ using namespace MIR;
 Mark_initialized::Mark_initialized ()
 : Flow_visitor (FORWARD_FLOW)
 {
-}
-
-void
-Mark_initialized::run (CFG* cfg)
-{
-	aliasing = new Address_taken;
-	aliasing->run (cfg);
-
-	Flow_visitor::run (cfg);
 }
 
 void
