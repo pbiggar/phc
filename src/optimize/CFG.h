@@ -282,7 +282,8 @@ public:
 	/*
 	 * Points-to - access via Basic_block
 	 */
-	Map<long, Points_to*>* ptgs;
+	Map<long, Points_to*>* in_ptgs;
+	Map<long, Points_to*>* out_ptgs;
 
 private:
 	Graph bs; // backing store

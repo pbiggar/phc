@@ -103,15 +103,21 @@ Whole_program::run (MIR::PHP_script* in)
 		// Merge different contexts
 		merge_contexts (info);
 
-		// Perform DCE and CP
-		perform_local_optimizations (info);
-
 		// Generate Method_infos from the analysis results
 		generate_summary (info);
 //	}
 // TODO
 //	foreach (string method, callgraph.bottom_up ())
 //	{
+
+
+		// Perform DCE and CP.
+		perform_local_optimizations (info);
+
+
+		// Perform inlining
+		// TODO:
+
 		// Apply the results
 		apply_results (Oracle::get_method_info (s(method))->cfg);
 	}
@@ -305,8 +311,12 @@ Whole_program::perform_local_optimizations (Method_info* info)
 void
 Whole_program::generate_summary (Method_info* info)
 {
+	// it already has a summary
+	if (!info->has_implementation ())
+		return;
+
 	// TODO
-	phc_TODO ();
+//	phc_TODO ();
 }
 
 void

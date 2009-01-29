@@ -61,6 +61,7 @@ is_reference_statement (Statement* in)
 */
 bool is_critical (Statement* in)
 {
+	// TODO: this is only critical if its result is used.
 	if (isa<Return> (in))
 		return true;
 
@@ -70,12 +71,17 @@ bool is_critical (Statement* in)
 	// TODO: is there a way to handle this without special casing it?
 	// TODO: virtual-variables are incorrect, so we just mark the foreach_*
 	// nodes which write as critical.
-	if (isa<Foreach_reset> (in) || isa<Foreach_next> (in) || isa<Foreach_end> (in))
+	if (	isa<Foreach_reset> (in)
+		|| isa<Foreach_next> (in)
+		|| isa<Foreach_end> (in))
 		return true;
 
 	// TODO: we are assuming for now that all indirect assignments are
 	// incorrectly modelled, and should not be removed.
-	if (isa<Assign_field> (in) || isa<Assign_next> (in) || isa<Assign_array> (in) || isa<Assign_var_var> (in))
+	if (	isa<Assign_field> (in)
+		|| isa<Assign_next> (in)
+		|| isa<Assign_array> (in)
+		|| isa<Assign_var_var> (in))
 		return true;
 
 	// TODO: As above
@@ -84,13 +90,15 @@ bool is_critical (Statement* in)
 		return true;
 	
 
-	// All reference statements create values for their RHS
+	// All reference statements may create values for their RHS
 	if (is_reference_statement (in))
 		return true;
 
+	// TODO: these can cause side-effecting functions such as __get or __set.
 	if (not (isa<Eval_expr> (in) || isa<Assign_var> (in)))
 		return false;
 
+	// Function calls
 	Wildcard<Expr>* expr = new Wildcard<Expr>;
 	if (in->match (new Eval_expr (expr))
 		|| in->match (
@@ -100,6 +108,7 @@ bool is_critical (Statement* in)
 				expr)))
 	{
 		// TODO: pure and critical are different
+		// TODO: note also that variables can be created by a reference here.
 		return !is_pure (expr->value);
 	}
 	else

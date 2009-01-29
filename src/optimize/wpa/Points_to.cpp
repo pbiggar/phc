@@ -65,8 +65,6 @@ Points_to::close_scope (string scope_name)
 	remove_node (SN (scope_name));
 
 	remove_unreachable_nodes ();
-
-	dump_graphviz (NULL);
 }
 
 void

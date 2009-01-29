@@ -83,7 +83,8 @@ Aliasing::forward_bind (Basic_block* context, CFG* callee_cfg, MIR::Actual_param
 		caller_ns = *context->cfg->method->signature->method_name->value;
 
 	// Give the CFG access to the PTG results
-	callee_cfg->ptgs = &ptgs;
+	callee_cfg->in_ptgs = &in_ptgs;
+	callee_cfg->out_ptgs = &out_ptgs;
 
 	ptg->open_scope (callee_ns);
 
@@ -125,8 +126,9 @@ Aliasing::forward_bind (Basic_block* context, CFG* callee_cfg, MIR::Actual_param
 	}
 
 	// Store results in the entry block
-	ptgs[callee_cfg->get_entry_bb()->ID] = ptg->clone ();
-	dump (callee_cfg->get_entry_bb());
+	out_ptgs[callee_cfg->get_entry_bb ()->ID] = ptg->clone ();
+	in_ptgs[callee_cfg->get_entry_bb ()->ID] = ptg->clone ();
+	dump (callee_cfg->get_entry_bb ());
 }
 
 void
@@ -151,13 +153,15 @@ Aliasing::analyse_block (Basic_block* bb)
 	foreach (tie (name, wpa), wp->analyses)
 		wpa->pull_results (bb);
 
+	// TODO: we really need to use pull_results and aggregate_results, etc.
+	// But for now just store a clone of the graph.
+	in_ptgs[bb->ID] = ptg->clone ();
 	
 	// Do the aliasing (and hence other analyses)
 	visit_block (bb);
 
-	// TODO: we really need to use pull_results and aggregate_results, etc.
-	// But for now just store a clone of the graph.
-	ptgs[bb->ID] = ptg->clone ();
+	// TODO: see comment at in_ptgs
+	out_ptgs[bb->ID] = ptg->clone ();
 
 
 	// Create OUT sets from the results 
@@ -198,7 +202,7 @@ void
 Aliasing::dump (Basic_block* bb)
 {
 	CHECK_DEBUG();
-	ptgs[bb->ID]->dump_graphviz (s(lexical_cast<string> (bb->ID)));
+	out_ptgs[bb->ID]->dump_graphviz (s(lexical_cast<string> (bb->ID)));
 
 	string name;
 	WPA* wpa;

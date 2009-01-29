@@ -649,7 +649,13 @@ Statement_block::clone ()
 
 
 Points_to*
-Basic_block::get_ptg ()
+Basic_block::get_in_ptg ()
 {
-	return (*cfg->ptgs)[ID];
+	return (*cfg->in_ptgs)[ID];
+}
+
+Points_to*
+Basic_block::get_out_ptg ()
+{
+	return (*cfg->out_ptgs)[ID];
 }

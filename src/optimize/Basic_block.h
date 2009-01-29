@@ -43,7 +43,8 @@ public:
 	/* Since results are stored per BB, it seems natural to use the BB to give
 	 * access to them.
 	 */
-	Points_to* get_ptg();
+	Points_to* get_in_ptg();
+	Points_to* get_out_ptg();
 
 public:
 	/* 
