@@ -10,16 +10,16 @@ option "r-option" - "Pass option to a plugin (specify multiple flags in the same
 option "define" d "Define ini entry (only affects -c and --include)" string no multiple
 
 section "INPUT OPTIONS"
-option "read-xml" - "Assume the input is in XML format. Start processing after the named pass" string typestr="passname" optional
-option "no-validation" - "Toggle XML validation"  flag on hidden 
+option "read-xml" - "Assume the input is in XML format. Start processing after the named pass (passes are ast|hir|mir)" string typestr="PASSNAME" optional
+option "no-xml-validation" - "Toggle XML validation"  flag on hidden 
 option "include" - "Parse included or required files at compile-time" flag off
 
 section "COMPILATION OPTIONS"
 option "c-option" C "Pass option to the C compile (e.g., -C-g; can be specified multiple times)" string no multiple 
 option "generate-c" - "Generate C code" flag off hidden
-option "extension" - "Generate a PHP extension called NAME instead of a standalone application" string typestr="NAME" no 
+option "extension" - "Generate a PHP extension called EXTENSION instead of a standalone application" string typestr="EXTENSION" no 
 option "web-app" - "Generate a web-application (experimental)" string typestr="CONFIG" optional
-option "with-php" - "PHP installation path" string typestr="NAME" no hidden 
+option "with-php" - "PHP installation path" string typestr="PATH" no hidden 
 option "optimize" O "Optimize" string no default="0"
 option "output" o "Place executable into file FILE" string typestr="FILE" no
 option "execute" e "Run executable after compiling (implies -c)" flag off
@@ -30,23 +30,32 @@ option "no-leading-tab" - "Don't start every line in between <?php .. ?> with a 
 option "tab" - "String to use for tabs while unparsing" string default="\t" no
 option "no-hash-bang" - "Do not output any #! lines" flag off
 
+section "OUTPUT OPTIONS"
+option "dump" - "Dump input as PHP (although potentially with gotos and labels) after PASSNAME" string typestr="PASSNAME" multiple optional
+option "dump-xml" - "Dump input as XML after PASSNAME" string typestr="PASSNAME" multiple optional
+option "dump-dot" - "Dump input as DOT after PASSNAME" string typestr="PASSNAME" multiple optional
+option "list-passes" - "List of available passes (for PASSNAME)" flag off
+
+section "PHP PRINTING OPTIONS"
+option "convert-uppered" - "Use legal PHP when dumping MIR as PHP" flag off hidden
+
 section "DOT PRINTING OPTIONS"
-option "no-line-numbers" - "Don't show line numbers when dumping DOT/XML" flag off hidden 
-option "no-nulls" - "Don't show NULLs when dumping DOT" flag off hidden
-option "no-empty-lists" - "Don't show empty lists when dumping DOT" flag off hidden
+option "no-dot-line-numbers" - "Don't show line numbers when dumping DOT/XML" flag off hidden 
+option "no-dot-nulls" - "Don't show NULLs when dumping DOT" flag off hidden
+option "no-dot-empty-lists" - "Don't show empty lists when dumping DOT" flag off hidden
+
+section "XML PRINTING OPTIONS"
+option "no-xml-line-numbers" - "Don't show line numbers when dumping DOT" flag off hidden 
+option "no-xml-base-64" - "Don't encode any strings into base64 when dumping XML" flag off hidden
+option "no-xml-attrs" - "When dumping XML, omit node attributes" flag off hidden
 
 section "DEBUGGING PHC"
-option "stats" - "Print statistics for the pass named 'passname" string typestr="passname" multiple hidden optional
+option "stats" - "Print statistics for the pass named 'PASSNAME" string typestr="PASSNAME" multiple hidden optional
 option "rt-stats" - "Print statistics about a program at run-time" flag off hidden
-option "debug" - "Print debugging information for the pass named 'passname" string typestr="passname" multiple hidden optional
-option "dump" - "Dump input as PHP (although potentially with gotos and labels) after the pass named 'passname'" string typestr="passname" multiple hidden optional
-option "dump-uppered" - "Dump input as runnable PHP after the pass named 'passname'" string typestr="passname" multiple hidden optional
-option "dump-dot" - "Dump input as DOT after the pass named 'passname'" string typestr="passname" multiple hidden optional
-option "dump-xml" - "Dump input as XML after the pass named 'passname'" string typestr="passname" multiple hidden optional
-option "list-passes" - "List the passes to be run" flag off hidden
+option "debug" - "Print debugging information for the pass named 'PASSNAME" string typestr="PASSNAME" multiple hidden optional
 option "dont-fail" - "Dont fail on error (after parsing)" flag off hidden
-option "no-xml-attrs" - "When dumping XML, omit node attributes" flag off hidden
-option "no-base-64" - "When dumping XML, do not encode any strings into base64 encoding" flag off hidden
-option "disable" - "Disable the pass named 'passname'" string typestr="passname" multiple hidden optional
+option "disable" - "Disable the pass named 'PASSNAME'" string typestr="PASSNAME" multiple hidden optional
+
+text "\nMore options are available via --full-help"
 
 #option "marked-only" - "When used in conjunction with --dump-ast, dump only AST nodes that are marked with a comment '//-DOT'" flag off 

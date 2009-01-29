@@ -534,7 +534,7 @@ public:
 		parser->setFeature(XMLUni::fgSAX2CoreNameSpacePrefixes, false);
 
 		// TODO this is the AST xsd. But validation doesnt work anyway
-		if(!args_info.no_validation_flag)
+		if(!args_info.no_xml_validation_flag)
 		{
 			XMLCh* propertyValue = XMLString::transcode(
 					"http://www.phpcompiler.org/phc-1.1 ./phc-1.1.xsd "

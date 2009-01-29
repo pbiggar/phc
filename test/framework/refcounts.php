@@ -26,7 +26,7 @@ class Refcounts extends CompiledVsInterpreted
 	function get_php_command ($subject)
 	{
 		global $phc, $plugin_dir;
-		return "$phc --run $plugin_dir/tools/debug_zval.la --dump-uppered=$plugin_dir/tools/debug_zval.la $subject | ". get_php_command_line ($subject, "pipe");
+		return "$phc --run $plugin_dir/tools/debug_zval.la --convert-uppered --dump=$plugin_dir/tools/debug_zval.la $subject | ". get_php_command_line ($subject, "pipe");
 	}
 }
 
