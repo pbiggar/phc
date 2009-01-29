@@ -24,6 +24,15 @@ bool is_pure (Expr* in)
 	return (not (isa<New> (in) || isa<Method_invocation> (in)));
 }
 
+/*
+ * TODO:
+ *		How do we model that an otherwise dead statement may def its RHS. It
+ *		clearly shouldnt be done here. It should be in the def-use info.
+ *
+ *		Then we can say that 'global $x' is not _automatically_ critical, and
+ *		likewise for all of the indirect assignments.
+ */
+
 bool
 is_reference_statement (Statement* in)
 {

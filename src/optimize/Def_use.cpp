@@ -211,8 +211,9 @@ Def_use_web::add_mus (Basic_block* bb, VARIABLE_NAME* use)
 		return;
 
 	Points_to* ptg = bb->get_in_ptg ();
-
-	Index_node_list* refs = ptg->get_references (VN (NAME (bb), use), PTG_ALL);
+	Index_node_list* refs = ptg->get_local_references (SN (NAME (bb)),
+																		VN (NAME (bb), use),
+																		PTG_ALL);
 	foreach (Index_node* ref, *refs)
 	{
 		VARIABLE_NAME* alias = new VARIABLE_NAME (s(ref->name));
@@ -304,7 +305,7 @@ Def_use_web::add_chis (Basic_block* bb, VARIABLE_NAME* def)
 	//	statement which created the alias.
 
 	Points_to* ptg = bb->get_in_ptg ();
-	Index_node_list* refs = ptg->get_local_references (SN (NAME(bb)),
+	Index_node_list* refs = ptg->get_local_references (SN (NAME (bb)),
 																		VN (NAME (bb), def),
 																		PTG_ALL);
 

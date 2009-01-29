@@ -114,12 +114,11 @@ Whole_program::run (MIR::PHP_script* in)
 		// Perform DCE and CP.
 		perform_local_optimizations (info);
 
-
 		// Perform inlining
 		// TODO:
 
 		// Apply the results
-		apply_results (Oracle::get_method_info (s(method))->cfg);
+		apply_results (Oracle::get_method_info (s(method)));
 	}
 }
 
@@ -282,9 +281,12 @@ Whole_program::analyse_summary (Method_info* info, Basic_block* context, Actual_
 }
 
 void
-Whole_program::apply_results (CFG* cfg)
+Whole_program::apply_results (Method_info* info)
 {
-	foreach (Basic_block* bb, *cfg->get_all_bbs ())
+	if (!info->has_implementation ())
+		return;
+
+	foreach (Basic_block* bb, *info->cfg->get_all_bbs ())
 	{
 		// We apply all results through aliasing. Its the only place we have all
 		// the information we need (ie is this type weird, is it making an
@@ -297,8 +299,7 @@ Whole_program::apply_results (CFG* cfg)
 		// transformations are running.
 		aliasing->apply_results (bb);
 	}
-
-	cfg->dump_graphviz (NULL);
+	info->cfg->dump_graphviz (s("Apply results"));
 }
 
 void

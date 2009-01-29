@@ -120,7 +120,8 @@ Optimization_transformer::visit_foreach_reset (Statement_block* bb, MIR::Foreach
 void
 Optimization_transformer::visit_global (Statement_block* bb, MIR::Global* in)
 {
-	phc_TODO ();
+	if (isa<Variable_variable> (in->variable_name))
+		phc_TODO ();
 }
 
 void
