@@ -42,9 +42,6 @@ public:
 
 typedef List<Parameter_info*> Parameter_info_list;
 
-/*
- * TODO: this is intended to provide information when there is no definition available. When there is information available, it should use the Method* instead.
- */
 class Method_info : virtual public GC_obj
 {
 public:
@@ -74,10 +71,6 @@ public:
 	/*
 	 * Summary information:
 	 *		Useless if IMPLEMENTATION is set.
-	 *
-	 *		TODO: might be useful to cache this - although the design is to
-	 *		annotate statements with whatever information might be useful later
-	 *		on.
 	 *
 	 *		TODO: A better way to do this might be to write a PHP function which
 	 *		'bakes' the result.

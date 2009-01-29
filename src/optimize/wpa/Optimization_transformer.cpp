@@ -253,12 +253,12 @@ Optimization_transformer::visit_method_invocation (Statement_block* bb, MIR::Met
 
 	METHOD_NAME* name = dyc<METHOD_NAME> (in->method_name);
 
-	// TODO: this should get all possible receivers
+	// TODO: this should get all possible receivers (there can be multiple
+	// receivers even when each receiver is a distinct method - say with
+	// inheritence - as opposed to just multiple definitions with different
+	// contexts)
 	
 	Method_info* info = Oracle::get_method_info (name->value);
-
-	if (info->has_implementation ())
-		phc_TODO ();
 
 
 	// Update the parameters with constants

@@ -348,26 +348,25 @@ void Pass_manager::list_passes ()
 		}
 }
 
-void Pass_manager::maybe_enable_debug (Pass* pass)
+void
+Pass_manager::maybe_enable_debug (String* pass_name)
 {
 	disable_cdebug ();
 
-	String* name = pass->name;
 	for (unsigned int i = 0; i < args_info->debug_given; i++)
 	{
-		if (*name == args_info->debug_arg [i])
+		if (*pass_name == args_info->debug_arg [i])
 		{
 			enable_cdebug ();
 		}
 	}
 }
 
-void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
+void Pass_manager::dump (IR::PHP_script* in, String* passname)
 {
-	String* name = pass->name;
 	for (unsigned int i = 0; i < args_info->dump_given; i++)
 	{
-		if (*name == args_info->dump_arg [i])
+		if (*passname == args_info->dump_arg [i])
 		{
 			if (in->is_AST ()) AST_unparser ().unparse (in->as_AST ());
 			else if (in->is_HIR ()) HIR_unparser ().unparse (in->as_HIR ());
@@ -378,7 +377,7 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 
 	for (unsigned int i = 0; i < args_info->dump_uppered_given; i++)
 	{
-		if (*name == args_info->dump_uppered_arg [i])
+		if (*passname == args_info->dump_uppered_arg [i])
 		{
 			if (in->is_MIR ())
 				MIR_unparser().unparse_uppered (in->as_MIR ());
@@ -393,7 +392,8 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 				// to replace nodes which need uppering with foreign nodes.
 				
 				// I think not supporting this is fine
-				phc_error ("Uppered dump is not supported during HIR pass: %s", name->c_str ());
+				phc_error ("Uppered dump is not supported during HIR pass: %s",
+					passname->c_str ());
 			}
 
 			if (in->is_AST())
@@ -404,7 +404,7 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 
 	for (unsigned int i = 0; i < args_info->dump_dot_given; i++)
 	{
-		if (*name == args_info->dump_dot_arg [i])
+		if (*passname == args_info->dump_dot_arg [i])
 		{
 			// TODO: Works on AST only
 			in->visit(new DOT_unparser());
@@ -413,7 +413,7 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 
 	for (unsigned int i = 0; i < args_info->dump_xml_given; i++)
 	{
-		if (*name == args_info->dump_xml_arg [i])
+		if (*passname == args_info->dump_xml_arg [i])
 		{
 			xml_unparse (in, std::cout, !args_info->no_xml_attrs_flag, !args_info->no_base_64_flag);
 		}
@@ -421,7 +421,7 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 
 	for (unsigned int i = 0; i < args_info->stats_given; i++)
 	{
-		if (*name == args_info->stats_arg [i])
+		if (*passname == args_info->stats_arg [i])
 		{
 			dump_stats ();
 			reset_stats ();
@@ -447,11 +447,11 @@ void Pass_manager::run_pass (Pass* pass, IR::PHP_script* in, bool main)
 		cout << "Running pass: " << *pass->name << endl;
 
 	if (main)
-		maybe_enable_debug (pass);
+		maybe_enable_debug (pass->name);
 
 	pass->run_pass (in, this);
 	if (main)
-		this->dump (in, pass);
+		this->dump (in, pass->name);
 
 	if (check)
 		::check (in, false);
@@ -595,20 +595,20 @@ Pass* Pass_manager::get_pass_named (String* name)
 }
 
 void
-Pass_manager::cfg_dump (CFG* cfg, Pass* pass, String* comment)
+Pass_manager::cfg_dump (CFG* cfg, String* passname, String* comment)
 {
 	//	for (unsigned int i = 0; i < args_info->cfg_dump_given; i++)
 	//		if (*cfg_pass->name == args_info->cfg_dump_arg [i])
 	//			cfg->dump_graphviz (cfg_pass->name);
 	
 	stringstream title;
-	title << *pass->name;
+	title << *passname;
 	if (comment)
 		title << " - " << *comment;
 
 	for (unsigned int i = 0; i < args_info->cfg_dump_given; i++)
 	{
-		if (*pass->name == args_info->cfg_dump_arg [i])
+		if (*passname == args_info->cfg_dump_arg [i])
 			cfg->dump_graphviz (s(title.str()));
 
 		if (string ("all") == args_info->cfg_dump_arg [i])
@@ -619,7 +619,7 @@ Pass_manager::cfg_dump (CFG* cfg, Pass* pass, String* comment)
 	}
 
 	// We may not be able to dump the IR, but we can still get stats.
-	dump (NULL, pass);
+	dump (NULL, passname);
 }
 
 void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
@@ -629,106 +629,64 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 
 	MIR::PHP_script* script = in->as_MIR();
 
-	// Initialize the optimization oracle
+	// Initialize the optimization oracle (also builds CFGs)
+	maybe_enable_debug (s("cfg"));
 	Oracle::initialize (in);
 
-	Pass* wpa_pass;
-	do
-	{
-		wpa_pass = optimization_queue->front();
-		optimization_queue->pop_front();
-	}
-	while (*wpa_pass->name != "wpa");
-	maybe_enable_debug (wpa_pass);
-	Whole_program* wpa = new Whole_program;
+	maybe_enable_debug (s("wpa"));
+	// TODO: check if WPA is enabled
+	Whole_program* wpa = new Whole_program (this);
 	wpa->run (in);
+}
 
-
-	// The pass_manager allows passes to be added in-between the passes we expect. Ignore them.
-	Pass* cfg_pass;
-	do
+void
+Pass_manager::run_local_optimization_passes (CFG* cfg)
+{
+	foreach (Pass* pass, *optimization_queue)
 	{
-		cfg_pass = optimization_queue->front();
-		optimization_queue->pop_front();
-	}
-	while (*cfg_pass->name != "cfg");
-
-	Pass* build_pass;
-	do
-	{
-		build_pass = optimization_queue->front();
-		optimization_queue->pop_front();
-	}
-	while (*build_pass->name != "build_ssa");
-
-	Pass* drop_pass;
-	do
-	{
-		drop_pass = optimization_queue->back ();
-		optimization_queue->pop_back ();
-	}
-	while (*drop_pass->name != "drop_ssa");
-
-
-	foreach (Method_info* info, *Oracle::get_all_methods ())
-	{
-		if (!info->has_implementation ())
+		Optimization_pass* opt = dynamic_cast<Optimization_pass*> (pass);
+		if (opt == NULL || !pass->is_enabled (pm))
 			continue;
 
-		maybe_enable_debug (cfg_pass);
-		CFG* cfg = info->cfg;
+		if (args_info->verbose_flag)
+			cout << "Running pass: " << *pass->name << endl;
 
-		if (lexical_cast<int> (args_info->optimize_arg) > 0)
+		// If an optimization pass sees something it cant handle, it
+		// throws an exception, and we skip optimizing the function.
+
+		maybe_enable_debug (s("build_ssa"));
+		HSSA* hssa;
+		if (opt->require_ssa)
 		{
-			// Dump the CFG
-			foreach (Pass* pass, *optimization_queue)
-			{
-				Optimization_pass* opt = dynamic_cast<Optimization_pass*> (pass);
-				if (opt == NULL || !pass->is_enabled (pm))
-					continue;
+			// Convert to SSA form
+			hssa = new HSSA (cfg);
+			hssa->convert_to_hssa_form ();
+			cfg->clean ();
+			cfg_dump (cfg, pass->name, s("In SSA (cleaned)"));
+		}
+		else
+		{
+			// We still want use-def information.
+			cfg->duw = new Def_use_web ();
+			cfg->duw->run (cfg);
+			cfg_dump (cfg, pass->name, s("Non-SSA"));
+		}
 
-				if (args_info->verbose_flag)
-					cout << "Running pass: " << *pass->name << endl;
+		// Run optimization
+		maybe_enable_debug (pass->name);
+		opt->run (cfg, this);
+		cfg->clean ();
+		cfg_dump (cfg, pass->name, s("After optimization (cleaned)"));
 
-				// If an optimization pass sees something it cant handle, it
-				// throws an exception, and we skip optimizing the function.
-
-				maybe_enable_debug (build_pass);
-				HSSA* hssa;
-				if (opt->require_ssa)
-				{
-					// Convert to SSA form
-					hssa = new HSSA (cfg);
-					hssa->convert_to_hssa_form ();
-					cfg->clean ();
-					cfg_dump (cfg, pass, s("In SSA (cleaned)"));
-				}
-				else
-				{
-					// We still want use-def information.
-					cfg->duw = new Def_use_web ();
-					cfg->duw->run (cfg);
-					cfg_dump (cfg, pass, s("Non-SSA"));
-				}
-
-				// Run optimization
-				maybe_enable_debug (pass);
-				opt->run (cfg, this);
-				cfg->clean ();
-				cfg_dump (cfg, pass, s("After optimization (cleaned)"));
-
-				// Convert out of SSA
-				if (opt->require_ssa)
-				{
-					maybe_enable_debug (drop_pass);
-					hssa->convert_out_of_ssa_form ();
-					cfg->clean ();
-					cfg_dump (cfg, pass, s("Out of SSA (cleaned)"));
-				}
-			}
-			cfg_dump (cfg, cfg_pass, s("After full set of passes"));
-
-			info->implementation->statements = cfg->get_linear_statements ();
+		// Convert out of SSA
+		if (opt->require_ssa)
+		{
+			maybe_enable_debug (s("drop_ssa"));
+			hssa->convert_out_of_ssa_form ();
+			cfg->clean ();
+			cfg_dump (cfg, pass->name, s("Out of SSA (cleaned)"));
 		}
 	}
+	cfg_dump (cfg, s("cfg"), s("After all local passes"));
 }
+

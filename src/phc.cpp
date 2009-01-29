@@ -274,7 +274,7 @@ int main(int argc, char** argv)
 				String* pass_name = new String (args_info.read_xml_arg);
 
 				// We'd like debug info while parsing too.
-				pm->maybe_enable_debug (pm->get_pass_named (pass_name));
+				pm->maybe_enable_debug (pass_name);
 
 				XML_parser parser;
 				if(args_info.inputs_num == 0)

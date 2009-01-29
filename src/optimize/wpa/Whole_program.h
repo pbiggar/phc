@@ -49,6 +49,7 @@ class Include_analysis;
 class Type_inference;
 class VRP;
 class WPA;
+class Pass_manager;
 
 class Whole_program
 {
@@ -60,10 +61,18 @@ public:
 	Map<string, WPA*> analyses;
 	Aliasing* aliasing;
 	CCP* ccp;
+	Pass_manager* pm;
+
+	// All methods which have been called in the symbolic execution of the
+	// program. Other functions have not been called, and should be stripped
+	// from the program.
+
+	// 'Called' instead of 'invoked' so that it remind you of invoked_methods.
+	Set<string> called_methods;
 
 
 public:
-	Whole_program();
+	Whole_program(Pass_manager* pm);
 	void register_analysis (string name, WPA* analysis);
 
 	/*
@@ -83,7 +92,10 @@ public:
 	Edge_list* get_branch_successors (Branch_block* bb);
 	Method_info_list* get_possible_receivers (MIR::Method_invocation* in);
 
-	// TODO: move these elsewhere
+
+	void perform_local_optimizations (Method_info* info);
+	void generate_summary (Method_info* info);
+	void merge_contexts (Method_info* info);
 	void apply_results (CFG* cfg);
 
 private:

@@ -47,11 +47,13 @@
 #include "Whole_program.h"
 #include "optimize/Oracle.h"
 #include "optimize/Edge.h"
+#include "pass_manager/Pass_manager.h"
 
 using namespace MIR;
 using namespace boost;
 
-Whole_program::Whole_program ()
+Whole_program::Whole_program (Pass_manager* pm)
+: pm (pm)
 {
 	// First class citizens:
 	//		- Aliasing stores the analysis results, and passes them to the
@@ -93,10 +95,26 @@ Whole_program::run (MIR::PHP_script* in)
 	// To apply the results, we should first get the callgraph the merge all
 	// possible result sets. Then we can traverse the callgraph once to apply
 	// the results.
+	
+	foreach (string method, called_methods)
+	{
+		Method_info* info = Oracle::get_method_info (s(method));
 
-	// We must go through aliasing as all of our results are in terms of
-	// variables named in aliasing information.
-	apply_results (Oracle::get_method_info (s("__MAIN__"))->cfg);
+		// Merge different contexts
+		merge_contexts (info);
+
+		// Perform DCE and CP
+		perform_local_optimizations (info);
+
+		// Generate Method_infos from the analysis results
+		generate_summary (info);
+//	}
+// TODO
+//	foreach (string method, callgraph.bottom_up ())
+//	{
+		// Apply the results
+		apply_results (Oracle::get_method_info (s(method))->cfg);
+	}
 }
 
 
@@ -225,10 +243,10 @@ Whole_program::analyse_method_info (Method_info* info,
 												MIR::Actual_parameter_list* actuals,
 												MIR::VARIABLE_NAME* lhs)
 {
+	called_methods.insert (*info->method_name);
+
 	if (info->has_implementation ())
-	{
 		analyse_function (context, info->cfg, actuals, lhs);
-	}
 	else
 	{
 		if (lhs)
@@ -276,3 +294,26 @@ Whole_program::apply_results (CFG* cfg)
 
 	cfg->dump_graphviz (NULL);
 }
+
+void
+Whole_program::perform_local_optimizations (Method_info* info)
+{
+	if (info->has_implementation ())
+		pm->run_local_optimization_passes (info->cfg);
+}
+
+void
+Whole_program::generate_summary (Method_info* info)
+{
+	// TODO
+	phc_TODO ();
+}
+
+void
+Whole_program::merge_contexts (Method_info* info)
+{
+	// TODO: once we have a function that's called from multiple different
+	// places.
+}
+
+

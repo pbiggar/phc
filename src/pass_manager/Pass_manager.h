@@ -68,6 +68,7 @@ public:
 	void add_optimization_pass (Pass* pass);
 	void add_optimization (CFG_visitor* visitor, String* name, String* description, bool require_ssa);
 	void run_optimization_passes (MIR::PHP_script* in);
+	void run_local_optimization_passes (CFG* cfg);
 	bool can_optimize (MIR::Method* method);
 
 	// Add codegen passes
@@ -97,11 +98,11 @@ public:
 
 
 	void list_passes ();
-	void dump (IR::PHP_script* in, Pass* pass);
-	void maybe_enable_debug (Pass* pass);
+	void dump (IR::PHP_script* in, String* passname);
+	void maybe_enable_debug (String* passname);
 
 	// HACK: debugging for optimization passes.
-	void cfg_dump (CFG* cfg, Pass* pass, String* comment);
+	void cfg_dump (CFG* cfg, String* passname, String* comment);
 
 protected:
 	Pass_queue* ast_queue;
