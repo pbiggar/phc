@@ -1,3 +1,9 @@
+0.2.0.2 (28 January 2009)
+------------------------
+
+Bug Fix release:
+	* Fix bug where phc would not build if the PHP embed SAPI was not available.
+
 0.2.0.1 (15 January 2009)
 ------------------------
 
