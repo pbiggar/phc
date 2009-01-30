@@ -17,8 +17,6 @@
 #ifndef PHC_ALIASING
 #define PHC_ALIASING
 
-#define ST(BB) *BB->cfg->method->signature->method_name->value
-
 #include "WPA.h"
 #include "Points_to.h"
 
@@ -40,7 +38,7 @@ public:
 	Aliasing (Whole_program*);
 
 
-	void use_summary_results (Method_info* info, MIR::Actual_parameter_list* in, MIR::VARIABLE_NAME* lhs);
+	void use_summary_results (Basic_block* context, Method_info* info, MIR::Actual_parameter_list* in, MIR::VARIABLE_NAME* lhs);
 
 	void forward_bind (Basic_block* bb, CFG* callee_cfg,
 			MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* retval);

@@ -63,21 +63,21 @@ Whole_program::Whole_program (Pass_manager* pm)
 	//		- Callgraph has a yet unrealized purpose.
 	//		- CCP helps resolve branches
 	aliasing = new Aliasing (this);
-//	callgraph = new Callgraph (this);
+	callgraph = new Callgraph (this);
 	ccp = new CCP (this);
-	def_use = new Def_use (this);
 
 	// Second class citizens
-	//		- These produce and consume data created by the first-class citizens.
+	//		- These consume data created by the first-class citizens.
 
+	def_use = new Def_use (this);
 //	constant_state = new Constant_state (this);
 //	include_analysis = new Include_analysis (this);
 //	vrp = new VRP (this);
 
 
-//	register_analysis ("Callgraph", callgraph);
+	register_analysis ("Callgraph", callgraph);
 	register_analysis ("CCP", ccp);
-	register_analysis ("def-use", def_use);
+	register_analysis ("Def-use", def_use);
 //	register_analysis ("Constant_state", constant_state);
 //	register_analysis ("Include_analysis", include_analysis);
 //	register_analysis ("Type_inference", new Type_inference (this));
@@ -96,29 +96,33 @@ Whole_program::run (MIR::PHP_script* in)
 		NULL);
 
 
-	// To apply the results, we should first get the callgraph the merge all
-	// possible result sets. Then we can traverse the callgraph once to apply
-	// the results.
-	
-	foreach (string method, called_methods)
+	foreach (String* method, *callgraph->get_called_methods ())
 	{
-		Method_info* info = Oracle::get_method_info (s(method));
+		Method_info* info = Oracle::get_method_info (method);
+
+		if (!info->has_implementation ())
+			continue;
 
 		// Merge different contexts
 		merge_contexts (info);
 
 		// Generate Method_infos from the analysis results
 		generate_summary (info);
-//	}
-// TODO
-//	foreach (string method, callgraph.bottom_up ())
-//	{
-		// TODO: some kind of iteration. apply_results would be better if the
-		// full points-to analysis was recalculated after
-		// perform_local_optimizations.
+	}
+
+	// TODO: some kind of iteration. apply_results would be better if the
+	// full points-to analysis was recalculated after
+	// perform_local_optimizations.
 	
+	foreach (String* method, *callgraph->bottom_up ())
+	{
+		Method_info* info = Oracle::get_method_info (method);
+
+		if (!info->has_implementation ())
+			continue;
+
 		// Apply the results
-		apply_results (Oracle::get_method_info (s(method)));
+		apply_results (Oracle::get_method_info (method));
 
 		// TODO: we need to redo alias analysis here to get more precise results.
 		// Perform DCE and CP.
@@ -126,7 +130,6 @@ Whole_program::run (MIR::PHP_script* in)
 
 		// Perform inlining
 		// TODO:
-
 	}
 }
 
@@ -256,8 +259,6 @@ Whole_program::analyse_method_info (Method_info* info,
 												MIR::Actual_parameter_list* actuals,
 												MIR::VARIABLE_NAME* lhs)
 {
-	called_methods.insert (*info->method_name);
-
 	if (info->has_implementation ())
 		analyse_function (context, info->cfg, actuals, lhs);
 	else
@@ -285,7 +286,7 @@ Whole_program::analyse_summary (Method_info* info, Basic_block* context, Actual_
 		phc_TODO ();
 
 	foreach (tie (name, wpa), analyses)
-		aliasing->use_summary_results (info, actuals, lhs);
+		aliasing->use_summary_results (context, info, actuals, lhs);
 }
 
 void

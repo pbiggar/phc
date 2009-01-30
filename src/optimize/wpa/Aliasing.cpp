@@ -16,6 +16,7 @@
 
 #include "Aliasing.h"
 #include "Points_to.h"
+#include "Callgraph.h"
 #include "Whole_program.h"
 #include "CCP.h"
 #include "optimize/SCCP.h"
@@ -34,8 +35,11 @@ Aliasing::Aliasing (Whole_program* wp)
 
 
 void
-Aliasing::use_summary_results (Method_info* info, MIR::Actual_parameter_list* in, MIR::VARIABLE_NAME* lhs)
+Aliasing::use_summary_results (Basic_block* context, Method_info* info, MIR::Actual_parameter_list* in, MIR::VARIABLE_NAME* lhs)
 {
+	// TODO: what about functions with callbacks
+	wp->callgraph->add_summary_call (context, info);
+
 	if (lhs)
 		phc_TODO ();
 
@@ -80,7 +84,10 @@ Aliasing::forward_bind (Basic_block* context, CFG* callee_cfg, MIR::Actual_param
 	string callee_ns = *callee_cfg->method->signature->method_name->value;
 	string caller_ns;
 	if (context) 
+	{
 		caller_ns = *context->cfg->method->signature->method_name->value;
+		wp->callgraph->add_user_call (context, callee_cfg);
+	}
 
 	// Give the CFG access to the PTG results
 	callee_cfg->in_ptgs = &in_ptgs;

@@ -83,8 +83,6 @@ Points_to::dump_graphviz (String* label)
 	<< "graph [label=\"" << *label << "\"];\n"
 	;
 
-	// TODO: add nodes, with different shapes for different nodes.
-
 	// Add definite edges
 	string source;
 	Map<string, Alias_pair*> alias_map;

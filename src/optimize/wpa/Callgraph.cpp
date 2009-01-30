@@ -7,33 +7,127 @@
 
 #include "Callgraph.h"
 
+using namespace MIR;
+using namespace boost;
+using namespace std;
+
 Callgraph::Callgraph (Whole_program* wp)
 : WPA(wp)
 {
+	methods.insert ("__MAIN__");
 }
 
 void
-Callgraph::use_summary_results (Method_info* info, MIR::Actual_parameter_list*, MIR::VARIABLE_NAME* lhs)
+Callgraph::add_user_call (Basic_block* context, CFG* callee)
 {
-	phc_TODO ();
+	add_call_edge (ST (context), *callee->method->signature->method_name->value);
 }
 
 void
-Callgraph::initialize_function (CFG* cfg, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
+Callgraph::add_summary_call (Basic_block* context, Method_info* callee)
 {
-	phc_TODO ();
+	add_call_edge (ST (context), *callee->method_name);
 }
 
 void
-Callgraph::finalize_function (CFG* cfg)
+Callgraph::add_call_edge (string caller, string callee)
 {
-	phc_TODO ();
+	methods.insert (callee);
+	call_edges[caller].insert (callee);
+}
+
+String_list*
+Callgraph::get_called_methods ()
+{
+	String_list* result = new String_list;
+
+	foreach (string m, methods)
+		result->push_back (s(m));
+
+	return result;
+}
+
+String_list*
+Callgraph::bottom_up ()
+{
+	String_list* result = new String_list;
+
+	List<string> worklist ("__MAIN__");
+	Set<string> seen;
+
+	while (worklist.size ())
+	{
+		string method = worklist.front ();
+		worklist.pop_front ();
+
+		if (seen.has (method))
+			continue;
+
+		seen.insert (method);
+
+		// Note _front_ for bottom-up
+		result->push_front (s(method));
+
+		// Successors
+		foreach (string callee, call_edges[method])
+			worklist.push_back (callee);
+
+	}
+
+	return result;
 }
 
 
 
 void
-Callgraph::dump()
+Callgraph::dump(Basic_block* bb)
 {
-	phc_TODO ();
+	// Only dump on entry and exit
+	if (!isa<Entry_block> (bb) && !isa<Exit_block> (bb))
+		return;
+
+	dump_graphviz (s(lexical_cast<string> (bb->ID)));
+}
+
+void
+Callgraph::dump_graphviz (String* label)
+{
+	if (label == NULL)
+	{
+		CHECK_DEBUG ();
+		label = s("TEST");
+	}
+
+	cout
+	<< "digraph G {\n"
+	<< "graph [labelloc=t];\n"
+	<< "graph [label=\"" << *label << "\"];\n"
+	;
+
+	foreach (string method, methods)
+	{
+		// Target
+		cout
+		<< "\""
+		<< method
+		<< "\""
+		<< ";\n"
+		;
+
+		foreach (string callee, call_edges[method])
+		{
+			// Edge
+			cout 
+			<< "\""
+			<< method
+			<< "\" -> \"" 
+			<< callee 
+			<< "\";\n"
+			;
+		}
+	}
+
+	cout
+	<< "}\n"
+	;
 }

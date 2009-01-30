@@ -52,6 +52,8 @@ class VRP;
 class WPA;
 class Pass_manager;
 
+#define ST(BB) *BB->cfg->method->signature->method_name->value
+
 class Whole_program
 {
 
@@ -64,6 +66,7 @@ public:
 	CCP* ccp;
 	Def_use* def_use;
 	Pass_manager* pm;
+	Callgraph* callgraph;
 
 	// All methods which have been called in the symbolic execution of the
 	// program. Other functions have not been called, and should be stripped
