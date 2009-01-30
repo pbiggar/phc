@@ -7,10 +7,12 @@
  * */
 
 
-#include "Optimization_transformer.h"
+#include "Aliasing.h"
+#include "CCP.h"
 #include "optimize/SCCP.h"
 #include "Whole_program.h"
-#include "CCP.h"
+
+#include "Optimization_transformer.h"
 
 
 using namespace MIR;
@@ -50,13 +52,10 @@ Optimization_transformer::get_literal (Basic_block* bb, Rvalue* in)
 	if (isa<Literal> (in))
 		return in;
 
+	string rhs = aliasing->get_index (N (ST (bb), dyc<VARIABLE_NAME> (in)));
 
-	string ns = NAME (bb);
-	VARIABLE_NAME* var_name = dyc<VARIABLE_NAME> (in);
-
-	Index_node* rhs = VN (ns, var_name);
 	CCP* ccp = aliasing->wp->ccp;
-	Lattice_cell* result = ccp->ins[bb->ID][rhs->get_unique_name ()];
+	Lattice_cell* result = ccp->ins[bb->ID][rhs];
 
 	if (result == BOTTOM)
 		return in;
@@ -70,10 +69,10 @@ Optimization_transformer::get_literal (Basic_block* bb, Rvalue* in)
 void
 Optimization_transformer::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 {
-	string ns = NAME (bb);
-	Index_node* lhs = IN (ns, *in->lhs->value);
+	visit_expr (bb, in->rhs);
 
-	// The assignment is by reference. We will be able to remove this later, via DCE.
+	// The assignment is by reference. We will be able to remove this later,
+	// via DCE.
 	if (in->is_ref)
 		return;
 
@@ -176,7 +175,13 @@ Optimization_transformer::visit_unset (Statement_block* bb, MIR::Unset* in)
 void
 Optimization_transformer::visit_array_access (Statement_block* bb, MIR::Array_access* in)
 {
-	phc_TODO ();
+	// TODO: if we know the array is a string, and we know the index, we can
+	// resolve this.
+
+	// TODO: we may know the value of that array index
+
+	
+	in->index = get_literal (bb, dyc<VARIABLE_NAME> (in->index));
 }
 
 void
@@ -236,7 +241,6 @@ Optimization_transformer::visit_instanceof (Statement_block* bb, MIR::Instanceof
 void
 Optimization_transformer::visit_int (Statement_block* bb, MIR::INT* in)
 {
-	phc_TODO ();
 }
 
 void
@@ -306,7 +310,6 @@ Optimization_transformer::visit_real (Statement_block* bb, MIR::REAL* in)
 void
 Optimization_transformer::visit_string (Statement_block* bb, MIR::STRING* in)
 {
-	phc_TODO ();
 }
 
 void
@@ -318,7 +321,6 @@ Optimization_transformer::visit_unary_op (Statement_block* bb, MIR::Unary_op* in
 void
 Optimization_transformer::visit_variable_name (Statement_block* bb, MIR::VARIABLE_NAME* in)
 {
-	phc_TODO ();
 }
 
 void

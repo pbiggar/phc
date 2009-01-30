@@ -103,8 +103,8 @@ Aliasing::forward_bind (Basic_block* context, CFG* callee_cfg, MIR::Actual_param
 		{
 			// $fp =& $ap;
 			set_reference (context,
-					VN (callee_ns, fp->var->variable_name),
-					VN (caller_ns, dyc<VARIABLE_NAME> (ap->rvalue)));
+					N (callee_ns, fp->var->variable_name),
+					N (caller_ns, dyc<VARIABLE_NAME> (ap->rvalue)));
 		}
 		else
 		{
@@ -220,25 +220,18 @@ Aliasing::dump (Basic_block* bb)
 void
 Aliasing::visit_global (Statement_block* bb, MIR::Global* in)
 {
-	if (bb->cfg->method->is_main ())
-		return;
-
-	if (isa<Variable_variable> (in->variable_name))
-		phc_TODO ();
-
-	VARIABLE_NAME* var_name = dyc<VARIABLE_NAME> (in->variable_name);
 	set_reference (bb,
-			VN (NAME (bb), var_name),
-			VN ("__MAIN__", var_name));
+			N (ST (bb), in->variable_name),
+			N ("__MAIN__", in->variable_name));
 }
 
 
 void
 Aliasing::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 {
-	string ns = NAME (bb);
-	Index_node* lhs = VN (ns, in->lhs);
-	PT_node* rhs = NULL;
+	string ns = ST (bb);
+	Name* lhs = N (ns, in->lhs);
+	Name* rhs;
 
 	switch(in->rhs->classid())
 	{
@@ -250,17 +243,18 @@ Aliasing::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 		case Unary_op::ID:
 		case Instanceof::ID:
 		case Constant::ID:
-			break;
-
-		case VARIABLE_NAME::ID:
-			rhs =	VN (ns, dyc<VARIABLE_NAME> (in->rhs));
-			break;
-
-		default:
 			phc_TODO ();
 			break;
 
-		// Not in the graph
+		// Straightforward
+		case Array_access::ID:
+		case Field_access::ID:
+		case VARIABLE_NAME::ID:
+		case Variable_variable::ID:
+			rhs = N (ns, in->rhs);
+			break;
+
+		// Values
 		case BOOL::ID:
 		case INT::ID:
 		case NIL::ID:
@@ -270,8 +264,6 @@ Aliasing::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 			return;
 
 		// Need to use analysis results before putting into the graph
-		case Variable_variable::ID:
-		case Field_access::ID:
 		case Foreach_get_key::ID:
 		case Foreach_get_val::ID:
 		case Foreach_has_key::ID:
@@ -279,20 +271,6 @@ Aliasing::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 			phc_TODO ();
 			break;
 
-		case Array_access::ID:
-		{
-			Array_access* aa = dyc<Array_access> (in->rhs);
-			if (in->is_ref)
-			{
-				// TODO - this genericity is needed both ways
-				set_indirect_reference (bb, lhs,
-					VN (NAME (bb), aa->variable_name),
-					VN (NAME (bb), dyc<VARIABLE_NAME> (aa->index)));
-			}
-			else
-				phc_TODO ();
-			return;
-		}
 
 		// Interprocedural stuff
 		case New::ID:
@@ -304,13 +282,17 @@ Aliasing::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 			handle_method_invocation (bb, dyc<Method_invocation> (in->rhs), in->lhs);
 			phc_TODO ();
 			break;
+
+		default:
+			phc_unreachable ();
+			break;
 	}
 
 	assert (rhs);
 	if (in->is_ref)
-		set_reference (bb, lhs, dyc<Index_node> (rhs));
+		set_reference (bb, lhs, rhs);
 	else
-		copy_value (bb, lhs, dyc<Index_node> (rhs));
+		copy_value (bb, lhs, rhs);
 }
 
 void
@@ -334,6 +316,15 @@ Aliasing::handle_new (Statement_block* bb, MIR::New* in, MIR::VARIABLE_NAME* lhs
 	phc_TODO ();
 }
 
+/*
+ * Get nodes for Names
+ */
+
+string
+Aliasing::get_index (Name* name)
+{
+	phc_TODO ();
+}
 
 
 /*
@@ -342,79 +333,31 @@ Aliasing::handle_new (Statement_block* bb, MIR::New* in, MIR::VARIABLE_NAME* lhs
 
 
 void
-Aliasing::set_reference (Basic_block* bb, Index_node* lhs, Index_node* rhs)
+Aliasing::set_reference (Basic_block* bb, Name* nlhs, Name* nrhs)
 {
 	// We don't need to worry about aliases, as this is killing.
+	Index_node_list* lhss = get_named_indices (nlhs);
+	Index_node_list* rhss = get_named_indices (nrhs);
 
-	// Handle LHS itself
-	string name;
-	WPA* wpa;
-	foreach (tie (name, wpa), wp->analyses)
-		wpa->set_value_from (bb, lhs->get_unique_name (), rhs->get_unique_name(), DEFINITE);
-
-
-	// Handle aliasing
-	ptg->set_reference (lhs, rhs);
-}
-
-// TODO: i expect we dont need to do a union of the RHSs (ie, I expect that's
-// already sorted from when the aliasing happened).
-
-void
-Aliasing::set_scalar_value (Basic_block* bb, Index_node* lhs, Literal* lit)
-{
 	// Send the results to the analyses for all variables which could be
 	// overwritten.
-	WPA* wpa;
-	string name;
-	certainty certainties[] = {POSSIBLE, DEFINITE};
-	foreach (certainty cert, certainties)
+	foreach (Index_node* lhs, *lhss)
 	{
-		Index_node_list* refs = ptg->get_references (lhs, cert);
-		foreach (tie (name, wpa), wp->analyses)
+		foreach (Index_node* rhs, *rhss)
 		{
-			foreach (Index_node* ref, *refs)
-				wpa->set_value (bb, ref->get_unique_name(), lit, cert);
+			// Handle LHS itself
+			string name;
+			WPA* wpa;
+			foreach (tie (name, wpa), wp->analyses)
+				wpa->set_value_from (bb, lhs->get_unique_name (), rhs->get_unique_name(), DEFINITE);
+
+
+			// Handle aliasing
+			ptg->set_reference (lhs, rhs);
 		}
 	}
-
-	// Handle LHS itself
-	foreach (tie (name, wpa), wp->analyses)
-		wpa->set_value (bb, lhs->get_unique_name (), lit, DEFINITE);
-
-
-	// Handle aliasing
-	ptg->set_scalar_value (lhs);
 }
-
-void
-Aliasing::copy_value (Basic_block* bb, Index_node* lhs, Index_node* rhs)
-{
-	// This is not killing in terms of references, so it assigns to all
-	// aliases of lhs.
-	WPA* wpa;
-	string name;
-	certainty certainties[] = {POSSIBLE, DEFINITE};
-	foreach (certainty cert, certainties)
-	{
-		Index_node_list* refs = ptg->get_references (lhs, cert);
-		foreach (tie (name, wpa), wp->analyses)
-		{
-			foreach (Index_node* ref, *refs)
-				wpa->set_value_from (bb, ref->get_unique_name (),
-											rhs->get_unique_name (), cert);
-		}
-	}
-	// And for the LHS
-	wpa->set_value_from (bb, lhs->get_unique_name (),
-								rhs->get_unique_name (), DEFINITE);
-
-
-	// Handle points-to aliasing
-	ptg->copy_value (lhs, rhs);
-}
-
-
+#if 0
 // Note that INDEX is not the index of STORAGE. INDEX points to a set values that may index STORAGE.
 void
 Aliasing::set_indirect_reference (Basic_block* bb, Index_node* lhs, Index_node* storage, Index_node* index)
@@ -456,4 +399,139 @@ Aliasing::set_indirect_reference (Basic_block* bb, Index_node* lhs, Index_node* 
 	Index_node* rhs = IN (stores->front()->name, name);
 	set_reference (bb, lhs, rhs);
 }
+#endif
+
+
+// TODO: i expect we dont need to do a union of the RHSs (ie, I expect that's
+// already sorted from when the aliasing happened).
+
+void
+Aliasing::set_scalar_value (Basic_block* bb, Name* lhs, Literal* lit)
+{
+	Index_node_list* indices = get_named_indices (lhs);
+
+	// Send the results to the analyses for all variables which could be
+	// overwritten.
+	foreach (Index_node* index, *indices)
+	{
+		WPA* wpa;
+		string name;
+		certainty certainties[] = {POSSIBLE, DEFINITE};
+		foreach (certainty cert, certainties)
+		{
+			Index_node_list* refs = ptg->get_references (index, cert);
+			foreach (tie (name, wpa), wp->analyses)
+			{
+				foreach (Index_node* ref, *refs)
+					wpa->set_value (bb, ref->get_unique_name(), lit, cert);
+			}
+		}
+
+		// Handle LHS itself
+		foreach (tie (name, wpa), wp->analyses)
+			wpa->set_value (bb, index->get_unique_name (), lit, DEFINITE);
+
+		// Handle aliasing
+		ptg->set_scalar_value (index);
+	}
+}
+
+void
+Aliasing::copy_value (Basic_block* bb, Name* lhs, Name* rhs)
+{
+	phc_TODO ();
+/*
+	// This is not killing in terms of references, so it assigns to all
+	// aliases of lhs.
+	WPA* wpa;
+	string name;
+	certainty certainties[] = {POSSIBLE, DEFINITE};
+	foreach (certainty cert, certainties)
+	{
+		Index_node_list* refs = ptg->get_references (lhs, cert);
+		foreach (tie (name, wpa), wp->analyses)
+		{
+			foreach (Index_node* ref, *refs)
+				wpa->set_value_from (bb, ref->get_unique_name (),
+											rhs->get_unique_name (), cert);
+		}
+	}
+	// And for the LHS
+	wpa->set_value_from (bb, lhs->get_unique_name (),
+								rhs->get_unique_name (), DEFINITE);
+
+
+	// Handle points-to aliasing
+	ptg->copy_value (lhs, rhs);
+	*/
+}
+
+
+Index_node_list*
+Aliasing::get_named_indices (Name* name)
+{
+	Index_node_list* result = new Index_node_list;
+
+	Indexing* n = dyc<Indexing> (name);
+	ST_name* st = dyc<ST_name> (n->lhs);
+	Index_name* ind = dyc<Index_name> (n->rhs);
+
+	// The LHS of an Indexing gets you the ST. The RHS gets you the 
+	result->push_back (new Index_node (st->name, ind->name));
+	
+
+	return result;
+}
+
+
+
+/*
+ * Name is used to represent the MIR constructs in an abstract way that models
+ * all the MIR constructs. A name is a limited combination of Index_ and
+ * Storage_nodes which represents a path in the Points_to graph, and as such
+ * can represent more than 1 Index_node.
+ *
+ *
+ * For "->" read 'indexed_by"
+ *		$a[$i]		(ST -> "a") -> (ST -> "i")
+ *		$a				ST -> "a"
+ *		$$a			ST -> (ST -> "a")
+ *		$a["str"]	(ST -> "a") -> "str"
+ *		$a->f			(ST -> "a") -> "f"
+ *		$a->$f		(ST -> "a") -> (ST -> "f")
+ */
+
+Indexing::Indexing (Name* lhs, Name *rhs) : lhs (lhs), rhs (rhs) {}
+ST_name::ST_name (string name) : name (name) {}
+Index_name::Index_name (string name) : name (name) {}
+
+
+// In the context of the symtable st, create a Name for NODE
+Name*
+N (string symtable, Node* in)
+{
+	ST_name* st = new ST_name (symtable);
+
+	switch (in->classid ())
+	{
+		case VARIABLE_NAME::ID:
+			return new Indexing (st,
+					new Index_name (*dyc<VARIABLE_NAME> (in)->value));
+
+		case Array_access::ID:
+		{
+			Array_access* aa = dyc<Array_access> (in);
+
+			return new Indexing (
+				new Indexing (st, new Index_name (*aa->variable_name->value)),
+				N (symtable, aa->index));
+		}
+
+		default:
+			DEBUG (demangle (in));
+			phc_TODO ();
+	}
+}
+
+
 

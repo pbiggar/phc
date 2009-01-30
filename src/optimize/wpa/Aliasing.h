@@ -14,16 +14,17 @@
  * block for us).
  */
 
-#ifndef PHC_BCCH_ALIASING
-#define PHC_BCCH_ALIASING
+#ifndef PHC_ALIASING
+#define PHC_ALIASING
 
-#define NAME(BB) *BB->cfg->method->signature->method_name->value
+#define ST(BB) *BB->cfg->method->signature->method_name->value
 
 #include "WPA.h"
 #include "Points_to.h"
 
 
 class Optimization_transformer;
+class Name;
 
 class Aliasing : public CFG_visitor
 {
@@ -60,21 +61,20 @@ private:
 	// These functions describe the operation being performed in each block.
 	// They pass the information to the Points-to graph, and to the other
 	// analyses. The BB is to give a unique index to the results.
-	void set_reference (Basic_block* bb, Index_node* lhs, Index_node* rhs);
-	void set_scalar_value (Basic_block* bb, Index_node* lhs, MIR::Literal* lit);
-	void copy_value (Basic_block* bb, Index_node* lhs, Index_node* rhs);
-
-	// Make LHS reference the storage node pointed-to by STORAGE, indexed by
-	// the _value_ of RHS.
-	// ie $lhs = $storage[$rhs];
-	// or $lhs = $storage->$rhs;
-	// or $lhs = $$rhs;
-	void set_indirect_reference (Basic_block* bb, Index_node* lhs, Index_node* storage, Index_node* rhs);
+	void set_reference (Basic_block* bb, Name* lhs, Name* rhs);
+	void set_scalar_value (Basic_block* bb, Name* lhs, MIR::Literal* lit);
+	void copy_value (Basic_block* bb, Name* lhs, Name* rhs);
 
 
 	// Whole_program runs this, so we dont need it.
 	void run (CFG* cfg){}
 
+public:
+	// Get the unique_name of the Index_node referred to by NAME. Assert that only 1 exists.
+	string get_index (Name* name);
+
+	/* NAME can refer to many nodes. Get the list of Index_nodes it points to */
+	Index_node_list* get_named_indices (Name* name);
 
 	/*
 	 * For analysis
@@ -106,4 +106,35 @@ private:
 
 
 
-#endif // PHC_BCCH_ALIASING
+
+Name* N (string st, MIR::Node* var_name);
+
+class Name : virtual public GC_obj
+{
+};
+
+class Indexing : public Name
+{
+public:
+	Indexing (Name* lhs, Name* rhs);
+	Name* lhs;
+	Name* rhs;
+};
+
+class ST_name : public Name
+{
+public:
+	string name;
+	ST_name (string name);
+};
+
+class Index_name : public Name
+{
+public:
+	Index_name (string name);
+	string name;
+};
+
+
+
+#endif // PHC_ALIASING

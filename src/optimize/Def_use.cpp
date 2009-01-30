@@ -209,6 +209,8 @@ Def_use_web::add_mus (Basic_block* bb, VARIABLE_NAME* use)
 	if (use->in_ssa)
 		return;
 
+	phc_TODO ();
+	/*
 	Points_to* ptg = bb->get_in_ptg ();
 	Index_node_list* refs = ptg->get_local_references (SN (NAME (bb)),
 																		VN (NAME (bb), use),
@@ -219,6 +221,7 @@ Def_use_web::add_mus (Basic_block* bb, VARIABLE_NAME* use)
 		bb->add_mu_node (alias);
 		add_use (alias, new SSA_mu (bb, alias), false);
 	}
+	*/
 }
 
 void
@@ -303,6 +306,8 @@ Def_use_web::add_chis (Basic_block* bb, VARIABLE_NAME* def)
 	//	How about each assignment to an alias gets a MU of the variables in the
 	//	statement which created the alias.
 
+	phc_TODO ();
+	/*
 	Points_to* ptg = bb->get_in_ptg ();
 	Index_node_list* refs = ptg->get_local_references (SN (NAME (bb)),
 																		VN (NAME (bb), def),
@@ -316,7 +321,7 @@ Def_use_web::add_chis (Basic_block* bb, VARIABLE_NAME* def)
 		VARIABLE_NAME* clone = alias->clone ();
 		add_def (alias, new SSA_chi (bb, alias, clone), false);
 		add_use (clone, new SSA_chi (bb, alias, clone), false);
-	}
+	}*/
 }
 
 void
@@ -364,27 +369,10 @@ Def_use_web::visit_branch_block (Branch_block* bb)
 	add_use (bb->branch->variable_name, new SSA_branch (bb));
 }
 
-void
-Def_use_web::visit_phi_node (Basic_block* bb, VARIABLE_NAME* phi_lhs)
-{
-	foreach (VARIABLE_NAME* use, *bb->get_phi_args (phi_lhs))
-		add_use (use, new SSA_phi (bb, phi_lhs));
 
-	add_def (phi_lhs, new SSA_phi (bb, phi_lhs));
-}
-
-void
-Def_use_web::visit_chi_node (Basic_block* bb, VARIABLE_NAME* lhs, VARIABLE_NAME* rhs)
-{
-	add_def (lhs, new SSA_chi (bb, lhs, rhs));
-	add_use (rhs, new SSA_chi (bb, lhs, rhs));
-}
-
-void
-Def_use_web::visit_mu_node (Basic_block* bb, VARIABLE_NAME* rhs)
-{
-	add_use (rhs, new SSA_mu (bb, rhs));
-}
+/*
+ * Statements
+ */
 
 void
 Def_use_web::visit_assign_array (Statement_block* bb, MIR::Assign_array* in)
@@ -632,6 +620,34 @@ Def_use_web::visit_variable_variable (Statement_block* bb, Variable_variable* in
 {
 	PUNT;
 }
+
+
+/*
+ * Properties once we are already in SSA form
+ */
+void
+Def_use_web::visit_phi_node (Basic_block* bb, VARIABLE_NAME* phi_lhs)
+{
+	foreach (VARIABLE_NAME* use, *bb->get_phi_args (phi_lhs))
+		add_use (use, new SSA_phi (bb, phi_lhs));
+
+	add_def (phi_lhs, new SSA_phi (bb, phi_lhs));
+}
+
+void
+Def_use_web::visit_chi_node (Basic_block* bb, VARIABLE_NAME* lhs, VARIABLE_NAME* rhs)
+{
+	add_def (lhs, new SSA_chi (bb, lhs, rhs));
+	add_use (rhs, new SSA_chi (bb, lhs, rhs));
+}
+
+void
+Def_use_web::visit_mu_node (Basic_block* bb, VARIABLE_NAME* rhs)
+{
+	add_use (rhs, new SSA_mu (bb, rhs));
+}
+
+
 
 
 void

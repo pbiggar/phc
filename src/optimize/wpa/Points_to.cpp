@@ -47,6 +47,7 @@ Points_to::open_scope (string scope_name)
 
 	if (scope_name == "__MAIN__")
 	{
+		// TODO: remove this hack and move it into Aliasing
 		add_edge (SN (scope_name), IN (scope_name, "GLOBALS"), DEFINITE);
 		add_edge (IN (scope_name, "GLOBALS"), SN (scope_name));
 	}

@@ -9,7 +9,8 @@
 #ifndef PHC_OPTIMIZATION_TRANSFORMER
 #define PHC_OPTIMIZATION_TRANSFORMER
 
-#include "Aliasing.h"
+class Aliasing;
+class Index_node;
 
 class Optimization_transformer : public CFG_visitor
 {
@@ -18,6 +19,10 @@ public:
 	Optimization_transformer (Aliasing*);
 
 	void run (CFG* cfg);
+
+	// for passing between visit_assign_var and visit_expr
+	Index_node* lhs;
+	bool assign_var_is_ref;
 
 	MIR::Rvalue* get_literal (Basic_block* bb, MIR::Rvalue* in);
 

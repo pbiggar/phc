@@ -140,8 +140,10 @@ Mark_initialized::transfer_in (Basic_block* bb, BB_list* preds)
 	foreach (Basic_block* pred, *preds)
 	{
 		if (executed[pred])
+		{
 			foreach (tie (var, cell), *outs[pred])
 				vars->push_back (var);
+		}
 	}
 
 	// IN = intersection (P) forall P = preds (OUT))

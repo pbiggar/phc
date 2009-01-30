@@ -46,11 +46,12 @@ public:
  *
  * This descriptor is a combination of their storage node and their index.
  *		Global var-vars: GST::*
- *		Local (to a()) variable 'x': a.ST::x
+ *		Local (to function a()) variable 'x': a.ST::x
  *
  *	There is not a unique descriptor for this node. Any object with the same
  *	descriptor represents the same node, in any graph. So we cannot store
- *	attributes in here (they should be in the other analyses' lattices).
+ *	attributes in here (they should be in the other analyses' lattices, indexed
+ *	by get_unique_name ()).
  */
 class Index_node : public PT_node
 {
@@ -70,6 +71,7 @@ public:
 
 	String* get_graphviz ();
 };
+
 
 
 // Represents class for arrays, objects and symtables
@@ -105,6 +107,15 @@ public:
  * NOTE:
  *		All PT_nodes are simply descriptors for nodes. They do not provide a
  *		means to access the node itself.
+ *
+ *		Note too that the index_node is merely a unique point in the graph. There
+ *		is no direct mapping to PHP constructs, as some are more compicated that
+ *		that. For example: $x =& $x[$y], is an Index_node indexed by another
+ *		index_node, and can refer to multiple index_node.
+ *
+ *		The result is that Points_to just does the graphing, and that Aliasing
+ *		provides the abstraction layer over that, with which to interface with
+ *		the MIR, and other analyses.
  */
 
 class Points_to : virtual public GC_obj

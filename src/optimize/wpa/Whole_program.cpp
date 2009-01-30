@@ -109,7 +109,12 @@ Whole_program::run (MIR::PHP_script* in)
 // TODO
 //	foreach (string method, callgraph.bottom_up ())
 //	{
-
+		// TODO: some kind of iteration. apply_results would be better if the
+		// full points-to analysis was recalculated after
+		// perform_local_optimizations.
+	
+		// Apply the results
+		apply_results (Oracle::get_method_info (s(method)));
 
 		// Perform DCE and CP.
 		perform_local_optimizations (info);
@@ -117,8 +122,6 @@ Whole_program::run (MIR::PHP_script* in)
 		// Perform inlining
 		// TODO:
 
-		// Apply the results
-		apply_results (Oracle::get_method_info (s(method)));
 	}
 }
 
