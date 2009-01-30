@@ -316,16 +316,6 @@ Aliasing::handle_new (Statement_block* bb, MIR::New* in, MIR::VARIABLE_NAME* lhs
 	phc_TODO ();
 }
 
-/*
- * Get nodes for Names
- */
-
-string
-Aliasing::get_index (Name* name)
-{
-	phc_TODO ();
-}
-
 
 /*
  * Update the Points-to solution, and interface with other analyses.
@@ -336,8 +326,8 @@ void
 Aliasing::set_reference (Basic_block* bb, Name* nlhs, Name* nrhs)
 {
 	// We don't need to worry about aliases, as this is killing.
-	Index_node_list* lhss = get_named_indices (nlhs);
-	Index_node_list* rhss = get_named_indices (nrhs);
+	Index_node_list* lhss = get_named_indices (bb, nlhs);
+	Index_node_list* rhss = get_named_indices (bb, nrhs);
 
 	// Send the results to the analyses for all variables which could be
 	// overwritten.
@@ -357,6 +347,20 @@ Aliasing::set_reference (Basic_block* bb, Name* nlhs, Name* nrhs)
 		}
 	}
 }
+
+String_list*
+Aliasing::get_string_values (Basic_block* bb, Index_node* index)
+{
+	Lattice_cell* result = wp->ccp->ins[bb->ID][index->get_unique_name ()];
+
+	if (result == BOTTOM || result == TOP)
+		phc_TODO ();
+
+	// TODO: this isnt quite right, we need to cast to a string.
+	return new String_list (
+		dyc<Literal_cell> (result)->value->get_value_as_string ());
+}
+
 #if 0
 // Note that INDEX is not the index of STORAGE. INDEX points to a set values that may index STORAGE.
 void
@@ -408,7 +412,7 @@ Aliasing::set_indirect_reference (Basic_block* bb, Index_node* lhs, Index_node* 
 void
 Aliasing::set_scalar_value (Basic_block* bb, Name* lhs, Literal* lit)
 {
-	Index_node_list* indices = get_named_indices (lhs);
+	Index_node_list* indices = get_named_indices (bb, lhs);
 
 	// Send the results to the analyses for all variables which could be
 	// overwritten.
@@ -468,21 +472,68 @@ Aliasing::copy_value (Basic_block* bb, Name* lhs, Name* rhs)
 
 
 Index_node_list*
-Aliasing::get_named_indices (Name* name)
+Aliasing::get_named_indices (Basic_block* bb, Name* name)
 {
+	Indexing* n = dyc<Indexing> (name);
+
+
+	// Get the set of storage nodes representing the LHS.
+	Set<string> lhss;
+
+	if (ST_name* st = dynamic_cast <ST_name*> (n->lhs))
+	{
+		// 1 named storage node
+		lhss.insert (st->name);
+	}
+	else
+	{
+		// Lookup the storage nodes indexed by LHS
+		foreach (Index_node* st_index, *get_named_indices (bb, n->lhs))
+			foreach (Storage_node* pointed_to, *ptg->get_points_to (st_index, PTG_ALL))
+				lhss.insert (pointed_to->name);
+	}
+
+
+	// Get the names of the fields of the storage nodes.
+	Set<string> rhss;
+
+	if (Index_name* st = dynamic_cast <Index_name*> (n->rhs))
+	{
+		// 1 named field of the storage nodes
+		rhss.insert (st->name);
+	}
+	else
+	{
+		// The name of the field must be looked up
+		foreach (Index_node* field_index, *get_named_indices (bb, n->rhs))
+			foreach (String* value, *get_string_values (bb, field_index))
+				rhss.insert (*value);
+	}
+
+
+	// Combine the results
 	Index_node_list* result = new Index_node_list;
 
-	Indexing* n = dyc<Indexing> (name);
-	ST_name* st = dyc<ST_name> (n->lhs);
-	Index_name* ind = dyc<Index_name> (n->rhs);
-
-	// The LHS of an Indexing gets you the ST. The RHS gets you the 
-	result->push_back (new Index_node (st->name, ind->name));
-	
+	foreach (string lhs, lhss)
+		foreach (string rhs, rhss)
+			result->push_back (new Index_node (lhs, rhs));
 
 	return result;
 }
 
+Index_node*
+Aliasing::get_named_index (Basic_block* bb, Name* name)
+{
+	Index_node_list* all = get_named_indices (bb, name);
+
+	// TODO: can this happen
+	assert (all->size());
+
+	if (all->size () > 1)
+		return NULL;
+
+	return all->front ();
+}
 
 
 /*

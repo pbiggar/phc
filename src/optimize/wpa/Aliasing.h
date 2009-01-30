@@ -70,11 +70,15 @@ private:
 	void run (CFG* cfg){}
 
 public:
-	// Get the unique_name of the Index_node referred to by NAME. Assert that only 1 exists.
-	string get_index (Name* name);
 
 	/* NAME can refer to many nodes. Get the list of Index_nodes it points to */
-	Index_node_list* get_named_indices (Name* name);
+	Index_node_list* get_named_indices (Basic_block* bb, Name* name);
+
+	// NULL if more than 1 exists
+	Index_node* get_named_index (Basic_block* bb, Name* name);
+
+	// Get the list of potential values of node (can include '*' when it is unknown).
+	String_list* get_string_values (Basic_block* bb, Index_node* node);
 
 	/*
 	 * For analysis
