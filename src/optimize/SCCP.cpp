@@ -124,7 +124,7 @@
 #include "SCCP.h"
 #include "Lattice.h"
 #include "embed/embed.h"
-#include "Def_use.h"
+#include "Def_use_web.h"
 #include "Oracle.h"
 #include "process_ir/debug.h"
 

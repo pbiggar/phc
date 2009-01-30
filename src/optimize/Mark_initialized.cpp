@@ -35,7 +35,7 @@
 #include "MIR.h"
 
 #include "Mark_initialized.h"
-#include "Def_use.h"
+#include "Def_use_web.h"
 
 using namespace boost;
 using namespace MIR;

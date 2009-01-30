@@ -194,8 +194,8 @@ libphc_la_SOURCES= 											\
 	src/optimize/CFG_visitor.h								\
 	src/optimize/Dead_code_elimination.cpp				\
 	src/optimize/Dead_code_elimination.h				\
-	src/optimize/Def_use.cpp 								\
-	src/optimize/Def_use.h									\
+	src/optimize/Def_use_web.cpp 							\
+	src/optimize/Def_use_web.h								\
 	src/optimize/Edge.cpp									\
 	src/optimize/Edge.h										\
 	src/optimize/Flow_visitor.cpp							\
@@ -243,6 +243,8 @@ libphc_la_SOURCES= 											\
 	src/optimize/wpa/CCP.cpp								\
 	src/optimize/wpa/CCP.h									\
 	src/optimize/wpa/Constant_state.cpp					\
+	src/optimize/wpa/Def_use.cpp							\
+	src/optimize/wpa/Def_use.h								\
 	src/optimize/wpa/Constant_state.h					\
 	src/optimize/wpa/Include_analysis.cpp				\
 	src/optimize/wpa/Include_analysis.h					\

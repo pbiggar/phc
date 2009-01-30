@@ -3,7 +3,7 @@
 
 #include "process_ir/debug.h"
 
-#include "Def_use.h"
+#include "Def_use_web.h"
 #include "Var_set.h"
 
 #include "wpa/Aliasing.h"

@@ -20,7 +20,7 @@
 #include "lib/Vector.h"
 
 #include "CFG.h"
-#include "Def_use.h"
+#include "Def_use_web.h"
 
 #include "ssa/Dominance.h"
 #include "ssa/SSA.h"

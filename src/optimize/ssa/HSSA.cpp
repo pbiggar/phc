@@ -16,7 +16,7 @@
 #include "Phi.h"
 #include "Dominance.h"
 #include "process_mir/MIR_unparser.h"
-#include "optimize/Def_use.h"
+#include "optimize/Def_use_web.h"
 #include "SSA_ops.h"
 
 using namespace MIR;

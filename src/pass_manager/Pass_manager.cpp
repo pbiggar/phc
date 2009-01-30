@@ -28,8 +28,7 @@
 #include "process_hir/HIR_to_AST.h"
 #include "process_mir/MIR_to_AST.h"
 #include "optimize/CFG.h"
-#include "optimize/Def_use.h"
-#include "optimize/Def_use.h"
+#include "optimize/Def_use_web.h"
 #include "optimize/ssa/HSSA.h"
 #include "optimize/wpa/Whole_program.h"
 

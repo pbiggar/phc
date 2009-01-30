@@ -45,6 +45,7 @@ class Aliasing;
 class Callgraph;
 class CCP;
 class Constant_state;
+class Def_use;
 class Include_analysis;
 class Type_inference;
 class VRP;
@@ -61,6 +62,7 @@ public:
 	Map<string, WPA*> analyses;
 	Aliasing* aliasing;
 	CCP* ccp;
+	Def_use* def_use;
 	Pass_manager* pm;
 
 	// All methods which have been called in the symbolic execution of the

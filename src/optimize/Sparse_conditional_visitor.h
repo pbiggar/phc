@@ -8,7 +8,7 @@
 #include "CFG.h"
 #include "CFG_visitor.h"
 #include "Edge.h"
-#include "Def_use.h"
+#include "Def_use_web.h"
 #include "Lattice.h"
 #include "process_ir/debug.h"
 

@@ -36,18 +36,20 @@
 
 #include "process_ir/General.h"
 
+#include "optimize/Edge.h"
+#include "optimize/Oracle.h"
+
 #include "Aliasing.h"
 #include "Callgraph.h"
 #include "CCP.h"
 #include "Constant_state.h"
+#include "Def_use.h"
 #include "Include_analysis.h"
+#include "pass_manager/Pass_manager.h"
 #include "Type_inference.h"
 #include "VRP.h"
-#include "WPA.h"
 #include "Whole_program.h"
-#include "optimize/Oracle.h"
-#include "optimize/Edge.h"
-#include "pass_manager/Pass_manager.h"
+#include "WPA.h"
 
 using namespace MIR;
 using namespace boost;
@@ -63,6 +65,7 @@ Whole_program::Whole_program (Pass_manager* pm)
 	aliasing = new Aliasing (this);
 //	callgraph = new Callgraph (this);
 	ccp = new CCP (this);
+	def_use = new Def_use (this);
 
 	// Second class citizens
 	//		- These produce and consume data created by the first-class citizens.
@@ -74,6 +77,7 @@ Whole_program::Whole_program (Pass_manager* pm)
 
 //	register_analysis ("Callgraph", callgraph);
 	register_analysis ("CCP", ccp);
+	register_analysis ("def-use", def_use);
 //	register_analysis ("Constant_state", constant_state);
 //	register_analysis ("Include_analysis", include_analysis);
 //	register_analysis ("Type_inference", new Type_inference (this));

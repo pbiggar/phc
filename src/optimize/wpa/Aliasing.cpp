@@ -207,7 +207,10 @@ Aliasing::dump (Basic_block* bb)
 	string name;
 	WPA* wpa;
 	foreach (tie (name, wpa), wp->analyses)
+	{
 		wpa->dump (bb);
+		cdebug << endl;
+	}
 }
 
 
