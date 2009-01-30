@@ -120,6 +120,7 @@ Whole_program::run (MIR::PHP_script* in)
 		// Apply the results
 		apply_results (Oracle::get_method_info (s(method)));
 
+		// TODO: we need to redo alias analysis here to get more precise results.
 		// Perform DCE and CP.
 		perform_local_optimizations (info);
 

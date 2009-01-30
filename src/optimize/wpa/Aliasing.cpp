@@ -351,67 +351,6 @@ Aliasing::set_reference (Basic_block* bb, Name* nlhs, Name* nrhs)
 	}
 }
 
-String_list*
-Aliasing::get_string_values (Basic_block* bb, Index_node* index)
-{
-	Lattice_cell* result = wp->ccp->ins[bb->ID][index->get_unique_name ()];
-
-	if (result == BOTTOM || result == TOP)
-		phc_TODO ();
-
-	// TODO: this isnt quite right, we need to cast to a string.
-	return new String_list (
-		dyc<Literal_cell> (result)->value->get_value_as_string ());
-}
-
-#if 0
-// Note that INDEX is not the index of STORAGE. INDEX points to a set values that may index STORAGE.
-void
-Aliasing::set_indirect_reference (Basic_block* bb, Index_node* lhs, Index_node* storage, Index_node* index)
-{
-	// Possible configurations we must deal with:
-	//		- we may not know index
-	//		- we may know some values of the index
-	//		- we may know the exact value of the index
-	//		- we may know a set of values for the index, which are all the same
-	//		- the index (or one of the possible values) may have an unknown
-	//		type, necesitating a call to __get or __toString
-	//
-	//		- the storage node may have an unknown type, requiring a call to
-	//		__set
-	//		- the storage node may have an unknown value
-	//		- 1 or more possible values may be scalars
-	//
-	//		in total:
-	//			weak typing
-	//			dynamic typing
-
-	// If storage has only 1 storage node, OK.
-	Storage_node_list* stores = ptg->get_points_to (storage, PTG_ALL);
-	if (stores->size () != 1)
-		phc_TODO ();
-	
-	// If index has only 1 possible value, OK (and its a scalar)
-	if (ptg->get_points_to (index, PTG_ALL)->size () != 0)
-		phc_TODO ();
-
-	Lattice_cell* result = wp->ccp->ins[bb->ID][index->get_unique_name ()];
-	if (result == BOTTOM || result == TOP)
-		phc_TODO ();
-
-	// TODO: this isnt quite right, we need to cast to a string.
-	string name = *dyc<Literal_cell> (result)->value->get_value_as_string ();
-
-	
-	Index_node* rhs = IN (stores->front()->name, name);
-	set_reference (bb, lhs, rhs);
-}
-#endif
-
-
-// TODO: i expect we dont need to do a union of the RHSs (ie, I expect that's
-// already sorted from when the aliasing happened).
-
 void
 Aliasing::set_scalar_value (Basic_block* bb, Name* lhs, Literal* lit)
 {
@@ -444,10 +383,11 @@ Aliasing::set_scalar_value (Basic_block* bb, Name* lhs, Literal* lit)
 }
 
 void
-Aliasing::copy_value (Basic_block* bb, Name* lhs, Name* rhs)
+Aliasing::copy_value (Basic_block* bb, Name* nlhs, Name* nrhs)
 {
-	phc_TODO ();
-/*
+	Index_node_list* lhss = get_named_indices (bb, nlhs);
+	Index_node_list* rhss = get_named_indices (bb, nrhs);
+
 	// This is not killing in terms of references, so it assigns to all
 	// aliases of lhs.
 	WPA* wpa;
@@ -455,23 +395,44 @@ Aliasing::copy_value (Basic_block* bb, Name* lhs, Name* rhs)
 	certainty certainties[] = {POSSIBLE, DEFINITE};
 	foreach (certainty cert, certainties)
 	{
-		Index_node_list* refs = ptg->get_references (lhs, cert);
-		foreach (tie (name, wpa), wp->analyses)
+		foreach (Index_node* lhs, *lhss)
 		{
-			foreach (Index_node* ref, *refs)
-				wpa->set_value_from (bb, ref->get_unique_name (),
-											rhs->get_unique_name (), cert);
+			Index_node_list* refs = ptg->get_references (lhs, cert);
+			foreach (tie (name, wpa), wp->analyses)
+			{
+				foreach (Index_node* rhs, *rhss)
+				{
+					foreach (Index_node* ref, *refs)
+						wpa->set_value_from (bb, ref->get_unique_name (),
+								rhs->get_unique_name (), cert);
+
+					// And for the LHS
+					wpa->set_value_from (bb, lhs->get_unique_name (),
+							rhs->get_unique_name (), DEFINITE);
+
+
+					// Handle points-to aliasing
+					ptg->copy_value (lhs, rhs);
+				}
+			}
 		}
 	}
-	// And for the LHS
-	wpa->set_value_from (bb, lhs->get_unique_name (),
-								rhs->get_unique_name (), DEFINITE);
-
-
-	// Handle points-to aliasing
-	ptg->copy_value (lhs, rhs);
-	*/
 }
+
+String_list*
+Aliasing::get_string_values (Basic_block* bb, Index_node* index)
+{
+	Lattice_cell* result = wp->ccp->ins[bb->ID][index->get_unique_name ()];
+
+	if (result == BOTTOM || result == TOP)
+		phc_TODO ();
+
+	// TODO: this isnt quite right, we need to cast to a string.
+	return new String_list (
+		dyc<Literal_cell> (result)->value->get_value_as_string ());
+}
+
+
 
 
 Index_node_list*
