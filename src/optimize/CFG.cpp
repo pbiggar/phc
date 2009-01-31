@@ -353,6 +353,7 @@ escape_portname (String* in)
 			case '[':
 			case ']':
 			case '$':
+			case ':':
 				ch = '_';
 				break;
 			default:
@@ -367,7 +368,8 @@ CFG::get_graphviz_def_portname (Basic_block* bb, VARIABLE_NAME* def)
 {
 	stringstream ss;
 	ss
-	<< "def_" << *escape_portname (def->get_ssa_var_name ());
+	<< "def_" << *escape_portname (def->get_ssa_var_name ())
+	;
 	return s (ss.str ());
 }
 
@@ -376,7 +378,9 @@ CFG::get_graphviz_use_portname (Basic_block* bb, VARIABLE_NAME* use)
 {
 	stringstream ss;
 	ss
-	<< "use_" << bb->get_index () << "_" << *escape_portname (use->get_ssa_var_name ());
+	<< "use_" << bb->get_index () 
+	<< "_" << *escape_portname (use->get_ssa_var_name ())
+	;
 	return s (ss.str ());
 }
 
@@ -386,7 +390,8 @@ CFG::get_graphviz_def (Basic_block* bb, VARIABLE_NAME* def)
 	stringstream ss;
 	ss
 	<< "<" << *get_graphviz_def_portname (bb, def) << "> "
-	<< *def->get_ssa_var_name ();
+	<< *escape_DOT_record (def->get_ssa_var_name ())
+	;
 	return s (ss.str ());
 }
 
@@ -397,7 +402,8 @@ CFG::get_graphviz_use (Basic_block* bb, VARIABLE_NAME* use)
 	stringstream ss;
 	ss
 	<< "<" << *get_graphviz_use_portname (bb, use) << "> "
-	<< *use->get_ssa_var_name ();
+	<< *escape_DOT_record (use->get_ssa_var_name ())
+	;
 	return s (ss.str ());
 }
  
@@ -529,9 +535,11 @@ CFG::dump_graphviz (String* label)
 				foreach (SSA_op* op, *duw->get_defs (use, SSA_ALL))
 				{
 					cout 
-					<< index << ":" <<* get_graphviz_use_portname (bb, use) << ":e"
+					<< index << ":"
+					<<* get_graphviz_use_portname (bb, use) << ":e"
 					<< " -> "
-					<< op->get_bb()->get_index() << ":" << *get_graphviz_def_portname (op->get_bb (), use) << ":w"
+					<< op->get_bb()->get_index() << ":"
+					<< *get_graphviz_def_portname (op->get_bb (), use) << ":w"
 					<< " [color=lightgrey,dir=both];\n"
 					;
 				}

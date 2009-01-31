@@ -639,7 +639,7 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 }
 
 void
-Pass_manager::run_local_optimization_passes (CFG* cfg)
+Pass_manager::run_local_optimization_passes (Whole_program* wp, CFG* cfg)
 {
 	foreach (Pass* pass, *optimization_queue)
 	{
@@ -658,7 +658,7 @@ Pass_manager::run_local_optimization_passes (CFG* cfg)
 		if (opt->require_ssa)
 		{
 			// Convert to SSA form
-			hssa = new HSSA (cfg);
+			hssa = new HSSA (wp, cfg);
 			hssa->convert_to_hssa_form ();
 			cfg->clean ();
 			cfg_dump (cfg, pass->name, s("In SSA (cleaned)"));
@@ -666,7 +666,7 @@ Pass_manager::run_local_optimization_passes (CFG* cfg)
 		else
 		{
 			// We still want use-def information.
-			cfg->duw = new Def_use_web ();
+			cfg->duw = new Def_use_web (wp->def_use);
 			cfg->duw->run (cfg);
 			cfg_dump (cfg, pass->name, s("Non-SSA"));
 		}

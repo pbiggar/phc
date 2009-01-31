@@ -16,6 +16,7 @@
 class CFG;
 class CFG_visitor;
 class Optimization_pass;
+class Whole_program;
 class Pass;
 class String;
 
@@ -68,7 +69,7 @@ public:
 	void add_optimization_pass (Pass* pass);
 	void add_optimization (CFG_visitor* visitor, String* name, String* description, bool require_ssa);
 	void run_optimization_passes (MIR::PHP_script* in);
-	void run_local_optimization_passes (CFG* cfg);
+	void run_local_optimization_passes (Whole_program* wp, CFG* cfg);
 	bool can_optimize (MIR::Method* method);
 
 	// Add codegen passes

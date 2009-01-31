@@ -315,7 +315,7 @@ void
 Whole_program::perform_local_optimizations (Method_info* info)
 {
 	if (info->has_implementation ())
-		pm->run_local_optimization_passes (info->cfg);
+		pm->run_local_optimization_passes (this, info->cfg);
 }
 
 void

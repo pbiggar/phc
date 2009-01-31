@@ -4,6 +4,7 @@
 #include "process_ir/debug.h"
 
 #include "Def_use_web.h"
+#include "optimize/wpa/Def_use.h"
 #include "Var_set.h"
 
 #include "wpa/Aliasing.h"
@@ -37,7 +38,8 @@ SSA_edge::dump ()
 }
 
 
-Def_use_web::Def_use_web ()
+Def_use_web::Def_use_web (Def_use* du)
+: du (du)
 {
 }
 
@@ -142,15 +144,7 @@ Def_use_web::get_block_uses (Basic_block* bb, int flags)
  * Calculate the def-use web
  */
 void
-Def_use_web::add_use (MIR::Rvalue* def, SSA_op* use, bool add_mu)
-{
-	if (isa<VARIABLE_NAME> (def))
-		add_use (dyc<VARIABLE_NAME> (def), use, add_mu);
-}
-
-
-void
-Def_use_web::add_use (MIR::VARIABLE_NAME* def, SSA_op* use, bool add_mu)
+Def_use_web::add_use (MIR::VARIABLE_NAME* def, SSA_op* use)
 {
 	SSA_edge* edge = new SSA_edge (def, use);
 	edge->variable_name = def;
@@ -161,13 +155,10 @@ Def_use_web::add_use (MIR::VARIABLE_NAME* def, SSA_op* use, bool add_mu)
 	DEBUG ("to ");
 	use->dump ();
 	DEBUG (endl);
-
-	if (add_mu)
-		add_mus (use->get_bb(), def);
 }
 
 void
-Def_use_web::add_def (MIR::VARIABLE_NAME* use, SSA_op* def, bool add_chi)
+Def_use_web::add_def (MIR::VARIABLE_NAME* use, SSA_op* def)
 {
 	SSA_edge* edge = new SSA_edge (use, def);
 
@@ -179,9 +170,6 @@ Def_use_web::add_def (MIR::VARIABLE_NAME* use, SSA_op* def, bool add_chi)
 	DEBUG ("to ");
 	def->dump ();
 	DEBUG (endl);
-
-	if (add_chi)
-		add_chis (def->get_bb (), use);
 }
 
 
@@ -195,8 +183,20 @@ Def_use_web::add_may_def (MIR::VARIABLE_NAME* var, SSA_op* def)
 	Basic_block* bb = def->get_bb ();
 	bb->add_chi_node (var, var);
 	VARIABLE_NAME* clone = var->clone ();
-	add_def (var, new SSA_chi (bb, var, clone), false);
-	add_use (clone, new SSA_chi (bb, var, clone), false);
+	add_def (var, new SSA_chi (bb, var, clone));
+	add_use (clone, new SSA_chi (bb, var, clone));
+}
+
+void
+Def_use_web::add_may_use (MIR::VARIABLE_NAME* var, SSA_op* def)
+{
+	// The MUs are already present
+	if (var->in_ssa)
+		return;
+
+	Basic_block* bb = def->get_bb ();
+	bb->add_mu_node (var);
+	add_use (var, new SSA_mu (bb, var));
 }
 
 /*
@@ -324,302 +324,50 @@ Def_use_web::add_chis (Basic_block* bb, VARIABLE_NAME* def)
 	}*/
 }
 
-void
-Def_use_web::add_call_clobbering (Basic_block* bb)
-{
-//	if (ptg == NULL)
-//		return;
-
-	// All global variables, and any other variables which escape the function,
-	// can be defined (aka call-clobbered), or used, by a function call or
-	// function exit point.
-/*
-	if (aliases)
-	{
-		foreach (VARIABLE_NAME* alias, *aliases)
-		{
-			bb->add_chi_node (alias, alias);
-			VARIABLE_NAME* clone = alias->clone ();
-			add_def (alias, new SSA_chi (bb, alias, clone), false);
-			add_use (clone, new SSA_chi (bb, alias, clone), false);
-		}
-	}*/
-}
 
 
 
+#define add_def_use(TYPE, SSA_TYPE)											\
+	foreach (string TYPE, du->TYPE##s[bb->ID])						\
+		add_##TYPE (new VARIABLE_NAME (s(TYPE)), new SSA_TYPE (bb));
+
+#define add_all_def_use(SSA_TYPE)		\
+	if (du == NULL)							\
+		return;									\
+	add_def_use (def, SSA_TYPE)			\
+	add_def_use (use, SSA_TYPE)			\
+	add_def_use (may_def, SSA_TYPE)		\
+	add_def_use (may_use, SSA_TYPE)
 void
 Def_use_web::visit_entry_block (Entry_block* bb)
 {
-	add_call_clobbering (bb);
-
-	foreach (Formal_parameter* param, *bb->method->signature->formal_parameters)
-		add_def (param->var->variable_name, new SSA_formal (bb));
+	add_all_def_use (SSA_formal);
 }
 
 void
 Def_use_web::visit_exit_block (Exit_block* bb)
 {
-	add_call_clobbering (bb);
+	add_all_def_use (SSA_formal);
 }
 
 void
 Def_use_web::visit_branch_block (Branch_block* bb)
 {
-	add_use (bb->branch->variable_name, new SSA_branch (bb));
+	add_all_def_use (SSA_branch);
 }
 
+void
+Def_use_web::visit_statement_block (Statement_block* bb)
+{
+	add_all_def_use (SSA_stmt);
+}
+
+#undef add_def_use
+#undef add_all_def_use
 
 /*
  * Statements
  */
-
-void
-Def_use_web::visit_assign_array (Statement_block* bb, MIR::Assign_array* in)
-{
-	add_use (in->lhs, new SSA_stmt (bb));
-	add_use (in->rhs, new SSA_stmt (bb));
-	add_use (in->index, new SSA_stmt (bb));
-
-	// $x[0] = 5;
-	// may convert $x from a scalar to an array.
-	add_may_def (in->lhs, new SSA_stmt (bb));
-}
-
-void
-Def_use_web::visit_assign_field (Statement_block*, MIR::Assign_field * in)
-{
-	PUNT;
-}
-
-void
-Def_use_web::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
-{
-	add_def (in->lhs, new SSA_stmt (bb), !in->is_ref);
-	visit_expr (bb, in->rhs);
-}
-
-void
-Def_use_web::visit_assign_var_var (Statement_block*, MIR::Assign_var_var* in)
-{
-	PUNT;
-}
-
-void
-Def_use_web::visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
-{
-	visit_expr (bb, in->expr);
-}
-
-void
-Def_use_web::visit_foreach_end (Statement_block* bb, MIR::Foreach_end* in)
-{
-	add_use (in->array, new SSA_stmt (bb));
-}
-
-void
-Def_use_web::visit_foreach_next (Statement_block* bb, MIR::Foreach_next* in)
-{
-	add_use (in->array, new SSA_stmt (bb));
-}
-
-void
-Def_use_web::visit_foreach_reset (Statement_block* bb, MIR::Foreach_reset* in)
-{
-	add_use (in->array, new SSA_stmt (bb));
-}
-
-void
-Def_use_web::visit_global (Statement_block* bb, MIR::Global* in)
-{
-	// For SSA creation, this is a def.
-	if (isa<VARIABLE_NAME> (in->variable_name))
-		add_def (dyc<VARIABLE_NAME> (in->variable_name), new SSA_stmt (bb), false);
-	else
-		PUNT; // global var-var!
-}
-
-void
-Def_use_web::visit_pre_op (Statement_block*, MIR::Pre_op* in)
-{
-	PUNT;
-}
-
-void
-Def_use_web::visit_assign_next (Statement_block* bb, MIR::Assign_next* in)
-{
-	add_use (in->lhs, new SSA_stmt (bb));
-	add_use (in->rhs, new SSA_stmt (bb));
-}
-
-void
-Def_use_web::visit_return (Statement_block* bb, MIR::Return* in)
-{
-	// We put the MUs in the exit block, as not all paths have a return block.
-	add_use (in->rvalue, new SSA_stmt (bb));
-}
-
-void
-Def_use_web::visit_ssa_pre_op (Statement_block* bb, MIR::SSA_pre_op* in)
-{
-	add_use (in->use, new SSA_stmt (bb));
-	add_def (in->def, new SSA_stmt (bb));
-}
-
-void
-Def_use_web::visit_static_declaration (Statement_block*, MIR::Static_declaration* in)
-{
-	PUNT;
-}
-
-void
-Def_use_web::visit_throw (Statement_block*, MIR::Throw* in)
-{
-	PUNT;
-}
-
-void
-Def_use_web::visit_try (Statement_block*, MIR::Try* in)
-{
-	PUNT;
-}
-
-void
-Def_use_web::visit_unset (Statement_block* bb, MIR::Unset* in)
-{
-	assert (in->target == NULL);
-	assert (isa<VARIABLE_NAME> (in->variable_name));
-
-	// TODO: this defines a virtual-variable
-	if (in->array_indices->size ())
-	{
-		add_use (dyc<VARIABLE_NAME> (in->variable_name), new SSA_stmt (bb));
-		foreach (Rvalue* rv, *in->array_indices)
-		{
-			add_use (rv, new SSA_stmt (bb));
-		}
-	}
-	else
-		add_def (dyc<VARIABLE_NAME> (in->variable_name), new SSA_stmt (bb));
-}
-
-/*
- * Exprs
- */
-
-void
-Def_use_web::visit_array_access (Statement_block* bb, Array_access* in)
-{
-	add_use (in->variable_name, new SSA_stmt (bb));
-	add_use (in->index, new SSA_stmt (bb));
-
-	// In the case of
-	//		$x =& $y[$i]
-	// $y can be defined by this.
-	// TODO: So can virt($y[$i])
-	// TODO: restrict to only if is_ref is set
-	add_may_def (in->variable_name, new SSA_stmt (bb));
-}
-
-void
-Def_use_web::visit_bin_op (Statement_block* bb, Bin_op* in)
-{
-	add_use (in->left, new SSA_stmt (bb));
-	add_use (in->right, new SSA_stmt (bb));
-}
-
-void
-Def_use_web::visit_cast (Statement_block* bb, Cast* in)
-{
-	add_use (in->variable_name, new SSA_stmt (bb));
-}
-
-void
-Def_use_web::visit_constant (Statement_block* bb, Constant* in)
-{
-}
-
-void
-Def_use_web::visit_field_access (Statement_block* bb, Field_access* in)
-{
-	PUNT;
-}
-
-void
-Def_use_web::visit_foreach_get_key (Statement_block* bb, Foreach_get_key* in)
-{
-	add_use (in->array, new SSA_stmt (bb));
-}
-
-void
-Def_use_web::visit_foreach_get_val (Statement_block* bb, Foreach_get_val* in)
-{
-	add_use (in->array, new SSA_stmt (bb));
-}
-
-void
-Def_use_web::visit_foreach_has_key (Statement_block* bb, Foreach_has_key* in)
-{
-	add_use (in->array, new SSA_stmt (bb));
-}
-
-void
-Def_use_web::visit_instanceof (Statement_block* bb, Instanceof* in)
-{
-	PUNT;
-}
-
-void
-Def_use_web::visit_isset (Statement_block* bb, Isset* in)
-{
-	PUNT;
-}
-
-void
-Def_use_web::visit_method_invocation (Statement_block* bb, Method_invocation* in)
-{
-	add_call_clobbering (bb);
-
-	if (isa<Variable_method> (in->method_name))
-		PUNT;
-
-	foreach (Actual_parameter* param, *in->actual_parameters)
-	{
-		if (VARIABLE_NAME* var = dynamic_cast<VARIABLE_NAME*> (param->rvalue))
-		{
-			add_use (var, new SSA_stmt (bb));
-
-			// Call-time pass-by-ref
-			if (param->is_ref)
-				add_may_def (var, new SSA_chi (bb, var, var->clone ()));
-		}
-	}
-}
-
-void
-Def_use_web::visit_new (Statement_block* bb, New* in)
-{
-	add_call_clobbering (bb);
-	PUNT;
-}
-
-void
-Def_use_web::visit_unary_op (Statement_block* bb, Unary_op* in)
-{
-	add_use (in->variable_name, new SSA_stmt (bb));
-}
-
-void
-Def_use_web::visit_variable_name (Statement_block* bb, VARIABLE_NAME* in)
-{
-	add_use (in, new SSA_stmt (bb));
-}
-
-void
-Def_use_web::visit_variable_variable (Statement_block* bb, Variable_variable* in)
-{
-	PUNT;
-}
 
 
 /*
@@ -646,8 +394,6 @@ Def_use_web::visit_mu_node (Basic_block* bb, VARIABLE_NAME* rhs)
 {
 	add_use (rhs, new SSA_mu (bb, rhs));
 }
-
-
 
 
 void

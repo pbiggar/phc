@@ -1,5 +1,5 @@
-#ifndef PHC_DEF_USE
-#define PHC_DEF_USE
+#ifndef PHC_DEF_USE_WEB
+#define PHC_DEF_USE_WEB
 
 #include "Var_map.h"
 #include "MIR.h"
@@ -10,6 +10,7 @@
 #include "ssa/SSA_ops.h"
 
 class CFG;
+class Def_use;
 class Points_to;
 
 // A link between variables and the operations on variables.
@@ -48,7 +49,10 @@ class Def_use_web : public Visit_once
 	Var_map<SSA_edge_list> use_def_chains;
 
 public:
-	Def_use_web ();
+	Def_use_web (Def_use* du);
+
+	// The analysis portion. This forms a DU-web over the data analysed.
+	Def_use* du; 
 
 	/*
 	 * Flags:
@@ -85,56 +89,23 @@ public:
 
 private:
 	// Add defs or uses
-	void add_use (MIR::VARIABLE_NAME* def, SSA_op* use, bool add_mu = true);
-	void add_use (MIR::Rvalue* def, SSA_op* use, bool add_mu = true);
-	void add_def (MIR::VARIABLE_NAME* use, SSA_op* def, bool add_chi = true);
+	void add_use (MIR::VARIABLE_NAME* def, SSA_op* use);
+	void add_def (MIR::VARIABLE_NAME* use, SSA_op* def);
+	void add_may_def (MIR::VARIABLE_NAME* var, SSA_op* def);
+	void add_may_use (MIR::VARIABLE_NAME* var, SSA_op* use);
+
 	void add_mus (Basic_block* bb, MIR::VARIABLE_NAME* use);
 	void add_chis (Basic_block* bb, MIR::VARIABLE_NAME* def);
-	void add_may_def (MIR::VARIABLE_NAME* var, SSA_op* def);
-	void add_call_clobbering (Basic_block* bb);
-
 
 	void visit_entry_block (Entry_block* bb);
 	void visit_exit_block (Exit_block* bb);
 	void visit_branch_block (Branch_block* bb);
+	void visit_statement_block (Statement_block* bb);
 
 	void visit_chi_node (Basic_block* bb, MIR::VARIABLE_NAME* def, MIR::VARIABLE_NAME* use);
 	void visit_mu_node (Basic_block* bb, MIR::VARIABLE_NAME* use);
 	void visit_phi_node (Basic_block* bb, MIR::VARIABLE_NAME* phi_lhs);
 
-	void visit_assign_array (Statement_block*, MIR::Assign_array*);
-	void visit_assign_field (Statement_block*, MIR::Assign_field *);
-	void visit_assign_var (Statement_block*, MIR::Assign_var*);
-	void visit_assign_var_var (Statement_block*, MIR::Assign_var_var*);
-	void visit_eval_expr (Statement_block*, MIR::Eval_expr*);
-	void visit_foreach_end (Statement_block*, MIR::Foreach_end*);
-	void visit_foreach_next (Statement_block*, MIR::Foreach_next*);
-	void visit_foreach_reset (Statement_block*, MIR::Foreach_reset*);
-	void visit_global (Statement_block*, MIR::Global* in);
-	void visit_pre_op (Statement_block*, MIR::Pre_op*);
-	void visit_assign_next (Statement_block*, MIR::Assign_next*);
-	void visit_return (Statement_block*, MIR::Return*);
-	void visit_ssa_pre_op (Statement_block*, MIR::SSA_pre_op*);
-	void visit_static_declaration (Statement_block*, MIR::Static_declaration*);
-	void visit_throw (Statement_block*, MIR::Throw*);
-	void visit_try (Statement_block*, MIR::Try*);
-	void visit_unset (Statement_block*, MIR::Unset*);
-
-	void visit_array_access (Statement_block* bb, MIR::Array_access* in);
-	void visit_bin_op (Statement_block* bb, MIR::Bin_op* in);
-	void visit_cast (Statement_block* bb, MIR::Cast* in);
-	void visit_constant (Statement_block* bb, MIR::Constant* in);
-	void visit_field_access (Statement_block* bb, MIR::Field_access* in);
-	void visit_foreach_get_key (Statement_block* bb, MIR::Foreach_get_key* in);
-	void visit_foreach_get_val (Statement_block* bb, MIR::Foreach_get_val* in);
-	void visit_foreach_has_key (Statement_block* bb, MIR::Foreach_has_key* in);
-	void visit_instanceof (Statement_block* bb, MIR::Instanceof* in);
-	void visit_isset (Statement_block* bb, MIR::Isset* in);
-	void visit_method_invocation (Statement_block* bb, MIR::Method_invocation* in);
-	void visit_new (Statement_block* bb, MIR::New* in);
-	void visit_unary_op (Statement_block* bb, MIR::Unary_op* in);
-	void visit_variable_name (Statement_block* bb, MIR::VARIABLE_NAME* in);
-	void visit_variable_variable (Statement_block* bb, MIR::Variable_variable* in);
 };
 
-#endif // PHC_DEF_USE
+#endif // PHC_DEF_USE_WEB

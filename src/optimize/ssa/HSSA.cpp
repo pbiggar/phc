@@ -9,14 +9,16 @@
 #include <boost/graph/topological_sort.hpp>
 
 #include "process_ir/General.h"
+#include "process_mir/MIR_unparser.h"
 
 #include "optimize/Basic_block.h"
 
+#include "optimize/wpa/Whole_program.h"
+#include "optimize/Def_use_web.h"
+
+#include "Dominance.h"
 #include "HSSA.h"
 #include "Phi.h"
-#include "Dominance.h"
-#include "process_mir/MIR_unparser.h"
-#include "optimize/Def_use_web.h"
 #include "SSA_ops.h"
 
 using namespace MIR;
@@ -101,8 +103,9 @@ using namespace boost;
  *		d)	Update all PHI, MU and CHI operands and results to make them refer
  *			to entries in the hash-table.
  */
-HSSA::HSSA (CFG* cfg)
-: cfg(cfg)
+HSSA::HSSA (Whole_program* wp, CFG* cfg)
+: wp (wp)
+, cfg (cfg)
 {
 }
 
@@ -237,7 +240,7 @@ HSSA::convert_to_hssa_form ()
 	// The alias sets are passed to def-use-web, which adds MUs and CHIs
 	// appropriately.
 	DEBUG ("Calculating Def-use-web for SSA");
-	cfg->duw = new Def_use_web ();
+	cfg->duw = new Def_use_web (wp->def_use);
 	cfg->duw->run (cfg);
 
 
@@ -293,24 +296,8 @@ HSSA::convert_to_hssa_form ()
 	sr.rename_vars (cfg->get_entry_bb ());
 
 
-	// Check all variables are converted
-	class Check_in_SSA : public Visitor, virtual public GC_obj
-	{
-		void pre_variable_name (VARIABLE_NAME* in)
-		{
-			assert (in->in_ssa);
-		}
-	};
-
-	foreach (Basic_block* bb, *cfg->get_all_bbs ())
-	{
-		if (Statement_block* sb = dynamic_cast<Statement_block*> (bb))
-			sb->statement->visit (new Check_in_SSA ());
-	}
-
-
 	// Recalculate DUW, using explicit MU/CHIs:
-	cfg->duw = new Def_use_web ();
+	cfg->duw = new Def_use_web (NULL);
 	cfg->duw->run (cfg);
 
 
@@ -371,7 +358,9 @@ HSSA::convert_out_of_ssa_form ()
 
 	// Since we have probably updated nodes within blocks, we need to refresh
 	// the DUW to properly remove nodes which have been updated.
-	cfg->duw = new Def_use_web ();
+
+	// TODO: rerunning the analysis is now a WPA task
+	cfg->duw = new Def_use_web (NULL);
 	cfg->duw->run (cfg);
 
 
