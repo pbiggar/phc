@@ -37,6 +37,7 @@
 				FROM		complete
 				WHERE		revision == $rev 
 				")->fetchAll(PDO::FETCH_ASSOC);
+
 		if (count ($complete_data) != 1)
 			die ("Revision not available: $rev");
 
@@ -44,34 +45,19 @@
 
 		print "<table class=info>";
 		print "	<tr>\n";
-		print "		<th>Revision:					</th><td>"	.$complete_data["revision"].	"</td>";
-		print "		<th>Branch:						</th><td>"	.$complete_data["branch"].		"</td>";
-		print "	</tr><tr>\n";
-		// TODO
-		print "		<th>Test duration:			</th><td>"	.minutes_from_seconds ($complete_data["time"])."</td>";
-		print "		<th>Author:						</th><td>"	.$complete_data["author"].		"</td>";
-		print "	</tr><tr>\n";
-		// TODO
-		print "		<th><a href=\"graphs.php?rev=$rev\">Benchmark</a>:</th><td>"	.$benchmark_data["result"]."</td>";
-		print "		<th>Commit date:				</th><td>"	.$complete_data["commit_date"].	"	</td>";
-		print "	</tr>\n";
-		print "</table>\n";
-
-		print "	</td><td>\n";
-
-		print "<table class=info>\n";
-		print "	<tr>\n";
-		print "		<th>". maybe_link ($rev, $old_rev, "log.log", "Full Log") ."</th>";
-		print "		<th>". maybe_link ($rev, $old_rev, "configure.log", "Configure Log") ."</th>";
-		print "	</tr><tr>\n";
-		print "		<th>". maybe_link ($rev, $old_rev, "make.log", "Build Log") ."</th>";
-		print "		<th>". maybe_link ($rev, $old_rev, "test.log", "Test Log") ."</th>";
-		print "	</tr><tr>\n";
-		print "		<th>" . maybe_link ($rev, $old_bench_rev, "benchmark.log", "Benchmark log")."</th>";
-		print "		<th colspan=2><a href=\"http://code.google.com/p/phc/source/detail?r=$rev\">Commit log</a></th>";
+		print "		<th>Revision:						</th><td>"	.$complete_data["revision"]		."</td>";
+		print "		<th>Branch:							</th><td>"	.$complete_data["branch"]			."</td>";
+		print "		<th>Author:							</th><td>"	.$complete_data["author"]			."</td>";
+		print "		<th>Commit date:					</th><td>"	.$complete_data["commit_date"]	."	</td>";
+		print "	</tr><tr>";
+		print "		<th colspan=2>". maybe_link ($rev, $old_rev, "log.log",			"Full Log")			."</th>";
+		print "		<th colspan=2>". maybe_link ($rev, $old_rev, "compile.log",		"Build Log")		."</th>";
+		print "		<th colspan=2>". maybe_link ($rev, $old_rev, "test.log",			"Test Log")			."</th>";
+		print "		<th>"				. maybe_link ($rev, $old_rev, "benchmark.log",	"Benchmark Log")	."</th>";
+		print "		<th><a href=\"http://code.google.com/p/phc/source/detail?r=$rev\">Commit log</a></th>";
 		print "	</tr></table>";
 
-		print "	</td></tr>";
+		print "	</tr><tr>\n";
 		print "</table>\n";
 	}
 

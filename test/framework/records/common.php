@@ -56,7 +56,7 @@
 
 	function minutes_from_seconds ($seconds)
 	{
-		return round ($seconds/60.0, 1))."m";
+		return round ($seconds/60.0, 1)."m";
 	}
 
 	function get_good_color () { return " style=\"color:green; font-weight: bold\""; }
