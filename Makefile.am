@@ -25,6 +25,8 @@ bin_PROGRAMS = src/phc
 # hear about. 
 AM_CXXFLAGS = -Wextra -Wno-unused-parameter -Wno-write-strings
 
+ACLOCAL_AMFLAGS = -I m4 -I libltdl
+
 # Note about warnings: automake does not support per-file flags. If they did,
 # we could set -Wall -Wextra -Werror, and fix things as they came up. However,
 # since we do not control some of our source (Zend headers, generated code from

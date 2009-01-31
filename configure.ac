@@ -8,8 +8,9 @@ dnl Process this file using autoconf to produce configure
 # which adds the macros needed for libtool, boost, etc.
 
 dnl Autoconf requirements
-AC_INIT([phc], [0.2.0], [phc-general@phpcompiler.org])
+AC_INIT([phc],[0.2.0],[phc-general@phpcompiler.org])
 AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([config])
 
 dnl configure automake
@@ -22,12 +23,13 @@ AC_PROG_CC
 AC_PROG_CXX
 
 dnl Configure libtool
+LT_INIT([dlopen])
 AC_LIBLTDL_CONVENIENCE dnl build convenience library, and set LIBLTDL
-AC_LIBTOOL_DLOPEN dnl check for dlopen support
-AC_PROG_LIBTOOL dnl Configure libtool
 AC_CONFIG_SUBDIRS([libltdl])
 AC_SUBST([LTDLINCL])
 AC_SUBST([LIBLTDL])
+AC_SUBST([LIBTOOL_DEPS])
+
 
 dnl check for other programs
 AC_PATH_PROG([gengetopt], [gengetopt])
