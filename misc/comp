@@ -43,7 +43,6 @@ do
 	then
 		PHC_ARGS="$PHC_ARGS --run plugins/tests/raise_globals.la"
 	elif [ "-$var" = "--r" ] # references
->>>>>>> .merge-right.r2310
 	then
 		PHC_ARGS="$PHC_ARGS --run plugins/tools/debug_zval.la"
 	elif [ "-$var" = "--d" ] # demi-eval
