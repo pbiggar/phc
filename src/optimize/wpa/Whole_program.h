@@ -51,7 +51,8 @@ class VRP;
 class WPA;
 class Pass_manager;
 
-#define ST(BB) *BB->cfg->method->signature->method_name->value
+#define CFG_ST(CFG) (*(CFG)->method->signature->method_name->value)
+#define ST(BB) (CFG_ST ((BB)->cfg))
 
 class Whole_program
 {

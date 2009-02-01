@@ -113,6 +113,27 @@ merge_from_callee (Basic_block* bb, CFG* callee_cfg,
 	bb_vals[bb->ID].insert (callee_vals.begin (), callee_vals.end());
 }
 
+bool 
+has_prefix (string prefix, Alias_name& name)
+{
+	return name.prefix == prefix;
+}
+
+
+void
+remove_prefixed (Set<Alias_name>& set, string prefix)
+{
+	Set<Alias_name> to_remove;
+
+	// Iterators gets killed by changing the set.
+	foreach (Alias_name name, set)
+		if (name.prefix == prefix)
+			to_remove.insert (name);
+
+	foreach (Alias_name name, to_remove)
+		set.erase (name);
+}
+
 void
 Def_use::backward_bind (Basic_block* context, CFG* callee_cfg)
 {
@@ -121,4 +142,9 @@ Def_use::backward_bind (Basic_block* context, CFG* callee_cfg)
 	merge_from_callee (context, callee_cfg, uses, func_uses);
 	merge_from_callee (context, callee_cfg, may_defs, func_may_defs);
 	merge_from_callee (context, callee_cfg, may_uses, func_may_uses);
+
+	remove_prefixed (defs[context->ID], CFG_ST (callee_cfg));
+	remove_prefixed (uses[context->ID], CFG_ST (callee_cfg));
+	remove_prefixed (may_defs[context->ID], CFG_ST (callee_cfg));
+	remove_prefixed (may_uses[context->ID], CFG_ST (callee_cfg));
 }
