@@ -22,13 +22,10 @@ dnl checks for programs
 AC_PROG_CC
 AC_PROG_CXX
 
-dnl Configure libtool
+dnl Configure libtool and libltdl
 LT_INIT([dlopen])
-AC_LIBLTDL_CONVENIENCE dnl build convenience library, and set LIBLTDL
-AC_CONFIG_SUBDIRS([libltdl])
-AC_SUBST([LTDLINCL])
-AC_SUBST([LIBLTDL])
-AC_SUBST([LIBTOOL_DEPS])
+LT_CONFIG_LTDL_DIR([libltdl])
+LTDL_INIT([convenience])
 
 
 dnl check for other programs
