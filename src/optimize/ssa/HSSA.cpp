@@ -290,6 +290,7 @@ HSSA::convert_to_hssa_form ()
 
 
 	// 4) Rename all scalar and virtual variables using Cytron algorithm
+	cfg->dump_graphviz (NULL);
 
 	// Rename SSA variables
 	SSA_renaming sr(cfg);
@@ -297,7 +298,10 @@ HSSA::convert_to_hssa_form ()
 
 
 	// Recalculate DUW, using explicit MU/CHIs:
-	// This no longer is a good idea, I think. We dont use an explicit representation in the MIR nodes, so theres no point having it outside them. Also, we dont have any way to represent non-mu/chis if we remove the def-use info.
+	// This no longer is a good idea, I think. We dont use an explicit
+	// representation in the MIR nodes, so theres no point having it outside
+	// them. Also, we dont have any way to represent non-mu/chis if we remove
+	// the def-use info.
 //	cfg->duw = new Def_use_web (NULL);
 //	cfg->duw->run (cfg);
 
