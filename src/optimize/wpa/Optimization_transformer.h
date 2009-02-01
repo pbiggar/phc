@@ -38,7 +38,6 @@ public:
 	void visit_pre_op (Statement_block* bb, MIR::Pre_op* in);
 	void visit_assign_next (Statement_block* bb, MIR::Assign_next* in);
 	void visit_return (Statement_block* bb, MIR::Return* in);
-	void visit_ssa_pre_op (Statement_block* bb, MIR::SSA_pre_op* in);
 	void visit_static_declaration (Statement_block* bb, MIR::Static_declaration* in);
 	void visit_throw (Statement_block* bb, MIR::Throw* in);
 	void visit_try (Statement_block* bb, MIR::Try* in);

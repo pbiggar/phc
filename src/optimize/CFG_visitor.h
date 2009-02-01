@@ -60,9 +60,9 @@ public:
 	 * Automatically called for each block.
 	 */
 
-	virtual void visit_phi_node (Basic_block* bb, MIR::VARIABLE_NAME* lhs);
-	virtual void visit_chi_node (Basic_block* bb, MIR::VARIABLE_NAME* def, MIR::VARIABLE_NAME* use);
-	virtual void visit_mu_node (Basic_block* bb, MIR::VARIABLE_NAME* use);
+	virtual void visit_phi_node (Basic_block* bb, Alias_name lhs);
+	virtual void visit_chi_node (Basic_block* bb, Alias_name def, Alias_name use);
+	virtual void visit_mu_node (Basic_block* bb, Alias_name use);
 
 	/*
 	 * Statement visitors - Override in clients.
@@ -82,7 +82,6 @@ public:
 	virtual void visit_pre_op (Statement_block* bb, MIR::Pre_op* in);
 	virtual void visit_assign_next (Statement_block* bb, MIR::Assign_next* in);
 	virtual void visit_return (Statement_block* bb, MIR::Return* in);
-	virtual void visit_ssa_pre_op (Statement_block* bb, MIR::SSA_pre_op* in);
 	virtual void visit_static_declaration (Statement_block* bb, MIR::Static_declaration* in);
 	virtual void visit_throw (Statement_block* bb, MIR::Throw* in);
 	virtual void visit_try (Statement_block* bb, MIR::Try* in);
@@ -132,9 +131,9 @@ public:
 	// This has the same signature as visit_phi_node, but it must obviously be
 	// a different function from visit_phi_node, or else it would be called
 	// twice.
-	virtual void transform_phi_node (Basic_block* bb, MIR::VARIABLE_NAME* lhs);
-	virtual void transform_chi_node (Basic_block* bb, MIR::VARIABLE_NAME* def, MIR::VARIABLE_NAME* use);
-	virtual void transform_mu_node (Basic_block* bb, MIR::VARIABLE_NAME* use);
+	virtual void transform_phi_node (Basic_block* bb, Alias_name lhs);
+	virtual void transform_chi_node (Basic_block* bb, Alias_name def, Alias_name use);
+	virtual void transform_mu_node (Basic_block* bb, Alias_name use);
 
 	/*
 	 * Statement transforms - Override in clients.
@@ -154,7 +153,6 @@ public:
 	virtual void transform_param_is_ref (Statement_block* bb, MIR::Param_is_ref* in, BB_list* outs);
 	virtual void transform_pre_op (Statement_block* bb, MIR::Pre_op* in, BB_list* outs);
 	virtual void transform_return (Statement_block* bb, MIR::Return* in, BB_list* outs);
-	virtual void transform_ssa_pre_op (Statement_block* bb, MIR::SSA_pre_op* in, BB_list* outs);
 	virtual void transform_static_declaration (Statement_block* bb, MIR::Static_declaration* in, BB_list* outs);
 	virtual void transform_throw (Statement_block* bb, MIR::Throw* in, BB_list* outs);
 	virtual void transform_try (Statement_block* bb, MIR::Try* in, BB_list* outs);

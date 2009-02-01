@@ -27,10 +27,10 @@ public:
 public:
 	void run (CFG* cfg);
 
-	void set_lattice (MIR::VARIABLE_NAME* var, Lattice_cell* value);
+	void set_lattice (Alias_name var, Lattice_cell* value);
 
 	// Combine the lattice value for VAR_NAME with VALUE, and set the new value for VAR_NAME.
-	void meet_lattice (MIR::VARIABLE_NAME* var, Lattice_cell* value);
+	void meet_lattice (Alias_name var, Lattice_cell* value);
 
 
 	int get_predecessor_executable_count (Basic_block* bb);

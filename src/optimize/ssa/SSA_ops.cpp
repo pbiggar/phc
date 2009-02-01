@@ -27,14 +27,14 @@ SSA_stmt::SSA_stmt (Statement_block* bb) : SSA_op (SSA_STMT), bb (bb) {}
 SSA_branch::SSA_branch (Branch_block* bb) : SSA_op (SSA_BRANCH), bb (bb) {}
 SSA_formal::SSA_formal (Basic_block* bb) : SSA_op (SSA_FORMAL), bb (bb) {}
 
-SSA_phi::SSA_phi (Basic_block* bb, VARIABLE_NAME* phi_lhs)
+SSA_phi::SSA_phi (Basic_block* bb, Alias_name phi_lhs)
 : SSA_op (SSA_PHI)
 , bb (bb)
 , phi_lhs (phi_lhs)
 {
 }
 
-SSA_chi::SSA_chi (Basic_block* bb, VARIABLE_NAME* lhs, VARIABLE_NAME* rhs)
+SSA_chi::SSA_chi (Basic_block* bb, Alias_name lhs, Alias_name rhs)
 : SSA_op (SSA_CHI)
 , bb (bb)
 , lhs (lhs)
@@ -42,7 +42,7 @@ SSA_chi::SSA_chi (Basic_block* bb, VARIABLE_NAME* lhs, VARIABLE_NAME* rhs)
 {
 }
 
-SSA_mu::SSA_mu (Basic_block* bb, VARIABLE_NAME* rhs)
+SSA_mu::SSA_mu (Basic_block* bb, Alias_name rhs)
 : SSA_op (SSA_CHI)
 , bb (bb)
 , rhs (rhs)
@@ -78,19 +78,19 @@ void SSA_formal::dump()
 
 void SSA_phi::dump()
 {
-	DEBUG ("SSA_phi: " << *phi_lhs->get_ssa_var_name () << ", ");
+	DEBUG ("SSA_phi: " << phi_lhs.str () << ", ");
 	bb->dump ();
 }
 
 void SSA_chi::dump()
 {
-	DEBUG ("SSA_chi: " << *lhs->get_ssa_var_name () << " <- " << *rhs->get_ssa_var_name ());
+	DEBUG ("SSA_chi: " << lhs.str () << " <- " << rhs.str());
 	bb->dump ();
 }
 
 void SSA_mu::dump()
 {
-	DEBUG ("SSA_mu: " << *rhs->get_ssa_var_name () << ", ");
+	DEBUG ("SSA_mu: " << rhs.str() << ", ");
 	bb->dump ();
 }
 
@@ -109,19 +109,22 @@ bool ssa_op_ptr_comparison (SSA_op* op1, SSA_op* op2)
 	// Dont compare BB indices, they might be overwritten
 	if (isa<SSA_phi> (op1))
 	{
+		phc_TODO (); // why var names, and not alias_names?
 		// compare variable names
-		return *dyc<SSA_phi> (op1)->phi_lhs < *dyc<SSA_phi> (op2)->phi_lhs;
+//		return *dyc<SSA_phi> (op1)->phi_lhs < *dyc<SSA_phi> (op2)->phi_lhs;
 	}
 	else if (isa<SSA_chi> (op1))
 	{
-		if (*dyc<SSA_chi> (op1)->lhs->value == *dyc<SSA_chi> (op2)->lhs->value)
-			return *dyc<SSA_chi> (op1)->rhs < *dyc<SSA_chi> (op2)->rhs;
-		else
-			return *dyc<SSA_chi> (op1)->lhs < *dyc<SSA_chi> (op2)->lhs;
+		phc_TODO (); // why var names, and not alias_names?
+//		if (*dyc<SSA_chi> (op1)->lhs->value == *dyc<SSA_chi> (op2)->lhs->value)
+//			return *dyc<SSA_chi> (op1)->rhs < *dyc<SSA_chi> (op2)->rhs;
+//		else
+//			return *dyc<SSA_chi> (op1)->lhs < *dyc<SSA_chi> (op2)->lhs;
 	}
 	else if (isa<SSA_mu> (op1))
 	{
-		return *dyc<SSA_mu> (op1)->rhs < *dyc<SSA_mu> (op2)->rhs;
+		phc_TODO (); // why var names, and not alias_names?
+//		return *dyc<SSA_mu> (op1)->rhs < *dyc<SSA_mu> (op2)->rhs;
 	}
 	else if (isa<SSA_formal> (op1))
 	{
@@ -140,7 +143,7 @@ bool ssa_op_ptr_comparison (SSA_op* op1, SSA_op* op2)
 	}
 }
 
-VARIABLE_NAME_list*
+Alias_name_list*
 SSA_stmt::get_uses ()
 {
 	// Phis are different statements, but mus and chis are properties of the
@@ -148,37 +151,37 @@ SSA_stmt::get_uses ()
 	return bb->cfg->duw->get_block_uses (bb, SSA_STMT | SSA_MU | SSA_CHI);
 }
 
-VARIABLE_NAME_list*
+Alias_name_list*
 SSA_phi::get_uses ()
 {
-	VARIABLE_NAME_list* result = new VARIABLE_NAME_list;
-	foreach (VARIABLE_NAME* use, *bb->get_phi_args (phi_lhs))
+	Alias_name_list* result = new Alias_name_list;
+	foreach (Alias_name use, *bb->get_phi_args (phi_lhs))
 		result->push_back (use);
 
 	return result;
 }
 
-VARIABLE_NAME_list*
+Alias_name_list*
 SSA_branch::get_uses ()
 {
-	return new VARIABLE_NAME_list (bb->branch->variable_name);
+	return new Alias_name_list (v2an (bb, bb->branch->variable_name));
 }
 
-VARIABLE_NAME_list*
+Alias_name_list*
 SSA_formal::get_uses ()
 {
 	// TODO: return RHS of phi nodes?
-	return new VARIABLE_NAME_list ();
+	return new Alias_name_list();
 }
 
-VARIABLE_NAME_list*
+Alias_name_list*
 SSA_chi::get_uses ()
 {
-	return new VARIABLE_NAME_list (rhs);
+	return new Alias_name_list(rhs);
 }
 
-VARIABLE_NAME_list*
+Alias_name_list*
 SSA_mu::get_uses ()
 {
-	return new VARIABLE_NAME_list (rhs);
+	return new Alias_name_list (rhs);
 }

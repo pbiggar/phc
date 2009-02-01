@@ -85,7 +85,7 @@ Goto_uppering::convert_statement_list (Statement_list *in)
 		{
 			// add the if and gotos to the current case statement
 			(*current->statements 
-				<< "if ($" << *var_name->value->get_ssa_var_name () << ")"
+				<< "if ($" << *var_name->value->value << ")"
 				<< "{"
 				<<		ast_next << " = \"" << l1->value->value << "\";"
 				<<	"	continue;"

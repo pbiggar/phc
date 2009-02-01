@@ -144,12 +144,6 @@ Optimization_transformer::visit_return (Statement_block* bb, MIR::Return* in)
 }
 
 void
-Optimization_transformer::visit_ssa_pre_op (Statement_block* bb, MIR::SSA_pre_op* in)
-{
-	phc_TODO ();
-}
-
-void
 Optimization_transformer::visit_static_declaration (Statement_block* bb, MIR::Static_declaration* in)
 {
 	phc_TODO ();

@@ -11,50 +11,53 @@ using namespace boost;
 
 SSA_renaming::SSA_renaming (CFG* cfg)
 : cfg(cfg)
-, counter (0)
+, counter (1)
 {
 }
 
 void
-SSA_renaming::push_to_var_stack (VARIABLE_NAME* var_name, int version)
+SSA_renaming::push_to_var_stack (Alias_name name, int version)
 {
-	var_stacks[*var_name->value].push (version);
+	// TODO: should this be a string or an Alias_name? should I strip out the
+	// non-local variables before I do this?
+	phc_TODO ();
+	var_stacks[name].push (version);
 }
 
 int
-SSA_renaming::read_var_stack (VARIABLE_NAME* var_name)
+SSA_renaming::read_var_stack (Alias_name name)
 {
 	// In traditional SSA, all variables are initialized at the start of a
 	// function. Not so here (though it could be done that way).
-	if (var_stacks[*var_name->value].size () == 0)
-		push_to_var_stack (var_name, counter++);
+	if (var_stacks[name].size () == 0)
+		push_to_var_stack (name, counter++);
 
-	int result = var_stacks[*var_name->value].top();
+	int result = var_stacks[name].top();
 	return result;
 }
 
 void
-SSA_renaming::pop_var_stack (VARIABLE_NAME* var_name)
+SSA_renaming::pop_var_stack (Alias_name name)
 {
-	var_stacks[*var_name->value].pop();
+	var_stacks[name].pop();
 }
 
 void 
-SSA_renaming::create_new_ssa_name (VARIABLE_NAME* var_name)
+SSA_renaming::create_new_ssa_name (Alias_name name)
 {
-	var_name->convert_to_ssa_name (counter);
-	push_to_var_stack (var_name, counter++);
+	name.set_version (counter);
+	push_to_var_stack (name, counter++);
 }
 
 void
 SSA_renaming::debug_var_stacks ()
 {
 	CHECK_DEBUG ();
-	string name;
+	Alias_name name;
 	Stack<int> st;
-	foreach (tie (name,st), var_stacks)
+	foreach (tie (name, st), var_stacks)
 	{
-		cdebug << name << ": (TOP) ";
+		cdebug << name.str() << ": (TOP) ";
 		Stack<int> copy (st);
 		while (copy.size ())
 		{
@@ -86,40 +89,40 @@ SSA_renaming::rename_vars (Basic_block* bb)
 	// add the new one.
 
 	// 2) Convert the phi nodes
-	foreach (VARIABLE_NAME* phi_lhs, *bb->get_phi_lhss())
+	foreach (Alias_name phi_lhs, *bb->get_phi_lhss())
 	{
-		VARIABLE_NAME* clone = phi_lhs->clone ();
+		Alias_name clone = phi_lhs;
 		create_new_ssa_name (clone);
 		bb->update_phi_node (phi_lhs, clone);
 	}
 
 
 	// 3) Rename the statement's uses
-	foreach (VARIABLE_NAME* use, *bb->get_uses_for_renaming ())
-		use->convert_to_ssa_name (read_var_stack (use));
+	foreach (Alias_name use, *bb->get_uses_for_renaming ())
+		use.set_version (read_var_stack (use));
 
 	// 4) Mus
 	// Mus are indexed on their var_name
-	foreach (VARIABLE_NAME* mu, *bb->get_mus())
+	foreach (Alias_name mu, *bb->get_mus())
 	{
-		VARIABLE_NAME* clone = mu->clone ();
-		clone->convert_to_ssa_name (read_var_stack (clone));
+		Alias_name clone = mu;
+		clone.set_version (read_var_stack (clone));
 		bb->update_mu_node (mu, clone);
 	}
 
 
 	// 5) Create new names for defs
-	foreach (VARIABLE_NAME* def, *bb->get_defs_for_renaming ())
+	foreach (Alias_name def, *bb->get_defs_for_renaming ())
 		create_new_ssa_name (def);
 
 	// 6) Rename the chi's uses
-	foreach (VARIABLE_NAME* use, *bb->get_chi_rhss ())
-		use->convert_to_ssa_name (read_var_stack (use));
+	foreach (Alias_name use, *bb->get_chi_rhss ())
+		use.set_version (read_var_stack (use));
 
 	// 7) Chis are indexed on the lhs
-	foreach (VARIABLE_NAME* lhs, *bb->get_chi_lhss ())
+	foreach (Alias_name lhs, *bb->get_chi_lhss ())
 	{
-		VARIABLE_NAME* clone = lhs->clone ();
+		Alias_name clone = lhs;
 		create_new_ssa_name (clone);
 		bb->update_chi_lhs (lhs, clone);
 	}
@@ -128,7 +131,7 @@ SSA_renaming::rename_vars (Basic_block* bb)
 	// Copy names to CFG successors (including names defined in
 	// predecessor, which are not redefined here).
 	foreach (Basic_block* succ, *bb->get_successors ())
-		foreach (VARIABLE_NAME* phi_lhs, *succ->get_phi_lhss())
+		foreach (Alias_name phi_lhs, *succ->get_phi_lhss())
 			succ->add_phi_arg (phi_lhs, read_var_stack (phi_lhs), cfg->get_edge (bb, succ));
 
 
@@ -142,11 +145,11 @@ SSA_renaming::rename_vars (Basic_block* bb)
 	// the stack, so the next node up sees its own names.
 
 	// In case of duplicates, pop once for each dup.
-	VARIABLE_NAME_list* defs = new VARIABLE_NAME_list;
+	Alias_name_list* defs = new Alias_name_list;
 	defs->push_back_all (bb->get_defs_for_renaming ());
 	defs->push_back_all (bb->get_phi_lhss ()->to_list ());
 	defs->push_back_all (bb->get_chi_lhss ());
-	foreach (VARIABLE_NAME* def, *defs)
+	foreach (Alias_name def, *defs)
 		pop_var_stack (def);
 }
 

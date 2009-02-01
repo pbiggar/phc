@@ -268,15 +268,15 @@ HSSA::convert_to_hssa_form ()
 		{
 			// Get defs (including phis and chis)
 			bool def_added = false;
-			VARIABLE_NAME_list* defs = new VARIABLE_NAME_list;
+			Alias_name_list* defs = new Alias_name_list;
 			defs->push_back_all (bb->get_defs (SSA_STMT | SSA_CHI | SSA_FORMAL));
 			// phis add a def thats not in the DUW
 			defs->push_back_all (bb->get_phi_lhss ()->to_list ());
-			foreach (VARIABLE_NAME* var_name, *defs)
+			foreach (Alias_name name, *defs)
 			{
-				if (!frontier->has_phi_node (var_name))
+				if (!frontier->has_phi_node (name))
 				{
-					frontier->add_phi_node (var_name);
+					frontier->add_phi_node (name);
 					def_added = true;
 				}
 			}
@@ -368,16 +368,18 @@ HSSA::convert_out_of_ssa_form ()
 	// Drop variable indices
 	foreach (Basic_block* bb, *cfg->get_all_bbs ())
 	{
-		foreach (VARIABLE_NAME* var, *bb->get_uses_for_renaming ())
+		// TODO: these are copies
+		phc_TODO ();
+		foreach (Alias_name name, *bb->get_uses_for_renaming ())
 		{
-			if (var->in_ssa)
-				var->drop_ssa_index();
+			if (name.ssa_version)
+				name.drop_ssa_version ();
 		}
 
-		foreach (VARIABLE_NAME* var, *bb->get_defs_for_renaming ())
+		foreach (Alias_name name, *bb->get_defs_for_renaming ())
 		{
-			if (var->in_ssa)
-				var->drop_ssa_index();
+			if (name.ssa_version)
+				name.drop_ssa_version ();
 		}
 	}
 

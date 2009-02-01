@@ -58,7 +58,7 @@ Sparse_conditional_visitor::run (CFG* cfg)
 
 			e->is_executable = true;
 
-			foreach (MIR::VARIABLE_NAME* phi_lhs, *e->get_target ()->get_phi_lhss ())
+			foreach (Alias_name phi_lhs, *e->get_target ()->get_phi_lhss ())
 				visit_phi_node (e->get_target (), phi_lhs);
 
 			if (get_predecessor_executable_count (e->get_target()) == 1)
@@ -137,7 +137,7 @@ Sparse_conditional_visitor::visit_branch_block (Branch_block* bb)
 }
 
 void
-Sparse_conditional_visitor::set_lattice (MIR::VARIABLE_NAME* def, Lattice_cell* value)
+Sparse_conditional_visitor::set_lattice (Alias_name def, Lattice_cell* value)
 {
 	Lattice_cell* old = lattice[def];
 	if (old != value)
@@ -159,7 +159,7 @@ Sparse_conditional_visitor::set_lattice (MIR::VARIABLE_NAME* def, Lattice_cell* 
 }
 
 void
-Sparse_conditional_visitor::meet_lattice (MIR::VARIABLE_NAME* var, Lattice_cell* value)
+Sparse_conditional_visitor::meet_lattice (Alias_name var, Lattice_cell* value)
 {
 	set_lattice (var, meet (lattice[var], value));
 }

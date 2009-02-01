@@ -9,6 +9,8 @@
 #include "process_ir/debug.h"
 #include <boost/tuple/tuple.hpp> // for tie
 
+using namespace boost;
+
 class Lattice_cell : virtual public GC_obj
 {
 public:
@@ -157,11 +159,11 @@ public:
 	{
 		CHECK_DEBUG ();
 
-		MIR::VARIABLE_NAME* var;
+		Alias_name name;
 		Lattice_cell* cell;
-		foreach (boost::tie (var, cell), *this)
+		foreach (tie (name, cell), *this)
 		{
-			cdebug << *var->get_ssa_var_name () << " => ";
+			cdebug << name.str () << " => ";
 			if (cell == TOP)
 				cdebug << "TOP";
 			else if (cell == BOTTOM)
@@ -177,7 +179,7 @@ public:
 	}
 
 	// We want to offer the option of the default value not being TOP.
-	Lattice_cell*& operator[](MIR::VARIABLE_NAME* var)
+	Lattice_cell*& operator[](Alias_name var)
 	{
 		if (has (var))
 		{
@@ -195,10 +197,10 @@ public:
 	{
 		SSA_map* result = new SSA_map (default_value);
 
-		MIR::VARIABLE_NAME* var;
+		Alias_name name;
 		Lattice_cell* cell;
-		foreach (boost::tie (var, cell), *this)
-			(*result)[var] = cell;
+		foreach (tie (name, cell), *this)
+			(*result)[name] = cell;
 
 		return result;
 	}
@@ -206,16 +208,16 @@ public:
 	bool equals (SSA_map* other)
 	{
 		bool result = true;
-		MIR::VARIABLE_NAME* var;
+		Alias_name name;
 		Lattice_cell* cell;
-		foreach (boost::tie (var, cell), *other)
+		foreach (tie (name, cell), *other)
 		{
 			if (cell == TOP || cell == BOTTOM)
 			{
-				if (cell != (*this)[var])
+				if (cell != (*this)[name])
 					return false;
 			}
-			else if (!(cell->equals ((*this)[var])))
+			else if (!(cell->equals ((*this)[name])))
 				return false;
 		}
 		return true;

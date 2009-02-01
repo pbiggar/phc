@@ -7,6 +7,7 @@
 #include "Edge.h"
 #include "Flow_visitor.h"
 #include "Visit_once.h"
+#include "Alias_name.h"
 #include "ssa/SSA_ops.h"
 
 class CFG;
@@ -17,12 +18,12 @@ class Points_to;
 class SSA_edge : virtual public GC_obj
 {
 public:
-	SSA_edge (MIR::VARIABLE_NAME* var, SSA_op* op);
+	SSA_edge (Alias_name name, SSA_op* op);
 
 	// This is a pointer to the actual variable name for the def/use. The
 	// variable in the def-use web is just a key, and may be a different
 	// instance of the same variable.
-	MIR::VARIABLE_NAME* variable_name;
+	Alias_name name;
 	SSA_op* op;
 
 	void dump ();
@@ -64,14 +65,14 @@ public:
 	 *		SSA_MU
 	 */
 	// Get all operations that define USE, and that satisfy flags.
-	SSA_op_list* get_defs (MIR::VARIABLE_NAME* use, int flags);
+	SSA_op_list* get_defs (Alias_name use, int flags);
 
 	// Get all operations that use DEF, and that satisfy FLAGS.
-	SSA_op_list* get_uses (MIR::VARIABLE_NAME* def, int flags);
+	SSA_op_list* get_uses (Alias_name def, int flags);
 
 	// Get the variables defined/used in BB
-	MIR::VARIABLE_NAME_list* get_block_defs (Basic_block* bb, int flags);
-	MIR::VARIABLE_NAME_list* get_block_uses (Basic_block* bb, int flags);
+	Alias_name_list* get_block_defs (Basic_block* bb, int flags);
+	Alias_name_list* get_block_uses (Basic_block* bb, int flags);
 
 	/*
 	 * All operations in this class go through either get_defs or get_uses.
@@ -79,32 +80,32 @@ public:
 	 */
 
 	// Return whether USE has a defining statement (vs being uninitialized).
-	bool has_def (MIR::VARIABLE_NAME* use);
+	bool has_def (Alias_name use);
 
 	// Return the SSA_op defining USE.
-	SSA_op* get_def (MIR::VARIABLE_NAME* use);
+	SSA_op* get_def (Alias_name use);
 
 	void dump ();
 	void consistency_check ();
 
 private:
 	// Add defs or uses
-	void add_use (MIR::VARIABLE_NAME* def, SSA_op* use);
-	void add_def (MIR::VARIABLE_NAME* use, SSA_op* def);
-	void add_may_def (MIR::VARIABLE_NAME* var, SSA_op* def);
-	void add_may_use (MIR::VARIABLE_NAME* var, SSA_op* use);
+	void add_use (Alias_name def, SSA_op* use);
+	void add_def (Alias_name use, SSA_op* def);
+	void add_may_def (Alias_name var, SSA_op* def);
+	void add_may_use (Alias_name var, SSA_op* use);
 
-	void add_mus (Basic_block* bb, MIR::VARIABLE_NAME* use);
-	void add_chis (Basic_block* bb, MIR::VARIABLE_NAME* def);
+	void add_mus (Basic_block* bb, Alias_name use);
+	void add_chis (Basic_block* bb, Alias_name def);
 
 	void visit_entry_block (Entry_block* bb);
 	void visit_exit_block (Exit_block* bb);
 	void visit_branch_block (Branch_block* bb);
 	void visit_statement_block (Statement_block* bb);
 
-	void visit_chi_node (Basic_block* bb, MIR::VARIABLE_NAME* def, MIR::VARIABLE_NAME* use);
-	void visit_mu_node (Basic_block* bb, MIR::VARIABLE_NAME* use);
-	void visit_phi_node (Basic_block* bb, MIR::VARIABLE_NAME* phi_lhs);
+	void visit_chi_node (Basic_block* bb, Alias_name def, Alias_name use);
+	void visit_mu_node (Basic_block* bb, Alias_name use);
+	void visit_phi_node (Basic_block* bb, Alias_name phi_lhs);
 
 };
 

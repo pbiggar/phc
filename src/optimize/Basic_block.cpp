@@ -22,17 +22,16 @@ Basic_block::Basic_block(CFG* cfg)
 	ID = max_id++;
 	phi_lhss = new Var_set;
 	mus = new Var_set;
-	chis = new Var_map<MIR::VARIABLE_NAME*>;
-	virtuals = new Map<Node*, VARIABLE_NAME*>;
+	chis = new Var_map<Alias_name>;
 }
 
-Branch_block::Branch_block (CFG* cfg, MIR::Branch* b)
+Branch_block::Branch_block (CFG* cfg, Branch* b)
 : Basic_block (cfg)
 , branch (b) 
 {
 }
 
-Statement_block::Statement_block (CFG* cfg, MIR::Statement* s) 
+Statement_block::Statement_block (CFG* cfg, Statement* s) 
 : Basic_block (cfg)
 , statement(s)
 {
@@ -65,7 +64,7 @@ Entry_block::get_graphviz_label ()
 	ss << "ENTRY: (";
 
 	foreach (Formal_parameter* param, *method->signature->formal_parameters)
-		ss << *param->var->variable_name->get_ssa_var_name () << ", ";
+		ss << *param->var->variable_name->value << ", ";
 	
 	ss << ")";
 
@@ -77,9 +76,8 @@ String* Exit_block::get_graphviz_label ()
 	stringstream ss;
 	ss << "EXIT: (";
 
-	// TODO: thats the wrong version!! Is it only a printing problem?
 	foreach (Formal_parameter* param, *method->signature->formal_parameters)
-		ss << *param->var->variable_name->get_ssa_var_name () << ", ";
+		ss << *param->var->variable_name->value << ", ";
 	
 	ss << ")";
 
@@ -93,7 +91,7 @@ String* Empty_block::get_graphviz_label ()
 
 String* Branch_block::get_graphviz_label ()
 {
-	return branch->variable_name->get_ssa_var_name ();
+	return branch->variable_name->value;
 }
 
 String*
@@ -115,59 +113,62 @@ Basic_block::copy_phi_nodes (Basic_block* other)
 {
 	// Since a phi is an assignment, and variables can only be assigned to
 	// once, OTHER's PHIs cant exist in THIS.
-	foreach (VARIABLE_NAME* phi_lhs, *other->get_phi_lhss ())
+	foreach (Alias_name phi_lhs, *other->get_phi_lhss ())
 		assert (!has_phi_node (phi_lhs));
 
 	phi_lhss = phi_lhss->set_union (other->get_phi_lhss());
 }
 
 bool
-Basic_block::has_phi_node (VARIABLE_NAME* phi_lhs)
+Basic_block::has_phi_node (Alias_name phi_lhs)
 {
 	return phi_lhss->has (phi_lhs);
 }
 
 void
-Basic_block::add_phi_node (VARIABLE_NAME* phi_lhs)
+Basic_block::add_phi_node (Alias_name phi_lhs)
 {
 	assert (!has_phi_node (phi_lhs));
-	phi_lhss->insert (phi_lhs->clone ());
+	phi_lhss->insert (phi_lhs);
 	assert (has_phi_node (phi_lhs));
 }
 
 void
-Basic_block::add_mu_node (VARIABLE_NAME* mu)
+Basic_block::add_mu_node (Alias_name mu)
 {
 	// Same as add_chi_node RE duplicates.
 	if (mus->has (mu))
-		assert (mu->in_ssa == false);
+		phc_TODO ();
+//		assert (mu->ssa_version == 0);
 
-	mus->insert (mu->clone ());
+	mus->insert (mu);
 	assert (mus->has (mu));
 }
 
 void
-Basic_block::add_chi_node (VARIABLE_NAME* lhs, VARIABLE_NAME* rhs)
+Basic_block::add_chi_node (Alias_name lhs, Alias_name rhs)
 {
+	// TODO: this looks wrong, and there's a big comment in HSSA.cpp about it.
+
 	// Its OK for this to be here already, say, if there are two uses of the
 	// same variable which have the same alias set. It doesnt matter that
 	// there is only 1 chi for it.
 	if (chis->has (lhs))
-		assert (lhs->in_ssa == false);
+		phc_TODO ();
 
-	(*chis)[lhs->clone ()] = rhs->clone ();
+	(*chis)[lhs] = rhs;
 	assert (chis->has (lhs));
 }
 
 void
-Basic_block::add_phi_arg (VARIABLE_NAME* phi_lhs, int version, Edge* edge)
+Basic_block::add_phi_arg (Alias_name phi_lhs, int version, Edge* edge)
 {
 	// phi_lhs doesnt have to be in SSA, since it will be updated later using
 	// update_phi_node, if it is not.
 	//	assert (has_phi_node (phi_lhs));
 
-	VARIABLE_NAME* arg = phi_lhs->clone ();
-	arg->set_version (version);
+	Alias_name arg = phi_lhs; // copy
+	arg.set_version (version);
 	set_phi_arg_for_edge (edge, phi_lhs, arg);
 }
 
@@ -181,7 +182,7 @@ Basic_block::remove_phi_nodes ()
 }
 
 void
-Basic_block::remove_phi_node (VARIABLE_NAME* phi_lhs)
+Basic_block::remove_phi_node (Alias_name phi_lhs)
 {
 	assert (has_phi_node (phi_lhs));
 	foreach (Edge* pred, *get_predecessor_edges ())
@@ -194,8 +195,8 @@ Basic_block::remove_phi_node (VARIABLE_NAME* phi_lhs)
 }
 
 
-VARIABLE_NAME*
-Basic_block::get_chi_rhs (MIR::VARIABLE_NAME* lhs)
+Alias_name
+Basic_block::get_chi_rhs (Alias_name lhs)
 {
 	assert (chis->has (lhs));
 	return (*chis)[lhs];
@@ -204,7 +205,7 @@ Basic_block::get_chi_rhs (MIR::VARIABLE_NAME* lhs)
 
 void
 Basic_block::
-remove_chi (MIR::VARIABLE_NAME* lhs, MIR::VARIABLE_NAME* rhs)
+remove_chi (Alias_name lhs, Alias_name rhs)
 {
 	assert (chis->has (lhs));
 	chis->erase (lhs);
@@ -212,7 +213,7 @@ remove_chi (MIR::VARIABLE_NAME* lhs, MIR::VARIABLE_NAME* rhs)
 }
 
 void
-Basic_block::remove_mu (MIR::VARIABLE_NAME* rhs)
+Basic_block::remove_mu (Alias_name rhs)
 {
 	assert (mus->has (rhs));
 	mus->erase (rhs);
@@ -232,13 +233,15 @@ Basic_block::remove_chi_nodes ()
 }
 
 void
-Basic_block::update_phi_node (MIR::VARIABLE_NAME* old_phi_lhs, MIR::VARIABLE_NAME* new_phi_lhs)
+Basic_block::update_phi_node (Alias_name old_phi_lhs, Alias_name new_phi_lhs)
 {
-	// If a phi_lhs changes into SSA form, its indexing will change. So we must
+	phc_TODO ();
+	// TODO: too complicated for the mechanical conversion we're doing now. Its easier
+/*	// If a phi_lhs changes into SSA form, its indexing will change. So we must
 	// re-insert its args with the new index.
-	assert (!old_phi_lhs->in_ssa);
-	assert (new_phi_lhs->in_ssa);
-	assert (*old_phi_lhs->value == *new_phi_lhs->value);
+	assert (!old_phi_lhs.in_ssa);
+	assert (new_phi_lhs.in_ssa);
+	assert (*old_phi_lhs.value == *new_phi_lhs.value);
 	add_phi_node (new_phi_lhs);
 
 	foreach (Edge* pred, *get_predecessor_edges ())
@@ -252,11 +255,14 @@ Basic_block::update_phi_node (MIR::VARIABLE_NAME* old_phi_lhs, MIR::VARIABLE_NAM
 	}
 
 	remove_phi_node (old_phi_lhs);
+	*/
 }
 
 void
-Basic_block::update_chi_lhs (MIR::VARIABLE_NAME* old_chi_lhs, MIR::VARIABLE_NAME* new_chi_lhs)
+Basic_block::update_chi_lhs (Alias_name old_chi_lhs, Alias_name new_chi_lhs)
 {
+	phc_TODO ();
+	/*
 	assert (!old_chi_lhs->in_ssa);
 	assert (new_chi_lhs->in_ssa);
 	assert (*old_chi_lhs->value == *new_chi_lhs->value);
@@ -264,17 +270,20 @@ Basic_block::update_chi_lhs (MIR::VARIABLE_NAME* old_chi_lhs, MIR::VARIABLE_NAME
 	assert (chis->has (old_chi_lhs));
 	assert (!chis->has (new_chi_lhs));
 
-	VARIABLE_NAME* rhs = get_chi_rhs (old_chi_lhs);
+	Alias_name rhs = get_chi_rhs (old_chi_lhs);
 	remove_chi (old_chi_lhs, rhs);
 	add_chi_node (new_chi_lhs, rhs);
 
 	assert (!chis->has (old_chi_lhs));
 	assert (chis->has (new_chi_lhs));
+	*/
 }
 
 void
-Basic_block::update_mu_node (MIR::VARIABLE_NAME* old_mu, MIR::VARIABLE_NAME* new_mu)
+Basic_block::update_mu_node (Alias_name old_mu, Alias_name new_mu)
 {
+	phc_TODO ();
+	/*
 	assert (!old_mu->in_ssa);
 	assert (new_mu->in_ssa);
 	assert (*old_mu->value == *new_mu->value);
@@ -287,16 +296,17 @@ Basic_block::update_mu_node (MIR::VARIABLE_NAME* old_mu, MIR::VARIABLE_NAME* new
 
 	assert (!mus->has (old_mu));
 	assert (mus->has (new_mu));
+	*/
 }
 
 
 
 
 
-VARIABLE_NAME_list*
-Basic_block::get_phi_args (MIR::VARIABLE_NAME* phi_lhs)
+Alias_name_list*
+Basic_block::get_phi_args (Alias_name phi_lhs)
 {
-	VARIABLE_NAME_list* result = new VARIABLE_NAME_list;
+	Alias_name_list* result = new Alias_name_list;
 
 	foreach (Edge* pred, *get_predecessor_edges ())
 		result->push_back (get_phi_arg_for_edge (pred, phi_lhs));
@@ -312,24 +322,24 @@ Basic_block::get_phi_lhss()
 	return phi_lhss->set_union (new Var_set);
 }
 
-MIR::VARIABLE_NAME_list*
+Alias_name_list*
 Basic_block::get_chi_lhss ()
 {
-	VARIABLE_NAME_list* result = new VARIABLE_NAME_list;
+	Alias_name_list* result = new Alias_name_list;
 
-	VARIABLE_NAME *lhs, *rhs;
+	Alias_name lhs, rhs;
 	foreach (tie (lhs, rhs), *chis)
 		result->push_back (lhs);
 
 	return result;
 }
 
-MIR::VARIABLE_NAME_list*
+Alias_name_list*
 Basic_block::get_chi_rhss ()
 {
-	VARIABLE_NAME_list* result = new VARIABLE_NAME_list;
+	Alias_name_list* result = new Alias_name_list;
 
-	VARIABLE_NAME *lhs, *rhs;
+	Alias_name lhs, rhs;
 	foreach (tie (lhs, rhs), *chis)
 		result->push_back (rhs);
 
@@ -337,7 +347,7 @@ Basic_block::get_chi_rhss ()
 }
 
 
-Var_map<VARIABLE_NAME*>*
+Var_map<Alias_name>*
 Basic_block::get_chis ()
 {
 	return chis;
@@ -351,19 +361,16 @@ Basic_block::get_mus()
 	return mus->set_union (new Var_set);
 }
 
-VARIABLE_NAME*
-Basic_block::get_phi_arg_for_edge (Edge* edge, VARIABLE_NAME* phi_lhs)
+Alias_name
+Basic_block::get_phi_arg_for_edge (Edge* edge, Alias_name phi_lhs)
 {
-	VARIABLE_NAME* result = edge->pm[phi_lhs];
-	assert (result);
-	return result;
+	return edge->pm[phi_lhs];
 }
 
 void
-Basic_block::set_phi_arg_for_edge (Edge* edge, VARIABLE_NAME* phi_lhs, VARIABLE_NAME* arg)
+Basic_block::set_phi_arg_for_edge (Edge* edge, Alias_name phi_lhs, Alias_name arg)
 {
-	assert (arg);
-	edge->pm[phi_lhs] = arg->clone ();
+	edge->pm[phi_lhs] = arg;
 }
 
 
@@ -545,26 +552,26 @@ Basic_block::get_reverse_dominance_frontier ()
 }
 
 
-VARIABLE_NAME_list*
+Alias_name_list*
 Basic_block::get_defs (int flags)
 {
 	return cfg->duw->get_block_defs (this, flags);
 }
 
-VARIABLE_NAME_list*
+Alias_name_list*
 Basic_block::get_uses (int flags)
 {
 	return cfg->duw->get_block_uses (this, flags);
 }
 
 
-VARIABLE_NAME_list*
+Alias_name_list*
 Basic_block::get_defs_for_renaming ()
 {
 	return get_defs (SSA_STMT | SSA_FORMAL);
 }
 
-VARIABLE_NAME_list*
+Alias_name_list*
 Basic_block::get_uses_for_renaming ()
 {
 	return get_uses (SSA_STMT | SSA_BRANCH);

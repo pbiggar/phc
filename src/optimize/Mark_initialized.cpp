@@ -60,7 +60,7 @@ void
 Mark_initialized::visit_entry_block (Entry_block* bb)
 {
 	// Initialize local defs
-	foreach (VARIABLE_NAME* def, *bb->get_defs (SSA_FORMAL))
+	foreach (Alias_name def, *bb->get_defs (SSA_FORMAL))
 		local_defs[bb].insert (def);
 
 	// We dont deal with a few things, like $x =& $a[$i] will initialize $a.
@@ -78,14 +78,17 @@ Mark_initialized::visit_statement_block (Statement_block* bb)
 		&& unset->target == NULL
 		&& unset->array_indices->size () == 0)
 	{
-		local_undefs[bb].insert (dyc<VARIABLE_NAME> (unset->variable_name));
+		local_undefs[bb].insert (
+			Alias_name (ST (bb), *dyc<VARIABLE_NAME> (unset->variable_name)->value));
 	}
 	else
 	{
-		foreach (VARIABLE_NAME* def, *bb->get_defs (SSA_STMT))
+		foreach (Alias_name def, *bb->get_defs (SSA_STMT))
 			local_defs[bb].insert (def);
 
-
+	// I think this will be simpler once the use-def settles down.
+	phc_TODO ();
+/*
 		// TODO: we're replicating a lot of def-use information here. But in
 		// the def-use, these are may-defs, which doesnt tell us very much.
 		// Also, the may-use is only provided in SSA, and doing this analysis
@@ -109,6 +112,7 @@ Mark_initialized::visit_statement_block (Statement_block* bb)
 					local_defs[bb].insert (an->variable_name);
 			}
 		}
+		*/
 	}
 	
 	DEBUG ("in BB " << bb->get_index ());
@@ -127,6 +131,8 @@ Mark_initialized::solution_has_changed (Basic_block* bb)
 void
 Mark_initialized::transfer_in (Basic_block* bb, BB_list* preds)
 {
+	phc_TODO ();
+	/*
 	DEBUG ("transfer IN for block " << bb->get_index ());
 	ins[bb]->clear ();
 	VARIABLE_NAME* var;
@@ -155,11 +161,14 @@ Mark_initialized::transfer_in (Basic_block* bb, BB_list* preds)
 	}
 
 	ins[bb]->dump ();
+	*/
 }
 
 void
 Mark_initialized::transfer_out (Basic_block* bb, BB_list* succs)
 {
+	phc_TODO ();
+	/*
 	DEBUG ("transfer OUT for block " << bb->get_index ());
 	SSA_map* old = outs[bb]->clone ();
 
@@ -179,6 +188,7 @@ Mark_initialized::transfer_out (Basic_block* bb, BB_list* succs)
 	repeat[bb] = not old->equals (outs[bb]);
 
 	outs[bb]->dump ();
+	*/
 }
 
 void
@@ -197,6 +207,8 @@ Mark_initialized::post_pass (CFG* cfg)
 		local_undefs[bb].dump();
 
 	}
+	phc_TODO ();
+	/*
 
 	foreach (Basic_block* bb, *cfg->get_all_bbs ())
 	{
@@ -218,7 +230,7 @@ Mark_initialized::post_pass (CFG* cfg)
 				DEBUG (*var->get_ssa_var_name () << " is INIT at " << bb->get_index ());
 			}
 		}
-	}
+	}*/
 }
 
 Init_cell* INIT = new Init_cell;

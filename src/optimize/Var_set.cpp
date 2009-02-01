@@ -4,34 +4,35 @@
 
 using namespace MIR;
 
-bool
-variable_name_ptr_comparison (VARIABLE_NAME* p1, VARIABLE_NAME* p2)
-{
-	assert (p1);
-	assert (p2);
-
-	// This needs to model '<', which must be transitive.
-	return (*p1) < (*p2);
-}
-
 Var_set::Var_set()
-: parent(&variable_name_ptr_comparison)
 {
 }
 
-Var_set::Var_set(VARIABLE_NAME* var_name)
-: parent(&variable_name_ptr_comparison)
+Var_set*
+Var_set::set_union (Var_set* other)
 {
-	insert (var_name);
+	return static_cast <Var_set*> (parent::set_union (other));
+}
+
+Var_set*
+Var_set:: set_intersection (Var_set* other)
+{
+	return static_cast <Var_set*> (parent::set_intersection (other));
+}
+
+Var_set*
+Var_set:: set_difference (Var_set* other)
+{
+	return static_cast <Var_set*> (parent::set_difference (other));
 }
 
 void
 Var_set::dump()
 {
 	CHECK_DEBUG ();
-	foreach (VARIABLE_NAME* var_name, *this)
+	foreach (Alias_name name, *this)
 	{
-		cdebug << *var_name->value << ", ";
+		cdebug << name.str () << ", ";
 	}
 	cdebug << "\n";
 }

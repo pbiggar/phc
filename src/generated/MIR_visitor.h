@@ -58,7 +58,6 @@ public:
     virtual void pre_assign_var_var(Assign_var_var* in);
     virtual void pre_assign_next(Assign_next* in);
     virtual void pre_pre_op(Pre_op* in);
-    virtual void pre_ssa_pre_op(SSA_pre_op* in);
     virtual void pre_eval_expr(Eval_expr* in);
     virtual void pre_unset(Unset* in);
     virtual void pre_isset(Isset* in);
@@ -149,7 +148,6 @@ public:
     virtual void post_assign_var_var(Assign_var_var* in);
     virtual void post_assign_next(Assign_next* in);
     virtual void post_pre_op(Pre_op* in);
-    virtual void post_ssa_pre_op(SSA_pre_op* in);
     virtual void post_eval_expr(Eval_expr* in);
     virtual void post_unset(Unset* in);
     virtual void post_isset(Isset* in);
@@ -237,7 +235,6 @@ public:
     virtual void children_assign_var_var(Assign_var_var* in);
     virtual void children_assign_next(Assign_next* in);
     virtual void children_pre_op(Pre_op* in);
-    virtual void children_ssa_pre_op(SSA_pre_op* in);
     virtual void children_eval_expr(Eval_expr* in);
     virtual void children_unset(Unset* in);
     virtual void children_isset(Isset* in);
@@ -324,7 +321,6 @@ public:
     virtual void pre_assign_var_var_chain(Assign_var_var* in);
     virtual void pre_assign_next_chain(Assign_next* in);
     virtual void pre_pre_op_chain(Pre_op* in);
-    virtual void pre_ssa_pre_op_chain(SSA_pre_op* in);
     virtual void pre_eval_expr_chain(Eval_expr* in);
     virtual void pre_unset_chain(Unset* in);
     virtual void pre_isset_chain(Isset* in);
@@ -403,7 +399,6 @@ public:
     virtual void post_assign_var_var_chain(Assign_var_var* in);
     virtual void post_assign_next_chain(Assign_next* in);
     virtual void post_pre_op_chain(Pre_op* in);
-    virtual void post_ssa_pre_op_chain(SSA_pre_op* in);
     virtual void post_eval_expr_chain(Eval_expr* in);
     virtual void post_unset_chain(Unset* in);
     virtual void post_isset_chain(Isset* in);

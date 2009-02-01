@@ -40,7 +40,6 @@ public:
 	void visit_pre_op (Statement_block*, MIR::Pre_op*) { phc_TODO (); }
 	void visit_assign_next (Statement_block*, MIR::Assign_next*) { phc_TODO (); }
 	void visit_return (Statement_block*, MIR::Return*) { phc_TODO (); }
-	void visit_ssa_pre_op (Statement_block*, MIR::SSA_pre_op*) { phc_TODO (); }
 	void visit_static_declaration (Statement_block*, MIR::Static_declaration*) { phc_TODO (); }
 	void visit_throw (Statement_block*, MIR::Throw*) { phc_TODO (); }
 	void visit_try (Statement_block*, MIR::Try*) { phc_TODO (); }

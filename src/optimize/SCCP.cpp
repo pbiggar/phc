@@ -130,6 +130,7 @@
 
 using namespace MIR;
 
+#if 0
 
 void
 SCCP::visit_phi_node (Basic_block* bb, VARIABLE_NAME* phi_lhs)
@@ -748,6 +749,7 @@ SCCP::post_pass (CFG* cfg)
 	SCCP_updater* updater = new SCCP_updater (lattice, this);
 	updater->run (cfg);
 }
+#endif
 
 
 Literal_cell::Literal_cell (Literal* value)

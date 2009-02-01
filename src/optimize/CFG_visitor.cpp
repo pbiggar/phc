@@ -12,14 +12,14 @@ using namespace boost;
 void
 CFG_visitor::visit_block (Basic_block* bb)
 {
-	foreach (VARIABLE_NAME* phi_lhs, *bb->get_phi_lhss ())
+	foreach (Alias_name phi_lhs, *bb->get_phi_lhss ())
 		visit_phi_node (bb, phi_lhs);
 
-	foreach (VARIABLE_NAME* mu, *bb->get_mus())
+	foreach (Alias_name mu, *bb->get_mus())
 		visit_mu_node (bb, mu);
 
 	// TODO: should this be after visit_*_block?
-	VARIABLE_NAME *def, *use;
+	Alias_name def, use;
 	foreach (tie(def, use), *bb->get_chis())
 		visit_chi_node (bb, def, use);
 
@@ -77,9 +77,6 @@ CFG_visitor::visit_block (Basic_block* bb)
 				break;
 			case Assign_next::ID:
 				visit_assign_next(sb, dyc<Assign_next>(sb->statement));
-				break;
-			case SSA_pre_op::ID:
-				visit_ssa_pre_op(sb, dyc<SSA_pre_op>(sb->statement));
 				break;
 			case Return::ID:
 				visit_return(sb, dyc<Return>(sb->statement));
@@ -213,19 +210,19 @@ CFG_visitor::visit_statement_block (Statement_block*)
 
 
 void
-CFG_visitor::visit_phi_node (Basic_block* bb, VARIABLE_NAME* phi_lhs)
+CFG_visitor::visit_phi_node (Basic_block* bb, Alias_name phi_lhs)
 {
 }
 
 
 void
-CFG_visitor::visit_chi_node (Basic_block* bb, MIR::VARIABLE_NAME* def, MIR::VARIABLE_NAME* use)
+CFG_visitor::visit_chi_node (Basic_block* bb, Alias_name def, Alias_name use)
 {
 }
 
 
 void
-CFG_visitor::visit_mu_node (Basic_block* bb, MIR::VARIABLE_NAME* use)
+CFG_visitor::visit_mu_node (Basic_block* bb, Alias_name use)
 {
 }
 
@@ -287,11 +284,6 @@ CFG_visitor::visit_assign_next (Statement_block*, Assign_next*)
 
 void
 CFG_visitor::visit_return (Statement_block*, Return*)
-{
-}
-
-void
-CFG_visitor::visit_ssa_pre_op (Statement_block*, SSA_pre_op*)
 {
 }
 
@@ -436,13 +428,13 @@ CFG_visitor::transform_block (Basic_block* bb)
 	// just update BB.
 	
 	// Allow it to update the CFG directly, its much easier.
-	foreach (VARIABLE_NAME* phi_lhs, *bb->get_phi_lhss ())
+	foreach (Alias_name phi_lhs, *bb->get_phi_lhss ())
 		transform_phi_node (bb, phi_lhs);
 
-	foreach (VARIABLE_NAME* mu, *bb->get_mus())
+	foreach (Alias_name mu, *bb->get_mus())
 		transform_mu_node (bb, mu);
 
-	VARIABLE_NAME *def, *use;
+	Alias_name def, use;
 	foreach (tie(def, use), *bb->get_chis())
 		transform_chi_node (bb, def, use);
 
@@ -500,9 +492,6 @@ CFG_visitor::transform_block (Basic_block* bb)
 			case Pre_op::ID:
 				transform_pre_op(sb, dyc<Pre_op>(sb->statement), out);
 				break;
-			case SSA_pre_op::ID:
-				transform_ssa_pre_op(sb, dyc<SSA_pre_op>(sb->statement), out);
-				break;
 			case Assign_next::ID:
 				transform_assign_next(sb, dyc<Assign_next>(sb->statement), out);
 				break;
@@ -557,19 +546,19 @@ CFG_visitor::transform_branch_block (Branch_block* in, BB_list* out)
 
 
 void
-CFG_visitor::transform_phi_node (Basic_block* bb, MIR::VARIABLE_NAME* lhs)
+CFG_visitor::transform_phi_node (Basic_block* bb, Alias_name lhs)
 {
 }
 
 
 void
-CFG_visitor::transform_chi_node (Basic_block* bb, MIR::VARIABLE_NAME* def, MIR::VARIABLE_NAME* use)
+CFG_visitor::transform_chi_node (Basic_block* bb, Alias_name def, Alias_name use)
 {
 }
 
 
 void
-CFG_visitor::transform_mu_node (Basic_block* bb, MIR::VARIABLE_NAME* use)
+CFG_visitor::transform_mu_node (Basic_block* bb, Alias_name use)
 {
 }
 
@@ -653,14 +642,6 @@ CFG_visitor::transform_return (Statement_block* in, Return*, BB_list* out)
 }
 
 void
-CFG_visitor::transform_ssa_pre_op (Statement_block* in, SSA_pre_op*, BB_list* out)
-{
-	out->push_back (in);
-}
-
-
-
-void
 CFG_visitor::transform_static_declaration (Statement_block* in, Static_declaration*, BB_list* out)
 {
 	out->push_back (in);
@@ -742,128 +723,128 @@ CFG_visitor::transform_expr (Statement_block* bb, Expr* in)
  * Expr transforms
  */
 
-MIR::Expr*
-CFG_visitor::transform_array_access (Statement_block*, MIR::Array_access* in)
+Expr*
+CFG_visitor::transform_array_access (Statement_block*, Array_access* in)
 {
 	return in;
 }
 
-MIR::Expr*
-CFG_visitor::transform_bin_op (Statement_block*, MIR::Bin_op* in)
+Expr*
+CFG_visitor::transform_bin_op (Statement_block*, Bin_op* in)
 {
 	return in;
 }
 
-MIR::Expr*
-CFG_visitor::transform_bool (Statement_block*, MIR::BOOL* in)
+Expr*
+CFG_visitor::transform_bool (Statement_block*, BOOL* in)
 {
 	return in;
 }
 
-MIR::Expr*
-CFG_visitor::transform_cast (Statement_block*, MIR::Cast* in)
+Expr*
+CFG_visitor::transform_cast (Statement_block*, Cast* in)
 {
 	return in;
 }
 
-MIR::Expr*
-CFG_visitor::transform_constant (Statement_block*, MIR::Constant* in)
+Expr*
+CFG_visitor::transform_constant (Statement_block*, Constant* in)
 {
 	return in;
 }
 
-MIR::Expr*
-CFG_visitor::transform_field_access (Statement_block*, MIR::Field_access* in)
+Expr*
+CFG_visitor::transform_field_access (Statement_block*, Field_access* in)
 {
 	return in;
 }
 
-MIR::Expr*
-CFG_visitor::transform_foreach_get_key (Statement_block*, MIR::Foreach_get_key* in)
+Expr*
+CFG_visitor::transform_foreach_get_key (Statement_block*, Foreach_get_key* in)
 {
 	return in;
 }
 
-MIR::Expr*
-CFG_visitor::transform_foreach_get_val (Statement_block*, MIR::Foreach_get_val* in)
+Expr*
+CFG_visitor::transform_foreach_get_val (Statement_block*, Foreach_get_val* in)
 {
 	return in;
 }
 
-MIR::Expr*
-CFG_visitor::transform_foreach_has_key (Statement_block*, MIR::Foreach_has_key* in)
+Expr*
+CFG_visitor::transform_foreach_has_key (Statement_block*, Foreach_has_key* in)
 {
 	return in;
 }
 
-MIR::Expr*
-CFG_visitor::transform_instanceof (Statement_block*, MIR::Instanceof* in)
+Expr*
+CFG_visitor::transform_instanceof (Statement_block*, Instanceof* in)
 {
 	return in;
 }
 
-MIR::Expr*
-CFG_visitor::transform_int (Statement_block*, MIR::INT* in)
+Expr*
+CFG_visitor::transform_int (Statement_block*, INT* in)
 {
 	return in;
 }
 
-MIR::Expr*
-CFG_visitor::transform_isset (Statement_block*, MIR::Isset* in)
+Expr*
+CFG_visitor::transform_isset (Statement_block*, Isset* in)
 {
 	return in;
 }
 
-MIR::Expr*
-CFG_visitor::transform_method_invocation (Statement_block*, MIR::Method_invocation* in)
+Expr*
+CFG_visitor::transform_method_invocation (Statement_block*, Method_invocation* in)
 {
 	return in;
 }
 
-MIR::Expr*
-CFG_visitor::transform_new (Statement_block*, MIR::New* in)
+Expr*
+CFG_visitor::transform_new (Statement_block*, New* in)
 {
 	return in;
 }
 
-MIR::Expr*
-CFG_visitor::transform_nil (Statement_block*, MIR::NIL* in)
+Expr*
+CFG_visitor::transform_nil (Statement_block*, NIL* in)
 {
 	return in;
 }
 
-MIR::Expr*
-CFG_visitor::transform_param_is_ref (Statement_block*, MIR::Param_is_ref* in)
+Expr*
+CFG_visitor::transform_param_is_ref (Statement_block*, Param_is_ref* in)
 {
 	return in;
 }
 
-MIR::Expr*
-CFG_visitor::transform_real (Statement_block*, MIR::REAL* in)
+Expr*
+CFG_visitor::transform_real (Statement_block*, REAL* in)
 {
 	return in;
 }
 
-MIR::Expr*
-CFG_visitor::transform_string (Statement_block*, MIR::STRING* in)
+Expr*
+CFG_visitor::transform_string (Statement_block*, STRING* in)
 {
 	return in;
 }
 
-MIR::Expr*
-CFG_visitor::transform_unary_op (Statement_block*, MIR::Unary_op* in)
+Expr*
+CFG_visitor::transform_unary_op (Statement_block*, Unary_op* in)
 {
 	return in;
 }
 
-MIR::Expr*
-CFG_visitor::transform_variable_name (Statement_block*, MIR::VARIABLE_NAME* in)
+Expr*
+CFG_visitor::transform_variable_name (Statement_block*, VARIABLE_NAME* in)
 {
 	return in;
 }
 
-MIR::Expr*
-CFG_visitor::transform_variable_variable (Statement_block*, MIR::Variable_variable* in)
+Expr*
+CFG_visitor::transform_variable_variable (Statement_block*, Variable_variable* in)
 {
 	return in;
 }

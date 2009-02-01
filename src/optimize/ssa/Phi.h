@@ -5,7 +5,7 @@
 
 #include "MIR.h"
 
-class Phi_map : public Var_map<MIR::VARIABLE_NAME*>
+class Phi_map : public Var_map<Alias_name>
 {
 public:
 	Phi_map ();

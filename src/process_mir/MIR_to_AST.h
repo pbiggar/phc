@@ -92,7 +92,6 @@ class MIR_to_AST : virtual public GC_obj, public MIR::Fold
  AST::REAL*,					// REAL*
  AST::Return*,					// Return*
  AST::Expr*,					// Rvalue*
- AST::FOREIGN*,				// SSA_pre_op*
  AST::STRING*,					// STRING*
  AST::Signature*,				// Signature*
  AST::Statement*,				// Statement*
@@ -592,11 +591,6 @@ public:
 		return new AST::Eval_expr (result);
 	}
 
-	AST::FOREIGN* fold_impl_ssa_pre_op(MIR::SSA_pre_op* orig, AST::OP* op, AST::None* def, AST::None* use)
-	{
-		return new AST::FOREIGN (orig);
-	}
-
 	AST::Array* fold_impl_static_array(MIR::Static_array* orig, AST::Array_elem_list* array_elems)
 	{
 		AST::Array* result;
@@ -673,7 +667,7 @@ public:
 	AST::None* fold_variable_name(MIR::VARIABLE_NAME* orig) 
 	{
 		AST::VARIABLE_NAME* result;
-		result = new AST::VARIABLE_NAME(orig->get_ssa_var_name ());
+		result = new AST::VARIABLE_NAME(orig->value);
 		result->attrs = orig->attrs;
 
 		var_names.push (result);

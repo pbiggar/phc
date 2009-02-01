@@ -51,11 +51,11 @@ public:
 	 * These are really for SSA_renaming. We can't use them for a different
 	 * purpose with the same semantics.
 	 * */
-	MIR::VARIABLE_NAME_list* get_defs_for_renaming ();
-	MIR::VARIABLE_NAME_list* get_uses_for_renaming ();
+	Alias_name_list* get_defs_for_renaming ();
+	Alias_name_list* get_uses_for_renaming ();
 
-	MIR::VARIABLE_NAME_list* get_defs (int flags);
-	MIR::VARIABLE_NAME_list* get_uses (int flags);
+	Alias_name_list* get_defs (int flags);
+	Alias_name_list* get_uses (int flags);
 
 	/*
 	 * CFG properties
@@ -102,48 +102,48 @@ public:
 	void copy_phi_nodes (Basic_block* other);
 
 	// For SSA creation/destruction
-	void add_phi_node (MIR::VARIABLE_NAME* phi_lhs);
-	bool has_phi_node (MIR::VARIABLE_NAME* phi_lhs);
-	void add_phi_arg (MIR::VARIABLE_NAME* phi_lhs, int version, Edge* edge);
+	void add_phi_node (Alias_name phi_lhs);
+	bool has_phi_node (Alias_name phi_lhs);
+	void add_phi_arg (Alias_name phi_lhs, int version, Edge* edge);
 	void remove_phi_nodes ();
 
 	// These are stored using operator< in VARIABLE_NAME, which changes when
 	// there VARIABLE_NAME changes.
-	void update_phi_node (MIR::VARIABLE_NAME* old_phi_lhs, MIR::VARIABLE_NAME* new_phi_lhs);
-	void update_chi_lhs (MIR::VARIABLE_NAME* old_chi_lhs, MIR::VARIABLE_NAME* new_chi_lhs);
-	void update_mu_node (MIR::VARIABLE_NAME* old_mu, MIR::VARIABLE_NAME* new_mu);
+	void update_phi_node (Alias_name old_phi_lhs, Alias_name new_phi_lhs);
+	void update_chi_lhs (Alias_name old_chi_lhs, Alias_name new_chi_lhs);
+	void update_mu_node (Alias_name old_mu, Alias_name new_mu);
 
 	// Remove a node (including its args from the edges)
-	void remove_phi_node (MIR::VARIABLE_NAME* phi_lhs);
+	void remove_phi_node (Alias_name phi_lhs);
 
 	// If the nodes have 1 argument, remove them, putting them into
 	// predecessors.
 	void fix_solo_phi_args ();
 
 	// Get the arguments with VARIABLE_NAME as the lhs.
-	MIR::VARIABLE_NAME_list* get_phi_args (MIR::VARIABLE_NAME* phi_lhs);
+	Alias_name_list* get_phi_args (Alias_name phi_lhs);
 
 	Var_set* get_phi_lhss ();
 
-	MIR::VARIABLE_NAME* get_phi_arg_for_edge (Edge*, MIR::VARIABLE_NAME* phi_lhs);
-	void set_phi_arg_for_edge (Edge*, MIR::VARIABLE_NAME* phi_lhs, MIR::VARIABLE_NAME* arg);
+	Alias_name get_phi_arg_for_edge (Edge*, Alias_name phi_lhs);
+	void set_phi_arg_for_edge (Edge*, Alias_name phi_lhs, Alias_name arg);
 
 	/*
 	 * MU and CHI nodes, for HSSA form. A MU node is a may_use, a CHI is a
 	 * may_def.
 	 */
 public:
-	void add_mu_node (MIR::VARIABLE_NAME*);
-	void add_chi_node (MIR::VARIABLE_NAME*, MIR::VARIABLE_NAME*);
+	void add_mu_node (Alias_name);
+	void add_chi_node (Alias_name, Alias_name);
 
-	Var_map<MIR::VARIABLE_NAME*>* get_chis ();
-	MIR::VARIABLE_NAME_list* get_chi_lhss ();
-	MIR::VARIABLE_NAME_list* get_chi_rhss ();
+	Var_map<Alias_name>* get_chis ();
+	Alias_name_list* get_chi_lhss ();
+	Alias_name_list* get_chi_rhss ();
 	Var_set* get_mus();
-	MIR::VARIABLE_NAME* get_chi_rhs (MIR::VARIABLE_NAME* lhs);
+	Alias_name get_chi_rhs (Alias_name lhs);
 
-	void remove_chi (MIR::VARIABLE_NAME* lhs, MIR::VARIABLE_NAME* rhs);
-	void remove_mu (MIR::VARIABLE_NAME* rhs);
+	void remove_chi (Alias_name lhs, Alias_name rhs);
+	void remove_mu (Alias_name rhs);
 
 	void remove_mu_nodes ();
 	void remove_chi_nodes ();
@@ -155,18 +155,13 @@ private:
 	// arguments in edges. Then they can be updated all-at-once.
 	Var_set* phi_lhss;
 	Var_set* mus;
-	Var_map<MIR::VARIABLE_NAME*>* chis;
+	Var_map<Alias_name>* chis;
 
-	// When we rename virtual-variables, we need to keep track of it. All
-	// other variables are stored somehow, so there must be too.
-public: // TODO: make private
-	Map<MIR::Node*, MIR::VARIABLE_NAME*>* virtuals;
-
-public:
 	/*
 	 * Misc
 	 */
 
+public:
 	// Can be useful for debugging.
 	int get_index ();
 	virtual Basic_block* clone () = 0;

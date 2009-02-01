@@ -126,10 +126,6 @@ void Visitor::pre_pre_op(Pre_op* in)
 {
 }
 
-void Visitor::pre_ssa_pre_op(SSA_pre_op* in)
-{
-}
-
 void Visitor::pre_eval_expr(Eval_expr* in)
 {
 }
@@ -480,10 +476,6 @@ void Visitor::post_assign_next(Assign_next* in)
 }
 
 void Visitor::post_pre_op(Pre_op* in)
-{
-}
-
-void Visitor::post_ssa_pre_op(SSA_pre_op* in)
 {
 }
 
@@ -897,13 +889,6 @@ void Visitor::children_pre_op(Pre_op* in)
 {
     visit_op(in->op);
     visit_variable_name(in->variable_name);
-}
-
-void Visitor::children_ssa_pre_op(SSA_pre_op* in)
-{
-    visit_op(in->op);
-    visit_variable_name(in->def);
-    visit_variable_name(in->use);
 }
 
 void Visitor::children_eval_expr(Eval_expr* in)
@@ -1355,13 +1340,6 @@ void Visitor::pre_pre_op_chain(Pre_op* in)
     pre_node((Node*) in);
     pre_statement((Statement*) in);
     pre_pre_op((Pre_op*) in);
-}
-
-void Visitor::pre_ssa_pre_op_chain(SSA_pre_op* in)
-{
-    pre_node((Node*) in);
-    pre_statement((Statement*) in);
-    pre_ssa_pre_op((SSA_pre_op*) in);
 }
 
 void Visitor::pre_eval_expr_chain(Eval_expr* in)
@@ -1902,13 +1880,6 @@ void Visitor::post_assign_next_chain(Assign_next* in)
 void Visitor::post_pre_op_chain(Pre_op* in)
 {
     post_pre_op((Pre_op*) in);
-    post_statement((Statement*) in);
-    post_node((Node*) in);
-}
-
-void Visitor::post_ssa_pre_op_chain(SSA_pre_op* in)
-{
-    post_ssa_pre_op((SSA_pre_op*) in);
     post_statement((Statement*) in);
     post_node((Node*) in);
 }
@@ -2869,9 +2840,6 @@ void Visitor::pre_statement_chain(Statement* in)
     case Pre_op::ID:
     	pre_pre_op_chain(dynamic_cast<Pre_op*>(in));
     	break;
-    case SSA_pre_op::ID:
-    	pre_ssa_pre_op_chain(dynamic_cast<SSA_pre_op*>(in));
-    	break;
     case Unset::ID:
     	pre_unset_chain(dynamic_cast<Unset*>(in));
     	break;
@@ -3191,9 +3159,6 @@ void Visitor::post_statement_chain(Statement* in)
     case Pre_op::ID:
     	post_pre_op_chain(dynamic_cast<Pre_op*>(in));
     	break;
-    case SSA_pre_op::ID:
-    	post_ssa_pre_op_chain(dynamic_cast<SSA_pre_op*>(in));
-    	break;
     case Unset::ID:
     	post_unset_chain(dynamic_cast<Unset*>(in));
     	break;
@@ -3512,9 +3477,6 @@ void Visitor::children_statement(Statement* in)
     	break;
     case Pre_op::ID:
     	children_pre_op(dynamic_cast<Pre_op*>(in));
-    	break;
-    case SSA_pre_op::ID:
-    	children_ssa_pre_op(dynamic_cast<SSA_pre_op*>(in));
     	break;
     case Unset::ID:
     	children_unset(dynamic_cast<Unset*>(in));

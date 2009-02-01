@@ -4853,167 +4853,6 @@ Pre_op::Pre_op(VARIABLE_NAME* variable_name, const char* op)
 	}
 }
 
-SSA_pre_op::SSA_pre_op(OP* op, VARIABLE_NAME* def, VARIABLE_NAME* use)
-{
-    this->op = op;
-    this->def = def;
-    this->use = use;
-}
-
-SSA_pre_op::SSA_pre_op()
-{
-    this->op = 0;
-    this->def = 0;
-    this->use = 0;
-}
-
-void SSA_pre_op::visit(Visitor* visitor)
-{
-    visitor->visit_statement(this);
-}
-
-void SSA_pre_op::transform_children(Transform* transform)
-{
-    transform->children_statement(this);
-}
-
-int SSA_pre_op::classid()
-{
-    return ID;
-}
-
-bool SSA_pre_op::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    SSA_pre_op* that = dynamic_cast<SSA_pre_op*>(in);
-    if(that == NULL) return false;
-    
-    if(this->op == NULL)
-    {
-    	if(that->op != NULL && !that->op->match(this->op))
-    		return false;
-    }
-    else if(!this->op->match(that->op))
-    	return false;
-    
-    if(this->def == NULL)
-    {
-    	if(that->def != NULL && !that->def->match(this->def))
-    		return false;
-    }
-    else if(!this->def->match(that->def))
-    	return false;
-    
-    if(this->use == NULL)
-    {
-    	if(that->use != NULL && !that->use->match(this->use))
-    		return false;
-    }
-    else if(!this->use->match(that->use))
-    	return false;
-    
-    return true;
-}
-
-bool SSA_pre_op::equals(Node* in)
-{
-    SSA_pre_op* that = dynamic_cast<SSA_pre_op*>(in);
-    if(that == NULL) return false;
-    
-    if(this->op == NULL || that->op == NULL)
-    {
-    	if(this->op != NULL || that->op != NULL)
-    		return false;
-    }
-    else if(!this->op->equals(that->op))
-    	return false;
-    
-    if(this->def == NULL || that->def == NULL)
-    {
-    	if(this->def != NULL || that->def != NULL)
-    		return false;
-    }
-    else if(!this->def->equals(that->def))
-    	return false;
-    
-    if(this->use == NULL || that->use == NULL)
-    {
-    	if(this->use != NULL || that->use != NULL)
-    		return false;
-    }
-    else if(!this->use->equals(that->use))
-    	return false;
-    
-    return true;
-}
-
-SSA_pre_op* SSA_pre_op::clone()
-{
-    OP* op = this->op ? this->op->clone() : NULL;
-    VARIABLE_NAME* def = this->def ? this->def->clone() : NULL;
-    VARIABLE_NAME* use = this->use ? this->use->clone() : NULL;
-    SSA_pre_op* clone = new SSA_pre_op(op, def, use);
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
-Node* SSA_pre_op::find(Node* in)
-{
-    if (this->match (in))
-    	return this;
-    
-    if (this->op != NULL)
-    {
-    	Node* op_res = this->op->find(in);
-    	if (op_res) return op_res;
-    }
-    
-    if (this->def != NULL)
-    {
-    	Node* def_res = this->def->find(in);
-    	if (def_res) return def_res;
-    }
-    
-    if (this->use != NULL)
-    {
-    	Node* use_res = this->use->find(in);
-    	if (use_res) return use_res;
-    }
-    
-    return NULL;
-}
-
-void SSA_pre_op::find_all(Node* in, Node_list* out)
-{
-    if (this->match (in))
-    	out->push_back (this);
-    
-    if (this->op != NULL)
-    	this->op->find_all(in, out);
-    
-    if (this->def != NULL)
-    	this->def->find_all(in, out);
-    
-    if (this->use != NULL)
-    	this->use->find_all(in, out);
-    
-}
-
-void SSA_pre_op::assert_valid()
-{
-    assert(op != NULL);
-    op->assert_valid();
-    assert(def != NULL);
-    def->assert_valid();
-    assert(use != NULL);
-    use->assert_valid();
-    Node::assert_mixin_valid();
-}
-
 Eval_expr::Eval_expr(Expr* expr)
 {
     this->expr = expr;
@@ -9975,8 +9814,15 @@ bool VARIABLE_NAME::equals(Node* in)
     else if(*this->value != *that->value)
     	return false;
     
-    if(!VARIABLE_NAME::is_mixin_equal(that)) return false;
     return true;
+}
+
+VARIABLE_NAME* VARIABLE_NAME::clone()
+{
+    String* value = new String(*this->value);
+    VARIABLE_NAME* clone = new VARIABLE_NAME(value);
+    clone->Node::clone_mixin_from(this);
+    return clone;
 }
 
 Node* VARIABLE_NAME::find(Node* in)
@@ -10003,9 +9849,6 @@ VARIABLE_NAME::VARIABLE_NAME(String* name)
 {
     {
 		this->value = name;
-		this->in_ssa = false;
-		this->version = 0;
-		this->is_virtual = false;
 	}
 }
 
@@ -10013,89 +9856,6 @@ VARIABLE_NAME::VARIABLE_NAME(const char* name)
 {
     {
 		this->value = new String (name);
-		this->in_ssa = false;
-		this->version = 0;
-		this->is_virtual = false;
-	}
-}
-
-void VARIABLE_NAME::convert_to_ssa_name(int version)
-{
-    {
-		assert (not this->in_ssa);
-		this->in_ssa = true;
-		this->version = version;
-		this->is_virtual = false;
-	}
-}
-
-void VARIABLE_NAME::drop_ssa_index()
-{
-    {
-		assert (this->in_ssa);
-		this->in_ssa = false;
-		this->version = 0;
-	}
-}
-
-VARIABLE_NAME* VARIABLE_NAME::clone()
-{
-    {
-		String* value = new String(*this->value);
-		VARIABLE_NAME* clone = new VARIABLE_NAME(value);
-		clone->Node::clone_mixin_from(this);
-		clone->in_ssa = this->in_ssa;
-		clone->version = this->version;
-		clone->is_virtual = this->is_virtual;
-		return clone;
-	}
-}
-
-void VARIABLE_NAME::set_version(int version)
-{
-    {
-		// This might already be in SSA, but it doesnt matter.
-		this->in_ssa = true;
-		this->version = version;
-	}
-}
-
-bool VARIABLE_NAME::operator<(MIR ::VARIABLE_NAME& other)
-{
-    {
-		// the in_ssa one is less
-		if (in_ssa && !other.in_ssa)
-			return true;
-
-		if (!in_ssa && other.in_ssa)
-			return false;
-
-		if (in_ssa)
-			return version < other.version;
-		else
-			return *value < *other.value;
-	}
-}
-
-String* VARIABLE_NAME::get_ssa_var_name()
-{
-    {
-		// TODO use get_value_as_string?
-		if (!in_ssa)
-			return value;
-
-		stringstream ss;
-		ss << *value << "__v" << version;
-		return new String (ss.str());
-	}
-}
-
-bool VARIABLE_NAME::is_mixin_equal(MIR ::Node* other)
-{
-    {
-		MIR::VARIABLE_NAME* that = dynamic_cast <MIR::VARIABLE_NAME*> (other);
-		assert (that);
-		return !(*that < *this) && !(*this < *that);
 	}
 }
 

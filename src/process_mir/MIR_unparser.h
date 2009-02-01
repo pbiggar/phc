@@ -40,7 +40,6 @@ public:
 	void children_foreach_get_val(MIR::Foreach_get_val* in);
 	void children_ht_iterator(MIR::HT_ITERATOR* in);
 	void children_variable_name (MIR::VARIABLE_NAME* in);
-	void children_ssa_pre_op (MIR::SSA_pre_op* in);
 
 
 	void children_branch (MIR::Branch* in);

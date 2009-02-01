@@ -53,7 +53,7 @@ void MIR_unparser::unparse (IR::Node* in)
 	{
 		VARIABLE_NAME* var_name = dyc<VARIABLE_NAME> (in);
 		ast_unparser.unparse (
-			new AST::VARIABLE_NAME(var_name->get_ssa_var_name ()));
+			new AST::VARIABLE_NAME(var_name->value));
 	}
 	else if (isa<Variable_variable> (in))
 	{
@@ -62,7 +62,7 @@ void MIR_unparser::unparse (IR::Node* in)
 			new AST::Reflection (
 				new AST::Variable (
 					new AST::VARIABLE_NAME (
-						var_var->variable_name->get_ssa_var_name ()))));
+						var_var->variable_name->value))));
 	}
 	else
 	{
@@ -157,7 +157,7 @@ void MIR_unparser::children_ht_iterator(HT_ITERATOR* in)
 void MIR_unparser::children_variable_name (VARIABLE_NAME* in)
 {
 	// we leave out the $ to handle in the same manner as VARIABLE_NAME
-	echo (in->get_ssa_var_name ());
+	echo (in->value);
 }
 
 /* This is simpler than the other if, since there's no user-written code to
@@ -236,14 +236,4 @@ void MIR_unparser::children_method_alias (Method_alias* in)
 	echo ("\", \"");
 	echo (in->method_name->value);
 	echo ("\");");
-}
-
-void MIR_unparser::children_ssa_pre_op (SSA_pre_op* in)
-{
-	visit_variable_name (in->def);
-	echo (" ");
-	echo (in->op->value);
-	echo (" ");
-	visit_variable_name (in->use);
-	echo (";");
 }

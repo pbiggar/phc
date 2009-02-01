@@ -48,7 +48,6 @@
 (Pre_op,Statement,*)
 (Return,Statement,*)
 (Rvalue,Rvalue,)
-(SSA_pre_op,Statement,*)
 (Signature,Signature,)
 (Statement,Statement,*)
 (Static_array,Static_value,)

@@ -20,12 +20,14 @@ If_simplification::visit_branch_block (Branch_block* bb)
 	Wildcard<Unary_op>* uop = new Wildcard<Unary_op>;
 
 	// SCCP would have fixed it otherwise
-	assert (bb->cfg->duw->has_def (branch->variable_name));
+	// TODO: dont base this on the variable_name, use the alias_name.
+//	assert (bb->cfg->duw->has_def (branch->variable_name));
+
+	phc_TODO ();
 
 
-
-	SSA_op* op = bb->cfg->duw->get_def (branch->variable_name);
-	SSA_stmt* def = dynamic_cast<SSA_stmt*> (op);
+//	SSA_op* op = bb->cfg->duw->get_def (branch->variable_name);
+/*	SSA_stmt* def = dynamic_cast<SSA_stmt*> (op);
 
 	if (def && def->get_statement()->match (
 				new Assign_var (new Wildcard<VARIABLE_NAME>, false, uop))
@@ -33,5 +35,5 @@ If_simplification::visit_branch_block (Branch_block* bb)
 	{
 		branch->variable_name = uop->value->variable_name->clone ();
 		bb->switch_successors ();
-	}
+	}*/
 }

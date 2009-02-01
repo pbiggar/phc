@@ -17,6 +17,7 @@
 #include "lib/Map.h"
 #include "lib/String.h"
 
+#include "Alias_name.h"
 
 class Basic_block;
 class Branch_block;
@@ -154,7 +155,6 @@ private:
 	void add_statements (MIR::Statement_list*);
 
 	void remove_unreachable_blocks ();
-	void fix_solo_phi_args ();
 	void fold_redundant_branches ();
 	void remove_empty_blocks ();
 
@@ -239,10 +239,10 @@ public:
 	String_list* get_graphviz_phis (Basic_block* bb);
 	String_list* get_graphviz_mus (Basic_block* bb);
 	String_list* get_graphviz_chis (Basic_block* bb);
-	String* get_graphviz_def (Basic_block* bb, MIR::VARIABLE_NAME* def);
-	String* get_graphviz_use (Basic_block* bb, MIR::VARIABLE_NAME* use);
-	String* get_graphviz_def_portname (Basic_block* bb, MIR::VARIABLE_NAME* def);
-	String* get_graphviz_use_portname (Basic_block* bb, MIR::VARIABLE_NAME* use);
+	String* get_graphviz_def (Basic_block* bb, Alias_name def);
+	String* get_graphviz_use (Basic_block* bb, Alias_name use);
+	String* get_graphviz_def_portname (Basic_block* bb, Alias_name def);
+	String* get_graphviz_use_portname (Basic_block* bb, Alias_name use);
 
 public:
 

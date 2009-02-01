@@ -14,6 +14,9 @@ public:
 	MIR::Literal* value;
 };
 
+// TODO: no point updating this now
+#if 0
+
 class SCCP : public Sparse_conditional_visitor
 {
 public:
@@ -58,6 +61,8 @@ public:
 	MIR::Expr* transform_variable_name (Statement_block*, MIR::VARIABLE_NAME* in);
 	MIR::Expr* transform_variable_variable (Statement_block*, MIR::Variable_variable* in);
 };
+
+#endif
 
 
 #endif // PHC_SCCP_H

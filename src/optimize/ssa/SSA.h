@@ -23,7 +23,7 @@ class SSA_renaming : virtual public GC_obj
 	 * (which we may or may not do in the future).
 	 */
 	int counter;
-	Map<string, Stack<int> > var_stacks;
+	Map<Alias_name, Stack<int> > var_stacks;
 
 public:
 	SSA_renaming (CFG* cfg);
@@ -37,12 +37,12 @@ private:
 	/*
 	 * Helper functions
 	 */
-	void push_to_var_stack (MIR::VARIABLE_NAME* var_name, int version);
-	int read_var_stack (MIR::VARIABLE_NAME* var_name);
-	void pop_var_stack (MIR::VARIABLE_NAME* var_name);
+	void push_to_var_stack (Alias_name name, int version);
+	int read_var_stack (Alias_name name);
+	void pop_var_stack (Alias_name name);
 
 	// Rename the variable into SSA, giving it a version.
-	void create_new_ssa_name (MIR::VARIABLE_NAME* var_name);
+	void create_new_ssa_name (Alias_name name);
 	void debug_var_stacks ();
 };
 

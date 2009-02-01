@@ -265,7 +265,7 @@ CFG::get_graphviz_phis (Basic_block* bb)
 	// |               |   ARG3      |
 	// -------------------------------
 
-	foreach (VARIABLE_NAME* phi_lhs, *bb->get_phi_lhss ())
+	foreach (Alias_name phi_lhs, *bb->get_phi_lhss ())
 	{
 		stringstream ss;
 		// First column
@@ -283,10 +283,10 @@ CFG::get_graphviz_phis (Basic_block* bb)
 			if (!first)
 				ss << FIELD_SEPARATOR;
 
-			VARIABLE_NAME* arg = edge->pm[phi_lhs]; // avoid assertion.
+			bool present = edge->pm.has (phi_lhs);
 
 			ss
-			<< (arg ? *get_graphviz_use (bb, arg) : "XXX")
+			<< (present ? *get_graphviz_use (bb, edge->pm[phi_lhs]) : "XXX")
 			<< " (" << edge->get_source()->get_index () << ")";
 
 			first = false;
@@ -307,7 +307,7 @@ CFG::get_graphviz_mus (Basic_block* bb)
 	// ------------------------
 	String_list* result = new String_list;
 
-	foreach (VARIABLE_NAME* mu, *bb->get_mus ())
+	foreach (Alias_name mu, *bb->get_mus ())
 	{
 		stringstream ss;
 		ss << "{ " << FIELD_SEPARATOR << *get_graphviz_use (bb, mu) << " } ";
@@ -326,7 +326,7 @@ CFG::get_graphviz_chis (Basic_block* bb)
 	// ------------------------
 	String_list* result = new String_list;
 
-	VARIABLE_NAME *lhs, *rhs;
+	Alias_name lhs, rhs;
 	foreach (tie (lhs, rhs), *bb->get_chis ())
 	{
 		stringstream ss;
@@ -364,45 +364,45 @@ escape_portname (String* in)
 }
 
 String*
-CFG::get_graphviz_def_portname (Basic_block* bb, VARIABLE_NAME* def)
+CFG::get_graphviz_def_portname (Basic_block* bb, Alias_name def)
 {
 	stringstream ss;
 	ss
-	<< "def_" << *escape_portname (def->get_ssa_var_name ())
+	<< "def_" << *escape_portname (s (def.str ()))
 	;
 	return s (ss.str ());
 }
 
 String*
-CFG::get_graphviz_use_portname (Basic_block* bb, VARIABLE_NAME* use)
+CFG::get_graphviz_use_portname (Basic_block* bb, Alias_name use)
 {
 	stringstream ss;
 	ss
 	<< "use_" << bb->get_index () 
-	<< "_" << *escape_portname (use->get_ssa_var_name ())
+	<< "_" << *escape_portname (s (use.str()))
 	;
 	return s (ss.str ());
 }
 
 String*
-CFG::get_graphviz_def (Basic_block* bb, VARIABLE_NAME* def)
+CFG::get_graphviz_def (Basic_block* bb, Alias_name def)
 {
 	stringstream ss;
 	ss
 	<< "<" << *get_graphviz_def_portname (bb, def) << "> "
-	<< *escape_DOT_record (def->get_ssa_var_name ())
+	<< *escape_DOT_record (s (def.str ()))
 	;
 	return s (ss.str ());
 }
 
 String*
-CFG::get_graphviz_use (Basic_block* bb, VARIABLE_NAME* use)
+CFG::get_graphviz_use (Basic_block* bb, Alias_name use)
 {
 
 	stringstream ss;
 	ss
 	<< "<" << *get_graphviz_use_portname (bb, use) << "> "
-	<< *escape_DOT_record (use->get_ssa_var_name ())
+	<< *escape_DOT_record (s (use.str ()))
 	;
 	return s (ss.str ());
 }
@@ -476,8 +476,8 @@ CFG::dump_graphviz (String* label)
 		// DUW nodes are fields in the BB
 		if (duw)
 		{
-			VARIABLE_NAME_list* defs = bb->get_defs (SSA_FORMAL | SSA_STMT | SSA_BRANCH);
-			VARIABLE_NAME_list* uses = bb->get_uses (SSA_FORMAL | SSA_STMT | SSA_BRANCH);
+			Alias_name_list* defs = bb->get_defs (SSA_FORMAL | SSA_STMT | SSA_BRANCH);
+			Alias_name_list* uses = bb->get_uses (SSA_FORMAL | SSA_STMT | SSA_BRANCH);
 
 
 			if (defs->size() || uses->size ())
@@ -485,7 +485,7 @@ CFG::dump_graphviz (String* label)
 				// open dual columns
 				cout << FIELD_SEPARATOR << "{  { ";
 				bool first = true;
-				foreach (VARIABLE_NAME* def, *defs)
+				foreach (Alias_name def, *defs)
 				{
 					cout
 						<< (first ? "" : FIELD_SEPARATOR) // no field separate
@@ -497,7 +497,7 @@ CFG::dump_graphviz (String* label)
 				// open second column
 				cout << " } " << FIELD_SEPARATOR <<  " { ";
 				first = true;
-				foreach (VARIABLE_NAME* use, *uses)
+				foreach (Alias_name use, *uses)
 				{
 					cout
 						<< (first ? "" : FIELD_SEPARATOR)
@@ -530,7 +530,7 @@ CFG::dump_graphviz (String* label)
 		{
 			// Add an edge from each use to each def (there can be more than 1 in
 			// non-SSA form)
-			foreach (VARIABLE_NAME* use, *bb->get_uses (SSA_ALL))
+			foreach (Alias_name use, *bb->get_uses (SSA_ALL))
 			{
 				foreach (SSA_op* op, *duw->get_defs (use, SSA_ALL))
 				{
@@ -583,7 +583,7 @@ CFG::consistency_check ()
 		assert (bb->vertex == v);
 
 		// Check phi nodes
-		foreach (VARIABLE_NAME* phi_lhs, *bb->get_phi_lhss())
+		foreach (Alias_name phi_lhs, *bb->get_phi_lhss())
 		{
 			assert (bb->get_phi_args (phi_lhs)->size () == bb->get_predecessors ()->size ());
 			foreach (Edge* pred, *bb->get_predecessor_edges ())
@@ -1112,7 +1112,6 @@ CFG::clean ()
 		last_edge_count = get_all_edges ()->size();
 
 		remove_unreachable_blocks ();
-		fix_solo_phi_args ();
 		fold_redundant_branches ();
 		remove_empty_blocks ();
 	}
@@ -1159,51 +1158,6 @@ CFG::remove_unreachable_blocks ()
 	}
 }
 
-
-/* Replace any phi node with a single argument with an assignment. */
-void
-CFG::fix_solo_phi_args ()
-{
-	// This is no longer important, since we drop phi nodes at the end of the
-	// function.
-	return;
-
-	foreach (Basic_block* bb, *get_all_bbs ())
-	{
-		// TODO: The theory is that each Phi node executes simultaneously. If
-		// there are dependencies between the nodes, this could be wrong.
-		// Simulateously means that the values are read before they are written
-		// to. So there is a possible situation where:
-		//		x0 = Phi (y0, ...)
-		//		y0 = Phi (x0, ...)
-		// in this case, neither ordering is correct, and temporary variables
-		// must be used.
-
-		// One edge means 1 phi argument
-		if (bb->get_predecessor_edges()->size () == 1)
-		{
-			BB_list* new_bbs = new BB_list ();
-			foreach (VARIABLE_NAME* phi_lhs, *bb->get_phi_lhss ())
-			{
-				VARIABLE_NAME* arg = bb->get_phi_args (phi_lhs)->front ();
-				assert (arg->is_virtual == false);
-				assert (phi_lhs->is_virtual == false);
-				new_bbs->push_back (
-						new Statement_block (
-							this,
-							new Assign_var (
-								phi_lhs->clone(),
-								false,
-								arg)));
-			}
-
-			// Remove the Phis before adding the predecessors. 
-			bb->remove_phi_nodes ();
-
-			insert_predecessor_chain (bb, new_bbs);
-		}
-	}
-}
 
 void
 CFG::fold_redundant_branches ()

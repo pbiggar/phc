@@ -47,7 +47,6 @@ class Assign_array;
 class Assign_var_var;
 class Assign_next;
 class Pre_op;
-class SSA_pre_op;
 class Eval_expr;
 class Unset;
 class Isset;
@@ -140,7 +139,6 @@ MAKETEA_USER_DEFINED(MIR::Assign_array)
 MAKETEA_USER_DEFINED(MIR::Assign_var_var)
 MAKETEA_USER_DEFINED(MIR::Assign_next)
 MAKETEA_USER_DEFINED(MIR::Pre_op)
-MAKETEA_USER_DEFINED(MIR::SSA_pre_op)
 MAKETEA_USER_DEFINED(MIR::Eval_expr)
 MAKETEA_USER_DEFINED(MIR::Unset)
 MAKETEA_USER_DEFINED(MIR::Isset)

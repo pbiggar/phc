@@ -34,7 +34,7 @@ private:
 	void mark (SSA_op*);
 
 	// Mark the definition of USE
-	void mark_def (MIR::VARIABLE_NAME* use);
+	void mark_def (Alias_name use);
 	
 	void mark_pass ();
 	void sweep_pass ();

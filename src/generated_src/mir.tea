@@ -37,7 +37,7 @@ Statement ::=
 	| Return | Static_declaration | Global
 	| Try | Throw
 	| Assign_var | Assign_var_var | Assign_array | Assign_next | Assign_field
-	| Eval_expr | Pre_op | SSA_pre_op
+	| Eval_expr | Pre_op
 	| Unset
 	| Label | Goto | Branch
 	| Foreach_next | Foreach_reset | Foreach_end
@@ -96,17 +96,6 @@ Assign_var_var ::=			lhs:VARIABLE_NAME						      is_ref:"&"? rhs:Rvalue ;
 Assign_next		::=			lhs:VARIABLE_NAME								is_ref:"&"? rhs:Rvalue ;
 
 Pre_op ::= OP VARIABLE_NAME ;
-
--- A Pre-op performs both a use and a def on the same variable. However, for
--- SSA form, we must separate the use and the def. Since this changes its
--- semantics enough to be confusing, we rename it to SSA_pre_op. Going into
--- SSA, a Pre_op is converted directly to an SSA_pre_op. Going out of SSA,
--- it's turned into
---		DEF = USE;
---		DEF++;
---	Ideally it would be annotated in the SSA passes to help eliminate this
---	pessimization.
-SSA_pre_op ::= OP def:VARIABLE_NAME use:VARIABLE_NAME ;
 
 -- Some exprs can be invoked with and without a lhs
 Eval_expr ::= Expr ;
@@ -453,88 +442,12 @@ public:
 	VARIABLE_NAME (String* name)
 	{
 		this->value = name;
-		this->in_ssa = false;
-		this->version = 0;
-		this->is_virtual = false;
 	}
 
 	VARIABLE_NAME (const char* name)
 	{
 		this->value = new String (name);
-		this->in_ssa = false;
-		this->version = 0;
-		this->is_virtual = false;
 	}
-
-	void convert_to_ssa_name (int version)
-	{
-		assert (not this->in_ssa);
-		this->in_ssa = true;
-		this->version = version;
-		this->is_virtual = false;
-	}
-
-	void drop_ssa_index ()
-	{
-		assert (this->in_ssa);
-		this->in_ssa = false;
-		this->version = 0;
-	}
-
-	VARIABLE_NAME* clone ()
-	{
-		String* value = new String(*this->value);
-		VARIABLE_NAME* clone = new VARIABLE_NAME(value);
-		clone->Node::clone_mixin_from(this);
-		clone->in_ssa = this->in_ssa;
-		clone->version = this->version;
-		clone->is_virtual = this->is_virtual;
-		return clone;
-	}
-
-	void set_version (int version)
-	{
-		// This might already be in SSA, but it doesnt matter.
-		this->in_ssa = true;
-		this->version = version;
-	}
-
-	bool operator<(MIR::VARIABLE_NAME& other)
-	{
-		// the in_ssa one is less
-		if (in_ssa && !other.in_ssa)
-			return true;
-
-		if (!in_ssa && other.in_ssa)
-			return false;
-
-		if (in_ssa)
-			return version < other.version;
-		else
-			return *value < *other.value;
-	}
-
-	String* get_ssa_var_name ()
-	{
-		// TODO use get_value_as_string?
-		if (!in_ssa)
-			return value;
-
-		stringstream ss;
-		ss << *value << "__v" << version;
-		return new String (ss.str());
-	}
-
-	bool is_mixin_equal (MIR::Node* other)
-	{
-		MIR::VARIABLE_NAME* that = dynamic_cast <MIR::VARIABLE_NAME*> (other);
-		assert (that);
-		return !(*that < *this) && !(*this < *that);
-	}
-
-	int version;
-	bool in_ssa;
-	bool is_virtual;
 };
 
 class Field_access

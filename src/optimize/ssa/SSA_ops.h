@@ -17,7 +17,7 @@ public:
 	virtual void dump() = 0;
 
 	// Return the list of variables used by this operation
-	virtual MIR::VARIABLE_NAME_list* get_uses () = 0;
+	virtual Alias_name_list* get_uses () = 0;
 
 	// Factory method depending on the type of the BB
 	// TODO: I expect this is no longer a good idea.
@@ -28,14 +28,14 @@ class SSA_phi : public SSA_op
 {
 public:
 	Basic_block* bb;
-	MIR::VARIABLE_NAME* phi_lhs;
+	Alias_name phi_lhs;
 
-	SSA_phi (Basic_block* bb, MIR::VARIABLE_NAME* phi_lhs);
+	SSA_phi (Basic_block* bb, Alias_name phi_lhs);
 	Basic_block* get_bb ();
 	void dump ();
 
 	// The args which are not Literals.
-	MIR::VARIABLE_NAME_list* get_uses ();
+	Alias_name_list* get_uses ();
 };
 
 class SSA_stmt : public SSA_op
@@ -49,7 +49,7 @@ public:
 	void dump ();
 
 	// Any uses in the statement (ignoring the phis in the block, obviously)
-	MIR::VARIABLE_NAME_list* get_uses ();
+	Alias_name_list* get_uses ();
 };
 
 class SSA_branch : public SSA_op
@@ -62,7 +62,7 @@ public:
 	void dump ();
 
 	// Just the branch variable
-	MIR::VARIABLE_NAME_list* get_uses ();
+	Alias_name_list* get_uses ();
 };
 
 class SSA_formal : public SSA_op
@@ -77,7 +77,7 @@ public:
 	void dump ();
 
 	// No uses here
-	MIR::VARIABLE_NAME_list* get_uses ();
+	Alias_name_list* get_uses ();
 };
 
 class SSA_chi : public SSA_op
@@ -85,14 +85,14 @@ class SSA_chi : public SSA_op
 public:
 	Basic_block* bb;
 
-	MIR::VARIABLE_NAME* lhs;
-	MIR::VARIABLE_NAME* rhs;
+	Alias_name lhs;
+	Alias_name rhs;
 
-	SSA_chi (Basic_block* bb, MIR::VARIABLE_NAME* lhs, MIR::VARIABLE_NAME* rhs);
+	SSA_chi (Basic_block* bb, Alias_name lhs, Alias_name rhs);
 
 	Basic_block* get_bb ();
 	void dump ();
-	MIR::VARIABLE_NAME_list* get_uses ();
+	Alias_name_list* get_uses ();
 };
 
 class SSA_mu : public SSA_op
@@ -100,13 +100,13 @@ class SSA_mu : public SSA_op
 public:
 	Basic_block* bb;
 
-	MIR::VARIABLE_NAME* rhs;
+	Alias_name rhs;
 
-	SSA_mu (Basic_block* bb, MIR::VARIABLE_NAME* rhs);
+	SSA_mu (Basic_block* bb, Alias_name rhs);
 
 	Basic_block* get_bb ();
 	void dump ();
-	MIR::VARIABLE_NAME_list* get_uses ();
+	Alias_name_list* get_uses ();
 };
 
 

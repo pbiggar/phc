@@ -123,6 +123,14 @@ bool is_critical (Statement* in)
 	else
 		return false;
 }
+bool
+is_bb_critical (Basic_block* bb)
+{
+	// TODO: this is more conservative than we'd like
+	// Anything that is defined by a function, where we cannot see if it is used
+	// (ie its a global, or it escapes), we conservatively mark as critical.
+	phc_TODO ();
+}
 
 /*
  * Cooper/Torczon, Sec. 10.3.1 and Figure 10.3
@@ -178,7 +186,7 @@ DCE::mark_pass ()
 	{
 		if (Statement_block* sb = dynamic_cast<Statement_block*> (bb))
 		{
-			if (is_critical (sb->statement))
+			if (is_critical (sb->statement) || is_bb_critical (sb))
 			{
 				DEBUG ("marking " << bb->get_index() << " as critical");
 				mark(SSA_op::for_bb (sb));
@@ -187,7 +195,7 @@ DCE::mark_pass ()
 		else if (isa<Exit_block> (bb))
 		{
 			// Make sure the uses from the Exit block are processed
-			foreach (VARIABLE_NAME* use, *bb->get_uses (SSA_STMT | SSA_MU | SSA_CHI))
+			foreach (Alias_name use, *bb->get_uses (SSA_STMT | SSA_MU | SSA_CHI))
 				mark_def (use);
 		}
 	}
@@ -202,7 +210,7 @@ DCE::mark_pass ()
 		DEBUG ("\nProcessing ");
 		op->dump ();
 
-		foreach (VARIABLE_NAME* use, *op->get_uses ())
+		foreach (Alias_name use, *op->get_uses ())
 		{
 			mark_def (use);
 
@@ -273,7 +281,7 @@ DCE::mark (SSA_op* op)
 }
 
 void
-DCE::mark_def (VARIABLE_NAME* use)
+DCE::mark_def (Alias_name use)
 {
 	// ignore uninit
 	if (!cfg->duw->has_def (use))
@@ -282,7 +290,7 @@ DCE::mark_def (VARIABLE_NAME* use)
 	SSA_op* def = cfg->duw->get_defs (use, SSA_ALL)->front ();
 	DEBUG ("marking ");
 	def->dump ();
-	DEBUG (" due to def of " << *use->get_ssa_var_name ());
+	DEBUG (" due to def of " << use.str ());
 	mark (def);
 }
 
@@ -311,7 +319,7 @@ DCE::sweep_pass ()
 	{
 		// Remove the phi nodes first, since the BB* may be replaced with an
 		// Empty BB.
-		foreach (VARIABLE_NAME* phi_lhs, *bb->get_phi_lhss ())
+		foreach (Alias_name phi_lhs, *bb->get_phi_lhss ())
 		{
 			if (!marks[new SSA_phi (bb, phi_lhs)])
 				bb->remove_phi_node (phi_lhs);
