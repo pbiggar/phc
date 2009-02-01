@@ -176,62 +176,6 @@ Def_use_web::add_def (MIR::VARIABLE_NAME* use, SSA_op* def)
 void
 Def_use_web::add_may_def (MIR::VARIABLE_NAME* var, SSA_op* def)
 {
-	// The MUs are already present
-	if (var->in_ssa)
-		return;
-
-	Basic_block* bb = def->get_bb ();
-	bb->add_chi_node (var, var);
-	VARIABLE_NAME* clone = var->clone ();
-	add_def (var, new SSA_chi (bb, var, clone));
-	add_use (clone, new SSA_chi (bb, var, clone));
-}
-
-void
-Def_use_web::add_may_use (MIR::VARIABLE_NAME* var, SSA_op* def)
-{
-	// The MUs are already present
-	if (var->in_ssa)
-		return;
-
-	Basic_block* bb = def->get_bb ();
-	bb->add_mu_node (var);
-	add_use (var, new SSA_mu (bb, var));
-}
-
-/*
- * ADD_MUS and ADD_CHIS only work before SSA form. In SSA-form, the ptg
- * is explicitly represented using the CHI/MUs, so adding them is incorrect.
- */
-void
-Def_use_web::add_mus (Basic_block* bb, VARIABLE_NAME* use)
-{
-	if (use->in_ssa)
-		return;
-
-	phc_TODO ();
-	/*
-	Points_to* ptg = bb->get_in_ptg ();
-	Index_node_list* refs = ptg->get_local_references (SN (NAME (bb)),
-																		VN (NAME (bb), use),
-																		PTG_ALL);
-	foreach (Index_node* ref, *refs)
-	{
-		VARIABLE_NAME* alias = new VARIABLE_NAME (s(ref->name));
-		bb->add_mu_node (alias);
-		add_use (alias, new SSA_mu (bb, alias), false);
-	}
-	*/
-}
-
-void
-Def_use_web::add_chis (Basic_block* bb, VARIABLE_NAME* def)
-{
-	if (def->in_ssa)
-		return;
-
-	assert (def->in_ssa == false);
-
 	// TODO: CHIs are not created for the parameters to a method call. They
 	// clearly should be.
 
@@ -306,24 +250,22 @@ Def_use_web::add_chis (Basic_block* bb, VARIABLE_NAME* def)
 	//	How about each assignment to an alias gets a MU of the variables in the
 	//	statement which created the alias.
 
-	phc_TODO ();
-	/*
-	Points_to* ptg = bb->get_in_ptg ();
-	Index_node_list* refs = ptg->get_local_references (SN (NAME (bb)),
-																		VN (NAME (bb), def),
-																		PTG_ALL);
 
 
-	foreach (Index_node* ref, *refs)
-	{
-		VARIABLE_NAME* alias = new VARIABLE_NAME (s(ref->name));
-		bb->add_chi_node (alias, alias);
-		VARIABLE_NAME* clone = alias->clone ();
-		add_def (alias, new SSA_chi (bb, alias, clone), false);
-		add_use (clone, new SSA_chi (bb, alias, clone), false);
-	}*/
+	Basic_block* bb = def->get_bb ();
+	bb->add_chi_node (var, var);
+	VARIABLE_NAME* clone = var->clone ();
+	add_def (var, new SSA_chi (bb, var, clone));
+	add_use (clone, new SSA_chi (bb, var, clone));
 }
 
+void
+Def_use_web::add_may_use (MIR::VARIABLE_NAME* var, SSA_op* def)
+{
+	Basic_block* bb = def->get_bb ();
+	bb->add_mu_node (var);
+	add_use (var, new SSA_mu (bb, var));
+}
 
 
 

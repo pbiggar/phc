@@ -143,7 +143,7 @@ Whole_program::analyse_function (Basic_block* context, CFG* cfg, MIR::Actual_par
 	WPA* wpa;
 	string name;
 
-	cfg->dump_graphviz (NULL);
+	cfg->dump_graphviz (s("Function entry"));
 
 	// 1. Initialize:
 	Edge_list* cfg_wl = new Edge_list (cfg->get_entry_edge ());

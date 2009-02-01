@@ -297,8 +297,9 @@ HSSA::convert_to_hssa_form ()
 
 
 	// Recalculate DUW, using explicit MU/CHIs:
-	cfg->duw = new Def_use_web (NULL);
-	cfg->duw->run (cfg);
+	// This no longer is a good idea, I think. We dont use an explicit representation in the MIR nodes, so theres no point having it outside them. Also, we dont have any way to represent non-mu/chis if we remove the def-use info.
+//	cfg->duw = new Def_use_web (NULL);
+//	cfg->duw->run (cfg);
 
 
 	// TODO: Zero versioning is actually useful, so add steps 5 and 6. There

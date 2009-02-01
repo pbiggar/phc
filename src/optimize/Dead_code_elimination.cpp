@@ -38,8 +38,8 @@ is_reference_statement (Statement* in)
 {
 	// global $x creates a NULL $x in the global scope (which can probably only
 	// be seen by the compact function, but what of it).
-	if (isa<Global> (in))
-		return true;
+//	if (isa<Global> (in))
+//		return true;
 	
 	if (Assign_var* av = dynamic_cast<Assign_var*> (in))
 		return false; // We should be able to handle this with the def-use info we have now.

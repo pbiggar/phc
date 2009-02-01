@@ -193,7 +193,8 @@ Points_to::set_scalar_value (Index_node* index)
 void
 Points_to::add_node (Index_node* index)
 {
-	add_edge (SN (index->storage), index);
+	if (!contains (index))
+		add_edge (SN (index->storage), index);
 }
 
 // Does the graph already contains this node.

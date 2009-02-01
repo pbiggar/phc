@@ -20,6 +20,18 @@ Def_use::Def_use (Whole_program* wp)
 {
 }
 
+void dump_set (Map<long, Set<string> >& map, long id, string name)
+{
+	if (map.has (id))
+	{
+		cdebug << id << ": " << name << " list: ";
+		foreach (string str, map[id])
+			cdebug << str << ", ";
+		cdebug << endl;
+	}
+	else
+		cdebug << id << ": No " << name << " results" << endl;
+}
 
 void
 Def_use::dump(Basic_block* bb)
@@ -29,25 +41,12 @@ Def_use::dump(Basic_block* bb)
 	long id = bb->ID;
 	cdebug << "Dumping Def_use (" << id << endl;
 
-
 	// Print out the results for existing BBs (done this way so that IN and OUT
 	// results are presented together).
-#define SET_DUMP(SET,NAME)														\
-	if (SET.has (id))																\
-	{																					\
-		cdebug << id << ": " << NAME " list: ";							\
-		foreach (string str, SET[id])											\
-			cdebug << str << ", ";												\
-		cdebug << endl;															\
-	}																					\
-	else																				\
-		cdebug << id << ": No " NAME " results" << endl;
-
-	SET_DUMP (defs, "DEF");
-	SET_DUMP (uses, "USE");
-	SET_DUMP (may_defs, "MAY_DEF");
-	SET_DUMP (may_uses, "MAY_USE");
-#undef SET_DUMP
+	dump_set (defs, bb->ID, "DEF");
+	dump_set (uses, bb->ID, "USE");
+	dump_set (may_defs, bb->ID, "MAY_DEF");
+	dump_set (may_uses, bb->ID, "MAY_USE");
 }
 
 void
@@ -80,11 +79,46 @@ Def_use::set_value_from (Basic_block* bb, string lhs, string rhs, certainty cert
 void
 Def_use::pull_results (Basic_block* bb)
 {
-	// We are only interested in block local results
+}
+
+void
+merge_into_func_sets (Basic_block* bb,
+							Map<long, Set<string> >& bb_vals,
+							Map<string, Set<string> >& func_vals)
+{
+	// TODO: what do we do about the ones which are out of scope? It's
+	// probably safe to do nothing about them, as they won't be used later (I
+	// think though that we would confuse them with a later function call).
+	Set<string>& vals = bb_vals[bb->ID];
+	func_vals[ST (bb)].insert (vals.begin(), vals.end());
 }
 
 void
 Def_use::aggregate_results (Basic_block* bb)
 {
+	merge_into_func_sets (bb, defs, func_defs);
+	merge_into_func_sets (bb, uses, func_uses);
+	merge_into_func_sets (bb, may_defs, func_may_defs);
+	merge_into_func_sets (bb, may_uses, func_may_uses);
 }
 
+// TODO: we could do with a 'close_scope' to trim results.
+
+void
+merge_from_callee (Basic_block* bb, CFG* callee_cfg,
+						Map<long, Set<string> >& bb_vals,
+						Map<string, Set<string> >& func_vals)
+{
+	Set<string>& callee_vals = func_vals[ST (callee_cfg->get_entry_bb ())];
+	bb_vals[bb->ID].insert (callee_vals.begin (), callee_vals.end());
+}
+
+void
+Def_use::backward_bind (Basic_block* context, CFG* callee_cfg)
+{
+	// The defs and uses from the callee represent the entire function.
+	merge_from_callee (context, callee_cfg, defs, func_defs);
+	merge_from_callee (context, callee_cfg, uses, func_uses);
+	merge_from_callee (context, callee_cfg, may_defs, func_may_defs);
+	merge_from_callee (context, callee_cfg, may_uses, func_may_uses);
+}

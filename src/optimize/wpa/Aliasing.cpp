@@ -17,6 +17,7 @@
 #include "Aliasing.h"
 #include "Points_to.h"
 #include "Callgraph.h"
+#include "Def_use.h"
 #include "Whole_program.h"
 #include "CCP.h"
 #include "optimize/SCCP.h"
@@ -144,9 +145,11 @@ Aliasing::backward_bind (Basic_block* context, CFG* callee_cfg)
 	if (callee_cfg->method->is_main ())
 		return;
 
+
 	ptg->close_scope (*callee_cfg->method->signature->method_name->value);
 
 	// TODO: we need to handle returns for all the analyses, not just here
+	wp->def_use->backward_bind (context, callee_cfg);
 }
 
 bool
