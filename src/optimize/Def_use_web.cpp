@@ -270,8 +270,8 @@ Def_use_web::add_may_use (MIR::VARIABLE_NAME* var, SSA_op* def)
 
 
 #define add_def_use(TYPE, SSA_TYPE)											\
-	foreach (string TYPE, du->TYPE##s[bb->ID])						\
-		add_##TYPE (new VARIABLE_NAME (s(TYPE)), new SSA_TYPE (bb));
+	foreach (Alias_name TYPE, du->TYPE##s[bb->ID])						\
+		add_##TYPE (new VARIABLE_NAME (s(TYPE.str())), new SSA_TYPE (bb));
 
 #define add_all_def_use(SSA_TYPE)		\
 	if (du == NULL)							\

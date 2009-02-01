@@ -22,7 +22,7 @@
 
 
 class Optimization_transformer;
-class Name;
+class Path;
 
 class Aliasing : public CFG_visitor
 {
@@ -59,9 +59,9 @@ private:
 	// These functions describe the operation being performed in each block.
 	// They pass the information to the Points-to graph, and to the other
 	// analyses. The BB is to give a unique index to the results.
-	void set_reference (Basic_block* bb, Name* lhs, Name* rhs);
-	void set_scalar_value (Basic_block* bb, Name* lhs, MIR::Literal* lit);
-	void copy_value (Basic_block* bb, Name* lhs, Name* rhs);
+	void set_reference (Basic_block* bb, Path* lhs, Path* rhs);
+	void set_scalar_value (Basic_block* bb, Path* lhs, MIR::Literal* lit);
+	void copy_value (Basic_block* bb, Path* lhs, Path* rhs);
 
 
 	// Whole_program runs this, so we dont need it.
@@ -70,10 +70,10 @@ private:
 public:
 
 	/* NAME can refer to many nodes. Get the list of Index_nodes it points to */
-	Index_node_list* get_named_indices (Basic_block* bb, Name* name);
+	Index_node_list* get_named_indices (Basic_block* bb, Path* name);
 
 	// NULL if more than 1 exists
-	Index_node* get_named_index (Basic_block* bb, Name* name);
+	Index_node* get_named_index (Basic_block* bb, Path* name);
 
 	// Get the list of potential values of node (can include '*' when it is unknown).
 	String_list* get_string_values (Basic_block* bb, Index_node* node);
@@ -108,34 +108,35 @@ public:
 
 
 
-
-Name* N (string st, MIR::Node* var_name);
-
-class Name : virtual public GC_obj
+/* A Path is a way of representing some dereferencing. See Aliasing.cpp. */
+class Path : virtual public GC_obj
 {
 };
 
-class Indexing : public Name
+Path* P (string st, MIR::Node* var_name);
+
+class Indexing : public Path 
 {
 public:
-	Indexing (Name* lhs, Name* rhs);
-	Name* lhs;
-	Name* rhs;
+	Indexing (Path* lhs, Path* rhs);
+	Path* lhs;
+	Path* rhs;
 };
 
-class ST_name : public Name
+class ST_path : public Path
 {
 public:
 	string name;
-	ST_name (string name);
+	ST_path (string name);
 };
 
-class Index_name : public Name
+class Index_path : public Path
 {
 public:
-	Index_name (string name);
+	Index_path (string name);
 	string name;
 };
+
 
 
 

@@ -37,7 +37,6 @@
 #ifndef PHC_WHOLE_PROGRAM
 #define PHC_WHOLE_PROGRAM
 
-#include "WPA.h"
 #include "lib/Map.h"
 #include "optimize/Oracle.h"
 
@@ -113,6 +112,38 @@ private:
 	void analyse_summary (Method_info* info, Basic_block* context,
 							    MIR::Actual_parameter_list*, MIR::VARIABLE_NAME* lhs);
 };
+
+
+/* Every 'memory_location' modelled must have a unique name. We previously
+ * used strings to represent these, but we dont want to be manipulating
+ * strings just to find out what function a name is in.
+ *
+ * The alias_name is either an Index_node, in which case the first part is a
+ * function_name, and the second is the variable name. Otherwise its a
+ * storage node, in which case the first part is "ST", and the second is some
+ * unique name based on the program point of its defintion.
+ *
+ * This abstracts over the name. The only important part is that they are
+ * unique. However, is order to trim the results, some passes may wish to
+ * rely on the first part of the name being the function_name. That's fine.
+ */
+
+class Alias_name
+{
+public:
+	Alias_name ();
+	Alias_name (string prefix, string name);
+
+	string prefix;
+	string name;
+
+	bool operator< (const Alias_name& other) const;
+
+	// In some cases (at least lattice_map, maybe elsewhere), its hard to put
+	// use an Alias_name instead of a string.
+	string str ();
+};
+
 
 
 #endif // PHC_WHOLE_PROGRAM

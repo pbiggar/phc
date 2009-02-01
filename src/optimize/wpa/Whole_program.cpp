@@ -336,4 +336,34 @@ Whole_program::merge_contexts (Method_info* info)
 	// places.
 }
 
+Alias_name::Alias_name ()
+{
+}
+
+Alias_name::Alias_name (string prefix, string name)
+: prefix (prefix)
+, name (name)
+{
+}
+
+
+bool
+Alias_name::operator< (const Alias_name& other) const
+{
+	if (prefix == other.prefix)
+		return name < other.name;
+
+	return prefix < other.prefix;
+}
+
+	// In some cases (at least lattice_map, maybe elsewhere), its hard to put
+	// use an Alias_name instead of a string.
+string
+Alias_name::str ()
+{
+	stringstream ss;
+	ss << prefix << "::" << name;
+	return ss.str ();
+}
+
 

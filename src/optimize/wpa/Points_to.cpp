@@ -84,11 +84,11 @@ Points_to::dump_graphviz (String* label)
 	;
 
 	// Add definite edges
-	string source;
-	Map<string, Alias_pair*> alias_map;
+	Alias_name source;
+	Map<Alias_name, Alias_pair*> alias_map;
 	foreach (tie (source, alias_map), by_source)
 	{
-		string target;
+		Alias_name target;
 		Alias_pair* alias_pair;
 		foreach (tie (target, alias_pair), alias_map)
 		{
@@ -97,7 +97,7 @@ Points_to::dump_graphviz (String* label)
 			// Source
 			cout
 			<< "\""
-			<< *escape_DOT (s (source))
+			<< *escape_DOT (s (source.str()))
 			<< "\" [" << *alias_pair->source->get_graphviz ()
 			<< "];\n"
 			;
@@ -105,7 +105,7 @@ Points_to::dump_graphviz (String* label)
 			// Target
 			cout
 			<< "\""
-			<< *escape_DOT (s (target))
+			<< *escape_DOT (s (target.str()))
 			<< "\" [" << *alias_pair->target->get_graphviz ()
 			<< "];\n"
 			;
@@ -113,9 +113,9 @@ Points_to::dump_graphviz (String* label)
 			// Edge
 			cout 
 			<< "\""
-			<< *escape_DOT (s(source)) 
+			<< *escape_DOT (s(source.str())) 
 			<< "\" -> \"" 
-			<< *escape_DOT (s(target)) 
+			<< *escape_DOT (s(target.str())) 
 			<< "\" [label=\""
 			<< (alias_pair->cert == POSSIBLE ? "P" : "D")
 			<< "\"];\n"
@@ -280,7 +280,7 @@ Points_to::get_local_references (Storage_node* sn, Index_node* node, certainty c
 	Index_node_list* result = new Index_node_list;
 	foreach (Index_node* node, *tmp)
 	{
-		if (sn->name == node->storage)
+		if (sn->storage == node->storage)
 			result->push_back (node);
 	}
 
@@ -328,18 +328,18 @@ Points_to::remove_unreachable_nodes ()
 	// Mark all reachable nodes (use names, not pointers, as there may be
 	// mulitple descirptor with the same name, but obviously different
 	// pointers).
-	Set<string> reachable;
+	Set<Alias_name> reachable;
 
 	while (worklist->size () > 0)
 	{
 		PT_node* node = worklist->front ();
 		worklist->pop_front ();
 
-		if (reachable.has (node->get_unique_name ()))
+		if (reachable.has (node->name ()))
 			continue;
 
 		// mark reachable
-		reachable.insert (node->get_unique_name ());
+		reachable.insert (node->name ());
 	
 		// Add successors to the worklist
 		foreach (PT_node* succ, *get_targets<PT_node> (node))
@@ -353,7 +353,7 @@ Points_to::remove_unreachable_nodes ()
 	{
 		// We use get_all_nodes because the vertex descriptors are invalidated
 		// by remove_vertex
-		if (!reachable.has (node->get_unique_name ()))
+		if (!reachable.has (node->name ()))
 		{
 			phc_TODO ();
 		}
@@ -370,8 +370,8 @@ Points_to::remove_unreachable_nodes ()
 void
 Points_to::insert (Alias_pair* pair)
 {
-	string source = pair->source->get_unique_name ();
-	string target = pair->target->get_unique_name ();
+	Alias_name source = pair->source->name ();
+	Alias_name target = pair->target->name ();
 
 	// TODO: dont duplicate
 	if (by_source[source].has (target))
@@ -390,8 +390,7 @@ Points_to::insert (Alias_pair* pair)
 bool
 Points_to::has_node (PT_node* node)
 {
-	// TODO: make this lookup faster
-	string name = node->get_unique_name ();
+	Alias_name name = node->name ();
 
 	if (by_source[name].size ())
 		return true;
@@ -406,8 +405,8 @@ Points_to::has_node (PT_node* node)
 void
 Points_to::remove_pair (PT_node* source, PT_node* target, bool expected)
 {
-	string s = source->get_unique_name ();
-	string t = target->get_unique_name ();
+	Alias_name s = source->name ();
+	Alias_name t = target->name ();
 
 	if (!by_source[s].has (t))
 	{
@@ -443,13 +442,13 @@ Points_to::remove_node (PT_node* node)
 		}
 	}
 
-	string name;
-	Alias_pair* pair;
-
 	// dont use foreach, as remove_pair kills the iterators.
-	while (by_source [node->get_unique_name ()].size ())
+	while (by_source [node->name ()].size ())
 	{
-		tie (name, pair) = *by_source [node->get_unique_name ()].begin();
+		Alias_name name;
+		Alias_pair* pair;
+
+		tie (name, pair) = *by_source [node->name ()].begin();
 		remove_pair (pair->source, pair->target, true);
 		remove_pair (pair->target, pair->source, false);
 	}
@@ -472,8 +471,8 @@ Alias_pair::dump()
 {
 	CHECK_DEBUG ();
 	cdebug
-	<< source->get_unique_name () << " -> "
-	<< target->get_unique_name ()
+	<< source->name ().str() << " -> "
+	<< target->name ().str()
 	<< " - " << cert;
 }
 
@@ -482,18 +481,16 @@ Alias_pair::dump()
  * Nodes
  */
 
-Storage_node::Storage_node (string name)
-: name (name)
+Storage_node::Storage_node (string storage)
+: storage (storage)
 , is_abstract (false)
 {
 }
 
-string
-Storage_node::get_unique_name ()
+Alias_name
+Storage_node::name ()
 {
-	stringstream ss;
-	ss << "ST:" << name;
-	return ss.str ();
+	return Alias_name ("ST", storage);
 }
 
 String*
@@ -504,18 +501,16 @@ Storage_node::get_graphviz ()
 	return s (ss.str ());
 }
 
-Index_node::Index_node (string storage, string name)
+Index_node::Index_node (string storage, string index)
 : storage (storage)
-, name (name)
+, index (index)
 {
 }
 
-string 
-Index_node::get_unique_name ()
+Alias_name
+Index_node::name ()
 {
-	stringstream ss;
-	ss << storage << "::" << name;
-	return ss.str ();
+	return Alias_name (storage, index);
 }
 
 String*

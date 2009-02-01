@@ -49,8 +49,8 @@ public:
 
 	// Set the value of INDEX_NODE to LIT. CERT indicates whether the assignment
 	// can be considered killing.
-	virtual void set_value (Basic_block* bb, string lhs, MIR::Literal* rhs, certainty cert) = 0;
-	virtual void set_value_from (Basic_block* bb, string lhs, string rhs, certainty cert) = 0;
+	virtual void set_value (Basic_block* bb, Alias_name lhs, MIR::Literal* rhs, certainty cert) = 0;
+	virtual void set_value_from (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert) = 0;
 
 
 

@@ -111,8 +111,8 @@ Aliasing::forward_bind (Basic_block* context, CFG* callee_cfg, MIR::Actual_param
 		{
 			// $fp =& $ap;
 			set_reference (context,
-					N (callee_ns, fp->var->variable_name),
-					N (caller_ns, dyc<VARIABLE_NAME> (ap->rvalue)));
+					P (callee_ns, fp->var->variable_name),
+					P (caller_ns, dyc<VARIABLE_NAME> (ap->rvalue)));
 		}
 		else
 		{
@@ -234,8 +234,8 @@ void
 Aliasing::visit_global (Statement_block* bb, MIR::Global* in)
 {
 	set_reference (bb,
-			N (ST (bb), in->variable_name),
-			N ("__MAIN__", in->variable_name));
+			P (ST (bb), in->variable_name),
+			P ("__MAIN__", in->variable_name));
 }
 
 
@@ -243,8 +243,8 @@ void
 Aliasing::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 {
 	string ns = ST (bb);
-	Name* lhs = N (ns, in->lhs);
-	Name* rhs;
+	Path* lhs = P (ns, in->lhs);
+	Path* rhs;
 
 	switch(in->rhs->classid())
 	{
@@ -264,7 +264,7 @@ Aliasing::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 		case Field_access::ID:
 		case VARIABLE_NAME::ID:
 		case Variable_variable::ID:
-			rhs = N (ns, in->rhs);
+			rhs = P (ns, in->rhs);
 			break;
 
 		// Values
@@ -336,7 +336,7 @@ Aliasing::handle_new (Statement_block* bb, MIR::New* in, MIR::VARIABLE_NAME* lhs
 
 
 void
-Aliasing::set_reference (Basic_block* bb, Name* nlhs, Name* nrhs)
+Aliasing::set_reference (Basic_block* bb, Path* nlhs, Path* nrhs)
 {
 	// We don't need to worry about aliases, as this is killing.
 	Index_node_list* lhss = get_named_indices (bb, nlhs);
@@ -352,7 +352,7 @@ Aliasing::set_reference (Basic_block* bb, Name* nlhs, Name* nrhs)
 			string name;
 			WPA* wpa;
 			foreach (tie (name, wpa), wp->analyses)
-				wpa->set_value_from (bb, lhs->get_unique_name (), rhs->get_unique_name(), DEFINITE);
+				wpa->set_value_from (bb, lhs->name (), rhs->name (), DEFINITE);
 
 
 			// Handle aliasing
@@ -362,7 +362,7 @@ Aliasing::set_reference (Basic_block* bb, Name* nlhs, Name* nrhs)
 }
 
 void
-Aliasing::set_scalar_value (Basic_block* bb, Name* lhs, Literal* lit)
+Aliasing::set_scalar_value (Basic_block* bb, Path* lhs, Literal* lit)
 {
 	Index_node_list* indices = get_named_indices (bb, lhs);
 
@@ -379,13 +379,13 @@ Aliasing::set_scalar_value (Basic_block* bb, Name* lhs, Literal* lit)
 			foreach (tie (name, wpa), wp->analyses)
 			{
 				foreach (Index_node* ref, *refs)
-					wpa->set_value (bb, ref->get_unique_name(), lit, cert);
+					wpa->set_value (bb, ref->name (), lit, cert);
 			}
 		}
 
 		// Handle LHS itself
 		foreach (tie (name, wpa), wp->analyses)
-			wpa->set_value (bb, index->get_unique_name (), lit, DEFINITE);
+			wpa->set_value (bb, index->name (), lit, DEFINITE);
 
 		// Handle aliasing
 		ptg->set_scalar_value (index);
@@ -393,7 +393,7 @@ Aliasing::set_scalar_value (Basic_block* bb, Name* lhs, Literal* lit)
 }
 
 void
-Aliasing::copy_value (Basic_block* bb, Name* nlhs, Name* nrhs)
+Aliasing::copy_value (Basic_block* bb, Path* nlhs, Path* nrhs)
 {
 	Index_node_list* lhss = get_named_indices (bb, nlhs);
 	Index_node_list* rhss = get_named_indices (bb, nrhs);
@@ -413,12 +413,10 @@ Aliasing::copy_value (Basic_block* bb, Name* nlhs, Name* nrhs)
 				foreach (Index_node* rhs, *rhss)
 				{
 					foreach (Index_node* ref, *refs)
-						wpa->set_value_from (bb, ref->get_unique_name (),
-								rhs->get_unique_name (), cert);
+						wpa->set_value_from (bb, ref->name (), rhs->name (), cert);
 
 					// And for the LHS
-					wpa->set_value_from (bb, lhs->get_unique_name (),
-							rhs->get_unique_name (), DEFINITE);
+					wpa->set_value_from (bb, lhs->name (), rhs->name (), DEFINITE);
 
 
 					// Handle points-to aliasing
@@ -432,7 +430,7 @@ Aliasing::copy_value (Basic_block* bb, Name* nlhs, Name* nrhs)
 String_list*
 Aliasing::get_string_values (Basic_block* bb, Index_node* index)
 {
-	Lattice_cell* result = wp->ccp->ins[bb->ID][index->get_unique_name ()];
+	Lattice_cell* result = wp->ccp->ins[bb->ID][index->name ().str()];
 
 	if (result == BOTTOM || result == TOP)
 		phc_TODO ();
@@ -446,7 +444,7 @@ Aliasing::get_string_values (Basic_block* bb, Index_node* index)
 
 
 Index_node_list*
-Aliasing::get_named_indices (Basic_block* bb, Name* name)
+Aliasing::get_named_indices (Basic_block* bb, Path* name)
 {
 	Indexing* n = dyc<Indexing> (name);
 
@@ -454,7 +452,7 @@ Aliasing::get_named_indices (Basic_block* bb, Name* name)
 	// Get the set of storage nodes representing the LHS.
 	Set<string> lhss;
 
-	if (ST_name* st = dynamic_cast <ST_name*> (n->lhs))
+	if (ST_path* st = dynamic_cast <ST_path*> (n->lhs))
 	{
 		// 1 named storage node
 		lhss.insert (st->name);
@@ -464,14 +462,14 @@ Aliasing::get_named_indices (Basic_block* bb, Name* name)
 		// Lookup the storage nodes indexed by LHS
 		foreach (Index_node* st_index, *get_named_indices (bb, n->lhs))
 			foreach (Storage_node* pointed_to, *ptg->get_points_to (st_index, PTG_ALL))
-				lhss.insert (pointed_to->name);
+				lhss.insert (pointed_to->storage);
 	}
 
 
 	// Get the names of the fields of the storage nodes.
 	Set<string> rhss;
 
-	if (Index_name* st = dynamic_cast <Index_name*> (n->rhs))
+	if (Index_path* st = dynamic_cast <Index_path*> (n->rhs))
 	{
 		// 1 named field of the storage nodes
 		rhss.insert (st->name);
@@ -496,7 +494,7 @@ Aliasing::get_named_indices (Basic_block* bb, Name* name)
 }
 
 Index_node*
-Aliasing::get_named_index (Basic_block* bb, Name* name)
+Aliasing::get_named_index (Basic_block* bb, Path* name)
 {
 	Index_node_list* all = get_named_indices (bb, name);
 
@@ -511,10 +509,10 @@ Aliasing::get_named_index (Basic_block* bb, Name* name)
 
 
 /*
- * Name is used to represent the MIR constructs in an abstract way that models
- * all the MIR constructs. A name is a limited combination of Index_ and
- * Storage_nodes which represents a path in the Points_to graph, and as such
- * can represent more than 1 Index_node.
+ * Path is used to represent the MIR constructs in an abstract way that
+ * models all the MIR constructs. A name is a limited combination of Index_
+ * and Storage_nodes which represents a path in the Points_to graph, and as
+ * such can represent more than 1 Index_node.
  *
  *
  * For "->" read 'indexed_by"
@@ -526,30 +524,30 @@ Aliasing::get_named_index (Basic_block* bb, Name* name)
  *		$a->$f		(ST -> "a") -> (ST -> "f")
  */
 
-Indexing::Indexing (Name* lhs, Name *rhs) : lhs (lhs), rhs (rhs) {}
-ST_name::ST_name (string name) : name (name) {}
-Index_name::Index_name (string name) : name (name) {}
+Indexing::Indexing (Path* lhs, Path *rhs) : lhs (lhs), rhs (rhs) {}
+ST_path::ST_path (string name) : name (name) {}
+Index_path::Index_path (string name) : name (name) {}
 
 
-// In the context of the symtable st, create a Name for NODE
-Name*
-N (string symtable, Node* in)
+// In the context of the symtable st, create a Path for NODE
+Path*
+P (string symtable, Node* in)
 {
-	ST_name* st = new ST_name (symtable);
+	ST_path* st = new ST_path (symtable);
 
 	switch (in->classid ())
 	{
 		case VARIABLE_NAME::ID:
 			return new Indexing (st,
-					new Index_name (*dyc<VARIABLE_NAME> (in)->value));
+					new Index_path (*dyc<VARIABLE_NAME> (in)->value));
 
 		case Array_access::ID:
 		{
 			Array_access* aa = dyc<Array_access> (in);
 
 			return new Indexing (
-				new Indexing (st, new Index_name (*aa->variable_name->value)),
-				N (symtable, aa->index));
+				new Indexing (st, new Index_path (*aa->variable_name->value)),
+				P (symtable, aa->index));
 		}
 
 		default:

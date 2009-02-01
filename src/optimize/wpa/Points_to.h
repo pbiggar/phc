@@ -37,8 +37,9 @@ class PT_node : virtual public GC_obj
 {
 public:
 	// Each PT node gets a unique name for the alias pairs representation.
-	virtual string get_unique_name () = 0;
+	virtual Alias_name name () = 0;
 	virtual String* get_graphviz () = 0;
+
 };
 
 /*
@@ -51,7 +52,7 @@ public:
  *	There is not a unique descriptor for this node. Any object with the same
  *	descriptor represents the same node, in any graph. So we cannot store
  *	attributes in here (they should be in the other analyses' lattices, indexed
- *	by get_unique_name ()).
+ *	by name ().hash ()).
  */
 class Index_node : public PT_node
 {
@@ -60,14 +61,14 @@ public:
 	string storage;
 
 	// The name of the node (* for unnamed)
-	string name;
+	string index;
 
 	// Get the unnamed index representing var-vars, var-fields and array
 	// indexes.
 	static Index_node* get_unnamed (string storage);
 
-	Index_node (string storage, string name);
-	string get_unique_name ();
+	Index_node (string storage, string index);
+	Alias_name name ();
 
 	String* get_graphviz ();
 };
@@ -78,16 +79,16 @@ public:
 class Storage_node : public PT_node
 {
 public:
-	Storage_node (string name);
+	Storage_node (string storage);
 
-	string name;
+	string storage;
 
 	// If true, its (outgoing) edges cannot be killed, as it represents more
 	// than one run-time object. If false, represents just one run-time object,
 	// meaning its edges can be killed. 
 	bool is_abstract;
 
-	string get_unique_name ();
+	Alias_name name ();
 
 	String* get_graphviz ();
 };
@@ -122,8 +123,8 @@ class Points_to : virtual public GC_obj
 {
 private:
 	Set<Alias_pair*> all_pairs; // makes it easier to clone
-	Map<string, Map<string, Alias_pair*> > by_source;
-	Map<string, Map<string, Alias_pair*> > by_target;
+	Map<Alias_name, Map<Alias_name, Alias_pair*> > by_source;
+	Map<Alias_name, Map<Alias_name, Alias_pair*> > by_target;
 
 public:
 	Points_to ();
@@ -171,10 +172,10 @@ private:
 	{
 		List<T*>* result = new List<T*>;
 
-		string source = node->get_unique_name ();
+		Alias_name source = node->name ();
 
 		// There must be an edge to anything it aliases
-		string target;
+		Alias_name target;
 		Alias_pair* pair;
 		foreach (boost::tie (target, pair), by_source[source])
 		{
@@ -194,15 +195,15 @@ private:
 		List<T*>* result = new List<T*>;
 
 		// Keep track of already added ones
-		Map<string, PT_node*> all;
+		Map<Alias_name, PT_node*> all;
 
 		foreach (Alias_pair* pair, all_pairs)
 		{
 			if (isa<T> (pair->source))
-				all[pair->source->get_unique_name ()] = pair->source;
+				all[pair->source->name ()] = pair->source;
 
 			if (isa<T> (pair->target))
-				all[pair->target->get_unique_name ()] = pair->target;
+				all[pair->target->name ()] = pair->target;
 		}
 
 		return result;

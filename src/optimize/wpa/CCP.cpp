@@ -79,7 +79,7 @@ CCP::dump(Basic_block* bb)
  */
 
 void
-CCP::set_value (Basic_block* bb, string lhs, Literal* lit, certainty cert)
+CCP::set_value (Basic_block* bb, Alias_name lhs, Literal* lit, certainty cert)
 {
 	if (cert != DEFINITE)
 		phc_TODO ();
@@ -90,18 +90,18 @@ CCP::set_value (Basic_block* bb, string lhs, Literal* lit, certainty cert)
 	// BOTTOM.
 
 	Lattice_map& lat = locals[bb->ID];
-	lat[lhs] = meet (lat[lhs], new Literal_cell (lit));
+	lat[lhs.str()] = meet (lat[lhs.str()], new Literal_cell (lit));
 }
 
 
 void
-CCP::set_value_from (Basic_block* bb, string lhs, string rhs, certainty cert)
+CCP::set_value_from (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert)
 {
 	if (cert != DEFINITE)
 		phc_TODO ();
 
 	Lattice_map& lat = locals[bb->ID];
-	lat[lhs] = meet (lat[lhs], ins[bb->ID][rhs]);
+	lat[lhs.str()] = meet (lat[lhs.str()], ins[bb->ID][rhs.str()]);
 }
 
 void

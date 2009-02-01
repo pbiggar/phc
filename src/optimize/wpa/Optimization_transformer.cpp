@@ -52,12 +52,12 @@ Optimization_transformer::get_literal (Basic_block* bb, Rvalue* in)
 	if (isa<Literal> (in))
 		return in;
 
-	Index_node* index = aliasing->get_named_index (bb, N (ST (bb), in));
+	Index_node* index = aliasing->get_named_index (bb, P (ST (bb), in));
 	if (index == NULL)
 		return in;
 
 	CCP* ccp = aliasing->wp->ccp;
-	Lattice_cell* result = ccp->ins[bb->ID][index->get_unique_name ()];
+	Lattice_cell* result = ccp->ins[bb->ID][index->name ().str()];
 
 	if (result == BOTTOM)
 		return in;

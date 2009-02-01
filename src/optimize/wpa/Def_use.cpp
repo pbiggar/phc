@@ -20,17 +20,17 @@ Def_use::Def_use (Whole_program* wp)
 {
 }
 
-void dump_set (Map<long, Set<string> >& map, long id, string name)
+void dump_set (Map<long, Set<Alias_name> >& map, long id, string set_name)
 {
 	if (map.has (id))
 	{
-		cdebug << id << ": " << name << " list: ";
-		foreach (string str, map[id])
-			cdebug << str << ", ";
+		cdebug << id << ": " << set_name << " list: ";
+		foreach (Alias_name name, map[id])
+			cdebug << name.str() << ", ";
 		cdebug << endl;
 	}
 	else
-		cdebug << id << ": No " << name << " results" << endl;
+		cdebug << id << ": No " << set_name << " results" << endl;
 }
 
 void
@@ -50,7 +50,7 @@ Def_use::dump(Basic_block* bb)
 }
 
 void
-Def_use::set_value (Basic_block* bb, string lhs, Literal* lit, certainty cert)
+Def_use::set_value (Basic_block* bb, Alias_name lhs, Literal* lit, certainty cert)
 {
 	if (cert == DEFINITE)
 		defs[bb->ID].insert (lhs);
@@ -60,7 +60,7 @@ Def_use::set_value (Basic_block* bb, string lhs, Literal* lit, certainty cert)
 
 
 void
-Def_use::set_value_from (Basic_block* bb, string lhs, string rhs, certainty cert)
+Def_use::set_value_from (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert)
 {
 	// TODO: the certainty here isnt hugely precise. A must-def can be put in as
 	// a may-def if there are multiple possible RHSs.
@@ -83,13 +83,13 @@ Def_use::pull_results (Basic_block* bb)
 
 void
 merge_into_func_sets (Basic_block* bb,
-							Map<long, Set<string> >& bb_vals,
-							Map<string, Set<string> >& func_vals)
+							Map<long, Set<Alias_name> >& bb_vals,
+							Map<string, Set<Alias_name> >& func_vals)
 {
 	// TODO: what do we do about the ones which are out of scope? It's
 	// probably safe to do nothing about them, as they won't be used later (I
 	// think though that we would confuse them with a later function call).
-	Set<string>& vals = bb_vals[bb->ID];
+	Set<Alias_name>& vals = bb_vals[bb->ID];
 	func_vals[ST (bb)].insert (vals.begin(), vals.end());
 }
 
@@ -106,10 +106,10 @@ Def_use::aggregate_results (Basic_block* bb)
 
 void
 merge_from_callee (Basic_block* bb, CFG* callee_cfg,
-						Map<long, Set<string> >& bb_vals,
-						Map<string, Set<string> >& func_vals)
+						Map<long, Set<Alias_name> >& bb_vals,
+						Map<string, Set<Alias_name> >& func_vals)
 {
-	Set<string>& callee_vals = func_vals[ST (callee_cfg->get_entry_bb ())];
+	Set<Alias_name>& callee_vals = func_vals[ST (callee_cfg->get_entry_bb ())];
 	bb_vals[bb->ID].insert (callee_vals.begin (), callee_vals.end());
 }
 

@@ -25,8 +25,8 @@ public:
 	bool branch_is_true (MIR::Branch*) { return false; }
 	bool branch_is_false (MIR::Branch*) { return false; }
 
-	void set_value (Basic_block* bb, string lhs, MIR::Literal* lit, certainty cert);
-	void set_value_from (Basic_block* bb, string lhs, string rhs, certainty cert);
+	void set_value (Basic_block* bb, Alias_name lhs, MIR::Literal* lit, certainty cert);
+	void set_value_from (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert);
 
 
 	void pull_results (Basic_block* bb);
