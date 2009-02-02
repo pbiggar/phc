@@ -59,10 +59,11 @@ private:
 	// These functions describe the operation being performed in each block.
 	// They pass the information to the Points-to graph, and to the other
 	// analyses. The BB is to give a unique index to the results.
-	void set_reference (Basic_block* bb, Path* lhs, Path* rhs);
-	void set_scalar_value (Basic_block* bb, Path* lhs, MIR::Literal* lit);
-	void copy_value (Basic_block* bb, Path* lhs, Path* rhs);
-	void perform_uses (Basic_block* bb, Index_node* node);
+	void assign_scalar (Basic_block* bb, Path* lhs, MIR::Literal* lit);
+	void assign_by_ref (Basic_block* bb, Path* lhs, Path* rhs);
+	void assign_by_copy (Basic_block* bb, Path* lhs, Path* rhs);
+
+	void record_use (Basic_block* bb, Index_node* node);
 
 
 	// Whole_program runs this, so we dont need it.
@@ -70,13 +71,14 @@ private:
 
 public:
 
-	/* NAME can refer to many nodes. Get the list of Index_nodes it points to */
-	Index_node_list* get_named_indices (Basic_block* bb, Path* name);
+	/* PATH can refer to many nodes. Get the list of Index_nodes it points to */
+	Index_node_list* get_named_indices (Basic_block* bb, Path* path);
 
 	// NULL if more than 1 exists
-	Index_node* get_named_index (Basic_block* bb, Path* name);
+	Index_node* get_named_index (Basic_block* bb, Path* path);
 
-	// Get the list of potential values of node (can include '*' when it is unknown).
+	// Get the list of potential values of node (can include '*' when it is
+	// unknown).
 	String_list* get_string_values (Basic_block* bb, Index_node* node);
 
 	/*
@@ -113,7 +115,7 @@ class Path : virtual public GC_obj
 {
 };
 
-Path* P (string st, MIR::Node* var_name);
+Path* P (string st, MIR::Node* node);
 
 class Indexing : public Path 
 {

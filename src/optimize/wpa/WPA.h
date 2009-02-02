@@ -23,7 +23,6 @@ enum _certainty { POSSIBLE = 1, DEFINITE = 2, PTG_ALL = 3 };
 typedef enum _certainty certainty;
 
 
-
 class WPA : virtual public GC_obj
 {
 public:
@@ -35,10 +34,19 @@ public:
 	{
 	}
 
-	// Set the value of INDEX_NODE to LIT. CERT indicates whether the assignment
-	// can be considered killing.
-	virtual void set_value (Basic_block* bb, Alias_name lhs, MIR::Literal* rhs, certainty cert) = 0;
-	virtual void set_value_from (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert) = 0;
+
+	// TODO
+	// - make these non-mandatory.
+	// - Add forward/backward bind.
+	// - Have assign_by_ref/copy call assign_by_value by default.
+	// - Move most of aliasing into Whole_progrma.
+	// - Move most of Points_to into Aliasing, and make it a WPA.
+	virtual void kill_value (Basic_block* bb, Alias_name name) = 0;
+	virtual void kill_reference (Basic_block* bb, Alias_name name) = 0;
+	virtual void assign_scalar (Basic_block* bb, Alias_name lhs, MIR::Literal* rhs, certainty cert) = 0;
+	virtual void assign_by_ref (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert) = 0;
+	virtual void assign_by_copy (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert) = 0;
+	virtual void record_use (Basic_block* bb, Alias_name use, certainty cert) = 0;
 
 
 
@@ -50,7 +58,7 @@ public:
 	// Pull the results from the predecessor.
 	virtual void pull_results (Basic_block* bb) = 0;
 
-	// This sets SOLUTION_CHANGED
+	// This should set SOLUTION_CHANGED
 	virtual void aggregate_results (Basic_block* bb) = 0;
 
 	// Print debugging information

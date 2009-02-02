@@ -110,7 +110,7 @@ Aliasing::forward_bind (Basic_block* context, CFG* callee_cfg, MIR::Actual_param
 		if (fp->is_ref || ap->is_ref)
 		{
 			// $fp =& $ap;
-			set_reference (callee_cfg->get_entry_bb (),
+			assign_by_ref (callee_cfg->get_entry_bb (),
 					P (callee_ns, fp->var->variable_name),
 					P (caller_ns, dyc<VARIABLE_NAME> (ap->rvalue)));
 		}
@@ -233,7 +233,7 @@ Aliasing::dump (Basic_block* bb)
 void
 Aliasing::visit_global (Statement_block* bb, MIR::Global* in)
 {
-	set_reference (bb,
+	assign_by_ref (bb,
 			P (ST (bb), in->variable_name),
 			P ("__MAIN__", in->variable_name));
 }
@@ -273,7 +273,7 @@ Aliasing::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 		case NIL::ID:
 		case REAL::ID:
 		case STRING::ID:
-			set_scalar_value (bb, lhs, dyc<Literal> (in->rhs));
+			assign_scalar (bb, lhs, dyc<Literal> (in->rhs));
 			return;
 
 		// Need to use analysis results before putting into the graph
@@ -303,9 +303,9 @@ Aliasing::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 
 	assert (rhs);
 	if (in->is_ref)
-		set_reference (bb, lhs, rhs);
+		assign_by_ref (bb, lhs, rhs);
 	else
-		copy_value (bb, lhs, rhs);
+		assign_by_copy (bb, lhs, rhs);
 }
 
 void
@@ -332,101 +332,194 @@ Aliasing::handle_new (Statement_block* bb, MIR::New* in, MIR::VARIABLE_NAME* lhs
 
 /*
  * Update the Points-to solution, and interface with other analyses.
+ *
+ *	We have information which we wish to pass to other analyses:
+ *		- names whose value must be killed.
+ *		- names whose value may be killed.
+ *		- names whose value they may take their value from.
+ *		- names which are used in the statement.
  */
 
+bool
+is_must (Index_node_list* indices)
+{
+	assert (!indices->empty ());
+	return (indices->size () == 1);
+}
 
 void
-Aliasing::set_reference (Basic_block* bb, Path* plhs, Path* prhs)
+Aliasing::assign_by_ref (Basic_block* bb, Path* plhs, Path* prhs)
 {
-	// We don't need to worry about aliases, as this is killing.
 	Index_node_list* lhss = get_named_indices (bb, plhs);
 	Index_node_list* rhss = get_named_indices (bb, prhs);
 
+	string name;
+	WPA* wpa;
+
+	bool killable = is_must (lhss);
 
 	// Send the results to the analyses for all variables which could be
 	// overwritten.
 	foreach (Index_node* lhs, *lhss)
 	{
+		if (killable) // only 1 result
+		{
+			foreach (tie (name, wpa), wp->analyses)
+				wpa->kill_reference (bb, lhs->name ());
+		}
+
+		// Note that we don't touch things which alias LHS.
+
 		foreach (Index_node* rhs, *rhss)
 		{
-			// Handle LHS itself
-			string name;
-			WPA* wpa;
+			// We don't need to worry about propagating values to LHSS' aliases,
+			// as this kills those aliases.
 			foreach (tie (name, wpa), wp->analyses)
-				wpa->set_value_from (bb, lhs->name (), rhs->name (), DEFINITE);
-
-
-			// Handle aliasing
-			ptg->set_reference (lhs, rhs);
+				wpa->assign_by_ref (bb,
+					lhs->name (),
+					rhs->name (),
+					(killable && is_must (rhss)) ? DEFINITE : POSSIBLE);
 		}
 	}
 }
 
 void
-Aliasing::set_scalar_value (Basic_block* bb, Path* plhs, Literal* lit)
+Aliasing::assign_scalar (Basic_block* bb, Path* plhs, Literal* lit)
 {
-	Index_node_list* indices = get_named_indices (bb, plhs);
+	Index_node_list* lhss = get_named_indices (bb, plhs);
 
-	// Send the results to the analyses for all variables which could be
-	// overwritten.
-	foreach (Index_node* index, *indices)
+	WPA* wpa;
+	string name;
+
+	bool killable = is_must (lhss);
+
+	// This is not killing in terms of references, so it assigns to all
+	// aliases of lhs.
+	foreach (Index_node* lhs, *lhss)
 	{
-		WPA* wpa;
-		string name;
+		if (killable) // only 1 result
+		{
+			foreach (tie (name, wpa), wp->analyses)
+				wpa->kill_value (bb, lhs->name ());
+		}
+
+		// Handle all the aliases/indirect assignments.
 		certainty certainties[] = {POSSIBLE, DEFINITE};
 		foreach (certainty cert, certainties)
 		{
-			Index_node_list* refs = ptg->get_references (index, cert);
+			Index_node_list* refs = ptg->get_references (lhs, cert);
+
+			// If we can't say the LHSS is killable, we get say its must defs are
+			// killable either.
+			if (!killable)
+				cert = POSSIBLE;
+
 			foreach (tie (name, wpa), wp->analyses)
 			{
 				foreach (Index_node* ref, *refs)
-					wpa->set_value (bb, ref->name (), lit, cert);
+				{
+					if (cert == DEFINITE) // must-def
+						wpa->kill_value (bb, ref->name ());
+
+					wpa->assign_scalar (bb, ref->name (), lit, cert);
+				}
 			}
 		}
 
 		// Handle LHS itself
 		foreach (tie (name, wpa), wp->analyses)
-			wpa->set_value (bb, index->name (), lit, DEFINITE);
+		{
+			if (killable) // only 1 result
+				wpa->kill_value (bb, lhs->name ());
 
-		// Handle aliasing
-		ptg->set_scalar_value (index);
+			wpa->assign_scalar (bb,
+				lhs->name (),
+				lit,
+				killable ? DEFINITE : POSSIBLE);
+		}
 	}
 }
 
 void
-Aliasing::copy_value (Basic_block* bb, Path* plhs, Path* prhs)
+Aliasing::assign_by_copy (Basic_block* bb, Path* plhs, Path* prhs)
 {
 	Index_node_list* lhss = get_named_indices (bb, plhs);
 	Index_node_list* rhss = get_named_indices (bb, prhs);
 
-	// This is not killing in terms of references, so it assigns to all
-	// aliases of lhs.
 	WPA* wpa;
 	string name;
-	certainty certainties[] = {POSSIBLE, DEFINITE};
-	foreach (certainty cert, certainties)
+
+	bool killable = is_must (lhss);
+
+	// This is not killing in terms of references, so it assigns to all
+	// aliases of lhs.
+	foreach (Index_node* lhs, *lhss)
 	{
-		foreach (Index_node* lhs, *lhss)
+		if (killable) // only 1 result
+		{
+			foreach (tie (name, wpa), wp->analyses)
+				wpa->kill_value (bb, lhs->name ());
+		}
+
+		// Handle all the aliases/indirect assignments.
+		certainty certainties[] = {POSSIBLE, DEFINITE};
+		foreach (certainty cert, certainties)
 		{
 			Index_node_list* refs = ptg->get_references (lhs, cert);
+
+			// If we can't say the LHSS is killable, we get say its must defs
+			// are killable either.
+			if (!killable)
+				cert = POSSIBLE;
+
 			foreach (tie (name, wpa), wp->analyses)
 			{
-				foreach (Index_node* rhs, *rhss)
+				foreach (Index_node* ref, *refs)
 				{
-					foreach (Index_node* ref, *refs)
-						wpa->set_value_from (bb, ref->name (), rhs->name (), cert);
+					if (cert == DEFINITE) // must-def
+						wpa->kill_value (bb, ref->name ());
 
-					// And for the LHS
-					wpa->set_value_from (bb, lhs->name (), rhs->name (), DEFINITE);
-
-
-					// Handle points-to aliasing
-					ptg->copy_value (lhs, rhs);
+					foreach (Index_node* rhs, *rhss)
+						wpa->assign_by_copy (bb,
+							ref->name (),
+							rhs->name (),
+							is_must (rhss) ? cert : POSSIBLE);
 				}
+			}
+		}
+
+		// Handle LHS itself
+		foreach (Index_node* rhs, *rhss) // TODO refactor this better
+		{
+			foreach (tie (name, wpa), wp->analyses)
+			{
+				if (killable) // only 1 result
+					wpa->kill_value (bb, lhs->name ());
+
+				wpa->assign_by_copy (bb,
+					lhs->name (),
+					rhs->name (),
+					is_must (rhss) ? DEFINITE : POSSIBLE);
 			}
 		}
 	}
 }
+
+
+void
+Aliasing::record_use (Basic_block* bb, Index_node* index_node)
+{
+	// TODO: this marks it as a use, not a must use. Is there any difference
+	// as far as analyses are concerned? If so, fix this. If not, remove the
+	// may-uses.
+
+	// TODO: once type-inferences is built, here would be a good place to
+	// call/check for the handlers.
+	
+	wp->def_use->record_use (bb, index_node->name(), POSSIBLE);
+}
+
+
 
 /*
  * Return the range of possible values for INDEX. This is used to
@@ -456,7 +549,11 @@ Aliasing::get_string_values (Basic_block* bb, Index_node* index)
  * index_nodes, it must mark them as used, and check types to see if there
  * are any handlers that need to be called. It checks CCP to see the range of
  * variables that might be looked up, and any other analysis which can reduce
- * therange of the results.
+ * the range of the results.
+ *
+ * Suppose we get a single result, x. Can we say that a def to this must-def x?
+ *		- I believe that scalars cant affect this
+ *		- I think we can say that.
  */
 Index_node_list*
 Aliasing::get_named_indices (Basic_block* bb, Path* path)
@@ -497,8 +594,9 @@ Aliasing::get_named_indices (Basic_block* bb, Path* path)
 		foreach (Index_node* field_index, *get_named_indices (bb, p->rhs))
 		{
 			// TODO: better place for this - its here because we know this is a
-			// use. But this doesnt intercept all uses.
-			perform_uses (bb, field_index);
+			// use. This doesnt intercept all uses, but I think it gets all the
+			// ones in this function.
+			record_use (bb, field_index);
 			foreach (String* value, *get_string_values (bb, field_index))
 				rhss.insert (*value);
 		}
@@ -528,20 +626,6 @@ Aliasing::get_named_index (Basic_block* bb, Path* name)
 
 	return all->front ();
 }
-
-void
-Aliasing::perform_uses (Basic_block* bb, Index_node* index_node)
-{
-	// TODO: this marks it as a use, not a must use. Is there any difference
-	// as far as analyses are concerned? If so, fix this. If not, remove the
-	// may-uses.
-
-	// TODO: once type-inferences is built, here would be a good place to
-	// call/check for the handlers.
-	
-	wp->def_use->mark_use (bb, index_node->name());
-}
-
 
 /*
  * Path is used to represent the MIR constructs in an abstract way that

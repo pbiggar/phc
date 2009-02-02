@@ -25,8 +25,15 @@ public:
 	bool branch_is_true (MIR::Branch*) { return false; }
 	bool branch_is_false (MIR::Branch*) { return false; }
 
-	void set_value (Basic_block* bb, Alias_name lhs, MIR::Literal* lit, certainty cert);
-	void set_value_from (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert);
+	void kill_value (Basic_block* bb, Alias_name name){};
+	void kill_reference (Basic_block* bb, Alias_name name){};
+	void assign_scalar (Basic_block* bb, Alias_name lhs, MIR::Literal* rhs, certainty cert);
+	void assign_by_ref (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert){phc_TODO ();}
+	void assign_by_copy (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert);
+	void record_use (Basic_block* bb, Alias_name lhs, certainty cert){};
+
+
+
 
 
 	void pull_results (Basic_block* bb);

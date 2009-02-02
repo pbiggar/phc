@@ -49,8 +49,21 @@ Def_use::dump(Basic_block* bb)
 	dump_set (may_uses, bb->ID, "MAY_USE");
 }
 
+
 void
-Def_use::set_value (Basic_block* bb, Alias_name lhs, Literal* lit, certainty cert)
+Def_use::kill_value (Basic_block* bb, Alias_name name)
+{
+	phc_TODO ();
+}
+
+void
+Def_use::kill_reference (Basic_block* bb, Alias_name name)
+{
+	phc_TODO ();
+}
+
+void
+Def_use::assign_scalar (Basic_block* bb, Alias_name lhs, Literal* lit, certainty cert)
 {
 	if (cert == DEFINITE)
 		defs[bb->ID].insert (lhs);
@@ -60,10 +73,15 @@ Def_use::set_value (Basic_block* bb, Alias_name lhs, Literal* lit, certainty cer
 
 
 void
-Def_use::set_value_from (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert)
+Def_use::assign_by_ref (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert)
 {
-	// TODO: the certainty here isnt hugely precise. A must-def can be put in as
-	// a may-def if there are multiple possible RHSs.
+	phc_TODO ();
+}
+
+
+void
+Def_use::assign_by_copy (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert)
+{
 	if (cert == DEFINITE)
 	{
 		defs[bb->ID].insert (lhs);
@@ -77,7 +95,7 @@ Def_use::set_value_from (Basic_block* bb, Alias_name lhs, Alias_name rhs, certai
 }
 
 void
-Def_use::mark_use (Basic_block* bb, Alias_name use)
+Def_use::record_use (Basic_block* bb, Alias_name use, certainty cert)
 {
 	uses[bb->ID].insert (use);
 }

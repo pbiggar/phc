@@ -79,7 +79,7 @@ CCP::dump(Basic_block* bb)
  */
 
 void
-CCP::set_value (Basic_block* bb, Alias_name lhs, Literal* lit, certainty cert)
+CCP::assign_scalar (Basic_block* bb, Alias_name lhs, Literal* lit, certainty cert)
 {
 	if (cert != DEFINITE)
 		phc_TODO ();
@@ -95,7 +95,7 @@ CCP::set_value (Basic_block* bb, Alias_name lhs, Literal* lit, certainty cert)
 
 
 void
-CCP::set_value_from (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert)
+CCP::assign_by_copy (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert)
 {
 	if (cert != DEFINITE)
 		phc_TODO ();

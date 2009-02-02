@@ -18,17 +18,19 @@ class Def_use : public WPA
 public:
 	Def_use (Whole_program* wp);
 
-
-	void set_value (Basic_block* bb, Alias_name lhs, MIR::Literal* lit, certainty cert);
-	void set_value_from (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert);
-
-
 	void pull_results (Basic_block* bb);
 	void aggregate_results (Basic_block* bb);
+
+	void kill_value (Basic_block* bb, Alias_name name);
+	void kill_reference (Basic_block* bb, Alias_name name);
+	void assign_scalar (Basic_block* bb, Alias_name lhs, MIR::Literal* rhs, certainty cert);
+	void assign_by_ref (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert);
+	void assign_by_copy (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert);
+	void record_use (Basic_block* bb, Alias_name lhs, certainty cert);
+
+
+
 	void dump (Basic_block* bb);
-
-	void mark_use (Basic_block* bb, Alias_name use);
-
 
 	void backward_bind (Basic_block* context, CFG* callee_cfg);
 
@@ -44,6 +46,24 @@ public:
 	Map<string, Set<Alias_name> > func_uses;
 	Map<string, Set<Alias_name> > func_may_defs;
 	Map<string, Set<Alias_name> > func_may_uses;
+/*
+	// TODO: do we need function local ones for call-clobbering
+	Map<long, Set<Alias_name> > direct_must_defs;
+	Map<long, Set<Alias_name> > indirect_must_defs;
+	Map<long, Set<Alias_name> > indirect_may_defs;
+	Map<long, Set<Alias_name> > direct_must_uses;
+	Map<long, Set<Alias_name> > indirect_must_uses;
+	Map<long, Set<Alias_name> > indirect_may_uses;
+
+	// We also want to store the complete set in the function, for the
+	// function exit (indexed by method_name)
+	Map<string , Set<Alias_name> > func_direct_must_defs;
+	Map<string , Set<Alias_name> > func_indirect_must_defs;
+	Map<string , Set<Alias_name> > func_indirect_may_defs;
+	Map<string , Set<Alias_name> > func_direct_must_uses;
+	Map<string , Set<Alias_name> > func_indirect_must_uses;
+	Map<string , Set<Alias_name> > func_indirect_may_uses;
+	*/
 };
 
 #endif // PHC_DEF_USE
