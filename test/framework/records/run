@@ -18,7 +18,7 @@
 	$RESULTS_DIR = "$CWD/results";
 	$DB_FILENAME = "$RESULTS_DIR/results.db";
 
-	$allowed_branches = array ("trunk", "branches/dataflow", "branches/lir");
+	$allowed_branches = array ("trunk", "branches/dataflow", "branches/0.2.0");
 
 	// start the DB
 	initialize_db ();
@@ -31,16 +31,16 @@
 	// Do SVN work - fails mean test wasnt affected
 	try
 	{
-		$LATEST_REVISION = get_current_revision ();
+		$LATEST_REVISION = get_latest_revision ();
 		list ($REV, $AUTHOR, $DATE) = get_test_revision () or svn_problem ();
 		$BRANCH = get_svn_branch ($REV);
 
 		if (!in_array ($BRANCH, $allowed_branches))
 			skip_revision ();
 
-		initialize_test_dirs ();
+		initialize_test ();
 
-		c ("svn export -q --revision=$REV $REPO/$BRANCH $WORKING_DIR");
+		c ("svn export -q --revision=$REV $REPO$BRANCH $WORKING_DIR");
 	}
 	catch (Exception $e) { svn_problem (); }
 
@@ -67,6 +67,7 @@
 			$comp->fail ();
 		}
 	}
+	save_log ();
 
 
 	/*
@@ -98,7 +99,7 @@
 	 * Initialization
 	 */
 
-	function initialize_test_dirs ()
+	function initialize_test ()
 	{
 		global $REV, $LOG_DIR, $WORKING_DIR, $RESULTS_DIR;
 
@@ -109,6 +110,10 @@
 		// dont delete the old test directory, it might have useful results from
 		// a different component.
 		create_dir ($LOG_DIR);
+
+		// Record what revision is being tested now
+		e ("DELETE FROM running");
+		e ("INSERT INTO running VALUES ($REV)");
 	}
 
 	function initialize_db ()
@@ -149,6 +154,7 @@
 	{
 		global $full_log;
 		$full_log .= ob_get_clean ();
+		ob_start ();
 	}
 
 	function end_log ($log_name)
@@ -298,7 +304,7 @@
 		return FALSE;
 	}
 
-	function get_current_revision ()
+	function get_latest_revision ()
 	{
 		global $REPO;
 		$result = c ("svn info $REPO");
@@ -320,6 +326,10 @@
 		}
 		else if (preg_match ("#^Index: trunk#", $diff))
 			return "trunk";
+		else if (preg_match ("#^Index: www#", $diff))
+			return "www";
+		else if (preg_match ("#^Index: tags#", $diff))
+			return "tags";
 		else
 		{
 			// TODO: we could get more info with --summarize
@@ -331,18 +341,32 @@
 		}
 	}
 
+	function skip_revision ()
+	{
+		global $REV, $LATEST_REVISION;
+		foreach (array ("benchmark", "test", "compile") as $component)
+		{
+			e ("	INSERT INTO components VALUES (
+				$REV, '$componet', 0, 
+				0, $LATEST_REVISION, 0, 0)");
+		}
+		print "Skip revision $REV\n";
+		save_log ();
+		exit ();
+	}
+
 
 	abstract class Component
 	{
 		function is_needed ()
 		{
 			global $REV;
-			$component = q ("
+			$components = q ("
 					SELECT redo FROM components
 					WHERE revision == $REV
 					AND component == '$this->component_name'
 					", PDO::FETCH_COLUMN);
-			return count ($component) == 0 || $components[0] == 1;
+			return count ($components) == 0 || $components[0] == 1;
 		}
 
 		function start ()
@@ -407,15 +431,17 @@
 
 		function run()
 		{
-			global $WORKING_DIR, $BRANCH;
+			global $WORKING_DIR, $BRANCH, $REV;
 
-			$configure["trunk"] = "";
-			$configure["branches/dataflow"] = "--disable-gc";
+			// GC didnt work for a while
+			$configure = "";
+			if ($BRANCH == "branches/dataflow" && $REV <= 2236)
+				$configure = "--disable-gc";
 
 			// Always do these steps
 			cd ("touch src/generated/*");
-			cd ("./configure --prefix=$WORKING_DIR/installed {$configure[$BRANCH]}", "configure");
-			cd ("make install", "make");
+			cd ("./configure --prefix=$WORKING_DIR/installed $configure");
+			cd ("make install");
 		}
 	}
 
@@ -449,7 +475,7 @@
 				{
 					$dir = str_replace (getcwd ()."/", "", $dir); // make it relative
 					c ("tar czf $dir.tar.gz $dir");
-					c ("rm -Rf $dir");
+					del_dir ($dir);
 				}
 			}
 		}

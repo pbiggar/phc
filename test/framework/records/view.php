@@ -89,6 +89,11 @@
 				");
 		$bench_meta = $query->fetchAll(PDO::FETCH_ASSOC);
 
+		$query = $DB->query ("SELECT revision FROM running");
+		$running = $query->fetchAll(PDO::FETCH_ASSOC);
+		$running = $running[0]["revision"];
+
+
 
 
 		$revisions = array_reduce (array ($completes, $tests, $benchmarks, $compile_meta, $test_meta, $bench_meta), "merge_results");
@@ -125,6 +130,10 @@
 				$color = get_bad_color ();
 			unset ($data["difference"]);
 
+			if ($rev == $running)
+				$color = get_running_color ();
+
+
 			# add a link to revision
 			$data["revision"] = "<a href=\"details.php?rev=$rev\">$rev</a>";
 			if (isset ($data["test_date"]))
@@ -135,7 +144,7 @@
 			foreach ($order as $header)
 			{
 				$value = $data[$header];
-				print "<td$color>$value</td>\n";
+				print "<td $color>$value</td>\n";
 			}
 			print "<a/></tr>\n";
 		}

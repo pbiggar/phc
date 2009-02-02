@@ -59,8 +59,9 @@
 		return round ($seconds/60.0, 1)."m";
 	}
 
-	function get_good_color () { return " style=\"color:green; font-weight: bold\""; }
-	function get_bad_color ()	{ return " style=\"color:red; font-weight: bold;\""; }
+	function get_good_color () { return "style=\"color:green; font-weight: bold\""; }
+	function get_bad_color ()	{ return "style=\"color:red; font-weight: bold;\""; }
+	function get_running_color ()	{ return "style=\"color:white; background-color:black;\""; }
 
 	// TODO copied from lib/header.php. Avoid duplication
 	/* Prints diffs if the xdiff extension is available, and simple outputs
