@@ -110,7 +110,7 @@ Aliasing::forward_bind (Basic_block* context, CFG* callee_cfg, MIR::Actual_param
 		if (fp->is_ref || ap->is_ref)
 		{
 			// $fp =& $ap;
-			set_reference (context,
+			set_reference (callee_cfg->get_entry_bb (),
 					P (callee_ns, fp->var->variable_name),
 					P (caller_ns, dyc<VARIABLE_NAME> (ap->rvalue)));
 		}
@@ -336,11 +336,12 @@ Aliasing::handle_new (Statement_block* bb, MIR::New* in, MIR::VARIABLE_NAME* lhs
 
 
 void
-Aliasing::set_reference (Basic_block* bb, Path* nlhs, Path* nrhs)
+Aliasing::set_reference (Basic_block* bb, Path* plhs, Path* prhs)
 {
 	// We don't need to worry about aliases, as this is killing.
-	Index_node_list* lhss = get_named_indices (bb, nlhs);
-	Index_node_list* rhss = get_named_indices (bb, nrhs);
+	Index_node_list* lhss = get_named_indices (bb, plhs);
+	Index_node_list* rhss = get_named_indices (bb, prhs);
+
 
 	// Send the results to the analyses for all variables which could be
 	// overwritten.
@@ -362,9 +363,9 @@ Aliasing::set_reference (Basic_block* bb, Path* nlhs, Path* nrhs)
 }
 
 void
-Aliasing::set_scalar_value (Basic_block* bb, Path* lhs, Literal* lit)
+Aliasing::set_scalar_value (Basic_block* bb, Path* plhs, Literal* lit)
 {
-	Index_node_list* indices = get_named_indices (bb, lhs);
+	Index_node_list* indices = get_named_indices (bb, plhs);
 
 	// Send the results to the analyses for all variables which could be
 	// overwritten.
@@ -393,10 +394,10 @@ Aliasing::set_scalar_value (Basic_block* bb, Path* lhs, Literal* lit)
 }
 
 void
-Aliasing::copy_value (Basic_block* bb, Path* nlhs, Path* nrhs)
+Aliasing::copy_value (Basic_block* bb, Path* plhs, Path* prhs)
 {
-	Index_node_list* lhss = get_named_indices (bb, nlhs);
-	Index_node_list* rhss = get_named_indices (bb, nrhs);
+	Index_node_list* lhss = get_named_indices (bb, plhs);
+	Index_node_list* rhss = get_named_indices (bb, prhs);
 
 	// This is not killing in terms of references, so it assigns to all
 	// aliases of lhs.
@@ -427,6 +428,12 @@ Aliasing::copy_value (Basic_block* bb, Path* nlhs, Path* nrhs)
 	}
 }
 
+/*
+ * Return the range of possible values for INDEX. This is used to
+ * disambiguate for indexing other nodes. It returns a set of strings. If
+ * only 1 string is returned, it must be that value. If more than one strings
+ * are returned, it may be any of them.
+ */
 String_list*
 Aliasing::get_string_values (Basic_block* bb, Index_node* index)
 {
@@ -442,17 +449,25 @@ Aliasing::get_string_values (Basic_block* bb, Index_node* index)
 
 
 
-
+/*
+ * Return the set of names which PATH might lead to.
+ *
+ * Its also a little bit of a catch-all function. Since it processes uses of
+ * index_nodes, it must mark them as used, and check types to see if there
+ * are any handlers that need to be called. It checks CCP to see the range of
+ * variables that might be looked up, and any other analysis which can reduce
+ * therange of the results.
+ */
 Index_node_list*
-Aliasing::get_named_indices (Basic_block* bb, Path* name)
+Aliasing::get_named_indices (Basic_block* bb, Path* path)
 {
-	Indexing* n = dyc<Indexing> (name);
+	Indexing* p = dyc<Indexing> (path);
 
 
 	// Get the set of storage nodes representing the LHS.
 	Set<string> lhss;
 
-	if (ST_path* st = dynamic_cast <ST_path*> (n->lhs))
+	if (ST_path* st = dynamic_cast <ST_path*> (p->lhs))
 	{
 		// 1 named storage node
 		lhss.insert (st->name);
@@ -460,16 +475,18 @@ Aliasing::get_named_indices (Basic_block* bb, Path* name)
 	else
 	{
 		// Lookup the storage nodes indexed by LHS
-		foreach (Index_node* st_index, *get_named_indices (bb, n->lhs))
+		foreach (Index_node* st_index, *get_named_indices (bb, p->lhs))
+		{
 			foreach (Storage_node* pointed_to, *ptg->get_points_to (st_index, PTG_ALL))
 				lhss.insert (pointed_to->storage);
+		}
 	}
 
 
 	// Get the names of the fields of the storage nodes.
 	Set<string> rhss;
 
-	if (Index_path* st = dynamic_cast <Index_path*> (n->rhs))
+	if (Index_path* st = dynamic_cast <Index_path*> (p->rhs))
 	{
 		// 1 named field of the storage nodes
 		rhss.insert (st->name);
@@ -477,9 +494,14 @@ Aliasing::get_named_indices (Basic_block* bb, Path* name)
 	else
 	{
 		// The name of the field must be looked up
-		foreach (Index_node* field_index, *get_named_indices (bb, n->rhs))
+		foreach (Index_node* field_index, *get_named_indices (bb, p->rhs))
+		{
+			// TODO: better place for this - its here because we know this is a
+			// use. But this doesnt intercept all uses.
+			perform_uses (bb, field_index);
 			foreach (String* value, *get_string_values (bb, field_index))
 				rhss.insert (*value);
+		}
 	}
 
 
@@ -505,6 +527,19 @@ Aliasing::get_named_index (Basic_block* bb, Path* name)
 		return NULL;
 
 	return all->front ();
+}
+
+void
+Aliasing::perform_uses (Basic_block* bb, Index_node* index_node)
+{
+	// TODO: this marks it as a use, not a must use. Is there any difference
+	// as far as analyses are concerned? If so, fix this. If not, remove the
+	// may-uses.
+
+	// TODO: once type-inferences is built, here would be a good place to
+	// call/check for the handlers.
+	
+	wp->def_use->mark_use (bb, index_node->name());
 }
 
 

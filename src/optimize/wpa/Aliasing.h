@@ -62,6 +62,7 @@ private:
 	void set_reference (Basic_block* bb, Path* lhs, Path* rhs);
 	void set_scalar_value (Basic_block* bb, Path* lhs, MIR::Literal* lit);
 	void copy_value (Basic_block* bb, Path* lhs, Path* rhs);
+	void perform_uses (Basic_block* bb, Index_node* node);
 
 
 	// Whole_program runs this, so we dont need it.

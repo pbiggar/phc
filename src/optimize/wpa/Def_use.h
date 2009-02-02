@@ -27,6 +27,8 @@ public:
 	void aggregate_results (Basic_block* bb);
 	void dump (Basic_block* bb);
 
+	void mark_use (Basic_block* bb, Alias_name use);
+
 
 	void backward_bind (Basic_block* context, CFG* callee_cfg);
 

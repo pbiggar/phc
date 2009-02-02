@@ -77,6 +77,12 @@ Def_use::set_value_from (Basic_block* bb, Alias_name lhs, Alias_name rhs, certai
 }
 
 void
+Def_use::mark_use (Basic_block* bb, Alias_name use)
+{
+	uses[bb->ID].insert (use);
+}
+
+void
 Def_use::pull_results (Basic_block* bb)
 {
 }
