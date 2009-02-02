@@ -12,28 +12,3 @@ Constant_state::Constant_state (Whole_program* wp)
 : WPA(wp)
 {
 }
-
-void
-Constant_state::initialize_function (CFG* cfg, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
-{
-	phc_TODO ();
-}
-
-void
-Constant_state::finalize_function (CFG* cfg)
-{
-	phc_TODO ();
-}
-
-
-void
-Constant_state::use_summary_results (Method_info* info, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
-{
-	phc_TODO ();
-}
-
-void
-Constant_state::dump()
-{
-	phc_TODO ();
-}

@@ -27,19 +27,6 @@ public:
 
 	void dump (Basic_block* bb);
 	void dump_graphviz (String* label);
-
-	// We don't need most of the standard interface.
-	void pull_results (Basic_block* bb) {}
-	void aggregate_results (Basic_block* bb) {}
-
-	void kill_value (Basic_block* bb, Alias_name name){}
-	void kill_reference (Basic_block* bb, Alias_name name){}
-	void assign_scalar (Basic_block* bb, Alias_name lhs, MIR::Literal* rhs, certainty cert){}
-	void assign_by_ref (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert){}
-	void assign_by_copy (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert){}
-	void record_use (Basic_block* bb, Alias_name lhs, certainty cert){}
-
-
 };
 
 #endif // PHC_CALLGRAPH

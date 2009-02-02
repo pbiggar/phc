@@ -32,9 +32,6 @@ public:
 
 	bool is_object (String* name);
 //	string get_type (Value_node* val);
-
-	void pre_annotate (Basic_block* bb, Points_to*){}
-	void post_annotate (Basic_block* bb, Points_to*){}
 };
 
 
