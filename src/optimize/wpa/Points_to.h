@@ -129,33 +129,46 @@ private:
 public:
 	Points_to ();
 
-
+	// WPA interface
 	void open_scope (string name);
 	void close_scope (string name);
 
-	void add_node (Index_node* node);
-	void add_edge (PT_node* n1, PT_node* n2, certainty = DEFINITE);
-	void add_bidir_edge (PT_node* n1, PT_node* n2, certainty cert = DEFINITE);
-
 	void kill_value (Index_node* index);
-	void kill_references (Index_node* index);
+	void kill_reference (Index_node* index);
 
-	void set_scalar_value (Index_node* lhs);
-	void set_reference (Index_node* n1, Index_node* n2);
-	void copy_value (Index_node* n1, Index_node* n2);
-
-	bool contains (Index_node* node);
-
-	bool has_value_edges (Index_node* node);
+	void assign_scalar (Index_node* lhs);
+	void assign_by_ref (Index_node* n1, Index_node* n2);
+	void assign_by_copy (Index_node* n1, Index_node* n2);
 
 	void dump_graphviz (String* label);
 
-	void remove_unreachable_nodes ();
+	/*
+	 * High-level API
+	 */
+	bool contains (Index_node* node);
+	bool has_value_edges (Index_node* node);
+	void insert (Alias_pair*);
 
 	Index_node_list* get_references (Index_node* index, certainty cert);
 	Storage_node_list* get_points_to (Index_node* index, certainty cert);
 
 	Index_node_list* get_local_references (Storage_node* ns, Index_node* index, certainty cert);
+
+
+	/*
+	 * Lower-level API
+	 */
+	void add_node (Index_node* node);
+	bool has_node (PT_node* node);
+	void add_edge (PT_node* n1, PT_node* n2, certainty = DEFINITE);
+	void add_bidir_edge (PT_node* n1, PT_node* n2, certainty cert = DEFINITE);
+
+
+	void remove_unreachable_nodes ();
+	void remove_node (PT_node* node);
+	void remove_pair (PT_node* n1, PT_node* n2, bool expected = true);
+
+	Points_to* clone();
 
 private:
 	// Get the list of indices that alias INDEX, with the certainty CERT.
@@ -209,19 +222,6 @@ private:
 		return result;
 	}
 
-	/*
-	 * Low-level API
-	 */
-
-	void remove_node (PT_node* node);
-	void insert (Alias_pair*);
-	bool has_node (PT_node* node);
-
-	void remove_pair (PT_node* n1, PT_node* n2, bool expected = true);
-
-
-public:
-	Points_to* clone();
 };
 
 #endif // PHC_POINTS_TO

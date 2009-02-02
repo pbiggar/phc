@@ -68,6 +68,94 @@ Points_to::close_scope (string scope_name)
 	remove_unreachable_nodes ();
 }
 
+
+void
+Points_to::kill_value (Index_node* index)
+{
+	Storage_node_list* values = get_points_to (index, PTG_ALL);
+	if (values->size ())
+		phc_TODO (); // kill, and the things it points to - watch of for may-aliases
+}
+
+// Remove all references edges into or out of INDEX. Also call kill_value.
+void
+Points_to::kill_reference (Index_node* index)
+{
+	foreach (Index_node* other, *get_references (index, PTG_ALL))
+	{
+		remove_pair (index, other);
+		remove_pair (other, index);
+	}
+}
+
+
+// Kill the value of INDEX (which indicates a scalar is being assigned
+// here). This only updates the graph if an object or array is killed. If the
+// node is not in the graph, add it.
+void
+Points_to::assign_scalar (Index_node* index)
+{
+	if (contains (index))
+		kill_value (index);
+
+	add_node (index);
+}
+
+
+// Make N1 alias N2. Kills N1. Initialized N2 if it is not already.
+void
+Points_to::assign_by_ref (Index_node* n1, Index_node* n2)
+{
+	if (!contains (n2))
+	{
+		add_node (n2);
+		phc_TODO (); // initialize to NULL
+	}
+
+	if (!contains (n1))
+		add_node (n1);
+	else
+		kill_reference (n1);
+
+	// TODO: abstract
+
+	// Copy all edges to reference nodes
+	certainty certainties[] = {POSSIBLE, DEFINITE};
+	foreach (certainty cert, certainties)
+	{
+		Index_node_list* refs = get_references (n2, cert);
+		foreach (Index_node* ref, *refs)
+			add_bidir_edge (n1, ref);
+	}
+
+
+	// Copy all edges to storage nodes
+	foreach (certainty cert, certainties)
+	{
+		Storage_node_list* pts = get_points_to (n2, cert);
+		foreach (Storage_node* st, *pts)
+			add_edge (n1, st);
+	}
+
+	add_bidir_edge (n1, n2);
+}
+
+// Copy the current value from N2 to N1. This clones N2's array, points N1
+// and N2 to the same object for object's, and kills existing values for N1.
+void
+Points_to::assign_by_copy (Index_node* n1, Index_node* n2)
+{
+	if (!contains (n1) || !contains (n2))
+		phc_TODO ();
+
+	// This kills the value of N1, and may lead to a clone on N2's value.
+	if (has_value_edges (n1) || has_value_edges (n2))
+		phc_TODO ();
+}
+
+
+
+
 void
 Points_to::dump_graphviz (String* label)
 {
@@ -129,66 +217,8 @@ Points_to::dump_graphviz (String* label)
 	;
 }
 
-// Add the edge to the graph.
-void
-Points_to::add_edge (PT_node* n1, PT_node* n2, certainty cert)
-{
-	insert (new Alias_pair (n1, n2, cert));
-}
-
-// Add 2 edges, to and from N1 and N2.
-void
-Points_to::add_bidir_edge (PT_node* n1, PT_node* n2, certainty cert)
-{
-	insert (new Alias_pair (n1, n2, cert));
-	insert (new Alias_pair (n2, n1, cert));
-}
-
-Points_to*
-Points_to::clone ()
-{
-	Points_to* result = new Points_to;
-
-	foreach (Alias_pair* p, this->all_pairs)
-	{
-		// No need to deep copy, as pairs are never updated in-place.
-		result->insert (p);
-	}
-
-	return result;
-}
-
-void
-Points_to::kill_value (Index_node* index)
-{
-	Storage_node_list* values = get_points_to (index, PTG_ALL);
-	if (values->size ())
-		phc_TODO (); // kill, and the things it points to - watch of for may-aliases
-}
-
-// Remove all references edges into or out of INDEX. Also call kill_value.
-void
-Points_to::kill_references (Index_node* index)
-{
-	foreach (Index_node* other, *get_references (index, PTG_ALL))
-	{
-		remove_pair (index, other);
-		remove_pair (other, index);
-	}
-}
 
 
-// Kill the value of INDEX (which indicates a scalar is being assigned
-// here). This only updates the graph if an object or array is killed. If the
-// node is not in the graph, add it.
-void
-Points_to::set_scalar_value (Index_node* index)
-{
-	if (contains (index))
-		kill_value (index);
-
-	add_node (index);
-}
 
 void
 Points_to::add_node (Index_node* index)
@@ -204,58 +234,6 @@ Points_to::contains (Index_node* index)
 	// TODO: check its connected to a storage node
 	return has_node (index);
 }
-
-// Make N1 alias N2. Kills N1. Initialized N2 if it is not already.
-void
-Points_to::set_reference (Index_node* n1, Index_node* n2)
-{
-	if (!contains (n2))
-	{
-		add_node (n2);
-		phc_TODO (); // initialize to NULL
-	}
-
-	if (!contains (n1))
-		add_node (n1);
-	else
-		kill_references (n1);
-
-	// TODO: abstract
-
-	// Copy all edges to reference nodes
-	certainty certainties[] = {POSSIBLE, DEFINITE};
-	foreach (certainty cert, certainties)
-	{
-		Index_node_list* refs = get_references (n2, cert);
-		foreach (Index_node* ref, *refs)
-			add_bidir_edge (n1, ref);
-	}
-
-
-	// Copy all edges to storage nodes
-	foreach (certainty cert, certainties)
-	{
-		Storage_node_list* pts = get_points_to (n2, cert);
-		foreach (Storage_node* st, *pts)
-			add_edge (n1, st);
-	}
-
-	add_bidir_edge (n1, n2);
-}
-
-// Copy the current value from N2 to N1. This clones N2's array, points N1
-// and N2 to the same object for object's, and kills existing values for N1.
-void
-Points_to::copy_value (Index_node* n1, Index_node* n2)
-{
-	if (!contains (n1) || !contains (n2))
-		phc_TODO ();
-
-	// This kills the value of N1, and may lead to a clone on N2's value.
-	if (has_value_edges (n1) || has_value_edges (n2))
-		phc_TODO ();
-}
-
 // Does the node have edges pointing to a storage node
 bool
 Points_to::has_value_edges (Index_node* source)
@@ -365,6 +343,35 @@ Points_to::remove_unreachable_nodes ()
 /*
  * Low-level API
  */
+
+// Add the edge to the graph.
+void
+Points_to::add_edge (PT_node* n1, PT_node* n2, certainty cert)
+{
+	insert (new Alias_pair (n1, n2, cert));
+}
+
+// Add 2 edges, to and from N1 and N2.
+void
+Points_to::add_bidir_edge (PT_node* n1, PT_node* n2, certainty cert)
+{
+	insert (new Alias_pair (n1, n2, cert));
+	insert (new Alias_pair (n2, n1, cert));
+}
+
+Points_to*
+Points_to::clone ()
+{
+	Points_to* result = new Points_to;
+
+	foreach (Alias_pair* p, this->all_pairs)
+	{
+		// No need to deep copy, as pairs are never updated in-place.
+		result->insert (p);
+	}
+
+	return result;
+}
 
 
 void
