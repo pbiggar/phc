@@ -15,28 +15,6 @@ using namespace MIR;
 using namespace std;
 using namespace boost;
 
-class Type_annotator : public Annotator
-{
-public:
-	Type_inference* ti;
-
-	Type_annotator (Type_inference* ti)
-	: ti (ti)
-	{
-	}
-
-	void pre_variable_name (VARIABLE_NAME* var_name)
-	{
-/*		Value_node_list* values = ptg->get_value_nodes (ptg->get_var (NAME(bb), var_name));
-		foreach (Value_node* val, *values)
-		{
-			string str = ti->get_type (val);
-			DEBUG (*var_name->value << " = " << str);
-		}
-	*/
-//		phc_TODO ();
-	}
-};
 /*
 string
 Type_inference::get_type (Value_node* val)
@@ -52,8 +30,6 @@ Type_inference::get_type (Value_node* val)
 Type_inference::Type_inference (Whole_program* wp)
 : WPA (wp)
 {
-	pre_annotator = new Type_annotator (this);
-	post_annotator = NULL;
 }
 
 bool
