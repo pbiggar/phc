@@ -1217,6 +1217,34 @@ function_invocation (node ATTRS, string MN, list ARGS, string FILENAME, string L
 @@@
 
 
+assign_param_is_ref (string MN, string FILENAME, string LINE, string FCI_NAME, string FCIC_NAME, string INDEX, token LHS)
+@@@
+   initialize_function_call (&$FCI_NAME, &$FCIC_NAME, "$MN", "$FILENAME", $LINE TSRMLS_CC);
+	zend_function* signature = $FCIC_NAME.function_handler;
+	zend_arg_info* arg_info = signature->common.arg_info;
+	int count = 0;
+	while (arg_info && count < $INDEX)
+	{
+		count++;
+		arg_info++;
+	}
+
+	\get_st_entry ("LOCAL", "p_lhs", LHS);
+	zval* rhs;
+	ALLOC_INIT_ZVAL (rhs);
+	if (count == $INDEX)
+	{
+		ZVAL_BOOL (rhs, arg_info->pass_by_reference);
+	}
+	else
+	{
+		ZVAL_BOOL (rhs, signature->common.pass_rest_by_reference);
+	}
+	write_var (p_lhs, rhs);
+	zval_ptr_dtor (&rhs);
+@@@
+
+
 method_invocation (node ATTRS, string MN, list ARGS, string FILENAME, string LINE, string ARG_COUNT, node TARGET, string USE_REF, token LHS)
 @@@
    \get_st_entry ("LOCAL", "p_obj", TARGET);

@@ -25,6 +25,8 @@ bin_PROGRAMS = src/phc
 # hear about. 
 AM_CXXFLAGS = -Wextra -Wno-unused-parameter -Wno-write-strings -Wno-deprecated
 
+ACLOCAL_AMFLAGS = -I m4 -I libltdl
+
 # Note about warnings: automake does not support per-file flags. If they did,
 # we could set -Wall -Wextra -Werror, and fix things as they came up. However,
 # since we do not control some of our source (Zend headers, generated code from
@@ -40,6 +42,7 @@ src_phc_LDADD = @gc_lib@ $(LIBLTDL) libphc.la
 bin_SCRIPTS = src/phc_compile_plugin
 libexec_SCRIPTS = libtool
 # pkgdata_DATA = phc-1.0.xsd
+# TODO: rename templates_new.c (and use 'macro')
 pkgdata_DATA =									\
 	runtime/arrays.c							\
 	runtime/builtin_functions.c			\
@@ -49,6 +52,7 @@ pkgdata_DATA =									\
 	runtime/misc.c								\
 	runtime/string.c							\
 	runtime/support.c							\
+	runtime/templates/templates_new.c	\
 	runtime/unset.c							\
 	runtime/var_vars.c						\
 	runtime/oop.c								\

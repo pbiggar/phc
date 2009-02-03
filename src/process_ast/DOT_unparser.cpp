@@ -72,7 +72,7 @@ void DOT_unparser::visit_marker(char const* name, bool value)
 
 void DOT_unparser::visit_null(char const* name_space, char const* type_id)
 {
-	if(!args_info.no_nulls_flag)
+	if(!args_info.no_dot_nulls_flag)
 	{
 		cout << "node_" << new_node_id << " [label=\"NULL\\n(" << type_id << ")\", shape=plaintext]" << endl;
 		add_link(new_node_id++);
@@ -81,7 +81,7 @@ void DOT_unparser::visit_null(char const* name_space, char const* type_id)
 
 void DOT_unparser::visit_null_list(char const* name_space, char const* type_id)
 {
-	if(!args_info.no_nulls_flag)
+	if(!args_info.no_dot_nulls_flag)
 	{
 		cout << "node_" << new_node_id << " [label=\"NULL\\n(List<" << type_id << ">)\", shape=plaintext]" << endl;
 		add_link(new_node_id++);
@@ -90,7 +90,7 @@ void DOT_unparser::visit_null_list(char const* name_space, char const* type_id)
 
 void DOT_unparser::pre_list(char const* name_space, char const* type_id, int size)
 {
-	if(!args_info.no_empty_lists_flag || size > 0)
+	if(!args_info.no_dot_empty_lists_flag || size > 0)
 	{
 		stringstream s;
 		s << "List<" << type_id << ">";
@@ -100,7 +100,7 @@ void DOT_unparser::pre_list(char const* name_space, char const* type_id, int siz
 
 void DOT_unparser::post_list(char const* name_space, char const* type_id, int size)
 {
-	if(!args_info.no_empty_lists_flag || size > 0)
+	if(!args_info.no_dot_empty_lists_flag || size > 0)
 	{
 		node_stack.pop();
 	}
@@ -109,7 +109,7 @@ void DOT_unparser::post_list(char const* name_space, char const* type_id, int si
 void DOT_unparser::new_node(char const* label, int line_number)
 {
 	cout << "node_" << new_node_id << " [label=\"" << label;
-	if(!args_info.no_line_numbers_flag && line_number != 0)
+	if(!args_info.no_dot_line_numbers_flag && line_number != 0)
 		cout << " (" << line_number << ")";
 	cout << "\"];" << endl;	
 

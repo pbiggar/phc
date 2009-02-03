@@ -367,37 +367,35 @@ void Pass_manager::dump (IR::PHP_script* in, String* passname)
 	{
 		if (*passname == args_info->dump_arg [i])
 		{
-			if (in->is_AST ()) AST_unparser ().unparse (in->as_AST ());
-			else if (in->is_HIR ()) HIR_unparser ().unparse (in->as_HIR ());
-			else if (in->is_MIR ()) MIR_unparser ().unparse (in->as_MIR ());
-			else phc_unreachable ();
-		}
-	}
-
-	for (unsigned int i = 0; i < args_info->dump_uppered_given; i++)
-	{
-		if (*passname == args_info->dump_uppered_arg [i])
-		{
-			if (in->is_MIR ())
-				MIR_unparser().unparse_uppered (in->as_MIR ());
-
-			// As pure HIR, this should be fine. As HIR with Foreign MIR nodes (during HIR-to-MIR lowering), ?
-			if (in->is_HIR ())
+			if (in->is_AST ())
 			{
-				// this needs to be fixed. It probably used to work when the HIR
-				// was lowered to AST then uppered. However, since the uppering is
-				// now in the MIR, we've nothing to upper this. I think
-				// templatizing the Foreach_uppering should work. However, we want
-				// to replace nodes which need uppering with foreign nodes.
-				
-				// I think not supporting this is fine
-				phc_error ("Uppered dump is not supported during HIR pass: %s",
-					passname->c_str ());
+				AST_unparser ().unparse (in->as_AST ());
 			}
+			else if (in->is_HIR ())
+			{
+				if (args_info->convert_uppered_flag)
+				{
+					// this needs to be fixed. It probably used to work when the HIR
+					// was lowered to AST then uppered. However, since the uppering is
+					// now in the MIR, we've nothing to upper this. I think
+					// templatizing the Foreach_uppering should work. However, we want
+					// to replace nodes which need uppering with foreign nodes.
+					
+					// I think not supporting this is fine - but dont error as it may be used for MIR.
+					//phc_error ("Uppered dump is not supported during HIR pass: %s", name->c_str ());
+				}
 
-			if (in->is_AST())
-				AST_unparser().unparse (in->as_AST());
-
+				HIR_unparser ().unparse (in->as_HIR ());
+			}
+			else if (in->is_MIR ())
+			{
+				if (args_info->convert_uppered_flag)
+					MIR_unparser().unparse_uppered (in->as_MIR ());
+				else
+					MIR_unparser ().unparse (in->as_MIR ());
+			}
+			else
+				phc_unreachable ();
 		}
 	}
 
@@ -414,7 +412,7 @@ void Pass_manager::dump (IR::PHP_script* in, String* passname)
 	{
 		if (*passname == args_info->dump_xml_arg [i])
 		{
-			xml_unparse (in, std::cout, !args_info->no_xml_attrs_flag, !args_info->no_base_64_flag);
+			xml_unparse (in, std::cout, !args_info->no_xml_attrs_flag, !args_info->no_xml_base_64_flag);
 		}
 	}
 

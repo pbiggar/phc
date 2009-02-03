@@ -1,54 +1,15 @@
 <?php
 
 // The split files in individual/* were generated with
-// for i in `grep end_test bench.php  | grep -v function | sed 's/^.*"\(.*\)".*$/\1/' | sed 's/(.*)$//'`; do cp template.php individual/$i.php; grep "$i\\>" long_bench.php | grep -v function | grep -B 1 end_test >> individual/$i.php; done
+// for i in `grep end_test balanced.php  | grep -v function | sed 's/^.*"\(.*\)".*$/\1/' | sed 's/(.*)$//'`; do cp template.php individual/$i.php; grep "$i\\>" balanced.php | grep -v function | grep -B 1 end_test >> individual/$i.php; done
 
 date_default_timezone_set("UTC");
-
-
-
-function simple() {
-  $a = 0;
-  for ($i = 0; $i < 1000000; $i++) 
-    $a++;
-
-  $thisisanotherlongname = 0;
-  for ($thisisalongname = 0; $thisisalongname < 1000000; $thisisalongname++) 
-    $thisisanotherlongname++;
-}
-
-/****/
-
-function simplecall() {
-  for ($i = 0; $i < 1000000; $i++) 
-    strlen("hallo");
-}
-
-/****/
-
-function hallo($a) {
-}
-
-function simpleucall() {
-  for ($i = 0; $i < 1000000; $i++) 
-    hallo("hallo");
-}
-
-/****/
-
-function simpleudcall() {
-  for ($i = 0; $i < 1000000; $i++) 
-    hallo2("hallo");
-}
-
-function hallo2($a) {
-}
 
 /****/
 
 function mandel() {
-  $w1=50;
-  $h1=150;
+  $w1=60;
+  $h1=78;
   $recen=-.45;
   $imcen=0.0;
   $r=0.7;
@@ -90,8 +51,8 @@ function mandel2() {
   $b = " .:,;!/>)|&IH%*#";
   //float r, i, z, Z, t, c, C;
   for ($y=30; printf("\n"), $C = $y*0.1 - 1.5, $y--;){
-    for ($x=0; $c = $x*0.04 - 2, $z=0, $Z=0, $x++ < 75;){
-      for ($r=$c, $i=$C, $k=0; $t = $z*$z - $Z*$Z + $r, $Z = 2*$z*$Z + $i, $z=$t, $k<5000; $k++)
+    for ($x=0; $c = $x*0.04 - 2, $z=0, $Z=0, $x++ < 100;){
+      for ($r=$c, $i=$C, $k=0; $t = $z*$z - $Z*$Z + $r, $Z = 2*$z*$Z + $i, $z=$t, $k<5340; $k++)
         if ($z*$z + $Z*$Z > 500000) break;
       echo $b[$k%16];
     }
@@ -106,55 +67,73 @@ function Ack($m, $n){
   return Ack($m - 1, Ack($m, ($n - 1)));
 }
 
-function ackermann($n) {
-  $r = Ack(3,$n);
-  print "Ack(3,$n): $r\n";
+function ackermann() {
+  $r = Ack(3,7);
+  print "Ack(3,7): $r\n";
+  $r = Ack(3,6);
+  print "Ack(3,6): $r\n";
+  $r = Ack(3,6);
+  print "Ack(3,6): $r\n";
+  $r = Ack(3,5);
+  print "Ack(3,5): $r\n";
+  $r = Ack(3,5);
+  print "Ack(3,5): $r\n";
+  $r = Ack(3,5);
+  print "Ack(3,5): $r\n";
 }
 
 /****/
 
-function ary($n) {
-  for ($i=0; $i<$n; $i++) {
-    $X[$i] = $i;
+function ary($n, $scale) {
+  for ($s = 0; $s < $scale; $s++)
+  {
+	  for ($i=0; $i<$n; $i++) {
+		 $X[$i] = $i;
+	  }
+	  for ($i=$n-1; $i>=0; $i--) {
+		 $Y[$i] = $X[$i];
+	  }
+	  $last = $n-1;
+	  print "$Y[$last]\n";
+	  unset ($X);
+	  unset ($Y);
   }
-  for ($i=$n-1; $i>=0; $i--) {
-    $Y[$i] = $X[$i];
-  }
-  $last = $n-1;
-  print "$Y[$last]\n";
 }
 
 /****/
 
-function ary2($n) {
-  for ($i=0; $i<$n;) {
-    $X[$i] = $i; ++$i;
-    $X[$i] = $i; ++$i;
-    $X[$i] = $i; ++$i;
-    $X[$i] = $i; ++$i;
-    $X[$i] = $i; ++$i;
+function ary2($n, $scale) {
+  for ($s = 0; $s < $scale; $s++)
+	{
+	  for ($i=0; $i<$n;) {
+		 $X[$i] = $i; ++$i;
+		 $X[$i] = $i; ++$i;
+		 $X[$i] = $i; ++$i;
+		 $X[$i] = $i; ++$i;
+		 $X[$i] = $i; ++$i;
 
-    $X[$i] = $i; ++$i;
-    $X[$i] = $i; ++$i;
-    $X[$i] = $i; ++$i;
-    $X[$i] = $i; ++$i;
-    $X[$i] = $i; ++$i;
-  }
-  for ($i=$n-1; $i>=0;) {
-    $Y[$i] = $X[$i]; --$i;
-    $Y[$i] = $X[$i]; --$i;
-    $Y[$i] = $X[$i]; --$i;
-    $Y[$i] = $X[$i]; --$i;
-    $Y[$i] = $X[$i]; --$i;
+		 $X[$i] = $i; ++$i;
+		 $X[$i] = $i; ++$i;
+		 $X[$i] = $i; ++$i;
+		 $X[$i] = $i; ++$i;
+		 $X[$i] = $i; ++$i;
+	  }
+	  for ($i=$n-1; $i>=0;) {
+		 $Y[$i] = $X[$i]; --$i;
+		 $Y[$i] = $X[$i]; --$i;
+		 $Y[$i] = $X[$i]; --$i;
+		 $Y[$i] = $X[$i]; --$i;
+		 $Y[$i] = $X[$i]; --$i;
 
-    $Y[$i] = $X[$i]; --$i;
-    $Y[$i] = $X[$i]; --$i;
-    $Y[$i] = $X[$i]; --$i;
-    $Y[$i] = $X[$i]; --$i;
-    $Y[$i] = $X[$i]; --$i;
-  }
-  $last = $n-1;
-  print "$Y[$last]\n";
+		 $Y[$i] = $X[$i]; --$i;
+		 $Y[$i] = $X[$i]; --$i;
+		 $Y[$i] = $X[$i]; --$i;
+		 $Y[$i] = $X[$i]; --$i;
+		 $Y[$i] = $X[$i]; --$i;
+	  }
+	  $last = $n-1;
+	  print "$Y[$last]\n";
+	}
 }
 
 /****/
@@ -164,7 +143,7 @@ function ary3($n) {
     $X[$i] = $i + 1;
     $Y[$i] = 0;
   }
-  for ($k=0; $k<1000; $k++) {
+  for ($k=0; $k<2650; $k++) {
     for ($i=$n-1; $i>=0; $i--) {
       $Y[$i] += $X[$i];
     }
@@ -179,8 +158,12 @@ function fibo_r($n){
     return(($n < 2) ? 1 : fibo_r($n - 2) + fibo_r($n - 1));
 }
 
-function fibo($n) {
-  $r = fibo_r($n);
+function fibo() {
+  $r = fibo_r(28);
+  print "$r\n";
+  $r = fibo_r(27);
+  print "$r\n";
+  $r = fibo_r(24);
   print "$r\n";
 }
 

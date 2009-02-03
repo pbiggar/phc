@@ -28,54 +28,59 @@ const char *gengetopt_args_info_usage = "Usage: " CMDLINE_PARSER_PACKAGE " [OPTI
 const char *gengetopt_args_info_description = "";
 
 const char *gengetopt_args_info_full_help[] = {
-  "  -h, --help                   Print help and exit",
-  "      --full-help              Print help, including hidden options, and exit",
-  "  -V, --version                Print version and exit",
+  "  -h, --help                 Print help and exit",
+  "      --full-help            Print help, including hidden options, and exit",
+  "  -V, --version              Print version and exit",
   "\nGENERAL OPTIONS:",
-  "  -v, --verbose                Verbose output  (default=off)",
-  "  -c, --compile                Compile  (default=off)",
-  "      --pretty-print           Pretty print input according to the Zend style \n                                 guidelines  (default=off)",
-  "      --obfuscate              Obfuscate input  (default=off)",
-  "      --run=STRING             Run the specified plugin (may be specified \n                                 multiple times)",
-  "      --r-option=STRING        Pass option to a plugin (specify multiple flags \n                                 in the same order as multiple plugins - 1 \n                                 option only per plugin)",
-  "  -d, --define=STRING          Define ini entry (only affects -c and --include)",
+  "  -v, --verbose              Verbose output  (default=off)",
+  "  -c, --compile              Compile  (default=off)",
+  "      --pretty-print         Pretty print input according to the Zend style \n                               guidelines  (default=off)",
+  "      --obfuscate            Obfuscate input  (default=off)",
+  "      --run=STRING           Run the specified plugin (may be specified \n                               multiple times)",
+  "      --r-option=STRING      Pass option to a plugin (specify multiple flags in \n                               the same order as multiple plugins - 1 option \n                               only per plugin)",
+  "  -d, --define=STRING        Define ini entry (only affects -c and --include)",
   "\nINPUT OPTIONS:",
-  "      --read-xml=passname      Assume the input is in XML format. Start \n                                 processing after the named pass",
-  "      --no-validation          Toggle XML validation  (default=on)",
-  "      --include                Parse included or required files at compile-time \n                                  (default=off)",
+  "      --read-xml=PASSNAME    Assume the input is in XML format. Start \n                               processing after the named pass (passes are \n                               ast|hir|mir)",
+  "      --no-xml-validation    Toggle XML validation  (default=on)",
+  "      --include              Parse included or required files at compile-time  \n                               (default=off)",
   "\nCOMPILATION OPTIONS:",
-  "  -C, --c-option=STRING        Pass option to the C compile (e.g., -C-g; can be \n                                 specified multiple times)",
-  "      --generate-c             Generate C code  (default=off)",
-  "      --extension=NAME         Generate a PHP extension called NAME instead of \n                                 a standalone application",
-  "      --web-app=CONFIG         Generate a web-application (experimental)",
-  "      --with-php=NAME          PHP installation path",
-  "  -O, --optimize=STRING        Optimize  (default=`0')",
-  "  -o, --output=FILE            Place executable into file FILE",
-  "  -e, --execute                Run executable after compiling (implies -c)  \n                                 (default=off)",
+  "  -C, --c-option=STRING      Pass option to the C compile (e.g., -C-g; can be \n                               specified multiple times)",
+  "      --generate-c           Generate C code  (default=off)",
+  "      --extension=EXTENSION  Generate a PHP extension called EXTENSION instead \n                               of a standalone application",
+  "      --web-app=CONFIG       Generate a web-application (experimental)",
+  "      --with-php=PATH        PHP installation path",
+  "  -O, --optimize=STRING      Optimize  (default=`0')",
+  "  -o, --output=FILE          Place executable into file FILE",
+  "  -e, --execute              Run executable after compiling (implies -c)  \n                               (default=off)",
   "\nPRETTY PRINTING OPTIONS:",
-  "      --next-line-curlies      Output the opening curly on the next line \n                                 instead of on the same line  (default=off)",
-  "      --no-leading-tab         Don't start every line in between <?php .. ?> \n                                 with a tab  (default=off)",
-  "      --tab=STRING             String to use for tabs while unparsing  \n                                 (default=`\t')",
-  "      --no-hash-bang           Do not output any #! lines  (default=off)",
+  "      --next-line-curlies    Output the opening curly on the next line instead \n                               of on the same line  (default=off)",
+  "      --no-leading-tab       Don't start every line in between <?php .. ?> with \n                               a tab  (default=off)",
+  "      --tab=STRING           String to use for tabs while unparsing  \n                               (default=`\t')",
+  "      --no-hash-bang         Do not output any #! lines  (default=off)",
+  "\nOUTPUT OPTIONS:",
+  "      --dump=PASSNAME        Dump input as PHP (although potentially with gotos \n                               and labels) after PASSNAME",
+  "      --dump-xml=PASSNAME    Dump input as XML after PASSNAME",
+  "      --dump-dot=PASSNAME    Dump input as DOT after PASSNAME",
+  "      --list-passes          List of available passes (for PASSNAME)  \n                               (default=off)",
+  "\nPHP PRINTING OPTIONS:",
+  "      --convert-uppered      Use legal PHP when dumping MIR as PHP  \n                               (default=off)",
   "\nDOT PRINTING OPTIONS:",
-  "      --no-line-numbers        Don't show line numbers when dumping DOT/XML  \n                                 (default=off)",
-  "      --no-nulls               Don't show NULLs when dumping DOT  (default=off)",
-  "      --no-empty-lists         Don't show empty lists when dumping DOT  \n                                 (default=off)",
+  "      --no-dot-line-numbers  Don't show line numbers when dumping DOT/XML  \n                               (default=off)",
+  "      --no-dot-nulls         Don't show NULLs when dumping DOT  (default=off)",
+  "      --no-dot-empty-lists   Don't show empty lists when dumping DOT  \n                               (default=off)",
+  "\nXML PRINTING OPTIONS:",
+  "      --no-xml-line-numbers  Don't show line numbers when dumping DOT  \n                               (default=off)",
+  "      --no-xml-base-64       Don't encode any strings into base64 when dumping \n                               XML  (default=off)",
+  "      --no-xml-attrs         When dumping XML, omit node attributes  \n                               (default=off)",
   "\nDEBUGGING PHC:",
-  "      --stats=passname         Print statistics for the pass named 'passname",
-  "      --rt-stats               Print statistics about a program at run-time  \n                                 (default=off)",
-  "      --debug=passname         Print debugging information for the pass named \n                                 'passname",
-  "      --dump=passname          Dump input as PHP (although potentially with \n                                 gotos and labels) after the pass named \n                                 'passname'",
-  "      --dump-uppered=passname  Dump input as runnable PHP after the pass named \n                                 'passname'",
-  "      --dump-dot=passname      Dump input as DOT after the pass named \n                                 'passname'",
-  "      --dump-xml=passname      Dump input as XML after the pass named \n                                 'passname'",
-  "      --cfg-dump=passname      Dump CFG after the pass named 'passname'",
-  "      --list-passes            List the passes to be run  (default=off)",
-  "      --dont-fail              Dont fail on error (after parsing)  \n                                 (default=off)",
-  "      --missed-opt             Give a warning when an optimization was missed  \n                                 (default=on)",
-  "      --no-xml-attrs           When dumping XML, omit node attributes  \n                                 (default=off)",
-  "      --no-base-64             When dumping XML, do not encode any strings into \n                                 base64 encoding  (default=off)",
-  "      --disable=passname       Disable the pass named 'passname'",
+  "      --stats=PASSNAME       Print statistics for the pass named 'PASSNAME",
+  "      --rt-stats             Print statistics about a program at run-time  \n                               (default=off)",
+  "      --cfg-dump=PASSNAME    Dump CFG after the pass named 'PASSNAME'",
+  "      --debug=PASSNAME       Print debugging information for the pass named \n                               'PASSNAME",
+  "      --dont-fail            Dont fail on error (after parsing)  (default=off)",
+  "      --missed-opt           Give a warning when an optimization was missed  \n                               (default=on)",
+  "      --disable=PASSNAME     Disable the pass named 'PASSNAME'",
+  "\nMore options are available via --full-help",
     0
 };
 
@@ -108,11 +113,17 @@ init_help_array(void)
   gengetopt_args_info_help[23] = gengetopt_args_info_full_help[26];
   gengetopt_args_info_help[24] = gengetopt_args_info_full_help[27];
   gengetopt_args_info_help[25] = gengetopt_args_info_full_help[28];
-  gengetopt_args_info_help[26] = 0; 
+  gengetopt_args_info_help[26] = gengetopt_args_info_full_help[29];
+  gengetopt_args_info_help[27] = gengetopt_args_info_full_help[30];
+  gengetopt_args_info_help[28] = gengetopt_args_info_full_help[31];
+  gengetopt_args_info_help[29] = gengetopt_args_info_full_help[32];
+  gengetopt_args_info_help[30] = gengetopt_args_info_full_help[33];
+  gengetopt_args_info_help[31] = gengetopt_args_info_full_help[52];
+  gengetopt_args_info_help[32] = 0; 
   
 }
 
-const char *gengetopt_args_info_help[27];
+const char *gengetopt_args_info_help[33];
 
 typedef enum {ARG_NO
   , ARG_FLAG
@@ -148,7 +159,7 @@ void clear_given (struct gengetopt_args_info *args_info)
   args_info->r_option_given = 0 ;
   args_info->define_given = 0 ;
   args_info->read_xml_given = 0 ;
-  args_info->no_validation_given = 0 ;
+  args_info->no_xml_validation_given = 0 ;
   args_info->include_given = 0 ;
   args_info->c_option_given = 0 ;
   args_info->generate_c_given = 0 ;
@@ -162,22 +173,23 @@ void clear_given (struct gengetopt_args_info *args_info)
   args_info->no_leading_tab_given = 0 ;
   args_info->tab_given = 0 ;
   args_info->no_hash_bang_given = 0 ;
-  args_info->no_line_numbers_given = 0 ;
-  args_info->no_nulls_given = 0 ;
-  args_info->no_empty_lists_given = 0 ;
+  args_info->dump_given = 0 ;
+  args_info->dump_xml_given = 0 ;
+  args_info->dump_dot_given = 0 ;
+  args_info->list_passes_given = 0 ;
+  args_info->convert_uppered_given = 0 ;
+  args_info->no_dot_line_numbers_given = 0 ;
+  args_info->no_dot_nulls_given = 0 ;
+  args_info->no_dot_empty_lists_given = 0 ;
+  args_info->no_xml_line_numbers_given = 0 ;
+  args_info->no_xml_base_64_given = 0 ;
+  args_info->no_xml_attrs_given = 0 ;
   args_info->stats_given = 0 ;
   args_info->rt_stats_given = 0 ;
-  args_info->debug_given = 0 ;
-  args_info->dump_given = 0 ;
-  args_info->dump_uppered_given = 0 ;
-  args_info->dump_dot_given = 0 ;
-  args_info->dump_xml_given = 0 ;
   args_info->cfg_dump_given = 0 ;
-  args_info->list_passes_given = 0 ;
+  args_info->debug_given = 0 ;
   args_info->dont_fail_given = 0 ;
   args_info->missed_opt_given = 0 ;
-  args_info->no_xml_attrs_given = 0 ;
-  args_info->no_base_64_given = 0 ;
   args_info->disable_given = 0 ;
 }
 
@@ -196,7 +208,7 @@ void clear_args (struct gengetopt_args_info *args_info)
   args_info->define_orig = NULL;
   args_info->read_xml_arg = NULL;
   args_info->read_xml_orig = NULL;
-  args_info->no_validation_flag = 1;
+  args_info->no_xml_validation_flag = 1;
   args_info->include_flag = 0;
   args_info->c_option_arg = NULL;
   args_info->c_option_orig = NULL;
@@ -217,29 +229,29 @@ void clear_args (struct gengetopt_args_info *args_info)
   args_info->tab_arg = gengetopt_strdup ("\t");
   args_info->tab_orig = NULL;
   args_info->no_hash_bang_flag = 0;
-  args_info->no_line_numbers_flag = 0;
-  args_info->no_nulls_flag = 0;
-  args_info->no_empty_lists_flag = 0;
+  args_info->dump_arg = NULL;
+  args_info->dump_orig = NULL;
+  args_info->dump_xml_arg = NULL;
+  args_info->dump_xml_orig = NULL;
+  args_info->dump_dot_arg = NULL;
+  args_info->dump_dot_orig = NULL;
+  args_info->list_passes_flag = 0;
+  args_info->convert_uppered_flag = 0;
+  args_info->no_dot_line_numbers_flag = 0;
+  args_info->no_dot_nulls_flag = 0;
+  args_info->no_dot_empty_lists_flag = 0;
+  args_info->no_xml_line_numbers_flag = 0;
+  args_info->no_xml_base_64_flag = 0;
+  args_info->no_xml_attrs_flag = 0;
   args_info->stats_arg = NULL;
   args_info->stats_orig = NULL;
   args_info->rt_stats_flag = 0;
-  args_info->debug_arg = NULL;
-  args_info->debug_orig = NULL;
-  args_info->dump_arg = NULL;
-  args_info->dump_orig = NULL;
-  args_info->dump_uppered_arg = NULL;
-  args_info->dump_uppered_orig = NULL;
-  args_info->dump_dot_arg = NULL;
-  args_info->dump_dot_orig = NULL;
-  args_info->dump_xml_arg = NULL;
-  args_info->dump_xml_orig = NULL;
   args_info->cfg_dump_arg = NULL;
   args_info->cfg_dump_orig = NULL;
-  args_info->list_passes_flag = 0;
+  args_info->debug_arg = NULL;
+  args_info->debug_orig = NULL;
   args_info->dont_fail_flag = 0;
   args_info->missed_opt_flag = 1;
-  args_info->no_xml_attrs_flag = 0;
-  args_info->no_base_64_flag = 0;
   args_info->disable_arg = NULL;
   args_info->disable_orig = NULL;
   
@@ -267,7 +279,7 @@ void init_args_info(struct gengetopt_args_info *args_info)
   args_info->define_min = 0;
   args_info->define_max = 0;
   args_info->read_xml_help = gengetopt_args_info_full_help[12] ;
-  args_info->no_validation_help = gengetopt_args_info_full_help[13] ;
+  args_info->no_xml_validation_help = gengetopt_args_info_full_help[13] ;
   args_info->include_help = gengetopt_args_info_full_help[14] ;
   args_info->c_option_help = gengetopt_args_info_full_help[16] ;
   args_info->c_option_min = 0;
@@ -283,37 +295,36 @@ void init_args_info(struct gengetopt_args_info *args_info)
   args_info->no_leading_tab_help = gengetopt_args_info_full_help[26] ;
   args_info->tab_help = gengetopt_args_info_full_help[27] ;
   args_info->no_hash_bang_help = gengetopt_args_info_full_help[28] ;
-  args_info->no_line_numbers_help = gengetopt_args_info_full_help[30] ;
-  args_info->no_nulls_help = gengetopt_args_info_full_help[31] ;
-  args_info->no_empty_lists_help = gengetopt_args_info_full_help[32] ;
-  args_info->stats_help = gengetopt_args_info_full_help[34] ;
-  args_info->stats_min = 0;
-  args_info->stats_max = 0;
-  args_info->rt_stats_help = gengetopt_args_info_full_help[35] ;
-  args_info->debug_help = gengetopt_args_info_full_help[36] ;
-  args_info->debug_min = 0;
-  args_info->debug_max = 0;
-  args_info->dump_help = gengetopt_args_info_full_help[37] ;
+  args_info->dump_help = gengetopt_args_info_full_help[30] ;
   args_info->dump_min = 0;
   args_info->dump_max = 0;
-  args_info->dump_uppered_help = gengetopt_args_info_full_help[38] ;
-  args_info->dump_uppered_min = 0;
-  args_info->dump_uppered_max = 0;
-  args_info->dump_dot_help = gengetopt_args_info_full_help[39] ;
-  args_info->dump_dot_min = 0;
-  args_info->dump_dot_max = 0;
-  args_info->dump_xml_help = gengetopt_args_info_full_help[40] ;
+  args_info->dump_xml_help = gengetopt_args_info_full_help[31] ;
   args_info->dump_xml_min = 0;
   args_info->dump_xml_max = 0;
-  args_info->cfg_dump_help = gengetopt_args_info_full_help[41] ;
+  args_info->dump_dot_help = gengetopt_args_info_full_help[32] ;
+  args_info->dump_dot_min = 0;
+  args_info->dump_dot_max = 0;
+  args_info->list_passes_help = gengetopt_args_info_full_help[33] ;
+  args_info->convert_uppered_help = gengetopt_args_info_full_help[35] ;
+  args_info->no_dot_line_numbers_help = gengetopt_args_info_full_help[37] ;
+  args_info->no_dot_nulls_help = gengetopt_args_info_full_help[38] ;
+  args_info->no_dot_empty_lists_help = gengetopt_args_info_full_help[39] ;
+  args_info->no_xml_line_numbers_help = gengetopt_args_info_full_help[41] ;
+  args_info->no_xml_base_64_help = gengetopt_args_info_full_help[42] ;
+  args_info->no_xml_attrs_help = gengetopt_args_info_full_help[43] ;
+  args_info->stats_help = gengetopt_args_info_full_help[45] ;
+  args_info->stats_min = 0;
+  args_info->stats_max = 0;
+  args_info->rt_stats_help = gengetopt_args_info_full_help[46] ;
+  args_info->cfg_dump_help = gengetopt_args_info_full_help[47] ;
   args_info->cfg_dump_min = 0;
   args_info->cfg_dump_max = 0;
-  args_info->list_passes_help = gengetopt_args_info_full_help[42] ;
-  args_info->dont_fail_help = gengetopt_args_info_full_help[43] ;
-  args_info->missed_opt_help = gengetopt_args_info_full_help[44] ;
-  args_info->no_xml_attrs_help = gengetopt_args_info_full_help[45] ;
-  args_info->no_base_64_help = gengetopt_args_info_full_help[46] ;
-  args_info->disable_help = gengetopt_args_info_full_help[47] ;
+  args_info->debug_help = gengetopt_args_info_full_help[48] ;
+  args_info->debug_min = 0;
+  args_info->debug_max = 0;
+  args_info->dont_fail_help = gengetopt_args_info_full_help[49] ;
+  args_info->missed_opt_help = gengetopt_args_info_full_help[50] ;
+  args_info->disable_help = gengetopt_args_info_full_help[51] ;
   args_info->disable_min = 0;
   args_info->disable_max = 0;
   
@@ -467,13 +478,12 @@ cmdline_parser_release (struct gengetopt_args_info *args_info)
   free_string_field (&(args_info->output_orig));
   free_string_field (&(args_info->tab_arg));
   free_string_field (&(args_info->tab_orig));
-  free_multiple_string_field (args_info->stats_given, &(args_info->stats_arg), &(args_info->stats_orig));
-  free_multiple_string_field (args_info->debug_given, &(args_info->debug_arg), &(args_info->debug_orig));
   free_multiple_string_field (args_info->dump_given, &(args_info->dump_arg), &(args_info->dump_orig));
-  free_multiple_string_field (args_info->dump_uppered_given, &(args_info->dump_uppered_arg), &(args_info->dump_uppered_orig));
-  free_multiple_string_field (args_info->dump_dot_given, &(args_info->dump_dot_arg), &(args_info->dump_dot_orig));
   free_multiple_string_field (args_info->dump_xml_given, &(args_info->dump_xml_arg), &(args_info->dump_xml_orig));
+  free_multiple_string_field (args_info->dump_dot_given, &(args_info->dump_dot_arg), &(args_info->dump_dot_orig));
+  free_multiple_string_field (args_info->stats_given, &(args_info->stats_arg), &(args_info->stats_orig));
   free_multiple_string_field (args_info->cfg_dump_given, &(args_info->cfg_dump_arg), &(args_info->cfg_dump_orig));
+  free_multiple_string_field (args_info->debug_given, &(args_info->debug_arg), &(args_info->debug_orig));
   free_multiple_string_field (args_info->disable_given, &(args_info->disable_arg), &(args_info->disable_orig));
   
   
@@ -536,8 +546,8 @@ cmdline_parser_dump(FILE *outfile, struct gengetopt_args_info *args_info)
   write_multiple_into_file(outfile, args_info->define_given, "define", args_info->define_orig, 0);
   if (args_info->read_xml_given)
     write_into_file(outfile, "read-xml", args_info->read_xml_orig, 0);
-  if (args_info->no_validation_given)
-    write_into_file(outfile, "no-validation", 0, 0 );
+  if (args_info->no_xml_validation_given)
+    write_into_file(outfile, "no-xml-validation", 0, 0 );
   if (args_info->include_given)
     write_into_file(outfile, "include", 0, 0 );
   write_multiple_into_file(outfile, args_info->c_option_given, "c-option", args_info->c_option_orig, 0);
@@ -563,31 +573,34 @@ cmdline_parser_dump(FILE *outfile, struct gengetopt_args_info *args_info)
     write_into_file(outfile, "tab", args_info->tab_orig, 0);
   if (args_info->no_hash_bang_given)
     write_into_file(outfile, "no-hash-bang", 0, 0 );
-  if (args_info->no_line_numbers_given)
-    write_into_file(outfile, "no-line-numbers", 0, 0 );
-  if (args_info->no_nulls_given)
-    write_into_file(outfile, "no-nulls", 0, 0 );
-  if (args_info->no_empty_lists_given)
-    write_into_file(outfile, "no-empty-lists", 0, 0 );
+  write_multiple_into_file(outfile, args_info->dump_given, "dump", args_info->dump_orig, 0);
+  write_multiple_into_file(outfile, args_info->dump_xml_given, "dump-xml", args_info->dump_xml_orig, 0);
+  write_multiple_into_file(outfile, args_info->dump_dot_given, "dump-dot", args_info->dump_dot_orig, 0);
+  if (args_info->list_passes_given)
+    write_into_file(outfile, "list-passes", 0, 0 );
+  if (args_info->convert_uppered_given)
+    write_into_file(outfile, "convert-uppered", 0, 0 );
+  if (args_info->no_dot_line_numbers_given)
+    write_into_file(outfile, "no-dot-line-numbers", 0, 0 );
+  if (args_info->no_dot_nulls_given)
+    write_into_file(outfile, "no-dot-nulls", 0, 0 );
+  if (args_info->no_dot_empty_lists_given)
+    write_into_file(outfile, "no-dot-empty-lists", 0, 0 );
+  if (args_info->no_xml_line_numbers_given)
+    write_into_file(outfile, "no-xml-line-numbers", 0, 0 );
+  if (args_info->no_xml_base_64_given)
+    write_into_file(outfile, "no-xml-base-64", 0, 0 );
+  if (args_info->no_xml_attrs_given)
+    write_into_file(outfile, "no-xml-attrs", 0, 0 );
   write_multiple_into_file(outfile, args_info->stats_given, "stats", args_info->stats_orig, 0);
   if (args_info->rt_stats_given)
     write_into_file(outfile, "rt-stats", 0, 0 );
-  write_multiple_into_file(outfile, args_info->debug_given, "debug", args_info->debug_orig, 0);
-  write_multiple_into_file(outfile, args_info->dump_given, "dump", args_info->dump_orig, 0);
-  write_multiple_into_file(outfile, args_info->dump_uppered_given, "dump-uppered", args_info->dump_uppered_orig, 0);
-  write_multiple_into_file(outfile, args_info->dump_dot_given, "dump-dot", args_info->dump_dot_orig, 0);
-  write_multiple_into_file(outfile, args_info->dump_xml_given, "dump-xml", args_info->dump_xml_orig, 0);
   write_multiple_into_file(outfile, args_info->cfg_dump_given, "cfg-dump", args_info->cfg_dump_orig, 0);
-  if (args_info->list_passes_given)
-    write_into_file(outfile, "list-passes", 0, 0 );
+  write_multiple_into_file(outfile, args_info->debug_given, "debug", args_info->debug_orig, 0);
   if (args_info->dont_fail_given)
     write_into_file(outfile, "dont-fail", 0, 0 );
   if (args_info->missed_opt_given)
     write_into_file(outfile, "missed-opt", 0, 0 );
-  if (args_info->no_xml_attrs_given)
-    write_into_file(outfile, "no-xml-attrs", 0, 0 );
-  if (args_info->no_base_64_given)
-    write_into_file(outfile, "no-base-64", 0, 0 );
   write_multiple_into_file(outfile, args_info->disable_given, "disable", args_info->disable_orig, 0);
   
 
@@ -850,25 +863,22 @@ cmdline_parser_required2 (struct gengetopt_args_info *args_info, const char *pro
   if (check_multiple_option_occurrences(prog_name, args_info->c_option_given, args_info->c_option_min, args_info->c_option_max, "'--c-option' ('-C')"))
      error = 1;
   
-  if (check_multiple_option_occurrences(prog_name, args_info->stats_given, args_info->stats_min, args_info->stats_max, "'--stats'"))
-     error = 1;
-  
-  if (check_multiple_option_occurrences(prog_name, args_info->debug_given, args_info->debug_min, args_info->debug_max, "'--debug'"))
-     error = 1;
-  
   if (check_multiple_option_occurrences(prog_name, args_info->dump_given, args_info->dump_min, args_info->dump_max, "'--dump'"))
-     error = 1;
-  
-  if (check_multiple_option_occurrences(prog_name, args_info->dump_uppered_given, args_info->dump_uppered_min, args_info->dump_uppered_max, "'--dump-uppered'"))
-     error = 1;
-  
-  if (check_multiple_option_occurrences(prog_name, args_info->dump_dot_given, args_info->dump_dot_min, args_info->dump_dot_max, "'--dump-dot'"))
      error = 1;
   
   if (check_multiple_option_occurrences(prog_name, args_info->dump_xml_given, args_info->dump_xml_min, args_info->dump_xml_max, "'--dump-xml'"))
      error = 1;
   
+  if (check_multiple_option_occurrences(prog_name, args_info->dump_dot_given, args_info->dump_dot_min, args_info->dump_dot_max, "'--dump-dot'"))
+     error = 1;
+  
+  if (check_multiple_option_occurrences(prog_name, args_info->stats_given, args_info->stats_min, args_info->stats_max, "'--stats'"))
+     error = 1;
+  
   if (check_multiple_option_occurrences(prog_name, args_info->cfg_dump_given, args_info->cfg_dump_min, args_info->cfg_dump_max, "'--cfg-dump'"))
+     error = 1;
+  
+  if (check_multiple_option_occurrences(prog_name, args_info->debug_given, args_info->debug_min, args_info->debug_max, "'--debug'"))
      error = 1;
   
   if (check_multiple_option_occurrences(prog_name, args_info->disable_given, args_info->disable_min, args_info->disable_max, "'--disable'"))
@@ -1109,13 +1119,12 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
   struct generic_list * r_option_list = NULL;
   struct generic_list * define_list = NULL;
   struct generic_list * c_option_list = NULL;
-  struct generic_list * stats_list = NULL;
-  struct generic_list * debug_list = NULL;
   struct generic_list * dump_list = NULL;
-  struct generic_list * dump_uppered_list = NULL;
-  struct generic_list * dump_dot_list = NULL;
   struct generic_list * dump_xml_list = NULL;
+  struct generic_list * dump_dot_list = NULL;
+  struct generic_list * stats_list = NULL;
   struct generic_list * cfg_dump_list = NULL;
+  struct generic_list * debug_list = NULL;
   struct generic_list * disable_list = NULL;
   int error = 0;
   struct gengetopt_args_info local_args_info;
@@ -1158,7 +1167,7 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
         { "r-option",	1, NULL, 0 },
         { "define",	1, NULL, 'd' },
         { "read-xml",	1, NULL, 0 },
-        { "no-validation",	0, NULL, 0 },
+        { "no-xml-validation",	0, NULL, 0 },
         { "include",	0, NULL, 0 },
         { "c-option",	1, NULL, 'C' },
         { "generate-c",	0, NULL, 0 },
@@ -1172,22 +1181,23 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
         { "no-leading-tab",	0, NULL, 0 },
         { "tab",	1, NULL, 0 },
         { "no-hash-bang",	0, NULL, 0 },
-        { "no-line-numbers",	0, NULL, 0 },
-        { "no-nulls",	0, NULL, 0 },
-        { "no-empty-lists",	0, NULL, 0 },
+        { "dump",	1, NULL, 0 },
+        { "dump-xml",	1, NULL, 0 },
+        { "dump-dot",	1, NULL, 0 },
+        { "list-passes",	0, NULL, 0 },
+        { "convert-uppered",	0, NULL, 0 },
+        { "no-dot-line-numbers",	0, NULL, 0 },
+        { "no-dot-nulls",	0, NULL, 0 },
+        { "no-dot-empty-lists",	0, NULL, 0 },
+        { "no-xml-line-numbers",	0, NULL, 0 },
+        { "no-xml-base-64",	0, NULL, 0 },
+        { "no-xml-attrs",	0, NULL, 0 },
         { "stats",	1, NULL, 0 },
         { "rt-stats",	0, NULL, 0 },
-        { "debug",	1, NULL, 0 },
-        { "dump",	1, NULL, 0 },
-        { "dump-uppered",	1, NULL, 0 },
-        { "dump-dot",	1, NULL, 0 },
-        { "dump-xml",	1, NULL, 0 },
         { "cfg-dump",	1, NULL, 0 },
-        { "list-passes",	0, NULL, 0 },
+        { "debug",	1, NULL, 0 },
         { "dont-fail",	0, NULL, 0 },
         { "missed-opt",	0, NULL, 0 },
-        { "no-xml-attrs",	0, NULL, 0 },
-        { "no-base-64",	0, NULL, 0 },
         { "disable",	1, NULL, 0 },
         { NULL,	0, NULL, 0 }
       };
@@ -1334,7 +1344,7 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
               goto failure;
           
           }
-          /* Assume the input is in XML format. Start processing after the named pass.  */
+          /* Assume the input is in XML format. Start processing after the named pass (passes are ast|hir|mir).  */
           else if (strcmp (long_options[option_index].name, "read-xml") == 0)
           {
           
@@ -1349,13 +1359,13 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
           
           }
           /* Toggle XML validation.  */
-          else if (strcmp (long_options[option_index].name, "no-validation") == 0)
+          else if (strcmp (long_options[option_index].name, "no-xml-validation") == 0)
           {
           
           
-            if (update_arg((void *)&(args_info->no_validation_flag), 0, &(args_info->no_validation_given),
-                &(local_args_info.no_validation_given), optarg, 0, 0, ARG_FLAG,
-                check_ambiguity, override, 1, 0, "no-validation", '-',
+            if (update_arg((void *)&(args_info->no_xml_validation_flag), 0, &(args_info->no_xml_validation_given),
+                &(local_args_info.no_xml_validation_given), optarg, 0, 0, ARG_FLAG,
+                check_ambiguity, override, 1, 0, "no-xml-validation", '-',
                 additional_error))
               goto failure;
           
@@ -1384,7 +1394,7 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
               goto failure;
           
           }
-          /* Generate a PHP extension called NAME instead of a standalone application.  */
+          /* Generate a PHP extension called EXTENSION instead of a standalone application.  */
           else if (strcmp (long_options[option_index].name, "extension") == 0)
           {
           
@@ -1476,43 +1486,136 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
               goto failure;
           
           }
-          /* Don't show line numbers when dumping DOT/XML.  */
-          else if (strcmp (long_options[option_index].name, "no-line-numbers") == 0)
+          /* Dump input as PHP (although potentially with gotos and labels) after PASSNAME.  */
+          else if (strcmp (long_options[option_index].name, "dump") == 0)
+          {
+          
+            if (update_multiple_arg_temp(&dump_list, 
+                &(local_args_info.dump_given), optarg, 0, 0, ARG_STRING,
+                "dump", '-',
+                additional_error))
+              goto failure;
+          
+          }
+          /* Dump input as XML after PASSNAME.  */
+          else if (strcmp (long_options[option_index].name, "dump-xml") == 0)
+          {
+          
+            if (update_multiple_arg_temp(&dump_xml_list, 
+                &(local_args_info.dump_xml_given), optarg, 0, 0, ARG_STRING,
+                "dump-xml", '-',
+                additional_error))
+              goto failure;
+          
+          }
+          /* Dump input as DOT after PASSNAME.  */
+          else if (strcmp (long_options[option_index].name, "dump-dot") == 0)
+          {
+          
+            if (update_multiple_arg_temp(&dump_dot_list, 
+                &(local_args_info.dump_dot_given), optarg, 0, 0, ARG_STRING,
+                "dump-dot", '-',
+                additional_error))
+              goto failure;
+          
+          }
+          /* List of available passes (for PASSNAME).  */
+          else if (strcmp (long_options[option_index].name, "list-passes") == 0)
           {
           
           
-            if (update_arg((void *)&(args_info->no_line_numbers_flag), 0, &(args_info->no_line_numbers_given),
-                &(local_args_info.no_line_numbers_given), optarg, 0, 0, ARG_FLAG,
-                check_ambiguity, override, 1, 0, "no-line-numbers", '-',
+            if (update_arg((void *)&(args_info->list_passes_flag), 0, &(args_info->list_passes_given),
+                &(local_args_info.list_passes_given), optarg, 0, 0, ARG_FLAG,
+                check_ambiguity, override, 1, 0, "list-passes", '-',
+                additional_error))
+              goto failure;
+          
+          }
+          /* Use legal PHP when dumping MIR as PHP.  */
+          else if (strcmp (long_options[option_index].name, "convert-uppered") == 0)
+          {
+          
+          
+            if (update_arg((void *)&(args_info->convert_uppered_flag), 0, &(args_info->convert_uppered_given),
+                &(local_args_info.convert_uppered_given), optarg, 0, 0, ARG_FLAG,
+                check_ambiguity, override, 1, 0, "convert-uppered", '-',
+                additional_error))
+              goto failure;
+          
+          }
+          /* Don't show line numbers when dumping DOT/XML.  */
+          else if (strcmp (long_options[option_index].name, "no-dot-line-numbers") == 0)
+          {
+          
+          
+            if (update_arg((void *)&(args_info->no_dot_line_numbers_flag), 0, &(args_info->no_dot_line_numbers_given),
+                &(local_args_info.no_dot_line_numbers_given), optarg, 0, 0, ARG_FLAG,
+                check_ambiguity, override, 1, 0, "no-dot-line-numbers", '-',
                 additional_error))
               goto failure;
           
           }
           /* Don't show NULLs when dumping DOT.  */
-          else if (strcmp (long_options[option_index].name, "no-nulls") == 0)
+          else if (strcmp (long_options[option_index].name, "no-dot-nulls") == 0)
           {
           
           
-            if (update_arg((void *)&(args_info->no_nulls_flag), 0, &(args_info->no_nulls_given),
-                &(local_args_info.no_nulls_given), optarg, 0, 0, ARG_FLAG,
-                check_ambiguity, override, 1, 0, "no-nulls", '-',
+            if (update_arg((void *)&(args_info->no_dot_nulls_flag), 0, &(args_info->no_dot_nulls_given),
+                &(local_args_info.no_dot_nulls_given), optarg, 0, 0, ARG_FLAG,
+                check_ambiguity, override, 1, 0, "no-dot-nulls", '-',
                 additional_error))
               goto failure;
           
           }
           /* Don't show empty lists when dumping DOT.  */
-          else if (strcmp (long_options[option_index].name, "no-empty-lists") == 0)
+          else if (strcmp (long_options[option_index].name, "no-dot-empty-lists") == 0)
           {
           
           
-            if (update_arg((void *)&(args_info->no_empty_lists_flag), 0, &(args_info->no_empty_lists_given),
-                &(local_args_info.no_empty_lists_given), optarg, 0, 0, ARG_FLAG,
-                check_ambiguity, override, 1, 0, "no-empty-lists", '-',
+            if (update_arg((void *)&(args_info->no_dot_empty_lists_flag), 0, &(args_info->no_dot_empty_lists_given),
+                &(local_args_info.no_dot_empty_lists_given), optarg, 0, 0, ARG_FLAG,
+                check_ambiguity, override, 1, 0, "no-dot-empty-lists", '-',
                 additional_error))
               goto failure;
           
           }
-          /* Print statistics for the pass named 'passname.  */
+          /* Don't show line numbers when dumping DOT.  */
+          else if (strcmp (long_options[option_index].name, "no-xml-line-numbers") == 0)
+          {
+          
+          
+            if (update_arg((void *)&(args_info->no_xml_line_numbers_flag), 0, &(args_info->no_xml_line_numbers_given),
+                &(local_args_info.no_xml_line_numbers_given), optarg, 0, 0, ARG_FLAG,
+                check_ambiguity, override, 1, 0, "no-xml-line-numbers", '-',
+                additional_error))
+              goto failure;
+          
+          }
+          /* Don't encode any strings into base64 when dumping XML.  */
+          else if (strcmp (long_options[option_index].name, "no-xml-base-64") == 0)
+          {
+          
+          
+            if (update_arg((void *)&(args_info->no_xml_base_64_flag), 0, &(args_info->no_xml_base_64_given),
+                &(local_args_info.no_xml_base_64_given), optarg, 0, 0, ARG_FLAG,
+                check_ambiguity, override, 1, 0, "no-xml-base-64", '-',
+                additional_error))
+              goto failure;
+          
+          }
+          /* When dumping XML, omit node attributes.  */
+          else if (strcmp (long_options[option_index].name, "no-xml-attrs") == 0)
+          {
+          
+          
+            if (update_arg((void *)&(args_info->no_xml_attrs_flag), 0, &(args_info->no_xml_attrs_given),
+                &(local_args_info.no_xml_attrs_given), optarg, 0, 0, ARG_FLAG,
+                check_ambiguity, override, 1, 0, "no-xml-attrs", '-',
+                additional_error))
+              goto failure;
+          
+          }
+          /* Print statistics for the pass named 'PASSNAME.  */
           else if (strcmp (long_options[option_index].name, "stats") == 0)
           {
           
@@ -1535,62 +1638,7 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
               goto failure;
           
           }
-          /* Print debugging information for the pass named 'passname.  */
-          else if (strcmp (long_options[option_index].name, "debug") == 0)
-          {
-          
-            if (update_multiple_arg_temp(&debug_list, 
-                &(local_args_info.debug_given), optarg, 0, 0, ARG_STRING,
-                "debug", '-',
-                additional_error))
-              goto failure;
-          
-          }
-          /* Dump input as PHP (although potentially with gotos and labels) after the pass named 'passname'.  */
-          else if (strcmp (long_options[option_index].name, "dump") == 0)
-          {
-          
-            if (update_multiple_arg_temp(&dump_list, 
-                &(local_args_info.dump_given), optarg, 0, 0, ARG_STRING,
-                "dump", '-',
-                additional_error))
-              goto failure;
-          
-          }
-          /* Dump input as runnable PHP after the pass named 'passname'.  */
-          else if (strcmp (long_options[option_index].name, "dump-uppered") == 0)
-          {
-          
-            if (update_multiple_arg_temp(&dump_uppered_list, 
-                &(local_args_info.dump_uppered_given), optarg, 0, 0, ARG_STRING,
-                "dump-uppered", '-',
-                additional_error))
-              goto failure;
-          
-          }
-          /* Dump input as DOT after the pass named 'passname'.  */
-          else if (strcmp (long_options[option_index].name, "dump-dot") == 0)
-          {
-          
-            if (update_multiple_arg_temp(&dump_dot_list, 
-                &(local_args_info.dump_dot_given), optarg, 0, 0, ARG_STRING,
-                "dump-dot", '-',
-                additional_error))
-              goto failure;
-          
-          }
-          /* Dump input as XML after the pass named 'passname'.  */
-          else if (strcmp (long_options[option_index].name, "dump-xml") == 0)
-          {
-          
-            if (update_multiple_arg_temp(&dump_xml_list, 
-                &(local_args_info.dump_xml_given), optarg, 0, 0, ARG_STRING,
-                "dump-xml", '-',
-                additional_error))
-              goto failure;
-          
-          }
-          /* Dump CFG after the pass named 'passname'.  */
+          /* Dump CFG after the pass named 'PASSNAME'.  */
           else if (strcmp (long_options[option_index].name, "cfg-dump") == 0)
           {
           
@@ -1601,14 +1649,13 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
               goto failure;
           
           }
-          /* List the passes to be run.  */
-          else if (strcmp (long_options[option_index].name, "list-passes") == 0)
+          /* Print debugging information for the pass named 'PASSNAME.  */
+          else if (strcmp (long_options[option_index].name, "debug") == 0)
           {
           
-          
-            if (update_arg((void *)&(args_info->list_passes_flag), 0, &(args_info->list_passes_given),
-                &(local_args_info.list_passes_given), optarg, 0, 0, ARG_FLAG,
-                check_ambiguity, override, 1, 0, "list-passes", '-',
+            if (update_multiple_arg_temp(&debug_list, 
+                &(local_args_info.debug_given), optarg, 0, 0, ARG_STRING,
+                "debug", '-',
                 additional_error))
               goto failure;
           
@@ -1637,31 +1684,7 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
               goto failure;
           
           }
-          /* When dumping XML, omit node attributes.  */
-          else if (strcmp (long_options[option_index].name, "no-xml-attrs") == 0)
-          {
-          
-          
-            if (update_arg((void *)&(args_info->no_xml_attrs_flag), 0, &(args_info->no_xml_attrs_given),
-                &(local_args_info.no_xml_attrs_given), optarg, 0, 0, ARG_FLAG,
-                check_ambiguity, override, 1, 0, "no-xml-attrs", '-',
-                additional_error))
-              goto failure;
-          
-          }
-          /* When dumping XML, do not encode any strings into base64 encoding.  */
-          else if (strcmp (long_options[option_index].name, "no-base-64") == 0)
-          {
-          
-          
-            if (update_arg((void *)&(args_info->no_base_64_flag), 0, &(args_info->no_base_64_given),
-                &(local_args_info.no_base_64_given), optarg, 0, 0, ARG_FLAG,
-                check_ambiguity, override, 1, 0, "no-base-64", '-',
-                additional_error))
-              goto failure;
-          
-          }
-          /* Disable the pass named 'passname'.  */
+          /* Disable the pass named 'PASSNAME'.  */
           else if (strcmp (long_options[option_index].name, "disable") == 0)
           {
           
@@ -1701,34 +1724,30 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
     &(args_info->c_option_orig), args_info->c_option_given,
     local_args_info.c_option_given, 0 , 
     ARG_STRING, c_option_list);
-  update_multiple_arg((void *)&(args_info->stats_arg),
-    &(args_info->stats_orig), args_info->stats_given,
-    local_args_info.stats_given, 0 , 
-    ARG_STRING, stats_list);
-  update_multiple_arg((void *)&(args_info->debug_arg),
-    &(args_info->debug_orig), args_info->debug_given,
-    local_args_info.debug_given, 0 , 
-    ARG_STRING, debug_list);
   update_multiple_arg((void *)&(args_info->dump_arg),
     &(args_info->dump_orig), args_info->dump_given,
     local_args_info.dump_given, 0 , 
     ARG_STRING, dump_list);
-  update_multiple_arg((void *)&(args_info->dump_uppered_arg),
-    &(args_info->dump_uppered_orig), args_info->dump_uppered_given,
-    local_args_info.dump_uppered_given, 0 , 
-    ARG_STRING, dump_uppered_list);
-  update_multiple_arg((void *)&(args_info->dump_dot_arg),
-    &(args_info->dump_dot_orig), args_info->dump_dot_given,
-    local_args_info.dump_dot_given, 0 , 
-    ARG_STRING, dump_dot_list);
   update_multiple_arg((void *)&(args_info->dump_xml_arg),
     &(args_info->dump_xml_orig), args_info->dump_xml_given,
     local_args_info.dump_xml_given, 0 , 
     ARG_STRING, dump_xml_list);
+  update_multiple_arg((void *)&(args_info->dump_dot_arg),
+    &(args_info->dump_dot_orig), args_info->dump_dot_given,
+    local_args_info.dump_dot_given, 0 , 
+    ARG_STRING, dump_dot_list);
+  update_multiple_arg((void *)&(args_info->stats_arg),
+    &(args_info->stats_orig), args_info->stats_given,
+    local_args_info.stats_given, 0 , 
+    ARG_STRING, stats_list);
   update_multiple_arg((void *)&(args_info->cfg_dump_arg),
     &(args_info->cfg_dump_orig), args_info->cfg_dump_given,
     local_args_info.cfg_dump_given, 0 , 
     ARG_STRING, cfg_dump_list);
+  update_multiple_arg((void *)&(args_info->debug_arg),
+    &(args_info->debug_orig), args_info->debug_given,
+    local_args_info.debug_given, 0 , 
+    ARG_STRING, debug_list);
   update_multiple_arg((void *)&(args_info->disable_arg),
     &(args_info->disable_orig), args_info->disable_given,
     local_args_info.disable_given, 0 , 
@@ -1742,20 +1761,18 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
   local_args_info.define_given = 0;
   args_info->c_option_given += local_args_info.c_option_given;
   local_args_info.c_option_given = 0;
-  args_info->stats_given += local_args_info.stats_given;
-  local_args_info.stats_given = 0;
-  args_info->debug_given += local_args_info.debug_given;
-  local_args_info.debug_given = 0;
   args_info->dump_given += local_args_info.dump_given;
   local_args_info.dump_given = 0;
-  args_info->dump_uppered_given += local_args_info.dump_uppered_given;
-  local_args_info.dump_uppered_given = 0;
-  args_info->dump_dot_given += local_args_info.dump_dot_given;
-  local_args_info.dump_dot_given = 0;
   args_info->dump_xml_given += local_args_info.dump_xml_given;
   local_args_info.dump_xml_given = 0;
+  args_info->dump_dot_given += local_args_info.dump_dot_given;
+  local_args_info.dump_dot_given = 0;
+  args_info->stats_given += local_args_info.stats_given;
+  local_args_info.stats_given = 0;
   args_info->cfg_dump_given += local_args_info.cfg_dump_given;
   local_args_info.cfg_dump_given = 0;
+  args_info->debug_given += local_args_info.debug_given;
+  local_args_info.debug_given = 0;
   args_info->disable_given += local_args_info.disable_given;
   local_args_info.disable_given = 0;
   
@@ -1800,13 +1817,12 @@ failure:
   free_list (r_option_list, 1 );
   free_list (define_list, 1 );
   free_list (c_option_list, 1 );
-  free_list (stats_list, 1 );
-  free_list (debug_list, 1 );
   free_list (dump_list, 1 );
-  free_list (dump_uppered_list, 1 );
-  free_list (dump_dot_list, 1 );
   free_list (dump_xml_list, 1 );
+  free_list (dump_dot_list, 1 );
+  free_list (stats_list, 1 );
   free_list (cfg_dump_list, 1 );
+  free_list (debug_list, 1 );
   free_list (disable_list, 1 );
   
   cmdline_parser_release (&local_args_info);

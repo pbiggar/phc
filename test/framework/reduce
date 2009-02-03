@@ -224,7 +224,7 @@ function convert ($xprogram_string, $upper)
 
 	if ($opt_dont_upper) $upper = false;
 	debug (2, "Converting to PHP from XML" . ($upper ? " (uppered)" : ""));
-	$upper = $upper ? "-uppered" : ""; // TODO: if this is to be uppered, then we cant remove all?
+	$upper = $upper ? " --convert-uppered" : ""; // TODO: if this is to be uppered, then we cant remove all?
 	$out = run_safe ("$opt_phc_prefix/src/phc --read-xml=$opt_pass --dump$upper=$opt_pass --run=$opt_phc_prefix/plugins/tools/remove_all.la", $xprogram_string);
 	return $out;
 }

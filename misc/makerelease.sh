@@ -24,6 +24,7 @@ fi
 
 SRC_DIR=phc-$1
 DOC_DIR=$SRC_DIR/doc/manual/
+TST_DIR=$(readlink -f phc-$1-test)
 
 SRC_TGZ=phc-$1.tar.gz
 SRC_BZ2=phc-$1.tar.bz2
@@ -92,9 +93,9 @@ rm -rf $SRC_DIR
 pushd .
 tar xfj $SRC_BZ2
 cd $SRC_DIR
-./configure
+./configure --prefix $TST_DIR
 make
-make test
+make installtest
 popd
 
 ## Finish 

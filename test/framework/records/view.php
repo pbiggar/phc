@@ -64,9 +64,18 @@
 				");
 		$benchmarks = $query->fetchAll(PDO::FETCH_ASSOC);
 
+		// Compile meta-results
+		$query = $DB->query ("
+				SELECT	revision, component, time_taken, test_date, revision_used, failed, redo
+				FROM		components
+				WHERE		component == 'compile'
+				");
+
+		$compile_meta = $query->fetchAll(PDO::FETCH_ASSOC);
+
 		// Test meta-results
 		$query = $DB->query ("
-				SELECT	revision, time_taken, test_date, revision_used, failed, redo
+				SELECT	revision, component, time_taken, test_date, revision_used, failed, redo
 				FROM		components
 				WHERE		component == 'test'
 				");
@@ -74,15 +83,20 @@
 
 		// Bench meta-results
 		$query = $DB->query ("
-				SELECT	revision, time_taken, test_date, revision_used, failed, redo
+				SELECT	revision, component, time_taken, test_date, revision_used, failed, redo
 				FROM		components
 				WHERE		component == 'benchmark'
 				");
 		$bench_meta = $query->fetchAll(PDO::FETCH_ASSOC);
 
+		$query = $DB->query ("SELECT revision FROM running");
+		$running = $query->fetchAll(PDO::FETCH_ASSOC);
+		$running = $running[0]["revision"];
 
 
-		$revisions = array_reduce (array ($completes, $tests, $benchmarks, $test_meta, $bench_meta), "merge_results");
+
+
+		$revisions = array_reduce (array ($completes, $tests, $benchmarks, $compile_meta, $test_meta, $bench_meta), "merge_results");
 
 
 
@@ -96,11 +110,8 @@
 
 			$data["difference"] = add_difference ("pass", $data, $revisions[$prev[$branch]]);
 			add_difference ("fail", $data, $revisions[$prev[$branch]]);
-//			add_difference ("skip", $data, $revisions[$prev[$branch]]);
-//			add_difference ("timeout", $data, $revisions[$prev[$branch]]);
 
 			$prev[$branch] = $rev;
-			unset ($data["failed"]);
 		}
 
 		$revisions = array_reverse ($revisions, true);
@@ -119,18 +130,24 @@
 				$color = get_bad_color ();
 			unset ($data["difference"]);
 
+			if ($rev == $running)
+				$color = get_running_color ();
+
+
 			# add a link to revision
 			$data["revision"] = "<a href=\"details.php?rev=$rev\">$rev</a>";
-			$data["test_date"] = date_from_timestamp ($data["test_date"]);
+			if (isset ($data["test_date"]))
+				$data["test_date"] = date_from_timestamp ($data["test_date"]);
+			if (isset ($data["time_taken"]))
+				$data["time_taken"] = minutes_from_seconds($data["time_taken"]);
 
 			foreach ($order as $header)
 			{
 				$value = $data[$header];
-				print "<td$color>$value</td>\n";
+				print "<td $color>$value</td>\n";
 			}
 			print "<a/></tr>\n";
 		}
-
 	}
 
 	function merge_results ($results, $new_results)
@@ -146,6 +163,17 @@
 				if (isset ($ABBREVIATIONS[$value]))
 					$value = $ABBREVIATIONS[$value];
 
+				// Result processing (hard to do this one elsewhere)
+				if ($key == "failed" || $key == "redo")
+				{
+					if ($value  == 1)
+						$value = strtoupper ($new_result["component"][0]);
+					else
+						$value = "";
+				}
+
+
+
 				// Use the larger of the two, if set.
 				if (isset ($results[$rev][$key]))
 				{
@@ -158,14 +186,17 @@
 					else if ($key == "revision_used")
 						$value = "$old_value, $value";
 					else if ($key == "failed")
-						$value = "$old_value, $value";
+						$value = "$old_value$value";
 					else if ($key == "test_date")
 						$value = max ($old_value, $value);
 					else if ($key == "redo")
-						$value = "$old_value, $value";
+						$value = "$old_value$value";
+					else if ($key == "component")
+						; // dont care
 					else
 						die ("Overwriting $rev, $key ($old_value) with $value");
 				}
+
 				$results[$rev][$key] = $value;
 			}
 		}

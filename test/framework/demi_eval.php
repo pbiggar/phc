@@ -33,7 +33,7 @@ class Demi_eval extends CompiledVsInterpreted
 	{
 		global $phc, $plugin_dir;
 		$init = $this->init;
-		return "$phc --run $plugin_dir/tools/demi_eval.la --r-option=\"$init\" --dump-uppered=$plugin_dir/tools/demi_eval.la $subject | ". get_php_command_line ($subject, "pipe");
+		return "$phc --run $plugin_dir/tools/demi_eval.la --r-option=\"$init\" --convert-uppered --dump=$plugin_dir/tools/demi_eval.la $subject | ". get_php_command_line ($subject, "pipe");
 	}
 
 	function get_phc_command ($subject, $exe_name)

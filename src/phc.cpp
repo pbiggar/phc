@@ -211,7 +211,6 @@ int main(int argc, char** argv)
 	}
 	check_passes (stats);
 	check_passes (dump);
-	check_passes (dump_uppered);
 	check_passes (dump_xml);
 	check_passes (dump_dot);
 	check_passes (debug);

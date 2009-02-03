@@ -657,29 +657,17 @@ public:
 		foreach (Member* member, *pattern->value->members)
 		{
 			Method* method = dynamic_cast<Method*>(member);
-			Attribute* attr = dynamic_cast<Attribute*>(member);
 
 			if(method != NULL)
 			{
 				buf << gen->compile_statement(method);
 			} 
-			else if(attr != NULL)
-			{
-				// On the internals side, attributes are not declared as part of the
-				// class but must be added to class instances when they are created 
-				// TODO: static attributes and constants should be declared here
-			}
-			else
-			{
-				// Invalid member type
-				assert(0);
-			}
 		}
 
 		// Declare all class members
 		function_declaration_block(buf, pattern->value->attrs->get_list<Signature>("phc.codegen.compiled_functions"), pattern->value->class_name->value);
 
-		// Register the class in the module's MINIT function
+		// Create the class entry in MINIT
 		minit
 		<< "{\n"
 		<< "zend_class_entry ce; // temp\n"
@@ -687,9 +675,23 @@ public:
 		<< "INIT_CLASS_ENTRY(ce, " 
 		<< "\"" << *pattern->value->class_name->value << "\", " 
 		<< *pattern->value->class_name->value << "_functions);\n"
-		<< "ce_reg = zend_register_internal_class(&ce TSRMLS_CC);\n"
 		;
-		
+
+		// Register the class
+		CLASS_NAME* parent = pattern->value->extends;
+		if(parent != NULL)
+		{
+			minit 
+			<< "zend_class_entry* parent;\n"
+			<< "parent = zend_fetch_class(\"" << *parent->value << "\", " << parent->value->length() << ", ZEND_FETCH_CLASS_DEFAULT TSRMLS_CC);\n"
+			<< "ce_reg = zend_register_internal_class_ex(&ce, parent, \"" << *parent->value << "\" TSRMLS_CC);\n";
+			;
+		}
+		else
+		{
+			minit << "ce_reg = zend_register_internal_class(&ce TSRMLS_CC);\n";
+		}
+
 		// Clear the ZEND_INTERNAL_CLASS flag so that we can add complex zvals
 		// as class attributes. TODO: not sure what the consequences of this are.
 		minit << "ce_reg->type &= ~ZEND_INTERNAL_CLASS;\n";
@@ -1682,40 +1684,19 @@ public:
 	void generate_code (Generate_C* gen)
 	{
 		assert (!agn->is_ref);
+		string function_name = *dyc<METHOD_NAME> (rhs->value->method_name)->value;
+		string fci_name = suffix (function_name, "fci");
+		string fcic_name = suffix (function_name, "fcic");
 
-		string name = *dyc<METHOD_NAME> (rhs->value->method_name)->value;
-		int index = rhs->value->param_index->value;
-
-		string fci_name = suffix (name, "fci");
-		string fcic_name = suffix (name, "fcic");
-		init_function_record (buf, name, fci_name, fcic_name, rhs->value);
-
-		buf
-		<< "zend_function* signature = " << fcic_name << ".function_handler;\n"
-		<< "zend_arg_info* arg_info = signature->common.arg_info;\n"
-		<< "int count = 0;\n"
-		<< "while (arg_info && count < " << index << ")\n"
-		<< "{\n"
-		<<		"count++;\n"
-		<<		"arg_info++;\n"
-		<< "}\n"
-
-		// TODO this could be locally allocated
-		<< get_st_entry (LOCAL, "p_lhs", lhs->value)
-		<< "zval* rhs;\n"
-		<< "ALLOC_INIT_ZVAL (rhs);\n"
-		<< "if (count == " << index << ")\n"
-		<< "{\n"
-		<<		"ZVAL_BOOL (rhs, arg_info->pass_by_reference);\n"
-		<< "}\n"
-		<< "else\n"
-		<< "{\n"
-		<<		"ZVAL_BOOL (rhs, signature->common.pass_rest_by_reference);\n"
-		<< "}\n"
-		<<	"write_var (p_lhs, rhs);\n"
-		<< "zval_ptr_dtor (&rhs);\n"
-		;
-
+		INST (buf,
+				"assign_param_is_ref", 
+				s(function_name),
+				rhs->value->get_filename (),
+				s(lexical_cast<string> (rhs->value->get_line_number ())),
+				s(fci_name),
+				s(fcic_name),
+				s(lexical_cast<string> (rhs->value->param_index->value)),
+				lhs->value);
 	}
 
 protected:

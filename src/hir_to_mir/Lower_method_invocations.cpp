@@ -46,7 +46,7 @@ Lower_method_invocations::pre_method_invocation (Method_invocation* in)
 	if (in->target == NULL && mn && *mn->value == "unset")
 		return in;
 	
-  bool is_isset = in->target == NULL && mn && *mn->value == "isset";
+	bool is_isset = in->target == NULL && mn && *mn->value == "isset";
 
 	int index = 0;
 	foreach (Actual_parameter* actual_param, *in->actual_parameters)
@@ -66,7 +66,7 @@ Lower_method_invocations::pre_method_invocation (Method_invocation* in)
 		// and transform differently is this case.
 		FOREIGN* param_is_ref = new FOREIGN (
 			new MIR::Param_is_ref (
-				in->target ? folder.fold_target (in->target): NULL,
+				in->target ? folder.fold_target (in->target) : NULL,
 				folder.fold_method_name (in->method_name),
 				new MIR::PARAM_INDEX (index)));
 

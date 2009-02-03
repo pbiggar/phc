@@ -47,7 +47,6 @@ EOL
 	}
 
 
-	$filename = "test/subjects/benchmarks/zend/bench.php";
 	# We want to use the latest versions of the files, when running 'records/run'.
 	$benchs = glob (dirname (__FILE__)."/../../subjects/benchmarks/zend/individual/*.php");
 	foreach ($benchs as $filename)
