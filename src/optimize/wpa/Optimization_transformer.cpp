@@ -23,7 +23,7 @@ using namespace std;
  * Apply the optimization results.
  */
 Optimization_transformer::Optimization_transformer (Aliasing* aliasing)
-: aliasing (aliasing)
+: wp (wp)
 {
 }
 
@@ -52,12 +52,11 @@ Optimization_transformer::get_literal (Basic_block* bb, Rvalue* in)
 	if (isa<Literal> (in))
 		return in;
 
-	Index_node* index = aliasing->get_named_index (bb, P (ST (bb), in));
+	Index_node* index = wp->get_named_index (bb, P (ST (bb), in));
 	if (index == NULL)
 		return in;
 
-	CCP* ccp = aliasing->wp->ccp;
-	Lattice_cell* result = ccp->ins[bb->ID][index->name ().str()];
+	Lattice_cell* result = wp->ccp->ins[bb->ID][index->name ().str()];
 
 	if (result == BOTTOM)
 		return in;

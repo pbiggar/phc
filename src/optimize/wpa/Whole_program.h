@@ -38,7 +38,13 @@
 #define PHC_WHOLE_PROGRAM
 
 #include "lib/Map.h"
-#include "optimize/Oracle.h"
+#include "WPA.h"
+
+DECL(Method_info);
+DECL(Index_node);
+
+class CFG;
+class Basic_block;
 
 class Aliasing;
 class Callgraph;
@@ -46,12 +52,26 @@ class CCP;
 class Constant_state;
 class Def_use;
 class Include_analysis;
+class Optimization_transformer;
+class Pass_manager;
+class Path;
 class Type_inference;
 class VRP;
 class WPA;
-class Pass_manager;
 
-class Whole_program
+
+// This gets duplicated everywhere.
+#define foreach_wpa(WP)		\
+	string name;				\
+	WPA* wpa;					\
+	foreach (boost::tie (name, wpa), WP->analyses)
+
+#define foreach_wpa_nd(WP)		\
+	foreach (boost::tie (name, wpa), WP->analyses)
+
+
+
+class Whole_program : public CFG_visitor
 {
 
 	// Analyses should be able to reach in here to get other analyses'
@@ -59,38 +79,29 @@ class Whole_program
 
 public:
 	Map<string, WPA*> analyses;
+
 	Aliasing* aliasing;
 	CCP* ccp;
 	Def_use* def_use;
 	Pass_manager* pm;
 	Callgraph* callgraph;
 
-	// All methods which have been called in the symbolic execution of the
-	// program. Other functions have not been called, and should be stripped
-	// from the program.
-
-	// 'Called' instead of 'invoked' so that it remind you of invoked_methods.
-	Set<string> called_methods;
-
+	Optimization_transformer* transformer;
 
 public:
 	Whole_program(Pass_manager* pm);
-	void register_analysis (string name, WPA* analysis);
-
-	/*
-	 * Analysis
-	 */
-	// My current plan is the each analysis can annotate the MIR nodes as they
-	// go. Then, before each block is analysed, all of its annotations are
-	// cleared.
-	//
-	// This way, each analysis does not have to store results at each program
-	// point, and can update them as it proceeds through the program.
-	// TODO: do we have to clone for join points then?
 
 	void run (MIR::PHP_script* in);
+	void run (CFG* cfg){}
 
-	void invoke_method (MIR::Method_invocation* in, Basic_block* context, MIR::VARIABLE_NAME* lhs);
+	/* 
+	 * Creating and using analyses.
+	 */
+	void register_analysis (string name, WPA* analysis);
+
+	void invoke_method (MIR::Method_invocation* in, Basic_block* context,
+							  MIR::VARIABLE_NAME* lhs);
+
 	Edge_list* get_branch_successors (Branch_block* bb);
 	Method_info_list* get_possible_receivers (MIR::Method_invocation* in);
 
@@ -100,15 +111,92 @@ public:
 	void merge_contexts (Method_info* info);
 	void apply_results (Method_info* info);
 
-private:
-	// The CFG parameterss arent in an intuitive order, but thats so that when
-	// there are 2 CFGs, they go in the order Caller,callee. The other problems
-	// can at least be spotted by the type-checker.
-	void analyse_method_info (Method_info* info, Basic_block* context, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs);
+	// Apply the interprocedural optimization results to this BB.
+	// TODO: wrong!!
+	void apply_results (Basic_block* bb);
+
+	void analyse_method_info (Method_info* info, Basic_block* context,
+									  MIR::Actual_parameter_list* actuals,
+									  MIR::VARIABLE_NAME* lhs);
+
 	void analyse_function (Basic_block* context, CFG* cfg, 
-								  MIR::Actual_parameter_list*, MIR::VARIABLE_NAME* lhs);
+								  MIR::Actual_parameter_list*,
+								  MIR::VARIABLE_NAME* lhs);
+
 	void analyse_summary (Method_info* info, Basic_block* context,
-							    MIR::Actual_parameter_list*, MIR::VARIABLE_NAME* lhs);
+							    MIR::Actual_parameter_list*,
+								 MIR::VARIABLE_NAME* lhs);
+
+	/* Local analysis - calling other analyses */
+	void dump (Basic_block* bb);
+
+
+	void use_summary_results (Basic_block* context, Method_info* info, MIR::Actual_parameter_list* in, MIR::VARIABLE_NAME* lhs);
+
+	void forward_bind (Basic_block* bb, CFG* callee_cfg,
+			MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* retval);
+
+	void backward_bind (Basic_block* bb, CFG* callee_cfg);
+
+	// Performs points-to analysis, and call the other analyses with the
+	// results. Returns true if a solution has changed, requiring this block
+	// to be reanalysed.
+	bool analyse_block (Basic_block* bb);
+
+	// These functions describe the operation being performed in each block.
+	// They pass the information to the Points-to graph, and to the other
+	// analyses. The BB is to give a unique index to the results.
+	void assign_scalar (Basic_block* bb, Path* lhs, MIR::Literal* lit);
+	void assign_by_ref (Basic_block* bb, Path* lhs, Path* rhs);
+	void assign_by_copy (Basic_block* bb, Path* lhs, Path* rhs);
+
+	void record_use (Basic_block* bb, Index_node* node);
+
+	/*
+	 * These might be considered to belong elsewhere, but its tricky for some
+	 * reason.
+	 */
+
+	// Get the list of potential values of node (can include '*' when it is
+	// unknown).
+	String_list* get_string_values (Basic_block* bb, Index_node* node);
+
+	// PATH can refer to many nodes. Get the list of Index_nodes it points to.
+	Index_node_list* get_named_indices (Basic_block* bb, Path* path);
+
+	// NULL if more than 1 exists
+	Index_node* get_named_index (Basic_block* bb, Path* path);
+
+
+
+	/*
+	 * Actually perform analysis
+	 */
+	void visit_branch_block (Branch_block*) { phc_TODO (); }
+
+	void visit_assign_array (Statement_block*, MIR::Assign_array*) { phc_TODO (); }
+	void visit_assign_field (Statement_block*, MIR::Assign_field *) { phc_TODO (); }
+	void visit_assign_var (Statement_block*, MIR::Assign_var*);
+	void visit_assign_var_var (Statement_block*, MIR::Assign_var_var*) { phc_TODO (); }
+	void visit_eval_expr (Statement_block*, MIR::Eval_expr*);
+	void visit_foreach_end (Statement_block*, MIR::Foreach_end*) { phc_TODO (); }
+	void visit_foreach_next (Statement_block*, MIR::Foreach_next*) { phc_TODO (); }
+	void visit_foreach_reset (Statement_block*, MIR::Foreach_reset*) { phc_TODO (); }
+	void visit_global (Statement_block*, MIR::Global*);
+	void visit_pre_op (Statement_block*, MIR::Pre_op*) { phc_TODO (); }
+	void visit_assign_next (Statement_block*, MIR::Assign_next*) { phc_TODO (); }
+	void visit_return (Statement_block*, MIR::Return*) { phc_TODO (); }
+	void visit_static_declaration (Statement_block*, MIR::Static_declaration*) { phc_TODO (); }
+	void visit_throw (Statement_block*, MIR::Throw*) { phc_TODO (); }
+	void visit_try (Statement_block*, MIR::Try*) { phc_TODO (); }
+	void visit_unset (Statement_block*, MIR::Unset*) { phc_TODO (); }
+
+	// Interprocedural nodes
+	void handle_method_invocation (Statement_block* bb, MIR::Method_invocation* in, MIR::VARIABLE_NAME* lhs);
+
+	void handle_new (Statement_block* bb, MIR::New* in, MIR::VARIABLE_NAME* lhs);
+
+
 };
 
 

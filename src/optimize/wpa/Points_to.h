@@ -19,8 +19,6 @@
 
 #include "WPA.h"
 
-#define DECL(T) class T; typedef List<T*> T##_list;
-
 DECL (PT_node);
 DECL (Index_node);
 DECL (Storage_node);
@@ -39,7 +37,6 @@ public:
 	// Each PT node gets a unique name for the alias pairs representation.
 	virtual Alias_name name () = 0;
 	virtual String* get_graphviz () = 0;
-
 };
 
 /*
@@ -129,7 +126,9 @@ private:
 public:
 	Points_to ();
 
-	// WPA interface
+	void dump_graphviz (String* label);
+
+	// WPA-lite interface
 	void open_scope (string name);
 	void close_scope (string name);
 
@@ -140,8 +139,6 @@ public:
 	void assign_by_ref (Index_node* n1, Index_node* n2);
 	void assign_by_copy (Index_node* n1, Index_node* n2);
 
-	void dump_graphviz (String* label);
-
 	/*
 	 * High-level API
 	 */
@@ -149,10 +146,15 @@ public:
 	bool has_value_edges (Index_node* node);
 	void insert (Alias_pair*);
 
-	Index_node_list* get_references (Index_node* index, certainty cert);
-	Storage_node_list* get_points_to (Index_node* index, certainty cert);
-
 	Index_node_list* get_local_references (Storage_node* ns, Index_node* index, certainty cert);
+
+	Index_node_list* get_references (Index_node* index,
+												certainty cert);
+
+	Storage_node_list* get_points_to (Index_node* index,
+												certainty cert);
+
+
 
 
 	/*

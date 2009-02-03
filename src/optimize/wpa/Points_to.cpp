@@ -27,12 +27,6 @@ Points_to::Points_to ()
 {
 }
 
-Storage_node* SN (string scope) { return new Storage_node (scope); }
-Index_node* IN (string scope, string name) { return new Index_node (scope, name); }
-Index_node* VN (string scope, MIR::VARIABLE_NAME* var) { return IN (scope, *var->value); }
-Index_node* FN (string scope, MIR::FIELD_NAME* field) { return IN (scope, *field->value); }
-
-
 /*
  * Add a storage node for the scope (or it might exist already in the case of
  * recursion). Add an GLOBALS node to it.
@@ -487,6 +481,28 @@ Alias_pair::dump()
 /*
  * Nodes
  */
+Storage_node* SN (string scope)
+{
+	return new Storage_node (scope);
+}
+
+Index_node* IN (string scope, string name)
+{
+	return new Index_node (scope, name);
+}
+
+Index_node* VN (string scope, MIR::VARIABLE_NAME* var)
+{
+	return IN (scope, *var->value);
+}
+
+Index_node* FN (string scope, MIR::FIELD_NAME* field)
+{
+	return IN (scope, *field->value);
+}
+
+
+
 
 Storage_node::Storage_node (string storage)
 : storage (storage)

@@ -9,13 +9,13 @@
 #ifndef PHC_OPTIMIZATION_TRANSFORMER
 #define PHC_OPTIMIZATION_TRANSFORMER
 
-class Aliasing;
+class Whole_program;
 class Index_node;
 
 class Optimization_transformer : public CFG_visitor
 {
 public:
-	Aliasing* aliasing;
+	Whole_program* wp;
 	Optimization_transformer (Aliasing*);
 
 	void run (CFG* cfg);

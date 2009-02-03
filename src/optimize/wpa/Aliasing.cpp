@@ -14,319 +14,24 @@
  * for us).
  */
 
-#include "Aliasing.h"
 #include "Points_to.h"
-#include "Callgraph.h"
-#include "Def_use.h"
-#include "Whole_program.h"
-#include "CCP.h"
-#include "optimize/SCCP.h"
-#include "Optimization_transformer.h"
+#include "Aliasing.h"
 
 using namespace MIR;
 using namespace boost;
 using namespace std;
 
 Aliasing::Aliasing (Whole_program* wp)
-: wp (wp)
+: WPA(wp)
 {
-	ptg = new Points_to;
-	transformer = new Optimization_transformer (this);
 }
 
-
-void
-Aliasing::use_summary_results (Basic_block* context, Method_info* info, MIR::Actual_parameter_list* in, MIR::VARIABLE_NAME* lhs)
-{
-	// TODO: what about functions with callbacks
-	wp->callgraph->add_summary_call (context, info);
-
-	if (lhs)
-		phc_TODO ();
-
-	if (info->can_touch_globals)
-		phc_TODO ();
-
-	if (info->can_touch_locals)
-		phc_TODO ();
-
-	if (info->return_by_ref)
-		phc_TODO ();
-
-	// We model each parameter, and the return value, for:
-	//		- can they alias other parameters (keep it simple, we can do more
-	//		complicated thing for functions we analyse, such as 'aliases a field
-	//		of param1'.
-	//		- can they alias a global variable
-	foreach (Parameter_info* pinfo, *info->params)
-	{
-		if (pinfo->pass_by_reference)
-			phc_TODO ();
-
-		if (pinfo->is_callback)
-			phc_TODO ();
-
-		if (pinfo->can_touch_objects)
-			phc_TODO ();
-
-		// Magic methods are handled in the callgraph.
-	}
-
-	// TODO: does this create alias relationships
-	// TODO: how does this affect the callgraph
-	//		- need to look at types for that
-}
-
-
-
-void
-Aliasing::forward_bind (Basic_block* context, CFG* callee_cfg, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
-{
-	string callee_ns = *callee_cfg->method->signature->method_name->value;
-	string caller_ns;
-	if (context) 
-	{
-		caller_ns = *context->cfg->method->signature->method_name->value;
-		wp->callgraph->add_user_call (context, callee_cfg);
-	}
-
-	// Give the CFG access to the PTG results
-	callee_cfg->in_ptgs = &in_ptgs;
-	callee_cfg->out_ptgs = &out_ptgs;
-
-	ptg->open_scope (callee_ns);
-
-	if (actuals->size () != callee_cfg->method->signature->formal_parameters->size ())
-		phc_TODO ();
-
-
-	Actual_parameter_list::const_iterator i = actuals->begin ();
-	foreach (Formal_parameter* fp, *callee_cfg->method->signature->formal_parameters)
-	{
-		if (fp->var->default_value)
-			phc_TODO ();
-
-		Actual_parameter* ap = *i;
-		if (fp->is_ref || ap->is_ref)
-		{
-			// $fp =& $ap;
-			assign_by_ref (callee_cfg->get_entry_bb (),
-					P (callee_ns, fp->var->variable_name),
-					P (caller_ns, dyc<VARIABLE_NAME> (ap->rvalue)));
-		}
-		else
-		{
-			// $fp = $ap;
-			phc_TODO ();
-		}
-	}
-
-	if (lhs)
-	{
-		// TODO: do this upon return instead
-		phc_TODO ();
-		/*
-		if (return_by_ref)
-			set_reference
-		else
-			set_value
-		*/
-	}
-
-	// Store results in the entry block
-	out_ptgs[callee_cfg->get_entry_bb ()->ID] = ptg->clone ();
-	in_ptgs[callee_cfg->get_entry_bb ()->ID] = ptg->clone ();
-	dump (callee_cfg->get_entry_bb ());
-}
-
-void
-Aliasing::backward_bind (Basic_block* context, CFG* callee_cfg)
-{
-	if (callee_cfg->method->is_main ())
-		return;
-
-
-	ptg->close_scope (*callee_cfg->method->signature->method_name->value);
-
-	// TODO: we need to handle returns for all the analyses, not just here
-	wp->def_use->backward_bind (context, callee_cfg);
-}
-
-bool
-Aliasing::analyse_block (Basic_block* bb)
-{
-	DEBUG ("Analysing BB: " << bb->ID);
-	string name;
-	WPA* wpa;
-
-	// Merge results from predecessors
-	foreach (tie (name, wpa), wp->analyses)
-		wpa->pull_results (bb);
-
-	// TODO: we really need to use pull_results and aggregate_results, etc.
-	// But for now just store a clone of the graph.
-	in_ptgs[bb->ID] = ptg->clone ();
-	
-	// Do the aliasing (and hence other analyses)
-	visit_block (bb);
-
-	// TODO: see comment at in_ptgs
-	out_ptgs[bb->ID] = ptg->clone ();
-
-
-	// Create OUT sets from the results 
-	foreach (tie (name, wpa), wp->analyses)
-		wpa->aggregate_results (bb);
-
-
-	// Dump
-	dump(bb);
-
-
-	// Calculate fix-point
-	bool changed = false;
-	foreach (tie (name, wpa), wp->analyses)
-		changed |= wpa->solution_changed (bb);
-
-
-	return changed;
-}
-
-void
-Aliasing::apply_results (Basic_block* bb)
-{
-	if (Statement_block* sb = dynamic_cast<Statement_block*> (bb))
-	{
-		Statement* old = sb->statement->clone ();
-
-		transformer->visit_block (bb);
-
-		if (sb->statement->equals (old))
-			DEBUG ("No changes in BB: " << bb->ID);
-		else
-			DEBUG ("BB " << bb->ID << " changed");
-	}
-}
 
 void
 Aliasing::dump (Basic_block* bb)
 {
 	CHECK_DEBUG();
 	out_ptgs[bb->ID]->dump_graphviz (s(lexical_cast<string> (bb->ID)));
-
-	string name;
-	WPA* wpa;
-	foreach (tie (name, wpa), wp->analyses)
-	{
-		wpa->dump (bb);
-		cdebug << endl;
-	}
-}
-
-
-
-
-/*
- * Analysis
- */
-
-void
-Aliasing::visit_global (Statement_block* bb, MIR::Global* in)
-{
-	assign_by_ref (bb,
-			P (ST (bb), in->variable_name),
-			P ("__MAIN__", in->variable_name));
-}
-
-
-void
-Aliasing::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
-{
-	string ns = ST (bb);
-	Path* lhs = P (ns, in->lhs);
-	Path* rhs;
-
-	switch(in->rhs->classid())
-	{
-		// Does not affect pointer analysis
-		// TODO: except to call object properties!!
-		case Bin_op::ID:
-		case Isset::ID:
-		case Param_is_ref::ID:
-		case Unary_op::ID:
-		case Instanceof::ID:
-		case Constant::ID:
-			phc_TODO ();
-			break;
-
-		// Straightforward
-		case Array_access::ID:
-		case Field_access::ID:
-		case VARIABLE_NAME::ID:
-		case Variable_variable::ID:
-			rhs = P (ns, in->rhs);
-			break;
-
-		// Values
-		case BOOL::ID:
-		case INT::ID:
-		case NIL::ID:
-		case REAL::ID:
-		case STRING::ID:
-			assign_scalar (bb, lhs, dyc<Literal> (in->rhs));
-			return;
-
-		// Need to use analysis results before putting into the graph
-		case Foreach_get_key::ID:
-		case Foreach_get_val::ID:
-		case Foreach_has_key::ID:
-		case Cast::ID:
-			phc_TODO ();
-			break;
-
-
-		// Interprocedural stuff
-		case New::ID:
-			handle_new (bb, dyc<New> (in->rhs), in->lhs);
-			phc_TODO ();
-			break;
-
-		case Method_invocation::ID:
-			handle_method_invocation (bb, dyc<Method_invocation> (in->rhs), in->lhs);
-			phc_TODO ();
-			break;
-
-		default:
-			phc_unreachable ();
-			break;
-	}
-
-	assert (rhs);
-	if (in->is_ref)
-		assign_by_ref (bb, lhs, rhs);
-	else
-		assign_by_copy (bb, lhs, rhs);
-}
-
-void
-Aliasing::visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
-{
-	if (isa<New> (in->expr))
-		handle_new (bb, dyc<New> (in->expr), NULL);
-	else
-		handle_method_invocation (bb, dyc<Method_invocation> (in->expr), NULL);
-}
-
-void
-Aliasing::handle_method_invocation (Statement_block* bb, MIR::Method_invocation* in, MIR::VARIABLE_NAME* lhs)
-{
-	wp->invoke_method (in, bb, lhs);
-}
-
-void
-Aliasing::handle_new (Statement_block* bb, MIR::New* in, MIR::VARIABLE_NAME* lhs)
-{
-	phc_TODO ();
 }
 
 
@@ -339,293 +44,79 @@ Aliasing::handle_new (Statement_block* bb, MIR::New* in, MIR::VARIABLE_NAME* lhs
  *		- names whose value they may take their value from.
  *		- names which are used in the statement.
  */
-
-bool
-is_must (Index_node_list* indices)
+void
+Aliasing::forward_bind (Basic_block* bb, CFG* callee_cfg,
+										MIR::Actual_parameter_list* actuals,
+										MIR::VARIABLE_NAME* retval)
 {
-	assert (!indices->empty ());
-	return (indices->size () == 1);
+	in_ptgs[callee_cfg->get_entry_bb ()->ID]->open_scope (CFG_ST(callee_cfg));
 }
 
 void
-Aliasing::assign_by_ref (Basic_block* bb, Path* plhs, Path* prhs)
+Aliasing::backward_bind (Basic_block* bb, CFG* callee_cfg)
 {
-	Index_node_list* lhss = get_named_indices (bb, plhs);
-	Index_node_list* rhss = get_named_indices (bb, prhs);
-
-	string name;
-	WPA* wpa;
-
-	bool killable = is_must (lhss);
-
-	// Send the results to the analyses for all variables which could be
-	// overwritten.
-	foreach (Index_node* lhs, *lhss)
-	{
-		if (killable) // only 1 result
-		{
-			foreach (tie (name, wpa), wp->analyses)
-				wpa->kill_reference (bb, lhs->name ());
-		}
-
-		// Note that we don't touch things which alias LHS.
-
-		foreach (Index_node* rhs, *rhss)
-		{
-			// We don't need to worry about propagating values to LHSS' aliases,
-			// as this kills those aliases.
-			foreach (tie (name, wpa), wp->analyses)
-				wpa->assign_by_ref (bb,
-					lhs->name (),
-					rhs->name (),
-					(killable && is_must (rhss)) ? DEFINITE : POSSIBLE);
-		}
-	}
+	out_ptgs[callee_cfg->get_exit_bb ()->ID]->close_scope (CFG_ST(callee_cfg));
 }
 
 void
-Aliasing::assign_scalar (Basic_block* bb, Path* plhs, Literal* lit)
+Aliasing::kill_value (Basic_block* bb, Index_node* index)
 {
-	Index_node_list* lhss = get_named_indices (bb, plhs);
-
-	WPA* wpa;
-	string name;
-
-	bool killable = is_must (lhss);
-
-	// This is not killing in terms of references, so it assigns to all
-	// aliases of lhs.
-	foreach (Index_node* lhs, *lhss)
-	{
-		if (killable) // only 1 result
-		{
-			foreach (tie (name, wpa), wp->analyses)
-				wpa->kill_value (bb, lhs->name ());
-		}
-
-		// Handle all the aliases/indirect assignments.
-		certainty certainties[] = {POSSIBLE, DEFINITE};
-		foreach (certainty cert, certainties)
-		{
-			Index_node_list* refs = ptg->get_references (lhs, cert);
-
-			// If we can't say the LHSS is killable, we get say its must defs are
-			// killable either.
-			if (!killable)
-				cert = POSSIBLE;
-
-			foreach (tie (name, wpa), wp->analyses)
-			{
-				foreach (Index_node* ref, *refs)
-				{
-					if (cert == DEFINITE) // must-def
-						wpa->kill_value (bb, ref->name ());
-
-					wpa->assign_scalar (bb, ref->name (), lit, cert);
-				}
-			}
-		}
-
-		// Handle LHS itself
-		foreach (tie (name, wpa), wp->analyses)
-		{
-			if (killable) // only 1 result
-				wpa->kill_value (bb, lhs->name ());
-
-			wpa->assign_scalar (bb,
-				lhs->name (),
-				lit,
-				killable ? DEFINITE : POSSIBLE);
-		}
-	}
 }
 
 void
-Aliasing::assign_by_copy (Basic_block* bb, Path* plhs, Path* prhs)
+Aliasing::kill_reference (Basic_block* bb, Index_node* index)
 {
-	Index_node_list* lhss = get_named_indices (bb, plhs);
-	Index_node_list* rhss = get_named_indices (bb, prhs);
-
-	WPA* wpa;
-	string name;
-
-	bool killable = is_must (lhss);
-
-	// This is not killing in terms of references, so it assigns to all
-	// aliases of lhs.
-	foreach (Index_node* lhs, *lhss)
-	{
-		if (killable) // only 1 result
-		{
-			foreach (tie (name, wpa), wp->analyses)
-				wpa->kill_value (bb, lhs->name ());
-		}
-
-		// Handle all the aliases/indirect assignments.
-		certainty certainties[] = {POSSIBLE, DEFINITE};
-		foreach (certainty cert, certainties)
-		{
-			Index_node_list* refs = ptg->get_references (lhs, cert);
-
-			// If we can't say the LHSS is killable, we get say its must defs
-			// are killable either.
-			if (!killable)
-				cert = POSSIBLE;
-
-			foreach (tie (name, wpa), wp->analyses)
-			{
-				foreach (Index_node* ref, *refs)
-				{
-					if (cert == DEFINITE) // must-def
-						wpa->kill_value (bb, ref->name ());
-
-					foreach (Index_node* rhs, *rhss)
-						wpa->assign_by_copy (bb,
-							ref->name (),
-							rhs->name (),
-							is_must (rhss) ? cert : POSSIBLE);
-				}
-			}
-		}
-
-		// Handle LHS itself
-		foreach (Index_node* rhs, *rhss) // TODO refactor this better
-		{
-			foreach (tie (name, wpa), wp->analyses)
-			{
-				if (killable) // only 1 result
-					wpa->kill_value (bb, lhs->name ());
-
-				wpa->assign_by_copy (bb,
-					lhs->name (),
-					rhs->name (),
-					is_must (rhss) ? DEFINITE : POSSIBLE);
-			}
-		}
-	}
 }
 
 
 void
-Aliasing::record_use (Basic_block* bb, Index_node* index_node)
+Aliasing::assign_scalar (Basic_block* bb, Index_node* lhs, MIR::Literal* lit, certainty cert)
 {
-	// TODO: this marks it as a use, not a must use. Is there any difference
-	// as far as analyses are concerned? If so, fix this. If not, remove the
-	// may-uses.
-
-	// TODO: once type-inferences is built, here would be a good place to
-	// call/check for the handlers.
+	if (cert != DEFINITE)
+		phc_TODO ();
 	
-	wp->def_use->record_use (bb, index_node->name(), POSSIBLE);
+	in_ptgs[bb->ID]->assign_scalar (lhs);
 }
 
-
-
-/*
- * Return the range of possible values for INDEX. This is used to
- * disambiguate for indexing other nodes. It returns a set of strings. If
- * only 1 string is returned, it must be that value. If more than one strings
- * are returned, it may be any of them.
- */
-String_list*
-Aliasing::get_string_values (Basic_block* bb, Index_node* index)
+void
+Aliasing::assign_by_ref (Basic_block* bb, Index_node* lhs, Index_node* rhs, certainty cert)
 {
-	Lattice_cell* result = wp->ccp->ins[bb->ID][index->name ().str()];
-
-	if (result == BOTTOM || result == TOP)
+	if (cert != DEFINITE)
 		phc_TODO ();
 
-	// TODO: this isnt quite right, we need to cast to a string.
-	return new String_list (
-		dyc<Literal_cell> (result)->value->get_value_as_string ());
+	in_ptgs[bb->ID]->assign_by_ref (lhs, rhs);
 }
 
+void
+Aliasing::assign_by_copy (Basic_block* bb, Index_node* lhs, Index_node* rhs, certainty cert)
+{
+	if (cert != DEFINITE)
+		phc_TODO ();
 
+	in_ptgs[bb->ID]->assign_by_copy (lhs, rhs);
+}
 
-/*
- * Return the set of names which PATH might lead to.
- *
- * Its also a little bit of a catch-all function. Since it processes uses of
- * index_nodes, it must mark them as used, and check types to see if there
- * are any handlers that need to be called. It checks CCP to see the range of
- * variables that might be looked up, and any other analysis which can reduce
- * the range of the results.
- *
- * Suppose we get a single result, x. Can we say that a def to this must-def x?
- *		- I believe that scalars cant affect this
- *		- I think we can say that.
- */
 Index_node_list*
-Aliasing::get_named_indices (Basic_block* bb, Path* path)
+Aliasing::get_references (Basic_block* bb, Index_node* index,
+												certainty cert)
 {
-	Indexing* p = dyc<Indexing> (path);
-
-
-	// Get the set of storage nodes representing the LHS.
-	Set<string> lhss;
-
-	if (ST_path* st = dynamic_cast <ST_path*> (p->lhs))
-	{
-		// 1 named storage node
-		lhss.insert (st->name);
-	}
-	else
-	{
-		// Lookup the storage nodes indexed by LHS
-		foreach (Index_node* st_index, *get_named_indices (bb, p->lhs))
-		{
-			foreach (Storage_node* pointed_to, *ptg->get_points_to (st_index, PTG_ALL))
-				lhss.insert (pointed_to->storage);
-		}
-	}
-
-
-	// Get the names of the fields of the storage nodes.
-	Set<string> rhss;
-
-	if (Index_path* st = dynamic_cast <Index_path*> (p->rhs))
-	{
-		// 1 named field of the storage nodes
-		rhss.insert (st->name);
-	}
-	else
-	{
-		// The name of the field must be looked up
-		foreach (Index_node* field_index, *get_named_indices (bb, p->rhs))
-		{
-			// TODO: better place for this - its here because we know this is a
-			// use. This doesnt intercept all uses, but I think it gets all the
-			// ones in this function.
-			record_use (bb, field_index);
-			foreach (String* value, *get_string_values (bb, field_index))
-				rhss.insert (*value);
-		}
-	}
-
-
-	// Combine the results
-	Index_node_list* result = new Index_node_list;
-
-	foreach (string lhs, lhss)
-		foreach (string rhs, rhss)
-			result->push_back (new Index_node (lhs, rhs));
-
-	return result;
+	return in_ptgs[bb->ID]->get_references (index, cert);
 }
 
-Index_node*
-Aliasing::get_named_index (Basic_block* bb, Path* name)
+Storage_node_list*
+Aliasing::get_points_to (Basic_block* bb, Index_node* index,
+												certainty cert)
 {
-	Index_node_list* all = get_named_indices (bb, name);
-
-	// TODO: can this happen
-	assert (all->size());
-
-	if (all->size () > 1)
-		return NULL;
-
-	return all->front ();
+	return in_ptgs[bb->ID]->get_points_to (index, cert);
 }
+
+
+
+
+
+
+
+
 
 /*
  * Path is used to represent the MIR constructs in an abstract way that
