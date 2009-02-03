@@ -25,26 +25,34 @@ class Path;
 class Aliasing : public WPA
 {
 	// Record 1 per program-point.
-	Map<long, Points_to*> in_ptgs;
-	Map<long, Points_to*> out_ptgs;
+	Map<long, Points_to*> ins;
+	Map<long, Points_to*> outs;
 
 public:
 	Aliasing (Whole_program*);
 
 	// WPA interface
+	void kill_value (Basic_block* bb, Alias_name index);
+	void kill_reference (Basic_block* bb, Alias_name index);
+
+	void assign_scalar (Basic_block* bb, Alias_name lhs,
+							  MIR::Literal* rhs, certainty cert);
+
+	void assign_by_ref (Basic_block* bb, Alias_name lhs,
+	                    Alias_name rhs, certainty cert);
+
+	void assign_by_copy (Basic_block* bb, Alias_name lhs,
+							   Alias_name rhs, certainty cert);
+	
 	void forward_bind (Basic_block* bb, CFG* callee_cfg,
-										MIR::Actual_parameter_list* actuals,
-										MIR::VARIABLE_NAME* retval);
+							 MIR::Actual_parameter_list* actuals,
+							 MIR::VARIABLE_NAME* retval);
 
 	void backward_bind (Basic_block* bb, CFG* callee_cfg);
 
 
-	void kill_value (Basic_block* bb, Index_node* index);
-	void kill_reference (Basic_block* bb, Index_node* index);
-
-	void assign_scalar (Basic_block* bb, Index_node* lhs, MIR::Literal* lit, certainty cert);
-	void assign_by_ref (Basic_block* bb, Index_node* n1, Index_node* n2, certainty cert);
-	void assign_by_copy (Basic_block* bb, Index_node* n1, Index_node* n2, certainty cert);
+	void pull_results (Basic_block* bb);
+	void aggregate_results (Basic_block* bb);
 
 	void dump (Basic_block* bb);
 
@@ -55,9 +63,6 @@ public:
 
 	Storage_node_list* get_points_to (Basic_block*, Index_node* index,
 												certainty cert);
-
-	void pull_results (Basic_block* bb){phc_TODO ();};
-	void aggregate_results (Basic_block* bb){phc_TODO();};
 };
 
 /* A Path is a way of representing some dereferencing. See Aliasing.cpp. */

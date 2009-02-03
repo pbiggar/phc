@@ -513,7 +513,7 @@ Storage_node::Storage_node (string storage)
 Alias_name
 Storage_node::name ()
 {
-	return Alias_name ("ST", storage);
+	return Alias_name (SNP, storage);
 }
 
 String*

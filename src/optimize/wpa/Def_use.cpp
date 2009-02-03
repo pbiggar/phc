@@ -53,13 +53,13 @@ Def_use::dump(Basic_block* bb)
 void
 Def_use::kill_value (Basic_block* bb, Alias_name name)
 {
-	phc_TODO ();
+	// TODO: do these once the other analyses work again
 }
 
 void
 Def_use::kill_reference (Basic_block* bb, Alias_name name)
 {
-	phc_TODO ();
+	// TODO:
 }
 
 void

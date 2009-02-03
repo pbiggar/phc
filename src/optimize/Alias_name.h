@@ -25,10 +25,14 @@
 #define CFG_ST(CFG) (*(CFG)->method->signature->method_name->value)
 #define ST(BB) (CFG_ST ((BB)->cfg))
 
+// Storage node prefix
+#define SNP "ST"
+
 #include <string>
 #include "lib/List.h"
 
-// TODO: i think we'll be adding an SSA number here.
+class Index_node;
+
 class Alias_name
 {
 public:
@@ -38,6 +42,10 @@ public:
 	std::string prefix;
 	std::string name;
 	int ssa_version;
+
+	// Get an index onde with the same name. Checks that this is legal, and
+	// that we arent in SSA form.
+	Index_node* ind();
 
 	bool operator< (const Alias_name& other) const;
 

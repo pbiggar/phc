@@ -21,24 +21,29 @@ class CCP : public WPA
 public:
 	CCP (Whole_program* wp);
 
+	// WPA
+	void kill_value (Basic_block* bb, Alias_name name);
+	void kill_reference (Basic_block* bb, Alias_name name);
 
-	bool branch_is_true (MIR::Branch*) { return false; }
-	bool branch_is_false (MIR::Branch*) { return false; }
+	void assign_scalar (Basic_block* bb, Alias_name lhs,
+							  MIR::Literal* rhs, certainty cert);
 
-	void kill_value (Basic_block* bb, Alias_name name){phc_TODO ();};
-	void kill_reference (Basic_block* bb, Alias_name name){phc_TODO ();};
-	void assign_scalar (Basic_block* bb, Alias_name lhs, MIR::Literal* rhs, certainty cert);
-	void assign_by_ref (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert){phc_TODO ();}
-	void assign_by_copy (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert);
-
-
-
-
+	void assign_by_value (Basic_block* bb, Alias_name lhs,
+							   Alias_name rhs, certainty cert);
 
 	void pull_results (Basic_block* bb);
 	void aggregate_results (Basic_block* bb);
+
 	void dump (Basic_block* bb);
 
+
+	// CCP-specific
+	bool branch_known_true (Alias_name cond);
+	bool branch_known_false (Alias_name cond);
+
+	Lattice_cell* get_value (Basic_block* bb, Alias_name name);
+
+private:
 	Map<long, Lattice_map> ins;
 	Map<long, Lattice_map> locals;
 	Map<long, Lattice_map> outs;

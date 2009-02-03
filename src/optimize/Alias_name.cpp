@@ -8,6 +8,7 @@
 #include "process_ir/General.h"
 #include "MIR.h"
 #include "Basic_block.h"
+#include "wpa/Aliasing.h"
 
 using namespace std;
 using namespace MIR;
@@ -70,6 +71,21 @@ void
 Alias_name::set_version (int version)
 {
 	this->ssa_version = version;
+}
+
+/*
+ * It seems that since we use Alias_name everywhere, we might not actually
+ * need the Index_node and Storage_nodes. That may be the case. Currently,
+ * the difference between the two is useful in Points_to::get_target. It
+ * could probably be replaced with is_ind() instead, though. I'm in no rush
+ * to do this.
+ */
+Index_node*
+Alias_name::ind()
+{
+	assert (ssa_version == 0);
+	assert (prefix != SNP);
+	return new Index_node (prefix, name);
 }
 
 

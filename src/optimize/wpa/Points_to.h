@@ -27,10 +27,11 @@ Storage_node* SN (string scope);
 Index_node* IN (string scope, string name);
 Index_node* VN (string scope, MIR::VARIABLE_NAME*);
 Index_node* FN (string scope, MIR::FIELD_NAME*);
-//Index_node* AN (string scope, string array_index); TODO
+//Index_node* AN (string scope, string array_index); TODO arrays
 
 
-// A node in the graph (ie the abstract base of the components of an alias-pair).
+// A node in the graph (ie the abstract base of the components of an
+// alias-pair).
 class PT_node : virtual public GC_obj
 {
 public:
@@ -48,8 +49,8 @@ public:
  *
  *	There is not a unique descriptor for this node. Any object with the same
  *	descriptor represents the same node, in any graph. So we cannot store
- *	attributes in here (they should be in the other analyses' lattices, indexed
- *	by name ().hash ()).
+ *	attributes in here (they should be in the other analyses' lattices,
+ *	indexed by name ().str ()).
  */
 class Index_node : public PT_node
 {
@@ -81,8 +82,8 @@ public:
 	string storage;
 
 	// If true, its (outgoing) edges cannot be killed, as it represents more
-	// than one run-time object. If false, represents just one run-time object,
-	// meaning its edges can be killed. 
+	// than one run-time object. If false, represents just one run-time
+	// object, meaning its edges can be killed. 
 	bool is_abstract;
 
 	Alias_name name ();
@@ -106,14 +107,15 @@ public:
  *		All PT_nodes are simply descriptors for nodes. They do not provide a
  *		means to access the node itself.
  *
- *		Note too that the index_node is merely a unique point in the graph. There
- *		is no direct mapping to PHP constructs, as some are more compicated that
- *		that. For example: $x =& $x[$y], is an Index_node indexed by another
- *		index_node, and can refer to multiple index_node.
+ *		Note too that the index_node is merely a unique point in the graph.
+ *		There is no direct mapping to PHP constructs, as some are more
+ *		compicated that that. For example: $x =& $x[$y], is an Index_node
+ *		indexed by another Index_node, and can refer to multiple index_nodes.
  *
- *		The result is that Points_to just does the graphing, and that Aliasing
- *		provides the abstraction layer over that, with which to interface with
- *		the MIR, and other analyses.
+ *		The result is that Points_to just does the graphing. Paths and P
+ *		provide the abstraction layer over the lower-level representation of
+ *		PT_nodes, and there is a 1-to-1 correspondence between MIR nodes and
+ *		paths.
  */
 
 class Points_to : virtual public GC_obj
@@ -146,13 +148,15 @@ public:
 	bool has_value_edges (Index_node* node);
 	void insert (Alias_pair*);
 
-	Index_node_list* get_local_references (Storage_node* ns, Index_node* index, certainty cert);
+	Index_node_list* get_local_references (Storage_node* ns,
+														Index_node* index,
+														certainty cert);
 
 	Index_node_list* get_references (Index_node* index,
 												certainty cert);
 
 	Storage_node_list* get_points_to (Index_node* index,
-												certainty cert);
+												 certainty cert);
 
 
 

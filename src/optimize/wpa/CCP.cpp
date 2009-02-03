@@ -50,33 +50,54 @@ CCP::dump(Basic_block* bb)
 		cdebug << "No OUT results for BB: " << id << endl;
 }
 
-/* So we're trying to reconcile the standard daaflow techniques:
+/*
+ * So we're trying to reconcile the standard daaflow techniques:
+ *
  *		IN,OUT, gen, kill
- *	with using the points to results to drive the analysis. Pioli's approach is
- *	very nice: worklist of BBs, keep going til its solved. But he's not doing
- *	interprocedural. However, that will work for interprocedural, so maybe just
- *	let it go.
+ *
+ *	with using the points to results to drive the analysis. Pioli's approach
+ *	is very nice: worklist of BBs, keep going til its solved. But he's not
+ *	doing interprocedural. However, that will work for interprocedural, so
+ *	maybe just let it go.
  *
  *	So, we need to mark when a solution changes. Pioli's solution was to push
  *	results into the next section, instead of pulling. This meant saving half
- *	the result sets, and setting a block to be executed when a merge changed the
- *	solution. But this might break with branches:
+ *	the result sets, and setting a block to be executed when a merge changed
+ *	the solution. But this might break with branches:
+ *
  *		if (...)
  *		1:	$x = 5;
  *		else
  *		2:	;
  *		3:
+ *
  *	At 3: we expect $x to have the value BOTTOM, not 5, as it is uninit (and
  *	therefore NULL) at 2:.
  *
  *	This is possible using pull. To make it possible using a push model, we
  *	would need to count the number of times a value is pushed. If it is pushed
- *	less than the number of predecessor edges, it should be merged with NULL. But would this work for aliasing?
+ *	less than the number of predecessor edges, it should be merged with NULL.
+ *	But would this work for aliasing?
  *
  *	And if we're doing a monotonic analysis, wont running it when NULL has not
- *	yet been pushed ruin the results?  I guess when pushing the results, we must
- *	also push for missing variables.
+ *	yet been pushed ruin the results?  I guess when pushing the results, we
+ *	must also push for missing variables.
  */
+
+void
+CCP::kill_value (Basic_block* bb, Alias_name name)
+{
+	if (get_value (bb, name) != TOP)
+		phc_TODO ();
+}
+
+void
+CCP::kill_reference (Basic_block* bb, Alias_name name)
+{
+	if (get_value (bb, name) != TOP)
+		phc_TODO ();
+}
+
 
 void
 CCP::assign_scalar (Basic_block* bb, Alias_name lhs, Literal* lit, certainty cert)
@@ -95,7 +116,7 @@ CCP::assign_scalar (Basic_block* bb, Alias_name lhs, Literal* lit, certainty cer
 
 
 void
-CCP::assign_by_copy (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert)
+CCP::assign_by_value (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert)
 {
 	if (cert != DEFINITE)
 		phc_TODO ();
@@ -145,3 +166,21 @@ CCP::aggregate_results (Basic_block* bb)
 }
 
 
+bool
+CCP::branch_known_true (Alias_name cond)
+{
+	return false; 
+}
+
+bool
+CCP::branch_known_false (Alias_name cond)
+{
+	return false;
+}
+
+
+Lattice_cell*
+CCP::get_value (Basic_block* bb, Alias_name name)
+{
+	return ins[bb->ID][name.str()];
+}

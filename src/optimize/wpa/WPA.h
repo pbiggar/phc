@@ -58,12 +58,28 @@ public:
 	// LHS is made to reference RHS, with the certainty CERT. Note this copies
 	// the value.
 	virtual void assign_by_ref (Basic_block* bb, Alias_name lhs,
-										 Alias_name rhs, certainty cert){};
+										 Alias_name rhs, certainty cert)
+	{
+		assign_value (bb, lhs, rhs, cert);
+	}
 
 	
 	// RHS is copied into LHS, with the certainty CERT.
 	virtual void assign_by_copy (Basic_block* bb, Alias_name lhs,
-										  Alias_name rhs, certainty cert){};
+										  Alias_name rhs, certainty cert)
+	{
+		assign_value (bb, lhs, rhs, cert);
+	}
+
+	// By default, assign_by_copy and assign_by_ref call assign_value.
+	// the value. If the way the value is propagated doesn't matter, use
+	// assign_value.
+	// Note that aliasing typically doesn't come into account here, since that's
+	// abstracted by Whole_program.
+	virtual void assign_value (Basic_block* bb, Alias_name lhs,
+										 Alias_name rhs, certainty cert){};
+
+	
 	
 	// There has been a use of USE, with the certainty CERT.
 	virtual void record_use (Basic_block* bb, Alias_name use,

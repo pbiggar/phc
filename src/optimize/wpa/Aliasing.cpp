@@ -31,7 +31,7 @@ void
 Aliasing::dump (Basic_block* bb)
 {
 	CHECK_DEBUG();
-	out_ptgs[bb->ID]->dump_graphviz (s(lexical_cast<string> (bb->ID)));
+	outs[bb->ID]->dump_graphviz (s(lexical_cast<string> (bb->ID)));
 }
 
 
@@ -49,79 +49,103 @@ Aliasing::forward_bind (Basic_block* context, CFG* callee_cfg,
 										MIR::Actual_parameter_list* actuals,
 										MIR::VARIABLE_NAME* retval)
 {
-	Points_to* ptg = in_ptgs[context->ID]->clone ();
+	Points_to* ptg;
+
+	if (context == NULL)
+		ptg = new Points_to;
+	else
+		ptg = ins[context->ID]->clone ();
 
 	ptg->open_scope (CFG_ST(callee_cfg));
-	in_ptgs[callee_cfg->get_entry_bb ()->ID] = ptg;
+
+	// we dont save INS. Do we need it?
+	outs[callee_cfg->get_entry_bb ()->ID] = ptg;
 }
 
 void
 Aliasing::backward_bind (Basic_block* context, CFG* callee_cfg)
 {
-	Points_to* ptg = out_ptgs[callee_cfg->get_exit_bb ()->ID]->clone ();
+	if (context == NULL)
+		return;
+
+	Points_to* ptg = outs[callee_cfg->get_exit_bb ()->ID]->clone ();
 
 	ptg->close_scope (CFG_ST(callee_cfg));
-	out_ptgs[context->ID] = ptg;
+	outs[context->ID] = ptg;
 }
 
 void
-Aliasing::kill_value (Basic_block* bb, Index_node* index)
+Aliasing::pull_results (Basic_block* bb)
 {
+	if (bb->get_predecessors ()->size () > 1)
+		phc_TODO ();
+
+	ins[bb->ID] = outs[bb->get_predecessors ()->front ()->ID]->clone ();
+	outs[bb->ID] = ins[bb->ID]->clone ();
 }
 
+
 void
-Aliasing::kill_reference (Basic_block* bb, Index_node* index)
+Aliasing::aggregate_results (Basic_block* bb)
 {
+	// TODO: pull_results creates the OUT entry, and it is updated through the
+	// function. Here, we just want to set CHANGED_FLAG
+}
+
+void
+Aliasing::kill_value (Basic_block* bb, Alias_name lhs)
+{
+	outs[bb->ID]->kill_value (lhs.ind());
+}
+
+void
+Aliasing::kill_reference (Basic_block* bb, Alias_name lhs)
+{
+	outs[bb->ID]->kill_reference (lhs.ind());
 }
 
 
 void
-Aliasing::assign_scalar (Basic_block* bb, Index_node* lhs, MIR::Literal* lit, certainty cert)
+Aliasing::assign_scalar (Basic_block* bb, Alias_name lhs, MIR::Literal* lit, certainty cert)
 {
 	if (cert != DEFINITE)
 		phc_TODO ();
 	
-	in_ptgs[bb->ID]->assign_scalar (lhs);
+	outs[bb->ID]->assign_scalar (lhs.ind ());
 }
 
 void
-Aliasing::assign_by_ref (Basic_block* bb, Index_node* lhs, Index_node* rhs, certainty cert)
+Aliasing::assign_by_ref (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert)
 {
 	if (cert != DEFINITE)
 		phc_TODO ();
 
-	in_ptgs[bb->ID]->assign_by_ref (lhs, rhs);
+	outs[bb->ID]->assign_by_ref (lhs.ind (), rhs.ind());
 }
 
 void
-Aliasing::assign_by_copy (Basic_block* bb, Index_node* lhs, Index_node* rhs, certainty cert)
+Aliasing::assign_by_copy (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert)
 {
 	if (cert != DEFINITE)
 		phc_TODO ();
 
-	in_ptgs[bb->ID]->assign_by_copy (lhs, rhs);
+	outs[bb->ID]->assign_by_copy (lhs.ind(), rhs.ind());
 }
+
 
 Index_node_list*
 Aliasing::get_references (Basic_block* bb, Index_node* index,
 												certainty cert)
 {
-	return in_ptgs[bb->ID]->get_references (index, cert);
+	return ins[bb->ID]->get_references (index, cert);
 }
 
 Storage_node_list*
 Aliasing::get_points_to (Basic_block* bb, Index_node* index,
 												certainty cert)
 {
-	return in_ptgs[bb->ID]->get_points_to (index, cert);
+	return ins[bb->ID]->get_points_to (index, cert);
 }
-
-
-
-
-
-
-
 
 
 /*
@@ -140,9 +164,21 @@ Aliasing::get_points_to (Basic_block* bb, Index_node* index,
  *		$a->$f		(ST -> "a") -> (ST -> "f")
  */
 
-Indexing::Indexing (Path* lhs, Path *rhs) : lhs (lhs), rhs (rhs) {}
-ST_path::ST_path (string name) : name (name) {}
-Index_path::Index_path (string name) : name (name) {}
+Indexing::Indexing (Path* lhs, Path *rhs)
+: lhs (lhs)
+, rhs (rhs)
+{
+}
+
+ST_path::ST_path (string name)
+: name (name)
+{
+}
+
+Index_path::Index_path (string name)
+: name (name)
+{
+}
 
 
 // In the context of the symtable st, create a Path for NODE

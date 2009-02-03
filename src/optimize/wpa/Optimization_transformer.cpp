@@ -56,7 +56,7 @@ Optimization_transformer::get_literal (Basic_block* bb, Rvalue* in)
 	if (index == NULL)
 		return in;
 
-	Lattice_cell* result = wp->ccp->ins[bb->ID][index->name ().str()];
+	Lattice_cell* result = wp->ccp->get_value (bb, index->name ());
 
 	if (result == BOTTOM)
 		return in;

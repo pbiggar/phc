@@ -60,24 +60,16 @@ using namespace std;
 Whole_program::Whole_program (Pass_manager* pm)
 : pm (pm)
 {
-	// First class citizens:
-	//		- Aliasing stores the analysis results, and passes them to the
-	//		second-class citizens
-	//		- Callgraph has a yet unrealized purpose.
-	//		- CCP helps resolve branches
 	aliasing = new Aliasing (this);
 	callgraph = new Callgraph (this);
 	ccp = new CCP (this);
-
-	// Second class citizens
-	//		- These consume data created by the first-class citizens.
-
 	def_use = new Def_use (this);
 //	constant_state = new Constant_state (this);
 //	include_analysis = new Include_analysis (this);
 //	vrp = new VRP (this);
 
 
+	register_analysis ("Aliasing", aliasing);
 	register_analysis ("Callgraph", callgraph);
 	register_analysis ("CCP", ccp);
 	register_analysis ("Def-use", def_use);
@@ -145,9 +137,6 @@ Whole_program::analyse_function (Basic_block* context, CFG* cfg, MIR::Actual_par
 	// This is very similar to run() from Sparse_conditional_visitor, except
 	// that it isnt sparse.
 
-	WPA* wpa;
-	string name;
-
 	cfg->dump_graphviz (s("Function entry"));
 
 	// 1. Initialize:
@@ -198,10 +187,12 @@ Whole_program::get_branch_successors (Branch_block* bb)
 {
 	Edge_list* result = new Edge_list;
 
-	if (!ccp->branch_is_true (bb->branch))
+	Alias_name cond = VN (ST (bb), bb->branch->variable_name)->name ();
+
+	if (!ccp->branch_known_true (cond))
 		result->push_back (bb->get_false_successor_edge ());
 
-	if (!ccp->branch_is_false (bb->branch))
+	if (!ccp->branch_known_false (cond))
 		result->push_back (bb->get_true_successor_edge ());
 
 	return result;
@@ -771,7 +762,7 @@ Whole_program::record_use (Basic_block* bb, Index_node* index_node)
 String_list*
 Whole_program::get_string_values (Basic_block* bb, Index_node* index)
 {
-	Lattice_cell* result = ccp->ins[bb->ID][index->name ().str()];
+	Lattice_cell* result = ccp->get_value (bb, index->name ());
 
 	if (result == BOTTOM || result == TOP)
 		phc_TODO ();
