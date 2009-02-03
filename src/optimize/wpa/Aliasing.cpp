@@ -45,17 +45,23 @@ Aliasing::dump (Basic_block* bb)
  *		- names which are used in the statement.
  */
 void
-Aliasing::forward_bind (Basic_block* bb, CFG* callee_cfg,
+Aliasing::forward_bind (Basic_block* context, CFG* callee_cfg,
 										MIR::Actual_parameter_list* actuals,
 										MIR::VARIABLE_NAME* retval)
 {
-	in_ptgs[callee_cfg->get_entry_bb ()->ID]->open_scope (CFG_ST(callee_cfg));
+	Points_to* ptg = in_ptgs[context->ID]->clone ();
+
+	ptg->open_scope (CFG_ST(callee_cfg));
+	in_ptgs[callee_cfg->get_entry_bb ()->ID] = ptg;
 }
 
 void
-Aliasing::backward_bind (Basic_block* bb, CFG* callee_cfg)
+Aliasing::backward_bind (Basic_block* context, CFG* callee_cfg)
 {
-	out_ptgs[callee_cfg->get_exit_bb ()->ID]->close_scope (CFG_ST(callee_cfg));
+	Points_to* ptg = out_ptgs[callee_cfg->get_exit_bb ()->ID]->clone ();
+
+	ptg->close_scope (CFG_ST(callee_cfg));
+	out_ptgs[context->ID] = ptg;
 }
 
 void

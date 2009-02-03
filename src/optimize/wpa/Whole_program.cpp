@@ -423,29 +423,19 @@ Whole_program::dump (Basic_block* bb)
 }
 
 void
-Whole_program::forward_bind (Basic_block* context, CFG* callee_cfg, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
+Whole_program::forward_bind (Basic_block* context, CFG* callee, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
 {
-	string callee_ns = *callee_cfg->method->signature->method_name->value;
-	string caller_ns;
-	if (context) 
-	{
-		caller_ns = *context->cfg->method->signature->method_name->value;
-		callgraph->add_user_call (context, callee_cfg);
-	}
+	// Each caller should expect that context can be NULL for __MAIN__.
+	foreach_wpa (this)
+		wpa->forward_bind (context, callee, actuals, lhs);
 
-	phc_TODO (); // move these to Aliasing
-	// Give the CFG access to the PTG results
-//	callee_cfg->in_ptgs = &in_ptgs;
-//	callee_cfg->out_ptgs = &out_ptgs;
 
-//	ptg->open_scope (callee_ns);
-
-	if (actuals->size () != callee_cfg->method->signature->formal_parameters->size ())
+	// Perform assignments for paramater passing
+	if (actuals->size () != callee->method->signature->formal_parameters->size ())
 		phc_TODO ();
 
-
 	Actual_parameter_list::const_iterator i = actuals->begin ();
-	foreach (Formal_parameter* fp, *callee_cfg->method->signature->formal_parameters)
+	foreach (Formal_parameter* fp, *callee->method->signature->formal_parameters)
 	{
 		if (fp->var->default_value)
 			phc_TODO ();
@@ -454,9 +444,9 @@ Whole_program::forward_bind (Basic_block* context, CFG* callee_cfg, MIR::Actual_
 		if (fp->is_ref || ap->is_ref)
 		{
 			// $fp =& $ap;
-			assign_by_ref (callee_cfg->get_entry_bb (),
-					P (callee_ns, fp->var->variable_name),
-					P (caller_ns, dyc<VARIABLE_NAME> (ap->rvalue)));
+			assign_by_ref (callee->get_entry_bb (),
+					P (CFG_ST (callee), fp->var->variable_name),
+					P (ST (context), dyc<VARIABLE_NAME> (ap->rvalue)));
 		}
 		else
 		{
@@ -477,26 +467,18 @@ Whole_program::forward_bind (Basic_block* context, CFG* callee_cfg, MIR::Actual_
 		*/
 	}
 
-	// Store results in the entry block
-	phc_TODO (); // move these to Aliasing
-//	out_ptgs[callee_cfg->get_entry_bb ()->ID] = ptg->clone ();
-//	in_ptgs[callee_cfg->get_entry_bb ()->ID] = ptg->clone ();
-	dump (callee_cfg->get_entry_bb ());
+	dump (callee->get_entry_bb ());
 }
 
 
 void
-Whole_program::backward_bind (Basic_block* context, CFG* callee_cfg)
+Whole_program::backward_bind (Basic_block* context, CFG* callee)
 {
-	if (callee_cfg->method->is_main ())
-		return;
+	// Context can be NULL for __MAIN__
+	foreach_wpa (this)
+		wpa->backward_bind (context, callee);
 
-	phc_TODO ();
-
-//	ptg->close_scope (*callee_cfg->method->signature->method_name->value);
-
-	// TODO: we need to handle returns for all the analyses, not just here
-//	wp->def_use->backward_bind (context, callee_cfg);
+	dump (callee->get_exit_bb ());
 }
 
 

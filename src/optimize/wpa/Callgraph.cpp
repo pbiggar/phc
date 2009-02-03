@@ -17,6 +17,7 @@ Callgraph::Callgraph (Whole_program* wp)
 	methods.insert ("__MAIN__");
 }
 
+// TODO: just use forward bind for this
 void
 Callgraph::add_user_call (Basic_block* context, CFG* callee)
 {
