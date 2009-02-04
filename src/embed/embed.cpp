@@ -15,8 +15,6 @@
 
 // other #includes are in the #else block of HAVE_PHP5
 
-using namespace AST;
-
 #if HAVE_EMBED
 
 #include <sapi/embed/php_embed.h>
@@ -59,7 +57,7 @@ unsigned long PHP::get_hash (String* string)
 		string->size () + 1);
 }
 
-Literal* PHP::convert_token (Literal *in)
+AST::Literal* PHP::convert_token (AST::Literal *in)
 {
 	String* code = in->get_source_rep ();
 	assert (code);
@@ -68,16 +66,16 @@ Literal* PHP::convert_token (Literal *in)
 	bool ret = eval_string (code, &value, in);
 	assert (ret);
 
-	Literal* result = zval_to_ast_literal (&value);
+	AST::Literal* result = zval_to_ast_literal (&value);
 	result->attrs->clone_all_from (in->attrs);
 	return result;
 }
 
 
-Expr* PHP::fold_constant_expr (Expr* in)
+AST::Expr* PHP::fold_constant_expr (AST::Expr* in)
 {
 	// Avoid parse errors due to '{'
-	Expr* clone = in->clone ();
+	AST::Expr* clone = in->clone ();
 	clone->attrs->erase_with_prefix ("phc.unparser");
 
 	stringstream ss;
@@ -94,7 +92,7 @@ Expr* PHP::fold_constant_expr (Expr* in)
 		return in;
 	}
 
-	Literal* result = zval_to_ast_literal (&value);
+	AST::Literal* result = zval_to_ast_literal (&value);
 	zval_dtor (&value); // clear out string structure
 	result->attrs->clone_all_from (in->attrs);
 	return result;
@@ -176,6 +174,90 @@ PHP::add_include (String* filename)
 	// TODO: assert absolute filename
 	included.insert (*filename);
 }
+
+
+/*
+ * Superglobals and initially defined variables:
+ *
+ * These variables are available when the program starts:
+ *		argc argv _COOKIE _ENV _FILES _GET GLOBALS HTTP_COOKIE_VARS
+ *		HTTP_ENV_VARS HTTP_GET_VARS HTTP_POST_FILES HTTP_POST_VARS
+ *		HTTP_SERVER_VARS _POST _REQUEST _SERVER
+ *
+ *	These variables are actually superglobals (from the docs):
+ *		argc argv _COOKIE _ENV _FILES _GET GLOBALS _POST _REQUEST _SERVER
+ *
+ *	These variables are mentioned in the superglobals documentation:
+ *
+ *		$php_errormsg: I think we need to consider this as maybe-set in all
+ *			scopes. I think we cant consider it initialized, nor to be a string.
+ *
+ *		$HTTP_RAW_POST_DATA: Could be anything I think.
+ *
+ *	These variables are arrays of strings (initially):
+ *		argv _COOKIE _ENV _FILES _GET HTTP_COOKIE_VARS
+ *		HTTP_ENV_VARS HTTP_GET_VARS HTTP_POST_FILES HTTP_POST_VARS
+ *		HTTP_SERVER_VARS _POST _REQUEST _SERVER
+ *
+ *	Other known values:
+ *		$argc: int
+ *		$argv: array of strings (with index 0 set)
+ *		$GLOBALS: starts as an empty array - then superglobals are added
+ *		$_SERVER: Nearly all strings, but has "argv", "argc" and "REQUEST_TIME"
+ *		which are string-array, int and int respectively.
+ *
+ *	Sessions:
+ *		$_SESSION: ($HTTP_SESSION_VARS): Can contain anything. Actually, can
+ *		only contain things that have been put into the session by another
+ *		script in the server. If we assume that there is only a set of scripts,
+ *		and we have information for what gets set in one script, we may have a
+ *		reasonable idea of what can come out of it.
+ *		
+ *
+ * Globals are typically created by a callback the first time they are
+ * accessed. This makes analysing them difficult. However, I think we can
+ * accurately model them even if we assume the callback doesn't exist.
+ */
+
+MIR::VARIABLE_NAME_list*
+PHP::get_superglobals ()
+{
+	MIR::VARIABLE_NAME_list* result = new MIR::VARIABLE_NAME_list;
+
+	HashTable* ht = CG(auto_globals);
+
+	// foreach (GLOBALS)
+	zend_hash_internal_pointer_reset (ht);
+	while (zend_hash_has_more_elements (ht) == SUCCESS)
+	{
+		char* name;
+		unsigned long index;
+		int type = zend_hash_get_current_key (ht, &name, &index, false);
+		assert (type == HASH_KEY_IS_STRING);
+
+		result->push_back (new MIR::VARIABLE_NAME (s(string (name))));
+
+		zend_hash_move_forward (ht);
+	}
+	zend_hash_internal_pointer_end (ht);
+
+
+	return result;
+}
+
+MIR::VARIABLE_NAME_list*
+PHP::get_initial_vars ()
+{
+	phc_TODO ();
+}
+
+// Is IV known to be an array of strings.
+bool
+PHP::is_initial_var_string_array (MIR::VARIABLE_NAME* iv)
+{
+	phc_TODO ();
+}
+
 
 #else
 

@@ -30,6 +30,8 @@ namespace MIR
 	class OP;
 	class CAST;
 	class Constant;
+	class VARIABLE_NAME;
+	typedef List<VARIABLE_NAME*> VARIABLE_NAME_list;
 }
 
 class PHP
@@ -65,6 +67,13 @@ public:
 	static void add_include (String* full_path);
 	static bool is_included (String* full_path);
 	static String_list* get_include_paths ();
+
+	/* Superglobals */
+	static MIR::VARIABLE_NAME_list* get_superglobals ();
+	static MIR::VARIABLE_NAME_list* get_initial_vars ();
+
+	// Is the superglobal an array of strings.
+	static bool is_initial_var_string_array (MIR::VARIABLE_NAME* sg);
 
 	/*
 	 * Optimization (defined in optimize.cpp)
