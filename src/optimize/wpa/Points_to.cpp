@@ -21,35 +21,22 @@ using namespace MIR;
 using namespace std;
 using namespace boost;
 
-#define ST_NAME "__PHC_ST__"
-
 Points_to::Points_to ()
 {
 }
 
 /*
  * Add a storage node for the scope (or it might exist already in the case of
- * recursion). Add an GLOBALS node to it.
+ * recursion). Add an GLOBALS node to it
  */
 void
 Points_to::open_scope (string scope_name)
 {
-	// TODO: add the superglobals (its wrong to add the parameters before the
-	// superglobals, but we've only 1 example of this breaking).
-	
-	// Add the GLOBALS node
+	// TODO: Add the superglobals here. We currently add 'global' statements
+	// instead, which is wrong (and we have an example), but close enough for
+	// now. 
 
-	if (scope_name == "__MAIN__")
-	{
-		// TODO: remove this hack and move it into Aliasing
-		add_edge (SN (scope_name), IN (scope_name, "GLOBALS"), DEFINITE);
-		add_edge (IN (scope_name, "GLOBALS"), SN (scope_name));
-	}
-	else
-	{
-		// We need to remove the "global $GLOBALS;" statements, since they're wrong, but we should remove it here first.
-//		set_reference (IN (scope_name, "GLOBALS"), IN ("__MAIN__", "GLOBALS"));
-	}
+	// TODO: this should really be done at a higher level anyway
 }
 
 void

@@ -127,14 +127,21 @@ public:
 							    MIR::Actual_parameter_list*,
 								 MIR::VARIABLE_NAME* lhs);
 
+	void init_superglobals (CFG* main);
+
 	/* Local analysis - calling other analyses */
 	void dump (Basic_block* bb);
 
 
 	void use_summary_results (Basic_block* context, Method_info* info, MIR::Actual_parameter_list* in, MIR::VARIABLE_NAME* lhs);
 
+
+	/*
+	 * Calls to the WPA modules.
+	 */
 	void forward_bind (Basic_block* bb, CFG* callee_cfg,
-			MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* retval);
+							 MIR::Actual_parameter_list* actuals,
+							 MIR::VARIABLE_NAME* retval);
 
 	void backward_bind (Basic_block* bb, CFG* callee_cfg);
 
@@ -147,6 +154,7 @@ public:
 	// They pass the information to the Points-to graph, and to the other
 	// analyses. The BB is to give a unique index to the results.
 	void assign_scalar (Basic_block* bb, Path* lhs, MIR::Literal* lit);
+	void assign_empty_array (Basic_block* bb, Path* lhs, string unique_name);
 	void assign_by_ref (Basic_block* bb, Path* lhs, Path* rhs);
 	void assign_by_copy (Basic_block* bb, Path* lhs, Path* rhs);
 

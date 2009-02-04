@@ -274,8 +274,8 @@ Def_use_web::add_may_use (Alias_name var, SSA_op* def)
 		return;									\
 	add_def_use (def, SSA_TYPE)			\
 	add_def_use (use, SSA_TYPE)			\
-	add_def_use (may_def, SSA_TYPE)		\
-	add_def_use (may_use, SSA_TYPE)
+	add_def_use (may_def, SSA_TYPE)
+
 void
 Def_use_web::visit_entry_block (Entry_block* bb)
 {

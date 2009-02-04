@@ -414,11 +414,58 @@ Whole_program::dump (Basic_block* bb)
 }
 
 void
+Whole_program::init_superglobals (CFG* main)
+{
+	// We set up the superglobals, and then use the global statements in other
+	// methods. Strictly, functions other than __MAIN__ should have their
+	// globals set up before the parameters are copied. However, we'll ignore
+	// this minor bug since its broken elsewhere in the compiler.
+
+
+	// TODO: Set POST, ENV etc to be arrays of strings
+
+
+	// Initialize all superglobals
+	Basic_block* entry = main->get_entry_bb ();
+	foreach_wpa (this)
+	{
+		assign_empty_array (entry,
+						  P (MSN, new VARIABLE_NAME ("GLOBALS")), MSN);
+
+		dump (main->get_entry_bb ());
+		foreach (VARIABLE_NAME* sg, *PHP::get_superglobals ())
+		{
+			DEBUG (*sg->value << ", ");
+			if (*sg->value == "GLOBALS")
+				continue;
+
+			// Create an empty array (named with its global name)
+			assign_empty_array (entry, P (MSN, sg), *sg->value);
+
+/*			if (contents must be strings)
+				assign_array_of_strings ();
+			else if (is globals)
+				;
+			else
+				assign_unknown_array ();
+
+			// Add to global symbol table
+			*/
+		}
+		dump (main->get_entry_bb ());
+		phc_TODO ();
+	}
+}
+
+void
 Whole_program::forward_bind (Basic_block* context, CFG* callee, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
 {
 	// Each caller should expect that context can be NULL for __MAIN__.
 	foreach_wpa (this)
 		wpa->forward_bind (context, callee, actuals, lhs);
+
+	if (context == NULL)
+		init_superglobals (callee);
 
 
 	// Perform assignments for paramater passing
@@ -444,18 +491,6 @@ Whole_program::forward_bind (Basic_block* context, CFG* callee, MIR::Actual_para
 			// $fp = $ap;
 			phc_TODO ();
 		}
-	}
-
-	if (lhs)
-	{
-		// TODO: do this upon return instead
-		phc_TODO ();
-		/*
-		if (return_by_ref)
-			set_reference
-		else
-			set_value
-		*/
 	}
 
 	dump (callee->get_entry_bb ());
@@ -672,6 +707,20 @@ Whole_program::assign_scalar (Basic_block* bb, Path* plhs, Literal* lit)
 				lit,
 				killable ? DEFINITE : POSSIBLE);
 		}
+	}
+}
+
+void
+Whole_program::assign_empty_array (Basic_block* bb, Path* plhs, string unique_name)
+{
+	Index_node_list* lhss = get_named_indices (bb, plhs);
+	if (lhss->size () != 1)
+		phc_TODO ();
+
+	foreach (Index_node* lhs, *lhss)
+	{
+		foreach_wpa (this)
+			wpa->assign_array (bb, lhs->name (), unique_name, DEFINITE);
 	}
 }
 

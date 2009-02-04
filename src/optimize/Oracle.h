@@ -11,6 +11,7 @@
 #define PHC_ORACLE
 
 #include "MIR.h"
+#include "embed/embed.h"
 #include "Method_information.h"
 
 // The optimization oracle. This is a layer between the PHP:: embed functions

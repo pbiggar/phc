@@ -55,6 +55,9 @@ public:
 	virtual void assign_scalar (Basic_block* bb, Alias_name lhs,
 										 MIR::Literal* rhs, certainty cert){};
 
+	virtual void assign_array (Basic_block* bb, Alias_name lhs,
+										string unique_name, certainty cert){};
+
 	// LHS is made to reference RHS, with the certainty CERT. Note this copies
 	// the value.
 	virtual void assign_by_ref (Basic_block* bb, Alias_name lhs,

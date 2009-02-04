@@ -46,7 +46,6 @@ Def_use::dump(Basic_block* bb)
 	dump_set (defs, bb->ID, "DEF");
 	dump_set (uses, bb->ID, "USE");
 	dump_set (may_defs, bb->ID, "MAY_DEF");
-	dump_set (may_uses, bb->ID, "MAY_USE");
 }
 
 
@@ -65,33 +64,18 @@ Def_use::kill_reference (Basic_block* bb, Alias_name name)
 void
 Def_use::assign_scalar (Basic_block* bb, Alias_name lhs, Literal* lit, certainty cert)
 {
-	if (cert == DEFINITE)
-		defs[bb->ID].insert (lhs);
-	else if (cert == POSSIBLE)
-		may_defs[bb->ID].insert (lhs);
+	// It ignores the second LHS
+	assign_value (bb, lhs, lhs, cert);
 }
 
 
 void
-Def_use::assign_by_ref (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert)
-{
-	phc_TODO ();
-}
-
-
-void
-Def_use::assign_by_copy (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert)
+Def_use::assign_value (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert)
 {
 	if (cert == DEFINITE)
-	{
 		defs[bb->ID].insert (lhs);
-		uses[bb->ID].insert (rhs);
-	}
 	else if (cert == POSSIBLE)
-	{
 		may_defs[bb->ID].insert (lhs);
-		may_uses[bb->ID].insert (rhs);
-	}
 }
 
 void
@@ -100,10 +84,6 @@ Def_use::record_use (Basic_block* bb, Alias_name use, certainty cert)
 	uses[bb->ID].insert (use);
 }
 
-void
-Def_use::pull_results (Basic_block* bb)
-{
-}
 
 void
 merge_into_func_sets (Basic_block* bb,
@@ -123,7 +103,6 @@ Def_use::aggregate_results (Basic_block* bb)
 	merge_into_func_sets (bb, defs, func_defs);
 	merge_into_func_sets (bb, uses, func_uses);
 	merge_into_func_sets (bb, may_defs, func_may_defs);
-	merge_into_func_sets (bb, may_uses, func_may_uses);
 }
 
 // TODO: we could do with a 'close_scope' to trim results.
@@ -165,10 +144,8 @@ Def_use::backward_bind (Basic_block* context, CFG* callee_cfg)
 	merge_from_callee (context, callee_cfg, defs, func_defs);
 	merge_from_callee (context, callee_cfg, uses, func_uses);
 	merge_from_callee (context, callee_cfg, may_defs, func_may_defs);
-	merge_from_callee (context, callee_cfg, may_uses, func_may_uses);
 
 	remove_prefixed (defs[context->ID], CFG_ST (callee_cfg));
 	remove_prefixed (uses[context->ID], CFG_ST (callee_cfg));
 	remove_prefixed (may_defs[context->ID], CFG_ST (callee_cfg));
-	remove_prefixed (may_uses[context->ID], CFG_ST (callee_cfg));
 }

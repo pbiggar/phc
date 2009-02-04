@@ -38,6 +38,9 @@ public:
 	void assign_scalar (Basic_block* bb, Alias_name lhs,
 							  MIR::Literal* rhs, certainty cert);
 
+	void assign_array (Basic_block* bb, Alias_name lhs,
+							 string unique_name, certainty cert);
+
 	void assign_by_ref (Basic_block* bb, Alias_name lhs,
 	                    Alias_name rhs, certainty cert);
 
