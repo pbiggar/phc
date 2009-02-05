@@ -51,6 +51,7 @@ void PHP_script::transform_children(Transform* transform)
     transform->children_php_script(this);
 }
 
+const int PHP_script::ID;
 int PHP_script::classid()
 {
     return ID;
@@ -223,6 +224,7 @@ void Class_mod::transform_children(Transform* transform)
     transform->children_class_mod(this);
 }
 
+const int Class_mod::ID;
 int Class_mod::classid()
 {
     return ID;
@@ -318,6 +320,7 @@ void Signature::transform_children(Transform* transform)
     transform->children_signature(this);
 }
 
+const int Signature::ID;
 int Signature::classid()
 {
     return ID;
@@ -572,6 +575,7 @@ void Method_mod::transform_children(Transform* transform)
     transform->children_method_mod(this);
 }
 
+const int Method_mod::ID;
 int Method_mod::classid()
 {
     return ID;
@@ -745,6 +749,7 @@ void Formal_parameter::transform_children(Transform* transform)
     transform->children_formal_parameter(this);
 }
 
+const int Formal_parameter::ID;
 int Formal_parameter::classid()
 {
     return ID;
@@ -897,6 +902,7 @@ void Type::transform_children(Transform* transform)
     transform->children_type(this);
 }
 
+const int Type::ID;
 int Type::classid()
 {
     return ID;
@@ -996,6 +1002,7 @@ void Attr_mod::transform_children(Transform* transform)
     transform->children_attr_mod(this);
 }
 
+const int Attr_mod::ID;
 int Attr_mod::classid()
 {
     return ID;
@@ -1156,6 +1163,7 @@ void Name_with_default::transform_children(Transform* transform)
     transform->children_name_with_default(this);
 }
 
+const int Name_with_default::ID;
 int Name_with_default::classid()
 {
     return ID;
@@ -1288,6 +1296,7 @@ void Catch::transform_children(Transform* transform)
     transform->children_catch(this);
 }
 
+const int Catch::ID;
 int Catch::classid()
 {
     return ID;
@@ -1520,6 +1529,7 @@ void Actual_parameter::transform_children(Transform* transform)
     transform->children_actual_parameter(this);
 }
 
+const int Actual_parameter::ID;
 int Actual_parameter::classid()
 {
     return ID;
@@ -1646,6 +1656,7 @@ void Static_array_elem::transform_children(Transform* transform)
     transform->children_static_array_elem(this);
 }
 
+const int Static_array_elem::ID;
 int Static_array_elem::classid()
 {
     return ID;
@@ -1787,6 +1798,7 @@ void PARAM_INDEX::transform_children(Transform* transform)
     transform->children_param_index(this);
 }
 
+const int PARAM_INDEX::ID;
 int PARAM_INDEX::classid()
 {
     return ID;
@@ -1902,6 +1914,7 @@ void Class_def::transform_children(Transform* transform)
     transform->children_statement(this);
 }
 
+const int Class_def::ID;
 int Class_def::classid()
 {
     return ID;
@@ -2293,6 +2306,7 @@ void Interface_def::transform_children(Transform* transform)
     transform->children_statement(this);
 }
 
+const int Interface_def::ID;
 int Interface_def::classid()
 {
     return ID;
@@ -2582,6 +2596,7 @@ void Method::transform_children(Transform* transform)
     transform->children_member(this);
 }
 
+const int Method::ID;
 int Method::classid()
 {
     return ID;
@@ -2786,6 +2801,7 @@ void Attribute::transform_children(Transform* transform)
     transform->children_member(this);
 }
 
+const int Attribute::ID;
 int Attribute::classid()
 {
     return ID;
@@ -2917,6 +2933,7 @@ void Class_alias::transform_children(Transform* transform)
     transform->children_statement(this);
 }
 
+const int Class_alias::ID;
 int Class_alias::classid()
 {
     return ID;
@@ -3048,6 +3065,7 @@ void Interface_alias::transform_children(Transform* transform)
     transform->children_statement(this);
 }
 
+const int Interface_alias::ID;
 int Interface_alias::classid()
 {
     return ID;
@@ -3179,6 +3197,7 @@ void Method_alias::transform_children(Transform* transform)
     transform->children_statement(this);
 }
 
+const int Method_alias::ID;
 int Method_alias::classid()
 {
     return ID;
@@ -3308,6 +3327,7 @@ void Return::transform_children(Transform* transform)
     transform->children_statement(this);
 }
 
+const int Return::ID;
 int Return::classid()
 {
     return ID;
@@ -3409,6 +3429,7 @@ void Static_declaration::transform_children(Transform* transform)
     transform->children_statement(this);
 }
 
+const int Static_declaration::ID;
 int Static_declaration::classid()
 {
     return ID;
@@ -3510,6 +3531,7 @@ void Global::transform_children(Transform* transform)
     transform->children_statement(this);
 }
 
+const int Global::ID;
 int Global::classid()
 {
     return ID;
@@ -3613,6 +3635,7 @@ void Try::transform_children(Transform* transform)
     transform->children_statement(this);
 }
 
+const int Try::ID;
 int Try::classid()
 {
     return ID;
@@ -3872,6 +3895,7 @@ void Throw::transform_children(Transform* transform)
     transform->children_statement(this);
 }
 
+const int Throw::ID;
 int Throw::classid()
 {
     return ID;
@@ -3970,6 +3994,7 @@ void Assign_var::transform_children(Transform* transform)
     transform->children_statement(this);
 }
 
+const int Assign_var::ID;
 int Assign_var::classid()
 {
     return ID;
@@ -4128,6 +4153,7 @@ void Assign_field::transform_children(Transform* transform)
     transform->children_statement(this);
 }
 
+const int Assign_field::ID;
 int Assign_field::classid()
 {
     return ID;
@@ -4296,6 +4322,7 @@ void Assign_array::transform_children(Transform* transform)
     transform->children_statement(this);
 }
 
+const int Assign_array::ID;
 int Assign_array::classid()
 {
     return ID;
@@ -4462,6 +4489,7 @@ void Assign_var_var::transform_children(Transform* transform)
     transform->children_statement(this);
 }
 
+const int Assign_var_var::ID;
 int Assign_var_var::classid()
 {
     return ID;
@@ -4600,6 +4628,7 @@ void Assign_next::transform_children(Transform* transform)
     transform->children_statement(this);
 }
 
+const int Assign_next::ID;
 int Assign_next::classid()
 {
     return ID;
@@ -4736,6 +4765,7 @@ void Pre_op::transform_children(Transform* transform)
     transform->children_statement(this);
 }
 
+const int Pre_op::ID;
 int Pre_op::classid()
 {
     return ID;
@@ -4873,6 +4903,7 @@ void Eval_expr::transform_children(Transform* transform)
     transform->children_statement(this);
 }
 
+const int Eval_expr::ID;
 int Eval_expr::classid()
 {
     return ID;
@@ -4978,6 +5009,7 @@ void Unset::transform_children(Transform* transform)
     transform->children_statement(this);
 }
 
+const int Unset::ID;
 int Unset::classid()
 {
     return ID;
@@ -5203,6 +5235,7 @@ void Isset::transform_children(Transform* transform)
     transform->children_expr(this);
 }
 
+const int Isset::ID;
 int Isset::classid()
 {
     return ID;
@@ -5430,6 +5463,7 @@ void Field_access::transform_children(Transform* transform)
     transform->children_expr(this);
 }
 
+const int Field_access::ID;
 int Field_access::classid()
 {
     return ID;
@@ -5569,6 +5603,7 @@ void Array_access::transform_children(Transform* transform)
     transform->children_expr(this);
 }
 
+const int Array_access::ID;
 int Array_access::classid()
 {
     return ID;
@@ -5698,6 +5733,7 @@ void Array_next::transform_children(Transform* transform)
     transform->children_expr(this);
 }
 
+const int Array_next::ID;
 int Array_next::classid()
 {
     return ID;
@@ -5801,6 +5837,7 @@ void Cast::transform_children(Transform* transform)
     transform->children_expr(this);
 }
 
+const int Cast::ID;
 int Cast::classid()
 {
     return ID;
@@ -5940,6 +5977,7 @@ void Unary_op::transform_children(Transform* transform)
     transform->children_expr(this);
 }
 
+const int Unary_op::ID;
 int Unary_op::classid()
 {
     return ID;
@@ -6081,6 +6119,7 @@ void Bin_op::transform_children(Transform* transform)
     transform->children_expr(this);
 }
 
+const int Bin_op::ID;
 int Bin_op::classid()
 {
     return ID;
@@ -6249,6 +6288,7 @@ void Constant::transform_children(Transform* transform)
     transform->children_static_array_key(this);
 }
 
+const int Constant::ID;
 int Constant::classid()
 {
     return ID;
@@ -6379,6 +6419,7 @@ void Instanceof::transform_children(Transform* transform)
     transform->children_expr(this);
 }
 
+const int Instanceof::ID;
 int Instanceof::classid()
 {
     return ID;
@@ -6512,6 +6553,7 @@ void Method_invocation::transform_children(Transform* transform)
     transform->children_expr(this);
 }
 
+const int Method_invocation::ID;
 int Method_invocation::classid()
 {
     return ID;
@@ -6753,6 +6795,7 @@ void New::transform_children(Transform* transform)
     transform->children_expr(this);
 }
 
+const int New::ID;
 int New::classid()
 {
     return ID;
@@ -6951,6 +6994,7 @@ void Variable_method::transform_children(Transform* transform)
     transform->children_method_name(this);
 }
 
+const int Variable_method::ID;
 int Variable_method::classid()
 {
     return ID;
@@ -7052,6 +7096,7 @@ void Variable_class::transform_children(Transform* transform)
     transform->children_class_name(this);
 }
 
+const int Variable_class::ID;
 int Variable_class::classid()
 {
     return ID;
@@ -7153,6 +7198,7 @@ void Variable_field::transform_children(Transform* transform)
     transform->children_field_name(this);
 }
 
+const int Variable_field::ID;
 int Variable_field::classid()
 {
     return ID;
@@ -7254,6 +7300,7 @@ void Static_array::transform_children(Transform* transform)
     transform->children_static_value(this);
 }
 
+const int Static_array::ID;
 int Static_array::classid()
 {
     return ID;
@@ -7424,6 +7471,7 @@ void Branch::transform_children(Transform* transform)
     transform->children_statement(this);
 }
 
+const int Branch::ID;
 int Branch::classid()
 {
     return ID;
@@ -7581,6 +7629,7 @@ void Goto::transform_children(Transform* transform)
     transform->children_statement(this);
 }
 
+const int Goto::ID;
 int Goto::classid()
 {
     return ID;
@@ -7682,6 +7731,7 @@ void Label::transform_children(Transform* transform)
     transform->children_statement(this);
 }
 
+const int Label::ID;
 int Label::classid()
 {
     return ID;
@@ -7785,6 +7835,7 @@ void Foreach_reset::transform_children(Transform* transform)
     transform->children_statement(this);
 }
 
+const int Foreach_reset::ID;
 int Foreach_reset::classid()
 {
     return ID;
@@ -7916,6 +7967,7 @@ void Foreach_next::transform_children(Transform* transform)
     transform->children_statement(this);
 }
 
+const int Foreach_next::ID;
 int Foreach_next::classid()
 {
     return ID;
@@ -8047,6 +8099,7 @@ void Foreach_end::transform_children(Transform* transform)
     transform->children_statement(this);
 }
 
+const int Foreach_end::ID;
 int Foreach_end::classid()
 {
     return ID;
@@ -8178,6 +8231,7 @@ void Foreach_has_key::transform_children(Transform* transform)
     transform->children_expr(this);
 }
 
+const int Foreach_has_key::ID;
 int Foreach_has_key::classid()
 {
     return ID;
@@ -8309,6 +8363,7 @@ void Foreach_get_key::transform_children(Transform* transform)
     transform->children_expr(this);
 }
 
+const int Foreach_get_key::ID;
 int Foreach_get_key::classid()
 {
     return ID;
@@ -8440,6 +8495,7 @@ void Foreach_get_val::transform_children(Transform* transform)
     transform->children_expr(this);
 }
 
+const int Foreach_get_val::ID;
 int Foreach_get_val::classid()
 {
     return ID;
@@ -8573,6 +8629,7 @@ void Param_is_ref::transform_children(Transform* transform)
     transform->children_expr(this);
 }
 
+const int Param_is_ref::ID;
 int Param_is_ref::classid()
 {
     return ID;
@@ -8729,6 +8786,7 @@ void FOREIGN::transform_children(Transform* transform)
     transform->children_expr(this);
 }
 
+const int FOREIGN::ID;
 int FOREIGN::classid()
 {
     return ID;
@@ -8843,6 +8901,7 @@ String* CLASS_NAME::get_value_as_string()
     return value;
 }
 
+const int CLASS_NAME::ID;
 int CLASS_NAME::classid()
 {
     return ID;
@@ -8940,6 +8999,7 @@ String* INTERFACE_NAME::get_value_as_string()
     return value;
 }
 
+const int INTERFACE_NAME::ID;
 int INTERFACE_NAME::classid()
 {
     return ID;
@@ -9030,6 +9090,7 @@ String* METHOD_NAME::get_value_as_string()
     return value;
 }
 
+const int METHOD_NAME::ID;
 int METHOD_NAME::classid()
 {
     return ID;
@@ -9127,6 +9188,7 @@ String* OP::get_value_as_string()
     return value;
 }
 
+const int OP::ID;
 int OP::classid()
 {
     return ID;
@@ -9217,6 +9279,7 @@ String* CAST::get_value_as_string()
     return value;
 }
 
+const int CAST::ID;
 int CAST::classid()
 {
     return ID;
@@ -9307,6 +9370,7 @@ String* CONSTANT_NAME::get_value_as_string()
     return value;
 }
 
+const int CONSTANT_NAME::ID;
 int CONSTANT_NAME::classid()
 {
     return ID;
@@ -9397,6 +9461,7 @@ String* FIELD_NAME::get_value_as_string()
     return value;
 }
 
+const int FIELD_NAME::ID;
 int FIELD_NAME::classid()
 {
     return ID;
@@ -9494,6 +9559,7 @@ String* LABEL_NAME::get_value_as_string()
     return value;
 }
 
+const int LABEL_NAME::ID;
 int LABEL_NAME::classid()
 {
     return ID;
@@ -9584,6 +9650,7 @@ String* HT_ITERATOR::get_value_as_string()
     return value;
 }
 
+const int HT_ITERATOR::ID;
 int HT_ITERATOR::classid()
 {
     return ID;
@@ -9679,6 +9746,7 @@ void Variable_variable::transform_children(Transform* transform)
     transform->children_variable_name(this);
 }
 
+const int Variable_variable::ID;
 int Variable_variable::classid()
 {
     return ID;
@@ -9780,6 +9848,7 @@ String* VARIABLE_NAME::get_value_as_string()
     return value;
 }
 
+const int VARIABLE_NAME::ID;
 int VARIABLE_NAME::classid()
 {
     return ID;
@@ -9879,6 +9948,7 @@ void INT::transform_children(Transform* transform)
     transform->children_static_array_key(this);
 }
 
+const int INT::ID;
 int INT::classid()
 {
     return ID;
@@ -10000,6 +10070,7 @@ void REAL::transform_children(Transform* transform)
     transform->children_static_array_key(this);
 }
 
+const int REAL::ID;
 int REAL::classid()
 {
     return ID;
@@ -10130,6 +10201,7 @@ void STRING::transform_children(Transform* transform)
     transform->children_static_array_key(this);
 }
 
+const int STRING::ID;
 int STRING::classid()
 {
     return ID;
@@ -10248,6 +10320,7 @@ void BOOL::transform_children(Transform* transform)
     transform->children_static_array_key(this);
 }
 
+const int BOOL::ID;
 int BOOL::classid()
 {
     return ID;
@@ -10362,6 +10435,7 @@ void NIL::transform_children(Transform* transform)
     transform->children_static_array_key(this);
 }
 
+const int NIL::ID;
 int NIL::classid()
 {
     return ID;
