@@ -76,15 +76,28 @@ public:
 	 * Assigning values
 	 */
 
-	// LHS is assigned a literal value from RHS, with the certainty CERT.
+	// We dont know anything about the value
+	virtual void assign_unknown (Basic_block* bb, Alias_name name,
+										  certainty cert) CT_IMPL;
+
+	virtual void assign_unknown_typed (Basic_block* bb, Alias_name name,
+												  string type, certainty cert)
+	{
+		assign_unknown (bb, name, cert);
+	}
+
+	virtual void assign_empty_array (Basic_block* bb, Alias_name lhs,
+												string unique_name, certainty cert) CT_IMPL;
+
+	/*
+	 * Handle the built-in types.
+	 */
+
+	// Case where we know the value of the RHS
 	virtual void assign_scalar (Basic_block* bb, Alias_name lhs,
 										 MIR::Literal* rhs, certainty cert) CT_IMPL;
 
-	virtual void assign_array (Basic_block* bb, Alias_name lhs,
-										string unique_name, certainty cert) CT_IMPL;
 
-	virtual void assign_unknown (Basic_block* bb, Alias_name name,
-										  certainty cert) CT_IMPL;
 
 	/*
 	 * Assigning from existing values

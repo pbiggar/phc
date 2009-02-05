@@ -62,7 +62,7 @@ Def_use::assign_scalar (Basic_block* bb, Alias_name lhs, Literal* lit, certainty
 
 
 void
-Def_use::assign_array (Basic_block* bb, Alias_name lhs, string unique_name, certainty cert)
+Def_use::assign_empty_array (Basic_block* bb, Alias_name lhs, string unique_name, certainty cert)
 {
 	assign_value (bb, lhs, lhs, cert);
 }

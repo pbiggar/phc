@@ -114,7 +114,7 @@ Aliasing::assign_scalar (Basic_block* bb, Alias_name lhs, MIR::Literal* lit, cer
 }
 
 void
-Aliasing::assign_array (Basic_block* bb, Alias_name lhs, string unique_name, certainty cert)
+Aliasing::assign_empty_array (Basic_block* bb, Alias_name lhs, string unique_name, certainty cert)
 {
 	if (cert != DEFINITE)
 		phc_TODO ();

@@ -97,7 +97,7 @@ CCP::assign_scalar (Basic_block* bb, Alias_name lhs, Literal* lit, certainty cer
 }
 
 void
-CCP::assign_array (Basic_block* bb, Alias_name lhs, string unique_name, certainty cert)
+CCP::assign_empty_array (Basic_block* bb, Alias_name lhs, string unique_name, certainty cert)
 {
 	locals[bb->ID][lhs.str()] = BOTTOM;
 }

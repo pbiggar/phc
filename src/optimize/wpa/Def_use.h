@@ -26,8 +26,8 @@ public:
 	void assign_value (Basic_block* bb, Alias_name lhs,
 	                   Alias_name rhs, certainty cert);
 
-	void assign_array (Basic_block* bb, Alias_name lhs,
-	                   string unique_name, certainty cert);
+	void assign_empty_array (Basic_block* bb, Alias_name lhs,
+									 string unique_name, certainty cert);
 
 	void assign_unknown (Basic_block* bb, Alias_name lhs,
 							   certainty cert);

@@ -420,40 +420,55 @@ Whole_program::dump (Basic_block* bb)
 void
 Whole_program::init_superglobals (CFG* main)
 {
-	// We set up the superglobals, and then use the global statements in other
-	// methods. Strictly, functions other than __MAIN__ should have their
+	// TODO: Strictly speaking, functions other than __MAIN__ should have their
 	// globals set up before the parameters are copied. However, we'll ignore
 	// this minor bug since its broken elsewhere in the compiler.
 
-
-	// TODO: Set POST, ENV etc to be arrays of strings
-
-
-	// Initialize all superglobals
+	// TODO: add HTTP_*
+	
+	// TODO: we incorrectly mark _SERVER as being an array of strings. However,
+	// it actually has "argc", "argv" and "REQUEST_TIME" set, which are not strings.
+	
 	Basic_block* entry = main->get_entry_bb ();
+
 
 	// Start with globals, since it needs needs to point to MSN
 	assign_empty_array (entry, P (MSN, new VARIABLE_NAME ("GLOBALS")), MSN);
 
+	// Do the other superglobals
 	foreach (VARIABLE_NAME* sg, *PHP::get_superglobals ())
 	{
-		// We've already dealt with GLOBALS
 		if (*sg->value == "GLOBALS")
 			continue;
 
+		// TODO: we mark them as arrays of strings, but in reality we only know
+		// this about some of them.
 
-		// Create an empty array (named with its global name)
+		// Create an empty array
 		string array_name = *sg->value;
 		assign_empty_array (entry, P (MSN, sg), array_name);
 
-		// TODO: assign string types in some cases.
+		// We dont know the contents of these arrays.
 		foreach_wpa (this)
-			wpa->assign_unknown (entry, Alias_name (array_name, UNKNOWN), DEFINITE);
+			wpa->assign_unknown_typed (entry, Alias_name (array_name, UNKNOWN), "string", DEFINITE);
 	}
 
-	// TODO:
-	// add argv and argc (also to _REQUEST)
-	// add HTTP_*
+	// We actually have no idea whats in _SESSION
+	foreach_wpa (this)
+		wpa->assign_unknown (entry, Alias_name ("_SESSION", UNKNOWN), DEFINITE);
+
+	// argc
+	foreach_wpa_nd (this)
+		wpa->assign_unknown_typed (entry, Alias_name (MSN, "argc"), "int", DEFINITE);
+
+	// argv
+	foreach_wpa_nd (this)
+	{
+		wpa->assign_empty_array (entry, Alias_name (MSN, "argv"), "argv", DEFINITE);
+		wpa->assign_unknown_typed (entry, Alias_name ("argv", UNKNOWN), "string", DEFINITE);
+		wpa->assign_unknown_typed (entry, Alias_name ("argv", "0"), "string", DEFINITE);
+	}
+
 	dump (main->get_entry_bb ());
 }
 
@@ -724,7 +739,7 @@ Whole_program::assign_empty_array (Basic_block* bb, Path* plhs, string unique_na
 	foreach (Index_node* lhs, *lhss)
 	{
 		foreach_wpa (this)
-			wpa->assign_array (bb, lhs->name (), unique_name, DEFINITE);
+			wpa->assign_empty_array (bb, lhs->name (), unique_name, DEFINITE);
 	}
 }
 
