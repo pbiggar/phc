@@ -424,7 +424,7 @@ CFG::dump_graphviz (String* label)
 	<< "digraph G {\n"
 	<< "graph [outputorder=edgesfirst];\n"
 	<< "graph [labelloc=t];\n"
-	<< "graph [label=\"" << *method->signature->method_name->value << " - " << *label << "\"];\n";
+	<< "graph [label=\"CFG: " << *method->signature->method_name->value << " - " << *label << "\"];\n";
 
 	// Nodes for Basic Blocks
 	foreach (Basic_block* bb, *get_all_bbs ())

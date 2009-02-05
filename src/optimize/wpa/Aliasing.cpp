@@ -56,7 +56,6 @@ Aliasing::forward_bind (Basic_block* context, CFG* callee_cfg,
 	else
 		ptg = ins[context->ID]->clone ();
 
-//	ptg->open_scope (CFG_ST(callee_cfg));
 
 	// we dont save INS. Do we need it?
 	outs[callee_cfg->get_entry_bb ()->ID] = ptg;
@@ -93,13 +92,13 @@ Aliasing::aggregate_results (Basic_block* bb)
 }
 
 void
-Aliasing::kill_value (Basic_block* bb, Alias_name lhs)
+Aliasing::kill_by_copy (Basic_block* bb, Alias_name lhs)
 {
 	outs[bb->ID]->kill_value (lhs.ind());
 }
 
 void
-Aliasing::kill_reference (Basic_block* bb, Alias_name lhs)
+Aliasing::kill_by_ref (Basic_block* bb, Alias_name lhs)
 {
 	outs[bb->ID]->kill_reference (lhs.ind());
 }
@@ -122,6 +121,15 @@ Aliasing::assign_array (Basic_block* bb, Alias_name lhs, string unique_name, cer
 
 	outs[bb->ID]->add_node (lhs.ind ());
 	outs[bb->ID]->add_edge (lhs.ind (), SN (unique_name));
+}
+
+void
+Aliasing::assign_unknown (Basic_block* bb, Alias_name lhs, certainty cert)
+{
+	if (cert != DEFINITE)
+		phc_TODO ();
+
+	outs[bb->ID]->add_node (lhs.ind ());
 }
 
 void

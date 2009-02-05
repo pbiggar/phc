@@ -6,31 +6,32 @@
  *
  * Design of the whole-program optimizer
  *
- *		1. Perform flow-sensitive, context-sensitive analysis. When analysing a
- *		function in multiple contexts, clone the function, and store the clones
- *		in the call-graph. 
+ *		1. Perform flow-sensitive, context-sensitive, object-sensitive,
+ *		field-sensitive analysis. When analysing a function in multiple contexts,
+ *		clone the function, and store the clones in the call-graph. 
  *
- *		2. Before analysing each Basic_block, clear all phc.opt.* annotations.
- *		After analysing each block, each analysis re-annotates the block. At
- *		function-exit, the annotations stay.
+ *		2. The analyses provide feedback to the Whole-program analyser. They
+ *		resolve types to reduce reduce conservatism at call sites and for call
+ *		handlers, and help resolve branches.
  *
- *
- *		3. The analyses data structures' are cloned at split nodes, and
- *		combined at join nodes, whereupon the analysis proceeds for a single
- *		iteration.
- *
- *		4. After the analysis is complete, all the function annotations can be
+ *		3. After the analysis is complete, each function will have one set of
+ *		results at each program-point, for each context. These contexts are then
  *		merged.
  *
- *		5. Once merged, the analyses are re-run over the complete call-graph,
- *		transforming the graph. This iterates until it converges (or a fixed
- *		number of times). This allows evals and includes to be replaced with
- *		their respective code.
+ *		4. Once merged, the combined alias-solution is used to annotate the
+ *		results for SSA, and local optimizations are run on each function
  *
- *		6. Once finished, the combined alias-solution is used to annotate the
- *		results for SSA, where-upon DCE is run over the entire program.
+ *		5. Once merged, a transformer is run over each function, bottom-up,
+ *		transforming the graph.
  *
- *		7. Finally, code is generated using the (hopefully) well-annotated
+ *		6. This whole process iterates until it converges (or a fixed number of
+ *		times). This allows evals and includes to be replaced
+ *		with their respective code.
+ *
+ *		7. An optimization annotator then runs across the entire solution,
+ *		annotating the MIR using results from relevant program points.
+ *
+ *		8. Finally, code is generated using the (hopefully) well-annotated
  *		code.
  */
 
@@ -64,6 +65,7 @@ Whole_program::Whole_program (Pass_manager* pm)
 	callgraph = new Callgraph (this);
 	ccp = new CCP (this);
 	def_use = new Def_use (this);
+	type_inf = new Type_inference (this);
 //	constant_state = new Constant_state (this);
 //	include_analysis = new Include_analysis (this);
 //	vrp = new VRP (this);
@@ -73,9 +75,9 @@ Whole_program::Whole_program (Pass_manager* pm)
 	register_analysis ("Callgraph", callgraph);
 	register_analysis ("CCP", ccp);
 	register_analysis ("Def-use", def_use);
+	register_analysis ("Type_inference", type_inf);
 //	register_analysis ("Constant_state", constant_state);
 //	register_analysis ("Include_analysis", include_analysis);
-//	register_analysis ("Type_inference", new Type_inference (this));
 //	register_analysis ("VRP", vrp);
 }
 
@@ -427,45 +429,45 @@ Whole_program::init_superglobals (CFG* main)
 
 	// Initialize all superglobals
 	Basic_block* entry = main->get_entry_bb ();
-	foreach_wpa (this)
+
+	// Start with globals, since it needs needs to point to MSN
+	assign_empty_array (entry, P (MSN, new VARIABLE_NAME ("GLOBALS")), MSN);
+
+	foreach (VARIABLE_NAME* sg, *PHP::get_superglobals ())
 	{
-		assign_empty_array (entry,
-						  P (MSN, new VARIABLE_NAME ("GLOBALS")), MSN);
+		// We've already dealt with GLOBALS
+		if (*sg->value == "GLOBALS")
+			continue;
 
-		dump (main->get_entry_bb ());
-		foreach (VARIABLE_NAME* sg, *PHP::get_superglobals ())
-		{
-			DEBUG (*sg->value << ", ");
-			if (*sg->value == "GLOBALS")
-				continue;
 
-			// Create an empty array (named with its global name)
-			assign_empty_array (entry, P (MSN, sg), *sg->value);
+		// Create an empty array (named with its global name)
+		string array_name = *sg->value;
+		assign_empty_array (entry, P (MSN, sg), array_name);
 
-/*			if (contents must be strings)
-				assign_array_of_strings ();
-			else if (is globals)
-				;
-			else
-				assign_unknown_array ();
-
-			// Add to global symbol table
-			*/
-		}
-		dump (main->get_entry_bb ());
-		phc_TODO ();
+		// TODO: assign string types in some cases.
+		foreach_wpa (this)
+			wpa->assign_unknown (entry, Alias_name (array_name, UNKNOWN), DEFINITE);
 	}
+
+	// TODO:
+	// add argv and argc (also to _REQUEST)
+	// add HTTP_*
+	dump (main->get_entry_bb ());
 }
 
 void
 Whole_program::forward_bind (Basic_block* context, CFG* callee, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
 {
+
 	// Each caller should expect that context can be NULL for __MAIN__.
 	foreach_wpa (this)
 		wpa->forward_bind (context, callee, actuals, lhs);
 
+	// Special case for __MAIN__. We do it here so that the other analyses have initialized.
 	if (context == NULL)
+	{
 		init_superglobals (callee);
+	}
 
 
 	// Perform assignments for paramater passing
@@ -638,7 +640,7 @@ Whole_program::assign_by_ref (Basic_block* bb, Path* plhs, Path* prhs)
 		if (killable) // only 1 result
 		{
 			foreach_wpa (this)
-				wpa->kill_reference (bb, lhs->name ());
+				wpa->kill_by_ref (bb, lhs->name ());
 		}
 
 		// Note that we don't touch things which alias LHS.

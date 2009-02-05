@@ -32,8 +32,8 @@ public:
 	Aliasing (Whole_program*);
 
 	// WPA interface
-	void kill_value (Basic_block* bb, Alias_name index);
-	void kill_reference (Basic_block* bb, Alias_name index);
+	void kill_by_copy (Basic_block* bb, Alias_name index);
+	void kill_by_ref (Basic_block* bb, Alias_name index);
 
 	void assign_scalar (Basic_block* bb, Alias_name lhs,
 							  MIR::Literal* rhs, certainty cert);
@@ -41,12 +41,14 @@ public:
 	void assign_array (Basic_block* bb, Alias_name lhs,
 							 string unique_name, certainty cert);
 
+	void assign_unknown (Basic_block* bb, Alias_name lhs, certainty cert);
+	
 	void assign_by_ref (Basic_block* bb, Alias_name lhs,
 	                    Alias_name rhs, certainty cert);
 
 	void assign_by_copy (Basic_block* bb, Alias_name lhs,
 							   Alias_name rhs, certainty cert);
-	
+
 	void forward_bind (Basic_block* bb, CFG* callee_cfg,
 							 MIR::Actual_parameter_list* actuals,
 							 MIR::VARIABLE_NAME* retval);

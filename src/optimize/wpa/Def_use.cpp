@@ -53,18 +53,26 @@ void
 Def_use::kill_value (Basic_block* bb, Alias_name name)
 {
 	// TODO: do these once the other analyses work again
-}
-
-void
-Def_use::kill_reference (Basic_block* bb, Alias_name name)
-{
-	// TODO:
+	phc_TODO ();
 }
 
 void
 Def_use::assign_scalar (Basic_block* bb, Alias_name lhs, Literal* lit, certainty cert)
 {
 	// It ignores the second LHS
+	assign_value (bb, lhs, lhs, cert);
+}
+
+
+void
+Def_use::assign_array (Basic_block* bb, Alias_name lhs, string unique_name, certainty cert)
+{
+	assign_value (bb, lhs, lhs, cert);
+}
+
+void
+Def_use::assign_unknown (Basic_block* bb, Alias_name lhs, certainty cert)
+{
 	assign_value (bb, lhs, lhs, cert);
 }
 
@@ -77,6 +85,7 @@ Def_use::assign_value (Basic_block* bb, Alias_name lhs, Alias_name rhs, certaint
 	else if (cert == POSSIBLE)
 		may_defs[bb->ID].insert (lhs);
 }
+
 
 void
 Def_use::record_use (Basic_block* bb, Alias_name use, certainty cert)

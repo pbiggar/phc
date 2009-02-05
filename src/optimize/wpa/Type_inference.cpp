@@ -104,8 +104,9 @@ Type_inference::get_types (Location* loc)
 }
 */
 void
-Type_inference::dump()
+Type_inference::dump(Basic_block* bb)
 {
+	phc_TODO ();
 	// Traverse the points-to graph. For each variable in it, find the types
 	// it may point to.
 /*	foreach (Location* loc, *wp->bcch_aliasing->ptg->get_nodes<Loc_node> ())

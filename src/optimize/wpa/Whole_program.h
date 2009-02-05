@@ -80,19 +80,23 @@ class Whole_program : public CFG_visitor
 public:
 	Map<string, WPA*> analyses;
 
+	Pass_manager* pm;
+	Optimization_transformer* transformer;
+
 	Aliasing* aliasing;
 	CCP* ccp;
 	Def_use* def_use;
-	Pass_manager* pm;
 	Callgraph* callgraph;
+	Type_inference* type_inf;
 
-	Optimization_transformer* transformer;
 
 public:
 	Whole_program(Pass_manager* pm);
 
 	void run (MIR::PHP_script* in);
 	void run (CFG* cfg){}
+
+	void initialize ();
 
 	/* 
 	 * Creating and using analyses.
@@ -157,12 +161,14 @@ public:
 	void assign_empty_array (Basic_block* bb, Path* lhs, string unique_name);
 	void assign_by_ref (Basic_block* bb, Path* lhs, Path* rhs);
 	void assign_by_copy (Basic_block* bb, Path* lhs, Path* rhs);
+	void assign_unknown (Basic_block* bb, Path* lhs);
 
 	void record_use (Basic_block* bb, Index_node* node);
 
+
 	/*
-	 * These might be considered to belong elsewhere, but its tricky for some
-	 * reason.
+	 * These might be considered to belong elsewhere, but each of them is
+	 * tricky for some reason.
 	 */
 
 	// Get the list of potential values of node (can include '*' when it is

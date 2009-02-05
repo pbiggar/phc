@@ -114,6 +114,18 @@ CCP::assign_scalar (Basic_block* bb, Alias_name lhs, Literal* lit, certainty cer
 	lat[lhs.str()] = meet (lat[lhs.str()], new Literal_cell (lit));
 }
 
+void
+CCP::assign_array (Basic_block* bb, Alias_name lhs, string unique_name, certainty cert)
+{
+	locals[bb->ID][lhs.str()] = BOTTOM;
+}
+
+void
+CCP::assign_unknown (Basic_block* bb, Alias_name lhs, certainty cert)
+{
+	locals[bb->ID][lhs.str()] = BOTTOM;
+}
+
 
 void
 CCP::assign_by_value (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert)
@@ -124,6 +136,7 @@ CCP::assign_by_value (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty
 	Lattice_map& lat = locals[bb->ID];
 	lat[lhs.str()] = meet (lat[lhs.str()], ins[bb->ID][rhs.str()]);
 }
+
 
 void
 CCP::pull_results (Basic_block* bb)

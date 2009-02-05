@@ -23,7 +23,7 @@ public:
 									  MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs);
 	void backward_bind (CFG* caller_cfg, CFG* callee_cfg);
 
-	void dump ();
+	void dump (Basic_block* bb);
 
 	// TODO: I'm not sure how well this will work
 	// Type-inference just follows the points-to graph to get the possible

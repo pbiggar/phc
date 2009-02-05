@@ -19,13 +19,18 @@ public:
 	Def_use (Whole_program* wp);
 
 	void kill_value (Basic_block* bb, Alias_name name);
-	void kill_reference (Basic_block* bb, Alias_name name);
 
 	void assign_scalar (Basic_block* bb, Alias_name lhs,
 							  MIR::Literal* rhs, certainty cert);
 
 	void assign_value (Basic_block* bb, Alias_name lhs,
-	                    Alias_name rhs, certainty cert);
+	                   Alias_name rhs, certainty cert);
+
+	void assign_array (Basic_block* bb, Alias_name lhs,
+	                   string unique_name, certainty cert);
+
+	void assign_unknown (Basic_block* bb, Alias_name lhs,
+							   certainty cert);
 
 	void record_use (Basic_block* bb, Alias_name lhs, certainty cert);
 

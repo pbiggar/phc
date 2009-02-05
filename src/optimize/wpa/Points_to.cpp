@@ -53,6 +53,7 @@ Points_to::close_scope (string scope_name)
 void
 Points_to::kill_value (Index_node* index)
 {
+	phc_TODO ();
 	Storage_node_list* values = get_points_to (index, PTG_ALL);
 	if (values->size ())
 		phc_TODO (); // kill, and the things it points to - watch of for may-aliases
@@ -62,6 +63,7 @@ Points_to::kill_value (Index_node* index)
 void
 Points_to::kill_reference (Index_node* index)
 {
+	phc_TODO ();
 	foreach (Index_node* other, *get_references (index, PTG_ALL))
 	{
 		remove_pair (index, other);
@@ -76,6 +78,7 @@ Points_to::kill_reference (Index_node* index)
 void
 Points_to::assign_scalar (Index_node* index)
 {
+	phc_TODO ();
 	if (contains (index))
 		kill_value (index);
 
@@ -87,6 +90,7 @@ Points_to::assign_scalar (Index_node* index)
 void
 Points_to::assign_by_ref (Index_node* n1, Index_node* n2)
 {
+	phc_TODO ();
 	if (!contains (n2))
 	{
 		add_node (n2);
@@ -126,6 +130,7 @@ Points_to::assign_by_ref (Index_node* n1, Index_node* n2)
 void
 Points_to::assign_by_copy (Index_node* n1, Index_node* n2)
 {
+	phc_TODO ();
 	if (!contains (n1) || !contains (n2))
 		phc_TODO ();
 
@@ -149,7 +154,7 @@ Points_to::dump_graphviz (String* label)
 	cout
 	<< "digraph G {\n"
 	<< "graph [labelloc=t];\n"
-	<< "graph [label=\"" << *label << "\"];\n"
+	<< "graph [label=\"Points-to: " << *label << "\"];\n"
 	;
 
 	// Add definite edges

@@ -102,7 +102,7 @@ Callgraph::dump_graphviz (String* label)
 	cout
 	<< "digraph G {\n"
 	<< "graph [labelloc=t];\n"
-	<< "graph [label=\"" << *label << "\"];\n"
+	<< "graph [label=\"Callgraph: " << *label << "\"];\n"
 	;
 
 	foreach (string method, methods)
