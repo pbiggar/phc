@@ -40,6 +40,7 @@ BB_lattices::dump (Basic_block* bb, string name)
 	{
 		cdebug << name << " Lattice for BB: " << bb->ID << endl;
 		(*this)[bb->ID].dump();
+		cdebug << endl;
 	}
 	else
 		cdebug << "No " << name << " results for BB: " << bb->ID << endl;

@@ -760,7 +760,7 @@ Literal_cell::Literal_cell (Literal* value)
 void
 Literal_cell::dump ()
 {
-	DEBUG (*value->get_value_as_string ());
+	cdebug << *value->get_value_as_string ();
 }
 
 bool
