@@ -23,7 +23,6 @@ public:
 
 	// WPA
 	void kill_value (Basic_block* bb, Alias_name name);
-	void kill_reference (Basic_block* bb, Alias_name name);
 
 	void assign_scalar (Basic_block* bb, Alias_name lhs,
 							  MIR::Literal* rhs, certainty cert);
@@ -34,7 +33,7 @@ public:
 	void assign_unknown (Basic_block* bb, Alias_name lhs,
 								certainty cert);
 
-	void assign_by_value (Basic_block* bb, Alias_name lhs,
+	void assign_value (Basic_block* bb, Alias_name lhs,
 							   Alias_name rhs, certainty cert);
 
 	void pull_results (Basic_block* bb);

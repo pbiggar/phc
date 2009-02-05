@@ -32,8 +32,11 @@ public:
 	Aliasing (Whole_program*);
 
 	// WPA interface
-	void kill_by_copy (Basic_block* bb, Alias_name index);
-	void kill_by_ref (Basic_block* bb, Alias_name index);
+	void kill_by_ref (Basic_block* bb, Alias_name lhs);
+
+	// This is called by more than just kill_by_copy, so we must implement it.
+	// We dont need kill by copy as a result - it just calls this.
+	void kill_value (Basic_block* bb, Alias_name lhs);
 
 	void assign_scalar (Basic_block* bb, Alias_name lhs,
 							  MIR::Literal* rhs, certainty cert);

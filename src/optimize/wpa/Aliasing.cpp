@@ -92,9 +92,14 @@ Aliasing::aggregate_results (Basic_block* bb)
 }
 
 void
-Aliasing::kill_by_copy (Basic_block* bb, Alias_name lhs)
+Aliasing::kill_value (Basic_block* bb, Alias_name lhs)
 {
-	outs[bb->ID]->kill_value (lhs.ind());
+	Points_to* ptg = outs[bb->ID];
+
+	Storage_node_list* values = ptg->get_points_to (lhs.ind(), PTG_ALL);
+	if (values->size ())
+		phc_TODO (); // kill, and the things it points to - watch of for may-aliases
+
 }
 
 void
@@ -110,7 +115,14 @@ Aliasing::assign_scalar (Basic_block* bb, Alias_name lhs, MIR::Literal* lit, cer
 	if (cert != DEFINITE)
 		phc_TODO ();
 	
-	outs[bb->ID]->assign_scalar (lhs.ind ());
+	Points_to* ptg = outs[bb->ID];
+
+	// Do we still need this, since kill_value should be called first?
+	if (ptg->contains (lhs.ind ()))
+		phc_TODO ();
+//		kill_value (bb, index);
+
+	ptg->add_node (lhs.ind ());
 }
 
 void

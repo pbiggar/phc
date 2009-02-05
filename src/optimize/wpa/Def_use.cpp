@@ -47,10 +47,9 @@ Def_use::dump(Basic_block* bb)
 
 
 void
-Def_use::kill_value (Basic_block* bb, Alias_name name)
+Def_use::kill_value (Basic_block* bb, Alias_name lhs)
 {
-	// TODO: do these once the other analyses work again
-	phc_TODO ();
+	assign_value (bb, lhs, lhs, DEFINITE);
 }
 
 void

@@ -10,6 +10,7 @@
 #include "Type_inference.h"
 #include "Whole_program.h"
 #include "Points_to.h"
+#include "MIR.h"
 
 using namespace MIR;
 using namespace std;
@@ -63,7 +64,15 @@ Type_inference::assign_empty_array (Basic_block* bb, Alias_name lhs, string uniq
 void
 Type_inference::assign_scalar (Basic_block* bb, Alias_name lhs, MIR::Literal* rhs, certainty cert)
 {
-	phc_TODO ();
+	Map<int, string> type_names;
+	type_names[MIR::BOOL::ID]		= "bool";
+	type_names[MIR::INT::ID]		= "int";
+	type_names[MIR::NIL::ID]		= "nil";
+	type_names[MIR::REAL::ID]		= "real";
+	type_names[MIR::STRING::ID]	= "string";
+
+	locals[bb->ID][lhs.str()] = meet (locals[bb->ID][lhs.str()],
+		new Type_cell (type_names[rhs->classid()]));
 }
 
 void
@@ -73,9 +82,10 @@ Type_inference::assign_value (Basic_block* bb, Alias_name lhs, Alias_name rhs, c
 }
 
 void
-Type_inference::kill_value (Basic_block* bb, Alias_name name)
+Type_inference::kill_value (Basic_block* bb, Alias_name lhs)
 {
-	phc_TODO ();
+	if (locals[bb->ID].has (lhs.str()))
+		phc_TODO ();
 }
 
 void

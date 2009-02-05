@@ -34,7 +34,7 @@ typedef enum _certainty certainty;
  * these should be turned off after use
  */
 //#define FIND_COMPILE_TIME_NON_CONFORMING
-#define FIND_RUN_TIME_NON_CONFORMING
+//#define FIND_RUN_TIME_NON_CONFORMING
 
 #ifdef FIND_COMPILE_TIME_NON_CONFORMING
 #define CT_IMPL =0
@@ -131,7 +131,7 @@ public:
 	 * Killing values
 	 */
 
-	// If we don'r care if its by value or by ref
+	// If we don't care if its by value or by ref
 	virtual void kill_value (Basic_block* bb, Alias_name name) RT_IMPL;
 
 	// NAME's value is killed.

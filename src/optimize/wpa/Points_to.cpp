@@ -53,10 +53,7 @@ Points_to::close_scope (string scope_name)
 void
 Points_to::kill_value (Index_node* index)
 {
-	phc_TODO ();
-	Storage_node_list* values = get_points_to (index, PTG_ALL);
-	if (values->size ())
-		phc_TODO (); // kill, and the things it points to - watch of for may-aliases
+	phc_unreachable ();
 }
 
 // Remove all references edges into or out of INDEX. Also call kill_value.
@@ -78,11 +75,7 @@ Points_to::kill_reference (Index_node* index)
 void
 Points_to::assign_scalar (Index_node* index)
 {
-	phc_TODO ();
-	if (contains (index))
-		kill_value (index);
-
-	add_node (index);
+	phc_unreachable ();
 }
 
 

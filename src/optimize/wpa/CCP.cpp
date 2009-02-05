@@ -74,14 +74,6 @@ CCP::kill_value (Basic_block* bb, Alias_name name)
 }
 
 void
-CCP::kill_reference (Basic_block* bb, Alias_name name)
-{
-	if (get_value (bb, name) != TOP)
-		phc_TODO ();
-}
-
-
-void
 CCP::assign_scalar (Basic_block* bb, Alias_name lhs, Literal* lit, certainty cert)
 {
 	if (cert != DEFINITE)
@@ -110,7 +102,7 @@ CCP::assign_unknown (Basic_block* bb, Alias_name lhs, certainty cert)
 
 
 void
-CCP::assign_by_value (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert)
+CCP::assign_value (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert)
 {
 	if (cert != DEFINITE)
 		phc_TODO ();
