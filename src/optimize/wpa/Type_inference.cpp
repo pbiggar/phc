@@ -78,14 +78,15 @@ Type_inference::assign_scalar (Basic_block* bb, Alias_name lhs, MIR::Literal* rh
 void
 Type_inference::assign_value (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert)
 {
-	phc_TODO ();
+	locals[bb->ID][lhs.str()] = meet (
+		locals[bb->ID][lhs.str()],
+		locals[bb->ID][rhs.str()]);
 }
 
 void
 Type_inference::kill_value (Basic_block* bb, Alias_name lhs)
 {
-	if (locals[bb->ID].has (lhs.str()))
-		phc_TODO ();
+	assert (!locals[bb->ID].has (lhs.str()));
 }
 
 void
@@ -114,7 +115,24 @@ Type_inference::pull_results (Basic_block* bb)
 void
 Type_inference::aggregate_results (Basic_block* bb)
 {
-	phc_TODO ();
+	// TODO:
+	// again, copied from CCP. This should be abstracted.
+
+	// Copy the results from INS, but overwrite them with LOCALS.
+	Lattice_map* old = outs[bb->ID].clone ();
+//	cdebug << "old" << endl;
+//	old->dump ();
+
+	outs[bb->ID].clear();
+	outs[bb->ID].merge (&ins[bb->ID]);
+	outs[bb->ID].overwrite (&locals[bb->ID]);
+
+//	cdebug << "new" << endl;
+//	outs[bb->ID].dump ();
+
+	// Set solution_changed
+	if (!outs[bb->ID].equals (old))
+		changed_flags[bb->ID] = true;
 }
 
 /*

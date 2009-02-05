@@ -50,24 +50,6 @@ Points_to::close_scope (string scope_name)
 }
 
 
-void
-Points_to::kill_value (Index_node* index)
-{
-	phc_unreachable ();
-}
-
-// Remove all references edges into or out of INDEX. Also call kill_value.
-void
-Points_to::kill_reference (Index_node* index)
-{
-	phc_TODO ();
-	foreach (Index_node* other, *get_references (index, PTG_ALL))
-	{
-		remove_pair (index, other);
-		remove_pair (other, index);
-	}
-}
-
 
 // Kill the value of INDEX (which indicates a scalar is being assigned
 // here). This only updates the graph if an object or array is killed. If the
@@ -83,20 +65,6 @@ Points_to::assign_scalar (Index_node* index)
 void
 Points_to::assign_by_ref (Index_node* n1, Index_node* n2)
 {
-	phc_TODO ();
-	if (!contains (n2))
-	{
-		add_node (n2);
-		phc_TODO (); // initialize to NULL
-	}
-
-	if (!contains (n1))
-		add_node (n1);
-	else
-		kill_reference (n1);
-
-	// TODO: abstract
-
 	// Copy all edges to reference nodes
 	certainty certainties[] = {POSSIBLE, DEFINITE};
 	foreach (certainty cert, certainties)
@@ -107,13 +75,6 @@ Points_to::assign_by_ref (Index_node* n1, Index_node* n2)
 	}
 
 
-	// Copy all edges to storage nodes
-	foreach (certainty cert, certainties)
-	{
-		Storage_node_list* pts = get_points_to (n2, cert);
-		foreach (Storage_node* st, *pts)
-			add_edge (n1, st);
-	}
 
 	add_bidir_edge (n1, n2);
 }

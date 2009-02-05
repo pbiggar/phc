@@ -102,10 +102,17 @@ Aliasing::kill_value (Basic_block* bb, Alias_name lhs)
 
 }
 
+// Remove all references edges into or out of INDEX. Also call kill_value.
 void
 Aliasing::kill_by_ref (Basic_block* bb, Alias_name lhs)
 {
-	outs[bb->ID]->kill_reference (lhs.ind());
+	Points_to* ptg = outs[bb->ID];
+
+	foreach (Index_node* other, *ptg->get_references (lhs.ind(), PTG_ALL))
+	{
+		ptg->remove_pair (lhs.ind(), other);
+		ptg->remove_pair (other, lhs.ind());
+	}
 }
 
 
@@ -150,7 +157,22 @@ Aliasing::assign_by_ref (Basic_block* bb, Alias_name lhs, Alias_name rhs, certai
 	if (cert != DEFINITE)
 		phc_TODO ();
 
-	outs[bb->ID]->assign_by_ref (lhs.ind (), rhs.ind());
+	Points_to* ptg = outs[bb->ID];
+
+	ptg->add_node (lhs.ind());
+	ptg->add_node (rhs.ind());
+
+	// TODO: i'm not sure if Whole_program does this for us?
+	// Copy all edges to storage nodes
+	certainty certainties[] = {POSSIBLE, DEFINITE};
+	foreach (certainty cert, certainties)
+	{
+		Storage_node_list* pts = ptg->get_points_to (rhs.ind (), cert);
+		foreach (Storage_node* st, *pts)
+			ptg->add_edge (lhs.ind (), st);
+	}
+
+	ptg->add_bidir_edge (lhs.ind(), rhs.ind());
 }
 
 void

@@ -6,10 +6,11 @@
  * code.
  * */
 
+#include "optimize/SCCP.h"
 
 #include "Aliasing.h"
 #include "CCP.h"
-#include "optimize/SCCP.h"
+#include "Points_to.h"
 #include "Whole_program.h"
 
 #include "Optimization_transformer.h"

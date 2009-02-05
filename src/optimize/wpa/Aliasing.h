@@ -18,9 +18,11 @@
 #define PHC_ALIASING
 
 #include "WPA.h"
-#include "Points_to.h"
 
 class Path;
+class Points_to;
+DECL (Index_node);
+DECL (Storage_node);
 
 class Aliasing : public WPA
 {

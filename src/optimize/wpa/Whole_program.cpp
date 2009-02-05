@@ -35,24 +35,51 @@
  *		code.
  */
 
+
+/*
+ * Try to list areas in which we must be conservative:
+ *
+ * include_*
+ * require_*
+ * eval
+ * dl
+ * per-object properties for non-stdClasses
+ *
+ *
+ * Areas which we dont support that might take some work (ie exceptions)
+ *
+ * set_error_handler
+ * set_exception_handler
+ *
+ *
+ * Hidden effects:
+ *
+ * array_indexing for SPL::ArrayAccess
+ * handlers of objects of unknown classes
+ *
+ 
+ */
+
 #include "process_ir/General.h"
+#include "pass_manager/Pass_manager.h"
 
 #include "optimize/Edge.h"
 #include "optimize/Oracle.h"
+#include "optimize/SCCP.h"
+
+#include "Whole_program.h"
+#include "WPA.h"
 
 #include "Aliasing.h"
 #include "Callgraph.h"
 #include "CCP.h"
-#include "optimize/SCCP.h"
 #include "Constant_state.h"
 #include "Def_use.h"
 #include "Include_analysis.h"
-#include "pass_manager/Pass_manager.h"
+#include "Optimization_transformer.h"
+#include "Points_to.h"
 #include "Type_inference.h"
 #include "VRP.h"
-#include "Optimization_transformer.h"
-#include "Whole_program.h"
-#include "WPA.h"
 
 using namespace MIR;
 using namespace boost;
@@ -150,6 +177,10 @@ Whole_program::analyse_function (Basic_block* context, CFG* cfg, MIR::Actual_par
 	// Process the entry blocks first (there is no edge here)
 	DEBUG ("Initing functions");
 	forward_bind (context, cfg, actuals, lhs);
+
+	foreach_wpa (this)
+		wpa->aggregate_results (cfg->get_entry_bb ());
+
 
 
 	// 2. Stop when CFG-worklist is empty

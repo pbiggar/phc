@@ -130,16 +130,12 @@ public:
 
 	void dump_graphviz (String* label);
 
-	// WPA-lite interface
 	void open_scope (string name);
 	void close_scope (string name);
 
-	void kill_value (Index_node* index);
-	void kill_reference (Index_node* index);
-
 	void assign_scalar (Index_node* lhs);
-	void assign_by_ref (Index_node* n1, Index_node* n2);
 	void assign_by_copy (Index_node* n1, Index_node* n2);
+	void assign_by_ref (Index_node* n1, Index_node* n2);
 
 	/*
 	 * High-level API
@@ -172,6 +168,7 @@ public:
 
 	void remove_unreachable_nodes ();
 	void remove_node (PT_node* node);
+	void remove_bidir_edge (PT_node* n1, PT_node* n2);
 	void remove_pair (PT_node* n1, PT_node* n2, bool expected = true);
 
 	Points_to* clone();

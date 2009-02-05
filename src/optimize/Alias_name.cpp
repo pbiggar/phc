@@ -4,11 +4,14 @@
  * Representation of a variable_name/object.
  */
 
-#include "Alias_name.h"
-#include "process_ir/General.h"
 #include "MIR.h"
+#include "process_ir/General.h"
+
 #include "Basic_block.h"
+
+#include "Alias_name.h"
 #include "wpa/Aliasing.h"
+#include "wpa/Points_to.h"
 
 using namespace std;
 using namespace MIR;
