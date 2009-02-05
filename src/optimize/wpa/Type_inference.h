@@ -30,10 +30,11 @@ public:
 	Type_inference (Whole_program* wp);
 
 
-	void forward_bind (CFG* caller_cfg, CFG* callee_cfg,
-							 MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs);
+	void forward_bind (Basic_block* context, CFG* callee_cfg,
+										MIR::Actual_parameter_list* actuals,
+										MIR::VARIABLE_NAME* retval);
 
-	void backward_bind (CFG* caller_cfg, CFG* callee_cfg);
+	void backward_bind (Basic_block* context, CFG* callee_cfg);
 
 	void assign_unknown (Basic_block* bb, Alias_name name,
 							  certainty cert);

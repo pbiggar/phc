@@ -466,7 +466,7 @@ String*
 Storage_node::get_graphviz ()
 {
 	stringstream ss;
-	ss << "shape=box";
+	ss << "shape=box,label=\"" << storage << "\"";
 	return s (ss.str ());
 }
 
@@ -485,6 +485,8 @@ Index_node::name ()
 String*
 Index_node::get_graphviz ()
 {
-	return s("");
+	stringstream ss;
+	ss << "label=\"" << index << "\"";
+	return s (ss.str ());
 }
 

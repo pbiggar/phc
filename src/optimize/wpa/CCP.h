@@ -22,6 +22,12 @@ public:
 	CCP (Whole_program* wp);
 
 	// WPA
+	void forward_bind (Basic_block* context, CFG* callee_cfg,
+										MIR::Actual_parameter_list* actuals,
+										MIR::VARIABLE_NAME* retval);
+
+	void backward_bind (Basic_block* context, CFG* callee_cfg);
+
 	void kill_value (Basic_block* bb, Alias_name name);
 
 	void assign_scalar (Basic_block* bb, Alias_name lhs,

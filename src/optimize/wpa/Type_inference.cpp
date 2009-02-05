@@ -30,18 +30,6 @@ Type_inference::dump (Basic_block* bb)
 }
 
 void
-Type_inference::forward_bind (CFG* caller_cfg, CFG* callee_cfg, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
-{
-	phc_TODO ();
-}
-
-void
-Type_inference::backward_bind (CFG* caller_cfg, CFG* callee_cfg)
-{
-	phc_TODO ();
-}
-
-void
 Type_inference::assign_unknown (Basic_block* bb, Alias_name lhs, certainty cert)
 {
 	locals[bb->ID][lhs.str()] = meet (locals[bb->ID][lhs.str()], BOTTOM);
@@ -133,6 +121,37 @@ Type_inference::aggregate_results (Basic_block* bb)
 	// Set solution_changed
 	if (!outs[bb->ID].equals (old))
 		changed_flags[bb->ID] = true;
+}
+
+void
+Type_inference::forward_bind (Basic_block* context, CFG* callee_cfg,
+										MIR::Actual_parameter_list* actuals,
+										MIR::VARIABLE_NAME* retval)
+{
+	if (context == NULL)
+		return;
+
+	// TODO: do we really want to clear? does that make it non-monotonic?
+	// TODO: do we need to use the same context as the last time we called from
+	// this callsite?
+	// TODO: we should have a fresh context anyway.
+
+	int caller = context->ID;
+	int callee = callee_cfg->get_entry_bb ()->ID;
+	ins[callee].merge(&ins[caller]);
+}
+
+void
+Type_inference::backward_bind (Basic_block* context, CFG* callee_cfg)
+{
+	if (context == NULL)
+		return;
+
+	// TODO: remove variables in the current scope
+	//
+	int caller = context->ID;
+	int callee = callee_cfg->get_entry_bb ()->ID;
+	outs[caller].merge(&outs[callee]);
 }
 
 /*

@@ -171,3 +171,35 @@ CCP::get_value (Basic_block* bb, Alias_name name)
 {
 	return ins[bb->ID][name.str()];
 }
+
+
+void
+CCP::forward_bind (Basic_block* context, CFG* callee_cfg,
+										MIR::Actual_parameter_list* actuals,
+										MIR::VARIABLE_NAME* retval)
+{
+	if (context == NULL)
+		return;
+
+	// TODO: do we really want to clear? does that make it non-monotonic?
+	// TODO: do we need to use the same context as the last time we called from
+	// this callsite?
+	// TODO: we should have a fresh context anyway.
+
+	int caller = context->ID;
+	int callee = callee_cfg->get_entry_bb ()->ID;
+	ins[callee].merge(&ins[caller]);
+}
+
+void
+CCP::backward_bind (Basic_block* context, CFG* callee_cfg)
+{
+	if (context == NULL)
+		return;
+
+	// TODO: remove variables in the current scope
+	//
+	int caller = context->ID;
+	int callee = callee_cfg->get_entry_bb ()->ID;
+	outs[caller].merge(&outs[callee]);
+}
