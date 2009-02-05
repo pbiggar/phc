@@ -408,8 +408,10 @@ Whole_program::analyse_block (Basic_block* bb)
 void
 Whole_program::dump (Basic_block* bb)
 {
+	CHECK_DEBUG ();
 	foreach_wpa (this)
 	{
+		DEBUG (bb->ID << ": Dumping " << name);
 		wpa->dump (bb);
 		cdebug << endl;
 	}

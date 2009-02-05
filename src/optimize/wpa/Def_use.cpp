@@ -36,10 +36,7 @@ void dump_set (Map<long, Set<Alias_name> >& map, long id, string set_name)
 void
 Def_use::dump(Basic_block* bb)
 {
-	CHECK_DEBUG ();
-
 	long id = bb->ID;
-	cdebug << "Dumping Def_use (" << id << endl;
 
 	// Print out the results for existing BBs (done this way so that IN and OUT
 	// results are presented together).

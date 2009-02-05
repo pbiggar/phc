@@ -50,9 +50,9 @@ public:
 	Lattice_cell* get_value (Basic_block* bb, Alias_name name);
 
 private:
-	Map<long, Lattice_map> ins;
-	Map<long, Lattice_map> locals;
-	Map<long, Lattice_map> outs;
+	BB_lattices ins;
+	BB_lattices locals;
+	BB_lattices outs;
 };
 
-#endif // PHC_CPP
+#endif // PHC_CCP

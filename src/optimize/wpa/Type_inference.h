@@ -10,28 +10,35 @@
 #define PHC_TYPE_INFERENCE
 
 #include "WPA.h"
-#include "Points_to.h"
+#include "optimize/Lattice.h"
+
+class Type_cell : public Lattice_cell
+{
+public:
+	Type_cell (string type);
+	void dump ();
+	bool equals (Lattice_cell* other);
+
+	Lattice_cell* meet (Lattice_cell* other);
+};
 
 class Type_inference : public WPA, public MIR::Visitor
 {
 public:
 	Type_inference (Whole_program* wp);
 
-	void use_summary_results (Method_info* info, MIR::Actual_parameter_list* in, MIR::VARIABLE_NAME* lhs);
 
 	void forward_bind (CFG* caller_cfg, CFG* callee_cfg,
-									  MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs);
+							 MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs);
+
 	void backward_bind (CFG* caller_cfg, CFG* callee_cfg);
 
 	void dump (Basic_block* bb);
 
-	// TODO: I'm not sure how well this will work
-	// Type-inference just follows the points-to graph to get the possible
-	// types of a method.
-//	String_list* get_types (Location* node);
-
-	bool is_object (String* name);
-//	string get_type (Value_node* val);
+private:
+	BB_lattices ins;
+	BB_lattices locals;
+	BB_lattices outs;
 };
 
 

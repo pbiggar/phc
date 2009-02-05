@@ -23,31 +23,13 @@ CCP::CCP (Whole_program* wp)
 }
 
 
+
 void
 CCP::dump(Basic_block* bb)
 {
-	CHECK_DEBUG ();
-	cdebug << "Dumping CCP" << endl;
-
-	long id = bb->ID;
-
-	// Print out the results for existing BBs (done this way so that IN and OUT
-	// results are presented together).
-	if (ins.has (id))
-	{
-		cdebug << "IN Lattice for BB: " << id << endl;
-		ins[id].dump();
-	}
-	else
-		cdebug << "No IN results for BB: " << id << endl;
-
-	if (outs.has (id))
-	{
-		cdebug << "OUT Lattice for BB: " << id << endl;
-		outs[id].dump();
-	}
-	else
-		cdebug << "No OUT results for BB: " << id << endl;
+	ins.dump (bb, "IN");
+	locals.dump (bb, "LOCAL");
+	outs.dump (bb, "OUT");
 }
 
 /*
