@@ -27,6 +27,7 @@ void All::transform_children(Transform* transform)
     transform->children_all(this);
 }
 
+const int All::ID;
 int All::classid()
 {
     return ID;
@@ -195,6 +196,7 @@ void Macro::transform_children(Transform* transform)
     transform->children_macro(this);
 }
 
+const int Macro::ID;
 int Macro::classid()
 {
     return ID;
@@ -417,6 +419,7 @@ void Signature::transform_children(Transform* transform)
     transform->children_signature(this);
 }
 
+const int Signature::ID;
 int Signature::classid()
 {
     return ID;
@@ -611,6 +614,7 @@ void Formal_parameter::transform_children(Transform* transform)
     transform->children_formal_parameter(this);
 }
 
+const int Formal_parameter::ID;
 int Formal_parameter::classid()
 {
     return ID;
@@ -746,6 +750,7 @@ void Body::transform_children(Transform* transform)
     transform->children_body(this);
 }
 
+const int Body::ID;
 int Body::classid()
 {
     return ID;
@@ -920,6 +925,7 @@ void Equals::transform_children(Transform* transform)
     transform->children_rule(this);
 }
 
+const int Equals::ID;
 int Equals::classid()
 {
     return ID;
@@ -1049,6 +1055,7 @@ void Param::transform_children(Transform* transform)
     transform->children_expr(this);
 }
 
+const int Param::ID;
 int Param::classid()
 {
     return ID;
@@ -1255,6 +1262,7 @@ void Macro_call::transform_children(Transform* transform)
     transform->children_body_part(this);
 }
 
+const int Macro_call::ID;
 int Macro_call::classid()
 {
     return ID;
@@ -1449,6 +1457,7 @@ void Callback::transform_children(Transform* transform)
     transform->children_body_part(this);
 }
 
+const int Callback::ID;
 int Callback::classid()
 {
     return ID;
@@ -1646,6 +1655,7 @@ String* MACRO_NAME::get_value_as_string()
     return value;
 }
 
+const int MACRO_NAME::ID;
 int MACRO_NAME::classid()
 {
     return ID;
@@ -1734,6 +1744,7 @@ String* TYPE_NAME::get_value_as_string()
     return value;
 }
 
+const int TYPE_NAME::ID;
 int TYPE_NAME::classid()
 {
     return ID;
@@ -1822,6 +1833,7 @@ String* ATTR_NAME::get_value_as_string()
     return value;
 }
 
+const int ATTR_NAME::ID;
 int ATTR_NAME::classid()
 {
     return ID;
@@ -1910,6 +1922,7 @@ String* STRING::get_value_as_string()
     return value;
 }
 
+const int STRING::ID;
 int STRING::classid()
 {
     return ID;
@@ -1998,6 +2011,7 @@ String* C_CODE::get_value_as_string()
     return value;
 }
 
+const int C_CODE::ID;
 int C_CODE::classid()
 {
     return ID;
@@ -2083,6 +2097,7 @@ void Lookup::transform_children(Transform* transform)
     transform->children_body_part(this);
 }
 
+const int Lookup::ID;
 int Lookup::classid()
 {
     return ID;
@@ -2215,6 +2230,7 @@ String* PARAM_NAME::get_value_as_string()
     return value;
 }
 
+const int PARAM_NAME::ID;
 int PARAM_NAME::classid()
 {
     return ID;
