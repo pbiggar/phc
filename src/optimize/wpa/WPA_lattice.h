@@ -38,6 +38,9 @@ public:
 
 	void dump (Basic_block* bb);
 
+private:
+	void init_outs (Basic_block* bb);
+
 protected:
 	BB_lattices ins;
 	BB_lattices clones;

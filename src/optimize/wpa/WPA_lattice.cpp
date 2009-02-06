@@ -114,9 +114,7 @@ WPA_lattice::pull_results (Basic_block* bb)
 		phc_TODO (); // check if they're executable
 
 
-	// Copy it straight to outs
-	outs[bb->ID].clear ();
-	outs[bb->ID].merge (&ins[bb->ID]);
+	init_outs (bb);
 }
 
 void
@@ -147,6 +145,8 @@ WPA_lattice::forward_bind (Basic_block* context, CFG* callee_cfg,
 	int caller = context->ID;
 	int callee = callee_cfg->get_entry_bb ()->ID;
 	ins[callee].merge(&ins[caller]);
+
+	init_outs (callee_cfg->get_entry_bb ());
 }
 
 void
@@ -161,3 +161,11 @@ WPA_lattice::backward_bind (Basic_block* context, CFG* callee_cfg)
 	int callee = callee_cfg->get_entry_bb ()->ID;
 	outs[caller].merge(&outs[callee]);
 }
+
+void
+WPA_lattice::init_outs (Basic_block* bb)
+{
+	outs[bb->ID].merge (&ins[bb->ID]);
+}
+
+
