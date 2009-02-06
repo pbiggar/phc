@@ -13,22 +13,12 @@
 #ifndef PHC_CCP
 #define PHC_CCP
 
-#include "WPA.h"
-#include "optimize/Lattice.h"
+#include "WPA_lattice.h"
 
-class CCP : public WPA
+class CCP : public WPA_lattice
 {
 public:
 	CCP (Whole_program* wp);
-
-	// WPA
-	void forward_bind (Basic_block* context, CFG* callee_cfg,
-										MIR::Actual_parameter_list* actuals,
-										MIR::VARIABLE_NAME* retval);
-
-	void backward_bind (Basic_block* context, CFG* callee_cfg);
-
-	void kill_value (Basic_block* bb, Alias_name name);
 
 	void assign_scalar (Basic_block* bb, Alias_name lhs,
 							  MIR::Literal* rhs, certainty cert);
@@ -36,28 +26,12 @@ public:
 	void assign_empty_array (Basic_block* bb, Alias_name lhs,
 									 string unique_name, certainty cert);
 
-	void assign_unknown (Basic_block* bb, Alias_name lhs,
-								certainty cert);
-
-	void assign_value (Basic_block* bb, Alias_name lhs,
-							   Alias_name rhs, certainty cert);
-
-	void pull_results (Basic_block* bb);
-	void aggregate_results (Basic_block* bb);
-
-	void dump (Basic_block* bb);
-
-
 	// CCP-specific
 	bool branch_known_true (Alias_name cond);
 	bool branch_known_false (Alias_name cond);
 
 	Lattice_cell* get_value (Basic_block* bb, Alias_name name);
 
-private:
-	BB_lattices ins;
-	BB_lattices locals;
-	BB_lattices outs;
 };
 
 #endif // PHC_CCP

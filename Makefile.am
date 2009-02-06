@@ -249,9 +249,9 @@ libphc_la_SOURCES= 											\
 	src/optimize/wpa/CCP.cpp								\
 	src/optimize/wpa/CCP.h									\
 	src/optimize/wpa/Constant_state.cpp					\
+	src/optimize/wpa/Constant_state.h					\
 	src/optimize/wpa/Def_use.cpp							\
 	src/optimize/wpa/Def_use.h								\
-	src/optimize/wpa/Constant_state.h					\
 	src/optimize/wpa/Include_analysis.cpp				\
 	src/optimize/wpa/Include_analysis.h					\
 	src/optimize/wpa/Optimization_transformer.cpp	\
@@ -266,6 +266,8 @@ libphc_la_SOURCES= 											\
 	src/optimize/wpa/Whole_program.h						\
 	src/optimize/wpa/WPA.cpp								\
 	src/optimize/wpa/WPA.h									\
+	src/optimize/wpa/WPA_lattice.cpp						\
+	src/optimize/wpa/WPA_lattice.h						\
 	src/parsing/MICG_parser.cpp							\
 	src/parsing/MICG_parser.h								\
 	src/parsing/Parse_buffer.cpp							\
