@@ -20,11 +20,12 @@ SSA_renaming::SSA_renaming (Whole_program* wp, CFG* cfg)
 }
 
 void
-SSA_renaming::push_to_var_stack (Alias_name* name, int version)
+SSA_renaming::push_to_var_stack (Alias_name* name)
 {
-	// TODO: should this be a string or an Alias_name? should I strip out the
-	// non-local variables before I do this?
-	var_stacks[*name].push (version);
+	assert (name->ssa_version == 0);
+	var_stacks[*name].push (counter);
+	name->set_version (counter);
+	counter++;
 }
 
 int
@@ -33,12 +34,10 @@ SSA_renaming::read_var_stack (Alias_name* name)
 	// In traditional SSA, all variables are initialized at the start of a
 	// function. Not so here (though it could be done that way).
 	
-	// TODO: If NAME is in SSA form, our indexing is screwed here.
 	if (var_stacks[*name].size () == 0)
-		push_to_var_stack (name, counter++);
+		push_to_var_stack (name);
 
-	int result = var_stacks[*name].top();
-	return result;
+	return var_stacks[*name].top();
 }
 
 void
@@ -50,9 +49,7 @@ SSA_renaming::pop_var_stack (Alias_name* name)
 void 
 SSA_renaming::create_new_ssa_name (Alias_name* name)
 {
-	phc_TODO (); // this does put them in SSA form!!!
-	name->set_version (counter);
-	push_to_var_stack (name, counter++);
+	push_to_var_stack (name);
 }
 
 void

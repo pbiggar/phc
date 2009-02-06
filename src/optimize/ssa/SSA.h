@@ -42,7 +42,7 @@ private:
 	/*
 	 * Helper functions
 	 */
-	void push_to_var_stack (Alias_name* name, int version);
+	void push_to_var_stack (Alias_name* name);
 	int read_var_stack (Alias_name* name);
 	void pop_var_stack (Alias_name* name);
 

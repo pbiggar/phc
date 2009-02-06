@@ -271,7 +271,7 @@ CFG::get_graphviz_phis (Basic_block* bb)
 		// First column
 		ss
 		<< " { "
-		<< *get_graphviz_def (bb, phi_lhs)
+		<< *get_graphviz_def (bb, &phi_lhs)
 
 		// Second column
 		<< FIELD_SEPARATOR
@@ -286,7 +286,7 @@ CFG::get_graphviz_phis (Basic_block* bb)
 			bool present = edge->pm.has (phi_lhs);
 
 			ss
-			<< (present ? *get_graphviz_use (bb, edge->pm[phi_lhs]) : "XXX")
+			<< (present ? *get_graphviz_use (bb, &edge->pm[phi_lhs]) : "XXX")
 			<< " (" << edge->get_source()->get_index () << ")";
 
 			first = false;
@@ -310,7 +310,7 @@ CFG::get_graphviz_mus (Basic_block* bb)
 	foreach (Alias_name mu, *bb->old_get_mus ())
 	{
 		stringstream ss;
-		ss << "{ " << FIELD_SEPARATOR << *get_graphviz_use (bb, mu) << " } ";
+		ss << "{ " << FIELD_SEPARATOR << *get_graphviz_use (bb, &mu) << " } ";
 
 		result->push_back (s (ss.str()));
 	}
@@ -332,9 +332,9 @@ CFG::get_graphviz_chis (Basic_block* bb)
 		stringstream ss;
 		ss
 		<< "{ " 
-		<< *get_graphviz_def (bb, lhs) 
+		<< *get_graphviz_def (bb, &lhs) 
 		<< FIELD_SEPARATOR 
-		<< *get_graphviz_use (bb, rhs) 
+		<< *get_graphviz_use (bb, &rhs) 
 		<< " } ";
 
 		result->push_back (s (ss.str()));
@@ -364,45 +364,45 @@ escape_portname (String* in)
 }
 
 String*
-CFG::get_graphviz_def_portname (Basic_block* bb, Alias_name def)
+CFG::get_graphviz_def_portname (Basic_block* bb, Alias_name* def)
 {
 	stringstream ss;
 	ss
-	<< "def_" << *escape_portname (s (def.str ()))
+	<< "def_" << *escape_portname (s (def->str ()))
 	;
 	return s (ss.str ());
 }
 
 String*
-CFG::get_graphviz_use_portname (Basic_block* bb, Alias_name use)
+CFG::get_graphviz_use_portname (Basic_block* bb, Alias_name* use)
 {
 	stringstream ss;
 	ss
 	<< "use_" << bb->get_index () 
-	<< "_" << *escape_portname (s (use.str()))
+	<< "_" << *escape_portname (s (use->str()))
 	;
 	return s (ss.str ());
 }
 
 String*
-CFG::get_graphviz_def (Basic_block* bb, Alias_name def)
+CFG::get_graphviz_def (Basic_block* bb, Alias_name* def)
 {
 	stringstream ss;
 	ss
 	<< "<" << *get_graphviz_def_portname (bb, def) << "> "
-	<< *escape_DOT_record (s (def.str ()))
+	<< *escape_DOT_record (s (def->str ()))
 	;
 	return s (ss.str ());
 }
 
 String*
-CFG::get_graphviz_use (Basic_block* bb, Alias_name use)
+CFG::get_graphviz_use (Basic_block* bb, Alias_name* use)
 {
 
 	stringstream ss;
 	ss
 	<< "<" << *get_graphviz_use_portname (bb, use) << "> "
-	<< *escape_DOT_record (s (use.str ()))
+	<< *escape_DOT_record (s (use->str ()))
 	;
 	return s (ss.str ());
 }
@@ -476,8 +476,8 @@ CFG::dump_graphviz (String* label)
 		// DUW nodes are fields in the BB
 		if (duw)
 		{
-			old_Alias_name_list* defs = bb->old_get_defs (SSA_FORMAL | SSA_STMT | SSA_BRANCH);
-			old_Alias_name_list* uses = bb->old_get_uses (SSA_FORMAL | SSA_STMT | SSA_BRANCH);
+			Alias_name_list* defs = duw->get_defs (bb);
+			Alias_name_list* uses = duw->get_uses (bb);
 
 
 			if (defs->size() || uses->size ())
@@ -485,7 +485,7 @@ CFG::dump_graphviz (String* label)
 				// open dual columns
 				cout << FIELD_SEPARATOR << "{  { ";
 				bool first = true;
-				foreach (Alias_name def, *defs)
+				foreach (Alias_name* def, *defs)
 				{
 					cout
 						<< (first ? "" : FIELD_SEPARATOR) // no field separate
@@ -497,7 +497,7 @@ CFG::dump_graphviz (String* label)
 				// open second column
 				cout << " } " << FIELD_SEPARATOR <<  " { ";
 				first = true;
-				foreach (Alias_name use, *uses)
+				foreach (Alias_name* use, *uses)
 				{
 					cout
 						<< (first ? "" : FIELD_SEPARATOR)
@@ -536,10 +536,10 @@ CFG::dump_graphviz (String* label)
 				{
 					cout 
 					<< index << ":"
-					<<* get_graphviz_use_portname (bb, use) << ":e"
+					<<* get_graphviz_use_portname (bb, &use) << ":e"
 					<< " -> "
 					<< op->get_bb()->get_index() << ":"
-					<< *get_graphviz_def_portname (op->get_bb (), use) << ":w"
+					<< *get_graphviz_def_portname (op->get_bb (), &use) << ":w"
 					<< " [color=lightgrey,dir=both];\n"
 					;
 				}
