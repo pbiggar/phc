@@ -16,7 +16,7 @@ class Optimization_transformer : public CFG_visitor
 {
 public:
 	Whole_program* wp;
-	Optimization_transformer (Aliasing*);
+	Optimization_transformer (Whole_program*);
 
 	void run (CFG* cfg);
 

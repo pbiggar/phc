@@ -145,6 +145,9 @@ remove_prefixed (Set<Alias_name>& set, string prefix)
 void
 Def_use::backward_bind (Basic_block* context, CFG* callee_cfg)
 {
+	if (context == NULL)
+		return;
+
 	// The defs and uses from the callee represent the entire function.
 	merge_from_callee (context, callee_cfg, defs, func_defs);
 	merge_from_callee (context, callee_cfg, uses, func_uses);

@@ -158,7 +158,11 @@ WPA_lattice::backward_bind (Basic_block* context, CFG* callee_cfg)
 	// TODO: remove variables in the current scope
 	//
 	int caller = context->ID;
-	int callee = callee_cfg->get_entry_bb ()->ID;
+	int callee = callee_cfg->get_exit_bb ()->ID;
+
+	// pull_results inits outs, so we need to clear it, or we'll be merging with
+	// old results.
+	outs[caller].clear ();
 	outs[caller].merge(&outs[callee]);
 }
 

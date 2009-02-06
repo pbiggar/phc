@@ -23,7 +23,7 @@ using namespace std;
 /*
  * Apply the optimization results.
  */
-Optimization_transformer::Optimization_transformer (Aliasing* aliasing)
+Optimization_transformer::Optimization_transformer (Whole_program* wp)
 : wp (wp)
 {
 }

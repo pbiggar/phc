@@ -106,6 +106,8 @@ Whole_program::Whole_program (Pass_manager* pm)
 //	register_analysis ("Constant_state", constant_state);
 //	register_analysis ("Include_analysis", include_analysis);
 //	register_analysis ("VRP", vrp);
+
+	transformer = new Optimization_transformer (this);
 }
 
 void
@@ -353,8 +355,7 @@ Whole_program::analyse_summary (Method_info* info, Basic_block* context, Actual_
 void
 Whole_program::apply_results (Method_info* info)
 {
-	if (!info->has_implementation ())
-		return;
+	assert (info->has_implementation ());
 
 	foreach (Basic_block* bb, *info->cfg->get_all_bbs ())
 	{
