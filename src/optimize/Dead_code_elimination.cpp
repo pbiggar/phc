@@ -129,7 +129,7 @@ is_bb_critical (Basic_block* bb)
 	// Anything that is defined by a function, where we cannot see if it is
 	// used (ie its a global, or it escapes), we conservatively mark as
 	// critical.
-	phc_TODO ();
+	return false;
 }
 
 /*

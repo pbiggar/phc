@@ -86,7 +86,6 @@ SSA_renaming::rename_vars (Basic_block* bb)
 	//
 	DEBUG ("renaming vars in " << *bb->get_graphviz_label ());
 	debug_var_stacks ();
-	bb->cfg->dump_graphviz (NULL);
 
 	// TODO: phis
 	

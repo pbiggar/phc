@@ -296,6 +296,7 @@ HSSA::convert_to_hssa_form ()
 	SSA_renaming sr (wp, cfg);
 	sr.rename_vars (cfg->get_entry_bb ());
 
+	cfg->dump_graphviz (NULL);
 
 	// Recalculate DUW, using explicit MU/CHIs:
 	// This no longer is a good idea, I think. We dont use an explicit
@@ -361,32 +362,16 @@ HSSA::convert_out_of_ssa_form ()
 
 	}
 
-	// Since we have probably updated nodes within blocks, we need to refresh
-	// the DUW to properly remove nodes which have been updated.
-
-	// TODO: rerunning the analysis is now a WPA task
-	cfg->duw = new Def_use_web (NULL);
-	cfg->duw->run (cfg);
-
-
 	// Drop variable indices
 	foreach (Basic_block* bb, *cfg->get_all_bbs ())
 	{
 		// TODO: these are copies
-		phc_TODO ();
-		foreach (Alias_name name, *bb->old_get_uses_for_renaming ())
-		{
-			if (name.ssa_version)
-				name.drop_ssa_version ();
-		}
+		foreach (Alias_name* def, *cfg->duw->get_defs (bb))
+			def->drop_ssa_version ();
 
-		foreach (Alias_name name, *bb->old_get_defs_for_renaming ())
-		{
-			if (name.ssa_version)
-				name.drop_ssa_version ();
-		}
+		foreach (Alias_name* use, *cfg->duw->get_uses (bb))
+			use->drop_ssa_version ();
 	}
 
-	// This is no longer accurate
-	cfg->duw = NULL;
+	cfg->dump_graphviz (NULL);
 }
