@@ -19,9 +19,12 @@ Callgraph::Callgraph (Whole_program* wp)
 
 // TODO: just use forward bind for this
 void
-Callgraph::add_user_call (Basic_block* context, CFG* callee)
+Callgraph::forward_bind (Basic_block* context, CFG* callee_cfg, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* retval)
 {
-	add_call_edge (ST (context), *callee->method->signature->method_name->value);
+	if (context == NULL)
+		return;
+
+	add_call_edge (ST (context), *callee_cfg->method->signature->method_name->value);
 }
 
 void

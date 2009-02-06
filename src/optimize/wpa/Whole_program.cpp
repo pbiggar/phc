@@ -314,6 +314,7 @@ Whole_program::analyse_summary (Method_info* info, Basic_block* context, Actual_
 		phc_TODO ();
 
 	// TODO: what about functions with callbacks
+	// TODO: this should be abstracted
 	callgraph->add_summary_call (context, info);
 
 	if (lhs)
