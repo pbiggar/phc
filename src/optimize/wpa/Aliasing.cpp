@@ -124,10 +124,8 @@ Aliasing::assign_scalar (Basic_block* bb, Alias_name lhs, MIR::Literal* lit, cer
 	
 	Points_to* ptg = outs[bb->ID];
 
-	// Do we still need this, since kill_value should be called first?
-	if (ptg->contains (lhs.ind ()))
-		phc_TODO ();
-//		kill_value (bb, index);
+	// This kills any objects or arrays currently pointed-to. However, that's
+	// done in kill_value.
 
 	ptg->add_node (lhs.ind ());
 }
@@ -162,8 +160,7 @@ Aliasing::assign_by_ref (Basic_block* bb, Alias_name lhs, Alias_name rhs, certai
 	ptg->add_node (lhs.ind());
 	ptg->add_node (rhs.ind());
 
-	// TODO: i'm not sure if Whole_program does this for us?
-	// Copy all edges to storage nodes
+	// Transitive closure for points-to edges
 	certainty certainties[] = {POSSIBLE, DEFINITE};
 	foreach (certainty cert, certainties)
 	{
@@ -171,6 +168,15 @@ Aliasing::assign_by_ref (Basic_block* bb, Alias_name lhs, Alias_name rhs, certai
 		foreach (Storage_node* st, *pts)
 			ptg->add_edge (lhs.ind (), st);
 	}
+
+	// Transitive closure for reference edges
+	foreach (certainty cert, certainties)
+	{
+		Index_node_list* pts = ptg->get_references (rhs.ind (), cert);
+		foreach (Index_node* in, *pts)
+			ptg->add_bidir_edge (lhs.ind(), in);
+	}
+
 
 	ptg->add_bidir_edge (lhs.ind(), rhs.ind());
 }
