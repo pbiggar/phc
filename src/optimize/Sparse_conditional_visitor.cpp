@@ -58,7 +58,7 @@ Sparse_conditional_visitor::run (CFG* cfg)
 
 			e->is_executable = true;
 
-			foreach (Alias_name phi_lhs, *e->get_target ()->get_phi_lhss ())
+			foreach (Alias_name phi_lhs, *e->get_target ()->old_get_phi_lhss ())
 				visit_phi_node (e->get_target (), phi_lhs);
 
 			if (get_predecessor_executable_count (e->get_target()) == 1)
@@ -145,7 +145,7 @@ Sparse_conditional_visitor::set_lattice (Alias_name def, Lattice_cell* value)
 		// shouldnt have two different Literals here
 		assert (old == TOP || value == BOTTOM);
 
-		foreach (SSA_op* edge, *cfg->duw->get_uses (def, SSA_ALL))
+		foreach (SSA_op* edge, *cfg->duw->old_get_uses (def, SSA_ALL))
 		{
 			//	1. add uses of the LHS to the SSA worklist.
 			ssa_wl->push_back (edge);

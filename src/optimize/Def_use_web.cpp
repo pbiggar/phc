@@ -44,25 +44,25 @@ Def_use_web::Def_use_web (Def_use* du)
 }
 
 SSA_op_list*
-Def_use_web::get_defs (Alias_name use, int flags)
+Def_use_web::old_get_defs (Alias_name use, int flags)
 {
 	SSA_op_list* result = new SSA_op_list;
 
-	foreach (SSA_edge* edge, use_def_chains [use])
+	foreach (SSA_edge* edge, old_use_def_chains [use])
 		result->push_back (edge->op);
 
 	return result;
 }
 
 SSA_op_list*
-Def_use_web::get_uses (Alias_name def, int flags)
+Def_use_web::old_get_uses (Alias_name def, int flags)
 {
 	// Its possible to have defs without uses.
-	if (!def_use_chains.has (def))
+	if (!old_def_use_chains.has (def))
 		return new SSA_op_list ();
 
 	SSA_op_list* result = new SSA_op_list;
-	foreach (SSA_edge* edge, def_use_chains[def])
+	foreach (SSA_edge* edge, old_def_use_chains[def])
 	{
 		if (edge->op->type_flag & flags)
 			result->push_back (edge->op);
@@ -72,33 +72,33 @@ Def_use_web::get_uses (Alias_name def, int flags)
 
 
 SSA_op*
-Def_use_web::get_def (Alias_name use)
+Def_use_web::old_get_def (Alias_name use)
 {
-	assert (has_def (use));
-	SSA_op_list* defs = get_defs (use, SSA_STMT);
+	assert (old_has_def (use));
+	SSA_op_list* defs = old_get_defs (use, SSA_STMT);
 
 	assert (defs->size() == 1);
 	return defs->front ();
 }
 
 bool
-Def_use_web::has_def (Alias_name use)
+Def_use_web::old_has_def (Alias_name use)
 {
-	return use_def_chains[use].size () >= 1;
+	return old_use_def_chains[use].size () >= 1;
 }
 
 
 
-Alias_name_list*
-Def_use_web::get_block_defs (Basic_block* bb, int flags)
+old_Alias_name_list*
+Def_use_web::old_get_block_defs (Basic_block* bb, int flags)
 {
 	// There wont be any duplicates here.
-	Alias_name_list* result = new Alias_name_list;
+	old_Alias_name_list* result = new old_Alias_name_list;
 
 	// Go through the use-def result, finding those who's BB == BB
 	Alias_name key;
 	SSA_edge_list edge_list;
-	foreach (tie (key, edge_list), use_def_chains)
+	foreach (tie (key, edge_list), old_use_def_chains)
 	{
 		foreach (SSA_edge* edge, edge_list)
 		{
@@ -115,16 +115,16 @@ Def_use_web::get_block_defs (Basic_block* bb, int flags)
 
 }
 
-Alias_name_list*
-Def_use_web::get_block_uses (Basic_block* bb, int flags)
+old_Alias_name_list*
+Def_use_web::old_get_block_uses (Basic_block* bb, int flags)
 {
 	// Dont use a set here. There may be multiple uses of the same variable.
-	Alias_name_list* result = new Alias_name_list;
+	old_Alias_name_list* result = new old_Alias_name_list;
 
 	// Go through the use-def result, finding those who's BB == BB
 	Alias_name key;
 	SSA_edge_list edge_list;
-	foreach (tie (key, edge_list), def_use_chains)
+	foreach (tie (key, edge_list), old_def_use_chains)
 	{
 		foreach (SSA_edge* edge, edge_list)
 		{
@@ -144,11 +144,11 @@ Def_use_web::get_block_uses (Basic_block* bb, int flags)
  * Calculate the def-use web
  */
 void
-Def_use_web::add_use (Alias_name def, SSA_op* use)
+Def_use_web::old_add_use (Alias_name def, SSA_op* use)
 {
 	SSA_edge* edge = new SSA_edge (def, use);
 	edge->name = def;
-	def_use_chains[def].push_back (edge);
+	old_def_use_chains[def].push_back (edge);
 
 	DEBUG ("Adding a def_use edge from " << def.str() << "to ");
 	use->dump ();
@@ -156,12 +156,12 @@ Def_use_web::add_use (Alias_name def, SSA_op* use)
 }
 
 void
-Def_use_web::add_def (Alias_name use, SSA_op* def)
+Def_use_web::old_add_def (Alias_name use, SSA_op* def)
 {
 	SSA_edge* edge = new SSA_edge (use, def);
 
 	// When used on pre-SSA form, there can be many defs.
-	use_def_chains[use].push_back (edge);
+	old_use_def_chains[use].push_back (edge);
 
 	DEBUG ("Adding a use_def edge from " << use.str() << "to ");
 	def->dump ();
@@ -170,7 +170,7 @@ Def_use_web::add_def (Alias_name use, SSA_op* def)
 
 
 void
-Def_use_web::add_may_def (Alias_name var, SSA_op* def)
+Def_use_web::old_add_may_def (Alias_name var, SSA_op* def)
 {
 	// TODO: CHIs are not created for the parameters to a method call. They
 	// clearly should be.
@@ -247,27 +247,27 @@ Def_use_web::add_may_def (Alias_name var, SSA_op* def)
 	//	statement which created the alias.
 
 
-// TODO: clones arent done anymore
 	Basic_block* bb = def->get_bb ();
-	bb->add_chi_node (var, var);
+	bb->old_add_chi_node (var, var);
 	Alias_name clone = var;
-	add_def (var, new SSA_chi (bb, var, clone));
-	add_use (clone, new SSA_chi (bb, var, clone));
+	old_add_def (var, new SSA_chi (bb, var, clone));
+	old_add_use (clone, new SSA_chi (bb, var, clone));
 }
 
 void
-Def_use_web::add_may_use (Alias_name var, SSA_op* def)
+Def_use_web::old_add_may_use (Alias_name var, SSA_op* def)
 {
+	phc_unreachable ();
 	Basic_block* bb = def->get_bb ();
-	bb->add_mu_node (var);
-	add_use (var, new SSA_mu (bb, var));
+	bb->old_add_mu_node (var);
+	old_add_use (var, new SSA_mu (bb, var));
 }
 
 
 
-#define add_def_use(TYPE, SSA_TYPE)											\
-	foreach (Alias_name TYPE, du->TYPE##s[bb->ID])						\
-		add_##TYPE (TYPE, new SSA_TYPE (bb));
+#define add_def_use(TYPE, SSA_TYPE)									\
+	foreach (Alias_name* TYPE, *du->get_##TYPE##s(bb))			\
+		add_##TYPE (bb, TYPE);
 
 #define add_all_def_use(SSA_TYPE)		\
 	if (du == NULL)							\
@@ -312,25 +312,25 @@ Def_use_web::visit_statement_block (Statement_block* bb)
  * Properties once we are already in SSA form
  */
 void
-Def_use_web::visit_phi_node (Basic_block* bb, Alias_name phi_lhs)
+Def_use_web::old_visit_phi_node (Basic_block* bb, Alias_name phi_lhs)
 {
-	foreach (Alias_name use, *bb->get_phi_args (phi_lhs))
-		add_use (use, new SSA_phi (bb, phi_lhs));
+	foreach (Alias_name use, *bb->old_get_phi_args (phi_lhs))
+		old_add_use (use, new SSA_phi (bb, phi_lhs));
 
-	add_def (phi_lhs, new SSA_phi (bb, phi_lhs));
+	old_add_def (phi_lhs, new SSA_phi (bb, phi_lhs));
 }
 
 void
-Def_use_web::visit_chi_node (Basic_block* bb, Alias_name lhs, Alias_name rhs)
+Def_use_web::old_visit_chi_node (Basic_block* bb, Alias_name lhs, Alias_name rhs)
 {
-	add_def (lhs, new SSA_chi (bb, lhs, rhs));
-	add_use (rhs, new SSA_chi (bb, lhs, rhs));
+	old_add_def (lhs, new SSA_chi (bb, lhs, rhs));
+	old_add_use (rhs, new SSA_chi (bb, lhs, rhs));
 }
 
 void
-Def_use_web::visit_mu_node (Basic_block* bb, Alias_name rhs)
+Def_use_web::old_visit_mu_node (Basic_block* bb, Alias_name rhs)
 {
-	add_use (rhs, new SSA_mu (bb, rhs));
+	old_add_use (rhs, new SSA_mu (bb, rhs));
 }
 
 
@@ -339,9 +339,9 @@ Def_use_web::dump ()
 {
 	CHECK_DEBUG ();
 
-	cdebug << "Use-def web (" << use_def_chains.size() << "):\n";
+	cdebug << "Use-def web (" << old_use_def_chains.size() << "):\n";
 	pair<Alias_name, SSA_edge_list> p;
-	foreach (p, use_def_chains)
+	foreach (p, old_use_def_chains)
 	{
 		cdebug << "SSA edges for " << p.first.str ();
 
@@ -351,8 +351,8 @@ Def_use_web::dump ()
 		cdebug << endl;
 	}
 
-	cdebug << "Def-use web (" << def_use_chains.size() << "):\n";
-	foreach (p, def_use_chains)
+	cdebug << "Def-use web (" << old_def_use_chains.size() << "):\n";
+	foreach (p, old_def_use_chains)
 	{
 		cdebug << "SSA edges for " << p.first.str ();
 
@@ -369,7 +369,7 @@ Def_use_web::consistency_check ()
 	return;
 
 	// Is the first variable we find in SSA.
-	bool in_ssa = (*use_def_chains.begin ()).first.ssa_version == 0;
+	bool in_ssa = (*old_use_def_chains.begin ()).first.ssa_version == 0;
 	if (!in_ssa)
 		return;
 
@@ -377,16 +377,55 @@ Def_use_web::consistency_check ()
 	// Check that each use has 0 or 1 def.
 	Alias_name key;
 	SSA_edge_list edge_list;
-	foreach (tie (key, edge_list), use_def_chains)
+	foreach (tie (key, edge_list), old_use_def_chains)
 	{
 		assert (edge_list.size () < 2);
 	}
 
 
 	// Check that each key is in SSA form
-	foreach (tie (key, edge_list), use_def_chains)
+	foreach (tie (key, edge_list), old_use_def_chains)
 		assert (key.ssa_version);
 	
-	foreach (tie (key, edge_list), def_use_chains)
+	foreach (tie (key, edge_list), old_def_use_chains)
 		assert (key.ssa_version);
+}
+
+
+
+void
+Def_use_web::add_def (Basic_block* bb, Alias_name* def)
+{
+	defs[bb->ID].push_back (def);
+}
+
+void
+Def_use_web::add_use (Basic_block* bb, Alias_name* use)
+{
+	uses[bb->ID].push_back (use);
+}
+
+void
+Def_use_web::add_may_def (Basic_block* bb, Alias_name* may_def)
+{
+	may_defs[bb->ID].push_back (may_def);
+}
+
+
+Alias_name_list*
+Def_use_web::get_defs (Basic_block* bb)
+{
+	return &defs[bb->ID];
+}
+
+Alias_name_list*
+Def_use_web::get_uses (Basic_block* bb)
+{
+	return &uses[bb->ID];
+}
+
+Alias_name_list*
+Def_use_web::get_may_defs (Basic_block* bb)
+{
+	return &may_defs[bb->ID];
 }

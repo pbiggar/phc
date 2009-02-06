@@ -157,3 +157,37 @@ Def_use::backward_bind (Basic_block* context, CFG* callee_cfg)
 	remove_prefixed (uses[context->ID], CFG_ST (callee_cfg));
 	remove_prefixed (may_defs[context->ID], CFG_ST (callee_cfg));
 }
+
+
+Alias_name_list*
+Def_use::get_defs (Basic_block* bb)
+{
+	Alias_name_list* result = new Alias_name_list;
+
+	foreach (Alias_name def, defs[bb->ID])
+		result->push_back (new Alias_name (def));
+	
+	return result;
+}
+
+Alias_name_list*
+Def_use::get_may_defs (Basic_block* bb)
+{
+	Alias_name_list* result = new Alias_name_list;
+
+	foreach (Alias_name may_def, may_defs[bb->ID])
+		result->push_back (new Alias_name (may_def));
+	
+	return result;
+}
+
+Alias_name_list*
+Def_use::get_uses (Basic_block* bb)
+{
+	Alias_name_list* result = new Alias_name_list;
+
+	foreach (Alias_name use, uses[bb->ID])
+		result->push_back (new Alias_name (use));
+	
+	return result;
+}

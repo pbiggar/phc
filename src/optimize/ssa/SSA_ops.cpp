@@ -143,45 +143,45 @@ bool ssa_op_ptr_comparison (SSA_op* op1, SSA_op* op2)
 	}
 }
 
-Alias_name_list*
+old_Alias_name_list*
 SSA_stmt::get_uses ()
 {
 	// Phis are different statements, but mus and chis are properties of the
 	// current statement.
-	return bb->cfg->duw->get_block_uses (bb, SSA_STMT | SSA_MU | SSA_CHI);
+	return bb->cfg->duw->old_get_block_uses (bb, SSA_STMT | SSA_MU | SSA_CHI);
 }
 
-Alias_name_list*
+old_Alias_name_list*
 SSA_phi::get_uses ()
 {
-	Alias_name_list* result = new Alias_name_list;
-	foreach (Alias_name use, *bb->get_phi_args (phi_lhs))
+	old_Alias_name_list* result = new old_Alias_name_list;
+	foreach (Alias_name use, *bb->old_get_phi_args (phi_lhs))
 		result->push_back (use);
 
 	return result;
 }
 
-Alias_name_list*
+old_Alias_name_list*
 SSA_branch::get_uses ()
 {
-	return new Alias_name_list (v2an (bb, bb->branch->variable_name));
+	return new old_Alias_name_list (v2an (bb, bb->branch->variable_name));
 }
 
-Alias_name_list*
+old_Alias_name_list*
 SSA_formal::get_uses ()
 {
 	// TODO: return RHS of phi nodes?
-	return new Alias_name_list();
+	return new old_Alias_name_list();
 }
 
-Alias_name_list*
+old_Alias_name_list*
 SSA_chi::get_uses ()
 {
-	return new Alias_name_list(rhs);
+	return new old_Alias_name_list(rhs);
 }
 
-Alias_name_list*
+old_Alias_name_list*
 SSA_mu::get_uses ()
 {
-	return new Alias_name_list (rhs);
+	return new old_Alias_name_list (rhs);
 }

@@ -108,9 +108,9 @@ Misc_annotations::visit_method_invocation (Statement_block* bb, MIR::Method_invo
 void
 Misc_annotations::annotate_non_by_ref_vars (Basic_block* bb)
 {
-	Alias_name_list* names = new Alias_name_list;
-	names->push_back_all (bb->get_defs (SSA_ALL));
-	names->push_back_all (bb->get_uses (SSA_ALL));
+	old_Alias_name_list* names = new old_Alias_name_list;
+	names->push_back_all (bb->old_get_defs (SSA_ALL));
+	names->push_back_all (bb->old_get_uses (SSA_ALL));
 	foreach (Alias_name name, *names)
 	{
 		phc_TODO ();

@@ -213,7 +213,7 @@ int main(int argc, char** argv)
 	check_passes (dump);
 	check_passes (dump_xml);
 	check_passes (dump_dot);
-	check_passes (debug);
+//	check_passes (debug); // we're a bit fast and loose in optimizing
 	check_passes (disable);
 
 	// There's only one read-xml option.

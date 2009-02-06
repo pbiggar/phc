@@ -61,6 +61,7 @@ public:
 class Basic_block;
 Alias_name v2an (Basic_block* bb, MIR::VARIABLE_NAME* var);
 
-typedef List<Alias_name> Alias_name_list;
+typedef List<Alias_name> old_Alias_name_list;
+typedef List<Alias_name*> Alias_name_list;
 
 #endif // PHC_ALIAS_NAME

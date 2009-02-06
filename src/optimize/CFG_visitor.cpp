@@ -12,15 +12,15 @@ using namespace boost;
 void
 CFG_visitor::visit_block (Basic_block* bb)
 {
-	foreach (Alias_name phi_lhs, *bb->get_phi_lhss ())
+	foreach (Alias_name phi_lhs, *bb->old_get_phi_lhss ())
 		visit_phi_node (bb, phi_lhs);
 
-	foreach (Alias_name mu, *bb->get_mus())
+	foreach (Alias_name mu, *bb->old_get_mus())
 		visit_mu_node (bb, mu);
 
 	// TODO: should this be after visit_*_block?
 	Alias_name def, use;
-	foreach (tie(def, use), *bb->get_chis())
+	foreach (tie(def, use), *bb->old_get_chis())
 		visit_chi_node (bb, def, use);
 
 
@@ -428,14 +428,14 @@ CFG_visitor::transform_block (Basic_block* bb)
 	// just update BB.
 	
 	// Allow it to update the CFG directly, its much easier.
-	foreach (Alias_name phi_lhs, *bb->get_phi_lhss ())
+	foreach (Alias_name phi_lhs, *bb->old_get_phi_lhss ())
 		transform_phi_node (bb, phi_lhs);
 
-	foreach (Alias_name mu, *bb->get_mus())
+	foreach (Alias_name mu, *bb->old_get_mus())
 		transform_mu_node (bb, mu);
 
 	Alias_name def, use;
-	foreach (tie(def, use), *bb->get_chis())
+	foreach (tie(def, use), *bb->old_get_chis())
 		transform_chi_node (bb, def, use);
 
 

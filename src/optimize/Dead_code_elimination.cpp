@@ -32,7 +32,6 @@ bool is_pure (Expr* in)
  *		Then we can say that 'global $x' is not _automatically_ critical, and
  *		likewise for all of the indirect assignments.
  */
-
 bool
 is_reference_statement (Statement* in)
 {
@@ -127,8 +126,9 @@ bool
 is_bb_critical (Basic_block* bb)
 {
 	// TODO: this is more conservative than we'd like
-	// Anything that is defined by a function, where we cannot see if it is used
-	// (ie its a global, or it escapes), we conservatively mark as critical.
+	// Anything that is defined by a function, where we cannot see if it is
+	// used (ie its a global, or it escapes), we conservatively mark as
+	// critical.
 	phc_TODO ();
 }
 
@@ -175,11 +175,12 @@ DCE::mark_pass ()
 {
 	// Initialize the critical blocks - a critical block is a side-effecting
 	// statement.
+
 	// We don't have any information with which to mark assignments affecting
-	// reference parameters. However, these are covered since the Exit_block is
-	// critical, and it uses all reference parameters. This creates may-uses for
-	// all the aliases, which transitively follows CHI nodes, ensuring that
-	// assignments are marked as critical.
+	// reference parameters. However, these are covered since the Exit_block
+	// is critical, and it uses all reference parameters. This creates
+	// may-uses for all the aliases, which transitively follows CHI nodes,
+	// ensuring that assignments are marked as critical.
 
 	dump ();
 	foreach (Basic_block* bb, *cfg->get_all_bbs ())
@@ -195,7 +196,7 @@ DCE::mark_pass ()
 		else if (isa<Exit_block> (bb))
 		{
 			// Make sure the uses from the Exit block are processed
-			foreach (Alias_name use, *bb->get_uses (SSA_STMT | SSA_MU | SSA_CHI))
+			foreach (Alias_name use, *bb->old_get_uses (SSA_STMT | SSA_MU | SSA_CHI))
 				mark_def (use);
 		}
 	}
@@ -284,10 +285,10 @@ void
 DCE::mark_def (Alias_name use)
 {
 	// ignore uninit
-	if (!cfg->duw->has_def (use))
+	if (!cfg->duw->old_has_def (use))
 		return;
 
-	SSA_op* def = cfg->duw->get_defs (use, SSA_ALL)->front ();
+	SSA_op* def = cfg->duw->old_get_defs (use, SSA_ALL)->front ();
 	DEBUG ("marking ");
 	def->dump ();
 	DEBUG (" due to def of " << use.str ());
@@ -319,10 +320,10 @@ DCE::sweep_pass ()
 	{
 		// Remove the phi nodes first, since the BB* may be replaced with an
 		// Empty BB.
-		foreach (Alias_name phi_lhs, *bb->get_phi_lhss ())
+		foreach (Alias_name phi_lhs, *bb->old_get_phi_lhss ())
 		{
 			if (!marks[new SSA_phi (bb, phi_lhs)])
-				bb->remove_phi_node (phi_lhs);
+				bb->old_remove_phi_node (phi_lhs);
 		}
 	}
 

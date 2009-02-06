@@ -17,7 +17,7 @@ public:
 	virtual void dump() = 0;
 
 	// Return the list of variables used by this operation
-	virtual Alias_name_list* get_uses () = 0;
+	virtual old_Alias_name_list* get_uses () = 0;
 
 	// Factory method depending on the type of the BB
 	// TODO: I expect this is no longer a good idea.
@@ -35,7 +35,7 @@ public:
 	void dump ();
 
 	// The args which are not Literals.
-	Alias_name_list* get_uses ();
+	old_Alias_name_list* get_uses ();
 };
 
 class SSA_stmt : public SSA_op
@@ -49,7 +49,7 @@ public:
 	void dump ();
 
 	// Any uses in the statement (ignoring the phis in the block, obviously)
-	Alias_name_list* get_uses ();
+	old_Alias_name_list* get_uses ();
 };
 
 class SSA_branch : public SSA_op
@@ -62,7 +62,7 @@ public:
 	void dump ();
 
 	// Just the branch variable
-	Alias_name_list* get_uses ();
+	old_Alias_name_list* get_uses ();
 };
 
 class SSA_formal : public SSA_op
@@ -77,7 +77,7 @@ public:
 	void dump ();
 
 	// No uses here
-	Alias_name_list* get_uses ();
+	old_Alias_name_list* get_uses ();
 };
 
 class SSA_chi : public SSA_op
@@ -92,7 +92,7 @@ public:
 
 	Basic_block* get_bb ();
 	void dump ();
-	Alias_name_list* get_uses ();
+	old_Alias_name_list* get_uses ();
 };
 
 class SSA_mu : public SSA_op
@@ -106,7 +106,7 @@ public:
 
 	Basic_block* get_bb ();
 	void dump ();
-	Alias_name_list* get_uses ();
+	old_Alias_name_list* get_uses ();
 };
 
 

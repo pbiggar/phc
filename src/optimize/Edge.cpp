@@ -47,6 +47,6 @@ Edge::copy_phi_map (Edge* other)
 	Alias_name arg;
 	foreach (tie (phi_lhs, arg), other->pm)
 	{
-		get_target()->set_phi_arg_for_edge (this, phi_lhs, arg);
+		get_target()->old_set_phi_arg_for_edge (this, phi_lhs, arg);
 	}
 }

@@ -1,7 +1,10 @@
 #include "process_ir/General.h"
-#include "optimize/Basic_block.h"
-
 #include "lib/Stack.h"
+
+#include "optimize/Basic_block.h"
+#include "optimize/wpa/Whole_program.h"
+#include "optimize/wpa/Def_use.h"
+#include "optimize/Def_use_web.h"
 
 #include "SSA.h"
 #include "Phi.h"
@@ -9,43 +12,46 @@
 using namespace MIR;
 using namespace boost;
 
-SSA_renaming::SSA_renaming (CFG* cfg)
-: cfg(cfg)
+SSA_renaming::SSA_renaming (Whole_program* wp, CFG* cfg)
+: wp(wp)
+, cfg(cfg)
 , counter (1)
 {
 }
 
 void
-SSA_renaming::push_to_var_stack (Alias_name name, int version)
+SSA_renaming::push_to_var_stack (Alias_name* name, int version)
 {
 	// TODO: should this be a string or an Alias_name? should I strip out the
 	// non-local variables before I do this?
-	phc_TODO ();
-	var_stacks[name].push (version);
+	var_stacks[*name].push (version);
 }
 
 int
-SSA_renaming::read_var_stack (Alias_name name)
+SSA_renaming::read_var_stack (Alias_name* name)
 {
 	// In traditional SSA, all variables are initialized at the start of a
 	// function. Not so here (though it could be done that way).
-	if (var_stacks[name].size () == 0)
+	
+	// TODO: If NAME is in SSA form, our indexing is screwed here.
+	if (var_stacks[*name].size () == 0)
 		push_to_var_stack (name, counter++);
 
-	int result = var_stacks[name].top();
+	int result = var_stacks[*name].top();
 	return result;
 }
 
 void
-SSA_renaming::pop_var_stack (Alias_name name)
+SSA_renaming::pop_var_stack (Alias_name* name)
 {
-	var_stacks[name].pop();
+	var_stacks[*name].pop();
 }
 
 void 
-SSA_renaming::create_new_ssa_name (Alias_name name)
+SSA_renaming::create_new_ssa_name (Alias_name* name)
 {
-	name.set_version (counter);
+	phc_TODO (); // this does put them in SSA form!!!
+	name->set_version (counter);
 	push_to_var_stack (name, counter++);
 }
 
@@ -83,11 +89,25 @@ SSA_renaming::rename_vars (Basic_block* bb)
 	//
 	DEBUG ("renaming vars in " << *bb->get_graphviz_label ());
 	debug_var_stacks ();
+	bb->cfg->dump_graphviz (NULL);
+
+	// TODO: phis
+	
+	foreach (Alias_name* use, *bb->cfg->duw->get_uses (bb))
+		use->set_version (read_var_stack (use));
+
+	foreach (Alias_name* def, *bb->cfg->duw->get_defs (bb))
+		create_new_ssa_name (def);
+
+	foreach (Alias_name* may_def, *bb->cfg->duw->get_may_defs (bb))
+		create_new_ssa_name (may_def);
+
+
 
 	// Phis, Chis and Mus use indexing, and when we put them in SSA form,
 	// their indexing changes. As a result, we need to remove the old one, and
 	// add the new one.
-
+#if 0
 	// 2) Convert the phi nodes
 	foreach (Alias_name phi_lhs, *bb->get_phi_lhss())
 	{
@@ -133,13 +153,13 @@ SSA_renaming::rename_vars (Basic_block* bb)
 	foreach (Basic_block* succ, *bb->get_successors ())
 		foreach (Alias_name phi_lhs, *succ->get_phi_lhss())
 			succ->add_phi_arg (phi_lhs, read_var_stack (phi_lhs), cfg->get_edge (bb, succ));
-
+#endif
 
 	// Recurse down the dominator tree
 	foreach (Basic_block* dominated, *bb->get_dominated_blocks ())
 		rename_vars (dominated);
 
-
+#if 0
 
 	// Before going back up the tree, get rid of new variable names from
 	// the stack, so the next node up sees its own names.
@@ -151,6 +171,8 @@ SSA_renaming::rename_vars (Basic_block* bb)
 	defs->push_back_all (bb->get_chi_lhss ());
 	foreach (Alias_name def, *defs)
 		pop_var_stack (def);
+
+#endif
 }
 
 

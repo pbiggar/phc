@@ -268,15 +268,15 @@ HSSA::convert_to_hssa_form ()
 		{
 			// Get defs (including phis and chis)
 			bool def_added = false;
-			Alias_name_list* defs = new Alias_name_list;
-			defs->push_back_all (bb->get_defs (SSA_STMT | SSA_CHI | SSA_FORMAL));
+			old_Alias_name_list* defs = new old_Alias_name_list;
+			defs->push_back_all (bb->old_get_defs (SSA_STMT | SSA_CHI | SSA_FORMAL));
 			// phis add a def thats not in the DUW
-			defs->push_back_all (bb->get_phi_lhss ()->to_list ());
+			defs->push_back_all (bb->old_get_phi_lhss ()->to_list ());
 			foreach (Alias_name name, *defs)
 			{
-				if (!frontier->has_phi_node (name))
+				if (!frontier->old_has_phi_node (name))
 				{
-					frontier->add_phi_node (name);
+					frontier->old_add_phi_node (name);
 					def_added = true;
 				}
 			}
@@ -293,7 +293,7 @@ HSSA::convert_to_hssa_form ()
 	cfg->dump_graphviz (NULL);
 
 	// Rename SSA variables
-	SSA_renaming sr(cfg);
+	SSA_renaming sr (wp, cfg);
 	sr.rename_vars (cfg->get_entry_bb ());
 
 
@@ -336,8 +336,8 @@ HSSA::convert_out_of_ssa_form ()
 	foreach (Basic_block* bb, *cfg->get_all_bbs ())
 	{
 		// Drop the chi and mu args
-		bb->remove_chi_nodes ();
-		bb->remove_mu_nodes ();
+		bb->old_remove_chi_nodes ();
+		bb->old_remove_mu_nodes ();
 
 		// There are two problems when coming out of SSA form:
 		//		1.) variable-variables: i_0 is not the same as i
@@ -357,7 +357,7 @@ HSSA::convert_out_of_ssa_form ()
 		// edge.
 		
 		// TODO: Add a check that there aren't overlapping live ranges.
-		bb->remove_phi_nodes ();
+		bb->old_remove_phi_nodes ();
 
 	}
 
@@ -374,13 +374,13 @@ HSSA::convert_out_of_ssa_form ()
 	{
 		// TODO: these are copies
 		phc_TODO ();
-		foreach (Alias_name name, *bb->get_uses_for_renaming ())
+		foreach (Alias_name name, *bb->old_get_uses_for_renaming ())
 		{
 			if (name.ssa_version)
 				name.drop_ssa_version ();
 		}
 
-		foreach (Alias_name name, *bb->get_defs_for_renaming ())
+		foreach (Alias_name name, *bb->old_get_defs_for_renaming ())
 		{
 			if (name.ssa_version)
 				name.drop_ssa_version ();

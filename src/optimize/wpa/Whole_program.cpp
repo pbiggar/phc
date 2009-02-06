@@ -443,10 +443,17 @@ Whole_program::dump (Basic_block* bb)
 	CHECK_DEBUG ();
 	foreach_wpa (this)
 	{
+		// This isnt the greatest means of debugging.
+		pm->maybe_enable_debug (s(name));
+
+		if (!debugging_enabled)
+			continue;
+
 		DEBUG (bb->ID << ": Dumping " << name);
 		wpa->dump (bb);
 		cdebug << endl;
 	}
+	pm->maybe_enable_debug (s("wpa"));
 }
 
 void

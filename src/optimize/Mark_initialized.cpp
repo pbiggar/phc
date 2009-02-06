@@ -60,7 +60,7 @@ void
 Mark_initialized::visit_entry_block (Entry_block* bb)
 {
 	// Initialize local defs
-	foreach (Alias_name def, *bb->get_defs (SSA_FORMAL))
+	foreach (Alias_name def, *bb->old_get_defs (SSA_FORMAL))
 		local_defs[bb].insert (def);
 
 	// We dont deal with a few things, like $x =& $a[$i] will initialize $a.
@@ -83,7 +83,7 @@ Mark_initialized::visit_statement_block (Statement_block* bb)
 	}
 	else
 	{
-		foreach (Alias_name def, *bb->get_defs (SSA_STMT))
+		foreach (Alias_name def, *bb->old_get_defs (SSA_STMT))
 			local_defs[bb].insert (def);
 
 	// I think this will be simpler once the use-def settles down.

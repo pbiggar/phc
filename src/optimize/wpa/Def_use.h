@@ -40,7 +40,13 @@ public:
 
 	void backward_bind (Basic_block* context, CFG* callee_cfg);
 
-	// TODO: do we need function local ones for call-clobbering
+	// These return pointers to the actual values, not copies. This allows the
+	// SSA name to be updated.
+	Alias_name_list* get_defs (Basic_block* bb);
+	Alias_name_list* get_may_defs (Basic_block* bb);
+	Alias_name_list* get_uses (Basic_block* bb);
+
+private:
 	Map<long, Set<Alias_name> > defs;
 	Map<long, Set<Alias_name> > uses;
 	Map<long, Set<Alias_name> > may_defs;
