@@ -56,6 +56,10 @@ Type_cell::Type_cell (string type)
 	types.insert (type);
 }
 
+Type_cell::Type_cell ()
+{
+}
+
 void
 Type_cell::dump ()
 {
@@ -74,5 +78,16 @@ Type_cell::equals (Lattice_cell* other)
 Lattice_cell*
 Type_cell::meet (Lattice_cell* other)
 {
-	phc_TODO ();
+	Type_cell* tc = dyc<Type_cell> (other);
+
+	// Merge the contents of the two
+	Type_cell* result = new Type_cell;
+
+	foreach (string type, types)
+		result->types.insert (type);
+
+	foreach (string type, tc->types)
+		result->types.insert (type);
+
+	return result;
 }

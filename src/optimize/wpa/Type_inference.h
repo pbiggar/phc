@@ -15,6 +15,7 @@ class Type_cell : public Lattice_cell
 {
 public:
 	Type_cell (string type);
+	Type_cell ();
 	void dump ();
 	bool equals (Lattice_cell* other);
 
