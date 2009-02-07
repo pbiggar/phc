@@ -53,6 +53,7 @@ class WPA : virtual public GC_obj
 {
 public:
 	Whole_program* wp;
+	string name;
 	Map<long, bool> changed_flags;
 
 	WPA (Whole_program* wp)

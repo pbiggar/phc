@@ -61,13 +61,9 @@ class WPA;
 
 
 // This gets duplicated everywhere.
-#define foreach_wpa(WP)		\
-	string name;				\
-	WPA* wpa;					\
-	foreach (boost::tie (name, wpa), WP->analyses)
+#define foreach_wpa(WP)					\
+	foreach (WPA* wpa, WP->analyses)
 
-#define foreach_wpa_nd(WP)		\
-	foreach (boost::tie (name, wpa), WP->analyses)
 
 
 
@@ -78,7 +74,7 @@ class Whole_program : public CFG_visitor
 	// results.
 
 public:
-	Map<string, WPA*> analyses;
+	List<WPA*> analyses;
 
 	Pass_manager* pm;
 	Optimization_transformer* transformer;

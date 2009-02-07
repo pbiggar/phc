@@ -238,8 +238,8 @@ Whole_program::get_branch_successors (Branch_block* bb)
 void
 Whole_program::register_analysis (string name, WPA* analysis)
 {
-	assert (!analyses.has (name));
-	analyses[name] = analysis;
+	analyses.push_back (analysis);
+	analysis->name = name;
 }
 
 Method_info_list*
@@ -425,7 +425,7 @@ Whole_program::analyse_block (Basic_block* bb)
 	visit_block (bb);
 
 	// Create OUT sets from the results 
-	foreach_wpa_nd (this)
+	foreach_wpa (this)
 		wpa->aggregate_results (bb);
 
 	// Dump
@@ -433,7 +433,7 @@ Whole_program::analyse_block (Basic_block* bb)
 
 	// Calculate fix-point
 	bool changed = false;
-	foreach_wpa_nd (this)
+	foreach_wpa (this)
 		changed |= wpa->solution_changed (bb);
 
 
@@ -447,12 +447,12 @@ Whole_program::dump (Basic_block* bb)
 	foreach_wpa (this)
 	{
 		// This isnt the greatest means of debugging.
-		pm->maybe_enable_debug (s(name));
+		pm->maybe_enable_debug (s(wpa->name));
 
 		if (!debugging_enabled)
 			continue;
 
-		DEBUG (bb->ID << ": Dumping " << name);
+		DEBUG (bb->ID << ": Dumping " << wpa->name);
 		wpa->dump (bb);
 		cdebug << endl;
 	}
@@ -500,11 +500,11 @@ Whole_program::init_superglobals (CFG* main)
 		wpa->assign_unknown (entry, Alias_name ("_SESSION", UNKNOWN), DEFINITE);
 
 	// argc
-	foreach_wpa_nd (this)
+	foreach_wpa (this)
 		wpa->assign_unknown_typed (entry, Alias_name (MSN, "argc"), "int", DEFINITE);
 
 	// argv
-	foreach_wpa_nd (this)
+	foreach_wpa (this)
 	{
 		wpa->assign_empty_array (entry, Alias_name (MSN, "argv"), "argv", DEFINITE);
 		wpa->assign_unknown_typed (entry, Alias_name ("argv", UNKNOWN), "string", DEFINITE);
