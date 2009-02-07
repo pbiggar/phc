@@ -172,10 +172,10 @@ public:
 	String_list* get_string_values (Basic_block* bb, Index_node* node);
 
 	// PATH can refer to many nodes. Get the list of Index_nodes it points to.
-	Index_node_list* get_named_indices (Basic_block* bb, Path* path);
+	Index_node_list* get_named_indices (Basic_block* bb, Path* path, bool record_uses = false);
 
 	// NULL if more than 1 exists
-	Index_node* get_named_index (Basic_block* bb, Path* path);
+	Index_node* get_named_index (Basic_block* bb, Path* path, bool record_uses = false);
 
 
 

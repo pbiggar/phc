@@ -688,7 +688,7 @@ void
 Whole_program::assign_by_ref (Basic_block* bb, Path* plhs, Path* prhs)
 {
 	Index_node_list* lhss = get_named_indices (bb, plhs);
-	Index_node_list* rhss = get_named_indices (bb, prhs);
+	Index_node_list* rhss = get_named_indices (bb, prhs, true);
 
 	bool killable = is_must (lhss);
 
@@ -783,7 +783,7 @@ void
 Whole_program::assign_by_copy (Basic_block* bb, Path* plhs, Path* prhs)
 {
 	Index_node_list* lhss = get_named_indices (bb, plhs);
-	Index_node_list* rhss = get_named_indices (bb, prhs);
+	Index_node_list* rhss = get_named_indices (bb, prhs, true);
 
 	bool killable = is_must (lhss);
 
@@ -884,7 +884,7 @@ Whole_program::get_string_values (Basic_block* bb, Index_node* index)
  *		- I think we can say that.
  */
 Index_node_list*
-Whole_program::get_named_indices (Basic_block* bb, Path* path)
+Whole_program::get_named_indices (Basic_block* bb, Path* path, bool record_uses)
 {
 	Indexing* p = dyc<Indexing> (path);
 
@@ -899,8 +899,9 @@ Whole_program::get_named_indices (Basic_block* bb, Path* path)
 	}
 	else
 	{
+		// TODO: propagate record_uses?
 		// Lookup the storage nodes indexed by LHS
-		foreach (Index_node* st_index, *get_named_indices (bb, p->lhs))
+		foreach (Index_node* st_index, *get_named_indices (bb, p->lhs, record_uses))
 		{
 			foreach (Storage_node* pointed_to,
 						*aliasing->get_points_to (bb, st_index, PTG_ALL))
@@ -919,13 +920,16 @@ Whole_program::get_named_indices (Basic_block* bb, Path* path)
 	}
 	else
 	{
+		// TODO: propagate record_uses?
+		//
 		// The name of the field must be looked up
-		foreach (Index_node* field_index, *get_named_indices (bb, p->rhs))
+		foreach (Index_node* field_index, *get_named_indices (bb, p->rhs, record_uses))
 		{
-			// TODO: better place for this - its here because we know this is a
-			// use. This doesnt intercept all uses, but I think it gets all the
-			// ones in this function.
+			// Record this use regardless of RECORD_USES
 			record_use (bb, field_index);
+
+			// This should return a set of possible names, 1 known name, or
+			// something involving "*".
 			foreach (String* value, *get_string_values (bb, field_index))
 				rhss.insert (*value);
 		}
@@ -937,15 +941,20 @@ Whole_program::get_named_indices (Basic_block* bb, Path* path)
 
 	foreach (string lhs, lhss)
 		foreach (string rhs, rhss)
+		{
+			if (record_uses)
+				record_use (bb, new Index_node (lhs, rhs));
+
 			result->push_back (new Index_node (lhs, rhs));
+		}
 
 	return result;
 }
 
 Index_node*
-Whole_program::get_named_index (Basic_block* bb, Path* name)
+Whole_program::get_named_index (Basic_block* bb, Path* name, bool record_uses)
 {
-	Index_node_list* all = get_named_indices (bb, name);
+	Index_node_list* all = get_named_indices (bb, name, record_uses);
 
 	// TODO: can this happen
 	assert (all->size());
