@@ -250,6 +250,8 @@ libphc_la_SOURCES= 											\
 	src/optimize/wpa/CCP.h									\
 	src/optimize/wpa/Constant_state.cpp					\
 	src/optimize/wpa/Constant_state.h					\
+	src/optimize/wpa/Debug_WPA.cpp						\
+	src/optimize/wpa/Debug_WPA.h							\
 	src/optimize/wpa/Def_use.cpp							\
 	src/optimize/wpa/Def_use.h								\
 	src/optimize/wpa/Include_analysis.cpp				\

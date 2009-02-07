@@ -74,6 +74,7 @@
 #include "Callgraph.h"
 #include "CCP.h"
 #include "Constant_state.h"
+#include "Debug_WPA.h"
 #include "Def_use.h"
 #include "Include_analysis.h"
 #include "Optimization_transformer.h"
@@ -98,11 +99,12 @@ Whole_program::Whole_program (Pass_manager* pm)
 //	vrp = new VRP (this);
 
 
-	register_analysis ("Aliasing", aliasing);
-	register_analysis ("Callgraph", callgraph);
-	register_analysis ("CCP", ccp);
-	register_analysis ("Def-use", def_use);
-	register_analysis ("Type_inference", type_inf);
+	register_analysis ("debug-wpa", new Debug_WPA (this));
+	register_analysis ("aliasing", aliasing);
+	register_analysis ("callgraph", callgraph);
+	register_analysis ("ccp", ccp);
+	register_analysis ("def-use", def_use);
+	register_analysis ("type-inference", type_inf);
 //	register_analysis ("Constant_state", constant_state);
 //	register_analysis ("Include_analysis", include_analysis);
 //	register_analysis ("VRP", vrp);

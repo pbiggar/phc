@@ -80,14 +80,12 @@ public:
 	virtual void assign_unknown (Basic_block* bb, Alias_name name,
 										  certainty cert) CT_IMPL;
 
+	// But we do know its type.
 	virtual void assign_unknown_typed (Basic_block* bb, Alias_name name,
 												  string type, certainty cert)
 	{
 		assign_unknown (bb, name, cert);
 	}
-
-	virtual void assign_empty_array (Basic_block* bb, Alias_name lhs,
-												string unique_name, certainty cert) CT_IMPL;
 
 	/*
 	 * Handle the built-in types.
@@ -97,11 +95,26 @@ public:
 	virtual void assign_scalar (Basic_block* bb, Alias_name lhs,
 										 MIR::Literal* rhs, certainty cert) CT_IMPL;
 
+	virtual void assign_empty_array (Basic_block* bb, Alias_name lhs,
+												string unique_name, certainty cert) CT_IMPL;
+
 
 
 	/*
 	 * Assigning from existing values
 	 */
+
+
+	/*
+	 * If the way the value is propagated doesn't matter, use assign_value.
+	 * By default, this is called by assign_by_ref and assign_by_copy.
+	 *
+	 * Note that aliasing typically doesn't come into account here, since
+	 * that's abstracted by Whole_program.
+	 */
+	virtual void assign_value (Basic_block* bb, Alias_name lhs,
+										 Alias_name rhs, certainty cert) RT_IMPL;
+
 
 	// LHS is made to reference RHS, with the certainty CERT. Note this copies
 	// the value.
@@ -119,13 +132,6 @@ public:
 		assign_value (bb, lhs, rhs, cert);
 	}
 
-	// By default, assign_by_copy and assign_by_ref call assign_value.
-	// the value. If the way the value is propagated doesn't matter, use
-	// assign_value.
-	// Note that aliasing typically doesn't come into account here, since that's
-	// abstracted by Whole_program.
-	virtual void assign_value (Basic_block* bb, Alias_name lhs,
-										 Alias_name rhs, certainty cert) RT_IMPL;
 
 	/*
 	 * Killing values
@@ -147,8 +153,6 @@ public:
 	}
 
 
-	
-
 	/*
 	 * Special case for use-def
 	 */
@@ -166,7 +170,7 @@ public:
 	virtual void pull_results (Basic_block* bb) CT_IMPL;
 
 	// Combine local results to an OUT solution. This should set
-	// CHANGED_FLAGS[bb->ID] if neccessary.
+	// CHANGED_FLAGS [bb->ID] if neccessary.
 	virtual void aggregate_results (Basic_block* bb) CT_IMPL;
 
 	// Do we need to iterate again?
@@ -175,7 +179,10 @@ public:
 		return changed_flags[bb->ID];
 	}
 
-	// Print debugging information
+
+	/*
+	 * Debugging information
+	 */
 	virtual void dump (Basic_block* bb) = 0;
 };
 
