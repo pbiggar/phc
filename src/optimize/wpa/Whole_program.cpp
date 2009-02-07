@@ -728,12 +728,6 @@ Whole_program::assign_scalar (Basic_block* bb, Path* plhs, Literal* lit)
 	// aliases of lhs.
 	foreach (Index_node* lhs, *lhss)
 	{
-		if (killable) // only 1 result
-		{
-			foreach_wpa (this)
-				wpa->kill_value (bb, lhs->name ());
-		}
-
 		// Handle all the aliases/indirect assignments.
 		certainty certainties[] = {POSSIBLE, DEFINITE};
 		foreach (certainty cert, certainties)
@@ -797,12 +791,6 @@ Whole_program::assign_by_copy (Basic_block* bb, Path* plhs, Path* prhs)
 	// aliases of lhs.
 	foreach (Index_node* lhs, *lhss)
 	{
-		if (killable) // only 1 result
-		{
-			foreach_wpa (this)
-				wpa->kill_value (bb, lhs->name ());
-		}
-
 		// Handle all the aliases/indirect assignments.
 		certainty certainties[] = {POSSIBLE, DEFINITE};
 		foreach (certainty cert, certainties)

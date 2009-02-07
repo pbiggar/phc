@@ -18,13 +18,17 @@ class Def_use : public WPA
 public:
 	Def_use (Whole_program* wp);
 
-	void kill_value (Basic_block* bb, Alias_name name);
+	void kill_by_copy (Basic_block* bb, Alias_name name);
+	void kill_by_ref (Basic_block* bb, Alias_name name);
+
+	void assign_by_ref (Basic_block* bb, Alias_name lhs,
+	                    Alias_name rhs, certainty cert);
+
+	void assign_by_copy (Basic_block* bb, Alias_name lhs,
+	                     Alias_name rhs, certainty cert);
 
 	void assign_scalar (Basic_block* bb, Alias_name lhs,
 							  MIR::Literal* rhs, certainty cert);
-
-	void assign_value (Basic_block* bb, Alias_name lhs,
-	                   Alias_name rhs, certainty cert);
 
 	void assign_empty_array (Basic_block* bb, Alias_name lhs,
 									 string unique_name, certainty cert);
@@ -47,15 +51,30 @@ public:
 	Alias_name_list* get_uses (Basic_block* bb);
 
 private:
-	Map<long, Set<Alias_name> > defs;
-	Map<long, Set<Alias_name> > uses;
-	Map<long, Set<Alias_name> > may_defs;
+
+	void val_assignment (Basic_block* bb, Alias_name lhs, certainty cert);
+	void ref_assignment (Basic_block* bb, Alias_name lhs, certainty cert);
+
+	Map<long, Set<Alias_name> > ref_defs;
+	Map<long, Set<Alias_name> > ref_uses;
+	Map<long, Set<Alias_name> > ref_may_defs;
+
+	Map<long, Set<Alias_name> > val_defs;
+	Map<long, Set<Alias_name> > val_uses;
+	Map<long, Set<Alias_name> > val_may_defs;
 
 	// We also want to store the complete set in the function, for the
-	// function exit (indexed by method_name)
-	Map<string, Set<Alias_name> > func_defs;
-	Map<string, Set<Alias_name> > func_uses;
-	Map<string, Set<Alias_name> > func_may_defs;
+	// function exit (indexed by method_name).
+	// TODO: using the function name doesnt quite gel with what we're doing in
+	// the analysis.
+	Map<string, Set<Alias_name> > func_ref_defs;
+	Map<string, Set<Alias_name> > func_ref_uses;
+	Map<string, Set<Alias_name> > func_ref_may_defs;
+
+	Map<string, Set<Alias_name> > func_val_defs;
+	Map<string, Set<Alias_name> > func_val_uses;
+	Map<string, Set<Alias_name> > func_val_may_defs;
+
 };
 
 #endif // PHC_DEF_USE

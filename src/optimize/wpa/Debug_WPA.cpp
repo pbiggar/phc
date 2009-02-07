@@ -61,6 +61,7 @@ Debug_WPA::assign_scalar (Basic_block* bb, Alias_name lhs,
 	DEBUG (__FUNCTION__
 			<< ": " << lhs.str ()
 			<< ", " << *rhs->get_value_as_string ()
+			<< " (" << demangle (rhs, false) << ")"
 			<< ", " << cert_to_string (cert));
 }
 
@@ -132,7 +133,7 @@ Debug_WPA::record_use (Basic_block* bb, Alias_name use,
 {
 	DEBUG (__FUNCTION__
 		<< ": " << use.str ()
-		<< cert_to_string (cert));
+		<< ", " << cert_to_string (cert));
 }
 
 void
