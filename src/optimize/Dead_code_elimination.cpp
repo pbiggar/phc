@@ -266,6 +266,11 @@ DCE::mark_pass ()
 void
 DCE::mark_entire_block (Basic_block* bb)
 {
+	if (bb_marks[bb->ID])
+		return;
+
+	bb_marks [bb->ID] = true;
+
 	// Note there are no may-defs here. They're already divided into defs or
 	// uses. Also, "entire block" doesnt include Phis.
 
@@ -276,22 +281,20 @@ DCE::mark_entire_block (Basic_block* bb)
 
 	foreach (SSA_def* def, *bb->cfg->duw->get_block_defs (bb))
 		mark (def);
-
-	bb_marks [bb->ID] = true;
 }
 
 void
 DCE::mark (SSA_def* def)
 {
-	if (!marks[def])
-	{
-		// If either a BB or a CHI is marked, mark the entire block. However,
-		// if a BB is marked, we dont need to mark the CHIs.
-		mark_entire_block (def->bb);
+	if (marks[def])
+		return;
 
-		marks[def] = true;
-		worklist->push_back (def);
-	}
+	// If either a BB or a CHI is marked, mark the entire block. However,
+	// if a BB is marked, we dont need to mark the CHIs.
+	mark_entire_block (def->bb);
+
+	marks[def] = true;
+	worklist->push_back (def);
 }
 
 void
