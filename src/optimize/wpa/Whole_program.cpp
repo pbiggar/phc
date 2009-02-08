@@ -338,6 +338,8 @@ Whole_program::analyse_summary (Method_info* info, Basic_block* context, Actual_
 	//		- can they alias a global variable
 	foreach (Parameter_info* pinfo, *info->params)
 	{
+		// TODO: Handle magic methods
+
 		if (pinfo->pass_by_reference)
 			phc_TODO ();
 
@@ -346,8 +348,15 @@ Whole_program::analyse_summary (Method_info* info, Basic_block* context, Actual_
 
 		if (pinfo->can_touch_objects)
 			phc_TODO ();
+	}
 
-		// Magic methods are handled in the callgraph.
+	// Record uses
+	foreach (Actual_parameter* ap, *actuals)
+	{
+		if (VARIABLE_NAME* var = dynamic_cast<VARIABLE_NAME*> (ap->rvalue))
+		{
+			record_use (context, VN (ST (context), var));
+		}
 	}
 
 	// TODO: does this create alias relationships

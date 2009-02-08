@@ -17,7 +17,6 @@ Callgraph::Callgraph (Whole_program* wp)
 	methods.insert ("__MAIN__");
 }
 
-// TODO: just use forward bind for this
 void
 Callgraph::forward_bind (Basic_block* context, CFG* callee_cfg, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* retval)
 {

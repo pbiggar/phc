@@ -33,11 +33,15 @@ SSA_renaming::read_var_stack (Alias_name* name)
 {
 	// In traditional SSA, all variables are initialized at the start of a
 	// function. Not so here (though it could be done that way).
+
+	// NAME gets an SSA version in push_to_var_stack, which changes the
+	// indexing.
+	Alias_name index = *name;
 	
-	if (var_stacks[*name].size () == 0)
+	if (var_stacks[index].size () == 0)
 		push_to_var_stack (name);
 
-	return var_stacks[*name].top();
+	return var_stacks[index].top();
 }
 
 void

@@ -140,60 +140,38 @@ Def_use::record_use (Basic_block* bb, Alias_name use, certainty cert)
 }
 
 
+bool 
+in_scope (Basic_block* bb, Alias_name& name)
+{
+	return name.prefix == ST (bb);
+}
 
 void
-merge_into_func_sets (Basic_block* bb,
-							Map<long, Set<Alias_name> >& bb_sets,
-							Map<string, Set<Alias_name> >& func_sets)
+merge_into_exit_bb (Basic_block* bb,
+							Map<long, Set<Alias_name> >& bb_sets)
 {
-	// TODO: what do we do about the ones which are out of scope? It's
-	// probably safe to do nothing about them, as they won't be used later (I
-	// think though that we would confuse them with a later function call).
-	Set<Alias_name>& sets = bb_sets[bb->ID];
-	func_sets[ST (bb)].insert (sets.begin(), sets.end());
+	foreach (Alias_name name, bb_sets[bb->ID])
+		if (!in_scope (bb, name))
+			bb_sets [bb->cfg->get_exit_bb()->ID].insert (name);
 }
 
 void
 Def_use::aggregate_results (Basic_block* bb)
 {
-	merge_into_func_sets (bb, ref_defs, func_ref_defs);
-	merge_into_func_sets (bb, ref_uses, func_ref_uses);
-	merge_into_func_sets (bb, ref_may_defs, func_ref_may_defs);
-	merge_into_func_sets (bb, val_defs, func_val_defs);
-	merge_into_func_sets (bb, val_uses, func_val_uses);
-	merge_into_func_sets (bb, val_may_defs, func_val_may_defs);
+	merge_into_exit_bb (bb, ref_defs);
+	merge_into_exit_bb (bb, ref_uses);
+	merge_into_exit_bb (bb, ref_may_defs);
+	merge_into_exit_bb (bb, val_defs);
+	merge_into_exit_bb (bb, val_uses);
+	merge_into_exit_bb (bb, val_may_defs);
 }
-
-// TODO: we could do with a 'close_scope' to trim results.
 
 void
 merge_from_callee (Basic_block* bb, CFG* callee_cfg,
-						Map<long, Set<Alias_name> >& bb_vals,
-						Map<string, Set<Alias_name> >& func_vals)
+						Map<long, Set<Alias_name> >& sets)
 {
-	Set<Alias_name>& callee_vals = func_vals[ST (callee_cfg->get_entry_bb ())];
-	bb_vals[bb->ID].insert (callee_vals.begin (), callee_vals.end());
-}
-
-bool 
-has_prefix (string prefix, Alias_name& name)
-{
-	return name.prefix == prefix;
-}
-
-
-void
-remove_prefixed (Set<Alias_name>& set, string prefix)
-{
-	Set<Alias_name> to_remove;
-
-	// Iterators gets killed by changing the set.
-	foreach (Alias_name name, set)
-		if (name.prefix == prefix)
-			to_remove.insert (name);
-
-	foreach (Alias_name name, to_remove)
-		set.erase (name);
+	Set<Alias_name>& callee_sets = sets[callee_cfg->get_exit_bb()->ID];
+	sets[bb->ID].insert (callee_sets.begin (), callee_sets.end());
 }
 
 void
@@ -202,57 +180,67 @@ Def_use::backward_bind (Basic_block* context, CFG* callee_cfg)
 	if (context == NULL)
 		return;
 
+	long ID = callee_cfg->get_exit_bb()->ID;
+
 	// The defs and uses from the callee represent the entire function.
-	merge_from_callee (context, callee_cfg, ref_defs, func_ref_defs);
-	merge_from_callee (context, callee_cfg, ref_uses, func_ref_uses);
-	merge_from_callee (context, callee_cfg, ref_may_defs, func_ref_may_defs);
+	merge_from_callee (context, callee_cfg, ref_defs);
+	merge_from_callee (context, callee_cfg, ref_uses);
+	merge_from_callee (context, callee_cfg, ref_may_defs);
 
-	merge_from_callee (context, callee_cfg, val_defs, func_val_defs);
-	merge_from_callee (context, callee_cfg, val_uses, func_val_uses);
-	merge_from_callee (context, callee_cfg, val_may_defs, func_val_may_defs);
-
-	remove_prefixed (ref_defs[context->ID], CFG_ST (callee_cfg));
-	remove_prefixed (ref_uses[context->ID], CFG_ST (callee_cfg));
-	remove_prefixed (ref_may_defs[context->ID], CFG_ST (callee_cfg));
-
-	remove_prefixed (val_defs[context->ID], CFG_ST (callee_cfg));
-	remove_prefixed (val_uses[context->ID], CFG_ST (callee_cfg));
-	remove_prefixed (val_may_defs[context->ID], CFG_ST (callee_cfg));
+	merge_from_callee (context, callee_cfg, val_defs);
+	merge_from_callee (context, callee_cfg, val_uses);
+	merge_from_callee (context, callee_cfg, val_may_defs);
 }
 
+string prefix (string, string);
 
 Alias_name_list*
 Def_use::get_defs (Basic_block* bb)
 {
-	phc_TODO ();
-/*	Alias_name_list* result = new Alias_name_list;
+	Alias_name_list* result = new Alias_name_list;
 
-	foreach (Alias_name def, defs[bb->ID])
+	foreach (Alias_name def, val_defs[bb->ID])
+	{
+		def.name = prefix (def.name, "*");
+		result->push_back (new Alias_name (def));
+	}
+
+	foreach (Alias_name def, ref_defs[bb->ID])
 		result->push_back (new Alias_name (def));
 	
-	return result;*/
+	return result;
 }
 
 Alias_name_list*
 Def_use::get_may_defs (Basic_block* bb)
 {
-	phc_TODO ();
-/*	Alias_name_list* result = new Alias_name_list;
+	Alias_name_list* result = new Alias_name_list;
 
-	foreach (Alias_name may_def, may_defs[bb->ID])
-		result->push_back (new Alias_name (may_def));
+	foreach (Alias_name def, val_may_defs[bb->ID])
+	{
+		def.name = prefix (def.name, "*");
+		result->push_back (new Alias_name (def));
+	}
+
+	foreach (Alias_name def, ref_may_defs[bb->ID])
+		result->push_back (new Alias_name (def));
 	
-	return result;*/
+	return result;
 }
 
 Alias_name_list*
 Def_use::get_uses (Basic_block* bb)
 {
-	phc_TODO ();
-/*	Alias_name_list* result = new Alias_name_list;
+	Alias_name_list* result = new Alias_name_list;
 
-	foreach (Alias_name use, uses[bb->ID])
+	foreach (Alias_name use, val_uses[bb->ID])
+	{
+		use.name = prefix (use.name, "*");
+		result->push_back (new Alias_name (use));
+	}
+
+	foreach (Alias_name use, ref_uses[bb->ID])
 		result->push_back (new Alias_name (use));
 	
-	return result;*/
+	return result;
 }
