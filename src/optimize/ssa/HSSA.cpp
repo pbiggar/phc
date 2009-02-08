@@ -241,7 +241,7 @@ HSSA::convert_to_hssa_form ()
 	// appropriately.
 	DEBUG ("Calculating Def-use-web for SSA");
 	cfg->duw = new Def_use_web (wp->def_use);
-	cfg->duw->run (cfg);
+	cfg->duw->build_web (cfg);
 
 
 

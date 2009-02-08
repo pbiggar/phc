@@ -43,6 +43,70 @@ Def_use_web::Def_use_web (Def_use* du)
 {
 }
 
+void
+Def_use_web::build_web (CFG* cfg)
+{
+	// Get the information from the def_use
+	foreach (Basic_block* bb, *cfg->get_all_bbs ())
+	{
+		defs[bb->ID].push_back_all (du->get_defs (bb));
+		uses[bb->ID].push_back_all (du->get_uses (bb));
+		may_defs [bb->ID].push_back_all (du->get_may_defs (bb));
+	}
+
+	Map<Alias_name, SSA_def_list> named_defs;
+	Map<Alias_name, SSA_use_list> named_uses;
+
+	// Build all the ops
+	foreach (Basic_block* bb, *cfg->get_all_bbs ())
+	{
+		foreach (Alias_name* use, uses[bb->ID])
+			named_uses[*use].push_back (new SSA_use (bb, use, SSA_BB));
+
+		foreach (Alias_name* def, defs[bb->ID])
+			named_defs[*def].push_back (new SSA_def (bb, def, SSA_BB));
+
+		foreach (Alias_name* may_def, may_defs[bb->ID])
+		{
+			named_defs[*may_def].push_back (new SSA_def (bb, may_def, SSA_CHI));
+			named_uses[*may_def].push_back (new SSA_use (
+					bb,
+					new Alias_name (*may_def),
+					SSA_CHI));
+		}
+	}
+
+	// Create the web
+	Alias_name name;
+	SSA_def_list& def_list = *(new SSA_def_list ());
+	foreach (tie (name, def_list), named_defs)
+	{
+		foreach (SSA_def* def, def_list)
+		{
+			def_ops[def->bb->ID].push_back (def);
+
+			// Add to all uses
+			foreach (SSA_use* use, named_uses[*def->name])
+				use->aux_ops.push_back (def);
+		}
+	}
+
+	SSA_use_list& use_list = *(new SSA_use_list ());
+	foreach (tie (name, use_list), named_uses)
+	{
+		foreach (SSA_use* use, use_list)
+		{
+			use_ops[use->bb->ID].push_back (use);
+
+			// Add to all uses
+			foreach (SSA_def* def, named_defs[*use->name])
+				def->aux_ops.push_back (use);
+		}
+	}
+}
+
+
+
 SSA_op_list*
 Def_use_web::get_defs (Alias_name use, int flags)
 {
@@ -266,44 +330,6 @@ Def_use_web::old_add_may_use (Alias_name var, SSA_op* def)
 */
 
 
-#define add_def_use(TYPE, SSA_TYPE)									\
-	foreach (Alias_name* TYPE, *du->get_##TYPE##s(bb))			\
-		add_##TYPE (bb, TYPE);
-
-#define add_all_def_use(SSA_TYPE)		\
-	if (du == NULL)							\
-		return;									\
-	add_def_use (def, SSA_TYPE)			\
-	add_def_use (use, SSA_TYPE)			\
-	add_def_use (may_def, SSA_TYPE)
-
-void
-Def_use_web::visit_entry_block (Entry_block* bb)
-{
-	add_all_def_use (SSA_formal);
-}
-
-void
-Def_use_web::visit_exit_block (Exit_block* bb)
-{
-	add_all_def_use (SSA_formal);
-}
-
-void
-Def_use_web::visit_branch_block (Branch_block* bb)
-{
-	add_all_def_use (SSA_branch);
-}
-
-void
-Def_use_web::visit_statement_block (Statement_block* bb)
-{
-	add_all_def_use (SSA_stmt);
-}
-
-#undef add_def_use
-#undef add_all_def_use
-
 /*
  * Statements
  */
@@ -393,26 +419,6 @@ Def_use_web::consistency_check ()
 }
 
 
-
-void
-Def_use_web::add_def (Basic_block* bb, Alias_name* def)
-{
-	defs[bb->ID].push_back (def);
-}
-
-void
-Def_use_web::add_use (Basic_block* bb, Alias_name* use)
-{
-	uses[bb->ID].push_back (use);
-}
-
-void
-Def_use_web::add_may_def (Basic_block* bb, Alias_name* may_def)
-{
-	may_defs[bb->ID].push_back (may_def);
-}
-
-
 Alias_name_list*
 Def_use_web::get_defs (Basic_block* bb)
 {
@@ -435,13 +441,11 @@ Def_use_web::get_may_defs (Basic_block* bb)
 SSA_use_list*
 Def_use_web::get_block_uses (Basic_block* bb)
 {
-	phc_TODO ();
+	return &use_ops[bb->ID];
 }
 
 SSA_def_list*
 Def_use_web::get_block_defs (Basic_block* bb)
 {
-	phc_TODO ();
+	return &def_ops[bb->ID];
 }
-
-

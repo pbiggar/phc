@@ -34,11 +34,10 @@ typedef List<SSA_edge*> SSA_edge_list;
 #define SSA_BB			(1 << 0)
 #define SSA_PHI		(1 << 1)
 #define SSA_CHI		(1 << 2)
-#define SSA_MU			(1 << 3)
-#define SSA_ALL		(SSA_BB|SSA_PHI|SSA_CHI|SSA_MU)
+#define SSA_ALL		(SSA_BB|SSA_PHI|SSA_CHI)
 
 
-class Def_use_web : public Visit_once
+class Def_use_web : virtual public GC_obj
 {
 public:
 	Def_use_web (Def_use* du);
@@ -51,7 +50,6 @@ public:
 	 *		SSA_BB
 	 *		SSA_PHI
 	 *		SSA_CHI
-	 *		SSA_MU
 	 */
 	// Get all operations that define USE, and that satisfy flags.
 	SSA_op_list* get_defs (Alias_name use, int flags);
@@ -125,23 +123,14 @@ private:
 	 * depends on whether they come from the method_invocation, or whether
 	 * they come from the def.
 	 */
-	void add_use (Basic_block* bb, Alias_name* def);
-	void add_def (Basic_block* bb, Alias_name* use);
-	void add_may_def (Basic_block* bb, Alias_name* var);
-
 	Map<long, Alias_name_list> uses;
 	Map<long, Alias_name_list> defs;
 	// Uses and defs don't include the chis or phis.
 	Map<long, Alias_name_list> may_defs;
 
-
-	// These gather the aliasing information from Def_use.
-	void visit_entry_block (Entry_block* bb);
-	void visit_exit_block (Exit_block* bb);
-	void visit_branch_block (Branch_block* bb);
-	void visit_statement_block (Statement_block* bb);
-
 public:
+	void build_web (CFG* cfg);
+
 	// Returned Alias_name*s point to the actual Alias_names, so that their SSA
 	// version can be updated.
 	Alias_name_list* get_uses (Basic_block* bb);
@@ -155,6 +144,11 @@ public:
 	// TODO: this includes non-block-local must defs. Probably shouldnt.
 	SSA_use_list* get_block_uses (Basic_block* bb);
 	SSA_def_list* get_block_defs (Basic_block* bb);
+
+private:
+	Map<long, SSA_def_list> def_ops;
+	Map<long, SSA_use_list> use_ops;
+
 };
 
 #endif // PHC_DEF_USE_WEB

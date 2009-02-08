@@ -665,7 +665,7 @@ Pass_manager::run_local_optimization_passes (Whole_program* wp, CFG* cfg)
 		{
 			// We still want use-def information.
 			cfg->duw = new Def_use_web (wp->def_use);
-			cfg->duw->run (cfg);
+			cfg->duw->build_web (cfg);
 			cfg_dump (cfg, pass->name, s("Non-SSA"));
 		}
 

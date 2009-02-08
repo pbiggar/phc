@@ -212,10 +212,9 @@ DCE::mark_pass ()
 		DEBUG ("\nProcessing ");
 		def->dump ();
 
-		foreach (Alias_name* use, *def->get_uses ())
+		foreach (SSA_use* use, *def->get_uses ())
 		{
-			phc_TODO ();
-//			mark_def (use);
+			mark_def (use);
 		}
 
 		// Mark the critical branches (ie, the reverse dominance frontier of
@@ -277,6 +276,8 @@ DCE::mark_entire_block (Basic_block* bb)
 
 	foreach (SSA_def* def, *bb->cfg->duw->get_block_defs (bb))
 		mark (def);
+
+	bb_marks [bb->ID] = true;
 }
 
 void
@@ -286,7 +287,6 @@ DCE::mark (SSA_def* def)
 	{
 		// If either a BB or a CHI is marked, mark the entire block. However,
 		// if a BB is marked, we dont need to mark the CHIs.
-
 		mark_entire_block (def->bb);
 
 		marks[def] = true;
@@ -297,20 +297,19 @@ DCE::mark (SSA_def* def)
 void
 DCE::mark_def (SSA_use* use)
 {
-	phc_TODO ();
-/*	foreach (SSA_def* def, *use->get_defs ())
+	foreach (SSA_def* def, *use->get_defs ())
 	{
 		DEBUG ("marking ");
 		def->dump ();
-		DEBUG (" due to def of " << use.str ());
+		DEBUG (" due to def of " << use->name->str ());
 		mark (def);
-	}*/
+	}
 }
 
 void
 DCE::unmark_block (Basic_block* bb)
 {
-	phc_TODO ();
+	bb_marks [bb->ID] = false;
 }
 
 // Check if the block is marked (ignoring the phi nodes)
@@ -320,13 +319,7 @@ DCE::is_marked (Basic_block* bb)
 	if (isa<Entry_block> (bb) || isa<Exit_block> (bb) || isa<Empty_block> (bb))
 		return true;
 
-	// TODO: how to do this?
-	// we've marked with a small granularity: used chis are marked, used BB defs
-	// are marked. But have we marked BBs for which the chis are marked?
-	//
-	// Perhaps we should mark the BBs as soon as the CHI or def is marked?
-	phc_TODO ();
-//	return marks[new SSA_bb (bb)];
+	return bb_marks [bb->ID];
 }
 
 /*	SweepPass ():

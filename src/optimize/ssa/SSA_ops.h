@@ -12,6 +12,12 @@
  * assignment. This means that if a def belongs to a phi node, we dont think
  * it belongs to the basic block.
  */
+
+
+DECL (SSA_op);
+DECL (SSA_def);
+DECL (SSA_use);
+
 class SSA_op : virtual public GC_obj
 {
 public:
@@ -22,12 +28,12 @@ public:
 	SSA_op (Basic_block* bb, Alias_name* name, int type_flag);
 	void dump();
 
-protected:
+public:
 	// For defs, these are uses. For uses, these are defs.
 	// For SSA_PHI, this is the LHS, or all the RHSs.
 	// For SSA_CHI, this is the LHS, or the RHS
 	// For SSA_BB, this is the must-defs, or all the uses.
-	Set<Alias_name*> aux_names;
+	SSA_op_list aux_ops;
 };
 
 class SSA_def : public SSA_op
@@ -35,7 +41,7 @@ class SSA_def : public SSA_op
 public:
 	SSA_def (Basic_block* bb, Alias_name* name, int type_flag);
 
-	Alias_name_list* get_uses ();
+	SSA_use_list* get_uses ();
 };
 
 class SSA_use : public SSA_op
@@ -43,12 +49,8 @@ class SSA_use : public SSA_op
 public:
 	SSA_use (Basic_block* bb, Alias_name* name, int type_flag);
 
-	Alias_name_list* get_defs ();
+	SSA_def_list* get_defs ();
 };
-
-typedef List<SSA_op*> SSA_op_list;
-typedef List<SSA_def*> SSA_def_list;
-typedef List<SSA_use*> SSA_use_list;
 
 // Perform an arbitrary comparison, in order to allow the ops to index a map.
 bool ssa_op_ptr_comparison (SSA_op* op1, SSA_op* op2);

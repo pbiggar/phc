@@ -25,8 +25,11 @@ private:
 	SSA_def_list* worklist;
 
 ;
-	// Dont index on the pointer, but on a comparison function.
+	// Is the SSA_def marked?
 	Map<SSA_op*, bool, bool (*)(SSA_op*, SSA_op*)> marks;
+
+	// Is the BB marked?
+	Map<long, bool> bb_marks;
 
 	bool is_marked (Basic_block*);
 
@@ -38,7 +41,7 @@ private:
 
 	void mark_entire_block (Basic_block* bb);
 
-	// Doesn't undo the d
+	// Doesn't undo the marked SSA_ops
 	void unmark_block (Basic_block* bb);
 	
 	void mark_pass ();

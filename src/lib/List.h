@@ -174,13 +174,13 @@ List<Result_type*>* rewrap_list (List<List_type*>* nodes)
 	return result;
 }
 
+
 typedef List<Object*> Object_list;
-class Boolean;
-typedef List<Boolean*> Boolean_list;
-class Integer;
-typedef List<Integer*> Integer_list;
-class String;
-typedef List<String*> String_list;
+
+#define DECL(T) class T; typedef List<T*> T##_list;
+DECL (Boolean);
+DECL (Integer);
+DECL (String);
 
 
 #endif // PHC_LIST_H

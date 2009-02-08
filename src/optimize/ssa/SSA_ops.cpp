@@ -48,15 +48,15 @@ bool ssa_op_ptr_comparison (SSA_op* op1, SSA_op* op2)
 	return *op1->name < *op2->name;
 }
 
-Alias_name_list*
+SSA_use_list*
 SSA_def::get_uses ()
 {
-	return aux_names.to_list ();
+	return rewrap_list<SSA_use> (&aux_ops);
 }
 
-Alias_name_list*
+SSA_def_list*
 SSA_use::get_defs ()
 {
-	return aux_names.to_list ();
+	return rewrap_list<SSA_def> (&aux_ops);
 }
 

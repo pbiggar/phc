@@ -18,8 +18,6 @@ class Points_to;
 /*
  * Must- or may- information.
  */
-#define DECL(T) class T; typedef List<T*> T##_list;
-
 enum _certainty { POSSIBLE = 1, DEFINITE = 2, PTG_ALL = 3 };
 typedef enum _certainty certainty;
 
