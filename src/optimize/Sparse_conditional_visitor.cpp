@@ -81,14 +81,15 @@ Sparse_conditional_visitor::run (CFG* cfg)
 			SSA_op* e = ssa_wl->front ();
 			ssa_wl->pop_front ();
 
-			if (SSA_phi* phi = dynamic_cast<SSA_phi*> (e))
-				visit_phi_node (phi->bb, phi->phi_lhs);
-			else if (SSA_chi* chi = dynamic_cast<SSA_chi*> (e))
-				visit_chi_node (chi->bb, chi->lhs, chi->rhs);
-			else
+//			if (isa<SSA_def> (e) && e->type_flag == SSA_PHI)
+//				visit_phi_node (e->get_bb (), e->name);
+//			else if (SSA_chi* chi = dynamic_cast<SSA_chi*> (e))
+//				visit_chi_node (chi->bb, chi->lhs, chi->rhs);
+//			else
+			phc_TODO ();
 			{
 				// Branches and statements
-				Basic_block* bb = e->get_bb ();
+				Basic_block* bb = e->bb;
 				assert (!isa<Exit_block> (bb) && !isa<Entry_block> (bb));
 				if (get_predecessor_executable_count (bb))
 					visit_block (bb);

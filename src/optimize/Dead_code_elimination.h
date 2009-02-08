@@ -22,7 +22,7 @@ public:
 private:
 	CFG* cfg;
 
-	SSA_op_list* worklist;
+	SSA_def_list* worklist;
 
 ;
 	// Dont index on the pointer, but on a comparison function.
@@ -31,10 +31,15 @@ private:
 	bool is_marked (Basic_block*);
 
 	// Mark this operation as not-dead
-	void mark (SSA_op*);
+	void mark (SSA_def*);
 
 	// Mark the definition of USE
-	void mark_def (Alias_name use);
+	void mark_def (SSA_use* use);
+
+	void mark_entire_block (Basic_block* bb);
+
+	// Doesn't undo the d
+	void unmark_block (Basic_block* bb);
 	
 	void mark_pass ();
 	void sweep_pass ();

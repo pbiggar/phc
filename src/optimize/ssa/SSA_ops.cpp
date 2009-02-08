@@ -6,79 +6,30 @@
 
 using namespace MIR;
 
-SSA_op::SSA_op (int type_flag)
-{
-	this->type_flag = type_flag;
-}
-
-SSA_bb::SSA_bb (Basic_block* bb)
-: SSA_op (SSA_BB)
-, bb (bb)
+SSA_op::SSA_op (Basic_block* bb, Alias_name* name, int type_flag)
+: bb (bb)
+, name (name)
+, type_flag (type_flag)
 {
 }
 
-SSA_phi::SSA_phi (Basic_block* bb, Alias_name phi_lhs)
-: SSA_op (SSA_PHI)
-, bb (bb)
-, phi_lhs (phi_lhs)
+SSA_use::SSA_use (Basic_block* bb, Alias_name* name, int type_flag)
+: SSA_op (bb, name, type_flag)
 {
 }
 
-SSA_chi::SSA_chi (Basic_block* bb, Alias_name lhs, Alias_name rhs)
-: SSA_op (SSA_CHI)
-, bb (bb)
-, lhs (lhs)
-, rhs (rhs)
+SSA_def::SSA_def (Basic_block* bb, Alias_name* name, int type_flag)
+: SSA_op (bb, name, type_flag)
 {
 }
 
-SSA_mu::SSA_mu (Basic_block* bb, Alias_name rhs)
-: SSA_op (SSA_MU)
-, bb (bb)
-, rhs (rhs)
-{
-}
 
-Statement*
-SSA_bb::get_statement ()
+void SSA_op::dump()
 {
-	if (Branch_block* br = dynamic_cast<Branch_block*> (this->bb))
-		return br->branch;
-	else if (Statement_block* sb = dynamic_cast<Statement_block*> (this->bb))
-		return sb->statement;
-	
-	phc_unreachable ();
-}
-
-Basic_block* SSA_bb::get_bb () { return bb; }
-Basic_block* SSA_phi::get_bb () { return bb; }
-Basic_block* SSA_chi::get_bb () { return bb; }
-Basic_block* SSA_mu::get_bb () { return bb; }
-
-void SSA_bb::dump()
-{
-	DEBUG ("SSA_bb: ");
+	CHECK_DEBUG ();
+	cdebug << demangle (this) << ": ";
 	bb->dump ();
 }
-
-void SSA_phi::dump()
-{
-	DEBUG ("SSA_phi: " << phi_lhs.str () << ", ");
-	bb->dump ();
-}
-
-void SSA_chi::dump()
-{
-	DEBUG ("SSA_chi: " << lhs.str () << " <- " << rhs.str());
-	bb->dump ();
-}
-
-void SSA_mu::dump()
-{
-	DEBUG ("SSA_mu: " << rhs.str() << ", ");
-	bb->dump ();
-}
-
 
 bool ssa_op_ptr_comparison (SSA_op* op1, SSA_op* op2)
 {
@@ -88,67 +39,24 @@ bool ssa_op_ptr_comparison (SSA_op* op1, SSA_op* op2)
 
 	// Compare vertex pointers, this wont change, even when the
 	// graph is updated.
-	if (op1->get_bb ()->vertex != op2->get_bb ()->vertex)
-		return op1->get_bb ()->vertex < op2->get_bb ()->vertex;
+	if (op1->bb->vertex != op2->bb->vertex)
+		return op1->bb->vertex < op2->bb->vertex;
 
-	// Dont compare BB indices, they might be overwritten
-	if (isa<SSA_phi> (op1))
-	{
-		phc_TODO (); // why var names, and not alias_names?
-		// compare variable names
-//		return *dyc<SSA_phi> (op1)->phi_lhs < *dyc<SSA_phi> (op2)->phi_lhs;
-	}
-	else if (isa<SSA_chi> (op1))
-	{
-		phc_TODO (); // why var names, and not alias_names?
-//		if (*dyc<SSA_chi> (op1)->lhs->value == *dyc<SSA_chi> (op2)->lhs->value)
-//			return *dyc<SSA_chi> (op1)->rhs < *dyc<SSA_chi> (op2)->rhs;
-//		else
-//			return *dyc<SSA_chi> (op1)->lhs < *dyc<SSA_chi> (op2)->lhs;
-	}
-	else if (isa<SSA_mu> (op1))
-	{
-		phc_TODO (); // why var names, and not alias_names?
-//		return *dyc<SSA_mu> (op1)->rhs < *dyc<SSA_mu> (op2)->rhs;
-	}
-	else if (isa<SSA_bb> (op1))
-	{
-		// They are the same BB.
-		return false;
-	}
-	else
-	{
-		// we should have more to base this on
-		phc_TODO ();
-	}
+	if (op1->type_flag != op2->type_flag)
+		return op1->type_flag < op2->type_flag;
+
+	return *op1->name < *op2->name;
 }
 
-old_Alias_name_list*
-SSA_bb::get_uses ()
+Alias_name_list*
+SSA_def::get_uses ()
 {
-	// Phis are different statements, but mus and chis are properties of the
-	// current statement.
-	return bb->cfg->duw->old_get_block_uses (bb, SSA_BB | SSA_MU | SSA_CHI);
+	return aux_names.to_list ();
 }
 
-old_Alias_name_list*
-SSA_phi::get_uses ()
+Alias_name_list*
+SSA_use::get_defs ()
 {
-	old_Alias_name_list* result = new old_Alias_name_list;
-	foreach (Alias_name use, *bb->old_get_phi_args (phi_lhs))
-		result->push_back (use);
-
-	return result;
+	return aux_names.to_list ();
 }
 
-old_Alias_name_list*
-SSA_chi::get_uses ()
-{
-	return new old_Alias_name_list(rhs);
-}
-
-old_Alias_name_list*
-SSA_mu::get_uses ()
-{
-	return new old_Alias_name_list (rhs);
-}

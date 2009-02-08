@@ -15,76 +15,40 @@
 class SSA_op : virtual public GC_obj
 {
 public:
+	Basic_block* bb;
+	Alias_name* name;
 	int type_flag;
-	SSA_op (int type_flag);
-	virtual Basic_block* get_bb () = 0;
-	virtual void dump() = 0;
 
-	// Return the list of variables used by this operation
-	virtual old_Alias_name_list* get_uses () = 0;
+	SSA_op (Basic_block* bb, Alias_name* name, int type_flag);
+	void dump();
+
+protected:
+	// For defs, these are uses. For uses, these are defs.
+	// For SSA_PHI, this is the LHS, or all the RHSs.
+	// For SSA_CHI, this is the LHS, or the RHS
+	// For SSA_BB, this is the must-defs, or all the uses.
+	Set<Alias_name*> aux_names;
 };
 
-class SSA_phi : public SSA_op
+class SSA_def : public SSA_op
 {
 public:
-	Basic_block* bb;
-	Alias_name phi_lhs;
+	SSA_def (Basic_block* bb, Alias_name* name, int type_flag);
 
-	SSA_phi (Basic_block* bb, Alias_name phi_lhs);
-	Basic_block* get_bb ();
-	void dump ();
-
-	// The args which are not Literals.
-	old_Alias_name_list* get_uses ();
+	Alias_name_list* get_uses ();
 };
 
-class SSA_bb : public SSA_op
+class SSA_use : public SSA_op
 {
 public:
-	Basic_block* bb;
+	SSA_use (Basic_block* bb, Alias_name* name, int type_flag);
 
-	MIR::Statement* get_statement ();
-
-	SSA_bb (Basic_block* bb);
-	Basic_block* get_bb ();
-	void dump ();
-
-	// Any uses in the statement (ignoring the phis in the block, obviously)
-	old_Alias_name_list* get_uses ();
+	Alias_name_list* get_defs ();
 };
-
-class SSA_chi : public SSA_op
-{
-public:
-	Basic_block* bb;
-
-	Alias_name lhs;
-	Alias_name rhs;
-
-	SSA_chi (Basic_block* bb, Alias_name lhs, Alias_name rhs);
-
-	Basic_block* get_bb ();
-	void dump ();
-	old_Alias_name_list* get_uses ();
-};
-
-class SSA_mu : public SSA_op
-{
-public:
-	Basic_block* bb;
-
-	Alias_name rhs;
-
-	SSA_mu (Basic_block* bb, Alias_name rhs);
-
-	Basic_block* get_bb ();
-	void dump ();
-	old_Alias_name_list* get_uses ();
-};
-
-
 
 typedef List<SSA_op*> SSA_op_list;
+typedef List<SSA_def*> SSA_def_list;
+typedef List<SSA_use*> SSA_use_list;
 
 // Perform an arbitrary comparison, in order to allow the ops to index a map.
 bool ssa_op_ptr_comparison (SSA_op* op1, SSA_op* op2);

@@ -79,6 +79,7 @@ bool is_critical (Statement* in)
 	// TODO: is there a way to handle this without special casing it?
 	// TODO: virtual-variables are incorrect, so we just mark the foreach_*
 	// nodes which write as critical.
+	// TODO: rethink this. We should be able to remove unused blocks entirely.
 	if (	isa<Foreach_reset> (in)
 		|| isa<Foreach_next> (in)
 		|| isa<Foreach_end> (in))
@@ -197,7 +198,7 @@ DCE::mark_pass ()
 		if (is_bb_critical (bb))
 		{
 			DEBUG ("marking " << bb->ID << " as critical");
-			mark(new SSA_bb (bb));
+			mark_entire_block (bb);
 		}
 	}
 
@@ -206,22 +207,15 @@ DCE::mark_pass ()
 	// Go through the worklist, propagating the mark from uses to defs
 	while (worklist->size () > 0)
 	{
-		SSA_op* op = worklist->front ();
+		SSA_def* def = worklist->front ();
 		worklist->pop_front ();
 		DEBUG ("\nProcessing ");
-		op->dump ();
+		def->dump ();
 
-		foreach (Alias_name use, *op->get_uses ())
+		foreach (Alias_name* use, *def->get_uses ())
 		{
-			mark_def (use);
-
-			// MU/CHIs make the BB containing them live.
-			if (isa<SSA_mu> (op) || isa<SSA_chi> (op))
-			{
-				Basic_block* bb = op->get_bb ();
-				if (isa<Branch_block> (bb) || isa<Statement_block> (bb))
-					mark (new SSA_bb (bb));
-			}
+			phc_TODO ();
+//			mark_def (use);
 		}
 
 		// Mark the critical branches (ie, the reverse dominance frontier of
@@ -230,11 +224,11 @@ DCE::mark_pass ()
 		// branches). They are marked as they are required for control flow to
 		// reach this point. They are just as important for phis as they are for
 		// other statements, and we mark the branch, not the phi.
-		foreach (Basic_block* rdf, *op->get_bb ()->get_reverse_dominance_frontier ())
+		foreach (Basic_block* rdf, *def->bb->get_reverse_dominance_frontier ())
 		{
 			DEBUG ("marking " << rdf->ID
-					<< " as part of " << op->get_bb()->ID << "'s RDF");
-			mark(new SSA_bb (rdf));
+					<< " as part of " << def->bb->ID << "'s RDF");
+			mark_entire_block (rdf); // it'll just be a branch though
 		}
 	}
 
@@ -258,7 +252,7 @@ DCE::mark_pass ()
 					if (fr->iter->equals (fe->iter))
 					{
 						if (!is_marked (dom))
-							marks [new SSA_bb (bb)] = false;
+							unmark_block (bb);
 
 						found = true;
 						break;
@@ -270,29 +264,53 @@ DCE::mark_pass ()
 	}
 }
 
+void
+DCE::mark_entire_block (Basic_block* bb)
+{
+	// Note there are no may-defs here. They're already divided into defs or
+	// uses. Also, "entire block" doesnt include Phis.
+
+	// TODO: if the block is critical, we only need to mark the uses?
+
+	foreach (SSA_use* use, *bb->cfg->duw->get_block_uses (bb))
+		mark_def (use);
+
+	foreach (SSA_def* def, *bb->cfg->duw->get_block_defs (bb))
+		mark (def);
+}
 
 void
-DCE::mark (SSA_op* op)
+DCE::mark (SSA_def* def)
 {
-	if (!marks[op])
+	if (!marks[def])
 	{
-		marks[op] = true;
-		worklist->push_back (op);
+		// If either a BB or a CHI is marked, mark the entire block. However,
+		// if a BB is marked, we dont need to mark the CHIs.
+
+		mark_entire_block (def->bb);
+
+		marks[def] = true;
+		worklist->push_back (def);
 	}
 }
 
 void
-DCE::mark_def (Alias_name use)
+DCE::mark_def (SSA_use* use)
 {
-	// ignore uninit
-	if (!cfg->duw->old_has_def (use))
-		return;
+	phc_TODO ();
+/*	foreach (SSA_def* def, *use->get_defs ())
+	{
+		DEBUG ("marking ");
+		def->dump ();
+		DEBUG (" due to def of " << use.str ());
+		mark (def);
+	}*/
+}
 
-	SSA_op* def = cfg->duw->get_defs (use, SSA_ALL)->front ();
-	DEBUG ("marking ");
-	def->dump ();
-	DEBUG (" due to def of " << use.str ());
-	mark (def);
+void
+DCE::unmark_block (Basic_block* bb)
+{
+	phc_TODO ();
 }
 
 // Check if the block is marked (ignoring the phi nodes)
@@ -302,7 +320,13 @@ DCE::is_marked (Basic_block* bb)
 	if (isa<Entry_block> (bb) || isa<Exit_block> (bb) || isa<Empty_block> (bb))
 		return true;
 
-	return marks[new SSA_bb (bb)];
+	// TODO: how to do this?
+	// we've marked with a small granularity: used chis are marked, used BB defs
+	// are marked. But have we marked BBs for which the chis are marked?
+	//
+	// Perhaps we should mark the BBs as soon as the CHI or def is marked?
+	phc_TODO ();
+//	return marks[new SSA_bb (bb)];
 }
 
 /*	SweepPass ():
@@ -322,19 +346,23 @@ DCE::sweep_pass ()
 		// Empty BB.
 		foreach (Alias_name phi_lhs, *bb->old_get_phi_lhss ())
 		{
-			if (!marks[new SSA_phi (bb, phi_lhs)])
-				bb->old_remove_phi_node (phi_lhs);
+			phc_TODO ();
+//			if (!marks[new SSA_def (bb, phi_lhs)])
+//				bb->remove_phi_node (phi_lhs);
 		}
 	}
 
 	foreach (Basic_block* bb, *cfg->get_all_bbs ())
 	{
-		if (isa<Statement_block> (bb) && !is_marked (bb))
+		if (is_marked (bb))
+			continue;
+
+		if (isa<Statement_block> (bb))
 		{
 			cfg->remove_bb (bb);
 		}
 
-		else if (isa<Branch_block> (bb) && !is_marked (bb))
+		else if (isa<Branch_block> (bb))
 		{
 			// find the nearest marked post-dominator
 			Basic_block* postdominator = bb;
@@ -345,14 +373,15 @@ DCE::sweep_pass ()
 		}
 	}
 
-	// TODO: what about removing CHIs?
+	// TODO: we have enough information to manipulate the BBs to based on the
+	// CHIs which are still live.
 }
 
 void
 DCE::run (CFG* cfg)
 {
 	marks.clear ();
-	worklist = new SSA_op_list;
+	worklist = new SSA_def_list;
 	this->cfg = cfg;
 
 	mark_pass ();

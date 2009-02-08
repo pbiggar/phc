@@ -538,8 +538,8 @@ CFG::dump_graphviz (String* label)
 					<< index << ":"
 					<<* get_graphviz_use_portname (bb, &use) << ":e"
 					<< " -> "
-					<< op->get_bb()->get_index() << ":"
-					<< *get_graphviz_def_portname (op->get_bb (), &use) << ":w"
+					<< op->bb->get_index() << ":"
+					<< *get_graphviz_def_portname (op->bb, &use) << ":w"
 					<< " [color=lightgrey,dir=both];\n"
 					;
 				}

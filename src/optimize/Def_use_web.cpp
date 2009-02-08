@@ -103,7 +103,7 @@ Def_use_web::old_get_block_defs (Basic_block* bb, int flags)
 		foreach (SSA_edge* edge, edge_list)
 		{
 			if ((edge->op->type_flag & flags) // filter based on flags
-				&& edge->op->get_bb () == bb)
+				&& edge->op->bb == bb)
 			{
 				// Dont insert the key itself, it may be a different var_name
 				// with the same value, but we return exact var_name.
@@ -129,7 +129,7 @@ Def_use_web::old_get_block_uses (Basic_block* bb, int flags)
 		foreach (SSA_edge* edge, edge_list)
 		{
 			if ((edge->op->type_flag & flags) // filter based on flags
-				&& edge->op->get_bb () == bb)
+				&& edge->op->bb == bb)
 			{
 				// Dont insert the key itself, it may be the wrong var_name.
 				result->push_back (edge->name);
@@ -143,6 +143,7 @@ Def_use_web::old_get_block_uses (Basic_block* bb, int flags)
 /*
  * Calculate the def-use web
  */
+/*
 void
 Def_use_web::old_add_use (Alias_name def, SSA_op* use)
 {
@@ -250,8 +251,8 @@ Def_use_web::old_add_may_def (Alias_name var, SSA_op* def)
 	Basic_block* bb = def->get_bb ();
 	bb->old_add_chi_node (var, var);
 	Alias_name clone = var;
-	old_add_def (var, new SSA_chi (bb, var, clone));
-	old_add_use (clone, new SSA_chi (bb, var, clone));
+//	old_add_def (var, new SSA_chi (bb, var, clone));
+//	old_add_use (clone, new SSA_chi (bb, var, clone));
 }
 
 void
@@ -260,9 +261,9 @@ Def_use_web::old_add_may_use (Alias_name var, SSA_op* def)
 	phc_unreachable ();
 	Basic_block* bb = def->get_bb ();
 	bb->old_add_mu_node (var);
-	old_add_use (var, new SSA_mu (bb, var));
+//	old_add_use (var, new SSA_mu (bb, var));
 }
-
+*/
 
 
 #define add_def_use(TYPE, SSA_TYPE)									\
@@ -314,23 +315,23 @@ Def_use_web::visit_statement_block (Statement_block* bb)
 void
 Def_use_web::old_visit_phi_node (Basic_block* bb, Alias_name phi_lhs)
 {
-	foreach (Alias_name use, *bb->old_get_phi_args (phi_lhs))
-		old_add_use (use, new SSA_phi (bb, phi_lhs));
+//	foreach (Alias_name use, *bb->old_get_phi_args (phi_lhs))
+//		old_add_use (use, new SSA_phi (bb, phi_lhs));
 
-	old_add_def (phi_lhs, new SSA_phi (bb, phi_lhs));
+//	old_add_def (phi_lhs, new SSA_phi (bb, phi_lhs));
 }
 
 void
 Def_use_web::old_visit_chi_node (Basic_block* bb, Alias_name lhs, Alias_name rhs)
 {
-	old_add_def (lhs, new SSA_chi (bb, lhs, rhs));
-	old_add_use (rhs, new SSA_chi (bb, lhs, rhs));
+//	old_add_def (lhs, new SSA_chi (bb, lhs, rhs));
+//	old_add_use (rhs, new SSA_chi (bb, lhs, rhs));
 }
 
 void
 Def_use_web::old_visit_mu_node (Basic_block* bb, Alias_name rhs)
 {
-	old_add_use (rhs, new SSA_mu (bb, rhs));
+//	old_add_use (rhs, new SSA_mu (bb, rhs));
 }
 
 
@@ -429,3 +430,18 @@ Def_use_web::get_may_defs (Basic_block* bb)
 {
 	return &may_defs[bb->ID];
 }
+
+
+SSA_use_list*
+Def_use_web::get_block_uses (Basic_block* bb)
+{
+	phc_TODO ();
+}
+
+SSA_def_list*
+Def_use_web::get_block_defs (Basic_block* bb)
+{
+	phc_TODO ();
+}
+
+

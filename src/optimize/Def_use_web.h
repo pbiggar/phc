@@ -109,30 +109,52 @@ private:
 
 
 	/*
-	 * New stuff
+	 * The DUW holds an ordered list of SSA_ops for each BB. An op is a use,
+	 * def, may-use or may-def. These are alias_names, so that they can easily
+	 * be renumbered by SSA.
+	 *
+	 * Seperately, there is a web over these. This is a list indexed by the
+	 * alias_name of the op, and pointing to the BB is which it is created or
+	 * consumed. Both uses and defs point to a list of SSA_ops (non-SSA form
+	 * can have a list of defs for each use).
+	 *
+	 * The ops are either defs or uses, and they are any of CHI, BB and PHI,
+	 * indicating which part of the statement they occur in.
+	 *
+	 * TODO: Should may-defs get all the uses from the BB too? I guess it
+	 * depends on whether they come from the method_invocation, or whether
+	 * they come from the def.
 	 */
 	void add_use (Basic_block* bb, Alias_name* def);
 	void add_def (Basic_block* bb, Alias_name* use);
 	void add_may_def (Basic_block* bb, Alias_name* var);
 
-	// Uses doesn't include the RHS of may_defs or Phis.
 	Map<long, Alias_name_list> uses;
-	// defs doesn't include the LHS of may_defs or Phis.
 	Map<long, Alias_name_list> defs;
-
+	// Uses and defs don't include the chis or phis.
 	Map<long, Alias_name_list> may_defs;
 
+
+	// These gather the aliasing information from Def_use.
 	void visit_entry_block (Entry_block* bb);
 	void visit_exit_block (Exit_block* bb);
 	void visit_branch_block (Branch_block* bb);
 	void visit_statement_block (Statement_block* bb);
 
 public:
-	// Returns points to the actual Alias_names, so that their SSA version can
-	// be updated. (Still separates maydefs from defs/uses).
+	// Returned Alias_name*s point to the actual Alias_names, so that their SSA
+	// version can be updated.
 	Alias_name_list* get_uses (Basic_block* bb);
 	Alias_name_list* get_defs (Basic_block* bb);
 	Alias_name_list* get_may_defs (Basic_block* bb);
+
+	// TODO: should ssa_renaming just use get_ops, so that it can update them
+	// in order?
+
+	// Get the SSA_ops from the block. Doesnt include PHIs or CHIs.
+	// TODO: this includes non-block-local must defs. Probably shouldnt.
+	SSA_use_list* get_block_uses (Basic_block* bb);
+	SSA_def_list* get_block_defs (Basic_block* bb);
 };
 
 #endif // PHC_DEF_USE_WEB
