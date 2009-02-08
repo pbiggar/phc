@@ -44,25 +44,25 @@ Def_use_web::Def_use_web (Def_use* du)
 }
 
 SSA_op_list*
-Def_use_web::old_get_defs (Alias_name use, int flags)
+Def_use_web::get_defs (Alias_name use, int flags)
 {
 	SSA_op_list* result = new SSA_op_list;
 
-	foreach (SSA_edge* edge, old_use_def_chains [use])
+	foreach (SSA_edge* edge, use_def_chains [use])
 		result->push_back (edge->op);
 
 	return result;
 }
 
 SSA_op_list*
-Def_use_web::old_get_uses (Alias_name def, int flags)
+Def_use_web::get_uses (Alias_name def, int flags)
 {
 	// Its possible to have defs without uses.
-	if (!old_def_use_chains.has (def))
+	if (!def_use_chains.has (def))
 		return new SSA_op_list ();
 
 	SSA_op_list* result = new SSA_op_list;
-	foreach (SSA_edge* edge, old_def_use_chains[def])
+	foreach (SSA_edge* edge, def_use_chains[def])
 	{
 		if (edge->op->type_flag & flags)
 			result->push_back (edge->op);
@@ -75,7 +75,7 @@ SSA_op*
 Def_use_web::old_get_def (Alias_name use)
 {
 	assert (old_has_def (use));
-	SSA_op_list* defs = old_get_defs (use, SSA_STMT);
+	SSA_op_list* defs = get_defs (use, SSA_BB);
 
 	assert (defs->size() == 1);
 	return defs->front ();
@@ -84,7 +84,7 @@ Def_use_web::old_get_def (Alias_name use)
 bool
 Def_use_web::old_has_def (Alias_name use)
 {
-	return old_use_def_chains[use].size () >= 1;
+	return use_def_chains[use].size () >= 1;
 }
 
 
@@ -98,7 +98,7 @@ Def_use_web::old_get_block_defs (Basic_block* bb, int flags)
 	// Go through the use-def result, finding those who's BB == BB
 	Alias_name key;
 	SSA_edge_list edge_list;
-	foreach (tie (key, edge_list), old_use_def_chains)
+	foreach (tie (key, edge_list), use_def_chains)
 	{
 		foreach (SSA_edge* edge, edge_list)
 		{
@@ -124,7 +124,7 @@ Def_use_web::old_get_block_uses (Basic_block* bb, int flags)
 	// Go through the use-def result, finding those who's BB == BB
 	Alias_name key;
 	SSA_edge_list edge_list;
-	foreach (tie (key, edge_list), old_def_use_chains)
+	foreach (tie (key, edge_list), def_use_chains)
 	{
 		foreach (SSA_edge* edge, edge_list)
 		{
@@ -148,7 +148,7 @@ Def_use_web::old_add_use (Alias_name def, SSA_op* use)
 {
 	SSA_edge* edge = new SSA_edge (def, use);
 	edge->name = def;
-	old_def_use_chains[def].push_back (edge);
+	def_use_chains[def].push_back (edge);
 
 	DEBUG ("Adding a def_use edge from " << def.str() << "to ");
 	use->dump ();
@@ -161,7 +161,7 @@ Def_use_web::old_add_def (Alias_name use, SSA_op* def)
 	SSA_edge* edge = new SSA_edge (use, def);
 
 	// When used on pre-SSA form, there can be many defs.
-	old_use_def_chains[use].push_back (edge);
+	use_def_chains[use].push_back (edge);
 
 	DEBUG ("Adding a use_def edge from " << use.str() << "to ");
 	def->dump ();
@@ -339,9 +339,9 @@ Def_use_web::dump ()
 {
 	CHECK_DEBUG ();
 
-	cdebug << "Use-def web (" << old_use_def_chains.size() << "):\n";
+	cdebug << "Use-def web (" << use_def_chains.size() << "):\n";
 	pair<Alias_name, SSA_edge_list> p;
-	foreach (p, old_use_def_chains)
+	foreach (p, use_def_chains)
 	{
 		cdebug << "SSA edges for " << p.first.str ();
 
@@ -351,8 +351,8 @@ Def_use_web::dump ()
 		cdebug << endl;
 	}
 
-	cdebug << "Def-use web (" << old_def_use_chains.size() << "):\n";
-	foreach (p, old_def_use_chains)
+	cdebug << "Def-use web (" << def_use_chains.size() << "):\n";
+	foreach (p, def_use_chains)
 	{
 		cdebug << "SSA edges for " << p.first.str ();
 
@@ -369,7 +369,7 @@ Def_use_web::consistency_check ()
 	return;
 
 	// Is the first variable we find in SSA.
-	bool in_ssa = (*old_use_def_chains.begin ()).first.ssa_version == 0;
+	bool in_ssa = (*use_def_chains.begin ()).first.ssa_version == 0;
 	if (!in_ssa)
 		return;
 
@@ -377,17 +377,17 @@ Def_use_web::consistency_check ()
 	// Check that each use has 0 or 1 def.
 	Alias_name key;
 	SSA_edge_list edge_list;
-	foreach (tie (key, edge_list), old_use_def_chains)
+	foreach (tie (key, edge_list), use_def_chains)
 	{
 		assert (edge_list.size () < 2);
 	}
 
 
 	// Check that each key is in SSA form
-	foreach (tie (key, edge_list), old_use_def_chains)
+	foreach (tie (key, edge_list), use_def_chains)
 		assert (key.ssa_version);
 	
-	foreach (tie (key, edge_list), old_def_use_chains)
+	foreach (tie (key, edge_list), def_use_chains)
 		assert (key.ssa_version);
 }
 

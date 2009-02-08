@@ -555,26 +555,30 @@ Basic_block::get_reverse_dominance_frontier ()
 old_Alias_name_list*
 Basic_block::old_get_defs (int flags)
 {
-	return cfg->duw->old_get_block_defs (this, flags);
+	return new old_Alias_name_list;
+//	return cfg->duw->get_block_defs (this, flags);
 }
 
 old_Alias_name_list*
 Basic_block::old_get_uses (int flags)
 {
-	return cfg->duw->old_get_block_uses (this, flags);
+	return new old_Alias_name_list;
+//	return cfg->duw->get_block_uses (this, flags);
 }
 
 
 old_Alias_name_list*
 Basic_block::old_get_defs_for_renaming ()
 {
-	return old_get_defs (SSA_STMT | SSA_FORMAL);
+	return new old_Alias_name_list;
+//	return get_defs (SSA_BB);
 }
 
 old_Alias_name_list*
 Basic_block::old_get_uses_for_renaming ()
 {
-	return old_get_uses (SSA_STMT | SSA_BRANCH);
+	return new old_Alias_name_list;
+//	return get_uses (SSA_BB);
 }
 
 int
@@ -603,18 +607,18 @@ Exit_block::dump()
 void
 Branch_block::dump()
 {
-	DEBUG ("Branch block (" << get_index() << ")");
+	DEBUG ("Branch block (" << ID << ")");
 }
 
 void
 Statement_block::dump()
 {
-	DEBUG ("Statement block (" << get_index () << ")");
+	DEBUG ("Statement block (" << ID << ")");
 }
 void
 Empty_block::dump()
 {
-	DEBUG ("Empty block (" << get_index () << ")");
+	DEBUG ("Empty block (" << ID << ")");
 }
 
 

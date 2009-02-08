@@ -269,7 +269,7 @@ HSSA::convert_to_hssa_form ()
 			// Get defs (including phis and chis)
 			bool def_added = false;
 			old_Alias_name_list* defs = new old_Alias_name_list;
-			defs->push_back_all (bb->old_get_defs (SSA_STMT | SSA_CHI | SSA_FORMAL));
+			defs->push_back_all (bb->old_get_defs (SSA_BB | SSA_CHI));
 			// phis add a def thats not in the DUW
 			defs->push_back_all (bb->old_get_phi_lhss ()->to_list ());
 			foreach (Alias_name name, *defs)

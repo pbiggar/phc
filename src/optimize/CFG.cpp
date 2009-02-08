@@ -532,7 +532,7 @@ CFG::dump_graphviz (String* label)
 			// non-SSA form)
 			foreach (Alias_name use, *bb->old_get_uses (SSA_ALL))
 			{
-				foreach (SSA_op* op, *duw->old_get_defs (use, SSA_ALL))
+				foreach (SSA_op* op, *duw->get_defs (use, SSA_ALL))
 				{
 					cout 
 					<< index << ":"

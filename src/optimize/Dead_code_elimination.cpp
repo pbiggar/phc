@@ -125,7 +125,13 @@ bool is_critical (Statement* in)
 bool
 is_bb_critical (Basic_block* bb)
 {
-	if (isa<Exit_block> (bb))
+	if (Statement_block* sb = dynamic_cast<Statement_block*> (bb))
+	{
+		if (is_critical (sb->statement))
+			return true;
+	}
+
+	if (isa<Exit_block> (bb) || isa<Entry_block> (bb))
 		return true;
 
 	// TODO: this is more conservative than we'd like
@@ -188,19 +194,10 @@ DCE::mark_pass ()
 	dump ();
 	foreach (Basic_block* bb, *cfg->get_all_bbs ())
 	{
-		if (Statement_block* sb = dynamic_cast<Statement_block*> (bb))
+		if (is_bb_critical (bb))
 		{
-			if (is_critical (sb->statement) || is_bb_critical (sb))
-			{
-				DEBUG ("marking " << bb->get_index() << " as critical");
-				mark(SSA_op::for_bb (sb));
-			}
-		}
-		else if (isa<Exit_block> (bb))
-		{
-			// Make sure the uses from the Exit block are processed
-			foreach (Alias_name use, *bb->old_get_uses (SSA_STMT | SSA_MU | SSA_CHI))
-				mark_def (use);
+			DEBUG ("marking " << bb->ID << " as critical");
+			mark(new SSA_bb (bb));
 		}
 	}
 
@@ -223,7 +220,7 @@ DCE::mark_pass ()
 			{
 				Basic_block* bb = op->get_bb ();
 				if (isa<Branch_block> (bb) || isa<Statement_block> (bb))
-					mark (SSA_op::for_bb (bb));
+					mark (new SSA_bb (bb));
 			}
 		}
 
@@ -235,9 +232,9 @@ DCE::mark_pass ()
 		// other statements, and we mark the branch, not the phi.
 		foreach (Basic_block* rdf, *op->get_bb ()->get_reverse_dominance_frontier ())
 		{
-			DEBUG ("marking " << rdf->get_index()
-					<< " as part of " << op->get_bb()->get_index() << "'s RDF");
-			mark(SSA_op::for_bb (rdf));
+			DEBUG ("marking " << rdf->ID
+					<< " as part of " << op->get_bb()->ID << "'s RDF");
+			mark(new SSA_bb (rdf));
 		}
 	}
 
@@ -261,7 +258,7 @@ DCE::mark_pass ()
 					if (fr->iter->equals (fe->iter))
 					{
 						if (!is_marked (dom))
-							marks [SSA_op::for_bb (bb)] = false;
+							marks [new SSA_bb (bb)] = false;
 
 						found = true;
 						break;
@@ -291,7 +288,7 @@ DCE::mark_def (Alias_name use)
 	if (!cfg->duw->old_has_def (use))
 		return;
 
-	SSA_op* def = cfg->duw->old_get_defs (use, SSA_ALL)->front ();
+	SSA_op* def = cfg->duw->get_defs (use, SSA_ALL)->front ();
 	DEBUG ("marking ");
 	def->dump ();
 	DEBUG (" due to def of " << use.str ());
@@ -305,7 +302,7 @@ DCE::is_marked (Basic_block* bb)
 	if (isa<Entry_block> (bb) || isa<Exit_block> (bb) || isa<Empty_block> (bb))
 		return true;
 
-	return marks[SSA_op::for_bb (bb)];
+	return marks[new SSA_bb (bb)];
 }
 
 /*	SweepPass ():
@@ -369,5 +366,5 @@ DCE::dump()
 	CHECK_DEBUG ();
 	DEBUG ("DCE:");
 	foreach (Basic_block* bb, *cfg->get_all_bbs ())
-		DEBUG (bb->get_index() << ": " << is_marked (bb));
+		DEBUG (bb->ID << ": " << is_marked (bb));
 }

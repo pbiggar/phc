@@ -55,7 +55,8 @@ private:
 	void val_assignment (Basic_block* bb, Alias_name lhs, certainty cert);
 	void ref_assignment (Basic_block* bb, Alias_name lhs, certainty cert);
 
-	// Non-local defs and uses are copied to the exit block.
+	// The exit block gets a use for every non-local def. This prevents DCE
+	// from killing them.
 	Map<long, Set<Alias_name> > ref_defs;
 	Map<long, Set<Alias_name> > ref_uses;
 	Map<long, Set<Alias_name> > ref_may_defs;
@@ -63,6 +64,14 @@ private:
 	Map<long, Set<Alias_name> > val_defs;
 	Map<long, Set<Alias_name> > val_uses;
 	Map<long, Set<Alias_name> > val_may_defs;
+
+	Map<string, Set<Alias_name> > summary_ref_defs;
+	Map<string, Set<Alias_name> > summary_ref_uses;
+	Map<string, Set<Alias_name> > summary_ref_may_defs;
+
+	Map<string, Set<Alias_name> > summary_val_defs;
+	Map<string, Set<Alias_name> > summary_val_uses;
+	Map<string, Set<Alias_name> > summary_val_may_defs;
 };
 
 #endif // PHC_DEF_USE

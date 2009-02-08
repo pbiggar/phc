@@ -87,10 +87,9 @@ Sparse_conditional_visitor::run (CFG* cfg)
 				visit_chi_node (chi->bb, chi->lhs, chi->rhs);
 			else
 			{
-				assert (!isa<SSA_formal> (e));
-
 				// Branches and statements
 				Basic_block* bb = e->get_bb ();
+				assert (!isa<Exit_block> (bb) && !isa<Entry_block> (bb));
 				if (get_predecessor_executable_count (bb))
 					visit_block (bb);
 			}
@@ -145,7 +144,7 @@ Sparse_conditional_visitor::set_lattice (Alias_name def, Lattice_cell* value)
 		// shouldnt have two different Literals here
 		assert (old == TOP || value == BOTTOM);
 
-		foreach (SSA_op* edge, *cfg->duw->old_get_uses (def, SSA_ALL))
+		foreach (SSA_op* edge, *cfg->duw->get_uses (def, SSA_ALL))
 		{
 			//	1. add uses of the LHS to the SSA worklist.
 			ssa_wl->push_back (edge);

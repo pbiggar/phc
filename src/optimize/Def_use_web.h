@@ -31,13 +31,11 @@ public:
 
 typedef List<SSA_edge*> SSA_edge_list;
 
-#define SSA_STMT		(1 << 0)
-#define SSA_BRANCH	(1 << 1)
-#define SSA_FORMAL	(1 << 2)
-#define SSA_PHI		(1 << 3)
-#define SSA_CHI		(1 << 4)
-#define SSA_MU			(1 << 5)
-#define SSA_ALL		(SSA_STMT|SSA_BRANCH|SSA_FORMAL|SSA_PHI|SSA_CHI|SSA_MU)
+#define SSA_BB			(1 << 0)
+#define SSA_PHI		(1 << 1)
+#define SSA_CHI		(1 << 2)
+#define SSA_MU			(1 << 3)
+#define SSA_ALL		(SSA_BB|SSA_PHI|SSA_CHI|SSA_MU)
 
 
 class Def_use_web : public Visit_once
@@ -50,22 +48,21 @@ public:
 
 	/*
 	 * Flags:
-	 *		SSA_STMT
+	 *		SSA_BB
 	 *		SSA_PHI
-	 *		SSA_BRANCH
-	 *		SSA_FORMAL
 	 *		SSA_CHI
 	 *		SSA_MU
 	 */
 	// Get all operations that define USE, and that satisfy flags.
-	SSA_op_list* old_get_defs (Alias_name use, int flags);
+	SSA_op_list* get_defs (Alias_name use, int flags);
 
 	// Get all operations that use DEF, and that satisfy FLAGS.
-	SSA_op_list* old_get_uses (Alias_name def, int flags);
+	SSA_op_list* get_uses (Alias_name def, int flags);
 
 	// Get the variables defined/used in BB
 	old_Alias_name_list* old_get_block_defs (Basic_block* bb, int flags);
 	old_Alias_name_list* old_get_block_uses (Basic_block* bb, int flags);
+
 
 	/*
 	 * All operations in this class go through either get_defs or get_uses.
@@ -98,8 +95,8 @@ private:
 	// SSA_edge_list will be the correct vars. The indexing variable is just
 	// for indexing, and it can index multiple vars, so we cant say anythng
 	// about it.
-	Var_map<SSA_edge_list> old_def_use_chains;
-	Var_map<SSA_edge_list> old_use_def_chains;
+	Var_map<SSA_edge_list> def_use_chains;
+	Var_map<SSA_edge_list> use_def_chains;
 
 
 	void old_add_mus (Basic_block* bb, Alias_name use);

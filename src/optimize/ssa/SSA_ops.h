@@ -7,6 +7,10 @@
 /*
  * Regardless of the type of assignment or use, it can be represented in an
  * SSA_op of some kind.
+ *
+ * The idea is to be able to differentiate between the different types of
+ * assignment. This means that if a def belongs to a phi node, we dont think
+ * it belongs to the basic block.
  */
 class SSA_op : virtual public GC_obj
 {
@@ -18,10 +22,6 @@ public:
 
 	// Return the list of variables used by this operation
 	virtual old_Alias_name_list* get_uses () = 0;
-
-	// Factory method depending on the type of the BB
-	// TODO: I expect this is no longer a good idea.
-	static SSA_op* for_bb (Basic_block* bb);
 };
 
 class SSA_phi : public SSA_op
@@ -38,45 +38,18 @@ public:
 	old_Alias_name_list* get_uses ();
 };
 
-class SSA_stmt : public SSA_op
+class SSA_bb : public SSA_op
 {
 public:
-	Statement_block* bb;
+	Basic_block* bb;
 
-	SSA_stmt (Statement_block* bb);
 	MIR::Statement* get_statement ();
+
+	SSA_bb (Basic_block* bb);
 	Basic_block* get_bb ();
 	void dump ();
 
 	// Any uses in the statement (ignoring the phis in the block, obviously)
-	old_Alias_name_list* get_uses ();
-};
-
-class SSA_branch : public SSA_op
-{
-public:
-	Branch_block* bb;
-
-	SSA_branch (Branch_block* bb);
-	Basic_block* get_bb ();
-	void dump ();
-
-	// Just the branch variable
-	old_Alias_name_list* get_uses ();
-};
-
-class SSA_formal : public SSA_op
-{
-public:
-	// Can take an entry or exit block.
-	// TODO: should exits be separated? (this essentially lists escaping variables).
-	Basic_block* bb;
-
-	SSA_formal (Basic_block*);
-	Basic_block* get_bb ();
-	void dump ();
-
-	// No uses here
 	old_Alias_name_list* get_uses ();
 };
 

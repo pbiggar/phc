@@ -6,26 +6,16 @@
 
 using namespace MIR;
 
-SSA_op*
-SSA_op::for_bb (Basic_block* bb)
-{
-	// Fail on Phis
-
-	// TODO:handle formal here?
-	if (isa<Branch_block> (bb))
-		return new SSA_branch (dyc<Branch_block> (bb));
-	else
-		return new SSA_stmt (dyc<Statement_block> (bb));
-}
-
 SSA_op::SSA_op (int type_flag)
 {
 	this->type_flag = type_flag;
 }
 
-SSA_stmt::SSA_stmt (Statement_block* bb) : SSA_op (SSA_STMT), bb (bb) {}
-SSA_branch::SSA_branch (Branch_block* bb) : SSA_op (SSA_BRANCH), bb (bb) {}
-SSA_formal::SSA_formal (Basic_block* bb) : SSA_op (SSA_FORMAL), bb (bb) {}
+SSA_bb::SSA_bb (Basic_block* bb)
+: SSA_op (SSA_BB)
+, bb (bb)
+{
+}
 
 SSA_phi::SSA_phi (Basic_block* bb, Alias_name phi_lhs)
 : SSA_op (SSA_PHI)
@@ -43,36 +33,31 @@ SSA_chi::SSA_chi (Basic_block* bb, Alias_name lhs, Alias_name rhs)
 }
 
 SSA_mu::SSA_mu (Basic_block* bb, Alias_name rhs)
-: SSA_op (SSA_CHI)
+: SSA_op (SSA_MU)
 , bb (bb)
 , rhs (rhs)
 {
 }
 
-Statement* SSA_stmt::get_statement () { return bb->statement; }
+Statement*
+SSA_bb::get_statement ()
+{
+	if (Branch_block* br = dynamic_cast<Branch_block*> (this->bb))
+		return br->branch;
+	else if (Statement_block* sb = dynamic_cast<Statement_block*> (this->bb))
+		return sb->statement;
+	
+	phc_unreachable ();
+}
 
-Basic_block* SSA_stmt::get_bb () { return bb; }
-Basic_block* SSA_formal::get_bb () { return bb; }
-Basic_block* SSA_branch::get_bb () { return bb; }
+Basic_block* SSA_bb::get_bb () { return bb; }
 Basic_block* SSA_phi::get_bb () { return bb; }
 Basic_block* SSA_chi::get_bb () { return bb; }
 Basic_block* SSA_mu::get_bb () { return bb; }
 
-void SSA_stmt::dump()
+void SSA_bb::dump()
 {
-	DEBUG ("SSA_stmt: ");
-	bb->dump ();
-}
-
-void SSA_branch::dump()
-{
-	DEBUG ("SSA_branch: ");
-	bb->dump ();
-}
-
-void SSA_formal::dump()
-{
-	DEBUG ("SSA_formal: ");
+	DEBUG ("SSA_bb: ");
 	bb->dump ();
 }
 
@@ -126,12 +111,7 @@ bool ssa_op_ptr_comparison (SSA_op* op1, SSA_op* op2)
 		phc_TODO (); // why var names, and not alias_names?
 //		return *dyc<SSA_mu> (op1)->rhs < *dyc<SSA_mu> (op2)->rhs;
 	}
-	else if (isa<SSA_formal> (op1))
-	{
-		// only 1 formal node
-		return false;
-	}
-	else if (isa<SSA_stmt> (op1) || isa<SSA_branch> (op1))
+	else if (isa<SSA_bb> (op1))
 	{
 		// They are the same BB.
 		return false;
@@ -144,11 +124,11 @@ bool ssa_op_ptr_comparison (SSA_op* op1, SSA_op* op2)
 }
 
 old_Alias_name_list*
-SSA_stmt::get_uses ()
+SSA_bb::get_uses ()
 {
 	// Phis are different statements, but mus and chis are properties of the
 	// current statement.
-	return bb->cfg->duw->old_get_block_uses (bb, SSA_STMT | SSA_MU | SSA_CHI);
+	return bb->cfg->duw->old_get_block_uses (bb, SSA_BB | SSA_MU | SSA_CHI);
 }
 
 old_Alias_name_list*
@@ -159,19 +139,6 @@ SSA_phi::get_uses ()
 		result->push_back (use);
 
 	return result;
-}
-
-old_Alias_name_list*
-SSA_branch::get_uses ()
-{
-	return new old_Alias_name_list (v2an (bb, bb->branch->variable_name));
-}
-
-old_Alias_name_list*
-SSA_formal::get_uses ()
-{
-	// TODO: return RHS of phi nodes?
-	return new old_Alias_name_list();
 }
 
 old_Alias_name_list*
