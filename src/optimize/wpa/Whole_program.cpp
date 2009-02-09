@@ -230,10 +230,10 @@ Whole_program::get_branch_successors (Branch_block* bb)
 
 	Alias_name cond = VN (ST (bb), bb->branch->variable_name)->name ();
 
-	if (!ccp->branch_known_true (cond))
+	if (!ccp->branch_known_true (bb, cond))
 		result->push_back (bb->get_false_successor_edge ());
 
-	if (!ccp->branch_known_false (cond))
+	if (!ccp->branch_known_false (bb, cond))
 		result->push_back (bb->get_true_successor_edge ());
 
 	return result;

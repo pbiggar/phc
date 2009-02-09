@@ -46,15 +46,29 @@ CCP::assign_empty_array (Basic_block* bb, Alias_name lhs, string unique_name, ce
 
 
 bool
-CCP::branch_known_true (Alias_name cond)
+CCP::branch_known_true (Basic_block* bb, Alias_name cond)
 {
-	return false; 
+	Literal* lit = get_lit (bb, cond);
+
+	if (lit == NULL)
+		return false;
+
+	return (PHP::is_true (lit));
 }
 
 bool
-CCP::branch_known_false (Alias_name cond)
+CCP::branch_known_false (Basic_block* bb, Alias_name cond)
 {
-	return false;
+	// TODO: TOP is NULL
+	Literal_cell* cell = dyc<Literal_cell> (get_value (bb, cond));
+
+	if (cell == TOP)
+		return true;
+
+	if (cell == BOTTOM)
+		return false;
+
+	return (!PHP::is_true (cell->value));
 }
 
 

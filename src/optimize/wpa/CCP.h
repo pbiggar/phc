@@ -27,8 +27,8 @@ public:
 									 string unique_name, certainty cert);
 
 	// CCP-specific
-	bool branch_known_true (Alias_name cond);
-	bool branch_known_false (Alias_name cond);
+	bool branch_known_true (Basic_block* bb, Alias_name cond);
+	bool branch_known_false (Basic_block* bb, Alias_name cond);
 
 	MIR::Literal* get_lit (Basic_block* bb, Alias_name name);
 
