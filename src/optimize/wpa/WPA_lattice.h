@@ -42,6 +42,8 @@ public:
 
 	void dump (Basic_block* bb);
 
+	Lattice_cell* get_value (Basic_block* bb, Alias_name name);
+
 private:
 	void init_outs (Basic_block* bb);
 

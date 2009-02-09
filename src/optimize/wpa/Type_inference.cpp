@@ -70,9 +70,18 @@ Type_cell::dump ()
 }
 
 bool
-Type_cell::equals (Lattice_cell* other)
+Type_cell::equals (Lattice_cell* other_cell)
 {
-	phc_TODO ();
+	Type_cell* other = dyc<Type_cell> (other_cell);
+
+	if (other->types.size () != this->types.size ())
+		return false;
+
+	foreach (string type, types)
+		if (!other->types.has (type))
+			return false;
+
+	return true;
 }
 
 Lattice_cell*

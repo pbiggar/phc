@@ -178,4 +178,10 @@ WPA_lattice::init_outs (Basic_block* bb)
 	outs[bb->ID].merge (&ins[bb->ID]);
 }
 
+Lattice_cell*
+WPA_lattice::get_value (Basic_block* bb, Alias_name name)
+{
+	return ins[bb->ID][name.str()];
+}
+
 

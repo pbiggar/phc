@@ -30,7 +30,7 @@ public:
 	bool branch_known_true (Alias_name cond);
 	bool branch_known_false (Alias_name cond);
 
-	Lattice_cell* get_value (Basic_block* bb, Alias_name name);
+	MIR::Literal* get_lit (Basic_block* bb, Alias_name name);
 
 };
 

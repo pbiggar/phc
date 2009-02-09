@@ -58,8 +58,19 @@ CCP::branch_known_false (Alias_name cond)
 }
 
 
-Lattice_cell*
-CCP::get_value (Basic_block* bb, Alias_name name)
+MIR::Literal*
+CCP::get_lit (Basic_block* bb, Alias_name name)
 {
-	return ins[bb->ID][name.str()];
+	Lattice_cell* lat = get_value (bb, name);
+
+	if (lat == BOTTOM)
+		return NULL;
+
+	if (lat == TOP)
+		return new NIL;
+
+	return dyc<Literal_cell> (lat)->value;
 }
+
+
+
