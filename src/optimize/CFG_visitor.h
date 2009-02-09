@@ -61,8 +61,6 @@ public:
 	 */
 
 	virtual void visit_phi_node (Basic_block* bb, Alias_name lhs);
-	virtual void visit_chi_node (Basic_block* bb, Alias_name def, Alias_name use);
-	virtual void visit_mu_node (Basic_block* bb, Alias_name use);
 
 	/*
 	 * Statement visitors - Override in clients.
@@ -132,8 +130,6 @@ public:
 	// a different function from visit_phi_node, or else it would be called
 	// twice.
 	virtual void transform_phi_node (Basic_block* bb, Alias_name lhs);
-	virtual void transform_chi_node (Basic_block* bb, Alias_name def, Alias_name use);
-	virtual void transform_mu_node (Basic_block* bb, Alias_name use);
 
 	/*
 	 * Statement transforms - Override in clients.

@@ -237,7 +237,6 @@ public:
 
 	void dump_graphviz (String* label);
 	String_list* get_graphviz_phis (Basic_block* bb);
-	String_list* get_graphviz_mus (Basic_block* bb);
 	String_list* get_graphviz_chis (Basic_block* bb);
 	String* get_graphviz_def (Basic_block* bb, Alias_name* def);
 	String* get_graphviz_use (Basic_block* bb, Alias_name* use);

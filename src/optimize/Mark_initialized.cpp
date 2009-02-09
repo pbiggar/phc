@@ -60,8 +60,8 @@ void
 Mark_initialized::visit_entry_block (Entry_block* bb)
 {
 	// Initialize local defs
-	foreach (Alias_name def, *bb->old_get_defs (SSA_BB))
-		local_defs[bb].insert (def);
+	foreach (Alias_name* def, *bb->cfg->duw->get_defs (bb))
+		local_defs[bb].insert (*def);
 
 	// We dont deal with a few things, like $x =& $a[$i] will initialize $a.
 	// The simplest way to do this is to model all aliases as BOTTOM.
@@ -83,8 +83,9 @@ Mark_initialized::visit_statement_block (Statement_block* bb)
 	}
 	else
 	{
-		foreach (Alias_name def, *bb->old_get_defs (SSA_BB))
-			local_defs[bb].insert (def);
+		phc_TODO ();
+//		foreach (Alias_name def, *bb->cfg->duw->get_defs (bb)) // TODO need flags?
+//			local_defs[bb].insert (def);
 
 	// I think this will be simpler once the use-def settles down.
 	phc_TODO ();

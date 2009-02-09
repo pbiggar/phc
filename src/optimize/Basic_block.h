@@ -47,15 +47,6 @@ public:
 	Points_to* get_out_ptg();
 
 public:
-	/* 
-	 * These are really for SSA_renaming. We can't use them for a different
-	 * purpose with the same semantics.
-	 * */
-	old_Alias_name_list* old_get_defs_for_renaming ();
-	old_Alias_name_list* old_get_uses_for_renaming ();
-
-	old_Alias_name_list* old_get_defs (int flags);
-	old_Alias_name_list* old_get_uses (int flags);
 
 	/*
 	 * CFG properties
@@ -110,8 +101,6 @@ public:
 	// These are stored using operator< in VARIABLE_NAME, which changes when
 	// there VARIABLE_NAME changes.
 	void old_update_phi_node (Alias_name old_phi_lhs, Alias_name new_phi_lhs);
-	void old_update_chi_lhs (Alias_name old_chi_lhs, Alias_name new_chi_lhs);
-	void old_update_mu_node (Alias_name old_mu, Alias_name new_mu);
 
 	// Remove a node (including its args from the edges)
 	void old_remove_phi_node (Alias_name phi_lhs);
@@ -128,34 +117,10 @@ public:
 	Alias_name old_get_phi_arg_for_edge (Edge*, Alias_name phi_lhs);
 	void old_set_phi_arg_for_edge (Edge*, Alias_name phi_lhs, Alias_name arg);
 
-	/*
-	 * MU and CHI nodes, for HSSA form. A MU node is a may_use, a CHI is a
-	 * may_def.
-	 */
-public:
-	void old_add_mu_node (Alias_name);
-	void old_add_chi_node (Alias_name, Alias_name);
-
-	Var_map<Alias_name>* old_get_chis ();
-	old_Alias_name_list* old_get_chi_lhss ();
-	old_Alias_name_list* old_get_chi_rhss ();
-	Var_set* old_get_mus();
-	Alias_name old_get_chi_rhs (Alias_name lhs);
-
-	void old_remove_chi (Alias_name lhs, Alias_name rhs);
-	void old_remove_mu (Alias_name rhs);
-
-	void old_remove_mu_nodes ();
-	void old_remove_chi_nodes ();
-	void old_remove_virtual_phis ();
-
-
 private:
 	// Instead of an explicit phi node, store the phi->lhs here, and the phi
 	// arguments in edges. Then they can be updated all-at-once.
 	Var_set* old_phi_lhss;
-	Var_set* old_mus;
-	Var_map<Alias_name>* old_chis;
 
 	/*
 	 * Misc

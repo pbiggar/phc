@@ -21,8 +21,6 @@ Basic_block::Basic_block(CFG* cfg)
 {
 	ID = max_id++;
 	old_phi_lhss = new Var_set;
-	old_mus = new Var_set;
-	old_chis = new Var_map<Alias_name>;
 }
 
 Branch_block::Branch_block (CFG* cfg, Branch* b)
@@ -134,33 +132,6 @@ Basic_block::old_add_phi_node (Alias_name phi_lhs)
 }
 
 void
-Basic_block::old_add_mu_node (Alias_name mu)
-{
-	// Same as add_chi_node RE duplicates.
-	if (old_mus->has (mu))
-		phc_TODO ();
-//		assert (mu->ssa_version == 0);
-
-	old_mus->insert (mu);
-	assert (old_mus->has (mu));
-}
-
-void
-Basic_block::old_add_chi_node (Alias_name lhs, Alias_name rhs)
-{
-	// TODO: this looks wrong, and there's a big comment in HSSA.cpp about it.
-
-	// Its OK for this to be here already, say, if there are two uses of the
-	// same variable which have the same alias set. It doesnt matter that
-	// there is only 1 chi for it.
-	if (old_chis->has (lhs))
-		phc_TODO ();
-
-	(*old_chis)[lhs] = rhs;
-	assert (old_chis->has (lhs));
-}
-
-void
 Basic_block::old_add_phi_arg (Alias_name phi_lhs, int version, Edge* edge)
 {
 	// phi_lhs doesnt have to be in SSA, since it will be updated later using
@@ -195,43 +166,6 @@ Basic_block::old_remove_phi_node (Alias_name phi_lhs)
 }
 
 
-Alias_name
-Basic_block::old_get_chi_rhs (Alias_name lhs)
-{
-	assert (old_chis->has (lhs));
-	return (*old_chis)[lhs];
-}
-
-
-void
-Basic_block::
-old_remove_chi (Alias_name lhs, Alias_name rhs)
-{
-	assert (old_chis->has (lhs));
-	old_chis->erase (lhs);
-	assert (!old_chis->has (lhs));
-}
-
-void
-Basic_block::old_remove_mu (Alias_name rhs)
-{
-	assert (old_mus->has (rhs));
-	old_mus->erase (rhs);
-	assert (!old_mus->has (rhs));
-}
-
-void
-Basic_block::old_remove_mu_nodes ()
-{
-	old_mus->clear ();
-}
-
-void
-Basic_block::old_remove_chi_nodes ()
-{
-	old_chis->clear ();
-}
-
 void
 Basic_block::old_update_phi_node (Alias_name old_phi_lhs, Alias_name new_phi_lhs)
 {
@@ -258,50 +192,6 @@ Basic_block::old_update_phi_node (Alias_name old_phi_lhs, Alias_name new_phi_lhs
 	*/
 }
 
-void
-Basic_block::old_update_chi_lhs (Alias_name old_chi_lhs, Alias_name new_chi_lhs)
-{
-	phc_TODO ();
-	/*
-	assert (!old_chi_lhs->in_ssa);
-	assert (new_chi_lhs->in_ssa);
-	assert (*old_chi_lhs->value == *new_chi_lhs->value);
-
-	assert (chis->has (old_chi_lhs));
-	assert (!chis->has (new_chi_lhs));
-
-	Alias_name rhs = get_chi_rhs (old_chi_lhs);
-	remove_chi (old_chi_lhs, rhs);
-	add_chi_node (new_chi_lhs, rhs);
-
-	assert (!chis->has (old_chi_lhs));
-	assert (chis->has (new_chi_lhs));
-	*/
-}
-
-void
-Basic_block::old_update_mu_node (Alias_name old_mu, Alias_name new_mu)
-{
-	phc_TODO ();
-	/*
-	assert (!old_mu->in_ssa);
-	assert (new_mu->in_ssa);
-	assert (*old_mu->value == *new_mu->value);
-
-	assert (mus->has (old_mu));
-	assert (!mus->has (new_mu));
-
-	remove_mu (old_mu);
-	add_mu_node (new_mu);
-
-	assert (!mus->has (old_mu));
-	assert (mus->has (new_mu));
-	*/
-}
-
-
-
-
 
 old_Alias_name_list*
 Basic_block::old_get_phi_args (Alias_name phi_lhs)
@@ -320,45 +210,6 @@ Basic_block::old_get_phi_lhss()
 	// Return a clone, since we sometimes like to update the list
 	// (but dont call ->clone, since we dont want clones of the variables).
 	return old_phi_lhss->set_union (new Var_set);
-}
-
-old_Alias_name_list*
-Basic_block::old_get_chi_lhss ()
-{
-	old_Alias_name_list* result = new old_Alias_name_list;
-
-	Alias_name lhs, rhs;
-	foreach (tie (lhs, rhs), *old_chis)
-		result->push_back (lhs);
-
-	return result;
-}
-
-old_Alias_name_list*
-Basic_block::old_get_chi_rhss ()
-{
-	old_Alias_name_list* result = new old_Alias_name_list;
-
-	Alias_name lhs, rhs;
-	foreach (tie (lhs, rhs), *old_chis)
-		result->push_back (rhs);
-
-	return result;
-}
-
-
-Var_map<Alias_name>*
-Basic_block::old_get_chis ()
-{
-	return old_chis;
-}
-
-
-
-Var_set*
-Basic_block::old_get_mus()
-{
-	return old_mus->set_union (new Var_set);
 }
 
 Alias_name
@@ -551,35 +402,6 @@ Basic_block::get_reverse_dominance_frontier ()
 	return cfg->dominance->reverse_dominance->get_bb_dominance_frontier (this);
 }
 
-
-old_Alias_name_list*
-Basic_block::old_get_defs (int flags)
-{
-	return new old_Alias_name_list;
-//	return cfg->duw->get_block_defs (this, flags);
-}
-
-old_Alias_name_list*
-Basic_block::old_get_uses (int flags)
-{
-	return new old_Alias_name_list;
-//	return cfg->duw->get_block_uses (this, flags);
-}
-
-
-old_Alias_name_list*
-Basic_block::old_get_defs_for_renaming ()
-{
-	return new old_Alias_name_list;
-//	return get_defs (SSA_BB);
-}
-
-old_Alias_name_list*
-Basic_block::old_get_uses_for_renaming ()
-{
-	return new old_Alias_name_list;
-//	return get_uses (SSA_BB);
-}
 
 int
 Basic_block::get_index ()

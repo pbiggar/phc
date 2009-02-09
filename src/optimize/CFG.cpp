@@ -298,51 +298,6 @@ CFG::get_graphviz_phis (Basic_block* bb)
 	return result;
 }
 
-String_list*
-CFG::get_graphviz_mus (Basic_block* bb)
-{
-	// Simply the uses. Keep the look consistent though.
-	// ------------------------
-	// |         |    MU      |
-	// ------------------------
-	String_list* result = new String_list;
-
-	foreach (Alias_name mu, *bb->old_get_mus ())
-	{
-		stringstream ss;
-		ss << "{ " << FIELD_SEPARATOR << *get_graphviz_use (bb, &mu) << " } ";
-
-		result->push_back (s (ss.str()));
-	}
-
-	return result;
-}
-
-String_list*
-CFG::get_graphviz_chis (Basic_block* bb)
-{
-	// ------------------------
-	// |  LHS    |    RHS     |
-	// ------------------------
-	String_list* result = new String_list;
-
-	Alias_name lhs, rhs;
-	foreach (tie (lhs, rhs), *bb->old_get_chis ())
-	{
-		stringstream ss;
-		ss
-		<< "{ " 
-		<< *get_graphviz_def (bb, &lhs) 
-		<< FIELD_SEPARATOR 
-		<< *get_graphviz_use (bb, &rhs) 
-		<< " } ";
-
-		result->push_back (s (ss.str()));
-	}
-
-	return result;
-}
-
 static String*
 escape_portname (String* in)
 {
@@ -438,8 +393,6 @@ CFG::dump_graphviz (String* label)
 		<< *escape_DOT_record (bb->get_graphviz_label ());
 
 		String_list* phis = get_graphviz_phis (bb);
-		String_list* mus = get_graphviz_mus (bb);
-		String_list* chis = get_graphviz_chis (bb);
 
 #define CFG_PENWIDTH "penwidth=\"2.0\""
 
@@ -458,16 +411,6 @@ CFG::dump_graphviz (String* label)
 			<< FIELD_SEPARATOR;
 
 			foreach (String* str, *phis)
-				cout << *str << FIELD_SEPARATOR;
-		}
-
-		if (mus->size())
-		{
-			cout
-			<< "MUs"
-			<< FIELD_SEPARATOR;
-
-			foreach (String* str, *mus)
 				cout << *str << FIELD_SEPARATOR;
 		}
 
@@ -511,17 +454,6 @@ CFG::dump_graphviz (String* label)
 			}
 		}
 
-		if (chis->size())
-		{
-			cout
-			<< FIELD_SEPARATOR
-			<< "CHIs";
-
-			foreach (String* str, *chis)
-				cout << FIELD_SEPARATOR << *str;
-		}
-
-
 
 		cout << "}\"];\n";
 
@@ -530,16 +462,16 @@ CFG::dump_graphviz (String* label)
 		{
 			// Add an edge from each use to each def (there can be more than 1 in
 			// non-SSA form)
-			foreach (Alias_name use, *bb->old_get_uses (SSA_ALL))
+			foreach (SSA_use* use, *duw->get_block_uses (bb))
 			{
-				foreach (SSA_op* op, *duw->get_defs (use, SSA_ALL))
+				foreach (SSA_def* def, *use->get_defs ())
 				{
 					cout 
 					<< index << ":"
-					<<* get_graphviz_use_portname (bb, &use) << ":e"
+					<<* get_graphviz_use_portname (bb, use->name) << ":e"
 					<< " -> "
-					<< op->bb->get_index() << ":"
-					<< *get_graphviz_def_portname (op->bb, &use) << ":w"
+					<< use->bb->get_index() << ":"
+					<< *get_graphviz_def_portname (use->bb, use->name) << ":w"
 					<< " [color=lightgrey,dir=both];\n"
 					;
 				}

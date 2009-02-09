@@ -108,10 +108,11 @@ Misc_annotations::visit_method_invocation (Statement_block* bb, MIR::Method_invo
 void
 Misc_annotations::annotate_non_by_ref_vars (Basic_block* bb)
 {
-	old_Alias_name_list* names = new old_Alias_name_list;
-	names->push_back_all (bb->old_get_defs (SSA_ALL));
-	names->push_back_all (bb->old_get_uses (SSA_ALL));
-	foreach (Alias_name name, *names)
+	Alias_name_list* names = new Alias_name_list;
+	phc_TODO ();
+//	names->push_back_all (bb->cfg->duw->get_block_defs (bb));
+//	names->push_back_all (bb->cfg->duw->get_block_uses (bb));
+	foreach (Alias_name* name, *names)
 	{
 		phc_TODO ();
 /*		if (!aliasing->aliases->has (var))

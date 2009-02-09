@@ -268,17 +268,18 @@ HSSA::convert_to_hssa_form ()
 		{
 			// Get defs (including phis and chis)
 			bool def_added = false;
-			old_Alias_name_list* defs = new old_Alias_name_list;
-			defs->push_back_all (bb->old_get_defs (SSA_BB | SSA_CHI));
+			SSA_def_list* defs = new SSA_def_list;
+			defs->push_back_all (cfg->duw->get_block_defs (bb));
+			// TODO: add phis back in
 			// phis add a def thats not in the DUW
-			defs->push_back_all (bb->old_get_phi_lhss ()->to_list ());
-			foreach (Alias_name name, *defs)
+//			defs->push_back_all (bb->old_get_phi_lhss ()->to_list ());
+			foreach (SSA_def* def, *defs)
 			{
-				if (!frontier->old_has_phi_node (name))
+/*				if (!frontier->old_has_phi_node (name))
 				{
 					frontier->old_add_phi_node (name);
 					def_added = true;
-				}
+				}*/
 			}
 
 			// This adds a new def, which requires us to iterate.
@@ -290,21 +291,15 @@ HSSA::convert_to_hssa_form ()
 
 
 	// 4) Rename all scalar and virtual variables using Cytron algorithm
-	cfg->dump_graphviz (NULL);
+	cfg->dump_graphviz (s("Pre-renaming"));
 
 	// Rename SSA variables
 	SSA_renaming sr (wp, cfg);
 	sr.rename_vars (cfg->get_entry_bb ());
 
-	cfg->dump_graphviz (NULL);
+	cfg->dump_graphviz (s("Post-renaming"));
 
-	// Recalculate DUW, using explicit MU/CHIs:
-	// This no longer is a good idea, I think. We dont use an explicit
-	// representation in the MIR nodes, so theres no point having it outside
-	// them. Also, we dont have any way to represent non-mu/chis if we remove
-	// the def-use info.
-//	cfg->duw = new Def_use_web (NULL);
-//	cfg->duw->run (cfg);
+	// We used to recalculate the def-use web, but I think its no longer required.
 
 
 	// TODO: Zero versioning is actually useful, so add steps 5 and 6. There
@@ -334,44 +329,25 @@ HSSA::convert_to_hssa_form ()
 void
 HSSA::convert_out_of_ssa_form ()
 {
-	foreach (Basic_block* bb, *cfg->get_all_bbs ())
-	{
-		// Drop the chi and mu args
-		bb->old_remove_chi_nodes ();
-		bb->old_remove_mu_nodes ();
-
-		// There are two problems when coming out of SSA form:
-		//		1.) variable-variables: i_0 is not the same as i
-		//		2.) CHI nodes update variable indices, but when you drop the chi
-		//		nodes, you lose the relationship between them. Renumbering is
-		//		possible, I suppose, but not as good as:
-		//
-		//	The solution is to drop the indices when coming out of SSA form.
-		//	(Warning, this could hide bugs unfortunately). The only real problem
-		//	is to make sure that variables with overlapping live ranges are not
-		//	created. This could happen in copy-propagation, value numbering, or
-		//	PRE. I suspect the latter two can be avoided by using the HSSA
-		//	algorithms. For copy-propagation, I'll just have to be careful.
-
-		// We avoid the critical edge problem because we have only 1 statement
-		// per block. Removing phi nodes adds a single block along the necessary
-		// edge.
-		
-		// TODO: Add a check that there aren't overlapping live ranges.
-		bb->old_remove_phi_nodes ();
-
-	}
-
-	// Drop variable indices
-	foreach (Basic_block* bb, *cfg->get_all_bbs ())
-	{
-		// TODO: these are copies
-		foreach (Alias_name* def, *cfg->duw->get_defs (bb))
-			def->drop_ssa_version ();
-
-		foreach (Alias_name* use, *cfg->duw->get_uses (bb))
-			use->drop_ssa_version ();
-	}
-
+	// There is no longer a need. We just drop the SSA web.
+	
+	cfg->duw = NULL;
 	cfg->dump_graphviz (NULL);
+
+	// There are two problems when coming out of SSA form:
+	//		1.) variable-variables: i_0 is not the same as i
+	//		2.) CHI nodes update variable indices, but when you drop the chi
+	//		nodes, you lose the relationship between them. Renumbering is
+	//		possible, I suppose, but not as good as:
+	//
+	//	The solution is to drop the indices when coming out of SSA form.
+	//	(Warning, this could hide bugs unfortunately). The only real problem
+	//	is to make sure that variables with overlapping live ranges are not
+	//	created. This could happen in copy-propagation, value numbering, or
+	//	PRE. I suspect the latter two can be avoided by using the HSSA
+	//	algorithms. For copy-propagation, I'll just have to be careful.
+
+	// We avoid the critical edge problem because we have only 1 statement per
+	// block. We do not add blocks for phi nodes, because we do not overwrite
+	// phi nodes with Rvalues.
 }

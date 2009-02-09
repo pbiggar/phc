@@ -145,10 +145,10 @@ Sparse_conditional_visitor::set_lattice (Alias_name def, Lattice_cell* value)
 		// shouldnt have two different Literals here
 		assert (old == TOP || value == BOTTOM);
 
-		foreach (SSA_op* edge, *cfg->duw->get_uses (def, SSA_ALL))
+		foreach (SSA_use* op, *cfg->duw->get_named_uses (&def))
 		{
 			//	1. add uses of the LHS to the SSA worklist.
-			ssa_wl->push_back (edge);
+			ssa_wl->push_back (op);
 
 			// 2. If the expression controls a conditional branch, .... However,
 			// conditions never control branches - that's always a VARIABLE_NAME.

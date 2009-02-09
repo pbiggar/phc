@@ -15,14 +15,7 @@ CFG_visitor::visit_block (Basic_block* bb)
 	foreach (Alias_name phi_lhs, *bb->old_get_phi_lhss ())
 		visit_phi_node (bb, phi_lhs);
 
-	foreach (Alias_name mu, *bb->old_get_mus())
-		visit_mu_node (bb, mu);
-
-	// TODO: should this be after visit_*_block?
-	Alias_name def, use;
-	foreach (tie(def, use), *bb->old_get_chis())
-		visit_chi_node (bb, def, use);
-
+	// TODO: visit_ssa_op?
 
 	// Sometimes you dont care what block is used.
 	visit_basic_block (bb);
@@ -215,16 +208,6 @@ CFG_visitor::visit_phi_node (Basic_block* bb, Alias_name phi_lhs)
 }
 
 
-void
-CFG_visitor::visit_chi_node (Basic_block* bb, Alias_name def, Alias_name use)
-{
-}
-
-
-void
-CFG_visitor::visit_mu_node (Basic_block* bb, Alias_name use)
-{
-}
 
 
 void
@@ -431,15 +414,7 @@ CFG_visitor::transform_block (Basic_block* bb)
 	foreach (Alias_name phi_lhs, *bb->old_get_phi_lhss ())
 		transform_phi_node (bb, phi_lhs);
 
-	foreach (Alias_name mu, *bb->old_get_mus())
-		transform_mu_node (bb, mu);
-
-	Alias_name def, use;
-	foreach (tie(def, use), *bb->old_get_chis())
-		transform_chi_node (bb, def, use);
-
-
-
+	// TODO transform ssa_op?
 
 	BB_list* out = new BB_list;
 
@@ -551,16 +526,6 @@ CFG_visitor::transform_phi_node (Basic_block* bb, Alias_name lhs)
 }
 
 
-void
-CFG_visitor::transform_chi_node (Basic_block* bb, Alias_name def, Alias_name use)
-{
-}
-
-
-void
-CFG_visitor::transform_mu_node (Basic_block* bb, Alias_name use)
-{
-}
 
 
 void
