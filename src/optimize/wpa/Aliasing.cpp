@@ -16,6 +16,7 @@
 
 #include "Points_to.h"
 #include "Aliasing.h"
+#include "optimize/Edge.h"
 
 using namespace MIR;
 using namespace boost;
@@ -74,12 +75,26 @@ Aliasing::backward_bind (Basic_block* context, CFG* callee_cfg)
 }
 
 void
-Aliasing::pull_results (Basic_block* bb)
+Aliasing::pull_init (Basic_block* bb)
 {
-	if (bb->get_predecessors ()->size () > 1)
-		phc_TODO ();
+	ins[bb->ID] = NULL;
+}
 
-	ins[bb->ID] = outs[bb->get_predecessors ()->front ()->ID]->clone ();
+void
+Aliasing::pull_first_pred (Basic_block* bb, Basic_block* pred)
+{
+	ins[bb->ID] = outs[pred->ID]->clone ();
+}
+
+void
+Aliasing::pull_pred (Basic_block* bb, Basic_block* pred)
+{
+	ins[bb->ID]->merge (outs[pred->ID]);
+}
+
+void
+Aliasing::pull_finish (Basic_block* bb)
+{
 	outs[bb->ID] = ins[bb->ID]->clone ();
 }
 

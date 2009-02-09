@@ -197,14 +197,18 @@ Whole_program::analyse_function (Basic_block* context, CFG* cfg, MIR::Actual_par
 		// Analyse the block, storing per-basic-block results.
 		// This does not update the block structure.
 
-		bool changed = analyse_block (e->get_target ());
-
+		bool changed = false;
+		
 		// Always pass through at least once.
 		if (e->is_executable == false)
 			changed = true;
 
-		// Tell successors that we are executable.
+		// Tell successors that we are executable (do this before the target is
+		// analysed).
 		e->is_executable = true;
+
+		changed |= analyse_block (e->get_target ());
+
 
 		// Add next	block(s)
 		if (changed)
@@ -427,26 +431,56 @@ Whole_program::analyse_block (Basic_block* bb)
 	DEBUG ("Analysing BB: " << bb->ID);
 
 	// Merge results from predecessors
-	foreach_wpa (this)
-		wpa->pull_results (bb);
+	pull_results (bb);
+	dump (bb);
 
-	// Do the aliasing (and hence other analyses)
+
+	// Perform analyses
 	visit_block (bb);
+	dump (bb);
+
 
 	// Create OUT sets from the results 
 	foreach_wpa (this)
 		wpa->aggregate_results (bb);
-
-	// Dump
 	dump (bb);
+
 
 	// Calculate fix-point
 	bool changed = false;
 	foreach_wpa (this)
 		changed |= wpa->solution_changed (bb);
 
-
 	return changed;
+}
+
+void
+Whole_program::pull_results (Basic_block* bb)
+{
+	foreach_wpa (this)
+	{
+		wpa->pull_init (bb);
+
+		bool first = true;
+		foreach (Edge* pred, *bb->get_predecessor_edges ())
+		{
+			// Only merge from executable edges
+			if (!pred->is_executable)
+				continue;
+
+			if (first)
+			{
+				wpa->pull_first_pred (bb, pred->get_source ());
+				first = false;
+			}
+			else
+			{
+				wpa->pull_pred (bb, pred->get_source ());
+			}
+		}
+
+		wpa->pull_finish (bb);
+	}
 }
 
 void

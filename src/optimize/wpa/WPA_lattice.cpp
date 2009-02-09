@@ -39,20 +39,20 @@ WPA_lattice::dump(Basic_block* bb)
  *	previous blocks, and copied to OUT. Then OUT is operated on directly.
  *
  *	To make this monotonic, we need to record the old OUT, and compare it during
- *	aggregate_results (which would traditionally perform the equation).
+ *	aggregate_results (where we would traditionally perform the equation).
  *
  *
- * Pioli's implementation differs slightly.
+ * Pioli's implementation differs slightly:
  *
  *	So, we need to mark when a solution changes. Pioli's solution was to push
  *	results into the next section, instead of pulling. This meant saving half
  *	the result sets, and setting a block to be executed when a merge changed
  *	the solution. But this might break with branches:
  *
- *		if (...)
- *		1:	$x = 5;
- *		else
- *		2:	;
+ *			if (...)
+ *		1:		$x = 5;
+ *			else
+ *		2:		;
  *		3:
  *
  *	At 3: we expect $x to have the value BOTTOM, not 5, as it is uninit (and
@@ -96,24 +96,30 @@ WPA_lattice::assign_value (Basic_block* bb, Alias_name lhs, Alias_name rhs, cert
 	lat[lhs.str()] = meet (lat[lhs.str()], ins[bb->ID][rhs.str()]);
 }
 
-
 void
-WPA_lattice::pull_results (Basic_block* bb)
+WPA_lattice::pull_init (Basic_block* bb)
 {
-	// TODO: only pull along executable edges
 	// TODO: I could imagine this causing error in the presence of recursion.
 	changed_flags[bb->ID] = false;
-
-	// Throw away old values (change is detected in aggregation)
 	ins[bb->ID].clear ();
+}
 
-	foreach (Basic_block* pred, *bb->get_predecessors ())
-		ins[bb->ID].merge (&outs[pred->ID]);
+void
+WPA_lattice::pull_first_pred (Basic_block* bb, Basic_block* pred)
+{
+	ins[bb->ID].merge (&outs[pred->ID]);
+}
 
-	if (bb->get_predecessors()->size() > 1)
-		phc_TODO (); // check if they're executable
+void
+WPA_lattice::pull_pred (Basic_block* bb, Basic_block* pred)
+{
+	ins[bb->ID].merge (&outs[pred->ID]);
+}
 
 
+void
+WPA_lattice::pull_finish (Basic_block* bb)
+{
 	init_outs (bb);
 }
 

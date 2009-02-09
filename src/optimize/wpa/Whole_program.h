@@ -112,7 +112,6 @@ public:
 	void apply_results (Method_info* info);
 
 	// Apply the interprocedural optimization results to this BB.
-	// TODO: wrong!!
 	void apply_results (Basic_block* bb);
 
 	void analyse_method_info (Method_info* info, Basic_block* context,
@@ -161,6 +160,7 @@ public:
 
 	void record_use (Basic_block* bb, Index_node* node);
 
+	void pull_results (Basic_block* bb);
 
 	/*
 	 * These might be considered to belong elsewhere, but each of them is

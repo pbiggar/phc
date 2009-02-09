@@ -313,6 +313,40 @@ Points_to::clone ()
 	return result;
 }
 
+/*
+ * Merge another graph into this one. Possible edges from both graphs remain
+ * possible. Edges which are definite is only one graph become possible.
+ */
+Points_to*
+Points_to::merge (Points_to* other)
+{
+	Points_to* result = new Points_to;
+
+	// All edges from THIS.
+	foreach (Alias_pair* p, this->all_pairs)
+	{
+		if (p->cert == POSSIBLE)
+			result->add_edge (p->source, p->target, POSSIBLE);
+		else
+		{
+			Alias_pair* other_pair = other->get_edge (p->source, p->target);
+			if (other_pair == NULL || other_pair->cert == POSSIBLE)
+				result->add_edge (p->source, p->target, POSSIBLE);
+			else
+				result->add_edge (p->source, p->target, DEFINITE);
+		}
+	}
+
+	// Add edges that are only in OTHER
+	foreach (Alias_pair* p, other->all_pairs)
+	{
+		if (this->get_edge (p->source, p->target) == NULL)
+			result->add_edge (p->source, p->target, POSSIBLE);
+	}
+
+	return result;
+}
+
 
 void
 Points_to::insert (Alias_pair* pair)
@@ -375,6 +409,20 @@ Points_to::remove_pair (PT_node* source, PT_node* target, bool expected)
 	// Remove it from by_target
 	by_target[t].erase (s);
 }
+
+
+Alias_pair*
+Points_to::get_edge (PT_node* source, PT_node* target)
+{
+	Alias_name s = source->name ();
+	Alias_name t = target->name ();
+
+	if (!by_source[s].has (t))
+		return NULL;
+	
+	return by_source[s][t];
+}
+
 
 void
 Points_to::remove_node (PT_node* node)

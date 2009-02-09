@@ -61,7 +61,12 @@ public:
 	void backward_bind (Basic_block* bb, CFG* callee_cfg);
 
 
-	void pull_results (Basic_block* bb);
+	// Pull results from predecessors
+	void pull_init (Basic_block* bb);
+	void pull_first_pred (Basic_block* bb, Basic_block* pred);
+	void pull_pred (Basic_block* bb, Basic_block* pred);
+	void pull_finish (Basic_block* bb);
+
 	void aggregate_results (Basic_block* bb);
 
 	void dump (Basic_block* bb);

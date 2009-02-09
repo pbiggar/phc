@@ -165,8 +165,15 @@ public:
 	 * Propagating results
 	 */
 
-	// Pull the results from BB's predecessor.
-	virtual void pull_results (Basic_block* bb) CT_IMPL;
+	// Pull the results from BB's predecessor. Whole_program abstracts the
+	// checking of the is_executable bit, to make things a bit simpler for the
+	// analysis. pull_first_pred() is a little bit special, as analyses will
+	// probably just copy results, whereas they would merge them for other
+	// edges.
+	virtual void pull_init (Basic_block* bb) CT_IMPL;
+	virtual void pull_first_pred (Basic_block* bb, Basic_block* pred) CT_IMPL;
+	virtual void pull_pred (Basic_block* bb, Basic_block* pred) CT_IMPL;
+	virtual void pull_finish (Basic_block* bb) CT_IMPL;
 
 	// Combine local results to an OUT solution. This should set
 	// CHANGED_FLAGS [bb->ID] if neccessary.

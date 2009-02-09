@@ -161,17 +161,21 @@ public:
 	 * Lower-level API
 	 */
 	void add_node (Index_node* node);
-	bool has_node (PT_node* node);
 	void add_edge (PT_node* n1, PT_node* n2, certainty = DEFINITE);
 	void add_bidir_edge (PT_node* n1, PT_node* n2, certainty cert = DEFINITE);
 
+	bool has_node (PT_node* node);
+
+	// Returns NULL if the edge is missing. We use this in place of a
+	// has_edge() function, since we need to find out its CERTAINTY.
+	Alias_pair* get_edge (PT_node* source, PT_node* target);
 
 	void remove_unreachable_nodes ();
 	void remove_node (PT_node* node);
-	void remove_bidir_edge (PT_node* n1, PT_node* n2);
-	void remove_pair (PT_node* n1, PT_node* n2, bool expected = true);
+	void remove_pair (PT_node* source, PT_node* target, bool expected = true);
 
 	Points_to* clone();
+	Points_to* merge (Points_to* other);
 
 private:
 	// Get the list of indices that alias INDEX, with the certainty CERT.
