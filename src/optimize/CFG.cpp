@@ -252,51 +252,6 @@ public:
 
 
 #define FIELD_SEPARATOR " | "
-String_list*
-CFG::get_graphviz_phis (Basic_block* bb)
-{
-	String_list* result = new String_list;
-	// 2 columns, with the phi_lhs on the left, and a column of args on the rhs
-	// -------------------------------
-	// |					 |   ARG1      |
-	//	|					 |-------------|
-	// | PHI_LHS		 |   ARG2      |
-	//	|					 |-------------|
-	// |               |   ARG3      |
-	// -------------------------------
-
-	foreach (Alias_name phi_lhs, *bb->old_get_phi_lhss ())
-	{
-		stringstream ss;
-		// First column
-		ss
-		<< " { "
-		<< *get_graphviz_def (bb, &phi_lhs)
-
-		// Second column
-		<< FIELD_SEPARATOR
-		<< " { ";
-
-		bool first = true;
-		foreach (Edge* edge, *bb->get_predecessor_edges ())
-		{
-			if (!first)
-				ss << FIELD_SEPARATOR;
-
-			bool present = edge->pm.has (phi_lhs);
-
-			ss
-			<< (present ? *get_graphviz_use (bb, &edge->pm[phi_lhs]) : "XXX")
-			<< " (" << edge->get_source()->get_index () << ")";
-
-			first = false;
-		}
-
-		ss << " } } ";
-		result->push_back (s (ss.str()));
-	}
-	return result;
-}
 
 static String*
 escape_portname (String* in)
@@ -309,6 +264,7 @@ escape_portname (String* in)
 			case ']':
 			case '$':
 			case ':':
+			case '*':
 				ch = '_';
 				break;
 			default:
@@ -392,8 +348,6 @@ CFG::dump_graphviz (String* label)
 		<< "(" << index << ", " << bb->ID << ") "
 		<< *escape_DOT_record (bb->get_graphviz_label ());
 
-		String_list* phis = get_graphviz_phis (bb);
-
 #define CFG_PENWIDTH "penwidth=\"2.0\""
 
 		cout
@@ -404,15 +358,6 @@ CFG::dump_graphviz (String* label)
 		<< CFG_PENWIDTH << ","
 		<< "label=\"{"; // arrange fields vertically
 
-		if (phis->size())
-		{
-			cout
-			<< "PHIs"
-			<< FIELD_SEPARATOR;
-
-			foreach (String* str, *phis)
-				cout << *str << FIELD_SEPARATOR;
-		}
 
 		cout << "\\n" << block_info.str () << "\\n\\n";
 
@@ -422,7 +367,6 @@ CFG::dump_graphviz (String* label)
 			Alias_name_list* defs = duw->get_defs (bb);
 			Alias_name_list* uses = duw->get_uses (bb);
 
-
 			if (defs->size() || uses->size ())
 			{
 				// open dual columns
@@ -431,8 +375,8 @@ CFG::dump_graphviz (String* label)
 				foreach (Alias_name* def, *defs)
 				{
 					cout
-						<< (first ? "" : FIELD_SEPARATOR) // no field separate
-						<< *get_graphviz_def (bb, def);
+					<< (first ? "" : FIELD_SEPARATOR) // no field separate
+					<< *get_graphviz_def (bb, def);
 
 					first = false;
 				}
@@ -443,8 +387,8 @@ CFG::dump_graphviz (String* label)
 				foreach (Alias_name* use, *uses)
 				{
 					cout
-						<< (first ? "" : FIELD_SEPARATOR)
-						<< *get_graphviz_use (bb, use);
+					<< (first ? "" : FIELD_SEPARATOR)
+					<< *get_graphviz_use (bb, use);
 
 					first = false;
 				}
@@ -470,8 +414,8 @@ CFG::dump_graphviz (String* label)
 					<< index << ":"
 					<<* get_graphviz_use_portname (bb, use->name) << ":e"
 					<< " -> "
-					<< use->bb->get_index() << ":"
-					<< *get_graphviz_def_portname (use->bb, use->name) << ":w"
+					<< def->bb->get_index() << ":"
+					<< *get_graphviz_def_portname (def->bb, def->name) << ":w"
 					<< " [color=lightgrey,dir=both];\n"
 					;
 				}
