@@ -23,7 +23,8 @@ If_simplification::visit_branch_block (Branch_block* bb)
 	// TODO: dont base this on the variable_name, use the alias_name.
 //	assert (bb->cfg->duw->has_def (branch->variable_name));
 
-	phc_TODO ();
+	// TODO: bring this back
+//	phc_TODO ();
 
 
 //	SSA_op* op = bb->cfg->duw->get_def (branch->variable_name);

@@ -91,8 +91,10 @@ Remove_loop_booleans::is_applicable_branch (Branch_block* bb)
 	//	- The boolean is defined has two defs
 	//	- The first def is to true, and is in the predecessor
 	//	- the second def is to false, and is in a successor
+//TODO: come back to this
 
-phc_TODO ();
+	return false;
+//phc_TODO ();
 /*
 	// must have a def
 	if (!cfg->duw->has_def (bb->branch->variable_name))

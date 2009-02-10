@@ -128,7 +128,9 @@ Optimization_transformer::visit_global (Statement_block* bb, MIR::Global* in)
 void
 Optimization_transformer::visit_pre_op (Statement_block* bb, MIR::Pre_op* in)
 {
-	phc_TODO ();
+	Literal* lit = dynamic_cast <Literal*> (get_literal (bb, in->variable_name));
+	if (lit)
+		phc_TODO (); // replace with a simple assignment
 }
 
 void
@@ -183,13 +185,17 @@ Optimization_transformer::visit_array_access (Statement_block* bb, MIR::Array_ac
 void
 Optimization_transformer::visit_bin_op (Statement_block* bb, MIR::Bin_op* in)
 {
-	phc_TODO ();
+	in->left = get_literal (bb, in->left);
+	in->right = get_literal (bb, in->right);
+
+	// If they're both literals, we can replace them with the new value.
+	if (isa<Literal> (in->left) && isa<Literal> (in->right))
+		phc_TODO ();
 }
 
 void
 Optimization_transformer::visit_bool (Statement_block* bb, MIR::BOOL* in)
 {
-	phc_TODO ();
 }
 
 void
