@@ -26,7 +26,7 @@ public:
 	void assign_unknown (Basic_block* bb, Alias_name name, certainty cert);
 
 	void assign_unknown_typed (Basic_block* bb, Alias_name name,
-									  string type, certainty cert);
+									   Types types, certainty cert);
 
 	void assign_scalar (Basic_block* bb, Alias_name lhs,
 							 MIR::Literal* rhs, certainty cert);

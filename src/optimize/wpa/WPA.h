@@ -23,6 +23,8 @@ typedef enum _certainty certainty;
 
 #define UNKNOWN "*"
 
+typedef Set<string> Types;
+
 /* Although we dont need to implement all functions from WPA in every analysis,
  * it is useful to check which conform, especially when the interfaces are
  * changing. By setting FIND_*_NON_CONFORMING, each interface function will
@@ -81,7 +83,7 @@ public:
 
 	// But we do know its type.
 	virtual void assign_unknown_typed (Basic_block* bb, Alias_name name,
-												  string type, certainty cert)
+												  Types types, certainty cert)
 	{
 		assign_unknown (bb, name, cert);
 	}

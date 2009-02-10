@@ -432,19 +432,17 @@ Whole_program::analyse_block (Basic_block* bb)
 
 	// Merge results from predecessors
 	pull_results (bb);
-	dump (bb);
 
 
 	// Perform analyses
 	visit_block (bb);
-	dump (bb);
 
 
 	// Create OUT sets from the results 
 	foreach_wpa (this)
 		wpa->aggregate_results (bb);
-	dump (bb);
 
+	dump (bb);
 
 	// Calculate fix-point
 	bool changed = false;
@@ -535,7 +533,8 @@ Whole_program::init_superglobals (CFG* main)
 
 		// We dont know the contents of these arrays.
 		foreach_wpa (this)
-			wpa->assign_unknown_typed (entry, Alias_name (array_name, UNKNOWN), "string", DEFINITE);
+			wpa->assign_unknown_typed (entry, Alias_name (array_name, UNKNOWN),
+												Types("string"), DEFINITE);
 	}
 
 	// We actually have no idea whats in _SESSION
@@ -544,14 +543,17 @@ Whole_program::init_superglobals (CFG* main)
 
 	// argc
 	foreach_wpa (this)
-		wpa->assign_unknown_typed (entry, Alias_name (MSN, "argc"), "int", DEFINITE);
+		wpa->assign_unknown_typed (entry, Alias_name (MSN, "argc"),
+											Types("int"), DEFINITE);
 
 	// argv
 	foreach_wpa (this)
 	{
 		wpa->assign_empty_array (entry, Alias_name (MSN, "argv"), "argv", DEFINITE);
-		wpa->assign_unknown_typed (entry, Alias_name ("argv", UNKNOWN), "string", DEFINITE);
-		wpa->assign_unknown_typed (entry, Alias_name ("argv", "0"), "string", DEFINITE);
+		wpa->assign_unknown_typed (entry, Alias_name ("argv", UNKNOWN),
+											Types("string"), DEFINITE);
+		wpa->assign_unknown_typed (entry, Alias_name ("argv", "0"),
+											Types("string"), DEFINITE);
 	}
 
 	dump (main->get_entry_bb ());
@@ -1094,8 +1096,9 @@ Whole_program::visit_pre_op (Statement_block* bb, Pre_op* in)
 		return;
 	}
 
-	phc_TODO ();
-//	assign_unknown_typed (bb, path, "some type");
+	foreach_wpa (this)
+		foreach (Index_node* n, *get_named_indices (bb, path))
+			wpa->assign_unknown_typed (bb, n->name(), tc->types, DEFINITE);
 }
 
 
@@ -1127,13 +1130,10 @@ Whole_program::handle_bin_op (Statement_block* bb, Path* lhs, MIR::Bin_op* in)
 
 
 	// TODO: this is very very ugly
-	Set<string> types = type_inf->get_bin_op_types (
+	Types types = type_inf->get_bin_op_types (
 		bb, left, right, left_lit, right_lit, *in->op->value);
-
-	if (types.size () != 1)
-		phc_TODO ();
 
 	foreach_wpa (this)
 		foreach (Index_node* n, *get_named_indices (bb, lhs))
-			wpa->assign_unknown_typed (bb, n->name(), *types.begin (), DEFINITE);
+			wpa->assign_unknown_typed (bb, n->name(), types, DEFINITE);
 }

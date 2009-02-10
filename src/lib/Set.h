@@ -69,8 +69,6 @@ public:
 		insert (elem4);
 	}
 
-
-
 	virtual ~Set() {}
 
 public:

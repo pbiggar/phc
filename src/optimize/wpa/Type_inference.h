@@ -15,13 +15,14 @@ class Type_cell : public Lattice_cell
 {
 public:
 	Type_cell (string type);
+	Type_cell (Types types);
 	Type_cell ();
 	void dump ();
 	bool equals (Lattice_cell* other);
 
 	Lattice_cell* meet (Lattice_cell* other);
 
-	Set<string> types;
+	Types types;
 };
 
 class Type_inference : public WPA_lattice
@@ -30,21 +31,21 @@ public:
 	Type_inference (Whole_program* wp);
 
 	void assign_unknown_typed (Basic_block* bb, Alias_name name,
-									  string type, certainty cert);
+									   Types types, certainty cert);
 	
 	void assign_scalar (Basic_block* bb, Alias_name lhs,
-										 MIR::Literal* rhs, certainty cert);
+							  MIR::Literal* rhs, certainty cert);
 
 	void assign_empty_array (Basic_block* bb, Alias_name lhs,
 									 string unique_name, certainty cert);
 
-	Set<string> get_types (Basic_block* bb, Alias_name name);
+	Types get_types (Basic_block* bb, Alias_name name);
 
-	Set<string> get_bin_op_types (Basic_block* bb, Alias_name* left, Alias_name* right, MIR::Literal* left_lit, MIR::Literal* right_lit, string op);
+	Types get_bin_op_types (Basic_block* bb, Alias_name* left, Alias_name* right, MIR::Literal* left_lit, MIR::Literal* right_lit, string op);
 
 
 	static string get_literal_type (MIR::Literal* lit);
-	static Set<string> get_bin_op_type (string left, string right, string op);
+	static Types get_bin_op_type (string left, string right, string op);
 
 };
 

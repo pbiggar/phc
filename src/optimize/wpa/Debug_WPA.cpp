@@ -46,12 +46,17 @@ Debug_WPA::assign_unknown (Basic_block* bb, Alias_name lhs, certainty cert)
 
 void
 Debug_WPA::assign_unknown_typed (Basic_block* bb, Alias_name lhs,
-									  string type, certainty cert)
+											Types types, certainty cert)
 {
-	DEBUG (__FUNCTION__
-			<< ": " << lhs.str ()
-			<< ", " << type
-			<< ", " << cert_to_string (cert));
+	CHECK_DEBUG ();
+
+	cdebug << __FUNCTION__
+			<< ": " << lhs.str ();
+
+	foreach (string type, types)
+		cdebug << ", " << type;
+
+	cdebug << ", " << cert_to_string (cert);
 }
 
 void

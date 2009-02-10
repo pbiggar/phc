@@ -20,9 +20,9 @@ Type_inference::Type_inference (Whole_program* wp)
 }
 
 void
-Type_inference::assign_unknown_typed (Basic_block* bb, Alias_name lhs, string type, certainty cert)
+Type_inference::assign_unknown_typed (Basic_block* bb, Alias_name lhs, Types types, certainty cert)
 {
-	outs[bb->ID][lhs.str()] = meet (outs[bb->ID][lhs.str()], new Type_cell (type));
+	outs[bb->ID][lhs.str()] = meet (outs[bb->ID][lhs.str()], new Type_cell (types));
 }
 	
 void
@@ -35,10 +35,10 @@ Type_inference::assign_empty_array (Basic_block* bb, Alias_name lhs, string uniq
 void
 Type_inference::assign_scalar (Basic_block* bb, Alias_name lhs, MIR::Literal* rhs, certainty cert)
 {
-	assign_unknown_typed (bb, lhs, get_literal_type (rhs), cert);
+	assign_unknown_typed (bb, lhs, *(new Types (get_literal_type (rhs))), cert);
 }
 
-Set<string>
+Types
 Type_inference::get_types (Basic_block* bb, Alias_name name)
 {
 	// TODO: this will fail for bottom
@@ -61,58 +61,49 @@ Type_inference::get_literal_type (MIR::Literal* lit)
 }
 
 
-Set<string>
+Types
 Type_inference::get_bin_op_type (string ltype, string rtype, string op)
 {
 	Set<string> always_bool_ops;
 	always_bool_ops.insert ("<");
 	if (always_bool_ops.has (op))
-		return Set<string> ("bool");
+		return Types ("bool");
 
 	phc_TODO ();
 
-//	Map<string, Map <string, Map<string, Set<string> > > > type_map;
-//	type_map ["+"]["int"]["int"] = Set<string> ("int");
-//	type_map ["<"]["int"]["int"] = Set<string> ("bool");
+//	Map<string, Map <string, Map<string, Types > > > type_map;
+//	type_map ["+"]["int"]["int"] = Types ("int");
+//	type_map ["<"]["int"]["int"] = Types ("bool");
 
 }
 
 
 
 
-Set<string>
+Types
 Type_inference::get_bin_op_types (Basic_block* bb, Alias_name* left, Alias_name* right, MIR::Literal* left_lit, MIR::Literal* right_lit, string op)
 {
 	assert (left_lit || left);
 	assert (right_lit || right);
 
-	Set<string>* left_types;
-	Set<string>* right_types;
+	Types* left_types;
+	Types* right_types;
 
 	if (left_lit)
-		left_types = new Set<string> (get_literal_type (left_lit));
+		left_types = new Types (get_literal_type (left_lit));
 	else
 		left_types = get_types (bb, *left).clone ();
 
 	if (right_lit)
-		right_types = new Set<string> (get_literal_type (right_lit));
+		right_types = new Types (get_literal_type (right_lit));
 	else
 		right_types = get_types (bb, *right).clone ();
 
-
-	// (op, type, type) -> {types}
-	// TODO: what about impossible types?
-	// TODO: what about all types: (<, *, *) -> {bool}
-	if (left_types->size() != 1)
-		phc_TODO ();
-	if (right_types->size() != 1)
-		phc_TODO ();
-
-	Set<string> result_types;
+	Types result_types;
 	foreach (string ltype, *left_types)
 		foreach (string rtype, *right_types)
 		{
-			Set<string> op_result = get_bin_op_type (ltype, rtype, op);
+			Types op_result = get_bin_op_type (ltype, rtype, op);
 			result_types.insert (op_result.begin (), op_result.end());
 		}
 
@@ -126,6 +117,11 @@ Type_inference::get_bin_op_types (Basic_block* bb, Alias_name* left, Alias_name*
 Type_cell::Type_cell (string type)
 {
 	types.insert (type);
+}
+
+Type_cell::Type_cell (Types ts)
+{
+	types.insert (ts.begin(), ts.end());
 }
 
 Type_cell::Type_cell ()

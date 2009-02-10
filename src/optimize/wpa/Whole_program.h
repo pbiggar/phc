@@ -157,7 +157,7 @@ public:
 	void assign_by_ref (Basic_block* bb, Path* lhs, Path* rhs);
 	void assign_by_copy (Basic_block* bb, Path* lhs, Path* rhs);
 	void assign_unknown (Basic_block* bb, Path* lhs);
-	void assign_unknown_typed (Basic_block* bb, Path* lhs, string type);
+	void assign_unknown_typed (Basic_block* bb, Path* lhs, Types types);
 
 	void record_use (Basic_block* bb, Index_node* node);
 
