@@ -974,11 +974,14 @@ Whole_program::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 	Path* lhs = P (ns, in->lhs);
 	Path* rhs;
 
-	switch(in->rhs->classid())
+	switch (in->rhs->classid())
 	{
 		// Does not affect pointer analysis
 		// TODO: except to call object properties!!
 		case Bin_op::ID:
+			handle_bin_op (bb, lhs, dyc<Bin_op> (in->rhs));
+			return;
+
 		case Isset::ID:
 		case Param_is_ref::ID:
 		case Unary_op::ID:
@@ -1096,4 +1099,41 @@ Whole_program::visit_pre_op (Statement_block* bb, Pre_op* in)
 }
 
 
+void
+Whole_program::handle_bin_op (Statement_block* bb, Path* lhs, MIR::Bin_op* in)
+{
+	Alias_name* left = NULL;
+	Alias_name* right = NULL;
+	MIR::Literal* left_lit = dynamic_cast<Literal*> (in->left);
+	MIR::Literal* right_lit = dynamic_cast<Literal*> (in->right);
 
+	if (left_lit == NULL)
+		left_lit = ccp->get_lit (bb, VN (ST(bb), dyc<VARIABLE_NAME> (in->left))->name());
+	if (right_lit == NULL)
+		right_lit = ccp->get_lit (bb, VN (ST(bb), dyc<VARIABLE_NAME> (in->right))->name());
+
+	if (left_lit && right_lit)
+	{
+		Literal* result = PHP::fold_bin_op (left_lit, in->op, right_lit);
+		assign_scalar (bb, lhs, result);
+		return;
+	}
+
+	if (left_lit == NULL)
+		left = new Alias_name (VN (ST(bb), dyc<VARIABLE_NAME> (in->left))->name());
+
+	if (right_lit == NULL)
+		right = new Alias_name (VN (ST(bb), dyc<VARIABLE_NAME> (in->right))->name());
+
+
+	// TODO: this is very very ugly
+	Set<string> types = type_inf->get_bin_op_types (
+		bb, left, right, left_lit, right_lit, *in->op->value);
+
+	if (types.size () != 1)
+		phc_TODO ();
+
+	foreach_wpa (this)
+		foreach (Index_node* n, *get_named_indices (bb, lhs))
+			wpa->assign_unknown_typed (bb, n->name(), *types.begin (), DEFINITE);
+}

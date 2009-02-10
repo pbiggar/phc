@@ -60,7 +60,7 @@ bool
 CCP::branch_known_false (Basic_block* bb, Alias_name cond)
 {
 	// TODO: TOP is NULL
-	Literal_cell* cell = dyc<Literal_cell> (get_value (bb, cond));
+	Lattice_cell* cell = get_value (bb, cond);
 
 	if (cell == TOP)
 		return true;
@@ -68,7 +68,7 @@ CCP::branch_known_false (Basic_block* bb, Alias_name cond)
 	if (cell == BOTTOM)
 		return false;
 
-	return (!PHP::is_true (cell->value));
+	return (!PHP::is_true (dyc<Literal_cell> (cell)->value));
 }
 
 

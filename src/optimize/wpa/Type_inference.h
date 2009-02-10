@@ -37,6 +37,15 @@ public:
 
 	void assign_empty_array (Basic_block* bb, Alias_name lhs,
 									 string unique_name, certainty cert);
+
+	Set<string> get_types (Basic_block* bb, Alias_name name);
+
+	Set<string> get_bin_op_types (Basic_block* bb, Alias_name* left, Alias_name* right, MIR::Literal* left_lit, MIR::Literal* right_lit, string op);
+
+
+	static string get_literal_type (MIR::Literal* lit);
+	static Set<string> get_bin_op_type (string left, string right, string op);
+
 };
 
 

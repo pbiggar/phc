@@ -39,6 +39,38 @@ public:
 	{
 	}
 
+	Set (_Tp elem1) 
+	: full (false)
+	{
+		insert (elem1);
+	}
+
+	Set (_Tp elem1, _Tp elem2) 
+	: full (false)
+	{
+		insert (elem1);
+		insert (elem2);
+	}
+
+	Set (_Tp elem1, _Tp elem2,  _Tp elem3) 
+	: full (false)
+	{
+		insert (elem1);
+		insert (elem2);
+		insert (elem3);
+	}
+
+	Set (_Tp elem1, _Tp elem2,  _Tp elem3, _Tp elem4) 
+	: full (false)
+	{
+		insert (elem1);
+		insert (elem2);
+		insert (elem3);
+		insert (elem4);
+	}
+
+
+
 	virtual ~Set() {}
 
 public:
@@ -137,9 +169,9 @@ public:
 			return result;
 		}
 
-		foreach (_Tp* entry, *this)
+		foreach (_Tp entry, *this)
 		{
-			result->insert (entry);
+			result->insert (phc_clone (entry));
 		}
 
 		return result;

@@ -44,9 +44,9 @@ template<bool b>
 struct algorithm_selector 
 { 
 	template<typename T> 
-	static T& clone (T object) 
-	{ 
-		assert (0);
+	static T clone (T object) 
+	{
+		return object;
 	} 
 };
 

@@ -203,7 +203,10 @@ void
 Def_use::backward_bind (Basic_block* context, CFG* callee_cfg)
 {
 	if (context == NULL)
+	{
+		// TODO: in __MAIN__, mark everything as unused except _SESSION
 		return;
+	}
 
 	long ID = callee_cfg->get_exit_bb()->ID;
 

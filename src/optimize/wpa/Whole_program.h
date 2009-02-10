@@ -208,6 +208,10 @@ public:
 	void handle_new (Statement_block* bb, MIR::New* in, MIR::VARIABLE_NAME* lhs);
 
 
+	// Tricky bits
+	void handle_bin_op (Statement_block* bb, Path* lhs, MIR::Bin_op* rhs);
+
+
 };
 
 
