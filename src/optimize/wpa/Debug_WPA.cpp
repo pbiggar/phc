@@ -1,5 +1,8 @@
 #include "Debug_WPA.h"
 
+using namespace std;
+
+
 Debug_WPA::Debug_WPA (Whole_program* wp)
 : WPA (wp)
 {
@@ -56,7 +59,7 @@ Debug_WPA::assign_unknown_typed (Basic_block* bb, Alias_name lhs,
 	foreach (string type, types)
 		cdebug << ", " << type;
 
-	cdebug << ", " << cert_to_string (cert);
+	cdebug << ", " << cert_to_string (cert) << endl;
 }
 
 void

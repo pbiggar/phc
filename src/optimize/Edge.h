@@ -37,6 +37,8 @@ public:
 	 * Boost::Graph integration
 	 */
 
+	Edge* clone ();
+
 	// Indicate to BGL that this represents a vertex internal property.
 	typedef boost::edge_property_tag kind;
 

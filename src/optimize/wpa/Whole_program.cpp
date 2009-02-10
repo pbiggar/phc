@@ -135,8 +135,6 @@ Whole_program::run (MIR::PHP_script* in)
 		// Merge different contexts
 		merge_contexts (info);
 
-		// Generate Method_infos from the analysis results
-		generate_summary (info);
 	}
 
 	// TODO: some kind of iteration. apply_results would be better if the
@@ -154,12 +152,30 @@ Whole_program::run (MIR::PHP_script* in)
 		// Apply the results
 		apply_results (Oracle::get_method_info (method));
 
-		// TODO: we need to redo alias analysis here to get more precise results.
-		// Perform DCE and CP.
-		perform_local_optimizations (info);
+		// Generate Method_infos from the analysis results
+		generate_summary (info);
 
-		// Perform inlining
-		// TODO:
+		// These should converge fairly rapidly, I think
+		for (int i = 0; i < 10; i++)
+		{
+			DEBUG (i << "th intraprocedural iteration for "
+					 << *info->method_name);
+
+			CFG* before = info->cfg->clone ();
+
+			// Perform DCE and CP, and some small but useful optimizations.
+			perform_local_optimizations (info);
+
+			// Inlining and such.
+			perform_interprocedural_optimizations (info);
+
+			// Generate Method_infos from the analysis results
+			generate_summary (info);
+
+			// Check if we can stop iterating.
+			if (before->equals (info->cfg))
+				break;
+		}
 	}
 }
 
@@ -170,7 +186,8 @@ Whole_program::analyse_function (Basic_block* context, CFG* cfg, MIR::Actual_par
 	// This is very similar to run() from Sparse_conditional_visitor, except
 	// that it isnt sparse.
 
-	cfg->dump_graphviz (s("Function entry"));
+	if (debugging_enabled)
+		cfg->dump_graphviz (s("Function entry"));
 
 	// 1. Initialize:
 	Edge_list* cfg_wl = new Edge_list (cfg->get_entry_edge ());
@@ -375,15 +392,9 @@ Whole_program::apply_results (Method_info* info)
 
 	foreach (Basic_block* bb, *info->cfg->get_all_bbs ())
 	{
-		// We apply all results through aliasing. Its the only place we have all
-		// the information we need (ie is this type weird, is it making an
-		// implicit call, can we actually replace $x with its value, etc. Since
-		// we need this information for tons of differernt optimizations, its
-		// best to have a single transformer applying the results.
-		//
-		// Additionally, the results are indexed by the name the Points-to
-		// analyser gives them, so we need acceess to this while these
-		// transformations are running.
+		// Since we use information from lots of sources, and we need this
+		// information for tons of differernt optimizations, its best to have a
+		// single transformer applying the results.
 		if (Statement_block* sb = dynamic_cast<Statement_block*> (bb))
 		{
 			Statement* old = sb->statement->clone ();
@@ -397,14 +408,24 @@ Whole_program::apply_results (Method_info* info)
 		}
 
 	}
-	info->cfg->dump_graphviz (s("Apply results"));
+	if (debugging_enabled)
+		info->cfg->dump_graphviz (s("Apply results"));
 }
 
 void
 Whole_program::perform_local_optimizations (Method_info* info)
 {
-	if (info->has_implementation ())
-		pm->run_local_optimization_passes (this, info->cfg);
+	assert (info->has_implementation ());
+
+	pm->run_local_optimization_passes (this, info->cfg);
+
+	pm->maybe_enable_debug (s("wpa"));
+}
+
+void
+Whole_program::perform_interprocedural_optimizations (Method_info* info)
+{
+	assert (info->has_implementation ());
 }
 
 void
@@ -414,8 +435,9 @@ Whole_program::generate_summary (Method_info* info)
 	if (!info->has_implementation ())
 		return;
 
-	// TODO
-//	phc_TODO ();
+	// Simplest possible inlining info - the function does nothing.
+	if (info->cfg->get_all_bbs ()->size() == 2)
+		info->is_useless = true;
 }
 
 void

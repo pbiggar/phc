@@ -107,6 +107,8 @@ public:
 
 
 	void perform_local_optimizations (Method_info* info);
+	void perform_interprocedural_optimizations (Method_info* info);
+
 	void generate_summary (Method_info* info);
 	void merge_contexts (Method_info* info);
 	void apply_results (Method_info* info);

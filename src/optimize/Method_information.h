@@ -53,6 +53,7 @@ public:
 	, can_touch_globals (can_touch_globals)
 	, can_touch_locals (can_touch_locals)
 	, return_by_ref (return_by_ref)
+	, is_useless (false)
 	{
 		assert (params != NULL);
 	}
@@ -60,6 +61,7 @@ public:
 	Method_info (String* method_name, MIR::Method* implementation)
 	: method_name (method_name)
 	, implementation (implementation)
+	, is_useless (false)
 	{
 		cfg = new CFG (implementation);
 	}
@@ -87,8 +89,11 @@ public:
 	bool can_touch_locals;
 
 	// TODO: model more of the return - types, values
+	// TODO: I was thinking about using abstract values before. This would be somewhat ideal here.
 	bool return_by_ref;
 
+
+	bool is_useless;
 
 
 

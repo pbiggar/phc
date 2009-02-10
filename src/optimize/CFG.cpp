@@ -32,7 +32,6 @@ using namespace MIR;
 CFG::CFG (Method* method)
 : dominance (NULL)
 , duw (NULL)
-, bs()
 , method (method)
 {
 	vb = get(vertex_bb_t(), bs);
@@ -54,6 +53,14 @@ CFG::CFG (Method* method)
 	renumber_vertex_indices ();
 
 }
+
+// Used for cloning
+/*CFG::CFG ()
+: dominance (NULL)
+, duw (NULL)
+, method (NULL)
+{
+}*/
 
 CFG::CFG (Graph& bs)
 : dominance (NULL)
@@ -1099,4 +1106,88 @@ CFG::remove_empty_blocks ()
 			rip_bb_out (eb);
 		}
 	}
+}
+
+CFG*
+CFG::clone ()
+{
+	// The simplest way to create the graph is to create all the basic blocks,
+	// then join them together. For equality, we can just check all the nodes
+	// and all the edges are equal.
+
+	// Clone the graph structure
+	CFG* clone = new CFG (bs);
+	clone->method = method->clone ();
+
+	// Clone the blocks themselves
+	foreach (vertex_t v, vertices (clone->bs))
+	{
+		clone->vb[v] = clone->vb[v]->clone ();
+		clone->vb[v]->vertex = v;
+		clone->vb[v]->cfg = clone;
+	}
+
+	foreach (edge_t e, edges (clone->bs))
+	{
+		clone->ee[e] = clone->ee[e]->clone ();
+		clone->ee[e]->edge = e;
+		clone->ee[e]->cfg = clone;
+	}
+
+	return clone;
+}
+
+bool
+CFG::equals (CFG* other)
+{
+	// All the vertices should be numbered the same. Get easy access to
+	// OTHER's numbering.
+	Map<long, Basic_block*> others;
+	foreach (Basic_block* bb, *other->get_all_bbs ())
+	{
+		others[bb->get_index()] = bb;
+	}
+
+	foreach (Basic_block* bb, *this->get_all_bbs ())
+	{
+		Basic_block* other_bb = others[bb->get_index ()];
+		// Check the blocks are equals
+		if (!bb->equals (other_bb))
+			return false;
+
+		// check the edges go to the same place, and have the same properties.
+		Edge_list* edges = bb->get_successor_edges ();
+		Edge_list* other_edges = other_bb->get_successor_edges ();
+
+		// First case: 1 edge
+		if (edges->size () == 1)
+		{
+			Basic_block* target = edges->front()->get_target ();
+			Basic_block* other_target = other_edges->front()->get_target();
+			if (target->get_index() != other_target->get_index ())
+				return false;
+		}
+		else if (edges->size () == 2)
+		{
+			// Must be a branch block
+			Branch_block* br = dyc<Branch_block> (bb);
+			Branch_block* other_br = dyc<Branch_block> (other_bb);
+
+			Basic_block* true_target = br->get_true_successor ();
+			Basic_block* other_true_target = other_br->get_true_successor ();
+			if (true_target->get_index() != other_true_target->get_index ())
+				return false;
+
+			Basic_block* false_target = br->get_true_successor ();
+			Basic_block* other_false_target = other_br->get_true_successor ();
+			if (false_target->get_index() != other_true_target->get_index ())
+				return false;
+		}
+		else
+		{
+			assert (edges->size () == 0);
+		}
+	}
+
+	return true;
 }

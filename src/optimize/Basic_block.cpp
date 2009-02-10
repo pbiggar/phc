@@ -451,44 +451,66 @@ Empty_block::dump()
 Basic_block*
 Branch_block::clone ()
 {
-	// TODO: assert that there are no phis, etc
 	return new Branch_block (cfg, branch->clone ());
 }
 
 Basic_block*
 Exit_block::clone ()
 {
-	phc_TODO ();
+	// TODO: we dont need METHOD, and cloning might actually be expensive.
+	return new Exit_block (cfg, method->clone ());
 }
 
 Basic_block*
 Entry_block::clone ()
 {
-	phc_TODO ();
+	return new Entry_block (cfg, method->clone ());
 }
 
 Basic_block*
 Empty_block::clone ()
 {
-	phc_TODO ();
+	return new Empty_block (cfg);
 }
 
 Basic_block*
 Statement_block::clone ()
 {
-	phc_TODO ();
+	return new Statement_block (cfg, statement->clone ());
 }
 
-
-
-Points_to*
-Basic_block::get_in_ptg ()
+bool
+Empty_block::equals (Basic_block* other)
 {
-	return (*cfg->in_ptgs)[ID];
+	return isa<Empty_block> (other);
 }
 
-Points_to*
-Basic_block::get_out_ptg ()
+bool
+Entry_block::equals (Basic_block* other)
 {
-	return (*cfg->out_ptgs)[ID];
+	return isa<Entry_block> (other);
+}
+
+bool
+Exit_block::equals (Basic_block* other)
+{
+	return isa<Exit_block> (other);
+}
+
+bool
+Branch_block::equals (Basic_block* other)
+{
+	if (Branch_block* bb = dynamic_cast<Branch_block*> (other))
+		return bb->branch->equals (branch);
+
+	return false;
+}
+
+bool
+Statement_block::equals (Basic_block* other)
+{
+	if (Statement_block* bb = dynamic_cast<Statement_block*> (other))
+		return bb->statement->equals (statement);
+
+	return false;
 }

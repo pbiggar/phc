@@ -50,3 +50,9 @@ Edge::copy_phi_map (Edge* other)
 		get_target()->old_set_phi_arg_for_edge (this, phi_lhs, arg);
 	}
 }
+
+Edge*
+Edge::clone ()
+{
+	return new Edge (cfg, edge, direction);
+}

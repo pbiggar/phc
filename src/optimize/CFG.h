@@ -260,6 +260,10 @@ public:
 	Edge_list* get_all_edges ();
 	Edge* get_edge (Basic_block* bb1, Basic_block* bb2);
 
+	// For iteration
+	CFG* clone ();
+	bool equals (CFG*);
+
 private:
 
 	// For BB methods
@@ -277,12 +281,6 @@ public:
 	friend class Dominance;
 
 	Def_use_web* duw;
-
-	/*
-	 * Points-to - access via Basic_block
-	 */
-	Map<long, Points_to*>* in_ptgs;
-	Map<long, Points_to*>* out_ptgs;
 
 private:
 	Graph bs; // backing store

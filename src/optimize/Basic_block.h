@@ -40,13 +40,6 @@ public:
 	virtual String* get_graphviz_label () = 0;
 
 public:
-	/* Since results are stored per BB, it seems natural to use the BB to give
-	 * access to them.
-	 */
-	Points_to* get_in_ptg();
-	Points_to* get_out_ptg();
-
-public:
 
 	/*
 	 * CFG properties
@@ -130,6 +123,7 @@ public:
 	// Can be useful for debugging.
 	int get_index ();
 	virtual Basic_block* clone () = 0;
+	virtual bool equals (Basic_block* other) = 0;
 
 	long ID;
 };
@@ -143,6 +137,7 @@ public:
 
 	void dump ();
 	Basic_block* clone ();
+	bool equals (Basic_block* other);
 };
 
 class Exit_block : public Basic_block
@@ -157,6 +152,7 @@ public:
 
 	void dump ();
 	Basic_block* clone ();
+	bool equals (Basic_block* other);
 };
 
 class Empty_block : public Basic_block
@@ -168,6 +164,7 @@ public:
 
 	void dump ();
 	Basic_block* clone ();
+	bool equals (Basic_block* other);
 };
 
 class Branch_block : public Basic_block
@@ -202,6 +199,7 @@ public:
 
 	void dump ();
 	Basic_block* clone ();
+	bool equals (Basic_block* other);
 };
 
 class Statement_block : public Basic_block 
@@ -216,6 +214,7 @@ public:
 
 	void dump ();
 	Basic_block* clone ();
+	bool equals (Basic_block* other);
 };
 
 #endif // PHC_BASIC_BLOCK

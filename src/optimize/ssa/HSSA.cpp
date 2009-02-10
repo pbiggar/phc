@@ -291,13 +291,15 @@ HSSA::convert_to_hssa_form ()
 
 
 	// 4) Rename all scalar and virtual variables using Cytron algorithm
-	cfg->dump_graphviz (s("Pre-renaming"));
+	if (debugging_enabled)
+		cfg->dump_graphviz (s("Pre-renaming"));
 
 	// Rename SSA variables
 	SSA_renaming sr (wp, cfg);
 	sr.rename_vars (cfg->get_entry_bb ());
 
-	cfg->dump_graphviz (s("Post-renaming"));
+	if (debugging_enabled)
+		cfg->dump_graphviz (s("Post-renaming"));
 
 	// We used to recalculate the def-use web, but I think its no longer required.
 
