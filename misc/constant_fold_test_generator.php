@@ -9,12 +9,13 @@
 
 	$scalars = array ("0", "1", "5", "-1", "-10000", "true", "false", "\"String\"", "\"num3\"", "\"3\"", "6.702", "40.4e3", "0x786F");
 
-	$bin_ops = array ("+", "-", "/", "*", "%", "^", "&", "|", ".", "==", "===", "!=", "<>", "!==", "<=", ">=", "&&", "||");
+	$bin_ops = array ("+", "-", "/", "*", "%", "^", "&", "|", ".", "==", "===", "!=", "<>", "!==", "<=", ">=", "&&", "||", "<<", ">>");
 
 	$unary_ops = array ( "~", "!");
 
+
 	// These ops dont really make sense, and probably dont even parse (using a const on lhs)
-//	$bad_ops = array ( "++", "--", "<<", ">>", "+=", "-=", "*=", "/=", ".=",
+//	$bad_ops = array (  "+=", "-=", "*=", "/=", ".=",
 //	"%=", "&=", "|=", "^=", "<<=", ">>=");
 
 
@@ -48,14 +49,16 @@
 	// Create test files
 	$good = join ("\n", $good);
 	$good = "<?php\n$good\n?>";
-	file_put_contents ("test/subjects/parsing/constant_folding.php", $good);
+	$filename = "test/subjects/parsing/constant_folding.php";
+	file_put_contents ($filename, $good);
 
 	$i = 0;
 	foreach ($bad as $b)
 	{
 		list ($string, $out, $err, $exit) = $b;
 		$out = trim ($out);
-		$out = homogenize_all ($out);
+		$out = homogenize_all ($out, $filename);
+		$out = convert_to_phc_annotation ($out);
 
 		// make an error template
 		$string =	"<?php\n"
@@ -88,6 +91,12 @@
 			$good[]  = "var_dump ($str);";
 			return true;
 		}
+	}
+
+	function convert_to_phc_annotation ($string)
+	{
+		$string = preg_replace ("/Warning/", "phc-warning", $string);
+		return $string;
 	}
 
 
