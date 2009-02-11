@@ -42,8 +42,12 @@
  * include_*
  * require_*
  * eval
- * dl
  * per-object properties for non-stdClasses
+ *
+ * Limited conservativeness
+ * dl
+ * extract
+ * compact
  *
  *
  * Areas which we dont support that might take some work (ie exceptions)
@@ -56,6 +60,7 @@
  *
  * array_indexing for SPL::ArrayAccess
  * handlers of objects of unknown classes
+ * __autoload
  *
  
  */
@@ -91,93 +96,82 @@ using namespace std;
 Whole_program::Whole_program (Pass_manager* pm)
 : pm (pm)
 {
-	aliasing = new Aliasing (this);
-	callgraph = new Callgraph (this);
-	ccp = new CCP (this);
-	def_use = new Def_use (this);
-	type_inf = new Type_inference (this);
-//	constant_state = new Constant_state (this);
-//	include_analysis = new Include_analysis (this);
-//	vrp = new VRP (this);
 
-
-	register_analysis ("debug-wpa", new Debug_WPA (this));
-	register_analysis ("aliasing", aliasing);
-	register_analysis ("callgraph", callgraph);
-	register_analysis ("ccp", ccp);
-	register_analysis ("def-use", def_use);
-	register_analysis ("type-inference", type_inf);
-//	register_analysis ("Constant_state", constant_state);
-//	register_analysis ("Include_analysis", include_analysis);
-//	register_analysis ("VRP", vrp);
-
-	transformer = new Optimization_transformer (this);
-	annotator = new Optimization_annotator (this);
 }
 
 void
 Whole_program::run (MIR::PHP_script* in)
 {
-	// Perform the whole-program analysis
-	invoke_method (
-		new Method_invocation (
-			NULL,
-			new METHOD_NAME (s("__MAIN__")),
-			new Actual_parameter_list),
-		NULL,
-		NULL);
-
-	// Combine the results
-	foreach (String* method, *callgraph->get_called_methods ())
+	for (int w = 0; w < 10; w++)
 	{
-		Method_info* info = Oracle::get_method_info (method);
+		initialize ();
 
-		if (!info->has_implementation ())
-			continue;
+		// Perform the whole-program analysis
+		invoke_method (
+				new Method_invocation (
+					NULL,
+					new METHOD_NAME (s("__MAIN__")),
+					new Actual_parameter_list),
+				NULL,
+				NULL);
 
-		// Merge different contexts
-		merge_contexts (info);
-	}
-
-	// TODO: some kind of iteration. apply_results would be better if the
-	// full points-to analysis was recalculated after
-	// perform_local_optimizations.
-
-	// Optimize based on analysis results
-	foreach (String* method, *callgraph->bottom_up ())
-	{
-		Method_info* info = Oracle::get_method_info (method);
-
-		if (!info->has_implementation ())
-			continue;
-
-		// Apply the results
-		apply_results (Oracle::get_method_info (method));
-
-		// Generate Method_infos from the analysis results
-		generate_summary (info);
-
-		// These should converge fairly rapidly, I think
-		for (int i = 0; i < 10; i++)
+		// Combine the results
+		foreach (String* method, *callgraph->get_called_methods ())
 		{
-			DEBUG (i << "th intraprocedural iteration for "
-					 << *info->method_name);
+			Method_info* info = Oracle::get_method_info (method);
 
-			CFG* before = info->cfg->clone ();
+			if (!info->has_implementation ())
+				continue;
 
-			// Perform DCE and CP, and some small but useful optimizations.
-			perform_local_optimizations (info);
+			// Merge different contexts
+			merge_contexts (info);
+		}
 
-			// Inlining and such.
-			perform_interprocedural_optimizations (info);
+		// TODO: some kind of iteration. apply_results would be better if the
+		// full points-to analysis was recalculated after
+		// perform_local_optimizations.
+
+		// Optimize based on analysis results
+		foreach (String* method, *callgraph->bottom_up ())
+		{
+			Method_info* info = Oracle::get_method_info (method);
+
+			if (!info->has_implementation ())
+				continue;
+
+			// Apply the results
+			apply_results (Oracle::get_method_info (method));
 
 			// Generate Method_infos from the analysis results
 			generate_summary (info);
 
-			// Check if we can stop iterating.
-			if (before->equals (info->cfg))
-				break;
+			// These should converge fairly rapidly, I think
+			for (int i = 0; i < 10; i++)
+			{
+				DEBUG (i << "th intraprocedural iteration for "
+						<< *info->method_name);
+
+				CFG* before = info->cfg->clone ();
+
+				// Perform DCE and CP, and some small but useful optimizations.
+				perform_local_optimizations (info);
+
+				// Inlining and such.
+				perform_interprocedural_optimizations (info);
+
+				// Generate Method_infos from the analysis results
+				generate_summary (info);
+
+				// Check if we can stop iterating.
+				if (before->equals (info->cfg))
+					break;
+			}
 		}
+
+		// TODO: If the old analyses' results are the same as the new one, stop
+		// iterating.
+		if (w == 2)
+			break;
 	}
 
 	// All the analysis and iteration is done
@@ -194,6 +188,33 @@ Whole_program::run (MIR::PHP_script* in)
 
 	// As a final step, strip all unused functions.	
 	strip (in);
+}
+
+void
+Whole_program::initialize ()
+{
+	aliasing = new Aliasing (this);
+	callgraph = new Callgraph (this);
+	ccp = new CCP (this);
+	def_use = new Def_use (this);
+	type_inf = new Type_inference (this);
+//	constant_state = new Constant_state (this);
+//	include_analysis = new Include_analysis (this);
+//	vrp = new VRP (this);
+
+	analyses.clear ();
+	register_analysis ("debug-wpa", new Debug_WPA (this));
+	register_analysis ("aliasing", aliasing);
+	register_analysis ("callgraph", callgraph);
+	register_analysis ("ccp", ccp);
+	register_analysis ("def-use", def_use);
+	register_analysis ("type-inference", type_inf);
+//	register_analysis ("Constant_state", constant_state);
+//	register_analysis ("Include_analysis", include_analysis);
+//	register_analysis ("VRP", vrp);
+
+	transformer = new Optimization_transformer (this);
+	annotator = new Optimization_annotator (this);
 }
 
 
