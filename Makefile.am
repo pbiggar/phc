@@ -208,6 +208,8 @@ libphc_la_SOURCES= 											\
 	src/optimize/Flow_visitor.h							\
 	src/optimize/If_simplification.cpp					\
 	src/optimize/If_simplification.h						\
+	src/optimize/Inlining.cpp								\
+	src/optimize/Inlining.h									\
 	src/optimize/Lattice.cpp								\
 	src/optimize/Lattice.h									\
 	src/optimize/Mark_initialized.cpp					\

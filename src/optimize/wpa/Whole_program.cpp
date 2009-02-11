@@ -429,6 +429,10 @@ void
 Whole_program::perform_interprocedural_optimizations (Method_info* info)
 {
 	assert (info->has_implementation ());
+
+	pm->run_ipa_passes (this, info->cfg);
+
+	pm->maybe_enable_debug (s("wpa"));
 }
 
 void

@@ -35,6 +35,7 @@
 #include "optimize/Dead_code_elimination.h"
 #include "optimize/Def_use_web.h"
 #include "optimize/If_simplification.h"
+#include "optimize/Inlining.h"
 #include "optimize/Mark_initialized.h"
 #include "optimize/Misc_annotations.h"
 #include "optimize/Prune_symbol_table.h"
@@ -180,6 +181,8 @@ int main(int argc, char** argv)
 	pm->add_local_optimization (new If_simplification (), s("ifsimple"), s("If-simplification"), true);
 	pm->add_local_optimization (new DCE (), s("dce"), s("Aggressive Dead-code elimination"), true);
 	pm->add_local_optimization_pass (new Fake_pass (s("drop_ssa"), s("Drop SSA form")));
+
+	pm->add_ipa_optimization (new Inlining (), s("inlining"), s("Method inlining"), true);
 
 	// TODO: we could consider this for resolving isset/empty/unset queries
 	// TODO: I think these should mostly move to WPA
