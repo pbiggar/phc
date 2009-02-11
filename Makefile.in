@@ -112,19 +112,19 @@ am_libphc_la_OBJECTS = getopt1.lo getopt.lo AST_annotate.lo \
 	Sparse_conditional_visitor.lo Dominance.lo HSSA.lo Phi.lo \
 	SSA.lo SSA_ops.lo Var_set.lo Visit_once.lo Aliasing.lo \
 	Callgraph.lo CCP.lo Constant_state.lo Debug_WPA.lo Def_use.lo \
-	Include_analysis.lo Optimization_transformer.lo Points_to.lo \
-	Type_inference.lo VRP.lo Whole_program.lo WPA.lo \
-	WPA_lattice.lo MICG_parser.lo Parse_buffer.lo parse.lo \
-	PHP_context.lo XML_parser.lo Optimization_pass.lo \
-	Pass_manager.lo Plugin_pass.lo AST_unparser.lo \
-	Constant_folding.lo DOT_unparser.lo Invalid_check.lo \
-	Note_top_level_declarations.lo Process_includes.lo \
-	Remove_concat_null.lo Remove_parser_temporaries.lo \
-	Strip_unparser_attributes.lo Token_conversion.lo \
-	HIR_unparser.lo debug.lo fresh.lo General.lo IR.lo \
-	PHP_unparser.lo stats.lo XML_unparser.lo Alias_uppering.lo \
-	Foreach_uppering.lo Goto_uppering.lo MIR_unparser.lo \
-	Param_is_ref_uppering.lo
+	Include_analysis.lo Optimization_annotator.lo \
+	Optimization_transformer.lo Points_to.lo Type_inference.lo \
+	VRP.lo Whole_program.lo WPA.lo WPA_lattice.lo MICG_parser.lo \
+	Parse_buffer.lo parse.lo PHP_context.lo XML_parser.lo \
+	Optimization_pass.lo Pass_manager.lo Plugin_pass.lo \
+	AST_unparser.lo Constant_folding.lo DOT_unparser.lo \
+	Invalid_check.lo Note_top_level_declarations.lo \
+	Process_includes.lo Remove_concat_null.lo \
+	Remove_parser_temporaries.lo Strip_unparser_attributes.lo \
+	Token_conversion.lo HIR_unparser.lo debug.lo fresh.lo \
+	General.lo IR.lo PHP_unparser.lo stats.lo XML_unparser.lo \
+	Alias_uppering.lo Foreach_uppering.lo Goto_uppering.lo \
+	MIR_unparser.lo Param_is_ref_uppering.lo
 libphc_la_OBJECTS = $(am_libphc_la_OBJECTS)
 plugins_tests_canonical_unparser_la_LIBADD =
 am_plugins_tests_canonical_unparser_la_OBJECTS =  \
@@ -842,6 +842,8 @@ libphc_la_SOURCES = \
 	src/optimize/wpa/Def_use.h								\
 	src/optimize/wpa/Include_analysis.cpp				\
 	src/optimize/wpa/Include_analysis.h					\
+	src/optimize/wpa/Optimization_annotator.cpp		\
+	src/optimize/wpa/Optimization_annotator.h			\
 	src/optimize/wpa/Optimization_transformer.cpp	\
 	src/optimize/wpa/Optimization_transformer.h		\
 	src/optimize/wpa/Points_to.cpp						\
@@ -1481,6 +1483,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MySQL2DBX.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Note_top_level_declarations.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Object.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Optimization_annotator.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Optimization_pass.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Optimization_transformer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Oracle.Plo@am__quote@
@@ -2218,6 +2221,13 @@ Include_analysis.lo: src/optimize/wpa/Include_analysis.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/wpa/Include_analysis.cpp' object='Include_analysis.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Include_analysis.lo `test -f 'src/optimize/wpa/Include_analysis.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Include_analysis.cpp
+
+Optimization_annotator.lo: src/optimize/wpa/Optimization_annotator.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Optimization_annotator.lo -MD -MP -MF $(DEPDIR)/Optimization_annotator.Tpo -c -o Optimization_annotator.lo `test -f 'src/optimize/wpa/Optimization_annotator.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Optimization_annotator.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Optimization_annotator.Tpo $(DEPDIR)/Optimization_annotator.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/wpa/Optimization_annotator.cpp' object='Optimization_annotator.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Optimization_annotator.lo `test -f 'src/optimize/wpa/Optimization_annotator.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Optimization_annotator.cpp
 
 Optimization_transformer.lo: src/optimize/wpa/Optimization_transformer.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Optimization_transformer.lo -MD -MP -MF $(DEPDIR)/Optimization_transformer.Tpo -c -o Optimization_transformer.lo `test -f 'src/optimize/wpa/Optimization_transformer.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Optimization_transformer.cpp

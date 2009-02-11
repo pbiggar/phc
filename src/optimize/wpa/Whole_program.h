@@ -53,6 +53,7 @@ class Constant_state;
 class Def_use;
 class Include_analysis;
 class Optimization_transformer;
+class Optimization_annotator;
 class Pass_manager;
 class Path;
 class Type_inference;
@@ -77,7 +78,9 @@ public:
 	List<WPA*> analyses;
 
 	Pass_manager* pm;
+
 	Optimization_transformer* transformer;
+	Optimization_annotator* annotator;
 
 	Aliasing* aliasing;
 	CCP* ccp;
@@ -111,10 +114,11 @@ public:
 
 	void generate_summary (Method_info* info);
 	void merge_contexts (Method_info* info);
+
 	void apply_results (Method_info* info);
+	void annotate_results (Method_info* info);
 
 	// Apply the interprocedural optimization results to this BB.
-	void apply_results (Basic_block* bb);
 
 	void analyse_method_info (Method_info* info, Basic_block* context,
 									  MIR::Actual_parameter_list* actuals,

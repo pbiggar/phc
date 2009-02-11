@@ -77,6 +77,7 @@
 #include "Debug_WPA.h"
 #include "Def_use.h"
 #include "Include_analysis.h"
+#include "Optimization_annotator.h"
 #include "Optimization_transformer.h"
 #include "Points_to.h"
 #include "Type_inference.h"
@@ -110,6 +111,7 @@ Whole_program::Whole_program (Pass_manager* pm)
 //	register_analysis ("VRP", vrp);
 
 	transformer = new Optimization_transformer (this);
+	annotator = new Optimization_annotator (this);
 }
 
 void
@@ -134,7 +136,6 @@ Whole_program::run (MIR::PHP_script* in)
 
 		// Merge different contexts
 		merge_contexts (info);
-
 	}
 
 	// TODO: some kind of iteration. apply_results would be better if the
@@ -176,6 +177,15 @@ Whole_program::run (MIR::PHP_script* in)
 			if (before->equals (info->cfg))
 				break;
 		}
+	}
+
+	// All the analysis and iteration is done
+	foreach (String* method, *callgraph->bottom_up ())
+	{
+		Method_info* info = Oracle::get_method_info (method);
+
+		// Annotate the statements for code-generation
+		annotate_results (info);
 
 		// Replace method implementation with optimized code
 		info->implementation->statements = info->cfg->get_linear_statements ();
@@ -393,11 +403,12 @@ Whole_program::apply_results (Method_info* info)
 {
 	assert (info->has_implementation ());
 
+	// Since we use information from lots of sources, and we need this
+	// information for tons of differernt optimizations, its best to have a
+	// single transformer applying the results.
 	foreach (Basic_block* bb, *info->cfg->get_all_bbs ())
 	{
-		// Since we use information from lots of sources, and we need this
-		// information for tons of differernt optimizations, its best to have a
-		// single transformer applying the results.
+		// TODO: I should probably use CCP results here to optimize branches.
 		if (Statement_block* sb = dynamic_cast<Statement_block*> (bb))
 		{
 			Statement* old = sb->statement->clone ();
@@ -413,6 +424,18 @@ Whole_program::apply_results (Method_info* info)
 	}
 	if (debugging_enabled)
 		info->cfg->dump_graphviz (s("Apply results"));
+}
+
+void
+Whole_program::annotate_results (Method_info* info)
+{
+	assert (info->has_implementation ());
+
+	// Since we use information from lots of sources, and we need this
+	// information for tons of different annotations, its best to have a
+	// single annotator applying the results.
+	foreach (Basic_block* bb, *info->cfg->get_all_bbs ())
+		annotator->visit_block (bb);
 }
 
 void

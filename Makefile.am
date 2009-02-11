@@ -254,6 +254,8 @@ libphc_la_SOURCES= 											\
 	src/optimize/wpa/Def_use.h								\
 	src/optimize/wpa/Include_analysis.cpp				\
 	src/optimize/wpa/Include_analysis.h					\
+	src/optimize/wpa/Optimization_annotator.cpp		\
+	src/optimize/wpa/Optimization_annotator.h			\
 	src/optimize/wpa/Optimization_transformer.cpp	\
 	src/optimize/wpa/Optimization_transformer.h		\
 	src/optimize/wpa/Points_to.cpp						\
