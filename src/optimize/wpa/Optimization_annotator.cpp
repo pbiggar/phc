@@ -33,6 +33,18 @@ Optimization_annotator::run (CFG* cfg)
 {
 }
 
+void
+Optimization_annotator::visit_entry_block (Entry_block* bb)
+{
+	// We'd like to mark unused functions instead, to be on the safe side.
+	// However, we don't analyse unused functions.
+
+	// Some functions may be analysed, which are later marked as unused due to
+	// inlining. In this case, we rely on Whole_program iterating to find that
+	// out.
+	bb->cfg->method->attrs->set_true ("phc.optimize.used");
+}
+
 
 void
 Optimization_annotator::visit_assign_array (Statement_block* bb, MIR::Assign_array* in)

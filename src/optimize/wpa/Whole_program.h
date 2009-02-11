@@ -118,6 +118,8 @@ public:
 	void apply_results (Method_info* info);
 	void annotate_results (Method_info* info);
 
+	void strip (MIR::PHP_script* in);
+
 	// Apply the interprocedural optimization results to this BB.
 
 	void analyse_method_info (Method_info* info, Basic_block* context,

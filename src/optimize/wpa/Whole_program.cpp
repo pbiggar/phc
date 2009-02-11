@@ -66,6 +66,7 @@
 #include "optimize/Edge.h"
 #include "optimize/Oracle.h"
 #include "optimize/SCCP.h"
+#include "optimize/Method_pruner.h"
 
 #include "Whole_program.h"
 #include "WPA.h"
@@ -190,6 +191,9 @@ Whole_program::run (MIR::PHP_script* in)
 		// Replace method implementation with optimized code
 		info->implementation->statements = info->cfg->get_linear_statements ();
 	}
+
+	// As a final step, strip all unused functions.	
+	strip (in);
 }
 
 
@@ -459,6 +463,12 @@ Whole_program::perform_interprocedural_optimizations (Method_info* info)
 }
 
 void
+Whole_program::strip (MIR::PHP_script* in)
+{
+	in->transform_children (new Method_pruner ());
+}
+
+void
 Whole_program::generate_summary (Method_info* info)
 {
 	// it already has a summary
@@ -551,6 +561,11 @@ Whole_program::dump (Basic_block* bb)
 	}
 	pm->maybe_enable_debug (s("wpa"));
 }
+
+
+/*
+ * Analysis from here on in
+ */
 
 void
 Whole_program::init_superglobals (CFG* main)
