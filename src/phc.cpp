@@ -35,14 +35,11 @@
 #include "optimize/Dead_code_elimination.h"
 #include "optimize/Def_use_web.h"
 #include "optimize/If_simplification.h"
-#include "optimize/Live_variable_analysis.h"
 #include "optimize/Mark_initialized.h"
 #include "optimize/Misc_annotations.h"
 #include "optimize/Prune_symbol_table.h"
 #include "optimize/Remove_loop_booleans.h"
 #include "optimize/SCCP.h"
-#include "optimize/ssa/Into_SSA.h"
-#include "optimize/ssa/Out_of_SSA.h"
 #include "parsing/parse.h"
 #include "parsing/XML_parser.h"
 #include "pass_manager/Fake_pass.h"
@@ -171,31 +168,28 @@ int main(int argc, char** argv)
 //	pm->add_mir_pass (new Process_includes (true, new String ("mir"), pm, "incl2"));
 	pm->add_mir_transform (new Lift_functions_and_classes (), s("lfc"), s("Move statements from global scope into __MAIN__ method"));
 	pm->add_mir_visitor (new Clarify (), s("clar"), s("Clarify - Make implicit defintions explicit"));
-
+	// TODO: move this into optimization passes
 	pm->add_mir_visitor (new Prune_symbol_table (), s("pst"), s("Prune Symbol Table - Note whether a symbol table is required in generated code"));
-	pm->add_mir_transform (new Into_SSA (), s("inssa"), s("Convert non-SSA constructs into SSA constructs"));
 
-//	pm->add_optimization (new Address_taken (), s("ataa"), s("Address-taken alias analysis"));
-//	pm->add_optimization (new Live_variable_analysis (), s("lva"), s("Live variable analysis"));
-//	pm->add_optimization (new Dead_code_elimination (), s("dce"), s("Dead code elimination"));
-//
 
+	// Optimization passes
 	pm->add_local_optimization_pass (new Fake_pass (s("wpa"), s("Whole-program analysis")));
 	pm->add_local_optimization_pass (new Fake_pass (s("cfg"), s("Initial Control-Flow Graph")));
 	pm->add_local_optimization_pass (new Fake_pass (s("build_ssa"), s("Create SSA form")));
 	pm->add_local_optimization (new Remove_loop_booleans (), s("rlb"), s("Remove loop-booleans"), false);
-//	pm->add_optimization (new SCCP (), s("sccp"), s("Sparse-conditional constant propagation"), true);
 	pm->add_local_optimization (new If_simplification (), s("ifsimple"), s("If-simplification"), true);
 	pm->add_local_optimization (new DCE (), s("dce"), s("Aggressive Dead-code elimination"), true);
+	pm->add_local_optimization_pass (new Fake_pass (s("drop_ssa"), s("Drop SSA form")));
+
 	// TODO: we could consider this for resolving isset/empty/unset queries
 	// TODO: I think these should mostly move to WPA
 //	pm->add_optimization (new Mark_initialized (), s("mvi"), s("Mark variable initialization status"), false);
 //	pm->add_optimization (new Misc_annotations (), s("mao"), s("Miscellaneous annotations for optimization"), false);
-	pm->add_local_optimization_pass (new Fake_pass (s("drop_ssa"), s("Drop SSA form")));
+
 
 	// codegen passes
 	stringstream ss;
-	pm->add_codegen_transform (new Out_of_SSA (), s("outssa"), s("Remove SSA constructs"));
+	pm->add_codegen_pass (new Fake_pass(s("codegen"), s("Last pass before codegen")));
 	pm->add_codegen_visitor (new Generate_C_annotations, s("cgann"), s("Codegen annotation"));
 	pm->add_codegen_pass (new Generate_C_pass (ss));
 	pm->add_codegen_pass (new Compile_C (ss));

@@ -107,24 +107,24 @@ am_libphc_la_OBJECTS = getopt1.lo getopt.lo AST_annotate.lo \
 	Integer.lo Object.lo String.lo Alias_name.lo Basic_block.lo \
 	CFG.lo CFG_visitor.lo Dead_code_elimination.lo Def_use_web.lo \
 	Edge.lo Flow_visitor.lo If_simplification.lo Lattice.lo \
-	Live_variable_analysis.lo Mark_initialized.lo \
-	Misc_annotations.lo Oracle.lo Prune_symbol_table.lo \
-	Remove_loop_booleans.lo SCCP.lo Sparse_conditional_visitor.lo \
-	Dominance.lo HSSA.lo Phi.lo SSA.lo SSA_ops.lo Var_set.lo \
-	Visit_once.lo Aliasing.lo Callgraph.lo CCP.lo \
-	Constant_state.lo Debug_WPA.lo Def_use.lo Include_analysis.lo \
-	Optimization_transformer.lo Points_to.lo Type_inference.lo \
-	VRP.lo Whole_program.lo WPA.lo WPA_lattice.lo MICG_parser.lo \
-	Parse_buffer.lo parse.lo PHP_context.lo XML_parser.lo \
-	Optimization_pass.lo Pass_manager.lo Plugin_pass.lo \
-	AST_unparser.lo Constant_folding.lo DOT_unparser.lo \
-	Invalid_check.lo Note_top_level_declarations.lo \
-	Process_includes.lo Remove_concat_null.lo \
-	Remove_parser_temporaries.lo Strip_unparser_attributes.lo \
-	Token_conversion.lo HIR_unparser.lo debug.lo fresh.lo \
-	General.lo IR.lo PHP_unparser.lo stats.lo XML_unparser.lo \
-	Alias_uppering.lo Foreach_uppering.lo Goto_uppering.lo \
-	MIR_unparser.lo Param_is_ref_uppering.lo
+	Mark_initialized.lo Misc_annotations.lo Oracle.lo \
+	Prune_symbol_table.lo Remove_loop_booleans.lo SCCP.lo \
+	Sparse_conditional_visitor.lo Dominance.lo HSSA.lo Phi.lo \
+	SSA.lo SSA_ops.lo Var_set.lo Visit_once.lo Aliasing.lo \
+	Callgraph.lo CCP.lo Constant_state.lo Debug_WPA.lo Def_use.lo \
+	Include_analysis.lo Optimization_transformer.lo Points_to.lo \
+	Type_inference.lo VRP.lo Whole_program.lo WPA.lo \
+	WPA_lattice.lo MICG_parser.lo Parse_buffer.lo parse.lo \
+	PHP_context.lo XML_parser.lo Optimization_pass.lo \
+	Pass_manager.lo Plugin_pass.lo AST_unparser.lo \
+	Constant_folding.lo DOT_unparser.lo Invalid_check.lo \
+	Note_top_level_declarations.lo Process_includes.lo \
+	Remove_concat_null.lo Remove_parser_temporaries.lo \
+	Strip_unparser_attributes.lo Token_conversion.lo \
+	HIR_unparser.lo debug.lo fresh.lo General.lo IR.lo \
+	PHP_unparser.lo stats.lo XML_unparser.lo Alias_uppering.lo \
+	Foreach_uppering.lo Goto_uppering.lo MIR_unparser.lo \
+	Param_is_ref_uppering.lo
 libphc_la_OBJECTS = $(am_libphc_la_OBJECTS)
 plugins_tests_canonical_unparser_la_LIBADD =
 am_plugins_tests_canonical_unparser_la_OBJECTS =  \
@@ -798,8 +798,6 @@ libphc_la_SOURCES = \
 	src/optimize/If_simplification.h						\
 	src/optimize/Lattice.cpp								\
 	src/optimize/Lattice.h									\
-	src/optimize/Live_variable_analysis.cpp			\
-	src/optimize/Live_variable_analysis.h				\
 	src/optimize/Mark_initialized.cpp					\
 	src/optimize/Mark_initialized.h						\
 	src/optimize/Misc_annotations.cpp					\
@@ -818,8 +816,6 @@ libphc_la_SOURCES = \
 	src/optimize/ssa/Dominance.h							\
 	src/optimize/ssa/HSSA.cpp								\
 	src/optimize/ssa/HSSA.h									\
-	src/optimize/ssa/Into_SSA.h							\
-	src/optimize/ssa/Out_of_SSA.h							\
 	src/optimize/ssa/Phi.cpp								\
 	src/optimize/ssa/Phi.h									\
 	src/optimize/ssa/SSA.cpp								\
@@ -1461,7 +1457,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Lattice.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Lift_functions_and_classes.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/List_shredder.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Live_variable_analysis.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Lower_control_flow.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Lower_dynamic_definitions.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Lower_expr_flow.Plo@am__quote@
@@ -2066,13 +2061,6 @@ Lattice.lo: src/optimize/Lattice.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Lattice.cpp' object='Lattice.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Lattice.lo `test -f 'src/optimize/Lattice.cpp' || echo '$(srcdir)/'`src/optimize/Lattice.cpp
-
-Live_variable_analysis.lo: src/optimize/Live_variable_analysis.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Live_variable_analysis.lo -MD -MP -MF $(DEPDIR)/Live_variable_analysis.Tpo -c -o Live_variable_analysis.lo `test -f 'src/optimize/Live_variable_analysis.cpp' || echo '$(srcdir)/'`src/optimize/Live_variable_analysis.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Live_variable_analysis.Tpo $(DEPDIR)/Live_variable_analysis.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Live_variable_analysis.cpp' object='Live_variable_analysis.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Live_variable_analysis.lo `test -f 'src/optimize/Live_variable_analysis.cpp' || echo '$(srcdir)/'`src/optimize/Live_variable_analysis.cpp
 
 Mark_initialized.lo: src/optimize/Mark_initialized.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Mark_initialized.lo -MD -MP -MF $(DEPDIR)/Mark_initialized.Tpo -c -o Mark_initialized.lo `test -f 'src/optimize/Mark_initialized.cpp' || echo '$(srcdir)/'`src/optimize/Mark_initialized.cpp

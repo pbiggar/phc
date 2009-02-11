@@ -210,8 +210,6 @@ libphc_la_SOURCES= 											\
 	src/optimize/If_simplification.h						\
 	src/optimize/Lattice.cpp								\
 	src/optimize/Lattice.h									\
-	src/optimize/Live_variable_analysis.cpp			\
-	src/optimize/Live_variable_analysis.h				\
 	src/optimize/Mark_initialized.cpp					\
 	src/optimize/Mark_initialized.h						\
 	src/optimize/Misc_annotations.cpp					\
@@ -230,8 +228,6 @@ libphc_la_SOURCES= 											\
 	src/optimize/ssa/Dominance.h							\
 	src/optimize/ssa/HSSA.cpp								\
 	src/optimize/ssa/HSSA.h									\
-	src/optimize/ssa/Into_SSA.h							\
-	src/optimize/ssa/Out_of_SSA.h							\
 	src/optimize/ssa/Phi.cpp								\
 	src/optimize/ssa/Phi.h									\
 	src/optimize/ssa/SSA.cpp								\
