@@ -176,6 +176,9 @@ Whole_program::run (MIR::PHP_script* in)
 			if (before->equals (info->cfg))
 				break;
 		}
+
+		// Replace method implementation with optimized code
+		info->implementation->statements = info->cfg->get_linear_statements ();
 	}
 }
 

@@ -66,11 +66,16 @@ public:
 	void add_after_each_mir_pass (Pass* pass);
 
 	// Add Optimization passes
-	void add_optimization_pass (Pass* pass);
-	void add_optimization (CFG_visitor* visitor, String* name, String* description, bool require_ssa);
-	void run_optimization_passes (MIR::PHP_script* in);
+	void optimize (MIR::PHP_script* in);
+	void run_optimization_pass (Pass* pass, Whole_program* wp, CFG* cfg);
+
 	void run_local_optimization_passes (Whole_program* wp, CFG* cfg);
-	bool can_optimize (MIR::Method* method);
+	void add_local_optimization (CFG_visitor* visitor, String* name, String* description, bool require_ssa);
+	void add_local_optimization_pass (Pass*);
+
+	void run_ipa_passes (Whole_program* wp, CFG* cfg);
+	void add_ipa_optimization (CFG_visitor* visitor, String* name, String* description, bool require_ssa);
+	void add_ipa_optimization_pass (Pass*);
 
 	// Add codegen passes
 	void add_codegen_pass (Pass* pass);
@@ -109,7 +114,9 @@ protected:
 	Pass_queue* ast_queue;
 	Pass_queue* hir_queue;
 	Pass_queue* mir_queue;
-	Pass_queue* optimization_queue;
+	Pass_queue* wpa_queue;
+	Pass_queue* opt_queue;
+	Pass_queue* ipa_queue;
 	Pass_queue* codegen_queue;
 	List<Pass_queue*>* queues;
 };

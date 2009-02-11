@@ -41,11 +41,15 @@ Pass_manager::Pass_manager (gengetopt_args_info* args_info)
 	ast_queue = new Pass_queue;
 	hir_queue = new Pass_queue;
 	mir_queue = new Pass_queue;
-	optimization_queue = new Pass_queue;
+	wpa_queue = new Pass_queue;
+	opt_queue = new Pass_queue;
+	ipa_queue = new Pass_queue;
 	codegen_queue = new Pass_queue;
 
 	queues = new List <Pass_queue* > (ast_queue, hir_queue, mir_queue);
-	queues->push_back (optimization_queue);
+	queues->push_back (wpa_queue);
+	queues->push_back (opt_queue);
+	queues->push_back (ipa_queue);
 	queues->push_back (codegen_queue);
 }
 
@@ -126,15 +130,26 @@ void Pass_manager::add_after_each_mir_pass (Pass* pass)
 
 
 // Optimization
-void Pass_manager::add_optimization (CFG_visitor* v, String* name, String* description, bool require_ssa)
+void Pass_manager::add_local_optimization (CFG_visitor* v, String* name, String* description, bool require_ssa)
 {
 	Pass* pass = new Optimization_pass (v, name, description, require_ssa);
-	add_pass (pass, optimization_queue);
+	add_pass (pass, opt_queue);
 }
 
-void Pass_manager::add_optimization_pass (Pass* pass)
+void Pass_manager::add_local_optimization_pass (Pass* pass)
 {
-	add_pass (pass, optimization_queue);
+	add_pass (pass, opt_queue);
+}
+
+void Pass_manager::add_ipa_optimization (CFG_visitor* v, String* name, String* description, bool require_ssa)
+{
+	Pass* pass = new Optimization_pass (v, name, description, require_ssa);
+	add_pass (pass, ipa_queue);
+}
+
+void Pass_manager::add_ipa_optimization_pass (Pass* pass)
+{
+	add_pass (pass, ipa_queue);
 }
 
 // Codegen
@@ -334,7 +349,9 @@ void Pass_manager::list_passes ()
 			if (q == ast_queue) name = "AST";
 			else if (q == hir_queue) name = "HIR";
 			else if (q == mir_queue) name = "MIR";
-			else if (q == optimization_queue) name = "OPT";
+			else if (q == wpa_queue) name = "WPA";
+			else if (q == opt_queue) name = "OPT";
+			else if (q == ipa_queue) name = "IPA";
 			else if (q == codegen_queue) name = "GEN";
 			else phc_unreachable ();
 			String* desc = p->description;
@@ -375,13 +392,15 @@ void Pass_manager::dump (IR::PHP_script* in, String* passname)
 			{
 				if (args_info->convert_uppered_flag)
 				{
-					// this needs to be fixed. It probably used to work when the HIR
-					// was lowered to AST then uppered. However, since the uppering is
-					// now in the MIR, we've nothing to upper this. I think
-					// templatizing the Foreach_uppering should work. However, we want
-					// to replace nodes which need uppering with foreign nodes.
+					// this needs to be fixed. It probably used to work when the
+					// HIR was lowered to AST then uppered. However, since the
+					// uppering is now in the MIR, we've nothing to upper this. I
+					// think templatizing the Foreach_uppering should work.
+					// However, we want to replace nodes which need uppering with
+					// foreign nodes.
 					
-					// I think not supporting this is fine - but dont error as it may be used for MIR.
+					// I think not supporting this is fine - but dont error as it
+					// may be used for MIR.
 					//phc_error ("Uppered dump is not supported during HIR pass: %s", name->c_str ());
 				}
 
@@ -496,7 +515,9 @@ IR::PHP_script* Pass_manager::run_from_until (String* from, String* to, IR::PHP_
 	// passes in the later queues, dont fold.
 	if (hir_queue->size() == 0
 		&& mir_queue->size () == 0 
-		&& optimization_queue->size () == 0 
+		&& wpa_queue->size () == 0 
+		&& opt_queue->size () == 0 
+		&& ipa_queue->size () == 0 
 		&& codegen_queue->size() == 0)
 		return in;
 
@@ -520,7 +541,9 @@ IR::PHP_script* Pass_manager::run_from_until (String* from, String* to, IR::PHP_
 	}
 
 	if (mir_queue->size () == 0 
-		&& optimization_queue->size () == 0 
+		&& wpa_queue->size () == 0 
+		&& opt_queue->size () == 0 
+		&& ipa_queue->size () == 0 
 		&& codegen_queue->size() == 0)
 		return in;
 
@@ -544,7 +567,7 @@ IR::PHP_script* Pass_manager::run_from_until (String* from, String* to, IR::PHP_
 	}
 
 	if (exec)
-		run_optimization_passes (in->as_MIR());
+		optimize (in->as_MIR());
 
 	// Codegen
 	foreach (Pass* p, *codegen_queue)
@@ -619,7 +642,7 @@ Pass_manager::cfg_dump (CFG* cfg, String* passname, String* comment)
 	dump (NULL, passname);
 }
 
-void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
+void Pass_manager::optimize (MIR::PHP_script* in)
 {
 	if (lexical_cast<int> (args_info->optimize_arg) == 0)
 		return;
@@ -630,8 +653,11 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 	maybe_enable_debug (s("cfg"));
 	Oracle::initialize (in);
 
-	maybe_enable_debug (s("wpa"));
 	// TODO: check if WPA is enabled
+
+
+	// WPA calls all other passes
+	maybe_enable_debug (s("wpa"));
 	Whole_program* wpa = new Whole_program (this);
 	wpa->run (in);
 }
@@ -639,51 +665,77 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 void
 Pass_manager::run_local_optimization_passes (Whole_program* wp, CFG* cfg)
 {
-	foreach (Pass* pass, *optimization_queue)
+	foreach (Pass* pass, *opt_queue)
 	{
-		Optimization_pass* opt = dynamic_cast<Optimization_pass*> (pass);
-		if (opt == NULL || !pass->is_enabled (pm))
-			continue;
-
-		if (args_info->verbose_flag)
-			cout << "Running pass: " << *pass->name << endl;
-
-		// If an optimization pass sees something it cant handle, it
-		// throws an exception, and we skip optimizing the function.
-
-		maybe_enable_debug (s("build_ssa"));
-		HSSA* hssa;
-		if (opt->require_ssa)
-		{
-			// Convert to SSA form
-			hssa = new HSSA (wp, cfg);
-			hssa->convert_to_hssa_form ();
-			cfg->clean ();
-			cfg_dump (cfg, pass->name, s("In SSA (cleaned)"));
-		}
-		else
-		{
-			// We still want use-def information.
-			cfg->duw = new Def_use_web (wp->def_use);
-			cfg->duw->build_web (cfg);
-			cfg_dump (cfg, pass->name, s("Non-SSA"));
-		}
-
-		// Run optimization
-		maybe_enable_debug (pass->name);
-		opt->run (cfg, this);
-		cfg->clean ();
-		cfg_dump (cfg, pass->name, s("After optimization (cleaned)"));
-
-		// Convert out of SSA
-		if (opt->require_ssa)
-		{
-			maybe_enable_debug (s("drop_ssa"));
-			hssa->convert_out_of_ssa_form ();
-			cfg->clean ();
-			cfg_dump (cfg, pass->name, s("Out of SSA (cleaned)"));
-		}
+		run_optimization_pass (pass, wp, cfg);
 	}
 	cfg_dump (cfg, s("cfg"), s("After all local passes"));
 }
+
+void
+Pass_manager::run_ipa_passes (Whole_program* wp, CFG* cfg)
+{
+	foreach (Pass* pass, *ipa_queue)
+	{
+		run_optimization_pass (pass, wp, cfg);
+	}
+	cfg_dump (cfg, s("cfg"), s("After all ipa passes"));
+}
+
+// TODO: Whole_program shouldn't need to be passed. We can avoid it if we
+// don't need to create the def-use-web during create HSSA. Strictly, we
+// shouldnt.
+void
+Pass_manager::run_optimization_pass (Pass* pass, Whole_program* wp, CFG* cfg)
+{
+	Optimization_pass* opt = dynamic_cast<Optimization_pass*> (pass);
+	if (opt == NULL || !pass->is_enabled (pm))
+	{
+		if (args_info->verbose_flag)
+			cout << "Skipping pass: " << *pass->name << endl;
+
+		return;
+	}
+
+	if (args_info->verbose_flag)
+		cout << "Running pass: " << *pass->name << endl;
+
+	// TODO: re-enable this.
+	// If an optimization pass sees something it cant handle, it throws an
+	// exception, and we skip optimizing the function.
+
+	maybe_enable_debug (s("build_ssa"));
+	HSSA* hssa;
+	if (opt->require_ssa)
+	{
+		// Convert to SSA form
+		hssa = new HSSA (wp, cfg);
+		hssa->convert_to_hssa_form ();
+		cfg->clean ();
+		cfg_dump (cfg, pass->name, s("In SSA (cleaned)"));
+	}
+	else
+	{
+		// We still want use-def information.
+		cfg->duw = new Def_use_web (wp->def_use);
+		cfg->duw->build_web (cfg);
+		cfg_dump (cfg, pass->name, s("Non-SSA"));
+	}
+
+	// Run optimization
+	maybe_enable_debug (pass->name);
+	opt->run (cfg, this);
+	cfg->clean ();
+	cfg_dump (cfg, pass->name, s("After optimization (cleaned)"));
+
+	// Convert out of SSA
+	if (opt->require_ssa)
+	{
+		maybe_enable_debug (s("drop_ssa"));
+		hssa->convert_out_of_ssa_form ();
+		cfg->clean ();
+		cfg_dump (cfg, pass->name, s("Out of SSA (cleaned)"));
+	}
+}
+
 
