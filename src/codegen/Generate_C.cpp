@@ -2646,7 +2646,12 @@ string read_file (String* filename)
 	if (!file.is_open())
 		file.open (ss2.str ().c_str ());
 
-	assert (file.is_open ());
+	if (!file.is_open ())
+		phc_internal_error ("Expected file missing: %s (expected at %s or %s)",
+			filename->c_str(),
+			ss2.str().c_str(),
+			ss1.str().c_str());
+
 	stringstream ss;
 	while (not file.eof ())
 	{
