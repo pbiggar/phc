@@ -59,6 +59,7 @@ public:
 
 	bool solution_changed (Basic_block* bb);
 
+	bool equals (WPA* other);
 	void dump (Basic_block* bb);
 };
 

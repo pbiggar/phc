@@ -69,6 +69,7 @@ public:
 
 	void aggregate_results (Basic_block* bb);
 
+	bool equals (WPA* other);
 	void dump (Basic_block* bb);
 
 

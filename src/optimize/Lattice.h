@@ -143,6 +143,8 @@ public:
 	}
 };
 
+SET_COMPARABLE (Lattice_map);
+
 class SSA_map
 : public Var_map<Lattice_cell*>
 {

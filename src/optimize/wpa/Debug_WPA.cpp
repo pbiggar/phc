@@ -163,6 +163,13 @@ Debug_WPA::solution_changed (Basic_block* bb)
 	return false;
 }
 
+bool
+Debug_WPA::equals (WPA* other)
+{
+	DEBUG (__FUNCTION__);
+	return true;
+}
+
 void
 Debug_WPA::dump (Basic_block* bb)
 {

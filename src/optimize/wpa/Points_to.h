@@ -23,6 +23,8 @@ DECL (PT_node);
 DECL (Index_node);
 DECL (Storage_node);
 
+SET_COMPARABLE (Points_to);
+
 Storage_node* SN (string scope);
 Index_node* IN (string scope, string name);
 Index_node* VN (string scope, MIR::VARIABLE_NAME*);
@@ -99,8 +101,13 @@ public:
 	PT_node* target;
 	certainty cert;
 
+	bool equals (Alias_pair* other);
 	void dump();
 };
+
+
+SET_COMPARABLE (Alias_pair);
+
 
 /*
  * NOTE:
@@ -128,6 +135,7 @@ private:
 public:
 	Points_to ();
 
+	bool equals (Points_to* other);
 	void dump_graphviz (String* label);
 
 	void open_scope (string name);

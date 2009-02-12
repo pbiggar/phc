@@ -28,6 +28,11 @@ Alias_name::Alias_name (string prefix, string name)
 {
 }
 
+bool
+Alias_name::operator== (const Alias_name& other) const
+{
+	return !((*this) < other || other < (*this));
+}
 
 bool
 Alias_name::operator< (const Alias_name& other) const

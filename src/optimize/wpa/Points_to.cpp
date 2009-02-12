@@ -93,7 +93,12 @@ Points_to::assign_by_copy (Index_node* n1, Index_node* n2)
 		phc_TODO ();
 }
 
-
+bool
+Points_to::equals (Points_to* other)
+{
+	return this->by_source.equals (&other->by_source)
+		&& this->by_target.equals (&other->by_target);
+}
 
 
 void
@@ -459,6 +464,19 @@ Alias_pair::Alias_pair (PT_node* source, PT_node* target, certainty cert)
 , target (target)
 , cert (cert)
 {
+}
+
+bool
+Alias_pair::equals (Alias_pair* other)
+{
+	Alias_name this_source = this->source->name();
+	Alias_name this_target = this->target->name();
+	Alias_name other_source = other->source->name();
+	Alias_name other_target = other->target->name();
+
+	return this_source == other_source
+			&& this_target == other_target
+			&& this->cert == other->cert;
 }
 
 void

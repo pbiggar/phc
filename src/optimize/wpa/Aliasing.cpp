@@ -28,6 +28,14 @@ Aliasing::Aliasing (Whole_program* wp)
 }
 
 
+bool
+Aliasing::equals (WPA* wpa)
+{
+	Aliasing* other = dyc<Aliasing> (wpa);
+	return ins.equals (&other->ins)
+		&& outs.equals (&other->outs);
+}
+
 void
 Aliasing::dump (Basic_block* bb)
 {

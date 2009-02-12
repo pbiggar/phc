@@ -96,7 +96,8 @@ using namespace std;
 Whole_program::Whole_program (Pass_manager* pm)
 : pm (pm)
 {
-
+	annotator = new Optimization_annotator (this);
+	transformer = new Optimization_transformer (this);
 }
 
 void
@@ -148,7 +149,7 @@ Whole_program::run (MIR::PHP_script* in)
 			// These should converge fairly rapidly, I think
 			for (int i = 0; i < 10; i++)
 			{
-				DEBUG (i << "th intraprocedural iteration for "
+				DEBUG ((i+1) << "th intraprocedural iteration for "
 						<< *info->method_name);
 
 				CFG* before = info->cfg->clone ();
@@ -168,10 +169,13 @@ Whole_program::run (MIR::PHP_script* in)
 			}
 		}
 
-		// TODO: If the old analyses' results are the same as the new one, stop
-		// iterating.
-		if (w == 2)
+		// Check if we can stop iterating
+		DEBUG ((w+1) << "th Whole-program pass");
+		if (analyses_have_converged ())
 			break;
+
+		if (w == 9)
+			phc_TODO (); // on the examples I'm running, this shouldnt happen.
 	}
 
 	// All the analysis and iteration is done
@@ -190,9 +194,37 @@ Whole_program::run (MIR::PHP_script* in)
 	strip (in);
 }
 
+bool
+Whole_program::analyses_have_converged ()
+{
+	if (old_analyses.size () == 0)
+		return false;
+	
+	List<WPA*>::const_iterator i = old_analyses.begin();
+	foreach_wpa (this)
+	{
+		if (!wpa->equals (*i))
+		{
+			DEBUG (wpa->name << " has not converged");
+			return false;
+		}
+
+		i++;
+	}
+
+	return true;
+}
+
 void
 Whole_program::initialize ()
 {
+	// save the old analyses for iteration
+	old_analyses.clear ();
+	old_analyses.push_back_all (&analyses);
+	analyses.clear ();
+
+
+	// Create new analyses with empty results
 	aliasing = new Aliasing (this);
 	callgraph = new Callgraph (this);
 	ccp = new CCP (this);
@@ -202,7 +234,6 @@ Whole_program::initialize ()
 //	include_analysis = new Include_analysis (this);
 //	vrp = new VRP (this);
 
-	analyses.clear ();
 	register_analysis ("debug-wpa", new Debug_WPA (this));
 	register_analysis ("aliasing", aliasing);
 	register_analysis ("callgraph", callgraph);
@@ -212,9 +243,6 @@ Whole_program::initialize ()
 //	register_analysis ("Constant_state", constant_state);
 //	register_analysis ("Include_analysis", include_analysis);
 //	register_analysis ("VRP", vrp);
-
-	transformer = new Optimization_transformer (this);
-	annotator = new Optimization_annotator (this);
 }
 
 

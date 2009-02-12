@@ -187,6 +187,10 @@ public:
 		return changed_flags[bb->ID];
 	}
 
+	// Return whether the solutions are equal (ie, whether we have reached a
+	// fixed-point in our Whole-program iteration).
+	virtual bool equals (WPA* other) = 0;
+
 
 	/*
 	 * Debugging information

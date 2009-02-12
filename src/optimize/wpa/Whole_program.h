@@ -70,11 +70,11 @@ class WPA;
 
 class Whole_program : public CFG_visitor
 {
-
-	// Analyses should be able to reach in here to get other analyses'
-	// results.
+	// Previous iteration - stored for analyses_have_reached_fix_point
+	List<WPA*> old_analyses;
 
 public:
+
 	List<WPA*> analyses;
 
 	Pass_manager* pm;
@@ -82,6 +82,8 @@ public:
 	Optimization_transformer* transformer;
 	Optimization_annotator* annotator;
 
+	// Analyses should be able to reach in here to get other analyses'
+	// results.
 	Aliasing* aliasing;
 	CCP* ccp;
 	Def_use* def_use;
@@ -96,6 +98,7 @@ public:
 	void run (CFG* cfg){}
 
 	void initialize ();
+	bool analyses_have_converged ();
 
 	/* 
 	 * Creating and using analyses.

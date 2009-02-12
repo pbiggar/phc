@@ -173,7 +173,20 @@ public:
 		}
 
 		return result;
-}	
+	}
+
+	bool equals (Set<_Tp>* other)
+	{
+		if (this->size () != other->size ())
+			return false;
+
+		foreach (_Tp elem, *this)
+			if (!other->has (elem))
+				return false;
+
+		return true;
+	}
+
 public:
 	// TODO when using iterators, assert (!full). We cant iterate through the
 	// full set.
@@ -188,6 +201,22 @@ public:
 		return result;
 	}
 };
+
+template<typename _Tp, typename _Compare, typename _Alloc>
+struct
+supports_equality<Set<_Tp, _Compare, _Alloc>* >
+{
+	static const bool value = true;
+};
+
+template<typename _Tp, typename _Compare, typename _Alloc>
+struct
+supports_equality<Set<_Tp, _Compare, _Alloc> >
+{
+	static const bool value = true;
+};
+
+
 
 
 #endif // PHC_SET

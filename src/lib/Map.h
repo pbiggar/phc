@@ -67,7 +67,41 @@ public:
 		return result;
 	}
 
+	bool equals (Map<_Key, _Tp, _Compare, _Alloc>* other)
+	{
+		if (other->size () != this->size ())
+			return false;
 
+		_Key key;
+		_Tp value;
+		foreach (boost::tie (key, value), *this)
+		{
+			if (!other->has (key))
+				return false;
+
+			if (!phc_equals (value, (*other)[key]))
+				return false;
+		}
+
+		return true;
+	}
 };
+
+
+template<typename _Key, typename _Tp, typename _Compare, typename _Alloc>
+struct
+supports_equality<Map<_Key, _Tp, _Compare, _Alloc>* >
+{
+	static const bool value = true;
+};
+
+template<typename _Key, typename _Tp, typename _Compare, typename _Alloc>
+struct
+supports_equality<Map<_Key, _Tp, _Compare, _Alloc> >
+{
+	static const bool value = true;
+};
+
+
 
 #endif // PHC_MAP_H

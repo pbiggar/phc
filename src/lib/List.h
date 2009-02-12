@@ -22,11 +22,11 @@
  */
 
 namespace IR { class Node; class FOREIGN; class PHP_script; }
-SET_CLONABLE(IR::Node)
-SET_CLONABLE(IR::FOREIGN)
-SET_CLONABLE(IR::PHP_script)
 
-#define MAKETEA_USER_DEFINED(TYPE) SET_CLONABLE(TYPE)
+#define MAKETEA_USER_DEFINED(TYPE) SET_CLONABLE(TYPE) SET_COMPARABLE(TYPE)
+MAKETEA_USER_DEFINED(IR::Node)
+MAKETEA_USER_DEFINED(IR::FOREIGN)
+MAKETEA_USER_DEFINED(IR::PHP_script)
 #include "AST_user_defined.h"
 #include "HIR_user_defined.h"
 #include "MIR_user_defined.h"
@@ -41,7 +41,7 @@ SET_CLONABLE(IR::PHP_script)
  */
 
 template<bool b> 
-struct algorithm_selector 
+struct clone_algorithm_selector 
 { 
 	template<typename T> 
 	static T clone (T object) 
@@ -50,11 +50,9 @@ struct algorithm_selector
 	} 
 };
 
-
-
 // Call to clone for classes that support it.
 template<> 
-struct algorithm_selector<true>
+struct clone_algorithm_selector<true>
 { 
 	template<typename T> 
 	static T clone (T object)
@@ -68,7 +66,58 @@ struct algorithm_selector<true>
 template<typename T> 
 T phc_clone (T object)
 { 
-	return algorithm_selector<supports_cloning<T>::value>::clone(object); 
+	return clone_algorithm_selector<supports_cloning<T>::value>::clone(object); 
+}
+
+#include <boost/type_traits/is_pointer.hpp>
+template<bool b, bool is_pointer> 
+struct equals_algorithm_selector 
+{ 
+	template<typename T> 
+	static bool equals (T object1, T object2) 
+	{
+		// This probably doesn't do what you want in this case.
+		abort();
+	} 
+};
+
+// Non-pointers which have operator== should work too (like strings and
+// primitives).
+template<> 
+struct equals_algorithm_selector<false, true>
+{ 
+	template<typename T> 
+	static bool equals (T object1, T object2)
+	{ 
+		return object1 == object2;
+	} 
+};
+
+// Call to equals for classes that support it.
+template<> 
+struct equals_algorithm_selector<true, true>
+{ 
+	template<typename T> 
+	static bool equals (T object1, T object2)
+	{ 
+		return object1->equals (object2); 
+	} 
+};
+
+template<> 
+struct equals_algorithm_selector<true, false>
+{ 
+	template<typename T> 
+	static bool equals (T object1, T object2)
+	{ 
+		return object1.equals (&object2); 
+	} 
+};
+
+template<typename T> 
+bool phc_equals (T object1, T object2)
+{ 
+	return equals_algorithm_selector<supports_equality<T>::value, boost::is_pointer<T>::value>::equals(object1, object2); 
 }
 
 

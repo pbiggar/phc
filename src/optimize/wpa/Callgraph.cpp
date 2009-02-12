@@ -80,6 +80,20 @@ Callgraph::bottom_up ()
 	return result;
 }
 
+bool
+Callgraph::equals (WPA* wpa)
+{
+	// There is the question, why not use ==. I agree, it does make sense to
+	// use == in some cases. However, == will do pointer equality when we have
+	// pointers, whereas equals will not. However, this is at the expense of
+	// having to reimplement equality ourselves, when the STL generally
+	// provides it for us. In the long term, it might be best to use the STL
+	// properly, but now is not a good time.
+	Callgraph* other = dyc<Callgraph> (wpa);
+	return methods.equals (&other->methods)
+		 && call_edges.equals (&other->call_edges);
+}
+
 
 
 void

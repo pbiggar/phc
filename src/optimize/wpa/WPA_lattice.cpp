@@ -21,6 +21,14 @@ WPA_lattice::WPA_lattice (Whole_program* wp)
 {
 }
 
+bool
+WPA_lattice::equals (WPA* wpa)
+{
+	WPA_lattice* other = dyc<WPA_lattice> (wpa);
+	return this->ins.equals (&other->ins)
+		&& this->outs.equals (&other->outs);
+}
+
 void
 WPA_lattice::dump(Basic_block* bb)
 {

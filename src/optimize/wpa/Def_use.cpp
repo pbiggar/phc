@@ -20,6 +20,27 @@ Def_use::Def_use (Whole_program* wp)
 {
 }
 
+
+bool
+Def_use::equals (WPA* wpa)
+{
+	Def_use* other = dyc<Def_use> (wpa);
+	return true
+		&& this->ref_defs.equals (&other->ref_defs)
+		&& this->ref_uses.equals (&other->ref_uses)
+		&& this->ref_may_defs.equals (&other->ref_may_defs)
+		&& this->val_defs.equals (&other->val_defs)
+		&& this->val_uses.equals (&other->val_uses)
+		&& this->val_may_defs.equals (&other->val_may_defs)
+		&& this->ref_defs.equals (&other->ref_defs)
+		&& this->ref_uses.equals (&other->ref_uses)
+		&& this->ref_may_defs.equals (&other->ref_may_defs)
+		&& this->summary_val_defs.equals (&other->summary_val_defs)
+		&& this->summary_val_uses.equals (&other->summary_val_uses)
+		&& this->summary_val_may_defs.equals (&other->summary_val_may_defs);
+}
+
+
 void dump_set (Map<long, Set<Alias_name> >& map, long id, string set_name)
 {
 	if (map.has (id))

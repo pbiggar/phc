@@ -25,10 +25,12 @@ public:
 							 MIR::Actual_parameter_list* actuals,
 							 MIR::VARIABLE_NAME* retval);
 
-	void dump (Basic_block* bb);
-
 	String_list* get_called_methods ();
 	String_list* bottom_up ();
+
+	bool equals (WPA* other);
+	void dump (Basic_block* bb);
+
 
 private:
 
