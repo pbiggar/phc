@@ -578,7 +578,7 @@ void Generate_C::compile_static_value(string result, ostream& os, Static_value* 
 	<< "{\n";
 
 	// Make the result variable as st_entry_not_required so that the code
-	// generator creates a local C variabel to hold the result rather than
+	// generator creates a local C variable to hold the result rather than
 	// trying to store it in EG(active_symbol_table)
 	AST::VARIABLE_NAME* def = new AST::VARIABLE_NAME(s("__static_value__"));
 	def->attrs->set_true("phc.codegen.st_entry_not_required");
@@ -752,7 +752,7 @@ public:
 	{
 		signature = pattern->value->signature;
 
-		method_entry();
+		method_entry(gen);
 		RTS (demangle (this));
 
 		// Use a different gen for the nested function
@@ -793,7 +793,7 @@ protected:
 		;
 	}
 
-	void method_entry()
+	void method_entry(Generate_C* gen)
 	{
 		String* class_name = NULL;
 		if(signature->attrs->has("phc.codegen.class_name"))
@@ -876,23 +876,16 @@ protected:
 				{
 					buf 
 					<< "if (num_args <= " << index << ")\n"
-					<< "{\n";
+					<< "{\n"
+					;
 
-					// An assignment to default values doesnt fit in the IR. They
-					// would need to be lowered first. The simplest option is to
-					// convert them to AST, run them through the passes, and
-					// generate code for that 
-					// TODO: this is now implemented in compile_static_value
-					phc_unsupported (param->var->default_value, "default values");
+					gen->compile_static_value ("default_value", buf, param->var->default_value);
 
-/*					Statement* assign_default_values = 
-						new Assign_var(
-							param->var->variable_name->clone (),
-							false, 
-							param->var->default_value->clone ());
-
-					gen->children_statement (assign_default_values);
-*/					buf << "} else {\n";
+					buf
+					<< "default_value->refcount--;\n"
+					<<	"	params[" << index << "] = default_value;\n"
+					<< "}\n"
+					;
 				}
 
 				buf
@@ -929,9 +922,6 @@ protected:
 					<<		"sizeof(zval*), NULL);\n"
 					;
 				}
-
-				if (param->var->default_value)
-					buf << "}\n";
 
 				index++;
 			}
@@ -2555,7 +2545,7 @@ string Generate_C::compile_statement(Statement* in)
 	{
 	// Top-level constructs
 		new Pattern_method_definition ()
-	, new Pattern_class_def ()
+	,  new Pattern_class_def ()
 	// Expressions, which can only be RHSs to Assign_vars
 	,	new Pattern_assign_expr_constant ()
 	,	new Pattern_assign_expr_var ()
