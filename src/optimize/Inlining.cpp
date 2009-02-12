@@ -37,5 +37,7 @@ Inlining::transform_eval_expr (Statement_block* bb, Eval_expr* in, BB_list* out)
 		return;
 	}
 
+	DEBUG ("BB " << bb->ID << ": removing call to " << *info->name);
+
 	// Dont return
 }

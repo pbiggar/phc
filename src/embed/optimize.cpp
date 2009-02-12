@@ -11,6 +11,7 @@
 #include "process_ir/General.h"
 #include "MIR.h"
 #include "process_mir/MIR_unparser.h"
+#include "optimize/Method_information.h"
 
 #if HAVE_EMBED
 
@@ -119,12 +120,12 @@ PHP::cast_to (CAST* cast, Literal* lit)
 	return NULL;
 }
 
-Signature*
-PHP::get_signature (METHOD_NAME* method_name)
+Method_info*
+PHP::get_method_info (String* name)
 {
 	zval fn;
 	INIT_PZVAL (&fn);
-	ZVAL_STRING (&fn, const_cast<char*> (method_name->value->c_str ()), 0);
+	ZVAL_STRING (&fn, const_cast<char*> (name->c_str ()), 0);
 
 	zend_fcall_info fci;
 	zend_fcall_info_cache fcic;
@@ -134,25 +135,29 @@ PHP::get_signature (METHOD_NAME* method_name)
 	if (result != SUCCESS)
 		return NULL;
 
-	Signature* sig = new Signature (method_name->value->c_str ());
+	Method_info* info = new Method_info (name);
 
-	sig->pass_rest_by_ref = func->common.pass_rest_by_reference; 
-	sig->return_by_ref = func->common.return_reference;
+
+	info->return_by_ref = func->common.return_reference;
 
 	for (unsigned int i = 0; i < func->common.num_args; i++)
 	{
-		stringstream ss;
-		ss << "unknown" << i;
-
-		Formal_parameter* param = 
-			new Formal_parameter (
-				NULL, // TODO
+		info->add_param (
+			new Parameter_info (
 				ARG_MUST_BE_SENT_BY_REF (func, i+1),
-				new VARIABLE_NAME (s (ss.str ())));
-
-		sig->formal_parameters->push_back (param);
+				false, // TODO
+				new String_list)); // TODO
 	}
-	return sig;
+
+	// Add the 'get-rest' param info
+	Parameter_info* final = new Parameter_info (
+			func->common.pass_rest_by_reference,
+			false, // assume no callbacks
+			new String_list); // assume no magic_methods
+	final->use_for_rest = true;
+	info->add_param (final);
+
+	return info;
 }
 
 

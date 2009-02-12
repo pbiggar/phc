@@ -63,12 +63,12 @@ Oracle::get_method_info (String* method_name)
 		return Oracle::infos [*method_name];
 
 	// Lookup the embed SAPI
-	Signature* sig = PHP::get_signature (new METHOD_NAME (method_name));
+	Method_info* info = PHP::get_method_info (method_name);
 
 	// Cache it
-	if (sig)
+	if (info)
 	{
-		add_signature (sig);
+		add_method_info (info);
 		return get_method_info (method_name);
 	}
 
@@ -100,9 +100,9 @@ Oracle::add_signature (Signature* sig)
 void
 Oracle::add_method_info (Method_info* info)
 {
-	assert (!infos.has (*info->method_name));
+	assert (!infos.has (*info->name));
 
-	infos[*info->method_name] = info;
+	infos[*info->name] = info;
 }
 
 Method_info_list*

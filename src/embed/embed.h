@@ -34,6 +34,8 @@ namespace MIR
 	typedef List<VARIABLE_NAME*> VARIABLE_NAME_list;
 }
 
+class Method_info;
+
 class PHP
 {
 private:
@@ -89,7 +91,7 @@ public:
 	static MIR::Literal* fold_string_index (MIR::Literal* array, MIR::Literal* index);
 
 	// Functions
-	static MIR::Signature* get_signature (MIR::METHOD_NAME*);
+	static Method_info* get_method_info (String* name);
 	static MIR::Literal* call_function (MIR::METHOD_NAME* in, MIR::Literal_list* params);
 };
 

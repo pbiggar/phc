@@ -215,6 +215,8 @@ libphc_la_SOURCES= 											\
 	src/optimize/Mark_initialized.cpp					\
 	src/optimize/Mark_initialized.h						\
 	src/optimize/Method_pruner.h							\
+	src/optimize/Method_information.cpp					\
+	src/optimize/Method_information.h					\
 	src/optimize/Misc_annotations.cpp					\
 	src/optimize/Misc_annotations.h						\
 	src/optimize/Oracle.cpp									\

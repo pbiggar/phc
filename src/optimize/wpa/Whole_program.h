@@ -137,6 +137,10 @@ public:
 							    MIR::Actual_parameter_list*,
 								 MIR::VARIABLE_NAME* lhs);
 
+	void apply_modelled_function (Method_info* info, Basic_block* context,
+							    MIR::Actual_parameter_list*,
+								 MIR::VARIABLE_NAME* lhs);
+
 	void init_superglobals (CFG* main);
 
 	/* Local analysis - calling other analyses */

@@ -150,7 +150,7 @@ Whole_program::run (MIR::PHP_script* in)
 			for (int i = 0; i < 10; i++)
 			{
 				DEBUG ((i+1) << "th intraprocedural iteration for "
-						<< *info->method_name);
+						<< *info->name);
 
 				CFG* before = info->cfg->clone ();
 
@@ -395,16 +395,30 @@ Whole_program::analyse_method_info (Method_info* info,
 void
 Whole_program::analyse_summary (Method_info* info, Basic_block* context, Actual_parameter_list* actuals, VARIABLE_NAME* lhs)
 {
-	// TODO: We'll pretend for now that these have the same length. We should
-	// probably have a final Parameter_info which models the remaining
-	// actuals, with pass_by_ref etc (which is a bit different than the
-	// current Oracle solution of is_param_x_pass_by_ref).
-	if (info->params->size () != actuals->size ())
-		phc_TODO ();
+
+	// Record uses
+	foreach (Actual_parameter* ap, *actuals)
+	{
+		if (VARIABLE_NAME* var = dynamic_cast<VARIABLE_NAME*> (ap->rvalue))
+		{
+			record_use (context, VN (ST (context), var));
+		}
+	}
+
 
 	// TODO: what about functions with callbacks
 	// TODO: this should be abstracted
 	callgraph->add_summary_call (context, info);
+
+	// TODO: its difficult to know exactly what this representation should
+	// look like when we haven't tried modelling that many functions. Instead,
+	// we'll write 'baked-functions', which model it by directly calling
+	// Whole_program methods. When we've done a few of these, it should be a
+	// lot clearer what we want to model here (also, this allows us model hard
+	// functions which might not be modelled with a data approach).
+	apply_modelled_function (info, context, actuals, lhs);
+
+	/*
 
 	if (lhs)
 		phc_TODO ();
@@ -423,11 +437,16 @@ Whole_program::analyse_summary (Method_info* info, Basic_block* context, Actual_
 	//		complicated thing for functions we analyse, such as 'aliases a field
 	//		of param1'.
 	//		- can they alias a global variable
+	Actual_parameter* ap = actuals->begin ();
 	foreach (Parameter_info* pinfo, *info->params)
 	{
 		// TODO: Handle magic methods
+		if (ap == actuals->end())
+			break;
 
-		if (pinfo->pass_by_reference)
+		// TODO: a good way to handle this is to make GLOBALS::* may-alias
+		// this.
+		if (pinfo->pass_by_reference || *ap->is_ref)
 			phc_TODO ();
 
 		if (pinfo->is_callback)
@@ -435,20 +454,37 @@ Whole_program::analyse_summary (Method_info* info, Basic_block* context, Actual_
 
 		if (pinfo->can_touch_objects)
 			phc_TODO ();
-	}
 
-	// Record uses
-	foreach (Actual_parameter* ap, *actuals)
-	{
-		if (VARIABLE_NAME* var = dynamic_cast<VARIABLE_NAME*> (ap->rvalue))
-		{
-			record_use (context, VN (ST (context), var));
-		}
+		ap++;
 	}
 
 	// TODO: does this create alias relationships
 	// TODO: how does this affect the callgraph
 	//		- need to look at types for that
+	*/
+}
+
+void
+Whole_program::apply_modelled_function (Method_info* info,
+													 Basic_block* context,
+													 MIR::Actual_parameter_list*,
+													 MIR::VARIABLE_NAME* lhs)
+{
+	if (*info->name == "strlen")
+	{
+		if (lhs)
+		{
+			// TODO: We might know the value, in which case we know the result
+			// Always return in int
+			// except might also return NULL, if > 1 params are passed
+			phc_TODO ();
+		}
+		info->is_side_effecting = false;
+	}
+	else
+	{
+		phc_TODO ();
+	}
 }
 
 void
@@ -526,7 +562,7 @@ Whole_program::generate_summary (Method_info* info)
 
 	// Simplest possible inlining info - the function does nothing.
 	if (info->cfg->get_all_bbs ()->size() == 2)
-		info->is_useless = true;
+		info->is_side_effecting = false;
 }
 
 void

@@ -29,7 +29,7 @@ Callgraph::forward_bind (Basic_block* context, CFG* callee_cfg, MIR::Actual_para
 void
 Callgraph::add_summary_call (Basic_block* context, Method_info* callee)
 {
-	add_call_edge (ST (context), *callee->method_name);
+	add_call_edge (ST (context), *callee->name);
 }
 
 void
