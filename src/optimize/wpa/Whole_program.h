@@ -144,7 +144,7 @@ public:
 											MIR::Actual_parameter_list*,
 											MIR::VARIABLE_NAME* lhs);
 
-	void init_superglobals (CFG* main);
+	void init_superglobals (Entry_block* entry);
 
 	/* Local analysis - calling other analyses */
 	void dump (Basic_block* bb);
@@ -154,11 +154,10 @@ public:
 	 * Calls to the WPA modules.
 	 */
 	void forward_bind (Basic_block* bb,
-							 CFG* callee,
-							 MIR::Actual_parameter_list* actuals,
-							 MIR::VARIABLE_NAME* retval);
+							 Entry_block* entry,
+							 MIR::Actual_parameter_list* actuals);
 
-	void backward_bind (Basic_block* bb, CFG* callee);
+	void backward_bind (Basic_block* bb, Exit_block* exit, MIR::VARIABLE_NAME* lhs);
 
 	// Performs points-to analysis, and call the other analyses with the
 	// results. Returns true if a solution has changed, requiring this block

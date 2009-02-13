@@ -19,11 +19,8 @@ public:
 	WPA_lattice (Whole_program* wp);
 
 	// WPA
-	void forward_bind (Basic_block* context, CFG* callee_cfg,
-										MIR::Actual_parameter_list* actuals,
-										MIR::VARIABLE_NAME* retval);
-
-	void backward_bind (Basic_block* context, CFG* callee_cfg);
+	void forward_bind (Basic_block* caller, Entry_block* entry);
+	void backward_bind (Basic_block* context, Exit_block* exit);
 
 	void kill_value (Basic_block* bb, Alias_name name);
 

@@ -44,42 +44,31 @@ Aliasing::dump (Basic_block* bb)
 }
 
 
-/*
- * Update the Points-to solution, and interface with other analyses.
- *
- *	We have information which we wish to pass to other analyses:
- *		- names whose value must be killed.
- *		- names whose value may be killed.
- *		- names whose value they may take their value from.
- *		- names which are used in the statement.
- */
 void
-Aliasing::forward_bind (Basic_block* context, CFG* callee_cfg,
-										MIR::Actual_parameter_list* actuals,
-										MIR::VARIABLE_NAME* retval)
+Aliasing::forward_bind (Basic_block* caller, Entry_block* entry)
 {
 	Points_to* ptg;
 
-	if (context == NULL)
+	if (caller == NULL)
 		ptg = new Points_to;
 	else
-		ptg = ins[context->ID]->clone ();
+		ptg = ins[caller->ID]->clone ();
 
 	// We need INS to read the current situation, but it shouldnt get modified.
-	ins[callee_cfg->get_entry_bb ()->ID] = ptg;
-	outs[callee_cfg->get_entry_bb ()->ID] = ptg;
+	ins[entry->ID] = ptg;
+	outs[entry->ID] = ptg;
 }
 
 void
-Aliasing::backward_bind (Basic_block* context, CFG* callee_cfg)
+Aliasing::backward_bind (Basic_block* caller, Basic_block* exit)
 {
-	if (context == NULL)
+	if (caller == NULL)
 		return;
 
-	Points_to* ptg = outs[callee_cfg->get_exit_bb ()->ID]->clone ();
+	Points_to* ptg = outs[exit->ID]->clone ();
 
-	ptg->close_scope (CFG_ST(callee_cfg));
-	outs[context->ID] = ptg;
+	ptg->close_scope (ST(exit));
+	outs[caller->ID] = ptg;
 }
 
 void

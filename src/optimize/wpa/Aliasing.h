@@ -54,11 +54,9 @@ public:
 	void assign_by_copy (Basic_block* bb, Alias_name lhs,
 							   Alias_name rhs, certainty cert);
 
-	void forward_bind (Basic_block* bb, CFG* callee_cfg,
-							 MIR::Actual_parameter_list* actuals,
-							 MIR::VARIABLE_NAME* retval);
+	void forward_bind (Basic_block* caller, Entry_block* entry);
 
-	void backward_bind (Basic_block* bb, CFG* callee_cfg);
+	void backward_bind (Basic_block* caller, Basic_block* exit);
 
 	void add_all_points_to_edges (Basic_block* bb, Alias_name lhs,
 											Alias_name rhs, certainty cert);

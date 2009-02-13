@@ -18,12 +18,10 @@ class Callgraph : public WPA
 public:
 	Callgraph (Whole_program* wp);
 
-	void add_summary_call (Basic_block* context, Method_info* callee);
+	void add_summary_call (Basic_block* caller, Method_info* callee);
 
 	// WPA
-	void forward_bind (Basic_block* bb, CFG* callee_cfg,
-							 MIR::Actual_parameter_list* actuals,
-							 MIR::VARIABLE_NAME* retval);
+	void forward_bind (Basic_block* caller, Entry_block* entry);
 
 	String_list* get_called_methods ();
 	String_list* bottom_up ();

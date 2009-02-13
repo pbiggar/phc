@@ -17,11 +17,8 @@ public:
 
 	Debug_WPA (Whole_program* wp);
 
-	void forward_bind (Basic_block* bb, CFG* callee_cfg,
-										MIR::Actual_parameter_list* actuals,
-										MIR::VARIABLE_NAME* retval);
-
-	void backward_bind (Basic_block* bb, CFG* callee_cfg);
+	void forward_bind (Basic_block* bb, Entry_block* entry);
+	void backward_bind (Basic_block* bb, Exit_block* exit);
 
 	void assign_unknown (Basic_block* bb, Alias_name name, certainty cert);
 

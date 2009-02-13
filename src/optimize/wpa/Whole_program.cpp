@@ -256,13 +256,9 @@ Whole_program::analyse_function (Basic_block* context, CFG* cfg, MIR::Actual_par
 
 	// Process the entry blocks first (there is no edge here)
 	DEBUG ("Initing functions");
-	forward_bind (context, cfg, actuals, lhs);
+	forward_bind (context, cfg->get_entry_bb (), actuals);
 
-	foreach_wpa (this)
-		wpa->aggregate_results (cfg->get_entry_bb ());
-
-
-
+	
 	// 2. Stop when CFG-worklist is empty
 	while (cfg_wl->size () > 0)
 	{
@@ -296,7 +292,7 @@ Whole_program::analyse_function (Basic_block* context, CFG* cfg, MIR::Actual_par
 		}
 	}
 
-	backward_bind (context, cfg);
+	backward_bind (context, cfg->get_exit_bb (), lhs);
 }
 
 Edge_list*
@@ -392,9 +388,6 @@ Whole_program::analyse_method_info (Method_info* method_info,
 void
 Whole_program::analyse_summary (Method_info* info, Basic_block* context, Actual_parameter_list* actuals, VARIABLE_NAME* lhs)
 {
-	if (lhs)
-		phc_TODO ();
-
 	// Record uses
 	foreach (Actual_parameter* ap, *actuals)
 	{
@@ -403,7 +396,6 @@ Whole_program::analyse_summary (Method_info* info, Basic_block* context, Actual_
 			record_use (context, VN (ST (context), var));
 		}
 	}
-
 
 	// TODO: what about functions with callbacks
 	// TODO: this should be abstracted
@@ -479,9 +471,10 @@ Whole_program::apply_modelled_function (Method_info* info,
 			phc_TODO ();
 		}
 	}
-	else
+	else if (*info->name == "dechex")
 	{
-		phc_TODO ();
+		if (lhs)
+			phc_TODO ();
 	}
 }
 
@@ -639,7 +632,7 @@ Whole_program::dump (Basic_block* bb)
  */
 
 void
-Whole_program::init_superglobals (CFG* main)
+Whole_program::init_superglobals (Entry_block* entry)
 {
 	// TODO: Strictly speaking, functions other than __MAIN__ should have their
 	// globals set up before the parameters are copied. However, we'll ignore
@@ -650,8 +643,6 @@ Whole_program::init_superglobals (CFG* main)
 	// TODO: we incorrectly mark _SERVER as being an array of strings. However,
 	// it actually has "argc", "argv" and "REQUEST_TIME" set, which are not strings.
 	
-	Basic_block* entry = main->get_entry_bb ();
-
 
 	// Start with globals, since it needs needs to point to MSN
 	assign_empty_array (entry, P (MSN, new VARIABLE_NAME ("GLOBALS")), MSN);
@@ -694,30 +685,27 @@ Whole_program::init_superglobals (CFG* main)
 											Types("string"), DEFINITE);
 	}
 
-	dump (main->get_entry_bb ());
+	dump (entry);
 }
 
 void
-Whole_program::forward_bind (Basic_block* context, CFG* callee, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
+Whole_program::forward_bind (Basic_block* caller, Entry_block* entry, MIR::Actual_parameter_list* actuals)
 {
 
 	// Each caller should expect that context can be NULL for __MAIN__.
 	foreach_wpa (this)
-		wpa->forward_bind (context, callee, actuals, lhs);
+		wpa->forward_bind (caller, entry);
 
 	// Special case for __MAIN__. We do it here so that the other analyses have initialized.
-	if (context == NULL)
+	if (caller == NULL)
 	{
-		init_superglobals (callee);
+		init_superglobals (entry);
 	}
 
 
 	// Perform assignments for paramater passing
-	if (actuals->size () != callee->method->signature->formal_parameters->size ())
-		phc_TODO ();
-
 	Actual_parameter_list::const_iterator i = actuals->begin ();
-	foreach (Formal_parameter* fp, *callee->method->signature->formal_parameters)
+	foreach (Formal_parameter* fp, *entry->method->signature->formal_parameters)
 	{
 		if (fp->var->default_value)
 			phc_TODO ();
@@ -726,31 +714,39 @@ Whole_program::forward_bind (Basic_block* context, CFG* callee, MIR::Actual_para
 		if (fp->is_ref || ap->is_ref)
 		{
 			// $fp =& $ap;
-			assign_by_ref (callee->get_entry_bb (),
-					P (CFG_ST (callee), fp->var->variable_name),
-					P (ST (context), dyc<VARIABLE_NAME> (ap->rvalue)));
+			assign_by_ref (entry,
+					P (ST (entry), fp->var->variable_name),
+					P (ST (caller), dyc<VARIABLE_NAME> (ap->rvalue)));
 		}
 		else
 		{
 			// $fp = $ap;
-			assign_by_copy (callee->get_entry_bb (),
-					P (CFG_ST (callee), fp->var->variable_name),
-					P (ST (context), dyc<VARIABLE_NAME> (ap->rvalue)));
+			assign_by_copy (entry,
+					P (ST (entry), fp->var->variable_name),
+					P (ST (caller), dyc<VARIABLE_NAME> (ap->rvalue)));
 		}
 	}
 
-	dump (callee->get_entry_bb ());
+	foreach_wpa (this)
+		wpa->aggregate_results (entry);
+
+
+	dump (entry);
 }
 
 
 void
-Whole_program::backward_bind (Basic_block* context, CFG* callee)
+Whole_program::backward_bind (Basic_block* caller, Exit_block* exit, MIR::VARIABLE_NAME* lhs)
 {
 	// Context can be NULL for __MAIN__
 	foreach_wpa (this)
-		wpa->backward_bind (context, callee);
+		wpa->backward_bind (caller, exit);
 
-	dump (callee->get_exit_bb ());
+	// Do assignment back to LHS
+	if (lhs)
+		phc_TODO ();
+
+	dump (exit);
 }
 
 

@@ -21,20 +21,17 @@ cert_to_string (certainty cert)
 }
 
 void
-Debug_WPA::forward_bind (Basic_block* bb, CFG* callee_cfg,
-										MIR::Actual_parameter_list* actuals,
-										MIR::VARIABLE_NAME* retval)
+Debug_WPA::forward_bind (Basic_block* caller, Entry_block* entry)
 {
 	string bb_name = "__none__";
-	if (bb)
-		bb_name = ST (bb);
+	if (caller)
+		bb_name = ST (caller);
 
-	DEBUG ("forward bind " << bb_name
-				<< " to " << CFG_ST (callee_cfg));
+	DEBUG ("forward bind " << bb_name << " to " << ST (entry));
 }
 
 void
-Debug_WPA::backward_bind (Basic_block* bb, CFG* callee_cfg)
+Debug_WPA::backward_bind (Basic_block* caller, Exit_block* exit)
 {
 	DEBUG (__FUNCTION__);
 }

@@ -67,12 +67,10 @@ public:
 	 * Interprocural handling
 	 */
 	// Propagate caller results to the callee.
-	virtual void forward_bind (Basic_block* context, CFG* callee,
-										MIR::Actual_parameter_list* actuals,
-										MIR::VARIABLE_NAME* retval) CT_IMPL;
+	virtual void forward_bind (Basic_block* caller, Entry_block* entry) CT_IMPL;
 
 	// Propagate callee results back to the caller.
-	virtual void backward_bind (Basic_block* context, CFG* callee) CT_IMPL;
+	virtual void backward_bind (Basic_block* caller, Exit_block* exit) CT_IMPL;
 
 
 	/*

@@ -43,7 +43,7 @@ public:
 	bool equals (WPA* other);
 	void dump (Basic_block* bb);
 
-	void backward_bind (Basic_block* context, CFG* callee_cfg);
+	void backward_bind (Basic_block* caller, Exit_block* exit);
 
 	// These return pointers to the actual values, not copies. This allows the
 	// SSA name to be updated.

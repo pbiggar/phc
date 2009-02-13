@@ -144,11 +144,9 @@ WPA_lattice::aggregate_results (Basic_block* bb)
 
 
 void
-WPA_lattice::forward_bind (Basic_block* context, CFG* callee_cfg,
-										MIR::Actual_parameter_list* actuals,
-										MIR::VARIABLE_NAME* retval)
+WPA_lattice::forward_bind (Basic_block* caller, Entry_block* entry)
 {
-	if (context == NULL)
+	if (caller == NULL)
 		return;
 
 	// TODO: do we really want to clear? does that make it non-monotonic?
@@ -156,28 +154,23 @@ WPA_lattice::forward_bind (Basic_block* context, CFG* callee_cfg,
 	// this callsite?
 	// TODO: we should have a fresh context anyway.
 
-	int caller = context->ID;
-	int callee = callee_cfg->get_entry_bb ()->ID;
-	ins[callee].merge(&ins[caller]);
+	ins[entry->ID].merge(&ins[caller->ID]);
 
-	init_outs (callee_cfg->get_entry_bb ());
+	init_outs (entry);
 }
 
 void
-WPA_lattice::backward_bind (Basic_block* context, CFG* callee_cfg)
+WPA_lattice::backward_bind (Basic_block* caller, Exit_block* exit)
 {
-	if (context == NULL)
+	if (caller == NULL)
 		return;
 
 	// TODO: remove variables in the current scope
-	//
-	int caller = context->ID;
-	int callee = callee_cfg->get_exit_bb ()->ID;
 
 	// pull_results inits outs, so we need to clear it, or we'll be merging with
 	// old results.
-	outs[caller].clear ();
-	outs[caller].merge(&outs[callee]);
+	outs[caller->ID].clear ();
+	outs[caller->ID].merge(&outs[exit->ID]);
 }
 
 void

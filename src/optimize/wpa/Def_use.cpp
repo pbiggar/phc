@@ -211,34 +211,34 @@ Def_use::aggregate_results (Basic_block* bb)
 }
 
 void
-merge_from_callee (Basic_block* bb, CFG* callee_cfg,
+merge_from_callee (Basic_block* caller, Basic_block* callee,
 						Map<long, Set<Alias_name> >& bb_sets,
 						Map<string, Set<Alias_name> >& callee_sets)
 
 {
-	Set<Alias_name>& callee_set = callee_sets[CFG_ST(callee_cfg)];
-	bb_sets[bb->ID].insert (callee_set.begin (), callee_set.end());
+	Set<Alias_name>& callee_set = callee_sets[ST(callee)];
+	bb_sets[caller->ID].insert (callee_set.begin (), callee_set.end());
 }
 
 void
-Def_use::backward_bind (Basic_block* context, CFG* callee_cfg)
+Def_use::backward_bind (Basic_block* caller, Exit_block* exit)
 {
-	if (context == NULL)
+	if (caller == NULL)
 	{
 		// TODO: in __MAIN__, mark everything as unused except _SESSION
 		return;
 	}
 
-	long ID = callee_cfg->get_exit_bb()->ID;
+	long ID = exit->ID;
 
 	// The defs and uses from the callee represent the entire function.
-	merge_from_callee (context, callee_cfg, ref_defs, summary_ref_defs);
-	merge_from_callee (context, callee_cfg, ref_uses, summary_ref_uses);
-	merge_from_callee (context, callee_cfg, ref_may_defs, summary_ref_may_defs);
+	merge_from_callee (caller, exit, ref_defs, summary_ref_defs);
+	merge_from_callee (caller, exit, ref_uses, summary_ref_uses);
+	merge_from_callee (caller, exit, ref_may_defs, summary_ref_may_defs);
 
-	merge_from_callee (context, callee_cfg, val_defs, summary_val_defs);
-	merge_from_callee (context, callee_cfg, val_uses, summary_val_uses);
-	merge_from_callee (context, callee_cfg, val_may_defs, summary_val_may_defs);
+	merge_from_callee (caller, exit, val_defs, summary_val_defs);
+	merge_from_callee (caller, exit, val_uses, summary_val_uses);
+	merge_from_callee (caller, exit, val_may_defs, summary_val_may_defs);
 }
 
 string prefix (string, string);

@@ -18,12 +18,12 @@ Callgraph::Callgraph (Whole_program* wp)
 }
 
 void
-Callgraph::forward_bind (Basic_block* context, CFG* callee_cfg, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* retval)
+Callgraph::forward_bind (Basic_block* caller, Entry_block* entry)
 {
-	if (context == NULL)
+	if (caller == NULL)
 		return;
 
-	add_call_edge (ST (context), *callee_cfg->method->signature->method_name->value);
+	add_call_edge (ST (caller), ST (entry));
 }
 
 void
