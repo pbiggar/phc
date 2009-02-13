@@ -165,7 +165,7 @@ CFG_visitor::visit_expr (Statement_block* sb, Expr* in)
 			visit_variable_variable (sb, dyc<Variable_variable> (in));
 			break;
 		default:
-			assert (0);
+			phc_unreachable ();
 			break;
 	}
 }
@@ -486,11 +486,11 @@ CFG_visitor::transform_block (Basic_block* bb)
 				transform_unset(sb, dyc<Unset>(sb->statement), out);
 				break;
 			default:
-				assert (0);
+				phc_unreachable ();
 		}
 	}
-	else 
-		assert (0);
+	else
+		phc_unreachable ();
 
 	bb->cfg->replace_bb (bb, out);
 }

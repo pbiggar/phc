@@ -65,8 +65,8 @@ Aliasing::forward_bind (Basic_block* context, CFG* callee_cfg,
 	else
 		ptg = ins[context->ID]->clone ();
 
-
-	// we dont save INS. Do we need it?
+	// We need INS to read the current situation, but it shouldnt get modified.
+	ins[callee_cfg->get_entry_bb ()->ID] = ptg;
 	outs[callee_cfg->get_entry_bb ()->ID] = ptg;
 }
 
@@ -142,76 +142,67 @@ Aliasing::kill_by_ref (Basic_block* bb, Alias_name lhs)
 void
 Aliasing::assign_scalar (Basic_block* bb, Alias_name lhs, MIR::Literal* lit, certainty cert)
 {
-	if (cert != DEFINITE)
-		phc_TODO ();
-	
-	Points_to* ptg = outs[bb->ID];
-
 	// This kills any objects or arrays currently pointed-to. However, that's
 	// done in kill_value.
-
-	ptg->add_node (lhs.ind ());
+	outs[bb->ID]->add_node (lhs.ind (), cert);
 }
 
 void
 Aliasing::assign_empty_array (Basic_block* bb, Alias_name lhs, string unique_name, certainty cert)
 {
-	if (cert != DEFINITE)
-		phc_TODO ();
-
-	outs[bb->ID]->add_node (lhs.ind ());
-	outs[bb->ID]->add_edge (lhs.ind (), SN (unique_name));
+	outs[bb->ID]->add_node (lhs.ind (), cert);
+	outs[bb->ID]->add_edge (lhs.ind (), SN (unique_name), cert);
 }
 
 void
 Aliasing::assign_unknown (Basic_block* bb, Alias_name lhs, certainty cert)
 {
-	if (cert != DEFINITE)
-		phc_TODO ();
-
-	outs[bb->ID]->add_node (lhs.ind ());
+	outs[bb->ID]->add_node (lhs.ind (), cert);
 }
 
 void
 Aliasing::assign_by_ref (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert)
 {
-	if (cert != DEFINITE)
-		phc_TODO ();
-
 	Points_to* ptg = outs[bb->ID];
 
-	ptg->add_node (lhs.ind());
-	ptg->add_node (rhs.ind());
+	ptg->add_node (lhs.ind(), cert);
+	ptg->add_node (rhs.ind(), cert);
 
 	// Transitive closure for points-to edges
-	certainty certainties[] = {POSSIBLE, DEFINITE};
-	foreach (certainty cert, certainties)
-	{
-		Storage_node_list* pts = ptg->get_points_to (rhs.ind (), cert);
-		foreach (Storage_node* st, *pts)
-			ptg->add_edge (lhs.ind (), st);
-	}
+	add_all_points_to_edges (bb, lhs, rhs, cert);
 
 	// Transitive closure for reference edges
-	foreach (certainty cert, certainties)
+	certainty certainties[] = {POSSIBLE, DEFINITE};
+	foreach (certainty edge_cert, certainties)
 	{
-		Index_node_list* pts = ptg->get_references (rhs.ind (), cert);
+		Index_node_list* pts = ptg->get_references (rhs.ind (), edge_cert);
 		foreach (Index_node* in, *pts)
-			ptg->add_bidir_edge (lhs.ind(), in);
+			ptg->add_bidir_edge (lhs.ind(), in,
+				combine_certs (cert, edge_cert));
 	}
 
 
-	ptg->add_bidir_edge (lhs.ind(), rhs.ind());
+	ptg->add_bidir_edge (lhs.ind(), rhs.ind(), cert);
 }
 
 void
 Aliasing::assign_by_copy (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert)
 {
-	if (cert != DEFINITE)
-		phc_TODO ();
-
-	outs[bb->ID]->assign_by_copy (lhs.ind(), rhs.ind());
+	add_all_points_to_edges (bb, lhs, rhs, cert);
 }
+
+void
+Aliasing::add_all_points_to_edges (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert)
+{
+	certainty certainties[] = {POSSIBLE, DEFINITE};
+	foreach (certainty edge_cert, certainties)
+	{
+		Storage_node_list* pts = ins[bb->ID]->get_points_to (rhs.ind (), edge_cert);
+		foreach (Storage_node* st, *pts)
+			outs[bb->ID]->add_edge (lhs.ind (), st, combine_certs (edge_cert, cert));
+	}
+}
+
 
 
 Index_node_list*

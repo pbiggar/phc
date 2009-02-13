@@ -116,34 +116,22 @@ Whole_program::run (MIR::PHP_script* in)
 				NULL,
 				NULL);
 
-		// Combine the results
-		foreach (String* method, *callgraph->get_called_methods ())
-		{
-			Method_info* info = Oracle::get_method_info (method);
-
-			if (!info->has_implementation ())
-				continue;
-
-			// Merge different contexts
-			merge_contexts (info);
-		}
-
-		// TODO: some kind of iteration. apply_results would be better if the
-		// full points-to analysis was recalculated after
-		// perform_local_optimizations.
 
 		// Optimize based on analysis results
 		foreach (String* method, *callgraph->bottom_up ())
 		{
-			Method_info* info = Oracle::get_method_info (method);
+			User_method_info* info = Oracle::get_user_method_info (method);
 
-			if (!info->has_implementation ())
+			if (info == NULL)
 				continue;
 
-			// Apply the results
-			apply_results (Oracle::get_method_info (method));
+			// Merge different contexts
+			merge_contexts (info);
 
-			// Generate Method_infos from the analysis results
+			// Apply the results
+			apply_results (info);
+
+			// Summarize the current results
 			generate_summary (info);
 
 			// These should converge fairly rapidly, I think
@@ -160,7 +148,7 @@ Whole_program::run (MIR::PHP_script* in)
 				// Inlining and such.
 				perform_interprocedural_optimizations (info);
 
-				// Generate Method_infos from the analysis results
+				// Summarize the current results
 				generate_summary (info);
 
 				// Check if we can stop iterating.
@@ -169,7 +157,7 @@ Whole_program::run (MIR::PHP_script* in)
 			}
 		}
 
-		// Check if we can stop iterating
+		// Check if we can stop iterating the Whole-program solution.
 		DEBUG ((w+1) << "th Whole-program pass");
 		if (analyses_have_converged ())
 			break;
@@ -181,13 +169,18 @@ Whole_program::run (MIR::PHP_script* in)
 	// All the analysis and iteration is done
 	foreach (String* method, *callgraph->bottom_up ())
 	{
-		Method_info* info = Oracle::get_method_info (method);
+		Method_info* method_info = Oracle::get_method_info (method);
+
+		if (!method_info->has_implementation ())
+			continue;
+
+		User_method_info* info = dyc<User_method_info> (method_info);
 
 		// Annotate the statements for code-generation
 		annotate_results (info);
 
 		// Replace method implementation with optimized code
-		info->implementation->statements = info->cfg->get_linear_statements ();
+		info->method->statements = info->cfg->get_linear_statements ();
 	}
 
 	// As a final step, strip all unused functions.	
@@ -374,27 +367,33 @@ Whole_program::invoke_method (Method_invocation* in, Basic_block* context, MIR::
 }
 
 void
-Whole_program::analyse_method_info (Method_info* info,
+Whole_program::analyse_method_info (Method_info* method_info,
 												Basic_block* context,
 												MIR::Actual_parameter_list* actuals,
 												MIR::VARIABLE_NAME* lhs)
 {
-	if (info->has_implementation ())
+	if (method_info->has_implementation ())
+	{
+		User_method_info* info = dyc<User_method_info> (method_info);
+		if (info->cfg == NULL)
+			info->cfg = new CFG (info->method);
+
 		analyse_function (context, info->cfg, actuals, lhs);
+	}
 	else
 	{
-		if (lhs)
-			phc_TODO ();
-
 		// Get as precise information as is possible with pre-baked summary
 		// information.
-		analyse_summary (info, context, actuals, lhs);
+		analyse_summary (method_info,
+			context, actuals, lhs);
 	}
 }
 
 void
 Whole_program::analyse_summary (Method_info* info, Basic_block* context, Actual_parameter_list* actuals, VARIABLE_NAME* lhs)
 {
+	if (lhs)
+		phc_TODO ();
 
 	// Record uses
 	foreach (Actual_parameter* ap, *actuals)
@@ -479,7 +478,8 @@ Whole_program::apply_modelled_function (Method_info* info,
 			// except might also return NULL, if > 1 params are passed
 			phc_TODO ();
 		}
-		info->is_side_effecting = false;
+		phc_TODO ();
+//		info->is_side_effecting = false;
 	}
 	else
 	{
@@ -488,10 +488,8 @@ Whole_program::apply_modelled_function (Method_info* info,
 }
 
 void
-Whole_program::apply_results (Method_info* info)
+Whole_program::apply_results (User_method_info* info)
 {
-	assert (info->has_implementation ());
-
 	// Since we use information from lots of sources, and we need this
 	// information for tons of differernt optimizations, its best to have a
 	// single transformer applying the results.
@@ -516,10 +514,8 @@ Whole_program::apply_results (Method_info* info)
 }
 
 void
-Whole_program::annotate_results (Method_info* info)
+Whole_program::annotate_results (User_method_info* info)
 {
-	assert (info->has_implementation ());
-
 	// Since we use information from lots of sources, and we need this
 	// information for tons of different annotations, its best to have a
 	// single annotator applying the results.
@@ -528,20 +524,16 @@ Whole_program::annotate_results (Method_info* info)
 }
 
 void
-Whole_program::perform_local_optimizations (Method_info* info)
+Whole_program::perform_local_optimizations (User_method_info* info)
 {
-	assert (info->has_implementation ());
-
 	pm->run_local_optimization_passes (this, info->cfg);
 
 	pm->maybe_enable_debug (s("wpa"));
 }
 
 void
-Whole_program::perform_interprocedural_optimizations (Method_info* info)
+Whole_program::perform_interprocedural_optimizations (User_method_info* info)
 {
-	assert (info->has_implementation ());
-
 	pm->run_ipa_passes (this, info->cfg);
 
 	pm->maybe_enable_debug (s("wpa"));
@@ -554,19 +546,15 @@ Whole_program::strip (MIR::PHP_script* in)
 }
 
 void
-Whole_program::generate_summary (Method_info* info)
+Whole_program::generate_summary (User_method_info* info)
 {
-	// it already has a summary
-	if (!info->has_implementation ())
-		return;
-
 	// Simplest possible inlining info - the function does nothing.
 	if (info->cfg->get_all_bbs ()->size() == 2)
-		info->is_side_effecting = false;
+		info->side_effecting = true;
 }
 
 void
-Whole_program::merge_contexts (Method_info* info)
+Whole_program::merge_contexts (User_method_info* info)
 {
 	// TODO: once we have a function that's called from multiple different
 	// places.
@@ -747,7 +735,9 @@ Whole_program::forward_bind (Basic_block* context, CFG* callee, MIR::Actual_para
 		else
 		{
 			// $fp = $ap;
-			phc_TODO ();
+			assign_by_copy (callee->get_entry_bb (),
+					P (CFG_ST (callee), fp->var->variable_name),
+					P (ST (context), dyc<VARIABLE_NAME> (ap->rvalue)));
 		}
 	}
 

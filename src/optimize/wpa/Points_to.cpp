@@ -49,50 +49,6 @@ Points_to::close_scope (string scope_name)
 	remove_unreachable_nodes ();
 }
 
-
-
-// Kill the value of INDEX (which indicates a scalar is being assigned
-// here). This only updates the graph if an object or array is killed. If the
-// node is not in the graph, add it.
-void
-Points_to::assign_scalar (Index_node* index)
-{
-	phc_unreachable ();
-}
-
-
-// Make N1 alias N2. Kills N1. Initialized N2 if it is not already.
-void
-Points_to::assign_by_ref (Index_node* n1, Index_node* n2)
-{
-	// Copy all edges to reference nodes
-	certainty certainties[] = {POSSIBLE, DEFINITE};
-	foreach (certainty cert, certainties)
-	{
-		Index_node_list* refs = get_references (n2, cert);
-		foreach (Index_node* ref, *refs)
-			add_bidir_edge (n1, ref);
-	}
-
-
-
-	add_bidir_edge (n1, n2);
-}
-
-// Copy the current value from N2 to N1. This clones N2's array, points N1
-// and N2 to the same object for object's, and kills existing values for N1.
-void
-Points_to::assign_by_copy (Index_node* n1, Index_node* n2)
-{
-	phc_TODO ();
-	if (!contains (n1) || !contains (n2))
-		phc_TODO ();
-
-	// This kills the value of N1, and may lead to a clone on N2's value.
-	if (has_value_edges (n1) || has_value_edges (n2))
-		phc_TODO ();
-}
-
 bool
 Points_to::equals (Points_to* other)
 {
@@ -166,10 +122,10 @@ Points_to::dump_graphviz (String* label)
 
 
 void
-Points_to::add_node (Index_node* index)
+Points_to::add_node (Index_node* index, certainty cert)
 {
 	if (!contains (index))
-		add_edge (SN (index->storage), index);
+		add_edge (SN (index->storage), index, cert);
 }
 
 // Does the graph already contains this node.

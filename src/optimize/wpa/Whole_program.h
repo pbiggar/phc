@@ -61,10 +61,9 @@ class VRP;
 class WPA;
 
 
-// This gets duplicated everywhere.
+// This gets used everywhere.
 #define foreach_wpa(WP)					\
 	foreach (WPA* wpa, WP->analyses)
-
 
 
 
@@ -112,14 +111,15 @@ public:
 	Method_info_list* get_possible_receivers (MIR::Method_invocation* in);
 
 
-	void perform_local_optimizations (Method_info* info);
-	void perform_interprocedural_optimizations (Method_info* info);
 
-	void generate_summary (Method_info* info);
-	void merge_contexts (Method_info* info);
+	void generate_summary (User_method_info* info);
+	void merge_contexts (User_method_info* info);
 
-	void apply_results (Method_info* info);
-	void annotate_results (Method_info* info);
+	/* Optimizations on user-code */
+	void apply_results (User_method_info* info);
+	void annotate_results (User_method_info* info);
+	void perform_local_optimizations (User_method_info* info);
+	void perform_interprocedural_optimizations (User_method_info* info);
 
 	void strip (MIR::PHP_script* in);
 
@@ -129,17 +129,20 @@ public:
 									  MIR::Actual_parameter_list* actuals,
 									  MIR::VARIABLE_NAME* lhs);
 
-	void analyse_function (Basic_block* context, CFG* cfg, 
+	void analyse_function (Basic_block* context,
+								  CFG* callee, 
 								  MIR::Actual_parameter_list*,
 								  MIR::VARIABLE_NAME* lhs);
 
-	void analyse_summary (Method_info* info, Basic_block* context,
+	void analyse_summary (Method_info* info,
+								 Basic_block* context,
 							    MIR::Actual_parameter_list*,
 								 MIR::VARIABLE_NAME* lhs);
 
-	void apply_modelled_function (Method_info* info, Basic_block* context,
-							    MIR::Actual_parameter_list*,
-								 MIR::VARIABLE_NAME* lhs);
+	void apply_modelled_function (Method_info* info,
+											Basic_block* context,
+											MIR::Actual_parameter_list*,
+											MIR::VARIABLE_NAME* lhs);
 
 	void init_superglobals (CFG* main);
 
@@ -147,17 +150,15 @@ public:
 	void dump (Basic_block* bb);
 
 
-	void use_summary_results (Basic_block* context, Method_info* info, MIR::Actual_parameter_list* in, MIR::VARIABLE_NAME* lhs);
-
-
 	/*
 	 * Calls to the WPA modules.
 	 */
-	void forward_bind (Basic_block* bb, CFG* callee_cfg,
+	void forward_bind (Basic_block* bb,
+							 CFG* callee,
 							 MIR::Actual_parameter_list* actuals,
 							 MIR::VARIABLE_NAME* retval);
 
-	void backward_bind (Basic_block* bb, CFG* callee_cfg);
+	void backward_bind (Basic_block* bb, CFG* callee);
 
 	// Performs points-to analysis, and call the other analyses with the
 	// results. Returns true if a solution has changed, requiring this block

@@ -13,120 +13,104 @@
 // There is a ton of information here, and we don't want to extend the
 // MIR::Signature and MIR::Formal_parameters with it, since they're used in
 // lots of other places.
-class Parameter_info : virtual public GC_obj
-{
-public:
-	Parameter_info (bool pass_by_reference, bool is_callback, String_list* magic_methods)
-	: pass_by_reference (pass_by_reference)
-	, is_callback (is_callback)
-	, can_change_value (can_change_value)
-	, magic_methods (magic_methods)
-	{
-		assert (magic_methods != NULL);
-	}
 
-	// Is the parameter passed by reference (compile-time-pass-by-ref)
-	bool pass_by_reference;
-	bool is_callback;
+/*
+ * What can go wrong, and what information do we get automatically:
+ *
+ * Parameters:
+ *
+ *		- parameters can be passed by reference (we can know this)
+ *		- a parameter can be an object
+ *			- the obj/reference can be modified by the callee
+ *		- a parameter can be the name of a callback
+ *			- the callback can be the result of create_function
+ *		- a parameter can have a magic method called on it by the way it is
+ *			accessed
+ *		- a function can be called with the wrong number of parameters, so
+ *		might do nothing and return NULL.
+ *
+ * Methods:
+ *		- a method has paramters (see above)
+ *		- a method may change global variables
+ *		- a method may change local variables
+ *		- a method can be side-effecting (we'd like to model if it is not, so
+ *		that calls can be removed).
+ *		- a method may return-by-ref.
+ *
+ *
+ *	The only answer is to assume the worst in all cases, and to selectively
+ *	model functions to not do so badly. However, we are able to model some
+ *	things automatically:
+ *
+ *		- user code:
+ *			- can determine by analysis:
+ *				- is_side_effecting
+ *			- can tell very easily
+ *				- return-by-ref
+ *				- pass-by-ref
+ *
+ *		- built-in-functions
+ *			- return-by-ref
+ *			- pass-by-ref
+ *
+ * 
+ * Solution:
+ *
+ *		Remove all the information from method_info. The only thing that should
+ *		be there is return-by-ref and pass-by-ref.
+ *
+ *		Add methods to Method_info allowing us to check for what we need. Add a
+ *		function to automatically apply what we know when a function is called.
+ *
+ *		Method_info should have no public members. Remove Param_info.
+ *
+ *		Embed can provide hooks that take a method_name.
+ *
+ */
 
-	// If an object is passed, can its fields be changed.
-	// or
-	// If something is passed by reference, does it value change
-	bool can_change_value;
+DECL (Method_info);
 
-
-	// PHP functions might not have any parameters modelled. In that case,
-	// they have fields which say whether the rest are passed by reference,
-	// etc. If USE_FOR_REST is set, this Parameter_info models all the rest of
-	// the parameters.
-	bool use_for_rest;
-
-	// TODO: there may be more complicated aliasing, esp with array_*
-	// functions or the like.
-
-	// List of magic methods which may be called on this parameter;
-	String_list* magic_methods;
-};
-
-typedef List<Parameter_info*> Parameter_info_list;
+class Whole_program;
 
 class Method_info : virtual public GC_obj
 {
 public:
-	Method_info (String* name, Parameter_info_list* params, bool can_touch_globals, bool can_touch_locals, bool return_by_ref)
-	: name (name)
-	, implementation (NULL)
-	, cfg (NULL)
-	, params (params)
-	, can_touch_globals (can_touch_globals)
-	, can_touch_locals (can_touch_locals)
-	, return_by_ref (return_by_ref)
-	, is_side_effecting (true)
-	{
-		assert (params != NULL);
-	}
-
-	Method_info (String* name)
-	: name (name)
-	, implementation (NULL)
-	, cfg (NULL)
-	, can_touch_globals (true)
-	, can_touch_locals (true)
-	, return_by_ref (true)
-	, is_side_effecting (true)
-	{
-		params = new Parameter_info_list;
-	}
-
-	Method_info (String* name, MIR::Method* implementation)
-	: name (name)
-	, implementation (implementation)
-	, is_side_effecting (true)
-	{
-		cfg = new CFG (implementation);
-	}
-
 	String* name;
-	MIR::Method* implementation;
-	CFG* cfg;
 
-	/*
-	 * Summary information:
-	 *		Unused if IMPLEMENTATION is set.
-	 *
-	 *		TODO: A better way to do this might be to write a PHP function which
-	 *		'bakes' the result.
-	 */
-private:
-	// The last paramater might represent the remainder, so it might be
-	// returned.
-	Parameter_info_list* params;
+protected:
+	Method_info (String* name);
+
 public:
-	Parameter_info* param_at (int i);
-	void add_param (Parameter_info*);
+	virtual bool has_implementation () = 0;
 
-	// The following properties do not take into account callbacks or magic
-	// methods. So if (CAN_TOUCH_GLOBALS == false), a parameter can still be a
-	// callback to eval. Parameters are via Parameter_info.
+	// Trivial to generate
+	virtual bool param_by_ref (int param_index) = 0;
+	virtual bool return_by_ref () = 0;
 
-	// TODO: we'd probably prefer a list of globals that can be affected
-	bool can_touch_globals;
-	bool can_touch_locals;
-
-	// TODO: model more of the return - types, values
-	// TODO: I was thinking about using abstract values before. This would be somewhat ideal here.
-	bool return_by_ref;
-
-
-	bool is_side_effecting;
-
-
-
-	bool has_implementation ();
-	bool has_parameters ();
+	// Must be annotated
+	virtual bool is_side_effecting () = 0;
 };
 
+class User_method_info : public Method_info
+{
+private:
+	MIR::Method* method;
+	bool side_effecting;
 
-typedef List<Method_info*> Method_info_list;
+	friend class Whole_program;
+
+public:
+	User_method_info (MIR::Method* implementation);
+
+	CFG* cfg;
+
+	bool has_implementation ();
+
+	bool param_by_ref (int param_index);
+	bool return_by_ref ();
+
+	bool is_side_effecting ();
+
+};
 
 #endif // PHC_METHOD_INFORMATION

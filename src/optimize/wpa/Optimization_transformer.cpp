@@ -277,8 +277,7 @@ Optimization_transformer::visit_method_invocation (Statement_block* bb, MIR::Met
 		if (isa<Literal> (param->rvalue))
 			continue;
 
-		if (!param->is_ref
-				&& !info->param_at (i)->pass_by_reference)
+		if (!param->is_ref && !info->param_by_ref (i))
 		{
 			param->rvalue = get_literal (bb, param->rvalue);
 		}

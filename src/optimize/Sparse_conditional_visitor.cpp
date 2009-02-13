@@ -14,7 +14,6 @@
 void
 Sparse_conditional_visitor::run (CFG* cfg)
 {
-	this->cfg = cfg;
 	cfg->consistency_check ();
 
 	lattice.clear ();
@@ -145,7 +144,10 @@ Sparse_conditional_visitor::set_lattice (Alias_name def, Lattice_cell* value)
 		// shouldnt have two different Literals here
 		assert (old == TOP || value == BOTTOM);
 
-		foreach (SSA_use* op, *cfg->duw->get_named_uses (&def))
+		// TODO: we removed access to cfg. Find another way to give access
+		// (perhaps a BB parameter).
+		phc_TODO ();
+/*		foreach (SSA_use* op, *cfg->duw->get_named_uses (&def))
 		{
 			//	1. add uses of the LHS to the SSA worklist.
 			ssa_wl->push_back (op);
@@ -153,7 +155,7 @@ Sparse_conditional_visitor::set_lattice (Alias_name def, Lattice_cell* value)
 			// 2. If the expression controls a conditional branch, .... However,
 			// conditions never control branches - that's always a VARIABLE_NAME.
 			// The new value for that variable will propagate through 1.
-		}
+		}*/
 	}
 	lattice[def] = value;
 }

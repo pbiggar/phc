@@ -141,13 +141,6 @@ public:
 	void open_scope (string name);
 	void close_scope (string name);
 
-	void assign_scalar (Index_node* lhs);
-	void assign_by_copy (Index_node* n1, Index_node* n2);
-	void assign_by_ref (Index_node* n1, Index_node* n2);
-
-	/*
-	 * High-level API
-	 */
 	bool contains (Index_node* node);
 	bool has_value_edges (Index_node* node);
 	void insert (Alias_pair*);
@@ -168,9 +161,10 @@ public:
 	/*
 	 * Lower-level API
 	 */
-	void add_node (Index_node* node);
-	void add_edge (PT_node* n1, PT_node* n2, certainty = DEFINITE);
-	void add_bidir_edge (PT_node* n1, PT_node* n2, certainty cert = DEFINITE);
+	// Adds an edge between the storage node and the index_node.
+	void add_node (Index_node* node, certainty);
+	void add_edge (PT_node* n1, PT_node* n2, certainty);
+	void add_bidir_edge (PT_node* n1, PT_node* n2, certainty cert);
 
 	bool has_node (PT_node* node);
 

@@ -8,38 +8,47 @@
 #include "Method_information.h"
 #include "MIR.h"
 
-
-bool
-Method_info::has_implementation ()
+Method_info::Method_info (String* name)
+: name (name)
 {
-	return implementation != NULL;
 }
 
 
-bool
-Method_info::has_parameters ()
+/*
+ * User methods -- Internal methods are defined in optimize.cpp
+ */
+
+User_method_info::User_method_info (MIR::Method* method)
+: Method_info (method->signature->method_name->value)
+, method (method)
+, cfg (NULL)
+, side_effecting (false)
 {
-	if (implementation)
-		return implementation->signature->formal_parameters->size () != 0;
+}
+
+bool
+User_method_info::has_implementation ()
+{
+	return true;
+}
+
+bool
+User_method_info::param_by_ref (int param_index)
+{
+	if ((unsigned int)(param_index) > method->signature->formal_parameters->size() + 1)
+		return method->signature->pass_rest_by_ref;
 	else
-		return params->size () != 0;
+		return method->signature->formal_parameters->at (param_index)->is_ref;
 }
 
-Parameter_info*
-Method_info::param_at (int index)
+bool
+User_method_info::return_by_ref ()
 {
-	int i = 0;
-	foreach (Parameter_info* param, *params)
-	{
-		if (i == index)
-			return param;
-	}
-	assert (params->back()->use_for_rest);
-	return params->back ();
+	return method->signature->return_by_ref;
 }
 
-void
-Method_info::add_param (Parameter_info* param)
+bool
+User_method_info::is_side_effecting ()
 {
-	params->push_back (param);
+	return side_effecting;
 }

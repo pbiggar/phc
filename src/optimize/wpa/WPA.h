@@ -21,6 +21,8 @@ class Points_to;
 enum _certainty { POSSIBLE = 1, DEFINITE = 2, PTG_ALL = 3 };
 typedef enum _certainty certainty;
 
+certainty combine_certs (certainty c1, certainty c2);
+
 #define UNKNOWN "*"
 
 typedef Set<string> Types;
@@ -65,12 +67,12 @@ public:
 	 * Interprocural handling
 	 */
 	// Propagate caller results to the callee.
-	virtual void forward_bind (Basic_block* bb, CFG* callee_cfg,
+	virtual void forward_bind (Basic_block* context, CFG* callee,
 										MIR::Actual_parameter_list* actuals,
 										MIR::VARIABLE_NAME* retval) CT_IMPL;
 
 	// Propagate callee results back to the caller.
-	virtual void backward_bind (Basic_block* bb, CFG* callee_cfg) CT_IMPL;
+	virtual void backward_bind (Basic_block* context, CFG* callee) CT_IMPL;
 
 
 	/*

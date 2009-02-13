@@ -81,7 +81,7 @@ void
 Remove_loop_booleans::visit_branch_block (Branch_block* bb)
 {
 	if (is_applicable_branch (bb))
-		cfg->split_block (bb);
+		bb->cfg->split_block (bb);
 }
 
 bool

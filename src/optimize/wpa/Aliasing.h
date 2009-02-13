@@ -60,6 +60,8 @@ public:
 
 	void backward_bind (Basic_block* bb, CFG* callee_cfg);
 
+	void add_all_points_to_edges (Basic_block* bb, Alias_name lhs,
+											Alias_name rhs, certainty cert);
 
 	// Pull results from predecessors
 	void pull_init (Basic_block* bb);
