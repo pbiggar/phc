@@ -132,18 +132,18 @@ int main(int argc, char** argv)
 
 	// Small optimization on the AST
 	pm->add_ast_transform (new Constant_folding(), s("const-fold"), s("Fold constant expressions"));
-	pm->add_ast_transform (new Remove_concat_null (), s("rcn"), s("Remove concatentations with \")\""));
+	pm->add_ast_transform (new Remove_concat_null (), s("rcn"), s("Remove concatentations with \"\"")); // TODO: this is wrong - it really should be converted to a cast to string.
 
 
 
 	// Make simple statements simpler
+	pm->add_ast_transform (new Desugar (), s("desug"), s("Canonicalize simple constucts"));
 	pm->add_ast_transform (new Split_multiple_arguments (), s("sma"), s("Split multiple arguments for globals, attributes and static declarations"));
 	pm->add_ast_transform (new Split_unset_isset (), s("sui"), s("Split unset() and isset() into multiple calls with one argument each"));
 	pm->add_ast_transform (new Echo_split (), s("ecs"), s("Split echo() into multiple calls with one argument each"));
 
 	pm->add_ast_transform (new Early_lower_control_flow (), s("elcf"), s("Early Lower Control Flow - lower for, while, do and switch statements")); // AST
 	pm->add_ast_transform (new Lower_expr_flow (), s("lef"), s("Lower Expression Flow - Lower ||, && and ?: expressions"));
-	pm->add_ast_transform (new Desugar (), s("desug"), s("Desugar"));
 	pm->add_ast_transform (new List_shredder (), s("lish"), s("List shredder - simplify to array assignments"));
 	pm->add_ast_transform (new Shredder (), s("ashred"), s("Shredder - turn the AST into three-address-code, replacing complex expressions with a temporary variable"));
 	pm->add_ast_transform (new Pre_post_op_shredder (), s("pps"), s("Shred pre- and post-ops, removing post-ops"));
