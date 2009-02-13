@@ -257,13 +257,17 @@ Internal_method_info::get_cfg ()
 bool
 Internal_method_info::param_by_ref (int param_index)
 {
-	phc_TODO ();
+
+	if ((unsigned int)(param_index+1) > func->common.num_args)
+		return ARG_MUST_BE_SENT_BY_REF (func, (unsigned int)(param_index+1));
+	else
+		return func->common.pass_rest_by_reference;
 }
 
 bool
 Internal_method_info::return_by_ref ()
 {
-	phc_TODO ();
+	return func->common.return_reference;
 }
 
 bool

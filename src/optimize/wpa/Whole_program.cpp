@@ -478,8 +478,6 @@ Whole_program::apply_modelled_function (Method_info* info,
 			// except might also return NULL, if > 1 params are passed
 			phc_TODO ();
 		}
-		phc_TODO ();
-//		info->is_side_effecting = false;
 	}
 	else
 	{
