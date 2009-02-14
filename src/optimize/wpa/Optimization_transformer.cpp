@@ -37,7 +37,8 @@ Optimization_transformer::run (CFG* cfg)
 void
 Optimization_transformer::visit_assign_array (Statement_block* bb, MIR::Assign_array* in)
 {
-	phc_TODO ();
+	in->index = get_literal (bb, in->index);
+	in->rhs = get_literal (bb, in->rhs);
 }
 
 void
