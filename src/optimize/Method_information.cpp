@@ -97,3 +97,52 @@ unnamed_param (int param_index)
 	ss << "__UNNAMED__" << param_index;
 	return new VARIABLE_NAME (s(ss.str()));
 }
+
+/*
+ * Builtins
+ */
+
+
+Builtin_method_info::Builtin_method_info (String* name)
+: Method_info (name)
+{
+}
+
+
+bool
+Builtin_method_info::has_implementation ()
+{
+	return false;
+}
+
+bool
+Builtin_method_info::return_by_ref ()
+{
+	// I think this is true in all cases.
+	return false;
+}
+
+bool
+Builtin_method_info::param_by_ref (int param_index)
+{
+	// I think this is true in all cases.
+	return false;
+}
+
+MIR::VARIABLE_NAME*
+Builtin_method_info::param_name (int param_index)
+{
+	return unnamed_param (param_index);
+}
+
+MIR::Static_value*
+Builtin_method_info::default_param (int param_index)
+{
+	return NULL;
+}
+
+bool
+Builtin_method_info::is_side_effecting ()
+{
+	return true;
+}

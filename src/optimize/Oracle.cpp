@@ -32,6 +32,8 @@ Oracle::initialize (MIR::PHP_script* in)
 		else if (Class_def* c = dynamic_cast<Class_def*> (stmt))
 			phc_TODO ();
 	}
+
+	add_method_info (new Builtin_method_info (s("print")));
 }
 
 Method_info*

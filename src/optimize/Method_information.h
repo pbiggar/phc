@@ -128,4 +128,24 @@ public:
 
 };
 
+/*
+ * Model builtin functions. The modelling is actually in Whole_program.cpp, for
+ * now.
+ */
+class Builtin_method_info : public Method_info
+{
+public:
+	Builtin_method_info (String* name);
+
+	bool has_implementation ();
+
+	bool return_by_ref ();
+	MIR::VARIABLE_NAME* param_name (int param_index);
+	bool param_by_ref (int param_index);
+	MIR::Static_value* default_param (int param_index);
+
+	bool is_side_effecting ();
+
+};
+
 #endif // PHC_METHOD_INFORMATION

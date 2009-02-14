@@ -35,6 +35,7 @@ public:
 	static User_method_info* get_user_method_info (String* name);
 
 
+
 	static bool is_pure_function (MIR::METHOD_NAME* method_name);
 };
 

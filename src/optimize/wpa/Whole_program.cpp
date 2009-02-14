@@ -470,6 +470,15 @@ Whole_program::apply_modelled_function (Method_info* info, Basic_block* bb)
 				Types ("string"),
 				DEFINITE);
 	}
+	else if (*info->name == "print")
+	{
+		foreach_wpa (this)
+			wpa->assign_scalar (
+				bb,
+				ret_name,
+				new INT (1),
+				DEFINITE);
+	}
 	else
 		phc_TODO ();
 }
@@ -776,7 +785,8 @@ Whole_program::backward_bind (Method_info* info, Basic_block* caller, Exit_block
 	foreach_wpa (this)
 		wpa->backward_bind (caller, exit);
 
-	dump (caller, "After backward bind");
+	if (caller)
+		dump (caller, "After backward bind");
 }
 
 
@@ -1079,6 +1089,9 @@ Whole_program::get_named_indices (Basic_block* bb, Path* path, bool record_uses)
 		string name = lexical_cast<string> (bb->ID);
 		assign_empty_array (bb, p->lhs, name);
 		lhss.insert (name);
+		// TODO: what if the array being implicitly created is a scalar? in
+		// that case the conversion wont happen.
+		// What if its a string? This wont create an array in that case.
 	}
 
 
