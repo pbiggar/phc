@@ -125,24 +125,22 @@ public:
 
 	// Apply the interprocedural optimization results to this BB.
 
-	void analyse_method_info (Method_info* info, Basic_block* context,
+	void analyse_method_info (Method_info* info,
+									  Basic_block* caller,
 									  MIR::Actual_parameter_list* actuals,
 									  MIR::VARIABLE_NAME* lhs);
 
-	void analyse_function (Basic_block* context,
-								  CFG* callee, 
+	void analyse_function (User_method_info* info,
+								  Basic_block* caller,
 								  MIR::Actual_parameter_list*,
 								  MIR::VARIABLE_NAME* lhs);
 
 	void analyse_summary (Method_info* info,
-								 Basic_block* context,
+								 Basic_block* caller,
 							    MIR::Actual_parameter_list*,
 								 MIR::VARIABLE_NAME* lhs);
 
-	void apply_modelled_function (Method_info* info,
-											Basic_block* context,
-											MIR::Actual_parameter_list*,
-											MIR::VARIABLE_NAME* lhs);
+	void apply_modelled_function (Method_info* info, Basic_block* caller);
 
 	void init_superglobals (Entry_block* entry);
 
@@ -153,11 +151,15 @@ public:
 	/*
 	 * Calls to the WPA modules.
 	 */
-	void forward_bind (Basic_block* bb,
+	void forward_bind (Method_info* info,
+							 Basic_block* caller,
 							 Entry_block* entry,
 							 MIR::Actual_parameter_list* actuals);
 
-	void backward_bind (Basic_block* bb, Exit_block* exit, MIR::VARIABLE_NAME* lhs);
+	void backward_bind (Method_info* info,
+							  Basic_block* caller,
+							  Exit_block* exit,
+							  MIR::VARIABLE_NAME* lhs);
 
 	// Performs points-to analysis, and call the other analyses with the
 	// results. Returns true if a solution has changed, requiring this block

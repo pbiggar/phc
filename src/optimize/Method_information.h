@@ -72,6 +72,8 @@ DECL (Method_info);
 
 class Whole_program;
 
+MIR::VARIABLE_NAME* unnamed_param (int param_index);
+
 class Method_info : virtual public GC_obj
 {
 public:
@@ -83,18 +85,31 @@ protected:
 public:
 	virtual bool has_implementation () = 0;
 
-	// Trivial to generate
-	virtual bool param_by_ref (int param_index) = 0;
+	/* 
+	 * Model signature (an MIR::Signature isnt really good enough, and is very
+	 * annoying to use).
+	 */
 	virtual bool return_by_ref () = 0;
 
-	// Must be annotated
+	virtual MIR::VARIABLE_NAME* param_name (int param_index) = 0;
+	virtual bool param_by_ref (int param_index) = 0;
+
+	// Returns NULL if there is a default parameter for this index
+	virtual MIR::Static_value* default_param (int param_index) = 0;
+
+	/*
+	 * Annotations for optimizations
+	 */
 	virtual bool is_side_effecting () = 0;
 };
 
 class User_method_info : public Method_info
 {
-private:
+public:
 	MIR::Method* method;
+	CFG* cfg;
+
+private:
 	bool side_effecting;
 
 	friend class Whole_program;
@@ -102,12 +117,12 @@ private:
 public:
 	User_method_info (MIR::Method* implementation);
 
-	CFG* cfg;
-
 	bool has_implementation ();
 
-	bool param_by_ref (int param_index);
 	bool return_by_ref ();
+	MIR::VARIABLE_NAME* param_name (int param_index);
+	bool param_by_ref (int param_index);
+	MIR::Static_value* default_param (int param_index);
 
 	bool is_side_effecting ();
 

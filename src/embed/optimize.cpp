@@ -200,11 +200,12 @@ class Internal_method_info : public Method_info
 public:
 	Internal_method_info (String* name, zend_function* func);
 
-	MIR::Method* get_implementation ();
 	bool has_implementation ();
-	CFG* get_cfg ();
-	bool param_by_ref (int param_index);
+
 	bool return_by_ref ();
+	bool param_by_ref (int param_index);
+	MIR::VARIABLE_NAME* param_name (int param_index);
+	MIR::Static_value* default_param (int param_index);
 
 	bool is_side_effecting ();
 };
@@ -236,32 +237,10 @@ Internal_method_info::Internal_method_info (String* name, zend_function* func)
 }
 
 
-MIR::Method*
-Internal_method_info::get_implementation ()
-{
-	phc_unreachable ();
-}
-
 bool
 Internal_method_info::has_implementation ()
 {
 	return false;
-}
-
-CFG*
-Internal_method_info::get_cfg ()
-{
-	phc_unreachable ();
-}
-
-bool
-Internal_method_info::param_by_ref (int param_index)
-{
-
-	if ((unsigned int)(param_index+1) > func->common.num_args)
-		return ARG_MUST_BE_SENT_BY_REF (func, (unsigned int)(param_index+1));
-	else
-		return func->common.pass_rest_by_reference;
 }
 
 bool
@@ -269,6 +248,28 @@ Internal_method_info::return_by_ref ()
 {
 	return func->common.return_reference;
 }
+
+bool
+Internal_method_info::param_by_ref (int param_index)
+{
+	if ((unsigned int)(param_index+1) > func->common.num_args)
+		return ARG_MUST_BE_SENT_BY_REF (func, (unsigned int)(param_index+1));
+	else
+		return func->common.pass_rest_by_reference;
+}
+
+MIR::VARIABLE_NAME*
+Internal_method_info::param_name (int param_index)
+{
+	return unnamed_param (param_index);
+}
+
+MIR::Static_value*
+Internal_method_info::default_param (int param_index)
+{
+	return NULL;
+}
+
 
 bool
 Internal_method_info::is_side_effecting ()

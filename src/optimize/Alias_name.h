@@ -27,6 +27,7 @@
 
 // Storage node prefix
 #define SNP "ST"
+#define RETNAME "__RETNAME__"
 #define MSN "__MAIN__"
 
 #include <string>

@@ -240,8 +240,10 @@ Whole_program::initialize ()
 
 
 void
-Whole_program::analyse_function (Basic_block* context, CFG* cfg, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
+Whole_program::analyse_function (User_method_info* info, Basic_block* caller, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
 {
+	CFG* cfg = info->cfg;
+
 	// This is very similar to run() from Sparse_conditional_visitor, except
 	// that it isnt sparse.
 
@@ -256,7 +258,7 @@ Whole_program::analyse_function (Basic_block* context, CFG* cfg, MIR::Actual_par
 
 	// Process the entry blocks first (there is no edge here)
 	DEBUG ("Initing functions");
-	forward_bind (context, cfg->get_entry_bb (), actuals);
+	forward_bind (info, caller, cfg->get_entry_bb (), actuals);
 
 	
 	// 2. Stop when CFG-worklist is empty
@@ -292,7 +294,7 @@ Whole_program::analyse_function (Basic_block* context, CFG* cfg, MIR::Actual_par
 		}
 	}
 
-	backward_bind (context, cfg->get_exit_bb (), lhs);
+	backward_bind (info, caller, cfg->get_exit_bb (), lhs);
 }
 
 Edge_list*
@@ -364,7 +366,7 @@ Whole_program::invoke_method (Method_invocation* in, Basic_block* context, MIR::
 
 void
 Whole_program::analyse_method_info (Method_info* method_info,
-												Basic_block* context,
+												Basic_block* caller,
 												MIR::Actual_parameter_list* actuals,
 												MIR::VARIABLE_NAME* lhs)
 {
@@ -374,32 +376,37 @@ Whole_program::analyse_method_info (Method_info* method_info,
 		if (info->cfg == NULL)
 			info->cfg = new CFG (info->method);
 
-		analyse_function (context, info->cfg, actuals, lhs);
+		analyse_function (info, caller, actuals, lhs);
 	}
 	else
 	{
 		// Get as precise information as is possible with pre-baked summary
 		// information.
-		analyse_summary (method_info,
-			context, actuals, lhs);
+		analyse_summary (method_info, caller, actuals, lhs);
 	}
 }
 
 void
-Whole_program::analyse_summary (Method_info* info, Basic_block* context, Actual_parameter_list* actuals, VARIABLE_NAME* lhs)
+Whole_program::analyse_summary (Method_info* info, Basic_block* caller, Actual_parameter_list* actuals, VARIABLE_NAME* lhs)
 {
-	// Record uses
-	foreach (Actual_parameter* ap, *actuals)
-	{
-		if (VARIABLE_NAME* var = dynamic_cast<VARIABLE_NAME*> (ap->rvalue))
-		{
-			record_use (context, VN (ST (context), var));
-		}
-	}
+	// This fakes the infrastructure we've built everything on.
+	Method* method = 
+		new Method (
+				new Signature (
+					info->name->c_str ()),
+				new Statement_list);
 
-	// TODO: what about functions with callbacks
-	// TODO: this should be abstracted
-	callgraph->add_summary_call (context, info);
+	CFG* cfg = new CFG (method);
+
+	Entry_block* fake =	new Entry_block (cfg, method);
+
+
+	// Start the analysis
+	forward_bind (info, caller, fake, actuals);
+
+	/*
+	 * "Perform" the function
+	 */
 
 	// TODO: its difficult to know exactly what this representation should
 	// look like when we haven't tried modelling that many functions. Instead,
@@ -407,75 +414,42 @@ Whole_program::analyse_summary (Method_info* info, Basic_block* context, Actual_
 	// Whole_program methods. When we've done a few of these, it should be a
 	// lot clearer what we want to model here (also, this allows us model hard
 	// functions which might not be modelled with a data approach).
-	apply_modelled_function (info, context, actuals, lhs);
+	apply_modelled_function (info, fake);
+
 
 	/*
-
-	if (lhs)
-		phc_TODO ();
-
-	if (info->can_touch_globals)
-		phc_TODO ();
-
-	if (info->can_touch_locals)
-		phc_TODO ();
-
-	if (info->return_by_ref)
-		phc_TODO ();
-
-	// We model each parameter, and the return value, for:
-	//		- can they alias other parameters (keep it simple, we can do more
-	//		complicated thing for functions we analyse, such as 'aliases a field
-	//		of param1'.
-	//		- can they alias a global variable
-	Actual_parameter* ap = actuals->begin ();
-	foreach (Parameter_info* pinfo, *info->params)
-	{
-		// TODO: Handle magic methods
-		if (ap == actuals->end())
-			break;
-
-		// TODO: a good way to handle this is to make GLOBALS::* may-alias
-		// this.
-		if (pinfo->pass_by_reference || *ap->is_ref)
-			phc_TODO ();
-
-		if (pinfo->is_callback)
-			phc_TODO ();
-
-		if (pinfo->can_touch_objects)
-			phc_TODO ();
-
-		ap++;
-	}
-
-	// TODO: does this create alias relationships
-	// TODO: how does this affect the callgraph
-	//		- need to look at types for that
-	*/
+	 * Backward bind
+	 */
+	backward_bind (info, caller, reinterpret_cast<Exit_block*> (fake), lhs);
 }
 
 void
-Whole_program::apply_modelled_function (Method_info* info,
-													 Basic_block* context,
-													 MIR::Actual_parameter_list*,
-													 MIR::VARIABLE_NAME* lhs)
+Whole_program::apply_modelled_function (Method_info* info, Basic_block* caller)
 {
+	/*
+	Alias_name return_val;
+	// TODO: we might know the actual value of the parameters
 	if (*info->name == "strlen")
 	{
-		if (lhs)
-		{
-			// TODO: We might know the value, in which case we know the result
-			// Always return in int
-			// except might also return NULL, if > 1 params are passed
-			phc_TODO ();
-		}
+		foreach_wpa (this)
+			wpa->assign_unknown_typed (
+				info->exit_bb (), 
+				return_val,
+				new Types ("int"),
+				DEFINITE);
 	}
 	else if (*info->name == "dechex")
 	{
-		if (lhs)
-			phc_TODO ();
+		foreach_wpa (this)
+			wpa->assign_unknown_typed (
+				info->exit_bb (), 
+				return_val,
+				new Types ("string"),
+				DEFINITE);
 	}
+	else
+		phc_TODO ();
+		*/
 }
 
 void
@@ -689,12 +663,14 @@ Whole_program::init_superglobals (Entry_block* entry)
 }
 
 void
-Whole_program::forward_bind (Basic_block* caller, Entry_block* entry, MIR::Actual_parameter_list* actuals)
+Whole_program::forward_bind (Method_info* info, Basic_block* caller, Entry_block* entry, MIR::Actual_parameter_list* actuals)
 {
 
 	// Each caller should expect that context can be NULL for __MAIN__.
 	foreach_wpa (this)
 		wpa->forward_bind (caller, entry);
+
+	dump (entry);
 
 	// Special case for __MAIN__. We do it here so that the other analyses have initialized.
 	if (caller == NULL)
@@ -703,40 +679,45 @@ Whole_program::forward_bind (Basic_block* caller, Entry_block* entry, MIR::Actua
 	}
 
 
-	// Perform assignments for paramater passing
-	Actual_parameter_list::const_iterator i = actuals->begin ();
-	foreach (Formal_parameter* fp, *entry->method->signature->formal_parameters)
+	int i = 0;
+	foreach (Actual_parameter* ap, *actuals)
 	{
-		if (fp->var->default_value)
-			phc_TODO ();
-
-		Actual_parameter* ap = *i;
-		if (fp->is_ref || ap->is_ref)
+		if (ap->is_ref || info->param_by_ref (i))
 		{
-			// $fp =& $ap;
+			// $ap =& $fp;
 			assign_by_ref (entry,
-					P (ST (entry), fp->var->variable_name),
+					P (ST (entry), info->param_name (i)),
 					P (ST (caller), dyc<VARIABLE_NAME> (ap->rvalue)));
 		}
 		else
 		{
-			// $fp = $ap;
+			// $ap = $fp;
 			assign_by_copy (entry,
-					P (ST (entry), fp->var->variable_name),
+					P (ST (entry), info->param_name (i)),
 					P (ST (caller), dyc<VARIABLE_NAME> (ap->rvalue)));
 		}
+
+		i++;
 	}
+
+	// Default values
+	while (true)
+	{
+		if (info->default_param (i))
+			phc_TODO ();
+//	if (fp->var->default_value)
+		else
+			break;
+	}
+
 
 	foreach_wpa (this)
 		wpa->aggregate_results (entry);
-
-
-	dump (entry);
 }
 
 
 void
-Whole_program::backward_bind (Basic_block* caller, Exit_block* exit, MIR::VARIABLE_NAME* lhs)
+Whole_program::backward_bind (Method_info* info, Basic_block* caller, Exit_block* exit, MIR::VARIABLE_NAME* lhs)
 {
 	// Context can be NULL for __MAIN__
 	foreach_wpa (this)
@@ -744,9 +725,22 @@ Whole_program::backward_bind (Basic_block* caller, Exit_block* exit, MIR::VARIAB
 
 	// Do assignment back to LHS
 	if (lhs)
-		phc_TODO ();
-
-	dump (exit);
+	{
+		if (info->return_by_ref ())
+		{
+			// $lhs =& $retval;
+			assign_by_ref (exit,
+					P (ST (caller), dyc<VARIABLE_NAME> (lhs)),
+					P (ST (exit), new VARIABLE_NAME (RETNAME)));
+		}
+		else
+		{
+			// $lhs = $retval;
+			assign_by_copy (exit,
+					P (ST (caller), dyc<VARIABLE_NAME> (lhs)),
+					P (ST (exit), new VARIABLE_NAME (RETNAME)));
+		}
+	}
 }
 
 

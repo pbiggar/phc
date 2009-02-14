@@ -92,6 +92,9 @@ Aliasing::pull_pred (Basic_block* bb, Basic_block* pred)
 void
 Aliasing::pull_finish (Basic_block* bb)
 {
+	// You cant have no predecessors
+	assert (ins[bb->ID]);
+
 	outs[bb->ID] = ins[bb->ID]->clone ();
 }
 
