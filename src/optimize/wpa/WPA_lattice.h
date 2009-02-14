@@ -38,7 +38,7 @@ public:
 	void aggregate_results (Basic_block* bb);
 
 	bool equals (WPA* other);
-	void dump (Basic_block* bb);
+	void dump (Basic_block* bb, string comment);
 
 	Lattice_cell* get_value (Basic_block* bb, Alias_name name);
 

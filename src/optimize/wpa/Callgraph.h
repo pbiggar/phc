@@ -27,7 +27,7 @@ public:
 	String_list* bottom_up ();
 
 	bool equals (WPA* other);
-	void dump (Basic_block* bb);
+	void dump (Basic_block* bb, string comment);
 
 
 private:

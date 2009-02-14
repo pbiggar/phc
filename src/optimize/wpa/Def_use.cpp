@@ -55,7 +55,7 @@ void dump_set (Map<long, Set<Alias_name> >& map, long id, string set_name)
 }
 
 void
-Def_use::dump(Basic_block* bb)
+Def_use::dump(Basic_block* bb, string comment)
 {
 	long id = bb->ID;
 

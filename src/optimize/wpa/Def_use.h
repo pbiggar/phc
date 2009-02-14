@@ -41,7 +41,7 @@ public:
 	void aggregate_results (Basic_block* bb);
 
 	bool equals (WPA* other);
-	void dump (Basic_block* bb);
+	void dump (Basic_block* bb, string comment);
 
 	void backward_bind (Basic_block* caller, Exit_block* exit);
 

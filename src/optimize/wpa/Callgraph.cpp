@@ -97,7 +97,7 @@ Callgraph::equals (WPA* wpa)
 
 
 void
-Callgraph::dump(Basic_block* bb)
+Callgraph::dump(Basic_block* bb, string comment)
 {
 	// Only dump on entry and exit
 	if (!isa<Entry_block> (bb) && !isa<Exit_block> (bb))

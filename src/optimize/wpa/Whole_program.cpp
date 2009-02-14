@@ -564,7 +564,7 @@ Whole_program::analyse_block (Basic_block* bb)
 	foreach_wpa (this)
 		wpa->aggregate_results (bb);
 
-	dump (bb);
+	dump (bb, "After analysis");
 
 	// Calculate fix-point
 	bool changed = false;
@@ -604,7 +604,7 @@ Whole_program::pull_results (Basic_block* bb)
 }
 
 void
-Whole_program::dump (Basic_block* bb)
+Whole_program::dump (Basic_block* bb, string comment)
 {
 	CHECK_DEBUG ();
 	foreach_wpa (this)
@@ -615,8 +615,8 @@ Whole_program::dump (Basic_block* bb)
 		if (!debugging_enabled)
 			continue;
 
-		DEBUG (bb->ID << ": Dumping " << wpa->name);
-		wpa->dump (bb);
+		DEBUG (bb->ID << " (" << comment << "): Dumping " << wpa->name);
+		wpa->dump (bb, comment);
 		cdebug << endl;
 	}
 	pm->maybe_enable_debug (s("wpa"));
@@ -681,7 +681,7 @@ Whole_program::init_superglobals (Entry_block* entry)
 											Types("string"), DEFINITE);
 	}
 
-	dump (entry);
+	dump (entry, "After superglobals");
 }
 
 void
@@ -733,7 +733,7 @@ Whole_program::forward_bind (Method_info* info, Basic_block* caller, Entry_block
 	foreach_wpa (this)
 		wpa->aggregate_results (entry);
 
-	dump (entry);
+	dump (entry, "After forward_bind");
 }
 
 
@@ -776,7 +776,7 @@ Whole_program::backward_bind (Method_info* info, Basic_block* caller, Exit_block
 	foreach_wpa (this)
 		wpa->backward_bind (caller, exit);
 
-	dump (caller);
+	dump (caller, "After backward bind");
 }
 
 
@@ -1011,7 +1011,7 @@ Whole_program::record_use (Basic_block* bb, Index_node* index_node)
  * Return the range of possible values for INDEX. This is used to
  * disambiguate for indexing other nodes. It returns a set of strings. If
  * only 1 string is returned, it must be that value. If more than one strings
- * are returned, it may be any of them.
+ * are returned, it may be any of them. NULL may be returned, indicating that it may be all possible values.
  */
 String_list*
 Whole_program::get_string_values (Basic_block* bb, Index_node* index)
@@ -1022,7 +1022,7 @@ Whole_program::get_string_values (Basic_block* bb, Index_node* index)
 		return new String_list (s(""));
 
 	if (result == BOTTOM)
-		phc_TODO ();
+		return new String_list (s(UNKNOWN));
 
 	// TODO: this isnt quite right, we need to cast to a string.
 	return new String_list (
@@ -1041,6 +1041,11 @@ Whole_program::get_string_values (Basic_block* bb, Index_node* index)
  * Suppose we get a single result, x. Can we say that a def to this must-def x?
  *		- I believe that scalars cant affect this
  *		- I think we can say that.
+ *
+ *
+ *	TODO: there is a bit of a problem here with implicit creation of values. If
+ *	we're looking to the the assignment $x[$i] = 5, we need to create $x.
+ *	Likewise for $y =& $x[$i] or anything in the form $y =& $x->$f.
  */
 Index_node_list*
 Whole_program::get_named_indices (Basic_block* bb, Path* path, bool record_uses)
@@ -1068,6 +1073,15 @@ Whole_program::get_named_indices (Basic_block* bb, Path* path, bool record_uses)
 		}
 	}
 
+	// TODO: hack. make this nicer.
+	if (lhss.size () == 0)
+	{
+		string name = lexical_cast<string> (bb->ID);
+		assign_empty_array (bb, p->lhs, name);
+		lhss.insert (name);
+	}
+
+
 
 	// Get the names of the fields of the storage nodes.
 	Set<string> rhss;
@@ -1079,20 +1093,20 @@ Whole_program::get_named_indices (Basic_block* bb, Path* path, bool record_uses)
 	}
 	else
 	{
-		// TODO: propagate record_uses?
-		//
 		// The name of the field must be looked up
 		foreach (Index_node* field_index, *get_named_indices (bb, p->rhs, record_uses))
 		{
 			// Record this use regardless of RECORD_USES
 			record_use (bb, field_index);
 
-			// This should return a set of possible names, 1 known name, or
-			// something involving "*".
+			// This should return a set of possible names, 1 known name (including
+			// "*" indicating it could be anything).
 			foreach (String* value, *get_string_values (bb, field_index))
 				rhss.insert (*value);
 		}
 	}
+
+	assert (rhss.size ());
 
 
 	// Combine the results

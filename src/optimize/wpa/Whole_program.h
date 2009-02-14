@@ -145,7 +145,7 @@ public:
 	void init_superglobals (Entry_block* entry);
 
 	/* Local analysis - calling other analyses */
-	void dump (Basic_block* bb);
+	void dump (Basic_block* bb, string comment);
 
 
 	/*

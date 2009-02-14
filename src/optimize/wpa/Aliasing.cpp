@@ -37,10 +37,12 @@ Aliasing::equals (WPA* wpa)
 }
 
 void
-Aliasing::dump (Basic_block* bb)
+Aliasing::dump (Basic_block* bb, string comment)
 {
 	CHECK_DEBUG();
-	outs[bb->ID]->dump_graphviz (s(lexical_cast<string> (bb->ID)));
+	stringstream ss;
+	ss << bb->ID << ":" << comment;
+	outs[bb->ID]->dump_graphviz (s(ss.str()));
 }
 
 
@@ -86,7 +88,7 @@ Aliasing::pull_first_pred (Basic_block* bb, Basic_block* pred)
 void
 Aliasing::pull_pred (Basic_block* bb, Basic_block* pred)
 {
-	ins[bb->ID]->merge (outs[pred->ID]);
+	ins[bb->ID] = ins[bb->ID]->merge (outs[pred->ID]);
 }
 
 void

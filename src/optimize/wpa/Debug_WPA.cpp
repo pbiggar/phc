@@ -168,7 +168,6 @@ Debug_WPA::equals (WPA* other)
 }
 
 void
-Debug_WPA::dump (Basic_block* bb)
+Debug_WPA::dump (Basic_block* bb, string comment)
 {
-	DEBUG (__FUNCTION__);
 }

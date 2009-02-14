@@ -195,7 +195,7 @@ public:
 	/*
 	 * Debugging information
 	 */
-	virtual void dump (Basic_block* bb) = 0;
+	virtual void dump (Basic_block* bb, string comment) = 0;
 };
 
 

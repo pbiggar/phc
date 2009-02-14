@@ -94,6 +94,6 @@ VARIABLE_NAME*
 unnamed_param (int param_index)
 {
 	stringstream ss;
-	ss << "phc_unnamed" << param_index;
+	ss << "__UNNAMED__" << param_index;
 	return new VARIABLE_NAME (s(ss.str()));
 }

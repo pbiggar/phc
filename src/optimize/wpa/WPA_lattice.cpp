@@ -30,7 +30,7 @@ WPA_lattice::equals (WPA* wpa)
 }
 
 void
-WPA_lattice::dump(Basic_block* bb)
+WPA_lattice::dump(Basic_block* bb, string comment)
 {
 	ins.dump (bb, "IN");
 	outs.dump (bb, "OUT");
