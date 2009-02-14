@@ -167,8 +167,8 @@ WPA_lattice::backward_bind (Basic_block* caller, Exit_block* exit)
 
 	// TODO: remove variables in the current scope
 
-	// pull_results inits outs, so we need to clear it, or we'll be merging with
-	// old results.
+	// pull_results inits outs, so we need to clear it, or we'll be merging
+	// with old results.
 	outs[caller->ID].clear ();
 	outs[caller->ID].merge(&outs[exit->ID]);
 }

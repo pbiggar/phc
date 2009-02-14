@@ -202,7 +202,7 @@ public:
 	 */
 	void visit_branch_block (Branch_block*);
 
-	void visit_assign_array (Statement_block*, MIR::Assign_array*) { phc_TODO (); }
+	void visit_assign_array (Statement_block*, MIR::Assign_array*);
 	void visit_assign_field (Statement_block*, MIR::Assign_field *) { phc_TODO (); }
 	void visit_assign_var (Statement_block*, MIR::Assign_var*);
 	void visit_assign_var_var (Statement_block*, MIR::Assign_var_var*) { phc_TODO (); }

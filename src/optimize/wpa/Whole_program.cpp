@@ -398,15 +398,27 @@ Whole_program::analyse_summary (Method_info* info, Basic_block* caller, Actual_p
 
 	CFG* cfg = new CFG (method);
 
-	Entry_block* fake =	new Entry_block (cfg, method);
+	// We use our summaries to apply on this block. We want to make sure the
+	// forward_bind results are available, and that the backward_bind ones are
+	// aggregated normally using the exit_block.
+	Empty_block* fake = new Empty_block (cfg);
+	cfg->replace_bb (cfg->get_exit_bb (), new BB_list (fake, cfg->get_exit_bb ()));
 
 
 	// Start the analysis
-	forward_bind (info, caller, fake, actuals);
+	forward_bind (info, caller, cfg->get_entry_bb(), actuals);
+
+	// Create OUT sets for the entry node
+	foreach_wpa (this)
+		wpa->aggregate_results (cfg->get_entry_bb ());
+
+
 
 	/*
 	 * "Perform" the function
 	 */
+
+	pull_results (fake);
 
 	// TODO: its difficult to know exactly what this representation should
 	// look like when we haven't tried modelling that many functions. Instead,
@@ -416,40 +428,50 @@ Whole_program::analyse_summary (Method_info* info, Basic_block* caller, Actual_p
 	// functions which might not be modelled with a data approach).
 	apply_modelled_function (info, fake);
 
+	// Create OUT sets from the results 
+	foreach_wpa (this)
+		wpa->aggregate_results (fake);
+
+
 
 	/*
 	 * Backward bind
 	 */
-	backward_bind (info, caller, reinterpret_cast<Exit_block*> (fake), lhs);
+
+	pull_results (cfg->get_exit_bb ());
+
+	backward_bind (info, caller, cfg->get_exit_bb (), lhs);
 }
 
+// BB is the block representing the whole method
 void
-Whole_program::apply_modelled_function (Method_info* info, Basic_block* caller)
+Whole_program::apply_modelled_function (Method_info* info, Basic_block* bb)
 {
-	/*
-	Alias_name return_val;
-	// TODO: we might know the actual value of the parameters
+	// TODO:
+	//	If we know all the values for all the parameters, and the function has no
+	//	side-effects, call the function on its parameters.
+
+	Alias_name ret_name (*info->name, RETNAME);
 	if (*info->name == "strlen")
 	{
 		foreach_wpa (this)
 			wpa->assign_unknown_typed (
-				info->exit_bb (), 
-				return_val,
-				new Types ("int"),
+				bb,
+				ret_name,
+				Types ("int"),
 				DEFINITE);
 	}
 	else if (*info->name == "dechex")
 	{
 		foreach_wpa (this)
 			wpa->assign_unknown_typed (
-				info->exit_bb (), 
-				return_val,
-				new Types ("string"),
+				bb,
+				ret_name,
+				Types ("string"),
 				DEFINITE);
 	}
 	else
 		phc_TODO ();
-		*/
 }
 
 void
@@ -665,14 +687,12 @@ Whole_program::init_superglobals (Entry_block* entry)
 void
 Whole_program::forward_bind (Method_info* info, Basic_block* caller, Entry_block* entry, MIR::Actual_parameter_list* actuals)
 {
-
 	// Each caller should expect that context can be NULL for __MAIN__.
 	foreach_wpa (this)
 		wpa->forward_bind (caller, entry);
 
-	dump (entry);
-
-	// Special case for __MAIN__. We do it here so that the other analyses have initialized.
+	// Special case for __MAIN__. We do it here so that the other analyses
+	// have initialized.
 	if (caller == NULL)
 	{
 		init_superglobals (entry);
@@ -710,20 +730,30 @@ Whole_program::forward_bind (Method_info* info, Basic_block* caller, Entry_block
 			break;
 	}
 
-
 	foreach_wpa (this)
 		wpa->aggregate_results (entry);
+
+	dump (entry);
 }
 
 
 void
 Whole_program::backward_bind (Method_info* info, Basic_block* caller, Exit_block* exit, MIR::VARIABLE_NAME* lhs)
 {
-	// Context can be NULL for __MAIN__
-	foreach_wpa (this)
-		wpa->backward_bind (caller, exit);
-
 	// Do assignment back to LHS
+	//
+	// If we do the assignment in the caller, then it will use the result from
+	// the IN of the caller, which wont tell us anything. It should use the out
+	// of the callee. However, using the callee means we need to ensure the
+	// results have propagated. So the callee has 3 BBs: entry, exit and the one
+	// where the work is done.
+	//
+	// The assignment to LHS is done in the context of the callee, and then the
+	// results are backwards_bound. This has the added advantage that we can
+	// strip the callees results from the solution without worrying. There is a
+	// danger that it might make an analysis think that return value somehow
+	// escapes. I'm not sure if anything needs to be done about that.
+
 	if (lhs)
 	{
 		if (info->return_by_ref ())
@@ -741,6 +771,12 @@ Whole_program::backward_bind (Method_info* info, Basic_block* caller, Exit_block
 					P (ST (exit), new VARIABLE_NAME (RETNAME)));
 		}
 	}
+
+	// Context can be NULL for __MAIN__
+	foreach_wpa (this)
+		wpa->backward_bind (caller, exit);
+
+	dump (caller);
 }
 
 
@@ -982,7 +1018,10 @@ Whole_program::get_string_values (Basic_block* bb, Index_node* index)
 {
 	Lattice_cell* result = ccp->get_value (bb, index->name ());
 
-	if (result == BOTTOM || result == TOP)
+	if (result == TOP)
+		return new String_list (s(""));
+
+	if (result == BOTTOM)
 		phc_TODO ();
 
 	// TODO: this isnt quite right, we need to cast to a string.
@@ -1100,6 +1139,20 @@ Whole_program::visit_global (Statement_block* bb, MIR::Global* in)
 
 
 void
+Whole_program::visit_assign_array (Statement_block* bb, MIR::Assign_array* in)
+{
+	string ns = ST (bb);
+	Path* lhs = P (ns, in);
+	Path* rhs = P (ns, in->rhs);
+
+	if (in->is_ref)
+		assign_by_ref (bb, lhs, rhs);
+	else
+		assign_by_copy (bb, lhs, rhs);
+}
+
+
+void
 Whole_program::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 {
 	string ns = ST (bb);
@@ -1156,8 +1209,7 @@ Whole_program::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 
 		case Method_invocation::ID:
 			handle_method_invocation (bb, dyc<Method_invocation> (in->rhs), in->lhs);
-			phc_TODO ();
-			break;
+			return;
 
 		default:
 			phc_unreachable ();

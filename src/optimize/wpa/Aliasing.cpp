@@ -92,7 +92,7 @@ Aliasing::pull_pred (Basic_block* bb, Basic_block* pred)
 void
 Aliasing::pull_finish (Basic_block* bb)
 {
-	// You cant have no predecessors
+	// You cant have no predecessors (and at least 1 must be executable)
 	assert (ins[bb->ID]);
 
 	outs[bb->ID] = ins[bb->ID]->clone ();
@@ -180,6 +180,7 @@ Aliasing::assign_by_ref (Basic_block* bb, Alias_name lhs, Alias_name rhs, certai
 void
 Aliasing::assign_by_copy (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert)
 {
+	outs[bb->ID]->add_node (lhs.ind(), cert);
 	add_all_points_to_edges (bb, lhs, rhs, cert);
 }
 
@@ -263,6 +264,15 @@ P (string symtable, Node* in)
 
 			return new Indexing (
 				new Indexing (st, new Index_path (*aa->variable_name->value)),
+				P (symtable, aa->index));
+		}
+
+		case Assign_array::ID:
+		{
+			Assign_array* aa = dyc<Assign_array> (in);
+
+			return new Indexing (
+				new Indexing (st, new Index_path (*aa->lhs->value)),
 				P (symtable, aa->index));
 		}
 
