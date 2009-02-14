@@ -21,7 +21,6 @@ class Desugar : public AST::Transform, virtual public GC_obj
 	void pre_nop(AST::Nop*, AST::Statement_list*);
 	void pre_return(AST::Return*, AST::Statement_list*);
 
-	AST::Expr* pre_bin_op (AST::Bin_op* in);
 	AST::OP* pre_op (AST::OP* in);
 	AST::CAST* pre_cast (AST::CAST* in);
 

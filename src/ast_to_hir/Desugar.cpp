@@ -52,6 +52,7 @@ void Desugar::pre_declare (Declare* in, Statement_list* out)
  * The following are not case-sensitive:
  *		class names
  *		interface names
+ *		method names
  *		casts
  *
  * The following are case-sensitive
@@ -74,25 +75,6 @@ Desugar::pre_op (OP* in)
 		in->value = s("||");
 	else if (*in->value == "<>")
 		in->value = s("!=");
-
-	return in;
-}
-
-// Replace >= and > with <= and <, and swap the operators.
-Expr*
-Desugar::pre_bin_op (Bin_op* in)
-{
-	if (*in->op->value == ">" || *in->op->value == ">=")
-	{
-		Expr* left = in->left;
-		in->left = in->right;
-		in->right = left;
-
-		if (*in->op->value == ">")
-			in->op->value = s ("<");
-		else
-			in->op->value = s ("<=");
-	}
 
 	return in;
 }

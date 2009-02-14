@@ -8,9 +8,9 @@
 			$x = $_x;
 		}
 	}
-	$instance1 = Obj (7);
-	$instance2 = Obj (new Obj ("asdasd"));
-	$instance3 = Obj (new Obj ("asdasd"));
+	$instance1 = new Obj (7);
+	$instance2 = new Obj (new Obj ("asdasd"));
+	$instance3 = new Obj (new Obj ("asdasd"));
 
 
 	switch ($instance3)
