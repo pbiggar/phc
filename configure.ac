@@ -4,7 +4,7 @@ dnl
 dnl Process this file using autoconf to produce configure
 
 dnl Autoconf requirements
-AC_INIT([phc], [0.2.0.2], [phc-general@phpcompiler.org])
+AC_INIT([phc], [0.2.0.3], [phc-general@phpcompiler.org])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_AUX_DIR([config])
 
