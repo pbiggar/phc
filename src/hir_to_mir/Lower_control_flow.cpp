@@ -180,7 +180,12 @@ void Lower_control_flow::post_loop (Loop* in, Statement_list* out)
  * into
  *			if (!is_array ($arr)) 
  *			{
- *				trigger_error (\"Invalid argument supplied for foreach()\", E_USER_WARNING);"
+ *				if (!is_object ($arr))
+ *				{
+ *					trigger_error (\"Invalid argument supplied for foreach()\", E_USER_WARNING);"
+ *					goto L4;
+ *				}
+ *
  *				$arr = (array)($arr);
  *			}
  *			foreach_reset ($arr, iter); 
@@ -196,6 +201,7 @@ void Lower_control_flow::post_loop (Loop* in, Statement_list* out)
  *			goto L0:
  *		L2: // breaks jump here
  *			foreach_end ($arr, iter);
+ *		L4:
  */
 
 void Lower_control_flow::lower_foreach (Foreach* in, Statement_list* out)
@@ -206,10 +212,15 @@ void Lower_control_flow::lower_foreach (Foreach* in, Statement_list* out)
 	MIR::VARIABLE_NAME* array_name = fold_var (cast_array_name); // keep the attributes
 
 	(*out
-		<< "if (!is_array ($" << in->arr << ")) "
+		<< "if (!is_array ($" << in->arr << "))"
 		<< "{"
-		<< "	trigger_error (\"Invalid argument supplied for foreach()\", E_USER_WARNING);"
-		<< "	$" << cast_array_name << " = (array)($" << in->arr << ");"
+		<< "	if (!is_object ($" << in->arr << "))"
+		<< "	{"
+		<< "		trigger_error (\"Invalid argument supplied for foreach()\", E_USER_WARNING);"
+		<< "		PHC_XXX();" // a goto will be added here
+		<< "	}"
+		<<	"	else"
+		<< "		$" << cast_array_name << " = (array)($" << in->arr << ");"
 		<< "}"
 		<< "else"
 		<< "{"
@@ -308,6 +319,21 @@ void Lower_control_flow::lower_foreach (Foreach* in, Statement_list* out)
 		new MIR::Foreach_end (
 			array_name->clone (),
 			iter->clone ())));
+
+	// L4:
+	MIR::Label* l4 = MIR::fresh_label ();
+	out->push_back (new FOREIGN (l4)); // scalars jump to here
+
+	// HACK: Because we couldnt put a goto in the parsed code above, we put in a
+	// marker PHC_XXX(). We'll replace that with a goto now.
+	foreach (HIR::Statement*& stmt, *out)
+	{
+		if (stmt->match (new Eval_expr (new HIR::Method_invocation (NULL, new METHOD_NAME ("phc_xxx"), new HIR::Actual_parameter_list))))
+		{
+			stmt = new FOREIGN (new MIR::Goto (l4->label_name->clone ()));
+			break;
+		}
+	}
 
 	// wrap it in a PHP script to call visit
 	(new PHP_script (out))->visit (new Clone_blank_mixins<Node, Visitor> (in, new Node_list)); // TODO we should have nodes here

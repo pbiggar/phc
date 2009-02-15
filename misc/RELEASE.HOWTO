@@ -1,0 +1,31 @@
+0. svn update
+	- do not omit this step.
+
+1. Update the Changelog
+
+2. Run misc/makerelease.sh
+	- check the test results are correct
+
+3. Upload the release to phpcompiler.org
+	- unzip the docs into doc/
+	- put all files in src/archive
+
+4. Update phpcompiler.org
+	- news
+	- downloads
+	- documentation
+	- .htaccess - doc links
+	- contribute - Have you thanked the contributors?
+	- ChangeLog goes in the repository
+
+5. Update code.google.com
+	- upload the files
+
+6. Tag the release
+
+7. Announce on phc-general
+	- major releases on comp.compilers and php.general
+
+8. Update freshmeat
+
+9. Does anything need to be merged back to trunk?

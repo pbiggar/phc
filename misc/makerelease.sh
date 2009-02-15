@@ -13,24 +13,39 @@ function ERROR
 	exit
 }
 
-## Check command line usage
+function full_test
+{
+	pushd .
+	tar xfj $SRC_BZ2
+	cd $SRC_DIR
+	./configure --prefix $TST_DIR $1
+	make
+	make installtest
+	popd
+	rm -rf $SRC_DIR
+	rm -rf $TST_DIR
+}
 
-if [ "$1" = "" ]
-then
-	ERROR "usage: $0 version_number" 
-fi
+
+set -x
+
+# Get the revision number from AC_INIT
+
+# Get the second column, which is in the form "[version],". Strip the [], from around it.
+VERSION=$(grep AC_INIT configure.ac | awk '{print $2}' | sed -e 's/^.\(.*\)..$/\1/g')
+
 
 ## Names of the generated files and directories
 
-SRC_DIR=phc-$1
+SRC_DIR=phc-$VERSION
 DOC_DIR=$SRC_DIR/doc/manual/
-TST_DIR=$(readlink -f phc-$1-test)
+TST_DIR=$(readlink -f phc-$VERSION-test)
 
-SRC_TGZ=phc-$1.tar.gz
-SRC_BZ2=phc-$1.tar.bz2
-DOC_TGZ=phc-$1-html.tar.gz
+SRC_TGZ=phc-$VERSION.tar.gz
+SRC_BZ2=phc-$VERSION.tar.bz2
+DOC_TGZ=phc-$VERSION-html.tar.gz
 
-PDF=phc-$1.pdf
+PDF=phc-$VERSION.pdf
 
 ## Check for the existance of directories and files
 
@@ -52,10 +67,9 @@ done
 
 ## Start generating the release 
 
-set -x
-
 ## Export an unversioned copy of the repository
 
+svn update
 svn export . $SRC_DIR 
 
 ## Make sure the timestamps of the files in generated/ are newer than the 
@@ -90,13 +104,9 @@ rm -rf $SRC_DIR
 
 ## Running tests
 
-pushd .
-tar xfj $SRC_BZ2
-cd $SRC_DIR
-./configure --prefix $TST_DIR
-make
-make installtest
-popd
+full_test
+full_test --without-php
+full_test --without-xerces
 
 ## Finish 
 

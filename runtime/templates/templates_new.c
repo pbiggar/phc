@@ -1232,7 +1232,7 @@ assign_param_is_ref (string MN, string FILENAME, string LINE, string FCI_NAME, s
 	\get_st_entry ("LOCAL", "p_lhs", LHS);
 	zval* rhs;
 	ALLOC_INIT_ZVAL (rhs);
-	if (count == $INDEX)
+	if (arg_info && count == $INDEX)
 	{
 		ZVAL_BOOL (rhs, arg_info->pass_by_reference);
 	}

@@ -1,0 +1,13 @@
+#!/bin/bash
+
+set -x
+AUTOCONF_ARCHIVE=/usr/share/autoconf-archive
+
+# autotools invocations are hard to get right.
+
+aclocal -I m4 -I libltdl -I $AUTOCONF_ARCHIVE
+autoconf
+automake
+
+set +x
+echo "To build phc, run \"./configure\" followed by \"make\""

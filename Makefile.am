@@ -91,6 +91,8 @@ libphc_la_SOURCES= 											\
 	src/ast_to_hir/Split_unset_isset.h					\
 	src/ast_to_hir/Strip_comments.cpp					\
 	src/ast_to_hir/Strip_comments.h						\
+	src/ast_to_hir/Switch_bin_op.cpp						\
+	src/ast_to_hir/Switch_bin_op.h						\
 	src/codegen/Clarify.cpp									\
 	src/codegen/Clarify.h									\
 	src/codegen/Compile_C.cpp								\
