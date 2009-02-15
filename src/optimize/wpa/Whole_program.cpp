@@ -467,6 +467,15 @@ Whole_program::apply_modelled_function (Method_info* info, Basic_block* bb)
 				new INT (1),
 				DEFINITE);
 	}
+	else if (*info->name == "is_array")
+	{
+		foreach_wpa (this)
+			wpa->assign_unknown_typed (
+				bb,
+				ret_name,
+				Types ("bool"),
+				DEFINITE);
+	}
 	else
 		phc_TODO ();
 }
@@ -1191,9 +1200,16 @@ Whole_program::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 			handle_bin_op (bb, lhs, dyc<Bin_op> (in->rhs));
 			return;
 
+		// Does not affect pointer analysis
+		// TODO: except to call object properties!!
+		case Unary_op::ID:
+			handle_unary_op (bb, lhs, dyc<Unary_op> (in->rhs));
+			return;
+
+
+
 		case Isset::ID:
 		case Param_is_ref::ID:
-		case Unary_op::ID:
 		case Instanceof::ID:
 		case Constant::ID:
 			phc_TODO ();
@@ -1344,6 +1360,34 @@ Whole_program::handle_bin_op (Statement_block* bb, Path* lhs, MIR::Bin_op* in)
 	// TODO: this is very very ugly
 	Types types = type_inf->get_bin_op_types (
 		bb, left, right, left_lit, right_lit, *in->op->value);
+
+	foreach_wpa (this)
+		foreach (Index_node* n, *get_named_indices (bb, lhs))
+			wpa->assign_unknown_typed (bb, n->name(), types, DEFINITE);
+}
+
+void
+Whole_program::handle_unary_op (Statement_block* bb, Path* lhs, MIR::Unary_op* in)
+{
+	// TODO: again this is ugly.
+	// We should handle folding here.
+	// We should make this easy for a true/false analysis to handle.
+
+	Alias_name operand = VN (ST(bb), in->variable_name)->name();
+
+	MIR::Literal* lit = ccp->get_lit (bb, operand);
+
+	if (lit)
+	{
+		Literal* result = PHP::fold_unary_op (in->op, lit);
+		assign_scalar (bb, lhs, result);
+		return;
+	}
+
+	record_use (bb, operand.ind ());
+
+	Types types = type_inf->get_unary_op_types (
+		bb, &operand, *in->op->value);
 
 	foreach_wpa (this)
 		foreach (Index_node* n, *get_named_indices (bb, lhs))

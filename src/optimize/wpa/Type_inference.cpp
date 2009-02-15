@@ -60,6 +60,16 @@ Type_inference::get_literal_type (MIR::Literal* lit)
 	return type_names[lit->classid()];
 }
 
+Types
+Type_inference::get_unary_op_types (Basic_block* bb, Alias_name* operand, string op)
+{
+	Set<string> always_bool_ops;
+	always_bool_ops.insert ("!");
+	if (always_bool_ops.has (op))
+		return Types ("bool");
+
+	phc_TODO ();
+}
 
 Types
 Type_inference::get_bin_op_type (string ltype, string rtype, string op)
@@ -82,9 +92,6 @@ Type_inference::get_bin_op_type (string ltype, string rtype, string op)
 //	type_map ["<"]["int"]["int"] = Types ("bool");
 
 }
-
-
-
 
 Types
 Type_inference::get_bin_op_types (Basic_block* bb, Alias_name* left, Alias_name* right, MIR::Literal* left_lit, MIR::Literal* right_lit, string op)
@@ -115,6 +122,7 @@ Type_inference::get_bin_op_types (Basic_block* bb, Alias_name* left, Alias_name*
 
 	return result_types;
 }
+
 
 /*
  * Lattice

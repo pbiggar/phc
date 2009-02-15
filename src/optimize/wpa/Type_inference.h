@@ -42,6 +42,7 @@ public:
 	Types get_types (Basic_block* bb, Alias_name name);
 
 	Types get_bin_op_types (Basic_block* bb, Alias_name* left, Alias_name* right, MIR::Literal* left_lit, MIR::Literal* right_lit, string op);
+	Types get_unary_op_types (Basic_block* bb, Alias_name* operand, string op);
 
 
 	static string get_literal_type (MIR::Literal* lit);
