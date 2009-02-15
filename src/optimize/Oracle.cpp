@@ -83,5 +83,5 @@ Oracle::is_pure_function (MIR::METHOD_NAME* name)
 	if (info == NULL)
 		return false;
 
-	return info->is_side_effecting ();
+	return !info->is_side_effecting ();
 }

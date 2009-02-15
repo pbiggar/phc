@@ -27,7 +27,7 @@ Inlining::transform_eval_expr (Statement_block* bb, Eval_expr* in, BB_list* out)
 	User_method_info* info = Oracle::get_user_method_info (
 		dyc<METHOD_NAME> (mi->method_name)->value);
 
-	if (info)
+	if (info == NULL)
 		return;
 
 	// TODO: technically, we have ignored the problem that a function call can

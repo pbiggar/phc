@@ -6,12 +6,14 @@
  */
 
 #include "Method_information.h"
+#include "Basic_block.h"
 #include "MIR.h"
 
 using namespace MIR;
 
 Method_info::Method_info (String* name)
 : name (name)
+, cfg (NULL)
 {
 }
 
@@ -23,7 +25,6 @@ Method_info::Method_info (String* name)
 User_method_info::User_method_info (Method* method)
 : Method_info (method->signature->method_name->value)
 , method (method)
-, cfg (NULL)
 , side_effecting (false)
 {
 }
@@ -99,12 +100,59 @@ unnamed_param (int param_index)
 }
 
 /*
+ * Summary methods
+ */
+
+Summary_method_info::Summary_method_info (String* name)
+: Method_info (name)
+{
+}
+
+CFG*
+Summary_method_info::get_cfg ()
+{
+	if (this->cfg == NULL)
+	{
+		// We want to use the same BB every time, or else our analyses will
+		// have different keys, and never converge.
+
+		// This fakes the infrastructure we've built everything on.
+		Method* method = 
+			new Method (
+					new Signature (
+						this->name->c_str ()),
+					new Statement_list);
+
+		this->cfg = new CFG (method);
+
+		// We use our summaries to apply on this block. We want to make sure
+		// the forward_bind results are available, and that the backward_bind
+		// ones are aggregated normally using the exit_block.
+		Basic_block* fake = new Empty_block (this->cfg);
+		this->cfg->replace_bb (
+				this->cfg->get_exit_bb (), 
+				new BB_list (fake, this->cfg->get_exit_bb ()));
+	}
+
+	return this->cfg;
+}
+
+Basic_block*
+Summary_method_info::get_fake_bb ()
+{
+	assert (this->cfg);
+	return this->cfg->get_entry_bb ()->get_successors ()->front();
+}
+
+
+
+/*
  * Builtins
  */
 
 
 Builtin_method_info::Builtin_method_info (String* name)
-: Method_info (name)
+: Summary_method_info (name)
 {
 }
 

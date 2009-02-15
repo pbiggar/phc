@@ -135,7 +135,7 @@ public:
 								  MIR::Actual_parameter_list*,
 								  MIR::VARIABLE_NAME* lhs);
 
-	void analyse_summary (Method_info* info,
+	void analyse_summary (Summary_method_info* info,
 								 Basic_block* caller,
 							    MIR::Actual_parameter_list*,
 								 MIR::VARIABLE_NAME* lhs);

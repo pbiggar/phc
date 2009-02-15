@@ -192,7 +192,7 @@ PHP::fold_constant (Constant* in)
 }
 
 
-class Internal_method_info : public Method_info
+class Internal_method_info : public Summary_method_info
 {
 	// TODO: what would the function caches get me?
 	zend_function* func;
@@ -231,7 +231,7 @@ PHP::get_method_info (String* name)
 
 
 Internal_method_info::Internal_method_info (String* name, zend_function* func)
-: Method_info (name)
+: Summary_method_info (name)
 , func(func)
 {
 }

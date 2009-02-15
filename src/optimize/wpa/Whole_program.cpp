@@ -382,27 +382,15 @@ Whole_program::analyse_method_info (Method_info* method_info,
 	{
 		// Get as precise information as is possible with pre-baked summary
 		// information.
-		analyse_summary (method_info, caller, actuals, lhs);
+		analyse_summary (dyc<Summary_method_info> (method_info), caller, actuals, lhs);
 	}
 }
 
 void
-Whole_program::analyse_summary (Method_info* info, Basic_block* caller, Actual_parameter_list* actuals, VARIABLE_NAME* lhs)
+Whole_program::analyse_summary (Summary_method_info* info, Basic_block* caller, Actual_parameter_list* actuals, VARIABLE_NAME* lhs)
 {
-	// This fakes the infrastructure we've built everything on.
-	Method* method = 
-		new Method (
-				new Signature (
-					info->name->c_str ()),
-				new Statement_list);
-
-	CFG* cfg = new CFG (method);
-
-	// We use our summaries to apply on this block. We want to make sure the
-	// forward_bind results are available, and that the backward_bind ones are
-	// aggregated normally using the exit_block.
-	Empty_block* fake = new Empty_block (cfg);
-	cfg->replace_bb (cfg->get_exit_bb (), new BB_list (fake, cfg->get_exit_bb ()));
+	CFG* cfg = info->get_cfg ();
+	Basic_block* fake = info->get_fake_bb ();
 
 
 	// Start the analysis
@@ -721,9 +709,18 @@ Whole_program::forward_bind (Method_info* info, Basic_block* caller, Entry_block
 		else
 		{
 			// $ap = $fp;
-			assign_by_copy (entry,
-					P (ST (entry), info->param_name (i)),
-					P (ST (caller), dyc<VARIABLE_NAME> (ap->rvalue)));
+			if (isa<VARIABLE_NAME> (ap->rvalue))
+			{
+				assign_by_copy (entry,
+						P (ST (entry), info->param_name (i)),
+						P (ST (caller), dyc<VARIABLE_NAME> (ap->rvalue)));
+			}
+			else
+			{
+				assign_scalar (entry,
+						P (ST (entry), info->param_name (i)),
+						dyc<Literal> (ap->rvalue));
+			}
 		}
 
 		i++;
@@ -1332,10 +1329,16 @@ Whole_program::handle_bin_op (Statement_block* bb, Path* lhs, MIR::Bin_op* in)
 	}
 
 	if (left_lit == NULL)
+	{
 		left = new Alias_name (VN (ST(bb), dyc<VARIABLE_NAME> (in->left))->name());
+		record_use (bb, left->ind ());
+	}
 
 	if (right_lit == NULL)
+	{
 		right = new Alias_name (VN (ST(bb), dyc<VARIABLE_NAME> (in->right))->name());
+		record_use (bb, right->ind ());
+	}
 
 
 	// TODO: this is very very ugly

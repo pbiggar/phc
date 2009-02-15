@@ -78,6 +78,7 @@ class Method_info : virtual public GC_obj
 {
 public:
 	String* name;
+	CFG* cfg; // If there is no implementation, a fake CFG is provided.
 
 protected:
 	Method_info (String* name);
@@ -107,7 +108,6 @@ class User_method_info : public Method_info
 {
 public:
 	MIR::Method* method;
-	CFG* cfg;
 
 private:
 	bool side_effecting;
@@ -128,11 +128,21 @@ public:
 
 };
 
+class Summary_method_info : public Method_info
+{
+public:
+	// Creates fake CFGs for summary analysis
+	Summary_method_info (String* name);
+
+	CFG* get_cfg ();
+	Basic_block* get_fake_bb ();
+};
+
 /*
  * Model builtin functions. The modelling is actually in Whole_program.cpp, for
  * now.
  */
-class Builtin_method_info : public Method_info
+class Builtin_method_info : public Summary_method_info
 {
 public:
 	Builtin_method_info (String* name);
