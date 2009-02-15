@@ -635,7 +635,7 @@ Whole_program::init_superglobals (Entry_block* entry)
 	// Start with globals, since it needs needs to point to MSN
 	assign_empty_array (entry, P (MSN, new VARIABLE_NAME ("GLOBALS")), MSN);
 
-	// Do the other superglobals
+/*	// Do the other superglobals
 	foreach (VARIABLE_NAME* sg, *PHP::get_superglobals ())
 	{
 		if (*sg->value == "GLOBALS")
@@ -672,7 +672,8 @@ Whole_program::init_superglobals (Entry_block* entry)
 		wpa->assign_unknown_typed (entry, Alias_name ("argv", "0"),
 											Types("string"), DEFINITE);
 	}
-
+*/
+// TODO: these are fine, but it makes the graphs hard to read.
 	dump (entry, "After superglobals");
 }
 
@@ -880,6 +881,7 @@ Whole_program::assign_unknown_typed (Basic_block* bb, Path* plhs, Types types)
 {
 	Index_node_list* lhss = get_named_indices (bb, plhs);
 
+	// If this is the only Index_node it can refer to, its a kill.
 	bool killable = is_must (lhss);
 
 	// This is not killing in terms of references, so it assigns to all

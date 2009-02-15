@@ -124,8 +124,17 @@ Points_to::dump_graphviz (String* label)
 void
 Points_to::add_node (Index_node* index, certainty cert)
 {
+	Storage_node* st = SN (index->storage);
+
 	if (!contains (index))
-		add_edge (SN (index->storage), index, cert);
+		add_edge (st, index, cert);
+	else
+	{
+		// We dont need to change it in any other case:
+		if (cert == DEFINITE)
+			get_edge (st, index)->cert = DEFINITE;
+	}
+
 }
 
 // Does the graph already contains this node.

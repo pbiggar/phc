@@ -112,6 +112,7 @@ void
 Aliasing::kill_value (Basic_block* bb, Alias_name lhs)
 {
 	Points_to* ptg = outs[bb->ID];
+	ptg->add_node (lhs.ind(), DEFINITE);
 
 	Storage_node_list* values = ptg->get_points_to (lhs.ind(), PTG_ALL);
 	if (values->size ())
@@ -124,6 +125,7 @@ void
 Aliasing::kill_by_ref (Basic_block* bb, Alias_name lhs)
 {
 	Points_to* ptg = outs[bb->ID];
+	ptg->add_node (lhs.ind(), DEFINITE);
 
 	foreach (Index_node* other, *ptg->get_references (lhs.ind(), PTG_ALL))
 	{
