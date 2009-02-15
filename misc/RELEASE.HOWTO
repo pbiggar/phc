@@ -7,13 +7,16 @@
 	- check the test results are correct
 
 3. Upload the release to phpcompiler.org
-	- unzip the docs
-	- put files in src/archive
+	- unzip the docs into doc/
+	- put all files in src/archive
 
 4. Update phpcompiler.org
-	- Don't forget the doc links
-	- Don't forget .htaccess
-	- Have you thanked the contributors?
+	- news
+	- downloads
+	- documentation
+	- .htaccess - doc links
+	- contribute - Have you thanked the contributors?
+	- ChangeLog goes in the repository
 
 5. Update code.google.com
 	- upload the files
