@@ -209,7 +209,7 @@ public:
 	void visit_eval_expr (Statement_block*, MIR::Eval_expr*);
 	void visit_foreach_end (Statement_block*, MIR::Foreach_end*) { phc_TODO (); }
 	void visit_foreach_next (Statement_block*, MIR::Foreach_next*) { phc_TODO (); }
-	void visit_foreach_reset (Statement_block*, MIR::Foreach_reset*) { phc_TODO (); }
+	void visit_foreach_reset (Statement_block*, MIR::Foreach_reset*);
 	void visit_global (Statement_block*, MIR::Global*);
 	void visit_pre_op (Statement_block*, MIR::Pre_op*);
 	void visit_assign_next (Statement_block*, MIR::Assign_next*) { phc_TODO (); }
@@ -228,6 +228,7 @@ public:
 	// Tricky bits
 	void handle_bin_op (Statement_block* bb, Path* lhs, MIR::Bin_op* rhs);
 	void handle_unary_op (Statement_block* bb, Path* lhs, MIR::Unary_op* rhs);
+	void handle_constant (Statement_block* bb, Path* lhs, MIR::Constant* in);
 
 
 };

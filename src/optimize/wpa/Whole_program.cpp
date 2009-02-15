@@ -436,45 +436,31 @@ void
 Whole_program::apply_modelled_function (Method_info* info, Basic_block* bb)
 {
 	// TODO:
-	//	If we know all the values for all the parameters, and the function has no
-	//	side-effects, call the function on its parameters.
+	//	If we know all the values for all the parameters, and the function has
+	//	no side-effects, call the function on its parameters.
+	//
+	//	TODO: stop only modelling types.
 
-	Alias_name ret_name (*info->name, RETNAME);
+	Path* ret_name = P (ST(bb), new VARIABLE_NAME (RETNAME));
 	if (*info->name == "strlen")
 	{
-		foreach_wpa (this)
-			wpa->assign_unknown_typed (
-				bb,
-				ret_name,
-				Types ("int"),
-				DEFINITE);
+		assign_unknown_typed (bb, ret_name, Types ("int"));
 	}
 	else if (*info->name == "dechex")
 	{
-		foreach_wpa (this)
-			wpa->assign_unknown_typed (
-				bb,
-				ret_name,
-				Types ("string"),
-				DEFINITE);
+		assign_unknown_typed (bb, ret_name, Types ("string"));
 	}
 	else if (*info->name == "print")
 	{
-		foreach_wpa (this)
-			wpa->assign_scalar (
-				bb,
-				ret_name,
-				new INT (1),
-				DEFINITE);
+		assign_scalar (bb, ret_name, new INT (1));
 	}
 	else if (*info->name == "is_array")
 	{
-		foreach_wpa (this)
-			wpa->assign_unknown_typed (
-				bb,
-				ret_name,
-				Types ("bool"),
-				DEFINITE);
+		assign_unknown_typed (bb, ret_name, Types ("bool"));
+	}
+	else if (*info->name == "trigger_error")
+	{
+		assign_unknown_typed (bb, ret_name, Types ("bool"));
 	}
 	else
 		phc_TODO ();
@@ -890,6 +876,57 @@ Whole_program::assign_scalar (Basic_block* bb, Path* plhs, Literal* lit)
 }
 
 void
+Whole_program::assign_unknown_typed (Basic_block* bb, Path* plhs, Types types)
+{
+	Index_node_list* lhss = get_named_indices (bb, plhs);
+
+	bool killable = is_must (lhss);
+
+	// This is not killing in terms of references, so it assigns to all
+	// aliases of lhs.
+	foreach (Index_node* lhs, *lhss)
+	{
+		// Handle all the aliases/indirect assignments.
+		certainty certainties[] = {POSSIBLE, DEFINITE};
+		foreach (certainty cert, certainties)
+		{
+			Index_node_list* refs = aliasing->get_references (bb, lhs, cert);
+
+			// If we can't say the LHSS is killable, we get say its must defs are
+			// killable either.
+			if (!killable)
+				cert = POSSIBLE;
+
+			foreach_wpa (this)
+			{
+				foreach (Index_node* ref, *refs)
+				{
+					if (cert == DEFINITE) // must-def
+						wpa->kill_value (bb, ref->name ());
+
+					wpa->assign_unknown_typed (bb,
+							lhs->name(),
+							types,
+							cert);
+				}
+			}
+		}
+
+		// Handle LHS itself
+		foreach_wpa (this)
+		{
+			if (killable) // only 1 result
+				wpa->kill_value (bb, lhs->name ());
+
+			wpa->assign_unknown_typed (bb,
+				lhs->name(),
+				types,
+				killable ? DEFINITE : POSSIBLE);
+		}
+	}
+}
+
+void
 Whole_program::assign_empty_array (Basic_block* bb, Path* plhs, string unique_name)
 {
 	Index_node_list* lhss = get_named_indices (bb, plhs);
@@ -1186,6 +1223,15 @@ Whole_program::visit_assign_array (Statement_block* bb, MIR::Assign_array* in)
 
 
 void
+Whole_program::visit_foreach_reset (Statement_block* bb, MIR::Foreach_reset* in)
+{
+	// Mark iterator as defined. The iterator does nothing for us otherwise.
+	foreach_wpa (this)
+		wpa->assign_unknown (bb, Alias_name (ST(bb), *in->iter->value), DEFINITE);
+}
+
+
+void
 Whole_program::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 {
 	string ns = ST (bb);
@@ -1206,12 +1252,17 @@ Whole_program::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 			handle_unary_op (bb, lhs, dyc<Unary_op> (in->rhs));
 			return;
 
+		case Constant::ID:
+			handle_constant (bb, lhs, dyc<Constant> (in->rhs));
+			return;
 
+		case Foreach_has_key::ID:
+			assign_unknown_typed (bb, lhs, Types ("bool"));
+			return;
 
 		case Isset::ID:
 		case Param_is_ref::ID:
 		case Instanceof::ID:
-		case Constant::ID:
 			phc_TODO ();
 			break;
 
@@ -1235,7 +1286,6 @@ Whole_program::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 		// Need to use analysis results before putting into the graph
 		case Foreach_get_key::ID:
 		case Foreach_get_val::ID:
-		case Foreach_has_key::ID:
 		case Cast::ID:
 			phc_TODO ();
 			break;
@@ -1318,9 +1368,7 @@ Whole_program::visit_pre_op (Statement_block* bb, Pre_op* in)
 		return;
 	}
 
-	foreach_wpa (this)
-		foreach (Index_node* n, *get_named_indices (bb, path))
-			wpa->assign_unknown_typed (bb, n->name(), tc->types, DEFINITE);
+	assign_unknown_typed (bb, path, tc->types);
 }
 
 
@@ -1361,9 +1409,7 @@ Whole_program::handle_bin_op (Statement_block* bb, Path* lhs, MIR::Bin_op* in)
 	Types types = type_inf->get_bin_op_types (
 		bb, left, right, left_lit, right_lit, *in->op->value);
 
-	foreach_wpa (this)
-		foreach (Index_node* n, *get_named_indices (bb, lhs))
-			wpa->assign_unknown_typed (bb, n->name(), types, DEFINITE);
+	assign_unknown_typed (bb, lhs, types);
 }
 
 void
@@ -1389,7 +1435,19 @@ Whole_program::handle_unary_op (Statement_block* bb, Path* lhs, MIR::Unary_op* i
 	Types types = type_inf->get_unary_op_types (
 		bb, &operand, *in->op->value);
 
-	foreach_wpa (this)
-		foreach (Index_node* n, *get_named_indices (bb, lhs))
-			wpa->assign_unknown_typed (bb, n->name(), types, DEFINITE);
+	assign_unknown_typed (bb, lhs, types);
+}
+
+void
+Whole_program::handle_constant (Statement_block* bb, Path* lhs, MIR::Constant* in)
+{
+	Literal* lit = PHP::fold_constant (in);
+	if (lit)
+	{
+		assign_scalar (bb, lhs, lit);
+		return;
+	}
+
+	// Assign_unknown_typed (Types (sitrng, bool, null, etc
+	phc_TODO ();
 }
