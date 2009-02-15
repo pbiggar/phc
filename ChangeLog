@@ -1,3 +1,11 @@
+0.2.0.3 (14 February 2009)
+------------------------
+
+Bug Fix release:
+	* Version 0.2.0.2 was incorrectly packaged. 0.2.0.3 is what we intended to
+	release as 0.2.0.2. We increased the version number to show that it
+	differed from 0.2.0.2.
+
 0.2.0.2 (28 January 2009)
 ------------------------
 
