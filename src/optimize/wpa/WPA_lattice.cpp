@@ -97,9 +97,6 @@ WPA_lattice::assign_unknown (Basic_block* bb, Alias_name lhs, certainty cert)
 void
 WPA_lattice::assign_value (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert)
 {
-	if (cert != DEFINITE)
-		phc_TODO ();
-
 	Lattice_map& lat = outs[bb->ID];
 	lat[lhs.str()] = meet (lat[lhs.str()], ins[bb->ID][rhs.str()]);
 }

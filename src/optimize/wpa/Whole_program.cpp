@@ -1294,7 +1294,19 @@ Whole_program::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 			return;
 
 		case Foreach_has_key::ID:
+			// TODO: uses
 			assign_unknown_typed (bb, lhs, Types ("bool"));
+			return;
+
+		case Foreach_get_key::ID:
+			// TODO: uses
+			assign_unknown_typed (bb, lhs, Types ("string", "int"));
+			return;
+
+		case Foreach_get_val::ID:
+			// TODO: uses
+			// TODO: get the types from array::*
+			assign_unknown (bb, lhs);
 			return;
 
 		case Cast::ID:
@@ -1324,11 +1336,6 @@ Whole_program::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 			assign_scalar (bb, lhs, dyc<Literal> (in->rhs));
 			return;
 
-		// Need to use analysis results before putting into the graph
-		case Foreach_get_key::ID:
-		case Foreach_get_val::ID:
-			phc_TODO ();
-			break;
 
 
 		// Interprocedural stuff
