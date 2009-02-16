@@ -12,8 +12,6 @@
 using namespace MIR;
 using namespace boost;
 
-Map<string, Method_info*> Oracle::infos;
-
 // TODO: We dont put Method_mods into the signature.
 void
 Oracle::initialize (MIR::PHP_script* in)
@@ -30,18 +28,24 @@ Oracle::initialize (MIR::PHP_script* in)
 			phc_TODO ();
 
 		else if (Class_def* c = dynamic_cast<Class_def*> (stmt))
-			phc_TODO ();
+			add_class_info (new User_class_info (c));
 	}
 
 	add_method_info (new Builtin_method_info (s("print")));
 }
 
+
+/*
+ * Methods
+ */
+Map<string, Method_info*> Oracle::methods;
+
 Method_info*
 Oracle::get_method_info (String* method_name)
 {
 	// Cached
-	if (Oracle::infos.has (*method_name))
-		return Oracle::infos [*method_name];
+	if (methods.has (*method_name))
+		return methods [*method_name];
 
 	// Lookup the embed SAPI
 	Method_info* info = PHP::get_method_info (method_name);
@@ -65,15 +69,15 @@ Oracle::get_user_method_info (String* method_name)
 void
 Oracle::add_method_info (Method_info* info)
 {
-	assert (!infos.has (*info->name));
+	assert (!methods.has (*info->name));
 
-	infos[*info->name] = info;
+	methods[*info->name] = info;
 }
 
 Method_info_list*
 Oracle::get_all_methods ()
 {
-	return infos.values ();
+	return methods.values ();
 }
 
 bool
@@ -84,4 +88,18 @@ Oracle::is_pure_function (MIR::METHOD_NAME* name)
 		return false;
 
 	return !info->is_side_effecting ();
+}
+
+
+/*
+ * Classes
+ */
+Map<string, Class_info*> Oracle::classes;
+
+void
+Oracle::add_class_info (Class_info* info)
+{
+	assert (!classes.has (*info->name));
+
+	classes[*info->name] = info;
 }

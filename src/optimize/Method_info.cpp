@@ -5,7 +5,7 @@
  * Try to model functions as accurately as possible.
  */
 
-#include "Method_information.h"
+#include "Method_info.h"
 #include "Basic_block.h"
 #include "MIR.h"
 

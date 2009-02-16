@@ -200,6 +200,8 @@ libphc_la_SOURCES= 											\
 	src/optimize/CFG.h										\
 	src/optimize/CFG_visitor.cpp							\
 	src/optimize/CFG_visitor.h								\
+	src/optimize/Class_info.cpp							\
+	src/optimize/Class_info.h								\
 	src/optimize/Dead_code_elimination.cpp				\
 	src/optimize/Dead_code_elimination.h				\
 	src/optimize/Def_use_web.cpp 							\
@@ -216,9 +218,9 @@ libphc_la_SOURCES= 											\
 	src/optimize/Lattice.h									\
 	src/optimize/Mark_initialized.cpp					\
 	src/optimize/Mark_initialized.h						\
+	src/optimize/Method_info.cpp							\
+	src/optimize/Method_info.h								\
 	src/optimize/Method_pruner.h							\
-	src/optimize/Method_information.cpp					\
-	src/optimize/Method_information.h					\
 	src/optimize/Misc_annotations.cpp					\
 	src/optimize/Misc_annotations.h						\
 	src/optimize/Oracle.cpp									\

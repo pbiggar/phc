@@ -11,7 +11,8 @@
 #include "process_ir/General.h"
 #include "MIR.h"
 #include "process_mir/MIR_unparser.h"
-#include "optimize/Method_information.h"
+#include "optimize/Method_info.h"
+#include "optimize/Class_info.h"
 
 using namespace MIR;
 
