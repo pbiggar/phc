@@ -22,6 +22,11 @@ using namespace MIR;
 using namespace boost;
 using namespace std;
 
+Storage_node* SCALAR()
+{
+	return new Storage_node ("SCALAR");
+}
+
 Aliasing::Aliasing (Whole_program* wp)
 : WPA(wp)
 {
@@ -114,10 +119,10 @@ Aliasing::kill_value (Basic_block* bb, Alias_name lhs)
 	Points_to* ptg = outs[bb->ID];
 	ptg->add_node (lhs.ind(), DEFINITE);
 
-	Storage_node_list* values = ptg->get_points_to (lhs.ind(), PTG_ALL);
-	if (values->size ())
-		phc_TODO (); // kill, and the things it points to - watch of for may-aliases
-
+	foreach (Storage_node* value, *ptg->get_values (lhs.ind(), PTG_ALL))
+	{
+		ptg->remove_pair (lhs.ind(), value);
+	}
 }
 
 // Remove all references edges into or out of INDEX. Also call kill_value.
@@ -141,6 +146,7 @@ Aliasing::assign_scalar (Basic_block* bb, Alias_name lhs, MIR::Literal* lit, cer
 	// This kills any objects or arrays currently pointed-to. However, that's
 	// done in kill_value.
 	outs[bb->ID]->add_node (lhs.ind (), cert);
+	outs[bb->ID]->add_edge (lhs.ind (), SCALAR(), cert);
 }
 
 void
@@ -154,6 +160,7 @@ void
 Aliasing::assign_unknown (Basic_block* bb, Alias_name lhs, certainty cert)
 {
 	outs[bb->ID]->add_node (lhs.ind (), cert);
+	outs[bb->ID]->add_edge (lhs.ind (), SCALAR(), cert);
 }
 
 void
@@ -194,7 +201,7 @@ Aliasing::add_all_points_to_edges (Basic_block* bb, Alias_name lhs, Alias_name r
 	certainty certainties[] = {POSSIBLE, DEFINITE};
 	foreach (certainty edge_cert, certainties)
 	{
-		Storage_node_list* pts = ins[bb->ID]->get_points_to (rhs.ind (), edge_cert);
+		Storage_node_list* pts = ins[bb->ID]->get_values (rhs.ind (), edge_cert);
 		foreach (Storage_node* st, *pts)
 			outs[bb->ID]->add_edge (lhs.ind (), st, combine_certs (edge_cert, cert));
 	}
@@ -210,10 +217,10 @@ Aliasing::get_references (Basic_block* bb, Index_node* index,
 }
 
 Storage_node_list*
-Aliasing::get_points_to (Basic_block* bb, Index_node* index,
+Aliasing::get_values (Basic_block* bb, Index_node* index,
 												certainty cert)
 {
-	return ins[bb->ID]->get_points_to (index, cert);
+	return ins[bb->ID]->get_values (index, cert);
 }
 
 

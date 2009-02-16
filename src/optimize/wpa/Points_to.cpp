@@ -82,11 +82,19 @@ Points_to::dump_graphviz (String* label)
 		foreach (tie (target, alias_pair), alias_map)
 		{
 			assert (alias_pair);
+			String* source_str = s(source.str ());
+			String* target_str = s(target.str ());
+
+			// Practically Every node points to SCALAR.
+			if (*target_str == "ST::SCALAR")
+			{
+				target_str->append (*source_str);
+			}
 
 			// Source
 			cout
 			<< "\""
-			<< *escape_DOT (s (source.str()))
+			<< *escape_DOT (source_str)
 			<< "\" [" << *alias_pair->source->get_graphviz ()
 			<< "];\n"
 			;
@@ -94,7 +102,7 @@ Points_to::dump_graphviz (String* label)
 			// Target
 			cout
 			<< "\""
-			<< *escape_DOT (s (target.str()))
+			<< *escape_DOT (target_str)
 			<< "\" [" << *alias_pair->target->get_graphviz ()
 			<< "];\n"
 			;
@@ -102,9 +110,9 @@ Points_to::dump_graphviz (String* label)
 			// Edge
 			cout 
 			<< "\""
-			<< *escape_DOT (s(source.str())) 
+			<< *escape_DOT (source_str) 
 			<< "\" -> \"" 
-			<< *escape_DOT (s(target.str())) 
+			<< *escape_DOT (target_str) 
 			<< "\" [label=\""
 			<< (alias_pair->cert == POSSIBLE ? "P" : "D")
 			<< "\"];\n"
@@ -148,7 +156,7 @@ Points_to::contains (Index_node* index)
 bool
 Points_to::has_value_edges (Index_node* source)
 {
-	return get_points_to (source, PTG_ALL)->size () != 0;
+	return get_values (source, PTG_ALL)->size () != 0;
 }
 
 // Return a list of aliases which are references
@@ -177,7 +185,7 @@ Points_to::get_local_references (Storage_node* sn, Index_node* node, certainty c
 
 // Get a list of aliases which are points-to.
 Storage_node_list*
-Points_to::get_points_to (Index_node* node, certainty cert)
+Points_to::get_values (Index_node* node, certainty cert)
 {
 	return get_aliases <Storage_node> (node, cert);
 }
@@ -284,8 +292,14 @@ Points_to::clone ()
 }
 
 /*
- * Merge another graph into this one. Possible edges from both graphs remain
- * possible. Edges which are definite is only one graph become possible.
+ * Merge another graph with this one, and return a new merged graph.
+ *
+ * If the source node is in both graphs, but the edge is not, then the edge
+ * becomes possible. If the source node is only in one graph, then the edge
+ * takes its certainty from the current graph. This allows us to say tht we
+ * know all the possible edges, and not worry that we may be missing an edge
+ * (say, if there is just one possible edge).
+ *
  */
 Points_to*
 Points_to::merge (Points_to* other)
@@ -295,23 +309,37 @@ Points_to::merge (Points_to* other)
 	// All edges from THIS.
 	foreach (Alias_pair* p, this->all_pairs)
 	{
-		if (p->cert == POSSIBLE)
-			result->add_edge (p->source, p->target, POSSIBLE);
-		else
+		Alias_pair* other_pair = other->get_edge (p->source, p->target);
+		if (other_pair == NULL)
 		{
-			Alias_pair* other_pair = other->get_edge (p->source, p->target);
-			if (other_pair == NULL || other_pair->cert == POSSIBLE)
+			if (other->has_node (p->source))
+			{
 				result->add_edge (p->source, p->target, POSSIBLE);
+			}
 			else
-				result->add_edge (p->source, p->target, DEFINITE);
+			{
+				result->add_edge (p->source, p->target, p->cert);
+			}
 		}
+		else
+			result->add_edge (p->source, p->target,
+				combine_certs (other_pair->cert, p->cert));
 	}
 
 	// Add edges that are only in OTHER
 	foreach (Alias_pair* p, other->all_pairs)
 	{
 		if (this->get_edge (p->source, p->target) == NULL)
-			result->add_edge (p->source, p->target, POSSIBLE);
+		{
+			if (this->has_node (p->source))
+			{
+				result->add_edge (p->source, p->target, POSSIBLE);
+			}
+			else
+			{
+				result->add_edge (p->source, p->target, p->cert);
+			}
+		}
 	}
 
 	return result;
@@ -326,16 +354,18 @@ Points_to::insert (Alias_pair* pair)
 
 	// TODO: dont duplicate
 	if (by_source[source].has (target))
-		phc_TODO ();
+	{
+		Alias_pair* current = by_source[source][target];
+		current->cert = combine_certs (pair->cert, current->cert);
+	}
+	else
+	{
+		by_source[source][target] = pair;
+		by_target[target][source] = pair;
 
-	if (by_target[target].has (source))
-		phc_TODO ();
-
-	by_source[source][target] = pair;
-	by_target[target][source] = pair;
-
-	// Record all pairs.
-	all_pairs.insert (pair);
+		// Record all pairs.
+		all_pairs.insert (pair);
+	}
 }
 
 bool

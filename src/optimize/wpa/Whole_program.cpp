@@ -635,7 +635,9 @@ Whole_program::init_superglobals (Entry_block* entry)
 	// Start with globals, since it needs needs to point to MSN
 	assign_empty_array (entry, P (MSN, new VARIABLE_NAME ("GLOBALS")), MSN);
 
-/*	// Do the other superglobals
+// TODO: these are fine, but it makes the graphs hard to read.
+/*
+	// Do the other superglobals
 	foreach (VARIABLE_NAME* sg, *PHP::get_superglobals ())
 	{
 		if (*sg->value == "GLOBALS")
@@ -673,7 +675,6 @@ Whole_program::init_superglobals (Entry_block* entry)
 											Types("string"), DEFINITE);
 	}
 */
-// TODO: these are fine, but it makes the graphs hard to read.
 	dump (entry, "After superglobals");
 }
 
@@ -1123,7 +1124,7 @@ Whole_program::get_named_indices (Basic_block* bb, Path* path, bool record_uses)
 		foreach (Index_node* st_index, *get_named_indices (bb, p->lhs, record_uses))
 		{
 			foreach (Storage_node* pointed_to,
-						*aliasing->get_points_to (bb, st_index, PTG_ALL))
+						*aliasing->get_values (bb, st_index, PTG_ALL))
 				lhss.insert (pointed_to->storage);
 		}
 	}

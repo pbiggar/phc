@@ -152,8 +152,8 @@ public:
 	Index_node_list* get_references (Index_node* index,
 												certainty cert);
 
-	Storage_node_list* get_points_to (Index_node* index,
-												 certainty cert);
+	Storage_node_list* get_values (Index_node* index,
+											 certainty cert);
 
 
 

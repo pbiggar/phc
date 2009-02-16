@@ -77,8 +77,8 @@ public:
 	Index_node_list* get_references (Basic_block*, Index_node* index,
 												certainty cert);
 
-	Storage_node_list* get_points_to (Basic_block*, Index_node* index,
-												certainty cert);
+	Storage_node_list* get_values (Basic_block*, Index_node* index,
+											 certainty cert);
 };
 
 /* A Path is a way of representing some dereferencing. See Aliasing.cpp. */
