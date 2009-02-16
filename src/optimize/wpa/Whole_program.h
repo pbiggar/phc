@@ -207,7 +207,7 @@ public:
 	void visit_assign_var (Statement_block*, MIR::Assign_var*);
 	void visit_assign_var_var (Statement_block*, MIR::Assign_var_var*) { phc_TODO (); }
 	void visit_eval_expr (Statement_block*, MIR::Eval_expr*);
-	void visit_foreach_end (Statement_block*, MIR::Foreach_end*) { phc_TODO (); }
+	void visit_foreach_end (Statement_block*, MIR::Foreach_end*);
 	void visit_foreach_next (Statement_block*, MIR::Foreach_next*) { phc_TODO (); }
 	void visit_foreach_reset (Statement_block*, MIR::Foreach_reset*);
 	void visit_global (Statement_block*, MIR::Global*);

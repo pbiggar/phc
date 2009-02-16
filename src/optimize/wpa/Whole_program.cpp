@@ -1239,9 +1239,32 @@ Whole_program::visit_assign_array (Statement_block* bb, MIR::Assign_array* in)
 void
 Whole_program::visit_foreach_reset (Statement_block* bb, MIR::Foreach_reset* in)
 {
+	// mark the array as used
+	record_use (bb, VN (ST(bb), in->array));
+
 	// Mark iterator as defined. The iterator does nothing for us otherwise.
+	Alias_name iter (ST(bb), *in->iter->value);
+	
+	// We dont use Whole_programm::assign_unknown because we havent got a Path
+	// for an iterator. We also don't need to worry about kills and such. Note
+	// that we dont want a path, as that would create an index into the
+	// array's storage node, which isnt what we want to model.
 	foreach_wpa (this)
-		wpa->assign_unknown (bb, Alias_name (ST(bb), *in->iter->value), DEFINITE);
+		wpa->assign_unknown (bb, iter, DEFINITE);
+}
+
+void
+Whole_program::visit_foreach_end (Statement_block* bb, MIR::Foreach_end* in)
+{
+	// Mark the array as used
+	record_use (bb, VN (ST(bb), in->array));
+
+	// Mark both a use and a def on the iterator
+	Alias_name iter (ST(bb), *in->iter->value);
+	record_use (bb, iter.ind());
+	
+	foreach_wpa (this)
+		wpa->assign_unknown (bb, iter, DEFINITE);
 }
 
 
@@ -1488,8 +1511,12 @@ Whole_program::handle_cast (Statement_block* bb, Path* lhs, MIR::Cast* in)
 	// We've handled casts for known scalars to scalars. We still must handle
 	// casts to objects, casts to arrays, and casts from unknown values to
 	// other scalar types.
+	assign_unknown_typed (bb, lhs, Types ("array"));
 
-	phc_TODO ();
-
-
+/*	foreach (Storage_node* pointed_to,
+					*aliasing->get_values (bb, operand.ind(), PTG_ALL))
+	{
+		cdebug << pointed_to->name().str();
+	}
+	phc_TODO ();*/
 }
