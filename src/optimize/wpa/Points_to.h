@@ -69,6 +69,7 @@ public:
 
 	Index_node (string storage, string index);
 	Alias_name name ();
+	Storage_node* get_storage ();
 
 	String* get_graphviz ();
 };
@@ -145,6 +146,10 @@ public:
 	bool has_value_edges (Index_node* node);
 	void insert (Alias_pair*);
 
+	// Dont update a pair in-place. This removes the pair, and adds a pair
+	// with the new certainty.
+	void set_pair_cert (Alias_pair* pair, certainty cert);
+
 	Index_node_list* get_local_references (Storage_node* ns,
 														Index_node* index,
 														certainty cert);
@@ -175,6 +180,7 @@ public:
 	void remove_unreachable_nodes ();
 	void remove_node (PT_node* node);
 	void remove_pair (PT_node* source, PT_node* target, bool expected = true);
+	void remove_pair (Alias_pair* pair, bool expected = true);
 
 	Points_to* clone();
 	Points_to* merge (Points_to* other);

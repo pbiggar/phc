@@ -138,11 +138,11 @@ Points_to::add_node (Index_node* index, certainty cert)
 		add_edge (st, index, cert);
 	else
 	{
-		// We dont need to change it in any other case:
-		if (cert == DEFINITE)
-			get_edge (st, index)->cert = DEFINITE;
-	}
+		// Dont update in place!!
 
+		if (cert == DEFINITE)
+			set_pair_cert (get_edge (st, index), DEFINITE);
+	}
 }
 
 // Does the graph already contains this node.
@@ -355,8 +355,15 @@ Points_to::insert (Alias_pair* pair)
 	// TODO: dont duplicate
 	if (by_source[source].has (target))
 	{
+		// Dont update the edges in place
 		Alias_pair* current = by_source[source][target];
-		current->cert = combine_certs (pair->cert, current->cert);
+
+		// Dont use combine cert.
+		certainty cert = POSSIBLE;
+		if (pair->cert == DEFINITE || current->cert == DEFINITE)
+			cert = DEFINITE;
+
+		set_pair_cert (current, cert);
 	}
 	else
 	{
@@ -410,6 +417,12 @@ Points_to::remove_pair (PT_node* source, PT_node* target, bool expected)
 	by_target[t].erase (s);
 }
 
+void
+Points_to::remove_pair (Alias_pair* pair, bool expected)
+{
+	remove_pair (pair->source, pair->target, expected);
+}
+
 
 Alias_pair*
 Points_to::get_edge (PT_node* source, PT_node* target)
@@ -421,6 +434,17 @@ Points_to::get_edge (PT_node* source, PT_node* target)
 		return NULL;
 	
 	return by_source[s][t];
+}
+
+void
+Points_to::set_pair_cert (Alias_pair* pair, certainty cert)
+{
+	if (pair->cert == cert)
+		return;
+
+	Alias_pair* new_pair = new Alias_pair (pair->source, pair->target, cert);
+	remove_pair (pair);
+	insert (new_pair);
 }
 
 
@@ -549,5 +573,11 @@ Index_node::get_graphviz ()
 	stringstream ss;
 	ss << "label=\"" << index << "\"";
 	return s (ss.str ());
+}
+
+Storage_node*
+Index_node::get_storage ()
+{
+	return new Storage_node (this->storage);
 }
 

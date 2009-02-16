@@ -220,7 +220,16 @@ Storage_node_list*
 Aliasing::get_values (Basic_block* bb, Index_node* index,
 												certainty cert)
 {
-	return ins[bb->ID]->get_values (index, cert);
+	Points_to* ptg = ins[bb->ID];
+	Storage_node_list* result = ptg->get_values (index, cert);
+
+	// If its a possibly edge from the storage node, this could also be NULL.
+	// If the edges doesnt exist, add a SCALAR.
+	Alias_pair* edge = ptg->get_edge (index->get_storage(), index);
+	if (edge == NULL || edge->cert == POSSIBLE)
+		result->push_back (SCALAR ());
+
+	return result;
 }
 
 

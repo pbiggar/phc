@@ -458,6 +458,10 @@ Whole_program::apply_modelled_function (Method_info* info, Basic_block* bb)
 	{
 		assign_unknown_typed (bb, ret_name, Types ("bool"));
 	}
+	else if (*info->name == "is_object")
+	{
+		assign_unknown_typed (bb, ret_name, Types ("bool"));
+	}
 	else if (*info->name == "trigger_error")
 	{
 		assign_unknown_typed (bb, ret_name, Types ("bool"));
@@ -792,6 +796,9 @@ Whole_program::backward_bind (Method_info* info, Basic_block* caller, Exit_block
 bool
 is_must (Index_node_list* indices)
 {
+	// If the edge between it and its storage node is POSSIBLE, this function
+	// is still correct. All that matters is whether we can refer to one index
+	// node, or multiple.
 	assert (!indices->empty ());
 	return (indices->size () == 1);
 }
@@ -814,12 +821,11 @@ Whole_program::assign_by_ref (Basic_block* bb, Path* plhs, Path* prhs)
 				wpa->kill_by_ref (bb, lhs->name ());
 		}
 
-		// Note that we don't touch things which alias LHS.
-
+		// We don't need to worry about propagating values to LHSS' aliases, as
+		// the aliasing relations are killed above.
+	
 		foreach (Index_node* rhs, *rhss)
 		{
-			// We don't need to worry about propagating values to LHSS' aliases,
-			// as this kills those aliases.
 			foreach_wpa (this)
 				wpa->assign_by_ref (bb,
 					lhs->name (),
@@ -1125,21 +1131,26 @@ Whole_program::get_named_indices (Basic_block* bb, Path* path, bool record_uses)
 		{
 			foreach (Storage_node* pointed_to,
 						*aliasing->get_values (bb, st_index, PTG_ALL))
-				lhss.insert (pointed_to->storage);
+			{
+				string name = pointed_to->storage;
+
+				// If this is a scalar, we have to deal with implicit creation.
+				if (pointed_to->storage == "SCALAR")
+				{
+					name = lexical_cast<string> (bb->ID);
+					assign_empty_array (bb, p->lhs, name);
+					// TODO: what if the array being implicitly created is a
+					// scalar? in that case the conversion wont happen.
+					// TODO: What if its a string? This wont create an array in that
+					// case.
+					// TODO: we cant tell for sure that this implicit conversion
+					// will work. What if the scalar is 5?
+				}
+
+				lhss.insert (name);
+			}
 		}
 	}
-
-	// TODO: hack. make this nicer.
-	if (lhss.size () == 0)
-	{
-		string name = lexical_cast<string> (bb->ID);
-		assign_empty_array (bb, p->lhs, name);
-		lhss.insert (name);
-		// TODO: what if the array being implicitly created is a scalar? in
-		// that case the conversion wont happen.
-		// What if its a string? This wont create an array in that case.
-	}
-
 
 
 	// Get the names of the fields of the storage nodes.
@@ -1263,6 +1274,10 @@ Whole_program::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 			assign_unknown_typed (bb, lhs, Types ("bool"));
 			return;
 
+		case Cast::ID:
+			handle_cast (bb, lhs, dyc<Cast> (in->rhs));
+			return;
+
 		case Isset::ID:
 		case Param_is_ref::ID:
 		case Instanceof::ID:
@@ -1289,7 +1304,6 @@ Whole_program::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 		// Need to use analysis results before putting into the graph
 		case Foreach_get_key::ID:
 		case Foreach_get_val::ID:
-		case Cast::ID:
 			phc_TODO ();
 			break;
 
@@ -1453,4 +1467,29 @@ Whole_program::handle_constant (Statement_block* bb, Path* lhs, MIR::Constant* i
 
 	// Assign_unknown_typed (Types (sitrng, bool, null, etc
 	phc_TODO ();
+}
+
+void
+Whole_program::handle_cast (Statement_block* bb, Path* lhs, MIR::Cast* in)
+{
+	Alias_name operand = VN (ST(bb), in->variable_name)->name();
+
+	MIR::Literal* lit = ccp->get_lit (bb, operand);
+	if (lit)
+	{
+		Literal* result = PHP::cast_to (in->cast, lit);
+		if (result)
+		{
+			assign_scalar (bb, lhs, result);
+			return;
+		}
+	}
+
+	// We've handled casts for known scalars to scalars. We still must handle
+	// casts to objects, casts to arrays, and casts from unknown values to
+	// other scalar types.
+
+	phc_TODO ();
+
+
 }

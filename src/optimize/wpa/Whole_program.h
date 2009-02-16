@@ -229,6 +229,7 @@ public:
 	void handle_bin_op (Statement_block* bb, Path* lhs, MIR::Bin_op* rhs);
 	void handle_unary_op (Statement_block* bb, Path* lhs, MIR::Unary_op* rhs);
 	void handle_constant (Statement_block* bb, Path* lhs, MIR::Constant* in);
+	void handle_cast (Statement_block* bb, Path* lhs, MIR::Cast* in);
 
 
 };
