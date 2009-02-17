@@ -45,3 +45,18 @@ BB_lattices::dump (Basic_block* bb, string name)
 	else
 		cdebug << "No " << name << " results for BB: " << bb->ID << endl;
 }
+
+void
+dump_lattice (Lattice_cell* cell)
+{
+	if (cell == TOP)
+		cdebug << "TOP";
+	else if (cell == BOTTOM)
+		cdebug << "BOTTOM";
+	else
+	{
+		cdebug << "(";
+		cell->dump ();
+		cdebug << ")";
+	}
+}

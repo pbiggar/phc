@@ -68,10 +68,11 @@
 #include "process_ir/General.h"
 #include "pass_manager/Pass_manager.h"
 
+#include "optimize/Abstract_value.h"
 #include "optimize/Edge.h"
+#include "optimize/Method_pruner.h"
 #include "optimize/Oracle.h"
 #include "optimize/SCCP.h"
-#include "optimize/Method_pruner.h"
 
 #include "Whole_program.h"
 #include "WPA.h"
@@ -623,6 +624,24 @@ Whole_program::dump (Basic_block* bb, string comment)
  * Analysis from here on in
  */
 
+Abstract_value*
+from_types (Types types)
+{
+	Abstract_value* result = new Abstract_value;
+	result->lit = BOTTOM;
+	result->type = new Type_cell (types);
+	return result;
+}
+
+Abstract_value*
+unknown_val ()
+{
+	Abstract_value* result = new Abstract_value;
+	result->lit = BOTTOM;
+	result->type = BOTTOM;
+	return result;
+}
+
 void
 Whole_program::init_superglobals (Entry_block* entry)
 {
@@ -653,32 +672,32 @@ Whole_program::init_superglobals (Entry_block* entry)
 		assign_empty_array (entry, P (MSN, sg), array_name);
 
 		// We dont know the contents of these arrays.
-		phc_TODO ();
-//		foreach_wpa (this)
-//			wpa->assign_unknown_typed (entry, Alias_name (array_name, UNKNOWN),
-//												Types("string"), DEFINITE);
+		// TODO: move all of these into calls to Whole_program
+		foreach_wpa (this)
+			wpa->assign_value (entry, Alias_name (array_name, UNKNOWN),
+												from_types (Types("string")), NULL, DEFINITE);
 	}
 
-		phc_TODO ();
 	// We actually have no idea whats in _SESSION
-//	foreach_wpa (this)
-//		wpa->assign_unknown (entry, Alias_name ("_SESSION", UNKNOWN), DEFINITE);
+	foreach_wpa (this)
+		wpa->assign_value (entry, Alias_name ("_SESSION", UNKNOWN),
+								 unknown_val (), NULL, DEFINITE);
 
 	// argc
-//	foreach_wpa (this)
-//		wpa->assign_unknown_typed (entry, Alias_name (MSN, "argc"),
-//											Types("int"), DEFINITE);
+	foreach_wpa (this)
+		wpa->assign_value (entry, Alias_name (MSN, "argc"),
+								 from_types (Types("int")), NULL, DEFINITE);
 
 	// argv
-/*	foreach_wpa (this)
+	foreach_wpa (this)
 	{
 		wpa->assign_empty_array (entry, Alias_name (MSN, "argv"), "argv", DEFINITE);
-		wpa->assign_unknown_typed (entry, Alias_name ("argv", UNKNOWN),
-											Types("string"), DEFINITE);
-		wpa->assign_unknown_typed (entry, Alias_name ("argv", "0"),
-											Types("string"), DEFINITE);
+		wpa->assign_value (entry, Alias_name ("argv", UNKNOWN),
+								 from_types (Types("string")), NULL, DEFINITE);
+		wpa->assign_value (entry, Alias_name ("argv", "0"),
+								 from_types (Types("string")), NULL, DEFINITE);
 	}
-*/
+
 	dump (entry, "After superglobals");
 }
 

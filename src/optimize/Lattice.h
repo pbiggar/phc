@@ -29,6 +29,10 @@ extern Lattice_cell* BOTTOM;
 
 Lattice_cell* meet (Lattice_cell* l1, Lattice_cell* l2);
 
+// Neither TOP nor BOTTOM are real values
+void
+dump_lattice (Lattice_cell*);
+
 
 class Lattice_map
 : public Map<string, Lattice_cell*>
@@ -51,16 +55,7 @@ public:
 		foreach (boost::tie (index, cell), *this)
 		{
 			cdebug << index << " => ";
-			if (cell == TOP)
-				cdebug << "TOP";
-			else if (cell == BOTTOM)
-				cdebug << "BOTTOM";
-			else
-			{
-				cdebug << "(";
-				cell->dump ();
-				cdebug << ")";
-			}
+			dump_lattice (cell);
 			cdebug << "\n";
 		}
 	}

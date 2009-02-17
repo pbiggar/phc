@@ -1,4 +1,5 @@
 #include "Debug_WPA.h"
+#include "optimize/Abstract_value.h"
 
 using namespace std;
 
@@ -62,10 +63,11 @@ Debug_WPA::assign_value (Basic_block* bb, Alias_name lhs,
 								 Abstract_value* val, Alias_name* source,
 								 certainty cert)
 {
-	phc_TODO ();
-	DEBUG (__FUNCTION__
-			<< ": " << lhs.str ()
-			<< ", " << source->str ()
+	DEBUG (__FUNCTION__ << ": " << lhs.str ());
+
+	val->dump();
+
+	DEBUG (  ", " << (source ? source->str () : "NONE")
 			<< ", " << cert_to_string (cert));
 }
 

@@ -169,6 +169,9 @@ public:
 	// These functions describe the operation being performed in each block.
 	// They pass the information to the Points-to graph, and to the other
 	// analyses. The BB is to give a unique index to the results.
+	void assign_value (Basic_block* bb, Path* lhs, Abstract_value* val, Path* rhs);
+
+	// TODO: these should nearly all be removed
 	void assign_scalar (Basic_block* bb, Path* lhs, MIR::Literal* lit);
 	void assign_empty_array (Basic_block* bb, Path* lhs, string unique_name);
 	void assign_by_ref (Basic_block* bb, Path* lhs, Path* rhs);

@@ -104,28 +104,28 @@ am_libphc_la_OBJECTS = getopt1.lo getopt.lo AST_annotate.lo \
 	php_parser.tab.lo HIR_lower_expr.lo Lower_control_flow.lo \
 	Lower_dynamic_definitions.lo Lower_method_invocations.lo \
 	AttrMap.lo base64.lo Boolean.lo demangle.lo error.lo escape.lo \
-	Integer.lo Object.lo String.lo Alias_name.lo Basic_block.lo \
-	CFG.lo CFG_visitor.lo Class_info.lo Dead_code_elimination.lo \
-	Def_use_web.lo Edge.lo Flow_visitor.lo If_simplification.lo \
-	Inlining.lo Lattice.lo Mark_initialized.lo Method_info.lo \
-	Misc_annotations.lo Oracle.lo Prune_symbol_table.lo \
-	Remove_loop_booleans.lo SCCP.lo Sparse_conditional_visitor.lo \
-	Dominance.lo HSSA.lo Phi.lo SSA.lo SSA_ops.lo Var_set.lo \
-	Visit_once.lo Aliasing.lo Callgraph.lo CCP.lo \
-	Constant_state.lo Debug_WPA.lo Def_use.lo Include_analysis.lo \
-	Optimization_annotator.lo Optimization_transformer.lo \
-	Points_to.lo Type_inference.lo VRP.lo Whole_program.lo WPA.lo \
-	WPA_lattice.lo MICG_parser.lo Parse_buffer.lo parse.lo \
-	PHP_context.lo XML_parser.lo Optimization_pass.lo \
-	Pass_manager.lo Plugin_pass.lo AST_unparser.lo \
-	Constant_folding.lo DOT_unparser.lo Invalid_check.lo \
-	Note_top_level_declarations.lo Process_includes.lo \
-	Remove_concat_null.lo Remove_parser_temporaries.lo \
-	Strip_unparser_attributes.lo Token_conversion.lo \
-	HIR_unparser.lo debug.lo fresh.lo General.lo IR.lo \
-	PHP_unparser.lo stats.lo XML_unparser.lo Alias_uppering.lo \
-	Foreach_uppering.lo Goto_uppering.lo MIR_unparser.lo \
-	Param_is_ref_uppering.lo
+	Integer.lo Object.lo String.lo Abstract_value.lo Alias_name.lo \
+	Basic_block.lo CFG.lo CFG_visitor.lo Class_info.lo \
+	Dead_code_elimination.lo Def_use_web.lo Edge.lo \
+	Flow_visitor.lo If_simplification.lo Inlining.lo Lattice.lo \
+	Mark_initialized.lo Method_info.lo Misc_annotations.lo \
+	Oracle.lo Prune_symbol_table.lo Remove_loop_booleans.lo \
+	SCCP.lo Sparse_conditional_visitor.lo Dominance.lo HSSA.lo \
+	Phi.lo SSA.lo SSA_ops.lo Var_set.lo Visit_once.lo Aliasing.lo \
+	Callgraph.lo CCP.lo Constant_state.lo Debug_WPA.lo Def_use.lo \
+	Include_analysis.lo Optimization_annotator.lo \
+	Optimization_transformer.lo Points_to.lo Type_inference.lo \
+	VRP.lo Whole_program.lo WPA.lo WPA_lattice.lo MICG_parser.lo \
+	Parse_buffer.lo parse.lo PHP_context.lo XML_parser.lo \
+	Optimization_pass.lo Pass_manager.lo Plugin_pass.lo \
+	AST_unparser.lo Constant_folding.lo DOT_unparser.lo \
+	Invalid_check.lo Note_top_level_declarations.lo \
+	Process_includes.lo Remove_concat_null.lo \
+	Remove_parser_temporaries.lo Strip_unparser_attributes.lo \
+	Token_conversion.lo HIR_unparser.lo debug.lo fresh.lo \
+	General.lo IR.lo PHP_unparser.lo stats.lo XML_unparser.lo \
+	Alias_uppering.lo Foreach_uppering.lo Goto_uppering.lo \
+	MIR_unparser.lo Param_is_ref_uppering.lo
 libphc_la_OBJECTS = $(am_libphc_la_OBJECTS)
 plugins_tests_canonical_unparser_la_LIBADD =
 am_plugins_tests_canonical_unparser_la_OBJECTS =  \
@@ -781,6 +781,8 @@ libphc_la_SOURCES = \
 	src/lib/String.cpp										\
 	src/lib/String.h											\
 	src/lib/Vector.h											\
+	src/optimize/Abstract_value.cpp						\
+	src/optimize/Abstract_value.h							\
 	src/optimize/Alias_name.cpp							\
 	src/optimize/Alias_name.h								\
 	src/optimize/Basic_block.cpp							\
@@ -1419,6 +1421,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AST_transform.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AST_unparser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AST_visitor.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Abstract_value.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Alias_name.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Alias_uppering.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Aliasing.Plo@am__quote@
@@ -2015,6 +2018,13 @@ String.lo: src/lib/String.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/lib/String.cpp' object='String.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o String.lo `test -f 'src/lib/String.cpp' || echo '$(srcdir)/'`src/lib/String.cpp
+
+Abstract_value.lo: src/optimize/Abstract_value.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Abstract_value.lo -MD -MP -MF $(DEPDIR)/Abstract_value.Tpo -c -o Abstract_value.lo `test -f 'src/optimize/Abstract_value.cpp' || echo '$(srcdir)/'`src/optimize/Abstract_value.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Abstract_value.Tpo $(DEPDIR)/Abstract_value.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Abstract_value.cpp' object='Abstract_value.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Abstract_value.lo `test -f 'src/optimize/Abstract_value.cpp' || echo '$(srcdir)/'`src/optimize/Abstract_value.cpp
 
 Alias_name.lo: src/optimize/Alias_name.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Alias_name.lo -MD -MP -MF $(DEPDIR)/Alias_name.Tpo -c -o Alias_name.lo `test -f 'src/optimize/Alias_name.cpp' || echo '$(srcdir)/'`src/optimize/Alias_name.cpp

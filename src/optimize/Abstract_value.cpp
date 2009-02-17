@@ -10,18 +10,18 @@
  *
  */
 
-#ifndef PHC_ABSTRACT_VALUE_H
-#define PHC_ABSTRACT_VALUE_H
+#include "Abstract_value.h"
+#include "Lattice.h"
+#include "process_ir/debug.h"
 
-class Type_lattice;
-class CCP_lattice;
-
-class Abstract_value : public GC_obj
+Abstract_value::Abstract_value ()
 {
-public:
-	Abstract_value ();
-	Type_cell* type;
-	Literal_cell* type;
-};
+}
 
-#endif // PHC_ABSTRACT_VALUE_H
+void
+Abstract_value::dump ()
+{
+	CHECK_DEBUG ();
+	dump_lattice (lit);
+	dump_lattice (type);
+}
