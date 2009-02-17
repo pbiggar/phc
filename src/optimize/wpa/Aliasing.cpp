@@ -296,6 +296,24 @@ P (string symtable, Node* in)
 				P (symtable, aa->index));
 		}
 
+		case Unset::ID:
+		{
+			Unset* unset = dyc<Unset> (in);
+
+			if (unset->target)
+				phc_TODO ();
+
+			if (unset->array_indices->size ())
+				phc_TODO ();
+
+			// VARIABLE_NAME: st -> var
+			// or
+			// Variable_variable: st -> (st -> var_name)
+			Path* var_indexing = P (symtable, unset->variable_name);
+
+			return var_indexing;
+		}
+
 		default:
 			DEBUG (demangle (in));
 			phc_TODO ();

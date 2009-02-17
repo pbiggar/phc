@@ -217,7 +217,7 @@ public:
 	void visit_static_declaration (Statement_block*, MIR::Static_declaration*) { phc_TODO (); }
 	void visit_throw (Statement_block*, MIR::Throw*) { phc_TODO (); }
 	void visit_try (Statement_block*, MIR::Try*) { phc_TODO (); }
-	void visit_unset (Statement_block*, MIR::Unset*) { phc_TODO (); }
+	void visit_unset (Statement_block*, MIR::Unset*);
 
 	// Interprocedural nodes
 	void handle_method_invocation (Statement_block* bb, MIR::Method_invocation* in, MIR::VARIABLE_NAME* lhs);

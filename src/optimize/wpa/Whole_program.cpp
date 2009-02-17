@@ -1370,6 +1370,16 @@ Whole_program::visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
 }
 
 void
+Whole_program::visit_unset (Statement_block* bb, MIR::Unset* in)
+{
+	// Get the index nodes. Remove them.
+	Path* path = P (ST(bb), in);
+
+	// This isnt quite right - there are references to take care of
+	assign_scalar (bb, path, new NIL);
+}
+
+void
 Whole_program::handle_method_invocation (Statement_block* bb, MIR::Method_invocation* in, MIR::VARIABLE_NAME* lhs)
 {
 	invoke_method (in, bb, lhs);
