@@ -196,6 +196,9 @@ public:
 	Index_node* get_named_index (Basic_block* bb, Path* path, bool record_uses = false);
 
 
+	// Most pesimistic case
+	void ruin_everything (Basic_block* sb, Path* path);
+
 
 	/*
 	 * Actually perform analysis

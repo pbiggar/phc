@@ -581,3 +581,19 @@ Index_node::get_storage ()
 	return new Storage_node (this->storage);
 }
 
+Abstract_node::Abstract_node (string owner)
+: Storage_node(owner)
+{
+}
+
+Alias_name
+Abstract_node::name ()
+{
+	return Alias_name (storage, ABV);
+}
+
+String*
+Abstract_node::get_graphviz ()
+{
+	return s ("color=red,label=\"\"");
+}

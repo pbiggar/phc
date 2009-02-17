@@ -639,8 +639,6 @@ Whole_program::init_superglobals (Entry_block* entry)
 	// Start with globals, since it needs needs to point to MSN
 	assign_empty_array (entry, P (MSN, new VARIABLE_NAME ("GLOBALS")), MSN);
 
-// TODO: these are fine, but it makes the graphs hard to read.
-/*
 	// Do the other superglobals
 	foreach (VARIABLE_NAME* sg, *PHP::get_superglobals ())
 	{
@@ -678,7 +676,7 @@ Whole_program::init_superglobals (Entry_block* entry)
 		wpa->assign_unknown_typed (entry, Alias_name ("argv", "0"),
 											Types("string"), DEFINITE);
 	}
-*/
+
 	dump (entry, "After superglobals");
 }
 
@@ -910,25 +908,24 @@ Whole_program::assign_unknown_typed (Basic_block* bb, Path* plhs, Types types)
 			{
 				foreach (Index_node* ref, *refs)
 				{
+					Alias_name absval = ABSVAL (ref->name())->name();
 					if (cert == DEFINITE) // must-def
-						wpa->kill_value (bb, ref->name ());
+						wpa->kill_value (bb, absval);
 
-					wpa->assign_unknown_typed (bb,
-							lhs->name(),
-							types,
-							cert);
+					wpa->assign_unknown_typed (bb, absval, types, cert);
 				}
 			}
 		}
 
 		// Handle LHS itself
+		Alias_name absval = ABSVAL (lhs->name())->name();
 		foreach_wpa (this)
 		{
 			if (killable) // only 1 result
-				wpa->kill_value (bb, lhs->name ());
+				wpa->kill_value (bb, absval);
 
 			wpa->assign_unknown_typed (bb,
-				lhs->name(),
+				absval,
 				types,
 				killable ? DEFINITE : POSSIBLE);
 		}
@@ -1053,7 +1050,6 @@ Whole_program::assign_unknown (Basic_block* bb, Path* plhs)
 	}
 }
 
-
 void
 Whole_program::record_use (Basic_block* bb, Index_node* index_node)
 {
@@ -1067,6 +1063,18 @@ Whole_program::record_use (Basic_block* bb, Index_node* index_node)
 	foreach_wpa (this)
 		wpa->record_use (bb, index_node->name(), POSSIBLE);
 }
+
+
+
+void
+Whole_program::ruin_everything (Basic_block* bb, Path* plhs)
+{
+	// For every storage node we can reach, mark its "*" index as completely
+	// unknown.
+	phc_TODO ();
+}
+
+
 
 
 /*

@@ -27,8 +27,17 @@
 
 // Storage node prefix
 #define SNP "ST"
+
+// Abstract_value suffix
+#define ABV "ST"
+
+// Return value's name
 #define RETNAME "__RETNAME__"
+
+// Main storage node
 #define MSN "__MAIN__"
+
+// TODO where are parameter names defined.
 
 #include <string>
 #include "lib/List.h"

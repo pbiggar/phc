@@ -22,9 +22,10 @@ using namespace MIR;
 using namespace boost;
 using namespace std;
 
-Storage_node* SCALAR()
+Abstract_node*
+ABSVAL (Alias_name name)
 {
-	return new Storage_node ("SCALAR");
+	return new Abstract_node (name.str());
 }
 
 Aliasing::Aliasing (Whole_program* wp)
@@ -146,7 +147,7 @@ Aliasing::assign_scalar (Basic_block* bb, Alias_name lhs, MIR::Literal* lit, cer
 	// This kills any objects or arrays currently pointed-to. However, that's
 	// done in kill_value.
 	outs[bb->ID]->add_node (lhs.ind (), cert);
-	outs[bb->ID]->add_edge (lhs.ind (), SCALAR(), cert);
+	outs[bb->ID]->add_edge (lhs.ind (), ABSVAL (lhs), cert);
 }
 
 void
@@ -160,7 +161,7 @@ void
 Aliasing::assign_unknown (Basic_block* bb, Alias_name lhs, certainty cert)
 {
 	outs[bb->ID]->add_node (lhs.ind (), cert);
-	outs[bb->ID]->add_edge (lhs.ind (), SCALAR(), cert);
+	outs[bb->ID]->add_edge (lhs.ind (), ABSVAL (lhs), cert);
 }
 
 void
@@ -223,11 +224,10 @@ Aliasing::get_values (Basic_block* bb, Index_node* index,
 	Points_to* ptg = ins[bb->ID];
 	Storage_node_list* result = ptg->get_values (index, cert);
 
-	// If its a possibly edge from the storage node, this could also be NULL.
-	// If the edges doesnt exist, add a SCALAR.
+	// The presence of the absval is implicit.
 	Alias_pair* edge = ptg->get_edge (index->get_storage(), index);
 	if (edge == NULL || edge->cert == POSSIBLE)
-		result->push_back (SCALAR ());
+		result->push_back (ABSVAL (index->name ()));
 
 	return result;
 }
@@ -319,6 +319,5 @@ P (string symtable, Node* in)
 			phc_TODO ();
 	}
 }
-
 
 

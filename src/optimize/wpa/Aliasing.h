@@ -23,7 +23,9 @@ class Path;
 class Points_to;
 DECL (Index_node);
 DECL (Storage_node);
+DECL (Abstract_node);
 
+Abstract_node* ABSVAL (Alias_name name);
 class Aliasing : public WPA
 {
 	// Record 1 per program-point.
