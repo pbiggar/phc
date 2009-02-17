@@ -18,23 +18,18 @@ class Def_use : public WPA
 public:
 	Def_use (Whole_program* wp);
 
-	void kill_by_copy (Basic_block* bb, Alias_name name);
-	void kill_by_ref (Basic_block* bb, Alias_name name);
+	void kill_value (Basic_block* bb, Alias_name name);
+	void kill_reference (Basic_block* bb, Alias_name name);
 
-	void assign_by_ref (Basic_block* bb, Alias_name lhs,
-	                    Alias_name rhs, certainty cert);
+	void create_reference (Basic_block* bb, Alias_name lhs,
+								  Alias_name rhs, certainty cert);
 
-	void assign_by_copy (Basic_block* bb, Alias_name lhs,
-	                     Alias_name rhs, certainty cert);
-
-	void assign_scalar (Basic_block* bb, Alias_name lhs,
-							  MIR::Literal* rhs, certainty cert);
+	void assign_value (Basic_block* bb, Alias_name lhs,
+							 Abstract_value* val, Alias_name* source,
+							 certainty cert);
 
 	void assign_empty_array (Basic_block* bb, Alias_name lhs,
 									 string unique_name, certainty cert);
-
-	void assign_unknown (Basic_block* bb, Alias_name lhs,
-							   certainty cert);
 
 	void record_use (Basic_block* bb, Alias_name lhs, certainty cert);
 

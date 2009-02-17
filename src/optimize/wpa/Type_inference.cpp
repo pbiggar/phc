@@ -19,6 +19,12 @@ Type_inference::Type_inference (Whole_program* wp)
 {
 }
 
+
+void
+Type_inference::assign_value (Basic_block* bb, Alias_name name, Abstract_value* val, Alias_name* source, certainty cert)
+{
+	phc_TODO ();
+	/*
 void
 Type_inference::assign_unknown_typed (Basic_block* bb, Alias_name lhs, Types types, certainty cert)
 {
@@ -26,17 +32,19 @@ Type_inference::assign_unknown_typed (Basic_block* bb, Alias_name lhs, Types typ
 }
 	
 void
+Type_inference::assign_scalar (Basic_block* bb, Alias_name lhs, MIR::Literal* rhs, certainty cert)
+{
+	assign_unknown_typed (bb, lhs, *(new Types (get_literal_type (rhs))), cert);
+}*/
+}
+
+void
 Type_inference::assign_empty_array (Basic_block* bb, Alias_name lhs, string unique_name, certainty cert)
 {
 	outs[bb->ID][lhs.str()] = meet (outs[bb->ID][lhs.str()], new Type_cell ("array"));
 	outs[bb->ID][unique_name] = meet (outs[bb->ID][unique_name], new Type_cell ("array"));
 }
 
-void
-Type_inference::assign_scalar (Basic_block* bb, Alias_name lhs, MIR::Literal* rhs, certainty cert)
-{
-	assign_unknown_typed (bb, lhs, *(new Types (get_literal_type (rhs))), cert);
-}
 
 Types
 Type_inference::get_types (Basic_block* bb, Alias_name name)

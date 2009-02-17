@@ -24,11 +24,11 @@ public:
 
 	void kill_value (Basic_block* bb, Alias_name name);
 
-	void assign_unknown (Basic_block* bb, Alias_name lhs,
-								certainty cert);
-
+	// Provides a base case - sub-classes should call this if they can't do
+	// better.
 	void assign_value (Basic_block* bb, Alias_name lhs,
-							   Alias_name rhs, certainty cert);
+							 Abstract_value* val, Alias_name* source,
+							 certainty cert);
 
 	void pull_init (Basic_block* bb);
 	void pull_first_pred (Basic_block* bb, Basic_block* pred);

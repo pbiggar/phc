@@ -36,37 +36,14 @@ Debug_WPA::backward_bind (Basic_block* caller, Exit_block* exit)
 	DEBUG (__FUNCTION__);
 }
 
+
 void
-Debug_WPA::assign_unknown (Basic_block* bb, Alias_name lhs, certainty cert)
+Debug_WPA::create_reference (Basic_block* bb, Alias_name lhs,
+									  Alias_name rhs, certainty cert)
 {
 	DEBUG (__FUNCTION__
 			<< ": " << lhs.str ()
-			<< ", " << cert_to_string (cert));
-}
-
-void
-Debug_WPA::assign_unknown_typed (Basic_block* bb, Alias_name lhs,
-											Types types, certainty cert)
-{
-	CHECK_DEBUG ();
-
-	cdebug << __FUNCTION__
-			<< ": " << lhs.str ();
-
-	foreach (string type, types)
-		cdebug << ", " << type;
-
-	cdebug << ", " << cert_to_string (cert) << endl;
-}
-
-void
-Debug_WPA::assign_scalar (Basic_block* bb, Alias_name lhs,
-							 MIR::Literal* rhs, certainty cert)
-{
-	DEBUG (__FUNCTION__
-			<< ": " << lhs.str ()
-			<< ", " << *rhs->get_value_as_string ()
-			<< " (" << demangle (rhs, false) << ")"
+			<< ", " << rhs.str ()
 			<< ", " << cert_to_string (cert));
 }
 
@@ -82,34 +59,16 @@ Debug_WPA::assign_empty_array (Basic_block* bb, Alias_name lhs,
 
 void
 Debug_WPA::assign_value (Basic_block* bb, Alias_name lhs,
-							 Alias_name rhs, certainty cert)
+								 Abstract_value* val, Alias_name* source,
+								 certainty cert)
 {
+	phc_TODO ();
 	DEBUG (__FUNCTION__
 			<< ": " << lhs.str ()
-			<< ", " << rhs.str ()
+			<< ", " << source->str ()
 			<< ", " << cert_to_string (cert));
 }
 
-
-void
-Debug_WPA::assign_by_ref (Basic_block* bb, Alias_name lhs,
-						 Alias_name rhs, certainty cert)
-{
-	DEBUG (__FUNCTION__
-			<< ": " << lhs.str ()
-			<< ", " << rhs.str ()
-			<< ", " << cert_to_string (cert));
-}
-
-void
-Debug_WPA::assign_by_copy (Basic_block* bb, Alias_name lhs,
-							  Alias_name rhs, certainty cert)
-{
-	DEBUG (__FUNCTION__
-			<< ": " << lhs.str ()
-			<< ", " << rhs.str ()
-			<< ", " << cert_to_string (cert));
-}
 
 void
 Debug_WPA::kill_value (Basic_block* bb, Alias_name lhs)
@@ -119,14 +78,7 @@ Debug_WPA::kill_value (Basic_block* bb, Alias_name lhs)
 }
 
 void
-Debug_WPA::kill_by_copy (Basic_block* bb, Alias_name lhs)
-{
-	DEBUG (__FUNCTION__
-		<< ": " << lhs.str ());
-}
-
-void
-Debug_WPA::kill_by_ref (Basic_block* bb, Alias_name lhs)
+Debug_WPA::kill_reference (Basic_block* bb, Alias_name lhs)
 {
 	DEBUG (__FUNCTION__
 		<< ": " << lhs.str ());
@@ -141,11 +93,31 @@ Debug_WPA::record_use (Basic_block* bb, Alias_name use,
 		<< ", " << cert_to_string (cert));
 }
 
+
 void
-Debug_WPA::pull_results (Basic_block* bb)
+Debug_WPA::pull_init (Basic_block* bb)
+{
+	DEBUG (__FUNCTION__ << " " << bb->ID);
+}
+
+void
+Debug_WPA::pull_first_pred (Basic_block* bb, Basic_block* pred)
+{
+	DEBUG (__FUNCTION__ << " from " << pred->ID);
+}
+
+void
+Debug_WPA::pull_pred (Basic_block* bb, Basic_block* pred)
+{
+	DEBUG (__FUNCTION__ << " from " << pred->ID);
+}
+
+void
+Debug_WPA::pull_finish (Basic_block* bb)
 {
 	DEBUG (__FUNCTION__);
 }
+
 
 void
 Debug_WPA::aggregate_results (Basic_block* bb)

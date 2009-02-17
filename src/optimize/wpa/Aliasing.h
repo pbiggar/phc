@@ -36,25 +36,18 @@ public:
 	Aliasing (Whole_program*);
 
 	// WPA interface
-	void kill_by_ref (Basic_block* bb, Alias_name lhs);
+	void create_reference (Basic_block* bb, Alias_name lhs,
+								  Alias_name rhs, certainty cert);
 
-	// This is called by more than just kill_by_copy, so we must implement it.
-	// We dont need kill by copy as a result - it just calls this.
 	void kill_value (Basic_block* bb, Alias_name lhs);
-
-	void assign_scalar (Basic_block* bb, Alias_name lhs,
-							  MIR::Literal* rhs, certainty cert);
+	void kill_reference (Basic_block* bb, Alias_name lhs);
 
 	void assign_empty_array (Basic_block* bb, Alias_name lhs,
 									 string unique_name, certainty cert);
 
-	void assign_unknown (Basic_block* bb, Alias_name lhs, certainty cert);
-	
-	void assign_by_ref (Basic_block* bb, Alias_name lhs,
-	                    Alias_name rhs, certainty cert);
-
-	void assign_by_copy (Basic_block* bb, Alias_name lhs,
-							   Alias_name rhs, certainty cert);
+	void assign_value (Basic_block* bb, Alias_name name,
+						    Abstract_value* val, Alias_name* source,
+							 certainty cert);
 
 	void forward_bind (Basic_block* caller, Entry_block* entry);
 

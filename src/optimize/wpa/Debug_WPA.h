@@ -20,37 +20,28 @@ public:
 	void forward_bind (Basic_block* bb, Entry_block* entry);
 	void backward_bind (Basic_block* bb, Exit_block* exit);
 
-	void assign_unknown (Basic_block* bb, Alias_name name, certainty cert);
 
-	void assign_unknown_typed (Basic_block* bb, Alias_name name,
-									   Types types, certainty cert);
+	void create_reference (Basic_block* bb, Alias_name lhs,
+								  Alias_name rhs, certainty cert);
 
-	void assign_scalar (Basic_block* bb, Alias_name lhs,
-							 MIR::Literal* rhs, certainty cert);
+	void assign_value (Basic_block* bb, Alias_name name,
+						   Abstract_value* val, Alias_name* source,
+							certainty cert);
 
 	void assign_empty_array (Basic_block* bb, Alias_name lhs,
 									string unique_name, certainty cert);
 
-	void assign_value (Basic_block* bb, Alias_name lhs,
-							 Alias_name rhs, certainty cert);
-
-
-	void assign_by_ref (Basic_block* bb, Alias_name lhs,
-							 Alias_name rhs, certainty cert);
-
-	void assign_by_copy (Basic_block* bb, Alias_name lhs,
-							  Alias_name rhs, certainty cert);
-
 	void kill_value (Basic_block* bb, Alias_name name);
 
-	void kill_by_copy (Basic_block* bb, Alias_name name);
-
-	void kill_by_ref (Basic_block* bb, Alias_name name);
+	void kill_reference (Basic_block* bb, Alias_name name);
 	
 	void record_use (Basic_block* bb, Alias_name use,
 									 certainty cert);
 
-	void pull_results (Basic_block* bb);
+	void pull_init (Basic_block* bb);
+	void pull_first_pred (Basic_block* bb, Basic_block* pred);
+	void pull_pred (Basic_block* bb, Basic_block* pred);
+	void pull_finish (Basic_block* bb);
 
 	void aggregate_results (Basic_block* bb);
 

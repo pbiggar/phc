@@ -86,19 +86,12 @@ WPA_lattice::kill_value (Basic_block* bb, Alias_name lhs)
 }
 
 
-void
-WPA_lattice::assign_unknown (Basic_block* bb, Alias_name lhs, certainty cert)
-{
-	// Dont need to worry about CERT.
-	outs[bb->ID][lhs.str()] = BOTTOM;
-}
-
 
 void
-WPA_lattice::assign_value (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert)
+WPA_lattice::assign_value (Basic_block* bb, Alias_name lhs, Abstract_value* val, Alias_name* source, certainty cert)
 {
 	Lattice_map& lat = outs[bb->ID];
-	lat[lhs.str()] = meet (lat[lhs.str()], ins[bb->ID][rhs.str()]);
+	lat[lhs.str()] = meet (lat[lhs.str()], ins[bb->ID][source->str()]);
 }
 
 void

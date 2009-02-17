@@ -128,7 +128,7 @@ Aliasing::kill_value (Basic_block* bb, Alias_name lhs)
 
 // Remove all references edges into or out of INDEX. Also call kill_value.
 void
-Aliasing::kill_by_ref (Basic_block* bb, Alias_name lhs)
+Aliasing::kill_reference (Basic_block* bb, Alias_name lhs)
 {
 	Points_to* ptg = outs[bb->ID];
 	ptg->add_node (lhs.ind(), DEFINITE);
@@ -141,14 +141,8 @@ Aliasing::kill_by_ref (Basic_block* bb, Alias_name lhs)
 }
 
 
-void
-Aliasing::assign_scalar (Basic_block* bb, Alias_name lhs, MIR::Literal* lit, certainty cert)
-{
-	// This kills any objects or arrays currently pointed-to. However, that's
-	// done in kill_value.
-	outs[bb->ID]->add_node (lhs.ind (), cert);
-	outs[bb->ID]->add_edge (lhs.ind (), ABSVAL (lhs), cert);
-}
+
+
 
 void
 Aliasing::assign_empty_array (Basic_block* bb, Alias_name lhs, string unique_name, certainty cert)
@@ -156,16 +150,8 @@ Aliasing::assign_empty_array (Basic_block* bb, Alias_name lhs, string unique_nam
 	outs[bb->ID]->add_node (lhs.ind (), cert);
 	outs[bb->ID]->add_edge (lhs.ind (), SN (unique_name), cert);
 }
-
 void
-Aliasing::assign_unknown (Basic_block* bb, Alias_name lhs, certainty cert)
-{
-	outs[bb->ID]->add_node (lhs.ind (), cert);
-	outs[bb->ID]->add_edge (lhs.ind (), ABSVAL (lhs), cert);
-}
-
-void
-Aliasing::assign_by_ref (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert)
+Aliasing::create_reference (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert)
 {
 	Points_to* ptg = outs[bb->ID];
 
@@ -190,15 +176,37 @@ Aliasing::assign_by_ref (Basic_block* bb, Alias_name lhs, Alias_name rhs, certai
 }
 
 void
-Aliasing::assign_by_copy (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert)
+Aliasing::assign_value (Basic_block* bb, Alias_name lhs, Abstract_value* val, Alias_name* source, certainty cert)
 {
+	phc_TODO ();
 	outs[bb->ID]->add_node (lhs.ind(), cert);
-	add_all_points_to_edges (bb, lhs, rhs, cert);
+	add_all_points_to_edges (bb, lhs, *source, cert);
+/*
+
+void
+Aliasing::assign_scalar (Basic_block* bb, Alias_name lhs, MIR::Literal* lit, certainty cert)
+{
+	// This kills any objects or arrays currently pointed-to. However, that's
+	// done in kill_value.
+	outs[bb->ID]->add_node (lhs.ind (), cert);
+	outs[bb->ID]->add_edge (lhs.ind (), ABSVAL (lhs), cert);
+}
+
+void
+Aliasing::assign_unknown (Basic_block* bb, Alias_name lhs, certainty cert)
+{
+	outs[bb->ID]->add_node (lhs.ind (), cert);
+	outs[bb->ID]->add_edge (lhs.ind (), ABSVAL (lhs), cert);
+}
+*/
 }
 
 void
 Aliasing::add_all_points_to_edges (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert)
 {
+	// Do not copy the abstract value!!!
+	phc_TODO ();
+
 	certainty certainties[] = {POSSIBLE, DEFINITE};
 	foreach (certainty edge_cert, certainties)
 	{

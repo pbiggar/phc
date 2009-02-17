@@ -14,6 +14,7 @@
 
 class Whole_program;
 class Points_to;
+class Abstract_value;
 
 /*
  * Must- or may- information.
@@ -36,18 +37,11 @@ typedef Set<string> Types;
  * these should be turned off after use
  */
 //#define FIND_COMPILE_TIME_NON_CONFORMING
-//#define FIND_RUN_TIME_NON_CONFORMING
 
 #ifdef FIND_COMPILE_TIME_NON_CONFORMING
 #define CT_IMPL =0
 #else
 #define CT_IMPL {}
-#endif
-
-#ifdef FIND_RUN_TIME_NON_CONFORMING
-#define RT_IMPL {phc_TODO();}
-#else
-#define RT_IMPL {}
 #endif
 
 
@@ -77,81 +71,31 @@ public:
 	 * Assigning values
 	 */
 
-	// We dont know anything about the value
-	virtual void assign_unknown (Basic_block* bb, Alias_name name,
-										  certainty cert) CT_IMPL;
+	// There should now be a reference between lhs and rhs. Values are
+	// propagated separately.
+	virtual void create_reference (Basic_block* bb, Alias_name lhs,
+											 Alias_name rhs, certainty cert) CT_IMPL;
+	
 
-	// But we do know its type.
-	virtual void assign_unknown_typed (Basic_block* bb, Alias_name name,
-												  Types types, certainty cert)
-	{
-		assign_unknown (bb, name, cert);
-	}
-
-	/*
-	 * Handle the built-in types.
-	 */
-
-	// Case where we know the value of the RHS
-	virtual void assign_scalar (Basic_block* bb, Alias_name lhs,
-										 MIR::Literal* rhs, certainty cert) CT_IMPL;
+	// Take what you can from the abstract value. If set, SOURCE carries the
+	// name of the source of the value. This might come in handy for arrays
+	// and objects.
+	virtual void assign_value (Basic_block* bb, Alias_name name,
+									   Abstract_value* val, Alias_name* source,
+										certainty cert) CT_IMPL;
 
 	virtual void assign_empty_array (Basic_block* bb, Alias_name lhs,
 												string unique_name, certainty cert) CT_IMPL;
-
-
-
-	/*
-	 * Assigning from existing values
-	 */
-
-
-	/*
-	 * If the way the value is propagated doesn't matter, use assign_value.
-	 * By default, this is called by assign_by_ref and assign_by_copy.
-	 *
-	 * Note that aliasing typically doesn't come into account here, since
-	 * that's abstracted by Whole_program.
-	 */
-	virtual void assign_value (Basic_block* bb, Alias_name lhs,
-										 Alias_name rhs, certainty cert) RT_IMPL;
-
-
-	// LHS is made to reference RHS, with the certainty CERT. Note this copies
-	// the value.
-	virtual void assign_by_ref (Basic_block* bb, Alias_name lhs,
-										 Alias_name rhs, certainty cert)
-	{
-		assign_value (bb, lhs, rhs, cert);
-	}
-
-	
-	// RHS is copied into LHS, with the certainty CERT.
-	virtual void assign_by_copy (Basic_block* bb, Alias_name lhs,
-										  Alias_name rhs, certainty cert)
-	{
-		assign_value (bb, lhs, rhs, cert);
-	}
 
 
 	/*
 	 * Killing values
 	 */
 
-	// If we don't care if its by value or by ref
-	virtual void kill_value (Basic_block* bb, Alias_name name) RT_IMPL;
+	virtual void kill_value (Basic_block* bb, Alias_name name) CT_IMPL;
 
-	// NAME's value is killed.
-	virtual void kill_by_copy (Basic_block* bb, Alias_name name)
-	{
-		kill_value (bb, name);
-	}
-
-	// NAME's reference set and value is killed.
-	virtual void kill_by_ref (Basic_block* bb, Alias_name name)
-	{
-		kill_value (bb, name);
-	}
+	// Kill name's reference set. Kill_value will be called separately.
+	virtual void kill_reference (Basic_block* bb, Alias_name name) CT_IMPL;
 
 
 	/*

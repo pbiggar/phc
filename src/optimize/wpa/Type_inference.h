@@ -30,11 +30,9 @@ class Type_inference : public WPA_lattice
 public:
 	Type_inference (Whole_program* wp);
 
-	void assign_unknown_typed (Basic_block* bb, Alias_name name,
-									   Types types, certainty cert);
-	
-	void assign_scalar (Basic_block* bb, Alias_name lhs,
-							  MIR::Literal* rhs, certainty cert);
+	void assign_value (Basic_block* bb, Alias_name name,
+						    Abstract_value* val, Alias_name* source,
+							 certainty cert);
 
 	void assign_empty_array (Basic_block* bb, Alias_name lhs,
 									 string unique_name, certainty cert);

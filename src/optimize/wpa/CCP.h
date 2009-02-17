@@ -20,11 +20,12 @@ class CCP : public WPA_lattice
 public:
 	CCP (Whole_program* wp);
 
-	void assign_scalar (Basic_block* bb, Alias_name lhs,
-							  MIR::Literal* rhs, certainty cert);
-
 	void assign_empty_array (Basic_block* bb, Alias_name lhs,
 									 string unique_name, certainty cert);
+
+	void assign_value (Basic_block* bb, Alias_name name,
+						    Abstract_value* val, Alias_name* source,
+							 certainty cert);
 
 	// CCP-specific
 	bool branch_known_true (Basic_block* bb, Alias_name cond);

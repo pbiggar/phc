@@ -73,13 +73,13 @@ Def_use::dump(Basic_block* bb, string comment)
  * Kills
  */
 void
-Def_use::kill_by_copy (Basic_block* bb, Alias_name lhs)
+Def_use::kill_value (Basic_block* bb, Alias_name lhs)
 {
 	val_assignment (bb, lhs, DEFINITE);
 }
 
 void
-Def_use::kill_by_ref (Basic_block* bb, Alias_name lhs)
+Def_use::kill_reference (Basic_block* bb, Alias_name lhs)
 {
 	ref_assignment (bb, lhs, DEFINITE);
 }
@@ -87,19 +87,7 @@ Def_use::kill_by_ref (Basic_block* bb, Alias_name lhs)
 /* Simple assignments */
 
 void
-Def_use::assign_scalar (Basic_block* bb, Alias_name lhs, Literal* lit, certainty cert)
-{
-	val_assignment (bb, lhs, cert);
-}
-
-void
 Def_use::assign_empty_array (Basic_block* bb, Alias_name lhs, string unique_name, certainty cert)
-{
-	val_assignment (bb, lhs, cert);
-}
-
-void
-Def_use::assign_unknown (Basic_block* bb, Alias_name lhs, certainty cert)
 {
 	val_assignment (bb, lhs, cert);
 }
@@ -138,14 +126,15 @@ Def_use::ref_assignment (Basic_block* bb, Alias_name lhs, certainty cert)
 
 /* Assignments with RHSs */
 void
-Def_use::assign_by_copy (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert)
+Def_use::assign_value (Basic_block* bb, Alias_name lhs, Abstract_value* val, Alias_name* source, certainty cert)
 {
 	val_assignment (bb, lhs, cert);
-	val_uses[bb->ID].insert (rhs);
+	if (source)
+		val_uses[bb->ID].insert (*source);
 }
 
 void
-Def_use::assign_by_ref (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert)
+Def_use::create_reference (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert)
 {
 	ref_assignment (bb, lhs, cert);
 	ref_uses[bb->ID].insert (rhs);

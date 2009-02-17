@@ -192,6 +192,8 @@ libphc_la_SOURCES= 											\
 	src/lib/String.cpp										\
 	src/lib/String.h											\
 	src/lib/Vector.h											\
+	src/optimize/Abstract_value.cpp						\
+	src/optimize/Abstract_value.h							\
 	src/optimize/Alias_name.cpp							\
 	src/optimize/Alias_name.h								\
 	src/optimize/Basic_block.cpp							\

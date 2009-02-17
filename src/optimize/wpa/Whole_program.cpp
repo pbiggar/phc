@@ -653,22 +653,24 @@ Whole_program::init_superglobals (Entry_block* entry)
 		assign_empty_array (entry, P (MSN, sg), array_name);
 
 		// We dont know the contents of these arrays.
-		foreach_wpa (this)
-			wpa->assign_unknown_typed (entry, Alias_name (array_name, UNKNOWN),
-												Types("string"), DEFINITE);
+		phc_TODO ();
+//		foreach_wpa (this)
+//			wpa->assign_unknown_typed (entry, Alias_name (array_name, UNKNOWN),
+//												Types("string"), DEFINITE);
 	}
 
+		phc_TODO ();
 	// We actually have no idea whats in _SESSION
-	foreach_wpa (this)
-		wpa->assign_unknown (entry, Alias_name ("_SESSION", UNKNOWN), DEFINITE);
+//	foreach_wpa (this)
+//		wpa->assign_unknown (entry, Alias_name ("_SESSION", UNKNOWN), DEFINITE);
 
 	// argc
-	foreach_wpa (this)
-		wpa->assign_unknown_typed (entry, Alias_name (MSN, "argc"),
-											Types("int"), DEFINITE);
+//	foreach_wpa (this)
+//		wpa->assign_unknown_typed (entry, Alias_name (MSN, "argc"),
+//											Types("int"), DEFINITE);
 
 	// argv
-	foreach_wpa (this)
+/*	foreach_wpa (this)
 	{
 		wpa->assign_empty_array (entry, Alias_name (MSN, "argv"), "argv", DEFINITE);
 		wpa->assign_unknown_typed (entry, Alias_name ("argv", UNKNOWN),
@@ -676,7 +678,7 @@ Whole_program::init_superglobals (Entry_block* entry)
 		wpa->assign_unknown_typed (entry, Alias_name ("argv", "0"),
 											Types("string"), DEFINITE);
 	}
-
+*/
 	dump (entry, "After superglobals");
 }
 
@@ -816,7 +818,7 @@ Whole_program::assign_by_ref (Basic_block* bb, Path* plhs, Path* prhs)
 		if (killable) // only 1 result
 		{
 			foreach_wpa (this)
-				wpa->kill_by_ref (bb, lhs->name ());
+				wpa->kill_reference (bb, lhs->name ());
 		}
 
 		// We don't need to worry about propagating values to LHSS' aliases, as
@@ -825,10 +827,18 @@ Whole_program::assign_by_ref (Basic_block* bb, Path* plhs, Path* prhs)
 		foreach (Index_node* rhs, *rhss)
 		{
 			foreach_wpa (this)
-				wpa->assign_by_ref (bb,
+			{
+				wpa->create_reference (bb,
 					lhs->name (),
 					rhs->name (),
 					(killable && is_must (rhss)) ? DEFINITE : POSSIBLE);
+
+				phc_TODO ();
+//				wpa->assign_value (bb,
+//					lhs->name (),
+//					rhs->name (),
+//					(killable && is_must (rhss)) ? DEFINITE : POSSIBLE);
+			}
 		}
 	}
 }
@@ -861,8 +871,9 @@ Whole_program::assign_scalar (Basic_block* bb, Path* plhs, Literal* lit)
 				{
 					if (cert == DEFINITE) // must-def
 						wpa->kill_value (bb, ref->name ());
-
-					wpa->assign_scalar (bb, ref->name (), lit, cert);
+					
+					phc_TODO ();
+//					wpa->assign_scalar (bb, ref->name (), lit, cert);
 				}
 			}
 		}
@@ -872,12 +883,12 @@ Whole_program::assign_scalar (Basic_block* bb, Path* plhs, Literal* lit)
 		{
 			if (killable) // only 1 result
 				wpa->kill_value (bb, lhs->name ());
-
-			wpa->assign_scalar (bb,
+phc_TODO ();
+/*			wpa->assign_scalar (bb,
 				lhs->name (),
 				lit,
 				killable ? DEFINITE : POSSIBLE);
-		}
+*/		}
 	}
 }
 
@@ -911,8 +922,8 @@ Whole_program::assign_unknown_typed (Basic_block* bb, Path* plhs, Types types)
 					Alias_name absval = ABSVAL (ref->name())->name();
 					if (cert == DEFINITE) // must-def
 						wpa->kill_value (bb, absval);
-
-					wpa->assign_unknown_typed (bb, absval, types, cert);
+phc_TODO ();
+//					wpa->assign_unknown_typed (bb, absval, types, cert);
 				}
 			}
 		}
@@ -923,11 +934,11 @@ Whole_program::assign_unknown_typed (Basic_block* bb, Path* plhs, Types types)
 		{
 			if (killable) // only 1 result
 				wpa->kill_value (bb, absval);
-
-			wpa->assign_unknown_typed (bb,
+phc_TODO ();
+/*			wpa->assign_unknown_typed (bb,
 				absval,
 				types,
-				killable ? DEFINITE : POSSIBLE);
+				killable ? DEFINITE : POSSIBLE);*/
 		}
 	}
 }
@@ -977,10 +988,11 @@ Whole_program::assign_by_copy (Basic_block* bb, Path* plhs, Path* prhs)
 						wpa->kill_value (bb, ref->name ());
 
 					foreach (Index_node* rhs, *rhss)
-						wpa->assign_by_copy (bb,
-							ref->name (),
-							rhs->name (),
-							is_must (rhss) ? cert : POSSIBLE);
+						phc_TODO ();
+//						wpa->assign_by_copy (bb,
+//							ref->name (),
+//							rhs->name (),
+//							is_must (rhss) ? cert : POSSIBLE);
 				}
 			}
 		}
@@ -993,10 +1005,11 @@ Whole_program::assign_by_copy (Basic_block* bb, Path* plhs, Path* prhs)
 				if (killable) // only 1 result
 					wpa->kill_value (bb, lhs->name ());
 
-				wpa->assign_by_copy (bb,
+				phc_TODO ();
+/*				wpa->assign_by_copy (bb,
 					lhs->name (),
 					rhs->name (),
-					is_must (rhss) ? DEFINITE : POSSIBLE);
+					is_must (rhss) ? DEFINITE : POSSIBLE);*/
 			}
 		}
 	}
@@ -1031,8 +1044,8 @@ Whole_program::assign_unknown (Basic_block* bb, Path* plhs)
 				{
 					if (cert == DEFINITE) // must-def
 						wpa->kill_value (bb, ref->name ());
-
-					wpa->assign_unknown (bb, ref->name (), cert);
+phc_TODO ();
+//					wpa->assign_unknown (bb, ref->name (), cert);
 				}
 			}
 		}
@@ -1043,9 +1056,10 @@ Whole_program::assign_unknown (Basic_block* bb, Path* plhs)
 			if (killable) // only 1 result
 				wpa->kill_value (bb, lhs->name ());
 
-			wpa->assign_unknown (bb,
+phc_TODO ();
+/*			wpa->assign_unknown (bb,
 				lhs->name (),
-				killable ? DEFINITE : POSSIBLE);
+				killable ? DEFINITE : POSSIBLE);*/
 		}
 	}
 }
@@ -1257,8 +1271,9 @@ Whole_program::visit_foreach_reset (Statement_block* bb, MIR::Foreach_reset* in)
 	// for an iterator. We also don't need to worry about kills and such. Note
 	// that we dont want a path, as that would create an index into the
 	// array's storage node, which isnt what we want to model.
-	foreach_wpa (this)
-		wpa->assign_unknown (bb, iter, DEFINITE);
+	phc_TODO ();
+/*	foreach_wpa (this)
+		wpa->assign_unknown (bb, iter, DEFINITE);*/
 }
 
 void
@@ -1270,9 +1285,10 @@ Whole_program::visit_foreach_end (Statement_block* bb, MIR::Foreach_end* in)
 	// Mark both a use and a def on the iterator
 	Alias_name iter (ST(bb), *in->iter->value);
 	record_use (bb, iter.ind());
-	
-	foreach_wpa (this)
-		wpa->assign_unknown (bb, iter, DEFINITE);
+	phc_TODO ();
+
+/*	foreach_wpa (this)
+		wpa->assign_unknown (bb, iter, DEFINITE);*/
 }
 
 
