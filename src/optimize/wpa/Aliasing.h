@@ -82,6 +82,7 @@ class Path : virtual public GC_obj
 };
 
 Path* P (string st, MIR::Node* node);
+Path* P (string st, string ind);
 
 class Indexing : public Path 
 {

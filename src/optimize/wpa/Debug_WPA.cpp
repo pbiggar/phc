@@ -63,12 +63,17 @@ Debug_WPA::assign_value (Basic_block* bb, Alias_name lhs,
 								 Abstract_value* val, Alias_name* source,
 								 certainty cert)
 {
-	DEBUG (__FUNCTION__ << ": " << lhs.str ());
+	CHECK_DEBUG ();
+
+	cdebug
+	<< __FUNCTION__ << ": " << lhs.str () << ", ";
 
 	val->dump();
 
-	DEBUG (  ", " << (source ? source->str () : "NONE")
-			<< ", " << cert_to_string (cert));
+	cdebug
+	<< ", " << (source ? source->str () : "NONE")
+	<< ", " << cert_to_string (cert)
+	<< endl;
 }
 
 

@@ -673,9 +673,8 @@ Whole_program::init_superglobals (Entry_block* entry)
 
 		// We dont know the contents of these arrays.
 		// TODO: move all of these into calls to Whole_program
-		foreach_wpa (this)
-			wpa->assign_value (entry, Alias_name (array_name, UNKNOWN),
-												from_types (Types("string")), NULL, DEFINITE);
+		assign_value (entry, P (array_name, UNKNOWN),
+						  from_types (Types("string")), NULL);
 	}
 
 	// We actually have no idea whats in _SESSION
@@ -731,15 +730,17 @@ Whole_program::forward_bind (Method_info* info, Basic_block* caller, Entry_block
 			// $ap = $fp;
 			if (isa<VARIABLE_NAME> (ap->rvalue))
 			{
-				assign_by_copy (entry,
+				assign_value (entry,
 						P (ST (entry), info->param_name (i)),
+						NULL,
 						P (ST (caller), dyc<VARIABLE_NAME> (ap->rvalue)));
 			}
 			else
 			{
-				assign_scalar (entry,
+				assign_value (entry,
 						P (ST (entry), info->param_name (i)),
-						dyc<Literal> (ap->rvalue));
+						from_lit (dyc<Literal> (ap->rvalue)),
+						NULL);
 			}
 		}
 
@@ -959,6 +960,56 @@ phc_TODO ();
 				types,
 				killable ? DEFINITE : POSSIBLE);*/
 		}
+	}
+}
+
+void
+Whole_program::assign_value (Basic_block* bb, Path* plhs, Abstract_value* val, Path* prhs)
+{
+	phc_TODO ();
+	Index_node_list* lhss = get_named_indices (bb, plhs);
+
+	bool killable = is_must (lhss);
+
+	// This is not killing in terms of references, so it assigns to all
+	// aliases of lhs.
+	foreach (Index_node* lhs, *lhss)
+	{
+		// Handle all the aliases/indirect assignments.
+		certainty certainties[] = {POSSIBLE, DEFINITE};
+		foreach (certainty cert, certainties)
+		{
+			Index_node_list* refs = aliasing->get_references (bb, lhs, cert);
+
+			// If we can't say the LHSS is killable, we get say its must defs are
+			// killable either.
+			if (!killable)
+				cert = POSSIBLE;
+
+			foreach_wpa (this)
+			{
+				foreach (Index_node* ref, *refs)
+				{
+					if (cert == DEFINITE) // must-def
+						wpa->kill_value (bb, ref->name ());
+					
+					phc_TODO ();
+//					wpa->assign_scalar (bb, ref->name (), lit, cert);
+				}
+			}
+		}
+
+		// Handle LHS itself
+		foreach_wpa (this)
+		{
+			if (killable) // only 1 result
+				wpa->kill_value (bb, lhs->name ());
+phc_TODO ();
+/*			wpa->assign_scalar (bb,
+				lhs->name (),
+				lit,
+				killable ? DEFINITE : POSSIBLE);
+*/		}
 	}
 }
 

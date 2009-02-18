@@ -7,6 +7,7 @@
  */
 
 #include "Type_inference.h"
+#include "optimize/Abstract_value.h"
 #include "Whole_program.h"
 #include "MIR.h"
 
@@ -21,21 +22,14 @@ Type_inference::Type_inference (Whole_program* wp)
 
 
 void
-Type_inference::assign_value (Basic_block* bb, Alias_name name, Abstract_value* val, Alias_name* source, certainty cert)
+Type_inference::assign_value (Basic_block* bb, Alias_name lhs, Abstract_value* val, Alias_name* source, certainty cert)
 {
-	phc_TODO ();
-	/*
-void
-Type_inference::assign_unknown_typed (Basic_block* bb, Alias_name lhs, Types types, certainty cert)
-{
-	outs[bb->ID][lhs.str()] = meet (outs[bb->ID][lhs.str()], new Type_cell (types));
-}
-	
-void
-Type_inference::assign_scalar (Basic_block* bb, Alias_name lhs, MIR::Literal* rhs, certainty cert)
-{
-	assign_unknown_typed (bb, lhs, *(new Types (get_literal_type (rhs))), cert);
-}*/
+	Lattice_map& lat = outs[bb->ID];
+	if (source)
+		phc_TODO ();
+
+	// If theres a literal, there will be a type.
+	lat[lhs.str()] = meet (lat[lhs.str()], val->type);
 }
 
 void

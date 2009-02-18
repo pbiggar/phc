@@ -178,27 +178,14 @@ Aliasing::create_reference (Basic_block* bb, Alias_name lhs, Alias_name rhs, cer
 void
 Aliasing::assign_value (Basic_block* bb, Alias_name lhs, Abstract_value* val, Alias_name* source, certainty cert)
 {
-	phc_TODO ();
 	outs[bb->ID]->add_node (lhs.ind(), cert);
-	add_all_points_to_edges (bb, lhs, *source, cert);
-/*
-
-void
-Aliasing::assign_scalar (Basic_block* bb, Alias_name lhs, MIR::Literal* lit, certainty cert)
-{
-	// This kills any objects or arrays currently pointed-to. However, that's
-	// done in kill_value.
-	outs[bb->ID]->add_node (lhs.ind (), cert);
-	outs[bb->ID]->add_edge (lhs.ind (), ABSVAL (lhs), cert);
-}
-
-void
-Aliasing::assign_unknown (Basic_block* bb, Alias_name lhs, certainty cert)
-{
-	outs[bb->ID]->add_node (lhs.ind (), cert);
-	outs[bb->ID]->add_edge (lhs.ind (), ABSVAL (lhs), cert);
-}
-*/
+	if (source == NULL)
+	{
+		// this is assigning a value
+		outs[bb->ID]->add_edge (lhs.ind (), ABSVAL (lhs), cert);
+	}
+	else
+		add_all_points_to_edges (bb, lhs, *source, cert);
 }
 
 void
@@ -273,6 +260,11 @@ Index_path::Index_path (string name)
 {
 }
 
+Path*
+P (string st, string ind)
+{
+	return new Indexing (new ST_path (st), new Index_path (ind));
+}
 
 // In the context of the symtable st, create a Path for NODE
 Path*
@@ -283,15 +275,14 @@ P (string symtable, Node* in)
 	switch (in->classid ())
 	{
 		case VARIABLE_NAME::ID:
-			return new Indexing (st,
-					new Index_path (*dyc<VARIABLE_NAME> (in)->value));
+			return P (symtable, *dyc<VARIABLE_NAME> (in)->value);
 
 		case Array_access::ID:
 		{
 			Array_access* aa = dyc<Array_access> (in);
 
 			return new Indexing (
-				new Indexing (st, new Index_path (*aa->variable_name->value)),
+				P (symtable, aa->variable_name),
 				P (symtable, aa->index));
 		}
 
@@ -300,7 +291,7 @@ P (string symtable, Node* in)
 			Assign_array* aa = dyc<Assign_array> (in);
 
 			return new Indexing (
-				new Indexing (st, new Index_path (*aa->lhs->value)),
+				P (symtable, *aa->lhs->value),
 				P (symtable, aa->index));
 		}
 
@@ -327,5 +318,6 @@ P (string symtable, Node* in)
 			phc_TODO ();
 	}
 }
+
 
 

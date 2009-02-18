@@ -12,6 +12,7 @@
 
 #include "CCP.h"
 #include "optimize/SCCP.h"
+#include "optimize/Abstract_value.h"
 
 using namespace std;
 using namespace boost;
@@ -26,14 +27,12 @@ CCP::CCP (Whole_program* wp)
 void
 CCP::assign_value (Basic_block* bb, Alias_name lhs, Abstract_value* val, Alias_name* source, certainty cert)
 {
-	// We ensure monotonicity. In the LOCALS lattice, the fact that LHS can be
-	// assigned to multiple times is taken care of via the lattice. The first
-	// assignment will merge with TOP, and the later ones might take it to
-	// BOTTOM.
-	phc_TODO ();
+	Lattice_map& lat = outs[bb->ID];
 
-//	Lattice_map& lat = outs[bb->ID];
-//	lat[lhs.str()] = meet (lat[lhs.str()], new Literal_cell (lit));
+	if (source)
+		phc_TODO ();
+
+	lat[lhs.str()] = meet (lat[lhs.str()], val->lit);
 }
 
 void
