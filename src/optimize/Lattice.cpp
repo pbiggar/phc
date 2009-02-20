@@ -49,6 +49,8 @@ BB_lattices::dump (Basic_block* bb, string name)
 void
 dump_lattice (Lattice_cell* cell)
 {
+	CHECK_DEBUG ();
+
 	if (cell == TOP)
 		cdebug << "TOP";
 	else if (cell == BOTTOM)

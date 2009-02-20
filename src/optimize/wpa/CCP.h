@@ -23,8 +23,8 @@ public:
 	void assign_empty_array (Basic_block* bb, Alias_name lhs,
 									 string unique_name, certainty cert);
 
-	void assign_value (Basic_block* bb, Alias_name name,
-						    Abstract_value* val, Alias_name* source,
+	void assign_value (Basic_block* bb, Alias_name lhs,
+						    Abstract_value* val,
 							 certainty cert);
 
 	// CCP-specific

@@ -176,16 +176,21 @@ Aliasing::create_reference (Basic_block* bb, Alias_name lhs, Alias_name rhs, cer
 }
 
 void
-Aliasing::assign_value (Basic_block* bb, Alias_name lhs, Abstract_value* val, Alias_name* source, certainty cert)
+Aliasing::assign_value (Basic_block* bb, Alias_name lhs, Abstract_value* val, certainty cert)
 {
 	outs[bb->ID]->add_node (lhs.ind(), cert);
-	if (source == NULL)
-	{
-		// this is assigning a value
-		outs[bb->ID]->add_edge (lhs.ind (), ABSVAL (lhs), cert);
-	}
-	else
-		add_all_points_to_edges (bb, lhs, *source, cert);
+	outs[bb->ID]->add_edge (lhs.ind (), ABSVAL (lhs), cert);
+}
+
+void
+Aliasing::copy_value (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert)
+{
+	outs[bb->ID]->add_node (lhs.ind(), cert);
+
+	// I think Whole_program should handle this. I can't believe something as
+	// simple as a copy from one varaible to another needs so much effort.
+	phc_TODO ();
+	add_all_points_to_edges (bb, lhs, rhs, cert);
 }
 
 void

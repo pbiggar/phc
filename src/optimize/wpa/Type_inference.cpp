@@ -22,11 +22,9 @@ Type_inference::Type_inference (Whole_program* wp)
 
 
 void
-Type_inference::assign_value (Basic_block* bb, Alias_name lhs, Abstract_value* val, Alias_name* source, certainty cert)
+Type_inference::assign_value (Basic_block* bb, Alias_name lhs, Abstract_value* val, certainty cert)
 {
 	Lattice_map& lat = outs[bb->ID];
-	if (source)
-		phc_TODO ();
 
 	// If theres a literal, there will be a type.
 	lat[lhs.str()] = meet (lat[lhs.str()], val->type);

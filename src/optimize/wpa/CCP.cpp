@@ -25,13 +25,9 @@ CCP::CCP (Whole_program* wp)
 
 
 void
-CCP::assign_value (Basic_block* bb, Alias_name lhs, Abstract_value* val, Alias_name* source, certainty cert)
+CCP::assign_value (Basic_block* bb, Alias_name lhs, Abstract_value* val, certainty cert)
 {
 	Lattice_map& lat = outs[bb->ID];
-
-	if (source)
-		phc_TODO ();
-
 	lat[lhs.str()] = meet (lat[lhs.str()], val->lit);
 }
 

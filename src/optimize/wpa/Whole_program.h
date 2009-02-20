@@ -89,6 +89,9 @@ public:
 	Callgraph* callgraph;
 	Type_inference* type_inf;
 
+	Path* saved_plhs;
+	MIR::VARIABLE_NAME* saved_lhs;
+
 
 public:
 	Whole_program(Pass_manager* pm);
@@ -169,15 +172,15 @@ public:
 	// These functions describe the operation being performed in each block.
 	// They pass the information to the Points-to graph, and to the other
 	// analyses. The BB is to give a unique index to the results.
-	void assign_value (Basic_block* bb, Path* lhs, Abstract_value* val, Path* rhs);
-
-	// TODO: these should nearly all be removed
 	void assign_scalar (Basic_block* bb, Path* lhs, MIR::Literal* lit);
+	void assign_unknown (Basic_block* bb, Path* lhs);
+	void assign_typed (Basic_block* bb, Path* lhs, Types types);
 	void assign_empty_array (Basic_block* bb, Path* lhs, string unique_name);
 	void assign_by_ref (Basic_block* bb, Path* lhs, Path* rhs);
 	void assign_by_copy (Basic_block* bb, Path* lhs, Path* rhs);
-	void assign_unknown (Basic_block* bb, Path* lhs);
-	void assign_unknown_typed (Basic_block* bb, Path* lhs, Types types);
+
+
+	certainty kill_value (Basic_block* bb, Path* plhs);
 
 	void record_use (Basic_block* bb, Index_node* node);
 
@@ -209,35 +212,38 @@ public:
 	void visit_branch_block (Branch_block*);
 
 	void visit_assign_array (Statement_block*, MIR::Assign_array*);
-	void visit_assign_field (Statement_block*, MIR::Assign_field *) { phc_TODO (); }
+	void visit_assign_field (Statement_block*, MIR::Assign_field *);
 	void visit_assign_var (Statement_block*, MIR::Assign_var*);
-	void visit_assign_var_var (Statement_block*, MIR::Assign_var_var*) { phc_TODO (); }
+	void visit_assign_var_var (Statement_block*, MIR::Assign_var_var*);
 	void visit_eval_expr (Statement_block*, MIR::Eval_expr*);
 	void visit_foreach_end (Statement_block*, MIR::Foreach_end*);
-	void visit_foreach_next (Statement_block*, MIR::Foreach_next*) { phc_TODO (); }
+	void visit_foreach_next (Statement_block*, MIR::Foreach_next*);
 	void visit_foreach_reset (Statement_block*, MIR::Foreach_reset*);
 	void visit_global (Statement_block*, MIR::Global*);
 	void visit_pre_op (Statement_block*, MIR::Pre_op*);
-	void visit_assign_next (Statement_block*, MIR::Assign_next*) { phc_TODO (); }
-	void visit_return (Statement_block*, MIR::Return*) { phc_TODO (); }
-	void visit_static_declaration (Statement_block*, MIR::Static_declaration*) { phc_TODO (); }
-	void visit_throw (Statement_block*, MIR::Throw*) { phc_TODO (); }
-	void visit_try (Statement_block*, MIR::Try*) { phc_TODO (); }
+	void visit_assign_next (Statement_block*, MIR::Assign_next*);
+	void visit_return (Statement_block*, MIR::Return*);
+	void visit_static_declaration (Statement_block*, MIR::Static_declaration*);
+	void visit_throw (Statement_block*, MIR::Throw*);
+	void visit_try (Statement_block*, MIR::Try*);
 	void visit_unset (Statement_block*, MIR::Unset*);
 
-	// Interprocedural nodes
-	void handle_method_invocation (Statement_block* bb, MIR::Method_invocation* in, MIR::VARIABLE_NAME* lhs);
-
-	void handle_new (Statement_block* bb, MIR::New* in, MIR::VARIABLE_NAME* lhs);
-
-
-	// Tricky bits
-	void handle_bin_op (Statement_block* bb, Path* lhs, MIR::Bin_op* rhs);
-	void handle_unary_op (Statement_block* bb, Path* lhs, MIR::Unary_op* rhs);
-	void handle_constant (Statement_block* bb, Path* lhs, MIR::Constant* in);
-	void handle_cast (Statement_block* bb, Path* lhs, MIR::Cast* in);
-
-
+	void visit_array_access (Statement_block* bb, MIR::Array_access* in);
+	void visit_bin_op (Statement_block* bb, MIR::Bin_op* in);
+	void visit_cast (Statement_block* bb, MIR::Cast* in);
+	void visit_constant (Statement_block* bb, MIR::Constant* in);
+	void visit_field_access (Statement_block* bb, MIR::Field_access* in);
+	void visit_foreach_get_key (Statement_block* bb, MIR::Foreach_get_key* in);
+	void visit_foreach_get_val (Statement_block* bb, MIR::Foreach_get_val* in);
+	void visit_foreach_has_key (Statement_block* bb, MIR::Foreach_has_key* in);
+	void visit_instanceof (Statement_block* bb, MIR::Instanceof* in);
+	void visit_isset (Statement_block* bb, MIR::Isset* in);
+	void visit_method_invocation (Statement_block* bb, MIR::Method_invocation* in);
+	void visit_new (Statement_block* bb, MIR::New* in);
+	void visit_param_is_ref (Statement_block* bb, MIR::Param_is_ref* in);
+	void visit_unary_op (Statement_block* bb, MIR::Unary_op* in);
+	void visit_variable_name (Statement_block* bb, MIR::VARIABLE_NAME* in);
+	void visit_variable_variable (Statement_block* bb, MIR::Variable_variable* in);
 };
 
 

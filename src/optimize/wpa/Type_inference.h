@@ -31,8 +31,7 @@ public:
 	Type_inference (Whole_program* wp);
 
 	void assign_value (Basic_block* bb, Alias_name name,
-						    Abstract_value* val, Alias_name* source,
-							 certainty cert);
+							 Abstract_value* val, certainty cert);
 
 	void assign_empty_array (Basic_block* bb, Alias_name lhs,
 									 string unique_name, certainty cert);

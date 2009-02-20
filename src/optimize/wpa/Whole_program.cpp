@@ -445,11 +445,11 @@ Whole_program::apply_modelled_function (Method_info* info, Basic_block* bb)
 	Path* ret_name = P (ST(bb), new VARIABLE_NAME (RETNAME));
 	if (*info->name == "strlen")
 	{
-		assign_unknown_typed (bb, ret_name, Types ("int"));
+		assign_typed (bb, ret_name, Types ("int"));
 	}
 	else if (*info->name == "dechex")
 	{
-		assign_unknown_typed (bb, ret_name, Types ("string"));
+		assign_typed (bb, ret_name, Types ("string"));
 	}
 	else if (*info->name == "print")
 	{
@@ -457,15 +457,15 @@ Whole_program::apply_modelled_function (Method_info* info, Basic_block* bb)
 	}
 	else if (*info->name == "is_array")
 	{
-		assign_unknown_typed (bb, ret_name, Types ("bool"));
+		assign_typed (bb, ret_name, Types ("bool"));
 	}
 	else if (*info->name == "is_object")
 	{
-		assign_unknown_typed (bb, ret_name, Types ("bool"));
+		assign_typed (bb, ret_name, Types ("bool"));
 	}
 	else if (*info->name == "trigger_error")
 	{
-		assign_unknown_typed (bb, ret_name, Types ("bool"));
+		assign_typed (bb, ret_name, Types ("bool"));
 	}
 	else
 		phc_TODO ();
@@ -624,24 +624,6 @@ Whole_program::dump (Basic_block* bb, string comment)
  * Analysis from here on in
  */
 
-Abstract_value*
-from_types (Types types)
-{
-	Abstract_value* result = new Abstract_value;
-	result->lit = BOTTOM;
-	result->type = new Type_cell (types);
-	return result;
-}
-
-Abstract_value*
-unknown_val ()
-{
-	Abstract_value* result = new Abstract_value;
-	result->lit = BOTTOM;
-	result->type = BOTTOM;
-	return result;
-}
-
 void
 Whole_program::init_superglobals (Entry_block* entry)
 {
@@ -669,33 +651,23 @@ Whole_program::init_superglobals (Entry_block* entry)
 
 		// Create an empty array
 		string array_name = *sg->value;
-		assign_empty_array (entry, P (MSN, sg), array_name);
+		assign_empty_array (entry, P (MSN, array_name), array_name);
 
 		// We dont know the contents of these arrays.
 		// TODO: move all of these into calls to Whole_program
-		assign_value (entry, P (array_name, UNKNOWN),
-						  from_types (Types("string")), NULL);
+		assign_typed (entry, P (array_name, UNKNOWN), Types("string"));
 	}
 
 	// We actually have no idea whats in _SESSION
-	foreach_wpa (this)
-		wpa->assign_value (entry, Alias_name ("_SESSION", UNKNOWN),
-								 unknown_val (), NULL, DEFINITE);
+	assign_unknown (entry, P ("_SESSION", UNKNOWN));
 
 	// argc
-	foreach_wpa (this)
-		wpa->assign_value (entry, Alias_name (MSN, "argc"),
-								 from_types (Types("int")), NULL, DEFINITE);
+	assign_typed (entry, P (MSN, "argc"), Types ("int"));
 
 	// argv
-	foreach_wpa (this)
-	{
-		wpa->assign_empty_array (entry, Alias_name (MSN, "argv"), "argv", DEFINITE);
-		wpa->assign_value (entry, Alias_name ("argv", UNKNOWN),
-								 from_types (Types("string")), NULL, DEFINITE);
-		wpa->assign_value (entry, Alias_name ("argv", "0"),
-								 from_types (Types("string")), NULL, DEFINITE);
-	}
+	assign_empty_array (entry, P (MSN, "argv"), "argv");
+	assign_typed (entry, P ("argv", UNKNOWN), Types ("string"));
+	assign_typed (entry,  P("argv", "0"), Types("string"));
 
 	dump (entry, "After superglobals");
 }
@@ -730,17 +702,15 @@ Whole_program::forward_bind (Method_info* info, Basic_block* caller, Entry_block
 			// $ap = $fp;
 			if (isa<VARIABLE_NAME> (ap->rvalue))
 			{
-				assign_value (entry,
+				assign_by_copy (entry,
 						P (ST (entry), info->param_name (i)),
-						NULL,
 						P (ST (caller), dyc<VARIABLE_NAME> (ap->rvalue)));
 			}
 			else
 			{
-				assign_value (entry,
+				assign_scalar (entry,
 						P (ST (entry), info->param_name (i)),
-						from_lit (dyc<Literal> (ap->rvalue)),
-						NULL);
+						dyc<Literal> (ap->rvalue));
 			}
 		}
 
@@ -823,9 +793,39 @@ is_must (Index_node_list* indices)
 	return (indices->size () == 1);
 }
 
+// Returns the certainty with which assignments can be made to it.
+certainty
+Whole_program::kill_value (Basic_block* bb, Path* plhs)
+{
+	Index_node_list* lhss = get_named_indices (bb, plhs);
+
+	// TODO: dont kill fields of abstract storage nodes
+
+	// Don't kill if this refers to more than 1 index_node, which means we
+	// don't know what variable to kill.
+	if (!is_must (lhss))
+		return POSSIBLE;
+
+	// Fetch each reference of LHS, and kill them.
+	Index_node* lhs = lhss->front ();
+	
+	// Don't kill may-refs
+	foreach (Index_node* ref, *aliasing->get_references (bb, lhs, DEFINITE))
+		foreach_wpa (this)
+			wpa->kill_value (bb, ref->name ());
+
+	// Handle LHS itself
+	foreach_wpa (this)
+		wpa->kill_value (bb, lhs->name ());
+
+	return DEFINITE;
+}
+
 void
 Whole_program::assign_by_ref (Basic_block* bb, Path* plhs, Path* prhs)
 {
+	// Should we separate the assignment by value and the assignment by ref.
+	phc_TODO ();
 	Index_node_list* lhss = get_named_indices (bb, plhs);
 	Index_node_list* rhss = get_named_indices (bb, prhs, true);
 
@@ -863,173 +863,68 @@ Whole_program::assign_by_ref (Basic_block* bb, Path* plhs, Path* prhs)
 	}
 }
 
+template <class T>
+void
+assign_somehow (Whole_program* wp, Basic_block* bb, Path* plhs,
+		void (WPA::* func) (Basic_block*, Alias_name, T, certainty),
+		T param)
+{
+	certainty cert = wp->kill_value (bb, plhs);
+	Index_node_list* lhss = wp->get_named_indices (bb, plhs);
+
+	// This is not killing in terms of references, so it assigns to all
+	// aliases of lhs.
+	foreach (Index_node* lhs, *lhss)
+	{
+		// Handle all the aliases/indirect assignments.
+		Index_node_list* refs = wp->aliasing->get_references (bb, lhs, cert);
+
+		foreach_wpa (wp)
+			foreach (Index_node* ref, *refs)
+				(wpa->*func) (bb, ref->name (), param, cert);
+
+		// Handle LHS itself
+		foreach_wpa (wp)
+			(wpa->*func) (bb, lhs->name (), param, cert);
+	}
+}
+
+
+
 void
 Whole_program::assign_scalar (Basic_block* bb, Path* plhs, Literal* lit)
 {
-	Index_node_list* lhss = get_named_indices (bb, plhs);
-
-	bool killable = is_must (lhss);
-
-	// This is not killing in terms of references, so it assigns to all
-	// aliases of lhs.
-	foreach (Index_node* lhs, *lhss)
-	{
-		// Handle all the aliases/indirect assignments.
-		certainty certainties[] = {POSSIBLE, DEFINITE};
-		foreach (certainty cert, certainties)
-		{
-			Index_node_list* refs = aliasing->get_references (bb, lhs, cert);
-
-			// If we can't say the LHSS is killable, we get say its must defs are
-			// killable either.
-			if (!killable)
-				cert = POSSIBLE;
-
-			foreach_wpa (this)
-			{
-				foreach (Index_node* ref, *refs)
-				{
-					if (cert == DEFINITE) // must-def
-						wpa->kill_value (bb, ref->name ());
-					
-					phc_TODO ();
-//					wpa->assign_scalar (bb, ref->name (), lit, cert);
-				}
-			}
-		}
-
-		// Handle LHS itself
-		foreach_wpa (this)
-		{
-			if (killable) // only 1 result
-				wpa->kill_value (bb, lhs->name ());
-phc_TODO ();
-/*			wpa->assign_scalar (bb,
-				lhs->name (),
-				lit,
-				killable ? DEFINITE : POSSIBLE);
-*/		}
-	}
+	assign_somehow (this, bb, plhs, &WPA::assign_value, Abstract_value::from_literal (lit));
 }
 
 void
-Whole_program::assign_unknown_typed (Basic_block* bb, Path* plhs, Types types)
+Whole_program::assign_typed (Basic_block* bb, Path* plhs, Types types)
 {
-	Index_node_list* lhss = get_named_indices (bb, plhs);
-
-	// If this is the only Index_node it can refer to, its a kill.
-	bool killable = is_must (lhss);
-
-	// This is not killing in terms of references, so it assigns to all
-	// aliases of lhs.
-	foreach (Index_node* lhs, *lhss)
-	{
-		// Handle all the aliases/indirect assignments.
-		certainty certainties[] = {POSSIBLE, DEFINITE};
-		foreach (certainty cert, certainties)
-		{
-			Index_node_list* refs = aliasing->get_references (bb, lhs, cert);
-
-			// If we can't say the LHSS is killable, we get say its must defs are
-			// killable either.
-			if (!killable)
-				cert = POSSIBLE;
-
-			foreach_wpa (this)
-			{
-				foreach (Index_node* ref, *refs)
-				{
-					Alias_name absval = ABSVAL (ref->name())->name();
-					if (cert == DEFINITE) // must-def
-						wpa->kill_value (bb, absval);
-phc_TODO ();
-//					wpa->assign_unknown_typed (bb, absval, types, cert);
-				}
-			}
-		}
-
-		// Handle LHS itself
-		Alias_name absval = ABSVAL (lhs->name())->name();
-		foreach_wpa (this)
-		{
-			if (killable) // only 1 result
-				wpa->kill_value (bb, absval);
-phc_TODO ();
-/*			wpa->assign_unknown_typed (bb,
-				absval,
-				types,
-				killable ? DEFINITE : POSSIBLE);*/
-		}
-	}
-}
-
-void
-Whole_program::assign_value (Basic_block* bb, Path* plhs, Abstract_value* val, Path* prhs)
-{
-	phc_TODO ();
-	Index_node_list* lhss = get_named_indices (bb, plhs);
-
-	bool killable = is_must (lhss);
-
-	// This is not killing in terms of references, so it assigns to all
-	// aliases of lhs.
-	foreach (Index_node* lhs, *lhss)
-	{
-		// Handle all the aliases/indirect assignments.
-		certainty certainties[] = {POSSIBLE, DEFINITE};
-		foreach (certainty cert, certainties)
-		{
-			Index_node_list* refs = aliasing->get_references (bb, lhs, cert);
-
-			// If we can't say the LHSS is killable, we get say its must defs are
-			// killable either.
-			if (!killable)
-				cert = POSSIBLE;
-
-			foreach_wpa (this)
-			{
-				foreach (Index_node* ref, *refs)
-				{
-					if (cert == DEFINITE) // must-def
-						wpa->kill_value (bb, ref->name ());
-					
-					phc_TODO ();
-//					wpa->assign_scalar (bb, ref->name (), lit, cert);
-				}
-			}
-		}
-
-		// Handle LHS itself
-		foreach_wpa (this)
-		{
-			if (killable) // only 1 result
-				wpa->kill_value (bb, lhs->name ());
-phc_TODO ();
-/*			wpa->assign_scalar (bb,
-				lhs->name (),
-				lit,
-				killable ? DEFINITE : POSSIBLE);
-*/		}
-	}
+	assign_somehow (this, bb, plhs, &WPA::assign_value, Abstract_value::from_types (types));
 }
 
 void
 Whole_program::assign_empty_array (Basic_block* bb, Path* plhs, string unique_name)
 {
-	Index_node_list* lhss = get_named_indices (bb, plhs);
-	if (lhss->size () != 1)
-		phc_TODO ();
-
-	foreach (Index_node* lhs, *lhss)
-	{
-		foreach_wpa (this)
-			wpa->assign_empty_array (bb, lhs->name (), unique_name, DEFINITE);
-	}
+	assign_somehow (this, bb, plhs, &WPA::assign_empty_array, unique_name);
 }
+
+void
+Whole_program::assign_unknown (Basic_block* bb, Path* plhs)
+{
+	assign_somehow (this, bb, plhs, 
+		&WPA::assign_value, Abstract_value::unknown());
+}
+
+
 
 void
 Whole_program::assign_by_copy (Basic_block* bb, Path* plhs, Path* prhs)
 {
+	// for objects, copy the edge. For arrays, copy the whole thing. For
+	// scalars, copy the scalar (if unknown). It seems clear that we need an
+	// unknown object here, if the type is not known to not be an object.
+	phc_TODO ();
 	Index_node_list* lhss = get_named_indices (bb, plhs);
 	Index_node_list* rhss = get_named_indices (bb, prhs, true);
 
@@ -1081,55 +976,6 @@ Whole_program::assign_by_copy (Basic_block* bb, Path* plhs, Path* prhs)
 					rhs->name (),
 					is_must (rhss) ? DEFINITE : POSSIBLE);*/
 			}
-		}
-	}
-}
-
-// TODO: I must fix this code duplication!!
-void
-Whole_program::assign_unknown (Basic_block* bb, Path* plhs)
-{
-	Index_node_list* lhss = get_named_indices (bb, plhs);
-
-	bool killable = is_must (lhss);
-
-	// This is not killing in terms of references, so it assigns to all
-	// aliases of lhs.
-	foreach (Index_node* lhs, *lhss)
-	{
-		// Handle all the aliases/indirect assignments.
-		certainty certainties[] = {POSSIBLE, DEFINITE};
-		foreach (certainty cert, certainties)
-		{
-			Index_node_list* refs = aliasing->get_references (bb, lhs, cert);
-
-			// If we can't say the LHSS is killable, we get say its must defs are
-			// killable either.
-			if (!killable)
-				cert = POSSIBLE;
-
-			foreach_wpa (this)
-			{
-				foreach (Index_node* ref, *refs)
-				{
-					if (cert == DEFINITE) // must-def
-						wpa->kill_value (bb, ref->name ());
-phc_TODO ();
-//					wpa->assign_unknown (bb, ref->name (), cert);
-				}
-			}
-		}
-
-		// Handle LHS itself
-		foreach_wpa (this)
-		{
-			if (killable) // only 1 result
-				wpa->kill_value (bb, lhs->name ());
-
-phc_TODO ();
-/*			wpa->assign_unknown (bb,
-				lhs->name (),
-				killable ? DEFINITE : POSSIBLE);*/
 		}
 	}
 }
@@ -1365,60 +1211,28 @@ Whole_program::visit_foreach_end (Statement_block* bb, MIR::Foreach_end* in)
 void
 Whole_program::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 {
-	string ns = ST (bb);
-	Path* lhs = P (ns, in->lhs);
-	Path* rhs;
+	saved_plhs = P (ST(bb), in->lhs);
+	saved_lhs = in->lhs;
 
 	switch (in->rhs->classid())
 	{
-		// Does not affect pointer analysis
-		// TODO: except to call object properties!!
-		case Bin_op::ID:
-			handle_bin_op (bb, lhs, dyc<Bin_op> (in->rhs));
-			return;
-
-		// Does not affect pointer analysis
-		// TODO: except to call object properties!!
-		case Unary_op::ID:
-			handle_unary_op (bb, lhs, dyc<Unary_op> (in->rhs));
-			return;
-
-		case Constant::ID:
-			handle_constant (bb, lhs, dyc<Constant> (in->rhs));
-			return;
-
-		case Foreach_has_key::ID:
-			// TODO: uses
-			assign_unknown_typed (bb, lhs, Types ("bool"));
-			return;
-
-		case Foreach_get_key::ID:
-			// TODO: uses
-			assign_unknown_typed (bb, lhs, Types ("string", "int"));
-			return;
-
-		case Foreach_get_val::ID:
-			// TODO: uses
-			// TODO: get the types from array::*
-			assign_unknown (bb, lhs);
-			return;
-
-		case Cast::ID:
-			handle_cast (bb, lhs, dyc<Cast> (in->rhs));
-			return;
-
-		case Isset::ID:
-		case Param_is_ref::ID:
-		case Instanceof::ID:
-			phc_TODO ();
-			break;
-
-		// Straightforward
 		case Array_access::ID:
+		case Bin_op::ID:
+		case Cast::ID:
+		case Constant::ID:
 		case Field_access::ID:
+		case Foreach_get_key::ID:
+		case Foreach_get_val::ID:
+		case Foreach_has_key::ID:
+		case Instanceof::ID:
+		case Isset::ID:
+		case Method_invocation::ID:
+		case New::ID:
+		case Param_is_ref::ID:
+		case Unary_op::ID:
 		case VARIABLE_NAME::ID:
 		case Variable_variable::ID:
-			rhs = P (ns, in->rhs);
+			visit_expr (bb, in->rhs);
 			break;
 
 		// Values
@@ -1427,40 +1241,24 @@ Whole_program::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 		case NIL::ID:
 		case REAL::ID:
 		case STRING::ID:
-			assign_scalar (bb, lhs, dyc<Literal> (in->rhs));
-			return;
-
-
-
-		// Interprocedural stuff
-		case New::ID:
-			handle_new (bb, dyc<New> (in->rhs), in->lhs);
-			phc_TODO ();
+			assign_scalar (bb, saved_plhs, dyc<Literal> (in->rhs));
 			break;
-
-		case Method_invocation::ID:
-			handle_method_invocation (bb, dyc<Method_invocation> (in->rhs), in->lhs);
-			return;
 
 		default:
 			phc_unreachable ();
 			break;
 	}
 
-	assert (rhs);
-	if (in->is_ref)
-		assign_by_ref (bb, lhs, rhs);
-	else
-		assign_by_copy (bb, lhs, rhs);
+	saved_lhs = NULL;
+	saved_plhs = NULL;
 }
 
 void
 Whole_program::visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
 {
-	if (isa<New> (in->expr))
-		handle_new (bb, dyc<New> (in->expr), NULL);
-	else
-		handle_method_invocation (bb, dyc<Method_invocation> (in->expr), NULL);
+	saved_plhs = NULL;
+	saved_lhs = NULL;
+	visit_expr (bb, in->expr);
 }
 
 void
@@ -1471,18 +1269,6 @@ Whole_program::visit_unset (Statement_block* bb, MIR::Unset* in)
 
 	// This isnt quite right - there are references to take care of
 	assign_scalar (bb, path, new NIL);
-}
-
-void
-Whole_program::handle_method_invocation (Statement_block* bb, MIR::Method_invocation* in, MIR::VARIABLE_NAME* lhs)
-{
-	invoke_method (in, bb, lhs);
-}
-
-void
-Whole_program::handle_new (Statement_block* bb, MIR::New* in, MIR::VARIABLE_NAME* lhs)
-{
-	phc_TODO ();
 }
 
 void
@@ -1519,13 +1305,68 @@ Whole_program::visit_pre_op (Statement_block* bb, Pre_op* in)
 		return;
 	}
 
-	assign_unknown_typed (bb, path, tc->types);
+	assign_typed (bb, path, tc->types);
+}
+
+void
+Whole_program::visit_assign_field (Statement_block*, MIR::Assign_field*)
+{
+	phc_TODO ();
+}
+
+void
+Whole_program::visit_assign_var_var (Statement_block*, MIR::Assign_var_var*)
+{
+	phc_TODO ();
+}
+
+void
+Whole_program::visit_foreach_next (Statement_block*, MIR::Foreach_next*)
+{
+	phc_TODO ();
+}
+
+void
+Whole_program::visit_assign_next (Statement_block*, MIR::Assign_next*)
+{
+	phc_TODO ();
+}
+
+void
+Whole_program::visit_return (Statement_block*, MIR::Return*)
+{
+	phc_TODO ();
+}
+
+void
+Whole_program::visit_static_declaration (Statement_block*, MIR::Static_declaration*)
+{
+	phc_TODO ();
+}
+
+void
+Whole_program::visit_throw (Statement_block*, MIR::Throw*)
+{
+	phc_TODO ();
+}
+
+void
+Whole_program::visit_try (Statement_block*, MIR::Try*)
+{
+	phc_TODO ();
 }
 
 
 void
-Whole_program::handle_bin_op (Statement_block* bb, Path* lhs, MIR::Bin_op* in)
+Whole_program::visit_array_access (Statement_block* bb, MIR::Array_access* in)
 {
+	phc_TODO ();
+}
+
+void
+Whole_program::visit_bin_op (Statement_block* bb, MIR::Bin_op* in)
+{
+	phc_TODO ();
 	Alias_name* left = NULL;
 	Alias_name* right = NULL;
 	MIR::Literal* left_lit = dynamic_cast<Literal*> (in->left);
@@ -1539,7 +1380,7 @@ Whole_program::handle_bin_op (Statement_block* bb, Path* lhs, MIR::Bin_op* in)
 	if (left_lit && right_lit)
 	{
 		Literal* result = PHP::fold_bin_op (left_lit, in->op, right_lit);
-		assign_scalar (bb, lhs, result);
+		assign_scalar (bb, saved_plhs, result);
 		return;
 	}
 
@@ -1560,51 +1401,11 @@ Whole_program::handle_bin_op (Statement_block* bb, Path* lhs, MIR::Bin_op* in)
 	Types types = type_inf->get_bin_op_types (
 		bb, left, right, left_lit, right_lit, *in->op->value);
 
-	assign_unknown_typed (bb, lhs, types);
+	assign_typed (bb, saved_plhs, types);
 }
 
 void
-Whole_program::handle_unary_op (Statement_block* bb, Path* lhs, MIR::Unary_op* in)
-{
-	// TODO: again this is ugly.
-	// We should handle folding here.
-	// We should make this easy for a true/false analysis to handle.
-
-	Alias_name operand = VN (ST(bb), in->variable_name)->name();
-
-	MIR::Literal* lit = ccp->get_lit (bb, operand);
-
-	if (lit)
-	{
-		Literal* result = PHP::fold_unary_op (in->op, lit);
-		assign_scalar (bb, lhs, result);
-		return;
-	}
-
-	record_use (bb, operand.ind ());
-
-	Types types = type_inf->get_unary_op_types (
-		bb, &operand, *in->op->value);
-
-	assign_unknown_typed (bb, lhs, types);
-}
-
-void
-Whole_program::handle_constant (Statement_block* bb, Path* lhs, MIR::Constant* in)
-{
-	Literal* lit = PHP::fold_constant (in);
-	if (lit)
-	{
-		assign_scalar (bb, lhs, lit);
-		return;
-	}
-
-	// Assign_unknown_typed (Types (sitrng, bool, null, etc
-	phc_TODO ();
-}
-
-void
-Whole_program::handle_cast (Statement_block* bb, Path* lhs, MIR::Cast* in)
+Whole_program::visit_cast (Statement_block* bb, MIR::Cast* in)
 {
 	Alias_name operand = VN (ST(bb), in->variable_name)->name();
 
@@ -1614,7 +1415,7 @@ Whole_program::handle_cast (Statement_block* bb, Path* lhs, MIR::Cast* in)
 		Literal* result = PHP::cast_to (in->cast, lit);
 		if (result)
 		{
-			assign_scalar (bb, lhs, result);
+			assign_scalar (bb, saved_plhs, result);
 			return;
 		}
 	}
@@ -1622,7 +1423,7 @@ Whole_program::handle_cast (Statement_block* bb, Path* lhs, MIR::Cast* in)
 	// We've handled casts for known scalars to scalars. We still must handle
 	// casts to objects, casts to arrays, and casts from unknown values to
 	// other scalar types.
-	assign_unknown_typed (bb, lhs, Types ("array"));
+	assign_typed (bb, saved_plhs, Types ("array"));
 
 /*	foreach (Storage_node* pointed_to,
 					*aliasing->get_values (bb, operand.ind(), PTG_ALL))
@@ -1630,4 +1431,94 @@ Whole_program::handle_cast (Statement_block* bb, Path* lhs, MIR::Cast* in)
 		cdebug << pointed_to->name().str();
 	}
 	phc_TODO ();*/
+
+	phc_TODO ();
+}
+
+void
+Whole_program::visit_constant (Statement_block* bb, MIR::Constant* in)
+{
+	phc_TODO ();
+
+	Literal* lit = PHP::fold_constant (in);
+	if (lit)
+	{
+		assign_scalar (bb, saved_plhs, lit);
+		return;
+	}
+
+	// Assign_unknown_typed (Types (sitrng, bool, null, etc
+	phc_TODO ();
+}
+
+void
+Whole_program::visit_field_access (Statement_block* bb, MIR::Field_access* in)
+{
+	phc_TODO ();
+}
+
+void
+Whole_program::visit_foreach_get_key (Statement_block* bb, MIR::Foreach_get_key* in)
+{
+	phc_TODO ();
+}
+
+void
+Whole_program::visit_foreach_get_val (Statement_block* bb, MIR::Foreach_get_val* in)
+{
+	phc_TODO ();
+}
+
+void
+Whole_program::visit_foreach_has_key (Statement_block* bb, MIR::Foreach_has_key* in)
+{
+	phc_TODO ();
+}
+
+void
+Whole_program::visit_instanceof (Statement_block* bb, MIR::Instanceof* in)
+{
+	phc_TODO ();
+}
+
+void
+Whole_program::visit_isset (Statement_block* bb, MIR::Isset* in)
+{
+	phc_TODO ();
+}
+
+void
+Whole_program::visit_method_invocation (Statement_block* bb, MIR::Method_invocation* in)
+{
+	invoke_method (in, bb, saved_lhs);
+}
+
+void
+Whole_program::visit_new (Statement_block* bb, MIR::New* in)
+{
+	phc_TODO ();
+}
+
+void
+Whole_program::visit_param_is_ref (Statement_block* bb, MIR::Param_is_ref* in)
+{
+	phc_TODO ();
+}
+
+void
+Whole_program::visit_unary_op (Statement_block* bb, MIR::Unary_op* in)
+{
+	phc_TODO ();
+}
+
+void
+Whole_program::visit_variable_name (Statement_block* bb, MIR::VARIABLE_NAME* in)
+{
+	phc_TODO ();
+}
+
+void
+Whole_program::visit_variable_variable (Statement_block* bb, MIR::Variable_variable* in)
+{
+	phc_TODO ();
 }

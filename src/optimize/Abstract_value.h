@@ -14,17 +14,26 @@
 #define PHC_ABSTRACT_VALUE_H
 
 #include "lib/Object.h"
+#include "wpa/Type_inference.h"
 
 class Lattice_cell;
+namespace MIR { class Literal; }
 
 class Abstract_value : public GC_obj
 {
+// Don't instantiate directly, use factories.
+	Abstract_value (Lattice_cell* lit, Lattice_cell* type);
 public:
-	Abstract_value ();
-	Lattice_cell* type;
 	Lattice_cell* lit;
+	Lattice_cell* type;
 
 	void dump ();
+
+	static Abstract_value* from_literal (MIR::Literal* lit);
+	static Abstract_value* from_types (Types types);
+
+	// We dont know anything
+	static Abstract_value* unknown ();
 };
 
 

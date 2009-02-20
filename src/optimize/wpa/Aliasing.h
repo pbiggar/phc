@@ -46,8 +46,10 @@ public:
 									 string unique_name, certainty cert);
 
 	void assign_value (Basic_block* bb, Alias_name name,
-						    Abstract_value* val, Alias_name* source,
-							 certainty cert);
+							 Abstract_value* val, certainty cert);
+
+	void copy_value (Basic_block* bb, Alias_name lhs, Alias_name rhs,
+						  certainty cert);
 
 	void forward_bind (Basic_block* caller, Entry_block* entry);
 

@@ -77,12 +77,13 @@ public:
 											 Alias_name rhs, certainty cert) CT_IMPL;
 	
 
-	// Take what you can from the abstract value. If set, SOURCE carries the
-	// name of the source of the value. This might come in handy for arrays
-	// and objects.
-	virtual void assign_value (Basic_block* bb, Alias_name name,
-									   Abstract_value* val, Alias_name* source,
-										certainty cert) CT_IMPL;
+	// Take what you can from the abstract value
+	virtual void assign_value (Basic_block* bb, Alias_name lhs,
+										Abstract_value* val, certainty cert) CT_IMPL;
+
+	// Take what you can from the abstract value
+	virtual void copy_value (Basic_block* bb, Alias_name lhs,
+									 Alias_name rhs, certainty cert) CT_IMPL;
 
 	virtual void assign_empty_array (Basic_block* bb, Alias_name lhs,
 												string unique_name, certainty cert) CT_IMPL;

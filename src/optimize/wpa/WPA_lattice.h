@@ -24,11 +24,9 @@ public:
 
 	void kill_value (Basic_block* bb, Alias_name name);
 
-	// Provides a base case - sub-classes should call this if they can't do
-	// better.
-	void assign_value (Basic_block* bb, Alias_name lhs,
-							 Abstract_value* val, Alias_name* source,
-							 certainty cert);
+	// Take what you can from the abstract value
+	void copy_value (Basic_block* bb, Alias_name lhs,
+						  Alias_name rhs, certainty cert);
 
 	void pull_init (Basic_block* bb);
 	void pull_first_pred (Basic_block* bb, Basic_block* pred);

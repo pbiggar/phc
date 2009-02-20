@@ -10,11 +10,16 @@
  *
  */
 
-#include "Abstract_value.h"
-#include "Lattice.h"
 #include "process_ir/debug.h"
 
-Abstract_value::Abstract_value ()
+#include "Abstract_value.h"
+#include "Lattice.h"
+#include "optimize/SCCP.h"
+#include "wpa/Type_inference.h"
+
+Abstract_value::Abstract_value (Lattice_cell* lit, Lattice_cell* type)
+: lit (lit)
+, type (type)
 {
 }
 
@@ -22,6 +27,29 @@ void
 Abstract_value::dump ()
 {
 	CHECK_DEBUG ();
+	cdebug << "{";
 	dump_lattice (lit);
+	cdebug << ", ";
 	dump_lattice (type);
+	cdebug << "}";
+}
+
+Abstract_value*
+Abstract_value::from_literal (MIR::Literal* lit)
+{
+	return new Abstract_value (
+		new Literal_cell (lit),
+		new Type_cell (Type_inference::get_literal_type (lit)));
+}
+
+Abstract_value*
+Abstract_value::from_types (Types types)
+{
+	return new Abstract_value (BOTTOM, new Type_cell (types));
+}
+
+Abstract_value*
+Abstract_value::unknown ()
+{
+	return new Abstract_value (BOTTOM, BOTTOM);
 }

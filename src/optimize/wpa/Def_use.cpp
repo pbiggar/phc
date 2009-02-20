@@ -126,11 +126,16 @@ Def_use::ref_assignment (Basic_block* bb, Alias_name lhs, certainty cert)
 
 /* Assignments with RHSs */
 void
-Def_use::assign_value (Basic_block* bb, Alias_name lhs, Abstract_value* val, Alias_name* source, certainty cert)
+Def_use::assign_value (Basic_block* bb, Alias_name lhs, Abstract_value* val, certainty cert)
 {
 	val_assignment (bb, lhs, cert);
-	if (source)
-		val_uses[bb->ID].insert (*source);
+}
+
+void
+Def_use::copy_value (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert)
+{
+	val_assignment (bb, lhs, cert);
+	val_uses[bb->ID].insert (rhs);
 }
 
 void
