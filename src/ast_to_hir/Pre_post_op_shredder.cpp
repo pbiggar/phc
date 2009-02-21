@@ -146,7 +146,7 @@ void Pre_post_op_shredder::children_if(If* in)
 	in->iffalse = transform_statement_list(in->iffalse);
 	restore_pieces();
 
-	in->iftrue->push_front_all(if_post_pieces);
+	in->iftrue->push_front_all(if_post_pieces->clone());
 	in->iffalse->push_front_all(if_post_pieces);
 }
 
@@ -183,7 +183,7 @@ void Pre_post_op_shredder::clear_post_pieces(Expr** in)
 	if(!post_pieces->empty())
 	{
 		*in = eval(*in);
-		pieces->push_back_all(post_pieces);
+		pieces->push_back_all(post_pieces->clone());
 		post_pieces->clear();
 	}
 }

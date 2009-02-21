@@ -130,7 +130,7 @@ Generate_C_annotations::pre_method (MIR::Method* in)
 	iterators.clear ();
 
 	if(!class_name.empty())
-		in->signature->attrs->set ("phc.codegen.class_name", class_name.top());
+		in->signature->attrs->set ("phc.codegen.class_name", class_name.top()->clone());
 	(compiled_functions.top())->push_back (in->signature->clone ());
 }
 
