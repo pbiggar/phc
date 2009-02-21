@@ -56,7 +56,7 @@ using namespace std;
 // Label supported features
 void phc_unsupported (Node* node, const char* feature)
 {
-	cerr << "Could not generate code for " << feature << endl;
+	cerr << "Not yet supported in code generation: " << feature << endl;
 	(new MIR_unparser (cerr, true))->unparse (node);
 	cerr << endl;
 	xml_unparse (node, cerr);
@@ -720,7 +720,7 @@ public:
 				{
 					// TODO: implement
 					// (Const attributes must be added using a different API)
-					assert(0);
+					phc_unsupported (attr, "const attribute");
 				}
 
 				minit << "}";
@@ -1054,7 +1054,7 @@ public:
 		else
 		{
 			// Invalid class name type
-			assert(0);
+			phc_unreachable();
 		}
 
     // See comment in expr_method_invocation
@@ -1838,7 +1838,7 @@ public:
 			else
 			{
 				// Invalid target
-				assert(0);
+				phc_unreachable();
 			}
 		}
 		else if (var_field != NULL)
@@ -1862,13 +1862,13 @@ public:
 			else
 			{
 				// Invalid target
-				assert(0);
+				phc_unreachable();
 			}
 		}
 		else
 		{
 			// Invalid field name
-			assert(0);
+			phc_unreachable();
 		}
 	}
 
@@ -1919,7 +1919,7 @@ public:
 			else
 			{
 				// Invalid target
-				assert(0);
+				phc_unreachable();
 			}
 		}
 		else if (var_field != NULL)
@@ -1943,13 +1943,13 @@ public:
 			else
 			{
 				// Invalid target
-				assert(0);
+				phc_unreachable();
 			}
 		}
 		else
 		{
 			// Invalid field name
-			assert(0);
+			phc_unreachable();
 		}
 	}
 
@@ -2412,7 +2412,7 @@ class Pattern_class_or_interface_alias : public Pattern
 			alias_name = class_alias->value->alias->value;
 		}
 		else
-			assert (0);
+			phc_unreachable ();
 
 		alias_name = alias_name->clone ();
 		alias_name->toLower();
@@ -2551,7 +2551,7 @@ string Generate_C::compile_statement(Statement* in)
 	// All the rest are just statements
 	,	new Pattern_assign_array ()
 	,	new Pattern_assign_next ()
-	, new Pattern_assign_var_var ()
+	,  new Pattern_assign_var_var ()
 	,	new Pattern_class_or_interface_alias ()
 	,	new Pattern_method_alias ()
 	,	new Pattern_branch()
