@@ -132,7 +132,7 @@ Type_inference::get_object_types (Types in)
 }
 
 Types
-Type_inference::get_unary_op_types (Basic_block* bb, Alias_name* operand, string op)
+Type_inference::get_unary_op_types (Basic_block* bb, Abstract_value* operand, string op)
 {
 	Set<string> always_bool_ops;
 	always_bool_ops.insert ("!");
@@ -165,27 +165,17 @@ Type_inference::get_bin_op_type (string ltype, string rtype, string op)
 }
 
 Types
-Type_inference::get_bin_op_types (Basic_block* bb, Alias_name* left, Alias_name* right, MIR::Literal* left_lit, MIR::Literal* right_lit, string op)
+Type_inference::get_bin_op_types (Basic_block* bb, Abstract_value* left, Abstract_value* right, string op)
 {
-	assert (left_lit || left);
-	assert (right_lit || right);
+	if (left->type == BOTTOM)
+		phc_TODO ();
 
-	Types* left_types;
-	Types* right_types;
-
-	if (left_lit)
-		left_types = new Types (get_type (left_lit));
-	else
-		left_types = get_types (bb, *left).clone ();
-
-	if (right_lit)
-		right_types = new Types (get_type (right_lit));
-	else
-		right_types = get_types (bb, *right).clone ();
+	if (right->type == BOTTOM)
+		phc_TODO ();
 
 	Types result_types;
-	foreach (string ltype, *left_types)
-		foreach (string rtype, *right_types)
+	foreach (string ltype, dyc<Type_cell> (left->type)->types)
+		foreach (string rtype, dyc<Type_cell> (right->type)->types)
 		{
 			Types op_result = get_bin_op_type (ltype, rtype, op);
 			result_types.insert (op_result.begin (), op_result.end());

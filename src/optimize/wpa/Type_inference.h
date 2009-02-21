@@ -42,8 +42,10 @@ public:
 
 	Types get_types (Basic_block* bb, Alias_name name);
 
-	Types get_bin_op_types (Basic_block* bb, Alias_name* left, Alias_name* right, MIR::Literal* left_lit, MIR::Literal* right_lit, string op);
-	Types get_unary_op_types (Basic_block* bb, Alias_name* operand, string op);
+	static Types get_bin_op_types (Basic_block* bb, Abstract_value* left, Abstract_value* right, string op);
+	static Types get_bin_op_type (string left, string right, string op);
+
+	static Types get_unary_op_types (Basic_block* bb, Abstract_value* operand, string op);
 
 
 	static Types get_type (MIR::Literal* lit);
@@ -56,8 +58,6 @@ public:
 	static Types get_scalar_types (Types);
 	static Types get_array_types (Types); // can only be "array"
 	static Types get_object_types (Types); // anything thats not covered above.
-
-	static Types get_bin_op_type (string left, string right, string op);
 
 private:
 	static Map<int, string> MIR_types;

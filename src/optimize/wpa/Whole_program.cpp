@@ -1437,42 +1437,39 @@ Whole_program::visit_array_access (Statement_block* bb, MIR::Array_access* in)
 void
 Whole_program::visit_bin_op (Statement_block* bb, MIR::Bin_op* in)
 {
-	phc_TODO ();
-	Alias_name* left = NULL;
-	Alias_name* right = NULL;
-	MIR::Literal* left_lit = dynamic_cast<Literal*> (in->left);
-	MIR::Literal* right_lit = dynamic_cast<Literal*> (in->right);
+	Abstract_value* left = get_abstract_value (bb, in->left);
+	Abstract_value* right = get_abstract_value (bb, in->right);
 
-	if (left_lit == NULL)
-		left_lit = ccp->get_lit (bb, VN (ST(bb), dyc<VARIABLE_NAME> (in->left))->name());
-	if (right_lit == NULL)
-		right_lit = ccp->get_lit (bb, VN (ST(bb), dyc<VARIABLE_NAME> (in->right))->name());
-
-	if (left_lit && right_lit)
+	if (isa<Literal_cell> (left) && isa<Literal_cell> (right))
 	{
-		Literal* result = PHP::fold_bin_op (left_lit, in->op, right_lit);
+		Literal* result = PHP::fold_bin_op (dyc<Literal_cell> (left)->value,
+														in->op,
+														dyc<Literal_cell> (right)->value);
 		assign_scalar (bb, saved_plhs, result);
 		return;
 	}
 
-	if (left_lit == NULL)
-	{
-		left = new Alias_name (VN (ST(bb), dyc<VARIABLE_NAME> (in->left))->name());
-		record_use (bb, left->ind ());
-	}
+	// TODO: record uses
 
-	if (right_lit == NULL)
-	{
-		right = new Alias_name (VN (ST(bb), dyc<VARIABLE_NAME> (in->right))->name());
-		record_use (bb, right->ind ());
-	}
-
-
-	// TODO: this is very very ugly
-	Types types = type_inf->get_bin_op_types (
-		bb, left, right, left_lit, right_lit, *in->op->value);
+	Types types = type_inf->get_bin_op_types (bb, left, right, *in->op->value);
 
 	assign_typed (bb, saved_plhs, types);
+}
+
+Abstract_value*
+Whole_program::get_abstract_value (Basic_block* bb, MIR::Rvalue* rval)
+{
+	if (isa<Literal> (rval))
+		return Abstract_value::from_literal (dyc<Literal> (rval));
+
+	// The variables are not expected to already have the same value. Perhaps
+	// there was an assignment to $x[0], and we are accessing $x[$i].
+	Index_node_list* indices = get_named_indices (bb, P (ST(bb), dyc<VARIABLE_NAME> (rval)));
+
+	if (indices->size () > 1)
+		phc_TODO ();
+	
+	return get_abstract_value (bb, indices->front()->name());
 }
 
 void
