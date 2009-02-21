@@ -4,9 +4,18 @@
 
 using namespace std;
 
-// Cannot allocate a new Lattice_cell, but we wish to have a real pointer.
-Lattice_cell* TOP = reinterpret_cast<Lattice_cell*> (new int);
-Lattice_cell* BOTTOM = reinterpret_cast<Lattice_cell*> (new int);
+// Cannot allocate a new Lattice_cell, but we wish to have a real pointer. We
+// require that it is a class an has RRTI, and that isa<Lattice_cell> is
+// successful.
+class Special_cell : public Lattice_cell
+{
+	// TODO: funny, I thought TOP was NULL?
+	void dump () { phc_unreachable(); }
+	bool equals (Lattice_cell* other) { phc_unreachable();}
+	Lattice_cell* meet (Lattice_cell* other) { phc_unreachable (); }
+};
+Lattice_cell* TOP = new Special_cell;
+Lattice_cell* BOTTOM = new Special_cell;
 
 Lattice_cell*
 Lattice_cell::meet (Lattice_cell* other)

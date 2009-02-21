@@ -987,9 +987,7 @@ Whole_program::assign_by_copy (Basic_block* bb, Path* plhs, Path* prhs)
 				{
 					// Get the type of the value
 					Types types = type_inf->get_types (bb, st->name());
-					// TODO: handle bottom, I think itll assert
-
-					type_inf->get_value (bb, st->name())->dump();
+					// TODO: handle bottom
 
 					// It must be either all scalars, array, list of classes, or bottom.
 					Types scalars = Type_inference::get_scalar_types (types);
@@ -1335,6 +1333,8 @@ Whole_program::visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
 void
 Whole_program::visit_unset (Statement_block* bb, MIR::Unset* in)
 {
+	// TODO: remove references here, not just values.
+
 	// Get the index nodes. Remove them.
 	Path* path = P (ST(bb), in);
 
@@ -1582,7 +1582,7 @@ Whole_program::visit_unary_op (Statement_block* bb, MIR::Unary_op* in)
 void
 Whole_program::visit_variable_name (Statement_block* bb, MIR::VARIABLE_NAME* in)
 {
-	phc_TODO ();
+	assign_by_copy (bb, saved_plhs, P (ST(bb), in));
 }
 
 void

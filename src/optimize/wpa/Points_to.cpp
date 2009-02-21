@@ -85,12 +85,6 @@ Points_to::dump_graphviz (String* label)
 			String* source_str = s(source.str ());
 			String* target_str = s(target.str ());
 
-			// Practically Every node points to SCALAR.
-			if (*target_str == "ST::SCALAR")
-			{
-				target_str->append (*source_str);
-			}
-
 			// Source
 			cout
 			<< "\""

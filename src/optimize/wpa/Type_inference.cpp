@@ -51,8 +51,16 @@ Type_inference::assign_empty_array (Basic_block* bb, Alias_name lhs, string uniq
 Types
 Type_inference::get_types (Basic_block* bb, Alias_name name)
 {
+	Lattice_cell* cell = get_value (bb, name);
+
+	if (cell == BOTTOM)
+		phc_TODO ();
+
+	if (cell == TOP)
+		return Types ("unset");
+
 	// TODO: this will fail for bottom
-	return dyc<Type_cell> (get_value (bb, name))->types;
+	return dyc<Type_cell> (cell)->types;
 }
 
 Map<int, string>
@@ -62,7 +70,7 @@ init_MIR_types ()
 
 	result[MIR::BOOL::ID]	= "bool";
 	result[MIR::INT::ID]		= "int";
-	result[MIR::NIL::ID]		= "nil";
+	result[MIR::NIL::ID]		= "unset";
 	result[MIR::REAL::ID]	= "real";
 	result[MIR::STRING::ID]	= "string";
 
@@ -79,7 +87,7 @@ init_scalar_types ()
 
 	result.insert ("bool");
 	result.insert ("int");
-	result.insert ("nil");
+	result.insert ("unset");
 	result.insert ("real");
 	result.insert ("string");
 
