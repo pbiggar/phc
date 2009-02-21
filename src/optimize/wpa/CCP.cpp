@@ -25,14 +25,21 @@ CCP::CCP (Whole_program* wp)
 
 
 void
-CCP::assign_value (Basic_block* bb, Alias_name lhs, Abstract_value* val, certainty cert)
+CCP::assign_scalar (Basic_block* bb, Alias_name lhs, Alias_name lhs_storage, Abstract_value* val, certainty cert)
 {
 	Lattice_map& lat = outs[bb->ID];
+	lat[lhs_storage.str()] = meet (lat[lhs_storage.str()], val->lit);
 	lat[lhs.str()] = meet (lat[lhs.str()], val->lit);
 }
 
 void
 CCP::assign_empty_array (Basic_block* bb, Alias_name lhs, string unique_name, certainty cert)
+{
+	outs[bb->ID][lhs.str()] = BOTTOM;
+}
+
+void
+CCP::assign_storage (Basic_block* bb, Alias_name lhs, Alias_name storage, certainty cert)
 {
 	outs[bb->ID][lhs.str()] = BOTTOM;
 }

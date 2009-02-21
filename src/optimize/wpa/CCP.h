@@ -23,9 +23,13 @@ public:
 	void assign_empty_array (Basic_block* bb, Alias_name lhs,
 									 string unique_name, certainty cert);
 
-	void assign_value (Basic_block* bb, Alias_name lhs,
-						    Abstract_value* val,
-							 certainty cert);
+	void assign_scalar (Basic_block* bb, Alias_name lhs,
+						  Alias_name lhs_storage, Abstract_value* val, certainty cert);
+
+	void assign_storage (Basic_block* bb, Alias_name lhs,
+						  Alias_name storage, certainty cert);
+
+
 
 	// CCP-specific
 	bool branch_known_true (Basic_block* bb, Alias_name cond);

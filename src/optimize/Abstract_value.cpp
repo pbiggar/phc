@@ -39,7 +39,7 @@ Abstract_value::from_literal (MIR::Literal* lit)
 {
 	return new Abstract_value (
 		new Literal_cell (lit),
-		new Type_cell (Type_inference::get_literal_type (lit)));
+		new Type_cell (Type_inference::get_type (lit)));
 }
 
 Abstract_value*

@@ -59,7 +59,7 @@ Debug_WPA::assign_empty_array (Basic_block* bb, Alias_name lhs,
 }
 
 void
-Debug_WPA::assign_value (Basic_block* bb, Alias_name lhs,
+Debug_WPA::assign_scalar (Basic_block* bb, Alias_name lhs, Alias_name lhs_storage,
 								 Abstract_value* val, certainty cert)
 {
 	CHECK_DEBUG ();
@@ -75,12 +75,12 @@ Debug_WPA::assign_value (Basic_block* bb, Alias_name lhs,
 }
 
 void
-Debug_WPA::copy_value (Basic_block* bb, Alias_name lhs,
-							  Alias_name rhs, certainty cert)
+Debug_WPA::assign_storage (Basic_block* bb, Alias_name lhs,
+							  Alias_name storage, certainty cert)
 {
 	DEBUG (__FUNCTION__
 			<< ": " << lhs.str ()
-			<< ", " << rhs.str ()
+			<< ", " << storage.str ()
 			<< ", " << cert_to_string (cert));
 }
 

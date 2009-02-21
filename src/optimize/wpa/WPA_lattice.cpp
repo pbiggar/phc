@@ -86,14 +86,6 @@ WPA_lattice::kill_value (Basic_block* bb, Alias_name lhs)
 }
 
 
-
-void
-WPA_lattice::copy_value (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert)
-{
-	Lattice_map& lat = outs[bb->ID];
-	lat[lhs.str()] = meet (lat[lhs.str()], ins[bb->ID][rhs.str()]);
-}
-
 void
 WPA_lattice::pull_init (Basic_block* bb)
 {

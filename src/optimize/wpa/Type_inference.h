@@ -30,8 +30,12 @@ class Type_inference : public WPA_lattice
 public:
 	Type_inference (Whole_program* wp);
 
-	void assign_value (Basic_block* bb, Alias_name name,
-							 Abstract_value* val, certainty cert);
+	void assign_scalar (Basic_block* bb, Alias_name lhs,
+						  Alias_name lhs_storage, Abstract_value* val, certainty cert);
+
+	void assign_storage (Basic_block* bb, Alias_name lhs,
+						  Alias_name storage, certainty cert);
+
 
 	void assign_empty_array (Basic_block* bb, Alias_name lhs,
 									 string unique_name, certainty cert);
@@ -42,8 +46,22 @@ public:
 	Types get_unary_op_types (Basic_block* bb, Alias_name* operand, string op);
 
 
-	static string get_literal_type (MIR::Literal* lit);
+	static Types get_type (MIR::Literal* lit);
+
+	// Given a set of types, we want to know which types are scalars, which is
+	// an array, and which are objects. These return new sets with only the
+	// appropriate types in them.
+	// TODO: what about the complete set of types?
+	// TODO: all this time I've been ignoring resources!!
+	static Types get_scalar_types (Types);
+	static Types get_array_types (Types); // can only be "array"
+	static Types get_object_types (Types); // anything thats not covered above.
+
 	static Types get_bin_op_type (string left, string right, string op);
+
+private:
+	static Map<int, string> MIR_types;
+	static Types scalar_types;
 
 };
 

@@ -43,6 +43,7 @@
 #include "lib/List.h"
 
 class Index_node;
+class Storage_node;
 
 class Alias_name
 {
@@ -57,6 +58,12 @@ public:
 	// Get an index onde with the same name. Checks that this is legal, and
 	// that we arent in SSA form.
 	Index_node* ind();
+
+	// TODO: this is hacky
+	// Originally, we only needed to convert alias_names to index_nodes, but
+	// that's no longer the case. So we have two full representations of nodes:
+	// alias_names and Storage_/Index_nodes.
+	Storage_node* stor();
 
 	bool operator< (const Alias_name& other) const;
 	bool operator== (const Alias_name& other) const;

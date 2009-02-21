@@ -537,7 +537,6 @@ Index_node* FN (string scope, MIR::FIELD_NAME* field)
 
 Storage_node::Storage_node (string storage)
 : storage (storage)
-, is_abstract (false)
 {
 }
 

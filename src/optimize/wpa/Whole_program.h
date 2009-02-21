@@ -202,6 +202,10 @@ public:
 	Index_node* get_named_index (Basic_block* bb, Path* path, bool record_uses = false);
 
 
+	// Get anything the path can point to, and all nodes that they may reference.
+	List<Alias_name>* get_all_referenced_names (Basic_block* bb, Path* path, certainty cert, bool record_uses = false);
+
+
 	// Most pesimistic case
 	void ruin_everything (Basic_block* sb, Path* path);
 

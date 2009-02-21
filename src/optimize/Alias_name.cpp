@@ -96,4 +96,12 @@ Alias_name::ind()
 	return new Index_node (prefix, name);
 }
 
+Storage_node*
+Alias_name::stor()
+{
+	assert (ssa_version == 0);
+	assert (prefix == SNP);
+	return new Storage_node (name);
+}
+
 

@@ -879,13 +879,12 @@ assign_somehow (Whole_program* wp, Basic_block* bb, Path* plhs,
 		// Handle all the aliases/indirect assignments.
 		Index_node_list* refs = wp->aliasing->get_references (bb, lhs, cert);
 
+		// Include LHS
+		refs->push_back (lhs);
+
 		foreach_wpa (wp)
 			foreach (Index_node* ref, *refs)
 				(wpa->*func) (bb, ref->name (), param, cert);
-
-		// Handle LHS itself
-		foreach_wpa (wp)
-			(wpa->*func) (bb, lhs->name (), param, cert);
 	}
 }
 
@@ -894,13 +893,58 @@ assign_somehow (Whole_program* wp, Basic_block* bb, Path* plhs,
 void
 Whole_program::assign_scalar (Basic_block* bb, Path* plhs, Literal* lit)
 {
-	assign_somehow (this, bb, plhs, &WPA::assign_value, Abstract_value::from_literal (lit));
+	// TODO this doesnt assign to the abstract value.
+	phc_TODO (); // different signature for assign_scalar now!
+//	assign_somehow (this, bb, plhs, &WPA::assign_scalar, Abstract_value::from_literal (lit));
 }
 
 void
 Whole_program::assign_typed (Basic_block* bb, Path* plhs, Types types)
 {
-	assign_somehow (this, bb, plhs, &WPA::assign_value, Abstract_value::from_types (types));
+	// Split scalars, objects and arrays here.
+	Types scalars = Type_inference::get_scalar_types (types);
+	Types array = Type_inference::get_array_types (types);
+	Types objects = Type_inference::get_object_types (types);
+
+
+	// TODO: this code duplication is harder to remove
+	certainty cert = kill_value (bb, plhs);
+	Index_node_list* lhss = get_named_indices (bb, plhs);
+
+	// This is not killing in terms of references, so it assigns to all
+	// aliases of lhs.
+	foreach (Index_node* lhs, *lhss)
+	{
+		// Handle all the aliases/indirect assignments.
+		Index_node_list* refs = aliasing->get_references (bb, lhs, cert);
+		refs->push_back (lhs);
+
+		// When assigning to different references:
+		//		- scalar values are copied (though they are conceptually shared,
+		//		we deal with that through functions like this).
+		//		- the array is shared, not copied. It will have a unique name.
+		//		- the object is shared, and will have a unique name.
+		foreach_wpa (this)
+			foreach (Index_node* ref, *refs)
+				{
+					if (scalars.size ())
+						wpa->assign_scalar (bb, ref->name(), ABSVAL (ref->name())->name(),
+											     Abstract_value::from_types (scalars), POSSIBLE);
+
+					if (array.size ())
+						phc_TODO ();
+
+					if (objects.size ())
+						phc_TODO ();
+
+//					wpa->assign_storage (bb, ref->name(),
+//												BB_array_name (bb)->name(), POSSIBLE);
+
+//					wpa->assign_storage (bb, ref->name(),
+//												BB_object_name (bb)->name(), POSSIBLE);
+				}
+	}
+
 }
 
 void
@@ -912,8 +956,29 @@ Whole_program::assign_empty_array (Basic_block* bb, Path* plhs, string unique_na
 void
 Whole_program::assign_unknown (Basic_block* bb, Path* plhs)
 {
-	assign_somehow (this, bb, plhs, 
-		&WPA::assign_value, Abstract_value::unknown());
+	// This assigns a value which is unknown, but is not as bad as
+	// ruin_everything (ie, it doesnt link to all the other objects, arrays,
+	// etc. Is this being used right?
+
+	certainty cert = kill_value (bb, plhs);
+
+	// Unknown may be an array, a scalar or an object, all of which have
+	// different properties. We must be careful to separate these.
+	foreach (Alias_name name, *get_all_referenced_names (bb, plhs, cert))
+	{
+		// When assigning to different references:
+		//		- scalar values are copied (though they are conceptually shared,
+		//		we deal with that through functions like this).
+		//		- the array is shared, not copied. It will have a unique name.
+		//		- the object is shared, and will have a unique name.
+		foreach_wpa (this)
+		{
+			wpa->assign_scalar (bb, name, ABSVAL (name)->name(),
+									  Abstract_value::unknown (), POSSIBLE);
+			wpa->assign_storage (bb, name, BB_array_name (bb)->name(), POSSIBLE);
+			wpa->assign_storage (bb, name, BB_object_name (bb)->name(), POSSIBLE);
+		}
+	}
 }
 
 
@@ -921,7 +986,16 @@ Whole_program::assign_unknown (Basic_block* bb, Path* plhs)
 void
 Whole_program::assign_by_copy (Basic_block* bb, Path* plhs, Path* prhs)
 {
-	// for objects, copy the edge. For arrays, copy the whole thing. For
+	// foreach values V pointed to by PRHS:
+	//	switch V.type:
+	//		Scalar:
+	//			- foreach alias A of PLHS, set the value of A::ABSVAL using V.
+	//		Array:
+	//			- foreach alias A of PLHS, create a copy of V, with a new name.
+	//		Objects:
+	//			- foreach alias A of PLHS, point from A to V.
+
+	// For objects, copy the edge. For arrays, copy the whole thing. For
 	// scalars, copy the scalar (if unknown). It seems clear that we need an
 	// unknown object here, if the type is not known to not be an object.
 	phc_TODO ();
@@ -1143,9 +1217,32 @@ Whole_program::get_named_index (Basic_block* bb, Path* name, bool record_uses)
 	if (all->size () > 1)
 		return NULL;
 
-	return all->front ();
+	return all->front();
 }
 
+
+
+List<Alias_name>*
+Whole_program::get_all_referenced_names (Basic_block* bb, Path* path, certainty cert, bool record_uses)
+{
+	Set<Alias_name> names;
+
+	Index_node_list* lhss = get_named_indices (bb, path, record_uses);
+
+	foreach (Index_node* lhs, *lhss)
+	{
+		// Handle all the aliases/indirect assignments.
+		Index_node_list* refs = aliasing->get_references (bb, lhs, cert);
+		refs->push_back (lhs);
+
+		foreach (Index_node* ref, *refs)
+		{
+			names.insert (ref->name());
+		}
+	}
+
+	return names.to_list();
+}
 
 /*
  * Analysis

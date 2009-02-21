@@ -76,18 +76,13 @@ public:
 
 
 
-// Represents class for arrays, objects and symtables
+// Represents class for arrays, objects and symtables.
 class Storage_node : public PT_node
 {
 public:
 	Storage_node (string storage);
 
 	string storage;
-
-	// If true, its (outgoing) edges cannot be killed, as it represents more
-	// than one run-time object. If false, represents just one run-time
-	// object, meaning its edges can be killed. 
-	bool is_abstract;
 
 	Alias_name name ();
 

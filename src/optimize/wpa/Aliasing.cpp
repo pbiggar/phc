@@ -28,6 +28,19 @@ ABSVAL (Alias_name name)
 	return new Abstract_node (name.str());
 }
 
+Storage_node*
+BB_array_name (Basic_block* bb)
+{
+	return new Storage_node ("array_" + lexical_cast<string> (bb->ID));
+}
+
+Storage_node*
+BB_object_name (Basic_block* bb)
+{
+	return new Storage_node ("object_" + lexical_cast<string> (bb->ID));
+}
+
+
 Aliasing::Aliasing (Whole_program* wp)
 : WPA(wp)
 {
@@ -68,7 +81,7 @@ Aliasing::forward_bind (Basic_block* caller, Entry_block* entry)
 }
 
 void
-Aliasing::backward_bind (Basic_block* caller, Basic_block* exit)
+Aliasing::backward_bind (Basic_block* caller, Exit_block* exit)
 {
 	if (caller == NULL)
 		return;
@@ -141,18 +154,23 @@ Aliasing::kill_reference (Basic_block* bb, Alias_name lhs)
 }
 
 
-
-
+void
+Aliasing::assign_storage (Basic_block* bb, Alias_name lhs, Alias_name storage, certainty cert)
+{
+	outs[bb->ID]->add_node (lhs.ind (), cert);
+	outs[bb->ID]->add_edge (lhs.ind (), storage.stor(), cert);
+}
 
 void
 Aliasing::assign_empty_array (Basic_block* bb, Alias_name lhs, string unique_name, certainty cert)
 {
-	outs[bb->ID]->add_node (lhs.ind (), cert);
-	outs[bb->ID]->add_edge (lhs.ind (), SN (unique_name), cert);
+	assign_storage (bb, lhs, SN (unique_name)->name(), cert);
 }
+
 void
 Aliasing::create_reference (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert)
 {
+	phc_TODO ();
 	Points_to* ptg = outs[bb->ID];
 
 	ptg->add_node (lhs.ind(), cert);
@@ -176,21 +194,10 @@ Aliasing::create_reference (Basic_block* bb, Alias_name lhs, Alias_name rhs, cer
 }
 
 void
-Aliasing::assign_value (Basic_block* bb, Alias_name lhs, Abstract_value* val, certainty cert)
+Aliasing::assign_scalar (Basic_block* bb, Alias_name lhs, Alias_name lhs_storage, Abstract_value* val, certainty cert)
 {
 	outs[bb->ID]->add_node (lhs.ind(), cert);
-	outs[bb->ID]->add_edge (lhs.ind (), ABSVAL (lhs), cert);
-}
-
-void
-Aliasing::copy_value (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert)
-{
-	outs[bb->ID]->add_node (lhs.ind(), cert);
-
-	// I think Whole_program should handle this. I can't believe something as
-	// simple as a copy from one varaible to another needs so much effort.
-	phc_TODO ();
-	add_all_points_to_edges (bb, lhs, rhs, cert);
+	outs[bb->ID]->add_edge (lhs.ind (), lhs_storage.ind(), cert);
 }
 
 void

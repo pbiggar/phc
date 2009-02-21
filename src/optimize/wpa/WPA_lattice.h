@@ -24,10 +24,6 @@ public:
 
 	void kill_value (Basic_block* bb, Alias_name name);
 
-	// Take what you can from the abstract value
-	void copy_value (Basic_block* bb, Alias_name lhs,
-						  Alias_name rhs, certainty cert);
-
 	void pull_init (Basic_block* bb);
 	void pull_first_pred (Basic_block* bb, Basic_block* pred);
 	void pull_pred (Basic_block* bb, Basic_block* pred);

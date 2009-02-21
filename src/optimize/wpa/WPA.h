@@ -71,20 +71,26 @@ public:
 	 * Assigning values
 	 */
 
-	// There should now be a reference between lhs and rhs. Values are
-	// propagated separately.
+	// This creates a reference between lhs and rhs. Values are propagated
+	// separately.
 	virtual void create_reference (Basic_block* bb, Alias_name lhs,
 											 Alias_name rhs, certainty cert) CT_IMPL;
-	
 
-	// Take what you can from the abstract value
-	virtual void assign_value (Basic_block* bb, Alias_name lhs,
-										Abstract_value* val, certainty cert) CT_IMPL;
+	// It might seem that copying should naturally be included here, but
+	// actually copying is has context-dependant semantics, and instead calls
+	// the lower-level functions here.
 
-	// Take what you can from the abstract value
-	virtual void copy_value (Basic_block* bb, Alias_name lhs,
-									 Alias_name rhs, certainty cert) CT_IMPL;
+	// Assignment from a scalar VAL to LHS. LHS will be the ABSVAL name for
+	// the variable, not the name of the variable.
+	virtual void assign_scalar (Basic_block* bb, Alias_name lhs,
+										 Alias_name lhs_storage, Abstract_value* val,
+										 certainty cert) CT_IMPL;
 
+	// LHS points to STORAGE.
+	virtual void assign_storage (Basic_block* bb, Alias_name lhs,
+										  Alias_name storage, certainty cert) CT_IMPL;
+
+	// I think I can remove this very soon....
 	virtual void assign_empty_array (Basic_block* bb, Alias_name lhs,
 												string unique_name, certainty cert) CT_IMPL;
 
@@ -93,10 +99,10 @@ public:
 	 * Killing values
 	 */
 
-	virtual void kill_value (Basic_block* bb, Alias_name name) CT_IMPL;
+	virtual void kill_value (Basic_block* bb, Alias_name lhs) CT_IMPL;
 
 	// Kill name's reference set. Kill_value will be called separately.
-	virtual void kill_reference (Basic_block* bb, Alias_name name) CT_IMPL;
+	virtual void kill_reference (Basic_block* bb, Alias_name lhs) CT_IMPL;
 
 
 	/*

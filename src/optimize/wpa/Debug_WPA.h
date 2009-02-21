@@ -24,11 +24,11 @@ public:
 	void create_reference (Basic_block* bb, Alias_name lhs,
 								  Alias_name rhs, certainty cert);
 
-	void assign_value (Basic_block* bb, Alias_name lhs,
+	void assign_scalar (Basic_block* bb, Alias_name lhs, Alias_name lhs_storage,
 							 Abstract_value* val, certainty cert);
 
-	void copy_value (Basic_block* bb, Alias_name lhs,
-						  Alias_name rhs, certainty cert);
+	void assign_storage (Basic_block* bb, Alias_name lhs,
+								Alias_name storage, certainty cert);
 
 	void assign_empty_array (Basic_block* bb, Alias_name lhs,
 									string unique_name, certainty cert);
