@@ -99,9 +99,13 @@ Alias_name::ind()
 Storage_node*
 Alias_name::stor()
 {
+	// HACK: a very very bad hack, not a nice one at all.
 	assert (ssa_version == 0);
-	assert (prefix == SNP);
-	return new Storage_node (name);
+	// cant say for sure what the prefix is here.
+	if (name == ABV)
+		return new Abstract_node (prefix);
+	else
+		return new Storage_node (name);
 }
 
 

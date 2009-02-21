@@ -29,7 +29,7 @@
 #define SNP "ST"
 
 // Abstract_value suffix
-#define ABV "ST"
+#define ABV "ABV"
 
 // Return value's name
 #define RETNAME "__RETNAME__"

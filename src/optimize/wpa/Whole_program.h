@@ -195,6 +195,8 @@ public:
 	// unknown).
 	String_list* get_string_values (Basic_block* bb, Index_node* node);
 
+	Abstract_value* get_abstract_value (Basic_block* bb, Alias_name name);
+
 	// PATH can refer to many nodes. Get the list of Index_nodes it points to.
 	Index_node_list* get_named_indices (Basic_block* bb, Path* path, bool record_uses = false);
 

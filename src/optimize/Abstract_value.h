@@ -21,9 +21,9 @@ namespace MIR { class Literal; }
 
 class Abstract_value : public GC_obj
 {
-// Don't instantiate directly, use factories.
-	Abstract_value (Lattice_cell* lit, Lattice_cell* type);
 public:
+	Abstract_value (Lattice_cell* lit, Lattice_cell* type);
+
 	Lattice_cell* lit;
 	Lattice_cell* type;
 

@@ -84,9 +84,9 @@ public:
 
 	string storage;
 
-	Alias_name name ();
+	virtual Alias_name name ();
 
-	String* get_graphviz ();
+	virtual String* get_graphviz ();
 };
 
 // This represents the value of the node that points to it. It is used as the
@@ -94,8 +94,6 @@ public:
 // storage nodes are used, as the possible/definite thing is difficult.
 class Abstract_node : public Storage_node
 {
-	string owner;
-
 public:
 	Abstract_node (string owner);
 

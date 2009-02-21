@@ -162,6 +162,12 @@ Aliasing::assign_storage (Basic_block* bb, Alias_name lhs, Alias_name storage, c
 }
 
 void
+Aliasing::assign_scalar (Basic_block* bb, Alias_name lhs, Alias_name lhs_storage, Abstract_value* val, certainty cert)
+{
+	assign_storage (bb, lhs, lhs_storage, cert);
+}
+
+void
 Aliasing::assign_empty_array (Basic_block* bb, Alias_name lhs, string unique_name, certainty cert)
 {
 	assign_storage (bb, lhs, SN (unique_name)->name(), cert);
@@ -191,13 +197,6 @@ Aliasing::create_reference (Basic_block* bb, Alias_name lhs, Alias_name rhs, cer
 
 
 	ptg->add_bidir_edge (lhs.ind(), rhs.ind(), cert);
-}
-
-void
-Aliasing::assign_scalar (Basic_block* bb, Alias_name lhs, Alias_name lhs_storage, Abstract_value* val, certainty cert)
-{
-	outs[bb->ID]->add_node (lhs.ind(), cert);
-	outs[bb->ID]->add_edge (lhs.ind (), lhs_storage.ind(), cert);
 }
 
 void
@@ -233,6 +232,8 @@ Aliasing::get_values (Basic_block* bb, Index_node* index,
 
 	// The presence of the absval is implicit.
 	Alias_pair* edge = ptg->get_edge (index->get_storage(), index);
+
+	// TODO: Is this still the case?
 	if (edge == NULL || edge->cert == POSSIBLE)
 		result->push_back (ABSVAL (index->name ()));
 

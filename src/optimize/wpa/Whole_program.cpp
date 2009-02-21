@@ -863,39 +863,19 @@ Whole_program::assign_by_ref (Basic_block* bb, Path* plhs, Path* prhs)
 	}
 }
 
-template <class T>
-void
-assign_somehow (Whole_program* wp, Basic_block* bb, Path* plhs,
-		void (WPA::* func) (Basic_block*, Alias_name, T, certainty),
-		T param)
-{
-	certainty cert = wp->kill_value (bb, plhs);
-	Index_node_list* lhss = wp->get_named_indices (bb, plhs);
-
-	// This is not killing in terms of references, so it assigns to all
-	// aliases of lhs.
-	foreach (Index_node* lhs, *lhss)
-	{
-		// Handle all the aliases/indirect assignments.
-		Index_node_list* refs = wp->aliasing->get_references (bb, lhs, cert);
-
-		// Include LHS
-		refs->push_back (lhs);
-
-		foreach_wpa (wp)
-			foreach (Index_node* ref, *refs)
-				(wpa->*func) (bb, ref->name (), param, cert);
-	}
-}
-
-
 
 void
 Whole_program::assign_scalar (Basic_block* bb, Path* plhs, Literal* lit)
 {
-	// TODO this doesnt assign to the abstract value.
-	phc_TODO (); // different signature for assign_scalar now!
-//	assign_somehow (this, bb, plhs, &WPA::assign_scalar, Abstract_value::from_literal (lit));
+	certainty cert = kill_value (bb, plhs);
+	foreach (Alias_name name, *get_all_referenced_names (bb, plhs, cert))
+	{
+		foreach_wpa (this)
+		{
+			wpa->assign_scalar (bb, name, ABSVAL (name)->name(),
+					Abstract_value::from_literal (lit), POSSIBLE);
+		}
+	}
 }
 
 void
@@ -906,51 +886,41 @@ Whole_program::assign_typed (Basic_block* bb, Path* plhs, Types types)
 	Types array = Type_inference::get_array_types (types);
 	Types objects = Type_inference::get_object_types (types);
 
-
-	// TODO: this code duplication is harder to remove
 	certainty cert = kill_value (bb, plhs);
-	Index_node_list* lhss = get_named_indices (bb, plhs);
-
-	// This is not killing in terms of references, so it assigns to all
-	// aliases of lhs.
-	foreach (Index_node* lhs, *lhss)
+	foreach (Alias_name name, *get_all_referenced_names (bb, plhs, cert))
 	{
-		// Handle all the aliases/indirect assignments.
-		Index_node_list* refs = aliasing->get_references (bb, lhs, cert);
-		refs->push_back (lhs);
-
-		// When assigning to different references:
-		//		- scalar values are copied (though they are conceptually shared,
-		//		we deal with that through functions like this).
-		//		- the array is shared, not copied. It will have a unique name.
-		//		- the object is shared, and will have a unique name.
 		foreach_wpa (this)
-			foreach (Index_node* ref, *refs)
-				{
-					if (scalars.size ())
-						wpa->assign_scalar (bb, ref->name(), ABSVAL (ref->name())->name(),
-											     Abstract_value::from_types (scalars), POSSIBLE);
+		{
+			if (scalars.size ())
+				wpa->assign_scalar (bb, name, ABSVAL (name)->name(),
+						Abstract_value::from_types (scalars), POSSIBLE);
 
-					if (array.size ())
-						phc_TODO ();
+			if (array.size ())
+				phc_TODO ();
 
-					if (objects.size ())
-						phc_TODO ();
+			if (objects.size ())
+				phc_TODO ();
 
-//					wpa->assign_storage (bb, ref->name(),
-//												BB_array_name (bb)->name(), POSSIBLE);
+			//	wpa->assign_storage (bb, ref->name(),
+			//								BB_array_name (bb)->name(), POSSIBLE);
 
-//					wpa->assign_storage (bb, ref->name(),
-//												BB_object_name (bb)->name(), POSSIBLE);
-				}
+			//	wpa->assign_storage (bb, ref->name(),
+			//								BB_object_name (bb)->name(), POSSIBLE);
+		}
 	}
-
 }
 
 void
 Whole_program::assign_empty_array (Basic_block* bb, Path* plhs, string unique_name)
 {
-	assign_somehow (this, bb, plhs, &WPA::assign_empty_array, unique_name);
+	certainty cert = kill_value (bb, plhs);
+	foreach (Alias_name name, *get_all_referenced_names (bb, plhs, cert))
+	{
+		foreach_wpa (this)
+		{
+			wpa->assign_empty_array (bb, name, unique_name, cert);
+		}
+	}
 }
 
 void
@@ -973,6 +943,7 @@ Whole_program::assign_unknown (Basic_block* bb, Path* plhs)
 		//		- the object is shared, and will have a unique name.
 		foreach_wpa (this)
 		{
+			// TODO should these be empty?
 			wpa->assign_scalar (bb, name, ABSVAL (name)->name(),
 									  Abstract_value::unknown (), POSSIBLE);
 			wpa->assign_storage (bb, name, BB_array_name (bb)->name(), POSSIBLE);
@@ -995,60 +966,54 @@ Whole_program::assign_by_copy (Basic_block* bb, Path* plhs, Path* prhs)
 	//		Objects:
 	//			- foreach alias A of PLHS, point from A to V.
 
+	certainty cert = kill_value (bb, plhs);
+
 	// For objects, copy the edge. For arrays, copy the whole thing. For
 	// scalars, copy the scalar (if unknown). It seems clear that we need an
 	// unknown object here, if the type is not known to not be an object.
-	phc_TODO ();
-	Index_node_list* lhss = get_named_indices (bb, plhs);
 	Index_node_list* rhss = get_named_indices (bb, prhs, true);
 
-	bool killable = is_must (lhss);
-
-	// This is not killing in terms of references, so it assigns to all
-	// aliases of lhs.
-	foreach (Index_node* lhs, *lhss)
+	foreach (Alias_name name, *get_all_referenced_names (bb, plhs, cert))
 	{
-		// Handle all the aliases/indirect assignments.
-		certainty certainties[] = {POSSIBLE, DEFINITE};
-		foreach (certainty cert, certainties)
+		foreach_wpa (this)
 		{
-			Index_node_list* refs = aliasing->get_references (bb, lhs, cert);
-
-			// If we can't say the LHSS is killable, we get say its must defs
-			// are killable either.
-			if (!killable)
-				cert = POSSIBLE;
-
-			foreach_wpa (this)
+			foreach (Index_node* rhs, *rhss)
 			{
-				foreach (Index_node* ref, *refs)
+				// Get the value for each RHS. Copy it using the correct semantics.
+
+				// TODO: I think we're losing some CERT information
+				Storage_node_list* values = aliasing->get_values (bb, rhs, PTG_ALL);
+				foreach (Storage_node* st, *values)
 				{
-					if (cert == DEFINITE) // must-def
-						wpa->kill_value (bb, ref->name ());
+					// Get the type of the value
+					Types types = type_inf->get_types (bb, st->name());
+					// TODO: handle bottom, I think itll assert
 
-					foreach (Index_node* rhs, *rhss)
+					type_inf->get_value (bb, st->name())->dump();
+
+					// It must be either all scalars, array, list of classes, or bottom.
+					Types scalars = Type_inference::get_scalar_types (types);
+					Types array = Type_inference::get_array_types (types);
+					Types objects = Type_inference::get_object_types (types);
+
+					assert (!scalars.empty() ^ !array.empty() ^ !objects.empty());
+
+					if (scalars.size())
+					{
+						wpa->assign_scalar (bb, name, ABSVAL (name)->name(),
+								get_abstract_value (bb, st->name()), POSSIBLE);
+					}
+
+					if (array.size())
+					{
 						phc_TODO ();
-//						wpa->assign_by_copy (bb,
-//							ref->name (),
-//							rhs->name (),
-//							is_must (rhss) ? cert : POSSIBLE);
+					}
+
+					if (objects.size ())
+					{
+						phc_TODO ();
+					}
 				}
-			}
-		}
-
-		// Handle LHS itself
-		foreach (Index_node* rhs, *rhss) // TODO refactor this better
-		{
-			foreach_wpa (this)
-			{
-				if (killable) // only 1 result
-					wpa->kill_value (bb, lhs->name ());
-
-				phc_TODO ();
-/*				wpa->assign_by_copy (bb,
-					lhs->name (),
-					rhs->name (),
-					is_must (rhss) ? DEFINITE : POSSIBLE);*/
 			}
 		}
 	}
@@ -1101,6 +1066,15 @@ Whole_program::get_string_values (Basic_block* bb, Index_node* index)
 	// TODO: this isnt quite right, we need to cast to a string.
 	return new String_list (
 		dyc<Literal_cell> (result)->value->get_value_as_string ());
+}
+
+
+Abstract_value*
+Whole_program::get_abstract_value (Basic_block* bb, Alias_name name)
+{
+	return new Abstract_value (
+							ccp->get_value (bb, name), 
+							type_inf->get_value (bb, name));
 }
 
 /*

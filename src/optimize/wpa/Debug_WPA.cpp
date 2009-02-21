@@ -65,7 +65,9 @@ Debug_WPA::assign_scalar (Basic_block* bb, Alias_name lhs, Alias_name lhs_storag
 	CHECK_DEBUG ();
 
 	cdebug
-	<< __FUNCTION__ << ": " << lhs.str () << ", ";
+	<< __FUNCTION__ << ": "
+	<< lhs.str () << ", "
+	<< lhs_storage.str () << ", ";
 
 	val->dump();
 
