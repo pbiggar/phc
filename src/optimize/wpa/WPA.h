@@ -90,11 +90,6 @@ public:
 	virtual void assign_storage (Basic_block* bb, Alias_name lhs,
 										  Alias_name storage, certainty cert) CT_IMPL;
 
-	// I think I can remove this very soon....
-	virtual void assign_empty_array (Basic_block* bb, Alias_name lhs,
-												string unique_name, certainty cert) CT_IMPL;
-
-
 	/*
 	 * Killing values
 	 */

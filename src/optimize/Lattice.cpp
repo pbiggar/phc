@@ -9,7 +9,7 @@ using namespace std;
 // successful.
 class Special_cell : public Lattice_cell
 {
-	// TODO: funny, I thought TOP was NULL?
+	// TODO: implement these and get rid of the non-OO hacks.
 	void dump (ostream&) { phc_unreachable(); }
 	bool equals (Lattice_cell* other) { phc_unreachable();}
 	Lattice_cell* meet (Lattice_cell* other) { phc_unreachable (); }

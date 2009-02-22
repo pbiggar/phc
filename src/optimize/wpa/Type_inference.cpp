@@ -32,19 +32,11 @@ Type_inference::assign_scalar (Basic_block* bb, Alias_name lhs, Alias_name lhs_s
 }
 
 void
-Type_inference::assign_storage (Basic_block* bb, Alias_name lhs,
-						  Alias_name storage, certainty cert)
+Type_inference::assign_storage (Basic_block* bb, Alias_name lhs, Alias_name storage, certainty cert)
 {
 	// TODO: this needs type information
 	outs[bb->ID][lhs.str()] = BOTTOM;
 	outs[bb->ID][storage.str()] = BOTTOM;
-}
-
-void
-Type_inference::assign_empty_array (Basic_block* bb, Alias_name lhs, string unique_name, certainty cert)
-{
-	outs[bb->ID][lhs.str()] = meet (outs[bb->ID][lhs.str()], new Type_cell ("array"));
-	outs[bb->ID][unique_name] = meet (outs[bb->ID][unique_name], new Type_cell ("array"));
 }
 
 
@@ -223,6 +215,7 @@ Type_cell::dump (ostream& os)
 bool
 Type_cell::equals (Lattice_cell* other_cell)
 {
+	// TODO: I think I can replace this with Set::equals or set::operator==
 	Type_cell* other = dyc<Type_cell> (other_cell);
 
 	if (other->types.size () != this->types.size ())

@@ -37,9 +37,6 @@ public:
 						  Alias_name storage, certainty cert);
 
 
-	void assign_empty_array (Basic_block* bb, Alias_name lhs,
-									 string unique_name, certainty cert);
-
 	Types get_types (Basic_block* bb, Alias_name name);
 
 	static Types get_bin_op_types (Basic_block* bb, Abstract_value* left, Abstract_value* right, string op);

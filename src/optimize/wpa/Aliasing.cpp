@@ -170,12 +170,6 @@ Aliasing::assign_scalar (Basic_block* bb, Alias_name lhs, Alias_name lhs_storage
 }
 
 void
-Aliasing::assign_empty_array (Basic_block* bb, Alias_name lhs, string unique_name, certainty cert)
-{
-	assign_storage (bb, lhs, SN (unique_name)->name(), cert);
-}
-
-void
 Aliasing::create_reference (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert)
 {
 	phc_TODO ();

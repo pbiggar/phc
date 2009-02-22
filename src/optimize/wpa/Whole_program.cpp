@@ -918,7 +918,7 @@ Whole_program::assign_empty_array (Basic_block* bb, Path* plhs, string unique_na
 	{
 		foreach_wpa (this)
 		{
-			wpa->assign_empty_array (bb, name, unique_name, cert);
+			wpa->assign_storage (bb, name, SN (unique_name)->name(), cert);
 		}
 	}
 }

@@ -20,9 +20,6 @@ class CCP : public WPA_lattice
 public:
 	CCP (Whole_program* wp);
 
-	void assign_empty_array (Basic_block* bb, Alias_name lhs,
-									 string unique_name, certainty cert);
-
 	void assign_scalar (Basic_block* bb, Alias_name lhs,
 						  Alias_name lhs_storage, Abstract_value* val, certainty cert);
 

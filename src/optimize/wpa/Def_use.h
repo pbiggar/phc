@@ -31,9 +31,6 @@ public:
 	void assign_storage (Basic_block* bb, Alias_name lhs,
 							   Alias_name storage, certainty cert);
 
-	void assign_empty_array (Basic_block* bb, Alias_name lhs,
-									 string unique_name, certainty cert);
-
 	void record_use (Basic_block* bb, Alias_name lhs, certainty cert);
 
 	void aggregate_results (Basic_block* bb);

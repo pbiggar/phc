@@ -33,12 +33,6 @@ CCP::assign_scalar (Basic_block* bb, Alias_name lhs, Alias_name lhs_storage, Abs
 }
 
 void
-CCP::assign_empty_array (Basic_block* bb, Alias_name lhs, string unique_name, certainty cert)
-{
-	outs[bb->ID][lhs.str()] = BOTTOM;
-}
-
-void
 CCP::assign_storage (Basic_block* bb, Alias_name lhs, Alias_name storage, certainty cert)
 {
 	outs[bb->ID][lhs.str()] = BOTTOM;

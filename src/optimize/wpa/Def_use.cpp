@@ -87,12 +87,6 @@ Def_use::kill_reference (Basic_block* bb, Alias_name lhs)
 /* Simple assignments */
 
 void
-Def_use::assign_empty_array (Basic_block* bb, Alias_name lhs, string unique_name, certainty cert)
-{
-	val_assignment (bb, lhs, cert);
-}
-
-void
 Def_use::val_assignment (Basic_block* bb, Alias_name lhs, certainty cert)
 {
 	// In C terms, *x = ...;

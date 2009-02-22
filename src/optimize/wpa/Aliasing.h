@@ -54,9 +54,6 @@ public:
 	void assign_storage (Basic_block* bb, Alias_name lhs,
 							   Alias_name storage, certainty cert);
 
-	void assign_empty_array (Basic_block* bb, Alias_name lhs,
-									 string unique_name, certainty cert);
-
 	void kill_value (Basic_block* bb, Alias_name lhs);
 
 	void kill_reference (Basic_block* bb, Alias_name lhs);
