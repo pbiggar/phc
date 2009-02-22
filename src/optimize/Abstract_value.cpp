@@ -28,9 +28,9 @@ Abstract_value::dump ()
 {
 	CHECK_DEBUG ();
 	cdebug << "{";
-	dump_lattice (lit);
+	dump_cell (lit, cdebug);
 	cdebug << ", ";
-	dump_lattice (type);
+	dump_cell (type, cdebug);
 	cdebug << "}";
 }
 

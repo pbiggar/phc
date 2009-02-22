@@ -38,6 +38,7 @@
 #include "Def_use_web.h"
 
 using namespace boost;
+using namespace std;
 using namespace MIR;
 
 
@@ -238,15 +239,15 @@ Init_cell* INIT = new Init_cell;
 Init_cell* UNINIT = new Init_cell;
 
 void
-Init_cell::dump()
+Init_cell::dump(std::ostream& os)
 {
 	if (this == INIT)
 	{
-		DEBUG ("INIT");
+		os << "INIT" << endl;
 	}
 	else if (this == UNINIT)
 	{
-		DEBUG ("UNINIT");
+		os << "UNINIT" << endl;
 	}
 	else
 		phc_unreachable ();

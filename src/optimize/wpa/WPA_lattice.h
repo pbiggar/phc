@@ -43,6 +43,8 @@ protected:
 	BB_lattices ins;
 	BB_lattices clones;
 	BB_lattices outs;
+
+	friend class Whole_program;
 };
 
 #endif // PHC_WPA_LATTICE

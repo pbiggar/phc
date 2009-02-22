@@ -1075,6 +1075,16 @@ Whole_program::get_abstract_value (Basic_block* bb, Alias_name name)
 							type_inf->get_value (bb, name));
 }
 
+Abstract_value*
+Whole_program::get_bb_out_abstract_value (Basic_block* bb, Alias_name name)
+{
+	return new Abstract_value (
+							ccp->outs[bb->ID][name.str()],
+							type_inf->outs[bb->ID][name.str()]);
+}
+
+
+
 /*
  * Return the set of names which PATH might lead to.
  *

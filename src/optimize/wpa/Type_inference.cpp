@@ -212,11 +212,11 @@ Type_cell::Type_cell ()
 }
 
 void
-Type_cell::dump ()
+Type_cell::dump (ostream& os)
 {
 	foreach (string type, types)
 	{
-		cdebug << type << ", ";
+		os << type << ", ";
 	}
 }
 

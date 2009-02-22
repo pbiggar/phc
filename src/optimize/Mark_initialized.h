@@ -48,7 +48,7 @@
 
 class Init_cell : public Lattice_cell
 {
-	void dump ();
+	void dump (std::ostream& os = cdebug);
 	bool equals (Lattice_cell*);
 };
 

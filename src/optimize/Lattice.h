@@ -6,7 +6,7 @@
 #include "Var_map.h"
 
 #include "MIR.h"
-#include "process_ir/debug.h"
+#include "process_ir/General.h"
 #include <boost/tuple/tuple.hpp> // for tie
 
 using namespace boost;
@@ -14,7 +14,7 @@ using namespace boost;
 class Lattice_cell : virtual public GC_obj
 {
 public:
-	virtual void dump () = 0;
+	virtual void dump (std::ostream& os = cdebug) = 0;
 
 	// Assume THIS and OTHER are not TOP or BOTTOM, and they are all of the same type.
 	virtual bool equals (Lattice_cell* other) = 0;
@@ -31,7 +31,7 @@ Lattice_cell* meet (Lattice_cell* l1, Lattice_cell* l2);
 
 // Neither TOP nor BOTTOM are real values
 void
-dump_lattice (Lattice_cell*);
+dump_cell (Lattice_cell*, std::ostream& os);
 
 
 class Lattice_map
@@ -55,7 +55,7 @@ public:
 		foreach (boost::tie (index, cell), *this)
 		{
 			cdebug << index << " => ";
-			dump_lattice (cell);
+			dump_cell (cell, cdebug);
 			cdebug << "\n";
 		}
 	}

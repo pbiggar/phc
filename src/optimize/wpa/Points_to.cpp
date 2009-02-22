@@ -10,12 +10,15 @@
  *
  */
 
-#include "Points_to.h"
 #include "MIR.h"
 #include "lib/error.h"
 #include "lib/escape.h"
 #include "lib/demangle.h"
 #include "process_ir/General.h"
+
+#include "Points_to.h"
+#include "Whole_program.h"
+#include "optimize/Abstract_value.h"
 
 using namespace MIR;
 using namespace std;
@@ -58,7 +61,7 @@ Points_to::equals (Points_to* other)
 
 
 void
-Points_to::dump_graphviz (String* label)
+Points_to::dump_graphviz (String* label, Basic_block* bb, Whole_program* wp)
 {
 	if (label == NULL)
 	{
@@ -72,7 +75,49 @@ Points_to::dump_graphviz (String* label)
 	<< "graph [label=\"Points-to: " << *label << "\"];\n"
 	;
 
-	// Add definite edges
+	// Add nodes
+	foreach (PT_node* node, *get_nodes ())
+	{
+		cout
+		<< "\""
+		<< *escape_DOT (s (node->name().str ()))
+		<< "\" ["
+		;
+
+		stringstream ss;
+
+		if (isa<Abstract_node> (node))
+		{
+			Abstract_value* val = wp->get_bb_out_abstract_value (bb, node->name());
+
+			if (val->lit == BOTTOM)
+				ss << "(B)";
+			else if (val->lit == TOP)
+				ss << "(T)";
+			else
+				dump_cell(val->lit, ss);
+
+			ss << ", ";
+		}
+
+		if (isa<Storage_node> (node))
+		{
+			Abstract_value* val = wp->get_bb_out_abstract_value (bb, node->name());
+			if (val->type == BOTTOM)
+				ss << "(B)";
+			else if (val->lit == TOP)
+				ss << "(T)";
+			else
+				dump_cell(val->type, ss);
+		}
+
+
+		cout
+		<< *node->get_graphviz (ss.str ())
+		<< "];\n" ;
+	}
+
+	// Add edges
 	Alias_name source;
 	Map<Alias_name, Alias_pair*> alias_map;
 	foreach (tie (source, alias_map), by_source)
@@ -81,32 +126,11 @@ Points_to::dump_graphviz (String* label)
 		Alias_pair* alias_pair;
 		foreach (tie (target, alias_pair), alias_map)
 		{
-			assert (alias_pair);
-			String* source_str = s(source.str ());
-			String* target_str = s(target.str ());
-
-			// Source
-			cout
-			<< "\""
-			<< *escape_DOT (source_str)
-			<< "\" [" << *alias_pair->source->get_graphviz ()
-			<< "];\n"
-			;
-			
-			// Target
-			cout
-			<< "\""
-			<< *escape_DOT (target_str)
-			<< "\" [" << *alias_pair->target->get_graphviz ()
-			<< "];\n"
-			;
-
-			// Edge
 			cout 
 			<< "\""
-			<< *escape_DOT (source_str) 
+			<< *escape_DOT (s (source.str())) 
 			<< "\" -> \"" 
-			<< *escape_DOT (target_str) 
+			<< *escape_DOT (s (target.str())) 
 			<< "\" [label=\""
 			<< (alias_pair->cert == POSSIBLE ? "P" : "D")
 			<< "\"];\n"
@@ -157,31 +181,23 @@ Points_to::has_value_edges (Index_node* source)
 Index_node_list*
 Points_to::get_references (Index_node* index, certainty cert)
 {
-	return get_aliases <Index_node> (index, cert);
-}
-
-// Only get the aliasias which are indices or Storage node NS
-Index_node_list*
-Points_to::get_local_references (Storage_node* sn, Index_node* node, certainty cert)
-{
-	Index_node_list* tmp = get_aliases <Index_node> (node, cert);
-
-	// Its very awkward to do this in-place.
-	Index_node_list* result = new Index_node_list;
-	foreach (Index_node* node, *tmp)
-	{
-		if (sn->storage == node->storage)
-			result->push_back (node);
-	}
-
-	return result;
+	return get_targets <Index_node> (index, cert);
 }
 
 // Get a list of aliases which are points-to.
 Storage_node_list*
 Points_to::get_values (Index_node* node, certainty cert)
 {
-	return get_aliases <Storage_node> (node, cert);
+	return get_targets <Storage_node> (node, cert);
+}
+
+void
+Points_to::consistency_check ()
+{
+	// TODO:
+	// index nodes pointed to by their storage node
+	// index->storage nodes cant be POSSIBLE if there is only one of them. That
+	// means I'm getting my certs wrong.
 }
 
 
@@ -203,11 +219,10 @@ Points_to::remove_unreachable_nodes ()
 	// Which means that until arrays and objects are modelled, this function
 	// does nothing.
 	return;
-	dump_graphviz (NULL);
 
 	// Put all symtables into the worklist
 	PT_node_list* worklist = new PT_node_list;
-	PT_node_list* all_nodes = get_nodes <PT_node> ();
+	PT_node_list* all_nodes = get_nodes ();
 	foreach (PT_node* node, *all_nodes)
 	{
 		// TODO: split between symtable and other storage nodes
@@ -248,7 +263,6 @@ Points_to::remove_unreachable_nodes ()
 			phc_TODO ();
 		}
 	}
-	dump_graphviz (NULL);
 }
 
 
@@ -337,6 +351,21 @@ Points_to::merge (Points_to* other)
 	}
 
 	return result;
+}
+
+PT_node_list*
+Points_to::get_nodes ()
+{
+	// Only have the nodes once
+	Map<Alias_name, PT_node*> all;
+
+	foreach (Alias_pair* pair, all_pairs)
+	{
+		all[pair->source->name ()] = pair->source;
+		all[pair->target->name ()] = pair->target;
+	}
+
+	return all.values();
 }
 
 
@@ -541,10 +570,10 @@ Storage_node::name ()
 }
 
 String*
-Storage_node::get_graphviz ()
+Storage_node::get_graphviz (string info)
 {
 	stringstream ss;
-	ss << "shape=box,label=\"" << storage << "\"";
+	ss << "shape=box,label=\"" << storage << info << "\"";
 	return s (ss.str ());
 }
 
@@ -561,10 +590,10 @@ Index_node::name ()
 }
 
 String*
-Index_node::get_graphviz ()
+Index_node::get_graphviz (string info)
 {
 	stringstream ss;
-	ss << "label=\"" << index << "\"";
+	ss << "label=\"" << index << info << "\"";
 	return s (ss.str ());
 }
 
@@ -586,7 +615,9 @@ Abstract_node::name ()
 }
 
 String*
-Abstract_node::get_graphviz ()
+Abstract_node::get_graphviz (string info)
 {
-	return s ("color=red,label=\"\"");
+	stringstream ss;
+	ss << "color=red,label=\"" << info << "\"";
+	return s (ss.str ());
 }

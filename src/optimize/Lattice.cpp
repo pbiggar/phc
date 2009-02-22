@@ -10,7 +10,7 @@ using namespace std;
 class Special_cell : public Lattice_cell
 {
 	// TODO: funny, I thought TOP was NULL?
-	void dump () { phc_unreachable(); }
+	void dump (ostream&) { phc_unreachable(); }
 	bool equals (Lattice_cell* other) { phc_unreachable();}
 	Lattice_cell* meet (Lattice_cell* other) { phc_unreachable (); }
 };
@@ -56,18 +56,16 @@ BB_lattices::dump (Basic_block* bb, string name)
 }
 
 void
-dump_lattice (Lattice_cell* cell)
+dump_cell (Lattice_cell* cell, ostream& os)
 {
-	CHECK_DEBUG ();
-
 	if (cell == TOP)
-		cdebug << "TOP";
+		os << "TOP";
 	else if (cell == BOTTOM)
-		cdebug << "BOTTOM";
+		os << "BOTTOM";
 	else
 	{
-		cdebug << "(";
-		cell->dump ();
-		cdebug << ")";
+		os << "(";
+		cell->dump (os);
+		os << ")";
 	}
 }

@@ -39,7 +39,7 @@ class PT_node : virtual public GC_obj
 public:
 	// Each PT node gets a unique name for the alias pairs representation.
 	virtual Alias_name name () = 0;
-	virtual String* get_graphviz () = 0;
+	virtual String* get_graphviz (string info) = 0;
 };
 
 /*
@@ -71,7 +71,7 @@ public:
 	Alias_name name ();
 	Storage_node* get_storage ();
 
-	String* get_graphviz ();
+	String* get_graphviz (string info);
 };
 
 
@@ -86,7 +86,7 @@ public:
 
 	virtual Alias_name name ();
 
-	virtual String* get_graphviz ();
+	virtual String* get_graphviz (string info);
 };
 
 // This represents the value of the node that points to it. It is used as the
@@ -99,7 +99,7 @@ public:
 
 	Alias_name name ();
 
-	String* get_graphviz ();
+	String* get_graphviz (string info);
 };
 
 class Alias_pair : virtual public GC_obj
@@ -145,7 +145,7 @@ public:
 	Points_to ();
 
 	bool equals (Points_to* other);
-	void dump_graphviz (String* label);
+	void dump_graphviz (String* label, Basic_block* bb, Whole_program* wp);
 
 	void open_scope (string name);
 	void close_scope (string name);
@@ -158,17 +158,13 @@ public:
 	// with the new certainty.
 	void set_pair_cert (Alias_pair* pair, certainty cert);
 
-	Index_node_list* get_local_references (Storage_node* ns,
-														Index_node* index,
-														certainty cert);
-
 	Index_node_list* get_references (Index_node* index,
 												certainty cert);
 
 	Storage_node_list* get_values (Index_node* index,
 											 certainty cert);
 
-
+	void consistency_check ();
 
 
 	/*
@@ -194,15 +190,6 @@ public:
 	Points_to* merge (Points_to* other);
 
 private:
-	// Get the list of indices that alias INDEX, with the certainty CERT.
-	// Must-aliases are not returned for POSSIBLE. NODE is not returned, so
-	// callers which rely on NODE aliasing itself must handle it themselves.
-	template <class T>
-	List<T*>* get_aliases (Index_node* node, certainty cert)
-	{
-		return get_targets<T> (node, cert);
-	}
-
 	template <class T>
 	List<T*>* get_targets (PT_node* node, certainty cert = PTG_ALL)
 	{
@@ -225,25 +212,7 @@ private:
 		return result;
 	}
 
-	template <class T>
-	List<T*>* get_nodes ()
-	{
-		List<T*>* result = new List<T*>;
-
-		// Keep track of already added ones
-		Map<Alias_name, PT_node*> all;
-
-		foreach (Alias_pair* pair, all_pairs)
-		{
-			if (isa<T> (pair->source))
-				all[pair->source->name ()] = pair->source;
-
-			if (isa<T> (pair->target))
-				all[pair->target->name ()] = pair->target;
-		}
-
-		return result;
-	}
+	PT_node_list* get_nodes ();
 
 };
 

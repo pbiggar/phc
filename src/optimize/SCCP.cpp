@@ -758,9 +758,9 @@ Literal_cell::Literal_cell (Literal* value)
 }
 
 void
-Literal_cell::dump ()
+Literal_cell::dump (std::ostream& os)
 {
-	cdebug << *value->get_value_as_string ();
+	os << *value->get_value_as_string ();
 }
 
 bool

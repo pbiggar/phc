@@ -17,7 +17,7 @@ public:
 	Type_cell (string type);
 	Type_cell (Types types);
 	Type_cell ();
-	void dump ();
+	void dump (std::ostream& os = cdebug);
 	bool equals (Lattice_cell* other);
 
 	Lattice_cell* meet (Lattice_cell* other);

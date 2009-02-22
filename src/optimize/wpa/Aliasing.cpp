@@ -61,7 +61,7 @@ Aliasing::dump (Basic_block* bb, string comment)
 	CHECK_DEBUG();
 	stringstream ss;
 	ss << bb->ID << ":" << comment;
-	outs[bb->ID]->dump_graphviz (s(ss.str()));
+	outs[bb->ID]->dump_graphviz (s(ss.str()), bb, wp);
 }
 
 

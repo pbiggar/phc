@@ -8,7 +8,7 @@ class Literal_cell : public Lattice_cell
 public:
 	Literal_cell (MIR::Literal*);
 
-	void dump ();
+	void dump (std::ostream& os = cdebug);
 	bool equals (Lattice_cell* other);
 
 	MIR::Literal* value;

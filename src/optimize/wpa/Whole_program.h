@@ -200,6 +200,9 @@ public:
 	// Get all the possible names, and merge them.
 	Abstract_value* get_abstract_value (Basic_block* bb, MIR::Rvalue* rval);
 
+	// Special case, get the output value, not the input
+	Abstract_value* get_bb_out_abstract_value (Basic_block* bb, Alias_name name);
+
 	// PATH can refer to many nodes. Get the list of Index_nodes it points to.
 	Index_node_list* get_named_indices (Basic_block* bb, Path* path, bool record_uses = false);
 
