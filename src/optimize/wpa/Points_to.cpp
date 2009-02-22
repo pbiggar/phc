@@ -194,10 +194,24 @@ Points_to::get_values (Index_node* node, certainty cert)
 void
 Points_to::consistency_check ()
 {
-	// TODO:
-	// index nodes pointed to by their storage node
-	// index->storage nodes cant be POSSIBLE if there is only one of them. That
-	// means I'm getting my certs wrong.
+	foreach (PT_node* node, *get_nodes ())
+	{
+		if (Index_node* ind = dynamic_cast<Index_node*> (node))
+		{
+			// Check index nodes are pointed to by their storage node
+			Storage_node* st = ind->get_storage ();
+			if (get_edge (st, ind) == NULL)
+				phc_internal_error ("No edge from storage node for %s", ind->name().str().c_str());
+
+			// If there is only one outgoing edges from an index, then it must be
+			// DEFINITE. If not, I'm not being careful with propagating CERTS.
+			Storage_node_list* values = get_values (ind, PTG_ALL);
+			if (values->size () == 1 && get_edge (ind, values->front())->cert != DEFINITE)
+				phc_internal_error ("Solo edge from %s to %s is not DEFINITE",
+										  ind->name().str().c_str(),
+										  values->front()->name().str().c_str());
+		}
+	}
 }
 
 

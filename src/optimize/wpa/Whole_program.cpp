@@ -868,12 +868,12 @@ void
 Whole_program::assign_scalar (Basic_block* bb, Path* plhs, Literal* lit)
 {
 	certainty cert = kill_value (bb, plhs);
-	foreach (Alias_name name, *get_all_referenced_names (bb, plhs, cert))
+	foreach (Alias_name name, *get_all_referenced_names (bb, plhs))
 	{
 		foreach_wpa (this)
 		{
 			wpa->assign_scalar (bb, name, ABSVAL (name)->name(),
-					Abstract_value::from_literal (lit), POSSIBLE);
+					Abstract_value::from_literal (lit), cert);
 		}
 	}
 }
@@ -887,13 +887,13 @@ Whole_program::assign_typed (Basic_block* bb, Path* plhs, Types types)
 	Types objects = Type_inference::get_object_types (types);
 
 	certainty cert = kill_value (bb, plhs);
-	foreach (Alias_name name, *get_all_referenced_names (bb, plhs, cert))
+	foreach (Alias_name name, *get_all_referenced_names (bb, plhs))
 	{
 		foreach_wpa (this)
 		{
 			if (scalars.size ())
 				wpa->assign_scalar (bb, name, ABSVAL (name)->name(),
-						Abstract_value::from_types (scalars), POSSIBLE);
+						Abstract_value::from_types (scalars), cert);
 
 			if (array.size ())
 				phc_TODO ();
@@ -914,7 +914,7 @@ void
 Whole_program::assign_empty_array (Basic_block* bb, Path* plhs, string unique_name)
 {
 	certainty cert = kill_value (bb, plhs);
-	foreach (Alias_name name, *get_all_referenced_names (bb, plhs, cert))
+	foreach (Alias_name name, *get_all_referenced_names (bb, plhs))
 	{
 		foreach_wpa (this)
 		{
@@ -934,7 +934,7 @@ Whole_program::assign_unknown (Basic_block* bb, Path* plhs)
 
 	// Unknown may be an array, a scalar or an object, all of which have
 	// different properties. We must be careful to separate these.
-	foreach (Alias_name name, *get_all_referenced_names (bb, plhs, cert))
+	foreach (Alias_name name, *get_all_referenced_names (bb, plhs))
 	{
 		// When assigning to different references:
 		//		- scalar values are copied (though they are conceptually shared,
@@ -973,16 +973,23 @@ Whole_program::assign_by_copy (Basic_block* bb, Path* plhs, Path* prhs)
 	// unknown object here, if the type is not known to not be an object.
 	Index_node_list* rhss = get_named_indices (bb, prhs, true);
 
-	foreach (Alias_name name, *get_all_referenced_names (bb, plhs, cert))
+	// If there is more than 1 RHSs, we cant say for sure which we're copying from.
+	if (rhss->size () > 1)
+		cert = POSSIBLE;
+
+	foreach (Alias_name name, *get_all_referenced_names (bb, plhs))
 	{
 		foreach_wpa (this)
 		{
 			foreach (Index_node* rhs, *rhss)
 			{
 				// Get the value for each RHS. Copy it using the correct semantics.
-
-				// TODO: I think we're losing some CERT information
 				Storage_node_list* values = aliasing->get_values (bb, rhs, PTG_ALL);
+
+				// If there is more than 1 value, it can't be definite.
+				if (values->size () > 1)
+					cert = POSSIBLE;
+
 				foreach (Storage_node* st, *values)
 				{
 					// Get the type of the value
@@ -999,7 +1006,7 @@ Whole_program::assign_by_copy (Basic_block* bb, Path* plhs, Path* prhs)
 					if (scalars.size())
 					{
 						wpa->assign_scalar (bb, name, ABSVAL (name)->name(),
-								get_abstract_value (bb, st->name()), POSSIBLE);
+								get_abstract_value (bb, st->name()), cert);
 					}
 
 					if (array.size())
@@ -1128,17 +1135,16 @@ Whole_program::get_named_indices (Basic_block* bb, Path* path, bool record_uses)
 			{
 				string name = pointed_to->storage;
 
-				// If this is a scalar, we have to deal with implicit creation.
-				if (pointed_to->storage == "SCALAR")
+				// Implicit array/field creation
+				if (isa<Abstract_node> (pointed_to))
 				{
+					// TODO: this could be a string, which is very difficult to handle
+					// TODO: an array is only implicitly created for NULL/uninit.
+					// Other scalars will go to NULL instead.
+					// TODO: these cases should clearly be dealt with in the caller.
+
 					name = lexical_cast<string> (bb->ID);
 					assign_empty_array (bb, p->lhs, name);
-					// TODO: what if the array being implicitly created is a
-					// scalar? in that case the conversion wont happen.
-					// TODO: What if its a string? This wont create an array in that
-					// case.
-					// TODO: we cant tell for sure that this implicit conversion
-					// will work. What if the scalar is 5?
 				}
 
 				lhss.insert (name);
@@ -1205,7 +1211,7 @@ Whole_program::get_named_index (Basic_block* bb, Path* name, bool record_uses)
 
 
 List<Alias_name>*
-Whole_program::get_all_referenced_names (Basic_block* bb, Path* path, certainty cert, bool record_uses)
+Whole_program::get_all_referenced_names (Basic_block* bb, Path* path, bool record_uses)
 {
 	Set<Alias_name> names;
 
@@ -1214,7 +1220,7 @@ Whole_program::get_all_referenced_names (Basic_block* bb, Path* path, certainty 
 	foreach (Index_node* lhs, *lhss)
 	{
 		// Handle all the aliases/indirect assignments.
-		Index_node_list* refs = aliasing->get_references (bb, lhs, cert);
+		Index_node_list* refs = aliasing->get_references (bb, lhs, PTG_ALL);
 		refs->push_back (lhs);
 
 		foreach (Index_node* ref, *refs)

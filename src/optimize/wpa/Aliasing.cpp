@@ -116,6 +116,7 @@ Aliasing::pull_finish (Basic_block* bb)
 	// You cant have no predecessors (and at least 1 must be executable)
 	assert (ins[bb->ID]);
 
+	ins[bb->ID]->consistency_check ();
 	outs[bb->ID] = ins[bb->ID]->clone ();
 }
 
@@ -125,6 +126,7 @@ Aliasing::aggregate_results (Basic_block* bb)
 {
 	// TODO: pull_results creates the OUT entry, and it is updated through the
 	// function. Here, we just want to set CHANGED_FLAG
+	outs[bb->ID]->consistency_check ();
 }
 
 void
@@ -224,16 +226,14 @@ Aliasing::get_references (Basic_block* bb, Index_node* index,
 }
 
 Storage_node_list*
-Aliasing::get_values (Basic_block* bb, Index_node* index,
-												certainty cert)
+Aliasing::get_values (Basic_block* bb, Index_node* index, certainty cert)
 {
 	Points_to* ptg = ins[bb->ID];
 	Storage_node_list* result = ptg->get_values (index, cert);
 
-	// The presence of the absval is implicit.
+	// It may be that the index_node itself is only possibly defined (or yet not
+	// defined, even). In this case, we need an abstract value.
 	Alias_pair* edge = ptg->get_edge (index->get_storage(), index);
-
-	// TODO: Is this still the case?
 	if (edge == NULL || edge->cert == POSSIBLE)
 		result->push_back (ABSVAL (index->name ()));
 
