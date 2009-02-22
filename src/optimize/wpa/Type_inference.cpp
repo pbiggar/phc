@@ -20,7 +20,6 @@ Type_inference::Type_inference (Whole_program* wp)
 {
 }
 
-
 void
 Type_inference::assign_scalar (Basic_block* bb, Alias_name lhs, Alias_name lhs_storage, Abstract_value* val, certainty cert)
 {
@@ -32,11 +31,12 @@ Type_inference::assign_scalar (Basic_block* bb, Alias_name lhs, Alias_name lhs_s
 }
 
 void
-Type_inference::assign_storage (Basic_block* bb, Alias_name lhs, Alias_name storage, certainty cert)
+Type_inference::assign_storage (Basic_block* bb, Alias_name lhs, Alias_name storage, Types types, certainty cert)
 {
-	// TODO: this needs type information
-	outs[bb->ID][lhs.str()] = BOTTOM;
-	outs[bb->ID][storage.str()] = BOTTOM;
+	Lattice_map& lat = outs[bb->ID];
+
+	lat[lhs.str()] = meet (lat[lhs.str()], new Type_cell (types));
+	lat[storage.str()] = meet (lat[storage.str()], new Type_cell (types));
 }
 
 
@@ -53,6 +53,15 @@ Type_inference::get_types (Basic_block* bb, Alias_name name)
 
 	// TODO: this will fail for bottom
 	return dyc<Type_cell> (cell)->types;
+}
+
+
+void
+Type_inference::set_types (Basic_block* bb, Alias_name name, Types types)
+{
+	Lattice_map& lat = outs[bb->ID];
+
+	lat[name.str()] = meet (lat[name.str()], new Type_cell (types));
 }
 
 Map<int, string>

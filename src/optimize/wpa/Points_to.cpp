@@ -105,7 +105,7 @@ Points_to::dump_graphviz (String* label, Basic_block* bb, Whole_program* wp)
 			Abstract_value* val = wp->get_bb_out_abstract_value (bb, node->name());
 			if (val->type == BOTTOM)
 				ss << "(B)";
-			else if (val->lit == TOP)
+			else if (val->type == TOP)
 				ss << "(T)";
 			else
 				dump_cell(val->type, ss);
@@ -575,6 +575,7 @@ Index_node* FN (string scope, MIR::FIELD_NAME* field)
 Storage_node::Storage_node (string storage)
 : storage (storage)
 {
+	assert (storage != "");
 }
 
 Alias_name
@@ -595,6 +596,8 @@ Index_node::Index_node (string storage, string index)
 : storage (storage)
 , index (index)
 {
+	assert (storage != "");
+	assert (index != "");
 }
 
 Alias_name
@@ -620,6 +623,7 @@ Index_node::get_storage ()
 Abstract_node::Abstract_node (string owner)
 : Storage_node(owner)
 {
+	assert (storage != "");
 }
 
 Alias_name

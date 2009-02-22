@@ -26,6 +26,8 @@ Alias_name::Alias_name (string prefix, string name)
 , name (name)
 , ssa_version (0)
 {
+	assert (prefix != "");
+	assert (name != "");
 }
 
 bool

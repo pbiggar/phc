@@ -126,7 +126,7 @@ Def_use::assign_scalar (Basic_block* bb, Alias_name lhs, Alias_name lhs_storage,
 }
 
 void
-Def_use::assign_storage (Basic_block* bb, Alias_name lhs, Alias_name storage_name, certainty cert)
+Def_use::assign_storage (Basic_block* bb, Alias_name lhs, Alias_name storage_name, Types types, certainty cert)
 {
 	val_assignment (bb, lhs, cert);
 }

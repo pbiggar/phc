@@ -22,13 +22,19 @@ namespace MIR { class Literal; }
 class Abstract_value : public GC_obj
 {
 public:
-	Abstract_value (Lattice_cell* lit, Lattice_cell* type);
-
 	Lattice_cell* lit;
 	Lattice_cell* type;
 
+public:
+	Abstract_value (Lattice_cell* lit, Lattice_cell* type);
+	Types get_types ();
+	MIR::Literal* get_literal ();
+
+
 	void dump ();
 
+public:
+	// Factories
 	static Abstract_value* from_literal (MIR::Literal* lit);
 	static Abstract_value* from_types (Types types);
 

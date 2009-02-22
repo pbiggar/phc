@@ -21,10 +21,10 @@ public:
 	CCP (Whole_program* wp);
 
 	void assign_scalar (Basic_block* bb, Alias_name lhs,
-						  Alias_name lhs_storage, Abstract_value* val, certainty cert);
+							  Alias_name lhs_storage, Abstract_value* val, certainty cert);
 
 	void assign_storage (Basic_block* bb, Alias_name lhs,
-						  Alias_name storage, certainty cert);
+								Alias_name storage, Types types, certainty cert);
 
 
 

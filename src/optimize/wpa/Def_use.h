@@ -29,7 +29,7 @@ public:
 							  certainty cert);
 
 	void assign_storage (Basic_block* bb, Alias_name lhs,
-							   Alias_name storage, certainty cert);
+							   Alias_name storage, Types types, certainty cert);
 
 	void record_use (Basic_block* bb, Alias_name lhs, certainty cert);
 

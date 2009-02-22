@@ -31,13 +31,15 @@ public:
 	Type_inference (Whole_program* wp);
 
 	void assign_scalar (Basic_block* bb, Alias_name lhs,
-						  Alias_name lhs_storage, Abstract_value* val, certainty cert);
+							  Alias_name lhs_storage, Abstract_value* val, certainty cert);
 
 	void assign_storage (Basic_block* bb, Alias_name lhs,
-						  Alias_name storage, certainty cert);
-
+								Alias_name storage, Types types, certainty cert);
 
 	Types get_types (Basic_block* bb, Alias_name name);
+
+	// HACK - TMI
+	void set_types (Basic_block* bb, Alias_name name, Types types);
 
 	static Types get_bin_op_types (Basic_block* bb, Abstract_value* left, Abstract_value* right, string op);
 	static Types get_bin_op_type (string left, string right, string op);
@@ -56,10 +58,9 @@ public:
 	static Types get_array_types (Types); // can only be "array"
 	static Types get_object_types (Types); // anything thats not covered above.
 
+	static Types scalar_types;
 private:
 	static Map<int, string> MIR_types;
-	static Types scalar_types;
-
 };
 
 

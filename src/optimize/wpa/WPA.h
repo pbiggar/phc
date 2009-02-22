@@ -86,9 +86,9 @@ public:
 										 Alias_name lhs_storage, Abstract_value* val,
 										 certainty cert) CT_IMPL;
 
-	// LHS points to STORAGE.
+	// LHS points to STORAGE. STORAGE may be a new node, but has type TYPES.
 	virtual void assign_storage (Basic_block* bb, Alias_name lhs,
-										  Alias_name storage, certainty cert) CT_IMPL;
+										  Alias_name storage, Types types, certainty cert) CT_IMPL;
 
 	/*
 	 * Killing values

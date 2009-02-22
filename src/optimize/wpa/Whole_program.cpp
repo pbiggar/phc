@@ -646,12 +646,9 @@ Whole_program::init_superglobals (Entry_block* entry)
 		if (*sg->value == "GLOBALS")
 			continue;
 
-		// TODO: we mark them as arrays of strings, but in reality we only know
-		// this about some of them.
-
 		// Create an empty array
 		string array_name = *sg->value;
-		assign_empty_array (entry, P (MSN, array_name), array_name);
+		assign_empty_array (entry, P (MSN, sg), array_name);
 
 		// We dont know the contents of these arrays.
 		// TODO: move all of these into calls to Whole_program
@@ -685,6 +682,9 @@ Whole_program::forward_bind (Method_info* info, Basic_block* caller, Entry_block
 	{
 		init_superglobals (entry);
 	}
+
+	// HACK - but the symtable needs to get a type somehow
+	type_inf->set_types (entry, SN (ST(entry))->name(), Types ("array"));
 
 
 	int i = 0;
@@ -809,7 +809,9 @@ Whole_program::kill_value (Basic_block* bb, Path* plhs)
 	// Fetch each reference of LHS, and kill them.
 	Index_node* lhs = lhss->front ();
 	
-	// Don't kill may-refs
+	// There shoudlnt be any may-refs.
+	assert (aliasing->get_references (bb, lhs, POSSIBLE)->empty());
+
 	foreach (Index_node* ref, *aliasing->get_references (bb, lhs, DEFINITE))
 		foreach_wpa (this)
 			wpa->kill_value (bb, ref->name ());
@@ -918,7 +920,7 @@ Whole_program::assign_empty_array (Basic_block* bb, Path* plhs, string unique_na
 	{
 		foreach_wpa (this)
 		{
-			wpa->assign_storage (bb, name, SN (unique_name)->name(), cert);
+			wpa->assign_storage (bb, name, SN(unique_name)->name(), Types ("array"), cert);
 		}
 	}
 }
@@ -946,8 +948,11 @@ Whole_program::assign_unknown (Basic_block* bb, Path* plhs)
 			// TODO should these be empty?
 			wpa->assign_scalar (bb, name, ABSVAL (name)->name(),
 									  Abstract_value::unknown (), POSSIBLE);
-			wpa->assign_storage (bb, name, BB_array_name (bb)->name(), POSSIBLE);
-			wpa->assign_storage (bb, name, BB_object_name (bb)->name(), POSSIBLE);
+
+			wpa->assign_storage (bb, name, BB_array_name (bb)->name(), Types ("array"), POSSIBLE);
+
+			// TODO: replace with an assignment of an object of an unknown type.
+			wpa->assign_storage (bb, name, BB_object_name (bb)->name(), Types ("object"), POSSIBLE);
 		}
 	}
 }
@@ -1113,6 +1118,8 @@ Whole_program::get_bb_out_abstract_value (Basic_block* bb, Alias_name name)
 Index_node_list*
 Whole_program::get_named_indices (Basic_block* bb, Path* path, bool record_uses)
 {
+	path->dump();
+	cdebug << endl;
 	Indexing* p = dyc<Indexing> (path);
 
 

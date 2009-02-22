@@ -33,7 +33,7 @@ CCP::assign_scalar (Basic_block* bb, Alias_name lhs, Alias_name lhs_storage, Abs
 }
 
 void
-CCP::assign_storage (Basic_block* bb, Alias_name lhs, Alias_name storage, certainty cert)
+CCP::assign_storage (Basic_block* bb, Alias_name lhs, Alias_name storage, Types types, certainty cert)
 {
 	outs[bb->ID][lhs.str()] = BOTTOM;
 }

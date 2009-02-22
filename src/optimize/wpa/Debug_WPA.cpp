@@ -49,16 +49,6 @@ Debug_WPA::create_reference (Basic_block* bb, Alias_name lhs,
 }
 
 void
-Debug_WPA::assign_empty_array (Basic_block* bb, Alias_name lhs,
-									string unique_name, certainty cert)
-{
-	DEBUG (__FUNCTION__
-			<< ": " << lhs.str ()
-			<< ", " << unique_name
-			<< ", " << cert_to_string (cert));
-}
-
-void
 Debug_WPA::assign_scalar (Basic_block* bb, Alias_name lhs, Alias_name lhs_storage,
 								 Abstract_value* val, certainty cert)
 {
@@ -78,12 +68,19 @@ Debug_WPA::assign_scalar (Basic_block* bb, Alias_name lhs, Alias_name lhs_storag
 
 void
 Debug_WPA::assign_storage (Basic_block* bb, Alias_name lhs,
-							  Alias_name storage, certainty cert)
+									Alias_name storage, Types types, certainty cert)
 {
-	DEBUG (__FUNCTION__
-			<< ": " << lhs.str ()
-			<< ", " << storage.str ()
-			<< ", " << cert_to_string (cert));
+	CHECK_DEBUG ();
+
+	cdebug
+	<< __FUNCTION__
+	<< ": " << lhs.str ()
+	<< ", " << storage.str ()
+	<< ", (";
+
+	(new Type_cell(types))->dump (cdebug);
+
+	cdebug << "), " << cert_to_string (cert) << endl;
 }
 
 

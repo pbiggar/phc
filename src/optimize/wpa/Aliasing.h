@@ -52,7 +52,7 @@ public:
 							  certainty cert);
 
 	void assign_storage (Basic_block* bb, Alias_name lhs,
-							   Alias_name storage, certainty cert);
+							   Alias_name storage, Types types, certainty cert);
 
 	void kill_value (Basic_block* bb, Alias_name lhs);
 
@@ -92,6 +92,8 @@ private:
 /* A Path is a way of representing some dereferencing. See Aliasing.cpp. */
 class Path : virtual public GC_obj
 {
+public:
+	virtual void dump (std::ostream& os = cdebug) = 0;
 };
 
 Path* P (string st, MIR::Node* node);
@@ -103,6 +105,7 @@ public:
 	Indexing (Path* lhs, Path* rhs);
 	Path* lhs;
 	Path* rhs;
+	void dump (std::ostream& os = cdebug);
 };
 
 class ST_path : public Path
@@ -110,6 +113,7 @@ class ST_path : public Path
 public:
 	string name;
 	ST_path (string name);
+	void dump (std::ostream& os = cdebug);
 };
 
 class Index_path : public Path
@@ -117,6 +121,7 @@ class Index_path : public Path
 public:
 	Index_path (string name);
 	string name;
+	void dump (std::ostream& os = cdebug);
 };
 
 

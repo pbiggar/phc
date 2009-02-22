@@ -34,6 +34,14 @@ Abstract_value::dump ()
 	cdebug << "}";
 }
 
+Types
+Abstract_value::get_types ()
+{
+	assert (type != TOP);
+	assert (type != BOTTOM);
+	return dyc<Type_cell> (type)->types;
+}
+
 Abstract_value*
 Abstract_value::from_literal (MIR::Literal* lit)
 {
@@ -51,5 +59,5 @@ Abstract_value::from_types (Types types)
 Abstract_value*
 Abstract_value::unknown ()
 {
-	return new Abstract_value (BOTTOM, BOTTOM);
+	return new Abstract_value (BOTTOM, new Type_cell (Type_inference::scalar_types));
 }

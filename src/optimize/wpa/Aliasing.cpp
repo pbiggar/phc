@@ -17,6 +17,7 @@
 #include "Points_to.h"
 #include "Aliasing.h"
 #include "optimize/Edge.h"
+#include "optimize/Abstract_value.h"
 
 using namespace MIR;
 using namespace boost;
@@ -157,7 +158,7 @@ Aliasing::kill_reference (Basic_block* bb, Alias_name lhs)
 
 
 void
-Aliasing::assign_storage (Basic_block* bb, Alias_name lhs, Alias_name storage, certainty cert)
+Aliasing::assign_storage (Basic_block* bb, Alias_name lhs, Alias_name storage, Types types, certainty cert)
 {
 	outs[bb->ID]->add_node (lhs.ind (), cert);
 	outs[bb->ID]->add_edge (lhs.ind (), storage.stor(), cert);
@@ -166,7 +167,7 @@ Aliasing::assign_storage (Basic_block* bb, Alias_name lhs, Alias_name storage, c
 void
 Aliasing::assign_scalar (Basic_block* bb, Alias_name lhs, Alias_name lhs_storage, Abstract_value* val, certainty cert)
 {
-	assign_storage (bb, lhs, lhs_storage, cert);
+	assign_storage (bb, lhs, lhs_storage, val->get_types(), cert);
 }
 
 void
@@ -260,11 +261,13 @@ Indexing::Indexing (Path* lhs, Path *rhs)
 ST_path::ST_path (string name)
 : name (name)
 {
+	assert (name != "");
 }
 
 Index_path::Index_path (string name)
 : name (name)
 {
+	assert (name != "");
 }
 
 Path*
@@ -286,20 +289,28 @@ P (string symtable, Node* in)
 
 		case Array_access::ID:
 		{
+			// (ST -> var) -> index
 			Array_access* aa = dyc<Array_access> (in);
 
-			return new Indexing (
-				P (symtable, aa->variable_name),
-				P (symtable, aa->index));
+			if (isa<VARIABLE_NAME> (aa->index))
+			{
+				return new Indexing (
+						P (symtable, aa->variable_name),
+						P (symtable, aa->index));
+			}
+			else
+			{
+				return new Indexing (
+						P (symtable, aa->variable_name),
+						// TODO: not get_value_as_string
+						new Index_path (*dyc<Literal> (aa->index)->get_value_as_string ()));
+			}
 		}
 
 		case Assign_array::ID:
 		{
 			Assign_array* aa = dyc<Assign_array> (in);
-
-			return new Indexing (
-				P (symtable, *aa->lhs->value),
-				P (symtable, aa->index));
+			return P (symtable, new Array_access (aa->lhs, aa->index));
 		}
 
 		case Unset::ID:
@@ -326,5 +337,24 @@ P (string symtable, Node* in)
 	}
 }
 
+void
+Indexing::dump (ostream& os)
+{
+	os << "(";
+	lhs->dump(os);
+	os << " -> ";
+	rhs->dump(os);
+	os << ")";
+}
 
+void
+ST_path::dump (ostream& os)
+{
+	os << name;
+}
 
+void
+Index_path::dump (ostream& os)
+{
+	os << name;
+}
