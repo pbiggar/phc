@@ -1477,11 +1477,13 @@ Whole_program::visit_bin_op (Statement_block* bb, MIR::Bin_op* in)
 	Abstract_value* left = get_abstract_value (bb, in->left);
 	Abstract_value* right = get_abstract_value (bb, in->right);
 
-	if (isa<Literal_cell> (left) && isa<Literal_cell> (right))
+	if (isa<Literal_cell> (left->lit) && isa<Literal_cell> (right->lit))
 	{
-		Literal* result = PHP::fold_bin_op (dyc<Literal_cell> (left)->value,
-														in->op,
-														dyc<Literal_cell> (right)->value);
+		Literal* result = PHP::fold_bin_op (
+					dyc<Literal_cell> (left->lit)->value,
+					in->op,
+					dyc<Literal_cell> (right->lit)->value);
+
 		assign_scalar (bb, saved_plhs, result);
 		return;
 	}
