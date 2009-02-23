@@ -30,15 +30,15 @@ class Type_inference : public WPA_lattice
 public:
 	Type_inference (Whole_program* wp);
 
-	void assign_scalar (Basic_block* bb, Alias_name lhs,
-							  Alias_name lhs_storage, Abstract_value* val, certainty cert);
+	void set_storage (Basic_block* bb, Storage_node* storage, Types types);
+	void set_scalar (Basic_block* bb, Abstract_node* storage,
+						  Abstract_value* val);
 
-	void assign_storage (Basic_block* bb, Alias_name lhs,
-								Alias_name storage, Types types, certainty cert);
+	// Fetch results
 
 	Types get_types (Basic_block* bb, Alias_name name);
 
-	// HACK - TMI
+	// HACK - TMI - TODO: i think we can kill this now.
 	void set_types (Basic_block* bb, Alias_name name, Types types);
 
 	static Types get_bin_op_types (Basic_block* bb, Abstract_value* left, Abstract_value* right, string op);

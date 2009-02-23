@@ -5,14 +5,15 @@
  * Conditional constant propagation.
  *
  * In theory this is Wegbreits conditional constant propagation, but I'm just
- * going to steal the implementation from SCCP, so its a step forward, and then
- * one back, which will probably land in about the same place.
+ * going to steal the implementation from SCCP, so its a step forward, and
+ * then one back, which will probably land in about the same place.
  *
  */
 
 #include "CCP.h"
 #include "optimize/SCCP.h"
 #include "optimize/Abstract_value.h"
+#include "Points_to.h"
 
 using namespace std;
 using namespace boost;
@@ -25,17 +26,16 @@ CCP::CCP (Whole_program* wp)
 
 
 void
-CCP::assign_scalar (Basic_block* bb, Alias_name lhs, Alias_name lhs_storage, Abstract_value* val, certainty cert)
+CCP::set_scalar (Basic_block* bb, Abstract_node* storage, Abstract_value* val)
 {
 	Lattice_map& lat = outs[bb->ID];
-	lat[lhs_storage.str()] = meet (lat[lhs_storage.str()], val->lit);
-	lat[lhs.str()] = meet (lat[lhs.str()], val->lit);
+	lat[storage->name().str()] = meet (lat[storage->name().str()], val->lit);
 }
 
 void
-CCP::assign_storage (Basic_block* bb, Alias_name lhs, Alias_name storage, Types types, certainty cert)
+CCP::set_storage (Basic_block* bb, Storage_node* storage, Types types)
 {
-	outs[bb->ID][lhs.str()] = BOTTOM;
+	outs[bb->ID][storage->name().str()] = BOTTOM;
 }
 
 
@@ -53,16 +53,15 @@ CCP::branch_known_true (Basic_block* bb, Alias_name cond)
 bool
 CCP::branch_known_false (Basic_block* bb, Alias_name cond)
 {
-	// TODO: TOP is NULL
-	Lattice_cell* cell = get_value (bb, cond);
+	// TODO: a value may have lots of actual values, all of which are true.
+	// Add a true/false analysis to handle it.
+	Literal* lit = get_lit (bb, cond);
 
-	if (cell == TOP)
-		return true;
-
-	if (cell == BOTTOM)
+	if (lit == NULL)
 		return false;
 
-	return (!PHP::is_true (dyc<Literal_cell> (cell)->value));
+	return (!PHP::is_true (lit));
+
 }
 
 

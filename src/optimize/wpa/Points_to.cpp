@@ -35,11 +35,6 @@ Points_to::Points_to ()
 void
 Points_to::open_scope (string scope_name)
 {
-	// TODO: Add the superglobals here. We currently add 'global' statements
-	// instead, which is wrong (and we have an example), but close enough for
-	// now. 
-
-	// TODO: this should really be done at a higher level anyway
 }
 
 void
@@ -148,33 +143,18 @@ Points_to::dump_graphviz (String* label, Basic_block* bb, Whole_program* wp)
 
 
 void
-Points_to::add_node (Index_node* index, certainty cert)
+Points_to::add_index (Index_node* index, certainty cert)
 {
-	Storage_node* st = SN (index->storage);
+	Storage_node* st = index->get_storage();
 
-	if (!contains (index))
+	if (!has_node (index))
 		add_edge (st, index, cert);
 	else
 	{
 		// Dont update in place!!
-
 		if (cert == DEFINITE)
 			set_pair_cert (get_edge (st, index), DEFINITE);
 	}
-}
-
-// Does the graph already contains this node.
-bool
-Points_to::contains (Index_node* index)
-{
-	// TODO: check its connected to a storage node
-	return has_node (index);
-}
-// Does the node have edges pointing to a storage node
-bool
-Points_to::has_value_edges (Index_node* source)
-{
-	return get_values (source, PTG_ALL)->size () != 0;
 }
 
 // Return a list of aliases which are references
@@ -186,9 +166,9 @@ Points_to::get_references (Index_node* index, certainty cert)
 
 // Get a list of aliases which are points-to.
 Storage_node_list*
-Points_to::get_values (Index_node* node, certainty cert)
+Points_to::get_values (Index_node* node)
 {
-	return get_targets <Storage_node> (node, cert);
+	return get_targets <Storage_node> (node, PTG_ALL);
 }
 
 void
@@ -205,11 +185,23 @@ Points_to::consistency_check ()
 
 			// If there is only one outgoing edges from an index, then it must be
 			// DEFINITE. If not, I'm not being careful with propagating CERTS.
-			Storage_node_list* values = get_values (ind, PTG_ALL);
+			Storage_node_list* values = get_values (ind);
 			if (values->size () == 1 && get_edge (ind, values->front())->cert != DEFINITE)
 				phc_internal_error ("Solo edge from %s to %s is not DEFINITE",
 										  ind->name().str().c_str(),
 										  values->front()->name().str().c_str());
+
+			// Check there isnt > 1 DEFINITE node
+			if (values->size () > 1)
+			{
+				foreach (Storage_node* st, *values)
+				{
+					if (get_edge (ind, st)->cert == DEFINITE)
+						phc_internal_error ("Multiple edges from %s, but edge to %s is DEFINITE",
+								ind->name().str().c_str(),
+								st->name().str().c_str());
+				}
+			}
 		}
 	}
 }
@@ -569,6 +561,25 @@ Index_node* FN (string scope, MIR::FIELD_NAME* field)
 	return IN (scope, *field->value);
 }
 
+Abstract_node*
+ABSVAL (Index_node* node)
+{
+	// we dont want to do this on an alias_name, or it'll be difficult.
+	return new Abstract_node (node);
+}
+
+Storage_node*
+BB_array_name (Basic_block* bb)
+{
+	return new Storage_node ("array_" + lexical_cast<string> (bb->ID));
+}
+
+Storage_node*
+BB_object_name (Basic_block* bb)
+{
+	return new Storage_node ("object_" + lexical_cast<string> (bb->ID));
+}
+
 
 
 
@@ -620,8 +631,8 @@ Index_node::get_storage ()
 	return new Storage_node (this->storage);
 }
 
-Abstract_node::Abstract_node (string owner)
-: Storage_node(owner)
+Abstract_node::Abstract_node (Index_node* owner)
+: Storage_node(owner->name().str())
 {
 	assert (storage != "");
 }

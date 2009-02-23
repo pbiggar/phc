@@ -20,11 +20,10 @@ class CCP : public WPA_lattice
 public:
 	CCP (Whole_program* wp);
 
-	void assign_scalar (Basic_block* bb, Alias_name lhs,
-							  Alias_name lhs_storage, Abstract_value* val, certainty cert);
+	void set_storage (Basic_block* bb, Storage_node* storage, Types types);
 
-	void assign_storage (Basic_block* bb, Alias_name lhs,
-								Alias_name storage, Types types, certainty cert);
+	void set_scalar (Basic_block* bb, Abstract_node* storage,
+						  Abstract_value* val);
 
 
 

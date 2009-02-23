@@ -79,8 +79,9 @@ Mark_initialized::visit_statement_block (Statement_block* bb)
 		&& unset->target == NULL
 		&& unset->array_indices->size () == 0)
 	{
-		local_undefs[bb].insert (
-			Alias_name (ST (bb), *dyc<VARIABLE_NAME> (unset->variable_name)->value));
+		phc_TODO ();
+//		local_undefs[bb].insert (
+//			Alias_name (ST (bb), *dyc<VARIABLE_NAME> (unset->variable_name)->value));
 	}
 	else
 	{

@@ -18,20 +18,23 @@ class Def_use : public WPA
 public:
 	Def_use (Whole_program* wp);
 
-	void kill_value (Basic_block* bb, Alias_name name);
-	void kill_reference (Basic_block* bb, Alias_name name);
+	void create_reference (Basic_block* bb, Index_node* lhs,
+								 Index_node* rhs, certainty cert);
 
-	void create_reference (Basic_block* bb, Alias_name lhs,
-								  Alias_name rhs, certainty cert);
+	void assign_value (Basic_block* bb, Index_node* lhs,
+							 Storage_node* storage, certainty cert);
 
-	void assign_scalar (Basic_block* bb, Alias_name lhs,
-							  Alias_name lhs_storage, Abstract_value* val,
-							  certainty cert);
+	// TODO: I dont think I need these... Wat about when I change the value of
+	// a scalar? I think there should be a call to assign_value?
+	void set_storage (Basic_block* bb, Storage_node* storage, Types types);
+	void set_scalar (Basic_block* bb, Abstract_node* storage,
+						  Abstract_value* val);
 
-	void assign_storage (Basic_block* bb, Alias_name lhs,
-							   Alias_name storage, Types types, certainty cert);
+	void kill_value (Basic_block* bb, Index_node* lhs);
+	void kill_reference (Basic_block* bb, Index_node* lhs);
 
-	void record_use (Basic_block* bb, Alias_name lhs, certainty cert);
+	void record_use (Basic_block* bb, Index_node* use, certainty cert);
+
 
 	void aggregate_results (Basic_block* bb);
 

@@ -58,7 +58,12 @@ string
 Alias_name::str ()
 {
 	stringstream ss;
-	ss << prefix << "::" << name;
+
+	if (prefix != "")
+		ss << prefix << "::";
+
+	ss << name;
+
 	if (ssa_version)
 		ss << "__v" << ssa_version;
 
@@ -82,32 +87,4 @@ Alias_name::set_version (int version)
 {
 	this->ssa_version = version;
 }
-
-/*
- * It seems that since we use Alias_name everywhere, we might not actually
- * need the Index_node and Storage_nodes. That may be the case. Currently,
- * the difference between the two is useful in Points_to::get_target. It
- * could probably be replaced with is_ind() instead, though. I'm in no rush
- * to do this.
- */
-Index_node*
-Alias_name::ind()
-{
-	assert (ssa_version == 0);
-	assert (prefix != SNP);
-	return new Index_node (prefix, name);
-}
-
-Storage_node*
-Alias_name::stor()
-{
-	// HACK: a very very bad hack, not a nice one at all.
-	assert (ssa_version == 0);
-	// cant say for sure what the prefix is here.
-	if (name == ABV)
-		return new Abstract_node (prefix);
-	else
-		return new Storage_node (name);
-}
-
 

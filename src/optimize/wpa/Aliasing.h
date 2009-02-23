@@ -25,11 +25,6 @@ DECL (Index_node);
 DECL (Storage_node);
 DECL (Abstract_node);
 
-Abstract_node* ABSVAL (Alias_name name);
-Storage_node* BB_array_name (Basic_block* bb);
-Storage_node* BB_object_name (Basic_block* bb);
-
-
 class Aliasing : public WPA
 {
 	// Record 1 per program-point.
@@ -44,19 +39,24 @@ public:
 
 	void backward_bind (Basic_block* caller, Exit_block* exit);
 
-	void create_reference (Basic_block* bb, Alias_name lhs,
-								  Alias_name rhs, certainty cert);
+	void create_reference (Basic_block* bb, Index_node* lhs,
+								 Index_node* rhs, certainty cert);
 
-	void assign_scalar (Basic_block* bb, Alias_name lhs,
-							  Alias_name lhs_storage, Abstract_value* val,
-							  certainty cert);
+	void assign_value (Basic_block* bb, Index_node* lhs,
+							 Storage_node* storage, certainty cert);
 
-	void assign_storage (Basic_block* bb, Alias_name lhs,
-							   Alias_name storage, Types types, certainty cert);
+	// Create STORAGE, with the gives TYPES.
+	void set_storage (Basic_block* bb, Storage_node* storage,
+							Types types);
 
-	void kill_value (Basic_block* bb, Alias_name lhs);
+	// Create STORAGE, an abstract value with the given types.
+	void set_scalar (Basic_block* bb, Abstract_node* storage,
+						  Abstract_value* val);
 
-	void kill_reference (Basic_block* bb, Alias_name lhs);
+
+	void kill_value (Basic_block* bb, Index_node* lhs);
+
+	void kill_reference (Basic_block* bb, Index_node* lhs);
 
 
 	void pull_init (Basic_block* bb);
@@ -75,17 +75,15 @@ public:
 	 * Take information from Alias results
 	 */
 
-	// Give access to aliasing results
 	Index_node_list* get_references (Basic_block*, Index_node* index,
 												certainty cert);
 
-	Storage_node_list* get_values (Basic_block*, Index_node* index,
-											 certainty cert);
+	Storage_node_list* get_values (Basic_block*, Index_node* index);
 
 private:
 	// TODO: i think i'll be removing this...
-	void add_all_points_to_edges (Basic_block* bb, Alias_name lhs,
-											Alias_name rhs, certainty cert);
+	void add_all_points_to_edges (Basic_block* bb, Index_node* lhs,
+											Index_node* rhs, certainty cert);
 
 };
 

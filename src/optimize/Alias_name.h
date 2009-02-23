@@ -22,21 +22,6 @@
 #ifndef PHC_ALIAS_NAME
 #define PHC_ALIAS_NAME
 
-#define CFG_ST(CFG) (*(CFG)->method->signature->method_name->value)
-#define ST(BB) (CFG_ST ((BB)->cfg))
-
-// Storage node prefix
-#define SNP "ST"
-
-// Abstract_value suffix
-#define ABV "ABV"
-
-// Return value's name
-#define RETNAME "__RETNAME__"
-
-// Main storage node
-#define MSN "__MAIN__"
-
 // TODO where are parameter names defined.
 
 #include <string>
@@ -54,16 +39,6 @@ public:
 	std::string prefix;
 	std::string name;
 	int ssa_version;
-
-	// Get an index onde with the same name. Checks that this is legal, and
-	// that we arent in SSA form.
-	Index_node* ind();
-
-	// TODO: this is hacky
-	// Originally, we only needed to convert alias_names to index_nodes, but
-	// that's no longer the case. So we have two full representations of nodes:
-	// alias_names and Storage_/Index_nodes.
-	Storage_node* stor();
 
 	bool operator< (const Alias_name& other) const;
 	bool operator== (const Alias_name& other) const;

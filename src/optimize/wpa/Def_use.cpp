@@ -10,6 +10,7 @@
  */
 
 #include "Def_use.h"
+#include "Points_to.h"
 
 using namespace std;
 using namespace boost;
@@ -73,15 +74,15 @@ Def_use::dump(Basic_block* bb, string comment)
  * Kills
  */
 void
-Def_use::kill_value (Basic_block* bb, Alias_name lhs)
+Def_use::kill_value (Basic_block* bb, Index_node* lhs)
 {
-	val_assignment (bb, lhs, DEFINITE);
+	val_assignment (bb, lhs->name(), DEFINITE);
 }
 
 void
-Def_use::kill_reference (Basic_block* bb, Alias_name lhs)
+Def_use::kill_reference (Basic_block* bb, Index_node* lhs)
 {
-	ref_assignment (bb, lhs, DEFINITE);
+	ref_assignment (bb, lhs->name(), DEFINITE);
 }
 
 /* Simple assignments */
@@ -120,31 +121,39 @@ Def_use::ref_assignment (Basic_block* bb, Alias_name lhs, certainty cert)
 
 /* Assignments with RHSs */
 void
-Def_use::assign_scalar (Basic_block* bb, Alias_name lhs, Alias_name lhs_storage, Abstract_value* val, certainty cert)
+Def_use::set_scalar (Basic_block* bb, Abstract_node* storage, Abstract_value* val)
 {
-	val_assignment (bb, lhs, cert);
+	// TODO: I think we dont need this
+	val_assignment (bb, storage->name(), DEFINITE);
 }
 
 void
-Def_use::assign_storage (Basic_block* bb, Alias_name lhs, Alias_name storage_name, Types types, certainty cert)
+Def_use::set_storage (Basic_block* bb, Storage_node* storage, Types types)
 {
-	val_assignment (bb, lhs, cert);
+	// TODO: I think we dont need this
+	val_assignment (bb, storage->name(), DEFINITE);
 }
 
 void
-Def_use::create_reference (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert)
+Def_use::assign_value (Basic_block* bb, Index_node* lhs, Storage_node* storage_name, certainty cert)
 {
-	ref_assignment (bb, lhs, cert);
-	ref_uses[bb->ID].insert (rhs);
-	val_uses[bb->ID].insert (rhs);
+	val_assignment (bb, lhs->name(), cert);
+}
+
+void
+Def_use::create_reference (Basic_block* bb, Index_node* lhs, Index_node* rhs, certainty cert)
+{
+	ref_assignment (bb, lhs->name(), cert);
+	ref_uses[bb->ID].insert (rhs->name());
+	val_uses[bb->ID].insert (rhs->name());
 }
 
 
 void
-Def_use::record_use (Basic_block* bb, Alias_name use, certainty cert)
+Def_use::record_use (Basic_block* bb, Index_node* use, certainty cert)
 {
 	// This is always by value (I think)
-	val_uses[bb->ID].insert (use);
+	val_uses[bb->ID].insert (use->name());
 }
 
 

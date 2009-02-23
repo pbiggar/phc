@@ -15,6 +15,9 @@
 class Whole_program;
 class Points_to;
 class Abstract_value;
+class Abstract_node;
+class Index_node;
+class Storage_node;
 
 /*
  * Must- or may- information.
@@ -25,6 +28,22 @@ typedef enum _certainty certainty;
 certainty combine_certs (certainty c1, certainty c2);
 
 #define UNKNOWN "*"
+
+#define CFG_ST(CFG) (*(CFG)->method->signature->method_name->value)
+#define ST(BB) (CFG_ST ((BB)->cfg))
+
+// Storage node prefix
+#define SNP "ST"
+
+// Abstract_value suffix
+#define ABV "ABV"
+
+// Return value's name
+#define RETNAME "__RETNAME__"
+
+// Main storage node
+#define MSN "__MAIN__"
+
 
 typedef Set<string> Types;
 
@@ -73,31 +92,33 @@ public:
 
 	// This creates a reference between lhs and rhs. Values are propagated
 	// separately.
-	virtual void create_reference (Basic_block* bb, Alias_name lhs,
-											 Alias_name rhs, certainty cert) CT_IMPL;
+	virtual void create_reference (Basic_block* bb, Index_node* lhs,
+											 Index_node* rhs, certainty cert) CT_IMPL;
 
 	// It might seem that copying should naturally be included here, but
 	// actually copying is has context-dependant semantics, and instead calls
 	// the lower-level functions here.
 
-	// Assignment from a scalar VAL to LHS. LHS will be the ABSVAL name for
-	// the variable, not the name of the variable.
-	virtual void assign_scalar (Basic_block* bb, Alias_name lhs,
-										 Alias_name lhs_storage, Abstract_value* val,
-										 certainty cert) CT_IMPL;
+	// LHS has a value taken from STORAGE. STORAGE must already exist.
+	virtual void assign_value (Basic_block* bb, Index_node* lhs,
+										Storage_node* storage, certainty cert) CT_IMPL;
 
-	// LHS points to STORAGE. STORAGE may be a new node, but has type TYPES.
-	virtual void assign_storage (Basic_block* bb, Alias_name lhs,
-										  Alias_name storage, Types types, certainty cert) CT_IMPL;
+	// Create STORAGE, with the gives TYPES.
+	virtual void set_storage (Basic_block* bb, Storage_node* storage,
+									  Types types) CT_IMPL;
+
+	// Create STORAGE, an abstract value with the given types.
+	virtual void set_scalar (Basic_block* bb, Abstract_node* storage,
+									 Abstract_value* val) CT_IMPL;
 
 	/*
 	 * Killing values
 	 */
 
-	virtual void kill_value (Basic_block* bb, Alias_name lhs) CT_IMPL;
+	virtual void kill_value (Basic_block* bb, Index_node* lhs) CT_IMPL;
 
 	// Kill name's reference set. Kill_value will be called separately.
-	virtual void kill_reference (Basic_block* bb, Alias_name lhs) CT_IMPL;
+	virtual void kill_reference (Basic_block* bb, Index_node* lhs) CT_IMPL;
 
 
 	/*
@@ -105,7 +126,7 @@ public:
 	 */
 
 	// There has been a use of USE, with the certainty CERT.
-	virtual void record_use (Basic_block* bb, Alias_name use,
+	virtual void record_use (Basic_block* bb, Index_node* use,
 									 certainty cert) CT_IMPL;
 
 

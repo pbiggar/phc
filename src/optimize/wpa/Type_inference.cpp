@@ -6,10 +6,12 @@
  *
  */
 
+#include "MIR.h"
+
+#include "Whole_program.h"
 #include "Type_inference.h"
 #include "optimize/Abstract_value.h"
-#include "Whole_program.h"
-#include "MIR.h"
+#include "Points_to.h"
 
 using namespace MIR;
 using namespace std;
@@ -21,22 +23,19 @@ Type_inference::Type_inference (Whole_program* wp)
 }
 
 void
-Type_inference::assign_scalar (Basic_block* bb, Alias_name lhs, Alias_name lhs_storage, Abstract_value* val, certainty cert)
+Type_inference::set_scalar (Basic_block* bb, Abstract_node* storage, Abstract_value* val)
 {
 	Lattice_map& lat = outs[bb->ID];
-
-	// If theres a literal, there will be a type.
-	lat[lhs.str()] = meet (lat[lhs.str()], val->type);
-	lat[lhs_storage.str()] = meet (lat[lhs_storage.str()], val->type);
+	string name = storage->name().str();
+	lat[name] = meet (lat[name], val->type);
 }
 
 void
-Type_inference::assign_storage (Basic_block* bb, Alias_name lhs, Alias_name storage, Types types, certainty cert)
+Type_inference::set_storage (Basic_block* bb, Storage_node* storage, Types types)
 {
 	Lattice_map& lat = outs[bb->ID];
-
-	lat[lhs.str()] = meet (lat[lhs.str()], new Type_cell (types));
-	lat[storage.str()] = meet (lat[storage.str()], new Type_cell (types));
+	string name = storage->name().str();
+	lat[name] = meet (lat[name], new Type_cell (types));
 }
 
 

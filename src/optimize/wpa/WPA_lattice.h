@@ -22,7 +22,11 @@ public:
 	void forward_bind (Basic_block* caller, Entry_block* entry);
 	void backward_bind (Basic_block* context, Exit_block* exit);
 
-	void kill_value (Basic_block* bb, Alias_name name);
+	void kill_value (Basic_block* bb, Index_node* lhs);
+
+	void assign_value (Basic_block* bb, Index_node* lhs,
+							 Storage_node* storage, certainty cert);
+
 
 	void pull_init (Basic_block* bb);
 	void pull_first_pred (Basic_block* bb, Basic_block* pred);
@@ -34,6 +38,7 @@ public:
 	bool equals (WPA* other);
 	void dump (Basic_block* bb, string comment);
 
+	// Get results
 	Lattice_cell* get_value (Basic_block* bb, Alias_name name);
 
 private:

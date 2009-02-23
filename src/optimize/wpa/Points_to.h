@@ -31,6 +31,11 @@ Index_node* VN (string scope, MIR::VARIABLE_NAME*);
 Index_node* FN (string scope, MIR::FIELD_NAME*);
 //Index_node* AN (string scope, string array_index); TODO arrays
 
+Abstract_node* ABSVAL (Index_node* node);
+Storage_node* BB_array_name (Basic_block* bb);
+Storage_node* BB_object_name (Basic_block* bb);
+
+
 
 // A node in the graph (ie the abstract base of the components of an
 // alias-pair).
@@ -95,7 +100,7 @@ public:
 class Abstract_node : public Storage_node
 {
 public:
-	Abstract_node (string owner);
+	Abstract_node (Index_node* owner);
 
 	Alias_name name ();
 
@@ -150,8 +155,6 @@ public:
 	void open_scope (string name);
 	void close_scope (string name);
 
-	bool contains (Index_node* node);
-	bool has_value_edges (Index_node* node);
 	void insert (Alias_pair*);
 
 	// Dont update a pair in-place. This removes the pair, and adds a pair
@@ -161,8 +164,7 @@ public:
 	Index_node_list* get_references (Index_node* index,
 												certainty cert);
 
-	Storage_node_list* get_values (Index_node* index,
-											 certainty cert);
+	Storage_node_list* get_values (Index_node* index);
 
 	void consistency_check ();
 
@@ -170,8 +172,8 @@ public:
 	/*
 	 * Lower-level API
 	 */
-	// Adds an edge between the storage node and the index_node.
-	void add_node (Index_node* node, certainty);
+
+	void add_index (Index_node* node, certainty);
 	void add_edge (PT_node* n1, PT_node* n2, certainty);
 	void add_bidir_edge (PT_node* n1, PT_node* n2, certainty cert);
 

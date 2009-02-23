@@ -211,7 +211,7 @@ public:
 
 
 	// Get anything the path can point to, and all nodes that they may reference.
-	List<Alias_name>* get_all_referenced_names (Basic_block* bb, Path* path, bool record_uses = false);
+	Index_node_list* get_all_referenced_names (Basic_block* bb, Path* path, bool record_uses = false);
 
 
 	// Most pesimistic case

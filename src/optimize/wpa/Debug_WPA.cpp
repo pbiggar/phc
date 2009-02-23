@@ -1,5 +1,15 @@
+/*
+ * phc -- the open source PHP compiler
+ * See doc/license/README.license for licensing information
+ *
+ * A simple pass printing debugging information. The idea is that you can use
+ * --debug=debug-wpa to see what Whole_program is calling.
+ */
+
+
 #include "Debug_WPA.h"
 #include "optimize/Abstract_value.h"
+#include "Points_to.h"
 
 using namespace std;
 
@@ -39,71 +49,73 @@ Debug_WPA::backward_bind (Basic_block* caller, Exit_block* exit)
 
 
 void
-Debug_WPA::create_reference (Basic_block* bb, Alias_name lhs,
-									  Alias_name rhs, certainty cert)
+Debug_WPA::create_reference (Basic_block* bb, Index_node* lhs,
+									  Index_node* rhs, certainty cert)
 {
 	DEBUG (__FUNCTION__
-			<< ": " << lhs.str ()
-			<< ", " << rhs.str ()
+			<< ": " << lhs->name().str ()
+			<< ", " << rhs->name().str ()
 			<< ", " << cert_to_string (cert));
 }
 
 void
-Debug_WPA::assign_scalar (Basic_block* bb, Alias_name lhs, Alias_name lhs_storage,
-								 Abstract_value* val, certainty cert)
+Debug_WPA::set_scalar (Basic_block* bb, Abstract_node* storage, Abstract_value* val)
 {
 	CHECK_DEBUG ();
 
 	cdebug
 	<< __FUNCTION__ << ": "
-	<< lhs.str () << ", "
-	<< lhs_storage.str () << ", ";
+	<< storage->name().str () << ", ";
 
 	val->dump();
 
-	cdebug
-	<< ", " << cert_to_string (cert)
-	<< endl;
+	cdebug << endl;
 }
 
 void
-Debug_WPA::assign_storage (Basic_block* bb, Alias_name lhs,
-									Alias_name storage, Types types, certainty cert)
+Debug_WPA::set_storage (Basic_block* bb, Storage_node* storage, Types types)
 {
 	CHECK_DEBUG ();
 
 	cdebug
 	<< __FUNCTION__
-	<< ": " << lhs.str ()
-	<< ", " << storage.str ()
+	<< ", " << storage->name().str ()
 	<< ", (";
 
 	(new Type_cell(types))->dump (cdebug);
 
-	cdebug << "), " << cert_to_string (cert) << endl;
+	cdebug << "), " << endl;
+}
+
+void
+Debug_WPA::assign_value (Basic_block* bb, Index_node* lhs, Storage_node* storage, certainty cert)
+{
+	DEBUG (__FUNCTION__
+	<< ", " << lhs->name().str ()
+	<< ", " << storage->name().str ()
+	<< ", " << cert_to_string (cert));
 }
 
 
 void
-Debug_WPA::kill_value (Basic_block* bb, Alias_name lhs)
+Debug_WPA::kill_value (Basic_block* bb, Index_node* lhs)
 {
 	DEBUG (__FUNCTION__
-		<< ": " << lhs.str ());
+		<< ": " << lhs->name().str ());
 }
 
 void
-Debug_WPA::kill_reference (Basic_block* bb, Alias_name lhs)
+Debug_WPA::kill_reference (Basic_block* bb, Index_node* lhs)
 {
 	DEBUG (__FUNCTION__
-		<< ": " << lhs.str ());
+		<< ": " << lhs->name().str ());
 }
 	
 void
-Debug_WPA::record_use (Basic_block* bb, Alias_name use,
-									 certainty cert)
+Debug_WPA::record_use (Basic_block* bb, Index_node* use, certainty cert)
 {
 	DEBUG (__FUNCTION__
-		<< ": " << use.str ()
+		<< ": " << use->name().str ()
 		<< ", " << cert_to_string (cert));
 }
 

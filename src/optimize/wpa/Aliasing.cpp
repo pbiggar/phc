@@ -23,25 +23,6 @@ using namespace MIR;
 using namespace boost;
 using namespace std;
 
-Abstract_node*
-ABSVAL (Alias_name name)
-{
-	return new Abstract_node (name.str());
-}
-
-Storage_node*
-BB_array_name (Basic_block* bb)
-{
-	return new Storage_node ("array_" + lexical_cast<string> (bb->ID));
-}
-
-Storage_node*
-BB_object_name (Basic_block* bb)
-{
-	return new Storage_node ("object_" + lexical_cast<string> (bb->ID));
-}
-
-
 Aliasing::Aliasing (Whole_program* wp)
 : WPA(wp)
 {
@@ -76,6 +57,7 @@ Aliasing::forward_bind (Basic_block* caller, Entry_block* entry)
 	else
 		ptg = ins[caller->ID]->clone ();
 
+	ptg->consistency_check ();
 	// We need INS to read the current situation, but it shouldnt get modified.
 	ins[entry->ID] = ptg;
 	outs[entry->ID] = ptg;
@@ -131,53 +113,54 @@ Aliasing::aggregate_results (Basic_block* bb)
 }
 
 void
-Aliasing::kill_value (Basic_block* bb, Alias_name lhs)
+Aliasing::kill_value (Basic_block* bb, Index_node* lhs)
 {
 	Points_to* ptg = outs[bb->ID];
-	ptg->add_node (lhs.ind(), DEFINITE);
+	ptg->add_index (lhs, DEFINITE);
 
-	foreach (Storage_node* value, *ptg->get_values (lhs.ind(), PTG_ALL))
+	foreach (Storage_node* value, *ptg->get_values (lhs))
 	{
-		ptg->remove_pair (lhs.ind(), value);
+		ptg->remove_pair (lhs, value);
 	}
 }
 
 // Remove all references edges into or out of INDEX. Also call kill_value.
 void
-Aliasing::kill_reference (Basic_block* bb, Alias_name lhs)
+Aliasing::kill_reference (Basic_block* bb, Index_node* lhs)
 {
 	Points_to* ptg = outs[bb->ID];
-	ptg->add_node (lhs.ind(), DEFINITE);
+	ptg->add_index (lhs, DEFINITE);
 
-	foreach (Index_node* other, *ptg->get_references (lhs.ind(), PTG_ALL))
+	foreach (Index_node* other, *ptg->get_references (lhs, PTG_ALL))
 	{
-		ptg->remove_pair (lhs.ind(), other);
-		ptg->remove_pair (other, lhs.ind());
+		ptg->remove_pair (lhs, other);
+		ptg->remove_pair (other, lhs);
 	}
 }
 
 
 void
-Aliasing::assign_storage (Basic_block* bb, Alias_name lhs, Alias_name storage, Types types, certainty cert)
+Aliasing::set_storage (Basic_block* bb, Storage_node* storage, Types types)
 {
-	outs[bb->ID]->add_node (lhs.ind (), cert);
-	outs[bb->ID]->add_edge (lhs.ind (), storage.stor(), cert);
+	// While it seems like we should be adding a node here, the graph doesnt
+	// actually have nodes, only edges, so we cant add anything.
+}
+
+
+void
+Aliasing::set_scalar (Basic_block* bb, Abstract_node* storage, Abstract_value* val)
+{
+	// See set storage
 }
 
 void
-Aliasing::assign_scalar (Basic_block* bb, Alias_name lhs, Alias_name lhs_storage, Abstract_value* val, certainty cert)
-{
-	assign_storage (bb, lhs, lhs_storage, val->get_types(), cert);
-}
-
-void
-Aliasing::create_reference (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert)
+Aliasing::create_reference (Basic_block* bb, Index_node* lhs, Index_node* rhs, certainty cert)
 {
 	phc_TODO ();
 	Points_to* ptg = outs[bb->ID];
 
-	ptg->add_node (lhs.ind(), cert);
-	ptg->add_node (rhs.ind(), cert);
+	ptg->add_index (lhs, DEFINITE);
+	ptg->add_index (rhs, DEFINITE);
 
 	// Transitive closure for points-to edges
 	add_all_points_to_edges (bb, lhs, rhs, cert);
@@ -186,18 +169,24 @@ Aliasing::create_reference (Basic_block* bb, Alias_name lhs, Alias_name rhs, cer
 	certainty certainties[] = {POSSIBLE, DEFINITE};
 	foreach (certainty edge_cert, certainties)
 	{
-		Index_node_list* pts = ptg->get_references (rhs.ind (), edge_cert);
+		Index_node_list* pts = ptg->get_references (rhs, edge_cert);
 		foreach (Index_node* in, *pts)
-			ptg->add_bidir_edge (lhs.ind(), in,
+			ptg->add_bidir_edge (lhs, in,
 				combine_certs (cert, edge_cert));
 	}
 
 
-	ptg->add_bidir_edge (lhs.ind(), rhs.ind(), cert);
+	ptg->add_bidir_edge (lhs, rhs, cert);
 }
 
 void
-Aliasing::add_all_points_to_edges (Basic_block* bb, Alias_name lhs, Alias_name rhs, certainty cert)
+Aliasing::assign_value (Basic_block* bb, Index_node* lhs, Storage_node* storage, certainty cert)
+{
+	outs[bb->ID]->add_edge (lhs, storage, cert);
+}
+
+void
+Aliasing::add_all_points_to_edges (Basic_block* bb, Index_node* lhs, Index_node* rhs, certainty cert)
 {
 	// Do not copy the abstract value!!!
 	phc_TODO ();
@@ -205,9 +194,9 @@ Aliasing::add_all_points_to_edges (Basic_block* bb, Alias_name lhs, Alias_name r
 	certainty certainties[] = {POSSIBLE, DEFINITE};
 	foreach (certainty edge_cert, certainties)
 	{
-		Storage_node_list* pts = ins[bb->ID]->get_values (rhs.ind (), edge_cert);
+		Storage_node_list* pts = ins[bb->ID]->get_values (rhs);
 		foreach (Storage_node* st, *pts)
-			outs[bb->ID]->add_edge (lhs.ind (), st, combine_certs (edge_cert, cert));
+			outs[bb->ID]->add_edge (lhs, st, combine_certs (edge_cert, cert));
 	}
 }
 
@@ -221,16 +210,17 @@ Aliasing::get_references (Basic_block* bb, Index_node* index,
 }
 
 Storage_node_list*
-Aliasing::get_values (Basic_block* bb, Index_node* index, certainty cert)
+Aliasing::get_values (Basic_block* bb, Index_node* index)
 {
 	Points_to* ptg = ins[bb->ID];
-	Storage_node_list* result = ptg->get_values (index, cert);
+	Storage_node_list* result = ptg->get_values (index);
 
 	// It may be that the index_node itself is only possibly defined (or yet not
 	// defined, even). In this case, we need an abstract value.
 	Alias_pair* edge = ptg->get_edge (index->get_storage(), index);
-	if (edge == NULL || edge->cert == POSSIBLE)
-		result->push_back (ABSVAL (index->name ()));
+	assert (edge);
+	if (edge->cert == POSSIBLE)
+		result->push_back (ABSVAL (index));
 
 	return result;
 }

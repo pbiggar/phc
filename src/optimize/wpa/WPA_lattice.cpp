@@ -11,6 +11,7 @@
  */
 
 #include "WPA_lattice.h"
+#include "Points_to.h"
 
 using namespace std;
 using namespace boost;
@@ -80,11 +81,19 @@ WPA_lattice::dump(Basic_block* bb, string comment)
  */
 
 void
-WPA_lattice::kill_value (Basic_block* bb, Alias_name lhs)
+WPA_lattice::kill_value (Basic_block* bb, Index_node* lhs)
 {
-	outs[bb->ID][lhs.str()] = TOP;
+	outs[bb->ID][lhs->name().str()] = TOP;
+	outs[bb->ID][ABSVAL (lhs)->name().str()] = TOP;
 }
 
+void
+WPA_lattice::assign_value (Basic_block* bb, Index_node* lhs, Storage_node* storage, certainty cert)
+{
+	Lattice_map& lat = outs[bb->ID];
+	string name = lhs->name().str();
+	lat[name] = meet (lat[name], lat[storage->name().str()]);
+}
 
 void
 WPA_lattice::pull_init (Basic_block* bb)

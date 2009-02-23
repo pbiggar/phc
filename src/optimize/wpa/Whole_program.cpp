@@ -7,16 +7,16 @@
  * Design of the whole-program optimizer
  *
  *		1. Perform flow-sensitive, context-sensitive, object-sensitive,
- *		field-sensitive analysis. When analysing a function in multiple contexts,
- *		clone the function, and store the clones in the call-graph. 
+ *		field-sensitive analysis. When analysing a function in multiple
+ *		contexts, clone the function, and store the clones in the call-graph. 
  *
  *		2. The analyses provide feedback to the Whole-program analyser. They
  *		resolve types to reduce reduce conservatism at call sites and for call
  *		handlers, and help resolve branches.
  *
  *		3. After the analysis is complete, each function will have one set of
- *		results at each program-point, for each context. These contexts are then
- *		merged.
+ *		results at each program-point, for each context. These contexts are
+ *		then merged.
  *
  *		4. Once merged, the combined alias-solution is used to annotate the
  *		results for SSA, and local optimizations are run on each function
@@ -303,12 +303,12 @@ Whole_program::get_branch_successors (Branch_block* bb)
 {
 	Edge_list* result = new Edge_list;
 
-	Alias_name cond = VN (ST (bb), bb->branch->variable_name)->name ();
+	Index_node* cond = VN (ST (bb), bb->branch->variable_name);
 
-	if (!ccp->branch_known_true (bb, cond))
+	if (!ccp->branch_known_true (bb, cond->name()))
 		result->push_back (bb->get_false_successor_edge ());
 
-	if (!ccp->branch_known_false (bb, cond))
+	if (!ccp->branch_known_false (bb, cond->name()))
 		result->push_back (bb->get_true_successor_edge ());
 
 	return result;
@@ -806,19 +806,15 @@ Whole_program::kill_value (Basic_block* bb, Path* plhs)
 	if (!is_must (lhss))
 		return POSSIBLE;
 
-	// Fetch each reference of LHS, and kill them.
-	Index_node* lhs = lhss->front ();
-	
+
 	// There shoudlnt be any may-refs.
-	assert (aliasing->get_references (bb, lhs, POSSIBLE)->empty());
+	assert (aliasing->get_references (bb ,lhss->front (), POSSIBLE)->empty());
 
-	foreach (Index_node* ref, *aliasing->get_references (bb, lhs, DEFINITE))
+	foreach (Index_node* node, *get_all_referenced_names (bb, plhs))
 		foreach_wpa (this)
-			wpa->kill_value (bb, ref->name ());
-
-	// Handle LHS itself
-	foreach_wpa (this)
-		wpa->kill_value (bb, lhs->name ());
+		{
+			wpa->kill_value (bb, node);
+		}
 
 	return DEFINITE;
 }
@@ -840,7 +836,7 @@ Whole_program::assign_by_ref (Basic_block* bb, Path* plhs, Path* prhs)
 		if (killable) // only 1 result
 		{
 			foreach_wpa (this)
-				wpa->kill_reference (bb, lhs->name ());
+				wpa->kill_reference (bb, lhs);
 		}
 
 		// We don't need to worry about propagating values to LHSS' aliases, as
@@ -851,8 +847,8 @@ Whole_program::assign_by_ref (Basic_block* bb, Path* plhs, Path* prhs)
 			foreach_wpa (this)
 			{
 				wpa->create_reference (bb,
-					lhs->name (),
-					rhs->name (),
+					lhs,
+					rhs,
 					(killable && is_must (rhss)) ? DEFINITE : POSSIBLE);
 
 				phc_TODO ();
@@ -870,12 +866,14 @@ void
 Whole_program::assign_scalar (Basic_block* bb, Path* plhs, Literal* lit)
 {
 	certainty cert = kill_value (bb, plhs);
-	foreach (Alias_name name, *get_all_referenced_names (bb, plhs))
+	foreach (Index_node* node, *get_all_referenced_names (bb, plhs))
 	{
 		foreach_wpa (this)
 		{
-			wpa->assign_scalar (bb, name, ABSVAL (name)->name(),
-					Abstract_value::from_literal (lit), cert);
+			wpa->set_scalar (bb, ABSVAL (node),
+					Abstract_value::from_literal (lit));
+
+			wpa->assign_value (bb, node, ABSVAL (node), DEFINITE);
 		}
 	}
 }
@@ -889,13 +887,20 @@ Whole_program::assign_typed (Basic_block* bb, Path* plhs, Types types)
 	Types objects = Type_inference::get_object_types (types);
 
 	certainty cert = kill_value (bb, plhs);
-	foreach (Alias_name name, *get_all_referenced_names (bb, plhs))
+	foreach (Index_node* node, *get_all_referenced_names (bb, plhs))
 	{
+		Alias_name name = node->name();
 		foreach_wpa (this)
 		{
 			if (scalars.size ())
-				wpa->assign_scalar (bb, name, ABSVAL (name)->name(),
-						Abstract_value::from_types (scalars), cert);
+			{
+				wpa->set_scalar (bb, ABSVAL (node),
+						Abstract_value::from_types (scalars));
+
+				wpa->assign_value (bb, node, ABSVAL(node), cert);
+			}
+
+
 
 			if (array.size ())
 				phc_TODO ();
@@ -916,11 +921,12 @@ void
 Whole_program::assign_empty_array (Basic_block* bb, Path* plhs, string unique_name)
 {
 	certainty cert = kill_value (bb, plhs);
-	foreach (Alias_name name, *get_all_referenced_names (bb, plhs))
+	foreach (Index_node* node, *get_all_referenced_names (bb, plhs))
 	{
 		foreach_wpa (this)
 		{
-			wpa->assign_storage (bb, name, SN(unique_name)->name(), Types ("array"), cert);
+			wpa->set_storage (bb, SN(unique_name), Types ("array"));
+			wpa->assign_value (bb, node, SN(unique_name), cert);
 		}
 	}
 }
@@ -936,7 +942,7 @@ Whole_program::assign_unknown (Basic_block* bb, Path* plhs)
 
 	// Unknown may be an array, a scalar or an object, all of which have
 	// different properties. We must be careful to separate these.
-	foreach (Alias_name name, *get_all_referenced_names (bb, plhs))
+	foreach (Index_node* node, *get_all_referenced_names (bb, plhs))
 	{
 		// When assigning to different references:
 		//		- scalar values are copied (though they are conceptually shared,
@@ -945,14 +951,21 @@ Whole_program::assign_unknown (Basic_block* bb, Path* plhs)
 		//		- the object is shared, and will have a unique name.
 		foreach_wpa (this)
 		{
-			// TODO should these be empty?
-			wpa->assign_scalar (bb, name, ABSVAL (name)->name(),
-									  Abstract_value::unknown (), POSSIBLE);
+			// TODO: this is really not good enough. The array looks empty, the
+			// object may reference anything. I suspect this is only suitable
+			// for _SESSION, when nothing else really exists. Even then, the
+			// array and object shouldnt be empty. It might be sufficient to
+			// have UNKNOWN fields pointing to themselves, and marking them as
+			// abstract.
 
-			wpa->assign_storage (bb, name, BB_array_name (bb)->name(), Types ("array"), POSSIBLE);
+			wpa->set_scalar (bb, ABSVAL (node), Abstract_value::unknown ());
+			wpa->assign_value (bb, node, ABSVAL(node), POSSIBLE);
 
-			// TODO: replace with an assignment of an object of an unknown type.
-			wpa->assign_storage (bb, name, BB_object_name (bb)->name(), Types ("object"), POSSIBLE);
+			wpa->set_storage (bb, BB_array_name (bb), Types ("array"));
+			wpa->assign_value (bb, node, BB_array_name (bb), POSSIBLE);
+
+			wpa->set_storage (bb, BB_object_name (bb), Types ("object"));
+			wpa->assign_value (bb, node, BB_object_name (bb), POSSIBLE);
 		}
 	}
 }
@@ -982,14 +995,14 @@ Whole_program::assign_by_copy (Basic_block* bb, Path* plhs, Path* prhs)
 	if (rhss->size () > 1)
 		cert = POSSIBLE;
 
-	foreach (Alias_name name, *get_all_referenced_names (bb, plhs))
+	foreach (Index_node* node, *get_all_referenced_names (bb, plhs))
 	{
 		foreach_wpa (this)
 		{
 			foreach (Index_node* rhs, *rhss)
 			{
 				// Get the value for each RHS. Copy it using the correct semantics.
-				Storage_node_list* values = aliasing->get_values (bb, rhs, PTG_ALL);
+				Storage_node_list* values = aliasing->get_values (bb, rhs);
 
 				// If there is more than 1 value, it can't be definite.
 				if (values->size () > 1)
@@ -1010,8 +1023,10 @@ Whole_program::assign_by_copy (Basic_block* bb, Path* plhs, Path* prhs)
 
 					if (scalars.size())
 					{
-						wpa->assign_scalar (bb, name, ABSVAL (name)->name(),
-								get_abstract_value (bb, st->name()), cert);
+						wpa->set_scalar (bb, ABSVAL (node),
+								get_abstract_value (bb, st->name()));
+
+						wpa->assign_value (bb, node, ABSVAL (node), cert);
 					}
 
 					if (array.size())
@@ -1030,7 +1045,7 @@ Whole_program::assign_by_copy (Basic_block* bb, Path* plhs, Path* prhs)
 }
 
 void
-Whole_program::record_use (Basic_block* bb, Index_node* index_node)
+Whole_program::record_use (Basic_block* bb, Index_node* node)
 {
 	// TODO: this marks it as a use, not a must use. Is there any difference
 	// as far as analyses are concerned? If so, fix this. If not, remove the
@@ -1040,7 +1055,7 @@ Whole_program::record_use (Basic_block* bb, Index_node* index_node)
 	// call/check for the handlers.
 	
 	foreach_wpa (this)
-		wpa->record_use (bb, index_node->name(), POSSIBLE);
+		wpa->record_use (bb, node, POSSIBLE);
 }
 
 
@@ -1063,9 +1078,9 @@ Whole_program::ruin_everything (Basic_block* bb, Path* plhs)
  * are returned, it may be any of them. NULL may be returned, indicating that it may be all possible values.
  */
 String_list*
-Whole_program::get_string_values (Basic_block* bb, Index_node* index)
+Whole_program::get_string_values (Basic_block* bb, Index_node* node)
 {
-	Lattice_cell* result = ccp->get_value (bb, index->name ());
+	Lattice_cell* result = ccp->get_value (bb, node->name ());
 
 	if (result == TOP)
 		return new String_list (s(""));
@@ -1118,8 +1133,8 @@ Whole_program::get_bb_out_abstract_value (Basic_block* bb, Alias_name name)
 Index_node_list*
 Whole_program::get_named_indices (Basic_block* bb, Path* path, bool record_uses)
 {
-	path->dump();
-	cdebug << endl;
+//	path->dump();
+//	cdebug << endl;
 	Indexing* p = dyc<Indexing> (path);
 
 
@@ -1137,8 +1152,7 @@ Whole_program::get_named_indices (Basic_block* bb, Path* path, bool record_uses)
 		// Lookup the storage nodes indexed by LHS
 		foreach (Index_node* st_index, *get_named_indices (bb, p->lhs, record_uses))
 		{
-			foreach (Storage_node* pointed_to,
-						*aliasing->get_values (bb, st_index, PTG_ALL))
+			foreach (Storage_node* pointed_to, *aliasing->get_values (bb, st_index))
 			{
 				string name = pointed_to->storage;
 
@@ -1217,10 +1231,10 @@ Whole_program::get_named_index (Basic_block* bb, Path* name, bool record_uses)
 
 
 
-List<Alias_name>*
+Index_node_list*
 Whole_program::get_all_referenced_names (Basic_block* bb, Path* path, bool record_uses)
 {
-	Set<Alias_name> names;
+	Map<Alias_name, Index_node*> names;
 
 	Index_node_list* lhss = get_named_indices (bb, path, record_uses);
 
@@ -1232,11 +1246,11 @@ Whole_program::get_all_referenced_names (Basic_block* bb, Path* path, bool recor
 
 		foreach (Index_node* ref, *refs)
 		{
-			names.insert (ref->name());
+			names[ref->name()] = ref;
 		}
 	}
 
-	return names.to_list();
+	return names.values ();
 }
 
 /*
@@ -1292,7 +1306,7 @@ Whole_program::visit_foreach_end (Statement_block* bb, MIR::Foreach_end* in)
 
 	// Mark both a use and a def on the iterator
 	Alias_name iter (ST(bb), *in->iter->value);
-	record_use (bb, iter.ind());
+//	record_use (bb, iter.ind()); // TODO: how to fix this?
 	phc_TODO ();
 
 /*	foreach_wpa (this)

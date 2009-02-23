@@ -20,25 +20,21 @@ public:
 	void forward_bind (Basic_block* bb, Entry_block* entry);
 	void backward_bind (Basic_block* bb, Exit_block* exit);
 
+	void create_reference (Basic_block* bb, Index_node* lhs,
+								 Index_node* rhs, certainty cert);
 
-	void create_reference (Basic_block* bb, Alias_name lhs,
-								  Alias_name rhs, certainty cert);
+	void assign_value (Basic_block* bb, Index_node* lhs,
+							 Storage_node* storage, certainty cert);
 
-	void assign_scalar (Basic_block* bb, Alias_name lhs, Alias_name lhs_storage,
-							 Abstract_value* val, certainty cert);
+	void set_storage (Basic_block* bb, Storage_node* storage, Types types);
+	void set_scalar (Basic_block* bb, Abstract_node* storage,
+						  Abstract_value* val);
 
-	void assign_storage (Basic_block* bb, Alias_name lhs,
-								Alias_name storage, Types types, certainty cert);
+	void kill_value (Basic_block* bb, Index_node* lhs);
+	void kill_reference (Basic_block* bb, Index_node* lhs);
 
-	void assign_empty_array (Basic_block* bb, Alias_name lhs,
-									string unique_name, certainty cert);
-
-	void kill_value (Basic_block* bb, Alias_name name);
-
-	void kill_reference (Basic_block* bb, Alias_name name);
+	void record_use (Basic_block* bb, Index_node* use, certainty cert);
 	
-	void record_use (Basic_block* bb, Alias_name use,
-									 certainty cert);
 
 	void pull_init (Basic_block* bb);
 	void pull_first_pred (Basic_block* bb, Basic_block* pred);
