@@ -26,6 +26,8 @@ using namespace boost;
 
 Points_to::Points_to ()
 {
+	// Pretend this is a symtable so that it doesnt get removed.
+	symtables["_SESSION"]++;
 }
 
 /*

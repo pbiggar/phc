@@ -771,6 +771,18 @@ Whole_program::backward_bind (Method_info* info, Basic_block* caller, Exit_block
 		}
 	}
 
+	// TODO:
+	// We want to mark escaping values in the function's exit block. This will
+	// tell us important use/def info.
+	//
+	// At function entry, we should also mark use/defs using escaping info. It
+	// may be more accurate to do that on return perhpas.
+	//
+	// TODO: current we mark index_nodes which are used, and whatever
+	// references them. I would not be sure that correctly handle the case
+	// where $x aliases $y[0], and $y[0] is used after being passed to a
+	// function.
+
 	// Context can be NULL for __MAIN__
 	foreach_wpa (this)
 		wpa->backward_bind (caller, exit);
@@ -1410,6 +1422,7 @@ void
 Whole_program::visit_unset (Statement_block* bb, MIR::Unset* in)
 {
 	// TODO: remove references here, not just values.
+	phc_TODO ();
 
 	// Get the index nodes. Remove them.
 	Path* path = P (ST(bb), in);

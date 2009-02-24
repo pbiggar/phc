@@ -66,13 +66,15 @@ Aliasing::forward_bind (Basic_block* caller, Entry_block* entry)
 void
 Aliasing::backward_bind (Basic_block* caller, Exit_block* exit)
 {
-	if (caller == NULL)
-		return;
-
 	Points_to* ptg = outs[exit->ID]->clone ();
 
 	ptg->close_scope (ST(exit));
-	outs[caller->ID] = ptg;
+
+
+	if (caller != NULL)
+		outs[caller->ID] = ptg;
+	else
+		ptg->dump_graphviz (s("After whole program"), exit, wp);
 }
 
 void

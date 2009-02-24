@@ -124,14 +124,14 @@ void
 Def_use::set_scalar (Basic_block* bb, Value_node* storage, Abstract_value* val)
 {
 	// TODO: I think we dont need this
-	val_assignment (bb, storage->name(), DEFINITE);
+//	val_assignment (bb, storage->name(), DEFINITE);
 }
 
 void
 Def_use::set_storage (Basic_block* bb, Storage_node* storage, Types types)
 {
 	// TODO: I think we dont need this
-	val_assignment (bb, storage->name(), DEFINITE);
+//	val_assignment (bb, storage->name(), DEFINITE);
 }
 
 void
@@ -221,7 +221,8 @@ Def_use::backward_bind (Basic_block* caller, Exit_block* exit)
 {
 	if (caller == NULL)
 	{
-		// TODO: in __MAIN__, mark everything as unused except _SESSION
+		// TODO: in __MAIN__, mark everything as unused except _SESSION (and
+		// everything it can reach!).
 		return;
 	}
 
