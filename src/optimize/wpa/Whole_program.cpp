@@ -1302,12 +1302,20 @@ Whole_program::visit_assign_array (Statement_block* bb, MIR::Assign_array* in)
 {
 	string ns = ST (bb);
 	Path* lhs = P (ns, in);
-	Path* rhs = P (ns, in->rhs);
 
-	if (in->is_ref)
-		assign_by_ref (bb, lhs, rhs);
+	if (isa<Literal> (in->rhs))
+	{
+		assign_scalar (bb, lhs, dyc<Literal> (in->rhs));
+	}
 	else
-		assign_by_copy (bb, lhs, rhs);
+	{
+		Path* rhs = P (ns, in->rhs);
+
+		if (in->is_ref)
+			assign_by_ref (bb, lhs, rhs);
+		else
+			assign_by_copy (bb, lhs, rhs);
+	}
 }
 
 

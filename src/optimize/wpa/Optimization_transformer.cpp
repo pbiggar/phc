@@ -294,7 +294,6 @@ Optimization_transformer::visit_new (Statement_block* bb, MIR::New* in)
 void
 Optimization_transformer::visit_nil (Statement_block* bb, MIR::NIL* in)
 {
-	phc_TODO ();
 }
 
 void

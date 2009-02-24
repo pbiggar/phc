@@ -326,6 +326,10 @@ P (string symtable, Node* in)
 			return var_indexing;
 		}
 
+		case INT::ID:
+		case STRING::ID:
+			return new Index_path (*dyc<Literal> (in)->get_value_as_string ());
+
 		default:
 			DEBUG (demangle (in));
 			phc_TODO ();
