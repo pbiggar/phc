@@ -22,7 +22,7 @@ public:
 
 	void set_storage (Basic_block* bb, Storage_node* storage, Types types);
 
-	void set_scalar (Basic_block* bb, Abstract_node* storage,
+	void set_scalar (Basic_block* bb, Value_node* storage,
 						  Abstract_value* val);
 
 

@@ -27,7 +27,7 @@ public:
 							 Storage_node* storage, certainty cert);
 
 	void set_storage (Basic_block* bb, Storage_node* storage, Types types);
-	void set_scalar (Basic_block* bb, Abstract_node* storage,
+	void set_scalar (Basic_block* bb, Value_node* storage,
 						  Abstract_value* val);
 
 	void kill_value (Basic_block* bb, Index_node* lhs);

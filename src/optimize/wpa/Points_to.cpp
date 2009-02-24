@@ -84,7 +84,7 @@ Points_to::dump_graphviz (String* label, Basic_block* bb, Whole_program* wp)
 
 		stringstream ss;
 
-		if (isa<Abstract_node> (node))
+		if (isa<Value_node> (node))
 		{
 			Abstract_value* val = wp->get_bb_out_abstract_value (bb, node->name());
 
@@ -405,7 +405,7 @@ Points_to::merge (Points_to* other)
 			bool has_abstract_node = false;
 			foreach (Storage_node* node, *values)
 			{
-				if (isa<Abstract_node> (node))
+				if (isa<Value_node> (node))
 					has_abstract_node = true;
 			}
 
@@ -663,11 +663,11 @@ Index_node* FN (string scope, MIR::FIELD_NAME* field)
 	return IN (scope, *field->value);
 }
 
-Abstract_node*
+Value_node*
 ABSVAL (Index_node* node)
 {
 	// we dont want to do this on an alias_name, or it'll be difficult.
-	return new Abstract_node (node);
+	return new Value_node (node);
 }
 
 Storage_node*
@@ -733,20 +733,20 @@ Index_node::get_storage ()
 	return new Storage_node (this->storage);
 }
 
-Abstract_node::Abstract_node (Index_node* owner)
+Value_node::Value_node (Index_node* owner)
 : Storage_node(owner->name().str())
 {
 	assert (storage != "");
 }
 
 Alias_name
-Abstract_node::name ()
+Value_node::name ()
 {
 	return Alias_name (storage, ABV);
 }
 
 String*
-Abstract_node::get_graphviz (string info)
+Value_node::get_graphviz (string info)
 {
 	stringstream ss;
 	ss << "color=red,label=\"" << info << "\"";

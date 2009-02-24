@@ -23,7 +23,7 @@ class Path;
 class Points_to;
 DECL (Index_node);
 DECL (Storage_node);
-DECL (Abstract_node);
+DECL (Value_node);
 
 class Aliasing : public WPA
 {
@@ -50,7 +50,7 @@ public:
 							Types types);
 
 	// Create STORAGE, an abstract value with the given types.
-	void set_scalar (Basic_block* bb, Abstract_node* storage,
+	void set_scalar (Basic_block* bb, Value_node* storage,
 						  Abstract_value* val);
 
 

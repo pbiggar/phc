@@ -1185,7 +1185,7 @@ Whole_program::get_named_indices (Basic_block* bb, Path* path, Indexing_flags fl
 				string name = pointed_to->storage;
 
 				// Implicit array/field creation
-				if (isa<Abstract_node> (pointed_to))
+				if (isa<Value_node> (pointed_to))
 				{
 					// TODO: this could be a string, which is very difficult to handle
 					// TODO: an array is only implicitly created for NULL/uninit.

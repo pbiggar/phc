@@ -23,7 +23,7 @@ Type_inference::Type_inference (Whole_program* wp)
 }
 
 void
-Type_inference::set_scalar (Basic_block* bb, Abstract_node* storage, Abstract_value* val)
+Type_inference::set_scalar (Basic_block* bb, Value_node* storage, Abstract_value* val)
 {
 	Lattice_map& lat = outs[bb->ID];
 	string name = storage->name().str();

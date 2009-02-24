@@ -26,7 +26,7 @@ CCP::CCP (Whole_program* wp)
 
 
 void
-CCP::set_scalar (Basic_block* bb, Abstract_node* storage, Abstract_value* val)
+CCP::set_scalar (Basic_block* bb, Value_node* storage, Abstract_value* val)
 {
 	Lattice_map& lat = outs[bb->ID];
 	lat[storage->name().str()] = meet (lat[storage->name().str()], val->lit);

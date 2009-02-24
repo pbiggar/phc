@@ -15,7 +15,7 @@
 class Whole_program;
 class Points_to;
 class Abstract_value;
-class Abstract_node;
+class Value_node;
 class Index_node;
 class Storage_node;
 
@@ -108,7 +108,7 @@ public:
 									  Types types) CT_IMPL;
 
 	// Create STORAGE, an abstract value with the given types.
-	virtual void set_scalar (Basic_block* bb, Abstract_node* storage,
+	virtual void set_scalar (Basic_block* bb, Value_node* storage,
 									 Abstract_value* val) CT_IMPL;
 
 	/*

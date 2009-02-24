@@ -121,7 +121,7 @@ Def_use::ref_assignment (Basic_block* bb, Alias_name lhs, certainty cert)
 
 /* Assignments with RHSs */
 void
-Def_use::set_scalar (Basic_block* bb, Abstract_node* storage, Abstract_value* val)
+Def_use::set_scalar (Basic_block* bb, Value_node* storage, Abstract_value* val)
 {
 	// TODO: I think we dont need this
 	val_assignment (bb, storage->name(), DEFINITE);

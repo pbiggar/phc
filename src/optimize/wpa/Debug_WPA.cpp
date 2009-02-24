@@ -59,7 +59,7 @@ Debug_WPA::create_reference (Basic_block* bb, Index_node* lhs,
 }
 
 void
-Debug_WPA::set_scalar (Basic_block* bb, Abstract_node* storage, Abstract_value* val)
+Debug_WPA::set_scalar (Basic_block* bb, Value_node* storage, Abstract_value* val)
 {
 	CHECK_DEBUG ();
 

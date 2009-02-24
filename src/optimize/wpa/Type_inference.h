@@ -31,7 +31,7 @@ public:
 	Type_inference (Whole_program* wp);
 
 	void set_storage (Basic_block* bb, Storage_node* storage, Types types);
-	void set_scalar (Basic_block* bb, Abstract_node* storage,
+	void set_scalar (Basic_block* bb, Value_node* storage,
 						  Abstract_value* val);
 
 	// Fetch results

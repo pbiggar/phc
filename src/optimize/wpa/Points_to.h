@@ -31,7 +31,7 @@ Index_node* VN (string scope, MIR::VARIABLE_NAME*);
 Index_node* FN (string scope, MIR::FIELD_NAME*);
 //Index_node* AN (string scope, string array_index); TODO arrays
 
-Abstract_node* ABSVAL (Index_node* node);
+Value_node* ABSVAL (Index_node* node);
 Storage_node* BB_array_name (Basic_block* bb);
 Storage_node* BB_object_name (Basic_block* bb);
 
@@ -97,10 +97,10 @@ public:
 // This represents the value of the node that points to it. It is used as the
 // name for scalars and such. It is tricky to track that information if only
 // storage nodes are used, as the possible/definite thing is difficult.
-class Abstract_node : public Storage_node
+class Value_node : public Storage_node
 {
 public:
-	Abstract_node (Index_node* owner);
+	Value_node (Index_node* owner);
 
 	Alias_name name ();
 
