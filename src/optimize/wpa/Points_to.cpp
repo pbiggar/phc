@@ -30,21 +30,24 @@ Points_to::Points_to ()
 
 /*
  * Add a storage node for the scope (or it might exist already in the case of
- * recursion). Add an GLOBALS node to it
+ * recursion).
  */
 void
 Points_to::open_scope (string scope_name)
 {
+	symtables[scope_name]++;
 }
 
 void
 Points_to::close_scope (string scope_name)
 {
+	symtables[scope_name]--;
+	if (symtables[scope_name] == 0)
+		symtables.erase(scope_name);
+
 	// Remove the symbol table. Then do a mark-and-sweep from all the other
 	// symbol tables.
 	remove_node (SN (scope_name));
-
-	remove_unreachable_nodes ();
 }
 
 bool
@@ -218,8 +221,10 @@ Points_to::consistency_check ()
 						"Edge from %s to %s is POSSIBLE",
 						st->name().str().c_str(),
 						ind->name().str().c_str());
-
-
+		}
+		else
+		{
+			// TODO: storage node -> storage node edges arent allowed
 		}
 	}
 }
@@ -509,11 +514,18 @@ Points_to::remove_pair (PT_node* source, PT_node* target, bool expected)
 
 	// Remove it from by_target
 	by_target[t].erase (s);
+
+
+	// Check if the node can be removed
+	maybe_remove_node (target);
 }
 
 void
 Points_to::remove_pair (Alias_pair* pair, bool expected)
 {
+	// It might seem like a good idea to do have the other remove_pair call
+	// this, but we want to use the Alias_pair* in the graph, whereas PAIR may
+	// just be a descriptor.
 	remove_pair (pair->source, pair->target, expected);
 }
 
@@ -545,15 +557,7 @@ Points_to::set_pair_cert (Alias_pair* pair, certainty cert)
 void
 Points_to::remove_node (PT_node* node)
 {
-	if (isa<Storage_node> (node))
-	{
-		// This cant recurse, as storage nodes can only have index_nodes, which
-		// won't be removed like this.
-		foreach (Index_node* member, *get_targets<Index_node> (node))
-		{
-			remove_node (member);
-		}
-	}
+	PT_node_list* children = get_targets<PT_node> (node);
 
 	// dont use foreach, as remove_pair kills the iterators.
 	while (by_source [node->name ()].size ())
@@ -565,6 +569,39 @@ Points_to::remove_node (PT_node* node)
 		remove_pair (pair->source, pair->target, true);
 		remove_pair (pair->target, pair->source, false);
 	}
+
+	foreach (PT_node* child, *children)
+	{
+		maybe_remove_node (child);
+	}
+}
+
+void
+Points_to::maybe_remove_node (PT_node* node)
+{
+	// Remove index nodes with no storage node.
+	if (isa<Index_node> (node))
+	{
+		if (!has_node (new Storage_node (dyc<Index_node> (node)->storage)))
+			remove_node (node);
+	}
+
+	// Garbage collect. This is actually important, and not just for saving
+	// space. Storage nodes may need to come back, typically if they are
+	// implicitly created. We must make sure we get new results, as stale ones
+	// may be wrong. Note this doesnt collect cycles, which is fine.
+	if (isa<Storage_node> (node))
+	{
+		if ((get_incoming <PT_node> (node)->size() == 0)
+				&& !is_symtable (dyc<Storage_node> (node)))
+			remove_node (node);
+	}
+}
+
+bool
+Points_to::is_symtable (Storage_node* node)
+{
+	return symtables.has (node->storage);
 }
 
 

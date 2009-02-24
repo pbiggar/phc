@@ -142,6 +142,7 @@ SET_COMPARABLE (Alias_pair);
 class Points_to : virtual public GC_obj
 {
 private:
+	Map<string, int> symtables; // the int is for recursion
 	Set<Alias_pair*> all_pairs; // makes it easier to clone
 	Map<Alias_name, Map<Alias_name, Alias_pair*> > by_source;
 	Map<Alias_name, Map<Alias_name, Alias_pair*> > by_target;
@@ -168,6 +169,8 @@ public:
 
 	Storage_node_list* get_values (Index_node* index);
 
+	bool is_symtable (Storage_node* st);
+
 	void consistency_check ();
 
 
@@ -185,7 +188,11 @@ public:
 	// has_edge() function, since we need to find out its CERTAINTY.
 	Alias_pair* get_edge (PT_node* source, PT_node* target);
 
+	PT_node_list* get_incoming_nodes (PT_node* node);
+
 	void remove_unreachable_nodes ();
+	void maybe_remove_node (PT_node*);
+
 	void remove_node (PT_node* node);
 	void remove_pair (PT_node* source, PT_node* target, bool expected = true);
 	void remove_pair (Alias_pair* pair, bool expected = true);
@@ -194,6 +201,31 @@ public:
 	Points_to* merge (Points_to* other);
 
 private:
+
+	template <class T>
+	List<T*>* get_incoming (PT_node* node, certainty cert = PTG_ALL)
+	{
+		List<T*>* result = new List<T*>;
+
+		Alias_name target = node->name ();
+
+		// There must be an edge to anything it aliases
+		Alias_name source;
+		Alias_pair* pair;
+		foreach (boost::tie (source, pair), by_target[target])
+		{
+			if ((pair->cert & cert) // bitwise: PTG_ALL matches both
+				&& isa<T> (pair->source))
+			{
+				result->push_back (dyc<T>(pair->source));
+			}
+		}
+
+		return result;
+	}
+
+
+
 	template <class T>
 	List<T*>* get_targets (PT_node* node, certainty cert = PTG_ALL)
 	{

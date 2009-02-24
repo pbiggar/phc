@@ -467,6 +467,8 @@ Whole_program::apply_modelled_function (Method_info* info, Basic_block* bb)
 	{
 		assign_typed (bb, ret_name, Types ("bool"));
 	}
+	else if (*info->name == "var_dump")
+		; // do nothing
 	else
 		phc_TODO ();
 }
@@ -742,8 +744,8 @@ Whole_program::backward_bind (Method_info* info, Basic_block* caller, Exit_block
 	// If we do the assignment in the caller, then it will use the result from
 	// the IN of the caller, which wont tell us anything. It should use the out
 	// of the callee. However, using the callee means we need to ensure the
-	// results have propagated. So the callee has 3 BBs: entry, exit and the one
-	// where the work is done.
+	// results have propagated. So the callee has 3 BBs: entry, exit and the
+	// one where the work is done.
 	//
 	// The assignment to LHS is done in the context of the callee, and then the
 	// results are backwards_bound. This has the added advantage that we can
