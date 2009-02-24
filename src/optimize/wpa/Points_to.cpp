@@ -180,7 +180,8 @@ Points_to::consistency_check ()
 		{
 			// Check index nodes are pointed to by their storage node
 			Storage_node* st = ind->get_storage ();
-			if (get_edge (st, ind) == NULL)
+			Alias_pair* incoming = get_edge (st, ind);
+			if (incoming == NULL)
 				phc_internal_error ("No edge from storage node for %s", ind->name().str().c_str());
 
 			// If there is only one outgoing edges from an index, then it must be
@@ -191,17 +192,28 @@ Points_to::consistency_check ()
 										  ind->name().str().c_str(),
 										  values->front()->name().str().c_str());
 
-			// Check there isnt > 1 DEFINITE node
+			// Check there isnt > 1 DEFINITE values
 			if (values->size () > 1)
 			{
 				foreach (Storage_node* st, *values)
 				{
 					if (get_edge (ind, st)->cert == DEFINITE)
-						phc_internal_error ("Multiple edges from %s, but edge to %s is DEFINITE",
+						phc_internal_error (
+								"Multiple edges from %s, but edge to %s is DEFINITE",
 								ind->name().str().c_str(),
 								st->name().str().c_str());
 				}
 			}
+
+			// We're disallowing POSSIBLE edges from a storage_node to an
+			// index_node.
+			if (incoming->cert == POSSIBLE)
+				phc_internal_error (
+						"Edge from %s to %s is POSSIBLE",
+						st->name().str().c_str(),
+						ind->name().str().c_str());
+
+
 		}
 	}
 }
@@ -308,9 +320,7 @@ Points_to::clone ()
 /*
  * Merge another graph with this one, and return a new merged graph.
  *
- * If the source node is in both graphs, but the edge is not, then the edge
- * becomes possible. If the source node is only in one graph, then the edge
- * takes its certainty from the current graph. This allows us to say tht we
+ *  This allows us to say tht we
  * know all the possible edges, and not worry that we may be missing an edge
  * (say, if there is just one possible edge).
  *
@@ -324,20 +334,26 @@ Points_to::merge (Points_to* other)
 	foreach (Alias_pair* p, this->all_pairs)
 	{
 		Alias_pair* other_pair = other->get_edge (p->source, p->target);
-		if (other_pair == NULL)
+		if (other_pair)
+		{
+			result->add_edge (p->source, p->target,
+				combine_certs (other_pair->cert, p->cert));
+		}
+		else
 		{
 			if (other->has_node (p->source))
 			{
+				// If the source node is in both graphs, but the edge is not,
+				// then the edge becomes possible.
 				result->add_edge (p->source, p->target, POSSIBLE);
 			}
 			else
 			{
+				// If the source node is only in one graph, then the edge takes
+				// its certainty from the current graph. 
 				result->add_edge (p->source, p->target, p->cert);
 			}
 		}
-		else
-			result->add_edge (p->source, p->target,
-				combine_certs (other_pair->cert, p->cert));
 	}
 
 	// Add edges that are only in OTHER
@@ -352,6 +368,49 @@ Points_to::merge (Points_to* other)
 			else
 			{
 				result->add_edge (p->source, p->target, p->cert);
+			}
+		}
+	}
+
+	// ST->IN edges where CERT==POSSIBLE, means that there is also a NULL value
+	// POSSIBLE.
+	foreach (Alias_pair* p, result->all_pairs)
+	{
+		if (  isa<Storage_node> (p->source)
+			&& isa<Index_node> (p->target)
+			&& p->cert == POSSIBLE)
+		{
+			Index_node* target = dyc<Index_node> (p->target);
+
+			// We shouldnt change CERT in general, but its OK here since its a
+			// new edge created above.
+			p->cert = DEFINITE;
+
+			Storage_node_list* values = result->get_values (target);
+
+			assert (!values->empty ());
+
+			// Does it have an abstract node already
+			bool has_abstract_node = false;
+			foreach (Storage_node* node, *values)
+			{
+				if (isa<Abstract_node> (node))
+					has_abstract_node = true;
+			}
+
+			if (!has_abstract_node)
+			{
+				// New edge - the value semantics of this must be handled
+				// elsewhere.
+				result->add_edge (target, ABSVAL (target), POSSIBLE);
+
+				// DEFINITE edges must be converted to POSSIBLE too.
+				if (values->size() == 1)
+				{
+					Alias_pair* edge = result->get_edge (target, values->front());
+					assert (edge);
+					edge->cert = POSSIBLE;
+				}
 			}
 		}
 	}

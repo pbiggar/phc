@@ -215,11 +215,10 @@ Aliasing::get_values (Basic_block* bb, Index_node* index)
 	Points_to* ptg = ins[bb->ID];
 	Storage_node_list* result = ptg->get_values (index);
 
-	// It may be that the index_node itself is only possibly defined (or yet not
-	// defined, even). In this case, we need an abstract value.
+	// It may be that the index_node itself is only possibly defined (or yet
+	// not defined, even). In this case, we need an abstract value.
 	Alias_pair* edge = ptg->get_edge (index->get_storage(), index);
-	assert (edge);
-	if (edge->cert == POSSIBLE)
+	if (edge == NULL || edge->cert == POSSIBLE)
 		result->push_back (ABSVAL (index));
 
 	return result;
