@@ -797,7 +797,8 @@ is_must (Index_node_list* indices)
 certainty
 Whole_program::kill_value (Basic_block* bb, Path* plhs)
 {
-	Index_node_list* lhss = get_named_indices (bb, plhs);
+	// do implicit conversions
+	Index_node_list* lhss = get_named_indices (bb, plhs, (Indexing_flags)(IMPLICIT_CONVERSION));
 
 	// TODO: dont kill fields of abstract storage nodes
 
@@ -825,7 +826,7 @@ Whole_program::assign_by_ref (Basic_block* bb, Path* plhs, Path* prhs)
 	// Should we separate the assignment by value and the assignment by ref.
 	phc_TODO ();
 	Index_node_list* lhss = get_named_indices (bb, plhs);
-	Index_node_list* rhss = get_named_indices (bb, prhs, true);
+	Index_node_list* rhss = get_named_indices (bb, prhs, RECORD_USES);
 
 	bool killable = is_must (lhss);
 
@@ -989,57 +990,84 @@ Whole_program::assign_by_copy (Basic_block* bb, Path* plhs, Path* prhs)
 	// For objects, copy the edge. For arrays, copy the whole thing. For
 	// scalars, copy the scalar (if unknown). It seems clear that we need an
 	// unknown object here, if the type is not known to not be an object.
-	Index_node_list* rhss = get_named_indices (bb, prhs, true);
+	Index_node_list* rhss = get_named_indices (bb, prhs, RECORD_USES);
 
 	// If there is more than 1 RHSs, we cant say for sure which we're copying from.
 	if (rhss->size () > 1)
 		cert = POSSIBLE;
 
-	foreach (Index_node* node, *get_all_referenced_names (bb, plhs))
+	foreach (Index_node* lhs, *get_all_referenced_names (bb, plhs))
 	{
-		foreach_wpa (this)
+		foreach (Index_node* rhs, *rhss)
 		{
-			foreach (Index_node* rhs, *rhss)
+			copy_value (bb, lhs, rhs, cert);
+		}
+	}
+}
+
+void
+Whole_program::copy_value (Basic_block* bb, Index_node* lhs, Index_node* rhs, certainty cert)
+{
+	// Get the value for each RHS. Copy it using the correct semantics.
+	Storage_node_list* values = aliasing->get_values (bb, rhs);
+
+	// If there is more than 1 value, it can't be definite.
+	if (values->size () > 1)
+		cert = POSSIBLE;
+
+	foreach (Storage_node* st, *values)
+	{
+		// Get the type of the value
+		Types types = type_inf->get_types (bb, st->name());
+		// TODO: handle bottom
+
+		// It must be either all scalars, array, list of classes, or bottom.
+		Types scalars = Type_inference::get_scalar_types (types);
+		Types array = Type_inference::get_array_types (types);
+		Types objects = Type_inference::get_object_types (types);
+
+		assert (!scalars.empty() ^ !array.empty() ^ !objects.empty());
+
+		if (scalars.size())
+		{
+			foreach_wpa (this)
 			{
-				// Get the value for each RHS. Copy it using the correct semantics.
-				Storage_node_list* values = aliasing->get_values (bb, rhs);
+				wpa->set_scalar (bb, ABSVAL (lhs),
+						get_abstract_value (bb, st->name()));
 
-				// If there is more than 1 value, it can't be definite.
-				if (values->size () > 1)
-					cert = POSSIBLE;
-
-				foreach (Storage_node* st, *values)
-				{
-					// Get the type of the value
-					Types types = type_inf->get_types (bb, st->name());
-					// TODO: handle bottom
-
-					// It must be either all scalars, array, list of classes, or bottom.
-					Types scalars = Type_inference::get_scalar_types (types);
-					Types array = Type_inference::get_array_types (types);
-					Types objects = Type_inference::get_object_types (types);
-
-					assert (!scalars.empty() ^ !array.empty() ^ !objects.empty());
-
-					if (scalars.size())
-					{
-						wpa->set_scalar (bb, ABSVAL (node),
-								get_abstract_value (bb, st->name()));
-
-						wpa->assign_value (bb, node, ABSVAL (node), cert);
-					}
-
-					if (array.size())
-					{
-						phc_TODO ();
-					}
-
-					if (objects.size ())
-					{
-						phc_TODO ();
-					}
-				}
+				wpa->assign_value (bb, lhs, ABSVAL (lhs), cert);
 			}
+		}
+
+		if (array.size())
+		{
+			// We need to do a deep copy here.
+			Storage_node* new_array = BB_array_name (bb);
+
+			// create the new array
+			foreach_wpa (this)
+				wpa->set_storage (bb, new_array, Types ("array"));
+
+			// Get all the indices
+			foreach (Index_node* index, *aliasing->get_indices (bb, st))
+			{
+				// TODO: I think these are not killed, but should be, if allowable.
+				copy_value (bb,
+						new Index_node (new_array->storage, index->index),
+						index,
+						cert);
+			}
+
+			// LHS points to NEW_ARRAY.
+			foreach_wpa (this)
+				wpa->assign_value (bb, lhs, new_array, cert);
+		}
+
+		if (objects.size ())
+		{
+			// Just point to the object.
+			foreach_wpa (this)
+				wpa->assign_value (bb, lhs, st, cert);
 		}
 	}
 }
@@ -1067,8 +1095,6 @@ Whole_program::ruin_everything (Basic_block* bb, Path* plhs)
 	// unknown.
 	phc_TODO ();
 }
-
-
 
 
 /*
@@ -1131,12 +1157,12 @@ Whole_program::get_bb_out_abstract_value (Basic_block* bb, Alias_name name)
  *	Likewise for $y =& $x[$i] or anything in the form $y =& $x->$f.
  */
 Index_node_list*
-Whole_program::get_named_indices (Basic_block* bb, Path* path, bool record_uses)
+Whole_program::get_named_indices (Basic_block* bb, Path* path, Indexing_flags flags)
 {
-//	path->dump();
-//	cdebug << endl;
-	Indexing* p = dyc<Indexing> (path);
+	// Debugging
+//	path->dump(); 	cdebug << endl;
 
+	Indexing* p = dyc<Indexing> (path);
 
 	// Get the set of storage nodes representing the LHS.
 	Set<string> lhss;
@@ -1150,7 +1176,7 @@ Whole_program::get_named_indices (Basic_block* bb, Path* path, bool record_uses)
 	{
 		// TODO: propagate record_uses?
 		// Lookup the storage nodes indexed by LHS
-		foreach (Index_node* st_index, *get_named_indices (bb, p->lhs, record_uses))
+		foreach (Index_node* st_index, *get_named_indices (bb, p->lhs, flags))
 		{
 			foreach (Storage_node* pointed_to, *aliasing->get_values (bb, st_index))
 			{
@@ -1164,8 +1190,11 @@ Whole_program::get_named_indices (Basic_block* bb, Path* path, bool record_uses)
 					// Other scalars will go to NULL instead.
 					// TODO: these cases should clearly be dealt with in the caller.
 
-					name = lexical_cast<string> (bb->ID);
-					assign_empty_array (bb, p->lhs, name);
+					name = BB_array_name (bb)->storage;
+
+					// TODO: i'm not very happy about this
+					if (flags & IMPLICIT_CONVERSION)
+						assign_empty_array (bb, p->lhs, name);
 				}
 
 				lhss.insert (name);
@@ -1185,7 +1214,7 @@ Whole_program::get_named_indices (Basic_block* bb, Path* path, bool record_uses)
 	else
 	{
 		// The name of the field must be looked up
-		foreach (Index_node* field_index, *get_named_indices (bb, p->rhs, record_uses))
+		foreach (Index_node* field_index, *get_named_indices (bb, p->rhs, flags))
 		{
 			// Record this use regardless of RECORD_USES
 			record_use (bb, field_index);
@@ -1206,7 +1235,7 @@ Whole_program::get_named_indices (Basic_block* bb, Path* path, bool record_uses)
 	foreach (string lhs, lhss)
 		foreach (string rhs, rhss)
 		{
-			if (record_uses)
+			if (flags & RECORD_USES)
 				record_use (bb, new Index_node (lhs, rhs));
 
 			result->push_back (new Index_node (lhs, rhs));
@@ -1216,9 +1245,9 @@ Whole_program::get_named_indices (Basic_block* bb, Path* path, bool record_uses)
 }
 
 Index_node*
-Whole_program::get_named_index (Basic_block* bb, Path* name, bool record_uses)
+Whole_program::get_named_index (Basic_block* bb, Path* name, Indexing_flags flags)
 {
-	Index_node_list* all = get_named_indices (bb, name, record_uses);
+	Index_node_list* all = get_named_indices (bb, name, flags);
 
 	// TODO: can this happen
 	assert (all->size());
@@ -1232,11 +1261,11 @@ Whole_program::get_named_index (Basic_block* bb, Path* name, bool record_uses)
 
 
 Index_node_list*
-Whole_program::get_all_referenced_names (Basic_block* bb, Path* path, bool record_uses)
+Whole_program::get_all_referenced_names (Basic_block* bb, Path* path, Indexing_flags flags)
 {
 	Map<Alias_name, Index_node*> names;
 
-	Index_node_list* lhss = get_named_indices (bb, path, record_uses);
+	Index_node_list* lhss = get_named_indices (bb, path, flags);
 
 	foreach (Index_node* lhs, *lhss)
 	{

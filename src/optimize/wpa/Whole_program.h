@@ -65,6 +65,12 @@ class WPA;
 #define foreach_wpa(WP)					\
 	foreach (WPA* wpa, WP->analyses)
 
+typedef enum _Indexing_flags
+{
+	NO_FLAGS = 0x0,
+	RECORD_USES = 0x1,
+	IMPLICIT_CONVERSION = 0x2,
+} Indexing_flags;
 
 
 class Whole_program : public CFG_visitor
@@ -179,6 +185,9 @@ public:
 	void assign_by_ref (Basic_block* bb, Path* lhs, Path* rhs);
 	void assign_by_copy (Basic_block* bb, Path* lhs, Path* rhs);
 
+	// Copy the value from RHS to LHS.
+	void copy_value (Basic_block* bb, Index_node* lhs, Index_node* rhs, certainty cert);
+
 
 	certainty kill_value (Basic_block* bb, Path* plhs);
 
@@ -204,14 +213,14 @@ public:
 	Abstract_value* get_bb_out_abstract_value (Basic_block* bb, Alias_name name);
 
 	// PATH can refer to many nodes. Get the list of Index_nodes it points to.
-	Index_node_list* get_named_indices (Basic_block* bb, Path* path, bool record_uses = false);
+	Index_node_list* get_named_indices (Basic_block* bb, Path* path, Indexing_flags flags = NO_FLAGS);
 
 	// NULL if more than 1 exists
-	Index_node* get_named_index (Basic_block* bb, Path* path, bool record_uses = false);
+	Index_node* get_named_index (Basic_block* bb, Path* path, Indexing_flags flags = NO_FLAGS);
 
 
 	// Get anything the path can point to, and all nodes that they may reference.
-	Index_node_list* get_all_referenced_names (Basic_block* bb, Path* path, bool record_uses = false);
+	Index_node_list* get_all_referenced_names (Basic_block* bb, Path* path, Indexing_flags flags = NO_FLAGS);
 
 
 	// Most pesimistic case

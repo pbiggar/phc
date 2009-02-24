@@ -171,6 +171,12 @@ Points_to::get_values (Index_node* node)
 	return get_targets <Storage_node> (node, PTG_ALL);
 }
 
+Index_node_list*
+Points_to::get_indices (Storage_node* storage)
+{
+	return get_targets <Index_node> (storage, PTG_ALL);
+}
+
 void
 Points_to::consistency_check ()
 {

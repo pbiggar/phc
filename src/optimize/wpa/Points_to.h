@@ -164,6 +164,8 @@ public:
 	Index_node_list* get_references (Index_node* index,
 												certainty cert);
 
+	Index_node_list* get_indices (Storage_node* storage);
+
 	Storage_node_list* get_values (Index_node* index);
 
 	void consistency_check ();

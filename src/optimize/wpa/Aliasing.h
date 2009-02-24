@@ -78,6 +78,8 @@ public:
 	Index_node_list* get_references (Basic_block*, Index_node* index,
 												certainty cert);
 
+	Index_node_list* get_indices (Basic_block*, Storage_node* storage);
+
 	Storage_node_list* get_values (Basic_block*, Index_node* index);
 
 private:

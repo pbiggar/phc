@@ -64,8 +64,9 @@ Debug_WPA::set_scalar (Basic_block* bb, Abstract_node* storage, Abstract_value* 
 	CHECK_DEBUG ();
 
 	cdebug
-	<< __FUNCTION__ << ": "
-	<< storage->name().str () << ", ";
+	<< __FUNCTION__
+	<< ": " << storage->name().str ()
+	<< ", ";
 
 	val->dump();
 
@@ -79,7 +80,7 @@ Debug_WPA::set_storage (Basic_block* bb, Storage_node* storage, Types types)
 
 	cdebug
 	<< __FUNCTION__
-	<< ", " << storage->name().str ()
+	<< ": " << storage->name().str ()
 	<< ", (";
 
 	(new Type_cell(types))->dump (cdebug);
@@ -91,7 +92,7 @@ void
 Debug_WPA::assign_value (Basic_block* bb, Index_node* lhs, Storage_node* storage, certainty cert)
 {
 	DEBUG (__FUNCTION__
-	<< ", " << lhs->name().str ()
+	<< ": " << lhs->name().str ()
 	<< ", " << storage->name().str ()
 	<< ", " << cert_to_string (cert));
 }
@@ -101,22 +102,22 @@ void
 Debug_WPA::kill_value (Basic_block* bb, Index_node* lhs)
 {
 	DEBUG (__FUNCTION__
-		<< ": " << lhs->name().str ());
+	<< ": " << lhs->name().str ());
 }
 
 void
 Debug_WPA::kill_reference (Basic_block* bb, Index_node* lhs)
 {
 	DEBUG (__FUNCTION__
-		<< ": " << lhs->name().str ());
+	<< ": " << lhs->name().str ());
 }
 	
 void
 Debug_WPA::record_use (Basic_block* bb, Index_node* use, certainty cert)
 {
 	DEBUG (__FUNCTION__
-		<< ": " << use->name().str ()
-		<< ", " << cert_to_string (cert));
+	<< ": " << use->name().str ()
+	<< ", " << cert_to_string (cert));
 }
 
 
@@ -141,20 +142,20 @@ Debug_WPA::pull_pred (Basic_block* bb, Basic_block* pred)
 void
 Debug_WPA::pull_finish (Basic_block* bb)
 {
-	DEBUG (__FUNCTION__);
+	DEBUG (__FUNCTION__ << " " << bb->ID);
 }
 
 
 void
 Debug_WPA::aggregate_results (Basic_block* bb)
 {
-	DEBUG (__FUNCTION__);
+	DEBUG (__FUNCTION__ << " " << bb->ID);
 }
 
 bool
 Debug_WPA::solution_changed (Basic_block* bb)
 {
-	DEBUG (__FUNCTION__);
+	DEBUG (__FUNCTION__ << " " << bb->ID);
 	return false;
 }
 

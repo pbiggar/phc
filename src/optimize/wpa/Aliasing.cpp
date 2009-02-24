@@ -116,7 +116,6 @@ void
 Aliasing::kill_value (Basic_block* bb, Index_node* lhs)
 {
 	Points_to* ptg = outs[bb->ID];
-	ptg->add_index (lhs, DEFINITE);
 
 	foreach (Storage_node* value, *ptg->get_values (lhs))
 	{
@@ -129,7 +128,6 @@ void
 Aliasing::kill_reference (Basic_block* bb, Index_node* lhs)
 {
 	Points_to* ptg = outs[bb->ID];
-	ptg->add_index (lhs, DEFINITE);
 
 	foreach (Index_node* other, *ptg->get_references (lhs, PTG_ALL))
 	{
@@ -182,6 +180,7 @@ Aliasing::create_reference (Basic_block* bb, Index_node* lhs, Index_node* rhs, c
 void
 Aliasing::assign_value (Basic_block* bb, Index_node* lhs, Storage_node* storage, certainty cert)
 {
+	outs[bb->ID]->add_index (lhs, DEFINITE);
 	outs[bb->ID]->add_edge (lhs, storage, cert);
 }
 
@@ -222,6 +221,13 @@ Aliasing::get_values (Basic_block* bb, Index_node* index)
 		result->push_back (ABSVAL (index));
 
 	return result;
+}
+
+
+Index_node_list*
+Aliasing::get_indices (Basic_block* bb, Storage_node* storage)
+{
+	return ins[bb->ID]->get_indices (storage);
 }
 
 
