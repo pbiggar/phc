@@ -51,11 +51,17 @@
 
 	function date_from_timestamp ($timestamp)
 	{
+		if ($timestamp == 0)
+			return "";
+
 		return date ("d M Y H:i:s ", $timestamp);
 	}
 
 	function minutes_from_seconds ($seconds)
 	{
+		if ($seconds == 0)
+			return "";
+
 		return round ($seconds/60.0, 1)."m";
 	}
 

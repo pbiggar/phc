@@ -35,6 +35,8 @@
 		list ($REV, $AUTHOR, $DATE) = get_test_revision () or svn_problem ();
 		$BRANCH = get_svn_branch ($REV);
 
+		record_revision_data ();
+
 		if (!in_array ($BRANCH, $allowed_branches))
 			skip_revision ();
 
@@ -43,11 +45,6 @@
 		c ("svn export -q --revision=$REV $REPO$BRANCH $WORKING_DIR");
 	}
 	catch (Exception $e) { svn_problem (); }
-
-
-	// This doesnt really need to be wrapped, but just in case.
-	try { record_revision_data (); }
-	catch (Exception $e) { script_problem (); }
 
 	// Compile, test and benchmark
 	$components = array (new Compile_component(), new Test_component(), new Benchmark_component());
@@ -320,9 +317,9 @@
 		$diff = c ("svn diff -c $rev $REPO");
 
 		// Just check the first file.
-		if (preg_match ("#^Index: branches/([^\/]+)/#", $diff, $matches))
+		if (preg_match ("#^Index: (branches/[^\/]+)/#", $diff, $matches))
 		{
-			return "branches/{$matches[1]}";
+			return $matches[1];
 		}
 		else if (preg_match ("#^Index: trunk#", $diff))
 			return "trunk";
@@ -335,21 +332,23 @@
 			// TODO: we could get more info with --summarize
 			// This happened when we deleted a branch. It might happen other
 			// times?
-
-			// Just make sure we return a valid branch.
-			return "trunk";
+			return "unknown_branch";
 		}
 	}
 
 	function skip_revision ()
 	{
 		global $REV, $LATEST_REVISION;
-		foreach (array ("benchmark", "test", "compile") as $component)
+		e ("	DELETE FROM components WHERE revision == $REV");
+		foreach (array ("compile", "test", "benchmark") as $component)
 		{
 			e ("	INSERT INTO components VALUES (
-				$REV, '$componet', 0, 
+				$REV, '$component', 0, 
 				0, $LATEST_REVISION, 0, 0)");
 		}
+
+		e ("DELETE FROM tests where revision == $REV;");
+		e ("DELETE FROM benchmarks WHERE revision == $REV");
 		print "Skip revision $REV\n";
 		save_log ();
 		exit ();
