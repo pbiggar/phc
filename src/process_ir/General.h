@@ -16,9 +16,6 @@
 #include "Foreach.h"
 #include "fresh.h"
 #include "parsing/Parse_buffer.h"
-#include "boost/lexical_cast.hpp"
-
-using boost::lexical_cast;
 
 bool is_builtin_function (String* name);
 
