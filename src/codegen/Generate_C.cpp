@@ -2306,7 +2306,7 @@ class Pattern_unset : public Pattern
 		else
 		{
 			// Variable variable
-			phc_unsupported (unset, "unset variable variable");
+			phc_unsupported (unset->value, "unset variable variable");
 		}
 	}
 
