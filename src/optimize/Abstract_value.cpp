@@ -59,5 +59,7 @@ Abstract_value::from_types (Types types)
 Abstract_value*
 Abstract_value::unknown ()
 {
-	return new Abstract_value (BOTTOM, new Type_cell (Type_inference::scalar_types));
+	return new Abstract_value (
+		BOTTOM,
+		new Type_cell (Type_inference::get_all_scalar_types ()));
 }

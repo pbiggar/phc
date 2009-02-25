@@ -48,6 +48,7 @@ public:
 
 
 	static Types get_type (MIR::Literal* lit);
+	static Types get_all_scalar_types ();
 
 	// Given a set of types, we want to know which types are scalars, which is
 	// an array, and which are objects. These return new sets with only the
@@ -57,10 +58,6 @@ public:
 	static Types get_scalar_types (Types);
 	static Types get_array_types (Types); // can only be "array"
 	static Types get_object_types (Types); // anything thats not covered above.
-
-	static Types scalar_types;
-private:
-	static Map<int, string> MIR_types;
 };
 
 

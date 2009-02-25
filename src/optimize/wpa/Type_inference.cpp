@@ -63,45 +63,43 @@ Type_inference::set_types (Basic_block* bb, Alias_name name, Types types)
 	lat[name.str()] = meet (lat[name.str()], new Type_cell (types));
 }
 
-Map<int, string>
-init_MIR_types ()
+static class MIR_types : public Map<int,string>
 {
-	Map<int, string> result;
+public:
+   MIR_types () : Map<int,string>()
+	{
+		(*this)[MIR::BOOL::ID]		= "bool";
+		(*this)[MIR::INT::ID]		= "int";
+		(*this)[MIR::NIL::ID]		= "unset";
+		(*this)[MIR::REAL::ID]		= "real";
+		(*this)[MIR::STRING::ID]	= "string";
+	}
+} mir_types;
 
-	result[MIR::BOOL::ID]	= "bool";
-	result[MIR::INT::ID]		= "int";
-	result[MIR::NIL::ID]		= "unset";
-	result[MIR::REAL::ID]	= "real";
-	result[MIR::STRING::ID]	= "string";
+static class Scalar_types : public Types
+{
+public:
+   Scalar_types () : Types()
+	{
+		insert ("bool");
+		insert ("int");
+		insert ("unset");
+		insert ("real");
+		insert ("string");
+	}
+} scalar_types;
 
-	return result;
-}
-
-Map<int, string>
-Type_inference::MIR_types = init_MIR_types ();
 
 Types
-init_scalar_types ()
+Type_inference::get_all_scalar_types ()
 {
-	Types result;
-
-	result.insert ("bool");
-	result.insert ("int");
-	result.insert ("unset");
-	result.insert ("real");
-	result.insert ("string");
-
-	return result;
+	return scalar_types;
 }
-
-Types
-Type_inference::scalar_types = init_scalar_types ();
-
 
 Types 
 Type_inference::get_type (MIR::Literal* lit)
 {
-	return Types (MIR_types [lit->classid()]);
+	return Types (mir_types [lit->classid()]);
 }
 
 
