@@ -74,7 +74,10 @@ Aliasing::backward_bind (Basic_block* caller, Exit_block* exit)
 	if (caller != NULL)
 		outs[caller->ID] = ptg;
 	else
-		ptg->dump_graphviz (s("After whole program"), exit, wp);
+	{
+		if (debugging_enabled)
+			ptg->dump_graphviz (s("After whole program"), exit, wp);
+	}
 }
 
 void
