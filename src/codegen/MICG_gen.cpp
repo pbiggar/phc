@@ -348,7 +348,7 @@ Symtable::get_lookup (Lookup* in, bool coerce)
 	ann1.append (attr_name);
 	ann2.append (attr_name);
 
-	Object* result;
+	Object* result = NULL;
 	if (node->attrs->has (ann1))
 		result = node->attrs->get (ann1);
 	else if (node->attrs->has (ann2))
