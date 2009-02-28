@@ -228,7 +228,9 @@ protected:
 		}
 		else if (IR::Node* node = dynamic_cast<IR::Node*> (attr))
 		{
+			state->os << "<attr key=\"" << name << "\">" << endl;
 			xml_unparse (node, state);
+			state->os << "</attr>" << endl;
 		}
 		else if (attr == NULL)
 		{
