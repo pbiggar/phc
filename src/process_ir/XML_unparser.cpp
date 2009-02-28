@@ -85,25 +85,25 @@ public:
 		state->print_indent();
 		state->os << "<bool>" 
 			<< "<!-- " << name << " -->"
-			<< (value ? "true" : "false") << "</bool>" << endl;
+			<< (value ? "true" : "false") << "</bool>\n";
 	}
 
 	void visit_null(char const* name_space, char const* type_id)
 	{
 		state->print_indent();
-		state->os << "<" << name_space << ":" << type_id << " xsi:nil=\"true\" />" << endl;
+		state->os << "<" << name_space << ":" << type_id << " xsi:nil=\"true\" />\n";
 	}
 
 	void visit_null_list(char const* name_space, char const* type_id)
 	{
 		state->print_indent();
-		state->os << "<" << name_space << ":" << type_id << "_list xsi:nil=\"true\" />" << endl;
+		state->os << "<" << name_space << ":" << type_id << "_list xsi:nil=\"true\" />\n";
 	}
 
 	void pre_list(char const* name_space, char const* type_id, int size)
 	{
 		state->print_indent();
-		state->os << "<" << name_space << ":" << type_id << "_list>" << endl;
+		state->os << "<" << name_space << ":" << type_id << "_list>\n";
 		state->indent++;
 	}
 
@@ -111,7 +111,7 @@ public:
 	{
 		state->indent--;
 		state->print_indent();
-		state->os << "</" << name_space << ":" << type_id << "_list>" << endl;
+		state->os << "</" << name_space << ":" << type_id << "_list>\n";
 	}
 
 public:
@@ -135,7 +135,7 @@ public:
 		bool is_root = dynamic_cast<Script*>(in);
 
 		if(is_root)
-			state->os << "<?xml version=\"1.0\"?>" << endl;
+			state->os << "<?xml version=\"1.0\"?>\n";
 
 		state->print_indent();
 
@@ -150,7 +150,7 @@ public:
 			state->os << " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"";
 		}
 
-		state->os << ">" << endl;
+		state->os << ">\n";
 		state->indent++;
 
 		if(state->print_attrs) print_attributes(in);
@@ -160,7 +160,7 @@ public:
 	{
 		state->indent--;
 		state->print_indent();
-		state->os << "</" << demangle_xml(in) << ">" << endl;
+		state->os << "</" << demangle_xml(in) << ">\n";
 	}
 
 protected:
@@ -188,12 +188,12 @@ protected:
 		if(in->attrs->size() == 0)
 		{
 			state->print_indent();
-			state->os << "<attrs />" << endl;
+			state->os << "<attrs />\n";
 		}
 		else
 		{
 			state->print_indent();
-			state->os << "<attrs>" << endl;
+			state->os << "<attrs>\n";
 			state->indent++;
 
 			AttrMap::const_iterator i;
@@ -204,7 +204,7 @@ protected:
 
 			state->indent--;
 			state->print_indent();
-			state->os << "</attrs>" << endl;
+			state->os << "</attrs>\n";
 		}
 	}
 
@@ -216,55 +216,55 @@ protected:
 		{
 			state->os << "<attr key=\"" << name << "\">";
 			maybe_encode ("string", str);
-			state->os << "</attr>" << endl;
+			state->os << "</attr>\n";
 		}
 		else if(Integer* i = dynamic_cast<Integer*>(attr))
 		{
-			state->os << "<attr key=\"" << name << "\"><integer>" << i->value () << "</integer></attr>" << endl;
+			state->os << "<attr key=\"" << name << "\"><integer>" << i->value () << "</integer></attr>\n";
 		}
 		else if(Boolean* b = dynamic_cast<Boolean*>(attr))
 		{
-			state->os << "<attr key=\"" << name << "\"><bool>" << (b->value() ? "true" : "false") << "</bool></attr>" << endl;
+			state->os << "<attr key=\"" << name << "\"><bool>" << (b->value() ? "true" : "false") << "</bool></attr>\n";
 		}
 		else if (IR::Node* node = dynamic_cast<IR::Node*> (attr))
 		{
-			state->os << "<attr key=\"" << name << "\">" << endl;
+			state->os << "<attr key=\"" << name << "\">\n";
 			xml_unparse (node, state);
-			state->os << "</attr>" << endl;
+			state->os << "</attr>\n";
 		}
 		else if (attr == NULL)
 		{
-			state->os << "<!-- skipping NULL attribute " << name << " -->" << endl;
+			state->os << "<!-- skipping NULL attribute " << name << " -->\n";
 		}
 		else if(String_list* ls = dynamic_cast<String_list*>(attr))
 		{
-			state->os << "<attr key=\"" << name << "\">" << endl;
+			state->os << "<attr key=\"" << name << "\">\n";
 			state->indent++;
 			state->print_indent ();
-			state->os << "<string_list>" << endl;
+			state->os << "<string_list>\n";
 			state->indent++;
 
 			foreach (String* s, *ls)
 			{
 				state->print_indent();
 				maybe_encode ("string", s);
-				state->os << endl;
+				state->os << "\n";
 			}
 
 			state->indent--;
 			state->print_indent();
-			state->os << "</string_list>" << endl;
+			state->os << "</string_list>\n";
 			state->indent--;
 			state->print_indent();
-			state->os << "</attr>" << endl;
+			state->os << "</attr>\n";
 		}
 		else if(IR::Node_list* ls = dynamic_cast<IR::Node_list*>(attr))
 		{
 			// Allow lists of nodes, only if as List<IR::Node*>
-			state->os << "<attr key=\"" << name << "\">" << endl;
+			state->os << "<attr key=\"" << name << "\">\n";
 			state->indent++;
 			state->print_indent ();
-			state->os << "<node_list>" << endl;
+			state->os << "<node_list>\n";
 			state->indent++;
 
 			foreach (IR::Node* node, *ls)
@@ -272,10 +272,10 @@ protected:
 
 			state->indent--;
 			state->print_indent();
-			state->os << "</node_list>" << endl;
+			state->os << "</node_list>\n";
 			state->indent--;
 			state->print_indent();
-			state->os << "</attr>" << endl;
+			state->os << "</attr>\n";
 		}
 		else
 			phc_warning ("Don't know how to deal with attribute '%s' of type '%s'", name.c_str(), demangle(attr, true));	
@@ -290,7 +290,7 @@ protected:
 		{
 			state->print_indent();
 			maybe_encode ("value", value);
-			state->os << endl;
+			state->os << "\n";
 		}
 	}
 
@@ -300,21 +300,21 @@ protected:
 
 		state->print_indent();
 		maybe_encode ("value", value);
-		state->os << endl;
+		state->os << "\n";
 	}
 
 	// Foreign nodes delegate to the appropriate XML_unparser.
 	void pre_foreign (FOREIGN* in)
 	{
 		state->print_indent();
-		state->os << "<value>" << endl;
+		state->os << "<value>\n";
 
 		state->indent++;
 		xml_unparse (in->value, state);
 		state->indent--;
 
 		state->print_indent();
-		state->os << "</value>" << endl;
+		state->os << "</value>\n";
 	}
 };
 
@@ -407,7 +407,7 @@ public:
 
 		state->print_indent();
 		maybe_encode ("value", value);
-		state->os << endl;
+		state->os << "\n";
 	}
 };
 
