@@ -105,7 +105,10 @@ public:
 			return new NIL ();
 
 		else
+		{
 			phc_internal_error ("Trying to parse token of unknown type: %s", name.c_str ());
+			return NULL;
+		}
 	}
 
 	virtual bool can_handle_token (string name)
