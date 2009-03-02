@@ -272,9 +272,10 @@ String* get_filename_from_param (Actual_parameter* param)
 String*
 get_dirname (String* filename)
 {
-	char* data = new (GC) char[filename->size()+1];
-	strncpy (data, filename->c_str(), filename->size());
-	return new String (dirname (data));
+	// I believe this is OK, memory wise. The cloned memory is overwritten by
+	// dirname, but that is then copied into the result, and then never touched
+	// again.
+	return new String (dirname (const_cast<char*>(filename->clone()->c_str ())));
 }
 
 String_list*
