@@ -1323,7 +1323,16 @@ void AST_unparser::children_name_with_default (Name_with_default* in)
 	}
 }
 
-void AST_unparser::pre_foreign(FOREIGN* in)
+void AST_unparser::children_foreign(FOREIGN* in)
 {
 	in->unparse (ups);
+}
+
+void AST_unparser::post_expr_chain (Expr* in)
+{
+	// A FOREIGN is both a Statement and an Expr. Since a Statement is a
+	// Commented_node, it gets a \n after it, even if its an expr. This is
+	// wrong. Avoid calling post_* for FOREIGNs.
+	if (!isa<FOREIGN> (in))
+		Visitor::post_expr_chain (in);
 }

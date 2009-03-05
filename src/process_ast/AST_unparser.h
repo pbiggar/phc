@@ -88,6 +88,8 @@ public:
 	void children_string(AST::STRING* in);
 	void children_bool(AST::BOOL* in);
 	void children_nil(AST::NIL* in);
+	void children_foreign(AST::FOREIGN* in);
+	void post_expr_chain (AST::Expr* in); // hack for FOREIGN
 	
 	void visit_interface_name_list(AST::INTERFACE_NAME_list* in);
 	void visit_member_list(AST::Member_list* in);
@@ -102,7 +104,6 @@ public:
 	void visit_actual_parameter_list(AST::Actual_parameter_list* in);
 	void visit_name_with_default_list(AST::Name_with_default_list* in);
 
-	void pre_foreign(AST::FOREIGN* in);
 	void pre_node(AST::Node* in);
 	void pre_bin_op(AST::Bin_op* in);
 	void post_bin_op(AST::Bin_op* in);
