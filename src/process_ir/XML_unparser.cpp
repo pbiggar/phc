@@ -230,6 +230,7 @@ protected:
 		{
 			state->os << "<attr key=\"" << name << "\">\n";
 			xml_unparse (node, state);
+			state->print_indent();
 			state->os << "</attr>\n";
 		}
 		else if (attr == NULL)
@@ -418,10 +419,10 @@ class MICG_XML_unparser : public XML_unparser
 	MICG::All, 
 	MICG::Node, 
 	MICG::Visitor,
+	MICG::Identifier,
 	// The MICG doesnt have these node, so just use the MIR versions to satisfy
 	// the type-checker. They'll be ignored at run-time, since the MICG wont
 	// have any MIR nodes.
-	MICG::Identifier,
 	MIR::Literal,
 	MIR::NIL,
 	MIR::CAST,
