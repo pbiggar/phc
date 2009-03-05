@@ -1656,8 +1656,43 @@ public:
 		string fci_name = suffix (function_name, "fci");
 		string fcic_name = suffix (function_name, "fcic");
 
+
+		if (rhs->value->target != NULL)
+		{
+			VARIABLE_NAME* object_name = dynamic_cast<VARIABLE_NAME*>(rhs->value->target);
+			CLASS_NAME* class_name  = dynamic_cast<CLASS_NAME*>(rhs->value->target);
+
+			if(object_name != NULL)
+			{
+				// TODO: if we statically knew the type of the object that is
+				// invoked (type inference) then we should be able to use
+				// the cached function info. As it stands, we have to
+				// lookup the function every time since the variable can be
+				// bound to a different class every time we encounter this
+				// statement
+		
+				INST (buf, "assign_param_is_ref_method", 
+						s(function_name),
+						rhs->value->get_filename (),
+						s(lexical_cast<string> (rhs->value->get_line_number ())),
+						s(lexical_cast<string> (rhs->value->param_index->value)),
+						object_name,
+						lhs->value);
+
+				return;
+			}
+			else
+			{
+				assert (class_name != NULL);
+
+				fci_name  = suffix (suffix(*class_name->value, function_name), "fci");
+				fcic_name = suffix (suffix(*class_name->value, function_name), "fcic");
+				function_name = *class_name->value + "::" + function_name;
+			}
+		}
+
 		INST (buf,
-				"assign_param_is_ref", 
+				"assign_param_is_ref_function", 
 				s(function_name),
 				rhs->value->get_filename (),
 				s(lexical_cast<string> (rhs->value->get_line_number ())),
@@ -1703,8 +1738,9 @@ public:
 			lhs_descriptor = s("NONE");
 		}
 
-		// We want a list of rvalues here, not actual parameters. But we need to
-		// communicate the is_ref field of the actual_parameter if its there.
+		// We want a list of rvalues here, not actual parameters. But we need
+		// to communicate the is_ref field of the actual_parameter if its
+		// there.
 		Object_list* params = new Object_list;
 		foreach (Actual_parameter* ap, *rhs->value->actual_parameters)
 		{
@@ -1720,8 +1756,8 @@ public:
 		METHOD_NAME* name = dynamic_cast<METHOD_NAME*>(rhs->value->method_name);
 		if (name == NULL) phc_unsupported (rhs->value, "variable function");
 
-		// Names of the runtime variables that will hold the (potentially cached)
-		// location of the function
+		// Names of the runtime variables that will hold the (potentially
+		// cached) location of the function
 		string fci_name;
 		string fcic_name;
 
@@ -1735,11 +1771,12 @@ public:
 
 			if(object_name != NULL)
 			{
-				// TODO: if we statically knew the type of the object that is invoked
-				// TODO: (type inference) then we should be able to use the cached 
-				// TODO: function info. As it stands, we have to lookup the function
-				// TODO: every time since the variable can be bound to a different
-				// TODO: class every time we encounter this statement
+				// TODO: if we statically knew the type of the object that is
+				// invoked (type inference) then we should be able to use
+				// the cached function info. As it stands, we have to
+				// lookup the function every time since the variable can be
+				// bound to a different class every time we encounter this
+				// statement
 		
 				function_name = *name->value;
 

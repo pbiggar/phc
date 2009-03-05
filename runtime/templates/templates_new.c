@@ -1177,9 +1177,23 @@ function_invocation (string MN, list ARGS, string FILENAME, string LINE, string 
 @@@
 
 
-assign_param_is_ref (string MN, string FILENAME, string LINE, string FCI_NAME, string FCIC_NAME, string INDEX, token LHS)
+assign_param_is_ref_function (string MN, string FILENAME, string LINE, string FCI_NAME, string FCIC_NAME, string INDEX, token LHS)
 @@@
    initialize_function_call (&$FCI_NAME, &$FCIC_NAME, "$MN", "$FILENAME", $LINE TSRMLS_CC);
+	\assign_param_is_ref (MN, FILENAME, LINE, FCI_NAME, FCIC_NAME, INDEX, LHS);
+@@@
+
+assign_param_is_ref_method (string MN, string FILENAME, string LINE, string INDEX, token TARGET, token LHS)
+@@@
+   \get_st_entry ("LOCAL", "p_obj", TARGET);
+   zend_fcall_info fci_object;
+   zend_fcall_info_cache fcic_object = {0, NULL, NULL, NULL};
+   initialize_method_call (&fci_object, &fcic_object, p_obj, "$MN", "$FILENAME", $LINE TSRMLS_CC);
+	\assign_param_is_ref (MN, FILENAME, LINE, "fci_object", "fcic_object", INDEX, LHS);
+@@@
+
+assign_param_is_ref (string MN, string FILENAME, string LINE, string FCI_NAME, string FCIC_NAME, string INDEX, token LHS)
+@@@
 	zend_function* signature = $FCIC_NAME.function_handler;
 	zend_arg_info* arg_info = signature->common.arg_info;
 	int count = 0;
