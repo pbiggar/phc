@@ -593,11 +593,11 @@ src/generated/php_parser.tab.hpp: src/generated_src/php_parser.ypp
 
 # - Without the second \@, autoconf with replace the @CFLAGS\@ etc
 src/phc_compile_plugin: Makefile src/phc_compile_plugin.in
-	sed -e 's,@includedir\@,$(includedir),g; s,@CXX\@,$(CXX),g; s,@CFLAGS\@,$(CFLAGS),g; s,@LDFLAGS\@,$(LDFLAGS),g; s,@libexecdir\@,$(libexecdir),g; s,@pkglibdir\@,$(pkglibdir),g;' $(srcdir)/src/phc_compile_plugin.in > src/phc_compile_plugin
+	sed -e 's!@includedir\@!$(includedir)!g; s!@CXX\@!$(CXX)!g; s!@CFLAGS\@!$(CFLAGS)!g; s!@LDFLAGS\@!$(LDFLAGS)!g; s!@libexecdir\@!$(libexecdir)!g; s!@pkglibdir\@!$(pkglibdir)!g;' $(srcdir)/src/phc_compile_plugin.in > src/phc_compile_plugin
 	chmod 755 src/phc_compile_plugin
 
 test/framework/lib/autovars.php: Makefile test/framework/lib/autovars.php.in
-	sed -e 's,@valgrind\@,$(valgrind),g; s,@graphviz_gc\@,$(graphviz_gc),g;s,@dot\@,$(dot),g; s,@php\@,$(php),g; s,@CC\@,$(CC),g; s,@diff\@,$(diff),g;s,@php_install_path\@,$(php_install_path),g; s,@bindir\@,$(bindir),g; s,@EXEEXT\@,$(EXEEXT),g; s,@pkglibdir\@,$(pkglibdir),g; s,@xerces_compiled_in\@,$(use_libXerces),g; s,@AM_CPPFLAGS\@,$(AM_CPPFLAGS),g;' $(srcdir)/test/framework/lib/autovars.php.in > test/framework/lib/autovars.php
+	sed -e 's!@valgrind\@!$(valgrind)!g; s!@graphviz_gc\@!$(graphviz_gc)!g;s!@dot\@!$(dot)!g; s!@php\@!$(php)!g; s!@CC\@!$(CC)!g; s!@diff\@!$(diff)!g;s!@php_install_path\@!$(php_install_path)!g; s!@bindir\@!$(bindir)!g; s!@EXEEXT\@!$(EXEEXT)!g; s!@pkglibdir\@!$(pkglibdir)!g; s!@xerces_compiled_in\@!$(use_libXerces)!g; s!@AM_CPPFLAGS\@!$(AM_CPPFLAGS)!g;' $(srcdir)/test/framework/lib/autovars.php.in > test/framework/lib/autovars.php
 
 
 ## Clean files
