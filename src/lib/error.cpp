@@ -28,6 +28,9 @@ static const char* error_messages[] = { "Warning", "Error", "Internal error" };
 
 void phc_message (Error_type type, const char* message_template, String* filename, int line, int column, va_list argp)
 {
+	if (type == WARNING && error_args_info.no_warnings_flag)
+		return;
+
 	if(filename)
 		fprintf(stderr, "%s:", filename->c_str());
 	
