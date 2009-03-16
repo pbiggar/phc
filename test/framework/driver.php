@@ -96,7 +96,7 @@ $tests[] = new Pass_dump (			"HIR-to-MIR",	"dump",	"cb_hir");
 $tests[] = new Pass_dump (			"mir",			"dump",	"cb_mir");
 $tests[] = new CompareWithPHP ("InterpretOptimized", "-O1 --dump=generate-c --convert-uppered", "cb_mir");
 $tests[] = new CompareWithPHP ("InterpretCanonicalUnparsed", "--run plugins/tests/canonical_unparser.la", "BasicParseTest"); // not necessarily dependent of InterpretUnparsed
-$tests[] = new CompareWithPHP ("InterpretStrippedIncludes", "--include --dump=sua --run plugins/tests/strip_includes.la", "cb_sua");
+$tests[] = new CompareWithPHP ("InterpretIncludes", "--include --dump=incl1 --no-warnings", "cb_sua");
 $tests[] = new CompareWithPHP ("InterpretObfuscated", "--obfuscate", "cb_mir");
 require_once ("generate_c.php");
 require_once ("compiled_vs_interpreted.php");
