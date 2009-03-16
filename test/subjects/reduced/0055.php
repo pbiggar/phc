@@ -1,6 +1,6 @@
 <?
 
-	// Reported by Viesturs
+	// Reported by Viesturs Decens
 
 	class class1
 	{
