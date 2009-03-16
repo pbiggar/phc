@@ -222,10 +222,10 @@ void Process_includes::do_not_include (const char* warning, Eval_expr* in, State
 
 
 
-/* If it matches, return the filename, else return NULL. If warn is passed,
- * warn if an include statement is found, but using an expression, not a
- * string. Set INCLUDE_ONCE if the function is a *_once function. */
-Actual_parameter* matching_param (Eval_expr* in, Statement_list* out, bool* include_once) 
+/* If it matches, return the filename, else return NULL. Set INCLUDE_ONCE if
+ * the function is a *_once function. */
+Actual_parameter*
+matching_param (Eval_expr* in, Statement_list* out, bool* include_once) 
 { 
 
 	// the filename is the only parameter of the include statement
@@ -240,9 +240,6 @@ Actual_parameter* matching_param (Eval_expr* in, Statement_list* out, bool* incl
 	Assignment* agn_pattern = new Assignment (
 		new Wildcard<Variable>, false, pattern);
 
-	// TODO there is obviously a difference between these forms. In
-	// particular, the _once versions actually do something
-	// different. Make tests to demonstrate, then fix.
 	if ((in->expr->match (pattern) or in->expr->match (agn_pattern))
 		and (*(method_name->value->value) == "include" 
 			or *(method_name->value->value) == "include_once"
@@ -275,7 +272,8 @@ get_dirname (String* filename)
 	// I believe this is OK, memory wise. The cloned memory is overwritten by
 	// dirname, but that is then copied into the result, and then never touched
 	// again.
-	return new String (dirname (const_cast<char*>(filename->clone()->c_str ())));
+	char* copy = strdup (filename->c_str());
+	return new String (dirname (copy));
 }
 
 String_list*
@@ -289,18 +287,32 @@ get_search_directories (String* filename, Node* in)
 	if (filename->substr(0, 3) == "../"
 		or filename->substr (0, 2) == "./")
 	{
-		// TODO: take into account relative includes
+		DEBUG ("Search directory: ./");
+		return new String_list (s("./"));
 	}
 
 	String_list* result = PHP::get_include_paths ();
+
+	// Add the directory of the current script
 	if (*in->get_filename () != "unknown")
 		result->push_back (get_dirname (in->get_filename ()));
+
+	if (debugging_enabled)
+	{
+		cdebug << "Search directory: ";
+		foreach (String* dir, *result)
+		{
+			cdebug << *dir << ", ";
+		}
+		cdebug << std::endl;
+	}
 
 	return result;
 }
 
 // look for include statements
-void Process_includes::pre_eval_expr(Eval_expr* in, Statement_list* out)
+void
+Process_includes::pre_eval_expr(Eval_expr* in, Statement_list* out)
 {
 	if (not pm->args_info->include_given)
 	{
@@ -348,21 +360,21 @@ void Process_includes::pre_eval_expr(Eval_expr* in, Statement_list* out)
 	PHP::add_include (full_path);
 
 
-	PHP_script* ast = parse (full_path, new String_list);
-	assert (ast); // will have been checked in full_path
+	PHP_script* new_file = parse (full_path, new String_list);
+	assert (new_file); // will have been checked in full_path
 
 
 	// We don't support returning values from included scripts; 
 	// issue a warning and leave the include as-is
 	Return_check rc;
-	rc.visit_statement_list (ast->statements);
+	rc.visit_statement_list (new_file->statements);
 	if(rc.found)
 	{
 		if (hir)
 		{
 			assert (0); // TODO re-enable
 //			Label* label = fresh_label ();
-//			ast->transform_children (new Return_transform (label));
+//			new_file->transform_children (new Return_transform (label));
 //			out->push_back (label);
 		}
 		else
@@ -374,8 +386,10 @@ void Process_includes::pre_eval_expr(Eval_expr* in, Statement_list* out)
 	}
 
 	// bring the statements to the expected level of the IR
-	pm->run_until (pass_name, ast);
+	// We only need this in the HIR, and it causes infinite recursion in the
+	// AST. Disable until the HIR is re-enabled.
+//	pm->run_until (pass_name, new_file);
 
 	// copy the statements
-	out->push_back_all(ast->statements);
+	out->push_back_all (new_file->statements);
 }
