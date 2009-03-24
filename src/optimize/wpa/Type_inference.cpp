@@ -154,6 +154,7 @@ Type_inference::get_bin_op_type (string ltype, string rtype, string op)
 	Set<string> always_bool_ops;
 	always_bool_ops.insert ("<");
 	always_bool_ops.insert ("<=");
+	always_bool_ops.insert ("==");
 	always_bool_ops.insert (">");
 	if (always_bool_ops.has (op))
 		return Types ("bool");
