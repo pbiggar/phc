@@ -692,15 +692,15 @@ ABSVAL (Index_node* node)
 }
 
 Storage_node*
-BB_array_name (Basic_block* bb)
+BB_array_node (Basic_block* bb)
 {
-	return new Storage_node ("array_" + lexical_cast<string> (bb->ID));
+	return new Storage_node (BB_array_name (bb));
 }
 
 Storage_node*
-BB_object_name (Basic_block* bb)
+BB_object_node (Basic_block* bb)
 {
-	return new Storage_node ("object_" + lexical_cast<string> (bb->ID));
+	return new Storage_node (BB_object_name (bb));
 }
 
 

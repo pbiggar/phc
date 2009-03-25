@@ -1045,11 +1045,11 @@ Whole_program::assign_unknown (Basic_block* bb, Path* plhs)
 			wpa->set_scalar (bb, ABSVAL (node), Abstract_value::unknown ());
 			wpa->assign_value (bb, node, ABSVAL(node), POSSIBLE);
 
-			wpa->set_storage (bb, BB_array_name (bb), Types ("array"));
-			wpa->assign_value (bb, node, BB_array_name (bb), POSSIBLE);
+			wpa->set_storage (bb, BB_array_node (bb), Types ("array"));
+			wpa->assign_value (bb, node, BB_array_node (bb), POSSIBLE);
 
-			wpa->set_storage (bb, BB_object_name (bb), Types ("object"));
-			wpa->assign_value (bb, node, BB_object_name (bb), POSSIBLE);
+			wpa->set_storage (bb, BB_object_node (bb), Types ("object"));
+			wpa->assign_value (bb, node, BB_object_node (bb), POSSIBLE);
 		}
 	}
 }
@@ -1126,7 +1126,7 @@ Whole_program::copy_value (Basic_block* bb, Index_node* lhs, Index_node* rhs, ce
 		if (array.size())
 		{
 			// We need to do a deep copy here.
-			Storage_node* new_array = BB_array_name (bb);
+			Storage_node* new_array = BB_array_node (bb);
 
 			// create the new array
 			foreach_wpa (this)
@@ -1274,7 +1274,7 @@ Whole_program::get_named_indices (Basic_block* bb, Path* path, Indexing_flags fl
 					// Other scalars will go to NULL instead.
 					// TODO: these cases should clearly be dealt with in the caller.
 
-					name = BB_array_name (bb)->storage;
+					name = BB_array_node (bb)->storage;
 
 					// TODO: i'm not very happy about this
 					if (flags & IMPLICIT_CONVERSION)
@@ -1491,14 +1491,13 @@ Whole_program::visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
 void
 Whole_program::visit_unset (Statement_block* bb, MIR::Unset* in)
 {
-	// TODO: remove references here, not just values.
-	phc_TODO ();
+	Index_node_list* indices = get_named_indices (bb, P (ST(bb), in));
 
-	// Get the index nodes. Remove them.
-	Path* path = P (ST(bb), in);
-
-	// This isnt quite right - there are references to take care of
-	assign_scalar (bb, path, new NIL);
+	// Send the results to the analyses for all variables which could be
+	// overwritten.
+	foreach (Index_node* index, *indices)
+		foreach_wpa (this)
+			wpa->kill_reference (bb, index);
 }
 
 void
@@ -1652,16 +1651,25 @@ Whole_program::visit_cast (Statement_block* bb, MIR::Cast* in)
 	// We've handled casts for known scalars to scalars. We still must handle
 	// casts to objects, casts to arrays, and casts from unknown values to
 	// other scalar types.
-	assign_typed (bb, saved_plhs, Types ("array"));
 
-/*	foreach (Storage_node* pointed_to,
-					*aliasing->get_values (bb, operand.ind(), PTG_ALL))
+
+	if (*in->cast->value == "array")
 	{
-		cdebug << pointed_to->name().str();
-	}
-	phc_TODO ();*/
+		if (lit && isa<NIL> (lit))
+		{
+			// Most common case: create an empty array
+			assign_empty_array (bb, saved_plhs, BB_array_name (bb));
+		}
+		else
+			phc_TODO ();
 
-	phc_TODO ();
+	}
+	else if (*in->cast->value == "object")
+	{
+		phc_TODO ();
+	}
+	else
+		phc_unreachable ();
 }
 
 void

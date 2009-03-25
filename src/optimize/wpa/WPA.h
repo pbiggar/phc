@@ -44,6 +44,10 @@ certainty combine_certs (certainty c1, certainty c2);
 // Main storage node
 #define MSN "__MAIN__"
 
+string BB_array_name (Basic_block* bb);
+string BB_object_name (Basic_block* bb);
+
+
 
 typedef Set<string> Types;
 
