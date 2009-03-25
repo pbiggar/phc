@@ -99,6 +99,13 @@ Aliasing::pull_pred (Basic_block* bb, Basic_block* pred)
 }
 
 void
+Aliasing::pull_possible_null (Basic_block* bb, Index_node* node)
+{
+	// Copied from assign_value
+	ins[bb->ID]->add_edge (node, ABSVAL (node), POSSIBLE);
+}
+
+void
 Aliasing::pull_finish (Basic_block* bb)
 {
 	// You cant have no predecessors (and at least 1 must be executable)
@@ -219,11 +226,13 @@ Aliasing::get_values (Basic_block* bb, Index_node* index)
 	Points_to* ptg = ins[bb->ID];
 	Storage_node_list* result = ptg->get_values (index);
 
-	// It may be that the index_node itself is only possibly defined (or yet
-	// not defined, even). In this case, we need an abstract value.
+	// For undefined nodes, we look to the UNKNOWN node. 
 	Alias_pair* edge = ptg->get_edge (index->get_storage(), index);
-	if (edge == NULL || edge->cert == POSSIBLE)
-		result->push_back (ABSVAL (index));
+	assert ((edge == NULL) xor !result->empty ());
+	if (edge == NULL)
+	{
+		return get_values (bb, IN (index->storage, UNKNOWN));
+	}
 
 	return result;
 }
@@ -233,6 +242,17 @@ Index_node_list*
 Aliasing::get_indices (Basic_block* bb, Storage_node* storage)
 {
 	return ins[bb->ID]->get_indices (storage);
+}
+
+Index_node_list*
+Aliasing::get_possible_nulls (BB_list* bbs)
+{
+	List<Points_to*>* graphs = new List<Points_to*>;
+
+	foreach (Basic_block* bb, *bbs)
+		graphs->push_back (outs[bb->ID]);
+
+	return Points_to::get_possible_nulls (graphs);
 }
 
 

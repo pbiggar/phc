@@ -38,6 +38,14 @@ CCP::set_storage (Basic_block* bb, Storage_node* storage, Types types)
 	outs[bb->ID][storage->name().str()] = BOTTOM;
 }
 
+void
+CCP::pull_possible_null (Basic_block* bb, Index_node* node)
+{
+	Lattice_map& lat = ins[bb->ID];
+	lat[node->name().str()] = meet (lat[node->name().str()], new Literal_cell (new NIL));
+	lat[ABSVAL(node)->name().str()] = meet (lat[ABSVAL(node)->name().str()], new Literal_cell (new NIL));
+}
+
 
 bool
 CCP::branch_known_true (Basic_block* bb, Alias_name cond)

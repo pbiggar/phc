@@ -52,6 +52,9 @@ CFG::CFG (Method* method)
 	// We use this for debugging
 	renumber_vertex_indices ();
 
+	dominance = new Dominance (this);
+	dominance->calculate_forward_dominance ();
+	dominance->calculate_reverse_dominance ();
 }
 
 // Used for cloning

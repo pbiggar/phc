@@ -62,6 +62,7 @@ public:
 	void pull_init (Basic_block* bb);
 	void pull_first_pred (Basic_block* bb, Basic_block* pred);
 	void pull_pred (Basic_block* bb, Basic_block* pred);
+	void pull_possible_null (Basic_block* bb, Index_node* node);
 	void pull_finish (Basic_block* bb);
 
 
@@ -81,6 +82,8 @@ public:
 	Index_node_list* get_indices (Basic_block*, Storage_node* storage);
 
 	Storage_node_list* get_values (Basic_block*, Index_node* index);
+
+	Index_node_list* get_possible_nulls (BB_list*);
 
 private:
 	// TODO: i think i'll be removing this...

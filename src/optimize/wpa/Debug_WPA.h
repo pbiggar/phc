@@ -39,6 +39,7 @@ public:
 	void pull_init (Basic_block* bb);
 	void pull_first_pred (Basic_block* bb, Basic_block* pred);
 	void pull_pred (Basic_block* bb, Basic_block* pred);
+	void pull_possible_null (Basic_block* bb, Index_node* node);
 	void pull_finish (Basic_block* bb);
 
 	void aggregate_results (Basic_block* bb);

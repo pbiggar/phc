@@ -182,6 +182,21 @@ Points_to::get_indices (Storage_node* storage)
 	return get_targets <Index_node> (storage, PTG_ALL);
 }
 
+Storage_node_list*
+Points_to::get_storage_nodes ()
+{
+	Storage_node_list* result = new Storage_node_list;
+
+	foreach (Alias_pair* pair, all_pairs)
+	{
+		if (isa<Storage_node> (pair->source))
+			result->push_back (dyc<Storage_node> (pair->source));
+	}
+
+	return result;
+}
+
+
 void
 Points_to::consistency_check ()
 {
@@ -193,15 +208,19 @@ Points_to::consistency_check ()
 			Storage_node* st = ind->get_storage ();
 			Alias_pair* incoming = get_edge (st, ind);
 			if (incoming == NULL)
-				phc_internal_error ("No edge from storage node for %s", ind->name().str().c_str());
+				phc_internal_error ("No edge from storage node for %s",
+										  ind->name().str().c_str());
 
 			// If there is only one outgoing edges from an index, then it must be
 			// DEFINITE. If not, I'm not being careful with propagating CERTS.
 			Storage_node_list* values = get_values (ind);
-			if (values->size () == 1 && get_edge (ind, values->front())->cert != DEFINITE)
+			if (values->size () == 1
+				 && get_edge (ind, values->front())->cert != DEFINITE)
+			{
 				phc_internal_error ("Solo edge from %s to %s is not DEFINITE",
 										  ind->name().str().c_str(),
 										  values->front()->name().str().c_str());
+			}
 
 			// Check there isnt > 1 DEFINITE values
 			if (values->size () > 1)
@@ -331,12 +350,51 @@ Points_to::clone ()
 }
 
 /*
- * Merge another graph with this one, and return a new merged graph.
- *
- *  This allows us to say tht we
- * know all the possible edges, and not worry that we may be missing an edge
- * (say, if there is just one possible edge).
- *
+ * Given a list of points_to graphs, return the list of index_nodes which
+ * might be NULL. An index node is in this set if the its storage node exists
+ * in a graph in which it does not appear.
+ */
+Index_node_list*
+Points_to::get_possible_nulls (List<Points_to*>* graphs)
+{
+	Index_node_list* result = new Index_node_list;
+
+	Set<Alias_name> existing;
+
+	// Foreach storage node in G, check all other graphs for G. If they have
+	// G, check for each I, such that G->I.
+	foreach (Points_to* graph, *graphs)
+	{
+		foreach (Storage_node* stor, *graph->get_storage_nodes ())
+		{
+			foreach (Index_node* index, *graph->get_indices (stor))
+			{
+				// Check all the other graphs
+				foreach (Points_to* other, *graphs)
+				{
+					if (graph == other)
+						continue;
+
+					if (other->has_node (stor) && !other->has_node (index))
+					{
+						// Add it
+						if (!existing.has (index->name()))
+						{
+							existing.insert (index->name ());
+							result->push_back (index);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return result;
+}
+
+/*
+ * Merge another graph with this one. Edge cases with NULL are handled in
+ * Whole_program, using get_possible_nulls().
  */
 Points_to*
 Points_to::merge (Points_to* other)
@@ -354,10 +412,13 @@ Points_to::merge (Points_to* other)
 		}
 		else
 		{
-			if (other->has_node (p->source))
+			if (other->has_node (p->source) 
+				&& isa<Index_node> (p->source) && isa<Index_node> (p->target))
 			{
 				// If the source node is in both graphs, but the edge is not,
-				// then the edge becomes possible.
+				// then the edge becomes possible. This only applies to reference
+				// edges (index->index), as we handle the NULL possabilities in
+				// Whole_program.
 				result->add_edge (p->source, p->target, POSSIBLE);
 			}
 			else
@@ -374,8 +435,10 @@ Points_to::merge (Points_to* other)
 	{
 		if (this->get_edge (p->source, p->target) == NULL)
 		{
-			if (this->has_node (p->source))
+			if (this->has_node (p->source)
+				&& isa<Index_node> (p->source) && isa<Index_node> (p->target))
 			{
+				// see above
 				result->add_edge (p->source, p->target, POSSIBLE);
 			}
 			else
@@ -384,50 +447,6 @@ Points_to::merge (Points_to* other)
 			}
 		}
 	}
-
-	// ST->IN edges where CERT==POSSIBLE, means that there is also a NULL value
-	// POSSIBLE.
-	foreach (Alias_pair* p, result->all_pairs)
-	{
-		if (  isa<Storage_node> (p->source)
-			&& isa<Index_node> (p->target)
-			&& p->cert == POSSIBLE)
-		{
-			Index_node* target = dyc<Index_node> (p->target);
-
-			// We shouldnt change CERT in general, but its OK here since its a
-			// new edge created above.
-			p->cert = DEFINITE;
-
-			Storage_node_list* values = result->get_values (target);
-
-			assert (!values->empty ());
-
-			// Does it have an abstract node already
-			bool has_abstract_node = false;
-			foreach (Storage_node* node, *values)
-			{
-				if (isa<Value_node> (node))
-					has_abstract_node = true;
-			}
-
-			if (!has_abstract_node)
-			{
-				// New edge - the value semantics of this must be handled
-				// elsewhere.
-				result->add_edge (target, ABSVAL (target), POSSIBLE);
-
-				// DEFINITE edges must be converted to POSSIBLE too.
-				if (values->size() == 1)
-				{
-					Alias_pair* edge = result->get_edge (target, values->front());
-					assert (edge);
-					edge->cert = POSSIBLE;
-				}
-			}
-		}
-	}
-
 	return result;
 }
 

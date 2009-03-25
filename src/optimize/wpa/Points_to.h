@@ -173,6 +173,10 @@ public:
 
 	void consistency_check ();
 
+	Storage_node_list* get_storage_nodes ();
+	static Index_node_list* get_possible_nulls (List<Points_to*>* graphs);
+
+
 
 	/*
 	 * Lower-level API

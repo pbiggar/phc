@@ -38,6 +38,14 @@ Type_inference::set_storage (Basic_block* bb, Storage_node* storage, Types types
 	lat[name] = meet (lat[name], new Type_cell (types));
 }
 
+void
+Type_inference::pull_possible_null (Basic_block* bb, Index_node* node)
+{
+	Lattice_map& lat = ins[bb->ID];
+	lat[node->name().str()] = meet (lat[node->name().str()], new Type_cell (Types ("unset")));
+	lat[ABSVAL(node)->name().str()] = meet (lat[ABSVAL(node)->name().str()], new Type_cell (Types ("unset")));
+}
+
 
 Types
 Type_inference::get_types (Basic_block* bb, Alias_name name)

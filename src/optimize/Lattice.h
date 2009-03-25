@@ -16,11 +16,12 @@ class Lattice_cell : virtual public GC_obj
 public:
 	virtual void dump (std::ostream& os = cdebug) = 0;
 
-	// Assume THIS and OTHER are not TOP or BOTTOM, and they are all of the same type.
+	// Assume THIS and OTHER are not TOP or BOTTOM, and they are all of the
+	// same type.
 	virtual bool equals (Lattice_cell* other) = 0;
 
-	// Assuming that THIS and OTHER are not TOP or BOTTOM. This models a 3-level
-	// lattice. A subclass may wish to model a deeper lattice.
+	// Assuming that THIS and OTHER are not TOP or BOTTOM. This models a
+	// 3-level lattice. A subclass may wish to model a deeper lattice.
 	virtual Lattice_cell* meet (Lattice_cell* other);
 };
 

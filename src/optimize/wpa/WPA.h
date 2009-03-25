@@ -142,6 +142,13 @@ public:
 	virtual void pull_init (Basic_block* bb) CT_IMPL;
 	virtual void pull_first_pred (Basic_block* bb, Basic_block* pred) CT_IMPL;
 	virtual void pull_pred (Basic_block* bb, Basic_block* pred) CT_IMPL;
+
+	// Index_nodes may be NULL on some paths. This is hard to do at a
+	// fine-grained level, but much easier at a higher level. pulls typically
+	// work on INs, so this needs to be done now, rather than trying to do it
+	// with an out.
+	virtual void pull_possible_null (Basic_block* bb, Index_node* node) CT_IMPL;
+
 	virtual void pull_finish (Basic_block* bb) CT_IMPL;
 
 	// Combine local results to an OUT solution. This should set

@@ -25,6 +25,7 @@ public:
 	void set_scalar (Basic_block* bb, Value_node* storage,
 						  Abstract_value* val);
 
+	void pull_possible_null (Basic_block* bb, Index_node* node);
 
 
 	// CCP-specific

@@ -239,6 +239,54 @@ Whole_program::initialize ()
 //	register_analysis ("VRP", vrp);
 }
 
+class Worklist
+{
+public:
+	Edge_list edges; // ordering
+
+public:
+
+	Edge* next ()
+	{
+		if (size () == 0)
+			return NULL;
+
+		Edge* result = edges.front();
+		edges.pop_front ();
+
+		return result;
+	}
+
+	// TODO: dont add edges if they post-dominate other edges
+	void add (Edge* edge)
+	{
+		edge->is_executable = true;
+
+		// Dont add edges if they are already in the worklist, or if their
+		// target post-dominates the target of an edge in the worklist.
+
+		// Note: linear search - this assumes a very small number of edges in
+		// the worklist, which is very likely.
+		foreach (Edge* existing, edges)
+		{
+			if (existing == edge)
+				return;
+
+			if (existing->get_target ()->is_reverse_dominated_by (
+						edge->get_target ()))
+				return;
+		}
+
+		edges.push_back (edge);
+	}
+
+	size_t size ()
+	{
+		return edges.size ();
+	}
+
+};
+
 
 void
 Whole_program::analyse_function (User_method_info* info, Basic_block* caller, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
@@ -252,46 +300,41 @@ Whole_program::analyse_function (User_method_info* info, Basic_block* caller, MI
 		cfg->dump_graphviz (s("Function entry"));
 
 	// 1. Initialize:
-	Edge_list* cfg_wl = new Edge_list (cfg->get_entry_edge ());
-
 	foreach (Edge* e, *cfg->get_all_edges ())
 		e->is_executable = false;
+
+	Worklist wl;
+	wl.add (cfg->get_entry_edge ());
 
 	// Process the entry blocks first (there is no edge here)
 	DEBUG ("Initing functions");
 	forward_bind (info, caller, cfg->get_entry_bb (), actuals);
 
-	
-	// 2. Stop when CFG-worklist is empty
-	while (cfg_wl->size () > 0)
-	{
-		Edge* e = cfg_wl->front();
-		cfg_wl->pop_front ();
 
+	// 2. Stop when CFG-worklist is empty
+	while (wl.size () > 0)
+	{
+		Edge* e = wl.next ();
+		DEBUG (wl.size() << " edges in the worklist");
 
 		// Analyse the block, storing per-basic-block results.
-		// This does not update the block structure.
+		// This does not update the block's structure.
+		bool changed = analyse_block (e->get_target ());
 
-		bool changed = false;
-		
-		// Always pass through at least once.
-		if (e->is_executable == false)
-			changed = true;
-
-		// Tell successors that we are executable (do this before the target is
-		// analysed).
-		e->is_executable = true;
-
-		changed |= analyse_block (e->get_target ());
-
-
-		// Add next	block(s)
-		if (changed)
+		// Add next	block(s) if the result has changed, or if this the first time
+		// the edge could be executed.
+		if (Branch_block* branch = dynamic_cast<Branch_block*> (e->get_target ()))
 		{
-			if (Branch_block* branch = dynamic_cast<Branch_block*> (e->get_target ()))
-				cfg_wl->push_back_all (get_branch_successors (branch));
-			else if (!isa<Exit_block> (e->get_target ()))
-				cfg_wl->push_back (e->get_target ()->get_successor_edges ()->front ());
+			foreach (Edge* next, *get_branch_successors (branch))
+				if (!next->is_executable || changed)
+					wl.add (next);
+		}
+		else if (!isa<Exit_block> (e->get_target ()))
+		{
+			Edge* next = e->get_target ()->get_successor_edge ();
+
+			if (!next->is_executable || changed)
+				wl.add (next);
 		}
 	}
 
@@ -576,27 +619,41 @@ Whole_program::analyse_block (Basic_block* bb)
 void
 Whole_program::pull_results (Basic_block* bb)
 {
+	// Some index nodes may only have existed on one path. If their storage
+	// node exists, then we assume that they are NULL on the other paths.
+	// (TODO: A simpler way to look at this may be to read each value from all
+	// paths, and in the case that it doesnt exist, its value will be NULL).
+	
+	Edge_list* pred_edges = bb->get_predecessor_edges ();
+
+	// Ignore non-executable edges
+	BB_list* preds = new BB_list;
+	foreach (Edge* pred_edge, *pred_edges)
+	{
+		if (pred_edge->is_executable)
+			preds->push_back (pred_edge->get_source ());
+	}
+
+	// Get the list of variables which dont exist in every executable path.
+	Index_node_list* possible_nulls = aliasing->get_possible_nulls (preds);
+
+	// Separate the first from the remainder, to simplfiy the remainder.
+	Basic_block* first = preds->front ();
+	preds->pop_front ();
+
+
+	// Actually pull the results
 	foreach_wpa (this)
 	{
 		wpa->pull_init (bb);
+		wpa->pull_first_pred (bb, first);
 
-		bool first = true;
-		foreach (Edge* pred, *bb->get_predecessor_edges ())
-		{
-			// Only merge from executable edges
-			if (!pred->is_executable)
-				continue;
+		foreach (Basic_block* pred, *preds)
+			wpa->pull_pred (bb, pred);
 
-			if (first)
-			{
-				wpa->pull_first_pred (bb, pred->get_source ());
-				first = false;
-			}
-			else
-			{
-				wpa->pull_pred (bb, pred->get_source ());
-			}
-		}
+		// Use possible NULLs
+		foreach (Index_node* index, *possible_nulls)
+			wpa->pull_possible_null (bb, index);
 
 		wpa->pull_finish (bb);
 	}
@@ -635,16 +692,20 @@ Whole_program::init_superglobals (Entry_block* entry)
 
 	// TODO: add HTTP_*
 	
-	// TODO: we incorrectly mark _SERVER as being an array of strings. However,
-	// it actually has "argc", "argv" and "REQUEST_TIME" set, which are not strings.
+	// TODO: we incorrectly mark _SERVER as being an array of strings.
+	// However, it actually has "argc", "argv" and "REQUEST_TIME" set, which
+	// are not strings.
 	
 
 	// Start with globals, since it needs needs to point to MSN
 	assign_empty_array (entry, P (MSN, new VARIABLE_NAME ("GLOBALS")), MSN);
 
+
 	// Do the other superglobals
 	foreach (VARIABLE_NAME* sg, *PHP::get_superglobals ())
 	{
+		break; // simplify graph
+
 		if (*sg->value == "GLOBALS")
 			continue;
 
@@ -668,6 +729,7 @@ Whole_program::init_superglobals (Entry_block* entry)
 	assign_typed (entry, P ("argv", UNKNOWN), Types ("string"));
 	assign_typed (entry,  P("argv", "0"), Types("string"));
 
+
 	dump (entry, "After superglobals");
 }
 
@@ -676,7 +738,15 @@ Whole_program::forward_bind (Method_info* info, Basic_block* caller, Entry_block
 {
 	// Each caller should expect that context can be NULL for __MAIN__.
 	foreach_wpa (this)
+	{
 		wpa->forward_bind (caller, entry);
+
+		// The symtable is an array
+		wpa->set_storage (entry, SN(ST(entry)), Types ("array"));
+	}
+
+	// Add a default value of NULL for all variables
+	assign_scalar (entry, P (ST (entry), UNKNOWN), new NIL);
 
 	// Special case for __MAIN__. We do it here so that the other analyses
 	// have initialized.
@@ -684,10 +754,6 @@ Whole_program::forward_bind (Method_info* info, Basic_block* caller, Entry_block
 	{
 		init_superglobals (entry);
 	}
-
-	// HACK - but the symtable needs to get a type somehow
-	type_inf->set_types (entry, SN (ST(entry))->name(), Types ("array"));
-
 
 	int i = 0;
 	foreach (Actual_parameter* ap, *actuals)
@@ -823,7 +889,7 @@ Whole_program::kill_value (Basic_block* bb, Path* plhs)
 
 
 	// There shoudlnt be any may-refs.
-	assert (aliasing->get_references (bb ,lhss->front (), POSSIBLE)->empty());
+	assert (aliasing->get_references (bb, lhss->front (), POSSIBLE)->empty());
 
 	foreach (Index_node* node, *get_all_referenced_names (bb, plhs))
 		foreach_wpa (this)
@@ -944,6 +1010,9 @@ Whole_program::assign_empty_array (Basic_block* bb, Path* plhs, string unique_na
 			wpa->assign_value (bb, node, SN(unique_name), cert);
 		}
 	}
+
+	// All the arrays entries are NULL.
+	assign_scalar (bb, P (unique_name, UNKNOWN), new NIL);
 }
 
 void
@@ -1006,7 +1075,8 @@ Whole_program::assign_by_copy (Basic_block* bb, Path* plhs, Path* prhs)
 	// unknown object here, if the type is not known to not be an object.
 	Index_node_list* rhss = get_named_indices (bb, prhs, RECORD_USES);
 
-	// If there is more than 1 RHSs, we cant say for sure which we're copying from.
+	// If there is more than 1 RHSs, we cant say for sure which we're copying
+	// from.
 	if (rhss->size () > 1)
 		cert = POSSIBLE;
 
@@ -1233,8 +1303,8 @@ Whole_program::get_named_indices (Basic_block* bb, Path* path, Indexing_flags fl
 			// Record this use regardless of RECORD_USES
 			record_use (bb, field_index);
 
-			// This should return a set of possible names, 1 known name (including
-			// "*" indicating it could be anything).
+			// This should return a set of possible names, 1 known name
+			// (including "*" indicating it could be anything).
 			foreach (String* value, *get_string_values (bb, field_index))
 				rhss.insert (*value);
 		}

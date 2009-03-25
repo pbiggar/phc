@@ -140,6 +140,12 @@ Debug_WPA::pull_pred (Basic_block* bb, Basic_block* pred)
 }
 
 void
+Debug_WPA::pull_possible_null (Basic_block* bb, Index_node* node)
+{
+	DEBUG (__FUNCTION__ << " for " << node->name().str());
+}
+
+void
 Debug_WPA::pull_finish (Basic_block* bb)
 {
 	DEBUG (__FUNCTION__ << " " << bb->ID);
