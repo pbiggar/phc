@@ -327,6 +327,16 @@ P (string symtable, Node* in)
 			}
 		}
 
+		case Assign_next::ID:
+		{
+			// (ST -> var) -> *
+			Assign_next* an = dyc<Assign_next> (in);
+
+			return new Indexing (
+					P (symtable, an->lhs),
+					new Index_path ("*"));
+		}
+
 		case Assign_array::ID:
 		{
 			Assign_array* aa = dyc<Assign_array> (in);

@@ -870,7 +870,14 @@ is_must (Index_node_list* indices)
 	// is still correct. All that matters is whether we can refer to one index
 	// node, or multiple.
 	assert (!indices->empty ());
-	return (indices->size () == 1);
+
+	if (indices->size () > 1)
+		return false;
+	
+	if (indices->front()->index == UNKNOWN)
+		return false;
+
+	return true;
 }
 
 // Returns the certainty with which assignments can be made to it.
@@ -1556,10 +1563,12 @@ Whole_program::visit_foreach_next (Statement_block*, MIR::Foreach_next*)
 }
 
 void
-Whole_program::visit_assign_next (Statement_block*, MIR::Assign_next* in)
+Whole_program::visit_assign_next (Statement_block* bb, MIR::Assign_next* in)
 {
-	// _next_ is one larger than the largest integer element
-	phc_TODO ();
+	assert (!in->is_ref); // TODO
+
+	// _next_ is one larger than the largest positive integer element
+	assign_by_copy (bb, P (ST (bb), in), P (ST (bb), in->rhs));
 }
 
 void
