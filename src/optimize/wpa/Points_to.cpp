@@ -198,7 +198,7 @@ Points_to::get_storage_nodes ()
 
 
 void
-Points_to::consistency_check ()
+Points_to::consistency_check (Basic_block* bb, Whole_program* wp)
 {
 	foreach (PT_node* node, *get_nodes ())
 	{
@@ -208,8 +208,11 @@ Points_to::consistency_check ()
 			Storage_node* st = ind->get_storage ();
 			Alias_pair* incoming = get_edge (st, ind);
 			if (incoming == NULL)
+			{
+				dump_graphviz (NULL, bb, wp);
 				phc_internal_error ("No edge from storage node for %s",
 										  ind->name().str().c_str());
+			}
 
 			// If there is only one outgoing edges from an index, then it must be
 			// DEFINITE. If not, I'm not being careful with propagating CERTS.
@@ -217,6 +220,7 @@ Points_to::consistency_check ()
 			if (values->size () == 1
 				 && get_edge (ind, values->front())->cert != DEFINITE)
 			{
+				dump_graphviz (NULL, bb, wp);
 				phc_internal_error ("Solo edge from %s to %s is not DEFINITE",
 										  ind->name().str().c_str(),
 										  values->front()->name().str().c_str());
@@ -228,20 +232,26 @@ Points_to::consistency_check ()
 				foreach (Storage_node* st, *values)
 				{
 					if (get_edge (ind, st)->cert == DEFINITE)
+					{
+						dump_graphviz (NULL, bb, wp);
 						phc_internal_error (
 								"Multiple edges from %s, but edge to %s is DEFINITE",
 								ind->name().str().c_str(),
 								st->name().str().c_str());
+					}
 				}
 			}
 
 			// We're disallowing POSSIBLE edges from a storage_node to an
 			// index_node.
 			if (incoming->cert == POSSIBLE)
+			{
+				dump_graphviz (NULL, bb, wp);
 				phc_internal_error (
 						"Edge from %s to %s is POSSIBLE",
 						st->name().str().c_str(),
 						ind->name().str().c_str());
+			}
 		}
 		else
 		{

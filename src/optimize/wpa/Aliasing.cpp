@@ -57,7 +57,7 @@ Aliasing::forward_bind (Basic_block* caller, Entry_block* entry)
 	else
 		ptg = ins[caller->ID]->clone ();
 
-	ptg->consistency_check ();
+	ptg->consistency_check (caller, wp);
 	// We need INS to read the current situation, but it shouldnt get modified.
 	ins[entry->ID] = ptg;
 	outs[entry->ID] = ptg;
@@ -111,7 +111,7 @@ Aliasing::pull_finish (Basic_block* bb)
 	// You cant have no predecessors (and at least 1 must be executable)
 	assert (ins[bb->ID]);
 
-	ins[bb->ID]->consistency_check ();
+	ins[bb->ID]->consistency_check (bb, wp);
 	outs[bb->ID] = ins[bb->ID]->clone ();
 }
 
@@ -121,7 +121,7 @@ Aliasing::aggregate_results (Basic_block* bb)
 {
 	// TODO: pull_results creates the OUT entry, and it is updated through the
 	// function. Here, we just want to set CHANGED_FLAG
-	outs[bb->ID]->consistency_check ();
+	outs[bb->ID]->consistency_check (bb, wp);
 }
 
 void

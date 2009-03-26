@@ -171,7 +171,7 @@ public:
 
 	bool is_symtable (Storage_node* st);
 
-	void consistency_check ();
+	void consistency_check (Basic_block* bb, Whole_program* wp);
 
 	Storage_node_list* get_storage_nodes ();
 	static Index_node_list* get_possible_nulls (List<Points_to*>* graphs);
