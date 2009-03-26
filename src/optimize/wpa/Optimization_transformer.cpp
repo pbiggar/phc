@@ -137,7 +137,8 @@ Optimization_transformer::visit_pre_op (Statement_block* bb, MIR::Pre_op* in)
 void
 Optimization_transformer::visit_assign_next (Statement_block* bb, MIR::Assign_next* in)
 {
-	phc_TODO ();
+	if (!in->is_ref)
+		in->rhs = get_literal (bb, in->rhs);
 }
 
 void
@@ -167,7 +168,8 @@ Optimization_transformer::visit_try (Statement_block* bb, MIR::Try* in)
 void
 Optimization_transformer::visit_unset (Statement_block* bb, MIR::Unset* in)
 {
-	phc_TODO ();
+	// We can remove unsets from uninits later.
+	// TODO: We should replace array indices
 }
 
 
@@ -202,7 +204,11 @@ Optimization_transformer::visit_bool (Statement_block* bb, MIR::BOOL* in)
 void
 Optimization_transformer::visit_cast (Statement_block* bb, MIR::Cast* in)
 {
-	phc_TODO ();
+	Rvalue* rhs = get_literal (bb, in->variable_name);
+	if (isa<Rvalue> (rhs)
+		&& *in->cast->value != "array"
+		&& *in->cast->value != "object")
+		phc_TODO ();
 }
 
 void

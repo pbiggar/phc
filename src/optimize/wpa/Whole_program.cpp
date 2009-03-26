@@ -1565,10 +1565,23 @@ Whole_program::visit_foreach_next (Statement_block*, MIR::Foreach_next*)
 void
 Whole_program::visit_assign_next (Statement_block* bb, MIR::Assign_next* in)
 {
-	assert (!in->is_ref); // TODO
+	// TODO: _next_ is one larger than the largest positive integer element
 
-	// _next_ is one larger than the largest positive integer element
-	assign_by_copy (bb, P (ST (bb), in), P (ST (bb), in->rhs));
+	Path* lhs = P (ST (bb), in);
+
+	if (isa<Literal> (in->rhs))
+	{
+		assign_scalar (bb, lhs, dyc<Literal> (in->rhs));
+	}
+	else
+	{
+		Path* rhs = P (ST (bb), in->rhs);
+
+		if (in->is_ref)
+			assign_by_ref (bb, lhs, rhs);
+		else
+			assign_by_copy (bb, lhs, rhs);
+	}
 }
 
 void
