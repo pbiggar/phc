@@ -147,6 +147,7 @@ Aliasing::kill_value (Basic_block* bb, Index_node* lhs)
 	foreach (Storage_node* value, *ptg->get_values (lhs))
 	{
 		ptg->remove_pair (lhs, value);
+		ptg->maybe_remove_node (lhs);
 	}
 }
 
@@ -268,6 +269,13 @@ Aliasing::get_possible_nulls (BB_list* bbs)
 		graphs->push_back (outs[bb->ID]);
 
 	return Points_to::get_possible_nulls (graphs);
+}
+
+
+certainty
+Aliasing::get_cert (Basic_block* bb, Storage_node* st, Index_node* in)
+{
+	return ins[bb->ID]->get_edge (st, in)->cert;
 }
 
 

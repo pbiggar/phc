@@ -415,6 +415,7 @@ Points_to::merge (Points_to* other)
 	foreach (Alias_pair* p, this->all_pairs)
 	{
 		Alias_pair* other_pair = other->get_edge (p->source, p->target);
+		// If the pair is in both graphs, add it with the combined CERT.
 		if (other_pair)
 		{
 			result->add_edge (p->source, p->target,
@@ -545,10 +546,6 @@ Points_to::remove_pair (PT_node* source, PT_node* target, bool expected)
 
 	// Remove it from by_target
 	by_target[t].erase (s);
-
-
-	// Check if the node can be removed
-	maybe_remove_node (target);
 }
 
 void

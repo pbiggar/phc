@@ -1146,7 +1146,7 @@ Whole_program::copy_value (Basic_block* bb, Index_node* lhs, Index_node* rhs, ce
 				copy_value (bb,
 						new Index_node (new_array->storage, index->index),
 						index,
-						cert);
+						aliasing->get_cert (bb, st, index));
 			}
 
 			// LHS points to NEW_ARRAY.

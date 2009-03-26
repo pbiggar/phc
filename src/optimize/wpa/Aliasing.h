@@ -85,6 +85,8 @@ public:
 
 	Index_node_list* get_possible_nulls (BB_list*);
 
+	certainty get_cert (Basic_block* bb, Storage_node* st, Index_node* in);
+
 private:
 	// TODO: i think i'll be removing this...
 	void add_all_points_to_edges (Basic_block* bb, Index_node* lhs,
