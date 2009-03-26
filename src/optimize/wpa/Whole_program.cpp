@@ -1556,8 +1556,9 @@ Whole_program::visit_foreach_next (Statement_block*, MIR::Foreach_next*)
 }
 
 void
-Whole_program::visit_assign_next (Statement_block*, MIR::Assign_next*)
+Whole_program::visit_assign_next (Statement_block*, MIR::Assign_next* in)
 {
+	// _next_ is one larger than the largest integer element
 	phc_TODO ();
 }
 
