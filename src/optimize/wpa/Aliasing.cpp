@@ -101,8 +101,23 @@ Aliasing::pull_pred (Basic_block* bb, Basic_block* pred)
 void
 Aliasing::pull_possible_null (Basic_block* bb, Index_node* node)
 {
+	Points_to* pt = ins[bb->ID];
+
 	// Copied from assign_value
-	ins[bb->ID]->add_edge (node, ABSVAL (node), POSSIBLE);
+	pt->add_edge (node, ABSVAL (node), POSSIBLE);
+
+	// HACK: there must be existing values for node. They might just be
+	// ABSVAL, in which case we're fine, or they might be another value, in
+	// which case we need to set the edge to POSSIBLE.
+	Storage_node_list* values = pt->get_values (node);
+	if (values->size () > 1)
+	{
+		foreach (Storage_node* st, *values)
+		{
+			Alias_pair* pair = pt->get_edge (node, st);
+			pt->set_pair_cert (pair, POSSIBLE);
+		}
+	}
 }
 
 void
