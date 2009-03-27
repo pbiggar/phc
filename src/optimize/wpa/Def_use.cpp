@@ -90,6 +90,9 @@ Def_use::kill_reference (Basic_block* bb, Index_node* lhs)
 void
 Def_use::val_assignment (Basic_block* bb, Alias_name lhs, certainty cert)
 {
+	DEBUG ("def (val): " << lhs.str());
+	DEBUG ("use (ref): " << lhs.str());
+
 	// In C terms, *x = ...;
 	// This uses 'x';
 
@@ -105,6 +108,9 @@ Def_use::val_assignment (Basic_block* bb, Alias_name lhs, certainty cert)
 void
 Def_use::ref_assignment (Basic_block* bb, Alias_name lhs, certainty cert)
 {
+	DEBUG ("def (ref): " << lhs.str());
+	DEBUG ("def (val): " << lhs.str());
+
 	// Assignments by ref also change the value
 	if (cert == DEFINITE)
 	{
@@ -143,6 +149,9 @@ Def_use::assign_value (Basic_block* bb, Index_node* lhs, Storage_node* storage_n
 void
 Def_use::create_reference (Basic_block* bb, Index_node* lhs, Index_node* rhs, certainty cert)
 {
+	DEBUG ("use (ref): " << rhs->name().str());
+	DEBUG ("use (val): " << rhs->name().str());
+
 	ref_assignment (bb, lhs->name(), cert);
 	ref_uses[bb->ID].insert (rhs->name());
 	val_uses[bb->ID].insert (rhs->name());
@@ -152,6 +161,8 @@ Def_use::create_reference (Basic_block* bb, Index_node* lhs, Index_node* rhs, ce
 void
 Def_use::record_use (Basic_block* bb, Index_node* use, certainty cert)
 {
+	DEBUG ("use (val): " << use->name().str());
+
 	// This is always by value (I think)
 	val_uses[bb->ID].insert (use->name());
 }

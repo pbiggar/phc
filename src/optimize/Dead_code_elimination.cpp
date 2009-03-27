@@ -377,6 +377,8 @@ void
 DCE::run (CFG* cfg)
 {
 	marks.clear ();
+	bb_marks.clear ();
+
 	worklist = new SSA_def_list;
 	this->cfg = cfg;
 
