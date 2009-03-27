@@ -30,15 +30,19 @@ Def_use::equals (WPA* wpa)
 		&& this->ref_defs.equals (&other->ref_defs)
 		&& this->ref_uses.equals (&other->ref_uses)
 		&& this->ref_may_defs.equals (&other->ref_may_defs)
+
 		&& this->val_defs.equals (&other->val_defs)
 		&& this->val_uses.equals (&other->val_uses)
 		&& this->val_may_defs.equals (&other->val_may_defs)
-		&& this->ref_defs.equals (&other->ref_defs)
-		&& this->ref_uses.equals (&other->ref_uses)
-		&& this->ref_may_defs.equals (&other->ref_may_defs)
+
+		&& this->summary_ref_defs.equals (&other->summary_ref_defs)
+		&& this->summary_ref_uses.equals (&other->summary_ref_uses)
+		&& this->summary_ref_may_defs.equals (&other->summary_ref_may_defs)
+
 		&& this->summary_val_defs.equals (&other->summary_val_defs)
 		&& this->summary_val_uses.equals (&other->summary_val_uses)
-		&& this->summary_val_may_defs.equals (&other->summary_val_may_defs);
+		&& this->summary_val_may_defs.equals (&other->summary_val_may_defs)
+		;
 }
 
 
@@ -236,8 +240,6 @@ Def_use::backward_bind (Basic_block* caller, Exit_block* exit)
 		// everything it can reach!).
 		return;
 	}
-
-	long ID = exit->ID;
 
 	// The defs and uses from the callee represent the entire function.
 	merge_from_callee (caller, exit, ref_defs, summary_ref_defs);
