@@ -592,7 +592,7 @@ Whole_program::merge_contexts (User_method_info* info)
 bool
 Whole_program::analyse_block (Basic_block* bb)
 {
-	DEBUG ("Analysing BB: " << bb->ID);
+	DEBUG ("\nAnalysing BB: " << bb->ID);
 
 	// Merge results from predecessors
 	pull_results (bb);
@@ -745,9 +745,6 @@ Whole_program::forward_bind (Method_info* info, Basic_block* caller, Entry_block
 		wpa->set_storage (entry, SN(ST(entry)), Types ("array"));
 	}
 
-	// Add a default value of NULL for all variables
-	assign_scalar (entry, P (ST (entry), UNKNOWN), new NIL);
-
 	// Special case for __MAIN__. We do it here so that the other analyses
 	// have initialized.
 	if (caller == NULL)
@@ -758,6 +755,16 @@ Whole_program::forward_bind (Method_info* info, Basic_block* caller, Entry_block
 	int i = 0;
 	foreach (Actual_parameter* ap, *actuals)
 	{
+		// Default values
+		if (info->default_param (i))
+			phc_TODO ();
+		else
+		{
+			// Add a default value of NULL for all variables
+			assign_scalar (entry, P (ST (entry), UNKNOWN), new NIL);
+		}
+
+		// Actual parameters
 		if (ap->is_ref || info->param_by_ref (i))
 		{
 			// $ap =& $fp;
@@ -783,16 +790,6 @@ Whole_program::forward_bind (Method_info* info, Basic_block* caller, Entry_block
 		}
 
 		i++;
-	}
-
-	// Default values
-	while (true)
-	{
-		if (info->default_param (i))
-			phc_TODO ();
-//	if (fp->var->default_value)
-		else
-			break;
 	}
 
 	foreach_wpa (this)
