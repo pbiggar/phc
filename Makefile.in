@@ -76,7 +76,8 @@ am__vpath_adj = case $$p in \
 am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
 am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkglibdir)" \
 	"$(DESTDIR)$(bindir)" "$(DESTDIR)$(bindir)" \
-	"$(DESTDIR)$(libexecdir)" "$(DESTDIR)$(pkgdatadir)" \
+	"$(DESTDIR)$(libexecdir)" "$(DESTDIR)$(strangeruntimedir)" \
+	"$(DESTDIR)$(strangeruntimetemplatesdir)" \
 	"$(DESTDIR)$(strangelibdir)" "$(DESTDIR)$(strangeparsingdir)" \
 	"$(DESTDIR)$(strangepassmanagerdir)" \
 	"$(DESTDIR)$(strangephcdir)" \
@@ -395,8 +396,9 @@ RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	install-pdf-recursive install-ps-recursive install-recursive \
 	installcheck-recursive installdirs-recursive pdf-recursive \
 	ps-recursive uninstall-recursive
-pkgdataDATA_INSTALL = $(INSTALL_DATA)
-DATA = $(pkgdata_DATA)
+strangeruntimeDATA_INSTALL = $(INSTALL_DATA)
+strangeruntimetemplatesDATA_INSTALL = $(INSTALL_DATA)
+DATA = $(strangeruntime_DATA) $(strangeruntimetemplates_DATA)
 strangelibHEADERS_INSTALL = $(INSTALL_HEADER)
 strangeparsingHEADERS_INSTALL = $(INSTALL_HEADER)
 strangepassmanagerHEADERS_INSTALL = $(INSTALL_HEADER)
@@ -604,22 +606,6 @@ src_phc_LDADD = @gc_lib@ $(LIBLTDL) libphc.la
 bin_SCRIPTS = src/phc_compile_plugin
 libexec_SCRIPTS = libtool
 # pkgdata_DATA = phc-1.0.xsd
-# TODO: rename templates_new.c (and use 'macro')
-pkgdata_DATA = \
-	runtime/arrays.c							\
-	runtime/builtin_functions.c			\
-	runtime/debug.c							\
-	runtime/isset.c							\
-	runtime/methods.c							\
-	runtime/misc.c								\
-	runtime/string.c							\
-	runtime/support.c							\
-	runtime/templates/templates_new.c	\
-	runtime/unset.c							\
-	runtime/var_vars.c						\
-	runtime/oop.c								\
-	runtime/zval.c
-
 src_phc_SOURCES = \
 	src/phc.cpp
 
@@ -971,6 +957,27 @@ strangelib_HEADERS = \
 	src/lib/Stack.h		\
 	src/lib/String.h		\
 	src/lib/Vector.h
+
+strangeruntimedir = $(pkgdatadir)/runtime
+strangeruntime_DATA = \
+	runtime/arrays.c							\
+	runtime/builtin_functions.c			\
+	runtime/debug.c							\
+	runtime/isset.c							\
+	runtime/methods.c							\
+	runtime/misc.c								\
+	runtime/string.c							\
+	runtime/support.c							\
+	runtime/unset.c							\
+	runtime/var_vars.c						\
+	runtime/oop.c								\
+	runtime/zval.c
+
+
+# TODO: rename templates_new.c (and use 'macro')
+strangeruntimetemplatesdir = $(strangeruntimedir)/templates
+strangeruntimetemplates_DATA = \
+	runtime/templates/templates_new.c
 
 nobase_pkglib_LTLIBRARIES = plugins/tests/canonical_unparser.la \
 	plugins/tests/cloning.la plugins/tests/inconsistent_st_attr.la \
@@ -2300,22 +2307,39 @@ clean-libtool:
 
 distclean-libtool:
 	-rm -f libtool
-install-pkgdataDATA: $(pkgdata_DATA)
+install-strangeruntimeDATA: $(strangeruntime_DATA)
 	@$(NORMAL_INSTALL)
-	test -z "$(pkgdatadir)" || $(MKDIR_P) "$(DESTDIR)$(pkgdatadir)"
-	@list='$(pkgdata_DATA)'; for p in $$list; do \
+	test -z "$(strangeruntimedir)" || $(MKDIR_P) "$(DESTDIR)$(strangeruntimedir)"
+	@list='$(strangeruntime_DATA)'; for p in $$list; do \
 	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
 	  f=$(am__strip_dir) \
-	  echo " $(pkgdataDATA_INSTALL) '$$d$$p' '$(DESTDIR)$(pkgdatadir)/$$f'"; \
-	  $(pkgdataDATA_INSTALL) "$$d$$p" "$(DESTDIR)$(pkgdatadir)/$$f"; \
+	  echo " $(strangeruntimeDATA_INSTALL) '$$d$$p' '$(DESTDIR)$(strangeruntimedir)/$$f'"; \
+	  $(strangeruntimeDATA_INSTALL) "$$d$$p" "$(DESTDIR)$(strangeruntimedir)/$$f"; \
 	done
 
-uninstall-pkgdataDATA:
+uninstall-strangeruntimeDATA:
 	@$(NORMAL_UNINSTALL)
-	@list='$(pkgdata_DATA)'; for p in $$list; do \
+	@list='$(strangeruntime_DATA)'; for p in $$list; do \
 	  f=$(am__strip_dir) \
-	  echo " rm -f '$(DESTDIR)$(pkgdatadir)/$$f'"; \
-	  rm -f "$(DESTDIR)$(pkgdatadir)/$$f"; \
+	  echo " rm -f '$(DESTDIR)$(strangeruntimedir)/$$f'"; \
+	  rm -f "$(DESTDIR)$(strangeruntimedir)/$$f"; \
+	done
+install-strangeruntimetemplatesDATA: $(strangeruntimetemplates_DATA)
+	@$(NORMAL_INSTALL)
+	test -z "$(strangeruntimetemplatesdir)" || $(MKDIR_P) "$(DESTDIR)$(strangeruntimetemplatesdir)"
+	@list='$(strangeruntimetemplates_DATA)'; for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  f=$(am__strip_dir) \
+	  echo " $(strangeruntimetemplatesDATA_INSTALL) '$$d$$p' '$(DESTDIR)$(strangeruntimetemplatesdir)/$$f'"; \
+	  $(strangeruntimetemplatesDATA_INSTALL) "$$d$$p" "$(DESTDIR)$(strangeruntimetemplatesdir)/$$f"; \
+	done
+
+uninstall-strangeruntimetemplatesDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(strangeruntimetemplates_DATA)'; for p in $$list; do \
+	  f=$(am__strip_dir) \
+	  echo " rm -f '$(DESTDIR)$(strangeruntimetemplatesdir)/$$f'"; \
+	  rm -f "$(DESTDIR)$(strangeruntimetemplatesdir)/$$f"; \
 	done
 install-strangelibHEADERS: $(strangelib_HEADERS)
 	@$(NORMAL_INSTALL)
@@ -2742,7 +2766,7 @@ install-binPROGRAMS: install-libLTLIBRARIES
 
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkglibdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(libexecdir)" "$(DESTDIR)$(pkgdatadir)" "$(DESTDIR)$(strangelibdir)" "$(DESTDIR)$(strangeparsingdir)" "$(DESTDIR)$(strangepassmanagerdir)" "$(DESTDIR)$(strangephcdir)" "$(DESTDIR)$(strangeprocessastdir)" "$(DESTDIR)$(strangeprocesshirdir)" "$(DESTDIR)$(strangeprocessirdir)" "$(DESTDIR)$(strangeprocessmirdir)"; do \
+	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkglibdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(libexecdir)" "$(DESTDIR)$(strangeruntimedir)" "$(DESTDIR)$(strangeruntimetemplatesdir)" "$(DESTDIR)$(strangelibdir)" "$(DESTDIR)$(strangeparsingdir)" "$(DESTDIR)$(strangepassmanagerdir)" "$(DESTDIR)$(strangephcdir)" "$(DESTDIR)$(strangeprocessastdir)" "$(DESTDIR)$(strangeprocesshirdir)" "$(DESTDIR)$(strangeprocessirdir)" "$(DESTDIR)$(strangeprocessmirdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: $(BUILT_SOURCES)
@@ -2801,13 +2825,14 @@ info: info-recursive
 
 info-am:
 
-install-data-am: install-pkgdataDATA install-strangelibHEADERS \
+install-data-am: install-strangelibHEADERS \
 	install-strangeparsingHEADERS \
 	install-strangepassmanagerHEADERS install-strangephcHEADERS \
 	install-strangeprocessastHEADERS \
 	install-strangeprocesshirHEADERS \
 	install-strangeprocessirHEADERS \
-	install-strangeprocessmirHEADERS
+	install-strangeprocessmirHEADERS install-strangeruntimeDATA \
+	install-strangeruntimetemplatesDATA
 
 install-dvi: install-dvi-recursive
 
@@ -2849,13 +2874,15 @@ ps-am:
 
 uninstall-am: uninstall-binPROGRAMS uninstall-binSCRIPTS \
 	uninstall-libLTLIBRARIES uninstall-libexecSCRIPTS \
-	uninstall-nobase_pkglibLTLIBRARIES uninstall-pkgdataDATA \
-	uninstall-strangelibHEADERS uninstall-strangeparsingHEADERS \
+	uninstall-nobase_pkglibLTLIBRARIES uninstall-strangelibHEADERS \
+	uninstall-strangeparsingHEADERS \
 	uninstall-strangepassmanagerHEADERS \
 	uninstall-strangephcHEADERS uninstall-strangeprocessastHEADERS \
 	uninstall-strangeprocesshirHEADERS \
 	uninstall-strangeprocessirHEADERS \
-	uninstall-strangeprocessmirHEADERS
+	uninstall-strangeprocessmirHEADERS \
+	uninstall-strangeruntimeDATA \
+	uninstall-strangeruntimetemplatesDATA
 
 .MAKE: $(RECURSIVE_CLEAN_TARGETS) $(RECURSIVE_TARGETS) install-am \
 	install-strip
@@ -2875,26 +2902,29 @@ uninstall-am: uninstall-binPROGRAMS uninstall-binSCRIPTS \
 	install-html-am install-info install-info-am \
 	install-libLTLIBRARIES install-libexecSCRIPTS install-man \
 	install-nobase_pkglibLTLIBRARIES install-pdf install-pdf-am \
-	install-pkgdataDATA install-ps install-ps-am \
-	install-strangelibHEADERS install-strangeparsingHEADERS \
+	install-ps install-ps-am install-strangelibHEADERS \
+	install-strangeparsingHEADERS \
 	install-strangepassmanagerHEADERS install-strangephcHEADERS \
 	install-strangeprocessastHEADERS \
 	install-strangeprocesshirHEADERS \
 	install-strangeprocessirHEADERS \
-	install-strangeprocessmirHEADERS install-strip installcheck \
+	install-strangeprocessmirHEADERS install-strangeruntimeDATA \
+	install-strangeruntimetemplatesDATA install-strip installcheck \
 	installcheck-am installcheck-local installdirs installdirs-am \
 	maintainer-clean maintainer-clean-generic mostlyclean \
 	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
 	pdf pdf-am ps ps-am tags tags-recursive uninstall uninstall-am \
 	uninstall-binPROGRAMS uninstall-binSCRIPTS \
 	uninstall-libLTLIBRARIES uninstall-libexecSCRIPTS \
-	uninstall-nobase_pkglibLTLIBRARIES uninstall-pkgdataDATA \
-	uninstall-strangelibHEADERS uninstall-strangeparsingHEADERS \
+	uninstall-nobase_pkglibLTLIBRARIES uninstall-strangelibHEADERS \
+	uninstall-strangeparsingHEADERS \
 	uninstall-strangepassmanagerHEADERS \
 	uninstall-strangephcHEADERS uninstall-strangeprocessastHEADERS \
 	uninstall-strangeprocesshirHEADERS \
 	uninstall-strangeprocessirHEADERS \
-	uninstall-strangeprocessmirHEADERS
+	uninstall-strangeprocessmirHEADERS \
+	uninstall-strangeruntimeDATA \
+	uninstall-strangeruntimetemplatesDATA
 
 
 # - In order to have separate build directories (aka VPATH), we would prepend

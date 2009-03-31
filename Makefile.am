@@ -47,21 +47,6 @@ src_phc_LDADD = @gc_lib@ $(LIBLTDL) libphc.la
 bin_SCRIPTS = src/phc_compile_plugin
 libexec_SCRIPTS = libtool
 # pkgdata_DATA = phc-1.0.xsd
-# TODO: rename templates_new.c (and use 'macro')
-pkgdata_DATA =									\
-	runtime/arrays.c							\
-	runtime/builtin_functions.c			\
-	runtime/debug.c							\
-	runtime/isset.c							\
-	runtime/methods.c							\
-	runtime/misc.c								\
-	runtime/string.c							\
-	runtime/support.c							\
-	runtime/templates/templates_new.c	\
-	runtime/unset.c							\
-	runtime/var_vars.c						\
-	runtime/oop.c								\
-	runtime/zval.c
 
 src_phc_SOURCES =												\
 	src/phc.cpp
@@ -415,6 +400,29 @@ strangelib_HEADERS =		\
 	src/lib/Stack.h		\
 	src/lib/String.h		\
 	src/lib/Vector.h
+
+
+strangeruntimedir = $(pkgdatadir)/runtime
+strangeruntime_DATA =						\
+	runtime/arrays.c							\
+	runtime/builtin_functions.c			\
+	runtime/debug.c							\
+	runtime/isset.c							\
+	runtime/methods.c							\
+	runtime/misc.c								\
+	runtime/string.c							\
+	runtime/support.c							\
+	runtime/unset.c							\
+	runtime/var_vars.c						\
+	runtime/oop.c								\
+	runtime/zval.c
+
+# TODO: rename templates_new.c (and use 'macro')
+strangeruntimetemplatesdir = $(strangeruntimedir)/templates
+strangeruntimetemplates_DATA =			\
+	runtime/templates/templates_new.c
+
+
 
 ## TODO prepend dist onto those we distribute
 nobase_pkglib_LTLIBRARIES = 

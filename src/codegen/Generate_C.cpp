@@ -2643,7 +2643,7 @@ string read_file (String* filename)
 
 	stringstream ss1, ss2;
 	ss1 << "runtime/" << *filename;
-	ss2 << DATADIR << "/phc/" << *filename;
+	ss2 << DATADIR << "/phc/runtime/" << *filename;
 
 	// Check the current directory first. This means we can change the file without recompiling or installing.
 	file.open (ss1.str ().c_str ());
