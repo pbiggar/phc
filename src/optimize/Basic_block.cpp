@@ -13,7 +13,8 @@ using namespace boost;
 
 /* Constructors */
 
-long Basic_block::max_id = 0;
+// Zero is used for the outer scope, in BBID
+long Basic_block::max_id = 1;
 
 Basic_block::Basic_block(CFG* cfg)
 : cfg(cfg)

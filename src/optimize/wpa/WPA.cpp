@@ -8,16 +8,27 @@
 
 #include "WPA.h"
 
+using namespace std;
+using namespace boost;
+using namespace MIR;
+
 string
-BB_array_name (Basic_block* bb)
+BB_array_name (Context cx)
 {
-	return "array_" + lexical_cast<string> (bb->ID);
+	return "array_" + cx.name ();
 }
 
 string
-BB_object_name (Basic_block* bb)
+BB_object_name (Context cx)
 {
-	return "object_" + lexical_cast<string> (bb->ID);
+	return "object_" + cx.name ();
+}
+
+std::ostream&
+operator<< (std::ostream &out, const Context &cx)
+{
+	out << cx.name ();
+	return out;
 }
 
 certainty combine_certs (certainty c1, certainty c2)
@@ -30,3 +41,19 @@ certainty combine_certs (certainty c1, certainty c2)
 	
 	return POSSIBLE;
 }
+
+void
+CX_lattices::dump (Context cx, string name)
+{
+	if (this->has (cx))
+	{
+		cdebug << name << " Lattice for BB: " << cx << endl;
+		(*this)[cx].dump();
+		cdebug << endl;
+	}
+	else
+		cdebug << "No " << name << " results for BB: " << cx << endl;
+}
+
+
+

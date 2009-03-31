@@ -61,7 +61,7 @@ Points_to::equals (Points_to* other)
 
 
 void
-Points_to::dump_graphviz (String* label, Basic_block* bb, Whole_program* wp)
+Points_to::dump_graphviz (String* label, Context cx, Whole_program* wp)
 {
 	if (label == NULL)
 	{
@@ -88,7 +88,7 @@ Points_to::dump_graphviz (String* label, Basic_block* bb, Whole_program* wp)
 
 		if (isa<Value_node> (node))
 		{
-			Abstract_value* val = wp->get_bb_out_abstract_value (bb, node->name());
+			Abstract_value* val = wp->get_bb_out_abstract_value (cx, node->name());
 
 			if (val->lit == BOTTOM)
 				ss << "(B)";
@@ -102,7 +102,7 @@ Points_to::dump_graphviz (String* label, Basic_block* bb, Whole_program* wp)
 
 		if (isa<Storage_node> (node))
 		{
-			Abstract_value* val = wp->get_bb_out_abstract_value (bb, node->name());
+			Abstract_value* val = wp->get_bb_out_abstract_value (cx, node->name());
 			if (val->type == BOTTOM)
 				ss << "(B)";
 			else if (val->type == TOP)
@@ -198,7 +198,7 @@ Points_to::get_storage_nodes ()
 
 
 void
-Points_to::consistency_check (Basic_block* bb, Whole_program* wp)
+Points_to::consistency_check (Context cx, Whole_program* wp)
 {
 	foreach (PT_node* node, *get_nodes ())
 	{
@@ -209,7 +209,7 @@ Points_to::consistency_check (Basic_block* bb, Whole_program* wp)
 			Alias_pair* incoming = get_edge (st, ind);
 			if (incoming == NULL)
 			{
-				dump_graphviz (NULL, bb, wp);
+				dump_graphviz (NULL, cx, wp);
 				phc_internal_error ("No edge from storage node for %s",
 										  ind->name().str().c_str());
 			}
@@ -220,7 +220,7 @@ Points_to::consistency_check (Basic_block* bb, Whole_program* wp)
 			if (values->size () == 1
 				 && get_edge (ind, values->front())->cert != DEFINITE)
 			{
-				dump_graphviz (NULL, bb, wp);
+				dump_graphviz (NULL, cx, wp);
 				phc_internal_error ("Solo edge from %s to %s is not DEFINITE",
 										  ind->name().str().c_str(),
 										  values->front()->name().str().c_str());
@@ -233,7 +233,7 @@ Points_to::consistency_check (Basic_block* bb, Whole_program* wp)
 				{
 					if (get_edge (ind, st)->cert == DEFINITE)
 					{
-						dump_graphviz (NULL, bb, wp);
+						dump_graphviz (NULL, cx, wp);
 						phc_internal_error (
 								"Multiple edges from %s, but edge to %s is DEFINITE",
 								ind->name().str().c_str(),
@@ -246,7 +246,7 @@ Points_to::consistency_check (Basic_block* bb, Whole_program* wp)
 			// index_node.
 			if (incoming->cert == POSSIBLE)
 			{
-				dump_graphviz (NULL, bb, wp);
+				dump_graphviz (NULL, cx, wp);
 				phc_internal_error (
 						"Edge from %s to %s is POSSIBLE",
 						st->name().str().c_str(),
@@ -699,15 +699,15 @@ ABSVAL (Index_node* node)
 }
 
 Storage_node*
-BB_array_node (Basic_block* bb)
+BB_array_node (Context cx)
 {
-	return new Storage_node (BB_array_name (bb));
+	return new Storage_node (BB_array_name (cx));
 }
 
 Storage_node*
-BB_object_node (Basic_block* bb)
+BB_object_node (Context cx)
 {
-	return new Storage_node (BB_object_name (bb));
+	return new Storage_node (BB_object_name (cx));
 }
 
 

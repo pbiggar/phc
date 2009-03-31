@@ -30,23 +30,22 @@ class Type_inference : public WPA_lattice
 public:
 	Type_inference (Whole_program* wp);
 
-	void set_storage (Basic_block* bb, Storage_node* storage, Types types);
-	void set_scalar (Basic_block* bb, Value_node* storage,
-						  Abstract_value* val);
-	void pull_possible_null (Basic_block* bb, Index_node* node);
+	void set_storage (Context cx, Storage_node* storage, Types types);
+	void set_scalar (Context cx, Value_node* storage, Abstract_value* val);
+	void pull_possible_null (Context cx, Index_node* node);
 
 
 	// Fetch results
 
-	Types get_types (Basic_block* bb, Alias_name name);
+	Types get_types (Context cx, Alias_name name);
 
 	// HACK - TMI - TODO: i think we can kill this now.
-	void set_types (Basic_block* bb, Alias_name name, Types types);
+	void set_types (Context cx, Alias_name name, Types types);
 
-	static Types get_bin_op_types (Basic_block* bb, Abstract_value* left, Abstract_value* right, string op);
+	static Types get_bin_op_types (Context cx, Abstract_value* left, Abstract_value* right, string op);
 	static Types get_bin_op_type (string left, string right, string op);
 
-	static Types get_unary_op_types (Basic_block* bb, Abstract_value* operand, string op);
+	static Types get_unary_op_types (Context cx, Abstract_value* operand, string op);
 
 
 	static Types get_type (MIR::Literal* lit);

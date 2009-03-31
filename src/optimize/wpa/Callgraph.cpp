@@ -14,27 +14,14 @@ using namespace std;
 Callgraph::Callgraph (Whole_program* wp)
 : WPA(wp)
 {
-	methods.insert ("__MAIN__");
 }
 
 void
-Callgraph::forward_bind (Basic_block* caller, Entry_block* entry)
+Callgraph::forward_bind (Context caller_cx, Context entry_cx)
 {
-	if (caller == NULL)
-		return;
+	string caller = *caller_cx.get_bb()->cfg->method->signature->method_name->value;
+	string callee = *entry_cx.get_bb()->cfg->method->signature->method_name->value;
 
-	add_call_edge (ST (caller), ST (entry));
-}
-
-void
-Callgraph::add_summary_call (Basic_block* context, Method_info* callee)
-{
-	add_call_edge (ST (context), *callee->name);
-}
-
-void
-Callgraph::add_call_edge (string caller, string callee)
-{
 	methods.insert (callee);
 	call_edges[caller].insert (callee);
 }
@@ -83,12 +70,6 @@ Callgraph::bottom_up ()
 bool
 Callgraph::equals (WPA* wpa)
 {
-	// There is the question, why not use ==. I agree, it does make sense to
-	// use == in some cases. However, == will do pointer equality when we have
-	// pointers, whereas equals will not. However, this is at the expense of
-	// having to reimplement equality ourselves, when the STL generally
-	// provides it for us. In the long term, it might be best to use the STL
-	// properly, but now is not a good time.
 	Callgraph* other = dyc<Callgraph> (wpa);
 	return methods.equals (&other->methods)
 		 && call_edges.equals (&other->call_edges);
@@ -97,13 +78,13 @@ Callgraph::equals (WPA* wpa)
 
 
 void
-Callgraph::dump(Basic_block* bb, string comment)
+Callgraph::dump (Context cx, string comment)
 {
 	// Only dump on entry and exit
-	if (!isa<Entry_block> (bb) && !isa<Exit_block> (bb))
+	if (!isa<Entry_block> (cx.get_bb()) && !isa<Exit_block> (cx.get_bb()))
 		return;
 
-	dump_graphviz (s(lexical_cast<string> (bb->ID)));
+	dump_graphviz (s(cx.name ()));
 }
 
 void

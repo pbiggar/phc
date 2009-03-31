@@ -20,19 +20,18 @@ class CCP : public WPA_lattice
 public:
 	CCP (Whole_program* wp);
 
-	void set_storage (Basic_block* bb, Storage_node* storage, Types types);
+	void set_storage (Context cx, Storage_node* storage, Types types);
 
-	void set_scalar (Basic_block* bb, Value_node* storage,
-						  Abstract_value* val);
+	void set_scalar (Context cx, Value_node* storage, Abstract_value* val);
 
-	void pull_possible_null (Basic_block* bb, Index_node* node);
+	void pull_possible_null (Context cx, Index_node* node);
 
 
 	// CCP-specific
-	bool branch_known_true (Basic_block* bb, Alias_name cond);
-	bool branch_known_false (Basic_block* bb, Alias_name cond);
+	bool branch_known_true (Context cx, Alias_name cond);
+	bool branch_known_false (Context cx, Alias_name cond);
 
-	MIR::Literal* get_lit (Basic_block* bb, Alias_name name);
+	MIR::Literal* get_lit (Context cx, Alias_name name);
 
 };
 

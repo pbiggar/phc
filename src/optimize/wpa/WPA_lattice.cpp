@@ -31,10 +31,10 @@ WPA_lattice::equals (WPA* wpa)
 }
 
 void
-WPA_lattice::dump(Basic_block* bb, string comment)
+WPA_lattice::dump(Context cx, string comment)
 {
-	ins.dump (bb, "IN");
-	outs.dump (bb, "OUT");
+	ins.dump (cx, "IN");
+	outs.dump (cx, "OUT");
 }
 
 /*
@@ -81,63 +81,63 @@ WPA_lattice::dump(Basic_block* bb, string comment)
  */
 
 void
-WPA_lattice::kill_value (Basic_block* bb, Index_node* lhs)
+WPA_lattice::kill_value (Context cx, Index_node* lhs)
 {
-	outs[bb->ID][lhs->name().str()] = TOP;
-	outs[bb->ID][ABSVAL (lhs)->name().str()] = TOP;
+	outs[cx][lhs->name().str()] = TOP;
+	outs[cx][ABSVAL (lhs)->name().str()] = TOP;
 }
 
 void
-WPA_lattice::assign_value (Basic_block* bb, Index_node* lhs, Storage_node* storage, certainty cert)
+WPA_lattice::assign_value (Context cx, Index_node* lhs, Storage_node* storage, certainty cert)
 {
-	Lattice_map& lat = outs[bb->ID];
+	Lattice_map& lat = outs[cx];
 	string name = lhs->name().str();
 	lat[name] = meet (lat[name], lat[storage->name().str()]);
 }
 
 void
-WPA_lattice::pull_init (Basic_block* bb)
+WPA_lattice::pull_init (Context cx)
 {
-	// TODO: I could imagine this causing error in the presence of recursion.
-	changed_flags[bb->ID] = false;
-	ins[bb->ID].clear ();
+	// TODO: This will fail if our context does not handle recursion well
+	changed_flags[cx] = false;
+	ins[cx].clear ();
 }
 
 void
-WPA_lattice::pull_first_pred (Basic_block* bb, Basic_block* pred)
+WPA_lattice::pull_first_pred (Context cx, Context pred)
 {
-	ins[bb->ID].merge (&outs[pred->ID]);
+	ins[cx].merge (&outs[pred]);
 }
 
 void
-WPA_lattice::pull_pred (Basic_block* bb, Basic_block* pred)
+WPA_lattice::pull_pred (Context cx, Context pred)
 {
-	ins[bb->ID].merge (&outs[pred->ID]);
+	ins[cx].merge (&outs[pred]);
 }
 
 
 void
-WPA_lattice::pull_finish (Basic_block* bb)
+WPA_lattice::pull_finish (Context cx)
 {
-	init_outs (bb);
+	init_outs (cx);
 }
 
 void
-WPA_lattice::aggregate_results (Basic_block* bb)
+WPA_lattice::aggregate_results (Context cx)
 {
 	// Set solution_changed
-	changed_flags[bb->ID] = !outs[bb->ID].equals (&clones[bb->ID]);
+	changed_flags[cx] = !outs[cx].equals (&clones[cx]);
 
 	// We probably dont need a full set of clones.
-	clones[bb->ID].clear();
-	clones[bb->ID].merge (&outs[bb->ID]);
+	clones[cx].clear();
+	clones[cx].merge (&outs[cx]);
 }
 
 
 void
-WPA_lattice::forward_bind (Basic_block* caller, Entry_block* entry)
+WPA_lattice::forward_bind (Context caller, Context entry)
 {
-	if (caller == NULL)
+	if (caller == Context::outer_scope ())
 		return;
 
 	// TODO: do we really want to clear? does that make it non-monotonic?
@@ -145,35 +145,35 @@ WPA_lattice::forward_bind (Basic_block* caller, Entry_block* entry)
 	// this callsite?
 	// TODO: we should have a fresh context anyway.
 
-	ins[entry->ID].merge(&ins[caller->ID]);
+	ins[entry].merge(&ins[caller]);
 
 	init_outs (entry);
 }
 
 void
-WPA_lattice::backward_bind (Basic_block* caller, Exit_block* exit)
+WPA_lattice::backward_bind (Context caller, Context exit)
 {
-	if (caller == NULL)
+	if (caller == Context::outer_scope ())
 		return;
 
 	// TODO: remove variables in the current scope
 
 	// pull_results inits outs, so we need to clear it, or we'll be merging
 	// with old results.
-	outs[caller->ID].clear ();
-	outs[caller->ID].merge(&outs[exit->ID]);
+	outs[caller].clear ();
+	outs[caller].merge(&outs[exit]);
 }
 
 void
-WPA_lattice::init_outs (Basic_block* bb)
+WPA_lattice::init_outs (Context cx)
 {
-	outs[bb->ID].merge (&ins[bb->ID]);
+	outs[cx].merge (&ins[cx]);
 }
 
 Lattice_cell*
-WPA_lattice::get_value (Basic_block* bb, Alias_name name)
+WPA_lattice::get_value (Context cx, Alias_name name)
 {
-	return ins[bb->ID][name.str()];
+	return ins[cx][name.str()];
 }
 
 

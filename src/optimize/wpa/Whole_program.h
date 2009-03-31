@@ -98,12 +98,11 @@ public:
 	Path* saved_plhs;
 	MIR::VARIABLE_NAME* saved_lhs;
 
-
 public:
 	Whole_program(Pass_manager* pm);
 
 	void run (MIR::PHP_script* in);
-	void run (CFG* cfg){}
+	void run (CFG* cfg){phc_unreachable ();}
 
 	void initialize ();
 	bool analyses_have_converged ();
@@ -113,10 +112,10 @@ public:
 	 */
 	void register_analysis (string name, WPA* analysis);
 
-	void invoke_method (MIR::Method_invocation* in, Basic_block* context,
+	void invoke_method (MIR::Method_invocation* in,
+							  Context caller_cx,
 							  MIR::VARIABLE_NAME* lhs);
 
-	Edge_list* get_branch_successors (Branch_block* bb);
 	Method_info_list* get_possible_receivers (MIR::Method_invocation* in);
 
 
@@ -135,101 +134,105 @@ public:
 	// Apply the interprocedural optimization results to this BB.
 
 	void analyse_method_info (Method_info* info,
-									  Basic_block* caller,
+									  Context caller_cx,
 									  MIR::Actual_parameter_list* actuals,
 									  MIR::VARIABLE_NAME* lhs);
 
 	void analyse_function (User_method_info* info,
-								  Basic_block* caller,
+								  Context caller_cx,
 								  MIR::Actual_parameter_list*,
 								  MIR::VARIABLE_NAME* lhs);
 
 	void analyse_summary (Summary_method_info* info,
-								 Basic_block* caller,
+								 Context caller_cx,
 							    MIR::Actual_parameter_list*,
 								 MIR::VARIABLE_NAME* lhs);
 
-	void apply_modelled_function (Method_info* info, Basic_block* caller);
+	void apply_modelled_function (Summary_method_info* info, Context cx);
 
-	void init_superglobals (Entry_block* entry);
+	void init_superglobals (Context cx);
 
 	/* Local analysis - calling other analyses */
-	void dump (Basic_block* bb, string comment);
+	void dump (Context cx, string comment);
 
 
 	/*
 	 * Calls to the WPA modules.
 	 */
 	void forward_bind (Method_info* info,
-							 Basic_block* caller,
-							 Entry_block* entry,
+							 Context entry_cx,
 							 MIR::Actual_parameter_list* actuals);
 
 	void backward_bind (Method_info* info,
-							  Basic_block* caller,
-							  Exit_block* exit,
+							  Context entry_cx,
 							  MIR::VARIABLE_NAME* lhs);
 
 	// Performs points-to analysis, and call the other analyses with the
 	// results. Returns true if a solution has changed, requiring this block
 	// to be reanalysed.
-	bool analyse_block (Basic_block* bb);
+	bool analyse_block (Context cx);
 
 	// These functions describe the operation being performed in each block.
 	// They pass the information to the Points-to graph, and to the other
 	// analyses. The BB is to give a unique index to the results.
-	void assign_scalar (Basic_block* bb, Path* lhs, MIR::Literal* lit);
-	void assign_unknown (Basic_block* bb, Path* lhs);
-	void assign_typed (Basic_block* bb, Path* lhs, Types types);
-	void assign_empty_array (Basic_block* bb, Path* lhs, string unique_name);
-	void assign_by_ref (Basic_block* bb, Path* lhs, Path* rhs);
-	void assign_by_copy (Basic_block* bb, Path* lhs, Path* rhs);
+	void assign_scalar (Context cx, Path* lhs, MIR::Literal* lit);
+	void assign_unknown (Context cx, Path* lhs);
+	void assign_typed (Context cx, Path* lhs, Types types);
+	void assign_empty_array (Context cx, Path* lhs, string unique_name);
+	void assign_by_ref (Context cx, Path* lhs, Path* rhs);
+	void assign_by_copy (Context cx, Path* lhs, Path* rhs);
 
 	// Copy the value from RHS to LHS.
-	void copy_value (Basic_block* bb, Index_node* lhs, Index_node* rhs, certainty cert);
+	void copy_value (Context cx, Index_node* lhs, Index_node* rhs, certainty cert);
 
 
-	certainty kill_value (Basic_block* bb, Path* plhs);
+	certainty kill_value (Context cx, Path* plhs);
 
-	void record_use (Basic_block* bb, Index_node* node);
+	void record_use (Context cx, Index_node* node);
 
-	void pull_results (Basic_block* bb);
+	void pull_results (Context cx);
+
+	// Most pesimistic case
+	void ruin_everything (Context cx, Path* path);
+
 
 	/*
 	 * These might be considered to belong elsewhere, but each of them is
 	 * tricky for some reason.
 	 */
 
+	Edge_list* get_successors (Context cx);
+
 	// Get the list of potential values of node (can include '*' when it is
 	// unknown).
-	String_list* get_string_values (Basic_block* bb, Index_node* node);
+	String_list* get_string_values (Context cx, Index_node* node);
 
-	Abstract_value* get_abstract_value (Basic_block* bb, Alias_name name);
+	Abstract_value* get_abstract_value (Context cx, Alias_name name);
 
 	// Get all the possible names, and merge them.
-	Abstract_value* get_abstract_value (Basic_block* bb, MIR::Rvalue* rval);
+	Abstract_value* get_abstract_value (Context cx, MIR::Rvalue* rval);
 
 	// Special case, get the output value, not the input
-	Abstract_value* get_bb_out_abstract_value (Basic_block* bb, Alias_name name);
+	Abstract_value* get_bb_out_abstract_value (Context cx, Alias_name name);
 
 	// PATH can refer to many nodes. Get the list of Index_nodes it points to.
-	Index_node_list* get_named_indices (Basic_block* bb, Path* path, Indexing_flags flags = NO_FLAGS);
+	Index_node_list* get_named_indices (Context cx, Path* path, Indexing_flags flags = NO_FLAGS);
 
 	// NULL if more than 1 exists
-	Index_node* get_named_index (Basic_block* bb, Path* path, Indexing_flags flags = NO_FLAGS);
+	Index_node* get_named_index (Context cx, Path* path, Indexing_flags flags = NO_FLAGS);
 
 
 	// Get anything the path can point to, and all nodes that they may reference.
-	Index_node_list* get_all_referenced_names (Basic_block* bb, Path* path, Indexing_flags flags = NO_FLAGS);
+	Index_node_list* get_all_referenced_names (Context cx, Path* path, Indexing_flags flags = NO_FLAGS);
 
-
-	// Most pesimistic case
-	void ruin_everything (Basic_block* sb, Path* path);
 
 
 	/*
 	 * Actually perform analysis
 	 */
+
+	Context block_cx; // stash this
+
 	void visit_branch_block (Branch_block*);
 
 	void visit_assign_array (Statement_block*, MIR::Assign_array*);

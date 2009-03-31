@@ -32,24 +32,20 @@ cert_to_string (certainty cert)
 }
 
 void
-Debug_WPA::forward_bind (Basic_block* caller, Entry_block* entry)
+Debug_WPA::forward_bind (Context caller, Context entry)
 {
-	string bb_name = "__none__";
-	if (caller)
-		bb_name = ST (caller);
-
-	DEBUG ("forward bind " << bb_name << " to " << ST (entry));
+	DEBUG ("forward bind " << caller << " to " << entry);
 }
 
 void
-Debug_WPA::backward_bind (Basic_block* caller, Exit_block* exit)
+Debug_WPA::backward_bind (Context caller, Context exit)
 {
 	DEBUG (__FUNCTION__);
 }
 
 
 void
-Debug_WPA::create_reference (Basic_block* bb, Index_node* lhs,
+Debug_WPA::create_reference (Context cx, Index_node* lhs,
 									  Index_node* rhs, certainty cert)
 {
 	DEBUG (__FUNCTION__
@@ -59,7 +55,7 @@ Debug_WPA::create_reference (Basic_block* bb, Index_node* lhs,
 }
 
 void
-Debug_WPA::set_scalar (Basic_block* bb, Value_node* storage, Abstract_value* val)
+Debug_WPA::set_scalar (Context cx, Value_node* storage, Abstract_value* val)
 {
 	CHECK_DEBUG ();
 
@@ -74,7 +70,7 @@ Debug_WPA::set_scalar (Basic_block* bb, Value_node* storage, Abstract_value* val
 }
 
 void
-Debug_WPA::set_storage (Basic_block* bb, Storage_node* storage, Types types)
+Debug_WPA::set_storage (Context cx, Storage_node* storage, Types types)
 {
 	CHECK_DEBUG ();
 
@@ -89,7 +85,7 @@ Debug_WPA::set_storage (Basic_block* bb, Storage_node* storage, Types types)
 }
 
 void
-Debug_WPA::assign_value (Basic_block* bb, Index_node* lhs, Storage_node* storage, certainty cert)
+Debug_WPA::assign_value (Context cx, Index_node* lhs, Storage_node* storage, certainty cert)
 {
 	DEBUG (__FUNCTION__
 	<< ": " << lhs->name().str ()
@@ -99,21 +95,21 @@ Debug_WPA::assign_value (Basic_block* bb, Index_node* lhs, Storage_node* storage
 
 
 void
-Debug_WPA::kill_value (Basic_block* bb, Index_node* lhs)
+Debug_WPA::kill_value (Context cx, Index_node* lhs)
 {
 	DEBUG (__FUNCTION__
 	<< ": " << lhs->name().str ());
 }
 
 void
-Debug_WPA::kill_reference (Basic_block* bb, Index_node* lhs)
+Debug_WPA::kill_reference (Context cx, Index_node* lhs)
 {
 	DEBUG (__FUNCTION__
 	<< ": " << lhs->name().str ());
 }
 	
 void
-Debug_WPA::record_use (Basic_block* bb, Index_node* use, certainty cert)
+Debug_WPA::record_use (Context cx, Index_node* use, certainty cert)
 {
 	DEBUG (__FUNCTION__
 	<< ": " << use->name().str ()
@@ -122,46 +118,46 @@ Debug_WPA::record_use (Basic_block* bb, Index_node* use, certainty cert)
 
 
 void
-Debug_WPA::pull_init (Basic_block* bb)
+Debug_WPA::pull_init (Context cx)
 {
-	DEBUG (__FUNCTION__ << " " << bb->ID);
+	DEBUG (__FUNCTION__ << " " << cx);
 }
 
 void
-Debug_WPA::pull_first_pred (Basic_block* bb, Basic_block* pred)
+Debug_WPA::pull_first_pred (Context cx, Context pred)
 {
-	DEBUG (__FUNCTION__ << " from " << pred->ID);
+	DEBUG (__FUNCTION__ << " from " << pred);
 }
 
 void
-Debug_WPA::pull_pred (Basic_block* bb, Basic_block* pred)
+Debug_WPA::pull_pred (Context cx, Context pred)
 {
-	DEBUG (__FUNCTION__ << " from " << pred->ID);
+	DEBUG (__FUNCTION__ << " from " << pred);
 }
 
 void
-Debug_WPA::pull_possible_null (Basic_block* bb, Index_node* node)
+Debug_WPA::pull_possible_null (Context cx, Index_node* node)
 {
 	DEBUG (__FUNCTION__ << " for " << node->name().str());
 }
 
 void
-Debug_WPA::pull_finish (Basic_block* bb)
+Debug_WPA::pull_finish (Context cx)
 {
-	DEBUG (__FUNCTION__ << " " << bb->ID);
+	DEBUG (__FUNCTION__ << " " << cx);
 }
 
 
 void
-Debug_WPA::aggregate_results (Basic_block* bb)
+Debug_WPA::aggregate_results (Context cx)
 {
-	DEBUG (__FUNCTION__ << " " << bb->ID);
+	DEBUG (__FUNCTION__ << " " << cx);
 }
 
 bool
-Debug_WPA::solution_changed (Basic_block* bb)
+Debug_WPA::solution_changed (Context cx)
 {
-	DEBUG (__FUNCTION__ << " " << bb->ID);
+	DEBUG (__FUNCTION__ << " " << cx);
 	return false;
 }
 
@@ -173,6 +169,6 @@ Debug_WPA::equals (WPA* other)
 }
 
 void
-Debug_WPA::dump (Basic_block* bb, string comment)
+Debug_WPA::dump (Context cx, string comment)
 {
 }

@@ -114,7 +114,7 @@ Whole_program::run (MIR::PHP_script* in)
 					NULL,
 					new METHOD_NAME (s("__MAIN__")),
 					new Actual_parameter_list),
-				NULL,
+				Context::outer_scope (),
 				NULL);
 
 
@@ -289,7 +289,7 @@ public:
 
 
 void
-Whole_program::analyse_function (User_method_info* info, Basic_block* caller, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
+Whole_program::analyse_function (User_method_info* info, Context caller_cx, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
 {
 	CFG* cfg = info->cfg;
 
@@ -308,7 +308,10 @@ Whole_program::analyse_function (User_method_info* info, Basic_block* caller, MI
 
 	// Process the entry blocks first (there is no edge here)
 	DEBUG ("Initing functions");
-	forward_bind (info, caller, cfg->get_entry_bb (), actuals);
+	forward_bind (
+		info,
+		Context::contextual (caller_cx, cfg->get_entry_bb()),
+		actuals);
 
 
 	// 2. Stop when CFG-worklist is empty
@@ -317,42 +320,47 @@ Whole_program::analyse_function (User_method_info* info, Basic_block* caller, MI
 		Edge* e = wl.next ();
 		DEBUG (wl.size() << " edges in the worklist");
 
+		Basic_block* target = e->get_target ();
+		Context cx = Context::contextual (caller_cx, target);
+
 		// Analyse the block, storing per-basic-block results.
 		// This does not update the block's structure.
-		bool changed = analyse_block (e->get_target ());
+		bool changed = analyse_block (cx);
 
-		// Add next	block(s) if the result has changed, or if this the first time
-		// the edge could be executed.
-		if (Branch_block* branch = dynamic_cast<Branch_block*> (e->get_target ()))
-		{
-			foreach (Edge* next, *get_branch_successors (branch))
-				if (!next->is_executable || changed)
-					wl.add (next);
-		}
-		else if (!isa<Exit_block> (e->get_target ()))
-		{
-			Edge* next = e->get_target ()->get_successor_edge ();
-
+		// Add next	block(s) if the result has changed, or if this the first
+		// time the edge could be executed.
+		foreach (Edge* next, *get_successors (cx))
 			if (!next->is_executable || changed)
 				wl.add (next);
-		}
 	}
 
-	backward_bind (info, caller, cfg->get_exit_bb (), lhs);
+	backward_bind (
+		info,
+		Context::contextual (caller_cx, cfg->get_exit_bb()),
+		lhs);
 }
 
 Edge_list*
-Whole_program::get_branch_successors (Branch_block* bb)
+Whole_program::get_successors (Context cx)
 {
 	Edge_list* result = new Edge_list;
 
-	Index_node* cond = VN (ST (bb), bb->branch->variable_name);
+	Basic_block* bb = cx.get_bb ();
 
-	if (!ccp->branch_known_true (bb, cond->name()))
-		result->push_back (bb->get_false_successor_edge ());
+	if (Branch_block* branch = dynamic_cast<Branch_block*> (bb))
+	{
+		Index_node* cond = VN (SYM (cx), branch->branch->variable_name);
 
-	if (!ccp->branch_known_false (bb, cond->name()))
-		result->push_back (bb->get_true_successor_edge ());
+		if (!ccp->branch_known_true (cx, cond->name()))
+			result->push_back (branch->get_false_successor_edge ());
+
+		if (!ccp->branch_known_false (cx, cond->name()))
+			result->push_back (branch->get_true_successor_edge ());
+	}
+	else if (!isa<Exit_block> (bb))
+	{
+		result->push_back (bb->get_successor_edge ());
+	}
 
 	return result;
 }
@@ -392,7 +400,7 @@ Whole_program::get_possible_receivers (Method_invocation* in)
 }
 
 void
-Whole_program::invoke_method (Method_invocation* in, Basic_block* context, MIR::VARIABLE_NAME* lhs)
+Whole_program::invoke_method (Method_invocation* in, Context caller_cx, MIR::VARIABLE_NAME* lhs)
 {
 	Method_info_list* receivers = get_possible_receivers (in);
 
@@ -404,13 +412,13 @@ Whole_program::invoke_method (Method_invocation* in, Basic_block* context, MIR::
 	foreach (Method_info* receiver, *receivers)
 	{
 		// TODO: where should I clone the actuals?
-		analyse_method_info (receiver, context, in->actual_parameters, lhs);
+		analyse_method_info (receiver, caller_cx, in->actual_parameters, lhs);
 	}
 }
 
 void
 Whole_program::analyse_method_info (Method_info* method_info,
-												Basic_block* caller,
+												Context caller_cx,
 												MIR::Actual_parameter_list* actuals,
 												MIR::VARIABLE_NAME* lhs)
 {
@@ -420,29 +428,31 @@ Whole_program::analyse_method_info (Method_info* method_info,
 		if (info->cfg == NULL)
 			info->cfg = new CFG (info->method);
 
-		analyse_function (info, caller, actuals, lhs);
+		analyse_function (info, caller_cx, actuals, lhs);
 	}
 	else
 	{
 		// Get as precise information as is possible with pre-baked summary
 		// information.
-		analyse_summary (dyc<Summary_method_info> (method_info), caller, actuals, lhs);
+		analyse_summary (dyc<Summary_method_info> (method_info), caller_cx, actuals, lhs);
 	}
 }
 
 void
-Whole_program::analyse_summary (Summary_method_info* info, Basic_block* caller, Actual_parameter_list* actuals, VARIABLE_NAME* lhs)
+Whole_program::analyse_summary (Summary_method_info* info, Context caller_cx, Actual_parameter_list* actuals, VARIABLE_NAME* lhs)
 {
 	CFG* cfg = info->get_cfg ();
-	Basic_block* fake = info->get_fake_bb ();
 
 
-	// Start the analysis
-	forward_bind (info, caller, cfg->get_entry_bb(), actuals);
+	/*
+	 * Start the analysis
+	 */
+	Context entry_cx = Context::contextual (caller_cx, cfg->get_entry_bb ());
+	forward_bind (info, entry_cx, actuals);
 
 	// Create OUT sets for the entry node
 	foreach_wpa (this)
-		wpa->aggregate_results (cfg->get_entry_bb ());
+		wpa->aggregate_results (entry_cx);
 
 
 
@@ -450,19 +460,14 @@ Whole_program::analyse_summary (Summary_method_info* info, Basic_block* caller, 
 	 * "Perform" the function
 	 */
 
-	pull_results (fake);
+	Context fake_cx = Context::contextual (caller_cx, info->get_fake_bb ());
+	pull_results (fake_cx);
 
-	// TODO: its difficult to know exactly what this representation should
-	// look like when we haven't tried modelling that many functions. Instead,
-	// we'll write 'baked-functions', which model it by directly calling
-	// Whole_program methods. When we've done a few of these, it should be a
-	// lot clearer what we want to model here (also, this allows us model hard
-	// functions which might not be modelled with a data approach).
-	apply_modelled_function (info, fake);
+	apply_modelled_function (info, fake_cx);
 
 	// Create OUT sets from the results 
 	foreach_wpa (this)
-		wpa->aggregate_results (fake);
+		wpa->aggregate_results (fake_cx);
 
 
 
@@ -470,14 +475,15 @@ Whole_program::analyse_summary (Summary_method_info* info, Basic_block* caller, 
 	 * Backward bind
 	 */
 
-	pull_results (cfg->get_exit_bb ());
+	Context exit_cx = Context::contextual (caller_cx, cfg->get_exit_bb ());
+	pull_results (exit_cx);
 
-	backward_bind (info, caller, cfg->get_exit_bb (), lhs);
+	backward_bind (info, exit_cx, lhs);
 }
 
 // BB is the block representing the whole method
 void
-Whole_program::apply_modelled_function (Method_info* info, Basic_block* bb)
+Whole_program::apply_modelled_function (Summary_method_info* info, Context cx)
 {
 	// TODO:
 	//	If we know all the values for all the parameters, and the function has
@@ -485,30 +491,38 @@ Whole_program::apply_modelled_function (Method_info* info, Basic_block* bb)
 	//
 	//	TODO: stop only modelling types.
 
-	Path* ret_name = P (ST(bb), new VARIABLE_NAME (RETNAME));
+	// TODO: its difficult to know exactly what this representation should
+	// look like when we haven't tried modelling that many functions. Instead,
+	// we'll write 'baked-functions', which model it by directly calling
+	// Whole_program methods. When we've done a few of these, it should be a
+	// lot clearer what we want to model here (also, this allows us model hard
+	// functions which might not be modelled with a data approach).
+
+
+	Path* ret_name = P (SYM (cx), new VARIABLE_NAME (RETNAME));
 	if (*info->name == "strlen")
 	{
-		assign_typed (bb, ret_name, Types ("int"));
+		assign_typed (cx, ret_name, Types ("int"));
 	}
 	else if (*info->name == "dechex")
 	{
-		assign_typed (bb, ret_name, Types ("string"));
+		assign_typed (cx, ret_name, Types ("string"));
 	}
 	else if (*info->name == "print")
 	{
-		assign_scalar (bb, ret_name, new INT (1));
+		assign_scalar (cx, ret_name, new INT (1));
 	}
 	else if (*info->name == "is_array")
 	{
-		assign_typed (bb, ret_name, Types ("bool"));
+		assign_typed (cx, ret_name, Types ("bool"));
 	}
 	else if (*info->name == "is_object")
 	{
-		assign_typed (bb, ret_name, Types ("bool"));
+		assign_typed (cx, ret_name, Types ("bool"));
 	}
 	else if (*info->name == "trigger_error")
 	{
-		assign_typed (bb, ret_name, Types ("bool"));
+		assign_typed (cx, ret_name, Types ("bool"));
 	}
 	else if (*info->name == "var_dump")
 		; // do nothing
@@ -590,77 +604,79 @@ Whole_program::merge_contexts (User_method_info* info)
 }
 
 bool
-Whole_program::analyse_block (Basic_block* bb)
+Whole_program::analyse_block (Context cx)
 {
-	DEBUG ("\nAnalysing BB: " << bb->ID);
+	DEBUG ("\nAnalysing BB: " << cx);
 
 	// Merge results from predecessors
-	pull_results (bb);
+	pull_results (cx);
 
 
 	// Perform analyses
-	visit_block (bb);
+	// TODO: this is going to go badly in function calls!! Use a stack. But with
+	// a stack, will we need all these contexts that are being copied around the
+	// place. Hmmm, we'll probably only need one context...
+	block_cx = cx;
+
+	visit_block (cx.get_bb());
 
 
-	// Create OUT sets from the results 
 	foreach_wpa (this)
-		wpa->aggregate_results (bb);
+		wpa->aggregate_results (cx);
 
-	dump (bb, "After analysis");
+	dump (cx, "After analysis");
 
 	// Calculate fix-point
 	bool changed = false;
 	foreach_wpa (this)
-		changed |= wpa->solution_changed (bb);
+		changed |= wpa->solution_changed (cx);
 
 	return changed;
 }
 
 void
-Whole_program::pull_results (Basic_block* bb)
+Whole_program::pull_results (Context cx)
 {
-	// Some index nodes may only have existed on one path. If their storage
-	// node exists, then we assume that they are NULL on the other paths.
-	// (TODO: A simpler way to look at this may be to read each value from all
-	// paths, and in the case that it doesnt exist, its value will be NULL).
+	Basic_block* bb = cx.get_bb ();
 	
-	Edge_list* pred_edges = bb->get_predecessor_edges ();
+	List<Context>* preds = new List<Context>;
 
-	// Ignore non-executable edges
-	BB_list* preds = new BB_list;
+	Edge_list* pred_edges = bb->get_predecessor_edges ();
 	foreach (Edge* pred_edge, *pred_edges)
 	{
+		// Ignore non-executable edges
 		if (pred_edge->is_executable)
-			preds->push_back (pred_edge->get_source ());
+			preds->push_back (Context::as_peer (cx, pred_edge->get_source ()));
 	}
 
-	// Get the list of variables which dont exist in every executable path.
+	// Some index nodes may only have existed on one path. If their storage
+	// node exists, then we assume that they are NULL on the other paths.
 	Index_node_list* possible_nulls = aliasing->get_possible_nulls (preds);
 
 	// Separate the first from the remainder, to simplfiy the remainder.
-	Basic_block* first = preds->front ();
+	Context first = preds->front ();
 	preds->pop_front ();
 
 
 	// Actually pull the results
 	foreach_wpa (this)
 	{
-		wpa->pull_init (bb);
-		wpa->pull_first_pred (bb, first);
+		wpa->pull_init (cx);
+		wpa->pull_first_pred (cx, first);
 
-		foreach (Basic_block* pred, *preds)
-			wpa->pull_pred (bb, pred);
+		foreach (Context pred, *preds)
+			wpa->pull_pred (cx, pred);
 
 		// Use possible NULLs
 		foreach (Index_node* index, *possible_nulls)
-			wpa->pull_possible_null (bb, index);
+			wpa->pull_possible_null (cx, index);
 
-		wpa->pull_finish (bb);
+		wpa->pull_finish (cx);
 	}
 }
 
 void
-Whole_program::dump (Basic_block* bb, string comment)
+Whole_program::dump (Context cx, string comment)
 {
 	CHECK_DEBUG ();
 	foreach_wpa (this)
@@ -671,8 +687,8 @@ Whole_program::dump (Basic_block* bb, string comment)
 		if (!debugging_enabled)
 			continue;
 
-		DEBUG (bb->ID << " (" << comment << "): Dumping " << wpa->name);
-		wpa->dump (bb, comment);
+		DEBUG (cx << " (" << comment << "): Dumping " << wpa->name);
+		wpa->dump (cx, comment);
 		cdebug << endl;
 	}
 	pm->maybe_enable_debug (s("wpa"));
@@ -684,7 +700,7 @@ Whole_program::dump (Basic_block* bb, string comment)
  */
 
 void
-Whole_program::init_superglobals (Entry_block* entry)
+Whole_program::init_superglobals (Context cx)
 {
 	// TODO: Strictly speaking, functions other than __MAIN__ should have their
 	// globals set up before the parameters are copied. However, we'll ignore
@@ -698,7 +714,8 @@ Whole_program::init_superglobals (Entry_block* entry)
 	
 
 	// Start with globals, since it needs needs to point to MSN
-	assign_empty_array (entry, P (MSN, new VARIABLE_NAME ("GLOBALS")), MSN);
+	string MSN = SYM (cx);
+	assign_empty_array (cx, P (MSN, new VARIABLE_NAME ("GLOBALS")), MSN);
 
 
 	// Do the other superglobals
@@ -711,45 +728,48 @@ Whole_program::init_superglobals (Entry_block* entry)
 
 		// Create an empty array
 		string array_name = *sg->value;
-		assign_empty_array (entry, P (MSN, sg), array_name);
+		assign_empty_array (cx, P (MSN, sg), array_name);
 
 		// We dont know the contents of these arrays.
 		// TODO: move all of these into calls to Whole_program
-		assign_typed (entry, P (array_name, UNKNOWN), Types("string"));
+		assign_typed (cx, P (array_name, UNKNOWN), Types("string"));
 	}
 
 	// We actually have no idea whats in _SESSION
-	assign_unknown (entry, P ("_SESSION", UNKNOWN));
+	assign_unknown (cx, P ("_SESSION", UNKNOWN));
 
 	// argc
-	assign_typed (entry, P (MSN, "argc"), Types ("int"));
+	assign_typed (cx, P (MSN, "argc"), Types ("int"));
 
 	// argv
-	assign_empty_array (entry, P (MSN, "argv"), "argv");
-	assign_typed (entry, P ("argv", UNKNOWN), Types ("string"));
-	assign_typed (entry,  P("argv", "0"), Types("string"));
+	assign_empty_array (cx, P (MSN, "argv"), "argv");
+	assign_typed (cx, P ("argv", UNKNOWN), Types ("string"));
+	assign_typed (cx,  P ("argv", "0"), Types ("string"));
 
 
-	dump (entry, "After superglobals");
+	dump (cx, "After superglobals");
 }
 
 void
-Whole_program::forward_bind (Method_info* info, Basic_block* caller, Entry_block* entry, MIR::Actual_parameter_list* actuals)
+Whole_program::forward_bind (Method_info* info, Context entry_cx, MIR::Actual_parameter_list* actuals)
 {
+	Context caller_cx = entry_cx.caller ();
+	string scope = SYM (entry_cx);
+
 	// Each caller should expect that context can be NULL for __MAIN__.
 	foreach_wpa (this)
 	{
-		wpa->forward_bind (caller, entry);
+		wpa->forward_bind (caller_cx, entry_cx);
 
 		// The symtable is an array
-		wpa->set_storage (entry, SN(ST(entry)), Types ("array"));
+		wpa->set_storage (entry_cx, SN (scope), Types ("array"));
 	}
 
 	// Special case for __MAIN__. We do it here so that the other analyses
 	// have initialized.
-	if (caller == NULL)
+	if (entry_cx == Context::outer_scope ())
 	{
-		init_superglobals (entry);
+		init_superglobals (entry_cx);
 	}
 
 	int i = 0;
@@ -761,30 +781,30 @@ Whole_program::forward_bind (Method_info* info, Basic_block* caller, Entry_block
 		else
 		{
 			// Add a default value of NULL for all variables
-			assign_scalar (entry, P (ST (entry), UNKNOWN), new NIL);
+			assign_scalar (entry_cx, P (scope, UNKNOWN), new NIL);
 		}
 
 		// Actual parameters
 		if (ap->is_ref || info->param_by_ref (i))
 		{
 			// $ap =& $fp;
-			assign_by_ref (entry,
-					P (ST (entry), info->param_name (i)),
-					P (ST (caller), dyc<VARIABLE_NAME> (ap->rvalue)));
+			assign_by_ref (entry_cx,
+					P (scope, info->param_name (i)),
+					P (SYM (caller_cx), dyc<VARIABLE_NAME> (ap->rvalue)));
 		}
 		else
 		{
 			// $ap = $fp;
 			if (isa<VARIABLE_NAME> (ap->rvalue))
 			{
-				assign_by_copy (entry,
-						P (ST (entry), info->param_name (i)),
-						P (ST (caller), dyc<VARIABLE_NAME> (ap->rvalue)));
+				assign_by_copy (entry_cx,
+						P (scope, info->param_name (i)),
+						P (SYM (caller_cx), dyc<VARIABLE_NAME> (ap->rvalue)));
 			}
 			else
 			{
-				assign_scalar (entry,
-						P (ST (entry), info->param_name (i)),
+				assign_scalar (entry_cx,
+						P (scope, info->param_name (i)),
 						dyc<Literal> (ap->rvalue));
 			}
 		}
@@ -793,14 +813,14 @@ Whole_program::forward_bind (Method_info* info, Basic_block* caller, Entry_block
 	}
 
 	foreach_wpa (this)
-		wpa->aggregate_results (entry);
+		wpa->aggregate_results (entry_cx);
 
-	dump (entry, "After forward_bind");
+	dump (entry_cx, "After forward_bind");
 }
 
 
 void
-Whole_program::backward_bind (Method_info* info, Basic_block* caller, Exit_block* exit, MIR::VARIABLE_NAME* lhs)
+Whole_program::backward_bind (Method_info* info, Context exit_cx, MIR::VARIABLE_NAME* lhs)
 {
 	// Do assignment back to LHS
 	//
@@ -816,21 +836,22 @@ Whole_program::backward_bind (Method_info* info, Basic_block* caller, Exit_block
 	// danger that it might make an analysis think that return value somehow
 	// escapes. I'm not sure if anything needs to be done about that.
 
+	Context caller_cx = exit_cx.caller ();
 	if (lhs)
 	{
 		if (info->return_by_ref ())
 		{
 			// $lhs =& $retval;
-			assign_by_ref (exit,
-					P (ST (caller), dyc<VARIABLE_NAME> (lhs)),
-					P (ST (exit), new VARIABLE_NAME (RETNAME)));
+			assign_by_ref (exit_cx,
+					P (SYM (caller_cx), dyc<VARIABLE_NAME> (lhs)),
+					P (SYM (exit_cx), new VARIABLE_NAME (RETNAME)));
 		}
 		else
 		{
 			// $lhs = $retval;
-			assign_by_copy (exit,
-					P (ST (caller), dyc<VARIABLE_NAME> (lhs)),
-					P (ST (exit), new VARIABLE_NAME (RETNAME)));
+			assign_by_copy (exit_cx,
+					P (SYM (caller_cx), dyc<VARIABLE_NAME> (lhs)),
+					P (SYM (exit_cx), new VARIABLE_NAME (RETNAME)));
 		}
 	}
 
@@ -848,10 +869,10 @@ Whole_program::backward_bind (Method_info* info, Basic_block* caller, Exit_block
 
 	// Context can be NULL for __MAIN__
 	foreach_wpa (this)
-		wpa->backward_bind (caller, exit);
+		wpa->backward_bind (caller_cx, exit_cx);
 
-	if (caller)
-		dump (caller, "After backward bind");
+	if (caller_cx == Context::outer_scope ())
+		dump (caller_cx, "After backward bind");
 }
 
 
@@ -879,10 +900,10 @@ is_must (Index_node_list* indices)
 
 // Returns the certainty with which assignments can be made to it.
 certainty
-Whole_program::kill_value (Basic_block* bb, Path* plhs)
+Whole_program::kill_value (Context cx, Path* plhs)
 {
 	// do implicit conversions
-	Index_node_list* lhss = get_named_indices (bb, plhs, (Indexing_flags)(IMPLICIT_CONVERSION));
+	Index_node_list* lhss = get_named_indices (cx, plhs, (Indexing_flags)(IMPLICIT_CONVERSION));
 
 	// TODO: dont kill fields of abstract storage nodes
 
@@ -893,24 +914,24 @@ Whole_program::kill_value (Basic_block* bb, Path* plhs)
 
 
 	// There shoudlnt be any may-refs.
-	assert (aliasing->get_references (bb, lhss->front (), POSSIBLE)->empty());
+	assert (aliasing->get_references (cx, lhss->front (), POSSIBLE)->empty());
 
-	foreach (Index_node* node, *get_all_referenced_names (bb, plhs))
+	foreach (Index_node* node, *get_all_referenced_names (cx, plhs))
 		foreach_wpa (this)
 		{
-			wpa->kill_value (bb, node);
+			wpa->kill_value (cx, node);
 		}
 
 	return DEFINITE;
 }
 
 void
-Whole_program::assign_by_ref (Basic_block* bb, Path* plhs, Path* prhs)
+Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 {
 	// Should we separate the assignment by value and the assignment by ref.
 	phc_TODO ();
-	Index_node_list* lhss = get_named_indices (bb, plhs);
-	Index_node_list* rhss = get_named_indices (bb, prhs, RECORD_USES);
+	Index_node_list* lhss = get_named_indices (cx, plhs);
+	Index_node_list* rhss = get_named_indices (cx, prhs, RECORD_USES);
 
 	bool killable = is_must (lhss);
 
@@ -921,7 +942,7 @@ Whole_program::assign_by_ref (Basic_block* bb, Path* plhs, Path* prhs)
 		if (killable) // only 1 result
 		{
 			foreach_wpa (this)
-				wpa->kill_reference (bb, lhs);
+				wpa->kill_reference (cx, lhs);
 		}
 
 		// We don't need to worry about propagating values to LHSS' aliases, as
@@ -931,9 +952,7 @@ Whole_program::assign_by_ref (Basic_block* bb, Path* plhs, Path* prhs)
 		{
 			foreach_wpa (this)
 			{
-				wpa->create_reference (bb,
-					lhs,
-					rhs,
+				wpa->create_reference (cx, lhs, rhs,
 					(killable && is_must (rhss)) ? DEFINITE : POSSIBLE);
 
 				phc_TODO ();
@@ -948,41 +967,41 @@ Whole_program::assign_by_ref (Basic_block* bb, Path* plhs, Path* prhs)
 
 
 void
-Whole_program::assign_scalar (Basic_block* bb, Path* plhs, Literal* lit)
+Whole_program::assign_scalar (Context cx, Path* plhs, Literal* lit)
 {
-	certainty cert = kill_value (bb, plhs);
-	foreach (Index_node* node, *get_all_referenced_names (bb, plhs))
+	certainty cert = kill_value (cx, plhs);
+	foreach (Index_node* node, *get_all_referenced_names (cx, plhs))
 	{
 		foreach_wpa (this)
 		{
-			wpa->set_scalar (bb, ABSVAL (node),
+			wpa->set_scalar (cx, ABSVAL (node),
 					Abstract_value::from_literal (lit));
 
-			wpa->assign_value (bb, node, ABSVAL (node), DEFINITE);
+			wpa->assign_value (cx, node, ABSVAL (node), DEFINITE);
 		}
 	}
 }
 
 void
-Whole_program::assign_typed (Basic_block* bb, Path* plhs, Types types)
+Whole_program::assign_typed (Context cx, Path* plhs, Types types)
 {
 	// Split scalars, objects and arrays here.
 	Types scalars = Type_inference::get_scalar_types (types);
 	Types array = Type_inference::get_array_types (types);
 	Types objects = Type_inference::get_object_types (types);
 
-	certainty cert = kill_value (bb, plhs);
-	foreach (Index_node* node, *get_all_referenced_names (bb, plhs))
+	certainty cert = kill_value (cx, plhs);
+	foreach (Index_node* node, *get_all_referenced_names (cx, plhs))
 	{
 		Alias_name name = node->name();
 		foreach_wpa (this)
 		{
 			if (scalars.size ())
 			{
-				wpa->set_scalar (bb, ABSVAL (node),
+				wpa->set_scalar (cx, ABSVAL (node),
 						Abstract_value::from_types (scalars));
 
-				wpa->assign_value (bb, node, ABSVAL(node), cert);
+				wpa->assign_value (cx, node, ABSVAL(node), cert);
 			}
 
 
@@ -1003,34 +1022,34 @@ Whole_program::assign_typed (Basic_block* bb, Path* plhs, Types types)
 }
 
 void
-Whole_program::assign_empty_array (Basic_block* bb, Path* plhs, string unique_name)
+Whole_program::assign_empty_array (Context cx, Path* plhs, string unique_name)
 {
-	certainty cert = kill_value (bb, plhs);
-	foreach (Index_node* node, *get_all_referenced_names (bb, plhs))
+	certainty cert = kill_value (cx, plhs);
+	foreach (Index_node* node, *get_all_referenced_names (cx, plhs))
 	{
 		foreach_wpa (this)
 		{
-			wpa->set_storage (bb, SN(unique_name), Types ("array"));
-			wpa->assign_value (bb, node, SN(unique_name), cert);
+			wpa->set_storage (cx, SN(unique_name), Types ("array"));
+			wpa->assign_value (cx, node, SN(unique_name), cert);
 		}
 	}
 
 	// All the arrays entries are NULL.
-	assign_scalar (bb, P (unique_name, UNKNOWN), new NIL);
+	assign_scalar (cx, P (unique_name, UNKNOWN), new NIL);
 }
 
 void
-Whole_program::assign_unknown (Basic_block* bb, Path* plhs)
+Whole_program::assign_unknown (Context cx, Path* plhs)
 {
 	// This assigns a value which is unknown, but is not as bad as
 	// ruin_everything (ie, it doesnt link to all the other objects, arrays,
 	// etc. Is this being used right?
 
-	certainty cert = kill_value (bb, plhs);
+	certainty cert = kill_value (cx, plhs);
 
 	// Unknown may be an array, a scalar or an object, all of which have
 	// different properties. We must be careful to separate these.
-	foreach (Index_node* node, *get_all_referenced_names (bb, plhs))
+	foreach (Index_node* node, *get_all_referenced_names (cx, plhs))
 	{
 		// When assigning to different references:
 		//		- scalar values are copied (though they are conceptually shared,
@@ -1046,14 +1065,14 @@ Whole_program::assign_unknown (Basic_block* bb, Path* plhs)
 			// have UNKNOWN fields pointing to themselves, and marking them as
 			// abstract.
 
-			wpa->set_scalar (bb, ABSVAL (node), Abstract_value::unknown ());
-			wpa->assign_value (bb, node, ABSVAL(node), POSSIBLE);
+			wpa->set_scalar (cx, ABSVAL (node), Abstract_value::unknown ());
+			wpa->assign_value (cx, node, ABSVAL (node), POSSIBLE);
 
-			wpa->set_storage (bb, BB_array_node (bb), Types ("array"));
-			wpa->assign_value (bb, node, BB_array_node (bb), POSSIBLE);
+			wpa->set_storage (cx, BB_array_node (cx), Types ("array"));
+			wpa->assign_value (cx, node, BB_array_node (cx), POSSIBLE);
 
-			wpa->set_storage (bb, BB_object_node (bb), Types ("object"));
-			wpa->assign_value (bb, node, BB_object_node (bb), POSSIBLE);
+			wpa->set_storage (cx, BB_object_node (cx), Types ("object"));
+			wpa->assign_value (cx, node, BB_object_node (cx), POSSIBLE);
 		}
 	}
 }
@@ -1061,7 +1080,7 @@ Whole_program::assign_unknown (Basic_block* bb, Path* plhs)
 
 
 void
-Whole_program::assign_by_copy (Basic_block* bb, Path* plhs, Path* prhs)
+Whole_program::assign_by_copy (Context cx, Path* plhs, Path* prhs)
 {
 	// foreach values V pointed to by PRHS:
 	//	switch V.type:
@@ -1072,32 +1091,32 @@ Whole_program::assign_by_copy (Basic_block* bb, Path* plhs, Path* prhs)
 	//		Objects:
 	//			- foreach alias A of PLHS, point from A to V.
 
-	certainty cert = kill_value (bb, plhs);
+	certainty cert = kill_value (cx, plhs);
 
 	// For objects, copy the edge. For arrays, copy the whole thing. For
 	// scalars, copy the scalar (if unknown). It seems clear that we need an
 	// unknown object here, if the type is not known to not be an object.
-	Index_node_list* rhss = get_named_indices (bb, prhs, RECORD_USES);
+	Index_node_list* rhss = get_named_indices (cx, prhs, RECORD_USES);
 
 	// If there is more than 1 RHSs, we cant say for sure which we're copying
 	// from.
 	if (rhss->size () > 1)
 		cert = POSSIBLE;
 
-	foreach (Index_node* lhs, *get_all_referenced_names (bb, plhs))
+	foreach (Index_node* lhs, *get_all_referenced_names (cx, plhs))
 	{
 		foreach (Index_node* rhs, *rhss)
 		{
-			copy_value (bb, lhs, rhs, cert);
+			copy_value (cx, lhs, rhs, cert);
 		}
 	}
 }
 
 void
-Whole_program::copy_value (Basic_block* bb, Index_node* lhs, Index_node* rhs, certainty cert)
+Whole_program::copy_value (Context cx, Index_node* lhs, Index_node* rhs, certainty cert)
 {
 	// Get the value for each RHS. Copy it using the correct semantics.
-	Storage_node_list* values = aliasing->get_values (bb, rhs);
+	Storage_node_list* values = aliasing->get_values (cx, rhs);
 
 	// If there is more than 1 value, it can't be definite.
 	if (values->size () > 1)
@@ -1106,7 +1125,7 @@ Whole_program::copy_value (Basic_block* bb, Index_node* lhs, Index_node* rhs, ce
 	foreach (Storage_node* st, *values)
 	{
 		// Get the type of the value
-		Types types = type_inf->get_types (bb, st->name());
+		Types types = type_inf->get_types (cx, st->name());
 		// TODO: handle bottom
 
 		// It must be either all scalars, array, list of classes, or bottom.
@@ -1120,48 +1139,48 @@ Whole_program::copy_value (Basic_block* bb, Index_node* lhs, Index_node* rhs, ce
 		{
 			foreach_wpa (this)
 			{
-				wpa->set_scalar (bb, ABSVAL (lhs),
-						get_abstract_value (bb, st->name()));
+				wpa->set_scalar (cx, ABSVAL (lhs),
+						get_abstract_value (cx, st->name()));
 
-				wpa->assign_value (bb, lhs, ABSVAL (lhs), cert);
+				wpa->assign_value (cx, lhs, ABSVAL (lhs), cert);
 			}
 		}
 
 		if (array.size())
 		{
 			// We need to do a deep copy here.
-			Storage_node* new_array = BB_array_node (bb);
+			Storage_node* new_array = BB_array_node (cx);
 
 			// create the new array
 			foreach_wpa (this)
-				wpa->set_storage (bb, new_array, Types ("array"));
+				wpa->set_storage (cx, new_array, Types ("array"));
 
 			// Get all the indices
-			foreach (Index_node* index, *aliasing->get_indices (bb, st))
+			foreach (Index_node* index, *aliasing->get_indices (cx, st))
 			{
 				// TODO: I think these are not killed, but should be, if allowable.
-				copy_value (bb,
+				copy_value (cx,
 						new Index_node (new_array->storage, index->index),
 						index,
-						aliasing->get_cert (bb, st, index));
+						aliasing->get_cert (cx, st, index));
 			}
 
 			// LHS points to NEW_ARRAY.
 			foreach_wpa (this)
-				wpa->assign_value (bb, lhs, new_array, cert);
+				wpa->assign_value (cx, lhs, new_array, cert);
 		}
 
 		if (objects.size ())
 		{
 			// Just point to the object.
 			foreach_wpa (this)
-				wpa->assign_value (bb, lhs, st, cert);
+				wpa->assign_value (cx, lhs, st, cert);
 		}
 	}
 }
 
 void
-Whole_program::record_use (Basic_block* bb, Index_node* node)
+Whole_program::record_use (Context cx, Index_node* node)
 {
 	// TODO: this marks it as a use, not a must use. Is there any difference
 	// as far as analyses are concerned? If so, fix this. If not, remove the
@@ -1171,13 +1190,13 @@ Whole_program::record_use (Basic_block* bb, Index_node* node)
 	// call/check for the handlers.
 	
 	foreach_wpa (this)
-		wpa->record_use (bb, node, POSSIBLE);
+		wpa->record_use (cx, node, POSSIBLE);
 }
 
 
 
 void
-Whole_program::ruin_everything (Basic_block* bb, Path* plhs)
+Whole_program::ruin_everything (Context cx, Path* plhs)
 {
 	// For every storage node we can reach, mark its "*" index as completely
 	// unknown.
@@ -1192,9 +1211,9 @@ Whole_program::ruin_everything (Basic_block* bb, Path* plhs)
  * are returned, it may be any of them. NULL may be returned, indicating that it may be all possible values.
  */
 String_list*
-Whole_program::get_string_values (Basic_block* bb, Index_node* node)
+Whole_program::get_string_values (Context cx, Index_node* node)
 {
-	Lattice_cell* result = ccp->get_value (bb, node->name ());
+	Lattice_cell* result = ccp->get_value (cx, node->name ());
 
 	if (result == TOP)
 		return new String_list (s(""));
@@ -1209,19 +1228,19 @@ Whole_program::get_string_values (Basic_block* bb, Index_node* node)
 
 
 Abstract_value*
-Whole_program::get_abstract_value (Basic_block* bb, Alias_name name)
+Whole_program::get_abstract_value (Context cx, Alias_name name)
 {
 	return new Abstract_value (
-							ccp->get_value (bb, name), 
-							type_inf->get_value (bb, name));
+							ccp->get_value (cx, name), 
+							type_inf->get_value (cx, name));
 }
 
 Abstract_value*
-Whole_program::get_bb_out_abstract_value (Basic_block* bb, Alias_name name)
+Whole_program::get_bb_out_abstract_value (Context cx, Alias_name name)
 {
 	return new Abstract_value (
-							ccp->outs[bb->ID][name.str()],
-							type_inf->outs[bb->ID][name.str()]);
+							ccp->outs[cx][name.str()],
+							type_inf->outs[cx][name.str()]);
 }
 
 
@@ -1245,7 +1264,7 @@ Whole_program::get_bb_out_abstract_value (Basic_block* bb, Alias_name name)
  *	Likewise for $y =& $x[$i] or anything in the form $y =& $x->$f.
  */
 Index_node_list*
-Whole_program::get_named_indices (Basic_block* bb, Path* path, Indexing_flags flags)
+Whole_program::get_named_indices (Context cx, Path* path, Indexing_flags flags)
 {
 	// Debugging
 //	path->dump(); 	cdebug << endl;
@@ -1264,9 +1283,9 @@ Whole_program::get_named_indices (Basic_block* bb, Path* path, Indexing_flags fl
 	{
 		// TODO: propagate record_uses?
 		// Lookup the storage nodes indexed by LHS
-		foreach (Index_node* st_index, *get_named_indices (bb, p->lhs, flags))
+		foreach (Index_node* st_index, *get_named_indices (cx, p->lhs, flags))
 		{
-			foreach (Storage_node* pointed_to, *aliasing->get_values (bb, st_index))
+			foreach (Storage_node* pointed_to, *aliasing->get_values (cx, st_index))
 			{
 				string name = pointed_to->storage;
 
@@ -1278,11 +1297,11 @@ Whole_program::get_named_indices (Basic_block* bb, Path* path, Indexing_flags fl
 					// Other scalars will go to NULL instead.
 					// TODO: these cases should clearly be dealt with in the caller.
 
-					name = BB_array_node (bb)->storage;
+					name = BB_array_node (cx)->storage;
 
 					// TODO: i'm not very happy about this
 					if (flags & IMPLICIT_CONVERSION)
-						assign_empty_array (bb, p->lhs, name);
+						assign_empty_array (cx, p->lhs, name);
 				}
 
 				lhss.insert (name);
@@ -1302,14 +1321,14 @@ Whole_program::get_named_indices (Basic_block* bb, Path* path, Indexing_flags fl
 	else
 	{
 		// The name of the field must be looked up
-		foreach (Index_node* field_index, *get_named_indices (bb, p->rhs, flags))
+		foreach (Index_node* field_index, *get_named_indices (cx, p->rhs, flags))
 		{
 			// Record this use regardless of RECORD_USES
-			record_use (bb, field_index);
+			record_use (cx, field_index);
 
 			// This should return a set of possible names, 1 known name
 			// (including "*" indicating it could be anything).
-			foreach (String* value, *get_string_values (bb, field_index))
+			foreach (String* value, *get_string_values (cx, field_index))
 				rhss.insert (*value);
 		}
 	}
@@ -1324,7 +1343,7 @@ Whole_program::get_named_indices (Basic_block* bb, Path* path, Indexing_flags fl
 		foreach (string rhs, rhss)
 		{
 			if (flags & RECORD_USES)
-				record_use (bb, new Index_node (lhs, rhs));
+				record_use (cx, new Index_node (lhs, rhs));
 
 			result->push_back (new Index_node (lhs, rhs));
 		}
@@ -1333,9 +1352,9 @@ Whole_program::get_named_indices (Basic_block* bb, Path* path, Indexing_flags fl
 }
 
 Index_node*
-Whole_program::get_named_index (Basic_block* bb, Path* name, Indexing_flags flags)
+Whole_program::get_named_index (Context cx, Path* name, Indexing_flags flags)
 {
-	Index_node_list* all = get_named_indices (bb, name, flags);
+	Index_node_list* all = get_named_indices (cx, name, flags);
 
 	// TODO: can this happen
 	assert (all->size());
@@ -1349,16 +1368,16 @@ Whole_program::get_named_index (Basic_block* bb, Path* name, Indexing_flags flag
 
 
 Index_node_list*
-Whole_program::get_all_referenced_names (Basic_block* bb, Path* path, Indexing_flags flags)
+Whole_program::get_all_referenced_names (Context cx, Path* path, Indexing_flags flags)
 {
 	Map<Alias_name, Index_node*> names;
 
-	Index_node_list* lhss = get_named_indices (bb, path, flags);
+	Index_node_list* lhss = get_named_indices (cx, path, flags);
 
 	foreach (Index_node* lhs, *lhss)
 	{
 		// Handle all the aliases/indirect assignments.
-		Index_node_list* refs = aliasing->get_references (bb, lhs, PTG_ALL);
+		Index_node_list* refs = aliasing->get_references (cx, lhs, PTG_ALL);
 		refs->push_back (lhs);
 
 		foreach (Index_node* ref, *refs)
@@ -1377,8 +1396,10 @@ Whole_program::get_all_referenced_names (Basic_block* bb, Path* path, Indexing_f
 void
 Whole_program::visit_global (Statement_block* bb, MIR::Global* in)
 {
-	assign_by_ref (bb,
-			P (ST (bb), in->variable_name),
+	string ns = SYM (block_cx);
+
+	assign_by_ref (block_cx,
+			P (ns, in->variable_name),
 			P ("__MAIN__", in->variable_name));
 }
 
@@ -1386,21 +1407,21 @@ Whole_program::visit_global (Statement_block* bb, MIR::Global* in)
 void
 Whole_program::visit_assign_array (Statement_block* bb, MIR::Assign_array* in)
 {
-	string ns = ST (bb);
+	string ns = SYM (block_cx);
 	Path* lhs = P (ns, in);
 
 	if (isa<Literal> (in->rhs))
 	{
-		assign_scalar (bb, lhs, dyc<Literal> (in->rhs));
+		assign_scalar (block_cx, lhs, dyc<Literal> (in->rhs));
 	}
 	else
 	{
 		Path* rhs = P (ns, in->rhs);
 
 		if (in->is_ref)
-			assign_by_ref (bb, lhs, rhs);
+			assign_by_ref (block_cx, lhs, rhs);
 		else
-			assign_by_copy (bb, lhs, rhs);
+			assign_by_copy (block_cx, lhs, rhs);
 	}
 }
 
@@ -1408,11 +1429,13 @@ Whole_program::visit_assign_array (Statement_block* bb, MIR::Assign_array* in)
 void
 Whole_program::visit_foreach_reset (Statement_block* bb, MIR::Foreach_reset* in)
 {
+	string ns = SYM (block_cx);
+
 	// mark the array as used
-	record_use (bb, VN (ST(bb), in->array));
+	record_use (block_cx, VN (ns, in->array));
 
 	// Mark iterator as defined. The iterator does nothing for us otherwise.
-	Alias_name iter (ST(bb), *in->iter->value);
+	Alias_name iter (ns, *in->iter->value);
 	
 	// We dont use Whole_programm::assign_unknown because we havent got a Path
 	// for an iterator. We also don't need to worry about kills and such. Note
@@ -1420,29 +1443,33 @@ Whole_program::visit_foreach_reset (Statement_block* bb, MIR::Foreach_reset* in)
 	// array's storage node, which isnt what we want to model.
 	phc_TODO ();
 /*	foreach_wpa (this)
-		wpa->assign_unknown (bb, iter, DEFINITE);*/
+		wpa->assign_unknown (block_cx, iter, DEFINITE);*/
 }
 
 void
 Whole_program::visit_foreach_end (Statement_block* bb, MIR::Foreach_end* in)
 {
+	string ns = SYM (block_cx);
+
 	// Mark the array as used
-	record_use (bb, VN (ST(bb), in->array));
+	record_use (block_cx, VN (ns, in->array));
 
 	// Mark both a use and a def on the iterator
-	Alias_name iter (ST(bb), *in->iter->value);
-//	record_use (bb, iter.ind()); // TODO: how to fix this?
+	Alias_name iter (ns, *in->iter->value);
 	phc_TODO ();
+//	record_use (block_cx, iter.ind());
 
 /*	foreach_wpa (this)
-		wpa->assign_unknown (bb, iter, DEFINITE);*/
+		wpa->assign_unknown (block_cx, iter, DEFINITE);*/
 }
 
 
 void
 Whole_program::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 {
-	saved_plhs = P (ST(bb), in->lhs);
+	string ns = SYM (block_cx);
+
+	saved_plhs = P (ns, in->lhs);
 	saved_lhs = in->lhs;
 
 	switch (in->rhs->classid())
@@ -1472,7 +1499,7 @@ Whole_program::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 		case NIL::ID:
 		case REAL::ID:
 		case STRING::ID:
-			assign_scalar (bb, saved_plhs, dyc<Literal> (in->rhs));
+			assign_scalar (block_cx, saved_plhs, dyc<Literal> (in->rhs));
 			break;
 
 		default:
@@ -1495,50 +1522,56 @@ Whole_program::visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
 void
 Whole_program::visit_unset (Statement_block* bb, MIR::Unset* in)
 {
-	Index_node_list* indices = get_named_indices (bb, P (ST(bb), in));
+	string ns = SYM (block_cx);
+
+	Index_node_list* indices = get_named_indices (block_cx, P (ns, in));
 
 	// Send the results to the analyses for all variables which could be
 	// overwritten.
 	foreach (Index_node* index, *indices)
 		foreach_wpa (this)
-			wpa->kill_reference (bb, index);
+			wpa->kill_reference (block_cx, index);
 }
 
 void
 Whole_program::visit_branch_block (Branch_block* bb)
 {
-	record_use (bb, VN (ST(bb), bb->branch->variable_name));
+	string ns = SYM (block_cx);
+
+	record_use (block_cx, VN (ns, bb->branch->variable_name));
 }
 
 
 void
 Whole_program::visit_pre_op (Statement_block* bb, Pre_op* in)
 {
+	string ns = SYM (block_cx);
+
 	// ++ and -- won't affect objects.
-	Path* path = P (ST(bb), in->variable_name);
+	Path* path = P (ns, in->variable_name);
 
 	// I'm not really sure how to get a good interface on all this.
-	Index_node* n = VN (ST(bb), in->variable_name);
+	Index_node* n = VN (ns, in->variable_name);
 
 	// Case where we know the value
-	MIR::Literal* value = ccp->get_lit (bb, n->name());
+	MIR::Literal* value = ccp->get_lit (block_cx, n->name());
 	if (value)
 	{
 		Literal* result = PHP::fold_pre_op (value, in->op);
-		assign_scalar (bb, path, result);
+		assign_scalar (block_cx, path, result);
 		return;
 	}
 
 	// Maybe we know the type?
-	Type_cell* tc = dyc<Type_cell> (type_inf->get_value (bb, n->name()));
+	Type_cell* tc = dyc<Type_cell> (type_inf->get_value (block_cx, n->name()));
 	assert (tc != TOP); // would be NULL in CCP
 	if (tc == BOTTOM)
 	{
-		assign_unknown (bb, path);
+		assign_unknown (block_cx, path);
 		return;
 	}
 
-	assign_typed (bb, path, tc->types);
+	assign_typed (block_cx, path, tc->types);
 }
 
 void
@@ -1562,22 +1595,24 @@ Whole_program::visit_foreach_next (Statement_block*, MIR::Foreach_next*)
 void
 Whole_program::visit_assign_next (Statement_block* bb, MIR::Assign_next* in)
 {
+	string ns = SYM (block_cx);
+
 	// TODO: _next_ is one larger than the largest positive integer element
 
-	Path* lhs = P (ST (bb), in);
+	Path* lhs = P (ns, in);
 
 	if (isa<Literal> (in->rhs))
 	{
-		assign_scalar (bb, lhs, dyc<Literal> (in->rhs));
+		assign_scalar (block_cx, lhs, dyc<Literal> (in->rhs));
 	}
 	else
 	{
-		Path* rhs = P (ST (bb), in->rhs);
+		Path* rhs = P (ns, in->rhs);
 
 		if (in->is_ref)
-			assign_by_ref (bb, lhs, rhs);
+			assign_by_ref (block_cx, lhs, rhs);
 		else
-			assign_by_copy (bb, lhs, rhs);
+			assign_by_copy (block_cx, lhs, rhs);
 	}
 }
 
@@ -1615,8 +1650,10 @@ Whole_program::visit_array_access (Statement_block* bb, MIR::Array_access* in)
 void
 Whole_program::visit_bin_op (Statement_block* bb, MIR::Bin_op* in)
 {
-	Abstract_value* left = get_abstract_value (bb, in->left);
-	Abstract_value* right = get_abstract_value (bb, in->right);
+	string ns = SYM (block_cx);
+
+	Abstract_value* left = get_abstract_value (block_cx, in->left);
+	Abstract_value* right = get_abstract_value (block_cx, in->right);
 
 	if (isa<Literal_cell> (left->lit) && isa<Literal_cell> (right->lit))
 	{
@@ -1625,45 +1662,49 @@ Whole_program::visit_bin_op (Statement_block* bb, MIR::Bin_op* in)
 					in->op,
 					dyc<Literal_cell> (right->lit)->value);
 
-		assign_scalar (bb, saved_plhs, result);
+		assign_scalar (block_cx, saved_plhs, result);
 		return;
 	}
 
 	// TODO: record uses
 
-	Types types = type_inf->get_bin_op_types (bb, left, right, *in->op->value);
+	Types types = type_inf->get_bin_op_types (block_cx, left, right, *in->op->value);
 
-	assign_typed (bb, saved_plhs, types);
+	assign_typed (block_cx, saved_plhs, types);
 }
 
 Abstract_value*
-Whole_program::get_abstract_value (Basic_block* bb, MIR::Rvalue* rval)
+Whole_program::get_abstract_value (Context cx, MIR::Rvalue* rval)
 {
+	string ns = SYM (cx);
+
 	if (isa<Literal> (rval))
 		return Abstract_value::from_literal (dyc<Literal> (rval));
 
 	// The variables are not expected to already have the same value. Perhaps
 	// there was an assignment to $x[0], and we are accessing $x[$i].
-	Index_node_list* indices = get_named_indices (bb, P (ST(bb), dyc<VARIABLE_NAME> (rval)));
+	Index_node_list* indices = get_named_indices (cx, P (ns, dyc<VARIABLE_NAME> (rval)));
 
 	if (indices->size () > 1)
 		phc_TODO ();
 	
-	return get_abstract_value (bb, indices->front()->name());
+	return get_abstract_value (cx, indices->front()->name ());
 }
 
 void
 Whole_program::visit_cast (Statement_block* bb, MIR::Cast* in)
 {
-	Alias_name operand = VN (ST(bb), in->variable_name)->name();
+	string ns = SYM (block_cx);
 
-	MIR::Literal* lit = ccp->get_lit (bb, operand);
+	Alias_name operand = VN (ns, in->variable_name)->name();
+
+	MIR::Literal* lit = ccp->get_lit (block_cx, operand);
 	if (lit)
 	{
 		Literal* result = PHP::cast_to (in->cast, lit);
 		if (result)
 		{
-			assign_scalar (bb, saved_plhs, result);
+			assign_scalar (block_cx, saved_plhs, result);
 			return;
 		}
 	}
@@ -1678,7 +1719,7 @@ Whole_program::visit_cast (Statement_block* bb, MIR::Cast* in)
 		if (lit && isa<NIL> (lit))
 		{
 			// Most common case: create an empty array
-			assign_empty_array (bb, saved_plhs, BB_array_name (bb));
+			assign_empty_array (block_cx, saved_plhs, BB_array_name (block_cx));
 		}
 		else
 			phc_TODO ();
@@ -1695,12 +1736,14 @@ Whole_program::visit_cast (Statement_block* bb, MIR::Cast* in)
 void
 Whole_program::visit_constant (Statement_block* bb, MIR::Constant* in)
 {
+	string ns = SYM (block_cx);
+
 	phc_TODO ();
 
 	Literal* lit = PHP::fold_constant (in);
 	if (lit)
 	{
-		assign_scalar (bb, saved_plhs, lit);
+		assign_scalar (block_cx, saved_plhs, lit);
 		return;
 	}
 
@@ -1747,7 +1790,7 @@ Whole_program::visit_isset (Statement_block* bb, MIR::Isset* in)
 void
 Whole_program::visit_method_invocation (Statement_block* bb, MIR::Method_invocation* in)
 {
-	invoke_method (in, bb, saved_lhs);
+	invoke_method (in, block_cx, saved_lhs);
 }
 
 void
@@ -1771,7 +1814,9 @@ Whole_program::visit_unary_op (Statement_block* bb, MIR::Unary_op* in)
 void
 Whole_program::visit_variable_name (Statement_block* bb, MIR::VARIABLE_NAME* in)
 {
-	assign_by_copy (bb, saved_plhs, P (ST(bb), in));
+	string ns = SYM (block_cx);
+
+	assign_by_copy (block_cx, saved_plhs, P (ns, in));
 }
 
 void

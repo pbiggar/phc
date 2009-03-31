@@ -54,11 +54,13 @@ Optimization_transformer::get_literal (Basic_block* bb, Rvalue* in)
 	if (isa<Literal> (in))
 		return in;
 
-	Index_node* index = wp->get_named_index (bb, P (ST (bb), in));
+	Context cx = Context::non_contextual (bb);
+
+	Index_node* index = wp->get_named_index (cx, P (SYM (cx), in));
 	if (index == NULL)
 		return in;
 
-	Lattice_cell* result = wp->ccp->get_value (bb, index->name ());
+	Lattice_cell* result = wp->ccp->get_value (cx, index->name ());
 
 	if (result == BOTTOM)
 		return in;

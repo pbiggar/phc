@@ -32,8 +32,8 @@ Index_node* FN (string scope, MIR::FIELD_NAME*);
 //Index_node* AN (string scope, string array_index); TODO arrays
 
 Value_node* ABSVAL (Index_node* node);
-Storage_node* BB_array_node (Basic_block* bb);
-Storage_node* BB_object_node (Basic_block* bb);
+Storage_node* BB_array_node (Context cx);
+Storage_node* BB_object_node (Context cx);
 
 
 
@@ -151,7 +151,7 @@ public:
 	Points_to ();
 
 	bool equals (Points_to* other);
-	void dump_graphviz (String* label, Basic_block* bb, Whole_program* wp);
+	void dump_graphviz (String* label, Context cx, Whole_program* wp);
 
 	void open_scope (string name);
 	void close_scope (string name);
@@ -171,7 +171,7 @@ public:
 
 	bool is_symtable (Storage_node* st);
 
-	void consistency_check (Basic_block* bb, Whole_program* wp);
+	void consistency_check (Context cx, Whole_program* wp);
 
 	Storage_node_list* get_storage_nodes ();
 	static Index_node_list* get_possible_nulls (List<Points_to*>* graphs);

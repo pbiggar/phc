@@ -38,41 +38,40 @@ Aliasing::equals (WPA* wpa)
 }
 
 void
-Aliasing::dump (Basic_block* bb, string comment)
+Aliasing::dump (Context cx, string comment)
 {
 	CHECK_DEBUG();
 	stringstream ss;
-	ss << bb->ID << ":" << comment;
-	outs[bb->ID]->dump_graphviz (s(ss.str()), bb, wp);
+	ss << cx << ":" << comment;
+	outs[cx]->dump_graphviz (s(ss.str()), cx, wp);
 }
 
 
 void
-Aliasing::forward_bind (Basic_block* caller, Entry_block* entry)
+Aliasing::forward_bind (Context caller, Context entry)
 {
 	Points_to* ptg;
 
-	if (caller == NULL)
+	if (caller == Context::outer_scope ())
 		ptg = new Points_to;
 	else
-		ptg = ins[caller->ID]->clone ();
+		ptg = ins[caller]->clone ();
 
 	ptg->consistency_check (caller, wp);
+
 	// We need INS to read the current situation, but it shouldnt get modified.
-	ins[entry->ID] = ptg;
-	outs[entry->ID] = ptg;
+	ins[entry] = ptg;
+	outs[entry] = ptg;
 }
 
 void
-Aliasing::backward_bind (Basic_block* caller, Exit_block* exit)
+Aliasing::backward_bind (Context caller, Context exit)
 {
-	Points_to* ptg = outs[exit->ID]->clone ();
-
-	ptg->close_scope (ST(exit));
+	Points_to* ptg = outs[exit]->clone ();
 
 
-	if (caller != NULL)
-		outs[caller->ID] = ptg;
+	if (!(caller == Context::outer_scope()))
+		outs[caller] = ptg;
 	else
 	{
 		if (debugging_enabled)
@@ -81,27 +80,27 @@ Aliasing::backward_bind (Basic_block* caller, Exit_block* exit)
 }
 
 void
-Aliasing::pull_init (Basic_block* bb)
+Aliasing::pull_init (Context cx)
 {
-	ins[bb->ID] = NULL;
+	ins[cx] = NULL;
 }
 
 void
-Aliasing::pull_first_pred (Basic_block* bb, Basic_block* pred)
+Aliasing::pull_first_pred (Context cx, Context pred)
 {
-	ins[bb->ID] = outs[pred->ID]->clone ();
+	ins[cx] = outs[pred]->clone ();
 }
 
 void
-Aliasing::pull_pred (Basic_block* bb, Basic_block* pred)
+Aliasing::pull_pred (Context cx, Context pred)
 {
-	ins[bb->ID] = ins[bb->ID]->merge (outs[pred->ID]);
+	ins[cx] = ins[cx]->merge (outs[pred]);
 }
 
 void
-Aliasing::pull_possible_null (Basic_block* bb, Index_node* node)
+Aliasing::pull_possible_null (Context cx, Index_node* node)
 {
-	Points_to* pt = ins[bb->ID];
+	Points_to* pt = ins[cx];
 
 	// Copied from assign_value
 	pt->add_edge (node, ABSVAL (node), POSSIBLE);
@@ -121,28 +120,28 @@ Aliasing::pull_possible_null (Basic_block* bb, Index_node* node)
 }
 
 void
-Aliasing::pull_finish (Basic_block* bb)
+Aliasing::pull_finish (Context cx)
 {
 	// You cant have no predecessors (and at least 1 must be executable)
-	assert (ins[bb->ID]);
+	assert (ins[cx]);
 
-	ins[bb->ID]->consistency_check (bb, wp);
-	outs[bb->ID] = ins[bb->ID]->clone ();
+	ins[cx]->consistency_check (cx, wp);
+	outs[cx] = ins[cx]->clone ();
 }
 
 
 void
-Aliasing::aggregate_results (Basic_block* bb)
+Aliasing::aggregate_results (Context cx)
 {
 	// TODO: pull_results creates the OUT entry, and it is updated through the
 	// function. Here, we just want to set CHANGED_FLAG
-	outs[bb->ID]->consistency_check (bb, wp);
+	outs[cx]->consistency_check (cx, wp);
 }
 
 void
-Aliasing::kill_value (Basic_block* bb, Index_node* lhs)
+Aliasing::kill_value (Context cx, Index_node* lhs)
 {
-	Points_to* ptg = outs[bb->ID];
+	Points_to* ptg = outs[cx];
 
 	foreach (Storage_node* value, *ptg->get_values (lhs))
 	{
@@ -153,9 +152,9 @@ Aliasing::kill_value (Basic_block* bb, Index_node* lhs)
 
 // Remove all references edges into or out of INDEX. Also call kill_value.
 void
-Aliasing::kill_reference (Basic_block* bb, Index_node* lhs)
+Aliasing::kill_reference (Context cx, Index_node* lhs)
 {
-	Points_to* ptg = outs[bb->ID];
+	Points_to* ptg = outs[cx];
 
 	foreach (Index_node* other, *ptg->get_references (lhs, PTG_ALL))
 	{
@@ -166,7 +165,7 @@ Aliasing::kill_reference (Basic_block* bb, Index_node* lhs)
 
 
 void
-Aliasing::set_storage (Basic_block* bb, Storage_node* storage, Types types)
+Aliasing::set_storage (Context cx, Storage_node* storage, Types types)
 {
 	// While it seems like we should be adding a node here, the graph doesnt
 	// actually have nodes, only edges, so we cant add anything.
@@ -174,22 +173,22 @@ Aliasing::set_storage (Basic_block* bb, Storage_node* storage, Types types)
 
 
 void
-Aliasing::set_scalar (Basic_block* bb, Value_node* storage, Abstract_value* val)
+Aliasing::set_scalar (Context cx, Value_node* storage, Abstract_value* val)
 {
 	// See set storage
 }
 
 void
-Aliasing::create_reference (Basic_block* bb, Index_node* lhs, Index_node* rhs, certainty cert)
+Aliasing::create_reference (Context cx, Index_node* lhs, Index_node* rhs, certainty cert)
 {
 	phc_TODO ();
-	Points_to* ptg = outs[bb->ID];
+	Points_to* ptg = outs[cx];
 
 	ptg->add_index (lhs, DEFINITE);
 	ptg->add_index (rhs, DEFINITE);
 
 	// Transitive closure for points-to edges
-	add_all_points_to_edges (bb, lhs, rhs, cert);
+	add_all_points_to_edges (cx, lhs, rhs, cert);
 
 	// Transitive closure for reference edges
 	certainty certainties[] = {POSSIBLE, DEFINITE};
@@ -206,14 +205,14 @@ Aliasing::create_reference (Basic_block* bb, Index_node* lhs, Index_node* rhs, c
 }
 
 void
-Aliasing::assign_value (Basic_block* bb, Index_node* lhs, Storage_node* storage, certainty cert)
+Aliasing::assign_value (Context cx, Index_node* lhs, Storage_node* storage, certainty cert)
 {
-	outs[bb->ID]->add_index (lhs, DEFINITE);
-	outs[bb->ID]->add_edge (lhs, storage, cert);
+	outs[cx]->add_index (lhs, DEFINITE);
+	outs[cx]->add_edge (lhs, storage, cert);
 }
 
 void
-Aliasing::add_all_points_to_edges (Basic_block* bb, Index_node* lhs, Index_node* rhs, certainty cert)
+Aliasing::add_all_points_to_edges (Context cx, Index_node* lhs, Index_node* rhs, certainty cert)
 {
 	// Do not copy the abstract value!!!
 	phc_TODO ();
@@ -221,25 +220,25 @@ Aliasing::add_all_points_to_edges (Basic_block* bb, Index_node* lhs, Index_node*
 	certainty certainties[] = {POSSIBLE, DEFINITE};
 	foreach (certainty edge_cert, certainties)
 	{
-		Storage_node_list* pts = ins[bb->ID]->get_values (rhs);
+		Storage_node_list* pts = ins[cx]->get_values (rhs);
 		foreach (Storage_node* st, *pts)
-			outs[bb->ID]->add_edge (lhs, st, combine_certs (edge_cert, cert));
+			outs[cx]->add_edge (lhs, st, combine_certs (edge_cert, cert));
 	}
 }
 
 
 
 Index_node_list*
-Aliasing::get_references (Basic_block* bb, Index_node* index,
+Aliasing::get_references (Context cx, Index_node* index,
 												certainty cert)
 {
-	return ins[bb->ID]->get_references (index, cert);
+	return ins[cx]->get_references (index, cert);
 }
 
 Storage_node_list*
-Aliasing::get_values (Basic_block* bb, Index_node* index)
+Aliasing::get_values (Context cx, Index_node* index)
 {
-	Points_to* ptg = ins[bb->ID];
+	Points_to* ptg = ins[cx];
 	Storage_node_list* result = ptg->get_values (index);
 
 	// For undefined nodes, we look to the UNKNOWN node. 
@@ -247,7 +246,7 @@ Aliasing::get_values (Basic_block* bb, Index_node* index)
 	assert ((edge == NULL) xor !result->empty ());
 	if (edge == NULL)
 	{
-		return get_values (bb, IN (index->storage, UNKNOWN));
+		return get_values (cx, IN (index->storage, UNKNOWN));
 	}
 
 	return result;
@@ -255,27 +254,27 @@ Aliasing::get_values (Basic_block* bb, Index_node* index)
 
 
 Index_node_list*
-Aliasing::get_indices (Basic_block* bb, Storage_node* storage)
+Aliasing::get_indices (Context cx, Storage_node* storage)
 {
-	return ins[bb->ID]->get_indices (storage);
+	return ins[cx]->get_indices (storage);
 }
 
 Index_node_list*
-Aliasing::get_possible_nulls (BB_list* bbs)
+Aliasing::get_possible_nulls (List<Context>* cxs)
 {
 	List<Points_to*>* graphs = new List<Points_to*>;
 
-	foreach (Basic_block* bb, *bbs)
-		graphs->push_back (outs[bb->ID]);
+	foreach (Context cx, *cxs)
+		graphs->push_back (outs[cx]);
 
 	return Points_to::get_possible_nulls (graphs);
 }
 
 
 certainty
-Aliasing::get_cert (Basic_block* bb, Storage_node* st, Index_node* in)
+Aliasing::get_cert (Context cx, Storage_node* st, Index_node* in)
 {
-	return ins[bb->ID]->get_edge (st, in)->cert;
+	return ins[cx]->get_edge (st, in)->cert;
 }
 
 

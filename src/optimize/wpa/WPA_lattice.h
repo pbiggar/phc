@@ -19,36 +19,36 @@ public:
 	WPA_lattice (Whole_program* wp);
 
 	// WPA
-	void forward_bind (Basic_block* caller, Entry_block* entry);
-	void backward_bind (Basic_block* context, Exit_block* exit);
+	void forward_bind (Context caller, Context entry);
+	void backward_bind (Context caller, Context exit);
 
-	void kill_value (Basic_block* bb, Index_node* lhs);
+	void kill_value (Context cx, Index_node* lhs);
 
-	void assign_value (Basic_block* bb, Index_node* lhs,
+	void assign_value (Context cx, Index_node* lhs,
 							 Storage_node* storage, certainty cert);
 
 
-	void pull_init (Basic_block* bb);
-	void pull_first_pred (Basic_block* bb, Basic_block* pred);
-	void pull_pred (Basic_block* bb, Basic_block* pred);
-	void pull_possible_null (Basic_block* bb, Index_node* node) = 0;
-	void pull_finish (Basic_block* bb);
+	void pull_init (Context cx);
+	void pull_first_pred (Context cx, Context pred);
+	void pull_pred (Context cx, Context pred);
+	void pull_possible_null (Context cx, Index_node* node) = 0;
+	void pull_finish (Context cx);
 
-	void aggregate_results (Basic_block* bb);
+	void aggregate_results (Context cx);
 
 	bool equals (WPA* other);
-	void dump (Basic_block* bb, string comment);
+	void dump (Context cx, string comment);
 
 	// Get results
-	Lattice_cell* get_value (Basic_block* bb, Alias_name name);
+	Lattice_cell* get_value (Context cx, Alias_name name);
 
 private:
-	void init_outs (Basic_block* bb);
+	void init_outs (Context cx);
 
 protected:
-	BB_lattices ins;
-	BB_lattices clones;
-	BB_lattices outs;
+	CX_lattices ins;
+	CX_lattices clones;
+	CX_lattices outs;
 
 	friend class Whole_program;
 };

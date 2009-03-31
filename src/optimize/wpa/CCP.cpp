@@ -26,31 +26,31 @@ CCP::CCP (Whole_program* wp)
 
 
 void
-CCP::set_scalar (Basic_block* bb, Value_node* storage, Abstract_value* val)
+CCP::set_scalar (Context cx, Value_node* storage, Abstract_value* val)
 {
-	Lattice_map& lat = outs[bb->ID];
+	Lattice_map& lat = outs[cx];
 	lat[storage->name().str()] = meet (lat[storage->name().str()], val->lit);
 }
 
 void
-CCP::set_storage (Basic_block* bb, Storage_node* storage, Types types)
+CCP::set_storage (Context cx, Storage_node* storage, Types types)
 {
-	outs[bb->ID][storage->name().str()] = BOTTOM;
+	outs[cx][storage->name().str()] = BOTTOM;
 }
 
 void
-CCP::pull_possible_null (Basic_block* bb, Index_node* node)
+CCP::pull_possible_null (Context cx, Index_node* node)
 {
-	Lattice_map& lat = ins[bb->ID];
+	Lattice_map& lat = ins[cx];
 	lat[node->name().str()] = meet (lat[node->name().str()], new Literal_cell (new NIL));
 	lat[ABSVAL(node)->name().str()] = meet (lat[ABSVAL(node)->name().str()], new Literal_cell (new NIL));
 }
 
 
 bool
-CCP::branch_known_true (Basic_block* bb, Alias_name cond)
+CCP::branch_known_true (Context cx, Alias_name cond)
 {
-	Literal* lit = get_lit (bb, cond);
+	Literal* lit = get_lit (cx, cond);
 
 	if (lit == NULL)
 		return false;
@@ -59,11 +59,11 @@ CCP::branch_known_true (Basic_block* bb, Alias_name cond)
 }
 
 bool
-CCP::branch_known_false (Basic_block* bb, Alias_name cond)
+CCP::branch_known_false (Context cx, Alias_name cond)
 {
 	// TODO: a value may have lots of actual values, all of which are true.
 	// Add a true/false analysis to handle it.
-	Literal* lit = get_lit (bb, cond);
+	Literal* lit = get_lit (cx, cond);
 
 	if (lit == NULL)
 		return false;
@@ -74,9 +74,9 @@ CCP::branch_known_false (Basic_block* bb, Alias_name cond)
 
 
 MIR::Literal*
-CCP::get_lit (Basic_block* bb, Alias_name name)
+CCP::get_lit (Context cx, Alias_name name)
 {
-	Lattice_cell* lat = get_value (bb, name);
+	Lattice_cell* lat = get_value (cx, name);
 
 	if (lat == BOTTOM)
 		return NULL;

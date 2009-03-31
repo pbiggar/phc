@@ -9,8 +9,11 @@
 #ifndef PHC_WPA
 #define PHC_WPA
 
+#include <ostream>
+
 #include "optimize/Oracle.h"
 #include "optimize/CFG_visitor.h"
+#include "optimize/Lattice.h"
 
 class Whole_program;
 class Points_to;
@@ -29,8 +32,7 @@ certainty combine_certs (certainty c1, certainty c2);
 
 #define UNKNOWN "*"
 
-#define CFG_ST(CFG) (*(CFG)->method->signature->method_name->value)
-#define ST(BB) (CFG_ST ((BB)->cfg))
+#define SYM(CX) ((CX).caller().name())
 
 // Storage node prefix
 #define SNP "ST"
@@ -41,13 +43,99 @@ certainty combine_certs (certainty c1, certainty c2);
 // Return value's name
 #define RETNAME "__RETNAME__"
 
-// Main storage node
-#define MSN "__MAIN__"
+// Basic_block ID. Takes into account the calling context, and the BB's ID number.
+class Context : virtual public GC_obj
+{
+public:
+	friend std::ostream &operator<<(std::ostream&, const Context&);
 
-string BB_array_name (Basic_block* bb);
-string BB_object_name (Basic_block* bb);
+	List<Basic_block*> BBs;
+
+	bool use_caller;
+
+	static Context non_contextual (Basic_block* bb)
+	{
+		Context result;
+		result.BBs.push_back (bb);
+		result.use_caller = false;
+		return result;
+	}
+
+	static Context contextual (Context caller, Basic_block* bb)
+	{
+		Context result;
+		result.BBs = caller.BBs;
+		result.use_caller = true;
+		result.BBs.push_back (bb);
+		return result;
+	}
+
+	// Use PEER's caller
+	static Context as_peer (Context peer, Basic_block* bb)
+	{
+		Context result;
+		result.BBs = peer.caller ().BBs;
+		result.BBs.push_back (bb);
+		result.use_caller = true;
+		return result;
+	}
+
+	// Represents the first caller
+	static Context outer_scope ()
+	{
+		Context result;
+		result.BBs.push_back (NULL);
+		result.use_caller = true;
+		return result;
+	}
+
+	Context caller ()
+	{
+		assert (this->use_caller);
+
+		Context result = *this;
+		result.BBs.pop_back ();
+		return result;
+	}
+
+	Basic_block* get_bb ()
+	{
+		return BBs.back();
+	}
+
+	bool operator< (const Context &other) const
+	{
+		// Not using context means any BB with the same ID matches.
+		if (!this->use_caller)
+			return this->BBs.back()->ID < other.BBs.back()->ID;
+
+		// TODO: what about other.use_caller
+
+		return this->name() < other.name();
+	}
+
+	bool operator== (const Context &other) const
+	{
+		return !(*this < other) && !(other < *this);
+	}
+
+	string name () const
+	{
+		stringstream ss;
+		foreach (Basic_block* bb, BBs)
+		{
+			ss << "/" << bb->ID;
+		}
+		return ss.str ();
+	}
+};
+
+std::ostream &operator<< (std::ostream &out, const Context &num);
 
 
+
+string BB_array_name (Context cx);
+string BB_object_name (Context cx);
 
 typedef Set<string> Types;
 
@@ -73,7 +161,7 @@ class WPA : virtual public GC_obj
 public:
 	Whole_program* wp;
 	string name;
-	Map<long, bool> changed_flags;
+	Map<Context, bool> changed_flags;
 
 	WPA (Whole_program* wp)
 	: wp (wp)
@@ -84,10 +172,10 @@ public:
 	 * Interprocural handling
 	 */
 	// Propagate caller results to the callee.
-	virtual void forward_bind (Basic_block* caller, Entry_block* entry) CT_IMPL;
+	virtual void forward_bind (Context caller, Context entry) CT_IMPL;
 
 	// Propagate callee results back to the caller.
-	virtual void backward_bind (Basic_block* caller, Exit_block* exit) CT_IMPL;
+	virtual void backward_bind (Context caller, Context exit) CT_IMPL;
 
 
 	/*
@@ -96,7 +184,7 @@ public:
 
 	// This creates a reference between lhs and rhs. Values are propagated
 	// separately.
-	virtual void create_reference (Basic_block* bb, Index_node* lhs,
+	virtual void create_reference (Context cx, Index_node* lhs,
 											 Index_node* rhs, certainty cert) CT_IMPL;
 
 	// It might seem that copying should naturally be included here, but
@@ -104,25 +192,25 @@ public:
 	// the lower-level functions here.
 
 	// LHS has a value taken from STORAGE. STORAGE must already exist.
-	virtual void assign_value (Basic_block* bb, Index_node* lhs,
+	virtual void assign_value (Context cx, Index_node* lhs,
 										Storage_node* storage, certainty cert) CT_IMPL;
 
 	// Create STORAGE, with the gives TYPES.
-	virtual void set_storage (Basic_block* bb, Storage_node* storage,
+	virtual void set_storage (Context cx, Storage_node* storage,
 									  Types types) CT_IMPL;
 
 	// Create STORAGE, an abstract value with the given types.
-	virtual void set_scalar (Basic_block* bb, Value_node* storage,
+	virtual void set_scalar (Context cx, Value_node* storage,
 									 Abstract_value* val) CT_IMPL;
 
 	/*
 	 * Killing values
 	 */
 
-	virtual void kill_value (Basic_block* bb, Index_node* lhs) CT_IMPL;
+	virtual void kill_value (Context cx, Index_node* lhs) CT_IMPL;
 
 	// Kill name's reference set. Kill_value will be called separately.
-	virtual void kill_reference (Basic_block* bb, Index_node* lhs) CT_IMPL;
+	virtual void kill_reference (Context cx, Index_node* lhs) CT_IMPL;
 
 
 	/*
@@ -130,7 +218,7 @@ public:
 	 */
 
 	// There has been a use of USE, with the certainty CERT.
-	virtual void record_use (Basic_block* bb, Index_node* use,
+	virtual void record_use (Context cx, Index_node* use,
 									 certainty cert) CT_IMPL;
 
 
@@ -143,26 +231,26 @@ public:
 	// analysis. pull_first_pred() is a little bit special, as analyses will
 	// probably just copy results, whereas they would merge them for other
 	// edges.
-	virtual void pull_init (Basic_block* bb) CT_IMPL;
-	virtual void pull_first_pred (Basic_block* bb, Basic_block* pred) CT_IMPL;
-	virtual void pull_pred (Basic_block* bb, Basic_block* pred) CT_IMPL;
+	virtual void pull_init (Context cx) CT_IMPL;
+	virtual void pull_first_pred (Context cx, Context pred) CT_IMPL;
+	virtual void pull_pred (Context cx, Context pred) CT_IMPL;
 
 	// Index_nodes may be NULL on some paths. This is hard to do at a
 	// fine-grained level, but much easier at a higher level. pulls typically
 	// work on INs, so this needs to be done now, rather than trying to do it
 	// with an out.
-	virtual void pull_possible_null (Basic_block* bb, Index_node* node) CT_IMPL;
+	virtual void pull_possible_null (Context cx, Index_node* node) CT_IMPL;
 
-	virtual void pull_finish (Basic_block* bb) CT_IMPL;
+	virtual void pull_finish (Context cx) CT_IMPL;
 
 	// Combine local results to an OUT solution. This should set
 	// CHANGED_FLAGS [bb->ID] if neccessary.
-	virtual void aggregate_results (Basic_block* bb) CT_IMPL;
+	virtual void aggregate_results (Context cx) CT_IMPL;
 
 	// Do we need to iterate again?
-	virtual bool solution_changed (Basic_block* bb)
+	virtual bool solution_changed (Context cx)
 	{
-		return changed_flags[bb->ID];
+		return changed_flags[cx];
 	}
 
 	// Return whether the solutions are equal (ie, whether we have reached a
@@ -173,10 +261,15 @@ public:
 	/*
 	 * Debugging information
 	 */
-	virtual void dump (Basic_block* bb, string comment) = 0;
+	virtual void dump (Context cx, string comment) = 0;
 };
 
 
+class CX_lattices : public Map<Context, Lattice_map>
+{
+public:
+	void dump (Context cx, string name);
+};
 
 
 #endif // PHC_WPA

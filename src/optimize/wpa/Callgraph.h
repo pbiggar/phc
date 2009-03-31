@@ -12,27 +12,24 @@
 
 class Callgraph : public WPA
 {
-	Set<string> methods ;
+	Set<string> methods;
 	Map<string, Set<string> > call_edges;
 
 public:
 	Callgraph (Whole_program* wp);
 
-	void add_summary_call (Basic_block* caller, Method_info* callee);
-
 	// WPA
-	void forward_bind (Basic_block* caller, Entry_block* entry);
+	void forward_bind (Context caller, Context entry);
 
 	String_list* get_called_methods ();
 	String_list* bottom_up ();
 
 	bool equals (WPA* other);
-	void dump (Basic_block* bb, string comment);
+	void dump (Context cx, string comment);
 
 
 private:
 
-	void add_call_edge (string caller, string callee);
 	void dump_graphviz (String* label);
 };
 

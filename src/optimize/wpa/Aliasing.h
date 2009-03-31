@@ -28,68 +28,67 @@ DECL (Value_node);
 class Aliasing : public WPA
 {
 	// Record 1 per program-point.
-	Map<long, Points_to*> ins;
-	Map<long, Points_to*> outs;
+	Map<Context, Points_to*> ins;
+	Map<Context, Points_to*> outs;
 
 public:
 	Aliasing (Whole_program*);
 
 	// WPA interface
-	void forward_bind (Basic_block* caller, Entry_block* entry);
+	void forward_bind (Context caller, Context entry);
 
-	void backward_bind (Basic_block* caller, Exit_block* exit);
+	void backward_bind (Context caller, Context exit);
 
-	void create_reference (Basic_block* bb, Index_node* lhs,
-								 Index_node* rhs, certainty cert);
+	void create_reference (Context cx, Index_node* lhs,
+								  Index_node* rhs, certainty cert);
 
-	void assign_value (Basic_block* bb, Index_node* lhs,
+	void assign_value (Context cx, Index_node* lhs,
 							 Storage_node* storage, certainty cert);
 
 	// Create STORAGE, with the gives TYPES.
-	void set_storage (Basic_block* bb, Storage_node* storage,
+	void set_storage (Context cx, Storage_node* storage,
 							Types types);
 
 	// Create STORAGE, an abstract value with the given types.
-	void set_scalar (Basic_block* bb, Value_node* storage,
-						  Abstract_value* val);
+	void set_scalar (Context cx, Value_node* storage, Abstract_value* val);
 
 
-	void kill_value (Basic_block* bb, Index_node* lhs);
+	void kill_value (Context cx, Index_node* lhs);
 
-	void kill_reference (Basic_block* bb, Index_node* lhs);
-
-
-	void pull_init (Basic_block* bb);
-	void pull_first_pred (Basic_block* bb, Basic_block* pred);
-	void pull_pred (Basic_block* bb, Basic_block* pred);
-	void pull_possible_null (Basic_block* bb, Index_node* node);
-	void pull_finish (Basic_block* bb);
+	void kill_reference (Context cx, Index_node* lhs);
 
 
-	void aggregate_results (Basic_block* bb);
+	void pull_init (Context cx);
+	void pull_first_pred (Context cx, Context pred);
+	void pull_pred (Context cx, Context pred);
+	void pull_possible_null (Context cx, Index_node* node);
+	void pull_finish (Context cx);
+
+
+	void aggregate_results (Context cx);
 
 	bool equals (WPA* other);
-	void dump (Basic_block* bb, string comment);
+	void dump (Context cx, string comment);
 
 public:
 	/*
 	 * Take information from Alias results
 	 */
 
-	Index_node_list* get_references (Basic_block*, Index_node* index,
+	Index_node_list* get_references (Context cx, Index_node* index,
 												certainty cert);
 
-	Index_node_list* get_indices (Basic_block*, Storage_node* storage);
+	Index_node_list* get_indices (Context cx, Storage_node* storage);
 
-	Storage_node_list* get_values (Basic_block*, Index_node* index);
+	Storage_node_list* get_values (Context cx, Index_node* index);
 
-	Index_node_list* get_possible_nulls (BB_list*);
+	Index_node_list* get_possible_nulls (List<Context>*);
 
-	certainty get_cert (Basic_block* bb, Storage_node* st, Index_node* in);
+	certainty get_cert (Context cx, Storage_node* st, Index_node* in);
 
 private:
 	// TODO: i think i'll be removing this...
-	void add_all_points_to_edges (Basic_block* bb, Index_node* lhs,
+	void add_all_points_to_edges (Context cx, Index_node* lhs,
 											Index_node* rhs, certainty cert);
 
 };

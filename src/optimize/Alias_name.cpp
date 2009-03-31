@@ -70,11 +70,6 @@ Alias_name::str ()
 	return ss.str ();
 }
 
-Alias_name
-v2an (Basic_block* bb, VARIABLE_NAME* var)
-{
-	return Alias_name (ST (bb), *var->value);
-}
 
 void
 Alias_name::drop_ssa_version ()

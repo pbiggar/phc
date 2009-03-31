@@ -43,19 +43,6 @@ Lattice_cell* meet (Lattice_cell* l1, Lattice_cell* l2)
 
 
 void
-BB_lattices::dump (Basic_block* bb, string name)
-{
-	if (this->has (bb->ID))
-	{
-		cdebug << name << " Lattice for BB: " << bb->ID << endl;
-		(*this)[bb->ID].dump();
-		cdebug << endl;
-	}
-	else
-		cdebug << "No " << name << " results for BB: " << bb->ID << endl;
-}
-
-void
 dump_cell (Lattice_cell* cell, ostream& os)
 {
 	if (cell == TOP)

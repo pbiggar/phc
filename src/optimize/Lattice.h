@@ -223,10 +223,4 @@ public:
 };
 
 
-class BB_lattices : public Map<long, Lattice_map>
-{
-public:
-	void dump (Basic_block* bb, string name);
-};
-
 #endif // PHC_LATTICE_H

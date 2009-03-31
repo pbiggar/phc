@@ -17,37 +17,36 @@ public:
 
 	Debug_WPA (Whole_program* wp);
 
-	void forward_bind (Basic_block* bb, Entry_block* entry);
-	void backward_bind (Basic_block* bb, Exit_block* exit);
+	void forward_bind (Context caller, Context entry);
+	void backward_bind (Context caller, Context exit);
 
-	void create_reference (Basic_block* bb, Index_node* lhs,
+	void create_reference (Context cx, Index_node* lhs,
 								 Index_node* rhs, certainty cert);
 
-	void assign_value (Basic_block* bb, Index_node* lhs,
+	void assign_value (Context cx, Index_node* lhs,
 							 Storage_node* storage, certainty cert);
 
-	void set_storage (Basic_block* bb, Storage_node* storage, Types types);
-	void set_scalar (Basic_block* bb, Value_node* storage,
-						  Abstract_value* val);
+	void set_storage (Context cx, Storage_node* storage, Types types);
+	void set_scalar (Context cx, Value_node* storage, Abstract_value* val);
 
-	void kill_value (Basic_block* bb, Index_node* lhs);
-	void kill_reference (Basic_block* bb, Index_node* lhs);
+	void kill_value (Context cx, Index_node* lhs);
+	void kill_reference (Context cx, Index_node* lhs);
 
-	void record_use (Basic_block* bb, Index_node* use, certainty cert);
+	void record_use (Context cx, Index_node* use, certainty cert);
 	
 
-	void pull_init (Basic_block* bb);
-	void pull_first_pred (Basic_block* bb, Basic_block* pred);
-	void pull_pred (Basic_block* bb, Basic_block* pred);
-	void pull_possible_null (Basic_block* bb, Index_node* node);
-	void pull_finish (Basic_block* bb);
+	void pull_init (Context cx);
+	void pull_first_pred (Context cx, Context pred);
+	void pull_pred (Context cx, Context pred);
+	void pull_possible_null (Context cx, Index_node* node);
+	void pull_finish (Context cx);
 
-	void aggregate_results (Basic_block* bb);
+	void aggregate_results (Context cx);
 
-	bool solution_changed (Basic_block* bb);
+	bool solution_changed (Context cx);
 
 	bool equals (WPA* other);
-	void dump (Basic_block* bb, string comment);
+	void dump (Context cx, string comment);
 };
 
 

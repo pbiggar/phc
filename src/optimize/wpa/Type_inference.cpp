@@ -23,34 +23,34 @@ Type_inference::Type_inference (Whole_program* wp)
 }
 
 void
-Type_inference::set_scalar (Basic_block* bb, Value_node* storage, Abstract_value* val)
+Type_inference::set_scalar (Context cx, Value_node* storage, Abstract_value* val)
 {
-	Lattice_map& lat = outs[bb->ID];
+	Lattice_map& lat = outs[cx];
 	string name = storage->name().str();
 	lat[name] = meet (lat[name], val->type);
 }
 
 void
-Type_inference::set_storage (Basic_block* bb, Storage_node* storage, Types types)
+Type_inference::set_storage (Context cx, Storage_node* storage, Types types)
 {
-	Lattice_map& lat = outs[bb->ID];
+	Lattice_map& lat = outs[cx];
 	string name = storage->name().str();
 	lat[name] = meet (lat[name], new Type_cell (types));
 }
 
 void
-Type_inference::pull_possible_null (Basic_block* bb, Index_node* node)
+Type_inference::pull_possible_null (Context cx, Index_node* node)
 {
-	Lattice_map& lat = ins[bb->ID];
+	Lattice_map& lat = ins[cx];
 	lat[node->name().str()] = meet (lat[node->name().str()], new Type_cell (Types ("unset")));
 	lat[ABSVAL(node)->name().str()] = meet (lat[ABSVAL(node)->name().str()], new Type_cell (Types ("unset")));
 }
 
 
 Types
-Type_inference::get_types (Basic_block* bb, Alias_name name)
+Type_inference::get_types (Context cx, Alias_name name)
 {
-	Lattice_cell* cell = get_value (bb, name);
+	Lattice_cell* cell = get_value (cx, name);
 
 	if (cell == BOTTOM)
 		phc_TODO ();
@@ -64,9 +64,9 @@ Type_inference::get_types (Basic_block* bb, Alias_name name)
 
 
 void
-Type_inference::set_types (Basic_block* bb, Alias_name name, Types types)
+Type_inference::set_types (Context cx, Alias_name name, Types types)
 {
-	Lattice_map& lat = outs[bb->ID];
+	Lattice_map& lat = outs[cx];
 
 	lat[name.str()] = meet (lat[name.str()], new Type_cell (types));
 }
@@ -146,7 +146,7 @@ Type_inference::get_object_types (Types in)
 }
 
 Types
-Type_inference::get_unary_op_types (Basic_block* bb, Abstract_value* operand, string op)
+Type_inference::get_unary_op_types (Context cx, Abstract_value* operand, string op)
 {
 	Set<string> always_bool_ops;
 	always_bool_ops.insert ("!");
@@ -180,7 +180,7 @@ Type_inference::get_bin_op_type (string ltype, string rtype, string op)
 }
 
 Types
-Type_inference::get_bin_op_types (Basic_block* bb, Abstract_value* left, Abstract_value* right, string op)
+Type_inference::get_bin_op_types (Context cx, Abstract_value* left, Abstract_value* right, string op)
 {
 	if (left->type == BOTTOM)
 		phc_TODO ();
