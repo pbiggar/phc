@@ -112,8 +112,8 @@ am_libphc_la_OBJECTS = getopt1.lo getopt.lo AST_annotate.lo \
 	Oracle.lo Prune_symbol_table.lo Remove_loop_booleans.lo \
 	SCCP.lo Sparse_conditional_visitor.lo Dominance.lo HSSA.lo \
 	Phi.lo SSA.lo SSA_ops.lo Var_set.lo Visit_once.lo Aliasing.lo \
-	Callgraph.lo CCP.lo Constant_state.lo Debug_WPA.lo Def_use.lo \
-	Include_analysis.lo Optimization_annotator.lo \
+	Callgraph.lo CCP.lo Constant_state.lo Context.lo Debug_WPA.lo \
+	Def_use.lo Include_analysis.lo Optimization_annotator.lo \
 	Optimization_transformer.lo Points_to.lo Type_inference.lo \
 	VRP.lo Whole_program.lo WPA.lo WPA_lattice.lo MICG_parser.lo \
 	Parse_buffer.lo parse.lo PHP_context.lo XML_parser.lo \
@@ -846,6 +846,8 @@ libphc_la_SOURCES = \
 	src/optimize/wpa/CCP.h									\
 	src/optimize/wpa/Constant_state.cpp					\
 	src/optimize/wpa/Constant_state.h					\
+	src/optimize/wpa/Context.cpp							\
+	src/optimize/wpa/Context.h								\
 	src/optimize/wpa/Debug_WPA.cpp						\
 	src/optimize/wpa/Debug_WPA.h							\
 	src/optimize/wpa/Def_use.cpp							\
@@ -1439,6 +1441,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Compile_C.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Constant_folding.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Constant_state.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Context.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/DOT_unparser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Dead_code_elimination.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Debug_WPA.Plo@am__quote@
@@ -2242,6 +2245,13 @@ Constant_state.lo: src/optimize/wpa/Constant_state.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/wpa/Constant_state.cpp' object='Constant_state.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Constant_state.lo `test -f 'src/optimize/wpa/Constant_state.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Constant_state.cpp
+
+Context.lo: src/optimize/wpa/Context.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Context.lo -MD -MP -MF $(DEPDIR)/Context.Tpo -c -o Context.lo `test -f 'src/optimize/wpa/Context.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Context.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Context.Tpo $(DEPDIR)/Context.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/wpa/Context.cpp' object='Context.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Context.lo `test -f 'src/optimize/wpa/Context.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Context.cpp
 
 Debug_WPA.lo: src/optimize/wpa/Debug_WPA.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Debug_WPA.lo -MD -MP -MF $(DEPDIR)/Debug_WPA.Tpo -c -o Debug_WPA.lo `test -f 'src/optimize/wpa/Debug_WPA.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Debug_WPA.cpp

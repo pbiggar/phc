@@ -69,10 +69,9 @@ Aliasing::backward_bind (Context caller, Context exit)
 {
 	Points_to* ptg = outs[exit]->clone ();
 
+	outs[caller] = ptg;
 
-	if (!(caller == Context::outer_scope()))
-		outs[caller] = ptg;
-	else
+	if (caller == Context::outer_scope())
 	{
 		if (debugging_enabled)
 			ptg->dump_graphviz (s("After whole program"), exit, wp);

@@ -233,13 +233,6 @@ merge_from_callee (Context caller, Context callee,
 void
 Def_use::backward_bind (Context caller, Context exit)
 {
-	if (caller == Context::outer_scope ())
-	{
-		// TODO: in __MAIN__, mark everything as unused except _SESSION (and
-		// everything it can reach!).
-		return;
-	}
-
 	// The defs and uses from the callee represent the entire function.
 	merge_from_callee (caller, exit, ref_defs, summary_ref_defs);
 	merge_from_callee (caller, exit, ref_uses, summary_ref_uses);

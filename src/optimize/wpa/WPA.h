@@ -14,6 +14,7 @@
 #include "optimize/Oracle.h"
 #include "optimize/CFG_visitor.h"
 #include "optimize/Lattice.h"
+#include "Context.h"
 
 class Whole_program;
 class Points_to;
@@ -32,8 +33,6 @@ certainty combine_certs (certainty c1, certainty c2);
 
 #define UNKNOWN "*"
 
-#define SYM(CX) ((CX).caller().name())
-
 // Storage node prefix
 #define SNP "ST"
 
@@ -43,99 +42,6 @@ certainty combine_certs (certainty c1, certainty c2);
 // Return value's name
 #define RETNAME "__RETNAME__"
 
-// Basic_block ID. Takes into account the calling context, and the BB's ID number.
-class Context : virtual public GC_obj
-{
-public:
-	friend std::ostream &operator<<(std::ostream&, const Context&);
-
-	List<Basic_block*> BBs;
-
-	bool use_caller;
-
-	static Context non_contextual (Basic_block* bb)
-	{
-		Context result;
-		result.BBs.push_back (bb);
-		result.use_caller = false;
-		return result;
-	}
-
-	static Context contextual (Context caller, Basic_block* bb)
-	{
-		Context result;
-		result.BBs = caller.BBs;
-		result.use_caller = true;
-		result.BBs.push_back (bb);
-		return result;
-	}
-
-	// Use PEER's caller
-	static Context as_peer (Context peer, Basic_block* bb)
-	{
-		Context result;
-		result.BBs = peer.caller ().BBs;
-		result.BBs.push_back (bb);
-		result.use_caller = true;
-		return result;
-	}
-
-	// Represents the first caller
-	static Context outer_scope ()
-	{
-		Context result;
-		result.BBs.push_back (NULL);
-		result.use_caller = true;
-		return result;
-	}
-
-	Context caller ()
-	{
-		assert (this->use_caller);
-
-		Context result = *this;
-		result.BBs.pop_back ();
-		return result;
-	}
-
-	Basic_block* get_bb ()
-	{
-		return BBs.back();
-	}
-
-	bool operator< (const Context &other) const
-	{
-		// Not using context means any BB with the same ID matches.
-		if (!this->use_caller)
-			return this->BBs.back()->ID < other.BBs.back()->ID;
-
-		// TODO: what about other.use_caller
-
-		return this->name() < other.name();
-	}
-
-	bool operator== (const Context &other) const
-	{
-		return !(*this < other) && !(other < *this);
-	}
-
-	string name () const
-	{
-		stringstream ss;
-		foreach (Basic_block* bb, BBs)
-		{
-			ss << "/" << bb->ID;
-		}
-		return ss.str ();
-	}
-};
-
-std::ostream &operator<< (std::ostream &out, const Context &num);
-
-
-
-string BB_array_name (Context cx);
-string BB_object_name (Context cx);
 
 typedef Set<string> Types;
 
@@ -262,13 +168,6 @@ public:
 	 * Debugging information
 	 */
 	virtual void dump (Context cx, string comment) = 0;
-};
-
-
-class CX_lattices : public Map<Context, Lattice_map>
-{
-public:
-	void dump (Context cx, string name);
 };
 
 

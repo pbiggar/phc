@@ -12,25 +12,6 @@ using namespace std;
 using namespace boost;
 using namespace MIR;
 
-string
-BB_array_name (Context cx)
-{
-	return "array_" + cx.name ();
-}
-
-string
-BB_object_name (Context cx)
-{
-	return "object_" + cx.name ();
-}
-
-std::ostream&
-operator<< (std::ostream &out, const Context &cx)
-{
-	out << cx.name ();
-	return out;
-}
-
 certainty combine_certs (certainty c1, certainty c2)
 {
 	assert (c1 != PTG_ALL);
@@ -41,19 +22,5 @@ certainty combine_certs (certainty c1, certainty c2)
 	
 	return POSSIBLE;
 }
-
-void
-CX_lattices::dump (Context cx, string name)
-{
-	if (this->has (cx))
-	{
-		cdebug << name << " Lattice for BB: " << cx << endl;
-		(*this)[cx].dump();
-		cdebug << endl;
-	}
-	else
-		cdebug << "No " << name << " results for BB: " << cx << endl;
-}
-
 
 

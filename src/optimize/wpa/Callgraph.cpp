@@ -19,7 +19,13 @@ Callgraph::Callgraph (Whole_program* wp)
 void
 Callgraph::forward_bind (Context caller_cx, Context entry_cx)
 {
-	string caller = *caller_cx.get_bb()->cfg->method->signature->method_name->value;
+	string caller;
+
+	if (caller_cx.get_bb())
+		caller = *caller_cx.get_bb()->cfg->method->signature->method_name->value;
+	else
+		caller = "__NONE__";
+
 	string callee = *entry_cx.get_bb()->cfg->method->signature->method_name->value;
 
 	methods.insert (callee);

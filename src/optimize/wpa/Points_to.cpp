@@ -699,15 +699,15 @@ ABSVAL (Index_node* node)
 }
 
 Storage_node*
-BB_array_node (Context cx)
+CX_array_node (Context cx)
 {
-	return new Storage_node (BB_array_name (cx));
+	return new Storage_node (CX_array_name (cx));
 }
 
 Storage_node*
-BB_object_node (Context cx)
+CX_object_node (Context cx)
 {
-	return new Storage_node (BB_object_name (cx));
+	return new Storage_node (CX_object_name (cx));
 }
 
 

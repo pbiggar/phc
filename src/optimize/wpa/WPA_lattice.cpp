@@ -153,11 +153,6 @@ WPA_lattice::forward_bind (Context caller, Context entry)
 void
 WPA_lattice::backward_bind (Context caller, Context exit)
 {
-	if (caller == Context::outer_scope ())
-		return;
-
-	// TODO: remove variables in the current scope
-
 	// pull_results inits outs, so we need to clear it, or we'll be merging
 	// with old results.
 	outs[caller].clear ();

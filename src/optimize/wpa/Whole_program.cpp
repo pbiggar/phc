@@ -767,7 +767,7 @@ Whole_program::forward_bind (Method_info* info, Context entry_cx, MIR::Actual_pa
 
 	// Special case for __MAIN__. We do it here so that the other analyses
 	// have initialized.
-	if (entry_cx == Context::outer_scope ())
+	if (caller_cx == Context::outer_scope ())
 	{
 		init_superglobals (entry_cx);
 	}
@@ -871,8 +871,7 @@ Whole_program::backward_bind (Method_info* info, Context exit_cx, MIR::VARIABLE_
 	foreach_wpa (this)
 		wpa->backward_bind (caller_cx, exit_cx);
 
-	if (caller_cx == Context::outer_scope ())
-		dump (caller_cx, "After backward bind");
+	dump (caller_cx, "After backward bind");
 }
 
 
@@ -1013,10 +1012,10 @@ Whole_program::assign_typed (Context cx, Path* plhs, Types types)
 				phc_TODO ();
 
 			//	wpa->assign_storage (bb, ref->name(),
-			//								BB_array_name (bb)->name(), POSSIBLE);
+			//								CX_array_name (bb)->name(), POSSIBLE);
 
 			//	wpa->assign_storage (bb, ref->name(),
-			//								BB_object_name (bb)->name(), POSSIBLE);
+			//								CX_object_name (bb)->name(), POSSIBLE);
 		}
 	}
 }
@@ -1068,11 +1067,11 @@ Whole_program::assign_unknown (Context cx, Path* plhs)
 			wpa->set_scalar (cx, ABSVAL (node), Abstract_value::unknown ());
 			wpa->assign_value (cx, node, ABSVAL (node), POSSIBLE);
 
-			wpa->set_storage (cx, BB_array_node (cx), Types ("array"));
-			wpa->assign_value (cx, node, BB_array_node (cx), POSSIBLE);
+			wpa->set_storage (cx, CX_array_node (cx), Types ("array"));
+			wpa->assign_value (cx, node, CX_array_node (cx), POSSIBLE);
 
-			wpa->set_storage (cx, BB_object_node (cx), Types ("object"));
-			wpa->assign_value (cx, node, BB_object_node (cx), POSSIBLE);
+			wpa->set_storage (cx, CX_object_node (cx), Types ("object"));
+			wpa->assign_value (cx, node, CX_object_node (cx), POSSIBLE);
 		}
 	}
 }
@@ -1149,7 +1148,7 @@ Whole_program::copy_value (Context cx, Index_node* lhs, Index_node* rhs, certain
 		if (array.size())
 		{
 			// We need to do a deep copy here.
-			Storage_node* new_array = BB_array_node (cx);
+			Storage_node* new_array = CX_array_node (cx);
 
 			// create the new array
 			foreach_wpa (this)
@@ -1297,7 +1296,7 @@ Whole_program::get_named_indices (Context cx, Path* path, Indexing_flags flags)
 					// Other scalars will go to NULL instead.
 					// TODO: these cases should clearly be dealt with in the caller.
 
-					name = BB_array_node (cx)->storage;
+					name = CX_array_node (cx)->storage;
 
 					// TODO: i'm not very happy about this
 					if (flags & IMPLICIT_CONVERSION)
@@ -1719,7 +1718,7 @@ Whole_program::visit_cast (Statement_block* bb, MIR::Cast* in)
 		if (lit && isa<NIL> (lit))
 		{
 			// Most common case: create an empty array
-			assign_empty_array (block_cx, saved_plhs, BB_array_name (block_cx));
+			assign_empty_array (block_cx, saved_plhs, CX_array_name (block_cx));
 		}
 		else
 			phc_TODO ();
