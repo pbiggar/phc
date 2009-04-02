@@ -46,16 +46,17 @@ Aliasing::dump (Context cx, string comment)
 	outs[cx]->dump_graphviz (s(ss.str()), cx, wp);
 }
 
+void
+Aliasing::init (Context outer)
+{
+	ins[outer] = new Points_to;
+	outs[outer] = new Points_to;
+}
 
 void
 Aliasing::forward_bind (Context caller, Context entry)
 {
-	Points_to* ptg;
-
-	if (caller == Context::outer_scope ())
-		ptg = new Points_to;
-	else
-		ptg = ins[caller]->clone ();
+	Points_to* ptg = ins[caller]->clone ();
 
 	ptg->consistency_check (caller, wp);
 
@@ -71,11 +72,8 @@ Aliasing::backward_bind (Context caller, Context exit)
 
 	outs[caller] = ptg;
 
-	if (caller == Context::outer_scope())
-	{
-		if (debugging_enabled)
-			ptg->dump_graphviz (s("After whole program"), exit, wp);
-	}
+	if (debugging_enabled)
+		ptg->dump_graphviz (s("After whole program"), exit, wp);
 }
 
 void
@@ -208,6 +206,31 @@ Aliasing::assign_value (Context cx, Index_node* lhs, Storage_node* storage, cert
 {
 	outs[cx]->add_index (lhs, DEFINITE);
 	outs[cx]->add_edge (lhs, storage, cert);
+}
+
+void
+Aliasing::merge_contexts ()
+{
+	Context cx;
+	Points_to* ptg;
+
+	// First create a noncontextual context for each BB
+	// (Careful not to overwrite outer_scope)
+	foreach (tie (cx, ptg), ins)
+	{
+		Context new_cx = cx.get_non_contextual ();
+		if (!outs.has (new_cx))
+			outs[new_cx] = new Points_to;
+
+		outs[new_cx]->merge (ptg);
+		outs[new_cx]->dump_graphviz (NULL, new_cx, wp);
+	}
+
+	// TODO: outs
+
+	// TODO: merge symbol tables
+
+	phc_TODO ();
 }
 
 void

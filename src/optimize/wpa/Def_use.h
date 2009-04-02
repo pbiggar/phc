@@ -18,6 +18,7 @@ class Def_use : public WPA
 public:
 	Def_use (Whole_program* wp);
 
+	void init (Context outer);
 	void create_reference (Context cx, Index_node* lhs,
 								 Index_node* rhs, certainty cert);
 
@@ -41,6 +42,8 @@ public:
 	void dump (Context cx, string comment);
 
 	void backward_bind (Context caller, Context exit);
+
+	void merge_contexts ();
 
 	// These return pointers to the actual values, not copies. This allows the
 	// SSA name to be updated.

@@ -20,6 +20,13 @@ Debug_WPA::Debug_WPA (Whole_program* wp)
 	DEBUG (__FUNCTION__);
 }
 
+
+void
+Debug_WPA::init (Context outer)
+{
+	DEBUG (__FUNCTION__ << ": " << outer);
+}
+
 string
 cert_to_string (certainty cert)
 {
@@ -170,5 +177,11 @@ Debug_WPA::equals (WPA* other)
 
 void
 Debug_WPA::dump (Context cx, string comment)
+{
+}
+
+
+void
+Debug_WPA::merge_contexts ()
 {
 }

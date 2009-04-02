@@ -11,6 +11,15 @@ using namespace std;
 using namespace boost;
 
 Context
+Context::outer (Basic_block* bb)
+{
+	// Contextual, but only has the outer BB
+	Context result;
+	result.BBs.push_back (bb);
+	result.use_caller = true;
+	return result;
+}
+Context
 Context::non_contextual (Basic_block* bb)
 {
 	Context result;
@@ -40,16 +49,6 @@ Context::as_peer (Context peer, Basic_block* bb)
 	return result;
 }
 
-// Represents the first caller
-Context
-Context::outer_scope ()
-{
-	Context result;
-	result.BBs.push_back (NULL);
-	result.use_caller = true;
-	return result;
-}
-
 Context
 Context::caller ()
 {
@@ -60,6 +59,13 @@ Context::caller ()
 	return result;
 }
 
+Context
+Context::get_non_contextual ()
+{
+	assert (this->use_caller);
+	return Context::non_contextual (this->get_bb());
+}
+
 Basic_block*
 Context::get_bb ()
 {
@@ -67,14 +73,18 @@ Context::get_bb ()
 }
 
 bool
+Context::is_outer ()
+{
+	return get_bb ()->ID == 0;
+}
+
+bool
 Context::operator< (const Context &other) const
 {
+	if (this->use_caller != other.use_caller)
+		return this->use_caller < other.use_caller;
+
 	// Not using context means any BB with the same ID matches.
-	if (!this->use_caller)
-		return this->BBs.back()->ID < other.BBs.back()->ID;
-
-	// TODO: what about other.use_caller
-
 	return this->name() < other.name();
 }
 

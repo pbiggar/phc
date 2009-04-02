@@ -118,10 +118,9 @@ public:
 
 	Method_info_list* get_possible_receivers (MIR::Method_invocation* in);
 
-
-
 	void generate_summary (User_method_info* info);
-	void merge_contexts (User_method_info* info);
+
+	void merge_contexts ();
 
 	/* Optimizations on user-code */
 	void apply_results (User_method_info* info);

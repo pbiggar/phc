@@ -18,7 +18,9 @@ class WPA_lattice : public WPA
 public:
 	WPA_lattice (Whole_program* wp);
 
+
 	// WPA
+	void init (Context outer);
 	void forward_bind (Context caller, Context entry);
 	void backward_bind (Context caller, Context exit);
 
@@ -38,6 +40,8 @@ public:
 
 	bool equals (WPA* other);
 	void dump (Context cx, string comment);
+
+	void merge_contexts ();
 
 	// Get results
 	Lattice_cell* get_value (Context cx, Alias_name name);

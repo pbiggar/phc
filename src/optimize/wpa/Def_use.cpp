@@ -21,6 +21,10 @@ Def_use::Def_use (Whole_program* wp)
 {
 }
 
+void
+Def_use::init (Context outer)
+{
+}
 
 bool
 Def_use::equals (WPA* wpa)
@@ -221,6 +225,12 @@ Def_use::aggregate_results (Context cx)
 }
 
 void
+Def_use::merge_contexts ()
+{
+	phc_TODO ();
+}
+
+void
 merge_from_callee (Context caller, Context callee,
 						Map<Context, Set<Alias_name> >& cx_sets,
 						Map<string, Set<Alias_name> >& callee_sets)
@@ -229,6 +239,9 @@ merge_from_callee (Context caller, Context callee,
 	Set<Alias_name>& callee_set = callee_sets[SYM (callee)];
 	cx_sets[caller].insert (callee_set.begin (), callee_set.end());
 }
+
+
+
 
 void
 Def_use::backward_bind (Context caller, Context exit)

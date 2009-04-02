@@ -35,6 +35,7 @@ public:
 	Aliasing (Whole_program*);
 
 	// WPA interface
+	void init (Context outer);
 	void forward_bind (Context caller, Context entry);
 
 	void backward_bind (Context caller, Context exit);
@@ -69,6 +70,8 @@ public:
 
 	bool equals (WPA* other);
 	void dump (Context cx, string comment);
+
+	void merge_contexts ();
 
 public:
 	/*

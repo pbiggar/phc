@@ -22,15 +22,16 @@ class Context : virtual public GC_obj
 public:
 	friend std::ostream &operator<<(std::ostream&, const Context&);
 
-
+	static Context outer (Basic_block* outer);
 	static Context non_contextual (Basic_block* bb);
 	static Context contextual (Context caller, Basic_block* bb);
 	static Context as_peer (Context peer, Basic_block* bb);
-	static Context outer_scope ();
 
 	Context caller ();
+	Context get_non_contextual ();
 
 	Basic_block* get_bb ();
+	bool is_outer (); // Is it the caller of __MAIN__
 
 	bool operator< (const Context &other) const;
 	bool operator== (const Context &other) const;

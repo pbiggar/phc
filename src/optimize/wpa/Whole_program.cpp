@@ -104,9 +104,16 @@ Whole_program::Whole_program (Pass_manager* pm)
 void
 Whole_program::run (MIR::PHP_script* in)
 {
+	// Represents __MAIN__'s caller
+	Basic_block* outer_bb = new Empty_block (NULL);
+	Context outer_cx = Context::outer (outer_bb);
+
 	for (int w = 0; w < 10; w++)
 	{
 		initialize ();
+
+		foreach_wpa (this)
+			wpa->init (outer_cx);
 
 		// Perform the whole-program analysis
 		invoke_method (
@@ -114,8 +121,11 @@ Whole_program::run (MIR::PHP_script* in)
 					NULL,
 					new METHOD_NAME (s("__MAIN__")),
 					new Actual_parameter_list),
-				Context::outer_scope (),
+				outer_cx,
 				NULL);
+
+		// Merge different contexts
+		merge_contexts ();
 
 
 		// Optimize based on analysis results
@@ -125,9 +135,6 @@ Whole_program::run (MIR::PHP_script* in)
 
 			if (info == NULL)
 				continue;
-
-			// Merge different contexts
-			merge_contexts (info);
 
 			// Apply the results
 			apply_results (info);
@@ -597,10 +604,10 @@ Whole_program::generate_summary (User_method_info* info)
 }
 
 void
-Whole_program::merge_contexts (User_method_info* info)
+Whole_program::merge_contexts ()
 {
-	// TODO: once we have a function that's called from multiple different
-	// places.
+	foreach_wpa (this)
+		wpa->merge_contexts ();
 }
 
 bool
@@ -613,9 +620,9 @@ Whole_program::analyse_block (Context cx)
 
 
 	// Perform analyses
-	// TODO: this is going to go badly in function calls!! Use a stack. But with
-	// a stack, will we need all these contexts that are being copied around the
-	// place. Hmmm, we'll probably only need one context...
+	// TODO: this is going to go badly in function calls!! Use a stack. But
+	// with a stack, will we need all these contexts that are being copied
+	// around the place. Hmmm, we'll probably only need one context...
 	block_cx = cx;
 
 	visit_block (cx.get_bb());
@@ -767,7 +774,7 @@ Whole_program::forward_bind (Method_info* info, Context entry_cx, MIR::Actual_pa
 
 	// Special case for __MAIN__. We do it here so that the other analyses
 	// have initialized.
-	if (caller_cx == Context::outer_scope ())
+	if (caller_cx.is_outer ())
 	{
 		init_superglobals (entry_cx);
 	}

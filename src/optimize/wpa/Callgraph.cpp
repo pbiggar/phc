@@ -17,14 +17,19 @@ Callgraph::Callgraph (Whole_program* wp)
 }
 
 void
+Callgraph::init (Context outer)
+{
+}
+
+void
 Callgraph::forward_bind (Context caller_cx, Context entry_cx)
 {
 	string caller;
 
-	if (caller_cx.get_bb())
-		caller = *caller_cx.get_bb()->cfg->method->signature->method_name->value;
+	if (caller_cx.is_outer ())
+		caller = "__OUTER__";
 	else
-		caller = "__NONE__";
+		caller = *caller_cx.get_bb()->cfg->method->signature->method_name->value;
 
 	string callee = *entry_cx.get_bb()->cfg->method->signature->method_name->value;
 
@@ -91,6 +96,11 @@ Callgraph::dump (Context cx, string comment)
 		return;
 
 	dump_graphviz (s(cx.name ()));
+}
+
+void
+Callgraph::merge_contexts ()
+{
 }
 
 void

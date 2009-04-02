@@ -19,6 +19,7 @@ public:
 	Callgraph (Whole_program* wp);
 
 	// WPA
+	void init (Context outer);
 	void forward_bind (Context caller, Context entry);
 
 	String_list* get_called_methods ();
@@ -26,6 +27,7 @@ public:
 
 	bool equals (WPA* other);
 	void dump (Context cx, string comment);
+	void merge_contexts ();
 
 
 private:

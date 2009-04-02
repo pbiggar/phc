@@ -77,6 +77,10 @@ public:
 	/*
 	 * Interprocural handling
 	 */
+
+	// Start the analysis off. OUTER is the context for __MAIN__'s caller.
+	virtual void init (Context outer) = 0;
+
 	// Propagate caller results to the callee.
 	virtual void forward_bind (Context caller, Context entry) CT_IMPL;
 
@@ -162,6 +166,8 @@ public:
 	// Return whether the solutions are equal (ie, whether we have reached a
 	// fixed-point in our Whole-program iteration).
 	virtual bool equals (WPA* other) = 0;
+
+	virtual void merge_contexts () = 0;
 
 
 	/*

@@ -37,6 +37,12 @@ WPA_lattice::dump(Context cx, string comment)
 	outs.dump (cx, "OUT");
 }
 
+
+void
+WPA_lattice::init (Context outer)
+{
+}
+
 /*
  * Traditionally, we would use 4 sets:
  *
@@ -137,9 +143,6 @@ WPA_lattice::aggregate_results (Context cx)
 void
 WPA_lattice::forward_bind (Context caller, Context entry)
 {
-	if (caller == Context::outer_scope ())
-		return;
-
 	// TODO: do we really want to clear? does that make it non-monotonic?
 	// TODO: do we need to use the same context as the last time we called from
 	// this callsite?
@@ -158,6 +161,13 @@ WPA_lattice::backward_bind (Context caller, Context exit)
 	outs[caller].clear ();
 	outs[caller].merge(&outs[exit]);
 }
+
+void
+WPA_lattice::merge_contexts ()
+{
+	phc_TODO ();
+}
+
 
 void
 WPA_lattice::init_outs (Context cx)
