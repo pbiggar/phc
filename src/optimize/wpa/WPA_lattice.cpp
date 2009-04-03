@@ -53,8 +53,9 @@ WPA_lattice::init (Context outer)
  *	But its easier to just have IN and OUT. On BB entry, IN is created from the
  *	previous blocks, and copied to OUT. Then OUT is operated on directly.
  *
- *	To make this monotonic, we need to record the old OUT, and compare it during
- *	aggregate_results (where we would traditionally perform the equation).
+ *	To make this monotonic, we need to record the old OUT, and compare it
+ *	during aggregate_results (where we would traditionally perform the
+ *	equation).
  *
  *
  * Pioli's implementation differs slightly:
@@ -144,9 +145,6 @@ void
 WPA_lattice::forward_bind (Context caller, Context entry)
 {
 	// TODO: do we really want to clear? does that make it non-monotonic?
-	// TODO: do we need to use the same context as the last time we called from
-	// this callsite?
-	// TODO: we should have a fresh context anyway.
 
 	ins[entry].merge(&ins[caller]);
 
@@ -165,7 +163,32 @@ WPA_lattice::backward_bind (Context caller, Context exit)
 void
 WPA_lattice::merge_contexts ()
 {
-	phc_TODO ();
+	Context cx;
+	Lattice_map m;
+	Lattice_map& map = m; // grrrr
+
+	// Non-overwriting inserts do not invalidate iterators, which
+	// makes this OK.
+
+	CX_lattices new_ins;
+	foreach (tie (cx, map), ins)
+	{
+		new_ins[cx.get_non_contextual ()].merge (&map);
+	}
+	ins.clear ();
+	ins = new_ins;
+
+
+	CX_lattices new_outs;
+	foreach (tie (cx, map), outs)
+	{
+		new_outs[cx.get_non_contextual ()].merge (&map);
+	}
+	outs.clear ();
+	outs = new_outs;
+
+
+	// TODO ST contexts still arent merged!
 }
 
 

@@ -214,23 +214,38 @@ Aliasing::merge_contexts ()
 	Context cx;
 	Points_to* ptg;
 
+	// TODO: merge symbol tables - ASAP
+
+
 	// First create a noncontextual context for each BB
 	// (Careful not to overwrite outer_scope)
+	Map<Context, Points_to*> new_ins;
 	foreach (tie (cx, ptg), ins)
 	{
 		Context new_cx = cx.get_non_contextual ();
-		if (!outs.has (new_cx))
-			outs[new_cx] = new Points_to;
 
-		outs[new_cx]->merge (ptg);
-		outs[new_cx]->dump_graphviz (NULL, new_cx, wp);
+		if (!new_ins.has (new_cx))
+			new_ins[new_cx] = ptg->clone ();
+		else
+			new_ins[new_cx]->merge (ptg);
 	}
 
-	// TODO: outs
+	ins.clear();
+	ins = new_ins;
 
-	// TODO: merge symbol tables
+	Map<Context, Points_to*> new_outs;
+	foreach (tie (cx, ptg), outs)
+	{
+		Context new_cx = cx.get_non_contextual ();
 
-	phc_TODO ();
+		if (!new_outs.has (new_cx))
+			new_outs[new_cx] = ptg->clone ();
+		else
+			new_outs[new_cx]->merge (ptg);
+	}
+
+	outs.clear();
+	outs = new_outs;
 }
 
 void

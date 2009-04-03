@@ -184,4 +184,5 @@ Debug_WPA::dump (Context cx, string comment)
 void
 Debug_WPA::merge_contexts ()
 {
+	DEBUG (__FUNCTION__);
 }
