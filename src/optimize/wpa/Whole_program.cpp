@@ -1602,9 +1602,15 @@ Whole_program::visit_assign_next (Statement_block* bb, MIR::Assign_next* in)
 }
 
 void
-Whole_program::visit_return (Statement_block*, MIR::Return*)
+Whole_program::visit_return (Statement_block* bb, MIR::Return* in)
 {
-	phc_TODO ();
+	// Dont propagate to return-by-ref
+	if (bb->cfg->get_entry_bb ()->method->signature->return_by_ref)
+		phc_TODO ();
+
+	string ns = SYM (block_cx);
+	
+	assign_by_copy (block_cx, P (ns, new VARIABLE_NAME (RETNAME)), P (ns, in->rvalue));
 }
 
 void
