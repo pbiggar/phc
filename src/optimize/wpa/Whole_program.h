@@ -95,8 +95,11 @@ public:
 	Callgraph* callgraph;
 	Type_inference* type_inf;
 
+	// For assignments
 	Path* saved_plhs;
 	MIR::VARIABLE_NAME* saved_lhs;
+	bool saved_is_ref;
+
 
 public:
 	Whole_program(Pass_manager* pm);

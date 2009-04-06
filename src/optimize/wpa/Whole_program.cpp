@@ -1497,53 +1497,6 @@ Whole_program::visit_foreach_end (Statement_block* bb, MIR::Foreach_end* in)
 
 
 void
-Whole_program::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
-{
-	string ns = SYM (block_cx);
-
-	saved_plhs = P (ns, in->lhs);
-	saved_lhs = in->lhs;
-
-	switch (in->rhs->classid())
-	{
-		case Array_access::ID:
-		case Bin_op::ID:
-		case Cast::ID:
-		case Constant::ID:
-		case Field_access::ID:
-		case Foreach_get_key::ID:
-		case Foreach_get_val::ID:
-		case Foreach_has_key::ID:
-		case Instanceof::ID:
-		case Isset::ID:
-		case Method_invocation::ID:
-		case New::ID:
-		case Param_is_ref::ID:
-		case Unary_op::ID:
-		case VARIABLE_NAME::ID:
-		case Variable_variable::ID:
-			visit_expr (bb, in->rhs);
-			break;
-
-		// Values
-		case BOOL::ID:
-		case INT::ID:
-		case NIL::ID:
-		case REAL::ID:
-		case STRING::ID:
-			assign_scalar (block_cx, saved_plhs, dyc<Literal> (in->rhs));
-			break;
-
-		default:
-			phc_unreachable ();
-			break;
-	}
-
-	saved_lhs = NULL;
-	saved_plhs = NULL;
-}
-
-void
 Whole_program::visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
 {
 	saved_plhs = NULL;
@@ -1672,11 +1625,72 @@ Whole_program::visit_try (Statement_block*, MIR::Try*)
 	phc_TODO ();
 }
 
+/*
+ * Assign_vars from here
+ */ 
+void
+Whole_program::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
+{
+	string ns = SYM (block_cx);
+
+	saved_plhs = P (ns, in->lhs);
+	saved_lhs = in->lhs;
+	saved_is_ref = in->is_ref;
+
+	switch (in->rhs->classid())
+	{
+		case Bin_op::ID:
+		case Cast::ID:
+		case Constant::ID:
+		case Foreach_get_val::ID:
+		case Foreach_has_key::ID:
+		case Instanceof::ID:
+		case Isset::ID:
+		case Param_is_ref::ID:
+		case Unary_op::ID:
+			assert (!in->is_ref);
+			// fall-through
+
+		case Array_access::ID:
+		case Field_access::ID:
+		case Foreach_get_key::ID:
+		case Method_invocation::ID:
+		case New::ID:
+		case VARIABLE_NAME::ID:
+		case Variable_variable::ID:
+			visit_expr (bb, in->rhs);
+			break;
+
+		// Values
+		case BOOL::ID:
+		case INT::ID:
+		case NIL::ID:
+		case REAL::ID:
+		case STRING::ID:
+			assert (!in->is_ref);
+			assign_scalar (block_cx, saved_plhs, dyc<Literal> (in->rhs));
+			break;
+
+		default:
+			phc_unreachable ();
+			break;
+	}
+
+	saved_lhs = NULL;
+	saved_plhs = NULL;
+}
+
+
 
 void
 Whole_program::visit_array_access (Statement_block* bb, MIR::Array_access* in)
 {
-	phc_TODO ();
+	if (saved_is_ref)
+		phc_TODO ();
+
+	string ns = SYM (block_cx);
+
+	assign_by_copy (block_cx, saved_plhs, P (ns, in));
 }
 
 void
@@ -1822,6 +1836,9 @@ Whole_program::visit_isset (Statement_block* bb, MIR::Isset* in)
 void
 Whole_program::visit_method_invocation (Statement_block* bb, MIR::Method_invocation* in)
 {
+	if (saved_is_ref)
+		phc_TODO ();
+
 	invoke_method (in, block_cx, saved_lhs);
 }
 
@@ -1846,6 +1863,9 @@ Whole_program::visit_unary_op (Statement_block* bb, MIR::Unary_op* in)
 void
 Whole_program::visit_variable_name (Statement_block* bb, MIR::VARIABLE_NAME* in)
 {
+	if (saved_is_ref)
+		phc_TODO ();
+
 	string ns = SYM (block_cx);
 
 	assign_by_copy (block_cx, saved_plhs, P (ns, in));
