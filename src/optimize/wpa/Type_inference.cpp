@@ -171,6 +171,37 @@ Type_inference::get_bin_op_type (string ltype, string rtype, string op)
 	if (op == ".")
 		return Types ("string");
 
+	if (op == "/")
+	{
+		if (ltype == "real" || rtype == "real")
+			return Types ("real", "bool"); // FALSE for divide by zero
+
+		if (ltype == "int" && rtype == "int")
+			return Types ("int", "bool"); // FALSE for divide by zero
+
+		// Other scalars are possible
+		phc_TODO ();
+	}
+
+	if (op == "+")
+	{
+		if (ltype == "array" && rtype == "array")
+			phc_TODO ();
+
+		if (ltype == "real" || rtype == "real")
+			return Types ("real");
+
+		if (false
+			|| (ltype == "int" && rtype == "int")
+			|| (ltype == "bool" && rtype == "int")
+			|| (ltype == "int" && rtype == "bool")
+			)
+			return Types ("int");
+
+		// Other scalars are possible
+		phc_TODO ();
+	}
+
 	phc_TODO ();
 
 //	Map<string, Map <string, Map<string, Types > > > type_map;
