@@ -230,7 +230,7 @@ public:
 	 * Actually perform analysis
 	 */
 
-	Context block_cx; // stash this
+	Context block_cx;
 
 	void visit_branch_block (Branch_block*);
 

@@ -72,7 +72,7 @@ Points_to::dump_graphviz (String* label, Context cx, Whole_program* wp)
 	cout
 	<< "digraph G {\n"
 	<< "graph [labelloc=t];\n"
-	<< "graph [label=\"Points-to: " << *label << ":" << cx << "\"];\n"
+	<< "graph [label=\"Points-to: " << *label << "\"];\n"
 	;
 
 	// Add nodes

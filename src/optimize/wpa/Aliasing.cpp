@@ -42,7 +42,7 @@ Aliasing::dump (Context cx, string comment)
 {
 	CHECK_DEBUG();
 	stringstream ss;
-	ss << cx << ":" << comment;
+	ss << cx << ": " << comment;
 	outs[cx]->dump_graphviz (s(ss.str()), cx, wp);
 }
 

@@ -421,6 +421,9 @@ Whole_program::invoke_method (Method_invocation* in, Context caller_cx, MIR::VAR
 		// TODO: where should I clone the actuals?
 		analyse_method_info (receiver, caller_cx, in->actual_parameters, lhs);
 	}
+
+	// Reset the context correctly.
+	block_cx = caller_cx;
 }
 
 void
@@ -505,31 +508,59 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context cx)
 	// lot clearer what we want to model here (also, this allows us model hard
 	// functions which might not be modelled with a data approach).
 
+	// TODO: all of these might also return NULL, if they arent called properly.
+	// A correct way to handle this would be to parse the zend_parse_parameters
+	// using LLVM. For now, the best thing to do is assume that functions are
+	// called correctly.
 
-	Path* ret_name = P (SYM (cx), new VARIABLE_NAME (RETNAME));
+
+	Path* ret_path = P (SYM (cx), new VARIABLE_NAME (RETNAME));
 	if (*info->name == "strlen")
 	{
-		assign_typed (cx, ret_name, Types ("int"));
+		assign_typed (cx, ret_path, Types ("int"));
 	}
 	else if (*info->name == "dechex")
 	{
-		assign_typed (cx, ret_name, Types ("string"));
+		assign_typed (cx, ret_path, Types ("string"));
 	}
 	else if (*info->name == "print")
 	{
-		assign_scalar (cx, ret_name, new INT (1));
+		assign_scalar (cx, ret_path, new INT (1));
 	}
 	else if (*info->name == "is_array")
 	{
-		assign_typed (cx, ret_name, Types ("bool"));
+		assign_typed (cx, ret_path, Types ("bool"));
 	}
 	else if (*info->name == "is_object")
 	{
-		assign_typed (cx, ret_name, Types ("bool"));
+		assign_typed (cx, ret_path, Types ("bool"));
 	}
 	else if (*info->name == "trigger_error")
 	{
-		assign_typed (cx, ret_name, Types ("bool"));
+		assign_typed (cx, ret_path, Types ("bool"));
+	}
+	else if (*info->name == "date_default_timezone_set")
+	{
+		assign_typed (cx, ret_path, Types ("bool"));
+	}
+	else if (*info->name == "ob_start")
+	{
+		// TODO: If first parameter is a callback is set, thats a callback.
+		assign_typed (cx, ret_path, Types ("bool"));
+	}
+	else if (*info->name == "gettimeofday")
+	{
+		// TODO: parameter could be false
+
+		// If there its parameter is true, it returns a float. Else, if returns a
+		// hashtable with 4 ints: sec, usec, minuteswest, dsttime
+		string array_name = CX_array_name (cx);
+		assign_empty_array (cx, ret_path, array_name);
+
+		assign_typed (cx, P (array_name, "sec"), Types ("int"));
+		assign_typed (cx, P (array_name, "usec"), Types ("int"));
+		assign_typed (cx, P (array_name, "minuteswest"), Types ("int"));
+		assign_typed (cx, P (array_name, "dsttime"), Types ("int"));
 	}
 	else if (*info->name == "var_dump")
 		; // do nothing
@@ -613,18 +644,13 @@ Whole_program::merge_contexts ()
 bool
 Whole_program::analyse_block (Context cx)
 {
-	DEBUG ("\nAnalysing BB: " << cx);
+	DEBUG ("\nAnalysing BB: " << cx << ": " << *cx.get_bb()->get_graphviz_label ());
 
 	// Merge results from predecessors
 	pull_results (cx);
 
 
-	// Perform analyses
-	// TODO: this is going to go badly in function calls!! Use a stack. But
-	// with a stack, will we need all these contexts that are being copied
-	// around the place. Hmmm, we'll probably only need one context...
 	block_cx = cx;
-
 	visit_block (cx.get_bb());
 
 
