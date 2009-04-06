@@ -65,6 +65,9 @@
  
  */
 
+// TODO: put into lib
+#include <queue>
+
 #include "process_ir/General.h"
 #include "pass_manager/Pass_manager.h"
 
@@ -246,50 +249,60 @@ Whole_program::initialize ()
 //	register_analysis ("VRP", vrp);
 }
 
+class Less_post_dominator
+{
+public:
+	bool
+	operator() (Edge* p1, Edge* p2)
+	{
+		Basic_block* t1 = p1->get_target ();
+		Basic_block* t2 = p2->get_target ();
+
+
+		// The queue prioritizes maximal elements, so return true for post-domination.
+		return !t1->is_reverse_dominated_by (t2);
+	}
+};
+
 class Worklist
 {
 public:
-	Edge_list edges; // ordering
+	// A Priority_queue which selects nodes which post-dominate other members,
+	// after those members.
+	priority_queue<Edge*, deque<Edge*>, Less_post_dominator> queue;
+
+	// Don't add edges to existing BBs, so keep track.
+	Set<Basic_block*> bbs;
 
 public:
+	Worklist ()
+	: queue (Less_post_dominator (), deque<Edge*> ())
+	{
+	}
 
 	Edge* next ()
 	{
-		if (size () == 0)
-			return NULL;
-
-		Edge* result = edges.front();
-		edges.pop_front ();
-
+		Edge* result = queue.top ();
+		queue.pop ();
+		bbs.erase (result->get_target ());
 		return result;
 	}
 
-	// TODO: dont add edges if they post-dominate other edges
 	void add (Edge* edge)
 	{
 		edge->is_executable = true;
 
-		// Dont add edges if they are already in the worklist, or if their
-		// target post-dominates the target of an edge in the worklist.
+		// Dont add edges whose targets are already present
+		if (bbs.has (edge->get_target ()))
+			return;
 
-		// Note: linear search - this assumes a very small number of edges in
-		// the worklist, which is very likely.
-		foreach (Edge* existing, edges)
-		{
-			if (existing == edge)
-				return;
-
-			if (existing->get_target ()->is_reverse_dominated_by (
-						edge->get_target ()))
-				return;
-		}
-
-		edges.push_back (edge);
+		bbs.insert (edge->get_target ());
+		queue.push (edge);
 	}
 
 	size_t size ()
 	{
-		return edges.size ();
+		return queue.size ();
 	}
 
 };
