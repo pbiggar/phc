@@ -178,17 +178,25 @@ Aliasing::set_scalar (Context cx, Value_node* storage, Abstract_value* val)
 void
 Aliasing::create_reference (Context cx, Index_node* lhs, Index_node* rhs, certainty cert)
 {
-	phc_TODO ();
 	Points_to* ptg = outs[cx];
 
+	// TODO: What if the RHS doesnt already exist - what to do about the
+	// absval?
 	ptg->add_index (lhs, DEFINITE);
 	ptg->add_index (rhs, DEFINITE);
 
+	// Do not copy the abstract value!!!
+	phc_TODO ();
 	// Transitive closure for points-to edges
-	add_all_points_to_edges (cx, lhs, rhs, cert);
+	certainty certainties[] = {POSSIBLE, DEFINITE};
+	foreach (certainty edge_cert, certainties)
+	{
+		Storage_node_list* pts = ins[cx]->get_values (rhs);
+		foreach (Storage_node* st, *pts)
+			outs[cx]->add_edge (lhs, st, combine_certs (edge_cert, cert));
+	}
 
 	// Transitive closure for reference edges
-	certainty certainties[] = {POSSIBLE, DEFINITE};
 	foreach (certainty edge_cert, certainties)
 	{
 		Index_node_list* pts = ptg->get_references (rhs, edge_cert);
@@ -197,7 +205,7 @@ Aliasing::create_reference (Context cx, Index_node* lhs, Index_node* rhs, certai
 				combine_certs (cert, edge_cert));
 	}
 
-
+	// Add reference edges
 	ptg->add_bidir_edge (lhs, rhs, cert);
 }
 
@@ -247,23 +255,6 @@ Aliasing::merge_contexts ()
 	outs.clear();
 	outs = new_outs;
 }
-
-void
-Aliasing::add_all_points_to_edges (Context cx, Index_node* lhs, Index_node* rhs, certainty cert)
-{
-	// Do not copy the abstract value!!!
-	phc_TODO ();
-
-	certainty certainties[] = {POSSIBLE, DEFINITE};
-	foreach (certainty edge_cert, certainties)
-	{
-		Storage_node_list* pts = ins[cx]->get_values (rhs);
-		foreach (Storage_node* st, *pts)
-			outs[cx]->add_edge (lhs, st, combine_certs (edge_cert, cert));
-	}
-}
-
-
 
 Index_node_list*
 Aliasing::get_references (Context cx, Index_node* index,

@@ -89,11 +89,6 @@ public:
 
 	certainty get_cert (Context cx, Storage_node* st, Index_node* in);
 
-private:
-	// TODO: i think i'll be removing this...
-	void add_all_points_to_edges (Context cx, Index_node* lhs,
-											Index_node* rhs, certainty cert);
-
 };
 
 /* A Path is a way of representing some dereferencing. See Aliasing.cpp. */

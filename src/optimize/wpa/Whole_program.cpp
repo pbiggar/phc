@@ -974,11 +974,26 @@ Whole_program::kill_value (Context cx, Path* plhs)
 void
 Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 {
-	// Should we separate the assignment by value and the assignment by ref.
 	Index_node_list* lhss = get_named_indices (cx, plhs);
 	Index_node_list* rhss = get_named_indices (cx, prhs, RECORD_USES);
 
 	bool killable = is_must (lhss);
+
+	/* For each index node L on the lhs, and R on the rhs:
+	 * - L and R should have reference edges added
+	 *   - must-edges if only 1 L and 1 R
+	 *   - otherwise may-edges
+	 *
+	 * - A reference kills L
+	 *   - but only if L refers to only 1 node.
+	 *
+	 * - L gets R's values
+	 *   - L points to R's absval
+	 *   - R points to L's absval
+	 *   - L's absval copies R's absval's value
+	 *   - L points to all that R points to
+	 */
+
 
 	// Send the results to the analyses for all variables which could be
 	// overwritten.
@@ -995,17 +1010,19 @@ Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 
 		// We don't need to worry about propagating values to LHSS' aliases, as
 		// the aliasing relations are killed above.
+		certainty cert = (killable && is_must (rhss)) ? DEFINITE : POSSIBLE;
+
+
 		foreach (Index_node* rhs, *rhss)
 		{
 			foreach (Storage_node* st, *aliasing->get_values (cx, rhs))
 			{
 				foreach_wpa (this)
 				{
-					wpa->create_reference (cx, lhs, rhs,
-							(killable && is_must (rhss)) ? DEFINITE : POSSIBLE);
+					if (isa<Value_node> (st))
+						phc_TODO ();
 
-					wpa->assign_value (cx, lhs, st,
-							(killable && is_must (rhss)) ? DEFINITE : POSSIBLE);
+					wpa->create_reference (cx, lhs, rhs, cert);
 				}
 			}
 		}

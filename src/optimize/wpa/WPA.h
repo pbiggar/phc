@@ -169,11 +169,13 @@ public:
 
 	virtual void merge_contexts () = 0;
 
-
 	/*
 	 * Debugging information
 	 */
 	virtual void dump (Context cx, string comment) = 0;
+
+private:
+	/* Some helper functions for merges */
 };
 
 
