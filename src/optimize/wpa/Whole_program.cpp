@@ -919,6 +919,10 @@ Whole_program::backward_bind (Method_info* info, Context exit_cx, MIR::VARIABLE_
 		wpa->backward_bind (caller_cx, exit_cx);
 
 	dump (caller_cx, "After backward bind");
+
+	// Its useful to see the CFG we've fallen back into
+	if (debugging_enabled)
+		caller_cx.get_bb()->cfg->dump_graphviz (s("Back into function"));
 }
 
 
