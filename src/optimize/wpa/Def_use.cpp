@@ -227,6 +227,23 @@ Def_use::aggregate_results (Context cx)
 void
 Def_use::merge_contexts ()
 {
+	// TODO: fix storage_nodes in summary_*
+
+	Context cx;
+	Set<Alias_name> s; // refs must be initialized
+	Set<Alias_name>& set = s;
+
+	Map<Context, Set<Alias_name> > new_ref_defs;
+	foreach (tie (cx, set), ref_defs)
+	{
+		Context new_cx = cx.get_non_contextual ();
+
+		foreach (Alias_name an, set)
+			new_ref_defs[new_cx].insert (an);
+	}
+	ref_defs.clear ();
+	ref_defs = new_ref_defs;
+
 	phc_TODO ();
 }
 
