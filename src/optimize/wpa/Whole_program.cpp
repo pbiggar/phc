@@ -449,7 +449,10 @@ Whole_program::analyse_method_info (Method_info* method_info,
 	{
 		User_method_info* info = dyc<User_method_info> (method_info);
 		if (info->cfg == NULL)
+		{
 			info->cfg = new CFG (info->method);
+			pm->cfg_dump (info->cfg, s("cfg"), s("After building CFG"));
+		}
 
 		analyse_function (info, caller_cx, actuals, lhs);
 	}
@@ -572,6 +575,14 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context cx)
 	else if (*info->name == "str_repeat")
 	{
 		assign_typed (cx, ret_path, Types ("string"));
+	}
+	else if (*info->name == "flush")
+	{
+		// do nothing
+	}
+	else if (*info->name == "printf")
+	{
+		assign_typed (cx, ret_path, Types ("int"));
 	}
 	else if (*info->name == "gettimeofday")
 	{
@@ -739,7 +750,7 @@ Whole_program::pull_results (Context cx)
 void
 Whole_program::dump (Context cx, string comment)
 {
-	CHECK_DEBUG ();
+	bool saved = debugging_enabled;
 	foreach_wpa (this)
 	{
 		// This isnt the greatest means of debugging.
@@ -752,7 +763,7 @@ Whole_program::dump (Context cx, string comment)
 		wpa->dump (cx, comment);
 		cdebug << endl;
 	}
-	pm->maybe_enable_debug (s("wpa"));
+	debugging_enabled = saved;
 }
 
 
@@ -1842,11 +1853,10 @@ Whole_program::visit_cast (Statement_block* bb, MIR::Cast* in)
 		}
 	}
 
+
 	// We've handled casts for known scalars to scalars. We still must handle
 	// casts to objects, casts to arrays, and casts from unknown values to
 	// other scalar types.
-
-
 	if (*in->cast->value == "array")
 	{
 		if (lit && isa<NIL> (lit))
@@ -1863,7 +1873,9 @@ Whole_program::visit_cast (Statement_block* bb, MIR::Cast* in)
 		phc_TODO ();
 	}
 	else
-		phc_unreachable ();
+	{
+		assign_typed (block_cx, saved_plhs, Types (*in->cast->value));
+	}
 }
 
 void
@@ -1944,7 +1956,23 @@ Whole_program::visit_param_is_ref (Statement_block* bb, MIR::Param_is_ref* in)
 void
 Whole_program::visit_unary_op (Statement_block* bb, MIR::Unary_op* in)
 {
-	phc_TODO ();
+	string ns = SYM (block_cx);
+
+	Abstract_value* val = get_abstract_value (block_cx, in->variable_name);
+
+	if (isa<Literal_cell> (val->lit))
+	{
+		Literal* result = PHP::fold_unary_op (
+					in->op,
+					dyc<Literal_cell> (val->lit)->value);
+
+		assign_scalar (block_cx, saved_plhs, result);
+		return;
+	}
+
+	Types types = type_inf->get_unary_op_types (block_cx, val, *in->op->value);
+
+	assign_typed (block_cx, saved_plhs, types);
 }
 
 void

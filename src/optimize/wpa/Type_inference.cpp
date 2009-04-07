@@ -153,12 +153,19 @@ Type_inference::get_unary_op_types (Context cx, Abstract_value* operand, string 
 	if (always_bool_ops.has (op))
 		return Types ("bool");
 
+	if (op == "-")
+		return dyc<Type_cell> (operand->type)->types;
+
+	DEBUG ("unary op: " << op << " not handled");
 	phc_TODO ();
 }
 
 Types
 Type_inference::get_bin_op_type (string ltype, string rtype, string op)
 {
+	if (!scalar_types.has (ltype) || !scalar_types.has (rtype))
+		phc_TODO ();
+
 	Set<string> always_bool_ops;
 	always_bool_ops.insert ("<");
 	always_bool_ops.insert ("<=");
@@ -170,8 +177,14 @@ Type_inference::get_bin_op_type (string ltype, string rtype, string op)
 	// TODO: implicit __toString on both params
 	if (op == ".")
 		return Types ("string");
+	else if (op == "*")
+	{
+		if (ltype == "real" || rtype == "real")
+			return Types ("real");
 
-	if (op == "/")
+		return Types ("int", "real");
+	}
+	else if (op == "/")
 	{
 		if (ltype == "real" || rtype == "real")
 			return Types ("real", "bool"); // FALSE for divide by zero
@@ -183,8 +196,23 @@ Type_inference::get_bin_op_type (string ltype, string rtype, string op)
 		// Other scalars are possible
 		phc_TODO ();
 	}
+	else if (op == "/")
+	{
+		return Types ("int", "bool"); // FALSE for divide by zero
+	}
+	else if (op == "%")
+	{
+		if (ltype == "real" || rtype == "real")
+			return Types ("real", "bool"); // FALSE for divide by zero
 
-	if (op == "+")
+		// PHP division is not modulo arithmetic
+		if (ltype == "int" && rtype == "int")
+			return Types ("int", "bool", "real"); // FALSE for divide by zero
+
+		// Other scalars are possible
+		phc_TODO ();
+	}
+	else if (op == "+")
 	{
 		if (ltype == "array" && rtype == "array")
 			phc_TODO ();
@@ -196,8 +224,7 @@ Type_inference::get_bin_op_type (string ltype, string rtype, string op)
 		// Strings, bools and NULLs coerce to ints
 		return Types ("int", "real"); // possible overflow
 	}
-
-	if (op == "-")
+	else if (op == "-")
 	{
 		if (ltype == "real" || rtype == "real")
 			return Types ("real");
