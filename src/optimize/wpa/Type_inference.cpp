@@ -192,15 +192,19 @@ Type_inference::get_bin_op_type (string ltype, string rtype, string op)
 		if (ltype == "real" || rtype == "real")
 			return Types ("real");
 
-		if (false
-			|| (ltype == "int" && rtype == "int")
-			|| (ltype == "bool" && rtype == "int")
-			|| (ltype == "int" && rtype == "bool")
-			)
-			return Types ("int");
+		// ints can overflow.
+		// Strings, bools and NULLs coerce to ints
+		return Types ("int", "real"); // possible overflow
+	}
 
-		// Other scalars are possible
-		phc_TODO ();
+	if (op == "-")
+	{
+		if (ltype == "real" || rtype == "real")
+			return Types ("real");
+
+		// ints can overflow.
+		// Strings, bools and NULLs coerce to ints
+		return Types ("int", "real"); // possible overflow
 	}
 
 	phc_TODO ();

@@ -561,6 +561,18 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context cx)
 		// TODO: If first parameter is a callback is set, thats a callback.
 		assign_typed (cx, ret_path, Types ("bool"));
 	}
+	else if (*info->name == "ob_end_clean")
+	{
+		assign_typed (cx, ret_path, Types ("bool"));
+	}
+	else if (*info->name == "number_format")
+	{
+		assign_typed (cx, ret_path, Types ("string"));
+	}
+	else if (*info->name == "str_repeat")
+	{
+		assign_typed (cx, ret_path, Types ("string"));
+	}
 	else if (*info->name == "gettimeofday")
 	{
 		// TODO: parameter could be false
@@ -578,7 +590,10 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context cx)
 	else if (*info->name == "var_dump")
 		; // do nothing
 	else
+	{
+		DEBUG (*info->name << " not modelled");
 		phc_TODO ();
+	}
 }
 
 void
