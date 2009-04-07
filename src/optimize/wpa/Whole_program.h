@@ -100,6 +100,9 @@ public:
 	MIR::VARIABLE_NAME* saved_lhs;
 	bool saved_is_ref;
 
+	// name of __MAIN__ scope
+	string main_scope;
+
 
 public:
 	Whole_program(Pass_manager* pm);

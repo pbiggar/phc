@@ -815,6 +815,7 @@ Whole_program::forward_bind (Method_info* info, Context entry_cx, MIR::Actual_pa
 	// have initialized.
 	if (caller_cx.is_outer ())
 	{
+		main_scope = scope;
 		init_superglobals (entry_cx);
 	}
 
@@ -974,7 +975,6 @@ void
 Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 {
 	// Should we separate the assignment by value and the assignment by ref.
-	phc_TODO ();
 	Index_node_list* lhss = get_named_indices (cx, plhs);
 	Index_node_list* rhss = get_named_indices (cx, prhs, RECORD_USES);
 
@@ -987,24 +987,26 @@ Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 		if (killable) // only 1 result
 		{
 			foreach_wpa (this)
+			{
 				wpa->kill_reference (cx, lhs);
+				wpa->kill_value (cx, lhs);
+			}
 		}
 
 		// We don't need to worry about propagating values to LHSS' aliases, as
 		// the aliasing relations are killed above.
-	
 		foreach (Index_node* rhs, *rhss)
 		{
-			foreach_wpa (this)
+			foreach (Storage_node* st, *aliasing->get_values (cx, rhs))
 			{
-				wpa->create_reference (cx, lhs, rhs,
-					(killable && is_must (rhss)) ? DEFINITE : POSSIBLE);
+				foreach_wpa (this)
+				{
+					wpa->create_reference (cx, lhs, rhs,
+							(killable && is_must (rhss)) ? DEFINITE : POSSIBLE);
 
-				phc_TODO ();
-//				wpa->assign_value (bb,
-//					lhs->name (),
-//					rhs->name (),
-//					(killable && is_must (rhss)) ? DEFINITE : POSSIBLE);
+					wpa->assign_value (cx, lhs, st,
+							(killable && is_must (rhss)) ? DEFINITE : POSSIBLE);
+				}
 			}
 		}
 	}
@@ -1445,7 +1447,7 @@ Whole_program::visit_global (Statement_block* bb, MIR::Global* in)
 
 	assign_by_ref (block_cx,
 			P (ns, in->variable_name),
-			P ("__MAIN__", in->variable_name));
+			P (main_scope, in->variable_name));
 }
 
 
