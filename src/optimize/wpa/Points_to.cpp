@@ -457,17 +457,16 @@ Points_to::merge (Points_to* other)
 		}
 	}
 
+	// Check the symtables are the same.
+	string name;
+	int count;
+	foreach (tie (name, count), this->symtables)
+	{
+		assert (other->symtables[name] == count);
+	}
+
 	// Combine the symtable records
-	assert (this->symtables == other->symtables);
 	result->symtables = symtables;
-//	string name;
-//	int count;
-//	foreach (tie (name, count), this->symtables)
-//	{
-//		assert (other->symtables.has (name));
-//		assert (other->symtables[name] == count);
-//		result->symtables[name] = count;
-//	}
 
 	return result;
 }
