@@ -977,8 +977,6 @@ Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 	Index_node_list* lhss = get_named_indices (cx, plhs);
 	Index_node_list* rhss = get_named_indices (cx, prhs, RECORD_USES);
 
-	bool killable = is_must (lhss);
-
 	/* For each index node L on the lhs, and R on the rhs:
 	 * - L and R should have reference edges added
 	 *   - must-edges if only 1 L and 1 R
@@ -994,9 +992,12 @@ Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 	 *   - L points to all that R points to
 	 */
 
+	// TODO: certs only matter for must-vs-may alias. All other certs should
+	// be implicit.
+	//   - all index nodes are defs
+	//   - if only 1 value node, def, else possible
 
-	// Send the results to the analyses for all variables which could be
-	// overwritten.
+	bool killable = is_must (lhss);
 	foreach (Index_node* lhs, *lhss)
 	{
 		if (killable) // only 1 result
@@ -1008,23 +1009,41 @@ Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 			}
 		}
 
-		// We don't need to worry about propagating values to LHSS' aliases, as
-		// the aliasing relations are killed above.
 		certainty cert = (killable && is_must (rhss)) ? DEFINITE : POSSIBLE;
-
-
 		foreach (Index_node* rhs, *rhss)
 		{
 			foreach (Storage_node* st, *aliasing->get_values (cx, rhs))
 			{
-				foreach_wpa (this)
+				if (isa<Value_node> (st))
 				{
-					if (isa<Value_node> (st))
-						phc_TODO ();
+					foreach_wpa (this)
+					{
+						// But the value it gets may be from __MAIN__::*
+						// TODO: what about other values from __MAIN__::*
+						if (st != ABSVAL (rhs))
+						{
+							wpa->set_scalar (cx, ABSVAL (rhs),
+									get_abstract_value (cx, rhs->name ()));
 
-					wpa->create_reference (cx, lhs, rhs, cert);
+							wpa->assign_value (cx, rhs, ABSVAL (rhs), cert);
+						}
+
+						wpa->set_scalar (cx, ABSVAL (lhs),
+								get_abstract_value (cx, rhs->name ()));
+
+						wpa->assign_value (cx, lhs, ABSVAL (lhs), cert);
+					}
 				}
+				else
+				{
+					foreach_wpa (this)
+						wpa->assign_value (cx, lhs, st, DEFINITE);
+				}
+
 			}
+
+			foreach_wpa (this)
+				wpa->create_reference (cx, lhs, rhs, cert);
 		}
 	}
 }
@@ -1294,9 +1313,20 @@ Whole_program::get_string_values (Context cx, Index_node* node)
 Abstract_value*
 Whole_program::get_abstract_value (Context cx, Alias_name name)
 {
-	return new Abstract_value (
-							ccp->get_value (cx, name), 
-							type_inf->get_value (cx, name));
+	Abstract_value* result =
+		new Abstract_value (
+			ccp->get_value (cx, name), 
+			type_inf->get_value (cx, name));
+
+	if (result->lit == TOP || result->type == TOP)
+	{
+		assert (result->lit == TOP);
+		assert (result->type == TOP);
+
+		result = Abstract_value::from_literal (new NIL);
+	}
+
+	return result;
 }
 
 Abstract_value*

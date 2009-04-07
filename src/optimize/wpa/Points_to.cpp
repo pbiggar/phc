@@ -43,13 +43,19 @@ Points_to::open_scope (string scope_name)
 void
 Points_to::close_scope (string scope_name)
 {
+	// TODO: formalize this as an abstract node
 	symtables[scope_name]--;
+
 	if (symtables[scope_name] == 0)
+	{
 		symtables.erase(scope_name);
 
-	// Remove the symbol table. Then do a mark-and-sweep from all the other
-	// symbol tables.
-	remove_node (SN (scope_name));
+		// Remove the symbol table. Then do a mark-and-sweep from all the other
+		// symbol tables.
+		remove_node (SN (scope_name));
+		remove_unreachable_nodes ();
+	}
+	assert (symtables[scope_name] >= 0);
 }
 
 bool
@@ -266,20 +272,9 @@ Points_to::consistency_check (Context cx, Whole_program* wp)
 void
 Points_to::remove_unreachable_nodes ()
 {
-	// XXX: The problem is that this leaves reference nodes behind. But we
-	// only really want to remove the reference nodes that are out of scope.
-	// So a node representing a variable should be removed when its symtable
-	// does. What about other reference nodes? If there is an array with no
-	// references to it, do we want to keep its index_nodes? Well, only if
-	// they're references elsewhere. But if they're referenced elsewhere, the
-	// useful info is already copied.
-
 	// Summary: when removing a storage, remove all its index nodes.
-	
-	// Which means that until arrays and objects are modelled, this function
-	// does nothing.
-	return;
 
+	
 	// Put all symtables into the worklist
 	PT_node_list* worklist = new PT_node_list;
 	PT_node_list* all_nodes = get_nodes ();
@@ -355,6 +350,9 @@ Points_to::clone ()
 		// No need to deep copy, as pairs are never updated in-place.
 		result->insert (p);
 	}
+
+	// Full copy
+	result->symtables = symtables;
 
 	return result;
 }
@@ -458,6 +456,19 @@ Points_to::merge (Points_to* other)
 			}
 		}
 	}
+
+	// Combine the symtable records
+	assert (this->symtables == other->symtables);
+	result->symtables = symtables;
+//	string name;
+//	int count;
+//	foreach (tie (name, count), this->symtables)
+//	{
+//		assert (other->symtables.has (name));
+//		assert (other->symtables[name] == count);
+//		result->symtables[name] = count;
+//	}
+
 	return result;
 }
 

@@ -60,6 +60,8 @@ Aliasing::forward_bind (Context caller, Context entry)
 
 	ptg->consistency_check (caller, wp);
 
+	ptg->open_scope (SYM (entry));
+
 	// We need INS to read the current situation, but it shouldnt get modified.
 	ins[entry] = ptg;
 	outs[entry] = ptg;
@@ -72,8 +74,10 @@ Aliasing::backward_bind (Context caller, Context exit)
 
 	outs[caller] = ptg;
 
+	ptg->close_scope (SYM (exit));
+
 	if (debugging_enabled)
-		ptg->dump_graphviz (s("After whole program"), exit, wp);
+		dump (exit, "After whole program");
 }
 
 void
@@ -180,23 +184,13 @@ Aliasing::create_reference (Context cx, Index_node* lhs, Index_node* rhs, certai
 {
 	Points_to* ptg = outs[cx];
 
-	// TODO: What if the RHS doesnt already exist - what to do about the
-	// absval?
 	ptg->add_index (lhs, DEFINITE);
 	ptg->add_index (rhs, DEFINITE);
 
-	// Do not copy the abstract value!!!
-	phc_TODO ();
-	// Transitive closure for points-to edges
-	certainty certainties[] = {POSSIBLE, DEFINITE};
-	foreach (certainty edge_cert, certainties)
-	{
-		Storage_node_list* pts = ins[cx]->get_values (rhs);
-		foreach (Storage_node* st, *pts)
-			outs[cx]->add_edge (lhs, st, combine_certs (edge_cert, cert));
-	}
+	// Whole program handles value edges.
 
 	// Transitive closure for reference edges
+	certainty certainties[] = {POSSIBLE, DEFINITE};
 	foreach (certainty edge_cert, certainties)
 	{
 		Index_node_list* pts = ptg->get_references (rhs, edge_cert);
