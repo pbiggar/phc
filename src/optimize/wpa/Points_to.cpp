@@ -104,11 +104,7 @@ Points_to::dump_graphviz (String* label, Context cx, Whole_program* wp)
 				dump_cell(val->lit, ss);
 
 			ss << ", ";
-		}
 
-		if (isa<Storage_node> (node))
-		{
-			Abstract_value* val = wp->get_bb_out_abstract_value (cx, node->name());
 			if (val->type == BOTTOM)
 				ss << "(B)";
 			else if (val->type == TOP)
@@ -739,7 +735,12 @@ String*
 Storage_node::get_graphviz (string info)
 {
 	stringstream ss;
-	ss << "shape=box,label=\"" << storage << info << "\"";
+	ss 
+	<< "shape=box,label=\""
+	<< *escape_DOT (s(storage)) 
+	<< *escape_DOT (s(info))
+	<< "\""
+	;
 	return s (ss.str ());
 }
 
@@ -761,7 +762,12 @@ String*
 Index_node::get_graphviz (string info)
 {
 	stringstream ss;
-	ss << "label=\"" << index << info << "\"";
+	ss
+	<< "label=\""
+	<< *escape_DOT (s(index)) 
+	<< *escape_DOT (s(info))
+	<< "\""
+	;
 	return s (ss.str ());
 }
 
@@ -787,6 +793,10 @@ String*
 Value_node::get_graphviz (string info)
 {
 	stringstream ss;
-	ss << "color=red,label=\"" << info << "\"";
+	ss
+	<< "color=red,label=\""
+	<< *escape_DOT (s(info))
+	<< "\""
+	;
 	return s (ss.str ());
 }
