@@ -152,7 +152,9 @@ Points_to::dump_graphviz (String* label, Context cx, Whole_program* wp)
 void
 Points_to::add_index (Index_node* index, certainty cert)
 {
-	Storage_node* st = index->get_storage();
+	// TODO: I dont like this direct access. But we cant use get_storage from
+	// here.
+	Storage_node* st = SN (index->storage);
 
 	if (!has_node (index))
 		add_edge (st, index, cert);
@@ -207,7 +209,7 @@ Points_to::consistency_check (Context cx, Whole_program* wp)
 		if (Index_node* ind = dynamic_cast<Index_node*> (node))
 		{
 			// Check index nodes are pointed to by their storage node
-			Storage_node* st = ind->get_storage ();
+			Storage_node* st = get_storage (ind);
 			Alias_pair* incoming = get_edge (st, ind);
 			if (incoming == NULL)
 			{
@@ -576,6 +578,20 @@ Points_to::get_edge (PT_node* source, PT_node* target)
 	return by_source[s][t];
 }
 
+Storage_node*
+Points_to::get_storage (Index_node* index)
+{
+	if (has_node (index))
+	{
+		// get the actual node that points to the index.
+		Storage_node_list* sources = get_incoming <Storage_node> (index);
+		assert (sources->size() == 1);
+		return sources->front ();
+	}
+	else
+		return SN (index->storage);
+}
+
 void
 Points_to::set_pair_cert (Alias_pair* pair, certainty cert)
 {
@@ -616,7 +632,7 @@ Points_to::maybe_remove_node (PT_node* node)
 	// Remove index nodes with no storage node.
 	if (isa<Index_node> (node))
 	{
-		if (!has_node (new Storage_node (dyc<Index_node> (node)->storage)))
+		if (!has_node (SN (dyc<Index_node> (node)->storage)))
 			remove_node (node);
 	}
 
@@ -707,13 +723,13 @@ ABSVAL (Index_node* node)
 Storage_node*
 CX_array_node (Context cx)
 {
-	return new Storage_node (CX_array_name (cx));
+	return SN (CX_array_name (cx));
 }
 
 Storage_node*
 CX_object_node (Context cx)
 {
-	return new Storage_node (CX_object_name (cx));
+	return SN (CX_object_name (cx));
 }
 
 
@@ -769,12 +785,6 @@ Index_node::get_graphviz (string info)
 	<< "\""
 	;
 	return s (ss.str ());
-}
-
-Storage_node*
-Index_node::get_storage ()
-{
-	return new Storage_node (this->storage);
 }
 
 Value_node::Value_node (Index_node* owner)

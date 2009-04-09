@@ -190,6 +190,8 @@ public:
 	// Copy the value from RHS to LHS.
 	void copy_value (Context cx, Index_node* lhs, Index_node* rhs, certainty cert);
 
+	bool copy_from_abstract_value (Context cx, Index_node* lhs, Index_node* rhs, certainty cert);
+
 
 	certainty kill_value (Context cx, Path* plhs);
 

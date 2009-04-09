@@ -74,7 +74,6 @@ public:
 
 	Index_node (string storage, string index);
 	Alias_name name ();
-	Storage_node* get_storage ();
 
 	String* get_graphviz (string info);
 };
@@ -176,6 +175,9 @@ public:
 	Storage_node_list* get_storage_nodes ();
 	static Index_node_list* get_possible_nulls (List<Points_to*>* graphs);
 
+	// Get the storage pointing to INDEX.
+	Storage_node* get_storage (Index_node* index);
+
 
 
 	/*
@@ -191,8 +193,6 @@ public:
 	// Returns NULL if the edge is missing. We use this in place of a
 	// has_edge() function, since we need to find out its CERTAINTY.
 	Alias_pair* get_edge (PT_node* source, PT_node* target);
-
-	PT_node_list* get_incoming_nodes (PT_node* node);
 
 	void remove_unreachable_nodes ();
 	void maybe_remove_node (PT_node*);

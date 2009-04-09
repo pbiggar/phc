@@ -1225,9 +1225,24 @@ Whole_program::assign_by_copy (Context cx, Path* plhs, Path* prhs)
 	}
 }
 
+bool
+Whole_program::copy_from_abstract_value (Context cx, Index_node* lhs, Index_node* rhs, certainty cert)
+{
+	// RHS may be an attempt to index a scalar!!
+
+	// Check if RHS's storage node is an abstract value. If it is, try to do
+	// the copy as best as you can.
+
+	return false;
+}
+
 void
 Whole_program::copy_value (Context cx, Index_node* lhs, Index_node* rhs, certainty cert)
 {
+	// Special case - the RHS's storage node might be an ABSVAL.
+	if (copy_from_abstract_value (cx, lhs, rhs, cert))
+		return;
+
 	// Get the value for each RHS. Copy it using the correct semantics.
 	Storage_node_list* values = aliasing->get_values (cx, rhs);
 

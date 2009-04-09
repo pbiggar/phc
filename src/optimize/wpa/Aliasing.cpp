@@ -262,14 +262,16 @@ Aliasing::get_values (Context cx, Index_node* index)
 {
 	Points_to* ptg = ins[cx];
 
+	Storage_node* st = ptg->get_storage (index);
+
 	// Check the node exists.	
-	if (ptg->get_edge (index->get_storage(), index))
+	if (ptg->get_edge (st, index))
 		return ptg->get_values (index);
 
 
 	// For undefined nodes, we look to the UNKNOWN node. 
-	Index_node* unknown = IN (index->storage, UNKNOWN);
-	Alias_pair* unknown_edge = ptg->get_edge (unknown->get_storage(), unknown);
+	Index_node* unknown = IN (st->storage, UNKNOWN);
+	Alias_pair* unknown_edge = ptg->get_edge (st, unknown);
 	assert (unknown_edge);
 
 	return ptg->get_values (unknown);
