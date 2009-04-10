@@ -85,6 +85,8 @@ public:
 
 	Storage_node_list* get_values (Context cx, Index_node* index);
 
+	Storage_node* get_storage (Context cx, Index_node* index);
+
 	Index_node_list* get_possible_nulls (List<Context>*);
 
 	certainty get_cert (Context cx, Storage_node* st, Index_node* in);

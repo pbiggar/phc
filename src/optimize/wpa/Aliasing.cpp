@@ -278,6 +278,14 @@ Aliasing::get_values (Context cx, Index_node* index)
 }
 
 
+Storage_node*
+Aliasing::get_storage (Context cx, Index_node* index)
+{
+	Points_to* ptg = ins[cx];
+	return ptg->get_storage (index);
+}
+
+
 Index_node_list*
 Aliasing::get_indices (Context cx, Storage_node* storage)
 {
