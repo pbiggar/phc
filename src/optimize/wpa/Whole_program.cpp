@@ -1225,8 +1225,8 @@ Whole_program::assign_by_copy (Context cx, Path* plhs, Path* prhs)
 	}
 }
 
-void
-Whole_program::copy_value (Context cx, Index_node* lhs, Index_node* rhs, certainty cert)
+bool
+Whole_program::copy_from_abstract_value (Context cx, Index_node* lhs, Index_node* rhs, certainty cert)
 {
 	// Special case - the RHS's storage node might be an absval (however, if it
 	// is both an absval and another storage node, then the other storage nodes
@@ -1245,22 +1245,28 @@ Whole_program::copy_value (Context cx, Index_node* lhs, Index_node* rhs, certain
 
 	assert (!scalars.empty() ^ !array.empty() ^ !objects.empty());
 
-	if (scalars.size())
+	if (scalars.size() == 0)
+		return false;
+
+	// TODO: if its a string, string only.
+	// TODO: if not a string, NULL only.
+	foreach_wpa (this)
 	{
-		// TODO: if its a string, string only.
-		// TODO: if not a string, NULL only.
-		foreach_wpa (this)
-		{
-			wpa->set_storage (cx, ABSVAL (lhs), Types ("string", "unset"));
-			wpa->assign_value (cx, lhs, ABSVAL (lhs), cert);
-		}
-		return;
+		wpa->set_storage (cx, ABSVAL (lhs), Types ("string", "unset"));
+		wpa->assign_value (cx, lhs, ABSVAL (lhs), cert);
 	}
 
 
-	// OK, its not a scalar. Carry on.
-	
+	return true;
+}
 
+void
+Whole_program::copy_value (Context cx, Index_node* lhs, Index_node* rhs, certainty cert)
+{
+	if (copy_from_abstract_value (cx, lhs, rhs, cert))
+		return;
+
+	// OK, its not a scalar. Carry on.
 
 
 
