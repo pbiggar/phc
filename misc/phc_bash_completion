@@ -23,9 +23,9 @@ _phc()
 
 
 	# options completion
-	if [[ "$prev" == -*  ]]; then
-		COMPREPLY=( $( compgen -W "$passes" -- $cur ) )
-	elif [[ "$cur" == -* ]]; then
+#	if [[ "$prev" == -*  ]]; then
+#		COMPREPLY=( $( compgen -W "$passes" -- $cur ) )
+	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -f -W "$shortOpts $longOpts $paramOpts $passOpts" -- $cur ) )
 		return 0
 	else
