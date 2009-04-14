@@ -55,6 +55,9 @@ void Desugar::pre_declare (Declare* in, Statement_list* out)
  *		method names
  *		casts
  *
+ *	However, we can only change casts since the others are needed for error
+ *	messages.
+ *
  * The following are case-sensitive
  *		constant names
  *		variable names
@@ -82,14 +85,12 @@ Desugar::pre_op (OP* in)
 void
 Desugar::pre_method (Method* in, Method_list* out)
 {
-	in->signature->method_name->attrs->set_true ("phc.desugar.dont_change_representation");
 	out->push_back (in);
 }
 
 METHOD_NAME*
 Desugar::pre_method_name (METHOD_NAME* in)
 {
-	in->value->toLower();
 	return in;
 }
 
@@ -97,10 +98,11 @@ Desugar::pre_method_name (METHOD_NAME* in)
 void
 Desugar::pre_class_def (Class_def* in, Statement_list* out)
 {
-	in->class_name->attrs->set_true ("phc.desugar.dont_change_representation");
-
-	// Store for self::. classes arent nested, so this is OK.
+	// Store for self::.
 	current_class = in->class_name;
+
+	// Store for parent::.
+	parent_class = in->extends;
 
 	out->push_back (in);
 }
@@ -108,25 +110,21 @@ Desugar::pre_class_def (Class_def* in, Statement_list* out)
 Expr*
 Desugar::pre_constant (Constant* in)
 {
-	if (in->class_name)
-		in->class_name->attrs->set_true ("phc.desugar.dont_change_representation");
-
 	return in;
 }
 
 CLASS_NAME*
 Desugar::pre_class_name (CLASS_NAME* in)
 {
-	if (!in->attrs->is_true ("phc.desugar.dont_change_representation"))
+	if (*in->value == "self")
 	{
-		in->value->toLower();
-
-		// Apparently self:: means the current class name.
-		if (*in->value == "self")
-		{
-			in->value = current_class->value->clone();
-			in->value->toLower ();
-		}
+		// self:: means the current class name.
+		in->value = current_class->value->clone();
+	}
+	else if (*in->value == "parent")
+	{
+		// parent:: means the parent class name
+		in->value = parent_class->value->clone();
 	}
 
 	return in;
@@ -136,10 +134,9 @@ Desugar::pre_class_name (CLASS_NAME* in)
 void
 Desugar::pre_interface (Interface_def* in, Statement_list* out)
 {
-	in->interface_name->attrs->set_true ("phc.desugar.dont_change_representation");
-
-	// Store for self::. interfaces arent nested, so this is OK.
-	current_interface= in->interface_name;
+	// TODO: anything special for parent here?
+	// Store for self::.
+	current_interface = in->interface_name;
 
 	out->push_back (in);
 }
@@ -147,18 +144,10 @@ Desugar::pre_interface (Interface_def* in, Statement_list* out)
 INTERFACE_NAME*
 Desugar::pre_interface_name (INTERFACE_NAME* in)
 {
-	if (!in->attrs->is_true ("phc.desugar.dont_change_representation"))
+	if (*in->value == "self")
 	{
-		in->value->toLower();
-
-		// Apparently self:: means the current class name.
-		if (*in->value == "self")
-		{
-			in->value = current_class->value->clone();
-			in->value->toLower ();
-		}
+		in->value = current_class->value->clone();
 	}
-
 
 	return in;
 }

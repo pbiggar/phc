@@ -14,6 +14,7 @@
 class Desugar : public AST::Transform, virtual public GC_obj
 {
 	AST::CLASS_NAME* current_class;
+	AST::CLASS_NAME* parent_class;
 	AST::INTERFACE_NAME* current_interface;
 
 	AST::Expr* pre_unary_op(AST::Unary_op* in);
