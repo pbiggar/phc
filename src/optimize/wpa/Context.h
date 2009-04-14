@@ -16,7 +16,14 @@
 
 class Context : virtual public GC_obj
 {
-	List<Basic_block*> BBs;
+	BB_list BBs;
+
+	// We want to be able to use caller() accurately, meaning we want to leave
+	// the BBs unbounded. So we need to be able to keep track of the amount of
+	// BBs. The first BB (from the bottom) that has a count > 1 leads to an R.
+	// We update this in caller() and contextual().
+	Map<Basic_block*, int> BB_counts;
+
 	bool use_caller;
 
 public:
@@ -36,6 +43,9 @@ public:
 	bool operator< (const Context &other) const;
 	bool operator== (const Context &other) const;
 	string name () const;
+
+private:
+	bool has_bb (Basic_block*);
 };
 
 std::ostream &operator<< (std::ostream &out, const Context &num);

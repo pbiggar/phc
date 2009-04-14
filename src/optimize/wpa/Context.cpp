@@ -16,6 +16,7 @@ Context::outer (Basic_block* bb)
 	// Contextual, but only has the outer BB
 	Context result;
 	result.BBs.push_back (bb);
+	result.BB_counts[bb]++;
 	result.use_caller = true;
 	return result;
 }
@@ -24,6 +25,7 @@ Context::non_contextual (Basic_block* bb)
 {
 	Context result;
 	result.BBs.push_back (bb);
+	result.BB_counts[bb]++;
 	result.use_caller = false;
 	return result;
 }
@@ -33,8 +35,12 @@ Context::contextual (Context caller, Basic_block* bb)
 {
 	Context result;
 	result.BBs = caller.BBs;
+	result.BB_counts = caller.BB_counts;
 	result.use_caller = true;
+
 	result.BBs.push_back (bb);
+	result.BB_counts[bb]++;
+
 	return result;
 }
 
@@ -42,11 +48,7 @@ Context::contextual (Context caller, Basic_block* bb)
 Context
 Context::as_peer (Context peer, Basic_block* bb)
 {
-	Context result;
-	result.BBs = peer.caller ().BBs;
-	result.BBs.push_back (bb);
-	result.use_caller = true;
-	return result;
+	return Context::contextual (peer.caller(), bb);
 }
 
 Context
@@ -55,7 +57,11 @@ Context::caller ()
 	assert (this->use_caller);
 
 	Context result = *this;
+
+	Basic_block* popped = result.BBs.back ();
 	result.BBs.pop_back ();
+	result.BB_counts[popped]--;
+
 	return result;
 }
 
@@ -104,7 +110,19 @@ Context::name () const
 			ss << "/" << "NULL";
 		else
 			ss << "/" << bb->ID;
+
+		// Cant use [] because of constness
+		if (BB_counts.at(bb) > 1)
+		{
+			// In the case of recursion, stop the name here. This allows us to
+			// keep adding to the context, but know that we arent actually
+			// changing its representation (allowing us to keep caller()
+			// accurate).
+			ss << "/" << "R";
+			break;
+		}
 	}
+
 	return ss.str ();
 }
 
@@ -144,5 +162,3 @@ CX_lattices::dump (Context cx, string name)
 	else
 		cdebug << "No " << name << " results for BB: " << cx << endl;
 }
-
-
