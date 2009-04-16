@@ -113,6 +113,7 @@ require_once ("xml_roundtrip.php"); // dont use plugin_test here
 require_once ("compile_plugin_test.php");
 require_once ("line_numbers.php");
 require_once ("parse_ast_dot.php");
+require_once ("parse_tree_dot.php");
 $tests[] = new RegressionTest ("regression_dump_ast", "--dump-dot=ast", "dot");
 $tests[] = new RegressionTest ("regression_dump_php", "--pretty-print --tab=\"   \"", "unparsed");
 $tests[] = new RegressionTest ("regression_dump_xml", "--dump-xml=ast --dump-xml=hir --dump-xml=mir", "unparsed");
