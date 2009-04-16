@@ -104,6 +104,34 @@ PHP_script* parse(String* filename, String_list* dirs)
 	return php_script;
 }
 
+
+void
+dump_parse_tree (String* filename, String_list* dirs)
+{
+	assert(filename);
+	
+	String* full_path = search_file (filename, dirs);
+
+	if(full_path == NULL)
+		phc_error ("Search path not found");
+
+	ifstream file_input;
+	istream& input = (*full_path == "-") ? cin : file_input;
+
+	if(*full_path != "-")
+	{
+		file_input.open (full_path->c_str(), ifstream::in);
+		if (not file_input.is_open ())
+			phc_error ("Couldnt open file");
+	}
+
+	PHP_context* context = new PHP_context (input, full_path);
+
+	context->dump_parse_tree ();
+
+	if (file_input.is_open ()) file_input.close ();
+}
+
 String* search_file(String* filename, String_list* dirs)
 {
 	struct stat buf;

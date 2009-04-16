@@ -34,6 +34,8 @@ public:
 	// Wrap PHP_parse
 	bool parse ();
 
+	bool dump_parse_tree ();
+
 /*
  * State used by the parser
  */

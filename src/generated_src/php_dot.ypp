@@ -400,7 +400,6 @@ start:
 			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
-			exit(0);
 		}
 
 top_statement_list:
