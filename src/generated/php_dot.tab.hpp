@@ -274,7 +274,7 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 29 "src/generated_src/php_dot.ypp"
+#line 58 "src/generated_src/php_dot.ypp"
 {
 	Integer* node;
 	Object* object;

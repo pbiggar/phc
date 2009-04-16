@@ -14,12 +14,41 @@
 	#include "lib/Integer.h"
 	#include "lib/String.h"
 	#include "lib/error.h"
+	#include "lib/escape.h"
 	#include "parsing/PHP_context.h"
 
 	void PHP_dot_error(PHP_context* context, const char* s)
 	{
 		phc_error(s, context->filename, context->source_line, 0);
 	}
+
+	const char* format (String* str)
+	{
+		stringstream ss;
+		ss
+		<< '\\' << '\"'
+		<< *(escape_DOT (str, 20))
+		<< '\\' << '\"'
+		;
+
+		return ss.str().c_str ();
+	}
+
+	const char* strval (AST::Source_rep* rep)
+	{
+		return format (rep->get_source_rep ());
+	}
+
+	const char* strval (Integer* rep)
+	{
+		return format (s(lexical_cast<string> (rep->value())));
+	}
+
+	const char* strval (String* rep)
+	{
+		return format (rep);
+	}
+
 
 	// Global state to generate DOT node identifiers
 	Integer* node = new Integer(0);
@@ -867,7 +896,7 @@ unticked_statement:
 	| INLINE_HTML
 		{
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
-			printf("node_%ld [label=\"INLINE_HTML\"];\n", node->value()+1);
+			printf("node_%ld [label=\"INLINE_HTML: %s\"];\n", node->value()+1, strval ($1));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			$$ = node;
 			node = new Integer(node->value() + 2);
@@ -971,7 +1000,7 @@ unticked_statement:
 			printf("node_%ld [label=\"'('\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), $5->value());
-			printf("node_%ld [label=\"VARIABLE\"];\n", node->value()+2);
+			printf("node_%ld [label=\"VARIABLE: %s\"];\n", node->value()+2, strval ($5));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			printf("node_%ld [label=\"')'\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
@@ -1034,7 +1063,7 @@ additional_catch:
 			printf("node_%ld [label=\"'('\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
-			printf("node_%ld [label=\"VARIABLE\"];\n", node->value()+2);
+			printf("node_%ld [label=\"VARIABLE: %s\"];\n", node->value()+2, strval ($4));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			printf("node_%ld [label=\"')'\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
@@ -1075,7 +1104,7 @@ use_filename:
 	  T_STRING
 		{
 			printf("node_%ld [label=\"use_filename\"];\n", node->value());
-			printf("node_%ld [label=\"STRING\"];\n", node->value()+1);
+			printf("node_%ld [label=\"STRING: %s\"];\n", node->value()+1, strval ($1));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			$$ = node;
 			node = new Integer(node->value() + 2);
@@ -1085,7 +1114,7 @@ use_filename:
 			printf("node_%ld [label=\"use_filename\"];\n", node->value());
 			printf("node_%ld [label=\"'('\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld [label=\"STRING\"];\n", node->value()+2);
+			printf("node_%ld [label=\"STRING: %s\"];\n", node->value()+2, strval ($2));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			printf("node_%ld [label=\"')'\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
@@ -1135,7 +1164,7 @@ unticked_function_declaration_statement:
 			printf("node_%ld [label=\"unticked_function_declaration_statement\"];\n", node->value());
 			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
-			printf("node_%ld [label=\"IDENT\"];\n", node->value()+1);
+			printf("node_%ld [label=\"IDENT: %s\"];\n", node->value()+1, strval ($3));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			printf("node_%ld [label=\"'('\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
@@ -1152,7 +1181,7 @@ unticked_class_declaration_statement:
 		{
 			printf("node_%ld [label=\"unticked_class_declaration_statement\"];\n", node->value());
 			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
-			printf("node_%ld [label=\"IDENT\"];\n", node->value()+1);
+			printf("node_%ld [label=\"IDENT: %s\"];\n", node->value()+1, strval ($2));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			printf("node_%ld->node_%ld;\n", node->value(), $4->value());
@@ -1168,7 +1197,7 @@ unticked_class_declaration_statement:
 		{
 			printf("node_%ld [label=\"unticked_class_declaration_statement\"];\n", node->value());
 			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
-			printf("node_%ld [label=\"IDENT\"];\n", node->value()+1);
+			printf("node_%ld [label=\"IDENT: %s\"];\n", node->value()+1, strval ($2));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			printf("node_%ld [label=\"'{'\"];\n", node->value()+2);
@@ -1403,7 +1432,7 @@ declare_list:
 	  IDENT '=' static_scalar
 		{
 			printf("node_%ld [label=\"declare_list\"];\n", node->value());
-			printf("node_%ld [label=\"IDENT\"];\n", node->value()+1);
+			printf("node_%ld [label=\"IDENT: %s\"];\n", node->value()+1, strval ($1));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			printf("node_%ld [label=\"'='\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
@@ -1417,7 +1446,7 @@ declare_list:
 			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"','\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld [label=\"IDENT\"];\n", node->value()+2);
+			printf("node_%ld [label=\"IDENT: %s\"];\n", node->value()+2, strval ($3));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			printf("node_%ld [label=\"'='\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
@@ -1663,7 +1692,7 @@ non_empty_parameter_list:
 		{
 			printf("node_%ld [label=\"non_empty_parameter_list\"];\n", node->value());
 			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
-			printf("node_%ld [label=\"VARIABLE\"];\n", node->value()+1);
+			printf("node_%ld [label=\"VARIABLE: %s\"];\n", node->value()+1, strval ($2));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			$$ = node;
 			node = new Integer(node->value() + 2);
@@ -1674,7 +1703,7 @@ non_empty_parameter_list:
 			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"'&'\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld [label=\"VARIABLE\"];\n", node->value()+2);
+			printf("node_%ld [label=\"VARIABLE: %s\"];\n", node->value()+2, strval ($3));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			$$ = node;
 			node = new Integer(node->value() + 3);
@@ -1685,7 +1714,7 @@ non_empty_parameter_list:
 			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"'&'\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld [label=\"VARIABLE\"];\n", node->value()+2);
+			printf("node_%ld [label=\"VARIABLE: %s\"];\n", node->value()+2, strval ($3));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			printf("node_%ld [label=\"'='\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
@@ -1697,7 +1726,7 @@ non_empty_parameter_list:
 		{
 			printf("node_%ld [label=\"non_empty_parameter_list\"];\n", node->value());
 			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
-			printf("node_%ld [label=\"VARIABLE\"];\n", node->value()+1);
+			printf("node_%ld [label=\"VARIABLE: %s\"];\n", node->value()+1, strval ($2));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			printf("node_%ld [label=\"'='\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
@@ -1712,7 +1741,7 @@ non_empty_parameter_list:
 			printf("node_%ld [label=\"','\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
-			printf("node_%ld [label=\"VARIABLE\"];\n", node->value()+2);
+			printf("node_%ld [label=\"VARIABLE: %s\"];\n", node->value()+2, strval ($4));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			$$ = node;
 			node = new Integer(node->value() + 3);
@@ -1726,7 +1755,7 @@ non_empty_parameter_list:
 			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			printf("node_%ld [label=\"'&'\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
-			printf("node_%ld [label=\"VARIABLE\"];\n", node->value()+3);
+			printf("node_%ld [label=\"VARIABLE: %s\"];\n", node->value()+3, strval ($5));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
 			$$ = node;
 			node = new Integer(node->value() + 4);
@@ -1740,7 +1769,7 @@ non_empty_parameter_list:
 			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			printf("node_%ld [label=\"'&'\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
-			printf("node_%ld [label=\"VARIABLE\"];\n", node->value()+3);
+			printf("node_%ld [label=\"VARIABLE: %s\"];\n", node->value()+3, strval ($5));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
 			printf("node_%ld [label=\"'='\"];\n", node->value()+4);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+4);
@@ -1755,7 +1784,7 @@ non_empty_parameter_list:
 			printf("node_%ld [label=\"','\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
-			printf("node_%ld [label=\"VARIABLE\"];\n", node->value()+2);
+			printf("node_%ld [label=\"VARIABLE: %s\"];\n", node->value()+2, strval ($4));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			printf("node_%ld [label=\"'='\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
@@ -1776,7 +1805,7 @@ optional_class_type:
 	| IDENT
 		{
 			printf("node_%ld [label=\"optional_class_type\"];\n", node->value());
-			printf("node_%ld [label=\"IDENT\"];\n", node->value()+1);
+			printf("node_%ld [label=\"IDENT: %s\"];\n", node->value()+1, strval ($1));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			$$ = node;
 			node = new Integer(node->value() + 2);
@@ -1887,7 +1916,7 @@ global_var:
 	  VARIABLE
 		{
 			printf("node_%ld [label=\"global_var\"];\n", node->value());
-			printf("node_%ld [label=\"VARIABLE\"];\n", node->value()+1);
+			printf("node_%ld [label=\"VARIABLE: %s\"];\n", node->value()+1, strval ($1));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			$$ = node;
 			node = new Integer(node->value() + 2);
@@ -1922,7 +1951,7 @@ static_var_list:
 			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"','\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld [label=\"VARIABLE\"];\n", node->value()+2);
+			printf("node_%ld [label=\"VARIABLE: %s\"];\n", node->value()+2, strval ($3));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			$$ = node;
 			node = new Integer(node->value() + 3);
@@ -1933,7 +1962,7 @@ static_var_list:
 			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"','\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld [label=\"VARIABLE\"];\n", node->value()+2);
+			printf("node_%ld [label=\"VARIABLE: %s\"];\n", node->value()+2, strval ($3));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			printf("node_%ld [label=\"'='\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
@@ -1944,7 +1973,7 @@ static_var_list:
 	| VARIABLE
 		{
 			printf("node_%ld [label=\"static_var_list\"];\n", node->value());
-			printf("node_%ld [label=\"VARIABLE\"];\n", node->value()+1);
+			printf("node_%ld [label=\"VARIABLE: %s\"];\n", node->value()+1, strval ($1));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			$$ = node;
 			node = new Integer(node->value() + 2);
@@ -1952,7 +1981,7 @@ static_var_list:
 	| VARIABLE '=' static_scalar
 		{
 			printf("node_%ld [label=\"static_var_list\"];\n", node->value());
-			printf("node_%ld [label=\"VARIABLE\"];\n", node->value()+1);
+			printf("node_%ld [label=\"VARIABLE: %s\"];\n", node->value()+1, strval ($1));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			printf("node_%ld [label=\"'='\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
@@ -2005,7 +2034,7 @@ class_statement:
 			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
-			printf("node_%ld [label=\"IDENT\"];\n", node->value()+1);
+			printf("node_%ld [label=\"IDENT: %s\"];\n", node->value()+1, strval ($4));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			printf("node_%ld [label=\"'('\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
@@ -2142,7 +2171,7 @@ class_variable_declaration:
 			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"','\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld [label=\"VARIABLE\"];\n", node->value()+2);
+			printf("node_%ld [label=\"VARIABLE: %s\"];\n", node->value()+2, strval ($3));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			$$ = node;
 			node = new Integer(node->value() + 3);
@@ -2153,7 +2182,7 @@ class_variable_declaration:
 			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"','\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld [label=\"VARIABLE\"];\n", node->value()+2);
+			printf("node_%ld [label=\"VARIABLE: %s\"];\n", node->value()+2, strval ($3));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			printf("node_%ld [label=\"'='\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
@@ -2164,7 +2193,7 @@ class_variable_declaration:
 	| VARIABLE
 		{
 			printf("node_%ld [label=\"class_variable_declaration\"];\n", node->value());
-			printf("node_%ld [label=\"VARIABLE\"];\n", node->value()+1);
+			printf("node_%ld [label=\"VARIABLE: %s\"];\n", node->value()+1, strval ($1));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			$$ = node;
 			node = new Integer(node->value() + 2);
@@ -2172,7 +2201,7 @@ class_variable_declaration:
 	| VARIABLE '=' static_scalar
 		{
 			printf("node_%ld [label=\"class_variable_declaration\"];\n", node->value());
-			printf("node_%ld [label=\"VARIABLE\"];\n", node->value()+1);
+			printf("node_%ld [label=\"VARIABLE: %s\"];\n", node->value()+1, strval ($1));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			printf("node_%ld [label=\"'='\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
@@ -2188,7 +2217,7 @@ class_constant_declaration:
 			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"','\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld [label=\"IDENT\"];\n", node->value()+2);
+			printf("node_%ld [label=\"IDENT: %s\"];\n", node->value()+2, strval ($3));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			printf("node_%ld [label=\"'='\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
@@ -2201,7 +2230,7 @@ class_constant_declaration:
 			printf("node_%ld [label=\"class_constant_declaration\"];\n", node->value());
 			printf("node_%ld [label=\"K_CONST\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld [label=\"IDENT\"];\n", node->value()+2);
+			printf("node_%ld [label=\"IDENT: %s\"];\n", node->value()+2, strval ($2));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			printf("node_%ld [label=\"'='\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
@@ -2928,7 +2957,7 @@ function_call:
 	  IDENT '(' function_call_parameter_list ')'
 		{
 			printf("node_%ld [label=\"function_call\"];\n", node->value());
-			printf("node_%ld [label=\"IDENT\"];\n", node->value()+1);
+			printf("node_%ld [label=\"IDENT: %s\"];\n", node->value()+1, strval ($1));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			printf("node_%ld [label=\"'('\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
@@ -2944,7 +2973,7 @@ function_call:
 			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"O_COLONCOLON\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld [label=\"IDENT\"];\n", node->value()+2);
+			printf("node_%ld [label=\"IDENT: %s\"];\n", node->value()+2, strval ($3));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			printf("node_%ld [label=\"'('\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
@@ -2986,7 +3015,7 @@ fully_qualified_class_name:
 	  IDENT
 		{
 			printf("node_%ld [label=\"fully_qualified_class_name\"];\n", node->value());
-			printf("node_%ld [label=\"IDENT\"];\n", node->value()+1);
+			printf("node_%ld [label=\"IDENT: %s\"];\n", node->value()+1, strval ($1));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			$$ = node;
 			node = new Integer(node->value() + 2);
@@ -2996,7 +3025,7 @@ class_name_reference:
 	  IDENT
 		{
 			printf("node_%ld [label=\"class_name_reference\"];\n", node->value());
-			printf("node_%ld [label=\"IDENT\"];\n", node->value()+1);
+			printf("node_%ld [label=\"IDENT: %s\"];\n", node->value()+1, strval ($1));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			$$ = node;
 			node = new Integer(node->value() + 2);
@@ -3114,7 +3143,7 @@ common_scalar:
 	  T_INT
 		{
 			printf("node_%ld [label=\"common_scalar\"];\n", node->value());
-			printf("node_%ld [label=\"INT\"];\n", node->value()+1);
+			printf("node_%ld [label=\"INT: %s\"];\n", node->value()+1, strval ($1));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			$$ = node;
 			node = new Integer(node->value() + 2);
@@ -3122,7 +3151,7 @@ common_scalar:
 	| T_REAL
 		{
 			printf("node_%ld [label=\"common_scalar\"];\n", node->value());
-			printf("node_%ld [label=\"REAL\"];\n", node->value()+1);
+			printf("node_%ld [label=\"REAL: %s\"];\n", node->value()+1, strval ($1));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			$$ = node;
 			node = new Integer(node->value() + 2);
@@ -3130,7 +3159,7 @@ common_scalar:
 	| T_STRING
 		{
 			printf("node_%ld [label=\"common_scalar\"];\n", node->value());
-			printf("node_%ld [label=\"STRING\"];\n", node->value()+1);
+			printf("node_%ld [label=\"STRING: %s\"];\n", node->value()+1, strval ($1));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			$$ = node;
 			node = new Integer(node->value() + 2);
@@ -3211,7 +3240,7 @@ static_scalar:
 	| IDENT
 		{
 			printf("node_%ld [label=\"static_scalar\"];\n", node->value());
-			printf("node_%ld [label=\"IDENT\"];\n", node->value()+1);
+			printf("node_%ld [label=\"IDENT: %s\"];\n", node->value()+1, strval ($1));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			$$ = node;
 			node = new Integer(node->value() + 2);
@@ -3259,11 +3288,11 @@ static_class_constant:
 	  IDENT O_COLONCOLON IDENT
 		{
 			printf("node_%ld [label=\"static_class_constant\"];\n", node->value());
-			printf("node_%ld [label=\"IDENT\"];\n", node->value()+1);
+			printf("node_%ld [label=\"IDENT: %s\"];\n", node->value()+1, strval ($1));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			printf("node_%ld [label=\"O_COLONCOLON\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
-			printf("node_%ld [label=\"IDENT\"];\n", node->value()+3);
+			printf("node_%ld [label=\"IDENT: %s\"];\n", node->value()+3, strval ($3));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
 			$$ = node;
 			node = new Integer(node->value() + 4);
@@ -3273,7 +3302,7 @@ scalar:
 	  IDENT
 		{
 			printf("node_%ld [label=\"scalar\"];\n", node->value());
-			printf("node_%ld [label=\"IDENT\"];\n", node->value()+1);
+			printf("node_%ld [label=\"IDENT: %s\"];\n", node->value()+1, strval ($1));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			$$ = node;
 			node = new Integer(node->value() + 2);
@@ -3587,7 +3616,7 @@ compound_variable:
 	  VARIABLE
 		{
 			printf("node_%ld [label=\"compound_variable\"];\n", node->value());
-			printf("node_%ld [label=\"VARIABLE\"];\n", node->value()+1);
+			printf("node_%ld [label=\"VARIABLE: %s\"];\n", node->value()+1, strval ($1));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			$$ = node;
 			node = new Integer(node->value() + 2);
@@ -3676,7 +3705,7 @@ variable_name:
 	  IDENT
 		{
 			printf("node_%ld [label=\"variable_name\"];\n", node->value());
-			printf("node_%ld [label=\"IDENT\"];\n", node->value()+1);
+			printf("node_%ld [label=\"IDENT: %s\"];\n", node->value()+1, strval ($1));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			$$ = node;
 			node = new Integer(node->value() + 2);
@@ -3972,7 +4001,7 @@ class_constant:
 			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"O_COLONCOLON\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld [label=\"IDENT\"];\n", node->value()+2);
+			printf("node_%ld [label=\"IDENT: %s\"];\n", node->value()+2, strval ($3));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			$$ = node;
 			node = new Integer(node->value() + 3);
