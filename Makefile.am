@@ -147,6 +147,8 @@ libphc_la_SOURCES= 											\
 	src/generated/MIR_user_defined.h						\
 	src/generated/MIR_visitor.cpp							\
 	src/generated/MIR_visitor.h							\
+	src/generated/php_dot.tab.cpp							\
+	src/generated/php_dot.tab.hpp							\
 	src/generated/php_parser.tab.cpp						\
 	src/generated/php_parser.tab.hpp						\
 	src/hir_to_mir/HIR_lower_expr.cpp					\
@@ -585,19 +587,30 @@ src/generated/MICG.h: src/generated_src/micg.tea @maketea@
 	@maketea@ src/generated_src/micg.tea
 
 
+# Perfect minimal hashing via gperf
 src/generated/keywords.h: src/generated_src/php.gperf 
 	@gperf@ --language=ANSI-C --includes --readonly-tables --struct-type --ignore-case --output-file=src/generated/keywords.h src/generated_src/php.gperf
 
+# Command line options via gengetopt
 src/generated/cmdline.c: src/generated/cmdline.h
 src/generated/cmdline.h: src/generated_src/phc.ggo
 	@gengetopt@ --unamed-opts --input=src/generated_src/phc.ggo --file-name=src/generated/cmdline
 
+# Lexer via flex
 src/generated/lex.yy.cc: src/generated_src/php_scanner.lex
 	@flex@ -s -osrc/generated/lex.yy.cc src/generated_src/php_scanner.lex
 
-src/generated/php_parser.tab.cpp: src/generated/php_parser.tab.hpp
-src/generated/php_parser.tab.hpp: src/generated_src/php_parser.ypp
+# PHP parser via bison
+src/generated/php_parser.tab.hpp: src/generated/php_parser.tab.cpp
+src/generated/php_parser.tab.cpp: src/generated_src/php_parser.ypp
 	@bison@ -o src/generated/php_parser.tab.cpp -d src/generated_src/php_parser.ypp
+
+
+# PHP grammar dot representation via bison
+src/generated/php_dot.tab.hpp: src/generated/php_dot.tab.cpp
+src/generated/php_dot.tab.cpp: src/generated_src/php_dot.ypp
+	@bison@ -o src/generated/php_dot.tab.cpp -d src/generated_src/php_dot.ypp
+
 
 # - Without the second \@, autoconf with replace the @CFLAGS\@ etc
 src/phc_compile_plugin: Makefile src/phc_compile_plugin.in

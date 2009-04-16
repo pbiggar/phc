@@ -442,7 +442,7 @@
 
 %%
 
-start: 
+start:
 	  top_statement_list
 	  	{
 			// If there are any remaining comments, add them as a NOP
