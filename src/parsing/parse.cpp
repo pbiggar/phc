@@ -46,15 +46,14 @@ PHP_script* parse_code (String* code, String* filename, int line_number)
 	PHP_context* context = new PHP_context(ss, filename);
 	context->source_line = line_number;
 
-	// TODO remove duplication
-	if(!PHP_parse(context))
-	{
-		php_script = context->php_script;
-		php_script->attrs->set ("phc.filename", filename);
-		run_standard_transforms(php_script);
-	}
+	bool success = context->parse ();
+	assert (success);
 
+	php_script = context->php_script;
+	php_script->attrs->set ("phc.filename", filename);
+	run_standard_transforms(php_script);
 	php_script->assert_valid();
+
 	return php_script;
 }
 
@@ -80,27 +79,28 @@ PHP_script* parse(String* filename, String_list* dirs)
 	}
 
 	// Compile
-	PHP_context* context = new PHP_context(input, full_path);
+	PHP_context* context = new PHP_context (input, full_path);
 
-	//		if(is_dump_option ("tokens"))
+	if (args_info.dump_tokens_flag)
 	{
-		// run the lexer only
-		// TODO: reenable
-		// while(parser.php_lexer->yylex());
+		while (context->lex ())
+			;
+
+		exit (0);
 	}
-	//		else
+	else
 	{
-		if(!PHP_parse(context))
+		if (context->parse ())
 		{
 			php_script = context->php_script;
 			php_script->attrs->set ("phc.filename", filename);
 			run_standard_transforms(php_script);
+			php_script->assert_valid();
 		}
 	}
 
-	if(file_input.is_open ()) file_input.close ();
+	if (file_input.is_open ()) file_input.close ();
 
-	php_script->assert_valid();
 	return php_script;
 }
 

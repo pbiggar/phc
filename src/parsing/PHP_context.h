@@ -25,6 +25,16 @@ public:
 	std::istream& stream;
 
 /*
+ * Public interface
+ */
+public:
+	// Wrap PHP_lex
+	bool lex ();
+
+	// Wrap PHP_parse
+	bool parse ();
+
+/*
  * State used by the parser
  */
 public:
@@ -92,7 +102,5 @@ public:
 	void init_scanner(FILE* input);
 	void destroy_scanner();
 };
-
-int PHP_parse(PHP_context* context);
 
 #endif // PHC_PHP_CONTEXT

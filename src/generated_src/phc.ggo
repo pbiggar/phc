@@ -35,6 +35,8 @@ section "OUTPUT OPTIONS"
 option "dump" - "Dump input as PHP (although potentially with gotos and labels) after PASSNAME" string typestr="PASSNAME" multiple optional
 option "dump-xml" - "Dump input as XML after PASSNAME" string typestr="PASSNAME" multiple optional
 option "dump-dot" - "Dump input as DOT after PASSNAME" string typestr="PASSNAME" multiple optional
+option "dump-parse-tree" - "Dump parse tree as DOT" hidden flag off
+option "dump-tokens" - "Dump list of tokens from the lexer" hidden flag off
 option "list-passes" - "List of available passes (for PASSNAME)" flag off
 
 section "PHP PRINTING OPTIONS"

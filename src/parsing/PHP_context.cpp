@@ -30,6 +30,22 @@ PHP_context::PHP_context(std::istream& input, String* filename)
 	heredoc_attr = NULL;
 }
 
+int PHP_lex (YYSTYPE* yylval, void* scanner);
+int PHP_parse (PHP_context* context);
+
+bool
+PHP_context::lex ()
+{
+	return PHP_lex (mt_lval, scanner);
+}
+
+
+bool
+PHP_context::parse ()
+{
+	return PHP_parse (this) == 0;
+}
+
 PHP_context::~PHP_context()
 {
 	destroy_scanner();
