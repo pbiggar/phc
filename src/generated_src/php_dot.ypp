@@ -430,6 +430,7 @@ start:
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 top_statement_list:
 	  top_statement_list top_statement
@@ -448,6 +449,7 @@ top_statement_list:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 top_statement:
 	  statement
@@ -485,7 +487,11 @@ top_statement:
 			$$ = node;
 			node = new Integer(node->value() + 5);
 		}
+	;
 
+/*
+ * Mimicks top_statement_list
+ */
 inner_statement_list:
 	  inner_statement_list inner_statement
 		{
@@ -503,6 +509,7 @@ inner_statement_list:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 inner_statement:
 	  statement
@@ -540,6 +547,7 @@ inner_statement:
 			$$ = node;
 			node = new Integer(node->value() + 5);
 		}
+	;
 
 statement:
 	  unticked_statement
@@ -549,6 +557,11 @@ statement:
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
+
+/*
+ * Temporary hack to improve line numbers
+ */
 
 keyword_if:
 	  K_IF
@@ -559,6 +572,7 @@ keyword_if:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 keyword_elseif:
 	  K_ELSEIF
@@ -569,6 +583,7 @@ keyword_elseif:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 keyword_foreach:
 	  K_FOREACH
@@ -579,6 +594,7 @@ keyword_foreach:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 keyword_while:
 	  K_WHILE
@@ -589,6 +605,7 @@ keyword_while:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 keyword_do:
 	  K_DO
@@ -599,6 +616,7 @@ keyword_do:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 keyword_for:
 	  K_FOR
@@ -609,6 +627,7 @@ keyword_for:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 keyword_switch:
 	  K_SWITCH
@@ -619,6 +638,7 @@ keyword_switch:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 keyword_declare:
 	  K_DECLARE
@@ -629,6 +649,7 @@ keyword_declare:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 keyword_try:
 	  K_TRY
@@ -639,6 +660,7 @@ keyword_try:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 keyword_catch:
 	  K_CATCH
@@ -649,6 +671,7 @@ keyword_catch:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 keyword_function:
 	  K_FUNCTION
@@ -659,6 +682,7 @@ keyword_function:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 keyword_case:
 	  K_CASE
@@ -669,6 +693,7 @@ keyword_case:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 keyword_default:
 	  K_DEFAULT
@@ -679,6 +704,8 @@ keyword_default:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
+
 
 unticked_statement:
 	  block
@@ -1020,6 +1047,7 @@ unticked_statement:
 			$$ = node;
 			node = new Integer(node->value() + 3);
 		}
+	;
 
 additional_catches:
 	  non_empty_additional_catches
@@ -1037,6 +1065,7 @@ additional_catches:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 non_empty_additional_catches:
 	  additional_catch
@@ -1054,6 +1083,7 @@ non_empty_additional_catches:
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 additional_catch:
 	  keyword_catch '(' fully_qualified_class_name VARIABLE ')' block
@@ -1071,6 +1101,7 @@ additional_catch:
 			$$ = node;
 			node = new Integer(node->value() + 4);
 		}
+	;
 
 unset_variables:
 	  unset_variable
@@ -1090,6 +1121,7 @@ unset_variables:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 unset_variable:
 	  variable
@@ -1099,6 +1131,7 @@ unset_variable:
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 use_filename:
 	  T_STRING
@@ -1121,6 +1154,7 @@ use_filename:
 			$$ = node;
 			node = new Integer(node->value() + 4);
 		}
+	;
 
 function_declaration_statement:
 	  unticked_function_declaration_statement
@@ -1130,6 +1164,7 @@ function_declaration_statement:
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 class_declaration_statement:
 	  unticked_class_declaration_statement
@@ -1139,6 +1174,7 @@ class_declaration_statement:
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 is_reference:
 	  /* empty */
@@ -1157,6 +1193,7 @@ is_reference:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 unticked_function_declaration_statement:
 	  keyword_function is_reference IDENT '(' parameter_list ')' block
@@ -1175,6 +1212,7 @@ unticked_function_declaration_statement:
 			$$ = node;
 			node = new Integer(node->value() + 4);
 		}
+	;
 
 unticked_class_declaration_statement:
 	  class_entry_type IDENT extends_from implements_list '{' class_statement_list '}'
@@ -1208,6 +1246,7 @@ unticked_class_declaration_statement:
 			$$ = node;
 			node = new Integer(node->value() + 4);
 		}
+	;
 
 class_entry_type:
 	  K_CLASS
@@ -1238,6 +1277,7 @@ class_entry_type:
 			$$ = node;
 			node = new Integer(node->value() + 3);
 		}
+	;
 
 extends_from:
 	  /* empty */
@@ -1257,6 +1297,7 @@ extends_from:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 interface_entry:
 	  K_INTERFACE
@@ -1267,6 +1308,7 @@ interface_entry:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 interface_extends_list:
 	  /* empty */
@@ -1286,6 +1328,7 @@ interface_extends_list:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 implements_list:
 	  /* empty */
@@ -1305,6 +1348,7 @@ implements_list:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 interface_list:
 	  fully_qualified_class_name
@@ -1324,6 +1368,7 @@ interface_list:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 foreach_optional_arg:
 	  /* empty */
@@ -1343,6 +1388,7 @@ foreach_optional_arg:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 foreach_variable:
 	  w_variable
@@ -1361,6 +1407,7 @@ foreach_variable:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 for_statement:
 	  statement
@@ -1383,6 +1430,7 @@ for_statement:
 			$$ = node;
 			node = new Integer(node->value() + 4);
 		}
+	;
 
 foreach_statement:
 	  statement
@@ -1405,6 +1453,7 @@ foreach_statement:
 			$$ = node;
 			node = new Integer(node->value() + 4);
 		}
+	;
 
 declare_statement:
 	  statement
@@ -1427,6 +1476,7 @@ declare_statement:
 			$$ = node;
 			node = new Integer(node->value() + 4);
 		}
+	;
 
 declare_list:
 	  IDENT '=' static_scalar
@@ -1454,6 +1504,7 @@ declare_list:
 			$$ = node;
 			node = new Integer(node->value() + 4);
 		}
+	;	  
 
 switch_case_list:
 	  '{' case_list '}'
@@ -1508,6 +1559,7 @@ switch_case_list:
 			$$ = node;
 			node = new Integer(node->value() + 5);
 		}
+	;
 
 case_list:
 	  /* empty */
@@ -1539,7 +1591,11 @@ case_list:
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
+/*
+ * No semantic value
+ */
 case_separator:
 	  ':'
 		{
@@ -1579,6 +1635,7 @@ while_statement:
 			$$ = node;
 			node = new Integer(node->value() + 4);
 		}
+	;
 
 elseif_list:
 	  /* empty */
@@ -1603,7 +1660,11 @@ elseif_list:
 			$$ = node;
 			node = new Integer(node->value() + 3);
 		}
+	;
 
+/*
+ * Duplication of elseif_list functionality
+ */
 new_elseif_list:
 	  /* empty */
 		{
@@ -1629,6 +1690,7 @@ new_elseif_list:
 			$$ = node;
 			node = new Integer(node->value() + 4);
 		}
+	;
 
 else_single:
 	  /* empty */
@@ -1648,7 +1710,11 @@ else_single:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
+/*
+ * Mimicks else_single
+ */
 new_else_single:
 	  /* empty */
 		{
@@ -1669,6 +1735,7 @@ new_else_single:
 			$$ = node;
 			node = new Integer(node->value() + 3);
 		}
+	;
 
 parameter_list:
 	  non_empty_parameter_list
@@ -1686,7 +1753,11 @@ parameter_list:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
+/*
+ * Lots of duplication in these rules, but what can you do?
+ */
 non_empty_parameter_list:
 	  optional_class_type VARIABLE
 		{
@@ -1792,6 +1863,7 @@ non_empty_parameter_list:
 			$$ = node;
 			node = new Integer(node->value() + 4);
 		}
+	;
 
 optional_class_type:
 	  /* empty */
@@ -1818,6 +1890,7 @@ optional_class_type:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 function_call_parameter_list:
 	  non_empty_function_call_parameter_list
@@ -1835,6 +1908,7 @@ function_call_parameter_list:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 non_empty_function_call_parameter_list:
 	  expr_without_variable
@@ -1892,6 +1966,7 @@ non_empty_function_call_parameter_list:
 			$$ = node;
 			node = new Integer(node->value() + 3);
 		}
+	;
 
 global_var_list:
 	  global_var_list ',' global_var
@@ -1911,6 +1986,7 @@ global_var_list:
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 global_var:
 	  VARIABLE
@@ -1943,6 +2019,7 @@ global_var:
 			$$ = node;
 			node = new Integer(node->value() + 4);
 		}
+	;
 
 static_var_list:
 	  static_var_list ',' VARIABLE
@@ -1989,9 +2066,10 @@ static_var_list:
 			$$ = node;
 			node = new Integer(node->value() + 3);
 		}
+	;
 
 class_statement_list:
-	  class_statement_list class_statement
+	 class_statement_list class_statement
 		{
 			printf("node_%ld [label=\"class_statement_list\"];\n", node->value());
 			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
@@ -2007,6 +2085,7 @@ class_statement_list:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 class_statement:
 	  variable_modifiers class_variable_declaration ';'
@@ -2045,6 +2124,7 @@ class_statement:
 			$$ = node;
 			node = new Integer(node->value() + 4);
 		}
+	;
 
 method_body:
 	  ';'
@@ -2062,6 +2142,7 @@ method_body:
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 variable_modifiers:
 	  non_empty_member_modifiers
@@ -2079,6 +2160,7 @@ variable_modifiers:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 method_modifiers:
 	  /* empty */
@@ -2096,6 +2178,7 @@ method_modifiers:
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 non_empty_member_modifiers:
 	  member_modifier
@@ -2113,6 +2196,7 @@ non_empty_member_modifiers:
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 member_modifier:
 	  K_PUBLIC
@@ -2163,6 +2247,7 @@ member_modifier:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 class_variable_declaration:
 	  class_variable_declaration ',' VARIABLE
@@ -2209,6 +2294,7 @@ class_variable_declaration:
 			$$ = node;
 			node = new Integer(node->value() + 3);
 		}
+	;
 
 class_constant_declaration:
 	  class_constant_declaration ',' IDENT '=' static_scalar
@@ -2238,6 +2324,7 @@ class_constant_declaration:
 			$$ = node;
 			node = new Integer(node->value() + 4);
 		}
+	;
 
 echo_expr_list:
 	  echo_expr_list ',' expr
@@ -2257,6 +2344,7 @@ echo_expr_list:
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 for_expr:
 	  /* empty */
@@ -2274,6 +2362,7 @@ for_expr:
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 non_empty_for_expr:
 	  non_empty_for_expr ',' expr
@@ -2293,6 +2382,7 @@ non_empty_for_expr:
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 expr_without_variable:
 	  K_LIST '(' assignment_list ')' '=' expr
@@ -2614,6 +2704,11 @@ expr_without_variable:
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			$$ = node;
 			node = new Integer(node->value() + 3);
+			/*
+			 * Interface with the lexer: return to in-string state 
+			 */
+
+			context->return_to_complex_syntax();
 		}
 	| expr '+' expr
 		{
@@ -2952,6 +3047,7 @@ expr_without_variable:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 function_call:
 	  IDENT '(' function_call_parameter_list ')'
@@ -3010,6 +3106,7 @@ function_call:
 			$$ = node;
 			node = new Integer(node->value() + 3);
 		}
+	;
 
 fully_qualified_class_name:
 	  IDENT
@@ -3020,6 +3117,7 @@ fully_qualified_class_name:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 class_name_reference:
 	  IDENT
@@ -3037,6 +3135,7 @@ class_name_reference:
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 dynamic_class_name_reference:
 	  base_variable O_SINGLEARROW object_property dynamic_class_name_variable_properties
@@ -3057,6 +3156,7 @@ dynamic_class_name_reference:
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 dynamic_class_name_variable_properties:
 	  dynamic_class_name_variable_properties dynamic_class_name_variable_property
@@ -3075,6 +3175,7 @@ dynamic_class_name_variable_properties:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 dynamic_class_name_variable_property:
 	  O_SINGLEARROW object_property
@@ -3086,6 +3187,7 @@ dynamic_class_name_variable_property:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 exit_expr:
 	  /* empty */
@@ -3117,6 +3219,7 @@ exit_expr:
 			$$ = node;
 			node = new Integer(node->value() + 3);
 		}
+	;
 
 ctor_arguments:
 	  /* empty */
@@ -3138,6 +3241,7 @@ ctor_arguments:
 			$$ = node;
 			node = new Integer(node->value() + 3);
 		}
+	;
 
 common_scalar:
 	  T_INT
@@ -3228,6 +3332,7 @@ common_scalar:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 static_scalar:
 	  common_scalar
@@ -3283,6 +3388,7 @@ static_scalar:
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 static_class_constant:
 	  IDENT O_COLONCOLON IDENT
@@ -3297,6 +3403,7 @@ static_class_constant:
 			$$ = node;
 			node = new Integer(node->value() + 4);
 		}
+	;
 
 scalar:
 	  IDENT
@@ -3321,6 +3428,7 @@ scalar:
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 static_array_pair_list:
 	  /* empty */
@@ -3339,7 +3447,11 @@ static_array_pair_list:
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
+/*
+ * No semantic value
+ */
 possible_comma:
 	  /* empty */
 		{
@@ -3399,6 +3511,7 @@ non_empty_static_array_pair_list:
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 expr:
 	  r_variable
@@ -3415,6 +3528,7 @@ expr:
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 r_variable:
 	  variable
@@ -3424,6 +3538,7 @@ r_variable:
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 w_variable:
 	  variable
@@ -3433,6 +3548,7 @@ w_variable:
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 rw_variable:
 	  variable
@@ -3442,7 +3558,25 @@ rw_variable:
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
+/*
+ * The original rule read
+ *
+ * variable ::= base_variable_with_function_calls O_SINGLEARROW object_property
+ *     method_or_not variable_properties
+ *
+ * However, this duplicates work done in variable_properties, because 
+ * variable_properties is a list of variable_property's, and
+ *
+ * variable_property ::= O_SINGLEARROW object_property method_or_not
+ *
+ * Now, in the original grammar, variable_properties allows for an empty list;
+ * that's now changed, so that it requires at least one variable_property.
+ *
+ * We don't normally change the grammar, but this rule is difficult enough
+ * as it is, so that we don't want to be duplicating code.
+ */
 variable:
 	  base_variable_with_function_calls variable_properties
 		{
@@ -3459,7 +3593,12 @@ variable:
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
+/*
+ * The second rule goes to empty in the original grammar; see the
+ * comment for "variable ::=" why this is changed.
+ */
 variable_properties:
 	  variable_properties variable_property
 		{
@@ -3476,6 +3615,7 @@ variable_properties:
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 variable_property:
 	  O_SINGLEARROW object_property method_or_not
@@ -3488,6 +3628,7 @@ variable_property:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 method_or_not:
 	  '(' function_call_parameter_list ')'
@@ -3509,6 +3650,7 @@ method_or_not:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 variable_without_objects:
 	  reference_variable
@@ -3526,6 +3668,7 @@ variable_without_objects:
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 static_member:
 	  fully_qualified_class_name O_COLONCOLON variable_without_objects
@@ -3538,6 +3681,7 @@ static_member:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 base_variable_with_function_calls:
 	  base_variable
@@ -3554,6 +3698,7 @@ base_variable_with_function_calls:
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 base_variable:
 	  reference_variable
@@ -3578,6 +3723,7 @@ base_variable:
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 reference_variable:
 	  reference_variable '[' dim_offset ']'
@@ -3611,6 +3757,7 @@ reference_variable:
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 compound_variable:
 	  VARIABLE
@@ -3634,6 +3781,7 @@ compound_variable:
 			$$ = node;
 			node = new Integer(node->value() + 4);
 		}
+	;
 
 dim_offset:
 	  /* empty */
@@ -3651,6 +3799,7 @@ dim_offset:
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 object_property:
 	  object_dim_list
@@ -3667,7 +3816,11 @@ object_property:
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
+/*
+ * Mimics reference_variable
+ */
 object_dim_list:
 	  object_dim_list '[' dim_offset ']'
 		{
@@ -3700,7 +3853,11 @@ object_dim_list:
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
+/* 
+ * Mimics compound_variable
+ */ 
 variable_name:
 	  IDENT
 		{
@@ -3721,6 +3878,7 @@ variable_name:
 			$$ = node;
 			node = new Integer(node->value() + 3);
 		}
+	;
 
 simple_indirect_reference:
 	  '$'
@@ -3740,6 +3898,7 @@ simple_indirect_reference:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 assignment_list:
 	  assignment_list ',' assignment_list_element
@@ -3789,6 +3948,7 @@ assignment_list_element:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 array_pair_list:
 	  /* empty */
@@ -3807,7 +3967,11 @@ array_pair_list:
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
+/*
+ * Code duplicated in non_empty_static_array_pair_list
+ */
 non_empty_array_pair_list:
 	  non_empty_array_pair_list ',' expr O_DOUBLEARROW expr
 		{
@@ -3897,9 +4061,10 @@ non_empty_array_pair_list:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 internal_functions_in_yacc:
-	  K_ISSET '(' isset_variables ')'
+	 K_ISSET '(' isset_variables ')'
 		{
 			printf("node_%ld [label=\"internal_functions_in_yacc\"];\n", node->value());
 			printf("node_%ld [label=\"K_ISSET\"];\n", node->value()+1);
@@ -3974,6 +4139,7 @@ internal_functions_in_yacc:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 isset_variables:
 	  variable
@@ -3993,6 +4159,7 @@ isset_variables:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 class_constant:
 	  fully_qualified_class_name O_COLONCOLON IDENT
@@ -4006,7 +4173,12 @@ class_constant:
 			$$ = node;
 			node = new Integer(node->value() + 3);
 		}
+	;
 
+/*
+ * Specific to phc; in the original grammar, this always appeared inlined
+ * We factor it out since we need to generate the NOP if necessary
+ */
 block:
 	  '{' inner_statement_list '}'
 		{
