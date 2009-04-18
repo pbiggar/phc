@@ -947,7 +947,7 @@ Whole_program::backward_bind (Method_info* info, Context exit_cx, MIR::VARIABLE_
 	dump (caller_cx, "After backward bind");
 
 	// Its useful to see the CFG we've fallen back into
-	if (debugging_enabled)
+	if (debugging_enabled && caller_cx.get_bb()->cfg)
 		caller_cx.get_bb()->cfg->dump_graphviz (s("Back into function"));
 }
 
@@ -1082,7 +1082,7 @@ Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 void
 Whole_program::assign_scalar (Context cx, Path* plhs, Literal* lit)
 {
-	certainty cert = kill_value (cx, plhs);
+	kill_value (cx, plhs);
 	foreach (Index_node* node, *get_all_referenced_names (cx, plhs))
 	{
 		foreach_wpa (this)
@@ -1090,7 +1090,7 @@ Whole_program::assign_scalar (Context cx, Path* plhs, Literal* lit)
 			wpa->set_scalar (cx, ABSVAL (node),
 					Abstract_value::from_literal (lit));
 
-			wpa->assign_value (cx, node, ABSVAL (node), cert);
+			wpa->assign_value (cx, node, ABSVAL (node), DEFINITE);
 		}
 	}
 }
