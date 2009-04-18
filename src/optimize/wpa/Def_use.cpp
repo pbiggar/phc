@@ -177,7 +177,8 @@ Def_use::record_use (Context cx, Index_node* use, certainty cert)
 bool 
 in_scope (Context cx, Alias_name& name)
 {
-	return name.prefix == cx.symtable_name ();
+	// Index_node alias_names put the name of the symtable as the prefix.
+	return name.prefix == cx.symtable_node ()->storage;
 }
 
 void
@@ -204,7 +205,8 @@ merge_into_exit_bb (Context cx,
 void
 Def_use::aggregate_results (Context cx)
 {
-	string name = cx.symtable_name ();
+	Alias_name name = cx.symtable_name ();
+
 	// All defs/uses which are out of scope must be recorded in the function
 	// summary.
 	merge_into_function_summary (cx, ref_defs, summary_ref_defs [name]);
@@ -225,36 +227,47 @@ Def_use::aggregate_results (Context cx)
 	merge_into_exit_bb (cx, val_may_defs, val_uses);
 }
 
+Map<Context, Set<Alias_name> >
+merge_context (Map<Context, Set<Alias_name> >& in_map)
+{
+	Map<Context, Set<Alias_name> > result;
+
+	Context cx;
+	Set<Alias_name> s; // refs must be initialized
+	Set<Alias_name>& set = s;
+	foreach (tie (cx, set), in_map)
+	{
+		Context new_cx = cx.get_non_contextual ();
+
+		foreach (Alias_name an, set)
+			result [new_cx].insert (an.switch_context (cx, new_cx));
+	}
+	in_map.clear ();
+
+	return result;
+}
+
 void
 Def_use::merge_contexts ()
 {
 	// TODO: fix storage_nodes in summary_*
 
-	Context cx;
-	Set<Alias_name> s; // refs must be initialized
-	Set<Alias_name>& set = s;
+	ref_defs = merge_context (ref_defs);
+	ref_uses = merge_context (ref_uses);
+	ref_may_defs = merge_context (ref_may_defs);
 
-	Map<Context, Set<Alias_name> > new_ref_defs;
-	foreach (tie (cx, set), ref_defs)
-	{
-		Context new_cx = cx.get_non_contextual ();
-
-		foreach (Alias_name an, set)
-			new_ref_defs[new_cx].insert (an);
-	}
-	ref_defs.clear ();
-	ref_defs = new_ref_defs;
-
-	phc_TODO ();
+	val_defs = merge_context (val_defs);
+	val_uses = merge_context (val_uses);
+	val_may_defs = merge_context (val_may_defs);
 }
 
 void
 merge_from_callee (Context caller, Context callee,
 						Map<Context, Set<Alias_name> >& cx_sets,
-						Map<string, Set<Alias_name> >& callee_sets)
+						Map<Alias_name, Set<Alias_name> >& callee_sets)
 
 {
-	Set<Alias_name>& callee_set = callee_sets[callee.symtable_name ()];
+	Set<Alias_name>& callee_set = callee_sets[callee.symtable_node ()->name()];
 	cx_sets[caller].insert (callee_set.begin (), callee_set.end());
 }
 

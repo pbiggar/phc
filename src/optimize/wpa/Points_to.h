@@ -142,7 +142,14 @@ SET_COMPARABLE (Alias_pair);
 class Points_to : virtual public GC_obj
 {
 private:
+
+	// This keeps count of whether something is abstract or not, as well as
+	// whether it is in scope. These should be separated. (the is_symtable
+	// function is wrong, too).
 	Map<string, int> symtables; // the int is for recursion
+
+
+
 	Set<Alias_pair*> all_pairs; // makes it easier to clone
 	Map<Alias_name, Map<Alias_name, Alias_pair*> > by_source;
 	Map<Alias_name, Map<Alias_name, Alias_pair*> > by_target;
@@ -153,8 +160,8 @@ public:
 	bool equals (Points_to* other);
 	void dump_graphviz (String* label, Context cx, Whole_program* wp);
 
-	void open_scope (string name);
-	void close_scope (string name);
+	void open_scope (Storage_node* node);
+	void close_scope (Storage_node* node);
 
 	void insert (Alias_pair*);
 

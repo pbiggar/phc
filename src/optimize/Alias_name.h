@@ -22,10 +22,10 @@
 #ifndef PHC_ALIAS_NAME
 #define PHC_ALIAS_NAME
 
-// TODO where are parameter names defined.
-
 #include <string>
 #include "lib/List.h"
+
+class Context;
 
 class Index_node;
 class Storage_node;
@@ -43,16 +43,15 @@ public:
 	bool operator< (const Alias_name& other) const;
 	bool operator== (const Alias_name& other) const;
 
-	// In some cases (at least lattice_map, maybe elsewhere), its hard to put
-	// use an Alias_name instead of a string.
+	// In some cases (at least lattice_map, maybe elsewhere), its hard to use an
+	// Alias_name instead of a string.
 	std::string str ();
 
 	void set_version (int version);
 	void drop_ssa_version ();
-};
 
-class Basic_block;
-Alias_name v2an (Basic_block* bb, MIR::VARIABLE_NAME* var);
+	Alias_name switch_context (Context c1, Context c2);
+};
 
 typedef List<Alias_name> old_Alias_name_list;
 typedef List<Alias_name*> Alias_name_list;

@@ -183,7 +183,7 @@ public:
 	void assign_scalar (Context cx, Path* lhs, MIR::Literal* lit);
 	void assign_unknown (Context cx, Path* lhs);
 	void assign_typed (Context cx, Path* lhs, Types types);
-	void assign_empty_array (Context cx, Path* lhs, string unique_name);
+	void assign_empty_array (Context cx, Path* lhs, string name);
 	void assign_by_ref (Context cx, Path* lhs, Path* rhs);
 	void assign_by_copy (Context cx, Path* lhs, Path* rhs);
 

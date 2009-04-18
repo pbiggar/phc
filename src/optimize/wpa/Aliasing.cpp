@@ -60,7 +60,7 @@ Aliasing::forward_bind (Context caller, Context entry)
 
 	ptg->consistency_check (caller, wp);
 
-	ptg->open_scope (entry.symtable_name ());
+	ptg->open_scope (entry.symtable_node ());
 
 	// We need INS to read the current situation, but it shouldnt get modified.
 	ins[entry] = ptg;
@@ -74,7 +74,7 @@ Aliasing::backward_bind (Context caller, Context exit)
 
 	outs[caller] = ptg;
 
-	ptg->close_scope (exit.symtable_name ());
+	ptg->close_scope (exit.symtable_node ());
 
 	if (debugging_enabled)
 		dump (exit, "After whole program");

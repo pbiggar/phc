@@ -66,13 +66,13 @@ private:
 	Map<Context, Set<Alias_name> > val_uses;
 	Map<Context, Set<Alias_name> > val_may_defs;
 
-	Map<string, Set<Alias_name> > summary_ref_defs;
-	Map<string, Set<Alias_name> > summary_ref_uses;
-	Map<string, Set<Alias_name> > summary_ref_may_defs;
+	Map<Alias_name, Set<Alias_name> > summary_ref_defs;
+	Map<Alias_name, Set<Alias_name> > summary_ref_uses;
+	Map<Alias_name, Set<Alias_name> > summary_ref_may_defs;
 
-	Map<string, Set<Alias_name> > summary_val_defs;
-	Map<string, Set<Alias_name> > summary_val_uses;
-	Map<string, Set<Alias_name> > summary_val_may_defs;
+	Map<Alias_name, Set<Alias_name> > summary_val_defs;
+	Map<Alias_name, Set<Alias_name> > summary_val_uses;
+	Map<Alias_name, Set<Alias_name> > summary_val_may_defs;
 };
 
 #endif // PHC_DEF_USE

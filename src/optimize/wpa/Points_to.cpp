@@ -35,27 +35,28 @@ Points_to::Points_to ()
  * recursion).
  */
 void
-Points_to::open_scope (string scope_name)
+Points_to::open_scope (Storage_node* st)
 {
-	symtables[scope_name]++;
+	symtables[st->name().str()]++;
 }
 
 void
-Points_to::close_scope (string scope_name)
+Points_to::close_scope (Storage_node* st)
 {
+	string name = st->name().str ();
 	// TODO: formalize this as an abstract node
-	symtables[scope_name]--;
+	symtables[name]--;
 
-	if (symtables[scope_name] == 0)
+	if (symtables[name] == 0)
 	{
-		symtables.erase(scope_name);
+		symtables.erase (name);
 
 		// Remove the symbol table. Then do a mark-and-sweep from all the other
 		// symbol tables.
-		remove_node (SN (scope_name));
+		remove_node (st);
 		remove_unreachable_nodes ();
 	}
-	assert (symtables[scope_name] >= 0);
+	assert (symtables[name] >= 0);
 }
 
 bool
@@ -720,23 +721,6 @@ ABSVAL (Index_node* node)
 	return new Value_node (node);
 }
 
-Storage_node*
-CX_array_node (Context cx)
-{
-	return SN (cx.array_name ());
-}
-
-Storage_node*
-CX_object_node (Context cx)
-{
-	return SN (cx.object_name ());
-}
-
-Storage_node*
-CX_symtable_node (Context cx)
-{
-	return SN (cx.symtable_name ());
-}
 
 
 Storage_node::Storage_node (string storage)
@@ -792,7 +776,7 @@ Index_node::get_graphviz (string info)
 }
 
 Value_node::Value_node (Index_node* owner)
-: Storage_node(owner->name().str())
+: Storage_node (owner->name().str())
 {
 	assert (storage != "");
 }

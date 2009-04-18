@@ -42,13 +42,13 @@ public:
 	bool operator== (const Context &other) const;
 	string name () const;
 
-	string array_name ();
-	string object_name ();
-	string symtable_name ();
-
 	Storage_node* array_node ();
 	Storage_node* object_node ();
 	Storage_node* symtable_node ();
+
+	string symtable_name ();
+	string array_name ();
+	string object_name ();
 
 private:
 	bool has_bb (Basic_block*);

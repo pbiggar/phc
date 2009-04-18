@@ -42,7 +42,6 @@ certainty combine_certs (certainty c1, certainty c2);
 // Return value's name
 #define RETNAME "__RETNAME__"
 
-
 typedef Set<string> Types;
 
 /* Although we dont need to implement all functions from WPA in every analysis,

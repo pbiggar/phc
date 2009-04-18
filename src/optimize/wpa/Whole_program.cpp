@@ -834,7 +834,7 @@ Whole_program::forward_bind (Method_info* info, Context entry_cx, MIR::Actual_pa
 		wpa->forward_bind (caller_cx, entry_cx);
 
 		// The symtable is an array
-		wpa->set_storage (entry_cx, SN (scope), Types ("array"));
+		wpa->set_storage (entry_cx, entry_cx.symtable_node (), Types ("array"));
 	}
 
 	// Special case for __MAIN__. We do it here so that the other analyses
@@ -1135,20 +1135,20 @@ Whole_program::assign_typed (Context cx, Path* plhs, Types types)
 }
 
 void
-Whole_program::assign_empty_array (Context cx, Path* plhs, string unique_name)
+Whole_program::assign_empty_array (Context cx, Path* plhs, string name)
 {
 	certainty cert = kill_value (cx, plhs);
 	foreach (Index_node* node, *get_all_referenced_names (cx, plhs))
 	{
 		foreach_wpa (this)
 		{
-			wpa->set_storage (cx, SN(unique_name), Types ("array"));
-			wpa->assign_value (cx, node, SN(unique_name), cert);
+			wpa->set_storage (cx, SN (name), Types ("array"));
+			wpa->assign_value (cx, node, SN (name), cert);
 		}
 	}
 
 	// All the arrays entries are NULL.
-	assign_scalar (cx, P (unique_name, UNKNOWN), new NIL);
+	assign_scalar (cx, P (name, UNKNOWN), new NIL);
 }
 
 void
