@@ -1181,9 +1181,9 @@ CFG::equals (CFG* other)
 			if (true_target->get_index() != other_true_target->get_index ())
 				return false;
 
-			Basic_block* false_target = br->get_true_successor ();
-			Basic_block* other_false_target = other_br->get_true_successor ();
-			if (false_target->get_index() != other_true_target->get_index ())
+			Basic_block* false_target = br->get_false_successor ();
+			Basic_block* other_false_target = other_br->get_false_successor ();
+			if (false_target->get_index() != other_false_target->get_index ())
 				return false;
 		}
 		else

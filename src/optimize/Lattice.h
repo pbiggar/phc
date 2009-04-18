@@ -205,7 +205,6 @@ public:
 
 	bool equals (SSA_map* other)
 	{
-		bool result = true;
 		Alias_name name;
 		Lattice_cell* cell;
 		foreach (tie (name, cell), *other)

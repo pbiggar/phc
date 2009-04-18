@@ -647,8 +647,6 @@ void Pass_manager::optimize (MIR::PHP_script* in)
 	if (lexical_cast<int> (args_info->optimize_arg) == 0)
 		return;
 
-	MIR::PHP_script* script = in->as_MIR();
-
 	// Initialize the optimization oracle (also builds CFGs)
 	maybe_enable_debug (s("cfg"));
 	Oracle::initialize (in);

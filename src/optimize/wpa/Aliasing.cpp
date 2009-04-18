@@ -355,8 +355,6 @@ P (string st, string ind)
 Path*
 P (string symtable, Node* in)
 {
-	ST_path* st = new ST_path (symtable);
-
 	switch (in->classid ())
 	{
 		case VARIABLE_NAME::ID:

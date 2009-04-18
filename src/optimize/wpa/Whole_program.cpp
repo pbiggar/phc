@@ -1090,7 +1090,7 @@ Whole_program::assign_scalar (Context cx, Path* plhs, Literal* lit)
 			wpa->set_scalar (cx, ABSVAL (node),
 					Abstract_value::from_literal (lit));
 
-			wpa->assign_value (cx, node, ABSVAL (node), DEFINITE);
+			wpa->assign_value (cx, node, ABSVAL (node), cert);
 		}
 	}
 }
@@ -1158,7 +1158,7 @@ Whole_program::assign_unknown (Context cx, Path* plhs)
 	// ruin_everything (ie, it doesnt link to all the other objects, arrays,
 	// etc. Is this being used right?
 
-	certainty cert = kill_value (cx, plhs);
+	kill_value (cx, plhs);
 
 	// Unknown may be an array, a scalar or an object, all of which have
 	// different properties. We must be careful to separate these.
