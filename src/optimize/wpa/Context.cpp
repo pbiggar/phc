@@ -6,6 +6,7 @@
  */
 
 #include "Context.h"
+#include "Points_to.h"
 
 using namespace std;
 using namespace boost;
@@ -130,16 +131,42 @@ std::ostream &operator<< (std::ostream &out, const Context &num);
 
 
 string
-CX_array_name (Context cx)
+Context::array_name ()
 {
-	return "array_" + cx.name ();
+	return "array_" + this->name ();
 }
 
 string
-CX_object_name (Context cx)
+Context::object_name ()
 {
-	return "object_" + cx.name ();
+	return "object_" + this->name ();
 }
+
+string
+Context::symtable_name ()
+{
+	return this->caller().name();
+}
+
+Storage_node*
+Context::array_node ()
+{
+	return SN (array_name());
+}
+
+Storage_node*
+Context::object_node ()
+{
+	return SN (object_name ());
+}
+
+Storage_node*
+Context::symtable_node ()
+{
+	return SN (symtable_name ());
+}
+
+
 
 std::ostream&
 operator<< (std::ostream &out, const Context &cx)

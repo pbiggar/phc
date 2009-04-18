@@ -12,8 +12,6 @@
 
 #include "optimize/CFG_visitor.h"
 
-#define SYM(CX) ((CX).caller().name())
-
 class Context : virtual public GC_obj
 {
 	BB_list BBs;
@@ -44,15 +42,19 @@ public:
 	bool operator== (const Context &other) const;
 	string name () const;
 
+	string array_name ();
+	string object_name ();
+	string symtable_name ();
+
+	Storage_node* array_node ();
+	Storage_node* object_node ();
+	Storage_node* symtable_node ();
+
 private:
 	bool has_bb (Basic_block*);
 };
 
 std::ostream &operator<< (std::ostream &out, const Context &num);
-
-
-string CX_array_name (Context cx);
-string CX_object_name (Context cx);
 
 
 #include "optimize/Lattice.h"

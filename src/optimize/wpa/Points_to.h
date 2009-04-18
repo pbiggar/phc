@@ -34,6 +34,7 @@ Index_node* FN (string scope, MIR::FIELD_NAME*);
 Value_node* ABSVAL (Index_node* node);
 Storage_node* CX_array_node (Context cx);
 Storage_node* CX_object_node (Context cx);
+Storage_node* CX_symtable_node (Context cx);
 
 
 

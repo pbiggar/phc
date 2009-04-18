@@ -56,7 +56,7 @@ Optimization_transformer::get_literal (Basic_block* bb, Rvalue* in)
 
 	Context cx = Context::non_contextual (bb);
 
-	Index_node* index = wp->get_named_index (cx, P (SYM (cx), in));
+	Index_node* index = wp->get_named_index (cx, P (cx.symtable_name (), in));
 	if (index == NULL)
 		return in;
 

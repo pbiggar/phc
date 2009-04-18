@@ -369,7 +369,7 @@ Whole_program::get_successors (Context cx)
 
 	if (Branch_block* branch = dynamic_cast<Branch_block*> (bb))
 	{
-		Index_node* cond = VN (SYM (cx), branch->branch->variable_name);
+		Index_node* cond = VN (cx.symtable_name (), branch->branch->variable_name);
 
 		if (!ccp->branch_known_true (cx, cond->name()))
 			result->push_back (branch->get_false_successor_edge ());
@@ -530,7 +530,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context cx)
 	// called correctly.
 
 
-	Path* ret_path = P (SYM (cx), new VARIABLE_NAME (RETNAME));
+	Path* ret_path = P (cx.symtable_name (), new VARIABLE_NAME (RETNAME));
 	if (*info->name == "strlen")
 	{
 		assign_typed (cx, ret_path, Types ("int"));
@@ -590,7 +590,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context cx)
 
 		// If there its parameter is true, it returns a float. Else, if returns a
 		// hashtable with 4 ints: sec, usec, minuteswest, dsttime
-		string array_name = CX_array_name (cx);
+		string array_name = cx.array_name ();
 		assign_empty_array (cx, ret_path, array_name);
 
 		assign_typed (cx, P (array_name, "sec"), Types ("int"));
@@ -786,7 +786,7 @@ Whole_program::init_superglobals (Context cx)
 	
 
 	// Start with globals, since it needs needs to point to MSN
-	string MSN = SYM (cx);
+	string MSN = cx.symtable_name ();
 	assign_empty_array (cx, P (MSN, new VARIABLE_NAME ("GLOBALS")), MSN);
 
 
@@ -826,7 +826,7 @@ void
 Whole_program::forward_bind (Method_info* info, Context entry_cx, MIR::Actual_parameter_list* actuals)
 {
 	Context caller_cx = entry_cx.caller ();
-	string scope = SYM (entry_cx);
+	string scope = entry_cx.symtable_name ();
 
 	// Each caller should expect that context can be NULL for __MAIN__.
 	foreach_wpa (this)
@@ -863,7 +863,7 @@ Whole_program::forward_bind (Method_info* info, Context entry_cx, MIR::Actual_pa
 			// $ap =& $fp;
 			assign_by_ref (entry_cx,
 					P (scope, info->param_name (i)),
-					P (SYM (caller_cx), dyc<VARIABLE_NAME> (ap->rvalue)));
+					P (caller_cx.symtable_name (), dyc<VARIABLE_NAME> (ap->rvalue)));
 		}
 		else
 		{
@@ -872,7 +872,7 @@ Whole_program::forward_bind (Method_info* info, Context entry_cx, MIR::Actual_pa
 			{
 				assign_by_copy (entry_cx,
 						P (scope, info->param_name (i)),
-						P (SYM (caller_cx), dyc<VARIABLE_NAME> (ap->rvalue)));
+						P (caller_cx.symtable_name (), dyc<VARIABLE_NAME> (ap->rvalue)));
 			}
 			else
 			{
@@ -916,15 +916,15 @@ Whole_program::backward_bind (Method_info* info, Context exit_cx, MIR::VARIABLE_
 		{
 			// $lhs =& $retval;
 			assign_by_ref (exit_cx,
-					P (SYM (caller_cx), dyc<VARIABLE_NAME> (lhs)),
-					P (SYM (exit_cx), new VARIABLE_NAME (RETNAME)));
+					P (caller_cx.symtable_name (), dyc<VARIABLE_NAME> (lhs)),
+					P (exit_cx.symtable_name (), new VARIABLE_NAME (RETNAME)));
 		}
 		else
 		{
 			// $lhs = $retval;
 			assign_by_copy (exit_cx,
-					P (SYM (caller_cx), dyc<VARIABLE_NAME> (lhs)),
-					P (SYM (exit_cx), new VARIABLE_NAME (RETNAME)));
+					P (caller_cx.symtable_name (), dyc<VARIABLE_NAME> (lhs)),
+					P (exit_cx.symtable_name (), new VARIABLE_NAME (RETNAME)));
 		}
 	}
 
@@ -1126,10 +1126,10 @@ Whole_program::assign_typed (Context cx, Path* plhs, Types types)
 				phc_TODO ();
 
 			//	wpa->assign_storage (bb, ref->name(),
-			//								CX_array_name (bb)->name(), POSSIBLE);
+			//								bb.array_name ()->name(), POSSIBLE);
 
 			//	wpa->assign_storage (bb, ref->name(),
-			//								CX_object_name (bb)->name(), POSSIBLE);
+			//								bb.object_name ()->name(), POSSIBLE);
 		}
 	}
 }
@@ -1181,11 +1181,11 @@ Whole_program::assign_unknown (Context cx, Path* plhs)
 			wpa->set_scalar (cx, ABSVAL (node), Abstract_value::unknown ());
 			wpa->assign_value (cx, node, ABSVAL (node), POSSIBLE);
 
-			wpa->set_storage (cx, CX_array_node (cx), Types ("array"));
-			wpa->assign_value (cx, node, CX_array_node (cx), POSSIBLE);
+			wpa->set_storage (cx, cx.array_node (), Types ("array"));
+			wpa->assign_value (cx, node, cx.array_node (), POSSIBLE);
 
-			wpa->set_storage (cx, CX_object_node (cx), Types ("object"));
-			wpa->assign_value (cx, node, CX_object_node (cx), POSSIBLE);
+			wpa->set_storage (cx, cx.object_node (), Types ("object"));
+			wpa->assign_value (cx, node, cx.object_node (), POSSIBLE);
 		}
 	}
 }
@@ -1233,7 +1233,7 @@ Whole_program::copy_from_abstract_value (Context cx, Index_node* lhs, Index_node
 	// will be handled in a different call, and we need concern ourselves only
 	// with the absval here).
 	Storage_node* st = aliasing->get_storage (cx, rhs);
-	Abstract_value* absval = get_abstract_value (cx, st->name());
+//	Abstract_value* absval = get_abstract_value (cx, st->name());
 
 	// Get the type of the value
 	Types types = type_inf->get_types (cx, st->name());
@@ -1304,7 +1304,7 @@ Whole_program::copy_value (Context cx, Index_node* lhs, Index_node* rhs, certain
 		if (array.size())
 		{
 			// We need to do a deep copy here.
-			Storage_node* new_array = CX_array_node (cx);
+			Storage_node* new_array = cx.array_node ();
 
 			// create the new array
 			foreach_wpa (this)
@@ -1463,7 +1463,7 @@ Whole_program::get_named_indices (Context cx, Path* path, Indexing_flags flags)
 					// Other scalars will go to NULL instead.
 					// TODO: these cases should clearly be dealt with in the caller.
 
-					name = CX_array_node (cx)->storage;
+					name = cx.array_node ()->storage;
 
 					// TODO: i'm not very happy about this
 					if (flags & IMPLICIT_CONVERSION)
@@ -1562,7 +1562,7 @@ Whole_program::get_all_referenced_names (Context cx, Path* path, Indexing_flags 
 void
 Whole_program::visit_global (Statement_block* bb, MIR::Global* in)
 {
-	string ns = SYM (block_cx);
+	string ns = block_cx.symtable_name ();
 
 	assign_by_ref (block_cx,
 			P (ns, in->variable_name),
@@ -1573,7 +1573,7 @@ Whole_program::visit_global (Statement_block* bb, MIR::Global* in)
 void
 Whole_program::visit_assign_array (Statement_block* bb, MIR::Assign_array* in)
 {
-	string ns = SYM (block_cx);
+	string ns = block_cx.symtable_name ();
 	Path* lhs = P (ns, in);
 
 	if (isa<Literal> (in->rhs))
@@ -1595,7 +1595,7 @@ Whole_program::visit_assign_array (Statement_block* bb, MIR::Assign_array* in)
 void
 Whole_program::visit_foreach_reset (Statement_block* bb, MIR::Foreach_reset* in)
 {
-	string ns = SYM (block_cx);
+	string ns = block_cx.symtable_name ();
 
 	// mark the array as used
 	record_use (block_cx, VN (ns, in->array));
@@ -1615,7 +1615,7 @@ Whole_program::visit_foreach_reset (Statement_block* bb, MIR::Foreach_reset* in)
 void
 Whole_program::visit_foreach_end (Statement_block* bb, MIR::Foreach_end* in)
 {
-	string ns = SYM (block_cx);
+	string ns = block_cx.symtable_name ();
 
 	// Mark the array as used
 	record_use (block_cx, VN (ns, in->array));
@@ -1641,7 +1641,7 @@ Whole_program::visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
 void
 Whole_program::visit_unset (Statement_block* bb, MIR::Unset* in)
 {
-	string ns = SYM (block_cx);
+	string ns = block_cx.symtable_name ();
 
 	Index_node_list* indices = get_named_indices (block_cx, P (ns, in));
 
@@ -1655,7 +1655,7 @@ Whole_program::visit_unset (Statement_block* bb, MIR::Unset* in)
 void
 Whole_program::visit_branch_block (Branch_block* bb)
 {
-	string ns = SYM (block_cx);
+	string ns = block_cx.symtable_name ();
 
 	record_use (block_cx, VN (ns, bb->branch->variable_name));
 }
@@ -1664,7 +1664,7 @@ Whole_program::visit_branch_block (Branch_block* bb)
 void
 Whole_program::visit_pre_op (Statement_block* bb, Pre_op* in)
 {
-	string ns = SYM (block_cx);
+	string ns = block_cx.symtable_name ();
 
 	// ++ and -- won't affect objects.
 	Path* path = P (ns, in->variable_name);
@@ -1714,7 +1714,7 @@ Whole_program::visit_foreach_next (Statement_block*, MIR::Foreach_next*)
 void
 Whole_program::visit_assign_next (Statement_block* bb, MIR::Assign_next* in)
 {
-	string ns = SYM (block_cx);
+	string ns = block_cx.symtable_name ();
 
 	// TODO: _next_ is one larger than the largest positive integer element
 
@@ -1742,7 +1742,7 @@ Whole_program::visit_return (Statement_block* bb, MIR::Return* in)
 	if (bb->cfg->get_entry_bb ()->method->signature->return_by_ref)
 		phc_TODO ();
 
-	string ns = SYM (block_cx);
+	string ns = block_cx.symtable_name ();
 	
 	assign_by_copy (block_cx, P (ns, new VARIABLE_NAME (RETNAME)), P (ns, in->rvalue));
 }
@@ -1771,7 +1771,7 @@ Whole_program::visit_try (Statement_block*, MIR::Try*)
 void
 Whole_program::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 {
-	string ns = SYM (block_cx);
+	string ns = block_cx.symtable_name ();
 
 	saved_plhs = P (ns, in->lhs);
 	saved_lhs = in->lhs;
@@ -1828,7 +1828,7 @@ Whole_program::visit_array_access (Statement_block* bb, MIR::Array_access* in)
 	if (saved_is_ref)
 		phc_TODO ();
 
-	string ns = SYM (block_cx);
+	string ns = block_cx.symtable_name ();
 
 	assign_by_copy (block_cx, saved_plhs, P (ns, in));
 }
@@ -1836,7 +1836,7 @@ Whole_program::visit_array_access (Statement_block* bb, MIR::Array_access* in)
 void
 Whole_program::visit_bin_op (Statement_block* bb, MIR::Bin_op* in)
 {
-	string ns = SYM (block_cx);
+	string ns = block_cx.symtable_name ();
 
 	Abstract_value* left = get_abstract_value (block_cx, in->left);
 	Abstract_value* right = get_abstract_value (block_cx, in->right);
@@ -1862,7 +1862,7 @@ Whole_program::visit_bin_op (Statement_block* bb, MIR::Bin_op* in)
 Abstract_value*
 Whole_program::get_abstract_value (Context cx, MIR::Rvalue* rval)
 {
-	string ns = SYM (cx);
+	string ns = cx.symtable_name ();
 
 	if (isa<Literal> (rval))
 		return Abstract_value::from_literal (dyc<Literal> (rval));
@@ -1880,7 +1880,7 @@ Whole_program::get_abstract_value (Context cx, MIR::Rvalue* rval)
 void
 Whole_program::visit_cast (Statement_block* bb, MIR::Cast* in)
 {
-	string ns = SYM (block_cx);
+	string ns = block_cx.symtable_name ();
 
 	Alias_name operand = VN (ns, in->variable_name)->name();
 
@@ -1904,7 +1904,7 @@ Whole_program::visit_cast (Statement_block* bb, MIR::Cast* in)
 		if (lit && isa<NIL> (lit))
 		{
 			// Most common case: create an empty array
-			assign_empty_array (block_cx, saved_plhs, CX_array_name (block_cx));
+			assign_empty_array (block_cx, saved_plhs, block_cx.array_name ());
 		}
 		else
 			phc_TODO ();
@@ -1923,7 +1923,7 @@ Whole_program::visit_cast (Statement_block* bb, MIR::Cast* in)
 void
 Whole_program::visit_constant (Statement_block* bb, MIR::Constant* in)
 {
-	string ns = SYM (block_cx);
+	string ns = block_cx.symtable_name ();
 
 	phc_TODO ();
 
@@ -1998,7 +1998,7 @@ Whole_program::visit_param_is_ref (Statement_block* bb, MIR::Param_is_ref* in)
 void
 Whole_program::visit_unary_op (Statement_block* bb, MIR::Unary_op* in)
 {
-	string ns = SYM (block_cx);
+	string ns = block_cx.symtable_name ();
 
 	Abstract_value* val = get_abstract_value (block_cx, in->variable_name);
 
@@ -2023,7 +2023,7 @@ Whole_program::visit_variable_name (Statement_block* bb, MIR::VARIABLE_NAME* in)
 	if (saved_is_ref)
 		phc_TODO ();
 
-	string ns = SYM (block_cx);
+	string ns = block_cx.symtable_name ();
 
 	assign_by_copy (block_cx, saved_plhs, P (ns, in));
 }

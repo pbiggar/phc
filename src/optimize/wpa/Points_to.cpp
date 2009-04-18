@@ -723,16 +723,20 @@ ABSVAL (Index_node* node)
 Storage_node*
 CX_array_node (Context cx)
 {
-	return SN (CX_array_name (cx));
+	return SN (cx.array_name ());
 }
 
 Storage_node*
 CX_object_node (Context cx)
 {
-	return SN (CX_object_name (cx));
+	return SN (cx.object_name ());
 }
 
-
+Storage_node*
+CX_symtable_node (Context cx)
+{
+	return SN (cx.symtable_name ());
+}
 
 
 Storage_node::Storage_node (string storage)

@@ -177,7 +177,7 @@ Def_use::record_use (Context cx, Index_node* use, certainty cert)
 bool 
 in_scope (Context cx, Alias_name& name)
 {
-	return name.prefix == SYM (cx);
+	return name.prefix == cx.symtable_name ();
 }
 
 void
@@ -204,15 +204,16 @@ merge_into_exit_bb (Context cx,
 void
 Def_use::aggregate_results (Context cx)
 {
+	string name = cx.symtable_name ();
 	// All defs/uses which are out of scope must be recorded in the function
 	// summary.
-	merge_into_function_summary (cx, ref_defs, summary_ref_defs[SYM (cx)]);
-	merge_into_function_summary (cx, ref_uses, summary_ref_uses[SYM (cx)]);
-	merge_into_function_summary (cx, ref_may_defs, summary_ref_may_defs[SYM (cx)]);
+	merge_into_function_summary (cx, ref_defs, summary_ref_defs [name]);
+	merge_into_function_summary (cx, ref_uses, summary_ref_uses [name]);
+	merge_into_function_summary (cx, ref_may_defs, summary_ref_may_defs [name]);
 
-	merge_into_function_summary (cx, val_defs, summary_val_defs[SYM (cx)]);
-	merge_into_function_summary (cx, val_uses, summary_val_uses[SYM (cx)]);
-	merge_into_function_summary (cx, val_may_defs, summary_val_may_defs[SYM (cx)]);
+	merge_into_function_summary (cx, val_defs, summary_val_defs [name]);
+	merge_into_function_summary (cx, val_uses, summary_val_uses [name]);
+	merge_into_function_summary (cx, val_may_defs, summary_val_may_defs [name]);
 
 
 	// The exit block must "use" all out-of-scope defs, or they'll be killed
@@ -253,7 +254,7 @@ merge_from_callee (Context caller, Context callee,
 						Map<string, Set<Alias_name> >& callee_sets)
 
 {
-	Set<Alias_name>& callee_set = callee_sets[SYM (callee)];
+	Set<Alias_name>& callee_set = callee_sets[callee.symtable_name ()];
 	cx_sets[caller].insert (callee_set.begin (), callee_set.end());
 }
 
