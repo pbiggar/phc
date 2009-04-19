@@ -27,7 +27,7 @@ using namespace boost;
 Points_to::Points_to ()
 {
 	// Pretend this is a symtable so that it doesnt get removed.
-	symtables[SN("_SESSION")->name()]++;
+	abstract_counts [SN("_SESSION")->name()]++;
 }
 
 /*
@@ -37,25 +37,29 @@ Points_to::Points_to ()
 void
 Points_to::open_scope (Storage_node* st)
 {
-	symtables[st->name()]++;
+	Alias_name name = st->name ();
+	abstract_counts [name]++;
+	symtables.insert (name);
 }
 
 void
 Points_to::close_scope (Storage_node* st)
 {
 	Alias_name name = st->name ();
-	symtables[name]--;
+	abstract_counts [name]--;
 
-	if (symtables[name] == 0)
+	if (abstract_counts [name] == 0)
 	{
 		symtables.erase (name);
+		abstract_counts.erase (name);
 
 		// Remove the symbol table. Then do a mark-and-sweep from all the other
 		// symbol tables.
 		remove_node (st);
 		remove_unreachable_nodes ();
 	}
-	assert (symtables[name] >= 0);
+
+	assert (abstract_counts [name] >= 0);
 }
 
 bool
@@ -72,7 +76,7 @@ Points_to::is_abstract (Storage_node* st)
 	//		multiple times in the (exact) same context
 	//		etc
 	//
-	return symtables[st->name()] > 1;
+	return abstract_counts [st->name()] > 1;
 }
 
 bool
@@ -401,6 +405,7 @@ Points_to::clone ()
 
 	// Full copy
 	result->symtables = symtables;
+	result->abstract_counts = abstract_counts;
 
 	return result;
 }
@@ -505,16 +510,17 @@ Points_to::merge (Points_to* other)
 		}
 	}
 
-	// Check the symtables are the same.
+	// Check the abstract nodes are the same.
 	Alias_name name;
 	int count;
-	foreach (tie (name, count), this->symtables)
+	foreach (tie (name, count), this->abstract_counts)
 	{
-		assert (other->symtables[name] == count);
+		assert (other->abstract_counts [name] == count);
 	}
 
 	// Combine the symtable records
-	result->symtables = symtables;
+	result->abstract_counts = this->abstract_counts;
+	result->symtables = this->symtables;
 
 	return result;
 }
@@ -701,8 +707,6 @@ Points_to::maybe_remove_node (PT_node* node)
 bool
 Points_to::is_symtable (Storage_node* node)
 {
-	phc_TODO ();
-	// uhoh
 	return symtables.has (node->name());
 }
 

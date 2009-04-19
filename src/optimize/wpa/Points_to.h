@@ -145,7 +145,8 @@ private:
 	// This keeps count of whether something is abstract or not, as well as
 	// whether it is in scope. These should be separated. (the is_symtable
 	// function is wrong, too).
-	Map<Alias_name, int> symtables; // the int is for recursion
+	Map<Alias_name, int> abstract_counts; // the int is for recursion
+	Set<Alias_name> symtables; // the int is for recursion
 
 
 	Set<Alias_pair*> all_pairs; // makes it easier to clone
