@@ -45,7 +45,7 @@ class PT_node : virtual public GC_obj
 public:
 	// Each PT node gets a unique name for the alias pairs representation.
 	virtual Alias_name name () = 0;
-	virtual String* get_graphviz (string info) = 0;
+	virtual String* get_graphviz_label () = 0;
 };
 
 /*
@@ -76,7 +76,7 @@ public:
 	Index_node (string storage, string index);
 	Alias_name name ();
 
-	String* get_graphviz (string info);
+	String* get_graphviz_label ();
 };
 
 
@@ -91,7 +91,7 @@ public:
 
 	virtual Alias_name name ();
 
-	virtual String* get_graphviz (string info);
+	virtual String* get_graphviz_label ();
 };
 
 // This represents the value of the node that points to it. It is used as the
@@ -104,7 +104,7 @@ public:
 
 	Alias_name name ();
 
-	String* get_graphviz (string info);
+	String* get_graphviz_label ();
 };
 
 class Alias_pair : virtual public GC_obj
@@ -142,12 +142,10 @@ SET_COMPARABLE (Alias_pair);
 class Points_to : virtual public GC_obj
 {
 private:
-
 	// This keeps count of whether something is abstract or not, as well as
 	// whether it is in scope. These should be separated. (the is_symtable
 	// function is wrong, too).
-	Map<string, int> symtables; // the int is for recursion
-
+	Map<Alias_name, int> symtables; // the int is for recursion
 
 
 	Set<Alias_pair*> all_pairs; // makes it easier to clone
@@ -162,6 +160,7 @@ public:
 
 	void open_scope (Storage_node* node);
 	void close_scope (Storage_node* node);
+	bool is_abstract (Storage_node* st);
 
 	void insert (Alias_pair*);
 

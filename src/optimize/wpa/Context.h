@@ -41,6 +41,7 @@ public:
 	bool operator< (const Context &other) const;
 	bool operator== (const Context &other) const;
 	string name () const;
+	string full_name () const;
 
 	Storage_node* array_node ();
 	Storage_node* object_node ();

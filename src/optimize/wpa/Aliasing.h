@@ -91,6 +91,8 @@ public:
 
 	certainty get_cert (Context cx, Storage_node* st, Index_node* in);
 
+	bool is_abstract (Context cx, Storage_node* st);
+
 };
 
 /* A Path is a way of representing some dereferencing. See Aliasing.cpp. */

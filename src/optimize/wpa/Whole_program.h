@@ -193,6 +193,7 @@ public:
 	bool copy_from_abstract_value (Context cx, Index_node* lhs, Index_node* rhs, certainty cert);
 
 
+	bool is_must (Context cx, Index_node_list* indices);
 	certainty kill_value (Context cx, Path* plhs);
 
 	void record_use (Context cx, Index_node* node);

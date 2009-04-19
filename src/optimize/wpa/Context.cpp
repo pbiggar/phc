@@ -107,13 +107,10 @@ Context::name () const
 	stringstream ss;
 	foreach (Basic_block* bb, BBs)
 	{
-		if (bb == NULL) // outer_scope
-			ss << "/" << "NULL";
-		else
-			ss << "/" << bb->ID;
+		ss << "/" << bb->ID;
 
 		// Cant use [] because of constness
-		if (BB_counts.at(bb) > 1)
+		if (BB_counts.at (bb) > 1)
 		{
 			// In the case of recursion, stop the name here. This allows us to
 			// keep adding to the context, but know that we arent actually
@@ -124,6 +121,17 @@ Context::name () const
 		}
 	}
 
+	return ss.str ();
+}
+
+string
+Context::full_name () const
+{
+	stringstream ss;
+	foreach (Basic_block* bb, BBs)
+	{
+		ss << "/" << bb->ID;
+	}
 	return ss.str ();
 }
 
@@ -171,7 +179,7 @@ Context::symtable_node ()
 std::ostream&
 operator<< (std::ostream &out, const Context &cx)
 {
-	out << cx.name ();
+	out << cx.full_name ();
 	return out;
 }
 

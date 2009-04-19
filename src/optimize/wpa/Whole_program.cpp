@@ -561,7 +561,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context cx)
 	}
 	else if (*info->name == "ob_start")
 	{
-		// TODO: If first parameter is a callback is set, thats a callback.
+		// TODO: If first parameter is set, thats a callback.
 		assign_typed (cx, ret_path, Types ("bool"));
 	}
 	else if (*info->name == "ob_end_clean")
@@ -958,7 +958,7 @@ Whole_program::backward_bind (Method_info* info, Context exit_cx, MIR::VARIABLE_
  */
 
 bool
-is_must (Index_node_list* indices)
+Whole_program::is_must (Context cx, Index_node_list* indices)
 {
 	// If the edge between it and its storage node is POSSIBLE, this function
 	// is still correct. All that matters is whether we can refer to one index
@@ -969,6 +969,12 @@ is_must (Index_node_list* indices)
 		return false;
 	
 	if (indices->front()->index == UNKNOWN)
+		return false;
+
+
+	// Dont kill indices of ASNs
+	Storage_node* node = aliasing->get_storage (cx, indices->front ());
+	if (aliasing->is_abstract (cx, node))
 		return false;
 
 	return true;
@@ -985,7 +991,7 @@ Whole_program::kill_value (Context cx, Path* plhs)
 
 	// Don't kill if this refers to more than 1 index_node, which means we
 	// don't know what variable to kill.
-	if (!is_must (lhss))
+	if (!is_must (cx, lhss))
 		return POSSIBLE;
 
 
@@ -1027,7 +1033,7 @@ Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 	//   - all index nodes are defs
 	//   - if only 1 value node, def, else possible
 
-	bool killable = is_must (lhss);
+	bool killable = is_must (cx, lhss);
 	foreach (Index_node* lhs, *lhss)
 	{
 		if (killable) // only 1 result
@@ -1039,7 +1045,7 @@ Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 			}
 		}
 
-		certainty cert = (killable && is_must (rhss)) ? DEFINITE : POSSIBLE;
+		certainty cert = (killable && is_must (cx, rhss)) ? DEFINITE : POSSIBLE;
 		foreach (Index_node* rhs, *rhss)
 		{
 			foreach (Storage_node* st, *aliasing->get_values (cx, rhs))

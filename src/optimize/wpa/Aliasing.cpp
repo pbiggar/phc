@@ -310,6 +310,12 @@ Aliasing::get_cert (Context cx, Storage_node* st, Index_node* in)
 	return ins[cx]->get_edge (st, in)->cert;
 }
 
+bool
+Aliasing::is_abstract (Context cx, Storage_node* st)
+{
+	return ins[cx]->is_abstract (st);
+}
+
 
 /*
  * Path is used to represent the MIR constructs in an abstract way that

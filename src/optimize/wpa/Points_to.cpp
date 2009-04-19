@@ -27,7 +27,7 @@ using namespace boost;
 Points_to::Points_to ()
 {
 	// Pretend this is a symtable so that it doesnt get removed.
-	symtables["_SESSION"]++;
+	symtables[SN("_SESSION")->name()]++;
 }
 
 /*
@@ -37,14 +37,13 @@ Points_to::Points_to ()
 void
 Points_to::open_scope (Storage_node* st)
 {
-	symtables[st->name().str()]++;
+	symtables[st->name()]++;
 }
 
 void
 Points_to::close_scope (Storage_node* st)
 {
-	string name = st->name().str ();
-	// TODO: formalize this as an abstract node
+	Alias_name name = st->name ();
 	symtables[name]--;
 
 	if (symtables[name] == 0)
@@ -57,6 +56,23 @@ Points_to::close_scope (Storage_node* st)
 		remove_unreachable_nodes ();
 	}
 	assert (symtables[name] >= 0);
+}
+
+bool
+Points_to::is_abstract (Storage_node* st)
+{
+	// An abstract storage_node represents more than 1 real node. For example:
+	//		an object instantiation
+	//		implicit conversion
+	//		array_creation
+	//		symtable creation
+	//		etc
+	//
+	//		in a loop
+	//		multiple times in the (exact) same context
+	//		etc
+	//
+	return symtables[st->name()] > 1;
 }
 
 bool
@@ -91,33 +107,66 @@ Points_to::dump_graphviz (String* label, Context cx, Whole_program* wp)
 		<< "\" ["
 		;
 
-		stringstream ss;
-
+		/*
+		 * Label
+		 */
+		stringstream label, cell_label;
+		label
+		<< "label=\""
+		<< *escape_DOT (node->get_graphviz_label ())
+		;
+		
 		if (isa<Value_node> (node))
 		{
 			Abstract_value* val = wp->get_bb_out_abstract_value (cx, node->name());
 
 			if (val->lit == BOTTOM)
-				ss << "(B)";
+				cell_label << "(B)";
 			else if (val->lit == TOP)
-				ss << "(T)";
+				cell_label << "(T)";
 			else
-				dump_cell(val->lit, ss);
+				dump_cell(val->lit, cell_label);
 
-			ss << ", ";
+			cell_label << ", ";
 
 			if (val->type == BOTTOM)
-				ss << "(B)";
+				cell_label << "(B)";
 			else if (val->type == TOP)
-				ss << "(T)";
+				cell_label << "(T)";
 			else
-				dump_cell(val->type, ss);
+				dump_cell(val->type, cell_label);
 		}
+		label
+		<< *escape_DOT (s(cell_label.str()))
+		<< "\","
+		;
 
 
+		/*
+		 * Color
+		 */
+		stringstream color;
+		if (isa<Value_node> (node))
+			color << "color=blue,";
+		else if (isa<Storage_node> (node) && is_abstract (dyc<Storage_node> (node)))
+			color << "color=red,";
+
+		/*
+		 * Shape
+		 */
+		stringstream shape;
+		if (isa<Storage_node> (node))
+			shape << "shape=box,";
+
+		/* Combine them all */
 		cout
-		<< *node->get_graphviz (ss.str ())
-		<< "];\n" ;
+		<< label.str ()
+		<< shape.str ()
+		<< color.str ()
+		;
+
+
+		cout << "];\n" ;
 	}
 
 	// Add edges
@@ -457,7 +506,7 @@ Points_to::merge (Points_to* other)
 	}
 
 	// Check the symtables are the same.
-	string name;
+	Alias_name name;
 	int count;
 	foreach (tie (name, count), this->symtables)
 	{
@@ -652,7 +701,9 @@ Points_to::maybe_remove_node (PT_node* node)
 bool
 Points_to::is_symtable (Storage_node* node)
 {
-	return symtables.has (node->storage);
+	phc_TODO ();
+	// uhoh
+	return symtables.has (node->name());
 }
 
 
@@ -736,17 +787,11 @@ Storage_node::name ()
 }
 
 String*
-Storage_node::get_graphviz (string info)
+Storage_node::get_graphviz_label ()
 {
-	stringstream ss;
-	ss 
-	<< "shape=box,label=\""
-	<< *escape_DOT (s(storage)) 
-	<< *escape_DOT (s(info))
-	<< "\""
-	;
-	return s (ss.str ());
+	return s(storage);
 }
+
 
 Index_node::Index_node (string storage, string index)
 : storage (storage)
@@ -763,16 +808,9 @@ Index_node::name ()
 }
 
 String*
-Index_node::get_graphviz (string info)
+Index_node::get_graphviz_label ()
 {
-	stringstream ss;
-	ss
-	<< "label=\""
-	<< *escape_DOT (s(index)) 
-	<< *escape_DOT (s(info))
-	<< "\""
-	;
-	return s (ss.str ());
+	return s(index);
 }
 
 Value_node::Value_node (Index_node* owner)
@@ -788,13 +826,7 @@ Value_node::name ()
 }
 
 String*
-Value_node::get_graphviz (string info)
+Value_node::get_graphviz_label ()
 {
-	stringstream ss;
-	ss
-	<< "color=red,label=\""
-	<< *escape_DOT (s(info))
-	<< "\""
-	;
-	return s (ss.str ());
+	return s("");
 }
