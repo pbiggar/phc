@@ -173,6 +173,8 @@ public:
 	 */
 	virtual void dump (Context cx, string comment) = 0;
 
+	virtual void dump_everything (string comment) = 0;
+
 private:
 	/* Some helper functions for merges */
 };

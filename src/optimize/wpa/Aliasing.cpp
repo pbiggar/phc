@@ -47,6 +47,13 @@ Aliasing::dump (Context cx, string comment)
 }
 
 void
+Aliasing::dump_everything (string comment)
+{
+	foreach (Context cx, *outs.keys ())
+		dump (cx, comment);
+}
+
+void
 Aliasing::init (Context outer)
 {
 	ins[outer] = new Points_to;

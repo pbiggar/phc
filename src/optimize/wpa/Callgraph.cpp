@@ -95,7 +95,13 @@ Callgraph::dump (Context cx, string comment)
 	if (!isa<Entry_block> (cx.get_bb()) && !isa<Exit_block> (cx.get_bb()))
 		return;
 
-	dump_graphviz (s(cx.name ()));
+	dump_graphviz (s(cx.name () + ": " + comment));
+}
+
+void
+Callgraph::dump_everything (string comment)
+{
+	dump_graphviz (s(comment));
 }
 
 void

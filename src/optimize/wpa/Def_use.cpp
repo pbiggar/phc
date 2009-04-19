@@ -76,6 +76,37 @@ Def_use::dump (Context cx, string comment)
 	dump_set (val_may_defs, cx, "VAL_MAY_DEF");
 }
 
+void
+Def_use::dump_everything (string comment)
+{
+	// Note they wont all have the same contexts defined, so get the complete list first.
+	Set<Context> all_contexts;
+
+	typedef Map<Context, Set<Alias_name> > x; // fool foreach
+	x* all_sets[12] =
+	{
+		&ref_defs, &ref_uses, &ref_may_defs, &val_defs, &val_uses, &val_may_defs,
+	};
+
+	foreach (x* set, all_sets)
+	{
+		foreach (Context cx, *set->keys ())
+		{
+			all_contexts.insert (cx);
+		}
+	}
+
+	foreach (Context cx, all_contexts)
+	{
+		dump_set (ref_defs, cx, "REF-DEF");
+		dump_set (ref_uses, cx, "REF-USE");
+		dump_set (ref_may_defs, cx, "REF-MAY-DEF");
+		dump_set (val_defs, cx, "VAL_DEF");
+		dump_set (val_uses, cx, "VAL_USE");
+		dump_set (val_may_defs, cx, "VAL_MAY_DEF");
+	}
+}
+
 /*
  * Kills
  */

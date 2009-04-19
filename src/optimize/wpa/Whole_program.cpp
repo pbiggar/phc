@@ -130,6 +130,8 @@ Whole_program::run (MIR::PHP_script* in)
 		// Merge different contexts
 		merge_contexts ();
 
+		dump (Context(), "after context merge");
+
 
 		// Optimize based on analysis results
 		foreach (String* method, *callgraph->bottom_up ())
@@ -760,7 +762,12 @@ Whole_program::dump (Context cx, string comment)
 			continue;
 
 		DEBUG (cx << " (" << comment << "): Dumping " << wpa->name);
-		wpa->dump (cx, comment);
+
+		if (cx == Context ())
+			wpa->dump_everything (comment);
+		else
+			wpa->dump (cx, comment);
+
 		cdebug << endl;
 	}
 	debugging_enabled = saved;

@@ -37,6 +37,13 @@ WPA_lattice::dump(Context cx, string comment)
 	outs.dump (cx, "OUT");
 }
 
+void
+WPA_lattice::dump_everything (string comment)
+{
+	ins.dump_everything ("IN");
+	outs.dump_everything ("OUT");
+}
+
 
 void
 WPA_lattice::init (Context outer)

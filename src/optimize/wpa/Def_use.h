@@ -40,6 +40,7 @@ public:
 
 	bool equals (WPA* other);
 	void dump (Context cx, string comment);
+	void dump_everything (string comment);
 
 	void backward_bind (Context caller, Context exit);
 

@@ -64,6 +64,7 @@ class CX_lattices : public Map<Context, Lattice_map>
 {
 public:
 	void dump (Context cx, string name);
+	void dump_everything (string name);
 };
 
 

@@ -197,3 +197,12 @@ CX_lattices::dump (Context cx, string name)
 	else
 		cdebug << "No " << name << " results for BB: " << cx << endl;
 }
+
+void
+CX_lattices::dump_everything (string name)
+{
+	foreach (Context cx, *this->keys())
+	{
+		dump (cx, name);
+	}
+}

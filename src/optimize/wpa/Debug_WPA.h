@@ -48,6 +48,7 @@ public:
 
 	bool equals (WPA* other);
 	void dump (Context cx, string comment);
+	void dump_everything (string comment);
 	void merge_contexts ();
 };
 
