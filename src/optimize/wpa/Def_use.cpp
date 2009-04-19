@@ -205,7 +205,7 @@ merge_into_exit_bb (Context cx,
 void
 Def_use::aggregate_results (Context cx)
 {
-	Alias_name name = cx.symtable_name ();
+	Alias_name name = cx.symtable_node ()->name();
 
 	// All defs/uses which are out of scope must be recorded in the function
 	// summary.
