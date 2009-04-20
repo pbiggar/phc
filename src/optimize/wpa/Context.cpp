@@ -11,6 +11,12 @@
 using namespace std;
 using namespace boost;
 
+Context::Context()
+: use_caller (false)
+, cached_name (NULL)
+{
+}
+
 Context
 Context::outer (Basic_block* bb)
 {
@@ -58,6 +64,7 @@ Context::caller ()
 	assert (this->use_caller);
 
 	Context result = *this;
+	result.cached_name = NULL;
 
 	Basic_block* popped = result.BBs.back ();
 	result.BBs.pop_back ();
@@ -104,6 +111,9 @@ Context::operator== (const Context &other) const
 string
 Context::name () const
 {
+	if (cached_name)
+		return *cached_name;
+
 	stringstream ss;
 	foreach (Basic_block* bb, BBs)
 	{
@@ -121,7 +131,8 @@ Context::name () const
 		}
 	}
 
-	return ss.str ();
+	this->cached_name = new string (ss.str ());
+	return *cached_name;
 }
 
 string

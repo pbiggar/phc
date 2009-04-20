@@ -24,8 +24,11 @@ class Context : virtual public GC_obj
 
 	bool use_caller;
 
+	mutable string* cached_name;
+
 public:
 	friend std::ostream &operator<<(std::ostream&, const Context&);
+	Context();
 
 	static Context outer (Basic_block* outer);
 	static Context non_contextual (Basic_block* bb);
