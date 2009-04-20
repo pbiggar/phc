@@ -400,10 +400,10 @@ Points_to::clone ()
 	foreach (Alias_pair* p, this->all_pairs)
 	{
 		// No need to deep copy, as pairs are never updated in-place.
-		result->insert (p);
+		result->add_edge (p->source, p->target, p->cert);
 	}
 
-	// Full copy
+	// Deep copy
 	result->symtables = symtables;
 	result->abstract_counts = abstract_counts;
 
@@ -510,17 +510,19 @@ Points_to::merge (Points_to* other)
 		}
 	}
 
-	// Check the abstract nodes are the same.
-	Alias_name name;
-	int count;
-	foreach (tie (name, count), this->abstract_counts)
-	{
-		assert (other->abstract_counts [name] == count);
-	}
-
 	// Combine the symtable records
 	result->abstract_counts = this->abstract_counts;
 	result->symtables = this->symtables;
+
+	// For counts in OTHER, use the max (for counts only in OTHER, OTHER's
+	// version will be used).
+	Alias_name name;
+	int count;
+	foreach (tie (name, count), other->abstract_counts)
+	{
+		result->abstract_counts [name] = max (count,  other->abstract_counts [name]);
+	}
+
 
 	return result;
 }

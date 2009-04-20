@@ -313,7 +313,6 @@ Optimization_transformer::visit_param_is_ref (Statement_block* bb, MIR::Param_is
 void
 Optimization_transformer::visit_real (Statement_block* bb, MIR::REAL* in)
 {
-	phc_TODO ();
 }
 
 void
