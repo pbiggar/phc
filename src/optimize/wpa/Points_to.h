@@ -46,6 +46,8 @@ public:
 	// Each PT node gets a unique name for the alias pairs representation.
 	virtual Alias_name name () = 0;
 	virtual String* get_graphviz_label () = 0;
+
+	virtual PT_node* convert_context_name () = 0;
 };
 
 /*
@@ -77,6 +79,8 @@ public:
 	Alias_name name ();
 
 	String* get_graphviz_label ();
+
+	Index_node* convert_context_name ();
 };
 
 
@@ -92,6 +96,9 @@ public:
 	virtual Alias_name name ();
 
 	virtual String* get_graphviz_label ();
+
+
+	virtual Storage_node* convert_context_name ();
 };
 
 // This represents the value of the node that points to it. It is used as the
@@ -101,10 +108,13 @@ class Value_node : public Storage_node
 {
 public:
 	Value_node (Index_node* owner);
+	Value_node (string owner);
 
 	Alias_name name ();
 
 	String* get_graphviz_label ();
+
+	Value_node* convert_context_name ();
 };
 
 class Alias_pair : virtual public GC_obj
@@ -211,6 +221,10 @@ public:
 
 	Points_to* clone();
 	Points_to* merge (Points_to* other);
+
+	// A lot of points in the graph use names derived from some context. Change
+	// them to use a non-contextual version.
+	void convert_context_names ();
 
 private:
 

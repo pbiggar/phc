@@ -465,6 +465,7 @@ AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
 BOOST_CPPFLAGS = @BOOST_CPPFLAGS@
 BOOST_LDFLAGS = @BOOST_LDFLAGS@
+BOOST_REGEX_LIB = @BOOST_REGEX_LIB@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
@@ -608,9 +609,13 @@ SUBDIRS = libltdl
 
 # Note the preprocessor supports -Wall, so we put that here, rather than a seperate CXX_FLAGS
 AM_CPPFLAGS = \
-	$(LTDLINCL) -I$(srcdir)/src -I$(srcdir)/3rdparty/getopt -I$(srcdir)/src/generated \
-	@libphp_headers@ -DDATADIR=\"$(datadir)\" -DPKGLIBDIR=\"$(pkglibdir)\" -Wall
+	$(BOOST_CPPFLAGS) $(LTDLINCL) 															\
+	-I$(srcdir)/src -I$(srcdir)/3rdparty/getopt -I$(srcdir)/src/generated		\
+	@libphp_headers@																				\
+	-DDATADIR=\"$(datadir)\" -DPKGLIBDIR=\"$(pkglibdir)\"								\
+	-Wall
 
+AM_LDFLAGS = $(BOOST_LDFLAGS) $(BOOST_REGEX_LIB)
 lib_LTLIBRARIES = libphc.la
 
 # By using CXXFLAGS we avoid warnings in generated_src, which we dont want to

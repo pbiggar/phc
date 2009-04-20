@@ -5,6 +5,8 @@
  * Context-sensitivity
  */
 
+#include <boost/regex.hpp>
+
 #include "Context.h"
 #include "Points_to.h"
 
@@ -164,7 +166,37 @@ Context::object_name ()
 string
 Context::symtable_name ()
 {
-	return this->caller().name();
+	return *get_bb()->cfg->method->signature->method_name->value + "_" + this->caller().name();
+}
+
+
+string
+Context::convert_context_name (string name)
+{
+	// If it starts with "array_" or "object_", we want the last BB ID, its a
+	// heap allocation, and we want its last BB ID.
+	string BB_ID = "/\\d+";
+	string all_IDs = "(" + BB_ID + ")+";
+	string all_but_one = all_IDs + "(" + BB_ID + ")";
+
+   boost::regex re1 ("(array|object)_" + all_but_one);
+   if (boost::regex_match (name, re1))
+	{
+		return boost::regex_replace (name, re1, "\\1\\3");
+	}
+
+
+	// Remove other BB IDs
+   boost::regex re2("([^/]+)" + all_IDs);
+   if (boost::regex_match (name, re2))
+	{
+		return boost::regex_replace (name, re2, "\\1");
+	}
+
+
+	
+	// Otherwise, just leave it
+	return name;
 }
 
 Storage_node*

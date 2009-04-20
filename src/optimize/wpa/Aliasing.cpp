@@ -223,9 +223,6 @@ Aliasing::merge_contexts ()
 	Context cx;
 	Points_to* ptg;
 
-	// TODO: merge symbol tables - ASAP
-
-
 	// First create a noncontextual context for each BB
 	// (Careful not to overwrite outer_scope)
 	Map<Context, Points_to*> new_ins;
@@ -237,6 +234,8 @@ Aliasing::merge_contexts ()
 			new_ins[new_cx] = ptg->clone ();
 		else
 			new_ins[new_cx]->merge (ptg);
+
+		new_ins[new_cx]->convert_context_names ();
 	}
 
 	ins.clear();
@@ -251,6 +250,8 @@ Aliasing::merge_contexts ()
 			new_outs[new_cx] = ptg->clone ();
 		else
 			new_outs[new_cx]->merge (ptg);
+
+		new_outs[new_cx]->convert_context_names ();
 	}
 
 	outs.clear();

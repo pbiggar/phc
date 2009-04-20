@@ -72,6 +72,18 @@ Alias_name::str ()
 	return ss.str ();
 }
 
+void
+Alias_name::drop_ssa_version ()
+{
+	this->ssa_version = 0;
+}
+
+void
+Alias_name::set_version (int version)
+{
+	this->ssa_version = version;
+}
+
 // Return a new Alias_name, which has had its name converted from OLDC to NEWC.
 //
 // XXX HACK:
@@ -80,7 +92,7 @@ Alias_name::str ()
 // contextual to a non-contextual context. This is hard to fix, so this hacks
 // it instead of fixing it properly. We just do a string replacement from the
 // name in OLDc to the name in NEWC.
-Alias_name
+/*Alias_name
 Alias_name::switch_context (Context oldc, Context newc)
 {
 	Alias_name result (this->prefix, this->name);
@@ -93,18 +105,24 @@ Alias_name::switch_context (Context oldc, Context newc)
 	boost::replace_first (result.name, old_cname, new_cname);
 
 	return result;
-}
+}*/
 
-
-void
-Alias_name::drop_ssa_version ()
+// Return a new Alias_name, which has had its name converted from OLDC to NEWC.
+//
+// XXX HACK:
+// There is a problem that context has been converted to a string by the time
+// it gets put into an alias name. So we find it hard to switch from a
+// contextual to a non-contextual context. This is hard to fix, so this hacks
+// it instead of fixing it properly. We just do a string replacement from the
+// name in OLDc to the name in NEWC.
+Alias_name
+Alias_name::convert_context_name ()
 {
-	this->ssa_version = 0;
-}
+	Alias_name result (
+		Context::convert_context_name (this->prefix), 
+		Context::convert_context_name (this->name));
+	assert (this->ssa_version == 0);
 
-void
-Alias_name::set_version (int version)
-{
-	this->ssa_version = version;
+	return result;
 }
 

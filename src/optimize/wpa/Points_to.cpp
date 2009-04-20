@@ -825,6 +825,12 @@ Value_node::Value_node (Index_node* owner)
 	assert (storage != "");
 }
 
+Value_node::Value_node (string owner)
+: Storage_node (owner)
+{
+	assert (storage != "");
+}
+
 Alias_name
 Value_node::name ()
 {
@@ -836,3 +842,79 @@ Value_node::get_graphviz_label ()
 {
 	return s("");
 }
+
+
+
+/*
+ * Dealing with the context name HACK
+ */
+void
+Points_to::convert_context_names ()
+{
+	// Each alias_name can be converted in either the prefix or the suffix.
+	// By_source and by_target need to be updated.
+
+	// Symtables definitely need to be merged. Other storage nodes, I'm not
+	// sure. So we'll merge them all.
+
+	// Save the old alias pairs
+	Map<Alias_name, int> old_abstract_counts = this->abstract_counts;
+	Set<Alias_name> old_symtables = this->symtables;
+	Set<Alias_pair*> old_all_pairs = this->all_pairs;
+
+	// Clear the current set
+	this->abstract_counts.clear ();
+	this->symtables.clear ();
+	this->all_pairs.clear ();
+	this->by_source.clear ();
+	this->by_target.clear ();
+
+
+	foreach (Alias_pair* pair, old_all_pairs)
+	{
+		PT_node* source = pair->source->convert_context_name ();
+		PT_node* target = pair->target->convert_context_name ();
+
+		add_edge (source, target, pair->cert);
+	}
+
+	foreach (Alias_name name, old_symtables)
+	{
+		this->symtables.insert (name.convert_context_name ());
+	}
+
+	// I'm not really sure what to do here.
+	Alias_name name;
+	int count;
+	foreach (tie (name, count), old_abstract_counts)
+	{
+		abstract_counts[name.convert_context_name ()] += count;
+	}
+}
+
+Index_node*
+Index_node::convert_context_name ()
+{
+	return new Index_node (
+		Context::convert_context_name (storage),
+		Context::convert_context_name (index));
+}
+
+
+Storage_node*
+Storage_node::convert_context_name ()
+{
+	return new Storage_node (
+		Context::convert_context_name (storage));
+}
+
+
+Value_node*
+Value_node::convert_context_name ()
+{
+	return new Value_node (Context::convert_context_name (storage));
+}
+
+
+
+

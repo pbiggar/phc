@@ -50,7 +50,8 @@ public:
 	void set_version (int version);
 	void drop_ssa_version ();
 
-	Alias_name switch_context (Context c1, Context c2);
+	// Drops the context info
+	Alias_name convert_context_name ();
 };
 
 typedef List<Alias_name> old_Alias_name_list;

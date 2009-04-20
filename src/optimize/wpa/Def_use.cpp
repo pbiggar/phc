@@ -271,7 +271,7 @@ merge_context (Map<Context, Set<Alias_name> >& in_map)
 		Context new_cx = cx.get_non_contextual ();
 
 		foreach (Alias_name an, set)
-			result [new_cx].insert (an.switch_context (cx, new_cx));
+			result [new_cx].insert (an.convert_context_name ());
 	}
 	in_map.clear ();
 

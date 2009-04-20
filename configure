@@ -671,6 +671,7 @@ libphp_headers
 php_install_path
 php
 maketea
+BOOST_REGEX_LIB
 BOOST_LDFLAGS
 BOOST_CPPFLAGS
 graphviz_gc
@@ -830,6 +831,7 @@ with_ltdl_include
 with_ltdl_lib
 enable_ltdl_install
 with_boost
+with_boost_regex
 with_maketea
 with_xerces
 with_php
@@ -1502,6 +1504,10 @@ Optional Packages:
   --with-ltdl-lib=DIR     use the libltdl.la installed in DIR
   --with-boost[=DIR]      use boost (default is yes) - it is possible to
                           specify the root directory for boost (optional)
+  --with-boost-regex[=special-lib]
+                          use the Regex library from boost - it is possible to
+                          specify a certain library for the linker e.g.
+                          --with-boost-regex=boost_regex-gcc-mt-d-1_33_1
   --with-maketea          path to maketea (if installed)
   --with-xerces           support XML input [default=check]
   --with-php=PATH         PHP installation path (defaults to /usr/local)
@@ -4840,13 +4846,13 @@ if test "${lt_cv_nm_interface+set}" = set; then
 else
   lt_cv_nm_interface="BSD nm"
   echo "int some_variable = 0;" > conftest.$ac_ext
-  (eval echo "\"\$as_me:4843: $ac_compile\"" >&5)
+  (eval echo "\"\$as_me:4849: $ac_compile\"" >&5)
   (eval "$ac_compile" 2>conftest.err)
   cat conftest.err >&5
-  (eval echo "\"\$as_me:4846: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
+  (eval echo "\"\$as_me:4852: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
   (eval "$NM \"conftest.$ac_objext\"" 2>conftest.err > conftest.out)
   cat conftest.err >&5
-  (eval echo "\"\$as_me:4849: output\"" >&5)
+  (eval echo "\"\$as_me:4855: output\"" >&5)
   cat conftest.out >&5
   if $GREP 'External.*some_variable' conftest.out > /dev/null; then
     lt_cv_nm_interface="MS dumpbin"
@@ -6052,7 +6058,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 6055 "configure"' > conftest.$ac_ext
+  echo '#line 6061 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -8600,11 +8606,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:8603: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8609: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:8607: \$? = $ac_status" >&5
+   echo "$as_me:8613: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -8939,11 +8945,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:8942: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8948: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:8946: \$? = $ac_status" >&5
+   echo "$as_me:8952: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -9044,11 +9050,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:9047: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:9053: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:9051: \$? = $ac_status" >&5
+   echo "$as_me:9057: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -9099,11 +9105,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:9102: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:9108: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:9106: \$? = $ac_status" >&5
+   echo "$as_me:9112: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -11966,7 +11972,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 11969 "configure"
+#line 11975 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -12062,7 +12068,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 12065 "configure"
+#line 12071 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -14082,11 +14088,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:14085: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:14091: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:14089: \$? = $ac_status" >&5
+   echo "$as_me:14095: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -14181,11 +14187,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:14184: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:14190: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:14188: \$? = $ac_status" >&5
+   echo "$as_me:14194: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -14233,11 +14239,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:14236: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:14242: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:14240: \$? = $ac_status" >&5
+   echo "$as_me:14246: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -16170,7 +16176,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 16173 "configure"
+#line 16179 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -18030,6 +18036,268 @@ _ACEOF
        	LDFLAGS="$LDFLAGS_SAVED"
 fi
 
+
+
+
+# Check whether --with-boost-regex was given.
+if test "${with_boost_regex+set}" = set; then
+  withval=$with_boost_regex;
+        if test "$withval" = "no"; then
+			want_boost="no"
+        elif test "$withval" = "yes"; then
+            want_boost="yes"
+            ax_boost_user_regex_lib=""
+        else
+		    want_boost="yes"
+        	ax_boost_user_regex_lib="$withval"
+		fi
+
+else
+  want_boost="yes"
+
+fi
+
+
+	if test "x$want_boost" = "xyes"; then
+
+		CPPFLAGS_SAVED="$CPPFLAGS"
+		CPPFLAGS="$CPPFLAGS $BOOST_CPPFLAGS"
+		export CPPFLAGS
+
+		LDFLAGS_SAVED="$LDFLAGS"
+		LDFLAGS="$LDFLAGS $BOOST_LDFLAGS"
+		export LDFLAGS
+
+        { $as_echo "$as_me:$LINENO: checking whether the Boost::Regex library is available" >&5
+$as_echo_n "checking whether the Boost::Regex library is available... " >&6; }
+if test "${ax_cv_boost_regex+set}" = set; then
+  $as_echo_n "(cached) " >&6
+else
+  ac_ext=cpp
+ac_cpp='$CXXCPP $CPPFLAGS'
+ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+
+			 cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <boost/regex.hpp>
+
+int
+main ()
+{
+boost::regex r(); return 0;
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (ac_try="$ac_compile"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:$LINENO: $ac_try_echo\""
+$as_echo "$ac_try_echo") >&5
+  (eval "$ac_compile") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_cxx_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest.$ac_objext; then
+  ax_cv_boost_regex=yes
+else
+  $as_echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	ax_cv_boost_regex=no
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+         ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
+
+fi
+{ $as_echo "$as_me:$LINENO: result: $ax_cv_boost_regex" >&5
+$as_echo "$ax_cv_boost_regex" >&6; }
+		if test "x$ax_cv_boost_regex" = "xyes"; then
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_BOOST_REGEX /**/
+_ACEOF
+
+			BN=boost_regex
+            if test "x$ax_boost_user_regex_lib" = "x"; then
+				for ax_lib in $BN $BN-$CC $BN-$CC-mt $BN-$CC-mt-s $BN-$CC-s \
+                              lib$BN lib$BN-$CC lib$BN-$CC-mt lib$BN-$CC-mt-s lib$BN-$CC-s \
+                              $BN-mgw $BN-mgw $BN-mgw-mt $BN-mgw-mt-s $BN-mgw-s ; do
+				    as_ac_Lib=`$as_echo "ac_cv_lib_$ax_lib''_main" | $as_tr_sh`
+{ $as_echo "$as_me:$LINENO: checking for main in -l$ax_lib" >&5
+$as_echo_n "checking for main in -l$ax_lib... " >&6; }
+if { as_var=$as_ac_Lib; eval "test \"\${$as_var+set}\" = set"; }; then
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-l$ax_lib  $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+
+int
+main ()
+{
+return main ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:$LINENO: $ac_try_echo\""
+$as_echo "$ac_try_echo") >&5
+  (eval "$ac_link") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest$ac_exeext && {
+	 test "$cross_compiling" = yes ||
+	 $as_test_x conftest$ac_exeext
+       }; then
+  eval "$as_ac_Lib=yes"
+else
+  $as_echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	eval "$as_ac_Lib=no"
+fi
+
+rm -rf conftest.dSYM
+rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
+      conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+ac_res=`eval 'as_val=${'$as_ac_Lib'}
+		 $as_echo "$as_val"'`
+	       { $as_echo "$as_me:$LINENO: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+as_val=`eval 'as_val=${'$as_ac_Lib'}
+		 $as_echo "$as_val"'`
+   if test "x$as_val" = x""yes; then
+  BOOST_REGEX_LIB="-l$ax_lib";  link_regex="yes"; break
+else
+  link_regex="no"
+fi
+
+  				done
+            else
+               for ax_lib in $ax_boost_user_regex_lib $BN-$ax_boost_user_regex_lib; do
+				      as_ac_Lib=`$as_echo "ac_cv_lib_$ax_lib''_main" | $as_tr_sh`
+{ $as_echo "$as_me:$LINENO: checking for main in -l$ax_lib" >&5
+$as_echo_n "checking for main in -l$ax_lib... " >&6; }
+if { as_var=$as_ac_Lib; eval "test \"\${$as_var+set}\" = set"; }; then
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-l$ax_lib  $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+
+int
+main ()
+{
+return main ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:$LINENO: $ac_try_echo\""
+$as_echo "$ac_try_echo") >&5
+  (eval "$ac_link") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest$ac_exeext && {
+	 test "$cross_compiling" = yes ||
+	 $as_test_x conftest$ac_exeext
+       }; then
+  eval "$as_ac_Lib=yes"
+else
+  $as_echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	eval "$as_ac_Lib=no"
+fi
+
+rm -rf conftest.dSYM
+rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
+      conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+ac_res=`eval 'as_val=${'$as_ac_Lib'}
+		 $as_echo "$as_val"'`
+	       { $as_echo "$as_me:$LINENO: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+as_val=`eval 'as_val=${'$as_ac_Lib'}
+		 $as_echo "$as_val"'`
+   if test "x$as_val" = x""yes; then
+  BOOST_REGEX_LIB="-l$ax_lib";  link_regex="yes"; break
+else
+  link_regex="no"
+fi
+
+               done
+            fi
+			if test "x$link_regex" = "xno"; then
+				{ { $as_echo "$as_me:$LINENO: error: Could not link against $ax_lib !" >&5
+$as_echo "$as_me: error: Could not link against $ax_lib !" >&2;}
+   { (exit 1); exit 1; }; }
+			fi
+		fi
+
+		CPPFLAGS="$CPPFLAGS_SAVED"
+    	LDFLAGS="$LDFLAGS_SAVED"
+	fi
 
 
 

@@ -54,6 +54,9 @@ public:
 	string array_name ();
 	string object_name ();
 
+	// Apply the HACK rules for new context names.
+	static string convert_context_name (string);
+
 private:
 	bool has_bb (Basic_block*);
 };
