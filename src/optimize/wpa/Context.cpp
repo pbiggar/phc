@@ -166,7 +166,10 @@ Context::object_name ()
 string
 Context::symtable_name ()
 {
-	return *get_bb()->cfg->method->signature->method_name->value + "_" + this->caller().name();
+	if (this->use_caller)
+		return *get_bb()->cfg->method->signature->method_name->value + "_" + this->caller().name();
+	else
+		return *get_bb()->cfg->method->signature->method_name->value + "_";
 }
 
 
