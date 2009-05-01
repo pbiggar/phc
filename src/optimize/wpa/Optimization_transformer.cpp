@@ -133,7 +133,7 @@ Optimization_transformer::visit_pre_op (Statement_block* bb, MIR::Pre_op* in)
 {
 	Literal* lit = dynamic_cast <Literal*> (get_literal (bb, in->variable_name));
 	if (lit)
-		phc_TODO (); // replace with a simple assignment
+		bb->statement = new Assign_var (in->variable_name, PHP::fold_pre_op (lit, in->op));
 }
 
 void
@@ -195,7 +195,12 @@ Optimization_transformer::visit_bin_op (Statement_block* bb, MIR::Bin_op* in)
 
 	// If they're both literals, we can replace them with the new value.
 	if (isa<Literal> (in->left) && isa<Literal> (in->right))
-		phc_TODO ();
+	{
+		dyc<Assign_var> (bb->statement)->rhs = PHP::fold_bin_op (
+				dyc<Literal> (in->left),
+				in->op,
+				dyc<Literal> (in->right));
+	}
 }
 
 void
@@ -207,10 +212,12 @@ void
 Optimization_transformer::visit_cast (Statement_block* bb, MIR::Cast* in)
 {
 	Rvalue* rhs = get_literal (bb, in->variable_name);
-	if (isa<Rvalue> (rhs)
+	if (isa<Literal> (rhs)
 		&& *in->cast->value != "array"
 		&& *in->cast->value != "object")
-		phc_TODO ();
+	{
+		dyc<Assign_var> (bb->statement)->rhs = PHP::cast_to (in->cast, dyc<Literal> (rhs));
+	}
 }
 
 void
@@ -323,7 +330,15 @@ Optimization_transformer::visit_string (Statement_block* bb, MIR::STRING* in)
 void
 Optimization_transformer::visit_unary_op (Statement_block* bb, MIR::Unary_op* in)
 {
-	phc_TODO ();
+	Rvalue* rval = get_literal (bb, in->variable_name);
+
+	// If they're both literals, we can replace them with the new value.
+	if (isa<Literal> (rval))
+	{
+		dyc<Assign_var> (bb->statement)->rhs = PHP::fold_unary_op (
+				in->op,
+				dyc<Literal> (rval));
+	}
 }
 
 void
