@@ -22,14 +22,22 @@
 	 * Some semantic checks
 	 */
 
-	Variable* expect_variable(Expr* node)
+	Variable* expect_variable (Expr* node)
 	{
-		Variable* var = dynamic_cast<Variable*>(node);
-		
-		if(var == NULL && node != NULL)
+		if (node && !isa<Variable> (node))
 			phc_error("Variable name expected", node);
 			
-		return var;
+		return dyc<Variable> (node);
+	}
+
+	Expr* expect_variable_or_method_invocation (Expr* node)
+	{
+		if(node
+			&& !isa<Variable> (node)
+			&& !isa<Method_invocation> (node))
+			phc_error("Variable name or method invocation expected", node);
+			
+		return node;
 	}
 
 	/*
@@ -1916,7 +1924,7 @@ expr_without_variable:
 		}
 	| expr O_MAGIC_CONCAT expr '}'
 		{
-			$$ = NEW(Bin_op, ($1, $2, expect_variable($3)));
+			$$ = NEW(Bin_op, ($1, $2, expect_variable_or_method_invocation ($3)));
 			$$->attrs->set_true("phc.unparser.no_binop_brackets");
 
 			/*
