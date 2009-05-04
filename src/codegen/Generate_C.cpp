@@ -1033,8 +1033,6 @@ public:
 		class_name = dynamic_cast<CLASS_NAME*>(nw->class_name);
 		variable_class = dynamic_cast<Variable_class*>(nw->class_name);
 
-		// TODO: call the constructor (or pass the arguments for the constructor
-		// to the various templates)
 		if(class_name != NULL)
 		{
 			if(!agn->is_ref)
@@ -1042,8 +1040,9 @@ public:
 			else
 				INST (buf, "assign_expr_new_ref", lhs->value, class_name);
 		}
-		else if(variable_class != NULL)
+		else
 		{
+			assert (variable_class);
 			VARIABLE_NAME* vcn = variable_class->variable_name;
 
 			if(!agn->is_ref)
@@ -1051,13 +1050,8 @@ public:
 			else
 				INST (buf, "assign_expr_var_new_ref", lhs->value, vcn);
 		}
-		else
-		{
-			// Invalid class name type
-			phc_unreachable();
-		}
 
-    // See comment in expr_method_invocation
+		// See comment in expr_method_invocation
 		Object_list* params = new Object_list;
 		foreach (Actual_parameter* ap, *rhs->value->actual_parameters)
 		{
@@ -1067,12 +1061,12 @@ public:
 		}
 
 
-    INST (buf, "constructor_invocation",
-      params,
-      rhs->value->get_filename (),
-      s(lexical_cast<string>(rhs->value->get_line_number())),
-      s(lexical_cast<string>(rhs->value->actual_parameters->size())),
-      lhs->value);
+		INST (buf, "constructor_invocation",
+				params,
+				rhs->value->get_filename (),
+				s(lexical_cast<string>(rhs->value->get_line_number())),
+				s(lexical_cast<string>(rhs->value->actual_parameters->size())),
+				lhs->value);
 	}
 
 protected:
@@ -1608,38 +1602,6 @@ protected:
 	Wildcard<Actual_parameter>* arg;
 };
 
-void
-init_function_record (ostream& buf, string name, string& fci_name, string& fcic_name, Node* node)
-{
-	// Its not necessarily a good idea to initialize at the start, since we
-	// still have to check if its initialized at call-time (it may have been
-	// created in the meantime.
-	buf
-	<< "initialize_function_call (" 
-	<<			"&" << fci_name << ", "
-	<<			"&" << fcic_name << ", "
-	<<			"\"" << name << "\", "
-	<<			"\"" << *node->get_filename () << "\", " 
-	<<			node->get_line_number ()
-	<<			" TSRMLS_CC);\n"
-	;
-}
-
-void
-init_method_record (ostream& buf, string obj, string name, string& fci_name, string& fcic_name, string ht, Node* node)
-{
-	buf
-	<< "zval* " << ht << " = " << "initialize_method_call (" 
-	<<			"&" << fci_name << ", "
-	<<			"&" << fcic_name << ", "
-	<<      obj << ", "
-	<<			"\"" << name << "\", "
-	<<			"\"" << *node->get_filename () << "\", " 
-	<<			node->get_line_number ()
-	<<			" TSRMLS_CC);\n"
-	;
-}
-
 class Pattern_assign_expr_param_is_ref : public Pattern_assign_var
 {
 public:
@@ -1865,21 +1827,18 @@ public:
 				else
 					INST (buf, "assign_field_ref", object_name, field_name, rhs);
 			}
-			else if (class_name != NULL)
+			else
 			{
+				assert (class_name);
 				if (!is_ref)
 					INST (buf, "assign_static_field", class_name, field_name, rhs);
 				else
 					INST (buf, "assign_static_field_ref", class_name, field_name, rhs);
 			}
-			else
-			{
-				// Invalid target
-				phc_unreachable();
-			}
 		}
 		else if (var_field != NULL)
 		{
+			assert (var_field);
 			VARIABLE_NAME* var_field_name = var_field->variable_name;
 
 			if (object_name != NULL)
@@ -1889,23 +1848,14 @@ public:
 				else
 					INST (buf, "assign_var_field_ref", object_name, var_field_name, rhs);
 			}
-			else if (class_name != NULL)
+			else
 			{
+				assert (class_name);
 				if (!is_ref)
 					INST (buf, "assign_var_static_field", class_name, var_field_name, rhs);
 				else
 					INST (buf, "assign_var_static_field_ref", class_name, var_field_name, rhs);
 			}
-			else
-			{
-				// Invalid target
-				phc_unreachable();
-			}
-		}
-		else
-		{
-			// Invalid field name
-			phc_unreachable();
 		}
 	}
 
@@ -1946,21 +1896,18 @@ public:
 				else
 					INST (buf, "field_access_ref", lhs, object_name, field_name);
 			}
-			else if (class_name != NULL)
+			else
 			{
+				assert (class_name);
 				if (!is_ref)
 					INST (buf, "static_field_access", lhs, class_name, field_name);
 				else
 					INST (buf, "static_field_access_ref", lhs, class_name, field_name);
 			}
-			else
-			{
-				// Invalid target
-				phc_unreachable();
-			}
 		}
-		else if (var_field != NULL)
+		else
 		{
+			assert (var_field);
 			VARIABLE_NAME* var_field_name = var_field->variable_name;
 
 			if (object_name != NULL)
@@ -1970,23 +1917,14 @@ public:
 				else
 					INST (buf, "var_field_access_ref", lhs, object_name, var_field_name);
 			}
-			else if (class_name != NULL)
+			else
 			{
+				assert (class_name);
 				if (!is_ref)
 					INST (buf, "var_static_field_access", lhs, class_name, var_field_name);
 				else
 					INST (buf, "var_static_field_access_ref", lhs, class_name, var_field_name);
 			}
-			else
-			{
-				// Invalid target
-				phc_unreachable();
-			}
-		}
-		else
-		{
-			// Invalid field name
-			phc_unreachable();
 		}
 	}
 
