@@ -176,29 +176,35 @@ Context::symtable_name ()
 string
 Context::convert_context_name (string name)
 {
-	// If it starts with "array_" or "object_", we want the last BB ID, its a
-	// heap allocation, and we want its last BB ID.
 	string BB_ID = "/\\d+";
 	string all_IDs = "(" + BB_ID + ")+";
 	string all_but_one = all_IDs + "(" + BB_ID + ")";
 
-   boost::regex re1 ("(array|object)_" + all_but_one);
+
+	// If it starts with "array_" or "object_", we want the last BB ID, its a
+	// heap allocation, and we want its last BB ID.
+   boost::regex re1 ("(array|object)_" + all_but_one + "(.*)");
    if (boost::regex_match (name, re1))
 	{
-		return boost::regex_replace (name, re1, "\\1\\3");
+		string result = boost::regex_replace (name, re1, "\\1\\3\\4");
+//		cdebug << "RE1 matches: " << name << " -> " << result << "\n";
+		return result;
 	}
 
 
 	// Remove other BB IDs
-   boost::regex re2("([^/]+)" + all_IDs);
+   boost::regex re2("([^/]+)" + all_IDs + "(.*)");
    if (boost::regex_match (name, re2))
 	{
-		return boost::regex_replace (name, re2, "\\1");
+		string result = boost::regex_replace (name, re2, "\\1\\3");
+//		cdebug << "RE2 matches: " << name << " -> " << result << "\n";
+		return result;
 	}
-
 
 	
 	// Otherwise, just leave it
+
+//	cdebug << "No matches: " << name << "\n";
 	return name;
 }
 

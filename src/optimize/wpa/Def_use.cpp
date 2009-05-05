@@ -83,7 +83,7 @@ Def_use::dump_everything (string comment)
 	Set<Context> all_contexts;
 
 	typedef Map<Context, Set<Alias_name> > x; // fool foreach
-	x* all_sets[12] =
+	x* all_sets[6] =
 	{
 		&ref_defs, &ref_uses, &ref_may_defs, &val_defs, &val_uses, &val_may_defs,
 	};

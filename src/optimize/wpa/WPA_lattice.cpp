@@ -180,22 +180,45 @@ WPA_lattice::merge_contexts ()
 	CX_lattices new_ins;
 	foreach (tie (cx, map), ins)
 	{
-		new_ins[cx.get_non_contextual ()].merge (&map);
+		// Each map needs its key's names changed.
+		Lattice_map newmap;
+
+		string str;
+		Lattice_cell* cell;
+		foreach (tie (str, cell), map)
+		{
+			str = Context::convert_context_name (str);
+
+			// There may be multiple cells for the same name.
+			newmap[str] = meet (newmap[str], cell);
+		}
+
+		// The context needs to change names too.
+		new_ins[cx.get_non_contextual ()].merge (&newmap);
 	}
-	ins.clear ();
 	ins = new_ins;
 
-
+	// TODO: remove code duplication
 	CX_lattices new_outs;
 	foreach (tie (cx, map), outs)
 	{
-		new_outs[cx.get_non_contextual ()].merge (&map);
+		// Each map needs its key's names changed.
+		Lattice_map newmap;
+
+		string str;
+		Lattice_cell* cell;
+		foreach (tie (str, cell), map)
+		{
+			str = Context::convert_context_name (str);
+
+			// There may be multiple cells for the same name.
+			newmap[str] = meet (newmap[str], cell);
+		}
+
+		// The context needs to change names too.
+		new_outs[cx.get_non_contextual ()].merge (&newmap);
 	}
-	outs.clear ();
 	outs = new_outs;
-
-
-	// TODO ST contexts still arent merged!
 }
 
 

@@ -133,7 +133,11 @@ Optimization_transformer::visit_pre_op (Statement_block* bb, MIR::Pre_op* in)
 {
 	Literal* lit = dynamic_cast <Literal*> (get_literal (bb, in->variable_name));
 	if (lit)
-		bb->statement = new Assign_var (in->variable_name, PHP::fold_pre_op (lit, in->op));
+	{
+		Literal* folded = PHP::fold_pre_op (lit, in->op);
+		assert (folded);
+		dyc<Assign_var> (bb->statement)->rhs = folded;
+	}
 }
 
 void
@@ -196,10 +200,13 @@ Optimization_transformer::visit_bin_op (Statement_block* bb, MIR::Bin_op* in)
 	// If they're both literals, we can replace them with the new value.
 	if (isa<Literal> (in->left) && isa<Literal> (in->right))
 	{
-		dyc<Assign_var> (bb->statement)->rhs = PHP::fold_bin_op (
+		Literal* folded = PHP::fold_bin_op (
 				dyc<Literal> (in->left),
 				in->op,
 				dyc<Literal> (in->right));
+
+		if (folded)
+			dyc<Assign_var> (bb->statement)->rhs = folded;
 	}
 }
 
@@ -216,7 +223,9 @@ Optimization_transformer::visit_cast (Statement_block* bb, MIR::Cast* in)
 		&& *in->cast->value != "array"
 		&& *in->cast->value != "object")
 	{
-		dyc<Assign_var> (bb->statement)->rhs = PHP::cast_to (in->cast, dyc<Literal> (rhs));
+		Literal* folded = PHP::cast_to (in->cast, dyc<Literal> (rhs));
+		if (folded)
+			dyc<Assign_var> (bb->statement)->rhs = folded;
 	}
 }
 
@@ -335,9 +344,9 @@ Optimization_transformer::visit_unary_op (Statement_block* bb, MIR::Unary_op* in
 	// If they're both literals, we can replace them with the new value.
 	if (isa<Literal> (rval))
 	{
-		dyc<Assign_var> (bb->statement)->rhs = PHP::fold_unary_op (
-				in->op,
-				dyc<Literal> (rval));
+		Literal* folded = PHP::fold_unary_op (in->op, dyc<Literal> (rval));
+		if (folded)
+			dyc<Assign_var> (bb->statement)->rhs = folded;
 	}
 }
 

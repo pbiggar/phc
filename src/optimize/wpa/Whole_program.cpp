@@ -1865,7 +1865,15 @@ Whole_program::visit_bin_op (Statement_block* bb, MIR::Bin_op* in)
 		return;
 	}
 
-	// TODO: record uses
+	// Record uses
+	if (not isa<Literal_cell> (left->lit))
+		record_use (block_cx, VN (ns, dyc<VARIABLE_NAME> (in->left)));
+
+	if (not isa<Literal_cell> (right->lit))
+		record_use (block_cx, VN (ns, dyc<VARIABLE_NAME> (in->right)));
+
+
+
 
 	Types types = type_inf->get_bin_op_types (block_cx, left, right, *in->op->value);
 
