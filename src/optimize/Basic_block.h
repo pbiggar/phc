@@ -83,37 +83,33 @@ public:
 public:
 	// Copy the phi nodes from OTHER, including the phi args from OTHER's
 	// incoming edges.
-	void old_copy_phi_nodes (Basic_block* other);
+	void copy_phi_nodes (Basic_block* other);
 
 	// For SSA creation/destruction
-	void old_add_phi_node (Alias_name phi_lhs);
-	bool old_has_phi_node (Alias_name phi_lhs);
-	void old_add_phi_arg (Alias_name phi_lhs, int version, Edge* edge);
-	void old_remove_phi_nodes ();
+	void add_phi_node (Alias_name phi_lhs);
+	bool has_phi_node (Alias_name phi_lhs);
+	void add_phi_arg (Alias_name phi_lhs, int version, Edge* edge);
+	void remove_phi_nodes ();
 
 	// These are stored using operator< in VARIABLE_NAME, which changes when
 	// there VARIABLE_NAME changes.
-	void old_update_phi_node (Alias_name old_phi_lhs, Alias_name new_phi_lhs);
+	void update_phi_node (Alias_name phi_lhs, Alias_name new_phi_lhs);
 
 	// Remove a node (including its args from the edges)
-	void old_remove_phi_node (Alias_name phi_lhs);
+	void remove_phi_node (Alias_name phi_lhs);
 
 	// If the nodes have 1 argument, remove them, putting them into
 	// predecessors.
 	void fix_solo_phi_args ();
 
 	// Get the arguments with VARIABLE_NAME as the lhs.
-	old_Alias_name_list* old_get_phi_args (Alias_name phi_lhs);
+	Alias_name_list* get_phi_args (Alias_name phi_lhs);
 
-	Var_set* old_get_phi_lhss ();
+	Var_set* get_phi_lhss ();
 
-	Alias_name old_get_phi_arg_for_edge (Edge*, Alias_name phi_lhs);
-	void old_set_phi_arg_for_edge (Edge*, Alias_name phi_lhs, Alias_name arg);
+	Alias_name get_phi_arg_for_edge (Edge*, Alias_name phi_lhs);
+	void set_phi_arg_for_edge (Edge*, Alias_name phi_lhs, Alias_name arg);
 
-private:
-	// Instead of an explicit phi node, store the phi->lhs here, and the phi
-	// arguments in edges. Then they can be updated all-at-once.
-	Var_set* old_phi_lhss;
 
 	/*
 	 * Misc

@@ -341,7 +341,7 @@ DCE::sweep_pass ()
 	{
 		// Remove the phi nodes first, since the BB* may be replaced with an
 		// Empty BB.
-		foreach (Alias_name phi_lhs, *bb->old_get_phi_lhss ())
+		foreach (Alias_name phi_lhs, *bb->get_phi_lhss ())
 		{
 			phc_TODO ();
 //			if (!marks[new SSA_def (bb, phi_lhs)])

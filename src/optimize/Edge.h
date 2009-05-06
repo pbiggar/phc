@@ -5,9 +5,6 @@
 
 #include "CFG.h"
 #include "MIR.h"
-#include "Var_set.h"
-#include "ssa/Phi.h"
-#include "ssa/SSA.h"
 
 // CFG edge
 class Edge : virtual public GC_obj
@@ -26,7 +23,6 @@ public:
 
 	bool is_executable;
 	boost::tribool direction;
-	Phi_map pm;
 
 	Basic_block* get_source ();
 	Basic_block* get_target ();
@@ -43,7 +39,5 @@ public:
 	typedef boost::edge_property_tag kind;
 
 };
-
-// TODO move to SSA.h
 
 #endif // PHC_EDGE

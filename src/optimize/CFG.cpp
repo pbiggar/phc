@@ -468,16 +468,18 @@ CFG::consistency_check ()
 		// The graph should never reuse vertices.
 		assert (bb->vertex == v);
 
-		// Check phi nodes
-		foreach (Alias_name phi_lhs, *bb->old_get_phi_lhss())
-		{
-			assert (bb->old_get_phi_args (phi_lhs)->size () == bb->get_predecessors ()->size ());
-			foreach (Edge* pred, *bb->get_predecessor_edges ())
-				bb->old_get_phi_arg_for_edge (pred, phi_lhs);
-		}
-
 		if (!isa<Exit_block> (bb))
 			assert (bb->get_successors ()->size () > 0);
+
+
+		// Check phi nodes
+		foreach (Alias_name phi_lhs, *bb->get_phi_lhss ())
+		{
+			assert (bb->get_phi_args (phi_lhs)->size () == bb->get_predecessors ()->size ());
+			foreach (Edge* pred, *bb->get_predecessor_edges ())
+				bb->get_phi_arg_for_edge (pred, phi_lhs);
+		}
+
 	}
 
 	foreach (edge_t e, edges (bs))
@@ -771,7 +773,7 @@ CFG::replace_bb_with_empty (Basic_block* bb)
 	vb[bb->vertex] = new_bb;
 
 	// Copy the properties (The edges don't change, so they're fine)
-	new_bb->old_copy_phi_nodes (bb);
+	new_bb->copy_phi_nodes (bb);
 
 	consistency_check ();
 
@@ -798,7 +800,7 @@ CFG::remove_branch (Branch_block* branch, Basic_block* new_successor)
 	consistency_check ();
 
 	// If the predeccessors are dead, the phis should be too.
-	assert (new_successor->old_get_phi_lhss ()->size () == 0);
+	assert (new_successor->get_phi_lhss ()->size () == 0);
 
 	Edge* true_edge = branch->get_true_successor_edge ();
 	Edge* false_edge = branch->get_false_successor_edge ();
@@ -846,14 +848,14 @@ void
 CFG::insert_predecessor_bb (Basic_block* bb, Basic_block* new_bb)
 {
 	assert (!isa<Branch_block> (new_bb));
-	assert (new_bb->old_get_phi_lhss()->size () == 0);
+	assert (new_bb->get_phi_lhss()->size () == 0);
 
 	// Assume this isnt added
 	add_bb (new_bb);
 
 	// Move the phi nodes
-	new_bb->old_copy_phi_nodes (bb);
-	bb->old_remove_phi_nodes ();
+	new_bb->copy_phi_nodes (bb);
+	bb->remove_phi_nodes ();
 
 	// Connect to each predecessor
 	foreach (Basic_block* pred, *bb->get_predecessors ())
@@ -903,7 +905,7 @@ CFG::split_block (Basic_block* bb)
 	assert (bb->get_predecessors ()->size() > 1);
 
 	// This is much easier if there are no phis
-	assert (bb->old_get_phi_lhss ()->size () == 0);
+	assert (bb->get_phi_lhss ()->size () == 0);
 
 	foreach (Edge* edge, *bb->get_predecessor_edges ())
 	{
@@ -1081,12 +1083,12 @@ CFG::remove_empty_blocks ()
 			// to put in the phi node (BB's phi node, that is, once its moved to
 			// the successor)? Leave it in, it can be removed when the phi nodes
 			// are dropped.
-			if (succ->get_predecessors ()->size () > 1 && bb->old_get_phi_lhss ()->size () > 0)
+			if (succ->get_predecessors ()->size () > 1 && bb->get_phi_lhss ()->size () > 0)
 				continue;
 
 
 			// Merge the phi nodes into the next block.
-			succ->old_copy_phi_nodes (eb);
+			succ->copy_phi_nodes (eb);
 
 			foreach (Basic_block* pred, *bb->get_predecessors ())
 			{

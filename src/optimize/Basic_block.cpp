@@ -21,7 +21,6 @@ Basic_block::Basic_block(CFG* cfg)
 , vertex (NULL)
 {
 	ID = max_id++;
-	old_phi_lhss = new Var_set;
 }
 
 Branch_block::Branch_block (CFG* cfg, Branch* b)
@@ -108,121 +107,80 @@ Statement_block::get_graphviz_label ()
 
 /* Merge the phi nodes from OTHER into this BB. */
 void
-Basic_block::old_copy_phi_nodes (Basic_block* other)
+Basic_block::copy_phi_nodes (Basic_block* other)
 {
-	// Since a phi is an assignment, and variables can only be assigned to
-	// once, OTHER's PHIs cant exist in THIS.
-	foreach (Alias_name phi_lhs, *other->old_get_phi_lhss ())
-		assert (!old_has_phi_node (phi_lhs));
+	if (cfg->duw == NULL)
+		return;
 
-	old_phi_lhss = old_phi_lhss->set_union (other->old_get_phi_lhss());
+	cfg->duw->copy_phi_nodes (this, other);
 }
 
 bool
-Basic_block::old_has_phi_node (Alias_name phi_lhs)
+Basic_block::has_phi_node (Alias_name phi_lhs)
 {
-	return old_phi_lhss->has (phi_lhs);
+	return cfg->duw->has_phi_node (this, phi_lhs);
 }
 
 void
-Basic_block::old_add_phi_node (Alias_name phi_lhs)
+Basic_block::add_phi_node (Alias_name phi_lhs)
 {
-	assert (!old_has_phi_node (phi_lhs));
-	old_phi_lhss->insert (phi_lhs);
-	assert (old_has_phi_node (phi_lhs));
+	cfg->duw->add_phi_node (this, phi_lhs);
 }
 
 void
-Basic_block::old_add_phi_arg (Alias_name phi_lhs, int version, Edge* edge)
+Basic_block::add_phi_arg (Alias_name phi_lhs, int version, Edge* edge)
 {
-	// phi_lhs doesnt have to be in SSA, since it will be updated later using
-	// update_phi_node, if it is not.
-	//	assert (has_phi_node (phi_lhs));
-
-	Alias_name arg = phi_lhs; // copy
-	arg.set_version (version);
-	old_set_phi_arg_for_edge (edge, phi_lhs, arg);
+	cfg->duw->add_phi_arg (this, phi_lhs, version, edge);
 }
 
 void
-Basic_block::old_remove_phi_nodes ()
+Basic_block::remove_phi_nodes ()
 {
-	foreach (Edge* pred, *get_predecessor_edges ())
-		pred->pm.clear ();
+	if (cfg->duw == NULL)
+		return;
 
-	old_phi_lhss->clear ();
+	cfg->duw->remove_phi_nodes (this);
 }
 
 void
-Basic_block::old_remove_phi_node (Alias_name phi_lhs)
+Basic_block::remove_phi_node (Alias_name phi_lhs)
 {
-	assert (old_has_phi_node (phi_lhs));
-	foreach (Edge* pred, *get_predecessor_edges ())
-		pred->pm.erase (phi_lhs);
-
-	// TODO: are we trying to remove the pointer, when we have a different
-	// pointer to the same thing?
-	old_phi_lhss->erase (phi_lhs);
-	assert (!old_has_phi_node (phi_lhs));
+	cfg->duw->remove_phi_node (this, phi_lhs);
 }
 
 
 void
-Basic_block::old_update_phi_node (Alias_name old_phi_lhs, Alias_name new_phi_lhs)
+Basic_block::update_phi_node (Alias_name phi_lhs, Alias_name new_phi_lhs)
 {
-	phc_TODO ();
-	// TODO: too complicated for the mechanical conversion we're doing now. Its easier
-/*	// If a phi_lhs changes into SSA form, its indexing will change. So we must
-	// re-insert its args with the new index.
-	assert (!old_phi_lhs.in_ssa);
-	assert (new_phi_lhs.in_ssa);
-	assert (*old_phi_lhs.value == *new_phi_lhs.value);
-	add_phi_node (new_phi_lhs);
-
-	foreach (Edge* pred, *get_predecessor_edges ())
-	{
-		// Not all nodes have their phi argument added yet
-		if (pred->pm.has (old_phi_lhs))
-			set_phi_arg_for_edge (
-					pred,
-					new_phi_lhs,
-					get_phi_arg_for_edge (pred, old_phi_lhs));
-	}
-
-	remove_phi_node (old_phi_lhs);
-	*/
+	cfg->duw->update_phi_node (this, phi_lhs, new_phi_lhs);
 }
 
 
-old_Alias_name_list*
-Basic_block::old_get_phi_args (Alias_name phi_lhs)
+Alias_name_list*
+Basic_block::get_phi_args (Alias_name phi_lhs)
 {
-	old_Alias_name_list* result = new old_Alias_name_list;
-
-	foreach (Edge* pred, *get_predecessor_edges ())
-		result->push_back (old_get_phi_arg_for_edge (pred, phi_lhs));
-
-	return result;
+	return cfg->duw->get_phi_args (this, phi_lhs);
 }
 
 Var_set*
-Basic_block::old_get_phi_lhss()
+Basic_block::get_phi_lhss ()
 {
-	// Return a clone, since we sometimes like to update the list
-	// (but dont call ->clone, since we dont want clones of the variables).
-	return old_phi_lhss->set_union (new Var_set);
+	if (cfg->duw == NULL)
+		return new Var_set;
+
+	return cfg->duw->get_phi_lhss (this);
 }
 
 Alias_name
-Basic_block::old_get_phi_arg_for_edge (Edge* edge, Alias_name phi_lhs)
+Basic_block::get_phi_arg_for_edge (Edge* edge, Alias_name phi_lhs)
 {
-	return edge->pm[phi_lhs];
+	return cfg->duw->get_phi_arg_for_edge (edge, phi_lhs);
 }
 
 void
-Basic_block::old_set_phi_arg_for_edge (Edge* edge, Alias_name phi_lhs, Alias_name arg)
+Basic_block::set_phi_arg_for_edge (Edge* edge, Alias_name phi_lhs, Alias_name arg)
 {
-	edge->pm[phi_lhs] = arg;
+	cfg->duw->set_phi_arg_for_edge (edge, phi_lhs, arg);
 }
 
 

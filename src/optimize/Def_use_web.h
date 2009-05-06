@@ -52,12 +52,55 @@ public:
 	SSA_use_list* get_named_uses (Alias_name* name);
 	SSA_def_list* get_named_defs (Alias_name* name);
 
+
+	/*
+	 * Phi functions (or nodes)
+	 */
+public:
+	// Copy the phi nodes from OTHER, including the phi args from OTHER's
+	// incoming edges.
+	void copy_phi_nodes (Basic_block* source, Basic_block* dest);
+	void copy_phi_map (Edge* source, Edge* dest);
+
+	// For SSA creation/destruction
+	void add_phi_node (Basic_block* bb, Alias_name phi_lhs);
+	bool has_phi_node (Basic_block* bb, Alias_name phi_lhs);
+	void add_phi_arg (Basic_block* bb, Alias_name phi_lhs, int version, Edge* edge);
+	void remove_phi_nodes (Basic_block* bb);
+
+	// These are stored using operator< in VARIABLE_NAME, which changes when
+	// there VARIABLE_NAME changes.
+	void update_phi_node (Basic_block* bb, Alias_name old_phi_lhs, Alias_name new_phi_lhs);
+
+	// Remove a node (including its args from the edges)
+	void remove_phi_node (Basic_block* bb, Alias_name phi_lhs);
+
+	// If the nodes have 1 argument, remove them, putting them into
+	// predecessors.
+	void fix_solo_phi_args (Basic_block* bb);
+
+	// Get the arguments with VARIABLE_NAME as the lhs.
+	Alias_name_list* get_phi_args (Basic_block* bb, Alias_name phi_lhs);
+
+	Var_set* get_phi_lhss (Basic_block* bb);
+
+	Alias_name get_phi_arg_for_edge (Edge*, Alias_name phi_lhs);
+	void set_phi_arg_for_edge (Edge*, Alias_name phi_lhs, Alias_name arg);
+
+
 private:
+
 	Map<long, SSA_def_list> def_ops;
 	Map<long, SSA_use_list> use_ops;
 
 	Map<Alias_name, SSA_def_list> named_defs;
 	Map<Alias_name, SSA_use_list> named_uses;
+
+	// Instead of an explicit phi node, store the phi->lhs here, mapped by BB.
+	Map<long, Var_set> phi_lhss;
+
+	// Store phi arguments by edge. Then they can be updated all-at-once.
+	Map<edge_t, Phi_map> phi_rhss;
 
 	/*
 	 * The DUW holds an ordered list of SSA_ops for each BB. An op is a use,

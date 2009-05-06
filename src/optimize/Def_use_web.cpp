@@ -285,3 +285,154 @@ Def_use_web::get_named_defs (Alias_name* name)
 {
 	return &named_defs[*name];
 }
+
+
+/*
+ * SSA
+ */
+
+void
+Def_use_web::copy_phi_nodes (Basic_block* source, Basic_block* dest)
+{
+	// Since a phi is an assignment, and variables can only be assigned to
+	// once, DEST's PHIs cant exist in SOURCE.
+	foreach (Alias_name phi_lhs, *get_phi_lhss (dest))
+	{
+		add_phi_node (source, phi_lhs);
+	}
+}
+
+
+bool
+Def_use_web::has_phi_node (Basic_block* bb, Alias_name phi_lhs)
+{
+	return phi_lhss[bb->ID].has (phi_lhs);
+}
+
+void
+Def_use_web::add_phi_node (Basic_block* bb, Alias_name phi_lhs)
+{
+	assert (!has_phi_node (bb, phi_lhs));
+
+	phi_lhss[bb->ID].insert (phi_lhs);
+
+	assert (has_phi_node (bb, phi_lhs));
+}
+
+void
+Def_use_web::add_phi_arg (Basic_block* bb, Alias_name phi_lhs, int version, Edge* edge)
+{
+	// phi_lhs doesnt have to be in SSA, since it will be updated later using
+	// update_phi_node, if it is not.
+	//	assert (has_phi_node (phi_lhs));
+
+	Alias_name arg = phi_lhs; // copy
+	arg.set_version (version);
+	set_phi_arg_for_edge (edge, phi_lhs, arg);
+}
+
+void
+Def_use_web::remove_phi_nodes (Basic_block* bb)
+{
+	foreach (Edge* pred, *bb->get_predecessor_edges ())
+		phi_rhss[pred->edge].clear ();
+
+	phi_lhss[bb->ID].clear ();
+}
+
+void
+Def_use_web::remove_phi_node (Basic_block* bb, Alias_name phi_lhs)
+{
+	assert (has_phi_node (bb, phi_lhs));
+
+	foreach (Edge* pred, *bb->get_predecessor_edges ())
+		phi_rhss[pred->edge].erase (phi_lhs);
+
+	// TODO: are we trying to remove the pointer, when we have a different
+	// pointer to the same thing?
+	phi_lhss[bb->ID].erase (phi_lhs);
+
+	assert (!has_phi_node (bb, phi_lhs));
+}
+
+
+void
+Def_use_web::update_phi_node (Basic_block* bb, Alias_name phi_lhs, Alias_name new_phi_lhs)
+{
+	phc_TODO ();
+	// TODO: too complicated for the mechanical conversion we're doing now. Its easier
+/*	// If a phi_lhs changes into SSA form, its indexing will change. So we must
+	// re-insert its args with the new index.
+	assert (!phi_lhs.in_ssa);
+	assert (new_phi_lhs.in_ssa);
+	assert (*phi_lhs.value == *new_phi_lhs.value);
+	add_phi_node (new_phi_lhs);
+
+	foreach (Edge* pred, *get_predecessor_edges ())
+	{
+		// Not all nodes have their phi argument added yet
+		if (pred->pm.has (phi_lhs))
+			set_phi_arg_for_edge (
+					pred,
+					new_phi_lhs,
+					get_phi_arg_for_edge (pred, phi_lhs));
+	}
+
+	remove_phi_node (phi_lhs);
+	*/
+}
+
+
+Alias_name_list*
+Def_use_web::get_phi_args (Basic_block* bb, Alias_name phi_lhs)
+{
+	Alias_name_list* result = new Alias_name_list;
+
+	foreach (Edge* pred, *bb->get_predecessor_edges ())
+		result->push_back (new Alias_name (get_phi_arg_for_edge (pred, phi_lhs)));
+
+	return result;
+}
+
+Var_set*
+Def_use_web::get_phi_lhss (Basic_block* bb)
+{
+	// Return a clone, since we sometimes like to update the list
+	// (but dont call ->clone, since we dont want clones of the variables).
+	return phi_lhss[bb->ID].set_union (new Var_set);
+}
+
+Alias_name
+Def_use_web::get_phi_arg_for_edge (Edge* edge, Alias_name phi_lhs)
+{
+	return phi_rhss[edge->edge][phi_lhs];
+}
+
+void
+Def_use_web::set_phi_arg_for_edge (Edge* edge, Alias_name phi_lhs, Alias_name arg)
+{
+	phi_rhss[edge->edge][phi_lhs] = arg;
+}
+
+void
+Def_use_web::copy_phi_map (Edge* source, Edge* dest)
+{
+	// The target of either edge may have changed, so use the keys of other's
+	// phi_map.
+	
+	// It should all work out in the end, and will be verified by
+	// consistency_check.
+	
+	// They're not required to have the same target, only that this.target has
+	// all of other.target's phi_lhss (which must be guaranteed by the caller).
+	Alias_name phi_lhs;
+	Alias_name arg;
+	foreach (tie (phi_lhs, arg), phi_rhss[dest->edge])
+	{
+		source->get_target()->set_phi_arg_for_edge (source, phi_lhs, arg);
+	}
+}
+
+
+
+

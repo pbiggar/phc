@@ -12,7 +12,7 @@ using namespace boost;
 void
 CFG_visitor::visit_block (Basic_block* bb)
 {
-	foreach (Alias_name phi_lhs, *bb->old_get_phi_lhss ())
+	foreach (Alias_name phi_lhs, *bb->get_phi_lhss ())
 		visit_phi_node (bb, phi_lhs);
 
 	// TODO: visit_ssa_op?
@@ -411,7 +411,7 @@ CFG_visitor::transform_block (Basic_block* bb)
 	// just update BB.
 	
 	// Allow it to update the CFG directly, its much easier.
-	foreach (Alias_name phi_lhs, *bb->old_get_phi_lhss ())
+	foreach (Alias_name phi_lhs, *bb->get_phi_lhss ())
 		transform_phi_node (bb, phi_lhs);
 
 	// TODO transform ssa_op?
