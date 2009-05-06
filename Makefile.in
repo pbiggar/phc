@@ -110,7 +110,7 @@ am_libphc_la_OBJECTS = getopt1.lo getopt.lo AST_annotate.lo \
 	Flow_visitor.lo If_simplification.lo Inlining.lo Lattice.lo \
 	Mark_initialized.lo Method_info.lo Misc_annotations.lo \
 	Oracle.lo Prune_symbol_table.lo Remove_loop_booleans.lo \
-	Dominance.lo HSSA.lo Phi.lo SSA.lo SSA_ops.lo Var_set.lo \
+	Dominance.lo HSSA.lo Phi.lo SSA_ops.lo Var_set.lo \
 	Visit_once.lo Aliasing.lo Callgraph.lo CCP.lo \
 	Constant_state.lo Context.lo Debug_WPA.lo Def_use.lo \
 	Include_analysis.lo Optimization_annotator.lo \
@@ -831,8 +831,6 @@ libphc_la_SOURCES = \
 	src/optimize/ssa/HSSA.h									\
 	src/optimize/ssa/Phi.cpp								\
 	src/optimize/ssa/Phi.h									\
-	src/optimize/ssa/SSA.cpp								\
-	src/optimize/ssa/SSA.h									\
 	src/optimize/ssa/SSA_ops.cpp							\
 	src/optimize/ssa/SSA_ops.h								\
 	src/optimize/Var_map.h									\
@@ -1518,7 +1516,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Remove_concat_null.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Remove_loop_booleans.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Remove_parser_temporaries.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SSA.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SSA_ops.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Split_multiple_arguments.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Split_unset_isset.Plo@am__quote@
@@ -2174,13 +2171,6 @@ Phi.lo: src/optimize/ssa/Phi.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/ssa/Phi.cpp' object='Phi.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Phi.lo `test -f 'src/optimize/ssa/Phi.cpp' || echo '$(srcdir)/'`src/optimize/ssa/Phi.cpp
-
-SSA.lo: src/optimize/ssa/SSA.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT SSA.lo -MD -MP -MF $(DEPDIR)/SSA.Tpo -c -o SSA.lo `test -f 'src/optimize/ssa/SSA.cpp' || echo '$(srcdir)/'`src/optimize/ssa/SSA.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/SSA.Tpo $(DEPDIR)/SSA.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/ssa/SSA.cpp' object='SSA.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o SSA.lo `test -f 'src/optimize/ssa/SSA.cpp' || echo '$(srcdir)/'`src/optimize/ssa/SSA.cpp
 
 SSA_ops.lo: src/optimize/ssa/SSA_ops.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT SSA_ops.lo -MD -MP -MF $(DEPDIR)/SSA_ops.Tpo -c -o SSA_ops.lo `test -f 'src/optimize/ssa/SSA_ops.cpp' || echo '$(srcdir)/'`src/optimize/ssa/SSA_ops.cpp

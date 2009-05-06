@@ -7,7 +7,6 @@
 #include "MIR.h"
 #include "Var_set.h"
 #include "Var_map.h"
-#include "ssa/SSA.h"
 
 class Points_to;
 class WPA;
