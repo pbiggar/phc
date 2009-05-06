@@ -61,8 +61,8 @@ private:
 
 	/*
 	 * The DUW holds an ordered list of SSA_ops for each BB. An op is a use,
-	 * def, may-use or may-def. These are alias_names, so that they can easily
-	 * be renumbered by SSA.
+	 * def or may-def (may-uses are marked as full uses). These are alias_names,
+	 * so that they can easily be renumbered by SSA.
 	 *
 	 * Seperately, there is a web over these. This is a list indexed by the
 	 * alias_name of the op, and pointing to the BB is which it is created or

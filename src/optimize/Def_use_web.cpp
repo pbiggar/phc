@@ -199,38 +199,47 @@ Def_use_web::dump ()
 void
 Def_use_web::consistency_check ()
 {
-	return;
-
 	// There isnt much that will help here. I'll implement it if its buggy.
 	// Check that named defs are correctly named
 	// Check that blocked defs are in the right block.
 	// Check that all the defs for a use contains the use
 	// and vice-versa
-	phc_TODO ();
 
-/*
+
 	// Is the first variable we find in SSA.
-	bool in_ssa = (*use_def_chains.begin ()).first.ssa_version == 0;
+	bool in_ssa = (*named_defs.begin ()).first.ssa_version != 0;
 	if (!in_ssa)
 		return;
 
 
-	// Check that each use has 0 or 1 def.
-	Alias_name key;
-	SSA_edge_list edge_list;
-	foreach (tie (key, edge_list), use_def_chains)
-	{
-		assert (edge_list.size () < 2);
-	}
-
-
 	// Check that each key is in SSA form
-	foreach (tie (key, edge_list), use_def_chains)
-		assert (key.ssa_version);
+	Alias_name use;
+	SSA_def_list def_list;
+	foreach (tie (use, def_list), named_defs)
+		assert (use.ssa_version);
 	
-	foreach (tie (key, edge_list), def_use_chains)
-		assert (key.ssa_version);
-		*/
+	Alias_name def;
+	SSA_use_list use_list;
+	foreach (tie (def, use_list), named_uses)
+		assert (def.ssa_version);
+
+
+	foreach (tie (use, def_list), named_defs)
+	{
+		// Check that each use has 0 or 1 def.
+		assert (def_list.size () < 2);
+
+		// Check the dominance property (every use is dominated by its def)
+		if (def_list.size () == 1)
+		{
+			Basic_block* def_bb = def_list.front()->bb;
+
+			foreach (SSA_use* ssa_use, named_uses[use])
+			{
+				assert (ssa_use->bb->is_dominated_by (def_bb));
+			}
+		}
+	}
 }
 
 
