@@ -110,8 +110,8 @@ am_libphc_la_OBJECTS = getopt1.lo getopt.lo AST_annotate.lo \
 	Flow_visitor.lo If_simplification.lo Inlining.lo Lattice.lo \
 	Mark_initialized.lo Method_info.lo Misc_annotations.lo \
 	Oracle.lo Prune_symbol_table.lo Remove_loop_booleans.lo \
-	SCCP.lo Dominance.lo HSSA.lo Phi.lo SSA.lo SSA_ops.lo \
-	Var_set.lo Visit_once.lo Aliasing.lo Callgraph.lo CCP.lo \
+	Dominance.lo HSSA.lo Phi.lo SSA.lo SSA_ops.lo Var_set.lo \
+	Visit_once.lo Aliasing.lo Callgraph.lo CCP.lo \
 	Constant_state.lo Context.lo Debug_WPA.lo Def_use.lo \
 	Include_analysis.lo Optimization_annotator.lo \
 	Optimization_transformer.lo Points_to.lo Type_inference.lo \
@@ -825,8 +825,6 @@ libphc_la_SOURCES = \
 	src/optimize/Prune_symbol_table.h					\
 	src/optimize/Remove_loop_booleans.cpp				\
 	src/optimize/Remove_loop_booleans.h					\
-	src/optimize/SCCP.cpp									\
-	src/optimize/SCCP.h										\
 	src/optimize/ssa/Dominance.cpp						\
 	src/optimize/ssa/Dominance.h							\
 	src/optimize/ssa/HSSA.cpp								\
@@ -1520,7 +1518,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Remove_concat_null.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Remove_loop_booleans.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Remove_parser_temporaries.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SCCP.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SSA.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SSA_ops.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Split_multiple_arguments.Plo@am__quote@
@@ -2156,13 +2153,6 @@ Remove_loop_booleans.lo: src/optimize/Remove_loop_booleans.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Remove_loop_booleans.cpp' object='Remove_loop_booleans.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Remove_loop_booleans.lo `test -f 'src/optimize/Remove_loop_booleans.cpp' || echo '$(srcdir)/'`src/optimize/Remove_loop_booleans.cpp
-
-SCCP.lo: src/optimize/SCCP.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT SCCP.lo -MD -MP -MF $(DEPDIR)/SCCP.Tpo -c -o SCCP.lo `test -f 'src/optimize/SCCP.cpp' || echo '$(srcdir)/'`src/optimize/SCCP.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/SCCP.Tpo $(DEPDIR)/SCCP.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/SCCP.cpp' object='SCCP.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o SCCP.lo `test -f 'src/optimize/SCCP.cpp' || echo '$(srcdir)/'`src/optimize/SCCP.cpp
 
 Dominance.lo: src/optimize/ssa/Dominance.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Dominance.lo -MD -MP -MF $(DEPDIR)/Dominance.Tpo -c -o Dominance.lo `test -f 'src/optimize/ssa/Dominance.cpp' || echo '$(srcdir)/'`src/optimize/ssa/Dominance.cpp
