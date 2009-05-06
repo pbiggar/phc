@@ -41,7 +41,6 @@
 #include "optimize/Misc_annotations.h"
 #include "optimize/Prune_symbol_table.h"
 #include "optimize/Remove_loop_booleans.h"
-#include "optimize/SCCP.h"
 #include "parsing/parse.h"
 #include "parsing/XML_parser.h"
 #include "pass_manager/Fake_pass.h"

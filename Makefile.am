@@ -236,10 +236,6 @@ libphc_la_SOURCES= 											\
 	src/optimize/Prune_symbol_table.h					\
 	src/optimize/Remove_loop_booleans.cpp				\
 	src/optimize/Remove_loop_booleans.h					\
-	src/optimize/SCCP.cpp									\
-	src/optimize/SCCP.h										\
-	src/optimize/Sparse_conditional_visitor.cpp		\
-	src/optimize/Sparse_conditional_visitor.h			\
 	src/optimize/ssa/Dominance.cpp						\
 	src/optimize/ssa/Dominance.h							\
 	src/optimize/ssa/HSSA.cpp								\

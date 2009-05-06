@@ -1,11 +1,14 @@
+
+#if 0
+
+	TODO:
+
+		Remove this file. Right now it is being kept because of the
+		comments, and because the transformer is a tidier way of
+		doing things than the current combination of CCP and
+		Optimization_transformer.
+ 
 /*
- * TODO:
- *
- *		Remove this file. Right now it is being kept because of the
- *		comments, and because the transformer is a tidier way of
- *		doing things than the current combination of CCP and
- *		Optimization_transformer.
- *
  * Cooper/Torczon Section 10.3.3 describes SSCP, which is weaker than SCCP.
  * Muchnick 12.6 describes SCCP, but does a very poor job of it. The original
  * paper, "Constant propagation with Conditional Branches", by Wegman and
@@ -137,7 +140,6 @@
 
 using namespace MIR;
 
-#if 0
 
 void
 SCCP::visit_phi_node (Basic_block* bb, VARIABLE_NAME* phi_lhs)

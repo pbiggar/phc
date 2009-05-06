@@ -6,8 +6,6 @@
  * code.
  * */
 
-#include "optimize/SCCP.h"
-
 #include "Aliasing.h"
 #include "CCP.h"
 #include "Points_to.h"

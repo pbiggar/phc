@@ -75,7 +75,6 @@
 #include "optimize/Edge.h"
 #include "optimize/Method_pruner.h"
 #include "optimize/Oracle.h"
-#include "optimize/SCCP.h"
 
 #include "Whole_program.h"
 #include "WPA.h"

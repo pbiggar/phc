@@ -110,10 +110,10 @@ am_libphc_la_OBJECTS = getopt1.lo getopt.lo AST_annotate.lo \
 	Flow_visitor.lo If_simplification.lo Inlining.lo Lattice.lo \
 	Mark_initialized.lo Method_info.lo Misc_annotations.lo \
 	Oracle.lo Prune_symbol_table.lo Remove_loop_booleans.lo \
-	SCCP.lo Sparse_conditional_visitor.lo Dominance.lo HSSA.lo \
-	Phi.lo SSA.lo SSA_ops.lo Var_set.lo Visit_once.lo Aliasing.lo \
-	Callgraph.lo CCP.lo Constant_state.lo Context.lo Debug_WPA.lo \
-	Def_use.lo Include_analysis.lo Optimization_annotator.lo \
+	SCCP.lo Dominance.lo HSSA.lo Phi.lo SSA.lo SSA_ops.lo \
+	Var_set.lo Visit_once.lo Aliasing.lo Callgraph.lo CCP.lo \
+	Constant_state.lo Context.lo Debug_WPA.lo Def_use.lo \
+	Include_analysis.lo Optimization_annotator.lo \
 	Optimization_transformer.lo Points_to.lo Type_inference.lo \
 	VRP.lo Whole_program.lo WPA.lo WPA_lattice.lo MICG_parser.lo \
 	Parse_buffer.lo parse.lo PHP_context.lo XML_parser.lo \
@@ -827,8 +827,6 @@ libphc_la_SOURCES = \
 	src/optimize/Remove_loop_booleans.h					\
 	src/optimize/SCCP.cpp									\
 	src/optimize/SCCP.h										\
-	src/optimize/Sparse_conditional_visitor.cpp		\
-	src/optimize/Sparse_conditional_visitor.h			\
 	src/optimize/ssa/Dominance.cpp						\
 	src/optimize/ssa/Dominance.h							\
 	src/optimize/ssa/HSSA.cpp								\
@@ -1525,7 +1523,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SCCP.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SSA.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SSA_ops.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Sparse_conditional_visitor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Split_multiple_arguments.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Split_unset_isset.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/String.Plo@am__quote@
@@ -2166,13 +2163,6 @@ SCCP.lo: src/optimize/SCCP.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/SCCP.cpp' object='SCCP.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o SCCP.lo `test -f 'src/optimize/SCCP.cpp' || echo '$(srcdir)/'`src/optimize/SCCP.cpp
-
-Sparse_conditional_visitor.lo: src/optimize/Sparse_conditional_visitor.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Sparse_conditional_visitor.lo -MD -MP -MF $(DEPDIR)/Sparse_conditional_visitor.Tpo -c -o Sparse_conditional_visitor.lo `test -f 'src/optimize/Sparse_conditional_visitor.cpp' || echo '$(srcdir)/'`src/optimize/Sparse_conditional_visitor.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Sparse_conditional_visitor.Tpo $(DEPDIR)/Sparse_conditional_visitor.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Sparse_conditional_visitor.cpp' object='Sparse_conditional_visitor.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Sparse_conditional_visitor.lo `test -f 'src/optimize/Sparse_conditional_visitor.cpp' || echo '$(srcdir)/'`src/optimize/Sparse_conditional_visitor.cpp
 
 Dominance.lo: src/optimize/ssa/Dominance.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Dominance.lo -MD -MP -MF $(DEPDIR)/Dominance.Tpo -c -o Dominance.lo `test -f 'src/optimize/ssa/Dominance.cpp' || echo '$(srcdir)/'`src/optimize/ssa/Dominance.cpp
