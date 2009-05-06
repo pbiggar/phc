@@ -43,8 +43,14 @@
 #define PHC_MARK_INITIALIZED
 
 
-#include "Sparse_conditional_visitor.h"
+#include "CFG.h"
+#include "CFG_visitor.h"
+#include "Edge.h"
+#include "Def_use_web.h"
 #include "Lattice.h"
+#include "process_ir/debug.h"
+
+
 
 class Init_cell : public Lattice_cell
 {

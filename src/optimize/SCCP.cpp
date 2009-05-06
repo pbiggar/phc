@@ -1,4 +1,11 @@
 /*
+ * TODO:
+ *
+ *		Remove this file. Right now it is being kept because of the
+ *		comments, and because the transformer is a tidier way of
+ *		doing things than the current combination of CCP and
+ *		Optimization_transformer.
+ *
  * Cooper/Torczon Section 10.3.3 describes SSCP, which is weaker than SCCP.
  * Muchnick 12.6 describes SCCP, but does a very poor job of it. The original
  * paper, "Constant propagation with Conditional Branches", by Wegman and
@@ -752,19 +759,4 @@ SCCP::post_pass (CFG* cfg)
 #endif
 
 
-Literal_cell::Literal_cell (Literal* value)
-: value (value)
-{
-}
 
-void
-Literal_cell::dump (std::ostream& os)
-{
-	os << *value->get_value_as_string ();
-}
-
-bool
-Literal_cell::equals (Lattice_cell* other)
-{
-	return (this->value->equals (dyc<Literal_cell> (other)->value));
-}

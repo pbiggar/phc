@@ -11,7 +11,6 @@
  */
 
 #include "CCP.h"
-#include "optimize/SCCP.h"
 #include "optimize/Abstract_value.h"
 #include "Points_to.h"
 
@@ -85,6 +84,24 @@ CCP::get_lit (Context cx, Alias_name name)
 		return new NIL;
 
 	return dyc<Literal_cell> (lat)->value;
+}
+
+
+Literal_cell::Literal_cell (Literal* value)
+: value (value)
+{
+}
+
+void
+Literal_cell::dump (std::ostream& os)
+{
+	os << *value->get_value_as_string ();
+}
+
+bool
+Literal_cell::equals (Lattice_cell* other)
+{
+	return (this->value->equals (dyc<Literal_cell> (other)->value));
 }
 
 

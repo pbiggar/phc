@@ -14,7 +14,7 @@
 
 #include "Abstract_value.h"
 #include "Lattice.h"
-#include "optimize/SCCP.h"
+#include "wpa/CCP.h"
 #include "wpa/Type_inference.h"
 
 Abstract_value::Abstract_value (Lattice_cell* lit, Lattice_cell* type)
