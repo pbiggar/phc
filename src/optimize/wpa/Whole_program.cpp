@@ -1916,7 +1916,6 @@ Whole_program::visit_cast (Statement_block* bb, MIR::Cast* in)
 		}
 	}
 
-
 	// We've handled casts for known scalars to scalars. We still must handle
 	// casts to objects, casts to arrays, and casts from unknown values to
 	// other scalar types.
@@ -1926,6 +1925,7 @@ Whole_program::visit_cast (Statement_block* bb, MIR::Cast* in)
 		{
 			// Most common case: create an empty array
 			assign_empty_array (block_cx, saved_plhs, block_cx.array_name ());
+			return;
 		}
 		else
 			phc_TODO ();
@@ -1935,10 +1935,11 @@ Whole_program::visit_cast (Statement_block* bb, MIR::Cast* in)
 	{
 		phc_TODO ();
 	}
-	else
-	{
-		assign_typed (block_cx, saved_plhs, Types (*in->cast->value));
-	}
+
+	// Record uses
+	record_use (block_cx, VN (ns, in->variable_name));
+
+	assign_typed (block_cx, saved_plhs, Types (*in->cast->value));
 }
 
 void

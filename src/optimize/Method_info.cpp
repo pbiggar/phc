@@ -25,7 +25,7 @@ Method_info::Method_info (String* name)
 User_method_info::User_method_info (Method* method)
 : Method_info (method->signature->method_name->value)
 , method (method)
-, side_effecting (false)
+, side_effecting (true)
 {
 }
 

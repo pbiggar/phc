@@ -197,8 +197,7 @@ DCE::mark_pass ()
 	{
 		if (is_bb_critical (bb))
 		{
-			DEBUG ("marking " << bb->ID << " as critical");
-			mark_entire_block (bb);
+			mark_entire_block (bb, "as critical");
 		}
 	}
 
@@ -225,9 +224,8 @@ DCE::mark_pass ()
 		// other statements, and we mark the branch, not the phi.
 		foreach (Basic_block* rdf, *def->bb->get_reverse_dominance_frontier ())
 		{
-			DEBUG ("marking " << rdf->ID
-					<< " as part of " << def->bb->ID << "'s RDF");
-			mark_entire_block (rdf); // it'll just be a branch though
+			// it'll just be a branch though
+			mark_entire_block (rdf, "as part of " + lexical_cast<string>(def->bb->ID) + "'s RDF"); 
 		}
 	}
 
@@ -264,10 +262,12 @@ DCE::mark_pass ()
 }
 
 void
-DCE::mark_entire_block (Basic_block* bb)
+DCE::mark_entire_block (Basic_block* bb, string why)
 {
 	if (bb_marks[bb->ID])
 		return;
+
+	DEBUG ("marking " << bb->ID << " " << why);
 
 	bb_marks [bb->ID] = true;
 
@@ -280,18 +280,22 @@ DCE::mark_entire_block (Basic_block* bb)
 		mark_def (use);
 
 	foreach (SSA_def* def, *bb->cfg->duw->get_block_defs (bb))
-		mark (def);
+		mark (def, "");
 }
 
 void
-DCE::mark (SSA_def* def)
+DCE::mark (SSA_def* def, string why)
 {
 	if (marks[def])
 		return;
 
+	DEBUG ("marking ");
+	def->dump();
+	DEBUG (why);
+
 	// If either a BB or a CHI is marked, mark the entire block. However,
 	// if a BB is marked, we dont need to mark the CHIs.
-	mark_entire_block (def->bb);
+	mark_entire_block (def->bb, "");
 
 	marks[def] = true;
 	worklist->push_back (def);
@@ -302,10 +306,7 @@ DCE::mark_def (SSA_use* use)
 {
 	foreach (SSA_def* def, *use->get_defs ())
 	{
-		DEBUG ("marking ");
-		def->dump ();
-		DEBUG (" due to def of " << use->name->str ());
-		mark (def);
+		mark (def, "due to def of " + use->name->str ());
 	}
 }
 

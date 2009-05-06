@@ -34,12 +34,12 @@ private:
 	bool is_marked (Basic_block*);
 
 	// Mark this operation as not-dead
-	void mark (SSA_def*);
+	void mark (SSA_def*, string why);
 
 	// Mark the definition of USE
 	void mark_def (SSA_use* use);
 
-	void mark_entire_block (Basic_block* bb);
+	void mark_entire_block (Basic_block* bb, string why);
 
 	// Doesn't undo the marked SSA_ops
 	void unmark_block (Basic_block* bb);
