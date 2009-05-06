@@ -639,7 +639,7 @@ Pass_manager::cfg_dump (CFG* cfg, String* passname, String* comment)
 	}
 
 	// We may not be able to dump the IR, but we can still get stats.
-	dump (NULL, passname);
+//	dump (NULL, passname);
 }
 
 void Pass_manager::optimize (MIR::PHP_script* in)

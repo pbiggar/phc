@@ -276,7 +276,8 @@ bool
 Internal_method_info::is_side_effecting ()
 {
 	string name = *this->name;
-	return   name == "abs"
+	return not (0
+			|| name == "abs"
 			|| name == "acos"
 			|| name == "acosh"
 			|| name == "addslashes"
@@ -375,6 +376,7 @@ Internal_method_info::is_side_effecting ()
 			|| name == "version_compare"
 			|| name == "zend_function"
 			|| name == "zend_logo_guide"
+			)
 			;
 }
 

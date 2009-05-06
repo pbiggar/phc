@@ -130,7 +130,7 @@ Whole_program::run (MIR::PHP_script* in)
 		// Merge different contexts
 		merge_contexts ();
 
-		dump (Context(), "after context merge");
+//		dump (Context(), "after context merge");
 
 
 		// Optimize based on analysis results
@@ -2032,6 +2032,9 @@ Whole_program::visit_unary_op (Statement_block* bb, MIR::Unary_op* in)
 		assign_scalar (block_cx, saved_plhs, result);
 		return;
 	}
+	else
+		record_use (block_cx, VN (ns, in->variable_name));
+
 
 	Types types = type_inf->get_unary_op_types (block_cx, val, *in->op->value);
 
