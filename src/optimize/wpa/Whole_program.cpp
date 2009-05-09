@@ -585,6 +585,10 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context cx)
 	{
 		assign_typed (cx, ret_path, Types ("int"));
 	}
+	else if (*info->name == "rand")
+	{
+		assign_typed (cx, ret_path, Types ("int"));
+	}
 	else if (*info->name == "gettimeofday")
 	{
 		// TODO: parameter could be false
