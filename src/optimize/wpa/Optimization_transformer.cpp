@@ -134,7 +134,7 @@ Optimization_transformer::visit_pre_op (Statement_block* bb, MIR::Pre_op* in)
 	{
 		Literal* folded = PHP::fold_pre_op (lit, in->op);
 		assert (folded);
-		dyc<Assign_var> (bb->statement)->rhs = folded;
+		bb->statement = new Assign_var (in->variable_name, folded);
 	}
 }
 
@@ -183,10 +183,7 @@ Optimization_transformer::visit_array_access (Statement_block* bb, MIR::Array_ac
 	// TODO: if we know the array is a string, and we know the index, we can
 	// resolve this.
 
-	// TODO: we may know the value of that array index
-
-	
-	in->index = get_literal (bb, dyc<VARIABLE_NAME> (in->index));
+	in->index = get_literal (bb, in->index);
 }
 
 void
