@@ -42,6 +42,18 @@ Abstract_value::get_types ()
 	return dyc<Type_cell> (type)->types;
 }
 
+MIR::Literal*
+Abstract_value::get_literal ()
+{
+	if (this->lit == TOP)
+		return new MIR::NIL;
+
+	if (this->lit == BOTTOM)
+		return NULL;
+
+	return dyc<Literal_cell> (lit)->value;
+}
+
 Abstract_value*
 Abstract_value::from_literal (MIR::Literal* lit)
 {

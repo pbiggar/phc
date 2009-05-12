@@ -32,22 +32,35 @@ Optimization_transformer::run (CFG* cfg)
 {
 }
 
+Abstract_value*
+Optimization_transformer::get_abstract_value (Basic_block* bb, Rvalue* in)
+{
+	if (isa<Literal> (in))
+		return Abstract_value::from_literal (dyc<Literal> (in));
+
+	Context cx = Context::non_contextual (bb);
+	return wp->get_abstract_value (
+			cx,
+			VN (cx.symtable_name (), dyc<VARIABLE_NAME> (in))->name ());
+}
+
+Abstract_value*
+Optimization_transformer::get_out_abstract_value (Basic_block* bb, Rvalue* in)
+{
+	if (isa<Literal> (in))
+		return Abstract_value::from_literal (dyc<Literal> (in));
+
+	Context cx = Context::non_contextual (bb);
+	return wp->get_bb_out_abstract_value (
+			cx,
+			VN (cx.symtable_name (), dyc<VARIABLE_NAME> (in))->name ());
+}
 
 
 Rvalue*
 Optimization_transformer::get_literal (Basic_block* bb, Rvalue* in)
 {
-	if (isa<Literal> (in))
-		return in;
-
-	Context cx = Context::non_contextual (bb);
-
-	Index_node* index = wp->get_named_index (cx, P (cx.symtable_name (), in));
-	if (index == NULL)
-		return in;
-
-	Abstract_value* absval = wp->get_abstract_value (cx, index->name ());
-	Lattice_cell* result = absval->lit;
+	Lattice_cell* result = get_abstract_value (bb, in)->lit;
 
 	if (result == BOTTOM)
 		return in;
@@ -61,19 +74,7 @@ Optimization_transformer::get_literal (Basic_block* bb, Rvalue* in)
 String*
 Optimization_transformer::get_type (Basic_block* bb, Rvalue* in)
 {
-	if (isa<Literal> (in))
-	{
-		return s (*Type_inference::get_type (dyc<Literal> (in)).begin ());
-	}
-
-	Context cx = Context::non_contextual (bb);
-
-	Index_node* index = wp->get_named_index (cx, P (cx.symtable_name (), in));
-	if (index == NULL)
-		return NULL;
-
-	Abstract_value* absval = wp->get_abstract_value (cx, index->name ());
-	Lattice_cell* result = absval->type;
+	Lattice_cell* result = get_abstract_value (bb, in)->type;
 
 	if (result == BOTTOM)
 		return NULL;
@@ -105,21 +106,22 @@ Optimization_transformer::visit_assign_field (Statement_block* bb, MIR::Assign_f
 void
 Optimization_transformer::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 {
-	visit_expr (bb, in->rhs);
+	// TODO: check that there are no implicit operations on the rhs
 
 	// The assignment is by reference. We may be able to remove this later,
 	// via DCE.
-	if (in->is_ref)
-		return;
+	if (not in->is_ref)
+	{
+		// If the RHS value is known, replace it outright.
+		Literal* lit = get_out_abstract_value (bb, in->lhs)->get_literal ();
 
-	// Ignore
-	if (isa<Literal> (in->rhs))
-		return;
+		if (lit)
+			in->rhs = lit;
+	}
 
-	// TODO: check that there are no implicit operations on the rhs
+	// visit_expr for whatever is left
+	visit_expr (bb, in->rhs);
 
-	if (isa<VARIABLE_NAME> (in->rhs))
-		in->rhs = get_literal (bb, dyc<VARIABLE_NAME> (in->rhs));
 }
 
 void
@@ -162,13 +164,10 @@ Optimization_transformer::visit_global (Statement_block* bb, MIR::Global* in)
 void
 Optimization_transformer::visit_pre_op (Statement_block* bb, MIR::Pre_op* in)
 {
-	Literal* lit = dynamic_cast <Literal*> (get_literal (bb, in->variable_name));
+	Literal* lit = get_out_abstract_value (bb, in->variable_name)->get_literal ();
+
 	if (lit)
-	{
-		Literal* folded = PHP::fold_pre_op (lit, in->op);
-		assert (folded);
-		bb->statement = new Assign_var (in->variable_name, folded);
-	}
+		bb->statement = new Assign_var (in->variable_name, lit);
 }
 
 void
@@ -215,12 +214,7 @@ Optimization_transformer::visit_array_access (Statement_block* bb, MIR::Array_ac
 {
 	in->index = get_literal (bb, in->index);
 
-	if (isa<Literal> (in->index))
-	{
-		// TODO: Constant strings with constant indices can be fixed.
-
-		// TODO: Arrays with constant indices and a constant value can be resolved.
-	}
+	// If the RHS is completely known, the analysis will pick it up.
 }
 
 void
@@ -228,18 +222,6 @@ Optimization_transformer::visit_bin_op (Statement_block* bb, MIR::Bin_op* in)
 {
 	in->left = get_literal (bb, in->left);
 	in->right = get_literal (bb, in->right);
-
-	// If they're both literals, we can replace them with the new value.
-	if (isa<Literal> (in->left) && isa<Literal> (in->right))
-	{
-		Literal* folded = PHP::fold_bin_op (
-				dyc<Literal> (in->left),
-				in->op,
-				dyc<Literal> (in->right));
-
-		if (folded)
-			dyc<Assign_var> (bb->statement)->rhs = folded;
-	}
 }
 
 void
@@ -250,16 +232,6 @@ Optimization_transformer::visit_bool (Statement_block* bb, MIR::BOOL* in)
 void
 Optimization_transformer::visit_cast (Statement_block* bb, MIR::Cast* in)
 {
-	Rvalue* rhs = get_literal (bb, in->variable_name);
-	if (isa<Literal> (rhs)
-		&& *in->cast->value != "array"
-		&& *in->cast->value != "object")
-	{
-		Literal* folded = PHP::cast_to (in->cast, dyc<Literal> (rhs));
-		if (folded)
-			dyc<Assign_var> (bb->statement)->rhs = folded;
-	}
-
 	// TODO: if we know the type, we might be able to remove the cast.
 }
 
@@ -373,15 +345,6 @@ Optimization_transformer::visit_string (Statement_block* bb, MIR::STRING* in)
 void
 Optimization_transformer::visit_unary_op (Statement_block* bb, MIR::Unary_op* in)
 {
-	Rvalue* rval = get_literal (bb, in->variable_name);
-
-	// If they're both literals, we can replace them with the new value.
-	if (isa<Literal> (rval))
-	{
-		Literal* folded = PHP::fold_unary_op (in->op, dyc<Literal> (rval));
-		if (folded)
-			dyc<Assign_var> (bb->statement)->rhs = folded;
-	}
 }
 
 void
