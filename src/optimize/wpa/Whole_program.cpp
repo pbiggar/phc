@@ -1268,8 +1268,9 @@ Whole_program::copy_from_abstract_value (Context cx, Index_node* lhs, Index_node
 	// TODO: if not a string, NULL only.
 	foreach_wpa (this)
 	{
+		// TODO: remove cert.
 		wpa->set_storage (cx, ABSVAL (lhs), Types ("string", "unset"));
-		wpa->assign_value (cx, lhs, ABSVAL (lhs), cert);
+		wpa->assign_value (cx, lhs, ABSVAL (lhs), DEFINITE);
 	}
 
 

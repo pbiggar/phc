@@ -104,7 +104,7 @@ Type_inference::get_all_scalar_types ()
 	return scalar_types;
 }
 
-Types 
+Types
 Type_inference::get_type (MIR::Literal* lit)
 {
 	return Types (mir_types [lit->classid()]);

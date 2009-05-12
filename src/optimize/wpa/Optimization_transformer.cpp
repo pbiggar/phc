@@ -10,6 +10,7 @@
 #include "CCP.h"
 #include "Points_to.h"
 #include "Whole_program.h"
+#include "optimize/Abstract_value.h"
 
 #include "Optimization_transformer.h"
 
@@ -32,6 +33,61 @@ Optimization_transformer::run (CFG* cfg)
 }
 
 
+
+Rvalue*
+Optimization_transformer::get_literal (Basic_block* bb, Rvalue* in)
+{
+	if (isa<Literal> (in))
+		return in;
+
+	Context cx = Context::non_contextual (bb);
+
+	Index_node* index = wp->get_named_index (cx, P (cx.symtable_name (), in));
+	if (index == NULL)
+		return in;
+
+	Abstract_value* absval = wp->get_abstract_value (cx, index->name ());
+	Lattice_cell* result = absval->lit;
+
+	if (result == BOTTOM)
+		return in;
+
+	if (result == TOP)
+		return new NIL;
+
+	return dyc<Literal_cell> (result)->value;
+}
+
+String*
+Optimization_transformer::get_type (Basic_block* bb, Rvalue* in)
+{
+	if (isa<Literal> (in))
+	{
+		return s (*Type_inference::get_type (dyc<Literal> (in)).begin ());
+	}
+
+	Context cx = Context::non_contextual (bb);
+
+	Index_node* index = wp->get_named_index (cx, P (cx.symtable_name (), in));
+	if (index == NULL)
+		return NULL;
+
+	Abstract_value* absval = wp->get_abstract_value (cx, index->name ());
+	Lattice_cell* result = absval->type;
+
+	if (result == BOTTOM)
+		return NULL;
+
+	if (result == TOP)
+		return s("unset");
+
+	if (dyc<Type_cell> (result)->types.size () != 1)
+		return  NULL;
+
+	return s (*dyc<Type_cell> (result)->types.begin ());
+}
+
+
 void
 Optimization_transformer::visit_assign_array (Statement_block* bb, MIR::Assign_array* in)
 {
@@ -46,35 +102,12 @@ Optimization_transformer::visit_assign_field (Statement_block* bb, MIR::Assign_f
 }
 
 
-Rvalue*
-Optimization_transformer::get_literal (Basic_block* bb, Rvalue* in)
-{
-	if (isa<Literal> (in))
-		return in;
-
-	Context cx = Context::non_contextual (bb);
-
-	Index_node* index = wp->get_named_index (cx, P (cx.symtable_name (), in));
-	if (index == NULL)
-		return in;
-
-	Lattice_cell* result = wp->ccp->get_value (cx, index->name ());
-
-	if (result == BOTTOM)
-		return in;
-
-	if (result == TOP)
-		return new NIL;
-
-	return dyc<Literal_cell> (result)->value;
-}
-
 void
 Optimization_transformer::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 {
 	visit_expr (bb, in->rhs);
 
-	// The assignment is by reference. We will be able to remove this later,
+	// The assignment is by reference. We may be able to remove this later,
 	// via DCE.
 	if (in->is_ref)
 		return;
@@ -180,10 +213,14 @@ Optimization_transformer::visit_unset (Statement_block* bb, MIR::Unset* in)
 void
 Optimization_transformer::visit_array_access (Statement_block* bb, MIR::Array_access* in)
 {
-	// TODO: if we know the array is a string, and we know the index, we can
-	// resolve this.
-
 	in->index = get_literal (bb, in->index);
+
+	if (isa<Literal> (in->index))
+	{
+		// TODO: Constant strings with constant indices can be fixed.
+
+		// TODO: Arrays with constant indices and a constant value can be resolved.
+	}
 }
 
 void
@@ -222,6 +259,8 @@ Optimization_transformer::visit_cast (Statement_block* bb, MIR::Cast* in)
 		if (folded)
 			dyc<Assign_var> (bb->statement)->rhs = folded;
 	}
+
+	// TODO: if we know the type, we might be able to remove the cast.
 }
 
 void

@@ -25,6 +25,7 @@ public:
 	bool assign_var_is_ref;
 
 	MIR::Rvalue* get_literal (Basic_block* bb, MIR::Rvalue* in);
+	String* get_type (Basic_block* bb, MIR::Rvalue* in);
 
 	void visit_assign_array (Statement_block* bb, MIR::Assign_array* in);
 	void visit_assign_field (Statement_block* bb, MIR::Assign_field * in);
