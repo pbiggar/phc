@@ -31,15 +31,15 @@
 	 */
 
 	#define RETURN(x) {															\
-		if(false)	            												\
+		if(args_info.dump_tokens_flag)										\
 			printf("%ld: " #x "\n", yyextra->source_line);				\
 		yyextra->after_arrow = (x) == O_SINGLEARROW;						\
 		yyextra->starts_line = false;											\
 		return x; }
 	#define RETURN_OP(t, s) {													\
-		if(false)	            												\
+		if(args_info.dump_tokens_flag)										\
 			printf("%ld: SIMPLE_OP %s\n", yyextra->source_line, s);	\
-		yylval->token_op = new OP(new String(s)); 				\
+		yylval->token_op = new OP(new String(s));							\
 		copy_state(yylval->token_op, yyextra);								\
 		yyextra->after_arrow = false;											\
 		yyextra->starts_line = false;											\

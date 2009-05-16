@@ -12,9 +12,11 @@ AC_INIT([phc],[0.2.0],[phc-general@phpcompiler.org])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([config])
+AC_PREREQ(2.63) # 2.61 adds a warning. Pre-2.61 just doesnt work.
+
 
 dnl configure automake
-AM_INIT_AUTOMAKE([foreign -Wall -Werror 1.9])
+AM_INIT_AUTOMAKE([foreign -Wall -Werror 1.10]) # 1.10 changed a lot of things.
 AM_MAINTAINER_MODE
 
 

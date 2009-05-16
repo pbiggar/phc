@@ -9,134 +9,121 @@
 	#include <assert.h>
 	#include <typeinfo>
 	#include "AST.h"
+	using namespace AST;
 	#include "cmdline.h"
 	#include "lib/Integer.h"
 	#include "lib/String.h"
 	#include "lib/error.h"
+	#include "lib/escape.h"
 	#include "parsing/PHP_context.h"
 
-	extern struct gengetopt_args_info args_info;
-
-	/*
-	 * Some semantic checks
-	 */
-
-	AST_variable* expect_variable(AST_expr* node)
+	void PHP_dot_error(PHP_context* context, const char* s)
 	{
-		AST_variable* var = dynamic_cast<AST_variable*>(node);
-		
-		if(var == NULL && node != NULL)
-			phc_error("Variable name expected", node->get_filename(), node->get_line_number()); \
-			
-		return var;
+		phc_error(s, context->filename, context->source_line, 0);
 	}
 
-	/*
-	 * Define macro to add line numbers and comments to nodes
-	 */
-	#define NEW(class, args)\
-		dynamic_cast<class*>(copy_state(new class args, context))
-	
-	AST_node* copy_state(AST_node* node, PHP_context* context)
+	const char* format (String* str)
 	{
-		node->attrs->set("phc.line_number", new Integer(context->source_line));
-		node->attrs->set("phc.filename", context->filename->clone());
-		if(context->starts_line)
-			node->attrs->set_true("phc.unparser.starts_line");
+		stringstream ss;
+		ss
+		<< '\\' << '\"'
+		<< *(escape_DOT (str, 20))
+		<< '\\' << '\"'
+		;
 
-		AST_commented_node* cnode;
-		cnode = dynamic_cast<AST_commented_node*>(node);
-		if(cnode)
-		{
-			List<String*>* cmnts = cnode->get_comments();
-			cmnts->push_back_all(&context->last_comments);
-			context->last_comments.clear();
-			context->last_commented_node = cnode;
-		}
-
-		return node;
+		return ss.str().c_str ();
 	}
 
-	void PHP_error(PHP_context* context, const char* s)
+	const char* strval (AST::Source_rep* rep)
 	{
-		phc_error(s, context->filename, context->source_line);
+		return format (rep->get_source_rep ());
 	}
 
-	/* Return a new list of statements, containing a single statement */
-	static List<AST_statement*>* wrap(AST_statement* statement)
+	const char* strval (Integer* rep)
 	{
-		List<AST_statement*>* result = new List<AST_statement*>;
-		result->push_back(statement);
-		return result;
+		return format (s(lexical_cast<string> (rep->value())));
 	}
 
-#define ERR_FOREACH_KEY_REF "Key element cannot be a reference"
+	const char* strval (String* rep)
+	{
+		return format (rep);
+	}
 
+
+	// Global state to generate DOT node identifiers
 	Integer* node = new Integer(0);
-
 %}
 
 %union
 {
 	Integer* node;
 	Object* object;
-	List<AST_statement*>* list_ast_statement;
-	List<AST_catch*>* list_ast_catch;
-	AST_catch* ast_catch;
-	List<AST_variable*>* list_ast_variable;
-	AST_variable* ast_variable;
-	Token_string* token_string;
-	AST_method* ast_method;
+	List<AST::Statement*>* list_ast_statement;
+	List<AST::Catch*>* list_ast_catch;
+	AST::Catch* ast_catch;
+	List<AST::Variable*>* list_ast_variable;
+	AST::Variable* ast_variable;
+	AST::STRING* token_string;
+	AST::Method* ast_method;
 	Integer* integer;
-	AST_class_def* ast_class_def;
-	Token_class_name* token_class_name;
-	AST_interface_def* ast_interface_def;
-	List<Token_interface_name*>* list_token_interface_name;
-	List<AST_directive*>* list_ast_directive;
-	List<AST_switch_case*>* switch_ast_case_list;
-	AST_if* ast_if;
-	List<AST_formal_parameter*>* list_ast_formal_parameter;
-	AST_type* ast_type;
-	List<AST_variable_name*>* list_ast_variable_name;
-	AST_variable_name* ast_variable_name;
-	List<AST_member*>* list_ast_member;
-	AST_attr_mod* ast_attr_mod;
-	AST_method_mod* ast_method_mod;
-	AST_expr* ast_expr;
-	AST_method_invocation* ast_method_invocation;
-	AST_class_name* class_name;
-	AST_constant* ast_constant;
-	List<AST_array_elem*>* list_ast_array_elem;
-	List<AST_expr*>* list_ast_expr;
-	AST_nested_list_elements* ast_nested_list_elements;
-	AST_list_element* ast_list_element;
+	AST::Class_def* ast_class_def;
+	AST::CLASS_NAME* token_class_name;
+	AST::Interface_def* ast_interface_def;
+	List<AST::INTERFACE_NAME*>* list_token_interface_name;
+	List<AST::Directive*>* list_ast_directive;
+	List<AST::Switch_case*>* switch_ast_case_list;
+	AST::If* ast_if;
+	List<AST::Formal_parameter*>* list_ast_formal_parameter;
+	AST::Type* ast_type;
+	List<AST::Variable_name*>* list_ast_variable_name;
+	AST::Variable_name* ast_variable_name;
+	List<AST::Member*>* list_ast_member;
+	AST::Attr_mod* ast_attr_mod;
+	AST::Method_mod* ast_method_mod;
+	AST::Expr* ast_expr;
+	AST::Method_invocation* ast_method_invocation;
+	AST::Class_name* class_name;
+	AST::Constant* ast_constant;
+	List<AST::Array_elem*>* list_ast_array_elem;
+	List<AST::Expr*>* list_ast_expr;
+	AST::Nested_list_elements* ast_nested_list_elements;
+	AST::List_element* ast_list_element;
 	String* string;
-	List<AST_actual_parameter*>* list_ast_actual_parameter;
-	AST_class_name* ast_class_name;
-	List<AST_switch_case*>* list_ast_switch_case;
-	AST_switch_case* ast_switch_case;
-	AST_try* ast_try;
-	AST_declare* ast_declare;
-	AST_foreach* ast_foreach;
-	AST_switch* ast_switch;
-	AST_for* ast_for;
-	AST_do* ast_do;
-	AST_while* ast_while;
-	AST_statement* ast_statement;
-	Token_int* token_int;
-	Token_op* token_op;
-	Token_real* token_real;
-	Token_bool* token_bool;
-	Token_null* token_null;
+	List<AST::Actual_parameter*>* list_ast_actual_parameter;
+	AST::Class_name* ast_class_name;
+	List<AST::Switch_case*>* list_ast_switch_case;
+	AST::Switch_case* ast_switch_case;
+	AST::Try* ast_try;
+	AST::Declare* ast_declare;
+	AST::Foreach* ast_foreach;
+	AST::Switch* ast_switch;
+	AST::For* ast_for;
+	AST::Do* ast_do;
+	AST::While* ast_while;
+	AST::Statement* ast_statement;
+	AST::INT* token_int;
+	AST::OP* token_op;
+	AST::REAL* token_real;
+	AST::BOOL* token_bool;
+	AST::NIL* token_null;
+	List<AST::Name_with_default*>* list_ast_name_with_default;
+	AST::Member* ast_member;
+	AST::Attribute* ast_attribute;
+	AST::New* ast_new;
 }
 
 %{
 	int PHP_lex(YYSTYPE* yylval, void* scanner);
+	int PHP_dot_lex(YYSTYPE* yylval, void* scanner) 
+	{
+		return(PHP_lex(yylval, scanner));
+	}
+
 	#define scanner context->scanner
 %}
 
 %pure_parser
-%name-prefix="PHP_"
+%name-prefix="PHP_dot_"
 %parse-param {
 			PHP_context* context
 		}
@@ -259,25 +246,25 @@
 %token O_SLEQ
 %token O_SREQ
 
-%token O_MAGIC_CONCAT
+%token <token_op> O_MAGIC_CONCAT
 
 // Casts
 
-%token CAST_INT
-%token CAST_REAL
-%token CAST_STRING
-%token CAST_ARRAY
-%token CAST_OBJECT
-%token CAST_BOOL
-%token CAST_UNSET
+%token <string> CAST_INT
+%token <string> CAST_REAL
+%token <string> CAST_STRING
+%token <string> CAST_ARRAY
+%token <string> CAST_OBJECT
+%token <string> CAST_BOOL
+%token <string> CAST_UNSET
 
 // Other 
 
-%token <token_string> STRING
+%token <token_string> T_STRING
 %token <string> IDENT
 %token <string> VARIABLE
-%token <token_int> INT
-%token <token_real> REAL 
+%token <token_int> T_INT
+%token <token_real> T_REAL 
 %token <string> INLINE_HTML
 %token <string> INVALID_TOKEN
 
@@ -318,120 +305,120 @@
 %left K_ENDIF
 %right K_STATIC K_ABSTRACT K_FINAL K_PRIVATE K_PROTECTED K_PUBLIC
 
-%type <node> top_statement_list
-%type <node> top_statement
-%type <node> inner_statement_list
-%type <node> inner_statement
-%type <node> statement
-%type <node> unticked_statement
-%type <node> additional_catches
-%type <node> non_empty_additional_catches
-%type <node> additional_catch
-%type <node> unset_variables 
-%type <node> unset_variable
-%type <node> use_filename
-%type <node> function_declaration_statement
-%type <node> class_declaration_statement
-%type <node> is_reference
-%type <node> unticked_function_declaration_statement
-%type <node> unticked_class_declaration_statement
-%type <node> class_entry_type
-%type <node> extends_from
-%type <node> interface_entry
-%type <node> interface_extends_list
-%type <node> implements_list
-%type <node> interface_list
-%type <node> foreach_optional_arg
-%type <node> foreach_variable
-%type <node> for_statement
-%type <node> foreach_statement
-%type <node> declare_statement
-%type <node> declare_list
-%type <node> switch_case_list
-%type <node> case_list
-%type <node> while_statement
-%type <node> elseif_list
-%type <node> new_elseif_list
-%type <node> else_single
-%type <node> new_else_single
-%type <node> parameter_list
-%type <node> non_empty_parameter_list
-%type <node> optional_class_type
-%type <node> function_call_parameter_list
-%type <node> non_empty_function_call_parameter_list
-%type <node> global_var_list
-%type <node> global_var
-%type <node> static_var_list
-%type <node> class_statement_list
-%type <node> class_statement
-%type <node> method_body  
-%type <node> variable_modifiers
-%type <node> method_modifiers
-%type <node> non_empty_member_modifiers
-%type <node> member_modifier
-%type <node> class_variable_declaration
-%type <node> class_constant_declaration
-%type <node> echo_expr_list
-%type <node> for_expr
-%type <node> non_empty_for_expr
-%type <node> expr_without_variable
-%type <node> function_call
-%type <node> fully_qualified_class_name
-%type <node> class_name_reference
-%type <node> dynamic_class_name_reference
-%type <node> dynamic_class_name_variable_properties
-%type <node> dynamic_class_name_variable_property
-%type <node> exit_expr
-%type <node> ctor_arguments
-%type <node> common_scalar
-%type <node> static_scalar
-%type <node> static_class_constant
-%type <node> scalar
-%type <node> static_array_pair_list
-%type <node> non_empty_static_array_pair_list
-%type <node> expr
-%type <node> r_variable
-%type <node> w_variable
-%type <node> rw_variable
-%type <node> variable
-%type <node> variable_properties
-%type <node> variable_property
-%type <node> method_or_not
-%type <node> variable_without_objects
-%type <node> static_member
-%type <node> base_variable_with_function_calls
-%type <node> base_variable
-%type <node> reference_variable
-%type <node> compound_variable
-%type <node> dim_offset
-%type <node> object_property
-%type <node> object_dim_list
-%type <node> variable_name
-%type <node> simple_indirect_reference
-%type <node> assignment_list
-%type <node> assignment_list_element
-%type <node> array_pair_list
-%type <node> non_empty_array_pair_list
-%type <node> internal_functions_in_yacc
-%type <node> isset_variables
-%type <node> class_constant
-%type <node> keyword_if
-%type <node> keyword_elseif
-%type <node> keyword_foreach
-%type <node> keyword_while
-%type <node> keyword_do
-%type <node> keyword_for
-%type <node> keyword_switch
-%type <node> keyword_declare
-%type <node> keyword_try
-%type <node> keyword_catch
-%type <node> keyword_function
-%type <node> keyword_case
-%type <node> keyword_default
-%type <node> block
-%type <node> possible_comma
-%type <node> case_separator
-%type <node> start
+%type <integer> top_statement_list
+%type <integer> top_statement
+%type <integer> inner_statement_list
+%type <integer> inner_statement
+%type <integer> statement
+%type <integer> unticked_statement
+%type <integer> additional_catches
+%type <integer> non_empty_additional_catches
+%type <integer> additional_catch
+%type <integer> unset_variables 
+%type <integer> unset_variable
+%type <integer> use_filename
+%type <integer> function_declaration_statement
+%type <integer> class_declaration_statement
+%type <integer> is_reference
+%type <integer> unticked_function_declaration_statement
+%type <integer> unticked_class_declaration_statement
+%type <integer> class_entry_type
+%type <integer> extends_from
+%type <integer> interface_entry
+%type <integer> interface_extends_list
+%type <integer> implements_list
+%type <integer> interface_list
+%type <integer> foreach_optional_arg
+%type <integer> foreach_variable
+%type <integer> for_statement
+%type <integer> foreach_statement
+%type <integer> declare_statement
+%type <integer> declare_list
+%type <integer> switch_case_list
+%type <integer> case_list
+%type <integer> while_statement
+%type <integer> elseif_list
+%type <integer> new_elseif_list
+%type <integer> else_single
+%type <integer> new_else_single
+%type <integer> parameter_list
+%type <integer> non_empty_parameter_list
+%type <integer> optional_class_type
+%type <integer> function_call_parameter_list
+%type <integer> non_empty_function_call_parameter_list
+%type <integer> global_var_list
+%type <integer> global_var
+%type <integer> static_var_list
+%type <integer> class_statement_list
+%type <integer> class_statement
+%type <integer> method_body  
+%type <integer> variable_modifiers
+%type <integer> method_modifiers
+%type <integer> non_empty_member_modifiers
+%type <integer> member_modifier
+%type <integer> class_variable_declaration
+%type <integer> class_constant_declaration
+%type <integer> echo_expr_list
+%type <integer> for_expr
+%type <integer> non_empty_for_expr
+%type <integer> expr_without_variable
+%type <integer> function_call
+%type <integer> fully_qualified_class_name
+%type <integer> class_name_reference
+%type <integer> dynamic_class_name_reference
+%type <integer> dynamic_class_name_variable_properties
+%type <integer> dynamic_class_name_variable_property
+%type <integer> exit_expr
+%type <integer> ctor_arguments
+%type <integer> common_scalar
+%type <integer> static_scalar
+%type <integer> static_class_constant
+%type <integer> scalar
+%type <integer> static_array_pair_list
+%type <integer> non_empty_static_array_pair_list
+%type <integer> expr
+%type <integer> r_variable
+%type <integer> w_variable
+%type <integer> rw_variable
+%type <integer> variable
+%type <integer> variable_properties
+%type <integer> variable_property
+%type <integer> method_or_not
+%type <integer> variable_without_objects
+%type <integer> static_member
+%type <integer> base_variable_with_function_calls
+%type <integer> base_variable
+%type <integer> reference_variable
+%type <integer> compound_variable
+%type <integer> dim_offset
+%type <integer> object_property
+%type <integer> object_dim_list
+%type <integer> variable_name
+%type <integer> simple_indirect_reference
+%type <integer> assignment_list
+%type <integer> assignment_list_element
+%type <integer> array_pair_list
+%type <integer> non_empty_array_pair_list
+%type <integer> internal_functions_in_yacc
+%type <integer> isset_variables
+%type <integer> class_constant
+%type <integer> keyword_if
+%type <integer> keyword_elseif
+%type <integer> keyword_foreach
+%type <integer> keyword_while
+%type <integer> keyword_do
+%type <integer> keyword_for
+%type <integer> keyword_switch
+%type <integer> keyword_declare
+%type <integer> keyword_try
+%type <integer> keyword_catch
+%type <integer> keyword_function
+%type <integer> keyword_case
+%type <integer> keyword_default
+%type <integer> block
+%type <integer> possible_comma
+%type <integer> case_separator
+%type <integer> start
 
 %%
 
@@ -439,18 +426,18 @@ start:
 	  top_statement_list
 		{
 			printf("node_%ld [label=\"start\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
-			exit(0);
 		}
+	;
 
 top_statement_list:
 	  top_statement_list top_statement
 		{
 			printf("node_%ld [label=\"top_statement_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
@@ -462,26 +449,27 @@ top_statement_list:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 top_statement:
 	  statement
 		{
 			printf("node_%ld [label=\"top_statement\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
 	| function_declaration_statement
 		{
 			printf("node_%ld [label=\"top_statement\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
 	| class_declaration_statement
 		{
 			printf("node_%ld [label=\"top_statement\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
@@ -499,13 +487,17 @@ top_statement:
 			$$ = node;
 			node = new Integer(node->value() + 5);
 		}
+	;
 
+/*
+ * Mimicks top_statement_list
+ */
 inner_statement_list:
 	  inner_statement_list inner_statement
 		{
 			printf("node_%ld [label=\"inner_statement_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
@@ -517,26 +509,27 @@ inner_statement_list:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 inner_statement:
 	  statement
 		{
 			printf("node_%ld [label=\"inner_statement\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
 	| function_declaration_statement
 		{
 			printf("node_%ld [label=\"inner_statement\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
 	| class_declaration_statement
 		{
 			printf("node_%ld [label=\"inner_statement\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
@@ -554,15 +547,21 @@ inner_statement:
 			$$ = node;
 			node = new Integer(node->value() + 5);
 		}
+	;
 
 statement:
 	  unticked_statement
 		{
 			printf("node_%ld [label=\"statement\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
+
+/*
+ * Temporary hack to improve line numbers
+ */
 
 keyword_if:
 	  K_IF
@@ -573,6 +572,7 @@ keyword_if:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 keyword_elseif:
 	  K_ELSEIF
@@ -583,6 +583,7 @@ keyword_elseif:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 keyword_foreach:
 	  K_FOREACH
@@ -593,6 +594,7 @@ keyword_foreach:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 keyword_while:
 	  K_WHILE
@@ -603,6 +605,7 @@ keyword_while:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 keyword_do:
 	  K_DO
@@ -613,6 +616,7 @@ keyword_do:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 keyword_for:
 	  K_FOR
@@ -623,6 +627,7 @@ keyword_for:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 keyword_switch:
 	  K_SWITCH
@@ -633,6 +638,7 @@ keyword_switch:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 keyword_declare:
 	  K_DECLARE
@@ -643,6 +649,7 @@ keyword_declare:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 keyword_try:
 	  K_TRY
@@ -653,6 +660,7 @@ keyword_try:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 keyword_catch:
 	  K_CATCH
@@ -663,6 +671,7 @@ keyword_catch:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 keyword_function:
 	  K_FUNCTION
@@ -673,6 +682,7 @@ keyword_function:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 keyword_case:
 	  K_CASE
@@ -683,6 +693,7 @@ keyword_case:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 keyword_default:
 	  K_DEFAULT
@@ -693,44 +704,46 @@ keyword_default:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
+
 
 unticked_statement:
 	  block
 		{
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
 	| keyword_if '(' expr ')' statement elseif_list else_single
 		{
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"'('\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			printf("node_%ld [label=\"')'\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($5)->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($6)->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($7)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $5->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $6->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $7->value());
 			$$ = node;
 			node = new Integer(node->value() + 3);
 		}
 	| keyword_if '(' expr ')' ':' inner_statement_list new_elseif_list new_else_single K_ENDIF ';'
 		{
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"'('\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			printf("node_%ld [label=\"')'\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			printf("node_%ld [label=\"':'\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($6)->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($7)->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($8)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $6->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $7->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $8->value());
 			printf("node_%ld [label=\"K_ENDIF\"];\n", node->value()+4);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+4);
 			printf("node_%ld [label=\"';'\"];\n", node->value()+5);
@@ -741,26 +754,26 @@ unticked_statement:
 	| keyword_while '(' expr ')' while_statement
 		{
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"'('\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			printf("node_%ld [label=\"')'\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($5)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $5->value());
 			$$ = node;
 			node = new Integer(node->value() + 3);
 		}
 	| keyword_do statement K_WHILE '(' expr ')' ';'
 		{
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			printf("node_%ld [label=\"K_WHILE\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			printf("node_%ld [label=\"'('\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($5)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $5->value());
 			printf("node_%ld [label=\"')'\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
 			printf("node_%ld [label=\"';'\"];\n", node->value()+4);
@@ -771,32 +784,32 @@ unticked_statement:
 	| keyword_for '(' for_expr ';' for_expr ';' for_expr ')' for_statement
 		{
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"'('\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			printf("node_%ld [label=\"';'\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($5)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $5->value());
 			printf("node_%ld [label=\"';'\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($7)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $7->value());
 			printf("node_%ld [label=\"')'\"];\n", node->value()+4);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+4);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($9)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $9->value());
 			$$ = node;
 			node = new Integer(node->value() + 5);
 		}
 	| keyword_switch '(' expr ')' switch_case_list
 		{
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"'('\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			printf("node_%ld [label=\"')'\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($5)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $5->value());
 			$$ = node;
 			node = new Integer(node->value() + 3);
 		}
@@ -815,7 +828,7 @@ unticked_statement:
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
 			printf("node_%ld [label=\"K_BREAK\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			printf("node_%ld [label=\"';'\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			$$ = node;
@@ -836,7 +849,7 @@ unticked_statement:
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
 			printf("node_%ld [label=\"K_CONTINUE\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			printf("node_%ld [label=\"';'\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			$$ = node;
@@ -857,7 +870,7 @@ unticked_statement:
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
 			printf("node_%ld [label=\"K_RETURN\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			printf("node_%ld [label=\"';'\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			$$ = node;
@@ -868,7 +881,7 @@ unticked_statement:
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
 			printf("node_%ld [label=\"K_RETURN\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			printf("node_%ld [label=\"';'\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			$$ = node;
@@ -879,7 +892,7 @@ unticked_statement:
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
 			printf("node_%ld [label=\"K_GLOBAL\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			printf("node_%ld [label=\"';'\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			$$ = node;
@@ -890,7 +903,7 @@ unticked_statement:
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
 			printf("node_%ld [label=\"K_STATIC\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			printf("node_%ld [label=\"';'\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			$$ = node;
@@ -901,7 +914,7 @@ unticked_statement:
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
 			printf("node_%ld [label=\"K_ECHO\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			printf("node_%ld [label=\"';'\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			$$ = node;
@@ -910,7 +923,7 @@ unticked_statement:
 	| INLINE_HTML
 		{
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
-			printf("node_%ld [label=\"INLINE_HTML\"];\n", node->value()+1);
+			printf("node_%ld [label=\"INLINE_HTML: %s\"];\n", node->value()+1, strval ($1));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			$$ = node;
 			node = new Integer(node->value() + 2);
@@ -918,7 +931,7 @@ unticked_statement:
 	| expr ';'
 		{
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"';'\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			$$ = node;
@@ -929,7 +942,7 @@ unticked_statement:
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
 			printf("node_%ld [label=\"K_USE\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			printf("node_%ld [label=\"';'\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			$$ = node;
@@ -942,7 +955,7 @@ unticked_statement:
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			printf("node_%ld [label=\"'('\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			printf("node_%ld [label=\"')'\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
 			printf("node_%ld [label=\"';'\"];\n", node->value()+4);
@@ -953,47 +966,47 @@ unticked_statement:
 	| keyword_foreach '(' variable K_AS foreach_variable foreach_optional_arg ')' foreach_statement
 		{
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"'('\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			printf("node_%ld [label=\"K_AS\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($5)->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($6)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $5->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $6->value());
 			printf("node_%ld [label=\"')'\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($8)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $8->value());
 			$$ = node;
 			node = new Integer(node->value() + 4);
 		}
 	| keyword_foreach '(' expr_without_variable K_AS w_variable foreach_optional_arg ')' foreach_statement
 		{
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"'('\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			printf("node_%ld [label=\"K_AS\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($5)->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($6)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $5->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $6->value());
 			printf("node_%ld [label=\"')'\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($8)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $8->value());
 			$$ = node;
 			node = new Integer(node->value() + 4);
 		}
 	| keyword_declare '(' declare_list ')' declare_statement
 		{
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"'('\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			printf("node_%ld [label=\"')'\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($5)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $5->value());
 			$$ = node;
 			node = new Integer(node->value() + 3);
 		}
@@ -1008,18 +1021,18 @@ unticked_statement:
 	| keyword_try block keyword_catch '(' fully_qualified_class_name VARIABLE ')' block additional_catches
 		{
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			printf("node_%ld [label=\"'('\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($5)->value());
-			printf("node_%ld [label=\"VARIABLE\"];\n", node->value()+2);
+			printf("node_%ld->node_%ld;\n", node->value(), $5->value());
+			printf("node_%ld [label=\"VARIABLE: %s\"];\n", node->value()+2, strval ($5));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			printf("node_%ld [label=\"')'\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($8)->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($9)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $8->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $9->value());
 			$$ = node;
 			node = new Integer(node->value() + 4);
 		}
@@ -1028,18 +1041,19 @@ unticked_statement:
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
 			printf("node_%ld [label=\"K_THROW\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			printf("node_%ld [label=\"';'\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			$$ = node;
 			node = new Integer(node->value() + 3);
 		}
+	;
 
 additional_catches:
 	  non_empty_additional_catches
 		{
 			printf("node_%ld [label=\"additional_catches\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
@@ -1051,108 +1065,116 @@ additional_catches:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 non_empty_additional_catches:
 	  additional_catch
 		{
 			printf("node_%ld [label=\"non_empty_additional_catches\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
 	| non_empty_additional_catches additional_catch
 		{
 			printf("node_%ld [label=\"non_empty_additional_catches\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 additional_catch:
 	  keyword_catch '(' fully_qualified_class_name VARIABLE ')' block
 		{
 			printf("node_%ld [label=\"additional_catch\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"'('\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
-			printf("node_%ld [label=\"VARIABLE\"];\n", node->value()+2);
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
+			printf("node_%ld [label=\"VARIABLE: %s\"];\n", node->value()+2, strval ($4));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			printf("node_%ld [label=\"')'\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($6)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $6->value());
 			$$ = node;
 			node = new Integer(node->value() + 4);
 		}
+	;
 
 unset_variables:
 	  unset_variable
 		{
 			printf("node_%ld [label=\"unset_variables\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
 	| unset_variables ',' unset_variable
 		{
 			printf("node_%ld [label=\"unset_variables\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"','\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 unset_variable:
 	  variable
 		{
 			printf("node_%ld [label=\"unset_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 use_filename:
-	  STRING
+	  T_STRING
 		{
 			printf("node_%ld [label=\"use_filename\"];\n", node->value());
-			printf("node_%ld [label=\"STRING\"];\n", node->value()+1);
+			printf("node_%ld [label=\"STRING: %s\"];\n", node->value()+1, strval ($1));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
-	| '(' STRING ')'
+	| '(' T_STRING ')'
 		{
 			printf("node_%ld [label=\"use_filename\"];\n", node->value());
 			printf("node_%ld [label=\"'('\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld [label=\"STRING\"];\n", node->value()+2);
+			printf("node_%ld [label=\"STRING: %s\"];\n", node->value()+2, strval ($2));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			printf("node_%ld [label=\"')'\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
 			$$ = node;
 			node = new Integer(node->value() + 4);
 		}
+	;
 
 function_declaration_statement:
 	  unticked_function_declaration_statement
 		{
 			printf("node_%ld [label=\"function_declaration_statement\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 class_declaration_statement:
 	  unticked_class_declaration_statement
 		{
 			printf("node_%ld [label=\"class_declaration_statement\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 is_reference:
 	  /* empty */
@@ -1171,37 +1193,39 @@ is_reference:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 unticked_function_declaration_statement:
 	  keyword_function is_reference IDENT '(' parameter_list ')' block
 		{
 			printf("node_%ld [label=\"unticked_function_declaration_statement\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
-			printf("node_%ld [label=\"IDENT\"];\n", node->value()+1);
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
+			printf("node_%ld [label=\"IDENT: %s\"];\n", node->value()+1, strval ($3));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			printf("node_%ld [label=\"'('\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($5)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $5->value());
 			printf("node_%ld [label=\"')'\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($7)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $7->value());
 			$$ = node;
 			node = new Integer(node->value() + 4);
 		}
+	;
 
 unticked_class_declaration_statement:
 	  class_entry_type IDENT extends_from implements_list '{' class_statement_list '}'
 		{
 			printf("node_%ld [label=\"unticked_class_declaration_statement\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
-			printf("node_%ld [label=\"IDENT\"];\n", node->value()+1);
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
+			printf("node_%ld [label=\"IDENT: %s\"];\n", node->value()+1, strval ($2));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($4)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $4->value());
 			printf("node_%ld [label=\"'{'\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($6)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $6->value());
 			printf("node_%ld [label=\"'}'\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
 			$$ = node;
@@ -1210,18 +1234,19 @@ unticked_class_declaration_statement:
 	| interface_entry IDENT interface_extends_list '{' class_statement_list '}'
 		{
 			printf("node_%ld [label=\"unticked_class_declaration_statement\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
-			printf("node_%ld [label=\"IDENT\"];\n", node->value()+1);
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
+			printf("node_%ld [label=\"IDENT: %s\"];\n", node->value()+1, strval ($2));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			printf("node_%ld [label=\"'{'\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($5)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $5->value());
 			printf("node_%ld [label=\"'}'\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
 			$$ = node;
 			node = new Integer(node->value() + 4);
 		}
+	;
 
 class_entry_type:
 	  K_CLASS
@@ -1252,6 +1277,7 @@ class_entry_type:
 			$$ = node;
 			node = new Integer(node->value() + 3);
 		}
+	;
 
 extends_from:
 	  /* empty */
@@ -1267,10 +1293,11 @@ extends_from:
 			printf("node_%ld [label=\"extends_from\"];\n", node->value());
 			printf("node_%ld [label=\"K_EXTENDS\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 interface_entry:
 	  K_INTERFACE
@@ -1281,6 +1308,7 @@ interface_entry:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 interface_extends_list:
 	  /* empty */
@@ -1296,10 +1324,11 @@ interface_extends_list:
 			printf("node_%ld [label=\"interface_extends_list\"];\n", node->value());
 			printf("node_%ld [label=\"K_EXTENDS\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 implements_list:
 	  /* empty */
@@ -1315,29 +1344,31 @@ implements_list:
 			printf("node_%ld [label=\"implements_list\"];\n", node->value());
 			printf("node_%ld [label=\"K_IMPLEMENTS\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 interface_list:
 	  fully_qualified_class_name
 		{
 			printf("node_%ld [label=\"interface_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
 	| interface_list ',' fully_qualified_class_name
 		{
 			printf("node_%ld [label=\"interface_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"','\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 foreach_optional_arg:
 	  /* empty */
@@ -1353,16 +1384,17 @@ foreach_optional_arg:
 			printf("node_%ld [label=\"foreach_optional_arg\"];\n", node->value());
 			printf("node_%ld [label=\"O_DOUBLEARROW\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 foreach_variable:
 	  w_variable
 		{
 			printf("node_%ld [label=\"foreach_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
@@ -1371,16 +1403,17 @@ foreach_variable:
 			printf("node_%ld [label=\"foreach_variable\"];\n", node->value());
 			printf("node_%ld [label=\"'&'\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 for_statement:
 	  statement
 		{
 			printf("node_%ld [label=\"for_statement\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
@@ -1389,7 +1422,7 @@ for_statement:
 			printf("node_%ld [label=\"for_statement\"];\n", node->value());
 			printf("node_%ld [label=\"':'\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			printf("node_%ld [label=\"K_ENDFOR\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			printf("node_%ld [label=\"';'\"];\n", node->value()+3);
@@ -1397,12 +1430,13 @@ for_statement:
 			$$ = node;
 			node = new Integer(node->value() + 4);
 		}
+	;
 
 foreach_statement:
 	  statement
 		{
 			printf("node_%ld [label=\"foreach_statement\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
@@ -1411,7 +1445,7 @@ foreach_statement:
 			printf("node_%ld [label=\"foreach_statement\"];\n", node->value());
 			printf("node_%ld [label=\"':'\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			printf("node_%ld [label=\"K_ENDFOREACH\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			printf("node_%ld [label=\"';'\"];\n", node->value()+3);
@@ -1419,12 +1453,13 @@ foreach_statement:
 			$$ = node;
 			node = new Integer(node->value() + 4);
 		}
+	;
 
 declare_statement:
 	  statement
 		{
 			printf("node_%ld [label=\"declare_statement\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
@@ -1433,7 +1468,7 @@ declare_statement:
 			printf("node_%ld [label=\"declare_statement\"];\n", node->value());
 			printf("node_%ld [label=\"':'\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			printf("node_%ld [label=\"K_ENDDECLARE\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			printf("node_%ld [label=\"';'\"];\n", node->value()+3);
@@ -1441,33 +1476,35 @@ declare_statement:
 			$$ = node;
 			node = new Integer(node->value() + 4);
 		}
+	;
 
 declare_list:
 	  IDENT '=' static_scalar
 		{
 			printf("node_%ld [label=\"declare_list\"];\n", node->value());
-			printf("node_%ld [label=\"IDENT\"];\n", node->value()+1);
+			printf("node_%ld [label=\"IDENT: %s\"];\n", node->value()+1, strval ($1));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			printf("node_%ld [label=\"'='\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 3);
 		}
 	| declare_list ',' IDENT '=' static_scalar
 		{
 			printf("node_%ld [label=\"declare_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"','\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld [label=\"IDENT\"];\n", node->value()+2);
+			printf("node_%ld [label=\"IDENT: %s\"];\n", node->value()+2, strval ($3));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			printf("node_%ld [label=\"'='\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($5)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $5->value());
 			$$ = node;
 			node = new Integer(node->value() + 4);
 		}
+	;	  
 
 switch_case_list:
 	  '{' case_list '}'
@@ -1475,7 +1512,7 @@ switch_case_list:
 			printf("node_%ld [label=\"switch_case_list\"];\n", node->value());
 			printf("node_%ld [label=\"'{'\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			printf("node_%ld [label=\"'}'\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			$$ = node;
@@ -1488,7 +1525,7 @@ switch_case_list:
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			printf("node_%ld [label=\"';'\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			printf("node_%ld [label=\"'}'\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
 			$$ = node;
@@ -1499,7 +1536,7 @@ switch_case_list:
 			printf("node_%ld [label=\"switch_case_list\"];\n", node->value());
 			printf("node_%ld [label=\"':'\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			printf("node_%ld [label=\"K_ENDSWITCH\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			printf("node_%ld [label=\"';'\"];\n", node->value()+3);
@@ -1514,7 +1551,7 @@ switch_case_list:
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			printf("node_%ld [label=\"';'\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			printf("node_%ld [label=\"K_ENDSWITCH\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
 			printf("node_%ld [label=\"';'\"];\n", node->value()+4);
@@ -1522,6 +1559,7 @@ switch_case_list:
 			$$ = node;
 			node = new Integer(node->value() + 5);
 		}
+	;
 
 case_list:
 	  /* empty */
@@ -1535,25 +1573,29 @@ case_list:
 	| case_list keyword_case expr case_separator inner_statement_list
 		{
 			printf("node_%ld [label=\"case_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($4)->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($5)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $4->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $5->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
 	| case_list keyword_default case_separator inner_statement_list
 		{
 			printf("node_%ld [label=\"case_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($4)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $4->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
+/*
+ * No semantic value
+ */
 case_separator:
 	  ':'
 		{
@@ -1576,7 +1618,7 @@ while_statement:
 	  statement
 		{
 			printf("node_%ld [label=\"while_statement\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
@@ -1585,7 +1627,7 @@ while_statement:
 			printf("node_%ld [label=\"while_statement\"];\n", node->value());
 			printf("node_%ld [label=\"':'\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			printf("node_%ld [label=\"K_ENDWHILE\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			printf("node_%ld [label=\"';'\"];\n", node->value()+3);
@@ -1593,6 +1635,7 @@ while_statement:
 			$$ = node;
 			node = new Integer(node->value() + 4);
 		}
+	;
 
 elseif_list:
 	  /* empty */
@@ -1606,18 +1649,22 @@ elseif_list:
 	| elseif_list keyword_elseif '(' expr ')' statement
 		{
 			printf("node_%ld [label=\"elseif_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			printf("node_%ld [label=\"'('\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($4)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $4->value());
 			printf("node_%ld [label=\"')'\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($6)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $6->value());
 			$$ = node;
 			node = new Integer(node->value() + 3);
 		}
+	;
 
+/*
+ * Duplication of elseif_list functionality
+ */
 new_elseif_list:
 	  /* empty */
 		{
@@ -1630,19 +1677,20 @@ new_elseif_list:
 	| new_elseif_list keyword_elseif '(' expr ')' ':' inner_statement_list
 		{
 			printf("node_%ld [label=\"new_elseif_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			printf("node_%ld [label=\"'('\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($4)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $4->value());
 			printf("node_%ld [label=\"')'\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			printf("node_%ld [label=\"':'\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($7)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $7->value());
 			$$ = node;
 			node = new Integer(node->value() + 4);
 		}
+	;
 
 else_single:
 	  /* empty */
@@ -1658,11 +1706,15 @@ else_single:
 			printf("node_%ld [label=\"else_single\"];\n", node->value());
 			printf("node_%ld [label=\"K_ELSE\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
+/*
+ * Mimicks else_single
+ */
 new_else_single:
 	  /* empty */
 		{
@@ -1679,16 +1731,17 @@ new_else_single:
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			printf("node_%ld [label=\"':'\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 3);
 		}
+	;
 
 parameter_list:
 	  non_empty_parameter_list
 		{
 			printf("node_%ld [label=\"parameter_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
@@ -1700,13 +1753,17 @@ parameter_list:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
+/*
+ * Lots of duplication in these rules, but what can you do?
+ */
 non_empty_parameter_list:
 	  optional_class_type VARIABLE
 		{
 			printf("node_%ld [label=\"non_empty_parameter_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
-			printf("node_%ld [label=\"VARIABLE\"];\n", node->value()+1);
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
+			printf("node_%ld [label=\"VARIABLE: %s\"];\n", node->value()+1, strval ($2));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			$$ = node;
 			node = new Integer(node->value() + 2);
@@ -1714,10 +1771,10 @@ non_empty_parameter_list:
 	| optional_class_type '&' VARIABLE
 		{
 			printf("node_%ld [label=\"non_empty_parameter_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"'&'\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld [label=\"VARIABLE\"];\n", node->value()+2);
+			printf("node_%ld [label=\"VARIABLE: %s\"];\n", node->value()+2, strval ($3));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			$$ = node;
 			node = new Integer(node->value() + 3);
@@ -1725,37 +1782,37 @@ non_empty_parameter_list:
 	| optional_class_type '&' VARIABLE '=' static_scalar
 		{
 			printf("node_%ld [label=\"non_empty_parameter_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"'&'\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld [label=\"VARIABLE\"];\n", node->value()+2);
+			printf("node_%ld [label=\"VARIABLE: %s\"];\n", node->value()+2, strval ($3));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			printf("node_%ld [label=\"'='\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($5)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $5->value());
 			$$ = node;
 			node = new Integer(node->value() + 4);
 		}
 	| optional_class_type VARIABLE '=' static_scalar
 		{
 			printf("node_%ld [label=\"non_empty_parameter_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
-			printf("node_%ld [label=\"VARIABLE\"];\n", node->value()+1);
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
+			printf("node_%ld [label=\"VARIABLE: %s\"];\n", node->value()+1, strval ($2));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			printf("node_%ld [label=\"'='\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($4)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $4->value());
 			$$ = node;
 			node = new Integer(node->value() + 3);
 		}
 	| non_empty_parameter_list ',' optional_class_type VARIABLE
 		{
 			printf("node_%ld [label=\"non_empty_parameter_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"','\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
-			printf("node_%ld [label=\"VARIABLE\"];\n", node->value()+2);
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
+			printf("node_%ld [label=\"VARIABLE: %s\"];\n", node->value()+2, strval ($4));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			$$ = node;
 			node = new Integer(node->value() + 3);
@@ -1763,13 +1820,13 @@ non_empty_parameter_list:
 	| non_empty_parameter_list ',' optional_class_type '&' VARIABLE
 		{
 			printf("node_%ld [label=\"non_empty_parameter_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"','\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			printf("node_%ld [label=\"'&'\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
-			printf("node_%ld [label=\"VARIABLE\"];\n", node->value()+3);
+			printf("node_%ld [label=\"VARIABLE: %s\"];\n", node->value()+3, strval ($5));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
 			$$ = node;
 			node = new Integer(node->value() + 4);
@@ -1777,35 +1834,36 @@ non_empty_parameter_list:
 	| non_empty_parameter_list ',' optional_class_type '&' VARIABLE '=' static_scalar
 		{
 			printf("node_%ld [label=\"non_empty_parameter_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"','\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			printf("node_%ld [label=\"'&'\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
-			printf("node_%ld [label=\"VARIABLE\"];\n", node->value()+3);
+			printf("node_%ld [label=\"VARIABLE: %s\"];\n", node->value()+3, strval ($5));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
 			printf("node_%ld [label=\"'='\"];\n", node->value()+4);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+4);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($7)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $7->value());
 			$$ = node;
 			node = new Integer(node->value() + 5);
 		}
 	| non_empty_parameter_list ',' optional_class_type VARIABLE '=' static_scalar
 		{
 			printf("node_%ld [label=\"non_empty_parameter_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"','\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
-			printf("node_%ld [label=\"VARIABLE\"];\n", node->value()+2);
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
+			printf("node_%ld [label=\"VARIABLE: %s\"];\n", node->value()+2, strval ($4));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			printf("node_%ld [label=\"'='\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($6)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $6->value());
 			$$ = node;
 			node = new Integer(node->value() + 4);
 		}
+	;
 
 optional_class_type:
 	  /* empty */
@@ -1819,7 +1877,7 @@ optional_class_type:
 	| IDENT
 		{
 			printf("node_%ld [label=\"optional_class_type\"];\n", node->value());
-			printf("node_%ld [label=\"IDENT\"];\n", node->value()+1);
+			printf("node_%ld [label=\"IDENT: %s\"];\n", node->value()+1, strval ($1));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			$$ = node;
 			node = new Integer(node->value() + 2);
@@ -1832,12 +1890,13 @@ optional_class_type:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 function_call_parameter_list:
 	  non_empty_function_call_parameter_list
 		{
 			printf("node_%ld [label=\"function_call_parameter_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
@@ -1849,19 +1908,20 @@ function_call_parameter_list:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 non_empty_function_call_parameter_list:
 	  expr_without_variable
 		{
 			printf("node_%ld [label=\"non_empty_function_call_parameter_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
 	| variable
 		{
 			printf("node_%ld [label=\"non_empty_function_call_parameter_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
@@ -1870,67 +1930,69 @@ non_empty_function_call_parameter_list:
 			printf("node_%ld [label=\"non_empty_function_call_parameter_list\"];\n", node->value());
 			printf("node_%ld [label=\"'&'\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| non_empty_function_call_parameter_list ',' expr_without_variable
 		{
 			printf("node_%ld [label=\"non_empty_function_call_parameter_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"','\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| non_empty_function_call_parameter_list ',' variable
 		{
 			printf("node_%ld [label=\"non_empty_function_call_parameter_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"','\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| non_empty_function_call_parameter_list ',' '&' w_variable
 		{
 			printf("node_%ld [label=\"non_empty_function_call_parameter_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"','\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			printf("node_%ld [label=\"'&'\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($4)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $4->value());
 			$$ = node;
 			node = new Integer(node->value() + 3);
 		}
+	;
 
 global_var_list:
 	  global_var_list ',' global_var
 		{
 			printf("node_%ld [label=\"global_var_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"','\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| global_var
 		{
 			printf("node_%ld [label=\"global_var_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 global_var:
 	  VARIABLE
 		{
 			printf("node_%ld [label=\"global_var\"];\n", node->value());
-			printf("node_%ld [label=\"VARIABLE\"];\n", node->value()+1);
+			printf("node_%ld [label=\"VARIABLE: %s\"];\n", node->value()+1, strval ($1));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			$$ = node;
 			node = new Integer(node->value() + 2);
@@ -1940,7 +2002,7 @@ global_var:
 			printf("node_%ld [label=\"global_var\"];\n", node->value());
 			printf("node_%ld [label=\"'$'\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
@@ -1951,21 +2013,22 @@ global_var:
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			printf("node_%ld [label=\"'{'\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			printf("node_%ld [label=\"'}'\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
 			$$ = node;
 			node = new Integer(node->value() + 4);
 		}
+	;
 
 static_var_list:
 	  static_var_list ',' VARIABLE
 		{
 			printf("node_%ld [label=\"static_var_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"','\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld [label=\"VARIABLE\"];\n", node->value()+2);
+			printf("node_%ld [label=\"VARIABLE: %s\"];\n", node->value()+2, strval ($3));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			$$ = node;
 			node = new Integer(node->value() + 3);
@@ -1973,21 +2036,21 @@ static_var_list:
 	| static_var_list ',' VARIABLE '=' static_scalar
 		{
 			printf("node_%ld [label=\"static_var_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"','\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld [label=\"VARIABLE\"];\n", node->value()+2);
+			printf("node_%ld [label=\"VARIABLE: %s\"];\n", node->value()+2, strval ($3));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			printf("node_%ld [label=\"'='\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($5)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $5->value());
 			$$ = node;
 			node = new Integer(node->value() + 4);
 		}
 	| VARIABLE
 		{
 			printf("node_%ld [label=\"static_var_list\"];\n", node->value());
-			printf("node_%ld [label=\"VARIABLE\"];\n", node->value()+1);
+			printf("node_%ld [label=\"VARIABLE: %s\"];\n", node->value()+1, strval ($1));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			$$ = node;
 			node = new Integer(node->value() + 2);
@@ -1995,21 +2058,22 @@ static_var_list:
 	| VARIABLE '=' static_scalar
 		{
 			printf("node_%ld [label=\"static_var_list\"];\n", node->value());
-			printf("node_%ld [label=\"VARIABLE\"];\n", node->value()+1);
+			printf("node_%ld [label=\"VARIABLE: %s\"];\n", node->value()+1, strval ($1));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			printf("node_%ld [label=\"'='\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 3);
 		}
+	;
 
 class_statement_list:
-	  class_statement_list class_statement
+	 class_statement_list class_statement
 		{
 			printf("node_%ld [label=\"class_statement_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
@@ -2021,13 +2085,14 @@ class_statement_list:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 class_statement:
 	  variable_modifiers class_variable_declaration ';'
 		{
 			printf("node_%ld [label=\"class_statement\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			printf("node_%ld [label=\"';'\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			$$ = node;
@@ -2036,7 +2101,7 @@ class_statement:
 	| class_constant_declaration ';'
 		{
 			printf("node_%ld [label=\"class_statement\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"';'\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			$$ = node;
@@ -2045,20 +2110,21 @@ class_statement:
 	| method_modifiers keyword_function is_reference IDENT '(' parameter_list ')' method_body
 		{
 			printf("node_%ld [label=\"class_statement\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
-			printf("node_%ld [label=\"IDENT\"];\n", node->value()+1);
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
+			printf("node_%ld [label=\"IDENT: %s\"];\n", node->value()+1, strval ($4));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			printf("node_%ld [label=\"'('\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($6)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $6->value());
 			printf("node_%ld [label=\"')'\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($8)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $8->value());
 			$$ = node;
 			node = new Integer(node->value() + 4);
 		}
+	;
 
 method_body:
 	  ';'
@@ -2072,16 +2138,17 @@ method_body:
 	| block
 		{
 			printf("node_%ld [label=\"method_body\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 variable_modifiers:
 	  non_empty_member_modifiers
 		{
 			printf("node_%ld [label=\"variable_modifiers\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
@@ -2093,6 +2160,7 @@ variable_modifiers:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 method_modifiers:
 	  /* empty */
@@ -2106,27 +2174,29 @@ method_modifiers:
 	| non_empty_member_modifiers
 		{
 			printf("node_%ld [label=\"method_modifiers\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 non_empty_member_modifiers:
 	  member_modifier
 		{
 			printf("node_%ld [label=\"non_empty_member_modifiers\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
 	| non_empty_member_modifiers member_modifier
 		{
 			printf("node_%ld [label=\"non_empty_member_modifiers\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 member_modifier:
 	  K_PUBLIC
@@ -2177,15 +2247,16 @@ member_modifier:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 class_variable_declaration:
 	  class_variable_declaration ',' VARIABLE
 		{
 			printf("node_%ld [label=\"class_variable_declaration\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"','\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld [label=\"VARIABLE\"];\n", node->value()+2);
+			printf("node_%ld [label=\"VARIABLE: %s\"];\n", node->value()+2, strval ($3));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			$$ = node;
 			node = new Integer(node->value() + 3);
@@ -2193,21 +2264,21 @@ class_variable_declaration:
 	| class_variable_declaration ',' VARIABLE '=' static_scalar
 		{
 			printf("node_%ld [label=\"class_variable_declaration\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"','\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld [label=\"VARIABLE\"];\n", node->value()+2);
+			printf("node_%ld [label=\"VARIABLE: %s\"];\n", node->value()+2, strval ($3));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			printf("node_%ld [label=\"'='\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($5)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $5->value());
 			$$ = node;
 			node = new Integer(node->value() + 4);
 		}
 	| VARIABLE
 		{
 			printf("node_%ld [label=\"class_variable_declaration\"];\n", node->value());
-			printf("node_%ld [label=\"VARIABLE\"];\n", node->value()+1);
+			printf("node_%ld [label=\"VARIABLE: %s\"];\n", node->value()+1, strval ($1));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			$$ = node;
 			node = new Integer(node->value() + 2);
@@ -2215,27 +2286,28 @@ class_variable_declaration:
 	| VARIABLE '=' static_scalar
 		{
 			printf("node_%ld [label=\"class_variable_declaration\"];\n", node->value());
-			printf("node_%ld [label=\"VARIABLE\"];\n", node->value()+1);
+			printf("node_%ld [label=\"VARIABLE: %s\"];\n", node->value()+1, strval ($1));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			printf("node_%ld [label=\"'='\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 3);
 		}
+	;
 
 class_constant_declaration:
 	  class_constant_declaration ',' IDENT '=' static_scalar
 		{
 			printf("node_%ld [label=\"class_constant_declaration\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"','\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld [label=\"IDENT\"];\n", node->value()+2);
+			printf("node_%ld [label=\"IDENT: %s\"];\n", node->value()+2, strval ($3));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			printf("node_%ld [label=\"'='\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($5)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $5->value());
 			$$ = node;
 			node = new Integer(node->value() + 4);
 		}
@@ -2244,33 +2316,35 @@ class_constant_declaration:
 			printf("node_%ld [label=\"class_constant_declaration\"];\n", node->value());
 			printf("node_%ld [label=\"K_CONST\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld [label=\"IDENT\"];\n", node->value()+2);
+			printf("node_%ld [label=\"IDENT: %s\"];\n", node->value()+2, strval ($2));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			printf("node_%ld [label=\"'='\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($4)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $4->value());
 			$$ = node;
 			node = new Integer(node->value() + 4);
 		}
+	;
 
 echo_expr_list:
 	  echo_expr_list ',' expr
 		{
 			printf("node_%ld [label=\"echo_expr_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"','\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| expr
 		{
 			printf("node_%ld [label=\"echo_expr_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 for_expr:
 	  /* empty */
@@ -2284,29 +2358,31 @@ for_expr:
 	| non_empty_for_expr
 		{
 			printf("node_%ld [label=\"for_expr\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 non_empty_for_expr:
 	  non_empty_for_expr ',' expr
 		{
 			printf("node_%ld [label=\"non_empty_for_expr\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"','\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| expr
 		{
 			printf("node_%ld [label=\"non_empty_for_expr\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 expr_without_variable:
 	  K_LIST '(' assignment_list ')' '=' expr
@@ -2316,49 +2392,49 @@ expr_without_variable:
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			printf("node_%ld [label=\"'('\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			printf("node_%ld [label=\"')'\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
 			printf("node_%ld [label=\"'='\"];\n", node->value()+4);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+4);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($6)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $6->value());
 			$$ = node;
 			node = new Integer(node->value() + 5);
 		}
 	| variable '=' expr
 		{
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"'='\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| variable '=' '&' variable
 		{
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"'='\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			printf("node_%ld [label=\"'&'\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($4)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $4->value());
 			$$ = node;
 			node = new Integer(node->value() + 3);
 		}
 	| variable '=' '&' K_NEW class_name_reference ctor_arguments
 		{
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"'='\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			printf("node_%ld [label=\"'&'\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			printf("node_%ld [label=\"K_NEW\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($5)->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($6)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $5->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $6->value());
 			$$ = node;
 			node = new Integer(node->value() + 4);
 		}
@@ -2367,8 +2443,8 @@ expr_without_variable:
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
 			printf("node_%ld [label=\"K_NEW\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
@@ -2377,124 +2453,124 @@ expr_without_variable:
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
 			printf("node_%ld [label=\"K_CLONE\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| variable O_PLUSEQ expr
 		{
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"O_PLUSEQ\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| variable O_MINUSEQ expr
 		{
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"O_MINUSEQ\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| variable O_MULEQ expr
 		{
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"O_MULEQ\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| variable O_DIVEQ expr
 		{
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"O_DIVEQ\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| variable O_CONCATEQ expr
 		{
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"O_CONCATEQ\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| variable O_MODEQ expr
 		{
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"O_MODEQ\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| variable O_ANDEQ expr
 		{
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"O_ANDEQ\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| variable O_OREQ expr
 		{
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"O_OREQ\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| variable O_XOREQ expr
 		{
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"O_XOREQ\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| variable O_SLEQ expr
 		{
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"O_SLEQ\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| variable O_SREQ expr
 		{
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"O_SREQ\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| rw_variable O_INC
 		{
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"O_INC\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			$$ = node;
@@ -2505,14 +2581,14 @@ expr_without_variable:
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
 			printf("node_%ld [label=\"O_INC\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| rw_variable O_DEC
 		{
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"O_DEC\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			$$ = node;
@@ -2523,179 +2599,184 @@ expr_without_variable:
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
 			printf("node_%ld [label=\"O_DEC\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| expr O_LOGICOR expr
 		{
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"O_LOGICOR\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| expr O_LOGICAND expr
 		{
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"O_LOGICAND\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| expr K_OR expr
 		{
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"K_OR\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| expr K_AND expr
 		{
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"K_AND\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| expr K_XOR expr
 		{
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"K_XOR\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| expr '|' expr
 		{
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"'|'\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| expr '&' expr
 		{
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"'&'\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| expr '^' expr
 		{
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"'^'\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| expr '.' expr
 		{
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"'.'\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| expr O_MAGIC_CONCAT expr '}'
 		{
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"O_MAGIC_CONCAT\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			printf("node_%ld [label=\"'}'\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			$$ = node;
 			node = new Integer(node->value() + 3);
+			/*
+			 * Interface with the lexer: return to in-string state 
+			 */
+
+			context->return_to_complex_syntax();
 		}
 	| expr '+' expr
 		{
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"'+'\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| expr '-' expr
 		{
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"'-'\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| expr '*' expr
 		{
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"'*'\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| expr '/' expr
 		{
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"'/'\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| expr '%' expr
 		{
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"'%%'\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| expr O_SL expr
 		{
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"O_SL\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| expr O_SR expr
 		{
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"O_SR\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
@@ -2704,7 +2785,7 @@ expr_without_variable:
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
 			printf("node_%ld [label=\"'+'\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
@@ -2713,7 +2794,7 @@ expr_without_variable:
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
 			printf("node_%ld [label=\"'-'\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
@@ -2722,7 +2803,7 @@ expr_without_variable:
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
 			printf("node_%ld [label=\"'!'\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
@@ -2731,97 +2812,97 @@ expr_without_variable:
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
 			printf("node_%ld [label=\"'~'\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| expr O_EQEQEQ expr
 		{
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"O_EQEQEQ\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| expr O_NOTEQEQ expr
 		{
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"O_NOTEQEQ\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| expr O_EQEQ expr
 		{
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"O_EQEQ\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| expr O_NOTEQ expr
 		{
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"O_NOTEQ\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| expr '<' expr
 		{
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"'<'\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| expr O_LE expr
 		{
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"O_LE\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| expr '>' expr
 		{
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"'>'\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| expr O_GE expr
 		{
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"O_GE\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| expr K_INSTANCEOF class_name_reference
 		{
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"K_INSTANCEOF\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
@@ -2830,7 +2911,7 @@ expr_without_variable:
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
 			printf("node_%ld [label=\"'('\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			printf("node_%ld [label=\"')'\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			$$ = node;
@@ -2839,20 +2920,20 @@ expr_without_variable:
 	| expr '?' expr ':' expr
 		{
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"'?'\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			printf("node_%ld [label=\"':'\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($5)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $5->value());
 			$$ = node;
 			node = new Integer(node->value() + 3);
 		}
 	| internal_functions_in_yacc
 		{
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
@@ -2861,7 +2942,7 @@ expr_without_variable:
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
 			printf("node_%ld [label=\"CAST_INT\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
@@ -2870,7 +2951,7 @@ expr_without_variable:
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
 			printf("node_%ld [label=\"CAST_REAL\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
@@ -2879,7 +2960,7 @@ expr_without_variable:
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
 			printf("node_%ld [label=\"CAST_STRING\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
@@ -2888,7 +2969,7 @@ expr_without_variable:
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
 			printf("node_%ld [label=\"CAST_ARRAY\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
@@ -2897,7 +2978,7 @@ expr_without_variable:
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
 			printf("node_%ld [label=\"CAST_OBJECT\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
@@ -2906,7 +2987,7 @@ expr_without_variable:
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
 			printf("node_%ld [label=\"CAST_BOOL\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
@@ -2915,7 +2996,7 @@ expr_without_variable:
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
 			printf("node_%ld [label=\"CAST_UNSET\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
@@ -2924,7 +3005,7 @@ expr_without_variable:
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
 			printf("node_%ld [label=\"K_EXIT\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
@@ -2933,14 +3014,14 @@ expr_without_variable:
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
 			printf("node_%ld [label=\"'@'\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| scalar
 		{
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
@@ -2951,7 +3032,7 @@ expr_without_variable:
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			printf("node_%ld [label=\"'('\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			printf("node_%ld [label=\"')'\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
 			$$ = node;
@@ -2962,20 +3043,21 @@ expr_without_variable:
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
 			printf("node_%ld [label=\"K_PRINT\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 function_call:
 	  IDENT '(' function_call_parameter_list ')'
 		{
 			printf("node_%ld [label=\"function_call\"];\n", node->value());
-			printf("node_%ld [label=\"IDENT\"];\n", node->value()+1);
+			printf("node_%ld [label=\"IDENT: %s\"];\n", node->value()+1, strval ($1));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			printf("node_%ld [label=\"'('\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			printf("node_%ld [label=\"')'\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
 			$$ = node;
@@ -2984,14 +3066,14 @@ function_call:
 	| fully_qualified_class_name O_COLONCOLON IDENT '(' function_call_parameter_list ')'
 		{
 			printf("node_%ld [label=\"function_call\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"O_COLONCOLON\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld [label=\"IDENT\"];\n", node->value()+2);
+			printf("node_%ld [label=\"IDENT: %s\"];\n", node->value()+2, strval ($3));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			printf("node_%ld [label=\"'('\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($5)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $5->value());
 			printf("node_%ld [label=\"')'\"];\n", node->value()+4);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+4);
 			$$ = node;
@@ -3000,13 +3082,13 @@ function_call:
 	| fully_qualified_class_name O_COLONCOLON variable_without_objects '(' function_call_parameter_list ')'
 		{
 			printf("node_%ld [label=\"function_call\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"O_COLONCOLON\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			printf("node_%ld [label=\"'('\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($5)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $5->value());
 			printf("node_%ld [label=\"')'\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
 			$$ = node;
@@ -3015,31 +3097,33 @@ function_call:
 	| variable_without_objects '(' function_call_parameter_list ')'
 		{
 			printf("node_%ld [label=\"function_call\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"'('\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			printf("node_%ld [label=\"')'\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			$$ = node;
 			node = new Integer(node->value() + 3);
 		}
+	;
 
 fully_qualified_class_name:
 	  IDENT
 		{
 			printf("node_%ld [label=\"fully_qualified_class_name\"];\n", node->value());
-			printf("node_%ld [label=\"IDENT\"];\n", node->value()+1);
+			printf("node_%ld [label=\"IDENT: %s\"];\n", node->value()+1, strval ($1));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 class_name_reference:
 	  IDENT
 		{
 			printf("node_%ld [label=\"class_name_reference\"];\n", node->value());
-			printf("node_%ld [label=\"IDENT\"];\n", node->value()+1);
+			printf("node_%ld [label=\"IDENT: %s\"];\n", node->value()+1, strval ($1));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			$$ = node;
 			node = new Integer(node->value() + 2);
@@ -3047,37 +3131,39 @@ class_name_reference:
 	| dynamic_class_name_reference
 		{
 			printf("node_%ld [label=\"class_name_reference\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 dynamic_class_name_reference:
 	  base_variable O_SINGLEARROW object_property dynamic_class_name_variable_properties
 		{
 			printf("node_%ld [label=\"dynamic_class_name_reference\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"O_SINGLEARROW\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($4)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $4->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| base_variable
 		{
 			printf("node_%ld [label=\"dynamic_class_name_reference\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 dynamic_class_name_variable_properties:
 	  dynamic_class_name_variable_properties dynamic_class_name_variable_property
 		{
 			printf("node_%ld [label=\"dynamic_class_name_variable_properties\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
@@ -3089,6 +3175,7 @@ dynamic_class_name_variable_properties:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 dynamic_class_name_variable_property:
 	  O_SINGLEARROW object_property
@@ -3096,10 +3183,11 @@ dynamic_class_name_variable_property:
 			printf("node_%ld [label=\"dynamic_class_name_variable_property\"];\n", node->value());
 			printf("node_%ld [label=\"O_SINGLEARROW\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 exit_expr:
 	  /* empty */
@@ -3125,12 +3213,13 @@ exit_expr:
 			printf("node_%ld [label=\"exit_expr\"];\n", node->value());
 			printf("node_%ld [label=\"'('\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			printf("node_%ld [label=\"')'\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			$$ = node;
 			node = new Integer(node->value() + 3);
 		}
+	;
 
 ctor_arguments:
 	  /* empty */
@@ -3146,34 +3235,35 @@ ctor_arguments:
 			printf("node_%ld [label=\"ctor_arguments\"];\n", node->value());
 			printf("node_%ld [label=\"'('\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			printf("node_%ld [label=\"')'\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			$$ = node;
 			node = new Integer(node->value() + 3);
 		}
+	;
 
 common_scalar:
-	  INT
+	  T_INT
 		{
 			printf("node_%ld [label=\"common_scalar\"];\n", node->value());
-			printf("node_%ld [label=\"INT\"];\n", node->value()+1);
+			printf("node_%ld [label=\"INT: %s\"];\n", node->value()+1, strval ($1));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
-	| REAL
+	| T_REAL
 		{
 			printf("node_%ld [label=\"common_scalar\"];\n", node->value());
-			printf("node_%ld [label=\"REAL\"];\n", node->value()+1);
+			printf("node_%ld [label=\"REAL: %s\"];\n", node->value()+1, strval ($1));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
-	| STRING
+	| T_STRING
 		{
 			printf("node_%ld [label=\"common_scalar\"];\n", node->value());
-			printf("node_%ld [label=\"STRING\"];\n", node->value()+1);
+			printf("node_%ld [label=\"STRING: %s\"];\n", node->value()+1, strval ($1));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			$$ = node;
 			node = new Integer(node->value() + 2);
@@ -3242,19 +3332,20 @@ common_scalar:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 static_scalar:
 	  common_scalar
 		{
 			printf("node_%ld [label=\"static_scalar\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
 	| IDENT
 		{
 			printf("node_%ld [label=\"static_scalar\"];\n", node->value());
-			printf("node_%ld [label=\"IDENT\"];\n", node->value()+1);
+			printf("node_%ld [label=\"IDENT: %s\"];\n", node->value()+1, strval ($1));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			$$ = node;
 			node = new Integer(node->value() + 2);
@@ -3264,7 +3355,7 @@ static_scalar:
 			printf("node_%ld [label=\"static_scalar\"];\n", node->value());
 			printf("node_%ld [label=\"'+'\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
@@ -3273,7 +3364,7 @@ static_scalar:
 			printf("node_%ld [label=\"static_scalar\"];\n", node->value());
 			printf("node_%ld [label=\"'-'\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
@@ -3284,7 +3375,7 @@ static_scalar:
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			printf("node_%ld [label=\"'('\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			printf("node_%ld [label=\"')'\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
 			$$ = node;
@@ -3293,30 +3384,32 @@ static_scalar:
 	| static_class_constant
 		{
 			printf("node_%ld [label=\"static_scalar\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 static_class_constant:
 	  IDENT O_COLONCOLON IDENT
 		{
 			printf("node_%ld [label=\"static_class_constant\"];\n", node->value());
-			printf("node_%ld [label=\"IDENT\"];\n", node->value()+1);
+			printf("node_%ld [label=\"IDENT: %s\"];\n", node->value()+1, strval ($1));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			printf("node_%ld [label=\"O_COLONCOLON\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
-			printf("node_%ld [label=\"IDENT\"];\n", node->value()+3);
+			printf("node_%ld [label=\"IDENT: %s\"];\n", node->value()+3, strval ($3));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
 			$$ = node;
 			node = new Integer(node->value() + 4);
 		}
+	;
 
 scalar:
 	  IDENT
 		{
 			printf("node_%ld [label=\"scalar\"];\n", node->value());
-			printf("node_%ld [label=\"IDENT\"];\n", node->value()+1);
+			printf("node_%ld [label=\"IDENT: %s\"];\n", node->value()+1, strval ($1));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			$$ = node;
 			node = new Integer(node->value() + 2);
@@ -3324,17 +3417,18 @@ scalar:
 	| class_constant
 		{
 			printf("node_%ld [label=\"scalar\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
 	| common_scalar
 		{
 			printf("node_%ld [label=\"scalar\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 static_array_pair_list:
 	  /* empty */
@@ -3348,12 +3442,16 @@ static_array_pair_list:
 	| non_empty_static_array_pair_list possible_comma
 		{
 			printf("node_%ld [label=\"static_array_pair_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
+/*
+ * No semantic value
+ */
 possible_comma:
 	  /* empty */
 		{
@@ -3376,120 +3474,148 @@ non_empty_static_array_pair_list:
 	  non_empty_static_array_pair_list ',' static_scalar O_DOUBLEARROW static_scalar
 		{
 			printf("node_%ld [label=\"non_empty_static_array_pair_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"','\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			printf("node_%ld [label=\"O_DOUBLEARROW\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($5)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $5->value());
 			$$ = node;
 			node = new Integer(node->value() + 3);
 		}
 	| non_empty_static_array_pair_list ',' static_scalar
 		{
 			printf("node_%ld [label=\"non_empty_static_array_pair_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"','\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| static_scalar O_DOUBLEARROW static_scalar
 		{
 			printf("node_%ld [label=\"non_empty_static_array_pair_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"O_DOUBLEARROW\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| static_scalar
 		{
 			printf("node_%ld [label=\"non_empty_static_array_pair_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 expr:
 	  r_variable
 		{
 			printf("node_%ld [label=\"expr\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
 	| expr_without_variable
 		{
 			printf("node_%ld [label=\"expr\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 r_variable:
 	  variable
 		{
 			printf("node_%ld [label=\"r_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 w_variable:
 	  variable
 		{
 			printf("node_%ld [label=\"w_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 rw_variable:
 	  variable
 		{
 			printf("node_%ld [label=\"rw_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
+/*
+ * The original rule read
+ *
+ * variable ::= base_variable_with_function_calls O_SINGLEARROW object_property
+ *     method_or_not variable_properties
+ *
+ * However, this duplicates work done in variable_properties, because 
+ * variable_properties is a list of variable_property's, and
+ *
+ * variable_property ::= O_SINGLEARROW object_property method_or_not
+ *
+ * Now, in the original grammar, variable_properties allows for an empty list;
+ * that's now changed, so that it requires at least one variable_property.
+ *
+ * We don't normally change the grammar, but this rule is difficult enough
+ * as it is, so that we don't want to be duplicating code.
+ */
 variable:
 	  base_variable_with_function_calls variable_properties
 		{
 			printf("node_%ld [label=\"variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
 	| base_variable_with_function_calls
 		{
 			printf("node_%ld [label=\"variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
+/*
+ * The second rule goes to empty in the original grammar; see the
+ * comment for "variable ::=" why this is changed.
+ */
 variable_properties:
 	  variable_properties variable_property
 		{
 			printf("node_%ld [label=\"variable_properties\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
 	| variable_property
 		{
 			printf("node_%ld [label=\"variable_properties\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 variable_property:
 	  O_SINGLEARROW object_property method_or_not
@@ -3497,11 +3623,12 @@ variable_property:
 			printf("node_%ld [label=\"variable_property\"];\n", node->value());
 			printf("node_%ld [label=\"O_SINGLEARROW\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 method_or_not:
 	  '(' function_call_parameter_list ')'
@@ -3509,7 +3636,7 @@ method_or_not:
 			printf("node_%ld [label=\"method_or_not\"];\n", node->value());
 			printf("node_%ld [label=\"'('\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			printf("node_%ld [label=\"')'\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			$$ = node;
@@ -3523,84 +3650,89 @@ method_or_not:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 variable_without_objects:
 	  reference_variable
 		{
 			printf("node_%ld [label=\"variable_without_objects\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
 	| simple_indirect_reference reference_variable
 		{
 			printf("node_%ld [label=\"variable_without_objects\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 static_member:
 	  fully_qualified_class_name O_COLONCOLON variable_without_objects
 		{
 			printf("node_%ld [label=\"static_member\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"O_COLONCOLON\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 base_variable_with_function_calls:
 	  base_variable
 		{
 			printf("node_%ld [label=\"base_variable_with_function_calls\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
 	| function_call
 		{
 			printf("node_%ld [label=\"base_variable_with_function_calls\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 base_variable:
 	  reference_variable
 		{
 			printf("node_%ld [label=\"base_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
 	| simple_indirect_reference reference_variable
 		{
 			printf("node_%ld [label=\"base_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
 	| static_member
 		{
 			printf("node_%ld [label=\"base_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 reference_variable:
 	  reference_variable '[' dim_offset ']'
 		{
 			printf("node_%ld [label=\"reference_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"'['\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			printf("node_%ld [label=\"']'\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			$$ = node;
@@ -3609,10 +3741,10 @@ reference_variable:
 	| reference_variable '{' expr '}'
 		{
 			printf("node_%ld [label=\"reference_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"'{'\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			printf("node_%ld [label=\"'}'\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			$$ = node;
@@ -3621,16 +3753,17 @@ reference_variable:
 	| compound_variable
 		{
 			printf("node_%ld [label=\"reference_variable\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 compound_variable:
 	  VARIABLE
 		{
 			printf("node_%ld [label=\"compound_variable\"];\n", node->value());
-			printf("node_%ld [label=\"VARIABLE\"];\n", node->value()+1);
+			printf("node_%ld [label=\"VARIABLE: %s\"];\n", node->value()+1, strval ($1));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			$$ = node;
 			node = new Integer(node->value() + 2);
@@ -3642,12 +3775,13 @@ compound_variable:
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			printf("node_%ld [label=\"'{'\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			printf("node_%ld [label=\"'}'\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
 			$$ = node;
 			node = new Integer(node->value() + 4);
 		}
+	;
 
 dim_offset:
 	  /* empty */
@@ -3661,35 +3795,40 @@ dim_offset:
 	| expr
 		{
 			printf("node_%ld [label=\"dim_offset\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
 object_property:
 	  object_dim_list
 		{
 			printf("node_%ld [label=\"object_property\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
 	| variable_without_objects
 		{
 			printf("node_%ld [label=\"object_property\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
+/*
+ * Mimics reference_variable
+ */
 object_dim_list:
 	  object_dim_list '[' dim_offset ']'
 		{
 			printf("node_%ld [label=\"object_dim_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"'['\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			printf("node_%ld [label=\"']'\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			$$ = node;
@@ -3698,10 +3837,10 @@ object_dim_list:
 	| object_dim_list '{' expr '}'
 		{
 			printf("node_%ld [label=\"object_dim_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"'{'\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			printf("node_%ld [label=\"'}'\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			$$ = node;
@@ -3710,16 +3849,20 @@ object_dim_list:
 	| variable_name
 		{
 			printf("node_%ld [label=\"object_dim_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
+/* 
+ * Mimics compound_variable
+ */ 
 variable_name:
 	  IDENT
 		{
 			printf("node_%ld [label=\"variable_name\"];\n", node->value());
-			printf("node_%ld [label=\"IDENT\"];\n", node->value()+1);
+			printf("node_%ld [label=\"IDENT: %s\"];\n", node->value()+1, strval ($1));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			$$ = node;
 			node = new Integer(node->value() + 2);
@@ -3729,12 +3872,13 @@ variable_name:
 			printf("node_%ld [label=\"variable_name\"];\n", node->value());
 			printf("node_%ld [label=\"'{'\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			printf("node_%ld [label=\"'}'\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			$$ = node;
 			node = new Integer(node->value() + 3);
 		}
+	;
 
 simple_indirect_reference:
 	  '$'
@@ -3748,28 +3892,29 @@ simple_indirect_reference:
 	| simple_indirect_reference '$'
 		{
 			printf("node_%ld [label=\"simple_indirect_reference\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"'$'\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 assignment_list:
 	  assignment_list ',' assignment_list_element
 		{
 			printf("node_%ld [label=\"assignment_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"','\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| assignment_list_element
 		{
 			printf("node_%ld [label=\"assignment_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
@@ -3778,7 +3923,7 @@ assignment_list_element:
 	  variable
 		{
 			printf("node_%ld [label=\"assignment_list_element\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
@@ -3789,7 +3934,7 @@ assignment_list_element:
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			printf("node_%ld [label=\"'('\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			printf("node_%ld [label=\"')'\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
 			$$ = node;
@@ -3803,6 +3948,7 @@ assignment_list_element:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 array_pair_list:
 	  /* empty */
@@ -3816,89 +3962,93 @@ array_pair_list:
 	| non_empty_array_pair_list possible_comma
 		{
 			printf("node_%ld [label=\"array_pair_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
+	;
 
+/*
+ * Code duplicated in non_empty_static_array_pair_list
+ */
 non_empty_array_pair_list:
 	  non_empty_array_pair_list ',' expr O_DOUBLEARROW expr
 		{
 			printf("node_%ld [label=\"non_empty_array_pair_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"','\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			printf("node_%ld [label=\"O_DOUBLEARROW\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($5)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $5->value());
 			$$ = node;
 			node = new Integer(node->value() + 3);
 		}
 	| non_empty_array_pair_list ',' expr
 		{
 			printf("node_%ld [label=\"non_empty_array_pair_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"','\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| expr O_DOUBLEARROW expr
 		{
 			printf("node_%ld [label=\"non_empty_array_pair_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"O_DOUBLEARROW\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
 	| expr
 		{
 			printf("node_%ld [label=\"non_empty_array_pair_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
 	| non_empty_array_pair_list ',' expr O_DOUBLEARROW '&' w_variable
 		{
 			printf("node_%ld [label=\"non_empty_array_pair_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"','\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			printf("node_%ld [label=\"O_DOUBLEARROW\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			printf("node_%ld [label=\"'&'\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($6)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $6->value());
 			$$ = node;
 			node = new Integer(node->value() + 4);
 		}
 	| non_empty_array_pair_list ',' '&' w_variable
 		{
 			printf("node_%ld [label=\"non_empty_array_pair_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"','\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			printf("node_%ld [label=\"'&'\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($4)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $4->value());
 			$$ = node;
 			node = new Integer(node->value() + 3);
 		}
 	| expr O_DOUBLEARROW '&' w_variable
 		{
 			printf("node_%ld [label=\"non_empty_array_pair_list\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"O_DOUBLEARROW\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			printf("node_%ld [label=\"'&'\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($4)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $4->value());
 			$$ = node;
 			node = new Integer(node->value() + 3);
 		}
@@ -3907,20 +4057,21 @@ non_empty_array_pair_list:
 			printf("node_%ld [label=\"non_empty_array_pair_list\"];\n", node->value());
 			printf("node_%ld [label=\"'&'\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 internal_functions_in_yacc:
-	  K_ISSET '(' isset_variables ')'
+	 K_ISSET '(' isset_variables ')'
 		{
 			printf("node_%ld [label=\"internal_functions_in_yacc\"];\n", node->value());
 			printf("node_%ld [label=\"K_ISSET\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			printf("node_%ld [label=\"'('\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			printf("node_%ld [label=\"')'\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
 			$$ = node;
@@ -3933,7 +4084,7 @@ internal_functions_in_yacc:
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			printf("node_%ld [label=\"'('\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			printf("node_%ld [label=\"')'\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
 			$$ = node;
@@ -3944,7 +4095,7 @@ internal_functions_in_yacc:
 			printf("node_%ld [label=\"internal_functions_in_yacc\"];\n", node->value());
 			printf("node_%ld [label=\"K_INCLUDE\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
@@ -3953,7 +4104,7 @@ internal_functions_in_yacc:
 			printf("node_%ld [label=\"internal_functions_in_yacc\"];\n", node->value());
 			printf("node_%ld [label=\"K_INCLUDE_ONCE\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
@@ -3964,7 +4115,7 @@ internal_functions_in_yacc:
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
 			printf("node_%ld [label=\"'('\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			printf("node_%ld [label=\"')'\"];\n", node->value()+3);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+3);
 			$$ = node;
@@ -3975,7 +4126,7 @@ internal_functions_in_yacc:
 			printf("node_%ld [label=\"internal_functions_in_yacc\"];\n", node->value());
 			printf("node_%ld [label=\"K_REQUIRE\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
@@ -3984,50 +4135,57 @@ internal_functions_in_yacc:
 			printf("node_%ld [label=\"internal_functions_in_yacc\"];\n", node->value());
 			printf("node_%ld [label=\"K_REQUIRE_ONCE\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 isset_variables:
 	  variable
 		{
 			printf("node_%ld [label=\"isset_variables\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			$$ = node;
 			node = new Integer(node->value() + 1);
 		}
 	| isset_variables ',' variable
 		{
 			printf("node_%ld [label=\"isset_variables\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"','\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($3)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $3->value());
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	;
 
 class_constant:
 	  fully_qualified_class_name O_COLONCOLON IDENT
 		{
 			printf("node_%ld [label=\"class_constant\"];\n", node->value());
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($1)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $1->value());
 			printf("node_%ld [label=\"O_COLONCOLON\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld [label=\"IDENT\"];\n", node->value()+2);
+			printf("node_%ld [label=\"IDENT: %s\"];\n", node->value()+2, strval ($3));
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			$$ = node;
 			node = new Integer(node->value() + 3);
 		}
+	;
 
+/*
+ * Specific to phc; in the original grammar, this always appeared inlined
+ * We factor it out since we need to generate the NOP if necessary
+ */
 block:
 	  '{' inner_statement_list '}'
 		{
 			printf("node_%ld [label=\"block\"];\n", node->value());
 			printf("node_%ld [label=\"'{'\"];\n", node->value()+1);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
-			printf("node_%ld->node_%ld;\n", node->value(), dynamic_cast<Integer*>($2)->value());
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
 			printf("node_%ld [label=\"'}'\"];\n", node->value()+2);
 			printf("node_%ld->node_%ld;\n", node->value(), node->value()+2);
 			$$ = node;

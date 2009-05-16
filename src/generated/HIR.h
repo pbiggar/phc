@@ -12,6 +12,7 @@
 #include "lib/Integer.h"
 #include "lib/AttrMap.h"
 #include "process_ir/IR.h"
+#include "process_ir/Foreach.h"
 #include <list>
 #include <string>
 #include <cstring>
@@ -203,7 +204,6 @@ public:
 public:
     void clone_mixin_from(Node* in);
     void assert_mixin_valid();
-    bool is_mixin_equal(Node* in);
 };
 
 /* PHP_script ::= Statement* ; */
@@ -1440,7 +1440,7 @@ public:
 public:
     virtual void assert_valid();
 public:
-    Pre_op(VARIABLE_NAME* var_name, const char* op);
+    Pre_op(VARIABLE_NAME* variable_name, const char* op);
 };
 
 /* Eval_expr ::= Expr ; */
@@ -1495,7 +1495,8 @@ public:
 public:
     virtual void assert_valid() = 0;
 public:
-    virtual String* get_value_as_string() = 0;
+    /*  We wish to match on this, so it cannot be pure virtual */
+    virtual String* get_value_as_string();
 };
 
 /* Field_access ::= Target Field_name ; */
@@ -2358,7 +2359,6 @@ private:
     String* _get_value_as_string();
 public:
     virtual String* get_value_as_string();
-public:
     bool match_value(REAL* that);
 };
 

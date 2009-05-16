@@ -248,7 +248,7 @@
 			print "<tr>\n";
 			foreach ($row as $key => $entry)
 			{
-				print "<td$color>$entry</td>";
+				print "<td $color>$entry</td>";
 			}
 			print "</tr>\n";
 		}
@@ -309,7 +309,7 @@
 				print "<tr>\n";
 				foreach ($row as $key => $entry)
 				{
-					print "<td$color>$entry</td>";
+					print "<td $color>$entry</td>";
 				}
 				print "</tr>\n";
 			}

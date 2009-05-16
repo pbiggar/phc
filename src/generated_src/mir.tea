@@ -219,7 +219,6 @@ Identifier ::=
 #include <iostream>
 #include <sstream>
 #include <iomanip>
-#include "boost/lexical_cast.hpp"
 #include "lib/error.h"
 #include "lib/Object.h"
 #include "lib/List.h"
@@ -228,6 +227,7 @@ Identifier ::=
 #include "lib/Integer.h"
 #include "lib/AttrMap.h"
 #include "process_ir/IR.h"
+#include "process_ir/Foreach.h"
 
 class Node : IR::Node
 {
@@ -241,13 +241,14 @@ public:
 	{
 		assert(attrs != NULL);
 
-		AttrMap::const_iterator i;
-		for(i = attrs->begin(); i != attrs->end(); i++)
+		string key;
+		Object* value;
+		foreach (tie (key, value), *this->attrs)
 		{
-			if ((*i).first != "phc.line_number"
-				&& (*i).first != "phc.filename")
+			if (key != "phc.line_number"
+				&& key != "phc.filename")
 			{
-				assert((*i).second != NULL);
+				assert(value != NULL);
 			}
 		}
 	}
@@ -370,10 +371,9 @@ public:
 	// Returns NULL if the method could not be found
 	Method* get_method(const char* name)
 	{
-		Member_list::const_iterator i;
-		for(i = members->begin(); i != members->end(); i++)
+		foreach (Member* m, *members)
 		{
-			Method* method = dynamic_cast<Method*>(*i);
+			Method* method = dynamic_cast<Method*>(m);
 			if(method && *method->signature->method_name->value == name)
 				return method;
 		}
@@ -645,8 +645,6 @@ public:
 	{
 		return _get_value_as_string ();
 	}
-
-public:
 
 	bool match_value (REAL* that)
 	{

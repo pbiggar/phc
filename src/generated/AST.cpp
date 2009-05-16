@@ -19,13 +19,14 @@ void Node::assert_mixin_valid()
     {
 		assert(attrs != NULL);
 
-		AttrMap::const_iterator i;
-		for(i = attrs->begin(); i != attrs->end(); i++)
+		string key;
+		Object* value;
+		foreach (tie (key, value), *this->attrs)
 		{
-			if ((*i).first != "phc.line_number"
-				&& (*i).first != "phc.filename")
+			if (key != "phc.line_number"
+				&& key != "phc.filename")
 			{
-				assert((*i).second != NULL);
+				assert(value != NULL);
 			}
 		}
 	}
@@ -2826,10 +2827,9 @@ void Class_def::add_member(Member* member)
 Method* Class_def::get_method(const char* name)
 {
     {
-		Member_list::const_iterator i;
-		for(i = members->begin(); i != members->end(); i++)
+		foreach (Member* m, *members)
 		{
-			Method* method = dynamic_cast<Method*>(*i);
+			Method* method = dynamic_cast<Method*>(m);
 			if(method && *method->signature->method_name->value == name)
 				return method;
 		}
@@ -6394,6 +6394,12 @@ void Nop::assert_valid()
 
 Literal::Literal()
 {
+}
+
+/*  We wish to match on this, so it cannot be pure virtual */
+String* Literal::get_value_as_string()
+{
+    { assert (0); }
 }
 
 Assignment::Assignment(Variable* variable, bool is_ref, Expr* expr)

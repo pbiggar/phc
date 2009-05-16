@@ -328,7 +328,7 @@ void Lower_control_flow::lower_foreach (Foreach* in, Statement_list* out)
 	// marker PHC_XXX(). We'll replace that with a goto now.
 	foreach (HIR::Statement*& stmt, *out)
 	{
-		if (stmt->match (new Eval_expr (new HIR::Method_invocation (NULL, new METHOD_NAME ("phc_xxx"), new HIR::Actual_parameter_list))))
+		if (stmt->match (new Eval_expr (new HIR::Method_invocation (NULL, new METHOD_NAME ("PHC_XXX"), new HIR::Actual_parameter_list))))
 		{
 			stmt = new FOREIGN (new MIR::Goto (l4->label_name->clone ()));
 			break;

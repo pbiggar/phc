@@ -127,7 +127,7 @@ void MIR_unparser::children_foreach_has_key (Foreach_has_key* in)
 	visit_variable_name (in->array);
 	echo (", ");
 	visit_ht_iterator (in->iter);
-	echo (");");
+	echo (")");
 }
 
 void MIR_unparser::children_foreach_get_key (Foreach_get_key* in)
@@ -136,7 +136,7 @@ void MIR_unparser::children_foreach_get_key (Foreach_get_key* in)
 	visit_variable_name (in->array);
 	echo (", ");
 	visit_ht_iterator (in->iter);
-	echo (");");
+	echo (")");
 }
 
 void MIR_unparser::children_foreach_get_val (Foreach_get_val* in)
@@ -145,7 +145,7 @@ void MIR_unparser::children_foreach_get_val (Foreach_get_val* in)
 	visit_variable_name (in->array);
 	echo (", ");
 	visit_ht_iterator (in->iter);
-	echo (");");
+	echo (")");
 }
 
 
@@ -201,14 +201,18 @@ void MIR_unparser::children_param_is_ref (Param_is_ref* in)
 {
 	echo ("param_is_ref (");
 	if (in->target)
+	{
+		echo ("$");
 		unparse (in->target);
+	}
 	else
 		echo ("NULL");
+
 	echo (", \"");
 	ast_unparser.unparse (folder->fold_method_name (in->method_name));
 	echo ("\", ");
-	echo (boost::lexical_cast <string> (in->param_index->value));
-	echo (");");
+	echo (lexical_cast <string> (in->param_index->value));
+	echo (")");
 }
 
 void MIR_unparser::children_class_alias (Class_alias* in)

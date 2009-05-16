@@ -36,7 +36,7 @@ using namespace std;
 
 Pass_manager::Pass_manager (gengetopt_args_info* args_info)
 : args_info (args_info),
-  check (false)
+  check (true)
 {
 	ast_queue = new Pass_queue;
 	hir_queue = new Pass_queue;

@@ -8,6 +8,7 @@ option "obfuscate" - "Obfuscate input" flag off
 option "run" - "Run the specified plugin (may be specified multiple times)" string no multiple
 option "r-option" - "Pass option to a plugin (specify multiple flags in the same order as multiple plugins - 1 option only per plugin)" string no multiple
 option "define" d "Define ini entry (only affects -c and --include)" string no multiple
+option "no-warnings" - "Allow warnings to be printed" flag off
 
 section "INPUT OPTIONS"
 option "read-xml" - "Assume the input is in XML format. Start processing after the named pass (passes are ast|hir|mir)" string typestr="PASSNAME" optional
@@ -34,6 +35,8 @@ section "OUTPUT OPTIONS"
 option "dump" - "Dump input as PHP (although potentially with gotos and labels) after PASSNAME" string typestr="PASSNAME" multiple optional
 option "dump-xml" - "Dump input as XML after PASSNAME" string typestr="PASSNAME" multiple optional
 option "dump-dot" - "Dump input as DOT after PASSNAME" string typestr="PASSNAME" multiple optional
+option "dump-parse-tree" - "Dump parse tree as DOT" hidden flag off
+option "dump-tokens" - "Dump list of tokens from the lexer" hidden flag off
 option "list-passes" - "List of available passes (for PASSNAME)" flag off
 
 section "PHP PRINTING OPTIONS"

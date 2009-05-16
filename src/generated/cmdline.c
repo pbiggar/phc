@@ -39,6 +39,7 @@ const char *gengetopt_args_info_full_help[] = {
   "      --run=STRING           Run the specified plugin (may be specified \n                               multiple times)",
   "      --r-option=STRING      Pass option to a plugin (specify multiple flags in \n                               the same order as multiple plugins - 1 option \n                               only per plugin)",
   "  -d, --define=STRING        Define ini entry (only affects -c and --include)",
+  "      --no-warnings          Allow warnings to be printed  (default=off)",
   "\nINPUT OPTIONS:",
   "      --read-xml=PASSNAME    Assume the input is in XML format. Start \n                               processing after the named pass (passes are \n                               ast|hir|mir)",
   "      --no-xml-validation    Toggle XML validation  (default=on)",
@@ -61,6 +62,8 @@ const char *gengetopt_args_info_full_help[] = {
   "      --dump=PASSNAME        Dump input as PHP (although potentially with gotos \n                               and labels) after PASSNAME",
   "      --dump-xml=PASSNAME    Dump input as XML after PASSNAME",
   "      --dump-dot=PASSNAME    Dump input as DOT after PASSNAME",
+  "      --dump-parse-tree      Dump parse tree as DOT  (default=off)",
+  "      --dump-tokens          Dump list of tokens from the lexer  (default=off)",
   "      --list-passes          List of available passes (for PASSNAME)  \n                               (default=off)",
   "\nPHP PRINTING OPTIONS:",
   "      --convert-uppered      Use legal PHP when dumping MIR as PHP  \n                               (default=off)",
@@ -100,12 +103,12 @@ init_help_array(void)
   gengetopt_args_info_help[10] = gengetopt_args_info_full_help[10];
   gengetopt_args_info_help[11] = gengetopt_args_info_full_help[11];
   gengetopt_args_info_help[12] = gengetopt_args_info_full_help[12];
-  gengetopt_args_info_help[13] = gengetopt_args_info_full_help[14];
+  gengetopt_args_info_help[13] = gengetopt_args_info_full_help[13];
   gengetopt_args_info_help[14] = gengetopt_args_info_full_help[15];
   gengetopt_args_info_help[15] = gengetopt_args_info_full_help[16];
-  gengetopt_args_info_help[16] = gengetopt_args_info_full_help[18];
+  gengetopt_args_info_help[16] = gengetopt_args_info_full_help[17];
   gengetopt_args_info_help[17] = gengetopt_args_info_full_help[19];
-  gengetopt_args_info_help[18] = gengetopt_args_info_full_help[21];
+  gengetopt_args_info_help[18] = gengetopt_args_info_full_help[20];
   gengetopt_args_info_help[19] = gengetopt_args_info_full_help[22];
   gengetopt_args_info_help[20] = gengetopt_args_info_full_help[23];
   gengetopt_args_info_help[21] = gengetopt_args_info_full_help[24];
@@ -118,12 +121,13 @@ init_help_array(void)
   gengetopt_args_info_help[28] = gengetopt_args_info_full_help[31];
   gengetopt_args_info_help[29] = gengetopt_args_info_full_help[32];
   gengetopt_args_info_help[30] = gengetopt_args_info_full_help[33];
-  gengetopt_args_info_help[31] = gengetopt_args_info_full_help[52];
-  gengetopt_args_info_help[32] = 0; 
+  gengetopt_args_info_help[31] = gengetopt_args_info_full_help[36];
+  gengetopt_args_info_help[32] = gengetopt_args_info_full_help[55];
+  gengetopt_args_info_help[33] = 0; 
   
 }
 
-const char *gengetopt_args_info_help[33];
+const char *gengetopt_args_info_help[34];
 
 typedef enum {ARG_NO
   , ARG_FLAG
@@ -158,6 +162,7 @@ void clear_given (struct gengetopt_args_info *args_info)
   args_info->run_given = 0 ;
   args_info->r_option_given = 0 ;
   args_info->define_given = 0 ;
+  args_info->no_warnings_given = 0 ;
   args_info->read_xml_given = 0 ;
   args_info->no_xml_validation_given = 0 ;
   args_info->include_given = 0 ;
@@ -176,6 +181,8 @@ void clear_given (struct gengetopt_args_info *args_info)
   args_info->dump_given = 0 ;
   args_info->dump_xml_given = 0 ;
   args_info->dump_dot_given = 0 ;
+  args_info->dump_parse_tree_given = 0 ;
+  args_info->dump_tokens_given = 0 ;
   args_info->list_passes_given = 0 ;
   args_info->convert_uppered_given = 0 ;
   args_info->no_dot_line_numbers_given = 0 ;
@@ -206,6 +213,7 @@ void clear_args (struct gengetopt_args_info *args_info)
   args_info->r_option_orig = NULL;
   args_info->define_arg = NULL;
   args_info->define_orig = NULL;
+  args_info->no_warnings_flag = 0;
   args_info->read_xml_arg = NULL;
   args_info->read_xml_orig = NULL;
   args_info->no_xml_validation_flag = 1;
@@ -235,6 +243,8 @@ void clear_args (struct gengetopt_args_info *args_info)
   args_info->dump_xml_orig = NULL;
   args_info->dump_dot_arg = NULL;
   args_info->dump_dot_orig = NULL;
+  args_info->dump_parse_tree_flag = 0;
+  args_info->dump_tokens_flag = 0;
   args_info->list_passes_flag = 0;
   args_info->convert_uppered_flag = 0;
   args_info->no_dot_line_numbers_flag = 0;
@@ -278,53 +288,56 @@ void init_args_info(struct gengetopt_args_info *args_info)
   args_info->define_help = gengetopt_args_info_full_help[10] ;
   args_info->define_min = 0;
   args_info->define_max = 0;
-  args_info->read_xml_help = gengetopt_args_info_full_help[12] ;
-  args_info->no_xml_validation_help = gengetopt_args_info_full_help[13] ;
-  args_info->include_help = gengetopt_args_info_full_help[14] ;
-  args_info->c_option_help = gengetopt_args_info_full_help[16] ;
+  args_info->no_warnings_help = gengetopt_args_info_full_help[11] ;
+  args_info->read_xml_help = gengetopt_args_info_full_help[13] ;
+  args_info->no_xml_validation_help = gengetopt_args_info_full_help[14] ;
+  args_info->include_help = gengetopt_args_info_full_help[15] ;
+  args_info->c_option_help = gengetopt_args_info_full_help[17] ;
   args_info->c_option_min = 0;
   args_info->c_option_max = 0;
-  args_info->generate_c_help = gengetopt_args_info_full_help[17] ;
-  args_info->extension_help = gengetopt_args_info_full_help[18] ;
-  args_info->web_app_help = gengetopt_args_info_full_help[19] ;
-  args_info->with_php_help = gengetopt_args_info_full_help[20] ;
-  args_info->optimize_help = gengetopt_args_info_full_help[21] ;
-  args_info->output_help = gengetopt_args_info_full_help[22] ;
-  args_info->execute_help = gengetopt_args_info_full_help[23] ;
-  args_info->next_line_curlies_help = gengetopt_args_info_full_help[25] ;
-  args_info->no_leading_tab_help = gengetopt_args_info_full_help[26] ;
-  args_info->tab_help = gengetopt_args_info_full_help[27] ;
-  args_info->no_hash_bang_help = gengetopt_args_info_full_help[28] ;
-  args_info->dump_help = gengetopt_args_info_full_help[30] ;
+  args_info->generate_c_help = gengetopt_args_info_full_help[18] ;
+  args_info->extension_help = gengetopt_args_info_full_help[19] ;
+  args_info->web_app_help = gengetopt_args_info_full_help[20] ;
+  args_info->with_php_help = gengetopt_args_info_full_help[21] ;
+  args_info->optimize_help = gengetopt_args_info_full_help[22] ;
+  args_info->output_help = gengetopt_args_info_full_help[23] ;
+  args_info->execute_help = gengetopt_args_info_full_help[24] ;
+  args_info->next_line_curlies_help = gengetopt_args_info_full_help[26] ;
+  args_info->no_leading_tab_help = gengetopt_args_info_full_help[27] ;
+  args_info->tab_help = gengetopt_args_info_full_help[28] ;
+  args_info->no_hash_bang_help = gengetopt_args_info_full_help[29] ;
+  args_info->dump_help = gengetopt_args_info_full_help[31] ;
   args_info->dump_min = 0;
   args_info->dump_max = 0;
-  args_info->dump_xml_help = gengetopt_args_info_full_help[31] ;
+  args_info->dump_xml_help = gengetopt_args_info_full_help[32] ;
   args_info->dump_xml_min = 0;
   args_info->dump_xml_max = 0;
-  args_info->dump_dot_help = gengetopt_args_info_full_help[32] ;
+  args_info->dump_dot_help = gengetopt_args_info_full_help[33] ;
   args_info->dump_dot_min = 0;
   args_info->dump_dot_max = 0;
-  args_info->list_passes_help = gengetopt_args_info_full_help[33] ;
-  args_info->convert_uppered_help = gengetopt_args_info_full_help[35] ;
-  args_info->no_dot_line_numbers_help = gengetopt_args_info_full_help[37] ;
-  args_info->no_dot_nulls_help = gengetopt_args_info_full_help[38] ;
-  args_info->no_dot_empty_lists_help = gengetopt_args_info_full_help[39] ;
-  args_info->no_xml_line_numbers_help = gengetopt_args_info_full_help[41] ;
-  args_info->no_xml_base_64_help = gengetopt_args_info_full_help[42] ;
-  args_info->no_xml_attrs_help = gengetopt_args_info_full_help[43] ;
-  args_info->stats_help = gengetopt_args_info_full_help[45] ;
+  args_info->dump_parse_tree_help = gengetopt_args_info_full_help[34] ;
+  args_info->dump_tokens_help = gengetopt_args_info_full_help[35] ;
+  args_info->list_passes_help = gengetopt_args_info_full_help[36] ;
+  args_info->convert_uppered_help = gengetopt_args_info_full_help[38] ;
+  args_info->no_dot_line_numbers_help = gengetopt_args_info_full_help[40] ;
+  args_info->no_dot_nulls_help = gengetopt_args_info_full_help[41] ;
+  args_info->no_dot_empty_lists_help = gengetopt_args_info_full_help[42] ;
+  args_info->no_xml_line_numbers_help = gengetopt_args_info_full_help[44] ;
+  args_info->no_xml_base_64_help = gengetopt_args_info_full_help[45] ;
+  args_info->no_xml_attrs_help = gengetopt_args_info_full_help[46] ;
+  args_info->stats_help = gengetopt_args_info_full_help[48] ;
   args_info->stats_min = 0;
   args_info->stats_max = 0;
-  args_info->rt_stats_help = gengetopt_args_info_full_help[46] ;
-  args_info->cfg_dump_help = gengetopt_args_info_full_help[47] ;
+  args_info->rt_stats_help = gengetopt_args_info_full_help[49] ;
+  args_info->cfg_dump_help = gengetopt_args_info_full_help[50] ;
   args_info->cfg_dump_min = 0;
   args_info->cfg_dump_max = 0;
-  args_info->debug_help = gengetopt_args_info_full_help[48] ;
+  args_info->debug_help = gengetopt_args_info_full_help[51] ;
   args_info->debug_min = 0;
   args_info->debug_max = 0;
-  args_info->dont_fail_help = gengetopt_args_info_full_help[49] ;
-  args_info->missed_opt_help = gengetopt_args_info_full_help[50] ;
-  args_info->disable_help = gengetopt_args_info_full_help[51] ;
+  args_info->dont_fail_help = gengetopt_args_info_full_help[52] ;
+  args_info->missed_opt_help = gengetopt_args_info_full_help[53] ;
+  args_info->disable_help = gengetopt_args_info_full_help[54] ;
   args_info->disable_min = 0;
   args_info->disable_max = 0;
   
@@ -544,6 +557,8 @@ cmdline_parser_dump(FILE *outfile, struct gengetopt_args_info *args_info)
   write_multiple_into_file(outfile, args_info->run_given, "run", args_info->run_orig, 0);
   write_multiple_into_file(outfile, args_info->r_option_given, "r-option", args_info->r_option_orig, 0);
   write_multiple_into_file(outfile, args_info->define_given, "define", args_info->define_orig, 0);
+  if (args_info->no_warnings_given)
+    write_into_file(outfile, "no-warnings", 0, 0 );
   if (args_info->read_xml_given)
     write_into_file(outfile, "read-xml", args_info->read_xml_orig, 0);
   if (args_info->no_xml_validation_given)
@@ -576,6 +591,10 @@ cmdline_parser_dump(FILE *outfile, struct gengetopt_args_info *args_info)
   write_multiple_into_file(outfile, args_info->dump_given, "dump", args_info->dump_orig, 0);
   write_multiple_into_file(outfile, args_info->dump_xml_given, "dump-xml", args_info->dump_xml_orig, 0);
   write_multiple_into_file(outfile, args_info->dump_dot_given, "dump-dot", args_info->dump_dot_orig, 0);
+  if (args_info->dump_parse_tree_given)
+    write_into_file(outfile, "dump-parse-tree", 0, 0 );
+  if (args_info->dump_tokens_given)
+    write_into_file(outfile, "dump-tokens", 0, 0 );
   if (args_info->list_passes_given)
     write_into_file(outfile, "list-passes", 0, 0 );
   if (args_info->convert_uppered_given)
@@ -1166,6 +1185,7 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
         { "run",	1, NULL, 0 },
         { "r-option",	1, NULL, 0 },
         { "define",	1, NULL, 'd' },
+        { "no-warnings",	0, NULL, 0 },
         { "read-xml",	1, NULL, 0 },
         { "no-xml-validation",	0, NULL, 0 },
         { "include",	0, NULL, 0 },
@@ -1184,6 +1204,8 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
         { "dump",	1, NULL, 0 },
         { "dump-xml",	1, NULL, 0 },
         { "dump-dot",	1, NULL, 0 },
+        { "dump-parse-tree",	0, NULL, 0 },
+        { "dump-tokens",	0, NULL, 0 },
         { "list-passes",	0, NULL, 0 },
         { "convert-uppered",	0, NULL, 0 },
         { "no-dot-line-numbers",	0, NULL, 0 },
@@ -1340,6 +1362,18 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
             if (update_multiple_arg_temp(&r_option_list, 
                 &(local_args_info.r_option_given), optarg, 0, 0, ARG_STRING,
                 "r-option", '-',
+                additional_error))
+              goto failure;
+          
+          }
+          /* Allow warnings to be printed.  */
+          else if (strcmp (long_options[option_index].name, "no-warnings") == 0)
+          {
+          
+          
+            if (update_arg((void *)&(args_info->no_warnings_flag), 0, &(args_info->no_warnings_given),
+                &(local_args_info.no_warnings_given), optarg, 0, 0, ARG_FLAG,
+                check_ambiguity, override, 1, 0, "no-warnings", '-',
                 additional_error))
               goto failure;
           
@@ -1515,6 +1549,30 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
             if (update_multiple_arg_temp(&dump_dot_list, 
                 &(local_args_info.dump_dot_given), optarg, 0, 0, ARG_STRING,
                 "dump-dot", '-',
+                additional_error))
+              goto failure;
+          
+          }
+          /* Dump parse tree as DOT.  */
+          else if (strcmp (long_options[option_index].name, "dump-parse-tree") == 0)
+          {
+          
+          
+            if (update_arg((void *)&(args_info->dump_parse_tree_flag), 0, &(args_info->dump_parse_tree_given),
+                &(local_args_info.dump_parse_tree_given), optarg, 0, 0, ARG_FLAG,
+                check_ambiguity, override, 1, 0, "dump-parse-tree", '-',
+                additional_error))
+              goto failure;
+          
+          }
+          /* Dump list of tokens from the lexer.  */
+          else if (strcmp (long_options[option_index].name, "dump-tokens") == 0)
+          {
+          
+          
+            if (update_arg((void *)&(args_info->dump_tokens_flag), 0, &(args_info->dump_tokens_given),
+                &(local_args_info.dump_tokens_given), optarg, 0, 0, ARG_FLAG,
+                check_ambiguity, override, 1, 0, "dump-tokens", '-',
                 additional_error))
               goto failure;
           

@@ -9,12 +9,14 @@
 #define PHC_STRING_H
 
 #include <string>
+#include <boost/lexical_cast.hpp>
 #include "lib/Object.h"
 #include "lib/List.h"
 
 // We use these everywhere, so allow them to be used without std::.
 using std::string;
 using std::stringstream;
+using boost::lexical_cast;
 
 class AttrMap;
 

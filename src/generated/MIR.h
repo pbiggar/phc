@@ -4,7 +4,6 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip>
-#include "boost/lexical_cast.hpp"
 #include "lib/error.h"
 #include "lib/Object.h"
 #include "lib/List.h"
@@ -13,6 +12,7 @@
 #include "lib/Integer.h"
 #include "lib/AttrMap.h"
 #include "process_ir/IR.h"
+#include "process_ir/Foreach.h"
 #include <list>
 #include <string>
 #include <cstring>
@@ -2752,7 +2752,6 @@ private:
     String* _get_value_as_string();
 public:
     virtual String* get_value_as_string();
-public:
     bool match_value(REAL* that);
 };
 

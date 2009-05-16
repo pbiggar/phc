@@ -31,6 +31,9 @@ void phc_message (Error_type type, const char* message_template, String* filenam
 	if (type == MISSED_OPT && !error_args_info.missed_opt_given)
 		return;
 
+	if (type == WARNING && error_args_info.no_warnings_flag)
+		return;
+
 	if(filename)
 		fprintf(stderr, "%s:", filename->c_str());
 	

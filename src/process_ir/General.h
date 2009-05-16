@@ -16,7 +16,6 @@
 #include "Foreach.h"
 #include "fresh.h"
 #include "parsing/Parse_buffer.h"
-#include "boost/lexical_cast.hpp"
 
 //#define PUNT do { throw "punting"; } while (0)
 //#define OPT_ASSERT(A) do { if (A) throw "punting"; } while (0)

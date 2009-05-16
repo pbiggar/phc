@@ -47,21 +47,6 @@ src_phc_LDADD = @gc_lib@ $(LIBLTDL) libphc.la
 bin_SCRIPTS = src/phc_compile_plugin
 libexec_SCRIPTS = libtool
 # pkgdata_DATA = phc-1.0.xsd
-# TODO: rename templates_new.c (and use 'macro')
-pkgdata_DATA =									\
-	runtime/arrays.c							\
-	runtime/builtin_functions.c			\
-	runtime/debug.c							\
-	runtime/isset.c							\
-	runtime/methods.c							\
-	runtime/misc.c								\
-	runtime/string.c							\
-	runtime/support.c							\
-	runtime/templates/templates_new.c	\
-	runtime/unset.c							\
-	runtime/var_vars.c						\
-	runtime/oop.c								\
-	runtime/zval.c
 
 src_phc_SOURCES =												\
 	src/phc.cpp
@@ -163,6 +148,8 @@ libphc_la_SOURCES= 											\
 	src/generated/MIR_user_defined.h						\
 	src/generated/MIR_visitor.cpp							\
 	src/generated/MIR_visitor.h							\
+	src/generated/php_dot.tab.cpp							\
+	src/generated/php_dot.tab.hpp							\
 	src/generated/php_parser.tab.cpp						\
 	src/generated/php_parser.tab.hpp						\
 	src/hir_to_mir/HIR_lower_expr.cpp					\
@@ -492,6 +479,29 @@ strangelib_HEADERS =		\
 	src/lib/String.h		\
 	src/lib/Vector.h
 
+
+strangeruntimedir = $(pkgdatadir)/runtime
+strangeruntime_DATA =						\
+	runtime/arrays.c							\
+	runtime/builtin_functions.c			\
+	runtime/debug.c							\
+	runtime/isset.c							\
+	runtime/methods.c							\
+	runtime/misc.c								\
+	runtime/string.c							\
+	runtime/support.c							\
+	runtime/unset.c							\
+	runtime/var_vars.c						\
+	runtime/oop.c								\
+	runtime/zval.c
+
+# TODO: rename templates_new.c (and use 'macro')
+strangeruntimetemplatesdir = $(strangeruntimedir)/templates
+strangeruntimetemplates_DATA =			\
+	runtime/templates/templates_new.c
+
+
+
 ## TODO prepend dist onto those we distribute
 nobase_pkglib_LTLIBRARIES = 
 PLUGIN_LDFLAGS = -module -avoid-version
@@ -661,27 +671,38 @@ src/generated/MICG.h: src/generated_src/micg.tea @maketea@
 	@maketea@ src/generated_src/micg.tea
 
 
+# Perfect minimal hashing via gperf
 src/generated/keywords.h: src/generated_src/php.gperf 
 	@gperf@ --language=ANSI-C --includes --readonly-tables --struct-type --ignore-case --output-file=src/generated/keywords.h src/generated_src/php.gperf
 
+# Command line options via gengetopt
 src/generated/cmdline.c: src/generated/cmdline.h
 src/generated/cmdline.h: src/generated_src/phc.ggo
 	@gengetopt@ --unamed-opts --input=src/generated_src/phc.ggo --file-name=src/generated/cmdline
 
+# Lexer via flex
 src/generated/lex.yy.cc: src/generated_src/php_scanner.lex
 	@flex@ -s -osrc/generated/lex.yy.cc src/generated_src/php_scanner.lex
 
-src/generated/php_parser.tab.cpp: src/generated/php_parser.tab.hpp
-src/generated/php_parser.tab.hpp: src/generated_src/php_parser.ypp
+# PHP parser via bison
+src/generated/php_parser.tab.hpp: src/generated/php_parser.tab.cpp
+src/generated/php_parser.tab.cpp: src/generated_src/php_parser.ypp
 	@bison@ -o src/generated/php_parser.tab.cpp -d src/generated_src/php_parser.ypp
+
+
+# PHP grammar dot representation via bison
+src/generated/php_dot.tab.hpp: src/generated/php_dot.tab.cpp
+src/generated/php_dot.tab.cpp: src/generated_src/php_dot.ypp
+	@bison@ -o src/generated/php_dot.tab.cpp -d src/generated_src/php_dot.ypp
+
 
 # - Without the second \@, autoconf with replace the @CFLAGS\@ etc
 src/phc_compile_plugin: Makefile src/phc_compile_plugin.in
-	sed -e 's,@includedir\@,$(includedir),g; s,@CXX\@,$(CXX),g; s,@CFLAGS\@,$(CFLAGS),g; s,@LDFLAGS\@,$(LDFLAGS),g; s,@libexecdir\@,$(libexecdir),g; s,@pkglibdir\@,$(pkglibdir),g;' $(srcdir)/src/phc_compile_plugin.in > src/phc_compile_plugin
+	sed -e 's!@includedir\@!$(includedir)!g; s!@CXX\@!$(CXX)!g; s!@CFLAGS\@!$(CFLAGS)!g; s!@LDFLAGS\@!$(LDFLAGS)!g; s!@libexecdir\@!$(libexecdir)!g; s!@pkglibdir\@!$(pkglibdir)!g;' $(srcdir)/src/phc_compile_plugin.in > src/phc_compile_plugin
 	chmod 755 src/phc_compile_plugin
 
 test/framework/lib/autovars.php: Makefile test/framework/lib/autovars.php.in
-	sed -e 's,@valgrind\@,$(valgrind),g; s,@graphviz_gc\@,$(graphviz_gc),g;s,@dot\@,$(dot),g; s,@php\@,$(php),g; s,@CC\@,$(CC),g; s,@diff\@,$(diff),g;s,@php_install_path\@,$(php_install_path),g; s,@bindir\@,$(bindir),g; s,@EXEEXT\@,$(EXEEXT),g; s,@pkglibdir\@,$(pkglibdir),g; s,@xerces_compiled_in\@,$(use_libXerces),g; s,@AM_CPPFLAGS\@,$(AM_CPPFLAGS),g;' $(srcdir)/test/framework/lib/autovars.php.in > test/framework/lib/autovars.php
+	sed -e 's!@valgrind\@!$(valgrind)!g; s!@graphviz_gc\@!$(graphviz_gc)!g;s!@dot\@!$(dot)!g; s!@php\@!$(php)!g; s!@CC\@!$(CC)!g; s!@diff\@!$(diff)!g;s!@php_install_path\@!$(php_install_path)!g; s!@bindir\@!$(bindir)!g; s!@EXEEXT\@!$(EXEEXT)!g; s!@pkglibdir\@!$(pkglibdir)!g; s!@xerces_compiled_in\@!$(use_libXerces)!g; s!@AM_CPPFLAGS\@!$(AM_CPPFLAGS)!g;' $(srcdir)/test/framework/lib/autovars.php.in > test/framework/lib/autovars.php
 
 
 ## Clean files

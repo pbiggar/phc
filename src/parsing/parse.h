@@ -26,15 +26,18 @@
  *
  * If there is a syntax error, returns NULL.
  */ 
-AST::PHP_script* parse(String* filename, String_list* dirs);
+AST::PHP_script* parse (String* filename, String_list* dirs);
 
 /*
  * Perform the search as in parse(String*, String_list*), and return the
  * absolute path of the found file, or NULL if not found.
  */ 
-String* search_file(String* filename, String_list* dirs);
+String* search_file (String* filename, String_list* dirs);
 
 /* Parse CODE, assuming that it comes from FILENAME:LINE_NUMBER */
 AST::PHP_script* parse_code (String* code, String* filename, int line_number);
+
+
+void dump_parse_tree (String* filename, String_list* dirs);
 
 #endif // PHC_PARSE

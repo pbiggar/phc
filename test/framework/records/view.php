@@ -1,7 +1,10 @@
 <?php
 
 //	error_reporting (E_ALL);
-	$ABBREVIATIONS = array ("branches/dataflow" => "df", "paul.biggar" => "pb", "edskodevries" => "edv");
+	$ABBREVIATIONS = array ("branches/dataflow" => "df",
+									"branches/0.2.0" => "0.2.0", "unknown_branch" => "??",
+									"paul.biggar" => "pb", "edskodevries" => "edv",
+									);
 
 
 	include ("common.php");

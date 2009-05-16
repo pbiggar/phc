@@ -292,6 +292,10 @@ int main(int argc, char** argv)
 				pm->run_from (pass_name, ir, true);
 			#endif
 		}
+		else if (args_info.dump_parse_tree_flag)
+		{
+			dump_parse_tree (filename, NULL);
+		}
 		else
 		{
 			ir = parse (filename, NULL);

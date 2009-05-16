@@ -56,7 +56,7 @@ using namespace std;
 // Label supported features
 void phc_unsupported (Node* node, const char* feature)
 {
-	cerr << "Could not generate code for " << feature << endl;
+	cerr << "Not yet supported in code generation: " << feature << endl;
 	(new MIR_unparser (cerr, true))->unparse (node);
 	cerr << endl;
 	xml_unparse (node, cerr);
@@ -720,7 +720,7 @@ public:
 				{
 					// TODO: implement
 					// (Const attributes must be added using a different API)
-					assert(0);
+					phc_unsupported (attr, "const attribute");
 				}
 
 				minit << "}";
@@ -1033,8 +1033,6 @@ public:
 		class_name = dynamic_cast<CLASS_NAME*>(nw->class_name);
 		variable_class = dynamic_cast<Variable_class*>(nw->class_name);
 
-		// TODO: call the constructor (or pass the arguments for the constructor
-		// to the various templates)
 		if(class_name != NULL)
 		{
 			if(!agn->is_ref)
@@ -1042,8 +1040,9 @@ public:
 			else
 				INST (buf, "assign_expr_new_ref", lhs->value, class_name);
 		}
-		else if(variable_class != NULL)
+		else
 		{
+			assert (variable_class);
 			VARIABLE_NAME* vcn = variable_class->variable_name;
 
 			if(!agn->is_ref)
@@ -1051,13 +1050,8 @@ public:
 			else
 				INST (buf, "assign_expr_var_new_ref", lhs->value, vcn);
 		}
-		else
-		{
-			// Invalid class name type
-			assert(0);
-		}
 
-    // See comment in expr_method_invocation
+		// See comment in expr_method_invocation
 		Object_list* params = new Object_list;
 		foreach (Actual_parameter* ap, *rhs->value->actual_parameters)
 		{
@@ -1067,13 +1061,12 @@ public:
 		}
 
 
-    INST (buf, "constructor_invocation",
-		rhs->value,
-      params,
-      rhs->value->get_filename (),
-      s(lexical_cast<string>(rhs->value->get_line_number())),
-      s(lexical_cast<string>(rhs->value->actual_parameters->size())),
-      lhs->value);
+		INST (buf, "constructor_invocation",
+				params,
+				rhs->value->get_filename (),
+				s(lexical_cast<string>(rhs->value->get_line_number())),
+				s(lexical_cast<string>(rhs->value->actual_parameters->size())),
+				lhs->value);
 	}
 
 protected:
@@ -1609,38 +1602,6 @@ protected:
 	Wildcard<Actual_parameter>* arg;
 };
 
-void
-init_function_record (ostream& buf, string name, string& fci_name, string& fcic_name, Node* node)
-{
-	// Its not necessarily a good idea to initialize at the start, since we
-	// still have to check if its initialized at call-time (it may have been
-	// created in the meantime.
-	buf
-	<< "initialize_function_call (" 
-	<<			"&" << fci_name << ", "
-	<<			"&" << fcic_name << ", "
-	<<			"\"" << name << "\", "
-	<<			"\"" << *node->get_filename () << "\", " 
-	<<			node->get_line_number ()
-	<<			" TSRMLS_CC);\n"
-	;
-}
-
-void
-init_method_record (ostream& buf, string obj, string name, string& fci_name, string& fcic_name, string ht, Node* node)
-{
-	buf
-	<< "zval* " << ht << " = " << "initialize_method_call (" 
-	<<			"&" << fci_name << ", "
-	<<			"&" << fcic_name << ", "
-	<<      obj << ", "
-	<<			"\"" << name << "\", "
-	<<			"\"" << *node->get_filename () << "\", " 
-	<<			node->get_line_number ()
-	<<			" TSRMLS_CC);\n"
-	;
-}
-
 class Pattern_assign_expr_param_is_ref : public Pattern_assign_var
 {
 public:
@@ -1657,8 +1618,43 @@ public:
 		string fci_name = suffix (function_name, "fci");
 		string fcic_name = suffix (function_name, "fcic");
 
+
+		if (rhs->value->target != NULL)
+		{
+			VARIABLE_NAME* object_name = dynamic_cast<VARIABLE_NAME*>(rhs->value->target);
+			CLASS_NAME* class_name  = dynamic_cast<CLASS_NAME*>(rhs->value->target);
+
+			if(object_name != NULL)
+			{
+				// TODO: if we statically knew the type of the object that is
+				// invoked (type inference) then we should be able to use
+				// the cached function info. As it stands, we have to
+				// lookup the function every time since the variable can be
+				// bound to a different class every time we encounter this
+				// statement
+		
+				INST (buf, "assign_param_is_ref_method", 
+						s(function_name),
+						rhs->value->get_filename (),
+						s(lexical_cast<string> (rhs->value->get_line_number ())),
+						s(lexical_cast<string> (rhs->value->param_index->value)),
+						object_name,
+						lhs->value);
+
+				return;
+			}
+			else
+			{
+				assert (class_name != NULL);
+
+				fci_name  = suffix (suffix(*class_name->value, function_name), "fci");
+				fcic_name = suffix (suffix(*class_name->value, function_name), "fcic");
+				function_name = *class_name->value + "::" + function_name;
+			}
+		}
+
 		INST (buf,
-				"assign_param_is_ref", 
+				"assign_param_is_ref_function", 
 				s(function_name),
 				rhs->value->get_filename (),
 				s(lexical_cast<string> (rhs->value->get_line_number ())),
@@ -1704,8 +1700,9 @@ public:
 			lhs_descriptor = s("NONE");
 		}
 
-		// We want a list of rvalues here, not actual parameters. But we need to
-		// communicate the is_ref field of the actual_parameter if its there.
+		// We want a list of rvalues here, not actual parameters. But we need
+		// to communicate the is_ref field of the actual_parameter if its
+		// there.
 		Object_list* params = new Object_list;
 		foreach (Actual_parameter* ap, *rhs->value->actual_parameters)
 		{
@@ -1721,8 +1718,8 @@ public:
 		METHOD_NAME* name = dynamic_cast<METHOD_NAME*>(rhs->value->method_name);
 		if (name == NULL) phc_unsupported (rhs->value, "variable function");
 
-		// Names of the runtime variables that will hold the (potentially cached)
-		// location of the function
+		// Names of the runtime variables that will hold the (potentially
+		// cached) location of the function
 		string fci_name;
 		string fcic_name;
 
@@ -1736,11 +1733,12 @@ public:
 
 			if(object_name != NULL)
 			{
-				// TODO: if we statically knew the type of the object that is invoked
-				// TODO: (type inference) then we should be able to use the cached 
-				// TODO: function info. As it stands, we have to lookup the function
-				// TODO: every time since the variable can be bound to a different
-				// TODO: class every time we encounter this statement
+				// TODO: if we statically knew the type of the object that is
+				// invoked (type inference) then we should be able to use
+				// the cached function info. As it stands, we have to
+				// lookup the function every time since the variable can be
+				// bound to a different class every time we encounter this
+				// statement
 		
 				function_name = *name->value;
 
@@ -1831,21 +1829,18 @@ public:
 				else
 					INST (buf, "assign_field_ref", object_name, field_name, rhs);
 			}
-			else if (class_name != NULL)
+			else
 			{
+				assert (class_name);
 				if (!is_ref)
 					INST (buf, "assign_static_field", class_name, field_name, rhs);
 				else
 					INST (buf, "assign_static_field_ref", class_name, field_name, rhs);
 			}
-			else
-			{
-				// Invalid target
-				assert(0);
-			}
 		}
 		else if (var_field != NULL)
 		{
+			assert (var_field);
 			VARIABLE_NAME* var_field_name = var_field->variable_name;
 
 			if (object_name != NULL)
@@ -1855,23 +1850,14 @@ public:
 				else
 					INST (buf, "assign_var_field_ref", object_name, var_field_name, rhs);
 			}
-			else if (class_name != NULL)
+			else
 			{
+				assert (class_name);
 				if (!is_ref)
 					INST (buf, "assign_var_static_field", class_name, var_field_name, rhs);
 				else
 					INST (buf, "assign_var_static_field_ref", class_name, var_field_name, rhs);
 			}
-			else
-			{
-				// Invalid target
-				assert(0);
-			}
-		}
-		else
-		{
-			// Invalid field name
-			assert(0);
 		}
 	}
 
@@ -1912,21 +1898,18 @@ public:
 				else
 					INST (buf, "field_access_ref", lhs, object_name, field_name);
 			}
-			else if (class_name != NULL)
+			else
 			{
+				assert (class_name);
 				if (!is_ref)
 					INST (buf, "static_field_access", lhs, class_name, field_name);
 				else
 					INST (buf, "static_field_access_ref", lhs, class_name, field_name);
 			}
-			else
-			{
-				// Invalid target
-				assert(0);
-			}
 		}
-		else if (var_field != NULL)
+		else
 		{
+			assert (var_field);
 			VARIABLE_NAME* var_field_name = var_field->variable_name;
 
 			if (object_name != NULL)
@@ -1936,23 +1919,14 @@ public:
 				else
 					INST (buf, "var_field_access_ref", lhs, object_name, var_field_name);
 			}
-			else if (class_name != NULL)
+			else
 			{
+				assert (class_name);
 				if (!is_ref)
 					INST (buf, "var_static_field_access", lhs, class_name, var_field_name);
 				else
 					INST (buf, "var_static_field_access_ref", lhs, class_name, var_field_name);
 			}
-			else
-			{
-				// Invalid target
-				assert(0);
-			}
-		}
-		else
-		{
-			// Invalid field name
-			assert(0);
 		}
 	}
 
@@ -2309,7 +2283,7 @@ class Pattern_unset : public Pattern
 		else
 		{
 			// Variable variable
-			phc_unsupported (unset, "unset variable variable");
+			phc_unsupported (unset->value, "unset variable variable");
 		}
 	}
 
@@ -2415,7 +2389,7 @@ class Pattern_class_or_interface_alias : public Pattern
 			alias_name = class_alias->value->alias->value;
 		}
 		else
-			assert (0);
+			phc_unreachable ();
 
 		alias_name = alias_name->clone ();
 		alias_name->toLower();
@@ -2554,7 +2528,7 @@ string Generate_C::compile_statement(Statement* in)
 	// All the rest are just statements
 	,	new Pattern_assign_array ()
 	,	new Pattern_assign_next ()
-	, new Pattern_assign_var_var ()
+	,  new Pattern_assign_var_var ()
 	,	new Pattern_class_or_interface_alias ()
 	,	new Pattern_method_alias ()
 	,	new Pattern_branch()
@@ -2609,7 +2583,7 @@ string read_file (String* filename)
 
 	stringstream ss1, ss2;
 	ss1 << "runtime/" << *filename;
-	ss2 << DATADIR << "/phc/" << *filename;
+	ss2 << DATADIR << "/phc/runtime/" << *filename;
 
 	// Check the current directory first. This means we can change the file without recompiling or installing.
 	file.open (ss1.str ().c_str ());

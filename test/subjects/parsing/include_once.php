@@ -1,6 +1,6 @@
 <?php
 
-	include ("../codegen/print.php");
-	include_once ("../codegen/print.php"); // this shouldn't include
+	include ("removeconcatnulls.php");
+	include_once ("removeconcatnulls.php"); // this shouldn't include
 
 ?>

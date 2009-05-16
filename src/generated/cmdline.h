@@ -58,6 +58,8 @@ struct gengetopt_args_info
   unsigned int define_min; /**< @brief Define ini entry (only affects -c and --include)'s minimum occurreces */
   unsigned int define_max; /**< @brief Define ini entry (only affects -c and --include)'s maximum occurreces */
   const char *define_help; /**< @brief Define ini entry (only affects -c and --include) help description.  */
+  int no_warnings_flag;	/**< @brief Allow warnings to be printed (default=off).  */
+  const char *no_warnings_help; /**< @brief Allow warnings to be printed help description.  */
   char * read_xml_arg;	/**< @brief Assume the input is in XML format. Start processing after the named pass (passes are ast|hir|mir).  */
   char * read_xml_orig;	/**< @brief Assume the input is in XML format. Start processing after the named pass (passes are ast|hir|mir) original value given at command line.  */
   const char *read_xml_help; /**< @brief Assume the input is in XML format. Start processing after the named pass (passes are ast|hir|mir) help description.  */
@@ -113,6 +115,10 @@ struct gengetopt_args_info
   unsigned int dump_dot_min; /**< @brief Dump input as DOT after PASSNAME's minimum occurreces */
   unsigned int dump_dot_max; /**< @brief Dump input as DOT after PASSNAME's maximum occurreces */
   const char *dump_dot_help; /**< @brief Dump input as DOT after PASSNAME help description.  */
+  int dump_parse_tree_flag;	/**< @brief Dump parse tree as DOT (default=off).  */
+  const char *dump_parse_tree_help; /**< @brief Dump parse tree as DOT help description.  */
+  int dump_tokens_flag;	/**< @brief Dump list of tokens from the lexer (default=off).  */
+  const char *dump_tokens_help; /**< @brief Dump list of tokens from the lexer help description.  */
   int list_passes_flag;	/**< @brief List of available passes (for PASSNAME) (default=off).  */
   const char *list_passes_help; /**< @brief List of available passes (for PASSNAME) help description.  */
   int convert_uppered_flag;	/**< @brief Use legal PHP when dumping MIR as PHP (default=off).  */
@@ -166,6 +172,7 @@ struct gengetopt_args_info
   unsigned int run_given ;	/**< @brief Whether run was given.  */
   unsigned int r_option_given ;	/**< @brief Whether r-option was given.  */
   unsigned int define_given ;	/**< @brief Whether define was given.  */
+  unsigned int no_warnings_given ;	/**< @brief Whether no-warnings was given.  */
   unsigned int read_xml_given ;	/**< @brief Whether read-xml was given.  */
   unsigned int no_xml_validation_given ;	/**< @brief Whether no-xml-validation was given.  */
   unsigned int include_given ;	/**< @brief Whether include was given.  */
@@ -184,6 +191,8 @@ struct gengetopt_args_info
   unsigned int dump_given ;	/**< @brief Whether dump was given.  */
   unsigned int dump_xml_given ;	/**< @brief Whether dump-xml was given.  */
   unsigned int dump_dot_given ;	/**< @brief Whether dump-dot was given.  */
+  unsigned int dump_parse_tree_given ;	/**< @brief Whether dump-parse-tree was given.  */
+  unsigned int dump_tokens_given ;	/**< @brief Whether dump-tokens was given.  */
   unsigned int list_passes_given ;	/**< @brief Whether list-passes was given.  */
   unsigned int convert_uppered_given ;	/**< @brief Whether convert-uppered was given.  */
   unsigned int no_dot_line_numbers_given ;	/**< @brief Whether no-dot-line-numbers was given.  */

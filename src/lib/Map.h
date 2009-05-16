@@ -12,6 +12,8 @@
 #include "List.h"
 #include <boost/tuple/tuple.hpp> // for tie
 
+using boost::tie;
+
 template <
 	typename _Key, 
 	typename _Tp, 

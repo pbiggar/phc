@@ -159,7 +159,15 @@ typedef void* yyscan_t;
 
 /* Size of default input buffer. */
 #ifndef YY_BUF_SIZE
+#ifdef __ia64__
+/* On IA-64, the buffer size is 16k, not 8k.
+ * Moreover, YY_BUF_SIZE is 2*YY_READ_BUF_SIZE in the general case.
+ * Ditto for the __ia64__ case accordingly.
+ */
+#define YY_BUF_SIZE 32768
+#else
 #define YY_BUF_SIZE 16384
+#endif /* __ia64__ */
 #endif
 
 /* The state buf must be large enough to hold one state per character in the main buffer.
@@ -847,15 +855,15 @@ goto find_rule; \
 	 */
 
 	#define RETURN(x) {															\
-		if(false)	            												\
+		if(args_info.dump_tokens_flag)										\
 			printf("%ld: " #x "\n", yyextra->source_line);				\
 		yyextra->after_arrow = (x) == O_SINGLEARROW;						\
 		yyextra->starts_line = false;											\
 		return x; }
 	#define RETURN_OP(t, s) {													\
-		if(false)	            												\
+		if(args_info.dump_tokens_flag)										\
 			printf("%ld: SIMPLE_OP %s\n", yyextra->source_line, s);	\
-		yylval->token_op = new OP(new String(s)); 				\
+		yylval->token_op = new OP(new String(s));							\
 		copy_state(yylval->token_op, yyextra);								\
 		yyextra->after_arrow = false;											\
 		yyextra->starts_line = false;											\
@@ -906,7 +914,7 @@ goto find_rule; \
 
 
 /* Define a few tokens referenced in the grammar, below */
-#line 910 "src/generated/lex.yy.cc"
+#line 918 "src/generated/lex.yy.cc"
 
 #define INITIAL 0
 #define PHP 1
@@ -1063,7 +1071,12 @@ static int input (yyscan_t yyscanner );
     
 /* Amount of stuff to slurp up with each read. */
 #ifndef YY_READ_BUF_SIZE
+#ifdef __ia64__
+/* On IA-64, the buffer size is 16k, not 8k */
+#define YY_READ_BUF_SIZE 16384
+#else
 #define YY_READ_BUF_SIZE 8192
+#endif /* __ia64__ */
 #endif
 
 /* Copy whatever the last rule matched to the standard output. */
@@ -1175,7 +1188,7 @@ YY_DECL
 
 	/* Update source_line */
 
-#line 1179 "src/generated/lex.yy.cc"
+#line 1192 "src/generated/lex.yy.cc"
 
     yylval = yylval_param;
 
@@ -2385,7 +2398,7 @@ YY_RULE_SETUP
 #line 880 "src/generated_src/php_scanner.lex"
 YY_FATAL_ERROR( "flex scanner jammed" );
 	YY_BREAK
-#line 2389 "src/generated/lex.yy.cc"
+#line 2402 "src/generated/lex.yy.cc"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -3086,8 +3099,8 @@ YY_BUFFER_STATE PHP__scan_string (yyconst char * yystr , yyscan_t yyscanner)
 
 /** Setup the input buffer state to scan the given bytes. The next call to PHP_lex() will
  * scan from a @e copy of @a bytes.
- * @param bytes the byte buffer to scan
- * @param len the number of bytes in the buffer pointed to by @a bytes.
+ * @param yybytes the byte buffer to scan
+ * @param _yybytes_len the number of bytes in the buffer pointed to by @a bytes.
  * @param yyscanner The scanner object.
  * @return the newly allocated buffer state object.
  */

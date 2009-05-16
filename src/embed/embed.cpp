@@ -40,6 +40,13 @@ void PHP::startup_php ()
 	is_started = true;
 
 	php_embed_init (0, NULL PTSRMLS_CC);
+
+	// Prevent the Zend engine from stopping after time runs out.
+	int result = zend_alter_ini_entry (
+				"max_execution_time", sizeof ("max_execution_time"),
+				"0", sizeof ("0"),
+				PHP_INI_ALL, PHP_INI_STAGE_RUNTIME);
+	assert (result == SUCCESS);
 }
 
 void PHP::shutdown_php ()
