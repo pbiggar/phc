@@ -251,7 +251,6 @@ HSSA::convert_to_hssa_form ()
 	// We use Cooper/Torczon, Section 9.3.3, with some minor changes. Since we
 	// dont have a list of global names, we iterate through all blocks, rather
 	// than the blocks corresponding to the variable names. 
-	// TODO: get a list of global names, and convert to semi-pruned form
 
 	cfg->dominance = new Dominance (cfg);
 	cfg->dominance->calculate_forward_dominance ();
@@ -259,7 +258,6 @@ HSSA::convert_to_hssa_form ()
 
 	// For an assignment to X in BB, add a PHI function for variable X in the
 	// dominance frontier of BB.
-	// TODO Abstract this.
 	BB_list* worklist = cfg->get_all_bbs_top_down ();
 	BB_list::iterator i = worklist->begin ();
 	while (i != worklist->end ())
