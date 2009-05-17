@@ -130,17 +130,18 @@
 	Consider the following simple PHP script.
 </para>
 
-<programlisting>
-<?<reserved>php</reserved>
-   <reserved>function</reserved> foo()
+.. sourcecode::
+
+<?php
+   function foo()
    {
-      <reserved>return</reserved> 5;
+      return 5;
    }
 
    $foo = foo();
-   <reserved>echo</reserved> "foo is $foo<br>";
+   echo "foo is $foo<br>";
 ?>
-</programlisting>
+
 
 <para>
 	Internally this program gets represented as an abstract syntax tree, as
@@ -164,30 +165,31 @@
 <para> Suppose we want to rename function ``foo`` to
 ``bar``. This is done by the following plugin: </para>
 
-<programlisting>
-<reserved>#include</reserved> "AST_visitor.h"
-<reserved>#include</reserved> "pass_manager/Plugin_pass.h"
+.. sourcecode::
 
-<reserved>class</reserved> Rename_foo_to_bar : <reserved>public</reserved> Visitor
+#include "AST_visitor.h"
+#include "pass_manager/Plugin_pass.h"
+
+class Rename_foo_to_bar : public Visitor
 {
-   <reserved>void</reserved> pre_method_name(METHOD_NAME* in)
+   void pre_method_name(METHOD_NAME* in)
    {
-      <reserved>if</reserved>(*in->value == "foo")
-         in->value = <reserved>new</reserved> String("bar");
+      if(*in->value == "foo")
+         in->value = new String("bar");
    }
 };
 
-<reserved>extern</reserved> "C" <reserved>void</reserved> run_ast (AST::PHP_script* in, Pass_manager* pm, String* option)
+extern "C" void run_ast (AST::PHP_script* in, Pass_manager* pm, String* option)
 {
     Rename_foo_to_bar f2b;
     php_script->visit(&amp;f2b);
 }
 
-<reserved>extern</reserved> "C" <reserved>void</reserved> load (Pass_manager* pm, Plugin_pass* pass)
+extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 {
 	pm->add_after_named_pass (pass, new String("ast"));
 }
-</programlisting>					
+					
 
 </section>
 <section>
@@ -196,17 +198,18 @@
 
 <para> Running |phc| gives </para>
 
-<programlisting>
-<?<reserved>php</reserved>
-   <reserved>function</reserved> bar()
+.. sourcecode::
+
+<?php
+   function bar()
    {
-      <reserved>return</reserved> 5;
+      return 5;
    }
 
    $foo = bar();
-   <reserved>echo</reserved> "foo is " . $foo . "<br>";
+   echo "foo is " . $foo . "<br>";
 ?>
-</programlisting>
+
 
 <para> where the name of the function has been changed, while the name of the
 variable remained unaltered, as has the text ``"foo"`` inside

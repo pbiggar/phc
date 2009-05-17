@@ -18,15 +18,16 @@
 	statements in a script. So, for
 </para>
 		
-<programlisting>
-<?<reserved>php</reserved>
+.. sourcecode::
+
+<?php
    $x = 5;
-   <reserved>if</reserved>($x == 5)
-      <reserved>echo</reserved> "yes";
-   <reserved>else</reserved>
-      <reserved>echo</reserved> "no";
+   if($x == 5)
+      echo "yes";
+   else
+      echo "no";
 ?>
-</programlisting>
+
 
 <para>
 	we should report four statements.
@@ -66,12 +67,13 @@ phc --run plugins/tutorials/count_statements_easy.la test.php
 	Here is part of the |phc| grammar: 
 </para>
 
-<programlisting>
+.. sourcecode::
+
 PHP_script ::= Statement* ;
 Statement ::= Eval_expr | If | While | ...
 If ::= Expr iftrue:Statement* iffalse:Statement* ;
 While ::= Expr Statement* ;
-</programlisting>
+
 
 <para>
 	The vertical bar (``|``) means &ldquo;or&rdquo;. So, a statement is
@@ -122,10 +124,11 @@ is the value that the function returns. </para>
 	use the grammar rule
 </para>
 
-<programlisting>
+.. sourcecode::
+
 Statement ::= ... | Eval_expr ;
 Eval_expr ::= Expr ;
-</programlisting>
+
 
 </section>
 
@@ -140,42 +143,43 @@ Eval_expr ::= Expr ;
 	comments, that is enough.
 </para>
 			
-<programlisting>
-<reserved>#include</reserved> <AST.h>
-<reserved>#include</reserved> <pass_manager/Plugin_pass.h>
+.. sourcecode::
 
-<reserved>int</reserved> count(AST::Statement_list* in)
+#include <AST.h>
+#include <pass_manager/Plugin_pass.h>
+
+int count(AST::Statement_list* in)
 {
    <emphasis>// Every item in "in" is a statement</emphasis>
-   <reserved>int</reserved> num_statements = in->size();
+   int num_statements = in->size();
 
    <emphasis>// But there can also be statements nested inside any</emphasis>
    <emphasis>// of the statements in "in". We consider each one in turn.</emphasis>
    Statement_list::const_iterator i;
-   <reserved>for</reserved>(i = in->begin(); i != in->end(); i++)
+   for(i = in->begin(); i != in->end(); i++)
    {
       <emphasis>// Check if the statement is an if-statement</emphasis>
-      <reserved>if</reserved>(If* if_stmt = dynamic_cast<If*>(*i))
+      if(If* if_stmt = dynamic_cast<If*>(*i))
       {
          num_statements += count(if_stmt->iftrue);
          num_statements += count(if_stmt->iffalse);
       }
    }
 
-   <reserved>return</reserved> num_statements;
+   return num_statements;
 }
 
-<reserved>extern</reserved> "C" <reserved>void</reserved> load (Pass_manager* pm, Plugin_pass* pass)
+extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 {
    pm->add_after_named_pass (pass, new String ("ast"));
 }
 
-<reserved>extern</reserved> "C" <reserved>void</reserved> run_ast (AST::PHP_script* in, Pass_manager* pm, String* option)
+extern "C" void run_ast (AST::PHP_script* in, Pass_manager* pm, String* option)
 {
-   <reserved>int</reserved> num_statements = count(in->statements);
+   int num_statements = count(in->statements);
    cout << num_statements << " statements found" << endl;
 }
-</programlisting>
+
 
 <para>
 	The overall structure of this plugin should be fairly clear. We count all
@@ -187,15 +191,16 @@ Eval_expr ::= Expr ;
 	example, it will report only two statements for
 </para>
 
-<programlisting>
-<?<reserved>php</reserved>
+.. sourcecode::
+
+<?php
    $x = 5;
-   <reserved>while</reserved>($x--)
+   while($x--)
    {
-      <reserved>echo</reserved> $x;
+      echo $x;
    }
 ?>
-</programlisting>
+
 
 <para>
 	Of course, we can fix the plugin by testing for ``while``
@@ -243,46 +248,47 @@ Eval_expr ::= Expr ;
 	this plugin will still work as-is.
 </para>
 
-<programlisting>
-<reserved>#include</reserved> "AST_visitor.h"
-<reserved>#include</reserved> <pass_manager/Plugin_pass.h>
+.. sourcecode::
 
-<reserved>class</reserved> Count_statements : <reserved>public</reserved> AST::Visitor
+#include "AST_visitor.h"
+#include <pass_manager/Plugin_pass.h>
+
+class Count_statements : public AST::Visitor
 {
-<reserved>private</reserved>:
-   <reserved>int</reserved> num_statements;
+private:
+   int num_statements;
 
-<reserved>public</reserved>:
+public:
    <emphasis>// Set num_statements to zero before we begin</emphasis>
-   <reserved>void</reserved> pre_php_script(AST::PHP_script* in)
+   void pre_php_script(AST::PHP_script* in)
    {
       num_statements = 0;
    }
 
    <emphasis>// Print the number of function calls when we are done</emphasis>
-   <reserved>void</reserved> post_php_script(AST::PHP_script* in)
+   void post_php_script(AST::PHP_script* in)
    {
       cout << num_statements << " statements found" << endl;
    }
    
    <emphasis>// Count the number of function calls</emphasis>
-   <reserved>void</reserved> post_statement(AST::Statement* in)
+   void post_statement(AST::Statement* in)
    {
       num_statements++;
    }
 };
 
-<reserved>extern</reserved> "C" <reserved>void</reserved> load (Pass_manager* pm, Plugin_pass* pass)
+extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 {
    pm->add_after_named_pass (pass, new String ("ast"));
 }
 
-<reserved>extern</reserved> "C" <reserved>void</reserved> run_ast (AST::PHP_script* in, Pass_manager* pm, String* option)
+extern "C" void run_ast (AST::PHP_script* in, Pass_manager* pm, String* option)
 {
 	Count_statements cfc;
 	in->visit(&amp;cfc);
 }
-</programlisting>
+
 
 <para> We override a number of methods of the ``Visitor`` class to
 implement the functionality we need; the traversal is then taken care of by

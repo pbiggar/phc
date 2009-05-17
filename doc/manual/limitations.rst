@@ -31,29 +31,31 @@ difficult task! The first problem with our method of dealing with
 comments is how we deal with whitespace in multi-line comments.
 Consider the following example. </para>
 
-<programlisting>
-<?<reserved>php</reserved>
+.. sourcecode::
+
+<?php
    <emphasis>/*
     * Some comment with
     * multiple lines
     */</emphasis>
    foo();
 ?>
-</programlisting>
+
 
 <para> The problem is that the whitespace at the start of each line is
 included in the comment. This means that when the unparser outputs the
 comment, it outputs something like </para>
 
-<programlisting>
-<?<reserved>php</reserved>
+.. sourcecode::
+
+<?php
    <emphasis>/*
     * Some comment with
        * multiple lines
        */</emphasis>
    foo();
 ?>
-</programlisting>
+
 
 <para>It is unclear how to solve this problem nicely. Suggestions are
 welcome :-) </para>
@@ -62,20 +64,21 @@ welcome :-) </para>
 the ``else``-clause of an ``if``-statement. Thus, in
 </para>
 
-<programlisting>
-<?<reserved>php</reserved>
+.. sourcecode::
+
+<?php
    <emphasis>// Comment 1</emphasis>
-   <reserved>if</reserved>($c)
+   if($c)
    {
       foo();
    }
    <emphasis>// Comment 2</emphasis>
-   <reserved>else</reserved>
+   else
    {
       bar();
    }
 ?>
-</programlisting>
+
 
 <para> Comment 2 will be associated with the call to ``bar``
 (but Comment 1 will be associated with the ``if``-statement
@@ -84,20 +87,21 @@ itself). A similar problem occurs with comments for
 
 <para> Finally, if a scope ends on a comment, that comment will be associated with the wrong node. For example, in </para>
 
-<programlisting>
-<?<reserved>php</reserved>
-   <reserved>if</reserved>($c)
+.. sourcecode::
+
+<?php
+   if($c)
    {
-      <reserved>echo</reserved> "Hi";
+      echo "Hi";
    }
-   <reserved>else</reserved>
+   else
    {
       <emphasis>// Do nothing</emphasis>
    }
 
-   <reserved>echo</reserved> "World";
+   echo "World";
 ?>
-</programlisting>
+
 
 <para>the comment will be associated with the ``echo "World"``
 statement. A similar problem occurs when a script ends on a comment;

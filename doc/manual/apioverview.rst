@@ -100,9 +100,10 @@
 	declaration: 
 </para> 
 
-<programlisting>
-<reserved>extern</reserved> Wildcard* WILDCARD;
-</programlisting>
+.. sourcecode::
+
+extern Wildcard* WILDCARD;
+
 
 <para>
 	This ``WILDCARD`` is the sole instance of ``Wildcard``.
@@ -113,15 +114,16 @@
 	``if`` in 
 </para>
 
-<programlisting>
-CLASS_NAME* name = <reserved>new</reserved> CLASS_NAME(<reserved>new</reserved> String("SOME_CLASS"));
-CLASS_NAME* pattern = <reserved>new</reserved> CLASS_NAME(WILDCARD);
+.. sourcecode::
 
-<reserved>if</reserved>(name->match(pattern))
+CLASS_NAME* name = new CLASS_NAME(new String("SOME_CLASS"));
+CLASS_NAME* pattern = new CLASS_NAME(WILDCARD);
+
+if(name->match(pattern))
 {
    <emphasis>// ...</emphasis>
 }
-</programlisting>
+
 
 <para>``pattern->value`` will be set to the corresponding value in
 ``name``. Tutorials <xref linkend="treetutorial3"

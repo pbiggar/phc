@@ -22,9 +22,10 @@
 	effect, run |phc| as follows: 
 </para>
 	
-<programlisting>
+.. sourcecode::
+
 phc --run plugins/tutorials/MySQL2DBX.la --pretty-print test.php
-</programlisting>
+
 
 </section>
 <section>
@@ -37,12 +38,13 @@ phc --run plugins/tutorials/MySQL2DBX.la --pretty-print test.php
 	<xref linkend="grammar" endterm="grammar.title">: 
 </para>
 
-<programlisting>
+.. sourcecode::
+
 Method_invocation ::= Target? Method_name Actual_parameter* ;
 Method_name ::= METHOD_NAME | Reflection ;
 Actual_parameter ::= is_ref:"&amp;"? Expr ;
 Reflection ::= Expr ;
-</programlisting>
+
 			
 <para>
 	(The ``target`` of a method invocation is the class or object the
@@ -76,36 +78,37 @@ Reflection ::= Expr ;
 	Thus, we arrive at the following first attempt. 
 </para>
 
-<programlisting>
-<reserved>#include</reserved> "AST_visitor.h"
-<reserved>#include</reserved> <pass_manager/Plugin_pass.h>
+.. sourcecode::
 
-<reserved>using</reserved> <reserved>namespace</reserved> AST;
+#include "AST_visitor.h"
+#include <pass_manager/Plugin_pass.h>
 
-<reserved>class</reserved> MySQL2DBX : <reserved>public</reserved> Visitor
+using namespace AST;
+
+class MySQL2DBX : public Visitor
 {
-<reserved>public</reserved>:
-   <reserved>void</reserved> post_method_invocation(Method_invocation* in)
+public:
+   void post_method_invocation(Method_invocation* in)
    {
-      <reserved>if</reserved>(in->method_name->match(<reserved>new</reserved> METHOD_NAME(<reserved>new</reserved> String("mysql_connect"))))
+      if(in->method_name->match(new METHOD_NAME(new String("mysql_connect"))))
       {
          <emphasis>// Modify name</emphasis>
-         in->method_name = <reserved>new</reserved> METHOD_NAME(<reserved>new</reserved> String("dbx_connect"));
+         in->method_name = new METHOD_NAME(new String("dbx_connect"));
       }
    }
 };
 
-<reserved>extern</reserved> "C" <reserved>void</reserved> load (Pass_manager* pm, Plugin_pass* pass)
+extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 {
    pm->add_after_named_pass (pass, new String ("ast"));
 }
 
-<reserved>extern</reserved> "C" <reserved>void</reserved> run_ast (PHP_script* in, Pass_manager* pm, String* option)
+extern "C" void run_ast (PHP_script* in, Pass_manager* pm, String* option)
 {
    MySQL2DBX m2d;
    in->visit(&amp;m2d);
 }
-</programlisting>
+
 
 <note><para>
 	|phc| uses a garbage collector, so there is never any need to free objects
@@ -136,17 +139,19 @@ Reflection ::= Expr ;
 	signatures for both functions are 
 </para>
 
-<programlisting>
+.. sourcecode::
+
 mysql_connect (server, username, password, new_link, int client_flags)
-</programlisting>
+
 
 <para>
 	and 
 </para>
 
-<programlisting>
+.. sourcecode::
+
 dbx_connect (module, host, database, username, password, persistent)
-</programlisting>
+
 
 <para>
 	The ``module`` parameter to ``dbx_connect`` should be set
@@ -175,76 +180,79 @@ dbx_connect (module, host, database, username, password, persistent)
 	We are now ready to write our conversion function: 
 </para>
 
-<programlisting>
-<reserved>#include</reserved> "AST_visitor.h"
-<reserved>#include</reserved> <pass_manager/Plugin_pass.h>
+.. sourcecode::
 
-<reserved>using</reserved> <reserved>namespace</reserved> AST;
+#include "AST_visitor.h"
+#include <pass_manager/Plugin_pass.h>
 
-<reserved>class</reserved> MySQL2DBX : <reserved>public</reserved> Visitor
+using namespace AST;
+
+class MySQL2DBX : public Visitor
 {
-<reserved>public</reserved>:
-   <reserved>void</reserved> post_method_invocation(Method_invocation* in)
+public:
+   void post_method_invocation(Method_invocation* in)
    {
       Actual_parameter_list*>::iterator pos;
       CONSTANT_NAME* module_name;
       Constant* module_constant;
       Actual_parameter* param;
  
-      <reserved>if</reserved>(in->method_name->match(<reserved>new</reserved> METHOD_NAME(<reserved>new</reserved> String("mysql_connect"))))
+      if(in->method_name->match(new METHOD_NAME(new String("mysql_connect"))))
       {
          <emphasis>// Check for too many parameters</emphasis>
-         <reserved>if</reserved>(in->actual_parameters->size() > 3)
+         if(in->actual_parameters->size() > 3)
          {
             printf("Error: unable to translate call "
                "to mysql_connect on line %d\n", in->get_line_number());
-            <reserved>return</reserved>;
+            return;
          }
       
          <emphasis>// Modify name</emphasis>
-         in->method_name = <reserved>new</reserved> METHOD_NAME(<reserved>new</reserved> String("dbx_connect"));
+         in->method_name = new METHOD_NAME(new String("dbx_connect"));
       
          <emphasis>// Modify parameters</emphasis>
-         module_name = <reserved>new</reserved> CONSTANT_NAME(<reserved>new</reserved> String("DBX_MYSQL"));
-         module_constant = <reserved>new</reserved> Constant(NULL, module_name);
+         module_name = new CONSTANT_NAME(new String("DBX_MYSQL"));
+         module_constant = new Constant(NULL, module_name);
          
          pos = in->actual_parameters->begin();
-         param = <reserved>new</reserved> Actual_parameter(false, module_constant);
+         param = new Actual_parameter(false, module_constant);
          in->actual_parameters->insert(pos, param); pos++;
          <emphasis>/* Skip host */</emphasis> pos++;
-         param = <reserved>new</reserved> Actual_parameter(false, <reserved>new</reserved> NIL());
+         param = new Actual_parameter(false, new NIL());
          in->actual_parameters->insert(pos, param); 
       }
    }
 };
 
-<reserved>extern</reserved> "C" <reserved>void</reserved> load (Pass_manager* pm, Plugin_pass* pass)
+extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 {
    pm->add_after_named_pass (pass, new String ("ast"));
 }
 
-<reserved>extern</reserved> "C" <reserved>void</reserved> run_ast (PHP_script* in, Pass_manager* pm, String* option)
+extern "C" void run_ast (PHP_script* in, Pass_manager* pm, String* option)
 {
 	MySQL2DBX m2d;
 	in->visit(&amp;m2d);
 }
-</programlisting>
+
 
 <para>
 	If we apply this transformation to 
 </para>
 
-<programlisting>
+.. sourcecode::
+
 $link = mysql_connect('host', 'user', 'pass');
-</programlisting>
+
 
 <para>
 	We get 
 </para>
 
-<programlisting>
+.. sourcecode::
+
 $link = dbx_connect(DBX_MYSQL, "host", NULL, "user", "pass");
-</programlisting>
+
 
 </section>
 <section>

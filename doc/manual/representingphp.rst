@@ -19,10 +19,11 @@
 
 <para>The grammar rule for variables reads</para>
 
-<programlisting>
+.. sourcecode::
+
 variable ::= target? variable_name <emphasis>array_indices:</emphasis>(expr?)* <emphasis>string_index:</emphasis>expr?
 variable_name ::= VARIABLE_NAME | reflection 
-</programlisting>
+
 
 <para> This is probably one of the more difficult rules in the grammar, so it
 is worth explaining in a bit more detail. The following table describe each
@@ -214,40 +215,44 @@ element of the first rule in detail. </para>
 
 <para> Thus, in </para>
 
-<programlisting>
+.. sourcecode::
+
 foo();
 <emphasis>// Comment</emphasis>
 bar();
-</programlisting>
+
 
 <para> the comment gets attached to ``bar();`` (to be precise, to the
 corresponding ``Eval_expr`` node; the function call itself is an
 expression and |phc| does not associate comments with expressions), but in
 </para>
 
-<programlisting>
+.. sourcecode::
+
 foo(); <emphasis>// Comment</emphasis>
 bar();
-</programlisting>
+
 
 <para> the comment gets attached to ``foo();`` instead. The same
 applies to multiple comments:	 </para>
 
-<programlisting>
+.. sourcecode::
+
 foo(); <emphasis>/* A */</emphasis> <emphasis>/* B */</emphasis>
 <emphasis>// C</emphasis>
 <emphasis>// D</emphasis>
 bar();
-</programlisting>
+
 
 <para> In this snippet, ``A`` and ``B`` get attached to
 ``foo();``, but ``C`` and ``D`` get attached to
 ``bar();``. Also, in the following snippet, </para>
 			
-<programlisting>
+.. sourcecode::
+
 <emphasis>// Comment</emphasis>
 echo <emphasis>/* one */</emphasis> 1 + <emphasis>/* two */</emphasis> 2;
-</programlisting>
+
 			
 <para> all comments get attached to the same node.  This should work most of
 the time, if not all the time. In particular, it should never loose any
@@ -268,15 +273,17 @@ automatically expands them with their value. |phc| handles both the simple and
 complex syntax defined by PHP for variables in strings. We transform a string
 like</para>
 			
-<programlisting>
+.. sourcecode::
+
 "Total cost is: $total (includes shipping of $shipping)"
-</programlisting>
+
 			
 <para>into:</para>
 
-<programlisting>
+.. sourcecode::
+
 "Total cost is: " . $total . " (includes shipping of " . $shipping . ")"
-</programlisting>
+
 			
 <para>
 	which is represented in the |phc| abstract syntax tree by a number of strings
@@ -295,32 +302,34 @@ like</para>
 <para>The abstract grammar does not have a construct for ``elseif``.
 The following PHP code</para>
 
-<programlisting>
-<?<reserved>php</reserved>
-   <reserved>if</reserved>($x)
+.. sourcecode::
+
+<?php
+   if($x)
       c1();
-   <reserved>elseif</reserved>($y)
+   elseif($y)
       c2();
-   <reserved>else</reserved>
+   else
       c3();
 ?>
-</programlisting>
+
 
 <para>gets interpreted as</para>
 
-<programlisting>
-<?<reserved>php</reserved>
-   <reserved>if</reserved>($x)
+.. sourcecode::
+
+<?php
+   if($x)
       c1();
-   <reserved>else</reserved>
+   else
    {
-      <reserved>if</reserved>($y)
+      if($y)
          c2();
-      <reserved>else</reserved>
+      else
          c3();
    }
 ?>
-</programlisting>
+
 
 <para>The higher the number of ``elseif``s, the greater the level of
 nesting. This transformation is &ldquo;hidden&rdquo; by the unparser.</para>
@@ -372,9 +381,10 @@ nesting. This transformation is &ldquo;hidden&rdquo; by the unparser.</para>
 	To compare, consider the tree for 
 </para>
 
-<programlisting>
+.. sourcecode::
+
 $g->greet("TACS");
-</programlisting>
+
 
 <para>
 	Using the |phc| abstract syntax, this looks like the tree shown in figure

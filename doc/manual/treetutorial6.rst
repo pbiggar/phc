@@ -10,31 +10,34 @@
 	is 
 </para>
 
-<programlisting>
-<?<reserved>php</reserved>
+.. sourcecode::
+
+<?php
    echo "Hello world";
 ?>
-</programlisting>
+
 			
 <para>and <filename>a.php</filename> is</para> 
 
-<programlisting>
-<?<reserved>php</reserved>
+.. sourcecode::
+
+<?php
    include "b.php";
    echo "Goodbye!";
 ?>
-</programlisting>
+
 
 <para>
 	Then running the transform on <filename>a.php</filename> yields 
 </para>
 
-<programlisting>
-<?<reserved>php</reserved>
+.. sourcecode::
+
+<?php
    echo "Hello world\n";
    echo "Goodbye\n";
 ?>
-</programlisting>
+
 
 <para> The transform we will develop in this tutorial is only a simple
 implementation of ``include``s, and we won't take every feature of
@@ -53,16 +56,17 @@ full-featured version. The transform we will develop here is available as
 	start like this: 
 </para>
 
-<programlisting>
-<reserved>class</reserved> Expand_includes : <reserved>public</reserved> Transform
+.. sourcecode::
+
+class Expand_includes : public Transform
 {
-<reserved>public</reserved>:
+public:
    Expr* pre_method_invocation(Method_invocation* in)
    {
       <emphasis>// Process includes</emphasis>
    }
 };
-</programlisting>
+
 
 <para>
 	However, this will not get us very far. The return type of
@@ -82,9 +86,10 @@ full-featured version. The transform we will develop here is available as
 	the signature for ``pre_eval_expr`` is 
 </para>
 
-<programlisting>
-<reserved>void</reserved> pre_eval_expr(Eval_expr* in, Statement_list* out)
-</programlisting>
+.. sourcecode::
+
+void pre_eval_expr(Eval_expr* in, Statement_list* out)
+
 
 <para>
 	This is different from the signatures we have seen so far. For nodes that
@@ -102,28 +107,29 @@ full-featured version. The transform we will develop here is available as
 	plugin deletes all ``Eval_expr`` nodes from the tree (try it!). 
 </para>
 
-<programlisting>
-<reserved>#include</reserved> "AST_transform.h"
+.. sourcecode::
 
-<reserved>class</reserved> Expand_includes : <reserved>public</reserved> Transform
+#include "AST_transform.h"
+
+class Expand_includes : public Transform
 {
-<reserved>public</reserved>:
-   <reserved>void</reserved> pre_eval_expr(Eval_expr* in, Statement_list* out)
+public:
+   void pre_eval_expr(Eval_expr* in, Statement_list* out)
    {
    }
 };
 
-<reserved>extern</reserved> "C" <reserved>void</reserved> load (Pass_manager* pm, Plugin_pass* pass)
+extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 {
    pm->add_after_named_pass (pass, new String ("ast"));
 }
 
-<reserved>extern</reserved> "C" <reserved>void</reserved> run_ast (PHP_script* in, Pass_manager* pm, String* option)
+extern "C" void run_ast (PHP_script* in, Pass_manager* pm, String* option)
 {
    Expand_includes einc;
    in->transform_children(&amp;einc);
 }
-</programlisting>
+
 
 </section>
 <section>
@@ -141,29 +147,30 @@ full-featured version. The transform we will develop here is available as
 	the tree looks like. We modify the plugin as follows: 
 </para>
 
-<programlisting>
-<reserved>#include</reserved> "AST_transform.h"
-<reserved>#include</reserved> "process_ir/XML_unparser.h"
+.. sourcecode::
 
-<reserved>class</reserved> Expand_includes : <reserved>public</reserved> Transform
+#include "AST_transform.h"
+#include "process_ir/XML_unparser.h"
+
+class Expand_includes : public Transform
 {
-<reserved>private</reserved>:
+private:
    XML_unparser* xml_unparser;
 
-<reserved>public</reserved>:
+public:
    Expand_includes()
    {
       <emphasis>// Send output to cout, do not print attributes</emphasis>
-      xml_unparser = <reserved>new</reserved> XML_unparser(cout, false);
+      xml_unparser = new XML_unparser(cout, false);
    }
 
-<reserved>public</reserved>:
-   <reserved>void</reserved> pre_eval_expr(Eval_expr* in, Statement_list* out)
+public:
+   void pre_eval_expr(Eval_expr* in, Statement_list* out)
    {
       in->visit(xml_unparser);
    }
 };
-</programlisting>
+
 
 <para>
 	The XML unparser is implemented using the ``Visitor`` API, so it
@@ -180,7 +187,8 @@ full-featured version. The transform we will develop here is available as
 	in the first, the ``include``: 
 </para>
 
-<programlisting>
+.. sourcecode::
+
 <AST:Eval_expr>
    <AST:Method_invocation>
       <AST:Target xsi:nil="true" />
@@ -197,7 +205,7 @@ full-featured version. The transform we will develop here is available as
       </AST:Actual_parameter_list>
    </AST:Method_invocation>
 </AST:Eval_expr>
-</programlisting>
+
 
 <para>
 	This tells us that the ``include`` statement is an
@@ -212,43 +220,44 @@ full-featured version. The transform we will develop here is available as
 	exactly: 
 </para>
 
-<programlisting>
-<reserved>class</reserved> Expand_includes : <reserved>public</reserved> Transform
+.. sourcecode::
+
+class Expand_includes : public Transform
 {
-<reserved>private</reserved>:
+private:
    Wildcard<STRING>* filename;
    Method_invocation* pattern;
 
-<reserved>public</reserved>:
+public:
    Expand_includes()
    {
-      filename = <reserved>new</reserved> Wildcard<STRING>;
+      filename = new Wildcard<STRING>;
       pattern = 
-         <reserved>new</reserved> Method_invocation(
+         new Method_invocation(
             NULL,
-            <reserved>new</reserved> METHOD_NAME(<reserved>new</reserved> String("include")),
-            <reserved>new</reserved> List<Actual_parameter*>(
-               <reserved>new</reserved> Actual_parameter(false, filename)
+            new METHOD_NAME(new String("include")),
+            new List<Actual_parameter*>(
+               new Actual_parameter(false, filename)
             )
          );
    }
 
-<reserved>public</reserved>:
-   <reserved>void</reserved> pre_eval_expr(Eval_expr* in, List<Statement*>* out)
+public:
+   void pre_eval_expr(Eval_expr* in, List<Statement*>* out)
    {
       <emphasis>// Check for calls to include</emphasis>
-      <reserved>if</reserved>(in->expr->match(pattern))
+      if(in->expr->match(pattern))
       {
          <emphasis>// Matched! Try to parse the file</emphasis>
       }
-      <reserved>else</reserved>
+      else
       {
          <emphasis>// No match; leave untouched</emphasis>
          out->push_back(in);
       }
    }
 };
-</programlisting>
+
 	
 <para>
 	Note how the construction of the pattern follows the structure of the tree
@@ -276,45 +285,46 @@ full-featured version. The transform we will develop here is available as
 	&ldquo;``parse``&rdquo;.  Here then is the full transform: 
 </para>  
 
-<programlisting>
-<reserved>#include</reserved> "AST_transform.h"
-<reserved>#include</reserved> "parsing/parse.h"
-<reserved>#include</reserved> "process_ir/XML_unparser.h"
+.. sourcecode::
 
-<reserved>class</reserved> Expand_includes : <reserved>public</reserved> Transform
+#include "AST_transform.h"
+#include "parsing/parse.h"
+#include "process_ir/XML_unparser.h"
+
+class Expand_includes : public Transform
 {
-<reserved>private</reserved>:
+private:
    XML_unparser* xml_unparser;
    Wildcard<STRING>* filename;
    Method_invocation* pattern;
 
-<reserved>public</reserved>:
+public:
    Expand_includes()
    {
-      xml_unparser = <reserved>new</reserved> XML_unparser(cout, false);
+      xml_unparser = new XML_unparser(cout, false);
 
-      filename = <reserved>new</reserved> Wildcard<STRING>;
+      filename = new Wildcard<STRING>;
       pattern = 
-         <reserved>new</reserved> Method_invocation(
+         new Method_invocation(
             NULL,
-            <reserved>new</reserved> METHOD_NAME(<reserved>new</reserved> String("include")),
-            <reserved>new</reserved> List<Actual_parameter*>(
-               <reserved>new</reserved> Actual_parameter(false, filename)
+            new METHOD_NAME(new String("include")),
+            new List<Actual_parameter*>(
+               new Actual_parameter(false, filename)
             )
          );
    }
 
-<reserved>public</reserved>:
-   <reserved>void</reserved> pre_eval_expr(Eval_expr* in, List<Statement*>* out)
+public:
+   void pre_eval_expr(Eval_expr* in, List<Statement*>* out)
    {
       // in->visit(xml_unparser);
 
       <emphasis>// Check for calls to include</emphasis>
-      <reserved>if</reserved>(in->expr->match(pattern))
+      if(in->expr->match(pattern))
       {
          <emphasis>// Matched! Try to parse the file</emphasis>
          PHP_script* php_script = parse(filename->value->value, NULL, false);
-         <reserved>if</reserved>(php_script == NULL)
+         if(php_script == NULL)
          {
             cerr 
             << "Could not parse file " << *filename->value->value
@@ -325,7 +335,7 @@ full-featured version. The transform we will develop here is available as
          <emphasis>// Replace the include by the statements in the parsed file</emphasis>
          out->push_back_all(php_script->statements);
       }
-      <reserved>else</reserved>
+      else
       {
          <emphasis>// No match; leave untouched</emphasis>
          out->push_back(in);
@@ -333,17 +343,17 @@ full-featured version. The transform we will develop here is available as
    }
 };
 
-<reserved>extern</reserved> "C" <reserved>void</reserved> load (Pass_manager* pm, Plugin_pass* pass)
+extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 {
    pm->add_after_named_pass (pass, new String ("ast"));
 }
 
-<reserved>extern</reserved> "C" <reserved>void</reserved> run_ast (PHP_script* in, Pass_manager* pm, String* option)
+extern "C" void run_ast (PHP_script* in, Pass_manager* pm, String* option)
 {
    Expand_includes einc;
    in->transform_children(&amp;einc);
 }
-</programlisting>
+
 
 <para>
 	<emphasis>Exercise.</emphasis> One problem with the plugin we have developed

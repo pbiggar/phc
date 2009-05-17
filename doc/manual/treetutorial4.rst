@@ -23,39 +23,41 @@
 	simple example: 
 </para>
 
-<programlisting>
-<?<reserved>php</reserved>
-   <reserved>function</reserved> first()
+.. sourcecode::
+
+<?php
+   function first()
    {
-      <reserved>global</reserved> $link;
+      global $link;
       $error = dbx_error($link);
    }
 
-   <reserved>function</reserved> second()
+   function second()
    {
-      <reserved>echo</reserved> "Do something else";
+      echo "Do something else";
    }
 ?>
-</programlisting>
+
 	
 <para>
 	After the transform, we should get 
 </para>
 	
-<programlisting>
-<?<reserved>php</reserved>
-   <reserved>function</reserved> first<boxed>_DB</boxed>()
+.. sourcecode::
+
+<?php
+   function first<boxed>_DB</boxed>()
    {
-      <reserved>global</reserved> $link;
+      global $link;
       $error = dbx_error($link);
    }
 
-   <reserved>function</reserved> second()
+   function second()
    {
-      <reserved>echo</reserved> "Do something else";
+      echo "Do something else";
    }
 ?>
-</programlisting>
+
 
 </section>
 <section>
@@ -86,46 +88,48 @@
 	the ``AST_transform`` API.) 
 </para>
 
-<programlisting>
-<reserved>class</reserved> InsertDB : <reserved>public</reserved> Visitor
+.. sourcecode::
+
+class InsertDB : public Visitor
 {
-<reserved>private</reserved>:
-   <reserved>int</reserved> uses_dbx;
+private:
+   int uses_dbx;
    
-<reserved>public</reserved>:
-   <reserved>void</reserved> pre_method(Method* in)
+public:
+   void pre_method(Method* in)
    {
-      uses_dbx = <reserved>false</reserved>;   
+      uses_dbx = false;   
    }
 
-   <reserved>void</reserved> post_method(Method* in)
+   void post_method(Method* in)
    {
-      <reserved>if</reserved>(uses_dbx)
+      if(uses_dbx)
          in->signature->method_name->value->append("_DB");
    }
 
-   <reserved>void</reserved> post_method_invocation(Method_invocation* in)
+   void post_method_invocation(Method_invocation* in)
    {
-      Wildcard<METHOD_NAME>* pattern = <reserved>new</reserved> Wildcard<METHOD_NAME>;
+      Wildcard<METHOD_NAME>* pattern = new Wildcard<METHOD_NAME>;
       
       <emphasis>// Check for dbx_</emphasis>
-      <reserved>if</reserved>(in->method_name->match(pattern) && 
+      if(in->method_name->match(pattern) && 
          pattern->value->value->find("dbx_") == 0)
       {
-         uses_dbx = <reserved>true</reserved>;
+         uses_dbx = true;
       }
    }
 };
-</programlisting>
+
 
 <para>
 	In <xref linkend="treetutorial2">, we simply wanted to check for a
 	particular function name, and we used ``match`` to do this: 
 </para>
      
-<programlisting>
-<reserved>if</reserved>(in->match(<reserved>new</reserved> METHOD_NAME("mysql_connect")))
-</programlisting>
+.. sourcecode::
+
+if(in->match(new METHOD_NAME("mysql_connect")))
+
 
 <para>
 	Here, we need to check for method names that start with ``dbx_``.

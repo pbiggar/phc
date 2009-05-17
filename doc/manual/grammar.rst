@@ -17,7 +17,8 @@
 <section>
 <title>Overall Structure</title>
 
-<programlisting>
+.. sourcecode::
+
 PHP_script ::= Statement* ;
 
 Class_def ::=
@@ -43,13 +44,14 @@ Attribute ::= Attr_mod <emphasis>vars</emphasis>:Name_with_default* ;
 Attr_mod ::= "public"? "protected"? "private"? "static"? "const"?  ;
 
 
-</programlisting>
+
 
 </section>
 <section>
 <title>Statements</title>
 
-<programlisting>
+.. sourcecode::
+
 Statement ::=
      Class_def | Interface_def | Method
    | Return | Static_declaration | Global
@@ -85,14 +87,15 @@ Throw ::= Expr ;
 Eval_expr ::= Expr ;
 
 Nop ::= ;
-</programlisting>
+
 
 </section>
 <section>
 
 <title>Expressions</title>
 
-<programlisting>
+.. sourcecode::
+
 Expr ::=
      Assignment 
 	| Cast | Unary_op | Bin_op 
@@ -144,14 +147,15 @@ Actual_parameter ::= <emphasis>is_ref</emphasis>:"&"? Expr ;
 
 New ::= Class_name Actual_parameter* ;
 Class_name ::= CLASS_NAME | Reflection ;
-</programlisting>
+
 
 </section>
 <section>
 
 <title>Additional Structure</title>
 
-<programlisting>
+.. sourcecode::
+
 Commented_node ::= 
 	  Member | Statement | Interface_def | Class_def | Switch_case | Catch 
 	;
@@ -163,7 +167,7 @@ Identifier ::=
 	; 
 
 Source_rep ::= Identifier | Literal ;
-</programlisting>
+
 
 </section>
 <section id="mixin">

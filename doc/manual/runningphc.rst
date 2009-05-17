@@ -66,9 +66,10 @@ PRETTY PRINTING OPTIONS:
 	Now write a very small PHP script, for example
 </para>
 
-<programlisting>
-<? <reserved>echo</reserved> "Hello world!"; ?>
-</programlisting>
+.. sourcecode::
+
+<? echo "Hello world!"; ?>
+
 
 <para>
 	and save it to <filename>helloworld.php</filename>. Then
@@ -85,11 +86,12 @@ phc --pretty-print helloworld.php
 	script back to standard output:
 </para>
 			
-<programlisting>
-<?<reserved>php</reserved>
-   <reserved>echo</reserved> "Hello world!";
+.. sourcecode::
+
+<?php
+   echo "Hello world!";
 ?>
-</programlisting>
+
 
 <para>
 	You can see a list of options controlling the style of pretty printing, using the
@@ -279,12 +281,13 @@ sudo make install
 	In your web folder, replace the existing <filename>helloworld.php</filename> file contents with the following:
 </para>
 
-<programlisting>
+.. sourcecode::
+
 <?php
-	<reserved>dl</reserved> ("helloworld.so");
+	dl ("helloworld.so");
 	__MAIN__ ();
 ?>
-</programlisting>
+
 
 <para>
 	If the ``dl()`` function is not enabled in your <filename>php.ini</filename> file, enable it:

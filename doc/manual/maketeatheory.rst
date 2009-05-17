@@ -84,9 +84,10 @@
 	and list a number of alternatives for a non-terminal symbol ``aa``:
 </para>
 
-<programlisting>
+.. sourcecode::
+
 aa ::= b | c | ... | z
-</programlisting>
+
 
 <!-- TODO: these can be Terminals too -->
 <para>
@@ -107,9 +108,10 @@ aa ::= b | c | ... | z
 	The second type is the most common: 
 </para>
 
-<programlisting>
+.. sourcecode::
+
 aa ::= b c ... z
-</programlisting>
+
 
 <para>
 	In this rule, each of the ``b``, ``c``, ...,
@@ -135,10 +137,11 @@ aa ::= b c ... z
 	As an example, consider the rule for ``variable`` in the grammar.
 </para>
 
-<programlisting>
+.. sourcecode::
+
 Expr ::= ... | Variable | ... ;
 Variable ::= Target? Variable_name <emphasis>array_indices</emphasis>:Expr?* ;
-</programlisting>
+
 
 <para>
 	A ``Variable`` is an ``Expr``, so that
@@ -147,15 +150,16 @@ Variable ::= Target? Variable_name <emphasis>array_indices</emphasis>:Expr?* ;
 <!-- TODO: I removed a discuss about optional attributes, since string_index
 isnt supported in variable anymore. Does this need to be discussed? -->
 
-<programlisting>
-<reserved>class</reserved> Variable : <reserved>virtual public</reserved> Expr
+.. sourcecode::
+
+class Variable : virtual public Expr
 {
-<reserved>public</reserved>:
+public:
    Target* target;
    Variable_name* variable_name;
    Expr_list* array_indices;
 }
-</programlisting>
+
 
 <para>
 	A final note on combining ``*`` and ``?``. The construct
@@ -197,7 +201,8 @@ resolution&rdquo;. </para>
 	the grammar.  There are four possibilities. Consider: 
 </para>
 
-<programlisting>
+.. sourcecode::
+
 concrete1 ::= ... 
 concrete2 ::= ...
 concrete3 ::= ...
@@ -208,7 +213,7 @@ abstract1 ::= concrete3 | concrete4
 abstract2 ::= concrete5 | concrete6
 	
 some_concrete_rule ::= concrete1 concrete2* abstract1 abstract2* 
-</programlisting>
+
 
 <para>
 	then, based on the rule for some_concrete_rule, concrete1 occurs in the
@@ -218,21 +223,23 @@ some_concrete_rule ::= concrete1 concrete2* abstract1 abstract2*
 	contexts: 
 </para>
 
-<programlisting>
+.. sourcecode::
+
 (abstract1,abstract1,Single)
 (concrete3,abstract1,Single)
 (concrete4,abstract1,Single)
-</programlisting>
+
 
 <para>
 	And finally, the use of abstract2* yields to the contexts 
 </para>
 
-<programlisting>
+.. sourcecode::
+
 (abstract2,abstract2,List)
 (concrete5,abstract2,List)
 (concrete6,abstract2,List)
-</programlisting>
+
 
 <para>
 	These contexts essentially mean that an instance of concrete5 can be
@@ -250,11 +257,12 @@ some_concrete_rule ::= concrete1 concrete2* abstract1 abstract2*
 	instance, for the |phc| grammar, this yields 
 </para>
 
-<programlisting>
+.. sourcecode::
+
 (if,statement,List)
 (CLASS_NAME,CLASS_NAME,Single)
 (INTERFACE_NAME,INTERFACE_NAME,Single)
-</programlisting>
+
 
 <para>
 	So, a context is a triplet (symbol,symbol,multiplicity), where the symbols
@@ -277,12 +285,13 @@ some_concrete_rule ::= concrete1 concrete2* abstract1 abstract2*
 	grammar:
 </para>
 
-<programlisting>
+.. sourcecode::
+
 Expr ::= ... | BOOL
 Cast ::= CAST Expr
 Method_invocation ::= Target ...
 Target ::= Expr | CLASS_NAME
-</programlisting>
+
 
 <para>
 	The use of "expr" in the rule for cast leads to the context
@@ -297,19 +306,21 @@ Target ::= Expr | CLASS_NAME
 	In the case of CLASS_NAME, we have the contexts
 </para>
 
-<programlisting>
+.. sourcecode::
+
 (CLASS_NAME,class_name,Single)
 (CLASS_NAME,target,Single)
-</programlisting>
+
 
 <para>
 	The meet of class_name and target does not exist; hence this gives the
 	context
 </para>
 	
-<programlisting>
+.. sourcecode::
+
 (CLASS_NAME,CLASS_NAME,Single)
-</programlisting>
+
 
 <para>
 	That is, the only safe transformation for CLASS_NAME is from CLASS_NAME to
@@ -321,7 +332,8 @@ Target ::= Expr | CLASS_NAME
 	Haskell definition that returns the meet of two multiplicities:
 </para>
 
-<programlisting>
+.. sourcecode::
+
 meet_mult :: Multiplicity -> Multiplicity -> Multiplicity
 meet_mult a b | a == b = a
 meet_mult Single _ = Single  
@@ -332,7 +344,7 @@ meet_mult Optional OptList = Single
 meet_mult Optional ListOpt = Optional
 meet_mult OptList ListOpt = List
 meet_mult a b = meet_mult b a  <emphasis>-- meet is commutative</emphasis>
-</programlisting>
+
 
 </section>
 <section>
@@ -343,34 +355,37 @@ meet_mult a b = meet_mult b a  <emphasis>-- meet is commutative</emphasis>
 	We cannot deal with this situation:
 </para>
 
-<programlisting>
+.. sourcecode::
+
 s ::= a
 a ::= b | c
 d ::= b
 e ::= c*
-</programlisting>
+
 
 <para>
 	This grammar leads to the following contexts:
 </para>
 
-<programlisting>
+.. sourcecode::
+
 (a,a,Single)
 (b,a,Single)
 (b,b,Single)
 (c,a,Single)
 (c,c,List)
-</programlisting>
+
 
 <para>
 	Resolving these contexts lead to
 </para>
 
-<programlisting>
+.. sourcecode::
+
 (a,a,Single)
 (b,b,Single)
 (c,c,List)
-</programlisting>
+
 
 <para>
 	However, this is incorrect, because this indicates that an ``a``
