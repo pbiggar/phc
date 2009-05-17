@@ -18,7 +18,7 @@
 </para>
 
 <programlisting>
-&lt;?<reserved>php</reserved>
+<?<reserved>php</reserved>
    <reserved>if</reserved>($expr)
    {
       <reserved>echo</reserved> "Do something";
@@ -27,13 +27,13 @@
    {
       <reserved>echo</reserved> "Do something else";
    }
-?&gt;
+?>
 </programlisting>
 	
 <para> is translated to </para>
 		
 <programlisting>
-&lt;?<reserved>php</reserved>
+<?<reserved>php</reserved>
    <reserved>if</reserved>($expr)
    {
       <emphasis>/* TODO: Insert comment */</emphasis>
@@ -44,7 +44,7 @@
       <emphasis>/* TODO: Insert comment */</emphasis>
       <reserved>echo</reserved> "Do something else";
    }
-?&gt;
+?>
 </programlisting>
 
 <para>
@@ -113,18 +113,18 @@
 
    <reserved>void</reserved> children_if(If* in)
    {
-      visit_expr(in-&gt;expr);
+      visit_expr(in->expr);
       comment = <reserved>true</reserved>;
-      visit_statement_list(in-&gt;iftrue);
+      visit_statement_list(in->iftrue);
       comment = <reserved>true</reserved>;
-      visit_statement_list(in-&gt;iffalse);
+      visit_statement_list(in->iffalse);
       comment = <reserved>false</reserved>;
    }
 
    <reserved>void</reserved> post_statement(Statement* in)
    {
-      <reserved>if</reserved>(comment && in-&gt;get_comments()-&gt;empty())
-         in-&gt;get_comments()-&gt;push_back(new String("/* TODO: Insert comment */"));
+      <reserved>if</reserved>(comment && in->get_comments()->empty())
+         in->get_comments()->push_back(new String("/* TODO: Insert comment */"));
 
       comment = <reserved>false</reserved>;
    }
@@ -139,7 +139,7 @@
 
 <para> <xref linkend="treetutorial6"> explains how to deal with transforms that
 can replace a single node by multiple new nodes, and shows how to call the
-&phc; parser and unparser from your plugins. </para>
+|phc| parser and unparser from your plugins. </para>
 
 </section>
 

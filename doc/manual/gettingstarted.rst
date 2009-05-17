@@ -33,7 +33,7 @@ Compiling a Plugin
 This is an example of an (almost) minimal plugin. Every plugin you write must
 contain these functions, with these exact signatures. :func:`load` is run
 when |phc| starts, giving your plugin the opportunity to add itself to the list
-of passes |phc|; runs. In this example, it is added after the "ast" pass. When
+of passes |phc| runs. In this example, it is added after the "ast" pass. When
 |phc| processes a PHP script, it runs all of the passes on it in turn. When
 it's your plugin's turn, it calls your version of :func:`run_ast()`.
 
@@ -267,7 +267,7 @@ Writing Stand Alone Applications
 If you prefer not to write a plugin but want to modify |phc| itself to derive
 a new, stand-alone, application, you can add your passes in
 :file:`src/phc.cpp` in the |phc| source tree instead. This has
-the effect of "hardcoding" your plugin into |phc|; (in versions
+the effect of "hardcoding" your plugin into |phc| (in versions
 before *0.1.7*, this was the only way to write extensions). However, in the
 rest of the tutorials we will assume that you are writing your extension as a
 plugin.

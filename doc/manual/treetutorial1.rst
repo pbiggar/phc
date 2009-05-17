@@ -6,7 +6,7 @@
 <title></title>
 
 <para>
-	In <xref linkend="gettingstarted">, we explained that &phc represents PHP
+	In <xref linkend="gettingstarted">, we explained that |phc| represents PHP
 	scripts internally as an abstract syntax tree, and that the structure of
 	this tree is determined by the <xref linkend="grammar"
 	endterm="grammar.title">. We then showed how to make use of this tree to
@@ -19,13 +19,13 @@
 </para>
 		
 <programlisting>
-&lt;?<reserved>php</reserved>
+<?<reserved>php</reserved>
    $x = 5;
    <reserved>if</reserved>($x == 5)
       <reserved>echo</reserved> "yes";
    <reserved>else</reserved>
       <reserved>echo</reserved> "no";
-?&gt;
+?>
 </programlisting>
 
 <para>
@@ -34,22 +34,24 @@
 
 <para>
 	Note that all the plugins that we will develop in these tutorials are
-	included in the &phc distribution. For example, in this tutorial we will be
+	included in the |phc| distribution. For example, in this tutorial we will be
 	developing two plugins: a difficult solution to the problem and an easy
 	solution to the problem. You can run these plugins by running
 </para>
 
-<screen>
+.. sourcecode::
+
 phc --run plugins/tutorials/count_statements_difficult.la test.php
-</screen>
+
 			
 <para>
 	or 
 </para>
 
-<screen>
+.. sourcecode::
+
 phc --run plugins/tutorials/count_statements_easy.la test.php
-</screen>
+
 
 </section>
 
@@ -59,9 +61,9 @@ phc --run plugins/tutorials/count_statements_easy.la test.php
 
 <para>
 	How do we go about counting all statements in a script?  Remember that, as
-	far as &phc is concerned, a PHP script consists of a number of statements,
+	far as |phc| is concerned, a PHP script consists of a number of statements,
 	but some of those statements may have other statements nested inside them.
-	Here is part of the &phc; grammar: 
+	Here is part of the |phc| grammar: 
 </para>
 
 <programlisting>
@@ -116,7 +118,7 @@ is the value that the function returns. </para>
 
 <para>
 	Now, an ``eval_expr`` makes a statement from an expression.  So, if
-	you want to use an expression where &phc; expects a statement, you have to
+	you want to use an expression where |phc| expects a statement, you have to
 	use the grammar rule
 </para>
 
@@ -139,8 +141,8 @@ Eval_expr ::= Expr ;
 </para>
 			
 <programlisting>
-<reserved>#include</reserved> &lt;AST.h&gt;
-<reserved>#include</reserved> &lt;pass_manager/Plugin_pass.h&gt;
+<reserved>#include</reserved> <AST.h>
+<reserved>#include</reserved> <pass_manager/Plugin_pass.h>
 
 <reserved>int</reserved> count(AST::Statement_list* in)
 {
@@ -153,7 +155,7 @@ Eval_expr ::= Expr ;
    <reserved>for</reserved>(i = in->begin(); i != in->end(); i++)
    {
       <emphasis>// Check if the statement is an if-statement</emphasis>
-      <reserved>if</reserved>(If* if_stmt = dynamic_cast&lt;If*&gt;(*i))
+      <reserved>if</reserved>(If* if_stmt = dynamic_cast<If*>(*i))
       {
          num_statements += count(if_stmt->iftrue);
          num_statements += count(if_stmt->iffalse);
@@ -171,7 +173,7 @@ Eval_expr ::= Expr ;
 <reserved>extern</reserved> "C" <reserved>void</reserved> run_ast (AST::PHP_script* in, Pass_manager* pm, String* option)
 {
    <reserved>int</reserved> num_statements = count(in->statements);
-   cout &lt;&lt; num_statements &lt;&lt; " statements found" &lt;&lt; endl;
+   cout << num_statements << " statements found" << endl;
 }
 </programlisting>
 
@@ -186,13 +188,13 @@ Eval_expr ::= Expr ;
 </para>
 
 <programlisting>
-&lt;?<reserved>php</reserved>
+<?<reserved>php</reserved>
    $x = 5;
    <reserved>while</reserved>($x--)
    {
       <reserved>echo</reserved> $x;
    }
-?&gt;
+?>
 </programlisting>
 
 <para>
@@ -211,11 +213,11 @@ Eval_expr ::= Expr ;
 <title>The Easy Solution</title>
 
 <para>
-	Fortunately, &phc will do all this for you automatically! There is a
-	standard &ldquo;do-nothing&rdquo; tree traversal predefined in &phc in the
+	Fortunately, |phc| will do all this for you automatically! There is a
+	standard &ldquo;do-nothing&rdquo; tree traversal predefined in |phc| in the
 	form of a class called ``AST::Visitor`` (defined in
 	<filename>AST_visitor.h</filename>). ``AST::Visitor``
-	contains methods for each type of node in the tree. &phc will automatically
+	contains methods for each type of node in the tree. |phc| will automatically
 	traverse the abstract syntax tree for you, and call the appropriate method
 	at each node.
 </para>
@@ -223,9 +225,9 @@ Eval_expr ::= Expr ;
 <para>
 	In fact, there are <emphasis>two</emphasis> methods defined for each type of
 	node. The first method, called ``pre_something``, gets called on a
-	node <emphasis>before</emphasis> &phc visits the children of the node. The
+	node <emphasis>before</emphasis> |phc| visits the children of the node. The
 	second method, called ``post_something``, gets called on a node
-	<emphasis>after</emphasis> &phc has visited the children of the node.  For
+	<emphasis>after</emphasis> |phc| has visited the children of the node.  For
 	example, ``pre_if`` gets called on an ``If``,
 	before visiting the statements in the ``iftrue`` and
 	``iffalse`` clauses of the ``If``. After all the
@@ -237,13 +239,13 @@ Eval_expr ::= Expr ;
 	plugin will actually count <emphasis>all</emphasis> statements in a script,
 	without having to worry about all the different ways statements can be
 	embedded in other statements. Moreover, even if the internal representation
-	of &phc; changes (for example, if another type of statement gets added),
+	of |phc| changes (for example, if another type of statement gets added),
 	this plugin will still work as-is.
 </para>
 
 <programlisting>
 <reserved>#include</reserved> "AST_visitor.h"
-<reserved>#include</reserved> &lt;pass_manager/Plugin_pass.h&gt;
+<reserved>#include</reserved> <pass_manager/Plugin_pass.h>
 
 <reserved>class</reserved> Count_statements : <reserved>public</reserved> AST::Visitor
 {
@@ -260,7 +262,7 @@ Eval_expr ::= Expr ;
    <emphasis>// Print the number of function calls when we are done</emphasis>
    <reserved>void</reserved> post_php_script(AST::PHP_script* in)
    {
-      cout &lt;&lt; num_statements &lt;&lt; " statements found" &lt;&lt; endl;
+      cout << num_statements << " statements found" << endl;
    }
    
    <emphasis>// Count the number of function calls</emphasis>
@@ -284,7 +286,7 @@ Eval_expr ::= Expr ;
 
 <para> We override a number of methods of the ``Visitor`` class to
 implement the functionality we need; the traversal is then taken care of by
-&phc;. </para>
+|phc|. </para>
 
 </section>
 
@@ -292,10 +294,10 @@ implement the functionality we need; the traversal is then taken care of by
 
 <title>Pre and Post Methods</title> 
 
-<para> We need to be precise about the order in which &phc calls all these
+<para> We need to be precise about the order in which |phc| calls all these
 methods. Suppose we have a node ``Foo`` (say, an if-statement), which
 <emphasis>is-a</emphasis> ``Bar`` (say, statement), which itself
-<emphasis>is-a</emphasis> ``Baz`` (say, commented node).  Then &phc;
+<emphasis>is-a</emphasis> ``Baz`` (say, commented node).  Then |phc|
 calls the visitor methods in the following order: </para>
 
 <orderedlist>
@@ -313,7 +315,7 @@ implemented, they will <emphasis>all</emphasis> be invoked, in the order listed
 above. So, implementing a more specific visitor (``pre_foo``) does not
 inhibit the more general method (``pre_bar``) from being invoked. You
 can run the <filename>plugins/tutorials/show_traversal_order.la</filename> from
-the &phc; distribution to see this in action. </para>
+the |phc| distribution to see this in action. </para>
 
 <note>
 <para>(Advanced users) As mentioned above, if you implement ``pre_if``

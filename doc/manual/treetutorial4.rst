@@ -24,7 +24,7 @@
 </para>
 
 <programlisting>
-&lt;?<reserved>php</reserved>
+<?<reserved>php</reserved>
    <reserved>function</reserved> first()
    {
       <reserved>global</reserved> $link;
@@ -35,7 +35,7 @@
    {
       <reserved>echo</reserved> "Do something else";
    }
-?&gt;
+?>
 </programlisting>
 	
 <para>
@@ -43,7 +43,7 @@
 </para>
 	
 <programlisting>
-&lt;?<reserved>php</reserved>
+<?<reserved>php</reserved>
    <reserved>function</reserved> first<boxed>_DB</boxed>()
    {
       <reserved>global</reserved> $link;
@@ -54,7 +54,7 @@
    {
       <reserved>echo</reserved> "Do something else";
    }
-?&gt;
+?>
 </programlisting>
 
 </section>
@@ -79,7 +79,7 @@
 	``uses_dbx``; if it was set to ``true``, we modify the
 	name of the method.  This tactic is implement by the following transform
 	(available as <filename>plugins/tutorials/InsertDB.la</filename> in the
-	&phc; distribution). Note the use of ``pre_method`` and
+	|phc| distribution). Note the use of ``pre_method`` and
 	``post_method`` to initialise and check ``use_dbx``,
 	respectively. (Because we don't need to modify the structure of the tree in
 	this transform, we use the simpler ``AST_visitor`` API instead of
@@ -106,7 +106,7 @@
 
    <reserved>void</reserved> post_method_invocation(Method_invocation* in)
    {
-      Wildcard&lt;METHOD_NAME&gt;* pattern = <reserved>new</reserved> Wildcard&lt;METHOD_NAME&gt;;
+      Wildcard<METHOD_NAME>* pattern = <reserved>new</reserved> Wildcard<METHOD_NAME>;
       
       <emphasis>// Check for dbx_</emphasis>
       <reserved>if</reserved>(in->method_name->match(pattern) && 
@@ -124,21 +124,21 @@
 </para>
      
 <programlisting>
-<reserved>if</reserved>(in-&gt;match(<reserved>new</reserved> METHOD_NAME("mysql_connect")))
+<reserved>if</reserved>(in->match(<reserved>new</reserved> METHOD_NAME("mysql_connect")))
 </programlisting>
 
 <para>
 	Here, we need to check for method names that start with ``dbx_``.
 	We use the STL method ``find`` to do this, but we cannot call this
-	directly on ``in-&gt;method_name`` because
-	``in-&gt;method_name`` has type ``Method_name`` (could
+	directly on ``in->method_name`` because
+	``in->method_name`` has type ``Method_name`` (could
 	either be a ``METHOD_NAME`` or a ``Reflection`` node).
 	However, calling ``match`` on a pattern has the side effect of
 	setting the ``value`` to point to the node that was matched by the
 	wildcard. So, if the match succeeds, we know that the name of the method
 	must have been a ``METHOD_NAME``, and we can access this name by
-	accessing ``pattern-&gt;value``
-	(``pattern-&gt;value-&gt;value`` is the value field of the
+	accessing ``pattern->value``
+	(``pattern->value->value`` is the value field of the
 	``METHOD_NAME`` itself, i.e., the actual string that stores the
 	name of the method.) 
 </para>

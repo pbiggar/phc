@@ -5,7 +5,7 @@
 <title></title>
 
 <para>
-	This document describes the known limitations of the current &phc
+	This document describes the known limitations of the current |phc|
 	implementation. These limitations are things that we are aware of but that
 	are not high on our priority list of things to deal with at the moment.
 	However, if any of them are bothering you, let us <ulink
@@ -32,13 +32,13 @@ comments is how we deal with whitespace in multi-line comments.
 Consider the following example. </para>
 
 <programlisting>
-&lt;?<reserved>php</reserved>
+<?<reserved>php</reserved>
    <emphasis>/*
     * Some comment with
     * multiple lines
     */</emphasis>
    foo();
-?&gt;
+?>
 </programlisting>
 
 <para> The problem is that the whitespace at the start of each line is
@@ -46,13 +46,13 @@ included in the comment. This means that when the unparser outputs the
 comment, it outputs something like </para>
 
 <programlisting>
-&lt;?<reserved>php</reserved>
+<?<reserved>php</reserved>
    <emphasis>/*
     * Some comment with
        * multiple lines
        */</emphasis>
    foo();
-?&gt;
+?>
 </programlisting>
 
 <para>It is unclear how to solve this problem nicely. Suggestions are
@@ -63,7 +63,7 @@ the ``else``-clause of an ``if``-statement. Thus, in
 </para>
 
 <programlisting>
-&lt;?<reserved>php</reserved>
+<?<reserved>php</reserved>
    <emphasis>// Comment 1</emphasis>
    <reserved>if</reserved>($c)
    {
@@ -74,7 +74,7 @@ the ``else``-clause of an ``if``-statement. Thus, in
    {
       bar();
    }
-?&gt;
+?>
 </programlisting>
 
 <para> Comment 2 will be associated with the call to ``bar``
@@ -85,7 +85,7 @@ itself). A similar problem occurs with comments for
 <para> Finally, if a scope ends on a comment, that comment will be associated with the wrong node. For example, in </para>
 
 <programlisting>
-&lt;?<reserved>php</reserved>
+<?<reserved>php</reserved>
    <reserved>if</reserved>($c)
    {
       <reserved>echo</reserved> "Hi";
@@ -96,7 +96,7 @@ itself). A similar problem occurs with comments for
    }
 
    <reserved>echo</reserved> "World";
-?&gt;
+?>
 </programlisting>
 
 <para>the comment will be associated with the ``echo "World"``
@@ -112,7 +112,7 @@ node in the script. </para>
 <para>
 	PHP accepts invalid octal numbers such as ``01090``; the
 	&ldquo;incorrect tail&rdquo; is silently ignored (so, this number should
-	evaluate to 8 decimal). The &phc lexical analyser will generate an
+	evaluate to 8 decimal). The |phc| lexical analyser will generate an
 	&ldquo;invalid token&rdquo; instead which will result in a syntax error.
 </para>
 
@@ -126,23 +126,25 @@ node in the script. </para>
 	We incorrectly represent
 </para>
 
-<screen>
-&lt;?php
+.. sourcecode::
+
+<?php
 	{
 		function x () {}
 	}
-?&gt;
-</screen>
+?>
+
 
 <para>
 	as
 </para>
 
-<screen>
-&lt;?php
+.. sourcecode::
+
+<?php
 	function x () {}
-?&gt;
-</screen>
+?>
+
 
 <para>
 	In the former, ``x`` is only declared when its declaration is
@@ -155,7 +157,7 @@ node in the script. </para>
 <title> Other issues </title>
 
 <para>
-	There are quite a number of minor bugs and issues with &phc;, that we are
+	There are quite a number of minor bugs and issues with |phc|, that we are
 	aware of. Our bug tracker is available at <ulink
 	url="http://code.google.com/p/phc/issues/list">our project site</ulink>. We
 	are looking for contributors to help us fix many of these bugs. Please see

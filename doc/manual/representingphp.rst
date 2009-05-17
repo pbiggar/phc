@@ -5,7 +5,7 @@
 <title></title>
 
 <para>
-	Most PHP constructs can immediately be represented in terms of the &phc
+	Most PHP constructs can immediately be represented in terms of the |phc|
 	grammar (<xref linkend="grammar">). There are a few constructs that present
 	some difficulties. This document describes how these difficulties are
 	resolved, and it explains some of the more difficult rules in the
@@ -35,7 +35,7 @@ element of the first rule in detail. </para>
 	<listitem><para>
 		Just like function calls, variables can have a target, and just as for
 		function calls, this target can be an expression (for an object, e.g.,
-		``$x-&gt;y``) or a class name (for a static class attribute,
+		``$x->y``) or a class name (for a static class attribute,
 		e.g. ``FOO::$y``). As in function calls, in variables the target
 		is optional (indicated by the question mark). If no target is specified,
 		the variable refers to a <emphasis>local</emphasis> variable in a method.
@@ -129,7 +129,7 @@ element of the first rule in detail. </para>
 	</mediaobject>
 	</informalfigure>
 	<para>Again, the variable name is ``y``, not ``$y``. The
-	fact that you must write ``$x-&gt;y`` but ``X::$y`` in
+	fact that you must write ``$x->y`` but ``X::$y`` in
 	PHP disappears in the abstract syntax.</para>
 	</listitem>
 </varlistentry>
@@ -150,7 +150,7 @@ element of the first rule in detail. </para>
 </varlistentry>
 
 <varlistentry>
-	<term>Object attributes: ``$x-&gt;y``</term>
+	<term>Object attributes: ``$x->y``</term>
 	<listitem>
 	<informalfigure>
 	<mediaobject>
@@ -164,7 +164,7 @@ element of the first rule in detail. </para>
 </varlistentry>
 
 <varlistentry>
-	<term>Variable object attributes: ``$x-&gt;$y``</term>
+	<term>Variable object attributes: ``$x->$y``</term>
 	<listitem>
 	<informalfigure>
 	<mediaobject>
@@ -222,7 +222,7 @@ bar();
 
 <para> the comment gets attached to ``bar();`` (to be precise, to the
 corresponding ``Eval_expr`` node; the function call itself is an
-expression and &phc does not associate comments with expressions), but in
+expression and |phc| does not associate comments with expressions), but in
 </para>
 
 <programlisting>
@@ -264,7 +264,7 @@ linkend="limitations" endterm="limitations.title"> for details for details. </pa
 
 <para>Double quoted strings and those written using the HEREDOC syntax are
 treated specially by PHP: it parses variables used inside these strings and
-automatically expands them with their value. &phc handles both the simple and
+automatically expands them with their value. |phc| handles both the simple and
 complex syntax defined by PHP for variables in strings. We transform a string
 like</para>
 			
@@ -279,12 +279,12 @@ like</para>
 </programlisting>
 			
 <para>
-	which is represented in the &phc abstract syntax tree by a number of strings
+	which is represented in the |phc| abstract syntax tree by a number of strings
 	and expressions concatenated together. Thus, as a programmer you don't need
 	to do anything special to process variables inside strings. Any code you
 	write for processing variables will also appropriately handle variables
 	inside strings. (Note that as of version 0.2.0, interpolated strings are
-	correctly unparsed by &phc;.)
+	correctly unparsed by |phc|.)
 </para>
 
 </section>
@@ -296,20 +296,20 @@ like</para>
 The following PHP code</para>
 
 <programlisting>
-&lt;?<reserved>php</reserved>
+<?<reserved>php</reserved>
    <reserved>if</reserved>($x)
       c1();
    <reserved>elseif</reserved>($y)
       c2();
    <reserved>else</reserved>
       c3();
-?&gt;
+?>
 </programlisting>
 
 <para>gets interpreted as</para>
 
 <programlisting>
-&lt;?<reserved>php</reserved>
+<?<reserved>php</reserved>
    <reserved>if</reserved>($x)
       c1();
    <reserved>else</reserved>
@@ -319,7 +319,7 @@ The following PHP code</para>
       <reserved>else</reserved>
          c3();
    }
-?&gt;
+?>
 </programlisting>
 
 <para>The higher the number of ``elseif``s, the greater the level of
@@ -359,7 +359,7 @@ nesting. This transformation is &ldquo;hidden&rdquo; by the unparser.</para>
 <title>Comparison to the PHP grammar</title>
 
 <para>
-	Finally, the &phc grammar is much simpler than the official grammar, and as
+	Finally, the |phc| grammar is much simpler than the official grammar, and as
 	a consequence more general. The class of programs that are valid according
 	to the abstract grammar is larger than the class of programs actually
 	accepted by the PHP parser. In other words, it is possible to represent a
@@ -377,7 +377,7 @@ $g->greet("TACS");
 </programlisting>
 
 <para>
-	Using the &phc abstract syntax, this looks like the tree shown in figure
+	Using the |phc| abstract syntax, this looks like the tree shown in figure
 	<xref linkend="abstracttree">. 
 </para>
 	
@@ -408,10 +408,10 @@ $g->greet("TACS");
 	Not only is the number of concepts used in the tree much larger
 	(``base_variable_with_function_calls``,
 	``reference_variable``, ``variable_property``, etc. etc.),
-	the concepts used in the &phc tree map directly to constructs in the PHP
+	the concepts used in the |phc| tree map directly to constructs in the PHP
 	language; that does not hold true for the PHP tree. Moreover, the fact that
 	this expression is a method invocation (function call) is immediately
-	obvious from the root of the expression in the &phc tree; the root of the
+	obvious from the root of the expression in the |phc| tree; the root of the
 	PHP tree says that the expression is a variable, and only deeper down the
 	tree does it become apparent that the expression is in fact a function call.
 </para>

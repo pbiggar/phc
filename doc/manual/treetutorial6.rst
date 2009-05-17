@@ -11,18 +11,18 @@
 </para>
 
 <programlisting>
-&lt;?<reserved>php</reserved>
+<?<reserved>php</reserved>
    echo "Hello world";
-?&gt;
+?>
 </programlisting>
 			
 <para>and <filename>a.php</filename> is</para> 
 
 <programlisting>
-&lt;?<reserved>php</reserved>
+<?<reserved>php</reserved>
    include "b.php";
    echo "Goodbye!";
-?&gt;
+?>
 </programlisting>
 
 <para>
@@ -30,10 +30,10 @@
 </para>
 
 <programlisting>
-&lt;?<reserved>php</reserved>
+<?<reserved>php</reserved>
    echo "Hello world\n";
    echo "Goodbye\n";
-?&gt;
+?>
 </programlisting>
 
 <para> The transform we will develop in this tutorial is only a simple
@@ -74,7 +74,7 @@ full-featured version. The transform we will develop here is available as
 
 <para>
 	Recall from <xref linkend="treetutorial1"> that to turn an expression into a
-	statement, &phc inserts an ``Eval_expr`` in the abstract syntax
+	statement, |phc| inserts an ``Eval_expr`` in the abstract syntax
 	tree.  Thus, if we want to process ``include`` statements, we could
 	also look at all ``eval_expr`` nodes. Assuming for the moment we
 	can make that work, does it get us any further? As a matter of fact, it
@@ -169,7 +169,7 @@ full-featured version. The transform we will develop here is available as
 	The XML unparser is implemented using the ``Visitor`` API, so it
 	can be invoked just like you run any other visitor. There is a similar
 	visitor called ``AST_unparser`` (in
-	<filename>&lt;process_ast/AST_unparser.h&gt;</filename>) that you can use to
+	<filename><process_ast/AST_unparser.h></filename>) that you can use to
 	print (parts of the) AST to PHP syntax. 
 </para>
 
@@ -181,22 +181,22 @@ full-featured version. The transform we will develop here is available as
 </para>
 
 <programlisting>
-&lt;AST:Eval_expr&gt;
-   &lt;AST:Method_invocation&gt;
-      &lt;AST:Target xsi:nil="true" /&gt;
-      &lt;AST:METHOD_NAME&gt;
-         &lt;value&gt;include&lt;/value&gt;
-      &lt;/AST:METHOD_NAME&gt;
-      &lt;AST:Actual_parameter_list&gt;
-         &lt;AST:Actual_parameter&gt;
-            &lt;bool&gt;&lt;!-- is_ref --&gt;false&lt;/bool&gt;
-            &lt;AST:STRING&gt;
-               &lt;value&gt;b.php&lt;/value&gt;
-            &lt;/AST:STRING&gt;
-         &lt;/AST:Actual_parameter&gt;
-      &lt;/AST:Actual_parameter_list&gt;
-   &lt;/AST:Method_invocation&gt;
-&lt;/AST:Eval_expr&gt;
+<AST:Eval_expr>
+   <AST:Method_invocation>
+      <AST:Target xsi:nil="true" />
+      <AST:METHOD_NAME>
+         <value>include</value>
+      </AST:METHOD_NAME>
+      <AST:Actual_parameter_list>
+         <AST:Actual_parameter>
+            <bool><!-- is_ref -->false</bool>
+            <AST:STRING>
+               <value>b.php</value>
+            </AST:STRING>
+         </AST:Actual_parameter>
+      </AST:Actual_parameter_list>
+   </AST:Method_invocation>
+</AST:Eval_expr>
 </programlisting>
 
 <para>
@@ -216,35 +216,35 @@ full-featured version. The transform we will develop here is available as
 <reserved>class</reserved> Expand_includes : <reserved>public</reserved> Transform
 {
 <reserved>private</reserved>:
-   Wildcard&lt;STRING&gt;* filename;
+   Wildcard<STRING>* filename;
    Method_invocation* pattern;
 
 <reserved>public</reserved>:
    Expand_includes()
    {
-      filename = <reserved>new</reserved> Wildcard&lt;STRING&gt;;
+      filename = <reserved>new</reserved> Wildcard<STRING>;
       pattern = 
          <reserved>new</reserved> Method_invocation(
             NULL,
             <reserved>new</reserved> METHOD_NAME(<reserved>new</reserved> String("include")),
-            <reserved>new</reserved> List&lt;Actual_parameter*&gt;(
+            <reserved>new</reserved> List<Actual_parameter*>(
                <reserved>new</reserved> Actual_parameter(false, filename)
             )
          );
    }
 
 <reserved>public</reserved>:
-   <reserved>void</reserved> pre_eval_expr(Eval_expr* in, List&lt;Statement*&gt;* out)
+   <reserved>void</reserved> pre_eval_expr(Eval_expr* in, List<Statement*>* out)
    {
       <emphasis>// Check for calls to include</emphasis>
-      <reserved>if</reserved>(in-&gt;expr-&gt;match(pattern))
+      <reserved>if</reserved>(in->expr->match(pattern))
       {
          <emphasis>// Matched! Try to parse the file</emphasis>
       }
       <reserved>else</reserved>
       {
          <emphasis>// No match; leave untouched</emphasis>
-         out-&gt;push_back(in);
+         out->push_back(in);
       }
    }
 };
@@ -270,9 +270,9 @@ full-featured version. The transform we will develop here is available as
 	We are nearly done! All that's left is to parse the file (we can use the
 	&ldquo;``filename``&rdquo; wildcard to find out which file we need
 	to include) and insert all statements into the parsed file at the point of
-	the include. Parsing PHP is hard, but of course &phc; comes with a PHP
+	the include. Parsing PHP is hard, but of course |phc| comes with a PHP
 	parser. To use this parser, include the
-	<filename>&lt;parsing/parse.h&gt;</filename> header and call
+	<filename><parsing/parse.h></filename> header and call
 	&ldquo;``parse``&rdquo;.  Here then is the full transform: 
 </para>  
 
@@ -285,7 +285,7 @@ full-featured version. The transform we will develop here is available as
 {
 <reserved>private</reserved>:
    XML_unparser* xml_unparser;
-   Wildcard&lt;STRING&gt;* filename;
+   Wildcard<STRING>* filename;
    Method_invocation* pattern;
 
 <reserved>public</reserved>:
@@ -293,42 +293,42 @@ full-featured version. The transform we will develop here is available as
    {
       xml_unparser = <reserved>new</reserved> XML_unparser(cout, false);
 
-      filename = <reserved>new</reserved> Wildcard&lt;STRING&gt;;
+      filename = <reserved>new</reserved> Wildcard<STRING>;
       pattern = 
          <reserved>new</reserved> Method_invocation(
             NULL,
             <reserved>new</reserved> METHOD_NAME(<reserved>new</reserved> String("include")),
-            <reserved>new</reserved> List&lt;Actual_parameter*&gt;(
+            <reserved>new</reserved> List<Actual_parameter*>(
                <reserved>new</reserved> Actual_parameter(false, filename)
             )
          );
    }
 
 <reserved>public</reserved>:
-   <reserved>void</reserved> pre_eval_expr(Eval_expr* in, List&lt;Statement*&gt;* out)
+   <reserved>void</reserved> pre_eval_expr(Eval_expr* in, List<Statement*>* out)
    {
-      // in-&gt;visit(xml_unparser);
+      // in->visit(xml_unparser);
 
       <emphasis>// Check for calls to include</emphasis>
-      <reserved>if</reserved>(in-&gt;expr-&gt;match(pattern))
+      <reserved>if</reserved>(in->expr->match(pattern))
       {
          <emphasis>// Matched! Try to parse the file</emphasis>
-         PHP_script* php_script = parse(filename-&gt;value-&gt;value, NULL, false);
+         PHP_script* php_script = parse(filename->value->value, NULL, false);
          <reserved>if</reserved>(php_script == NULL)
          {
             cerr 
-            &lt;&lt; "Could not parse file " &lt;&lt; *filename-&gt;value-&gt;value
-            &lt;&lt; " on line " &lt;&lt; in-&gt;get_line_number() &lt;&lt; endl;
+            << "Could not parse file " << *filename->value->value
+            << " on line " << in->get_line_number() << endl;
             exit(-1);
          }
 
          <emphasis>// Replace the include by the statements in the parsed file</emphasis>
-         out-&gt;push_back_all(php_script-&gt;statements);
+         out->push_back_all(php_script->statements);
       }
       <reserved>else</reserved>
       {
          <emphasis>// No match; leave untouched</emphasis>
-         out-&gt;push_back(in);
+         out->push_back(in);
       }
    }
 };
@@ -385,7 +385,7 @@ full-featured version. The transform we will develop here is available as
 		The definition of the ``AST_visitor`` and
 		``AST_transform`` classes in
 		<filename>src/generated/AST_visitor.h</filename> and
-		<filename>src/generated/AST_transform.h&gt;</filename>
+		<filename>src/generated/AST_transform.h></filename>
 		respectively
 	</para></listitem>
 	</itemizedlist>

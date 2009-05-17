@@ -18,8 +18,8 @@
 
 <para>
 	The tutorial we develop in this tutorial is available as
-	<filename>MySQL2DBX.la</filename> in the &phc distribution. To see its
-	effect, run &phc as follows: 
+	<filename>MySQL2DBX.la</filename> in the |phc| distribution. To see its
+	effect, run |phc| as follows: 
 </para>
 	
 <programlisting>
@@ -78,7 +78,7 @@ Reflection ::= Expr ;
 
 <programlisting>
 <reserved>#include</reserved> "AST_visitor.h"
-<reserved>#include</reserved> &lt;pass_manager/Plugin_pass.h&gt;
+<reserved>#include</reserved> <pass_manager/Plugin_pass.h>
 
 <reserved>using</reserved> <reserved>namespace</reserved> AST;
 
@@ -108,7 +108,7 @@ Reflection ::= Expr ;
 </programlisting>
 
 <note><para>
-	&phc; uses a garbage collector, so there is never any need to free objects
+	|phc| uses a garbage collector, so there is never any need to free objects
 	(you never have to call ``delete``).  This makes programming much
 	easier and less error-prone (smaller chance of bugs). 
 </para></note>
@@ -164,7 +164,7 @@ dbx_connect (module, host, database, username, password, persistent)
 </para>
 
 <para>
-	Now, in &phc, ``DBX_MYSQL`` is a ``Constant``, which has
+	Now, in |phc|, ``DBX_MYSQL`` is a ``Constant``, which has
 	two fields, an optional class name (for class constants) and the name of the
 	constant, of type ``CONSTANT_NAME``. ``NULL`` is
 	represented by ``NIL`` (to avoid getting confused with the C++
@@ -177,7 +177,7 @@ dbx_connect (module, host, database, username, password, persistent)
 
 <programlisting>
 <reserved>#include</reserved> "AST_visitor.h"
-<reserved>#include</reserved> &lt;pass_manager/Plugin_pass.h&gt;
+<reserved>#include</reserved> <pass_manager/Plugin_pass.h>
 
 <reserved>using</reserved> <reserved>namespace</reserved> AST;
 
@@ -186,7 +186,7 @@ dbx_connect (module, host, database, username, password, persistent)
 <reserved>public</reserved>:
    <reserved>void</reserved> post_method_invocation(Method_invocation* in)
    {
-      Actual_parameter_list*&gt;::iterator pos;
+      Actual_parameter_list*>::iterator pos;
       CONSTANT_NAME* module_name;
       Constant* module_constant;
       Actual_parameter* param;
@@ -256,9 +256,9 @@ $link = dbx_connect(DBX_MYSQL, "host", NULL, "user", "pass");
 	existing programs (PHP scripts), usually to work in new projects or in
 	different setups (for example, with a different database engine). Manual
 	refactoring is laborious and error-prone, so tool-support is a must.
-	Although &phc can be used to refactor PHP code as shown in this tutorial, a
+	Although |phc| can be used to refactor PHP code as shown in this tutorial, a
 	dedicated refactoring tool for PHP would be easier to use (though of course
-	less flexible). Such a tool can however be built on top of &phc;.
+	less flexible). Such a tool can however be built on top of |phc|.
 </para>
 
 </section>

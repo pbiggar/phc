@@ -5,8 +5,8 @@
 <title></title>
 
 <para>
-	From the start, one of the design goals of &phc; has been to provide a
-	useful framework for writing applications that process PHP scripts. &phc
+	From the start, one of the design goals of |phc| has been to provide a
+	useful framework for writing applications that process PHP scripts. |phc|
 	parses PHP code into an internal representation known as an
 	<emphasis>abstract syntax tree</emphasis> or <emphasis>AST</emphasis>.
 	Applications can process PHP code by analysing and modifying this abstract
@@ -16,15 +16,15 @@
 <itemizedlist>
 
 	<listitem><para>
-		&phc supports <emphasis>plugins</emphasis>. Plugins are modules that can
-		be loaded into &phc, which get access to the AST. &phc; provides
+		|phc| supports <emphasis>plugins</emphasis>. Plugins are modules that can
+		be loaded into |phc|, which get access to the AST. |phc| provides
 		sophisticated support for writing operations over the AST through the
 		<emphasis>Tree Transformation API</emphasis>.
 	</para></listitem> 
 
 	<listitem><para>
 		Alternatively, you can export the AST to <emphasis>XML</emphasis>. You
-		can then process the XML in any way you like, and then use &phc to
+		can then process the XML in any way you like, and then use |phc| to
 		convert the XML back to PHP.
 	</para></listitem>
 
@@ -32,13 +32,13 @@
 
 <para>
 	The <xref linkend="treetutorials" endterm="treetutorials.title"> explain how
-	to write plugins for &phc, and provide numerous examples. You will find
+	to write plugins for |phc|, and provide numerous examples. You will find
 	<xref linkend="reference" endterm="reference.title"> very useful when
-	writing serious applications using &phc;.
+	writing serious applications using |phc|.
 </para>
 
 <para>
-	Although we have tried to document &phc as well as we can, if
+	Although we have tried to document |phc| as well as we can, if
 	anything is still unclear, please let us know by sending an email to the
 	<ulink url="http://www.phpcompiler.org/mailinglist.html">mailing list</ulink>.
 </para>
@@ -49,11 +49,11 @@
 <title>System Requirements</title>
 
 <para>
-	If you want to modify the internals of &phc in other ways than through the
+	If you want to modify the internals of |phc| in other ways than through the
 	explicit API we provide for doing so, you will following tools listed below,
 	in addition to those detailed in the user manual (<xref linkend="install">).
 	However, most people should not need these tools (even if you are
-	implementing tools based on &phc).
+	implementing tools based on |phc|).
 </para>
 
 <itemizedlist>
@@ -66,7 +66,7 @@
 	</para></listitem>
 	<listitem><para>
 		<ulink url="http://www.maketea.org">maketea</ulink> if you want to modify
-		the &phc grammars (or the AST/HIR/MIR classes)
+		the |phc| grammars (or the AST/HIR/MIR classes)
 	</para></listitem>
 	<listitem><para>
 		<ulink
@@ -84,16 +84,16 @@
 </section>
 
 <section id=dev.phpbuild>
-<title id=dev.phpbuild.title>Building PHP for &phc; development</title>
+<title id=dev.phpbuild.title>Building PHP for |phc| development</title>
 
 <para>
-	When compiling PHP for use with &phc, there are a few options:
+	When compiling PHP for use with |phc|, there are a few options:
 </para>
 
 <itemizedlist>
 
 	<listitem>
-		<para>Development: For developing &phc or debugging &phc problems, it is
+		<para>Development: For developing |phc| or debugging |phc| problems, it is
 		worthwhile to have debugging symbols and leak checkers enabled.</para>
 		<para>``CFLAGS="-O0 -ggdb3" ./configure --enable-debug --enable-maintainer-zts --enable-embed``</para>
 	</listitem>
@@ -104,7 +104,7 @@
 	</listitem>
 
 	<listitem>
-		<para>Benchmarking: In order to be fair, both &phc;-generated-code and PHP
+		<para>Benchmarking: In order to be fair, both |phc|-generated-code and PHP
 		should be compiled with -O3. The are also some options required to run
 		some benchmarks. The prefix is supplied to correspond to benchmarking
 		scripts we provide:</para>
@@ -120,7 +120,7 @@
 
 <para>
 	This section is intended as a quick introduction outlining what the current
-	release of &phc can do for you. It does not explain everything in detail.
+	release of |phc| can do for you. It does not explain everything in detail.
 </para>
 
 <section>
@@ -131,15 +131,15 @@
 </para>
 
 <programlisting>
-&lt;?<reserved>php</reserved>
+<?<reserved>php</reserved>
    <reserved>function</reserved> foo()
    {
       <reserved>return</reserved> 5;
    }
 
    $foo = foo();
-   <reserved>echo</reserved> "foo is $foo&lt;br&gt;";
-?&gt;
+   <reserved>echo</reserved> "foo is $foo<br>";
+?>
 </programlisting>
 
 <para>
@@ -194,18 +194,18 @@
 
 <title>The Result</title>
 
-<para> Running &phc gives </para>
+<para> Running |phc| gives </para>
 
 <programlisting>
-&lt;?<reserved>php</reserved>
+<?<reserved>php</reserved>
    <reserved>function</reserved> bar()
    {
       <reserved>return</reserved> 5;
    }
 
    $foo = bar();
-   <reserved>echo</reserved> "foo is " . $foo . "&lt;br&gt;";
-?&gt;
+   <reserved>echo</reserved> "foo is " . $foo . "<br>";
+?>
 </programlisting>
 
 <para> where the name of the function has been changed, while the name of the
@@ -213,7 +213,7 @@ variable remained unaltered, as has the text ``"foo"`` inside
 the string. It's that simple! Of course, in this example, it would
 have been quicker to do it by hand, but that's not the point; the
 example shows how easy it is to operate on PHP scripts within the
-&phc framework. </para>
+|phc| framework. </para>
 
 </section>
 </section>
@@ -223,12 +223,12 @@ example shows how easy it is to operate on PHP scripts within the
 <title>Writing Plugins</title>
 
 <para><xref linkend="gettingstarted" endterm="gettingstarted.title"> introduces
-writing plugins for &phc;. It then explains how &phc represents PHP scripts
+writing plugins for |phc|. It then explains how |phc| represents PHP scripts
 internally, and shows how to write a first (but ultimately wrong) attempt at
 simple plugin that counts the number of statements in a PHP script.</para>
 
 <para><xref linkend="treetutorial1" endterm="treetutorial1.title"> introduces
-the support that &phc offers for traversing (and transforming) scripts. It
+the support that |phc| offers for traversing (and transforming) scripts. It
 shows how to write a plugin that correctly counts the number of statements in a
 script.</para>
 
@@ -256,7 +256,7 @@ children.</para>
 
 <para><xref linkend="treetutorial6" endterm="treetutorial6.title"> shows how to
 define transformations that replace nodes in the tree by multiple other nodes,
-and how to delete nodes from the tree. It also shows to call the &phc parser
+and how to delete nodes from the tree. It also shows to call the |phc| parser
 and unparsers from plugins.</para>
 
 </section>
@@ -264,12 +264,12 @@ and unparsers from plugins.</para>
 
 <title>Reference</title>
 
-<para>&phc represents PHP scripts internally as an abstract syntax tree. The
+<para>|phc| represents PHP scripts internally as an abstract syntax tree. The
 structure of this tree is dictated by the <xref linkend="grammar"
 endterm="grammar.title">. The grammar definition is a very important part of
-&phc;.
+|phc|.
 
-<para>&phc's view on the world (as dictated by the grammar) does not completely
+<para>|phc|'s view on the world (as dictated by the grammar) does not completely
 agree with the PHP standard view.  <xref linkend="representingphp"
 endterm="representingphp.title"> describes how the various PHP constructs get
 translated into the abstract syntax.</para>
@@ -278,7 +278,7 @@ translated into the abstract syntax.</para>
 overview of the AST classes, the tree visitor API and the tree transformation
 API from a programmer's perspective.</para>
 
-<para><application>Maketea</application> is a tool bundled with &phc which,
+<para><application>Maketea</application> is a tool bundled with |phc| which,
 based on a grammar definition of a language, generates a C++ hierarchy for the
 corresponding abstract syntax tree, a tree transformation and visitor API, and
 deep cloning, deep equality and pattern matching on the AST. <xref
