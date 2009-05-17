@@ -69,50 +69,45 @@ Pattern matching differs from deep equality in two ways.  First, it does not
 take into account any fields added by the mixin code; for example, it does not
 compare line numbers or comments.  
 
-Second, :func:`match()` supports the use of wildcards.
-	:program:`maketea` generates a special class called
-	:class:`Wildcard`. You should never instantiate this class directly; in
-	:file:`<AST.h>`, you will find the following
-	declaration: 
-</para> 
+Second, :func:`match()` supports the use of wildcards.  :program:`maketea`
+generates a special class called :class:`Wildcard`. You should never
+instantiate this class directly; in :file:`<AST.h>`, you will find the
+following declaration: 
 
-.. sourcecode::
+.. sourcecode:: c++
 
-extern Wildcard* WILDCARD;
+   extern Wildcard* WILDCARD;
 
 
-<para>
-	This ``WILDCARD`` is the sole instance of ``Wildcard``.
-	When ``match`` encounters a reference to this object in a pattern,
-	it does two things: it skips that field in the comparison (so it acts as a
-	"don't care"), and it replaces the value of the field in the
-	pattern by the value in the tree. For example, in the body of the
-	``if`` in 
-</para>
+This :class:`WILDCARD` is the sole instance of :class:`Wildcard`.  When
+:func:`match()` encounters a reference to this object in a pattern, it does two
+things: it skips that field in the comparison (so it acts as a "don't care"),
+and it replaces the value of the field in the pattern by the value in the tree.
+For example, in the body of the :keyword:`if` in 
 
-.. sourcecode::
+.. sourcecode:: c++
 
-CLASS_NAME* name = new CLASS_NAME(new String("SOME_CLASS"));
-CLASS_NAME* pattern = new CLASS_NAME(WILDCARD);
+   CLASS_NAME* name = new CLASS_NAME(new String("SOME_CLASS"));
+   CLASS_NAME* pattern = new CLASS_NAME(WILDCARD);
 
-if(name->match(pattern))
-{
-   <emphasis>// ...</emphasis>
-}
+   if(name->match(pattern))
+   {
+      // ...
+   }
 
 
-<para>``pattern->value`` will be set to the corresponding value in
-``name``. Tutorials <xref linkend="treetutorial3"
-endterm="treetutorial3.title"> and <xref linkend="treetutorial4"
-endterm="treetutorial4.title"> include examples of the use of wildcards. </para>
+:attr:`pattern->value`` will be set to the corresponding value in :data:`name`.
+Tutorials <xref linkend="treetutorial3" endterm="treetutorial3.title"> and
+<xref linkend="treetutorial4" endterm="treetutorial4.title"> include examples
+of the use of wildcards.
 
-<para> Calling any methods on the ``WILDCARD`` object other than
-``deep_clone`` will lead to a runtime error. </para>
+Calling any methods on the :class:`WILDCARD` object other than
+:func:`deep_clone()` will lead to a runtime error.
 
-</section>
-<section>
 
-<title> The Visitor API </title>
+
+The Visitor API
+---------------
 
 <figure id="seqdiagramvisitor">
 <title>Sequence Diagram for the Visitor API</title>
@@ -123,51 +118,37 @@ endterm="treetutorial4.title"> include examples of the use of wildcards. </para>
 </mediaobject>
 </figure>
 
-<para>
-	Every AST class provides four methods to support the visitor API: ``void
-	visit(AST::Visitor*)``, ``void pre_visit(AST::Visitor*)``,
-	``void visit_children(AST::Visitor*)`` and ``void
-	post_visit(AST::Visitor*)``. The implementation of each of these
-	methods is very simple. 
-</para>
+Every AST class provides four methods to support the visitor API: :func:`void
+visit(AST::Visitor*)`, :func:`void re_visit(AST::Visitor*)``, :class:`void
+visit_children(AST::Visitor*)`` and :func:`void ost_visit(AST::Visitor*)``. The
+implementation of each of these methods is very simple. 
 
-<para>
-	``visit`` simply calls ``pre_visit``,
-	``visit_children`` and ``post_visit`` in order. It could
-	have been implemented once and for all in the ``Node`` class (but
-	is not, for no particular reason). 
-</para>
+:func:`visit()` simply calls :func:`pre_visit()`, :func:`visit_children()` and
+:func:`post_visit()` in order. It could have been implemented once and for all
+in the :class:`Node` class (but is not, for no particular reason). 
 
-<para>
-	For a node ``x0``, which inherits from ``x1``, which
-	inherits from ``x2``, which in turn inherits from ``x3``,
-	etc., ``x0::pre_visit`` calls ``pre_x3``,
-	``pre_x2``, ``pre_x1`` and ``pre_x0``, in that
-	order, on the tree visitor object, passing itself as an argument.  If
-	``x0`` inherits from multiple classes, all of the appropriate
-	visitor methods will be invoked. However, if ``x0`` inherits from
-	both ``x1a`` and ``x1b``, the programmer should not rely
-	on the relative order of ``pre_x1a`` and ``pre_x1b``.
-</para>
+For a node :data:`x0`, which inherits from :data`x1`, which inherits from
+:data:`x2`, which in turn inherits from :data:`x3`, etc.,
+func:`x0::pre_visit()` calls :func:`pre_x3()`, :func:`pre_x2()`,
+:func:`pre_x1()` and :func:`pre_x0()`, in that order, on the tree visitor
+object, passing itself as an argument.  If :data:`x0` inherits from multiple
+classes, all of the appropriate visitor methods will be invoked.  However, if
+:data:`x0` inherits from both :data:`x1a` and :data:`x1b`, the programmer
+should not rely on the relative order of :data:`pre_x1a` and :data:`pre_x1b`.
 
-<para>
-	``x0::visit_children`` simply calls
-	``children_x0``.
-</para>
+:func:`x0::visit_children()` simply calls :func:`children_x0()`.
 
-<para>
-	``x0::post_visit`` will call ``post_x0``,
-	``post_x1``, etc. Again, if ``x0`` inherits from both
-	``x1a`` and ``x1b``, the programmer should not rely on the
-	relative order of ``post_x1a`` and ``post_x1b``. The only
-	guarantee made by :program:`maketea` is that the order of
-	the pre-methods will be the exact reverse of the order of the post-methods.
-</para>
+:func:`x0::post_visit()` will call :func:`post_x0()`, :func:`post_x1()`, etc.
+Again, if :data:`x0` inherits from both :data:`x1a` and :data:`x1b`, the
+programmer should not rely on the relative order of :func:`post_x1a()` and
+:func:`post_x1b()`. The only guarantee made by :program:`maketea` is that the
+order of the pre-methods will be the exact reverse of the order of the
+post-methods.
 
-</section>
-<section>
 
-<title>The Transform API </title>
+
+The Transform API
+-----------------
 
 <figure id="seqdiagramtransform">
 <title>Sequence Diagram for the Transform API</title>
@@ -177,53 +158,44 @@ endterm="treetutorial4.title"> include examples of the use of wildcards. </para>
 </imageobject>
 </mediaobject>
 </figure>
-<!-- TODO: error in the sequence diagram, AST_foo appears twice. I think the
-first one should be AST_gen_foo? -->
-<para>
-	Every AST class ``AST_foo``, which inherits from
-	``AST_gen_foo`` provides four methods to support the tree visitor
-	API: ``AST_gen_foo* transform(AST::Transform*)``,
-	``AST_gen_foo* pre_transform(AST::Transform*)``, ``void
-	transform_children(AST::Transform*)`` and ``AST_gen_foo*
-	post_transform(AST::Transform*)``. It is not entirely as
-	straightforward as this; if ``AST_foo`` inherits from more than one
-	class, the return type would probably be ``AST_foo``; in some
-	cases, ``transform`` might return a ``AST_foo_list``
-	instead. See the section <xref linkend="contextresolution"
-	endterm="contextresolution.title"> in the grammar formalism for details;
-	here we consider the programmer's perspective only. The exact signatures for
-	a particular class can always be found in :file:`<AST.h>`.
+
+.. todo::
+   
+   error in the sequence diagram, AST_foo appears twice. I think the first one
+   should be AST_gen_foo?
+
+Every AST class :class:`AST:Foo`, which inherits from :class:`AST::Gen_foo`
+provides four methods to support the tree visitor API:
+:func:`AST::Gen_foo transform(AST::Transform*)`, :func:`AST::Gen_foo*
+pre_transform(AST::Transform*)`, :func:`void
+transform_children(AST::Transform*)` and :func:`AST::Gen_foo*
+post_transform(AST::Transform*)`. It is not entirely as straightforward as
+this; if :class:`AST::Foo` inherits from more than one class, the return type
+would probably be `AST::Foo`; in some cases, :func:`transform()` might return a
+:class:`AST::Foo_list` instead. See the section <xref
+linkend="contextresolution" endterm="contextresolution.title"> in the grammar
+formalism for details; here we consider the programmer's perspective only. The
+exact signatures for a particular class can always be found in :file:`AST.h`.
 	
-</para>
 
-<para>
-	As with the visitor API, ``transform`` calls
-	``pre_transform``, ``transform_children`` and
-	``post_transform``. However, while ``transform`` calls
-	``pre_transform`` on itself, it calls
-	``transform_children`` and ``post_transform`` on the node
-	returned by ``pre_transform``. If ``pre_transform``
-	returns a vector, ``transform`` calls
-	``transform_children`` and ``post_transform`` on every
-	element in that vector, assembling all the results. 
-</para>
+As with the visitor API, :func:`transform()` calls :func:`pre_transform()`,
+:func:`transform_children()` and :func:`post_transform()`. However, while
+:func:`transform()` calls :func:`pre_transform()` on itself, it calls
+:func:`transform_children()` and :func:`post_transform()` on the node returned
+by :func:`pre_transform()`. If :func:`pre_transform()` returns a vector,
+:func:`transform()` calls :func:`transform_children()` and
+:func:`post_transform()` on every element in that vector, assembling all the
+results. 
 
-<para>
-	``pre_transform`` and ``post_transform`` simply call the
-	appropriate method in the ``AST::Transform`` object.  However, if
-	``pre_transform`` (or ``post_transform``) returns a list
-	of nodes, the corresponding method in the tree transform object will expect
-	two arguments: the node to be transformed, and an empty list of nodes that
-	will be the return value of ``pre_transform``. In that case,
-	``pre_transform`` will first create a new empty list, pass that in
-	as the second argument to the corresponding method in the tree transform
-	object, and then return that list. 
-</para>
+:func:`pre_transform()` and :func:`post_transform()` simply call the
+appropriate method in the :class:`AST:Transform` object.  However, if
+:func:`pre_transform()` (or :func:`post_transform()`) returns a list of nodes,
+the corresponding method in the tree transform object will expect two
+arguments: the node to be transformed, and an empty list of nodes that will be
+the return value of :func:`pre_transform()`. In that case,
+:func:`pre_transform()` will first create a new empty list, pass that in as the
+second argument to the corresponding method in the tree transform object, and
+then return that list. 
 
-<para>
-	``transform_children`` just calls the corresponding method in the
-	tree transform object. 
-</para>
-
-</section>
-</chapter>
+:func:`transform_children()` just calls the corresponding method in the tree
+transform object. 
