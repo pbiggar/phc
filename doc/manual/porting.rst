@@ -1,6 +1,3 @@
-.. |phc| replace:: **phc**
-
-
 Porting
 =======
 
