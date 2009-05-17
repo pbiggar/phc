@@ -18,7 +18,7 @@
 
 <para>
 	The tutorial we develop in this tutorial is available as
-	<filename>MySQL2DBX.la</filename> in the |phc| distribution. To see its
+	:file:`MySQL2DBX.la` in the |phc| distribution. To see its
 	effect, run |phc| as follows: 
 </para>
 	

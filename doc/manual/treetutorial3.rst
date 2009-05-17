@@ -15,7 +15,7 @@
 	The transform that we will be considering in this tutorial is one that is
 	used in |phc| itself. The transform is called ``Remove_concat_null``
 	and can be found in
-	<filename>src/process_ast/Remove_concat_null.h</filename>. The purpose of
+	:file:`src/process_ast/Remove_concat_null.h`. The purpose of
 	the transform is to remove string concatenation with the empty string. For
 	example, 
 </para>
@@ -89,7 +89,7 @@ $a = "foo " . $b . "";
 <para>
 	Concatenation is a binary operator, so we are interested in nodes of type
 	``Bin_op``. If you check the grammar, or, alternatively,
-	<filename>src/generated/AST.h</filename>, you will find that
+	:file:`src/generated/AST.h`, you will find that
 	``Bin_op`` has three attributes: a ``left`` and a
 	``right`` expression (of type ``Expr``) and the operator
 	itself (``OP* op``). Thus, we are interested in nodes of type
@@ -134,7 +134,7 @@ public:
 <para>
 	So, we need to write our transformation using the
 	``Tree_transform`` API, defined in
-	<filename>AST_transform.h</filename>. Restructuring the class above yields
+	:file:`AST_transform.h`. Restructuring the class above yields
 </para>
 
 .. sourcecode::
@@ -158,7 +158,7 @@ public:
 	inherit from a different class, and ``pre_bin_op`` now has a return
 	value, which is the node that will replace ``*in``. If you check
 	the default implementation of ``pre_bin_op`` in
-	<filename>AST_transform.cpp</filename>, you'll find: 
+	:file:`AST_transform.cpp`, you'll find: 
 </para>
 
 .. sourcecode::
@@ -186,7 +186,7 @@ Expr* Transform::pre_bin_op(Bin_op* in)
 	the signatures for the ``pre`` and ``post`` methods are
 	derived, but in most cases they are what you'd expect.  The easiest way to
 	check is to simply look them up in
-	<filename><AST_transform.h></filename>. 
+	:file:`<AST_transform.h>`. 
 </para> 
 
 </section>
@@ -331,7 +331,7 @@ extern "C" void run_ast (PHP_script* in, Pass_manager* pm, String* option)
 	transform the new node in turn.  This is the less elegant solution, but
 	sometimes this is the only solution that will work (see for example the
 	``Token_conversion`` transform in the
-	<filename>src/process_ast/Token_conversion.cpp</filename>). To do this, you
+	:file:`src/process_ast/Token_conversion.cpp`). To do this, you
 	would replace 
 </para>
          

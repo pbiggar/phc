@@ -1,11 +1,11 @@
 <chapter id="maketeatheory">
-<title id="maketeatheory.title"><application>Maketea</application> Theory</title>
+<title id="maketeatheory.title">:program:`Maketea` Theory</title>
 
 <section>
 <title>Introduction</title>
 
 <para>
-	<application>maketea</application> is <ulink
+	:program:`maketea` is <ulink
 	url="http://www.maketea.org">available separately</ulink> to |phc|. Based on
 	a grammar definition of a language, it generates a C++ hierarchy for the
 	corresponding abstract syntax tree, a tree transformation and visitor API,
@@ -22,7 +22,7 @@
 <title>The Grammar Formalism</title>
 
 <para>
-	The style of grammar formalism used by <application>maketea</application> is
+	The style of grammar formalism used by :program:`maketea` is
 	sometimes referred to as an &ldquo;object oriented&rdquo; context free
 	grammar.  It facilitates a trivial and reliable mapping between the grammar
 	(<xref linkend="grammar">, and the actual (C++) abstract syntax tree (AST)
@@ -393,9 +393,9 @@ e ::= c*
 	``c`` (which is an ``a``) will in fact return a list of
 	``c``s. The problem is that the non-terminals in the rule for
 	``a`` have a different multiplicity in their contexts (single for
-	``b``, list for ``c``). <application>maketea</application>
+	``b``, list for ``c``). :program:`maketea`
 	disallows this; if this happens in a grammar,
-	<application>maketea</application> will exit with a &ldquo;cannot deal with
+	:program:`maketea` will exit with a &ldquo;cannot deal with
 	mixed multiplicity in disjunction&rdquo; error.
 </para>
 

@@ -72,7 +72,7 @@ PRETTY PRINTING OPTIONS:
 
 
 <para>
-	and save it to <filename>helloworld.php</filename>. Then
+	and save it to :file:`helloworld.php`. Then
 	run |phc|:
 </para>
 
@@ -194,7 +194,7 @@ phc -c -O2 helloworld.php -o helloworld -C-fno-inline
 <warning>
 <para>
 	In order to compile web applications, it is currently necessary to alter
-	your <filename>php.ini</filename> file, or have access to the root account.
+	your :file:`php.ini` file, or have access to the root account.
 	We welcome suggetions of a different method which avoids these requirements,
 	especially if they would work in a shared hosting environment.
 </para>
@@ -227,8 +227,8 @@ phc -c -O2 helloworld.php -o helloworld -C-fno-inline
 
 <para>
 	To begin, create a new directory for the extension. We'll use
-	<filename>ext/</filename> in our example. Generate C code from
-	<filename>helloworld.php</filename> using |phc|.
+	:file:`ext/` in our example. Generate C code from
+	:file:`helloworld.php` using |phc|.
 </para>
 
 .. sourcecode::
@@ -237,7 +237,7 @@ phc --generate-c helloworld.php > ext/helloworld.c
 
 
 <para>
-	Create a new file, <filename>ext/config.m4</filename>, by copying the
+	Create a new file, :file:`ext/config.m4`, by copying the
 	following, and changing instances of "helloworld" appropriately:
 </para>
 
@@ -278,7 +278,7 @@ sudo make install
 
 
 <para>
-	In your web folder, replace the existing <filename>helloworld.php</filename> file contents with the following:
+	In your web folder, replace the existing :file:`helloworld.php` file contents with the following:
 </para>
 
 .. sourcecode::
@@ -290,7 +290,7 @@ sudo make install
 
 
 <para>
-	If the ``dl()`` function is not enabled in your <filename>php.ini</filename> file, enable it:
+	If the ``dl()`` function is not enabled in your :file:`php.ini` file, enable it:
 </para>
 
 .. sourcecode::
@@ -299,7 +299,7 @@ enable_dl = On;
 
 
 <para>
-	Accessing <filename>helloworld.php</filename> should now work. 
+	Accessing :file:`helloworld.php` should now work. 
 </para>
 
 
@@ -309,7 +309,7 @@ enable_dl = On;
 
 <para>
 	Instead of setting ``enable_dl``, you can instead load the
-	extension manually in your <filename>php.ini</filename> file:
+	extension manually in your :file:`php.ini` file:
 </para>
 
 .. sourcecode::
@@ -417,7 +417,7 @@ phc --dump-xml=hir | ./myprog | phc --read-xml=hir
 ./phc --dump-dot=ast helloworld.php > helloworld.dot
 
 
-<para> You can then view the tree (<filename>helloworld.dot</filename>) using
+<para> You can then view the tree (:file:`helloworld.dot`) using
 Graphviz. In most Unix/Linux systems, you should be able to do </para>
 
 .. sourcecode::

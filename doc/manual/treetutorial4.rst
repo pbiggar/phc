@@ -80,7 +80,7 @@
 	function call to a DBX function.  Then at the end of the method, we check
 	``uses_dbx``; if it was set to ``true``, we modify the
 	name of the method.  This tactic is implement by the following transform
-	(available as <filename>plugins/tutorials/InsertDB.la</filename> in the
+	(available as :file:`plugins/tutorials/InsertDB.la` in the
 	|phc| distribution). Note the use of ``pre_method`` and
 	``post_method`` to initialise and check ``use_dbx``,
 	respectively. (Because we don't need to modify the structure of the tree in

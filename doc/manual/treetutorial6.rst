@@ -6,7 +6,7 @@
 
 <para>
 	In this tutorial we will develop step-by-step a transform that expands
-	``include`` statements. For example, if <filename>b.php</filename>
+	``include`` statements. For example, if :file:`b.php`
 	is 
 </para>
 
@@ -17,7 +17,7 @@
 ?>
 
 			
-<para>and <filename>a.php</filename> is</para> 
+<para>and :file:`a.php` is</para> 
 
 .. sourcecode::
 
@@ -28,7 +28,7 @@
 
 
 <para>
-	Then running the transform on <filename>a.php</filename> yields 
+	Then running the transform on :file:`a.php` yields 
 </para>
 
 .. sourcecode::
@@ -43,7 +43,7 @@
 implementation of ``include``s, and we won't take every feature of
 ``include`` into account. However, it can serve as a basis for more
 full-featured version. The transform we will develop here is available as
-<filename>plugins/tutorials/Expand_includes.la</filename>. </para>
+:file:`plugins/tutorials/Expand_includes.la`. </para>
 
 </section>
 <section>
@@ -82,7 +82,7 @@ public:
 	tree.  Thus, if we want to process ``include`` statements, we could
 	also look at all ``eval_expr`` nodes. Assuming for the moment we
 	can make that work, does it get us any further? As a matter of fact, it
-	does! If you check <filename>AST_transform.h</filename>, you will see that
+	does! If you check :file:`AST_transform.h`, you will see that
 	the signature for ``pre_eval_expr`` is 
 </para>
 
@@ -176,12 +176,12 @@ public:
 	The XML unparser is implemented using the ``Visitor`` API, so it
 	can be invoked just like you run any other visitor. There is a similar
 	visitor called ``AST_unparser`` (in
-	<filename><process_ast/AST_unparser.h></filename>) that you can use to
+	:file:`<process_ast/AST_unparser.h>`) that you can use to
 	print (parts of the) AST to PHP syntax. 
 </para>
 
 <para>
-	When you run this transform on <filename>a.php</filename>, it will print two
+	When you run this transform on :file:`a.php`, it will print two
 	``eval_expr`` nodes (shown in XML syntax), one for the
 	``include`` and one for the ``echo`` . We are interested
 	in the first, the ``include``: 
@@ -281,7 +281,7 @@ public:
 	to include) and insert all statements into the parsed file at the point of
 	the include. Parsing PHP is hard, but of course |phc| comes with a PHP
 	parser. To use this parser, include the
-	<filename><parsing/parse.h></filename> header and call
+	:file:`<parsing/parse.h>` header and call
 	&ldquo;``parse``&rdquo;.  Here then is the full transform: 
 </para>  
 
@@ -389,13 +389,13 @@ extern "C" void run_ast (PHP_script* in, Pass_manager* pm, String* option)
 	</para></listitem>
 	<listitem><para>
 		The definition of the C++ classes for the AST nodes in
-		<filename>src/generated/AST.h</filename>
+		:file:`src/generated/AST.h`
 	</para></listitem>
 	<listitem><para>
 		The definition of the ``AST_visitor`` and
 		``AST_transform`` classes in
-		<filename>src/generated/AST_visitor.h</filename> and
-		<filename>src/generated/AST_transform.h></filename>
+		:file:`src/generated/AST_visitor.h` and
+		:file:`src/generated/AST_transform.h>`
 		respectively
 	</para></listitem>
 	</itemizedlist>

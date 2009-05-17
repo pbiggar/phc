@@ -221,7 +221,7 @@ extern "C" void run_ast (AST::PHP_script* in, Pass_manager* pm, String* option)
 	Fortunately, |phc| will do all this for you automatically! There is a
 	standard &ldquo;do-nothing&rdquo; tree traversal predefined in |phc| in the
 	form of a class called ``AST::Visitor`` (defined in
-	<filename>AST_visitor.h</filename>). ``AST::Visitor``
+	:file:`AST_visitor.h`). ``AST::Visitor``
 	contains methods for each type of node in the tree. |phc| will automatically
 	traverse the abstract syntax tree for you, and call the appropriate method
 	at each node.
@@ -320,7 +320,7 @@ calls the visitor methods in the following order: </para>
 implemented, they will <emphasis>all</emphasis> be invoked, in the order listed
 above. So, implementing a more specific visitor (``pre_foo``) does not
 inhibit the more general method (``pre_bar``) from being invoked. You
-can run the <filename>plugins/tutorials/show_traversal_order.la</filename> from
+can run the :file:`plugins/tutorials/show_traversal_order.la` from
 the |phc| distribution to see this in action. </para>
 
 <note>

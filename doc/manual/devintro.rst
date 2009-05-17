@@ -281,12 +281,12 @@ translated into the abstract syntax.</para>
 overview of the AST classes, the tree visitor API and the tree transformation
 API from a programmer's perspective.</para>
 
-<para><application>Maketea</application> is a tool bundled with |phc| which,
+<para>:program:`Maketea` is a tool bundled with |phc| which,
 based on a grammar definition of a language, generates a C++ hierarchy for the
 corresponding abstract syntax tree, a tree transformation and visitor API, and
 deep cloning, deep equality and pattern matching on the AST. <xref
 linkend="maketeatheory" endterm="maketeatheory.title">  explains some of the
-theory behind <application>maketea</application>; in particular, the grammar
+theory behind :program:`maketea`; in particular, the grammar
 formalism, the mapping from the grammar to the AST classes, and the derivation
 of the tree transformation API.</para>
 	

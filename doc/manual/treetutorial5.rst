@@ -91,14 +91,14 @@ void Visitor::children_if(If* in)
 
 
 <para>
-	(you can find this definition in <filename>AST_visitor.cpp</filename>). If
+	(you can find this definition in :file:`AST_visitor.cpp`). If
 	you want to change the order in which the children of a node are visited,
 	entirely avoid visiting some children, or simply execute a piece of code in
 	between two children, this is the method you will need to modify. 
 </para>
 
 <para> Here is the transform that does what we need (available as
-<filename>plugins/tutorials/Comment_ifs.la</filename>): </para>
+:file:`plugins/tutorials/Comment_ifs.la`): </para>
 
 .. sourcecode::
 
