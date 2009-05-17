@@ -71,7 +71,7 @@ compare line numbers or comments.
 
 Second, :func:`match()` supports the use of wildcards.  :program:`maketea`
 generates a special class called :class:`Wildcard`. You should never
-instantiate this class directly; in :file:`<AST.h>`, you will find the
+instantiate this class directly; in :file:`AST.h`, you will find the
 following declaration: 
 
 .. sourcecode:: c++
