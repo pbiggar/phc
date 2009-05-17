@@ -87,16 +87,16 @@ For example, in the body of the :keyword:`if` in
 
 .. sourcecode:: c++
 
-   CLASS_NAME* name = new CLASS_NAME(new String("SOME_CLASS"));
-   CLASS_NAME* pattern = new CLASS_NAME(WILDCARD);
+   CLASS_NAME* name = new CLASS_NAME (new String ("SOME_CLASS"));
+   CLASS_NAME* pattern = new CLASS_NAME (WILDCARD);
 
-   if(name->match(pattern))
+   if (name->match (pattern))
    {
       // ...
    }
 
 
-:attr:`pattern->value`` will be set to the corresponding value in :data:`name`.
+:attr:`pattern->value` will be set to the corresponding value in :data:`name`.
 Tutorials <xref linkend="treetutorial3" endterm="treetutorial3.title"> and
 <xref linkend="treetutorial4" endterm="treetutorial4.title"> include examples
 of the use of wildcards.
@@ -109,14 +109,9 @@ Calling any methods on the :class:`WILDCARD` object other than
 The Visitor API
 ---------------
 
-<figure id="seqdiagramvisitor">
-<title>Sequence Diagram for the Visitor API</title>
-<mediaobject>
-<imageobject>
-<imagedata fileref="img/visitor.jpg">
-</imageobject>
-</mediaobject>
-</figure>
+.. figure:: img/visitor.jpg
+
+   Sequence Diagram for the Visitor API
 
 Every AST class provides four methods to support the visitor API: :func:`void
 visit(AST::Visitor*)`, :func:`void re_visit(AST::Visitor*)``, :class:`void
@@ -150,14 +145,9 @@ post-methods.
 The Transform API
 -----------------
 
-<figure id="seqdiagramtransform">
-<title>Sequence Diagram for the Transform API</title>
-<mediaobject>
-<imageobject>
-<imagedata fileref="img/transform.jpg">
-</imageobject>
-</mediaobject>
-</figure>
+.. figure:: img/transform.jpg
+
+   Sequence Diagram for the Transform API
 
 .. todo::
    
