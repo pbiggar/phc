@@ -1,0 +1,182 @@
+<chapter id="grammar">
+<title id="grammar.title">The Abstract Grammar</title>
+
+<section>
+<title></title>
+
+<para>
+	This is the full and authoritative definition of the &phc abstract grammar
+	for PHP in <application>maketea</application> format (this can also be found
+	in <filename>src/generated_src/ast.tea</filename> in the distribution). For
+	a description of the structure of the grammar, and how it converts to C++
+	code, refer to the <xref linkend="maketeatheory">.  
+</para>
+
+</section>
+
+<section>
+<title>Overall Structure</title>
+
+<programlisting>
+PHP_script ::= Statement* ;
+
+Class_def ::=
+   Class_mod CLASS_NAME <emphasis>extends</emphasis>:CLASS_NAME? 
+   <emphasis>implements</emphasis>:INTERFACE_NAME* Member* ;
+Class_mod ::= "abstract"? "final"? ;
+
+Interface_def ::= INTERFACE_NAME <emphasis>extends</emphasis>:INTERFACE_NAME* Member* ;
+
+Member ::= Method | Attribute ;
+
+Method ::= Signature Statement*? ;
+Signature ::= Method_mod <emphasis>is_ref</emphasis>:"&"? METHOD_NAME Formal_parameter* ;
+Method_mod ::= "public"? "protected"? "private"? "static"? "abstract"? "final"? ;
+Formal_parameter ::= Type <emphasis>is_ref</emphasis>:"&"? 
+   <emphasis>var</emphasis>:Name_with_default ;
+Formal_parameter ::= Type <emphasis>is_ref</emphasis>:"&"?
+   <emphasis>var</emphasis>:Name_with_default ;
+Type ::= CLASS_NAME? ;
+Name_with_default ::= VARIABLE_NAME Expr? ;
+
+Attribute ::= Attr_mod <emphasis>vars</emphasis>:Name_with_default* ;
+Attr_mod ::= "public"? "protected"? "private"? "static"? "const"?  ;
+
+
+</programlisting>
+
+</section>
+<section>
+<title>Statements</title>
+
+<programlisting>
+Statement ::=
+     Class_def | Interface_def | Method
+   | Return | Static_declaration | Global
+   | Try | Throw | Eval_expr
+   | If | While | Do | For | Foreach
+   | Switch | Break | Continue
+   | Declare | Nop
+	;
+
+If ::= Expr <emphasis>iftrue</emphasis>:Statement* <emphasis>iffalse</emphasis>:Statement* ;
+While ::= Expr Statement* ;
+Do ::= Statement* Expr ;
+For ::= <emphasis>init</emphasis>:Expr? <emphasis>cond</emphasis>:Expr? <emphasis>incr</emphasis>:Expr? Statement* ;
+Foreach ::= Expr <emphasis>key</emphasis>:Variable? <emphasis>is_ref</emphasis>:"&"? 
+   <emphasis>val</emphasis>:Variable Statement* ;
+
+Switch ::= Expr Switch_case* ;
+Switch_case ::= Expr? Statement* ;
+Break ::= Expr? ;
+Continue ::= Expr? ;
+Return ::= Expr? ;
+
+Static_declaration ::= <emphasis>vars</emphasis>:Name_with_default* ;
+Global ::= Variable_name* ;
+
+Declare ::= Directive+ Statement* ;
+Directive ::= DIRECTIVE_NAME Expr ;
+
+Try ::= Statement* <emphasis>catches</emphasis>:Catch* ;
+Catch ::= CLASS_NAME VARIABLE_NAME Statement* ;
+Throw ::= Expr ;
+
+Eval_expr ::= Expr ;
+
+Nop ::= ;
+</programlisting>
+
+</section>
+<section>
+
+<title>Expressions</title>
+
+<programlisting>
+Expr ::=
+     Assignment 
+	| Cast | Unary_op | Bin_op 
+	| Constant | Instanceof
+	| Variable | Pre_op 
+	| Method_invocation | New 
+	| Literal 
+	| Op_assignment | List_assignment 
+	| Post_op | Array | Conditional_expr | Ignore_errors 
+	;
+
+Literal ::= INT&lt;long&gt; | REAL&lt;double&gt; | STRING&lt;String*&gt; | BOOL&lt;bool&gt; | NIL&lt;&gt; ;
+   
+Assignment ::= Variable <emphasis>is_ref</emphasis>:"&"? Expr ;
+Op_assignment ::= Variable OP Expr ;
+
+List_assignment ::= List_element?* Expr ;
+List_element ::= Variable | Nested_list_elements ;
+Nested_list_elements ::= List_element?* ;
+
+Cast ::= CAST Expr ;
+Unary_op ::= OP Expr ;
+Bin_op ::= <emphasis>left</emphasis>:Expr OP <emphasis>right</emphasis>:Expr ;
+
+Conditional_expr ::= 
+   <emphasis>cond</emphasis>:Expr <emphasis>iftrue</emphasis>:Expr <emphasis>iffalse</emphasis>:Expr ;
+Ignore_errors ::= Expr ;
+
+Constant ::= CLASS_NAME? CONSTANT_NAME ;
+
+Instanceof ::= Expr Class_name ;
+
+Variable ::= Target? Variable_name <emphasis>array_indices</emphasis>:Expr?* ;
+Variable_name ::= VARIABLE_NAME | Reflection ;
+Reflection ::= Expr ;
+
+Target ::= Expr | CLASS_NAME ;
+
+Pre_op ::= OP Variable ;
+Post_op ::= Variable OP ;
+
+Array ::= Array_elem* ;
+Array_elem ::= <emphasis>key</emphasis>:Expr? <emphasis>is_ref</emphasis>:"&"? <emphasis>val</emphasis>:Expr ;
+
+Method_invocation ::= Target? Method_name Actual_parameter* ;
+Method_name ::= METHOD_NAME | Reflection ;
+
+Actual_parameter ::= <emphasis>is_ref</emphasis>:"&"? Expr ;
+
+New ::= Class_name Actual_parameter* ;
+Class_name ::= CLASS_NAME | Reflection ;
+</programlisting>
+
+</section>
+<section>
+
+<title>Additional Structure</title>
+
+<programlisting>
+Commented_node ::= 
+	  Member | Statement | Interface_def | Class_def | Switch_case | Catch 
+	;
+
+Identifier ::=
+	  INTERFACE_NAME | CLASS_NAME | METHOD_NAME | VARIABLE_NAME 
+	  | CAST | OP | CONSTANT_NAME
+	  | DIRECTIVE_NAME 
+	; 
+
+Source_rep ::= Identifier | Literal ;
+</programlisting>
+
+</section>
+<section id="mixin">
+
+<title>Mix-in Code</title>
+
+<para>
+	The code generated based on the grammar listed above can be extended by
+	&ldquo;mix-in&rdquo; code, which adds fields or methods to the class
+	structure generated by &phc;. For a full listing of the mix-in code, see
+	<filename>src/generated_src/ast.tea</filename> in the &phc distribution. 
+</para>
+
+</section>
+
+</chapter>
