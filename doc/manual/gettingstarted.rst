@@ -1,371 +1,290 @@
-<chapter id="gettingstarted">
-<title id="gettingstarted.title">Getting Started</title>
+Getting Started
+===============
 
-<section>
+For this introductory tutorial, we assume that you have successfully
+downloaded and installed |phc|, and that you know how to run it (:ref:`install`
+and :ref:`runningphc`. This tutorial gets you started with using |phc| to
+develop your own tools for PHP by writing plugins.
 
-<title></title>
+Compiling a Plugin
+------------------
 
-<para>
-	For this introductory tutorial, we assume that you have successfully
-	downloaded and installed &phc, and that you know how to run it (<xref
-	linkend="install"> and <xref linkend="runningphc">). This tutorial gets you
-	started with using &phc to develop your own tools for PHP by writing
-	plugins.
-</para>
-
-</section>
-
-<section>
-<title>Compiling a Plugin</title>
-
-<para>
-	To get up and running, we'll first write a &ldquo;hello world&rdquo; plugin
+	To get up and running, we'll first write "hello world" plugin
 	that does nothing except print a string. Create a new directory, say
-	<filename>~/myplugins</filename> and create a new file
-	<filename>helloworld.cpp</filename>:
-</para>
+	:file:`~/myplugins` and create a new file
+	:file:`helloworld.cpp`:
 
-<programlisting>
-<reserved>#include</reserved> &lt;AST.h&gt;
-<reserved>#include</reserved> &lt;pass_manager/Plugin_pass.h&gt;
+.. sourcecode:: c++
 
-<reserved>extern</reserved> "C" <reserved>void</reserved> load (Pass_manager* pm, Plugin_pass* pass)
-{
-   pm->add_after_named_pass (pass, new String ("ast"));
-}
+	#include <AST.h>
+	#include <pass_manager/Plugin_pass.h>
 
-<reserved>extern</reserved> "C" <reserved>void</reserved> run_ast (AST::PHP_script* in, Pass_manager* pm, String* option)
-{
-   cout &lt;&lt; "Hello world (I'm a phc plugin!)" &lt;&lt; endl;
-}
+	extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
+	{
+		pm->add_after_named_pass (pass, new String ("ast"));
+	}
 
-</programlisting>
+	extern "C" void run_ast (AST::PHP_script* in, Pass_manager* pm, String* option)
+	{
+		cout << "Hello world (I'm a phc plugin!)" << endl;
+	}
 
-<para>
-	This is an example of an (almost) minimal plugin. Every plugin you write
-	must contain these functions, with these exact signatures. <code>load</code>
-	is run when &phc starts, giving your plugin the opportunity to add itself to
-	the list of passes &phc; runs. In this example, it is added after the "ast"
-	pass. When &phc processes a PHP script, it runs all of the passes on it in
-	turn. When it's your plugin's turn, it calls your version of
-	<code>run_ast</code>.
-</para>
-<para>
-	To compile the plugin, run
-</para>
 
-<screen>
-~/myplugins$ phc_compile_plugin helloworld.cpp
-</screen>
+This is an example of an (almost) minimal plugin. Every plugin you write must
+contain these functions, with these exact signatures. :func:`load` is run
+when |phc| starts, giving your plugin the opportunity to add itself to the list
+of passes |phc|; runs. In this example, it is added after the "ast" pass. When
+|phc| processes a PHP script, it runs all of the passes on it in turn. When
+it's your plugin's turn, it calls your version of :func:`run_ast()`.
+
+To compile the plugin, run
+
+.. sourcecode:: bash
+
+	~/myplugins$ phc_compile_plugin helloworld.cpp
 			
-<para>
-	(<application>phc_compile_plugin</application> is a small shellscript that
-	makes the task of compiling plugins easier; it calls
-	<application>g++</application> in a platform independent way; if you're
-	curious, you can open it in any text editor.) Finally, run the plugin using
-</para>
+(:program:`phc_compile_plugin` is a small shellscript that makes the task of
+compiling plugins easier; it calls :program:`g++` in a platform independent
+way; if you're curious, you can open it in any text editor.) Finally, run the
+plugin using
 
-<screen>
-~/myplugins$ phc --run helloworld.la sometest.php
-</screen>
+.. sourcecode:: bash
 
-<para>
-	(You need to pass in an input script to &phc even though our plugin does not
-	use it.) If that worked as expected, congratulations: you've just written
-	your first &phc plugin! :-)
-</para>
+	~/myplugins$ phc --run helloworld.la sometest.php
 
-</section>
+(You need to pass in an input script to |phc| even though our plugin does not
+use it.) If that worked as expected, congratulations: you've just written
+your first |phc| plugin! :-)
 
-<section>
-<title>About <code>extern "C"</code></title>
 
-<para>
-	You may have been wondering what the <code>extern "C"</code> in the
-	definition of <code>load</code> and <code>run_ast</code> is for; the reason
-	is that &phc uses the <code>libtool</code>'s <code>libltdl</code> interface
-	to load your plugin; if the functions are not declared as <code>extern
-	"C"</code>, &phc will not be able to find them in your plugin because the
-	name of that function will have been mangled by the C++ compiler. It does
-	not mean that you cannot write C++ code inside these functions.
-</para>
+About ``extern "C"``
+------------------------
 
-<para>
-	If you don't understand any of that, don't worry about it: just remember
-	that you need to declare <code>load</code>, <code>run_ast</code>, and a
-	small number of other functions which we'll name later, as <code>extern
-	"C"</code> and everything will be fine. (You don't need <code>extern
-	"C"</code> for any functions you might define).
-</para>
+You may have been wondering what the ``extern "C"`` in the definition of
+:func:`load()` and :func:`run_ast()` is for; the reason is that |phc| uses the
+:program:`libtool`'s :program:`libltdl` interface to load your plugin; if the
+functions are not declared as ``extern "C"``, |phc| will not be able to
+find them in your plugin because the name of that function will have been
+mangled by the C++ compiler. It does not mean that you cannot write C++ code
+inside these functions.
 
-</section>
+If you don't understand any of that, don't worry about it: just remember that
+you need to declare :func:`load()`, :func:`run_ast()`, and a small number of
+other functions which we'll name later, as ``extern "C"`` and everything will
+be fine. (You don't need ``extern "C"`` for any functions you might
+define).
 
-<section>
-<title>Abstract Syntax</title>
 
-<para>
-	To be able to do anything useful in your plugins, you need to know how &phc
-	represents PHP code internally. &phc's view of PHP scripts is described by
-	an <emphasis>abstract grammar</emphasis>. An abstract grammar describes how
-	the contents of a PHP script are structured. A grammar consists of a number
-	of rules. For example, there is a rule in the grammar that describes how
-	<code>if</code> statements work:
-</para>
+Abstract Syntax
+---------------
 
-<programlisting>
-If ::= Expr <emphasis>iftrue:</emphasis>Statement* <emphasis>iffalse:</emphasis>Statement* ; 
-</programlisting>
+To be able to do anything useful in your plugins, you need to know how |phc|
+represents PHP code internally. |phc|'s view of PHP scripts is described by an
+*abstract grammar*. An abstract grammar describes how the contents of a PHP
+script are structured. A grammar consists of a number of rules. For example,
+there is a rule in the grammar that describes how ``if`` statements work:
 
-<para>
-	This rules reads: &ldquo;<emphasis>An <code>if</code> statement consists of
-	an expression</emphasis> (the condition of the if-statement), <emphasis>a
-	list of statements called `iftrue'</emphasis> (the instructions that get
-	executed when the condition holds), <emphasis>and another list of statements
-	called `iffalse'</emphasis> (the instructions that get executed when the
-	condition does not hold)&rdquo;. The asterisk (<code>*</code>) in the rule
-	means &ldquo;list of&rdquo;.
-</para>
+.. sourcecode:: haskell
+
+	If ::= Expr iftrue:Statement* iffalse:Statement* ; 
+
+This rules reads: "*An if-statement consists of an expression (the
+condition of the if-statement), *a list of statements called 'iftrue'* (the
+instructions that get executed when the condition holds), *and another list of
+statements called 'iffalse'* (the instructions that get executed when the
+condition does not hold)".  The asterisk (``*``) in the rule means "list of".
 			
-<para>
-	As a second example, consider the rule that describes arrays in PHP.  This
-	rule should cover things such as <code>array()</code>, <code>array("a",
-	"b")</code> and <code>array(1 =&gt; "a", 2 =&gt; "g")</code>. Arrays are
-	described by the following two rules.
-</para>
+As a second example, consider the rule that describes arrays in PHP.  This rule
+should cover things such as ``array()``, ``array("a", "b")`` and ``array(1 =>
+"a", 2 => "g")``. Arrays are described by the following two rules.
 
-<programlisting>
-Array ::= Array_elem* ;
-Array_elem ::= <emphasis>key:</emphasis>Expr? <emphasis>val:</emphasis>Expr ;
-</programlisting>
+.. sourcecode:: haskell
 
-<para>
-	(Actually, this is a simplification, but it will do for the moment.) These
-	two rules say that &ldquo;<emphasis>an array consists of a list of array
-	elements</emphasis>&rdquo;, and an &ldquo;<emphasis>array element has an
-	optional expression called `key', and a second expression called
-	`val'</emphasis>&rdquo;. The question mark (<code>?</code>) means
-	&ldquo;optional&rdquo;. Note that the grammar does not record the need for
-	the keyword <code>array</code>, or for the parentheses and commas.  We do
-	not need to record these, because we already <emphasis>know</emphasis> that
-	we are talking about an array; all we need to know is what the array
-	elements are.
-</para>
+	Array ::= Array_elem* ;
+	Array_elem ::= key:Expr? val:Expr ;
+
+(Actually, this is a simplification, but it will do for the moment.) These two
+rules say that "*an array consists of a list of array elements*", and an
+"*array element has an optional expression called 'key', and a second
+expression called 'val'*". The question mark (``?``) means "optional". Note
+that the grammar does not record the need for the keyword ``array``, or for the
+parentheses and commas.  We do not need to record these, because we already
+*know* that we are talking about an array; all we need to know is what the
+array elements are.
 		
-</section>
 
-<section>
-<title>The Abstract Syntax Tree</title>
+The Abstract Syntax Tree
+------------------------
 
-<para>
-	When &phc reads a PHP script, it builds up an internal representation of the
-	script. This representation is known as an <emphasis>abstract syntax
-	tree</emphasis> (or AST for short). The structure of the AST follows
-	directly from the abstract grammar. For people familiar with XML, this tree
-	can be compared to the DOM representation of an XML script (and in fact,
-	&phc can output the AST as an XML document, see <xref
-	linkend="runningphc">).
-</para>
+When |phc| reads a PHP script, it builds up an internal representation of the
+script. This representation is known as an *abstract syntax tree* (or AST for
+short). The structure of the AST follows directly from the abstract grammar.
+For people familiar with XML, this tree can be compared to the DOM
+representation of an XML script (and in fact, |phc| can output the AST as an
+XML document, see :ref:`runningphc`).
 			
-<para>
-	For example, consider <code>if</code>-statements again. An
-	<code>if</code>-statement is represented by an instance of the
-	<code>If</code> class, which is (approximately) defined as follows.
-</para>
 
-<programlisting>
-<reserved>class</reserved> If
-{
-<reserved>public</reserved>:
-   Expr* expr;
-   Statement_list* iftrue;
-   Statement_list* iffalse;
-};
-</programlisting>
+For example, consider if-statements again. An if-statement is represented by an
+instance of the ``If`` class, which is (approximately) defined as follows.
 
-<para>
-	Thus, the name of the rule (<code>if ::= ...</code>) translates into a class
-	<code>If</code>, and the elements on the right hand side of the rule
-	(<code>Expr iftrue:Statement* iffalse:Statement*</code>) correspond directly
-	to the class members.  The class <code>Statement_list</code> inherits from
-	the STL <code>list</code> class, and can thus be treated as such.
-</para>
+.. sourcecode:: c++
+
+	class If
+	{
+	public:
+		Expr* expr;
+		Statement_list* iftrue;
+		Statement_list* iffalse;
+	};
+
+Thus, the name of the rule (``if ::= ...``) translates into a class ``If``, and
+the elements on the right hand side of the rule (``Expr iftrue:Statement*
+iffalse:Statement*``) correspond directly to the class members.  The class
+``Statement_list`` inherits from the STL ``list`` class, and can thus be
+treated as such.
 		
-<para>
-	Similarly, the class definitions for arrays and array elements look like
-</para> 
+Similarly, the class definitions for arrays and array elements look like
 		
-<programlisting>
-<reserved>class</reserved> Array
-{
-<reserved>public</reserved>:
-   Array_elem_list* array_elems;
-};
+.. sourcecode:: c++
 
-<reserved>class</reserved> Array_elem
-{
-<reserved>public</reserved>:
-   Expr* key;
-   Expr* val;
-};
-</programlisting>
+	class Array
+	{
+	public:
+		Array_elem_list* array_elems;
+	};
 
-<para>
-	When you start developing applications with &phc you will find it useful to
-	consult the full description of the grammar, which can be found in <xref
-	linkend="grammar">. A detailed explanation of the structure of this grammar,
-	and how it converts to the C++ class structure, can be found in <xref
-	linkend="maketeatheory">. Some notes on how &phc converts normal PHP code
-	into abstract syntax can be found in <xref linkend="representingphp">.
-</para>
+	class Array_elem
+	{
+	public:
+		Expr* key;
+		Expr* val;
+	};
 
-</section>
+When you start developing applications with |phc| you will find it useful to
+consult the full description of the grammar, which can be found in
+:ref:`grammar`. A detailed explanation of the structure of this grammar, and
+how it converts to the C++ class structure, can be found in
+:ref:`maketeatheory`. Some notes on how |phc| converts normal PHP code into
+abstract syntax can be found in :ref:`representingphp`
 
-<section>
-<title>Working with the AST</title>
 
-<para>
-	When you want to build tools based on &phc, you do not have to understand
-	how the abstract syntax tree is built, because this is done for you.  Once
-	the tree has been built, you can examine or modify the tree in any way you
-	want. When you are finished, you can ask &phc to output the tree to normal
-	PHP code again.
-</para> 
+Working with the AST
+--------------------
 
-<para>
-	Let's write a very simple plugin that counts the number of statements in a
-	script. Create a new file
-	<filename>~/myplugins/count_statements.cpp</filename>. Recall the skeleton
-	plugin:
-</para>
+When you want to build tools based on |phc|, you do not have to understand how
+the abstract syntax tree is built, because this is done for you.  Once the tree
+has been built, you can examine or modify the tree in any way you want. When
+you are finished, you can ask |phc| to output the tree to normal PHP code
+again.
+
+Let's write a very simple plugin that counts the number of statements in a
+script. Create a new file :file:`~/myplugins/count_statements.cpp`. Recall the
+skeleton plugin:
 		
-<programlisting>
-<reserved>#include</reserved> &lt;AST.h&gt;
-<reserved>#include</reserved> &lt;pass_manager/Plugin_pass.h&gt;
+.. sourcecode:: c++
 
-<reserved>extern</reserved> "C" <reserved>void</reserved> load (Pass_manager* pm, Plugin_pass* pass)
-{
-   pm->add_after_named_pass (pass, new String ("ast"));
-}
+	#include <AST.h>
+	#include <pass_manager/Plugin_pass.h>
 
-<reserved>extern</reserved> "C" <reserved>void</reserved> run_ast (AST::PHP_script* in, Pass_manager* pm, String* option)
-{
-}
-</programlisting>
+	extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
+	{
+		pm->add_after_named_pass (pass, new String ("ast"));
+	}
 
-<para>
-	You will notice that <code>run_ast</code> gets passed an object of type
-	<code>PHP_script</code>. This is the top-level node of the generated
-	AST. If you look at the grammar (<xref linkend="grammar">), you will find
-	that <code>PHP_script</code> corresponds to the following rule:
-</para>
+	extern "C" void run_ast (AST::PHP_script* in, Pass_manager* pm, String* option)
+	{
+	}
+
+You will notice that ``run_ast()`` gets passed an object of type ``PHP_script``.
+This is the top-level node of the generated AST. If you look at the grammar
+(:ref:`grammar`), you will find that ``PHP_script`` corresponds to the
+following rule:
 	
-<programlisting>
-PHP_script ::= Statement* ;
-</programlisting>
+.. sourcecode:: haskell
 
-<para>
-	Thus, as far as &phc is concerned, a PHP script consists of a number of
-	statements. The class <code>PHP_script</code> will have therefore have
-	one member, called <code>statements</code>, the list of statements. So, to
-	count the number of classes, all we have to do is query the number of
-	elements in the <code>statements</code> list:
-</para>
+	PHP_script ::= Statement* ;
 
-<programlisting>
-<reserved>#include</reserved> &lt;AST.h&gt;
-<reserved>#include</reserved> &lt;pass_manager/Plugin_pass.h&gt;
+Thus, as far as |phc| is concerned, a PHP script consists of a number of
+statements. The class ``PHP_script`` will have therefore have one member,
+called ``statements``, the list of statements. So, to count the number of
+classes, all we have to do is query the number of elements in the
+``statements`` list:
 
-<reserved>extern</reserved> "C" <reserved>void</reserved> load (Pass_manager* pm, Plugin_pass* pass)
-{
-   pm->add_after_named_pass (pass, new String ("ast"));
-}
+.. sourcecode:: c++
 
-<reserved>extern</reserved> "C" <reserved>void</reserved> run_ast (AST::PHP_script* in, Pass_manager* pm, String* option)
-{
-   printf("%d statement(s) found\n", in->statements->size());
-}
-</programlisting>
+	#include <AST.h>
+	#include <pass_manager/Plugin_pass.h>
 
-<para>
-	Save this file to <filename>~/myplugins/count_statements.cpp</filename>.
-	Compile:
-</para>
+	extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
+	{
+		pm->add_after_named_pass (pass, new String ("ast"));
+	}
 
-<programlisting>
-~/myplugins$ phc_compile_plugin count_statements.cpp
-</programlisting>
+	extern "C" void run_ast (AST::PHP_script* in, Pass_manager* pm, String* option)
+	{
+		printf("%d statement(s) found\n", in->statements->size());
+	}
 
-<para>
-	And run:
-</para>
+Save this file to :file:`~/myplugins/count_statements.cpp`.  Compile:
 
-<programlisting>
-./phc --run count_statements.la hello.php
-</programlisting>
+.. sourcecode:: bash
 
-</section>
+	~/myplugins$ phc_compile_plugin count_statements.cpp
 
-<section>
-<title>Actually..</title>
+And run:
 
-<para>
-	If you actually did try to run your plugin, you may have found that our
-	plugin isn't quite correct. Consider the following example:
-</para>
+.. sourcecode:: bash
 
-<programlisting>
-&lt;?<reserved>php</reserved>
-   $x = 5;
-   <reserved>if</reserved>($x == 5)
-      <reserved>echo</reserved> "yes";
-   <reserved>else</reserved>
-      <reserved>echo</reserved> "no";
-?&gt;
-</programlisting>
+	~/myplugins$ ./phc --run count_statements.la hello.php
 
-<para> If you run our plugin on this example, if will report two statements.
+
+Actually..
+----------
+
+If you actually did try to run your plugin, you may have found that our
+plugin isn't quite correct. Consider the following example:
+
+.. sourcecode:: php
+
+	<?php
+		$x = 5;
+		if ($x == 5)
+			echo "yes";
+		else
+			echo "no";
+	?>
+
+If you run our plugin on this example, if will report two statements.
 Why? Well, the first statement is the assignment, and the second is the
-conditional (the <code>if</code> statement). The statements
-<emphasis>inside</emphasis> the <code>if</code> statement are not counted,
-because they are not part of the outer list of statements of the script. In the
-next tutorial we will see how to fix this. </para>
+conditional (the ``if`` statement). The statements *inside* the ``if``
+statement are not counted, because they are not part of the outer list of
+statements of the script. In the next tutorial we will see how to fix this.
 
-</section>
 
-<section>
-<title>Writing Stand Alone Applications</title>
+Writing Stand Alone Applications
+--------------------------------
 
-<para>
-	If you prefer not to write a plugin but want to modify &phc itself to derive
-	a new, stand-alone, application, you can add your passes in
-	<filename>src/phc.cpp</filename> in the &phc source tree instead. This has
-	the effect of &ldquo;hardcoding&rdquo; your plugin into &phc; (in versions
-	before 0.1.7, this was the only way to write extensions).  However, in the
-	rest of the tutorials we will assume that you are writing your extension as
-	a plugin.
-</para>
+If you prefer not to write a plugin but want to modify |phc| itself to derive
+a new, stand-alone, application, you can add your passes in
+:file:`src/phc.cpp` in the |phc| source tree instead. This has
+the effect of "hardcoding" your plugin into |phc|; (in versions
+before *0.1.7*, this was the only way to write extensions). However, in the
+rest of the tutorials we will assume that you are writing your extension as a
+plugin.
 
-</section>
 
-<section>
-<title>What's Next?</title>
+What's Next?
+------------
 
-<para>
-	In theory, you now know enough to start implementing your own tools for PHP.
-	Write a new plugin, run the plugin using the <code>--run</code> option, and
-	optionally pass in the <code>--pretty-print</code> option also to request
-	that &phc outputs the tree back to PHP syntax after having executed your
-	plugin.
-</para>
+In theory, you now know enough to start implementing your own tools for PHP.
+Write a new plugin, run the plugin using the :option:`--run` option, and
+optionally pass in the :option:`--pretty-print` option also to request
+that |phc| outputs the tree back to PHP syntax after having executed your
+plugin.
 
-<para>
-	However, you will probably find that modifying the tree, despite being
-	well-defined and easy to understand, is actually rather laborious.  It
-	requires a lot of boring boilerplate code. The good news is that &phc
-	provides sophisticated support for examining and modifying this tree. This
-	is explained in detail in the follow-up tutorials.
-</para>
+However, you will probably find that modifying the tree, despite being
+well-defined and easy to understand, is actually rather laborious.  It
+requires a lot of boring boilerplate code. The good news is that |phc|
+provides sophisticated support for examining and modifying this tree. This
+is explained in detail in the follow-up tutorials.
 
-</section>
-
-</chapter>
