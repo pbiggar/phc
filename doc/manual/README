@@ -1,0 +1,9 @@
+phc's documentation now uses sphinx. On Debian/Ubuntu, install the
+python-sphinx package.
+
+There were previous failed experiments with latex and docbook, the latter being
+too cumbersome to use in practice.
+
+To make html documentation (which gets output in the .build directory), use
+	$ make html
+
