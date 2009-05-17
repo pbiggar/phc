@@ -8,8 +8,8 @@
 <para>
 	Now that we have seen in <xref linkend="treetutorial1"> how to inspect the
 	tree, in this tutorial we will look at modifying the tree. The task we set
-	ourselves is: replace all calls to <code>mysql_connect</code> by calls to
-	<code>dbx_connect</code> (<ulink
+	ourselves is: replace all calls to ``mysql_connect`` by calls to
+	``dbx_connect`` (<ulink
 	url="http://pecl.php.net/package/dbx">dbx</ulink> is a PECL extension to PHP
 	that allows scripts interface with a database independent of the type of the
 	database; this conversion could be part of a larger refactoring process that
@@ -32,7 +32,7 @@ phc --run plugins/tutorials/MySQL2DBX.la --pretty-print test.php
 <title>First Attempt</title>
 
 <para>
-	We are interested in all function calls to <code>mysql_connect</code>.  Let
+	We are interested in all function calls to ``mysql_connect``.  Let
 	us have a look at the precise definition of a function call according to the
 	<xref linkend="grammar" endterm="grammar.title">: 
 </para>
@@ -45,31 +45,31 @@ Reflection ::= Expr ;
 </programlisting>
 			
 <para>
-	(The <code>target</code> of a method invocation is the class or object the
+	(The ``target`` of a method invocation is the class or object the
 	function gets invoked on, if any. It need not worry us here.) For now, we
-	are only interested in the <code>Method_name</code>. The grammar tells us
-	that a <code>Method_name</code> is either a <code>METHOD_NAME</code> or a
-	node of type <code>Reflection</code>. If a symbol is written in CAPITALS in
+	are only interested in the ``Method_name``. The grammar tells us
+	that a ``Method_name`` is either a ``METHOD_NAME`` or a
+	node of type ``Reflection``. If a symbol is written in CAPITALS in
 	the grammar, that means it refers to a &ldquo;token&rdquo;, a literal value.
-	In this case, to an actual method name (such as <code>mysql_connect</code>).
+	In this case, to an actual method name (such as ``mysql_connect``).
 	In PHP, it is also possible to call a method whose name is stored in
-	variable; in this case, the function name will be a <code>Reflection</code>
-	node (which contains an <code>Expr</code>). In this tutorial, we are
+	variable; in this case, the function name will be a ``Reflection``
+	node (which contains an ``Expr``). In this tutorial, we are
 	interested in &ldquo;normal&rdquo; method invocations only.  
 </para>
 
 <para>
-	All tokens have an attribute called <code>value</code>
+	All tokens have an attribute called ``value``
 	which corresponds to the value of the token. For most tokens, the type of
-	<code>value</code> is a <code>String*</code> (consider a <code>String</code>
-	to be an STL <code>string</code>. However, for some tokens, for example
-	<code>INT</code>, <code>value</code> has a different type (e.g.,
-	<code>int</code>). If the token has a non-standard type, it will have method 
-	called <code>get_source_rep</code>, which returns a <code>String*</code>
+	``value`` is a ``String*`` (consider a ``String``
+	to be an STL ``string``. However, for some tokens, for example
+	``INT``, ``value`` has a different type (e.g.,
+	``int``). If the token has a non-standard type, it will have method 
+	called ``get_source_rep``, which returns a ``String*``
 	representing the token in the source. For example, the real number
-	<code>5E-1</code> would have <code>value</code> equal to the
-	(<code>double</code>) 0.5, but <code>get_source_rep</code> would return (the
-	<code>String*</code>) &ldquo;5E-1&rdquo;. 
+	``5E-1`` would have ``value`` equal to the
+	(``double``) 0.5, but ``get_source_rep`` would return (the
+	``String*``) &ldquo;5E-1&rdquo;. 
 </para> 
 
 <para>
@@ -109,17 +109,17 @@ Reflection ::= Expr ;
 
 <note><para>
 	&phc; uses a garbage collector, so there is never any need to free objects
-	(you never have to call <code>delete</code>).  This makes programming much
+	(you never have to call ``delete``).  This makes programming much
 	easier and less error-prone (smaller chance of bugs). 
 </para></note>
 
 <para>
-	<code>match</code> compares two (sub)trees for deep equality.  There is also
-	another function called <code>deep_equals</code>, which does nearly the same
-	thing, but there are two important differences.  <code>match</code> does not
+	``match`` compares two (sub)trees for deep equality.  There is also
+	another function called ``deep_equals``, which does nearly the same
+	thing, but there are two important differences.  ``match`` does not
 	take comments, line numbers and other &ldquo;additional&rdquo; information
-	into account, whereas <code>deep_equals</code> does. The second difference
-	is that <code>match</code> supports wildcards; this will be explained in
+	into account, whereas ``deep_equals`` does. The second difference
+	is that ``match`` supports wildcards; this will be explained in
 	<xref linkend="treetutorial3">.
 </para>
 
@@ -129,8 +129,8 @@ Reflection ::= Expr ;
 <title>Modifying the Parameters</title>
 
 <para>
-	Unfortunately, renaming <code>mysql_connect</code> to
-	<code>dbx_connect</code> is not sufficient, because the parameters to the
+	Unfortunately, renaming ``mysql_connect`` to
+	``dbx_connect`` is not sufficient, because the parameters to the
 	two functions differ. According to the <ulink
 	url="http://www.php.net/manual/en/index.php">PHP manual</ulink>, the
 	signatures for both functions are 
@@ -149,26 +149,26 @@ dbx_connect (module, host, database, username, password, persistent)
 </programlisting>
 
 <para>
-	The <code>module</code> parameter to <code>dbx_connect</code> should be set
-	to <code>DBX_MYSQL</code> to connect to a MySQL database. Then
-	<code>host</code> corresponds to <code>server</code>, and
-	<code>username</code> and <code>password</code> have the same purpose too.
-	So, we should insert <code>DBX_MYSQL</code> at the front of the list, and
-	insert <code>NULL</code> in between <code>host</code> and
-	<code>username</code> (the <code>mysql_connect</code> command does not
-	select a database). The last two parameters to <code>mysql_connect</code> do
-	not have an equivalent in <code>dbx_connect</code>, so if they are
+	The ``module`` parameter to ``dbx_connect`` should be set
+	to ``DBX_MYSQL`` to connect to a MySQL database. Then
+	``host`` corresponds to ``server``, and
+	``username`` and ``password`` have the same purpose too.
+	So, we should insert ``DBX_MYSQL`` at the front of the list, and
+	insert ``NULL`` in between ``host`` and
+	``username`` (the ``mysql_connect`` command does not
+	select a database). The last two parameters to ``mysql_connect`` do
+	not have an equivalent in ``dbx_connect``, so if they are
 	specified, we cannot perform the conversion. The last parameter to
-	<code>dbx_connect</code> (<code>persistent</code>) is optional, and we will
+	``dbx_connect`` (``persistent``) is optional, and we will
 	ignore it in this tutorial.  
 </para>
 
 <para>
-	Now, in &phc, <code>DBX_MYSQL</code> is a <code>Constant</code>, which has
+	Now, in &phc, ``DBX_MYSQL`` is a ``Constant``, which has
 	two fields, an optional class name (for class constants) and the name of the
-	constant, of type <code>CONSTANT_NAME</code>. <code>NULL</code> is
-	represented by <code>NIL</code> (to avoid getting confused with the C++
-	value <code>NULL</code>.
+	constant, of type ``CONSTANT_NAME``. ``NULL`` is
+	represented by ``NIL`` (to avoid getting confused with the C++
+	value ``NULL``.
 </para>
 
 <para>

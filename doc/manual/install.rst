@@ -20,16 +20,16 @@
 
 <itemizedlist>
 	<listitem><para>
-		<code>g++</code> <emphasis>version 3.4.0</emphasis> or higher
+		``g++`` <emphasis>version 3.4.0</emphasis> or higher
 	</para></listitem>
 	<listitem><para>
-		<code>make</code>
+		``make``
 	</para></listitem>
 	<listitem><para>
-		<code>Boost</code> <emphasis>version 1.34</emphasis> or higher
+		``Boost`` <emphasis>version 1.34</emphasis> or higher
 	</para></listitem>
 	<listitem><para>
-		<code>PHP5 embed SAPI</code> (version 5.2.x recommended; refer to <xref
+		``PHP5 embed SAPI`` (version 5.2.x recommended; refer to <xref
 		linkend="phpbuild" endterm="phpbuild.title"> for more details). This is
 		required to compile PHP code with &phc;.
 	</para></listitem>
@@ -38,9 +38,9 @@
 		want support for XML parsing (you don't need Xerces for XML unparsing).
 	</para></listitem>
 	<listitem><para>
-		<code>Boehm</code> garbage collector is used in &phc;, but not in code
+		``Boehm`` garbage collector is used in &phc;, but not in code
 		compiled by &phc;. If unavailable, it can be disabled with
-		<code>--disable-gc</code>, but &phc; will leak all memory it uses.
+		``--disable-gc``, but &phc; will leak all memory it uses.
 	</para></listitem>
 
 </itemizedlist>
@@ -58,8 +58,8 @@
 
 <para>
 	Under Debian/Ubuntu, the following command will install nearly all
-	dependencies: <code>apt-get install build-essential libboost-dev
-	libxerces27-dev graphviz libgc-dev</code>. You will still need to install
+	dependencies: ``apt-get install build-essential libboost-dev
+	libxerces27-dev graphviz libgc-dev``. You will still need to install
 	the PHP embed SAPI manually.
 </para>
 
@@ -67,7 +67,7 @@
 
 <section id=phpbuild>
 
-<title id=phpbuild.title>PHP <code>embed SAPI</code> installation instructions</title>
+<title id=phpbuild.title>PHP ``embed SAPI`` installation instructions</title>
 
 <para>
 	If you do not intend to compile PHP code using &phc;, you may <link
@@ -92,7 +92,7 @@ tar zxvf php-5.2.6.tar.gz
 </screen>
 
 <para>
-	This will create a new directory <code>php-5.2.6</code>. In order to configure and compile PHP, you must know what configuration options you require. These are likely to be the same as the version of PHP you are currently using, which can be examined with the command
+	This will create a new directory ``php-5.2.6``. In order to configure and compile PHP, you must know what configuration options you require. These are likely to be the same as the version of PHP you are currently using, which can be examined with the command
 </para>
 
 <screen>
@@ -100,7 +100,7 @@ php -i | grep Configure
 </screen>
 
 <para>
-	We will assume these options are <code>--enable-bcmath --with-gmp --with-mysql</code>, a configuration which we occasionally use for benchmarking. You are ready to build PHP. When configuring, you must add the <code>--enable-embed</code> option.
+	We will assume these options are ``--enable-bcmath --with-gmp --with-mysql``, a configuration which we occasionally use for benchmarking. You are ready to build PHP. When configuring, you must add the ``--enable-embed`` option.
 </para>
 
 <screen>
@@ -117,11 +117,11 @@ make
 </para>
 
 <para>
-	The most important part of the command is <code>--enable-embed</code>.
-	While the <code>CFLAGS="-O3"</code> environmental variable is optional, we
+	The most important part of the command is ``--enable-embed``.
+	While the ``CFLAGS="-O3"`` environmental variable is optional, we
 	find it speeds up the executable by about four times. If PHP is already
 	installed on your system, you may want to install this version separately,
-	using the <code>--prefix</code> option. Other configuration options are
+	using the ``--prefix`` option. Other configuration options are
 	discussed in the <link linkend=dev.phpbuild>developer manual</link>.
 	Finally, install the embed SAPI:
 </para>
@@ -148,7 +148,7 @@ tar zxvf phc-0.2.0.tar.gz
 </screen>
 	
 <para>
-	This will create a new directory <code>phc-0.2.0</code> that contains the
+	This will create a new directory ``phc-0.2.0`` that contains the
 	&phc source tree. Finally, you must compile &phc;. If the dependencies are
 	in their standard locations, you should be able to simply type
 </para>
@@ -160,7 +160,7 @@ make
 </screen>
 
 <para>
-	(Consult <code>./configure --help</code> for configuration options, if your
+	(Consult ``./configure --help`` for configuration options, if your
 	dependencies are not in standard locations). This should compile without any
 	warnings or errors. If this step fails, please send a bug report to the
 	<ulink url="http://www.phpcompiler.org/mailinglist.html">mailing

@@ -31,41 +31,41 @@ element of the first rule in detail. </para>
 <variablelist>
 
 <varlistentry>
-	<term><code>Target?</code></term>
+	<term>``Target?``</term>
 	<listitem><para>
 		Just like function calls, variables can have a target, and just as for
 		function calls, this target can be an expression (for an object, e.g.,
-		<code>$x-&gt;y</code>) or a class name (for a static class attribute,
-		e.g. <code>FOO::$y</code>). As in function calls, in variables the target
+		``$x-&gt;y``) or a class name (for a static class attribute,
+		e.g. ``FOO::$y``). As in function calls, in variables the target
 		is optional (indicated by the question mark). If no target is specified,
 		the variable refers to a <emphasis>local</emphasis> variable in a method.
 	</para></listitem>
 </varlistentry>
 
 <varlistentry>
-	<term><code>Variable_name</code></term>
+	<term>``Variable_name``</term>
 	<listitem><para>
 		Again, as for function calls, the name of the variable may be a literal
-		<code>VARIABLE_NAME</code> (<code>$x</code>), or be given by an
-		expression (which is wrapped up in an <code>Reflection</code> node).  The
+		``VARIABLE_NAME`` (``$x``), or be given by an
+		expression (which is wrapped up in an ``Reflection`` node).  The
 		latter possibility is referred to as &ldquo;variable-variables&rdquo; in
-		the PHP manual.  For example, <code>$$x</code> is the variable whose name
+		the PHP manual.  For example, ``$$x`` is the variable whose name
 		is currently stored in (another) variable called
-		<code>$x</code>.
+		``$x``.
 	</para></listitem>
 </varlistentry>
 
 <varlistentry>
-	<term><code>array_indices:(Expr?)*</code></term>
+	<term>``array_indices:(Expr?)*``</term>
 	<listitem><para>
 		A variable may have one or more array indices, for example
-		<code>$x[3][5]</code>. The strange construct <code>(Expr?)*</code> means:
-		a list of (<code>*</code>) optional (<code>?</code>) expressions. For
-		example, <code>$x[4][]</code> is a list of two expressions, but the
+		``$x[3][5]``. The strange construct ``(Expr?)*`` means:
+		a list of (``*``) optional (``?``) expressions. For
+		example, ``$x[4][]`` is a list of two expressions, but the
 		second expression is not given. In PHP, this means &ldquo;use the next
-		available index&rdquo;. String- and array-indexing (<code>$x{3}</code>)
+		available index&rdquo;. String- and array-indexing (``$x{3}``)
 		are equivalent in PHP, so string-indexing is also represented by
-		<code>array_indices</code>.
+		``array_indices``.
 	</para></listitem>
 </varlistentry>
 </variablelist>
@@ -74,10 +74,10 @@ element of the first rule in detail. </para>
 <warning>
 <para>
 	These diagrams use old names for AST nodes. Where you see
-	<code>AST_variable</code>, it is now called <code>Variable</code> (it uses
-	the AST namespace). <code>Token_variable_name</code> is called
-	<code>VARIABLE_NAME</code> and <code>Token_int</code> is called
-	<code>INT</code>.
+	``AST_variable``, it is now called ``Variable`` (it uses
+	the AST namespace). ``Token_variable_name`` is called
+	``VARIABLE_NAME`` and ``Token_int`` is called
+	``INT``.
 </para>
 <para>
 	It is possible the structure of some nodes have changed slightly since this
@@ -89,7 +89,7 @@ element of the first rule in detail. </para>
 <!-- TODO: these images need to be regenerated -->
 
 <varlistentry>
-	<term>The simple case: <code>$x</code></term>
+	<term>The simple case: ``$x``</term>
 	<listitem>
 	<informalfigure>
 	<mediaobject>
@@ -98,13 +98,13 @@ element of the first rule in detail. </para>
 	</imageobject>
 	</mediaobject>
 	</informalfigure>
-	<para>The name of the variable is <code>x</code>, not
-	<code>$x</code>.</para>
+	<para>The name of the variable is ``x``, not
+	``$x``.</para>
 	</listitem>
 </varlistentry>
 
 <varlistentry>
-	<term>Using array indices: <code>$x[1][][2]</code></term>
+	<term>Using array indices: ``$x[1][][2]``</term>
 	<listitem>
 	<informalfigure>
 	<mediaobject>
@@ -119,7 +119,7 @@ element of the first rule in detail. </para>
 </varlistentry>
 
 <varlistentry>
-	<term>Class constants: <code>X::$y</code></term>
+	<term>Class constants: ``X::$y``</term>
 	<listitem>
 	<informalfigure>
 	<mediaobject>
@@ -128,14 +128,14 @@ element of the first rule in detail. </para>
 	</imageobject>
 	</mediaobject>
 	</informalfigure>
-	<para>Again, the variable name is <code>y</code>, not <code>$y</code>. The
-	fact that you must write <code>$x-&gt;y</code> but <code>X::$y</code> in
+	<para>Again, the variable name is ``y``, not ``$y``. The
+	fact that you must write ``$x-&gt;y`` but ``X::$y`` in
 	PHP disappears in the abstract syntax.</para>
 	</listitem>
 </varlistentry>
 
 <varlistentry>
-	<term>Variable variables: <code>$$x</code></term>
+	<term>Variable variables: ``$$x``</term>
 	<listitem>
 	<informalfigure>
 	<mediaobject>
@@ -150,7 +150,7 @@ element of the first rule in detail. </para>
 </varlistentry>
 
 <varlistentry>
-	<term>Object attributes: <code>$x-&gt;y</code></term>
+	<term>Object attributes: ``$x-&gt;y``</term>
 	<listitem>
 	<informalfigure>
 	<mediaobject>
@@ -164,7 +164,7 @@ element of the first rule in detail. </para>
 </varlistentry>
 
 <varlistentry>
-	<term>Variable object attributes: <code>$x-&gt;$y</code></term>
+	<term>Variable object attributes: ``$x-&gt;$y``</term>
 	<listitem>
 	<informalfigure>
 	<mediaobject>
@@ -187,28 +187,28 @@ element of the first rule in detail. </para>
 
 <para>
 	A number of nodes in the AST are dedicated &ldquo;commented nodes&rdquo;.
-	Their corresponding C++ classes inherit from <code>Commented_node</code>,
-	which introduces a <code>String_list*</code> attribute called
-	<code>comments</code>.  The commented nodes are class members
-	(<code>Member</code>), statements (<code>Statement</code>), interface and
-	class definitions (<code>Interface_def</code>, <code>Class_def</code>),
-	switch cases (<code>Switch_case</code>) and catches (<code>Catch</code>).
+	Their corresponding C++ classes inherit from ``Commented_node``,
+	which introduces a ``String_list*`` attribute called
+	``comments``.  The commented nodes are class members
+	(``Member``), statements (``Statement``), interface and
+	class definitions (``Interface_def``, ``Class_def``),
+	switch cases (``Switch_case``) and catches (``Catch``).
 </para>
 
 <para>
 	When the parser encounters a comment in the input, it attaches it either to
 	the previous node in the AST, or to the next, according to a variable
-	<code>attach_to_previous</code>. This variable is set as follows: 
+	``attach_to_previous``. This variable is set as follows: 
 </para>
 
 <itemizedlist>
 	<listitem><para>
-		It is reset to <code>false</code> at the start of each
+		It is reset to ``false`` at the start of each
 		line
 	</para></listitem>
 	<listitem><para>
-		It is set to <code>true</code> after seeing a semicolon, or either of the
-		keywords <code>class</code> or <code>function</code>
+		It is set to ``true`` after seeing a semicolon, or either of the
+		keywords ``class`` or ``function``
 	</para></listitem>
 </itemizedlist>
 
@@ -220,8 +220,8 @@ foo();
 bar();
 </programlisting>
 
-<para> the comment gets attached to <code>bar();</code> (to be precise, to the
-corresponding <code>Eval_expr</code> node; the function call itself is an
+<para> the comment gets attached to ``bar();`` (to be precise, to the
+corresponding ``Eval_expr`` node; the function call itself is an
 expression and &phc does not associate comments with expressions), but in
 </para>
 
@@ -230,7 +230,7 @@ foo(); <emphasis>// Comment</emphasis>
 bar();
 </programlisting>
 
-<para> the comment gets attached to <code>foo();</code> instead. The same
+<para> the comment gets attached to ``foo();`` instead. The same
 applies to multiple comments:	 </para>
 
 <programlisting>
@@ -240,9 +240,9 @@ foo(); <emphasis>/* A */</emphasis> <emphasis>/* B */</emphasis>
 bar();
 </programlisting>
 
-<para> In this snippet, <code>A</code> and <code>B</code> get attached to
-<code>foo();</code>, but <code>C</code> and <code>D</code> get attached to
-<code>bar();</code>. Also, in the following snippet, </para>
+<para> In this snippet, ``A`` and ``B`` get attached to
+``foo();``, but ``C`` and ``D`` get attached to
+``bar();``. Also, in the following snippet, </para>
 			
 <programlisting>
 <emphasis>// Comment</emphasis>
@@ -290,9 +290,9 @@ like</para>
 </section>
 <section>
 
-<title><code>elseif</code></title>
+<title>``elseif``</title>
 
-<para>The abstract grammar does not have a construct for <code>elseif</code>.
+<para>The abstract grammar does not have a construct for ``elseif``.
 The following PHP code</para>
 
 <programlisting>
@@ -322,7 +322,7 @@ The following PHP code</para>
 ?&gt;
 </programlisting>
 
-<para>The higher the number of <code>elseif</code>s, the greater the level of
+<para>The higher the number of ``elseif``s, the greater the level of
 nesting. This transformation is &ldquo;hidden&rdquo; by the unparser.</para>
 
 </section>
@@ -334,21 +334,21 @@ nesting. This transformation is &ldquo;hidden&rdquo; by the unparser.</para>
 
 	<listitem><para>
 		Fragments of inline HTML become arguments to a function call to
-		<code>echo</code>.
+		``echo``.
 	</para></listitem>
 
 	<listitem><para>
-		The keywords <code>use</code>, <code>require</code>,
-		<code>require_once</code>, <code>include</code>,
-		<code>include_once</code>, <code>isset</code> and <code>empty</code> all
+		The keywords ``use``, ``require``,
+		``require_once``, ``include``,
+		``include_once``, ``isset`` and ``empty`` all
 		get translated into a function call to a function with the same name as
 		the keyword.
 	</para></listitem>
 
 	<listitem><para>
-		<code>exit</code> also becomes a call to the function <code>exit</code>;
-		<code>exit;</code> and <code>exit();</code> are interpreted as
-		<code>exit(0)</code>
+		``exit`` also becomes a call to the function ``exit``;
+		``exit;`` and ``exit();`` are interpreted as
+		``exit(0)``
 	</para></listitem>
 
 </itemizedlist>
@@ -406,8 +406,8 @@ $g->greet("TACS");
 
 <para>
 	Not only is the number of concepts used in the tree much larger
-	(<code>base_variable_with_function_calls</code>,
-	<code>reference_variable</code>, <code>variable_property</code>, etc. etc.),
+	(``base_variable_with_function_calls``,
+	``reference_variable``, ``variable_property``, etc. etc.),
 	the concepts used in the &phc tree map directly to constructs in the PHP
 	language; that does not hold true for the PHP tree. Moreover, the fact that
 	this expression is a method invocation (function call) is immediately

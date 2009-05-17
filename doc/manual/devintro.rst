@@ -58,11 +58,11 @@
 
 <itemizedlist>
 	<listitem><para>
-		<code>flex</code> if you need to modify the lexical
+		``flex`` if you need to modify the lexical
 		analyser
 	</para></listitem>
 	<listitem><para>
-		<code>bison</code> if you need to modify the parser
+		``bison`` if you need to modify the parser
 	</para></listitem>
 	<listitem><para>
 		<ulink url="http://www.maketea.org">maketea</ulink> if you want to modify
@@ -95,12 +95,12 @@
 	<listitem>
 		<para>Development: For developing &phc or debugging &phc problems, it is
 		worthwhile to have debugging symbols and leak checkers enabled.</para>
-		<para><code>CFLAGS="-O0 -ggdb3" ./configure --enable-debug --enable-maintainer-zts --enable-embed</code></para>
+		<para>``CFLAGS="-O0 -ggdb3" ./configure --enable-debug --enable-maintainer-zts --enable-embed``</para>
 	</listitem>
 
 	<listitem>
 		<para>Deployment: For performance, optimization should be used:</para>
-		<para><code>CFLAGS="-O3 -g" ./configure --enable-embed</code></para>
+		<para>``CFLAGS="-O3 -g" ./configure --enable-embed``</para>
 	</listitem>
 
 	<listitem>
@@ -108,7 +108,7 @@
 		should be compiled with -O3. The are also some options required to run
 		some benchmarks. The prefix is supplied to correspond to benchmarking
 		scripts we provide:</para>
-		<para><code>CFLAGS="-O3 -DNDEBUG" ./configure --enable-embed --enable-bcmath --with-gmp --prefix=/usr/local/php-opt</code></para>
+		<para>``CFLAGS="-O3 -DNDEBUG" ./configure --enable-embed --enable-bcmath --with-gmp --prefix=/usr/local/php-opt``</para>
 	</listitem>
 
 </itemizedlist>
@@ -161,8 +161,8 @@
 
 <title>The Transform</title>
 
-<para> Suppose we want to rename function <code>foo</code> to
-<code>bar</code>. This is done by the following plugin: </para>
+<para> Suppose we want to rename function ``foo`` to
+``bar``. This is done by the following plugin: </para>
 
 <programlisting>
 <reserved>#include</reserved> "AST_visitor.h"
@@ -209,7 +209,7 @@
 </programlisting>
 
 <para> where the name of the function has been changed, while the name of the
-variable remained unaltered, as has the text <code>"foo"</code> inside
+variable remained unaltered, as has the text ``"foo"`` inside
 the string. It's that simple! Of course, in this example, it would
 have been quicker to do it by hand, but that's not the point; the
 example shows how easy it is to operate on PHP scripts within the
@@ -234,20 +234,20 @@ script.</para>
 
 <para><xref linkend="treetutorial2" endterm="treetutorial2.title"> shows how
 you can modify nodes in the tree (without modifying the structure of the tree).
-It shows how to replace calls to <code>mysql_connect</code> by calls to
-<code>dbx_connect</code>.</para>
+It shows how to replace calls to ``mysql_connect`` by calls to
+``dbx_connect``.</para>
 
 <para><xref linkend="treetutorial3" endterm="treetutorial3.title"> shows how
 you can modify the structure of the tree. It works through an example that
-removes unnecessary string concatenations (for example, <code>$a .  ""</code>
-is replaced by just <code>$a</code>).</para>	
+removes unnecessary string concatenations (for example, ``$a .  ""``
+is replaced by just ``$a``).</para>	
 
 <para><xref linkend="treetutorial4" endterm="treetutorial4.title"> explains an
 advanced features of pattern matching, and shows an important technique: the
 use of state in transformations (where one transformation depends on a previous
 transformation). It shows how to write a program that renames all functions
-<code>foo</code> in a script to <code>db_foo</code>, if there are calls to a
-database engine within <code>foo</code>.</para>
+``foo`` in a script to ``db_foo``, if there are calls to a
+database engine within ``foo``.</para>
 
 <para><xref linkend="treetutorial5" endterm="treetutorial5.title"> explains how
 to change the order in which the children of a node are visited, avoid visiting

@@ -10,16 +10,16 @@
 	we are continuing the refactoring tool that we began in <xref
 	linkend="treetutorial2">, and suppose that we have replaced all calls to
 	database specific functions by calls to the generic DBX functions. To finish
-	the refactoring, we want to rename any function <code>foo</code> in the
-	script to <code>foo_DB</code>, if it makes use of the database &mdash; this
+	the refactoring, we want to rename any function ``foo`` in the
+	script to ``foo_DB``, if it makes use of the database &mdash; this
 	clearly sets functions that use the database apart, which may make the
 	structure of the script clearer.  
 </para>
 
 <para>
-	So, we want to write a transform that renames all functions <code>foo</code>
-	to <code>foo_DB</code>, if there is one or more call within that function to
-	any <code>dbx_</code><emphasis>something</emphasis> function.  Here is a
+	So, we want to write a transform that renames all functions ``foo``
+	to ``foo_DB``, if there is one or more call within that function to
+	any ``dbx_``<emphasis>something</emphasis> function.  Here is a
 	simple example: 
 </para>
 
@@ -64,26 +64,26 @@
 
 <para>
 	Since we have to modify method (function) names, the nodes we are interested
-	in are the nodes of type <code>Method</code>. However, how do we know when
+	in are the nodes of type ``Method``. However, how do we know when
 	to modify a particular method? Should we search the method body for function
-	calls to <code>dbx_</code><emphasis>xxx</emphasis>? As we saw in <xref
+	calls to ``dbx_``<emphasis>xxx</emphasis>? As we saw in <xref
 	linkend="treetutorial1">, manual searching through the tree is cumbersome;
 	there must be a better solution. 
 </para> 
 
 <para>
 	The solution is in fact very easy. At the start of each method, we set a
-	variable <code>uses_dbx</code> to <code>false</code>. When we process the
-	method, we set <code>uses_dbx</code> to <code>true</code> when we find a
+	variable ``uses_dbx`` to ``false``. When we process the
+	method, we set ``uses_dbx`` to ``true`` when we find a
 	function call to a DBX function.  Then at the end of the method, we check
-	<code>uses_dbx</code>; if it was set to <code>true</code>, we modify the
+	``uses_dbx``; if it was set to ``true``, we modify the
 	name of the method.  This tactic is implement by the following transform
 	(available as <filename>plugins/tutorials/InsertDB.la</filename> in the
-	&phc; distribution). Note the use of <code>pre_method</code> and
-	<code>post_method</code> to initialise and check <code>use_dbx</code>,
+	&phc; distribution). Note the use of ``pre_method`` and
+	``post_method`` to initialise and check ``use_dbx``,
 	respectively. (Because we don't need to modify the structure of the tree in
-	this transform, we use the simpler <code>AST_visitor</code> API instead of
-	the <code>AST_transform</code> API.) 
+	this transform, we use the simpler ``AST_visitor`` API instead of
+	the ``AST_transform`` API.) 
 </para>
 
 <programlisting>
@@ -120,7 +120,7 @@
 
 <para>
 	In <xref linkend="treetutorial2">, we simply wanted to check for a
-	particular function name, and we used <code>match</code> to do this: 
+	particular function name, and we used ``match`` to do this: 
 </para>
      
 <programlisting>
@@ -128,18 +128,18 @@
 </programlisting>
 
 <para>
-	Here, we need to check for method names that start with <code>dbx_</code>.
-	We use the STL method <code>find</code> to do this, but we cannot call this
-	directly on <code>in-&gt;method_name</code> because
-	<code>in-&gt;method_name</code> has type <code>Method_name</code> (could
-	either be a <code>METHOD_NAME</code> or a <code>Reflection</code> node).
-	However, calling <code>match</code> on a pattern has the side effect of
-	setting the <code>value</code> to point to the node that was matched by the
+	Here, we need to check for method names that start with ``dbx_``.
+	We use the STL method ``find`` to do this, but we cannot call this
+	directly on ``in-&gt;method_name`` because
+	``in-&gt;method_name`` has type ``Method_name`` (could
+	either be a ``METHOD_NAME`` or a ``Reflection`` node).
+	However, calling ``match`` on a pattern has the side effect of
+	setting the ``value`` to point to the node that was matched by the
 	wildcard. So, if the match succeeds, we know that the name of the method
-	must have been a <code>METHOD_NAME</code>, and we can access this name by
-	accessing <code>pattern-&gt;value</code>
-	(<code>pattern-&gt;value-&gt;value</code> is the value field of the
-	<code>METHOD_NAME</code> itself, i.e., the actual string that stores the
+	must have been a ``METHOD_NAME``, and we can access this name by
+	accessing ``pattern-&gt;value``
+	(``pattern-&gt;value-&gt;value`` is the value field of the
+	``METHOD_NAME`` itself, i.e., the actual string that stores the
 	name of the method.) 
 </para>
 

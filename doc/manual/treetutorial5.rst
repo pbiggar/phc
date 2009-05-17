@@ -7,10 +7,10 @@
 <para>
 	As explained in the previous tutorials (in particular, <xref
 	linkend="treetutorial1" endterm="treetutorial1.title">), when a
-	<code>AST_visitor</code> traverses a tree, it first calls
-	<code>pre_xxx</code> for a node of type <emphasis>xxx</emphasis>, it then
+	``AST_visitor`` traverses a tree, it first calls
+	``pre_xxx`` for a node of type <emphasis>xxx</emphasis>, it then
 	visits all the children of the node, and finally it calls
-	<code>post_xxx</code> on the node.  For many transforms, this is sufficient
+	``post_xxx`` on the node.  For many transforms, this is sufficient
 	&mdash; but not for all. Consider the following transform. Suppose we want
 	to add comments to the <emphasis>true</emphasis> and
 	<emphasis>false</emphasis> branches of an <emphasis>if</emphasis>-statement,
@@ -49,21 +49,21 @@
 
 <para>
 	This appears to be a simple transform. One way to do implement it would be
-	to introduce a flag <code>comment</code> that is set to <code>true</code>
-	when we encounter an <code>If</code> (i.e., in <code>pre_if</code>). Then in
-	<code>post_statement</code> we could check for this flag, and if it is set,
+	to introduce a flag ``comment`` that is set to ``true``
+	when we encounter an ``If`` (i.e., in ``pre_if``). Then in
+	``post_statement`` we could check for this flag, and if it is set,
 	we could add the required comment to the statement, and reset the flag to
-	<code>false</code>.  
+	``false``.  
 </para>
 
 <para>
 	However, this will only add a comment to the first statement in the
 	<emphasis>true</emphasis> branch (try it!). To add a comment to the first
 	statement in the <emphasis>false</emphasis> branch too, we should set the
-	flag to <code>true</code> in between visiting the children of the
+	flag to ``true`` in between visiting the children of the
 	<emphasis>true</emphasis> branch and visiting the children of the
 	<emphasis>false</emphasis> branch. To be able to do this, we need to modify
-	<code>children_if</code>, as explained in the next section. 
+	``children_if``, as explained in the next section. 
 </para>
 
 </section>
@@ -73,9 +73,9 @@
 
 <para>
 	For every AST node type <emphasis>xxx</emphasis>, the AST Transform API
-	defines a method called <code>children_xxx</code>. This method is
+	defines a method called ``children_xxx``. This method is
 	responsible for visiting all the children of the node. The default
-	implementation for <code>If</code> is: 
+	implementation for ``If`` is: 
 </para>
 
 <programlisting>

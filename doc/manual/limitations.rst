@@ -59,7 +59,7 @@ comment, it outputs something like </para>
 welcome :-) </para>
 
 <para> Second, it is not currently possible to associate a comment with
-the <code>else</code>-clause of an <code>if</code>-statement. Thus, in
+the ``else``-clause of an ``if``-statement. Thus, in
 </para>
 
 <programlisting>
@@ -77,10 +77,10 @@ the <code>else</code>-clause of an <code>if</code>-statement. Thus, in
 ?&gt;
 </programlisting>
 
-<para> Comment 2 will be associated with the call to <code>bar</code>
-(but Comment 1 will be associated with the <code>if</code>-statement
+<para> Comment 2 will be associated with the call to ``bar``
+(but Comment 1 will be associated with the ``if``-statement
 itself). A similar problem occurs with comments for
-<code>elseif</code> statements. </para>
+``elseif`` statements. </para>
 
 <para> Finally, if a scope ends on a comment, that comment will be associated with the wrong node. For example, in </para>
 
@@ -99,7 +99,7 @@ itself). A similar problem occurs with comments for
 ?&gt;
 </programlisting>
 
-<para>the comment will be associated with the <code>echo "World"</code>
+<para>the comment will be associated with the ``echo "World"``
 statement. A similar problem occurs when a script ends on a comment;
 that comment will not be lost, but will be associated with the last
 node in the script. </para>
@@ -110,7 +110,7 @@ node in the script. </para>
 <title> Numbers </title>
 
 <para>
-	PHP accepts invalid octal numbers such as <code>01090</code>; the
+	PHP accepts invalid octal numbers such as ``01090``; the
 	&ldquo;incorrect tail&rdquo; is silently ignored (so, this number should
 	evaluate to 8 decimal). The &phc lexical analyser will generate an
 	&ldquo;invalid token&rdquo; instead which will result in a syntax error.
@@ -145,7 +145,7 @@ node in the script. </para>
 </screen>
 
 <para>
-	In the former, <code>x</code> is only declared when its declaration is
+	In the former, ``x`` is only declared when its declaration is
 	executed. In the latter, it is declared as soon as the program starts.
 </para>
 

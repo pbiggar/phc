@@ -13,7 +13,7 @@
 
 <para>
 	The transform that we will be considering in this tutorial is one that is
-	used in &phc itself. The transform is called <code>Remove_concat_null</code>
+	used in &phc itself. The transform is called ``Remove_concat_null``
 	and can be found in
 	<filename>src/process_ast/Remove_concat_null.h</filename>. The purpose of
 	the transform is to remove string concatenation with the empty string. For
@@ -71,23 +71,23 @@ $a = "foo " . $b . "";
 
 <para>
 	Obviously, the second concatenation is unnecessary, and the
-	<code>Remove_concat_null</code> transform cleans this up. In this tutorial
+	``Remove_concat_null`` transform cleans this up. In this tutorial
 	we will explain how this transform can be written. 
 </para>
 
 </section>
 <section>
 
-<title> Introducing the <code>Tree_transform</code> API </title>
+<title> Introducing the ``Tree_transform`` API </title>
 
 <para>
 	Concatenation is a binary operator, so we are interested in nodes of type
-	<code>Bin_op</code>. If you check the grammar, or, alternatively,
+	``Bin_op``. If you check the grammar, or, alternatively,
 	<filename>src/generated/AST.h</filename>, you will find that
-	<code>Bin_op</code> has three attributes: a <code>left</code> and a
-	<code>right</code> expression (of type <code>Expr</code>) and the operator
-	itself (<code>OP* op</code>). Thus, we are interested in nodes of type
-	<code>Bin_op</code> whose <code>op</code> equals the single dot (for string
+	``Bin_op`` has three attributes: a ``left`` and a
+	``right`` expression (of type ``Expr``) and the operator
+	itself (``OP* op``). Thus, we are interested in nodes of type
+	``Bin_op`` whose ``op`` equals the single dot (for string
 	concatenation). 
 </para>
 
@@ -111,13 +111,13 @@ $a = "foo " . $b . "";
 </programlisting>
 
 <para>
-	The problem is, what are we going to do inside the <code>if</code>? Tree
-	visitors can only inspect and modify <code>*in</code>; they cannot
-	restructure the tree. In particular, we cannot replace <code>*in</code> by a
+	The problem is, what are we going to do inside the ``if``? Tree
+	visitors can only inspect and modify ``*in``; they cannot
+	restructure the tree. In particular, we cannot replace ``*in`` by a
 	new node. For this purpose, &phc offers a separate API, the tree
 	<emphasis>transformation</emphasis> API. It looks very similar to the tree
 	visitor API, but there are two important differences. First, the
-	<code>pre</code> and <code>post</code> methods can modify the structure of
+	``pre`` and ``post`` methods can modify the structure of
 	the tree by returning new nodes. Second, there are no &ldquo;generic&rdquo;
 	methods in the tree transform API. So, it is not possible to define a
 	transformation that would replace all statements by something else. (It is
@@ -126,7 +126,7 @@ $a = "foo " . $b . "";
 
 <para>
 	So, we need to write our transformation using the
-	<code>Tree_transform</code> API, defined in
+	``Tree_transform`` API, defined in
 	<filename>AST_transform.h</filename>. Restructuring the class above yields
 </para>
 
@@ -147,9 +147,9 @@ $a = "foo " . $b . "";
 			
 <para>
 	The differences between the previous version have been highlighted. We
-	inherit from a different class, and <code>pre_bin_op</code> now has a return
-	value, which is the node that will replace <code>*in</code>. If you check
-	the default implementation of <code>pre_bin_op</code> in
+	inherit from a different class, and ``pre_bin_op`` now has a return
+	value, which is the node that will replace ``*in``. If you check
+	the default implementation of ``pre_bin_op`` in
 	<filename>AST_transform.cpp</filename>, you'll find: 
 </para>
 
@@ -161,20 +161,20 @@ Expr* Transform::pre_bin_op(Bin_op* in)
 </programlisting>
 			
 <para>
-	The <code>return in;</code> is very important; as we mentioned before, the
-	return value of <code>pre_bin_op</code> will replace <code>*in</code> in the
-	tree. Therefore, if we don't want to replace <code>*in</code>, or perhaps if
-	we want to replace <code>*in</code> only if a particular condition holds, we
-	must return <code>in</code>. This will replace <code>*in</code> by
-	<code>in</code> itself. 
+	The ``return in;`` is very important; as we mentioned before, the
+	return value of ``pre_bin_op`` will replace ``*in`` in the
+	tree. Therefore, if we don't want to replace ``*in``, or perhaps if
+	we want to replace ``*in`` only if a particular condition holds, we
+	must return ``in``. This will replace ``*in`` by
+	``in`` itself. 
 </para>
 
 <para>
-	The second thing to note is that the return type of <code>pre_bin_op</code>
-	is <code>Expr</code> instead of <code>Bin_op</code>. This means that we can
+	The second thing to note is that the return type of ``pre_bin_op``
+	is ``Expr`` instead of ``Bin_op``. This means that we can
 	replace a binary operator node by another other expression node. The <xref
 	linkend="maketeatheory" endterm="maketeatheory.title"> explains exactly how
-	the signatures for the <code>pre</code> and <code>post</code> methods are
+	the signatures for the ``pre`` and ``post`` methods are
 	derived, but in most cases they are what you'd expect.  The easiest way to
 	check is to simply look them up in
 	<filename>&lt;AST_transform.h&gt;</filename>. 
@@ -216,10 +216,10 @@ Expr* Transform::pre_bin_op(Bin_op* in)
 </programlisting>
 
 <para>
-	We already explained what <code>match</code> does in <xref
+	We already explained what ``match`` does in <xref
 	linkend="treetutorial2">, but we have not yet explained the use of
-	wildcards. If you are using a wildcard (<code>WILDCARD</code>) in a pattern
-	passed to <code>match</code>, <code>match</code> will not take that subtree
+	wildcards. If you are using a wildcard (``WILDCARD``) in a pattern
+	passed to ``match``, ``match`` will not take that subtree
 	into account. Thus, 
 </para> 
 	
@@ -228,11 +228,11 @@ Expr* Transform::pre_bin_op(Bin_op* in)
 </programlisting>
 			
 <para>
-	can be paraphrased as &ldquo;is <code>in</code> a binary operator with the
-	empty string as the left operand and <code>"."</code> as the operator (I
+	can be paraphrased as &ldquo;is ``in`` a binary operator with the
+	empty string as the left operand and ``"."`` as the operator (I
 	don't care about the right operand)?&ldquo; If the match succeeded, you can
 	find out which expression was matched by the wildcard by accessing
-	<code>wildcard->value</code>. 
+	``wildcard->value``. 
 </para>
 
 </section>
@@ -242,7 +242,7 @@ Expr* Transform::pre_bin_op(Bin_op* in)
 
 <para>
 	Recall from the previous two tutorials that visitors are run with a call to
-	<code>visit</code>: 
+	``visit``: 
 </para>
 
 <programlisting>
@@ -254,7 +254,7 @@ Expr* Transform::pre_bin_op(Bin_op* in)
 </programlisting>
 
 <para> Likewise, transformations are run with a call to 
-<code>transform_children</code>: </para>
+``transform_children``: </para>
 
 <programlisting>
 <reserved>extern</reserved> "C" <reserved>void</reserved> run_ast (PHP_script* in, Pass_manager* pm, String* option)
@@ -265,8 +265,8 @@ Expr* Transform::pre_bin_op(Bin_op* in)
 </programlisting>
 
 <para>
-	We invoke <code>transform_children</code> because we should not replace the
-	top-level node in the AST (the <code>PHP_script</code> node itself).
+	We invoke ``transform_children`` because we should not replace the
+	top-level node in the AST (the ``PHP_script`` node itself).
 </para> 
 
 </section>
@@ -294,11 +294,11 @@ Expr* Transform::pre_bin_op(Bin_op* in)
 <para>
 	The first binary operator we encounter is the second one (get &phc to print
 	the tree if you don't see why.) So, we apply the transform and replace the
-	operator by its left operand, which happens to be <code>("" . $a)</code>.
+	operator by its left operand, which happens to be ``("" . $a)``.
 	We then continue <emphasis>and transform the children of the that
 	node</emphasis>, because that is how the tree transform API is defined. But
-	the <emphasis>children</emphasis> of that node are <code>""</code> and
-	<code>$a</code>. So, that means that the other binary operator itself will
+	the <emphasis>children</emphasis> of that node are ``""`` and
+	``$a``. So, that means that the other binary operator itself will
 	never be processed! 
 </para>
 
@@ -316,7 +316,7 @@ Expr* Transform::pre_bin_op(Bin_op* in)
 	The second solution is to use a pre-transform, but explicitly tell &phc; to
 	transform the new node in turn.  This is the less elegant solution, but
 	sometimes this is the only solution that will work (see for example the
-	<code>Token_conversion</code> transform in the
+	``Token_conversion`` transform in the
 	<filename>src/process_ast/Token_conversion.cpp</filename>). To do this, you
 	would replace 
 </para>

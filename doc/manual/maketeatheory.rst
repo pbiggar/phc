@@ -35,53 +35,53 @@
 	symbols</emphasis> and <emphasis>markers</emphasis>.  Non-terminal symbols
 	have the same function in our formalism as in the usual BNF formalism, and
 	will not be further explained. We denote non-terminal symbols in lower case
-	in the grammar (e.g., <code>expr</code>).  
+	in the grammar (e.g., ``expr``).  
 </para>
 
 <para>
 	The distinction between terminal symbols and markers is non-standard.
 	Markers have no semantic value other than their presence; an example is
-	<code>"abstract"</code>. Thus, the semantic value of a marker is a boolean
+	``"abstract"``. Thus, the semantic value of a marker is a boolean
 	value; it is either there, or it is not (note that this is different from a
 	symbol such as the semi-colon, which has <emphasis>no</emphasis> semantic
 	value whatsoever, and thus does not need to be included in an abstract
 	syntax tree).  Conversely, the semantic value of a <emphasis>terminal
 	symbol</emphasis> is an arbitrary value; an example is
-	<code>CLASS_NAME</code> (the structure of a terminal symbol may be defined
+	``CLASS_NAME`` (the structure of a terminal symbol may be defined
 	by a regular expression; this is irrelevant as far as the abstract grammar
-	is concerned). We denote markers in quotes (<code>"abstract"</code>), and
-	terminal symbols in capitals (<code>CLASS_NAME</code>).  
+	is concerned). We denote markers in quotes (``"abstract"``), and
+	terminal symbols in capitals (``CLASS_NAME``).  
 </para>
 
 <para>
-	Each non-terminal symbol <code>aa</code> will have a single production in the
-	grammar.  Instances of <code>aa</code> in the AST will be represented by a
-	class called <code>Aa</code>.  The attributes of <code>Aa</code> will
-	depend on the production for <code>aa</code> (see below). 
+	Each non-terminal symbol ``aa`` will have a single production in the
+	grammar.  Instances of ``aa`` in the AST will be represented by a
+	class called ``Aa``.  The attributes of ``Aa`` will
+	depend on the production for ``aa`` (see below). 
 </para>
 
 <para>
-	A terminal symbol <code>xx</code> will be represented by a class
-	<code>XX</code>. Every token class gets an attribute called
-	<code>value</code>. The type of this attribute depends on the token; for
-	most tokens it is <code>String*</code> (this is the default); however, if
+	A terminal symbol ``xx`` will be represented by a class
+	``XX``. Every token class gets an attribute called
+	``value``. The type of this attribute depends on the token; for
+	most tokens it is ``String*`` (this is the default); however, if
 	the grammar explicitely specifies a type for the value (in angular brackets,
-	for example <code>REAL&lt;double&gt;</code>), this overrides the default. If
-	the type of the <code>value</code> attribute it set to be empty, the token
+	for example ``REAL&lt;double&gt;``), this overrides the default. If
+	the type of the ``value`` attribute it set to be empty, the token
 	class does not get a value.
 	</para>
 
 <para>
 	Finally, a marker will not be represented by a specialised class.  Instead,
-	a marker <code>"foo"</code> may <emphasis>only</emphasis> appear as an
-	optional symbol in a production rule (<code>a ::= ... "foo"? ...</code>),
-	and will appear as a boolean attribute <code>is_foo</code> in the class
-	representing <code>aa</code> (<code>Aa</code>).  
+	a marker ``"foo"`` may <emphasis>only</emphasis> appear as an
+	optional symbol in a production rule (``a ::= ... "foo"? ...``),
+	and will appear as a boolean attribute ``is_foo`` in the class
+	representing ``aa`` (``Aa``).  
 </para>
 
 <para>
 	There are only two types of rules in the grammar. The first is the simplest,
-	and list a number of alternatives for a non-terminal symbol <code>aa</code>:
+	and list a number of alternatives for a non-terminal symbol ``aa``:
 </para>
 
 <programlisting>
@@ -90,15 +90,15 @@ aa ::= b | c | ... | z
 
 <!-- TODO: these can be Terminals too -->
 <para>
-	Here, each of <code>b</code>, <code>c</code>, ..., <code>z</code> must be a
+	Here, each of ``b``, ``c``, ..., ``z`` must be a
 	single non-terminal symbol.  This rule results in a (usually) empty
-	<code>class Aa {}</code>, which acts as a superclass for the classes for
-	<code>b</code>, <code>c</code>, ..., <code>z</code>. This reflects the
-	semantics of the rule (a <code>b</code> <emphasis>is</emphasis> an
-	<code>a</code>); if there are multiple rules <code>aa ::= c|...</code>,
-	<code>b ::= c|...</code>, class <code>C</code> will inherit from both
-	<code>Aa</code> and <code>B</code>. This type of rule is exemplified
-	by the production for <code>Statement</code> in the grammar. There is one
+	``class Aa {}``, which acts as a superclass for the classes for
+	``b``, ``c``, ..., ``z``. This reflects the
+	semantics of the rule (a ``b`` <emphasis>is</emphasis> an
+	``a``); if there are multiple rules ``aa ::= c|...``,
+	``b ::= c|...``, class ``C`` will inherit from both
+	``Aa`` and ``B``. This type of rule is exemplified
+	by the production for ``Statement`` in the grammar. There is one
 	additional requirement for disjunction rules, which will be explained in the
 	section on context resolution, below.  
 </para>
@@ -112,27 +112,27 @@ aa ::= b c ... z
 </programlisting>
 
 <para>
-	In this rule, each of the <code>b</code>, <code>c</code>, ...,
-	<code>z</code> is an arbitrary symbol (non-terminal, terminal or marker),
-	which may be optional (<code>b?</code>) or repeated (<code>b*</code> or
-	<code>b+</code>). This type of rule must not include any disjunctions
-	(<code>b|c</code>), and only single symbols can be repeated (no grouping).
-	If a symbol <code>b</code> can be repeated, it will be represented by a
-	specialised list class <code>B_list</code> (which inherits from the STL
-	<code>list</code> class) in the tree. In addition, the symbols may be
-	labeled (<code>label:symbol</code>). This does not add to the grammar
+	In this rule, each of the ``b``, ``c``, ...,
+	``z`` is an arbitrary symbol (non-terminal, terminal or marker),
+	which may be optional (``b?``) or repeated (``b*`` or
+	``b+``). This type of rule must not include any disjunctions
+	(``b|c``), and only single symbols can be repeated (no grouping).
+	If a symbol ``b`` can be repeated, it will be represented by a
+	specialised list class ``B_list`` (which inherits from the STL
+	``list`` class) in the tree. In addition, the symbols may be
+	labeled (``label:symbol``). This does not add to the grammar
 	structure, but explains the purpose of the symbol in the rule, and will be
 	used for the name of the attribute of the corresponding class.  The default
 	name for each class attribute depends on the corresponding type: an
-	attribute of type <code>Variable_name</code>  (corresponding to a
-	non-terminal <code>Variable_name</code>) will be called
-	<code>variable_name</code>. The default name for an attribute of type
-	<code>Foo_list</code> will be <emphasis>foos</emphasis>.  However, as
+	attribute of type ``Variable_name``  (corresponding to a
+	non-terminal ``Variable_name``) will be called
+	``variable_name``. The default name for an attribute of type
+	``Foo_list`` will be <emphasis>foos</emphasis>.  However, as
 	mentioned above, this can be overridden by specifying a label.  
 </para>
 
 <para>
-	As an example, consider the rule for <code>variable</code> in the grammar.
+	As an example, consider the rule for ``variable`` in the grammar.
 </para>
 
 <programlisting>
@@ -141,8 +141,8 @@ Variable ::= Target? Variable_name <emphasis>array_indices</emphasis>:Expr?* ;
 </programlisting>
 
 <para>
-	A <code>Variable</code> is an <code>Expr</code>, so that
-	<code>Variable</code> is represented by the class shown below.
+	A ``Variable`` is an ``Expr``, so that
+	``Variable`` is represented by the class shown below.
 </para>
 <!-- TODO: I removed a discuss about optional attributes, since string_index
 isnt supported in variable anymore. Does this need to be discussed? -->
@@ -158,16 +158,16 @@ isnt supported in variable anymore. Does this need to be discussed? -->
 </programlisting>
 
 <para>
-	A final note on combining <code>*</code> and <code>?</code>. The construct
-	<code>(a*)?</code> denotes an optional list of <code>a</code>s. Thus, it
-	will be represented by an <code>A_list</code>. If a list is specified,
+	A final note on combining ``*`` and ``?``. The construct
+	``(a*)?`` denotes an optional list of ``a``s. Thus, it
+	will be represented by an ``A_list``. If a list is specified,
 	but empty, the list will simply contain no elements. If the list is not
 	specified at all, the list will be NULL. This is used, for example, to
 	distinguish between methods that contain no statements and abstract methods.
-	Similarly, <code>(a?)*</code> is a (non-optional) list of optional
-	<code>a</code>s. Thus, this is a list, but elements of the list may be NULL.
-	This is used for example to denote empty array indices (<code>a[]</code>) in
-	the rule for <code>Variable</code>.  
+	Similarly, ``(a?)*`` is a (non-optional) list of optional
+	``a``s. Thus, this is a list, but elements of the list may be NULL.
+	This is used for example to denote empty array indices (``a[]``) in
+	the rule for ``Variable``.  
 </para>
 
 </section>
@@ -260,16 +260,16 @@ some_concrete_rule ::= concrete1 concrete2* abstract1 abstract2*
 	So, a context is a triplet (symbol,symbol,multiplicity), where the symbols
 	are terminal or non-terminal symbols, and the multiplicity is either Single,
 	Optional, List, OptionalList or ListOptional (list of optionals).  When
-	reducing two contexts (<code>a</code>,<code>b</code>,<code>c</code>)
-	(<code>a'</code>,<code>b'</code>,<code>c'</code>), we take the meet of
-	<code>b</code> and <code>b'</code> (that is, the most general common
-	subclass of <code>b</code> and <code>b'</code>, where more general means
+	reducing two contexts (``a``,``b``,``c``)
+	(``a'``,``b'``,``c'``), we take the meet of
+	``b`` and ``b'`` (that is, the most general common
+	subclass of ``b`` and ``b'``, where more general means
 	higher up in the inheritance hierarchy), and opt for the most restrictive
 	Multiplicity (Single over Optional, Single over List, etc.). The general
 	idea is that we want the most permissive context for a non-terminal that is
-	still safe: if it is safe to replace an <code>a</code> by a list of
-	<code>b</code>s <emphasis>everywhere</emphasis> in a tree, the context we
-	want for <code>a</code> is (<code>a</code>, <code>b</code>, list). 
+	still safe: if it is safe to replace an ``a`` by a list of
+	``b``s <emphasis>everywhere</emphasis> in a tree, the context we
+	want for ``a`` is (``a``, ``b``, list). 
 </para>
 
 <para>
@@ -373,24 +373,24 @@ e ::= c*
 </programlisting>
 
 <para>
-	However, this is incorrect, because this indicates that an <code>a</code>
-	will only be replaced by another, single, <code>a</code>; but a
-	<code>c</code> (which is an <code>a</code>) will in fact return a list of
-	<code>c</code>s. The problem is that the non-terminals in the rule for
-	<code>a</code> have a different multiplicity in their contexts (single for
-	<code>b</code>, list for <code>c</code>). <application>maketea</application>
+	However, this is incorrect, because this indicates that an ``a``
+	will only be replaced by another, single, ``a``; but a
+	``c`` (which is an ``a``) will in fact return a list of
+	``c``s. The problem is that the non-terminals in the rule for
+	``a`` have a different multiplicity in their contexts (single for
+	``b``, list for ``c``). <application>maketea</application>
 	disallows this; if this happens in a grammar,
 	<application>maketea</application> will exit with a &ldquo;cannot deal with
 	mixed multiplicity in disjunction&rdquo; error.
 </para>
 
 <para>
-	Otherwise, for a rule <code>a ::= b1 | b2 | ...</code>, if the multiplicity
-	of <code>a</code> is list, and the multiplicities of all the <code>b</code>s
-	are lists, the multiplicity for <code>a</code> will be list; if the
-	multiplicity of all the <code>b</code>s is single, the multiplicity for
-	<code>a</code> will be set to single (independent of the original
-	multiplicity for <code>a</code>).
+	Otherwise, for a rule ``a ::= b1 | b2 | ...``, if the multiplicity
+	of ``a`` is list, and the multiplicities of all the ``b``s
+	are lists, the multiplicity for ``a`` will be list; if the
+	multiplicity of all the ``b``s is single, the multiplicity for
+	``a`` will be set to single (independent of the original
+	multiplicity for ``a``).
 </para>
 
 </section>
