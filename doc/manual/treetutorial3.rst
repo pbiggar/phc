@@ -125,7 +125,7 @@ public:
 	<emphasis>transformation</emphasis> API. It looks very similar to the tree
 	visitor API, but there are two important differences. First, the
 	``pre`` and ``post`` methods can modify the structure of
-	the tree by returning new nodes. Second, there are no &ldquo;generic&rdquo;
+	the tree by returning new nodes. Second, there are no "generic"
 	methods in the tree transform API. So, it is not possible to define a
 	transformation that would replace all statements by something else. (It is
 	not clear how that would be useful, anyway.) 
@@ -239,9 +239,9 @@ if(in->match(new Bin_op(empty, WILDCARD, ".")))
 
 			
 <para>
-	can be paraphrased as &ldquo;is ``in`` a binary operator with the
+	can be paraphrased as "is ``in`` a binary operator with the
 	empty string as the left operand and ``"."`` as the operator (I
-	don't care about the right operand)?&ldquo; If the match succeeded, you can
+	don't care about the right operand)?" If the match succeeded, you can
 	find out which expression was matched by the wildcard by accessing
 	``wildcard->value``. 
 </para>
@@ -322,7 +322,7 @@ extern "C" void run_ast (PHP_script* in, Pass_manager* pm, String* option)
 	reason out why this works, but a rule of thumb is that unless there is a
 	good reason to use a pre-transform, it's safer to use the post-transform,
 	because in the post-transform the children of the node have already been
-	transformed, so that you are looking at the &ldquo;final&rdquo; version of
+	transformed, so that you are looking at the "final" version of
 	the node. 
 </para>
 

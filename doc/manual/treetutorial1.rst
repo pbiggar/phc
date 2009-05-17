@@ -11,7 +11,7 @@
 	this tree is determined by the <xref linkend="grammar"
 	endterm="grammar.title">. We then showed how to make use of this tree to
 	count the number of statements. However, the plugin we wrote only counted
-	the &ldquo;top-level&rdquo; statements. Statements nested inside other
+	the "top-level" statements. Statements nested inside other
 	statements (for example, statements inside the true or false branch of an
 	``if`` statement) were ignored. In this tutorial, we will rectify
 	this problem and write a plugin that counts <emphasis>all</emphasis>
@@ -76,7 +76,7 @@ While ::= Expr Statement* ;
 
 
 <para>
-	The vertical bar (``|``) means &ldquo;or&rdquo;. So, a statement is
+	The vertical bar (``|``) means "or". So, a statement is
 	either an evaluation of an expression (``eval_expr``), an
 	``if`` statement, or a ``while`` statement, or..  Thus,
 	our running example is represented by the tree in <xref linkend="ifx5tree">.
@@ -113,8 +113,8 @@ While ::= Expr Statement* ;
 	The difference between statements and expressions is that a statement
 	<emphasis>does</emphasis> something (for example, a ``for``-loop
 	repeats a bunch of other statements), but an expression has a
-	<emphasis>value</emphasis>. For example, &ldquo;5&rdquo; is an expression
-	(with value 5), &ldquo;1+1&rdquo; is an expression (with value 2), etc. A
+	<emphasis>value</emphasis>. For example, "5" is an expression
+	(with value 5), "1+1" is an expression (with value 2), etc. A
 	function call is also considered an expression. The value of a function call
 is the value that the function returns. </para>
 
@@ -219,7 +219,7 @@ extern "C" void run_ast (AST::PHP_script* in, Pass_manager* pm, String* option)
 
 <para>
 	Fortunately, |phc| will do all this for you automatically! There is a
-	standard &ldquo;do-nothing&rdquo; tree traversal predefined in |phc| in the
+	standard "do-nothing" tree traversal predefined in |phc| in the
 	form of a class called ``AST::Visitor`` (defined in
 	:file:`AST_visitor.h`). ``AST::Visitor``
 	contains methods for each type of node in the tree. |phc| will automatically

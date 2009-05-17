@@ -85,7 +85,7 @@ extern Wildcard* WILDCARD;
 	This ``WILDCARD`` is the sole instance of ``Wildcard``.
 	When ``match`` encounters a reference to this object in a pattern,
 	it does two things: it skips that field in the comparison (so it acts as a
-	&ldquo;don't care&rdquo;), and it replaces the value of the field in the
+	"don't care"), and it replaces the value of the field in the
 	pattern by the value in the tree. For example, in the body of the
 	``if`` in 
 </para>

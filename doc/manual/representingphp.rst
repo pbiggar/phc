@@ -49,7 +49,7 @@ element of the first rule in detail. </para>
 		Again, as for function calls, the name of the variable may be a literal
 		``VARIABLE_NAME`` (``$x``), or be given by an
 		expression (which is wrapped up in an ``Reflection`` node).  The
-		latter possibility is referred to as &ldquo;variable-variables&rdquo; in
+		latter possibility is referred to as "variable-variables" in
 		the PHP manual.  For example, ``$$x`` is the variable whose name
 		is currently stored in (another) variable called
 		``$x``.
@@ -63,8 +63,8 @@ element of the first rule in detail. </para>
 		``$x[3][5]``. The strange construct ``(Expr?)*`` means:
 		a list of (``*``) optional (``?``) expressions. For
 		example, ``$x[4][]`` is a list of two expressions, but the
-		second expression is not given. In PHP, this means &ldquo;use the next
-		available index&rdquo;. String- and array-indexing (``$x{3}``)
+		second expression is not given. In PHP, this means "use the next
+		available index". String- and array-indexing (``$x{3}``)
 		are equivalent in PHP, so string-indexing is also represented by
 		``array_indices``.
 	</para></listitem>
@@ -114,7 +114,7 @@ element of the first rule in detail. </para>
 	</imageobject>
 	</mediaobject>
 	</informalfigure>
-	<para>(The empty array index means &ldquo;next available&rdquo; in
+	<para>(The empty array index means "next available" in
 	PHP).</para>
 	</listitem>
 </varlistentry>
@@ -187,7 +187,7 @@ element of the first rule in detail. </para>
 <title>Comments</title>
 
 <para>
-	A number of nodes in the AST are dedicated &ldquo;commented nodes&rdquo;.
+	A number of nodes in the AST are dedicated "commented nodes".
 	Their corresponding C++ classes inherit from ``Commented_node``,
 	which introduces a ``String_list*`` attribute called
 	``comments``.  The commented nodes are class members
@@ -332,7 +332,7 @@ The following PHP code</para>
 
 
 <para>The higher the number of ``elseif``s, the greater the level of
-nesting. This transformation is &ldquo;hidden&rdquo; by the unparser.</para>
+nesting. This transformation is "hidden" by the unparser.</para>
 
 </section>
 <section>

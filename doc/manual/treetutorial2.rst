@@ -52,12 +52,12 @@ Reflection ::= Expr ;
 	are only interested in the ``Method_name``. The grammar tells us
 	that a ``Method_name`` is either a ``METHOD_NAME`` or a
 	node of type ``Reflection``. If a symbol is written in CAPITALS in
-	the grammar, that means it refers to a &ldquo;token&rdquo;, a literal value.
+	the grammar, that means it refers to a "token", a literal value.
 	In this case, to an actual method name (such as ``mysql_connect``).
 	In PHP, it is also possible to call a method whose name is stored in
 	variable; in this case, the function name will be a ``Reflection``
 	node (which contains an ``Expr``). In this tutorial, we are
-	interested in &ldquo;normal&rdquo; method invocations only.  
+	interested in "normal" method invocations only.  
 </para>
 
 <para>
@@ -71,7 +71,7 @@ Reflection ::= Expr ;
 	representing the token in the source. For example, the real number
 	``5E-1`` would have ``value`` equal to the
 	(``double``) 0.5, but ``get_source_rep`` would return (the
-	``String*``) &ldquo;5E-1&rdquo;. 
+	``String*``) "5E-1". 
 </para> 
 
 <para>
@@ -120,7 +120,7 @@ extern "C" void run_ast (PHP_script* in, Pass_manager* pm, String* option)
 	``match`` compares two (sub)trees for deep equality.  There is also
 	another function called ``deep_equals``, which does nearly the same
 	thing, but there are two important differences.  ``match`` does not
-	take comments, line numbers and other &ldquo;additional&rdquo; information
+	take comments, line numbers and other "additional" information
 	into account, whereas ``deep_equals`` does. The second difference
 	is that ``match`` supports wildcards; this will be explained in
 	<xref linkend="treetutorial3">.

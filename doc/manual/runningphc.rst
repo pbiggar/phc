@@ -429,7 +429,7 @@ dotty helloworld.dot
 figure <xref linkend="helloworldtree">. </para>
 
 <figure id="helloworldtree">
-<title>Abstract syntax tree for &ldquo;Hello world&rdquo;</title>
+<title>Abstract syntax tree for "Hello world"</title>
 <mediaobject>
 <imageobject>
 <imagedata fileref="img/helloworld.jpg">

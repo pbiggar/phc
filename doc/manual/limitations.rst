@@ -115,9 +115,9 @@ node in the script. </para>
 
 <para>
 	PHP accepts invalid octal numbers such as ``01090``; the
-	&ldquo;incorrect tail&rdquo; is silently ignored (so, this number should
+	"incorrect tail" is silently ignored (so, this number should
 	evaluate to 8 decimal). The |phc| lexical analyser will generate an
-	&ldquo;invalid token&rdquo; instead which will result in a syntax error.
+	"invalid token" instead which will result in a syntax error.
 </para>
 
 </section>

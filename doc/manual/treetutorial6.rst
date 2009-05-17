@@ -214,7 +214,7 @@ public:
 	a ``Method_invocation`` (we knew that too, although of course a
 	node of type ``Eval_expr`` can contain any type of expression). The
 	method invocation has target ``NULL`` (it is not invoked on an
-	object or a class), method name &ldquo;``include``&rdquo;, and a
+	object or a class), method name "``include``", and a
 	single parameter in the parameter list that contains the name of the file we
 	are interested in. We can construct a pattern that matches this tree
 	exactly: 
@@ -277,12 +277,12 @@ public:
 
 <para>
 	We are nearly done! All that's left is to parse the file (we can use the
-	&ldquo;``filename``&rdquo; wildcard to find out which file we need
+	"``filename``" wildcard to find out which file we need
 	to include) and insert all statements into the parsed file at the point of
 	the include. Parsing PHP is hard, but of course |phc| comes with a PHP
 	parser. To use this parser, include the
 	:file:`<parsing/parse.h>` header and call
-	&ldquo;``parse``&rdquo;.  Here then is the full transform: 
+	"``parse``".  Here then is the full transform: 
 </para>  
 
 .. sourcecode::
