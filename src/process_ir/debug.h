@@ -21,6 +21,8 @@ namespace MIR { class Node; }
 #define CHECK_DEBUG() do { if (!debugging_enabled) return;} while (0)
 #define DEBUG(A) do { if (debugging_enabled) { cdebug << A << std::endl; } } while (0)
 
+void phc_pause ();
+
 extern bool debugging_enabled;
 
 /* Dump the XML for anynode to stderr. A global function. */

@@ -83,6 +83,7 @@ const char *gengetopt_args_info_full_help[] = {
   "      --dont-fail            Dont fail on error (after parsing)  (default=off)",
   "      --missed-opt           Give a warning when an optimization was missed  \n                               (default=on)",
   "      --disable=PASSNAME     Disable the pass named 'PASSNAME'",
+  "      --pause                Pause compilation at pause() statements (in phc \n                               source, not user code)  (default=off)",
   "\nMore options are available via --full-help",
     0
 };
@@ -122,7 +123,7 @@ init_help_array(void)
   gengetopt_args_info_help[29] = gengetopt_args_info_full_help[32];
   gengetopt_args_info_help[30] = gengetopt_args_info_full_help[33];
   gengetopt_args_info_help[31] = gengetopt_args_info_full_help[36];
-  gengetopt_args_info_help[32] = gengetopt_args_info_full_help[55];
+  gengetopt_args_info_help[32] = gengetopt_args_info_full_help[56];
   gengetopt_args_info_help[33] = 0; 
   
 }
@@ -198,6 +199,7 @@ void clear_given (struct gengetopt_args_info *args_info)
   args_info->dont_fail_given = 0 ;
   args_info->missed_opt_given = 0 ;
   args_info->disable_given = 0 ;
+  args_info->pause_given = 0 ;
 }
 
 static
@@ -264,6 +266,7 @@ void clear_args (struct gengetopt_args_info *args_info)
   args_info->missed_opt_flag = 1;
   args_info->disable_arg = NULL;
   args_info->disable_orig = NULL;
+  args_info->pause_flag = 0;
   
 }
 
@@ -340,6 +343,7 @@ void init_args_info(struct gengetopt_args_info *args_info)
   args_info->disable_help = gengetopt_args_info_full_help[54] ;
   args_info->disable_min = 0;
   args_info->disable_max = 0;
+  args_info->pause_help = gengetopt_args_info_full_help[55] ;
   
 }
 
@@ -621,6 +625,8 @@ cmdline_parser_dump(FILE *outfile, struct gengetopt_args_info *args_info)
   if (args_info->missed_opt_given)
     write_into_file(outfile, "missed-opt", 0, 0 );
   write_multiple_into_file(outfile, args_info->disable_given, "disable", args_info->disable_orig, 0);
+  if (args_info->pause_given)
+    write_into_file(outfile, "pause", 0, 0 );
   
 
   i = EXIT_SUCCESS;
@@ -1221,6 +1227,7 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
         { "dont-fail",	0, NULL, 0 },
         { "missed-opt",	0, NULL, 0 },
         { "disable",	1, NULL, 0 },
+        { "pause",	0, NULL, 0 },
         { NULL,	0, NULL, 0 }
       };
 
@@ -1749,6 +1756,18 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
             if (update_multiple_arg_temp(&disable_list, 
                 &(local_args_info.disable_given), optarg, 0, 0, ARG_STRING,
                 "disable", '-',
+                additional_error))
+              goto failure;
+          
+          }
+          /* Pause compilation at pause() statements (in phc source, not user code).  */
+          else if (strcmp (long_options[option_index].name, "pause") == 0)
+          {
+          
+          
+            if (update_arg((void *)&(args_info->pause_flag), 0, &(args_info->pause_given),
+                &(local_args_info.pause_given), optarg, 0, 0, ARG_FLAG,
+                check_ambiguity, override, 1, 0, "pause", '-',
                 additional_error))
               goto failure;
           

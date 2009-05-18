@@ -161,6 +161,8 @@ struct gengetopt_args_info
   unsigned int disable_min; /**< @brief Disable the pass named 'PASSNAME''s minimum occurreces */
   unsigned int disable_max; /**< @brief Disable the pass named 'PASSNAME''s maximum occurreces */
   const char *disable_help; /**< @brief Disable the pass named 'PASSNAME' help description.  */
+  int pause_flag;	/**< @brief Pause compilation at pause() statements (in phc source, not user code) (default=off).  */
+  const char *pause_help; /**< @brief Pause compilation at pause() statements (in phc source, not user code) help description.  */
   
   unsigned int help_given ;	/**< @brief Whether help was given.  */
   unsigned int full_help_given ;	/**< @brief Whether full-help was given.  */
@@ -208,6 +210,7 @@ struct gengetopt_args_info
   unsigned int dont_fail_given ;	/**< @brief Whether dont-fail was given.  */
   unsigned int missed_opt_given ;	/**< @brief Whether missed-opt was given.  */
   unsigned int disable_given ;	/**< @brief Whether disable was given.  */
+  unsigned int pause_given ;	/**< @brief Whether pause was given.  */
 
   char **inputs ; /**< @brief unamed options (options without names) */
   unsigned inputs_num ; /**< @brief unamed options number */
