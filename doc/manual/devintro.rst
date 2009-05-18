@@ -81,7 +81,7 @@ This section is intended as a quick introduction outlining what the current
 release of |phc| can do for you. It does not explain everything in detail.
 
 The Source Program
-------------------
+******************
 
 Consider the following simple PHP script.
 
@@ -108,7 +108,7 @@ shown in figure <xref linkend="ast">.
 
 
 The Transform
--------------
+*************
 
 Suppose we want to rename function :func:`foo()` to
 :func:`bar()`. This is done by the following plugin:
@@ -141,7 +141,7 @@ Suppose we want to rename function :func:`foo()` to
 
 
 The Result
-----------
+**********
 
 Running |phc| gives
 
@@ -166,7 +166,7 @@ PHP scripts within the |phc| framework.
 
 
 Writing Plugins
-===============
+---------------
 
 <xref linkend="gettingstarted" endterm="gettingstarted.title"> introduces
 writing plugins for |phc|. It then explains how |phc| represents PHP scripts
@@ -207,7 +207,7 @@ and unparsers from plugins.
 
 
 Reference
-=========
+---------
 
 |phc| represents PHP scripts internally as an abstract syntax tree. The
 structure of this tree is dictated by the <xref linkend="grammar"
