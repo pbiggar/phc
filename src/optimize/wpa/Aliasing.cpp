@@ -278,7 +278,7 @@ Aliasing::get_values (Context cx, Index_node* index)
 
 
 	// For undefined nodes, we look to the UNKNOWN node. 
-	Index_node* unknown = IN (st->storage, UNKNOWN);
+	Index_node* unknown = IN (st->for_index_node (), UNKNOWN);
 	Alias_pair* unknown_edge = ptg->get_edge (st, unknown);
 	assert (unknown_edge);
 
@@ -322,6 +322,18 @@ bool
 Aliasing::is_abstract (Context cx, Storage_node* st)
 {
 	return ins[cx]->is_abstract (st);
+}
+
+bool
+Aliasing::storage_exists (Context cx, Storage_node* st)
+{
+	return ins[cx]->has_node (st);
+}
+
+bool
+Aliasing::index_exists (Context cx, Index_node* ind)
+{
+	return ins[cx]->has_node (ind);
 }
 
 

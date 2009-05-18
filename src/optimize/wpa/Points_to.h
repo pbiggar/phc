@@ -88,10 +88,16 @@ public:
 // Represents class for arrays, objects and symtables.
 class Storage_node : public PT_node
 {
+protected:
+	// If we can touch this, we can ruin Value_node.
+	string storage;
+
 public:
 	Storage_node (string storage);
 
-	string storage;
+	// Return a string suitable to be put as the prefix of an index_name.
+	virtual string for_index_node ();
+
 
 	virtual Alias_name name ();
 
@@ -109,6 +115,8 @@ class Value_node : public Storage_node
 public:
 	Value_node (Index_node* owner);
 	Value_node (string owner);
+
+	string for_index_node ();
 
 	Alias_name name ();
 
@@ -248,6 +256,34 @@ private:
 		}
 
 		return result;
+	}
+
+	template <class T>
+	T* get_named_node (string name)
+	{
+		PT_node* result = NULL;
+
+		// There must be an edge to anything it aliases
+		
+		foreach (Alias_pair* pair, all_pairs)
+		{
+			if (pair->source->name().str () == name)
+			{
+				assert (result == NULL);
+				result = pair->source;
+			}
+
+			if (pair->target->name().str () == name)
+			{
+				assert (result == NULL);
+				result = pair->target;
+			}
+		}
+
+		assert (result);
+		assert (isa<T> (result));
+
+		return dyc<T> (result);
 	}
 
 

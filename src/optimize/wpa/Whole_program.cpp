@@ -708,6 +708,8 @@ Whole_program::analyse_block (Context cx)
 	foreach_wpa (this)
 		changed |= wpa->solution_changed (cx);
 
+	phc_pause ();
+
 	return changed;
 }
 
@@ -977,13 +979,18 @@ Whole_program::is_must (Context cx, Index_node_list* indices)
 
 	if (indices->size () > 1)
 		return false;
+
+	Index_node* index = indices->front ();
 	
-	if (indices->front()->index == UNKNOWN)
+	if (!aliasing->index_exists (cx, index))
+		return true;
+
+	if (index->index == UNKNOWN)
 		return false;
 
 
 	// Dont kill indices of ASNs
-	Storage_node* node = aliasing->get_storage (cx, indices->front ());
+	Storage_node* node = aliasing->get_storage (cx, index);
 	if (aliasing->is_abstract (cx, node))
 		return false;
 
@@ -1249,7 +1256,6 @@ Whole_program::copy_from_abstract_value (Context cx, Index_node* lhs, Index_node
 	// will be handled in a different call, and we need concern ourselves only
 	// with the absval here).
 	Storage_node* st = aliasing->get_storage (cx, rhs);
-//	Abstract_value* absval = get_abstract_value (cx, st->name());
 
 	// Get the type of the value
 	Types types = type_inf->get_types (cx, st->name());
@@ -1264,12 +1270,26 @@ Whole_program::copy_from_abstract_value (Context cx, Index_node* lhs, Index_node
 	if (scalars.size() == 0)
 		return false;
 
+
 	// TODO: if its a string, string only.
 	// TODO: if not a string, NULL only.
 	foreach_wpa (this)
 	{
-		// TODO: remove cert.
-		wpa->set_storage (cx, ABSVAL (lhs), Types ("string", "unset"));
+		if (scalars.size() == 1)
+		{
+			cdebug << scalars.front ();
+			if (scalars.has ("string"))
+			{
+				// Perhaps we know its value
+				phc_TODO ();
+				wpa->set_storage (cx, ABSVAL (lhs), Types ("string"));
+			}
+			else
+				wpa->set_storage (cx, ABSVAL (lhs), Types ("unset"));
+		}
+		else
+			wpa->set_storage (cx, ABSVAL (lhs), Types ("string", "unset"));
+
 		wpa->assign_value (cx, lhs, ABSVAL (lhs), DEFINITE);
 	}
 
@@ -1332,7 +1352,7 @@ Whole_program::copy_value (Context cx, Index_node* lhs, Index_node* rhs, certain
 			{
 				// TODO: I think these are not killed, but should be, if allowable.
 				copy_value (cx,
-						new Index_node (new_array->storage, index->index),
+						new Index_node (new_array->for_index_node (), index->index),
 						index,
 						aliasing->get_cert (cx, st, index));
 			}
@@ -1470,7 +1490,7 @@ Whole_program::get_named_indices (Context cx, Path* path, Indexing_flags flags)
 		{
 			foreach (Storage_node* pointed_to, *aliasing->get_values (cx, st_index))
 			{
-				string name = pointed_to->storage;
+				string name = pointed_to->for_index_node ();
 
 				// Implicit array/field creation
 				if (isa<Value_node> (pointed_to))
@@ -1480,11 +1500,20 @@ Whole_program::get_named_indices (Context cx, Path* path, Indexing_flags flags)
 					// Other scalars will go to NULL instead.
 					// TODO: these cases should clearly be dealt with in the caller.
 
-					name = cx.array_node ()->storage;
 
-					// TODO: i'm not very happy about this
+					// TODO: I'm not very happy about this
 					if (flags & IMPLICIT_CONVERSION)
+					{
+						name = cx.array_node ()->for_index_node ();
 						assign_empty_array (cx, p->lhs, name);
+					}
+					else
+					{
+						// Without an implicit conversion, we should be returning a
+						// value. But we can't here, so we return the storage node,
+						// and let it get handled properly by copy_value.
+					}
+
 				}
 
 				lhss.insert (name);

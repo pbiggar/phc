@@ -187,6 +187,12 @@ public:
 		return true;
 	}
 
+	_Tp front ()
+	{
+		assert (this->size ());
+		return *this->begin ();
+	}
+
 public:
 	// TODO when using iterators, assert (!full). We cant iterate through the
 	// full set.

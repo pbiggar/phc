@@ -639,7 +639,7 @@ Points_to::get_edge (PT_node* source, PT_node* target)
 Storage_node*
 Points_to::get_storage (Index_node* index)
 {
-	if (has_node (index))
+	if (this->has_node (index))
 	{
 		// get the actual node that points to the index.
 		Storage_node_list* sources = get_incoming <Storage_node> (index);
@@ -647,7 +647,10 @@ Points_to::get_storage (Index_node* index)
 		return sources->front ();
 	}
 	else
-		return SN (index->storage);
+	{
+		// INDEX is not in the graph, so get find the node with that name.
+		return this->get_named_node<Storage_node> (index->storage);
+	}
 }
 
 void
@@ -913,6 +916,18 @@ Value_node*
 Value_node::convert_context_name ()
 {
 	return new Value_node (Context::convert_context_name (storage));
+}
+
+string
+Storage_node::for_index_node ()
+{
+	return this->storage;
+}
+
+string
+Value_node::for_index_node ()
+{
+	return this->name().str ();
 }
 
 

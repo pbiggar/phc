@@ -94,6 +94,9 @@ public:
 
 	bool is_abstract (Context cx, Storage_node* st);
 
+	bool storage_exists (Context cx, Storage_node* st);
+	bool index_exists (Context cx, Index_node* ind);
+
 };
 
 /* A Path is a way of representing some dereferencing. See Aliasing.cpp. */

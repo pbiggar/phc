@@ -209,7 +209,7 @@ bool
 in_scope (Context cx, Alias_name& name)
 {
 	// Index_node alias_names put the name of the symtable as the prefix.
-	return name.prefix == cx.symtable_node ()->storage;
+	return name.prefix == cx.symtable_node ()->for_index_node ();
 }
 
 void
