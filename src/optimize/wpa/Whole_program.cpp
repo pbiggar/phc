@@ -1280,12 +1280,19 @@ Whole_program::copy_from_abstract_value (Context cx, Index_node* lhs, Index_node
 			cdebug << scalars.front ();
 			if (scalars.has ("string"))
 			{
-				// Perhaps we know its value
-				phc_TODO ();
-				wpa->set_storage (cx, ABSVAL (lhs), Types ("string"));
+				Literal* array = ccp->get_lit (cx, st->name ());
+				string index = rhs->index;
+				if (array && index != UNKNOWN)
+				{
+					Literal* value = PHP::fold_string_index (array, new STRING (s(index)));
+					wpa->set_scalar (cx, ABSVAL (lhs), Abstract_value::from_literal (value));
+				}
+				else
+					// We still know the type
+					wpa->set_storage (cx, ABSVAL (lhs), Types ("string"));
 			}
 			else
-				wpa->set_storage (cx, ABSVAL (lhs), Types ("unset"));
+				wpa->set_scalar (cx, ABSVAL (lhs), Abstract_value::from_literal (new NIL));
 		}
 		else
 			wpa->set_storage (cx, ABSVAL (lhs), Types ("string", "unset"));
