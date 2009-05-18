@@ -22,7 +22,7 @@ willing to test |phc| on it, please `contact us
 Packaging hints
 ***************
 
-Do not strip the binaries. Since the plugins use ``dlopen()``, and link
+Do not strip the binaries. Since the plugins use :func:`dlopen()`, and link
 dynamically against the |phc| binary, the plugins will not work unless the
 symbol information is available.
 
@@ -31,12 +31,16 @@ Test suite
 
 .. todo:: update this paragraph
 
-|phc| is shipped with its tests, which can be run after compilation: ::
+|phc| is shipped with its tests, which can be run after compilation:
+
+.. sourcecode:: bash
 
    make test
 
 
-You can also add your own code to ``test/subjects/3rdparty/``, and test it by running: ::
+You can also add your own code to :file:`test/subjects/3rdparty/`, and test it by running:
+
+.. sourcecode:: bash
 
    make long-test
 
