@@ -89,7 +89,9 @@ String* Empty_block::get_graphviz_label ()
 
 String* Branch_block::get_graphviz_label ()
 {
-	return branch->variable_name->value;
+	String* result = s("$");
+	result->append (*branch->variable_name->value);
+	return result;
 }
 
 String*
