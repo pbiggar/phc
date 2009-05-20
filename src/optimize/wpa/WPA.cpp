@@ -12,7 +12,7 @@ using namespace std;
 using namespace boost;
 using namespace MIR;
 
-certainty combine_certs (certainty c1, certainty c2)
+Certainty combine_certs (Certainty c1, Certainty c2)
 {
 	assert (c1 != PTG_ALL);
 	assert (c2 != PTG_ALL);

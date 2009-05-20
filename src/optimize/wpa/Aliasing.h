@@ -41,10 +41,10 @@ public:
 	void backward_bind (Context caller, Context exit);
 
 	void create_reference (Context cx, Index_node* lhs,
-								  Index_node* rhs, certainty cert);
+								  Index_node* rhs, Certainty cert);
 
 	void assign_value (Context cx, Index_node* lhs,
-							 Storage_node* storage, certainty cert);
+							 Storage_node* storage, Certainty cert);
 
 	// Create STORAGE, with the gives TYPES.
 	void set_storage (Context cx, Storage_node* storage,
@@ -80,17 +80,15 @@ public:
 	 */
 
 	Index_node_list* get_references (Context cx, Index_node* index,
-												certainty cert);
+												Certainty cert);
 
-	Index_node_list* get_indices (Context cx, Storage_node* storage);
+	Index_node_list* get_fields (Context cx, Storage_node* storage);
 
-	Storage_node_list* get_values (Context cx, Index_node* index);
+	Storage_node_list* get_dereferenced (Context cx, Index_node* index);
 
-	Storage_node* get_storage (Context cx, Index_node* index);
+	Storage_node* get_owner (Context cx, Index_node* index);
 
 	Index_node_list* get_possible_nulls (List<Context>*);
-
-	certainty get_cert (Context cx, Storage_node* st, Index_node* in);
 
 	bool is_abstract (Context cx, Storage_node* st);
 

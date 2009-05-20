@@ -20,10 +20,10 @@ public:
 
 	void init (Context outer);
 	void create_reference (Context cx, Index_node* lhs,
-								 Index_node* rhs, certainty cert);
+								 Index_node* rhs, Certainty cert);
 
 	void assign_value (Context cx, Index_node* lhs,
-							 Storage_node* storage, certainty cert);
+							 Storage_node* storage, Certainty cert);
 
 	// TODO: I dont think I need these... Wat about when I change the value of
 	// a scalar? I think there should be a call to assign_value?
@@ -33,7 +33,7 @@ public:
 	void kill_value (Context cx, Index_node* lhs);
 	void kill_reference (Context cx, Index_node* lhs);
 
-	void record_use (Context cx, Index_node* use, certainty cert);
+	void record_use (Context cx, Index_node* use, Certainty cert);
 
 
 	void aggregate_results (Context cx);
@@ -54,8 +54,8 @@ public:
 
 private:
 
-	void val_assignment (Context cx, Alias_name lhs, certainty cert);
-	void ref_assignment (Context cx, Alias_name lhs, certainty cert);
+	void val_assignment (Context cx, Alias_name lhs, Certainty cert);
+	void ref_assignment (Context cx, Alias_name lhs, Certainty cert);
 
 	// The exit block gets a use for every non-local def. This prevents DCE
 	// from killing them.

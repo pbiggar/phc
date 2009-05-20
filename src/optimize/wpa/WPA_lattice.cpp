@@ -102,7 +102,7 @@ WPA_lattice::kill_value (Context cx, Index_node* lhs)
 }
 
 void
-WPA_lattice::assign_value (Context cx, Index_node* lhs, Storage_node* storage, certainty cert)
+WPA_lattice::assign_value (Context cx, Index_node* lhs, Storage_node* storage, Certainty cert)
 {
 	Lattice_map& lat = outs[cx];
 	string name = lhs->name().str();

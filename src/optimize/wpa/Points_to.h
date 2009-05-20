@@ -127,10 +127,9 @@ public:
 class Alias_pair : virtual public GC_obj
 {
 public:
-	Alias_pair (PT_node* source, PT_node* target, certainty cert);
+	Alias_pair (PT_node* source, PT_node* target);
 	PT_node* source;
 	PT_node* target;
-	certainty cert;
 
 	bool equals (Alias_pair* other);
 	void dump();
@@ -156,19 +155,83 @@ SET_COMPARABLE (Alias_pair);
  *		paths.
  */
 
+DECL (Alias_pair);
+
+template <class S, class T, class V>
+class Pair_map
+{
+public:
+
+	// Storing values
+	V get_value (Alias_pair* pair)
+	{
+		phc_TODO ();
+	}
+
+	void set_value (Alias_pair* pair, V value)
+	{
+		phc_TODO ();
+	}
+
+	// Returning members
+	List<T*>* get_targets (S* source)
+	{
+		phc_TODO ();
+	}
+
+	Alias_pair_list* get_pairs ()
+	{
+		phc_TODO ();
+	}
+
+	// Equality
+	bool equals (Pair_map<S, T, V>* other)
+	{
+		phc_TODO ();
+	}
+
+
+private:
+	Map<Alias_name, Map<Alias_name, V> > values;
+	Map<Alias_name, Map<Alias_name, Alias_pair*> > by_source;
+	Map<Alias_name, Map<Alias_name, Alias_pair*> > by_target;
+};
+
+struct Empty{};
+
+template <class S, class T>
+class Pair_set : public Pair_map<S, T, Empty>, virtual public GC_obj
+{
+private:
+	Empty get_value (Alias_pair* pair) { phc_unreachable (); }
+	void set_value (Alias_pair* pair, Empty value) { phc_unreachable (); }
+};
+
 class Points_to : virtual public GC_obj
 {
 private:
-	// This keeps count of whether something is abstract or not, as well as
-	// whether it is in scope. These should be separated. (the is_symtable
-	// function is wrong, too).
-	Map<Alias_name, int> abstract_counts; // the int is for recursion
-	Set<Alias_name> symtables; // the int is for recursion
+	// This keeps count of whether something is abstract or not (subsuming
+	// whether it is in scope).
+	// TODO: the is_symtable function is wrong
+	Map<Alias_name, int> abstract_counts;
+
+	// The set of storage nodes which are a function's symbol table.
+	Set<Alias_name> symtables;
 
 
-	Set<Alias_pair*> all_pairs; // makes it easier to clone
-	Map<Alias_name, Map<Alias_name, Alias_pair*> > by_source;
-	Map<Alias_name, Map<Alias_name, Alias_pair*> > by_target;
+	// (Index_node, Index_node) -> certainty.
+	// SOURCE and TARGET alias each other, with some CERTAINTY in { POSSIBLE,
+	// DEFINITE }.
+	Pair_map<Index_node, Index_node, Certainty> references;
+
+	// (Index_node, Storage_node) set.
+	// SOURCE is an index points-to TARGET. Its certainty is determined
+	// implicitly by the number of points-to edges from SOURCE.
+	Pair_set<Index_node, Storage_node> points_to;
+
+	// TARGETs are indices of SOURCE. A certainty doesn't make sense.
+	// (Storage_node, Index_node) set.
+	Pair_set<Storage_node, Index_node> fields;
 
 public:
 	Points_to ();
@@ -176,42 +239,50 @@ public:
 	bool equals (Points_to* other);
 	void dump_graphviz (String* label, Context cx, Whole_program* wp);
 
-	void open_scope (Storage_node* node);
-	void close_scope (Storage_node* node);
+	void open_scope (Storage_node* st);
+	void close_scope (Storage_node* st);
 	bool is_abstract (Storage_node* st);
-
-	void insert (Alias_pair*);
-
-	// Dont update a pair in-place. This removes the pair, and adds a pair
-	// with the new certainty.
-	void set_pair_cert (Alias_pair* pair, certainty cert);
-
-	Index_node_list* get_references (Index_node* index,
-												certainty cert);
-
-	Index_node_list* get_indices (Storage_node* storage);
-
-	Storage_node_list* get_values (Index_node* index);
-
 	bool is_symtable (Storage_node* st);
+
+	// Get the full list of storage nodes.
+
+
+	void insert (Alias_pair*, Certainty cert);
+
+	// Set the CERTAINTY for PAIR.
+	void set_reference_cert (Alias_pair* pair, Certainty cert);
+
+	// Get the nodes indexing INDEX, with certainty CERT.
+	Index_node_list* get_references (Index_node* index, Certainty cert);
+
+	// Return the indices pointed-to by by STORAGE
+	Index_node_list* get_fields (Storage_node* storage);
+
+	// Return the storage_nodes pointed to by INDEX.
+	Storage_node_list* get_dereferenced (Index_node* index);
+
+	// Return the storage node pointing to INDEX.
+	Storage_node* get_owner (Index_node* index);
 
 	void consistency_check (Context cx, Whole_program* wp);
 
 	Storage_node_list* get_storage_nodes ();
+
 	static Index_node_list* get_possible_nulls (List<Points_to*>* graphs);
 
-	// Get the storage pointing to INDEX.
-	Storage_node* get_storage (Index_node* index);
 
+	Storage_node* get_named_node (string name);
+
+	PT_node_list* get_nodes ();
 
 
 	/*
 	 * Lower-level API
 	 */
 
-	void add_index (Index_node* node, certainty);
-	void add_edge (PT_node* n1, PT_node* n2, certainty);
-	void add_bidir_edge (PT_node* n1, PT_node* n2, certainty cert);
+	void add_index (Index_node* node, Certainty);
+	void add_edge (PT_node* n1, PT_node* n2, Certainty);
+	void add_bidir_edge (PT_node* n1, PT_node* n2, Certainty cert);
 
 	bool has_node (PT_node* node);
 
@@ -235,8 +306,8 @@ public:
 
 private:
 
-	template <class T>
-	List<T*>* get_incoming (PT_node* node, certainty cert = PTG_ALL)
+/*	template <class T>
+	List<T*>* get_incoming (PT_node* node, Certainty cert = PTG_ALL)
 	{
 		List<T*>* result = new List<T*>;
 
@@ -257,10 +328,8 @@ private:
 		return result;
 	}
 
-	Storage_node* get_named_node (string name);
-
 	template <class T>
-	List<T*>* get_targets (PT_node* node, certainty cert = PTG_ALL)
+	List<T*>* get_targets (PT_node* node, Certainty cert = PTG_ALL)
 	{
 		List<T*>* result = new List<T*>;
 
@@ -280,8 +349,7 @@ private:
 
 		return result;
 	}
-
-	PT_node_list* get_nodes ();
+*/
 
 };
 

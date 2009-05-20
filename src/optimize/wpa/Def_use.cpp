@@ -125,7 +125,7 @@ Def_use::kill_reference (Context cx, Index_node* lhs)
 /* Simple assignments */
 
 void
-Def_use::val_assignment (Context cx, Alias_name lhs, certainty cert)
+Def_use::val_assignment (Context cx, Alias_name lhs, Certainty cert)
 {
 	DEBUG ("def (val): " << lhs.str());
 	DEBUG ("use (ref): " << lhs.str());
@@ -143,7 +143,7 @@ Def_use::val_assignment (Context cx, Alias_name lhs, certainty cert)
 }
 
 void
-Def_use::ref_assignment (Context cx, Alias_name lhs, certainty cert)
+Def_use::ref_assignment (Context cx, Alias_name lhs, Certainty cert)
 {
 	DEBUG ("def (ref): " << lhs.str());
 	DEBUG ("def (val): " << lhs.str());
@@ -178,13 +178,13 @@ Def_use::set_storage (Context cx, Storage_node* storage, Types types)
 }
 
 void
-Def_use::assign_value (Context cx, Index_node* lhs, Storage_node* storage_name, certainty cert)
+Def_use::assign_value (Context cx, Index_node* lhs, Storage_node* storage_name, Certainty cert)
 {
 	val_assignment (cx, lhs->name(), cert);
 }
 
 void
-Def_use::create_reference (Context cx, Index_node* lhs, Index_node* rhs, certainty cert)
+Def_use::create_reference (Context cx, Index_node* lhs, Index_node* rhs, Certainty cert)
 {
 	DEBUG ("use (ref): " << rhs->name().str());
 	DEBUG ("use (val): " << rhs->name().str());
@@ -196,7 +196,7 @@ Def_use::create_reference (Context cx, Index_node* lhs, Index_node* rhs, certain
 
 
 void
-Def_use::record_use (Context cx, Index_node* use, certainty cert)
+Def_use::record_use (Context cx, Index_node* use, Certainty cert)
 {
 	DEBUG ("use (val): " << use->name().str());
 

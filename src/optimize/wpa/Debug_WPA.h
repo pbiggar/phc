@@ -22,10 +22,10 @@ public:
 	void backward_bind (Context caller, Context exit);
 
 	void create_reference (Context cx, Index_node* lhs,
-								 Index_node* rhs, certainty cert);
+								 Index_node* rhs, Certainty cert);
 
 	void assign_value (Context cx, Index_node* lhs,
-							 Storage_node* storage, certainty cert);
+							 Storage_node* storage, Certainty cert);
 
 	void set_storage (Context cx, Storage_node* storage, Types types);
 	void set_scalar (Context cx, Value_node* storage, Abstract_value* val);
@@ -33,7 +33,7 @@ public:
 	void kill_value (Context cx, Index_node* lhs);
 	void kill_reference (Context cx, Index_node* lhs);
 
-	void record_use (Context cx, Index_node* use, certainty cert);
+	void record_use (Context cx, Index_node* use, Certainty cert);
 	
 
 	void pull_init (Context cx);

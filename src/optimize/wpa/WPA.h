@@ -27,9 +27,9 @@ class Storage_node;
  * Must- or may- information.
  */
 enum _certainty { POSSIBLE = 1, DEFINITE = 2, PTG_ALL = 3 };
-typedef enum _certainty certainty;
+typedef enum _certainty Certainty;
 
-certainty combine_certs (certainty c1, certainty c2);
+Certainty combine_certs (Certainty c1, Certainty c2);
 
 #define UNKNOWN "*"
 
@@ -94,7 +94,7 @@ public:
 	// This creates a reference between lhs and rhs. Values are propagated
 	// separately.
 	virtual void create_reference (Context cx, Index_node* lhs,
-											 Index_node* rhs, certainty cert) CT_IMPL;
+											 Index_node* rhs, Certainty cert) CT_IMPL;
 
 	// It might seem that copying should naturally be included here, but
 	// actually copying is has context-dependant semantics, and instead calls
@@ -102,7 +102,7 @@ public:
 
 	// LHS has a value taken from STORAGE. STORAGE must already exist.
 	virtual void assign_value (Context cx, Index_node* lhs,
-										Storage_node* storage, certainty cert) CT_IMPL;
+										Storage_node* storage, Certainty cert) CT_IMPL;
 
 	// Create STORAGE, with the gives TYPES.
 	virtual void set_storage (Context cx, Storage_node* storage,
@@ -128,7 +128,7 @@ public:
 
 	// There has been a use of USE, with the certainty CERT.
 	virtual void record_use (Context cx, Index_node* use,
-									 certainty cert) CT_IMPL;
+									 Certainty cert) CT_IMPL;
 
 
 	/*

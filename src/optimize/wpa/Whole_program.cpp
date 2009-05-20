@@ -990,7 +990,7 @@ Whole_program::is_must (Context cx, Index_node_list* indices)
 
 
 	// Dont kill indices of ASNs
-	Storage_node* node = aliasing->get_storage (cx, index);
+	Storage_node* node = aliasing->get_owner (cx, index);
 	if (aliasing->is_abstract (cx, node))
 		return false;
 
@@ -998,7 +998,7 @@ Whole_program::is_must (Context cx, Index_node_list* indices)
 }
 
 // Returns the certainty with which assignments can be made to it.
-certainty
+Certainty
 Whole_program::kill_value (Context cx, Path* plhs)
 {
 	// do implicit conversions
@@ -1063,10 +1063,10 @@ Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 			}
 		}
 
-		certainty cert = (killable && is_must (cx, rhss)) ? DEFINITE : POSSIBLE;
+		Certainty cert = (killable && is_must (cx, rhss)) ? DEFINITE : POSSIBLE;
 		foreach (Index_node* rhs, *rhss)
 		{
-			foreach (Storage_node* st, *aliasing->get_values (cx, rhs))
+			foreach (Storage_node* st, *aliasing->get_dereferenced (cx, rhs))
 			{
 				if (isa<Value_node> (st))
 				{
@@ -1129,7 +1129,7 @@ Whole_program::assign_typed (Context cx, Path* plhs, Types types)
 	Types array = Type_inference::get_array_types (types);
 	Types objects = Type_inference::get_object_types (types);
 
-	certainty cert = kill_value (cx, plhs);
+	Certainty cert = kill_value (cx, plhs);
 	foreach (Index_node* node, *get_all_referenced_names (cx, plhs))
 	{
 		Alias_name name = node->name();
@@ -1164,7 +1164,7 @@ void
 Whole_program::assign_empty_array (Context cx, Path* plhs, string name)
 {
 	DEBUG ("assign_empty_array");
-	certainty cert = kill_value (cx, plhs);
+	Certainty cert = kill_value (cx, plhs);
 	foreach (Index_node* node, *get_all_referenced_names (cx, plhs))
 	{
 		foreach_wpa (this)
@@ -1234,7 +1234,7 @@ Whole_program::assign_by_copy (Context cx, Path* plhs, Path* prhs)
 	//		Objects:
 	//			- foreach alias A of PLHS, point from A to V.
 
-	certainty cert = kill_value (cx, plhs);
+	Certainty cert = kill_value (cx, plhs);
 
 	// For objects, copy the edge. For arrays, copy the whole thing. For
 	// scalars, copy the scalar (if unknown). It seems clear that we need an
@@ -1256,13 +1256,13 @@ Whole_program::assign_by_copy (Context cx, Path* plhs, Path* prhs)
 }
 
 bool
-Whole_program::copy_from_abstract_value (Context cx, Index_node* lhs, Index_node* rhs, certainty cert)
+Whole_program::copy_from_abstract_value (Context cx, Index_node* lhs, Index_node* rhs, Certainty cert)
 {
 	// Special case - the RHS's storage node might be an absval (however, if it
 	// is both an absval and another storage node, then the other storage nodes
 	// will be handled in a different call, and we need concern ourselves only
 	// with the absval here).
-	Storage_node* st = aliasing->get_storage (cx, rhs);
+	Storage_node* st = aliasing->get_owner (cx, rhs);
 
 	// Get the type of the value
 	Types types = type_inf->get_types (cx, st->name());
@@ -1313,7 +1313,7 @@ Whole_program::copy_from_abstract_value (Context cx, Index_node* lhs, Index_node
 }
 
 void
-Whole_program::copy_value (Context cx, Index_node* lhs, Index_node* rhs, certainty cert)
+Whole_program::copy_value (Context cx, Index_node* lhs, Index_node* rhs, Certainty cert)
 {
 	if (copy_from_abstract_value (cx, lhs, rhs, cert))
 		return;
@@ -1324,7 +1324,7 @@ Whole_program::copy_value (Context cx, Index_node* lhs, Index_node* rhs, certain
 
 
 	// Get the value for each RHS. Copy it using the correct semantics.
-	Storage_node_list* values = aliasing->get_values (cx, rhs);
+	Storage_node_list* values = aliasing->get_dereferenced (cx, rhs);
 
 	// If there is more than 1 value, it can't be definite.
 	if (values->size () > 1)
@@ -1364,13 +1364,13 @@ Whole_program::copy_value (Context cx, Index_node* lhs, Index_node* rhs, certain
 				wpa->set_storage (cx, new_array, Types ("array"));
 
 			// Get all the indices
-			foreach (Index_node* index, *aliasing->get_indices (cx, st))
+			foreach (Index_node* field, *aliasing->get_fields (cx, st))
 			{
 				// TODO: I think these are not killed, but should be, if allowable.
 				copy_value (cx,
-						new Index_node (new_array->for_index_node (), index->index),
-						index,
-						aliasing->get_cert (cx, st, index));
+						new Index_node (new_array->for_index_node (), field->index),
+						field,
+						PTG_ALL); // TODO: dont care
 			}
 
 			// LHS points to NEW_ARRAY.
@@ -1504,7 +1504,7 @@ Whole_program::get_named_indices (Context cx, Path* path, Indexing_flags flags)
 		// Lookup the storage nodes indexed by LHS
 		foreach (Index_node* st_index, *get_named_indices (cx, p->lhs, flags))
 		{
-			foreach (Storage_node* pointed_to, *aliasing->get_values (cx, st_index))
+			foreach (Storage_node* pointed_to, *aliasing->get_dereferenced (cx, st_index))
 			{
 				string name = pointed_to->for_index_node ();
 

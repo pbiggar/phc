@@ -28,7 +28,7 @@ Debug_WPA::init (Context outer)
 }
 
 string
-cert_to_string (certainty cert)
+cert_to_string (Certainty cert)
 {
 	if (cert == DEFINITE)
 		return "DEFINITE";
@@ -53,7 +53,7 @@ Debug_WPA::backward_bind (Context caller, Context exit)
 
 void
 Debug_WPA::create_reference (Context cx, Index_node* lhs,
-									  Index_node* rhs, certainty cert)
+									  Index_node* rhs, Certainty cert)
 {
 	DEBUG (__FUNCTION__
 			<< ": " << lhs->name().str ()
@@ -92,7 +92,7 @@ Debug_WPA::set_storage (Context cx, Storage_node* storage, Types types)
 }
 
 void
-Debug_WPA::assign_value (Context cx, Index_node* lhs, Storage_node* storage, certainty cert)
+Debug_WPA::assign_value (Context cx, Index_node* lhs, Storage_node* storage, Certainty cert)
 {
 	DEBUG (__FUNCTION__
 	<< ": " << lhs->name().str ()
@@ -116,7 +116,7 @@ Debug_WPA::kill_reference (Context cx, Index_node* lhs)
 }
 	
 void
-Debug_WPA::record_use (Context cx, Index_node* use, certainty cert)
+Debug_WPA::record_use (Context cx, Index_node* use, Certainty cert)
 {
 	DEBUG (__FUNCTION__
 	<< ": " << use->name().str ()

@@ -116,13 +116,14 @@ Aliasing::pull_possible_null (Context cx, Index_node* node)
 	// HACK: there must be existing values for node. They might just be
 	// ABSVAL, in which case we're fine, or they might be another value, in
 	// which case we need to set the edge to POSSIBLE.
-	Storage_node_list* values = pt->get_values (node);
+	Storage_node_list* values = pt->get_dereferenced (node);
 	if (values->size () > 1)
 	{
 		foreach (Storage_node* st, *values)
 		{
+			phc_TODO (); // is this no longer necessary?
 			Alias_pair* pair = pt->get_edge (node, st);
-			pt->set_pair_cert (pair, POSSIBLE);
+			pt->set_reference_cert (pair, POSSIBLE);
 		}
 	}
 }
@@ -151,9 +152,9 @@ Aliasing::kill_value (Context cx, Index_node* lhs)
 {
 	Points_to* ptg = outs[cx];
 
-	foreach (Storage_node* value, *ptg->get_values (lhs))
+	foreach (Storage_node* st, *ptg->get_dereferenced (lhs))
 	{
-		ptg->remove_pair (lhs, value);
+		ptg->remove_pair (lhs, st);
 		ptg->maybe_remove_node (lhs);
 	}
 }
@@ -187,7 +188,7 @@ Aliasing::set_scalar (Context cx, Value_node* storage, Abstract_value* val)
 }
 
 void
-Aliasing::create_reference (Context cx, Index_node* lhs, Index_node* rhs, certainty cert)
+Aliasing::create_reference (Context cx, Index_node* lhs, Index_node* rhs, Certainty cert)
 {
 	Points_to* ptg = outs[cx];
 
@@ -197,8 +198,8 @@ Aliasing::create_reference (Context cx, Index_node* lhs, Index_node* rhs, certai
 	// Whole program handles value edges.
 
 	// Transitive closure for reference edges
-	certainty certainties[] = {POSSIBLE, DEFINITE};
-	foreach (certainty edge_cert, certainties)
+	Certainty certainties[] = {POSSIBLE, DEFINITE};
+	foreach (Certainty edge_cert, certainties)
 	{
 		Index_node_list* pts = ptg->get_references (rhs, edge_cert);
 		foreach (Index_node* in, *pts)
@@ -211,7 +212,7 @@ Aliasing::create_reference (Context cx, Index_node* lhs, Index_node* rhs, certai
 }
 
 void
-Aliasing::assign_value (Context cx, Index_node* lhs, Storage_node* storage, certainty cert)
+Aliasing::assign_value (Context cx, Index_node* lhs, Storage_node* storage, Certainty cert)
 {
 	outs[cx]->add_index (lhs, DEFINITE);
 	outs[cx]->add_edge (lhs, storage, cert);
@@ -259,22 +260,22 @@ Aliasing::merge_contexts ()
 }
 
 Index_node_list*
-Aliasing::get_references (Context cx, Index_node* index,
-												certainty cert)
+Aliasing::get_references (Context cx, Index_node* index, Certainty cert)
 {
 	return ins[cx]->get_references (index, cert);
 }
 
 Storage_node_list*
-Aliasing::get_values (Context cx, Index_node* index)
+Aliasing::get_dereferenced (Context cx, Index_node* index)
 {
+	// TODO: do a 'is-a-field-of' analysis
 	Points_to* ptg = ins[cx];
 
-	Storage_node* st = ptg->get_storage (index);
+	Storage_node* st = ptg->get_owner (index);
 
 	// Check the node exists.	
 	if (ptg->get_edge (st, index))
-		return ptg->get_values (index);
+		return ptg->get_dereferenced (index);
 
 
 	// For undefined nodes, we look to the UNKNOWN node. 
@@ -282,22 +283,22 @@ Aliasing::get_values (Context cx, Index_node* index)
 	Alias_pair* unknown_edge = ptg->get_edge (st, unknown);
 	assert (unknown_edge);
 
-	return ptg->get_values (unknown);
+	return ptg->get_dereferenced (unknown);
 }
 
 
 Storage_node*
-Aliasing::get_storage (Context cx, Index_node* index)
+Aliasing::get_owner (Context cx, Index_node* index)
 {
 	Points_to* ptg = ins[cx];
-	return ptg->get_storage (index);
+	return ptg->get_owner (index);
 }
 
 
 Index_node_list*
-Aliasing::get_indices (Context cx, Storage_node* storage)
+Aliasing::get_fields (Context cx, Storage_node* storage)
 {
-	return ins[cx]->get_indices (storage);
+	return ins[cx]->get_fields (storage);
 }
 
 Index_node_list*
@@ -311,12 +312,6 @@ Aliasing::get_possible_nulls (List<Context>* cxs)
 	return Points_to::get_possible_nulls (graphs);
 }
 
-
-certainty
-Aliasing::get_cert (Context cx, Storage_node* st, Index_node* in)
-{
-	return ins[cx]->get_edge (st, in)->cert;
-}
 
 bool
 Aliasing::is_abstract (Context cx, Storage_node* st)

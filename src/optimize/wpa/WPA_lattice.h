@@ -27,7 +27,7 @@ public:
 	void kill_value (Context cx, Index_node* lhs);
 
 	void assign_value (Context cx, Index_node* lhs,
-							 Storage_node* storage, certainty cert);
+							 Storage_node* storage, Certainty cert);
 
 
 	void pull_init (Context cx);
