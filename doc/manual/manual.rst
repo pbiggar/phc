@@ -49,7 +49,8 @@ Indices etc.
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-* :ref:`glossary`
+
+.. * :ref:`glossary`
 
 ..
 	TODO: things which should be discussed:
