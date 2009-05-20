@@ -701,7 +701,7 @@ Whole_program::analyse_block (Context cx)
 	foreach_wpa (this)
 		wpa->aggregate_results (cx);
 
-	dump (cx, "After analysis");
+	dump (cx, "After analysis (" + *cx.get_bb()->get_graphviz_label () + ")");
 
 	// Calculate fix-point
 	bool changed = false;
@@ -1027,6 +1027,7 @@ Whole_program::kill_value (Context cx, Path* plhs)
 void
 Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 {
+	DEBUG ("assign_by_ref");
 	Index_node_list* lhss = get_named_indices (cx, plhs);
 	Index_node_list* rhss = get_named_indices (cx, prhs, RECORD_USES);
 
@@ -1105,6 +1106,7 @@ Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 void
 Whole_program::assign_scalar (Context cx, Path* plhs, Literal* lit)
 {
+	DEBUG ("assign_scalar");
 	kill_value (cx, plhs);
 	foreach (Index_node* node, *get_all_referenced_names (cx, plhs))
 	{
@@ -1121,6 +1123,7 @@ Whole_program::assign_scalar (Context cx, Path* plhs, Literal* lit)
 void
 Whole_program::assign_typed (Context cx, Path* plhs, Types types)
 {
+	DEBUG ("assign_typed");
 	// Split scalars, objects and arrays here.
 	Types scalars = Type_inference::get_scalar_types (types);
 	Types array = Type_inference::get_array_types (types);
@@ -1160,6 +1163,7 @@ Whole_program::assign_typed (Context cx, Path* plhs, Types types)
 void
 Whole_program::assign_empty_array (Context cx, Path* plhs, string name)
 {
+	DEBUG ("assign_empty_array");
 	certainty cert = kill_value (cx, plhs);
 	foreach (Index_node* node, *get_all_referenced_names (cx, plhs))
 	{
@@ -1177,6 +1181,7 @@ Whole_program::assign_empty_array (Context cx, Path* plhs, string name)
 void
 Whole_program::assign_unknown (Context cx, Path* plhs)
 {
+	DEBUG ("assign_unknown");
 	// This assigns a value which is unknown, but is not as bad as
 	// ruin_everything (ie, it doesnt link to all the other objects, arrays,
 	// etc. Is this being used right?
@@ -1218,6 +1223,8 @@ Whole_program::assign_unknown (Context cx, Path* plhs)
 void
 Whole_program::assign_by_copy (Context cx, Path* plhs, Path* prhs)
 {
+	DEBUG ("assign_by_copy");
+
 	// foreach values V pointed to by PRHS:
 	//	switch V.type:
 	//		Scalar:
@@ -1270,6 +1277,7 @@ Whole_program::copy_from_abstract_value (Context cx, Index_node* lhs, Index_node
 	if (scalars.size() == 0)
 		return false;
 
+	DEBUG ("copy_from_abstract_value");
 
 	// TODO: if its a string, string only.
 	// TODO: if not a string, NULL only.
@@ -1310,6 +1318,7 @@ Whole_program::copy_value (Context cx, Index_node* lhs, Index_node* rhs, certain
 	if (copy_from_abstract_value (cx, lhs, rhs, cert))
 		return;
 
+	DEBUG ("copy_value");
 	// OK, its not a scalar. Carry on.
 
 
