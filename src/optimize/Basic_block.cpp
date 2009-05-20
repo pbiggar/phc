@@ -7,6 +7,8 @@
 
 #include "ssa/Dominance.h"
 
+#include "lib/escape.h"
+
 using namespace std;
 using namespace MIR;
 using namespace boost;
@@ -99,8 +101,8 @@ Statement_block::get_graphviz_label ()
 {
 	stringstream ss;
 	MIR_unparser mup(ss, true);
-	mup.unparse(statement);
-	return s(ss.str());
+	mup.unparse (statement);
+	return escape_DOT (s(ss.str()));
 }
 
 /*
