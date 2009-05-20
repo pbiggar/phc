@@ -1878,12 +1878,13 @@ Whole_program::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 void
 Whole_program::visit_array_access (Statement_block* bb, MIR::Array_access* in)
 {
-	if (saved_is_ref)
-		phc_TODO ();
-
 	string ns = block_cx.symtable_name ();
+	Path* path = P (ns, in);
 
-	assign_by_copy (block_cx, saved_plhs, P (ns, in));
+	if (saved_is_ref)
+		assign_by_ref (block_cx, saved_plhs, path);
+	else
+		assign_by_copy (block_cx, saved_plhs, path);
 }
 
 void
@@ -2085,12 +2086,13 @@ Whole_program::visit_unary_op (Statement_block* bb, MIR::Unary_op* in)
 void
 Whole_program::visit_variable_name (Statement_block* bb, MIR::VARIABLE_NAME* in)
 {
-	if (saved_is_ref)
-		phc_TODO ();
-
 	string ns = block_cx.symtable_name ();
+	Path* path = P (ns, in);
 
-	assign_by_copy (block_cx, saved_plhs, P (ns, in));
+	if (saved_is_ref)
+		assign_by_ref (block_cx, saved_plhs, path);
+	else
+		assign_by_copy (block_cx, saved_plhs, path);
 }
 
 void

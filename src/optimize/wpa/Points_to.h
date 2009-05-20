@@ -88,11 +88,10 @@ public:
 // Represents class for arrays, objects and symtables.
 class Storage_node : public PT_node
 {
-protected:
+public:
 	// If we can touch this, we can ruin Value_node.
 	string storage;
 
-public:
 	Storage_node (string storage);
 
 	// Return a string suitable to be put as the prefix of an index_name.
@@ -258,35 +257,7 @@ private:
 		return result;
 	}
 
-	template <class T>
-	T* get_named_node (string name)
-	{
-		PT_node* result = NULL;
-
-		// There must be an edge to anything it aliases
-		
-		foreach (Alias_pair* pair, all_pairs)
-		{
-			if (pair->source->name().str () == name)
-			{
-				assert (result == NULL);
-				result = pair->source;
-			}
-
-			if (pair->target->name().str () == name)
-			{
-				assert (result == NULL);
-				result = pair->target;
-			}
-		}
-
-		assert (result);
-		assert (isa<T> (result));
-
-		return dyc<T> (result);
-	}
-
-
+	Storage_node* get_named_node (string name);
 
 	template <class T>
 	List<T*>* get_targets (PT_node* node, certainty cert = PTG_ALL)

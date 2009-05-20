@@ -649,7 +649,7 @@ Points_to::get_storage (Index_node* index)
 	else
 	{
 		// INDEX is not in the graph, so get find the node with that name.
-		return this->get_named_node<Storage_node> (index->storage);
+		return this->get_named_node (index->storage);
 	}
 }
 
@@ -930,6 +930,30 @@ Value_node::for_index_node ()
 	return this->name().str ();
 }
 
+
+
+Storage_node*
+Points_to::get_named_node (string name)
+{
+	Storage_node* result = NULL;
+
+	// There must be an edge to anything it aliases
+
+	foreach (Alias_pair* pair, all_pairs)
+	{
+		// No need to check the target, as storage nodes will always be a source
+		Storage_node* st = dynamic_cast<Storage_node*> (pair->source);
+		if (st && st->storage == name)
+		{
+			assert (result == NULL);
+			result = st;
+		}
+	}
+
+	assert (result);
+
+	return result;
+}
 
 
 
