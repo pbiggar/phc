@@ -1066,7 +1066,7 @@ Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 		Certainty cert = (killable && is_must (cx, rhss)) ? DEFINITE : POSSIBLE;
 		foreach (Index_node* rhs, *rhss)
 		{
-			foreach (Storage_node* st, *aliasing->get_dereferenced (cx, rhs))
+			foreach (Storage_node* st, *aliasing->get_points_to (cx, rhs))
 			{
 				if (isa<Value_node> (st))
 				{
@@ -1324,7 +1324,7 @@ Whole_program::copy_value (Context cx, Index_node* lhs, Index_node* rhs, Certain
 
 
 	// Get the value for each RHS. Copy it using the correct semantics.
-	Storage_node_list* values = aliasing->get_dereferenced (cx, rhs);
+	Storage_node_list* values = aliasing->get_points_to (cx, rhs);
 
 	// If there is more than 1 value, it can't be definite.
 	if (values->size () > 1)
@@ -1504,7 +1504,7 @@ Whole_program::get_named_indices (Context cx, Path* path, Indexing_flags flags)
 		// Lookup the storage nodes indexed by LHS
 		foreach (Index_node* st_index, *get_named_indices (cx, p->lhs, flags))
 		{
-			foreach (Storage_node* pointed_to, *aliasing->get_dereferenced (cx, st_index))
+			foreach (Storage_node* pointed_to, *aliasing->get_points_to (cx, st_index))
 			{
 				string name = pointed_to->for_index_node ();
 
@@ -1598,14 +1598,15 @@ Whole_program::get_named_index (Context cx, Path* name, Indexing_flags flags)
 Index_node_list*
 Whole_program::get_all_referenced_names (Context cx, Path* path, Indexing_flags flags)
 {
-	Map<Alias_name, Index_node*> names;
+	phc_TODO ();
+/*	Map<Alias_name, Index_node*> names;
 
 	Index_node_list* lhss = get_named_indices (cx, path, flags);
 
 	foreach (Index_node* lhs, *lhss)
 	{
 		// Handle all the aliases/indirect assignments.
-		Index_node_list* refs = aliasing->get_references (cx, lhs, PTG_ALL);
+		Reference_edge* refs = aliasing->get_references (cx, lhs, PTG_ALL);
 		refs->push_back (lhs);
 
 		foreach (Index_node* ref, *refs)
@@ -1614,7 +1615,7 @@ Whole_program::get_all_referenced_names (Context cx, Path* path, Indexing_flags 
 		}
 	}
 
-	return names.values ();
+	return names.values ();*/
 }
 
 /*

@@ -80,6 +80,155 @@ Points_to::is_abstract (Storage_node* st)
 }
 
 bool
+Points_to::is_symtable (Storage_node* node)
+{
+	return symtables.has (node->name());
+}
+
+
+/*
+ * References
+ */
+
+// Return a list of aliases which are references, and have the same certainty.
+// INDEX is not included in the returned list.
+Reference_list*
+Points_to::get_references (Index_node* index, Certainty cert)
+{
+	Reference_list* result = new Reference_list;
+	foreach (Index_node* target, *references.get_targets (index))
+	{
+		Certainty target_cert = references.get_value (new Reference_edge (index, target));
+		if (cert & target_cert)
+			result->push_back (new Reference (target, target_cert));
+	}
+	return result;
+}
+
+void
+Points_to::set_reference_cert (Reference_edge* pair, Certainty cert)
+{
+	references.set_value (pair, cert);
+}
+
+void
+Points_to::add_reference (Index_node* source, Index_node* target, Certainty cert)
+{
+	references.add_edge (source, target);
+	set_reference_cert (new Reference_edge (source, target), cert);
+}
+
+bool
+Points_to::has_reference (Index_node* source, Index_node* target)
+{
+	return references.has_edge (source, target);
+}
+
+void
+Points_to::remove_reference (Index_node* source, Index_node* target)
+{
+	references.remove_edge (source, target);
+}
+
+
+/*
+ * Points-to edges
+ */
+
+Storage_node_list*
+Points_to::get_points_to (Index_node* index)
+{
+	return points_to.get_targets (index);
+}
+
+void
+Points_to::add_points_to (Index_node* index, Storage_node* st)
+{
+	points_to.add_edge (index, st);
+}
+
+bool
+Points_to::has_points_to (Index_node* index, Storage_node* st)
+{
+	return points_to.has_edge (index, st);
+}
+
+void
+Points_to::remove_points_to (Index_node* index, Storage_node* st)
+{
+	points_to.remove_edge (index, st);
+}
+
+
+/*
+ * Field edges
+ */
+
+Index_node_list*
+Points_to::get_fields (Storage_node* st)
+{
+	return fields.get_targets (st);
+}
+
+void
+Points_to::add_field (Index_node* index)
+{
+	fields.add_edge (SN (index->storage), index);
+}
+
+bool
+Points_to::has_field (Index_node* index)
+{
+	return fields.has_edge (SN (index->storage), index);
+}
+
+void
+Points_to::remove_field (Index_node* index)
+{
+	// Check that the compiler errors on this
+	fields.remove_edge (SN (index->storage), index);
+}
+
+
+
+/*
+ * Generic API (not specific to a particular edge type)
+ */
+
+Storage_node*
+Points_to::get_owner (Index_node* index)
+{
+	phc_TODO ();
+	/*
+	if (this->has_node (index))
+	{
+		// get the actual node that points to the index.
+		Storage_node_list* sources = get_incoming <Storage_node> (index);
+		assert (sources->size() == 1);
+		return sources->front ();
+	}
+	else
+	{
+		// INDEX is not in the graph, so get find the node with that name.
+		return this->get_named_node (index->storage);
+	}
+	*/
+}
+
+bool
+Points_to::has_storage_node (Storage_node* st)
+{
+	phc_TODO ();
+}
+
+
+
+
+/*
+ * For working with the whole Points-to graph.
+ */
+
+bool
 Points_to::equals (Points_to* other)
 {
 	return true
@@ -91,14 +240,15 @@ Points_to::equals (Points_to* other)
 		;
 }
 
-string print_pair (Alias_pair* pair, string label)
+template<class E>
+string print_pair (E* edge, string label)
 {
 	stringstream ss;
 	ss
 	<< "\""
-	<< *escape_DOT (s (pair->source->name ().str())) 
+	<< *escape_DOT (s (edge->source->name ().str())) 
 	<< "\" -> \"" 
-	<< *escape_DOT (s (pair->target->name ().str())) 
+	<< *escape_DOT (s (edge->target->name ().str())) 
 	<< "\" [label=\"" << label << "\"];\n"
 	;
 	return ss.str ();
@@ -195,82 +345,40 @@ Points_to::dump_graphviz (String* label, Context cx, Whole_program* wp)
 	}
 
 	// Add edges
-	foreach (Alias_pair* pair, *references.get_pairs ())
-		cout << print_pair (pair, (references.get_value (pair) == POSSIBLE ? "P" : "D"));
+	foreach (Reference_edge* edge, *references.get_edges ())
+		cout << print_pair (edge, (references.get_value (edge) == POSSIBLE ? "P" : "D"));
 
-	foreach (Alias_pair* pair, *fields.get_pairs ())
-		cout << print_pair (pair, "");
+	foreach (Field_edge* edge, *fields.get_edges ())
+		cout << print_pair (edge, "");
 
-	foreach (Alias_pair* pair, *points_to.get_pairs ())
-		cout << print_pair (pair, "");
+	foreach (Points_to_edge* edge, *points_to.get_edges ())
+		cout << print_pair (edge, "");
 
 	cout
 	<< "}\n"
 	;
 }
 
-
-
-
-void
-Points_to::add_index (Index_node* index, Certainty cert)
-{
-	// TODO: I dont like this direct access. But we cant use get_storage from
-	// here.
-	Storage_node* st = SN (index->storage);
-
-	if (!has_node (index))
-		add_edge (st, index, cert);
-	else
-	{
-		// Dont update in place!!
-		phc_TODO (); // we can update in place these days.
-		if (cert == DEFINITE)
-			set_reference_cert (get_edge (st, index), DEFINITE);
-	}
-}
-
-// Return a list of aliases which are references, and have the same certainty.
-Index_node_list*
-Points_to::get_references (Index_node* index, Certainty cert)
-{
-	Index_node_list* result = new Index_node_list;
-	foreach (Index_node* target, *references.get_targets (index))
-	{
-		if (cert & references.get_value (new Alias_pair (index, target)))
-			result->push_back (dyc<Index_node> (target));
-	}
-	return result;
-}
-
-Storage_node_list*
-Points_to::get_dereferenced (Index_node* index)
-{
-	return points_to.get_targets (index);
-}
-
-Index_node_list*
-Points_to::get_fields (Storage_node* st)
-{
-	return fields.get_targets (st);
-}
-
-Storage_node_list*
-Points_to::get_storage_nodes ()
+Points_to*
+Points_to::clone ()
 {
 	phc_TODO ();
-/*	Storage_node_list* result = new Storage_node_list;
+/*
+	Points_to* result = new Points_to;
 
-	foreach (Alias_pair* pair, all_pairs)
+	foreach (Alias_pair* p, this->all_pairs)
 	{
-		if (isa<Storage_node> (pair->source))
-			result->push_back (dyc<Storage_node> (pair->source));
+		// No need to deep copy, as pairs are never updated in-place.
+		result->add_edge (p->source, p->target, p->cert);
 	}
+
+	// Deep copy
+	result->symtables = symtables;
+	result->abstract_counts = abstract_counts;
 
 	return result;
 	*/
 }
-
 
 void
 Points_to::consistency_check (Context cx, Whole_program* wp)
@@ -338,6 +446,30 @@ Points_to::consistency_check (Context cx, Whole_program* wp)
 }
 
 
+
+
+
+
+
+
+Storage_node_list*
+Points_to::get_storage_nodes ()
+{
+	phc_TODO ();
+/*	Storage_node_list* result = new Storage_node_list;
+
+	foreach (Alias_pair* pair, all_pairs)
+	{
+		if (isa<Storage_node> (pair->source))
+			result->push_back (dyc<Storage_node> (pair->source));
+	}
+
+	return result;
+	*/
+}
+
+
+
 // Mark all symtable nodes, then sweep anything they can reach. Remove the
 // rest.
 void
@@ -399,43 +531,7 @@ Points_to::remove_unreachable_nodes ()
  * Low-level API
  */
 
-// Add the edge to the graph.
-void
-Points_to::add_edge (PT_node* n1, PT_node* n2, Certainty cert)
-{
-	phc_TODO ();
-//	insert (new Alias_pair (n1, n2, cert));
-}
 
-// Add 2 edges, to and from N1 and N2.
-void
-Points_to::add_bidir_edge (PT_node* n1, PT_node* n2, Certainty cert)
-{
-	phc_TODO ();
-//	insert (new Alias_pair (n1, n2, cert));
-//	insert (new Alias_pair (n2, n1, cert));
-}
-
-Points_to*
-Points_to::clone ()
-{
-	phc_TODO ();
-/*
-	Points_to* result = new Points_to;
-
-	foreach (Alias_pair* p, this->all_pairs)
-	{
-		// No need to deep copy, as pairs are never updated in-place.
-		result->add_edge (p->source, p->target, p->cert);
-	}
-
-	// Deep copy
-	result->symtables = symtables;
-	result->abstract_counts = abstract_counts;
-
-	return result;
-	*/
-}
 
 /*
  * Given a list of points_to graphs, return the list of index_nodes which
@@ -463,7 +559,7 @@ Points_to::get_possible_nulls (List<Points_to*>* graphs)
 					if (graph == other)
 						continue;
 
-					if (other->has_node (st) && !other->has_node (index))
+					if (other->has_storage_node (st) && !other->has_field (index))
 					{
 						// Add it
 						if (!existing.has (index->name()))
@@ -608,104 +704,6 @@ Points_to::insert (Alias_pair* pair)
 }
 #endif
 
-bool
-Points_to::has_node (PT_node* node)
-{
-	phc_TODO ();
-	/*
-	Alias_name name = node->name ();
-
-	if (by_source[name].size ())
-		return true;
-	
-	if (by_target[name].size ())
-		return true;
-
-	return false;
-	*/
-}
-
-// And fail if its not present (unless !EXPECTED).
-void
-Points_to::remove_pair (PT_node* source, PT_node* target, bool expected)
-{
-	phc_TODO ();
-	/*
-	Alias_name s = source->name ();
-	Alias_name t = target->name ();
-
-	if (!by_source[s].has (t))
-	{
-		if (!expected)
-			return;
-
-		phc_unreachable ();
-	}
-
-	Alias_pair* edge = by_source[s][t];
-	assert (edge);
-
-	// Find the edge and remove it from all_pairs;
-	all_pairs.erase (edge);
-
-	// Remove it from by_source
-	by_source[s].erase (t);
-
-	// Remove it from by_target
-	by_target[t].erase (s);
-	*/
-}
-
-void
-Points_to::remove_pair (Alias_pair* pair, bool expected)
-{
-	// It might seem like a good idea to do have the other remove_pair call
-	// this, but we want to use the Alias_pair* in the graph, whereas PAIR may
-	// just be a descriptor.
-	remove_pair (pair->source, pair->target, expected);
-}
-
-
-Alias_pair*
-Points_to::get_edge (PT_node* source, PT_node* target)
-{
-	phc_TODO ();
-	/*
-	Alias_name s = source->name ();
-	Alias_name t = target->name ();
-
-	if (!by_source[s].has (t))
-		return NULL;
-	
-	return by_source[s][t];
-	*/
-}
-
-Storage_node*
-Points_to::get_owner (Index_node* index)
-{
-	phc_TODO ();
-	/*
-	if (this->has_node (index))
-	{
-		// get the actual node that points to the index.
-		Storage_node_list* sources = get_incoming <Storage_node> (index);
-		assert (sources->size() == 1);
-		return sources->front ();
-	}
-	else
-	{
-		// INDEX is not in the graph, so get find the node with that name.
-		return this->get_named_node (index->storage);
-	}
-	*/
-}
-
-void
-Points_to::set_reference_cert (Alias_pair* pair, Certainty cert)
-{
-	references.set_value (pair, cert);
-}
 
 
 void
@@ -734,7 +732,7 @@ Points_to::remove_node (PT_node* node)
 }
 
 void
-Points_to::maybe_remove_node (PT_node* node)
+Points_to::garbage_collect (Index_node* node)
 {
 	phc_TODO ();
 	/*
@@ -744,7 +742,14 @@ Points_to::maybe_remove_node (PT_node* node)
 		if (!has_node (SN (dyc<Index_node> (node)->storage)))
 			remove_node (node);
 	}
+	*/
+}
 
+void
+Points_to::garbage_collect (Storage_node* node)
+{
+	phc_TODO ();
+	/*
 	// Garbage collect. This is actually important, and not just for saving
 	// space. Storage nodes may need to come back, typically if they are
 	// implicitly created. We must make sure we get new results, as stale ones
@@ -756,12 +761,6 @@ Points_to::maybe_remove_node (PT_node* node)
 			remove_node (node);
 	}
 	*/
-}
-
-bool
-Points_to::is_symtable (Storage_node* node)
-{
-	return symtables.has (node->name());
 }
 
 Storage_node*
@@ -841,43 +840,7 @@ Points_to::convert_context_names ()
 }
 
 
-
-
-/*
- * Alias-pairs
- */
-
-Alias_pair::Alias_pair (PT_node* source, PT_node* target)
-: source (source)
-, target (target)
-{
-}
-
-bool
-Alias_pair::equals (Alias_pair* other)
-{
-	Alias_name this_source = this->source->name();
-	Alias_name this_target = this->target->name();
-	Alias_name other_source = other->source->name();
-	Alias_name other_target = other->target->name();
-
-	return true
-		&& this_source == other_source
-		&& this_target == other_target
-		;
-}
-
-void
-Alias_pair::dump()
-{
-	CHECK_DEBUG ();
-	cdebug
-	<< source->name ().str() << " -> "
-	<< target->name ().str()
-	;
-}
-
-
+	
 /*
  * Nodes
  */
@@ -1009,5 +972,3 @@ Value_node::for_index_node ()
 {
 	return this->name().str ();
 }
-
-

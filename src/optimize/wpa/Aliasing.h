@@ -24,6 +24,7 @@ class Points_to;
 DECL (Index_node);
 DECL (Storage_node);
 DECL (Value_node);
+DECL (Reference);
 
 class Aliasing : public WPA
 {
@@ -79,12 +80,12 @@ public:
 	 * Take information from Alias results
 	 */
 
-	Index_node_list* get_references (Context cx, Index_node* index,
+	Reference_list* get_references (Context cx, Index_node* index,
 												Certainty cert);
 
 	Index_node_list* get_fields (Context cx, Storage_node* storage);
 
-	Storage_node_list* get_dereferenced (Context cx, Index_node* index);
+	Storage_node_list* get_points_to (Context cx, Index_node* index);
 
 	Storage_node* get_owner (Context cx, Index_node* index);
 

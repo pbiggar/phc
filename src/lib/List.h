@@ -226,7 +226,8 @@ List<Result_type*>* rewrap_list (List<List_type*>* nodes)
 
 typedef List<Object*> Object_list;
 
-#define DECL(T) class T; typedef List<T*> T##_list;
+#define DECL_LIST(T) typedef List<T*> T##_list;
+#define DECL(T) class T; DECL_LIST (T)
 DECL (Boolean);
 DECL (Integer);
 DECL (String);

@@ -14,6 +14,8 @@
  * for us).
  */
 
+// TODO: Write an 'is-a-field-of' analysis.
+
 #include "Points_to.h"
 #include "Aliasing.h"
 #include "optimize/Edge.h"
@@ -108,6 +110,8 @@ Aliasing::pull_pred (Context cx, Context pred)
 void
 Aliasing::pull_possible_null (Context cx, Index_node* node)
 {
+	phc_TODO ();
+	/*
 	Points_to* pt = ins[cx];
 
 	// Copied from assign_value
@@ -126,6 +130,7 @@ Aliasing::pull_possible_null (Context cx, Index_node* node)
 			pt->set_reference_cert (pair, POSSIBLE);
 		}
 	}
+	*/
 }
 
 void
@@ -142,8 +147,6 @@ Aliasing::pull_finish (Context cx)
 void
 Aliasing::aggregate_results (Context cx)
 {
-	// TODO: pull_results creates the OUT entry, and it is updated through the
-	// function. Here, we just want to set CHANGED_FLAG
 	outs[cx]->consistency_check (cx, wp);
 }
 
@@ -152,23 +155,23 @@ Aliasing::kill_value (Context cx, Index_node* lhs)
 {
 	Points_to* ptg = outs[cx];
 
-	foreach (Storage_node* st, *ptg->get_dereferenced (lhs))
+	// This removes LHS from the Points-to graph. This seems wrong, but its
+	// always followed by a call to get the value of LHS, so its OK.
+	foreach (Storage_node* st, *ptg->get_points_to (lhs))
 	{
-		ptg->remove_pair (lhs, st);
-		ptg->maybe_remove_node (lhs);
+		ptg->remove_points_to (lhs, st);
 	}
 }
 
-// Remove all references edges into or out of INDEX. Also call kill_value.
+// Remove all references edges into or out of LHS. KILL_VALUE is called separately.
 void
 Aliasing::kill_reference (Context cx, Index_node* lhs)
 {
 	Points_to* ptg = outs[cx];
 
-	foreach (Index_node* other, *ptg->get_references (lhs, PTG_ALL))
+	foreach (Reference* other, *ptg->get_references (lhs))
 	{
-		ptg->remove_pair (lhs, other);
-		ptg->remove_pair (other, lhs);
+		ptg->remove_reference (lhs, other->index);
 	}
 }
 
@@ -192,30 +195,36 @@ Aliasing::create_reference (Context cx, Index_node* lhs, Index_node* rhs, Certai
 {
 	Points_to* ptg = outs[cx];
 
-	ptg->add_index (lhs, DEFINITE);
-	ptg->add_index (rhs, DEFINITE);
+	ptg->add_field (lhs);
+	ptg->add_field (rhs);
 
-	// Whole program handles value edges.
+	// Whole program handles points-to edges, bit we need to add the references
+	// edges here.
+	//
+	// We only add RHS's reference to LHS, not the other way around. A reference
+	// assignment is a killing definition, and while we may be unsure that we
+	// can kill the LHS (if there are multiple LHSs, for example), we can always
+	// be sure that LHS's references never get added to RHS.
 
 	// Transitive closure for reference edges
-	Certainty certainties[] = {POSSIBLE, DEFINITE};
-	foreach (Certainty edge_cert, certainties)
+	foreach (Reference* ref, *ptg->get_references (rhs))
 	{
-		Index_node_list* pts = ptg->get_references (rhs, edge_cert);
-		foreach (Index_node* in, *pts)
-			ptg->add_bidir_edge (lhs, in,
-				combine_certs (cert, edge_cert));
+		ptg->add_reference (lhs, ref->index, combine_certs (cert, ref->cert));
 	}
 
 	// Add reference edges
-	ptg->add_bidir_edge (lhs, rhs, cert);
+	ptg->add_reference (lhs, rhs, cert);
 }
 
 void
 Aliasing::assign_value (Context cx, Index_node* lhs, Storage_node* storage, Certainty cert)
 {
-	outs[cx]->add_index (lhs, DEFINITE);
-	outs[cx]->add_edge (lhs, storage, cert);
+	// TODO: CERT is not meaningful here. However, it is meaningful in
+	// Whole_program. But surely that is subsumed by the killing definition?
+	Points_to* ptg = outs[cx];
+
+	ptg->add_field (lhs);
+	ptg->add_points_to (lhs, storage);
 }
 
 void
@@ -259,31 +268,30 @@ Aliasing::merge_contexts ()
 	outs = new_outs;
 }
 
-Index_node_list*
+Reference_list*
 Aliasing::get_references (Context cx, Index_node* index, Certainty cert)
 {
-	return ins[cx]->get_references (index, cert);
+	Points_to* ptg = ins[cx];
+	return ptg->get_references (index, cert);
 }
 
 Storage_node_list*
-Aliasing::get_dereferenced (Context cx, Index_node* index)
+Aliasing::get_points_to (Context cx, Index_node* index)
 {
-	// TODO: do a 'is-a-field-of' analysis
+	// This functionality doesn't really belong here. Move it up to
+	// Whole_program, or down to points-to.
+	phc_TODO ();
 	Points_to* ptg = ins[cx];
 
-	Storage_node* st = ptg->get_owner (index);
-
-	// Check the node exists.	
-	if (ptg->get_edge (st, index))
-		return ptg->get_dereferenced (index);
+	// If the index exists, return it.
+	if (ptg->has_field (index))
+		return ptg->get_points_to (index);
 
 
-	// For undefined nodes, we look to the UNKNOWN node. 
-	Index_node* unknown = IN (st->for_index_node (), UNKNOWN);
-	Alias_pair* unknown_edge = ptg->get_edge (st, unknown);
-	assert (unknown_edge);
-
-	return ptg->get_dereferenced (unknown);
+	// If the index doesn't exist, return the UNKNOWN node. 
+	Index_node* unknown = IN (index->storage, UNKNOWN);
+	assert (ptg->has_field (unknown));
+	return ptg->get_points_to (unknown);
 }
 
 
@@ -322,13 +330,13 @@ Aliasing::is_abstract (Context cx, Storage_node* st)
 bool
 Aliasing::storage_exists (Context cx, Storage_node* st)
 {
-	return ins[cx]->has_node (st);
+	return ins[cx]->has_storage_node (st);
 }
 
 bool
 Aliasing::index_exists (Context cx, Index_node* ind)
 {
-	return ins[cx]->has_node (ind);
+	return ins[cx]->has_field (ind);
 }
 
 

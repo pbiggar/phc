@@ -51,36 +51,29 @@ public:
 };
 
 /*
- * These represent Variables, array-indices and fields of storage nodes.
+ * An index_node represents a variable, array-index or field of a storage node.
  *
- * This descriptor is a combination of their storage node and their index.
- *		Global var-vars: GST::*
- *		Local (to function a()) variable 'x': a.ST::x
- *
- *	There is not a unique descriptor for this node. Any object with the same
- *	descriptor represents the same node, in any graph. So we cannot store
- *	attributes in here (they should be in the other analyses' lattices,
- *	indexed by name ().str ()).
+ * It comprises a descriptor, the storage node's name, and the index name.
+ * There is not a unique descriptor for this node. Any object with the same
+ * descriptor represents the same node, in any graph. So we cannot store
+ * attributes in here (they should be in the other analyses' lattices, indexed
+ * by node->name ().str ()).
  */
 class Index_node : public PT_node
 {
 public:
-	// The storage node containing this node.
-	string storage;
+	// The name of the storage node which this indexes.
+	const string storage;
 
-	// The name of the node (* for unnamed)
-	string index;
+	// The name of the node (can be UNKNOWN)
+	const string index;
 
-	// Get the unnamed index representing var-vars, var-fields and array
-	// indexes.
-	static Index_node* get_unnamed (string storage);
-
+public:
 	Index_node (string storage, string index);
-	Alias_name name ();
 
-	String* get_graphviz_label ();
-
-	Index_node* convert_context_name ();
+	virtual Alias_name name ();
+	virtual String* get_graphviz_label ();
+	virtual Index_node* convert_context_name ();
 };
 
 
@@ -89,21 +82,18 @@ public:
 class Storage_node : public PT_node
 {
 public:
-	// If we can touch this, we can ruin Value_node.
-	string storage;
+	const string storage;
 
+public:
 	Storage_node (string storage);
 
+	virtual Alias_name name ();
+	virtual String* get_graphviz_label ();
+	virtual Storage_node* convert_context_name ();
+
+public:
 	// Return a string suitable to be put as the prefix of an index_name.
 	virtual string for_index_node ();
-
-
-	virtual Alias_name name ();
-
-	virtual String* get_graphviz_label ();
-
-
-	virtual Storage_node* convert_context_name ();
 };
 
 // This represents the value of the node that points to it. It is used as the
@@ -115,28 +105,85 @@ public:
 	Value_node (Index_node* owner);
 	Value_node (string owner);
 
-	string for_index_node ();
-
 	Alias_name name ();
-
 	String* get_graphviz_label ();
-
 	Value_node* convert_context_name ();
+
+public:
+	string for_index_node ();
 };
 
-class Alias_pair : virtual public GC_obj
+
+// Just a pair really, but I didnt want to have to remember which was FIRST and which was SECOND.
+class Reference
 {
 public:
-	Alias_pair (PT_node* source, PT_node* target);
-	PT_node* source;
-	PT_node* target;
+	Reference (Index_node* index, Certainty cert)
+	: index(index)
+	, cert(cert)
+	{
+	}
 
-	bool equals (Alias_pair* other);
-	void dump();
+public:
+	Index_node* const index;
+	const Certainty cert;
 };
 
+typedef List<Reference*> Reference_list;
 
-SET_COMPARABLE (Alias_pair);
+template <class Source_type, class Target_type>
+class Alias_pair : virtual public GC_obj
+{
+protected:
+	typedef Alias_pair<Source_type, Target_type> parent;
+
+public:
+
+	Alias_pair (Source_type* source, Target_type* target)
+	: source (source)
+	, target (target)
+	{
+		phc_TODO ();
+	}
+
+	bool equals (parent* other)
+	{
+		Alias_name this_source = this->source->name();
+		Alias_name this_target = this->target->name();
+		Alias_name other_source = other->source->name();
+		Alias_name other_target = other->target->name();
+
+		return true
+			&& this_source == other_source
+			&& this_target == other_target
+			;
+	}
+
+	void dump()
+	{
+		CHECK_DEBUG ();
+		cdebug
+			<< source->name ().str() << " -> "
+			<< target->name ().str()
+			;
+	}
+
+	Source_type* const source;
+	Target_type* const target;
+};
+
+// Cert is kept outside the edge. It is returned from Points-to via Reference.
+typedef Alias_pair<Index_node, Index_node> Reference_edge;
+typedef Alias_pair<Index_node, Storage_node> Points_to_edge; 
+typedef Alias_pair<Storage_node, Index_node> Field_edge; 
+
+DECL_LIST (Points_to_edge);
+DECL_LIST (Field_edge);
+DECL_LIST (Reference_edge);
+
+SET_COMPARABLE (Points_to_edge);
+SET_COMPARABLE (Field_edge);
+SET_COMPARABLE (Reference_edge);
 
 
 /*
@@ -155,56 +202,76 @@ SET_COMPARABLE (Alias_pair);
  *		paths.
  */
 
-DECL (Alias_pair);
-
-template <class S, class T, class V>
+template <class Source_type, class Target_type, class Edge_type, class Value_type>
 class Pair_map
 {
+	typedef Source_type source_type;
+	typedef Target_type target_type;
+	typedef Edge_type edge_type;
 public:
 
 	// Storing values
-	V get_value (Alias_pair* pair)
+	Value_type get_value (Edge_type* edge)
 	{
 		phc_TODO ();
 	}
 
-	void set_value (Alias_pair* pair, V value)
+	void set_value (Edge_type* pair, Value_type value)
 	{
 		phc_TODO ();
 	}
 
 	// Returning members
-	List<T*>* get_targets (S* source)
-	{
-		phc_TODO ();
-	}
-
-	Alias_pair_list* get_pairs ()
+	List<Target_type*>* get_targets (Source_type* source)
 	{
 		phc_TODO ();
 	}
 
 	// Equality
-	bool equals (Pair_map<S, T, V>* other)
+	bool equals (Pair_map<Source_type, Target_type, Edge_type, Value_type>* other)
+	{
+		phc_TODO ();
+	}
+
+	void add_edge (Source_type* source, Target_type* target)
+	{
+		phc_TODO ();
+	}
+
+	bool has_edge (Source_type* source, Target_type* target)
+	{
+		phc_TODO ();
+	}
+
+	bool remove_edge (Source_type* source, Target_type* target)
+	{
+		phc_TODO ();
+	}
+
+	List<Edge_type*>* get_edges ()
 	{
 		phc_TODO ();
 	}
 
 
+
+
+
+
 private:
-	Map<Alias_name, Map<Alias_name, V> > values;
-	Map<Alias_name, Map<Alias_name, Alias_pair*> > by_source;
-	Map<Alias_name, Map<Alias_name, Alias_pair*> > by_target;
+	Map<Alias_name, Map<Alias_name, Value_type> > values;
+	Map<Alias_name, Map<Alias_name, Edge_type*> > by_source;
+	Map<Alias_name, Map<Alias_name, Edge_type*> > by_target;
 };
 
 struct Empty{};
 
-template <class S, class T>
-class Pair_set : public Pair_map<S, T, Empty>, virtual public GC_obj
+template <class Source_type, class Target_type, class Edge_type>
+class Pair_set : public Pair_map<Source_type, Target_type, Edge_type, Empty>, virtual public GC_obj
 {
 private:
-	Empty get_value (Alias_pair* pair) { phc_unreachable (); }
-	void set_value (Alias_pair* pair, Empty value) { phc_unreachable (); }
+	Empty get_value (Edge_type* edge) { phc_unreachable (); }
+	void set_value (Edge_type* edge, Empty value) { phc_unreachable (); }
 };
 
 class Points_to : virtual public GC_obj
@@ -222,89 +289,111 @@ private:
 	// (Index_node, Index_node) -> certainty.
 	// SOURCE and TARGET alias each other, with some CERTAINTY in { POSSIBLE,
 	// DEFINITE }.
-	Pair_map<Index_node, Index_node, Certainty> references;
+	Pair_map<Index_node, Index_node, Reference_edge, Certainty> references;
 
 	// (Index_node, Storage_node) set.
 	// SOURCE is an index points-to TARGET. Its certainty is determined
 	// implicitly by the number of points-to edges from SOURCE.
-	Pair_set<Index_node, Storage_node> points_to;
+	Pair_set<Index_node, Storage_node, Points_to_edge> points_to;
 
 	// TARGETs are indices of SOURCE. A certainty doesn't make sense.
 	// (Storage_node, Index_node) set.
-	Pair_set<Storage_node, Index_node> fields;
+	Pair_set<Storage_node, Index_node, Field_edge> fields;
 
 public:
 	Points_to ();
-
-	bool equals (Points_to* other);
-	void dump_graphviz (String* label, Context cx, Whole_program* wp);
 
 	void open_scope (Storage_node* st);
 	void close_scope (Storage_node* st);
 	bool is_abstract (Storage_node* st);
 	bool is_symtable (Storage_node* st);
 
-	// Get the full list of storage nodes.
+	/*
+	 * Reference
+	 */
+
+	// References are (target, certainty) pairs. Don't confuse them with
+	// Reference_edges.
+	Reference_list* get_references (Index_node* source, Certainty cert = PTG_ALL);
+	void set_reference_cert (Reference_edge* edge, Certainty cert);
+
+	void add_reference (Index_node* source, Index_node* target, Certainty cert);
+	bool has_reference (Index_node* source, Index_node* target);
+	void remove_reference (Index_node* source, Index_node* target);
+
+	/*
+	 * Points-to edges
+	 */
+	Storage_node_list* get_points_to (Index_node* index);
+
+	void add_points_to (Index_node* source, Storage_node* target);
+	bool has_points_to (Index_node* source, Storage_node* target);
+	void remove_points_to (Index_node* source, Storage_node* target);
 
 
-	void insert (Alias_pair*, Certainty cert);
+	/*
+	 * Field edges
+	 */
 
-	// Set the CERTAINTY for PAIR.
-	void set_reference_cert (Alias_pair* pair, Certainty cert);
-
-	// Get the nodes indexing INDEX, with certainty CERT.
-	Index_node_list* get_references (Index_node* index, Certainty cert);
-
-	// Return the indices pointed-to by by STORAGE
 	Index_node_list* get_fields (Storage_node* storage);
 
-	// Return the storage_nodes pointed to by INDEX.
-	Storage_node_list* get_dereferenced (Index_node* index);
+	// The storage node of an index node is implicit (in the STORAGE field).
+	void add_field (Index_node* target);
+	bool has_field (Index_node* target);
+	void remove_field (Index_node* target);
 
-	// Return the storage node pointing to INDEX.
+
+	/*
+	 * Generic API (not specific to a particular edge type)
+	 */
+
 	Storage_node* get_owner (Index_node* index);
+	bool has_storage_node (Storage_node* st);
+
+
+	/*
+	 * For working with the whole Points-to graph.
+	 */
+
+	bool equals (Points_to* other);
+	void dump_graphviz (String* label, Context cx, Whole_program* wp);
+
+	Points_to* clone();
+	Points_to* merge (Points_to* other);
 
 	void consistency_check (Context cx, Whole_program* wp);
+
+
+
+	/*
+	 * TODO: From here on, everything should be vetted (and hopefully killed)
+	 */
 
 	Storage_node_list* get_storage_nodes ();
 
 	static Index_node_list* get_possible_nulls (List<Points_to*>* graphs);
 
-
 	Storage_node* get_named_node (string name);
-
 	PT_node_list* get_nodes ();
 
-
-	/*
-	 * Lower-level API
-	 */
-
-	void add_index (Index_node* node, Certainty);
-	void add_edge (PT_node* n1, PT_node* n2, Certainty);
-	void add_bidir_edge (PT_node* n1, PT_node* n2, Certainty cert);
-
-	bool has_node (PT_node* node);
-
-	// Returns NULL if the edge is missing. We use this in place of a
-	// has_edge() function, since we need to find out its CERTAINTY.
-	Alias_pair* get_edge (PT_node* source, PT_node* target);
-
-	void remove_unreachable_nodes ();
-	void maybe_remove_node (PT_node*);
-
-	void remove_node (PT_node* node);
-	void remove_pair (PT_node* source, PT_node* target, bool expected = true);
-	void remove_pair (Alias_pair* pair, bool expected = true);
-
-	Points_to* clone();
-	Points_to* merge (Points_to* other);
 
 	// A lot of points in the graph use names derived from some context. Change
 	// them to use a non-contextual version.
 	void convert_context_names ();
 
+	/*
+	 * Lower-level API
+	 */
+
 private:
+
+	void remove_unreachable_nodes ();
+
+	void garbage_collect (Index_node*);
+	void garbage_collect (Storage_node*);
+
+	void remove_node (PT_node* node);
+
 
 /*	template <class T>
 	List<T*>* get_incoming (PT_node* node, Certainty cert = PTG_ALL)
