@@ -362,87 +362,41 @@ Points_to::dump_graphviz (String* label, Context cx, Whole_program* wp)
 Points_to*
 Points_to::clone ()
 {
-	phc_TODO ();
-/*
 	Points_to* result = new Points_to;
 
-	foreach (Alias_pair* p, this->all_pairs)
-	{
-		// No need to deep copy, as pairs are never updated in-place.
-		result->add_edge (p->source, p->target, p->cert);
-	}
-
 	// Deep copy
-	result->symtables = symtables;
-	result->abstract_counts = abstract_counts;
+	result->symtables = this->symtables;
+	result->abstract_counts = this->abstract_counts;
+
+	// These will copy pointers to nodes. But that's OK, since nodes are never
+	// updated.
+	// TODO: make Nodes and edges const correct to check this.
+	// TODO: actually, convert_context_names might be a problem here.
+	result->references = this->references;
+	result->points_to = this->points_to;
+	result->fields = this->fields;
 
 	return result;
-	*/
 }
 
 void
 Points_to::consistency_check (Context cx, Whole_program* wp)
 {
-	phc_TODO ();
 	/*
-	foreach (PT_node* node, *get_nodes ())
-	{
-		if (Index_node* ind = dynamic_cast<Index_node*> (node))
-		{
+	 * TODO:
 			// Check index nodes are pointed to by their storage node
-			Storage_node* st = get_storage (ind);
-			Alias_pair* incoming = get_edge (st, ind);
-			if (incoming == NULL)
-			{
 				dump_graphviz (NULL, cx, wp);
 				phc_internal_error ("No edge from storage node for %s",
 										  ind->name().str().c_str());
-			}
 
-			// If there is only one outgoing edges from an index, then it must be
-			// DEFINITE. If not, I'm not being careful with propagating CERTS.
-			Storage_node_list* values = get_values (ind);
-			if (values->size () == 1
-				 && get_edge (ind, values->front())->cert != DEFINITE)
-			{
-				dump_graphviz (NULL, cx, wp);
-				phc_internal_error ("Solo edge from %s to %s is not DEFINITE",
-										  ind->name().str().c_str(),
-										  values->front()->name().str().c_str());
-			}
 
-			// Check there isnt > 1 DEFINITE values
-			if (values->size () > 1)
-			{
-				foreach (Storage_node* st, *values)
-				{
-					if (get_edge (ind, st)->cert == DEFINITE)
-					{
-						dump_graphviz (NULL, cx, wp);
-						phc_internal_error (
-								"Multiple edges from %s, but edge to %s is DEFINITE",
-								ind->name().str().c_str(),
-								st->name().str().c_str());
-					}
-				}
-			}
-
-			// We're disallowing POSSIBLE edges from a storage_node to an
-			// index_node.
-			if (incoming->cert == POSSIBLE)
-			{
+			// Check there isnt > 1 DEFINITE reference
 				dump_graphviz (NULL, cx, wp);
 				phc_internal_error (
-						"Edge from %s to %s is POSSIBLE",
-						st->name().str().c_str(),
-						ind->name().str().c_str());
-			}
-		}
-		else
-		{
-			// TODO: storage node -> storage node edges arent allowed
-		}
-	}*/
+						"Multiple edges from %s, but edge to %s is DEFINITE",
+						ind->name().str().c_str(),
+						st->name().str().c_str());
+	*/
 }
 
 
@@ -795,6 +749,9 @@ Points_to::get_named_node (string name)
 void
 Points_to::convert_context_names ()
 {
+	// TODO: check that this creates new Index_nodes, as the pointers are shared
+	// between differene Pair_maps.
+
 	phc_TODO ();
 	// Each alias_name can be converted in either the prefix or the suffix.
 	// By_source and by_target need to be updated.
