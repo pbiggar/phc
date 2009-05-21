@@ -224,7 +224,12 @@ public:
 	// Returning members
 	List<Target_type*>* get_targets (Source_type* source)
 	{
-		phc_TODO ();
+		List<Target_type*>* result = new List<Target_type*>;
+
+		foreach (Edge_type* edge, *by_source[source->name()].values ())
+			result->push_back (edge->target);
+
+		return result;
 	}
 
 	// Equality
@@ -240,7 +245,12 @@ public:
 
 	bool has_edge (Source_type* source, Target_type* target)
 	{
-		phc_TODO ();
+		bool result = (by_source[source->name()].has (target->name()));
+
+		// TODO: this assert is side-effecting... Very bad.
+		assert (result == (by_target[target->name()].has (source->name())));
+
+		return result;
 	}
 
 	bool remove_edge (Source_type* source, Target_type* target)
