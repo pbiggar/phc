@@ -188,18 +188,18 @@ SET_COMPARABLE (Reference_edge);
 
 /*
  * NOTE:
- *		All PT_nodes are simply descriptors for nodes. They do not provide a
- *		means to access the node itself.
  *
- *		Note too that the index_node is merely a unique point in the graph.
- *		There is no direct mapping to PHP constructs, as some are more
- *		compicated that that. For example: $x =& $x[$y], is an Index_node
- *		indexed by another Index_node, and can refer to multiple index_nodes.
+ *	All PT_nodes are simply descriptors for nodes. They do not provide a means
+ *	to access the node itself.
  *
- *		The result is that Points_to just does the graphing. Paths and P
- *		provide the abstraction layer over the lower-level representation of
- *		PT_nodes, and there is a 1-to-1 correspondence between MIR nodes and
- *		paths.
+ *	Note too that the index_node is merely a unique point in the graph. There
+ *	is no direct mapping to PHP constructs, as some are more compicated that
+ *	that. For example: $x =& $x[$y], is an Index_node indexed by another
+ *	Index_node, and can refer to multiple index_nodes.
+ *
+ *	The result is that Points_to just does the graphing. Paths and P provide the
+ *	abstraction layer over the lower-level representation of PT_nodes, and there
+ *	is a 1-to-1 correspondence between MIR nodes and paths.
  */
 
 template <class Source_type, class Target_type, class Edge_type, class Value_type>

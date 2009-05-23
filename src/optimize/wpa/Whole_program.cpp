@@ -986,13 +986,9 @@ Whole_program::is_must (Context cx, Index_node_list* indices)
 		return true;
 
 	if (index->index == UNKNOWN)
-		return false;
-
-
-	// Dont kill indices of ASNs
-	Storage_node* node = aliasing->get_owner (cx, index);
-	if (aliasing->is_abstract (cx, node))
-		return false;
+		// TODO: redo UNKNOWN stuff
+		phc_TODO ();
+//		return false;
 
 	return true;
 }
@@ -1002,23 +998,21 @@ Certainty
 Whole_program::kill_value (Context cx, Path* plhs)
 {
 	// do implicit conversions
-	Index_node_list* lhss = get_named_indices (cx, plhs, (Indexing_flags)(IMPLICIT_CONVERSION));
+	Index_node_list* lhss = get_named_indices (cx, plhs, IMPLICIT_CONVERSION);
 
-	// TODO: dont kill fields of abstract storage nodes
-
-	// Don't kill if this refers to more than 1 index_node, which means we
-	// don't know what variable to kill.
+	// If there is more than one LHS, then we do not know which index_node to
+	// kill, and should return.
 	if (!is_must (cx, lhss))
 		return POSSIBLE;
 
 
-	// There shoudlnt be any may-refs.
-	assert (aliasing->get_references (cx, lhss->front (), POSSIBLE)->empty());
-
-	foreach (Index_node* node, *get_all_referenced_names (cx, plhs))
+	// We need to be able to decide whether or not the kill the variable. If it
+	// is a may-alias, we cannot kill its value with certainty. 
+	foreach (Reference* ref, *get_all_referenced_names (cx, plhs))
 		foreach_wpa (this)
 		{
-			wpa->kill_value (cx, node);
+			if (ref->cert == DEFINITE && not aliasing->is_abstract_field (ref->index))
+				wpa->kill_value (cx, ref->index);
 		}
 
 	return DEFINITE;
@@ -1106,9 +1100,11 @@ Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 void
 Whole_program::assign_scalar (Context cx, Path* plhs, Literal* lit)
 {
+	phc_TODO ();
 	DEBUG ("assign_scalar");
+	/*
 	kill_value (cx, plhs);
-	foreach (Index_node* node, *get_all_referenced_names (cx, plhs))
+	foreach (Reference* ref, *get_all_referenced_names (cx, plhs))
 	{
 		foreach_wpa (this)
 		{
@@ -1117,12 +1113,14 @@ Whole_program::assign_scalar (Context cx, Path* plhs, Literal* lit)
 
 			wpa->assign_value (cx, node, ABSVAL (node), DEFINITE);
 		}
-	}
+	}*/
 }
 
 void
 Whole_program::assign_typed (Context cx, Path* plhs, Types types)
 {
+	phc_TODO ();
+	/*
 	DEBUG ("assign_typed");
 	// Split scalars, objects and arrays here.
 	Types scalars = Type_inference::get_scalar_types (types);
@@ -1157,13 +1155,15 @@ Whole_program::assign_typed (Context cx, Path* plhs, Types types)
 			//	wpa->assign_storage (bb, ref->name(),
 			//								bb.object_name ()->name(), POSSIBLE);
 		}
-	}
+	}*/
 }
 
 void
 Whole_program::assign_empty_array (Context cx, Path* plhs, string name)
 {
 	DEBUG ("assign_empty_array");
+	phc_TODO ();
+	/*
 	Certainty cert = kill_value (cx, plhs);
 	foreach (Index_node* node, *get_all_referenced_names (cx, plhs))
 	{
@@ -1176,12 +1176,15 @@ Whole_program::assign_empty_array (Context cx, Path* plhs, string name)
 
 	// All the arrays entries are NULL.
 	assign_scalar (cx, P (name, UNKNOWN), new NIL);
+	*/
 }
 
 void
 Whole_program::assign_unknown (Context cx, Path* plhs)
 {
 	DEBUG ("assign_unknown");
+	phc_TODO ();
+	/*
 	// This assigns a value which is unknown, but is not as bad as
 	// ruin_everything (ie, it doesnt link to all the other objects, arrays,
 	// etc. Is this being used right?
@@ -1215,7 +1218,7 @@ Whole_program::assign_unknown (Context cx, Path* plhs)
 			wpa->set_storage (cx, cx.object_node (), Types ("object"));
 			wpa->assign_value (cx, node, cx.object_node (), POSSIBLE);
 		}
-	}
+	}*/
 }
 
 
@@ -1224,6 +1227,8 @@ void
 Whole_program::assign_by_copy (Context cx, Path* plhs, Path* prhs)
 {
 	DEBUG ("assign_by_copy");
+	phc_TODO ();
+	/*
 
 	// foreach values V pointed to by PRHS:
 	//	switch V.type:
@@ -1253,6 +1258,7 @@ Whole_program::assign_by_copy (Context cx, Path* plhs, Path* prhs)
 			copy_value (cx, lhs, rhs, cert);
 		}
 	}
+	*/
 }
 
 bool
@@ -1473,14 +1479,15 @@ Whole_program::get_bb_out_abstract_value (Context cx, Alias_name name)
  * variables that might be looked up, and any other analysis which can reduce
  * the range of the results.
  *
- * Suppose we get a single result, x. Can we say that a def to this must-def x?
- *		- I believe that scalars cant affect this
- *		- I think we can say that.
+ * TODO: this needs to handle UNKNOWN.
  *
+ *	There is a bit of a problem here with implicit creation of values. If we're
+ *	looking to the the assignment $x[$i] = 5, we need to create $x.  Likewise
+ *	for $y =& $x[$i] or anything in the form $y =& $x->$f.
  *
- *	TODO: there is a bit of a problem here with implicit creation of values. If
- *	we're looking to the the assignment $x[$i] = 5, we need to create $x.
- *	Likewise for $y =& $x[$i] or anything in the form $y =& $x->$f.
+ *	Note that this does not follow references. This is because references are
+ *	stored in transitive-closure form (ie if A ref B, B's outgoing nodes should
+ *	exist in A).
  */
 Index_node_list*
 Whole_program::get_named_indices (Context cx, Path* path, Indexing_flags flags)
@@ -1595,27 +1602,20 @@ Whole_program::get_named_index (Context cx, Path* name, Indexing_flags flags)
 
 
 
-Index_node_list*
+Reference_list*
 Whole_program::get_all_referenced_names (Context cx, Path* path, Indexing_flags flags)
 {
-	phc_TODO ();
-/*	Map<Alias_name, Index_node*> names;
-
 	Index_node_list* lhss = get_named_indices (cx, path, flags);
+	Reference_list* refs = new Reference_list;
 
 	foreach (Index_node* lhs, *lhss)
 	{
 		// Handle all the aliases/indirect assignments.
-		Reference_edge* refs = aliasing->get_references (cx, lhs, PTG_ALL);
-		refs->push_back (lhs);
-
-		foreach (Index_node* ref, *refs)
-		{
-			names[ref->name()] = ref;
-		}
+		refs->push_back_all (aliasing->get_references (cx, lhs, PTG_ALL));
+		refs->push_back (new Reference (lhs, DEFINITE));
 	}
 
-	return names.values ();*/
+	return refs;
 }
 
 /*

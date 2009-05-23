@@ -42,6 +42,7 @@
 
 DECL(Method_info);
 DECL(Index_node);
+DECL(Reference);
 
 class CFG;
 class Basic_block;
@@ -231,7 +232,7 @@ public:
 
 
 	// Get anything the path can point to, and all nodes that they may reference.
-	Index_node_list* get_all_referenced_names (Context cx, Path* path, Indexing_flags flags = NO_FLAGS);
+	Reference_list* get_all_referenced_names (Context cx, Path* path, Indexing_flags flags = NO_FLAGS);
 
 
 
