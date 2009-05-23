@@ -87,8 +87,6 @@ public:
 
 	Storage_node_list* get_points_to (Context cx, Index_node* index);
 
-	Storage_node* get_owner (Context cx, Index_node* index);
-
 	Index_node_list* get_possible_nulls (List<Context>*);
 
 	bool is_abstract (Context cx, Storage_node* st);

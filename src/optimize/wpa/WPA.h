@@ -102,7 +102,7 @@ public:
 
 	// LHS has a value taken from STORAGE. STORAGE must already exist.
 	virtual void assign_value (Context cx, Index_node* lhs,
-										Storage_node* storage, Certainty cert) CT_IMPL;
+										Storage_node* storage) CT_IMPL;
 
 	// Create STORAGE, with the gives TYPES.
 	virtual void set_storage (Context cx, Storage_node* storage,

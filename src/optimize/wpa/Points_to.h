@@ -74,6 +74,7 @@ public:
 	virtual Alias_name name ();
 	virtual String* get_graphviz_label ();
 	virtual Index_node* convert_context_name ();
+	virtual Storage_node* get_owner ();
 };
 
 
@@ -358,7 +359,6 @@ public:
 	 * Generic API (not specific to a particular edge type)
 	 */
 
-	Storage_node* get_owner (Index_node* index);
 	bool has_storage_node (Storage_node* st);
 
 
@@ -384,7 +384,6 @@ public:
 
 	static Index_node_list* get_possible_nulls (List<Points_to*>* graphs);
 
-	Storage_node* get_named_node (string name);
 	PT_node_list* get_nodes ();
 
 

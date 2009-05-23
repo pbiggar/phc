@@ -295,14 +295,6 @@ Aliasing::get_points_to (Context cx, Index_node* index)
 }
 
 
-Storage_node*
-Aliasing::get_owner (Context cx, Index_node* index)
-{
-	Points_to* ptg = ins[cx];
-	return ptg->get_owner (index);
-}
-
-
 Index_node_list*
 Aliasing::get_fields (Context cx, Storage_node* storage)
 {

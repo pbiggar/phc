@@ -82,13 +82,13 @@ Points_to::is_abstract (Storage_node* st)
 bool
 Points_to::is_abstract_field (Index_node* index)
 {
-	return is_abstract (get_owner (index));
+	return is_abstract (index->get_owner ());
 }
 
 bool
-Points_to::is_symtable (Storage_node* node)
+Points_to::is_symtable (Storage_node* st)
 {
-	return symtables.has (node->name());
+	return symtables.has (st->name ());
 }
 
 
@@ -200,26 +200,6 @@ Points_to::remove_field (Index_node* index)
 /*
  * Generic API (not specific to a particular edge type)
  */
-
-Storage_node*
-Points_to::get_owner (Index_node* index)
-{
-	phc_TODO ();
-	/*
-	if (this->has_node (index))
-	{
-		// get the actual node that points to the index.
-		Storage_node_list* sources = get_incoming <Storage_node> (index);
-		assert (sources->size() == 1);
-		return sources->front ();
-	}
-	else
-	{
-		// INDEX is not in the graph, so get find the node with that name.
-		return this->get_named_node (index->storage);
-	}
-	*/
-}
 
 bool
 Points_to::has_storage_node (Storage_node* st)
@@ -723,32 +703,6 @@ Points_to::garbage_collect (Storage_node* node)
 	*/
 }
 
-Storage_node*
-Points_to::get_named_node (string name)
-{
-	phc_TODO ();
-	/*
-	Storage_node* result = NULL;
-
-	// There must be an edge to anything it aliases
-
-	foreach (Alias_pair* pair, all_pairs)
-	{
-		// No need to check the target, as storage nodes will always be a source
-		Storage_node* st = dynamic_cast<Storage_node*> (pair->source);
-		if (st && st->storage == name)
-		{
-			assert (result == NULL);
-			result = st;
-		}
-	}
-
-	assert (result);
-
-	return result;
-	*/
-}
-
 /*
  * Dealing with the context name HACK
  */
@@ -934,4 +888,11 @@ string
 Value_node::for_index_node ()
 {
 	return this->name().str ();
+}
+
+
+Storage_node*
+Index_node::get_owner ()
+{
+	return SN (this->storage);
 }

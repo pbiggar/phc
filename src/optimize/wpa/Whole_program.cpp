@@ -964,64 +964,11 @@ Whole_program::backward_bind (Method_info* info, Context exit_cx, MIR::VARIABLE_
 }
 
 
-/*
- * Use whatever information is available to determine the assignments which
- * occur here.
- */
-
-bool
-Whole_program::is_must (Context cx, Index_node_list* indices)
-{
-	// If the edge between it and its storage node is POSSIBLE, this function
-	// is still correct. All that matters is whether we can refer to one index
-	// node, or multiple.
-	assert (!indices->empty ());
-
-	if (indices->size () > 1)
-		return false;
-
-	Index_node* index = indices->front ();
-	
-	if (!aliasing->index_exists (cx, index))
-		return true;
-
-	if (index->index == UNKNOWN)
-		// TODO: redo UNKNOWN stuff
-		phc_TODO ();
-//		return false;
-
-	return true;
-}
-
-// Returns the certainty with which assignments can be made to it.
-Certainty
-Whole_program::kill_value (Context cx, Path* plhs)
-{
-	// do implicit conversions
-	Index_node_list* lhss = get_named_indices (cx, plhs, IMPLICIT_CONVERSION);
-
-	// If there is more than one LHS, then we do not know which index_node to
-	// kill, and should return.
-	if (!is_must (cx, lhss))
-		return POSSIBLE;
-
-
-	// We need to be able to decide whether or not the kill the variable. If it
-	// is a may-alias, we cannot kill its value with certainty. 
-	foreach (Reference* ref, *get_all_referenced_names (cx, plhs))
-		foreach_wpa (this)
-		{
-			if (ref->cert == DEFINITE && not aliasing->is_abstract_field (cx, ref->index))
-				wpa->kill_value (cx, ref->index);
-		}
-
-	return DEFINITE;
-}
-
 void
 Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 {
 	DEBUG ("assign_by_ref");
+	phc_TODO ();
 	Index_node_list* lhss = get_named_indices (cx, plhs);
 	Index_node_list* rhss = get_named_indices (cx, prhs, RECORD_USES);
 
@@ -1044,6 +991,8 @@ Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 	// be implicit.
 	//   - all index nodes are defs
 	//   - if only 1 value node, def, else possible
+
+/*
 
 	bool killable = is_must (cx, lhss);
 	foreach (Index_node* lhs, *lhss)
@@ -1094,6 +1043,7 @@ Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 				wpa->create_reference (cx, lhs, rhs, cert);
 		}
 	}
+	*/
 }
 
 
@@ -1162,21 +1112,26 @@ void
 Whole_program::assign_empty_array (Context cx, Path* plhs, string name)
 {
 	DEBUG ("assign_empty_array");
-	phc_TODO ();
-	/*
-	Certainty cert = kill_value (cx, plhs);
-	foreach (Index_node* node, *get_all_referenced_names (cx, plhs))
+
+	// Assign the value to all referenced names.
+	foreach (Reference* ref, *get_all_referenced_names (cx, plhs))
 	{
 		foreach_wpa (this)
 		{
-			wpa->set_storage (cx, SN (name), Types ("array"));
-			wpa->assign_value (cx, node, SN (name), cert);
+			if (ref->cert == DEFINITE)
+				wpa->kill_value (cx, ref->index);
+
+			wpa->assign_value (cx, ref->index, SN (name));
 		}
 	}
 
+	// Set the type for storage to ARRAY
+	foreach_wpa (this)
+		wpa->set_storage (cx, SN (name), Types ("array"));
+
+
 	// All the arrays entries are NULL.
 	assign_scalar (cx, P (name, UNKNOWN), new NIL);
-	*/
 }
 
 void
@@ -1268,7 +1223,7 @@ Whole_program::copy_from_abstract_value (Context cx, Index_node* lhs, Index_node
 	// is both an absval and another storage node, then the other storage nodes
 	// will be handled in a different call, and we need concern ourselves only
 	// with the absval here).
-	Storage_node* st = aliasing->get_owner (cx, rhs);
+	Storage_node* st = rhs->get_owner ();
 
 	// Get the type of the value
 	Types types = type_inf->get_types (cx, st->name());
@@ -1311,7 +1266,8 @@ Whole_program::copy_from_abstract_value (Context cx, Index_node* lhs, Index_node
 		else
 			wpa->set_storage (cx, ABSVAL (lhs), Types ("string", "unset"));
 
-		wpa->assign_value (cx, lhs, ABSVAL (lhs), DEFINITE);
+		phc_TODO ();
+		wpa->assign_value (cx, lhs, ABSVAL (lhs));
 	}
 
 
@@ -1356,7 +1312,8 @@ Whole_program::copy_value (Context cx, Index_node* lhs, Index_node* rhs, Certain
 				wpa->set_scalar (cx, ABSVAL (lhs),
 						get_abstract_value (cx, st->name()));
 
-				wpa->assign_value (cx, lhs, ABSVAL (lhs), cert);
+				phc_TODO ();
+				wpa->assign_value (cx, lhs, ABSVAL (lhs));
 			}
 		}
 
@@ -1380,15 +1337,17 @@ Whole_program::copy_value (Context cx, Index_node* lhs, Index_node* rhs, Certain
 			}
 
 			// LHS points to NEW_ARRAY.
+			phc_TODO ();
 			foreach_wpa (this)
-				wpa->assign_value (cx, lhs, new_array, cert);
+				wpa->assign_value (cx, lhs, new_array);
 		}
 
 		if (objects.size ())
 		{
 			// Just point to the object.
+			phc_TODO ();
 			foreach_wpa (this)
-				wpa->assign_value (cx, lhs, st, cert);
+				wpa->assign_value (cx, lhs, st);
 		}
 	}
 }
@@ -1605,14 +1564,35 @@ Whole_program::get_named_index (Context cx, Path* name, Indexing_flags flags)
 Reference_list*
 Whole_program::get_all_referenced_names (Context cx, Path* path, Indexing_flags flags)
 {
+	// Returns a list of (Index_node, certainty) pairs. Although the certainty
+	// originally comes from alias analysis, it is updated to reflect if the
+	// index_node is killable, taking into account the following conditions:
+	//
+	//		1.) the reference to it must be definite (this is what we get from aliasing)
+	//		2.) fields of abstract storage node are not killable
+	//		3.) if it is possible to reach more than 1 node with the same name,
+	//		then it is not killable.
 	Index_node_list* lhss = get_named_indices (cx, path, flags);
 	Reference_list* refs = new Reference_list;
 
 	foreach (Index_node* lhs, *lhss)
 	{
-		// Handle all the aliases/indirect assignments.
-		refs->push_back_all (aliasing->get_references (cx, lhs, PTG_ALL));
-		refs->push_back (new Reference (lhs, DEFINITE));
+		// Cond 1.) is filled on return
+		Reference_list* cond1_refs = aliasing->get_references (cx, lhs, PTG_ALL);
+		cond1_refs->push_back (new Reference (lhs, DEFINITE));
+
+		Reference_list cond123_refs;
+		foreach (Reference* cond1, *cond1_refs)
+		{
+			Certainty cert23 = cond1->cert;
+			if (aliasing->is_abstract_field (cx, cond1->index) // cond 2.
+				or lhss->size () > 1) // cond 3
+				cert23 = POSSIBLE;
+
+			cond123_refs.push_back (new Reference (cond1->index, cert23));
+		}
+
+		refs->push_back_all (&cond123_refs);
 	}
 
 	return refs;
