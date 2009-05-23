@@ -161,161 +161,127 @@ left operand. Here's the full transform:
 	
 .. sourcecode:: c++
 
-class Remove_concat_null : public Transform
-{
-public:
-   Expr* post_bin_op(Bin_op* in)
+   class Remove_concat_null : public Transform
    {
-      STRING* empty = new STRING(new String(""));
-      Wildcard<Expr>* wildcard = new Wildcard<Expr>;
-   
-      <emphasis>// Replace with right operand if left operand is the empty string</emphasis>
-      if(in->match(new Bin_op(empty, wildcard, ".")))
-         return wildcard->value;
-   
-      <emphasis>// Replace with left operand if right operand is the empty string</emphasis>
-      if(in->match(new Bin_op(wildcard, empty, ".")))
-         return wildcard->value;
+   public:
+      Expr* post_bin_op(Bin_op* in)
+      {
+         STRING* empty = new STRING(new String(""));
+         Wildcard<Expr>* wildcard = new Wildcard<Expr>;
       
-      return in;
-   }
-}
-
-
-<para>
-	We already explained what ``match`` does in <xref
-	linkend="treetutorial2">, but we have not yet explained the use of
-	wildcards. If you are using a wildcard (``WILDCARD``) in a pattern
-	passed to ``match``, ``match`` will not take that subtree
-	into account. Thus, 
-</para> 
-	
-.. sourcecode::
-
-if(in->match(new Bin_op(empty, WILDCARD, ".")))
-
-			
-<para>
-	can be paraphrased as "is ``in`` a binary operator with the
-	empty string as the left operand and ``"."`` as the operator (I
-	don't care about the right operand)?" If the match succeeded, you can
-	find out which expression was matched by the wildcard by accessing
-	``wildcard->value``. 
-</para>
-
-</section>
-<section>
-
-<title> Running Transformations </title>
-
-<para>
-	Recall from the previous two tutorials that visitors are run with a call to
-	``visit``: 
-</para>
-
-.. sourcecode::
-
-extern "C" void run_ast (PHP_script* in, Pass_manager* pm, String* option)
-{
-    SomeVisitor visitor;
-    in->visit(&amp;visitor);
-}
-
-
-<para> Likewise, transformations are run with a call to 
-``transform_children``: </para>
-
-.. sourcecode::
-
-extern "C" void run_ast (PHP_script* in, Pass_manager* pm, String* option)
-{
-    SomeTransform transform;
-    in->transform_children(&amp;transform);
-}
-
-
-<para>
-	We invoke ``transform_children`` because we should not replace the
-	top-level node in the AST (the ``PHP_script`` node itself).
-</para> 
-
-</section>
-<section>
-
-<title> A Subtlety </title>
-
-<para>
-	If you don't understand this section right now, don't worry about it; you
-	might find it useful to read it again after having gained some experience
-	with the transformation API. 
-</para>
-
-<para>
-	We have implemented the transform as a <emphasis>post-</emphasis>transform
-	rather than a <emphasis>pre-</emphasis> transform. Why? Suppose we
-	implemented the transform as a pre-transform.  Consider the following PHP
-	expression (bracketed explicitly for emphasis:) 
-</para>
-
-.. sourcecode::
-
-("" . $a) . ""
-
-
-<para>
-	The first binary operator we encounter is the second one (get |phc| to print
-	the tree if you don't see why.) So, we apply the transform and replace the
-	operator by its left operand, which happens to be ``("" . $a)``.
-	We then continue <emphasis>and transform the children of the that
-	node</emphasis>, because that is how the tree transform API is defined. But
-	the <emphasis>children</emphasis> of that node are ``""`` and
-	``$a``. So, that means that the other binary operator itself will
-	never be processed! 
-</para>
-
-<para>
-	There are two solutions to this problem. The first is the one we used above,
-	and use a post-transform instead of a pre-transform. You should try to
-	reason out why this works, but a rule of thumb is that unless there is a
-	good reason to use a pre-transform, it's safer to use the post-transform,
-	because in the post-transform the children of the node have already been
-	transformed, so that you are looking at the "final" version of
-	the node. 
-</para>
-
-<para>
-	The second solution is to use a pre-transform, but explicitly tell |phc| to
-	transform the new node in turn.  This is the less elegant solution, but
-	sometimes this is the only solution that will work (see for example the
-	``Token_conversion`` transform in the
-	:file:`src/process_ast/Token_conversion.cpp`). To do this, you
-	would replace 
-</para>
+         // Replace with right operand if left operand is the empty string
+         if(in->match(new Bin_op(empty, wildcard, ".")))
+            return wildcard->value;
+      
+         // Replace with left operand if right operand is the empty string
+         if(in->match(new Bin_op(wildcard, empty, ".")))
+            return wildcard->value;
          
-.. sourcecode::
-
-return in->right;
-
-
-<para>
-	by 
-</para>
-
-.. sourcecode::
-
-return in->right->pre_transform(this);
+         return in;
+      }
+   }
 
 
-</section>
-<section>
+We already explained what :func:`match` does in <xref linkend="treetutorial2">, but
+we have not yet explained the use of wildcards. If you are using a wildcard
+(:class:`WILDCARD`) in a pattern passed to :func:`match`, :func:`match` will
+not take that subtree into account. Thus, 
+	
+.. sourcecode:: c++
 
-<title> What's Next? </title>
+   if(in->match(new Bin_op(empty, WILDCARD, ".")))
 
-<para>
-	The next tutorial in this series, <xref linkend="treetutorial4"
-	endterm="treetutorial4.title">, introduces a very important notion in
-	transforms: the use of <emphasis>state</emphasis>. 
-</para>
 
-</section>
-</chapter>
+can be paraphrased as "is ``in`` a binary operator with the empty string as the
+left operand and ``"."`` as the operator (I don't care about the right
+operand)?" If the match succeeded, you can find out which expression was
+matched by the wildcard by accessing ``wildcard->value``. 
+
+
+Running Transformations
+=======================
+
+Recall from the previous two tutorials that visitors are run with a call to
+:func:`visit`: 
+
+.. sourcecode:: c++
+
+   extern "C" void run_ast (PHP_script* in, Pass_manager* pm, String* option)
+   {
+       SomeVisitor visitor;
+       in->visit(&visitor);
+   }
+
+
+Likewise, transformations are run with a call to 
+:func:`transform_children`:
+
+.. sourcecode:: c++
+
+   extern "C" void run_ast (PHP_script* in, Pass_manager* pm, String* option)
+   {
+       SomeTransform transform;
+       in->transform_children(&transform);
+   }
+
+
+We invoke :func:`transform_children` because we should not replace the
+top-level node in the AST (the :class:`PHP_script` node itself).
+
+
+A Subtlety
+----------
+
+If you don't understand this section right now, don't worry about it; you might
+find it useful to read it again after having gained some experience with the
+transformation API. 
+
+We have implemented the transform as a **post-**\transform
+rather than a **pre-** transform. Why? Suppose we implemented
+the transform as a pre-transform.  Consider the following PHP expression
+(bracketed explicitly for emphasis:) 
+
+.. sourcecode:: php
+
+   ("" . $a) . ""
+
+
+The first binary operator we encounter is the second one (get |phc| to print
+the tree if you don't see why.) So, we apply the transform and replace the
+operator by its left operand, which happens to be ``("" . $a)``.  We then
+continue **and transform the children of the that node**, because that is how
+the tree transform API is defined. But the **children** of that node are ``""``
+and ``$a``. So, that means that the other binary operator itself will never be
+processed! 
+
+There are two solutions to this problem. The first is the one we used above,
+and use a post-transform instead of a pre-transform. You should try to reason
+out why this works, but a rule of thumb is that unless there is a good reason
+to use a pre-transform, it's safer to use the post-transform, because in the
+post-transform the children of the node have already been transformed, so that
+you are looking at the "final" version of the node. 
+
+The second solution is to use a pre-transform, but explicitly tell |phc| to
+transform the new node in turn.  This is the less elegant solution, but
+sometimes this is the only solution that will work (see for example the
+:class:`Token_conversion` transform in the
+:file:`src/process_ast/Token_conversion.cpp`). To do this, you would replace 
+         
+.. sourcecode:: c++
+
+   return in->right;
+
+
+by 
+
+.. sourcecode:: c++
+
+   return in->right->pre_transform(this);
+
+
+What's Next?
+============
+
+The next tutorial in this series, <xref linkend="treetutorial4"
+endterm="treetutorial4.title">, introduces a very important notion in
+transforms: the use of *state*.
