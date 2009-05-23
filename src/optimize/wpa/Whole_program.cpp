@@ -1050,45 +1050,42 @@ Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 void
 Whole_program::assign_scalar (Context cx, Path* plhs, Literal* lit)
 {
-	phc_TODO ();
 	DEBUG ("assign_scalar");
-	/*
-	kill_value (cx, plhs);
 	foreach (Reference* ref, *get_all_referenced_names (cx, plhs))
 	{
 		foreach_wpa (this)
 		{
-			wpa->set_scalar (cx, ABSVAL (node),
-					Abstract_value::from_literal (lit));
+			if (ref->cert == DEFINITE)
+				wpa->kill_value (cx, ref->index);
 
-			wpa->assign_value (cx, node, ABSVAL (node), DEFINITE);
+			wpa->set_scalar (cx, ABSVAL (ref->index), Abstract_value::from_literal (lit));
+			wpa->assign_value (cx, ref->index, ABSVAL (ref->index));
 		}
-	}*/
+	}
 }
 
 void
 Whole_program::assign_typed (Context cx, Path* plhs, Types types)
 {
-	phc_TODO ();
-	/*
 	DEBUG ("assign_typed");
 	// Split scalars, objects and arrays here.
 	Types scalars = Type_inference::get_scalar_types (types);
 	Types array = Type_inference::get_array_types (types);
 	Types objects = Type_inference::get_object_types (types);
 
-	Certainty cert = kill_value (cx, plhs);
-	foreach (Index_node* node, *get_all_referenced_names (cx, plhs))
+	foreach (Reference* ref, *get_all_referenced_names (cx, plhs))
 	{
-		Alias_name name = node->name();
 		foreach_wpa (this)
 		{
+			if (ref->cert == DEFINITE)
+				wpa->kill_value (cx, ref->index);
+
 			if (scalars.size ())
 			{
-				wpa->set_scalar (cx, ABSVAL (node),
+				wpa->set_scalar (cx, ABSVAL (ref->index),
 						Abstract_value::from_types (scalars));
 
-				wpa->assign_value (cx, node, ABSVAL(node), cert);
+				wpa->assign_value (cx, ref->index, ABSVAL (ref->index));
 			}
 
 
@@ -1105,7 +1102,7 @@ Whole_program::assign_typed (Context cx, Path* plhs, Types types)
 			//	wpa->assign_storage (bb, ref->name(),
 			//								bb.object_name ()->name(), POSSIBLE);
 		}
-	}*/
+	}
 }
 
 void
@@ -1138,17 +1135,13 @@ void
 Whole_program::assign_unknown (Context cx, Path* plhs)
 {
 	DEBUG ("assign_unknown");
-	phc_TODO ();
-	/*
 	// This assigns a value which is unknown, but is not as bad as
 	// ruin_everything (ie, it doesnt link to all the other objects, arrays,
 	// etc. Is this being used right?
 
-	kill_value (cx, plhs);
-
 	// Unknown may be an array, a scalar or an object, all of which have
 	// different properties. We must be careful to separate these.
-	foreach (Index_node* node, *get_all_referenced_names (cx, plhs))
+	foreach (Reference* ref, *get_all_referenced_names (cx, plhs))
 	{
 		// When assigning to different references:
 		//		- scalar values are copied (though they are conceptually shared,
@@ -1157,6 +1150,9 @@ Whole_program::assign_unknown (Context cx, Path* plhs)
 		//		- the object is shared, and will have a unique name.
 		foreach_wpa (this)
 		{
+			if (ref->cert == DEFINITE)
+				wpa->kill_value (cx, ref->index);
+
 			// TODO: this is really not good enough. The array looks empty, the
 			// object may reference anything. I suspect this is only suitable
 			// for _SESSION, when nothing else really exists. Even then, the
@@ -1164,16 +1160,16 @@ Whole_program::assign_unknown (Context cx, Path* plhs)
 			// have UNKNOWN fields pointing to themselves, and marking them as
 			// abstract.
 
-			wpa->set_scalar (cx, ABSVAL (node), Abstract_value::unknown ());
-			wpa->assign_value (cx, node, ABSVAL (node), POSSIBLE);
+			wpa->set_scalar (cx, ABSVAL (ref->index), Abstract_value::unknown ());
+			wpa->assign_value (cx, ref->index, ABSVAL (ref->index));
 
 			wpa->set_storage (cx, cx.array_node (), Types ("array"));
-			wpa->assign_value (cx, node, cx.array_node (), POSSIBLE);
+			wpa->assign_value (cx, ref->index, cx.array_node ());
 
 			wpa->set_storage (cx, cx.object_node (), Types ("object"));
-			wpa->assign_value (cx, node, cx.object_node (), POSSIBLE);
+			wpa->assign_value (cx, ref->index, cx.object_node ());
 		}
-	}*/
+	}
 }
 
 
