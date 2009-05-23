@@ -115,7 +115,7 @@ Suppose we want to rename function :func:`foo()` to
 
 .. sourcecode:: c++
 
-   #include "AST_visitor.h"v
+   #include "AST_visitor.h"
    #include "pass_manager/Plugin_pass.h"
 
    class Rename_foo_to_bar : public Visitor
