@@ -1011,7 +1011,7 @@ Whole_program::kill_value (Context cx, Path* plhs)
 	foreach (Reference* ref, *get_all_referenced_names (cx, plhs))
 		foreach_wpa (this)
 		{
-			if (ref->cert == DEFINITE && not aliasing->is_abstract_field (ref->index))
+			if (ref->cert == DEFINITE && not aliasing->is_abstract_field (cx, ref->index))
 				wpa->kill_value (cx, ref->index);
 		}
 

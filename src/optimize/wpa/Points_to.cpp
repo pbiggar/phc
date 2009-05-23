@@ -80,6 +80,12 @@ Points_to::is_abstract (Storage_node* st)
 }
 
 bool
+Points_to::is_abstract_field (Index_node* index)
+{
+	return is_abstract (get_owner (index));
+}
+
+bool
 Points_to::is_symtable (Storage_node* node)
 {
 	return symtables.has (node->name());
