@@ -144,7 +144,6 @@ public:
 	: source (source)
 	, target (target)
 	{
-		phc_TODO ();
 	}
 
 	bool equals (parent* other)
@@ -241,22 +240,24 @@ public:
 
 	void add_edge (Source_type* source, Target_type* target)
 	{
-		phc_TODO ();
+		by_source [source->name ()][target->name ()] = new Edge_type (source, target);
+		by_target [target->name ()][source->name ()] = new Edge_type (source, target);
 	}
 
 	bool has_edge (Source_type* source, Target_type* target)
 	{
 		bool result = (by_source[source->name()].has (target->name()));
 
-		// TODO: this assert is side-effecting... Very bad.
 		assert (result == (by_target[target->name()].has (source->name())));
 
 		return result;
 	}
 
-	bool remove_edge (Source_type* source, Target_type* target)
+	void remove_edge (Source_type* source, Target_type* target)
 	{
-		phc_TODO ();
+		by_source[source->name()].erase (target->name ());
+		by_target[target->name()].erase (source->name ());
+		values[source->name()].erase (target->name());
 	}
 
 	List<Edge_type*>* get_edges ()
