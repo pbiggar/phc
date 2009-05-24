@@ -64,9 +64,12 @@ Indices and tables
 		folds
 		describe compilation and generate-c
       pass_manager
+      maketea_user_defined
       common errors in phc
          - boost foreach bug
       common idioms in phc
          - Map, List, etc, garbage collection
+      analyses in other languages:
+         ie PHP
 
 
