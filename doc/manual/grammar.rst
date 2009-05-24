@@ -5,7 +5,7 @@ This is the full and authoritative definition of the |phc| abstract grammar for
 PHP in :program:`maketea` format (this can also be found in
 :file:`src/generated_src/ast.tea` in the distribution). For a description of
 the structure of the grammar, and how it converts to C++ code, refer to the
-<xref linkend="maketeatheory">.  
+:ref:`maketeatheory`.  
 
 
 Overall Structure

@@ -18,9 +18,8 @@ abstract representation in one of two ways:
    in any way you like, and then use |phc| to convert the XML back to PHP.
 
 
-The <xref linkend="treetutorials"> explain how to
-write plugins for |phc|, and provide numerous examples. You will find <xref
-linkend="reference"> very useful when writing serious
+The :ref:`treetutorials` explain how to
+write plugins for |phc|, and provide numerous examples. You will find :ref:`reference` very useful when writing serious
 applications using |phc|.
 
 Although we have tried to document |phc| as well as we can, if anything is
@@ -33,7 +32,7 @@ System Requirements
 
 If you want to modify the internals of |phc| in other ways than through the
 explicit API we provide for doing so, you will following tools listed below, in
-addition to those detailed in the user manual (<xref linkend="install">).
+addition to those detailed in the user manual (:ref:`install`).
 However, most people should not need these tools (even if you are implementing
 tools based on |phc|).
 
@@ -99,7 +98,7 @@ Consider the following simple PHP script.
 
 
 Internally this program gets represented as an abstract syntax tree, as
-shown in figure <xref linkend="ast">.
+shown in figure :ref:`ast`.
 
 .. figure:: img/demo.jpg
 
@@ -168,39 +167,39 @@ PHP scripts within the |phc| framework.
 Writing Plugins
 ---------------
 
-<xref linkend="gettingstarted"> introduces
+:ref:`gettingstarted` introduces
 writing plugins for |phc|. It then explains how |phc| represents PHP scripts
 internally, and shows how to write a first (but ultimately wrong) attempt at
 simple plugin that counts the number of statements in a PHP script.
 
-<xref linkend="treetutorial1"> introduces the
+:ref:`treetutorial1` introduces the
 support that |phc| offers for traversing (and transforming) scripts. It shows
 how to write a plugin that correctly counts the number of statements in a
 script.
 
-<xref linkend="treetutorial2"> shows how you can
+:ref:`treetutorial2` shows how you can
 modify nodes in the tree (without modifying the structure of the tree).  It
 shows how to replace calls to :func:`mysql_connect()` by calls to
 :func:`dbx_connect()`.
 
-<xref linkend="treetutorial3"> shows how you can
+:ref:`treetutorial3` shows how you can
 modify the structure of the tree. It works through an example that removes
 unnecessary string concatenations (for example, ``$a .  ""`` is replaced by
 just ``$a``).
 
-<xref linkend="treetutorial4"> explains an
+:ref:`treetutorial4` explains an
 advanced features of pattern matching, and shows an important technique: the
 use of state in transformations (where one transformation depends on a previous
 transformation). It shows how to write a program that renames all functions
 :func:`foo()` in a script to :func:`db_foo()`, if there are calls to a database
 engine within :func:`foo()`.
 
-<xref linkend="treetutorial5"> explains how
+:ref:`treetutorial5` explains how
 to change the order in which the children of a node are visited, avoid visiting
 some children, or how to execute a piece of code in between visiting two
 children.
 
-<xref linkend="treetutorial6"> shows how to
+:ref:`treetutorial6` shows how to
 define transformations that replace nodes in the tree by multiple other nodes,
 and how to delete nodes from the tree. It also shows to call the |phc| parser
 and unparsers from plugins.
@@ -210,24 +209,21 @@ Reference
 ---------
 
 |phc| represents PHP scripts internally as an abstract syntax tree. The
-structure of this tree is dictated by the <xref linkend="grammar"
->. The grammar definition is a very important part of
+structure of this tree is dictated by the :ref:`grammar`. The grammar definition is a very important part of
 |phc|.
 
 |phc|'s view on the world (as dictated by the grammar) does not completely
-agree with the PHP standard view.  <xref linkend="representingphp"
-> describes how the various PHP constructs get
+agree with the PHP standard view.  :ref:`representingphp` describes how the various PHP constructs get
 translated into the abstract syntax.
 
-<xref linkend="apioverview"> gives an
+:ref:`apioverview` gives an
 overview of the AST classes, the tree visitor API and the tree transformation
 API from a programmer's perspective.
 
 :program:`Maketea` is a tool created for |phc| which, based on a grammar
 definition of a language, generates a C++ hierarchy for the corresponding
 abstract syntax tree, a tree transformation and visitor API, and deep cloning,
-deep equality and pattern matching on the AST. <xref linkend="maketeatheory"
-> explains some of the theory behind
+deep equality and pattern matching on the AST. :ref:`maketeatheory` explains some of the theory behind
 :program:`maketea`; in particular, the grammar formalism, the mapping from the
 grammar to the AST classes, and the derivation of the tree transformation API.
 

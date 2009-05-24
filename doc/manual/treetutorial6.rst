@@ -63,7 +63,7 @@ replace the method invocation (the ``include`` statement) only by another,
 single, expression. But we want to replace it by the contents of the specified
 file! 
 
-Recall from <xref linkend="treetutorial1"> that to turn an expression into a
+Recall from :ref:`treetutorial1` that to turn an expression into a
 statement, |phc| inserts an :class:`Eval_expr` in the abstract syntax tree.
 Thus, if we want to process ``include`` statements, we could also look at all
 :class:`Eval_expr` nodes. Assuming for the moment we can make that work, does
@@ -118,8 +118,7 @@ Using the XML unparser
 So, we now want to do something more useful than deleting all
 :class:`Eval_expr` nodes from the tree. The first thing we need to be able to
 do is distinguish ``include`` statements from other :class:`Eval_expr` nodes.
-We can use pattern matching (see <xref linkend="treetutorial3"> and <xref
-linkend="treetutorial4">) to do that - but what should we match against? If you
+We can use pattern matching (see :ref:`treetutorial3` and :ref:`treetutorial4`) to do that - but what should we match against? If you
 are unsure about the structure of the tree, it can be quite useful to use the
 XML unparser to find out what the tree looks like. We modify the plugin as
 follows: 
@@ -331,11 +330,10 @@ This is the last tutorial in this series on using the :class:`AST::Visitor` and
 stuff is to try it out for yourself.  Hopefully, the tutorials will help you do
 so.  The following sources should also be useful: 
 
-*  The <xref linkend="grammar"> (and the <xref
-   linkend="maketeatheory">)
+*  The :ref:`grammar` (and the :ref:`maketeatheory`)
 
 *  The explanation of how PHP gets represented in the abstract syntax as
-   detailed in <xref linkend="representingphp">
+   detailed in :ref:`representingphp`
 
 *  The definition of the C++ classes for the AST nodes in
    :file:`src/generated/AST.h`

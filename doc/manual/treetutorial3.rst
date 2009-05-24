@@ -2,8 +2,8 @@ Restructuring the Tree
 ======================
 
 
-Now that we have seen in <xref linkend="treetutorial1"> how we can traverse the
-tree, and in <xref linkend="treetutorial2"> how we can modify individual nodes
+Now that we have seen in :ref:`treetutorial1` how we can traverse the
+tree, and in :ref:`treetutorial2` how we can modify individual nodes
 in the tree, in this tutorial we will look at modifying the structure of the
 tree itself.
 
@@ -145,8 +145,7 @@ particular condition holds, we must return ``in``. This will replace ``*in`` by
 
 The second thing to note is that the return type of :func:`pre_bin_op` is
 :class:`Expr` instead of :class:`Bin_op`. This means that we can replace a
-binary operator node by another other expression node. The <xref
-linkend="maketeatheory"> explains exactly how the
+binary operator node by another other expression node. The :ref:`maketeatheory` explains exactly how the
 signatures for the ``pre`` and ``post`` methods are derived, but in most cases
 they are what you'd expect.  The easiest way to check is to simply look them up
 in :file:`<AST_transform.h>`. 
@@ -183,7 +182,7 @@ left operand. Here's the full transform:
    }
 
 
-We already explained what :func:`match` does in <xref linkend="treetutorial2">, but
+We already explained what :func:`match` does in :ref:`treetutorial2`, but
 we have not yet explained the use of wildcards. If you are using a wildcard
 (:class:`WILDCARD`) in a pattern passed to :func:`match`, :func:`match` will
 not take that subtree into account. Thus, 
@@ -283,6 +282,5 @@ by
 What's Next?
 ------------
 
-The next tutorial in this series, <xref linkend="treetutorial4"
->, introduces a very important notion in
+The next tutorial in this series, :ref:`treetutorial4`, introduces a very important notion in
 transforms: the use of *state*.

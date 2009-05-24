@@ -3,7 +3,7 @@ Representing PHP
 
 
 Most PHP constructs can immediately be represented in terms of the |phc|
-grammar (<xref linkend="grammar">). There are a few constructs that present
+grammar (:ref:`grammar`). There are a few constructs that present
 some difficulties. This document describes how these difficulties are resolved,
 and it explains some of the more difficult rules in the grammar.
 
@@ -177,8 +177,7 @@ if not all the time. In particular, it should never loose any comments. If
 something goes wrong with comments, please <ulink
 url="http://www.phpcompiler.org/contact.html">send</ulink> us a sample program
 that shows where it goes wrong. Note that whitespace in multi-line comments
-gets dealt with in a less than satisfactory way; see <xref
-linkend="limitations"> for details for details.
+gets dealt with in a less than satisfactory way; see :ref:`limitations` for details for details.
 </para> 
 
 
@@ -282,15 +281,14 @@ To compare, consider the tree for
    $g->greet("TACS");
 
 
-Using the |phc| abstract syntax, this looks like the tree shown in figure <xref
-linkend="abstracttree">. 
+Using the |phc| abstract syntax, this looks like the tree shown in figure :ref:`abstracttree`. 
 	
 .. figure:: img/abstract-tree.jpg
 
    Function call in the AST
 
 However, in the official PHP grammar, the tree would look like the tree shown
-in figure <xref linkend="concretetree">. 
+in figure :ref:`concretetree`. 
 
 .. figure:: img/concrete-tree.jpg
 

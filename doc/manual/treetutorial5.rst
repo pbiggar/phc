@@ -1,8 +1,7 @@
 Modifying the Traversal Order
 =============================
 
-As explained in the previous tutorials (in particular, <xref
-linkend="treetutorial1">), when a
+As explained in the previous tutorials (in particular, :ref:`treetutorial1`), when a
 :class:`AST::Visitor` traverses a tree, it first calls ``pre_xxx`` for a node
 of type *xxx*, it then visits all the children of the node, and finally it
 calls ``post_xxx`` on the node.  For many transforms, this is sufficient
@@ -121,6 +120,6 @@ Here is the transform that does what we need (available as
 What's Next?
 ------------
 
-<xref linkend="treetutorial6"> explains how to deal with transforms that can
+:ref:`treetutorial6` explains how to deal with transforms that can
 replace a single node by multiple new nodes, and shows how to call the |phc|
 parser and unparser from your plugins.

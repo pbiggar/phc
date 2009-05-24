@@ -1,7 +1,7 @@
 Modifying Tree Nodes
 ====================
 
-Now that we have seen in <xref linkend="treetutorial1"> how to inspect the
+Now that we have seen in :ref:`treetutorial1` how to inspect the
 tree, in this tutorial we will look at modifying the tree. The task we set
 ourselves is: replace all calls to :func:`mysql_connect` by calls to
 func:`dbx_connect` (<ulink url="http://pecl.php.net/package/dbx">dbx</ulink> is
@@ -22,8 +22,7 @@ First Attempt
 -------------
 
 We are interested in all function calls to :func:`mysql_connect`.  Let us have
-a look at the precise definition of a function call according to the <xref
-linkend="grammar">: 
+a look at the precise definition of a function call according to the :ref:`grammar`: 
 
 .. sourcecode:: haskell
 
@@ -99,7 +98,7 @@ another function called :func:`deep_equals`, which does nearly the same
 thing, but there are two important differences.  :func:`match` does not take
 comments, line numbers and other "additional" information into account, whereas
 :func:`deep_equals` does. The second difference is that :func:`match` supports
-wildcards; this will be explained in <xref linkend="treetutorial3">.
+wildcards; this will be explained in :ref:`treetutorial3`.
 
 
 
@@ -226,5 +225,5 @@ tool can however be built on top of |phc|.
 What's Next?
 ------------
 
-<xref linkend="treetutorial3"> explains how you can modify the *structure* of
+:ref:`treetutorial3` explains how you can modify the *structure* of
 the tree, as well as the tree nodes.

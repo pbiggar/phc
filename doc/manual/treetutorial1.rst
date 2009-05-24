@@ -2,9 +2,9 @@ Traversing the Tree
 ===================
 
 
-In <xref linkend="gettingstarted">, we explained that |phc| represents PHP
+In :ref:`gettingstarted`, we explained that |phc| represents PHP
 scripts internally as an abstract syntax tree, and that the structure of this
-tree is determined by the <xref linkend="grammar">. We
+tree is determined by the :ref:`grammar`. We
 then showed how to make use of this tree to count the number of statements.
 However, the plugin we wrote only counted the "top-level" statements.
 Statements nested inside other statements (for example, statements inside the
@@ -60,8 +60,7 @@ part of the |phc| grammar:
 
 The vertical bar (``|``) means "or". So, a statement is either an evaluation of
 an expression (``eval_expr``), an ``if`` statement, or a ``while`` statement,
-or..  Thus, our running example is represented by the tree in <xref
-linkend="ifx5tree">.  The four statements that we are interested in have been
+or..  Thus, our running example is represented by the tree in :ref:`ifx5tree`.  The four statements that we are interested in have been
 highlighted.
 
 .. figure:: img/ifx5.jpg
@@ -76,7 +75,7 @@ Statements and Expressions
 The ``Eval_expr`` nodes in the tree probably need some explanation.  There are
 many different types of statements in PHP: ``if``-statements,
 ``while``-statements, ``for``-loops, etc. You can find the full list in the
-<xref linkend="grammar">. If you do look at the
+:ref:`grammar`. If you do look at the
 grammar, you will notice in particular that a function call is not actually a
 statement!  Instead, a function call is an *expression*.
 

@@ -1,8 +1,7 @@
 Running |phc|
 =============
 
-Once you have installed |phc| (see <xref linkend="install"
->), run it by typing
+Once you have installed |phc| (see :ref:`install`), run it by typing
 
 .. sourcecode:: bash
 
@@ -214,8 +213,7 @@ the same version as your webserver uses. From the :file:`ext/` directory, run:
    ./configure --enable-helloworld
 
 
-Build and install the extension (if you dont have root, refer instead to <xref
-linkend=alternate.method endterm=alternate.method.title>):
+Build and install the extension (if you dont have root, refer instead to :ref:`alternate.method`):
 
 .. sourcecode:: bash
 
@@ -295,7 +293,7 @@ Internal Representations
 ------------------------
 
 After parsing, |phc| converts a PHP script into an Abstract Syntax Tree (AST)
-(this is further explained in <xref linkend="treetutorial1">). This is very
+(this is further explained in :ref:`treetutorial1`). This is very
 useful for processing PHP scripts which you wish to convert back into PHP.
 However, for some tasks, especially program analysis, a simpler form of the PHP
 script is more suitable. |phc| offers two other Internal Representations (IRs).
@@ -342,7 +340,7 @@ Unix/Linux systems, you should be able to do:
 
 
 And you should see the tree; it should look similar to the tree shown in
-figure <xref linkend="helloworldtree">.
+figure :ref:`helloworldtree`.
 
 .. figure:: img/helloworld.jpg
 

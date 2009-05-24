@@ -3,8 +3,7 @@ Using State
 
 This tutorial explains an advanced feature of pattern matching, and shows an
 important technique in writing tree transforms: the use of state. Suppose we
-are continuing the refactoring tool that we began in <xref
-linkend="treetutorial2">, and suppose that we have replaced all calls to
+are continuing the refactoring tool that we began in :ref:`treetutorial2`, and suppose that we have replaced all calls to
 database specific functions by calls to the generic DBX functions. To finish
 the refactoring, we want to rename any function ``foo`` in the script to
 ``foo_DB``, if it makes use of the database --- this clearly sets functions
@@ -56,7 +55,7 @@ The Implementation
 Since we have to modify method (function) names, the nodes we are interested in
 are the nodes of type :func:`Method`. However, how do we know when to modify a
 particular method? Should we search the method body for function calls to
-``dbx``\_**xxx**? As we saw in <xref linkend="treetutorial1">, manual searching
+``dbx``\_**xxx**? As we saw in :ref:`treetutorial1`, manual searching
 through the tree is cumbersome; there must be a better solution. 
 
 The solution is in fact very easy. At the start of each method, we set a
@@ -103,7 +102,7 @@ modify the structure of the tree in this transform, we use the simpler
    };
 
 
-In <xref linkend="treetutorial2">, we simply wanted to check for a
+In :ref:`treetutorial2`, we simply wanted to check for a
 particular function name, and we used :func:`match` to do this: 
      
 .. sourcecode:: c++
@@ -131,6 +130,6 @@ exercise for the reader.)
 What's Next?
 ------------
 
-<xref linkend="treetutorial5"> explains how to change the order in which the
+:ref:`treetutorial5` explains how to change the order in which the
 children of a node are visited, avoid visiting some children, or how to execute
 a piece of code in between visiting two children.

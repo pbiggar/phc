@@ -17,8 +17,7 @@ Solaris, FreeBSD, Cygwin and Mac OS X).  To compile |phc|, you will need:
 *  :program:`g++` *version 3.4.0* or higher
 *  :program:`make`
 *  :program:`Boost` *version 1.34* or higher
-*  *PHP5 embed SAPI* (version 5.2.x recommended; refer to <xref
-   linkend="phpbuild"> for more details). This is
+*  *PHP5 embed SAPI* (version 5.2.x recommended; refer to :ref:`phpbuild` for more details). This is
    required to compile PHP code with |phc|.
 *  <ulink url="http://xerces.apache.org/xerces-c/">Xerces-C++</ulink> if you
    want support for XML parsing (you don't need Xerces for XML unparsing).
@@ -142,7 +141,6 @@ it. Finally, install |phc| using
    make install
 
 
-For information on running |phc|, see <xref linkend="runningphc"
->.  If you can follow those instructions and you get
+For information on running |phc|, see :ref:`runningphc`.  If you can follow those instructions and you get
 the output you should get, congratulations!  You have successfully installed
 |phc|.

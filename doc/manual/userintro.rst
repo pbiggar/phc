@@ -10,7 +10,7 @@ compile, install and use |phc|, how to compile command-line and web
 applications, and how to convert PHP to an XML reprentation, and back. </para>
 
 <note> <para> Documentation of the |phc| API, including how to write plugins,
-can be found in <xref linkend="devmanual">. </para> </note>
+can be found in :ref:`devmanual`. </para> </note>
 
 <para> The documentation for this and for older versions of |phc| can be found
 in the <ulink url="http://www.phpcompiler.org/src/archive/">archive</ulink>.
