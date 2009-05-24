@@ -121,6 +121,8 @@ void
 Points_to::add_reference (Index_node* source, Index_node* target, Certainty cert)
 {
 	references.add_edge (source, target);
+
+	phc_TODO (); // check if there a;ready is a CERT, and combine them (which way?).
 	set_reference_cert (new Reference_edge (source, target), cert);
 }
 

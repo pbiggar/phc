@@ -231,7 +231,6 @@ public:
 	Reference_list* get_all_referenced_names (Context cx, Path* path, Indexing_flags flags = NO_FLAGS);
 
 
-
 	/*
 	 * Actually perform analysis
 	 */

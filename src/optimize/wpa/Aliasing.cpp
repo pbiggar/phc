@@ -276,27 +276,16 @@ Aliasing::get_references (Context cx, Index_node* index, Certainty cert)
 Storage_node_list*
 Aliasing::get_points_to (Context cx, Index_node* index)
 {
-	// This functionality doesn't really belong here. Move it up to
-	// Whole_program, or down to points-to.
-	phc_TODO ();
 	Points_to* ptg = ins[cx];
-
-	// If the index exists, return it.
-	if (ptg->has_field (index))
-		return ptg->get_points_to (index);
-
-
-	// If the index doesn't exist, return the UNKNOWN node. 
-	Index_node* unknown = IN (index->storage, UNKNOWN);
-	assert (ptg->has_field (unknown));
-	return ptg->get_points_to (unknown);
+	return ptg->get_points_to (index);
 }
 
 
 Index_node_list*
 Aliasing::get_fields (Context cx, Storage_node* storage)
 {
-	return ins[cx]->get_fields (storage);
+	Points_to* ptg = ins[cx];
+	return ptg->get_fields (storage);
 }
 
 Index_node_list*

@@ -1533,7 +1533,7 @@ Whole_program::get_named_index (Context cx, Path* name, Indexing_flags flags)
 }
 
 
-
+// TODO: some contexts should probably add RECORD_USES or IMPLICIT_CONVERSION flags.
 Reference_list*
 Whole_program::get_all_referenced_names (Context cx, Path* path, Indexing_flags flags)
 {
