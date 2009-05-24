@@ -331,11 +331,11 @@ This is the last tutorial in this series on using the :class:`AST::Visitor` and
 stuff is to try it out for yourself.  Hopefully, the tutorials will help you do
 so.  The following sources should also be useful: 
 
-*  The <xref linkend="grammar" endterm="grammar.title"> (and the <xref
-   linkend="maketeatheory" endterm="maketeatheory.title">)
+*  The <xref linkend="grammar"> (and the <xref
+   linkend="maketeatheory">)
 
 *  The explanation of how PHP gets represented in the abstract syntax as
-   detailed in <xref linkend="representingphp" endterm="representingphp.title">
+   detailed in <xref linkend="representingphp">
 
 *  The definition of the C++ classes for the AST nodes in
    :file:`src/generated/AST.h`

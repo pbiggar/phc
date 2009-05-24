@@ -4,7 +4,7 @@ Traversing the Tree
 
 In <xref linkend="gettingstarted">, we explained that |phc| represents PHP
 scripts internally as an abstract syntax tree, and that the structure of this
-tree is determined by the <xref linkend="grammar" endterm="grammar.title">. We
+tree is determined by the <xref linkend="grammar">. We
 then showed how to make use of this tree to count the number of statements.
 However, the plugin we wrote only counted the "top-level" statements.
 Statements nested inside other statements (for example, statements inside the
@@ -76,7 +76,7 @@ Statements and Expressions
 The ``Eval_expr`` nodes in the tree probably need some explanation.  There are
 many different types of statements in PHP: ``if``-statements,
 ``while``-statements, ``for``-loops, etc. You can find the full list in the
-<xref linkend="grammar" endterm="grammar.title">. If you do look at the
+<xref linkend="grammar">. If you do look at the
 grammar, you will notice in particular that a function call is not actually a
 statement!  Instead, a function call is an *expression*.
 

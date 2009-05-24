@@ -11,7 +11,7 @@ look into it.
 Comments
 --------
 
-<xref linkend="representingphp" endterm="representingphp.title"> explains how
+<xref linkend="representingphp"> explains how
 we deal with comments. Most comments in a PHP script should get attached to the
 right token in the tree, and no comments should ever be lost. If that is not
 true, please send us a sample program that demonstrates where it breaks. There

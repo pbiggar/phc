@@ -146,7 +146,7 @@ particular condition holds, we must return ``in``. This will replace ``*in`` by
 The second thing to note is that the return type of :func:`pre_bin_op` is
 :class:`Expr` instead of :class:`Bin_op`. This means that we can replace a
 binary operator node by another other expression node. The <xref
-linkend="maketeatheory" endterm="maketeatheory.title"> explains exactly how the
+linkend="maketeatheory"> explains exactly how the
 signatures for the ``pre`` and ``post`` methods are derived, but in most cases
 they are what you'd expect.  The easiest way to check is to simply look them up
 in :file:`<AST_transform.h>`. 

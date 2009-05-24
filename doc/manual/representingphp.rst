@@ -178,7 +178,7 @@ something goes wrong with comments, please <ulink
 url="http://www.phpcompiler.org/contact.html">send</ulink> us a sample program
 that shows where it goes wrong. Note that whitespace in multi-line comments
 gets dealt with in a less than satisfactory way; see <xref
-linkend="limitations" endterm="limitations.title"> for details for details.
+linkend="limitations"> for details for details.
 </para> 
 
 

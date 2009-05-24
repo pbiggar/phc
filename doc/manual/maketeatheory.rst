@@ -11,7 +11,7 @@ transformation and visitor API, and deep cloning, deep equality and pattern
 matching on the AST. In this document we describe the grammar formalism used by
 |phc|, how a C++ class structure is derived from such a grammar, and explains
 how the tree transformation API is generated. The generated code itself is
-explained in <xref linkend="apioverview" endterm="apioverview.title">. 
+explained in <xref linkend="apioverview">. 
 
 The Grammar Formalism
 ---------------------
@@ -140,7 +140,7 @@ Context Resolution
 
 We also derive the tree visitor API and tree transformation API from the
 grammar. The tree visitor API is very simple to derive; see the <xref
-linkend="apioverview" endterm="apioverview.title"> for an explanation. The tree
+linkend="apioverview"> for an explanation. The tree
 transformation API however is slightly more difficult to derive. The problem is
 to decide the signatures for the transform methods, or in other words, what can
 transform into what? For example, in the |phc| grammar for PHP, the transform

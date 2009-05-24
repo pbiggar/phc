@@ -23,7 +23,7 @@ First Attempt
 
 We are interested in all function calls to :func:`mysql_connect`.  Let us have
 a look at the precise definition of a function call according to the <xref
-linkend="grammar" endterm="grammar.title">: 
+linkend="grammar">: 
 
 .. sourcecode:: haskell
 
