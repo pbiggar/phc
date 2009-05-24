@@ -64,9 +64,10 @@ part of the |phc| grammar:
 
 The vertical bar (``|``) means "or". So, a statement is either an evaluation of
 an expression (``eval_expr``), an ``if`` statement, or a ``while`` statement,
-or..  Thus, our running example is represented by the tree in :ref:`ifx5tree`.  The four statements that we are interested in have been
-highlighted.
+or..  Thus, our running example is represented by the tree in :ref:`ifx5tree`.
+The four statements that we are interested in have been highlighted.
 
+.. _ifx5tree:
 .. figure:: img/ifx5.jpg
 
    Abstract syntax tree for the running example

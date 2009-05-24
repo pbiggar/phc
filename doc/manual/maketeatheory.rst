@@ -138,6 +138,7 @@ Similarly, ``(a?)*`` is a (non-optional) list of optional ``a``s. Thus, this is
 a list, but elements of the list may be NULL.  This is used for example to
 denote empty array indices (``a[]``) in the rule for ``Variable``.  
 
+.. _contextresolution:
 
 Context Resolution
 ------------------

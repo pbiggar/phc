@@ -340,6 +340,8 @@ Unix/Linux systems, you should be able to do:
 And you should see the tree; it should look similar to the tree shown in
 figure :ref:`helloworldtree`.
 
+.. _helloworldtree:
+
 .. figure:: img/helloworld.jpg
 
    Abstract syntax tree for "Hello world"

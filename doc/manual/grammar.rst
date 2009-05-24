@@ -164,6 +164,8 @@ Additional Structure
    Source_rep ::= Identifier | Literal ;
 
 
+.. _mixin:
+
 Mix-in Code
 -----------
 
