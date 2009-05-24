@@ -7,9 +7,8 @@ System Requirements
 .. warning::
    These instructions only apply if you **don't** intend to modify phc, and you
    are using a downloaded |phc| release. If you intend to modify it, or you are
-   using the |phc| `SVN
-   repository <http://code.google.com/p/phc>`_, please refer to the <link
-   linkend="devintro">instructions for developers</link>.
+   using the |phc| `SVN repository <http://code.google.com/p/phc>`_, please
+   refer to the :ref:`instructions for developers <devintro>`.
 
 |phc| needs a Unix-like environment to run (it has been tested on Linux,
 Solaris, FreeBSD, Cygwin and Mac OS X).  To compile |phc|, you will need:
