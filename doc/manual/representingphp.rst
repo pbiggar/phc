@@ -259,7 +259,7 @@ Miscellaneous Other Changes
 *  Fragments of inline HTML become arguments to a function call to ``echo``.
 
 *  The keywords :keyword:`use`, :keyword:`require`, :keyword:`require_once`,
-   :keyword:`include`, :keyword:`include_once`, :keyword:``isset`` and
+   :keyword:`include`, :keyword:`include_once`, :keyword:`isset` and
    :keyword:`empty` all get translated into a function call to a function with
    the same name as the keyword.
 
@@ -284,8 +284,10 @@ To compare, consider the tree for
    $g->greet("TACS");
 
 
-Using the |phc| abstract syntax, this looks like the tree shown in figure :ref:`abstracttree`. 
+Using the |phc| abstract syntax, this looks like the tree shown in figure
+:ref:`abstracttree`. 
 	
+.. _abstracttree:
 .. figure:: img/abstract-tree.jpg
 
    Function call in the AST
@@ -293,6 +295,7 @@ Using the |phc| abstract syntax, this looks like the tree shown in figure :ref:`
 However, in the official PHP grammar, the tree would look like the tree shown
 in figure :ref:`concretetree`. 
 
+.. _concretetree:
 .. figure:: img/concrete-tree.jpg
 
    Function call as represented by PHP
