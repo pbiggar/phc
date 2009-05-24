@@ -45,7 +45,7 @@ Overall Structure
 Statements
 ----------
 
-.. sourcecode::
+.. sourcecode:: haskell
 
    Statement ::=
         Class_def | Interface_def | Method
