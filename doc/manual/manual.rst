@@ -1,3 +1,7 @@
+.. phc documentation master file, created by sphinx-quickstart on Sun May 17 17:10:44 2009.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
 ..
 	Top-level structure of the phc manuals
 	
@@ -8,17 +12,14 @@
 
 .. |phc| replace:: **phc**
 
-.. _contents:
-
 |phc| manual
 ============
-
 
 Users' manual
 ==================
 
 .. toctree::
-
+   
 	userintro
 	install
 	runningphc
@@ -43,8 +44,9 @@ Developers' manual
 	apioverview
 	maketeatheory
 
-Indices etc.
-============
+
+Indices and tables
+==================
 
 * :ref:`genindex`
 * :ref:`modindex`
