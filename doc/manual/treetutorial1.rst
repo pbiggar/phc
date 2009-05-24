@@ -1,5 +1,3 @@
-.. include:: include.rst
-
 .. _treetutorial1:
 
 Traversing the Tree

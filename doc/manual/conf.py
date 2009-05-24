@@ -87,6 +87,10 @@ add_function_parentheses = False
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
 
+rst_epilog = """
+.. |phc| replace:: **phc**
+"""
+
 
 # Options for HTML output
 # -----------------------

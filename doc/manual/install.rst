@@ -1,5 +1,3 @@
-.. include:: include.rst
-
 .. _install:
 
 Installation Instructions

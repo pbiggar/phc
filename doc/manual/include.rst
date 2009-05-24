@@ -1,1 +1,0 @@
-.. |phc| replace:: **phc**

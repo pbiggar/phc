@@ -1,5 +1,3 @@
-.. include:: include.rst
-
 .. _treetutorial2:
 
 Modifying Tree Nodes
