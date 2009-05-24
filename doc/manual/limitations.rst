@@ -87,8 +87,8 @@ Finally, if a scope ends on a comment, that comment will be associated with the 
          // Do nothing
       }
 
-   echo "World";
-?>
+      echo "World";
+   ?>
 
 
 the comment will be associated with the ``echo "World"``

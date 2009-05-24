@@ -245,7 +245,7 @@ gets interpreted as
    ?>
 
 
-The higher the number of ``elseif``s, the greater the level of nesting. This
+The higher the number of ``elseif``\s, the greater the level of nesting. This
 transformation is "hidden" by the unparser.
 
 
