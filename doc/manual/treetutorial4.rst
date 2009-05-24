@@ -1,3 +1,5 @@
+.. include:: include.rst
+
 Using State
 ===========
 

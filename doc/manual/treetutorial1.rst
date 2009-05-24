@@ -1,3 +1,5 @@
+.. include:: include.rst
+
 Traversing the Tree
 ===================
 
