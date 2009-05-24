@@ -4,8 +4,7 @@ Limitations
 This document describes the known limitations of the current |phc|
 implementation. These limitations are things that we are aware of but that are
 not high on our priority list of things to deal with at the moment.  However,
-if any of them are bothering you, let us <ulink
-url="http://www.phpcompiler.org/mailinglist.html">know</ulink> and we might
+if any of them are bothering you, let us `know <http://www.phpcompiler.org/mailinglist.html>`_ and we might
 look into it.
 
 Comments
@@ -137,10 +136,8 @@ Other issues
 ------------
 
 There are quite a number of minor bugs and issues with |phc|, that we are aware
-of. Our bug tracker is available at <ulink
-url="http://code.google.com/p/phc/issues/list">our project site</ulink>. We are
-looking for contributors to help us fix many of these bugs. Please see <ulink
-url="http://phpcompiler.org/contribute.html">our contributors page </ulink>, if
+of. Our bug tracker is available at `our project site <http://code.google.com/p/phc/issues/list>`_. We are
+looking for contributors to help us fix many of these bugs. Please see `our contributors page  <http://phpcompiler.org/contribute.html>`_, if
 you're interested in helping out.
 
 

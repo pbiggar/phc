@@ -13,10 +13,9 @@ applications, and how to convert PHP to an XML reprentation, and back. </para>
 can be found in :ref:`devmanual`. </para> </note>
 
 <para> The documentation for this and for older versions of |phc| can be found
-in the <ulink url="http://www.phpcompiler.org/src/archive/">archive</ulink>.
+in the `archive <http://www.phpcompiler.org/src/archive/>`_.
 Moreover, although we have tried to document |phc| as well as we can, if
-anything is still unclear, please let us know by sending an email to the <ulink
-url="http://www.phpcompiler.org/mailinglist.html">mailing list</ulink>. </para>
+anything is still unclear, please let us know by sending an email to the `mailing list <http://www.phpcompiler.org/mailinglist.html>`_. </para>
 </section>
 
 </chapter>

@@ -349,6 +349,5 @@ so.  The following sources should also be useful:
 
 
 And of course, we are more than happy to answer any other questions you might
-still have. Just send an email to the <ulink
-url="http://www.phpcompiler.org/mailinglist.html">mailing list</ulink> and
+still have. Just send an email to the `mailing list <http://www.phpcompiler.org/mailinglist.html>`_ and
 we'll do our best to answer you as quickly as possible! Happy coding! 

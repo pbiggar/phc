@@ -174,8 +174,7 @@ In this snippet, ``A`` and ``B`` get attached to ``foo();``, but ``C`` and
 
 all comments get attached to the same node.  This should work most of the time,
 if not all the time. In particular, it should never loose any comments. If
-something goes wrong with comments, please <ulink
-url="http://www.phpcompiler.org/contact.html">send</ulink> us a sample program
+something goes wrong with comments, please `send <http://www.phpcompiler.org/contact.html>`_ us a sample program
 that shows where it goes wrong. Note that whitespace in multi-line comments
 gets dealt with in a less than satisfactory way; see :ref:`limitations` for details for details.
 </para> 

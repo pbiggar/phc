@@ -4,7 +4,7 @@ Modifying Tree Nodes
 Now that we have seen in :ref:`treetutorial1` how to inspect the
 tree, in this tutorial we will look at modifying the tree. The task we set
 ourselves is: replace all calls to :func:`mysql_connect` by calls to
-func:`dbx_connect` (<ulink url="http://pecl.php.net/package/dbx">dbx</ulink> is
+func:`dbx_connect` (`dbx <http://pecl.php.net/package/dbx>`_ is
 a PECL extension to PHP that allows scripts interface with a database
 independent of the type of the database; this conversion could be part of a
 larger refactoring process that makes a script written for MySQL work with
@@ -107,7 +107,7 @@ Modifying the Parameters
 
 Unfortunately, renaming :func:`mysql_connect` to :func:`dbx_connect` is not
 sufficient, because the parameters to the two functions differ. According to
-the <ulink url="http://www.php.net/manual/en/index.php">PHP manual</ulink>, the
+the `PHP manual <http://www.php.net/manual/en/index.php>`_, the
 signatures for both functions are 
 
 .. sourcecode:: php

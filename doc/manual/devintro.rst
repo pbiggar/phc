@@ -23,8 +23,7 @@ write plugins for |phc|, and provide numerous examples. You will find :ref:`refe
 applications using |phc|.
 
 Although we have tried to document |phc| as well as we can, if anything is
-still unclear, please let us know by sending an email to the <ulink
-url="http://www.phpcompiler.org/mailinglist.html">mailing list</ulink>.
+still unclear, please let us know by sending an email to the `mailing list <http://www.phpcompiler.org/mailinglist.html>`_.
 
 
 System Requirements
@@ -38,14 +37,13 @@ tools based on |phc|).
 
 *  :program:`flex` if you need to modify the lexical analyser.
 *  :program:`bison` if you need to modify the parser.
-*  <ulink url="http://www.maketea.org">maketea</ulink> if you want to modify
+*  `maketea <http://www.maketea.org>`_ if you want to modify
    the |phc| grammars (or the AST/HIR/MIR classes).
-*  <ulink
-   url="http://www.gnu.org/software/gengetopt/gengetopt.html">gengetopt</ulink> if
+*  `gengetopt <http://www.gnu.org/software/gengetopt/gengetopt.html>`_ if
    you need to add additional command line arguments; you will need version 0.20 or higher.
-*  <ulink url="http://www.gnu.org/software/gperf/gperf.html">gperf</ulink>
+*  `gperf <http://www.gnu.org/software/gperf/gperf.html>`_
    if you need to modify the list of keywords recognized by the lexical analyser.
-*  <ulink url="http://www.php.net/downloads.html">PHP</ulink> if you need to
+*  `PHP <http://www.php.net/downloads.html>`_ if you need to
    compile or use the *dataflow* branch. See the next section for instructions
    on configuring PHP for use.
 

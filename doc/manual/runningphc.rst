@@ -139,9 +139,8 @@ If you specify the :option:`-O` flag, |phc| will also pass the :option:`-O`
 flag to :program:`gcc`, which will optimize your code further. The argument to the
 :option:`-O` flag must therefore be usable by :program:`gcc`, so it must be any
 of :option:`-O0` (default), :option:`-O1`, :option:`-O2`, :option:`-O3` or
-:option:`-Os`. Consult the <ulink
-url="http://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html#Optimize-Options">gcc
-manual</ulink> for more details.
+:option:`-Os`. Consult the `gcc
+manual <http://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html#Optimize-Options>`_ for more details.
 
 It is also possible to pass command-line arguments to :program:`gcc` through |phc|,
 using the :option:`-C` flag. For example, to disable inlining of the generated code
@@ -164,9 +163,8 @@ Compiling web applications
 
 .. warning::
 
-   This section is experimental. Please <ulink
-   url="http://www.phpcompiler.org/mailinglist.html">report any
-   problems</ulink>.
+   This section is experimental. Please `report any
+   problems <http://www.phpcompiler.org/mailinglist.html>`_.
 
 We have created the command-line option :option:`--web-app`, which will in the
 future automate the process of compiling a web application.  Unfortunately, for
@@ -174,10 +172,8 @@ now, please follow these steps.
 	
 We describe how to create and install an extension using the C code generated
 by |phc|. While we give an overview of creating extensions, significantly more
-detail can be found in the <ulink
-url="http://devzone.zend.com/node/view/id/1021">Zend Extension Writing
-Tutorial</ulink> and in <ulink
-url="http://www.amazon.com/dp/067232704X">Extending and Embedding PHP</ulink>.
+detail can be found in the `Zend Extension Writing
+Tutorial <http://devzone.zend.com/node/view/id/1021>`_ and in `Extending and Embedding PHP <http://www.amazon.com/dp/067232704X>`_.
 
 To begin, create a new directory for the extension. We'll use :file:`ext/` in
 our example. Generate C code from :file:`helloworld.php` using |phc|.
@@ -285,8 +281,7 @@ syntax. To convert the XML file we just generated back to PHP syntax, run
    ./phc --read-xml=ast --pretty-print helloworld.xml
 
 
-The generated XML should use the schema <ulink
-url="http://www.phpcompiler.org/phc-1.0">http://www.phpcompiler.org/phc-1.0</ulink>.
+The generated XML should use the schema `http://www.phpcompiler.org/phc-1.0 <http://www.phpcompiler.org/phc-1.0>`_.
 However, our XML schema is currently broken.
 
 Internal Representations
@@ -322,8 +317,7 @@ Nearly all |phc| options work as well on the HIR and MIR as on the AST. For exam
 Graphical Output
 ----------------
 
-If you have a DOT viewer installed on your system (for example, <ulink
-url="http://www.graphviz.org">graphviz</ulink>), you can view the AST
+If you have a DOT viewer installed on your system (for example, `graphviz <http://www.graphviz.org>`_), you can view the AST
 graphically. First, ask |phc| to output the AST in DOT format:
 
 .. sourcecode:: bash
@@ -363,9 +357,8 @@ the :keyword:`include` statement is left in place. To enable this support, run
    ./phc --include script_with_includes.php
 
 
-The include support is intended to mimic <ulink
-url="http://php.net/manual/en/function.include.php">PHP's include
-built-in</ulink>, as far as can be achieved at compile time. |phc| supports:
+The include support is intended to mimic `PHP's include
+built-in <http://php.net/manual/en/function.include.php>`_, as far as can be achieved at compile time. |phc| supports:
 
 *  Moving included statements to the point at which :keyword:`include` was
    called.  Naturally, these statement's use the variable scope at the point at
