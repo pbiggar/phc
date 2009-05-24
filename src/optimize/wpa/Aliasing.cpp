@@ -217,10 +217,8 @@ Aliasing::create_reference (Context cx, Index_node* lhs, Index_node* rhs, Certai
 }
 
 void
-Aliasing::assign_value (Context cx, Index_node* lhs, Storage_node* storage, Certainty cert)
+Aliasing::assign_value (Context cx, Index_node* lhs, Storage_node* storage)
 {
-	// TODO: CERT is not meaningful here. However, it is meaningful in
-	// Whole_program. But surely that is subsumed by the killing definition?
 	Points_to* ptg = outs[cx];
 
 	ptg->add_field (lhs);

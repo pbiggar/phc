@@ -261,10 +261,14 @@ public:
 
 	List<Edge_type*>* get_edges ()
 	{
-		phc_TODO ();
+		List<Edge_type*>* result = new List<Edge_type*>;
+
+		typedef Map<Alias_name, Edge_type*> Map_type;
+		foreach (Map_type& map, *by_source.values ())
+			result->push_back_all (map.values ());
+
+		return result;
 	}
-
-
 
 
 

@@ -596,19 +596,28 @@ Points_to::merge (Points_to* other)
 PT_node_list*
 Points_to::get_nodes ()
 {
-	phc_TODO ();
-	/*
 	// Only have the nodes once
 	Map<Alias_name, PT_node*> all;
 
-	foreach (Alias_pair* pair, all_pairs)
+	foreach (Reference_edge* edge, *this->references.get_edges ())
 	{
-		all[pair->source->name ()] = pair->source;
-		all[pair->target->name ()] = pair->target;
+		all[edge->source->name ()] = edge->source;
+		all[edge->target->name ()] = edge->target;
+	}
+
+	foreach (Field_edge* edge, *this->fields.get_edges ())
+	{
+		all[edge->source->name ()] = edge->source;
+		all[edge->target->name ()] = edge->target;
+	}
+
+	foreach (Points_to_edge* edge, *this->points_to.get_edges ())
+	{
+		all[edge->source->name ()] = edge->source;
+		all[edge->target->name ()] = edge->target;
 	}
 
 	return all.values();
-	*/
 }
 
 #if 0
