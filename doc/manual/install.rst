@@ -143,6 +143,6 @@ it. Finally, install |phc| using
 
 
 For information on running |phc|, see <xref linkend="runningphc"
-endterm="runningphc.title">.  If you can follow those instructions and you get
+>.  If you can follow those instructions and you get
 the output you should get, congratulations!  You have successfully installed
 |phc|.

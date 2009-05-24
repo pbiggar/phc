@@ -211,12 +211,12 @@ Reference
 
 |phc| represents PHP scripts internally as an abstract syntax tree. The
 structure of this tree is dictated by the <xref linkend="grammar"
-endterm="grammar.title">. The grammar definition is a very important part of
+>. The grammar definition is a very important part of
 |phc|.
 
 |phc|'s view on the world (as dictated by the grammar) does not completely
 agree with the PHP standard view.  <xref linkend="representingphp"
-endterm="representingphp.title"> describes how the various PHP constructs get
+> describes how the various PHP constructs get
 translated into the abstract syntax.
 
 <xref linkend="apioverview"> gives an
@@ -227,7 +227,7 @@ API from a programmer's perspective.
 definition of a language, generates a C++ hierarchy for the corresponding
 abstract syntax tree, a tree transformation and visitor API, and deep cloning,
 deep equality and pattern matching on the AST. <xref linkend="maketeatheory"
-endterm="maketeatheory.title"> explains some of the theory behind
+> explains some of the theory behind
 :program:`maketea`; in particular, the grammar formalism, the mapping from the
 grammar to the AST classes, and the derivation of the tree transformation API.
 

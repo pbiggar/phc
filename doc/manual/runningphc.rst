@@ -2,7 +2,7 @@ Running |phc|
 =============
 
 Once you have installed |phc| (see <xref linkend="install"
-endterm="install.title">), run it by typing
+>), run it by typing
 
 .. sourcecode:: bash
 

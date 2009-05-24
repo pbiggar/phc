@@ -284,5 +284,5 @@ What's Next?
 ------------
 
 The next tutorial in this series, <xref linkend="treetutorial4"
-endterm="treetutorial4.title">, introduces a very important notion in
+>, introduces a very important notion in
 transforms: the use of *state*.
