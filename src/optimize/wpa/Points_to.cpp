@@ -395,17 +395,16 @@ Points_to::consistency_check (Context cx, Whole_program* wp)
 Storage_node_list*
 Points_to::get_storage_nodes ()
 {
-	phc_TODO ();
-/*	Storage_node_list* result = new Storage_node_list;
+	Storage_node_list* result = new Storage_node_list;
 
-	foreach (Alias_pair* pair, all_pairs)
+	foreach (PT_node* node, *this->get_nodes ())
 	{
-		if (isa<Storage_node> (pair->source))
-			result->push_back (dyc<Storage_node> (pair->source));
+		if (isa<Storage_node> (node))
+			result->push_back (dyc<Storage_node> (node));
 	}
 
 	return result;
-	*/
+	
 }
 
 

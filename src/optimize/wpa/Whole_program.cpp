@@ -1178,8 +1178,6 @@ void
 Whole_program::assign_by_copy (Context cx, Path* plhs, Path* prhs)
 {
 	DEBUG ("assign_by_copy");
-	phc_TODO ();
-	/*
 
 	// foreach values V pointed to by PRHS:
 	//	switch V.type:
@@ -1190,30 +1188,25 @@ Whole_program::assign_by_copy (Context cx, Path* plhs, Path* prhs)
 	//		Objects:
 	//			- foreach alias A of PLHS, point from A to V.
 
-	Certainty cert = kill_value (cx, plhs);
 
-	// For objects, copy the edge. For arrays, copy the whole thing. For
-	// scalars, copy the scalar (if unknown). It seems clear that we need an
-	// unknown object here, if the type is not known to not be an object.
-	Index_node_list* rhss = get_named_indices (cx, prhs, RECORD_USES);
-
-	// If there is more than 1 RHSs, we cant say for sure which we're copying
-	// from.
-	if (rhss->size () > 1)
-		cert = POSSIBLE;
-
-	foreach (Index_node* lhs, *get_all_referenced_names (cx, plhs))
+	foreach (Reference* lhs_ref, *get_all_referenced_names (cx, plhs))
 	{
-		foreach (Index_node* rhs, *rhss)
+		foreach_wpa (this)
+			if (lhs_ref->cert == DEFINITE)
+				wpa->kill_value (cx, lhs_ref->index);
+
+		// We keep the graph in transitive-closure form, so each RHS will have
+		// all the values of its references already. Therefore, there is no need
+		// for a call to get_all_referenced_names ().
+		foreach (Index_node* rhs, *get_named_indices (cx, prhs, RECORD_USES))
 		{
-			copy_value (cx, lhs, rhs, cert);
+			copy_value (cx, lhs_ref->index, rhs);
 		}
 	}
-	*/
 }
 
 bool
-Whole_program::copy_from_abstract_value (Context cx, Index_node* lhs, Index_node* rhs, Certainty cert)
+Whole_program::copy_from_abstract_value (Context cx, Index_node* lhs, Index_node* rhs)
 {
 	// Special case - the RHS's storage node might be an absval (however, if it
 	// is both an absval and another storage node, then the other storage nodes
@@ -1236,8 +1229,6 @@ Whole_program::copy_from_abstract_value (Context cx, Index_node* lhs, Index_node
 
 	DEBUG ("copy_from_abstract_value");
 
-	// TODO: if its a string, string only.
-	// TODO: if not a string, NULL only.
 	foreach_wpa (this)
 	{
 		if (scalars.size() == 1)
@@ -1262,7 +1253,6 @@ Whole_program::copy_from_abstract_value (Context cx, Index_node* lhs, Index_node
 		else
 			wpa->set_storage (cx, ABSVAL (lhs), Types ("string", "unset"));
 
-		phc_TODO ();
 		wpa->assign_value (cx, lhs, ABSVAL (lhs));
 	}
 
@@ -1271,24 +1261,16 @@ Whole_program::copy_from_abstract_value (Context cx, Index_node* lhs, Index_node
 }
 
 void
-Whole_program::copy_value (Context cx, Index_node* lhs, Index_node* rhs, Certainty cert)
+Whole_program::copy_value (Context cx, Index_node* lhs, Index_node* rhs)
 {
-	if (copy_from_abstract_value (cx, lhs, rhs, cert))
+	if (copy_from_abstract_value (cx, lhs, rhs))
 		return;
 
-	DEBUG ("copy_value");
 	// OK, its not a scalar. Carry on.
-
-
+	DEBUG ("copy_value");
 
 	// Get the value for each RHS. Copy it using the correct semantics.
-	Storage_node_list* values = aliasing->get_points_to (cx, rhs);
-
-	// If there is more than 1 value, it can't be definite.
-	if (values->size () > 1)
-		cert = POSSIBLE;
-
-	foreach (Storage_node* st, *values)
+	foreach (Storage_node* st, *aliasing->get_points_to (cx, rhs))
 	{
 		// Get the type of the value
 		Types types = type_inf->get_types (cx, st->name());
@@ -1308,7 +1290,6 @@ Whole_program::copy_value (Context cx, Index_node* lhs, Index_node* rhs, Certain
 				wpa->set_scalar (cx, ABSVAL (lhs),
 						get_abstract_value (cx, st->name()));
 
-				phc_TODO ();
 				wpa->assign_value (cx, lhs, ABSVAL (lhs));
 			}
 		}
@@ -1318,22 +1299,19 @@ Whole_program::copy_value (Context cx, Index_node* lhs, Index_node* rhs, Certain
 			// We need to do a deep copy here.
 			Storage_node* new_array = cx.array_node ();
 
-			// create the new array
+			// Create the new array
 			foreach_wpa (this)
 				wpa->set_storage (cx, new_array, Types ("array"));
 
 			// Get all the indices
 			foreach (Index_node* field, *aliasing->get_fields (cx, st))
 			{
-				// TODO: I think these are not killed, but should be, if allowable.
 				copy_value (cx,
 						new Index_node (new_array->for_index_node (), field->index),
-						field,
-						PTG_ALL); // TODO: dont care
+						field);
 			}
 
 			// LHS points to NEW_ARRAY.
-			phc_TODO ();
 			foreach_wpa (this)
 				wpa->assign_value (cx, lhs, new_array);
 		}
@@ -1341,7 +1319,6 @@ Whole_program::copy_value (Context cx, Index_node* lhs, Index_node* rhs, Certain
 		if (objects.size ())
 		{
 			// Just point to the object.
-			phc_TODO ();
 			foreach_wpa (this)
 				wpa->assign_value (cx, lhs, st);
 		}

@@ -189,9 +189,9 @@ public:
 	void assign_by_copy (Context cx, Path* lhs, Path* rhs);
 
 	// Copy the value from RHS to LHS.
-	void copy_value (Context cx, Index_node* lhs, Index_node* rhs, Certainty cert);
+	void copy_value (Context cx, Index_node* lhs, Index_node* rhs);
 
-	bool copy_from_abstract_value (Context cx, Index_node* lhs, Index_node* rhs, Certainty cert);
+	bool copy_from_abstract_value (Context cx, Index_node* lhs, Index_node* rhs);
 
 	void record_use (Context cx, Index_node* node);
 
