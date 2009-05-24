@@ -1,5 +1,7 @@
 .. include:: include.rst
 
+.. _treetutorial4:
+
 Using State
 ===========
 

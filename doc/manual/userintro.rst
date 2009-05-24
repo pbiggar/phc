@@ -1,5 +1,7 @@
 .. include:: include.rst
 
+.. _userintro:
+
 Introduction
 ============
 
@@ -12,7 +14,7 @@ convert PHP to an XML reprentation, and back.
 .. note:: 
    
    Documentation of the |phc| API, including how to write plugins,
-   can be found in :ref:`devmanual`.
+   can be found in :ref:`devintro`.
 
 The documentation for this and for older versions of |phc| can be found in the
 `archive <http://www.phpcompiler.org/src/archive/>`_.  Moreover, although we

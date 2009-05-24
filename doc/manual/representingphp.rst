@@ -1,5 +1,7 @@
 .. include:: include.rst
 
+.. _representingphp:
+
 Representing PHP
 ================
 

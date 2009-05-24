@@ -1,5 +1,7 @@
 .. include:: include.rst
 
+.. _treetutorial5:
+
 Modifying the Traversal Order
 =============================
 

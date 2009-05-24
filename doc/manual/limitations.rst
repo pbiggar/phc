@@ -1,5 +1,7 @@
 .. include:: include.rst
 
+.. _limitations:
+
 Limitations
 ===========
 

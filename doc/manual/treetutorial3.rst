@@ -1,5 +1,7 @@
 .. include:: include.rst
 
+.. _treetutorial3:
+
 Restructuring the Tree
 ======================
 
