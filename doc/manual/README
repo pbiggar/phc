@@ -10,3 +10,21 @@ To make html documentation (which gets output in the .build directory), use
 
 To make pdf documentation, use:
 	$ make pdf
+
+
+Writing documentation:
+	Some defintions are in include.rst, so include that in every document.
+
+	A TODO list is maintained at the bottom of manual.rst.
+
+	Use the following conventions for section headings.
+
+		* > with overline, for top-level
+		* & with overline, for books
+		* # with overline, for parts
+		* * with overline, for chapters
+		* =, for sections
+		* -, for subsections
+		* ^, for subsubsections
+		* ", for paragraphs
+

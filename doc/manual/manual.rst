@@ -11,12 +11,16 @@
 
 	TODO: mention license
 
-
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 |phc| manual
-============
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
+
+.. _usermanual:
+
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 Users' manual
-==================
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
 .. toctree::
    
@@ -24,12 +28,28 @@ Users' manual
 	install
 	runningphc
 
+
+
+.. _devmanual:
+
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 Developers' manual
-==================
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
 .. toctree::
 
 	devintro
+
+
+
+.. _treetutorials:
+
+############################
+Tree Traversal API Tutorials
+############################
+
+.. toctree::
+
 	gettingstarted
 	treetutorial1
 	treetutorial2
@@ -37,12 +57,37 @@ Developers' manual
 	treetutorial4
 	treetutorial5
 	treetutorial6
+
+
+
+.. _reference:
+
+############################
+Reference
+############################
+
+.. toctree::
+
 	grammar
 	representingphp
 	limitations
-	porting
 	apioverview
 	maketeatheory
+
+
+
+
+.. _guide:
+
+############################
+Developers Guide
+############################
+
+.. toctree::
+
+	porting
+
+
 
 
 Indices and tables
