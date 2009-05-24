@@ -129,7 +129,7 @@ exercise for the reader.)
 
 
 What's Next?
-============
+------------
 
 <xref linkend="treetutorial5"> explains how to change the order in which the
 children of a node are visited, avoid visiting some children, or how to execute

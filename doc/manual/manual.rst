@@ -63,4 +63,10 @@ Indices and tables
 			- prominent link to contribute
 		folds
 		describe compilation and generate-c
+      pass_manager
+      common errors in phc
+         - boost foreach bug
+      common idioms in phc
+         - Map, List, etc, garbage collection
+
 

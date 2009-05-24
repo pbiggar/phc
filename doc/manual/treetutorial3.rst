@@ -64,8 +64,9 @@ Obviously, the second concatenation is unnecessary, and the
 :class:`Remove_concat_null` transform cleans this up. In this tutorial we will
 explain how this transform can be written. 
 
+
 Introducing the :class:`Tree_transform` API
-===========================================
+-------------------------------------------
 
 Concatenation is a binary operator, so we are interested in nodes of type
 :class:`Bin_op`. If you check the grammar, or, alternatively,
@@ -151,7 +152,7 @@ they are what you'd expect.  The easiest way to check is to simply look them up
 in :file:`<AST_transform.h>`. 
 
 The Implementation
-==================
+------------------
 
 We wanted to get rid of useless concatenation operators. To be precise, if the
 binary operator is the concatenation operator, and the left operand is the
@@ -199,7 +200,7 @@ matched by the wildcard by accessing ``wildcard->value``.
 
 
 Running Transformations
-=======================
+-----------------------
 
 Recall from the previous two tutorials that visitors are run with a call to
 :func:`visit`: 
@@ -280,7 +281,7 @@ by
 
 
 What's Next?
-============
+------------
 
 The next tutorial in this series, <xref linkend="treetutorial4"
 endterm="treetutorial4.title">, introduces a very important notion in
