@@ -35,10 +35,11 @@ Thus, the semantic value of a marker is a boolean value; it is either there, or
 it is not (note that this is different from a symbol such as the semi-colon,
 which has **no** semantic value whatsoever, and thus does not need to be
 included in an abstract syntax tree).  Conversely, the semantic value of a
-*terminal symbol* is an arbitrary value; an example is ``CLASS_NAME`` (the
+*terminal symbol* is an arbitrary value; an example is :class:`CLASS_NAME` (the
 structure of a terminal symbol may be defined by a regular expression; this is
 irrelevant as far as the abstract grammar is concerned). We denote markers in
-quotes (``"abstract"``), and terminal symbols in capitals (``CLASS_NAME``).  
+quotes (``"abstract"``), and terminal symbols in capitals
+(:class:`CLASS_NAME`).  
 
 Each non-terminal symbol ``aa`` will have a single production in the grammar.
 Instances of ``aa`` in the AST will be represented by a class called ``Aa``.
@@ -71,7 +72,7 @@ and list a number of alternatives for a non-terminal symbol ``aa``:
 Here, each of ``b``, ``c``, ..., ``z`` must be a single non-terminal symbol.
 This rule results in a (usually) empty ``class Aa {}``, which acts as a
 superclass for the classes for ``b``, ``c``, ..., ``z``. This reflects the
-semantics of the rule (a ``b`` <emphasis>is</emphasis> an ``a``); if there are
+semantics of the rule (a ``b`` **is** an ``a``); if there are
 multiple rules ``aa ::= c|...``, ``b ::= c|...``, class ``C`` will inherit from
 both ``Aa`` and ``B``. This type of rule is exemplified by the production for
 ``Statement`` in the grammar. There is one additional requirement for
@@ -95,12 +96,11 @@ addition, the symbols may be labeled (``label:symbol``). This does not add to
 the grammar structure, but explains the purpose of the symbol in the rule, and
 will be used for the name of the attribute of the corresponding class.  The
 default name for each class attribute depends on the corresponding type: an
-attribute of type ``Variable_name``  (corresponding to a non-terminal
-``Variable_name``) will be called ``variable_name``. The default name for an
-attribute of type ``Foo_list`` will be <emphasis>foos</emphasis>.  However, as
-mentioned above, this can be overridden by specifying a label.  
+attribute of type :class:`Variable_name`  will be called ``variable_name``. The
+default name for an attribute of type ``Foo_list`` will be **foos**.  However,
+as mentioned above, this can be overridden by specifying a label.  
 
-As an example, consider the rule for ``variable`` in the grammar.
+As an example, consider the rule for :class:`Variable` in the grammar.
 
 .. sourcecode:: haskell
 
@@ -108,7 +108,7 @@ As an example, consider the rule for ``variable`` in the grammar.
    Variable ::= Target? Variable_name array_indices:Expr?* ;
 
 
-A ``Variable`` is an ``Expr``, so that ``Variable`` is represented by the class
+A :class:`Variable` is an :class:`Expr`, so that :class:`Variable` is represented by the class
 shown below.
 
 .. todo::
@@ -128,12 +128,12 @@ shown below.
 
 
 A final note on combining ``*`` and ``?``. The construct ``(a*)?`` denotes an
-optional list of ``a``s. Thus, it will be represented by an ``A_list``. If a
+optional list of ``a``\s. Thus, it will be represented by an ``A_list``. If a
 list is specified, but empty, the list will simply contain no elements. If the
 list is not specified at all, the list will be NULL. This is used, for example,
 to distinguish between methods that contain no statements and abstract methods.
-Similarly, ``(a?)*`` is a (non-optional) list of optional ``a``s. Thus, this is
-a list, but elements of the list may be NULL.  This is used for example to
+Similarly, ``(a?)*`` is a (non-optional) list of optional ``a``\s. Thus, this
+is a list, but elements of the list may be NULL.  This is used for example to
 denote empty array indices (``a[]``) in the rule for ``Variable``.  
 
 .. _contextresolution:
@@ -142,15 +142,16 @@ Context Resolution
 ------------------
 
 We also derive the tree visitor API and tree transformation API from the
-grammar. The tree visitor API is very simple to derive; see the :ref:`apioverview` for an explanation. The tree
-transformation API however is slightly more difficult to derive. The problem is
-to decide the signatures for the transform methods, or in other words, what can
-transform into what? For example, in the |phc| grammar for PHP, the transform
-for an if-statement should be allowed return a list of statements of any kind
-(because it is safe to replace an if-statement by a list of statements).
-Similarly, a binary operator should be allowed return any other expression (but
-not a list of them). For reasons that will become clear very soon, we call the
-process of deciding these signatures "context resolution".
+grammar. The tree visitor API is very simple to derive; see the
+:ref:`apioverview` for an explanation. The tree transformation API however is
+slightly more difficult to derive. The problem is to decide the signatures for
+the transform methods, or in other words, what can transform into what? For
+example, in the |phc| grammar for PHP, the transform for an if-statement should
+be allowed return a list of statements of any kind (because it is safe to
+replace an if-statement by a list of statements).  Similarly, a binary operator
+should be allowed return any other expression (but not a list of them). For
+reasons that will become clear very soon, we call the process of deciding these
+signatures "context resolution".
 
 
 Contexts
@@ -222,7 +223,7 @@ general common subclass of ``b`` and ``b'``, where more general means higher up
 in the inheritance hierarchy), and opt for the most restrictive Multiplicity
 (Single over Optional, Single over List, etc.). The general idea is that we
 want the most permissive context for a non-terminal that is still safe: if it
-is safe to replace an ``a`` by a list of ``b``s **everywhere** in a tree, the
+is safe to replace an ``a`` by a list of ``b``\s **everywhere** in a tree, the
 context we want for ``a`` is (``a``, ``b``, list). 
 
 To see the reason for taking the meet, consider this fragment of the |phc|
@@ -313,14 +314,14 @@ Resolving these contexts lead to
 
 However, this is incorrect, because this indicates that an ``a`` will only be
 replaced by another, single, ``a``; but a ``c`` (which is an ``a``) will in
-fact return a list of ``c``s. The problem is that the non-terminals in the rule
+fact return a list of ``c``\s. The problem is that the non-terminals in the rule
 for ``a`` have a different multiplicity in their contexts (single for ``b``,
 list for ``c``). :program:`maketea` disallows this; if this happens in a
 grammar, :program:`maketea` will exit with a "cannot deal with mixed
 multiplicity in disjunction" error.
 
 Otherwise, for a rule ``a ::= b1 | b2 | ...``, if the multiplicity of ``a`` is
-list, and the multiplicities of all the ``b``s are lists, the multiplicity for
-``a`` will be list; if the multiplicity of all the ``b``s is single, the
+list, and the multiplicities of all the ``b``\s are lists, the multiplicity for
+``a`` will be list; if the multiplicity of all the ``b``\s is single, the
 multiplicity for ``a`` will be set to single (independent of the original
 multiplicity for ``a``).

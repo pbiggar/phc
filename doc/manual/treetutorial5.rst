@@ -52,9 +52,9 @@ statement, and reset the flag to ``false``.
 However, this will only add a comment to the first statement in the ``true``
 branch (try it!). To add a comment to the first statement in the ``false``
 branch too, we should set the flag to ``true`` in between visiting the children
-of the <emphasis>true</emphasis> branch and visiting the children of the
-<emphasis>false</emphasis> branch. To be able to do this, we need to modify
-:func:`children_if`, as explained in the next section. 
+of the **true** branch and visiting the children of the **false** branch. To be
+able to do this, we need to modify :func:`children_if`, as explained in the
+next section. 
 
 
 The Solution

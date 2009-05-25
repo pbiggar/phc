@@ -49,6 +49,7 @@ tools based on |phc|).
    compile or use the *dataflow* branch. See the next section for instructions
    on configuring PHP for use.
 
+.. _dev.phpbuild:
 
 Building PHP for |phc| development
 ----------------------------------

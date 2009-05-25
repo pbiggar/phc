@@ -33,7 +33,7 @@ the first rule in detail.
    ``$x->y``) or a class name (for a static class attribute, e.g.
    ``FOO::$y``). As in function calls, in variables the target is optional
    (indicated by the question mark). If no target is specified, the variable
-   refers to a <emphasis>local</emphasis> variable in a method.
+   refers to a *local* variable in a method.
 
 
 ``Variable_name``

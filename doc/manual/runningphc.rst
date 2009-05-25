@@ -63,7 +63,9 @@ Now write a very small PHP script, for example
 
 .. sourcecode:: php
 
-   <? echo "Hello world!"; ?>
+   <?php
+      echo "Hello world!";
+   ?>
 
 and save it to :file:`helloworld.php`. Then
 run |phc|:
@@ -156,7 +158,7 @@ by :program:`gcc`, using :option:`-fno-inline`:
 Compiling web applications
 --------------------------
 
-.. note::
+.. warning::
 
    In order to compile web applications, it is currently necessary to alter
    your :file:`php.ini` file, or have access to the root account.  We welcome

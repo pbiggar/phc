@@ -48,8 +48,8 @@ You will still need to install the PHP embed SAPI manually.
 PHP ``embed SAPI`` installation instructions
 --------------------------------------------
 
-If you do not intend to compile PHP code using |phc|, you may <link
-linkend=install.instructions>skip</link> this section.
+If you do not intend to compile PHP code using |phc|, you may 
+:ref:`skip <install.instructions>` this section.
 
 In order to compile code, |phc| must have the PHP embed SAPI available, which
 is typically not available via standard package managers. The embed SAPI is
@@ -94,20 +94,21 @@ filed in the PHP bug system).
 
    link to it
 
-The most important part of the command is :option:`--enable-embed`.
-While the :option:`CFLAGS="-O3"` environmental variable is optional, we
-find it speeds up the executable by about four times. If PHP is already
-installed on your system, you may want to install this version separately,
-using the :option:`--prefix` option. Other configuration options are discussed
-in the <link linkend=dev.phpbuild>developer manual</link>.  Finally, install
-the embed SAPI:
+The most important part of the command is :option:`--enable-embed`.  While the
+:option:`CFLAGS="-O3"` environmental variable is optional, we find it speeds up
+the executable by about four times. If PHP is already installed on your system,
+you may want to install this version separately, using the :option:`--prefix`
+option. Other configuration options are discussed in the :ref:`developer manual
+<dev.phpbuild>`. Finally, install the embed SAPI:
 
 .. sourcecode:: bash
 
    make install
 
 
-	
+
+.. _install.instructions:
+
 Installation Instructions
 -------------------------
 

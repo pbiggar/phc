@@ -33,11 +33,12 @@ Compiling a Plugin
 
 
 This is an example of an (almost) minimal plugin. Every plugin you write must
-contain these functions, with these exact signatures. :func:`load` is run
-when |phc| starts, giving your plugin the opportunity to add itself to the list
-of passes |phc| runs. In this example, it is added after the "ast" pass. When
-|phc| processes a PHP script, it runs all of the passes on it in turn. When
-it's your plugin's turn, it calls your version of :func:`run_ast()`.
+contain these functions, with these exact signatures [#signature_note]_.
+:func:`load` is run when |phc| starts, giving your plugin the opportunity to
+add itself to the list of passes |phc| runs. In this example, it is added after
+the "ast" pass. When |phc| processes a PHP script, it runs all of the passes on
+it in turn. When it's your plugin's turn, it calls your version of
+:func:`run_ast()`.
 
 To compile the plugin, run
 
@@ -90,7 +91,7 @@ there is a rule in the grammar that describes how ``if`` statements work:
 
 	If ::= Expr iftrue:Statement* iffalse:Statement* ; 
 
-This rules reads: "*An if-statement consists of an expression (the
+This rules reads: "*an if-statement consists of an expression (the
 condition of the if-statement), *a list of statements called 'iftrue'* (the
 instructions that get executed when the condition holds), *and another list of
 statements called 'iffalse'* (the instructions that get executed when the
@@ -98,16 +99,15 @@ condition does not hold)".  The asterisk (``*``) in the rule means "list of".
 			
 As a second example, consider the rule that describes arrays in PHP.  This rule
 should cover things such as ``array()``, ``array("a", "b")`` and ``array(1 =>
-"a", 2 => "g")``. Arrays are described by the following two rules.
+"a", 2 => "g")``. Arrays are described by the following two rules [#array_note]_.
 
 .. sourcecode:: haskell
 
 	Array ::= Array_elem* ;
 	Array_elem ::= key:Expr? val:Expr ;
 
-(Actually, this is a simplification, but it will do for the moment.) These two
-rules say that "*an array consists of a list of array elements*", and an
-"*array element has an optional expression called 'key', and a second
+These two rules say that "*an array consists of a list of array elements*", and
+an "*array element has an optional expression called 'key', and a second
 expression called 'val'*". The question mark (``?``) means "optional". Note
 that the grammar does not record the need for the keyword ``array``, or for the
 parentheses and commas.  We do not need to record these, because we already
@@ -119,14 +119,14 @@ The Abstract Syntax Tree
 ------------------------
 
 When |phc| reads a PHP script, it builds up an internal representation of the
-script. This representation is known as an *abstract syntax tree* (or AST for
+script. This representation is known as an *abstract syntax tree* (or *AST* for
 short). The structure of the AST follows directly from the abstract grammar.
 For people familiar with XML, this tree can be compared to the DOM
 representation of an XML script (and in fact, |phc| can output the AST as an
 XML document, see :ref:`runningphc`).
 			
 
-For example, consider if-statements again. An if-statement is represented by an
+For example, consider ``if``-statements again. An ``if``-statement is represented by an
 instance of the ``If`` class, which is (approximately) defined as follows.
 
 .. sourcecode:: c++
@@ -197,9 +197,9 @@ skeleton plugin:
 	{
 	}
 
-You will notice that ``run_ast()`` gets passed an object of type ``PHP_script``.
+You will notice that :func:`run_ast()` gets passed an object of type :class:`PHP_script`.
 This is the top-level node of the generated AST. If you look at the grammar
-(:ref:`grammar`), you will find that ``PHP_script`` corresponds to the
+(:ref:`grammar`), you will find that :class:`PHP_script` corresponds to the
 following rule:
 	
 .. sourcecode:: haskell
@@ -207,7 +207,7 @@ following rule:
 	PHP_script ::= Statement* ;
 
 Thus, as far as |phc| is concerned, a PHP script consists of a number of
-statements. The class ``PHP_script`` will have therefore have one member,
+statements. The class :class:`PHP_script` will have therefore have one member,
 called ``statements``, the list of statements. So, to count the number of
 classes, all we have to do is query the number of elements in the
 ``statements`` list:
@@ -269,8 +269,7 @@ Writing Stand Alone Applications
 If you prefer not to write a plugin but want to modify |phc| itself to derive
 a new, stand-alone, application, you can add your passes in
 :file:`src/phc.cpp` in the |phc| source tree instead. This has
-the effect of "hardcoding" your plugin into |phc| (in versions
-before *0.1.7*, this was the only way to write extensions). However, in the
+the effect of "hardcoding" your plugin into |phc| [#version_note]_. However, in the
 rest of the tutorials we will assume that you are writing your extension as a
 plugin.
 
@@ -290,3 +289,7 @@ requires a lot of boring boilerplate code. The good news is that |phc|
 provides sophisticated support for examining and modifying this tree. This
 is explained in detail in the follow-up tutorials.
 
+
+.. [#signature_note] Well, not exactly. :func:`run_ast` can be replaced by :func:`run_hir()` or :func:`run_mir()`.
+.. [#array_note] Actually, this is a simplification, but it will do for the moment.
+.. [#version_note] In versions before *0.1.7*, this was the only way to write extensions.
