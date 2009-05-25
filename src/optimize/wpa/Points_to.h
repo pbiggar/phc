@@ -349,12 +349,31 @@ public:
 
 		foreach (Edge_type* e, *other->get_edges ())
 		{
-			if (result->has_edge (e) and boost::is_same <Edge_type, Empty> ())
+			if (result->has_edge (e) and not boost::is_same <Value_type, Empty> ())
 				phc_TODO (); // combine values
 
 			result->add_edge (e);
 		}
 
+		return result;
+	}
+
+	// Returns a clone in which all the names are converted to context names.
+	this_type* convert_context_names ()
+	{
+		this_type* result = new this_type;
+
+		foreach (Edge_type* e, *this->get_edges ())
+		{
+			Edge_type* new_edge = new Edge_type (
+				e->source->convert_context_name (),
+				e->target->convert_context_name ());
+
+			if (result->has_edge (new_edge) and not boost::is_same <Value_type, Empty> ())
+				phc_TODO (); // combine values
+
+			result->add_edge (new_edge);
+		}
 		return result;
 	}
 
@@ -388,7 +407,10 @@ private:
 	// implicitly by the number of points-to edges from SOURCE.
 	Pair_map<Index_node, Storage_node, Points_to_edge> points_to;
 
-	// TARGETs are indices of SOURCE. A certainty doesn't make sense.
+	// TARGETs are indices of SOURCE. A certainty would indicate whether it is
+	// initialized, but is probably a bit hard to do (and not worth it compared
+	// to an 'is_initialized' analysis.
+	// TODO: might be much easier with the new design.
 	// (Storage_node, Index_node) set.
 	Pair_map<Storage_node, Index_node, Field_edge> fields;
 

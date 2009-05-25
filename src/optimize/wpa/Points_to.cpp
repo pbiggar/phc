@@ -614,51 +614,44 @@ Points_to::remove_storage_node (Storage_node* st)
 void
 Points_to::convert_context_names ()
 {
-	// TODO: check that this creates new Index_nodes, as the pointers are shared
-	// between differene Pair_maps.
-
-	phc_TODO ();
 	// Each alias_name can be converted in either the prefix or the suffix.
 	// By_source and by_target need to be updated.
 
-	// Symtables definitely need to be merged. Other storage nodes, I'm not
-	// sure. So we'll merge them all.
-	/*
+	// Merging storage nodes:
+	//		Symtables definitely need to be merged.
+	//		There are pros and cons to merging Objects and arrays:
+	//			- We might like to distinguish between them
+	//			- We might like to have a single node representing an allocation
+	//			- If we dont merge them, we're still merging the LHS of the
+	//			  allocation, so $x = new X will have $x pointing to multiple X
+	//			  nodes.
+	//
+	//	So just merge them all, until there is a good reason not to.
 
 	// Save the old alias pairs
-	Map<Alias_name, int> old_abstract_counts = this->abstract_counts;
+	fields.convert_context_names ();
+	references.convert_context_names ();
+	points_to.convert_context_names ();
+
+
+	// Convert symtable names
 	Set<Alias_name> old_symtables = this->symtables;
-	Set<Alias_pair*> old_all_pairs = this->all_pairs;
-
-	// Clear the current set
-	this->abstract_counts.clear ();
 	this->symtables.clear ();
-	this->all_pairs.clear ();
-	this->by_source.clear ();
-	this->by_target.clear ();
-
-
-	foreach (Alias_pair* pair, old_all_pairs)
-	{
-		PT_node* source = pair->source->convert_context_name ();
-		PT_node* target = pair->target->convert_context_name ();
-
-		add_edge (source, target, pair->cert);
-	}
-
 	foreach (Alias_name name, old_symtables)
 	{
 		this->symtables.insert (name.convert_context_name ());
 	}
 
+	// Convert abstract counts
 	// I'm not really sure what to do here.
 	Alias_name name;
 	int count;
+	Map<Alias_name, int> old_abstract_counts = this->abstract_counts;
+	this->abstract_counts.clear ();
 	foreach (tie (name, count), old_abstract_counts)
 	{
 		abstract_counts[name.convert_context_name ()] += count;
 	}
-	*/
 }
 
 
