@@ -11,6 +11,8 @@
 #include <list>
 #include "lib/Object.h"
 #include "process_ir/Foreach.h"
+#include <boost/type_traits/is_pointer.hpp>
+#include <boost/type_traits/is_scalar.hpp>
 
 // XXX HACK
 /*
@@ -69,8 +71,7 @@ T phc_clone (T object)
 	return clone_algorithm_selector<supports_cloning<T>::value>::clone(object); 
 }
 
-#include <boost/type_traits/is_pointer.hpp>
-template<bool b, bool is_pointer> 
+template<bool supports_equality, bool is_scalar, bool is_pointer> 
 struct equals_algorithm_selector 
 { 
 	template<typename T> 
@@ -84,7 +85,7 @@ struct equals_algorithm_selector
 // Non-pointers which have operator== should work too (like strings and
 // primitives).
 template<> 
-struct equals_algorithm_selector<false, true>
+struct equals_algorithm_selector<false, true, false>
 { 
 	template<typename T> 
 	static bool equals (T object1, T object2)
@@ -95,7 +96,7 @@ struct equals_algorithm_selector<false, true>
 
 // Call to equals for classes that support it.
 template<> 
-struct equals_algorithm_selector<true, true>
+struct equals_algorithm_selector<true, true, true>
 { 
 	template<typename T> 
 	static bool equals (T object1, T object2)
@@ -105,7 +106,7 @@ struct equals_algorithm_selector<true, true>
 };
 
 template<> 
-struct equals_algorithm_selector<true, false>
+struct equals_algorithm_selector<true, false, false>
 { 
 	template<typename T> 
 	static bool equals (T object1, T object2)
@@ -117,7 +118,7 @@ struct equals_algorithm_selector<true, false>
 template<typename T> 
 bool phc_equals (T object1, T object2)
 { 
-	return equals_algorithm_selector<supports_equality<T>::value, boost::is_pointer<T>::value>::equals(object1, object2); 
+	return equals_algorithm_selector<supports_equality<T>::value, boost::is_scalar<T>::value, boost::is_pointer<T>::value>::equals(object1, object2); 
 }
 
 

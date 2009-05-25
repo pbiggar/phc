@@ -204,7 +204,11 @@ SET_COMPARABLE (Reference_edge);
  *	is a 1-to-1 correspondence between MIR nodes and paths.
  */
 
-struct Empty{};
+struct Empty
+{
+	bool operator!= (const Empty&) const { return true; }
+	bool operator== (const Empty&) const { return true; }
+};
 
 template <class Source_type, class Target_type, class Edge_type, class Value_type = Empty>
 class Pair_map
@@ -282,7 +286,21 @@ public:
 	// Equality
 	bool equals (this_type* other)
 	{
-		phc_TODO ();
+		// Check the edges
+		if (this->get_edges ()->size () != other->get_edges ()->size ())
+			return false;
+
+		foreach (Edge_type* e, *other->get_edges ())
+			if (not this->has_edge (e))
+				return false;
+
+		// Check the values
+
+		foreach (Edge_type* e, *other->get_edges ())
+			if (this->get_value (e) != other->get_value (e))
+				return false;
+
+		return true;
 	}
 
 
