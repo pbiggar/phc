@@ -432,11 +432,14 @@ Points_to::get_storage_nodes ()
 void
 Points_to::remove_unreachable_nodes ()
 {
-	// Summary: when removing a storage, remove all its index nodes.
-	
-	// Put all symtables into the worklist
-	PT_node_list* worklist = rewrap_list<PT_node> (this->get_storage_nodes ());
+	PT_node_list* worklist = new PT_node_list;
 
+	// Put all symtables into the worklist
+	foreach (Storage_node* st, *this->get_storage_nodes ())
+	{
+		if (this->is_symtable (st))
+			worklist->push_back (st);
+	}
 
 	// Mark all reachable nodes
 	Set<Alias_name> reachable;
@@ -596,7 +599,8 @@ void
 Points_to::remove_storage_node (Storage_node* st)
 {
 	// No node should point to it (assuming its a symtable).
-	assert (this->get_points_to_incoming (st)->empty ());	
+	assert (this->get_points_to_incoming (st)->empty ()
+			|| st->storage == "__MAIN___/0"); // except a special case
 
 	foreach (Index_node* field, *this->get_fields (st))
 	{
