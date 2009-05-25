@@ -213,6 +213,11 @@ public:
 	// Storing values
 	Value_type get_value (Edge_type* edge)
 	{
+		return this->get_value (edge->source, edge->target);
+	}
+
+	Value_type get_value (Source_type* source, Target_type* target)
+	{
 		phc_TODO ();
 	}
 
@@ -232,6 +237,16 @@ public:
 		return result;
 	}
 
+	List<Source_type*>* get_sources (Target_type* target)
+	{
+		List<Source_type*>* result = new List<Source_type*>;
+
+		foreach (Edge_type* edge, *by_target[target->name()].values ())
+			result->push_back (edge->source);
+
+		return result;
+	}
+
 	// Equality
 	bool equals (Pair_map<Source_type, Target_type, Edge_type, Value_type>* other)
 	{
@@ -240,6 +255,9 @@ public:
 
 	void add_edge (Source_type* source, Target_type* target)
 	{
+		if (this->has_edge (source, target))
+			return;
+
 		by_source [source->name ()][target->name ()] = new Edge_type (source, target);
 		by_target [target->name ()][source->name ()] = new Edge_type (source, target);
 	}
@@ -269,6 +287,18 @@ public:
 			result->push_back_all (map.values ());
 
 		return result;
+	}
+
+	void remove_all_incoming_edges (Target_type* target)
+	{
+		foreach (Source_type* source, *this->get_sources (target))
+			this->remove_edge (source, target);
+	}
+
+	void remove_all_outgoing_edges (Source_type* source)
+	{
+		foreach (Target_type* target, *this->get_targets (source))
+			this->remove_edge (source, target);
 	}
 
 
@@ -336,15 +366,23 @@ public:
 
 	void add_reference (Index_node* source, Index_node* target, Certainty cert);
 	bool has_reference (Index_node* source, Index_node* target);
+
+	// Just removes the reference
 	void remove_reference (Index_node* source, Index_node* target);
 
 	/*
 	 * Points-to edges
 	 */
+
+	// Storage nodes that index_node points-to.
 	Storage_node_list* get_points_to (Index_node* index);
+	Index_node_list* get_points_to_incoming (Storage_node* st);
 
 	void add_points_to (Index_node* source, Storage_node* target);
 	bool has_points_to (Index_node* source, Storage_node* target);
+
+	// Removes the points-to edge, and nothing else. The caller must ensure that
+	// the index is not left pointing to nothing.
 	void remove_points_to (Index_node* source, Storage_node* target);
 
 
@@ -357,18 +395,27 @@ public:
 	// The storage node of an index node is implicit (in the STORAGE field).
 	void add_field (Index_node* target);
 	bool has_field (Index_node* target);
+
+	// Remove the edge from the storage-node to the index-node. Also removes
+	// outgoing points-to edges, and reference edges.
 	void remove_field (Index_node* target);
 
 
 	/*
-	 * Generic API (not specific to a particular edge type)
+	 * Nodes
 	 */
+
+	PT_node_list* get_nodes ();
 
 	bool has_storage_node (Storage_node* st);
 
+	void remove_index_node (Index_node* index);
+	void remove_storage_node (Storage_node* st);
+
+	Storage_node_list* get_storage_nodes ();
 
 	/*
-	 * For working with the whole Points-to graph.
+	 * Whole graph.
 	 */
 
 	bool equals (Points_to* other);
@@ -385,11 +432,8 @@ public:
 	 * TODO: From here on, everything should be vetted (and hopefully killed)
 	 */
 
-	Storage_node_list* get_storage_nodes ();
-
 	static Index_node_list* get_possible_nulls (List<Points_to*>* graphs);
 
-	PT_node_list* get_nodes ();
 
 
 	// A lot of points in the graph use names derived from some context. Change
@@ -403,9 +447,6 @@ public:
 private:
 
 	void remove_unreachable_nodes ();
-
-	void garbage_collect (Index_node*);
-	void garbage_collect (Storage_node*);
 
 	void remove_node (PT_node* node);
 

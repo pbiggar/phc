@@ -55,7 +55,7 @@ Points_to::close_scope (Storage_node* st)
 
 		// Remove the symbol table. Then do a mark-and-sweep from all the other
 		// symbol tables.
-		remove_node (st);
+		remove_storage_node (st);
 		remove_unreachable_nodes ();
 	}
 
@@ -104,7 +104,7 @@ Points_to::get_references (Index_node* index, Certainty cert)
 	Reference_list* result = new Reference_list;
 	foreach (Index_node* target, *references.get_targets (index))
 	{
-		Certainty target_cert = references.get_value (new Reference_edge (index, target));
+		Certainty target_cert = references.get_value (index, target);
 		if (cert & target_cert)
 			result->push_back (new Reference (target, target_cert));
 	}
@@ -120,9 +120,13 @@ Points_to::set_reference_cert (Reference_edge* pair, Certainty cert)
 void
 Points_to::add_reference (Index_node* source, Index_node* target, Certainty cert)
 {
-	references.add_edge (source, target);
+	this->add_field (source);
+	this->add_field (target);
 
-	phc_TODO (); // check if there a;ready is a CERT, and combine them (which way?).
+	if (references.has_edge (source, target) and references.get_value (source, target) != cert)
+		phc_TODO (); // check if there already is a CERT, and combine them (which way?).
+
+	references.add_edge (source, target);
 	set_reference_cert (new Reference_edge (source, target), cert);
 }
 
@@ -149,9 +153,16 @@ Points_to::get_points_to (Index_node* index)
 	return points_to.get_targets (index);
 }
 
+Index_node_list*
+Points_to::get_points_to_incoming (Storage_node* st)
+{
+	return points_to.get_sources (st);
+}
+
 void
 Points_to::add_points_to (Index_node* index, Storage_node* st)
 {
+	this->add_field (index);
 	points_to.add_edge (index, st);
 }
 
@@ -164,6 +175,10 @@ Points_to::has_points_to (Index_node* index, Storage_node* st)
 void
 Points_to::remove_points_to (Index_node* index, Storage_node* st)
 {
+	// If this has no remaining points-to edges, it should be redirected to
+	// point-to NULL (or ABSVAL, whose value should be set yo NULL). But its
+	// very hard to do that here, so we shall assume that this is only done by a
+	// caller.
 	points_to.remove_edge (index, st);
 }
 
@@ -193,8 +208,12 @@ Points_to::has_field (Index_node* index)
 void
 Points_to::remove_field (Index_node* index)
 {
-	// Check that the compiler errors on this
 	fields.remove_edge (SN (index->storage), index);
+
+	// Also remove any outgoing edges from index.
+	references.remove_all_incoming_edges (index);
+	references.remove_all_outgoing_edges (index);
+	points_to.remove_all_outgoing_edges (index);
 }
 
 
@@ -358,8 +377,6 @@ Points_to::clone ()
 
 	// These will copy pointers to nodes. But that's OK, since nodes are never
 	// updated.
-	// TODO: make Nodes and edges const correct to check this.
-	// TODO: actually, convert_context_names might be a problem here.
 	result->references = this->references;
 	result->points_to = this->points_to;
 	result->fields = this->fields;
@@ -418,24 +435,17 @@ Points_to::remove_unreachable_nodes ()
 {
 	// Summary: when removing a storage, remove all its index nodes.
 	
-	phc_TODO ();
-/*
-	
 	// Put all symtables into the worklist
 	PT_node_list* worklist = new PT_node_list;
-	PT_node_list* all_nodes = get_nodes ();
+	PT_node_list* all_nodes = this->get_nodes ();
 	foreach (PT_node* node, *all_nodes)
 	{
-		// TODO: split between symtable and other storage nodes
 		if (Storage_node* sn = dynamic_cast<Storage_node*> (node))
 			worklist->push_back (sn);
 	}
 
-	// Mark all reachable nodes (use names, not pointers, as there may be
-	// mulitple descirptor with the same name, but obviously different
-	// pointers).
+	// Mark all reachable nodes
 	Set<Alias_name> reachable;
-
 	while (worklist->size () > 0)
 	{
 		PT_node* node = worklist->front ();
@@ -444,33 +454,46 @@ Points_to::remove_unreachable_nodes ()
 		if (reachable.has (node->name ()))
 			continue;
 
-		// mark reachable
+		// Mark reachable
 		reachable.insert (node->name ());
-	
-		// Add successors to the worklist
-		foreach (PT_node* succ, *get_targets<PT_node> (node))
+
+		// Fetch the targets
+		if (isa<Storage_node> (node))
 		{
-			worklist->push_back (succ);
+			Index_node_list* fields = this->get_fields (dyc<Storage_node> (node)); 
+			worklist->push_back_all (rewrap_list<PT_node, Index_node> (fields));
+		}
+		else
+		{
+			// Dont follow reference edges (not necessary cause of transitive-closure)
+			Storage_node_list* points_to = this->get_points_to (dyc<Index_node> (node)); 
+			worklist->push_back_all (rewrap_list<PT_node, Storage_node> (points_to));
 		}
 	}
 
 	// remove all nodes not marked as reachable
 	foreach (PT_node* node, *all_nodes)
 	{
-		// We use get_all_nodes because the vertex descriptors are invalidated
-		// by remove_vertex
 		if (!reachable.has (node->name ()))
 		{
-			phc_TODO ();
+			this->remove_node (node);
 		}
 	}
-	*/
 }
 
 
 /*
  * Low-level API
  */
+
+void
+Points_to::remove_node (PT_node* node)
+{
+	if (isa<Index_node> (node))
+		this->remove_field (dyc<Index_node> (node));
+	else
+		this->remove_storage_node (dyc<Storage_node> (node));
+}
 
 
 
@@ -486,8 +509,8 @@ Points_to::get_possible_nulls (List<Points_to*>* graphs)
 
 	Set<Alias_name> existing;
 
-	// Foreach storage node in G, check all other graphs for G. If they have
-	// G, check for each I, such that G->I.
+	// Foreach storage node S in G, check all other graphs for G. If they have
+	// S, check for each I, such that S->I.
 	foreach (Points_to* graph, *graphs)
 	{
 		foreach (Storage_node* st, *graph->get_storage_nodes ())
@@ -621,96 +644,17 @@ Points_to::get_nodes ()
 	return all.values();
 }
 
-#if 0
-void
-Points_to::insert (Alias_pair* pair)
-{
-	phc_TODO ();
-/*	Alias_name source = pair->source->name ();
-	Alias_name target = pair->target->name ();
-
-	// TODO: dont duplicate
-	if (by_source[source].has (target))
-	{
-		// Dont update the edges in place
-		Alias_pair* current = by_source[source][target];
-
-		// Dont use combine cert.
-		Certainty cert = POSSIBLE;
-		if (pair->cert == DEFINITE || current->cert == DEFINITE)
-			cert = DEFINITE;
-
-		set_pair_cert (current, cert);
-	}
-	else
-	{
-		by_source[source][target] = pair;
-		by_target[target][source] = pair;
-
-		// Record all pairs.
-		all_pairs.insert (pair);
-	}
-	*/
-}
-#endif
-
-
 
 void
-Points_to::remove_node (PT_node* node)
+Points_to::remove_storage_node (Storage_node* st)
 {
-	phc_TODO ();
-	/*
-	PT_node_list* children = get_targets<PT_node> (node);
+	// No node should point to it (assuming its a symtable).
+	assert (this->get_points_to_incoming (st)->empty ());	
 
-	// dont use foreach, as remove_pair kills the iterators.
-	while (by_source [node->name ()].size ())
+	foreach (Index_node* field, *this->get_fields (st))
 	{
-		Alias_name name;
-		Alias_pair* pair;
-
-		tie (name, pair) = *by_source [node->name ()].begin();
-		remove_pair (pair->source, pair->target, true);
-		remove_pair (pair->target, pair->source, false);
+		remove_field (field);
 	}
-
-	foreach (PT_node* child, *children)
-	{
-		maybe_remove_node (child);
-	}
-	*/
-}
-
-void
-Points_to::garbage_collect (Index_node* node)
-{
-	phc_TODO ();
-	/*
-	// Remove index nodes with no storage node.
-	if (isa<Index_node> (node))
-	{
-		if (!has_node (SN (dyc<Index_node> (node)->storage)))
-			remove_node (node);
-	}
-	*/
-}
-
-void
-Points_to::garbage_collect (Storage_node* node)
-{
-	phc_TODO ();
-	/*
-	// Garbage collect. This is actually important, and not just for saving
-	// space. Storage nodes may need to come back, typically if they are
-	// implicitly created. We must make sure we get new results, as stale ones
-	// may be wrong. Note this doesnt collect cycles, which is fine.
-	if (isa<Storage_node> (node))
-	{
-		if ((get_incoming <PT_node> (node)->size() == 0)
-				&& !is_symtable (dyc<Storage_node> (node)))
-			remove_node (node);
-	}
-	*/
 }
 
 /*
