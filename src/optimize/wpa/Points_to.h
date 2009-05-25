@@ -206,7 +206,7 @@ SET_COMPARABLE (Reference_edge);
 
 struct Empty
 {
-	bool operator!= (const Empty&) const { return true; }
+	bool operator!= (const Empty&) const { return false; }
 	bool operator== (const Empty&) const { return true; }
 };
 
@@ -241,7 +241,9 @@ public:
 
 	Value_type get_value (Source_type* source, Target_type* target)
 	{
-		phc_TODO ();
+		assert (by_source[source->name ()].has (target->name()));
+
+		return values[source->name ()][target->name ()];
 	}
 
 	void set_value (Edge_type* pair, Value_type value)
@@ -295,7 +297,6 @@ public:
 				return false;
 
 		// Check the values
-
 		foreach (Edge_type* e, *other->get_edges ())
 			if (this->get_value (e) != other->get_value (e))
 				return false;
