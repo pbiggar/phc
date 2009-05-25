@@ -418,13 +418,14 @@ public:
 	 */
 
 	PT_node_list* get_nodes ();
+	Index_node_list* get_index_nodes ();
+	Storage_node_list* get_storage_nodes ();
+
 
 	bool has_storage_node (Storage_node* st);
 
 	void remove_index_node (Index_node* index);
 	void remove_storage_node (Storage_node* st);
-
-	Storage_node_list* get_storage_nodes ();
 
 	/*
 	 * Whole graph.

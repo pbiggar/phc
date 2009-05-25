@@ -387,44 +387,42 @@ Points_to::clone ()
 void
 Points_to::consistency_check (Context cx, Whole_program* wp)
 {
-	phc_TODO ();
-	/*
-	 * TODO:
-			// Check index nodes are pointed to by their storage node
-				dump_graphviz (NULL, cx, wp);
-				phc_internal_error ("No edge from storage node for %s",
-										  ind->name().str().c_str());
+	foreach (Index_node* index, *this->get_index_nodes ())
+	{
 
+		// Check index nodes are pointed to by their storage node
+		if (not this->has_field (index))
+		{
+			dump_graphviz (NULL, cx, wp);
+			phc_internal_error ("No field-edge to %s",
+					index->name().str().c_str());
+		}
 
-			// Check there isnt > 1 DEFINITE reference
-				dump_graphviz (NULL, cx, wp);
-				phc_internal_error (
-						"Multiple edges from %s, but edge to %s is DEFINITE",
-						ind->name().str().c_str(),
-						st->name().str().c_str());
-	*/
+		// Check every index node points_to something.
+		if (this->get_points_to (index)->size () == 0)
+		{
+			dump_graphviz (NULL, cx, wp);
+			phc_internal_error ("No points-to edge from %s",
+					index->name().str().c_str());
+		}
+	}
 }
 
 
 
 
 
-
+Index_node_list*
+Points_to::get_index_nodes ()
+{
+	return filter_types <Index_node> (this->get_nodes ());
+}
 
 
 Storage_node_list*
 Points_to::get_storage_nodes ()
 {
-	Storage_node_list* result = new Storage_node_list;
-
-	foreach (PT_node* node, *this->get_nodes ())
-	{
-		if (isa<Storage_node> (node))
-			result->push_back (dyc<Storage_node> (node));
-	}
-
-	return result;
-	
+	return filter_types <Storage_node> (this->get_nodes ());
 }
 
 
@@ -437,13 +435,8 @@ Points_to::remove_unreachable_nodes ()
 	// Summary: when removing a storage, remove all its index nodes.
 	
 	// Put all symtables into the worklist
-	PT_node_list* worklist = new PT_node_list;
-	PT_node_list* all_nodes = this->get_nodes ();
-	foreach (PT_node* node, *all_nodes)
-	{
-		if (Storage_node* sn = dynamic_cast<Storage_node*> (node))
-			worklist->push_back (sn);
-	}
+	PT_node_list* worklist = rewrap_list<PT_node> (this->get_storage_nodes ());
+
 
 	// Mark all reachable nodes
 	Set<Alias_name> reachable;
@@ -473,7 +466,7 @@ Points_to::remove_unreachable_nodes ()
 	}
 
 	// remove all nodes not marked as reachable
-	foreach (PT_node* node, *all_nodes)
+	foreach (PT_node* node, *this->get_nodes ())
 	{
 		if (!reachable.has (node->name ()))
 		{

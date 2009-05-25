@@ -213,12 +213,25 @@ public:
 };
 
 template <class Result_type, class List_type>
-List<Result_type*>* rewrap_list (List<List_type*>* nodes)
+List<Result_type*>* rewrap_list (List<List_type*>* list)
 {
 	List<Result_type*>* result = new List<Result_type*>;
-	foreach (List_type* n, *nodes)
+	foreach (List_type* n, *list)
 	{
 		result->push_back (dyc<Result_type> (n));
+	}
+	return result;
+}
+
+// A filter that removes objects not of the type FILTER_TYPE.
+template <class Filter_type, class List_type>
+List<Filter_type*>* filter_types (List<List_type*>* list)
+{
+	List<Filter_type*>* result = new List<Filter_type*>;
+	foreach (List_type* n, *list)
+	{
+		if (isa<Filter_type> (n))
+			result->push_back (dyc<Filter_type> (n));
 	}
 	return result;
 }
