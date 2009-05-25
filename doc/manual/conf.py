@@ -27,6 +27,7 @@ import sys, os
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = ['sphinx.ext.todo']
+# todo_include_todos = True # enable to see TODOs in the source, and on the front-page.
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['.templates']
@@ -87,8 +88,18 @@ add_function_parentheses = False
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
 
+# Add the defintion of |phc|, which is the same thing in red. In the phc.css
+# file on the website, this uses #882222. The latex rule uses these RGB values
+# as a decimal (ie 0x88/256.0).
 rst_epilog = """
-.. |phc| replace:: **phc**
+.. role:: red-html(raw)
+   :format: html
+
+.. role:: red-latex(raw)
+   :format: latex
+
+.. |phc| replace:: :red-html:`<font color="#882222">phc</font>`:red-latex:`\\textcolor[rgb]{0.53,0.133,0.133}{phc}`
+
 """
 
 
@@ -172,7 +183,7 @@ htmlhelp_basename = 'phcdoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, document class [howto/manual]).
 latex_documents = [
-  ('index', 'phc.tex', ur'phc Documentation',
+  ('manual', 'manual.tex', ur'phc Documentation',
    ur'Paul Biggar, Edsko de Vries, John Gilbert', 'manual'),
 ]
 
@@ -185,7 +196,8 @@ latex_documents = [
 #latex_use_parts = False
 
 # Additional stuff for the LaTeX preamble.
-#latex_preamble = ''
+latex_preamble = """
+"""
 
 # Documents to append as an appendix to all manuals.
 #latex_appendices = []
