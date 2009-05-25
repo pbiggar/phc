@@ -13,7 +13,6 @@ The transform that we will be considering in this tutorial is one that is used
 in |phc| itself. The transform is called :class:`Remove_concat_null` and can be
 found in :file:`src/process_ast/Remove_concat_null.h`. The purpose of the
 transform is to remove string concatenation with the empty string. For example, 
-</para>
 
 .. sourcecode:: php
 

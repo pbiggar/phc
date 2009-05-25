@@ -11,7 +11,6 @@ the refactoring, we want to rename any function ``foo`` in the script to
 ``foo_DB``, if it makes use of the database --- this clearly sets functions
 that use the database apart, which may make the structure of the script
 clearer.  
-</para>
 
 So, we want to write a transform that renames all functions ``foo``
 to ``foo_DB``, if there is one or more call within that function to any
