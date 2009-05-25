@@ -1951,8 +1951,6 @@ Whole_program::visit_constant (Statement_block* bb, MIR::Constant* in)
 {
 	string ns = block_cx.symtable_name ();
 
-	phc_TODO ();
-
 	Literal* lit = PHP::fold_constant (in);
 	if (lit)
 	{
@@ -1960,7 +1958,7 @@ Whole_program::visit_constant (Statement_block* bb, MIR::Constant* in)
 		return;
 	}
 
-	// Assign_unknown_typed (Types (sitrng, bool, null, etc
+	// Assign_unknown_typed (Types (string, bool, null, etc
 	phc_TODO ();
 }
 
