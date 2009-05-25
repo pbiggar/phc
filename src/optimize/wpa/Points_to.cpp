@@ -541,74 +541,27 @@ Points_to::get_possible_nulls (List<Points_to*>* graphs)
 Points_to*
 Points_to::merge (Points_to* other)
 {
-	phc_TODO ();
-	/*
 	Points_to* result = new Points_to;
 
-	// All edges from THIS.
-	foreach (Alias_pair* p, this->all_pairs)
-	{
-		Alias_pair* other_pair = other->get_edge (p->source, p->target);
-		// If the pair is in both graphs, add it with the combined CERT.
-		if (other_pair)
-		{
-			result->add_edge (p->source, p->target,
-				combine_certs (other_pair->cert, p->cert));
-		}
-		else
-		{
-			if (other->has_node (p->source) 
-				&& isa<Index_node> (p->source) && isa<Index_node> (p->target))
-			{
-				// If the source node is in both graphs, but the edge is not,
-				// then the edge becomes possible. This only applies to reference
-				// edges (index->index), as we handle the NULL possabilities in
-				// Whole_program.
-				result->add_edge (p->source, p->target, POSSIBLE);
-			}
-			else
-			{
-				// If the source node is only in one graph, then the edge takes
-				// its certainty from the current graph. 
-				result->add_edge (p->source, p->target, p->cert);
-			}
-		}
-	}
+	result->fields = *this->fields.merge (&other->fields);
+	result->points_to = *this->points_to.merge (&other->points_to);
+	result->references = *this->references.merge (&other->references);
 
-	// Add edges that are only in OTHER
-	foreach (Alias_pair* p, other->all_pairs)
-	{
-		if (this->get_edge (p->source, p->target) == NULL)
-		{
-			if (this->has_node (p->source)
-				&& isa<Index_node> (p->source) && isa<Index_node> (p->target))
-			{
-				// see above
-				result->add_edge (p->source, p->target, POSSIBLE);
-			}
-			else
-			{
-				result->add_edge (p->source, p->target, p->cert);
-			}
-		}
-	}
-
-	// Combine the symtable records
+	// Combine the abstract counts
 	result->abstract_counts = this->abstract_counts;
-	result->symtables = this->symtables;
 
 	// For counts in OTHER, use the max (for counts only in OTHER, OTHER's
 	// version will be used).
 	Alias_name name;
 	int count;
 	foreach (tie (name, count), other->abstract_counts)
-	{
 		result->abstract_counts [name] = max (count,  other->abstract_counts [name]);
-	}
 
+
+	// Combine the list of symtables
+	result->symtables = *this->symtables.set_union (&other->symtables);
 
 	return result;
-	*/
 }
 
 PT_node_list*

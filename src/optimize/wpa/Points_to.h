@@ -10,12 +10,14 @@
 #ifndef PHC_POINTS_TO
 #define PHC_POINTS_TO
 
+#include <boost/type_traits/is_same.hpp> // TODO: probably unused soon
+#include "MIR.h"
+
 #include "lib/List.h"
 #include "lib/String.h"
 #include "lib/Set.h"
 #include "lib/Map.h"
 
-#include "MIR.h"
 
 #include "WPA.h"
 
@@ -202,13 +204,30 @@ SET_COMPARABLE (Reference_edge);
  *	is a 1-to-1 correspondence between MIR nodes and paths.
  */
 
-template <class Source_type, class Target_type, class Edge_type, class Value_type>
+struct Empty{};
+
+template <class Source_type, class Target_type, class Edge_type, class Value_type = Empty>
 class Pair_map
 {
 	typedef Source_type source_type;
 	typedef Target_type target_type;
 	typedef Edge_type edge_type;
+	typedef Pair_map<Source_type, Target_type, Edge_type, Value_type> this_type;
+
 public:
+
+	// This can result in the edge being shared, which is fine.
+	Pair_map<Source_type, Target_type, Edge_type, Value_type> (this_type& other)
+	: values (other.values)
+	, by_source (other.by_source)
+	, by_target (other.by_target)
+	{
+	}
+
+	Pair_map<Source_type, Target_type, Edge_type, Value_type> ()
+	{
+	}
+
 
 	// Storing values
 	Value_type get_value (Edge_type* edge)
@@ -261,7 +280,7 @@ public:
 
 
 	// Equality
-	bool equals (Pair_map<Source_type, Target_type, Edge_type, Value_type>* other)
+	bool equals (this_type* other)
 	{
 		phc_TODO ();
 	}
@@ -269,11 +288,21 @@ public:
 
 	void add_edge (Source_type* source, Target_type* target)
 	{
-		if (this->has_edge (source, target))
+		return this->add_edge (new Edge_type (source, target));
+	}
+
+	void add_edge (Edge_type* edge)
+	{
+		if (this->has_edge (edge))
 			return;
 
-		by_source [source->name ()][target->name ()] = new Edge_type (source, target);
-		by_target [target->name ()][source->name ()] = new Edge_type (source, target);
+		by_source [edge->source->name ()][edge->target->name ()] = edge;
+		by_target [edge->target->name ()][edge->source->name ()] = edge;
+	}
+
+	bool has_edge (Edge_type* edge)
+	{
+		return this->has_edge (edge->source, edge->target);
 	}
 
 	bool has_edge (Source_type* source, Target_type* target)
@@ -314,22 +343,27 @@ public:
 			this->remove_edge (source, target);
 	}
 
+	this_type* merge (this_type* other)
+	{
+		this_type* result = new this_type (*this);
+
+		foreach (Edge_type* e, *other->get_edges ())
+		{
+			if (result->has_edge (e) and boost::is_same <Edge_type, Empty> ())
+				phc_TODO (); // combine values
+
+			result->add_edge (e);
+		}
+
+		return result;
+	}
+
 
 
 private:
 	Map<Alias_name, Map<Alias_name, Value_type> > values;
 	Map<Alias_name, Map<Alias_name, Edge_type*> > by_source;
 	Map<Alias_name, Map<Alias_name, Edge_type*> > by_target;
-};
-
-struct Empty{};
-
-template <class Source_type, class Target_type, class Edge_type>
-class Pair_set : public Pair_map<Source_type, Target_type, Edge_type, Empty>, virtual public GC_obj
-{
-private:
-	Empty get_value (Edge_type* edge) { phc_unreachable (); }
-	void set_value (Edge_type* edge, Empty value) { phc_unreachable (); }
 };
 
 class Points_to : virtual public GC_obj
@@ -352,11 +386,11 @@ private:
 	// (Index_node, Storage_node) set.
 	// SOURCE is an index points-to TARGET. Its certainty is determined
 	// implicitly by the number of points-to edges from SOURCE.
-	Pair_set<Index_node, Storage_node, Points_to_edge> points_to;
+	Pair_map<Index_node, Storage_node, Points_to_edge> points_to;
 
 	// TARGETs are indices of SOURCE. A certainty doesn't make sense.
 	// (Storage_node, Index_node) set.
-	Pair_set<Storage_node, Index_node, Field_edge> fields;
+	Pair_map<Storage_node, Index_node, Field_edge> fields;
 
 public:
 	Points_to ();
