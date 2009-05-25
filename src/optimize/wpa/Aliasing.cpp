@@ -110,27 +110,7 @@ Aliasing::pull_pred (Context cx, Context pred)
 void
 Aliasing::pull_possible_null (Context cx, Index_node* node)
 {
-	phc_TODO ();
-	/*
-	Points_to* pt = ins[cx];
-
-	// Copied from assign_value
-	pt->add_edge (node, ABSVAL (node), POSSIBLE);
-
-	// HACK: there must be existing values for node. They might just be
-	// ABSVAL, in which case we're fine, or they might be another value, in
-	// which case we need to set the edge to POSSIBLE.
-	Storage_node_list* values = pt->get_dereferenced (node);
-	if (values->size () > 1)
-	{
-		foreach (Storage_node* st, *values)
-		{
-			phc_TODO (); // is this no longer necessary?
-			Alias_pair* pair = pt->get_edge (node, st);
-			pt->set_reference_cert (pair, POSSIBLE);
-		}
-	}
-	*/
+	ins[cx]->add_points_to (node, ABSVAL (node));
 }
 
 void
