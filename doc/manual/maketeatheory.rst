@@ -7,7 +7,7 @@ Introduction
 ------------
 
 :program:`maketea` is `available
-separately <http://www.maketea.org>`_ to |phc|. Based on a grammar definition of a language, it
+separately <http://maketea.googlecode.com>`_ to |phc|. Based on a grammar definition of a language, it
 generates a C++ hierarchy for the corresponding abstract syntax tree, a tree
 transformation and visitor API, and deep cloning, deep equality and pattern
 matching on the AST. In this document we describe the grammar formalism used by

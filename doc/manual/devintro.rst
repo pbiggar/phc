@@ -39,15 +39,15 @@ tools based on |phc|).
 
 *  :program:`flex` if you need to modify the lexical analyser.
 *  :program:`bison` if you need to modify the parser.
-*  `maketea <http://www.maketea.org>`_ if you want to modify
+*  `maketea <http://maketea.googlecode.com>`_ if you want to modify
    the |phc| grammars (or the AST/HIR/MIR classes).
 *  `gengetopt <http://www.gnu.org/software/gengetopt/gengetopt.html>`_ if
    you need to add additional command line arguments; you will need version 0.20 or higher.
 *  `gperf <http://www.gnu.org/software/gperf/gperf.html>`_
    if you need to modify the list of keywords recognized by the lexical analyser.
 *  `PHP <http://www.php.net/downloads.html>`_ if you need to
-   compile or use the *dataflow* branch. See the next section for instructions
-   on configuring PHP for use.
+   compile PHP code, or use the *dataflow* branch. See the next section for
+   instructions on configuring PHP for use.
 
 .. _dev.phpbuild:
 
