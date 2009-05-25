@@ -226,7 +226,7 @@ public:
 		phc_TODO ();
 	}
 
-	// Returning members
+
 	List<Target_type*>* get_targets (Source_type* source)
 	{
 		List<Target_type*>* result = new List<Target_type*>;
@@ -247,11 +247,25 @@ public:
 		return result;
 	}
 
+	List<Edge_type*>* get_edges ()
+	{
+		List<Edge_type*>* result = new List<Edge_type*>;
+
+		typedef Map<Alias_name, Edge_type*> Map_type;
+		foreach (Map_type& map, *by_source.values ())
+			result->push_back_all (map.values ());
+
+		return result;
+	}
+
+
+
 	// Equality
 	bool equals (Pair_map<Source_type, Target_type, Edge_type, Value_type>* other)
 	{
 		phc_TODO ();
 	}
+
 
 	void add_edge (Source_type* source, Target_type* target)
 	{
@@ -271,22 +285,21 @@ public:
 		return result;
 	}
 
+	bool has_target (Target_type* target)
+	{
+		return by_target.has (target->name());
+	}
+
+	bool has_source (Source_type* source)
+	{
+		return by_source.has (source->name());
+	}
+
 	void remove_edge (Source_type* source, Target_type* target)
 	{
 		by_source[source->name()].erase (target->name ());
 		by_target[target->name()].erase (source->name ());
 		values[source->name()].erase (target->name());
-	}
-
-	List<Edge_type*>* get_edges ()
-	{
-		List<Edge_type*>* result = new List<Edge_type*>;
-
-		typedef Map<Alias_name, Edge_type*> Map_type;
-		foreach (Map_type& map, *by_source.values ())
-			result->push_back_all (map.values ());
-
-		return result;
 	}
 
 	void remove_all_incoming_edges (Target_type* target)
@@ -300,7 +313,6 @@ public:
 		foreach (Target_type* target, *this->get_targets (source))
 			this->remove_edge (source, target);
 	}
-
 
 
 

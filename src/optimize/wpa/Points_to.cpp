@@ -225,7 +225,7 @@ Points_to::remove_field (Index_node* index)
 bool
 Points_to::has_storage_node (Storage_node* st)
 {
-	phc_TODO ();
+	return points_to.has_target (st) or fields.has_source (st);
 }
 
 
@@ -387,6 +387,7 @@ Points_to::clone ()
 void
 Points_to::consistency_check (Context cx, Whole_program* wp)
 {
+	phc_TODO ();
 	/*
 	 * TODO:
 			// Check index nodes are pointed to by their storage node
