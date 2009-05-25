@@ -301,8 +301,8 @@ The High-level Internal Representation (HIR) simplifies most expressions by
 assigning them to temporary variables.  However, code represented in the HIR is
 still valid PHP. The Medium-level Internal Representation (MIR) converts HIR
 statements to simpler components, for example converting control-flow
-statements like the ``for``-loop, into :samp:`goto`s. To view PHP in any of these
-forms, use the :option:`--dump` option:
+statements like the ``for``-loop, into :samp:`goto`\s. To view PHP in any of
+these forms, use the :option:`--dump` option:
 
 .. sourcecode:: bash
 
