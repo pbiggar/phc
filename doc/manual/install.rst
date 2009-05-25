@@ -43,6 +43,8 @@ dependencies:
 You will still need to install the PHP embed SAPI manually.
 
 
+.. _phpbuild:
+
 PHP ``embed SAPI`` installation instructions
 --------------------------------------------
 

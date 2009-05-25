@@ -100,6 +100,8 @@ Consider the following simple PHP script.
 Internally this program gets represented as an abstract syntax tree, as
 shown in figure :ref:`ast`.
 
+.. _ast:
+
 .. figure:: img/demo.jpg
 
    Abstract syntax tree for the demo example

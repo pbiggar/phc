@@ -211,7 +211,7 @@ the same version as your webserver uses. From the :file:`ext/` directory, run:
    ./configure --enable-helloworld
 
 
-Build and install the extension (if you dont have root, refer instead to :ref:`alternate.method`):
+Build and install the extension (if you dont have root, refer instead to :ref:`alternatemethod`):
 
 .. sourcecode:: bash
 
@@ -240,6 +240,7 @@ enable it:
 Accessing :file:`helloworld.php` should now work. 
 
 
+.. _alternatemethod:
 
 Alternatives
 ************
