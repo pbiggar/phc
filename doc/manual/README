@@ -9,7 +9,8 @@ To make html documentation (which gets output in the .build directory), use
 	$ make html
 
 To make pdf documentation, use:
-	$ make pdf
+	$ make latex
+and follow the instructions.
 
 
 Writing documentation:
