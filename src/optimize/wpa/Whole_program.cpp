@@ -398,17 +398,29 @@ Whole_program::register_analysis (string name, WPA* analysis)
 Method_info_list*
 Whole_program::get_possible_receivers (Method_invocation* in)
 {
+	return get_possible_receivers (in->target, in->method_name);
+}
+
+Method_info_list*
+Whole_program::get_possible_receivers (Param_is_ref* in)
+{
+	return get_possible_receivers (in->target, in->method_name);
+}
+
+Method_info_list*
+Whole_program::get_possible_receivers (Target* target, Method_name* method_name)
+{
 	Method_info_list* result = new Method_info_list;
 
 	// If there is a target or a variable_method, there may be > 1 methods that
 	// match it.
-	if (in->target)
+	if (target)
 		phc_TODO ();
 
-	if (isa<Variable_method> (in->method_name))
+	if (isa<Variable_method> (method_name))
 		phc_TODO ();
 
-	String* name = dyc<METHOD_NAME> (in->method_name)->value;
+	String* name = dyc<METHOD_NAME> (method_name)->value;
 
 	// This assumes there is only 1 function of that name, which is true. If
 	// there are multiple versions, they are lowered to different names before
@@ -428,13 +440,12 @@ Whole_program::invoke_method (Method_invocation* in, Context caller_cx, MIR::VAR
 	Method_info_list* receivers = get_possible_receivers (in);
 
 	// Need to clone the information and merge it when it returns.
-	if (receivers->size () > 1)
+	if (receivers->size () != 1)
 		phc_TODO ();
 
 	
 	foreach (Method_info* receiver, *receivers)
 	{
-		// TODO: where should I clone the actuals?
 		analyse_method_info (receiver, caller_cx, in->actual_parameters, lhs);
 	}
 
@@ -599,33 +610,37 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context cx)
 	}
 	else if (*info->name == "gettimeofday")
 	{
+		bool can_be_float = true;
+		bool can_be_array = true;
+
 		if (aliasing->has_field (cx, param0))
 		{
 			Abstract_value* absval = get_abstract_value (cx, param0->name());
+
 			if (absval->known_true ())
-			{
-				assign_typed (cx, ret_path, Types ("real"));
-			}
+				can_be_array = false;
+
 			else if (absval->known_false ())
-			{
-				// Cut-and-pasted: but this all needs to be fixed. We need to call this from 
-
-				// If there its parameter is true, it returns a float. Else, if returns a
-				// hashtable with 4 ints: sec, usec, minuteswest, dsttime
-				string array_name = cx.array_name ();
-				assign_empty_array (cx, ret_path, array_name);
-
-				assign_typed (cx, P (array_name, "sec"), Types ("int"));
-				assign_typed (cx, P (array_name, "usec"), Types ("int"));
-				assign_typed (cx, P (array_name, "minuteswest"), Types ("int"));
-				assign_typed (cx, P (array_name, "dsttime"), Types ("int"));
-
-			}
-			else
-				phc_TODO (); // either float or array
+				can_be_float = false;
 		}
 		else
 		{
+			can_be_float = false;
+		}
+
+		// How to do both?
+		if (can_be_float && can_be_array)
+			phc_TODO ();
+
+		// it cant be neither
+		assert (can_be_float || can_be_array);
+	
+		if (can_be_float)
+			assign_typed (cx, ret_path, Types ("real"));
+		else if (can_be_array)
+		{
+			// Cut-and-pasted: but this all needs to be fixed. We need to call this from 
+
 			// If there its parameter is true, it returns a float. Else, if returns a
 			// hashtable with 4 ints: sec, usec, minuteswest, dsttime
 			string array_name = cx.array_name ();
@@ -635,7 +650,11 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context cx)
 			assign_typed (cx, P (array_name, "usec"), Types ("int"));
 			assign_typed (cx, P (array_name, "minuteswest"), Types ("int"));
 			assign_typed (cx, P (array_name, "dsttime"), Types ("int"));
+
 		}
+		else
+			phc_unreachable ();
+
 	}
 	else if (*info->name == "var_dump")
 	{
@@ -868,6 +887,7 @@ Whole_program::init_superglobals (Context cx)
 
 	// argv
 	assign_empty_array (cx, P (MSN, "argv"), "argv");
+	// TODO: this doesnt model it correctly, it shouldn't override the NULL.
 	assign_typed (cx, P ("argv", UNKNOWN), Types ("string"));
 	assign_typed (cx,  P ("argv", "0"), Types ("string"));
 
@@ -2067,7 +2087,35 @@ Whole_program::visit_new (Statement_block* bb, MIR::New* in)
 void
 Whole_program::visit_param_is_ref (Statement_block* bb, MIR::Param_is_ref* in)
 {
-	phc_TODO ();
+	string ns = block_cx.symtable_name ();
+
+
+	// Get the set of receivers (we need to check them all to see if this
+	// parameter is by reference.
+	Method_info_list* receivers = get_possible_receivers (in);
+
+	// Need to clone the information and merge it when it returns.
+	if (receivers->size () != 1)
+		phc_TODO ();
+
+	bool direction_known = true;
+	bool param_by_ref;
+	foreach (Method_info* info, *receivers)
+	{
+		// TODO: when there are more receivers, this needs fixing.
+		param_by_ref = info->param_by_ref (in->param_index->value);
+	}
+
+
+	// Apply the results
+	if (direction_known)
+	{
+		assign_scalar (block_cx, saved_plhs, new BOOL (param_by_ref));
+	}
+	else
+	{
+		assign_typed (block_cx, saved_plhs, Types ("bool"));
+	}
 }
 
 void

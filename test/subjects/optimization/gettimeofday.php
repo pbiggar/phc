@@ -15,6 +15,9 @@
 	var_dump (gettimeofday (0.0));
 	var_dump (gettimeofday (1.0));
 
+	// Could go either way!
+	var_dump (gettimeofday ($argv[1]));
+
 	$output = ob_get_contents ();
 	ob_end_clean ();
 	$output = preg_replace ("/\d/", "x", $output);
