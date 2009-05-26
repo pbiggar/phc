@@ -1043,8 +1043,8 @@ Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 	 *   - L points to all that R points to
 	 */
 
-	Index_node_list* lhss = get_named_indices (cx, plhs);
-	Index_node_list* rhss = get_named_indices (cx, prhs, RECORD_USES);
+	Index_node_list* lhss = get_named_indices (cx, plhs, RECORD_USES | IMPLICIT_CONVERSION);
+	Index_node_list* rhss = get_named_indices (cx, prhs, RECORD_USES | IMPLICIT_CONVERSION);
 
 
 	// References kill the LHS, but if the LHS can refer to more than one index
@@ -1077,7 +1077,10 @@ Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 			{
 				foreach_wpa (this)
 				{
-					// Implicit NULL definition
+					// Implicit NULL definition. This isnt handled by
+					// IMPLICIT_CONVERSION, since that creates arrays, it doesn't
+					// set NULL values. However, the only place we need to set a
+					// NULL value is here.
 					wpa->set_scalar (cx, ABSVAL (rhs), Abstract_value::from_literal (new NIL));
 					wpa->assign_value (cx, rhs, ABSVAL (rhs));
 
@@ -1120,7 +1123,7 @@ void
 Whole_program::assign_scalar (Context cx, Path* plhs, Literal* lit)
 {
 	DEBUG ("assign_scalar");
-	foreach (Reference* ref, *get_all_referenced_names (cx, plhs))
+	foreach (Reference* ref, *get_lhs_references (cx, plhs))
 	{
 		foreach_wpa (this)
 		{
@@ -1143,7 +1146,7 @@ Whole_program::assign_typed (Context cx, Path* plhs, Types types)
 	Types array = Type_inference::get_array_types (types);
 	Types objects = Type_inference::get_object_types (types);
 
-	foreach (Reference* ref, *get_all_referenced_names (cx, plhs))
+	foreach (Reference* ref, *get_lhs_references (cx, plhs))
 	{
 		foreach_wpa (this)
 		{
@@ -1157,9 +1160,6 @@ Whole_program::assign_typed (Context cx, Path* plhs, Types types)
 
 				wpa->assign_value (cx, ref->index, ABSVAL (ref->index));
 			}
-
-
-
 
 			if (array.size ())
 				phc_TODO ();
@@ -1182,7 +1182,7 @@ Whole_program::assign_empty_array (Context cx, Path* plhs, string name)
 	DEBUG ("assign_empty_array");
 
 	// Assign the value to all referenced names.
-	foreach (Reference* ref, *get_all_referenced_names (cx, plhs))
+	foreach (Reference* ref, *get_lhs_references (cx, plhs))
 	{
 		foreach_wpa (this)
 		{
@@ -1212,7 +1212,7 @@ Whole_program::assign_unknown (Context cx, Path* plhs)
 
 	// Unknown may be an array, a scalar or an object, all of which have
 	// different properties. We must be careful to separate these.
-	foreach (Reference* ref, *get_all_referenced_names (cx, plhs))
+	foreach (Reference* ref, *get_lhs_references (cx, plhs))
 	{
 		// When assigning to different references:
 		//		- scalar values are copied (though they are conceptually shared,
@@ -1260,7 +1260,7 @@ Whole_program::assign_by_copy (Context cx, Path* plhs, Path* prhs)
 	//			- foreach alias A of PLHS, point from A to V.
 
 
-	foreach (Reference* lhs_ref, *get_all_referenced_names (cx, plhs))
+	foreach (Reference* lhs_ref, *get_lhs_references (cx, plhs))
 	{
 		foreach_wpa (this)
 			if (lhs_ref->cert == DEFINITE)
@@ -1268,7 +1268,7 @@ Whole_program::assign_by_copy (Context cx, Path* plhs, Path* prhs)
 
 		// We keep the graph in transitive-closure form, so each RHS will have
 		// all the values of its references already. Therefore, there is no need
-		// for a call to get_all_referenced_names ().
+		// for a call to get_lhs_references ().
 		foreach (Index_node* rhs, *get_named_indices (cx, prhs, RECORD_USES))
 		{
 			copy_value (cx, lhs_ref->index, rhs);
@@ -1486,14 +1486,15 @@ Whole_program::get_bb_out_abstract_value (Context cx, Alias_name name)
  *
  *	There is a bit of a problem here with implicit creation of values. If we're
  *	looking to the the assignment $x[$i] = 5, we need to create $x.  Likewise
- *	for $y =& $x[$i] or anything in the form $y =& $x->$f.
+ *	for $y =& $x[$i] or anything in the form $y =& $x->$f. If called in these
+ *	contexts, it should set IMPLICIT_CONVERSION.
  *
  *	Note that this does not follow references. This is because references are
  *	stored in transitive-closure form (ie if A ref B, B's outgoing nodes should
  *	exist in A).
  */
 Index_node_list*
-Whole_program::get_named_indices (Context cx, Path* path, Indexing_flags flags)
+Whole_program::get_named_indices (Context cx, Path* path, int flags)
 {
 	// Debugging
 //	path->dump(); 	cdebug << endl;
@@ -1589,24 +1590,9 @@ Whole_program::get_named_indices (Context cx, Path* path, Indexing_flags flags)
 	return result;
 }
 
-Index_node*
-Whole_program::get_named_index (Context cx, Path* name, Indexing_flags flags)
-{
-	Index_node_list* all = get_named_indices (cx, name, flags);
 
-	// TODO: can this happen
-	assert (all->size());
-
-	if (all->size () > 1)
-		return NULL;
-
-	return all->front();
-}
-
-
-// TODO: some contexts should probably add RECORD_USES or IMPLICIT_CONVERSION flags.
 Reference_list*
-Whole_program::get_all_referenced_names (Context cx, Path* path, Indexing_flags flags)
+Whole_program::get_lhs_references (Context cx, Path* path)
 {
 	// Returns a list of (Index_node, certainty) pairs. Although the certainty
 	// originally comes from alias analysis, it is updated to reflect if the
@@ -1616,7 +1602,7 @@ Whole_program::get_all_referenced_names (Context cx, Path* path, Indexing_flags 
 	//		2.) fields of abstract storage node are not killable
 	//		3.) if it is possible to reach more than 1 node with the same name,
 	//		then it is not killable.
-	Index_node_list* lhss = get_named_indices (cx, path, flags);
+	Index_node_list* lhss = get_named_indices (cx, path, IMPLICIT_CONVERSION);
 	Reference_list* refs = new Reference_list;
 
 	foreach (Index_node* lhs, *lhss)
@@ -1730,7 +1716,7 @@ Whole_program::visit_unset (Statement_block* bb, MIR::Unset* in)
 {
 	string ns = block_cx.symtable_name ();
 
-	Index_node_list* indices = get_named_indices (block_cx, P (ns, in));
+	Index_node_list* indices = get_named_indices (block_cx, P (ns, in), RECORD_USES);
 
 	// Send the results to the analyses for all variables which could be
 	// overwritten.
@@ -1965,7 +1951,7 @@ Whole_program::get_abstract_value (Context cx, MIR::Rvalue* rval)
 
 	// The variables are not expected to already have the same value. Perhaps
 	// there was an assignment to $x[0], and we are accessing $x[$i].
-	Index_node_list* indices = get_named_indices (cx, P (ns, dyc<VARIABLE_NAME> (rval)));
+	Index_node_list* indices = get_named_indices (cx, P (ns, dyc<VARIABLE_NAME> (rval)), RECORD_USES);
 
 	if (indices->size () > 1)
 		phc_TODO ();

@@ -223,14 +223,10 @@ public:
 	Abstract_value* get_bb_out_abstract_value (Context cx, Alias_name name);
 
 	// PATH can refer to many nodes. Get the list of Index_nodes it points to.
-	Index_node_list* get_named_indices (Context cx, Path* path, Indexing_flags flags = NO_FLAGS);
-
-	// NULL if more than 1 exists
-	Index_node* get_named_index (Context cx, Path* path, Indexing_flags flags = NO_FLAGS);
-
+	Index_node_list* get_named_indices (Context cx, Path* path, int flags = NO_FLAGS);
 
 	// Get anything the path can point to, and all nodes that they may reference.
-	Reference_list* get_all_referenced_names (Context cx, Path* path, Indexing_flags flags = NO_FLAGS);
+	Reference_list* get_lhs_references (Context cx, Path* path);
 
 
 	/*
