@@ -248,7 +248,12 @@ public:
 
 	void set_value (Edge_type* pair, Value_type value)
 	{
-		phc_TODO ();
+		this->set_value (pair->source, pair->target, value);
+	}
+
+	void set_value (Source_type* source, Target_type* target, Value_type value)
+	{
+		values[source->name()][target->name()] = value;
 	}
 
 

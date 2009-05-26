@@ -112,12 +112,6 @@ Points_to::get_references (Index_node* index, Certainty cert)
 }
 
 void
-Points_to::set_reference_cert (Reference_edge* pair, Certainty cert)
-{
-	references.set_value (pair, cert);
-}
-
-void
 Points_to::add_reference (Index_node* source, Index_node* target, Certainty cert)
 {
 	this->add_field (source);
@@ -126,8 +120,11 @@ Points_to::add_reference (Index_node* source, Index_node* target, Certainty cert
 	if (references.has_edge (source, target) and references.get_value (source, target) != cert)
 		phc_TODO (); // check if there already is a CERT, and combine them (which way?).
 
+	// These are always bidirectional.
 	references.add_edge (source, target);
-	set_reference_cert (new Reference_edge (source, target), cert);
+	references.add_edge (target, source);
+	references.set_value (source, target, cert);
+	references.set_value (target, source, cert);
 }
 
 bool
@@ -140,6 +137,7 @@ void
 Points_to::remove_reference (Index_node* source, Index_node* target)
 {
 	references.remove_edge (source, target);
+	references.remove_edge (target, source);
 }
 
 

@@ -968,82 +968,90 @@ void
 Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 {
 	DEBUG ("assign_by_ref");
-	phc_TODO ();
-	Index_node_list* lhss = get_named_indices (cx, plhs);
-	Index_node_list* rhss = get_named_indices (cx, prhs, RECORD_USES);
 
 	/* For each index node L on the lhs, and R on the rhs:
+	 * - A reference kills L
+	 *   - but only if L refers to only 1 node.
+	 *
 	 * - L and R should have reference edges added
 	 *   - must-edges if only 1 L and 1 R
 	 *   - otherwise may-edges
 	 *
-	 * - A reference kills L
-	 *   - but only if L refers to only 1 node.
-	 *
 	 * - L gets R's values
-	 *   - L points to R's absval
-	 *   - R points to L's absval
 	 *   - L's absval copies R's absval's value
 	 *   - L points to all that R points to
 	 */
 
-	// TODO: certs only matter for must-vs-may alias. All other certs should
-	// be implicit.
-	//   - all index nodes are defs
-	//   - if only 1 value node, def, else possible
+	Index_node_list* lhss = get_named_indices (cx, plhs);
+	Index_node_list* rhss = get_named_indices (cx, prhs, RECORD_USES);
 
-/*
 
-	bool killable = is_must (cx, lhss);
+	// References kill the LHS, but if the LHS can refer to more than one index
+	// node (or is abstract, etc), it can't be killed.
+	bool lhs_killable = lhss->size () <= 1 and not aliasing->is_abstract_field (cx, lhss->front ());
+	if (lhs_killable)
+	{
+		foreach_wpa (this)
+		{
+			wpa->kill_reference (cx, lhss->front());
+			wpa->kill_value (cx, lhss->front ());
+		}
+	}
+
+
+	// The references created between L and R are possible if:
+	//		- L isn't killable
+	//		- there are more than one Rs
+	Certainty cert = DEFINITE;
+	if (rhss->size () >= 1 || not lhs_killable)
+		cert = DEFINITE;
+
+
 	foreach (Index_node* lhs, *lhss)
 	{
-		if (killable) // only 1 result
-		{
-			foreach_wpa (this)
-			{
-				wpa->kill_reference (cx, lhs);
-				wpa->kill_value (cx, lhs);
-			}
-		}
-
-		Certainty cert = (killable && is_must (cx, rhss)) ? DEFINITE : POSSIBLE;
 		foreach (Index_node* rhs, *rhss)
 		{
-			foreach (Storage_node* st, *aliasing->get_points_to (cx, rhs))
+			Storage_node_list* rhs_values = aliasing->get_points_to (cx, rhs);
+			if (rhs_values->size() == 0)
+			{
+				foreach_wpa (this)
+				{
+					// Implicit NULL definition
+					wpa->set_scalar (cx, ABSVAL (rhs), Abstract_value::from_literal (new NIL));
+					wpa->assign_value (cx, rhs, ABSVAL (rhs));
+
+					// Add it so that it gets processed below. I believe this avoids
+					// the problem of reading from IN while writing to OUT.
+					rhs_values->push_back (ABSVAL (rhs));
+				}
+			}
+
+			foreach (Storage_node* st, *rhs_values)
 			{
 				if (isa<Value_node> (st))
 				{
 					foreach_wpa (this)
 					{
-						// But the value it gets may be from __MAIN__::*
-						// TODO: what about other values from __MAIN__::*
-						if (st != ABSVAL (rhs))
-						{
-							wpa->set_scalar (cx, ABSVAL (rhs),
-									get_abstract_value (cx, rhs->name ()));
+						// Just copy the scalar value to L.
+						wpa->set_scalar (cx, ABSVAL (lhs), get_abstract_value (cx, rhs->name ()));
 
-							wpa->assign_value (cx, rhs, ABSVAL (rhs), cert);
-						}
-
-						wpa->set_scalar (cx, ABSVAL (lhs),
-								get_abstract_value (cx, rhs->name ()));
-
-						wpa->assign_value (cx, lhs, ABSVAL (lhs), cert);
+						// L may have been killed, but it needs its ABSVAL now.
+						wpa->assign_value (cx, lhs, ABSVAL (lhs));
 					}
 				}
 				else
 				{
+					// Make L point to the value (not a deep copy, under any circumstances).
 					foreach_wpa (this)
-						wpa->assign_value (cx, lhs, st, DEFINITE);
+						wpa->assign_value (cx, lhs, st);
 				}
-
 			}
 
+			// Create the reference
 			foreach_wpa (this)
 				wpa->create_reference (cx, lhs, rhs, cert);
 		}
 	}
-	*/
 }
 
 

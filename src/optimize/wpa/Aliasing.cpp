@@ -175,24 +175,7 @@ Aliasing::create_reference (Context cx, Index_node* lhs, Index_node* rhs, Certai
 {
 	Points_to* ptg = outs[cx];
 
-	ptg->add_field (lhs);
-	ptg->add_field (rhs);
-
-	// Whole program handles points-to edges, bit we need to add the references
-	// edges here.
-	//
-	// We only add RHS's reference to LHS, not the other way around. A reference
-	// assignment is a killing definition, and while we may be unsure that we
-	// can kill the LHS (if there are multiple LHSs, for example), we can always
-	// be sure that LHS's references never get added to RHS.
-
-	// Transitive closure for reference edges
-	foreach (Reference* ref, *ptg->get_references (rhs))
-	{
-		ptg->add_reference (lhs, ref->index, combine_certs (cert, ref->cert));
-	}
-
-	// Add reference edges
+	// Whole program handles all edges, so this is very simple
 	ptg->add_reference (lhs, rhs, cert);
 }
 
