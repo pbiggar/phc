@@ -63,8 +63,7 @@ Literal*
 PHP::fold_unary_op (OP* op, Literal* lit)
 {
 	stringstream ss;
-	MIR_unparser (ss, true).unparse (op);
-	MIR_unparser (ss, true).unparse (lit); // literals need "" sometimes
+	ss << unparse (op) << unparse (lit);
 
 	return eval_to_literal (ss);
 }
@@ -73,11 +72,7 @@ Literal*
 PHP::fold_bin_op (Literal* left, OP* op, Literal* right)
 {
 	stringstream ss;
-	MIR_unparser (ss, true).unparse (left);
-	ss << " ";
-	MIR_unparser (ss, true).unparse (op);
-	ss << " ";
-	MIR_unparser (ss, true).unparse (right);
+	ss << unparse (left) << " " << unparse (op) << " " << unparse (right);
 
 	return eval_to_literal (ss);
 }
@@ -85,17 +80,12 @@ PHP::fold_bin_op (Literal* left, OP* op, Literal* right)
 Literal*
 PHP::fold_string_index (Literal* array, Literal* index)
 {
-	stringstream prep;
-	prep << "$temp = ";
-	MIR_unparser (prep, true).unparse (array);
-	prep << ";";
+	string prep = "$temp = " + unparse (array) + ";";
 
 	stringstream code;
-	code  << "$temp[";
-	MIR_unparser (code, true).unparse (index);
-	code << "];";
+	code  << "$temp[" << unparse (index) << "];";
 
-	return eval_to_literal (code, s(prep.str()));
+	return eval_to_literal (code, s(prep));
 }
 
 
@@ -103,7 +93,7 @@ bool
 PHP::is_true (Literal* lit)
 {
 	stringstream ss;
-	ss << "(bool)" << *lit->get_value_as_string ();
+	ss << "(bool)(" << unparse (lit) << ")";
 
 	Literal* result = eval_to_literal (ss);
 
@@ -128,7 +118,7 @@ PHP::cast_to (CAST* cast, Literal* lit)
 		|| type == "unset") // NULL
 	{
 		stringstream ss;
-		ss << "(" << type << ")" << *lit->get_value_as_string ();
+		ss << "(" << type << ")" << unparse (lit);
 
 		return eval_to_literal (ss);
 	}
@@ -143,7 +133,7 @@ PHP::call_function (METHOD_NAME* name, Literal_list* params)
 	ss << *name->value << " (";
 	foreach (Literal* param, *params)
 	{
-		MIR_unparser (ss, true).unparse (param);
+		ss << unparse (param);
 
 		// No ", " after last param.
 		if (param != params->back ())
@@ -158,9 +148,9 @@ Literal*
 PHP::fold_pre_op (Literal* use, OP* op)
 {
 	stringstream prep;
-	prep << "$temp = ";
-	MIR_unparser (prep, true).unparse (use);
-	prep << "; " << *op->value << "$temp;";
+	prep
+	<< "$temp = " << unparse (use) << ";"
+	<< unparse (op) << "$temp;";
 
 	stringstream ss;
 	ss << "$temp";
@@ -172,15 +162,14 @@ PHP::fold_pre_op (Literal* use, OP* op)
 Literal*
 PHP::fold_constant (Constant* in)
 {
-	stringstream ss;
-	MIR_unparser (ss, true).unparse (in);
+	string constant = unparse (in);
 
 	zval value;
 
 	// returns 1 for success, 0 for failure (not SUCCESS/FAILURE)!
 	int zend_result = zend_get_constant (
-		const_cast<char*> (ss.str().c_str ()),
-		ss.str().size (),
+		const_cast<char*> (constant.c_str ()),
+		constant.size (),
 		&value TSRMLS_CC);
 
 	if (zend_result == 0)
