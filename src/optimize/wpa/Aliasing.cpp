@@ -276,13 +276,13 @@ Aliasing::is_abstract_field (Context cx, Index_node* index)
 }
 
 bool
-Aliasing::storage_exists (Context cx, Storage_node* st)
+Aliasing::has_storage_node (Context cx, Storage_node* st)
 {
 	return ins[cx]->has_storage_node (st);
 }
 
 bool
-Aliasing::index_exists (Context cx, Index_node* ind)
+Aliasing::has_field (Context cx, Index_node* ind)
 {
 	return ins[cx]->has_field (ind);
 }

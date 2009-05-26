@@ -91,8 +91,8 @@ public:
 	bool is_abstract (Context cx, Storage_node* st);
 	bool is_abstract_field (Context cx, Index_node* st);
 
-	bool storage_exists (Context cx, Storage_node* st);
-	bool index_exists (Context cx, Index_node* ind);
+	bool has_storage_node (Context cx, Storage_node* st);
+	bool has_field (Context cx, Index_node* ind);
 
 };
 
