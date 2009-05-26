@@ -28,9 +28,6 @@ public:
 
 
 	// CCP-specific
-	bool branch_known_true (Context cx, Alias_name cond);
-	bool branch_known_false (Context cx, Alias_name cond);
-
 	MIR::Literal* get_lit (Context cx, Alias_name name);
 
 };

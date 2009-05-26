@@ -30,6 +30,11 @@ public:
 	Types get_types ();
 	MIR::Literal* get_literal ();
 
+	// These could have a truth value incorporated - for now just use the
+	// constant.
+	bool known_true ();
+	bool known_false ();
+
 
 	void dump ();
 

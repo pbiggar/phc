@@ -372,10 +372,12 @@ Whole_program::get_successors (Context cx)
 	{
 		Index_node* cond = VN (cx.symtable_name (), branch->branch->variable_name);
 
-		if (!ccp->branch_known_true (cx, cond->name()))
+		Abstract_value* absval = get_abstract_value (cx, cond->name ());
+
+		if (not absval->known_true ())
 			result->push_back (branch->get_false_successor_edge ());
 
-		if (!ccp->branch_known_false (cx, cond->name()))
+		if (not absval->known_false ())
 			result->push_back (branch->get_true_successor_edge ());
 	}
 	else if (!isa<Exit_block> (bb))
@@ -529,9 +531,15 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context cx)
 	// A correct way to handle this would be to parse the zend_parse_parameters
 	// using LLVM. For now, the best thing to do is assume that functions are
 	// called correctly.
+	
 
+	string symtable = cx.symtable_name ();
+	Index_node* param0 = IN (symtable, "__UNNAMED__0");
+	Index_node* param1 = IN (symtable, "__UNNAMED__1");
+	Index_node* param2 = IN (symtable, "__UNNAMED__2");
+	Index_node* param3 = IN (symtable, "__UNNAMED__3");
 
-	Path* ret_path = P (cx.symtable_name (), new VARIABLE_NAME (RETNAME));
+	Path* ret_path = P (symtable, new VARIABLE_NAME (RETNAME));
 	if (*info->name == "strlen")
 	{
 		assign_typed (cx, ret_path, Types ("int"));
@@ -591,20 +599,53 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context cx)
 	}
 	else if (*info->name == "gettimeofday")
 	{
-		// TODO: parameter could be false
+		if (aliasing->has_field (cx, param0))
+		{
+			Abstract_value* absval = get_abstract_value (cx, param0->name());
+			if (absval->known_true ())
+			{
+				assign_typed (cx, ret_path, Types ("real"));
+			}
+			else if (absval->known_false ())
+			{
+				// Cut-and-pasted: but this all needs to be fixed. We need to call this from 
 
-		// If there its parameter is true, it returns a float. Else, if returns a
-		// hashtable with 4 ints: sec, usec, minuteswest, dsttime
-		string array_name = cx.array_name ();
-		assign_empty_array (cx, ret_path, array_name);
+				// If there its parameter is true, it returns a float. Else, if returns a
+				// hashtable with 4 ints: sec, usec, minuteswest, dsttime
+				string array_name = cx.array_name ();
+				assign_empty_array (cx, ret_path, array_name);
 
-		assign_typed (cx, P (array_name, "sec"), Types ("int"));
-		assign_typed (cx, P (array_name, "usec"), Types ("int"));
-		assign_typed (cx, P (array_name, "minuteswest"), Types ("int"));
-		assign_typed (cx, P (array_name, "dsttime"), Types ("int"));
+				assign_typed (cx, P (array_name, "sec"), Types ("int"));
+				assign_typed (cx, P (array_name, "usec"), Types ("int"));
+				assign_typed (cx, P (array_name, "minuteswest"), Types ("int"));
+				assign_typed (cx, P (array_name, "dsttime"), Types ("int"));
+
+			}
+			else
+				phc_TODO (); // either float or array
+		}
+		else
+		{
+			// If there its parameter is true, it returns a float. Else, if returns a
+			// hashtable with 4 ints: sec, usec, minuteswest, dsttime
+			string array_name = cx.array_name ();
+			assign_empty_array (cx, ret_path, array_name);
+
+			assign_typed (cx, P (array_name, "sec"), Types ("int"));
+			assign_typed (cx, P (array_name, "usec"), Types ("int"));
+			assign_typed (cx, P (array_name, "minuteswest"), Types ("int"));
+			assign_typed (cx, P (array_name, "dsttime"), Types ("int"));
+		}
 	}
 	else if (*info->name == "var_dump")
-		; // do nothing
+	{
+		// do nothing
+	}
+	else if (*info->name == "define")
+	{
+		phc_TODO ();
+		assign_typed (cx, ret_path, Types ("bool"));
+	}
 	else
 	{
 		DEBUG (*info->name << " not modelled");
@@ -1076,6 +1117,7 @@ void
 Whole_program::assign_typed (Context cx, Path* plhs, Types types)
 {
 	DEBUG ("assign_typed");
+
 	// Split scalars, objects and arrays here.
 	Types scalars = Type_inference::get_scalar_types (types);
 	Types array = Type_inference::get_array_types (types);
@@ -1095,6 +1137,7 @@ Whole_program::assign_typed (Context cx, Path* plhs, Types types)
 
 				wpa->assign_value (cx, ref->index, ABSVAL (ref->index));
 			}
+
 
 
 

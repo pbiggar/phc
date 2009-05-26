@@ -75,3 +75,24 @@ Abstract_value::unknown ()
 		BOTTOM,
 		new Type_cell (Type_inference::get_all_scalar_types ()));
 }
+
+bool
+Abstract_value::known_false ()
+{
+	if (lit == BOTTOM)
+		return false;
+
+	return not this->known_true ();
+}
+
+bool
+Abstract_value::known_true ()
+{
+	if (lit == BOTTOM)
+		return false;
+
+	if (lit == TOP)
+		return false;
+
+	return PHP::is_true (dyc<Literal_cell> (lit)->value);
+}

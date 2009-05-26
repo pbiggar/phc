@@ -46,32 +46,6 @@ CCP::pull_possible_null (Context cx, Index_node* node)
 }
 
 
-bool
-CCP::branch_known_true (Context cx, Alias_name cond)
-{
-	Literal* lit = get_lit (cx, cond);
-
-	if (lit == NULL)
-		return false;
-
-	return (PHP::is_true (lit));
-}
-
-bool
-CCP::branch_known_false (Context cx, Alias_name cond)
-{
-	// TODO: a value may have lots of actual values, all of which are true.
-	// Add a true/false analysis to handle it.
-	Literal* lit = get_lit (cx, cond);
-
-	if (lit == NULL)
-		return false;
-
-	return (!PHP::is_true (lit));
-
-}
-
-
 MIR::Literal*
 CCP::get_lit (Context cx, Alias_name name)
 {
