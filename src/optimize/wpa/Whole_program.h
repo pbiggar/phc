@@ -66,13 +66,6 @@ class WPA;
 #define foreach_wpa(WP)					\
 	foreach (WPA* wpa, WP->analyses)
 
-typedef enum _Indexing_flags
-{
-	NO_FLAGS = 0x0,
-	RECORD_USES = 0x1,
-	IMPLICIT_CONVERSION = 0x2,
-} Indexing_flags;
-
 
 class Whole_program : public CFG_visitor
 {
@@ -210,9 +203,8 @@ public:
 
 	Edge_list* get_successors (Context cx);
 
-	// Get the list of potential values of node (can include '*' when it is
-	// unknown).
-	String_list* get_string_values (Context cx, Index_node* node);
+	// Get the value of node (can be UNKNOWN).
+	String* get_string_value (Context cx, Index_node* node);
 
 	Abstract_value* get_abstract_value (Context cx, Alias_name name);
 
@@ -223,7 +215,9 @@ public:
 	Abstract_value* get_bb_out_abstract_value (Context cx, Alias_name name);
 
 	// PATH can refer to many nodes. Get the list of Index_nodes it points to.
-	Index_node_list* get_named_indices (Context cx, Path* path, int flags = NO_FLAGS);
+	// Set the RHS_BY_REF flag if PATH represents the RHS of an
+	// assignment-by-reference.
+	Index_node_list* get_named_indices (Context cx, Path* path, bool rhs_by_ref = false);
 
 	// Get anything the path can point to, and all nodes that they may reference.
 	Reference_list* get_lhs_references (Context cx, Path* path);

@@ -118,8 +118,8 @@ public:
 class ST_path : public Path
 {
 public:
-	string name;
 	ST_path (string name);
+	string name;
 	void dump (std::ostream& os = cdebug);
 };
 

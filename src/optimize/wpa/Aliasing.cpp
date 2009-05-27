@@ -296,12 +296,12 @@ Aliasing::has_field (Context cx, Index_node* ind)
  *
  *
  * For "->" read 'indexed_by"
- *		$a[$i]		(ST -> "a") -> (ST -> "i")
  *		$a				ST -> "a"
  *		$$a			ST -> (ST -> "a")
- *		$a["str"]	(ST -> "a") -> "str"
+ *		$a["f"]		(ST -> "a") -> "f"
  *		$a->f			(ST -> "a") -> "f"
  *		$a->$f		(ST -> "a") -> (ST -> "f")
+ *		$a[$f]		(ST -> "a") -> (ST -> "f")
  */
 
 Indexing::Indexing (Path* lhs, Path *rhs)

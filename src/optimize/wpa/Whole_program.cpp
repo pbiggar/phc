@@ -1043,8 +1043,8 @@ Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 	 *   - L points to all that R points to
 	 */
 
-	Index_node_list* lhss = get_named_indices (cx, plhs, RECORD_USES | IMPLICIT_CONVERSION);
-	Index_node_list* rhss = get_named_indices (cx, prhs, RECORD_USES | IMPLICIT_CONVERSION);
+	Index_node_list* lhss = get_named_indices (cx, plhs);
+	Index_node_list* rhss = get_named_indices (cx, prhs, true);
 
 
 	// References kill the LHS, but if the LHS can refer to more than one index
@@ -1269,7 +1269,7 @@ Whole_program::assign_by_copy (Context cx, Path* plhs, Path* prhs)
 		// We keep the graph in transitive-closure form, so each RHS will have
 		// all the values of its references already. Therefore, there is no need
 		// for a call to get_lhs_references ().
-		foreach (Index_node* rhs, *get_named_indices (cx, prhs, RECORD_USES))
+		foreach (Index_node* rhs, *get_named_indices (cx, prhs))
 		{
 			copy_value (cx, lhs_ref->index, rhs);
 		}
@@ -1423,24 +1423,24 @@ Whole_program::ruin_everything (Context cx, Path* plhs)
 
 /*
  * Return the range of possible values for INDEX. This is used to
- * disambiguate for indexing other nodes. It returns a set of strings. If
- * only 1 string is returned, it must be that value. If more than one strings
- * are returned, it may be any of them. NULL may be returned, indicating that it may be all possible values.
+ * disambiguate for indexing other nodes. It returns a set of strings. If only
+ * 1 string is returned, it must be that value. If more than one strings are
+ * returned, it may be any of them. NULL may be returned, indicating that it
+ * may be all possible values.
  */
-String_list*
-Whole_program::get_string_values (Context cx, Index_node* node)
+String*
+Whole_program::get_string_value (Context cx, Index_node* index)
 {
-	Lattice_cell* result = ccp->get_value (cx, node->name ());
+	Lattice_cell* result = ccp->get_value (cx, index->name ());
 
 	if (result == TOP)
-		return new String_list (s(""));
+		return s("");
 
 	if (result == BOTTOM)
-		return new String_list (s(UNKNOWN));
+		return s(UNKNOWN);
 
-	// TODO: this isnt quite right, we need to cast to a string.
-	return new String_list (
-		dyc<Literal_cell> (result)->value->get_value_as_string ());
+	Literal* lit = PHP::cast_to (new CAST (s("string")), dyc<Literal_cell> (result)->value);
+	return dyc<STRING> (lit)->value;
 }
 
 
@@ -1472,6 +1472,13 @@ Whole_program::get_bb_out_abstract_value (Context cx, Alias_name name)
 }
 
 
+Index_node* path_to_index (Path* p)
+{
+	Indexing* i = dyc<Indexing> (p);
+	return new Index_node (
+		dyc<ST_path> (i->lhs)->name,
+		dyc<Index_path> (i->rhs)->name);
+}
 
 /*
  * Return the set of names which PATH might lead to.
@@ -1484,110 +1491,171 @@ Whole_program::get_bb_out_abstract_value (Context cx, Alias_name name)
  *
  * TODO: this needs to handle UNKNOWN.
  *
- *	There is a bit of a problem here with implicit creation of values. If we're
- *	looking to the the assignment $x[$i] = 5, we need to create $x.  Likewise
- *	for $y =& $x[$i] or anything in the form $y =& $x->$f. If called in these
- *	contexts, it should set IMPLICIT_CONVERSION.
+ *	It handles implicit array conversion. If we're analysing the assignment
+ *	$x[$i] = 5, we need to create $x. Likewise for $y =& $x[$i] or anything in
+ *	the form $y =& $x->$f. If called in these contexts, it should set
+ *	IMPLICIT_CONVERSION.
  *
  *	Note that this does not follow references. This is because references are
  *	stored in transitive-closure form (ie if A ref B, B's outgoing nodes should
  *	exist in A).
  */
 Index_node_list*
-Whole_program::get_named_indices (Context cx, Path* path, int flags)
+Whole_program::get_named_indices (Context cx, Path* path, bool rhs_by_ref)
 {
-	// Debugging
-//	path->dump(); 	cdebug << endl;
+
+/*
+ * TODO: handle unknown.
+ * TODO: handle implicit array definitions for RHS_BY_REF
+ * TODO: handle may-def (might be unknown) for RHS_BY_REF
+ * TODO: put in uses in correct positions.
+ * TODO: remove recursion to make it more obvious when to do the above. 
+ */
 
 	Indexing* p = dyc<Indexing> (path);
+	// There aren't that many cases, so don't a general solution
 
-	// Get the set of storage nodes representing the LHS.
-	Set<string> lhss;
-
-	if (ST_path* st = dynamic_cast <ST_path*> (p->lhs))
+	/*
+	 * ST -> "a"
+	 *
+	 * ie: $a
+	 */
+	if (isa <ST_path> (p->lhs) && isa<Index_path> (p->rhs))
 	{
-		// 1 named storage node
-		lhss.insert (st->name);
+		// Nothing special here at all
+
+		// TODO: check the type - this could be a read/write of an object (is
+		// this the best place for it?).
+		return new Index_node_list (path_to_index (p));
 	}
-	else
+
+	/*
+	 * ST -> (ST -> "a")
+	 *
+	 * ie: $$a
+	 */
+	if (isa<ST_path> (p->lhs) && isa<Indexing> (p->rhs))
 	{
-		// TODO: propagate record_uses?
-		// Lookup the storage nodes indexed by LHS
-		foreach (Index_node* st_index, *get_named_indices (cx, p->lhs, flags))
+		Index_node* index = path_to_index (p->rhs);
+		phc_TODO ();
+	}
+
+
+	/*
+	 * (ST -> "a") -> "f"
+	 *
+	 * ie:
+	 *		$a->f
+	 *		$a["f"]
+	 */
+	if (isa<Indexing> (p->lhs) && isa<Index_path> (p->rhs))
+	{
+		Index_node_list* result = new Index_node_list;
+
+		Index_node* array = path_to_index (p->lhs);
+		Index_path* index = dyc<Index_path> (p->rhs);
+
+		// Make a note of the uses
+		record_use (cx, array);
+
+		foreach (Storage_node* pointed_to, *aliasing->get_points_to (cx, array))
 		{
-			foreach (Storage_node* pointed_to, *aliasing->get_points_to (cx, st_index))
+			string name = pointed_to->for_index_node ();
+
+			// Implicit array/field creation
+			if (isa<Value_node> (pointed_to))
 			{
-				string name = pointed_to->for_index_node ();
+				// TODO: this could be a string, which is very difficult to handle
+				// TODO: an array is only implicitly created for NULL/uninit.
+				// Other scalars will go to NULL instead.
+				// TODO: these cases should clearly be dealt with in the caller.
+				// On the RHS, these are dealt with in copy_from_abstract_value.
 
-				// Implicit array/field creation
-				if (isa<Value_node> (pointed_to))
+				if (rhs_by_ref)
 				{
-					// TODO: this could be a string, which is very difficult to handle
-					// TODO: an array is only implicitly created for NULL/uninit.
-					// Other scalars will go to NULL instead.
-					// TODO: these cases should clearly be dealt with in the caller.
-
-
-					// TODO: I'm not very happy about this
-					if (flags & IMPLICIT_CONVERSION)
-					{
-						name = cx.array_node ()->for_index_node ();
-						assign_empty_array (cx, p->lhs, name);
-					}
-					else
-					{
-						// Without an implicit conversion, we should be returning a
-						// value. But we can't here, so we return the storage node,
-						// and let it get handled properly by copy_value.
-					}
-
+					name = cx.array_node ()->for_index_node ();
+					assign_empty_array (cx, p->lhs, name);
 				}
-
-				lhss.insert (name);
+				else
+				{
+					// Without an implicit conversion, we should be returning a
+					// value. But we can't here, so we return the storage node,
+					// and let it get handled properly by copy_value.
+					//
+					// TODO: this only applies to the RHS, I think.
+				}
 			}
+			result->push_back (new Index_node (name, index->name));
 		}
+
+		return result;
 	}
 
 
-	// Get the names of the fields of the storage nodes.
-	Set<string> rhss;
 
-	if (Index_path* st = dynamic_cast <Index_path*> (p->rhs))
+	/*
+	 * (ST -> "a") -> (ST -> "f")
+	 *
+	 * ie:
+	 *		$a->$f
+	 *		$a[$f]
+	 */
+
+	if (isa<Indexing> (p->lhs) && isa<Indexing> (p->rhs))
 	{
-		// 1 named field of the storage nodes
-		rhss.insert (st->name);
-	}
-	else
-	{
-		// The name of the field must be looked up
-		foreach (Index_node* field_index, *get_named_indices (cx, p->rhs, flags))
+		Index_node_list* result = new Index_node_list;
+
+		Index_node* array = path_to_index (p->lhs);
+		Index_node* index = path_to_index (p->rhs);
+
+		// Make a note of the uses
+		record_use (cx, array);
+		record_use (cx, index);
+
+		List<string> lhss;
+
+		foreach (Storage_node* pointed_to, *aliasing->get_points_to (cx, array))
 		{
-			// Record this use regardless of RECORD_USES
-			record_use (cx, field_index);
+			string name = pointed_to->for_index_node ();
 
-			// This should return a set of possible names, 1 known name
-			// (including "*" indicating it could be anything).
-			foreach (String* value, *get_string_values (cx, field_index))
-				rhss.insert (*value);
+			// Implicit array/field creation
+			if (isa<Value_node> (pointed_to))
+			{
+				// TODO: this could be a string, which is very difficult to handle
+				// TODO: an array is only implicitly created for NULL/uninit.
+				// Other scalars will go to NULL instead.
+				// TODO: these cases should clearly be dealt with in the caller.
+				// On the RHS, these are dealt with in copy_from_abstract_value.
+
+				if (rhs_by_ref)
+				{
+					// Implicit array definition
+					name = cx.array_node ()->for_index_node ();
+					assign_empty_array (cx, p->lhs, name);
+				}
+				else
+				{
+					// Without an implicit conversion, we should be returning a
+					// value. But we can't here, so we return the storage node,
+					// and let it get handled properly by copy_value.
+					//
+					// TODO: this only applies to the RHS, I think.
+				}
+			}
+			lhss.push_back (name);
 		}
+
+		// But this time we're only reading the value, so we don't need the
+		// implicit array creation.
+		foreach (Storage_node* pointed_to, *aliasing->get_points_to (cx, array))
+			foreach (string storage, lhss)
+				result->push_back (new Index_node (storage, pointed_to->for_index_node ()));
+
+		return result;
 	}
 
-	assert (rhss.size ());
 
-
-	// Combine the results
-	Index_node_list* result = new Index_node_list;
-
-	foreach (string lhs, lhss)
-		foreach (string rhs, rhss)
-		{
-			if (flags & RECORD_USES)
-				record_use (cx, new Index_node (lhs, rhs));
-
-			result->push_back (new Index_node (lhs, rhs));
-		}
-
-	return result;
+	phc_unreachable ();
 }
 
 
@@ -1602,7 +1670,7 @@ Whole_program::get_lhs_references (Context cx, Path* path)
 	//		2.) fields of abstract storage node are not killable
 	//		3.) if it is possible to reach more than 1 node with the same name,
 	//		then it is not killable.
-	Index_node_list* lhss = get_named_indices (cx, path, IMPLICIT_CONVERSION);
+	Index_node_list* lhss = get_named_indices (cx, path);
 	Reference_list* refs = new Reference_list;
 
 	foreach (Index_node* lhs, *lhss)
@@ -1716,7 +1784,9 @@ Whole_program::visit_unset (Statement_block* bb, MIR::Unset* in)
 {
 	string ns = block_cx.symtable_name ();
 
-	Index_node_list* indices = get_named_indices (block_cx, P (ns, in), RECORD_USES);
+	// FYI, unset ($x[$y]), where $x is not set, does nothing. Therefore,
+	// RHS_BY_REF does not need to be set for the call the get_named_indices.
+	Index_node_list* indices = get_named_indices (block_cx, P (ns, in));
 
 	// Send the results to the analyses for all variables which could be
 	// overwritten.
@@ -1951,7 +2021,7 @@ Whole_program::get_abstract_value (Context cx, MIR::Rvalue* rval)
 
 	// The variables are not expected to already have the same value. Perhaps
 	// there was an assignment to $x[0], and we are accessing $x[$i].
-	Index_node_list* indices = get_named_indices (cx, P (ns, dyc<VARIABLE_NAME> (rval)), RECORD_USES);
+	Index_node_list* indices = get_named_indices (cx, P (ns, dyc<VARIABLE_NAME> (rval)));
 
 	if (indices->size () > 1)
 		phc_TODO ();
