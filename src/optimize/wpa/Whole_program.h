@@ -201,6 +201,8 @@ public:
 	 * tricky for some reason.
 	 */
 
+	bool is_killable (Context cx, Index_node_list* indices);
+
 	Edge_list* get_successors (Context cx);
 
 	// Get the value of node (can be UNKNOWN).

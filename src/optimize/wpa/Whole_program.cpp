@@ -1024,6 +1024,28 @@ Whole_program::backward_bind (Method_info* info, Context exit_cx, MIR::VARIABLE_
 		caller_cx.get_bb()->cfg->dump_graphviz (s("Back into function"));
 }
 
+/*
+ * Index nodes are killable under the following conditions:
+ * 1.) the name only refers to one node.
+ *	2.) fields of abstract storage node are not killable
+ *	4.) its name is not UNKNOWN.
+ */
+bool
+Whole_program::is_killable (Context cx, Index_node_list* indices)
+{
+	if (indices->size () > 1)
+		return false;
+
+	Index_node* index = indices->front ();
+	
+	if (aliasing->is_abstract_field (cx, index))
+		return false;
+
+	if (index->index == UNKNOWN)
+		return false;
+
+	return true;
+}
 
 void
 Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
@@ -1032,7 +1054,7 @@ Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 
 	/* For each index node L on the lhs, and R on the rhs:
 	 * - A reference kills L
-	 *   - but only if L refers to only 1 node.
+	 *   - but only if L refers to only 1 node (and other standard rules).
 	 *
 	 * - L and R should have reference edges added
 	 *   - must-edges if only 1 L and 1 R
@@ -1049,7 +1071,7 @@ Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 
 	// References kill the LHS, but if the LHS can refer to more than one index
 	// node (or is abstract, etc), it can't be killed.
-	bool lhs_killable = lhss->size () <= 1 and not aliasing->is_abstract_field (cx, lhss->front ());
+	bool lhs_killable = is_killable (cx, lhss);
 	if (lhs_killable)
 	{
 		foreach_wpa (this)
@@ -1629,20 +1651,31 @@ Whole_program::get_named_indices (Context cx, Path* path, bool rhs_by_ref)
 				// Implicit array creation
 				if (isa<Value_node> (pointed_to))
 				{
-					// TODO: this could be a string, which is very difficult to handle
-					// TODO: an array is only implicitly created for NULL/uninit.
-					// Other scalars will go to NULL instead.
-					// TODO: these cases should clearly be dealt with in the caller.
-					// On the RHS, these are dealt with in copy_from_abstract_value.
-
 					if (rhs_by_ref)
 					{
+						// The result of reading a value as a reference depends on the type:
+						//		null: implicit conversion
+						//		string: Run-time error
+						//		array/obj: as below (TODO: include a parameter for
+						//									whether an array or an object
+						//									should be used).
+						//		TODO: other scalar: nothing happens
+
 						string name = cx.array_node ()->for_index_node ();
 						assign_empty_array (cx, p->lhs, name);
 						lhss.push_back (name);
 					}
 					else
 					{
+						phc_TODO ();
+						// TODO: do we need to separate reading and writing contexts
+						// If we are writing to the value, there are a few cases:
+						//		string: writing to its "field"
+						//		null: implicit conversion
+						//		other scalar types: nothing happens!!
+						//
+						//	If we are reading, these are handled in copy_from_abstract_value.
+
 						// Without an implicit conversion, we should be returning a
 						// value. But we can't here, so we return the storage node,
 						// and let it get handled properly by copy_value.
@@ -1696,35 +1729,22 @@ Whole_program::get_lhs_references (Context cx, Path* path)
 {
 	// Returns a list of (Index_node, certainty) pairs. Although the certainty
 	// originally comes from alias analysis, it is updated to reflect if the
-	// index_node is killable, taking into account the following conditions:
-	//
-	//		1.) the reference to it must be definite (this is what we get from aliasing)
-	//		2.) fields of abstract storage node are not killable
-	//		3.) if it is possible to reach more than 1 node with the same name,
-	//		then it is not killable.
-	//		4.) Never kill UNKNOWN
+	// index_node is killable, from is_killable().
+
 	Index_node_list* lhss = get_named_indices (cx, path);
 	Reference_list* refs = new Reference_list;
 
+	bool killable = is_killable (cx, lhss);
 	foreach (Index_node* lhs, *lhss)
 	{
-		// Cond 1.) is filled on return
-		Reference_list* cond1_refs = aliasing->get_references (cx, lhs, PTG_ALL);
-		cond1_refs->push_back (new Reference (lhs, DEFINITE));
+		Reference_list* initial_refs = aliasing->get_references (cx, lhs, PTG_ALL);
+		initial_refs->push_back (new Reference (lhs, DEFINITE));
 
-		Reference_list cond123_refs;
-		foreach (Reference* cond1, *cond1_refs)
-		{
-			Certainty cert23 = cond1->cert;
-			if (aliasing->is_abstract_field (cx, cond1->index) // cond 2.
-				or lhss->size () > 1 // cond 3
-				or cond1->index->index == UNKNOWN) // cond 4
-				cert23 = POSSIBLE;
-
-			cond123_refs.push_back (new Reference (cond1->index, cert23));
-		}
-
-		refs->push_back_all (&cond123_refs);
+		// references are immutable
+		foreach (Reference* ref, *initial_refs)
+			refs->push_back (new Reference (
+				ref->index,
+				killable ? ref->cert : POSSIBLE));
 	}
 
 	return refs;
@@ -2055,12 +2075,9 @@ Whole_program::get_abstract_value (Context cx, MIR::Rvalue* rval)
 
 	// The variables are not expected to already have the same value. Perhaps
 	// there was an assignment to $x[0], and we are accessing $x[$i].
-	Index_node_list* indices = get_named_indices (cx, P (ns, dyc<VARIABLE_NAME> (rval)));
+	Index_node* index = VN (ns, dyc<VARIABLE_NAME> (rval));
 
-	if (indices->size () > 1)
-		phc_TODO ();
-	
-	return get_abstract_value (cx, indices->front()->name ());
+	return get_abstract_value (cx, index->name());
 }
 
 void
