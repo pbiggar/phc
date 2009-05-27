@@ -710,6 +710,9 @@ Index_node::Index_node (string storage, string index)
 , index (index)
 {
 	assert (storage != "");
+
+	// TODO: index is allowed be "", but during development, this is likely an
+	// error in the analyses, and not somewhere that "" is genuinely used.
 	assert (index != "");
 }
 

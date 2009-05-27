@@ -1422,11 +1422,8 @@ Whole_program::ruin_everything (Context cx, Path* plhs)
 
 
 /*
- * Return the range of possible values for INDEX. This is used to
- * disambiguate for indexing other nodes. It returns a set of strings. If only
- * 1 string is returned, it must be that value. If more than one strings are
- * returned, it may be any of them. NULL may be returned, indicating that it
- * may be all possible values.
+ * Return the value of INDEX, as a strung. This is used to
+ * disambiguate for indexing other nodes.
  */
 String*
 Whole_program::get_string_value (Context cx, Index_node* index)
@@ -1489,12 +1486,10 @@ Index_node* path_to_index (Path* p)
  * variables that might be looked up, and any other analysis which can reduce
  * the range of the results.
  *
- * TODO: this needs to handle UNKNOWN.
- *
  *	It handles implicit array conversion. If we're analysing the assignment
  *	$x[$i] = 5, we need to create $x. Likewise for $y =& $x[$i] or anything in
  *	the form $y =& $x->$f. If called in these contexts, it should set
- *	IMPLICIT_CONVERSION.
+ *	RHS_BY_REF.
  *
  *	Note that this does not follow references. This is because references are
  *	stored in transitive-closure form (ie if A ref B, B's outgoing nodes should
@@ -1505,11 +1500,10 @@ Whole_program::get_named_indices (Context cx, Path* path, bool rhs_by_ref)
 {
 
 /*
- * TODO: handle unknown.
  * TODO: handle implicit array definitions for RHS_BY_REF
- * TODO: handle may-def (might be unknown) for RHS_BY_REF
- * TODO: put in uses in correct positions.
- * TODO: remove recursion to make it more obvious when to do the above. 
+ * TODO: check type handlers.
+ * TODO: handle returning a NULL
+ * TODO: fix scalar types when doign array indexing.
  */
 
 	Indexing* p = dyc<Indexing> (path);
@@ -1550,13 +1544,19 @@ Whole_program::get_named_indices (Context cx, Path* path, bool rhs_by_ref)
 	 */
 	if (isa<Indexing> (p->lhs) && isa<Index_path> (p->rhs))
 	{
+		// This is just a specialization of $a[$f], so work on it after that works perfectly.
+		phc_TODO ();
 		Index_node_list* result = new Index_node_list;
 
 		Index_node* array = path_to_index (p->lhs);
 		Index_path* index = dyc<Index_path> (p->rhs);
 
+		if (!aliasing->has_field (cx, array))
+			phc_TODO ();
+
 		// Make a note of the uses
 		record_use (cx, array);
+
 
 		foreach (Storage_node* pointed_to, *aliasing->get_points_to (cx, array))
 		{
@@ -1614,42 +1614,74 @@ Whole_program::get_named_indices (Context cx, Path* path, bool rhs_by_ref)
 
 		List<string> lhss;
 
-		foreach (Storage_node* pointed_to, *aliasing->get_points_to (cx, array))
+		if (!aliasing->has_field (cx, array))
 		{
-			string name = pointed_to->for_index_node ();
+			// If the array doesn't already exist, it must be implicitly created.
+			string name = cx.array_node ()->for_index_node ();
+			assign_empty_array (cx, p->lhs, name);
 
-			// Implicit array/field creation
-			if (isa<Value_node> (pointed_to))
+			lhss.push_back (name);
+		}
+		else
+		{
+			foreach (Storage_node* pointed_to, *aliasing->get_points_to (cx, array))
 			{
-				// TODO: this could be a string, which is very difficult to handle
-				// TODO: an array is only implicitly created for NULL/uninit.
-				// Other scalars will go to NULL instead.
-				// TODO: these cases should clearly be dealt with in the caller.
-				// On the RHS, these are dealt with in copy_from_abstract_value.
-
-				if (rhs_by_ref)
+				// Implicit array creation
+				if (isa<Value_node> (pointed_to))
 				{
-					// Implicit array definition
-					name = cx.array_node ()->for_index_node ();
-					assign_empty_array (cx, p->lhs, name);
+					// TODO: this could be a string, which is very difficult to handle
+					// TODO: an array is only implicitly created for NULL/uninit.
+					// Other scalars will go to NULL instead.
+					// TODO: these cases should clearly be dealt with in the caller.
+					// On the RHS, these are dealt with in copy_from_abstract_value.
+
+					if (rhs_by_ref)
+					{
+						string name = cx.array_node ()->for_index_node ();
+						assign_empty_array (cx, p->lhs, name);
+						lhss.push_back (name);
+					}
+					else
+					{
+						// Without an implicit conversion, we should be returning a
+						// value. But we can't here, so we return the storage node,
+						// and let it get handled properly by copy_value.
+						//
+						// TODO: this only applies to the RHS, I think.
+					}
 				}
 				else
 				{
-					// Without an implicit conversion, we should be returning a
-					// value. But we can't here, so we return the storage node,
-					// and let it get handled properly by copy_value.
-					//
-					// TODO: this only applies to the RHS, I think.
+					lhss.push_back (pointed_to->for_index_node ());
 				}
 			}
-			lhss.push_back (name);
 		}
 
 		// But this time we're only reading the value, so we don't need the
 		// implicit array creation.
-		foreach (Storage_node* pointed_to, *aliasing->get_points_to (cx, array))
-			foreach (string storage, lhss)
-				result->push_back (new Index_node (storage, pointed_to->for_index_node ()));
+		foreach (string storage, lhss)
+		{
+			String* rhs = this->get_string_value (cx, index);
+			if (*rhs == UNKNOWN)
+			{
+				// TODO: copy this to $$a.
+				// Include all possible nodes
+				Index_node_list* fields = aliasing->get_fields (cx, new Storage_node (storage));
+				foreach (Index_node* field, *fields)
+					result->push_back (field);
+
+
+				// HACK: UNKNOWN might only have been added here, in which case it
+				// will be in OUT, not IN, so we wont find it with get_fields.
+				if (fields->size () == 0)
+					result->push_back (new Index_node (storage, UNKNOWN));
+			}
+			else
+				result->push_back (new Index_node (storage, *rhs));
+		}
+
+		// Should we ever return nothing?
+		assert (result->size ());
 
 		return result;
 	}
@@ -1670,6 +1702,7 @@ Whole_program::get_lhs_references (Context cx, Path* path)
 	//		2.) fields of abstract storage node are not killable
 	//		3.) if it is possible to reach more than 1 node with the same name,
 	//		then it is not killable.
+	//		4.) Never kill UNKNOWN
 	Index_node_list* lhss = get_named_indices (cx, path);
 	Reference_list* refs = new Reference_list;
 
@@ -1684,7 +1717,8 @@ Whole_program::get_lhs_references (Context cx, Path* path)
 		{
 			Certainty cert23 = cond1->cert;
 			if (aliasing->is_abstract_field (cx, cond1->index) // cond 2.
-				or lhss->size () > 1) // cond 3
+				or lhss->size () > 1 // cond 3
+				or cond1->index->index == UNKNOWN) // cond 4
 				cert23 = POSSIBLE;
 
 			cond123_refs.push_back (new Reference (cond1->index, cert23));
