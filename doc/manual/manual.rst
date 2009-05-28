@@ -73,7 +73,7 @@ Reference
 .. _guide:
 
 ############################
-Developers Guide
+Developers' Guide
 ############################
 
 .. toctree::
@@ -83,9 +83,9 @@ Developers Guide
 
 
 
-
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 Indices and tables
-==================
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
 * :ref:`search`
 
