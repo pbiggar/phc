@@ -8,7 +8,7 @@
 phc manual
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-.. important::
+.. note::
 
    If you cannot find information on some aspect of |phc|, please `get in touch
    <http://phpcompiler.org/mailinglist.html>`_, and we will try to fix it.
@@ -87,6 +87,7 @@ Developers' Guide
 .. toctree::
 
    othersources
+   codingguide
    testing
    porting
 
@@ -113,17 +114,7 @@ Indices and tables
    *  describe compilation and generate-c
    *  pass_manager
    *  maketea_user_defined
-   *  common errors in phc
-
-      +   boost foreach bug
-
-   *   common idioms in phc
-
-      +   Map, List, etc, garbage collection
-
    *   analyses in other languages:
 
       +   ie PHP
-
-.. todolist::
 
