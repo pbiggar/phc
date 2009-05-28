@@ -32,6 +32,8 @@ Developers' manual
 .. toctree::
 
    devintro
+   demo
+   traversalintro
 
 
 
@@ -61,6 +63,7 @@ Reference
 
 .. toctree::
 
+   refintro
    grammar
    representingphp
    limitations
