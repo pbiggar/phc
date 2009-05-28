@@ -86,9 +86,9 @@ Developers' Guide
 
 .. toctree::
 
+   othersources
    testing
    porting
-   othersources
 
 
 
