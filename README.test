@@ -15,7 +15,7 @@ or
 or
 	$ make long-test
 or
-	$ php tests/scripts/driver.php
+	$ php test/framework/driver.php
 
 The latter allows command line options, and limiting the tests with regular
 expressions. Run driver.php with the '-h' flag for details.
