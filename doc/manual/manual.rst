@@ -78,6 +78,7 @@ Developers Guide
 
 .. toctree::
 
+   testing
    porting
 
 

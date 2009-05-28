@@ -86,13 +86,7 @@ option.
 
 
 If this command does not succeed, there is a problem with PHP on your system,
-and you should `file a bug report with the PHP
-group <http://bugs.php.net>`_. (There is a known bug, and long work-around for OSX already
-filed in the PHP bug system).
-
-.. todo:
-
-   link to it
+and you should `file a bug report with the PHP group <http://bugs.php.net>`_ [#osx_bug]_.
 
 The most important part of the command is :option:`--enable-embed`.  While the
 :option:`CFLAGS="-O3"` environmental variable is optional, we find it speeds up
@@ -104,6 +98,7 @@ option. Other configuration options are discussed in the :ref:`developer manual
 .. sourcecode:: bash
 
    make install
+
 
 
 
@@ -122,7 +117,7 @@ release of |phc|. To extract |phc|,
 	
 This will create a new directory ``phc-0.2.0`` that contains the
 |phc| source tree. Finally, you must compile |phc|. If the dependencies are
-in their standard locations, you should be able to simply type
+in their standard locations, you should be able to simply type [#configure_help]_
 
 .. sourcecode:: bash
 
@@ -130,18 +125,30 @@ in their standard locations, you should be able to simply type
    ./configure
    make
 
-
-(Consult :program:`./configure --help` for configuration options, if your
-dependencies are not in standard locations). This should compile without any
-warnings or errors. If this step fails, please send a bug report to the `mailing list <http://www.phpcompiler.org/mailinglist.html>`_ with as
-much information about your system as you can give, and we will try to resolve
-it. Finally, install |phc| using
+This should compile without any warnings or errors. If this step fails, please
+send a bug report to the `mailing list
+<http://www.phpcompiler.org/mailinglist.html>`_ with as much information about
+your system as you can give, and we will try to resolve it. If you wish to test
+your build of |phc|, please see :ref:`testing`.  Finally, install |phc| using
 
 .. sourcecode:: bash
 
    make install
 
 
-For information on running |phc|, see :ref:`runningphc`.  If you can follow those instructions and you get
-the output you should get, congratulations!  You have successfully installed
-|phc|.
+For information on running |phc|, see :ref:`runningphc`.  If you can follow
+those instructions and you get the output you should get, congratulations!  You
+have successfully installed |phc|.
+
+
+
+.. [#osx_bug]
+   
+   There is a `known bug , and long work-around for OSX
+   <http://bugs.php.net/bug.php?id=44462>`_ already filed in the PHP bug
+   system.
+
+.. [#configure_help]
+
+   Consult :program:`./configure --help` for configuration options, if your
+   dependencies are not in standard locations. 
