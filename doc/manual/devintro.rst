@@ -51,7 +51,7 @@ tools based on |phc|).
 
 .. _dev.phpbuild:
 
-Building PHP for |phc| development
+Building PHP for phc development
 ----------------------------------
 
 When compiling PHP for use with |phc|, there are a few options:

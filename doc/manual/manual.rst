@@ -5,7 +5,7 @@
    TODO: mention license
 
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<
-|phc| manual
+phc manual
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 

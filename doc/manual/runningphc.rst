@@ -1,6 +1,6 @@
 .. _runningphc:
 
-Running |phc|
+Running phc
 =============
 
 Once you have installed |phc| (see :ref:`install`), run it by typing

@@ -28,7 +28,7 @@ Do not strip the binaries. Since the plugins use :func:`dlopen()`, and link
 dynamically against the |phc| binary, the plugins will not work unless the
 symbol information is available.
 
-|phc| packages
+phc packages
 **************
 
 See the `downloads page <http://www.phpcompiler.org/downloads.html>`_ for
