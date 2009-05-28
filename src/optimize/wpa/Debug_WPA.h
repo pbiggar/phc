@@ -24,8 +24,7 @@ public:
 	void create_reference (Context cx, Index_node* lhs,
 								 Index_node* rhs, Certainty cert);
 
-	void assign_value (Context cx, Index_node* lhs,
-							 Storage_node* storage, Certainty cert);
+	void assign_value (Context cx, Index_node* lhs, Storage_node* storage);
 
 	void set_storage (Context cx, Storage_node* storage, Types types);
 	void set_scalar (Context cx, Value_node* storage, Abstract_value* val);

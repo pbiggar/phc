@@ -907,8 +907,12 @@ Whole_program::forward_bind (Method_info* info, Context entry_cx, MIR::Actual_pa
 		wpa->forward_bind (caller_cx, entry_cx);
 
 		// The symtable is an array
-		wpa->set_storage (entry_cx, entry_cx.symtable_node (), Types ("array"));
+		wpa->set_storage (entry_cx, SN (scope), Types ("array"));
 	}
+
+	// Make sure the symtable actually gets created.
+	assign_scalar (entry_cx, P (scope, UNKNOWN), new NIL);
+
 
 	// Special case for __MAIN__. We do it here so that the other analyses
 	// have initialized.
@@ -927,7 +931,7 @@ Whole_program::forward_bind (Method_info* info, Context entry_cx, MIR::Actual_pa
 		else
 		{
 			// Add a default value of NULL for all variables
-			assign_scalar (entry_cx, P (scope, UNKNOWN), new NIL);
+			assign_scalar (entry_cx, P (scope, info->param_name (i)), new NIL);
 		}
 
 		// Actual parameters
@@ -1097,23 +1101,19 @@ Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 			phc_TODO ();
 
 
-		Storage_node_list* rhs_values = aliasing->get_points_to (cx, rhs);
-
 		// Check if there is an implicit NULL definition.
-		if (rhs_values->size() == 0)
+		if (not aliasing->has_field (cx, rhs))
 		{
 			foreach_wpa (this)
 			{
 				wpa->set_scalar (cx, ABSVAL (rhs), Abstract_value::from_literal (new NIL));
 				wpa->assign_value (cx, rhs, ABSVAL (rhs));
-
-				// Add it so that it gets processed below. This is needed to avoids
-				// the problem of reading from IN while writing to OUT.
-				rhs_values->push_back (ABSVAL (rhs));
 			}
 		}
 
+
 		// This handles the explicit copy and reference.
+		Storage_node_list* rhs_values = aliasing->get_points_to (cx, rhs);
 		foreach (Index_node* lhs, *lhss)
 		{
 			foreach_wpa (this)
@@ -1360,8 +1360,10 @@ Whole_program::copy_value (Context cx, Index_node* lhs, Index_node* rhs)
 {
 	// Special case for writing to LHS.
 	Types lhs_types = type_inf->get_types (cx, lhs->get_owner ()->name());
-	if (Type_inference::get_scalar_types (lhs_types).empty ())
+	assert (lhs_types.size () > 0);
+	if (not Type_inference::get_scalar_types (lhs_types).empty ())
 	{
+		dump (cx, "just before the end");
 		phc_TODO ();
 	}
 
@@ -1406,21 +1408,21 @@ Whole_program::copy_value (Context cx, Index_node* lhs, Index_node* rhs)
 			}
 		}
 
+		// Deep copy
 		if (array.size())
 		{
-			// We need to do a deep copy here.
-			Storage_node* new_array = cx.array_node ();
-
 			// Create the new array
+			Storage_node* new_array = cx.array_node ();
 			foreach_wpa (this)
 				wpa->set_storage (cx, new_array, Types ("array"));
 
-			// Get all the indices
-			foreach (Index_node* field, *aliasing->get_fields (cx, st))
+
+			// Copy all the indices.
+			foreach (Index_node* index, *aliasing->get_fields (cx, st))
 			{
 				copy_value (cx,
-						new Index_node (new_array->for_index_node (), field->index),
-						field);
+						new Index_node (new_array->for_index_node (), index->index),
+						index);
 			}
 
 			// LHS points to NEW_ARRAY.
@@ -1485,28 +1487,17 @@ Whole_program::get_string_value (Context cx, Index_node* index)
 Abstract_value*
 Whole_program::get_abstract_value (Context cx, Alias_name name)
 {
-	Abstract_value* result =
-		new Abstract_value (
+	return new Abstract_value (
 			ccp->get_value (cx, name), 
 			type_inf->get_value (cx, name));
-
-	if (result->lit == TOP || result->type == TOP)
-	{
-		assert (result->lit == TOP);
-		assert (result->type == TOP);
-
-		result = Abstract_value::from_literal (new NIL);
-	}
-
-	return result;
 }
 
 Abstract_value*
-Whole_program::get_bb_out_abstract_value (Context cx, Alias_name name)
+Whole_program::get_bb_in_abstract_value (Context cx, Alias_name name)
 {
 	return new Abstract_value (
-							ccp->outs[cx][name.str()],
-							type_inf->outs[cx][name.str()]);
+			ccp->ins[cx][name.str()],
+			type_inf->ins[cx][name.str()]);
 }
 
 
@@ -1514,8 +1505,8 @@ Index_node* path_to_index (Path* p)
 {
 	Indexing* i = dyc<Indexing> (p);
 	return new Index_node (
-		dyc<ST_path> (i->lhs)->name,
-		dyc<Index_path> (i->rhs)->name);
+			dyc<ST_path> (i->lhs)->name,
+			dyc<Index_path> (i->rhs)->name);
 }
 
 /*
@@ -1598,6 +1589,7 @@ Whole_program::get_named_indices (Context cx, Path* path, bool is_readonly)
 
 		Index_node* array = path_to_index (p->lhs);
 		Index_node* index = path_to_index (p->rhs);
+		String* index_value = this->get_string_value (cx, index);
 
 		// Make a note of the uses
 		record_use (cx, array);
@@ -1608,7 +1600,7 @@ Whole_program::get_named_indices (Context cx, Path* path, bool is_readonly)
 		/* 
 		 * Get the storage nodes
 		 */
-		Storage_node_list* lhss = aliasing->get_points_to (cx, array);
+
 
 		// In a writing context, if the variable containing the array doesn't
 		// already exist, it must be implicitly created.
@@ -1616,10 +1608,7 @@ Whole_program::get_named_indices (Context cx, Path* path, bool is_readonly)
 		{
 			string name = cx.array_node ()->for_index_node ();
 			assign_empty_array (cx, p->lhs, name);
-
-			lhss->push_back (SN (name));
 		}
-		assert (lhss->size () > 0);
 
 
 
@@ -1642,28 +1631,19 @@ Whole_program::get_named_indices (Context cx, Path* path, bool is_readonly)
 
 		// We only read the value of INDEX, so we don't need the implicit array
 		// creation.
-		foreach (Storage_node* storage, *lhss)
+		foreach (Storage_node* storage, *aliasing->get_points_to (cx, array))
 		{
-			String* rhs = this->get_string_value (cx, index);
-			if (*rhs == UNKNOWN)
+			if (*index_value == UNKNOWN)
 			{
 				// Include all possible nodes
-				Index_node_list* fields = aliasing->get_fields (cx, storage);
-				foreach (Index_node* field, *fields)
+				foreach (Index_node* field, *aliasing->get_fields (cx, storage))
 					result->push_back (field);
-
-
-				// HACK: UNKNOWN might only have been added here, in which case it
-				// will be in OUT, not IN, so we wont find it with get_fields.
-				if (fields->size () == 0)
-					result->push_back (new Index_node (storage->for_index_node (), UNKNOWN));
 			}
 			else
-				result->push_back (new Index_node (storage->for_index_node (), *rhs));
+				result->push_back (new Index_node (storage->for_index_node (), *index_value));
 		}
-		assert (lhss->size () > 0);
 
-		// Should we ever return nothing?
+		// Even in weird cases, we should always return something.
 		assert (result->size ());
 
 		return result;

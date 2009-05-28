@@ -231,7 +231,7 @@ WPA_lattice::init_outs (Context cx)
 Lattice_cell*
 WPA_lattice::get_value (Context cx, Alias_name name)
 {
-	return ins[cx][name.str()];
+	return outs[cx][name.str()];
 }
 
 

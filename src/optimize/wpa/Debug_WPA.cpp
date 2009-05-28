@@ -92,12 +92,12 @@ Debug_WPA::set_storage (Context cx, Storage_node* storage, Types types)
 }
 
 void
-Debug_WPA::assign_value (Context cx, Index_node* lhs, Storage_node* storage, Certainty cert)
+Debug_WPA::assign_value (Context cx, Index_node* lhs, Storage_node* storage)
 {
 	DEBUG (__FUNCTION__
 	<< ": " << lhs->name().str ()
 	<< ", " << storage->name().str ()
-	<< ", " << cert_to_string (cert));
+	);
 }
 
 

@@ -197,8 +197,9 @@ public:
 
 
 	/*
-	 * These might be considered to belong elsewhere, but each of them is
-	 * tricky for some reason.
+	 * These might be considered to belong elsewhere, but each of them needs to
+	 * some information which is not necessarily available to the analysis in
+	 * question.
 	 */
 
 	bool is_killable (Context cx, Index_node_list* indices);
@@ -213,8 +214,8 @@ public:
 	// Get all the possible names, and merge them.
 	Abstract_value* get_abstract_value (Context cx, MIR::Rvalue* rval);
 
-	// Special case, get the output value, not the input
-	Abstract_value* get_bb_out_abstract_value (Context cx, Alias_name name);
+	// Special case, get the input value.
+	Abstract_value* get_bb_in_abstract_value (Context cx, Alias_name name);
 
 	// PATH can refer to many nodes. Get the list of Index_nodes it points to.
 	// Set the RHS_BY_REF flag if PATH represents the RHS of an

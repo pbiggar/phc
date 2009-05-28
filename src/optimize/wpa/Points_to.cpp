@@ -301,7 +301,7 @@ Points_to::dump_graphviz (String* label, Context cx, Whole_program* wp)
 		
 		if (isa<Value_node> (node))
 		{
-			Abstract_value* val = wp->get_bb_out_abstract_value (cx, node->name());
+			Abstract_value* val = wp->get_abstract_value (cx, node->name());
 
 			if (val->lit == BOTTOM)
 				cell_label << "(B)";

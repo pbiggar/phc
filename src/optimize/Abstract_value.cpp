@@ -37,8 +37,10 @@ Abstract_value::dump ()
 Types
 Abstract_value::get_types ()
 {
-	assert (type != TOP);
 	assert (type != BOTTOM);
+	if (type == TOP)
+		return Types ("unset");
+
 	return dyc<Type_cell> (type)->types;
 }
 

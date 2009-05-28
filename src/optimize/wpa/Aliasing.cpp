@@ -72,7 +72,7 @@ Aliasing::forward_bind (Context caller, Context entry)
 	ptg->open_scope (entry.symtable_node ());
 
 	// We need INS to read the current situation, but it shouldnt get modified.
-	ins[entry] = ptg;
+	ins[entry] = ptg->clone ();
 	outs[entry] = ptg;
 }
 
@@ -232,14 +232,14 @@ Aliasing::merge_contexts ()
 Reference_list*
 Aliasing::get_references (Context cx, Index_node* index, Certainty cert)
 {
-	Points_to* ptg = ins[cx];
+	Points_to* ptg = outs[cx];
 	return ptg->get_references (index, cert);
 }
 
 Storage_node_list*
 Aliasing::get_points_to (Context cx, Index_node* index)
 {
-	Points_to* ptg = ins[cx];
+	Points_to* ptg = outs[cx];
 	return ptg->get_points_to (index);
 }
 
@@ -247,7 +247,7 @@ Aliasing::get_points_to (Context cx, Index_node* index)
 Index_node_list*
 Aliasing::get_fields (Context cx, Storage_node* storage)
 {
-	Points_to* ptg = ins[cx];
+	Points_to* ptg = outs[cx];
 	return ptg->get_fields (storage);
 }
 
@@ -266,25 +266,25 @@ Aliasing::get_possible_nulls (List<Context>* cxs)
 bool
 Aliasing::is_abstract (Context cx, Storage_node* st)
 {
-	return ins[cx]->is_abstract (st);
+	return outs[cx]->is_abstract (st);
 }
 
 bool
 Aliasing::is_abstract_field (Context cx, Index_node* index)
 {
-	return ins[cx]->is_abstract_field (index);
+	return outs[cx]->is_abstract_field (index);
 }
 
 bool
 Aliasing::has_storage_node (Context cx, Storage_node* st)
 {
-	return ins[cx]->has_storage_node (st);
+	return outs[cx]->has_storage_node (st);
 }
 
 bool
 Aliasing::has_field (Context cx, Index_node* ind)
 {
-	return ins[cx]->has_field (ind);
+	return outs[cx]->has_field (ind);
 }
 
 

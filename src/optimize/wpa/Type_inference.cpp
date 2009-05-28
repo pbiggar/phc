@@ -58,7 +58,6 @@ Type_inference::get_types (Context cx, Alias_name name)
 	if (cell == TOP)
 		return Types ("unset");
 
-	// TODO: this will fail for bottom
 	return dyc<Type_cell> (cell)->types;
 }
 
