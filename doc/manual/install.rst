@@ -51,6 +51,8 @@ PHP ``embed SAPI`` installation instructions
 If you do not intend to compile PHP code using |phc|, you may 
 :ref:`skip <install.instructions>` this section.
 
+If you intend to hack on |phc|, you should look at :ref:`dev.phpbuild`.
+
 In order to compile code, |phc| must have the PHP embed SAPI available, which
 is typically not available via standard package managers. The embed SAPI is
 also required for compiling stand-alone executables.
