@@ -1,8 +1,8 @@
 
 .. _refintro:
 
-Reference
-=========
+Introduction
+============
 
 |phc| represents PHP scripts internally as an abstract syntax tree. The
 structure of this tree is dictated by the :ref:`grammar`. The grammar definition is a very important part of

@@ -1,7 +1,7 @@
+.. _traversalintro:
 
-
-Plugin Introduction
-===================
+Introduction
+============
 
 :ref:`gettingstarted` introduces
 writing plugins for |phc|. It then explains how |phc| represents PHP scripts

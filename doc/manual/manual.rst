@@ -33,7 +33,6 @@ Developers' manual
 
    devintro
    demo
-   traversalintro
 
 
 
@@ -45,6 +44,7 @@ Tree Traversal API Tutorials
 
 .. toctree::
 
+   traversalintro
    gettingstarted
    treetutorial1
    treetutorial2
