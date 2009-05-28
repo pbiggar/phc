@@ -67,11 +67,12 @@ PHP,
 This will create a new directory :file:`php-5.2.10`. In order to configure and
 compile PHP, you must know what configuration options you require. These are
 likely to be the same as the version of PHP you are currently using, which can
-be examined with the command
+be examined using the following command [#configure_options]_
 
 .. sourcecode:: bash
 
    php -i | grep Configure
+
 
 
 We will assume these options are :option:`--enable-bcmath --with-gmp
@@ -144,7 +145,7 @@ have successfully installed |phc|.
 
 .. [#osx_bug]
    
-   There is a `known bug , and long work-around for OSX
+   There is a `known bug, and long work-around for OSX
    <http://bugs.php.net/bug.php?id=44462>`_ already filed in the PHP bug
    system.
 
@@ -152,3 +153,11 @@ have successfully installed |phc|.
 
    Consult :program:`./configure --help` for configuration options, if your
    dependencies are not in standard locations. 
+
+.. [#configure_options]
+
+   This line may not be present in some cases. If not, you may wish to find out
+   how PHP is configured through some other means, such as looking up the
+   source in your package manager. However, it is not necessary, and you may
+   just assume there are no options. Alternatively, you may look through
+   **./configure --help** to deterine the options for yourself.
