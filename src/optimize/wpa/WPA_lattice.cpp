@@ -112,7 +112,6 @@ WPA_lattice::assign_value (Context cx, Index_node* lhs, Storage_node* storage)
 void
 WPA_lattice::pull_init (Context cx)
 {
-	// TODO: This will fail if our context does not handle recursion well
 	changed_flags[cx] = false;
 	ins[cx].clear ();
 }

@@ -875,7 +875,6 @@ Whole_program::init_superglobals (Context cx)
 		assign_empty_array (cx, P (MSN, sg), array_name);
 
 		// We dont know the contents of these arrays.
-		// TODO: move all of these into calls to Whole_program
 		assign_typed (cx, P (array_name, UNKNOWN), Types("string"));
 	}
 
@@ -1388,7 +1387,6 @@ Whole_program::copy_value (Context cx, Index_node* lhs, Index_node* rhs)
 	{
 		// Get the type of the value
 		Types types = type_inf->get_types (cx, st->name());
-		// TODO: handle bottom
 
 		// It must be either all scalars, array, list of classes, or bottom.
 		Types scalars = Type_inference::get_scalar_types (types);
@@ -1601,6 +1599,9 @@ Whole_program::get_named_indices (Context cx, Path* path, bool is_readonly)
 		 * Get the storage nodes
 		 */
 
+
+		// TODO: I believe we can remove this by moving it into the scalar
+		// handling code in copy_value/assign_by_ref.
 
 		// In a writing context, if the variable containing the array doesn't
 		// already exist, it must be implicitly created.

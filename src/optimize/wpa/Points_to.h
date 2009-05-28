@@ -414,7 +414,6 @@ class Points_to : virtual public GC_obj
 private:
 	// This keeps count of whether something is abstract or not (subsuming
 	// whether it is in scope).
-	// TODO: the is_symtable function is wrong
 	Map<Alias_name, int> abstract_counts;
 
 	// The set of storage nodes which are a function's symbol table.
@@ -520,14 +519,7 @@ public:
 	void consistency_check (Context cx, Whole_program* wp);
 
 
-
-	/*
-	 * TODO: From here on, everything should be vetted (and hopefully killed)
-	 */
-
 	static Index_node_list* get_possible_nulls (List<Points_to*>* graphs);
-
-
 
 	// A lot of points in the graph use names derived from some context. Change
 	// them to use a non-contextual version.
@@ -542,52 +534,6 @@ private:
 	void remove_unreachable_nodes ();
 
 	void remove_node (PT_node* node);
-
-
-/*	template <class T>
-	List<T*>* get_incoming (PT_node* node, Certainty cert = PTG_ALL)
-	{
-		List<T*>* result = new List<T*>;
-
-		Alias_name target = node->name ();
-
-		// There must be an edge to anything it aliases
-		Alias_name source;
-		Alias_pair* pair;
-		foreach (boost::tie (source, pair), by_target[target])
-		{
-			if ((pair->cert & cert) // bitwise: PTG_ALL matches both
-				&& isa<T> (pair->source))
-			{
-				result->push_back (dyc<T>(pair->source));
-			}
-		}
-
-		return result;
-	}
-
-	template <class T>
-	List<T*>* get_targets (PT_node* node, Certainty cert = PTG_ALL)
-	{
-		List<T*>* result = new List<T*>;
-
-		Alias_name source = node->name ();
-
-		// There must be an edge to anything it aliases
-		Alias_name target;
-		Alias_pair* pair;
-		foreach (boost::tie (target, pair), by_source[source])
-		{
-			if ((pair->cert & cert) // bitwise: PTG_ALL matches both
-				&& isa<T> (pair->target))
-			{
-				result->push_back (dyc<T>(pair->target));
-			}
-		}
-
-		return result;
-	}
-*/
 
 };
 

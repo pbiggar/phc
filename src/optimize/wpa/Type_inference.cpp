@@ -52,22 +52,10 @@ Type_inference::get_types (Context cx, Alias_name name)
 {
 	Lattice_cell* cell = get_value (cx, name);
 
-	if (cell == BOTTOM)
-		phc_TODO ();
-
 	if (cell == TOP)
 		return Types ("unset");
 
 	return dyc<Type_cell> (cell)->types;
-}
-
-
-void
-Type_inference::set_types (Context cx, Alias_name name, Types types)
-{
-	Lattice_map& lat = outs[cx];
-
-	lat[name.str()] = meet (lat[name.str()], new Type_cell (types));
 }
 
 static class MIR_types : public Map<int,string>
@@ -244,12 +232,6 @@ Type_inference::get_bin_op_type (string ltype, string rtype, string op)
 Types
 Type_inference::get_bin_op_types (Context cx, Abstract_value* left, Abstract_value* right, string op)
 {
-	if (left->type == BOTTOM)
-		phc_TODO ();
-
-	if (right->type == BOTTOM)
-		phc_TODO ();
-
 	Types result_types;
 	foreach (string ltype, dyc<Type_cell> (left->type)->types)
 		foreach (string rtype, dyc<Type_cell> (right->type)->types)
@@ -292,17 +274,7 @@ Type_cell::dump (ostream& os)
 bool
 Type_cell::equals (Lattice_cell* other_cell)
 {
-	// TODO: I think I can replace this with Set::equals or set::operator==
-	Type_cell* other = dyc<Type_cell> (other_cell);
-
-	if (other->types.size () != this->types.size ())
-		return false;
-
-	foreach (string type, types)
-		if (!other->types.has (type))
-			return false;
-
-	return true;
+	return dyc<Type_cell> (other_cell)->types.equals (&this->types);
 }
 
 Lattice_cell*

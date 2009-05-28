@@ -39,9 +39,6 @@ public:
 
 	Types get_types (Context cx, Alias_name name);
 
-	// HACK - TMI - TODO: i think we can kill this now.
-	void set_types (Context cx, Alias_name name, Types types);
-
 	static Types get_bin_op_types (Context cx, Abstract_value* left, Abstract_value* right, string op);
 	static Types get_bin_op_type (string left, string right, string op);
 
@@ -54,7 +51,7 @@ public:
 	// Given a set of types, we want to know which types are scalars, which is
 	// an array, and which are objects. These return new sets with only the
 	// appropriate types in them.
-	// TODO: what about the complete set of types?
+	// TODO: what about the complete set of types (ie set.full)?
 	// TODO: all this time I've been ignoring resources!!
 	static Types get_scalar_types (Types);
 	static Types get_array_types (Types); // can only be "array"
