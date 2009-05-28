@@ -8,6 +8,11 @@
 phc manual
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
+.. important::
+
+   If you cannot find information on some aspect of |phc|, please `get in touch
+   <http://phpcompiler.org/mailinglist.html>`_, and we will try to fix it.
+
 
 .. _usermanual:
 
@@ -83,6 +88,7 @@ Developers' Guide
 
    testing
    porting
+   othersources
 
 
 
@@ -102,9 +108,6 @@ Indices and tables
    *  developing phc:
 
       +  Other IRs
-      +  testing
-      +  project page
-      +  prominent link to contribute
 
    *  folds
    *  describe compilation and generate-c
