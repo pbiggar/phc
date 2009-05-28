@@ -1066,7 +1066,7 @@ Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 	 */
 
 	Index_node_list* lhss = get_named_indices (cx, plhs);
-	Index_node_list* rhss = get_named_indices (cx, prhs, true);
+	Index_node_list* rhss = get_named_indices (cx, prhs);
 
 
 	// References kill the LHS, but if the LHS can refer to more than one index
@@ -1087,36 +1087,40 @@ Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 	//		- there are more than one Rs
 	Certainty cert = DEFINITE;
 	if (rhss->size () >= 1 || not lhs_killable)
-		cert = DEFINITE;
+		cert = POSSIBLE;
 
 
-	foreach (Index_node* lhs, *lhss)
+	foreach (Index_node* rhs, *rhss)
 	{
-		foreach (Index_node* rhs, *rhss)
+		Types rhs_types = type_inf->get_types (cx, rhs->get_owner ()->name());
+		if (Type_inference::get_scalar_types (rhs_types).empty ())
+			phc_TODO ();
+
+
+		Storage_node_list* rhs_values = aliasing->get_points_to (cx, rhs);
+
+		// Check if there is an implicit NULL definition.
+		if (rhs_values->size() == 0)
 		{
-			Storage_node_list* rhs_values = aliasing->get_points_to (cx, rhs);
-			if (rhs_values->size() == 0)
+			foreach_wpa (this)
 			{
-				foreach_wpa (this)
-				{
-					// Implicit NULL definition. This isnt handled by
-					// IMPLICIT_CONVERSION, since that creates arrays, it doesn't
-					// set NULL values. However, the only place we need to set a
-					// NULL value is here.
-					wpa->set_scalar (cx, ABSVAL (rhs), Abstract_value::from_literal (new NIL));
-					wpa->assign_value (cx, rhs, ABSVAL (rhs));
+				wpa->set_scalar (cx, ABSVAL (rhs), Abstract_value::from_literal (new NIL));
+				wpa->assign_value (cx, rhs, ABSVAL (rhs));
 
-					// Add it so that it gets processed below. I believe this avoids
-					// the problem of reading from IN while writing to OUT.
-					rhs_values->push_back (ABSVAL (rhs));
-				}
+				// Add it so that it gets processed below. This is needed to avoids
+				// the problem of reading from IN while writing to OUT.
+				rhs_values->push_back (ABSVAL (rhs));
 			}
+		}
 
-			foreach (Storage_node* st, *rhs_values)
+		// This handles the explicit copy and reference.
+		foreach (Index_node* lhs, *lhss)
+		{
+			foreach_wpa (this)
 			{
-				if (isa<Value_node> (st))
+				foreach (Storage_node* st, *rhs_values)
 				{
-					foreach_wpa (this)
+					if (isa<Value_node> (st))
 					{
 						// Just copy the scalar value to L.
 						wpa->set_scalar (cx, ABSVAL (lhs), get_abstract_value (cx, rhs->name ()));
@@ -1124,18 +1128,16 @@ Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 						// L may have been killed, but it needs its ABSVAL now.
 						wpa->assign_value (cx, lhs, ABSVAL (lhs));
 					}
-				}
-				else
-				{
-					// Make L point to the value (not a deep copy, under any circumstances).
-					foreach_wpa (this)
+					else
+					{
+						// Make L point to the value (not a deep copy, under any circumstances).
 						wpa->assign_value (cx, lhs, st);
+					}
 				}
-			}
 
-			// Create the reference
-			foreach_wpa (this)
+				// Create the reference
 				wpa->create_reference (cx, lhs, rhs, cert);
+			}
 		}
 	}
 }
@@ -1291,15 +1293,15 @@ Whole_program::assign_by_copy (Context cx, Path* plhs, Path* prhs)
 		// We keep the graph in transitive-closure form, so each RHS will have
 		// all the values of its references already. Therefore, there is no need
 		// for a call to get_lhs_references ().
-		foreach (Index_node* rhs, *get_named_indices (cx, prhs))
+		foreach (Index_node* rhs, *get_named_indices (cx, prhs, true))
 		{
 			copy_value (cx, lhs_ref->index, rhs);
 		}
 	}
 }
 
-bool
-Whole_program::copy_from_abstract_value (Context cx, Index_node* lhs, Index_node* rhs)
+Abstract_value*
+Whole_program::read_from_abstract_value (Context cx, Index_node* rhs)
 {
 	// Special case - the RHS's storage node might be an absval (however, if it
 	// is both an absval and another storage node, then the other storage nodes
@@ -1310,54 +1312,71 @@ Whole_program::copy_from_abstract_value (Context cx, Index_node* lhs, Index_node
 	// Get the type of the value
 	Types types = type_inf->get_types (cx, st->name());
 
-	// It must be either all scalars, array, list of classes, or bottom.
+	// It must be either all scalars, array, or list of classes.
 	Types scalars = Type_inference::get_scalar_types (types);
 	Types array = Type_inference::get_array_types (types);
 	Types objects = Type_inference::get_object_types (types);
 
-	assert (!scalars.empty() ^ !array.empty() ^ !objects.empty());
-
 	if (scalars.size() == 0)
-		return false;
+		return NULL;
 
-	DEBUG ("copy_from_abstract_value");
+	assert (array.empty ());
+	assert (objects.empty ());
 
-	foreach_wpa (this)
+	DEBUG ("read_from_abstract_value");
+
+	/*
+	 * There are only two possible types:
+	 *		If the type is known to be a string, this returns a string.
+	 *		If it is known not to be a string, we return NULL.
+	 *		If we can't tell, it can be either.
+	 */
+	if (scalars.size() == 1)
 	{
-		if (scalars.size() == 1)
+		cdebug << scalars.front ();
+		if (scalars.has ("string"))
 		{
-			cdebug << scalars.front ();
-			if (scalars.has ("string"))
+			Literal* array = ccp->get_lit (cx, st->name ());
+			string index = rhs->index;
+			if (array && index != UNKNOWN)
 			{
-				Literal* array = ccp->get_lit (cx, st->name ());
-				string index = rhs->index;
-				if (array && index != UNKNOWN)
-				{
-					Literal* value = PHP::fold_string_index (array, new STRING (s(index)));
-					wpa->set_scalar (cx, ABSVAL (lhs), Abstract_value::from_literal (value));
-				}
-				else
-					// We still know the type
-					wpa->set_storage (cx, ABSVAL (lhs), Types ("string"));
+				Literal* value = PHP::fold_string_index (array, new STRING (s(index)));
+				return Abstract_value::from_literal (value);
 			}
 			else
-				wpa->set_scalar (cx, ABSVAL (lhs), Abstract_value::from_literal (new NIL));
+				// We still know the type
+				return Abstract_value::from_types (Types ("string"));
 		}
 		else
-			wpa->set_storage (cx, ABSVAL (lhs), Types ("string", "unset"));
-
-		wpa->assign_value (cx, lhs, ABSVAL (lhs));
+			return Abstract_value::from_literal (new NIL);
 	}
 
 
-	return true;
+	return Abstract_value::from_types (Types ("string", "unset"));
 }
 
 void
 Whole_program::copy_value (Context cx, Index_node* lhs, Index_node* rhs)
 {
-	if (copy_from_abstract_value (cx, lhs, rhs))
+	// Special case for writing to LHS.
+	Types lhs_types = type_inf->get_types (cx, lhs->get_owner ()->name());
+	if (Type_inference::get_scalar_types (lhs_types).empty ())
+	{
+		phc_TODO ();
+	}
+
+
+	if (Abstract_value* absval = read_from_abstract_value (cx, rhs))
+	{
+		DEBUG ("copy_from_abstract_value");
+		foreach_wpa (this)
+		{
+			wpa->set_scalar (cx, ABSVAL (lhs), absval);
+			wpa->assign_value (cx, lhs, ABSVAL (lhs));
+		}
 		return;
+	}
+
 
 	// OK, its not a scalar. Carry on.
 	DEBUG ("copy_value");
@@ -1518,15 +1537,11 @@ Index_node* path_to_index (Path* p)
  *	exist in A).
  */
 Index_node_list*
-Whole_program::get_named_indices (Context cx, Path* path, bool rhs_by_ref)
+Whole_program::get_named_indices (Context cx, Path* path, bool is_readonly)
 {
-
-/*
- * TODO: handle implicit array definitions for RHS_BY_REF
- * TODO: check type handlers.
- * TODO: handle returning a NULL
- * TODO: fix scalar types when doign array indexing.
- */
+	/*
+	 * TODO: check type handlers.
+	 */
 
 	Indexing* p = dyc<Indexing> (path);
 	// There aren't that many cases, so don't a general solution
@@ -1539,9 +1554,6 @@ Whole_program::get_named_indices (Context cx, Path* path, bool rhs_by_ref)
 	if (isa <ST_path> (p->lhs) && isa<Index_path> (p->rhs))
 	{
 		// Nothing special here at all
-
-		// TODO: check the type - this could be a read/write of an object (is
-		// this the best place for it?).
 		return new Index_node_list (path_to_index (p));
 	}
 
@@ -1568,49 +1580,6 @@ Whole_program::get_named_indices (Context cx, Path* path, bool rhs_by_ref)
 	{
 		// This is just a specialization of $a[$f], so work on it after that works perfectly.
 		phc_TODO ();
-		Index_node_list* result = new Index_node_list;
-
-		Index_node* array = path_to_index (p->lhs);
-		Index_path* index = dyc<Index_path> (p->rhs);
-
-		if (!aliasing->has_field (cx, array))
-			phc_TODO ();
-
-		// Make a note of the uses
-		record_use (cx, array);
-
-
-		foreach (Storage_node* pointed_to, *aliasing->get_points_to (cx, array))
-		{
-			string name = pointed_to->for_index_node ();
-
-			// Implicit array/field creation
-			if (isa<Value_node> (pointed_to))
-			{
-				// TODO: this could be a string, which is very difficult to handle
-				// TODO: an array is only implicitly created for NULL/uninit.
-				// Other scalars will go to NULL instead.
-				// TODO: these cases should clearly be dealt with in the caller.
-				// On the RHS, these are dealt with in copy_from_abstract_value.
-
-				if (rhs_by_ref)
-				{
-					name = cx.array_node ()->for_index_node ();
-					assign_empty_array (cx, p->lhs, name);
-				}
-				else
-				{
-					// Without an implicit conversion, we should be returning a
-					// value. But we can't here, so we return the storage node,
-					// and let it get handled properly by copy_value.
-					//
-					// TODO: this only applies to the RHS, I think.
-				}
-			}
-			result->push_back (new Index_node (name, index->name));
-		}
-
-		return result;
 	}
 
 
@@ -1634,21 +1603,80 @@ Whole_program::get_named_indices (Context cx, Path* path, bool rhs_by_ref)
 		record_use (cx, array);
 		record_use (cx, index);
 
-		List<string> lhss;
 
-		if (!aliasing->has_field (cx, array))
+
+		/* 
+		 * Get the storage nodes
+		 */
+		Storage_node_list* lhss = aliasing->get_points_to (cx, array);
+
+		// In a writing context, if the variable containing the array doesn't
+		// already exist, it must be implicitly created.
+		if (not is_readonly && !aliasing->has_field (cx, array))
 		{
-			// If the array doesn't already exist, it must be implicitly created.
 			string name = cx.array_node ()->for_index_node ();
 			assign_empty_array (cx, p->lhs, name);
 
-			lhss.push_back (name);
+			lhss->push_back (SN (name));
 		}
-		else
+		assert (lhss->size () > 0);
+
+
+
+		/*
+		 * There are two cases that arent handled here:
+		 *
+		 *		-	implicit creation of a NULL node on the RHS in the case of
+		 *			read-by-reference. This is handled in assign_by_ref.
+		 *
+		 *		-	read of an abstract value
+		 *		-	write of an abstract value
+		 *			These cant be done here, so we return the correct index_node,
+		 *			and handle it in copy_value
+		 */
+
+
+		/* 
+		 * Get the index nodes.
+		 */
+
+		// We only read the value of INDEX, so we don't need the implicit array
+		// creation.
+		foreach (Storage_node* storage, *lhss)
 		{
-			foreach (Storage_node* pointed_to, *aliasing->get_points_to (cx, array))
+			String* rhs = this->get_string_value (cx, index);
+			if (*rhs == UNKNOWN)
 			{
-				// Implicit array creation
+				// Include all possible nodes
+				Index_node_list* fields = aliasing->get_fields (cx, storage);
+				foreach (Index_node* field, *fields)
+					result->push_back (field);
+
+
+				// HACK: UNKNOWN might only have been added here, in which case it
+				// will be in OUT, not IN, so we wont find it with get_fields.
+				if (fields->size () == 0)
+					result->push_back (new Index_node (storage->for_index_node (), UNKNOWN));
+			}
+			else
+				result->push_back (new Index_node (storage->for_index_node (), *rhs));
+		}
+		assert (lhss->size () > 0);
+
+		// Should we ever return nothing?
+		assert (result->size ());
+
+		return result;
+	}
+
+
+	phc_unreachable ();
+}
+
+/*
+ * This code should be placed in the callers:
+ *
+ *				// Implicit array creation
 				if (isa<Value_node> (pointed_to))
 				{
 					if (rhs_by_ref)
@@ -1667,8 +1695,15 @@ Whole_program::get_named_indices (Context cx, Path* path, bool rhs_by_ref)
 					}
 					else
 					{
+						if (in_reading_context)
+						{
+							// In reading context, this is handled in
+							// copy_from_abstract_value, so we just a simple index_node
+							// for it.
+							lhss.push_back (name);
+						}
+						else
 						phc_TODO ();
-						// TODO: do we need to separate reading and writing contexts
 						// If we are writing to the value, there are a few cases:
 						//		string: writing to its "field"
 						//		null: implicit conversion
@@ -1683,45 +1718,7 @@ Whole_program::get_named_indices (Context cx, Path* path, bool rhs_by_ref)
 						// TODO: this only applies to the RHS, I think.
 					}
 				}
-				else
-				{
-					lhss.push_back (pointed_to->for_index_node ());
-				}
-			}
-		}
-
-		// But this time we're only reading the value, so we don't need the
-		// implicit array creation.
-		foreach (string storage, lhss)
-		{
-			String* rhs = this->get_string_value (cx, index);
-			if (*rhs == UNKNOWN)
-			{
-				// TODO: copy this to $$a.
-				// Include all possible nodes
-				Index_node_list* fields = aliasing->get_fields (cx, new Storage_node (storage));
-				foreach (Index_node* field, *fields)
-					result->push_back (field);
-
-
-				// HACK: UNKNOWN might only have been added here, in which case it
-				// will be in OUT, not IN, so we wont find it with get_fields.
-				if (fields->size () == 0)
-					result->push_back (new Index_node (storage, UNKNOWN));
-			}
-			else
-				result->push_back (new Index_node (storage, *rhs));
-		}
-
-		// Should we ever return nothing?
-		assert (result->size ());
-
-		return result;
-	}
-
-
-	phc_unreachable ();
-}
+	*/
 
 
 Reference_list*

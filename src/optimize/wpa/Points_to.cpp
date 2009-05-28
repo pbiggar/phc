@@ -148,7 +148,13 @@ Points_to::remove_reference (Index_node* source, Index_node* target)
 Storage_node_list*
 Points_to::get_points_to (Index_node* index)
 {
-	return points_to.get_targets (index);
+	Storage_node_list* result = points_to.get_targets (index);
+
+	// These should be equivalent
+	if (result->size () == 0)
+		assert (not has_field (index));
+
+	return result;
 }
 
 Index_node_list*

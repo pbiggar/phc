@@ -186,7 +186,7 @@ public:
 	// Copy the value from RHS to LHS.
 	void copy_value (Context cx, Index_node* lhs, Index_node* rhs);
 
-	bool copy_from_abstract_value (Context cx, Index_node* lhs, Index_node* rhs);
+	Abstract_value* read_from_abstract_value (Context cx, Index_node* rhs);
 
 	void record_use (Context cx, Index_node* node);
 
@@ -219,7 +219,7 @@ public:
 	// PATH can refer to many nodes. Get the list of Index_nodes it points to.
 	// Set the RHS_BY_REF flag if PATH represents the RHS of an
 	// assignment-by-reference.
-	Index_node_list* get_named_indices (Context cx, Path* path, bool rhs_by_ref = false);
+	Index_node_list* get_named_indices (Context cx, Path* path, bool is_readonly = false);
 
 	// Get anything the path can point to, and all nodes that they may reference.
 	Reference_list* get_lhs_references (Context cx, Path* path);
