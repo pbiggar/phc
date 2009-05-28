@@ -4,13 +4,19 @@ Test-suite
 ==========
 
 
-You may test |phc| using:
+After `./configure`-ing |phc|, you may test it using:
 
 .. sourcecode:: bash
 
    make test
 
-This will only work if you have already `./configure`\d |phc|.
+or
+
+.. sourcecode:: bash
+
+   php test/framework/driver.php
+
+
 
 The output of the test suite is similar to:
 
@@ -55,7 +61,7 @@ The columns indicate:
    which fail one test will also fail subsequent tests. We skip these instead.
 
 As you can see, some failures are expected. Howver, if a test fails completely
-(it has 0 passed tests), there may be a platform-dependent issue, which should
+(i.e. it has no passed tests), there may be a platform-dependent issue, which should
 be `reported to the mailing-list <http://phpcompiler.org/mailinglist.html>`_.
 
 
