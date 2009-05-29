@@ -277,6 +277,26 @@ public:
 		return result;
 	}
 
+	List<Target_type*>* get_all_targets ()
+	{
+		List<Target_type*>* result = new List<Target_type*>;
+
+		foreach (Edge_type* edge, *this->get_edges ())
+			result->push_back (edge->target);
+
+		return result;
+	}
+
+	List<Source_type*>* get_all_sources ()
+	{
+		List<Source_type*>* result = new List<Source_type*>;
+
+		foreach (Edge_type* edge, *this->get_edges ())
+			result->push_back (edge->source);
+
+		return result;
+	}
+
 	List<Edge_type*>* get_edges ()
 	{
 		List<Edge_type*>* result = new List<Edge_type*>;
@@ -367,21 +387,13 @@ public:
 			this->remove_edge (source, target);
 	}
 
+	// Note that this does not merge values.
 	this_type* merge (this_type* other)
 	{
 		this_type* result = new this_type (*this);
 
 		foreach (Edge_type* e, *other->get_edges ())
-		{
-			if (result->has_edge (e) and not boost::is_same <Value_type, Empty> ())
-			{
-				Value_type value = this->get_value (e);
-				Value_type other_value = other->get_value (e);
-				phc_TODO (); // combine values
-			}
-
 			result->add_edge (e);
-		}
 
 		return result;
 	}
@@ -423,11 +435,12 @@ private:
 	// The set of storage nodes which are a function's symbol table.
 	Set<Alias_name> symtables;
 
+	typedef Pair_map<Index_node, Index_node, Reference_edge, Certainty> reference_pair_type;
 
 	// (Index_node, Index_node) -> certainty.
 	// SOURCE and TARGET alias each other, with some CERTAINTY in { POSSIBLE,
 	// DEFINITE }.
-	Pair_map<Index_node, Index_node, Reference_edge, Certainty> references;
+	reference_pair_type references;
 
 	// (Index_node, Storage_node) set.
 	// SOURCE is an index points-to TARGET. Its certainty is determined
@@ -458,8 +471,11 @@ public:
 	// Reference_edges.
 	Reference_list* get_references (Index_node* source, Certainty cert = PTG_ALL);
 	Certainty get_reference_cert (Reference_edge* edge);
+	Certainty get_reference_cert (Index_node* source, Index_node* target);
 
 	void add_reference (Index_node* source, Index_node* target, Certainty cert);
+
+	bool has_reference (Reference_edge* edge);
 	bool has_reference (Index_node* source, Index_node* target);
 
 	// Just removes the reference
@@ -540,6 +556,8 @@ private:
 	void remove_unreachable_nodes ();
 
 	void remove_node (PT_node* node);
+
+	reference_pair_type* merge_references (Points_to* other);
 
 };
 

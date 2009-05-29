@@ -30,6 +30,7 @@ enum _certainty { POSSIBLE = 1, DEFINITE = 2, PTG_ALL = 3 };
 typedef enum _certainty Certainty;
 
 Certainty combine_certs (Certainty c1, Certainty c2);
+bool is_valid_certainty (Certainty cert);
 
 #define UNKNOWN "*"
 

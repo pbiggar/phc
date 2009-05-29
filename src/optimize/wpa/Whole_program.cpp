@@ -1188,14 +1188,13 @@ Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 
 
 		// This handles the explicit copy and reference.
-		Storage_node_list* rhs_values = aliasing->get_points_to (cx, rhs);
 		foreach (Index_node* lhs, *lhss)
 		{
-			foreach_wpa (this)
+			foreach (Storage_node* st, *aliasing->get_points_to (cx, rhs))
 			{
-				foreach (Storage_node* st, *rhs_values)
+				if (isa<Value_node> (st))
 				{
-					if (isa<Value_node> (st))
+					foreach_wpa (this)
 					{
 						// Just copy the scalar value to L.
 						wpa->set_scalar (cx, ABSVAL (lhs), get_abstract_value (cx, rhs->name ()));
@@ -1203,16 +1202,29 @@ Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 						// L may have been killed, but it needs its ABSVAL now.
 						wpa->assign_value (cx, lhs, ABSVAL (lhs));
 					}
-					else
-					{
-						// Make L point to the value (not a deep copy, under any circumstances).
-						wpa->assign_value (cx, lhs, st);
-					}
 				}
-
-				// Create the reference
-				wpa->create_reference (cx, lhs, rhs, cert);
+				else
+				{
+					// Make L point to the value (not a deep copy, under any circumstances).
+					foreach_wpa (this)
+						wpa->assign_value (cx, lhs, st);
+				}
 			}
+
+			// We've copied all the values (transitive-closure), but we also
+			// want to keep the references in transitive-closure form.
+			//
+			// Note that we aren't required to do unification, even though the
+			// edges are bidirectional. It may be that A may-ref B and A may-ref
+			// C, but B does not may-ref C. An example is after CFG merges.
+			foreach (Reference* ref, *aliasing->get_references (cx, rhs, PTG_ALL))
+				foreach_wpa (this)
+					wpa->create_reference (cx, lhs, ref->index, combine_certs (cert, ref->cert));
+
+
+			// Create the reference
+			foreach_wpa (this)
+				wpa->create_reference (cx, lhs, rhs, cert);
 		}
 	}
 }

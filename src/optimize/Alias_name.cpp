@@ -39,6 +39,12 @@ Alias_name::operator== (const Alias_name& other) const
 }
 
 bool
+Alias_name::operator!= (const Alias_name& other) const
+{
+	return not (operator== (other));
+}
+
+bool
 Alias_name::operator< (const Alias_name& other) const
 {
 	// If there is an SSA number, use that.

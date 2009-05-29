@@ -112,14 +112,24 @@ Points_to::get_references (Index_node* index, Certainty cert)
 }
 
 Certainty
+Points_to::get_reference_cert (Index_node* source, Index_node* target)
+{
+	Certainty result = this->references.get_value (source, target);
+	assert (is_valid_certainty (result));
+	return result;
+}
+
+Certainty
 Points_to::get_reference_cert (Reference_edge* edge)
 {
-	return this->references.get_value (edge);
+	return get_reference_cert (edge->source, edge->target);
 }
 
 void
 Points_to::add_reference (Index_node* source, Index_node* target, Certainty cert)
 {
+	assert (is_valid_certainty (cert));
+
 	this->add_field (source);
 	this->add_field (target);
 
@@ -131,6 +141,13 @@ Points_to::add_reference (Index_node* source, Index_node* target, Certainty cert
 	references.add_edge (target, source);
 	references.set_value (source, target, cert);
 	references.set_value (target, source, cert);
+}
+
+
+bool
+Points_to::has_reference (Reference_edge* edge)
+{
+	return has_reference (edge->source, edge->target);
 }
 
 bool
@@ -428,8 +445,8 @@ Points_to::consistency_check (Context cx, Whole_program* wp)
 
 	foreach (Reference_edge* ref_edge, *this->references.get_edges ())
 	{
-		Certainty cert = this->get_reference_cert (ref_edge);
-		if (cert != POSSIBLE && cert != DEFINITE)
+		Certainty cert = this->references.get_value (ref_edge);
+		if (not is_valid_certainty (cert))
 		{
 			dump_graphviz (NULL, cx, wp);
 			phc_internal_error ("Certs can't be %d between %s and %s",
@@ -524,6 +541,41 @@ Points_to::remove_node (PT_node* node)
 		this->remove_storage_node (dyc<Storage_node> (node));
 }
 
+Points_to::reference_pair_type*
+Points_to::merge_references (Points_to* other)
+{
+	reference_pair_type* result = this->references.merge (&other->references);
+
+	// Given two graphs, with A->B on G1, and B->C in G2, we don't need to ensure that
+	// A->C is added too.
+	
+
+	foreach (Reference_edge* edge, *result->get_edges ())
+	{
+		bool this_has = this->has_reference (edge);
+		bool other_has = other->has_reference (edge);
+
+		if (this_has and other_has)
+		{
+			Certainty this_cert = this->get_reference_cert (edge);
+			Certainty other_cert = other->get_reference_cert (edge);
+			result->set_value (edge, combine_certs (this_cert, other_cert));
+		}
+		else if (this_has)
+		{
+			result->set_value (edge, this->get_reference_cert (edge));
+		}
+		else if (other_has)
+		{
+			result->set_value (edge, other->get_reference_cert (edge));
+		}
+		else
+			phc_unreachable ();
+	}
+
+	return result;
+}
+
 
 /*
  * Merge another graph with this one. Edge cases with NULL are handled in
@@ -536,7 +588,7 @@ Points_to::merge (Points_to* other)
 
 	result->fields = *this->fields.merge (&other->fields);
 	result->points_to = *this->points_to.merge (&other->points_to);
-	result->references = *this->references.merge (&other->references);
+	result->references = *this->merge_references (other);
 
 	// Combine the abstract counts
 	result->abstract_counts = this->abstract_counts;

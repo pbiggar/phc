@@ -42,6 +42,7 @@ public:
 
 	bool operator< (const Alias_name& other) const;
 	bool operator== (const Alias_name& other) const;
+	bool operator!= (const Alias_name& other) const;
 
 	// In some cases (at least lattice_map, maybe elsewhere), its hard to use an
 	// Alias_name instead of a string.

@@ -14,13 +14,19 @@ using namespace MIR;
 
 Certainty combine_certs (Certainty c1, Certainty c2)
 {
-	assert (c1 != PTG_ALL);
-	assert (c2 != PTG_ALL);
+	assert (is_valid_certainty (c1));
+	assert (is_valid_certainty (c2));
 
 	if (c1 == DEFINITE && c2 == DEFINITE)
 		return DEFINITE;
 	
 	return POSSIBLE;
+}
+
+bool
+is_valid_certainty (Certainty cert)
+{
+	return (cert == POSSIBLE || cert == DEFINITE);
 }
 
 
