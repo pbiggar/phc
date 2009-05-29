@@ -186,12 +186,14 @@ public:
 	// Copy the value from RHS to LHS.
 	void copy_value (Context cx, Index_node* lhs, Index_node* rhs);
 
-	void check_owner_type (Context cx, Index_node* index);
+	Index_node* check_owner_type (Context cx, Index_node* index);
 	Abstract_value* read_from_abstract_value (Context cx, Index_node* rhs);
 
 	void record_use (Context cx, Index_node* node);
 
 	void pull_results (Context cx);
+
+	Index_node_list* get_possible_nulls (List<Context>*);
 
 	// Most pesimistic case
 	void ruin_everything (Context cx, Path* path);

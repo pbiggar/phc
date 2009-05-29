@@ -86,13 +86,13 @@ public:
 
 	Storage_node_list* get_points_to (Context cx, Index_node* index);
 
-	Index_node_list* get_possible_nulls (List<Context>*);
-
 	bool is_abstract (Context cx, Storage_node* st);
 	bool is_abstract_field (Context cx, Index_node* st);
 
 	bool has_storage_node (Context cx, Storage_node* st);
 	bool has_field (Context cx, Index_node* ind);
+
+	Storage_node_list* get_storage_nodes (Context cx);
 
 };
 

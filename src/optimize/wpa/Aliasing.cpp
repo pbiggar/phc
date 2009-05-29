@@ -110,6 +110,15 @@ Aliasing::pull_pred (Context cx, Context pred)
 void
 Aliasing::pull_possible_null (Context cx, Index_node* node)
 {
+	// TODO: I'm unclear whether we need to update node's references...
+	// Hmm, I think you almost certainty do. Why? Well suppose graphes G1 and G2
+	// are being merged. X does not exist in G1, only in G2, in which it is
+	// referenced to Y. Y is also in G1, value 5. X and Y in G2 have the value
+	// 5. When we merge that, the edges between X and Y becomes a POSSIBLE edge,
+	// since X in not in G1. X also gets a may value of NULL. But Y may also get
+	// this may value, since it may reference X.
+	//
+	// This needs to be handled at a higher level.
 	ins[cx]->add_points_to (node, ABSVAL (node));
 }
 
@@ -251,18 +260,6 @@ Aliasing::get_fields (Context cx, Storage_node* storage)
 	return ptg->get_fields (storage);
 }
 
-Index_node_list*
-Aliasing::get_possible_nulls (List<Context>* cxs)
-{
-	List<Points_to*>* graphs = new List<Points_to*>;
-
-	foreach (Context cx, *cxs)
-		graphs->push_back (outs[cx]);
-
-	return Points_to::get_possible_nulls (graphs);
-}
-
-
 bool
 Aliasing::is_abstract (Context cx, Storage_node* st)
 {
@@ -285,6 +282,12 @@ bool
 Aliasing::has_field (Context cx, Index_node* ind)
 {
 	return outs[cx]->has_field (ind);
+}
+
+Storage_node_list*
+Aliasing::get_storage_nodes (Context cx)
+{
+	return outs[cx]->get_storage_nodes ();
 }
 
 

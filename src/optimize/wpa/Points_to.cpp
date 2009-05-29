@@ -111,6 +111,12 @@ Points_to::get_references (Index_node* index, Certainty cert)
 	return result;
 }
 
+Certainty
+Points_to::get_reference_cert (Reference_edge* edge)
+{
+	return this->references.get_value (edge);
+}
+
 void
 Points_to::add_reference (Index_node* source, Index_node* target, Certainty cert)
 {
@@ -174,7 +180,7 @@ void
 Points_to::remove_points_to (Index_node* index, Storage_node* st)
 {
 	// If this has no remaining points-to edges, it should be redirected to
-	// point-to NULL (or ABSVAL, whose value should be set yo NULL). But its
+	// point-to NULL (or ABSVAL, whose value should be set to NULL). But its
 	// very hard to do that here, so we shall assume that this is only done by a
 	// caller.
 	points_to.remove_edge (index, st);
@@ -201,6 +207,14 @@ bool
 Points_to::has_field (Index_node* index)
 {
 	return fields.has_edge (SN (index->storage), index);
+}
+
+Storage_node*
+Points_to::get_storage (Index_node* index)
+{
+	Storage_node_list* storage = fields.get_sources (index);
+	assert (storage->size () == 1);
+	return storage->front ();
 }
 
 void
@@ -403,6 +417,26 @@ Points_to::consistency_check (Context cx, Whole_program* wp)
 			phc_internal_error ("No points-to edge from %s",
 					index->name().str().c_str());
 		}
+
+		if (isa<Value_node> (this->get_storage (index)))
+		{
+			dump_graphviz (NULL, cx, wp);
+			phc_internal_error ("Abstract values can't have fields %s",
+					index->name().str().c_str());
+		}
+	}
+
+	foreach (Reference_edge* ref_edge, *this->references.get_edges ())
+	{
+		Certainty cert = this->get_reference_cert (ref_edge);
+		if (cert != POSSIBLE && cert != DEFINITE)
+		{
+			dump_graphviz (NULL, cx, wp);
+			phc_internal_error ("Certs can't be %d between %s and %s",
+					cert,
+					ref_edge->source->name().str().c_str(),
+					ref_edge->target->name().str().c_str());
+		}
 	}
 }
 
@@ -490,50 +524,6 @@ Points_to::remove_node (PT_node* node)
 		this->remove_storage_node (dyc<Storage_node> (node));
 }
 
-
-
-/*
- * Given a list of points_to graphs, return the list of index_nodes which
- * might be NULL. An index node is in this set if the its storage node exists
- * in a graph in which it does not appear.
- */
-Index_node_list*
-Points_to::get_possible_nulls (List<Points_to*>* graphs)
-{
-	Index_node_list* result = new Index_node_list;
-
-	Set<Alias_name> existing;
-
-	// Foreach storage node S in G, check all other graphs for G. If they have
-	// S, check for each I, such that S->I.
-	foreach (Points_to* graph, *graphs)
-	{
-		foreach (Storage_node* st, *graph->get_storage_nodes ())
-		{
-			foreach (Index_node* index, *graph->get_fields (st))
-			{
-				// Check all the other graphs
-				foreach (Points_to* other, *graphs)
-				{
-					if (graph == other)
-						continue;
-
-					if (other->has_storage_node (st) && !other->has_field (index))
-					{
-						// Add it
-						if (!existing.has (index->name()))
-						{
-							existing.insert (index->name ());
-							result->push_back (index);
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return result;
-}
 
 /*
  * Merge another graph with this one. Edge cases with NULL are handled in

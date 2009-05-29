@@ -773,6 +773,75 @@ Whole_program::analyse_block (Context cx)
 	return changed;
 }
 
+/*
+ * Given a list of points_to graphs, return the list of index_nodes which
+ * might be NULL. An index node is in this set if the its storage node exists
+ * in a graph in which it does not appear.
+ * It may also be NULL if it references NULL in any of the graphs.
+ */
+Index_node_list*
+Whole_program::get_possible_nulls (List<Context>* cxs)
+{
+	Index_node_list* norefs = new Index_node_list;
+
+	Set<Alias_name> existing;
+
+	// Get the nodes which exist in some graph, but do not exist in other graphs.
+	foreach (Context cx, *cxs)
+	{
+		foreach (Storage_node* st, *aliasing->get_storage_nodes (cx))
+		{
+			foreach (Index_node* index, *aliasing->get_fields (cx, st))
+			{
+				// Check all the other graphs
+				foreach (Context other, *cxs)
+				{
+					if (cx == other)
+						continue;
+
+					if (aliasing->has_storage_node (cx, st)
+						&& !aliasing->has_field (other, index))
+					{
+						// Add it
+						if (!existing.has (index->name()))
+						{
+							existing.insert (index->name ());
+							norefs->push_back (index);
+						}
+					}
+				}
+			}
+		}
+	}
+
+
+	// Now get the references
+	Index_node_list* withrefs = new Index_node_list;
+	foreach (Index_node* orig, *norefs)
+	{
+		withrefs->push_back (orig);
+
+		// Get anything it references in any other graph
+		foreach (Context cx, *cxs)
+		{
+			foreach (Reference* ref, *aliasing->get_references (cx, orig, PTG_ALL))
+			{
+				Index_node* ref_index = ref->index;
+				if (!existing.has (ref_index->name()))
+				{
+					existing.insert (ref_index->name ());
+					withrefs->push_back (ref_index);
+				}
+			}
+		}
+	}
+
+	return withrefs;
+}
+
+
+
+
 void
 Whole_program::pull_results (Context cx)
 {
@@ -790,7 +859,7 @@ Whole_program::pull_results (Context cx)
 
 	// Some index nodes may only have existed on one path. If their storage
 	// node exists, then we assume that they are NULL on the other paths.
-	Index_node_list* possible_nulls = aliasing->get_possible_nulls (preds);
+	Index_node_list* possible_nulls = this->get_possible_nulls (preds);
 
 	// Separate the first from the remainder, to simplfiy the remainder.
 	Context first = preds->front ();
@@ -1104,7 +1173,7 @@ Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 
 	foreach (Index_node* rhs, *rhss)
 	{
-		check_owner_type (cx, rhs);
+		rhs = check_owner_type (cx, rhs);
 
 
 		// Check if there is an implicit NULL definition.
@@ -1361,7 +1430,7 @@ Whole_program::read_from_abstract_value (Context cx, Index_node* rhs)
 	return Abstract_value::from_types (Types ("string", "unset"));
 }
 
-void
+Index_node*
 Whole_program::check_owner_type (Context cx, Index_node* index)
 {
 	Types types = type_inf->get_types (cx, index->get_owner ()->name());
@@ -1382,8 +1451,16 @@ Whole_program::check_owner_type (Context cx, Index_node* index)
 			}
 			else if (type == "unset")
 			{
-				// Convert to an array, add lhs and set to RHS
-				phc_TODO ();
+				// Convert to an array
+				string name = cx.array_node ()->for_index_node ();
+				foreach_wpa (this)
+					wpa->set_storage (cx, SN (name), Types ("array"));
+
+				assign_scalar (cx, P (name, UNKNOWN), new NIL);
+
+				// We dont want the caller to index an abstract value, so return
+				// the new index_node.
+				return new Index_node (name, index->index);
 			}
 			else
 			{
@@ -1402,13 +1479,15 @@ Whole_program::check_owner_type (Context cx, Index_node* index)
 		phc_TODO ();
 	}
 
-	// OK, carry on
+
+	// OK, carry on, nothing special here.
+	return index;
 }
 
 void
 Whole_program::copy_value (Context cx, Index_node* lhs, Index_node* rhs)
 {
-	check_owner_type (cx, lhs);
+	lhs = check_owner_type (cx, lhs);
 
 	// Check if RHS is an indexing a scalar.
 	if (Abstract_value* absval = read_from_abstract_value (cx, rhs))

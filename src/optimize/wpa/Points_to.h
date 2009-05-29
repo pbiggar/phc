@@ -374,7 +374,11 @@ public:
 		foreach (Edge_type* e, *other->get_edges ())
 		{
 			if (result->has_edge (e) and not boost::is_same <Value_type, Empty> ())
+			{
+				Value_type value = this->get_value (e);
+				Value_type other_value = other->get_value (e);
 				phc_TODO (); // combine values
+			}
 
 			result->add_edge (e);
 		}
@@ -453,7 +457,7 @@ public:
 	// References are (target, certainty) pairs. Don't confuse them with
 	// Reference_edges.
 	Reference_list* get_references (Index_node* source, Certainty cert = PTG_ALL);
-	void set_reference_cert (Reference_edge* edge, Certainty cert);
+	Certainty get_reference_cert (Reference_edge* edge);
 
 	void add_reference (Index_node* source, Index_node* target, Certainty cert);
 	bool has_reference (Index_node* source, Index_node* target);
@@ -484,8 +488,10 @@ public:
 	Index_node_list* get_fields (Storage_node* storage);
 
 	// The storage node of an index node is implicit (in the STORAGE field).
-	void add_field (Index_node* target);
-	bool has_field (Index_node* target);
+	void add_field (Index_node* field);
+	bool has_field (Index_node* field);
+
+	Storage_node* get_storage (Index_node* field);
 
 	// Remove the edge from the storage-node to the index-node. Also removes
 	// outgoing points-to edges, and reference edges.
