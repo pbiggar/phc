@@ -99,6 +99,12 @@ unnamed_param (int param_index)
 	return new VARIABLE_NAME (s(ss.str()));
 }
 
+int
+User_method_info::formal_param_count ()
+{
+	return method->signature->formal_parameters->size ();
+}
+
 /*
  * Summary methods
  */
@@ -193,4 +199,13 @@ bool
 Builtin_method_info::is_side_effecting ()
 {
 	return true;
+}
+
+int
+Builtin_method_info::formal_param_count ()
+{
+	if (*this->name == "print")
+		return 0;
+
+	phc_TODO ();
 }

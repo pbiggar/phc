@@ -196,6 +196,7 @@ public:
 	bool param_by_ref (int param_index);
 	MIR::VARIABLE_NAME* param_name (int param_index);
 	MIR::Static_value* default_param (int param_index);
+	int formal_param_count ();
 
 	bool is_side_effecting ();
 };
@@ -258,6 +259,12 @@ MIR::Static_value*
 Internal_method_info::default_param (int param_index)
 {
 	return NULL;
+}
+
+int
+Internal_method_info::formal_param_count ()
+{
+	phc_TODO ();
 }
 
 

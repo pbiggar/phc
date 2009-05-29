@@ -98,6 +98,8 @@ public:
 	// Returns NULL if there is a default parameter for this index
 	virtual MIR::Static_value* default_param (int param_index) = 0;
 
+	virtual int formal_param_count () = 0;
+
 	/*
 	 * Annotations for optimizations
 	 */
@@ -123,6 +125,7 @@ public:
 	MIR::VARIABLE_NAME* param_name (int param_index);
 	bool param_by_ref (int param_index);
 	MIR::Static_value* default_param (int param_index);
+	int formal_param_count ();
 
 	bool is_side_effecting ();
 
@@ -153,6 +156,7 @@ public:
 	MIR::VARIABLE_NAME* param_name (int param_index);
 	bool param_by_ref (int param_index);
 	MIR::Static_value* default_param (int param_index);
+	int formal_param_count ();
 
 	bool is_side_effecting ();
 

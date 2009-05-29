@@ -924,15 +924,6 @@ Whole_program::forward_bind (Method_info* info, Context entry_cx, MIR::Actual_pa
 	int i = 0;
 	foreach (Actual_parameter* ap, *actuals)
 	{
-		// Default values
-		if (info->default_param (i))
-			phc_TODO ();
-		else
-		{
-			// Add a default value of NULL for all variables
-			assign_scalar (entry_cx, P (scope, info->param_name (i)), new NIL);
-		}
-
 		// Actual parameters
 		if (ap->is_ref || info->param_by_ref (i))
 		{
@@ -960,6 +951,24 @@ Whole_program::forward_bind (Method_info* info, Context entry_cx, MIR::Actual_pa
 
 		i++;
 	}
+
+	// Assign other parameters.
+	if (i <= info->formal_param_count ())
+	{
+		if (info->default_param (i))
+			phc_TODO ();
+		else
+		{
+			// Add a default value of NULL for other variables
+			assign_scalar (entry_cx, P (scope, info->param_name (i)), new NIL);
+		}
+
+		i++;
+	}
+
+
+
+	dump (entry_cx, "Before forward aggregation");
 
 	foreach_wpa (this)
 		wpa->aggregate_results (entry_cx);
