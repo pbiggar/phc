@@ -1430,6 +1430,26 @@ Whole_program::read_from_abstract_value (Context cx, Index_node* rhs)
 	return Abstract_value::from_types (Types ("string", "unset"));
 }
 
+/*
+ * For RHS call-by-ref:
+ *
+ *		null: implicit conversion
+ *		string: Run-time error
+ *		array/obj: as below (TODO: include a parameter for
+ *									whether an array or an object
+ *									should be used).
+ *		TODO: other scalar: nothing happens
+ *
+ *
+ *	For assign-to-LHS:
+ *
+ *		string: writing to its "field"
+ *		null: implicit conversion
+ *		other scalar types: nothing happens!!
+ *
+ */
+
+
 Index_node*
 Whole_program::check_owner_type (Context cx, Index_node* index)
 {
@@ -1777,52 +1797,6 @@ Whole_program::get_named_indices (Context cx, Path* path, bool is_readonly)
 	phc_unreachable ();
 }
 
-/*
- * This code should be placed in the callers:
- *
- *				// Implicit array creation
-				if (isa<Value_node> (pointed_to))
-				{
-					if (rhs_by_ref)
-					{
-						// The result of reading a value as a reference depends on the type:
-						//		null: implicit conversion
-						//		string: Run-time error
-						//		array/obj: as below (TODO: include a parameter for
-						//									whether an array or an object
-						//									should be used).
-						//		TODO: other scalar: nothing happens
-
-						string name = cx.array_node ()->for_index_node ();
-						assign_empty_array (cx, p->lhs, name);
-						lhss.push_back (name);
-					}
-					else
-					{
-						if (in_reading_context)
-						{
-							// In reading context, this is handled in
-							// copy_from_abstract_value, so we just a simple index_node
-							// for it.
-							lhss.push_back (name);
-						}
-						else
-						phc_TODO ();
-						// If we are writing to the value, there are a few cases:
-						//		string: writing to its "field"
-						//		null: implicit conversion
-						//		other scalar types: nothing happens!!
-						//
-						//	If we are reading, these are handled in copy_from_abstract_value.
-
-						// Without an implicit conversion, we should be returning a
-						// value. But we can't here, so we return the storage node,
-						// and let it get handled properly by copy_value.
-						//
-						// TODO: this only applies to the RHS, I think.
-					}
-				}
-	*/
 
 
 Reference_list*
