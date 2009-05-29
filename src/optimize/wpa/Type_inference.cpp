@@ -55,6 +55,9 @@ Type_inference::get_types (Context cx, Alias_name name)
 	if (cell == TOP)
 		return Types ("unset");
 
+	// We should never have an empty set.
+	assert (dyc<Type_cell> (cell)->types.size () > 0);
+
 	return dyc<Type_cell> (cell)->types;
 }
 

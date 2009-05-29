@@ -1095,9 +1095,7 @@ Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 
 	foreach (Index_node* rhs, *rhss)
 	{
-		Types rhs_types = type_inf->get_types (cx, rhs->get_owner ()->name());
-		if (Type_inference::get_scalar_types (rhs_types).empty ())
-			phc_TODO ();
+		check_owner_type (cx, rhs);
 
 
 		// Check if there is an implicit NULL definition.
@@ -1355,18 +1353,55 @@ Whole_program::read_from_abstract_value (Context cx, Index_node* rhs)
 }
 
 void
-Whole_program::copy_value (Context cx, Index_node* lhs, Index_node* rhs)
+Whole_program::check_owner_type (Context cx, Index_node* index)
 {
-	// Special case for writing to LHS.
-	Types lhs_types = type_inf->get_types (cx, lhs->get_owner ()->name());
-	assert (lhs_types.size () > 0);
-	if (not Type_inference::get_scalar_types (lhs_types).empty ())
+	Types types = type_inf->get_types (cx, index->get_owner ()->name());
+	Types scalar_types = Type_inference::get_scalar_types (types);
+	if (scalar_types.size ())
 	{
+		if (scalar_types.size () > 1)
+			phc_TODO ();
+
+		bool value_changed = false;
+		foreach (string type, scalar_types)
+		{
+			if (type == "string")
+			{
+				// Do we know the value of the string?
+				// We may need to kill LHS.
+				phc_TODO ();
+			}
+			else if (type == "unset")
+			{
+				// Convert to an array, add lhs and set to RHS
+				phc_TODO ();
+			}
+			else
+			{
+				// Nothing happens. But with multiple types, the old type has to be
+				// copied.
+				// With multiple RHSs, this will hit every time.
+				// With multiple LHSs, this wont change value, which is fine.
+				// (Note that the value we would have killed is LHS, not
+				// LHS.storage, so this is unkilled, but it might need to be
+				// killed).
+				phc_TODO ();
+			}
+		}
+
 		dump (cx, "just before the end");
 		phc_TODO ();
 	}
 
+	// OK, carry on
+}
 
+void
+Whole_program::copy_value (Context cx, Index_node* lhs, Index_node* rhs)
+{
+	check_owner_type (cx, lhs);
+
+	// Check if RHS is an indexing a scalar.
 	if (Abstract_value* absval = read_from_abstract_value (cx, rhs))
 	{
 		DEBUG ("copy_from_abstract_value");
