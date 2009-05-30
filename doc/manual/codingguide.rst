@@ -27,7 +27,7 @@ This may be abbreviated:
 
    libtool e gdb --args src/phc --help
 
-If you are working on, or debugging, |phc| compiled code, we have created a
+If you are working on, or debugging, compilation with |phc|, we have created a
 `convenience wrapper
 <http://code.google.com/p/phc/source/browse/trunk/misc/comp>`_ wrapper to
 simplfiy this.
