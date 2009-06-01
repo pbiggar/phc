@@ -1,6 +1,8 @@
 #!/usr/bin/env php
 <?php
 
+$php = "php";
+
 set_include_path ("test/framework/external/" . PATH_SEPARATOR . "test/framework/" . get_include_path () );
 
 require_once ("lib/header.php");
@@ -198,55 +200,54 @@ function failure_check ($program, $filename)
 
 
 
-function check_against_interpreted ()
+function check_against_interpreted ($program, $filename)
 {
-	# do this all here to avoid littering the function with it
-	# Run through PHP
-	mydebug (2, "Getting PHP output");
-	list ($php_out, $php_err, $php_exit) = run (get_php_command_line ($filename, true), $unew_program);
-	$php_out = homogenize_all ($php_out, $filename);
-	$this->dump (".php_out_$id", $php_out);
-	if ($opt_zero && $php_exit)
+	// Interpret
+	$result = run_with_php ($program, $filename);
+
+	if ($result == false)
+		return false;
+
+	list ($php_out, $php_err, $php_exit) = $result;
+
+
+	$result = interpret_with_phc ($program, $filename);
+	list ($phc_out, $phc_err, $phc_exit) = $result;
+
+	if (	$phc_out != $php_out
+		|| $phc_err != $php_err
+		|| $phc_exit != $php_exit)
 	{
-		mydebug (1, "Error running through PHP. Skip. (exit_code: $php_exit, error: $php_err)");
+		mydebug (1, "Outputs differ");
+		return true;
+	}
+
+	mydebug (1, "Outputs are the same");
+	return false;
+}
+
+function interpret_with_phc ($program, $filename)
+{
+	global $opt_pass, $opt_main_command, $opt_interpret;
+
+	// TODO: support uppering
+
+	# Compile and run
+	mydebug (2, "Getting compiled phc output");
+
+	$command = "src/phc --dump=$opt_interpret $opt_main_command";
+	list ($out, $err, $exit) = myrun ($command, $program);
+
+	if ($err !== "" || $exit !== 0)
+	{
+		mydebug (1, "Error interpreting ($exit), skip: $err");
 		return false;
 	}
 
-			# Run it through PHP til the specified pass, then run the output through PHP
-			mydebug (2, "Getting PHP output after running through phc");
+	list ($out, $err, $exit) = myrun (get_php_command_line ($filename, true), $out);
+	$out = homogenize_all ($out, $filename);
 
-			global $opt_upper;
-			$upper = $opt_upper ? "u" : "";
-			list ($phc_out, $phc_err, $phc_exit) = run ("src/phc --read-xml=$opt_pass --{$upper}dump=$opt_interpret $opt_main_command", $xnew_program);
-			if ($phc_err === "" && $phc_exit === 0)
-			{
-				list ($my_out, $my_err, $my_exit) = run (get_php_command_line ($filename, true), $phc_out);
-				$my_out = homogenize_all ($my_out, $filename);
-				dump ("$filename.phci_out_$id", $my_out);
-			}
-			else $phc_error = true;
-
-
-//			|| $php_err !== $my_err
-//			|| $php_exit !== $my_exit
-//			|| $php_out !== $my_out) // success, we've reduced it while keeping the bug in
-
-		if (!$phc_error)
-		{
-			if ($php_out === "Timeout" || $my_out === "Timeout")
-			{
-				mydebug (1, "phc error. Skip.");
-				return false;
-			}
-
-			if ($php_err === "Timeout") # if my_err is timeout, we've kept the bug in
-			{
-				mydebug (1, "Timeouts. Skip.");
-				return false;
-			}
-		}
-
-
+	return array ($out, $err, $exit);
 }
 
 function run_with_php ($program, $filename)
@@ -283,7 +284,8 @@ function run_with_phc ($program, $filename)
 	# Compile and run
 	mydebug (2, "Getting compiled phc output");
 
-	list ($out, $err, $exit) = myrun ("src/phc --read-xml=$opt_pass -e $opt_main_command", $program);
+	$command = "src/phc --read-xml=$opt_pass -e $opt_main_command";
+	list ($out, $err, $exit) = myrun ($command, $program);
 
 	if ($out == "Timeout")
 	{

@@ -1,8 +1,5 @@
 <?php
 
-$php = "php";
-$phc = "src/phc";
-
 
 # This attempts to reduce a test case to a minimal test case. For a
 # program of N statements, it attempts to reduce it by N/2 statements
@@ -48,7 +45,7 @@ class Reduce
 
 		// defaults
 		$this->phc = "phc";
-		$this->pass = "ast";
+		$this->pass = "AST-to-HIR";
 		$this->comment = "from $filename";
 		$this->prefix = ".";
 	}
@@ -230,10 +227,8 @@ class Reduce
 		$this->debug (2, "Converting to PHP from XML");
 		$command =   "$this->phc"
 						." --read-xml=$this->pass"
-						." --dump=$this->pass"
-						." --run=$this->prefix/plugins/tools/remove_all.la";
+						." --dump=$this->pass";
 
-		// TODO: if this is to be uppered, then we cant remove all?
 		if ($upper && $this->pass == "mir")
 		{
 			$this->debug (2, "Uppering");
