@@ -8,7 +8,7 @@ set_include_path ("test/framework/external/" . PATH_SEPARATOR . "test/framework/
 require_once ("lib/header.php");
 require_once ("Console/Getopt.php");
 
-require_once ("core.php");
+require_once ("Reduce.php");
 
 
 $cg = new Console_Getopt();
@@ -108,9 +108,10 @@ $reduce = new Reduce ($filename);
 
 $reduce->set_phc ("src/phc");
 $reduce->set_comment ($command_line);
-$reduce->set_prefix ($opt_phc_prefix);
+$reduce->set_plugin_path ($opt_phc_prefix);
 $reduce->set_run_command_function ("myrun");
 $reduce->set_debug_function ("mydebug");
+$reduce->set_dump_function ("mydump");
 
 // Checking functions
 $reduce->set_checking_function ("check_against_compiled");
@@ -134,12 +135,15 @@ if ($opt_command != "")
 
 if ($opt_xml)
 {
-	$reduce->run_on_xml ($input);
+	$result = $reduce->run_on_xml ($input);
 }
 else
 {
-	$reduce->run_on_php ($input);
+	$result = $reduce->run_on_php ($input);
 }
+
+print "Writing reduced file to $filename.reduced\n";
+file_put_contents ("$filename.reduced", $result);
 
 
 
@@ -175,13 +179,23 @@ function above_debug_threshold ($level)
 
 function mydebug ($level, $message)
 {
-	if ($level <= above_debug_threshold ($level))
+	if (above_debug_threshold ($level))
 	{
 		print "$level: $message\n";
 	}
 }
 
-function failure_check ($program, $filename)
+function mydump ($suffix, $output)
+{
+	global $filename;
+	if (above_debug_threshold (3))
+	{
+		mydebug (3, "Dumping to $filename.suffix");
+		file_put_contents ("$filename.$suffix", $output);
+	}
+}
+
+function failure_check ($program)
 {
 	throw new Exception ("TODO- what does this do?");
 	global $opt_pass, $opt_failure;
@@ -200,8 +214,9 @@ function failure_check ($program, $filename)
 
 
 
-function check_against_interpreted ($program, $filename)
+function check_against_interpreted ($program)
 {
+	global $filename;
 	// Interpret
 	$result = run_with_php ($program, $filename);
 
@@ -226,9 +241,9 @@ function check_against_interpreted ($program, $filename)
 	return false;
 }
 
-function interpret_with_phc ($program, $filename)
+function interpret_with_phc ($program)
 {
-	global $opt_pass, $opt_main_command, $opt_interpret;
+	global $opt_pass, $opt_main_command, $opt_interpret, $filename;
 
 	// TODO: support uppering
 
@@ -250,9 +265,9 @@ function interpret_with_phc ($program, $filename)
 	return array ($out, $err, $exit);
 }
 
-function run_with_php ($program, $filename)
+function run_with_php ($program)
 {
-	global $opt_zero;
+	global $opt_zero, $filename;
 
 	# Run through PHP
 	mydebug (2, "Getting PHP output");
@@ -298,8 +313,9 @@ function run_with_phc ($program, $filename)
 	return array ($out, $err, $exit);
 }
 
-function check_against_compiled ($program, $filename)
+function check_against_compiled ($program)
 {
+	global $filename;
 	// Interpret
 	$result = run_with_php ($program, $filename);
 

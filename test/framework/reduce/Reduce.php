@@ -1,5 +1,100 @@
 <?php
 
+/*
+ * Introduction:
+ *
+ * The reduce class automatically reduces PHP test cases quickly (using the
+ * delta-debugging algorithm). Given an input program, it will remove as many
+ * statements as it can, checking for each statement that the bug is not
+ * removed. It uses callbacks to check that the bug is not removed, so it is
+ * flexible to nearly any problem.
+ *
+ * Usage:
+ *
+ *
+ *		$filename = "test_case.php";
+ *		$test_prog = file_get_contents ($filename);
+ *		try
+ *		{
+ *			$reduce = new Reduce ();
+ *			$reduce->set_checking_function ("my_checking_function");
+ *			$reduced_prog = $reduce->run_with_php ($test_prog);
+ *
+ *			file_put_contents ("$filename.reduced", $reduced_prog);
+ *		}
+ *		catch (ReduceException e)
+ *		{
+ *			...
+ *		}
+ *
+ *		function my_checking_function ()
+ *		{
+ *		   $bug_kept_in = (bool)(...);
+ *		   return $bug_kept_in;
+ *		}
+ *
+ *	Options:
+ *	
+ *		The basic usage is described above. But it can be tailored through a number of methods:
+ *
+ *			- set_checking_function ($callback)
+ *				Set the function used for checking if the reduce step was
+ *				successful. Its parameters are:
+ *					$program - the PHP program to check
+ *				It returns true if the redcue step was successful (ie if the bug
+ *				was kept in), false otherwise.
+ *
+ *
+ *		The following functions are more-or-less required, though you can survive without them.
+ *
+ *			- set_run_command_function ($callback)
+ *				Set the function used for running shell commands. Its parameters are:
+ *					$command - the command to be run
+ *					$stdin - the input to it
+ *				It should return false for failure, else it should return
+ *					array ($stdout, $stderr, $exit_code)
+ *				If this function is not provided, backticks (`...`) will be used.
+ *
+ *			- set_debug_function ($callback)
+ *				Set the function used for debug messages. Its parameters are:
+ *					$level - 0-3 representing importance of message (lower is better)
+ *					$message - string message
+ *				Its return value is ignored.
+ *				If this function is not provided, print() will be used.
+ *
+ *			- set_dump_function ($callback)
+ *				Set the function used for dumping intermediate files. Its parameters are:
+ *					$level - 0-3 representing importance of message (lower is better)
+ *					$message - string message
+ *				Its return value is ignored.
+ *				If this function is not provided, nothing will happen.
+ *
+ *
+ *
+ *		These methods are optional.
+ *
+ *			- set_comment ($comment);
+ *				Add a comment to top of the reduced program
+ *				If the comment is not called, no comment will be added.
+ *
+ *
+ *		phc is required for usage. To set phc's configuration, use
+ *
+ *			- set_phc ($phc)
+ *				Set the location of the phc executable
+ *				Defaults to "phc" (ie using the PATH)
+ *
+ *			- set_plugin_path ($path)
+ *				Set the path used by phc's plugins
+ *				Defaults to "."
+ *
+ *
+ */
+
+
+
+
+
 
 # This attempts to reduce a test case to a minimal test case. For a
 # program of N statements, it attempts to reduce it by N/2 statements
@@ -39,15 +134,12 @@ class ReduceException extends Exception
 
 class Reduce
 {
-	function __construct ($filename)
+	function __construct ()
 	{
-		$this->filename = $filename;
-
 		// defaults
-		$this->phc = "phc";
-		$this->pass = "AST-to-HIR";
-		$this->comment = "from $filename";
-		$this->prefix = ".";
+		$this->set_phc ("phc");
+		$this->set_pass ("AST-to-HIR");
+		$this->set_plugin_path (".");
 	}
 
 	/*
@@ -59,9 +151,9 @@ class Reduce
 		$this->comment = $comment;
 	}
 
-	function set_prefix ($comment)
+	function set_plugin_path ($plugin_path)
 	{
-		$this->prefix = $comment;
+		$this->plugin_path = $plugin_path;
 	}
 
 	function set_run_command_function ($callback)
@@ -72,6 +164,11 @@ class Reduce
 	function set_debug_function ($callback)
 	{
 		$this->debug_function = $callback;
+	}
+
+	function set_dump_function ($callback)
+	{
+		$this->dump_function = $callback;
 	}
 
 	function set_pass ($passname)
@@ -139,49 +236,24 @@ class Reduce
 
 	function dump ($suffix, $output)
 	{
-		$filename = "$this->filename.$suffix";
-		$this->debug (3, "Dumping to $filename");
-
 		// Call a user-providec dump function, if provided
 		if (isset ($this->dump_function))
 		{
-			call_user_func ($this->dump_function, $filename, $output);
+			call_user_func ($this->dump_function, $suffix, $output);
 		}
 		else
 		{
 			$this->warn_once ("Warning: no user-defined dump() function provided. Consider "
 					."adding one via set_dump_function ()");
-
-			file_put_contents ($filename, $output);
 		}
 	}
 
-
-	function write_file ($suffix, $output)
-	{
-		$filename = "$this->filename.$suffix";
-
-		$this->debug (1, "Writing file to $filename");
-
-		// Call a user-providec dump function, if provided
-		if (isset ($this->write_file_function))
-		{
-			call_user_func ($this->write_file_function, $filename, $output);
-		}
-		else
-		{
-			$this->warn_once ("Warning: no user-defined dump() function provided. Consider "
-					."adding one via set_dump_function ()");
-
-			file_put_contents ($filename, $output);
-		}
-	}
 
 	function check ($program)
 	{
 		if (isset ($this->checking_function))
 		{
-			return call_user_func ($this->checking_function, $program, $this->filename);
+			return call_user_func ($this->checking_function, $program);
 		}
 		else
 		{
@@ -197,13 +269,16 @@ class Reduce
 
 	function add_comment ($xprogram)
 	{
+		if (!isset ($this->comment))
+			return $xprogram;
+
 		$this->debug (2, "Adding comment");
 
 		$command =   "{$this->phc} "
 						."--read-xml={$this->pass} "
-						."--run={$this->prefix}/plugins/tools/add_comment.la "
+						."--run={$this->plugin_path}/plugins/tools/add_comment.la "
 						."--r-option=\"Reduced by: $this->comment\" "
-						."--dump-xml={$this->prefix}/plugins/tools/add_comment.la ";
+						."--dump-xml={$this->plugin_path}/plugins/tools/add_comment.la ";
 
 		return $this->run_safe ($command, $xprogram);
 	}
@@ -214,9 +289,9 @@ class Reduce
 		$out = $this->run_safe (
 			"$this->phc"
 			." --read-xml=$this->pass"
-			." --run=$this->prefix/plugins/tools/reduce_statements.la"
+			." --run=$this->plugin_path/plugins/tools/reduce_statements.la"
 			." --r-option=$start:$num"
-			." --dump-xml=$this->prefix/plugins/tools/reduce_statements.la",
+			." --dump-xml=$this->plugin_path/plugins/tools/reduce_statements.la",
 			 $xprogram);
 
 		return $out;
@@ -244,8 +319,8 @@ class Reduce
 
 		$out = $this->run_safe (
 			"{$this->phc}"
-				. " --read-xml={$this->prefix}/plugins/tutorials/count_statements_easy.la"
-				. " --run={$this->prefix}/plugins/tutorials/count_statements_easy.la"
+				. " --read-xml={$this->plugin_path}/plugins/tutorials/count_statements_easy.la"
+				. " --run={$this->plugin_path}/plugins/tutorials/count_statements_easy.la"
 			, $xprogram);
 
 		$this->debug (2, "Output is: $out");
@@ -285,14 +360,11 @@ class Reduce
 
 
 	# Reduce and test the program, passed as XML in $xprogram. Reduce it
-	# starting from the $start'th statement, by $num statements. For debugging,
-	# filename is the name of the script we're working on. Return false if
+	# starting from the $start'th statement, by $num statements. Return false if
 	# the program couldnt reduce, or couldnt be tested, or the reduced program
 	# otherwise.
-	function do_main_step ($xprogram, $start, $num, $filename)
+	function do_main_step ($xprogram, $start, $num)
 	{
-		// Within this step, we use src/phc, instead of $opt_prefix, because we
-		// always want to test src/phc
 		$this->num_steps++;
 
 		# Reduce
@@ -345,7 +417,7 @@ class Reduce
 		if (substr ($out, 0, 5) != "<?xml")
 			throw new ReduceException ("Cannot convert input file into XML: $out");
 
-		$this->run_on_xml ($out);
+		return $this->run_on_xml ($out);
 	}
 
 	function run_on_xml ($xprogram)
@@ -362,7 +434,7 @@ class Reduce
 
 
 		# confirm that we can find the bug automatically
-		if (!$this->do_main_step ($xprogram, 0, 0, $this->filename))
+		if (!$this->do_main_step ($xprogram, 0, 0))
 			throw new ReduceException ("Program does not appear to have a bug");
 
 
@@ -371,7 +443,7 @@ class Reduce
 			// RESTART:
 			for ($i = 0; $i <= ($N-$k); $i += $k)
 			{
-				$result = $this->do_main_step ($xprogram, $i, $k, $this->filename);
+				$result = $this->do_main_step ($xprogram, $i, $k);
 				if ($result !== false)
 				{
 					$xprogram = $result;
@@ -391,7 +463,10 @@ class Reduce
 		$xprogram = $this->add_comment ($xprogram);
 		$pprogram = $this->convert ($xprogram, 0); // converted to PHP
 
-		$this->write_file ("reduced", $pprogram);
+		$this->dump ("reduced", $pprogram);
+		$this->dump ("xreduced", $xprogram);
+
+		return $pprogram;
 	}
 }
 
