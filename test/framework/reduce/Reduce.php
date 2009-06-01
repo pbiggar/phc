@@ -1,4 +1,12 @@
 <?php
+/*
+ * phc -- the open source PHP compiler
+ * See doc/license/README.license for licensing information
+ *
+ * Automatically reduce test cases using phc and delta-debugging.
+ */
+
+
 
 /*
  * Introduction:
