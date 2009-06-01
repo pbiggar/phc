@@ -42,10 +42,9 @@ class ReduceException extends Exception
 
 class Reduce
 {
-	function __construct ($filename, $file_is_xml = false)
+	function __construct ($filename)
 	{
 		$this->filename = $filename;
-		$this->file_is_xml = $file_is_xml;
 
 		// defaults
 		$this->phc = "phc";
@@ -199,27 +198,6 @@ class Reduce
 	 * Methods used as part of the algorithm
 	 */
 
-
-	function read_initial_file ()
-	{
-		if ($this->file_is_xml)
-		{
-			return file_get_contents ($this->filename);
-		}
-		else
-		{
-			$this->debug (2, "Getting initial XML input");
-
-			$command = "{$this->phc} --dump-xml=$this->pass {$this->filename}";
-			$out = $this->run_safe ($command);
-
-			if ($out[0] != "<")
-				throw new ReduceException ("Cannot convert input file into XML: $out");
-
-			return $out;
-		}
-	}
-
 	function add_comment ($xprogram)
 	{
 		$this->debug (2, "Adding comment");
@@ -362,11 +340,21 @@ class Reduce
 	/* 
 	 * The reduction algorithm itself
 	 */
-
-	function run ()
+	function run_on_php ($program)
 	{
-		$xprogram = $this->read_initial_file ();
+		$this->debug (2, "Getting initial XML input");
 
+		$command = "{$this->phc} --dump-xml=$this->pass";
+		$out = $this->run_safe ($command, $program);
+
+		if (substr ($out, 0, 5) != "<?xml")
+			throw new ReduceException ("Cannot convert input file into XML: $out");
+
+		$this->run_on_xml ($out);
+	}
+
+	function run_on_xml ($xprogram)
+	{
 		$this->num_steps = 0;
 
 		$N = $this->count_statements ($xprogram);

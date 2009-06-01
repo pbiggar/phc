@@ -21,7 +21,7 @@ $opt_help = false;
 $opt_command = "";
 $opt_main_command = "";
 $opt_pass = "AST-to-HIR";
-$opt_file = NULL;
+$opt_xml = NULL;
 $opt_interpret = false;
 $opt_dont_upper = false;
 $opt_upper = false;
@@ -38,7 +38,7 @@ foreach ($opts as $opt)
 		case 'u': $opt_upper = true; break;
 		case 'c': $opt_command .= $opt[1]; break;
 		case 'm': $opt_main_command .= $opt[1]; break;
-		case 'f': $opt_file = $opt[1]; break;
+		case 'x': $opt_xml = $opt[1]; break;
 		case 'i': $opt_interpret = $opt[1]; break;
 		case 'F': $opt_failure = $opt[1]; break;
 		case 'Z': $opt_zero = true; break;
@@ -55,9 +55,6 @@ foreach ($opts as $opt)  // these need to wait until opt_phc_prefix is set
 		case 'D': $opt_command .= "--run=$opt_phc_prefix/plugins/tools/demi_eval.la --r-option=false --dump-xml=$opt_phc_prefix/plugins/tools/demi_eval.la"; break;
 	}
 }
-
-if ($opt_command === "") 
-	$opt_command = "--dump-xml=$opt_pass --no-xml-attrs";
 
 if ($opt_help || count ($arguments) == 0)
 {
@@ -83,7 +80,7 @@ Options:
            -dump-xml=plugins/tools/demi_eval.la --r-option=true".
     -D     The equivalent of "-c--run=plugins/tools/demi_eval.la
            -dump-xml=plugins/tools/demi_eval.la --r-option=false".
-    -f     Use the passed XML file as the the first program, instead of calling
+    -x     Use the passed XML file as the the first program, instead of calling
            phc.
     -i     Mnemonic: Interpret. Instead of compiling the script, dump it at the
            specified pass and interpret it.
@@ -103,8 +100,9 @@ EOL
 	);
 }
 
+
 $filename = $arguments[0];
-$reduce = new Reduce ($filename, $opt_file);
+$reduce = new Reduce ($filename);
 
 $reduce->set_phc ("src/phc");
 $reduce->set_comment ($command_line);
@@ -122,8 +120,26 @@ if ($opt_interpret)
 	$reduce->set_checking_function ("check_against_interpreted");
 
 
+$input = file_get_contents ($filename);
 
-$reduce->run ();
+// TODO: call this on the first instance
+if ($opt_command != "")
+{
+	// TODO use opt_command on the first instance
+	// TODO: use --no-xml-attrs
+	throw new Exception ("TODO");
+}
+
+if ($opt_xml)
+{
+	$reduce->run_on_xml ($input);
+}
+else
+{
+	$reduce->run_on_php ($input);
+}
+
+
 
 /*
  * Callbacks for reduce
