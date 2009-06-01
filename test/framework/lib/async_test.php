@@ -147,45 +147,72 @@ abstract class AsyncTest extends Test
 		parent::__construct ();
 	}
 
+	/*
+	 * This is the best place to handle reduce
+	 */
+
+	function reduce_failure ($reason, $bundle)
+	{
+		die ("TODO: failure");
+	}
+
+	function reduce_success ($reason, $bundle)
+	{
+		die ("TODO: success");
+	}
+
+	function reduce_timeout ($reason, $bundle)
+	{
+		die ("TODO: timeout");
+	}
+
 	function async_failure ($reason, $bundle)
 	{
-		$this->mark_failure (
+		global $opt_reduce;
+		if ($opt_reduce)
+			$this->reduce_failure ($reason, $bundle);
+		else
+		{
+			$this->mark_failure (
 					$bundle->subject, 
 					$bundle->commands,
 					$bundle->outs,
 					$bundle->errs,
 					$bundle->exits,
 					$reason);
+		}
 	}
 
 	function async_timeout ($reason, $bundle)
 	{
-		$this->mark_timeout (
+		global $opt_reduce;
+		if ($opt_reduce)
+			$this->reduce_timeout ($reason, $bundle);
+		else
+		{
+			$this->mark_timeout (
 					$bundle->subject, 
 					$bundle->commands,
 					$bundle->outs,
 					$bundle->errs,
 					$bundle->exits);
+		}
 	}
 
 	function async_success ($bundle)
 	{
-		$this->mark_success (
+		global $opt_reduce;
+		if ($opt_reduce)
+			$this->reduce_success ($reason, $bundle);
+		else
+		{
+			$this->mark_success (
 					$bundle->subject, 
 					$bundle->commands,
 					$bundle->outs,
 					$bundle->errs,
 					$bundle->exits);
-	}
-
-	function async_skipped ($bundle)
-	{
-		$this->mark_skipped (
-					$bundle->subject, 
-					$bundle->commands,
-					$bundle->outs,
-					$bundle->errs,
-					$bundle->exits);
+		}
 	}
 
 	function fail_on_output (&$stream, $bundle)
