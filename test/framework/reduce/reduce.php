@@ -1,142 +1,10 @@
 #!/usr/bin/env php
 <?php
 
-require_once ("lib/header.php");
-
-# This attempts to reduce a test case to a minimal test case. For a
-# program of N statements, it attempts to reduce it by N/2 statements
-# chunks, then by N/4 statement chunks, and so on, while the progrmam
-# still fails. 
-
-# Complexity:
-# TODO Actually, this is wrong, since each term has a larger
-# complexity, because of k.
-#
-# There are N - K possible chunks for chunk size K. The number of
-# iterations is (N-N/2) + (N-N/4) + ... + (N-1), which is log_2(N)
-# steps of size N (the second term converges to N, so we discard it).
-# So the number of iterations is O (N log N).  Each iteration leads to
-# a traversal of each statement, giving worst case complexity of O
-# (N^2 log N).
-
-
-# Approach:
-#	
-# prog = input_file
-# N = num_statements (prog)
-# for each k = N/2; k > 0; k /=2
-#	for each i = 0; i < N -k; i++
-#   new_prog = prog.reduce (i, k)
-#   php_out = php new_prog
-#   phc_out = phc new_prog; ./a.out
-#   php_out = homogenize php_out
-#   phc_out = homogenize phc_out
-#   if (php_out != phc_out)
-#    prog = new_prog
-#    goto start;
+set_include_path ("test/framework/external/" . PATH_SEPARATOR . "test/framework/" . get_include_path () );
 
 require_once ("lib/header.php");
 require_once ("Console/Getopt.php");
-
-$php = "php";
-$phc = "src/phc";
-
-$cg = new Console_Getopt();
-$command_line = join (" ", $cg->readPHPArgv());
-$opt_result = $cg->getopt($cg->readPHPArgv(), "vhc:rdDf:i:UuF:ZP:m:p:");
-if (!is_array ($opt_result))
-	die ($opt_result->message."\n");
-
-list ($opts, $arguments) = $opt_result;
-$opt_verbose = 0;
-$opt_help = false;
-$opt_command = "";
-$opt_main_command = "";
-$opt_pass = "AST-to-HIR";
-$opt_file = NULL;
-$opt_interpret = false;
-$opt_dont_upper = false;
-$opt_upper = false;
-$opt_failure = false;
-$opt_zero = true;
-$opt_phc_prefix = ".";
-foreach ($opts as $opt) 
-{
-	switch ($opt[0])
-	{
-		case 'h': $opt_help = true; break;
-		case 'v': $opt_verbose += 1; break;
-		case 'U': $opt_dont_upper = true; break;
-		case 'u': $opt_upper = true; break;
-		case 'c': $opt_command .= $opt[1]; break;
-		case 'm': $opt_main_command .= $opt[1]; break;
-		case 'f': $opt_file = $opt[1]; break;
-		case 'i': $opt_interpret = $opt[1]; break;
-		case 'F': $opt_failure = $opt[1]; break;
-		case 'Z': $opt_zero = true; break;
-		case 'P': $opt_phc_prefix = $opt[1]; break;
-		case 'p': $opt_pass = $opt[1]; break;
-	}
-}
-foreach ($opts as $opt)  // these need to wait until opt_phc_prefix is set
-{
-	switch ($opt[0])
-	{
-		case 'r': $opt_command .= "--run=$opt_phc_prefix/plugins/tools/debug_zval.la --dump-xml=$opt_phc_prefix/plugins/tools/debug_zval.la"; break;
-		case 'd': $opt_command .= "--run=$opt_phc_prefix/plugins/tools/demi_eval.la --r-option=true --dump-xml=$opt_phc_prefix/plugins/tools/demi_eval.la"; break;
-		case 'D': $opt_command .= "--run=$opt_phc_prefix/plugins/tools/demi_eval.la --r-option=false --dump-xml=$opt_phc_prefix/plugins/tools/demi_eval.la"; break;
-	}
-}
-
-if ($opt_command === "") 
-	$opt_command = "--dump-xml=$opt_pass --no-xml-attrs";
-
-if ($opt_help || count ($arguments) == 0)
-{
-	die (<<<EOL
-reduce - A program to automatically reduce test cases for phc - phpcompiler.org
-
-Usage: reduce [OPTIONS] filename
-
-Options:
-    -h     Print this help message
-    -v     Verbose. Can be set more than once. Set once, prints actions; set 
-           twice, prints commands executed; set thrice, dumps results of 
-           intermediate stages.
-    -p     Mnemoic: pass. Perform the reduction at the specified pass.
-    -P     Since src/phc is broken, another version can be specified to do the
-           conversion steps, with this prefix.
-    -c     Pass as arguments to the first phc. Be sure to include an --dump-xml
-           command, or nothing will happen.
-    -m     Pass as arguments to the main phc. Default ""
-    -r     Mnemonic: refcount. The equivalent of "-c--run
-           plugins/tools/debug_zval.la -dump-xml=plugins/tools/debug_zval.la".
-    -d     The equivalent of "-c--run=plugins/tools/demi_eval.la
-           -dump-xml=plugins/tools/demi_eval.la --r-option=true".
-    -D     The equivalent of "-c--run=plugins/tools/demi_eval.la
-           -dump-xml=plugins/tools/demi_eval.la --r-option=false".
-    -f     Use the passed XML file as the the first program, instead of calling
-           phc.
-    -i     Mnemonic: Interpret. Instead of compiling the script, dump it at the
-           specified pass and interpret it.
-    -U     Don't print 'upper' debug files (not related to -u)
-    -u     Used with -i, 'upper's before dumping (not related to -U)
-    -F     Mnemonic: Failure. Used for plugins which print "Failure" to
-           indicate error. Run phc with the plugin to determine failure.
-    -X     No XML attrs (pass --no-xml-attrs with --dump-xmls)
-    -Z     Require script to return zero when run through interpreter
-
-Sample commands:
-    reduce -v test/subjects/codegen/0001.php
-    reduce "-c--run=plugins/tools/debug_zval.la -dump-xml=plugins/tools/debug_zval.la" test/subjects/codegen/0001.php
-    reduce -v 0001.uhir.php
-    reduce -F plugins/tests/limit_assignments.la test/subjects/codegen/bench_simple.php
-
-EOL
-	);
-}
-
-$filename = $arguments[0];
 
 # Passing around code:
 #   There is a problem that some code cannot be parsed (ie gotos and labels).
@@ -145,18 +13,6 @@ $filename = $arguments[0];
 
 
 $num_steps = 0;
-
-if ($opt_file)
-{
-	$xprogram = file_get_contents ($opt_file);
-}
-else
-{
-	debug (2, "Getting initial XML input");
-	list ($xprogram, $err, $exit) = run ("$opt_phc_prefix/src/phc $opt_command $filename");
-	if ($err || $exit)
-		die ("Program failed. Try -v -v for more info\n");
-}
 
 $N = count_statements ($xprogram);
 $original = $N;

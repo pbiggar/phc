@@ -123,6 +123,8 @@ function phc_error_handler ($errno, $errstr, $errfile, $errline, $errcontext)
 	global $strict;
 	if (error_reporting() == 0) return; // means the @ suppression was used
 	if ($errno === E_STRICT && $strict == false) return;
+	if ($errno === E_WARNING && $strict == false) return;
+	if ($errno === E_USER_WARNING && $strict == false) return;
 
 	$red = red_string ();
 	$reset = reset_string();
