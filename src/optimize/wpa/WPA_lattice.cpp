@@ -132,7 +132,29 @@ WPA_lattice::pull_pred (Context cx, Context pred)
 void
 WPA_lattice::pull_finish (Context cx)
 {
+	save_outs (cx);
 	init_outs (cx);
+}
+
+/*
+ * During a backward_bind, we need to merge back results from the callee. We
+ * must merge these with the previous results (to preserve monotonicity).
+ * However, OUTS is populated with results from INS. If we merge the
+ * backward_bind results straight into OUTS, we lose precision by merging it
+ * with the results from INS. But we can't just wipe OUTS or we'll lose the old
+ * results and monotoncity. So we save the results before calling init_outs,
+ * then replace them if we need to backward-bind
+ */
+void
+WPA_lattice::save_outs (Context cx)
+{
+	saved[cx] = outs[cx];
+}
+
+void
+WPA_lattice::restore_outs (Context cx)
+{
+	outs[cx] = saved[cx];
 }
 
 void
@@ -141,7 +163,6 @@ WPA_lattice::aggregate_results (Context cx)
 	// Set solution_changed
 	changed_flags[cx] = !outs[cx].equals (&clones[cx]);
 
-	// We probably dont need a full set of clones.
 	clones[cx].clear();
 	clones[cx].merge (&outs[cx]);
 }
@@ -150,7 +171,8 @@ WPA_lattice::aggregate_results (Context cx)
 void
 WPA_lattice::forward_bind (Context caller, Context entry)
 {
-	// TODO: do we really want to clear? does that make it non-monotonic?
+	// We dont clear anything, since we want the results to be monotonic in the
+	// presence of recursion.
 
 	ins[entry].merge(&ins[caller]);
 
@@ -160,9 +182,8 @@ WPA_lattice::forward_bind (Context caller, Context entry)
 void
 WPA_lattice::backward_bind (Context caller, Context exit)
 {
-	// pull_results inits outs, so we need to clear it, or we'll be merging
-	// with old results.
-	outs[caller].clear ();
+	// See comment for save_outs.
+	restore_outs (caller);
 	outs[caller].merge(&outs[exit]);
 }
 

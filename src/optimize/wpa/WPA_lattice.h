@@ -48,10 +48,14 @@ public:
 
 private:
 	void init_outs (Context cx);
+	void save_outs (Context cx);
+	void restore_outs (Context cx);
+	CX_lattices saved;
+	CX_lattices clones;
+
 
 protected:
 	CX_lattices ins;
-	CX_lattices clones;
 	CX_lattices outs;
 
 	friend class Whole_program;
