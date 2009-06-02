@@ -94,6 +94,8 @@ public:
 
 	Storage_node_list* get_storage_nodes (Context cx);
 
+	Storage_node* get_owner (Context cx, Index_node* index);
+
 };
 
 /* A Path is a way of representing some dereferencing. See Aliasing.cpp. */

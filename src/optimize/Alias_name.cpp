@@ -47,23 +47,13 @@ Alias_name::operator!= (const Alias_name& other) const
 bool
 Alias_name::operator< (const Alias_name& other) const
 {
-	// If there is an SSA number, use that.
-	if (ssa_version)
-	{
-		assert (other.ssa_version);
-		return ssa_version < other.ssa_version;
-	}
-
-	if (prefix == other.prefix)
-		return name < other.name;
-
-	return prefix < other.prefix;
+	return this->str() < other.str();
 }
 
-	// In some cases (at least lattice_map, maybe elsewhere), its hard to put
-	// use an Alias_name instead of a string.
+// In some cases (at least lattice_map, maybe elsewhere), its hard to put use
+// an Alias_name instead of a string.
 string
-Alias_name::str ()
+Alias_name::str () const
 {
 	stringstream ss;
 

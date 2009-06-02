@@ -82,7 +82,7 @@ Points_to::is_abstract (Storage_node* st)
 bool
 Points_to::is_abstract_field (Index_node* index)
 {
-	return is_abstract (index->get_owner ());
+	return is_abstract (get_owner (index));
 }
 
 bool
@@ -232,6 +232,36 @@ Points_to::get_storage (Index_node* index)
 	Storage_node_list* storage = fields.get_sources (index);
 	assert (storage->size () == 1);
 	return storage->front ();
+}
+
+Storage_node*
+Points_to::get_owner (Index_node* index)
+{
+	// Simplest case: the first and node exist
+	Storage_node_list* storages = fields.get_sources (index);
+	if (storages->size () == 1)
+		return storages->front ();
+
+
+	/*
+	 * The rest are HACKs
+	 */
+
+
+	// With no colons in the same, its a storage node
+	if (index->storage.find (':') == string::npos)
+		return SN (index->storage);
+
+
+	// If it ends in ::ABV, its a value node
+	if (index->storage.find ("::ABV") == index->storage.size () - 5)
+	{
+		string new_name = index->storage.substr (0, index->storage.size () - 5);
+		return new Value_node (new_name);
+	}
+
+
+	phc_TODO ();
 }
 
 void
@@ -831,9 +861,3 @@ Value_node::for_index_node ()
 	return this->name().str ();
 }
 
-
-Storage_node*
-Index_node::get_owner ()
-{
-	return SN (this->storage);
-}

@@ -46,7 +46,7 @@ public:
 
 	// In some cases (at least lattice_map, maybe elsewhere), its hard to use an
 	// Alias_name instead of a string.
-	std::string str ();
+	std::string str () const;
 
 	void set_version (int version);
 	void drop_ssa_version ();

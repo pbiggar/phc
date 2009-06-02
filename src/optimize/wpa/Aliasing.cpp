@@ -291,6 +291,13 @@ Aliasing::get_storage_nodes (Context cx)
 }
 
 
+Storage_node*
+Aliasing::get_owner (Context cx, Index_node* index)
+{
+	return outs[cx]->get_owner (index);
+}
+
+
 /*
  * Path is used to represent the MIR constructs in an abstract way that
  * models all the MIR constructs. A name is a limited combination of Index_

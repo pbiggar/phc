@@ -76,7 +76,6 @@ public:
 	virtual Alias_name name ();
 	virtual String* get_graphviz_label ();
 	virtual Index_node* convert_context_name ();
-	virtual Storage_node* get_owner ();
 };
 
 
@@ -512,6 +511,11 @@ public:
 	// Remove the edge from the storage-node to the index-node. Also removes
 	// outgoing points-to edges, and reference edges.
 	void remove_field (Index_node* target);
+
+	// Try really really hard to find the "correct" owner of the index_node,
+	// even if it is not in the graph, or the index_node is impossible
+	// (ABSVAL->index for example).
+	Storage_node* get_owner (Index_node* index);
 
 
 	/*

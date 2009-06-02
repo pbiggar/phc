@@ -1396,7 +1396,7 @@ Whole_program::read_from_abstract_value (Context cx, Index_node* rhs)
 	// is both an absval and another storage node, then the other storage nodes
 	// will be handled in a different call, and we need concern ourselves only
 	// with the absval here).
-	Storage_node* st = rhs->get_owner ();
+	Storage_node* st = aliasing->get_owner (cx, rhs);
 
 	// Get the type of the value
 	Types types = type_inf->get_types (cx, st->name());
@@ -1467,7 +1467,7 @@ Whole_program::read_from_abstract_value (Context cx, Index_node* rhs)
 Index_node*
 Whole_program::check_owner_type (Context cx, Index_node* index)
 {
-	Types types = type_inf->get_types (cx, index->get_owner ()->name());
+	Types types = type_inf->get_types (cx, aliasing->get_owner (cx, index)->name());
 	Types scalar_types = Type_inference::get_scalar_types (types);
 	if (scalar_types.size ())
 	{
