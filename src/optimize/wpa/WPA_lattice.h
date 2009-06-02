@@ -48,9 +48,7 @@ public:
 
 private:
 	void init_outs (Context cx);
-	void save_outs (Context cx);
-	void restore_outs (Context cx);
-	CX_lattices saved;
+	CX_lattices binder;
 	CX_lattices clones;
 
 

@@ -31,6 +31,7 @@ class Aliasing : public WPA
 	// Record 1 per program-point.
 	Map<Context, Points_to*> ins;
 	Map<Context, Points_to*> outs;
+	Map<Context, Points_to*> binder;
 
 public:
 	Aliasing (Whole_program*);
@@ -95,7 +96,6 @@ public:
 	Storage_node_list* get_storage_nodes (Context cx);
 
 	Storage_node* get_owner (Context cx, Index_node* index);
-
 };
 
 /* A Path is a way of representing some dereferencing. See Aliasing.cpp. */

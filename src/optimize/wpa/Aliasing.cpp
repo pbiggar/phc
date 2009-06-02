@@ -30,6 +30,16 @@ Aliasing::Aliasing (Whole_program* wp)
 {
 }
 
+Points_to*
+merge (Points_to* ptg1, Points_to* ptg2)
+{
+	assert (ptg2 != NULL);
+	if (ptg1 == NULL)
+		return ptg2->clone ();
+	else
+		return ptg1->merge (ptg2);
+}
+
 
 bool
 Aliasing::equals (WPA* wpa)
@@ -72,46 +82,46 @@ Aliasing::forward_bind (Context caller, Context entry)
 	ptg->open_scope (entry.symtable_node ());
 
 	// We need INS to read the current situation, but it shouldnt get modified.
-	ins[entry] = ptg->clone ();
-	outs[entry] = ptg;
+	ins[entry] = merge (ins[entry], ptg);
+	outs[entry] = ins[entry]->clone ();
 }
 
 void
 Aliasing::backward_bind (Context caller, Context exit)
 {
 	Points_to* ptg = outs[exit]->clone ();
-
-	outs[caller] = ptg;
-
 	ptg->close_scope (exit.symtable_node ());
+	ptg->consistency_check (exit, wp);
 
-	if (debugging_enabled)
-		dump (exit, "After whole program");
+	// See comment in WPA_lattice
+	binder[caller] = merge (binder[caller], ptg);
+
+	outs[caller] = binder[caller]->clone ();
+	outs[caller]->consistency_check (exit, wp);
 }
 
 void
 Aliasing::pull_init (Context cx)
 {
-	ins[cx] = NULL;
 }
 
 void
 Aliasing::pull_first_pred (Context cx, Context pred)
 {
-	ins[cx] = outs[pred]->clone ();
+	ins[cx] = merge (ins[cx], outs[pred]);
 }
 
 void
 Aliasing::pull_pred (Context cx, Context pred)
 {
-	ins[cx] = ins[cx]->merge (outs[pred]);
+	ins[cx] = merge (ins[cx], outs[pred]);
 }
 
 void
 Aliasing::pull_possible_null (Context cx, Index_node* node)
 {
 	// TODO: I'm unclear whether we need to update node's references...
-	// Hmm, I think you almost certainty do. Why? Well suppose graphes G1 and G2
+	// Hmm, I think you almost certainty do. Why? Well suppose graphs G1 and G2
 	// are being merged. X does not exist in G1, only in G2, in which it is
 	// referenced to Y. Y is also in G1, value 5. X and Y in G2 have the value
 	// 5. When we merge that, the edges between X and Y becomes a POSSIBLE edge,
@@ -129,6 +139,8 @@ Aliasing::pull_finish (Context cx)
 	assert (ins[cx]);
 
 	ins[cx]->consistency_check (cx, wp);
+
+	// No need to merge here, its handled in INS.
 	outs[cx] = ins[cx]->clone ();
 }
 

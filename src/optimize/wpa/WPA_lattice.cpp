@@ -132,30 +132,9 @@ WPA_lattice::pull_pred (Context cx, Context pred)
 void
 WPA_lattice::pull_finish (Context cx)
 {
-	save_outs (cx);
 	init_outs (cx);
 }
 
-/*
- * During a backward_bind, we need to merge back results from the callee. We
- * must merge these with the previous results (to preserve monotonicity).
- * However, OUTS is populated with results from INS. If we merge the
- * backward_bind results straight into OUTS, we lose precision by merging it
- * with the results from INS. But we can't just wipe OUTS or we'll lose the old
- * results and monotoncity. So we save the results before calling init_outs,
- * then replace them if we need to backward-bind
- */
-void
-WPA_lattice::save_outs (Context cx)
-{
-	saved[cx] = outs[cx];
-}
-
-void
-WPA_lattice::restore_outs (Context cx)
-{
-	outs[cx] = saved[cx];
-}
 
 void
 WPA_lattice::aggregate_results (Context cx)
@@ -182,9 +161,16 @@ WPA_lattice::forward_bind (Context caller, Context entry)
 void
 WPA_lattice::backward_bind (Context caller, Context exit)
 {
-	// See comment for save_outs.
-	restore_outs (caller);
-	outs[caller].merge(&outs[exit]);
+	/*
+	 * During a backward_bind, we need to merge back results from the callee. We
+	 * must merge these with the previous results (to preserve monotonicity).
+	 * However, OUTS is populated with results from INS. If we merge the
+	 * backward_bind results straight into OUTS, we lose precision by merging it
+	 * with the results from INS. But we can't just wipe OUTS or we'll lose the
+	 * old results and monotoncity. This is a nice work-around.
+	 */
+	binder[caller].merge(&outs[exit]);
+	outs[caller] = binder[caller];
 }
 
 void
