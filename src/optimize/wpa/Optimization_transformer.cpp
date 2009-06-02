@@ -180,7 +180,10 @@ Optimization_transformer::visit_assign_next (Statement_block* bb, MIR::Assign_ne
 void
 Optimization_transformer::visit_return (Statement_block* bb, MIR::Return* in)
 {
-	phc_TODO ();
+	if (bb->cfg->method->signature->return_by_ref)
+		return;
+
+	in->rvalue = get_literal (bb, in->rvalue);
 }
 
 void
