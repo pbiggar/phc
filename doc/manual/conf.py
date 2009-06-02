@@ -98,7 +98,7 @@ rst_epilog = """
 .. role:: red-latex(raw)
    :format: latex
 
-.. |phc| replace:: :red-html:`<font color="#882222">phc</font>`:red-latex:`\\textcolor[rgb]{0.53,0.133,0.133}{phc}`
+.. |phc| replace:: :red-html:`<strong><font color="#882222">phc</font></strong>`:red-latex:`{\\textbf{\\textcolor[rgb]{0.53,0.133,0.133}{phc}}}`
 
 """
 
