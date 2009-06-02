@@ -1371,6 +1371,8 @@ Whole_program::assign_by_copy (Context cx, Path* plhs, Path* prhs)
 	//			- foreach alias A of PLHS, point from A to V.
 
 
+	// Read this before iterating through LHS, as the results might change.
+	Index_node_list* rhss = get_named_indices (cx, prhs, true);
 	foreach (Reference* lhs_ref, *get_lhs_references (cx, plhs))
 	{
 		foreach_wpa (this)
@@ -1380,7 +1382,7 @@ Whole_program::assign_by_copy (Context cx, Path* plhs, Path* prhs)
 		// We keep the graph in transitive-closure form, so each RHS will have
 		// all the values of its references already. Therefore, there is no need
 		// for a call to get_lhs_references ().
-		foreach (Index_node* rhs, *get_named_indices (cx, prhs, true))
+		foreach (Index_node* rhs, *rhss)
 		{
 			copy_value (cx, lhs_ref->index, rhs);
 		}
@@ -1791,9 +1793,15 @@ Whole_program::get_named_indices (Context cx, Path* path, bool is_readonly)
 		{
 			if (*index_value == UNKNOWN)
 			{
-				// Include all possible nodes
-				foreach (Index_node* field, *aliasing->get_fields (cx, storage))
-					result->push_back (field);
+				// Reading an abstract value: set it up for whole_program.
+				if (isa<Value_node> (storage))
+					result->push_back (new Index_node (storage->for_index_node (), *index_value));
+				else
+				{
+					// Include all possible nodes
+					foreach (Index_node* field, *aliasing->get_fields (cx, storage))
+						result->push_back (field);
+				}
 			}
 			else
 				result->push_back (new Index_node (storage->for_index_node (), *index_value));
