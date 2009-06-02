@@ -94,6 +94,7 @@ $tests[] = new CompareBackwards ("hir",			"dump",	"cb_AST-to-HIR");
 $tests[] = new CompareBackwards ("mir",			"convert-uppered --dump",	"cb_hir");
 $tests[] = new Pass_dump (			"HIR-to-MIR",	"dump",	"cb_hir");
 $tests[] = new Pass_dump (			"mir",			"dump",	"cb_mir");
+require_once ("basic_optimize_test.php");
 $tests[] = new CompareWithPHP ("InterpretOptimized", "-O1 --dump=generate-c --convert-uppered", "cb_mir");
 $tests[] = new CompareWithPHP ("InterpretCanonicalUnparsed", "--run plugins/tests/canonical_unparser.la", "BasicParseTest"); // not necessarily dependent of InterpretUnparsed
 $tests[] = new CompareWithPHP ("InterpretIncludes", "--include --dump=incl1 --no-warnings", "cb_sua");
