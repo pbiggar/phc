@@ -264,7 +264,7 @@ Internal_method_info::default_param (int param_index)
 int
 Internal_method_info::formal_param_count ()
 {
-	phc_TODO ();
+	return 0;
 }
 
 
