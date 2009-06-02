@@ -7,8 +7,10 @@ There are a number of unusual coding features, which developers working on
 Debugging
 ---------
 
+.. |gdb| replace:: :program:`gdb`
+
 |phc| uses :program:`libtool`, which can make debugging tricky
-[#libtool_link]_. When you want to call :program:`gdb` on |phc|, you must use
+[#libtool_link]_. When you want to call |gdb| on |phc|, you must use
 :program:`libtool`. Instead of
 
 .. sourcecode:: bash
@@ -31,6 +33,21 @@ If you are working on, or debugging, compilation with |phc|, we have created a
 `convenience wrapper
 <http://code.google.com/p/phc/source/browse/trunk/misc/comp>`_ wrapper to
 simplfiy this.
+
+
+
+In |gdb|, tab-completion (for example for breakpoints) will not be
+available immediately. This is because |phc| is structured as a library, which
+is only loaded once the program starts. Tab-completion will begin to work once
+|phc|'s execution starts.
+
+We have found that |gdb| can be tempermental when working with |phc|. If you
+rebuild |phc| while working in |gdb|, you will need to restart |gdb|. |gdb|
+also has problems reading C++ values containing |phc|'s objects. This can
+sometimes be worked around by finding the same value in a different context
+(perhaps after it has been casted, or passed to another function).
+Occasionally, dereferencing a pointer using `->` can fail --- try using `.`
+instead.
 
 
 phc idoms 
