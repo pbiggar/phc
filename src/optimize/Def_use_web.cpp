@@ -359,23 +359,19 @@ Def_use_web::remove_phi_node (Basic_block* bb, Alias_name phi_lhs)
 void
 Def_use_web::update_phi_node (Basic_block* bb, Alias_name phi_lhs, Alias_name new_phi_lhs)
 {
-	//phc_TODO ();
-
-	//Uncommented this section -Jimmy, Jun 2, 1:55 pm
-
 	// TODO: too complicated for the mechanical conversion we're doing now. Its easier
 	// If a phi_lhs changes into SSA form, its indexing will change. So we must
 	// re-insert its args with the new index.
 
-	assert (!phi_lhs.ssa_version);							
-	assert (new_phi_lhs.ssa_version);
-	assert (phi_lhs.name.compare(new_phi_lhs.name)==0);
+	assert (phi_lhs.ssa_version==0);							
+	assert (new_phi_lhs.ssa_version!=0);
+	assert (phi_lhs.name==new_phi_lhs.name);
 	add_phi_node (bb, new_phi_lhs);
 
 	foreach (Edge* pred, *bb->get_predecessor_edges ())
 	{
 		// Not all nodes have their phi argument added yet
-		if (phi_rhss.has (pred->edge))						//****Not sure if that's right -Jimmy
+		if (phi_rhss[pred->edge].has (phi_lhs)
 			set_phi_arg_for_edge (
 					pred,
 					new_phi_lhs,
@@ -383,8 +379,6 @@ Def_use_web::update_phi_node (Basic_block* bb, Alias_name phi_lhs, Alias_name ne
 	}
 
 	remove_phi_node (bb,phi_lhs);
-	//End uncommenting
-	
 }
 
 
