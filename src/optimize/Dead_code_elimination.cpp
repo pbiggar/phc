@@ -343,9 +343,9 @@ DCE::sweep_pass ()
 		// Empty BB.
 		foreach (Alias_name phi_lhs, *bb->get_phi_lhss ())
 		{
-			phc_TODO ();
-			//if (!marks[new SSA_def (bb, &phi_lhs,SSA_PHI)])
-			//	bb->remove_phi_node (phi_lhs);
+			//phc_TODO ();
+			if (!marks[new SSA_def (bb, &phi_lhs,SSA_PHI)])
+				bb->remove_phi_node (phi_lhs);
 		}
 	}
 
