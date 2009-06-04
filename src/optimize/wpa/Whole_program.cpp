@@ -1404,7 +1404,6 @@ Whole_program::read_from_abstract_value (Context cx, Index_node* rhs)
 	 */
 	if (scalars.size() == 1)
 	{
-		cdebug << scalars.front ();
 		if (scalars.has ("string"))
 		{
 			Literal* array = ccp->get_lit (cx, st->name ());
