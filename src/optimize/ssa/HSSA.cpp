@@ -432,8 +432,15 @@ HSSA::rename_vars (Basic_block* bb)
 	//
 	DEBUG ("renaming vars in " << *bb->get_graphviz_label ());
 	debug_var_stacks ();
-
-	// TODO: phis
+	
+	//TODO: Phis
+	
+	foreach (Alias_name phi_lhs, *bb->get_phi_lhss())
+	{
+		Alias_name clone = phi_lhs;
+		create_new_ssa_name (&clone);
+		bb->update_phi_node (phi_lhs, clone);
+	}
 	
 	foreach (Alias_name* use, *bb->cfg->duw->get_uses (bb))
 		use->set_version (read_var_stack (use));
@@ -443,8 +450,7 @@ HSSA::rename_vars (Basic_block* bb)
 
 	foreach (Alias_name* may_def, *bb->cfg->duw->get_may_defs (bb))
 		create_new_ssa_name (may_def);
-
-
+		
 
 	// Phis, Chis and Mus use indexing, and when we put them in SSA form,
 	// their indexing changes. As a result, we need to remove the old one, and
@@ -454,14 +460,14 @@ HSSA::rename_vars (Basic_block* bb)
 	foreach (Alias_name phi_lhs, *bb->get_phi_lhss())
 	{
 		Alias_name clone = phi_lhs;
-		create_new_ssa_name (clone);
+		create_new_ssa_name (&clone);
 		bb->update_phi_node (phi_lhs, clone);
 	}
 
 
 	// 3) Rename the statement's uses
-	foreach (Alias_name use, *bb->get_uses_for_renaming ())
-		use.set_version (read_var_stack (use));
+	foreach (Alias_name* use, *bb->cfg->duw->get_uses (bb))
+		use->set_version (read_var_stack (use));
 
 	// 4) Mus
 	// Mus are indexed on their var_name
@@ -473,8 +479,9 @@ HSSA::rename_vars (Basic_block* bb)
 	}
 
 
+
 	// 5) Create new names for defs
-	foreach (Alias_name def, *bb->get_defs_for_renaming ())
+	foreach (Alias_name* def, *bb->cfg->duw->get_defs (bb))
 		create_new_ssa_name (def);
 
 	// 6) Rename the chi's uses
