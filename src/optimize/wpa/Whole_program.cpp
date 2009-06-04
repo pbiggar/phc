@@ -814,29 +814,11 @@ Whole_program::get_possible_nulls (List<Context>* cxs)
 		}
 	}
 
-
-	// Now get the references
-	Index_node_list* withrefs = new Index_node_list;
-	foreach (Index_node* orig, *norefs)
-	{
-		withrefs->push_back (orig);
-
-		// Get anything it references in any other graph
-		foreach (Context cx, *cxs)
-		{
-			foreach (Reference* ref, *aliasing->get_references (cx, orig, PTG_ALL))
-			{
-				Index_node* ref_index = ref->index;
-				if (!existing.has (ref_index->name()))
-				{
-					existing.insert (ref_index->name ());
-					withrefs->push_back (ref_index);
-				}
-			}
-		}
-	}
-
-	return withrefs;
+	// So far we've got nodes which exist in only one graph. But what about
+	// their references. Well, if the references only exist in one graph,
+	// they'll get NULL too. Otherwise, they have their own value in the other
+	// graph, which means NULL isnt possible for them on any path.
+	return norefs;
 }
 
 
