@@ -371,7 +371,7 @@ Def_use_web::update_phi_node (Basic_block* bb, Alias_name phi_lhs, Alias_name ne
 	foreach (Edge* pred, *bb->get_predecessor_edges ())
 	{
 		// Not all nodes have their phi argument added yet
-		if (phi_rhss[pred->edge].has (phi_lhs)
+		if (phi_rhss[pred->edge].has (phi_lhs))
 			set_phi_arg_for_edge (
 					pred,
 					new_phi_lhs,
