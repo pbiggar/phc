@@ -13,7 +13,7 @@ class CompileOptimized extends CompiledVsInterpreted
 
 	function get_dependent_test_names ()
 	{
-		return array ("CompiledVsInterpreted");
+		return array ("CompiledVsInterpreted", "InterpretOptimized");
 	}
 
 	function get_phc_command ($subject, $exe_name)
