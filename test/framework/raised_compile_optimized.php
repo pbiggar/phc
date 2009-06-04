@@ -22,7 +22,7 @@ class RaisedCompileOptimized extends CompiledVsInterpreted
 	function get_phc_command ($subject, $exe_name)
 	{
 		global $phc;
-		return "$phc -c --run=plugins/tests/raise_globals.la -O1 $subject -o $exe_name";
+		return get_phc_command_line ($subject) . "-c --run=plugins/tests/raise_globals.la -O1 -o $exe_name";
 	}
 
 	function get_php_command ($subject)
