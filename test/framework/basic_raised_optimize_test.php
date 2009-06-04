@@ -19,7 +19,7 @@ class BasicRaisedOptimizeTest extends AsyncTest
 	{
 		$bundle = new AsyncBundle ($this, $subject);
 
-		$bundle->commands[0] = get_phc_command_line ($subject)." --run=plugins/tests/raise_globals.la -O1 -o $exe_name";
+		$bundle->commands[0] = get_phc_command_line ($subject)." --run=plugins/tests/raise_globals.la -O1";
 		$bundle->final = "finish";
 
 		$bundle->start ();
@@ -44,6 +44,6 @@ class BasicRaisedOptimizeTest extends AsyncTest
 		return array ("cb_mir");
 	}
 }
-array_push($tests, new BasicOptimizeTest());
+array_push($tests, new BasicRaisedOptimizeTest());
 
 ?>
