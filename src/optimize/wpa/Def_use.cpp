@@ -7,6 +7,119 @@
  *
  * Gather the def-use information while the alias analysis is running.
  *
+ *
+ * The def-use information is just trying to provide a list of _named_ which are defined or used in a block. A name represents either a value or a container. This is similar to the way in C that there can be an assignment to p or *p.
+ *		- a value
+ *		- a container
+ *
+ *		I think we only need to model the value. Alias analysis will make sure all values are written to.
+ *
+ *
+ *
+ *	Is the interface good enough? We have:
+ *
+ * forward_bind, backward_bind
+ * create_reference (index,index,cert)
+ * assign_value (index,storage)
+ * set_storage (storage, type)
+ * set_scalar (storage, value)
+ * kill_value (index)
+ * kill_reference (index)
+ * record_use (index, cert)
+ * pull_*
+ *
+ * What are we trying to model with Def-use? Just DCE!!
+ *		- So how can we tell if a statement needs to be killed?
+ *			- It is a return statement
+ *			- It doesnt have any useful defs
+ *			- Its is not a function or new statement (work on them in a moment)
+ *
+ *
+ *	- How can we tell if a whole function is useful?
+ *		- Get all of its uses:
+ *			- some of them will be for external definitions:
+ *				- ie globals, parameters, returned values
+ *
+ *
+ *
+ * Simple example:
+ *		$x = $y;
+ *
+ *	Creates a def of $x and may/must-defs of $x's references.
+ *
+ * What about:
+ *		$x[$i] = $y;
+ *
+ *	Use of $x, $i and $y
+ *	
+ *	Def of some_name->*
+ *
+ *	Maybe keep track of the storage node which is updated? If its ST, who cares, else if it escapes, we care.
+ *	
+ *	Whats the relationship between a variable and a name? There doesn't have to be one...
+ *
+ *	We want to talk about values! If an index node changes value, the value node containing it changes.
+ *	So it is storage nodes that change!!!
+ *
+ *	But if we change the value of $x, we want to note changes for ST->x, not ST.
+ *
+ *	What about arrays:
+ *		if we def (ST->x)->(ST->y) (call it MYARR::y) then uses of MYARR::y need to be aware.
+ *
+ *
+ *	So the two important things are the index and the Storage node containing the index.
+ *
+ *
+ *	Lets think about the storage, do we want UD/DU chains? Suppose we use ST->x, do we need to record the change of ST? No.
+ *	Therefore just the index nodes.
+ *
+ *	What about the mutliple layers? The var itself and its value? No. Only care about the value.
+ *
+ *	Reference definitions?
+ *		- Yes, because that established the relationship between x and y.
+ *		- When can we kill it?
+ *			- when its not useful
+ *				- its useful if: given $x =& $y
+ *					- the is an implicit def to $y, and $y is later used.
+ *						- the value def to $x and implicit one to $y are both already modelled. Nothing special.
+ *
+ *					- $y (or any of its references) is later defed (but only if $x is used)
+ *						- it will be noted that there is a reference def of $x and $y at its def point. We need a "reference use" to model this.
+ *							- which is exactly what the two layers were about
+ *
+ *					- $x is later defed (but only if $y or its refs are used)
+ *						- 
+ *
+ *					- $x is later used
+ *						- the use of $x is obvious. the use of $x-ref is important, since this is where $x-ref is created.
+ *		
+ *
+ * So, we keep track of index nodes at 2 levels:
+ *		- ref level:
+ *			- a def uses the ref
+ *			- a ref-def ref-defs the ref-def
+ *			- a ref-def ref-uses the ref-use
+ *		- value level
+ *			- a def defs the value
+ *			- a use uses the value
+ *
+ *		OK, so given
+ *			$y =& $z;
+ *			$x =& $y;
+ *			$z = 5;
+ *
+ *			y = z
+ *			*y = *z
+ *			------
+ *			x = y
+ *			*x = *y
+ *			------
+ *			use z, use y, use x
+ *			def *z
+ *			def *y
+ *			def *x
+ *
+ *
  */
 
 #include "Def_use.h"
