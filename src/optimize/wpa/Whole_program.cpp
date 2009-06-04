@@ -937,7 +937,6 @@ Whole_program::init_superglobals (Context cx)
 
 	// argv
 	assign_empty_array (cx, P (MSN, "argv"), "argv");
-	// TODO: this doesnt model it correctly, it shouldn't override the NULL.
 	assign_typed (cx, P ("argv", UNKNOWN), Types ("string"));
 	assign_typed (cx,  P ("argv", "0"), Types ("string"));
 
@@ -1004,7 +1003,7 @@ Whole_program::forward_bind (Method_info* info, Context entry_cx, MIR::Actual_pa
 	}
 
 	// Assign other parameters.
-	if (i <= info->formal_param_count ())
+	if (i < info->formal_param_count ())
 	{
 		if (info->default_param (i))
 			phc_TODO ();
@@ -1017,9 +1016,6 @@ Whole_program::forward_bind (Method_info* info, Context entry_cx, MIR::Actual_pa
 		i++;
 	}
 
-
-
-	dump (entry_cx, "Before forward aggregation");
 
 	foreach_wpa (this)
 		wpa->aggregate_results (entry_cx);
