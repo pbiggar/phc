@@ -162,12 +162,14 @@ void
 WPA_lattice::backward_bind (Context caller, Context exit)
 {
 	/*
-	 * During a backward_bind, we need to merge back results from the callee. We
-	 * must merge these with the previous results (to preserve monotonicity).
+	 * During a backward_bind, we need to merge back results from the callee.
+	 * Although the results will already be merged with any previous results,
+	 * there may be multiple receivers, so we must merge these with the previous
+	 * results.
 	 * However, OUTS is populated with results from INS. If we merge the
 	 * backward_bind results straight into OUTS, we lose precision by merging it
 	 * with the results from INS. But we can't just wipe OUTS or we'll lose the
-	 * old results and monotoncity. This is a nice work-around.
+	 * old results. This is a nice work-around.
 	 */
 	binder[caller].merge(&outs[exit]);
 	outs[caller] = binder[caller];
@@ -231,7 +233,7 @@ WPA_lattice::merge_contexts ()
 void
 WPA_lattice::init_outs (Context cx)
 {
-	outs[cx].merge (&ins[cx]);
+	outs[cx] = ins[cx];
 }
 
 Lattice_cell*

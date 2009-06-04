@@ -82,6 +82,7 @@ Aliasing::forward_bind (Context caller, Context entry)
 	ptg->open_scope (entry.symtable_node ());
 
 	// We need INS to read the current situation, but it shouldnt get modified.
+	// We merge to keep monotonicity in the face of recursion.
 	ins[entry] = merge (ins[entry], ptg);
 	outs[entry] = ins[entry]->clone ();
 }
@@ -93,7 +94,8 @@ Aliasing::backward_bind (Context caller, Context exit)
 	ptg->close_scope (exit.symtable_node ());
 	ptg->consistency_check (exit, wp);
 
-	// See comment in WPA_lattice
+	// See comment in WPA_lattice.
+	// This needs to merge because the might be different receivers.
 	binder[caller] = merge (binder[caller], ptg);
 
 	outs[caller] = binder[caller]->clone ();
@@ -103,6 +105,8 @@ Aliasing::backward_bind (Context caller, Context exit)
 void
 Aliasing::pull_init (Context cx)
 {
+	// Clear the INs, since we can completely recalculate it from the predecessors.
+	ins[cx] = NULL;
 }
 
 void
