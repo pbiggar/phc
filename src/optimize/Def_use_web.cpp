@@ -363,9 +363,9 @@ Def_use_web::update_phi_node (Basic_block* bb, Alias_name phi_lhs, Alias_name ne
 	// If a phi_lhs changes into SSA form, its indexing will change. So we must
 	// re-insert its args with the new index.
 
-	assert (phi_lhs.ssa_version==0);							
-	assert (new_phi_lhs.ssa_version!=0);
-	assert (phi_lhs.name==new_phi_lhs.name);
+	assert (phi_lhs.ssa_version == 0);							
+	assert (new_phi_lhs.ssa_version != 0);
+	assert (phi_lhs.name == new_phi_lhs.name);
 	add_phi_node (bb, new_phi_lhs);
 
 	foreach (Edge* pred, *bb->get_predecessor_edges ())

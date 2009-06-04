@@ -271,11 +271,11 @@ HSSA::convert_to_hssa_form ()
 			defs->push_back_all (cfg->duw->get_block_defs (bb));
 			// TODO: add phis back in
 			// phis add a def thats not in the DUW
-			Var_set* phidefs = bb->get_phi_lhss ();	//Alias_name_list wouldn't work....
+			Var_set* phidefs = bb->get_phi_lhss ();	
 			
 			foreach (Alias_name name, *phidefs)
 			{
-				defs->push_back(new SSA_def(bb, &name, SSA_PHI)); 
+				defs->push_back (new SSA_def (bb, &name, SSA_PHI)); 
 			}
 
 			foreach (SSA_def* def, *defs)
