@@ -125,20 +125,28 @@ Def_use::equals (WPA* wpa)
 	return this->maps.equals (&other->maps);
 }
 
+string debug_name (reftype rt, deftype dt)
+{
+	string result = (rt == REF) ? "REF" : "VAL";
+
+	result += "-";
+
+	if (dt == DEF) result += "DEF";
+	else if (dt == MAYDEF) result += "MAYDEF";
+	else if (dt == USE) result += "USE";
+	else phc_unreachable ();
+
+	return result;
+}
+
 
 void
 Def_use::dump_set (Context cx, reftype rt, deftype dt)
 {
-	string set_name = (rt == REF) ? "REF" : "DEF";
-	set_name += "-";
-	if (dt == DEF) set_name += "DEF";
-	else if (dt == MAYDEF) set_name += "MAYDEF";
-	else if (dt == USE) set_name += "USE";
-	else phc_unreachable ();
-
+	string set_name = debug_name (rt, dt);
 	if (maps[cx][rt][dt].size())
 	{
-		cdebug << cx << ": " << name << " list: ";
+		cdebug << cx << ": " << set_name << " list: ";
 		foreach (Alias_name name, maps[cx][rt][dt])
 			cdebug << name.str() << ", ";
 		cdebug << endl;
@@ -154,6 +162,22 @@ Def_use::dump (Context cx, string comment)
 	// results are presented together).
 	foreach_rtdt
 		dump_set (cx, rt, dt);
+
+
+	string st_name = cx.symtable_name ();
+	foreach_rtdt
+	{
+		string set_name = debug_name (rt, dt);
+		if (summary_maps[st_name][rt][dt].size())
+		{
+			cdebug << st_name << ": " << set_name << " list: ";
+			foreach (Alias_name name, summary_maps[st_name][rt][dt])
+				cdebug << name.str() << ", ";
+			cdebug << endl;
+		}
+		else
+			cdebug << st_name << ": No summary " << set_name << " results" << endl;
+	}
 }
 
 void
@@ -252,9 +276,7 @@ Def_use::aggregate_results (Context cx)
 		foreach (Alias_name name, maps[cx][rt][dt])
 		{
 			if (not in_scope (cx, name))
-				summary_maps[cx][rt][dt][symtable].insert (name);
-
-			Context exit_cx = Context::as_peer (cx, cx.get_bb()->cfg->get_exit_bb ());
+				summary_maps[symtable][rt][dt].insert (name);
 		}
 	}
 
@@ -295,13 +317,10 @@ Def_use::backward_bind (Context caller, Context exit)
 	string st_name = exit.symtable_name ();
 	foreach_dtrt
 	{
-		Set<Alias_name>& set = summary_maps[exit][rt][dt][st_name];
+		Set<Alias_name>& set = summary_maps[st_name][rt][dt];
 		maps[caller][rt][dt].insert (set.begin(), set.end ());
 	}
 }
-
-string prefix (string, string);
-
 
 Alias_name_list*
 Def_use::get_alias_name (Basic_block* bb, deftype dt)

@@ -69,7 +69,7 @@ private:
 
 	// The exit block gets a use for every non-local def. This prevents DCE from
 	// killing them.
-	Map<Context, Map<reftype, Map<deftype, Map<string, Set<Alias_name> > > > > summary_maps;
+	Map<string, Map<reftype, Map<deftype, Set<Alias_name> > > > summary_maps;
 };
 
 #endif // PHC_DEF_USE

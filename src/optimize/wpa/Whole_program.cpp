@@ -483,18 +483,13 @@ Whole_program::analyse_summary (Summary_method_info* info, Context caller_cx, Ac
 {
 	CFG* cfg = info->get_cfg ();
 
-
 	/*
 	 * Start the analysis
 	 */
 	Context entry_cx = Context::contextual (caller_cx, cfg->get_entry_bb ());
 	forward_bind (info, entry_cx, actuals);
 
-	// Create OUT sets for the entry node
-	foreach_wpa (this)
-		wpa->aggregate_results (entry_cx);
-
-
+	dump (entry_cx, "Upon entry");
 
 	/*
 	 * "Perform" the function
@@ -505,9 +500,12 @@ Whole_program::analyse_summary (Summary_method_info* info, Context caller_cx, Ac
 
 	apply_modelled_function (info, fake_cx);
 
-	// Create OUT sets from the results 
 	foreach_wpa (this)
 		wpa->aggregate_results (fake_cx);
+
+	dump (fake_cx, "After fake basic block");
+
+	phc_pause ();
 
 
 
@@ -517,6 +515,14 @@ Whole_program::analyse_summary (Summary_method_info* info, Context caller_cx, Ac
 
 	Context exit_cx = Context::contextual (caller_cx, cfg->get_exit_bb ());
 	pull_results (exit_cx);
+
+	foreach_wpa (this)
+		wpa->aggregate_results (fake_cx);
+
+	// TODO: we only really need 2 blocks here.
+	dump (exit_cx, "After summary method");
+	phc_pause ();
+
 
 	backward_bind (info, exit_cx, lhs);
 }
@@ -1044,6 +1050,9 @@ Whole_program::backward_bind (Method_info* info, Context exit_cx, MIR::VARIABLE_
 	Context caller_cx = exit_cx.caller ();
 	if (lhs)
 	{
+		// TODO: would this assignment be better made in the caller? (except that
+		// RETNAME wont be propagated to the caller in the backward bind. Hmmmm).
+
 		if (info->return_by_ref ())
 		{
 			// $lhs =& $retval;
@@ -1058,7 +1067,13 @@ Whole_program::backward_bind (Method_info* info, Context exit_cx, MIR::VARIABLE_
 					P (caller_cx.symtable_name (), dyc<VARIABLE_NAME> (lhs)),
 					P (exit_cx.symtable_name (), new VARIABLE_NAME (RETNAME)));
 		}
+
+		// There is a backward bind before this assignment, but we need another after this assignment..
+		foreach_wpa (this)
+			wpa->aggregate_results (exit_cx);
 	}
+
+
 
 	// TODO:
 	// We want to mark escaping values in the function's exit block. This will
@@ -1071,6 +1086,8 @@ Whole_program::backward_bind (Method_info* info, Context exit_cx, MIR::VARIABLE_
 	// references them. I would not be sure that correctly handle the case
 	// where $x aliases $y[0], and $y[0] is used after being passed to a
 	// function.
+
+	dump (exit_cx, "After assignment, before WPA backward bind");
 
 	// Context can be NULL for __MAIN__
 	foreach_wpa (this)
