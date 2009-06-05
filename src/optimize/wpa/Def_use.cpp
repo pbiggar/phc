@@ -8,93 +8,23 @@
  * Gather the def-use information while the alias analysis is running.
  *
  *
- * The def-use information is just trying to provide a list of _named_ which are defined or used in a block. A name represents either a value or a container. This is similar to the way in C that there can be an assignment to p or *p.
- *		- a value
- *		- a container
- *
- *		I think we only need to model the value. Alias analysis will make sure all values are written to.
- *
- *
- *
- *	Is the interface good enough? We have:
- *
- * forward_bind, backward_bind
- * create_reference (index,index,cert)
- * assign_value (index,storage)
- * set_storage (storage, type)
- * set_scalar (storage, value)
- * kill_value (index)
- * kill_reference (index)
- * record_use (index, cert)
- * pull_*
- *
  * What are we trying to model with Def-use? Just DCE!!
  *		- So how can we tell if a statement needs to be killed?
- *			- It is a return statement
  *			- It doesnt have any useful defs
- *			- Its is not a function or new statement (work on them in a moment)
  *
  *
  *	- How can we tell if a whole function is useful?
- *		- Get all of its uses:
+ *		- Get all of its defs/may-defs:
  *			- some of them will be for external definitions:
  *				- ie globals, parameters, returned values
  *
  *
- *
- * Simple example:
- *		$x = $y;
- *
- *	Creates a def of $x and may/must-defs of $x's references.
- *
- * What about:
- *		$x[$i] = $y;
- *
- *	Use of $x, $i and $y
- *	
- *	Def of some_name->*
- *
- *	Maybe keep track of the storage node which is updated? If its ST, who cares, else if it escapes, we care.
- *	
- *	Whats the relationship between a variable and a name? There doesn't have to be one...
- *
- *	We want to talk about values! If an index node changes value, the value node containing it changes.
- *	So it is storage nodes that change!!!
- *
- *	But if we change the value of $x, we want to note changes for ST->x, not ST.
- *
- *	What about arrays:
- *		if we def (ST->x)->(ST->y) (call it MYARR::y) then uses of MYARR::y need to be aware.
+ *	Lets think about the storage, do we want UD/DU chains? Suppose we use ST->x,
+ *	do we need to record the change of ST? No. Therefore we just care about
+ *	index nodes.
  *
  *
- *	So the two important things are the index and the Storage node containing the index.
- *
- *
- *	Lets think about the storage, do we want UD/DU chains? Suppose we use ST->x, do we need to record the change of ST? No.
- *	Therefore just the index nodes.
- *
- *	What about the mutliple layers? The var itself and its value? No. Only care about the value.
- *
- *	Reference definitions?
- *		- Yes, because that established the relationship between x and y.
- *		- When can we kill it?
- *			- when its not useful
- *				- its useful if: given $x =& $y
- *					- the is an implicit def to $y, and $y is later used.
- *						- the value def to $x and implicit one to $y are both already modelled. Nothing special.
- *
- *					- $y (or any of its references) is later defed (but only if $x is used)
- *						- it will be noted that there is a reference def of $x and $y at its def point. We need a "reference use" to model this.
- *							- which is exactly what the two layers were about
- *
- *					- $x is later defed (but only if $y or its refs are used)
- *						- 
- *
- *					- $x is later used
- *						- the use of $x is obvious. the use of $x-ref is important, since this is where $x-ref is created.
- *		
- *
- * So, we keep track of index nodes at 2 levels:
+ * We keep track of index nodes at 2 levels:
  *		- ref level:
  *			- a def uses the ref
  *			- a ref-def ref-defs the ref-def
@@ -104,20 +34,64 @@
  *			- a use uses the value
  *
  *		OK, so given
- *			$y =& $z;
- *			$x =& $y;
- *			$z = 5;
+ *			1. $y =& $z;
+ *			2. $x =& $y;
+ *			3. $z = 5;
+ *			4. var_dump ($x);
  *
- *			y = z
- *			*y = *z
- *			------
- *			x = y
- *			*x = *y
- *			------
- *			use z, use y, use x
- *			def *z
- *			def *y
- *			def *x
+ *		we need to be sure that enough things are used to be correct:
+ *			- 4 uses $x
+ *			- 3 defs x-value, y-value, z-value, uses x-ref, y-ref and z-ref
+ *			- 2 defs x-ref
+ *			- 1 defs y-ref
+ *
+ *		What about:
+ * 		0. $c =& $z;
+ * 		1. $y =& $z;
+ *			2. $x =& $y;
+ *			3. $z = 5;
+ *			4. var_dump ($x);
+ *
+ *		We are overly conservative, since all refs are in the BB. This currently does
+ *			- 4 uses $x
+ *			- 3 defs x-value, y-value, z-value, c-value, uses x-ref, y-ref, z-ref, c-ref
+ *			- 2 defs x-ref
+ *			- 1 defs y-ref
+ *
+ *		We'd like to:
+ * 		- 4 uses $x
+ *			- 3 defs x-value, uses x-ref in a CHI node. defs z-value, uses z-ref in the main block
+ *			- 2 defs x-ref (used by 3), uses y-ref
+ *			- 1 defs y-ref (used by 2), uses z-ref
+ *			- 0 does nothing (unless there is an implicit definition in 4, but there isnt).
+ *			
+ *			
+ *
+ *	Reference definitions
+ *		Given $x =& $y
+ *			- the is an implicit def to $y, and $y is later used.
+ *				- the value def to $x and implicit one to $y are both already modelled. Nothing special.
+ *
+ *			- $y (or any of its references) is later defed (but only if $x is used)
+ *				- it will be noted that there is a ref-def of $x a ref-def of $y. A
+ *				ref-use comes up when there is a normal def or a normal use.
+ *
+ *			- $x is later defed (but only if $y or its refs are used)
+ *				- that will be a ref-use of $x, meaning the corresponding ref-def
+ *				is important.
+ *
+ *			- $x is later used
+ *				- that will be a use of the normal def associated with $y
+ *		
+ *
+ *	May-ref/must-def
+ *		-	if there is a kill for a variable first, it is a must-def. If there is
+ *		not, it is a may-def. Uses arent split into may- and must- defs.
+ *
+ *
+ *	Supporting interprocedural-optimizations (inlining and escape-analysis):
+ *		- We have to make a summary of what is def-ed within the function.
+ *		- How easy is it to calculate what escapes?
  *
  *
  */
@@ -134,41 +108,38 @@ Def_use::Def_use (Whole_program* wp)
 {
 }
 
-void
-Def_use::init (Context outer)
-{
-}
+
+reftype reftypes[] = { REF, VAL };
+deftype deftypes[] = { DEF, MAYDEF, USE };
+
+#define foreach_dtrt foreach_rtdt
+#define foreach_rtdt							\
+	foreach (reftype rt, reftypes)		\
+		foreach (deftype dt, deftypes)
+
 
 bool
 Def_use::equals (WPA* wpa)
 {
 	Def_use* other = dyc<Def_use> (wpa);
-	return true
-		&& this->ref_defs.equals (&other->ref_defs)
-		&& this->ref_uses.equals (&other->ref_uses)
-		&& this->ref_may_defs.equals (&other->ref_may_defs)
-
-		&& this->val_defs.equals (&other->val_defs)
-		&& this->val_uses.equals (&other->val_uses)
-		&& this->val_may_defs.equals (&other->val_may_defs)
-
-		&& this->summary_ref_defs.equals (&other->summary_ref_defs)
-		&& this->summary_ref_uses.equals (&other->summary_ref_uses)
-		&& this->summary_ref_may_defs.equals (&other->summary_ref_may_defs)
-
-		&& this->summary_val_defs.equals (&other->summary_val_defs)
-		&& this->summary_val_uses.equals (&other->summary_val_uses)
-		&& this->summary_val_may_defs.equals (&other->summary_val_may_defs)
-		;
+	return this->maps.equals (&other->maps);
 }
 
 
-void dump_set (Map<Context, Set<Alias_name> >& map, Context cx, string set_name)
+void
+Def_use::dump_set (Context cx, reftype rt, deftype dt)
 {
-	if (map.has (cx))
+	string set_name = (rt == REF) ? "REF" : "DEF";
+	set_name += "-";
+	if (dt == DEF) set_name += "DEF";
+	else if (dt == MAYDEF) set_name += "MAYDEF";
+	else if (dt == USE) set_name += "USE";
+	else phc_unreachable ();
+
+	if (maps[cx][rt][dt].size())
 	{
-		cdebug << cx << ": " << set_name << " list: ";
-		foreach (Alias_name name, map[cx])
+		cdebug << cx << ": " << name << " list: ";
+		foreach (Alias_name name, maps[cx][rt][dt])
 			cdebug << name.str() << ", ";
 		cdebug << endl;
 	}
@@ -181,141 +152,85 @@ Def_use::dump (Context cx, string comment)
 {
 	// Print out the results for existing BBs (done this way so that IN and OUT
 	// results are presented together).
-	dump_set (ref_defs, cx, "REF-DEF");
-	dump_set (ref_uses, cx, "REF-USE");
-	dump_set (ref_may_defs, cx, "REF-MAY-DEF");
-	dump_set (val_defs, cx, "VAL_DEF");
-	dump_set (val_uses, cx, "VAL_USE");
-	dump_set (val_may_defs, cx, "VAL_MAY_DEF");
+	foreach_rtdt
+		dump_set (cx, rt, dt);
 }
 
 void
 Def_use::dump_everything (string comment)
 {
-	// Note they wont all have the same contexts defined, so get the complete list first.
-	Set<Context> all_contexts;
-
-	typedef Map<Context, Set<Alias_name> > x; // fool foreach
-	x* all_sets[6] =
-	{
-		&ref_defs, &ref_uses, &ref_may_defs, &val_defs, &val_uses, &val_may_defs,
-	};
-
-	foreach (x* set, all_sets)
-	{
-		foreach (Context cx, *set->keys ())
-		{
-			all_contexts.insert (cx);
-		}
-	}
-
-	foreach (Context cx, all_contexts)
-	{
-		dump_set (ref_defs, cx, "REF-DEF");
-		dump_set (ref_uses, cx, "REF-USE");
-		dump_set (ref_may_defs, cx, "REF-MAY-DEF");
-		dump_set (val_defs, cx, "VAL_DEF");
-		dump_set (val_uses, cx, "VAL_USE");
-		dump_set (val_may_defs, cx, "VAL_MAY_DEF");
-	}
+	foreach (Context cx, *maps.keys ())
+		dump (cx, comment);
 }
 
 /*
- * Kills
+ * References
  */
-void
-Def_use::kill_value (Context cx, Index_node* lhs)
-{
-	val_assignment (cx, lhs->name(), DEFINITE);
-}
 
 void
 Def_use::kill_reference (Context cx, Index_node* lhs)
 {
-	ref_assignment (cx, lhs->name(), DEFINITE);
-}
-
-/* Simple assignments */
-
-void
-Def_use::val_assignment (Context cx, Alias_name lhs, Certainty cert)
-{
-	DEBUG ("def (val): " << lhs.str());
-	DEBUG ("use (ref): " << lhs.str());
-
-	// In C terms, *x = ...;
-	// This uses 'x';
-
-	if (cert == DEFINITE)
-		val_defs[cx].insert (lhs);
-	else if (cert == POSSIBLE)
-		val_may_defs[cx].insert (lhs);
-
-	ref_uses[cx].insert (lhs);
-	
-}
-
-void
-Def_use::ref_assignment (Context cx, Alias_name lhs, Certainty cert)
-{
-	DEBUG ("def (ref): " << lhs.str());
-	DEBUG ("def (val): " << lhs.str());
-
-	// Assignments by ref also change the value
-	if (cert == DEFINITE)
-	{
-		ref_defs[cx].insert (lhs);
-		val_defs[cx].insert (lhs);
-	}
-	else if (cert == POSSIBLE)
-	{
-		ref_may_defs[cx].insert (lhs);
-		val_may_defs[cx].insert (lhs);
-	}
-}
-
-
-/* Assignments with RHSs */
-void
-Def_use::set_scalar (Context cx, Value_node* storage, Abstract_value* val)
-{
-	// TODO: I think we dont need this
-//	val_assignment (bb, storage->name(), DEFINITE);
-}
-
-void
-Def_use::set_storage (Context cx, Storage_node* storage, Types types)
-{
-	// TODO: I think we dont need this
-//	val_assignment (bb, storage->name(), DEFINITE);
-}
-
-void
-Def_use::assign_value (Context cx, Index_node* lhs, Storage_node* storage_name, Certainty cert)
-{
-	val_assignment (cx, lhs->name(), cert);
+	record (cx, REF, DEF, lhs);
 }
 
 void
 Def_use::create_reference (Context cx, Index_node* lhs, Index_node* rhs, Certainty cert)
 {
-	DEBUG ("use (ref): " << rhs->name().str());
-	DEBUG ("use (val): " << rhs->name().str());
+	// A may-ref is a must-def with no killing
+	if (has (cx, REF, DEF, lhs))
+		record (cx, REF, MAYDEF, lhs);
 
-	ref_assignment (cx, lhs->name(), cert);
-	ref_uses[cx].insert (rhs->name());
-	val_uses[cx].insert (rhs->name());
+	record (cx, REF, USE, rhs);
 }
+
+
+/*
+ * Value
+ */
+void
+Def_use::kill_value (Context cx, Index_node* lhs)
+{
+	record (cx, VAL, DEF, lhs);
+	record (cx, REF, USE, lhs);
+}
+
+void
+Def_use::assign_value (Context cx, Index_node* lhs, Storage_node* storage_name)
+{
+	if (not has (cx, VAL, DEF, lhs))
+		record (cx, VAL, MAYDEF, lhs);
+
+	record (cx, REF, USE, lhs);
+}
+
 
 
 void
 Def_use::record_use (Context cx, Index_node* use, Certainty cert)
 {
-	DEBUG ("use (val): " << use->name().str());
-
-	// This is always by value (I think)
-	val_uses[cx].insert (use->name());
+	record (cx, REF, USE, use);
+	record (cx, VAL, USE, use);
 }
+
+
+void
+Def_use::record (Context cx, reftype rt, deftype dt, Index_node* index)
+{
+	maps[cx][rt][dt].insert (index->name ());
+}
+
+bool
+Def_use::has (Context cx, reftype rt, deftype dt, Index_node* index)
+{
+	return maps[cx][rt][dt].has (index->name ());
+}
+
+
+
+/* Interprocedural support */
+
+// TODO: the caller should use __RETNAME__ in the callee if it has a LHS. If
+// LHS is not used, it will be cleaned up with iteration.
 
 
 bool 
@@ -326,163 +241,97 @@ in_scope (Context cx, Alias_name& name)
 }
 
 void
-merge_into_function_summary (Context cx,
-									  Map<Context, Set<Alias_name> >& cx_sets,
-									  Set<Alias_name>& summary)
-{
-	foreach (Alias_name name, cx_sets[cx])
-		if (!in_scope (cx, name))
-			summary.insert (name);
-}
-
-void
-merge_into_exit_bb (Context cx,
-						  Map<Context, Set<Alias_name> >& defs,
-						  Map<Context, Set<Alias_name> >& uses)
-{
-	Context exit_cx = Context::as_peer (cx, cx.get_bb()->cfg->get_exit_bb());
-	foreach (Alias_name name, defs[cx])
-		if (!in_scope (cx, name))
-			uses[exit_cx].insert (name);
-}
-
-void
 Def_use::aggregate_results (Context cx)
 {
-	Alias_name name = cx.symtable_node ()->name();
+	string symtable = cx.symtable_name ();
 
 	// All defs/uses which are out of scope must be recorded in the function
 	// summary.
-	merge_into_function_summary (cx, ref_defs, summary_ref_defs [name]);
-	merge_into_function_summary (cx, ref_uses, summary_ref_uses [name]);
-	merge_into_function_summary (cx, ref_may_defs, summary_ref_may_defs [name]);
+	foreach_rtdt
+	{
+		foreach (Alias_name name, maps[cx][rt][dt])
+		{
+			if (not in_scope (cx, name))
+				summary_maps[cx][rt][dt][symtable].insert (name);
 
-	merge_into_function_summary (cx, val_defs, summary_val_defs [name]);
-	merge_into_function_summary (cx, val_uses, summary_val_uses [name]);
-	merge_into_function_summary (cx, val_may_defs, summary_val_may_defs [name]);
-
+			Context exit_cx = Context::as_peer (cx, cx.get_bb()->cfg->get_exit_bb ());
+		}
+	}
 
 	// The exit block must "use" all out-of-scope defs, or they'll be killed
 	// later.
-	merge_into_exit_bb (cx, ref_defs, ref_uses);
-	merge_into_exit_bb (cx, ref_may_defs, ref_uses);
-
-	merge_into_exit_bb (cx, val_defs, val_uses);
-	merge_into_exit_bb (cx, val_may_defs, val_uses);
-}
-
-Map<Context, Set<Alias_name> >
-merge_context (Map<Context, Set<Alias_name> >& in_map)
-{
-	Map<Context, Set<Alias_name> > result;
-
-	Context cx;
-	Set<Alias_name> s; // refs must be initialized
-	Set<Alias_name>& set = s;
-	foreach (tie (cx, set), in_map)
+	foreach_dtrt
 	{
-		Context new_cx = cx.get_non_contextual ();
+		if (dt == USE)
+			continue;
 
-		foreach (Alias_name an, set)
-			result [new_cx].insert (an.convert_context_name ());
+		foreach (Alias_name name, maps[cx][rt][dt])
+		{
+			Context exit_cx = Context::as_peer (cx, cx.get_bb()->cfg->get_exit_bb ());
+			if (not in_scope (cx, name))
+				maps[exit_cx][rt][USE].insert (name);
+		}
 	}
-	in_map.clear ();
-
-	return result;
 }
 
 void
 Def_use::merge_contexts ()
 {
 	// TODO: fix storage_nodes in summary_*
-
-	ref_defs = merge_context (ref_defs);
-	ref_uses = merge_context (ref_uses);
-	ref_may_defs = merge_context (ref_may_defs);
-
-	val_defs = merge_context (val_defs);
-	val_uses = merge_context (val_uses);
-	val_may_defs = merge_context (val_may_defs);
+	foreach (Context cx, *maps.keys ())
+	{
+		Context new_cx = cx.get_non_contextual ();
+		foreach_dtrt
+		{
+			foreach (Alias_name name, maps[cx][rt][dt])
+				maps[new_cx][rt][dt].insert (name.convert_context_name ());
+		}
+	}
 }
-
-void
-merge_from_callee (Context caller, Context callee,
-						Map<Context, Set<Alias_name> >& cx_sets,
-						Map<Alias_name, Set<Alias_name> >& callee_sets)
-
-{
-	Set<Alias_name>& callee_set = callee_sets[callee.symtable_node ()->name()];
-	cx_sets[caller].insert (callee_set.begin (), callee_set.end());
-}
-
-
-
 
 void
 Def_use::backward_bind (Context caller, Context exit)
 {
-	// The defs and uses from the callee represent the entire function.
-	merge_from_callee (caller, exit, ref_defs, summary_ref_defs);
-	merge_from_callee (caller, exit, ref_uses, summary_ref_uses);
-	merge_from_callee (caller, exit, ref_may_defs, summary_ref_may_defs);
-
-	merge_from_callee (caller, exit, val_defs, summary_val_defs);
-	merge_from_callee (caller, exit, val_uses, summary_val_uses);
-	merge_from_callee (caller, exit, val_may_defs, summary_val_may_defs);
+	string st_name = exit.symtable_name ();
+	foreach_dtrt
+	{
+		Set<Alias_name>& set = summary_maps[exit][rt][dt][st_name];
+		maps[caller][rt][dt].insert (set.begin(), set.end ());
+	}
 }
 
 string prefix (string, string);
 
+
 Alias_name_list*
-Def_use::get_defs (Basic_block* bb)
+Def_use::get_alias_name (Basic_block* bb, deftype dt)
 {
 	Alias_name_list* result = new Alias_name_list;
 	Context cx = Context::non_contextual (bb);
 
-	foreach (Alias_name def, val_defs[cx])
-	{
-		def.name = prefix (def.name, "*");
-		result->push_back (new Alias_name (def));
-	}
+	foreach (Alias_name name, maps[cx][VAL][dt])
+		result->push_back (new Alias_name (name.prefix, "*_" + name.name));
 
-	foreach (Alias_name def, ref_defs[cx])
-		result->push_back (new Alias_name (def));
+	foreach (Alias_name name, maps[cx][REF][dt])
+		result->push_back (new Alias_name (name));
 	
 	return result;
+}
+
+Alias_name_list*
+Def_use::get_defs (Basic_block* bb)
+{
+	return get_alias_name (bb, DEF);
 }
 
 Alias_name_list*
 Def_use::get_may_defs (Basic_block* bb)
 {
-	Alias_name_list* result = new Alias_name_list;
-	Context cx = Context::non_contextual (bb);
-
-	foreach (Alias_name def, val_may_defs[cx])
-	{
-		def.name = prefix (def.name, "*");
-		result->push_back (new Alias_name (def));
-	}
-
-	foreach (Alias_name def, ref_may_defs[cx])
-		result->push_back (new Alias_name (def));
-	
-	return result;
+	return get_alias_name (bb, MAYDEF);
 }
 
 Alias_name_list*
 Def_use::get_uses (Basic_block* bb)
 {
-	Alias_name_list* result = new Alias_name_list;
-	Context cx = Context::non_contextual (bb);
-
-	foreach (Alias_name use, val_uses[cx])
-	{
-		use.name = prefix (use.name, "*");
-		result->push_back (new Alias_name (use));
-	}
-
-	foreach (Alias_name use, ref_uses[cx])
-		result->push_back (new Alias_name (use));
-	
-	return result;
+	return get_alias_name (bb, USE);
 }

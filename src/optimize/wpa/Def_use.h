@@ -13,22 +13,26 @@
 
 #include "WPA.h"
 
+// TODO: better names for deftype and reftype.
+enum _reftype { REF, VAL };
+typedef enum _reftype reftype;
+
+enum _deftype { DEF, MAYDEF, USE };
+typedef enum _deftype deftype;
+
+
 class Def_use : public WPA
 {
 public:
 	Def_use (Whole_program* wp);
 
-	void init (Context outer);
+	void init (Context outer) {}
+
+
 	void create_reference (Context cx, Index_node* lhs,
 								 Index_node* rhs, Certainty cert);
 
-	void assign_value (Context cx, Index_node* lhs,
-							 Storage_node* storage, Certainty cert);
-
-	// TODO: I dont think I need these... Wat about when I change the value of
-	// a scalar? I think there should be a call to assign_value?
-	void set_storage (Context cx, Storage_node* storage, Types types);
-	void set_scalar (Context cx, Value_node* storage, Abstract_value* val);
+	void assign_value (Context cx, Index_node* lhs, Storage_node* storage);
 
 	void kill_value (Context cx, Index_node* lhs);
 	void kill_reference (Context cx, Index_node* lhs);
@@ -51,29 +55,21 @@ public:
 	Alias_name_list* get_defs (Basic_block* bb);
 	Alias_name_list* get_may_defs (Basic_block* bb);
 	Alias_name_list* get_uses (Basic_block* bb);
+private:
+	Alias_name_list* get_alias_name (Basic_block* bb, deftype dt);
 
 private:
 
-	void val_assignment (Context cx, Alias_name lhs, Certainty cert);
-	void ref_assignment (Context cx, Alias_name lhs, Certainty cert);
 
-	// The exit block gets a use for every non-local def. This prevents DCE
-	// from killing them.
-	Map<Context, Set<Alias_name> > ref_defs;
-	Map<Context, Set<Alias_name> > ref_uses;
-	Map<Context, Set<Alias_name> > ref_may_defs;
+	void dump_set (Context cx, reftype rt, deftype dt);
+	void record (Context cx, reftype rt, deftype dt, Index_node* index);
+	bool has (Context cx, reftype rt, deftype dt, Index_node* index);
 
-	Map<Context, Set<Alias_name> > val_defs;
-	Map<Context, Set<Alias_name> > val_uses;
-	Map<Context, Set<Alias_name> > val_may_defs;
+	Map<Context, Map<reftype, Map<deftype, Set<Alias_name> > > > maps;
 
-	Map<Alias_name, Set<Alias_name> > summary_ref_defs;
-	Map<Alias_name, Set<Alias_name> > summary_ref_uses;
-	Map<Alias_name, Set<Alias_name> > summary_ref_may_defs;
-
-	Map<Alias_name, Set<Alias_name> > summary_val_defs;
-	Map<Alias_name, Set<Alias_name> > summary_val_uses;
-	Map<Alias_name, Set<Alias_name> > summary_val_may_defs;
+	// The exit block gets a use for every non-local def. This prevents DCE from
+	// killing them.
+	Map<Context, Map<reftype, Map<deftype, Map<string, Set<Alias_name> > > > > summary_maps;
 };
 
 #endif // PHC_DEF_USE
