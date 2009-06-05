@@ -264,7 +264,7 @@ Internal_method_info::default_param (int param_index)
 int
 Internal_method_info::formal_param_count ()
 {
-	return 0;
+	return func->common.num_args;
 }
 
 

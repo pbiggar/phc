@@ -548,13 +548,26 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context cx)
 	// A correct way to handle this would be to parse the zend_parse_parameters
 	// using LLVM. For now, the best thing to do is assume that functions are
 	// called correctly.
-	
+
+	// It seems I should use a Vector, but I really would like to access this without havin initialized it (and get NULL).
+	Map<int, Index_node*> params; 
 
 	string symtable = cx.symtable_name ();
-	Index_node* param0 = IN (symtable, "__UNNAMED__0");
-	Index_node* param1 = IN (symtable, "__UNNAMED__1");
-	Index_node* param2 = IN (symtable, "__UNNAMED__2");
-	Index_node* param3 = IN (symtable, "__UNNAMED__3");
+	for (int i = 0; ; i++) // NOTE lack of cond in loop
+	{
+		Index_node* param = IN (symtable, "__UNNAMED__" + lexical_cast<string> (i));
+
+		// There are two ways to know there is a parameter:
+		//		- an actual parameter is passed
+		//		- there are formal parameters. 
+		if (not aliasing->has_field (cx, param)
+			&& i >= info->formal_param_count ())
+			break;
+
+
+		params[i] = param;
+		record_use (cx, param); // use parameters
+	}
 
 	Path* ret_path = P (symtable, new VARIABLE_NAME (RETNAME));
 	if (*info->name == "strlen")
@@ -619,9 +632,9 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context cx)
 		bool can_be_float = true;
 		bool can_be_array = true;
 
-		if (aliasing->has_field (cx, param0))
+		if (aliasing->has_field (cx, params[0]))
 		{
-			Abstract_value* absval = get_abstract_value (cx, param0->name());
+			Abstract_value* absval = get_abstract_value (cx, params[0]->name());
 
 			if (absval->known_true ())
 				can_be_array = false;
@@ -1532,6 +1545,8 @@ Whole_program::copy_value (Context cx, Index_node* lhs, Index_node* rhs)
 
 	// OK, its not a scalar. Carry on.
 	DEBUG ("copy_value");
+
+	record_use (cx, rhs);
 
 	// Get the value for each RHS. Copy it using the correct semantics.
 	foreach (Storage_node* st, *aliasing->get_points_to (cx, rhs))
