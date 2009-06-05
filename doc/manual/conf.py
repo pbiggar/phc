@@ -170,6 +170,9 @@ html_copy_source = True
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'phcdoc'
 
+# TODO: Supported in the next version of Sphinx, to handle link colors.
+#html_theme_options = {'visitedlinkcolor': '#ccccff'}
+
 
 # Options for LaTeX output
 # ------------------------
