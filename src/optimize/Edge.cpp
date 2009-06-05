@@ -14,7 +14,6 @@ using namespace boost;
 Edge::Edge (CFG* cfg, edge_t edge, tribool direction)
 : cfg (cfg)
 , edge (edge)
-, is_executable (true)
 , direction (direction)
 {
 }

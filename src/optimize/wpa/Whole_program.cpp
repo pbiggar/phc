@@ -274,6 +274,7 @@ public:
 
 	// Don't add edges to existing BBs, so keep track.
 	Set<Basic_block*> bbs;
+	Map<Edge*, bool> executable_flags;
 
 public:
 	Worklist ()
@@ -291,7 +292,7 @@ public:
 
 	void add (Edge* edge)
 	{
-		edge->is_executable = true;
+		executable_flags[edge] = true;
 
 		// Dont add edges whose targets are already present
 		if (bbs.has (edge->get_target ()))
@@ -299,6 +300,11 @@ public:
 
 		bbs.insert (edge->get_target ());
 		queue.push (edge);
+	}
+
+	bool is_executable (Edge* edge)
+	{
+		return executable_flags[edge];
 	}
 
 	size_t size ()
@@ -321,9 +327,6 @@ Whole_program::analyse_function (User_method_info* info, Context caller_cx, MIR:
 		cfg->dump_graphviz (s("Function entry"));
 
 	// 1. Initialize:
-	foreach (Edge* e, *cfg->get_all_edges ())
-		e->is_executable = false;
-
 	Worklist wl;
 	wl.add (cfg->get_entry_edge ());
 
@@ -344,6 +347,23 @@ Whole_program::analyse_function (User_method_info* info, Context caller_cx, MIR:
 		Basic_block* target = e->get_target ();
 		Context cx = Context::contextual (caller_cx, target);
 
+		BB_list* preds = new BB_list;
+
+		Edge_list* pred_edges = target->get_predecessor_edges ();
+		foreach (Edge* pred_edge, *pred_edges)
+		{
+			// Ignore non-executable edges
+			if (wl.is_executable (pred_edge))
+				preds->push_back (pred_edge->get_source ());
+		}
+
+		// Merge results from predecessors
+		pull_results (cx, preds);
+
+
+
+
+
 		// Analyse the block, storing per-basic-block results.
 		// This does not update the block's structure.
 		bool changed = analyse_block (cx);
@@ -351,7 +371,7 @@ Whole_program::analyse_function (User_method_info* info, Context caller_cx, MIR:
 		// Add next	block(s) if the result has changed, or if this the first
 		// time the edge could be executed.
 		foreach (Edge* next, *get_successors (cx))
-			if (!next->is_executable || changed)
+			if (!wl.is_executable (next) || changed)
 				wl.add (next);
 	}
 
@@ -496,7 +516,7 @@ Whole_program::analyse_summary (Summary_method_info* info, Context caller_cx, Ac
 	 */
 
 	Context fake_cx = Context::contextual (caller_cx, info->get_fake_bb ());
-	pull_results (fake_cx);
+	pull_results (fake_cx, info->get_fake_bb ()->get_predecessors ());
 
 	apply_modelled_function (info, fake_cx);
 
@@ -514,7 +534,7 @@ Whole_program::analyse_summary (Summary_method_info* info, Context caller_cx, Ac
 	 */
 
 	Context exit_cx = Context::contextual (caller_cx, cfg->get_exit_bb ());
-	pull_results (exit_cx);
+	pull_results (exit_cx, cfg->get_exit_bb ()->get_predecessors ());
 
 	foreach_wpa (this)
 		wpa->aggregate_results (fake_cx);
@@ -769,10 +789,6 @@ Whole_program::analyse_block (Context cx)
 {
 	DEBUG ("\nAnalysing BB: " << cx << ": " << *cx.get_bb()->get_graphviz_label ());
 
-	// Merge results from predecessors
-	pull_results (cx);
-
-
 	block_cx = cx;
 	visit_block (cx.get_bb());
 
@@ -844,19 +860,13 @@ Whole_program::get_possible_nulls (List<Context>* cxs)
 
 
 void
-Whole_program::pull_results (Context cx)
+Whole_program::pull_results (Context cx, BB_list* bb_preds)
 {
-	Basic_block* bb = cx.get_bb ();
-	
 	List<Context>* preds = new List<Context>;
 
-	Edge_list* pred_edges = bb->get_predecessor_edges ();
-	foreach (Edge* pred_edge, *pred_edges)
-	{
-		// Ignore non-executable edges
-		if (pred_edge->is_executable)
-			preds->push_back (Context::as_peer (cx, pred_edge->get_source ()));
-	}
+	foreach (Basic_block* bb, *bb_preds)
+		preds->push_back (Context::as_peer (cx, bb));
+
 
 	// Some index nodes may only have existed on one path. If their storage
 	// node exists, then we assume that they are NULL on the other paths.

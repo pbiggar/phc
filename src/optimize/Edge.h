@@ -21,7 +21,6 @@ public:
 	 * Block properties
 	 */
 
-	bool is_executable;
 	boost::tribool direction;
 
 	Basic_block* get_source ();

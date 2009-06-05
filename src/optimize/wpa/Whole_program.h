@@ -191,7 +191,7 @@ public:
 
 	void record_use (Context cx, Index_node* node);
 
-	void pull_results (Context cx);
+	void pull_results (Context cx, BB_list* bbs);
 
 	Index_node_list* get_possible_nulls (List<Context>*);
 
