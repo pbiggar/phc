@@ -421,7 +421,7 @@ CFG::dump_graphviz (String* label)
 				{
 					cout 
 					<< index << ":"
-					<<* get_graphviz_use_portname (bb, use->name) << ":e"
+					<< *get_graphviz_use_portname (bb, use->name) << ":e"
 					<< " -> "
 					<< def->bb->get_index() << ":"
 					<< *get_graphviz_def_portname (def->bb, def->name) << ":w"
