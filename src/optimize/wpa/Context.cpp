@@ -137,6 +137,16 @@ Context::name () const
 	return *cached_name;
 }
 
+bool
+Context::is_recursive ()
+{
+	foreach (int count, *BB_counts.values ())
+		if (count > 1)
+			return true;
+
+	return false;
+}
+
 string
 Context::full_name () const
 {

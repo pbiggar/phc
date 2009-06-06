@@ -57,8 +57,7 @@ public:
 	// Apply the HACK rules for new context names.
 	static string convert_context_name (string);
 
-private:
-	bool has_bb (Basic_block*);
+	bool is_recursive ();
 };
 
 std::ostream &operator<< (std::ostream &out, const Context &num);
