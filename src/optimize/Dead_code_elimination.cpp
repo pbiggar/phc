@@ -16,6 +16,8 @@ DCE::DCE ()
 // TODO: move this to Oracle
 bool is_pure (Expr* in)
 {
+	// TODO: use Whole_program for this, and mark user-functions according to
+	// whether they do something impure (except uses and defs).
 	Wildcard<METHOD_NAME>* name = new Wildcard<METHOD_NAME>;
 	if (in->match (new Method_invocation (NULL, name, NULL))
 		&& Oracle::is_pure_function (name->value))
@@ -25,41 +27,11 @@ bool is_pure (Expr* in)
 }
 
 /*
- * TODO:
- *		How do we model that an otherwise dead statement may def its RHS. It
- *		clearly shouldnt be done here. It should be in the def-use info.
- *
- *		Then we can say that 'global $x' is not _automatically_ critical, and
- *		likewise for all of the indirect assignments.
- */
-bool
-is_reference_statement (Statement* in)
-{
-	// global $x creates a NULL $x in the global scope (which can probably only
-	// be seen by the compact function, but what of it).
-//	if (isa<Global> (in))
-//		return true;
-	
-	if (Assign_var* av = dynamic_cast<Assign_var*> (in))
-		return false; // We should be able to handle this with the def-use info we have now.
-	else if (Assign_var_var* avv = dynamic_cast<Assign_var_var*> (in))
-		return avv->is_ref;
-	else if (Assign_field* af = dynamic_cast<Assign_field*> (in))
-		return af->is_ref;
-	else if (Assign_array* aa = dynamic_cast<Assign_array*> (in))
-		return aa->is_ref;
-	else if (Assign_next* an = dynamic_cast<Assign_next*> (in))
-		return an->is_ref;
-
-	return false;
-}
-
-/*
  * Does the statement have any externally visible effects (like IO)?
  *		Has visible effects:
  *			Any function we dont know anything about
  *			TODO: impure functions dont necessarily have them (ie array_merge)
- *			Any class instatiation we know nothing about
+ *			Any class instatiation
  *
  *		 Doesn't have visible effects
  *			Anything else
@@ -73,40 +45,17 @@ bool is_critical (Statement* in)
 	if (isa<Return> (in))
 		return true;
 
-	// Foreach_end defines a virtual variable representing the iterator. As
-	// such, its never going to be critical. However, its needed every time the
-	// Foreach_reset is present. So treat it specially.
+	// Foreach_end is needed every time the Foreach_reset is present. So treat
+	// it specially.
 	// TODO: is there a way to handle this without special casing it?
-	// TODO: virtual-variables are incorrect, so we just mark the foreach_*
-	// nodes which write as critical.
+	// TODO: just mark the foreach_* nodes which write as critical.
 	// TODO: rethink this. We should be able to remove unused blocks entirely.
 	if (	isa<Foreach_reset> (in)
 		|| isa<Foreach_next> (in)
 		|| isa<Foreach_end> (in))
 		return true;
 
-	// TODO: we are assuming for now that all indirect assignments are
-	// incorrectly modelled, and should not be removed.
-	if (	isa<Assign_field> (in)
-		|| isa<Assign_next> (in)
-		|| isa<Assign_array> (in)
-		|| isa<Assign_var_var> (in))
-		return true;
-
-	// TODO: As above
-	Unset* unset = dynamic_cast<Unset*> (in);
-	if (unset && unset->array_indices->size () > 0)
-		return true;
-	
-
-	// All reference statements may create values for their RHS
-	if (is_reference_statement (in))
-		return true;
-
 	// TODO: these can cause side-effecting functions such as __get or __set.
-	if (not (isa<Eval_expr> (in) || isa<Assign_var> (in)))
-		return false;
-
 	// Function calls
 	Wildcard<Expr>* expr = new Wildcard<Expr>;
 	if (in->match (new Eval_expr (expr))
@@ -116,29 +65,21 @@ bool is_critical (Statement* in)
 				false, // dont-care
 				expr)))
 	{
-		// TODO: pure and critical are different
-		// TODO: note also that variables can be created by a reference here.
 		return !is_pure (expr->value);
 	}
 	else
 		return false;
 }
+
 bool
 is_bb_critical (Basic_block* bb)
 {
 	if (Statement_block* sb = dynamic_cast<Statement_block*> (bb))
-	{
-		if (is_critical (sb->statement))
-			return true;
-	}
+		return (is_critical (sb->statement));
 
 	if (isa<Exit_block> (bb) || isa<Entry_block> (bb))
 		return true;
 
-	// TODO: this is more conservative than we'd like
-	// Anything that is defined by a function, where we cannot see if it is
-	// used (ie its a global, or it escapes), we conservatively mark as
-	// critical.
 	return false;
 }
 
@@ -215,6 +156,7 @@ DCE::mark_pass ()
 		{
 			mark_def (use);
 		}
+
 
 		// Mark the critical branches (ie, the reverse dominance frontier of
 		// the critical blocks: The dominance frontier occurs at joins. The
