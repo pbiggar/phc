@@ -106,7 +106,8 @@ Optimization_transformer::visit_assign_field (Statement_block* bb, MIR::Assign_f
 void
 Optimization_transformer::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 {
-	// TODO: check that there are no implicit operations on the rhs
+	// TODO: check that there are no implicit operations on the rhs. This could
+	// be done by checking that there is not a def to the RHS.
 
 	// The assignment is by reference. We may be able to remove this later,
 	// via DCE.

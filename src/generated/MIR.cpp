@@ -2771,14 +2771,6 @@ void Method::assert_valid()
     Node::assert_mixin_valid();
 }
 
-bool Method::is_main()
-{
-    {
-		// TODO: this isnt good enough. Need to check its not in a class_def...
-		return *signature->method_name->value == "__MAIN__";
-	}
-}
-
 Attribute::Attribute(Attr_mod* attr_mod, Name_with_default* var)
 {
     this->attr_mod = attr_mod;
