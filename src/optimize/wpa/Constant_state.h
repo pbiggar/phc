@@ -20,14 +20,22 @@ public:
 	 * Interface
 	 */
 
-	void set_constant (Context cx, Abstract_value* name, Abstract_value* value);
-	Abstract_value* get_constant (Context cx, MIR::Constant* constant);
+	void set_constant (Context cx, string name, Abstract_value* value);
+
+	// Sets a constant whose name we don't know
+	void set_unknown_constant (Context cx, Abstract_value* value);
+
+	bool is_constant_defined (Context cx, string name);
+	Abstract_value* get_constant (Context cx, string name);
 
 	/*
 	 * WPA interface
 	 */
 
-	void pull_possible_null (Context cx, Index_node* node);
+	// These should maybe be moved out?
+	void pull_possible_null (Context cx, Index_node* node) {};
+	void kill_value (Context cx, Index_node*) {};
+	void assign_value (Context cx, Index_node*, Storage_node*) {};
 
 };
 

@@ -98,3 +98,27 @@ Abstract_value::known_true ()
 
 	return PHP::is_true (dyc<Literal_cell> (lit)->value);
 }
+
+
+
+Absval_cell::Absval_cell (Abstract_value* value)
+: value (value)
+{
+}
+
+void
+Absval_cell::dump (std::ostream& os)
+{
+	os << "(";
+	value->lit->dump (os);
+	os << ", ";
+	value->type->dump (os);
+	os << ")";
+}
+
+bool
+Absval_cell::equals (Lattice_cell* other)
+{
+	return value->lit->equals (dyc<Absval_cell> (other)->value->lit)
+		&& value->type->equals (dyc<Absval_cell> (other)->value->type);
+}

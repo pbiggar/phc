@@ -245,7 +245,7 @@ Whole_program::initialize ()
 	register_analysis ("ccp", ccp);
 	register_analysis ("def-use", def_use);
 	register_analysis ("type-inference", type_inf);
-//	register_analysis ("Constant_state", constant_state);
+	register_analysis ("constants", constants);
 //	register_analysis ("Include_analysis", include_analysis);
 //	register_analysis ("VRP", vrp);
 }
@@ -709,11 +709,34 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context cx)
 	}
 	else if (*info->name == "define")
 	{
-		constants->set_constant (cx,
-				get_abstract_value (cx, params[0]->name ()),
-				get_abstract_value (cx, params[1]->name ()));
+		// Read parameters
+		Abstract_value* name = get_abstract_value (cx, params[0]->name ());
+		Abstract_value* value = get_abstract_value (cx, params[1]->name ());
+		if (params[3])
+			phc_TODO (); // case-insensitive
 
-		assign_typed (cx, ret_path, Types ("bool"));
+
+		Literal* lit = name->get_literal ();
+		if (lit == NULL)
+		{
+			// We dont know if this was redefined or not
+			constants->set_unknown_constant (cx, value);
+			assign_typed (cx, ret_path, Types ("bool"));
+		}
+		else
+		{
+			String* name = PHP::get_string_value (lit);
+			if (constants->is_constant_defined (cx, *name))
+			{
+				// If its already defined, it cant be redefined
+				assign_scalar (cx, ret_path, new BOOL (false));
+			}
+			else
+			{
+				assign_scalar (cx, ret_path, new BOOL (true));
+				constants->set_constant (cx, *name, value);
+			}
+		}
 	}
 	else
 	{
@@ -2262,7 +2285,11 @@ Whole_program::visit_cast (Statement_block* bb, MIR::Cast* in)
 void
 Whole_program::visit_constant (Statement_block* bb, MIR::Constant* in)
 {
-	assign_absval (block_cx, saved_plhs, constants->get_constant (block_cx, in));
+	// Needs to go through the class definitions
+	if (in->class_name)
+		phc_TODO ();
+
+	assign_absval (block_cx, saved_plhs, constants->get_constant (block_cx, *in->constant_name->value));
 }
 
 void

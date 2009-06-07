@@ -16,36 +16,43 @@ Constant_state::Constant_state (Whole_program* wp)
 {
 }
 
+// TODO: can be case-insensitive
+
 void
-Constant_state::set_constant (Context cx, Abstract_value* name, Abstract_value* value)
+Constant_state::set_constant (Context cx, string name, Abstract_value* value)
 {
-	Literal* lit = name->get_literal ();
-	if (lit == NULL)
-	{
-		phc_TODO ();
-	}
-	else
-	{
-		Lattice_map& lat = outs[cx];
+	// Should be handled in Whole_program.
+	assert (not is_constant_defined (cx, name));
 
-		String* str_name = PHP::get_string_value (lit);
-		if (lat.has (*str_name))
-			phc_TODO (); // hmmmm, loops
-
-		phc_TODO ();
-//		lat[*str_name] = new Absval_cell (value);
-	}
+	outs[cx][name] = new Absval_cell (value);
 }
 
-Abstract_value*
-Constant_state::get_constant (Context cx, MIR::Constant* constant)
+bool
+Constant_state::is_constant_defined (Context cx, string name)
+{
+	if (outs[cx].has (name))
+		return true;
+
+	Literal* constant = PHP::fold_constant (new Constant (NULL, new CONSTANT_NAME (s(name))));
+	if (constant)
+		return true;
+
+	return false;
+}
+
+void
+Constant_state::set_unknown_constant (Context cx, Abstract_value* value)
 {
 	phc_TODO ();
 }
 
-void
-Constant_state::pull_possible_null (Context cx, Index_node* node)
+Abstract_value*
+Constant_state::get_constant (Context cx, string name)
 {
-}
+	// TODO: check for unknown constants
+	if (not is_constant_defined (cx, name))
+		return Abstract_value::from_literal (new STRING (s(name)));
 
+	return dyc<Absval_cell> (outs[cx][name])->value;
+}
 

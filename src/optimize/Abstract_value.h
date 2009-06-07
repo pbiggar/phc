@@ -48,5 +48,23 @@ public:
 };
 
 
+/*
+ * This is the simplest way to get this working, but its really nasty. I'm
+ * going to change Abstract_value to take a Types and Literal, instead of
+ * Lattices, and combine the functionality.
+ */
+class Absval_cell : public Lattice_cell
+{
+public:
+	Absval_cell (Abstract_value*);
+
+	void dump (std::ostream& os = cdebug);
+	bool equals (Lattice_cell* other);
+
+	Abstract_value* value;
+};
+
+
+
 
 #endif // PHC_ABSTRACT_VALUE_H
