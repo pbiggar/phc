@@ -8,11 +8,11 @@
 
 	function simpleucall() 
 	{
-	  for ($i = 0; $i < 10; $i++) 
-	  {
-		 hallo("hallo");
-		 $flags[$i] = $a[$i];
-	  }
+		for ($i = 0; $i < 10; $i++) 
+		{
+			hallo("hallo");
+			$flags[$i] = $a[$i];
+		}
 	}
 
 	simpleucall ();

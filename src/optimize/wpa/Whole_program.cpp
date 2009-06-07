@@ -1841,9 +1841,18 @@ Whole_program::get_named_indices (Context cx, Path* path, bool is_readonly)
 		 * Get the index nodes.
 		 */
 
+		Storage_node_list* storages = aliasing->get_points_to (cx, array);
+
+
 		// We only read the value of INDEX, so we don't need the implicit array
 		// creation.
-		foreach (Storage_node* storage, *aliasing->get_points_to (cx, array))
+		if (is_readonly && !aliasing->has_field (cx, array))
+		{
+			assert (storages->size () == 0);
+			storages->push_back (ABSVAL (array));
+		}
+
+		foreach (Storage_node* storage, *storages)
 		{
 			if (*index_value == UNKNOWN)
 			{
