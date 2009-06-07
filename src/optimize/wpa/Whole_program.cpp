@@ -312,6 +312,15 @@ public:
 		return queue.size ();
 	}
 
+	void clear ()
+	{
+		while (size ())
+			next (); // throw it away
+
+
+		executable_flags.clear ();
+	}
+
 };
 
 
@@ -332,9 +341,10 @@ Whole_program::analyse_function (User_method_info* info, Context caller_cx, MIR:
 
 	// Process the entry blocks first (there is no edge here)
 	DEBUG ("Initing functions");
+	Context entry_cx = Context::contextual (caller_cx, cfg->get_entry_bb());
 	forward_bind (
 		info,
-		Context::contextual (caller_cx, cfg->get_entry_bb()),
+		entry_cx,
 		actuals);
 
 
@@ -345,7 +355,7 @@ Whole_program::analyse_function (User_method_info* info, Context caller_cx, MIR:
 		DEBUG (wl.size() << " edges in the worklist");
 
 		Basic_block* target = e->get_target ();
-		Context cx = Context::contextual (caller_cx, target);
+		Context target_cx = Context::contextual (caller_cx, target);
 
 		BB_list* preds = new BB_list;
 
@@ -358,19 +368,17 @@ Whole_program::analyse_function (User_method_info* info, Context caller_cx, MIR:
 		}
 
 		// Merge results from predecessors
-		pull_results (cx, preds);
-
-
+		pull_results (target_cx, preds);
 
 
 
 		// Analyse the block, storing per-basic-block results.
 		// This does not update the block's structure.
-		bool changed = analyse_block (cx);
+		bool changed = analyse_block (target_cx);
 
 		// Add next	block(s) if the result has changed, or if this the first
 		// time the edge could be executed.
-		foreach (Edge* next, *get_successors (cx))
+		foreach (Edge* next, *get_successors (target_cx))
 			if (!wl.is_executable (next) || changed)
 				wl.add (next);
 	}
