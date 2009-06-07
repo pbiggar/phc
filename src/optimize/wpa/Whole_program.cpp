@@ -2155,6 +2155,7 @@ Whole_program::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 			break;
 	}
 
+	saved_is_ref = false;
 	saved_lhs = NULL;
 	saved_plhs = NULL;
 }
