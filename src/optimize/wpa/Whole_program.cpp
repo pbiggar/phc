@@ -714,7 +714,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context cx)
 			phc_TODO (); // case-insensitive
 
 
-		if (name->lit)
+		if (name->lit == NULL)
 		{
 			// We dont know if this was redefined or not
 			constants->set_unknown_constant (cx, value);
