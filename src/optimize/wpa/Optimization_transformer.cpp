@@ -110,7 +110,7 @@ Optimization_transformer::visit_assign_var (Statement_block* bb, MIR::Assign_var
 
 	// The assignment is by reference. We may be able to remove this later,
 	// via DCE.
-	if (not in->is_ref)
+	if (not in->is_ref && not isa<Method_invocation> (in->rhs) && not isa<New> (in->rhs))
 	{
 		// If the RHS value is known, replace it outright.
 		Literal* lit = get_out_abstract_value (bb, in->lhs)->get_literal ();
