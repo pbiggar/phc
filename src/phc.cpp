@@ -25,8 +25,8 @@
 #include "cmdline.h"
 #include "codegen/Clarify.h"
 #include "codegen/Compile_C.h"
-#include "codegen/Generate_C_pass.h"
 #include "codegen/Generate_C_annotations.h"
+#include "codegen/Generate_C_pass.h"
 #include "codegen/Lift_functions_and_classes.h"
 #include "embed/embed.h"
 #include "hir_to_mir/HIR_to_MIR.h"
@@ -173,6 +173,7 @@ int main(int argc, char** argv)
 
 	// codegen passes
 	stringstream ss;
+	pm->add_codegen_pass (new Fake_pass(s("codegen"), s("Last pass before codegen")));
 	pm->add_codegen_visitor (new Generate_C_annotations, s("cgann"), s("Codegen annotation"));
 	pm->add_codegen_pass (new Generate_C_pass (ss));
 	pm->add_codegen_pass (new Compile_C (ss));
@@ -251,7 +252,7 @@ int main(int argc, char** argv)
 				String* pass_name = new String (args_info.read_xml_arg);
 
 				// We'd like debug info while parsing too.
-				pm->maybe_enable_debug (pm->get_pass_named (pass_name));
+				pm->maybe_enable_debug (pass_name);
 
 				XML_parser parser;
 				if(args_info.inputs_num == 0)

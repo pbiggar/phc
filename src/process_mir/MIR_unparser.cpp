@@ -53,8 +53,7 @@ void MIR_unparser::unparse (IR::Node* in)
 	{
 		VARIABLE_NAME* var_name = dyc<VARIABLE_NAME> (in);
 		ast_unparser.unparse (
-			new AST::VARIABLE_NAME (
-				var_name->value));
+			new AST::VARIABLE_NAME(var_name->value));
 	}
 	else if (isa<Variable_variable> (in))
 	{

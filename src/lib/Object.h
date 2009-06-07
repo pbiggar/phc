@@ -115,4 +115,26 @@ supports_cloning<TYPE*>									\
 
 SET_CLONABLE(Object)
 
+
+template<typename T> 
+struct
+supports_equality
+{
+  static const bool value = false;
+};
+
+#define SET_COMPARABLE(TYPE)							\
+template<>													\
+struct														\
+supports_equality<TYPE*>								\
+{																\
+  static const bool value = true;					\
+};																\
+template<>													\
+struct														\
+supports_equality<TYPE>									\
+{																\
+  static const bool value = true;					\
+};
+
 #endif // PHC_OBJECT_H

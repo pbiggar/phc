@@ -11,6 +11,8 @@
 #include <list>
 #include "lib/Object.h"
 #include "process_ir/Foreach.h"
+#include <boost/type_traits/is_pointer.hpp>
+#include <boost/type_traits/is_scalar.hpp>
 
 // XXX HACK
 /*
@@ -22,11 +24,11 @@
  */
 
 namespace IR { class Node; class FOREIGN; class PHP_script; }
-SET_CLONABLE(IR::Node)
-SET_CLONABLE(IR::FOREIGN)
-SET_CLONABLE(IR::PHP_script)
 
-#define MAKETEA_USER_DEFINED(TYPE) SET_CLONABLE(TYPE)
+#define MAKETEA_USER_DEFINED(TYPE) SET_CLONABLE(TYPE) SET_COMPARABLE(TYPE)
+MAKETEA_USER_DEFINED(IR::Node)
+MAKETEA_USER_DEFINED(IR::FOREIGN)
+MAKETEA_USER_DEFINED(IR::PHP_script)
 #include "AST_user_defined.h"
 #include "HIR_user_defined.h"
 #include "MIR_user_defined.h"
@@ -41,20 +43,18 @@ SET_CLONABLE(IR::PHP_script)
  */
 
 template<bool b> 
-struct algorithm_selector 
+struct clone_algorithm_selector 
 { 
 	template<typename T> 
-	static T& clone (T object) 
-	{ 
-		assert (0);
+	static T clone (T object) 
+	{
+		return object;
 	} 
 };
 
-
-
 // Call to clone for classes that support it.
 template<> 
-struct algorithm_selector<true>
+struct clone_algorithm_selector<true>
 { 
 	template<typename T> 
 	static T clone (T object)
@@ -68,7 +68,57 @@ struct algorithm_selector<true>
 template<typename T> 
 T phc_clone (T object)
 { 
-	return algorithm_selector<supports_cloning<T>::value>::clone(object); 
+	return clone_algorithm_selector<supports_cloning<T>::value>::clone(object); 
+}
+
+template<bool supports_equality, bool is_scalar, bool is_pointer> 
+struct equals_algorithm_selector 
+{ 
+	template<typename T> 
+	static bool equals (T object1, T object2) 
+	{
+		// This probably doesn't do what you want in this case.
+		abort();
+	} 
+};
+
+// Non-pointers which have operator== should work too (like strings and
+// primitives).
+template<> 
+struct equals_algorithm_selector<false, true, false>
+{ 
+	template<typename T> 
+	static bool equals (T object1, T object2)
+	{ 
+		return object1 == object2;
+	} 
+};
+
+// Call to equals for classes that support it.
+template<> 
+struct equals_algorithm_selector<true, true, true>
+{ 
+	template<typename T> 
+	static bool equals (T object1, T object2)
+	{ 
+		return object1->equals (object2); 
+	} 
+};
+
+template<> 
+struct equals_algorithm_selector<true, false, false>
+{ 
+	template<typename T> 
+	static bool equals (T object1, T object2)
+	{ 
+		return object1.equals (&object2); 
+	} 
+};
+
+template<typename T> 
+bool phc_equals (T object1, T object2)
+{ 
+	return equals_algorithm_selector<supports_equality<T>::value, boost::is_scalar<T>::value, boost::is_pointer<T>::value>::equals(object1, object2); 
 }
 
 
@@ -164,23 +214,37 @@ public:
 };
 
 template <class Result_type, class List_type>
-List<Result_type*>* rewrap_list (List<List_type*>* nodes)
+List<Result_type*>* rewrap_list (List<List_type*>* list)
 {
 	List<Result_type*>* result = new List<Result_type*>;
-	foreach (List_type* n, *nodes)
+	foreach (List_type* n, *list)
 	{
 		result->push_back (dyc<Result_type> (n));
 	}
 	return result;
 }
 
+// A filter that removes objects not of the type FILTER_TYPE.
+template <class Filter_type, class List_type>
+List<Filter_type*>* filter_types (List<List_type*>* list)
+{
+	List<Filter_type*>* result = new List<Filter_type*>;
+	foreach (List_type* n, *list)
+	{
+		if (isa<Filter_type> (n))
+			result->push_back (dyc<Filter_type> (n));
+	}
+	return result;
+}
+
+
 typedef List<Object*> Object_list;
-class Boolean;
-typedef List<Boolean*> Boolean_list;
-class Integer;
-typedef List<Integer*> Integer_list;
-class String;
-typedef List<String*> String_list;
+
+#define DECL_LIST(T) typedef List<T*> T##_list;
+#define DECL(T) class T; DECL_LIST (T)
+DECL (Boolean);
+DECL (Integer);
+DECL (String);
 
 
 #endif // PHC_LIST_H

@@ -88,8 +88,8 @@ public:
 
 
 	void list_passes ();
-	void dump (IR::PHP_script* in, Pass* pass);
-	void maybe_enable_debug (Pass* pass);
+	void dump (IR::PHP_script* in, String* passname);
+	void maybe_enable_debug (String* passname);
 
 protected:
 	Pass_queue* ast_queue;

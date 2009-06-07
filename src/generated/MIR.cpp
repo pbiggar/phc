@@ -9801,11 +9801,6 @@ void Variable_variable::assert_valid()
     Node::assert_mixin_valid();
 }
 
-VARIABLE_NAME::VARIABLE_NAME(String* value)
-{
-    this->value = value;
-}
-
 VARIABLE_NAME::VARIABLE_NAME()
 {
     this->value = 0;
@@ -9890,6 +9885,13 @@ void VARIABLE_NAME::assert_valid()
 {
     assert(value != NULL);
     Node::assert_mixin_valid();
+}
+
+VARIABLE_NAME::VARIABLE_NAME(String* name)
+{
+    {
+		this->value = name;
+	}
 }
 
 VARIABLE_NAME::VARIABLE_NAME(const char* name)

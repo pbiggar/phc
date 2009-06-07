@@ -85,6 +85,10 @@ MICG_gen::instantiate (string macro_name, Object_list* params, Node* anchor)
 	// there are multiple macros of the same name, they must use the 'list' type
 	// consistently. Then we can just take the first macro, and use it to expand
 	// the parameters, and still get the correct macro for each parameter list.
+
+	if (macros[macro_name].size () == 0)
+		phc_internal_error ("There is no macro named %s", macro_name.c_str ());
+
 	Macro* first_macro = macros[macro_name].front ();
 
 	if (params->size() != first_macro->signature->formal_parameters->size ())
@@ -107,11 +111,11 @@ MICG_gen::instantiate (string macro_name, Object_list* params, Node* anchor)
 	stringstream ss;
 	foreach (Object_list* actual_params, *this->expand_list_params (first_macro, params))
 	{
-		DEBUG ("Entering " << macro_name << *to_string_rep (actual_params));
 		Macro* m = get_macro (macro_name, actual_params);
+		DEBUG ("Entering " << macro_name << ":" << m->get_line_number () << *to_string_rep (actual_params));
 		Symtable* symtable = get_symtable (m, actual_params);
 		ss << instantiate_body (m->body, symtable);
-		DEBUG ("Exiting " << macro_name << *to_string_rep (actual_params));
+		DEBUG ("Exiting " << macro_name << ":" << m->get_line_number () << *to_string_rep (actual_params));
 	}
 	return ss.str ();
 }

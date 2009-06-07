@@ -15,8 +15,6 @@
 
 // other #includes are in the #else block of HAVE_PHP5
 
-using namespace AST;
-
 #if HAVE_EMBED
 
 #include <sapi/embed/php_embed.h>
@@ -66,7 +64,7 @@ unsigned long PHP::get_hash (String* string)
 		string->size () + 1);
 }
 
-Literal* PHP::convert_token (Literal *in)
+AST::Literal* PHP::convert_token (AST::Literal *in)
 {
 	String* code = in->get_source_rep ();
 	assert (code);
@@ -75,16 +73,16 @@ Literal* PHP::convert_token (Literal *in)
 	bool ret = eval_string (code, &value, in);
 	assert (ret);
 
-	Literal* result = zval_to_ast_literal (&value);
+	AST::Literal* result = zval_to_ast_literal (&value);
 	result->attrs->clone_all_from (in->attrs);
 	return result;
 }
 
 
-Expr* PHP::fold_constant_expr (Expr* in)
+AST::Expr* PHP::fold_constant_expr (AST::Expr* in)
 {
 	// Avoid parse errors due to '{'
-	Expr* clone = in->clone ();
+	AST::Expr* clone = in->clone ();
 	clone->attrs->erase_with_prefix ("phc.unparser");
 
 	stringstream ss;
@@ -101,7 +99,7 @@ Expr* PHP::fold_constant_expr (Expr* in)
 		return in;
 	}
 
-	Literal* result = zval_to_ast_literal (&value);
+	AST::Literal* result = zval_to_ast_literal (&value);
 	zval_dtor (&value); // clear out string structure
 	result->attrs->clone_all_from (in->attrs);
 	return result;

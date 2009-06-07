@@ -2646,8 +2646,6 @@ public:
 
 class VARIABLE_NAME : virtual public Rvalue, virtual public Target, virtual public Variable_name, virtual public Identifier
 {
-public:
-    VARIABLE_NAME(String* value);
 protected:
     VARIABLE_NAME();
 public:
@@ -2672,6 +2670,7 @@ public:
 public:
     virtual void assert_valid();
 public:
+    VARIABLE_NAME(String* name);
     VARIABLE_NAME(const char* name);
 };
 

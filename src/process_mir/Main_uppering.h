@@ -15,8 +15,6 @@
 class Main_uppering : public MIR::Visitor, virtual public GC_obj
 {
 public:
-	// TODO: Perhaps a better way to test this si to replace all local
-	// variables $x with GLOBALS["x"]?
 	void post_php_script (MIR::PHP_script* in)
 	{
 		if (in->statements->size () > 0

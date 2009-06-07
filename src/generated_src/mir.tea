@@ -418,6 +418,11 @@ public:
 class VARIABLE_NAME
 {
 public:
+	VARIABLE_NAME (String* name)
+	{
+		this->value = name;
+	}
+
 	VARIABLE_NAME (const char* name)
 	{
 		this->value = new String (name);

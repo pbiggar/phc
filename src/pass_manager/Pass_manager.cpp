@@ -326,26 +326,25 @@ void Pass_manager::list_passes ()
 		}
 }
 
-void Pass_manager::maybe_enable_debug (Pass* pass)
+void
+Pass_manager::maybe_enable_debug (String* pass_name)
 {
 	disable_cdebug ();
 
-	String* name = pass->name;
 	for (unsigned int i = 0; i < args_info->debug_given; i++)
 	{
-		if (*name == args_info->debug_arg [i])
+		if (*pass_name == args_info->debug_arg [i])
 		{
 			enable_cdebug ();
 		}
 	}
 }
 
-void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
+void Pass_manager::dump (IR::PHP_script* in, String* passname)
 {
-	String* name = pass->name;
 	for (unsigned int i = 0; i < args_info->dump_given; i++)
 	{
-		if (*name == args_info->dump_arg [i])
+		if (*passname == args_info->dump_arg [i])
 		{
 			if (in->is_AST ())
 			{
@@ -355,13 +354,15 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 			{
 				if (args_info->convert_uppered_flag)
 				{
-					// this needs to be fixed. It probably used to work when the HIR
-					// was lowered to AST then uppered. However, since the uppering is
-					// now in the MIR, we've nothing to upper this. I think
-					// templatizing the Foreach_uppering should work. However, we want
-					// to replace nodes which need uppering with foreign nodes.
+					// this needs to be fixed. It probably used to work when the
+					// HIR was lowered to AST then uppered. However, since the
+					// uppering is now in the MIR, we've nothing to upper this. I
+					// think templatizing the Foreach_uppering should work.
+					// However, we want to replace nodes which need uppering with
+					// foreign nodes.
 					
-					// I think not supporting this is fine - but dont error as it may be used for MIR.
+					// I think not supporting this is fine - but dont error as it
+					// may be used for MIR.
 					//phc_error ("Uppered dump is not supported during HIR pass: %s", name->c_str ());
 				}
 
@@ -381,7 +382,7 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 
 	for (unsigned int i = 0; i < args_info->dump_dot_given; i++)
 	{
-		if (*name == args_info->dump_dot_arg [i])
+		if (*passname == args_info->dump_dot_arg [i])
 		{
 			// TODO: Works on AST only
 			in->visit(new DOT_unparser());
@@ -390,7 +391,7 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 
 	for (unsigned int i = 0; i < args_info->dump_xml_given; i++)
 	{
-		if (*name == args_info->dump_xml_arg [i])
+		if (*passname == args_info->dump_xml_arg [i])
 		{
 			xml_unparse (in, std::cout, !args_info->no_xml_attrs_flag, !args_info->no_xml_base_64_flag);
 		}
@@ -398,7 +399,7 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 
 	for (unsigned int i = 0; i < args_info->stats_given; i++)
 	{
-		if (*name == args_info->stats_arg [i])
+		if (*passname == args_info->stats_arg [i])
 		{
 			dump_stats ();
 			reset_stats ();
@@ -424,11 +425,11 @@ void Pass_manager::run_pass (Pass* pass, IR::PHP_script* in, bool main)
 		cout << "Running pass: " << *pass->name << endl;
 
 	if (main)
-		maybe_enable_debug (pass);
+		maybe_enable_debug (pass->name);
 
 	pass->run_pass (in, this);
 	if (main)
-		this->dump (in, pass);
+		this->dump (in, pass->name);
 
 	if (check)
 		::check (in, false);

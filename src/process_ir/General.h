@@ -17,6 +17,8 @@
 #include "fresh.h"
 #include "parsing/Parse_buffer.h"
 
+using boost::lexical_cast;
+
 bool is_builtin_function (String* name);
 
 #endif // PHC_GENERAL
