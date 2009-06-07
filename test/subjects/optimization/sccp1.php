@@ -4,7 +4,7 @@
 	{
 
 		// Tests sccp into a binop
-		// { phc-option: -O1 --dump=outssa }
+		// { phc-option: -O1 --dump=codegen }
 
 		// Check propagation into bin_ops
 		// { phc-regex-output: /5 </ }

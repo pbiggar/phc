@@ -1,6 +1,6 @@
 <?php
 
-	// { phc-option: -O1 --dump=outssa }
+	// { phc-option: -O1 --dump=codegen }
 	// { phc-regex-output: !/\$[abcdewz123]/ }
 
 	function test ()
