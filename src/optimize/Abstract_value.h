@@ -13,56 +13,56 @@
 #ifndef PHC_ABSTRACT_VALUE_H
 #define PHC_ABSTRACT_VALUE_H
 
-#include "lib/Object.h"
-#include "wpa/Type_inference.h"
+#include "process_ir/debug.h"
 
-class Lattice_cell;
+#include "lib/Object.h"
+#include "lib/Set.h"
+#include "lib/String.h"
+
 namespace MIR { class Literal; }
+
+typedef Set<string> Types;
 
 class Abstract_value : public GC_obj
 {
 public:
-	Lattice_cell* lit;
-	Lattice_cell* type;
+	MIR::Literal* const lit;
+	Types* const types;
 
 public:
-	Abstract_value (Lattice_cell* lit, Lattice_cell* type);
-	Types get_types ();
-	MIR::Literal* get_literal ();
+	Abstract_value (MIR::Literal* lit);
+	Abstract_value (Types* types);
+
+	// An unknown type is awful.
+	static Abstract_value* unknown ();
 
 	// These could have a truth value incorporated - for now just use the
 	// constant.
 	bool known_true ();
 	bool known_false ();
 
-
-	void dump ();
-
-public:
-	// Factories
-	static Abstract_value* from_literal (MIR::Literal* lit);
-	static Abstract_value* from_types (Types types);
-
-	// We dont know anything
-	static Abstract_value* unknown ();
-};
-
-
-/*
- * This is the simplest way to get this working, but its really nasty. I'm
- * going to change Abstract_value to take a Types and Literal, instead of
- * Lattices, and combine the functionality.
- */
-class Absval_cell : public Lattice_cell
-{
-public:
-	Absval_cell (Abstract_value*);
+	bool equals (Abstract_value* absval);
 
 	void dump (std::ostream& os = cdebug);
-	bool equals (Lattice_cell* other);
 
-	Abstract_value* value;
+private:
+	Abstract_value (MIR::Literal*, Types* types);
 };
+
+namespace Type_info
+{
+	void dump_types (std::ostream& os, Types* types);
+	Types* get_type (MIR::Literal* lit);
+	Types* get_all_scalar_types ();
+
+	// Given a set of types, we want to know which types are scalars, which is
+	// an array, and which are objects. These return new sets with only the
+	// appropriate types in them.
+	// TODO: all this time I've been ignoring resources!!
+	Types* get_scalar_types (Types*);
+	Types* get_array_types (Types*); // can only be "array" or empty
+	Types* get_object_types (Types*); // anything thats not covered above.
+}
 
 
 

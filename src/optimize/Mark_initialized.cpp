@@ -40,7 +40,7 @@
 using namespace boost;
 using namespace std;
 using namespace MIR;
-
+#if 0
 
 Mark_initialized::Mark_initialized ()
 : Flow_visitor (FORWARD_FLOW)
@@ -259,3 +259,5 @@ Init_cell::equals (Lattice_cell* other)
 {
 	return other == this;
 }
+
+#endif

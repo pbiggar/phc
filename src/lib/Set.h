@@ -11,7 +11,10 @@
 #include <iterator>
 #include <set>
 #include <algorithm>
+
 #include "assert.h"
+
+#include <lib/List.h>
 
 template <
 	typename _Tp, 

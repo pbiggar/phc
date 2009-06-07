@@ -11,77 +11,63 @@
  */
 
 #include "process_ir/debug.h"
+#include "MIR.h"
 
 #include "Abstract_value.h"
-#include "Lattice.h"
-#include "wpa/CCP.h"
-#include "wpa/Type_inference.h"
+#include "embed/embed.h"
 
-Abstract_value::Abstract_value (Lattice_cell* lit, Lattice_cell* type)
+using MIR::Literal;
+using namespace std;
+
+Abstract_value::Abstract_value (Literal* lit)
 : lit (lit)
-, type (type)
+, types (Type_info::get_type (lit))
 {
 }
 
-void
-Abstract_value::dump ()
+Abstract_value::Abstract_value (Types* types)
+: lit (NULL)
+, types (types)
 {
-	CHECK_DEBUG ();
-	cdebug << "{";
-	dump_cell (lit, cdebug);
-	cdebug << ", ";
-	dump_cell (type, cdebug);
-	cdebug << "}";
 }
 
-Types
-Abstract_value::get_types ()
+Abstract_value::Abstract_value (Literal* lit, Types* types)
+: lit (lit)
+, types (types)
 {
-	assert (type != BOTTOM);
-	if (type == TOP)
-		return Types ("unset");
-
-	return dyc<Type_cell> (type)->types;
-}
-
-MIR::Literal*
-Abstract_value::get_literal ()
-{
-	if (this->lit == TOP)
-		return new MIR::NIL;
-
-	if (this->lit == BOTTOM)
-		return NULL;
-
-	return dyc<Literal_cell> (lit)->value;
-}
-
-Abstract_value*
-Abstract_value::from_literal (MIR::Literal* lit)
-{
-	return new Abstract_value (
-		new Literal_cell (lit),
-		new Type_cell (Type_inference::get_type (lit)));
-}
-
-Abstract_value*
-Abstract_value::from_types (Types types)
-{
-	return new Abstract_value (BOTTOM, new Type_cell (types));
 }
 
 Abstract_value*
 Abstract_value::unknown ()
 {
-	return new Abstract_value (
-		BOTTOM,
-		new Type_cell (Type_inference::get_all_scalar_types ()));
+	return new Abstract_value (NULL, NULL);
+}
+
+
+void
+Abstract_value::dump (ostream& os)
+{
+	CHECK_DEBUG ();
+	os << "(";
+	if (lit)
+		os << *lit->get_value_as_string ();
+	else
+		os << "(B)";
+
+	os << ", {";
+
+	if (types)
+		Type_info::dump_types (os, types);
+	else
+		os << "(B)";
+
+	os << "})";
 }
 
 bool
 Abstract_value::known_false ()
 {
-	if (lit == BOTTOM)
+	if (lit == NULL)
 		return false;
 
 	return not this->known_true ();
@@ -90,35 +76,128 @@ Abstract_value::known_false ()
 bool
 Abstract_value::known_true ()
 {
-	if (lit == BOTTOM)
+	if (lit == NULL)
 		return false;
 
-	if (lit == TOP)
-		return false;
-
-	return PHP::is_true (dyc<Literal_cell> (lit)->value);
+	return PHP::is_true (lit);
 }
 
-
-
-Absval_cell::Absval_cell (Abstract_value* value)
-: value (value)
-{
-}
-
-void
-Absval_cell::dump (std::ostream& os)
-{
-	os << "(";
-	value->lit->dump (os);
-	os << ", ";
-	value->type->dump (os);
-	os << ")";
-}
 
 bool
-Absval_cell::equals (Lattice_cell* other)
+Abstract_value::equals (Abstract_value* other)
 {
-	return value->lit->equals (dyc<Absval_cell> (other)->value->lit)
-		&& value->type->equals (dyc<Absval_cell> (other)->value->type);
+	if (this->lit == NULL || other->lit == NULL)
+		return this->lit == other->lit;
+	else
+		return this->lit->equals (other->lit);
+
+	if (this->types == NULL || other->types == NULL)
+		return this->types == other->types;
+	else
+		return this->types->equals (other->types);
 }
+
+
+
+namespace Type_info
+{
+
+void
+dump_types (ostream& os, Types* types)
+{
+	foreach (string type, *types)
+	{
+		os << type << ", ";
+	}
+}
+
+class MIR_types : public Map<int,string>
+{
+public:
+   MIR_types () : Map<int,string>()
+	{
+		(*this)[MIR::BOOL::ID]		= "bool";
+		(*this)[MIR::INT::ID]		= "int";
+		(*this)[MIR::NIL::ID]		= "unset";
+		(*this)[MIR::REAL::ID]		= "real";
+		(*this)[MIR::STRING::ID]	= "string";
+	}
+};
+
+// Avoid the "static inialization order fiasco"
+MIR_types& mir_types ()
+{
+	static MIR_types types;
+	return types;
+}
+
+class Scalar_types : public Types
+{
+public:
+   Scalar_types () : Types ()
+	{
+		insert ("bool");
+		insert ("int");
+		insert ("unset");
+		insert ("real");
+		insert ("string");
+	}
+};
+
+// Avoid the "static inialization order fiasco"
+Scalar_types& scalar_types ()
+{
+	static Scalar_types types;
+	return types;
+}
+
+Types*
+get_all_scalar_types ()
+{
+	return &scalar_types ();
+}
+
+Types*
+get_type (MIR::Literal* lit)
+{
+	return new Types (mir_types() [lit->classid()]);
+}
+
+
+Types*
+get_scalar_types (Types* in)
+{
+	Types* out = new Types;
+
+	// Faster and simpler to check for each scalar type than the other way
+	// round.
+	foreach (string scalar, scalar_types())
+		if (in->has (scalar))
+			out->insert (scalar);
+
+	return out;
+}
+
+Types*
+get_array_types (Types* in)
+{
+	if (in->has ("array"))
+		return new Types ("array");
+	else
+		return new Types ();
+}
+
+Types*
+get_object_types (Types* in)
+{
+	Types* out = new Types;
+	foreach (string type, *in)
+		if (!scalar_types().has (type) && type != "array")
+			out->insert (type);
+
+	return out;
+}
+
+} // end namespace
+
+

@@ -49,17 +49,18 @@ class Basic_block;
 
 class Aliasing;
 class Callgraph;
-class CCP;
 class Constant_state;
 class Def_use;
 class Include_analysis;
+class Value_analysis;
+class VRP;
+
 class Optimization_transformer;
 class Optimization_annotator;
 class Pass_manager;
 class Path;
-class Type_inference;
-class VRP;
 class WPA;
+class Absval_cell;
 
 
 // This gets used everywhere.
@@ -85,10 +86,9 @@ public:
 	// results.
 	Aliasing* aliasing;
 	Callgraph* callgraph;
-	CCP* ccp;
 	Constant_state* constants;
 	Def_use* def_use;
-	Type_inference* type_inf;
+	Value_analysis* values;
 
 	// For assignments
 	Path* saved_plhs;
@@ -177,13 +177,14 @@ public:
 	// These functions describe the operation being performed in each block.
 	// They pass the information to the Points-to graph, and to the other
 	// analyses. The BB is to give a unique index to the results.
-	void assign_absval (Context cx, Path* lhs, Abstract_value* absval);
 	void assign_scalar (Context cx, Path* lhs, MIR::Literal* lit);
+	void assign_scalar (Context cx, Path* plhs, Abstract_value* absval);
 	void assign_unknown (Context cx, Path* lhs);
-	void assign_typed (Context cx, Path* lhs, Types types);
+	void assign_typed (Context cx, Path* lhs, Types* types);
 	void assign_empty_array (Context cx, Path* lhs, string name);
 	void assign_by_ref (Context cx, Path* lhs, Path* rhs);
 	void assign_by_copy (Context cx, Path* lhs, Path* rhs);
+
 
 	// Copy the value from RHS to LHS.
 	void copy_value (Context cx, Index_node* lhs, Index_node* rhs);

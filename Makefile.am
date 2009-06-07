@@ -208,7 +208,6 @@ libphc_la_SOURCES= 											\
 	src/optimize/If_simplification.h						\
 	src/optimize/Inlining.cpp								\
 	src/optimize/Inlining.h									\
-	src/optimize/Lattice.cpp								\
 	src/optimize/Lattice.h									\
 	src/optimize/Mark_initialized.cpp					\
 	src/optimize/Mark_initialized.h						\
@@ -239,8 +238,6 @@ libphc_la_SOURCES= 											\
 	src/optimize/wpa/Aliasing.h							\
 	src/optimize/wpa/Callgraph.cpp						\
 	src/optimize/wpa/Callgraph.h							\
-	src/optimize/wpa/CCP.cpp								\
-	src/optimize/wpa/CCP.h									\
 	src/optimize/wpa/Constant_state.cpp					\
 	src/optimize/wpa/Constant_state.h					\
 	src/optimize/wpa/Context.cpp							\
@@ -257,15 +254,14 @@ libphc_la_SOURCES= 											\
 	src/optimize/wpa/Optimization_transformer.h		\
 	src/optimize/wpa/Points_to.cpp						\
 	src/optimize/wpa/Points_to.h							\
-	src/optimize/wpa/Type_inference.cpp					\
-	src/optimize/wpa/Type_inference.h					\
+	src/optimize/wpa/Value_analysis.cpp					\
+	src/optimize/wpa/Value_analysis.h					\
 	src/optimize/wpa/VRP.cpp								\
 	src/optimize/wpa/VRP.h									\
 	src/optimize/wpa/Whole_program.cpp					\
 	src/optimize/wpa/Whole_program.h						\
 	src/optimize/wpa/WPA.cpp								\
 	src/optimize/wpa/WPA.h									\
-	src/optimize/wpa/WPA_lattice.cpp						\
 	src/optimize/wpa/WPA_lattice.h						\
 	src/parsing/MICG_parser.cpp							\
 	src/parsing/MICG_parser.h								\

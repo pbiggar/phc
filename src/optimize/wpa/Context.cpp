@@ -244,27 +244,3 @@ operator<< (std::ostream &out, const Context &cx)
 	out << cx.full_name ();
 	return out;
 }
-
-
-
-void
-CX_lattices::dump (Context cx, string name)
-{
-	if (this->has (cx))
-	{
-		cdebug << name << " Lattice for BB: " << cx << endl;
-		(*this)[cx].dump();
-		cdebug << endl;
-	}
-	else
-		cdebug << "No " << name << " results for BB: " << cx << endl;
-}
-
-void
-CX_lattices::dump_everything (string name)
-{
-	foreach (Context cx, *this->keys())
-	{
-		dump (cx, name);
-	}
-}

@@ -357,22 +357,7 @@ Points_to::dump_graphviz (String* label, Context cx, Whole_program* wp)
 		if (isa<Value_node> (node))
 		{
 			Abstract_value* val = wp->get_abstract_value (cx, node->name());
-
-			if (val->lit == BOTTOM)
-				cell_label << "(B)";
-			else if (val->lit == TOP)
-				cell_label << "(T)";
-			else
-				dump_cell(val->lit, cell_label);
-
-			cell_label << ", ";
-
-			if (val->type == BOTTOM)
-				cell_label << "(B)";
-			else if (val->type == TOP)
-				cell_label << "(T)";
-			else
-				dump_cell(val->type, cell_label);
+			val->dump (cell_label);
 		}
 		label
 		<< *escape_DOT (s(cell_label.str()))

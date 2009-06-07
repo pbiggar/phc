@@ -7,7 +7,6 @@
  * */
 
 #include "Aliasing.h"
-#include "CCP.h"
 #include "Points_to.h"
 #include "Whole_program.h"
 #include "optimize/Abstract_value.h"
@@ -33,10 +32,10 @@ Optimization_transformer::run (CFG* cfg)
 }
 
 Abstract_value*
-Optimization_transformer::get_abstract_value (Basic_block* bb, Rvalue* in)
+Optimization_transformer::get_in_abstract_value (Basic_block* bb, Rvalue* in)
 {
 	if (isa<Literal> (in))
-		return Abstract_value::from_literal (dyc<Literal> (in));
+		return new Abstract_value (dyc<Literal> (in));
 
 	Context cx = Context::non_contextual (bb);
 	return wp->get_bb_in_abstract_value (
@@ -48,7 +47,7 @@ Abstract_value*
 Optimization_transformer::get_out_abstract_value (Basic_block* bb, Rvalue* in)
 {
 	if (isa<Literal> (in))
-		return Abstract_value::from_literal (dyc<Literal> (in));
+		return new Abstract_value (dyc<Literal> (in));
 
 	Context cx = Context::non_contextual (bb);
 	return wp->get_abstract_value (
@@ -60,34 +59,13 @@ Optimization_transformer::get_out_abstract_value (Basic_block* bb, Rvalue* in)
 Rvalue*
 Optimization_transformer::get_literal (Basic_block* bb, Rvalue* in)
 {
-	Lattice_cell* result = get_abstract_value (bb, in)->lit;
+	Abstract_value* absval = get_in_abstract_value (bb, in);
 
-	if (result == BOTTOM)
+	if (absval->lit == NULL)
 		return in;
 
-	if (result == TOP)
-		return new NIL;
-
-	return dyc<Literal_cell> (result)->value;
+	return absval->lit;
 }
-
-String*
-Optimization_transformer::get_type (Basic_block* bb, Rvalue* in)
-{
-	Lattice_cell* result = get_abstract_value (bb, in)->type;
-
-	if (result == BOTTOM)
-		return NULL;
-
-	if (result == TOP)
-		return s("unset");
-
-	if (dyc<Type_cell> (result)->types.size () != 1)
-		return  NULL;
-
-	return s (*dyc<Type_cell> (result)->types.begin ());
-}
-
 
 void
 Optimization_transformer::visit_assign_array (Statement_block* bb, MIR::Assign_array* in)
@@ -114,7 +92,7 @@ Optimization_transformer::visit_assign_var (Statement_block* bb, MIR::Assign_var
 	if (not in->is_ref && not isa<Method_invocation> (in->rhs) && not isa<New> (in->rhs))
 	{
 		// If the RHS value is known, replace it outright.
-		Literal* lit = get_out_abstract_value (bb, in->lhs)->get_literal ();
+		Literal* lit = get_out_abstract_value (bb, in->lhs)->lit;
 
 		if (lit)
 			in->rhs = lit;
@@ -165,7 +143,7 @@ Optimization_transformer::visit_global (Statement_block* bb, MIR::Global* in)
 void
 Optimization_transformer::visit_pre_op (Statement_block* bb, MIR::Pre_op* in)
 {
-	Literal* lit = get_out_abstract_value (bb, in->variable_name)->get_literal ();
+	Literal* lit = get_out_abstract_value (bb, in->variable_name)->lit;
 
 	if (lit)
 		bb->statement = new Assign_var (in->variable_name, lit);

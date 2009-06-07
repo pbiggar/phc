@@ -7,12 +7,12 @@
  */
 
 #include "Constant_state.h"
-#include "optimize/Abstract_value.h"
+#include "Value_analysis.h"
 
 using namespace MIR;
 
 Constant_state::Constant_state (Whole_program* wp)
-: WPA_lattice (wp)
+: WPA_lattice<Absval_cell> (wp)
 {
 }
 
@@ -51,8 +51,8 @@ Constant_state::get_constant (Context cx, string name)
 {
 	// TODO: check for unknown constants
 	if (not is_constant_defined (cx, name))
-		return Abstract_value::from_literal (new STRING (s(name)));
+		return new Abstract_value (new STRING (s(name)));
 
-	return dyc<Absval_cell> (outs[cx][name])->value;
+	return outs[cx][name]->value;
 }
 

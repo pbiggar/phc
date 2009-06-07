@@ -77,7 +77,7 @@ Debug_WPA::set_scalar (Context cx, Value_node* storage, Abstract_value* val)
 }
 
 void
-Debug_WPA::set_storage (Context cx, Storage_node* storage, Types types)
+Debug_WPA::set_storage (Context cx, Storage_node* storage, Types* types)
 {
 	CHECK_DEBUG ();
 
@@ -86,7 +86,7 @@ Debug_WPA::set_storage (Context cx, Storage_node* storage, Types types)
 	<< ": " << storage->name().str ()
 	<< ", (";
 
-	(new Type_cell(types))->dump (cdebug);
+	Type_info::dump_types (cdebug, types);
 
 	cdebug << "), " << endl;
 }

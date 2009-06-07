@@ -109,24 +109,24 @@ am_libphc_la_OBJECTS = getopt1.lo getopt.lo AST_annotate.lo \
 	Abstract_value.lo Alias_name.lo Basic_block.lo CFG.lo \
 	CFG_visitor.lo Class_info.lo Dead_code_elimination.lo \
 	Def_use_web.lo Edge.lo Flow_visitor.lo If_simplification.lo \
-	Inlining.lo Lattice.lo Mark_initialized.lo Method_info.lo \
+	Inlining.lo Mark_initialized.lo Method_info.lo \
 	Misc_annotations.lo Oracle.lo Prune_symbol_table.lo \
 	Remove_loop_booleans.lo Dominance.lo HSSA.lo Phi.lo SSA_ops.lo \
-	Var_set.lo Visit_once.lo Aliasing.lo Callgraph.lo CCP.lo \
+	Var_set.lo Visit_once.lo Aliasing.lo Callgraph.lo \
 	Constant_state.lo Context.lo Debug_WPA.lo Def_use.lo \
 	Include_analysis.lo Optimization_annotator.lo \
-	Optimization_transformer.lo Points_to.lo Type_inference.lo \
-	VRP.lo Whole_program.lo WPA.lo WPA_lattice.lo MICG_parser.lo \
-	Parse_buffer.lo parse.lo PHP_context.lo XML_parser.lo \
-	Optimization_pass.lo Pass_manager.lo Plugin_pass.lo \
-	AST_unparser.lo Constant_folding.lo DOT_unparser.lo \
-	Invalid_check.lo Note_top_level_declarations.lo \
-	Process_includes.lo Remove_concat_null.lo \
-	Remove_parser_temporaries.lo Strip_unparser_attributes.lo \
-	Token_conversion.lo HIR_unparser.lo debug.lo fresh.lo \
-	General.lo IR.lo PHP_unparser.lo stats.lo XML_unparser.lo \
-	Alias_uppering.lo Foreach_uppering.lo Goto_uppering.lo \
-	MIR_unparser.lo Param_is_ref_uppering.lo
+	Optimization_transformer.lo Points_to.lo Value_analysis.lo \
+	VRP.lo Whole_program.lo WPA.lo MICG_parser.lo Parse_buffer.lo \
+	parse.lo PHP_context.lo XML_parser.lo Optimization_pass.lo \
+	Pass_manager.lo Plugin_pass.lo AST_unparser.lo \
+	Constant_folding.lo DOT_unparser.lo Invalid_check.lo \
+	Note_top_level_declarations.lo Process_includes.lo \
+	Remove_concat_null.lo Remove_parser_temporaries.lo \
+	Strip_unparser_attributes.lo Token_conversion.lo \
+	HIR_unparser.lo debug.lo fresh.lo General.lo IR.lo \
+	PHP_unparser.lo stats.lo XML_unparser.lo Alias_uppering.lo \
+	Foreach_uppering.lo Goto_uppering.lo MIR_unparser.lo \
+	Param_is_ref_uppering.lo
 libphc_la_OBJECTS = $(am_libphc_la_OBJECTS)
 plugins_tests_canonical_unparser_la_LIBADD =
 am_plugins_tests_canonical_unparser_la_OBJECTS =  \
@@ -798,7 +798,6 @@ libphc_la_SOURCES = \
 	src/optimize/If_simplification.h						\
 	src/optimize/Inlining.cpp								\
 	src/optimize/Inlining.h									\
-	src/optimize/Lattice.cpp								\
 	src/optimize/Lattice.h									\
 	src/optimize/Mark_initialized.cpp					\
 	src/optimize/Mark_initialized.h						\
@@ -829,8 +828,6 @@ libphc_la_SOURCES = \
 	src/optimize/wpa/Aliasing.h							\
 	src/optimize/wpa/Callgraph.cpp						\
 	src/optimize/wpa/Callgraph.h							\
-	src/optimize/wpa/CCP.cpp								\
-	src/optimize/wpa/CCP.h									\
 	src/optimize/wpa/Constant_state.cpp					\
 	src/optimize/wpa/Constant_state.h					\
 	src/optimize/wpa/Context.cpp							\
@@ -847,15 +844,14 @@ libphc_la_SOURCES = \
 	src/optimize/wpa/Optimization_transformer.h		\
 	src/optimize/wpa/Points_to.cpp						\
 	src/optimize/wpa/Points_to.h							\
-	src/optimize/wpa/Type_inference.cpp					\
-	src/optimize/wpa/Type_inference.h					\
+	src/optimize/wpa/Value_analysis.cpp					\
+	src/optimize/wpa/Value_analysis.h					\
 	src/optimize/wpa/VRP.cpp								\
 	src/optimize/wpa/VRP.h									\
 	src/optimize/wpa/Whole_program.cpp					\
 	src/optimize/wpa/Whole_program.h						\
 	src/optimize/wpa/WPA.cpp								\
 	src/optimize/wpa/WPA.h									\
-	src/optimize/wpa/WPA_lattice.cpp						\
 	src/optimize/wpa/WPA_lattice.h						\
 	src/parsing/MICG_parser.cpp							\
 	src/parsing/MICG_parser.h								\
@@ -1438,7 +1434,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AttrMap.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Basic_block.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Boolean.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CCP.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CFG.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CFG_visitor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/C_unparser.Plo@am__quote@
@@ -1482,7 +1477,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/InsertDB.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Integer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Invalid_check.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Lattice.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Lift_functions_and_classes.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/List_shredder.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Lower_control_flow.Plo@am__quote@
@@ -1533,12 +1527,11 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Strip_unparser_attributes.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Switch_bin_op.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Token_conversion.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Type_inference.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VRP.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Value_analysis.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Var_set.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Visit_once.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/WPA.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/WPA_lattice.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Whole_program.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/XML_parser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/XML_unparser.Plo@am__quote@
@@ -2119,13 +2112,6 @@ Inlining.lo: src/optimize/Inlining.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Inlining.lo `test -f 'src/optimize/Inlining.cpp' || echo '$(srcdir)/'`src/optimize/Inlining.cpp
 
-Lattice.lo: src/optimize/Lattice.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Lattice.lo -MD -MP -MF $(DEPDIR)/Lattice.Tpo -c -o Lattice.lo `test -f 'src/optimize/Lattice.cpp' || echo '$(srcdir)/'`src/optimize/Lattice.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Lattice.Tpo $(DEPDIR)/Lattice.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Lattice.cpp' object='Lattice.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Lattice.lo `test -f 'src/optimize/Lattice.cpp' || echo '$(srcdir)/'`src/optimize/Lattice.cpp
-
 Mark_initialized.lo: src/optimize/Mark_initialized.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Mark_initialized.lo -MD -MP -MF $(DEPDIR)/Mark_initialized.Tpo -c -o Mark_initialized.lo `test -f 'src/optimize/Mark_initialized.cpp' || echo '$(srcdir)/'`src/optimize/Mark_initialized.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Mark_initialized.Tpo $(DEPDIR)/Mark_initialized.Plo
@@ -2224,13 +2210,6 @@ Callgraph.lo: src/optimize/wpa/Callgraph.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Callgraph.lo `test -f 'src/optimize/wpa/Callgraph.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Callgraph.cpp
 
-CCP.lo: src/optimize/wpa/CCP.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT CCP.lo -MD -MP -MF $(DEPDIR)/CCP.Tpo -c -o CCP.lo `test -f 'src/optimize/wpa/CCP.cpp' || echo '$(srcdir)/'`src/optimize/wpa/CCP.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/CCP.Tpo $(DEPDIR)/CCP.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/wpa/CCP.cpp' object='CCP.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o CCP.lo `test -f 'src/optimize/wpa/CCP.cpp' || echo '$(srcdir)/'`src/optimize/wpa/CCP.cpp
-
 Constant_state.lo: src/optimize/wpa/Constant_state.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Constant_state.lo -MD -MP -MF $(DEPDIR)/Constant_state.Tpo -c -o Constant_state.lo `test -f 'src/optimize/wpa/Constant_state.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Constant_state.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Constant_state.Tpo $(DEPDIR)/Constant_state.Plo
@@ -2287,12 +2266,12 @@ Points_to.lo: src/optimize/wpa/Points_to.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Points_to.lo `test -f 'src/optimize/wpa/Points_to.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Points_to.cpp
 
-Type_inference.lo: src/optimize/wpa/Type_inference.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Type_inference.lo -MD -MP -MF $(DEPDIR)/Type_inference.Tpo -c -o Type_inference.lo `test -f 'src/optimize/wpa/Type_inference.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Type_inference.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Type_inference.Tpo $(DEPDIR)/Type_inference.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/wpa/Type_inference.cpp' object='Type_inference.lo' libtool=yes @AMDEPBACKSLASH@
+Value_analysis.lo: src/optimize/wpa/Value_analysis.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Value_analysis.lo -MD -MP -MF $(DEPDIR)/Value_analysis.Tpo -c -o Value_analysis.lo `test -f 'src/optimize/wpa/Value_analysis.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Value_analysis.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Value_analysis.Tpo $(DEPDIR)/Value_analysis.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/wpa/Value_analysis.cpp' object='Value_analysis.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Type_inference.lo `test -f 'src/optimize/wpa/Type_inference.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Type_inference.cpp
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Value_analysis.lo `test -f 'src/optimize/wpa/Value_analysis.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Value_analysis.cpp
 
 VRP.lo: src/optimize/wpa/VRP.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT VRP.lo -MD -MP -MF $(DEPDIR)/VRP.Tpo -c -o VRP.lo `test -f 'src/optimize/wpa/VRP.cpp' || echo '$(srcdir)/'`src/optimize/wpa/VRP.cpp
@@ -2314,13 +2293,6 @@ WPA.lo: src/optimize/wpa/WPA.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/wpa/WPA.cpp' object='WPA.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o WPA.lo `test -f 'src/optimize/wpa/WPA.cpp' || echo '$(srcdir)/'`src/optimize/wpa/WPA.cpp
-
-WPA_lattice.lo: src/optimize/wpa/WPA_lattice.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT WPA_lattice.lo -MD -MP -MF $(DEPDIR)/WPA_lattice.Tpo -c -o WPA_lattice.lo `test -f 'src/optimize/wpa/WPA_lattice.cpp' || echo '$(srcdir)/'`src/optimize/wpa/WPA_lattice.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/WPA_lattice.Tpo $(DEPDIR)/WPA_lattice.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/wpa/WPA_lattice.cpp' object='WPA_lattice.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o WPA_lattice.lo `test -f 'src/optimize/wpa/WPA_lattice.cpp' || echo '$(srcdir)/'`src/optimize/wpa/WPA_lattice.cpp
 
 MICG_parser.lo: src/parsing/MICG_parser.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT MICG_parser.lo -MD -MP -MF $(DEPDIR)/MICG_parser.Tpo -c -o MICG_parser.lo `test -f 'src/parsing/MICG_parser.cpp' || echo '$(srcdir)/'`src/parsing/MICG_parser.cpp

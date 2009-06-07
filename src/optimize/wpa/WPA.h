@@ -14,6 +14,7 @@
 #include "optimize/Oracle.h"
 #include "optimize/CFG_visitor.h"
 #include "optimize/Lattice.h"
+#include "optimize/Abstract_value.h"
 #include "Context.h"
 
 class Whole_program;
@@ -42,8 +43,6 @@ bool is_valid_certainty (Certainty cert);
 
 // Return value's name
 #define RETNAME "__RETNAME__"
-
-typedef Set<string> Types;
 
 /* Although we dont need to implement all functions from WPA in every analysis,
  * it is useful to check which conform, especially when the interfaces are
@@ -107,7 +106,7 @@ public:
 
 	// Create STORAGE, with the gives TYPES.
 	virtual void set_storage (Context cx, Storage_node* storage,
-									  Types types) CT_IMPL;
+									  Types* types) CT_IMPL;
 
 	// Create STORAGE, an abstract value with the given types.
 	virtual void set_scalar (Context cx, Value_node* storage,

@@ -173,7 +173,7 @@ Aliasing::kill_reference (Context cx, Index_node* lhs)
 
 
 void
-Aliasing::set_storage (Context cx, Storage_node* storage, Types types)
+Aliasing::set_storage (Context cx, Storage_node* storage, Types* types)
 {
 	// While it seems like we should be adding a node here, the graph doesnt
 	// actually have nodes, only edges, so we cant add anything.

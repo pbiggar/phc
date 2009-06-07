@@ -25,10 +25,9 @@ public:
 	bool assign_var_is_ref;
 
 	MIR::Rvalue* get_literal (Basic_block* bb, MIR::Rvalue* in);
-	String* get_type (Basic_block* bb, MIR::Rvalue* in);
 
 
-	Abstract_value* get_abstract_value (Basic_block* bb, MIR::Rvalue* in);
+	Abstract_value* get_in_abstract_value (Basic_block* bb, MIR::Rvalue* in);
 	Abstract_value* get_out_abstract_value (Basic_block* bb, MIR::Rvalue* in);
 
 	void visit_assign_array (Statement_block* bb, MIR::Assign_array* in);

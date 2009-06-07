@@ -52,18 +52,21 @@
 
 
 
-class Init_cell : public Lattice_cell
+class Init_cell
 {
+public:
 	void dump (std::ostream& os = cdebug);
-	bool equals (Lattice_cell*);
+	bool equals (Init_cell*);
+
+	// We only need one instance of INIT and UNINIT, since they're all the same.
+	static Init_cell* INIT;
+	static Init_cell* UNINIT;
 };
 
 // TOP -> INIT   -> BOTTOM
 //        UNINIT
-// We only need one instance of INIT and UNINIT, since they're all the same.
-extern Init_cell* INIT;
-extern Init_cell* UNINIT;
 
+/*
 class Mark_initialized : public Flow_visitor
 {
 	Map<Basic_block*, Var_set> local_defs;
@@ -90,5 +93,6 @@ public:
 	// Use the analysis
 	void post_pass (CFG* cfg);
 };
+*/
 
 #endif // PHC_MARK_INITIALIZED

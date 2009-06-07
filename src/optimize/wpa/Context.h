@@ -65,11 +65,29 @@ std::ostream &operator<< (std::ostream &out, const Context &num);
 
 #include "optimize/Lattice.h"
 
-class CX_lattices : public Map<Context, Lattice_map>
+template <class Cell_type>
+class CX_lattices : public Map<Context, Lattice_map<Cell_type> >
 {
 public:
-	void dump (Context cx, string name);
-	void dump_everything (string name);
+	void dump (Context cx, string name)
+	{
+		if (this->has (cx))
+		{
+			cdebug << name << " Lattice for BB: " << cx << std::endl;
+			(*this)[cx].dump();
+			cdebug << std::endl;
+		}
+		else
+			cdebug << "No " << name << " results for BB: " << cx << std::endl;
+	}
+
+	void dump_everything (string name)
+	{
+		foreach (Context cx, *this->keys())
+		{
+			dump (cx, name);
+		}
+	}
 };
 
 

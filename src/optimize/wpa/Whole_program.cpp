@@ -79,18 +79,18 @@
 #include "Whole_program.h"
 #include "WPA.h"
 
+#include "Debug_WPA.h"
 #include "Aliasing.h"
 #include "Callgraph.h"
-#include "CCP.h"
 #include "Constant_state.h"
-#include "Debug_WPA.h"
 #include "Def_use.h"
 #include "Include_analysis.h"
+#include "Value_analysis.h"
+#include "VRP.h"
+
 #include "Optimization_annotator.h"
 #include "Optimization_transformer.h"
 #include "Points_to.h"
-#include "Type_inference.h"
-#include "VRP.h"
 
 using namespace MIR;
 using namespace boost;
@@ -232,20 +232,18 @@ Whole_program::initialize ()
 	// Create new analyses with empty results
 	aliasing = new Aliasing (this);
 	callgraph = new Callgraph (this);
-	ccp = new CCP (this);
 	constants = new Constant_state (this);
 	def_use = new Def_use (this);
-	type_inf = new Type_inference (this);
+	values = new Value_analysis (this);
 //	include_analysis = new Include_analysis (this);
 //	vrp = new VRP (this);
 
 	register_analysis ("debug-wpa", new Debug_WPA (this));
 	register_analysis ("aliasing", aliasing);
 	register_analysis ("callgraph", callgraph);
-	register_analysis ("ccp", ccp);
-	register_analysis ("def-use", def_use);
-	register_analysis ("type-inference", type_inf);
 	register_analysis ("constants", constants);
+	register_analysis ("def-use", def_use);
+	register_analysis ("values", values);
 //	register_analysis ("Include_analysis", include_analysis);
 //	register_analysis ("VRP", vrp);
 }
@@ -600,11 +598,11 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context cx)
 	Path* ret_path = P (symtable, new VARIABLE_NAME (RETNAME));
 	if (*info->name == "strlen")
 	{
-		assign_typed (cx, ret_path, Types ("int"));
+		assign_typed (cx, ret_path, new Types ("int"));
 	}
 	else if (*info->name == "dechex")
 	{
-		assign_typed (cx, ret_path, Types ("string"));
+		assign_typed (cx, ret_path, new Types ("string"));
 	}
 	else if (*info->name == "print")
 	{
@@ -612,36 +610,36 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context cx)
 	}
 	else if (*info->name == "is_array")
 	{
-		assign_typed (cx, ret_path, Types ("bool"));
+		assign_typed (cx, ret_path, new Types ("bool"));
 	}
 	else if (*info->name == "is_object")
 	{
-		assign_typed (cx, ret_path, Types ("bool"));
+		assign_typed (cx, ret_path, new Types ("bool"));
 	}
 	else if (*info->name == "trigger_error")
 	{
-		assign_typed (cx, ret_path, Types ("bool"));
+		assign_typed (cx, ret_path, new Types ("bool"));
 	}
 	else if (*info->name == "date_default_timezone_set")
 	{
-		assign_typed (cx, ret_path, Types ("bool"));
+		assign_typed (cx, ret_path, new Types ("bool"));
 	}
 	else if (*info->name == "ob_start")
 	{
 		// TODO: If first parameter is set, thats a callback.
-		assign_typed (cx, ret_path, Types ("bool"));
+		assign_typed (cx, ret_path, new Types ("bool"));
 	}
 	else if (*info->name == "ob_end_clean")
 	{
-		assign_typed (cx, ret_path, Types ("bool"));
+		assign_typed (cx, ret_path, new Types ("bool"));
 	}
 	else if (*info->name == "number_format")
 	{
-		assign_typed (cx, ret_path, Types ("string"));
+		assign_typed (cx, ret_path, new Types ("string"));
 	}
 	else if (*info->name == "str_repeat")
 	{
-		assign_typed (cx, ret_path, Types ("string"));
+		assign_typed (cx, ret_path, new Types ("string"));
 	}
 	else if (*info->name == "flush")
 	{
@@ -649,11 +647,11 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context cx)
 	}
 	else if (*info->name == "printf")
 	{
-		assign_typed (cx, ret_path, Types ("int"));
+		assign_typed (cx, ret_path, new Types ("int"));
 	}
 	else if (*info->name == "rand")
 	{
-		assign_typed (cx, ret_path, Types ("int"));
+		assign_typed (cx, ret_path, new Types ("int"));
 	}
 	else if (*info->name == "gettimeofday")
 	{
@@ -683,7 +681,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context cx)
 		assert (can_be_float || can_be_array);
 	
 		if (can_be_float)
-			assign_typed (cx, ret_path, Types ("real"));
+			assign_typed (cx, ret_path, new Types ("real"));
 		else if (can_be_array)
 		{
 			// Cut-and-pasted: but this all needs to be fixed. We need to call this from 
@@ -693,10 +691,10 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context cx)
 			string array_name = cx.array_name ();
 			assign_empty_array (cx, ret_path, array_name);
 
-			assign_typed (cx, P (array_name, "sec"), Types ("int"));
-			assign_typed (cx, P (array_name, "usec"), Types ("int"));
-			assign_typed (cx, P (array_name, "minuteswest"), Types ("int"));
-			assign_typed (cx, P (array_name, "dsttime"), Types ("int"));
+			assign_typed (cx, P (array_name, "sec"), new Types ("int"));
+			assign_typed (cx, P (array_name, "usec"), new Types ("int"));
+			assign_typed (cx, P (array_name, "minuteswest"), new Types ("int"));
+			assign_typed (cx, P (array_name, "dsttime"), new Types ("int"));
 
 		}
 		else
@@ -716,17 +714,16 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context cx)
 			phc_TODO (); // case-insensitive
 
 
-		Literal* lit = name->get_literal ();
-		if (lit == NULL)
+		if (name->lit)
 		{
 			// We dont know if this was redefined or not
 			constants->set_unknown_constant (cx, value);
-			assign_typed (cx, ret_path, Types ("bool"));
+			assign_typed (cx, ret_path, new Types ("bool"));
 		}
 		else
 		{
-			String* name = PHP::get_string_value (lit);
-			if (constants->is_constant_defined (cx, *name))
+			String* str_name = PHP::get_string_value (name->lit);
+			if (constants->is_constant_defined (cx, *str_name))
 			{
 				// If its already defined, it cant be redefined
 				assign_scalar (cx, ret_path, new BOOL (false));
@@ -734,7 +731,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context cx)
 			else
 			{
 				assign_scalar (cx, ret_path, new BOOL (true));
-				constants->set_constant (cx, *name, value);
+				constants->set_constant (cx, *str_name, value);
 			}
 		}
 	}
@@ -989,19 +986,19 @@ Whole_program::init_superglobals (Context cx)
 		assign_empty_array (cx, P (MSN, sg), array_name);
 
 		// We dont know the contents of these arrays.
-		assign_typed (cx, P (array_name, UNKNOWN), Types("string"));
+		assign_typed (cx, P (array_name, UNKNOWN), new Types("string"));
 	}
 
 	// We actually have no idea whats in _SESSION
 	assign_unknown (cx, P ("_SESSION", UNKNOWN));
 
 	// argc
-	assign_typed (cx, P (MSN, "argc"), Types ("int"));
+	assign_typed (cx, P (MSN, "argc"), new Types ("int"));
 
 	// argv
 	assign_empty_array (cx, P (MSN, "argv"), "argv");
-	assign_typed (cx, P ("argv", UNKNOWN), Types ("string"));
-	assign_typed (cx,  P ("argv", "0"), Types ("string"));
+	assign_typed (cx, P ("argv", UNKNOWN), new Types ("string"));
+	assign_typed (cx,  P ("argv", "0"), new Types ("string"));
 
 
 	dump (cx, "After superglobals");
@@ -1019,7 +1016,7 @@ Whole_program::forward_bind (Method_info* info, Context entry_cx, MIR::Actual_pa
 		wpa->forward_bind (caller_cx, entry_cx);
 
 		// The symtable is an array
-		wpa->set_storage (entry_cx, SN (scope), Types ("array"));
+		wpa->set_storage (entry_cx, SN (scope), new Types ("array"));
 	}
 
 	// Make sure the symtable actually gets created.
@@ -1233,7 +1230,7 @@ Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 		{
 			foreach_wpa (this)
 			{
-				wpa->set_scalar (cx, ABSVAL (rhs), Abstract_value::from_literal (new NIL));
+				wpa->set_scalar (cx, ABSVAL (rhs), new Abstract_value (new NIL));
 				wpa->assign_value (cx, rhs, ABSVAL (rhs));
 			}
 		}
@@ -1282,14 +1279,17 @@ Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 }
 
 void
-Whole_program::assign_absval (Context cx, Path* plhs, Abstract_value* absval)
+Whole_program::assign_scalar (Context cx, Path* plhs, Abstract_value* absval)
 {
-	DEBUG ("assign_absval");
-	Literal* lit = absval->get_literal ();
+	Literal* lit = absval->lit;
 	if (lit)
 		assign_scalar (cx, plhs, lit);
 	else
-		assign_typed (cx, plhs, absval->get_types ());
+	{
+		// Only allow this for scalar types
+		assert (absval->types->set_difference (Type_info::get_all_scalar_types ())->empty ());
+		assign_typed (cx, plhs, absval->types);
+	}
 }
 
 void
@@ -1303,21 +1303,21 @@ Whole_program::assign_scalar (Context cx, Path* plhs, Literal* lit)
 			if (ref->cert == DEFINITE)
 				wpa->kill_value (cx, ref->index);
 
-			wpa->set_scalar (cx, ABSVAL (ref->index), Abstract_value::from_literal (lit));
+			wpa->set_scalar (cx, ABSVAL (ref->index), new Abstract_value (lit));
 			wpa->assign_value (cx, ref->index, ABSVAL (ref->index));
 		}
 	}
 }
 
 void
-Whole_program::assign_typed (Context cx, Path* plhs, Types types)
+Whole_program::assign_typed (Context cx, Path* plhs, Types* types)
 {
 	DEBUG ("assign_typed");
 
 	// Split scalars, objects and arrays here.
-	Types scalars = Type_inference::get_scalar_types (types);
-	Types array = Type_inference::get_array_types (types);
-	Types objects = Type_inference::get_object_types (types);
+	Types* scalars = Type_info::get_scalar_types (types);
+	Types* array = Type_info::get_array_types (types);
+	Types* objects = Type_info::get_object_types (types);
 
 	foreach (Reference* ref, *get_lhs_references (cx, plhs))
 	{
@@ -1326,18 +1326,18 @@ Whole_program::assign_typed (Context cx, Path* plhs, Types types)
 			if (ref->cert == DEFINITE)
 				wpa->kill_value (cx, ref->index);
 
-			if (scalars.size ())
+			if (scalars->size ())
 			{
 				wpa->set_scalar (cx, ABSVAL (ref->index),
-						Abstract_value::from_types (scalars));
+						new Abstract_value (scalars));
 
 				wpa->assign_value (cx, ref->index, ABSVAL (ref->index));
 			}
 
-			if (array.size ())
+			if (array->size ())
 				phc_TODO ();
 
-			if (objects.size ())
+			if (objects->size ())
 				phc_TODO ();
 
 			//	wpa->assign_storage (bb, ref->name(),
@@ -1368,7 +1368,7 @@ Whole_program::assign_empty_array (Context cx, Path* plhs, string name)
 
 	// Set the type for storage to ARRAY
 	foreach_wpa (this)
-		wpa->set_storage (cx, SN (name), Types ("array"));
+		wpa->set_storage (cx, SN (name), new Types ("array"));
 
 
 	// All the arrays entries are NULL.
@@ -1407,10 +1407,10 @@ Whole_program::assign_unknown (Context cx, Path* plhs)
 			wpa->set_scalar (cx, ABSVAL (ref->index), Abstract_value::unknown ());
 			wpa->assign_value (cx, ref->index, ABSVAL (ref->index));
 
-			wpa->set_storage (cx, cx.array_node (), Types ("array"));
+			wpa->set_storage (cx, cx.array_node (), new Types ("array"));
 			wpa->assign_value (cx, ref->index, cx.array_node ());
 
-			wpa->set_storage (cx, cx.object_node (), Types ("object"));
+			wpa->set_storage (cx, cx.object_node (), new Types ("object"));
 			wpa->assign_value (cx, ref->index, cx.object_node ());
 		}
 	}
@@ -1461,18 +1461,18 @@ Whole_program::read_from_abstract_value (Context cx, Index_node* rhs)
 	Storage_node* st = aliasing->get_owner (cx, rhs);
 
 	// Get the type of the value
-	Types types = type_inf->get_types (cx, st->name());
+	Types* types = values->get_types (cx, st->name());
 
 	// It must be either all scalars, array, or list of classes.
-	Types scalars = Type_inference::get_scalar_types (types);
-	Types array = Type_inference::get_array_types (types);
-	Types objects = Type_inference::get_object_types (types);
+	Types* scalars = Type_info::get_scalar_types (types);
+	Types* array = Type_info::get_array_types (types);
+	Types* objects = Type_info::get_object_types (types);
 
-	if (scalars.size() == 0)
+	if (scalars->size() == 0)
 		return NULL;
 
-	assert (array.empty ());
-	assert (objects.empty ());
+	assert (array->empty ());
+	assert (objects->empty ());
 
 	DEBUG ("read_from_abstract_value");
 
@@ -1482,27 +1482,27 @@ Whole_program::read_from_abstract_value (Context cx, Index_node* rhs)
 	 *		If it is known not to be a string, we return NULL.
 	 *		If we can't tell, it can be either.
 	 */
-	if (scalars.size() == 1)
+	if (scalars->size() == 1)
 	{
-		if (scalars.has ("string"))
+		if (scalars->has ("string"))
 		{
-			Literal* array = ccp->get_lit (cx, st->name ());
+			Literal* array = values->get_lit (cx, st->name ());
 			string index = rhs->index;
 			if (array && index != UNKNOWN)
 			{
 				Literal* value = PHP::fold_string_index (array, new STRING (s(index)));
-				return Abstract_value::from_literal (value);
+				return new Abstract_value (value);
 			}
 			else
 				// We still know the type
-				return Abstract_value::from_types (Types ("string"));
+				return new Abstract_value (new Types ("string"));
 		}
 		else
-			return Abstract_value::from_literal (new NIL);
+			return new Abstract_value (new NIL);
 	}
 
 
-	return Abstract_value::from_types (Types ("string", "unset"));
+	return new Abstract_value (new Types ("string", "unset"));
 }
 
 /*
@@ -1528,15 +1528,15 @@ Whole_program::read_from_abstract_value (Context cx, Index_node* rhs)
 Index_node*
 Whole_program::check_owner_type (Context cx, Index_node* index)
 {
-	Types types = type_inf->get_types (cx, aliasing->get_owner (cx, index)->name());
-	Types scalar_types = Type_inference::get_scalar_types (types);
-	if (scalar_types.size ())
+	Types* types = values->get_types (cx, aliasing->get_owner (cx, index)->name());
+	Types* scalar_types = Type_info::get_scalar_types (types);
+	if (scalar_types->size ())
 	{
-		if (scalar_types.size () > 1)
+		if (scalar_types->size () > 1)
 			phc_TODO ();
 
 		bool value_changed = false;
-		foreach (string type, scalar_types)
+		foreach (string type, *scalar_types)
 		{
 			if (type == "string")
 			{
@@ -1549,7 +1549,7 @@ Whole_program::check_owner_type (Context cx, Index_node* index)
 				// Convert to an array
 				string name = cx.array_node ()->for_index_node ();
 				foreach_wpa (this)
-					wpa->set_storage (cx, SN (name), Types ("array"));
+					wpa->set_storage (cx, SN (name), new Types ("array"));
 
 				assign_scalar (cx, P (name, UNKNOWN), new NIL);
 
@@ -1606,33 +1606,33 @@ Whole_program::copy_value (Context cx, Index_node* lhs, Index_node* rhs)
 	foreach (Storage_node* st, *aliasing->get_points_to (cx, rhs))
 	{
 		// Get the type of the value
-		Types types = type_inf->get_types (cx, st->name());
+		Types* types = values->get_types (cx, st->name());
 
 		// It must be either all scalars, array, list of classes, or bottom.
-		Types scalars = Type_inference::get_scalar_types (types);
-		Types array = Type_inference::get_array_types (types);
-		Types objects = Type_inference::get_object_types (types);
+		Types* scalars = Type_info::get_scalar_types (types);
+		Types* array = Type_info::get_array_types (types);
+		Types* objects = Type_info::get_object_types (types);
 
-		assert (!scalars.empty() ^ !array.empty() ^ !objects.empty());
+		assert (!scalars->empty() ^ !array->empty() ^ !objects->empty());
 
-		if (scalars.size())
+		if (scalars->size())
 		{
 			foreach_wpa (this)
 			{
 				wpa->set_scalar (cx, ABSVAL (lhs),
-						get_abstract_value (cx, st->name()));
+						get_abstract_value (cx, st->name ()));
 
 				wpa->assign_value (cx, lhs, ABSVAL (lhs));
 			}
 		}
 
 		// Deep copy
-		if (array.size())
+		if (array->size())
 		{
 			// Create the new array
 			Storage_node* new_array = cx.array_node ();
 			foreach_wpa (this)
-				wpa->set_storage (cx, new_array, Types ("array"));
+				wpa->set_storage (cx, new_array, new Types ("array"));
 
 
 			// Copy all the indices.
@@ -1648,7 +1648,7 @@ Whole_program::copy_value (Context cx, Index_node* lhs, Index_node* rhs)
 				wpa->assign_value (cx, lhs, new_array);
 		}
 
-		if (objects.size ())
+		if (objects->size ())
 		{
 			// Just point to the object.
 			foreach_wpa (this)
@@ -1689,33 +1689,24 @@ Whole_program::ruin_everything (Context cx, Path* plhs)
 String*
 Whole_program::get_string_value (Context cx, Index_node* index)
 {
-	Lattice_cell* result = ccp->get_value (cx, index->name ());
-
-	if (result == TOP)
-		return s("");
-
-	if (result == BOTTOM)
+	Abstract_value* absval = get_abstract_value (cx, index->name ());
+	if (absval->lit == NULL)
 		return s(UNKNOWN);
 
-	Literal* lit = PHP::cast_to (new CAST (s("string")), dyc<Literal_cell> (result)->value);
-	return dyc<STRING> (lit)->value;
+	return PHP::get_string_value (absval->lit);
 }
 
 
 Abstract_value*
 Whole_program::get_abstract_value (Context cx, Alias_name name)
 {
-	return new Abstract_value (
-			ccp->get_value (cx, name), 
-			type_inf->get_value (cx, name));
+	return dyc<Absval_cell> (values->get_value (cx, name))->value;
 }
 
 Abstract_value*
 Whole_program::get_bb_in_abstract_value (Context cx, Alias_name name)
 {
-	return new Abstract_value (
-			ccp->ins[cx][name.str()],
-			type_inf->ins[cx][name.str()]);
+	return dyc<Absval_cell> (values->ins[cx][name.str()])->value;
 }
 
 
@@ -2028,7 +2019,7 @@ Whole_program::visit_pre_op (Statement_block* bb, Pre_op* in)
 	Index_node* n = VN (ns, in->variable_name);
 
 	// Case where we know the value
-	MIR::Literal* value = ccp->get_lit (block_cx, n->name());
+	Literal* value = values->get_lit (block_cx, n->name ());
 	if (value)
 	{
 		Literal* result = PHP::fold_pre_op (value, in->op);
@@ -2037,15 +2028,8 @@ Whole_program::visit_pre_op (Statement_block* bb, Pre_op* in)
 	}
 
 	// Maybe we know the type?
-	Type_cell* tc = dyc<Type_cell> (type_inf->get_value (block_cx, n->name()));
-	assert (tc != TOP); // would be NULL in CCP
-	if (tc == BOTTOM)
-	{
-		assign_unknown (block_cx, path);
-		return;
-	}
-
-	assign_typed (block_cx, path, tc->types);
+	Types* types = values->get_types (block_cx, n->name());
+	assign_typed (block_cx, path, types);
 }
 
 void
@@ -2197,29 +2181,22 @@ Whole_program::visit_bin_op (Statement_block* bb, MIR::Bin_op* in)
 	Abstract_value* left = get_abstract_value (block_cx, in->left);
 	Abstract_value* right = get_abstract_value (block_cx, in->right);
 
-	if (isa<Literal_cell> (left->lit) && isa<Literal_cell> (right->lit))
+	if (left->lit && right->lit)
 	{
-		Literal* result = PHP::fold_bin_op (
-					dyc<Literal_cell> (left->lit)->value,
-					in->op,
-					dyc<Literal_cell> (right->lit)->value);
-
+		Literal* result = PHP::fold_bin_op (left->lit, in->op, right->lit);
 		assign_scalar (block_cx, saved_plhs, result);
 		return;
 	}
 
 	// Record uses
-	if (not isa<Literal_cell> (left->lit))
+	if (left->lit == NULL)
 		record_use (block_cx, VN (ns, dyc<VARIABLE_NAME> (in->left)));
 
-	if (not isa<Literal_cell> (right->lit))
+	if (right->lit == NULL)
 		record_use (block_cx, VN (ns, dyc<VARIABLE_NAME> (in->right)));
 
 
-
-
-	Types types = type_inf->get_bin_op_types (block_cx, left, right, *in->op->value);
-
+	Types* types = values->get_bin_op_types (block_cx, left, right, *in->op->value);
 	assign_typed (block_cx, saved_plhs, types);
 }
 
@@ -2229,7 +2206,7 @@ Whole_program::get_abstract_value (Context cx, MIR::Rvalue* rval)
 	string ns = cx.symtable_name ();
 
 	if (isa<Literal> (rval))
-		return Abstract_value::from_literal (dyc<Literal> (rval));
+		return new Abstract_value (dyc<Literal> (rval));
 
 	// The variables are not expected to already have the same value. Perhaps
 	// there was an assignment to $x[0], and we are accessing $x[$i].
@@ -2245,7 +2222,7 @@ Whole_program::visit_cast (Statement_block* bb, MIR::Cast* in)
 
 	Alias_name operand = VN (ns, in->variable_name)->name();
 
-	MIR::Literal* lit = ccp->get_lit (block_cx, operand);
+	MIR::Literal* lit = values->get_lit (block_cx, operand);
 	if (lit)
 	{
 		Literal* result = PHP::cast_to (in->cast, lit);
@@ -2279,7 +2256,7 @@ Whole_program::visit_cast (Statement_block* bb, MIR::Cast* in)
 	// Record uses
 	record_use (block_cx, VN (ns, in->variable_name));
 
-	assign_typed (block_cx, saved_plhs, Types (*in->cast->value));
+	assign_typed (block_cx, saved_plhs, new Types (*in->cast->value));
 }
 
 void
@@ -2289,7 +2266,8 @@ Whole_program::visit_constant (Statement_block* bb, MIR::Constant* in)
 	if (in->class_name)
 		phc_TODO ();
 
-	assign_absval (block_cx, saved_plhs, constants->get_constant (block_cx, *in->constant_name->value));
+	Abstract_value* absval = constants->get_constant (block_cx, *in->constant_name->value);
+	assign_scalar (block_cx, saved_plhs, absval);
 }
 
 void
@@ -2373,7 +2351,7 @@ Whole_program::visit_param_is_ref (Statement_block* bb, MIR::Param_is_ref* in)
 	}
 	else
 	{
-		assign_typed (block_cx, saved_plhs, Types ("bool"));
+		assign_typed (block_cx, saved_plhs, new Types ("bool"));
 	}
 }
 
@@ -2384,21 +2362,16 @@ Whole_program::visit_unary_op (Statement_block* bb, MIR::Unary_op* in)
 
 	Abstract_value* val = get_abstract_value (block_cx, in->variable_name);
 
-	if (isa<Literal_cell> (val->lit))
+	if (val->lit)
 	{
-		Literal* result = PHP::fold_unary_op (
-					in->op,
-					dyc<Literal_cell> (val->lit)->value);
-
+		Literal* result = PHP::fold_unary_op (in->op, val->lit);
 		assign_scalar (block_cx, saved_plhs, result);
 		return;
 	}
 	else
 		record_use (block_cx, VN (ns, in->variable_name));
 
-
-	Types types = type_inf->get_unary_op_types (block_cx, val, *in->op->value);
-
+	Types* types = values->get_unary_op_types (block_cx, val, *in->op->value);
 	assign_typed (block_cx, saved_plhs, types);
 }
 

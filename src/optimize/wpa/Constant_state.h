@@ -10,8 +10,9 @@
 #define PHC_CONSTANT_STATE
 
 #include "WPA_lattice.h"
+#include "Value_analysis.h"
 
-class Constant_state : public WPA_lattice
+class Constant_state : public WPA_lattice <Absval_cell>
 {
 public:
 	Constant_state (Whole_program* wp);
