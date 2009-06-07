@@ -8,6 +8,7 @@
 
 #include "Oracle.h"
 #include "embed/embed.h"
+#include "process_ir/General.h"
 
 using namespace MIR;
 using namespace boost;
@@ -32,6 +33,10 @@ Oracle::initialize (MIR::PHP_script* in)
 	}
 
 	add_method_info (new Builtin_method_info (s("print")));
+	add_method_info (new Builtin_method_info (s("die")));
+	add_method_info (new Builtin_method_info (s("exit")));
+	add_method_info (new Builtin_method_info (s("echo")));
+	add_method_info (new Builtin_method_info (s("empty")));
 }
 
 
@@ -56,6 +61,10 @@ Oracle::get_method_info (String* method_name)
 		add_method_info (info);
 		return get_method_info (method_name);
 	}
+
+	// require etc al have to be done.
+	if (is_builtin_function (method_name))
+		phc_TODO ();
 
 	return NULL;
 }

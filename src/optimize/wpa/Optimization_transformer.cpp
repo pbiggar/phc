@@ -268,18 +268,7 @@ Optimization_transformer::visit_isset (Statement_block* bb, MIR::Isset* in)
 void
 Optimization_transformer::visit_method_invocation (Statement_block* bb, MIR::Method_invocation* in)
 {
-	if (!isa<METHOD_NAME> (in->method_name))
-		phc_TODO ();
-
-	METHOD_NAME* name = dyc<METHOD_NAME> (in->method_name);
-
-	// TODO: this should get all possible receivers (there can be multiple
-	// receivers even when each receiver is a distinct method - say with
-	// inheritence - as opposed to just multiple definitions with different
-	// contexts)
-	
-	Method_info* info = Oracle::get_method_info (name->value);
-
+	Method_info_list* receivers = wp->get_possible_receivers (in);
 
 	// Update the parameters with constants
 	int i = -1;
@@ -290,7 +279,13 @@ Optimization_transformer::visit_method_invocation (Statement_block* bb, MIR::Met
 		if (isa<Literal> (param->rvalue))
 			continue;
 
-		if (!param->is_ref && !info->param_by_ref (i))
+		bool may_ref = param->is_ref;
+		foreach (Method_info* info, *receivers)
+		{
+			may_ref |= info->param_by_ref (i);
+		}
+
+		if (not may_ref)
 		{
 			param->rvalue = get_literal (bb, param->rvalue);
 		}
