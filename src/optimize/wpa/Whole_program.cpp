@@ -233,9 +233,9 @@ Whole_program::initialize ()
 	aliasing = new Aliasing (this);
 	callgraph = new Callgraph (this);
 	ccp = new CCP (this);
+	constants = new Constant_state (this);
 	def_use = new Def_use (this);
 	type_inf = new Type_inference (this);
-//	constant_state = new Constant_state (this);
 //	include_analysis = new Include_analysis (this);
 //	vrp = new VRP (this);
 
@@ -709,7 +709,10 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context cx)
 	}
 	else if (*info->name == "define")
 	{
-		phc_TODO ();
+		constants->set_constant (cx,
+				get_abstract_value (cx, params[0]->name ()),
+				get_abstract_value (cx, params[1]->name ()));
+
 		assign_typed (cx, ret_path, Types ("bool"));
 	}
 	else
@@ -1255,6 +1258,16 @@ Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 	}
 }
 
+void
+Whole_program::assign_absval (Context cx, Path* plhs, Abstract_value* absval)
+{
+	DEBUG ("assign_absval");
+	Literal* lit = absval->get_literal ();
+	if (lit)
+		assign_scalar (cx, plhs, lit);
+	else
+		assign_typed (cx, plhs, absval->get_types ());
+}
 
 void
 Whole_program::assign_scalar (Context cx, Path* plhs, Literal* lit)
@@ -2199,7 +2212,7 @@ Whole_program::get_abstract_value (Context cx, MIR::Rvalue* rval)
 	// there was an assignment to $x[0], and we are accessing $x[$i].
 	Index_node* index = VN (ns, dyc<VARIABLE_NAME> (rval));
 
-	return get_abstract_value (cx, index->name());
+	return get_abstract_value (cx, index->name ());
 }
 
 void
@@ -2249,17 +2262,7 @@ Whole_program::visit_cast (Statement_block* bb, MIR::Cast* in)
 void
 Whole_program::visit_constant (Statement_block* bb, MIR::Constant* in)
 {
-	string ns = block_cx.symtable_name ();
-
-	Literal* lit = PHP::fold_constant (in);
-	if (lit)
-	{
-		assign_scalar (block_cx, saved_plhs, lit);
-		return;
-	}
-
-	// Assign_unknown_typed (Types (string, bool, null, etc
-	phc_TODO ();
+	assign_absval (block_cx, saved_plhs, constants->get_constant (block_cx, in));
 }
 
 void

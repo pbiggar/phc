@@ -100,6 +100,13 @@ PHP::is_true (Literal* lit)
 	return dyc<BOOL> (result)->value;
 }
 
+String*
+PHP::get_string_value (Literal* lit)
+{
+	Literal* casted = cast_to (new CAST (s("string")), lit);
+	return dyc<STRING> (casted)->value;
+}
+
 
 Literal*
 PHP::cast_to (CAST* cast, Literal* lit)

@@ -85,6 +85,7 @@ public:
 	static MIR::Literal* fold_unary_op (MIR::OP* op, MIR::Literal* literal);
 	static bool is_true (MIR::Literal* literal);
 	static MIR::Literal* cast_to (MIR::CAST* cast, MIR::Literal* literal);
+	static String* get_string_value (MIR::Literal* lit);
 	static MIR::Literal* fold_bin_op (MIR::Literal* left, MIR::OP* op, MIR::Literal* right);
 	static MIR::Literal* fold_pre_op (MIR::Literal* literal, MIR::OP* op);
 	static MIR::Literal* fold_constant (MIR::Constant* constant);

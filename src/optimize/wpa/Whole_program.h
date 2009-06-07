@@ -84,9 +84,10 @@ public:
 	// Analyses should be able to reach in here to get other analyses'
 	// results.
 	Aliasing* aliasing;
-	CCP* ccp;
-	Def_use* def_use;
 	Callgraph* callgraph;
+	CCP* ccp;
+	Constant_state* constants;
+	Def_use* def_use;
 	Type_inference* type_inf;
 
 	// For assignments
@@ -176,6 +177,7 @@ public:
 	// These functions describe the operation being performed in each block.
 	// They pass the information to the Points-to graph, and to the other
 	// analyses. The BB is to give a unique index to the results.
+	void assign_absval (Context cx, Path* lhs, Abstract_value* absval);
 	void assign_scalar (Context cx, Path* lhs, MIR::Literal* lit);
 	void assign_unknown (Context cx, Path* lhs);
 	void assign_typed (Context cx, Path* lhs, Types types);
