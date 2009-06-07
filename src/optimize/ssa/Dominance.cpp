@@ -136,6 +136,8 @@ Dominance::calculate_forward_dominance()
 	calculate_dominance (this, cfg->bs, cfg->entry);
 }
 
+// TODO: This fails if there is an infinite loop, so make a pretend edge to the
+// exit block.
 void
 Dominance::calculate_reverse_dominance ()
 {
