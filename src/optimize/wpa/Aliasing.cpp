@@ -368,13 +368,9 @@ P (string symtable, Node* in)
 			}
 			else
 			{
-				// TODO: Properly cast
-				if (not isa<STRING> (aa->index) && not isa<INT> (aa->index))
-					phc_TODO ();
-
 				return new Indexing (
 						P (symtable, aa->variable_name),
-						new Index_path (*dyc<Literal> (aa->index)->get_value_as_string ()));
+						new Index_path (*PHP::get_string_value (dyc<Literal> (aa->index))));
 			}
 		}
 
