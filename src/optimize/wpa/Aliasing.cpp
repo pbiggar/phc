@@ -397,15 +397,31 @@ P (string symtable, Node* in)
 			if (unset->target)
 				phc_TODO ();
 
-			if (unset->array_indices->size ())
-				phc_TODO ();
-
-			// VARIABLE_NAME: st -> var
+			// VARIABLE_NAME: ST -> var
 			// or
-			// Variable_variable: st -> (st -> var_name)
-			Path* var_indexing = P (symtable, unset->variable_name);
+			// Variable_variable: ST -> (ST -> var_name)
+			Path* result = P (symtable, unset->variable_name);
 
-			return var_indexing;
+			// Given the current is X, this will be:
+			//		(X) -> I0
+			//		((X) -> I0) -> I1
+			//	etc
+			
+			foreach (Rvalue* rval, *unset->array_indices)
+			{
+				Path* index;
+				
+				if (isa<VARIABLE_NAME> (rval))
+					index = P (symtable, dyc<VARIABLE_NAME> (rval));
+				else
+					index = new Index_path (*PHP::get_string_value (dyc<Literal> (rval)));
+
+
+				result = new Indexing (result, index);
+			}
+
+
+			return result;
 		}
 
 		case INT::ID:
