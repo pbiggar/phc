@@ -105,12 +105,22 @@ AST::Expr* PHP::fold_constant_expr (AST::Expr* in)
 	return result;
 }
 
+// Since this sin't accessed outside this file, the "static intialization order
+// fiasco" doesnt apply.
+String*
+PHP::max_execution_time = NULL;
 
 void
 PHP::set_ini_entry (String* key, String* value)
 {
 	// Keep track of entered keys
 	PHP::altered_ini_entries.insert (*key);
+
+	if (*key == "max_execution_time")
+	{
+		PHP::max_execution_time = value;
+		return;
+	}
 
 
 	int result = zend_alter_ini_entry (
@@ -161,6 +171,9 @@ PHP::get_include_paths ()
 String* 
 PHP::get_ini_entry (String* key)
 {
+	if (*key == "max_execution_time" && PHP::max_execution_time)
+		return PHP::max_execution_time;
+
 	return s (zend_ini_string (const_cast<char*> (key->c_str ()), key->size () + 1, 0));
 }
 
