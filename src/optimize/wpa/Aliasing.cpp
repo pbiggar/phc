@@ -147,31 +147,30 @@ Aliasing::aggregate_results (Context cx)
 }
 
 void
-Aliasing::kill_value (Context cx, Index_node* lhs)
+Aliasing::kill_value (Context cx, Index_node* lhs, bool also_kill_refs)
 {
 	Points_to* ptg = outs[cx];
 
-	// This removes LHS from the Points-to graph. Since the value is no longer
-	// valid, we need to remove its field edge too.
+	// This removes LHS from the Points-to graph.
 	foreach (Storage_node* st, *ptg->get_points_to (lhs))
 	{
 		ptg->remove_points_to (lhs, st);
 	}
-	ptg->remove_field (lhs);
-}
 
-// Remove all references edges into or out of LHS. KILL_VALUE is called separately.
-void
-Aliasing::kill_reference (Context cx, Index_node* lhs)
-{
-	Points_to* ptg = outs[cx];
-
-	foreach (Reference* other, *ptg->get_references (lhs))
+	// Remove all references edges into or out of LHS
+	if (also_kill_refs)
 	{
-		ptg->remove_reference (lhs, other->index);
+		foreach (Reference* other, *ptg->get_references (lhs))
+		{
+			ptg->remove_reference (lhs, other->index);
+		}
+
+		// We are not required to remove the field if refs are not being deleted,
+		// as there will be a new value coming soon. However, if there are
+		// references, it would be wrong to remove the field.
+		ptg->remove_field (lhs);
 	}
 }
-
 
 void
 Aliasing::set_storage (Context cx, Storage_node* storage, Types* types)

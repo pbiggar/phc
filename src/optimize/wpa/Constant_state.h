@@ -35,7 +35,7 @@ public:
 
 	// These should maybe be moved out?
 	void pull_possible_null (Context cx, Index_node* node) {};
-	void kill_value (Context cx, Index_node*) {};
+	void kill_value (Context cx, Index_node*, bool) {};
 	void assign_value (Context cx, Index_node*, Storage_node*) {};
 
 };

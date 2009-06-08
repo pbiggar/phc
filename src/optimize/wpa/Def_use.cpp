@@ -192,12 +192,6 @@ Def_use::dump_everything (string comment)
  */
 
 void
-Def_use::kill_reference (Context cx, Index_node* lhs)
-{
-	record (cx, REF, DEF, lhs);
-}
-
-void
 Def_use::create_reference (Context cx, Index_node* lhs, Index_node* rhs, Certainty cert)
 {
 	// A may-ref is a must-def with no killing
@@ -212,10 +206,13 @@ Def_use::create_reference (Context cx, Index_node* lhs, Index_node* rhs, Certain
  * Value
  */
 void
-Def_use::kill_value (Context cx, Index_node* lhs)
+Def_use::kill_value (Context cx, Index_node* lhs, bool also_kill_refs)
 {
 	record (cx, VAL, DEF, lhs);
 	record (cx, REF, USE, lhs);
+
+	if (also_kill_refs)
+		record (cx, REF, DEF, lhs);
 }
 
 void

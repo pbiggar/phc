@@ -29,8 +29,7 @@ public:
 	void set_storage (Context cx, Storage_node* storage, Types* types);
 	void set_scalar (Context cx, Value_node* storage, Abstract_value* val);
 
-	void kill_value (Context cx, Index_node* lhs);
-	void kill_reference (Context cx, Index_node* lhs);
+	void kill_value (Context cx, Index_node* lhs, bool also_kill_refs = false);
 
 	void record_use (Context cx, Index_node* use, Certainty cert);
 	

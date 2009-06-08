@@ -1233,8 +1233,7 @@ Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 	{
 		foreach_wpa (this)
 		{
-			wpa->kill_reference (cx, lhss->front());
-			wpa->kill_value (cx, lhss->front ());
+			wpa->kill_value (cx, lhss->front (), true);
 		}
 	}
 
@@ -2046,8 +2045,7 @@ Whole_program::visit_unset (Statement_block* bb, MIR::Unset* in)
 	{
 		foreach_wpa (this)
 		{
-			wpa->kill_reference (block_cx, index);
-			wpa->kill_value (block_cx, index);
+			wpa->kill_value (block_cx, index, true);
 		}
 	}
 }

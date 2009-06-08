@@ -116,10 +116,7 @@ public:
 	 * Killing values
 	 */
 
-	virtual void kill_value (Context cx, Index_node* lhs) CT_IMPL;
-
-	// Kill name's reference set. Kill_value will be called separately.
-	virtual void kill_reference (Context cx, Index_node* lhs) CT_IMPL;
+	virtual void kill_value (Context cx, Index_node* lhs, bool also_kill_refs = false) CT_IMPL;
 
 
 	/*

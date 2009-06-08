@@ -34,8 +34,7 @@ public:
 
 	void assign_value (Context cx, Index_node* lhs, Storage_node* storage);
 
-	void kill_value (Context cx, Index_node* lhs);
-	void kill_reference (Context cx, Index_node* lhs);
+	void kill_value (Context cx, Index_node* lhs, bool also_kill_refs = false);
 
 	void record_use (Context cx, Index_node* use, Certainty cert);
 

@@ -102,19 +102,13 @@ Debug_WPA::assign_value (Context cx, Index_node* lhs, Storage_node* storage)
 
 
 void
-Debug_WPA::kill_value (Context cx, Index_node* lhs)
+Debug_WPA::kill_value (Context cx, Index_node* lhs, bool also_kill_refs)
 {
 	DEBUG (__FUNCTION__
+	<< (also_kill_refs ? "(and refs)" : "")
 	<< ": " << lhs->name().str ());
 }
 
-void
-Debug_WPA::kill_reference (Context cx, Index_node* lhs)
-{
-	DEBUG (__FUNCTION__
-	<< ": " << lhs->name().str ());
-}
-	
 void
 Debug_WPA::record_use (Context cx, Index_node* use, Certainty cert)
 {

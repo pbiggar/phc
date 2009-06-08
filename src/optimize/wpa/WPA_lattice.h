@@ -105,7 +105,7 @@ public:
 	 *	Pioli avoided all this by doing flow-insensitive analysis. I'm sure its
 	 *	doable, but not a priority.
 	 */
-	void kill_value (Context cx, Index_node* lhs)
+	void kill_value (Context cx, Index_node* lhs, bool also_kill_refs)
 	{
 		outs[cx][lhs->name().str()] = Cell_type::TOP;
 		outs[cx][SCLVAL (lhs)->name().str()] = Cell_type::TOP;
