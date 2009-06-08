@@ -39,7 +39,7 @@ bool is_valid_certainty (Certainty cert);
 #define SNP "ST"
 
 // Abstract_value suffix
-#define ABV "ABV"
+#define SCL "SCL"
 
 // Return value's name
 #define RETNAME "__RETNAME__"

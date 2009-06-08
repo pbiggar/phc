@@ -1231,8 +1231,8 @@ Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 		{
 			foreach_wpa (this)
 			{
-				wpa->set_scalar (cx, ABSVAL (rhs), new Abstract_value (new NIL));
-				wpa->assign_value (cx, rhs, ABSVAL (rhs));
+				wpa->set_scalar (cx, SCLVAL (rhs), new Abstract_value (new NIL));
+				wpa->assign_value (cx, rhs, SCLVAL (rhs));
 			}
 		}
 
@@ -1247,10 +1247,10 @@ Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 					foreach_wpa (this)
 					{
 						// Just copy the scalar value to L.
-						wpa->set_scalar (cx, ABSVAL (lhs), get_abstract_value (cx, rhs->name ()));
+						wpa->set_scalar (cx, SCLVAL (lhs), get_abstract_value (cx, rhs->name ()));
 
-						// L may have been killed, but it needs its ABSVAL now.
-						wpa->assign_value (cx, lhs, ABSVAL (lhs));
+						// L may have been killed, but it needs its SCLVAL now.
+						wpa->assign_value (cx, lhs, SCLVAL (lhs));
 					}
 				}
 				else
@@ -1304,8 +1304,8 @@ Whole_program::assign_scalar (Context cx, Path* plhs, Literal* lit)
 			if (ref->cert == DEFINITE)
 				wpa->kill_value (cx, ref->index);
 
-			wpa->set_scalar (cx, ABSVAL (ref->index), new Abstract_value (lit));
-			wpa->assign_value (cx, ref->index, ABSVAL (ref->index));
+			wpa->set_scalar (cx, SCLVAL (ref->index), new Abstract_value (lit));
+			wpa->assign_value (cx, ref->index, SCLVAL (ref->index));
 		}
 	}
 }
@@ -1329,10 +1329,10 @@ Whole_program::assign_typed (Context cx, Path* plhs, Types* types)
 
 			if (scalars->size ())
 			{
-				wpa->set_scalar (cx, ABSVAL (ref->index),
+				wpa->set_scalar (cx, SCLVAL (ref->index),
 						new Abstract_value (scalars));
 
-				wpa->assign_value (cx, ref->index, ABSVAL (ref->index));
+				wpa->assign_value (cx, ref->index, SCLVAL (ref->index));
 			}
 
 			if (array->size ())
@@ -1401,8 +1401,8 @@ Whole_program::assign_unknown (Context cx, Path* plhs)
 			// have UNKNOWN fields pointing to themselves, and marking them as
 			// abstract.
 
-			wpa->set_scalar (cx, ABSVAL (ref->index), Abstract_value::unknown ());
-			wpa->assign_value (cx, ref->index, ABSVAL (ref->index));
+			wpa->set_scalar (cx, SCLVAL (ref->index), Abstract_value::unknown ());
+			wpa->assign_value (cx, ref->index, SCLVAL (ref->index));
 
 			wpa->set_storage (cx, cx.array_node (), new Types ("array"));
 			wpa->assign_value (cx, ref->index, cx.array_node ());
@@ -1423,7 +1423,7 @@ Whole_program::assign_by_copy (Context cx, Path* plhs, Path* prhs)
 	// foreach values V pointed to by PRHS:
 	//	switch V.type:
 	//		Scalar:
-	//			- foreach alias A of PLHS, set the value of A::ABSVAL using V.
+	//			- foreach alias A of PLHS, set the value of A::SCLVAL using V.
 	//		Array:
 	//			- foreach alias A of PLHS, create a copy of V, with a new name.
 	//		Objects:
@@ -1449,12 +1449,12 @@ Whole_program::assign_by_copy (Context cx, Path* plhs, Path* prhs)
 }
 
 Abstract_value*
-Whole_program::read_from_abstract_value (Context cx, Index_node* rhs)
+Whole_program::read_from_scalar_value (Context cx, Index_node* rhs)
 {
-	// Special case - the RHS's storage node might be an absval (however, if it
-	// is both an absval and another storage node, then the other storage nodes
+	// Special case - the RHS's storage node might be a sclval (however, if it
+	// has both an sclval and another storage node, then the other storage nodes
 	// will be handled in a different call, and we need concern ourselves only
-	// with the absval here).
+	// with the sclval here).
 	Storage_node* st = aliasing->get_owner (cx, rhs);
 
 	// Get the type of the value
@@ -1471,7 +1471,7 @@ Whole_program::read_from_abstract_value (Context cx, Index_node* rhs)
 	assert (array->empty ());
 	assert (objects->empty ());
 
-	DEBUG ("read_from_abstract_value");
+	DEBUG ("read_from_scalar_value");
 
 	/*
 	 * There are only two possible types:
@@ -1582,13 +1582,13 @@ Whole_program::copy_value (Context cx, Index_node* lhs, Index_node* rhs)
 	lhs = check_owner_type (cx, lhs);
 
 	// Check if RHS is an indexing a scalar.
-	if (Abstract_value* absval = read_from_abstract_value (cx, rhs))
+	if (Abstract_value* absval = read_from_scalar_value (cx, rhs))
 	{
 		DEBUG ("copy_from_abstract_value");
 		foreach_wpa (this)
 		{
-			wpa->set_scalar (cx, ABSVAL (lhs), absval);
-			wpa->assign_value (cx, lhs, ABSVAL (lhs));
+			wpa->set_scalar (cx, SCLVAL (lhs), absval);
+			wpa->assign_value (cx, lhs, SCLVAL (lhs));
 		}
 		return;
 	}
@@ -1616,10 +1616,10 @@ Whole_program::copy_value (Context cx, Index_node* lhs, Index_node* rhs)
 		{
 			foreach_wpa (this)
 			{
-				wpa->set_scalar (cx, ABSVAL (lhs),
+				wpa->set_scalar (cx, SCLVAL (lhs),
 						get_abstract_value (cx, st->name ()));
 
-				wpa->assign_value (cx, lhs, ABSVAL (lhs));
+				wpa->assign_value (cx, lhs, SCLVAL (lhs));
 			}
 		}
 
@@ -1864,7 +1864,7 @@ Whole_program::get_array_named_indices (Context cx, Path* plhs, String* index, b
 	if (is_readonly && !aliasing->has_field (cx, array))
 	{
 		assert (storages->size () == 0);
-		storages->push_back (ABSVAL (array));
+		storages->push_back (SCLVAL (array));
 	}
 
 	foreach (Storage_node* storage, *storages)

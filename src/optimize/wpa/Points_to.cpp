@@ -197,7 +197,7 @@ void
 Points_to::remove_points_to (Index_node* index, Storage_node* st)
 {
 	// If this has no remaining points-to edges, it should be redirected to
-	// point-to NULL (or ABSVAL, whose value should be set to NULL). But its
+	// point-to NULL (or SCLVAL, whose value should be set to NULL). But its
 	// very hard to do that here, so we shall assume that this is only done by a
 	// caller.
 	points_to.remove_edge (index, st);
@@ -253,8 +253,8 @@ Points_to::get_owner (Index_node* index)
 		return SN (index->storage);
 
 
-	// If it ends in ::ABV, its a value node
-	if (index->storage.find ("::ABV") == index->storage.size () - 5)
+	// If it ends in ::SCL, its a value node
+	if (index->storage.find ("::SCL") == index->storage.size () - 5)
 	{
 		string new_name = index->storage.substr (0, index->storage.size () - 5);
 		return new Value_node (new_name);
@@ -735,7 +735,7 @@ Index_node* FN (string scope, MIR::FIELD_NAME* field)
 }
 
 Value_node*
-ABSVAL (Index_node* node)
+SCLVAL (Index_node* node)
 {
 	// we dont want to do this on an alias_name, or it'll be difficult.
 	return new Value_node (node);
@@ -800,7 +800,7 @@ Value_node::Value_node (string owner)
 Alias_name
 Value_node::name ()
 {
-	return Alias_name (storage, ABV);
+	return Alias_name (storage, SCL);
 }
 
 String*

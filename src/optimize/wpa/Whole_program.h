@@ -190,7 +190,7 @@ public:
 	void copy_value (Context cx, Index_node* lhs, Index_node* rhs);
 
 	Index_node* check_owner_type (Context cx, Index_node* index);
-	Abstract_value* read_from_abstract_value (Context cx, Index_node* rhs);
+	Abstract_value* read_from_scalar_value (Context cx, Index_node* rhs);
 
 	void record_use (Context cx, Index_node* node);
 

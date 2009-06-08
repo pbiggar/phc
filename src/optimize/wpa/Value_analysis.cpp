@@ -49,10 +49,10 @@ Value_analysis::pull_possible_null (Context cx, Index_node* index)
 {
 	Lattice_type& lat = ins[cx];
 
-	// WPA_lattice::assign_value copies the ABSVAL to the index_node in the
+	// WPA_lattice::assign_value copies the SCLVAL to the index_node in the
 	// general case. However, we need to do it ourselves here.
-	string absval_name = ABSVAL (index)->name().str();
-	lat[absval_name] = lat[absval_name]->meet (new Absval_cell (new Abstract_value (new NIL)));
+	string scalar_name = SCLVAL (index)->name().str();
+	lat[scalar_name] = lat[scalar_name]->meet (new Absval_cell (new Abstract_value (new NIL)));
 
 	string name = index->name().str();
 	lat[name] = lat[name]->meet (new Absval_cell (new Abstract_value (new NIL)));

@@ -33,7 +33,7 @@ Index_node* VN (string scope, MIR::VARIABLE_NAME*);
 Index_node* FN (string scope, MIR::FIELD_NAME*);
 //Index_node* AN (string scope, string array_index); TODO arrays
 
-Value_node* ABSVAL (Index_node* node);
+Value_node* SCLVAL (Index_node* node);
 Storage_node* CX_array_node (Context cx);
 Storage_node* CX_object_node (Context cx);
 Storage_node* CX_symtable_node (Context cx);
@@ -514,7 +514,7 @@ public:
 
 	// Try really really hard to find the "correct" owner of the index_node,
 	// even if it is not in the graph, or the index_node is impossible
-	// (ABSVAL->index for example).
+	// (SCLVAL->index for example).
 	Storage_node* get_owner (Index_node* index);
 
 

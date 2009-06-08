@@ -108,7 +108,7 @@ public:
 	void kill_value (Context cx, Index_node* lhs)
 	{
 		outs[cx][lhs->name().str()] = Cell_type::TOP;
-		outs[cx][ABSVAL (lhs)->name().str()] = Cell_type::TOP;
+		outs[cx][SCLVAL (lhs)->name().str()] = Cell_type::TOP;
 	}
 
 	void assign_value (Context cx, Index_node* lhs, Storage_node* storage)

@@ -124,7 +124,7 @@ Aliasing::pull_pred (Context cx, Context pred)
 void
 Aliasing::pull_possible_null (Context cx, Index_node* index)
 {
-	ins[cx]->add_points_to (index, ABSVAL (index));
+	ins[cx]->add_points_to (index, SCLVAL (index));
 }
 
 void
