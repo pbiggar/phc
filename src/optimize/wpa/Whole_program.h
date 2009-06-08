@@ -227,6 +227,7 @@ public:
 	// Set the RHS_BY_REF flag if PATH represents the RHS of an
 	// assignment-by-reference.
 	Index_node_list* get_named_indices (Context cx, Path* path, bool is_readonly = false);
+	Index_node_list* get_array_named_indices (Context cx, Path* lhs, String* index, bool is_readonly);
 
 	// Get anything the path can point to, and all nodes that they may reference.
 	Reference_list* get_lhs_references (Context cx, Path* path);

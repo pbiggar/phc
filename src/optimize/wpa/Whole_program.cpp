@@ -515,7 +515,7 @@ Whole_program::analyse_summary (Summary_method_info* info, Context caller_cx, Ac
 	Context entry_cx = Context::contextual (caller_cx, cfg->get_entry_bb ());
 	forward_bind (info, entry_cx, actuals);
 
-	dump (entry_cx, "Upon entry");
+	dump (entry_cx, "Upon summary entry (" + *caller_cx.get_bb()->get_graphviz_label () + ")");
 
 	/*
 	 * "Perform" the function
@@ -529,7 +529,7 @@ Whole_program::analyse_summary (Summary_method_info* info, Context caller_cx, Ac
 	foreach_wpa (this)
 		wpa->aggregate_results (fake_cx);
 
-	dump (fake_cx, "After fake basic block");
+	dump (fake_cx, "After fake basic block (" + *caller_cx.get_bb()->get_graphviz_label () + ")");
 
 	phc_pause ();
 
@@ -546,7 +546,8 @@ Whole_program::analyse_summary (Summary_method_info* info, Context caller_cx, Ac
 		wpa->aggregate_results (fake_cx);
 
 	// TODO: we only really need 2 blocks here.
-	dump (exit_cx, "After summary method");
+	dump (exit_cx, "After summary method (" + *caller_cx.get_bb()->get_graphviz_label () + ")");
+
 	phc_pause ();
 
 
@@ -1765,7 +1766,14 @@ Whole_program::get_named_indices (Context cx, Path* path, bool is_readonly)
 	if (isa<ST_path> (p->lhs) && isa<Indexing> (p->rhs))
 	{
 		Index_node* index = path_to_index (p->rhs);
-		phc_TODO ();
+		String* index_value = this->get_string_value (cx, index);
+		record_use (cx, index);
+
+		return new Index_node_list (
+			path_to_index (
+				new Indexing (
+					p->lhs, 
+					new Index_path (*index_value))));
 	}
 
 
@@ -1779,9 +1787,9 @@ Whole_program::get_named_indices (Context cx, Path* path, bool is_readonly)
 	if (isa<Indexing> (p->lhs) && isa<Index_path> (p->rhs))
 	{
 		// This is just a specialization of $a[$f], so work on it after that works perfectly.
-		phc_TODO ();
+		string index_value = dyc<Index_path> (p->rhs)->name;
+		return get_array_named_indices (cx, p->lhs, s(index_value), is_readonly);
 	}
-
 
 
 	/*
@@ -1794,90 +1802,98 @@ Whole_program::get_named_indices (Context cx, Path* path, bool is_readonly)
 
 	if (isa<Indexing> (p->lhs) && isa<Indexing> (p->rhs))
 	{
-		Index_node_list* result = new Index_node_list;
-
-		Index_node* array = path_to_index (p->lhs);
 		Index_node* index = path_to_index (p->rhs);
 		String* index_value = this->get_string_value (cx, index);
-
-		// Make a note of the uses
-		record_use (cx, array);
 		record_use (cx, index);
 
-
-
-		/* 
-		 * Get the storage nodes
-		 */
-
-
-		// TODO: I believe we can remove this by moving it into the scalar
-		// handling code in copy_value/assign_by_ref.
-
-		// In a writing context, if the variable containing the array doesn't
-		// already exist, it must be implicitly created.
-		if (not is_readonly && !aliasing->has_field (cx, array))
-		{
-			string name = cx.array_node ()->for_index_node ();
-			assign_empty_array (cx, p->lhs, name);
-		}
-
-
-
-		/*
-		 * There are two cases that arent handled here:
-		 *
-		 *		-	implicit creation of a NULL node on the RHS in the case of
-		 *			read-by-reference. This is handled in assign_by_ref.
-		 *
-		 *		-	read of an abstract value
-		 *		-	write of an abstract value
-		 *			These cant be done here, so we return the correct index_node,
-		 *			and handle it in copy_value
-		 */
-
-
-		/* 
-		 * Get the index nodes.
-		 */
-
-		Storage_node_list* storages = aliasing->get_points_to (cx, array);
-
-
-		// We only read the value of INDEX, so we don't need the implicit array
-		// creation.
-		if (is_readonly && !aliasing->has_field (cx, array))
-		{
-			assert (storages->size () == 0);
-			storages->push_back (ABSVAL (array));
-		}
-
-		foreach (Storage_node* storage, *storages)
-		{
-			if (*index_value == UNKNOWN)
-			{
-				// Reading an abstract value: set it up for whole_program.
-				if (isa<Value_node> (storage))
-					result->push_back (new Index_node (storage->for_index_node (), *index_value));
-				else
-				{
-					// Include all possible nodes
-					foreach (Index_node* field, *aliasing->get_fields (cx, storage))
-						result->push_back (field);
-				}
-			}
-			else
-				result->push_back (new Index_node (storage->for_index_node (), *index_value));
-		}
-
-		// Even in weird cases, we should always return something.
-		assert (result->size ());
-
-		return result;
+		return get_array_named_indices (cx, p->lhs, index_value, is_readonly);
 	}
 
 
 	phc_unreachable ();
+}
+
+Index_node_list*
+Whole_program::get_array_named_indices (Context cx, Path* plhs, String* index, bool is_readonly)
+{
+	Index_node_list* result = new Index_node_list;
+
+	Index_node* array = path_to_index (dyc<Indexing> (plhs));
+
+	// Make a note of the uses
+	record_use (cx, array);
+
+
+
+	/* 
+	 * Get the storage nodes
+	 */
+
+
+	// TODO: I believe we can remove this by moving it into the scalar
+	// handling code in copy_value/assign_by_ref.
+
+	// In a writing context, if the variable containing the array doesn't
+	// already exist, it must be implicitly created.
+	if (not is_readonly && !aliasing->has_field (cx, array))
+	{
+		string name = cx.array_node ()->for_index_node ();
+		assign_empty_array (cx, plhs, name);
+	}
+
+
+
+	/*
+	 * There are two cases that arent handled here:
+	 *
+	 *		-	implicit creation of a NULL node on the RHS in the case of
+	 *			read-by-reference. This is handled in assign_by_ref.
+	 *
+	 *		-	read of an abstract value
+	 *		-	write of an abstract value
+	 *			These cant be done here, so we return the correct index_node,
+	 *			and handle it in copy_value
+	 */
+
+
+	/* 
+	 * Get the index nodes.
+	 */
+
+	Storage_node_list* storages = aliasing->get_points_to (cx, array);
+
+
+	// We only read the value of INDEX, so we don't need the implicit array
+	// creation.
+	if (is_readonly && !aliasing->has_field (cx, array))
+	{
+		assert (storages->size () == 0);
+		storages->push_back (ABSVAL (array));
+	}
+
+	foreach (Storage_node* storage, *storages)
+	{
+		if (*index == UNKNOWN)
+		{
+			// Reading an abstract value: set it up for whole_program.
+			if (isa<Value_node> (storage))
+				result->push_back (new Index_node (storage->for_index_node (), *index));
+			else
+			{
+				// Include all possible nodes
+				foreach (Index_node* field, *aliasing->get_fields (cx, storage))
+					result->push_back (field);
+			}
+		}
+		else
+			result->push_back (new Index_node (storage->for_index_node (), *index));
+	}
+
+	// Even in weird cases, we should always return something.
+	assert (result->size ());
+
+	return result;
+
 }
 
 
