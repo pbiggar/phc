@@ -150,7 +150,7 @@ public:
 							    MIR::Actual_parameter_list*,
 								 MIR::VARIABLE_NAME* lhs);
 
-	void apply_modelled_function (Summary_method_info* info, Context cx);
+	void apply_modelled_function (Summary_method_info* info, Context cx, Context caller_cx);
 
 	void init_superglobals (Context cx);
 

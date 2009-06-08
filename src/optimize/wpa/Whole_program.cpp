@@ -524,7 +524,7 @@ Whole_program::analyse_summary (Summary_method_info* info, Context caller_cx, Ac
 	Context fake_cx = Context::contextual (caller_cx, info->get_fake_bb ());
 	pull_results (fake_cx, info->get_fake_bb ()->get_predecessors ());
 
-	apply_modelled_function (info, fake_cx);
+	apply_modelled_function (info, fake_cx, caller_cx);
 
 	foreach_wpa (this)
 		wpa->aggregate_results (fake_cx);
@@ -556,7 +556,7 @@ Whole_program::analyse_summary (Summary_method_info* info, Context caller_cx, Ac
 
 // BB is the block representing the whole method
 void
-Whole_program::apply_modelled_function (Summary_method_info* info, Context cx)
+Whole_program::apply_modelled_function (Summary_method_info* info, Context cx, Context caller_cx)
 {
 	// TODO:
 	//	If we know all the values for all the parameters, and the function has
@@ -576,11 +576,12 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context cx)
 	// using LLVM. For now, the best thing to do is assume that functions are
 	// called correctly.
 
-	// It seems I should use a Vector, but I really would like to access this without havin initialized it (and get NULL).
+	// It seems I should use a Vector, but I really would like to access this
+	// without having initialized it (and get NULL).
 	Map<int, Index_node*> params; 
 
 	string symtable = cx.symtable_name ();
-	for (int i = 0; ; i++) // NOTE lack of cond in loop
+	for (int i = 0; ; i++) // NOTE: lack of cond in loop
 	{
 		Index_node* param = IN (symtable, "__UNNAMED__" + lexical_cast<string> (i));
 
@@ -705,6 +706,20 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context cx)
 	else if (*info->name == "var_dump")
 	{
 		// do nothing
+	}
+	else if (*info->name == "compact")
+	{
+		// Return an array with a copy of the named parameters.
+		string array_name = cx.array_name ();
+		assign_empty_array (cx, ret_path, array_name);
+		foreach (Index_node* param, *params.values ())
+		{
+			// For a parameter P1, in this scope SC1, with the caller scope SC0, this is:
+			// (ARR -> (SC1 -> P1)) = (SC0 -> (SC1 -> P1))
+			Path* lhs = new Indexing (new ST_path (array_name), P (param->storage, param->index));
+			Path* rhs = new Indexing (new ST_path (caller_cx.symtable_name ()), P (param->storage, param->index));
+			assign_by_copy (cx, lhs, rhs);
+		}
 	}
 	else if (*info->name == "define")
 	{
@@ -1688,7 +1703,7 @@ Whole_program::get_string_value (Context cx, Index_node* index)
 {
 	Abstract_value* absval = get_abstract_value (cx, index->name ());
 	if (absval->lit == NULL)
-		return s(UNKNOWN);
+		return s (UNKNOWN);
 
 	return PHP::get_string_value (absval->lit);
 }
