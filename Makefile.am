@@ -19,7 +19,7 @@ AM_CPPFLAGS = \
 	-I$(srcdir)/src -I$(srcdir)/3rdparty/getopt -I$(srcdir)/src/generated		\
 	@libphp_headers@																				\
 	-DDATADIR=\"$(datadir)\" -DPKGLIBDIR=\"$(pkglibdir)\"								\
-	-Wall
+	-Wall -Wno-unused-parameter
 
 AM_LDFLAGS = $(BOOST_LDFLAGS)
 
@@ -28,7 +28,7 @@ bin_PROGRAMS = src/phc
 
 # By using CXXFLAGS we avoid warnings in generated_src, which we dont want to
 # hear about. 
-AM_CXXFLAGS = -Wextra -Wno-unused-parameter -Wno-write-strings
+AM_CXXFLAGS = -Wextra -Wno-write-strings
 
 ACLOCAL_AMFLAGS = -I m4 -I libltdl
 
