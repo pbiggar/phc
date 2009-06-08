@@ -17,5 +17,9 @@
 	}
 
 	print "$z\n";
+	var_dump ($i);
+	var_dump ($y);
+	var_dump ($x);
+	var_dump ($z);
 
 ?>
