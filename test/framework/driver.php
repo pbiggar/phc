@@ -7,7 +7,7 @@
  */
 
 // when dealing with the manual, we need more space
-ini_set("memory_limit","256M");
+ini_set("memory_limit","768M");
 ini_set("include_path","test/framework/external/:". get_include_path());
 
 // check version of php
@@ -38,6 +38,7 @@ print ("Working from: $working_directory\n");
 
 require_once ("lib/startup.php");
 require_once ("lib/autovars.php");
+require_once ("reduce/Reduce.php");
 
 if ($opt_clean)
 {

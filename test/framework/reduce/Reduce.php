@@ -26,7 +26,7 @@
  *		{
  *			$reduce = new Reduce ();
  *			$reduce->set_checking_function ("my_checking_function");
- *			$reduced_prog = $reduce->run_with_php ($test_prog);
+ *			$reduced_prog = $reduce->run_on_php ($test_prog);
  *
  *			file_put_contents ("$filename.reduced", $reduced_prog);
  *		}
@@ -52,16 +52,16 @@
  *				It returns true if the redcue step was successful (ie if the bug
  *				was kept in), false otherwise.
  *
- *
- *		The following functions are more-or-less required, though you can survive without them.
- *
  *			- set_run_command_function ($callback)
  *				Set the function used for running shell commands. Its parameters are:
  *					$command - the command to be run
  *					$stdin - the input to it
  *				It should return false for failure, else it should return
  *					array ($stdout, $stderr, $exit_code)
- *				If this function is not provided, backticks (`...`) will be used.
+ *				If this function is not provided, an exception will be thrown
+ *
+ *
+ *		The following functions are more-or-less required, though you can survive without them.
  *
  *			- set_debug_function ($callback)
  *				Set the function used for debug messages. Its parameters are:
@@ -219,15 +219,24 @@ class Reduce
 	{
 		if (isset ($this->run_command_function))
 		{
-			return call_user_func ($this->run_command_function, $command, $stdin);
+			$result = call_user_func ($this->run_command_function, $command, $stdin);
+
+			// Check the result
+			if (	is_array ($result)
+				&& count ($result) == 3
+				&& is_string ($result[0])
+				&& is_string ($result[1])
+				&& is_numeric ($result[2]))
+				return $result;
+			else
+				throw new ReduceException ("Result of run_command function has the wrong structure");
 		}
 		else
 		{
 			$this->warn_once ("Warning: no user-defined run_command () function provided. Consider "
 					."adding one via set_run_command_function ()");
 
-			$this->debug (2, "Running command: $command");
-			return array (`$command`, NULL, NULL);
+			throw new ReduceException ("No run_command function provided");
 		}
 	}
 
