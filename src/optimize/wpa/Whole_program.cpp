@@ -655,6 +655,17 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context cx, C
 	{
 		assign_typed (cx, ret_path, new Types ("int"));
 	}
+	else if (*info->name == "range")
+	{
+		// Returns an array with a range of values of the given type.
+		string array_name = cx.array_name ();
+		assign_empty_array (cx, ret_path, array_name);
+
+		Abstract_value* absval1 = get_abstract_value (cx, params[0]->name());
+		Abstract_value* absval2 = get_abstract_value (cx, params[1]->name());
+		Types* merged = absval1->types->set_union (absval2->types);
+		assign_typed (cx, P (array_name, UNKNOWN), merged);
+	}
 	else if (*info->name == "gettimeofday")
 	{
 		bool can_be_float = true;
