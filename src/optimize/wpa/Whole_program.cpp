@@ -671,7 +671,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context cx, C
 		bool can_be_float = true;
 		bool can_be_array = true;
 
-		if (aliasing->has_field (cx, params[0]))
+		if (aliasing->has_field (cx, params[0])) // TODO: just use params[0]?
 		{
 			Abstract_value* absval = get_abstract_value (cx, params[0]->name());
 
@@ -716,6 +716,13 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context cx, C
 	}
 	else if (*info->name == "var_dump")
 	{
+		// do nothing
+	}
+	else if (*info->name == "var_export")
+	{
+		if (params[1])
+			phc_TODO (); // return string or NULL depending on true/false.
+
 		// do nothing
 	}
 	else if (*info->name == "compact")
