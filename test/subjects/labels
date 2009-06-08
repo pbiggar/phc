@@ -29,7 +29,7 @@ unsupported/.*							non-interpretable no-Annotated_test # skip the first test, 
 3rdparty/.*								long
 
 # use limited tests on dataflow branch.
-#.*											long
+.*											long
 codegen/bench_.*						short
 optimization/.*						short
 codegen/\d.*							short

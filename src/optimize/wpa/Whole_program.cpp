@@ -598,73 +598,61 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context cx, C
 	}
 
 	Path* ret_path = P (symtable, new VARIABLE_NAME (RETNAME));
-	if (*info->name == "strlen")
+	if (*info->name == "compact")
 	{
-		assign_typed (cx, ret_path, new Types ("int"));
-	}
-	else if (*info->name == "dechex")
-	{
-		assign_typed (cx, ret_path, new Types ("string"));
-	}
-	else if (*info->name == "print")
-	{
-		assign_scalar (cx, ret_path, new INT (1));
-	}
-	else if (*info->name == "is_array")
-	{
-		assign_typed (cx, ret_path, new Types ("bool"));
-	}
-	else if (*info->name == "is_object")
-	{
-		assign_typed (cx, ret_path, new Types ("bool"));
-	}
-	else if (*info->name == "trigger_error")
-	{
-		assign_typed (cx, ret_path, new Types ("bool"));
+		// Return an array with a copy of the named parameters.
+		string array_name = cx.array_name ();
+		assign_empty_array (cx, ret_path, array_name);
+		foreach (Index_node* param, *params.values ())
+		{
+			// For a parameter P1, in this scope SC1, with the caller scope SC0, this is:
+			// (ARR -> (SC1 -> P1)) = (SC0 -> (SC1 -> P1))
+			Path* lhs = new Indexing (new ST_path (array_name), P (param->storage, param->index));
+			Path* rhs = new Indexing (new ST_path (caller_cx.symtable_name ()), P (param->storage, param->index));
+			assign_by_copy (cx, lhs, rhs);
+		}
 	}
 	else if (*info->name == "date_default_timezone_set")
 	{
 		assign_typed (cx, ret_path, new Types ("bool"));
 	}
-	else if (*info->name == "ob_start")
-	{
-		// TODO: If first parameter is set, thats a callback.
-		assign_typed (cx, ret_path, new Types ("bool"));
-	}
-	else if (*info->name == "ob_end_clean")
-	{
-		assign_typed (cx, ret_path, new Types ("bool"));
-	}
-	else if (*info->name == "number_format")
+	else if (*info->name == "dechex")
 	{
 		assign_typed (cx, ret_path, new Types ("string"));
 	}
-	else if (*info->name == "str_repeat")
+	else if (*info->name == "define")
 	{
-		assign_typed (cx, ret_path, new Types ("string"));
+		// Read parameters
+		Abstract_value* name = get_abstract_value (cx, params[0]->name ());
+		Abstract_value* value = get_abstract_value (cx, params[1]->name ());
+		if (params[3])
+			phc_TODO (); // case-insensitive
+
+
+		if (name->lit == NULL)
+		{
+			// We dont know if this was redefined or not
+			constants->set_unknown_constant (cx, value);
+			assign_typed (cx, ret_path, new Types ("bool"));
+		}
+		else
+		{
+			String* str_name = PHP::get_string_value (name->lit);
+			if (constants->is_constant_defined (cx, *str_name))
+			{
+				// If its already defined, it cant be redefined
+				assign_scalar (cx, ret_path, new BOOL (false));
+			}
+			else
+			{
+				assign_scalar (cx, ret_path, new BOOL (true));
+				constants->set_constant (cx, *str_name, value);
+			}
+		}
 	}
 	else if (*info->name == "flush")
 	{
 		// do nothing
-	}
-	else if (*info->name == "printf")
-	{
-		assign_typed (cx, ret_path, new Types ("int"));
-	}
-	else if (*info->name == "rand")
-	{
-		assign_typed (cx, ret_path, new Types ("int"));
-	}
-	else if (*info->name == "range")
-	{
-		// Returns an array with a range of values of the given type.
-		string array_name = cx.array_name ();
-		assign_empty_array (cx, ret_path, array_name);
-
-		Abstract_value* absval1 = get_abstract_value (cx, params[0]->name());
-		Abstract_value* absval2 = get_abstract_value (cx, params[1]->name());
-		Types* merged = absval1->types->set_union (absval2->types);
-		assign_typed (cx, P (array_name, UNKNOWN), merged);
 	}
 	else if (*info->name == "gettimeofday")
 	{
@@ -710,10 +698,66 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context cx, C
 			assign_typed (cx, P (array_name, "dsttime"), new Types ("int"));
 
 		}
-		else
-			phc_unreachable ();
-
 	}
+	else if (*info->name == "is_array")
+	{
+		assign_typed (cx, ret_path, new Types ("bool"));
+	}
+	else if (*info->name == "is_object")
+	{
+		assign_typed (cx, ret_path, new Types ("bool"));
+	}
+	else if (*info->name == "number_format")
+	{
+		assign_typed (cx, ret_path, new Types ("string"));
+	}
+	else if (*info->name == "ob_end_clean")
+	{
+		assign_typed (cx, ret_path, new Types ("bool"));
+	}
+	else if (*info->name == "ob_start")
+	{
+		if (params[0])
+			phc_TODO (); // If first parameter is set, thats a callback.
+		
+		assign_typed (cx, ret_path, new Types ("bool"));
+	}
+	else if (*info->name == "print")
+	{
+		assign_scalar (cx, ret_path, new INT (1));
+	}
+	else if (*info->name == "printf")
+	{
+		assign_typed (cx, ret_path, new Types ("int"));
+	}
+	else if (*info->name == "rand")
+	{
+		assign_typed (cx, ret_path, new Types ("int"));
+	}
+	else if (*info->name == "range")
+	{
+		// Returns an array with a range of values of the given type.
+		string array_name = cx.array_name ();
+		assign_empty_array (cx, ret_path, array_name);
+
+		Abstract_value* absval1 = get_abstract_value (cx, params[0]->name());
+		Abstract_value* absval2 = get_abstract_value (cx, params[1]->name());
+		Types* merged = absval1->types->set_union (absval2->types);
+		assign_typed (cx, P (array_name, UNKNOWN), merged);
+	}
+	else if (*info->name == "strlen")
+	{
+		assign_typed (cx, ret_path, new Types ("int"));
+	}
+	else if (*info->name == "str_repeat")
+	{
+		assign_typed (cx, ret_path, new Types ("string"));
+	}
+	else if (*info->name == "trigger_error")
+	{
+		assign_typed (cx, ret_path, new Types ("bool"));
+	}
+	
 	else if (*info->name == "var_dump")
 	{
 		// do nothing
@@ -724,50 +768,6 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context cx, C
 			phc_TODO (); // return string or NULL depending on true/false.
 
 		// do nothing
-	}
-	else if (*info->name == "compact")
-	{
-		// Return an array with a copy of the named parameters.
-		string array_name = cx.array_name ();
-		assign_empty_array (cx, ret_path, array_name);
-		foreach (Index_node* param, *params.values ())
-		{
-			// For a parameter P1, in this scope SC1, with the caller scope SC0, this is:
-			// (ARR -> (SC1 -> P1)) = (SC0 -> (SC1 -> P1))
-			Path* lhs = new Indexing (new ST_path (array_name), P (param->storage, param->index));
-			Path* rhs = new Indexing (new ST_path (caller_cx.symtable_name ()), P (param->storage, param->index));
-			assign_by_copy (cx, lhs, rhs);
-		}
-	}
-	else if (*info->name == "define")
-	{
-		// Read parameters
-		Abstract_value* name = get_abstract_value (cx, params[0]->name ());
-		Abstract_value* value = get_abstract_value (cx, params[1]->name ());
-		if (params[3])
-			phc_TODO (); // case-insensitive
-
-
-		if (name->lit == NULL)
-		{
-			// We dont know if this was redefined or not
-			constants->set_unknown_constant (cx, value);
-			assign_typed (cx, ret_path, new Types ("bool"));
-		}
-		else
-		{
-			String* str_name = PHP::get_string_value (name->lit);
-			if (constants->is_constant_defined (cx, *str_name))
-			{
-				// If its already defined, it cant be redefined
-				assign_scalar (cx, ret_path, new BOOL (false));
-			}
-			else
-			{
-				assign_scalar (cx, ret_path, new BOOL (true));
-				constants->set_constant (cx, *str_name, value);
-			}
-		}
 	}
 	else
 	{
