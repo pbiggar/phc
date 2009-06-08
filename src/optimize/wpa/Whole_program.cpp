@@ -1242,9 +1242,11 @@ Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 	// The references created between L and R are possible if:
 	//		- L isn't killable
 	//		- there are more than one Rs
-	Certainty cert = DEFINITE;
-	if (rhss->size () >= 1 || not lhs_killable)
-		cert = POSSIBLE;
+	
+	Certainty cert = POSSIBLE;
+	bool rhs_killable = is_killable (cx, rhss);
+	if (rhs_killable && lhs_killable)
+		cert = DEFINITE;
 
 
 	foreach (Index_node* rhs, *rhss)
