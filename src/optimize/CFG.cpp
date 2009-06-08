@@ -294,6 +294,16 @@ CFG::get_graphviz_def_portname (Basic_block* bb, Alias_name* def)
 }
 
 String*
+CFG::get_graphviz_phi_portname (Basic_block* bb, Alias_name* phi)
+{
+	stringstream ss;
+	ss
+	<< "phi_" << *escape_portname (s (phi->str ()))
+	;
+	return s (ss.str ());
+}
+
+String*
 CFG::get_graphviz_use_portname (Basic_block* bb, Alias_name* use)
 {
 	stringstream ss;
@@ -350,15 +360,42 @@ CFG::dump_graphviz (String* label)
 	foreach (Basic_block* bb, *get_all_bbs ())
 	{
 		int index = bb->get_index ();
-
+		
 		// BB source
 		stringstream block_info;
+		if (duw)
+		{
+			Var_set* phis = duw->get_phi_lhss(bb);		
+		
+			if (phis -> size () )
+			{
+				foreach (Alias_name phi, *phis)
+				{
+					block_info << phi.str () << " = phi(";
+					bool first=true;
+					foreach(Alias_name* rhs, *duw->get_phi_args(bb,phi) )
+					{
+
+						if(!first)
+						{
+							block_info << ",";
+						}
+						first=false;
+						block_info << rhs->ssa_version;
+						
+					}
+					block_info << ")\\n";
+				}
+				block_info << "\\n";
+			}
+		}
+
 		block_info	
 		<< "(" << index << ", " << bb->ID << ") "
 		<< *escape_DOT_record (bb->get_graphviz_label ());
 
 #define CFG_PENWIDTH "penwidth=\"2.0\""
-
+		
 		cout
 		<< index
 		<< " [shape="
@@ -367,7 +404,6 @@ CFG::dump_graphviz (String* label)
 		<< CFG_PENWIDTH << ","
 		<< "label=\"{"; // arrange fields vertically
 
-
 		cout << "\\n" << block_info.str () << "\\n\\n";
 
 		// DUW nodes are fields in the BB
@@ -375,11 +411,12 @@ CFG::dump_graphviz (String* label)
 		{
 			Alias_name_list* defs = duw->get_defs (bb);
 			Alias_name_list* uses = duw->get_uses (bb);
+			
 
 			if (defs->size() || uses->size ())
 			{
 				// open dual columns
-				cout << FIELD_SEPARATOR << "{  { ";
+				cout << FIELD_SEPARATOR << "{ { ";
 				bool first = true;
 				foreach (Alias_name* def, *defs)
 				{
@@ -411,11 +448,12 @@ CFG::dump_graphviz (String* label)
 		cout << "}\"];\n";
 
 		// DUW edges
+		//Currently messing up a bit, left it commented out for now
 		if (duw)
 		{
 			// Add an edge from each use to each def (there can be more than 1 in
 			// non-SSA form)
-			foreach (SSA_use* use, *duw->get_block_uses (bb))
+			/*foreach (SSA_use* use, *duw->get_block_uses (bb))
 			{
 				foreach (SSA_def* def, *use->get_defs ())
 				{
@@ -428,7 +466,7 @@ CFG::dump_graphviz (String* label)
 					<< " [color=lightgrey,dir=both];\n"
 					;
 				}
-			}
+			}*/
 		}
 	}
 

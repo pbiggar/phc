@@ -242,6 +242,7 @@ public:
 	String* get_graphviz_use (Basic_block* bb, Alias_name* use);
 	String* get_graphviz_def_portname (Basic_block* bb, Alias_name* def);
 	String* get_graphviz_use_portname (Basic_block* bb, Alias_name* use);
+	String* get_graphviz_phi_portname (Basic_block* bb, Alias_name* phi);
 
 public:
 
