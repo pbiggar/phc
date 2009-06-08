@@ -1363,14 +1363,10 @@ Whole_program::assign_empty_array (Context cx, Path* plhs, string name)
 			if (ref->cert == DEFINITE)
 				wpa->kill_value (cx, ref->index);
 
+			wpa->set_storage (cx, SN (name), new Types ("array"));
 			wpa->assign_value (cx, ref->index, SN (name));
 		}
 	}
-
-	// Set the type for storage to ARRAY
-	foreach_wpa (this)
-		wpa->set_storage (cx, SN (name), new Types ("array"));
-
 
 	// All the arrays entries are NULL.
 	assign_scalar (cx, P (name, UNKNOWN), new NIL);
