@@ -30,7 +30,7 @@ class Context;
 class Index_node;
 class Storage_node;
 
-class Alias_name
+class Alias_name : virtual public GC_obj
 {
 public:
 	Alias_name ();

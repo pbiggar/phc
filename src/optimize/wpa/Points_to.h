@@ -117,7 +117,7 @@ public:
 
 
 // Just a pair really, but I didnt want to have to remember which was FIRST and which was SECOND.
-class Reference
+class Reference : virtual public GC_obj
 {
 public:
 	Reference (Index_node* index, Certainty cert)
@@ -203,14 +203,14 @@ SET_COMPARABLE (Reference_edge);
  *	is a 1-to-1 correspondence between MIR nodes and paths.
  */
 
-struct Empty
+struct Empty : virtual public GC_obj
 {
 	bool operator!= (const Empty&) const { return false; }
 	bool operator== (const Empty&) const { return true; }
 };
 
 template <class Source_type, class Target_type, class Edge_type, class Value_type = Empty>
-class Pair_map
+class Pair_map : virtual public GC_obj
 {
 	typedef Source_type source_type;
 	typedef Target_type target_type;

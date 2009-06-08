@@ -23,7 +23,7 @@ namespace MIR { class Literal; }
 
 typedef Set<string> Types;
 
-class Abstract_value : public GC_obj
+class Abstract_value : virtual public GC_obj
 {
 public:
 	MIR::Literal* const lit;

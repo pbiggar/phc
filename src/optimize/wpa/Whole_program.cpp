@@ -248,7 +248,7 @@ Whole_program::initialize ()
 //	register_analysis ("VRP", vrp);
 }
 
-class Less_post_dominator
+class Less_post_dominator : virtual public GC_obj
 {
 public:
 	bool
@@ -263,7 +263,7 @@ public:
 	}
 };
 
-class Worklist
+class Worklist : virtual public GC_obj
 {
 public:
 	// A Priority_queue which selects nodes which post-dominate other members,

@@ -52,7 +52,7 @@
 
 
 
-class Init_cell
+class Init_cell : virtual public GC_obj
 {
 public:
 	void dump (std::ostream& os = cdebug);
