@@ -151,12 +151,13 @@ Aliasing::kill_value (Context cx, Index_node* lhs)
 {
 	Points_to* ptg = outs[cx];
 
-	// This removes LHS from the Points-to graph. This seems wrong, but its
-	// always followed by a call to get the value of LHS, so its OK.
+	// This removes LHS from the Points-to graph. Since the value is no longer
+	// valid, we need to remove its field edge too.
 	foreach (Storage_node* st, *ptg->get_points_to (lhs))
 	{
 		ptg->remove_points_to (lhs, st);
 	}
+	ptg->remove_field (lhs);
 }
 
 // Remove all references edges into or out of LHS. KILL_VALUE is called separately.

@@ -2003,8 +2003,13 @@ Whole_program::visit_unset (Statement_block* bb, MIR::Unset* in)
 	// Send the results to the analyses for all variables which could be
 	// overwritten.
 	foreach (Index_node* index, *indices)
+	{
 		foreach_wpa (this)
+		{
 			wpa->kill_reference (block_cx, index);
+			wpa->kill_value (block_cx, index);
+		}
+	}
 }
 
 void
