@@ -71,7 +71,9 @@ void
 Optimization_transformer::visit_assign_array (Statement_block* bb, MIR::Assign_array* in)
 {
 	in->index = get_literal (bb, in->index);
-	in->rhs = get_literal (bb, in->rhs);
+
+	if (!in->is_ref)
+		in->rhs = get_literal (bb, in->rhs);
 }
 
 void
