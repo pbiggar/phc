@@ -13,6 +13,11 @@ To make pdf documentation, use:
 and follow the instructions.
 
 
+The .sgml files will be removed once we verify that nothing is lost in their
+conversion to reST (or sooner, if that never happens). They can be built with:
+	jade -t sgml -d manual.dsl#html manual.sgml
+
+
 Writing documentation:
 	Some defintions are in include.rst, so include that in every document.
 
