@@ -30,6 +30,8 @@ public:
 	Abstract_value* get_in_abstract_value (Basic_block* bb, MIR::Rvalue* in);
 	Abstract_value* get_out_abstract_value (Basic_block* bb, MIR::Rvalue* in);
 
+	void visit_branch_block (Branch_block* bb);
+
 	void visit_assign_array (Statement_block* bb, MIR::Assign_array* in);
 	void visit_assign_field (Statement_block* bb, MIR::Assign_field * in);
 	void visit_assign_var (Statement_block* bb, MIR::Assign_var* in);

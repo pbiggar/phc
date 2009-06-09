@@ -68,6 +68,15 @@ Optimization_transformer::get_literal (Basic_block* bb, Rvalue* in)
 }
 
 void
+Optimization_transformer::visit_branch_block (Branch_block* bb)
+{
+	Literal* lit = dynamic_cast <Literal*> (get_literal (bb, bb->branch->variable_name));
+	if (lit)
+		bb->cfg->set_branch_direction (bb, PHP::is_true (lit));
+}
+
+
+void
 Optimization_transformer::visit_assign_array (Statement_block* bb, MIR::Assign_array* in)
 {
 	in->index = get_literal (bb, in->index);
