@@ -271,11 +271,17 @@ HSSA::convert_to_hssa_form ()
 			defs->push_back_all (cfg->duw->get_block_defs (bb));
 			// TODO: add phis back in
 			// phis add a def thats not in the DUW
-			Var_set* phidefs = bb->get_phi_lhss ();	
+			Var_set* phidefs = frontier->get_phi_lhss ();	
 			
 			foreach (Alias_name name, *phidefs)
 			{
-				defs->push_back (new SSA_def (bb, &name, SSA_PHI)); 
+				DEBUG("Phi node info:\n");
+				defs->push_back (new SSA_def (frontier, &name, SSA_PHI)); 
+				DEBUG(name.str () );
+				foreach(Alias_name* rhs, *frontier->cfg->duw->get_phi_args (frontier,name) )
+				{
+					DEBUG("\n"<<rhs->ssa_version);
+				}
 			}
 
 			foreach (SSA_def* def, *defs)
@@ -283,8 +289,9 @@ HSSA::convert_to_hssa_form ()
 				if (!frontier->has_phi_node (*(def->name)))
 				{
 					frontier->add_phi_node (*(def->name));
+					
 					def_added = true;
-				}	
+				}
 			}
 
 			// This adds a new def, which requires us to iterate.
@@ -364,7 +371,7 @@ HSSA::convert_out_of_ssa_form ()
 void
 HSSA::push_to_var_stack (Alias_name* name)
 {
-	assert (name->ssa_version == 0);
+	//assert (name->ssa_version == 0);
 	var_stacks[*name].push (counter);
 	name->set_version (counter);
 	counter++;
@@ -435,13 +442,6 @@ HSSA::rename_vars (Basic_block* bb)
 	
 	//TODO: Phis
 	
-	foreach (Alias_name phi_lhs, *bb->get_phi_lhss())
-	{
-		Alias_name clone = phi_lhs;
-		create_new_ssa_name (&clone);
-		bb->update_phi_node (phi_lhs, clone);
-	}
-	
 	foreach (Alias_name* use, *bb->cfg->duw->get_uses (bb))
 		use->set_version (read_var_stack (use));
 
@@ -450,6 +450,19 @@ HSSA::rename_vars (Basic_block* bb)
 
 	foreach (Alias_name* may_def, *bb->cfg->duw->get_may_defs (bb))
 		create_new_ssa_name (may_def);
+		
+	foreach (Alias_name phi_lhs, *bb->get_phi_lhss())
+	{
+		/*DEBUG(phi_lhs.str () );
+		foreach(Alias_name* rhs, *bb->cfg->duw->get_phi_args (bb,phi_lhs) )
+		{
+			DEBUG("\n"<<rhs->ssa_version);
+		}*/
+		
+		Alias_name clone = phi_lhs;
+		create_new_ssa_name (&clone);
+		bb->update_phi_node (phi_lhs, clone);
+	}
 		
 
 	// Phis, Chis and Mus use indexing, and when we put them in SSA form,
@@ -501,8 +514,9 @@ HSSA::rename_vars (Basic_block* bb)
 	// predecessor, which are not redefined here).
 	foreach (Basic_block* succ, *bb->get_successors ())
 		foreach (Alias_name phi_lhs, *succ->get_phi_lhss())
-			succ->add_phi_arg (phi_lhs, read_var_stack (phi_lhs), cfg->get_edge (bb, succ));
+			succ->add_phi_arg (phi_lhs, read_var_stack (&phi_lhs), cfg->get_edge (bb, succ));
 #endif
+
 
 	// Recurse down the dominator tree
 	foreach (Basic_block* dominated, *bb->get_dominated_blocks ())
