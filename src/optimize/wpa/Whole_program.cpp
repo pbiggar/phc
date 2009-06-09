@@ -1799,11 +1799,7 @@ Whole_program::get_named_indices (Context cx, Path* path, bool is_readonly)
 		String* index_value = this->get_string_value (cx, index);
 		record_use (cx, index);
 
-		return new Index_node_list (
-			path_to_index (
-				new Indexing (
-					p->lhs, 
-					new Index_path (*index_value))));
+		return get_array_named_indices (cx, p->lhs, index_value, is_readonly);
 	}
 
 
@@ -1865,7 +1861,7 @@ Whole_program::get_array_named_indices (Context cx, Path* plhs, String* index, b
 
 	// In a writing context, if the variable containing the array doesn't
 	// already exist, it must be implicitly created.
-	if (not is_readonly && !aliasing->has_field (cx, array))
+	if (not is_readonly && not aliasing->has_field (cx, array))
 	{
 		string name = cx.array_node ()->for_index_node ();
 		assign_empty_array (cx, plhs, name);
@@ -1895,7 +1891,7 @@ Whole_program::get_array_named_indices (Context cx, Path* plhs, String* index, b
 
 	// We only read the value of INDEX, so we don't need the implicit array
 	// creation.
-	if (is_readonly && !aliasing->has_field (cx, array))
+	if (is_readonly && not aliasing->has_field (cx, array))
 	{
 		assert (storages->size () == 0);
 		storages->push_back (SCLVAL (array));
@@ -2450,5 +2446,11 @@ Whole_program::visit_variable_name (Statement_block* bb, MIR::VARIABLE_NAME* in)
 void
 Whole_program::visit_variable_variable (Statement_block* bb, MIR::Variable_variable* in)
 {
-	phc_TODO ();
+	string ns = block_cx.symtable_name ();
+	Path* path = P (ns, in);
+
+	if (saved_is_ref)
+		assign_by_ref (block_cx, saved_plhs, path);
+	else
+		assign_by_copy (block_cx, saved_plhs, path);
 }

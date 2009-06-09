@@ -29,7 +29,8 @@ Alias_name::Alias_name (string prefix, string name)
 , ssa_version (0)
 {
 	assert (prefix != "");
-	assert (name != "");
+	// See comment in Index_node::Index_node().
+//	assert (name != "");
 }
 
 bool

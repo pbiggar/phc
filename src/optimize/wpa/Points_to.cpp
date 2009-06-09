@@ -768,9 +768,10 @@ Index_node::Index_node (string storage, string index)
 {
 	assert (storage != "");
 
-	// TODO: index is allowed be "", but during development, this is likely an
-	// error in the analyses, and not somewhere that "" is genuinely used.
-	assert (index != "");
+	// An index can be "", but this can be caused by an error in the analyses.
+	// However, its starting to come up in test code, so we should disable the
+	// assertion.
+//	assert (index != "");
 }
 
 Alias_name

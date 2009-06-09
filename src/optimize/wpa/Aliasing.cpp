@@ -336,7 +336,6 @@ ST_path::ST_path (string name)
 Index_path::Index_path (string name)
 : name (name)
 {
-	assert (name != "");
 }
 
 Path*
@@ -353,6 +352,15 @@ P (string symtable, Node* in)
 	{
 		case VARIABLE_NAME::ID:
 			return P (symtable, *dyc<VARIABLE_NAME> (in)->value);
+
+		case Variable_variable::ID:
+		{
+			// ST -> (ST -> var)
+			Variable_variable* varvar = dyc<Variable_variable> (in);
+			return new Indexing (
+				new ST_path (symtable),
+				P (symtable, varvar->variable_name));
+		}
 
 		case Array_access::ID:
 		{
