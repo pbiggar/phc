@@ -1265,6 +1265,7 @@ Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 		{
 			foreach_wpa (this)
 			{
+				// TODO: this shouldnt be NULL, this should read from UNKNOWN.
 				wpa->set_scalar (cx, SCLVAL (rhs), new Abstract_value (new NIL));
 				wpa->assign_value (cx, rhs, SCLVAL (rhs));
 			}
@@ -1556,6 +1557,10 @@ Whole_program::read_from_scalar_value (Context cx, Index_node* rhs)
  */
 
 
+/*
+ * Check if the storage node of INDEX is a scalar, and handle it (in a
+ * non-readonly sense).
+ */
 Index_node*
 Whole_program::check_owner_type (Context cx, Index_node* index)
 {
@@ -1577,6 +1582,8 @@ Whole_program::check_owner_type (Context cx, Index_node* index)
 			}
 			else if (type == "unset")
 			{
+				// TODO: why dont we call assign_array here?
+
 				// Convert to an array
 				string name = cx.array_node ()->for_index_node ();
 				foreach_wpa (this)

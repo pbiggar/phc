@@ -1,6 +1,13 @@
 <?php
 
-	$x[$argc] = 5;
+	if ($argv)
+	{
+		$x[$argc] = 5;
+	}
+	else
+	{
+		$x[$argc] = array ();
+	}
 
 	var_dump ($x[0]);
 
