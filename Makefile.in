@@ -116,17 +116,17 @@ am_libphc_la_OBJECTS = getopt1.lo getopt.lo AST_annotate.lo \
 	Constant_state.lo Context.lo Debug_WPA.lo Def_use.lo \
 	Include_analysis.lo Optimization_annotator.lo \
 	Optimization_transformer.lo Points_to.lo Value_analysis.lo \
-	VRP.lo Whole_program.lo WPA.lo MICG_parser.lo Parse_buffer.lo \
-	parse.lo PHP_context.lo XML_parser.lo Optimization_pass.lo \
-	Pass_manager.lo Plugin_pass.lo AST_unparser.lo \
-	Constant_folding.lo DOT_unparser.lo Invalid_check.lo \
-	Note_top_level_declarations.lo Process_includes.lo \
-	Remove_concat_null.lo Remove_parser_temporaries.lo \
-	Strip_unparser_attributes.lo Token_conversion.lo \
-	HIR_unparser.lo debug.lo fresh.lo General.lo IR.lo \
-	PHP_unparser.lo stats.lo XML_unparser.lo Alias_uppering.lo \
-	Foreach_uppering.lo Goto_uppering.lo MIR_unparser.lo \
-	Param_is_ref_uppering.lo
+	VRP.lo Whole_program.lo Worklist.lo WPA.lo MICG_parser.lo \
+	Parse_buffer.lo parse.lo PHP_context.lo XML_parser.lo \
+	Optimization_pass.lo Pass_manager.lo Plugin_pass.lo \
+	AST_unparser.lo Constant_folding.lo DOT_unparser.lo \
+	Invalid_check.lo Note_top_level_declarations.lo \
+	Process_includes.lo Remove_concat_null.lo \
+	Remove_parser_temporaries.lo Strip_unparser_attributes.lo \
+	Token_conversion.lo HIR_unparser.lo debug.lo fresh.lo \
+	General.lo IR.lo PHP_unparser.lo stats.lo XML_unparser.lo \
+	Alias_uppering.lo Foreach_uppering.lo Goto_uppering.lo \
+	MIR_unparser.lo Param_is_ref_uppering.lo
 libphc_la_OBJECTS = $(am_libphc_la_OBJECTS)
 plugins_tests_canonical_unparser_la_LIBADD =
 am_plugins_tests_canonical_unparser_la_OBJECTS =  \
@@ -634,7 +634,7 @@ ACLOCAL_AMFLAGS = -I m4 -I libltdl
 
 # -export-dynammic: Special libtool flag for later plugin loading
 src_phc_LDFLAGS = -export-dynamic
-src_phc_LDADD = @gc_lib@ $(LIBLTDL) libphc.la
+src_phc_LDADD = @gc_lib@ $(LIBLTDL) libphc.la $(BOOST_REGEX_LIB)
 bin_SCRIPTS = src/phc_compile_plugin
 libexec_SCRIPTS = libtool
 # pkgdata_DATA = phc-1.0.xsd
@@ -850,6 +850,8 @@ libphc_la_SOURCES = \
 	src/optimize/wpa/VRP.h									\
 	src/optimize/wpa/Whole_program.cpp					\
 	src/optimize/wpa/Whole_program.h						\
+	src/optimize/wpa/Worklist.cpp							\
+	src/optimize/wpa/Worklist.h							\
 	src/optimize/wpa/WPA.cpp								\
 	src/optimize/wpa/WPA.h									\
 	src/optimize/wpa/WPA_lattice.h						\
@@ -1533,6 +1535,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Visit_once.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/WPA.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Whole_program.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Worklist.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/XML_parser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/XML_unparser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/add_comment.Plo@am__quote@
@@ -2286,6 +2289,13 @@ Whole_program.lo: src/optimize/wpa/Whole_program.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/wpa/Whole_program.cpp' object='Whole_program.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Whole_program.lo `test -f 'src/optimize/wpa/Whole_program.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Whole_program.cpp
+
+Worklist.lo: src/optimize/wpa/Worklist.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Worklist.lo -MD -MP -MF $(DEPDIR)/Worklist.Tpo -c -o Worklist.lo `test -f 'src/optimize/wpa/Worklist.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Worklist.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Worklist.Tpo $(DEPDIR)/Worklist.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/wpa/Worklist.cpp' object='Worklist.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Worklist.lo `test -f 'src/optimize/wpa/Worklist.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Worklist.cpp
 
 WPA.lo: src/optimize/wpa/WPA.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT WPA.lo -MD -MP -MF $(DEPDIR)/WPA.Tpo -c -o WPA.lo `test -f 'src/optimize/wpa/WPA.cpp' || echo '$(srcdir)/'`src/optimize/wpa/WPA.cpp

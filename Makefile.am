@@ -260,6 +260,8 @@ libphc_la_SOURCES= 											\
 	src/optimize/wpa/VRP.h									\
 	src/optimize/wpa/Whole_program.cpp					\
 	src/optimize/wpa/Whole_program.h						\
+	src/optimize/wpa/Worklist.cpp							\
+	src/optimize/wpa/Worklist.h							\
 	src/optimize/wpa/WPA.cpp								\
 	src/optimize/wpa/WPA.h									\
 	src/optimize/wpa/WPA_lattice.h						\

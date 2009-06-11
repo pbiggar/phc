@@ -188,9 +188,9 @@ public:
 	void assign_by_copy (Context cx, Path* lhs, Path* rhs);
 
 	void assign_empty_array (Context cx, Path* lhs, string name);
-	Storage_node* create_empty_array (Context cx, string name);
 	void assign_storage (Context cx, Path* lhs, Storage_node* st);
 
+	Storage_node* create_empty_array (Context cx, string name);
 
 	// Copy the value from RHS to LHS.
 	void copy_value (Context cx, Index_node* lhs, Index_node* rhs);

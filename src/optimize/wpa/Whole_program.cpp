@@ -64,9 +64,6 @@
  *
  */
 
-// TODO: put into lib
-#include <queue>
-
 #include "process_ir/General.h"
 #include "pass_manager/Pass_manager.h"
 
@@ -76,6 +73,7 @@
 #include "optimize/Oracle.h"
 
 #include "Whole_program.h"
+#include "Worklist.h"
 #include "WPA.h"
 
 #include "Debug_WPA.h"
@@ -248,80 +246,6 @@ Whole_program::initialize ()
 //	register_analysis ("Include_analysis", include_analysis);
 //	register_analysis ("VRP", vrp);
 }
-
-class Less_post_dominator : virtual public GC_obj
-{
-public:
-	bool
-	operator() (Edge* p1, Edge* p2)
-	{
-		Basic_block* t1 = p1->get_target ();
-		Basic_block* t2 = p2->get_target ();
-
-
-		// The queue prioritizes maximal elements, so return true for post-domination.
-		return !t1->is_reverse_dominated_by (t2);
-	}
-};
-
-class Worklist : virtual public GC_obj
-{
-public:
-	// A Priority_queue which selects nodes which post-dominate other members,
-	// after those members.
-	priority_queue<Edge*, deque<Edge*>, Less_post_dominator> queue;
-
-	// Don't add edges to existing BBs, so keep track.
-	Set<Basic_block*> bbs;
-	Map<Edge*, bool> executable_flags;
-
-public:
-	Worklist ()
-	: queue (Less_post_dominator (), deque<Edge*> ())
-	{
-	}
-
-	Edge* next ()
-	{
-		Edge* result = queue.top ();
-		queue.pop ();
-		bbs.erase (result->get_target ());
-		return result;
-	}
-
-	void add (Edge* edge)
-	{
-		executable_flags[edge] = true;
-
-		// Dont add edges whose targets are already present
-		if (bbs.has (edge->get_target ()))
-			return;
-
-		bbs.insert (edge->get_target ());
-		queue.push (edge);
-	}
-
-	bool is_executable (Edge* edge)
-	{
-		return executable_flags[edge];
-	}
-
-	size_t size ()
-	{
-		return queue.size ();
-	}
-
-	void clear ()
-	{
-		while (size ())
-			next (); // throw it away
-
-
-		executable_flags.clear ();
-	}
-
-};
-
 
 void
 Whole_program::analyse_function (User_method_info* info, Context caller_cx, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
