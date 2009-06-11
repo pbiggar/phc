@@ -45,7 +45,7 @@ private:
 	 * we may or may not do in the future).
 	 */
 	int counter;
-	Map<Alias_name, Stack<int> > var_stacks;
+	Map<std::string, Stack<int> > var_stacks;
 };
 
 

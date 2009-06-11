@@ -61,7 +61,7 @@ String*
 Entry_block::get_graphviz_label ()
 {
 	stringstream ss;
-	ss << "ENTRY: (";
+	ss << ID << " ENTRY: (";
 
 	foreach (Formal_parameter* param, *method->signature->formal_parameters)
 		ss << *param->var->variable_name->value << ", ";
@@ -74,7 +74,7 @@ Entry_block::get_graphviz_label ()
 String* Exit_block::get_graphviz_label ()
 {
 	stringstream ss;
-	ss << "EXIT: (";
+	ss << ID << " EXIT: (";
 
 	foreach (Formal_parameter* param, *method->signature->formal_parameters)
 		ss << *param->var->variable_name->value << ", ";
@@ -93,6 +93,8 @@ String* Branch_block::get_graphviz_label ()
 {
 	String* result = s("$");
 	result->append (*branch->variable_name->value);
+	result->append (" ID: ");
+	result->append(""+ID);
 	return result;
 }
 
@@ -100,6 +102,7 @@ String*
 Statement_block::get_graphviz_label ()
 {
 	stringstream ss;
+	ss<<ID<<" ";
 	MIR_unparser mup(ss, true);
 	mup.unparse (statement);
 	return escape_DOT (s(ss.str()));
@@ -134,7 +137,12 @@ Basic_block::add_phi_node (Alias_name phi_lhs)
 void
 Basic_block::add_phi_arg (Alias_name phi_lhs, int version, Edge* edge)
 {
-	cfg->duw->add_phi_arg (this, phi_lhs, version, edge);
+	
+	//temporary
+	if (has_phi_node(phi_lhs))
+	{
+		cfg->duw->add_phi_arg (this, phi_lhs, version, edge);
+	}
 }
 
 void
