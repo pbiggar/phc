@@ -177,20 +177,19 @@ public:
 	// to be reanalysed.
 	bool analyse_block (Context cx);
 
-	// These functions describe the operation being performed in each block.
-	// They pass the information to the Points-to graph, and to the other
-	// analyses. The BB is to give a unique index to the results.
+	/*
+	 * Assignments
+	 */
 	void assign_scalar (Context cx, Path* lhs, MIR::Literal* lit);
 	void assign_scalar (Context cx, Path* plhs, Abstract_value* absval);
 	void assign_unknown (Context cx, Path* lhs);
 	void assign_typed (Context cx, Path* lhs, Types* types);
 	void assign_by_ref (Context cx, Path* lhs, Path* rhs);
 	void assign_by_copy (Context cx, Path* lhs, Path* rhs);
-
 	void assign_empty_array (Context cx, Path* lhs, string name);
-	void assign_storage (Context cx, Path* lhs, Storage_node* st);
 
-	Storage_node* create_empty_array (Context cx, string name);
+	void assign_storage (Context cx, Path* lhs, Storage_node* st);
+	Storage_node* create_empty_storage (Context cx, string name, string type);
 
 	// Copy the value from RHS to LHS.
 	void copy_value (Context cx, Index_node* lhs, Index_node* rhs);
@@ -198,25 +197,18 @@ public:
 	Index_node* check_owner_type (Context cx, Index_node* index);
 	Abstract_value* read_from_scalar_value (Context cx, Index_node* rhs);
 
-	void record_use (Context cx, Index_node* node);
-
-	void pull_results (Context cx, BB_list* bbs);
-
-	Index_node_list* get_possible_nulls (List<Context>*);
-
 	// Most pesimistic case
 	void ruin_everything (Context cx, Path* path);
 
+	bool is_killable (Context cx, Index_node_list* indices);
 
+	
 	/*
 	 * These might be considered to belong elsewhere, but each of them needs to
 	 * some information which is not necessarily available to the analysis in
 	 * question.
 	 */
 
-	bool is_killable (Context cx, Index_node_list* indices);
-
-	Edge_list* get_successors (Context cx);
 
 	// Get the value of node (can be UNKNOWN).
 	String* get_string_value (Context cx, Index_node* node);
@@ -237,6 +229,19 @@ public:
 
 	// Get anything the path can point to, and all nodes that they may reference.
 	Reference_list* get_lhs_references (Context cx, Path* path);
+
+
+	/*
+	 * End of Assignments
+	 */
+
+	Edge_list* get_successors (Context cx);
+	void pull_results (Context cx, BB_list* bbs);
+	Index_node_list* get_possible_nulls (List<Context>*);
+
+	void record_use (Context cx, Index_node* node);
+
+
 
 
 	/*

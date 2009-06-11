@@ -382,6 +382,8 @@ Whole_program::get_possible_receivers (Target* target, Method_name* method_name)
 
 	result->push_back (info);
 
+	assert (result->size () > 0);
+
 	return result;	
 }
 
@@ -779,9 +781,7 @@ Whole_program::analyse_block (Context cx)
 	block_cx = cx;
 	visit_block (cx.get_bb());
 
-
-	foreach_wpa (this)
-		wpa->aggregate_results (cx);
+	FWPA->aggregate_results (cx);
 
 	dump (cx, "After analysis (" + *cx.get_bb()->get_graphviz_label () + ")");
 
@@ -963,19 +963,14 @@ void
 Whole_program::forward_bind (Method_info* info, Context entry_cx, MIR::Actual_parameter_list* actuals)
 {
 	Context caller_cx = entry_cx.caller ();
+
+	// Initialize the analyses
+	FWPA->forward_bind (caller_cx, entry_cx);
+
+
+	// Create the symbol table.
 	string scope = entry_cx.symtable_name ();
-
-	// Each caller should expect that context can be NULL for __MAIN__.
-	foreach_wpa (this)
-	{
-		wpa->forward_bind (caller_cx, entry_cx);
-
-		// The symtable is an array
-		wpa->set_storage (entry_cx, SN (scope), new Types ("array"));
-	}
-
-	// Make sure the symtable actually gets created.
-	assign_scalar (entry_cx, P (scope, UNKNOWN), new NIL);
+	create_empty_storage (entry_cx, scope, "array");
 
 
 	// Special case for __MAIN__. We do it here so that the other analyses
@@ -985,6 +980,11 @@ Whole_program::forward_bind (Method_info* info, Context entry_cx, MIR::Actual_pa
 		main_scope = scope;
 		init_superglobals (entry_cx);
 	}
+
+
+	/*
+	 * Handle the parameters
+	 */
 
 	int i = 0;
 	foreach (Actual_parameter* ap, *actuals)
@@ -1032,8 +1032,7 @@ Whole_program::forward_bind (Method_info* info, Context entry_cx, MIR::Actual_pa
 	}
 
 
-	foreach_wpa (this)
-		wpa->aggregate_results (entry_cx);
+	FWPA->aggregate_results (entry_cx);
 
 	dump (entry_cx, "After forward_bind");
 }
@@ -1078,8 +1077,7 @@ Whole_program::backward_bind (Method_info* info, Context exit_cx, MIR::VARIABLE_
 		}
 
 		// There is a backward bind before this assignment, but we need another after this assignment..
-		foreach_wpa (this)
-			wpa->aggregate_results (exit_cx);
+		FWPA->aggregate_results (exit_cx);
 	}
 
 
@@ -1098,9 +1096,7 @@ Whole_program::backward_bind (Method_info* info, Context exit_cx, MIR::VARIABLE_
 
 	dump (exit_cx, "After assignment, before WPA backward bind");
 
-	// Context can be NULL for __MAIN__
-	foreach_wpa (this)
-		wpa->backward_bind (caller_cx, exit_cx);
+	FWPA->backward_bind (caller_cx, exit_cx);
 
 	dump (caller_cx, "After backward bind");
 
@@ -1159,10 +1155,7 @@ Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 	bool lhs_killable = is_killable (cx, lhss);
 	if (lhs_killable)
 	{
-		foreach_wpa (this)
-		{
-			wpa->kill_value (cx, lhss->front (), true);
-		}
+		FWPA->kill_value (cx, lhss->front (), true);
 	}
 
 
@@ -1200,20 +1193,16 @@ Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 			{
 				if (isa<Value_node> (st))
 				{
-					foreach_wpa (this)
-					{
-						// Just copy the scalar value to L.
-						wpa->set_scalar (cx, SCLVAL (lhs), get_abstract_value (cx, rhs->name ()));
+					// Just copy the scalar value to L.
+					FWPA->set_scalar (cx, SCLVAL (lhs), get_abstract_value (cx, rhs->name ()));
 
-						// L may have been killed, but it needs its SCLVAL now.
-						wpa->assign_value (cx, lhs, SCLVAL (lhs));
-					}
+					// L may have been killed, but it needs its SCLVAL now.
+					FWPA->assign_value (cx, lhs, SCLVAL (lhs));
 				}
 				else
 				{
 					// Make L point to the value (not a deep copy, under any circumstances).
-					foreach_wpa (this)
-						wpa->assign_value (cx, lhs, st);
+					FWPA->assign_value (cx, lhs, st);
 				}
 			}
 
@@ -1224,13 +1213,11 @@ Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 			// edges are bidirectional. It may be that A may-ref B and A may-ref
 			// C, but B does not may-ref C. An example is after CFG merges.
 			foreach (Reference* ref, *aliasing->get_references (cx, rhs, PTG_ALL))
-				foreach_wpa (this)
-					wpa->create_reference (cx, lhs, ref->index, combine_certs (cert, ref->cert));
+				FWPA->create_reference (cx, lhs, ref->index, combine_certs (cert, ref->cert));
 
 
 			// Create the reference
-			foreach_wpa (this)
-				wpa->create_reference (cx, lhs, rhs, cert);
+			FWPA->create_reference (cx, lhs, rhs, cert);
 		}
 	}
 }
@@ -1252,6 +1239,8 @@ Whole_program::assign_scalar (Context cx, Path* plhs, Abstract_value* absval)
 void
 Whole_program::assign_scalar (Context cx, Path* plhs, Literal* lit)
 {
+	// We can't split this well, because we dont know the list of Storage nodes
+	// for LIT.
 	DEBUG ("assign_scalar");
 	foreach (Reference* ref, *get_lhs_references (cx, plhs))
 	{
@@ -1307,13 +1296,13 @@ Whole_program::assign_typed (Context cx, Path* plhs, Types* types)
 }
 
 Storage_node*
-Whole_program::create_empty_array (Context cx, string name)
+Whole_program::create_empty_storage (Context cx, string name, string type)
 {
 	Storage_node* st = SN (name);
 
-	FWPA->set_storage (cx, st, new Types ("array"));
+	FWPA->set_storage (cx, st, new Types (type));
 
-	// All the arrays entries are NULL.
+	// All the entries are NULL.
 	assign_scalar (cx, P (name, UNKNOWN), new NIL);
 
 	return st;
@@ -1340,7 +1329,7 @@ void
 Whole_program::assign_empty_array (Context cx, Path* plhs, string name)
 {
 	// Assign the value to all referenced names.
-	assign_storage (cx, plhs, create_empty_array (cx, name));
+	assign_storage (cx, plhs, create_empty_storage (cx, name, "array"));
 }
 
 void
@@ -1507,7 +1496,6 @@ Whole_program::check_owner_type (Context cx, Index_node* index)
 		if (scalar_types->size () > 1)
 			phc_TODO ();
 
-		bool value_changed = false;
 		foreach (string type, *scalar_types)
 		{
 			if (type == "string")
@@ -1604,9 +1592,7 @@ Whole_program::copy_value (Context cx, Index_node* lhs, Index_node* rhs)
 		if (array->size())
 		{
 			// Create the new array
-			Storage_node* new_array = cx.array_node ();
-			foreach_wpa (this)
-				wpa->set_storage (cx, new_array, new Types ("array"));
+			Storage_node* new_array = create_empty_storage (cx, cx.array_name (), "array");
 
 
 			// Copy all the indices.
@@ -1618,15 +1604,13 @@ Whole_program::copy_value (Context cx, Index_node* lhs, Index_node* rhs)
 			}
 
 			// LHS points to NEW_ARRAY.
-			foreach_wpa (this)
-				wpa->assign_value (cx, lhs, new_array);
+			FWPA->assign_value (cx, lhs, new_array);
 		}
 
 		if (objects->size ())
 		{
 			// Just point to the object.
-			foreach_wpa (this)
-				wpa->assign_value (cx, lhs, st);
+			FWPA->assign_value (cx, lhs, st);
 		}
 	}
 }
@@ -1641,8 +1625,7 @@ Whole_program::record_use (Context cx, Index_node* node)
 	// TODO: once type-inferences is built, here would be a good place to
 	// call/check for the handlers.
 	
-	foreach_wpa (this)
-		wpa->record_use (cx, node, POSSIBLE);
+	FWPA->record_use (cx, node, POSSIBLE);
 }
 
 
@@ -1987,12 +1970,12 @@ Whole_program::visit_unset (Statement_block* bb, MIR::Unset* in)
 
 	// Send the results to the analyses for all variables which could be
 	// overwritten.
+	
+	// TODO: This is wrong - we can't kill if we don't refer to just one block.
+	// It's really a may-kill.
 	foreach (Index_node* index, *indices)
 	{
-		foreach_wpa (this)
-		{
-			wpa->kill_value (block_cx, index, true);
-		}
+		FWPA->kill_value (block_cx, index, true);
 	}
 }
 
