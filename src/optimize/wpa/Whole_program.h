@@ -62,11 +62,14 @@ class Path;
 class WPA;
 class Absval_cell;
 
+/*
+ * Intended to be used as FWPA->whatever ();
+ */
 
 // This gets used everywhere.
-#define foreach_wpa(WP)					\
-	foreach (WPA* wpa, WP->analyses)
+#define foreach_wpa(WP)		foreach (WPA* wpa, WP->analyses)
 
+#define FWPA	 foreach (WPA* wpa, this->analyses) wpa
 
 class Whole_program : public CFG_visitor
 {
@@ -181,9 +184,12 @@ public:
 	void assign_scalar (Context cx, Path* plhs, Abstract_value* absval);
 	void assign_unknown (Context cx, Path* lhs);
 	void assign_typed (Context cx, Path* lhs, Types* types);
-	void assign_empty_array (Context cx, Path* lhs, string name);
 	void assign_by_ref (Context cx, Path* lhs, Path* rhs);
 	void assign_by_copy (Context cx, Path* lhs, Path* rhs);
+
+	void assign_empty_array (Context cx, Path* lhs, string name);
+	Storage_node* create_empty_array (Context cx, string name);
+	void assign_storage (Context cx, Path* lhs, Storage_node* st);
 
 
 	// Copy the value from RHS to LHS.

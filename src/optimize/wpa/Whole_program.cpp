@@ -62,7 +62,6 @@
  * handlers of objects of unknown classes
  * __autoload
  *
- 
  */
 
 // TODO: put into lib
@@ -198,6 +197,8 @@ Whole_program::run (MIR::PHP_script* in)
 	// As a final step, strip all unused functions.	
 	strip (in);
 }
+
+
 
 bool
 Whole_program::analyses_have_converged ()
@@ -526,8 +527,7 @@ Whole_program::analyse_summary (Summary_method_info* info, Context caller_cx, Ac
 
 	apply_modelled_function (info, fake_cx, caller_cx);
 
-	foreach_wpa (this)
-		wpa->aggregate_results (fake_cx);
+	FWPA->aggregate_results (fake_cx);
 
 	dump (fake_cx, "After fake basic block (" + *caller_cx.get_bb()->get_graphviz_label () + ")");
 
@@ -542,8 +542,7 @@ Whole_program::analyse_summary (Summary_method_info* info, Context caller_cx, Ac
 	Context exit_cx = Context::contextual (caller_cx, cfg->get_exit_bb ());
 	pull_results (exit_cx, cfg->get_exit_bb ()->get_predecessors ());
 
-	foreach_wpa (this)
-		wpa->aggregate_results (fake_cx);
+	FWPA->aggregate_results (fake_cx);
 
 	// TODO: we only really need 2 blocks here.
 	dump (exit_cx, "After summary method (" + *caller_cx.get_bb()->get_graphviz_label () + ")");
@@ -845,8 +844,7 @@ Whole_program::generate_summary (User_method_info* info)
 void
 Whole_program::merge_contexts ()
 {
-	foreach_wpa (this)
-		wpa->merge_contexts ();
+	FWPA->merge_contexts ();
 }
 
 bool
@@ -943,20 +941,17 @@ Whole_program::pull_results (Context cx, BB_list* bb_preds)
 
 
 	// Actually pull the results
-	foreach_wpa (this)
-	{
-		wpa->pull_init (cx);
-		wpa->pull_first_pred (cx, first);
+	FWPA->pull_init (cx);
+	FWPA->pull_first_pred (cx, first);
 
-		foreach (Context pred, *preds)
-			wpa->pull_pred (cx, pred);
+	foreach (Context pred, *preds)
+		FWPA->pull_pred (cx, pred);
 
-		// Use possible NULLs
-		foreach (Index_node* index, *possible_nulls)
-			wpa->pull_possible_null (cx, index);
+	// Use possible NULLs
+	foreach (Index_node* index, *possible_nulls)
+		FWPA->pull_possible_null (cx, index);
 
-		wpa->pull_finish (cx);
-	}
+	FWPA->pull_finish (cx);
 }
 
 void
@@ -1004,8 +999,7 @@ Whole_program::init_superglobals (Context cx)
 
 	// Start with globals, since it needs needs to point to MSN
 	string MSN = cx.symtable_name ();
-	foreach_wpa (this)
-		wpa->assign_value (cx, VN (MSN, new VARIABLE_NAME ("GLOBALS")), SN (MSN));
+	FWPA->assign_value (cx, VN (MSN, new VARIABLE_NAME ("GLOBALS")), SN (MSN));
 
 
 	// Do the other superglobals
@@ -1023,6 +1017,8 @@ Whole_program::init_superglobals (Context cx)
 		// We dont know the contents of these arrays.
 		assign_typed (cx, P (array_name, UNKNOWN), new Types("string"));
 	}
+
+	// TODO: these do too much. Use FWPA
 
 	// We actually have no idea whats in _SESSION
 	assign_unknown (cx, P ("_SESSION", UNKNOWN));
@@ -1386,26 +1382,41 @@ Whole_program::assign_typed (Context cx, Path* plhs, Types* types)
 	}
 }
 
+Storage_node*
+Whole_program::create_empty_array (Context cx, string name)
+{
+	Storage_node* st = SN (name);
+
+	FWPA->set_storage (cx, st, new Types ("array"));
+
+	// All the arrays entries are NULL.
+	assign_scalar (cx, P (name, UNKNOWN), new NIL);
+
+	return st;
+}
+
 void
-Whole_program::assign_empty_array (Context cx, Path* plhs, string name)
+Whole_program::assign_storage (Context cx, Path* plhs, Storage_node* st)
 {
 	DEBUG ("assign_empty_array");
 
 	// Assign the value to all referenced names.
 	foreach (Reference* ref, *get_lhs_references (cx, plhs))
 	{
-		foreach_wpa (this)
+		if (ref->cert == DEFINITE)
 		{
-			if (ref->cert == DEFINITE)
-				wpa->kill_value (cx, ref->index);
-
-			wpa->set_storage (cx, SN (name), new Types ("array"));
-			wpa->assign_value (cx, ref->index, SN (name));
+			FWPA->kill_value (cx, ref->index);
 		}
-	}
 
-	// All the arrays entries are NULL.
-	assign_scalar (cx, P (name, UNKNOWN), new NIL);
+		FWPA->assign_value (cx, ref->index, st);
+	}
+}
+
+void
+Whole_program::assign_empty_array (Context cx, Path* plhs, string name)
+{
+	// Assign the value to all referenced names.
+	assign_storage (cx, plhs, create_empty_array (cx, name));
 }
 
 void
@@ -2382,7 +2393,18 @@ Whole_program::visit_method_invocation (Statement_block* bb, MIR::Method_invocat
 void
 Whole_program::visit_new (Statement_block* bb, MIR::New* in)
 {
+	string ns = block_cx.symtable_name ();
+
+	if (saved_plhs == NULL)
+		phc_TODO ();
+
+	if (saved_is_ref)
+		phc_TODO ();
+
 	phc_TODO ();
+//assign_empty_array (block_cx, saved_plhs, block_cx.array_name ());
+
+	// TODO: call the constructor
 }
 
 void
