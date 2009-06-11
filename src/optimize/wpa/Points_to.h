@@ -459,6 +459,7 @@ public:
 	void open_scope (Storage_node* st);
 	void close_scope (Storage_node* st);
 	bool is_abstract (Storage_node* st);
+	void inc_abstract (Storage_node* st);
 	bool is_abstract_field (Index_node* index);
 	bool is_symtable (Storage_node* st);
 

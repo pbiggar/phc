@@ -26,8 +26,8 @@ using namespace boost;
 
 Points_to::Points_to ()
 {
-	// Pretend this is a symtable so that it doesnt get removed.
-	abstract_counts [SN("_SESSION")->name()]++;
+	// Pretend this is abstract so that it doesnt get removed.
+	abstract_counts [SN("_SESSION")->name()] += 2;
 }
 
 /*
@@ -37,9 +37,14 @@ Points_to::Points_to ()
 void
 Points_to::open_scope (Storage_node* st)
 {
+	symtables.insert (st->name ());
+}
+
+void
+Points_to::inc_abstract (Storage_node* st)
+{
 	Alias_name name = st->name ();
-	abstract_counts [name]++;
-	symtables.insert (name);
+	abstract_counts [name] ++;
 }
 
 void
@@ -371,6 +376,7 @@ Points_to::dump_graphviz (String* label, Context cx, Whole_program* wp)
 		stringstream color;
 		if (isa<Value_node> (node))
 			color << "color=blue,";
+
 		if (isa<Storage_node> (node) && is_abstract (dyc<Storage_node> (node)))
 			color << "color=red,";
 

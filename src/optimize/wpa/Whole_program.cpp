@@ -1004,7 +1004,8 @@ Whole_program::init_superglobals (Context cx)
 
 	// Start with globals, since it needs needs to point to MSN
 	string MSN = cx.symtable_name ();
-	assign_empty_array (cx, P (MSN, new VARIABLE_NAME ("GLOBALS")), MSN);
+	foreach_wpa (this)
+		wpa->assign_value (cx, VN (MSN, new VARIABLE_NAME ("GLOBALS")), SN (MSN));
 
 
 	// Do the other superglobals

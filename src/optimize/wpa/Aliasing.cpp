@@ -175,8 +175,8 @@ Aliasing::kill_value (Context cx, Index_node* lhs, bool also_kill_refs)
 void
 Aliasing::set_storage (Context cx, Storage_node* storage, Types* types)
 {
-	// While it seems like we should be adding a node here, the graph doesnt
-	// actually have nodes, only edges, so we cant add anything.
+	// Check if its gone abstract.
+	outs[cx]->inc_abstract (storage);
 }
 
 
