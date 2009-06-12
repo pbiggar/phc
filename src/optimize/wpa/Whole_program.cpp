@@ -1076,7 +1076,7 @@ Whole_program::backward_bind (Method_info* info, Context exit_cx, MIR::VARIABLE_
 					P (exit_cx.symtable_name (), new VARIABLE_NAME (RETNAME)));
 		}
 
-		// There is a backward bind before this assignment, but we need another after this assignment..
+		// There is an aggregate before this assignment, but we need another after it...
 		FWPA->aggregate_results (exit_cx);
 	}
 
@@ -1309,7 +1309,7 @@ Whole_program::create_empty_storage (Context cx, string name, string type)
 }
 
 void
-Whole_program::assign_storage (Context cx, Path* plhs, Storage_node* st)
+Whole_program::assign_path_value (Context cx, Path* plhs, Storage_node* st)
 {
 	DEBUG ("assign_empty_array");
 
@@ -1329,7 +1329,7 @@ void
 Whole_program::assign_empty_array (Context cx, Path* plhs, string name)
 {
 	// Assign the value to all referenced names.
-	assign_storage (cx, plhs, create_empty_storage (cx, name, "array"));
+	assign_path_value (cx, plhs, create_empty_storage (cx, name, "array"));
 }
 
 void
@@ -1364,11 +1364,11 @@ Whole_program::assign_unknown (Context cx, Path* plhs)
 			wpa->set_scalar (cx, SCLVAL (ref->index), Abstract_value::unknown ());
 			wpa->assign_value (cx, ref->index, SCLVAL (ref->index));
 
-			wpa->set_storage (cx, cx.array_node (), new Types ("array"));
-			wpa->assign_value (cx, ref->index, cx.array_node ());
+			Storage_node* array = create_empty_storage (cx, cx.array_name(), "array");
+			wpa->assign_value (cx, ref->index, array);
 
-			wpa->set_storage (cx, cx.object_node (), new Types ("object"));
-			wpa->assign_value (cx, ref->index, cx.object_node ());
+			Storage_node* object = create_empty_storage (cx, cx.array_name(), "stdClass");
+			wpa->assign_value (cx, ref->index, object);
 		}
 	}
 }
@@ -1954,8 +1954,6 @@ Whole_program::visit_foreach_end (Statement_block* bb, MIR::Foreach_end* in)
 void
 Whole_program::visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
 {
-	saved_plhs = NULL;
-	saved_lhs = NULL;
 	visit_expr (bb, in->expr);
 }
 
