@@ -316,14 +316,6 @@ Def_use_web::add_phi_node (Basic_block* bb, Alias_name phi_lhs)
 
 	phi_lhss[bb->ID].insert (phi_lhs);
 	
-//	defs[bb->ID].push_back (&phi_lhs);
-
-//	SSA_def* def_op = new SSA_def (bb,&phi_lhs,SSA_PHI);
-
-//	named_defs[phi_lhs].push_back (def_op);
-	
-//	def_ops[bb->ID].push_back (def_op); //Phis create a new def
-
 	assert (has_phi_node (bb, phi_lhs));
 }
 

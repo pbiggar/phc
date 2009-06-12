@@ -137,12 +137,7 @@ Basic_block::add_phi_node (Alias_name phi_lhs)
 void
 Basic_block::add_phi_arg (Alias_name phi_lhs, int version, Edge* edge)
 {
-	
-	//temporary
-	if (has_phi_node(phi_lhs))
-	{
-		cfg->duw->add_phi_arg (this, phi_lhs, version, edge);
-	}
+	cfg->duw->add_phi_arg (this, phi_lhs, version, edge);
 }
 
 void

@@ -371,7 +371,7 @@ HSSA::convert_out_of_ssa_form ()
 void
 HSSA::push_to_var_stack (Alias_name* name)
 {
-	//assert (name->ssa_version == 0);
+	assert (name->ssa_version == 0);
 	var_stacks[name->name].push (counter);
 	name->set_version (counter);
 	counter++;
