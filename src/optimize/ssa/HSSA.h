@@ -36,6 +36,7 @@ private:
 	// Rename the variable into SSA, giving it a version.
 	void create_new_ssa_name (Alias_name* name);
 	void debug_var_stacks ();
+	void debug_top_var_stack (Alias_name* var, string type);
 
 private:
 	/*
