@@ -139,6 +139,7 @@ DCE::mark_pass ()
 		if (is_bb_critical (bb))
 		{
 			mark_entire_block (bb, "as critical");
+			mark_rdf(bb);
 		}
 	}
 
@@ -164,11 +165,7 @@ DCE::mark_pass ()
 		// branches). They are marked as they are required for control flow to
 		// reach this point. They are just as important for phis as they are for
 		// other statements, and we mark the branch, not the phi.
-		foreach (Basic_block* rdf, *def->bb->get_reverse_dominance_frontier ())
-		{
-			// it'll just be a branch though
-			mark_entire_block (rdf, "as part of " + lexical_cast<string>(def->bb->ID) + "'s RDF"); 
-		}
+		mark_rdf(def->bb);
 	}
 
 	// Special case for Foreach_end: If its defining reset isnt marked, unmark it.
@@ -226,6 +223,15 @@ DCE::mark_entire_block (Basic_block* bb, string why)
 }
 
 void
+DCE::mark_rdf(Basic_block* bb)
+{
+	foreach (Basic_block* rdf, *bb->get_reverse_dominance_frontier ())
+	{
+		mark_entire_block (rdf, "as part of " + lexical_cast<string>(bb->ID) + "'s RDF"); 
+	}
+}
+
+void
 DCE::mark (SSA_def* def, string why)
 {
 	if (marks[def])
@@ -240,6 +246,9 @@ DCE::mark (SSA_def* def, string why)
 	mark_entire_block (def->bb, "");
 
 	marks[def] = true;
+	DEBUG("PUSHING");
+	def->dump();
+	DEBUG("TO WORKLIST");
 	worklist->push_back (def);
 }
 
@@ -279,6 +288,7 @@ DCE::is_marked (Basic_block* bb)
 void
 DCE::sweep_pass ()
 {
+	DEBUG("START SWEEP PASS");
 	foreach (Basic_block* bb, *cfg->get_all_bbs ())
 	{
 		// Remove the phi nodes first, since the BB* may be replaced with an
@@ -295,10 +305,11 @@ DCE::sweep_pass ()
 	{
 		if (is_marked (bb))
 			continue;
-
+		DEBUG(bb->ID<<" is not marked");
 		if (isa<Statement_block> (bb))
 		{
 			cfg->remove_bb (bb);
+			DEBUG("REMOVED "<<bb->ID);
 		}
 
 		else if (isa<Branch_block> (bb))
@@ -309,7 +320,9 @@ DCE::sweep_pass ()
 				postdominator = postdominator->get_immediate_reverse_dominator ();
 
 			cfg->remove_branch (dyc<Branch_block> (bb), postdominator);
+			DEBUG("REMOVED BRANCH "<<bb->ID<<" NEAREST MARKED POSTDOMINATOR: "<<postdominator->ID);	;
 		}
+		//DEBUG(break;);
 	}
 
 	// TODO: we have enough information to manipulate the BBs to based on the

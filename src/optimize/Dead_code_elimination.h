@@ -40,7 +40,7 @@ private:
 	void mark_def (SSA_use* use);
 
 	void mark_entire_block (Basic_block* bb, string why);
-
+	void mark_rdf(Basic_block* bb);
 	// Doesn't undo the marked SSA_ops
 	void unmark_block (Basic_block* bb);
 	

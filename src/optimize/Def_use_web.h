@@ -81,7 +81,7 @@ public:
 
 	// Get the arguments with VARIABLE_NAME as the lhs.
 	Alias_name_list* get_phi_args (Basic_block* bb, Alias_name phi_lhs);
-
+	
 	Var_set* get_phi_lhss (Basic_block* bb);
 
 	Alias_name get_phi_arg_for_edge (Edge*, Alias_name phi_lhs);

@@ -459,8 +459,8 @@ HSSA::rename_vars (Basic_block* bb)
 	foreach (Alias_name* use, *bb->cfg->duw->get_uses (bb))
 		use->set_version (read_var_stack (use));
 		
-	/*foreach (Alias_name* may_def, *bb->cfg->duw->get_may_defs (bb))
-                create_new_ssa_name (may_def);*/
+	foreach (Alias_name* may_def, *bb->cfg->duw->get_may_defs (bb))
+                create_new_ssa_name (may_def);
 
 	//Rename each def in bb	
         defs_to_pop->push_back_all (bb->cfg->duw->get_defs (bb));

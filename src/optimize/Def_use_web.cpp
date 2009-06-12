@@ -315,6 +315,14 @@ Def_use_web::add_phi_node (Basic_block* bb, Alias_name phi_lhs)
 	assert (!has_phi_node (bb, phi_lhs));
 
 	phi_lhss[bb->ID].insert (phi_lhs);
+	
+//	defs[bb->ID].push_back (&phi_lhs);
+
+//	SSA_def* def_op = new SSA_def (bb,&phi_lhs,SSA_PHI);
+
+//	named_defs[phi_lhs].push_back (def_op);
+	
+//	def_ops[bb->ID].push_back (def_op); //Phis create a new def
 
 	assert (has_phi_node (bb, phi_lhs));
 }
@@ -324,8 +332,8 @@ Def_use_web::add_phi_arg (Basic_block* bb, Alias_name phi_lhs, int version, Edge
 {
 	// phi_lhs doesnt have to be in SSA, since it will be updated later using
 	// update_phi_node, if it is not.
-	//	assert (has_phi_node (phi_lhs));
-
+	assert (has_phi_node (bb, phi_lhs));
+	DEBUG("ADDING PHI ARG V"<<version<<" for "<<phi_lhs.name);
 	Alias_name arg = phi_lhs; // copy
 	arg.set_version (version);
 	set_phi_arg_for_edge (edge, phi_lhs, arg);
@@ -389,7 +397,7 @@ Def_use_web::get_phi_args (Basic_block* bb, Alias_name phi_lhs)
 
 	foreach (Edge* pred, *bb->get_predecessor_edges ())
 		result->push_back (new Alias_name (get_phi_arg_for_edge (pred, phi_lhs)));
-
+		
 	return result;
 }
 
@@ -410,6 +418,7 @@ Def_use_web::get_phi_arg_for_edge (Edge* edge, Alias_name phi_lhs)
 void
 Def_use_web::set_phi_arg_for_edge (Edge* edge, Alias_name phi_lhs, Alias_name arg)
 {
+	DEBUG("SETTING "<<arg.name<<"V "<<arg.ssa_version<<" AS PHI ARG FOR "<<phi_lhs.name<<"V "<<phi_lhs.ssa_version);
 	phi_rhss[edge->edge][phi_lhs] = arg;
 }
 
