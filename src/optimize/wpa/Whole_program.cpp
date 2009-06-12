@@ -1191,12 +1191,8 @@ Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 		// Check if there is an implicit NULL definition.
 		if (not aliasing->has_field (cx, rhs))
 		{
-			foreach_wpa (this)
-			{
-				// TODO: this shouldnt be NULL, this should read from UNKNOWN.
-				wpa->set_scalar (cx, SCLVAL (rhs), new Abstract_value (new NIL));
-				wpa->assign_value (cx, rhs, SCLVAL (rhs));
-			}
+			// TODO: this shouldnt be NULL, this should read from UNKNOWN.
+			assign_absval (cx, rhs, new Abstract_value (new NIL));
 		}
 
 
@@ -1207,11 +1203,7 @@ Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 			{
 				if (isa<Value_node> (st))
 				{
-					// Just copy the scalar value to L.
-					FWPA->set_scalar (cx, SCLVAL (lhs), get_abstract_value (cx, rhs->name ()));
-
-					// L may have been killed, but it needs its SCLVAL now.
-					FWPA->assign_value (cx, lhs, SCLVAL (lhs));
+					assign_absval (cx, lhs, get_abstract_value (cx, rhs->name ()));
 				}
 				else
 				{
@@ -1236,37 +1228,31 @@ Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 	}
 }
 
+void Whole_program::assign_absval (Context cx, Index_node* lhs, Abstract_value* absval)
+{
+	FWPA->set_scalar (cx, SCLVAL (lhs), absval);
+	FWPA->assign_value (cx, lhs, SCLVAL (lhs));
+}
+
 void
 Whole_program::assign_scalar (Context cx, Path* plhs, Abstract_value* absval)
 {
-	Literal* lit = absval->lit;
-	if (lit)
-		assign_scalar (cx, plhs, lit);
-	else
+	DEBUG ("assign_scalar");
+	foreach (Reference* ref, *get_lhs_references (cx, plhs))
 	{
-		// Only allow this for scalar types
-		assert (absval->types->set_difference (Type_info::get_all_scalar_types ())->empty ());
-		assign_typed (cx, plhs, absval->types);
+		if (ref->cert == DEFINITE)
+		{
+			FWPA->kill_value (cx, ref->index);
+		}
+
+		assign_absval (cx, ref->index, absval);
 	}
 }
 
 void
 Whole_program::assign_scalar (Context cx, Path* plhs, Literal* lit)
 {
-	// We can't split this well, because we dont know the list of Storage nodes
-	// for LIT.
-	DEBUG ("assign_scalar");
-	foreach (Reference* ref, *get_lhs_references (cx, plhs))
-	{
-		foreach_wpa (this)
-		{
-			if (ref->cert == DEFINITE)
-				wpa->kill_value (cx, ref->index);
-
-			wpa->set_scalar (cx, SCLVAL (ref->index), new Abstract_value (lit));
-			wpa->assign_value (cx, ref->index, SCLVAL (ref->index));
-		}
-	}
+	assign_scalar (cx, plhs, new Abstract_value (lit));
 }
 
 void
@@ -1279,34 +1265,14 @@ Whole_program::assign_typed (Context cx, Path* plhs, Types* types)
 	Types* array = Type_info::get_array_types (types);
 	Types* objects = Type_info::get_object_types (types);
 
-	foreach (Reference* ref, *get_lhs_references (cx, plhs))
-	{
-		foreach_wpa (this)
-		{
-			if (ref->cert == DEFINITE)
-				wpa->kill_value (cx, ref->index);
+	// In these cases, we must copy to an intermediate value before the kill.
+	if (array->size ())
+		phc_TODO ();
 
-			if (scalars->size ())
-			{
-				wpa->set_scalar (cx, SCLVAL (ref->index),
-						new Abstract_value (scalars));
+	if (objects->size ())
+		phc_TODO ();
 
-				wpa->assign_value (cx, ref->index, SCLVAL (ref->index));
-			}
-
-			if (array->size ())
-				phc_TODO ();
-
-			if (objects->size ())
-				phc_TODO ();
-
-			//	wpa->assign_storage (bb, ref->name(),
-			//								bb.array_name ()->name(), POSSIBLE);
-
-			//	wpa->assign_storage (bb, ref->name(),
-			//								bb.object_name ()->name(), POSSIBLE);
-		}
-	}
+	assign_scalar (cx, plhs, new Abstract_value (types));
 }
 
 Storage_node*
@@ -1427,18 +1393,18 @@ Whole_program::assign_by_copy (Context cx, Path* plhs, Path* prhs)
 	//			- foreach alias A of PLHS, point from A to V.
 
 
-	// Calculate the new result
+	// Calculate the new result via an intermediate ("fake") index node.
 	Index_node* fake = create_fake_index (cx);
 
 	// We keep the graph in transitive-closure form, so each RHS will have
 	// all the values of its references already. Therefore, there is no need
 	// for a call to get_lhs_references ().
 	foreach (Index_node* rhs, *get_named_indices (cx, prhs, true))
-	{
 		copy_value (cx, fake, rhs);
-	}
 
-	/* Kill the LHS, and copy the result across */
+
+
+	/* Now that we have the new value, and its separated from the RHS,  */
 	foreach (Reference* lhs_ref, *get_lhs_references (cx, plhs))
 	{
 		if (lhs_ref->cert == DEFINITE)
@@ -1462,11 +1428,7 @@ Whole_program::copy_value (Context cx, Index_node* lhs, Index_node* rhs)
 	if (Abstract_value* absval = read_from_scalar_value (cx, rhs))
 	{
 		DEBUG ("copy_from_abstract_value");
-		foreach_wpa (this)
-		{
-			wpa->set_scalar (cx, SCLVAL (lhs), absval);
-			wpa->assign_value (cx, lhs, SCLVAL (lhs));
-		}
+		assign_absval (cx, lhs, absval);
 		return;
 	}
 
@@ -1491,13 +1453,7 @@ Whole_program::copy_value (Context cx, Index_node* lhs, Index_node* rhs)
 
 		if (scalars->size())
 		{
-			foreach_wpa (this)
-			{
-				wpa->set_scalar (cx, SCLVAL (lhs),
-						get_abstract_value (cx, st->name ()));
-
-				wpa->assign_value (cx, lhs, SCLVAL (lhs));
-			}
+			assign_absval (cx, lhs, get_abstract_value (cx, st->name ()));
 		}
 
 		// Deep copy

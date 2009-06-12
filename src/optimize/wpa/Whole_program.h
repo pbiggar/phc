@@ -181,6 +181,7 @@ public:
 	/*
 	 * Assignments
 	 */
+	void assign_absval (Context cx, Index_node* lhs, Abstract_value* absval);
 	void assign_scalar (Context cx, Path* lhs, MIR::Literal* lit);
 	void assign_scalar (Context cx, Path* plhs, Abstract_value* absval);
 	void assign_unknown (Context cx, Path* lhs);
