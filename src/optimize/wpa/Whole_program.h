@@ -179,22 +179,30 @@ public:
 	void init_block (Context cx);
 
 	/*
-	 * Assignments
+	 * Assignments by paths (aka high-level)
 	 */
-	void assign_absval (Context cx, Index_node* lhs, Abstract_value* absval);
-	void assign_scalar (Context cx, Path* lhs, MIR::Literal* lit);
-	void assign_scalar (Context cx, Path* plhs, Abstract_value* absval);
-	void assign_unknown (Context cx, Path* lhs);
-	void assign_typed (Context cx, Path* lhs, Types* types);
-	void assign_by_ref (Context cx, Path* lhs, Path* rhs);
-	void assign_by_copy (Context cx, Path* lhs, Path* rhs);
-
+	void assign_path_scalar (Context cx, Path* lhs, MIR::Literal* lit);
+	void assign_path_scalar (Context cx, Path* plhs, Abstract_value* absval);
+	void assign_path_unknown (Context cx, Path* lhs);
+	void assign_path_typed (Context cx, Path* lhs, Types* types);
+	void assign_path_by_ref (Context cx, Path* lhs, Path* rhs);
+	void assign_path_by_copy (Context cx, Path* lhs, Path* rhs);
 	void assign_path_value (Context cx, Path* lhs, Storage_node* st);
+	string assign_path_empty_array (Context cx, Path* lhs, string name = "");
+
+	// Most pesimistic case
+	void ruin_everything (Context cx, Path* path);
+
+
+	/*
+	 * Assignments by by node (aka lower-level)
+	 */
+
+	void assign_absval (Context cx, Index_node* lhs, Abstract_value* absval);
 	Index_node* create_fake_index (Context cx);
 	void destroy_fake_index (Context cx);
 
 	// If no name is provided, an anonymous name is chosen.
-	Storage_node* assign_empty_array (Context cx, Path* lhs, string name = "");
 	Storage_node* create_empty_storage (Context cx, string type, string name = "");
 
 	// When copying data, we dont want to collapse stuff into a single array/object!
@@ -205,9 +213,6 @@ public:
 
 	Index_node* check_owner_type (Context cx, Index_node* index);
 	Abstract_value* read_from_scalar_value (Context cx, Index_node* rhs);
-
-	// Most pesimistic case
-	void ruin_everything (Context cx, Path* path);
 
 	bool is_killable (Context cx, Index_node_list* indices);
 

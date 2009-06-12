@@ -526,23 +526,23 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context cx, C
 	if (*info->name == "compact")
 	{
 		// Return an array with a copy of the named parameters.
-		Storage_node* st = assign_empty_array (cx, ret_path);
+		string name = assign_path_empty_array (cx, ret_path);
 		foreach (Index_node* param, *params.values ())
 		{
 			// For a parameter P1, in this scope SC1, with the caller scope SC0, this is:
 			// (ARR -> (SC1 -> P1)) = (SC0 -> (SC1 -> P1))
-			Path* lhs = new Indexing (new ST_path (st->storage), P (param->storage, param->index));
+			Path* lhs = new Indexing (new ST_path (name), P (param->storage, param->index));
 			Path* rhs = new Indexing (new ST_path (caller_cx.symtable_name ()), P (param->storage, param->index));
-			assign_by_copy (cx, lhs, rhs);
+			assign_path_by_copy (cx, lhs, rhs);
 		}
 	}
 	else if (*info->name == "date_default_timezone_set")
 	{
-		assign_typed (cx, ret_path, new Types ("bool"));
+		assign_path_typed (cx, ret_path, new Types ("bool"));
 	}
 	else if (*info->name == "dechex")
 	{
-		assign_typed (cx, ret_path, new Types ("string"));
+		assign_path_typed (cx, ret_path, new Types ("string"));
 	}
 	else if (*info->name == "define")
 	{
@@ -557,7 +557,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context cx, C
 		{
 			// We dont know if this was redefined or not
 			constants->set_unknown_constant (cx, value);
-			assign_typed (cx, ret_path, new Types ("bool"));
+			assign_path_typed (cx, ret_path, new Types ("bool"));
 		}
 		else
 		{
@@ -565,11 +565,11 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context cx, C
 			if (constants->is_constant_defined (cx, *str_name))
 			{
 				// If its already defined, it cant be redefined
-				assign_scalar (cx, ret_path, new BOOL (false));
+				assign_path_scalar (cx, ret_path, new BOOL (false));
 			}
 			else
 			{
-				assign_scalar (cx, ret_path, new BOOL (true));
+				assign_path_scalar (cx, ret_path, new BOOL (true));
 				constants->set_constant (cx, *str_name, value);
 			}
 		}
@@ -606,78 +606,78 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context cx, C
 		assert (can_be_float || can_be_array);
 	
 		if (can_be_float)
-			assign_typed (cx, ret_path, new Types ("real"));
+			assign_path_typed (cx, ret_path, new Types ("real"));
 		else if (can_be_array)
 		{
 			// Cut-and-pasted: but this all needs to be fixed. We need to call this from 
 
 			// If there its parameter is true, it returns a float. Else, if returns a
 			// hashtable with 4 ints: sec, usec, minuteswest, dsttime
-			Storage_node* st = assign_empty_array (cx, ret_path);
+			string name = assign_path_empty_array (cx, ret_path);
 
-			assign_typed (cx, P (st->storage, "sec"), new Types ("int"));
-			assign_typed (cx, P (st->storage, "usec"), new Types ("int"));
-			assign_typed (cx, P (st->storage, "minuteswest"), new Types ("int"));
-			assign_typed (cx, P (st->storage, "dsttime"), new Types ("int"));
+			assign_path_typed (cx, P (name, "sec"), new Types ("int"));
+			assign_path_typed (cx, P (name, "usec"), new Types ("int"));
+			assign_path_typed (cx, P (name, "minuteswest"), new Types ("int"));
+			assign_path_typed (cx, P (name, "dsttime"), new Types ("int"));
 
 		}
 	}
 	else if (*info->name == "is_array")
 	{
-		assign_typed (cx, ret_path, new Types ("bool"));
+		assign_path_typed (cx, ret_path, new Types ("bool"));
 	}
 	else if (*info->name == "is_object")
 	{
-		assign_typed (cx, ret_path, new Types ("bool"));
+		assign_path_typed (cx, ret_path, new Types ("bool"));
 	}
 	else if (*info->name == "number_format")
 	{
-		assign_typed (cx, ret_path, new Types ("string"));
+		assign_path_typed (cx, ret_path, new Types ("string"));
 	}
 	else if (*info->name == "ob_end_clean")
 	{
-		assign_typed (cx, ret_path, new Types ("bool"));
+		assign_path_typed (cx, ret_path, new Types ("bool"));
 	}
 	else if (*info->name == "ob_start")
 	{
 		if (params[0])
 			phc_TODO (); // If first parameter is set, thats a callback.
 		
-		assign_typed (cx, ret_path, new Types ("bool"));
+		assign_path_typed (cx, ret_path, new Types ("bool"));
 	}
 	else if (*info->name == "print")
 	{
-		assign_scalar (cx, ret_path, new INT (1));
+		assign_path_scalar (cx, ret_path, new INT (1));
 	}
 	else if (*info->name == "printf")
 	{
-		assign_typed (cx, ret_path, new Types ("int"));
+		assign_path_typed (cx, ret_path, new Types ("int"));
 	}
 	else if (*info->name == "rand")
 	{
-		assign_typed (cx, ret_path, new Types ("int"));
+		assign_path_typed (cx, ret_path, new Types ("int"));
 	}
 	else if (*info->name == "range")
 	{
 		// Returns an array with a range of values of the given type.
-		Storage_node* st = assign_empty_array (cx, ret_path);
+		string name = assign_path_empty_array (cx, ret_path);
 
 		Abstract_value* absval1 = get_abstract_value (cx, params[0]->name());
 		Abstract_value* absval2 = get_abstract_value (cx, params[1]->name());
 		Types* merged = absval1->types->set_union (absval2->types);
-		assign_typed (cx, P (st->storage, UNKNOWN), merged);
+		assign_path_typed (cx, P (name, UNKNOWN), merged);
 	}
 	else if (*info->name == "strlen")
 	{
-		assign_typed (cx, ret_path, new Types ("int"));
+		assign_path_typed (cx, ret_path, new Types ("int"));
 	}
 	else if (*info->name == "str_repeat")
 	{
-		assign_typed (cx, ret_path, new Types ("string"));
+		assign_path_typed (cx, ret_path, new Types ("string"));
 	}
 	else if (*info->name == "trigger_error")
 	{
-		assign_typed (cx, ret_path, new Types ("bool"));
+		assign_path_typed (cx, ret_path, new Types ("bool"));
 	}
 	
 	else if (*info->name == "var_dump")
@@ -941,24 +941,24 @@ Whole_program::init_superglobals (Context cx)
 
 		// Create an empty array
 		string array_name = *sg->value;
-		assign_empty_array (cx, P (MSN, sg), array_name);
+		assign_path_empty_array (cx, P (MSN, sg), array_name);
 
 		// We dont know the contents of these arrays.
-		assign_typed (cx, P (array_name, UNKNOWN), new Types("string"));
+		assign_path_typed (cx, P (array_name, UNKNOWN), new Types("string"));
 	}
 
 	// TODO: these do too much. Use FWPA
 
 	// We actually have no idea whats in _SESSION
-	assign_unknown (cx, P ("_SESSION", UNKNOWN));
+	assign_path_unknown (cx, P ("_SESSION", UNKNOWN));
 
 	// argc
-	assign_typed (cx, P (MSN, "argc"), new Types ("int"));
+	assign_path_typed (cx, P (MSN, "argc"), new Types ("int"));
 
 	// argv
-	assign_empty_array (cx, P (MSN, "argv"), "argv");
-	assign_typed (cx, P ("argv", UNKNOWN), new Types ("string"));
-	assign_typed (cx,  P ("argv", "0"), new Types ("string"));
+	assign_path_empty_array (cx, P (MSN, "argv"), "argv");
+	assign_path_typed (cx, P ("argv", UNKNOWN), new Types ("string"));
+	assign_path_typed (cx,  P ("argv", "0"), new Types ("string"));
 
 
 	dump (cx, "After superglobals");
@@ -1001,7 +1001,7 @@ Whole_program::forward_bind (Method_info* info, Context entry_cx, MIR::Actual_pa
 		if (ap->is_ref || info->param_by_ref (i))
 		{
 			// $ap =& $fp;
-			assign_by_ref (entry_cx,
+			assign_path_by_ref (entry_cx,
 					P (scope, info->param_name (i)),
 					P (caller_cx.symtable_name (), dyc<VARIABLE_NAME> (ap->rvalue)));
 		}
@@ -1010,13 +1010,13 @@ Whole_program::forward_bind (Method_info* info, Context entry_cx, MIR::Actual_pa
 			// $ap = $fp;
 			if (isa<VARIABLE_NAME> (ap->rvalue))
 			{
-				assign_by_copy (entry_cx,
+				assign_path_by_copy (entry_cx,
 						P (scope, info->param_name (i)),
 						P (caller_cx.symtable_name (), dyc<VARIABLE_NAME> (ap->rvalue)));
 			}
 			else
 			{
-				assign_scalar (entry_cx,
+				assign_path_scalar (entry_cx,
 						P (scope, info->param_name (i)),
 						dyc<Literal> (ap->rvalue));
 			}
@@ -1033,7 +1033,7 @@ Whole_program::forward_bind (Method_info* info, Context entry_cx, MIR::Actual_pa
 		else
 		{
 			// Add a default value of NULL for other variables
-			assign_scalar (entry_cx, P (scope, info->param_name (i)), new NIL);
+			assign_path_scalar (entry_cx, P (scope, info->param_name (i)), new NIL);
 		}
 
 		i++;
@@ -1072,14 +1072,14 @@ Whole_program::backward_bind (Method_info* info, Context exit_cx, MIR::VARIABLE_
 		if (info->return_by_ref ())
 		{
 			// $lhs =& $retval;
-			assign_by_ref (exit_cx,
+			assign_path_by_ref (exit_cx,
 					P (caller_cx.symtable_name (), dyc<VARIABLE_NAME> (lhs)),
 					P (exit_cx.symtable_name (), new VARIABLE_NAME (RETNAME)));
 		}
 		else
 		{
 			// $lhs = $retval;
-			assign_by_copy (exit_cx,
+			assign_path_by_copy (exit_cx,
 					P (caller_cx.symtable_name (), dyc<VARIABLE_NAME> (lhs)),
 					P (exit_cx.symtable_name (), new VARIABLE_NAME (RETNAME)));
 		}
@@ -1137,9 +1137,9 @@ Whole_program::is_killable (Context cx, Index_node_list* indices)
 }
 
 void
-Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
+Whole_program::assign_path_by_ref (Context cx, Path* plhs, Path* prhs)
 {
-	DEBUG ("assign_by_ref");
+	DEBUG ("assign_path_by_ref");
 
 	/* For each index node L on the lhs, and R on the rhs:
 	 * - A reference kills L
@@ -1228,16 +1228,10 @@ Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 	}
 }
 
-void Whole_program::assign_absval (Context cx, Index_node* lhs, Abstract_value* absval)
-{
-	FWPA->set_scalar (cx, SCLVAL (lhs), absval);
-	FWPA->assign_value (cx, lhs, SCLVAL (lhs));
-}
-
 void
-Whole_program::assign_scalar (Context cx, Path* plhs, Abstract_value* absval)
+Whole_program::assign_path_scalar (Context cx, Path* plhs, Abstract_value* absval)
 {
-	DEBUG ("assign_scalar");
+	DEBUG ("assign_path_scalar");
 	foreach (Reference* ref, *get_lhs_references (cx, plhs))
 	{
 		if (ref->cert == DEFINITE)
@@ -1250,15 +1244,15 @@ Whole_program::assign_scalar (Context cx, Path* plhs, Abstract_value* absval)
 }
 
 void
-Whole_program::assign_scalar (Context cx, Path* plhs, Literal* lit)
+Whole_program::assign_path_scalar (Context cx, Path* plhs, Literal* lit)
 {
-	assign_scalar (cx, plhs, new Abstract_value (lit));
+	assign_path_scalar (cx, plhs, new Abstract_value (lit));
 }
 
 void
-Whole_program::assign_typed (Context cx, Path* plhs, Types* types)
+Whole_program::assign_path_typed (Context cx, Path* plhs, Types* types)
 {
-	DEBUG ("assign_typed");
+	DEBUG ("assign_path_typed");
 
 	// Split scalars, objects and arrays here.
 	Types* scalars = Type_info::get_scalar_types (types);
@@ -1272,35 +1266,13 @@ Whole_program::assign_typed (Context cx, Path* plhs, Types* types)
 	if (objects->size ())
 		phc_TODO ();
 
-	assign_scalar (cx, plhs, new Abstract_value (types));
-}
-
-Storage_node*
-Whole_program::create_empty_storage (Context cx, string type, string name)
-{
-	assert (name != "array");
-
-	// Anonymous storage
-	if (name == "")
-	{
-		name = cx.array_name () + "_" + lexical_cast<string> (storage_count);
-		storage_count++;
-	}
-
-	Storage_node* st = SN (name);
-
-	FWPA->set_storage (cx, st, new Types (type));
-
-	// All the entries are NULL.
-	assign_scalar (cx, P (name, UNKNOWN), new NIL);
-
-	return st;
+	assign_path_scalar (cx, plhs, new Abstract_value (types));
 }
 
 void
 Whole_program::assign_path_value (Context cx, Path* plhs, Storage_node* st)
 {
-	DEBUG ("assign_empty_array");
+	DEBUG ("assign_path_empty_array");
 
 	// Assign the value to all referenced names.
 	foreach (Reference* ref, *get_lhs_references (cx, plhs))
@@ -1314,17 +1286,17 @@ Whole_program::assign_path_value (Context cx, Path* plhs, Storage_node* st)
 	}
 }
 
-Storage_node*
-Whole_program::assign_empty_array (Context cx, Path* plhs, string name) 
+string
+Whole_program::assign_path_empty_array (Context cx, Path* plhs, string name) 
 {
 	// Assign the value to all referenced names.
 	Storage_node* st = create_empty_storage (cx, "array", name);
 	assign_path_value (cx, plhs, st);
-	return st;
+	return st->storage; // which might not be NAME, if NAME uses the default value.
 }
 
 void
-Whole_program::assign_unknown (Context cx, Path* plhs)
+Whole_program::assign_path_unknown (Context cx, Path* plhs)
 {
 	DEBUG ("assign_unknown");
 	// This assigns a value which is unknown, but is not as bad as
@@ -1364,24 +1336,10 @@ Whole_program::assign_unknown (Context cx, Path* plhs)
 	}
 }
 
-Index_node*
-Whole_program::create_fake_index (Context cx)
-{
-	return new Index_node ("FAKE", "asdasd");
-}
-
 void
-Whole_program::destroy_fake_index (Context cx)
+Whole_program::assign_path_by_copy (Context cx, Path* plhs, Path* prhs)
 {
-	FWPA->kill_value (cx, new Index_node ("FAKE", "asdasd"), true);
-}
-
-
-
-void
-Whole_program::assign_by_copy (Context cx, Path* plhs, Path* prhs)
-{
-	DEBUG ("assign_by_copy");
+	DEBUG ("assign_path_by_copy");
 
 	// foreach values V pointed to by PRHS:
 	//	switch V.type:
@@ -1417,6 +1375,12 @@ Whole_program::assign_by_copy (Context cx, Path* plhs, Path* prhs)
 
 	// Remove the index_node
 	destroy_fake_index (cx);
+}
+
+void Whole_program::assign_absval (Context cx, Index_node* lhs, Abstract_value* absval)
+{
+	FWPA->set_scalar (cx, SCLVAL (lhs), absval);
+	FWPA->assign_value (cx, lhs, SCLVAL (lhs));
 }
 
 void
@@ -1483,6 +1447,45 @@ Whole_program::copy_value (Context cx, Index_node* lhs, Index_node* rhs)
 	}
 }
 
+Storage_node*
+Whole_program::create_empty_storage (Context cx, string type, string name)
+{
+	assert (name != "array");
+
+	// Anonymous storage
+	if (name == "")
+	{
+		name = cx.array_name () + "_" + lexical_cast<string> (storage_count);
+		storage_count++;
+	}
+
+	Storage_node* st = SN (name);
+
+	FWPA->set_storage (cx, st, new Types (type));
+
+	// All the entries are NULL.
+	assign_path_scalar (cx, P (name, UNKNOWN), new NIL);
+
+	return st;
+}
+
+
+Index_node*
+Whole_program::create_fake_index (Context cx)
+{
+	return new Index_node ("FAKE", "asdasd");
+}
+
+void
+Whole_program::destroy_fake_index (Context cx)
+{
+	FWPA->kill_value (cx, new Index_node ("FAKE", "asdasd"), true);
+}
+
+
+
+
+
 /*
  * Check if the storage node of INDEX is a scalar, and handle it (in a
  * non-readonly sense).
@@ -1514,7 +1517,7 @@ Whole_program::check_owner_type (Context cx, Index_node* index)
 				foreach_wpa (this)
 					wpa->set_storage (cx, SN (name), new Types ("array"));
 
-				assign_scalar (cx, P (name, UNKNOWN), new NIL);
+				assign_path_scalar (cx, P (name, UNKNOWN), new NIL);
 
 				// We dont want the caller to index an abstract value, so return
 				// the new index_node.
@@ -1788,13 +1791,13 @@ Whole_program::get_array_named_indices (Context cx, Path* plhs, String* index, b
 
 
 	// TODO: I believe we can remove this by moving it into the scalar
-	// handling code in copy_value/assign_by_ref.
+	// handling code in copy_value/assign_path_by_ref.
 
 	// In a writing context, if the variable containing the array doesn't
 	// already exist, it must be implicitly created.
 	if (not is_readonly && not aliasing->has_field (cx, array))
 	{
-		assign_empty_array (cx, plhs);
+		assign_path_empty_array (cx, plhs);
 	}
 
 
@@ -1803,7 +1806,7 @@ Whole_program::get_array_named_indices (Context cx, Path* plhs, String* index, b
 	 * There are two cases that arent handled here:
 	 *
 	 *		-	implicit creation of a NULL node on the RHS in the case of
-	 *			read-by-reference. This is handled in assign_by_ref.
+	 *			read-by-reference. This is handled in assign_path_by_ref.
 	 *
 	 *		-	read of an abstract value
 	 *		-	write of an abstract value
@@ -1889,7 +1892,7 @@ Whole_program::visit_global (Statement_block* bb, MIR::Global* in)
 {
 	string ns = block_cx.symtable_name ();
 
-	assign_by_ref (block_cx,
+	assign_path_by_ref (block_cx,
 			P (ns, in->variable_name),
 			P (main_scope, in->variable_name));
 }
@@ -1903,16 +1906,16 @@ Whole_program::visit_assign_array (Statement_block* bb, MIR::Assign_array* in)
 
 	if (isa<Literal> (in->rhs))
 	{
-		assign_scalar (block_cx, lhs, dyc<Literal> (in->rhs));
+		assign_path_scalar (block_cx, lhs, dyc<Literal> (in->rhs));
 	}
 	else
 	{
 		Path* rhs = P (ns, in->rhs);
 
 		if (in->is_ref)
-			assign_by_ref (block_cx, lhs, rhs);
+			assign_path_by_ref (block_cx, lhs, rhs);
 		else
-			assign_by_copy (block_cx, lhs, rhs);
+			assign_path_by_copy (block_cx, lhs, rhs);
 	}
 }
 
@@ -2006,13 +2009,13 @@ Whole_program::visit_pre_op (Statement_block* bb, Pre_op* in)
 	if (value)
 	{
 		Literal* result = PHP::fold_pre_op (value, in->op);
-		assign_scalar (block_cx, path, result);
+		assign_path_scalar (block_cx, path, result);
 		return;
 	}
 
 	// Maybe we know the type?
 	Types* types = values->get_types (block_cx, n->name());
-	assign_typed (block_cx, path, types);
+	assign_path_typed (block_cx, path, types);
 }
 
 void
@@ -2044,16 +2047,16 @@ Whole_program::visit_assign_next (Statement_block* bb, MIR::Assign_next* in)
 
 	if (isa<Literal> (in->rhs))
 	{
-		assign_scalar (block_cx, lhs, dyc<Literal> (in->rhs));
+		assign_path_scalar (block_cx, lhs, dyc<Literal> (in->rhs));
 	}
 	else
 	{
 		Path* rhs = P (ns, in->rhs);
 
 		if (in->is_ref)
-			assign_by_ref (block_cx, lhs, rhs);
+			assign_path_by_ref (block_cx, lhs, rhs);
 		else
-			assign_by_copy (block_cx, lhs, rhs);
+			assign_path_by_copy (block_cx, lhs, rhs);
 	}
 }
 
@@ -2066,7 +2069,7 @@ Whole_program::visit_return (Statement_block* bb, MIR::Return* in)
 
 	string ns = block_cx.symtable_name ();
 	
-	assign_by_copy (block_cx, P (ns, new VARIABLE_NAME (RETNAME)), P (ns, in->rvalue));
+	assign_path_by_copy (block_cx, P (ns, new VARIABLE_NAME (RETNAME)), P (ns, in->rvalue));
 }
 
 void
@@ -2130,7 +2133,7 @@ Whole_program::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 		case REAL::ID:
 		case STRING::ID:
 			assert (!in->is_ref);
-			assign_scalar (block_cx, saved_plhs, dyc<Literal> (in->rhs));
+			assign_path_scalar (block_cx, saved_plhs, dyc<Literal> (in->rhs));
 			break;
 
 		default:
@@ -2152,9 +2155,9 @@ Whole_program::visit_array_access (Statement_block* bb, MIR::Array_access* in)
 	Path* path = P (ns, in);
 
 	if (saved_is_ref)
-		assign_by_ref (block_cx, saved_plhs, path);
+		assign_path_by_ref (block_cx, saved_plhs, path);
 	else
-		assign_by_copy (block_cx, saved_plhs, path);
+		assign_path_by_copy (block_cx, saved_plhs, path);
 }
 
 void
@@ -2168,7 +2171,7 @@ Whole_program::visit_bin_op (Statement_block* bb, MIR::Bin_op* in)
 	if (left->lit && right->lit)
 	{
 		Literal* result = PHP::fold_bin_op (left->lit, in->op, right->lit);
-		assign_scalar (block_cx, saved_plhs, result);
+		assign_path_scalar (block_cx, saved_plhs, result);
 		return;
 	}
 
@@ -2181,7 +2184,7 @@ Whole_program::visit_bin_op (Statement_block* bb, MIR::Bin_op* in)
 
 
 	Types* types = values->get_bin_op_types (block_cx, left, right, *in->op->value);
-	assign_typed (block_cx, saved_plhs, types);
+	assign_path_typed (block_cx, saved_plhs, types);
 }
 
 Abstract_value*
@@ -2212,7 +2215,7 @@ Whole_program::visit_cast (Statement_block* bb, MIR::Cast* in)
 		Literal* result = PHP::cast_to (in->cast, lit);
 		if (result)
 		{
-			assign_scalar (block_cx, saved_plhs, result);
+			assign_path_scalar (block_cx, saved_plhs, result);
 			return;
 		}
 	}
@@ -2225,7 +2228,7 @@ Whole_program::visit_cast (Statement_block* bb, MIR::Cast* in)
 		if (lit && isa<NIL> (lit))
 		{
 			// Most common case: create an empty array
-			assign_empty_array (block_cx, saved_plhs);
+			assign_path_empty_array (block_cx, saved_plhs);
 			return;
 		}
 		else
@@ -2240,7 +2243,7 @@ Whole_program::visit_cast (Statement_block* bb, MIR::Cast* in)
 	// Record uses
 	record_use (block_cx, VN (ns, in->variable_name));
 
-	assign_typed (block_cx, saved_plhs, new Types (*in->cast->value));
+	assign_path_typed (block_cx, saved_plhs, new Types (*in->cast->value));
 }
 
 void
@@ -2251,7 +2254,7 @@ Whole_program::visit_constant (Statement_block* bb, MIR::Constant* in)
 		phc_TODO ();
 
 	Abstract_value* absval = constants->get_constant (block_cx, *in->constant_name->value);
-	assign_scalar (block_cx, saved_plhs, absval);
+	assign_path_scalar (block_cx, saved_plhs, absval);
 }
 
 void
@@ -2311,7 +2314,7 @@ Whole_program::visit_new (Statement_block* bb, MIR::New* in)
 		phc_TODO ();
 
 	phc_TODO ();
-//assign_empty_array (block_cx, saved_plhs);
+//assign_path_empty_array (block_cx, saved_plhs);
 
 	// TODO: call the constructor
 }
@@ -2342,11 +2345,11 @@ Whole_program::visit_param_is_ref (Statement_block* bb, MIR::Param_is_ref* in)
 	// Apply the results
 	if (direction_known)
 	{
-		assign_scalar (block_cx, saved_plhs, new BOOL (param_by_ref));
+		assign_path_scalar (block_cx, saved_plhs, new BOOL (param_by_ref));
 	}
 	else
 	{
-		assign_typed (block_cx, saved_plhs, new Types ("bool"));
+		assign_path_typed (block_cx, saved_plhs, new Types ("bool"));
 	}
 }
 
@@ -2360,14 +2363,14 @@ Whole_program::visit_unary_op (Statement_block* bb, MIR::Unary_op* in)
 	if (val->lit)
 	{
 		Literal* result = PHP::fold_unary_op (in->op, val->lit);
-		assign_scalar (block_cx, saved_plhs, result);
+		assign_path_scalar (block_cx, saved_plhs, result);
 		return;
 	}
 	else
 		record_use (block_cx, VN (ns, in->variable_name));
 
 	Types* types = values->get_unary_op_types (block_cx, val, *in->op->value);
-	assign_typed (block_cx, saved_plhs, types);
+	assign_path_typed (block_cx, saved_plhs, types);
 }
 
 void
@@ -2377,9 +2380,9 @@ Whole_program::visit_variable_name (Statement_block* bb, MIR::VARIABLE_NAME* in)
 	Path* path = P (ns, in);
 
 	if (saved_is_ref)
-		assign_by_ref (block_cx, saved_plhs, path);
+		assign_path_by_ref (block_cx, saved_plhs, path);
 	else
-		assign_by_copy (block_cx, saved_plhs, path);
+		assign_path_by_copy (block_cx, saved_plhs, path);
 }
 
 void
@@ -2389,7 +2392,7 @@ Whole_program::visit_variable_variable (Statement_block* bb, MIR::Variable_varia
 	Path* path = P (ns, in);
 
 	if (saved_is_ref)
-		assign_by_ref (block_cx, saved_plhs, path);
+		assign_path_by_ref (block_cx, saved_plhs, path);
 	else
-		assign_by_copy (block_cx, saved_plhs, path);
+		assign_path_by_copy (block_cx, saved_plhs, path);
 }
