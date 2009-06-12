@@ -375,6 +375,8 @@ HSSA::push_to_var_stack (Alias_name* name)
 	var_stacks[name->name].push (counter);
 	name->set_version (counter);
 	counter++;
+	DEBUG("PUSHED " << var_stacks[name->name].top() << " TO VS FOR " << name->name);
+	DEBUG("COUNTER: " << counter);
 }
 
 int
@@ -386,18 +388,31 @@ HSSA::read_var_stack (Alias_name* name)
 	// NAME gets an SSA version in push_to_var_stack, which changes the
 	// indexing.
 	Alias_name index = *name;
-	
+	DEBUG("BEFORE IF IN READ_VAR_STACK FOR " << index.name);
+	DEBUG("SIZE OF VS BEFORE IF IN RVS: " << var_stacks[index.name].size ());
 	if (var_stacks[index.name].size () == 0)
 		push_to_var_stack (name);
-
+	DEBUG("AFTER IF IN RVS FOR " << index.name);
+	DEBUG("SIZE OF VS AFTER IF IN RVS: " << var_stacks[index.name].size ());
+	DEBUG("TOP OF VS AFTER IF IN RVS: " << var_stacks[index.name].top ());
 	return var_stacks[index.name].top();
 }
 
 void
 HSSA::pop_var_stack (Alias_name* name)
 {
-	var_stacks[name->name].pop();
+	DEBUG("BEFORE POPPING" << name->name);
+	DEBUG ("SIZE: " << var_stacks[name->name].size ());
+	int top;
+	if (var_stacks[name->name].size () > 0)
+	{
+		top = var_stacks[name->name].top();
+		var_stacks[name->name].pop();
+		DEBUG ("POPPED " << top << "FROM VAR STACK FOR " << name->name);
+		DEBUG ("SIZE: " << var_stacks[name->name].size ());
+	}	
 }
+
 
 void 
 HSSA::create_new_ssa_name (Alias_name* name)
@@ -455,8 +470,10 @@ HSSA::rename_vars (Basic_block* bb)
 	
 	//Rename each use in bb
 	foreach (Alias_name* use, *bb->cfg->duw->get_uses (bb))
+	{
+		DEBUG("READ_VAR_STACK CALLED DUE TO USE RENAMING");
 		use->set_version (read_var_stack (use));
-	
+	}	
 	//TODO: Already covered by defs?	
 	foreach (Alias_name* may_def, *bb->cfg->duw->get_may_defs (bb))
                 create_new_ssa_name (may_def);
@@ -479,6 +496,7 @@ HSSA::rename_vars (Basic_block* bb)
 			{
 				if (succ->has_phi_node (phi_lhs))
 				{
+					DEBUG("READ_VAR_STACK CALLED DUE TO SUCC");
 					succ->add_phi_arg (phi_lhs, read_var_stack (&phi_lhs), cfg->get_edge (bb, succ));
 				}
 			}
