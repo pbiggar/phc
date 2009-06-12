@@ -507,7 +507,7 @@ Points_to::remove_unreachable_nodes ()
 	// Put all symtables into the worklist
 	foreach (Storage_node* st, *this->get_storage_nodes ())
 	{
-		if (this->is_symtable (st))
+		if (this->is_symtable (st) || is_abstract (st))
 			worklist->push_back (st);
 	}
 
@@ -659,10 +659,6 @@ Points_to::get_nodes ()
 void
 Points_to::remove_storage_node (Storage_node* st)
 {
-	// No node should point to it (assuming its a symtable).
-	assert (this->get_points_to_incoming (st)->empty ()
-			|| st->storage == "__MAIN___/0"); // except a special case
-
 	foreach (Index_node* field, *this->get_fields (st))
 	{
 		remove_field (field);

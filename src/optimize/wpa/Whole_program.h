@@ -176,6 +176,7 @@ public:
 	// results. Returns true if a solution has changed, requiring this block
 	// to be reanalysed.
 	bool analyse_block (Context cx);
+	void init_block (Context cx);
 
 	/*
 	 * Assignments
@@ -186,10 +187,17 @@ public:
 	void assign_typed (Context cx, Path* lhs, Types* types);
 	void assign_by_ref (Context cx, Path* lhs, Path* rhs);
 	void assign_by_copy (Context cx, Path* lhs, Path* rhs);
-	void assign_empty_array (Context cx, Path* lhs, string name);
 
 	void assign_path_value (Context cx, Path* lhs, Storage_node* st);
-	Storage_node* create_empty_storage (Context cx, string name, string type);
+	Index_node* create_fake_index (Context cx);
+	void destroy_fake_index (Context cx);
+
+	// If no name is provided, an anonymous name is chosen.
+	Storage_node* assign_empty_array (Context cx, Path* lhs, string name = "");
+	Storage_node* create_empty_storage (Context cx, string type, string name = "");
+
+	// When copying data, we dont want to collapse stuff into a single array/object!
+	int storage_count;
 
 	// Copy the value from RHS to LHS.
 	void copy_value (Context cx, Index_node* lhs, Index_node* rhs);

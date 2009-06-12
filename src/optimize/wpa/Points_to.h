@@ -552,13 +552,13 @@ public:
 	// them to use a non-contextual version.
 	void convert_context_names ();
 
+	void remove_unreachable_nodes ();
+
 	/*
 	 * Lower-level API
 	 */
 
 private:
-
-	void remove_unreachable_nodes ();
 
 	void remove_node (PT_node* node);
 

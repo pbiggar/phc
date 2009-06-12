@@ -526,13 +526,12 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context cx, C
 	if (*info->name == "compact")
 	{
 		// Return an array with a copy of the named parameters.
-		string array_name = cx.array_name ();
-		assign_empty_array (cx, ret_path, array_name);
+		Storage_node* st = assign_empty_array (cx, ret_path);
 		foreach (Index_node* param, *params.values ())
 		{
 			// For a parameter P1, in this scope SC1, with the caller scope SC0, this is:
 			// (ARR -> (SC1 -> P1)) = (SC0 -> (SC1 -> P1))
-			Path* lhs = new Indexing (new ST_path (array_name), P (param->storage, param->index));
+			Path* lhs = new Indexing (new ST_path (st->storage), P (param->storage, param->index));
 			Path* rhs = new Indexing (new ST_path (caller_cx.symtable_name ()), P (param->storage, param->index));
 			assign_by_copy (cx, lhs, rhs);
 		}
@@ -614,13 +613,12 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context cx, C
 
 			// If there its parameter is true, it returns a float. Else, if returns a
 			// hashtable with 4 ints: sec, usec, minuteswest, dsttime
-			string array_name = cx.array_name ();
-			assign_empty_array (cx, ret_path, array_name);
+			Storage_node* st = assign_empty_array (cx, ret_path);
 
-			assign_typed (cx, P (array_name, "sec"), new Types ("int"));
-			assign_typed (cx, P (array_name, "usec"), new Types ("int"));
-			assign_typed (cx, P (array_name, "minuteswest"), new Types ("int"));
-			assign_typed (cx, P (array_name, "dsttime"), new Types ("int"));
+			assign_typed (cx, P (st->storage, "sec"), new Types ("int"));
+			assign_typed (cx, P (st->storage, "usec"), new Types ("int"));
+			assign_typed (cx, P (st->storage, "minuteswest"), new Types ("int"));
+			assign_typed (cx, P (st->storage, "dsttime"), new Types ("int"));
 
 		}
 	}
@@ -662,13 +660,12 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context cx, C
 	else if (*info->name == "range")
 	{
 		// Returns an array with a range of values of the given type.
-		string array_name = cx.array_name ();
-		assign_empty_array (cx, ret_path, array_name);
+		Storage_node* st = assign_empty_array (cx, ret_path);
 
 		Abstract_value* absval1 = get_abstract_value (cx, params[0]->name());
 		Abstract_value* absval2 = get_abstract_value (cx, params[1]->name());
 		Types* merged = absval1->types->set_union (absval2->types);
-		assign_typed (cx, P (array_name, UNKNOWN), merged);
+		assign_typed (cx, P (st->storage, UNKNOWN), merged);
 	}
 	else if (*info->name == "strlen")
 	{
@@ -773,12 +770,20 @@ Whole_program::merge_contexts ()
 	FWPA->merge_contexts ();
 }
 
+void
+Whole_program::init_block (Context cx)
+{
+	this->block_cx = cx;
+	this->storage_count = 0;
+}
+
 bool
 Whole_program::analyse_block (Context cx)
 {
 	DEBUG ("\nAnalysing BB: " << cx << ": " << *cx.get_bb()->get_graphviz_label ());
 
-	block_cx = cx;
+	init_block (cx);
+
 	visit_block (cx.get_bb());
 
 	FWPA->aggregate_results (cx);
@@ -970,7 +975,7 @@ Whole_program::forward_bind (Method_info* info, Context entry_cx, MIR::Actual_pa
 
 	// Create the symbol table.
 	string scope = entry_cx.symtable_name ();
-	create_empty_storage (entry_cx, scope, "array");
+	create_empty_storage (entry_cx, "array", scope);
 
 
 	// Special case for __MAIN__. We do it here so that the other analyses
@@ -979,6 +984,9 @@ Whole_program::forward_bind (Method_info* info, Context entry_cx, MIR::Actual_pa
 	{
 		main_scope = scope;
 		init_superglobals (entry_cx);
+
+		// Used in analyses
+		create_empty_storage (entry_cx, "array", "FAKE");
 	}
 
 
@@ -1146,27 +1154,33 @@ Whole_program::assign_by_ref (Context cx, Path* plhs, Path* prhs)
 	 *   - L points to all that R points to
 	 */
 
+
+
 	Index_node_list* lhss = get_named_indices (cx, plhs);
-	Index_node_list* rhss = get_named_indices (cx, prhs);
-
-
-	// References kill the LHS, but if the LHS can refer to more than one index
-	// node (or is abstract, etc), it can't be killed.
 	bool lhs_killable = is_killable (cx, lhss);
+
+	Index_node_list* rhss = get_named_indices (cx, prhs);
+	bool rhs_killable = is_killable (cx, rhss);
+
+
+	Certainty cert = POSSIBLE;
+	if (rhs_killable && lhs_killable)
+		cert = DEFINITE;
+
+
+	// TODO: move to the end
 	if (lhs_killable)
 	{
 		FWPA->kill_value (cx, lhss->front (), true);
 	}
 
-
-	// The references created between L and R are possible if:
-	//		- L isn't killable
-	//		- there are more than one Rs
-	
-	Certainty cert = POSSIBLE;
-	bool rhs_killable = is_killable (cx, rhss);
-	if (rhs_killable && lhs_killable)
-		cert = DEFINITE;
+	// Collect all possible values (abstract node and Storage_nodes).
+	// Collect RHS and LHS index nodes.
+	// Destructive changes to RHS?
+	//		RHS might be converted to an array
+	//		Nothing might happen to the RHS
+	// Kill LHS
+	// Add reference edges
 
 
 	foreach (Index_node* rhs, *rhss)
@@ -1296,8 +1310,17 @@ Whole_program::assign_typed (Context cx, Path* plhs, Types* types)
 }
 
 Storage_node*
-Whole_program::create_empty_storage (Context cx, string name, string type)
+Whole_program::create_empty_storage (Context cx, string type, string name)
 {
+	assert (name != "array");
+
+	// Anonymous storage
+	if (name == "")
+	{
+		name = cx.array_name () + "_" + lexical_cast<string> (storage_count);
+		storage_count++;
+	}
+
 	Storage_node* st = SN (name);
 
 	FWPA->set_storage (cx, st, new Types (type));
@@ -1325,11 +1348,13 @@ Whole_program::assign_path_value (Context cx, Path* plhs, Storage_node* st)
 	}
 }
 
-void
-Whole_program::assign_empty_array (Context cx, Path* plhs, string name)
+Storage_node*
+Whole_program::assign_empty_array (Context cx, Path* plhs, string name) 
 {
 	// Assign the value to all referenced names.
-	assign_path_value (cx, plhs, create_empty_storage (cx, name, "array"));
+	Storage_node* st = create_empty_storage (cx, "array", name);
+	assign_path_value (cx, plhs, st);
+	return st;
 }
 
 void
@@ -1364,13 +1389,25 @@ Whole_program::assign_unknown (Context cx, Path* plhs)
 			wpa->set_scalar (cx, SCLVAL (ref->index), Abstract_value::unknown ());
 			wpa->assign_value (cx, ref->index, SCLVAL (ref->index));
 
-			Storage_node* array = create_empty_storage (cx, cx.array_name(), "array");
+			Storage_node* array = create_empty_storage (cx, "array");
 			wpa->assign_value (cx, ref->index, array);
 
-			Storage_node* object = create_empty_storage (cx, cx.array_name(), "stdClass");
+			Storage_node* object = create_empty_storage (cx, "stdClass");
 			wpa->assign_value (cx, ref->index, object);
 		}
 	}
+}
+
+Index_node*
+Whole_program::create_fake_index (Context cx)
+{
+	return new Index_node ("FAKE", "asdasd");
+}
+
+void
+Whole_program::destroy_fake_index (Context cx)
+{
+	FWPA->kill_value (cx, new Index_node ("FAKE", "asdasd"), true);
 }
 
 
@@ -1390,23 +1427,168 @@ Whole_program::assign_by_copy (Context cx, Path* plhs, Path* prhs)
 	//			- foreach alias A of PLHS, point from A to V.
 
 
-	// Read this before iterating through LHS, as the results might change.
-	Index_node_list* rhss = get_named_indices (cx, prhs, true);
+	// Calculate the new result
+	Index_node* fake = create_fake_index (cx);
+
+	// We keep the graph in transitive-closure form, so each RHS will have
+	// all the values of its references already. Therefore, there is no need
+	// for a call to get_lhs_references ().
+	foreach (Index_node* rhs, *get_named_indices (cx, prhs, true))
+	{
+		copy_value (cx, fake, rhs);
+	}
+
+	/* Kill the LHS, and copy the result across */
 	foreach (Reference* lhs_ref, *get_lhs_references (cx, plhs))
 	{
-		foreach_wpa (this)
-			if (lhs_ref->cert == DEFINITE)
-				wpa->kill_value (cx, lhs_ref->index);
-
-		// We keep the graph in transitive-closure form, so each RHS will have
-		// all the values of its references already. Therefore, there is no need
-		// for a call to get_lhs_references ().
-		foreach (Index_node* rhs, *rhss)
+		if (lhs_ref->cert == DEFINITE)
 		{
-			copy_value (cx, lhs_ref->index, rhs);
+			FWPA->kill_value (cx, lhs_ref->index);
+		}
+
+		copy_value (cx, lhs_ref->index, fake);
+	}
+
+	// Remove the index_node
+	destroy_fake_index (cx);
+}
+
+void
+Whole_program::copy_value (Context cx, Index_node* lhs, Index_node* rhs)
+{
+	lhs = check_owner_type (cx, lhs);
+
+	// Check if RHS is an indexing a scalar.
+	if (Abstract_value* absval = read_from_scalar_value (cx, rhs))
+	{
+		DEBUG ("copy_from_abstract_value");
+		foreach_wpa (this)
+		{
+			wpa->set_scalar (cx, SCLVAL (lhs), absval);
+			wpa->assign_value (cx, lhs, SCLVAL (lhs));
+		}
+		return;
+	}
+
+
+	// OK, its not a scalar. Carry on.
+	DEBUG ("copy_value");
+
+	record_use (cx, rhs);
+
+	// Get the value for each RHS. Copy it using the correct semantics.
+	foreach (Storage_node* st, *aliasing->get_points_to (cx, rhs))
+	{
+		// Get the type of the value
+		Types* types = values->get_types (cx, st->name());
+
+		// It must be either all scalars, array, list of classes, or bottom.
+		Types* scalars = Type_info::get_scalar_types (types);
+		Types* array = Type_info::get_array_types (types);
+		Types* objects = Type_info::get_object_types (types);
+
+		assert (!scalars->empty() ^ !array->empty() ^ !objects->empty());
+
+		if (scalars->size())
+		{
+			foreach_wpa (this)
+			{
+				wpa->set_scalar (cx, SCLVAL (lhs),
+						get_abstract_value (cx, st->name ()));
+
+				wpa->assign_value (cx, lhs, SCLVAL (lhs));
+			}
+		}
+
+		// Deep copy
+		if (array->size())
+		{
+			// Create the new array
+			Storage_node* new_array = create_empty_storage (cx, "array");
+
+
+			// Copy all the indices.
+			foreach (Index_node* index, *aliasing->get_fields (cx, st))
+			{
+				copy_value (cx,
+						new Index_node (new_array->for_index_node (), index->index),
+						index);
+			}
+
+			// LHS points to NEW_ARRAY.
+			FWPA->assign_value (cx, lhs, new_array);
+		}
+
+		if (objects->size ())
+		{
+			// Just point to the object.
+			FWPA->assign_value (cx, lhs, st);
 		}
 	}
 }
+
+/*
+ * Check if the storage node of INDEX is a scalar, and handle it (in a
+ * non-readonly sense).
+ */
+Index_node*
+Whole_program::check_owner_type (Context cx, Index_node* index)
+{
+	Types* types = values->get_types (cx, aliasing->get_owner (cx, index)->name ());
+	Types* scalar_types = Type_info::get_scalar_types (types);
+	if (scalar_types->size ())
+	{
+		if (scalar_types->size () > 1)
+			phc_TODO ();
+
+		foreach (string type, *scalar_types)
+		{
+			if (type == "string")
+			{
+				// Do we know the value of the string?
+				// We may need to kill LHS.
+				phc_TODO ();
+			}
+			else if (type == "unset")
+			{
+				// TODO: why dont we call assign_array here?
+
+				// Convert to an array
+				string name = cx.array_node ()->for_index_node ();
+				foreach_wpa (this)
+					wpa->set_storage (cx, SN (name), new Types ("array"));
+
+				assign_scalar (cx, P (name, UNKNOWN), new NIL);
+
+				// We dont want the caller to index an abstract value, so return
+				// the new index_node.
+				return new Index_node (name, index->index);
+			}
+			else
+			{
+				// Nothing happens. But with multiple types, the old type has to be
+				// copied.
+				// With multiple RHSs, this will hit every time.
+				// With multiple LHSs, this wont change value, which is fine.
+				// (Note that the value we would have killed is LHS, not
+				// LHS.storage, so this is unkilled, but it might need to be
+				// killed).
+				phc_TODO ();
+			}
+		}
+
+		dump (cx, "just before the end");
+		phc_TODO ();
+	}
+
+
+	// OK, carry on, nothing special here.
+	return index;
+}
+
+
+
+
 
 Abstract_value*
 Whole_program::read_from_scalar_value (Context cx, Index_node* rhs)
@@ -1481,139 +1663,6 @@ Whole_program::read_from_scalar_value (Context cx, Index_node* rhs)
  *
  */
 
-
-/*
- * Check if the storage node of INDEX is a scalar, and handle it (in a
- * non-readonly sense).
- */
-Index_node*
-Whole_program::check_owner_type (Context cx, Index_node* index)
-{
-	Types* types = values->get_types (cx, aliasing->get_owner (cx, index)->name());
-	Types* scalar_types = Type_info::get_scalar_types (types);
-	if (scalar_types->size ())
-	{
-		if (scalar_types->size () > 1)
-			phc_TODO ();
-
-		foreach (string type, *scalar_types)
-		{
-			if (type == "string")
-			{
-				// Do we know the value of the string?
-				// We may need to kill LHS.
-				phc_TODO ();
-			}
-			else if (type == "unset")
-			{
-				// TODO: why dont we call assign_array here?
-
-				// Convert to an array
-				string name = cx.array_node ()->for_index_node ();
-				foreach_wpa (this)
-					wpa->set_storage (cx, SN (name), new Types ("array"));
-
-				assign_scalar (cx, P (name, UNKNOWN), new NIL);
-
-				// We dont want the caller to index an abstract value, so return
-				// the new index_node.
-				return new Index_node (name, index->index);
-			}
-			else
-			{
-				// Nothing happens. But with multiple types, the old type has to be
-				// copied.
-				// With multiple RHSs, this will hit every time.
-				// With multiple LHSs, this wont change value, which is fine.
-				// (Note that the value we would have killed is LHS, not
-				// LHS.storage, so this is unkilled, but it might need to be
-				// killed).
-				phc_TODO ();
-			}
-		}
-
-		dump (cx, "just before the end");
-		phc_TODO ();
-	}
-
-
-	// OK, carry on, nothing special here.
-	return index;
-}
-
-void
-Whole_program::copy_value (Context cx, Index_node* lhs, Index_node* rhs)
-{
-	lhs = check_owner_type (cx, lhs);
-
-	// Check if RHS is an indexing a scalar.
-	if (Abstract_value* absval = read_from_scalar_value (cx, rhs))
-	{
-		DEBUG ("copy_from_abstract_value");
-		foreach_wpa (this)
-		{
-			wpa->set_scalar (cx, SCLVAL (lhs), absval);
-			wpa->assign_value (cx, lhs, SCLVAL (lhs));
-		}
-		return;
-	}
-
-
-	// OK, its not a scalar. Carry on.
-	DEBUG ("copy_value");
-
-	record_use (cx, rhs);
-
-	// Get the value for each RHS. Copy it using the correct semantics.
-	foreach (Storage_node* st, *aliasing->get_points_to (cx, rhs))
-	{
-		// Get the type of the value
-		Types* types = values->get_types (cx, st->name());
-
-		// It must be either all scalars, array, list of classes, or bottom.
-		Types* scalars = Type_info::get_scalar_types (types);
-		Types* array = Type_info::get_array_types (types);
-		Types* objects = Type_info::get_object_types (types);
-
-		assert (!scalars->empty() ^ !array->empty() ^ !objects->empty());
-
-		if (scalars->size())
-		{
-			foreach_wpa (this)
-			{
-				wpa->set_scalar (cx, SCLVAL (lhs),
-						get_abstract_value (cx, st->name ()));
-
-				wpa->assign_value (cx, lhs, SCLVAL (lhs));
-			}
-		}
-
-		// Deep copy
-		if (array->size())
-		{
-			// Create the new array
-			Storage_node* new_array = create_empty_storage (cx, cx.array_name (), "array");
-
-
-			// Copy all the indices.
-			foreach (Index_node* index, *aliasing->get_fields (cx, st))
-			{
-				copy_value (cx,
-						new Index_node (new_array->for_index_node (), index->index),
-						index);
-			}
-
-			// LHS points to NEW_ARRAY.
-			FWPA->assign_value (cx, lhs, new_array);
-		}
-
-		if (objects->size ())
-		{
-			// Just point to the object.
-			FWPA->assign_value (cx, lhs, st);
-		}
-	}
-}
 
 void
 Whole_program::record_use (Context cx, Index_node* node)
@@ -1789,8 +1838,7 @@ Whole_program::get_array_named_indices (Context cx, Path* plhs, String* index, b
 	// already exist, it must be implicitly created.
 	if (not is_readonly && not aliasing->has_field (cx, array))
 	{
-		string name = cx.array_node ()->for_index_node ();
-		assign_empty_array (cx, plhs, name);
+		assign_empty_array (cx, plhs);
 	}
 
 
@@ -2221,7 +2269,7 @@ Whole_program::visit_cast (Statement_block* bb, MIR::Cast* in)
 		if (lit && isa<NIL> (lit))
 		{
 			// Most common case: create an empty array
-			assign_empty_array (block_cx, saved_plhs, block_cx.array_name ());
+			assign_empty_array (block_cx, saved_plhs);
 			return;
 		}
 		else
@@ -2307,7 +2355,7 @@ Whole_program::visit_new (Statement_block* bb, MIR::New* in)
 		phc_TODO ();
 
 	phc_TODO ();
-//assign_empty_array (block_cx, saved_plhs, block_cx.array_name ());
+//assign_empty_array (block_cx, saved_plhs);
 
 	// TODO: call the constructor
 }
@@ -2327,7 +2375,7 @@ Whole_program::visit_param_is_ref (Statement_block* bb, MIR::Param_is_ref* in)
 		phc_TODO ();
 
 	bool direction_known = true;
-	bool param_by_ref;
+	bool param_by_ref = false;
 	foreach (Method_info* info, *receivers)
 	{
 		// TODO: when there are more receivers, this needs fixing.

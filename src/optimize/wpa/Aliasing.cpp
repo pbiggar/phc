@@ -144,6 +144,7 @@ void
 Aliasing::aggregate_results (Context cx)
 {
 	outs[cx]->consistency_check (cx, wp);
+	outs[cx]->remove_unreachable_nodes ();
 }
 
 void
