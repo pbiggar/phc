@@ -245,8 +245,8 @@ Context::symtable_node ()
 
 
 std::ostream&
-operator<< (std::ostream &out, const Context &cx)
+operator<< (std::ostream &out, const Context* cx)
 {
-	out << cx.full_name ();
+	out << cx->full_name ();
 	return out;
 }

@@ -29,7 +29,7 @@ class Context : virtual public GC_obj
 	mutable string* cached_name;
 
 public:
-	friend std::ostream &operator<<(std::ostream&, const Context&);
+	friend std::ostream& operator<<(std::ostream&, const Context*);
 	Context ();
 
 	static Context* outer (Basic_block* outer);
@@ -63,7 +63,7 @@ public:
 	bool is_recursive ();
 };
 
-std::ostream &operator<< (std::ostream &out, const Context &num);
+std::ostream &operator<< (std::ostream &out, const Context* cx);
 
 
 class CX_map_compare : virtual public GC_obj
