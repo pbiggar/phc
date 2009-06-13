@@ -545,7 +545,7 @@ HSSA::rename_vars (Basic_block* bb)
 		
 	foreach (Alias_name phi_lhs, *bb->get_phi_lhss())
 	{
-		/*DEBUG(phi_lhs.str () );
+		DEBUG(phi_lhs.str () );
 		foreach(Alias_name* rhs, *bb->cfg->duw->get_phi_args (bb,phi_lhs) )
 		{
 			DEBUG("\n"<<rhs->ssa_version);
