@@ -353,7 +353,7 @@ Points_to::dump_graphviz (String* label, Context* cx, Whole_program* wp)
 		/*
 		 * Label
 		 */
-		stringstream label, cell_label;
+		stringstream label;
 		label
 		<< "label=\""
 		<< *escape_DOT (node->get_graphviz_label ())
@@ -361,11 +361,16 @@ Points_to::dump_graphviz (String* label, Context* cx, Whole_program* wp)
 		
 		if (isa<Value_node> (node))
 		{
-			Abstract_value* val = wp->get_abstract_value (cx, node->name());
+			stringstream cell_label;
+			Abstract_value* val = wp->get_abstract_value (cx, node->name ());
 			val->dump (cell_label);
+
+			label
+			<< *escape_DOT (s(cell_label.str()))
+			;
 		}
+
 		label
-		<< *escape_DOT (s(cell_label.str()))
 		<< "\","
 		;
 

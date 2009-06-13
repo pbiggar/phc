@@ -126,7 +126,7 @@ Whole_program::run (MIR::PHP_script* in)
 		// Merge different contexts
 		merge_contexts ();
 
-//		dump (Context(), "after context merge");
+		dump (new Context, "after context merge");
 
 
 		// Optimize based on analysis results
@@ -1528,7 +1528,8 @@ Whole_program::create_empty_storage (Context* cx, string type, string name)
 	// Anonymous storage
 	if (name == "")
 	{
-		name = cx->array_name () + "_" + lexical_cast<string> (storage_count);
+		// Use a - so that the convert_context_name hack doesnt get confused.
+		name = cx->storage_name (type) + "-" + lexical_cast<string> (storage_count);
 		storage_count++;
 	}
 

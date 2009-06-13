@@ -50,17 +50,18 @@ public:
 	string full_name () const;
 
 	Storage_node* array_node ();
-	Storage_node* object_node ();
 	Storage_node* symtable_node ();
+	Storage_node* storage_node (string type);
 
 	string symtable_name ();
 	string array_name ();
-	string object_name ();
+	string storage_name (string type);
 
 	// Apply the HACK rules for new context names.
 	static string convert_context_name (string);
 
 	bool is_recursive ();
+
 };
 
 std::ostream &operator<< (std::ostream &out, const Context* cx);

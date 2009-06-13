@@ -166,26 +166,27 @@ Context::full_name () const
 
 std::ostream &operator<< (std::ostream &out, const Context &num);
 
+#define SEP "="
 
 string
 Context::array_name ()
 {
-	return "array_" + this->name ();
-}
-
-string
-Context::object_name ()
-{
-	return "object_" + this->name ();
+	return storage_name ("array");
 }
 
 string
 Context::symtable_name ()
 {
 	if (this->use_caller)
-		return *get_bb()->cfg->method->signature->method_name->value + "_" + this->caller ()->name();
+		return *get_bb()->cfg->method->signature->method_name->value + SEP + this->caller ()->name();
 	else
-		return *get_bb()->cfg->method->signature->method_name->value + "_";
+		return *get_bb()->cfg->method->signature->method_name->value + SEP ;
+}
+
+string
+Context::storage_name (string type)
+{
+	return type + SEP + this->name ();
 }
 
 
@@ -194,29 +195,31 @@ Context::convert_context_name (string name)
 {
 	string BB_ID = "/\\d+";
 	string all_IDs = "(" + BB_ID + ")+";
-	string all_but_one = all_IDs + "(" + BB_ID + ")";
+
+	string symtable = all_IDs;
+	string heap = all_IDs + "(" + BB_ID + "-\\d+)";
 
 
-	// If it starts with "array_" or "object_", we want the last BB ID, its a
+	// If it starts with "$type$SEP", we want the last BB ID, its a
 	// heap allocation, and we want its last BB ID.
-   boost::regex re1 ("(array|object)_" + all_but_one + "(.*)");
+   static boost::regex re1 ("(ST::)?(\\w+)=" + heap + "(.*)");
    if (boost::regex_match (name, re1))
 	{
-		string result = boost::regex_replace (name, re1, "\\1\\3\\4");
+		string result = boost::regex_replace (name, re1, "\\1\\2\\4\\5");
 //		cdebug << "RE1 matches: " << name << " -> " << result << "\n";
 		return result;
 	}
 
 
+
 	// Remove other BB IDs
-   boost::regex re2("([^/]+)" + all_IDs + "(.*)");
+   static boost::regex re2("([^/]+)" + symtable + "(.*)");
    if (boost::regex_match (name, re2))
 	{
 		string result = boost::regex_replace (name, re2, "\\1\\3");
 //		cdebug << "RE2 matches: " << name << " -> " << result << "\n";
 		return result;
 	}
-
 	
 	// Otherwise, just leave it
 
@@ -231,9 +234,9 @@ Context::array_node ()
 }
 
 Storage_node*
-Context::object_node ()
+Context::storage_node (string type)
 {
-	return SN (object_name ());
+	return SN (storage_name (type));
 }
 
 Storage_node*
