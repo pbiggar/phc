@@ -326,17 +326,20 @@ Indexing::Indexing (Path* lhs, Path *rhs)
 : lhs (lhs)
 , rhs (rhs)
 {
+	use_object = false;
 }
 
 ST_path::ST_path (string name)
 : name (name)
 {
+	use_object = false;
 	assert (name != "");
 }
 
 Index_path::Index_path (string name)
 : name (name)
 {
+	use_object = false;
 }
 
 Path*
@@ -436,7 +439,9 @@ P (string symtable, Node* in)
 				rhs = P (symtable, dyc<Variable_field> (fa->field_name)->variable_name);
 			}
 
-			return new Indexing (lhs, rhs);
+			Indexing* result = new Indexing (lhs, rhs);
+			result->use_object = true;
+			return result;
 		}
 
 		case Assign_field::ID:

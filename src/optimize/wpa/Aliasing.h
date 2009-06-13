@@ -100,6 +100,7 @@ class Path : virtual public GC_obj
 {
 public:
 	virtual void dump (std::ostream& os = cdebug) = 0;
+	bool use_object;
 };
 
 Path* P (string st, MIR::Node* node);

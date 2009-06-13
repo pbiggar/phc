@@ -1224,6 +1224,9 @@ Whole_program::assign_path_by_ref (Context* cx, Path* plhs, Path* prhs)
 	 *   - L points to all that R points to
 	 */
 
+	if (plhs->use_object || prhs->use_object)
+		phc_TODO ();
+
 
 
 	Index_node_list* lhss = get_named_indices (cx, plhs);
@@ -1302,6 +1305,10 @@ void
 Whole_program::assign_path_scalar (Context* cx, Path* plhs, Abstract_value* absval)
 {
 	DEBUG ("assign_path_scalar");
+
+	if (plhs->use_object)
+		phc_TODO ();
+
 	foreach (Reference* ref, *get_lhs_references (cx, plhs))
 	{
 		if (ref->cert == DEFINITE)
@@ -1344,6 +1351,9 @@ Whole_program::assign_path_value (Context* cx, Path* plhs, Storage_node* st)
 {
 	DEBUG ("assign_path_empty_array");
 
+	if (plhs->use_object)
+		phc_TODO ();
+
 	// Assign the value to all referenced names.
 	foreach (Reference* ref, *get_lhs_references (cx, plhs))
 	{
@@ -1359,6 +1369,9 @@ Whole_program::assign_path_value (Context* cx, Path* plhs, Storage_node* st)
 string
 Whole_program::assign_path_empty_array (Context* cx, Path* plhs, string name) 
 {
+	if (plhs->use_object)
+		phc_TODO ();
+
 	// Assign the value to all referenced names.
 	Storage_node* st = create_empty_storage (cx, "array", name);
 	assign_path_value (cx, plhs, st);
@@ -1419,6 +1432,10 @@ void
 Whole_program::assign_path_by_copy (Context* cx, Path* plhs, Path* prhs)
 {
 	DEBUG ("assign_path_by_copy");
+
+	if (plhs->use_object || prhs->use_object)
+		phc_TODO ();
+
 
 	// foreach values V pointed to by PRHS:
 	//	switch V.type:
