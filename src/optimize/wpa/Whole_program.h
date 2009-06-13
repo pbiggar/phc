@@ -124,9 +124,9 @@ public:
 							  Context* caller_cx,
 							  MIR::VARIABLE_NAME* self);
 
-	Method_info_list* get_possible_receivers (MIR::Target*, MIR::Method_name*);
-	Method_info_list* get_possible_receivers (MIR::Param_is_ref*);
-	Method_info_list* get_possible_receivers (MIR::Method_invocation*);
+	Method_info_list* get_possible_receivers (Context* cx, MIR::Target*, MIR::Method_name*);
+	Method_info_list* get_possible_receivers (Context* cx, MIR::Param_is_ref*);
+	Method_info_list* get_possible_receivers (Context* cx, MIR::Method_invocation*);
 
 	void generate_summary (User_method_info* info);
 

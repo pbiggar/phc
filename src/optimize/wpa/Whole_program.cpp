@@ -347,19 +347,19 @@ Whole_program::register_analysis (string name, WPA* analysis)
 }
 
 Method_info_list*
-Whole_program::get_possible_receivers (Method_invocation* in)
+Whole_program::get_possible_receivers (Context* cx, Method_invocation* in)
 {
-	return get_possible_receivers (in->target, in->method_name);
+	return get_possible_receivers (cx, in->target, in->method_name);
 }
 
 Method_info_list*
-Whole_program::get_possible_receivers (Param_is_ref* in)
+Whole_program::get_possible_receivers (Context* cx, Param_is_ref* in)
 {
-	return get_possible_receivers (in->target, in->method_name);
+	return get_possible_receivers (cx, in->target, in->method_name);
 }
 
 Method_info_list*
-Whole_program::get_possible_receivers (Target* target, Method_name* method_name)
+Whole_program::get_possible_receivers (Context* cx, Target* target, Method_name* method_name)
 {
 	Method_info_list* result = new Method_info_list;
 
@@ -367,35 +367,50 @@ Whole_program::get_possible_receivers (Target* target, Method_name* method_name)
 		phc_TODO ();
 
 	String* name = dyc<METHOD_NAME> (method_name)->value;
-	Method_info* info;
 
 	// If there is a target or a variable_method, there may be > 1 methods that
 	// match it.
 	if (target)
 	{
+		String_list* classnames = new String_list;
 		if (CLASS_NAME* classname = dynamic_cast<CLASS_NAME*> (target))
 		{
-			User_class_info* classinfo = Oracle::get_user_class_info (classname->value);
+			classnames->push_back (classname->value);
+		}
+		else
+		{
+			// TODO: we get the list of receivers, and then invoke on all the
+			// types and all the objects. But really, each method should only
+			// invoke on types they are allowed invoke on.
+			VARIABLE_NAME* obj = dyc<VARIABLE_NAME> (target);
+			Types* types = values->get_types (cx, VN (cx->symtable_name (), obj)->name());
+
+			// Wrap them
+			foreach (string type, *types)
+				classnames->push_back (s (type));
+		}
+
+		foreach (String* type, *classnames)
+		{
+			User_class_info* classinfo = Oracle::get_user_class_info (type);
+
+			Method_info* info = classinfo->get_method_info (name);
 			if (info == NULL)
 				phc_TODO ();
 
-			info = classinfo->get_method_info (name);
+			result->push_back (info);
 		}
-		else
-			phc_TODO ();
+
 	}
 	else
 	{
 		// This assumes there is only 1 function of that name, which is true. If
 		// there are multiple versions, they are lowered to different names before
 		// MIR.
-		info = Oracle::get_method_info (name);
+		Method_info* info = Oracle::get_method_info (name);
+		result->push_back (info);
 	}
 
-	if (info == NULL)
-		phc_TODO ();
-
-	result->push_back (info);
 
 	assert (result->size () > 0);
 
@@ -445,7 +460,7 @@ Whole_program::instantiate_object (New* in, Context* caller_cx, MIR::VARIABLE_NA
 void
 Whole_program::invoke_method (Method_invocation* in, Context* caller_cx, MIR::VARIABLE_NAME* lhs)
 {
-	Method_info_list* receivers = get_possible_receivers (in);
+	Method_info_list* receivers = get_possible_receivers (caller_cx, in);
 
 	// Need to clone the information and merge it when it returns.
 	if (receivers->size () != 1)
@@ -2413,7 +2428,7 @@ Whole_program::visit_param_is_ref (Statement_block* bb, MIR::Param_is_ref* in)
 
 	// Get the set of receivers (we need to check them all to see if this
 	// parameter is by reference.
-	Method_info_list* receivers = get_possible_receivers (in);
+	Method_info_list* receivers = get_possible_receivers (block_cx, in);
 
 	// Need to clone the information and merge it when it returns.
 	if (receivers->size () != 1)

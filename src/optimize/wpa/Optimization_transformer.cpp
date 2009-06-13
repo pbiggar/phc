@@ -279,7 +279,8 @@ Optimization_transformer::visit_isset (Statement_block* bb, MIR::Isset* in)
 void
 Optimization_transformer::visit_method_invocation (Statement_block* bb, MIR::Method_invocation* in)
 {
-	Method_info_list* receivers = wp->get_possible_receivers (in);
+	Context* cx = Context::non_contextual (bb);
+	Method_info_list* receivers = wp->get_possible_receivers (cx, in);
 
 	// Update the parameters with constants
 	int i = -1;
