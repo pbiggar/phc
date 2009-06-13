@@ -351,9 +351,17 @@ P (string symtable, Node* in)
 {
 	switch (in->classid ())
 	{
+		/*
+		 * Typical paths
+		 */
+
+
+		// Variable
 		case VARIABLE_NAME::ID:
+			// ST -> var
 			return P (symtable, *dyc<VARIABLE_NAME> (in)->value);
 
+		// Var-vars
 		case Variable_variable::ID:
 		{
 			// ST -> (ST -> var)
@@ -363,30 +371,81 @@ P (string symtable, Node* in)
 				P (symtable, varvar->variable_name));
 		}
 
+		case Assign_var_var::ID:
+		{
+			Assign_var_var* avv = dyc<Assign_var_var> (in);
+			return P (symtable, new Variable_variable (avv->lhs));
+		}
+
+		// Arrays
 		case Array_access::ID:
 		{
-			// (ST -> var) -> index
 			Array_access* aa = dyc<Array_access> (in);
 
 			if (isa<VARIABLE_NAME> (aa->index))
 			{
+				// (ST -> var) -> (ST -> index)
 				return new Indexing (
 						P (symtable, aa->variable_name),
 						P (symtable, aa->index));
 			}
 			else
 			{
+				// (ST -> var) -> index
 				return new Indexing (
 						P (symtable, aa->variable_name),
 						new Index_path (*PHP::get_string_value (dyc<Literal> (aa->index))));
 			}
 		}
 
-		case Assign_var_var::ID:
+		case Assign_array::ID:
 		{
-			Assign_var_var* avv = dyc<Assign_var_var> (in);
-			return P (symtable, new Variable_variable (avv->lhs));
+			Assign_array* aa = dyc<Assign_array> (in);
+			return P (symtable, new Array_access (aa->lhs, aa->index));
 		}
+
+		// Fields
+		case Field_access::ID:
+		{
+			// This is irritating: LHS can be Target or CLASS_NAME, RHS can be
+			// Literal or VARIABLE_NAME.
+			// ST-TARGET -> field_name
+			// ST-TARGET -> (ST -> field_name)
+			// (ST -> target) -> (ST -> field_name)
+			// (ST -> target) -> field_name
+			Field_access* fa = dyc<Field_access> (in);
+
+			Path *lhs, *rhs;
+
+			if (isa<VARIABLE_NAME> (fa->target))
+			{
+				lhs = P (symtable, dyc<VARIABLE_NAME> (fa->target));
+			}
+			else
+			{
+				lhs = new ST_path (*dyc<CLASS_NAME> (fa->target)->value);
+			}
+
+
+			if (isa<FIELD_NAME> (fa->field_name))
+			{
+				rhs = new Index_path (*dyc<FIELD_NAME> (fa->field_name)->value);
+			}
+			else
+			{
+				rhs = P (symtable, dyc<Variable_field> (fa->field_name)->variable_name);
+			}
+
+			return new Indexing (lhs, rhs);
+		}
+
+		case Assign_field::ID:
+		{
+			Assign_field* af = dyc<Assign_field> (in);
+			return P (symtable, new Field_access (af->target, af->field_name));
+		}
+
+
 
 		case Assign_next::ID:
 		{
@@ -395,14 +454,11 @@ P (string symtable, Node* in)
 
 			return new Indexing (
 					P (symtable, an->lhs),
-					new Index_path ("*"));
+					new Index_path (UNKNOWN));
 		}
 
-		case Assign_array::ID:
-		{
-			Assign_array* aa = dyc<Assign_array> (in);
-			return P (symtable, new Array_access (aa->lhs, aa->index));
-		}
+
+
 
 		case Unset::ID:
 		{
