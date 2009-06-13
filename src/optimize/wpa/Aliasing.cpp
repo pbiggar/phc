@@ -382,6 +382,12 @@ P (string symtable, Node* in)
 			}
 		}
 
+		case Assign_var_var::ID:
+		{
+			Assign_var_var* avv = dyc<Assign_var_var> (in);
+			return P (symtable, new Variable_variable (avv->lhs));
+		}
+
 		case Assign_next::ID:
 		{
 			// (ST -> var) -> *

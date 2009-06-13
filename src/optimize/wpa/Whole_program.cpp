@@ -2033,9 +2033,24 @@ Whole_program::visit_assign_field (Statement_block*, MIR::Assign_field*)
 }
 
 void
-Whole_program::visit_assign_var_var (Statement_block*, MIR::Assign_var_var*)
+Whole_program::visit_assign_var_var (Statement_block* bb, MIR::Assign_var_var* in)
 {
-	phc_TODO ();
+	string ns = block_cx->symtable_name ();
+	Path* lhs = P (ns, in);
+
+	if (isa<Literal> (in->rhs))
+	{
+		assign_path_scalar (block_cx, lhs, dyc<Literal> (in->rhs));
+	}
+	else
+	{
+		Path* rhs = P (ns, in->rhs);
+
+		if (in->is_ref)
+			assign_path_by_ref (block_cx, lhs, rhs);
+		else
+			assign_path_by_copy (block_cx, lhs, rhs);
+	}
 }
 
 void
