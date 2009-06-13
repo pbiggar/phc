@@ -30,7 +30,27 @@ User_class_info::User_class_info (Class_def* class_def)
 	{
 		if (Method* method = dynamic_cast<Method*> (member))
 		{
-			this->methods[*method->signature->method_name->value] = new User_method_info (method);
+			String* name = method->signature->method_name->value;
+			if (false 
+				|| *name == "__call"
+				|| *name == "__callStatic"
+				|| *name == "__clone"
+				|| *name == "__destruct"
+				|| *name == "__get"
+				|| *name == "__invoke"
+				|| *name == "__isset"
+				|| *name == "__set"
+				|| *name == "__set_state"
+				|| *name == "__sleep"
+				|| *name == "__toString"
+				|| *name == "__unset"
+				|| *name == "__wakeup"
+				)
+			{
+				phc_TODO ();
+			}
+
+			this->methods[*name] = new User_method_info (method);
 		}
 		else
 			// We havent assigned fields anywhere.

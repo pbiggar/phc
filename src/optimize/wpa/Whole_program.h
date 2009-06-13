@@ -271,6 +271,7 @@ public:
 
 	void visit_branch_block (Branch_block*);
 
+	void standard_lhs (Basic_block* bb, MIR::Node* lhs, bool is_ref, MIR::Rvalue* rhs);
 	void visit_assign_array (Statement_block*, MIR::Assign_array*);
 	void visit_assign_field (Statement_block*, MIR::Assign_field *);
 	void visit_assign_var (Statement_block*, MIR::Assign_var*);
@@ -288,6 +289,7 @@ public:
 	void visit_try (Statement_block*, MIR::Try*);
 	void visit_unset (Statement_block*, MIR::Unset*);
 
+	void standard_rhs (Basic_block* bb, MIR::Node* in);
 	void visit_array_access (Statement_block* bb, MIR::Array_access* in);
 	void visit_bin_op (Statement_block* bb, MIR::Bin_op* in);
 	void visit_cast (Statement_block* bb, MIR::Cast* in);

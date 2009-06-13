@@ -1763,6 +1763,25 @@ Whole_program::get_bb_in_abstract_value (Context* cx, Alias_name name)
 }
 
 
+Abstract_value*
+Whole_program::get_abstract_value (Context* cx, MIR::Rvalue* rval)
+{
+	string ns = cx->symtable_name ();
+
+	if (isa<Literal> (rval))
+		return new Abstract_value (dyc<Literal> (rval));
+
+	// The variables are not expected to already have the same value. Perhaps
+	// there was an assignment to $x[0], and we are accessing $x[$i].
+	Index_node* index = VN (ns, dyc<VARIABLE_NAME> (rval));
+
+	return get_abstract_value (cx, index->name ());
+}
+
+
+
+
+
 Index_node* path_to_index (Path* p)
 {
 	Indexing* i = dyc<Indexing> (p);
@@ -1975,37 +1994,71 @@ Whole_program::get_lhs_references (Context* cx, Path* path)
  * Analysis
  */
 
+
 void
-Whole_program::visit_global (Statement_block* bb, MIR::Global* in)
+Whole_program::visit_branch_block (Branch_block* bb)
 {
 	string ns = block_cx->symtable_name ();
 
-	assign_path_by_ref (block_cx,
-			P (ns, in->variable_name),
-			P (main_scope, in->variable_name));
+	record_use (block_cx, VN (ns, bb->branch->variable_name));
 }
+
+void
+Whole_program::standard_lhs (Basic_block* bb, MIR::Node* lhs, bool is_ref, MIR::Rvalue* rhs)
+{
+	string ns = block_cx->symtable_name ();
+	Path* plhs = P (ns, lhs);
+
+	if (isa<Literal> (rhs))
+	{
+		assert (not is_ref);
+		assign_path_scalar (block_cx, plhs, dyc<Literal> (rhs));
+	}
+	else
+	{
+		Path* prhs = P (ns, rhs);
+
+		if (is_ref)
+			assign_path_by_ref (block_cx, plhs, prhs);
+		else
+			assign_path_by_copy (block_cx, plhs, prhs);
+	}
+}
+
 
 
 void
 Whole_program::visit_assign_array (Statement_block* bb, MIR::Assign_array* in)
 {
-	string ns = block_cx->symtable_name ();
-	Path* lhs = P (ns, in);
-
-	if (isa<Literal> (in->rhs))
-	{
-		assign_path_scalar (block_cx, lhs, dyc<Literal> (in->rhs));
-	}
-	else
-	{
-		Path* rhs = P (ns, in->rhs);
-
-		if (in->is_ref)
-			assign_path_by_ref (block_cx, lhs, rhs);
-		else
-			assign_path_by_copy (block_cx, lhs, rhs);
-	}
+	standard_lhs (bb, in, in->is_ref, in->rhs);
 }
+
+void
+Whole_program::visit_assign_field (Statement_block* bb, MIR::Assign_field* in)
+{
+	standard_lhs (bb, in, in->is_ref, in->rhs);
+}
+
+void
+Whole_program::visit_assign_var_var (Statement_block* bb, MIR::Assign_var_var* in)
+{
+	standard_lhs (bb, in, in->is_ref, in->rhs);
+}
+
+void
+Whole_program::visit_assign_next (Statement_block* bb, MIR::Assign_next* in)
+{
+	// TODO: _next_ is one larger than the largest positive integer element
+	standard_lhs (bb, in, in->is_ref, in->rhs);
+}
+
+
+void
+Whole_program::visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
+{
+	visit_expr (bb, in->expr);
+}
+
 
 
 void
@@ -2029,6 +2082,13 @@ Whole_program::visit_foreach_reset (Statement_block* bb, MIR::Foreach_reset* in)
 }
 
 void
+Whole_program::visit_foreach_next (Statement_block*, MIR::Foreach_next*)
+{
+	phc_TODO ();
+}
+
+
+void
 Whole_program::visit_foreach_end (Statement_block* bb, MIR::Foreach_end* in)
 {
 	string ns = block_cx->symtable_name ();
@@ -2047,39 +2107,14 @@ Whole_program::visit_foreach_end (Statement_block* bb, MIR::Foreach_end* in)
 
 
 void
-Whole_program::visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
-{
-	visit_expr (bb, in->expr);
-}
-
-void
-Whole_program::visit_unset (Statement_block* bb, MIR::Unset* in)
+Whole_program::visit_global (Statement_block* bb, MIR::Global* in)
 {
 	string ns = block_cx->symtable_name ();
 
-	// FYI, unset ($x[$y]), where $x is not set, does nothing. Therefore,
-	// RHS_BY_REF does not need to be set for the call the get_named_indices.
-	Index_node_list* indices = get_named_indices (block_cx, P (ns, in));
-
-	// Send the results to the analyses for all variables which could be
-	// overwritten.
-	
-	// TODO: This is wrong - we can't kill if we don't refer to just one block.
-	// It's really a may-kill.
-	foreach (Index_node* index, *indices)
-	{
-		FWPA->kill_value (block_cx, index, true);
-	}
+	assign_path_by_ref (block_cx,
+			P (ns, in->variable_name),
+			P (main_scope, in->variable_name));
 }
-
-void
-Whole_program::visit_branch_block (Branch_block* bb)
-{
-	string ns = block_cx->symtable_name ();
-
-	record_use (block_cx, VN (ns, bb->branch->variable_name));
-}
-
 
 void
 Whole_program::visit_pre_op (Statement_block* bb, Pre_op* in)
@@ -2106,62 +2141,7 @@ Whole_program::visit_pre_op (Statement_block* bb, Pre_op* in)
 	assign_path_typed (block_cx, path, types);
 }
 
-void
-Whole_program::visit_assign_field (Statement_block*, MIR::Assign_field*)
-{
-	phc_TODO ();
-}
 
-void
-Whole_program::visit_assign_var_var (Statement_block* bb, MIR::Assign_var_var* in)
-{
-	string ns = block_cx->symtable_name ();
-	Path* lhs = P (ns, in);
-
-	if (isa<Literal> (in->rhs))
-	{
-		assign_path_scalar (block_cx, lhs, dyc<Literal> (in->rhs));
-	}
-	else
-	{
-		Path* rhs = P (ns, in->rhs);
-
-		if (in->is_ref)
-			assign_path_by_ref (block_cx, lhs, rhs);
-		else
-			assign_path_by_copy (block_cx, lhs, rhs);
-	}
-}
-
-void
-Whole_program::visit_foreach_next (Statement_block*, MIR::Foreach_next*)
-{
-	phc_TODO ();
-}
-
-void
-Whole_program::visit_assign_next (Statement_block* bb, MIR::Assign_next* in)
-{
-	string ns = block_cx->symtable_name ();
-
-	// TODO: _next_ is one larger than the largest positive integer element
-
-	Path* lhs = P (ns, in);
-
-	if (isa<Literal> (in->rhs))
-	{
-		assign_path_scalar (block_cx, lhs, dyc<Literal> (in->rhs));
-	}
-	else
-	{
-		Path* rhs = P (ns, in->rhs);
-
-		if (in->is_ref)
-			assign_path_by_ref (block_cx, lhs, rhs);
-		else
-			assign_path_by_copy (block_cx, lhs, rhs);
-	}
-}
 
 void
 Whole_program::visit_return (Statement_block* bb, MIR::Return* in)
@@ -2192,6 +2172,29 @@ Whole_program::visit_try (Statement_block*, MIR::Try*)
 {
 	phc_TODO ();
 }
+
+void
+Whole_program::visit_unset (Statement_block* bb, MIR::Unset* in)
+{
+	string ns = block_cx->symtable_name ();
+
+	// FYI, unset ($x[$y]), where $x is not set, does nothing. Therefore,
+	// RHS_BY_REF does not need to be set for the call the get_named_indices.
+	Index_node_list* indices = get_named_indices (block_cx, P (ns, in));
+
+	// Send the results to the analyses for all variables which could be
+	// overwritten.
+	
+	// TODO: This is wrong - we can't kill if we don't refer to just one block.
+	// It's really a may-kill.
+	foreach (Index_node* index, *indices)
+	{
+		FWPA->kill_value (block_cx, index, true);
+	}
+}
+
+
+
 
 /*
  * Assign_vars from here
@@ -2250,9 +2253,8 @@ Whole_program::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 }
 
 
-
 void
-Whole_program::visit_array_access (Statement_block* bb, MIR::Array_access* in)
+Whole_program::standard_rhs (Basic_block* bb, MIR::Node* in)
 {
 	string ns = block_cx->symtable_name ();
 	Path* path = P (ns, in);
@@ -2261,6 +2263,14 @@ Whole_program::visit_array_access (Statement_block* bb, MIR::Array_access* in)
 		assign_path_by_ref (block_cx, saved_plhs, path);
 	else
 		assign_path_by_copy (block_cx, saved_plhs, path);
+}
+
+
+
+void
+Whole_program::visit_array_access (Statement_block* bb, MIR::Array_access* in)
+{
+	standard_rhs (bb, in);
 }
 
 void
@@ -2288,21 +2298,6 @@ Whole_program::visit_bin_op (Statement_block* bb, MIR::Bin_op* in)
 
 	Types* types = values->get_bin_op_types (block_cx, left, right, *in->op->value);
 	assign_path_typed (block_cx, saved_plhs, types);
-}
-
-Abstract_value*
-Whole_program::get_abstract_value (Context* cx, MIR::Rvalue* rval)
-{
-	string ns = cx->symtable_name ();
-
-	if (isa<Literal> (rval))
-		return new Abstract_value (dyc<Literal> (rval));
-
-	// The variables are not expected to already have the same value. Perhaps
-	// there was an assignment to $x[0], and we are accessing $x[$i].
-	Index_node* index = VN (ns, dyc<VARIABLE_NAME> (rval));
-
-	return get_abstract_value (cx, index->name ());
 }
 
 void
@@ -2477,23 +2472,11 @@ Whole_program::visit_unary_op (Statement_block* bb, MIR::Unary_op* in)
 void
 Whole_program::visit_variable_name (Statement_block* bb, MIR::VARIABLE_NAME* in)
 {
-	string ns = block_cx->symtable_name ();
-	Path* path = P (ns, in);
-
-	if (saved_is_ref)
-		assign_path_by_ref (block_cx, saved_plhs, path);
-	else
-		assign_path_by_copy (block_cx, saved_plhs, path);
+	standard_rhs (bb, in);
 }
 
 void
 Whole_program::visit_variable_variable (Statement_block* bb, MIR::Variable_variable* in)
 {
-	string ns = block_cx->symtable_name ();
-	Path* path = P (ns, in);
-
-	if (saved_is_ref)
-		assign_path_by_ref (block_cx, saved_plhs, path);
-	else
-		assign_path_by_copy (block_cx, saved_plhs, path);
+	standard_rhs (bb, in);
 }
