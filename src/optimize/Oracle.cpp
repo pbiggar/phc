@@ -112,3 +112,18 @@ Oracle::add_class_info (Class_info* info)
 
 	classes[*info->name] = info;
 }
+
+Class_info*
+Oracle::get_class_info (String* name)
+{
+	if (not classes.has (*name))
+		phc_TODO ();
+
+	return classes[*name];
+}
+
+User_class_info*
+Oracle::get_user_class_info (String* name)
+{
+	return dynamic_cast<User_class_info*> (get_class_info (name));
+}

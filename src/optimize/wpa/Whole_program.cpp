@@ -363,20 +363,35 @@ Whole_program::get_possible_receivers (Target* target, Method_name* method_name)
 {
 	Method_info_list* result = new Method_info_list;
 
-	// If there is a target or a variable_method, there may be > 1 methods that
-	// match it.
-	if (target)
-		phc_TODO ();
-
 	if (isa<Variable_method> (method_name))
 		phc_TODO ();
 
 	String* name = dyc<METHOD_NAME> (method_name)->value;
+	Method_info* info;
 
-	// This assumes there is only 1 function of that name, which is true. If
-	// there are multiple versions, they are lowered to different names before
-	// MIR.
-	Method_info* info = Oracle::get_method_info (name);
+	// If there is a target or a variable_method, there may be > 1 methods that
+	// match it.
+	if (target)
+	{
+		if (CLASS_NAME* classname = dynamic_cast<CLASS_NAME*> (target))
+		{
+			User_class_info* classinfo = Oracle::get_user_class_info (classname->value);
+			if (info == NULL)
+				phc_TODO ();
+
+			info = classinfo->get_method_info (name);
+		}
+		else
+			phc_TODO ();
+	}
+	else
+	{
+		// This assumes there is only 1 function of that name, which is true. If
+		// there are multiple versions, they are lowered to different names before
+		// MIR.
+		info = Oracle::get_method_info (name);
+	}
+
 	if (info == NULL)
 		phc_TODO ();
 
@@ -385,6 +400,46 @@ Whole_program::get_possible_receivers (Target* target, Method_name* method_name)
 	assert (result->size () > 0);
 
 	return result;	
+}
+
+void
+Whole_program::instantiate_object (New* in, Context* caller_cx, MIR::VARIABLE_NAME* self)
+{
+	if (isa<Variable_class> (in->class_name))
+		phc_TODO ();
+
+	CLASS_NAME* class_name = dyc<CLASS_NAME> (in->class_name);
+
+	assign_path_empty_object (block_cx, saved_plhs, *class_name->value);
+
+	Class_info* class_info = Oracle::get_class_info (class_name->value);
+
+
+	// TODO: assign members
+
+
+	// Find the constructor
+	Method_info* constructor = class_info->get_method_info (s("__construct"), false);
+
+	// Look for the old-style constructor
+	if (constructor == NULL)
+		constructor = class_info->get_method_info (class_name->value, false);
+
+	// If there isn't a constructor, ignore it.
+	if (constructor)
+	{
+		// Make $this explicit
+		Actual_parameter_list* params = in->actual_parameters->clone ();
+		params->push_front (new Actual_parameter (false, self));
+
+		invoke_method (
+				new Method_invocation (
+					class_name, 
+					new METHOD_NAME (constructor->name),
+					params), 
+				caller_cx,
+				NULL);
+	}
 }
 
 void
@@ -2342,23 +2397,11 @@ Whole_program::visit_new (Statement_block* bb, MIR::New* in)
 	if (saved_plhs == NULL)
 		phc_TODO ();
 
+	// This will be easy - just kill the LHS references.
 	if (saved_is_ref)
 		phc_TODO ();
 
-	if (isa<Variable_class> (in->class_name))
-		phc_TODO ();
-
-	CLASS_NAME* class_name = dyc<CLASS_NAME> (in->class_name);
-
-	assign_path_empty_object (block_cx, saved_plhs, *class_name->value);
-
-	invoke_method (
-		new Method_invocation (
-			class_name, 
-			new METHOD_NAME (s("__construct")), 
-			in->actual_parameters), 
-		block_cx,
-		NULL);
+	instantiate_object (in, block_cx, saved_lhs);
 }
 
 void

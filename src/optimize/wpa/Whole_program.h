@@ -120,6 +120,10 @@ public:
 							  Context* caller_cx,
 							  MIR::VARIABLE_NAME* lhs);
 
+	void instantiate_object (MIR::New* in,
+							  Context* caller_cx,
+							  MIR::VARIABLE_NAME* self);
+
 	Method_info_list* get_possible_receivers (MIR::Target*, MIR::Method_name*);
 	Method_info_list* get_possible_receivers (MIR::Param_is_ref*);
 	Method_info_list* get_possible_receivers (MIR::Method_invocation*);

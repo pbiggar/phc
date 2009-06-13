@@ -9,6 +9,7 @@
 #define PHC_CLASS_INFO_H
 
 DECL (Class_info);
+DECL (Method_info);
 
 class Whole_program;
 class String;
@@ -20,6 +21,8 @@ public:
 
 	// TODO: what would we use this for?
 	virtual bool has_implementation () = 0;
+
+	virtual Method_info* get_method_info (String* name, bool search = true) = 0;
 
 	// TODO: the most important thing to model is handlers
 
@@ -34,10 +37,13 @@ public:
 
 private:
 
-	friend class Whole_program;
+	Map<string, Method_info*> methods;
+
 
 public:
 	User_class_info (MIR::Class_def* implementation);
+
+	virtual Method_info* get_method_info (String* name, bool search = true);
 
 	bool has_implementation ();
 
