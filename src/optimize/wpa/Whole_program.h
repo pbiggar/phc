@@ -189,6 +189,7 @@ public:
 	void assign_path_by_copy (Context* cx, Path* lhs, Path* rhs);
 	void assign_path_value (Context* cx, Path* lhs, Storage_node* st);
 	string assign_path_empty_array (Context* cx, Path* lhs, string name = "");
+	string assign_path_empty_object (Context* cx, Path* lhs, string type, string name = "");
 
 	// Most pesimistic case
 	void ruin_everything (Context* cx, Path* path);

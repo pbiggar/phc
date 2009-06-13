@@ -1295,6 +1295,15 @@ Whole_program::assign_path_empty_array (Context* cx, Path* plhs, string name)
 	return st->storage; // which might not be NAME, if NAME uses the default value.
 }
 
+string
+Whole_program::assign_path_empty_object (Context* cx, Path* plhs, string type, string name) 
+{
+	// Assign the value to all referenced names.
+	Storage_node* st = create_empty_storage (cx, type, name);
+	assign_path_value (cx, plhs, st);
+	return st->storage; // which might not be NAME, if NAME uses the default value.
+}
+
 void
 Whole_program::assign_path_unknown (Context* cx, Path* plhs)
 {
@@ -2336,10 +2345,20 @@ Whole_program::visit_new (Statement_block* bb, MIR::New* in)
 	if (saved_is_ref)
 		phc_TODO ();
 
-	phc_TODO ();
-//assign_path_empty_array (block_cx, saved_plhs);
+	if (isa<Variable_class> (in->class_name))
+		phc_TODO ();
 
-	// TODO: call the constructor
+	CLASS_NAME* class_name = dyc<CLASS_NAME> (in->class_name);
+
+	assign_path_empty_object (block_cx, saved_plhs, *class_name->value);
+
+	invoke_method (
+		new Method_invocation (
+			class_name, 
+			new METHOD_NAME (s("__construct")), 
+			in->actual_parameters), 
+		block_cx,
+		NULL);
 }
 
 void
