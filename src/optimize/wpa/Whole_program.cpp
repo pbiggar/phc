@@ -1401,6 +1401,14 @@ Whole_program::copy_value (Context* cx, Index_node* lhs, Index_node* rhs)
 	// OK, its not a scalar. Carry on.
 	DEBUG ("copy_value");
 
+	// TODO: out of place
+	if (!aliasing->has_field (cx, rhs))
+	{
+		rhs = new Index_node (rhs->storage, UNKNOWN);
+	}
+
+	assert (aliasing->has_field (cx, rhs));
+
 	record_use (cx, rhs);
 
 	// Get the value for each RHS. Copy it using the correct semantics.
