@@ -34,9 +34,9 @@ Index_node* FN (string scope, MIR::FIELD_NAME*);
 //Index_node* AN (string scope, string array_index); TODO arrays
 
 Value_node* SCLVAL (Index_node* node);
-Storage_node* CX_array_node (Context cx);
-Storage_node* CX_object_node (Context cx);
-Storage_node* CX_symtable_node (Context cx);
+Storage_node* CX_array_node (Context* cx);
+Storage_node* CX_object_node (Context* cx);
+Storage_node* CX_symtable_node (Context* cx);
 
 
 
@@ -538,12 +538,12 @@ public:
 	 */
 
 	bool equals (Points_to* other);
-	void dump_graphviz (String* label, Context cx, Whole_program* wp);
+	void dump_graphviz (String* label, Context* cx, Whole_program* wp);
 
 	Points_to* clone();
 	Points_to* merge (Points_to* other);
 
-	void consistency_check (Context cx, Whole_program* wp);
+	void consistency_check (Context* cx, Whole_program* wp);
 
 
 	static Index_node_list* get_possible_nulls (List<Points_to*>* graphs);

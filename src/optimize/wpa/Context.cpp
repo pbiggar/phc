@@ -19,63 +19,63 @@ Context::Context()
 {
 }
 
-Context
+Context* 
 Context::outer (Basic_block* bb)
 {
 	// Contextual, but only has the outer BB
-	Context result;
-	result.BBs.push_back (bb);
-	result.BB_counts[bb]++;
-	result.use_caller = true;
+	Context* result = new Context;
+	result->BBs.push_back (bb);
+	result->BB_counts[bb]++;
+	result->use_caller = true;
 	return result;
 }
-Context
+Context* 
 Context::non_contextual (Basic_block* bb)
 {
-	Context result;
-	result.BBs.push_back (bb);
-	result.BB_counts[bb]++;
-	result.use_caller = false;
+	Context* result = new Context;
+	result->BBs.push_back (bb);
+	result->BB_counts[bb]++;
+	result->use_caller = false;
 	return result;
 }
 
-Context
-Context::contextual (Context caller, Basic_block* bb)
+Context* 
+Context::contextual (Context* caller, Basic_block* bb)
 {
-	Context result;
-	result.BBs = caller.BBs;
-	result.BB_counts = caller.BB_counts;
-	result.use_caller = true;
+	Context* result = new Context;
+	result->BBs = caller->BBs;
+	result->BB_counts = caller->BB_counts;
+	result->use_caller = true;
 
-	result.BBs.push_back (bb);
-	result.BB_counts[bb]++;
+	result->BBs.push_back (bb);
+	result->BB_counts[bb]++;
 
 	return result;
 }
 
 // Use PEER's caller
-Context
-Context::as_peer (Context peer, Basic_block* bb)
+Context* 
+Context::as_peer (Context* peer, Basic_block* bb)
 {
-	return Context::contextual (peer.caller(), bb);
+	return Context::contextual (peer->caller(), bb);
 }
 
-Context
+Context* 
 Context::caller ()
 {
 	assert (this->use_caller);
 
-	Context result = *this;
-	result.cached_name = NULL;
+	Context* result = new Context (*this);
+	result->cached_name = NULL;
 
-	Basic_block* popped = result.BBs.back ();
-	result.BBs.pop_back ();
-	result.BB_counts[popped]--;
+	Basic_block* popped = result->BBs.back ();
+	result->BBs.pop_back ();
+	result->BB_counts[popped]--;
 
 	return result;
 }
 
-Context
+Context* 
 Context::get_non_contextual ()
 {
 	assert (this->use_caller);
@@ -92,6 +92,12 @@ bool
 Context::is_outer ()
 {
 	return get_bb ()->ID == 0;
+}
+
+bool
+Context::empty ()
+{
+	return BBs.empty ();
 }
 
 bool
@@ -177,7 +183,7 @@ string
 Context::symtable_name ()
 {
 	if (this->use_caller)
-		return *get_bb()->cfg->method->signature->method_name->value + "_" + this->caller().name();
+		return *get_bb()->cfg->method->signature->method_name->value + "_" + this->caller ()->name();
 	else
 		return *get_bb()->cfg->method->signature->method_name->value + "_";
 }

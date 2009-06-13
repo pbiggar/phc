@@ -327,7 +327,7 @@ string print_pair (E* edge, string label)
 
 
 void
-Points_to::dump_graphviz (String* label, Context cx, Whole_program* wp)
+Points_to::dump_graphviz (String* label, Context* cx, Whole_program* wp)
 {
 	if (label == NULL)
 	{
@@ -435,7 +435,7 @@ Points_to::clone ()
 }
 
 void
-Points_to::consistency_check (Context cx, Whole_program* wp)
+Points_to::consistency_check (Context* cx, Whole_program* wp)
 {
 	foreach (Index_node* index, *this->get_index_nodes ())
 	{

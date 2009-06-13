@@ -31,11 +31,11 @@ public:
 	/*
 	 * WPA
 	 */
-	void init (Context outer)
+	void init (Context* outer)
 	{
 	}
 
-	void forward_bind (Context caller, Context entry)
+	void forward_bind (Context* caller, Context* entry)
 	{
 		// We dont clear anything, since we want the results to be monotonic in the
 		// presence of recursion.
@@ -45,7 +45,7 @@ public:
 		init_outs (entry);
 	}
 
-	void backward_bind (Context caller, Context exit)
+	void backward_bind (Context* caller, Context* exit)
 	{
 		/*
 		 * During a backward_bind, we need to merge back results from the callee.
@@ -105,13 +105,13 @@ public:
 	 *	Pioli avoided all this by doing flow-insensitive analysis. I'm sure its
 	 *	doable, but not a priority.
 	 */
-	void kill_value (Context cx, Index_node* lhs, bool also_kill_refs)
+	void kill_value (Context* cx, Index_node* lhs, bool also_kill_refs)
 	{
 		outs[cx][lhs->name().str()] = Cell_type::TOP;
 		outs[cx][SCLVAL (lhs)->name().str()] = Cell_type::TOP;
 	}
 
-	void assign_value (Context cx, Index_node* lhs, Storage_node* storage)
+	void assign_value (Context* cx, Index_node* lhs, Storage_node* storage)
 	{
 		Lattice_type& lat = outs[cx];
 		string name = lhs->name().str();
@@ -119,30 +119,30 @@ public:
 	}
 
 
-	void pull_init (Context cx)
+	void pull_init (Context* cx)
 	{
 		changed_flags[cx] = false;
 		ins[cx].clear ();
 	}
 
-	void pull_first_pred (Context cx, Context pred)
+	void pull_first_pred (Context* cx, Context* pred)
 	{
 		ins[cx].merge (&outs[pred]);
 	}
 
-	void pull_pred (Context cx, Context pred)
+	void pull_pred (Context* cx, Context* pred)
 	{
 		ins[cx].merge (&outs[pred]);
 	}
 
-	void pull_possible_null (Context cx, Index_node* node) = 0;
+	void pull_possible_null (Context* cx, Index_node* node) = 0;
 
-	void pull_finish (Context cx)
+	void pull_finish (Context* cx)
 	{
 		init_outs (cx);
 	}
 
-	void aggregate_results (Context cx)
+	void aggregate_results (Context* cx)
 	{
 		// Set solution_changed
 		changed_flags[cx] = !outs[cx].equals (&clones[cx]);
@@ -158,7 +158,7 @@ public:
 			&& this->outs.equals (&other->outs);
 	}
 
-	void dump (Context cx, string comment)
+	void dump (Context* cx, string comment)
 	{
 		ins.dump (cx, "IN");
 		outs.dump (cx, "OUT");
@@ -172,7 +172,7 @@ public:
 
 	void merge_contexts ()
 	{
-		Context cx;
+		Context* cx;
 		Lattice_type m;
 		Lattice_type& map = m; // grrrr
 
@@ -196,7 +196,7 @@ public:
 			}
 
 			// The context needs to change names too.
-			new_ins[cx.get_non_contextual ()].merge (&newmap);
+			new_ins[cx->get_non_contextual ()].merge (&newmap);
 		}
 		ins = new_ins;
 
@@ -218,20 +218,20 @@ public:
 			}
 
 			// The context needs to change names too.
-			new_outs[cx.get_non_contextual ()].merge (&newmap);
+			new_outs[cx->get_non_contextual ()].merge (&newmap);
 		}
 		outs = new_outs;
 
 	}
 
 	// Get results
-	Cell_type* get_value (Context cx, Alias_name name)
+	Cell_type* get_value (Context* cx, Alias_name name)
 	{
 		return outs[cx][name.str()];
 	}
 
 private:
-	void init_outs (Context cx)
+	void init_outs (Context* cx)
 	{
 		outs[cx] = ins[cx];
 	}

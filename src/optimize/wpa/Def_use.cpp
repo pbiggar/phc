@@ -141,7 +141,7 @@ string debug_name (reftype rt, deftype dt)
 
 
 void
-Def_use::dump_set (Context cx, reftype rt, deftype dt)
+Def_use::dump_set (Context* cx, reftype rt, deftype dt)
 {
 	string set_name = debug_name (rt, dt);
 	if (maps[cx][rt][dt].size())
@@ -156,7 +156,7 @@ Def_use::dump_set (Context cx, reftype rt, deftype dt)
 }
 
 void
-Def_use::dump (Context cx, string comment)
+Def_use::dump (Context* cx, string comment)
 {
 	// Print out the results for existing BBs (done this way so that IN and OUT
 	// results are presented together).
@@ -164,7 +164,7 @@ Def_use::dump (Context cx, string comment)
 		dump_set (cx, rt, dt);
 
 
-	string st_name = cx.symtable_name ();
+	string st_name = cx->symtable_name ();
 	foreach_rtdt
 	{
 		string set_name = debug_name (rt, dt);
@@ -183,7 +183,7 @@ Def_use::dump (Context cx, string comment)
 void
 Def_use::dump_everything (string comment)
 {
-	foreach (Context cx, *maps.keys ())
+	foreach (Context* cx, *maps.keys ())
 		dump (cx, comment);
 }
 
@@ -192,7 +192,7 @@ Def_use::dump_everything (string comment)
  */
 
 void
-Def_use::create_reference (Context cx, Index_node* lhs, Index_node* rhs, Certainty cert)
+Def_use::create_reference (Context* cx, Index_node* lhs, Index_node* rhs, Certainty cert)
 {
 	// A may-ref is a must-def with no killing
 	if (has (cx, REF, DEF, lhs))
@@ -206,7 +206,7 @@ Def_use::create_reference (Context cx, Index_node* lhs, Index_node* rhs, Certain
  * Value
  */
 void
-Def_use::kill_value (Context cx, Index_node* lhs, bool also_kill_refs)
+Def_use::kill_value (Context* cx, Index_node* lhs, bool also_kill_refs)
 {
 	record (cx, VAL, DEF, lhs);
 	record (cx, REF, USE, lhs);
@@ -216,7 +216,7 @@ Def_use::kill_value (Context cx, Index_node* lhs, bool also_kill_refs)
 }
 
 void
-Def_use::assign_value (Context cx, Index_node* lhs, Storage_node* storage_name)
+Def_use::assign_value (Context* cx, Index_node* lhs, Storage_node* storage_name)
 {
 	if (not has (cx, VAL, DEF, lhs))
 		record (cx, VAL, MAYDEF, lhs);
@@ -227,7 +227,7 @@ Def_use::assign_value (Context cx, Index_node* lhs, Storage_node* storage_name)
 
 
 void
-Def_use::record_use (Context cx, Index_node* use, Certainty cert)
+Def_use::record_use (Context* cx, Index_node* use, Certainty cert)
 {
 	record (cx, REF, USE, use);
 	record (cx, VAL, USE, use);
@@ -235,13 +235,13 @@ Def_use::record_use (Context cx, Index_node* use, Certainty cert)
 
 
 void
-Def_use::record (Context cx, reftype rt, deftype dt, Index_node* index)
+Def_use::record (Context* cx, reftype rt, deftype dt, Index_node* index)
 {
 	maps[cx][rt][dt].insert (index->name ());
 }
 
 bool
-Def_use::has (Context cx, reftype rt, deftype dt, Index_node* index)
+Def_use::has (Context* cx, reftype rt, deftype dt, Index_node* index)
 {
 	return maps[cx][rt][dt].has (index->name ());
 }
@@ -255,16 +255,16 @@ Def_use::has (Context cx, reftype rt, deftype dt, Index_node* index)
 
 
 bool 
-in_scope (Context cx, Alias_name& name)
+in_scope (Context* cx, Alias_name& name)
 {
 	// Index_node alias_names put the name of the symtable as the prefix.
-	return name.prefix == cx.symtable_node ()->for_index_node ();
+	return name.prefix == cx->symtable_node ()->for_index_node ();
 }
 
 void
-Def_use::aggregate_results (Context cx)
+Def_use::aggregate_results (Context* cx)
 {
-	string symtable = cx.symtable_name ();
+	string symtable = cx->symtable_name ();
 
 	// All defs/uses which are out of scope must be recorded in the function
 	// summary.
@@ -286,7 +286,7 @@ Def_use::aggregate_results (Context cx)
 
 		foreach (Alias_name name, maps[cx][rt][dt])
 		{
-			Context exit_cx = Context::as_peer (cx, cx.get_bb()->cfg->get_exit_bb ());
+			Context* exit_cx = Context::as_peer (cx, cx->get_bb()->cfg->get_exit_bb ());
 			if (not in_scope (cx, name))
 				maps[exit_cx][rt][USE].insert (name);
 		}
@@ -297,9 +297,9 @@ void
 Def_use::merge_contexts ()
 {
 	// TODO: fix storage_nodes in summary_*
-	foreach (Context cx, *maps.keys ())
+	foreach (Context* cx, *maps.keys ())
 	{
-		Context new_cx = cx.get_non_contextual ();
+		Context* new_cx = cx->get_non_contextual ();
 		foreach_dtrt
 		{
 			foreach (Alias_name name, maps[cx][rt][dt])
@@ -309,9 +309,9 @@ Def_use::merge_contexts ()
 }
 
 void
-Def_use::backward_bind (Context caller, Context exit)
+Def_use::backward_bind (Context* caller, Context* exit)
 {
-	string st_name = exit.symtable_name ();
+	string st_name = exit->symtable_name ();
 	foreach_dtrt
 	{
 		Set<Alias_name>& set = summary_maps[st_name][rt][dt];
@@ -323,7 +323,7 @@ Alias_name_list*
 Def_use::get_alias_name (Basic_block* bb, deftype dt)
 {
 	Alias_name_list* result = new Alias_name_list;
-	Context cx = Context::non_contextual (bb);
+	Context* cx = Context::non_contextual (bb);
 
 	foreach (Alias_name name, maps[cx][VAL][dt])
 		result->push_back (new Alias_name (name.prefix, "*_" + name.name));

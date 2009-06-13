@@ -25,32 +25,32 @@ public:
 	 * WPA interface
 	 */
 
-	void set_storage (Context cx, Storage_node* storage, Types* types);
-	void set_scalar (Context cx, Value_node* storage, Abstract_value* val);
-	void pull_possible_null (Context cx, Index_node* node);
+	void set_storage (Context* cx, Storage_node* storage, Types* types);
+	void set_scalar (Context* cx, Value_node* storage, Abstract_value* val);
+	void pull_possible_null (Context* cx, Index_node* node);
 
 
 	/*
 	 * Literals
 	 */
 
-	MIR::Literal* get_lit (Context cx, Alias_name name);
+	MIR::Literal* get_lit (Context* cx, Alias_name name);
 
 	/*
 	 * Types
 	 */
 
-	Types* get_types (Context cx, Alias_name name);
+	Types* get_types (Context* cx, Alias_name name);
 
 
-	static Types* get_bin_op_types (	Context cx,
+	static Types* get_bin_op_types (	Context* cx,
 												Abstract_value* left,
 												Abstract_value* right,
 												string op);
 
 	static Types* get_bin_op_type (string left, string right, string op);
 
-	static Types* get_unary_op_types (Context cx, Abstract_value* operand, string op);
+	static Types* get_unary_op_types (Context* cx, Abstract_value* operand, string op);
 };
 
 

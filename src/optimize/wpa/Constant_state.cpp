@@ -19,7 +19,7 @@ Constant_state::Constant_state (Whole_program* wp)
 // TODO: can be case-insensitive
 
 void
-Constant_state::set_constant (Context cx, string name, Abstract_value* value)
+Constant_state::set_constant (Context* cx, string name, Abstract_value* value)
 {
 	// Should be handled in Whole_program.
 	assert (not is_constant_defined (cx, name));
@@ -28,7 +28,7 @@ Constant_state::set_constant (Context cx, string name, Abstract_value* value)
 }
 
 bool
-Constant_state::is_constant_defined (Context cx, string name)
+Constant_state::is_constant_defined (Context* cx, string name)
 {
 	if (outs[cx].has (name))
 		return true;
@@ -41,13 +41,13 @@ Constant_state::is_constant_defined (Context cx, string name)
 }
 
 void
-Constant_state::set_unknown_constant (Context cx, Abstract_value* value)
+Constant_state::set_unknown_constant (Context* cx, Abstract_value* value)
 {
 	phc_TODO ();
 }
 
 Abstract_value*
-Constant_state::get_constant (Context cx, string name)
+Constant_state::get_constant (Context* cx, string name)
 {
 	// TODO: check for unknown constants
 	if (not is_constant_defined (cx, name))

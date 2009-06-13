@@ -27,7 +27,7 @@ Value_analysis::Value_analysis (Whole_program* wp)
 
 
 void
-Value_analysis::set_storage (Context cx, Storage_node* storage, Types* types)
+Value_analysis::set_storage (Context* cx, Storage_node* storage, Types* types)
 {
 	Lattice_type& lat = outs[cx];
 	string name = storage->name().str();
@@ -36,7 +36,7 @@ Value_analysis::set_storage (Context cx, Storage_node* storage, Types* types)
 }
 
 void
-Value_analysis::set_scalar (Context cx, Value_node* storage, Abstract_value* val)
+Value_analysis::set_scalar (Context* cx, Value_node* storage, Abstract_value* val)
 {
 	Lattice_type& lat = outs[cx];
 	string name = storage->name().str();
@@ -45,7 +45,7 @@ Value_analysis::set_scalar (Context cx, Value_node* storage, Abstract_value* val
 }
 
 void
-Value_analysis::pull_possible_null (Context cx, Index_node* index)
+Value_analysis::pull_possible_null (Context* cx, Index_node* index)
 {
 	Lattice_type& lat = ins[cx];
 
@@ -64,7 +64,7 @@ Value_analysis::pull_possible_null (Context cx, Index_node* index)
  */
 
 MIR::Literal*
-Value_analysis::get_lit (Context cx, Alias_name name)
+Value_analysis::get_lit (Context* cx, Alias_name name)
 {
 	return get_value (cx, name)->value->lit;
 }
@@ -74,7 +74,7 @@ Value_analysis::get_lit (Context cx, Alias_name name)
  */
 
 Types*
-Value_analysis::get_types (Context cx, Alias_name name)
+Value_analysis::get_types (Context* cx, Alias_name name)
 {
 	return get_value (cx, name)->value->types;
 }
@@ -82,7 +82,7 @@ Value_analysis::get_types (Context cx, Alias_name name)
 
 
 Types*
-Value_analysis::get_bin_op_types (Context cx, Abstract_value* left, Abstract_value* right, string op)
+Value_analysis::get_bin_op_types (Context* cx, Abstract_value* left, Abstract_value* right, string op)
 {
 	if (left->types == NULL || right->types == NULL)
 		phc_TODO ();
@@ -184,7 +184,7 @@ Value_analysis::get_bin_op_type (string ltype, string rtype, string op)
 }
 
 Types*
-Value_analysis::get_unary_op_types (Context cx, Abstract_value* operand, string op)
+Value_analysis::get_unary_op_types (Context* cx, Abstract_value* operand, string op)
 {
 	Set<string> always_bool_ops;
 	always_bool_ops.insert ("!");

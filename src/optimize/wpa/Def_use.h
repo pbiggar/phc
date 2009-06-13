@@ -26,26 +26,26 @@ class Def_use : public WPA
 public:
 	Def_use (Whole_program* wp);
 
-	void init (Context outer) {}
+	void init (Context* outer) {}
 
 
-	void create_reference (Context cx, Index_node* lhs,
+	void create_reference (Context* cx, Index_node* lhs,
 								 Index_node* rhs, Certainty cert);
 
-	void assign_value (Context cx, Index_node* lhs, Storage_node* storage);
+	void assign_value (Context* cx, Index_node* lhs, Storage_node* storage);
 
-	void kill_value (Context cx, Index_node* lhs, bool also_kill_refs = false);
+	void kill_value (Context* cx, Index_node* lhs, bool also_kill_refs = false);
 
-	void record_use (Context cx, Index_node* use, Certainty cert);
+	void record_use (Context* cx, Index_node* use, Certainty cert);
 
 
-	void aggregate_results (Context cx);
+	void aggregate_results (Context* cx);
 
 	bool equals (WPA* other);
-	void dump (Context cx, string comment);
+	void dump (Context* cx, string comment);
 	void dump_everything (string comment);
 
-	void backward_bind (Context caller, Context exit);
+	void backward_bind (Context* caller, Context* exit);
 
 	void merge_contexts ();
 
@@ -60,11 +60,11 @@ private:
 private:
 
 
-	void dump_set (Context cx, reftype rt, deftype dt);
-	void record (Context cx, reftype rt, deftype dt, Index_node* index);
-	bool has (Context cx, reftype rt, deftype dt, Index_node* index);
+	void dump_set (Context* cx, reftype rt, deftype dt);
+	void record (Context* cx, reftype rt, deftype dt, Index_node* index);
+	bool has (Context* cx, reftype rt, deftype dt, Index_node* index);
 
-	Map<Context, Map<reftype, Map<deftype, Set<Alias_name> > > > maps;
+	CX_map<Map<reftype, Map<deftype, Set<Alias_name> > > > maps;
 
 	// The exit block gets a use for every non-local def. This prevents DCE from
 	// killing them.

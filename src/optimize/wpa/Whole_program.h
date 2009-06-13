@@ -117,7 +117,7 @@ public:
 	void register_analysis (string name, WPA* analysis);
 
 	void invoke_method (MIR::Method_invocation* in,
-							  Context caller_cx,
+							  Context* caller_cx,
 							  MIR::VARIABLE_NAME* lhs);
 
 	Method_info_list* get_possible_receivers (MIR::Target*, MIR::Method_name*);
@@ -139,84 +139,84 @@ public:
 	// Apply the interprocedural optimization results to this BB.
 
 	void analyse_method_info (Method_info* info,
-									  Context caller_cx,
+									  Context* caller_cx,
 									  MIR::Actual_parameter_list* actuals,
 									  MIR::VARIABLE_NAME* lhs);
 
 	void analyse_function (User_method_info* info,
-								  Context caller_cx,
+								  Context* caller_cx,
 								  MIR::Actual_parameter_list*,
 								  MIR::VARIABLE_NAME* lhs);
 
 	void analyse_summary (Summary_method_info* info,
-								 Context caller_cx,
+								 Context* caller_cx,
 							    MIR::Actual_parameter_list*,
 								 MIR::VARIABLE_NAME* lhs);
 
-	void apply_modelled_function (Summary_method_info* info, Context cx, Context caller_cx);
+	void apply_modelled_function (Summary_method_info* info, Context* cx, Context* caller_cx);
 
-	void init_superglobals (Context cx);
+	void init_superglobals (Context* cx);
 
 	/* Local analysis - calling other analyses */
-	void dump (Context cx, string comment);
+	void dump (Context* cx, string comment);
 
 
 	/*
 	 * Calls to the WPA modules.
 	 */
 	void forward_bind (Method_info* info,
-							 Context entry_cx,
+							 Context* entry_cx,
 							 MIR::Actual_parameter_list* actuals);
 
 	void backward_bind (Method_info* info,
-							  Context entry_cx,
+							  Context* entry_cx,
 							  MIR::VARIABLE_NAME* lhs);
 
 	// Performs points-to analysis, and call the other analyses with the
 	// results. Returns true if a solution has changed, requiring this block
 	// to be reanalysed.
-	bool analyse_block (Context cx);
-	void init_block (Context cx);
+	bool analyse_block (Context* cx);
+	void init_block (Context* cx);
 
 	/*
 	 * Assignments by paths (aka high-level)
 	 */
-	void assign_path_scalar (Context cx, Path* lhs, MIR::Literal* lit);
-	void assign_path_scalar (Context cx, Path* plhs, Abstract_value* absval);
-	void assign_path_unknown (Context cx, Path* lhs);
-	void assign_path_typed (Context cx, Path* lhs, Types* types);
-	void assign_path_by_ref (Context cx, Path* lhs, Path* rhs);
-	void assign_path_by_copy (Context cx, Path* lhs, Path* rhs);
-	void assign_path_value (Context cx, Path* lhs, Storage_node* st);
-	string assign_path_empty_array (Context cx, Path* lhs, string name = "");
+	void assign_path_scalar (Context* cx, Path* lhs, MIR::Literal* lit);
+	void assign_path_scalar (Context* cx, Path* plhs, Abstract_value* absval);
+	void assign_path_unknown (Context* cx, Path* lhs);
+	void assign_path_typed (Context* cx, Path* lhs, Types* types);
+	void assign_path_by_ref (Context* cx, Path* lhs, Path* rhs);
+	void assign_path_by_copy (Context* cx, Path* lhs, Path* rhs);
+	void assign_path_value (Context* cx, Path* lhs, Storage_node* st);
+	string assign_path_empty_array (Context* cx, Path* lhs, string name = "");
 
 	// Most pesimistic case
-	void ruin_everything (Context cx, Path* path);
+	void ruin_everything (Context* cx, Path* path);
 
 
 	/*
 	 * Assignments by by node (aka lower-level)
 	 */
 
-	void assign_absval (Context cx, Index_node* lhs, Abstract_value* absval);
-	Index_node* create_fake_index (Context cx);
-	void destroy_fake_index (Context cx);
+	void assign_absval (Context* cx, Index_node* lhs, Abstract_value* absval);
+	Index_node* create_fake_index (Context* cx);
+	void destroy_fake_index (Context* cx);
 
 	// If no name is provided, an anonymous name is chosen.
-	Storage_node* create_empty_storage (Context cx, string type, string name = "");
+	Storage_node* create_empty_storage (Context* cx, string type, string name = "");
 
 	// When copying data, we dont want to collapse stuff into a single array/object!
 	int storage_count;
 
 	// Copy the value from RHS to LHS.
-	void copy_value (Context cx, Index_node* lhs, Index_node* rhs);
+	void copy_value (Context* cx, Index_node* lhs, Index_node* rhs);
 
-	Index_node* check_owner_type (Context cx, Index_node* index);
-	Abstract_value* read_from_scalar_value (Context cx, Index_node* rhs);
+	Index_node* check_owner_type (Context* cx, Index_node* index);
+	Abstract_value* read_from_scalar_value (Context* cx, Index_node* rhs);
 
-	bool is_killable (Context cx, Index_node_list* indices);
+	bool is_killable (Context* cx, Index_node_list* indices);
 
-	
+
 	/*
 	 * These might be considered to belong elsewhere, but each of them needs to
 	 * some information which is not necessarily available to the analysis in
@@ -225,35 +225,35 @@ public:
 
 
 	// Get the value of node (can be UNKNOWN).
-	String* get_string_value (Context cx, Index_node* node);
+	String* get_string_value (Context* cx, Index_node* node);
 
-	Abstract_value* get_abstract_value (Context cx, Alias_name name);
+	Abstract_value* get_abstract_value (Context* cx, Alias_name name);
 
 	// Get all the possible names, and merge them.
-	Abstract_value* get_abstract_value (Context cx, MIR::Rvalue* rval);
+	Abstract_value* get_abstract_value (Context* cx, MIR::Rvalue* rval);
 
 	// Special case, get the input value.
-	Abstract_value* get_bb_in_abstract_value (Context cx, Alias_name name);
+	Abstract_value* get_bb_in_abstract_value (Context* cx, Alias_name name);
 
 	// PATH can refer to many nodes. Get the list of Index_nodes it points to.
 	// Set the RHS_BY_REF flag if PATH represents the RHS of an
 	// assignment-by-reference.
-	Index_node_list* get_named_indices (Context cx, Path* path, bool is_readonly = false);
-	Index_node_list* get_array_named_indices (Context cx, Path* lhs, String* index, bool is_readonly);
+	Index_node_list* get_named_indices (Context* cx, Path* path, bool is_readonly = false);
+	Index_node_list* get_array_named_indices (Context* cx, Path* lhs, String* index, bool is_readonly);
 
 	// Get anything the path can point to, and all nodes that they may reference.
-	Reference_list* get_lhs_references (Context cx, Path* path);
+	Reference_list* get_lhs_references (Context* cx, Path* path);
 
 
 	/*
 	 * End of Assignments
 	 */
 
-	Edge_list* get_successors (Context cx);
-	void pull_results (Context cx, BB_list* bbs);
-	Index_node_list* get_possible_nulls (List<Context>*);
+	Edge_list* get_successors (Context* cx);
+	void pull_results (Context* cx, BB_list* bbs);
+	Index_node_list* get_possible_nulls (List<Context*>*);
 
-	void record_use (Context cx, Index_node* node);
+	void record_use (Context* cx, Index_node* node);
 
 
 
@@ -262,7 +262,7 @@ public:
 	 * Actually perform analysis
 	 */
 
-	Context block_cx;
+	Context* block_cx;
 
 	void visit_branch_block (Branch_block*);
 

@@ -17,35 +17,35 @@ public:
 
 	Debug_WPA (Whole_program* wp);
 
-	void init (Context outer);
-	void forward_bind (Context caller, Context entry);
-	void backward_bind (Context caller, Context exit);
+	void init (Context* outer);
+	void forward_bind (Context* caller, Context* entry);
+	void backward_bind (Context* caller, Context* exit);
 
-	void create_reference (Context cx, Index_node* lhs,
+	void create_reference (Context* cx, Index_node* lhs,
 								 Index_node* rhs, Certainty cert);
 
-	void assign_value (Context cx, Index_node* lhs, Storage_node* storage);
+	void assign_value (Context* cx, Index_node* lhs, Storage_node* storage);
 
-	void set_storage (Context cx, Storage_node* storage, Types* types);
-	void set_scalar (Context cx, Value_node* storage, Abstract_value* val);
+	void set_storage (Context* cx, Storage_node* storage, Types* types);
+	void set_scalar (Context* cx, Value_node* storage, Abstract_value* val);
 
-	void kill_value (Context cx, Index_node* lhs, bool also_kill_refs = false);
+	void kill_value (Context* cx, Index_node* lhs, bool also_kill_refs = false);
 
-	void record_use (Context cx, Index_node* use, Certainty cert);
+	void record_use (Context* cx, Index_node* use, Certainty cert);
 	
 
-	void pull_init (Context cx);
-	void pull_first_pred (Context cx, Context pred);
-	void pull_pred (Context cx, Context pred);
-	void pull_possible_null (Context cx, Index_node* node);
-	void pull_finish (Context cx);
+	void pull_init (Context* cx);
+	void pull_first_pred (Context* cx, Context* pred);
+	void pull_pred (Context* cx, Context* pred);
+	void pull_possible_null (Context* cx, Index_node* node);
+	void pull_finish (Context* cx);
 
-	void aggregate_results (Context cx);
+	void aggregate_results (Context* cx);
 
-	bool solution_changed (Context cx);
+	bool solution_changed (Context* cx);
 
 	bool equals (WPA* other);
-	void dump (Context cx, string comment);
+	void dump (Context* cx, string comment);
 	void dump_everything (string comment);
 	void merge_contexts ();
 };

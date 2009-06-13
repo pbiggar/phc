@@ -29,45 +29,45 @@ DECL (Reference);
 class Aliasing : public WPA
 {
 	// Record 1 per program-point.
-	Map<Context, Points_to*> ins;
-	Map<Context, Points_to*> outs;
-	Map<Context, Points_to*> binder;
+	CX_map<Points_to*> ins;
+	CX_map<Points_to*> outs;
+	CX_map<Points_to*> binder;
 
 public:
 	Aliasing (Whole_program*);
 
 	// WPA interface
-	void init (Context outer);
-	void forward_bind (Context caller, Context entry);
+	void init (Context* outer);
+	void forward_bind (Context* caller, Context* entry);
 
-	void backward_bind (Context caller, Context exit);
+	void backward_bind (Context* caller, Context* exit);
 
-	void create_reference (Context cx, Index_node* lhs,
+	void create_reference (Context* cx, Index_node* lhs,
 								  Index_node* rhs, Certainty cert);
 
-	void assign_value (Context cx, Index_node* lhs, Storage_node* storage);
+	void assign_value (Context* cx, Index_node* lhs, Storage_node* storage);
 
 	// Create STORAGE, with the gives TYPES.
-	void set_storage (Context cx, Storage_node* storage, Types* types);
+	void set_storage (Context* cx, Storage_node* storage, Types* types);
 
 	// Create STORAGE, an abstract value with the given types.
-	void set_scalar (Context cx, Value_node* storage, Abstract_value* val);
+	void set_scalar (Context* cx, Value_node* storage, Abstract_value* val);
 
 
-	void kill_value (Context cx, Index_node* lhs, bool also_kill_refs = true);
+	void kill_value (Context* cx, Index_node* lhs, bool also_kill_refs = true);
 
 
-	void pull_init (Context cx);
-	void pull_first_pred (Context cx, Context pred);
-	void pull_pred (Context cx, Context pred);
-	void pull_possible_null (Context cx, Index_node* node);
-	void pull_finish (Context cx);
+	void pull_init (Context* cx);
+	void pull_first_pred (Context* cx, Context* pred);
+	void pull_pred (Context* cx, Context* pred);
+	void pull_possible_null (Context* cx, Index_node* node);
+	void pull_finish (Context* cx);
 
 
-	void aggregate_results (Context cx);
+	void aggregate_results (Context* cx);
 
 	bool equals (WPA* other);
-	void dump (Context cx, string comment);
+	void dump (Context* cx, string comment);
 	void dump_everything (string comment);
 
 	void merge_contexts ();
@@ -77,22 +77,22 @@ public:
 	 * Take information from Alias results
 	 */
 
-	Reference_list* get_references (Context cx, Index_node* index,
+	Reference_list* get_references (Context* cx, Index_node* index,
 												Certainty cert);
 
-	Index_node_list* get_fields (Context cx, Storage_node* storage);
+	Index_node_list* get_fields (Context* cx, Storage_node* storage);
 
-	Storage_node_list* get_points_to (Context cx, Index_node* index);
+	Storage_node_list* get_points_to (Context* cx, Index_node* index);
 
-	bool is_abstract (Context cx, Storage_node* st);
-	bool is_abstract_field (Context cx, Index_node* st);
+	bool is_abstract (Context* cx, Storage_node* st);
+	bool is_abstract_field (Context* cx, Index_node* st);
 
-	bool has_storage_node (Context cx, Storage_node* st);
-	bool has_field (Context cx, Index_node* ind);
+	bool has_storage_node (Context* cx, Storage_node* st);
+	bool has_field (Context* cx, Index_node* ind);
 
-	Storage_node_list* get_storage_nodes (Context cx);
+	Storage_node_list* get_storage_nodes (Context* cx);
 
-	Storage_node* get_owner (Context cx, Index_node* index);
+	Storage_node* get_owner (Context* cx, Index_node* index);
 };
 
 /* A Path is a way of representing some dereferencing. See Aliasing.cpp. */

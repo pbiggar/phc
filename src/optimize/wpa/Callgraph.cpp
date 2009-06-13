@@ -17,21 +17,21 @@ Callgraph::Callgraph (Whole_program* wp)
 }
 
 void
-Callgraph::init (Context outer)
+Callgraph::init (Context* outer)
 {
 }
 
 void
-Callgraph::forward_bind (Context caller_cx, Context entry_cx)
+Callgraph::forward_bind (Context* caller_cx, Context* entry_cx)
 {
 	string caller;
 
-	if (caller_cx.is_outer ())
+	if (caller_cx->is_outer ())
 		caller = "__OUTER__";
 	else
-		caller = *caller_cx.get_bb()->cfg->method->signature->method_name->value;
+		caller = *caller_cx->get_bb()->cfg->method->signature->method_name->value;
 
-	string callee = *entry_cx.get_bb()->cfg->method->signature->method_name->value;
+	string callee = *entry_cx->get_bb()->cfg->method->signature->method_name->value;
 
 	methods.insert (callee);
 	call_edges[caller].insert (callee);
@@ -89,13 +89,13 @@ Callgraph::equals (WPA* wpa)
 
 
 void
-Callgraph::dump (Context cx, string comment)
+Callgraph::dump (Context* cx, string comment)
 {
 	// Only dump on entry and exit
-	if (!isa<Entry_block> (cx.get_bb()) && !isa<Exit_block> (cx.get_bb()))
+	if (!isa<Entry_block> (cx->get_bb()) && !isa<Exit_block> (cx->get_bb()))
 		return;
 
-	dump_graphviz (s(cx.name () + ": " + comment));
+	dump_graphviz (s(cx->name () + ": " + comment));
 }
 
 void

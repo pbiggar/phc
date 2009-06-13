@@ -66,7 +66,7 @@ class WPA : virtual public GC_obj
 public:
 	Whole_program* wp;
 	string name;
-	Map<Context, bool> changed_flags;
+	CX_map<bool> changed_flags;
 
 	WPA (Whole_program* wp)
 	: wp (wp)
@@ -78,13 +78,13 @@ public:
 	 */
 
 	// Start the analysis off. OUTER is the context for __MAIN__'s caller.
-	virtual void init (Context outer) = 0;
+	virtual void init (Context* outer) = 0;
 
 	// Propagate caller results to the callee.
-	virtual void forward_bind (Context caller, Context entry) CT_IMPL;
+	virtual void forward_bind (Context* caller, Context* entry) CT_IMPL;
 
 	// Propagate callee results back to the caller.
-	virtual void backward_bind (Context caller, Context exit) CT_IMPL;
+	virtual void backward_bind (Context* caller, Context* exit) CT_IMPL;
 
 
 	/*
@@ -93,7 +93,7 @@ public:
 
 	// This creates a reference between lhs and rhs. Values are propagated
 	// separately.
-	virtual void create_reference (Context cx, Index_node* lhs,
+	virtual void create_reference (Context* cx, Index_node* lhs,
 											 Index_node* rhs, Certainty cert) CT_IMPL;
 
 	// It might seem that copying should naturally be included here, but
@@ -101,22 +101,22 @@ public:
 	// the lower-level functions here.
 
 	// LHS has a value taken from STORAGE. STORAGE must already exist.
-	virtual void assign_value (Context cx, Index_node* lhs,
+	virtual void assign_value (Context* cx, Index_node* lhs,
 										Storage_node* storage) CT_IMPL;
 
 	// Create STORAGE, with the gives TYPES.
-	virtual void set_storage (Context cx, Storage_node* storage,
+	virtual void set_storage (Context* cx, Storage_node* storage,
 									  Types* types) CT_IMPL;
 
 	// Create STORAGE, an abstract value with the given types.
-	virtual void set_scalar (Context cx, Value_node* storage,
+	virtual void set_scalar (Context* cx, Value_node* storage,
 									 Abstract_value* val) CT_IMPL;
 
 	/*
 	 * Killing values
 	 */
 
-	virtual void kill_value (Context cx, Index_node* lhs, bool also_kill_refs = false) CT_IMPL;
+	virtual void kill_value (Context* cx, Index_node* lhs, bool also_kill_refs = false) CT_IMPL;
 
 
 	/*
@@ -124,7 +124,7 @@ public:
 	 */
 
 	// There has been a use of USE, with the certainty CERT.
-	virtual void record_use (Context cx, Index_node* use,
+	virtual void record_use (Context* cx, Index_node* use,
 									 Certainty cert) CT_IMPL;
 
 
@@ -137,24 +137,24 @@ public:
 	// analysis. pull_first_pred() is a little bit special, as analyses will
 	// probably just copy results, whereas they would merge them for other
 	// edges.
-	virtual void pull_init (Context cx) CT_IMPL;
-	virtual void pull_first_pred (Context cx, Context pred) CT_IMPL;
-	virtual void pull_pred (Context cx, Context pred) CT_IMPL;
+	virtual void pull_init (Context* cx) CT_IMPL;
+	virtual void pull_first_pred (Context* cx, Context* pred) CT_IMPL;
+	virtual void pull_pred (Context* cx, Context* pred) CT_IMPL;
 
 	// Index_nodes may be NULL on some paths. This is hard to do at a
 	// fine-grained level, but much easier at a higher level. pulls typically
 	// work on INs, so this needs to be done now, rather than trying to do it
 	// with an out.
-	virtual void pull_possible_null (Context cx, Index_node* node) CT_IMPL;
+	virtual void pull_possible_null (Context* cx, Index_node* node) CT_IMPL;
 
-	virtual void pull_finish (Context cx) CT_IMPL;
+	virtual void pull_finish (Context* cx) CT_IMPL;
 
 	// Combine local results to an OUT solution. This should set
 	// CHANGED_FLAGS [bb->ID] if neccessary.
-	virtual void aggregate_results (Context cx) CT_IMPL;
+	virtual void aggregate_results (Context* cx) CT_IMPL;
 
 	// Do we need to iterate again?
-	virtual bool solution_changed (Context cx)
+	virtual bool solution_changed (Context* cx)
 	{
 		return changed_flags[cx];
 	}
@@ -168,7 +168,7 @@ public:
 	/*
 	 * Debugging information
 	 */
-	virtual void dump (Context cx, string comment) = 0;
+	virtual void dump (Context* cx, string comment) = 0;
 
 	virtual void dump_everything (string comment) = 0;
 

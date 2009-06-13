@@ -50,7 +50,7 @@ Aliasing::equals (WPA* wpa)
 }
 
 void
-Aliasing::dump (Context cx, string comment)
+Aliasing::dump (Context* cx, string comment)
 {
 	CHECK_DEBUG();
 	stringstream ss;
@@ -61,25 +61,25 @@ Aliasing::dump (Context cx, string comment)
 void
 Aliasing::dump_everything (string comment)
 {
-	foreach (Context cx, *outs.keys ())
+	foreach (Context* cx, *outs.keys ())
 		dump (cx, comment);
 }
 
 void
-Aliasing::init (Context outer)
+Aliasing::init (Context* outer)
 {
 	ins[outer] = new Points_to;
 	outs[outer] = new Points_to;
 }
 
 void
-Aliasing::forward_bind (Context caller, Context entry)
+Aliasing::forward_bind (Context* caller, Context* entry)
 {
 	Points_to* ptg = ins[caller]->clone ();
 
 	ptg->consistency_check (caller, wp);
 
-	ptg->open_scope (entry.symtable_node ());
+	ptg->open_scope (entry->symtable_node ());
 
 	// We need INS to read the current situation, but it shouldnt get modified.
 	// We merge to keep monotonicity in the face of recursion.
@@ -88,10 +88,10 @@ Aliasing::forward_bind (Context caller, Context entry)
 }
 
 void
-Aliasing::backward_bind (Context caller, Context exit)
+Aliasing::backward_bind (Context* caller, Context* exit)
 {
 	Points_to* ptg = outs[exit]->clone ();
-	ptg->close_scope (exit.symtable_node ());
+	ptg->close_scope (exit->symtable_node ());
 	ptg->consistency_check (exit, wp);
 
 	// See comment in WPA_lattice.
@@ -103,32 +103,32 @@ Aliasing::backward_bind (Context caller, Context exit)
 }
 
 void
-Aliasing::pull_init (Context cx)
+Aliasing::pull_init (Context* cx)
 {
 	// Clear the INs, since we can completely recalculate it from the predecessors.
 	ins[cx] = NULL;
 }
 
 void
-Aliasing::pull_first_pred (Context cx, Context pred)
+Aliasing::pull_first_pred (Context* cx, Context* pred)
 {
 	ins[cx] = merge (ins[cx], outs[pred]);
 }
 
 void
-Aliasing::pull_pred (Context cx, Context pred)
+Aliasing::pull_pred (Context* cx, Context* pred)
 {
 	ins[cx] = merge (ins[cx], outs[pred]);
 }
 
 void
-Aliasing::pull_possible_null (Context cx, Index_node* index)
+Aliasing::pull_possible_null (Context* cx, Index_node* index)
 {
 	ins[cx]->add_points_to (index, SCLVAL (index));
 }
 
 void
-Aliasing::pull_finish (Context cx)
+Aliasing::pull_finish (Context* cx)
 {
 	// You cant have no predecessors (and at least 1 must be executable)
 	assert (ins[cx]);
@@ -141,14 +141,14 @@ Aliasing::pull_finish (Context cx)
 
 
 void
-Aliasing::aggregate_results (Context cx)
+Aliasing::aggregate_results (Context* cx)
 {
 	outs[cx]->consistency_check (cx, wp);
 	outs[cx]->remove_unreachable_nodes ();
 }
 
 void
-Aliasing::kill_value (Context cx, Index_node* lhs, bool also_kill_refs)
+Aliasing::kill_value (Context* cx, Index_node* lhs, bool also_kill_refs)
 {
 	Points_to* ptg = outs[cx];
 
@@ -174,7 +174,7 @@ Aliasing::kill_value (Context cx, Index_node* lhs, bool also_kill_refs)
 }
 
 void
-Aliasing::set_storage (Context cx, Storage_node* storage, Types* types)
+Aliasing::set_storage (Context* cx, Storage_node* storage, Types* types)
 {
 	// Check if its gone abstract.
 	outs[cx]->inc_abstract (storage);
@@ -182,13 +182,13 @@ Aliasing::set_storage (Context cx, Storage_node* storage, Types* types)
 
 
 void
-Aliasing::set_scalar (Context cx, Value_node* storage, Abstract_value* val)
+Aliasing::set_scalar (Context* cx, Value_node* storage, Abstract_value* val)
 {
 	// See set storage
 }
 
 void
-Aliasing::create_reference (Context cx, Index_node* lhs, Index_node* rhs, Certainty cert)
+Aliasing::create_reference (Context* cx, Index_node* lhs, Index_node* rhs, Certainty cert)
 {
 	Points_to* ptg = outs[cx];
 
@@ -197,7 +197,7 @@ Aliasing::create_reference (Context cx, Index_node* lhs, Index_node* rhs, Certai
 }
 
 void
-Aliasing::assign_value (Context cx, Index_node* lhs, Storage_node* storage)
+Aliasing::assign_value (Context* cx, Index_node* lhs, Storage_node* storage)
 {
 	Points_to* ptg = outs[cx];
 
@@ -208,15 +208,15 @@ Aliasing::assign_value (Context cx, Index_node* lhs, Storage_node* storage)
 void
 Aliasing::merge_contexts ()
 {
-	Context cx;
+	Context* cx;
 	Points_to* ptg;
 
 	// First create a noncontextual context for each BB
 	// (Careful not to overwrite outer_scope)
-	Map<Context, Points_to*> new_ins;
+	CX_map<Points_to*> new_ins;
 	foreach (tie (cx, ptg), ins)
 	{
-		Context new_cx = cx.get_non_contextual ();
+		Context* new_cx = cx->get_non_contextual ();
 
 		if (!new_ins.has (new_cx))
 			new_ins[new_cx] = ptg->clone ();
@@ -229,10 +229,10 @@ Aliasing::merge_contexts ()
 	ins.clear();
 	ins = new_ins;
 
-	Map<Context, Points_to*> new_outs;
+	CX_map<Points_to*> new_outs;
 	foreach (tie (cx, ptg), outs)
 	{
-		Context new_cx = cx.get_non_contextual ();
+		Context* new_cx = cx->get_non_contextual ();
 
 		if (!new_outs.has (new_cx))
 			new_outs[new_cx] = ptg->clone ();
@@ -247,14 +247,14 @@ Aliasing::merge_contexts ()
 }
 
 Reference_list*
-Aliasing::get_references (Context cx, Index_node* index, Certainty cert)
+Aliasing::get_references (Context* cx, Index_node* index, Certainty cert)
 {
 	Points_to* ptg = outs[cx];
 	return ptg->get_references (index, cert);
 }
 
 Storage_node_list*
-Aliasing::get_points_to (Context cx, Index_node* index)
+Aliasing::get_points_to (Context* cx, Index_node* index)
 {
 	Points_to* ptg = outs[cx];
 	return ptg->get_points_to (index);
@@ -262,45 +262,45 @@ Aliasing::get_points_to (Context cx, Index_node* index)
 
 
 Index_node_list*
-Aliasing::get_fields (Context cx, Storage_node* storage)
+Aliasing::get_fields (Context* cx, Storage_node* storage)
 {
 	Points_to* ptg = outs[cx];
 	return ptg->get_fields (storage);
 }
 
 bool
-Aliasing::is_abstract (Context cx, Storage_node* st)
+Aliasing::is_abstract (Context* cx, Storage_node* st)
 {
 	return outs[cx]->is_abstract (st);
 }
 
 bool
-Aliasing::is_abstract_field (Context cx, Index_node* index)
+Aliasing::is_abstract_field (Context* cx, Index_node* index)
 {
 	return outs[cx]->is_abstract_field (index);
 }
 
 bool
-Aliasing::has_storage_node (Context cx, Storage_node* st)
+Aliasing::has_storage_node (Context* cx, Storage_node* st)
 {
 	return outs[cx]->has_storage_node (st);
 }
 
 bool
-Aliasing::has_field (Context cx, Index_node* ind)
+Aliasing::has_field (Context* cx, Index_node* ind)
 {
 	return outs[cx]->has_field (ind);
 }
 
 Storage_node_list*
-Aliasing::get_storage_nodes (Context cx)
+Aliasing::get_storage_nodes (Context* cx)
 {
 	return outs[cx]->get_storage_nodes ();
 }
 
 
 Storage_node*
-Aliasing::get_owner (Context cx, Index_node* index)
+Aliasing::get_owner (Context* cx, Index_node* index)
 {
 	return outs[cx]->get_owner (index);
 }

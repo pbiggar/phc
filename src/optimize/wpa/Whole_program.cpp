@@ -105,7 +105,7 @@ Whole_program::run (MIR::PHP_script* in)
 {
 	// Represents __MAIN__'s caller
 	Basic_block* outer_bb = new Empty_block (NULL);
-	Context outer_cx = Context::outer (outer_bb);
+	Context* outer_cx = Context::outer (outer_bb);
 
 	for (int w = 0; w < 10; w++)
 	{
@@ -248,7 +248,7 @@ Whole_program::initialize ()
 }
 
 void
-Whole_program::analyse_function (User_method_info* info, Context caller_cx, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
+Whole_program::analyse_function (User_method_info* info, Context* caller_cx, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
 {
 	CFG* cfg = info->cfg;
 
@@ -264,7 +264,7 @@ Whole_program::analyse_function (User_method_info* info, Context caller_cx, MIR:
 
 	// Process the entry blocks first (there is no edge here)
 	DEBUG ("Initing functions");
-	Context entry_cx = Context::contextual (caller_cx, cfg->get_entry_bb());
+	Context* entry_cx = Context::contextual (caller_cx, cfg->get_entry_bb());
 	forward_bind (
 		info,
 		entry_cx,
@@ -278,7 +278,7 @@ Whole_program::analyse_function (User_method_info* info, Context caller_cx, MIR:
 		DEBUG (wl.size() << " edges in the worklist");
 
 		Basic_block* target = e->get_target ();
-		Context target_cx = Context::contextual (caller_cx, target);
+		Context* target_cx = Context::contextual (caller_cx, target);
 
 		BB_list* preds = new BB_list;
 
@@ -313,15 +313,15 @@ Whole_program::analyse_function (User_method_info* info, Context caller_cx, MIR:
 }
 
 Edge_list*
-Whole_program::get_successors (Context cx)
+Whole_program::get_successors (Context* cx)
 {
 	Edge_list* result = new Edge_list;
 
-	Basic_block* bb = cx.get_bb ();
+	Basic_block* bb = cx->get_bb ();
 
 	if (Branch_block* branch = dynamic_cast<Branch_block*> (bb))
 	{
-		Index_node* cond = VN (cx.symtable_name (), branch->branch->variable_name);
+		Index_node* cond = VN (cx->symtable_name (), branch->branch->variable_name);
 
 		Abstract_value* absval = get_abstract_value (cx, cond->name ());
 
@@ -388,7 +388,7 @@ Whole_program::get_possible_receivers (Target* target, Method_name* method_name)
 }
 
 void
-Whole_program::invoke_method (Method_invocation* in, Context caller_cx, MIR::VARIABLE_NAME* lhs)
+Whole_program::invoke_method (Method_invocation* in, Context* caller_cx, MIR::VARIABLE_NAME* lhs)
 {
 	Method_info_list* receivers = get_possible_receivers (in);
 
@@ -408,7 +408,7 @@ Whole_program::invoke_method (Method_invocation* in, Context caller_cx, MIR::VAR
 
 void
 Whole_program::analyse_method_info (Method_info* method_info,
-												Context caller_cx,
+												Context* caller_cx,
 												MIR::Actual_parameter_list* actuals,
 												MIR::VARIABLE_NAME* lhs)
 {
@@ -432,30 +432,30 @@ Whole_program::analyse_method_info (Method_info* method_info,
 }
 
 void
-Whole_program::analyse_summary (Summary_method_info* info, Context caller_cx, Actual_parameter_list* actuals, VARIABLE_NAME* lhs)
+Whole_program::analyse_summary (Summary_method_info* info, Context* caller_cx, Actual_parameter_list* actuals, VARIABLE_NAME* lhs)
 {
 	CFG* cfg = info->get_cfg ();
 
 	/*
 	 * Start the analysis
 	 */
-	Context entry_cx = Context::contextual (caller_cx, cfg->get_entry_bb ());
+	Context* entry_cx = Context::contextual (caller_cx, cfg->get_entry_bb ());
 	forward_bind (info, entry_cx, actuals);
 
-	dump (entry_cx, "Upon summary entry (" + *caller_cx.get_bb()->get_graphviz_label () + ")");
+	dump (entry_cx, "Upon summary entry (" + *caller_cx->get_bb()->get_graphviz_label () + ")");
 
 	/*
 	 * "Perform" the function
 	 */
 
-	Context fake_cx = Context::contextual (caller_cx, info->get_fake_bb ());
+	Context* fake_cx = Context::contextual (caller_cx, info->get_fake_bb ());
 	pull_results (fake_cx, info->get_fake_bb ()->get_predecessors ());
 
 	apply_modelled_function (info, fake_cx, caller_cx);
 
 	FWPA->aggregate_results (fake_cx);
 
-	dump (fake_cx, "After fake basic block (" + *caller_cx.get_bb()->get_graphviz_label () + ")");
+	dump (fake_cx, "After fake basic block (" + *caller_cx->get_bb()->get_graphviz_label () + ")");
 
 	phc_pause ();
 
@@ -465,13 +465,13 @@ Whole_program::analyse_summary (Summary_method_info* info, Context caller_cx, Ac
 	 * Backward bind
 	 */
 
-	Context exit_cx = Context::contextual (caller_cx, cfg->get_exit_bb ());
+	Context* exit_cx = Context::contextual (caller_cx, cfg->get_exit_bb ());
 	pull_results (exit_cx, cfg->get_exit_bb ()->get_predecessors ());
 
 	FWPA->aggregate_results (fake_cx);
 
 	// TODO: we only really need 2 blocks here.
-	dump (exit_cx, "After summary method (" + *caller_cx.get_bb()->get_graphviz_label () + ")");
+	dump (exit_cx, "After summary method (" + *caller_cx->get_bb()->get_graphviz_label () + ")");
 
 	phc_pause ();
 
@@ -481,7 +481,7 @@ Whole_program::analyse_summary (Summary_method_info* info, Context caller_cx, Ac
 
 // BB is the block representing the whole method
 void
-Whole_program::apply_modelled_function (Summary_method_info* info, Context cx, Context caller_cx)
+Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, Context* caller_cx)
 {
 	// TODO:
 	//	If we know all the values for all the parameters, and the function has
@@ -505,7 +505,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context cx, C
 	// without having initialized it (and get NULL).
 	Map<int, Index_node*> params; 
 
-	string symtable = cx.symtable_name ();
+	string symtable = cx->symtable_name ();
 	for (int i = 0; ; i++) // NOTE: lack of cond in loop
 	{
 		Index_node* param = IN (symtable, "__UNNAMED__" + lexical_cast<string> (i));
@@ -532,7 +532,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context cx, C
 			// For a parameter P1, in this scope SC1, with the caller scope SC0, this is:
 			// (ARR -> (SC1 -> P1)) = (SC0 -> (SC1 -> P1))
 			Path* lhs = new Indexing (new ST_path (name), P (param->storage, param->index));
-			Path* rhs = new Indexing (new ST_path (caller_cx.symtable_name ()), P (param->storage, param->index));
+			Path* rhs = new Indexing (new ST_path (caller_cx->symtable_name ()), P (param->storage, param->index));
 			assign_path_by_copy (cx, lhs, rhs);
 		}
 	}
@@ -771,24 +771,24 @@ Whole_program::merge_contexts ()
 }
 
 void
-Whole_program::init_block (Context cx)
+Whole_program::init_block (Context* cx)
 {
 	this->block_cx = cx;
 	this->storage_count = 0;
 }
 
 bool
-Whole_program::analyse_block (Context cx)
+Whole_program::analyse_block (Context* cx)
 {
-	DEBUG ("\nAnalysing BB: " << cx << ": " << *cx.get_bb()->get_graphviz_label ());
+	DEBUG ("\nAnalysing BB: " << cx << ": " << *cx->get_bb()->get_graphviz_label ());
 
 	init_block (cx);
 
-	visit_block (cx.get_bb());
+	visit_block (cx->get_bb());
 
 	FWPA->aggregate_results (cx);
 
-	dump (cx, "After analysis (" + *cx.get_bb()->get_graphviz_label () + ")");
+	dump (cx, "After analysis (" + *cx->get_bb()->get_graphviz_label () + ")");
 
 	// Calculate fix-point
 	bool changed = false;
@@ -807,21 +807,21 @@ Whole_program::analyse_block (Context cx)
  * It may also be NULL if it references NULL in any of the graphs.
  */
 Index_node_list*
-Whole_program::get_possible_nulls (List<Context>* cxs)
+Whole_program::get_possible_nulls (Context_list* cxs)
 {
 	Index_node_list* norefs = new Index_node_list;
 
 	Set<Alias_name> existing;
 
 	// Get the nodes which exist in some graph, but do not exist in other graphs.
-	foreach (Context cx, *cxs)
+	foreach (Context* cx, *cxs)
 	{
 		foreach (Storage_node* st, *aliasing->get_storage_nodes (cx))
 		{
 			foreach (Index_node* index, *aliasing->get_fields (cx, st))
 			{
 				// Check all the other graphs
-				foreach (Context other, *cxs)
+				foreach (Context* other, *cxs)
 				{
 					if (cx == other)
 						continue;
@@ -852,9 +852,9 @@ Whole_program::get_possible_nulls (List<Context>* cxs)
 
 
 void
-Whole_program::pull_results (Context cx, BB_list* bb_preds)
+Whole_program::pull_results (Context* cx, BB_list* bb_preds)
 {
-	List<Context>* preds = new List<Context>;
+	Context_list* preds = new Context_list;
 
 	foreach (Basic_block* bb, *bb_preds)
 		preds->push_back (Context::as_peer (cx, bb));
@@ -865,7 +865,7 @@ Whole_program::pull_results (Context cx, BB_list* bb_preds)
 	Index_node_list* possible_nulls = this->get_possible_nulls (preds);
 
 	// Separate the first from the remainder, to simplfiy the remainder.
-	Context first = preds->front ();
+	Context* first = preds->front ();
 	preds->pop_front ();
 
 
@@ -873,7 +873,7 @@ Whole_program::pull_results (Context cx, BB_list* bb_preds)
 	FWPA->pull_init (cx);
 	FWPA->pull_first_pred (cx, first);
 
-	foreach (Context pred, *preds)
+	foreach (Context* pred, *preds)
 		FWPA->pull_pred (cx, pred);
 
 	// Use possible NULLs
@@ -884,7 +884,7 @@ Whole_program::pull_results (Context cx, BB_list* bb_preds)
 }
 
 void
-Whole_program::dump (Context cx, string comment)
+Whole_program::dump (Context* cx, string comment)
 {
 	bool saved = debugging_enabled;
 	foreach_wpa (this)
@@ -897,7 +897,7 @@ Whole_program::dump (Context cx, string comment)
 
 		DEBUG (cx << " (" << comment << "): Dumping " << wpa->name);
 
-		if (cx == Context ())
+		if (cx->empty ())
 			wpa->dump_everything (comment);
 		else
 			wpa->dump (cx, comment);
@@ -913,7 +913,7 @@ Whole_program::dump (Context cx, string comment)
  */
 
 void
-Whole_program::init_superglobals (Context cx)
+Whole_program::init_superglobals (Context* cx)
 {
 	// TODO: Strictly speaking, functions other than __MAIN__ should have their
 	// globals set up before the parameters are copied. However, we'll ignore
@@ -927,7 +927,7 @@ Whole_program::init_superglobals (Context cx)
 	
 
 	// Start with globals, since it needs needs to point to MSN
-	string MSN = cx.symtable_name ();
+	string MSN = cx->symtable_name ();
 	FWPA->assign_value (cx, VN (MSN, new VARIABLE_NAME ("GLOBALS")), SN (MSN));
 
 
@@ -965,22 +965,22 @@ Whole_program::init_superglobals (Context cx)
 }
 
 void
-Whole_program::forward_bind (Method_info* info, Context entry_cx, MIR::Actual_parameter_list* actuals)
+Whole_program::forward_bind (Method_info* info, Context* entry_cx, MIR::Actual_parameter_list* actuals)
 {
-	Context caller_cx = entry_cx.caller ();
+	Context* caller_cx = entry_cx->caller ();
 
 	// Initialize the analyses
 	FWPA->forward_bind (caller_cx, entry_cx);
 
 
 	// Create the symbol table.
-	string scope = entry_cx.symtable_name ();
+	string scope = entry_cx->symtable_name ();
 	create_empty_storage (entry_cx, "array", scope);
 
 
 	// Special case for __MAIN__. We do it here so that the other analyses
 	// have initialized.
-	if (caller_cx.is_outer ())
+	if (caller_cx->is_outer ())
 	{
 		main_scope = scope;
 		init_superglobals (entry_cx);
@@ -1003,7 +1003,7 @@ Whole_program::forward_bind (Method_info* info, Context entry_cx, MIR::Actual_pa
 			// $ap =& $fp;
 			assign_path_by_ref (entry_cx,
 					P (scope, info->param_name (i)),
-					P (caller_cx.symtable_name (), dyc<VARIABLE_NAME> (ap->rvalue)));
+					P (caller_cx->symtable_name (), dyc<VARIABLE_NAME> (ap->rvalue)));
 		}
 		else
 		{
@@ -1012,7 +1012,7 @@ Whole_program::forward_bind (Method_info* info, Context entry_cx, MIR::Actual_pa
 			{
 				assign_path_by_copy (entry_cx,
 						P (scope, info->param_name (i)),
-						P (caller_cx.symtable_name (), dyc<VARIABLE_NAME> (ap->rvalue)));
+						P (caller_cx->symtable_name (), dyc<VARIABLE_NAME> (ap->rvalue)));
 			}
 			else
 			{
@@ -1047,7 +1047,7 @@ Whole_program::forward_bind (Method_info* info, Context entry_cx, MIR::Actual_pa
 
 
 void
-Whole_program::backward_bind (Method_info* info, Context exit_cx, MIR::VARIABLE_NAME* lhs)
+Whole_program::backward_bind (Method_info* info, Context* exit_cx, MIR::VARIABLE_NAME* lhs)
 {
 	// Do assignment back to LHS
 	//
@@ -1063,7 +1063,7 @@ Whole_program::backward_bind (Method_info* info, Context exit_cx, MIR::VARIABLE_
 	// danger that it might make an analysis think that return value somehow
 	// escapes. I'm not sure if anything needs to be done about that.
 
-	Context caller_cx = exit_cx.caller ();
+	Context* caller_cx = exit_cx->caller ();
 	if (lhs)
 	{
 		// TODO: would this assignment be better made in the caller? (except that
@@ -1073,15 +1073,15 @@ Whole_program::backward_bind (Method_info* info, Context exit_cx, MIR::VARIABLE_
 		{
 			// $lhs =& $retval;
 			assign_path_by_ref (exit_cx,
-					P (caller_cx.symtable_name (), dyc<VARIABLE_NAME> (lhs)),
-					P (exit_cx.symtable_name (), new VARIABLE_NAME (RETNAME)));
+					P (caller_cx->symtable_name (), dyc<VARIABLE_NAME> (lhs)),
+					P (exit_cx->symtable_name (), new VARIABLE_NAME (RETNAME)));
 		}
 		else
 		{
 			// $lhs = $retval;
 			assign_path_by_copy (exit_cx,
-					P (caller_cx.symtable_name (), dyc<VARIABLE_NAME> (lhs)),
-					P (exit_cx.symtable_name (), new VARIABLE_NAME (RETNAME)));
+					P (caller_cx->symtable_name (), dyc<VARIABLE_NAME> (lhs)),
+					P (exit_cx->symtable_name (), new VARIABLE_NAME (RETNAME)));
 		}
 
 		// There is an aggregate before this assignment, but we need another after it...
@@ -1109,8 +1109,8 @@ Whole_program::backward_bind (Method_info* info, Context exit_cx, MIR::VARIABLE_
 	dump (caller_cx, "After backward bind");
 
 	// Its useful to see the CFG we've fallen back into
-	if (debugging_enabled && caller_cx.get_bb()->cfg)
-		caller_cx.get_bb()->cfg->dump_graphviz (s("Back into function"));
+	if (debugging_enabled && caller_cx->get_bb()->cfg)
+		caller_cx->get_bb()->cfg->dump_graphviz (s("Back into function"));
 }
 
 /*
@@ -1120,7 +1120,7 @@ Whole_program::backward_bind (Method_info* info, Context exit_cx, MIR::VARIABLE_
  *	4.) its name is not UNKNOWN.
  */
 bool
-Whole_program::is_killable (Context cx, Index_node_list* indices)
+Whole_program::is_killable (Context* cx, Index_node_list* indices)
 {
 	if (indices->size () > 1)
 		return false;
@@ -1137,7 +1137,7 @@ Whole_program::is_killable (Context cx, Index_node_list* indices)
 }
 
 void
-Whole_program::assign_path_by_ref (Context cx, Path* plhs, Path* prhs)
+Whole_program::assign_path_by_ref (Context* cx, Path* plhs, Path* prhs)
 {
 	DEBUG ("assign_path_by_ref");
 
@@ -1229,7 +1229,7 @@ Whole_program::assign_path_by_ref (Context cx, Path* plhs, Path* prhs)
 }
 
 void
-Whole_program::assign_path_scalar (Context cx, Path* plhs, Abstract_value* absval)
+Whole_program::assign_path_scalar (Context* cx, Path* plhs, Abstract_value* absval)
 {
 	DEBUG ("assign_path_scalar");
 	foreach (Reference* ref, *get_lhs_references (cx, plhs))
@@ -1244,13 +1244,13 @@ Whole_program::assign_path_scalar (Context cx, Path* plhs, Abstract_value* absva
 }
 
 void
-Whole_program::assign_path_scalar (Context cx, Path* plhs, Literal* lit)
+Whole_program::assign_path_scalar (Context* cx, Path* plhs, Literal* lit)
 {
 	assign_path_scalar (cx, plhs, new Abstract_value (lit));
 }
 
 void
-Whole_program::assign_path_typed (Context cx, Path* plhs, Types* types)
+Whole_program::assign_path_typed (Context* cx, Path* plhs, Types* types)
 {
 	DEBUG ("assign_path_typed");
 
@@ -1270,7 +1270,7 @@ Whole_program::assign_path_typed (Context cx, Path* plhs, Types* types)
 }
 
 void
-Whole_program::assign_path_value (Context cx, Path* plhs, Storage_node* st)
+Whole_program::assign_path_value (Context* cx, Path* plhs, Storage_node* st)
 {
 	DEBUG ("assign_path_empty_array");
 
@@ -1287,7 +1287,7 @@ Whole_program::assign_path_value (Context cx, Path* plhs, Storage_node* st)
 }
 
 string
-Whole_program::assign_path_empty_array (Context cx, Path* plhs, string name) 
+Whole_program::assign_path_empty_array (Context* cx, Path* plhs, string name) 
 {
 	// Assign the value to all referenced names.
 	Storage_node* st = create_empty_storage (cx, "array", name);
@@ -1296,7 +1296,7 @@ Whole_program::assign_path_empty_array (Context cx, Path* plhs, string name)
 }
 
 void
-Whole_program::assign_path_unknown (Context cx, Path* plhs)
+Whole_program::assign_path_unknown (Context* cx, Path* plhs)
 {
 	DEBUG ("assign_unknown");
 	// This assigns a value which is unknown, but is not as bad as
@@ -1337,7 +1337,7 @@ Whole_program::assign_path_unknown (Context cx, Path* plhs)
 }
 
 void
-Whole_program::assign_path_by_copy (Context cx, Path* plhs, Path* prhs)
+Whole_program::assign_path_by_copy (Context* cx, Path* plhs, Path* prhs)
 {
 	DEBUG ("assign_path_by_copy");
 
@@ -1377,14 +1377,15 @@ Whole_program::assign_path_by_copy (Context cx, Path* plhs, Path* prhs)
 	destroy_fake_index (cx);
 }
 
-void Whole_program::assign_absval (Context cx, Index_node* lhs, Abstract_value* absval)
+void
+Whole_program::assign_absval (Context* cx, Index_node* lhs, Abstract_value* absval)
 {
 	FWPA->set_scalar (cx, SCLVAL (lhs), absval);
 	FWPA->assign_value (cx, lhs, SCLVAL (lhs));
 }
 
 void
-Whole_program::copy_value (Context cx, Index_node* lhs, Index_node* rhs)
+Whole_program::copy_value (Context* cx, Index_node* lhs, Index_node* rhs)
 {
 	lhs = check_owner_type (cx, lhs);
 
@@ -1448,14 +1449,14 @@ Whole_program::copy_value (Context cx, Index_node* lhs, Index_node* rhs)
 }
 
 Storage_node*
-Whole_program::create_empty_storage (Context cx, string type, string name)
+Whole_program::create_empty_storage (Context* cx, string type, string name)
 {
 	assert (name != "array");
 
 	// Anonymous storage
 	if (name == "")
 	{
-		name = cx.array_name () + "_" + lexical_cast<string> (storage_count);
+		name = cx->array_name () + "_" + lexical_cast<string> (storage_count);
 		storage_count++;
 	}
 
@@ -1471,13 +1472,13 @@ Whole_program::create_empty_storage (Context cx, string type, string name)
 
 
 Index_node*
-Whole_program::create_fake_index (Context cx)
+Whole_program::create_fake_index (Context* cx)
 {
 	return new Index_node ("FAKE", "asdasd");
 }
 
 void
-Whole_program::destroy_fake_index (Context cx)
+Whole_program::destroy_fake_index (Context* cx)
 {
 	FWPA->kill_value (cx, new Index_node ("FAKE", "asdasd"), true);
 }
@@ -1491,7 +1492,7 @@ Whole_program::destroy_fake_index (Context cx)
  * non-readonly sense).
  */
 Index_node*
-Whole_program::check_owner_type (Context cx, Index_node* index)
+Whole_program::check_owner_type (Context* cx, Index_node* index)
 {
 	Types* types = values->get_types (cx, aliasing->get_owner (cx, index)->name ());
 	Types* scalar_types = Type_info::get_scalar_types (types);
@@ -1513,7 +1514,7 @@ Whole_program::check_owner_type (Context cx, Index_node* index)
 				// TODO: why dont we call assign_array here?
 
 				// Convert to an array
-				string name = cx.array_node ()->for_index_node ();
+				string name = cx->array_node ()->for_index_node ();
 				foreach_wpa (this)
 					wpa->set_storage (cx, SN (name), new Types ("array"));
 
@@ -1548,9 +1549,8 @@ Whole_program::check_owner_type (Context cx, Index_node* index)
 
 
 
-
 Abstract_value*
-Whole_program::read_from_scalar_value (Context cx, Index_node* rhs)
+Whole_program::read_from_scalar_value (Context* cx, Index_node* rhs)
 {
 	// Special case - the RHS's storage node might be a sclval (however, if it
 	// has both an sclval and another storage node, then the other storage nodes
@@ -1624,7 +1624,7 @@ Whole_program::read_from_scalar_value (Context cx, Index_node* rhs)
 
 
 void
-Whole_program::record_use (Context cx, Index_node* node)
+Whole_program::record_use (Context* cx, Index_node* node)
 {
 	// TODO: this marks it as a use, not a must use. Is there any difference
 	// as far as analyses are concerned? If so, fix this. If not, remove the
@@ -1639,7 +1639,7 @@ Whole_program::record_use (Context cx, Index_node* node)
 
 
 void
-Whole_program::ruin_everything (Context cx, Path* plhs)
+Whole_program::ruin_everything (Context* cx, Path* plhs)
 {
 	// For every storage node we can reach, mark its "*" index as completely
 	// unknown.
@@ -1652,7 +1652,7 @@ Whole_program::ruin_everything (Context cx, Path* plhs)
  * disambiguate for indexing other nodes.
  */
 String*
-Whole_program::get_string_value (Context cx, Index_node* index)
+Whole_program::get_string_value (Context* cx, Index_node* index)
 {
 	Abstract_value* absval = get_abstract_value (cx, index->name ());
 	if (absval->lit == NULL)
@@ -1663,13 +1663,13 @@ Whole_program::get_string_value (Context cx, Index_node* index)
 
 
 Abstract_value*
-Whole_program::get_abstract_value (Context cx, Alias_name name)
+Whole_program::get_abstract_value (Context* cx, Alias_name name)
 {
 	return dyc<Absval_cell> (values->get_value (cx, name))->value;
 }
 
 Abstract_value*
-Whole_program::get_bb_in_abstract_value (Context cx, Alias_name name)
+Whole_program::get_bb_in_abstract_value (Context* cx, Alias_name name)
 {
 	return dyc<Absval_cell> (values->ins[cx][name.str()])->value;
 }
@@ -1702,7 +1702,7 @@ Index_node* path_to_index (Path* p)
  *	exist in A).
  */
 Index_node_list*
-Whole_program::get_named_indices (Context cx, Path* path, bool is_readonly)
+Whole_program::get_named_indices (Context* cx, Path* path, bool is_readonly)
 {
 	/*
 	 * TODO: check type handlers.
@@ -1774,7 +1774,7 @@ Whole_program::get_named_indices (Context cx, Path* path, bool is_readonly)
 }
 
 Index_node_list*
-Whole_program::get_array_named_indices (Context cx, Path* plhs, String* index, bool is_readonly)
+Whole_program::get_array_named_indices (Context* cx, Path* plhs, String* index, bool is_readonly)
 {
 	Index_node_list* result = new Index_node_list;
 
@@ -1858,7 +1858,7 @@ Whole_program::get_array_named_indices (Context cx, Path* plhs, String* index, b
 
 
 Reference_list*
-Whole_program::get_lhs_references (Context cx, Path* path)
+Whole_program::get_lhs_references (Context* cx, Path* path)
 {
 	// Returns a list of (Index_node, certainty) pairs. Although the certainty
 	// originally comes from alias analysis, it is updated to reflect if the
@@ -1890,7 +1890,7 @@ Whole_program::get_lhs_references (Context cx, Path* path)
 void
 Whole_program::visit_global (Statement_block* bb, MIR::Global* in)
 {
-	string ns = block_cx.symtable_name ();
+	string ns = block_cx->symtable_name ();
 
 	assign_path_by_ref (block_cx,
 			P (ns, in->variable_name),
@@ -1901,7 +1901,7 @@ Whole_program::visit_global (Statement_block* bb, MIR::Global* in)
 void
 Whole_program::visit_assign_array (Statement_block* bb, MIR::Assign_array* in)
 {
-	string ns = block_cx.symtable_name ();
+	string ns = block_cx->symtable_name ();
 	Path* lhs = P (ns, in);
 
 	if (isa<Literal> (in->rhs))
@@ -1923,7 +1923,7 @@ Whole_program::visit_assign_array (Statement_block* bb, MIR::Assign_array* in)
 void
 Whole_program::visit_foreach_reset (Statement_block* bb, MIR::Foreach_reset* in)
 {
-	string ns = block_cx.symtable_name ();
+	string ns = block_cx->symtable_name ();
 
 	// mark the array as used
 	record_use (block_cx, VN (ns, in->array));
@@ -1943,7 +1943,7 @@ Whole_program::visit_foreach_reset (Statement_block* bb, MIR::Foreach_reset* in)
 void
 Whole_program::visit_foreach_end (Statement_block* bb, MIR::Foreach_end* in)
 {
-	string ns = block_cx.symtable_name ();
+	string ns = block_cx->symtable_name ();
 
 	// Mark the array as used
 	record_use (block_cx, VN (ns, in->array));
@@ -1967,7 +1967,7 @@ Whole_program::visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
 void
 Whole_program::visit_unset (Statement_block* bb, MIR::Unset* in)
 {
-	string ns = block_cx.symtable_name ();
+	string ns = block_cx->symtable_name ();
 
 	// FYI, unset ($x[$y]), where $x is not set, does nothing. Therefore,
 	// RHS_BY_REF does not need to be set for the call the get_named_indices.
@@ -1987,7 +1987,7 @@ Whole_program::visit_unset (Statement_block* bb, MIR::Unset* in)
 void
 Whole_program::visit_branch_block (Branch_block* bb)
 {
-	string ns = block_cx.symtable_name ();
+	string ns = block_cx->symtable_name ();
 
 	record_use (block_cx, VN (ns, bb->branch->variable_name));
 }
@@ -1996,7 +1996,7 @@ Whole_program::visit_branch_block (Branch_block* bb)
 void
 Whole_program::visit_pre_op (Statement_block* bb, Pre_op* in)
 {
-	string ns = block_cx.symtable_name ();
+	string ns = block_cx->symtable_name ();
 
 	// ++ and -- won't affect objects.
 	Path* path = P (ns, in->variable_name);
@@ -2039,7 +2039,7 @@ Whole_program::visit_foreach_next (Statement_block*, MIR::Foreach_next*)
 void
 Whole_program::visit_assign_next (Statement_block* bb, MIR::Assign_next* in)
 {
-	string ns = block_cx.symtable_name ();
+	string ns = block_cx->symtable_name ();
 
 	// TODO: _next_ is one larger than the largest positive integer element
 
@@ -2067,7 +2067,7 @@ Whole_program::visit_return (Statement_block* bb, MIR::Return* in)
 	if (bb->cfg->get_entry_bb ()->method->signature->return_by_ref)
 		phc_TODO ();
 
-	string ns = block_cx.symtable_name ();
+	string ns = block_cx->symtable_name ();
 	
 	assign_path_by_copy (block_cx, P (ns, new VARIABLE_NAME (RETNAME)), P (ns, in->rvalue));
 }
@@ -2096,7 +2096,7 @@ Whole_program::visit_try (Statement_block*, MIR::Try*)
 void
 Whole_program::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 {
-	string ns = block_cx.symtable_name ();
+	string ns = block_cx->symtable_name ();
 
 	saved_plhs = P (ns, in->lhs);
 	saved_lhs = in->lhs;
@@ -2151,7 +2151,7 @@ Whole_program::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 void
 Whole_program::visit_array_access (Statement_block* bb, MIR::Array_access* in)
 {
-	string ns = block_cx.symtable_name ();
+	string ns = block_cx->symtable_name ();
 	Path* path = P (ns, in);
 
 	if (saved_is_ref)
@@ -2163,7 +2163,7 @@ Whole_program::visit_array_access (Statement_block* bb, MIR::Array_access* in)
 void
 Whole_program::visit_bin_op (Statement_block* bb, MIR::Bin_op* in)
 {
-	string ns = block_cx.symtable_name ();
+	string ns = block_cx->symtable_name ();
 
 	Abstract_value* left = get_abstract_value (block_cx, in->left);
 	Abstract_value* right = get_abstract_value (block_cx, in->right);
@@ -2188,9 +2188,9 @@ Whole_program::visit_bin_op (Statement_block* bb, MIR::Bin_op* in)
 }
 
 Abstract_value*
-Whole_program::get_abstract_value (Context cx, MIR::Rvalue* rval)
+Whole_program::get_abstract_value (Context* cx, MIR::Rvalue* rval)
 {
-	string ns = cx.symtable_name ();
+	string ns = cx->symtable_name ();
 
 	if (isa<Literal> (rval))
 		return new Abstract_value (dyc<Literal> (rval));
@@ -2205,7 +2205,7 @@ Whole_program::get_abstract_value (Context cx, MIR::Rvalue* rval)
 void
 Whole_program::visit_cast (Statement_block* bb, MIR::Cast* in)
 {
-	string ns = block_cx.symtable_name ();
+	string ns = block_cx->symtable_name ();
 
 	Alias_name operand = VN (ns, in->variable_name)->name();
 
@@ -2305,7 +2305,7 @@ Whole_program::visit_method_invocation (Statement_block* bb, MIR::Method_invocat
 void
 Whole_program::visit_new (Statement_block* bb, MIR::New* in)
 {
-	string ns = block_cx.symtable_name ();
+	string ns = block_cx->symtable_name ();
 
 	if (saved_plhs == NULL)
 		phc_TODO ();
@@ -2322,7 +2322,7 @@ Whole_program::visit_new (Statement_block* bb, MIR::New* in)
 void
 Whole_program::visit_param_is_ref (Statement_block* bb, MIR::Param_is_ref* in)
 {
-	string ns = block_cx.symtable_name ();
+	string ns = block_cx->symtable_name ();
 
 
 	// Get the set of receivers (we need to check them all to see if this
@@ -2356,7 +2356,7 @@ Whole_program::visit_param_is_ref (Statement_block* bb, MIR::Param_is_ref* in)
 void
 Whole_program::visit_unary_op (Statement_block* bb, MIR::Unary_op* in)
 {
-	string ns = block_cx.symtable_name ();
+	string ns = block_cx->symtable_name ();
 
 	Abstract_value* val = get_abstract_value (block_cx, in->variable_name);
 
@@ -2376,7 +2376,7 @@ Whole_program::visit_unary_op (Statement_block* bb, MIR::Unary_op* in)
 void
 Whole_program::visit_variable_name (Statement_block* bb, MIR::VARIABLE_NAME* in)
 {
-	string ns = block_cx.symtable_name ();
+	string ns = block_cx->symtable_name ();
 	Path* path = P (ns, in);
 
 	if (saved_is_ref)
@@ -2388,7 +2388,7 @@ Whole_program::visit_variable_name (Statement_block* bb, MIR::VARIABLE_NAME* in)
 void
 Whole_program::visit_variable_variable (Statement_block* bb, MIR::Variable_variable* in)
 {
-	string ns = block_cx.symtable_name ();
+	string ns = block_cx->symtable_name ();
 	Path* path = P (ns, in);
 
 	if (saved_is_ref)

@@ -10,8 +10,10 @@
 
 #include <ostream>
 
+#include "optimize/Lattice.h"
 #include "optimize/CFG_visitor.h"
 
+DECL (Context);
 class Context : virtual public GC_obj
 {
 	BB_list BBs;
@@ -28,16 +30,17 @@ class Context : virtual public GC_obj
 
 public:
 	friend std::ostream &operator<<(std::ostream&, const Context&);
-	Context();
+	Context ();
 
-	static Context outer (Basic_block* outer);
-	static Context non_contextual (Basic_block* bb);
-	static Context contextual (Context caller, Basic_block* bb);
-	static Context as_peer (Context peer, Basic_block* bb);
+	static Context* outer (Basic_block* outer);
+	static Context* non_contextual (Basic_block* bb);
+	static Context* contextual (Context* caller, Basic_block* bb);
+	static Context* as_peer (Context* peer, Basic_block* bb);
 
-	Context caller ();
-	Context get_non_contextual ();
+	Context* caller ();
+	Context* get_non_contextual ();
 
+	bool empty ();
 	Basic_block* get_bb ();
 	bool is_outer (); // Is it the caller of __MAIN__
 
@@ -63,13 +66,25 @@ public:
 std::ostream &operator<< (std::ostream &out, const Context &num);
 
 
-#include "optimize/Lattice.h"
-
-template <class Cell_type>
-class CX_lattices : public Map<Context, Lattice_map<Cell_type> >
+class CX_map_compare : virtual public GC_obj
 {
 public:
-	void dump (Context cx, string name)
+	bool operator() (Context* cx1, Context* cx2) const
+	{
+		return cx1->name () < cx2->name ();
+	}
+};
+
+template <class _Tp>
+class CX_map : public Map<Context*, _Tp, CX_map_compare>
+{
+};
+
+template <class Cell_type>
+class CX_lattices : public CX_map<Lattice_map<Cell_type> >
+{
+public:
+	void dump (Context* cx, string name)
 	{
 		if (this->has (cx))
 		{
@@ -83,7 +98,7 @@ public:
 
 	void dump_everything (string name)
 	{
-		foreach (Context cx, *this->keys())
+		foreach (Context* cx, *this->keys())
 		{
 			dump (cx, name);
 		}
