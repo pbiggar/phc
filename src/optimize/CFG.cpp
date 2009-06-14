@@ -28,10 +28,11 @@ using namespace boost;
 using namespace std;
 using namespace MIR;
 
-CFG::CFG (Method* method)
+CFG::CFG (Method_info* info, Method* method)
 : dominance (NULL)
 , duw (NULL)
 , method (method)
+, method_info (info)
 {
 	vb = get(vertex_bb_t(), bs);
 	ee = get(edge_cfg_edge_t(), bs);
@@ -66,8 +67,8 @@ CFG::CFG (Method* method)
 
 CFG::CFG (Graph& bs)
 : dominance (NULL)
-, duw(NULL)
-, bs(bs)
+, duw (NULL)
+, bs (bs)
 , method (NULL)
 {
 }

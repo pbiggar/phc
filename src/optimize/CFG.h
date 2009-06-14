@@ -34,6 +34,7 @@ class Dominance;
 class Def_use_web;
 
 class Points_to;
+class Method_info;
 
 // Property for BB*
 enum vertex_bb_t { vertex_bb };
@@ -134,7 +135,7 @@ public:
 	 */
 
 	// Creates a CFG for the method.
-	CFG (MIR::Method* method);
+	CFG (Method_info* info, MIR::Method* method);
 
 	// Use a CFG for the backing store.
 	CFG (Graph& bs);
@@ -293,6 +294,7 @@ private:
 
 public:
 	MIR::Method* method;
+	Method_info* method_info;
 };
 
 #endif // PHC_CFG

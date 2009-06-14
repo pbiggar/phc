@@ -37,7 +37,7 @@ Inlining::transform_eval_expr (Statement_block* bb, Eval_expr* in, BB_list* out)
 	// TODO: use a User_method_info property
 
 	// Empty CFGs have 2 statements only
-	if (info->cfg->get_all_bbs()->size() != 2)
+	if (info->get_cfg ()->get_all_bbs()->size() != 2)
 		return;
 
 	DEBUG ("BB " << bb->ID << ": removing call to " << *info->name);

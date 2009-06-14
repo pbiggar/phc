@@ -72,17 +72,15 @@ DECL (Method_info);
 DECL (Class_info);
 DECL (User_class_info);
 
-class Whole_program;
-
 MIR::VARIABLE_NAME* unnamed_param (int param_index);
 
 class Method_info : virtual public GC_obj
 {
 public:
 	String* name;
-	CFG* cfg; // If there is no implementation, a fake CFG is provided.
 
 protected:
+	CFG* cfg; // If there is no implementation, a fake CFG is provided.
 	Method_info (String* name);
 
 public:
@@ -104,23 +102,20 @@ public:
 
 	virtual Class_info* get_class_info () = 0;
 
+	virtual CFG* get_cfg () = 0;
+
 	/*
 	 * Annotations for optimizations
 	 */
-	virtual bool is_side_effecting () = 0;
+	virtual bool get_side_effecting () = 0;
 };
 
 class User_method_info : public Method_info
 {
-
 private:
-
-	friend class Whole_program;
 	User_class_info* class_info;
 	MIR::Method* method;
-
 	bool side_effecting;
-
 	bool has_self_parameter;
 
 
@@ -139,10 +134,12 @@ public:
 	MIR::Static_value* default_param (int param_index);
 	int formal_param_count ();
 
-	bool is_side_effecting ();
+	bool get_side_effecting ();
+	void set_side_effecting (bool);
 
 	MIR::Method* get_method ();
 	virtual Class_info* get_class_info ();
+	virtual CFG* get_cfg ();
 
 };
 
@@ -152,9 +149,9 @@ public:
 	// Creates fake CFGs for summary analysis
 	Summary_method_info (String* name);
 
-	CFG* get_cfg ();
-	Basic_block* get_fake_bb ();
 	virtual Class_info* get_class_info ();
+	virtual CFG* get_cfg ();
+	Basic_block* get_fake_bb ();
 };
 
 /*
@@ -174,7 +171,7 @@ public:
 	MIR::Static_value* default_param (int param_index);
 	int formal_param_count ();
 
-	bool is_side_effecting ();
+	bool get_side_effecting ();
 	virtual Class_info* get_class_info ();
 
 };

@@ -24,54 +24,52 @@ Callgraph::init (Context* outer)
 void
 Callgraph::forward_bind (Context* caller_cx, Context* entry_cx)
 {
-	string caller;
-
-	if (caller_cx->is_outer ())
-		caller = "__OUTER__";
-	else
-		caller = *caller_cx->get_bb()->cfg->method->signature->method_name->value;
-
-	string callee = *entry_cx->get_bb()->cfg->method->signature->method_name->value;
+	Method_info* callee = entry_cx->get_bb ()->cfg->method_info;
+	Method_info* caller = NULL; // for outer scope
+	if (caller_cx->get_bb ()->cfg)
+		caller = caller_cx->get_bb ()->cfg->method_info;
 
 	methods.insert (callee);
 	call_edges[caller].insert (callee);
 }
 
-String_list*
+Method_info_list*
 Callgraph::get_called_methods ()
 {
-	String_list* result = new String_list;
-
-	foreach (string m, methods)
-		result->push_back (s(m));
-
-	return result;
+	return methods.to_list ();
 }
 
-String_list*
+Method_info_list*
 Callgraph::bottom_up ()
 {
-	String_list* result = new String_list;
+	Method_info_list* result = new Method_info_list;
 
-	List<string> worklist ("__MAIN__");
-	Set<string> seen;
-
-	while (worklist.size ())
+	Method_info_list* worklist = new Method_info_list;
+	
+	foreach (Method_info* mi, methods)
 	{
-		string method = worklist.front ();
-		worklist.pop_front ();
+		if (*mi->name == "__MAIN__")
+			worklist->push_back (mi);
+	}
 
-		if (seen.has (method))
+	Set<Method_info*> seen;
+
+	while (worklist->size ())
+	{
+		Method_info* info = worklist->front ();
+		worklist->pop_front ();
+
+		if (seen.has (info))
 			continue;
 
-		seen.insert (method);
+		seen.insert (info);
 
 		// Note _front_ for bottom-up
-		result->push_front (s(method));
+		result->push_front (info);
 
 		// Successors
-		foreach (string callee, call_edges[method])
-			worklist.push_back (callee);
+		foreach (Method_info* mi, call_edges[info])
+			worklist->push_back (mi);
 
 	}
 
@@ -124,24 +122,24 @@ Callgraph::dump_graphviz (String* label)
 	<< "graph [label=\"Callgraph: " << *label << "\"];\n"
 	;
 
-	foreach (string method, methods)
+	foreach (Method_info* caller, methods)
 	{
 		// Target
 		cout
 		<< "\""
-		<< method
+		<< *caller->name 
 		<< "\""
 		<< ";\n"
 		;
 
-		foreach (string callee, call_edges[method])
+		foreach (Method_info* callee, call_edges[caller])
 		{
 			// Edge
 			cout 
 			<< "\""
-			<< method
+			<< *caller->name
 			<< "\" -> \"" 
-			<< callee 
+			<< *callee->name
 			<< "\";\n"
 			;
 		}

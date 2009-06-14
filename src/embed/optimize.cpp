@@ -205,7 +205,7 @@ public:
 	MIR::Static_value* default_param (int param_index);
 	int formal_param_count ();
 
-	bool is_side_effecting ();
+	bool get_side_effecting ();
 };
 
 
@@ -276,7 +276,7 @@ Internal_method_info::formal_param_count ()
 
 
 bool
-Internal_method_info::is_side_effecting ()
+Internal_method_info::get_side_effecting ()
 {
 	string name = *this->name;
 	return not (0

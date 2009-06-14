@@ -111,8 +111,7 @@ Whole_program::run (MIR::PHP_script* in)
 	{
 		initialize ();
 
-		foreach_wpa (this)
-			wpa->init (outer_cx);
+		FWPA->init (outer_cx);
 
 		// Perform the whole-program analysis
 		invoke_method (
@@ -130,9 +129,9 @@ Whole_program::run (MIR::PHP_script* in)
 
 
 		// Optimize based on analysis results
-		foreach (String* method, *callgraph->bottom_up ())
+		foreach (Method_info* mi, *callgraph->bottom_up ())
 		{
-			User_method_info* info = Oracle::get_user_method_info (method);
+			User_method_info* info = dynamic_cast<User_method_info*> (mi);
 
 			if (info == NULL)
 				continue;
@@ -149,7 +148,7 @@ Whole_program::run (MIR::PHP_script* in)
 				DEBUG ((i+1) << "th intraprocedural iteration for "
 						<< *info->name);
 
-				CFG* before = info->cfg->clone ();
+				CFG* before = info->get_cfg ()->clone ();
 
 				// Perform DCE and CP, and some small but useful optimizations.
 				perform_local_optimizations (info);
@@ -161,7 +160,7 @@ Whole_program::run (MIR::PHP_script* in)
 				generate_summary (info);
 
 				// Check if we can stop iterating.
-				if (before->equals (info->cfg))
+				if (before->equals (info->get_cfg ()))
 					break;
 			}
 		}
@@ -176,20 +175,18 @@ Whole_program::run (MIR::PHP_script* in)
 	}
 
 	// All the analysis and iteration is done
-	foreach (String* method, *callgraph->bottom_up ())
+	foreach (Method_info* mi, *callgraph->bottom_up ())
 	{
-		Method_info* method_info = Oracle::get_method_info (method);
+		User_method_info* info = dynamic_cast<User_method_info*> (mi);
 
-		if (!method_info->has_implementation ())
+		if (info == NULL)
 			continue;
-
-		User_method_info* info = dyc<User_method_info> (method_info);
 
 		// Annotate the statements for code-generation
 		annotate_results (info);
 
 		// Replace method implementation with optimized code
-		info->method->statements = info->cfg->get_linear_statements ();
+		info->get_method ()->statements = info->get_cfg ()->get_linear_statements ();
 	}
 
 	// As a final step, strip all unused functions.	
@@ -250,7 +247,7 @@ Whole_program::initialize ()
 void
 Whole_program::analyse_function (User_method_info* info, Context* caller_cx, MIR::Actual_parameter_list* actuals, MIR::VARIABLE_NAME* lhs)
 {
-	CFG* cfg = info->cfg;
+	CFG* cfg = info->get_cfg ();
 
 	// This is very similar to run() from Sparse_conditional_visitor, except
 	// that it isnt sparse.
@@ -264,7 +261,7 @@ Whole_program::analyse_function (User_method_info* info, Context* caller_cx, MIR
 
 	// Process the entry blocks first (there is no edge here)
 	DEBUG ("Initing functions");
-	Context* entry_cx = Context::contextual (caller_cx, cfg->get_entry_bb());
+	Context* entry_cx = Context::contextual (caller_cx, cfg->get_entry_bb ());
 	forward_bind (
 		info,
 		entry_cx,
@@ -520,14 +517,7 @@ Whole_program::analyse_method_info (Method_info* method_info,
 {
 	if (method_info->has_implementation ())
 	{
-		User_method_info* info = dyc<User_method_info> (method_info);
-		if (info->cfg == NULL)
-		{
-			info->cfg = new CFG (info->method);
-			pm->cfg_dump (info->cfg, s("cfg"), s("After building CFG"));
-		}
-
-		analyse_function (info, caller_cx, actuals, lhs);
+		analyse_function (dyc<User_method_info> (method_info), caller_cx, actuals, lhs);
 	}
 	else
 	{
@@ -810,7 +800,7 @@ Whole_program::apply_results (User_method_info* info)
 	// Since we use information from lots of sources, and we need this
 	// information for tons of differernt optimizations, its best to have a
 	// single transformer applying the results.
-	foreach (Basic_block* bb, *info->cfg->get_all_bbs ())
+	foreach (Basic_block* bb, *info->get_cfg ()->get_all_bbs ())
 	{
 		// TODO: I should probably use CCP results here to optimize branches.
 		if (Statement_block* sb = dynamic_cast<Statement_block*> (bb))
@@ -827,7 +817,7 @@ Whole_program::apply_results (User_method_info* info)
 
 	}
 	if (debugging_enabled)
-		info->cfg->dump_graphviz (s("Apply results"));
+		info->get_cfg ()->dump_graphviz (s("Apply results"));
 }
 
 void
@@ -836,14 +826,14 @@ Whole_program::annotate_results (User_method_info* info)
 	// Since we use information from lots of sources, and we need this
 	// information for tons of different annotations, its best to have a
 	// single annotator applying the results.
-	foreach (Basic_block* bb, *info->cfg->get_all_bbs ())
+	foreach (Basic_block* bb, *info->get_cfg ()->get_all_bbs ())
 		annotator->visit_block (bb);
 }
 
 void
 Whole_program::perform_local_optimizations (User_method_info* info)
 {
-	pm->run_local_optimization_passes (this, info->cfg);
+	pm->run_local_optimization_passes (this, info->get_cfg ());
 
 	pm->maybe_enable_debug (s("wpa"));
 }
@@ -851,7 +841,7 @@ Whole_program::perform_local_optimizations (User_method_info* info)
 void
 Whole_program::perform_interprocedural_optimizations (User_method_info* info)
 {
-	pm->run_ipa_passes (this, info->cfg);
+	pm->run_ipa_passes (this, info->get_cfg ());
 
 	pm->maybe_enable_debug (s("wpa"));
 }
@@ -866,8 +856,8 @@ void
 Whole_program::generate_summary (User_method_info* info)
 {
 	// Simplest possible inlining info - the function does nothing.
-	if (info->cfg->get_all_bbs ()->size() == 2)
-		info->side_effecting = true;
+	if (info->get_cfg ()->get_all_bbs ()->size() == 2)
+		info->set_side_effecting (true);
 }
 
 void

@@ -110,8 +110,15 @@ User_method_info::default_param (int param_index)
 	}
 }
 
+
+void
+User_method_info::set_side_effecting (bool side_effecting)
+{
+	this->side_effecting = side_effecting;
+}
+
 bool
-User_method_info::is_side_effecting ()
+User_method_info::get_side_effecting ()
 {
 	return side_effecting;
 }
@@ -146,6 +153,15 @@ User_method_info::get_class_info ()
 	return class_info;
 }
 
+CFG*
+User_method_info::get_cfg ()
+{
+	if (this->cfg == NULL)
+		this->cfg = new CFG (this, this->method);
+
+	return this->cfg;
+}
+
 
 /*
  * Summary methods
@@ -171,7 +187,7 @@ Summary_method_info::get_cfg ()
 						this->name->c_str ()),
 					new Statement_list);
 
-		this->cfg = new CFG (method);
+		this->cfg = new CFG (this, method);
 
 		// We use our summaries to apply on this block. We want to make sure
 		// the forward_bind results are available, and that the backward_bind
@@ -244,7 +260,7 @@ Builtin_method_info::default_param (int param_index)
 }
 
 bool
-Builtin_method_info::is_side_effecting ()
+Builtin_method_info::get_side_effecting ()
 {
 	return true;
 }

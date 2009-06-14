@@ -9,11 +9,12 @@
 #define PHC_CALLGRAPH
 
 #include "WPA.h"
+#include "optimize/Method_info.h"
 
 class Callgraph : public WPA
 {
-	Set<string> methods;
-	Map<string, Set<string> > call_edges;
+	Set<Method_info*> methods;
+	Map<Method_info*, Set<Method_info*> > call_edges;
 
 public:
 	Callgraph (Whole_program* wp);
@@ -22,8 +23,8 @@ public:
 	void init (Context* outer);
 	void forward_bind (Context* caller, Context* entry);
 
-	String_list* get_called_methods ();
-	String_list* bottom_up ();
+	Method_info_list* get_called_methods ();
+	Method_info_list* bottom_up ();
 
 	bool equals (WPA* other);
 	void dump (Context* cx, string comment);
