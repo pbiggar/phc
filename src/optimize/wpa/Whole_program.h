@@ -116,17 +116,24 @@ public:
 	 */
 	void register_analysis (string name, WPA* analysis);
 
-	void invoke_method (MIR::Method_invocation* in,
-							  Context* caller_cx,
-							  MIR::VARIABLE_NAME* lhs);
+	void invoke_method (Context* caller_cx,
+							  MIR::VARIABLE_NAME* lhs,
+							  MIR::Method_invocation* in);
 
-	void instantiate_object (MIR::New* in,
-							  Context* caller_cx,
-							  MIR::VARIABLE_NAME* self);
+	void invoke_method (Context* caller_cx,
+							  MIR::VARIABLE_NAME* lhs,
+							  MIR::VARIABLE_NAME* target,
+							  Method_info_list* receivers,
+							  MIR::Actual_parameter_list* params);
+
+	void instantiate_object (	Context* caller_cx,
+										MIR::VARIABLE_NAME* self,
+										MIR::New* in);
 
 	Method_info_list* get_possible_receivers (Context* cx, MIR::Target*, MIR::Method_name*);
 	Method_info_list* get_possible_receivers (Context* cx, MIR::Param_is_ref*);
 	Method_info_list* get_possible_receivers (Context* cx, MIR::Method_invocation*);
+	Method_info_list* get_possible_receivers (Context* cx, MIR::New*);
 
 	void generate_summary (User_method_info* info);
 

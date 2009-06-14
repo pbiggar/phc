@@ -275,16 +275,14 @@ Optimization_transformer::visit_isset (Statement_block* bb, MIR::Isset* in)
 	phc_TODO ();
 }
 
-
 void
-Optimization_transformer::visit_method_invocation (Statement_block* bb, MIR::Method_invocation* in)
+Optimization_transformer::copy_in_literals (Basic_block* bb, Method_info_list* receivers, Actual_parameter_list* params)
 {
 	Context* cx = Context::non_contextual (bb);
-	Method_info_list* receivers = wp->get_possible_receivers (cx, in);
 
 	// Update the parameters with constants
 	int i = -1;
-	foreach (Actual_parameter* param, *in->actual_parameters)
+	foreach (Actual_parameter* param, *params)
 	{
 		i++;
 
@@ -302,12 +300,22 @@ Optimization_transformer::visit_method_invocation (Statement_block* bb, MIR::Met
 			param->rvalue = get_literal (bb, param->rvalue);
 		}
 	}
+
+}
+
+
+void
+Optimization_transformer::visit_method_invocation (Statement_block* bb, MIR::Method_invocation* in)
+{
+	Context* cx = Context::non_contextual (bb);
+	copy_in_literals (bb, wp->get_possible_receivers (cx, in), in->actual_parameters);
 }
 
 void
 Optimization_transformer::visit_new (Statement_block* bb, MIR::New* in)
 {
-	phc_TODO ();
+	Context* cx = Context::non_contextual (bb);
+	copy_in_literals (bb, wp->get_possible_receivers (cx, in), in->actual_parameters);
 }
 
 void

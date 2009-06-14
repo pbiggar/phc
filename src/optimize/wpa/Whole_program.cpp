@@ -116,12 +116,12 @@ Whole_program::run (MIR::PHP_script* in)
 
 		// Perform the whole-program analysis
 		invoke_method (
+				outer_cx,
+				NULL,
 				new Method_invocation (
 					NULL,
 					new METHOD_NAME (s("__MAIN__")),
-					new Actual_parameter_list),
-				outer_cx,
-				NULL);
+					new Actual_parameter_list));
 
 		// Merge different contexts
 		merge_contexts ();
@@ -417,21 +417,18 @@ Whole_program::get_possible_receivers (Context* cx, Target* target, Method_name*
 	return result;	
 }
 
-void
-Whole_program::instantiate_object (New* in, Context* caller_cx, MIR::VARIABLE_NAME* self)
+// New is slightly different, since it's Class_name is not the same as
+// Method_invocation's target. Also, it must search for both __construct and
+// the old style constructor.
+Method_info_list*
+Whole_program::get_possible_receivers (Context* cx, New* in)
 {
 	if (isa<Variable_class> (in->class_name))
 		phc_TODO ();
 
 	CLASS_NAME* class_name = dyc<CLASS_NAME> (in->class_name);
 
-	assign_path_empty_object (block_cx, saved_plhs, *class_name->value);
-
 	Class_info* class_info = Oracle::get_class_info (class_name->value);
-
-
-	// TODO: assign members
-
 
 	// Find the constructor
 	Method_info* constructor = class_info->get_method_info (s("__construct"), false);
@@ -440,30 +437,64 @@ Whole_program::instantiate_object (New* in, Context* caller_cx, MIR::VARIABLE_NA
 	if (constructor == NULL)
 		constructor = class_info->get_method_info (class_name->value, false);
 
-	// If there isn't a constructor, ignore it.
 	if (constructor)
-	{
-		invoke_method (
-				new Method_invocation (
-					self,
-					new METHOD_NAME (constructor->name),
-					in->actual_parameters), 
-				caller_cx,
-				NULL);
-	}
+		return new Method_info_list (constructor);
+	else
+		return new Method_info_list ();
 }
 
+
+
 void
-Whole_program::invoke_method (Method_invocation* in, Context* caller_cx, MIR::VARIABLE_NAME* lhs)
+Whole_program::instantiate_object (Context* caller_cx, MIR::VARIABLE_NAME* self, New* in)
 {
 	Method_info_list* receivers = get_possible_receivers (caller_cx, in);
 
+	// Get the classes (there might not be receivers, even when there are classes)
+	if (isa<Variable_class> (in->class_name))
+		phc_TODO ();
+
+	CLASS_NAME* class_name = dyc<CLASS_NAME> (in->class_name);
+
+	// Allocate memory
+	assign_path_empty_object (block_cx, saved_plhs, *class_name->value);
+
+
+	// TODO: assign members
+
+
+	// If there isn't a constructor, ignore it.
+	if (receivers->size ())
+	{
+		invoke_method (
+				caller_cx,
+				NULL,
+				self,
+				receivers,
+				in->actual_parameters);
+	}
+}
+
+
+void
+Whole_program::invoke_method (Context* caller_cx, MIR::VARIABLE_NAME* lhs, MIR::Method_invocation* in)
+{
+	invoke_method (
+		caller_cx,
+		lhs,
+		dynamic_cast<VARIABLE_NAME*> (in->target),
+		get_possible_receivers (caller_cx, in),
+		in->actual_parameters);
+}
+
+void
+Whole_program::invoke_method (Context* caller_cx, VARIABLE_NAME* lhs, VARIABLE_NAME* target, Method_info_list* receivers, Actual_parameter_list* params)
+{
 	// Make $this explicit, if necessary.
-	Actual_parameter_list* params = in->actual_parameters;
-	if (isa<VARIABLE_NAME> (in->target))
+	if (target)
 	{
 		params = params->clone ();
-		params->push_front (new Actual_parameter (false, dyc<VARIABLE_NAME> (in->target)));
+		params->push_front (new Actual_parameter (false, target));
 	}
 
 	// Need to clone the information and merge it when it returns.
@@ -479,6 +510,7 @@ Whole_program::invoke_method (Method_invocation* in, Context* caller_cx, MIR::VA
 	// Reset the context correctly.
 	block_cx = caller_cx;
 }
+
 
 void
 Whole_program::analyse_method_info (Method_info* method_info,
@@ -2401,7 +2433,7 @@ Whole_program::visit_method_invocation (Statement_block* bb, MIR::Method_invocat
 	if (saved_is_ref)
 		phc_TODO ();
 
-	invoke_method (in, block_cx, saved_lhs);
+	invoke_method (block_cx, saved_lhs, in);
 }
 
 void
@@ -2416,7 +2448,7 @@ Whole_program::visit_new (Statement_block* bb, MIR::New* in)
 	if (saved_is_ref)
 		phc_TODO ();
 
-	instantiate_object (in, block_cx, saved_lhs);
+	instantiate_object (block_cx, saved_lhs, in);
 }
 
 void

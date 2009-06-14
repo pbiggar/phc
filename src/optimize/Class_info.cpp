@@ -50,7 +50,7 @@ User_class_info::User_class_info (Class_def* class_def)
 				phc_TODO ();
 			}
 
-			User_method_info* umi = new User_method_info (method);
+			User_method_info* umi = new User_method_info (this, method);
 			umi->add_self_parameter ();
 
 			this->methods[*name] = umi;

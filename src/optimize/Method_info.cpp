@@ -6,6 +6,7 @@
  */
 
 #include "Method_info.h"
+#include "Class_info.h"
 #include "Basic_block.h"
 #include "MIR.h"
 
@@ -24,6 +25,16 @@ Method_info::Method_info (String* name)
 
 User_method_info::User_method_info (Method* method)
 : Method_info (method->signature->method_name->value)
+, class_info (NULL)
+, method (method)
+, side_effecting (true)
+, has_self_parameter (false)
+{
+}
+
+User_method_info::User_method_info (User_class_info* class_info, Method* method)
+: Method_info (method->signature->method_name->value)
+, class_info (class_info)
 , method (method)
 , side_effecting (true)
 , has_self_parameter (false)
@@ -129,6 +140,13 @@ User_method_info::get_method ()
 	return method;
 }
 
+Class_info*
+User_method_info::get_class_info ()
+{
+	return class_info;
+}
+
+
 /*
  * Summary methods
  */
@@ -172,6 +190,12 @@ Summary_method_info::get_fake_bb ()
 {
 	assert (this->cfg);
 	return this->cfg->get_entry_bb ()->get_successors ()->front();
+}
+
+Class_info*
+Summary_method_info::get_class_info ()
+{
+	phc_TODO ();
 }
 
 
@@ -232,4 +256,11 @@ Builtin_method_info::formal_param_count ()
 		return 0;
 
 	phc_TODO ();
+}
+
+
+Class_info*
+Builtin_method_info::get_class_info ()
+{
+	return NULL;
 }

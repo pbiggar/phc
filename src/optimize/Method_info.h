@@ -69,6 +69,8 @@
  */
 
 DECL (Method_info);
+DECL (Class_info);
+DECL (User_class_info);
 
 class Whole_program;
 
@@ -100,6 +102,8 @@ public:
 
 	virtual int formal_param_count () = 0;
 
+	virtual Class_info* get_class_info () = 0;
+
 	/*
 	 * Annotations for optimizations
 	 */
@@ -112,14 +116,17 @@ class User_method_info : public Method_info
 private:
 
 	friend class Whole_program;
+	User_class_info* class_info;
 	MIR::Method* method;
 
 	bool side_effecting;
 
 	bool has_self_parameter;
 
+
 public:
 	User_method_info (MIR::Method* implementation);
+	User_method_info (User_class_info* class_info, MIR::Method* method);
 
 	bool has_implementation ();
 
@@ -135,6 +142,7 @@ public:
 	bool is_side_effecting ();
 
 	MIR::Method* get_method ();
+	virtual Class_info* get_class_info ();
 
 };
 
@@ -146,6 +154,7 @@ public:
 
 	CFG* get_cfg ();
 	Basic_block* get_fake_bb ();
+	virtual Class_info* get_class_info ();
 };
 
 /*
@@ -166,6 +175,7 @@ public:
 	int formal_param_count ();
 
 	bool is_side_effecting ();
+	virtual Class_info* get_class_info ();
 
 };
 

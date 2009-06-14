@@ -70,6 +70,10 @@ public:
 	void visit_unary_op (Statement_block* bb, MIR::Unary_op* in);
 	void visit_variable_name (Statement_block* bb, MIR::VARIABLE_NAME* in);
 	void visit_variable_variable (Statement_block* bb, MIR::Variable_variable* in);
+
+private:
+
+	void copy_in_literals (Basic_block* bb, Method_info_list* receivers, MIR::Actual_parameter_list* params);
 };
 
 #endif // PHC_OPTIMIZATION_TRANSFORMER
