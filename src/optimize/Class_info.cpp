@@ -50,7 +50,10 @@ User_class_info::User_class_info (Class_def* class_def)
 				phc_TODO ();
 			}
 
-			this->methods[*name] = new User_method_info (method);
+			User_method_info* umi = new User_method_info (method);
+			umi->add_self_parameter ();
+
+			this->methods[*name] = umi;
 		}
 		else
 			// We havent assigned fields anywhere.

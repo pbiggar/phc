@@ -26,6 +26,7 @@ User_method_info::User_method_info (Method* method)
 : Method_info (method->signature->method_name->value)
 , method (method)
 , side_effecting (true)
+, has_self_parameter (false)
 {
 }
 
@@ -33,6 +34,20 @@ bool
 User_method_info::has_implementation ()
 {
 	return true;
+}
+
+void
+User_method_info::add_self_parameter ()
+{
+	this->has_self_parameter = true;
+
+	method->signature->formal_parameters->push_front (
+		new Formal_parameter (
+			NULL,
+			false,
+			new Name_with_default (
+				new VARIABLE_NAME ("this"),
+				NULL)));
 }
 
 bool
@@ -103,6 +118,15 @@ int
 User_method_info::formal_param_count ()
 {
 	return method->signature->formal_parameters->size ();
+}
+
+Method*
+User_method_info::get_method ()
+{
+	if (this->has_self_parameter)
+		phc_TODO ();
+
+	return method;
 }
 
 /*

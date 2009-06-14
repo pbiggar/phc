@@ -108,18 +108,23 @@ public:
 
 class User_method_info : public Method_info
 {
-public:
-	MIR::Method* method;
 
 private:
-	bool side_effecting;
 
 	friend class Whole_program;
+	MIR::Method* method;
+
+	bool side_effecting;
+
+	bool has_self_parameter;
 
 public:
 	User_method_info (MIR::Method* implementation);
 
 	bool has_implementation ();
+
+	// Add THIS to the method, but don't forget to remove it later, in get_method.
+	void add_self_parameter ();
 
 	bool return_by_ref ();
 	MIR::VARIABLE_NAME* param_name (int param_index);
@@ -128,6 +133,8 @@ public:
 	int formal_param_count ();
 
 	bool is_side_effecting ();
+
+	MIR::Method* get_method ();
 
 };
 
