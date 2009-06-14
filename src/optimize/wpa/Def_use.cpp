@@ -164,13 +164,16 @@ Def_use::dump (Context* cx, string comment)
 		dump_set (cx, rt, dt);
 
 
-	string st_name = cx->symtable_name ();
+	string st_name = "__MAIN__";
+	if (!cx->is_outer ())
+		st_name = cx->symtable_name ();
+
 	foreach_rtdt
 	{
 		string set_name = debug_name (rt, dt);
 		if (summary_maps[st_name][rt][dt].size())
 		{
-			cdebug << st_name << ": " << set_name << " list: ";
+			cdebug << st_name << " (summary): " << set_name << " list: ";
 			foreach (Alias_name name, summary_maps[st_name][rt][dt])
 				cdebug << name.str() << ", ";
 			cdebug << endl;
@@ -199,6 +202,11 @@ Def_use::create_reference (Context* cx, Index_node* lhs, Index_node* rhs, Certai
 		record (cx, REF, MAYDEF, lhs);
 
 	record (cx, REF, USE, rhs);
+
+	// Although we know the actual value, we can rarely propagate it, so the
+	// tends to be needed here (if this statement is not needed, it will
+	// probably be killed).
+	record (cx, VAL, USE, rhs);
 }
 
 
