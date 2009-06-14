@@ -88,7 +88,10 @@ Optimization_transformer::visit_assign_array (Statement_block* bb, MIR::Assign_a
 void
 Optimization_transformer::visit_assign_field (Statement_block* bb, MIR::Assign_field * in)
 {
-	phc_TODO ();
+	if (!in->is_ref)
+		in->rhs = get_literal (bb, in->rhs);
+
+	// TODO: change a variable field into a known field name
 }
 
 

@@ -142,7 +142,16 @@ Method*
 User_method_info::get_method ()
 {
 	if (this->has_self_parameter)
-		phc_TODO ();
+	{
+		Formal_parameter_list* params = this->method->signature->formal_parameters;
+
+		// Check the SELF parameter is there.
+		assert (params->size () >= 1);
+		assert (*params->front ()->var->variable_name->value == "this");
+
+		// Remove it
+		params->pop_front ();
+	}
 
 	return method;
 }
