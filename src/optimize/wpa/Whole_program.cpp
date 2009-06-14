@@ -443,15 +443,11 @@ Whole_program::instantiate_object (New* in, Context* caller_cx, MIR::VARIABLE_NA
 	// If there isn't a constructor, ignore it.
 	if (constructor)
 	{
-		// Make $this explicit
-		Actual_parameter_list* params = in->actual_parameters->clone ();
-		params->push_front (new Actual_parameter (false, self));
-
 		invoke_method (
 				new Method_invocation (
-					class_name, 
+					self,
 					new METHOD_NAME (constructor->name),
-					params), 
+					in->actual_parameters), 
 				caller_cx,
 				NULL);
 	}
@@ -462,6 +458,14 @@ Whole_program::invoke_method (Method_invocation* in, Context* caller_cx, MIR::VA
 {
 	Method_info_list* receivers = get_possible_receivers (caller_cx, in);
 
+	// Make $this explicit, if necessary.
+	Actual_parameter_list* params = in->actual_parameters;
+	if (isa<VARIABLE_NAME> (in->target))
+	{
+		params = params->clone ();
+		params->push_front (new Actual_parameter (false, dyc<VARIABLE_NAME> (in->target)));
+	}
+
 	// Need to clone the information and merge it when it returns.
 	if (receivers->size () != 1)
 		phc_TODO ();
@@ -469,7 +473,7 @@ Whole_program::invoke_method (Method_invocation* in, Context* caller_cx, MIR::VA
 	
 	foreach (Method_info* receiver, *receivers)
 	{
-		analyse_method_info (receiver, caller_cx, in->actual_parameters, lhs);
+		analyse_method_info (receiver, caller_cx, params, lhs);
 	}
 
 	// Reset the context correctly.
