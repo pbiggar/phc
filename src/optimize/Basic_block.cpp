@@ -61,7 +61,7 @@ String*
 Entry_block::get_graphviz_label ()
 {
 	stringstream ss;
-	ss << ID << " ENTRY: (";
+	ss << " ENTRY: (";
 
 	foreach (Formal_parameter* param, *method->signature->formal_parameters)
 		ss << *param->var->variable_name->value << ", ";
@@ -74,7 +74,7 @@ Entry_block::get_graphviz_label ()
 String* Exit_block::get_graphviz_label ()
 {
 	stringstream ss;
-	ss << ID << " EXIT: (";
+	ss << " EXIT: (";
 
 	foreach (Formal_parameter* param, *method->signature->formal_parameters)
 		ss << *param->var->variable_name->value << ", ";
@@ -93,8 +93,7 @@ String* Branch_block::get_graphviz_label ()
 {
 	String* result = s("$");
 	result->append (*branch->variable_name->value);
-	result->append (" ID: ");
-	result->append(""+ID);
+
 	return result;
 }
 
@@ -102,7 +101,6 @@ String*
 Statement_block::get_graphviz_label ()
 {
 	stringstream ss;
-	ss<<ID<<" ";
 	MIR_unparser mup(ss, true);
 	mup.unparse (statement);
 	return escape_DOT (s(ss.str()));

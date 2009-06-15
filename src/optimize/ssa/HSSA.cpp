@@ -502,4 +502,4 @@ HSSA::rename_vars (Basic_block* bb)
 	foreach (Alias_name* def, *defs_to_pop)
 		pop_var_stack (def);
 	
-
+}
