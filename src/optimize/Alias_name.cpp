@@ -69,6 +69,12 @@ Alias_name::str () const
 	return ss.str ();
 }
 
+string
+Alias_name::get_key ()
+{
+	return prefix+"::"+name;
+}
+
 void
 Alias_name::drop_ssa_version ()
 {

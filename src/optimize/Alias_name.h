@@ -48,6 +48,9 @@ public:
 	// Alias_name instead of a string.
 	std::string str () const;
 
+	// Get key for indexing var_stacks
+	string get_key ();	
+
 	void set_version (int version);
 	void drop_ssa_version ();
 

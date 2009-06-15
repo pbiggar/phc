@@ -275,13 +275,7 @@ HSSA::convert_to_hssa_form ()
 			
 			foreach (Alias_name name, *phidefs)
 			{
-				DEBUG("Phi node info:\n");
 				defs->push_back (new SSA_def (bb, &name, SSA_PHI)); 
-				DEBUG(name.str () );
-				foreach(Alias_name* rhs, *bb->cfg->duw->get_phi_args (bb,name) )
-				{
-					DEBUG("\n" << rhs->ssa_version);
-				}
 			}
 
 			foreach (SSA_def* def, *defs)
@@ -372,11 +366,9 @@ void
 HSSA::push_to_var_stack (Alias_name* name)
 {
 	assert (name->ssa_version == 0);
-	var_stacks[name->name].push (counter);
+	var_stacks[name->get_key ()].push (counter);
 	name->set_version (counter);
 	counter++;
-	DEBUG("PUSHED " << var_stacks[name->name].top() << " TO VS FOR " << name->name);
-	DEBUG("COUNTER: " << counter);
 }
 
 int
@@ -387,29 +379,20 @@ HSSA::read_var_stack (Alias_name* name)
 
 	// NAME gets an SSA version in push_to_var_stack, which changes the
 	// indexing.
+	
 	Alias_name index = *name;
-	DEBUG("BEFORE IF IN READ_VAR_STACK FOR " << index.name);
-	DEBUG("SIZE OF VS BEFORE IF IN RVS: " << var_stacks[index.name].size ());
-	if (var_stacks[index.name].size () == 0)
+	if (var_stacks[index.get_key ()].size () == 0)
 		push_to_var_stack (name);
-	DEBUG("AFTER IF IN RVS FOR " << index.name);
-	DEBUG("SIZE OF VS AFTER IF IN RVS: " << var_stacks[index.name].size ());
-	DEBUG("TOP OF VS AFTER IF IN RVS: " << var_stacks[index.name].top ());
-	return var_stacks[index.name].top();
+	
+	return var_stacks[index.get_key ()].top();
 }
 
 void
 HSSA::pop_var_stack (Alias_name* name)
 {
-	DEBUG("BEFORE POPPING" << name->name);
-	DEBUG ("SIZE: " << var_stacks[name->name].size ());
-	int top;
-	if (var_stacks[name->name].size () > 0)
+	if (var_stacks[name->get_key ()].size () > 0)
 	{
-		top = var_stacks[name->name].top();
-		var_stacks[name->name].pop();
-		DEBUG ("POPPED " << top << "FROM VAR STACK FOR " << name->name);
-		DEBUG ("SIZE: " << var_stacks[name->name].size ());
+		var_stacks[name->get_key ()].pop();
 	}	
 }
 
@@ -444,59 +427,61 @@ HSSA::debug_top_var_stack (Alias_name* var, string type)
 {
 	CHECK_DEBUG ();
 	DEBUG(type << ": " << var->str () << "\n");
-	if (var_stacks[var->name].size () == 0)
+	if (var_stacks[var->get_key ()].size () == 0)
 	{
 		DEBUG ("var stack empty");
 	}else
 	{
-		DEBUG ("TOP OF VAR STACK:" << var_stacks[var->name].top ());
+		DEBUG ("TOP OF VAR STACK:" << var_stacks[var->get_key ()].top ());
 	}
 }
 
 void 
 HSSA::rename_vars (Basic_block* bb)
 {
-	//For each phi function in bb, rename lhs
+	// For each phi function in bb, rename lhs
 	
 	DEBUG ("BB:"<<bb->ID);
 	foreach (Alias_name phi_lhs, *bb->get_phi_lhss())
 	{
 		debug_top_var_stack (&phi_lhs, "PHI");
 		Alias_name clone = phi_lhs;
+		
 		create_new_ssa_name (&clone);
 		debug_top_var_stack (&phi_lhs, "PHI");	
 		bb->update_phi_node (phi_lhs, clone);
 	}
 	
-	//Rename each use in bb
+	// Rename each use in bb
 	foreach (Alias_name* use, *bb->cfg->duw->get_uses (bb))
 	{
-		DEBUG("READ_VAR_STACK CALLED DUE TO USE RENAMING");
 		use->set_version (read_var_stack (use));
 	}	
-	//TODO: Already covered by defs?	
+	// TODO: Already covered by defs?	
 	foreach (Alias_name* may_def, *bb->cfg->duw->get_may_defs (bb))
-                create_new_ssa_name (may_def);
+	{
+		DEBUG("MAY-DEF: " << may_def->name);
+		create_new_ssa_name (may_def);
+	}
 
-	//Rename each def in bb	
+	// Rename each def in bb	
        foreach (Alias_name* def, *bb->cfg->duw->get_defs (bb))
 	{
 		debug_top_var_stack (def,"DEF");
 		create_new_ssa_name (def);
 		debug_top_var_stack (def, "DEF");
 	}	
-	//Fill in successors' phi args	
+	// Fill in successors' phi args	
 	foreach (Basic_block* succ, *bb->get_successors ())
 	{
 		DEBUG("Filling in successors' phi args\n" << " SUCC:" << succ->ID);
 		foreach (Alias_name phi_lhs, *succ->get_phi_lhss())
 		{	
 			debug_top_var_stack (&phi_lhs, "PHI");
-			if (var_stacks[phi_lhs.name].size () != 0) //No point if nothing on var stack
+			if (var_stacks[phi_lhs.get_key ()].size () != 0) // No point if nothing on var stack
 			{
 				if (succ->has_phi_node (phi_lhs))
 				{
-					DEBUG("READ_VAR_STACK CALLED DUE TO SUCC");
 					succ->add_phi_arg (phi_lhs, read_var_stack (&phi_lhs), cfg->get_edge (bb, succ));
 				}
 			}
@@ -517,118 +502,4 @@ HSSA::rename_vars (Basic_block* bb)
 	foreach (Alias_name* def, *defs_to_pop)
 		pop_var_stack (def);
 	
-	/*
-	TODO: Old comments and code, probably should delete
-	// Ordering is important here:
-	//		- Phi nodes occur before the function, so 1) args get renamed, then
-	//		  2) the lhs (actually, this node's phi args are renamed in the
-	//		  precessors).
-	//		- 3) The statement itself uses the result of the phi operation
-	//		- 4) Mu nodes use the uses
-	//		- 5) The statements def occur after the uses
-	//		- 6) The chi uses occur after the statement def
-	//		- 7) The chi defs occur after the chi uses
-	//
-	DEBUG ("renaming vars in " << *bb->get_graphviz_label ());
-	debug_var_stacks ();
-	
-	//TODO: Phis
-	
-	foreach (Alias_name* use, *bb->cfg->duw->get_uses (bb))
-		use->set_version (read_var_stack (use));
-
-	foreach (Alias_name* def, *bb->cfg->duw->get_defs (bb))
-		create_new_ssa_name (def);
-
-	foreach (Alias_name* may_def, *bb->cfg->duw->get_may_defs (bb))
-		create_new_ssa_name (may_def);
-		
-	foreach (Alias_name phi_lhs, *bb->get_phi_lhss())
-	{
-		DEBUG(phi_lhs.str () );
-		foreach(Alias_name* rhs, *bb->cfg->duw->get_phi_args (bb,phi_lhs) )
-		{
-			DEBUG("\n"<<rhs->ssa_version);
-		}
-		
-		Alias_name clone = phi_lhs;
-		create_new_ssa_name (&clone);
-		bb->update_phi_node (phi_lhs, clone);
-	}
-		
-
-	// Phis, Chis and Mus use indexing, and when we put them in SSA form,
-	// their indexing changes. As a result, we need to remove the old one, and
-	// add the new one.
-#if 0
-	// 2) Convert the phi nodes
-	foreach (Alias_name phi_lhs, *bb->get_phi_lhss())
-	{
-		Alias_name clone = phi_lhs;
-		create_new_ssa_name (&clone);
-		bb->update_phi_node (phi_lhs, clone);
-	}
-
-
-	// 3) Rename the statement's uses
-	foreach (Alias_name* use, *bb->cfg->duw->get_uses (bb))
-		use->set_version (read_var_stack (use));
-
-	// 4) Mus
-	// Mus are indexed on their var_name
-	foreach (Alias_name mu, *bb->get_mus())
-	{
-		Alias_name clone = mu;
-		clone.set_version (read_var_stack (clone));
-		bb->update_mu_node (mu, clone);
-	}
-
-
-
-	// 5) Create new names for defs
-	foreach (Alias_name* def, *bb->cfg->duw->get_defs (bb))
-		create_new_ssa_name (def);
-
-	// 6) Rename the chi's uses
-	foreach (Alias_name use, *bb->get_chi_rhss ())
-		use.set_version (read_var_stack (use));
-
-	// 7) Chis are indexed on the lhs
-	foreach (Alias_name lhs, *bb->get_chi_lhss ())
-	{
-		Alias_name clone = lhs;
-		create_new_ssa_name (clone);
-		bb->update_chi_lhs (lhs, clone);
-	}
-
-
-	// Copy names to CFG successors (including names defined in
-	// predecessor, which are not redefined here).
-	foreach (Basic_block* succ, *bb->get_successors ())
-		foreach (Alias_name phi_lhs, *succ->get_phi_lhss())
-			succ->add_phi_arg (phi_lhs, read_var_stack (&phi_lhs), cfg->get_edge (bb, succ));
-#endif
-
-
-	// Recurse down the dominator tree
-	foreach (Basic_block* dominated, *bb->get_dominated_blocks ())
-		rename_vars (dominated);
-
-#if 0
-
-	// Before going back up the tree, get rid of new variable names from
-	// the stack, so the next node up sees its own names.
-
-	// In case of duplicates, pop once for each dup.
-	Alias_name_list* defs = new Alias_name_list;
-	defs->push_back_all (bb->get_defs_for_renaming ());
-	defs->push_back_all (bb->get_phi_lhss ()->to_list ());
-	defs->push_back_all (bb->get_chi_lhss ());
-	foreach (Alias_name def, *defs)
-		pop_var_stack (def);
-
-#endif
-*/
-}
-
 
