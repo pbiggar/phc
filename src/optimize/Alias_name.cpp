@@ -95,29 +95,6 @@ Alias_name::set_version (int version)
 // contextual to a non-contextual context. This is hard to fix, so this hacks
 // it instead of fixing it properly. We just do a string replacement from the
 // name in OLDc to the name in NEWC.
-/*Alias_name
-Alias_name::switch_context (Context oldc, Context newc)
-{
-	Alias_name result (this->prefix, this->name);
-	assert (this->ssa_version == 0);
-
-	string old_cname = oldc.name ();
-	string new_cname = newc.name ();
-
-	boost::replace_first (result.prefix, old_cname, new_cname);
-	boost::replace_first (result.name, old_cname, new_cname);
-
-	return result;
-}*/
-
-// Return a new Alias_name, which has had its name converted from OLDC to NEWC.
-//
-// XXX HACK:
-// There is a problem that context has been converted to a string by the time
-// it gets put into an alias name. So we find it hard to switch from a
-// contextual to a non-contextual context. This is hard to fix, so this hacks
-// it instead of fixing it properly. We just do a string replacement from the
-// name in OLDc to the name in NEWC.
 Alias_name
 Alias_name::convert_context_name ()
 {

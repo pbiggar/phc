@@ -30,6 +30,8 @@ class Context;
 class Index_node;
 class Storage_node;
 
+DECL(Alias_name);
+
 class Alias_name : virtual public GC_obj
 {
 public:
@@ -57,8 +59,5 @@ public:
 	// Drops the context info
 	Alias_name convert_context_name ();
 };
-
-typedef List<Alias_name> old_Alias_name_list;
-typedef List<Alias_name*> Alias_name_list;
 
 #endif // PHC_ALIAS_NAME
