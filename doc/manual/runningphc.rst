@@ -176,15 +176,17 @@ now, please follow these steps.
 	
 We describe how to create and install an extension using the C code generated
 by |phc|. While we give an overview of creating extensions, significantly more
-detail can be found in the `Zend Extension Writing
-Tutorial <http://devzone.zend.com/node/view/id/1021>`_ and in `Extending and Embedding PHP <http://www.amazon.com/dp/067232704X>`_.
+detail can be found in the
+`Zend Extension Writing Tutorial <http://devzone.zend.com/node/view/id/1021>`_
+and in
+`Extending and Embedding PHP <http://www.amazon.com/dp/067232704X>`_.
 
 To begin, create a new directory for the extension. We'll use :file:`ext/` in
 our example. Generate C code from :file:`helloworld.php` using |phc|.
 
 .. sourcecode:: bash
 
-   phc --generate-c helloworld.php > ext/helloworld.c
+   phc --extension=helloworld --generate-c helloworld.php > ext/helloworld.c
 
 
 Create a new file, :file:`ext/config.m4`, by copying the following, and
