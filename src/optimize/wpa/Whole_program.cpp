@@ -1866,7 +1866,10 @@ Whole_program::get_named_indices (Context* cx, Path* path, bool is_readonly)
 		String* index_value = this->get_string_value (cx, index);
 		record_use (cx, index);
 
-		return get_array_named_indices (cx, p->lhs, index_value, is_readonly);
+		return new Index_node_list (
+			new Index_node (
+				dyc<ST_path> (p->lhs)->name,
+				*index_value));
 	}
 
 
