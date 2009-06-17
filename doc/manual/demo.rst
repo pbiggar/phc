@@ -58,7 +58,7 @@ Suppose we want to rename function :func:`foo()` to
    extern "C" void run_ast (AST::PHP_script* in, Pass_manager* pm, String* option)
    {
        Rename_foo_to_bar f2b;
-       php_script->visit(&amp;f2b);
+       php_script->visit(&f2b);
    }
 
    extern "C" void load (Pass_manager* pm, Plugin_pass* pass)

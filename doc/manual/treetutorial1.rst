@@ -235,7 +235,7 @@ will still work as-is.
    extern "C" void run_ast (AST::PHP_script* in, Pass_manager* pm, String* option)
    {
       Count_statements cfc;
-      in->visit(&amp;cfc);
+      in->visit(&cfc);
    }
 
 

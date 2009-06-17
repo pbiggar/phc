@@ -7,7 +7,7 @@ As explained in the previous tutorials (in particular, :ref:`treetutorial1`), wh
 :class:`AST::Visitor` traverses a tree, it first calls ``pre_xxx`` for a node
 of type *xxx*, it then visits all the children of the node, and finally it
 calls ``post_xxx`` on the node.  For many transforms, this is sufficient
-&mdash; but not for all. Consider the following transform. Suppose we want to
+-- but not for all. Consider the following transform. Suppose we want to
 add comments to the ``true`` and ``false`` branches of an ``if``-statement, so
 that the following example 
 

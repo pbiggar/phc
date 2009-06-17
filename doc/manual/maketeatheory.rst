@@ -217,8 +217,8 @@ for the |phc| grammar, this yields
 So, a context is a triplet ``(symbol,symbol,multiplicity)``, where the symbols
 are terminal or non-terminal symbols, and the multiplicity is either
 ``Single``, ``Optional``, ``List``, ``OptionalList`` or ``ListOptional`` (list
-of optionals).  When reducing two contexts (``a``,``b``,``c``)
-(``a'``,``b'``,``c'``), we take the meet of ``b`` and ``b'`` (that is, the most
+of optionals).  When reducing two contexts (``a``, ``b``, ``c``)
+(``a'``, ``b'``, ``c'``), we take the meet of ``b`` and ``b'`` (that is, the most
 general common subclass of ``b`` and ``b'``, where more general means higher up
 in the inheritance hierarchy), and opt for the most restrictive Multiplicity
 (Single over Optional, Single over List, etc.). The general idea is that we

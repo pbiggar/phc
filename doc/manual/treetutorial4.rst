@@ -5,16 +5,16 @@ Using State
 
 This tutorial explains an advanced feature of pattern matching, and shows an
 important technique in writing tree transforms: the use of state. Suppose we
-are continuing the refactoring tool that we began in :ref:`treetutorial2`, and suppose that we have replaced all calls to
-database specific functions by calls to the generic DBX functions. To finish
-the refactoring, we want to rename any function ``foo`` in the script to
-``foo_DB``, if it makes use of the database --- this clearly sets functions
-that use the database apart, which may make the structure of the script
-clearer.  
+are continuing the refactoring tool that we began in :ref:`treetutorial2`, and
+suppose that we have replaced all calls to database specific functions by calls
+to the generic DBX functions. To finish the refactoring, we want to rename any
+function ``foo`` in the script to ``foo_DB``, if it makes use of the database
+--- this clearly sets functions that use the database apart, which may make the
+structure of the script clearer.  
 
 So, we want to write a transform that renames all functions ``foo``
 to ``foo_DB``, if there is one or more call within that function to any
-``dbx``\_**something** function.  Here is a simple example: 
+``dbx_something`` function.  Here is a simple example:
 
 .. sourcecode:: php
 
@@ -56,7 +56,7 @@ The Implementation
 Since we have to modify method (function) names, the nodes we are interested in
 are the nodes of type :func:`Method`. However, how do we know when to modify a
 particular method? Should we search the method body for function calls to
-``dbx``\_**xxx**? As we saw in :ref:`treetutorial1`, manual searching
+``dbx_something``? As we saw in :ref:`treetutorial1`, manual searching
 through the tree is cumbersome; there must be a better solution. 
 
 The solution is in fact very easy. At the start of each method, we set a

@@ -109,7 +109,7 @@ plugin deletes all :class:`Eval_expr` nodes from the tree (try it!).
    extern "C" void run_ast (PHP_script* in, Pass_manager* pm, String* option)
    {
       Expand_includes einc;
-      in->transform_children(&amp;einc);
+      in->transform_children(&einc);
    }
 
 
@@ -313,7 +313,7 @@ full transform:
    extern "C" void run_ast (PHP_script* in, Pass_manager* pm, String* option)
    {
       Expand_includes einc;
-      in->transform_children(&amp;einc);
+      in->transform_children(&einc);
    }
 
 

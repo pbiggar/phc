@@ -11,10 +11,9 @@ develop your own tools for PHP by writing plugins.
 Compiling a Plugin
 ------------------
 
-	To get up and running, we'll first write "hello world" plugin
-	that does nothing except print a string. Create a new directory, say
-	:file:`~/myplugins` and create a new file
-	:file:`helloworld.cpp`:
+To get up and running, we'll first write a "hello world" plugin that does
+nothing except print a string. Create a new directory, say :file:`~/myplugins`
+and create a new file :file:`helloworld.cpp`:
 
 .. sourcecode:: c++
 

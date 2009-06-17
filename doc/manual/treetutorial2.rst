@@ -52,7 +52,7 @@ However, for some tokens, for example :class:`INT`, :attr:`value` has a
 different type (e.g., :ctype:`int`).  If the token has a non-standard type, it
 will have method called :func:`get_source_rep`, which returns a
 :ctype:`String*` representing the token in the source. For example, the real
-number ``5E-1`` would have :attr:`value`` equal to the (:ctype:`double`) 0.5,
+number ``5E-1`` would have :attr:`value` equal to the (:ctype:`double`) 0.5,
 but :func:`get_source_rep` would return (the :ctype:`String*`) "5E-1". 
 
 Thus, we arrive at the following first attempt. 
@@ -85,7 +85,7 @@ Thus, we arrive at the following first attempt.
    extern "C" void run_ast (PHP_script* in, Pass_manager* pm, String* option)
    {
       MySQL2DBX m2d;
-      in->visit(&amp;m2d);
+      in->visit(&m2d);
    }
 
 
@@ -135,7 +135,7 @@ parameters to :func:`mysql_connect` do not have an equivalent in
 conversion. The last parameter to :func:`dbx_connect` (:data:`persistent`) is
 optional, and we will ignore it in this tutorial.  
 
-Now, in |phc|, :const:`DBX_MYSQL` is a :class:`Constant``, which has two fields,
+Now, in |phc|, :const:`DBX_MYSQL` is a :class:`Constant`, which has two fields,
 an optional class name (for class constants) and the name of the constant, of
 type :class:`CONSTANT_NAME`. ``NULL`` is represented by :class:`NIL` (to avoid
 getting confused with the C++ value ``NULL``.
