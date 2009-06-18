@@ -330,6 +330,9 @@ int main(int argc, char** argv)
 	if (ret != 0) 
 		phc_error ("Error closing ltdl plugin infrastructure: %s", lt_dlerror ());
 
+	dump_stats ();
+
+
 	PHP::shutdown_php ();
 
 	shutdown_xml ();

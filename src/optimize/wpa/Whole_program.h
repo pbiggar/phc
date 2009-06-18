@@ -57,6 +57,7 @@ class VRP;
 
 class Optimization_transformer;
 class Optimization_annotator;
+class Stat_collector;
 class Pass_manager;
 class Path;
 class WPA;
@@ -84,6 +85,7 @@ public:
 
 	Optimization_transformer* transformer;
 	Optimization_annotator* annotator;
+	Stat_collector* stat_coll;
 
 	// Analyses should be able to reach in here to get other analyses'
 	// results.
@@ -144,6 +146,8 @@ public:
 	void annotate_results (User_method_info* info);
 	void perform_local_optimizations (User_method_info* info);
 	void perform_interprocedural_optimizations (User_method_info* info);
+
+	void collect_stats (User_method_info* info);
 
 	void strip (MIR::PHP_script* in);
 

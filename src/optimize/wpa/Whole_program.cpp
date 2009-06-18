@@ -87,6 +87,7 @@
 
 #include "Optimization_annotator.h"
 #include "Optimization_transformer.h"
+#include "Stat_collector.h"
 #include "Points_to.h"
 
 using namespace MIR;
@@ -98,6 +99,7 @@ Whole_program::Whole_program (Pass_manager* pm)
 {
 	annotator = new Optimization_annotator (this);
 	transformer = new Optimization_transformer (this);
+	stat_coll = new Stat_collector (this);
 }
 
 void
@@ -184,6 +186,9 @@ Whole_program::run (MIR::PHP_script* in)
 
 		// Annotate the statements for code-generation
 		annotate_results (info);
+
+
+		collect_stats (info);
 
 		// Replace method implementation with optimized code
 		info->get_method ()->statements = info->get_cfg ()->get_linear_statements ();
@@ -828,6 +833,13 @@ Whole_program::annotate_results (User_method_info* info)
 	// single annotator applying the results.
 	foreach (Basic_block* bb, *info->get_cfg ()->get_all_bbs ())
 		annotator->visit_block (bb);
+}
+
+void
+Whole_program::collect_stats (User_method_info* info)
+{
+	foreach (Basic_block* bb, *info->get_cfg ()->get_all_bbs ())
+		stat_coll->visit_block (bb);
 }
 
 void
