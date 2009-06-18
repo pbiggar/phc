@@ -1,5 +1,7 @@
 <?php
 
+	class C {}
+
 	$x = $argv[2];
 	if ($x)
 		$y = new C;
