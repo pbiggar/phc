@@ -485,7 +485,11 @@ Whole_program::instantiate_object (Context* caller_cx, MIR::VARIABLE_NAME* self,
 void
 Whole_program::assign_attribute (Context* cx, string obj, MIR::Attribute* attr)
 {
-	phc_TODO ();
+	// Although obj is just allocated, it may be abstract.
+	if (not isa<Literal> (attr->var->default_value))
+		phc_TODO ();
+
+	assign_path_scalar (cx, P (obj, attr->var->variable_name), dyc<Literal> (attr->var->default_value));
 }
 
 
