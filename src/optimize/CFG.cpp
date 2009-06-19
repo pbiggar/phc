@@ -412,9 +412,9 @@ CFG::dump_graphviz (String* label)
 		{
 			Alias_name_list* defs = duw->get_defs (bb);
 			Alias_name_list* uses = duw->get_uses (bb);
-			
+			Alias_name_list* may_defs = duw->get_may_defs(bb);	
 
-			if (defs->size() || uses->size ())
+			if (defs->size() || uses->size () || may_defs->size ())
 			{
 				// open dual columns
 				cout << FIELD_SEPARATOR << "{ { ";
@@ -427,7 +427,14 @@ CFG::dump_graphviz (String* label)
 
 					first = false;
 				}
-
+			
+				foreach (Alias_name* may_def, *may_defs)
+				{
+					cout
+					<< (first ? "" : FIELD_SEPARATOR) // no field separate
+					<< *get_graphviz_def (bb, may_def) << " (May def)";
+				}
+			
 				// open second column
 				cout << " } " << FIELD_SEPARATOR <<  " { ";
 				first = true;
