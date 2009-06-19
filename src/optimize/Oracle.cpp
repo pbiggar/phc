@@ -37,6 +37,9 @@ Oracle::initialize (MIR::PHP_script* in)
 	add_method_info (new Builtin_method_info (s("exit")));
 	add_method_info (new Builtin_method_info (s("echo")));
 	add_method_info (new Builtin_method_info (s("empty")));
+
+	// We can't invoke on NULL, but don't pretend we don't know what the type is.
+	Oracle::classes["unset"] = NULL;
 }
 
 
@@ -117,7 +120,10 @@ Class_info*
 Oracle::get_class_info (String* name)
 {
 	if (not classes.has (*name))
+	{
+		cdebug << *name << "not found" << endl;
 		phc_TODO ();
+	}
 
 	return classes[*name];
 }

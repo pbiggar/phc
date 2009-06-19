@@ -394,7 +394,14 @@ Whole_program::get_possible_receivers (Context* cx, Target* target, Method_name*
 
 		foreach (String* type, *classnames)
 		{
-			User_class_info* classinfo = Oracle::get_user_class_info (type);
+			Class_info* classinfo = Oracle::get_class_info (type);
+
+			// If this returns NULL, then its type doesn't represent a class,
+			// therefore a run-time error will occur. So we can pretend this isnt
+			// a receiver. (We shouldn't issue a warning, since this path might
+			// not be realizable in practice).
+			if (classinfo == NULL)
+				continue;
 
 			Method_info* info = classinfo->get_method_info (name);
 			if (info == NULL)
@@ -2418,7 +2425,7 @@ Whole_program::visit_constant (Statement_block* bb, MIR::Constant* in)
 void
 Whole_program::visit_field_access (Statement_block* bb, MIR::Field_access* in)
 {
-	phc_TODO ();
+	standard_rhs (bb, in);
 }
 
 void
