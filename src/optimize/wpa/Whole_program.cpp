@@ -630,7 +630,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		//		- an actual parameter is passed
 		//		- there are formal parameters. 
 		if (not aliasing->has_field (cx, param)
-			&& i >= info->formal_param_count ())
+			&& i >= info->formal_param_count ()) // (yes, &&)
 			break;
 
 
@@ -782,9 +782,9 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		// Returns an array with a range of values of the given type.
 		string name = assign_path_empty_array (cx, ret_path);
 
-		Abstract_value* absval1 = get_abstract_value (cx, params[0]->name());
-		Abstract_value* absval2 = get_abstract_value (cx, params[1]->name());
-		Types* merged = absval1->types->set_union (absval2->types);
+		Abstract_value* absval0 = get_abstract_value (cx, params[0]->name());
+		Abstract_value* absval1 = get_abstract_value (cx, params[1]->name());
+		Types* merged = absval0->types->set_union (absval1->types);
 		assign_path_typed (cx, P (name, UNKNOWN), merged);
 	}
 	else if (*info->name == "strlen")
@@ -805,10 +805,17 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	}
 	else if (*info->name == "var_export")
 	{
-		if (params[1])
-			phc_TODO (); // return string or NULL depending on true/false.
+		// Return string or NULL depending on true/false.
+		Abstract_value* absval1 = get_abstract_value (cx, params[1]->name());
 
-		// do nothing
+		Types types;
+		if (not absval1->known_false ())
+			types.insert ("string");
+
+		if (not absval1->known_true())
+			types.insert ("unset");
+
+		assign_path_typed (cx, ret_path, &types);
 	}
 	else
 	{
