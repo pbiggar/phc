@@ -5,6 +5,12 @@
  * Convenience statistics functions.
  */
 
+#include "lib/Set.h"
+#include "lib/Map.h"
+
+using namespace std;
+//using namespace boost;
+
 #ifndef PHC_STATS
 #define PHC_STATS
 
@@ -19,8 +25,8 @@
  *		- The is (currently) no need to save the stats after a pass ends.
  */
 
-//#define CTS(NAME)do {increment_stat (NAME, __FILE__, __LINE__); } while (0)
-#define CTS(NAME) increment_stat (NAME, __FILE__, __LINE__)
+#define CTS(NAME)do {increment_stat (NAME, __FILE__, __LINE__); } while (0)
+
 
 /* XCTS allows you wrap a statement, and use its code as the counter. For example:
  *
@@ -31,8 +37,20 @@
  */
 #define XCTS(NAME) do { increment_stat (#NAME, __FILE__, __LINE__); NAME; } while (0)
 
-int increment_stat (string name, string filename, int line_number);
+typedef Set<string> Stringset_stats;
+
+static Map<string, int> stats;
+static Map<string, Stringset_stats*> stringset_stats;
+
+void increment_stat (string name, string filename, int line_number);
+void set_stat (string name, int num);
+int get_stat (string name);
+Stringset_stats* get_stringset_stat (string name);
+void add_to_stringset_stat (string name, string s);
+
+void dump_types_per_opmeth ();
 void dump_stats ();
+void dump_types_per_var_name ();
 void reset_stats ();
 
 #endif // STATS
