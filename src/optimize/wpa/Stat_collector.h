@@ -64,7 +64,7 @@ public:
 	void visit_unary_op (Statement_block* bb, MIR::Unary_op* in);
 	void visit_variable_name (Statement_block* bb, MIR::VARIABLE_NAME* in);
 	void visit_variable_variable (Statement_block* bb, MIR::Variable_variable* in);
-
+	void collect_type_stats (Basic_block* bb, MIR::Rvalue* rval,string statname );
 private:
 	String last_assignment_lhs;
 };

@@ -20,6 +20,10 @@ void reset_stats ()
 
 void add_to_stringset_stat (string name, string s)
 {
+	if (!stringset_stats[name])
+	{
+		stringset_stats[name] = new Stringset_stats;
+	}
 	stringset_stats[name]->insert (s);
 }
 
@@ -68,25 +72,21 @@ void dump_types_per_var_name ()
 	}	
 }
 
-void dump_types_per_opmeth ()
+void dump_stringset_stats ()
 {
 	string s;
-	Stringset_stats * ssl;
+	Stringset_stats * sss;
 	
-	foreach (tie (s,ssl), stringset_stats)
+	foreach (tie (s,sss), stringset_stats)
 	{
 		int count=0;
-		if (s.substr (0,5) == "types")
+		cerr << "\'" << s << "\',\'";	//name
+		foreach (string str, *sss)		//elements
 		{
-			cerr << "\'" << s.substr (5) << "\',\'";
-			foreach (string str, *ssl)
-			{
-				cerr << str << "," ;
-				count++;
-			}
-			cerr << "\'," << count << endl;
-		}		
-
+			cerr << str << "," ;
+			count++;
+		}
+		cerr << "\'," << count << endl;	//num of elements
 	}
 
 }

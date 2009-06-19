@@ -50,7 +50,7 @@ void add_to_stringset_stat (string name, string s);
 
 void dump_types_per_opmeth ();
 void dump_stats ();
-void dump_types_per_var_name ();
+void dump_stringset_stats ();
 void reset_stats ();
 
 #endif // STATS

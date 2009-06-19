@@ -32,19 +32,22 @@ Stat_collector::run (CFG* cfg)
 void
 Stat_collector::visit_basic_block (Basic_block* bb)
 {
-	CTS("Visited Basic Block");
 }
 
 void
 Stat_collector::visit_entry_block (Entry_block* bb)
 {
-	CTS("Visited an Entry Block");
 }
 
 
 void
 Stat_collector::visit_assign_array (Statement_block* bb, MIR::Assign_array* in)
 {
+	visit_expr(bb,in->rhs);
+
+	collect_type_stats(bb,in->lhs,"types_assign_array");
+	collect_type_stats(bb,in->index,"types_array_index");
+
 }
 
 void
@@ -57,7 +60,9 @@ Stat_collector::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 {
 	last_assignment_lhs = *in->lhs->value;
 	visit_expr(bb,in->rhs);
-		
+
+	collect_type_stats(bb,in->lhs,"types_assign_var");
+
 	string s = "Assignments to "+last_assignment_lhs;
 	CTS(s);
 }
@@ -95,16 +100,19 @@ Stat_collector::visit_global (Statement_block* bb, MIR::Global* in)
 void
 Stat_collector::visit_pre_op (Statement_block* bb, MIR::Pre_op* in)
 {
+		collect_type_stats (bb, in->variable_name, "types_pre_op_var");
 }
 
 void
 Stat_collector::visit_assign_next (Statement_block* bb, MIR::Assign_next* in)
 {
+	collect_type_stats (bb, in->lhs, "types_assign_next");
 }
 
 void
 Stat_collector::visit_return (Statement_block* bb, MIR::Return* in)
 {
+	collect_type_stats (bb, in->rvalue, "types_return");
 }
 
 void
@@ -125,38 +133,35 @@ Stat_collector::visit_try (Statement_block* bb, MIR::Try* in)
 void
 Stat_collector::visit_unset (Statement_block* bb, MIR::Unset* in)
 {
+		//collect_type_stats (bb, in->variable_name, "types_unset_var");
 }
 
 
 void
 Stat_collector::visit_array_access (Statement_block* bb, MIR::Array_access* in)
 {
+		collect_type_stats (bb, in->variable_name, "types_array_access");
+		collect_type_stats (bb, in->index, "types_array_index");
+
 }
 
 void
 Stat_collector::visit_bin_op (Statement_block* bb, MIR::Bin_op* in)
 {
 
-	Abstract_value* left = wp->get_abstract_value (Context::contextual(Context::outer(bb),bb), in->left);
-	Abstract_value* right = wp->get_abstract_value (Context::contextual(Context::outer(bb),bb), in->right);
-	if (left->lit && right->lit)
-	{
-		Literal* result = PHP::fold_bin_op (left->lit, in->op, right->lit);
+	collect_type_stats (bb, in->left, "types_bin_op_lhs");
+	collect_type_stats (bb, in->right, "types_bin_op_rhs");
 
-		visit_expr (bb, result);
-	}
-	
-//	CTS(last_assignment_lhs+" assigned to BIN OP");
 }
 
 void
 Stat_collector::visit_bool (Statement_block* bb, MIR::BOOL* in)
 {
-	if (!CTS(last_assignment_lhs+" assigned to BOOL"))
+/*	if (!CTS(last_assignment_lhs+" assigned to BOOL"))
 	{
 		CTS ("Number of types assigned to "+last_assignment_lhs);
 	}
-}
+*/}
 
 void
 Stat_collector::visit_cast (Statement_block* bb, MIR::Cast* in)
@@ -196,11 +201,11 @@ Stat_collector::visit_instanceof (Statement_block* bb, MIR::Instanceof* in)
 void
 Stat_collector::visit_int (Statement_block* bb, MIR::INT* in)
 {
-	if(! CTS (last_assignment_lhs+" assigned to INT"))
+/*	if(! CTS (last_assignment_lhs+" assigned to INT"))
 	{
 		CTS ("Number of types assigned to "+last_assignment_lhs);
 	}
-}
+*/}
 
 void
 Stat_collector::visit_isset (Statement_block* bb, MIR::Isset* in)
@@ -231,43 +236,48 @@ Stat_collector::visit_param_is_ref (Statement_block* bb, MIR::Param_is_ref* in)
 void
 Stat_collector::visit_real (Statement_block* bb, MIR::REAL* in)
 {
-	if (!CTS (last_assignment_lhs+" assigned to REAL"))
+/*	if (!CTS (last_assignment_lhs+" assigned to REAL"))
 	{
 		CTS ("Number of types assigned to "+last_assignment_lhs);
 	}
-}
+*/}
 
 void
 Stat_collector::visit_string (Statement_block* bb, MIR::STRING* in)
 {
-	if (!CTS (last_assignment_lhs+" assigned to STRING"))
+/*	if (!CTS (last_assignment_lhs+" assigned to STRING"))
 	{
 		CTS ("Number of types assigned to "+last_assignment_lhs);
 	}
-}
+*/}
 
 void
 Stat_collector::visit_unary_op (Statement_block* bb, MIR::Unary_op* in)
 {
-	Abstract_value* absval = wp->get_abstract_value (Context::contextual(Context::outer(bb),bb),in->variable_name);
-	
-	if (absval->lit)
-	{
-		Literal* result = PHP::fold_unary_op(in->op,absval->lit);
-		visit_expr(bb,result);
-	}
-
-	// CTS(last_assignment_lhs+" assigned to UNARY OP");
+	collect_type_stats (bb, in->variable_name, "types_unary_op_var");
 }
 
 void
 Stat_collector::visit_variable_name (Statement_block* bb, MIR::VARIABLE_NAME* in)
 {
-	CTS("VAR_NAME");
+
 }
 
 void
 Stat_collector::visit_variable_variable (Statement_block* bb, MIR::Variable_variable* in)
 {
-	CTS("VAR_NAME");
+
+}
+
+void
+Stat_collector::collect_type_stats (Basic_block* bb, MIR::Rvalue* rval,string statname )
+{
+	Abstract_value* absval = wp->get_abstract_value (Context::non_contextual (bb), rval);
+	if (absval->types)
+	{
+		foreach (string type, *absval->types)
+		{
+			add_to_stringset_stat (statname,type);	
+		}
+	}
 }
