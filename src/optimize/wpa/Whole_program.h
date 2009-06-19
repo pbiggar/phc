@@ -206,6 +206,8 @@ public:
 	string assign_path_empty_array (Context* cx, Path* lhs, string name = "");
 	string assign_path_empty_object (Context* cx, Path* lhs, string type, string name = "");
 
+	void assign_attribute (Context* cx, string obj, MIR::Attribute*);
+
 	// Most pesimistic case
 	void ruin_everything (Context* cx, Path* path);
 

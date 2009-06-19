@@ -310,7 +310,7 @@ Whole_program::analyse_function (User_method_info* info, Context* caller_cx, MIR
 
 	backward_bind (
 		info,
-		Context::contextual (caller_cx, cfg->get_exit_bb()),
+		Context::contextual (caller_cx, cfg->get_exit_bb ()),
 		lhs);
 }
 
@@ -459,10 +459,15 @@ Whole_program::instantiate_object (Context* caller_cx, MIR::VARIABLE_NAME* self,
 	CLASS_NAME* class_name = dyc<CLASS_NAME> (in->class_name);
 
 	// Allocate memory
-	assign_path_empty_object (block_cx, saved_plhs, *class_name->value);
+	string obj = assign_path_empty_object (block_cx, saved_plhs, *class_name->value);
 
 
-	// TODO: assign members
+	// Assign members
+	Class_info* class_info = Oracle::get_class_info (class_name->value);
+	foreach (Attribute* attr, *class_info->get_attributes ())
+	{
+		assign_attribute (block_cx, obj, attr);
+	}
 
 
 	// If there isn't a constructor, ignore it.
@@ -475,6 +480,12 @@ Whole_program::instantiate_object (Context* caller_cx, MIR::VARIABLE_NAME* self,
 				receivers,
 				in->actual_parameters);
 	}
+}
+
+void
+Whole_program::assign_attribute (Context* cx, string obj, MIR::Attribute* attr)
+{
+	phc_TODO ();
 }
 
 
@@ -569,7 +580,7 @@ Whole_program::analyse_summary (Summary_method_info* info, Context* caller_cx, A
 	Context* exit_cx = Context::contextual (caller_cx, cfg->get_exit_bb ());
 	pull_results (exit_cx, cfg->get_exit_bb ()->get_predecessors ());
 
-	FWPA->aggregate_results (fake_cx);
+	FWPA->aggregate_results (exit_cx);
 
 	// TODO: we only really need 2 blocks here.
 	dump (exit_cx, "After summary method (" + *caller_cx->get_bb()->get_graphviz_label () + ")");

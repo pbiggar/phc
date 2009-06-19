@@ -17,6 +17,21 @@ Class_info::Class_info (String* name)
 {
 }
 
+Method_info*
+Class_info::get_method_info (String* name, bool search)
+{
+	// TODO: look at inheritence hierarchy and interfaces.
+	if (not this->methods.has (*name))
+	{
+		if (search)
+			phc_TODO ();
+		else
+			return NULL;
+	}
+
+	return methods [*name];
+}
+
 
 /*
  * User methods -- Internal methods are defined in optimize.cpp
@@ -55,32 +70,15 @@ User_class_info::User_class_info (Class_def* class_def)
 
 			this->methods[*name] = umi;
 		}
-		else
-			// We havent assigned fields anywhere.
-			phc_TODO ();
 	}
 }
 
-bool
-User_class_info::has_implementation ()
+Attribute_list*
+User_class_info::get_attributes ()
 {
-	return true;
+	return filter_types <Attribute> (class_def->members);
 }
 
-Method_info*
-User_class_info::get_method_info (String* name, bool search)
-{
-	// TODO: look at inheritence hierarchy and interfaces.
-	if (not this->methods.has (*name))
-	{
-		if (search)
-			phc_TODO ();
-		else
-			return NULL;
-	}
-
-	return methods [*name];
-}
 
 
 /*
@@ -90,23 +88,5 @@ User_class_info::get_method_info (String* name, bool search)
 Summary_class_info::Summary_class_info (String* name)
 : Class_info (name)
 {
+	phc_TODO ();
 }
-
-
-/*
- * Builtins
- */
-
-
-Builtin_class_info::Builtin_class_info (String* name)
-: Summary_class_info (name)
-{
-}
-
-
-bool
-Builtin_class_info::has_implementation ()
-{
-	return false;
-}
-
