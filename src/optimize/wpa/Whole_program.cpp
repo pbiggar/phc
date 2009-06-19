@@ -667,6 +667,11 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	{
 		assign_path_typed (cx, ret_path, new Types ("string"));
 	}
+	else if (*info->name == "die")
+	{
+		// TODO: We'd like to model that this path is not executable.
+		// do nothing
+	}
 	else if (*info->name == "define")
 	{
 		// Read parameters
@@ -826,7 +831,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	}
 	else
 	{
-		DEBUG (*info->name << " not modelled");
+		cdebug << *info->name << " not modelled" << endl;
 		phc_TODO ();
 	}
 }

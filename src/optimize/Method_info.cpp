@@ -277,10 +277,7 @@ Builtin_method_info::get_side_effecting ()
 int
 Builtin_method_info::formal_param_count ()
 {
-	if (*this->name == "print")
-		return 0;
-
-	phc_TODO ();
+	return 0;
 }
 
 
