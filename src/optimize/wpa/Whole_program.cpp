@@ -2205,13 +2205,7 @@ Whole_program::visit_pre_op (Statement_block* bb, Pre_op* in)
 void
 Whole_program::visit_return (Statement_block* bb, MIR::Return* in)
 {
-	// Dont propagate to return-by-ref
-	if (bb->cfg->get_entry_bb ()->method->signature->return_by_ref)
-		phc_TODO ();
-
-	string ns = block_cx->symtable_name ();
-	
-	assign_path_by_copy (block_cx, P (ns, new VARIABLE_NAME (RETNAME)), P (ns, in->rvalue));
+	standard_lhs (bb, in, bb->cfg->get_entry_bb ()->method->signature->return_by_ref, in->rvalue);
 }
 
 void

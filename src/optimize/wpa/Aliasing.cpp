@@ -498,6 +498,10 @@ P (string symtable, Node* in)
 		case STRING::ID:
 			return new Index_path (*dyc<Literal> (in)->get_value_as_string ());
 
+		// Pretend its just a variable.
+		case Return::ID:
+			return P (symtable, new VARIABLE_NAME (RETNAME));
+
 		default:
 			DEBUG (demangle (in));
 			phc_TODO ();
