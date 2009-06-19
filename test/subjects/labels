@@ -12,7 +12,7 @@
 #	- long (default) or short
 #	- size-neutral (default) or size-dependent
 #	- non-includable (default) or includable
-#	- no-test_name (don't run with a particular test)
+#	- no-test_regex_expr (don't run with any test matching test_regex_expr)
 #
 # A common pattern would be to override some tests by adding, for example, the
 # following to the bottom of the file:
@@ -34,7 +34,20 @@ codegen/bench_.*						short
 optimization/.*						short
 codegen/\d.*							short
 
-bugs/bug0009.php						size-dependent
+# Bugs we want to ignore for the optimizer
+optimization/indirect_string.php			no-Optimiz
+optimization/unknown_everything.php		no-Optimiz
+
+# Features we want to ignore for the optimizer
+codegen/019a.php						no-Optimiz
+codegen/019c.php						no-Optimiz
+codegen/006b.php						no-Optimiz
+codegen/006.php						no-Optimiz
+codegen/006c.php						no-Optimiz
+
+
+
+# TODO: size-dependent isnt relevent anymore
 bugs/bug0011.php						size-dependent
 
 # These tests all cause infinite loops

@@ -367,10 +367,16 @@ abstract class Test
 	function check_exception ($subject)
 	{
 		global $exceptions;
-		if (!isset($exceptions{$this->get_name()})) return false;
-		$array = $exceptions{$this->get_name()};
-		assert (is_array ($array));
-		return (in_array ($subject, $array));
+
+		if (!isset ($exceptions[$subject]))
+			return false;
+
+		foreach ($exceptions[$subject] as $exception)
+		{
+			if (preg_match ("/$exception/", $this->get_name ()))
+				return true;
+		}
+		return false;
 	}
 }
 
