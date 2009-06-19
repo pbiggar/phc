@@ -435,11 +435,14 @@ void Pass_manager::dump (IR::PHP_script* in, String* passname)
 		}
 	}
 
-	for (unsigned int i = 0; i < args_info->stats_given; i++)
+	if (args_info->stats_given)
 	{
-		if (*passname == args_info->stats_arg [i])
+		if (stringset_stats_size () > 0)
 		{
+			cerr << *passname << endl;
+			dump_stringset_stats ();
 			dump_stats ();
+			reset_stringset_stats ();
 			reset_stats ();
 		}
 	}

@@ -52,5 +52,6 @@ void dump_types_per_opmeth ();
 void dump_stats ();
 void dump_stringset_stats ();
 void reset_stats ();
-
+void reset_stringset_stats ();
+int stringset_stats_size ();
 #endif // STATS

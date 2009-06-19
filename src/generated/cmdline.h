@@ -135,11 +135,8 @@ struct gengetopt_args_info
   const char *no_xml_base_64_help; /**< @brief Don't encode any strings into base64 when dumping XML help description.  */
   int no_xml_attrs_flag;	/**< @brief When dumping XML, omit node attributes (default=off).  */
   const char *no_xml_attrs_help; /**< @brief When dumping XML, omit node attributes help description.  */
-  char ** stats_arg;	/**< @brief Print statistics for the pass named 'PASSNAME.  */
-  char ** stats_orig;	/**< @brief Print statistics for the pass named 'PASSNAME original value given at command line.  */
-  unsigned int stats_min; /**< @brief Print statistics for the pass named 'PASSNAME's minimum occurreces */
-  unsigned int stats_max; /**< @brief Print statistics for the pass named 'PASSNAME's maximum occurreces */
-  const char *stats_help; /**< @brief Print statistics for the pass named 'PASSNAME help description.  */
+  int stats_flag;	/**< @brief Print compile-time statistics (default=off).  */
+  const char *stats_help; /**< @brief Print compile-time statistics help description.  */
   int rt_stats_flag;	/**< @brief Print statistics about a program at run-time (default=off).  */
   const char *rt_stats_help; /**< @brief Print statistics about a program at run-time help description.  */
   char ** cfg_dump_arg;	/**< @brief Dump CFG after the pass named 'PASSNAME'.  */

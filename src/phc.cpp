@@ -209,7 +209,7 @@ int main(int argc, char** argv)
 		if (!pm->has_pass_named (new String (args_info.FLAG##_arg [i])))			\
 			phc_error ("Pass %s, specified with flag --" #FLAG ", is not valid", args_info.FLAG##_arg [i]);	\
 	}
-	check_passes (stats);
+	// check_passes (stats);
 	check_passes (dump);
 	check_passes (dump_xml);
 	check_passes (dump_dot);
@@ -329,8 +329,6 @@ int main(int argc, char** argv)
 	int ret = lt_dlexit();
 	if (ret != 0) 
 		phc_error ("Error closing ltdl plugin infrastructure: %s", lt_dlerror ());
-
-	dump_stats ();
 
 
 	PHP::shutdown_php ();

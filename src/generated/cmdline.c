@@ -76,7 +76,7 @@ const char *gengetopt_args_info_full_help[] = {
   "      --no-xml-base-64       Don't encode any strings into base64 when dumping \n                               XML  (default=off)",
   "      --no-xml-attrs         When dumping XML, omit node attributes  \n                               (default=off)",
   "\nDEBUGGING PHC:",
-  "      --stats=PASSNAME       Print statistics for the pass named 'PASSNAME",
+  "      --stats                Print compile-time statistics  (default=off)",
   "      --rt-stats             Print statistics about a program at run-time  \n                               (default=off)",
   "      --cfg-dump=PASSNAME    Dump CFG after the pass named 'PASSNAME'",
   "      --debug=PASSNAME       Print debugging information for the pass named \n                               'PASSNAME",
@@ -255,8 +255,7 @@ void clear_args (struct gengetopt_args_info *args_info)
   args_info->no_xml_line_numbers_flag = 0;
   args_info->no_xml_base_64_flag = 0;
   args_info->no_xml_attrs_flag = 0;
-  args_info->stats_arg = NULL;
-  args_info->stats_orig = NULL;
+  args_info->stats_flag = 0;
   args_info->rt_stats_flag = 0;
   args_info->cfg_dump_arg = NULL;
   args_info->cfg_dump_orig = NULL;
@@ -329,8 +328,6 @@ void init_args_info(struct gengetopt_args_info *args_info)
   args_info->no_xml_base_64_help = gengetopt_args_info_full_help[45] ;
   args_info->no_xml_attrs_help = gengetopt_args_info_full_help[46] ;
   args_info->stats_help = gengetopt_args_info_full_help[48] ;
-  args_info->stats_min = 0;
-  args_info->stats_max = 0;
   args_info->rt_stats_help = gengetopt_args_info_full_help[49] ;
   args_info->cfg_dump_help = gengetopt_args_info_full_help[50] ;
   args_info->cfg_dump_min = 0;
@@ -498,7 +495,6 @@ cmdline_parser_release (struct gengetopt_args_info *args_info)
   free_multiple_string_field (args_info->dump_given, &(args_info->dump_arg), &(args_info->dump_orig));
   free_multiple_string_field (args_info->dump_xml_given, &(args_info->dump_xml_arg), &(args_info->dump_xml_orig));
   free_multiple_string_field (args_info->dump_dot_given, &(args_info->dump_dot_arg), &(args_info->dump_dot_orig));
-  free_multiple_string_field (args_info->stats_given, &(args_info->stats_arg), &(args_info->stats_orig));
   free_multiple_string_field (args_info->cfg_dump_given, &(args_info->cfg_dump_arg), &(args_info->cfg_dump_orig));
   free_multiple_string_field (args_info->debug_given, &(args_info->debug_arg), &(args_info->debug_orig));
   free_multiple_string_field (args_info->disable_given, &(args_info->disable_arg), &(args_info->disable_orig));
@@ -615,7 +611,8 @@ cmdline_parser_dump(FILE *outfile, struct gengetopt_args_info *args_info)
     write_into_file(outfile, "no-xml-base-64", 0, 0 );
   if (args_info->no_xml_attrs_given)
     write_into_file(outfile, "no-xml-attrs", 0, 0 );
-  write_multiple_into_file(outfile, args_info->stats_given, "stats", args_info->stats_orig, 0);
+  if (args_info->stats_given)
+    write_into_file(outfile, "stats", 0, 0 );
   if (args_info->rt_stats_given)
     write_into_file(outfile, "rt-stats", 0, 0 );
   write_multiple_into_file(outfile, args_info->cfg_dump_given, "cfg-dump", args_info->cfg_dump_orig, 0);
@@ -897,9 +894,6 @@ cmdline_parser_required2 (struct gengetopt_args_info *args_info, const char *pro
   if (check_multiple_option_occurrences(prog_name, args_info->dump_dot_given, args_info->dump_dot_min, args_info->dump_dot_max, "'--dump-dot'"))
      error = 1;
   
-  if (check_multiple_option_occurrences(prog_name, args_info->stats_given, args_info->stats_min, args_info->stats_max, "'--stats'"))
-     error = 1;
-  
   if (check_multiple_option_occurrences(prog_name, args_info->cfg_dump_given, args_info->cfg_dump_min, args_info->cfg_dump_max, "'--cfg-dump'"))
      error = 1;
   
@@ -1147,7 +1141,6 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
   struct generic_list * dump_list = NULL;
   struct generic_list * dump_xml_list = NULL;
   struct generic_list * dump_dot_list = NULL;
-  struct generic_list * stats_list = NULL;
   struct generic_list * cfg_dump_list = NULL;
   struct generic_list * debug_list = NULL;
   struct generic_list * disable_list = NULL;
@@ -1220,7 +1213,7 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
         { "no-xml-line-numbers",	0, NULL, 0 },
         { "no-xml-base-64",	0, NULL, 0 },
         { "no-xml-attrs",	0, NULL, 0 },
-        { "stats",	1, NULL, 0 },
+        { "stats",	0, NULL, 0 },
         { "rt-stats",	0, NULL, 0 },
         { "cfg-dump",	1, NULL, 0 },
         { "debug",	1, NULL, 0 },
@@ -1680,13 +1673,14 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
               goto failure;
           
           }
-          /* Print statistics for the pass named 'PASSNAME.  */
+          /* Print compile-time statistics.  */
           else if (strcmp (long_options[option_index].name, "stats") == 0)
           {
           
-            if (update_multiple_arg_temp(&stats_list, 
-                &(local_args_info.stats_given), optarg, 0, 0, ARG_STRING,
-                "stats", '-',
+          
+            if (update_arg((void *)&(args_info->stats_flag), 0, &(args_info->stats_given),
+                &(local_args_info.stats_given), optarg, 0, 0, ARG_FLAG,
+                check_ambiguity, override, 1, 0, "stats", '-',
                 additional_error))
               goto failure;
           
@@ -1813,10 +1807,6 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
     &(args_info->dump_dot_orig), args_info->dump_dot_given,
     local_args_info.dump_dot_given, 0 , 
     ARG_STRING, dump_dot_list);
-  update_multiple_arg((void *)&(args_info->stats_arg),
-    &(args_info->stats_orig), args_info->stats_given,
-    local_args_info.stats_given, 0 , 
-    ARG_STRING, stats_list);
   update_multiple_arg((void *)&(args_info->cfg_dump_arg),
     &(args_info->cfg_dump_orig), args_info->cfg_dump_given,
     local_args_info.cfg_dump_given, 0 , 
@@ -1844,8 +1834,6 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
   local_args_info.dump_xml_given = 0;
   args_info->dump_dot_given += local_args_info.dump_dot_given;
   local_args_info.dump_dot_given = 0;
-  args_info->stats_given += local_args_info.stats_given;
-  local_args_info.stats_given = 0;
   args_info->cfg_dump_given += local_args_info.cfg_dump_given;
   local_args_info.cfg_dump_given = 0;
   args_info->debug_given += local_args_info.debug_given;
@@ -1897,7 +1885,6 @@ failure:
   free_list (dump_list, 1 );
   free_list (dump_xml_list, 1 );
   free_list (dump_dot_list, 1 );
-  free_list (stats_list, 1 );
   free_list (cfg_dump_list, 1 );
   free_list (debug_list, 1 );
   free_list (disable_list, 1 );

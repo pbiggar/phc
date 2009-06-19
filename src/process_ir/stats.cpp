@@ -18,6 +18,11 @@ void reset_stats ()
 	stats.clear ();
 }
 
+void reset_stringset_stats ()
+{
+	stringset_stats.clear ();
+}
+
 void add_to_stringset_stat (string name, string s)
 {
 	if (!stringset_stats[name])
@@ -25,11 +30,17 @@ void add_to_stringset_stat (string name, string s)
 		stringset_stats[name] = new Stringset_stats;
 	}
 	stringset_stats[name]->insert (s);
+
 }
 
 Stringset_stats* get_stringset_stat (string name)
 {
 	return stringset_stats[name];
+}
+
+int stringset_stats_size()
+{
+	return stringset_stats.size ();
 }
 
 void increment_stat (string name, string filename, int line_number)
