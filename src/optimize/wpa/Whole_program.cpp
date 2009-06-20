@@ -712,6 +712,17 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 			}
 		}
 	}
+	else if (*info->name == "defined")
+	{
+		// TODO: We don't correctly identify is a constant is actually defined.
+		assign_path_typed (cx, ret_path, new Types ("bool"));
+	}
+	else if (*info->name == "empty")
+	{
+		// TODO: If we modelled POSSIBLY/DEFINITELY on field edges, we'd be able
+		// to optimize this.
+		assign_path_typed (cx, ret_path, new Types ("bool"));
+	}
 	else if (*info->name == "explode")
 	{
 		// array of strings, or false

@@ -27,6 +27,8 @@ Constant_state::set_constant (Context* cx, string name, Abstract_value* value)
 	outs[cx][name] = new Absval_cell (value);
 }
 
+// TODO: for conditionally defined constants, this might return true, even
+// though its unknown.
 bool
 Constant_state::is_constant_defined (Context* cx, string name)
 {
