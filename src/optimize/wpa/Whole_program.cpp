@@ -659,9 +659,19 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 			assign_path_by_copy (cx, lhs, rhs);
 		}
 	}
+	else if (*info->name == "count")
+	{
+		// If the parameter is an object, then count can call the interface countable.
+		phc_TODO ();
+		assign_path_typed (cx, ret_path, new Types ("int"));
+	}
 	else if (*info->name == "date_default_timezone_set")
 	{
 		assign_path_typed (cx, ret_path, new Types ("bool"));
+	}
+	else if (*info->name == "debug_zval_dump")
+	{
+		assign_path_typed (cx, ret_path, new Types ("unset"));
 	}
 	else if (*info->name == "dechex")
 	{
@@ -702,13 +712,34 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 			}
 		}
 	}
+	else if (*info->name == "explode")
+	{
+		// array of strings, or false
+		phc_TODO ();
+	}
+	else if (*info->name == "exit")
+	{
+		// TODO: see comment in 'die'
+		// do nothing
+	}
 	else if (*info->name == "error_reporting")
 	{
 		assign_path_typed (cx, ret_path, new Types ("int"));
 	}
+	else if (*info->name == "file_get_contents")
+	{
+		// string or false
+		assign_path_typed (cx, ret_path, new Types ("string", "bool"));
+	}
 	else if (*info->name == "flush")
 	{
 		// do nothing
+	}
+	else if (*info->name == "get_declared_classes")
+	{
+		// Return an array of strings
+		string name = assign_path_empty_array (cx, ret_path);
+		assign_path_typed (cx, P (name, UNKNOWN), new Types ("string"));
 	}
 	else if (*info->name == "gettimeofday")
 	{
@@ -798,6 +829,15 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		Abstract_value* absval1 = get_abstract_value (cx, params[1]->name());
 		Types* merged = absval0->types->set_union (absval1->types);
 		assign_path_typed (cx, P (name, UNKNOWN), merged);
+	}
+	else if (*info->name == "readdir")
+	{
+		// string or false
+		assign_path_typed (cx, ret_path, new Types ("string", "bool"));
+	}
+	else if (*info->name == "shell_exec")
+	{
+		assign_path_typed (cx, ret_path, new Types ("string"));
 	}
 	else if (*info->name == "strlen")
 	{
