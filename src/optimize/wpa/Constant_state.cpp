@@ -22,17 +22,17 @@ void
 Constant_state::set_constant (Context* cx, string name, Abstract_value* value)
 {
 	// Should be handled in Whole_program.
-	assert (not is_constant_defined (cx, name));
+	assert (not is_constant_defined (cx, R_WORKING, name));
 
-	outs[cx][name] = new Absval_cell (value);
+	working[cx][name] = new Absval_cell (value);
 }
 
 // TODO: for conditionally defined constants, this might return true, even
 // though its unknown.
 bool
-Constant_state::is_constant_defined (Context* cx, string name)
+Constant_state::is_constant_defined (Context* cx, Result_state state, string name)
 {
-	if (outs[cx].has (name))
+	if (lattices[state][cx].has (name))
 		return true;
 
 	Literal* constant = PHP::fold_constant (new Constant (NULL, new CONSTANT_NAME (s(name))));
@@ -49,12 +49,12 @@ Constant_state::set_unknown_constant (Context* cx, Abstract_value* value)
 }
 
 Abstract_value*
-Constant_state::get_constant (Context* cx, string name)
+Constant_state::get_constant (Context* cx, Result_state state, string name)
 {
 	// TODO: check for unknown constants
-	if (not is_constant_defined (cx, name))
+	if (not is_constant_defined (cx, state, name))
 		return new Abstract_value (new STRING (s(name)));
 
-	return outs[cx][name]->value;
+	return lattices[state][cx][name]->value;
 }
 

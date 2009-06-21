@@ -26,8 +26,8 @@ public:
 	// Sets a constant whose name we don't know
 	void set_unknown_constant (Context* cx, Abstract_value* value);
 
-	bool is_constant_defined (Context* cx, string name);
-	Abstract_value* get_constant (Context* cx, string name);
+	bool is_constant_defined (Context* cx, Result_state state, string name);
+	Abstract_value* get_constant (Context* cx, Result_state state, string name);
 
 	/*
 	 * WPA interface

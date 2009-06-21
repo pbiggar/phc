@@ -704,7 +704,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		else
 		{
 			String* str_name = PHP::get_string_value (name->lit);
-			if (constants->is_constant_defined (cx, *str_name))
+			if (constants->is_constant_defined (cx, R_WORKING, *str_name))
 			{
 				// If its already defined, it cant be redefined
 				assign_path_scalar (cx, ret_path, new BOOL (false));
@@ -2477,7 +2477,7 @@ Whole_program::visit_constant (Statement_block* bb, MIR::Constant* in)
 	if (in->class_name)
 		phc_TODO ();
 
-	Abstract_value* absval = constants->get_constant (block_cx, *in->constant_name->value);
+	Abstract_value* absval = constants->get_constant (block_cx, R_IN, *in->constant_name->value);
 	assign_path_scalar (block_cx, saved_plhs, absval);
 }
 
