@@ -101,9 +101,6 @@ Value_analysis::get_bin_op_types (Context* cx, Abstract_value* left, Abstract_va
 Types*
 Value_analysis::get_bin_op_type (string ltype, string rtype, string op)
 {
-	if (not Type_info::get_all_scalar_types ()->has (ltype) || not Type_info::get_all_scalar_types()->has (rtype))
-		phc_TODO ();
-
 	Set<string> always_bool_ops;
 	always_bool_ops.insert ("<");
 	always_bool_ops.insert (">");
