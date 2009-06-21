@@ -50,7 +50,8 @@
 	$file1 = readmyfile ($argv[2]);
 
 
-	
+	$new_timeout = 0;	
+	$old_timeout = 0;	
 	foreach ($file0 as $testname => $test)
 	{
 		foreach ($test as $filename => $result)
@@ -66,11 +67,26 @@
 						|| ($result == SK && $otherresult == FA)
 						|| ($result == SK && $otherresult == SU)
 						)
-					echo "$result != $otherresult for ($testname, $filename)\n";
+					{
+						echo "$result != $otherresult for ($testname, $filename)\n";
+					}
+					else if (false
+						|| ($result == TI && $otherresult == SU)
+						|| ($result == TI && $otherresult == FA)
+						)
+					{
+						$new_timeout += 1;
+					}
+					else if (false
+						|| ($result == SU && $otherresult == TI)
+						|| ($result == FA && $otherresult == TI)
+						)
+						$old_timeout += 1;
 				}
 			}
 		}
 	}
+	echo "Timeouts: (+$new_timeout, -$old_timeout)\n";
 
 
 
