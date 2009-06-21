@@ -165,7 +165,7 @@ Aliasing::finish_block (Context* cx)
 	if (outs[cx] == NULL)
 		changed_flags[cx] = true;
 	else
-		changed_flags[cx] = ptg->equals (outs[cx]);
+		changed_flags[cx] = !ptg->equals (outs[cx]);
 
 	// In a few cases, its really difficult to avoid calling finish block twice,
 	// so don't clear WORKING.

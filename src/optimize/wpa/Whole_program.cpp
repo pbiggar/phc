@@ -993,7 +993,15 @@ Whole_program::analyse_block (Context* cx)
 	// Calculate fix-point
 	bool changed = false;
 	foreach_wpa (this)
-		changed |= wpa->solution_changed (cx);
+	{
+		bool new_changed = wpa->solution_changed (cx);
+		if (new_changed)
+		{
+			DEBUG (cx << " has changed (" << wpa->name << ")");
+		}
+
+		changed |= new_changed;
+	}
 
 	phc_pause ();
 

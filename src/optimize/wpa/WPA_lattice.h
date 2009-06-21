@@ -181,6 +181,10 @@ public:
 
 	void merge_contexts ()
 	{
+		working.clear ();
+		post_bind.clear ();
+
+
 		Context* cx;
 		Lattice_type m;
 		Lattice_type& map = m; // grrrr
@@ -246,7 +250,6 @@ private:
 		working[cx] = ins[cx];
 
 		post_bind[cx].clear ();
-		outs[cx].clear ();
 	}
 
 
