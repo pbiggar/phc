@@ -349,19 +349,19 @@ Whole_program::register_analysis (string name, WPA* analysis)
 }
 
 Method_info_list*
-Whole_program::get_possible_receivers (Context* cx, Method_invocation* in)
+Whole_program::get_possible_receivers (Context* cx, Result_state state, Method_invocation* in)
 {
-	return get_possible_receivers (cx, in->target, in->method_name);
+	return get_possible_receivers (cx, state, in->target, in->method_name);
 }
 
 Method_info_list*
-Whole_program::get_possible_receivers (Context* cx, Param_is_ref* in)
+Whole_program::get_possible_receivers (Context* cx, Result_state state, Param_is_ref* in)
 {
-	return get_possible_receivers (cx, in->target, in->method_name);
+	return get_possible_receivers (cx, state, in->target, in->method_name);
 }
 
 Method_info_list*
-Whole_program::get_possible_receivers (Context* cx, Target* target, Method_name* method_name)
+Whole_program::get_possible_receivers (Context* cx, Result_state state, Target* target, Method_name* method_name)
 {
 	Method_info_list* result = new Method_info_list;
 
@@ -385,7 +385,7 @@ Whole_program::get_possible_receivers (Context* cx, Target* target, Method_name*
 			// types and all the objects. But really, each method should only
 			// invoke on types they are allowed invoke on.
 			VARIABLE_NAME* obj = dyc<VARIABLE_NAME> (target);
-			Types* types = values->get_types (cx, R_WORKING, VN (cx->symtable_name (), obj)->name());
+			Types* types = values->get_types (cx, state, VN (cx->symtable_name (), obj)->name());
 
 			// Wrap them
 			foreach (string type, *types)
@@ -430,7 +430,7 @@ Whole_program::get_possible_receivers (Context* cx, Target* target, Method_name*
 // Method_invocation's target. Also, it must search for both __construct and
 // the old style constructor.
 Method_info_list*
-Whole_program::get_possible_receivers (Context* cx, New* in)
+Whole_program::get_possible_receivers (Context* cx, Result_state state, New* in)
 {
 	if (isa<Variable_class> (in->class_name))
 		phc_TODO ();
@@ -457,7 +457,7 @@ Whole_program::get_possible_receivers (Context* cx, New* in)
 void
 Whole_program::instantiate_object (Context* caller_cx, MIR::VARIABLE_NAME* self, New* in)
 {
-	Method_info_list* receivers = get_possible_receivers (caller_cx, in);
+	Method_info_list* receivers = get_possible_receivers (caller_cx, R_WORKING, in);
 
 	// Get the classes (there might not be receivers, even when there are classes)
 	if (isa<Variable_class> (in->class_name))
@@ -507,7 +507,7 @@ Whole_program::invoke_method (Context* caller_cx, MIR::VARIABLE_NAME* lhs, MIR::
 		caller_cx,
 		lhs,
 		dynamic_cast<VARIABLE_NAME*> (in->target),
-		get_possible_receivers (caller_cx, in),
+		get_possible_receivers (caller_cx, R_WORKING, in),
 		in->actual_parameters);
 }
 
@@ -2549,7 +2549,7 @@ Whole_program::visit_param_is_ref (Statement_block* bb, MIR::Param_is_ref* in)
 
 	// Get the set of receivers (we need to check them all to see if this
 	// parameter is by reference.
-	Method_info_list* receivers = get_possible_receivers (block_cx, in);
+	Method_info_list* receivers = get_possible_receivers (block_cx, R_WORKING, in);
 
 	// Need to clone the information and merge it when it returns.
 	if (receivers->size () != 1)

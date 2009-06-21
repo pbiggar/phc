@@ -132,16 +132,11 @@ public:
 										MIR::VARIABLE_NAME* self,
 										MIR::New* in);
 
-	Method_info_list* get_possible_receivers (Context* cx, MIR::Target*, MIR::Method_name*);
-	Method_info_list* get_possible_receivers (Context* cx, MIR::Param_is_ref*);
-	Method_info_list* get_possible_receivers (Context* cx, MIR::Method_invocation*);
-	Method_info_list* get_possible_receivers (Context* cx, MIR::New*);
-
 	void generate_summary (User_method_info* info);
 
 	void merge_contexts ();
 
-	/* Optimizations on user-code */
+	// Optimizations on user-code
 	void apply_results (User_method_info* info);
 	void annotate_results (User_method_info* info);
 	void perform_local_optimizations (User_method_info* info);
@@ -171,9 +166,6 @@ public:
 	void apply_modelled_function (Summary_method_info* info, Context* cx, Context* caller_cx);
 
 	void init_superglobals (Context* cx);
-
-	/* Local analysis - calling other analyses */
-	void dump (Context* cx, Result_state state, string comment);
 
 
 	/*
@@ -234,21 +226,9 @@ public:
 
 	bool is_killable (Context* cx, Index_node_list* indices);
 
-
 	/*
-	 * These might be considered to belong elsewhere, but each of them needs to
-	 * some information which is not necessarily available to the analysis in
-	 * question.
+	 * Misc
 	 */
-
-
-	// Get the value of node (can be UNKNOWN).
-	String* get_string_value (Context* cx, Index_node* node);
-
-	Abstract_value* get_abstract_value (Context* cx, Result_state state, Alias_name name);
-
-	// Get all the possible names, and merge them.
-	Abstract_value* get_abstract_value (Context* cx, Result_state state, MIR::Rvalue* rval);
 
 	// PATH can refer to many nodes. Get the list of Index_nodes it points to.
 	// Set the RHS_BY_REF flag if PATH represents the RHS of an
@@ -260,16 +240,36 @@ public:
 	Reference_list* get_lhs_references (Context* cx, Path* path);
 
 
-	/*
-	 * End of Assignments
-	 */
-
 	Edge_list* get_successors (Context* cx);
 	void pull_results (Context* cx, BB_list* bbs);
 	Index_node_list* get_possible_nulls (List<Context*>*);
 
 	void record_use (Context* cx, Index_node* node);
 
+
+
+
+	/*
+	 * Access to analysis results
+	 */
+
+	Method_info_list* get_possible_receivers (Context* cx, Result_state state, MIR::Target*, MIR::Method_name*);
+	Method_info_list* get_possible_receivers (Context* cx, Result_state state, MIR::Param_is_ref*);
+	Method_info_list* get_possible_receivers (Context* cx, Result_state state, MIR::Method_invocation*);
+	Method_info_list* get_possible_receivers (Context* cx, Result_state state, MIR::New*);
+
+	/* Local analysis - calling other analyses */
+	void dump (Context* cx, Result_state state, string comment);
+
+
+
+	// Get the value of node (can be UNKNOWN).
+	String* get_string_value (Context* cx, Index_node* node);
+
+	Abstract_value* get_abstract_value (Context* cx, Result_state state, Alias_name name);
+
+	// Get all the possible names, and merge them.
+	Abstract_value* get_abstract_value (Context* cx, Result_state state, MIR::Rvalue* rval);
 
 
 

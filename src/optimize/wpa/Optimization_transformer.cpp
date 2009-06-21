@@ -313,14 +313,14 @@ void
 Optimization_transformer::visit_method_invocation (Statement_block* bb, MIR::Method_invocation* in)
 {
 	Context* cx = Context::non_contextual (bb);
-	copy_in_literals (bb, wp->get_possible_receivers (cx, in), in->actual_parameters);
+	copy_in_literals (bb, wp->get_possible_receivers (cx, R_IN, in), in->actual_parameters);
 }
 
 void
 Optimization_transformer::visit_new (Statement_block* bb, MIR::New* in)
 {
 	Context* cx = Context::non_contextual (bb);
-	copy_in_literals (bb, wp->get_possible_receivers (cx, in), in->actual_parameters);
+	copy_in_literals (bb, wp->get_possible_receivers (cx, R_IN, in), in->actual_parameters);
 }
 
 void
