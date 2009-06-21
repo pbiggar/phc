@@ -27,6 +27,10 @@ using namespace std;
 
 Aliasing::Aliasing (Whole_program* wp)
 : WPA(wp)
+, outs (ptgs[R_OUT])
+, ins (ptgs[R_IN])
+, working (ptgs[R_WORKING])
+, post_bind (ptgs[R_POST_BIND])
 {
 }
 
@@ -40,7 +44,6 @@ merge (Points_to* ptg1, Points_to* ptg2)
 		return ptg1->merge (ptg2);
 }
 
-
 bool
 Aliasing::equals (WPA* wpa)
 {
@@ -50,56 +53,69 @@ Aliasing::equals (WPA* wpa)
 }
 
 void
-Aliasing::dump (Context* cx, string comment)
+Aliasing::dump (Context* cx, Result_state state, string comment)
 {
 	CHECK_DEBUG();
 	stringstream ss;
-	ss << cx << ": " << comment;
-	outs[cx]->dump_graphviz (s(ss.str()), cx, wp);
+	ss << cx << "(" << result_state_string (state) << "): " << comment;
+	ptgs[state][cx]->dump_graphviz (s(ss.str()), cx, state, wp);
 }
 
 void
 Aliasing::dump_everything (string comment)
 {
 	foreach (Context* cx, *outs.keys ())
-		dump (cx, comment);
+		dump (cx, R_OUT, comment);
 }
 
 void
 Aliasing::init (Context* outer)
 {
 	ins[outer] = new Points_to;
-	outs[outer] = new Points_to;
+	init_block_results (outer);
+}
+
+
+void
+Aliasing::init_block_results (Context* cx)
+{
+	working[cx] = ins[cx]->clone ();
+
+	post_bind[cx] = NULL;
 }
 
 void
 Aliasing::forward_bind (Context* caller, Context* entry)
 {
-	Points_to* ptg = ins[caller]->clone ();
-
-	ptg->consistency_check (caller, wp);
-
+	Points_to* ptg = working[caller]->clone ();
+	ptg->consistency_check (caller, R_WORKING, wp);
 	ptg->open_scope (entry->symtable_node ());
 
 	// We need INS to read the current situation, but it shouldnt get modified.
 	// We merge to keep monotonicity in the face of recursion.
 	ins[entry] = merge (ins[entry], ptg);
-	outs[entry] = ins[entry]->clone ();
+	init_block_results (entry);
 }
 
 void
 Aliasing::backward_bind (Context* caller, Context* exit)
 {
 	Points_to* ptg = outs[exit]->clone ();
+	ptg->consistency_check (exit, R_OUT, wp);
 	ptg->close_scope (exit->symtable_node ());
-	ptg->consistency_check (exit, wp);
 
 	// See comment in WPA_lattice.
 	// This needs to merge because the might be different receivers.
-	binder[caller] = merge (binder[caller], ptg);
+	post_bind [caller] = merge (post_bind [caller], ptg);
+}
 
-	outs[caller] = binder[caller]->clone ();
-	outs[caller]->consistency_check (exit, wp);
+void
+Aliasing::post_invoke_method (Context* caller)
+{
+	working[caller] = post_bind[caller];
+	working[caller]->consistency_check (caller, R_WORKING, wp);
+
+	post_bind[caller] = NULL;
 }
 
 void
@@ -133,24 +149,34 @@ Aliasing::pull_finish (Context* cx)
 	// You cant have no predecessors (and at least 1 must be executable)
 	assert (ins[cx]);
 
-	ins[cx]->consistency_check (cx, wp);
+	ins[cx]->consistency_check (cx, R_IN, wp);
 
-	// No need to merge here, its handled in INS.
-	outs[cx] = ins[cx]->clone ();
+	init_block_results (cx);
 }
 
 
 void
-Aliasing::aggregate_results (Context* cx)
+Aliasing::finish_block (Context* cx)
 {
-	outs[cx]->consistency_check (cx, wp);
-	outs[cx]->remove_unreachable_nodes ();
+	Points_to* ptg = working[cx]->clone ();
+	ptg->remove_unreachable_nodes ();
+	ptg->consistency_check (cx, R_WORKING, wp);
+
+	if (outs[cx] == NULL)
+		changed_flags[cx] = true;
+	else
+		changed_flags[cx] = ptg->equals (outs[cx]);
+
+	// In a few cases, its really difficult to avoid calling finish block twice,
+	// so don't clear WORKING.
+
+	outs[cx] = ptg;
 }
 
 void
 Aliasing::kill_value (Context* cx, Index_node* lhs, bool also_kill_refs)
 {
-	Points_to* ptg = outs[cx];
+	Points_to* ptg = working[cx];
 
 	// This removes LHS from the Points-to graph.
 	foreach (Storage_node* st, *ptg->get_points_to (lhs))
@@ -177,7 +203,7 @@ void
 Aliasing::set_storage (Context* cx, Storage_node* storage, Types* types)
 {
 	// Check if its gone abstract.
-	outs[cx]->inc_abstract (storage);
+	working[cx]->inc_abstract (storage);
 }
 
 
@@ -190,7 +216,7 @@ Aliasing::set_scalar (Context* cx, Value_node* storage, Abstract_value* val)
 void
 Aliasing::create_reference (Context* cx, Index_node* lhs, Index_node* rhs, Certainty cert)
 {
-	Points_to* ptg = outs[cx];
+	Points_to* ptg = working[cx];
 
 	// Whole program handles all edges, so this is very simple
 	ptg->add_reference (lhs, rhs, cert);
@@ -199,7 +225,7 @@ Aliasing::create_reference (Context* cx, Index_node* lhs, Index_node* rhs, Certa
 void
 Aliasing::assign_value (Context* cx, Index_node* lhs, Storage_node* storage)
 {
-	Points_to* ptg = outs[cx];
+	Points_to* ptg = working[cx];
 
 	ptg->add_field (lhs);
 	ptg->add_points_to (lhs, storage);
@@ -208,6 +234,10 @@ Aliasing::assign_value (Context* cx, Index_node* lhs, Storage_node* storage)
 void
 Aliasing::merge_contexts ()
 {
+	// Make sure innaccessible results aren't available
+	working.clear ();
+	post_bind.clear ();
+
 	Context* cx;
 	Points_to* ptg;
 
@@ -247,62 +277,59 @@ Aliasing::merge_contexts ()
 }
 
 Reference_list*
-Aliasing::get_references (Context* cx, Index_node* index, Certainty cert)
+Aliasing::get_references (Context* cx, Result_state state, Index_node* index, Certainty cert)
 {
-	Points_to* ptg = outs[cx];
-	return ptg->get_references (index, cert);
+	return ptgs[state][cx]->get_references (index, cert);
 }
 
 Storage_node_list*
-Aliasing::get_points_to (Context* cx, Index_node* index)
+Aliasing::get_points_to (Context* cx, Result_state state, Index_node* index)
 {
-	Points_to* ptg = outs[cx];
-	return ptg->get_points_to (index);
+	return ptgs[state][cx]->get_points_to (index);
 }
 
 
 Index_node_list*
-Aliasing::get_fields (Context* cx, Storage_node* storage)
+Aliasing::get_fields (Context* cx, Result_state state, Storage_node* storage)
 {
-	Points_to* ptg = outs[cx];
-	return ptg->get_fields (storage);
+	return ptgs[state][cx]->get_fields (storage);
 }
 
 bool
-Aliasing::is_abstract (Context* cx, Storage_node* st)
+Aliasing::is_abstract (Context* cx, Result_state state, Storage_node* st)
 {
-	return outs[cx]->is_abstract (st);
+	return ptgs[state][cx]->is_abstract (st);
 }
 
 bool
-Aliasing::is_abstract_field (Context* cx, Index_node* index)
+Aliasing::is_abstract_field (Context* cx, Result_state state, Index_node* index)
 {
-	return outs[cx]->is_abstract_field (index);
+	return ptgs[state][cx]->is_abstract_field (index);
 }
 
 bool
-Aliasing::has_storage_node (Context* cx, Storage_node* st)
+Aliasing::has_storage_node (Context* cx, Result_state state, Storage_node* st)
 {
-	return outs[cx]->has_storage_node (st);
+	return ptgs[state][cx]->has_storage_node (st);
 }
 
 bool
-Aliasing::has_field (Context* cx, Index_node* ind)
+Aliasing::has_field (Context* cx, Result_state state, Index_node* ind)
 {
-	return outs[cx]->has_field (ind);
+	return ptgs[state][cx]->has_field (ind);
 }
 
 Storage_node_list*
-Aliasing::get_storage_nodes (Context* cx)
+Aliasing::get_storage_nodes (Context* cx, Result_state state)
 {
-	return outs[cx]->get_storage_nodes ();
+	return ptgs[state][cx]->get_storage_nodes ();
 }
 
 
 Storage_node*
-Aliasing::get_owner (Context* cx, Index_node* index)
+Aliasing::get_owner (Context* cx, Result_state state, Index_node* index)
 {
-	return outs[cx]->get_owner (index);
+	return ptgs[state][cx]->get_owner (index);
 }
 
 

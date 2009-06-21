@@ -127,7 +127,7 @@ Whole_program::run (MIR::PHP_script* in)
 		// Merge different contexts
 		merge_contexts ();
 
-		dump (new Context, "after context merge");
+		dump (new Context, R_OUT, "after context merge");
 
 
 		// Optimize based on analysis results
@@ -325,7 +325,7 @@ Whole_program::get_successors (Context* cx)
 	{
 		Index_node* cond = VN (cx->symtable_name (), branch->branch->variable_name);
 
-		Abstract_value* absval = get_abstract_value (cx, cond->name ());
+		Abstract_value* absval = get_abstract_value (cx, R_WORKING, cond->name ());
 
 		if (not absval->known_true ())
 			result->push_back (branch->get_false_successor_edge ());
@@ -385,7 +385,7 @@ Whole_program::get_possible_receivers (Context* cx, Target* target, Method_name*
 			// types and all the objects. But really, each method should only
 			// invoke on types they are allowed invoke on.
 			VARIABLE_NAME* obj = dyc<VARIABLE_NAME> (target);
-			Types* types = values->get_types (cx, VN (cx->symtable_name (), obj)->name());
+			Types* types = values->get_types (cx, R_WORKING, VN (cx->symtable_name (), obj)->name());
 
 			// Wrap them
 			foreach (string type, *types)
@@ -526,6 +526,8 @@ Whole_program::invoke_method (Context* caller_cx, VARIABLE_NAME* lhs, VARIABLE_N
 		phc_TODO ();
 
 	
+	FWPA->pre_invoke_method (block_cx);
+
 	foreach (Method_info* receiver, *receivers)
 	{
 		analyse_method_info (receiver, caller_cx, params, lhs);
@@ -533,6 +535,8 @@ Whole_program::invoke_method (Context* caller_cx, VARIABLE_NAME* lhs, VARIABLE_N
 
 	// Reset the context correctly.
 	block_cx = caller_cx;
+
+	FWPA->post_invoke_method (block_cx);
 }
 
 
@@ -565,7 +569,7 @@ Whole_program::analyse_summary (Summary_method_info* info, Context* caller_cx, A
 	Context* entry_cx = Context::contextual (caller_cx, cfg->get_entry_bb ());
 	forward_bind (info, entry_cx, actuals);
 
-	dump (entry_cx, "Upon summary entry (" + *caller_cx->get_bb()->get_graphviz_label () + ")");
+	dump (entry_cx, R_OUT, "Upon summary entry (" + *caller_cx->get_bb()->get_graphviz_label () + ")");
 
 	/*
 	 * "Perform" the function
@@ -576,9 +580,9 @@ Whole_program::analyse_summary (Summary_method_info* info, Context* caller_cx, A
 
 	apply_modelled_function (info, fake_cx, caller_cx);
 
-	FWPA->aggregate_results (fake_cx);
+	FWPA->finish_block (fake_cx);
 
-	dump (fake_cx, "After fake basic block (" + *caller_cx->get_bb()->get_graphviz_label () + ")");
+	dump (fake_cx, R_OUT, "After fake basic block (" + *caller_cx->get_bb()->get_graphviz_label () + ")");
 
 	phc_pause ();
 
@@ -591,10 +595,10 @@ Whole_program::analyse_summary (Summary_method_info* info, Context* caller_cx, A
 	Context* exit_cx = Context::contextual (caller_cx, cfg->get_exit_bb ());
 	pull_results (exit_cx, cfg->get_exit_bb ()->get_predecessors ());
 
-	FWPA->aggregate_results (exit_cx);
+	FWPA->finish_block (exit_cx);
 
 	// TODO: we only really need 2 blocks here.
-	dump (exit_cx, "After summary method (" + *caller_cx->get_bb()->get_graphviz_label () + ")");
+	dump (exit_cx, R_OUT, "After summary method (" + *caller_cx->get_bb()->get_graphviz_label () + ")");
 
 	phc_pause ();
 
@@ -636,7 +640,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		// There are two ways to know there is a parameter:
 		//		- an actual parameter is passed
 		//		- there are formal parameters. 
-		if (not aliasing->has_field (cx, param)
+		if (not aliasing->has_field (cx, R_WORKING, param)
 			&& i >= info->formal_param_count ()) // (yes, &&)
 			break;
 
@@ -685,8 +689,8 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	else if (*info->name == "define")
 	{
 		// Read parameters
-		Abstract_value* name = get_abstract_value (cx, params[0]->name ());
-		Abstract_value* value = get_abstract_value (cx, params[1]->name ());
+		Abstract_value* name = get_abstract_value (cx, R_WORKING, params[0]->name ());
+		Abstract_value* value = get_abstract_value (cx, R_WORKING, params[1]->name ());
 		if (params[3])
 			phc_TODO (); // case-insensitive
 
@@ -757,9 +761,9 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		bool can_be_float = true;
 		bool can_be_array = true;
 
-		if (aliasing->has_field (cx, params[0])) // TODO: just use params[0]?
+		if (aliasing->has_field (cx, R_WORKING, params[0])) // TODO: just use params[0]?
 		{
-			Abstract_value* absval = get_abstract_value (cx, params[0]->name());
+			Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]->name());
 
 			if (absval->known_true ())
 				can_be_array = false;
@@ -836,8 +840,8 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		// Returns an array with a range of values of the given type.
 		string name = assign_path_empty_array (cx, ret_path);
 
-		Abstract_value* absval0 = get_abstract_value (cx, params[0]->name());
-		Abstract_value* absval1 = get_abstract_value (cx, params[1]->name());
+		Abstract_value* absval0 = get_abstract_value (cx, R_WORKING, params[0]->name());
+		Abstract_value* absval1 = get_abstract_value (cx, R_WORKING, params[1]->name());
 		Types* merged = absval0->types->set_union (absval1->types);
 		assign_path_typed (cx, P (name, UNKNOWN), merged);
 	}
@@ -869,7 +873,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	else if (*info->name == "var_export")
 	{
 		// Return string or NULL depending on true/false.
-		Abstract_value* absval1 = get_abstract_value (cx, params[1]->name());
+		Abstract_value* absval1 = get_abstract_value (cx, R_WORKING, params[1]->name());
 
 		Types types;
 		if (not absval1->known_false ())
@@ -982,9 +986,9 @@ Whole_program::analyse_block (Context* cx)
 
 	visit_block (cx->get_bb());
 
-	FWPA->aggregate_results (cx);
+	FWPA->finish_block (cx);
 
-	dump (cx, "After analysis (" + *cx->get_bb()->get_graphviz_label () + ")");
+	dump (cx, R_OUT, "After analysis (" + *cx->get_bb()->get_graphviz_label () + ")");
 
 	// Calculate fix-point
 	bool changed = false;
@@ -1012,9 +1016,9 @@ Whole_program::get_possible_nulls (Context_list* cxs)
 	// Get the nodes which exist in some graph, but do not exist in other graphs.
 	foreach (Context* cx, *cxs)
 	{
-		foreach (Storage_node* st, *aliasing->get_storage_nodes (cx))
+		foreach (Storage_node* st, *aliasing->get_storage_nodes (cx, R_OUT))
 		{
-			foreach (Index_node* index, *aliasing->get_fields (cx, st))
+			foreach (Index_node* index, *aliasing->get_fields (cx, R_OUT, st))
 			{
 				// Check all the other graphs
 				foreach (Context* other, *cxs)
@@ -1022,8 +1026,8 @@ Whole_program::get_possible_nulls (Context_list* cxs)
 					if (cx == other)
 						continue;
 
-					if (aliasing->has_storage_node (cx, st)
-						&& !aliasing->has_field (other, index))
+					if (aliasing->has_storage_node (cx, R_OUT, st)
+						&& !aliasing->has_field (other, R_OUT, index))
 					{
 						// Add it
 						if (!existing.has (index->name()))
@@ -1080,7 +1084,7 @@ Whole_program::pull_results (Context* cx, BB_list* bb_preds)
 }
 
 void
-Whole_program::dump (Context* cx, string comment)
+Whole_program::dump (Context* cx, Result_state state, string comment)
 {
 	bool saved = debugging_enabled;
 	foreach_wpa (this)
@@ -1096,7 +1100,7 @@ Whole_program::dump (Context* cx, string comment)
 		if (cx->empty ())
 			wpa->dump_everything (comment);
 		else
-			wpa->dump (cx, comment);
+			wpa->dump (cx, state, comment);
 
 		cdebug << endl;
 	}
@@ -1157,7 +1161,7 @@ Whole_program::init_superglobals (Context* cx)
 	assign_path_typed (cx,  P ("argv", "0"), new Types ("string"));
 
 
-	dump (cx, "After superglobals");
+	dump (cx, R_WORKING, "After superglobals");
 }
 
 void
@@ -1236,9 +1240,9 @@ Whole_program::forward_bind (Method_info* info, Context* entry_cx, MIR::Actual_p
 	}
 
 
-	FWPA->aggregate_results (entry_cx);
+	FWPA->finish_block (entry_cx);
 
-	dump (entry_cx, "After forward_bind");
+	dump (entry_cx, R_OUT, "After forward_bind");
 }
 
 
@@ -1262,9 +1266,6 @@ Whole_program::backward_bind (Method_info* info, Context* exit_cx, MIR::VARIABLE
 	Context* caller_cx = exit_cx->caller ();
 	if (lhs)
 	{
-		// TODO: would this assignment be better made in the caller? (except that
-		// RETNAME wont be propagated to the caller in the backward bind. Hmmmm).
-
 		if (info->return_by_ref ())
 		{
 			// $lhs =& $retval;
@@ -1280,8 +1281,8 @@ Whole_program::backward_bind (Method_info* info, Context* exit_cx, MIR::VARIABLE
 					P (exit_cx->symtable_name (), new VARIABLE_NAME (RETNAME)));
 		}
 
-		// There is an aggregate before this assignment, but we need another after it...
-		FWPA->aggregate_results (exit_cx);
+		// We need to allow 2 calls to finish_block because of this.
+		FWPA->finish_block (exit_cx);
 	}
 
 
@@ -1298,11 +1299,11 @@ Whole_program::backward_bind (Method_info* info, Context* exit_cx, MIR::VARIABLE
 	// where $x aliases $y[0], and $y[0] is used after being passed to a
 	// function.
 
-	dump (exit_cx, "After assignment, before WPA backward bind");
+	dump (exit_cx, R_OUT, "After assignment, before WPA backward bind");
 
 	FWPA->backward_bind (caller_cx, exit_cx);
 
-	dump (caller_cx, "After backward bind");
+	dump (caller_cx, R_POST_BIND, "After backward bind");
 
 	// Its useful to see the CFG we've fallen back into
 	if (debugging_enabled && caller_cx->get_bb()->cfg)
@@ -1323,7 +1324,7 @@ Whole_program::is_killable (Context* cx, Index_node_list* indices)
 
 	Index_node* index = indices->front ();
 	
-	if (aliasing->is_abstract_field (cx, index))
+	if (aliasing->is_abstract_field (cx, R_WORKING, index))
 		return false;
 
 	if (index->index == UNKNOWN)
@@ -1385,7 +1386,7 @@ Whole_program::assign_path_by_ref (Context* cx, Path* plhs, Path* prhs)
 
 
 		// Check if there is an implicit NULL definition.
-		if (not aliasing->has_field (cx, rhs))
+		if (not aliasing->has_field (cx, R_WORKING, rhs))
 		{
 			// TODO: this shouldnt be NULL, this should read from UNKNOWN.
 			assign_absval (cx, rhs, new Abstract_value (new NIL));
@@ -1395,11 +1396,11 @@ Whole_program::assign_path_by_ref (Context* cx, Path* plhs, Path* prhs)
 		// This handles the explicit copy and reference.
 		foreach (Index_node* lhs, *lhss)
 		{
-			foreach (Storage_node* st, *aliasing->get_points_to (cx, rhs))
+			foreach (Storage_node* st, *aliasing->get_points_to (cx, R_WORKING, rhs))
 			{
 				if (isa<Value_node> (st))
 				{
-					assign_absval (cx, lhs, get_abstract_value (cx, rhs->name ()));
+					assign_absval (cx, lhs, get_abstract_value (cx, R_WORKING, rhs->name ()));
 				}
 				else
 				{
@@ -1414,7 +1415,7 @@ Whole_program::assign_path_by_ref (Context* cx, Path* plhs, Path* prhs)
 			// Note that we aren't required to do unification, even though the
 			// edges are bidirectional. It may be that A may-ref B and A may-ref
 			// C, but B does not may-ref C. An example is after CFG merges.
-			foreach (Reference* ref, *aliasing->get_references (cx, rhs, PTG_ALL))
+			foreach (Reference* ref, *aliasing->get_references (cx, R_WORKING, rhs, PTG_ALL))
 				FWPA->create_reference (cx, lhs, ref->index, combine_certs (cert, ref->cert));
 
 
@@ -1607,20 +1608,20 @@ Whole_program::copy_value (Context* cx, Index_node* lhs, Index_node* rhs)
 	DEBUG ("copy_value");
 
 	// TODO: out of place
-	if (!aliasing->has_field (cx, rhs))
+	if (!aliasing->has_field (cx, R_WORKING, rhs))
 	{
 		rhs = new Index_node (rhs->storage, UNKNOWN);
 	}
 
-	assert (aliasing->has_field (cx, rhs));
+	assert (aliasing->has_field (cx, R_WORKING, rhs));
 
 	record_use (cx, rhs);
 
 	// Get the value for each RHS. Copy it using the correct semantics.
-	foreach (Storage_node* st, *aliasing->get_points_to (cx, rhs))
+	foreach (Storage_node* st, *aliasing->get_points_to (cx, R_WORKING, rhs))
 	{
 		// Get the type of the value
-		Types* types = values->get_types (cx, st->name());
+		Types* types = values->get_types (cx, R_WORKING, st->name());
 
 		// It must be either all scalars, array, list of classes, or bottom.
 		Types* scalars = Type_info::get_scalar_types (types);
@@ -1631,7 +1632,7 @@ Whole_program::copy_value (Context* cx, Index_node* lhs, Index_node* rhs)
 
 		if (scalars->size())
 		{
-			assign_absval (cx, lhs, get_abstract_value (cx, st->name ()));
+			assign_absval (cx, lhs, get_abstract_value (cx, R_WORKING, st->name ()));
 		}
 
 		// Deep copy
@@ -1642,7 +1643,7 @@ Whole_program::copy_value (Context* cx, Index_node* lhs, Index_node* rhs)
 
 
 			// Copy all the indices.
-			foreach (Index_node* index, *aliasing->get_fields (cx, st))
+			foreach (Index_node* index, *aliasing->get_fields (cx, R_WORKING, st))
 			{
 				copy_value (cx,
 						new Index_node (new_array->for_index_node (), index->index),
@@ -1708,7 +1709,11 @@ Whole_program::destroy_fake_index (Context* cx)
 Index_node*
 Whole_program::check_owner_type (Context* cx, Index_node* index)
 {
-	Types* types = values->get_types (cx, aliasing->get_owner (cx, index)->name ());
+	Types* types = values->get_types (
+		cx, 
+		R_WORKING, 
+		aliasing->get_owner (cx, R_WORKING, index)->name ());
+
 	Types* scalar_types = Type_info::get_scalar_types (types);
 	if (scalar_types->size ())
 	{
@@ -1746,12 +1751,12 @@ Whole_program::check_owner_type (Context* cx, Index_node* index)
 				// With multiple LHSs, this wont change value, which is fine.
 				// (Note that the value we would have killed is LHS, not
 				// LHS.storage, so this is unkilled, but it might need to be
-				// killed).
+				// killed)
 				phc_TODO ();
 			}
 		}
 
-		dump (cx, "just before the end");
+		dump (cx, R_WORKING, "just before the end");
 		phc_TODO ();
 	}
 
@@ -1770,10 +1775,10 @@ Whole_program::read_from_scalar_value (Context* cx, Index_node* rhs)
 	// has both an sclval and another storage node, then the other storage nodes
 	// will be handled in a different call, and we need concern ourselves only
 	// with the sclval here).
-	Storage_node* st = aliasing->get_owner (cx, rhs);
+	Storage_node* st = aliasing->get_owner (cx, R_WORKING, rhs);
 
 	// Get the type of the value
-	Types* types = values->get_types (cx, st->name());
+	Types* types = values->get_types (cx, R_WORKING, st->name());
 
 	// It must be either all scalars, array, or list of classes.
 	Types* scalars = Type_info::get_scalar_types (types);
@@ -1798,7 +1803,7 @@ Whole_program::read_from_scalar_value (Context* cx, Index_node* rhs)
 	{
 		if (scalars->has ("string"))
 		{
-			Literal* array = values->get_lit (cx, st->name ());
+			Literal* array = values->get_lit (cx, R_WORKING, st->name ());
 			string index = rhs->index;
 			if (array && index != UNKNOWN)
 			{
@@ -1868,7 +1873,7 @@ Whole_program::ruin_everything (Context* cx, Path* plhs)
 String*
 Whole_program::get_string_value (Context* cx, Index_node* index)
 {
-	Abstract_value* absval = get_abstract_value (cx, index->name ());
+	Abstract_value* absval = get_abstract_value (cx, R_WORKING, index->name ());
 	if (absval->lit == NULL)
 		return s (UNKNOWN);
 
@@ -1876,21 +1881,16 @@ Whole_program::get_string_value (Context* cx, Index_node* index)
 }
 
 
-Abstract_value*
-Whole_program::get_abstract_value (Context* cx, Alias_name name)
-{
-	return dyc<Absval_cell> (values->get_value (cx, name))->value;
-}
 
 Abstract_value*
-Whole_program::get_bb_in_abstract_value (Context* cx, Alias_name name)
+Whole_program::get_abstract_value (Context* cx, Result_state state, Alias_name name)
 {
-	return dyc<Absval_cell> (values->ins[cx][name.str()])->value;
+	return dyc<Absval_cell> (values->get_value (cx, state, name))->value;
 }
 
 
 Abstract_value*
-Whole_program::get_abstract_value (Context* cx, MIR::Rvalue* rval)
+Whole_program::get_abstract_value (Context* cx, Result_state state, MIR::Rvalue* rval)
 {
 	string ns = cx->symtable_name ();
 
@@ -1901,7 +1901,7 @@ Whole_program::get_abstract_value (Context* cx, MIR::Rvalue* rval)
 	// there was an assignment to $x[0], and we are accessing $x[$i].
 	Index_node* index = VN (ns, dyc<VARIABLE_NAME> (rval));
 
-	return get_abstract_value (cx, index->name ());
+	return get_abstract_value (cx, state, index->name ());
 }
 
 
@@ -2031,7 +2031,7 @@ Whole_program::get_array_named_indices (Context* cx, Path* plhs, String* index, 
 
 	// In a writing context, if the variable containing the array doesn't
 	// already exist, it must be implicitly created.
-	if (not is_readonly && not aliasing->has_field (cx, array))
+	if (not is_readonly && not aliasing->has_field (cx, R_WORKING, array))
 	{
 		assign_path_empty_array (cx, plhs);
 	}
@@ -2055,12 +2055,12 @@ Whole_program::get_array_named_indices (Context* cx, Path* plhs, String* index, 
 	 * Get the index nodes.
 	 */
 
-	Storage_node_list* storages = aliasing->get_points_to (cx, array);
+	Storage_node_list* storages = aliasing->get_points_to (cx, R_WORKING, array);
 
 
 	// We only read the value of INDEX, so we don't need the implicit array
 	// creation.
-	if (is_readonly && not aliasing->has_field (cx, array))
+	if (is_readonly && not aliasing->has_field (cx, R_WORKING, array))
 	{
 		assert (storages->size () == 0);
 		storages->push_back (SCLVAL (array));
@@ -2076,7 +2076,7 @@ Whole_program::get_array_named_indices (Context* cx, Path* plhs, String* index, 
 			else
 			{
 				// Include all possible nodes
-				foreach (Index_node* field, *aliasing->get_fields (cx, storage))
+				foreach (Index_node* field, *aliasing->get_fields (cx, R_WORKING, storage))
 					result->push_back (field);
 			}
 		}
@@ -2106,7 +2106,7 @@ Whole_program::get_lhs_references (Context* cx, Path* path)
 	bool killable = is_killable (cx, lhss);
 	foreach (Index_node* lhs, *lhss)
 	{
-		Reference_list* initial_refs = aliasing->get_references (cx, lhs, PTG_ALL);
+		Reference_list* initial_refs = aliasing->get_references (cx, R_WORKING, lhs, PTG_ALL);
 		initial_refs->push_back (new Reference (lhs, DEFINITE));
 
 		// references are immutable
@@ -2257,7 +2257,7 @@ Whole_program::visit_pre_op (Statement_block* bb, Pre_op* in)
 	Index_node* n = VN (ns, in->variable_name);
 
 	// Case where we know the value
-	Literal* value = values->get_lit (block_cx, n->name ());
+	Literal* value = values->get_lit (block_cx, R_WORKING, n->name ());
 	if (value)
 	{
 		Literal* result = PHP::fold_pre_op (value, in->op);
@@ -2266,7 +2266,7 @@ Whole_program::visit_pre_op (Statement_block* bb, Pre_op* in)
 	}
 
 	// Maybe we know the type?
-	Types* types = values->get_types (block_cx, n->name());
+	Types* types = values->get_types (block_cx, R_WORKING, n->name());
 	assign_path_typed (block_cx, path, types);
 }
 
@@ -2401,14 +2401,17 @@ Whole_program::visit_bin_op (Statement_block* bb, MIR::Bin_op* in)
 {
 	string ns = block_cx->symtable_name ();
 
-	Abstract_value* left = get_abstract_value (block_cx, in->left);
-	Abstract_value* right = get_abstract_value (block_cx, in->right);
+	Abstract_value* left = get_abstract_value (block_cx, R_WORKING, in->left);
+	Abstract_value* right = get_abstract_value (block_cx, R_WORKING, in->right);
 
 	if (left->lit && right->lit)
 	{
 		Literal* result = PHP::fold_bin_op (left->lit, in->op, right->lit);
-		assign_path_scalar (block_cx, saved_plhs, result);
-		return;
+		if (result) // can be NULL
+		{
+			assign_path_scalar (block_cx, saved_plhs, result);
+			return;
+		}
 	}
 
 	// Record uses
@@ -2430,7 +2433,7 @@ Whole_program::visit_cast (Statement_block* bb, MIR::Cast* in)
 
 	Alias_name operand = VN (ns, in->variable_name)->name();
 
-	MIR::Literal* lit = values->get_lit (block_cx, operand);
+	MIR::Literal* lit = values->get_lit (block_cx, R_WORKING, operand);
 	if (lit)
 	{
 		Literal* result = PHP::cast_to (in->cast, lit);
@@ -2577,7 +2580,7 @@ Whole_program::visit_unary_op (Statement_block* bb, MIR::Unary_op* in)
 {
 	string ns = block_cx->symtable_name ();
 
-	Abstract_value* val = get_abstract_value (block_cx, in->variable_name);
+	Abstract_value* val = get_abstract_value (block_cx, R_WORKING, in->variable_name);
 
 	if (val->lit)
 	{

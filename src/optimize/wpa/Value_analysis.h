@@ -34,13 +34,14 @@ public:
 	 * Literals
 	 */
 
-	MIR::Literal* get_lit (Context* cx, Alias_name name);
+	MIR::Literal* get_lit (Context* cx, Result_state state, Alias_name name);
+	
 
 	/*
 	 * Types
 	 */
 
-	Types* get_types (Context* cx, Alias_name name);
+	Types* get_types (Context* cx, Result_state state, Alias_name name);
 
 
 	static Types* get_bin_op_types (	Context* cx,

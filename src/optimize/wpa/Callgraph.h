@@ -27,7 +27,7 @@ public:
 	Method_info_list* bottom_up ();
 
 	bool equals (WPA* other);
-	void dump (Context* cx, string comment);
+	void dump (Context* cx, Result_state state, string comment);
 	void dump_everything (string comment);
 	void merge_contexts ();
 

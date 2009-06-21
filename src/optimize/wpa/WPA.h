@@ -33,6 +33,11 @@ typedef enum _certainty Certainty;
 Certainty combine_certs (Certainty c1, Certainty c2);
 bool is_valid_certainty (Certainty cert);
 
+
+enum _result_state { R_IN = 1, R_OUT = 2, R_WORKING = 3, R_POST_BIND = 4};
+typedef enum _result_state Result_state;
+string result_state_string (Result_state);
+
 #define UNKNOWN "*"
 
 // Storage node prefix
@@ -85,6 +90,13 @@ public:
 
 	// Propagate callee results back to the caller.
 	virtual void backward_bind (Context* caller, Context* exit) CT_IMPL;
+
+	// Invoked just before a method invocation.
+	virtual void pre_invoke_method (Context* caller) CT_IMPL;
+
+	// After all forward_bind/backward_binds have been called on the receivers
+	// (there may be more than 1).
+	virtual void post_invoke_method (Context* caller) CT_IMPL;
 
 
 	/*
@@ -151,7 +163,7 @@ public:
 
 	// Combine local results to an OUT solution. This should set
 	// CHANGED_FLAGS [bb->ID] if neccessary.
-	virtual void aggregate_results (Context* cx) CT_IMPL;
+	virtual void finish_block (Context* cx) CT_IMPL;
 
 	// Do we need to iterate again?
 	virtual bool solution_changed (Context* cx)
@@ -168,7 +180,7 @@ public:
 	/*
 	 * Debugging information
 	 */
-	virtual void dump (Context* cx, string comment) = 0;
+	virtual void dump (Context* cx, Result_state state, string comment) = 0;
 
 	virtual void dump_everything (string comment) = 0;
 

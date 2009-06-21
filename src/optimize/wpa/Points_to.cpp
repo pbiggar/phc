@@ -327,7 +327,7 @@ string print_pair (E* edge, string label)
 
 
 void
-Points_to::dump_graphviz (String* label, Context* cx, Whole_program* wp)
+Points_to::dump_graphviz (String* label, Context* cx, Result_state state, Whole_program* wp)
 {
 	if (label == NULL)
 	{
@@ -362,7 +362,7 @@ Points_to::dump_graphviz (String* label, Context* cx, Whole_program* wp)
 		if (isa<Value_node> (node))
 		{
 			stringstream cell_label;
-			Abstract_value* val = wp->get_abstract_value (cx, node->name ());
+			Abstract_value* val = wp->get_abstract_value (cx, state, node->name ());
 			val->dump (cell_label);
 
 			label
@@ -440,7 +440,7 @@ Points_to::clone ()
 }
 
 void
-Points_to::consistency_check (Context* cx, Whole_program* wp)
+Points_to::consistency_check (Context* cx, Result_state state, Whole_program* wp)
 {
 	foreach (Index_node* index, *this->get_index_nodes ())
 	{
@@ -448,7 +448,7 @@ Points_to::consistency_check (Context* cx, Whole_program* wp)
 		// Check index nodes are pointed to by their storage node
 		if (not this->has_field (index))
 		{
-			dump_graphviz (NULL, cx, wp);
+			dump_graphviz (NULL, cx, state, wp);
 			phc_internal_error ("No field-edge to %s",
 					index->name().str().c_str());
 		}
@@ -456,14 +456,14 @@ Points_to::consistency_check (Context* cx, Whole_program* wp)
 		// Check every index node points_to something.
 		if (this->get_points_to (index)->size () == 0)
 		{
-			dump_graphviz (NULL, cx, wp);
+			dump_graphviz (NULL, cx, state, wp);
 			phc_internal_error ("No points-to edge from %s",
 					index->name().str().c_str());
 		}
 
 		if (isa<Value_node> (this->get_storage (index)))
 		{
-			dump_graphviz (NULL, cx, wp);
+			dump_graphviz (NULL, cx, state, wp);
 			phc_internal_error ("Abstract values can't have fields %s",
 					index->name().str().c_str());
 		}
@@ -474,7 +474,7 @@ Points_to::consistency_check (Context* cx, Whole_program* wp)
 		Certainty cert = this->references.get_value (ref_edge);
 		if (not is_valid_certainty (cert))
 		{
-			dump_graphviz (NULL, cx, wp);
+			dump_graphviz (NULL, cx, state, wp);
 			phc_internal_error ("Certs can't be %d between %s and %s",
 					cert,
 					ref_edge->source->name().str().c_str(),

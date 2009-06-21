@@ -22,6 +22,9 @@ public:
 	Index_node* lhs;
 	bool assign_var_is_ref;
 
+
+	Abstract_value* get_abstract_value (Basic_block* bb, MIR::Rvalue* rval);
+
 	void visit_entry_block (Entry_block* bb);
 	
 	void visit_basic_block (Basic_block* bb);

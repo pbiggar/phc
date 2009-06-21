@@ -41,13 +41,31 @@ cert_to_string (Certainty cert)
 void
 Debug_WPA::forward_bind (Context* caller, Context* entry)
 {
-	DEBUG ("forward bind " << caller << " to " << entry);
+	DEBUG (__FUNCTION__ << caller << " to " << entry);
 }
 
 void
 Debug_WPA::backward_bind (Context* caller, Context* exit)
 {
-	DEBUG (__FUNCTION__);
+	DEBUG (__FUNCTION__ << caller << " from " << exit);
+}
+
+void
+Debug_WPA::pre_invoke_method (Context* caller)
+{
+	if (caller)
+		DEBUG (__FUNCTION__ << " in " << caller);
+	else
+		DEBUG (__FUNCTION__ << " in outer scope" );
+}
+
+void
+Debug_WPA::post_invoke_method (Context* caller)
+{
+	if (caller)
+		DEBUG (__FUNCTION__ << " in " << caller);
+	else
+		DEBUG (__FUNCTION__ << " in outer scope" );
 }
 
 
@@ -150,7 +168,7 @@ Debug_WPA::pull_finish (Context* cx)
 
 
 void
-Debug_WPA::aggregate_results (Context* cx)
+Debug_WPA::finish_block (Context* cx)
 {
 	DEBUG (__FUNCTION__ << " " << cx);
 }
@@ -170,7 +188,7 @@ Debug_WPA::equals (WPA* other)
 }
 
 void
-Debug_WPA::dump (Context* cx, string comment)
+Debug_WPA::dump (Context* cx, Result_state state, string comment)
 {
 }
 

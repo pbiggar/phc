@@ -21,9 +21,21 @@ protected:
 	typedef Lattice_map<Cell_type> Lattice_type;
 	typedef WPA_lattice<Cell_type> this_type;
 
+protected:
+	Map<Result_state, CX_lattices<Cell_type> > lattices;
+	CX_lattices<Cell_type>& outs;
+	CX_lattices<Cell_type>& ins;
+	CX_lattices<Cell_type>& working;
+	CX_lattices<Cell_type>& post_bind;
+
+
 public:
 	WPA_lattice (Whole_program* wp)
 	: WPA (wp)
+	, outs (lattices[R_OUT])
+	, ins (lattices[R_IN])
+	, working (lattices[R_WORKING])
+	, post_bind (lattices[R_POST_BIND])
 	{
 	}
 
@@ -33,6 +45,7 @@ public:
 	 */
 	void init (Context* outer)
 	{
+		// The maps initialize themselves.
 	}
 
 	void forward_bind (Context* caller, Context* entry)
@@ -40,25 +53,22 @@ public:
 		// We dont clear anything, since we want the results to be monotonic in the
 		// presence of recursion.
 
-		ins[entry].merge(&ins[caller]);
+		ins[entry].merge (&working[caller]);
 
-		init_outs (entry);
+		init_block_results (entry);
 	}
 
 	void backward_bind (Context* caller, Context* exit)
 	{
-		/*
-		 * During a backward_bind, we need to merge back results from the callee.
-		 * Although the results will already be merged with any previous results,
-		 * there may be multiple receivers, so we must merge these with the previous
-		 * results.
-		 * However, OUTS is populated with results from INS. If we merge the
-		 * backward_bind results straight into OUTS, we lose precision by merging it
-		 * with the results from INS. But we can't just wipe OUTS or we'll lose the
-		 * old results. This is a nice work-around.
-		 */
-		binder[caller].merge(&outs[exit]);
-		outs[caller] = binder[caller];
+		// Overwrite working - its not saved between goes.
+		post_bind[caller].merge (&outs[exit]);
+	}
+
+	void post_invoke_method (Context* caller)
+	{
+		// Overwrite working - its not saved between goes.
+		working[caller] = post_bind[caller];
+		post_bind[caller].clear ();
 	}
 
 
@@ -107,13 +117,14 @@ public:
 	 */
 	void kill_value (Context* cx, Index_node* lhs, bool also_kill_refs)
 	{
-		outs[cx][lhs->name().str()] = Cell_type::TOP;
-		outs[cx][SCLVAL (lhs)->name().str()] = Cell_type::TOP;
+		Lattice_type& lat = working[cx];
+		lat[lhs->name().str()] = Cell_type::TOP;
+		lat[SCLVAL (lhs)->name().str()] = Cell_type::TOP;
 	}
 
 	void assign_value (Context* cx, Index_node* lhs, Storage_node* storage)
 	{
-		Lattice_type& lat = outs[cx];
+		Lattice_type& lat = working[cx];
 		string name = lhs->name().str();
 		lat[name] = lat[name]->meet (lat[storage->name().str()]);
 	}
@@ -121,7 +132,6 @@ public:
 
 	void pull_init (Context* cx)
 	{
-		changed_flags[cx] = false;
 		ins[cx].clear ();
 	}
 
@@ -139,16 +149,16 @@ public:
 
 	void pull_finish (Context* cx)
 	{
-		init_outs (cx);
+		init_block_results (cx);
 	}
 
-	void aggregate_results (Context* cx)
+	void finish_block (Context* cx)
 	{
-		// Set solution_changed
-		changed_flags[cx] = !outs[cx].equals (&clones[cx]);
+		changed_flags[cx] = !working[cx].equals (&outs[cx]);
+	
+		outs[cx] = working[cx];
 
-		clones[cx].clear();
-		clones[cx].merge (&outs[cx]);
+		// See comment in Aliasing::finish_block
 	}
 
 	bool equals (WPA* wpa)
@@ -158,10 +168,9 @@ public:
 			&& this->outs.equals (&other->outs);
 	}
 
-	void dump (Context* cx, string comment)
+	void dump (Context* cx, Result_state state, string comment)
 	{
-		ins.dump (cx, "IN");
-		outs.dump (cx, "OUT");
+		lattices[state].dump (cx, comment);
 	}
 
 	void dump_everything (string comment)
@@ -225,26 +234,22 @@ public:
 	}
 
 	// Get results
-	Cell_type* get_value (Context* cx, Alias_name name)
+	Cell_type* get_value (Context* cx, Result_state state, Alias_name name)
 	{
-		return outs[cx][name.str()];
+		return lattices[state][cx][name.str()];
 	}
 
 private:
-	void init_outs (Context* cx)
+
+	void init_block_results (Context* cx)
 	{
-		outs[cx] = ins[cx];
+		working[cx] = ins[cx];
+
+		post_bind[cx].clear ();
+		outs[cx].clear ();
 	}
 
-	CX_lattices<Cell_type> binder;
-	CX_lattices<Cell_type> clones;
 
-
-protected:
-	CX_lattices<Cell_type> ins;
-	CX_lattices<Cell_type> outs;
-
-	friend class Whole_program;
 };
 
 #endif // PHC_WPA_LATTICE

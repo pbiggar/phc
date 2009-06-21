@@ -173,7 +173,7 @@ public:
 	void init_superglobals (Context* cx);
 
 	/* Local analysis - calling other analyses */
-	void dump (Context* cx, string comment);
+	void dump (Context* cx, Result_state state, string comment);
 
 
 	/*
@@ -245,13 +245,10 @@ public:
 	// Get the value of node (can be UNKNOWN).
 	String* get_string_value (Context* cx, Index_node* node);
 
-	Abstract_value* get_abstract_value (Context* cx, Alias_name name);
+	Abstract_value* get_abstract_value (Context* cx, Result_state state, Alias_name name);
 
 	// Get all the possible names, and merge them.
-	Abstract_value* get_abstract_value (Context* cx, MIR::Rvalue* rval);
-
-	// Special case, get the input value.
-	Abstract_value* get_bb_in_abstract_value (Context* cx, Alias_name name);
+	Abstract_value* get_abstract_value (Context* cx, Result_state state, MIR::Rvalue* rval);
 
 	// PATH can refer to many nodes. Get the list of Index_nodes it points to.
 	// Set the RHS_BY_REF flag if PATH represents the RHS of an

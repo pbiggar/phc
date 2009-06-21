@@ -38,8 +38,9 @@ Optimization_transformer::get_in_abstract_value (Basic_block* bb, Rvalue* in)
 		return new Abstract_value (dyc<Literal> (in));
 
 	Context* cx = Context::non_contextual (bb);
-	return wp->get_bb_in_abstract_value (
+	return wp->get_abstract_value (
 			cx,
+			R_IN,
 			VN (cx->symtable_name (), dyc<VARIABLE_NAME> (in))->name ());
 }
 
@@ -52,6 +53,7 @@ Optimization_transformer::get_out_abstract_value (Basic_block* bb, Rvalue* in)
 	Context* cx = Context::non_contextual (bb);
 	return wp->get_abstract_value (
 			cx,
+			R_OUT,
 			VN (cx->symtable_name (), dyc<VARIABLE_NAME> (in))->name ());
 }
 

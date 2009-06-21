@@ -29,4 +29,9 @@ is_valid_certainty (Certainty cert)
 	return (cert == POSSIBLE || cert == DEFINITE);
 }
 
-
+string
+result_state_string (Result_state state)
+{
+	const char* strings[] = {NULL, "IN", "OUT", "WORKING", "POST_BIND"};
+	return string (strings[state]);
+}

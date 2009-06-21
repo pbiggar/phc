@@ -39,10 +39,10 @@ public:
 	void record_use (Context* cx, Index_node* use, Certainty cert);
 
 
-	void aggregate_results (Context* cx);
+	void finish_block (Context* cx);
 
 	bool equals (WPA* other);
-	void dump (Context* cx, string comment);
+	void dump (Context* cx, Result_state state, string comment);
 	void dump_everything (string comment);
 
 	void backward_bind (Context* caller, Context* exit);

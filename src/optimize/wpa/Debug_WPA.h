@@ -21,6 +21,9 @@ public:
 	void forward_bind (Context* caller, Context* entry);
 	void backward_bind (Context* caller, Context* exit);
 
+	void pre_invoke_method (Context* caller);
+	void post_invoke_method (Context* caller);
+
 	void create_reference (Context* cx, Index_node* lhs,
 								 Index_node* rhs, Certainty cert);
 
@@ -40,12 +43,12 @@ public:
 	void pull_possible_null (Context* cx, Index_node* node);
 	void pull_finish (Context* cx);
 
-	void aggregate_results (Context* cx);
+	void finish_block (Context* cx);
 
 	bool solution_changed (Context* cx);
 
 	bool equals (WPA* other);
-	void dump (Context* cx, string comment);
+	void dump (Context* cx, Result_state state, string comment);
 	void dump_everything (string comment);
 	void merge_contexts ();
 };

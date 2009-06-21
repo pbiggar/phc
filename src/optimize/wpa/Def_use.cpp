@@ -156,7 +156,7 @@ Def_use::dump_set (Context* cx, reftype rt, deftype dt)
 }
 
 void
-Def_use::dump (Context* cx, string comment)
+Def_use::dump (Context* cx, Result_state, string comment)
 {
 	// Print out the results for existing BBs (done this way so that IN and OUT
 	// results are presented together).
@@ -187,7 +187,7 @@ void
 Def_use::dump_everything (string comment)
 {
 	foreach (Context* cx, *maps.keys ())
-		dump (cx, comment);
+		dump (cx, R_OUT, comment);
 }
 
 /*
@@ -270,7 +270,7 @@ in_scope (Context* cx, Alias_name& name)
 }
 
 void
-Def_use::aggregate_results (Context* cx)
+Def_use::finish_block (Context* cx)
 {
 	string symtable = cx->symtable_name ();
 

@@ -28,10 +28,18 @@ DECL (Reference);
 
 class Aliasing : public WPA
 {
+	Map<Result_state, CX_map<Points_to*> > ptgs;
 	// Record 1 per program-point.
-	CX_map<Points_to*> ins;
-	CX_map<Points_to*> outs;
-	CX_map<Points_to*> binder;
+	CX_map<Points_to*>& outs;
+	CX_map<Points_to*>& ins;
+	CX_map<Points_to*>& working;
+
+	// This allows the bind results to be combined before being put back into
+	// working.
+	CX_map<Points_to*>& post_bind;
+
+private:
+	void init_block_results (Context* cx);
 
 public:
 	Aliasing (Whole_program*);
@@ -41,6 +49,7 @@ public:
 	void forward_bind (Context* caller, Context* entry);
 
 	void backward_bind (Context* caller, Context* exit);
+	void post_invoke_method (Context* caller);
 
 	void create_reference (Context* cx, Index_node* lhs,
 								  Index_node* rhs, Certainty cert);
@@ -64,10 +73,10 @@ public:
 	void pull_finish (Context* cx);
 
 
-	void aggregate_results (Context* cx);
+	void finish_block (Context* cx);
 
 	bool equals (WPA* other);
-	void dump (Context* cx, string comment);
+	void dump (Context* cx, Result_state state, string comment);
 	void dump_everything (string comment);
 
 	void merge_contexts ();
@@ -77,22 +86,19 @@ public:
 	 * Take information from Alias results
 	 */
 
-	Reference_list* get_references (Context* cx, Index_node* index,
-												Certainty cert);
+	Reference_list* get_references (Context* cx, Result_state state, Index_node* index, Certainty cert);
+	Index_node_list* get_fields (Context* cx, Result_state state, Storage_node* storage);
+	Storage_node_list* get_points_to (Context* cx, Result_state state, Index_node* index);
 
-	Index_node_list* get_fields (Context* cx, Storage_node* storage);
+	bool is_abstract (Context* cx, Result_state state, Storage_node* st);
+	bool is_abstract_field (Context* cx, Result_state state, Index_node* st);
 
-	Storage_node_list* get_points_to (Context* cx, Index_node* index);
+	bool has_storage_node (Context* cx, Result_state state, Storage_node* st);
+	bool has_field (Context* cx, Result_state state, Index_node* ind);
 
-	bool is_abstract (Context* cx, Storage_node* st);
-	bool is_abstract_field (Context* cx, Index_node* st);
+	Storage_node_list* get_storage_nodes (Context* cx, Result_state state);
 
-	bool has_storage_node (Context* cx, Storage_node* st);
-	bool has_field (Context* cx, Index_node* ind);
-
-	Storage_node_list* get_storage_nodes (Context* cx);
-
-	Storage_node* get_owner (Context* cx, Index_node* index);
+	Storage_node* get_owner (Context* cx, Result_state state, Index_node* index);
 };
 
 /* A Path is a way of representing some dereferencing. See Aliasing.cpp. */

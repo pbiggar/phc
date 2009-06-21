@@ -29,7 +29,7 @@ Value_analysis::Value_analysis (Whole_program* wp)
 void
 Value_analysis::set_storage (Context* cx, Storage_node* storage, Types* types)
 {
-	Lattice_type& lat = outs[cx];
+	Lattice_type& lat = working[cx];
 	string name = storage->name().str();
 
 	lat[name] = lat[name]->meet (new Absval_cell (new Abstract_value (types)));
@@ -38,7 +38,7 @@ Value_analysis::set_storage (Context* cx, Storage_node* storage, Types* types)
 void
 Value_analysis::set_scalar (Context* cx, Value_node* storage, Abstract_value* val)
 {
-	Lattice_type& lat = outs[cx];
+	Lattice_type& lat = working[cx];
 	string name = storage->name().str();
 
 	lat[name] = lat[name]->meet (new Absval_cell (val));
@@ -64,9 +64,9 @@ Value_analysis::pull_possible_null (Context* cx, Index_node* index)
  */
 
 MIR::Literal*
-Value_analysis::get_lit (Context* cx, Alias_name name)
+Value_analysis::get_lit (Context* cx, Result_state state, Alias_name name)
 {
-	return get_value (cx, name)->value->lit;
+	return get_value (cx, state, name)->value->lit;
 }
 
 /*
@@ -74,9 +74,9 @@ Value_analysis::get_lit (Context* cx, Alias_name name)
  */
 
 Types*
-Value_analysis::get_types (Context* cx, Alias_name name)
+Value_analysis::get_types (Context* cx, Result_state state, Alias_name name)
 {
-	return get_value (cx, name)->value->types;
+	return get_value (cx, state, name)->value->types;
 }
 
 

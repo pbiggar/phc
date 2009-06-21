@@ -538,12 +538,12 @@ public:
 	 */
 
 	bool equals (Points_to* other);
-	void dump_graphviz (String* label, Context* cx, Whole_program* wp);
+	void dump_graphviz (String* label, Context* cx, Result_state state, Whole_program* wp);
 
 	Points_to* clone();
 	Points_to* merge (Points_to* other);
 
-	void consistency_check (Context* cx, Whole_program* wp);
+	void consistency_check (Context* cx, Result_state state, Whole_program* wp);
 
 
 	static Index_node_list* get_possible_nulls (List<Points_to*>* graphs);
