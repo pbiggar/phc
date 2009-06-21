@@ -1,5 +1,13 @@
 <?php
 
+
+	/*
+	 * Usage:
+	 *		php test/framework/compare_logs.php test/logs/latest test/logs/Sat_20_Jun_13_13_50/
+	 * 
+	 * The first argument gets its results first. We ignore results missing in one set or the other.
+	 */
+
 	require_once ("lib/header.php");
 
 	define ("FA", "Failure");
@@ -58,7 +66,7 @@
 						|| ($result == SK && $otherresult == FA)
 						|| ($result == SK && $otherresult == SU)
 						)
-					echo "For $testname,$filename, $result != $otherresult)\n";
+					echo "$result != $otherresult for ($testname, $filename)\n";
 				}
 			}
 		}
