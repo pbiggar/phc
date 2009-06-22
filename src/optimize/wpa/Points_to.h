@@ -31,7 +31,6 @@ Storage_node* SN (string scope);
 Index_node* IN (string scope, string name);
 Index_node* VN (string scope, MIR::VARIABLE_NAME*);
 Index_node* FN (string scope, MIR::FIELD_NAME*);
-//Index_node* AN (string scope, string array_index); TODO arrays
 
 Value_node* SCLVAL (Index_node* node);
 Storage_node* CX_array_node (Context* cx);

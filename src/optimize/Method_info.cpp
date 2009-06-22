@@ -123,13 +123,17 @@ User_method_info::get_side_effecting ()
 	return side_effecting;
 }
 
+String*
+UNNAMED (int param_index)
+{
+	return s ("__UNNAMED__" + lexical_cast<string> (param_index));
+}
+
 
 VARIABLE_NAME*
 unnamed_param (int param_index)
 {
-	stringstream ss;
-	ss << "__UNNAMED__" << param_index;
-	return new VARIABLE_NAME (s(ss.str()));
+	return new VARIABLE_NAME (UNNAMED (param_index));
 }
 
 int

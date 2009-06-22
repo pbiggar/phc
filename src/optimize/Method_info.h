@@ -72,6 +72,7 @@ DECL (Method_info);
 DECL (Class_info);
 DECL (User_class_info);
 
+String* UNNAMED (int param_index);
 MIR::VARIABLE_NAME* unnamed_param (int param_index);
 
 class Method_info : virtual public GC_obj

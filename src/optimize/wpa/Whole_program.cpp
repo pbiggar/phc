@@ -637,7 +637,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	string symtable = cx->symtable_name ();
 	for (int i = 0; ; i++) // NOTE: lack of cond in loop
 	{
-		Index_node* param = IN (symtable, "__UNNAMED__" + lexical_cast<string> (i));
+		Index_node* param = IN (symtable, *UNNAMED (i));
 
 		// There are two ways to know there is a parameter:
 		//		- an actual parameter is passed
@@ -652,7 +652,23 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	}
 
 	Path* ret_path = P (symtable, new VARIABLE_NAME (RETNAME));
-	if (*info->name == "compact")
+	if (false)
+	{
+		// so that everything else is else-if
+	}
+	else if (*info->name == "array_push")
+	{
+		Assign_next* sim = new Assign_next (
+				new VARIABLE_NAME (UNNAMED (0)),
+				saved_is_ref,
+				new VARIABLE_NAME (UNNAMED (1)));
+
+		visit_assign_next (reinterpret_cast<Statement_block*> (cx->get_bb ()), sim);
+
+		// We may learn to count later
+		assign_path_typed (cx, ret_path, new Types ("int"));
+	}
+	else if (*info->name == "compact")
 	{
 		// Return an array with a copy of the named parameters.
 		string name = assign_path_empty_array (cx, ret_path);
@@ -667,8 +683,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	}
 	else if (*info->name == "count")
 	{
-		// If the parameter is an object, then count can call the interface countable.
-		phc_TODO ();
+		// TODO: If the parameter is an object, then count can call the interface countable.
 		assign_path_typed (cx, ret_path, new Types ("int"));
 	}
 	else if (*info->name == "date_default_timezone_set")

@@ -726,22 +726,26 @@ Points_to_impl::convert_context_names ()
 /*
  * Nodes
  */
-Storage_node* SN (string scope)
+Storage_node*
+SN (string scope)
 {
 	return new Storage_node (scope);
 }
 
-Index_node* IN (string scope, string name)
+Index_node*
+IN (string scope, string name)
 {
 	return new Index_node (scope, name);
 }
 
-Index_node* VN (string scope, MIR::VARIABLE_NAME* var)
+Index_node*
+VN (string scope, MIR::VARIABLE_NAME* var)
 {
 	return IN (scope, *var->value);
 }
 
-Index_node* FN (string scope, MIR::FIELD_NAME* field)
+Index_node*
+FN (string scope, MIR::FIELD_NAME* field)
 {
 	return IN (scope, *field->value);
 }
