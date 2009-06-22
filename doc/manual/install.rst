@@ -145,6 +145,40 @@ have successfully installed |phc|.
 
 
 
+Troubleshooting
+---------------
+
+Repository
+##########
+
+If building from |phc|'s subversion repository, it is important to run
+
+.. sourcecode:: bash
+
+   touch src/generated/*
+
+before `make`.
+
+
+Boost
+#####
+
+If `./configure` is not able to find your *Boost* libraries, try using a path like
+
+.. sourcecode:: bash
+
+   --with-boost=/opt/local
+
+or
+
+.. sourcecode:: bash
+
+   --with-boost=/usr
+
+Alternatively, users have had success with symlinking the boost libraries into a standard location, like `/usr/include/`.
+
+
+
 .. [#osx_bug]
    
    There is a `known bug, and long work-around for OSX
