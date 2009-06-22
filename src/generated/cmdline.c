@@ -920,12 +920,6 @@ cmdline_parser_required2 (struct gengetopt_args_info *args_info, const char *pro
   if (check_multiple_option_occurrences(prog_name, args_info->dump_dot_given, args_info->dump_dot_min, args_info->dump_dot_max, "'--dump-dot'"))
      error = 1;
   
-  if (! args_info->call_string_length_given)
-    {
-      fprintf (stderr, "%s: '--call-string-length' option required%s\n", prog_name, (additional_error ? additional_error : ""));
-      error = 1;
-    }
-  
   if (check_multiple_option_occurrences(prog_name, args_info->cfg_dump_given, args_info->cfg_dump_min, args_info->cfg_dump_max, "'--cfg-dump'"))
      error = 1;
   

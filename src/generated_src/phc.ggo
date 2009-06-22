@@ -55,7 +55,7 @@ option "no-xml-attrs" - "When dumping XML, omit node attributes" flag off hidden
 section "OPTIMIZATION OPTIONS"
 option "flow-insensitive" - "Turn off flow-sensitivity" flag off
 option "object-insensitive" - "Turn off object-sensitivity" flag off
-option "call-string-length" - "Choose the call-string length ('0' indicates infinite call-string)" string typestr="LENGTH" default="2"
+option "call-string-length" - "Choose the call-string length ('0' indicates infinite call-string)" string no typestr="LENGTH" default="2"
 
 
 section "DEBUGGING PHC"
