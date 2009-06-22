@@ -141,6 +141,7 @@ const char *gengetopt_args_info_help[38];
 typedef enum {ARG_NO
   , ARG_FLAG
   , ARG_STRING
+  , ARG_INT
 } cmdline_parser_arg_type;
 
 static
@@ -268,7 +269,7 @@ void clear_args (struct gengetopt_args_info *args_info)
   args_info->no_xml_attrs_flag = 0;
   args_info->flow_insensitive_flag = 0;
   args_info->object_insensitive_flag = 0;
-  args_info->call_string_length_arg = gengetopt_strdup ("2");
+  args_info->call_string_length_arg = 2;
   args_info->call_string_length_orig = NULL;
   args_info->stats_flag = 0;
   args_info->rt_stats_flag = 0;
@@ -446,6 +447,7 @@ free_string_field (char **s)
 
 /** @brief generic value variable */
 union generic_value {
+    int int_arg;
     char *string_arg;
 };
 
@@ -513,7 +515,6 @@ cmdline_parser_release (struct gengetopt_args_info *args_info)
   free_multiple_string_field (args_info->dump_given, &(args_info->dump_arg), &(args_info->dump_orig));
   free_multiple_string_field (args_info->dump_xml_given, &(args_info->dump_xml_arg), &(args_info->dump_xml_orig));
   free_multiple_string_field (args_info->dump_dot_given, &(args_info->dump_dot_arg), &(args_info->dump_dot_orig));
-  free_string_field (&(args_info->call_string_length_arg));
   free_string_field (&(args_info->call_string_length_orig));
   free_multiple_string_field (args_info->cfg_dump_given, &(args_info->cfg_dump_arg), &(args_info->cfg_dump_orig));
   free_multiple_string_field (args_info->debug_given, &(args_info->debug_arg), &(args_info->debug_orig));
@@ -1001,6 +1002,9 @@ int update_arg(void *field, char **orig_field,
   case ARG_FLAG:
     *((int *)field) = !*((int *)field);
     break;
+  case ARG_INT:
+    if (val) *((int *)field) = strtol (val, &stop_char, 0);
+    break;
   case ARG_STRING:
     if (val) {
       string_field = (char **)field;
@@ -1013,6 +1017,17 @@ int update_arg(void *field, char **orig_field,
     break;
   };
 
+  /* check numeric conversion */
+  switch(arg_type) {
+  case ARG_INT:
+    if (val && !(stop_char && *stop_char == '\0')) {
+      fprintf(stderr, "%s: invalid numeric value: %s\n", package_name, val);
+      return 1; /* failure */
+    }
+    break;
+  default:
+    ;
+  };
 
   /* store the original value */
   switch(arg_type) {
@@ -1115,6 +1130,8 @@ void update_multiple_arg(void *field, char ***orig_field,
     *orig_field = (char **) realloc (*orig_field, (field_given + prev_given) * sizeof (char *));
 
     switch(arg_type) {
+    case ARG_INT:
+      *((int **)field) = (int *)realloc (*((int **)field), (field_given + prev_given) * sizeof (int)); break;
     case ARG_STRING:
       *((char ***)field) = (char **)realloc (*((char ***)field), (field_given + prev_given) * sizeof (char *)); break;
     default:
@@ -1126,6 +1143,8 @@ void update_multiple_arg(void *field, char ***orig_field,
         tmp = list;
         
         switch(arg_type) {
+        case ARG_INT:
+          (*((int **)field))[i + field_given] = tmp->arg.int_arg; break;
         case ARG_STRING:
           (*((char ***)field))[i + field_given] = tmp->arg.string_arg; break;
         default:
@@ -1138,6 +1157,12 @@ void update_multiple_arg(void *field, char ***orig_field,
   } else { /* set the default value */
     if (default_value && ! field_given) {
       switch(arg_type) {
+      case ARG_INT:
+        if (! *((int **)field)) {
+          *((int **)field) = (int *)malloc (sizeof (int));
+          (*((int **)field))[0] = default_value->int_arg; 
+        }
+        break;
       case ARG_STRING:
         if (! *((char ***)field)) {
           *((char ***)field) = (char **)malloc (sizeof (char *));
@@ -1733,7 +1758,7 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
           
             if (update_arg( (void *)&(args_info->call_string_length_arg), 
                  &(args_info->call_string_length_orig), &(args_info->call_string_length_given),
-                &(local_args_info.call_string_length_given), optarg, 0, "2", ARG_STRING,
+                &(local_args_info.call_string_length_given), optarg, 0, "2", ARG_INT,
                 check_ambiguity, override, 0, 0,
                 "call-string-length", '-',
                 additional_error))

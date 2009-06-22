@@ -5,9 +5,9 @@ option "verbose" v "Verbose output" flag off
 option "compile" c "Compile" flag off
 option "pretty-print" - "Pretty print input according to the Zend style guidelines" flag off 
 option "obfuscate" - "Obfuscate input" flag off
-option "run" - "Run the specified plugin (may be specified multiple times)" string no multiple
-option "r-option" - "Pass option to a plugin (specify multiple flags in the same order as multiple plugins - 1 option only per plugin)" string no multiple
-option "define" d "Define ini entry (only affects -c and --include)" string no multiple
+option "run" - "Run the specified plugin (may be specified multiple times)" string optional multiple
+option "r-option" - "Pass option to a plugin (specify multiple flags in the same order as multiple plugins - 1 option only per plugin)" string optional multiple
+option "define" d "Define ini entry (only affects -c and --include)" string optional multiple
 option "no-warnings" - "Allow warnings to be printed" flag off
 
 section "INPUT OPTIONS"
@@ -16,19 +16,19 @@ option "no-xml-validation" - "Toggle XML validation"  flag on hidden
 option "include" - "Parse included or required files at compile-time" flag off
 
 section "COMPILATION OPTIONS"
-option "c-option" C "Pass option to the C compile (e.g., -C-g; can be specified multiple times)" string no multiple 
+option "c-option" C "Pass option to the C compile (e.g., -C-g; can be specified multiple times)" string optional multiple 
 option "generate-c" - "Generate C code" flag off hidden
-option "extension" - "Generate a PHP extension called EXTENSION instead of a standalone application" string typestr="EXTENSION" no 
+option "extension" - "Generate a PHP extension called EXTENSION instead of a standalone application" string typestr="EXTENSION" optional 
 option "web-app" - "Generate a web-application (experimental)" string typestr="CONFIG" optional
-option "with-php" - "PHP installation path" string typestr="PATH" no hidden 
-option "optimize" O "Optimize" string no default="0"
-option "output" o "Place executable into file FILE" string typestr="FILE" no
+option "with-php" - "PHP installation path" string typestr="PATH" optional hidden 
+option "optimize" O "Optimize" string optional default="0"
+option "output" o "Place executable into file FILE" string typestr="FILE" optional
 option "execute" e "Run executable after compiling (implies -c)" flag off
 
 section "PRETTY PRINTING OPTIONS"
 option "next-line-curlies" - "Output the opening curly on the next line instead of on the same line" flag off
 option "no-leading-tab" - "Don't start every line in between <?php .. ?> with a tab" flag off
-option "tab" - "String to use for tabs while unparsing" string default="\t" no
+option "tab" - "String to use for tabs while unparsing" string default="\t" optional
 option "no-hash-bang" - "Do not output any #! lines" flag off
 
 section "OUTPUT OPTIONS"
@@ -55,7 +55,7 @@ option "no-xml-attrs" - "When dumping XML, omit node attributes" flag off hidden
 section "OPTIMIZATION OPTIONS"
 option "flow-insensitive" - "Turn off flow-sensitivity" flag off
 option "object-insensitive" - "Turn off object-sensitivity" flag off
-option "call-string-length" - "Choose the call-string length ('0' indicates infinite call-string)" string no typestr="LENGTH" default="2"
+option "call-string-length" - "Choose the call-string length ('0' indicates infinite call-string)" int typestr="LENGTH" default="2" optional
 
 
 section "DEBUGGING PHC"
