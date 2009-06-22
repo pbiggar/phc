@@ -1348,6 +1348,10 @@ Whole_program::backward_bind (Method_info* info, Context* exit_cx, MIR::VARIABLE
 bool
 Whole_program::is_killable (Context* cx, Index_node_list* indices)
 {
+	// Allow it to be turned off at the command-line.
+	if (pm->args_info->flow_insensitive_flag)
+		return false;
+
 	if (indices->size () > 1)
 		return false;
 
