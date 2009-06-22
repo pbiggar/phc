@@ -27,7 +27,7 @@ using namespace boost;
 Points_to::Points_to ()
 {
 	// Pretend this is abstract so that it doesnt get removed.
-	abstract_counts [SN("_SESSION")->name()] += 2;
+	abstract_states [SN("_SESSION")->name()] = Abstract_state::ABSTRACT;
 }
 
 /*
@@ -44,27 +44,31 @@ void
 Points_to::inc_abstract (Storage_node* st)
 {
 	Alias_name name = st->name ();
-	abstract_counts [name] ++;
+	abstract_states [name] = Abstract_state::inc (abstract_states [name]);
 }
 
 void
-Points_to::close_scope (Storage_node* st)
+Points_to::dec_abstract (Storage_node* st)
 {
 	Alias_name name = st->name ();
-	abstract_counts [name]--;
+	abstract_states [name] = Abstract_state::dec (abstract_states [name]);
 
-	if (abstract_counts [name] == 0)
+	if (abstract_states [name] == Abstract_state::MISSING)
 	{
 		symtables.erase (name);
-		abstract_counts.erase (name);
+		abstract_states.erase (name);
 
 		// Remove the symbol table. Then do a mark-and-sweep from all the other
 		// symbol tables.
 		remove_storage_node (st);
 		remove_unreachable_nodes ();
 	}
+}
 
-	assert (abstract_counts [name] >= 0);
+void
+Points_to::close_scope (Storage_node* st)
+{
+	dec_abstract (st);
 }
 
 bool
@@ -81,7 +85,7 @@ Points_to::is_abstract (Storage_node* st)
 	//		multiple times in the (exact) same context
 	//		etc
 	//
-	return abstract_counts [st->name()] > 1;
+	return abstract_states [st->name()] == Abstract_state::ABSTRACT;
 }
 
 bool
@@ -306,7 +310,7 @@ Points_to::equals (Points_to* other)
 		&& this->fields.equals (&other->fields)
 		&& this->points_to.equals (&other->points_to)
 		&& this->references.equals (&other->references)
-		&& this->abstract_counts.equals (&other->abstract_counts)
+		&& this->abstract_states.equals (&other->abstract_states)
 		&& this->symtables.equals (&other->symtables)
 		;
 }
@@ -428,7 +432,7 @@ Points_to::clone ()
 
 	// Deep copy
 	result->symtables = this->symtables;
-	result->abstract_counts = this->abstract_counts;
+	result->abstract_states = this->abstract_states;
 
 	// These will copy pointers to nodes. But that's OK, since nodes are never
 	// updated.
@@ -617,14 +621,14 @@ Points_to::merge (Points_to* other)
 	result->references = *this->merge_references (other);
 
 	// Combine the abstract counts
-	result->abstract_counts = this->abstract_counts;
+	result->abstract_states = this->abstract_states;
 
 	// For counts in OTHER, use the max (for counts only in OTHER, OTHER's
 	// version will be used).
 	Alias_name name;
-	int count;
-	foreach (tie (name, count), other->abstract_counts)
-		result->abstract_counts [name] = max (count,  other->abstract_counts [name]);
+	Abstract_state::AS state;
+	foreach (tie (name, state), other->abstract_states)
+		result->abstract_states [name] = Abstract_state::merge (state, other->abstract_states [name]);
 
 
 	// Combine the list of symtables
@@ -707,12 +711,13 @@ Points_to::convert_context_names ()
 	// Convert abstract counts
 	// I'm not really sure what to do here.
 	Alias_name name;
-	int count;
-	Map<Alias_name, int> old_abstract_counts = this->abstract_counts;
-	this->abstract_counts.clear ();
-	foreach (tie (name, count), old_abstract_counts)
+	Abstract_state::AS state;
+	Map<Alias_name, Abstract_state::AS> old_abstract_states = this->abstract_states;
+	this->abstract_states.clear ();
+	foreach (tie (name, state), old_abstract_states)
 	{
-		abstract_counts[name.convert_context_name ()] += count;
+		Alias_name converted = name.convert_context_name ();
+		abstract_states[converted] = Abstract_state::merge (state, abstract_states[converted]);
 	}
 }
 
@@ -854,3 +859,37 @@ Value_node::for_index_node ()
 	return this->name().str ();
 }
 
+
+/*
+ * Abstract_states
+ */
+
+namespace Abstract_state
+{
+	AS inc (AS as)
+	{
+		if (as == MISSING)
+			return PRESENT;
+		else
+			return ABSTRACT;
+	}
+
+	AS dec (AS as)
+	{
+		assert (as != MISSING);
+		if (as == PRESENT)
+			return MISSING;
+		else
+			return ABSTRACT;
+	}
+
+	AS merge (AS as1, AS as2)
+	{
+		if (as1 == ABSTRACT || as2 == ABSTRACT)
+			return ABSTRACT;
+		else if (as1 == PRESENT || as2 == PRESENT)
+			return PRESENT;
+		else
+			return MISSING;
+	}
+}

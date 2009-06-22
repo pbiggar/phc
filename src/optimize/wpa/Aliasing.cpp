@@ -159,8 +159,8 @@ void
 Aliasing::finish_block (Context* cx)
 {
 	Points_to* ptg = working[cx]->clone ();
-	ptg->remove_unreachable_nodes ();
 	ptg->consistency_check (cx, R_WORKING, wp);
+	ptg->remove_unreachable_nodes ();
 
 	if (outs[cx] == NULL)
 		changed_flags[cx] = true;

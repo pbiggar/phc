@@ -424,12 +424,30 @@ private:
 	Map<Alias_name, Map<Alias_name, Edge_type*> > by_target;
 };
 
+/*
+ * Abstract is a state machine with 3 states:
+ *		MISSING -> PRESENT -> ABSTRACT
+ *
+ *	ABSTRACT means its saturated, and so we can never get back from there.
+ *	An ABSTRACT node can be removed however, if nothing points to it.
+ */
+namespace Abstract_state
+{
+	enum _as { MISSING = 0 /*default*/, PRESENT = 1, ABSTRACT = 2};
+	typedef enum _as AS;
+
+	AS inc (AS as);
+	AS dec (AS as);
+	AS merge (AS as1, AS as2);
+}
+
+
 class Points_to : virtual public GC_obj
 {
 private:
 	// This keeps count of whether something is abstract or not (subsuming
 	// whether it is in scope).
-	Map<Alias_name, int> abstract_counts;
+	Map<Alias_name, Abstract_state::AS> abstract_states;
 
 	// The set of storage nodes which are a function's symbol table.
 	Set<Alias_name> symtables;
@@ -460,6 +478,7 @@ public:
 	void close_scope (Storage_node* st);
 	bool is_abstract (Storage_node* st);
 	void inc_abstract (Storage_node* st);
+	void dec_abstract (Storage_node* st);
 	bool is_abstract_field (Index_node* index);
 	bool is_symtable (Storage_node* st);
 
