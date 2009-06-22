@@ -139,7 +139,6 @@ DCE::mark_pass ()
 		if (is_bb_critical (bb))
 		{
 			mark_entire_block (bb, "as critical");
-			mark_rdf(bb);
 		}
 	}
 
@@ -157,15 +156,6 @@ DCE::mark_pass ()
 		{
 			mark_def (use);
 		}
-
-
-		// Mark the critical branches (ie, the reverse dominance frontier of
-		// the critical blocks: The dominance frontier occurs at joins. The
-		// reverse-dominance frontier is therefore at splits, which must be
-		// branches). They are marked as they are required for control flow to
-		// reach this point. They are just as important for phis as they are for
-		// other statements, and we mark the branch, not the phi.
-		mark_rdf(def->bb);
 	}
 
 	// Special case for Foreach_end: If its defining reset isnt marked, unmark it.
@@ -207,23 +197,28 @@ DCE::mark_entire_block (Basic_block* bb, string why)
 		return;
 
 	DEBUG ("marking " << bb->ID << " " << why);
-
 	bb_marks [bb->ID] = true;
 
 	// Note there are no may-defs here. They're already divided into defs or
 	// uses. Also, "entire block" doesnt include Phis.
-
-	// TODO: if the block is critical, we only need to mark the uses?
 
 	foreach (SSA_use* use, *bb->cfg->duw->get_block_uses (bb))
 		mark_def (use);
 
 	foreach (SSA_def* def, *bb->cfg->duw->get_block_defs (bb))
 		mark (def, "");
+
+	// Mark the critical branches (ie, the reverse dominance frontier of
+	// the critical blocks: The dominance frontier occurs at joins. The
+	// reverse-dominance frontier is therefore at splits, which must be
+	// branches). They are marked as they are required for control flow to
+	// reach this point. They are just as important for phis as they are for
+	// other statements, and we mark the branch, not the phi.
+	mark_rdf (bb);
 }
 
 void
-DCE::mark_rdf(Basic_block* bb)
+DCE::mark_rdf (Basic_block* bb)
 {
 	foreach (Basic_block* rdf, *bb->get_reverse_dominance_frontier ())
 	{
@@ -241,20 +236,19 @@ DCE::mark (SSA_def* def, string why)
 	def->dump();
 	DEBUG (why);
 
-	// If either a BB or a CHI is marked, mark the entire block. However,
-	// if a BB is marked, we dont need to mark the CHIs.
+	marks[def] = true;
+
+	// TODO: really we should be marking the def but not the CHI, but its not
+	// set up well for that at the moment.
 	mark_entire_block (def->bb, "");
 
-	marks[def] = true;
-	DEBUG("PUSHING");
-	def->dump();
-	DEBUG("TO WORKLIST");
 	worklist->push_back (def);
 }
 
 void
 DCE::mark_def (SSA_use* use)
 {
+	// There might be zero or one def.
 	foreach (SSA_def* def, *use->get_defs ())
 	{
 		mark (def, "due to def of " + use->name->str ());
@@ -295,7 +289,6 @@ DCE::sweep_pass ()
 		// Empty BB.
 		foreach (Alias_name phi_lhs, *bb->get_phi_lhss ())
 		{
-			//phc_TODO ();
 			if (!marks[new SSA_def (bb, &phi_lhs,SSA_PHI)])
 				bb->remove_phi_node (phi_lhs);
 		}
@@ -305,11 +298,13 @@ DCE::sweep_pass ()
 	{
 		if (is_marked (bb))
 			continue;
-		DEBUG(bb->ID<<" is not marked");
+
+		DEBUG (bb->ID << " is not marked");
+
 		if (isa<Statement_block> (bb))
 		{
 			cfg->remove_bb (bb);
-			DEBUG("REMOVED "<<bb->ID);
+			DEBUG ("REMOVED " << bb->ID);
 		}
 
 		else if (isa<Branch_block> (bb))
@@ -320,9 +315,8 @@ DCE::sweep_pass ()
 				postdominator = postdominator->get_immediate_reverse_dominator ();
 
 			cfg->remove_branch (dyc<Branch_block> (bb), postdominator);
-			DEBUG("REMOVED BRANCH "<<bb->ID<<" NEAREST MARKED POSTDOMINATOR: "<<postdominator->ID);	;
+			DEBUG ("REMOVED BRANCH " << bb->ID << " NEAREST MARKED POSTDOMINATOR: " << postdominator->ID);
 		}
-		//DEBUG(break;);
 	}
 
 	// TODO: we have enough information to manipulate the BBs to based on the
