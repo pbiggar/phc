@@ -53,6 +53,8 @@ public:
 	/* Set INI behaviour */
 	static Set<std::string> altered_ini_entries;
 
+	static String* max_execution_time;
+
 	static void set_ini_entry (String* key, String* value);
 	static String* get_ini_entry (String* key);
 
