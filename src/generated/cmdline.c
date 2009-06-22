@@ -28,62 +28,66 @@ const char *gengetopt_args_info_usage = "Usage: " CMDLINE_PARSER_PACKAGE " [OPTI
 const char *gengetopt_args_info_description = "";
 
 const char *gengetopt_args_info_full_help[] = {
-  "  -h, --help                 Print help and exit",
-  "      --full-help            Print help, including hidden options, and exit",
-  "  -V, --version              Print version and exit",
+  "  -h, --help                    Print help and exit",
+  "      --full-help               Print help, including hidden options, and exit",
+  "  -V, --version                 Print version and exit",
   "\nGENERAL OPTIONS:",
-  "  -v, --verbose              Verbose output  (default=off)",
-  "  -c, --compile              Compile  (default=off)",
-  "      --pretty-print         Pretty print input according to the Zend style \n                               guidelines  (default=off)",
-  "      --obfuscate            Obfuscate input  (default=off)",
-  "      --run=STRING           Run the specified plugin (may be specified \n                               multiple times)",
-  "      --r-option=STRING      Pass option to a plugin (specify multiple flags in \n                               the same order as multiple plugins - 1 option \n                               only per plugin)",
-  "  -d, --define=STRING        Define ini entry (only affects -c and --include)",
-  "      --no-warnings          Allow warnings to be printed  (default=off)",
+  "  -v, --verbose                 Verbose output  (default=off)",
+  "  -c, --compile                 Compile  (default=off)",
+  "      --pretty-print            Pretty print input according to the Zend style \n                                  guidelines  (default=off)",
+  "      --obfuscate               Obfuscate input  (default=off)",
+  "      --run=STRING              Run the specified plugin (may be specified \n                                  multiple times)",
+  "      --r-option=STRING         Pass option to a plugin (specify multiple flags \n                                  in the same order as multiple plugins - 1 \n                                  option only per plugin)",
+  "  -d, --define=STRING           Define ini entry (only affects -c and \n                                  --include)",
+  "      --no-warnings             Allow warnings to be printed  (default=off)",
   "\nINPUT OPTIONS:",
-  "      --read-xml=PASSNAME    Assume the input is in XML format. Start \n                               processing after the named pass (passes are \n                               ast|hir|mir)",
-  "      --no-xml-validation    Toggle XML validation  (default=on)",
-  "      --include              Parse included or required files at compile-time  \n                               (default=off)",
+  "      --read-xml=PASSNAME       Assume the input is in XML format. Start \n                                  processing after the named pass (passes are \n                                  ast|hir|mir)",
+  "      --no-xml-validation       Toggle XML validation  (default=on)",
+  "      --include                 Parse included or required files at \n                                  compile-time  (default=off)",
   "\nCOMPILATION OPTIONS:",
-  "  -C, --c-option=STRING      Pass option to the C compile (e.g., -C-g; can be \n                               specified multiple times)",
-  "      --generate-c           Generate C code  (default=off)",
-  "      --extension=EXTENSION  Generate a PHP extension called EXTENSION instead \n                               of a standalone application",
-  "      --web-app=CONFIG       Generate a web-application (experimental)",
-  "      --with-php=PATH        PHP installation path",
-  "  -O, --optimize=STRING      Optimize  (default=`0')",
-  "  -o, --output=FILE          Place executable into file FILE",
-  "  -e, --execute              Run executable after compiling (implies -c)  \n                               (default=off)",
+  "  -C, --c-option=STRING         Pass option to the C compile (e.g., -C-g; can \n                                  be specified multiple times)",
+  "      --generate-c              Generate C code  (default=off)",
+  "      --extension=EXTENSION     Generate a PHP extension called EXTENSION \n                                  instead of a standalone application",
+  "      --web-app=CONFIG          Generate a web-application (experimental)",
+  "      --with-php=PATH           PHP installation path",
+  "  -O, --optimize=STRING         Optimize  (default=`0')",
+  "  -o, --output=FILE             Place executable into file FILE",
+  "  -e, --execute                 Run executable after compiling (implies -c)  \n                                  (default=off)",
   "\nPRETTY PRINTING OPTIONS:",
-  "      --next-line-curlies    Output the opening curly on the next line instead \n                               of on the same line  (default=off)",
-  "      --no-leading-tab       Don't start every line in between <?php .. ?> with \n                               a tab  (default=off)",
-  "      --tab=STRING           String to use for tabs while unparsing  \n                               (default=`\t')",
-  "      --no-hash-bang         Do not output any #! lines  (default=off)",
+  "      --next-line-curlies       Output the opening curly on the next line \n                                  instead of on the same line  (default=off)",
+  "      --no-leading-tab          Don't start every line in between <?php .. ?> \n                                  with a tab  (default=off)",
+  "      --tab=STRING              String to use for tabs while unparsing  \n                                  (default=`\t')",
+  "      --no-hash-bang            Do not output any #! lines  (default=off)",
   "\nOUTPUT OPTIONS:",
-  "      --dump=PASSNAME        Dump input as PHP (although potentially with gotos \n                               and labels) after PASSNAME",
-  "      --dump-xml=PASSNAME    Dump input as XML after PASSNAME",
-  "      --dump-dot=PASSNAME    Dump input as DOT after PASSNAME",
-  "      --dump-parse-tree      Dump parse tree as DOT  (default=off)",
-  "      --dump-tokens          Dump list of tokens from the lexer  (default=off)",
-  "      --list-passes          List of available passes (for PASSNAME)  \n                               (default=off)",
+  "      --dump=PASSNAME           Dump input as PHP (although potentially with \n                                  gotos and labels) after PASSNAME",
+  "      --dump-xml=PASSNAME       Dump input as XML after PASSNAME",
+  "      --dump-dot=PASSNAME       Dump input as DOT after PASSNAME",
+  "      --dump-parse-tree         Dump parse tree as DOT  (default=off)",
+  "      --dump-tokens             Dump list of tokens from the lexer  \n                                  (default=off)",
+  "      --list-passes             List of available passes (for PASSNAME)  \n                                  (default=off)",
   "\nPHP PRINTING OPTIONS:",
-  "      --convert-uppered      Use legal PHP when dumping MIR as PHP  \n                               (default=off)",
+  "      --convert-uppered         Use legal PHP when dumping MIR as PHP  \n                                  (default=off)",
   "\nDOT PRINTING OPTIONS:",
-  "      --no-dot-line-numbers  Don't show line numbers when dumping DOT/XML  \n                               (default=off)",
-  "      --no-dot-nulls         Don't show NULLs when dumping DOT  (default=off)",
-  "      --no-dot-empty-lists   Don't show empty lists when dumping DOT  \n                               (default=off)",
+  "      --no-dot-line-numbers     Don't show line numbers when dumping DOT/XML  \n                                  (default=off)",
+  "      --no-dot-nulls            Don't show NULLs when dumping DOT  \n                                  (default=off)",
+  "      --no-dot-empty-lists      Don't show empty lists when dumping DOT  \n                                  (default=off)",
   "\nXML PRINTING OPTIONS:",
-  "      --no-xml-line-numbers  Don't show line numbers when dumping DOT  \n                               (default=off)",
-  "      --no-xml-base-64       Don't encode any strings into base64 when dumping \n                               XML  (default=off)",
-  "      --no-xml-attrs         When dumping XML, omit node attributes  \n                               (default=off)",
+  "      --no-xml-line-numbers     Don't show line numbers when dumping DOT  \n                                  (default=off)",
+  "      --no-xml-base-64          Don't encode any strings into base64 when \n                                  dumping XML  (default=off)",
+  "      --no-xml-attrs            When dumping XML, omit node attributes  \n                                  (default=off)",
+  "\nOPTIMIZATION OPTIONS:",
+  "      --flow-insensitive        Turn off flow-sensitivity  (default=off)",
+  "      --object-insensitive      Turn off object-sensitivity  (default=off)",
+  "      --call-string-length=LENGTH\n                                Choose the call-string length ('0' indicates \n                                  infinite call-string)  (default=`2')",
   "\nDEBUGGING PHC:",
-  "      --stats                Print compile-time statistics  (default=off)",
-  "      --rt-stats             Print statistics about a program at run-time  \n                               (default=off)",
-  "      --cfg-dump=PASSNAME    Dump CFG after the pass named 'PASSNAME'",
-  "      --debug=PASSNAME       Print debugging information for the pass named \n                               'PASSNAME",
-  "      --dont-fail            Dont fail on error (after parsing)  (default=off)",
-  "      --missed-opt           Give a warning when an optimization was missed  \n                               (default=on)",
-  "      --disable=PASSNAME     Disable the pass named 'PASSNAME'",
-  "      --pause                Pause compilation at pause() statements (in phc \n                               source, not user code)  (default=off)",
+  "      --stats                   Print compile-time statistics  (default=off)",
+  "      --rt-stats                Print statistics about a program at run-time  \n                                  (default=off)",
+  "      --cfg-dump=PASSNAME       Dump CFG after the pass named 'PASSNAME'",
+  "      --debug=PASSNAME          Print debugging information for the pass named \n                                  'PASSNAME",
+  "      --dont-fail               Dont fail on error (after parsing)  \n                                  (default=off)",
+  "      --missed-opt              Give a warning when an optimization was missed  \n                                  (default=on)",
+  "      --disable=PASSNAME        Disable the pass named 'PASSNAME'",
+  "      --pause                   Pause compilation at pause() statements (in phc \n                                  source, not user code)  (default=off)",
   "\nMore options are available via --full-help",
     0
 };
@@ -123,12 +127,16 @@ init_help_array(void)
   gengetopt_args_info_help[29] = gengetopt_args_info_full_help[32];
   gengetopt_args_info_help[30] = gengetopt_args_info_full_help[33];
   gengetopt_args_info_help[31] = gengetopt_args_info_full_help[36];
-  gengetopt_args_info_help[32] = gengetopt_args_info_full_help[56];
-  gengetopt_args_info_help[33] = 0; 
+  gengetopt_args_info_help[32] = gengetopt_args_info_full_help[47];
+  gengetopt_args_info_help[33] = gengetopt_args_info_full_help[48];
+  gengetopt_args_info_help[34] = gengetopt_args_info_full_help[49];
+  gengetopt_args_info_help[35] = gengetopt_args_info_full_help[50];
+  gengetopt_args_info_help[36] = gengetopt_args_info_full_help[60];
+  gengetopt_args_info_help[37] = 0; 
   
 }
 
-const char *gengetopt_args_info_help[34];
+const char *gengetopt_args_info_help[38];
 
 typedef enum {ARG_NO
   , ARG_FLAG
@@ -192,6 +200,9 @@ void clear_given (struct gengetopt_args_info *args_info)
   args_info->no_xml_line_numbers_given = 0 ;
   args_info->no_xml_base_64_given = 0 ;
   args_info->no_xml_attrs_given = 0 ;
+  args_info->flow_insensitive_given = 0 ;
+  args_info->object_insensitive_given = 0 ;
+  args_info->call_string_length_given = 0 ;
   args_info->stats_given = 0 ;
   args_info->rt_stats_given = 0 ;
   args_info->cfg_dump_given = 0 ;
@@ -255,6 +266,10 @@ void clear_args (struct gengetopt_args_info *args_info)
   args_info->no_xml_line_numbers_flag = 0;
   args_info->no_xml_base_64_flag = 0;
   args_info->no_xml_attrs_flag = 0;
+  args_info->flow_insensitive_flag = 0;
+  args_info->object_insensitive_flag = 0;
+  args_info->call_string_length_arg = gengetopt_strdup ("2");
+  args_info->call_string_length_orig = NULL;
   args_info->stats_flag = 0;
   args_info->rt_stats_flag = 0;
   args_info->cfg_dump_arg = NULL;
@@ -327,20 +342,23 @@ void init_args_info(struct gengetopt_args_info *args_info)
   args_info->no_xml_line_numbers_help = gengetopt_args_info_full_help[44] ;
   args_info->no_xml_base_64_help = gengetopt_args_info_full_help[45] ;
   args_info->no_xml_attrs_help = gengetopt_args_info_full_help[46] ;
-  args_info->stats_help = gengetopt_args_info_full_help[48] ;
-  args_info->rt_stats_help = gengetopt_args_info_full_help[49] ;
-  args_info->cfg_dump_help = gengetopt_args_info_full_help[50] ;
+  args_info->flow_insensitive_help = gengetopt_args_info_full_help[48] ;
+  args_info->object_insensitive_help = gengetopt_args_info_full_help[49] ;
+  args_info->call_string_length_help = gengetopt_args_info_full_help[50] ;
+  args_info->stats_help = gengetopt_args_info_full_help[52] ;
+  args_info->rt_stats_help = gengetopt_args_info_full_help[53] ;
+  args_info->cfg_dump_help = gengetopt_args_info_full_help[54] ;
   args_info->cfg_dump_min = 0;
   args_info->cfg_dump_max = 0;
-  args_info->debug_help = gengetopt_args_info_full_help[51] ;
+  args_info->debug_help = gengetopt_args_info_full_help[55] ;
   args_info->debug_min = 0;
   args_info->debug_max = 0;
-  args_info->dont_fail_help = gengetopt_args_info_full_help[52] ;
-  args_info->missed_opt_help = gengetopt_args_info_full_help[53] ;
-  args_info->disable_help = gengetopt_args_info_full_help[54] ;
+  args_info->dont_fail_help = gengetopt_args_info_full_help[56] ;
+  args_info->missed_opt_help = gengetopt_args_info_full_help[57] ;
+  args_info->disable_help = gengetopt_args_info_full_help[58] ;
   args_info->disable_min = 0;
   args_info->disable_max = 0;
-  args_info->pause_help = gengetopt_args_info_full_help[55] ;
+  args_info->pause_help = gengetopt_args_info_full_help[59] ;
   
 }
 
@@ -495,6 +513,8 @@ cmdline_parser_release (struct gengetopt_args_info *args_info)
   free_multiple_string_field (args_info->dump_given, &(args_info->dump_arg), &(args_info->dump_orig));
   free_multiple_string_field (args_info->dump_xml_given, &(args_info->dump_xml_arg), &(args_info->dump_xml_orig));
   free_multiple_string_field (args_info->dump_dot_given, &(args_info->dump_dot_arg), &(args_info->dump_dot_orig));
+  free_string_field (&(args_info->call_string_length_arg));
+  free_string_field (&(args_info->call_string_length_orig));
   free_multiple_string_field (args_info->cfg_dump_given, &(args_info->cfg_dump_arg), &(args_info->cfg_dump_orig));
   free_multiple_string_field (args_info->debug_given, &(args_info->debug_arg), &(args_info->debug_orig));
   free_multiple_string_field (args_info->disable_given, &(args_info->disable_arg), &(args_info->disable_orig));
@@ -611,6 +631,12 @@ cmdline_parser_dump(FILE *outfile, struct gengetopt_args_info *args_info)
     write_into_file(outfile, "no-xml-base-64", 0, 0 );
   if (args_info->no_xml_attrs_given)
     write_into_file(outfile, "no-xml-attrs", 0, 0 );
+  if (args_info->flow_insensitive_given)
+    write_into_file(outfile, "flow-insensitive", 0, 0 );
+  if (args_info->object_insensitive_given)
+    write_into_file(outfile, "object-insensitive", 0, 0 );
+  if (args_info->call_string_length_given)
+    write_into_file(outfile, "call-string-length", args_info->call_string_length_orig, 0);
   if (args_info->stats_given)
     write_into_file(outfile, "stats", 0, 0 );
   if (args_info->rt_stats_given)
@@ -893,6 +919,12 @@ cmdline_parser_required2 (struct gengetopt_args_info *args_info, const char *pro
   
   if (check_multiple_option_occurrences(prog_name, args_info->dump_dot_given, args_info->dump_dot_min, args_info->dump_dot_max, "'--dump-dot'"))
      error = 1;
+  
+  if (! args_info->call_string_length_given)
+    {
+      fprintf (stderr, "%s: '--call-string-length' option required%s\n", prog_name, (additional_error ? additional_error : ""));
+      error = 1;
+    }
   
   if (check_multiple_option_occurrences(prog_name, args_info->cfg_dump_given, args_info->cfg_dump_min, args_info->cfg_dump_max, "'--cfg-dump'"))
      error = 1;
@@ -1213,6 +1245,9 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
         { "no-xml-line-numbers",	0, NULL, 0 },
         { "no-xml-base-64",	0, NULL, 0 },
         { "no-xml-attrs",	0, NULL, 0 },
+        { "flow-insensitive",	0, NULL, 0 },
+        { "object-insensitive",	0, NULL, 0 },
+        { "call-string-length",	1, NULL, 0 },
         { "stats",	0, NULL, 0 },
         { "rt-stats",	0, NULL, 0 },
         { "cfg-dump",	1, NULL, 0 },
@@ -1669,6 +1704,44 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
             if (update_arg((void *)&(args_info->no_xml_attrs_flag), 0, &(args_info->no_xml_attrs_given),
                 &(local_args_info.no_xml_attrs_given), optarg, 0, 0, ARG_FLAG,
                 check_ambiguity, override, 1, 0, "no-xml-attrs", '-',
+                additional_error))
+              goto failure;
+          
+          }
+          /* Turn off flow-sensitivity.  */
+          else if (strcmp (long_options[option_index].name, "flow-insensitive") == 0)
+          {
+          
+          
+            if (update_arg((void *)&(args_info->flow_insensitive_flag), 0, &(args_info->flow_insensitive_given),
+                &(local_args_info.flow_insensitive_given), optarg, 0, 0, ARG_FLAG,
+                check_ambiguity, override, 1, 0, "flow-insensitive", '-',
+                additional_error))
+              goto failure;
+          
+          }
+          /* Turn off object-sensitivity.  */
+          else if (strcmp (long_options[option_index].name, "object-insensitive") == 0)
+          {
+          
+          
+            if (update_arg((void *)&(args_info->object_insensitive_flag), 0, &(args_info->object_insensitive_given),
+                &(local_args_info.object_insensitive_given), optarg, 0, 0, ARG_FLAG,
+                check_ambiguity, override, 1, 0, "object-insensitive", '-',
+                additional_error))
+              goto failure;
+          
+          }
+          /* Choose the call-string length ('0' indicates infinite call-string).  */
+          else if (strcmp (long_options[option_index].name, "call-string-length") == 0)
+          {
+          
+          
+            if (update_arg( (void *)&(args_info->call_string_length_arg), 
+                 &(args_info->call_string_length_orig), &(args_info->call_string_length_given),
+                &(local_args_info.call_string_length_given), optarg, 0, "2", ARG_STRING,
+                check_ambiguity, override, 0, 0,
+                "call-string-length", '-',
                 additional_error))
               goto failure;
           

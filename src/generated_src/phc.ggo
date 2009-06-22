@@ -52,6 +52,12 @@ option "no-xml-line-numbers" - "Don't show line numbers when dumping DOT" flag o
 option "no-xml-base-64" - "Don't encode any strings into base64 when dumping XML" flag off hidden
 option "no-xml-attrs" - "When dumping XML, omit node attributes" flag off hidden
 
+section "OPTIMIZATION OPTIONS"
+option "flow-insensitive" - "Turn off flow-sensitivity" flag off
+option "object-insensitive" - "Turn off object-sensitivity" flag off
+option "call-string-length" - "Choose the call-string length ('0' indicates infinite call-string)" string typestr="LENGTH" default="2"
+
+
 section "DEBUGGING PHC"
 option "stats" - "Print compile-time statistics" flag off hidden
 option "rt-stats" - "Print statistics about a program at run-time" flag off hidden
