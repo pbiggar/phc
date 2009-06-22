@@ -126,6 +126,16 @@ Optimization_transformer::visit_assign_var_var (Statement_block* bb, MIR::Assign
 }
 
 void
+Optimization_transformer::visit_catch (Statement_block* bb, MIR::Catch* in)
+{
+}
+
+void
+Optimization_transformer::visit_class_alias (Statement_block* bb, MIR::Class_alias* in)
+{
+}
+
+void
 Optimization_transformer::visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
 {
 	visit_expr (bb, in->expr);
@@ -154,6 +164,16 @@ Optimization_transformer::visit_global (Statement_block* bb, MIR::Global* in)
 {
 	if (isa<Variable_variable> (in->variable_name))
 		phc_TODO ();
+}
+
+void
+Optimization_transformer::visit_interface_alias (Statement_block* bb, MIR::Interface_alias* in)
+{
+}
+
+void
+Optimization_transformer::visit_method_alias (Statement_block* bb, MIR::Method_alias* in)
+{
 }
 
 void
@@ -213,6 +233,12 @@ Optimization_transformer::visit_array_access (Statement_block* bb, MIR::Array_ac
 	in->index = get_literal (bb, in->index);
 
 	// If the RHS is completely known, the analysis will pick it up.
+}
+
+void
+Optimization_transformer::visit_array_next (Statement_block* bb, MIR::Array_next* in)
+{
+	phc_TODO ();
 }
 
 void
@@ -359,3 +385,4 @@ Optimization_transformer::visit_variable_variable (Statement_block* bb, MIR::Var
 {
 	phc_TODO ();
 }
+

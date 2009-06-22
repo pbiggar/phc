@@ -2195,13 +2195,24 @@ Whole_program::visit_assign_next (Statement_block* bb, MIR::Assign_next* in)
 	standard_lhs (bb, in, in->is_ref, in->rhs);
 }
 
+void
+Whole_program::visit_catch (Statement_block* bb, MIR::Catch* in)
+{
+	phc_TODO ();
+}
+
+void
+Whole_program::visit_class_alias (Statement_block* bb, MIR::Class_alias* in)
+{
+	phc_TODO ();
+}
+
 
 void
 Whole_program::visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
 {
 	visit_expr (bb, in->expr);
 }
-
 
 
 void
@@ -2257,6 +2268,18 @@ Whole_program::visit_global (Statement_block* bb, MIR::Global* in)
 	assign_path_by_ref (block_cx,
 			P (ns, in->variable_name),
 			P (main_scope, in->variable_name));
+}
+
+void
+Whole_program::visit_interface_alias (Statement_block* bb, MIR::Interface_alias* in)
+{
+	phc_TODO ();
+}
+
+void
+Whole_program::visit_method_alias (Statement_block* bb, MIR::Method_alias* in)
+{
+	phc_TODO ();
 }
 
 void
@@ -2411,6 +2434,12 @@ Whole_program::visit_array_access (Statement_block* bb, MIR::Array_access* in)
 }
 
 void
+Whole_program::visit_array_next (Statement_block* bb, MIR::Array_next* in)
+{
+	standard_rhs (bb, in);
+}
+
+void
 Whole_program::visit_bin_op (Statement_block* bb, MIR::Bin_op* in)
 {
 	string ns = block_cx->symtable_name ();
@@ -2438,6 +2467,11 @@ Whole_program::visit_bin_op (Statement_block* bb, MIR::Bin_op* in)
 
 	Types* types = values->get_bin_op_types (block_cx, left, right, *in->op->value);
 	assign_path_typed (block_cx, saved_plhs, types);
+}
+
+void
+Whole_program::visit_bool (Statement_block* bb, MIR::BOOL* in)
+{
 }
 
 void
@@ -2526,6 +2560,11 @@ Whole_program::visit_instanceof (Statement_block* bb, MIR::Instanceof* in)
 }
 
 void
+Whole_program::visit_int (Statement_block* bb, MIR::INT* in)
+{
+}
+
+void
 Whole_program::visit_isset (Statement_block* bb, MIR::Isset* in)
 {
 	phc_TODO ();
@@ -2538,6 +2577,11 @@ Whole_program::visit_method_invocation (Statement_block* bb, MIR::Method_invocat
 		phc_TODO ();
 
 	invoke_method (block_cx, saved_lhs, in);
+}
+
+void
+Whole_program::visit_nil (Statement_block* bb, MIR::NIL* in)
+{
 }
 
 void
@@ -2590,6 +2634,16 @@ Whole_program::visit_param_is_ref (Statement_block* bb, MIR::Param_is_ref* in)
 }
 
 void
+Whole_program::visit_real (Statement_block* bb, MIR::REAL* in)
+{
+}
+
+void
+Whole_program::visit_string (Statement_block* bb, MIR::STRING* in)
+{
+}
+
+void
 Whole_program::visit_unary_op (Statement_block* bb, MIR::Unary_op* in)
 {
 	string ns = block_cx->symtable_name ();
@@ -2620,3 +2674,6 @@ Whole_program::visit_variable_variable (Statement_block* bb, MIR::Variable_varia
 {
 	standard_rhs (bb, in);
 }
+
+
+

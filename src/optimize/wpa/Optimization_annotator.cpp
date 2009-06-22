@@ -54,12 +54,27 @@ Optimization_annotator::visit_assign_field (Statement_block* bb, MIR::Assign_fie
 }
 
 void
+Optimization_annotator::visit_assign_next (Statement_block* bb, MIR::Assign_next* in)
+{
+}
+
+void
 Optimization_annotator::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 {
 }
 
 void
 Optimization_annotator::visit_assign_var_var (Statement_block* bb, MIR::Assign_var_var* in)
+{
+}
+
+void
+Optimization_annotator::visit_catch (Statement_block* bb, MIR::Catch* in)
+{
+}
+
+void
+Optimization_annotator::visit_class_alias (Statement_block* bb, MIR::Class_alias* in)
 {
 }
 
@@ -89,12 +104,17 @@ Optimization_annotator::visit_global (Statement_block* bb, MIR::Global* in)
 }
 
 void
-Optimization_annotator::visit_pre_op (Statement_block* bb, MIR::Pre_op* in)
+Optimization_annotator::visit_interface_alias (Statement_block* bb, MIR::Interface_alias* in)
 {
 }
 
 void
-Optimization_annotator::visit_assign_next (Statement_block* bb, MIR::Assign_next* in)
+Optimization_annotator::visit_method_alias (Statement_block* bb, MIR::Method_alias* in)
+{
+}
+
+void
+Optimization_annotator::visit_pre_op (Statement_block* bb, MIR::Pre_op* in)
 {
 }
 
@@ -126,6 +146,11 @@ Optimization_annotator::visit_unset (Statement_block* bb, MIR::Unset* in)
 
 void
 Optimization_annotator::visit_array_access (Statement_block* bb, MIR::Array_access* in)
+{
+}
+
+void
+Optimization_annotator::visit_array_next (Statement_block* bb, MIR::Array_next* in)
 {
 }
 

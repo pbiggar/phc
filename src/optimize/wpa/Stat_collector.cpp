@@ -62,6 +62,12 @@ Stat_collector::visit_assign_field (Statement_block* bb, MIR::Assign_field * in)
 }
 
 void
+Stat_collector::visit_assign_next (Statement_block* bb, MIR::Assign_next* in)
+{
+	collect_type_stats (bb, in->lhs, "types_assign_next");
+}
+
+void
 Stat_collector::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 {
 	last_assignment_lhs = *in->lhs->value;
@@ -79,6 +85,16 @@ Stat_collector::visit_assign_var_var (Statement_block* bb, MIR::Assign_var_var* 
 	visit_expr(bb,in->rhs);
 
 	collect_type_stats(bb,in->lhs,"types_assign_var_var");
+}
+
+void
+Stat_collector::visit_catch (Statement_block* bb, MIR::Catch* in)
+{
+}
+
+void
+Stat_collector::visit_class_alias (Statement_block* bb, MIR::Class_alias* in)
+{
 }
 
 void
@@ -111,15 +127,19 @@ Stat_collector::visit_global (Statement_block* bb, MIR::Global* in)
 }
 
 void
-Stat_collector::visit_pre_op (Statement_block* bb, MIR::Pre_op* in)
+Stat_collector::visit_interface_alias (Statement_block* bb, MIR::Interface_alias* in)
 {
-		collect_type_stats (bb, in->variable_name, "types_pre_op_var");
 }
 
 void
-Stat_collector::visit_assign_next (Statement_block* bb, MIR::Assign_next* in)
+Stat_collector::visit_method_alias (Statement_block* bb, MIR::Method_alias* in)
 {
-	collect_type_stats (bb, in->lhs, "types_assign_next");
+}
+
+void
+Stat_collector::visit_pre_op (Statement_block* bb, MIR::Pre_op* in)
+{
+		collect_type_stats (bb, in->variable_name, "types_pre_op_var");
 }
 
 void
@@ -149,13 +169,18 @@ Stat_collector::visit_unset (Statement_block* bb, MIR::Unset* in)
 //	collect_type_stats (bb, in->variable_name, "types_unset_var");
 }
 
-
 void
 Stat_collector::visit_array_access (Statement_block* bb, MIR::Array_access* in)
 {
 		collect_type_stats (bb, in->variable_name, "types_array_access");
 		collect_type_stats (bb, in->index, "types_array_index");
 
+}
+
+void
+Stat_collector::visit_array_next (Statement_block* bb, MIR::Array_next* in)
+{
+	phc_TODO ();
 }
 
 void

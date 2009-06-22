@@ -258,49 +258,71 @@ CFG_visitor::visit_expr (Statement_block* sb, Expr* in)
 	switch(in->classid())
 	{
 		case Array_access::ID:
-			return visit_array_access (sb, dyc<Array_access> (in));
+			visit_array_access (sb, dyc<Array_access> (in));
+			break;
 		case Array_next::ID:
-			return visit_array_next (sb, dyc<Array_next> (in));
+			visit_array_next (sb, dyc<Array_next> (in));
+			break;
 		case Bin_op::ID:
-			return visit_bin_op (sb, dyc<Bin_op> (in));
+			visit_bin_op (sb, dyc<Bin_op> (in));
+			break;
 		case BOOL::ID:
-			return visit_bool (sb, dyc<BOOL> (in));
+			visit_bool (sb, dyc<BOOL> (in));
+			break;
 		case Cast::ID:
-			return visit_cast (sb, dyc<Cast> (in));
+			visit_cast (sb, dyc<Cast> (in));
+			break;
 		case Constant::ID:
-			return visit_constant (sb, dyc<Constant> (in));
+			visit_constant (sb, dyc<Constant> (in));
+			break;
 		case Field_access::ID:
-			return visit_field_access (sb, dyc<Field_access> (in));
+			visit_field_access (sb, dyc<Field_access> (in));
+			break;
 		case Foreach_get_key::ID:
-			return visit_foreach_get_key (sb, dyc<Foreach_get_key> (in));
+			visit_foreach_get_key (sb, dyc<Foreach_get_key> (in));
+			break;
 		case Foreach_get_val::ID:
-			return visit_foreach_get_val (sb, dyc<Foreach_get_val> (in));
+			visit_foreach_get_val (sb, dyc<Foreach_get_val> (in));
+			break;
 		case Foreach_has_key::ID:
-			return visit_foreach_has_key (sb, dyc<Foreach_has_key> (in));
+			visit_foreach_has_key (sb, dyc<Foreach_has_key> (in));
+			break;
 		case Instanceof::ID:
-			return visit_instanceof (sb, dyc<Instanceof> (in));
+			visit_instanceof (sb, dyc<Instanceof> (in));
+			break;
 		case INT::ID:
-			return visit_int (sb, dyc<INT> (in));
+			visit_int (sb, dyc<INT> (in));
+			break;
 		case Isset::ID:
-			return visit_isset (sb, dyc<Isset> (in));
+			visit_isset (sb, dyc<Isset> (in));
+			break;
 		case Method_invocation::ID:
-			return visit_method_invocation (sb, dyc<Method_invocation> (in));
+			visit_method_invocation (sb, dyc<Method_invocation> (in));
+			break;
 		case New::ID:
-			return visit_new (sb, dyc<New> (in));
+			visit_new (sb, dyc<New> (in));
+			break;
 		case NIL::ID:
-			return visit_nil (sb, dyc<NIL> (in));
+			visit_nil (sb, dyc<NIL> (in));
+			break;
 		case Param_is_ref::ID:
-			return visit_param_is_ref (sb, dyc<Param_is_ref> (in));
+			visit_param_is_ref (sb, dyc<Param_is_ref> (in));
+			break;
 		case REAL::ID:
-			return visit_real (sb, dyc<REAL> (in));
+			visit_real (sb, dyc<REAL> (in));
+			break;
 		case STRING::ID:
-			return visit_string (sb, dyc<STRING> (in));
+			visit_string (sb, dyc<STRING> (in));
+			break;
 		case Unary_op::ID:
-			return visit_unary_op (sb, dyc<Unary_op> (in));
+			visit_unary_op (sb, dyc<Unary_op> (in));
+			break;
 		case VARIABLE_NAME::ID:
-			return visit_variable_name (sb, dyc<VARIABLE_NAME> (in));
+			visit_variable_name (sb, dyc<VARIABLE_NAME> (in));
+			break;
 		case Variable_variable::ID:
-			return visit_variable_variable (sb, dyc<Variable_variable> (in));
+			visit_variable_variable (sb, dyc<Variable_variable> (in));
+			break;
 		default:
 			phc_unreachable ();
 	}
