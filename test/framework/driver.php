@@ -79,12 +79,13 @@ require_once ("lib/plugin_test.php");
 require_once ("lib/regression.php");
 require_once ("lib/compare_backwards.php");
 require_once ("lib/pass_dump.php");
+require_once ("lib/basic_test.php");
 
 // Add tests to list
 $tests = array ();
 
 require_once ("annotated_test.php");
-require_once ("basic_parse_test.php");
+$tests[] = new BasicTest ("Parse", "", "Annotated_test");
 require_once ("no_whitespace.php");
 $tests[] = new CompareBackwards ("ast");
 $tests[] = new CompareBackwards ("sua",			"dump",	"cb_ast");
@@ -100,13 +101,9 @@ $tests[] = new CompareWithPHP ("InterpretObfuscated", "--obfuscate", "cb_mir");
 require_once ("generate_c.php");
 require_once ("compiled_vs_interpreted.php");
 
-require_once ("basic_optimize_test.php");
-$tests[] = new CompareWithPHP ("InterpretOptimized", "-O1 --dump=generate-c --convert-uppered", "BasicOptimizeTest");
+$tests[] = new BasicTest ("Optimize", "-O1", "cb_mir");
+$tests[] = new CompareWithPHP ("InterpretOptimized", "-O1 --dump=codegen --convert-uppered", "BasicOptimizeTest");
 require_once ("compile_optimized.php");
-
-require_once ("basic_raised_optimize_test.php");
-$tests[] = new CompareWithPHP ("InterpretRaisedOptimized", "-O1 --dump=generate-c --convert-uppered", "BasicRaisedOptimizeTest");
-require_once ("raised_compile_optimized.php");
 
 
 require_once ("refcounts.php");

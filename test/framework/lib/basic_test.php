@@ -6,10 +6,24 @@
  * Check that all scripts parse, without error, warning or exit code.
  */
 
-require_once ("lib/async_test.php");
+require_once ("async_test.php");
 
-class BasicParseTest extends AsyncTest
+class BasicTest extends AsyncTest
 {
+	function __construct ($name, $flags, $dependency)
+	{
+		$this->name = $name;
+		$this->flags = $flags;
+		$this->dependencies = array ($dependency);
+
+		parent::__construct ();
+	}
+
+	function get_name ()
+	{
+		return "Basic{$this->name}Test";
+	}
+
 	function get_test_subjects ()
 	{
 		return get_all_scripts();
@@ -19,7 +33,7 @@ class BasicParseTest extends AsyncTest
 	{
 		$bundle = new AsyncBundle ($this, $subject);
 
-		$bundle->commands[0] = get_phc_command_line ($subject);
+		$bundle->commands[0] = get_phc_command_line ($subject). " $this->flags";
 		$bundle->final = "finish";
 
 		$bundle->start ();
@@ -41,9 +55,8 @@ class BasicParseTest extends AsyncTest
 	// far. It should be removed by Annotated test.
 	function get_dependent_test_names ()
 	{
-		return array ("Annotated_test");
+		return $this->dependencies;
 	}
 }
-array_push($tests, new BasicParseTest());
 
 ?>
