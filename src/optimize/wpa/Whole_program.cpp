@@ -187,8 +187,10 @@ Whole_program::run (MIR::PHP_script* in)
 		// Annotate the statements for code-generation
 		annotate_results (info);
 
-
-		collect_stats (info);
+		if (pm->args_info->stats_given)
+		{
+			collect_stats (info);
+		}
 
 		// Replace method implementation with optimized code
 		info->get_method ()->statements = info->get_cfg ()->get_linear_statements ();

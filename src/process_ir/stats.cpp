@@ -91,10 +91,16 @@ void dump_stringset_stats ()
 	foreach (tie (s,sss), stringset_stats)
 	{
 		int count=0;
+		bool first=true;
+
 		cerr << "\'" << s << "\',\'";	//name
 		foreach (string str, *sss)		//elements
-		{
-			cerr << str << "," ;
+		{	if (!first)
+			{
+				cerr << ",";
+			}
+			first=false;
+			cerr << str ;
 			count++;
 		}
 		cerr << "\'," << count << endl;	//num of elements

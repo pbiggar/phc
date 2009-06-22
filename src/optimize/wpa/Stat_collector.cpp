@@ -35,6 +35,12 @@ Stat_collector::visit_basic_block (Basic_block* bb)
 }
 
 void
+Stat_collector::visit_statement_block (Statement_block* bb)
+{
+
+}
+
+void
 Stat_collector::visit_entry_block (Entry_block* bb)
 {
 }
@@ -70,26 +76,33 @@ Stat_collector::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 void
 Stat_collector::visit_assign_var_var (Statement_block* bb, MIR::Assign_var_var* in)
 {
+	visit_expr(bb,in->rhs);
+
+	collect_type_stats(bb,in->lhs,"types_assign_var_var");
 }
 
 void
 Stat_collector::visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
 {
+	visit_expr (bb,in->expr);
 }
 
 void
 Stat_collector::visit_foreach_end (Statement_block* bb, MIR::Foreach_end* in)
 {
+	collect_type_stats (bb,in->array,"types_foreach_array");
 }
 
 void
 Stat_collector::visit_foreach_next (Statement_block* bb, MIR::Foreach_next* in)
 {
+	collect_type_stats (bb,in->array,"types_foreach_array");
 }
 
 void
 Stat_collector::visit_foreach_reset (Statement_block* bb, MIR::Foreach_reset* in)
 {
+	collect_type_stats (bb,in->array,"types_foreach_array");
 }
 
 void
@@ -133,7 +146,7 @@ Stat_collector::visit_try (Statement_block* bb, MIR::Try* in)
 void
 Stat_collector::visit_unset (Statement_block* bb, MIR::Unset* in)
 {
-		//collect_type_stats (bb, in->variable_name, "types_unset_var");
+//	collect_type_stats (bb, in->variable_name, "types_unset_var");
 }
 
 
@@ -216,6 +229,11 @@ Stat_collector::visit_isset (Statement_block* bb, MIR::Isset* in)
 void
 Stat_collector::visit_method_invocation (Statement_block* bb, MIR::Method_invocation* in)
 {
+
+	foreach (Actual_parameter* param, *in->actual_parameters)
+	{
+		collect_type_stats (bb,param->rvalue,"types_method_parameter");
+	}
 }
 
 void

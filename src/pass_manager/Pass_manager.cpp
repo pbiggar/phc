@@ -435,11 +435,13 @@ void Pass_manager::dump (IR::PHP_script* in, String* passname)
 		}
 	}
 
+
+	// TODO: add arguments to --stats to allow stats to be dumped once per passname, all at once at the end, or once per specified passname
 	if (args_info->stats_given)
 	{
 		if (stringset_stats_size () > 0)
 		{
-			cerr << *passname << endl;
+		//	cerr << *passname << endl;
 			dump_stringset_stats ();
 			dump_stats ();
 			reset_stringset_stats ();
