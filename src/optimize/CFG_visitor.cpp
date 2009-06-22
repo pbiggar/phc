@@ -44,11 +44,20 @@ CFG_visitor::visit_block (Basic_block* bb)
 			case Assign_field::ID:
 				visit_assign_field(sb, dyc<Assign_field>(sb->statement));
 				break;
+			case Assign_next::ID:
+				visit_assign_next(sb, dyc<Assign_next>(sb->statement));
+				break;
 			case Assign_var::ID:
 				visit_assign_var(sb, dyc<Assign_var>(sb->statement));
 				break;
 			case Assign_var_var::ID:
 				visit_assign_var_var(sb, dyc<Assign_var_var>(sb->statement));
+				break;
+			case Catch::ID:
+				visit_catch (sb, dyc<Catch>(sb->statement));
+				break;
+			case Class_alias::ID:
+				visit_class_alias (sb, dyc<Class_alias>(sb->statement));
 				break;
 			case Eval_expr::ID:
 				visit_eval_expr(sb, dyc<Eval_expr>(sb->statement));
@@ -65,11 +74,14 @@ CFG_visitor::visit_block (Basic_block* bb)
 			case Global::ID:
 				visit_global(sb, dyc<Global>(sb->statement));
 				break;
+			case Interface_alias::ID:
+				visit_interface_alias (sb, dyc<Interface_alias>(sb->statement));
+				break;
+			case Method_alias::ID:
+				visit_method_alias (sb, dyc<Method_alias>(sb->statement));
+				break;
 			case Pre_op::ID:
 				visit_pre_op(sb, dyc<Pre_op>(sb->statement));
-				break;
-			case Assign_next::ID:
-				visit_assign_next(sb, dyc<Assign_next>(sb->statement));
 				break;
 			case Return::ID:
 				visit_return(sb, dyc<Return>(sb->statement));
@@ -88,86 +100,12 @@ CFG_visitor::visit_block (Basic_block* bb)
 				break;
 			default:
 				xdebug (sb->statement);
-				PUNT;
+				phc_unreachable ();
 		}
 	}
 
 	else
 		phc_unreachable ();
-}
-
-void
-CFG_visitor::visit_expr (Statement_block* sb, Expr* in)
-{
-	switch(in->classid())
-	{
-		case Array_access::ID:
-			visit_array_access (sb, dyc<Array_access> (in));
-			break;
-		case Bin_op::ID:
-			visit_bin_op (sb, dyc<Bin_op> (in));
-			break;
-		case BOOL::ID:
-			visit_bool (sb, dyc<BOOL> (in));
-			break;
-		case Cast::ID:
-			visit_cast (sb, dyc<Cast> (in));
-			break;
-		case Constant::ID:
-			visit_constant (sb, dyc<Constant> (in));
-			break;
-		case Field_access::ID:
-			visit_field_access (sb, dyc<Field_access> (in));
-			break;
-		case Foreach_get_key::ID:
-			visit_foreach_get_key (sb, dyc<Foreach_get_key> (in));
-			break;
-		case Foreach_get_val::ID:
-			visit_foreach_get_val (sb, dyc<Foreach_get_val> (in));
-			break;
-		case Foreach_has_key::ID:
-			visit_foreach_has_key (sb, dyc<Foreach_has_key> (in));
-			break;
-		case Instanceof::ID:
-			visit_instanceof (sb, dyc<Instanceof> (in));
-			break;
-		case INT::ID:
-			visit_int (sb, dyc<INT> (in));
-			break;
-		case Isset::ID:
-			visit_isset (sb, dyc<Isset> (in));
-			break;
-		case Method_invocation::ID:
-			visit_method_invocation (sb, dyc<Method_invocation> (in));
-			break;
-		case New::ID:
-			visit_new (sb, dyc<New> (in));
-			break;
-		case NIL::ID:
-			visit_nil (sb, dyc<NIL> (in));
-			break;
-		case Param_is_ref::ID:
-			visit_param_is_ref (sb, dyc<Param_is_ref> (in));
-			break;
-		case REAL::ID:
-			visit_real (sb, dyc<REAL> (in));
-			break;
-		case STRING::ID:
-			visit_string (sb, dyc<STRING> (in));
-			break;
-		case Unary_op::ID:
-			visit_unary_op (sb, dyc<Unary_op> (in));
-			break;
-		case VARIABLE_NAME::ID:
-			visit_variable_name (sb, dyc<VARIABLE_NAME> (in));
-			break;
-		case Variable_variable::ID:
-			visit_variable_variable (sb, dyc<Variable_variable> (in));
-			break;
-		default:
-			phc_unreachable ();
-			break;
-	}
 }
 
 void
@@ -221,12 +159,27 @@ CFG_visitor::visit_assign_field (Statement_block*, Assign_field *)
 }
 
 void
+CFG_visitor::visit_assign_next (Statement_block*, Assign_next*)
+{
+}
+
+void
 CFG_visitor::visit_assign_var (Statement_block*, Assign_var*)
 {
 }
 
 void
 CFG_visitor::visit_assign_var_var (Statement_block*, Assign_var_var*)
+{
+}
+
+void
+CFG_visitor::visit_catch (Statement_block*, Catch*)
+{
+}
+
+void
+CFG_visitor::visit_class_alias (Statement_block*, Class_alias*)
 {
 }
 
@@ -256,12 +209,17 @@ CFG_visitor::visit_global (Statement_block*, Global*)
 }
 
 void
-CFG_visitor::visit_pre_op (Statement_block*, Pre_op*)
+CFG_visitor::visit_interface_alias (Statement_block*, Interface_alias*)
 {
 }
 
 void
-CFG_visitor::visit_assign_next (Statement_block*, Assign_next*)
+CFG_visitor::visit_method_alias (Statement_block*, Method_alias*)
+{
+}
+
+void
+CFG_visitor::visit_pre_op (Statement_block*, Pre_op*)
 {
 }
 
@@ -293,8 +251,69 @@ CFG_visitor::visit_unset (Statement_block*, Unset*)
 /*
  * Exprs
  */
+
+void
+CFG_visitor::visit_expr (Statement_block* sb, Expr* in)
+{
+	switch(in->classid())
+	{
+		case Array_access::ID:
+			return visit_array_access (sb, dyc<Array_access> (in));
+		case Array_next::ID:
+			return visit_array_next (sb, dyc<Array_next> (in));
+		case Bin_op::ID:
+			return visit_bin_op (sb, dyc<Bin_op> (in));
+		case BOOL::ID:
+			return visit_bool (sb, dyc<BOOL> (in));
+		case Cast::ID:
+			return visit_cast (sb, dyc<Cast> (in));
+		case Constant::ID:
+			return visit_constant (sb, dyc<Constant> (in));
+		case Field_access::ID:
+			return visit_field_access (sb, dyc<Field_access> (in));
+		case Foreach_get_key::ID:
+			return visit_foreach_get_key (sb, dyc<Foreach_get_key> (in));
+		case Foreach_get_val::ID:
+			return visit_foreach_get_val (sb, dyc<Foreach_get_val> (in));
+		case Foreach_has_key::ID:
+			return visit_foreach_has_key (sb, dyc<Foreach_has_key> (in));
+		case Instanceof::ID:
+			return visit_instanceof (sb, dyc<Instanceof> (in));
+		case INT::ID:
+			return visit_int (sb, dyc<INT> (in));
+		case Isset::ID:
+			return visit_isset (sb, dyc<Isset> (in));
+		case Method_invocation::ID:
+			return visit_method_invocation (sb, dyc<Method_invocation> (in));
+		case New::ID:
+			return visit_new (sb, dyc<New> (in));
+		case NIL::ID:
+			return visit_nil (sb, dyc<NIL> (in));
+		case Param_is_ref::ID:
+			return visit_param_is_ref (sb, dyc<Param_is_ref> (in));
+		case REAL::ID:
+			return visit_real (sb, dyc<REAL> (in));
+		case STRING::ID:
+			return visit_string (sb, dyc<STRING> (in));
+		case Unary_op::ID:
+			return visit_unary_op (sb, dyc<Unary_op> (in));
+		case VARIABLE_NAME::ID:
+			return visit_variable_name (sb, dyc<VARIABLE_NAME> (in));
+		case Variable_variable::ID:
+			return visit_variable_variable (sb, dyc<Variable_variable> (in));
+		default:
+			phc_unreachable ();
+	}
+}
+
+
 void
 CFG_visitor::visit_array_access (Statement_block*, Array_access* in)
+{
+}
+
+void
+CFG_visitor::visit_array_next (Statement_block*, Array_next* in)
 {
 }
 
@@ -440,11 +459,20 @@ CFG_visitor::transform_block (Basic_block* bb)
 			case Assign_field::ID:
 				transform_assign_field(sb, dyc<Assign_field>(sb->statement), out);
 				break;
+			case Assign_next::ID:
+				transform_assign_next(sb, dyc<Assign_next>(sb->statement), out);
+				break;
 			case Assign_var::ID:
 				transform_assign_var(sb, dyc<Assign_var>(sb->statement), out);
 				break;
 			case Assign_var_var::ID:
 				transform_assign_var_var(sb, dyc<Assign_var_var>(sb->statement), out);
+				break;
+			case Catch::ID:
+				transform_catch (sb, dyc<Catch>(sb->statement), out);
+				break;
+			case Class_alias::ID:
+				transform_class_alias (sb, dyc<Class_alias>(sb->statement), out);
 				break;
 			case Eval_expr::ID:
 				transform_eval_expr(sb, dyc<Eval_expr>(sb->statement), out);
@@ -461,14 +489,14 @@ CFG_visitor::transform_block (Basic_block* bb)
 			case Global::ID:
 				transform_global(sb, dyc<Global>(sb->statement), out);
 				break;
-			case Param_is_ref::ID:
-				transform_param_is_ref (sb, dyc<Param_is_ref> (sb->statement), out);
+			case Interface_alias::ID:
+				transform_interface_alias (sb, dyc<Interface_alias>(sb->statement), out);
+				break;
+			case Method_alias::ID:
+				transform_method_alias (sb, dyc<Method_alias>(sb->statement), out);
 				break;
 			case Pre_op::ID:
 				transform_pre_op(sb, dyc<Pre_op>(sb->statement), out);
-				break;
-			case Assign_next::ID:
-				transform_assign_next(sb, dyc<Assign_next>(sb->statement), out);
 				break;
 			case Return::ID:
 				transform_return(sb, dyc<Return>(sb->statement), out);
@@ -494,6 +522,11 @@ CFG_visitor::transform_block (Basic_block* bb)
 
 	bb->cfg->replace_bb (bb, out);
 }
+
+
+/*
+ * Blocks
+ */
 
 void
 CFG_visitor::transform_entry_block (Entry_block* in, BB_list* out)
@@ -526,7 +559,9 @@ CFG_visitor::transform_phi_node (Basic_block* bb, Alias_name lhs)
 }
 
 
-
+/*
+ * Statements
+ */
 
 void
 CFG_visitor::transform_assign_array (Statement_block* in, Assign_array*, BB_list* out)
@@ -541,6 +576,12 @@ CFG_visitor::transform_assign_field (Statement_block* in, Assign_field*, BB_list
 }
 
 void
+CFG_visitor::transform_assign_next (Statement_block* in, Assign_next*, BB_list* out)
+{
+	out->push_back (in);
+}
+
+void
 CFG_visitor::transform_assign_var (Statement_block* in, Assign_var*, BB_list* out)
 {
 	out->push_back (in);
@@ -548,6 +589,18 @@ CFG_visitor::transform_assign_var (Statement_block* in, Assign_var*, BB_list* ou
 
 void
 CFG_visitor::transform_assign_var_var (Statement_block* in, Assign_var_var*, BB_list* out)
+{
+	out->push_back (in);
+}
+
+void
+CFG_visitor::transform_catch (Statement_block* in, MIR::Catch*, BB_list* out)
+{
+	out->push_back (in);
+}
+
+void
+CFG_visitor::transform_class_alias (Statement_block* in, MIR::Class_alias*, BB_list* out)
 {
 	out->push_back (in);
 }
@@ -583,19 +636,19 @@ CFG_visitor::transform_global (Statement_block* in, Global*, BB_list* out)
 }
 
 void
-CFG_visitor::transform_param_is_ref (Statement_block* in, Param_is_ref*, BB_list* out)
+CFG_visitor::transform_interface_alias (Statement_block* in, MIR::Interface_alias*, BB_list* out)
+{
+	out->push_back (in);
+}
+
+void
+CFG_visitor::transform_method_alias (Statement_block* in, MIR::Method_alias*, BB_list* out)
 {
 	out->push_back (in);
 }
 
 void
 CFG_visitor::transform_pre_op (Statement_block* in, Pre_op*, BB_list* out)
-{
-	out->push_back (in);
-}
-
-void
-CFG_visitor::transform_assign_next (Statement_block* in, Assign_next*, BB_list* out)
 {
 	out->push_back (in);
 }
@@ -630,66 +683,72 @@ CFG_visitor::transform_unset (Statement_block* in, Unset*, BB_list* out)
 	out->push_back (in);
 }
 
+/*
+ * Exprs
+ */
+
 Expr*
-CFG_visitor::transform_expr (Statement_block* bb, Expr* in)
+CFG_visitor::transform_expr (Statement_block* sb, Expr* in)
 {
 	switch(in->classid())
 	{
 		case Array_access::ID:
-			return transform_array_access (bb, dyc<Array_access> (in));
+			return transform_array_access (sb, dyc<Array_access> (in));
+		case Array_next::ID:
+			return transform_array_next (sb, dyc<Array_next> (in));
 		case Bin_op::ID:
-			return transform_bin_op (bb, dyc<Bin_op> (in));
+			return transform_bin_op (sb, dyc<Bin_op> (in));
 		case BOOL::ID:
-			return transform_bool (bb, dyc<BOOL> (in));
+			return transform_bool (sb, dyc<BOOL> (in));
 		case Cast::ID:
-			return transform_cast (bb, dyc<Cast> (in));
+			return transform_cast (sb, dyc<Cast> (in));
 		case Constant::ID:
-			return transform_constant (bb, dyc<Constant> (in));
+			return transform_constant (sb, dyc<Constant> (in));
 		case Field_access::ID:
-			return transform_field_access (bb, dyc<Field_access> (in));
+			return transform_field_access (sb, dyc<Field_access> (in));
 		case Foreach_get_key::ID:
-			return transform_foreach_get_key (bb, dyc<Foreach_get_key> (in));
+			return transform_foreach_get_key (sb, dyc<Foreach_get_key> (in));
 		case Foreach_get_val::ID:
-			return transform_foreach_get_val (bb, dyc<Foreach_get_val> (in));
+			return transform_foreach_get_val (sb, dyc<Foreach_get_val> (in));
 		case Foreach_has_key::ID:
-			return transform_foreach_has_key (bb, dyc<Foreach_has_key> (in));
+			return transform_foreach_has_key (sb, dyc<Foreach_has_key> (in));
 		case Instanceof::ID:
-			return transform_instanceof (bb, dyc<Instanceof> (in));
+			return transform_instanceof (sb, dyc<Instanceof> (in));
 		case INT::ID:
-			return transform_int (bb, dyc<INT> (in));
+			return transform_int (sb, dyc<INT> (in));
 		case Isset::ID:
-			return transform_isset (bb, dyc<Isset> (in));
+			return transform_isset (sb, dyc<Isset> (in));
 		case Method_invocation::ID:
-			return transform_method_invocation (bb, dyc<Method_invocation> (in));
+			return transform_method_invocation (sb, dyc<Method_invocation> (in));
 		case New::ID:
-			return transform_new (bb, dyc<New> (in));
+			return transform_new (sb, dyc<New> (in));
 		case NIL::ID:
-			return transform_nil (bb, dyc<NIL> (in));
+			return transform_nil (sb, dyc<NIL> (in));
 		case Param_is_ref::ID:
-			return transform_param_is_ref (bb, dyc<Param_is_ref> (in));
+			return transform_param_is_ref (sb, dyc<Param_is_ref> (in));
 		case REAL::ID:
-			return transform_real (bb, dyc<REAL> (in));
+			return transform_real (sb, dyc<REAL> (in));
 		case STRING::ID:
-			return transform_string (bb, dyc<STRING> (in));
+			return transform_string (sb, dyc<STRING> (in));
 		case Unary_op::ID:
-			return transform_unary_op (bb, dyc<Unary_op> (in));
+			return transform_unary_op (sb, dyc<Unary_op> (in));
 		case VARIABLE_NAME::ID:
-			return transform_variable_name (bb, dyc<VARIABLE_NAME> (in));
+			return transform_variable_name (sb, dyc<VARIABLE_NAME> (in));
 		case Variable_variable::ID:
-			return transform_variable_variable (bb, dyc<Variable_variable> (in));
+			return transform_variable_variable (sb, dyc<Variable_variable> (in));
 		default:
-			assert (0);
-			break;
+			phc_unreachable ();
 	}
-	return in;
 }
-
-/*
- * Expr transforms
- */
 
 Expr*
 CFG_visitor::transform_array_access (Statement_block*, Array_access* in)
+{
+	return in;
+}
+
+Expr*
+CFG_visitor::transform_array_next (Statement_block*, Array_next* in)
 {
 	return in;
 }

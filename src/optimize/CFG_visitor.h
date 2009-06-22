@@ -68,21 +68,26 @@ public:
 
 
 	virtual void visit_assign_array (Statement_block* bb, MIR::Assign_array* in);
-	virtual void visit_assign_field (Statement_block* bb, MIR::Assign_field * in);
+	virtual void visit_assign_field (Statement_block* bb, MIR::Assign_field* in);
+	virtual void visit_assign_next (Statement_block* bb, MIR::Assign_next* in);
 	virtual void visit_assign_var (Statement_block* bb, MIR::Assign_var* in);
 	virtual void visit_assign_var_var (Statement_block* bb, MIR::Assign_var_var* in);
+	virtual void visit_catch (Statement_block* bb, MIR::Catch* in);
+	virtual void visit_class_alias (Statement_block* bb, MIR::Class_alias* in);
 	virtual void visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in);
 	virtual void visit_foreach_end (Statement_block* bb, MIR::Foreach_end* in);
 	virtual void visit_foreach_next (Statement_block* bb, MIR::Foreach_next* in);
 	virtual void visit_foreach_reset (Statement_block* bb, MIR::Foreach_reset* in);
 	virtual void visit_global (Statement_block* bb, MIR::Global* in);
+	virtual void visit_interface_alias (Statement_block* bb, MIR::Interface_alias* in);
+	virtual void visit_method_alias (Statement_block* bb, MIR::Method_alias* in);
 	virtual void visit_pre_op (Statement_block* bb, MIR::Pre_op* in);
-	virtual void visit_assign_next (Statement_block* bb, MIR::Assign_next* in);
 	virtual void visit_return (Statement_block* bb, MIR::Return* in);
 	virtual void visit_static_declaration (Statement_block* bb, MIR::Static_declaration* in);
 	virtual void visit_throw (Statement_block* bb, MIR::Throw* in);
 	virtual void visit_try (Statement_block* bb, MIR::Try* in);
 	virtual void visit_unset (Statement_block* bb, MIR::Unset* in);
+
 
 	/*
 	 * Expression visitors - Override in clients.
@@ -90,6 +95,7 @@ public:
 	 */
 
 	virtual void visit_array_access (Statement_block* bb, MIR::Array_access* in);
+	virtual void visit_array_next (Statement_block* bb, MIR::Array_next* in);
 	virtual void visit_bin_op (Statement_block* bb, MIR::Bin_op* in);
 	virtual void visit_bool (Statement_block* bb, MIR::BOOL* in);
 	virtual void visit_cast (Statement_block* bb, MIR::Cast* in);
@@ -140,12 +146,15 @@ public:
 	virtual void transform_assign_next (Statement_block* bb, MIR::Assign_next* in, BB_list* outs);
 	virtual void transform_assign_var (Statement_block* bb, MIR::Assign_var* in, BB_list* outs);
 	virtual void transform_assign_var_var (Statement_block* bb, MIR::Assign_var_var* in, BB_list* outs);
+	virtual void transform_catch (Statement_block* bb, MIR::Catch* in, BB_list* outs);
+	virtual void transform_class_alias (Statement_block* bb, MIR::Class_alias* in, BB_list* outs);
 	virtual void transform_eval_expr (Statement_block* bb, MIR::Eval_expr* in, BB_list* outs);
 	virtual void transform_foreach_end (Statement_block* bb, MIR::Foreach_end* in, BB_list* outs);
 	virtual void transform_foreach_next (Statement_block* bb, MIR::Foreach_next* in, BB_list* outs);
 	virtual void transform_foreach_reset (Statement_block* bb, MIR::Foreach_reset* in, BB_list* outs);
 	virtual void transform_global (Statement_block* bb, MIR::Global* in, BB_list* outs);
-	virtual void transform_param_is_ref (Statement_block* bb, MIR::Param_is_ref* in, BB_list* outs);
+	virtual void transform_interface_alias (Statement_block* bb, MIR::Interface_alias* in, BB_list* outs);
+	virtual void transform_method_alias (Statement_block* bb, MIR::Method_alias* in, BB_list* outs);
 	virtual void transform_pre_op (Statement_block* bb, MIR::Pre_op* in, BB_list* outs);
 	virtual void transform_return (Statement_block* bb, MIR::Return* in, BB_list* outs);
 	virtual void transform_static_declaration (Statement_block* bb, MIR::Static_declaration* in, BB_list* outs);
@@ -160,6 +169,7 @@ public:
 	 */
 
 	virtual MIR::Expr* transform_array_access (Statement_block* bb, MIR::Array_access* in);
+	virtual MIR::Expr* transform_array_next (Statement_block* bb, MIR::Array_next* in);
 	virtual MIR::Expr* transform_bin_op (Statement_block* bb, MIR::Bin_op* in);
 	virtual MIR::Expr* transform_bool (Statement_block* bb, MIR::BOOL* in);
 	virtual MIR::Expr* transform_cast (Statement_block* bb, MIR::Cast* in);
