@@ -442,7 +442,7 @@ namespace Abstract_state
 }
 
 
-class Points_to : virtual public GC_obj
+class Points_to_impl : virtual public GC_obj
 {
 private:
 	// This keeps count of whether something is abstract or not (subsuming
@@ -472,7 +472,7 @@ private:
 	Pair_map<Storage_node, Index_node, Field_edge> fields;
 
 public:
-	Points_to ();
+	Points_to_impl ();
 
 	void open_scope (Storage_node* st);
 	void close_scope (Storage_node* st);
@@ -556,16 +556,16 @@ public:
 	 * Whole graph.
 	 */
 
-	bool equals (Points_to* other);
+	bool equals (Points_to_impl* other);
 	void dump_graphviz (String* label, Context* cx, Result_state state, Whole_program* wp);
 
-	Points_to* clone();
-	Points_to* merge (Points_to* other);
+	Points_to_impl* clone();
+	Points_to_impl* merge (Points_to_impl* other);
 
 	void consistency_check (Context* cx, Result_state state, Whole_program* wp);
 
 
-	static Index_node_list* get_possible_nulls (List<Points_to*>* graphs);
+	static Index_node_list* get_possible_nulls (List<Points_to_impl*>* graphs);
 
 	// A lot of points in the graph use names derived from some context. Change
 	// them to use a non-contextual version.
@@ -581,8 +581,196 @@ private:
 
 	void remove_node (PT_node* node);
 
-	reference_pair_type* merge_references (Points_to* other);
+	reference_pair_type* merge_references (Points_to_impl* other);
 
 };
+
+ 
+/*
+ * A thin wrapper around Points-to, to provide copy-on-write. There are
+ * probably better ways to do this (ie reuse someone else's code), but they
+ * rely on C++ idioms, which we haven't really been using.
+ *
+ * A Points_to_impl belongs to a Points_to, and is never passed directly to
+ * another Points_to.
+ */
+class Points_to : virtual public GC_obj
+{
+private:
+	Points_to_impl* impl;
+	int reference_count;
+
+	void separate ()
+	{
+		if (reference_count == 1)
+			return;
+
+		impl = impl->clone ();
+	}
+
+	Points_to (Points_to_impl* impl)
+	: impl (impl)
+	, reference_count (1)
+	{
+	}
+
+
+public:
+
+	Points_to ()
+	{
+		impl = new Points_to_impl;
+	}
+
+	/*
+	 * Simple pass-through
+	 */
+
+	bool has_field (Index_node* field) { return impl->has_field (field); };
+	bool has_points_to (Index_node* source, Storage_node* target) { return impl->has_points_to (source, target); }
+	bool has_reference (Index_node* source, Index_node* target) { return impl->has_reference (source, target); }
+	bool has_reference (Reference_edge* edge) { return impl->has_reference (edge); }
+	bool has_storage_node (Storage_node* st) { return impl->has_storage_node (st); }
+	bool is_abstract_field (Index_node* index) { return impl->is_abstract_field (index); }
+	bool is_abstract (Storage_node* st) { return impl->is_abstract (st); }
+	bool is_symtable (Storage_node* st) { return impl->is_symtable (st); }
+	Certainty get_reference_cert (Index_node* source, Index_node* target) { return impl->get_reference_cert (source, target); }
+	Certainty get_reference_cert (Reference_edge* edge) { return impl->get_reference_cert (edge); }
+	Index_node_list* get_fields (Storage_node* storage) { return impl->get_fields (storage); }
+	Index_node_list* get_index_nodes () { return impl->get_index_nodes (); }
+	Index_node_list* get_points_to_incoming (Storage_node* st) { return impl->get_points_to_incoming (st); }
+	PT_node_list* get_nodes () { return impl->get_nodes (); }
+	Reference_list* get_references (Index_node* source, Certainty cert = PTG_ALL) { return impl->get_references (source, cert); }
+	Storage_node* get_owner (Index_node* index) { return impl->get_owner (index); }
+	Storage_node* get_storage (Index_node* field) { return impl->get_storage (field); }
+	Storage_node_list* get_points_to (Index_node* index) { return impl->get_points_to (index); }
+	Storage_node_list* get_storage_nodes () { return impl->get_storage_nodes (); }
+	void consistency_check (Context* cx, Result_state state, Whole_program* wp) { return impl->consistency_check (cx, state, wp); }
+	void dump_graphviz (String* label, Context* cx, Result_state state, Whole_program* wp) { return impl->dump_graphviz (label, cx, state, wp); }
+
+	/*
+	 * Minor interfacing work involved
+	 */
+	static Index_node_list* get_possible_nulls (List<Points_to*>* graphs)
+	{
+		List<Points_to_impl*>* impls = new List<Points_to_impl*>;
+		foreach (Points_to* ptg, *graphs)
+		{
+			impls->push_back (ptg->impl);
+		}
+		return Points_to_impl::get_possible_nulls (impls);
+	}
+
+	bool equals (Points_to* other)
+	{
+		if (this == other)
+			return true;
+
+		return this->impl->equals (other->impl);
+	}
+
+	Points_to* clone ()
+	{
+		this->reference_count++;
+		return this;
+	}
+
+	Points_to* merge (Points_to* other)
+	{
+		if (this == other)
+		{
+			this->reference_count++;
+			return this;
+		}
+
+		return new Points_to (this->impl->merge (other->impl));
+	}
+
+
+
+	/*
+	 * Needs to clone for copy-on-write
+	 */
+
+	void open_scope (Storage_node* st)
+	{
+		separate ();
+		impl->open_scope (st);
+	}
+
+	void close_scope (Storage_node* st)
+	{
+		separate ();
+		impl->close_scope (st);
+	}
+
+	void inc_abstract (Storage_node* st)
+	{
+		separate ();
+		impl->inc_abstract (st);
+	}
+
+	void add_reference (Index_node* source, Index_node* target, Certainty cert)
+	{
+		separate ();
+		impl->add_reference (source, target, cert);
+	}
+
+	void remove_reference (Index_node* source, Index_node* target)
+	{
+		separate ();
+		impl->remove_reference (source, target);
+	}
+
+	void add_points_to (Index_node* source, Storage_node* target)
+	{
+		separate ();
+		impl->add_points_to (source, target);
+	}
+
+	void remove_points_to (Index_node* source, Storage_node* target)
+	{
+		separate ();
+		impl->remove_points_to (source, target);
+	}
+
+	void add_field (Index_node* field)
+	{
+		separate ();
+		impl->add_field (field);
+	}
+
+	void remove_field (Index_node* target)
+	{
+		separate ();
+		impl->remove_field (target);
+	}
+
+	void remove_index_node (Index_node* index)
+	{
+		separate ();
+		impl->remove_index_node (index);
+	}
+
+	void remove_storage_node (Storage_node* st)
+	{
+		separate ();
+		impl->remove_storage_node (st);
+	}
+
+	void convert_context_names ()
+	{
+		separate ();
+		impl->convert_context_names ();
+	}
+
+	void remove_unreachable_nodes ()
+	{
+		separate ();
+		impl->remove_unreachable_nodes ();
+	}
+};
+
+
 
 #endif // PHC_POINTS_TO

@@ -24,7 +24,7 @@ using namespace MIR;
 using namespace std;
 using namespace boost;
 
-Points_to::Points_to ()
+Points_to_impl::Points_to_impl ()
 {
 	// Pretend this is abstract so that it doesnt get removed.
 	abstract_states [SN("_SESSION")->name()] = Abstract_state::ABSTRACT;
@@ -35,20 +35,20 @@ Points_to::Points_to ()
  * recursion).
  */
 void
-Points_to::open_scope (Storage_node* st)
+Points_to_impl::open_scope (Storage_node* st)
 {
 	symtables.insert (st->name ());
 }
 
 void
-Points_to::inc_abstract (Storage_node* st)
+Points_to_impl::inc_abstract (Storage_node* st)
 {
 	Alias_name name = st->name ();
 	abstract_states [name] = Abstract_state::inc (abstract_states [name]);
 }
 
 void
-Points_to::dec_abstract (Storage_node* st)
+Points_to_impl::dec_abstract (Storage_node* st)
 {
 	Alias_name name = st->name ();
 	abstract_states [name] = Abstract_state::dec (abstract_states [name]);
@@ -66,13 +66,13 @@ Points_to::dec_abstract (Storage_node* st)
 }
 
 void
-Points_to::close_scope (Storage_node* st)
+Points_to_impl::close_scope (Storage_node* st)
 {
 	dec_abstract (st);
 }
 
 bool
-Points_to::is_abstract (Storage_node* st)
+Points_to_impl::is_abstract (Storage_node* st)
 {
 	// An abstract storage_node represents more than 1 real node. For example:
 	//		an object instantiation
@@ -89,13 +89,13 @@ Points_to::is_abstract (Storage_node* st)
 }
 
 bool
-Points_to::is_abstract_field (Index_node* index)
+Points_to_impl::is_abstract_field (Index_node* index)
 {
 	return is_abstract (get_owner (index));
 }
 
 bool
-Points_to::is_symtable (Storage_node* st)
+Points_to_impl::is_symtable (Storage_node* st)
 {
 	return symtables.has (st->name ());
 }
@@ -108,7 +108,7 @@ Points_to::is_symtable (Storage_node* st)
 // Return a list of aliases which are references, and have the same certainty.
 // INDEX is not included in the returned list.
 Reference_list*
-Points_to::get_references (Index_node* index, Certainty cert)
+Points_to_impl::get_references (Index_node* index, Certainty cert)
 {
 	Reference_list* result = new Reference_list;
 	foreach (Index_node* target, *references.get_targets (index))
@@ -121,7 +121,7 @@ Points_to::get_references (Index_node* index, Certainty cert)
 }
 
 Certainty
-Points_to::get_reference_cert (Index_node* source, Index_node* target)
+Points_to_impl::get_reference_cert (Index_node* source, Index_node* target)
 {
 	Certainty result = this->references.get_value (source, target);
 	assert (is_valid_certainty (result));
@@ -129,13 +129,13 @@ Points_to::get_reference_cert (Index_node* source, Index_node* target)
 }
 
 Certainty
-Points_to::get_reference_cert (Reference_edge* edge)
+Points_to_impl::get_reference_cert (Reference_edge* edge)
 {
 	return get_reference_cert (edge->source, edge->target);
 }
 
 void
-Points_to::add_reference (Index_node* source, Index_node* target, Certainty cert)
+Points_to_impl::add_reference (Index_node* source, Index_node* target, Certainty cert)
 {
 	assert (is_valid_certainty (cert));
 
@@ -154,19 +154,19 @@ Points_to::add_reference (Index_node* source, Index_node* target, Certainty cert
 
 
 bool
-Points_to::has_reference (Reference_edge* edge)
+Points_to_impl::has_reference (Reference_edge* edge)
 {
 	return has_reference (edge->source, edge->target);
 }
 
 bool
-Points_to::has_reference (Index_node* source, Index_node* target)
+Points_to_impl::has_reference (Index_node* source, Index_node* target)
 {
 	return references.has_edge (source, target);
 }
 
 void
-Points_to::remove_reference (Index_node* source, Index_node* target)
+Points_to_impl::remove_reference (Index_node* source, Index_node* target)
 {
 	references.remove_edge (source, target);
 	references.remove_edge (target, source);
@@ -178,32 +178,32 @@ Points_to::remove_reference (Index_node* source, Index_node* target)
  */
 
 Storage_node_list*
-Points_to::get_points_to (Index_node* index)
+Points_to_impl::get_points_to (Index_node* index)
 {
 	return points_to.get_targets (index);
 }
 
 Index_node_list*
-Points_to::get_points_to_incoming (Storage_node* st)
+Points_to_impl::get_points_to_incoming (Storage_node* st)
 {
 	return points_to.get_sources (st);
 }
 
 void
-Points_to::add_points_to (Index_node* index, Storage_node* st)
+Points_to_impl::add_points_to (Index_node* index, Storage_node* st)
 {
 	this->add_field (index);
 	points_to.add_edge (index, st);
 }
 
 bool
-Points_to::has_points_to (Index_node* index, Storage_node* st)
+Points_to_impl::has_points_to (Index_node* index, Storage_node* st)
 {
 	return points_to.has_edge (index, st);
 }
 
 void
-Points_to::remove_points_to (Index_node* index, Storage_node* st)
+Points_to_impl::remove_points_to (Index_node* index, Storage_node* st)
 {
 	// If this has no remaining points-to edges, it should be redirected to
 	// point-to NULL (or SCLVAL, whose value should be set to NULL). But its
@@ -218,25 +218,25 @@ Points_to::remove_points_to (Index_node* index, Storage_node* st)
  */
 
 Index_node_list*
-Points_to::get_fields (Storage_node* st)
+Points_to_impl::get_fields (Storage_node* st)
 {
 	return fields.get_targets (st);
 }
 
 void
-Points_to::add_field (Index_node* index)
+Points_to_impl::add_field (Index_node* index)
 {
 	fields.add_edge (SN (index->storage), index);
 }
 
 bool
-Points_to::has_field (Index_node* index)
+Points_to_impl::has_field (Index_node* index)
 {
 	return fields.has_edge (SN (index->storage), index);
 }
 
 Storage_node*
-Points_to::get_storage (Index_node* index)
+Points_to_impl::get_storage (Index_node* index)
 {
 	Storage_node_list* storage = fields.get_sources (index);
 	assert (storage->size () == 1);
@@ -244,7 +244,7 @@ Points_to::get_storage (Index_node* index)
 }
 
 Storage_node*
-Points_to::get_owner (Index_node* index)
+Points_to_impl::get_owner (Index_node* index)
 {
 	// Simplest case: the first and node exist
 	Storage_node_list* storages = fields.get_sources (index);
@@ -274,7 +274,7 @@ Points_to::get_owner (Index_node* index)
 }
 
 void
-Points_to::remove_field (Index_node* index)
+Points_to_impl::remove_field (Index_node* index)
 {
 	fields.remove_edge (SN (index->storage), index);
 
@@ -291,7 +291,7 @@ Points_to::remove_field (Index_node* index)
  */
 
 bool
-Points_to::has_storage_node (Storage_node* st)
+Points_to_impl::has_storage_node (Storage_node* st)
 {
 	return points_to.has_target (st) or fields.has_source (st);
 }
@@ -304,7 +304,7 @@ Points_to::has_storage_node (Storage_node* st)
  */
 
 bool
-Points_to::equals (Points_to* other)
+Points_to_impl::equals (Points_to_impl* other)
 {
 	return true
 		&& this->fields.equals (&other->fields)
@@ -331,7 +331,7 @@ string print_pair (E* edge, string label)
 
 
 void
-Points_to::dump_graphviz (String* label, Context* cx, Result_state state, Whole_program* wp)
+Points_to_impl::dump_graphviz (String* label, Context* cx, Result_state state, Whole_program* wp)
 {
 	if (label == NULL)
 	{
@@ -425,10 +425,10 @@ Points_to::dump_graphviz (String* label, Context* cx, Result_state state, Whole_
 	;
 }
 
-Points_to*
-Points_to::clone ()
+Points_to_impl*
+Points_to_impl::clone ()
 {
-	Points_to* result = new Points_to;
+	Points_to_impl* result = new Points_to_impl;
 
 	// Deep copy
 	result->symtables = this->symtables;
@@ -444,7 +444,7 @@ Points_to::clone ()
 }
 
 void
-Points_to::consistency_check (Context* cx, Result_state state, Whole_program* wp)
+Points_to_impl::consistency_check (Context* cx, Result_state state, Whole_program* wp)
 {
 	foreach (Index_node* index, *this->get_index_nodes ())
 	{
@@ -492,14 +492,14 @@ Points_to::consistency_check (Context* cx, Result_state state, Whole_program* wp
 
 
 Index_node_list*
-Points_to::get_index_nodes ()
+Points_to_impl::get_index_nodes ()
 {
 	return filter_types <Index_node> (this->get_nodes ());
 }
 
 
 Storage_node_list*
-Points_to::get_storage_nodes ()
+Points_to_impl::get_storage_nodes ()
 {
 	return filter_types <Storage_node> (this->get_nodes ());
 }
@@ -509,7 +509,7 @@ Points_to::get_storage_nodes ()
 // Mark all symtable nodes, then sweep anything they can reach. Remove the
 // rest.
 void
-Points_to::remove_unreachable_nodes ()
+Points_to_impl::remove_unreachable_nodes ()
 {
 	PT_node_list* worklist = new PT_node_list;
 
@@ -563,7 +563,7 @@ Points_to::remove_unreachable_nodes ()
  */
 
 void
-Points_to::remove_node (PT_node* node)
+Points_to_impl::remove_node (PT_node* node)
 {
 	if (isa<Index_node> (node))
 		this->remove_field (dyc<Index_node> (node));
@@ -571,8 +571,8 @@ Points_to::remove_node (PT_node* node)
 		this->remove_storage_node (dyc<Storage_node> (node));
 }
 
-Points_to::reference_pair_type*
-Points_to::merge_references (Points_to* other)
+Points_to_impl::reference_pair_type*
+Points_to_impl::merge_references (Points_to_impl* other)
 {
 	reference_pair_type* result = this->references.merge (&other->references);
 
@@ -611,10 +611,10 @@ Points_to::merge_references (Points_to* other)
  * Merge another graph with this one. Edge cases with NULL are handled in
  * Whole_program, using get_possible_nulls().
  */
-Points_to*
-Points_to::merge (Points_to* other)
+Points_to_impl*
+Points_to_impl::merge (Points_to_impl* other)
 {
-	Points_to* result = new Points_to;
+	Points_to_impl* result = new Points_to_impl;
 
 	result->fields = *this->fields.merge (&other->fields);
 	result->points_to = *this->points_to.merge (&other->points_to);
@@ -638,7 +638,7 @@ Points_to::merge (Points_to* other)
 }
 
 PT_node_list*
-Points_to::get_nodes ()
+Points_to_impl::get_nodes ()
 {
 	// Only have the nodes once
 	Map<Alias_name, PT_node*> all;
@@ -666,7 +666,7 @@ Points_to::get_nodes ()
 
 
 void
-Points_to::remove_storage_node (Storage_node* st)
+Points_to_impl::remove_storage_node (Storage_node* st)
 {
 	foreach (Index_node* field, *this->get_fields (st))
 	{
@@ -678,7 +678,7 @@ Points_to::remove_storage_node (Storage_node* st)
  * Dealing with the context name HACK
  */
 void
-Points_to::convert_context_names ()
+Points_to_impl::convert_context_names ()
 {
 	// Each alias_name can be converted in either the prefix or the suffix.
 	// By_source and by_target need to be updated.
