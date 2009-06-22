@@ -756,6 +756,10 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		string name = assign_path_empty_array (cx, ret_path);
 		assign_path_typed (cx, P (name, UNKNOWN), new Types ("string"));
 	}
+	else if (*info->name == "get_parent_class")
+	{
+		assign_path_typed (cx, ret_path, new Types ("string" ,"bool"));
+	}
 	else if (*info->name == "gettimeofday")
 	{
 		bool can_be_float = true;
