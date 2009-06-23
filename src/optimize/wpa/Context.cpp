@@ -122,12 +122,24 @@ Context::name () const
 	if (cached_name)
 		return *cached_name;
 
+	// How long is our call-string?
+	int ignore_length = BBs.size () - pm->args_info->call_string_length_arg;
+	if (pm->args_info->call_string_length_arg == 0)
+		ignore_length = 0;
+
 	stringstream ss;
 	foreach (Basic_block* bb, BBs)
 	{
+		// Ignore the first N - call_string_length entries.
+		if (ignore_length > 0)
+		{
+			ignore_length--;
+			continue;
+		}
+
 		ss << "/" << bb->ID;
 
-		// Cant use [] because of constness
+		// Cant use 'BB_counts[bb]' because of constness
 		if (BB_counts.at (bb) > 1)
 		{
 			// In the case of recursion, stop the name here. This allows us to
