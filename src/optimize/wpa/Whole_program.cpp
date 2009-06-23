@@ -669,7 +669,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	{
 		// Return an array with a copy of the named parameters.
 		string name = assign_path_empty_array (cx, ret_path);
-		foreach (Index_node* param, *params.values ())
+		foreach (Index_node* param, *params.values ()) // reading
 		{
 			// For a parameter P1, in this scope SC1, with the caller scope SC0, this is:
 			// (ARR -> (SC1 -> P1)) = (SC0 -> (SC1 -> P1))
@@ -685,6 +685,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	}
 	else if (*info->name == "date_default_timezone_set")
 	{
+		coerce_to_string (cx, params[0]);
 		assign_path_typed (cx, ret_path, new Types ("bool"));
 	}
 	else if (*info->name == "debug_zval_dump")
@@ -699,10 +700,13 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	{
 		// TODO: We'd like to model that this path is not executable.
 		// do nothing
+		// We don't even need to coerce to string, since this path isn't
+		// realizable.
 	}
 	else if (*info->name == "define")
 	{
 		// Read parameters
+		params[0] = coerce_to_string (cx, params[0]);
 		Abstract_value* name = get_abstract_value (cx, R_WORKING, params[0]->name ());
 		Abstract_value* value = get_abstract_value (cx, R_WORKING, params[1]->name ());
 		if (params[3])
@@ -732,6 +736,8 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	}
 	else if (*info->name == "defined")
 	{
+		params[0] = coerce_to_string (cx, params[0]);
+
 		// TODO: We don't correctly identify is a constant is actually defined.
 		assign_path_typed (cx, ret_path, new Types ("bool"));
 	}
@@ -760,6 +766,8 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	}
 	else if (*info->name == "file_get_contents")
 	{
+		params[0] = coerce_to_string (cx, params[0]);
+
 		// string or false
 		assign_path_typed (cx, ret_path, new Types ("string", "bool"));
 	}
@@ -779,6 +787,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	}
 	else if (*info->name == "gettimeofday")
 	{
+		// TODO handle better
 		bool can_be_float = true;
 		bool can_be_array = true;
 
@@ -823,14 +832,18 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	}
 	else if (*info->name == "is_array")
 	{
+		// TODO: model better
 		assign_path_typed (cx, ret_path, new Types ("bool"));
 	}
 	else if (*info->name == "is_object")
 	{
+		// TODO: model better
 		assign_path_typed (cx, ret_path, new Types ("bool"));
 	}
 	else if (*info->name == "number_format")
 	{
+		params[2] = coerce_to_string (cx, params[2]);
+		params[3] = coerce_to_string (cx, params[3]);
 		assign_path_typed (cx, ret_path, new Types ("string"));
 	}
 	else if (*info->name == "ob_end_clean")
@@ -846,10 +859,12 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	}
 	else if (*info->name == "print")
 	{
+		params[0] = coerce_to_string (cx, params[0]);
 		assign_path_scalar (cx, ret_path, new INT (1));
 	}
 	else if (*info->name == "printf")
 	{
+		params[0] = coerce_to_string (cx, params[0]);
 		assign_path_typed (cx, ret_path, new Types ("int"));
 	}
 	else if (*info->name == "rand")
@@ -873,18 +888,23 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	}
 	else if (*info->name == "shell_exec")
 	{
+		params[0] = coerce_to_string (cx, params[0]);
 		assign_path_typed (cx, ret_path, new Types ("string"));
 	}
 	else if (*info->name == "strlen")
 	{
+		// TODO: we can tell the length
+		params[0] = coerce_to_string (cx, params[0]);
 		assign_path_typed (cx, ret_path, new Types ("int"));
 	}
 	else if (*info->name == "str_repeat")
 	{
+		params[0] = coerce_to_string (cx, params[0]);
 		assign_path_typed (cx, ret_path, new Types ("string"));
 	}
 	else if (*info->name == "trigger_error")
 	{
+		params[0] = coerce_to_string (cx, params[0]);
 		assign_path_typed (cx, ret_path, new Types ("bool"));
 	}
 	else if (*info->name == "var_dump")
@@ -2169,6 +2189,8 @@ Whole_program::coerce_to_string (Context* cx, Index_node* node)
 		if (type != "string")
 			phc_TODO ();
 	}
+
+	return node;
 }
 
 /*
