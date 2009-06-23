@@ -186,15 +186,17 @@ public:
 	/*
 	 * Assignments by paths (aka high-level)
 	 */
-	void assign_path_scalar (Context* cx, Path* lhs, MIR::Literal* lit);
-	void assign_path_scalar (Context* cx, Path* plhs, Abstract_value* absval);
-	void assign_path_unknown (Context* cx, Path* lhs);
-	void assign_path_typed (Context* cx, Path* lhs, Types* types);
-	void assign_path_by_ref (Context* cx, Path* lhs, Path* rhs);
-	void assign_path_by_copy (Context* cx, Path* lhs, Path* rhs);
-	void assign_path_value (Context* cx, Path* lhs, Storage_node* st);
-	string assign_path_empty_array (Context* cx, Path* lhs, string name = "");
-	string assign_path_empty_object (Context* cx, Path* lhs, string type, string name = "");
+	void assign_path_scalar (Context* cx, Path* lhs, MIR::Literal* lit, bool allow_kill = true);
+	void assign_path_scalar (Context* cx, Path* plhs, Abstract_value* absval, bool allow_kill = true);
+	void assign_path_unknown (Context* cx, Path* lhs, bool allow_kill = true);
+	void assign_path_typed (Context* cx, Path* lhs, Types* types, bool allow_kill = true);
+	void assign_path_by_ref (Context* cx, Path* lhs, Path* rhs, bool allow_kill = true);
+	void assign_path_by_copy (Context* cx, Path* lhs, Path* rhs, bool allow_kill = true);
+	void assign_path_by_cast (Context* cx, Path* lhs, Path* rhs, string type, bool allow_kill = true);
+	void assign_path_value (Context* cx, Path* lhs, Storage_node* st, bool allow_kill = true);
+	string assign_path_empty_array (Context* cx, Path* lhs, string name, bool allow_kill = true);
+	string assign_path_typed_array (Context* cx, Path* lhs, Types* types, string name, bool allow_kill = true);
+	string assign_path_empty_object (Context* cx, Path* lhs, string type, string name, bool allow_kill = true);
 
 	void assign_attribute (Context* cx, string obj, MIR::Attribute*);
 
@@ -208,7 +210,7 @@ public:
 
 	void assign_absval (Context* cx, Index_node* lhs, Abstract_value* absval);
 	Index_node* create_fake_index (Context* cx);
-	void destroy_fake_index (Context* cx);
+	void destroy_fake_indices (Context* cx);
 
 	// If no name is provided, an anonymous name is chosen.
 	Storage_node* create_empty_storage (Context* cx, string type, string name = "");

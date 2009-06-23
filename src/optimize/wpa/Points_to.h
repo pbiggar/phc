@@ -24,6 +24,7 @@
 DECL (PT_node);
 DECL (Index_node);
 DECL (Storage_node);
+DECL (Path);
 
 SET_COMPARABLE (Points_to);
 
@@ -75,6 +76,7 @@ public:
 	virtual Alias_name name ();
 	virtual String* get_graphviz_label ();
 	virtual Index_node* convert_context_name ();
+	Path* to_path ();
 };
 
 

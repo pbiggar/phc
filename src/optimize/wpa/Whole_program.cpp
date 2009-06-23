@@ -90,6 +90,8 @@
 #include "Stat_collector.h"
 #include "Points_to.h"
 
+#define ANON ""
+
 using namespace MIR;
 using namespace boost;
 using namespace std;
@@ -465,7 +467,7 @@ Whole_program::instantiate_object (Context* caller_cx, MIR::VARIABLE_NAME* self,
 	CLASS_NAME* class_name = dyc<CLASS_NAME> (in->class_name);
 
 	// Allocate memory
-	string obj = assign_path_empty_object (block_cx, saved_plhs, *class_name->value);
+	string obj = assign_path_empty_object (block_cx, saved_plhs, *class_name->value, ANON);
 
 
 	// Assign members
@@ -668,7 +670,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	else if (*info->name == "compact")
 	{
 		// Return an array with a copy of the named parameters.
-		string name = assign_path_empty_array (cx, ret_path);
+		string name = assign_path_empty_array (cx, ret_path, ANON);
 		foreach (Index_node* param, *params.values ()) // reading
 		{
 			// For a parameter P1, in this scope SC1, with the caller scope SC0, this is:
@@ -752,8 +754,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		params[0] = coerce_to_string (cx, params[0]);
 		params[1] = coerce_to_string (cx, params[1]);
 
-		string name = assign_path_empty_array (cx, ret_path);
-		assign_path_typed (cx, P (name, UNKNOWN), new Types ("string"));
+		assign_path_typed_array (cx, ret_path, new Types ("string"), ANON);
 	}
 	else if (*info->name == "exit")
 	{
@@ -778,8 +779,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	else if (*info->name == "get_declared_classes")
 	{
 		// Return an array of strings
-		string name = assign_path_empty_array (cx, ret_path);
-		assign_path_typed (cx, P (name, UNKNOWN), new Types ("string"));
+		assign_path_typed_array (cx, ret_path, new Types ("string"), ANON);
 	}
 	else if (*info->name == "get_parent_class")
 	{
@@ -821,7 +821,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 
 			// If there its parameter is true, it returns a float. Else, if returns a
 			// hashtable with 4 ints: sec, usec, minuteswest, dsttime
-			string name = assign_path_empty_array (cx, ret_path);
+			string name = assign_path_empty_array (cx, ret_path, ANON);
 
 			assign_path_typed (cx, P (name, "sec"), new Types ("int"));
 			assign_path_typed (cx, P (name, "usec"), new Types ("int"));
@@ -874,12 +874,11 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	else if (*info->name == "range")
 	{
 		// Returns an array with a range of values of the given type.
-		string name = assign_path_empty_array (cx, ret_path);
-
 		Abstract_value* absval0 = get_abstract_value (cx, R_WORKING, params[0]->name());
 		Abstract_value* absval1 = get_abstract_value (cx, R_WORKING, params[1]->name());
 		Types* merged = absval0->types->set_union (absval1->types);
-		assign_path_typed (cx, P (name, UNKNOWN), merged);
+
+		assign_path_typed_array (cx, ret_path, merged, ANON);
 	}
 	else if (*info->name == "readdir")
 	{
@@ -1193,15 +1192,10 @@ Whole_program::init_superglobals (Context* cx)
 		if (*sg->value == "GLOBALS")
 			continue;
 
-		// Create an empty array
-		string array_name = *sg->value;
-		assign_path_empty_array (cx, P (MSN, sg), array_name);
-
-		// We dont know the contents of these arrays.
-		assign_path_typed (cx, P (array_name, UNKNOWN), new Types("string"));
+		// Create an array of strings
+		assign_path_typed_array (cx, P (MSN, sg), new Types ("string"), *sg->value);
 	}
 
-	// TODO: these do too much. Use FWPA
 
 	// We actually have no idea whats in _SESSION
 	assign_path_unknown (cx, P ("_SESSION", UNKNOWN));
@@ -1210,8 +1204,7 @@ Whole_program::init_superglobals (Context* cx)
 	assign_path_typed (cx, P (MSN, "argc"), new Types ("int"));
 
 	// argv
-	assign_path_empty_array (cx, P (MSN, "argv"), "argv");
-	assign_path_typed (cx, P ("argv", UNKNOWN), new Types ("string"));
+	assign_path_typed_array (cx, P (MSN, "argv"), new Types ("string"), "argv");
 	assign_path_typed (cx,  P ("argv", "0"), new Types ("string"));
 
 
@@ -1238,9 +1231,6 @@ Whole_program::forward_bind (Method_info* info, Context* entry_cx, MIR::Actual_p
 	{
 		main_scope = scope;
 		init_superglobals (entry_cx);
-
-		// Used in analyses
-		create_empty_storage (entry_cx, "array", "FAKE");
 	}
 
 
@@ -1392,7 +1382,7 @@ Whole_program::is_killable (Context* cx, Index_node_list* indices)
 }
 
 void
-Whole_program::assign_path_by_ref (Context* cx, Path* plhs, Path* prhs)
+Whole_program::assign_path_by_ref (Context* cx, Path* plhs, Path* prhs, bool allow_kill)
 {
 	DEBUG ("assign_path_by_ref");
 
@@ -1412,10 +1402,10 @@ Whole_program::assign_path_by_ref (Context* cx, Path* plhs, Path* prhs)
 
 
 	Index_node_list* lhss = get_named_indices (cx, plhs);
-	bool lhs_killable = is_killable (cx, lhss);
+	bool lhs_killable = is_killable (cx, lhss) && allow_kill;
 
 	Index_node_list* rhss = get_named_indices (cx, prhs);
-	bool rhs_killable = is_killable (cx, rhss);
+	bool rhs_killable = is_killable (cx, rhss) && allow_kill;
 
 
 	Certainty cert = POSSIBLE;
@@ -1484,12 +1474,12 @@ Whole_program::assign_path_by_ref (Context* cx, Path* plhs, Path* prhs)
 }
 
 void
-Whole_program::assign_path_scalar (Context* cx, Path* plhs, Abstract_value* absval)
+Whole_program::assign_path_scalar (Context* cx, Path* plhs, Abstract_value* absval, bool allow_kill)
 {
 	DEBUG ("assign_path_scalar");
 	foreach (Reference* ref, *get_lhs_references (cx, plhs))
 	{
-		if (ref->cert == DEFINITE)
+		if (ref->cert == DEFINITE && allow_kill)
 		{
 			FWPA->kill_value (cx, ref->index);
 		}
@@ -1499,13 +1489,13 @@ Whole_program::assign_path_scalar (Context* cx, Path* plhs, Abstract_value* absv
 }
 
 void
-Whole_program::assign_path_scalar (Context* cx, Path* plhs, Literal* lit)
+Whole_program::assign_path_scalar (Context* cx, Path* plhs, Literal* lit, bool allow_kill)
 {
-	assign_path_scalar (cx, plhs, new Abstract_value (lit));
+	assign_path_scalar (cx, plhs, new Abstract_value (lit), allow_kill);
 }
 
 void
-Whole_program::assign_path_typed (Context* cx, Path* plhs, Types* types)
+Whole_program::assign_path_typed (Context* cx, Path* plhs, Types* types, bool allow_kill)
 {
 	DEBUG ("assign_path_typed");
 
@@ -1514,6 +1504,8 @@ Whole_program::assign_path_typed (Context* cx, Path* plhs, Types* types)
 	Types* array = Type_info::get_array_types (types);
 	Types* objects = Type_info::get_object_types (types);
 
+	// TODO: what is going on here?
+
 	// In these cases, we must copy to an intermediate value before the kill.
 	if (array->size ())
 		phc_TODO ();
@@ -1521,18 +1513,18 @@ Whole_program::assign_path_typed (Context* cx, Path* plhs, Types* types)
 	if (objects->size ())
 		phc_TODO ();
 
-	assign_path_scalar (cx, plhs, new Abstract_value (types));
+	assign_path_scalar (cx, plhs, new Abstract_value (types), allow_kill);
 }
 
 void
-Whole_program::assign_path_value (Context* cx, Path* plhs, Storage_node* st)
+Whole_program::assign_path_value (Context* cx, Path* plhs, Storage_node* st, bool allow_kill)
 {
-	DEBUG ("assign_path_empty_array");
+	DEBUG ("assign_path_value");
 
 	// Assign the value to all referenced names.
 	foreach (Reference* ref, *get_lhs_references (cx, plhs))
 	{
-		if (ref->cert == DEFINITE)
+		if (ref->cert == DEFINITE && allow_kill)
 		{
 			FWPA->kill_value (cx, ref->index);
 		}
@@ -1542,25 +1534,33 @@ Whole_program::assign_path_value (Context* cx, Path* plhs, Storage_node* st)
 }
 
 string
-Whole_program::assign_path_empty_array (Context* cx, Path* plhs, string name) 
+Whole_program::assign_path_empty_array (Context* cx, Path* plhs, string name, bool allow_kill)
 {
 	// Assign the value to all referenced names.
 	Storage_node* st = create_empty_storage (cx, "array", name);
-	assign_path_value (cx, plhs, st);
+	assign_path_value (cx, plhs, st, allow_kill);
 	return st->storage; // which might not be NAME, if NAME uses the default value.
 }
 
 string
-Whole_program::assign_path_empty_object (Context* cx, Path* plhs, string type, string name) 
+Whole_program::assign_path_typed_array (Context* cx, Path* plhs, Types* types, string name, bool allow_kill)
+{
+	name = assign_path_empty_array (cx, plhs, name);
+	assign_path_typed (cx, P (name, UNKNOWN), new Types ("string"), allow_kill);
+	return name;
+}
+
+string
+Whole_program::assign_path_empty_object (Context* cx, Path* plhs, string type, string name, bool allow_kill)
 {
 	// Assign the value to all referenced names.
 	Storage_node* st = create_empty_storage (cx, type, name);
-	assign_path_value (cx, plhs, st);
+	assign_path_value (cx, plhs, st, allow_kill);
 	return st->storage; // which might not be NAME, if NAME uses the default value.
 }
 
 void
-Whole_program::assign_path_unknown (Context* cx, Path* plhs)
+Whole_program::assign_path_unknown (Context* cx, Path* plhs, bool allow_kill)
 {
 	DEBUG ("assign_unknown");
 	// This assigns a value which is unknown, but is not as bad as
@@ -1578,7 +1578,7 @@ Whole_program::assign_path_unknown (Context* cx, Path* plhs)
 		//		- the object is shared, and will have a unique name.
 		foreach_wpa (this)
 		{
-			if (ref->cert == DEFINITE)
+			if (ref->cert == DEFINITE && allow_kill)
 				wpa->kill_value (cx, ref->index);
 
 			// TODO: this is really not good enough. The array looks empty, the
@@ -1601,7 +1601,7 @@ Whole_program::assign_path_unknown (Context* cx, Path* plhs)
 }
 
 void
-Whole_program::assign_path_by_copy (Context* cx, Path* plhs, Path* prhs)
+Whole_program::assign_path_by_copy (Context* cx, Path* plhs, Path* prhs, bool allow_kill)
 {
 	DEBUG ("assign_path_by_copy");
 
@@ -1629,7 +1629,7 @@ Whole_program::assign_path_by_copy (Context* cx, Path* plhs, Path* prhs)
 	/* Now that we have the new value, and its separated from the RHS,  */
 	foreach (Reference* lhs_ref, *get_lhs_references (cx, plhs))
 	{
-		if (lhs_ref->cert == DEFINITE)
+		if (lhs_ref->cert == DEFINITE && allow_kill)
 		{
 			FWPA->kill_value (cx, lhs_ref->index);
 		}
@@ -1638,7 +1638,50 @@ Whole_program::assign_path_by_copy (Context* cx, Path* plhs, Path* prhs)
 	}
 
 	// Remove the index_node (we allow this even in flow-insensitive mode)
-	destroy_fake_index (cx);
+	destroy_fake_indices (cx);
+}
+
+void
+Whole_program::assign_path_by_cast (Context* cx, Path* plhs, Path* prhs, string type, bool allow_kill)
+{
+	DEBUG ("assign_path_by_cast");
+
+	phc_TODO ();
+
+	// foreach values V pointed to by PRHS:
+	//	switch V.type:
+	//		Scalar:
+	//			- foreach alias A of PLHS, set the value of A::SCLVAL using V.
+	//		Array:
+	//			- foreach alias A of PLHS, create a copy of V, with a new name.
+	//		Objects:
+	//			- foreach alias A of PLHS, point from A to V.
+
+
+	// Calculate the new result via an intermediate ("fake") index node.
+	Index_node* fake = create_fake_index (cx);
+
+	// We keep the graph in transitive-closure form, so each RHS will have
+	// all the values of its references already. Therefore, there is no need
+	// for a call to get_lhs_references ().
+	foreach (Index_node* rhs, *get_named_indices (cx, prhs, true))
+		copy_value (cx, fake, rhs);
+
+
+
+	/* Now that we have the new value, and its separated from the RHS,  */
+	foreach (Reference* lhs_ref, *get_lhs_references (cx, plhs))
+	{
+		if (lhs_ref->cert == DEFINITE && allow_kill)
+		{
+			FWPA->kill_value (cx, lhs_ref->index);
+		}
+
+		copy_value (cx, lhs_ref->index, fake);
+	}
+
+	// Remove the index_node
+	destroy_fake_indices (cx);
 }
 
 void
@@ -1747,13 +1790,17 @@ Whole_program::create_empty_storage (Context* cx, string type, string name)
 Index_node*
 Whole_program::create_fake_index (Context* cx)
 {
-	return new Index_node ("FAKE", "asdasd");
+	static int suffix = 0;
+	return new Index_node ("FAKE", "fake" + lexical_cast<string> (suffix));
 }
 
 void
-Whole_program::destroy_fake_index (Context* cx)
+Whole_program::destroy_fake_indices (Context* cx)
 {
-	FWPA->kill_value (cx, new Index_node ("FAKE", "asdasd"), true);
+	foreach (Index_node* fake, *aliasing->get_fields (cx, R_WORKING, new Storage_node ("FAKE")))
+	{
+		FWPA->kill_value (cx, fake, true);
+	}
 }
 
 
@@ -2039,6 +2086,8 @@ Whole_program::get_named_indices (Context* cx, Path* path, bool is_readonly)
 	 * ie:
 	 *		$a->f
 	 *		$a["f"]
+	 *
+	 *	TODO: irritatingly, the former calls the __toString handler, while the latter doesn't.
 	 */
 	if (isa<Indexing> (p->lhs) && isa<Index_path> (p->rhs))
 	{
@@ -2054,6 +2103,7 @@ Whole_program::get_named_indices (Context* cx, Path* path, bool is_readonly)
 	 * ie:
 	 *		$a->$f
 	 *		$a[$f]
+	 *	TODO: see __toString comment, above.
 	 */
 
 	if (isa<Indexing> (p->lhs) && isa<Indexing> (p->rhs))
@@ -2093,7 +2143,7 @@ Whole_program::get_array_named_indices (Context* cx, Path* plhs, String* index, 
 	// already exist, it must be implicitly created.
 	if (not is_readonly && not aliasing->has_field (cx, R_WORKING, array))
 	{
-		assign_path_empty_array (cx, plhs);
+		assign_path_empty_array (cx, plhs, ANON);
 	}
 
 
@@ -2180,16 +2230,21 @@ Whole_program::get_lhs_references (Context* cx, Path* path)
 }
 
 /* Handle all the string coersions. If node is a string, return it. If it is an
- * object, call toString, and return the Index_node storing its value. */
+ * object, call toString, and return the Index_node storing its value. If its
+ * another type, perform the coersion. */
 Index_node*
 Whole_program::coerce_to_string (Context* cx, Index_node* node)
 {
 	Abstract_value* absval = get_abstract_value (cx, R_WORKING, node->name ());
 
-	foreach (string type, *absval->types)
+	Types* objects = Type_info::get_object_types (absval->types);
+	if (objects->size ())
 	{
-		if (type != "string")
+		node = create_fake_index (cx);
+		foreach (string type, *absval->types)
+		{
 			phc_TODO ();
+		}
 	}
 
 	return node;
@@ -2540,6 +2595,10 @@ void
 Whole_program::visit_cast (Statement_block* bb, MIR::Cast* in)
 {
 	string ns = block_cx->symtable_name ();
+	Path* path = P (ns, in);
+
+	assign_path_by_cast (block_cx, saved_plhs, path, *in->cast->value);
+/*
 
 	Alias_name operand = VN (ns, in->variable_name)->name();
 
@@ -2578,6 +2637,7 @@ Whole_program::visit_cast (Statement_block* bb, MIR::Cast* in)
 	record_use (block_cx, VN (ns, in->variable_name));
 
 	assign_path_typed (block_cx, saved_plhs, new Types (*in->cast->value));
+	*/
 }
 
 void
