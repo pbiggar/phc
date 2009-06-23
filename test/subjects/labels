@@ -34,16 +34,17 @@ codegen/bench_.*						short
 optimization/.*						short
 codegen/\d.*							short
 
-# Bugs we want to ignore for the optimizer
+# Bugs/features we want to ignore for the optimizer
+codegen/006b.php								no-Optimiz
+codegen/006c.php								no-Optimiz
+codegen/006.php								no-Optimiz
+codegen/019a.php								no-Optimiz
+codegen/019c.php								no-Optimiz
+codegen/foreach_object.php					no-Optimiz
 optimization/indirect_string.php			no-Optimiz
 optimization/unknown_everything.php		no-Optimiz
-
-# Features we want to ignore for the optimizer
-codegen/019a.php						no-Optimiz
-codegen/019c.php						no-Optimiz
-codegen/006b.php						no-Optimiz
-codegen/006.php						no-Optimiz
-codegen/006c.php						no-Optimiz
+parsing/empty.php								no-Optimiz
+reduced/0002.php								no-Optimiz
 
 
 
