@@ -932,8 +932,13 @@ Whole_program::apply_results (User_method_info* info)
 			else
 				DEBUG ("BB " << bb->ID << " changed");
 		}
-
+		else if (isa<Branch_block> (bb))
+		{
+			transformer->visit_block (bb);
+		}
 	}
+	info->get_cfg ()->clean ();
+
 	if (debugging_enabled)
 		info->get_cfg ()->dump_graphviz (s("Apply results"));
 }

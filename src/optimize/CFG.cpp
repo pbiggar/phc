@@ -1030,7 +1030,6 @@ CFG::get_all_bbs_bottom_up ()
 
 
 
-// TODO: iterate (use cooper/torczon Fig 10.5)
 void
 CFG::clean ()
 {
