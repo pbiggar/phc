@@ -383,9 +383,6 @@ Whole_program::get_possible_receivers (Context* cx, Result_state state, Target* 
 		}
 		else
 		{
-			// TODO: we get the list of receivers, and then invoke on all the
-			// types and all the objects. But really, each method should only
-			// invoke on types they are allowed invoke on.
 			VARIABLE_NAME* obj = dyc<VARIABLE_NAME> (target);
 			Types* types = values->get_types (cx, state, VN (cx->symtable_name (), obj)->name());
 
@@ -407,7 +404,7 @@ Whole_program::get_possible_receivers (Context* cx, Result_state state, Target* 
 
 			Method_info* info = classinfo->get_method_info (name);
 			if (info == NULL)
-				phc_TODO ();
+				phc_TODO (); // Method doesnt exist, try __call
 
 			result->push_back (info);
 		}
@@ -746,8 +743,11 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	}
 	else if (*info->name == "explode")
 	{
-		// array of strings, or false
-		phc_TODO ();
+		params[0] = coerce_to_string (cx, params[0]);
+		params[1] = coerce_to_string (cx, params[1]);
+
+		string name = assign_path_empty_array (cx, ret_path);
+		assign_path_typed (cx, P (name, UNKNOWN), new Types ("string"));
 	}
 	else if (*info->name == "exit")
 	{
@@ -2155,6 +2155,20 @@ Whole_program::get_lhs_references (Context* cx, Path* path)
 	}
 
 	return refs;
+}
+
+/* Handle all the string coersions. If node is a string, return it. If it is an
+ * object, call toString, and return the Index_node storing its value. */
+Index_node*
+Whole_program::coerce_to_string (Context* cx, Index_node* node)
+{
+	Abstract_value* absval = get_abstract_value (cx, R_WORKING, node->name ());
+
+	foreach (string type, *absval->types)
+	{
+		if (type != "string")
+			phc_TODO ();
+	}
 }
 
 /*

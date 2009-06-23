@@ -141,13 +141,11 @@ public:
 	void annotate_results (User_method_info* info);
 	void perform_local_optimizations (User_method_info* info);
 	void perform_interprocedural_optimizations (User_method_info* info);
-
 	void collect_stats (User_method_info* info);
-
 	void strip (MIR::PHP_script* in);
 
-	// Apply the interprocedural optimization results to this BB.
 
+	// Apply the interprocedural optimization results to this BB.
 	void analyse_method_info (Method_info* info,
 									  Context* caller_cx,
 									  MIR::Actual_parameter_list* actuals,
@@ -238,6 +236,8 @@ public:
 
 	// Get anything the path can point to, and all nodes that they may reference.
 	Reference_list* get_lhs_references (Context* cx, Path* path);
+
+	Index_node* coerce_to_string (Context* cx, Index_node* val);
 
 
 	Edge_list* get_successors (Context* cx);

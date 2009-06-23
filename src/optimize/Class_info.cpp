@@ -57,7 +57,6 @@ User_class_info::User_class_info (Class_def* class_def)
 				|| *name == "__set"
 				|| *name == "__set_state"
 				|| *name == "__sleep"
-				|| *name == "__toString"
 				|| *name == "__unset"
 				|| *name == "__wakeup"
 				)
