@@ -1637,7 +1637,7 @@ Whole_program::assign_path_by_copy (Context* cx, Path* plhs, Path* prhs)
 		copy_value (cx, lhs_ref->index, fake);
 	}
 
-	// Remove the index_node
+	// Remove the index_node (we allow this even in flow-insensitive mode)
 	destroy_fake_index (cx);
 }
 
@@ -1789,6 +1789,7 @@ Whole_program::check_owner_type (Context* cx, Index_node* index)
 			else if (type == "unset")
 			{
 				// TODO: why dont we call assign_array here?
+				// TODO: use a fake variable here.
 
 				// Convert to an array
 				string name = cx->array_node ()->for_index_node ();
@@ -1931,6 +1932,7 @@ Whole_program::ruin_everything (Context* cx, Path* plhs)
 String*
 Whole_program::get_string_value (Context* cx, Index_node* index)
 {
+	index = coerce_to_string (cx, index);
 	Abstract_value* absval = get_abstract_value (cx, R_WORKING, index->name ());
 	if (absval->lit == NULL)
 		return s (UNKNOWN);
