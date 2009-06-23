@@ -135,11 +135,11 @@ Value_analysis::get_bin_op_type (string ltype, string rtype, string op)
 		// Other scalars are possible
 		phc_TODO ();
 	}
-	else if (op == "/")
+	else if (op == "%")
 	{
 		return new Types ("int", "bool"); // FALSE for divide by zero
 	}
-	else if (op == "%")
+	else if (op == "/")
 	{
 		if (ltype == "real" || rtype == "real")
 			return new Types ("real", "bool"); // FALSE for divide by zero
@@ -171,6 +171,20 @@ Value_analysis::get_bin_op_type (string ltype, string rtype, string op)
 		// ints can overflow.
 		// Strings, bools and NULLs coerce to ints
 		return new Types ("int", "real"); // possible overflow
+	}
+	else if (op == "&" || op == "|" || op == "^")
+	{
+		// bitwise operations will do something string-y if they are both strings.
+		if (ltype == "string" || rtype == "string")
+			return new Types ("string");
+
+		// Reals get converted to integers first
+		return new Types ("int");
+	}
+	else if (op == "<<" || op == ">>")
+	{
+		// These always get integers (they even overflow)
+		return new Types ("int");
 	}
 
 	phc_TODO ();
