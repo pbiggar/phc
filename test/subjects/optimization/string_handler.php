@@ -14,47 +14,52 @@
 
 			$count++;
 
-			$result = "Hit $count\n";
+			$result = "Hit $count\n\n";
 			echo $result;
 			return $result;
 		}
 	}
 
+	function name ($title)
+	{
+		echo "\n\n******** $title ********************\n";
+	}
+
 	$x = new Handled;
 
-	echo "Call to explode\n";
+	name ("Call to explode");
 	$a = explode ($x, $x);
 	var_dump ($a);
 
 
-	echo "Call to define\n";
+	name ("Call to define");
 	var_dump (define ($x, "ASD"));
 
-	echo "Concatenation\n";
+	name ("Concatenation");
 	$a1 = "" . $x;
 	$a1a = $x . $x;
 	$a1b = $x . "a string";
 	var_dump ($a1, $a1a, $a1b);
 	
-	echo "Cast\n";
+	name ("Cast");
 	$a2 = (string)($x);
 	var_dump ($a2);
 
-	echo "As a field index\n";
+	name ("As a field index");
 	$b->$x = 5;
 	var_dump ($b);
 
-	echo "As an array index\n";
+	name ("As an array index");
 	$c[$x] = 6;
 	var_dump ($c);
 
-	echo "In a var-var\n";
+	name ("In a var-var");
 	$$x = 10;
 	var_dump ($GLOBALS);
 
 
 
-	echo "In a branch\n";
+	name ("In a branch");
 	if ($x)
 	{
 		echo "true\n";
@@ -64,9 +69,9 @@
 		echo "false\n";
 	}
 
-	echo "TODO: Others, which we can;t test so well:\n";
-	echo "TODO: variable methods\n";
-	echo "TODO: variable class instantiations\n";
+	name ("TODO: Others, which we can;t test so well:");
+	name ("TODO: variable methods");
+	name ("TODO: variable class instantiations");
 
 
 
