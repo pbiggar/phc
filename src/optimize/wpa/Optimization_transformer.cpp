@@ -276,6 +276,9 @@ void
 Optimization_transformer::visit_field_access (Statement_block* bb, MIR::Field_access* in)
 {
 	// TODO: can change a variable field to just a field.
+	
+	// TODO: if this actually calls __get, we need to do some work here. That
+	// cant happen yet, because we check for handlers early.
 }
 
 void
