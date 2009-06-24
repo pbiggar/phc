@@ -1019,7 +1019,6 @@ void
 Whole_program::init_block (Context* cx)
 {
 	this->block_cx = cx;
-	this->unique_count = 0;
 }
 
 bool
