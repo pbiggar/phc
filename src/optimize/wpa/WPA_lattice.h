@@ -118,8 +118,8 @@ public:
 	void kill_value (Context* cx, Index_node* lhs, bool also_kill_refs)
 	{
 		Lattice_type& lat = working[cx];
-		lat[lhs->name().str()] = Cell_type::TOP;
-		lat[SCLVAL (lhs)->name().str()] = Cell_type::TOP;
+		lat.erase (lhs->name().str());
+		lat.erase (SCLVAL (lhs)->name().str());
 	}
 
 	void assign_value (Context* cx, Index_node* lhs, Storage_node* storage)
