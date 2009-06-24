@@ -45,6 +45,7 @@ optimization/indirect_string.php			no-Optimiz
 optimization/unknown_everything.php		no-Optimiz
 parsing/empty.php								no-Optimiz
 reduced/0002.php								no-Optimiz
+bugs/bug0008.php								no-Optimiz
 
 
 
