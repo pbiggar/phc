@@ -43,6 +43,12 @@ Abstract_value::unknown ()
 	return new Abstract_value (NULL, NULL);
 }
 
+Abstract_value*
+Abstract_value::clone ()
+{
+	return new Abstract_value (lit->clone (), types->clone ());
+}
+
 
 void
 Abstract_value::dump (ostream& os)
@@ -161,6 +167,11 @@ Types*
 get_type (MIR::Literal* lit)
 {
 	return new Types (mir_types() [lit->classid()]);
+}
+
+bool is_scalar (string type)
+{
+	return scalar_types().has (type);
 }
 
 

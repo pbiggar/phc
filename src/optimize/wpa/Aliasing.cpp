@@ -285,7 +285,9 @@ Aliasing::get_references (Context* cx, Result_state state, Index_node* index, Ce
 Storage_node_list*
 Aliasing::get_points_to (Context* cx, Result_state state, Index_node* index)
 {
-	return ptgs[state][cx]->get_points_to (index);
+	Storage_node_list* result = ptgs[state][cx]->get_points_to (index);
+	assert (result->size ());
+	return result;
 }
 
 

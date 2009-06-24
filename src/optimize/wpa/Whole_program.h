@@ -216,10 +216,15 @@ public:
 	Storage_node* create_empty_storage (Context* cx, string type, string name = "");
 
 	// When copying data, we dont want to collapse stuff into a single array/object!
-	int storage_count;
+	int unique_count;;
 
 	// Copy the value from RHS to LHS.
 	void copy_value (Context* cx, Index_node* lhs, Index_node* rhs);
+	void copy_structure (Context* cx, Index_node* lhs, Storage_node* rhs, string type);
+
+	// Cast the value from RHS to LHS
+	void cast_value (Context* cx, Index_node* lhs, Index_node* rhs, string type);
+	void cast_to_storage (Context* cx, Index_node* lhs, Index_node* rhs, string type);
 
 	Index_node* check_owner_type (Context* cx, Index_node* index);
 	Abstract_value* read_from_scalar_value (Context* cx, Index_node* rhs);

@@ -123,7 +123,7 @@ void
 Debug_WPA::kill_value (Context* cx, Index_node* lhs, bool also_kill_refs)
 {
 	DEBUG (__FUNCTION__
-	<< (also_kill_refs ? "(and refs)" : "")
+	<< (also_kill_refs ? " (and refs)" : "")
 	<< ": " << lhs->name().str ());
 }
 

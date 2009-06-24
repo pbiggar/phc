@@ -1019,7 +1019,7 @@ void
 Whole_program::init_block (Context* cx)
 {
 	this->block_cx = cx;
-	this->storage_count = 0;
+	this->unique_count = 0;
 }
 
 bool
@@ -1030,6 +1030,9 @@ Whole_program::analyse_block (Context* cx)
 	init_block (cx);
 
 	visit_block (cx->get_bb());
+
+	// Keep these alive until the end
+	destroy_fake_indices (cx);
 
 	FWPA->finish_block (cx);
 
@@ -1636,27 +1639,12 @@ Whole_program::assign_path_by_copy (Context* cx, Path* plhs, Path* prhs, bool al
 
 		copy_value (cx, lhs_ref->index, fake);
 	}
-
-	// Remove the index_node (we allow this even in flow-insensitive mode)
-	destroy_fake_indices (cx);
 }
 
 void
 Whole_program::assign_path_by_cast (Context* cx, Path* plhs, Path* prhs, string type, bool allow_kill)
 {
 	DEBUG ("assign_path_by_cast");
-
-	phc_TODO ();
-
-	// foreach values V pointed to by PRHS:
-	//	switch V.type:
-	//		Scalar:
-	//			- foreach alias A of PLHS, set the value of A::SCLVAL using V.
-	//		Array:
-	//			- foreach alias A of PLHS, create a copy of V, with a new name.
-	//		Objects:
-	//			- foreach alias A of PLHS, point from A to V.
-
 
 	// Calculate the new result via an intermediate ("fake") index node.
 	Index_node* fake = create_fake_index (cx);
@@ -1665,7 +1653,7 @@ Whole_program::assign_path_by_cast (Context* cx, Path* plhs, Path* prhs, string 
 	// all the values of its references already. Therefore, there is no need
 	// for a call to get_lhs_references ().
 	foreach (Index_node* rhs, *get_named_indices (cx, prhs, true))
-		copy_value (cx, fake, rhs);
+		cast_value (cx, fake, rhs, type);
 
 
 
@@ -1679,9 +1667,6 @@ Whole_program::assign_path_by_cast (Context* cx, Path* plhs, Path* prhs, string 
 
 		copy_value (cx, lhs_ref->index, fake);
 	}
-
-	// Remove the index_node
-	destroy_fake_indices (cx);
 }
 
 void
@@ -1739,20 +1724,7 @@ Whole_program::copy_value (Context* cx, Index_node* lhs, Index_node* rhs)
 		// Deep copy
 		if (array->size())
 		{
-			// Create the new array
-			Storage_node* new_array = create_empty_storage (cx, "array");
-
-
-			// Copy all the indices.
-			foreach (Index_node* index, *aliasing->get_fields (cx, R_WORKING, st))
-			{
-				copy_value (cx,
-						new Index_node (new_array->for_index_node (), index->index),
-						index);
-			}
-
-			// LHS points to NEW_ARRAY.
-			FWPA->assign_value (cx, lhs, new_array);
+			copy_structure (cx, lhs, st, "array");
 		}
 
 		if (objects->size ())
@@ -1761,6 +1733,132 @@ Whole_program::copy_value (Context* cx, Index_node* lhs, Index_node* rhs)
 			FWPA->assign_value (cx, lhs, st);
 		}
 	}
+}
+
+void
+Whole_program::cast_value (Context* cx, Index_node* lhs, Index_node* rhs, string type)
+{
+	DEBUG ("cast_value");
+
+	// Handle missing fields
+	if (!aliasing->has_field (cx, R_WORKING, rhs))
+	{
+		rhs = new Index_node (rhs->storage, UNKNOWN);
+	}
+
+	// Since we know the RHS must index a symbol-table (ignore something like
+	// overwriting the GLOBALS array with an integer)
+	record_use (cx, rhs);
+
+	if (type == "string")
+	{
+		phc_TODO ();
+//		coerce_to_string (...);
+	}
+	else if (Type_info::is_scalar (type))
+	{
+		phc_TODO ();
+	}
+	else if (type == "array")
+	{
+		cast_to_storage (cx, lhs, rhs, "array");
+	}
+	else if (type == "object")
+	{
+		cast_to_storage (cx, lhs, rhs, "stdClass");
+	}
+}
+
+/* Handle all the string coersions. If node is a string, return it. If it is an
+ * object, call toString, and return the Index_node storing its value. If its
+ * another type, perform the coersion. */
+Index_node*
+Whole_program::coerce_to_string (Context* cx, Index_node* node)
+{
+	Abstract_value* absval = get_abstract_value (cx, R_WORKING, node->name ());
+
+	Types* objects = Type_info::get_object_types (absval->types);
+	if (objects->size ())
+	{
+		node = create_fake_index (cx);
+		foreach (string type, *absval->types)
+		{
+			phc_TODO ();
+		}
+	}
+
+	return node;
+}
+
+void
+Whole_program::cast_to_storage (Context* cx, Index_node* lhs, Index_node* rhs, string type)
+{
+	foreach (Storage_node* st, *aliasing->get_points_to (cx, R_WORKING, rhs))
+	{
+		// Get the type of the value
+		Types* types = values->get_types (cx, R_WORKING, st->name());
+
+		// It must be either all scalars, array, list of classes, or bottom.
+		Types* scalars = Type_info::get_scalar_types (types);
+		Types* array = Type_info::get_array_types (types);
+		Types* objects = Type_info::get_object_types (types);
+
+		assert (!scalars->empty() ^ !array->empty() ^ !objects->empty());
+
+		if (scalars->size())
+		{
+			Storage_node* new_array = create_empty_storage (cx, type);
+
+			// If its not null, it must be put in the "scalar" field
+			Abstract_value* absval = get_abstract_value (cx, R_WORKING, st->name ());
+			if (not isa<NIL> (absval->lit))
+			{
+				absval = absval->clone ();
+				absval->types->erase ("unset"); // Cant be NULL
+
+				// Copy to a new array to the "scalar" field.
+				assign_absval (cx,
+									new Index_node (new_array->storage, "scalar"),
+									get_abstract_value (cx, R_WORKING, st->name ()));
+			}
+
+
+			FWPA->assign_value (cx, lhs, new_array);
+		}
+
+		// Array: normal copy
+		if (array->size())
+		{
+			copy_structure (cx, lhs, st, type);
+		}
+
+		// Just copy to a new array
+		if (objects->size ())
+		{
+			copy_structure (cx, lhs, st, type);
+		}
+	}
+}
+
+// This does a shallow copy, but if the shallow copy has arrays, it becomes a
+// deep copy of the array (aka, it does the right thing).
+void
+Whole_program::copy_structure (Context* cx, Index_node* lhs, Storage_node* rhs, string type)
+{
+	// Create the new array
+	Storage_node* new_array = create_empty_storage (cx, type);
+
+	// Copy all the indices.
+	foreach (Index_node* index, *aliasing->get_fields (cx, R_WORKING, rhs))
+	{
+		copy_value (cx,
+				new Index_node (new_array->for_index_node (), index->index),
+				index);
+	}
+
+	// LHS points to NEW_ARRAY.
+	FWPA->assign_value (cx, lhs, new_array);
+
 }
 
 Storage_node*
@@ -1772,8 +1870,8 @@ Whole_program::create_empty_storage (Context* cx, string type, string name)
 	if (name == "")
 	{
 		// Use a - so that the convert_context_name hack doesnt get confused.
-		name = cx->storage_name (type) + "-" + lexical_cast<string> (storage_count);
-		storage_count++;
+		unique_count++;
+		name = cx->storage_name (type) + "-" + lexical_cast<string> (unique_count);
 	}
 
 	Storage_node* st = SN (name);
@@ -1790,8 +1888,9 @@ Whole_program::create_empty_storage (Context* cx, string type, string name)
 Index_node*
 Whole_program::create_fake_index (Context* cx)
 {
-	static int suffix = 0;
-	return new Index_node ("FAKE", "fake" + lexical_cast<string> (suffix));
+	unique_count++;
+	create_empty_storage (cx, "array", "FAKE");
+	return new Index_node ("FAKE", "fake" + lexical_cast<string> (unique_count));
 }
 
 void
@@ -2229,27 +2328,6 @@ Whole_program::get_lhs_references (Context* cx, Path* path)
 	return refs;
 }
 
-/* Handle all the string coersions. If node is a string, return it. If it is an
- * object, call toString, and return the Index_node storing its value. If its
- * another type, perform the coersion. */
-Index_node*
-Whole_program::coerce_to_string (Context* cx, Index_node* node)
-{
-	Abstract_value* absval = get_abstract_value (cx, R_WORKING, node->name ());
-
-	Types* objects = Type_info::get_object_types (absval->types);
-	if (objects->size ())
-	{
-		node = create_fake_index (cx);
-		foreach (string type, *absval->types)
-		{
-			phc_TODO ();
-		}
-	}
-
-	return node;
-}
-
 /*
  * Analysis
  */
@@ -2595,49 +2673,9 @@ void
 Whole_program::visit_cast (Statement_block* bb, MIR::Cast* in)
 {
 	string ns = block_cx->symtable_name ();
-	Path* path = P (ns, in);
+	Path* path = P (ns, in->variable_name);
 
 	assign_path_by_cast (block_cx, saved_plhs, path, *in->cast->value);
-/*
-
-	Alias_name operand = VN (ns, in->variable_name)->name();
-
-	MIR::Literal* lit = values->get_lit (block_cx, R_WORKING, operand);
-	if (lit)
-	{
-		Literal* result = PHP::cast_to (in->cast, lit);
-		if (result)
-		{
-			assign_path_scalar (block_cx, saved_plhs, result);
-			return;
-		}
-	}
-
-	// We've handled casts for known scalars to scalars. We still must handle
-	// casts to objects, casts to arrays, and casts from unknown values to
-	// other scalar types.
-	if (*in->cast->value == "array")
-	{
-		if (lit && isa<NIL> (lit))
-		{
-			// Most common case: create an empty array
-			assign_path_empty_array (block_cx, saved_plhs);
-			return;
-		}
-		else
-			phc_TODO ();
-
-	}
-	else if (*in->cast->value == "object")
-	{
-		phc_TODO ();
-	}
-
-	// Record uses
-	record_use (block_cx, VN (ns, in->variable_name));
-
-	assign_path_typed (block_cx, saved_plhs, new Types (*in->cast->value));
-	*/
 }
 
 void

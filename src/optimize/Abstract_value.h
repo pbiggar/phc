@@ -42,6 +42,7 @@ public:
 	bool known_false ();
 
 	bool equals (Abstract_value* absval);
+	Abstract_value* clone ();
 
 	void dump (std::ostream& os = cdebug);
 
@@ -54,6 +55,7 @@ namespace Type_info
 	void dump_types (std::ostream& os, Types* types);
 	Types* get_type (MIR::Literal* lit);
 	Types* get_all_scalar_types ();
+	bool is_scalar (string type);
 
 	// Given a set of types, we want to know which types are scalars, which is
 	// an array, and which are objects. These return new sets with only the
