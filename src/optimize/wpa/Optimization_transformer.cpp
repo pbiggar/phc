@@ -8,6 +8,7 @@
 
 #include "Aliasing.h"
 #include "Points_to.h"
+#include "Def_use.h"
 #include "Whole_program.h"
 #include "optimize/Abstract_value.h"
 
@@ -96,27 +97,33 @@ Optimization_transformer::visit_assign_field (Statement_block* bb, MIR::Assign_f
 	// TODO: change a variable field into a known field name
 }
 
+bool
+Optimization_transformer::rhs_is_pure (Statement_block* bb, MIR::Assign_var* in)
+{
+	// We dont model enough here to be sure.
+	if (isa<Method_invocation> (in->rhs) && isa<New> (in->rhs))
+		return false;
+
+	// If the only definition is the LHS, nothing else has happened
+	if (wp->def_use->get_defs (bb)->size ()
+		+ wp->def_use->get_may_defs (bb)->size () 
+		== 1)
+		return true;
+
+	return false;
+}
+
 
 void
 Optimization_transformer::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 {
-	// TODO: check that there are no implicit operations on the rhs. This could
-	// be done by checking that there is not a def to the RHS.
+	// If the RHS value is known, replace it outright.
+	Literal* lit = get_out_abstract_value (bb, in->lhs)->lit;
 
-	// The assignment is by reference. We may be able to remove this later,
-	// via DCE.
-	if (not in->is_ref && not isa<Method_invocation> (in->rhs) && not isa<New> (in->rhs))
-	{
-		// If the RHS value is known, replace it outright.
-		Literal* lit = get_out_abstract_value (bb, in->lhs)->lit;
-
-		if (lit)
-			in->rhs = lit;
-	}
-
-	// visit_expr for whatever is left
-	visit_expr (bb, in->rhs);
-
+	if (lit && rhs_is_pure (bb, in))
+		in->rhs = lit;
+	else
+		visit_expr (bb, in->rhs);
 }
 
 void
@@ -268,7 +275,7 @@ Optimization_transformer::visit_constant (Statement_block* bb, MIR::Constant* in
 void
 Optimization_transformer::visit_field_access (Statement_block* bb, MIR::Field_access* in)
 {
-	phc_TODO ();
+	// TODO: can change a variable field to just a field.
 }
 
 void

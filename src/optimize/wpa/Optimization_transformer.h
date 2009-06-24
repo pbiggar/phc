@@ -29,6 +29,7 @@ public:
 
 	Abstract_value* get_in_abstract_value (Basic_block* bb, MIR::Rvalue* in);
 	Abstract_value* get_out_abstract_value (Basic_block* bb, MIR::Rvalue* in);
+	bool rhs_is_pure (Statement_block* bb, MIR::Assign_var* in);
 
 	void visit_branch_block (Branch_block* bb);
 
