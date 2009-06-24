@@ -78,7 +78,7 @@ const char *gengetopt_args_info_full_help[] = {
   "\nOPTIMIZATION OPTIONS:",
   "      --flow-insensitive        Turn off flow-sensitivity  (default=off)",
   "      --object-insensitive      Turn off object-sensitivity  (default=off)",
-  "      --call-string-length=LENGTH\n                                Choose the call-string length ('0' indicates \n                                  infinite call-string)  (default=`2')",
+  "      --call-string-length=LENGTH\n                                Choose the call-string length ('0' indicates \n                                  infinite call-string)  (default=`0')",
   "\nDEBUGGING PHC:",
   "      --stats                   Print compile-time statistics  (default=off)",
   "      --rt-stats                Print statistics about a program at run-time  \n                                  (default=off)",
@@ -269,7 +269,7 @@ void clear_args (struct gengetopt_args_info *args_info)
   args_info->no_xml_attrs_flag = 0;
   args_info->flow_insensitive_flag = 0;
   args_info->object_insensitive_flag = 0;
-  args_info->call_string_length_arg = 2;
+  args_info->call_string_length_arg = 0;
   args_info->call_string_length_orig = NULL;
   args_info->stats_flag = 0;
   args_info->rt_stats_flag = 0;
@@ -1758,7 +1758,7 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
           
             if (update_arg( (void *)&(args_info->call_string_length_arg), 
                  &(args_info->call_string_length_orig), &(args_info->call_string_length_given),
-                &(local_args_info.call_string_length_given), optarg, 0, "2", ARG_INT,
+                &(local_args_info.call_string_length_given), optarg, 0, "0", ARG_INT,
                 check_ambiguity, override, 0, 0,
                 "call-string-length", '-',
                 additional_error))

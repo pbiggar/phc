@@ -139,7 +139,7 @@ struct gengetopt_args_info
   const char *flow_insensitive_help; /**< @brief Turn off flow-sensitivity help description.  */
   int object_insensitive_flag;	/**< @brief Turn off object-sensitivity (default=off).  */
   const char *object_insensitive_help; /**< @brief Turn off object-sensitivity help description.  */
-  int call_string_length_arg;	/**< @brief Choose the call-string length ('0' indicates infinite call-string) (default='2').  */
+  int call_string_length_arg;	/**< @brief Choose the call-string length ('0' indicates infinite call-string) (default='0').  */
   char * call_string_length_orig;	/**< @brief Choose the call-string length ('0' indicates infinite call-string) original value given at command line.  */
   const char *call_string_length_help; /**< @brief Choose the call-string length ('0' indicates infinite call-string) help description.  */
   int stats_flag;	/**< @brief Print compile-time statistics (default=off).  */
