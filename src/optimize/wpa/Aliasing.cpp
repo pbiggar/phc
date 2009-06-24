@@ -18,6 +18,7 @@
 
 #include "Points_to.h"
 #include "Aliasing.h"
+#include "Whole_program.h"
 #include "optimize/Edge.h"
 #include "optimize/Abstract_value.h"
 
@@ -102,7 +103,10 @@ Aliasing::backward_bind (Context* caller, Context* exit)
 {
 	Points_to* ptg = outs[exit]->clone ();
 	ptg->consistency_check (exit, R_OUT, wp);
-	ptg->close_scope (exit->symtable_node ());
+
+	// No point clearing if there isn't an infinite call-string.
+	if (wp->pm->args_info->call_string_length_arg != 0)
+		ptg->close_scope (exit->symtable_node ());
 
 	// See comment in WPA_lattice.
 	// This needs to merge because the might be different receivers.
