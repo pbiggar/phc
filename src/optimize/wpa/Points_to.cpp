@@ -25,7 +25,9 @@ using namespace std;
 using namespace boost;
 
 Points_to_impl::Points_to_impl ()
+: reference_count (1)
 {
+
 	// Pretend this is abstract so that it doesnt get removed.
 	abstract_states [SN("_SESSION")->name()] = Abstract_state::ABSTRACT;
 }
@@ -591,16 +593,11 @@ Points_to_impl::merge_references (Points_to_impl* other)
 			Certainty other_cert = other->get_reference_cert (edge);
 			result->set_value (edge, combine_certs (this_cert, other_cert));
 		}
-		else if (this_has)
+		else 
 		{
-			result->set_value (edge, this->get_reference_cert (edge));
+			assert (this_has or other_has);
+			result->set_value (edge, POSSIBLE);
 		}
-		else if (other_has)
-		{
-			result->set_value (edge, other->get_reference_cert (edge));
-		}
-		else
-			phc_unreachable ();
 	}
 
 	return result;

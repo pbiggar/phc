@@ -446,6 +446,10 @@ namespace Abstract_state
 class Points_to_impl : virtual public GC_obj
 {
 private:
+	int reference_count;
+	friend class Points_to;
+
+private:
 	// This keeps count of whether something is abstract or not (subsuming
 	// whether it is in scope).
 	Map<Alias_name, Abstract_state::AS> abstract_states;
@@ -586,7 +590,7 @@ private:
 
 };
 
- 
+
 /*
  * A thin wrapper around Points-to, to provide copy-on-write. There are
  * probably better ways to do this (ie reuse someone else's code), but they
@@ -603,7 +607,7 @@ private:
 
 	void separate ()
 	{
-		if (reference_count == 1)
+		if (this->impl->reference_count == 1)
 			return;
 
 		impl = impl->clone ();
@@ -611,7 +615,6 @@ private:
 
 	Points_to (Points_to_impl* impl)
 	: impl (impl)
-	, reference_count (1)
 	{
 	}
 
@@ -664,7 +667,7 @@ public:
 
 	bool equals (Points_to* other)
 	{
-		if (this == other)
+		if (this->impl == other->impl)
 			return true;
 
 		return this->impl->equals (other->impl);
@@ -672,16 +675,16 @@ public:
 
 	Points_to* clone ()
 	{
-		this->reference_count++;
-		return this;
+		this->impl->reference_count++;
+		return new Points_to (this->impl);
 	}
 
 	Points_to* merge (Points_to* other)
 	{
-		if (this == other)
+		if (this->impl == other->impl)
 		{
-			this->reference_count++;
-			return this;
+			this->impl->reference_count++;
+			return new Points_to (this->impl);
 		}
 
 		return new Points_to (this->impl->merge (other->impl));
@@ -771,7 +774,5 @@ public:
 		impl->remove_unreachable_nodes ();
 	}
 };
-
-
 
 #endif // PHC_POINTS_TO
