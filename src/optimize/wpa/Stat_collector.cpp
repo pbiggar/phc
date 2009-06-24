@@ -5,8 +5,6 @@
  * 
  * */
 
-#include "Aliasing.h"
-#include "Points_to.h"
 #include "Whole_program.h"
 
 #include "Stat_collector.h"
