@@ -1275,8 +1275,14 @@ Whole_program::forward_bind (Method_info* info, Context* entry_cx, MIR::Actual_p
 	// Assign other parameters.
 	if (i < info->formal_param_count ())
 	{
-		if (info->default_param (i))
-			phc_TODO ();
+		Static_value* _default = info->default_param (i);
+		if (_default)
+		{
+			if (not isa<Literal> (_default))
+				phc_TODO ();
+
+			assign_path_scalar (entry_cx, P (scope, info->param_name (i)), dyc<Literal> (_default));
+		}
 		else
 		{
 			// Add a default value of NULL for other variables
