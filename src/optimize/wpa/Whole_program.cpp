@@ -251,6 +251,9 @@ Whole_program::initialize ()
 	register_analysis ("values", values);
 //	register_analysis ("Include_analysis", include_analysis);
 //	register_analysis ("VRP", vrp);
+
+	// Reset this or it will use different numbers in each iteration.
+	unique_count = 0;
 }
 
 void
