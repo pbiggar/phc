@@ -129,11 +129,7 @@ Value_analysis::get_bin_op_type (string ltype, string rtype, string op)
 			return new Types ("real", "bool"); // FALSE for divide by zero
 
 		// PHP division is not modulo arithmetic
-		if (ltype == "int" && rtype == "int")
-			return new Types ("int", "bool", "real"); // FALSE for divide by zero
-
-		// Other scalars are possible
-		phc_TODO ();
+		return new Types ("int", "bool", "real"); // FALSE for divide by zero
 	}
 	else if (op == "%")
 	{
