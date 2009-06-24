@@ -25,7 +25,7 @@ using namespace std;
  *		- The is (currently) no need to save the stats after a pass ends.
  */
 
-//#define CTS(NAME)do {increment_stat (NAME, __FILE__, __LINE__); } while (0)
+#define LCTS(NAME)do {inc_stat (NAME, __FILE__, __LINE__); } while (0)
 #define CTS(NAME)do {inc_stat (NAME); } while (0)
 
 
@@ -43,6 +43,7 @@ typedef Set<string> Stringset_stats;
 static Map<string, int> stats;
 static Map<string, Stringset_stats*> stringset_stats;
 
+void inc_stat (string name, string filename, int line_number);
 void inc_stat (string name);
 void set_stat (string name, int num);
 int get_stat (string name);
