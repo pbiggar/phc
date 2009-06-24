@@ -5,18 +5,20 @@ _phc()
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	shortOpts="-h -V -v -c -d -C -O -e -c"
-	longOpts="--help --full-help --version --verbose --compile --pretty-print \
-				 --obfuscate --no-validation --include --generate-c --execute \
-				 --next-line-curlies --no-leading-tab --no-hash-bang \
-				 --no-line-numbers --no-nulls --no-empty-lists --list-passes	\
-				 --dont-fail --no-xml-attrs --rt-stats"
+	longOpts="--help --full-help --version --verbose --compile --pretty-print	\
+				 --obfuscate --no-validation --include --generate-c --execute		\
+				 --next-line-curlies --no-leading-tab --no-hash-bang					\
+				 --no-line-numbers --no-nulls --no-empty-lists --list-passes		\
+				 --dont-fail --no-xml-attrs --rt-stats --flow-insensitive			\
+				 --object-insensitive --stats"
+
 
 	# TODO provide context sensitive completion for these options, with an = and no space
-	paramOpts=" --run --r-option --define  --c-option --extension --web-app \
-					--with-php --optimize --output --tab"
+	paramOpts=" --run --r-option --define  --c-option --extension --web-app		\
+					--with-php --optimize --output --tab  --call-string-length"
 	
-	passOpts="--read-xml --debug --dump --dump-uppered --dump-dot --dump-xml \
-				 --disable --stats"
+	passOpts="--read-xml --debug --dump --dump-uppered --dump-dot --dump-xml	\
+				 --disable"
 
 	# get the list of passes
 	passes=`$1 --list-passes  | grep '^ ' -v | grep -v '^Passes' | awk '{print \$1}'`
