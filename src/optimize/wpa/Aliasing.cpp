@@ -57,9 +57,13 @@ void
 Aliasing::dump (Context* cx, Result_state state, string comment)
 {
 	CHECK_DEBUG();
-	stringstream ss;
-	ss << cx << "(" << result_state_string (state) << "): " << comment;
-	ptgs[state][cx]->dump_graphviz (s(ss.str()), cx, state, wp);
+
+	if (ptgs[state].has (cx))
+	{
+		stringstream ss;
+		ss << cx << "(" << result_state_string (state) << "): " << comment;
+		ptgs[state][cx]->dump_graphviz (s(ss.str()), cx, state, wp);
+	}
 }
 
 void
@@ -105,7 +109,7 @@ Aliasing::backward_bind (Context* caller, Context* exit)
 	ptg->consistency_check (exit, R_OUT, wp);
 
 	// No point clearing if there isn't an infinite call-string.
-	if (wp->pm->args_info->call_string_length_arg != 0)
+	if (wp->pm->args_info->call_string_length_arg == 0)
 		ptg->close_scope (exit->symtable_node ());
 
 	// See comment in WPA_lattice.
