@@ -101,7 +101,7 @@ bool
 Optimization_transformer::rhs_is_pure (Statement_block* bb, MIR::Assign_var* in)
 {
 	// We dont model enough here to be sure.
-	if (isa<Method_invocation> (in->rhs) && isa<New> (in->rhs))
+	if (isa<Method_invocation> (in->rhs) || isa<New> (in->rhs))
 		return false;
 
 	// If the only definition is the LHS, nothing else has happened

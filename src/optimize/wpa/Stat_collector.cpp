@@ -6,6 +6,9 @@
  * */
 
 #include "Whole_program.h"
+#include "../CFG.h"
+#include "../Def_use_web.h"
+#include "../ssa/HSSA.h"
 
 #include "Stat_collector.h"
 
@@ -16,6 +19,8 @@ using namespace MIR;
 using namespace boost;
 using namespace std;
 
+Stat_collector::Stat_collector()
+{}
 
 Stat_collector::Stat_collector (Whole_program* wp)
 : wp (wp)
@@ -31,6 +36,7 @@ void
 Stat_collector::visit_basic_block (Basic_block* bb)
 {
 	inc_stat("bbs_processed");
+	collect_uninit_var_stats (bb);
 }
 
 void
@@ -255,16 +261,22 @@ Stat_collector::visit_method_invocation (Statement_block* bb, MIR::Method_invoca
 	BB_list* bbs;
 	Statement_block* sb;
 	METHOD_NAME* mname = dynamic_cast<METHOD_NAME*> (in->method_name);
-	User_method_info* info = Oracle::get_user_method_info (mname->value);
-	if (info != NULL)
-		if ((bbs = info->get_cfg ()->get_all_bbs ())->size () == 3)
-			foreach (Basic_block* bb, *bbs)
-				if ((sb=(dynamic_cast<Statement_block*> (bb))))
-			 		if(sb->statement->classid () == 16)		//16 is the ID of a RETURN statement
-					{
-						add_to_stringset_stat ("inlinable_methods",*info->name);	
-					}
-				
+
+	Method_info_list* minfolist = wp->get_possible_receivers (Context::non_contextual(bb),R_OUT,in->target,mname);
+	foreach (Method_info* minfo, *minfolist)
+	{
+		User_method_info* info = dynamic_cast<User_method_info*> (minfo);
+		if (info != NULL)
+			if ((bbs = info->get_cfg ()->get_all_bbs ())->size () == 3)
+				foreach (Basic_block* bb, *bbs)
+					if ((sb=(dynamic_cast<Statement_block*> (bb))))
+			 			if(sb->statement->classid () == Return::ID)		//16 is the ID of a RETURN statement
+						{
+							add_to_stringset_stat ("inlinable_methods",*info->name);	
+							CTS ("num_inlinable_methods");
+						}
+	}
+			
 	foreach (Actual_parameter* param, *in->actual_parameters)
 	{
 		collect_type_stats (bb,param->rvalue,"types_method_parameter");
@@ -331,6 +343,29 @@ Stat_collector::collect_type_stats (Basic_block* bb, MIR::Rvalue* rval,string st
 		foreach (string type, *absval->types)
 		{
 			add_to_stringset_stat (statname,type);	
+		}
+	}
+}
+
+void
+Stat_collector::collect_uninit_var_stats (Basic_block* bb)
+{
+	if (!bb->cfg->duw)
+	{
+		HSSA* hssa = new HSSA(wp, bb->cfg);	
+		hssa->convert_to_hssa_form ();
+	}
+
+	if (bb->cfg->duw) 
+	{
+		CTS("has_duw");
+		foreach (Alias_name phi_lhs, *bb->get_phi_lhss())
+		{
+			foreach (Alias_name* phi_arg, *bb->get_phi_args (phi_lhs))
+			{
+				if (phi_arg->ssa_version == 0)
+					add_to_stringset_stat ("uninitialised_vars",phi_lhs.name);	
+			}
 		}
 	}
 }

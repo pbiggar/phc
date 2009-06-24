@@ -15,6 +15,7 @@ class Stat_collector : public CFG_visitor
 public:
 	Whole_program* wp;
 	Stat_collector (Whole_program*);
+	Stat_collector ();
 
 	void run (CFG* cfg);
 
@@ -32,6 +33,7 @@ public:
 	DECLARE_STATEMENT_CFG_VISITORS
 	DECLARE_EXPR_CFG_VISITORS
 
+	void collect_uninit_var_stats (Basic_block* bb);
 	void collect_type_stats (Basic_block* bb, MIR::Rvalue* rval,string statname );
 private:
 	String last_assignment_lhs;
