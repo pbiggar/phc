@@ -245,6 +245,9 @@ Def_use::record_use (Context* cx, Index_node* use, Certainty cert)
 void
 Def_use::record (Context* cx, reftype rt, deftype dt, Index_node* index)
 {
+	if (index->storage == "FAKE")
+		return;
+
 	maps[cx][rt][dt].insert (index->name ());
 }
 
