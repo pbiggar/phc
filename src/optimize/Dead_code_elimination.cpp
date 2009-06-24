@@ -305,6 +305,7 @@ DCE::sweep_pass ()
 		{
 			cfg->remove_bb (bb);
 			DEBUG ("REMOVED " << bb->ID);
+			CTS ("num_blocks_removed");
 		}
 
 		else if (isa<Branch_block> (bb))
@@ -316,6 +317,7 @@ DCE::sweep_pass ()
 
 			cfg->remove_branch (dyc<Branch_block> (bb), postdominator);
 			DEBUG ("REMOVED BRANCH " << bb->ID << " NEAREST MARKED POSTDOMINATOR: " << postdominator->ID);
+			CTS ("num_blocks_removed");
 		}
 	}
 

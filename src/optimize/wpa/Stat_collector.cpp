@@ -32,6 +32,7 @@ Stat_collector::run (CFG* cfg)
 void
 Stat_collector::visit_basic_block (Basic_block* bb)
 {
+	inc_stat("bbs_processed");
 }
 
 void
@@ -75,8 +76,6 @@ Stat_collector::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 
 	collect_type_stats(bb,in->lhs,"types_assign_var");
 
-	string s = "Assignments to "+last_assignment_lhs;
-	CTS(s);
 }
 
 void
@@ -129,6 +128,7 @@ Stat_collector::visit_global (Statement_block* bb, MIR::Global* in)
 void
 Stat_collector::visit_interface_alias (Statement_block* bb, MIR::Interface_alias* in)
 {
+
 }
 
 void
@@ -172,8 +172,8 @@ Stat_collector::visit_unset (Statement_block* bb, MIR::Unset* in)
 void
 Stat_collector::visit_array_access (Statement_block* bb, MIR::Array_access* in)
 {
-		collect_type_stats (bb, in->variable_name, "types_array_access");
-		collect_type_stats (bb, in->index, "types_array_index");
+	collect_type_stats (bb, in->variable_name, "types_array_access");
+	collect_type_stats (bb, in->index, "types_array_index");
 
 }
 
@@ -254,7 +254,19 @@ Stat_collector::visit_isset (Statement_block* bb, MIR::Isset* in)
 void
 Stat_collector::visit_method_invocation (Statement_block* bb, MIR::Method_invocation* in)
 {
-
+	BB_list* bbs;
+	Statement_block* sb;
+	METHOD_NAME* mname = dynamic_cast<METHOD_NAME*> (in->method_name);
+	User_method_info* info = Oracle::get_user_method_info (mname->value);
+	if (info != NULL)
+		if ((bbs = info->get_cfg ()->get_all_bbs ())->size () == 3)
+			foreach (Basic_block* bb, *bbs)
+				if ((sb=(dynamic_cast<Statement_block*> (bb))))
+			 		if(sb->statement->classid () == 16)		//16 is the ID of a RETURN statement
+					{
+						add_to_stringset_stat ("inlinable_methods",*info->name);	
+					}
+				
 	foreach (Actual_parameter* param, *in->actual_parameters)
 	{
 		collect_type_stats (bb,param->rvalue,"types_method_parameter");
