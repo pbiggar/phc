@@ -254,12 +254,10 @@ Stat_collector::visit_isset (Statement_block* bb, MIR::Isset* in)
 {
 }
 
-//fix
 void
 Stat_collector::visit_method_invocation (Statement_block* bb, MIR::Method_invocation* in)
 {
-	BB_list* bbs;
-	Statement_block* sb;
+	
 	METHOD_NAME* mname = dynamic_cast<METHOD_NAME*> (in->method_name);
 
 	Method_info_list* minfolist = wp->get_possible_receivers (Context::non_contextual(bb),R_OUT,in->target,mname);
@@ -355,16 +353,12 @@ Stat_collector::collect_uninit_var_stats (Basic_block* bb)
 		hssa->convert_to_hssa_form ();
 	}
 
-	if (bb->cfg->duw) 
+	foreach (Alias_name phi_lhs, *bb->get_phi_lhss())
 	{
-		CTS("has_duw");
-		foreach (Alias_name phi_lhs, *bb->get_phi_lhss())
+		foreach (Alias_name* phi_arg, *bb->get_phi_args (phi_lhs))
 		{
-			foreach (Alias_name* phi_arg, *bb->get_phi_args (phi_lhs))
-			{
-				if (phi_arg->ssa_version == 0)
-					add_to_stringset_stat ("uninitialised_vars",phi_lhs.name);	
-			}
+			if (phi_arg->ssa_version == 0)
+				add_to_stringset_stat ("uninitialised_vars",phi_lhs.name);	
 		}
 	}
 }
