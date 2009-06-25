@@ -51,7 +51,8 @@
 
 
 	$new_timeout = 0;	
-	$old_timeout = 0;	
+	$old_timeout = 0;
+	$missing = 0;
 	foreach ($file0 as $testname => $test)
 	{
 		foreach ($test as $filename => $result)
@@ -84,9 +85,12 @@
 						$old_timeout += 1;
 				}
 			}
+			else
+				$missing++;
 		}
 	}
 	echo "Timeouts: (+$new_timeout, -$old_timeout)\n";
+	echo "Missing: $missing\n";
 
 
 
