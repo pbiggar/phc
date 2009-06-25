@@ -254,7 +254,7 @@ Stat_collector::visit_isset (Statement_block* bb, MIR::Isset* in)
 {
 }
 
-
+//fix
 void
 Stat_collector::visit_method_invocation (Statement_block* bb, MIR::Method_invocation* in)
 {
@@ -267,14 +267,13 @@ Stat_collector::visit_method_invocation (Statement_block* bb, MIR::Method_invoca
 	{
 		User_method_info* info = dynamic_cast<User_method_info*> (minfo);
 		if (info != NULL)
-			if ((bbs = info->get_cfg ()->get_all_bbs ())->size () == 3)
-				foreach (Basic_block* bb, *bbs)
-					if ((sb=(dynamic_cast<Statement_block*> (bb))))
-			 			if(sb->statement->classid () == Return::ID)		//16 is the ID of a RETURN statement
-						{
-							add_to_stringset_stat ("inlinable_methods",*info->name);	
-							CTS ("num_inlinable_methods");
-						}
+			if (info->get_method ()->statements->size () == 1 
+					&& info->get_method ()->statements->at (0)->classid () == Return::ID)			
+			{
+				add_to_stringset_stat ("inlinable_methods",*info->name);	
+				CTS ("num_inlinable_methods");
+			}
+
 	}
 			
 	foreach (Actual_parameter* param, *in->actual_parameters)
