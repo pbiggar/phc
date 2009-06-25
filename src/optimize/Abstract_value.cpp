@@ -155,6 +155,7 @@ public:
 		insert ("unset");
 		insert ("real");
 		insert ("string");
+		insert ("resource");
 	}
 };
 
