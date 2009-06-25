@@ -141,6 +141,9 @@ Points_to_impl::add_reference (Index_node* source, Index_node* target, Certainty
 	this->add_field (source);
 	this->add_field (target);
 
+	if (source->name () == target->name ())
+		return;
+
 	if (references.has_edge (source, target) and references.get_value (source, target) != cert)
 		phc_TODO (); // check if there already is a CERT, and combine them (which way?).
 
