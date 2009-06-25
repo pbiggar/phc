@@ -27,9 +27,9 @@ using namespace boost;
 Points_to_impl::Points_to_impl ()
 : reference_count (1)
 {
-
 	// Pretend this is abstract so that it doesnt get removed.
 	abstract_states [SN("_SESSION")->name()] = Abstract_state::ABSTRACT;
+	abstract_states [SN("FAKE")->name()] = Abstract_state::ABSTRACT;
 }
 
 /*
@@ -57,9 +57,6 @@ Points_to_impl::dec_abstract (Storage_node* st)
 
 	if (abstract_states [name] == Abstract_state::MISSING)
 	{
-		symtables.erase (name);
-		abstract_states.erase (name);
-
 		// Remove the symbol table. Then do a mark-and-sweep from all the other
 		// symbol tables.
 		remove_storage_node (st);
@@ -658,6 +655,19 @@ Points_to_impl::get_nodes ()
 		all[edge->target->name ()] = edge->target;
 	}
 
+	List<Alias_name>* storages = abstract_states.keys ();
+	storages->push_back_all (symtables.to_list ());
+	foreach (Alias_name storage, *storages)
+	{
+		if (not all.has (storage))
+		{
+			if (storage.name == "SCL")
+				all[storage] = new Value_node (storage.prefix);
+			else
+				all[storage] = new Storage_node (storage.name);
+		}
+	}
+
 	return all.values();
 }
 
@@ -669,6 +679,9 @@ Points_to_impl::remove_storage_node (Storage_node* st)
 	{
 		remove_field (field);
 	}
+
+	symtables.erase (st->name ());
+	abstract_states.erase (st->name ());
 }
 
 /*

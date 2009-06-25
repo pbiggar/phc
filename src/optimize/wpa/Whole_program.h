@@ -95,13 +95,41 @@ public:
 	Def_use* def_use;
 	Value_analysis* values;
 
-	// For assignments
-	Path* saved_plhs;
-	MIR::VARIABLE_NAME* saved_lhs;
-	bool saved_is_ref;
-
 	// name of __MAIN__ scope
 	string main_scope;
+
+	/*
+	 * When copying data, we dont want to collapse stuff into a single
+	 * array/object. This is used for new objects and arrays, but also for fake
+	 * nodes used for copying.
+	 *
+	 * If we handle these numbers incorrectly, the analysis will never converge.
+	 * If we keep counting forever, the arrays will have different names
+	 * everytime. We must instead start from zero in each basic block being
+	 * analysed.
+	 */
+	int unique_count ();
+
+	/*
+	 * Stacks for every block
+	 */
+	Stack<int> unique_counts;
+	Stack<Context*> block_cxs;
+	Context* block_cx ();
+
+	/*
+	 * Stacks for assignments
+	 */
+	Stack<Path*> saved_plhss;
+	Stack<MIR::VARIABLE_NAME*> saved_lhss;
+	Stack<bool> saved_is_refs;
+
+	Path* saved_plhs ();
+	MIR::VARIABLE_NAME* saved_lhs ();
+	bool saved_is_ref ();
+
+	void init_stacks ();
+	void finish_stacks ();
 
 
 public:
@@ -110,7 +138,7 @@ public:
 	void run (MIR::PHP_script* in);
 	void run (CFG* cfg){phc_unreachable ();}
 
-	void initialize ();
+	void initialize (Context* cx);
 	bool analyses_have_converged ();
 
 	/* 
@@ -180,8 +208,9 @@ public:
 	// Performs points-to analysis, and call the other analyses with the
 	// results. Returns true if a solution has changed, requiring this block
 	// to be reanalysed.
-	bool analyse_block (Context* cx);
 	void init_block (Context* cx);
+	bool analyse_block (Context* cx);
+	void finish_block (Context* cx, bool pop = true);
 
 	/*
 	 * Assignments by paths (aka high-level)
@@ -214,9 +243,6 @@ public:
 
 	// If no name is provided, an anonymous name is chosen.
 	Storage_node* create_empty_storage (Context* cx, string type, string name = "");
-
-	// When copying data, we dont want to collapse stuff into a single array/object!
-	int unique_count;;
 
 	// Copy the value from RHS to LHS.
 	void copy_value (Context* cx, Index_node* lhs, Index_node* rhs);
@@ -283,8 +309,6 @@ public:
 	/*
 	 * Actually perform analysis
 	 */
-
-	Context* block_cx;
 
 	void visit_branch_block (Branch_block*);
 

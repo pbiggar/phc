@@ -38,6 +38,8 @@ class Aliasing : public WPA
 	// working.
 	CX_map<Points_to*>& post_bind;
 
+	friend class Whole_program;
+
 private:
 	void init_block_results (Context* cx);
 
