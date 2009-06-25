@@ -2538,16 +2538,8 @@ Whole_program::visit_foreach_reset (Statement_block* bb, MIR::Foreach_reset* in)
 	// mark the array as used
 	record_use (block_cx (), VN (ns, in->array));
 
-	// Mark iterator as defined. The iterator does nothing for us otherwise.
-	Alias_name iter (ns, *in->iter->value);
-	
-	// We dont use Whole_programm::assign_unknown because we havent got a Path
-	// for an iterator. We also don't need to worry about kills and such. Note
-	// that we dont want a path, as that would create an index into the
-	// array's storage node, which isnt what we want to model.
-	phc_TODO ();
-/*	foreach_wpa (this)
-		wpa->assign_unknown (block_cx (), iter, DEFINITE);*/
+	// Mark iterator as defined. It can then be used later.
+	assign_path_scalar (block_cx (), P (ns, in->iter), new Abstract_value (new Types ("iterator")));
 }
 
 void
@@ -2818,7 +2810,15 @@ Whole_program::visit_field_access (Statement_block* bb, MIR::Field_access* in)
 void
 Whole_program::visit_foreach_get_key (Statement_block* bb, MIR::Foreach_get_key* in)
 {
-	phc_TODO ();
+	string ns = block_cx ()->symtable_name ();
+
+	// mark the iterator as used
+	record_use (block_cx (), VN (ns, in->array));
+	record_use (block_cx (), IN (ns, *in->iter->value));
+
+	// TODO: better modelling of UNKNOWN would be great here.
+	// A key must be a string or an int.
+	assign_path_scalar (block_cx (), saved_plhs (), new Abstract_value (new Types ("string", "int")));
 }
 
 void
@@ -2830,7 +2830,15 @@ Whole_program::visit_foreach_get_val (Statement_block* bb, MIR::Foreach_get_val*
 void
 Whole_program::visit_foreach_has_key (Statement_block* bb, MIR::Foreach_has_key* in)
 {
-	phc_TODO ();
+	string ns = block_cx ()->symtable_name ();
+
+	// mark the iterator as used
+	record_use (block_cx (), VN (ns, in->array));
+	record_use (block_cx (), IN (ns, *in->iter->value));
+
+
+	// Always returns true or false.
+	assign_path_scalar (block_cx (), saved_plhs (), new Abstract_value (new Types ("bool")));
 }
 
 void

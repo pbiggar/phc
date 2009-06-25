@@ -533,11 +533,15 @@ P (string symtable, Node* in)
 
 		case INT::ID:
 		case STRING::ID:
+			// TODO: does this ever come up?
 			return new Index_path (*dyc<Literal> (in)->get_value_as_string ());
 
 		// Pretend its just a variable.
 		case Return::ID:
 			return P (symtable, new VARIABLE_NAME (RETNAME));
+
+		case HT_ITERATOR::ID:
+			return P (symtable, new VARIABLE_NAME (dyc<HT_ITERATOR> (in)->value));	
 
 		default:
 			DEBUG (demangle (in));
