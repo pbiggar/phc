@@ -257,16 +257,13 @@ Stat_collector::visit_isset (Statement_block* bb, MIR::Isset* in)
 void
 Stat_collector::visit_method_invocation (Statement_block* bb, MIR::Method_invocation* in)
 {
-	
-	METHOD_NAME* mname = dynamic_cast<METHOD_NAME*> (in->method_name);
-
-	Method_info_list* minfolist = wp->get_possible_receivers (Context::non_contextual(bb),R_OUT,in->target,mname);
+	Method_info_list* minfolist = wp->get_possible_receivers (Context::non_contextual(bb),R_OUT,in);
 	foreach (Method_info* minfo, *minfolist)
 	{
 		User_method_info* info = dynamic_cast<User_method_info*> (minfo);
 		if (info != NULL)
 			if (info->get_method ()->statements->size () == 1 
-					&& info->get_method ()->statements->at (0)->classid () == Return::ID)			
+				&& info->get_method ()->statements->at (0)->classid () == Return::ID)			
 			{
 				add_to_stringset_stat ("inlinable_methods",*info->name);	
 				CTS ("num_inlinable_methods");
