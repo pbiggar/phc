@@ -19,22 +19,24 @@
 		num_types int)
 		");
  
-	$dir_mode=false;
-	$count=0;
+	$dir_mode = false;
+	$count = 0;
 	$flags = "";
+	
+	// Extract flags
 	foreach ($argv as $arg)
 	{
-		if($count>1)
+		if($count > 1)
 		{
 			if ($arg != "-O2" || $arg != "--stats")
 			{
-				$flags=$flags.$arg;
-				$flags=$flags." ";
+				$flags = $flags.$arg;
+				$flags = $flags." ";
 			}
 		}
-		if ($argv[$count]=="-d")
+		if ($argv[$count] == "-d")
 		{
-			$dir_mode=true;
+			$dir_mode = true;
 			$path = $argv[$count+1];
 		}
 		else
@@ -43,39 +45,40 @@
 		}
 	}
 	
-	$filename=$argv[1];
+	$filename = $argv[1];
 
+	// Single file or whole directory?
 	if ($dir_mode)
 	{
-		$dir = opendir($path);
-		while (($filename = readdir($dir)) !== false) 
+		$dir = opendir ($path);
+		while (($filename = readdir ($dir)) !== false) 
 		{
 			$phpext = '/.+\.php$/';
-			if (preg_match($phpext,$filename))
+			if (preg_match($phpext, $filename))
 			{ 
-				$filename=$path.$filename;
-				insert_results($DB,$filename,$flags);
+				$filename = $path.$filename;
+				insert_results($DB, $filename, $flags);
 			}
 		}
 
 	}
 	else
 	{
-		insert_results ($DB,$filename,$flags);
+		insert_results ($DB, $filename, $flags);
 	}
 
 	
-	function insert_results (PDO $DB,$filename, $flags)
+	function insert_results (PDO $DB, $filename, $flags)
 	{
-		print("$filename\n");	
+		print ("$filename\n");	
 	
 		$arr = complete_exec ("src/phc --stats -O2 $filename $flags 2>&1");
 
-		$output = split("\n", $arr[0]);
+		$output = split ("\n", $arr[0]);
 
-		$date=date("c");		
+		$date = date ("c");		
 
-		print_r($output);
+		print_r ($output);
 
 		foreach ($output as $o)
 		{
@@ -90,14 +93,5 @@
 
 
 	}
-
-
-
-
-
-
-
-
-
 
 ?>
