@@ -392,7 +392,7 @@ CFG::dump_graphviz (String* label)
 		}
 
 		block_info	
-		<< "(" << index << ", " << bb->ID << ") "
+		<< "(" << bb->ID << ") "
 		<< *escape_DOT_record (bb->get_graphviz_label ());
 
 #define CFG_PENWIDTH "penwidth=\"2.0\""
