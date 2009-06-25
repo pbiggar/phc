@@ -1110,6 +1110,7 @@ Whole_program::init_block (Context* cx)
 	block_cxs.push (cx);
 	unique_counts.push (0);
 
+	// Blocks which arent assign_var need to see correct results here.
 	saved_is_refs.push (false);
 	saved_lhss.push (NULL);
 	saved_plhss.push (NULL);
