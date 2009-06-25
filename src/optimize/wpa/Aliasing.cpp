@@ -249,6 +249,10 @@ Aliasing::merge_contexts ()
 	Context* cx;
 	Points_to* ptg;
 
+	// Don't like putting this here (would rather have something in Stat_collector),
+	// but not sure if it can be avoided:
+	set_stat ("num_contexts",ins.size ());
+
 	// First create a noncontextual context for each BB
 	// (Careful not to overwrite outer_scope)
 	CX_map<Points_to*> new_ins;

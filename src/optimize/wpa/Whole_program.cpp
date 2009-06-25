@@ -188,11 +188,8 @@ Whole_program::run (MIR::PHP_script* in)
 
 		// Annotate the statements for code-generation
 		annotate_results (info);
-
-		if (pm->args_info->stats_given)
-		{
-			collect_stats (info);
-		}
+	
+		collect_stats (info);	
 
 		// Replace method implementation with optimized code
 		info->get_method ()->statements = info->get_cfg ()->get_linear_statements ();
@@ -996,8 +993,12 @@ Whole_program::annotate_results (User_method_info* info)
 void
 Whole_program::collect_stats (User_method_info* info)
 {
-	foreach (Basic_block* bb, *info->get_cfg ()->get_all_bbs ())
-		stat_coll->visit_block (bb);
+	if (pm->args_info->stats_given)
+	{
+		foreach (Basic_block* bb, *info->get_cfg ()->get_all_bbs ())
+			stat_coll->visit_block (bb);
+		
+	}
 }
 
 void
