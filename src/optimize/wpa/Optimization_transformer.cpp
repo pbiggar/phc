@@ -151,19 +151,16 @@ Optimization_transformer::visit_eval_expr (Statement_block* bb, MIR::Eval_expr* 
 void
 Optimization_transformer::visit_foreach_end (Statement_block* bb, MIR::Foreach_end* in)
 {
-	phc_TODO ();
 }
 
 void
 Optimization_transformer::visit_foreach_next (Statement_block* bb, MIR::Foreach_next* in)
 {
-	phc_TODO ();
 }
 
 void
 Optimization_transformer::visit_foreach_reset (Statement_block* bb, MIR::Foreach_reset* in)
 {
-	phc_TODO ();
 }
 
 void
@@ -284,19 +281,16 @@ Optimization_transformer::visit_field_access (Statement_block* bb, MIR::Field_ac
 void
 Optimization_transformer::visit_foreach_get_key (Statement_block* bb, MIR::Foreach_get_key* in)
 {
-	phc_TODO ();
 }
 
 void
 Optimization_transformer::visit_foreach_get_val (Statement_block* bb, MIR::Foreach_get_val* in)
 {
-	phc_TODO ();
 }
 
 void
 Optimization_transformer::visit_foreach_has_key (Statement_block* bb, MIR::Foreach_has_key* in)
 {
-	phc_TODO ();
 }
 
 void
