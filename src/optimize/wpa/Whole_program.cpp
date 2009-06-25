@@ -1681,7 +1681,7 @@ string
 Whole_program::assign_path_typed_array (Context* cx, Path* plhs, Types* types, string name, bool allow_kill)
 {
 	name = assign_path_empty_array (cx, plhs, name);
-	assign_path_typed (cx, P (name, UNKNOWN), new Types ("string"), allow_kill);
+	assign_path_typed (cx, P (name, UNKNOWN), types, allow_kill);
 	return name;
 }
 
@@ -1761,7 +1761,7 @@ Whole_program::assign_path_by_copy (Context* cx, Path* plhs, Path* prhs, bool al
 
 
 
-	/* Now that we have the new value, and its separated from the RHS,  */
+	/* Now that we have the new value, and its separated from the RHS. */
 	foreach (Reference* lhs_ref, *get_lhs_references (cx, plhs))
 	{
 		if (lhs_ref->cert == DEFINITE && allow_kill)
@@ -1809,7 +1809,7 @@ Whole_program::assign_absval (Context* cx, Index_node* lhs, Abstract_value* absv
 }
 
 void
-Whole_program::copy_value (Context* cx, Index_node* lhs, Index_node* rhs)
+Whole_program::copy_value (Context* cx, Index_node* lhs, Index_node* rhs, Name_map map)
 {
 	lhs = check_owner_type (cx, lhs);
 
@@ -1846,7 +1846,7 @@ Whole_program::copy_value (Context* cx, Index_node* lhs, Index_node* rhs)
 		Types* array = Type_info::get_array_types (types);
 		Types* objects = Type_info::get_object_types (types);
 
-		assert (!scalars->empty() ^ !array->empty() ^ !objects->empty());
+		assert (scalars->empty () + array->empty () + objects->empty () == 2);
 
 		if (scalars->size())
 		{
@@ -1854,9 +1854,9 @@ Whole_program::copy_value (Context* cx, Index_node* lhs, Index_node* rhs)
 		}
 
 		// Deep copy
-		if (array->size())
+		if (array->size ())
 		{
-			copy_structure (cx, lhs, st, "array");
+			copy_structure (cx, lhs, st, "array", map);
 		}
 
 		if (objects->size ())
@@ -1988,22 +1988,33 @@ Whole_program::cast_to_storage (Context* cx, Index_node* lhs, Index_node* rhs, s
 // This does a shallow copy, but if the shallow copy has arrays, it becomes a
 // deep copy of the array (aka, it does the right thing).
 void
-Whole_program::copy_structure (Context* cx, Index_node* lhs, Storage_node* rhs, string type)
+Whole_program::copy_structure (Context* cx, Index_node* lhs, Storage_node* rhs, string type, Name_map map)
 {
-	// Create the new array
-	Storage_node* new_array = create_empty_storage (cx, type);
+	Storage_node* new_array;
 
-	// Copy all the indices.
-	foreach (Index_node* index, *aliasing->get_fields (cx, R_WORKING, rhs))
+	// Check for cycles
+	if (map.has (rhs->storage))
 	{
-		copy_value (cx,
-				new Index_node (new_array->for_index_node (), index->index),
-				index);
+		new_array = SN (map[rhs->storage]);
+	}
+	else
+	{
+		// Create the new array
+		new_array = create_empty_storage (cx, type);
+		map[rhs->storage] = new_array->storage;
+
+		// Copy all the indices.
+		foreach (Index_node* index, *aliasing->get_fields (cx, R_WORKING, rhs))
+		{
+			copy_value (cx,
+					new Index_node (new_array->for_index_node (), index->index),
+					index,
+					map);
+		}
 	}
 
 	// LHS points to NEW_ARRAY.
 	FWPA->assign_value (cx, lhs, new_array);
-
 }
 
 Storage_node*
@@ -2038,7 +2049,7 @@ Whole_program::create_fake_index (Context* cx)
 void
 Whole_program::destroy_fake_indices (Context* cx)
 {
-	foreach (Index_node* fake, *aliasing->get_fields (cx, R_WORKING, new Storage_node ("FAKE")))
+	foreach (Index_node* fake, *aliasing->get_fields (cx, R_WORKING, SN ("FAKE")))
 	{
 		FWPA->kill_value (cx, fake, true);
 	}
@@ -2078,6 +2089,7 @@ Whole_program::check_owner_type (Context* cx, Index_node* index)
 			{
 				// TODO: why dont we call assign_array here?
 				// TODO: use a fake variable here.
+				//
 
 				// Convert to an array
 				string name = cx->array_node ()->for_index_node ();
@@ -2299,7 +2311,8 @@ Whole_program::get_named_indices (Context* cx, Path* path, bool is_readonly)
 	 */
 	if (isa <ST_path> (p->lhs) && isa<Index_path> (p->rhs))
 	{
-		// Nothing special here at all
+		// I'm almost certain that any use of UNKNOWN here refers directly to the
+		// single field, and not to the set of possible fields.
 		return new Index_node_list (path_to_index (p));
 	}
 
@@ -2314,11 +2327,32 @@ Whole_program::get_named_indices (Context* cx, Path* path, bool is_readonly)
 		String* index_value = this->get_string_value (cx, index);
 		record_use (cx, index);
 
-		return new Index_node_list (
-			new Index_node (
+		Index_node* single_result = new Index_node (
 				dyc<ST_path> (p->lhs)->name,
-				*index_value));
+				*index_value);
+
+		// We need to convert ST::UNKNOWN to all possible variables.
+		if (single_result->index != UNKNOWN)
+			return new Index_node_list (single_result);
+
+
+		Index_node_list* result = new Index_node_list (single_result);
+		foreach (Index_node* var, *aliasing->get_fields (cx, R_WORKING, SN (single_result->storage)))
+		{
+			// Already added
+			if (var->index == UNKNOWN)
+				continue;
+
+			// This should actually find the original (ie ST::UNKNOWN) as well,
+			// which is correct. This will return the actual index_nodes we
+			// want to update.
+			result->push_back (var);
+		}
+
+		return result;
 	}
+
+
 
 
 	/*
@@ -2366,6 +2400,8 @@ Whole_program::get_array_named_indices (Context* cx, Path* plhs, String* index, 
 	Index_node_list* result = new Index_node_list;
 
 	Index_node* array = path_to_index (dyc<Indexing> (plhs));
+
+	assert (array->index != UNKNOWN);
 
 	// Make a note of the uses
 	record_use (cx, array);

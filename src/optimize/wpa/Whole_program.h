@@ -244,9 +244,12 @@ public:
 	// If no name is provided, an anonymous name is chosen.
 	Storage_node* create_empty_storage (Context* cx, string type, string name = "");
 
-	// Copy the value from RHS to LHS.
-	void copy_value (Context* cx, Index_node* lhs, Index_node* rhs);
-	void copy_structure (Context* cx, Index_node* lhs, Storage_node* rhs, string type);
+	// Copy the value from RHS to LHS (since we're copying a cyclic graph, we
+	// need to keep the track of already copied values, and copy them back, or
+	// this will go into an infinite-loop).
+	typedef Map<string, string> Name_map;
+	void copy_value (Context* cx, Index_node* lhs, Index_node* rhs, Name_map map = Name_map());
+	void copy_structure (Context* cx, Index_node* lhs, Storage_node* rhs, string type, Name_map map = Name_map());
 
 	// Cast the value from RHS to LHS
 	void cast_value (Context* cx, Index_node* lhs, Index_node* rhs, string type);
