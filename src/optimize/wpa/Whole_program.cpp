@@ -1880,7 +1880,20 @@ Whole_program::cast_value (Context* cx, Index_node* lhs, Index_node* rhs, string
 	}
 	else if (Type_info::is_scalar (type))
 	{
-		phc_TODO ();
+		Abstract_value* absval = get_abstract_value (cx, R_WORKING, rhs->name ());
+		if (absval->lit == NULL)
+		{
+			assign_absval (cx,
+								lhs,
+								new Abstract_value (new Types (type)));
+		}
+		else
+			assign_absval (cx,
+								lhs,
+								new Abstract_value (
+									PHP::cast_to (
+										new CAST (s(type)),
+										absval->lit)));
 	}
 	else if (type == "array")
 	{
