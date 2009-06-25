@@ -381,13 +381,13 @@ Basic_block::get_index ()
 void
 Entry_block::dump()
 {
-	DEBUG ("Entry block");
+	DEBUG ("Entry block (" << ID << ")");
 }
 
 void
 Exit_block::dump()
 {
-	DEBUG ("Exit block");
+	DEBUG ("Exit block (" << ID << ")");
 }
 
 void

@@ -27,8 +27,7 @@ SSA_def::SSA_def (Basic_block* bb, Alias_name* name, int type_flag)
 void SSA_op::dump()
 {
 	CHECK_DEBUG ();
-	cdebug << demangle (this) << ": ";
-	bb->dump ();
+	cdebug << demangle (this) << " (" << name->str () << ") in BB " << bb->ID << " ";
 }
 
 bool ssa_op_ptr_comparison (SSA_op* op1, SSA_op* op2)
