@@ -665,7 +665,7 @@ Points_to_impl::get_nodes ()
 			if (storage.name == "SCL")
 				all[storage] = new Value_node (storage.prefix);
 			else
-				all[storage] = new Storage_node (storage.name);
+				all[storage] = SN (storage.name);
 		}
 	}
 
@@ -851,8 +851,7 @@ Index_node::convert_context_name ()
 Storage_node*
 Storage_node::convert_context_name ()
 {
-	return new Storage_node (
-		Context::convert_context_name (storage));
+	return SN (Context::convert_context_name (storage));
 }
 
 
