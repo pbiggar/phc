@@ -967,7 +967,10 @@ Whole_program::apply_results (User_method_info* info)
 			if (sb->statement->equals (old))
 				DEBUG ("No changes in BB: " << bb->ID);
 			else
+			{
 				DEBUG ("BB " << bb->ID << " changed");
+				CTS ("num_bbs_changed_in_opt_trans");
+			}	
 		}
 		else if (isa<Branch_block> (bb))
 		{
