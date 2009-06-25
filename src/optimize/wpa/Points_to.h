@@ -204,31 +204,62 @@ SET_COMPARABLE (Reference_edge);
  *	is a 1-to-1 correspondence between MIR nodes and paths.
  */
 
-struct Empty : virtual public GC_obj
+class Empty : virtual public GC_obj
 {
+public:
 	bool operator!= (const Empty&) const { return false; }
 	bool operator== (const Empty&) const { return true; }
 };
 
-template <class Source_type, class Target_type, class Edge_type, class Value_type = Empty>
+class Empty_combiner
+{
+public:
+	Empty operator()(const Empty, const Empty) { return Empty (); }
+};
+
+
+class Empty_default
+{
+public:
+	static Empty default_value () { return Empty (); }
+};
+
+class Certainty_combiner
+{
+public:
+	Certainty operator()(const Certainty c1, const Certainty c2)
+	{
+		return combine_certs (c1, c2);
+	}
+};
+
+class Certainty_default
+{
+public:
+	static Certainty default_value () { phc_unreachable (); }
+};
+
+
+
+template <class Source_type, class Target_type, class Edge_type, class Value_type = Empty, class Default = Empty_default, class Combiner = Empty_combiner>
 class Pair_map : virtual public GC_obj
 {
 	typedef Source_type source_type;
 	typedef Target_type target_type;
 	typedef Edge_type edge_type;
-	typedef Pair_map<Source_type, Target_type, Edge_type, Value_type> this_type;
+	typedef Pair_map<Source_type, Target_type, Edge_type, Value_type, Default, Combiner> this_type;
 
 public:
 
 	// This can result in the edge being shared, which is fine.
-	Pair_map<Source_type, Target_type, Edge_type, Value_type> (this_type& other)
+	Pair_map<Source_type, Target_type, Edge_type, Value_type, Default, Combiner> (this_type& other)
 	: values (other.values)
 	, by_source (other.by_source)
 	, by_target (other.by_target)
 	{
 	}
 
-	Pair_map<Source_type, Target_type, Edge_type, Value_type> ()
+	Pair_map<Source_type, Target_type, Edge_type, Value_type, Default, Combiner> ()
 	{
 	}
 
@@ -241,21 +272,20 @@ public:
 
 	Value_type get_value (Source_type* source, Target_type* target)
 	{
-		assert (by_source[source->name ()].has (target->name()));
+		assert (this->has_edge (source, target));
 
 		return values[source->name ()][target->name ()];
 	}
 
-	void set_value (Edge_type* pair, Value_type value)
+	void set_value (Edge_type* pair, Value_type value = Default::default_value ())
 	{
 		this->set_value (pair->source, pair->target, value);
 	}
 
-	void set_value (Source_type* source, Target_type* target, Value_type value)
+	void set_value (Source_type* source, Target_type* target, Value_type value = Default::default_value ())
 	{
 		values[source->name()][target->name()] = value;
 	}
-
 
 	List<Target_type*>* get_targets (Source_type* source)
 	{
@@ -330,18 +360,28 @@ public:
 	}
 
 
-	void add_edge (Source_type* source, Target_type* target)
+	void add_edge (Source_type* source, Target_type* target, Value_type v = Default::default_value ())
 	{
-		return this->add_edge (new Edge_type (source, target));
+		this->add_edge (new Edge_type (source, target), v);
 	}
 
-	void add_edge (Edge_type* edge)
+	void add_edge (Edge_type* edge, Value_type v = Default::default_value ())
 	{
-		if (this->has_edge (edge))
-			return;
+		Alias_name source_name = edge->source->name ();
+		Alias_name target_name = edge->target->name ();
 
-		by_source [edge->source->name ()][edge->target->name ()] = edge;
-		by_target [edge->target->name ()][edge->source->name ()] = edge;
+		if (this->has_edge (edge))
+		{
+			if (values[source_name][target_name] != v)
+				phc_TODO ();
+		}
+		else
+		{
+			by_source [source_name][target_name] = edge;
+			by_target [target_name][source_name] = edge;
+		}
+
+		values[source_name][target_name] = v;
 	}
 
 	bool has_edge (Edge_type* edge)
@@ -387,13 +427,23 @@ public:
 			this->remove_edge (source, target);
 	}
 
-	// Note that this does not merge values.
 	this_type* merge (this_type* other)
 	{
 		this_type* result = new this_type (*this);
 
 		foreach (Edge_type* e, *other->get_edges ())
-			result->add_edge (e);
+		{
+			if (result->has_edge (e))
+			{
+				Value_type combined = Combiner() (other->get_value (e), result->get_value (e));
+				result->set_value (e, combined);
+			}
+			else
+			{
+				result->add_edge (e, other->get_value (e));
+			}
+
+		}
 
 		return result;
 	}
@@ -409,10 +459,17 @@ public:
 				e->source->convert_context_name (),
 				e->target->convert_context_name ());
 
-			if (result->has_edge (new_edge) and not boost::is_same <Value_type, Empty> ())
-				phc_TODO (); // combine values
+			Value_type pre_merge_value = this->get_value (e);
 
-			result->add_edge (new_edge);
+			if (result->has_edge (new_edge))
+			{
+				Value_type combined = Combiner() (pre_merge_value, result->get_value (new_edge));
+				result->set_value (new_edge, combined);
+			}
+			else
+			{
+				result->add_edge (new_edge, pre_merge_value);
+			}
 		}
 		return result;
 	}
@@ -457,7 +514,7 @@ private:
 	// The set of storage nodes which are a function's symbol table.
 	Set<Alias_name> symtables;
 
-	typedef Pair_map<Index_node, Index_node, Reference_edge, Certainty> reference_pair_type;
+	typedef Pair_map<Index_node, Index_node, Reference_edge, Certainty, Certainty_default, Certainty_combiner> reference_pair_type;
 
 	// (Index_node, Index_node) -> certainty.
 	// SOURCE and TARGET alias each other, with some CERTAINTY in { POSSIBLE,

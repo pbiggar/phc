@@ -148,10 +148,8 @@ Points_to_impl::add_reference (Index_node* source, Index_node* target, Certainty
 		phc_TODO (); // check if there already is a CERT, and combine them (which way?).
 
 	// These are always bidirectional.
-	references.add_edge (source, target);
-	references.add_edge (target, source);
-	references.set_value (source, target, cert);
-	references.set_value (target, source, cert);
+	references.add_edge (source, target, cert);
+	references.add_edge (target, source, cert);
 }
 
 
