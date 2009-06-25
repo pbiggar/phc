@@ -4,11 +4,11 @@
 	if ($argc == 2)
 		$x = array ();
 	else
-		$x = new Object;
+		$x = new stdClass;
 
 	$x["f"] =& $y;
 
-	var_dump ($x["f"])
+	var_dump ($x["f"]);
 
 
 	$y = 5;

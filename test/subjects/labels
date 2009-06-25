@@ -48,6 +48,7 @@ bugs/bug0008.php								no-Optimiz # clone
 parsing/listassignment.php					no-Optimiz # breaks the rules for list-assignments by using arrays which are indexed by a string key.
 inline-c/.*										no-Optimiz
 parsing/for.php								no-Optimiz # exit isnt reachable due to infinite-loop, so it segfaults.
+optimization/reference2.php				no-Optimiz # accessing an object as an array.
 
 
 

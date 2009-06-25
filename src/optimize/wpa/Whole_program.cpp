@@ -846,6 +846,11 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 
 		}
 	}
+	else if (*info->name == "getrandmax")
+	{
+		// Really, this is a pure function with on parameters. This should be inlined.
+		assign_path_typed (cx, ret_path, new Types ("int"));
+	}
 	else if (*info->name == "is_array")
 	{
 		// TODO: model better
