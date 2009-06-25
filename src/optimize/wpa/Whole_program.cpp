@@ -850,13 +850,47 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	}
 	else if (*info->name == "is_array")
 	{
-		// TODO: model better
-		assign_path_typed (cx, ret_path, new Types ("bool"));
+		Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]->name());
+
+		// If the array type is the only type, this is true.
+		if (*absval->types == Types ("array"))
+		{
+			assign_path_scalar (cx, ret_path, new BOOL (true));
+		}
+		else if (Type_info::get_array_types (absval->types)->size () == 0)
+		{
+			assign_path_scalar (cx, ret_path, new BOOL (false));
+		}
+		else
+		{
+			assign_path_typed (cx, ret_path, new Types ("bool"));
+		}
 	}
 	else if (*info->name == "is_object")
 	{
-		// TODO: model better
-		assign_path_typed (cx, ret_path, new Types ("bool"));
+		Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]->name());
+		bool all_objects = true;
+		bool no_objects = true;
+		foreach  (string type, *absval->types)
+		{
+			if (type == "array" || Type_info::is_scalar (type))
+				all_objects = false;
+			else
+				no_objects = false;
+		}
+
+		if (all_objects)
+		{
+			assign_path_scalar (cx, ret_path, new BOOL (true));
+		}
+		else if (no_objects)
+		{
+			assign_path_scalar (cx, ret_path, new BOOL (false));
+		}
+		else
+		{
+			assign_path_typed (cx, ret_path, new Types ("bool"));
+		}
 	}
 	else if (*info->name == "number_format")
 	{
