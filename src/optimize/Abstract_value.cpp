@@ -46,7 +46,15 @@ Abstract_value::unknown ()
 Abstract_value*
 Abstract_value::clone ()
 {
-	return new Abstract_value (lit->clone (), types->clone ());
+	Literal* newlit = this->lit;
+	if (newlit)
+		newlit = newlit->clone ();
+	
+	Types* newtypes = this->types;
+	if (newtypes)
+		newtypes = newtypes->clone ();
+
+	return new Abstract_value (newlit, newtypes);
 }
 
 
