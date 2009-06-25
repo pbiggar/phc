@@ -2587,6 +2587,10 @@ Whole_program::visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
 	visit_expr (bb, in->expr);
 }
 
+/*
+ * Foreach_* are all the same: a use of the array, a def to the iterator (which
+ * uses the iterator's reference value).
+ */
 
 void
 Whole_program::visit_foreach_reset (Statement_block* bb, MIR::Foreach_reset* in)
@@ -2601,9 +2605,15 @@ Whole_program::visit_foreach_reset (Statement_block* bb, MIR::Foreach_reset* in)
 }
 
 void
-Whole_program::visit_foreach_next (Statement_block*, MIR::Foreach_next*)
+Whole_program::visit_foreach_next (Statement_block*, MIR::Foreach_next* in)
 {
-	phc_TODO ();
+	string ns = block_cx ()->symtable_name ();
+
+	// mark the array as used
+	record_use (block_cx (), VN (ns, in->array));
+
+	// Mark iterator as defined.
+	assign_path_scalar (block_cx (), P (ns, in->iter), new Abstract_value (new Types ("iterator")));
 }
 
 
@@ -2612,16 +2622,11 @@ Whole_program::visit_foreach_end (Statement_block* bb, MIR::Foreach_end* in)
 {
 	string ns = block_cx ()->symtable_name ();
 
-	// Mark the array as used
+	// mark the array as used
 	record_use (block_cx (), VN (ns, in->array));
 
-	// Mark both a use and a def on the iterator
-	Alias_name iter (ns, *in->iter->value);
-	phc_TODO ();
-//	record_use (block_cx (), iter.ind());
-
-/*	foreach_wpa (this)
-		wpa->assign_unknown (block_cx (), iter, DEFINITE);*/
+	// Mark iterator as defined.
+	assign_path_scalar (block_cx (), P (ns, in->iter), new Abstract_value (new Types ("iterator")));
 }
 
 
@@ -2882,7 +2887,14 @@ Whole_program::visit_foreach_get_key (Statement_block* bb, MIR::Foreach_get_key*
 void
 Whole_program::visit_foreach_get_val (Statement_block* bb, MIR::Foreach_get_val* in)
 {
-	phc_TODO ();
+	string ns = block_cx ()->symtable_name ();
+
+	// mark the iterator as used
+	record_use (block_cx (), VN (ns, in->array));
+	record_use (block_cx (), IN (ns, *in->iter->value));
+
+
+	standard_rhs (bb, in);
 }
 
 void

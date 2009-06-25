@@ -547,6 +547,12 @@ P (string symtable, Node* in)
 		case HT_ITERATOR::ID:
 			return P (symtable, new VARIABLE_NAME (dyc<HT_ITERATOR> (in)->value));	
 
+		case Foreach_get_val::ID:
+			return new Indexing (
+				P (symtable, dyc<Foreach_get_val> (in)->array),
+				new Index_path (UNKNOWN));
+
+
 		default:
 			DEBUG (demangle (in));
 			phc_TODO ();
