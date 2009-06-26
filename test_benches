@@ -1,0 +1,31 @@
+#!/bin/bash
+
+BENCHES="\
+test/subjects/codegen/bench_simple.php			\
+test/subjects/codegen/bench_simpleucall.php			\
+test/subjects/codegen/bench_sieve.php			\
+test/subjects/codegen/bench_simplecall.php			\
+test/subjects/codegen/bench_simpleudcall.php			\
+test/subjects/codegen/bench_strcat.php			\
+test/subjects/codegen/bench_matrix.php			\
+test/subjects/codegen/bench_mandel.php			\
+test/subjects/codegen/bench_nested_loop.php			\
+test/subjects/codegen/bench_hash1.php			\
+test/subjects/codegen/bench_hash2.php			\
+test/subjects/codegen/bench_heapsort.php			\
+test/subjects/codegen/bench_mandel2.php			\
+test/subjects/codegen/bench_ary2.php			\
+test/subjects/codegen/bench_ary3.php			\
+test/subjects/codegen/bench_ary.php			\
+test/subjects/benchmarks/php-benchmarks/richards.php			\
+test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_j4p5.php			\
+test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_deltablue.php			\
+test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_ackermann.php			\
+test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_gaussjordan.php			\
+test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_crypto.php			\
+test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_pcre.php			\
+test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_raytrace.php			\
+test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_whirl.php			\
+"
+
+for i in $BENCHES; do echo $i; time src/phc --include -O2 $i; echo "---------------------"; echo; done
