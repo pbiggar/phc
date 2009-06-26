@@ -28,7 +28,7 @@ public:
 	Def_use_web (Def_use* du);
 
 	void dump ();
-	void consistency_check ();
+	void ssa_consistency_check ();
 
 private:
 
@@ -41,8 +41,6 @@ public:
 	Alias_name_list* get_defs (Basic_block* bb);
 	Alias_name_list* get_may_defs (Basic_block* bb);
 
-	// TODO: should ssa_renaming just use get_ops, so that it can update them
-	// in order?
 
 	// Get the SSA_ops from the block. Doesnt include PHIs or CHIs.
 	// TODO: this includes non-block-local must defs. Probably shouldnt.
@@ -51,6 +49,12 @@ public:
 
 	SSA_use_list* get_named_uses (Alias_name* name);
 	SSA_def_list* get_named_defs (Alias_name* name);
+
+	/* Get the name in this block for the variable name. These give the value
+	 * name, not the value name */
+	Alias_name* get_block_use (Basic_block* bb, MIR::VARIABLE_NAME* var_name);
+	Alias_name* get_block_def (Basic_block* bb, MIR::VARIABLE_NAME* var_name);
+
 
 
 	/*

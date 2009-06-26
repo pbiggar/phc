@@ -337,12 +337,25 @@ Def_use::get_alias_name (Basic_block* bb, deftype dt)
 	Context* cx = Context::non_contextual (bb);
 
 	foreach (Alias_name name, maps[cx][VAL][dt])
-		result->push_back (new Alias_name (name.prefix, "*_" + name.name));
+		result->push_back (get_starred_name (name));
 
 	foreach (Alias_name name, maps[cx][REF][dt])
 		result->push_back (new Alias_name (name));
 	
 	return result;
+}
+
+Alias_name*
+Def_use::get_starred_name (Alias_name name)
+{
+	return new Alias_name (name.prefix, get_starred_name (name.name));
+}
+
+
+string
+Def_use::get_starred_name (string name)
+{
+	return "*_" + name;
 }
 
 Alias_name_list*

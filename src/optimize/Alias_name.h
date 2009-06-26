@@ -30,6 +30,8 @@ class Context;
 class Index_node;
 class Storage_node;
 
+#define SEP "="
+
 DECL(Alias_name);
 
 class Alias_name : virtual public GC_obj

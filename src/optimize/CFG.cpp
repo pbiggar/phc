@@ -536,9 +536,6 @@ CFG::consistency_check ()
 		if (edge->direction != indeterminate)
 			assert (isa<Branch_block>(edge->get_source ()));
 	}
-
-	if (duw)
-		duw->consistency_check ();
 }
 
 // Do a depth first search. For each block, add a label, and a goto to the

@@ -169,59 +169,101 @@ Def_use_web::build_web (CFG* cfg)
 void
 Def_use_web::dump ()
 {
-	phc_TODO ();
 	CHECK_DEBUG ();
-/*
-	cdebug << "Use-def web (" << use_def_chains.size() << "):\n";
-	pair<Alias_name, SSA_edge_list> p;
-	foreach (p, use_def_chains)
+
+	cdebug << "def_ops:\n";
+	foreach (long key, *def_ops.keys ())
 	{
-		cdebug << "SSA edges for " << p.first.str ();
+		cdebug << key << ":\n";
+		foreach (SSA_def* def, def_ops[key])
+		{
+			cdebug << "\t";
+			def->dump ();
+			cdebug << "\n";
+		}
 
-		foreach (SSA_edge* edge, p.second)
-			edge->dump ();
-
-		cdebug << endl;
 	}
 
-	cdebug << "Def-use web (" << def_use_chains.size() << "):\n";
-	foreach (p, def_use_chains)
+	cdebug << "\n\nuse_ops:\n";
+	foreach (long key, *use_ops.keys ())
 	{
-		cdebug << "SSA edges for " << p.first.str ();
+		cdebug << key << ":\n";
+		foreach (SSA_use* use, use_ops[key])
+		{
+			cdebug << "\t";
+			use->dump ();
+			cdebug << "\n";
+		}
+	}
 
-		foreach (SSA_edge* edge, p.second)
-			edge->dump ();
+	cdebug << "\n\nnamed_defs:\n";
+	foreach (Alias_name key, *named_defs.keys ())
+	{
+		cdebug << key.str () << ":\n";
+		foreach (SSA_def* def, named_defs[key])
+		{
+			cdebug << "\t";
+			def->dump ();
+			cdebug << "\n";
+		}
+	}
 
-		cdebug << endl;
-	}*/
+	cdebug << "\n\nnamed_uses:\n";
+	foreach (Alias_name key, *named_uses.keys ())
+	{
+		cdebug << key.str () << ":\n";
+		foreach (SSA_use* use, named_uses[key])
+		{
+			cdebug << "\t";
+			use->dump ();
+			cdebug << "\n";
+		}
+	}
+
+/*
+	TODO: dump:
+
+	Map<long, Var_set> phi_lhss;
+	Map<edge_t, Phi_map> phi_rhss;
+
+	Map<long, Alias_name_list> uses;
+	Map<long, Alias_name_list> defs;
+	Map<long, Alias_name_list> may_defs;
+
+*/
+
 }
 
 void
-Def_use_web::consistency_check ()
+Def_use_web::ssa_consistency_check ()
 {
+	// TODO: a lot of stuff isnt in SSA, but we don't want to break everything with a commit
+	return;
+
 	// There isnt much that will help here. I'll implement it if its buggy.
 	// Check that named defs are correctly named
 	// Check that blocked defs are in the right block.
 	// Check that all the defs for a use contains the use
 	// and vice-versa
 
-
-	// Is the first variable we find in SSA.
-	bool in_ssa = (*named_defs.begin ()).first.ssa_version != 0;
-	if (!in_ssa)
-		return;
-
-
 	// Check that each key is in SSA form
 	Alias_name use;
 	SSA_def_list def_list;
 	foreach (tie (use, def_list), named_defs)
+	{
 		assert (use.ssa_version);
+		foreach (SSA_def* def, def_list)
+			assert (def->name->ssa_version);
+	}
 	
 	Alias_name def;
 	SSA_use_list use_list;
 	foreach (tie (def, use_list), named_uses)
+	{
 		assert (def.ssa_version);
+		foreach (SSA_use* use, use_list)
+			assert (use->name->ssa_version);
+	}
 
 
 	foreach (tie (use, def_list), named_defs)
@@ -284,6 +326,38 @@ SSA_def_list*
 Def_use_web::get_named_defs (Alias_name* name)
 {
 	return &named_defs[*name];
+}
+
+Alias_name*
+Def_use_web::get_block_use (Basic_block* bb, MIR::VARIABLE_NAME* var_name)
+{
+	foreach (SSA_use* use, *get_block_uses (bb))
+	{
+		if (use->name->prefix == bb->get_prefix () &&
+		(use->name->name == Def_use::get_starred_name (*var_name->value)))
+		{
+			return use->name;
+		}
+	}
+
+	// If its not here, we shouldn't be asking for it (?)
+	phc_unreachable ();
+}
+
+Alias_name*
+Def_use_web::get_block_def (Basic_block* bb, MIR::VARIABLE_NAME* var_name)
+{
+	foreach (SSA_def* def, *get_block_defs (bb))
+	{
+		if (def->name->prefix == bb->get_prefix () &&
+		(def->name->name == Def_use::get_starred_name (*var_name->value)))
+		{
+			return def->name;
+		}
+	}
+
+	// If its not here, we shouldn't be asking for it (?)
+	phc_unreachable ();
 }
 
 

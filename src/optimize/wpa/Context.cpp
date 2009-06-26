@@ -178,8 +178,6 @@ Context::full_name () const
 
 std::ostream &operator<< (std::ostream &out, const Context &num);
 
-#define SEP "="
-
 string
 Context::array_name ()
 {
@@ -190,9 +188,9 @@ string
 Context::symtable_name ()
 {
 	if (this->use_caller)
-		return *get_bb()->cfg->method->signature->method_name->value + SEP + this->caller ()->name();
+		return get_bb()->get_prefix () + this->caller ()->name();
 	else
-		return *get_bb()->cfg->method->signature->method_name->value + SEP ;
+		return get_bb()->get_prefix ();
 }
 
 string

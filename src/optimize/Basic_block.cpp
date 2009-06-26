@@ -478,3 +478,10 @@ Statement_block::equals (Basic_block* other)
 
 	return false;
 }
+
+
+string
+Basic_block::get_prefix ()
+{
+	return *cfg->method->signature->method_name->value + SEP;
+}

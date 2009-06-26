@@ -120,6 +120,9 @@ public:
 	virtual Basic_block* clone () = 0;
 	virtual bool equals (Basic_block* other) = 0;
 
+	// the prefix for Alias_names
+	string get_prefix ();
+
 	long ID;
 };
 

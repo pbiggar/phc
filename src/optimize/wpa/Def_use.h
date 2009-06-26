@@ -54,6 +54,12 @@ public:
 	Alias_name_list* get_defs (Basic_block* bb);
 	Alias_name_list* get_may_defs (Basic_block* bb);
 	Alias_name_list* get_uses (Basic_block* bb);
+
+public:
+
+	static Alias_name* get_starred_name (Alias_name name);
+	static string get_starred_name (string name);
+
 private:
 	Alias_name_list* get_alias_name (Basic_block* bb, deftype dt);
 

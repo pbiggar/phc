@@ -306,7 +306,9 @@ HSSA::convert_to_hssa_form ()
 	if (debugging_enabled)
 		cfg->dump_graphviz (s("Post-renaming"));
 
-	// We used to recalculate the def-use web, but I think its no longer required.
+	cfg->duw->dump ();
+	cfg->duw->ssa_consistency_check ();
+	
 
 
 	// TODO: Zero versioning is actually useful, so add steps 5 and 6. There
