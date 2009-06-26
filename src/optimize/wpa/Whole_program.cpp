@@ -848,6 +848,10 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		// Really, this is a pure function with on parameters. This should be inlined.
 		assign_path_typed (cx, ret_path, new Types ("int"));
 	}
+	else if (*info->name == "in_array")
+	{
+		assign_path_typed (cx, ret_path, new Types ("bool"));
+	}
 	else if (*info->name == "is_array")
 	{
 		Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]->name());
@@ -891,6 +895,25 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		{
 			assign_path_typed (cx, ret_path, new Types ("bool"));
 		}
+	}
+	// max: see min
+	else if (*info->name == "min" || *info->name == "max")
+	{
+		Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]->name());
+		if (absval->types->has ("array"))
+			phc_TODO ();
+
+
+		Types* result = new Types;
+		foreach (Index_node* param, *params.values ())
+		{
+			Abstract_value* absval = get_abstract_value (cx, R_WORKING, param->name());
+
+			// Can only return scalars (um, probably).
+			result = result->set_union (Type_info::get_scalar_types (absval->types));
+		}
+
+		assign_path_typed (cx, ret_path, result);
 	}
 	else if (*info->name == "number_format")
 	{
@@ -941,6 +964,10 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	{
 		params[0] = coerce_to_string (cx, params[0]);
 		assign_path_typed (cx, ret_path, new Types ("string"));
+	}
+	else if (*info->name == "srand")
+	{
+		// do nothing
 	}
 	else if (*info->name == "strlen")
 	{
