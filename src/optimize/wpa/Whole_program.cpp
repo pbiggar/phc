@@ -1578,6 +1578,35 @@ Whole_program::is_killable (Context* cx, Index_node_list* indices)
 }
 
 void
+Whole_program::refer_to_value (Context* cx, Index_node* lhs, Index_node* rhs, Certainty cert)
+{
+	// Create the references
+	foreach (Storage_node* st, *aliasing->get_points_to (cx, R_WORKING, rhs))
+	{
+		if (isa<Value_node> (st))
+			assign_absval (cx, lhs, get_abstract_value (cx, R_WORKING, st->name ()));
+		else
+			// Make L point to the value (not a deep copy, under any circumstances).
+			FWPA->assign_value (cx, lhs, st);
+	}
+
+
+	// We've copied all the values (transitive-closure), but we also
+	// want to keep the references in transitive-closure form.
+	//
+	// Note that we aren't required to do unification, even though the
+	// edges are bidirectional. It may be that A may-ref B and A may-ref
+	// C, but B does not may-ref C. An example is after CFG merges.
+	foreach (Reference* ref, *aliasing->get_references (cx, R_WORKING, rhs, PTG_ALL))
+		FWPA->create_reference (cx, lhs, ref->index, combine_certs (cert, ref->cert));
+
+
+	// Create the reference
+	FWPA->create_reference (cx, lhs, rhs, cert);
+
+}
+
+void
 Whole_program::assign_path_by_ref (Context* cx, Path* plhs, Path* prhs, bool allow_kill)
 {
 	DEBUG ("assign_path_by_ref");
@@ -1596,38 +1625,29 @@ Whole_program::assign_path_by_ref (Context* cx, Path* plhs, Path* prhs, bool all
 	 */
 
 
+	Index_node* fake = create_fake_index (cx);
 
-	Index_node_list* lhss = get_named_indices (cx, plhs);
-	bool lhs_killable = is_killable (cx, lhss) && allow_kill;
-
+	// Get the Rvalues
 	Index_node_list* rhss = get_named_indices (cx, prhs);
 	bool rhs_killable = is_killable (cx, rhss) && allow_kill;
 
 
+	// Get the lvalues (best to get them early, in case they get changed by the
+	// new references to the rvalues)
+	Index_node_list* lhss = get_named_indices (cx, plhs);
+	bool lhs_killable = is_killable (cx, lhss) && allow_kill;
+
+
+	// Work out the certainty for the edges.
 	Certainty cert = POSSIBLE;
-	if (rhs_killable && lhs_killable)
-		cert = DEFINITE;
+ 	if (rhs_killable && lhs_killable)
+ 		cert = DEFINITE;
 
 
-	// TODO: move to the end
-	if (lhs_killable)
-	{
-		FWPA->kill_value (cx, lhss->front (), true);
-	}
-
-	// Collect all possible values (abstract node and Storage_nodes).
-	// Collect RHS and LHS index nodes.
-	// Destructive changes to RHS?
-	//		RHS might be converted to an array
-	//		Nothing might happen to the RHS
-	// Kill LHS
-	// Add reference edges
-
-
+	// Create the references in FAKE from RHS
 	foreach (Index_node* rhs, *rhss)
 	{
 		rhs = check_owner_type (cx, rhs);
-
 
 		// Check if there is an implicit NULL definition.
 		if (not aliasing->has_field (cx, R_WORKING, rhs))
@@ -1636,37 +1656,22 @@ Whole_program::assign_path_by_ref (Context* cx, Path* plhs, Path* prhs, bool all
 			assign_absval (cx, rhs, new Abstract_value (new NIL));
 		}
 
-
-		// This handles the explicit copy and reference.
-		foreach (Index_node* lhs, *lhss)
-		{
-			foreach (Storage_node* st, *aliasing->get_points_to (cx, R_WORKING, rhs))
-			{
-				if (isa<Value_node> (st))
-				{
-					assign_absval (cx, lhs, get_abstract_value (cx, R_WORKING, rhs->name ()));
-				}
-				else
-				{
-					// Make L point to the value (not a deep copy, under any circumstances).
-					FWPA->assign_value (cx, lhs, st);
-				}
-			}
-
-			// We've copied all the values (transitive-closure), but we also
-			// want to keep the references in transitive-closure form.
-			//
-			// Note that we aren't required to do unification, even though the
-			// edges are bidirectional. It may be that A may-ref B and A may-ref
-			// C, but B does not may-ref C. An example is after CFG merges.
-			foreach (Reference* ref, *aliasing->get_references (cx, R_WORKING, rhs, PTG_ALL))
-				FWPA->create_reference (cx, lhs, ref->index, combine_certs (cert, ref->cert));
-
-
-			// Create the reference
-			FWPA->create_reference (cx, lhs, rhs, cert);
-		}
+		refer_to_value (cx, fake, rhs, cert);
 	}
+
+
+
+	if (lhs_killable)
+	{
+		FWPA->kill_value (cx, lhss->front (), true);
+	}
+
+	foreach (Index_node* lhs, *lhss)
+	{
+		refer_to_value (cx, lhs, fake, cert);
+	}
+
+	
 }
 
 void

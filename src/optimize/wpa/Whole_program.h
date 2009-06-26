@@ -251,6 +251,8 @@ public:
 	void copy_value (Context* cx, Index_node* lhs, Index_node* rhs, Name_map map = Name_map());
 	void copy_structure (Context* cx, Index_node* lhs, Storage_node* rhs, string type, Name_map map = Name_map());
 
+	void refer_to_value (Context* cx, Index_node* lhs, Index_node* rhs, Certainty cert);
+
 	// Cast the value from RHS to LHS
 	void cast_value (Context* cx, Index_node* lhs, Index_node* rhs, string type);
 	void cast_to_storage (Context* cx, Index_node* lhs, Index_node* rhs, string type);
