@@ -28,4 +28,10 @@ test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_raytrace.php			\
 test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_whirl.php			\
 "
 
-for i in $BENCHES; do echo $i; time src/phc --include -O2 $i; echo "---------------------"; echo; done
+for i in $BENCHES;
+do 
+	echo $i
+	time src/phc --include -O2 --stats $i
+	echo "------------------------------------"
+	echo
+done
