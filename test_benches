@@ -20,10 +20,8 @@ test/subjects/codegen/bench_ary.php			\
 test/subjects/benchmarks/php-benchmarks/richards.php			\
 test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_j4p5.php			\
 test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_deltablue.php			\
-test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_ackermann.php			\
 test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_gaussjordan.php			\
 test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_crypto.php			\
-test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_pcre.php			\
 test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_raytrace.php			\
 test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_whirl.php			\
 "
