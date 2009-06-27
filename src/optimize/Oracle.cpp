@@ -41,6 +41,18 @@ Oracle::initialize (MIR::PHP_script* in)
 	// We can't invoke on NULL, but don't pretend we don't know what the type is.
 	Oracle::classes["unset"] = NULL;
 
+	/*
+	 * Update parents
+	 */
+
+	foreach (User_class_info* info, *filter_types <User_class_info> (Oracle::get_all_classes ()))
+	{
+		if (info->class_def->extends)
+		{
+			info->set_parent (Oracle::get_class_info (info->class_def->extends->value));
+		}
+	}
+
 	// TODO: we need classes for builtin types
 }
 
@@ -130,7 +142,6 @@ Oracle::get_class_info (String* name)
 
 	return classes[*name];
 }
-
 
 Class_info_list*
 Oracle::get_all_classes ()

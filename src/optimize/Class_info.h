@@ -27,9 +27,14 @@ public:
 
 	virtual MIR::Attribute_list* get_attributes () = 0;
 
+	Class_info* get_parent ();
+	void set_parent (Class_info* parent);
+
+
 
 protected:
 	Class_info (String* name);
+	Class_info* parent;
 };
 
 class User_class_info : public Class_info

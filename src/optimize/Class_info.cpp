@@ -14,17 +14,23 @@ using namespace MIR;
 
 Class_info::Class_info (String* name)
 : name (name)
+, parent (NULL)
 {
 }
 
 Method_info*
 Class_info::get_method_info (String* name, bool search)
 {
-	// TODO: look at inheritence hierarchy and interfaces.
 	if (not this->methods.has (*name))
 	{
 		if (search)
-			phc_TODO ();
+		{
+			// TODO: Look up interfaces
+
+			// Look up inheritence hierarchy
+			Class_info* parent = this->get_parent ();
+			return parent->get_method_info (name, search);
+		}
 		else
 			return NULL;
 	}
@@ -32,6 +38,18 @@ Class_info::get_method_info (String* name, bool search)
 	return methods [*name];
 }
 
+Class_info*
+Class_info::get_parent ()
+{
+	return parent;
+}
+
+void
+Class_info::set_parent (Class_info* parent)
+{
+	assert (this->parent == NULL);
+	this->parent = parent;
+}
 
 /*
  * User methods -- Internal methods are defined in optimize.cpp
