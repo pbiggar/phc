@@ -51,10 +51,13 @@ Constant_state::set_unknown_constant (Context* cx, Abstract_value* value)
 Abstract_value*
 Constant_state::get_constant (Context* cx, Result_state state, string name)
 {
-	// TODO: check for unknown constants
-	if (not is_constant_defined (cx, state, name))
-		return new Abstract_value (new STRING (s(name)));
+	if (lattices[state][cx].has (name))
+		return lattices[state][cx][name]->value;
 
-	return lattices[state][cx][name]->value;
+	Literal* constant = PHP::fold_constant (new Constant (NULL, new CONSTANT_NAME (s(name))));
+	if (constant)
+		return new Abstract_value (constant);
+
+	return new Abstract_value (new STRING (s(name)));
 }
 
