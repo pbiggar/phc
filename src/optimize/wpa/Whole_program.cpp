@@ -994,14 +994,14 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		// Return string or NULL depending on true/false.
 		Abstract_value* absval1 = get_abstract_value (cx, R_WORKING, params[1]->name());
 
-		Types types;
+		Types* types = new Types;
 		if (not absval1->known_false ())
-			types.insert ("string");
+			types->insert ("string");
 
 		if (not absval1->known_true())
-			types.insert ("unset");
+			types->insert ("unset");
 
-		assign_path_typed (cx, ret_path, &types);
+		assign_path_typed (cx, ret_path, types);
 	}
 	else
 	{
