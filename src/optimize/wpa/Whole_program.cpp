@@ -1515,8 +1515,7 @@ Whole_program::backward_bind (Method_info* info, Context* exit_cx, MIR::VARIABLE
 	Context* caller_cx = exit_cx->caller ();
 	if (lhs)
 	{
-		// TODO: take into account saved_by_ref ()
-		if (info->return_by_ref ())
+		if (info->return_by_ref () && saved_is_ref ())
 		{
 			// $lhs =& $retval;
 			assign_path_by_ref (exit_cx,
@@ -3056,9 +3055,6 @@ Whole_program::visit_isset (Statement_block* bb, MIR::Isset* in)
 void
 Whole_program::visit_method_invocation (Statement_block* bb, MIR::Method_invocation* in)
 {
-	if (saved_is_ref ())
-		phc_TODO ();
-
 	invoke_method (block_cx (), saved_lhs (), in);
 }
 
