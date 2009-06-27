@@ -33,6 +33,7 @@ unsupported/.*							non-interpretable no-Annotated_test # skip the first test, 
 codegen/bench_.*						short
 optimization/.*						short
 codegen/\d.*							short
+reduced/.*								short
 
 # Bugs/features we want to ignore for the optimizer
 bugs/bug0008.php								no-Optimiz # clone
@@ -58,6 +59,7 @@ reduced/0010.php								no-Optimiz # eval
 reduced/0011.php								no-Optimiz # eval
 reduced/0012.php								no-Optimiz # eval
 reduced/0013.php								no-Optimiz # eval
+reduced/0052.php								no-Optimiz # __destruct
 reduced/0053.php								no-Optimiz # class error
 reduced/0054.php								no-Optimiz # class error
 
