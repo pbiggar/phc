@@ -1948,27 +1948,29 @@ Whole_program::cast_value (Context* cx, Index_node* lhs, Index_node* rhs, string
 	// overwriting the GLOBALS array with an integer)
 	record_use (cx, rhs);
 
-	if (type == "string")
-	{
-		phc_TODO ();
-//		coerce_to_string (...);
-	}
-	else if (Type_info::is_scalar (type))
+	Abstract_value* absval = get_abstract_value (cx, R_WORKING, rhs->name ());
+	if (Type_info::is_scalar (type))
 	{
 		Abstract_value* absval = get_abstract_value (cx, R_WORKING, rhs->name ());
 		if (absval->lit == NULL)
 		{
-			assign_absval (cx,
-								lhs,
-								new Abstract_value (new Types (type)));
+			if (type == "string")
+			{
+				phc_TODO ();
+				//		coerce_to_string (...);
+			}
+			else
+			{
+				assign_absval (cx, lhs,
+						new Abstract_value (new Types (type)));
+			}
 		}
 		else
-			assign_absval (cx,
-								lhs,
+		{
+			assign_absval (cx, lhs,
 								new Abstract_value (
-									PHP::cast_to (
-										new CAST (s(type)),
-										absval->lit)));
+									PHP::cast_to (new CAST (s(type)), absval->lit)));
+		}
 	}
 	else if (type == "array")
 	{
