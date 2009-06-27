@@ -137,7 +137,7 @@ Optimization_transformer::visit_assign_var (Statement_block* bb, MIR::Assign_var
 	// If the RHS value is known, replace it outright.
 	Literal* lit = get_out_abstract_value (bb, in->lhs)->lit;
 
-	if (lit && rhs_is_pure (bb, in))
+	if (lit && in->is_ref == false && rhs_is_pure (bb, in))
 		in->rhs = lit;
 	else
 		visit_expr (bb, in->rhs);
