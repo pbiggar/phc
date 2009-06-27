@@ -1686,14 +1686,19 @@ void
 Whole_program::assign_path_scalar (Context* cx, Path* plhs, Abstract_value* absval, bool allow_kill)
 {
 	DEBUG ("assign_path_scalar");
-	foreach (Reference* ref, *get_lhs_references (cx, plhs))
+
+	// Copy to a fake value first, so that we can use copy_value;
+	Index_node* fake = create_fake_index (cx);
+	assign_absval (cx, fake, absval);
+
+	foreach (Reference* lhs_ref, *get_lhs_references (cx, plhs))
 	{
-		if (ref->cert == DEFINITE && allow_kill)
+		if (lhs_ref->cert == DEFINITE && allow_kill)
 		{
-			FWPA->kill_value (cx, ref->index);
+			FWPA->kill_value (cx, lhs_ref->index);
 		}
 
-		assign_absval (cx, ref->index, absval);
+		copy_value (cx, lhs_ref->index, fake);
 	}
 }
 
