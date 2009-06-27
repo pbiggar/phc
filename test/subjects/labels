@@ -49,6 +49,8 @@ parsing/listassignment.php					no-Optimiz # breaks the rules for list-assignment
 inline-c/.*										no-Optimiz
 parsing/for.php								no-Optimiz # exit isnt reachable due to infinite-loop, so it segfaults.
 optimization/reference2.php				no-Optimiz # accessing an object as an array.
+codegen/foreach_object.php					no-Optimiz # containts a fatal error
+codegen/same_parameters.php				no-Optimiz # bizarre edge case, where i'm not sure why PHP does what it does.
 
 
 
