@@ -122,6 +122,12 @@ public:
 		lat.erase (SCLVAL (lhs)->name().str());
 	}
 
+
+	void remove_fake_node (Context* cx, Index_node* fake)
+	{
+		this->kill_value (cx, fake, false /* dont care */);
+	}
+
 	void assign_value (Context* cx, Index_node* lhs, Storage_node* storage)
 	{
 		Lattice_type& lat = working[cx];

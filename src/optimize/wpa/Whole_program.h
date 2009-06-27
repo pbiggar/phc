@@ -257,7 +257,7 @@ public:
 	void cast_value (Context* cx, Index_node* lhs, Index_node* rhs, string type);
 	void cast_to_storage (Context* cx, Index_node* lhs, Index_node* rhs, string type);
 
-	Index_node* check_owner_type (Context* cx, Index_node* index);
+	Index_node* check_owner_type (Context* cx, Index_node* index, Certainty cert);
 	Abstract_value* read_from_scalar_value (Context* cx, Index_node* rhs);
 
 	bool is_killable (Context* cx, Index_node_list* indices);

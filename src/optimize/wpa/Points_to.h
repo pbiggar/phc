@@ -589,6 +589,7 @@ public:
 	bool has_field (Index_node* field);
 
 	Storage_node* get_storage (Index_node* field);
+	Index_node_list* get_incoming (Storage_node* st);
 
 	// Remove the edge from the storage-node to the index-node. Also removes
 	// outgoing points-to edges, and reference edges.
@@ -704,6 +705,7 @@ public:
 	Reference_list* get_references (Index_node* source, Certainty cert = PTG_ALL) { return impl->get_references (source, cert); }
 	Storage_node* get_owner (Index_node* index) { return impl->get_owner (index); }
 	Storage_node* get_storage (Index_node* field) { return impl->get_storage (field); }
+	Index_node_list* get_incoming (Storage_node* st) { return impl->get_incoming (st); }
 	Storage_node_list* get_points_to (Index_node* index) { return impl->get_points_to (index); }
 	Storage_node_list* get_storage_nodes () { return impl->get_storage_nodes (); }
 	void consistency_check (Context* cx, Result_state state, Whole_program* wp) { return impl->consistency_check (cx, state, wp); }

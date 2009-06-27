@@ -130,6 +130,11 @@ public:
 
 	virtual void kill_value (Context* cx, Index_node* lhs, bool also_kill_refs = false) CT_IMPL;
 
+	// Its best to have a special call for this, so as not to accidentally do
+	// too much (such as when FAKE must-ref other values, and the other values
+	// get killed).
+	virtual void remove_fake_node (Context* cx, Index_node* fake) CT_IMPL;
+
 
 	/*
 	 * Special case for use-def

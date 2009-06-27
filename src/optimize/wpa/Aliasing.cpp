@@ -195,16 +195,16 @@ Aliasing::kill_value (Context* cx, Index_node* lhs, bool also_kill_refs)
 	// Remove all references edges into or out of LHS
 	if (also_kill_refs)
 	{
-		foreach (Reference* other, *ptg->get_references (lhs))
-		{
-			ptg->remove_reference (lhs, other->index);
-		}
-
-		// We are not required to remove the field if refs are not being deleted,
-		// as there will be a new value coming soon. However, if there are
-		// references, it would be wrong to remove the field.
+		// If there are references, it would be wrong to remove the field.
+		// This removes references and points-to as well.
 		ptg->remove_field (lhs);
 	}
+}
+
+void
+Aliasing::remove_fake_node (Context* cx, Index_node* fake)
+{
+	working[cx]->remove_field (fake);
 }
 
 void
@@ -337,6 +337,13 @@ Storage_node_list*
 Aliasing::get_storage_nodes (Context* cx, Result_state state)
 {
 	return ptgs[state][cx]->get_storage_nodes ();
+}
+
+
+Index_node_list*
+Aliasing::get_incoming (Context* cx, Result_state state, Storage_node* st)
+{
+	return ptgs[state][cx]->get_incoming (st);
 }
 
 

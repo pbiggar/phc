@@ -243,6 +243,13 @@ Points_to_impl::get_storage (Index_node* index)
 	return storage->front ();
 }
 
+
+Index_node_list*
+Points_to_impl::get_incoming (Storage_node* st)
+{
+	return points_to.get_sources (st);
+}
+
 Storage_node*
 Points_to_impl::get_owner (Index_node* index)
 {

@@ -66,6 +66,7 @@ public:
 
 
 	void kill_value (Context* cx, Index_node* lhs, bool also_kill_refs = true);
+	void remove_fake_node (Context* cx, Index_node* fake);
 
 
 	void pull_init (Context* cx);
@@ -98,6 +99,7 @@ public:
 	bool has_storage_node (Context* cx, Result_state state, Storage_node* st);
 	bool has_field (Context* cx, Result_state state, Index_node* ind);
 
+	Index_node_list* get_incoming (Context* cx, Result_state state, Storage_node* st);
 	Storage_node_list* get_storage_nodes (Context* cx, Result_state state);
 
 	Storage_node* get_owner (Context* cx, Result_state state, Index_node* index);

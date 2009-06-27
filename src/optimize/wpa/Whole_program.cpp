@@ -1647,13 +1647,12 @@ Whole_program::assign_path_by_ref (Context* cx, Path* plhs, Path* prhs, bool all
 	// Create the references in FAKE from RHS
 	foreach (Index_node* rhs, *rhss)
 	{
-		rhs = check_owner_type (cx, rhs);
+		rhs = check_owner_type (cx, rhs, rhs_killable ? DEFINITE : POSSIBLE);
 
-		// Check if there is an implicit NULL definition.
 		if (not aliasing->has_field (cx, R_WORKING, rhs))
 		{
-			// TODO: this shouldnt be NULL, this should read from UNKNOWN.
-			assign_absval (cx, rhs, new Abstract_value (new NIL));
+			// Check if there is an implicit definition (for which we need the value from UNKNOWN).
+			copy_value (cx, rhs, new Index_node (rhs->storage, UNKNOWN));
 		}
 
 		refer_to_value (cx, fake, rhs, cert);
@@ -1663,6 +1662,7 @@ Whole_program::assign_path_by_ref (Context* cx, Path* plhs, Path* prhs, bool all
 
 	if (lhs_killable)
 	{
+		// We don't kill its references (but we do kill the reference edges)
 		FWPA->kill_value (cx, lhss->front (), true);
 	}
 
@@ -1670,8 +1670,6 @@ Whole_program::assign_path_by_ref (Context* cx, Path* plhs, Path* prhs, bool all
 	{
 		refer_to_value (cx, lhs, fake, cert);
 	}
-
-	
 }
 
 void
@@ -1877,7 +1875,7 @@ Whole_program::assign_absval (Context* cx, Index_node* lhs, Abstract_value* absv
 void
 Whole_program::copy_value (Context* cx, Index_node* lhs, Index_node* rhs, Name_map map)
 {
-	lhs = check_owner_type (cx, lhs);
+	lhs = check_owner_type (cx, lhs, DEFINITE);
 
 	// Check if RHS is an indexing a scalar.
 	if (Abstract_value* absval = read_from_scalar_value (cx, rhs))
@@ -1891,7 +1889,7 @@ Whole_program::copy_value (Context* cx, Index_node* lhs, Index_node* rhs, Name_m
 	// OK, its not a scalar. Carry on.
 	DEBUG ("copy_value");
 
-	// TODO: out of place
+	// Check if it exists yet.
 	if (!aliasing->has_field (cx, R_WORKING, rhs))
 	{
 		rhs = new Index_node (rhs->storage, UNKNOWN);
@@ -2119,7 +2117,7 @@ Whole_program::destroy_fake_indices (Context* cx)
 {
 	foreach (Index_node* fake, *aliasing->get_fields (cx, R_WORKING, SN ("FAKE")))
 	{
-		FWPA->kill_value (cx, fake, true);
+		FWPA->remove_fake_node (cx, fake);
 	}
 }
 
@@ -2132,55 +2130,72 @@ Whole_program::destroy_fake_indices (Context* cx)
  * non-readonly sense).
  */
 Index_node*
-Whole_program::check_owner_type (Context* cx, Index_node* index)
+Whole_program::check_owner_type (Context* cx, Index_node* index, Certainty cert)
 {
-	Types* types = values->get_types (
-		cx, 
-		R_WORKING, 
-		aliasing->get_owner (cx, R_WORKING, index)->name ());
-
+	Storage_node* owner = aliasing->get_owner (cx, R_WORKING, index);
+	Types* types = values->get_types (cx, R_WORKING, owner->name ());
 	Types* scalar_types = Type_info::get_scalar_types (types);
+
 	if (scalar_types->size ())
 	{
 		if (scalar_types->size () > 1)
 			phc_TODO ();
 
-		foreach (string type, *scalar_types)
+		string type = scalar_types->front ();
+
+		if (type == "string")
 		{
-			if (type == "string")
-			{
-				// Do we know the value of the string?
-				// We may need to kill LHS.
-				phc_TODO ();
-			}
-			else if (type == "unset")
-			{
-				// TODO: why dont we call assign_array here?
-				// TODO: use a fake variable here.
-				//
+			// Do we know the value of the string?
+			// We may need to kill LHS.
+			phc_TODO ();
+		}
+		else if (type == "unset")
+		{
+			assert (isa<Value_node> (owner));
 
-				// Convert to an array
-				string name = cx->array_node ()->for_index_node ();
-				foreach_wpa (this)
-					wpa->set_storage (cx, SN (name), new Types ("array"));
+			/*
+			 * If this is NIL, then it must be a value_node, so we can get the
+			 * index node that points to it, and there can only be one such node.
+			 */
+			Index_node* owner_index = aliasing->get_incoming (cx, R_WORKING, owner)->front ();
 
-				assign_path_scalar (cx, P (name, UNKNOWN), new NIL);
+			// Convert to an array
+			Storage_node* st = create_empty_storage (cx, "array");
 
-				// We dont want the caller to index an abstract value, so return
-				// the new index_node.
-				return new Index_node (name, index->index);
-			}
-			else
+			// We need to point not just this node, but all references, at the new array
+			Reference_list* refs = aliasing->get_references (cx, 
+					R_WORKING, owner_index, PTG_ALL);
+
+			refs->push_back (new Reference (owner_index, DEFINITE));
+
+			// references are immutable
+			foreach (Reference* ref, *refs)
 			{
-				// Nothing happens. But with multiple types, the old type has to be
-				// copied.
-				// With multiple RHSs, this will hit every time.
-				// With multiple LHSs, this wont change value, which is fine.
-				// (Note that the value we would have killed is LHS, not
-				// LHS.storage, so this is unkilled, but it might need to be
-				// killed)
-				phc_TODO ();
+				Certainty final_cert = combine_certs (ref->cert, cert);
+
+				if (final_cert == DEFINITE)
+				{
+					FWPA->kill_value (cx, ref->index, false);
+				}
+
+				FWPA->assign_value (cx, ref->index, st);
+
 			}
+
+			// We dont want the caller to index an abstract value, so return
+			// the new index_node.
+			return new Index_node (st->storage, index->index);
+		}
+		else
+		{
+			// Nothing happens. But with multiple types, the old type has to be
+			// copied.
+			// With multiple RHSs, this will hit every time.
+			// With multiple LHSs, this wont change value, which is fine.
+			// (Note that the value we would have killed is LHS, not
+			// LHS.storage, so this is unkilled, but it might need to be
+			// killed)
+			phc_TODO ();
 		}
 
 		dump (cx, R_WORKING, "just before the end");
