@@ -407,6 +407,6 @@ Optimization_transformer::visit_variable_name (Statement_block* bb, MIR::VARIABL
 void
 Optimization_transformer::visit_variable_variable (Statement_block* bb, MIR::Variable_variable* in)
 {
-	phc_TODO ();
+	// TODO: optimize var-vars
 }
 
