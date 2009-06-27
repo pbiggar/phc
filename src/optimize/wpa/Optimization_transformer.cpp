@@ -266,7 +266,7 @@ Optimization_transformer::visit_cast (Statement_block* bb, MIR::Cast* in)
 void
 Optimization_transformer::visit_constant (Statement_block* bb, MIR::Constant* in)
 {
-	phc_TODO ();
+	// If known, visit_assign_var will handle it.
 }
 
 void
