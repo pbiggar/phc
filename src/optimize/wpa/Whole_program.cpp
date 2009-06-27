@@ -1506,6 +1506,7 @@ Whole_program::backward_bind (Method_info* info, Context* exit_cx, MIR::VARIABLE
 	Context* caller_cx = exit_cx->caller ();
 	if (lhs)
 	{
+		// TODO: take into account saved_by_ref ()
 		if (info->return_by_ref ())
 		{
 			// $lhs =& $retval;
@@ -3008,7 +3009,31 @@ Whole_program::visit_int (Statement_block* bb, MIR::INT* in)
 void
 Whole_program::visit_isset (Statement_block* bb, MIR::Isset* in)
 {
-	phc_TODO ();
+	// TODO: there can be handlers here.
+	string ns = block_cx ()->symtable_name ();
+
+	/* Mark all the uses */
+	if (isa<Variable_variable> (in->variable_name))
+		phc_TODO ();
+
+	if (isa<VARIABLE_NAME> (in->target))
+		record_use (block_cx (), VN (ns, dyc<VARIABLE_NAME> (in->target)));
+	else if (in->target)
+		phc_TODO ();
+
+	if (isa<VARIABLE_NAME> (in->variable_name)
+		&& in->target == NULL)
+		record_use (block_cx (), VN (ns, dyc<VARIABLE_NAME> (in->variable_name)));
+
+	foreach (Rvalue* rval, *in->array_indices)
+	{
+		if (isa<VARIABLE_NAME> (rval))
+			record_use (block_cx (), VN (ns, dyc<VARIABLE_NAME> (rval)));
+	}
+
+
+	// Always returns true or false.
+	assign_path_scalar (block_cx (), saved_plhs (), new Abstract_value (new Types ("bool")));
 }
 
 void

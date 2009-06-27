@@ -307,7 +307,10 @@ Optimization_transformer::visit_int (Statement_block* bb, MIR::INT* in)
 void
 Optimization_transformer::visit_isset (Statement_block* bb, MIR::Isset* in)
 {
-	phc_TODO ();
+	foreach (Rvalue*& rval, *in->array_indices)
+	{
+		rval = get_literal (bb, rval);
+	}
 }
 
 void
