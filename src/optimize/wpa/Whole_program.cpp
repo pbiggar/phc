@@ -2264,11 +2264,12 @@ Whole_program::read_from_scalar_value (Context* cx, Index_node* rhs)
 			if (array && index != UNKNOWN)
 			{
 				Literal* value = PHP::fold_string_index (array, new STRING (s(index)));
-				return new Abstract_value (value);
+				if (value)
+					return new Abstract_value (value);
 			}
-			else
-				// We still know the type
-				return new Abstract_value (new Types ("string"));
+
+			// We still know the type
+			return new Abstract_value (new Types ("string"));
 		}
 		else
 			return new Abstract_value (new NIL);
