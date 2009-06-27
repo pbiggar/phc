@@ -2841,7 +2841,7 @@ Whole_program::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 		case Bin_op::ID:
 		case Cast::ID:
 		case Constant::ID:
-		case Foreach_get_val::ID:
+		case Foreach_get_key::ID:
 		case Foreach_has_key::ID:
 		case Instanceof::ID:
 		case Isset::ID:
@@ -2852,7 +2852,7 @@ Whole_program::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 
 		case Array_access::ID:
 		case Field_access::ID:
-		case Foreach_get_key::ID:
+		case Foreach_get_val::ID:
 		case Method_invocation::ID:
 		case New::ID:
 		case VARIABLE_NAME::ID:
