@@ -146,7 +146,7 @@ Optimization_transformer::visit_assign_var (Statement_block* bb, MIR::Assign_var
 void
 Optimization_transformer::visit_assign_var_var (Statement_block* bb, MIR::Assign_var_var* in)
 {
-	phc_TODO ();
+	// TODO: optimize to assign_var if possible.
 }
 
 void

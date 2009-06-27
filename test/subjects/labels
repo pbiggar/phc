@@ -46,6 +46,7 @@ codegen/foreach_object.php					no-Optimiz # containts a fatal error
 codegen/same_parameters.php				no-Optimiz # bizarre edge case, where i'm not sure why PHP does what it does.
 inline-c/.*										no-Optimiz
 optimization/indirect_string.php			no-Optimiz # reading from a string by reference gives an error
+optimization/object_casting.php			no-Optimiz # error
 optimization/reference2.php				no-Optimiz # accessing an object as an array.
 optimization/unknown_everything.php		no-Optimiz # eval
 parsing/empty.php								no-Optimiz # empty takes a NULL value
@@ -59,9 +60,14 @@ reduced/0010.php								no-Optimiz # eval
 reduced/0011.php								no-Optimiz # eval
 reduced/0012.php								no-Optimiz # eval
 reduced/0013.php								no-Optimiz # eval
+reduced/0019.php								no-Optimiz # eval
 reduced/0052.php								no-Optimiz # __destruct
 reduced/0053.php								no-Optimiz # class error
 reduced/0054.php								no-Optimiz # class error
+reduced/0054.php								no-Optimiz # class error
+codegen/bailout_die.php						no-Optimiz # set_error_handler
+codegen/call_evaled_fn.php					no-Optimiz # eval
+parsing/brackets.php							no-Optimiz # includes non-existent files
 
 
 
