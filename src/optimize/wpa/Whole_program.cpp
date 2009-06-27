@@ -2965,6 +2965,9 @@ Whole_program::visit_constant (Statement_block* bb, MIR::Constant* in)
 void
 Whole_program::visit_field_access (Statement_block* bb, MIR::Field_access* in)
 {
+	if (isa<CLASS_NAME> (in->target))
+		phc_TODO ();
+
 	standard_rhs (bb, in);
 }
 
