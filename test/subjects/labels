@@ -35,22 +35,32 @@ optimization/.*						short
 codegen/\d.*							short
 
 # Bugs/features we want to ignore for the optimizer
+bugs/bug0008.php								no-Optimiz # clone
 codegen/006b.php								no-Optimiz # eval
 codegen/006c.php								no-Optimiz # eval
 codegen/006.php								no-Optimiz # eval
 codegen/019a.php								no-Optimiz # eval
 codegen/019c.php								no-Optimiz # eval
-optimization/indirect_string.php			no-Optimiz # reading from a string by reference gives an error
-optimization/unknown_everything.php		no-Optimiz # eval
-parsing/empty.php								no-Optimiz # empty takes a NULL value
-reduced/0002.php								no-Optimiz # debug_zval_dump
-bugs/bug0008.php								no-Optimiz # clone
-parsing/listassignment.php					no-Optimiz # breaks the rules for list-assignments by using arrays which are indexed by a string key.
-inline-c/.*										no-Optimiz
-parsing/for.php								no-Optimiz # exit isnt reachable due to infinite-loop, so it segfaults.
-optimization/reference2.php				no-Optimiz # accessing an object as an array.
 codegen/foreach_object.php					no-Optimiz # containts a fatal error
 codegen/same_parameters.php				no-Optimiz # bizarre edge case, where i'm not sure why PHP does what it does.
+inline-c/.*										no-Optimiz
+optimization/indirect_string.php			no-Optimiz # reading from a string by reference gives an error
+optimization/reference2.php				no-Optimiz # accessing an object as an array.
+optimization/unknown_everything.php		no-Optimiz # eval
+parsing/empty.php								no-Optimiz # empty takes a NULL value
+parsing/for.php								no-Optimiz # exit isnt reachable due to infinite-loop, so it segfaults.
+parsing/listassignment.php					no-Optimiz # breaks the rules for list-assignments by using arrays which are indexed by a string key.
+reduced/0001.php								no-Optimiz # eval
+reduced/0002.php								no-Optimiz # debug_zval_dump
+reduced/0004.php								no-Optimiz # eval
+reduced/0005.php								no-Optimiz # debug_zval_dump
+reduced/0010.php								no-Optimiz # eval
+reduced/0011.php								no-Optimiz # eval
+reduced/0012.php								no-Optimiz # eval
+reduced/0013.php								no-Optimiz # eval
+reduced/0053.php								no-Optimiz # class error
+reduced/0054.php								no-Optimiz # class error
+
 
 
 
