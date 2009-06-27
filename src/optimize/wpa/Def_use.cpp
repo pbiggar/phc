@@ -313,8 +313,12 @@ Def_use::merge_contexts ()
 		Context* new_cx = cx->get_non_contextual ();
 		foreach_dtrt
 		{
+			Set<Alias_name> new_map;
+
 			foreach (Alias_name name, maps[cx][rt][dt])
-				maps[new_cx][rt][dt].insert (name.convert_context_name ());
+				new_map.insert (name.convert_context_name ());
+
+			maps[new_cx][rt][dt] = new_map;
 		}
 	}
 }
