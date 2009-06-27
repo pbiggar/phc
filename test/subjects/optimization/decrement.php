@@ -1,6 +1,6 @@
 <?php
 
-	include ("../parsing/scalar_array.php");
+	include ("parsing/scalar_array.php");
 
 	class X {}
 	class Y
