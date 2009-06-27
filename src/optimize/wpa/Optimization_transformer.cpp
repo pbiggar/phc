@@ -105,10 +105,27 @@ Optimization_transformer::rhs_is_pure (Statement_block* bb, MIR::Assign_var* in)
 		return false;
 
 	// If the only definition is the LHS, nothing else has happened
-	if (wp->def_use->get_defs (bb)->size ()
-		+ wp->def_use->get_may_defs (bb)->size () 
-		== 1)
+	Alias_name_list* defs = wp->def_use->get_defs (bb);
+	Alias_name_list* may_defs = wp->def_use->get_may_defs (bb);
+
+	if (defs->size () + may_defs->size () == 1)
+	{
 		return true;
+	}
+	else
+	{
+		if (debugging_enabled)
+		{
+			cdebug << "defs: \n";
+			foreach (Alias_name* def, *defs)
+				cdebug << def->str () << ", ";
+
+			cdebug << "\n\nmay-defs: \n";
+			foreach (Alias_name* def, *may_defs)
+				cdebug << def->str () << ", ";
+
+		}
+	}
 
 	return false;
 }

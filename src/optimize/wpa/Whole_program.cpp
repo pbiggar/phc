@@ -1021,9 +1021,13 @@ Whole_program::apply_results (User_method_info* info)
 		// TODO: I should probably use CCP results here to optimize branches.
 		if (Statement_block* sb = dynamic_cast<Statement_block*> (bb))
 		{
-			Statement* old = sb->statement->clone ();
+			bool saved = debugging_enabled;
+			pm->maybe_enable_debug (s("transformer"));
 
+			Statement* old = sb->statement->clone ();
 			transformer->visit_block (bb);
+
+			debugging_enabled = saved;
 
 			if (sb->statement->equals (old))
 				DEBUG ("No changes in BB: " << bb->ID);
@@ -1035,7 +1039,12 @@ Whole_program::apply_results (User_method_info* info)
 		}
 		else if (isa<Branch_block> (bb))
 		{
+			bool saved = debugging_enabled;
+			pm->maybe_enable_debug (s("transformer"));
+
 			transformer->visit_block (bb);
+
+			debugging_enabled = saved;
 		}
 	}
 	info->get_cfg ()->clean ();
