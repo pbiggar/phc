@@ -48,6 +48,7 @@ public:
 
 	static void add_class_info (Class_info* info);
 	static Class_info* get_class_info (String* name);
+	static Class_info_list* get_all_classes ();
 	static User_class_info* get_user_class_info (String* name);
 };
 

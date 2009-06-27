@@ -192,6 +192,7 @@ public:
 	void apply_modelled_function (Summary_method_info* info, Context* cx, Context* caller_cx);
 
 	void init_superglobals (Context* cx);
+	void init_classes (Context* cx);
 
 
 	/*

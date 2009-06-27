@@ -80,6 +80,12 @@ Aliasing::init (Context* outer)
 	init_block_results (outer);
 }
 
+void
+Aliasing::register_class (Context* cx, string class_name)
+{
+	working[cx]->open_scope (SN (class_name));
+}
+
 
 void
 Aliasing::init_block_results (Context* cx)
@@ -465,20 +471,24 @@ P (string symtable, Node* in)
 
 			if (isa<VARIABLE_NAME> (fa->target))
 			{
+				// (ST -> target) -> ...
 				lhs = P (symtable, dyc<VARIABLE_NAME> (fa->target));
 			}
 			else
 			{
+				// ST-TARGET -> ...
 				lhs = new ST_path (*dyc<CLASS_NAME> (fa->target)->value);
 			}
 
 
 			if (isa<FIELD_NAME> (fa->field_name))
 			{
+				// ... -> field_name
 				rhs = new Index_path (*dyc<FIELD_NAME> (fa->field_name)->value);
 			}
 			else
 			{
+				// ... -> (ST -> field_name)
 				rhs = P (symtable, dyc<Variable_field> (fa->field_name)->variable_name);
 			}
 

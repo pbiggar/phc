@@ -98,6 +98,8 @@ public:
 	// (there may be more than 1).
 	virtual void post_invoke_method (Context* caller) CT_IMPL;
 
+	virtual void register_class (Context* outer, string class_name) CT_IMPL;
+
 
 	/*
 	 * Assigning values

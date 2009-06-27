@@ -48,6 +48,9 @@ public:
 
 	// WPA interface
 	void init (Context* outer);
+	void register_class (Context* cx, string class_name);
+
+
 	void forward_bind (Context* caller, Context* entry);
 
 	void backward_bind (Context* caller, Context* exit);

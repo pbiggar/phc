@@ -483,7 +483,8 @@ Whole_program::instantiate_object (Context* caller_cx, MIR::VARIABLE_NAME* self,
 	Class_info* class_info = Oracle::get_class_info (class_name->value);
 	foreach (Attribute* attr, *class_info->get_attributes ())
 	{
-		assign_attribute (block_cx (), obj, attr);
+		if (not attr->attr_mod->is_static && not attr->attr_mod->is_const)
+			assign_attribute (block_cx (), obj, attr);
 	}
 
 
@@ -1404,8 +1405,32 @@ Whole_program::init_superglobals (Context* cx)
 	assign_path_typed_array (cx, P (MSN, "argv"), new Types ("string"), "argv");
 	assign_path_typed (cx,  P ("argv", "0"), new Types ("string"));
 
+}
 
-	dump (cx, R_WORKING, "After superglobals");
+void
+Whole_program::init_classes (Context* cx)
+{
+	foreach (Class_info* info, *Oracle::get_all_classes ())
+	{
+		if (info != NULL)
+		{
+			// Mention the class
+			FWPA->register_class (cx, *info->name);
+
+			foreach (Attribute* attr, *info->get_attributes ())
+			{
+				// Fill statics
+				if (attr->attr_mod->is_static)
+					assign_attribute (block_cx (), *info->name, attr);
+
+				// Fill constants
+				if (attr->attr_mod->is_const)
+					phc_TODO ();
+			}
+			
+		}
+	}
+
 }
 
 void
@@ -1430,6 +1455,9 @@ Whole_program::forward_bind (Method_info* info, Context* entry_cx, MIR::Actual_p
 	{
 		main_scope = scope;
 		init_superglobals (entry_cx);
+		init_classes (entry_cx);
+
+		dump (entry_cx, R_WORKING, "Initializing outer scope");
 	}
 
 
@@ -2165,7 +2193,14 @@ Whole_program::check_owner_type (Context* cx, Index_node* index, Certainty cert)
 		}
 		else if (type == "unset")
 		{
-			assert (isa<Value_node> (owner));
+			// The owner has not yet been created (I think this means its a CLASS_NAME).
+			// The caller will make this into an array.
+			if (not isa<Value_node> (owner))
+			{
+				create_empty_storage (cx, "array", owner->storage);
+				return index;
+			}
+
 
 			/*
 			 * If this is NIL, then it must be a value_node, so we can get the
@@ -2965,9 +3000,6 @@ Whole_program::visit_constant (Statement_block* bb, MIR::Constant* in)
 void
 Whole_program::visit_field_access (Statement_block* bb, MIR::Field_access* in)
 {
-	if (isa<CLASS_NAME> (in->target))
-		phc_TODO ();
-
 	standard_rhs (bb, in);
 }
 

@@ -40,12 +40,15 @@ Oracle::initialize (MIR::PHP_script* in)
 
 	// We can't invoke on NULL, but don't pretend we don't know what the type is.
 	Oracle::classes["unset"] = NULL;
+
+	// TODO: we need classes for builtin types
 }
 
 
 /*
  * Methods
  */
+
 Map<string, Method_info*> Oracle::methods;
 
 Method_info*
@@ -126,6 +129,13 @@ Oracle::get_class_info (String* name)
 	}
 
 	return classes[*name];
+}
+
+
+Class_info_list*
+Oracle::get_all_classes ()
+{
+	return classes.values ();
 }
 
 User_class_info*
