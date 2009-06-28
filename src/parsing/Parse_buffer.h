@@ -52,7 +52,7 @@ public:
 		// otherwise.
 		String* pass = s (demangle (anchor, true));
 		pass = s (pass->substr (0, 3));
-		pass->toLower ();
+		pass = pass->to_lower ();
 		assert (*pass == "ast" || *pass == "hir" || *pass == "mir");
 		if (*pass == "ast")
 			pass = s ("sua");

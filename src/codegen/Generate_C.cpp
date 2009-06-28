@@ -2331,10 +2331,8 @@ class Pattern_method_alias : public Pattern
 
 	void generate_code(Generate_C* gen)
 	{
-		String alias_name = *alias->value->alias->value->clone();
-		alias_name.toLower();
-		String method_name = *alias->value->method_name->value->clone();
-		method_name.toLower();
+		String alias_name = *alias->value->alias->value->to_lower ();
+		String method_name = *alias->value->method_name->value->to_lower ();
 
 		buf
 		<<	"zend_function* existing;\n"
@@ -2391,11 +2389,8 @@ class Pattern_class_or_interface_alias : public Pattern
 		else
 			phc_unreachable ();
 
-		alias_name = alias_name->clone ();
-		alias_name->toLower();
-
-		aliased_name = aliased_name->clone ();
-		aliased_name->toLower();
+		alias_name = alias_name->to_lower ();
+		aliased_name = aliased_name->to_lower ();
 
 		buf
 		<<	"zend_class_entry* existing;\n"

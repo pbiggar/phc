@@ -477,7 +477,7 @@ P (string symtable, Node* in)
 			else
 			{
 				// ST-TARGET -> ...
-				lhs = new ST_path (*dyc<CLASS_NAME> (fa->target)->value);
+				lhs = new ST_path (*dyc<CLASS_NAME> (fa->target)->value->to_lower ());
 			}
 
 

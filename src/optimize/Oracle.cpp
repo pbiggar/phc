@@ -66,22 +66,24 @@ Map<string, Method_info*> Oracle::methods;
 Method_info*
 Oracle::get_method_info (String* method_name)
 {
+	String* name = method_name->to_lower ();
+
 	// Cached
-	if (methods.has (*method_name))
-		return methods [*method_name];
+	if (methods.has (*name))
+		return methods [*name];
 
 	// Lookup the embed SAPI
-	Method_info* info = PHP::get_method_info (method_name);
+	Method_info* info = PHP::get_method_info (name);
 
 	// Cache it
 	if (info)
 	{
 		add_method_info (info);
-		return get_method_info (method_name);
+		return get_method_info (name);
 	}
 
 	// require etc al have to be done.
-	if (is_builtin_function (method_name))
+	if (is_builtin_function (name))
 		phc_TODO ();
 
 	return NULL;
@@ -96,9 +98,9 @@ Oracle::get_user_method_info (String* method_name)
 void
 Oracle::add_method_info (Method_info* info)
 {
-	assert (!methods.has (*info->name));
+	assert (!methods.has (*info->lc_name));
 
-	methods[*info->name] = info;
+	methods[*info->lc_name] = info;
 }
 
 Method_info_list*
@@ -126,14 +128,16 @@ Map<string, Class_info*> Oracle::classes;
 void
 Oracle::add_class_info (Class_info* info)
 {
-	assert (!classes.has (*info->name));
+	assert (!classes.has (*info->lc_name));
 
-	classes[*info->name] = info;
+	classes[*info->lc_name] = info;
 }
 
 Class_info*
-Oracle::get_class_info (String* name)
+Oracle::get_class_info (String* class_name)
 {
+	String* name = class_name->to_lower ();
+
 	if (not classes.has (*name))
 	{
 		cdebug << "Class \"" << *name << "\" not found" << endl;

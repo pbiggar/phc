@@ -79,10 +79,12 @@ class Method_info : virtual public GC_obj
 {
 public:
 	String* name;
+	String* lc_name;
 
 protected:
 	CFG* cfg; // If there is no implementation, a fake CFG is provided.
 	Method_info (String* name);
+
 
 public:
 	virtual bool has_implementation () = 0;

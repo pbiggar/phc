@@ -16,12 +16,15 @@ Class_info::Class_info (String* name)
 : name (name)
 , parent (NULL)
 {
+	this->lc_name = name->to_lower ();
 }
 
 Method_info*
-Class_info::get_method_info (String* name, bool search)
+Class_info::get_method_info (String* method_name, bool search)
 {
-	if (not this->methods.has (*name))
+	String* mname = method_name->to_lower ();
+
+	if (not this->methods.has (*mname))
 	{
 		if (search)
 		{
@@ -29,13 +32,16 @@ Class_info::get_method_info (String* name, bool search)
 
 			// Look up inheritence hierarchy
 			Class_info* parent = this->get_parent ();
-			return parent->get_method_info (name, search);
+			if (parent == NULL)
+				return NULL;
+
+			return parent->get_method_info (mname, search);
 		}
 		else
 			return NULL;
 	}
 
-	return methods [*name];
+	return methods [*mname];
 }
 
 Class_info*
@@ -63,7 +69,8 @@ User_class_info::User_class_info (Class_def* class_def)
 	{
 		if (Method* method = dynamic_cast<Method*> (member))
 		{
-			String* name = method->signature->method_name->value;
+			String* name = method->signature->method_name->value->to_lower ();
+
 			if (false 
 				|| *name == "__call"
 				|| *name == "__callStatic"

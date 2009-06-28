@@ -20,7 +20,7 @@ class Class_info : virtual public GC_obj
 {
 public:
 	String* name;
-	Map<string, Method_info*> methods;
+	String* lc_name;
 
 	// TODO: the most important thing to model is handlers
 	Method_info* get_method_info (String* name, bool search = true);
@@ -35,6 +35,7 @@ public:
 protected:
 	Class_info (String* name);
 	Class_info* parent;
+	Map<string, Method_info*> methods;
 };
 
 class User_class_info : public Class_info

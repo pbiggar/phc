@@ -16,6 +16,7 @@ Method_info::Method_info (String* name)
 : name (name)
 , cfg (NULL)
 {
+	this->lc_name = name->to_lower ();
 }
 
 

@@ -39,7 +39,7 @@ public:
 
 public:
 	bool ci_compare (const string& s);
-	void toLower();
+	String* to_lower();
 	String* clone();
 };
 

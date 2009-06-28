@@ -149,8 +149,7 @@ Whole_program::run (MIR::PHP_script* in)
 			// These should converge fairly rapidly, I think
 			for (int i = 0; i < 10; i++)
 			{
-				DEBUG ((i+1) << "th intraprocedural iteration for "
-						<< *info->name);
+				DEBUG ((i+1) << "th intraprocedural iteration for " << *info->name);
 
 				CFG* before = info->get_cfg ()->clone ();
 
@@ -424,6 +423,10 @@ Whole_program::get_possible_receivers (Context* cx, Result_state state, Target* 
 		// there are multiple versions, they are lowered to different names before
 		// MIR.
 		Method_info* info = Oracle::get_method_info (name);
+
+		if (info == NULL)
+			phc_TODO (); // ?
+
 		result->push_back (info);
 	}
 
@@ -1434,13 +1437,13 @@ Whole_program::init_classes (Context* cx)
 		if (info != NULL)
 		{
 			// Mention the class
-			FWPA->register_class (cx, *info->name);
+			FWPA->register_class (cx, *info->lc_name);
 
 			foreach (Attribute* attr, *info->get_attributes ())
 			{
 				// Fill statics
 				if (attr->attr_mod->is_static)
-					assign_attribute (block_cx (), *info->name, attr);
+					assign_attribute (block_cx (), *info->lc_name, attr);
 
 				// Fill constants
 				if (attr->attr_mod->is_const)
