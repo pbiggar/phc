@@ -370,6 +370,7 @@ Process_includes::pre_eval_expr(Eval_expr* in, Statement_list* out)
 	rc.visit_statement_list (new_file->statements);
 	if(rc.found)
 	{
+		DEBUG ("Return statement found in " << *full_path);
 		if (hir)
 		{
 			assert (0); // TODO re-enable
@@ -385,10 +386,9 @@ Process_includes::pre_eval_expr(Eval_expr* in, Statement_list* out)
 		}
 	}
 
-	// bring the statements to the expected level of the IR
-	// We only need this in the HIR, and it causes infinite recursion in the
-	// AST. Disable until the HIR is re-enabled.
-//	pm->run_until (pass_name, new_file);
+	// Bring the IR to the correct level, which causes the recursive include to
+	// work.
+	pm->run_until (pass_name, new_file);
 
 	// copy the statements
 	out->push_back_all (new_file->statements);

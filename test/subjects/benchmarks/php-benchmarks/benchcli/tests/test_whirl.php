@@ -7,16 +7,12 @@
  */
 
 
-chdir("tests/phpWhirl/");
-include_once("classes/WhirlParser.php");
-$filename = "keymaker.wr";
-try {
-    $whirl = new WhirlParser();
-    $whirl->loadfile($filename);
-    $whirl->parse();
-} catch ( Exception $e ) {
-    echo $e->getMessage(), "\n";
-}
+include_once("phpWhirl/classes/WhirlParser.php");
+$filename = "phpWhirl/keymaker.wr";
+
+$whirl = new WhirlParser();
+$whirl->loadfile($filename);
+$whirl->parse();
 
 
 ?>
