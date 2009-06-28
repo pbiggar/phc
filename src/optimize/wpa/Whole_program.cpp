@@ -776,7 +776,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	}
 	else if (*info->name == "empty")
 	{
-		// TODO: If we modelled POSSIBLY/DEFINITELY on field edges, we'd be able
+		// TODO: If we modelled POSSIBLE/DEFINITE on field edges, we'd be able
 		// to optimize this.
 		assign_path_typed (cx, ret_path, new Types ("bool"));
 	}
@@ -1719,24 +1719,20 @@ Whole_program::assign_path_by_ref (Context* cx, Path* plhs, Path* prhs, bool all
 	// Get the Rvalues
 	Index_node_list* rhss = get_named_indices (cx, prhs);
 	bool rhs_killable = is_killable (cx, rhss) && allow_kill;
+	Certainty rhs_cert = rhs_killable ? DEFINITE : POSSIBLE;
 
 
 	// Get the lvalues (best to get them early, in case they get changed by the
 	// new references to the rvalues)
 	Index_node_list* lhss = get_named_indices (cx, plhs);
 	bool lhs_killable = is_killable (cx, lhss) && allow_kill;
-
-
-	// Work out the certainty for the edges.
-	Certainty cert = POSSIBLE;
- 	if (rhs_killable && lhs_killable)
- 		cert = DEFINITE;
+	Certainty lhs_cert = lhs_killable ? DEFINITE : POSSIBLE;
 
 
 	// Create the references in FAKE from RHS
 	foreach (Index_node* rhs, *rhss)
 	{
-		rhs = check_owner_type (cx, rhs, rhs_killable ? DEFINITE : POSSIBLE);
+		rhs = check_owner_type (cx, rhs);
 
 		if (not aliasing->has_field (cx, R_WORKING, rhs))
 		{
@@ -1744,7 +1740,7 @@ Whole_program::assign_path_by_ref (Context* cx, Path* plhs, Path* prhs, bool all
 			copy_value (cx, rhs, new Index_node (rhs->storage, UNKNOWN));
 		}
 
-		refer_to_value (cx, fake, rhs, cert);
+		refer_to_value (cx, fake, rhs, rhs_cert);
 	}
 
 
@@ -1757,7 +1753,7 @@ Whole_program::assign_path_by_ref (Context* cx, Path* plhs, Path* prhs, bool all
 
 	foreach (Index_node* lhs, *lhss)
 	{
-		refer_to_value (cx, lhs, fake, cert);
+		refer_to_value (cx, lhs, fake, lhs_cert);
 	}
 }
 
@@ -1958,6 +1954,7 @@ Whole_program::assign_path_by_copy (Context* cx, Path* plhs, Path* prhs, bool al
 	// Calculate the new result via an intermediate ("fake") index node.
 	Index_node* fake = create_fake_index (cx);
 
+
 	// We keep the graph in transitive-closure form, so each RHS will have
 	// all the values of its references already. Therefore, there is no need
 	// for a call to get_lhs_references ().
@@ -2016,7 +2013,7 @@ Whole_program::assign_absval (Context* cx, Index_node* lhs, Abstract_value* absv
 void
 Whole_program::copy_value (Context* cx, Index_node* lhs, Index_node* rhs, Name_map map)
 {
-	lhs = check_owner_type (cx, lhs, DEFINITE);
+	lhs = check_owner_type (cx, lhs);
 
 	// Check if RHS is an indexing a scalar.
 	if (Abstract_value* absval = read_from_scalar_value (cx, rhs))
@@ -2271,7 +2268,7 @@ Whole_program::destroy_fake_indices (Context* cx)
  * non-readonly sense).
  */
 Index_node*
-Whole_program::check_owner_type (Context* cx, Index_node* index, Certainty cert)
+Whole_program::check_owner_type (Context* cx, Index_node* index)
 {
 	Storage_node* owner = aliasing->get_owner (cx, R_WORKING, index);
 	Types* types = values->get_types (cx, R_WORKING, owner->name ());
@@ -2306,6 +2303,13 @@ Whole_program::check_owner_type (Context* cx, Index_node* index, Certainty cert)
 			 * index node that points to it, and there can only be one such node.
 			 */
 			Index_node* owner_index = aliasing->get_incoming (cx, R_WORKING, owner)->front ();
+
+
+			/* We might be able to kill the current value! But not if it has > 1
+			 * value as it stands. */
+			Certainty cert = aliasing->get_points_to (cx, R_WORKING, owner_index)->size () > 1
+				?  POSSIBLE : DEFINITE;
+				
 
 			// Convert to an array
 			Storage_node* st = create_empty_storage (cx, "array");

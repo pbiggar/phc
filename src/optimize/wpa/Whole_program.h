@@ -252,6 +252,7 @@ public:
 	// need to keep the track of already copied values, and copy them back, or
 	// this will go into an infinite-loop).
 	typedef Map<string, string> Name_map;
+
 	void copy_value (Context* cx, Index_node* lhs, Index_node* rhs, Name_map map = Name_map());
 	void copy_structure (Context* cx, Index_node* lhs, Storage_node* rhs, string type, Name_map map = Name_map());
 
@@ -261,7 +262,7 @@ public:
 	void cast_value (Context* cx, Index_node* lhs, Index_node* rhs, string type);
 	void cast_to_storage (Context* cx, Index_node* lhs, Index_node* rhs, string type);
 
-	Index_node* check_owner_type (Context* cx, Index_node* index, Certainty cert);
+	Index_node* check_owner_type (Context* cx, Index_node* index);
 	Abstract_value* read_from_scalar_value (Context* cx, Index_node* rhs);
 
 	bool is_killable (Context* cx, Index_node_list* indices);
