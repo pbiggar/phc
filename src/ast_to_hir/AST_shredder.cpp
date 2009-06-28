@@ -296,8 +296,8 @@ Expr* Shredder::post_array(Array* in)
 		}
 		else if (use_count)
 		{
-			key = new INT (next_key);
-			next_key++;
+			key = new INT (key_count);
+			key_count++;
 		}
 		else
 			key = NULL;
