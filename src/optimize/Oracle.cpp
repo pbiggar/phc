@@ -136,7 +136,7 @@ Oracle::get_class_info (String* name)
 {
 	if (not classes.has (*name))
 	{
-		cdebug << *name << "not found" << endl;
+		cdebug << "Class \"" << *name << "\" not found" << endl;
 		phc_TODO ();
 	}
 

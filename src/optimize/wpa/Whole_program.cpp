@@ -387,24 +387,21 @@ Whole_program::get_possible_receivers (Context* cx, Result_state state, Target* 
 	// match it.
 	if (target)
 	{
-		String_list* classnames = new String_list;
+		Types classnames;
 		if (CLASS_NAME* classname = dynamic_cast<CLASS_NAME*> (target))
 		{
-			classnames->push_back (classname->value);
+			classnames.insert (*classname->value);
 		}
 		else
 		{
 			VARIABLE_NAME* obj = dyc<VARIABLE_NAME> (target);
-			Types* types = values->get_types (cx, state, VN (cx->symtable_name (), obj)->name());
-
-			// Wrap them
-			foreach (string type, *types)
-				classnames->push_back (s (type));
+			classnames = *values->get_types (cx, state, VN (cx->symtable_name (), obj)->name());
 		}
 
-		foreach (String* type, *classnames)
+		assert (classnames.size () > 0);
+		foreach (string type, classnames)
 		{
-			Class_info* classinfo = Oracle::get_class_info (type);
+			Class_info* classinfo = Oracle::get_class_info (s(type));
 
 			// If this returns NULL, then its type doesn't represent a class,
 			// therefore a run-time error will occur. So we can pretend this isnt
@@ -547,6 +544,7 @@ Whole_program::invoke_method (Context* caller_cx, VARIABLE_NAME* lhs, VARIABLE_N
 		params->push_front (new Actual_parameter (false, target));
 	}
 
+
 	// Need to clone the information and merge it when it returns.
 	if (receivers->size () != 1)
 		phc_TODO ();
@@ -556,7 +554,13 @@ Whole_program::invoke_method (Context* caller_cx, VARIABLE_NAME* lhs, VARIABLE_N
 
 	foreach (Method_info* receiver, *receivers)
 	{
-		analyse_method_info (receiver, caller_cx, params, lhs);
+		// HACK: handle parent::__construct, which is allowed be called without a $this.
+		Actual_parameter_list* passed_params = params->clone ();
+		if (target == NULL && *receiver->name == "__construct")
+			passed_params->push_front (new Actual_parameter (false, new VARIABLE_NAME (s("this"))));
+
+
+		analyse_method_info (receiver, caller_cx, passed_params, lhs);
 	}
 
 	FWPA->post_invoke_method (caller_cx);
@@ -1021,7 +1025,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	}
 	else
 	{
-		cdebug << *info->name << " not modelled" << endl;
+		cdebug << "Function \"" << *info->name << "\" not modelled" << endl;
 		phc_TODO ();
 	}
 }
@@ -1743,7 +1747,7 @@ Whole_program::build_static_array (Context* cx, Static_array* array)
 	int count = 0;
 	foreach (Static_array_elem* elem, *array->static_array_elems)
 	{
-
+		// I'm not sure this is allowed?
 		if (elem->is_ref)
 			phc_TODO ();
 

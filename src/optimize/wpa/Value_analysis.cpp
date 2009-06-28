@@ -76,7 +76,9 @@ Value_analysis::get_lit (Context* cx, Result_state state, Alias_name name)
 Types*
 Value_analysis::get_types (Context* cx, Result_state state, Alias_name name)
 {
-	return get_value (cx, state, name)->value->types;
+	Types* types = get_value (cx, state, name)->value->types;
+	assert (types->size ());
+	return types;
 }
 
 
