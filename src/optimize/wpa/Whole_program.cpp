@@ -395,6 +395,9 @@ Whole_program::get_possible_receivers (Context* cx, Result_state state, Target* 
 		{
 			VARIABLE_NAME* obj = dyc<VARIABLE_NAME> (target);
 			classnames = *values->get_types (cx, state, VN (cx->symtable_name (), obj)->name());
+			// TODO: This might be a good place to remove all possible values
+			// which aren't objects? It would speed up the analysis, and greatly
+			// reduce the number of potential objects things can point to.
 		}
 
 		assert (classnames.size () > 0);
@@ -732,7 +735,12 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	else if (*info->name == "die")
 	{
 		// TODO: We'd like to model that this path is not executable.
-		// do nothing
+		// The easiest way would be to do a check for die() and exit() during CFG
+		// construction, and then never execute those edges (and especially don't
+		// get_possible_null from them.
+
+
+		// Do nothing.
 		// We don't even need to coerce to string, since this path isn't
 		// realizable.
 	}
@@ -2801,6 +2809,14 @@ void
 Whole_program::visit_assign_next (Statement_block* bb, MIR::Assign_next* in)
 {
 	// TODO: _next_ is one larger than the largest positive integer element
+	
+	// TODO: This is hard to model. What about when we copy the array? We might
+	// have to put a special call in copy_structure?
+
+	// It was much easier to avoid throwing that information away in
+	// AST_shredder.
+
+
 	standard_lhs (bb, in, in->is_ref, in->rhs);
 }
 

@@ -7,6 +7,7 @@
  */
 
 #include "Oracle.h"
+#include "Abstract_value.h"
 #include "embed/embed.h"
 #include "process_ir/General.h"
 
@@ -38,8 +39,13 @@ Oracle::initialize (MIR::PHP_script* in)
 	add_method_info (new Builtin_method_info (s("echo")));
 	add_method_info (new Builtin_method_info (s("empty")));
 
-	// We can't invoke on NULL, but don't pretend we don't know what the type is.
-	Oracle::classes["unset"] = NULL;
+	// We can't invoke on these types, but they do exist, and we might try to
+	// invoke on them because of meet-over-all-paths.
+	foreach (string type, *Type_info::get_all_scalar_types ())
+	{
+		Oracle::classes[type] = NULL;
+	}
+	Oracle::classes["array"] = NULL;
 
 	/*
 	 * Update parents
