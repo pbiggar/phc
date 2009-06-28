@@ -56,6 +56,8 @@ optimization/unknown_everything.php		no-Optimiz # eval
 parsing/brackets.php							no-Optimiz # includes non-existent files
 parsing/empty.php								no-Optimiz # empty takes a NULL value
 parsing/for.php								no-Optimiz # exit isnt reachable due to infinite-loop, so it segfaults.
+parsing/functions.php						no-Optimiz # multiple function declaration
+parsing/included_cc2.php					no-Optimiz # class error
 parsing/listassignment.php					no-Optimiz # breaks the rules for list-assignments by using arrays which are indexed by a string key.
 reduced/0001.php								no-Optimiz # eval
 reduced/0002.php								no-Optimiz # debug_zval_dump
@@ -70,7 +72,6 @@ reduced/0052.php								no-Optimiz # __destruct
 reduced/0053.php								no-Optimiz # class error
 reduced/0054.php								no-Optimiz # class error
 reduced/0054.php								no-Optimiz # class error
-parsing/included_cc2.php					no-Optimiz # class error
 
 
 
