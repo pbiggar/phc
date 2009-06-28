@@ -56,18 +56,14 @@
             if (!isset(self::$_instance)) {
                 self::$_instance = $this;
             } else {
-                throw new Exception("WhirlParser is a Singleton, you can only instantiate one object of this class. Please use instance() instead.");
+					die ("WhirlParser is a Singleton, you can only instantiate one object of this class. Please use instance() instead.");
             }
         }
 
         private function _init() {
-            $ringClasses = array("WhirlOpsRing", "WhirlMathRing");
-            
             $this->_WhirlMemory = WhirlMemory::instance();
             $this->_program = array();
-            foreach ( $ringClasses as $ring ) {
-                $this->_rings[] = new $ring;
-            }           
+            $this->_rings = array (new WhirlMathRing (), new WhirlOpsRing ());
             $this->_currentRing = 0;
             $this->_currentPosition = 0;
         }
@@ -111,17 +107,17 @@
 
         public function loadFile( $filename ) {
             if (!file_exists($filename)) {
-                throw new Exception("An Error occured while loading a source file: The file $filename does not exist.");
+                die ("An Error occured while loading a source file: The file $filename does not exist.");
             }
             if (!is_readable($filename)) {
-                throw new Exception("An Error occured while loading a source file: The file $filename is not readable.");
+                die ("An Error occured while loading a source file: The file $filename is not readable.");
             }
             $this->_program = $this->_prepareCode( $this->_cleanCode( file_get_contents($filename) ) );
         }
 
         public function parse() {
             if (count($this->_program) === 0) {
-                throw new Exception("An Error occured while parsing: No program code has been supplied.");
+                die ("An Error occured while parsing: No program code has been supplied.");
             }
            
             if (defined('DEBUG')) {
@@ -169,9 +165,9 @@
             //jump to the wanted program position -1, because the position counter will be incremented by one after the execution.
             $this->_currentPosition += $count -1;
             if ($this->_currentPosition < -1) {
-                throw new Exception("Error in Instruction " . $this->getInstructionNumber() . ": Program position out of Bounds. The program position was decreased beyond zero.");
+                die ("Error in Instruction " . $this->getInstructionNumber() . ": Program position out of Bounds. The program position was decreased beyond zero.");
             } else if ($this->_currentPosition > count($this->_program)) {
-                throw new Exception("Error in Instruction " . $this->getInstructionNumber() . ": Program position out of Bounds. The program position was increased beyond the end of file.");
+                die ("Error in Instruction " . $this->getInstructionNumber() . ": Program position out of Bounds. The program position was increased beyond the end of file.");
             }
         }
 

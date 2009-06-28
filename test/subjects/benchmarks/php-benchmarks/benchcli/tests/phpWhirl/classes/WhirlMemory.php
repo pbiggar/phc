@@ -46,7 +46,7 @@ class WhirlMemory {
         if (!isset(self::$_instance)) {
             self::$_instance = $this;
         } else {
-            throw new Exception("WhirlMemory is a Singleton, you can only instantiate one object of this class. Please use instance() instead.");
+            die ("WhirlMemory is a Singleton, you can only instantiate one object of this class. Please use instance() instead.");
         }
     }
     
@@ -65,7 +65,7 @@ class WhirlMemory {
     public function moveby( $count ) {
         $this->_position += $count;
         if ( $this->_position < 0 ) {
-            throw new Exception("Error in instruction " . WhirlParser::instance()->getInstructionNumber() . ": Memory index out of bounds. The memory index was decreased beyond zero.");
+            die ("Error in instruction " . WhirlParser::instance()->getInstructionNumber() . ": Memory index out of bounds. The memory index was decreased beyond zero.");
         }
         if (!isset($this->_values[$this->_position])) {
             $this->_values[$this->_position] = 0;
