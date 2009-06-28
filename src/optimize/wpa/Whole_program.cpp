@@ -801,6 +801,12 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	{
 		assign_path_typed (cx, ret_path, new Types ("int"));
 	}
+	else if (*info->name == "file_exists")
+	{
+		params[0] = coerce_to_string (cx, params[0]);
+
+		assign_path_typed (cx, ret_path, new Types ("bool"));
+	}
 	else if (*info->name == "file_get_contents")
 	{
 		params[0] = coerce_to_string (cx, params[0]);
@@ -919,6 +925,11 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 			assign_path_typed (cx, ret_path, new Types ("bool"));
 		}
 	}
+	else if (*info->name == "is_readable")
+	{
+		params[0] = coerce_to_string (cx, params[0]);
+		assign_path_typed (cx, ret_path, new Types ("bool"));
+	}
 	// max: see min
 	else if (*info->name == "min" || *info->name == "max")
 	{
@@ -964,6 +975,32 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	{
 		params[0] = coerce_to_string (cx, params[0]);
 		assign_path_typed (cx, ret_path, new Types ("int"));
+	}
+	else if (*info->name == "preg_replace")
+	{
+		Abstract_value* replacement = get_abstract_value (cx, R_WORKING, params[1]->name());
+		foreach (string type, *replacement->types)
+			if (type != "array" && not Type_info::is_scalar (type))
+				phc_TODO ();
+
+		Abstract_value* subject = get_abstract_value (cx, R_WORKING, params[2]->name());
+		foreach (string type, *subject->types)
+			if (type != "array" && not Type_info::is_scalar (type))
+				phc_TODO ();
+
+
+		params[0] = coerce_to_string (cx, params[0]);
+		params[1] = coerce_to_string (cx, params[1]);
+		params[2] = coerce_to_string (cx, params[2]);
+
+		assign_path_typed (cx, ret_path, new Types ("string", "unset"));
+	}
+	else if (*info->name == "preg_split")
+	{
+		params[0] = coerce_to_string (cx, params[0]);
+		params[1] = coerce_to_string (cx, params[1]);
+
+		assign_path_typed_array (cx, ret_path, new Types ("string"), ANON);
 	}
 	else if (*info->name == "rand")
 	{
