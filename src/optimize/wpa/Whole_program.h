@@ -218,6 +218,7 @@ public:
 	 */
 	void assign_path_scalar (Context* cx, Path* lhs, MIR::Literal* lit, bool allow_kill = true);
 	void assign_path_scalar (Context* cx, Path* plhs, Abstract_value* absval, bool allow_kill = true);
+	void assign_path_static_array (Context* cx, Path* plhs, MIR::Static_array* array, bool allow_kill = true);
 	void assign_path_unknown (Context* cx, Path* lhs, bool allow_kill = true);
 	void assign_path_typed (Context* cx, Path* lhs, Types* types, bool allow_kill = true);
 	void assign_path_by_ref (Context* cx, Path* lhs, Path* rhs, bool allow_kill = true);
@@ -239,8 +240,10 @@ public:
 	 */
 
 	void assign_absval (Context* cx, Index_node* lhs, Abstract_value* absval);
+	void assign_storage (Context* cx, Index_node* lhs, Storage_node* storage);
 	Index_node* create_fake_index (Context* cx);
 	void destroy_fake_indices (Context* cx);
+	Storage_node* build_static_array (Context* cx, MIR::Static_array* array);
 
 	// If no name is provided, an anonymous name is chosen.
 	Storage_node* create_empty_storage (Context* cx, string type, string name = "");

@@ -503,11 +503,26 @@ Whole_program::instantiate_object (Context* caller_cx, MIR::VARIABLE_NAME* self,
 void
 Whole_program::assign_attribute (Context* cx, string obj, MIR::Attribute* attr)
 {
-	// Although obj is just allocated, it may be abstract.
-	if (not isa<Literal> (attr->var->default_value))
-		phc_TODO ();
+	Path* path = P (obj, attr->var->variable_name);
 
-	assign_path_scalar (cx, P (obj, attr->var->variable_name), dyc<Literal> (attr->var->default_value));
+	Static_value* default_value = attr->var->default_value;
+
+	if (default_value == NULL)
+	{
+		assign_path_scalar (cx, path, new NIL);
+	}
+	else if (Literal* lit = dynamic_cast<Literal*> (default_value))
+	{
+		assign_path_scalar (cx, path, lit);
+	}
+	else if (Constant* constant = dynamic_cast<Constant*> (default_value))
+	{
+		phc_TODO ();
+	}
+	else
+	{
+		assign_path_static_array (cx, path, dyc<Static_array> (default_value));
+	}
 }
 
 
@@ -1707,6 +1722,53 @@ Whole_program::assign_path_by_ref (Context* cx, Path* plhs, Path* prhs, bool all
 	{
 		refer_to_value (cx, lhs, fake, cert);
 	}
+}
+
+void
+Whole_program::assign_path_static_array (Context* cx, Path* plhs, Static_array* array, bool allow_kill)
+{
+	DEBUG ("assign_path_static_value");
+
+	// Build the array
+	Storage_node* result = build_static_array (cx, array);
+	assign_path_value (cx, plhs, result, allow_kill);
+}
+
+Storage_node*
+Whole_program::build_static_array (Context* cx, Static_array* array)
+{
+	Storage_node* result = create_empty_storage (cx, "array");
+
+	// The key, if unspecified, is one greater than the last integer.
+	int count = 0;
+	foreach (Static_array_elem* elem, *array->static_array_elems)
+	{
+
+		if (elem->is_ref)
+			phc_TODO ();
+
+		// Get the field name (TODO: this could also be a constant!)
+		Literal* key = dyc<Literal> (elem->key);
+		if (key == NULL)
+			key = new INT (count);
+
+		Index_node* index = new Index_node (result->storage, *PHP::get_string_value (key));
+
+
+		// Update the key count
+		if (isa<INT> (key))
+			count = dyc<INT> (key)->value + 1;
+
+
+		// Actually do the assignment
+		if (Literal* lit = dynamic_cast<Literal*> (elem->val))
+		{
+			assign_absval (cx, index, new Abstract_value (lit));
+		}
+		else
+			phc_TODO ();
+	}
+	return result;
 }
 
 void
