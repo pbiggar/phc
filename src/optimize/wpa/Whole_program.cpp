@@ -541,7 +541,7 @@ void
 Whole_program::invoke_method (Context* caller_cx, VARIABLE_NAME* lhs, VARIABLE_NAME* target, Method_info_list* receivers, Actual_parameter_list* params)
 {
 	// Make $this explicit, if necessary.
-	if (target)
+	if (target && not isa<CLASS_NAME> (target))
 	{
 		params = params->clone ();
 		params->push_front (new Actual_parameter (false, target));
@@ -599,8 +599,6 @@ Whole_program::analyse_summary (Summary_method_info* info, Context* caller_cx, A
 	Context* entry_cx = Context::contextual (caller_cx, cfg->get_entry_bb ());
 	forward_bind (info, entry_cx, actuals);
 
-	dump (entry_cx, R_OUT, "Upon summary entry (" + *caller_cx->get_bb()->get_graphviz_label () + ")");
-
 
 	/*
 	 * "Perform" the function
@@ -635,9 +633,6 @@ Whole_program::analyse_summary (Summary_method_info* info, Context* caller_cx, A
 	finish_block (exit_cx);
 
 	// TODO: we only really need 2 blocks here.
-	dump (exit_cx, R_OUT, "After summary method (" + *caller_cx->get_bb()->get_graphviz_label () + ")");
-
-	phc_pause ();
 
 
 	backward_bind (info, exit_cx, lhs);
@@ -1634,8 +1629,6 @@ Whole_program::backward_bind (Method_info* info, Context* exit_cx, MIR::VARIABLE
 	// references them. I would not be sure that correctly handle the case
 	// where $x aliases $y[0], and $y[0] is used after being passed to a
 	// function.
-
-	dump (exit_cx, R_OUT, "After assignment, before WPA backward bind");
 
 	FWPA->backward_bind (caller_cx, exit_cx);
 
