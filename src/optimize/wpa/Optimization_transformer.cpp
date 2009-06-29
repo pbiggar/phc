@@ -333,8 +333,6 @@ Optimization_transformer::visit_isset (Statement_block* bb, MIR::Isset* in)
 void
 Optimization_transformer::copy_in_literals (Basic_block* bb, Method_info_list* receivers, Actual_parameter_list* params)
 {
-	Context* cx = Context::non_contextual (bb);
-
 	// Update the parameters with constants
 	int i = -1;
 	foreach (Actual_parameter* param, *params)
@@ -355,7 +353,6 @@ Optimization_transformer::copy_in_literals (Basic_block* bb, Method_info_list* r
 			param->rvalue = get_literal (bb, param->rvalue);
 		}
 	}
-
 }
 
 
