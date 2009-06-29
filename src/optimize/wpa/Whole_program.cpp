@@ -2364,6 +2364,7 @@ Whole_program::check_owner_type (Context* cx, Index_node* index)
 			// The caller will make this into an array.
 			if (not isa<Value_node> (owner))
 			{
+				// TODO this might be an object, not an array!
 				create_empty_storage (cx, "array", owner->storage);
 				return index;
 			}
