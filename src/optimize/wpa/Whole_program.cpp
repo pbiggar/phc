@@ -846,6 +846,10 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	{
 		assign_path_typed (cx, ret_path, new Types ("int"));
 	}
+	else if (*info->name == "feof")
+	{
+		assign_path_typed (cx, ret_path, new Types ("bool"));
+	}
 	else if (*info->name == "file_exists")
 	{
 		params[0] = coerce_to_string (cx, params[0]);
