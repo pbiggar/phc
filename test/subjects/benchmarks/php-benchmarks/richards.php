@@ -298,7 +298,6 @@ class Scheduler
         {
 			echo "<pre>";
 				var_dump($packet);
-				debug_print_backtrace();
 			echo "</pre>";
 
             return $t;

@@ -584,11 +584,8 @@ Whole_program::invoke_method (Context* caller_cx, VARIABLE_NAME* lhs, VARIABLE_N
 	}
 
 
-	// Need to clone the information and merge it when it returns.
-	if (receivers->size () != 1)
-		phc_TODO ();
+	assert (receivers->size ());
 
-	
 	FWPA->pre_invoke_method (caller_cx);
 
 	foreach (Method_info* receiver, *receivers)
@@ -2336,19 +2333,17 @@ Whole_program::check_owner_type (Context* cx, Index_node* index)
 
 	if (scalar_types->size ())
 	{
-		if (scalar_types->size () > 1)
+		// Do we know the value of the string?
+		// We may need to kill LHS.
+		if (scalar_types->has ("string"))
 			phc_TODO ();
-
-		string type = scalar_types->front ();
-
-		if (type == "string")
+		else
 		{
-			// Do we know the value of the string?
-			// We may need to kill LHS.
-			phc_TODO ();
-		}
-		else if (type == "unset")
-		{
+			// Treat all others as if they convert to arrays
+			// TODO: for non-null, nothign should happen, and the old values
+			// should pass through.
+
+
 			// The owner has not yet been created (I think this means its a CLASS_NAME).
 			// The caller will make this into an array.
 			if (not isa<Value_node> (owner))
@@ -2369,7 +2364,7 @@ Whole_program::check_owner_type (Context* cx, Index_node* index)
 			 * value as it stands. */
 			Certainty cert = aliasing->get_points_to (cx, R_WORKING, owner_index)->size () > 1
 				?  POSSIBLE : DEFINITE;
-				
+
 
 			// Convert to an array
 			Storage_node* st = create_empty_storage (cx, "array");
@@ -2398,20 +2393,6 @@ Whole_program::check_owner_type (Context* cx, Index_node* index)
 			// the new index_node.
 			return new Index_node (st->storage, index->index);
 		}
-		else
-		{
-			// Nothing happens. But with multiple types, the old type has to be
-			// copied.
-			// With multiple RHSs, this will hit every time.
-			// With multiple LHSs, this wont change value, which is fine.
-			// (Note that the value we would have killed is LHS, not
-			// LHS.storage, so this is unkilled, but it might need to be
-			// killed)
-			phc_TODO ();
-		}
-
-		dump (cx, R_WORKING, "just before the end");
-		phc_TODO ();
 	}
 
 
