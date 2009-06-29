@@ -991,8 +991,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		params[0] = coerce_to_string (cx, params[0]);
 		assign_path_typed (cx, ret_path, new Types ("bool"));
 	}
-	// max: see min
-	else if (*info->name == "min" || *info->name == "max")
+	else if (*info->name == "max" || *info->name == "min")
 	{
 		Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]->name());
 		if (absval->types->has ("array"))
@@ -1010,6 +1009,12 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 
 		assign_path_typed (cx, ret_path, result);
 	}
+	else if (*info->name == "method_exists")
+	{
+		// TODO: we can do better here
+		assign_path_typed (cx, ret_path, new Types ("bool"));
+	}
+	// max: see min
 	else if (*info->name == "number_format")
 	{
 		params[2] = coerce_to_string (cx, params[2]);
