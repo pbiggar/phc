@@ -259,6 +259,9 @@ Whole_program::initialize (Context* outer_cx)
 
 	// This will be here for a while.
 	create_empty_storage (outer_cx, "array", "FAKE");
+
+	// False until we see otherwise
+	this->skip_after_die = false;
 }
 
 void
@@ -313,11 +316,15 @@ Whole_program::analyse_function (User_method_info* info, Context* caller_cx, MIR
 		// This does not update the block's structure.
 		bool changed = analyse_block (target_cx);
 
+
 		// Add next	block(s) if the result has changed, or if this the first
 		// time the edge could be executed.
 		foreach (Edge* next, *get_successors (target_cx))
-			if (!wl.is_executable (next) || changed)
+			if ((skip_after_die == false || wl.size () == 0) // we need to get results to the exit_block though.
+					&& (!wl.is_executable (next) || changed))
 				wl.add (next);
+
+		skip_after_die = false;
 	}
 
 	backward_bind (
@@ -734,11 +741,8 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	}
 	else if (*info->name == "die")
 	{
-		// TODO: We'd like to model that this path is not executable.
-		// The easiest way would be to do a check for die() and exit() during CFG
-		// construction, and then never execute those edges (and especially don't
-		// get_possible_null from them.
-
+		// Model that the next statement is not executable.
+		skip_after_die = true;
 
 		// Do nothing.
 		// We don't even need to coerce to string, since this path isn't
@@ -797,7 +801,9 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	}
 	else if (*info->name == "exit")
 	{
-		// TODO: see comment in 'die'
+		skip_after_die = true;
+
+		// see comment in 'die'
 		// do nothing
 	}
 	else if (*info->name == "error_reporting")

@@ -110,6 +110,13 @@ public:
 	 */
 	int unique_count ();
 
+
+	/*
+	 * Special shortcut to mark the successor of die() and exit() as non-executable
+	 */
+
+	bool skip_after_die;
+
 	/*
 	 * Stacks for every block
 	 */
