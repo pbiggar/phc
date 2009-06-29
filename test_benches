@@ -31,11 +31,17 @@ set -x
 
 for i in $BENCHES;
 do
-	rm test_benches_output
+	dirname=`dirname $i`
+
+	rm -f test_benches_output
 	date >> test_benches_output 2>&1
 	svn update >> test_benches_output 2>&1
 	make >> test_benches_output 2>&1
 	echo $i >> test_benches_output 2>&1
-	/usr/bin/time src/phc --include -O2 --stats $i >> test_benches_output 2>&1
+	/usr/bin/time src/phc				\
+		--include -O2 --stats			\
+		-d include_path=$dirname $i	\
+		>> test_benches_output 2>&1
+
 	mail -t paul.biggar@gmail.com -s "benchmark test" < test_benches_output
 done
