@@ -242,7 +242,7 @@ HSSA::convert_to_hssa_form ()
 	// appropriately.
 	DEBUG ("Calculating Def-use-web for SSA");
 	cfg->duw = new Def_use_web (wp->def_use);
-	cfg->duw->build_web (cfg);
+	cfg->duw->build_web (cfg, false);
 
 
 
@@ -306,6 +306,8 @@ HSSA::convert_to_hssa_form ()
 	if (debugging_enabled)
 		cfg->dump_graphviz (s("Post-renaming"));
 
+	cfg->duw->build_web(cfg, true);
+	
 	cfg->duw->dump ();
 	cfg->duw->ssa_consistency_check ();
 	

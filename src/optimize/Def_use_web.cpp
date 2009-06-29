@@ -30,16 +30,30 @@ Def_use_web::Def_use_web (Def_use* du)
 }
 
 void
-Def_use_web::build_web (CFG* cfg)
+Def_use_web::build_web (CFG* cfg, bool update)
 {
-	// Get the information from the def_use
-	foreach (Basic_block* bb, *cfg->get_all_bbs ())
-	{
-		defs[bb->ID].push_back_all (du->get_defs (bb));
-		uses[bb->ID].push_back_all (du->get_uses (bb));
-		may_defs [bb->ID].push_back_all (du->get_may_defs (bb));
-	}
 
+	// TODO:  Need to think about may_defs, to what extent, if any, do we need them represented in the DUW?
+
+	// If we're updating the web with SSA variable versions, then defs and uses will
+	// exist here and not need to be retrieved, i.e. named_uses/defs and def/use_ops just need to be updated.
+	// Otherwise, we get the information from the def_use
+	if (update) 
+	{
+		named_uses.clear ();
+		named_defs.clear ();
+		use_ops.clear ();
+		def_ops.clear ();
+	}
+	else
+	{
+		foreach (Basic_block* bb, *cfg->get_all_bbs ())
+		{
+			defs[bb->ID].push_back_all (du->get_defs (bb));
+			uses[bb->ID].push_back_all (du->get_uses (bb));
+			may_defs [bb->ID].push_back_all (du->get_may_defs (bb));
+		}
+	}
 	// Build all the ops
 	foreach (Basic_block* bb, *cfg->get_all_bbs ())
 	{
@@ -49,7 +63,7 @@ Def_use_web::build_web (CFG* cfg)
 		foreach (Alias_name* def, defs[bb->ID])
 			named_defs[*def].push_back (new SSA_def (bb, def, SSA_BB));
 
-		foreach (Alias_name* may_def, may_defs[bb->ID])
+/*		foreach (Alias_name* may_def, may_defs[bb->ID])
 		{
 			named_defs[*may_def].push_back (new SSA_def (bb, may_def, SSA_CHI));
 			named_uses[*may_def].push_back (new SSA_use (
@@ -57,7 +71,7 @@ Def_use_web::build_web (CFG* cfg)
 					new Alias_name (*may_def),
 					SSA_CHI));
 		}
-	}
+*/	}
 
 	// Create the web
 	Alias_name name;
@@ -238,7 +252,7 @@ void
 Def_use_web::ssa_consistency_check ()
 {
 	// TODO: a lot of stuff isnt in SSA, but we don't want to break everything with a commit
-	return;
+	
 
 	// There isnt much that will help here. I'll implement it if its buggy.
 	// Check that named defs are correctly named
@@ -271,6 +285,12 @@ Def_use_web::ssa_consistency_check ()
 		// Check that each use has 0 or 1 def.
 		assert (def_list.size () < 2);
 
+
+		// TODO: Fails on the following if the section on line 66 isn't commented out because may defs are in both named_uses and named_defs, 
+		// and is_dominated_by () doesn't account for self dominance.  Not sure if is_dominated_by ()
+		// needs to be changed (probably should be anyway, seems to make sense that a block would dominate itself),
+		// because I think we can just stop considering may_defs when building the web (they're a subset of defs anyway)
+
 		// Check the dominance property (every use is dominated by its def)
 		if (def_list.size () == 1)
 		{
@@ -278,6 +298,7 @@ Def_use_web::ssa_consistency_check ()
 
 			foreach (SSA_use* ssa_use, named_uses[use])
 			{
+				DEBUG("SSAUSE: " << ssa_use->name->str () << "DEF: " << def_list.front ()->name->str () << " BBID: " << def_bb->ID );
 				assert (ssa_use->bb->is_dominated_by (def_bb));
 			}
 		}
@@ -327,39 +348,6 @@ Def_use_web::get_named_defs (Alias_name* name)
 {
 	return &named_defs[*name];
 }
-
-Alias_name*
-Def_use_web::get_block_use (Basic_block* bb, MIR::VARIABLE_NAME* var_name)
-{
-	foreach (SSA_use* use, *get_block_uses (bb))
-	{
-		if (use->name->prefix == bb->get_prefix () &&
-		(use->name->name == Def_use::get_starred_name (*var_name->value)))
-		{
-			return use->name;
-		}
-	}
-
-	// If its not here, we shouldn't be asking for it (?)
-	phc_unreachable ();
-}
-
-Alias_name*
-Def_use_web::get_block_def (Basic_block* bb, MIR::VARIABLE_NAME* var_name)
-{
-	foreach (SSA_def* def, *get_block_defs (bb))
-	{
-		if (def->name->prefix == bb->get_prefix () &&
-		(def->name->name == Def_use::get_starred_name (*var_name->value)))
-		{
-			return def->name;
-		}
-	}
-
-	// If its not here, we shouldn't be asking for it (?)
-	phc_unreachable ();
-}
-
 
 /*
  * SSA

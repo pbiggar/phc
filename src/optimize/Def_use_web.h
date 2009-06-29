@@ -33,7 +33,7 @@ public:
 private:
 
 public:
-	void build_web (CFG* cfg);
+	void build_web (CFG* cfg, bool update);
 
 	// Returned Alias_name*s point to the actual Alias_names, so that their SSA
 	// version can be updated.
@@ -49,13 +49,6 @@ public:
 
 	SSA_use_list* get_named_uses (Alias_name* name);
 	SSA_def_list* get_named_defs (Alias_name* name);
-
-	/* Get the name in this block for the variable name. These give the value
-	 * name, not the value name */
-	Alias_name* get_block_use (Basic_block* bb, MIR::VARIABLE_NAME* var_name);
-	Alias_name* get_block_def (Basic_block* bb, MIR::VARIABLE_NAME* var_name);
-
-
 
 	/*
 	 * Phi functions (or nodes)
