@@ -53,12 +53,8 @@
     }
     
     echo "Loading and parsing the program...", "\n";
-    try {       
         $whirl = new WhirlParser();
         $whirl->loadfile($filename);
         $whirl->parse();
-    } catch ( Exception $e ) {
-        echo $e->getMessage(), "\n";
-    }
 
 ?>

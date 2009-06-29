@@ -86,7 +86,7 @@ abstract class WhirlRing {
     public function execute() {
         $functionToCall = "RINGFUNC_" . $this->_commands[$this->_position];
         if (!method_exists($this, $functionToCall)) {
-            throw new Exception("Ring Function could not be called, because it wasn't defined: $functionToCall undefined.");
+            die ("Ring Function could not be called, because it wasn't defined: $functionToCall undefined.");
         }
         call_user_func(array($this,$functionToCall));
         if (defined('DEBUG'))
