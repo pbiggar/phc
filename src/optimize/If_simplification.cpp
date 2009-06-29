@@ -16,7 +16,7 @@ If_simplification::visit_branch_block (Branch_block* bb)
 	 *		if ($x) goto L2; else goto L1;
 	 */
 
-	Def_use_web* duw = bb->cfg->duw;
+/*	Def_use_web* duw = bb->cfg->duw;
 
 	Alias_name* name = duw->get_block_use (bb, bb->branch->variable_name);
 	SSA_def_list* defs = duw->get_named_defs (name);
@@ -35,4 +35,4 @@ If_simplification::visit_branch_block (Branch_block* bb)
 			bb->switch_successors ();
 		}
 	}
-}
+*/}
