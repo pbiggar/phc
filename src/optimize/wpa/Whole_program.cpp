@@ -875,7 +875,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	else if (*info->name == "gettimeofday")
 	{
 		// TODO handle better
-		bool can_be_float = true;
+		bool can_be_real= true;
 		bool can_be_array = true;
 
 		if (aliasing->has_field (cx, R_WORKING, params[0])) // TODO: just use params[0]?
@@ -886,27 +886,27 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 				can_be_array = false;
 
 			else if (absval->known_false ())
-				can_be_float = false;
+				can_be_real = false;
 		}
 		else
 		{
-			can_be_float = false;
+			can_be_real = false;
 		}
 
 		// How to do both?
-		if (can_be_float && can_be_array)
+		if (can_be_real && can_be_array)
 			phc_TODO ();
 
 		// it cant be neither
-		assert (can_be_float || can_be_array);
+		assert (can_be_real || can_be_array);
 	
-		if (can_be_float)
+		if (can_be_real)
 			assign_path_typed (cx, ret_path, new Types ("real"));
 		else if (can_be_array)
 		{
 			// Cut-and-pasted: but this all needs to be fixed. We need to call this from 
 
-			// If there its parameter is true, it returns a float. Else, if returns a
+			// If there its parameter is true, it returns a real. Else, if returns a
 			// hashtable with 4 ints: sec, usec, minuteswest, dsttime
 			string name = assign_path_empty_array (cx, ret_path, ANON);
 
@@ -1034,7 +1034,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	}
 	else if (*info->name == "pow")
 	{
-		assign_path_typed (cx, ret_path, new Types ("int", "float", "bool"));
+		assign_path_typed (cx, ret_path, new Types ("int", "real", "bool"));
 	}
 	else if (*info->name == "print")
 	{
@@ -1094,6 +1094,10 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	{
 		params[0] = coerce_to_string (cx, params[0]);
 		assign_path_typed (cx, ret_path, new Types ("string"));
+	}
+	else if (*info->name == "sqrt")
+	{
+		assign_path_typed (cx, ret_path, new Types ("real"));
 	}
 	else if (*info->name == "srand")
 	{
