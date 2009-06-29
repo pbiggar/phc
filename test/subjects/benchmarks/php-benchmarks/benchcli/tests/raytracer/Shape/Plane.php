@@ -1,5 +1,5 @@
 <?php
-require_once 'tests/raytracer/Shape/BaseShape.php';
+require_once 'raytracer/Shape/BaseShape.php';
 class RayTracer_Shape_Plane extends RayTracer_Shape_BaseShape {
     private $d = 0.0;
 

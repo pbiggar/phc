@@ -1,4 +1,5 @@
 <?php
+		require_once 'IntersectionInfo.php';
 class RayTracer_Engine {
 	public $canvas = null; /* 2d context we can render to */
 
@@ -89,7 +90,6 @@ class RayTracer_Engine {
 	public function testIntersection($ray, $scene, $exclude)
 	{
 		$hits = 0;
-		require_once 'IntersectionInfo.php';
 		$best = new RayTracer_IntersectionInfo();
 		$best->distance = PHP_INT_MAX * 1.0;
 

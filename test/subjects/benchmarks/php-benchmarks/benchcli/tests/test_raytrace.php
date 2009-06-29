@@ -1,6 +1,13 @@
 <?php
+	require_once 'raytracer/Scene.php';
+	require_once 'raytracer/Shape/Sphere.php';
+	require_once 'raytracer/Material/Solid.php';
+	require_once 'raytracer/Shape/Plane.php';
+	require_once 'raytracer/Material/Chessboard.php';
+	require_once 'raytracer/Light.php';
+	require_once 'raytracer/Engine.php';
+
 function renderScene(){
-    require_once 'tests/raytracer/Scene.php';
 	$scene = new RayTracer_Scene();
 
     $scene->camera = new RayTracer_Camera(
@@ -14,8 +21,6 @@ function renderScene(){
                                 0.4
                             );
                             
-	require_once 'tests/raytracer/Shape/Sphere.php';
-	require_once 'tests/raytracer/Material/Solid.php';
     $sphere = new RayTracer_Shape_Sphere(
         new RayTracer_Vector(-1.5, 1.5, 2),
         1.5,
@@ -41,8 +46,6 @@ function renderScene(){
     );
 
     $v = new RayTracer_Vector(0.1, 0.9, -0.5);
-	require_once 'tests/raytracer/Shape/Plane.php';
-	require_once 'tests/raytracer/Material/Chessboard.php';
 	$plane = new RayTracer_Shape_Plane(
                                 $v->normalize(),
                                 1.2,
@@ -60,7 +63,6 @@ function renderScene(){
     $scene->shapes[] = $sphere;
     $scene->shapes[] = $sphere1;
         
-    require_once 'tests/raytracer/Light.php';
     $light = new RayTracer_Light(
         new RayTracer_Vector(5, 10, -1),
         new RayTracer_Color(0.8, 0.8, 0.8)
@@ -84,7 +86,6 @@ function renderScene(){
     $renderReflections = true; // $F('renderReflections');
     $rayDepth = 2;//$F('rayDepth');
 
-    require_once 'tests/raytracer/Engine.php';
     $raytracer = new RayTracer_Engine(
         array(
             "canvasWidth" => $imageWidth,
