@@ -934,6 +934,22 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 			assign_path_typed (cx, ret_path, new Types ("bool"));
 		}
 	}
+	else if (*info->name == "is_null")
+	{
+		Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]->name());
+		if (*absval->types == Types ("unset"))
+		{
+			assign_path_scalar (cx, ret_path, new BOOL (true));
+		}
+		else if (not absval->types->has ("unset"))
+		{
+			assign_path_scalar (cx, ret_path, new BOOL (false));
+		}
+		else
+		{
+			assign_path_typed (cx, ret_path, new Types ("bool"));
+		}
+	}
 	else if (*info->name == "is_object")
 	{
 		Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]->name());
@@ -1000,6 +1016,10 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 			phc_TODO (); // If first parameter is set, thats a callback.
 		
 		assign_path_typed (cx, ret_path, new Types ("bool"));
+	}
+	else if (*info->name == "pow")
+	{
+		assign_path_typed (cx, ret_path, new Types ("int", "float", "bool"));
 	}
 	else if (*info->name == "print")
 	{
