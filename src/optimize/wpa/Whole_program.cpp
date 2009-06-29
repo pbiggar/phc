@@ -757,7 +757,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 			assign_path_by_copy (cx, lhs, rhs);
 		}
 	}
-	else if (*info->name == "count")
+	else if (*info->name == "count" || *info->name == "sizeof")
 	{
 		// TODO: If the parameter is an object, then count can call the interface countable.
 		assign_path_typed (cx, ret_path, new Types ("int"));
@@ -1095,6 +1095,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		params[0] = coerce_to_string (cx, params[0]);
 		assign_path_typed (cx, ret_path, new Types ("string"));
 	}
+	// sizeof: see count()
 	else if (*info->name == "sqrt")
 	{
 		assign_path_typed (cx, ret_path, new Types ("real"));
@@ -1109,10 +1110,22 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		params[0] = coerce_to_string (cx, params[0]);
 		assign_path_typed (cx, ret_path, new Types ("int"));
 	}
+	else if (*info->name == "strval")
+	{
+		// TODO: It shouldn't be an object or array
+		params[0] = coerce_to_string (cx, params[0]);
+		Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]->name());
+		assign_path_scalar (cx, ret_path, absval);
+	}
 	else if (*info->name == "str_repeat")
 	{
 		params[0] = coerce_to_string (cx, params[0]);
 		assign_path_typed (cx, ret_path, new Types ("string"));
+	}
+	else if (*info->name == "substr")
+	{
+		params[0] = coerce_to_string (cx, params[0]);
+		assign_path_typed (cx, ret_path, new Types ("string", "bool"));
 	}
 	else if (*info->name == "trigger_error")
 	{
