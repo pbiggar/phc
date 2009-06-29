@@ -1,6 +1,7 @@
 #include "If_simplification.h"
 #include "process_ir/General.h"
 #include "Def_use_web.h"
+#include <iostream>
 
 using namespace MIR;
 
@@ -16,8 +17,9 @@ If_simplification::visit_branch_block (Branch_block* bb)
 	 *		if ($x) goto L2; else goto L1;
 	 */
 
-	Def_use_web* duw = bb->cfg->duw;
+/*	Def_use_web* duw = bb->cfg->duw;
 
+//	cerr << *bb->branch->variable_name->value << endl;
 	SSA_use* use = duw->get_block_uses (bb)->front ();
 	SSA_def_list* defs = use->get_defs ();
 
@@ -35,4 +37,8 @@ If_simplification::visit_branch_block (Branch_block* bb)
 			bb->switch_successors ();
 		}
 	}
-}
+	else
+	{
+		phc_unreachable ();
+	}
+*/}
