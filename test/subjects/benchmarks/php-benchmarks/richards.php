@@ -484,7 +484,7 @@ class DeviceTask
         {
             if($this->v1 === NULL)
             {
-                $this->scheduler->suspendCurrent();
+                return $this->scheduler->suspendCurrent();
             }
 
             $v = $this->v1;
