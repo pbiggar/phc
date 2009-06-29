@@ -601,7 +601,7 @@ class HandlerTask
                 $v = $this->v1;
                 $this->v1 = $this->v1->link;
 
-                return $this->sceduler->queue($v);
+                return $this->scheduler->queue($v);
             }
         }
 
