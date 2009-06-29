@@ -719,6 +719,19 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	{
 		// so that everything else is else-if
 	}
+	else if (*info->name == "array_pop")
+	{
+		// (ST -> UNNAMED0) -> "*"
+		Path* path = new Indexing (
+			P (symtable, new VARIABLE_NAME (UNNAMED(0))),
+			new Index_path (UNKNOWN));
+
+		// Mark any index as potentially NULL.
+		assign_path_scalar (cx, path, new NIL), 
+
+		// Copy the existing values to RETNAME
+		assign_path_by_copy (cx, ret_path, path);
+	}
 	else if (*info->name == "array_push")
 	{
 		Assign_next* sim = new Assign_next (
@@ -1230,7 +1243,10 @@ Whole_program::merge_contexts ()
 int
 Whole_program::unique_count ()
 {
-	return unique_counts.top ()++;
+	int result = unique_counts.top ()++;
+	if (result > 500)
+		phc_TODO (); // most likely a problem
+	return result;
 }
 
 Context*
@@ -2643,7 +2659,6 @@ Whole_program::get_named_indices (Context* cx, Path* path, bool is_readonly)
 	 */
 	if (isa<Indexing> (p->lhs) && isa<Index_path> (p->rhs))
 	{
-		// This is just a specialization of $a[$f], so work on it after that works perfectly.
 		string index_value = dyc<Index_path> (p->rhs)->name;
 		return get_array_named_indices (cx, p->lhs, s(index_value), is_readonly);
 	}
@@ -2993,18 +3008,33 @@ Whole_program::visit_unset (Statement_block* bb, MIR::Unset* in)
 {
 	string ns = block_cx ()->symtable_name ();
 
+	Path* path = P (ns, in);
+
 	// FYI, unset ($x[$y]), where $x is not set, does nothing. Therefore,
 	// RHS_BY_REF does not need to be set for the call the get_named_indices.
-	Index_node_list* indices = get_named_indices (block_cx (), P (ns, in));
+	Index_node_list* indices = get_named_indices (block_cx (), path);
+	bool lhs_killable = is_killable (block_cx (), indices);
 
 	// Send the results to the analyses for all variables which could be
 	// overwritten.
 	
-	// TODO: This is wrong - we can't kill if we don't refer to just one block.
-	// It's really a may-kill.
-	foreach (Index_node* index, *indices)
+
+	if (lhs_killable)
 	{
-		FWPA->kill_value (block_cx (), index, true);
+		// Kill the value and the reference
+		foreach (Index_node* index, *indices)
+		{
+			FWPA->kill_value (block_cx (), index, true);
+		}
+	}
+	else
+	{
+		// OK, we cant kill it. Lets just assign it NULL, which sets the
+		// possability that things are NULL.
+
+		// TODO: this is following references, which is more conservative than
+		// we'd like.
+		assign_path_scalar (block_cx (), path, new NIL);
 	}
 }
 
