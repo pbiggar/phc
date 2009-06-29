@@ -712,10 +712,9 @@ Points_to_impl::convert_context_names ()
 	//
 	//	So just merge them all, until there is a good reason not to.
 
-	// Save the old alias pairs
-	fields.convert_context_names ();
-	references.convert_context_names ();
-	points_to.convert_context_names ();
+	fields = *fields.convert_context_names ();
+	references = *references.convert_context_names ();
+	points_to = *points_to.convert_context_names ();
 
 
 	// Convert symtable names
