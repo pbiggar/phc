@@ -396,6 +396,7 @@ Whole_program::get_possible_receivers (Context* cx, Result_state state, Target* 
 		Types classnames;
 		if (CLASS_NAME* classname = dynamic_cast<CLASS_NAME*> (target))
 		{
+			// Here though, not finding the method is a user-error.
 			classnames.insert (*classname->value);
 		}
 		else
@@ -403,7 +404,8 @@ Whole_program::get_possible_receivers (Context* cx, Result_state state, Target* 
 			VARIABLE_NAME* obj = dyc<VARIABLE_NAME> (target);
 			Index_node* lhs = VN (cx->symtable_name (), obj);
 
-			// Do the killing on all DEFINITE references.
+			// Do the killing on all DEFINITE references (we look at references
+			// since they'll all have a SCLVAL node).
 			Reference_list* refs = aliasing->get_references (cx, state, lhs, DEFINITE);
 			refs->push_back (new Reference (lhs, DEFINITE));
 			foreach (Reference* ref, *refs)
@@ -411,18 +413,33 @@ Whole_program::get_possible_receivers (Context* cx, Result_state state, Target* 
 				Storage_node_list* rhss = aliasing->get_points_to (cx, state, ref->index);
 				foreach (Storage_node* rhs, *rhss)
 				{
+					bool fail = true;
+
 					// Object types
 					Types* types = values->get_types (cx, state, rhs->name ());
 					if (Type_info::get_object_types (types)->size ())
 					{
-						// We've actually got a receiver here
-						if (ref->index == lhs)
-							classnames.insert (types->begin (), types->end ());
+						assert (types->size () == 1);
+
+						string type = types->front ();
+
+						// Check this class has an object of that type
+						Class_info* classinfo = Oracle::get_class_info (s(type));
+						Method_info* info = classinfo->get_method_info (name);
+
+						// TODO: Currently, we assert elsewhere if there is a __call
+						// method, but we'll need to check it here.
+						if (info)
+						{
+							fail = false;
+							classnames.insert (type);
+						}
 					}
-					else
+
+					// Remove all values which aren't possible receiver types. These
+					// would lead to an error, so they can't exist after this point.
+					if (fail)
 					{
-						// Remove all values which aren't objects. These would lead
-						// to an error, so they can't exist after this point.
 
 						// Remove the types from the type inference
 						values->remove_non_objects (cx, state, ref->index->name ());
@@ -446,8 +463,7 @@ Whole_program::get_possible_receivers (Context* cx, Result_state state, Target* 
 			assert (classinfo);
 
 			Method_info* info = classinfo->get_method_info (name);
-			if (info == NULL)
-				phc_TODO (); // Method doesnt exist, try __call
+			assert (info);
 
 			result->push_back (info);
 		}
@@ -1447,7 +1463,7 @@ Whole_program::get_possible_nulls (Context_list* cxs)
 					if (cx == other)
 						continue;
 
-					if (aliasing->has_storage_node (cx, R_OUT, st)
+					if (aliasing->has_storage_node (other, R_OUT, st)
 						&& !aliasing->has_field (other, R_OUT, index))
 					{
 						// Add it
