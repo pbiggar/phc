@@ -87,10 +87,14 @@ public:
 
 	void merge_contexts ();
 
+	// I dont have a nice generic way to do this:
+	void kill_specific_value (Context* cx, Result_state state, Index_node* lhs, Storage_node* rhs);
+
 public:
 	/*
 	 * Take information from Alias results
 	 */
+
 
 	Reference_list* get_references (Context* cx, Result_state state, Index_node* index, Certainty cert);
 	Index_node_list* get_fields (Context* cx, Result_state state, Storage_node* storage);

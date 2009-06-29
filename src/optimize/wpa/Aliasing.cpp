@@ -207,6 +207,16 @@ Aliasing::kill_value (Context* cx, Index_node* lhs, bool also_kill_refs)
 	}
 }
 
+
+void
+Aliasing::kill_specific_value (Context* cx, Result_state state, Index_node* lhs, Storage_node* rhs)
+{
+	Points_to* ptg = ptgs[state][cx];
+
+	// Just kill the edge.
+	ptg->remove_points_to (lhs, rhs);
+}
+
 void
 Aliasing::remove_fake_node (Context* cx, Index_node* fake)
 {

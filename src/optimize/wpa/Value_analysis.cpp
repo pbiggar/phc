@@ -73,6 +73,18 @@ Value_analysis::get_lit (Context* cx, Result_state state, Alias_name name)
  * Types
  */
 
+void
+Value_analysis::remove_non_objects (Context* cx, Result_state state, Alias_name name)
+{
+	// Remove the object types (we assume there are already object types)
+	Abstract_value* val = get_value (cx, state, name)->value;
+	val = new Abstract_value (Type_info::get_object_types (val->types));
+
+	// Set it back
+	Lattice_type& lat = lattices[state][cx];
+	lat[name.str ()] = new Absval_cell (val);
+}
+
 Types*
 Value_analysis::get_types (Context* cx, Result_state state, Alias_name name)
 {

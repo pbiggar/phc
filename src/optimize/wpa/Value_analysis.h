@@ -41,6 +41,8 @@ public:
 	 * Types
 	 */
 
+	void remove_non_objects (Context* cx, Result_state state, Alias_name);
+
 	Types* get_types (Context* cx, Result_state state, Alias_name name);
 
 

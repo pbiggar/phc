@@ -401,10 +401,37 @@ Whole_program::get_possible_receivers (Context* cx, Result_state state, Target* 
 		else
 		{
 			VARIABLE_NAME* obj = dyc<VARIABLE_NAME> (target);
-			classnames = *values->get_types (cx, state, VN (cx->symtable_name (), obj)->name());
-			// TODO: This might be a good place to remove all possible values
-			// which aren't objects? It would speed up the analysis, and greatly
-			// reduce the number of potential objects things can point to.
+			Index_node* lhs = VN (cx->symtable_name (), obj);
+
+			// Do the killing on all DEFINITE references.
+			Reference_list* refs = aliasing->get_references (cx, state, lhs, DEFINITE);
+			refs->push_back (new Reference (lhs, DEFINITE));
+			foreach (Reference* ref, *refs)
+			{
+				Storage_node_list* rhss = aliasing->get_points_to (cx, state, ref->index);
+				foreach (Storage_node* rhs, *rhss)
+				{
+					// Object types
+					Types* types = values->get_types (cx, state, rhs->name ());
+					if (Type_info::get_object_types (types)->size ())
+					{
+						// We've actually got a receiver here
+						if (ref->index == lhs)
+							classnames.insert (types->begin (), types->end ());
+					}
+					else
+					{
+						// Remove all values which aren't objects. These would lead
+						// to an error, so they can't exist after this point.
+
+						// Remove the types from the type inference
+						values->remove_non_objects (cx, state, ref->index->name ());
+
+						// Remove that possible edge.
+						aliasing->kill_specific_value (cx, state, ref->index, rhs);
+					}
+				}
+			}
 		}
 
 		assert (classnames.size () > 0);
@@ -416,8 +443,7 @@ Whole_program::get_possible_receivers (Context* cx, Result_state state, Target* 
 			// therefore a run-time error will occur. So we can pretend this isnt
 			// a receiver. (We shouldn't issue a warning, since this path might
 			// not be realizable in practice).
-			if (classinfo == NULL)
-				continue;
+			assert (classinfo);
 
 			Method_info* info = classinfo->get_method_info (name);
 			if (info == NULL)
