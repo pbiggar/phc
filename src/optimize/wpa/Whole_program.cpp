@@ -867,6 +867,10 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	{
 		// do nothing
 	}
+	else if (*info->name == "floor")
+	{
+		assign_path_typed (cx, ret_path, new Types ("real"));
+	}
 	else if (*info->name == "get_declared_classes")
 	{
 		// Return an array of strings
@@ -1043,6 +1047,11 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 			phc_TODO (); // If first parameter is set, thats a callback.
 		
 		assign_path_typed (cx, ret_path, new Types ("bool"));
+	}
+	else if (*info->name == "ord")
+	{
+		params[0] = coerce_to_string (cx, params[0]);
+		assign_path_typed (cx, ret_path, new Types ("int"));
 	}
 	else if (*info->name == "pow")
 	{
