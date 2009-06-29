@@ -1,13 +1,29 @@
 #!/bin/bash
 
-#test/subjects/benchmarks/php-benchmarks/richards.php										\
-#test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_j4p5.php				\
+# Runs forever
+#test/subjects/benchmarks/php-benchmarks/richards.php
+
+# Beyond hope
+#test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_j4p5.php
+
+# Recursion
+#test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_ackermann.php
+
+# Not great
+#test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_pcre.php
+
 BENCHES="\
 test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_crypto.php				\
 test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_deltablue.php			\
 test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_gaussjordan.php		\
 test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_raytrace.php			\
 test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_whirl.php				\
+test/subjects/benchmarks/shootout/binarytrees.php											\
+test/subjects/benchmarks/shootout/fannkuch.php												\
+test/subjects/benchmarks/shootout/fasta.php-2.php											\
+test/subjects/benchmarks/shootout/knucleotide.php											\
+test/subjects/benchmarks/shootout/nbody.php													\
+test/subjects/benchmarks/shootout/pidigits.php												\
 test/subjects/benchmarks/zend/bench_less_recursive.php									\
 "
 
@@ -20,6 +36,6 @@ do
 	svn update >> test_benches_output 2>&1
 	make >> test_benches_output 2>&1
 	echo $i >> test_benches_output 2>&1
-	time src/phc --include -O2 --stats $i >> test_benches_output 2>&1
+	/usr/bin/time src/phc --include -O2 --stats $i >> test_benches_output 2>&1
 	mail -t paul.biggar@gmail.com -s "benchmark test" < test_benches_output
 done
