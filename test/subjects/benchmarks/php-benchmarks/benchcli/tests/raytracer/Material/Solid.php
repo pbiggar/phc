@@ -1,5 +1,5 @@
 <?php 
-require_once 'Material/BaseMaterial.php';
+require_once 'tests/raytracer/Material/BaseMaterial.php';
 
 class RayTracer_Material_Solid extends RayTracer_Material_BaseMaterial {
 
