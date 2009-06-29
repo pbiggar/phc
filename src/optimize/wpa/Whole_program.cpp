@@ -1025,6 +1025,14 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		params[3] = coerce_to_string (cx, params[3]);
 		assign_path_typed (cx, ret_path, new Types ("string"));
 	}
+	else if (*info->name == "ob_start")
+	{
+		Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]->name());
+		if (*absval->types != Types ("unset"))
+			phc_TODO ();
+
+		assign_path_typed (cx, ret_path, new Types ("bool"));
+	}
 	else if (*info->name == "ob_end_clean")
 	{
 		assign_path_typed (cx, ret_path, new Types ("bool"));
