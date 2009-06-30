@@ -921,6 +921,10 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	{
 		assign_path_typed (cx, ret_path, new Types ("int"));
 	}
+	else if (*info->name == "fclose")
+	{
+		assign_path_typed (cx, ret_path, new Types ("bool"));
+	}
 	else if (*info->name == "feof")
 	{
 		assign_path_typed (cx, ret_path, new Types ("bool"));
