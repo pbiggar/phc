@@ -238,7 +238,7 @@ return (token RETVAL, node RET)
 @@@
 
 // Return-by-value
-return (token RETVAL, node RET)
+return (node RETVAL, node RET)
 @@@
    \read_rvalue ("rhs", RETVAL)
    // Run-time return by reference has different semantics to compile-time.
