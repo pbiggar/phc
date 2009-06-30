@@ -731,11 +731,46 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	}
 
 	Path* ret_path = P (symtable, new VARIABLE_NAME (RETNAME));
-	if (false)
+
+	
+	// Check if we can just invoke the function (we dont do this for objects to
+	// avoid the coercion problem. We probably could though, by just moving this
+	// to the end.
+	if (not info->get_side_effecting ())
 	{
-		// so that everything else is else-if
+		// Check all parameters are literals
+		bool all_literals = true;
+		Literal_list lits;
+		for (int i = 0; ; i++) // NOTE: lack of cond in loop
+		{
+			if (not params.has (i))
+				break;
+
+			Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[i]->name ());
+			if (absval->lit == NULL)
+			{
+				all_literals = false;
+				break;
+			}
+
+			lits.push_back (absval->lit);
+		}
+
+		if (all_literals)
+		{
+			Literal* result = PHP::call_function (
+				new METHOD_NAME (info->name),
+				&lits);
+
+			if (result)
+			{
+				assign_path_scalar (cx, ret_path, result);
+				return;
+			}
+		}
 	}
-	else if (*info->name == "array_pop")
+
+	if (*info->name == "array_pop")
 	{
 		// (ST -> UNNAMED0) -> "*"
 		Path* path = new Indexing (
@@ -1177,6 +1212,11 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		assign_path_scalar (cx, ret_path, absval);
 	}
 	else if (*info->name == "str_repeat")
+	{
+		params[0] = coerce_to_string (cx, params[0]);
+		assign_path_typed (cx, ret_path, new Types ("string"));
+	}
+	else if (*info->name == "strtoupper")
 	{
 		params[0] = coerce_to_string (cx, params[0]);
 		assign_path_typed (cx, ret_path, new Types ("string"));
