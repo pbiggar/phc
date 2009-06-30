@@ -1137,6 +1137,12 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		// string or false
 		assign_path_typed (cx, ret_path, new Types ("string", "bool"));
 	}
+	else if (*info->name == "rtrim")
+	{
+		params[0] = coerce_to_string (cx, params[0]);
+		params[1] = coerce_to_string (cx, params[1]);
+		assign_path_typed (cx, ret_path, new Types ("string"));
+	}
 	else if (*info->name == "shell_exec")
 	{
 		params[0] = coerce_to_string (cx, params[0]);
