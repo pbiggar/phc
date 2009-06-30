@@ -1108,6 +1108,10 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		assign_path_typed (cx, ret_path, new Types ("bool"));
 	}
 	// max: see min
+	else if (*info->name == "microtime")
+	{
+		assign_path_typed (cx, ret_path, new Types ("string", "real"));
+	}
 	else if (*info->name == "number_format")
 	{
 		params[2] = coerce_to_string (cx, params[2]);
