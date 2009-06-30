@@ -793,9 +793,6 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 
 		// Assign them to the return value.
 		assign_path_value (cx, ret_path, new Storage_node (name));
-
-		dump (cx, R_WORKING, "test");
-		phc_TODO ();
 	}
 	else if (*info->name == "array_pop")
 	{
