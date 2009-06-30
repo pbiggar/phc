@@ -14,8 +14,10 @@ define ('IM', 139968);
 define ('IA', 3877);
 define ('IC', 29573);
 
+$last = 42;
+
 function gen_random($max) {
-   static $last = 42;
+	global $last;
    return $max * ($last = ($last * IA + IC) % IM) / IM;
 }
 
