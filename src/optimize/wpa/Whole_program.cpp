@@ -769,8 +769,35 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 			}
 		}
 	}
+	if (*info->name == "array_merge")
+	{
+		// Create new array for this
+		string name = assign_path_empty_array (cx, ret_path, ANON);
 
-	if (*info->name == "array_pop")
+		int i = 0;
+		// Copy the arrays one at a time
+		// TODO: integer indices should be appended. I think we've only seen string indices so far
+		while (params.has (i))
+		{
+			foreach (Storage_node* st, *aliasing->get_points_to (cx, R_WORKING, params[i]))
+			{
+				foreach (Index_node* index, *aliasing->get_fields (cx, R_WORKING, st))
+				{
+					// TODO: we could kill here...
+					Index_node* target = new Index_node (name, index->index);
+					copy_value (cx, target, index);
+				}
+			}
+			i++;
+		}
+
+		// Assign them to the return value.
+		assign_path_value (cx, ret_path, new Storage_node (name));
+
+		dump (cx, R_WORKING, "test");
+		phc_TODO ();
+	}
+	else if (*info->name == "array_pop")
 	{
 		// (ST -> UNNAMED0) -> "*"
 		Path* path = new Indexing (

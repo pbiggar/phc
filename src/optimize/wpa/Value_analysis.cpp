@@ -163,7 +163,7 @@ Value_analysis::get_bin_op_type (string ltype, string rtype, string op)
 	}
 	else if (op == "+")
 	{
-		if (ltype == "array" && rtype == "array")
+		if (ltype == "array" || rtype == "array")
 			phc_TODO ();
 
 		if (ltype == "real" || rtype == "real")

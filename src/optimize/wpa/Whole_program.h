@@ -243,7 +243,7 @@ public:
 
 
 	/*
-	 * Assignments by by node (aka lower-level)
+	 * Assignments by node (aka lower-level)
 	 */
 
 	void assign_absval (Context* cx, Index_node* lhs, Abstract_value* absval);
