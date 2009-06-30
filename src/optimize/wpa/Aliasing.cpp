@@ -111,6 +111,7 @@ Aliasing::forward_bind (Context* caller, Context* entry)
 void
 Aliasing::backward_bind (Context* caller, Context* exit)
 {
+	// TODO: this might segfault, if the exit node is not reachable.
 	Points_to* ptg = outs[exit]->clone ();
 	ptg->consistency_check (exit, R_OUT, wp);
 
