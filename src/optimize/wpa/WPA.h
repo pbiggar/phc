@@ -38,6 +38,22 @@ enum _result_state { R_IN = 1, R_OUT = 2, R_WORKING = 3, R_POST_BIND = 4};
 typedef enum _result_state Result_state;
 string result_state_string (Result_state);
 
+
+namespace std
+{
+	namespace tr1
+	{
+		template <>
+		struct hash<Result_state>
+		{
+			size_t operator() (const Result_state rs) const
+			{
+				return hash<int>() ((int)(rs));
+			}
+		};
+	}
+}
+
 #define UNKNOWN "*"
 
 // Storage node prefix

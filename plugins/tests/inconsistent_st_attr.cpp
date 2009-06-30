@@ -17,7 +17,7 @@ bool success = true;
 class Inconstent_st_attr : public Visitor
 {
 private:
-	map<string, bool> var_map;
+	Map<string, bool> var_map;
 	bool check; // only check with methods
 
 

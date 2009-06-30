@@ -397,7 +397,7 @@ void
 Def_use_web::remove_phi_nodes (Basic_block* bb)
 {
 	foreach (Edge* pred, *bb->get_predecessor_edges ())
-		phi_rhss[pred->edge].clear ();
+		phi_rhss[pred].clear ();
 
 	phi_lhss[bb->ID].clear ();
 }
@@ -408,7 +408,7 @@ Def_use_web::remove_phi_node (Basic_block* bb, Alias_name phi_lhs)
 	assert (has_phi_node (bb, phi_lhs));
 
 	foreach (Edge* pred, *bb->get_predecessor_edges ())
-		phi_rhss[pred->edge].erase (phi_lhs);
+		phi_rhss[pred].erase (phi_lhs);
 
 	// TODO: are we trying to remove the pointer, when we have a different
 	// pointer to the same thing?
@@ -433,7 +433,7 @@ Def_use_web::update_phi_node (Basic_block* bb, Alias_name phi_lhs, Alias_name ne
 	foreach (Edge* pred, *bb->get_predecessor_edges ())
 	{
 		// Not all nodes have their phi argument added yet
-		if (phi_rhss[pred->edge].has (phi_lhs))
+		if (phi_rhss[pred].has (phi_lhs))
 			set_phi_arg_for_edge (
 					pred,
 					new_phi_lhs,
@@ -466,14 +466,14 @@ Def_use_web::get_phi_lhss (Basic_block* bb)
 Alias_name
 Def_use_web::get_phi_arg_for_edge (Edge* edge, Alias_name phi_lhs)
 {
-	return phi_rhss[edge->edge][phi_lhs];
+	return phi_rhss[edge][phi_lhs];
 }
 
 void
 Def_use_web::set_phi_arg_for_edge (Edge* edge, Alias_name phi_lhs, Alias_name arg)
 {
 	DEBUG("SETTING "<<arg.name<<"V "<<arg.ssa_version<<" AS PHI ARG FOR "<<phi_lhs.name<<"V "<<phi_lhs.ssa_version);
-	phi_rhss[edge->edge][phi_lhs] = arg;
+	phi_rhss[edge][phi_lhs] = arg;
 }
 
 void
@@ -489,7 +489,7 @@ Def_use_web::copy_phi_map (Edge* source, Edge* dest)
 	// all of other.target's phi_lhss (which must be guaranteed by the caller).
 	Alias_name phi_lhs;
 	Alias_name arg;
-	foreach (tie (phi_lhs, arg), phi_rhss[dest->edge])
+	foreach (tie (phi_lhs, arg), phi_rhss[dest])
 	{
 		source->get_target()->set_phi_arg_for_edge (source, phi_lhs, arg);
 	}

@@ -67,17 +67,26 @@ public:
 std::ostream &operator<< (std::ostream &out, const Context* cx);
 
 
-class CX_map_compare : virtual public GC_obj
+class CX_map_equals : virtual public GC_obj
 {
 public:
 	bool operator() (Context* cx1, Context* cx2) const
 	{
-		return cx1->name () < cx2->name ();
+		return *cx1 == *cx2;
+	}
+};
+
+class CX_map_hash : virtual public GC_obj
+{
+public:
+	size_t operator() (Context* cx1) const
+	{
+		return std::tr1::hash<string>() (cx1->name ());
 	}
 };
 
 template <class _Tp>
-class CX_map : public Map<Context*, _Tp, CX_map_compare>
+class CX_map : public Map<Context*, _Tp, CX_map_hash, CX_map_equals>
 {
 };
 

@@ -1,6 +1,8 @@
 #ifndef PHC_SSA_OPS
 #define PHC_SSA_OPS
 
+#include <boost/functional/hash.hpp>
+
 #include "MIR.h"
 #include "optimize/Basic_block.h"
 
@@ -52,8 +54,42 @@ public:
 	SSA_def_list* get_defs ();
 };
 
-// Perform an arbitrary comparison, in order to allow the ops to index a map.
-bool ssa_op_ptr_comparison (SSA_op* op1, SSA_op* op2);
+
+class SSA_op_map_equals : virtual public GC_obj
+{
+public:
+	bool operator() (SSA_op* op1, SSA_op* op2) const
+	{
+		// Vertex pointers wont change, even when the graph is updated.
+	
+		return ((typeid (*op1) == typeid (*op2))
+			&& (op1->bb->vertex == op2->bb->vertex)
+			&& (op1->type_flag == op2->type_flag)
+			&& (*op1->name == *op2->name));
+	}
+};
+
+class SSA_op_map_hash : virtual public GC_obj
+{
+public:
+	size_t operator() (SSA_op* op) const
+	{
+		size_t seed = 0;
+
+		boost::hash_combine(seed, op->name->str ());
+		boost::hash_combine(seed, op->type_flag);
+		boost::hash_combine(seed, op->bb->vertex);
+
+		return seed;
+	}
+};
+
+
+
+template <class _Tp>
+class SSA_op_map : public Map<SSA_op*, _Tp, SSA_op_map_hash, SSA_op_map_equals>
+{
+};
 
 
 #endif // PHC_SSA_OPS

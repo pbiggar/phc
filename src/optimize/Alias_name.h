@@ -34,6 +34,7 @@ class Storage_node;
 
 DECL(Alias_name);
 
+
 class Alias_name : virtual public GC_obj
 {
 public:
@@ -61,5 +62,21 @@ public:
 	// Drops the context info
 	Alias_name convert_context_name ();
 };
+
+
+namespace std
+{
+	namespace tr1
+	{
+		template <>
+		struct hash<Alias_name>
+		{
+			size_t operator() (const Alias_name& an) const
+			{
+				return hash<string>() (an.str ());
+			}
+		};
+	}
+}
 
 #endif // PHC_ALIAS_NAME

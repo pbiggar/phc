@@ -9,7 +9,6 @@ using namespace MIR;
 using namespace boost;
 
 DCE::DCE ()
-: marks (&ssa_op_ptr_comparison)
 {
 }
 

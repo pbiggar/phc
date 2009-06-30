@@ -26,7 +26,7 @@ private:
 
 ;
 	// Is the SSA_def marked?
-	Map<SSA_op*, bool, bool (*)(SSA_op*, SSA_op*)> marks;
+	SSA_op_map<bool> marks;
 
 	// Is the BB marked?
 	Map<long, bool> bb_marks;

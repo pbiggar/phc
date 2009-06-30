@@ -8,7 +8,8 @@
 #ifndef PHC_MAP_H
 #define PHC_MAP_H
 
-#include <map>
+#include <tr1/unordered_map>
+#include <tr1/functional_hash.h>
 #include "List.h"
 #include <boost/tuple/tuple.hpp> // for tie
 
@@ -17,14 +18,16 @@ using boost::tie;
 template <
 	typename _Key, 
 	typename _Tp, 
-	typename _Compare = std::less<_Key>,
+	typename _Hash = std::tr1::hash<_Key>,
+	typename _Pred = std::equal_to<_Key>,
 	typename _Alloc = phc_allocator<std::pair<const _Key, _Tp> >
 >
-class Map : public std::map<_Key, _Tp, _Compare, _Alloc>, virtual public GC_obj 
+class Map : public std::tr1::unordered_map<_Key, _Tp, _Hash, _Pred, _Alloc>, virtual public GC_obj 
 {
 public:
-	Map() : std::map<_Key, _Tp, _Compare, _Alloc>() {}
-	Map(_Compare comparator) : std::map<_Key, _Tp, _Compare, _Alloc>(comparator) {}
+	typedef Map <_Key, _Tp, _Hash, _Pred, _Alloc> this_type;
+
+	Map () : std::tr1::unordered_map<_Key, _Tp, _Hash, _Pred, _Alloc> () {}
 	virtual ~Map() {}
 
 public:
@@ -32,6 +35,12 @@ public:
 	{
 		return this->find(key) != this->end();
 	}
+
+	_Tp at(_Key key) const
+	{
+		return this->find(key)->second;
+	}
+
 
 	_Tp get(_Key key)
 	{
@@ -69,7 +78,7 @@ public:
 		return result;
 	}
 
-	bool equals (Map<_Key, _Tp, _Compare, _Alloc>* other)
+	bool equals (this_type* other)
 	{
 		if (other->size () != this->size ())
 			return false;
@@ -90,16 +99,16 @@ public:
 };
 
 
-template<typename _Key, typename _Tp, typename _Compare, typename _Alloc>
+template<typename _Key, typename _Tp, typename _Hash, typename _Pred, typename _Alloc>
 struct
-supports_equality<Map<_Key, _Tp, _Compare, _Alloc>* >
+supports_equality<Map<_Key, _Tp, _Hash, _Pred, _Alloc>* >
 {
 	static const bool value = true;
 };
 
-template<typename _Key, typename _Tp, typename _Compare, typename _Alloc>
+template<typename _Key, typename _Tp, typename _Hash, typename _Pred, typename _Alloc>
 struct
-supports_equality<Map<_Key, _Tp, _Compare, _Alloc> >
+supports_equality<Map<_Key, _Tp, _Hash, _Pred, _Alloc> >
 {
 	static const bool value = true;
 };

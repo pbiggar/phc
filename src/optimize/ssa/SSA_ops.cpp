@@ -30,23 +30,6 @@ void SSA_op::dump()
 	cdebug << demangle (this) << " (" << name->str () << ") in BB " << bb->ID << " ";
 }
 
-bool ssa_op_ptr_comparison (SSA_op* op1, SSA_op* op2)
-{
-	// order on types first
-	if (typeid (*op1) != typeid (*op2))
-		return typeid (*op1).name () < typeid (*op2).name ();
-
-	// Compare vertex pointers, this wont change, even when the
-	// graph is updated.
-	if (op1->bb->vertex != op2->bb->vertex)
-		return op1->bb->vertex < op2->bb->vertex;
-
-	if (op1->type_flag != op2->type_flag)
-		return op1->type_flag < op2->type_flag;
-
-	return *op1->name < *op2->name;
-}
-
 SSA_use_list*
 SSA_def::get_uses ()
 {

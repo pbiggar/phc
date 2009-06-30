@@ -97,7 +97,7 @@ private:
 	Map<long, Var_set> phi_lhss;
 
 	// Store phi arguments by edge. Then they can be updated all-at-once.
-	Map<edge_t, Phi_map> phi_rhss;
+	Map<Edge*, Phi_map> phi_rhss;
 
 	/*
 	 * The DUW holds an ordered list of SSA_ops for each BB. An op is a use,
