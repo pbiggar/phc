@@ -9,7 +9,7 @@
 #define PHC_SET
 
 #include <iterator>
-#include <set>
+#include <tr1/unordered_set>
 #include <algorithm>
 
 #include "assert.h"
@@ -18,21 +18,18 @@
 
 template <
 	typename _Tp, 
-	typename _Compare = std::less<_Tp>,
+	typename _Hash = std::tr1::hash<_Tp>,
+	typename _Pred = std::equal_to<_Tp>,
 	typename _Alloc = phc_allocator<_Tp>
 >
-class Set : public std::set<_Tp, _Compare, _Alloc>, virtual public GC_obj
+class Set : public std::tr1::unordered_set<_Tp, _Hash, _Pred, _Alloc>, virtual public GC_obj
 {
 public:
-	typedef std::set<_Tp, _Compare, _Alloc> parent;
-	typedef Set<_Tp, _Compare, _Alloc > this_type;
+	typedef Set<_Tp, _Hash, _Pred, _Alloc > this_type;
+	typedef std::tr1::unordered_set<_Tp, _Hash, _Pred, _Alloc> parent;
 
 public:
 	Set () {}
-	Set (_Compare comparator) 
-	: parent (comparator)
-	{
-	}
 
 	Set (_Tp elem1) 
 	{
@@ -64,15 +61,13 @@ public:
 
 public:
 
-	using parent::key_comp;
-
 	// Out-of-place operations return new sets. We only consider out-of-place
 	// versions since the STL includes only out-of-place versions. In-place
 	// versions could be created in some cases, however, possibly with lower
 	// complexity.
 	this_type* set_union (this_type* other)
 	{
-		this_type* result = new this_type (key_comp ());
+		this_type* result = new this_type ();
 
 		std::set_union (
 					this->begin (), this->end(),
@@ -83,7 +78,7 @@ public:
 	}
 	this_type* set_intersection (this_type* other)
 	{
-		this_type* result = new this_type (key_comp ());
+		this_type* result = new this_type ();
 
 		std::set_intersection (
 				this->begin (), this->end(),
@@ -94,9 +89,9 @@ public:
 	}
 
 
-	Set<_Tp, _Compare, _Alloc>* set_difference (Set<_Tp, _Compare, _Alloc>* other)
+	this_type* set_difference (this_type* other)
 	{
-		this_type* result = new this_type (key_comp ());
+		this_type* result = new this_type ();
 
 		std::set_difference (
 				this->begin (), this->end(),
@@ -106,14 +101,14 @@ public:
 		return result;
 	}	
 public:
-	bool has (_Tp entry)
+	bool has (_Tp entry) const
 	{
 		return find (entry) != this->end ();
 	}
 
 	this_type* clone ()
 	{
-		this_type* result = new this_type (key_comp ());
+		this_type* result = new this_type ();
 		foreach (_Tp entry, *this)
 		{
 			result->insert (phc_clone (entry));
@@ -122,16 +117,26 @@ public:
 		return result;
 	}
 
-	bool equals (this_type* other)
+	bool equals (this_type* other) const
 	{
-		if (this->size () != other->size ())
+		return (*this == *other);
+	}
+
+	bool operator== (const this_type& other) const
+	{
+		if (this->size () != other.size ())
 			return false;
 
 		foreach (_Tp elem, *this)
-			if (!other->has (elem))
+			if (!other.has (elem))
 				return false;
 
 		return true;
+	}
+
+	bool operator!= (const this_type& other) const
+	{
+		return not (*this == other);
 	}
 
 	_Tp front ()
@@ -152,16 +157,17 @@ public:
 	}
 };
 
-template<typename _Tp, typename _Compare, typename _Alloc>
+
+template<typename _Tp, typename _Hash, typename _Pred, typename _Alloc>
 struct
-supports_equality<Set<_Tp, _Compare, _Alloc>* >
+supports_equality<Set<_Tp, _Hash, _Pred, _Alloc>* >
 {
 	static const bool value = true;
 };
 
-template<typename _Tp, typename _Compare, typename _Alloc>
+template<typename _Tp, typename _Hash, typename _Pred, typename _Alloc>
 struct
-supports_equality<Set<_Tp, _Compare, _Alloc> >
+supports_equality<Set<_Tp, _Hash, _Pred, _Alloc> >
 {
 	static const bool value = true;
 };
