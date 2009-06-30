@@ -65,38 +65,37 @@ public:
 	// versions since the STL includes only out-of-place versions. In-place
 	// versions could be created in some cases, however, possibly with lower
 	// complexity.
-	this_type* set_union (this_type* other)
+	this_type* set_union (this_type* other) const
 	{
 		this_type* result = new this_type ();
 
-		std::set_union (
-					this->begin (), this->end(),
-					other->begin (), other->end (),
-					std::insert_iterator<parent> (*result, result->begin ()));
+		foreach (_Tp key, *other)
+			result->insert (key);
+
+		foreach (_Tp key, *this)
+			result->insert (key);
 
 		return result;
 	}
-	this_type* set_intersection (this_type* other)
+	this_type* set_intersection (this_type* other) const
 	{
 		this_type* result = new this_type ();
 
-		std::set_intersection (
-				this->begin (), this->end(),
-				other->begin (), other->end (),
-				std::insert_iterator<parent> (*result, result->begin ()));
+		foreach (_Tp key, *other)
+			if (this->has (key))
+				result->insert (key);
 
 		return result;
 	}
 
 
-	this_type* set_difference (this_type* other)
+	this_type* set_difference (this_type* other) const
 	{
 		this_type* result = new this_type ();
 
-		std::set_difference (
-				this->begin (), this->end(),
-				other->begin (), other->end (),
-				std::insert_iterator<parent> (*result, result->begin ()));
+		foreach (_Tp key, *this)
+			if (not this->has (key))
+				result->insert (key);
 
 		return result;
 	}	
@@ -147,7 +146,7 @@ public:
 
 public:
 
-	List<_Tp>* to_list ()
+	List<_Tp>* to_list () const
 	{
 		List<_Tp>* result = new List<_Tp>;
 		foreach (_Tp entry, *this)

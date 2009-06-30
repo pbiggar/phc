@@ -45,7 +45,6 @@ public:
 	std::string name;
 	int ssa_version;
 
-	bool operator< (const Alias_name& other) const;
 	bool operator== (const Alias_name& other) const;
 	bool operator!= (const Alias_name& other) const;
 
@@ -54,13 +53,13 @@ public:
 	std::string str () const;
 
 	// Get key for indexing var_stacks
-	string get_key ();	
+	string get_key () const;
 
 	void set_version (int version);
 	void drop_ssa_version ();
 
 	// Drops the context info
-	Alias_name convert_context_name ();
+	Alias_name convert_context_name () const;
 };
 
 

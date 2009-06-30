@@ -36,19 +36,13 @@ Alias_name::Alias_name (string prefix, string name)
 bool
 Alias_name::operator== (const Alias_name& other) const
 {
-	return !((*this) < other || other < (*this));
+	return this->str () == other.str ();
 }
 
 bool
 Alias_name::operator!= (const Alias_name& other) const
 {
 	return not (operator== (other));
-}
-
-bool
-Alias_name::operator< (const Alias_name& other) const
-{
-	return this->str() < other.str();
 }
 
 // In some cases (at least lattice_map, maybe elsewhere), its hard to put use
@@ -70,7 +64,7 @@ Alias_name::str () const
 }
 
 string
-Alias_name::get_key ()
+Alias_name::get_key () const
 {
 	return prefix+"::"+name;
 }
@@ -96,7 +90,7 @@ Alias_name::set_version (int version)
 // it instead of fixing it properly. We just do a string replacement from the
 // name in OLDc to the name in NEWC.
 Alias_name
-Alias_name::convert_context_name ()
+Alias_name::convert_context_name () const
 {
 	Alias_name result (
 		Context::convert_context_name (this->prefix), 
