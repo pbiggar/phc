@@ -950,6 +950,12 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		// Really, this is a pure function with on parameters. This should be inlined.
 		assign_path_typed (cx, ret_path, new Types ("int"));
 	}
+	else if (*info->name == "gettype")
+	{
+		// TODO: we can return the real type here.
+		// Really, this is a pure function with on parameters. This should be inlined.
+		assign_path_typed (cx, ret_path, new Types ("string"));
+	}
 	else if (*info->name == "in_array")
 	{
 		assign_path_typed (cx, ret_path, new Types ("bool"));
