@@ -1034,7 +1034,6 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		assign_path_typed (cx, ret_path, new Types ("int", "bool"));
 	}
 	else if (*info->name == "get_declared_classes")
-	else if (*info->name == "get_declared_classes")
 	{
 		// Return an array of strings
 		assign_path_typed_array (cx, ret_path, new Types ("string"), ANON);
