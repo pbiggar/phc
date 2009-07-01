@@ -119,7 +119,7 @@ function runRichards()
 
     if($scheduler->queueCount != EXPECTED_QUEUE_COUNT || $scheduler->holdCount != EXPECTED_HOLD_COUNT)
     {
-        $error = "Error during execution: queueCount = ".$scheduler->queueCount." exp = ".EXPECTED_QUEUE_COUNT.", holdCount = ".$scheduler->holdCount." exp = ".EXPECTED_HOLD_COUNT.".";
+        $error = "Error during execution: queueCount = ".$scheduler->queueCount.", holdCount = ".$scheduler->holdCount.".";
         throw new Exception($error);
     }
 }
@@ -196,8 +196,8 @@ class Scheduler
      */
     function addRunningTask($id, $priority, $queue, $task)
     {
-          $this->addTask($id, $priority, $queue, $task);
-          $this->currentTcb->setRunning();
+        $this->addTask($id, $priority, $queue, $task);
+        $this->currentTcb->setRunning();
     }
 
     /**
@@ -209,9 +209,9 @@ class Scheduler
      */
     function addTask($id, $priority, $queue, $task)
     {
-          $this->currentTcb = new TaskControlBlock($this->list, $id, $priority, $queue, $task);
-          $this->list = $this->currentTcb;
-          $this->blocks[$id] = $this->currentTcb;
+        $this->currentTcb = new TaskControlBlock($this->list, $id, $priority, $queue, $task);
+        $this->list = $this->currentTcb;
+        $this->blocks[$id] = $this->currentTcb;
     }
 
     /**
@@ -296,10 +296,6 @@ class Scheduler
 
         if($t === NULL)
         {
-			echo "<pre>";
-				var_dump($packet);
-			echo "</pre>";
-
             return $t;
         }
 
@@ -394,7 +390,7 @@ class TaskControlBlock
             $packet = NULL;
         }
 
-		return $this->task->run($packet);
+        return $this->task->run($packet);
     }
 
     /**
@@ -640,7 +636,7 @@ class Packet
     {
         $this->link = NULL;
 
-        if($queue == NULL)
+        if($queue === NULL)
         {
             return $this;
         }
@@ -659,4 +655,8 @@ class Packet
     }
 }
 
-runRichards();
+for($i = 0; $i < 10; $i++) {
+    runRichards();
+}
+
+?>
