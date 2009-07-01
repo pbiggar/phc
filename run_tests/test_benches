@@ -206,7 +206,6 @@ test/subjects/benchmarks/webapps/aphpkb/logout.php											\
 test/subjects/benchmarks/webapps/aphpkb/pending.php											\
 test/subjects/benchmarks/webapps/aphpkb/plugins/pdfClasses/pdfgen.php											\
 test/subjects/benchmarks/webapps/aphpkb/q.php											\
-test/subjects/benchmarks/webapps/aphpkb/rating.php											\
 test/subjects/benchmarks/webapps/aphpkb/register.php											\
 test/subjects/benchmarks/webapps/aphpkb/saa.php											\
 test/subjects/benchmarks/webapps/aphpkb/ssa.php											\
