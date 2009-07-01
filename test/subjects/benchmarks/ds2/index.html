@@ -1,0 +1,47 @@
+
+<!-- 
+ * DVD Store Login Page - index.html
+ *
+ * Copyright (C) 2005 Dell, Inc. <dave_jaffe@dell.com> and <todd_muirhead@dell.com>
+ *
+ * Login to MySQL DVD store 
+ *
+ * Last Updated 6/15/05
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-->
+
+<HTML>
+<HEAD><TITLE>DVD Store Login Page</TITLE></HEAD>
+<BODY>
+<FONT FACE="Arial" COLOR="#0000FF">
+<H1 ALIGN=CENTER>DVD Store</H1>
+  <H2>Returning customer? Please enter your username and password</H2>
+  <FORM  ACTION="./dslogin.php" METHOD=GET >
+  Username <INPUT TYPE=TEXT NAME="username" SIZE=16 MAXLENGTH=24>
+  Password <INPUT TYPE=PASSWORD NAME="password" SIZE=16 MAXLENGTH=24>
+  <INPUT TYPE=SUBMIT VALUE="Login"> 
+  </FORM>
+  <H2>New customer? Please click New Customer</H2>
+  <FORM  ACTION="./dsnewcustomer.php" METHOD=GET >
+  <INPUT TYPE=SUBMIT VALUE="New Customer"> 
+  </FORM>
+<HR>
+<P ALIGN=CENTER>Thank You for Visiting the DVD Store!</A></P>
+<HR>
+<P ALIGN=CENTER>Copyright &copy; 2005 Dell</P>
+</FONT>
+</BODY>
+</HTML>
