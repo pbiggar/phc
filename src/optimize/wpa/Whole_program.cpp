@@ -477,7 +477,10 @@ Whole_program::get_possible_receivers (Context* cx, Result_state state, Target* 
 		Method_info* info = Oracle::get_method_info (name);
 
 		if (info == NULL)
+		{
+			cerr << "Function '" << *name << "' is missing " << endl;
 			phc_TODO (); // ?
+		}
 
 		result->push_back (info);
 	}
@@ -1148,6 +1151,23 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	else if (*info->name == "microtime")
 	{
 		assign_path_typed (cx, ret_path, new Types ("string", "real"));
+	}
+	else if (*info->name == "mysql_pconnect")
+	{
+		if (params[0])
+			params[0] = coerce_to_string (cx, params[0]);
+		if (params[1])
+			params[1] = coerce_to_string (cx, params[1]);
+		if (params[2])
+			params[2] = coerce_to_string (cx, params[2]);
+
+		assign_path_typed (cx, ret_path, new Types ("resource"));
+	}
+	else if (*info->name == "mysql_query")
+	{
+		params[0] = coerce_to_string (cx, params[0]);
+
+		assign_path_typed (cx, ret_path, new Types ("resource"));
 	}
 	else if (*info->name == "number_format")
 	{
