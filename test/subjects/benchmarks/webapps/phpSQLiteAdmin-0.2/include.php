@@ -41,15 +41,7 @@ if (check_db()) {
 
 
 function i18n($defaultstring,$stringid) {
-	include('i18n_langs.php');
-	global $langid;
-	$string = ${'t'.$stringid}[$langid];
-
-	if ( (isset($langid)) && (isset($string)) ) {
-		return $string;
-	} else {
 		return $defaultstring;
-	}
 }
 
 

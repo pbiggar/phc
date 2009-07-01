@@ -21,9 +21,9 @@ echo <<<_REG
 <div class="content">
 _REG;
 
+  include_once "../classes/mysql.class.php";
 if(KBINSTALL==1) {
 
-  include_once "../classes/mysql.class.php";
   
    $mysqldb = new mysql();
  $mysqldb->connect();
