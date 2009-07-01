@@ -1089,6 +1089,10 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		params[2] = coerce_to_string (cx, params[2]);
 		assign_path_typed (cx, ret_path, new Types ("string"));
 	}
+	else if (*info->name == "image_font_width")
+	{
+		assign_path_typed (cx, ret_path, new Types ("int"));
+	}
 	else if (*info->name == "in_array")
 	{
 		assign_path_typed (cx, ret_path, new Types ("bool"));
@@ -1153,7 +1157,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 			assign_path_typed (cx, ret_path, new Types ("bool"));
 		}
 	}
-	else if (*info->name == "is_readable")
+	else if (*info->name == "is_readable" || *info->name == "is_writable")
 	{
 		params[0] = coerce_to_string (cx, params[0]);
 		assign_path_typed (cx, ret_path, new Types ("bool"));
@@ -1203,6 +1207,10 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		params[2] = coerce_to_string (cx, params[2]);
 
 		assign_path_typed (cx, ret_path, new Types ("resource", "bool"));
+	}
+	else if (*info->name == "mysql_error")
+	{
+		assign_path_typed (cx, ret_path, new Types ("string"));
 	}
 	else if (*info->name == "mysql_fetch_array")
 	{
@@ -1381,6 +1389,12 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]->name());
 		assign_path_scalar (cx, ret_path, absval);
 	}
+	else if (*info->name == "str_pad")
+	{
+		params[0] = coerce_to_string (cx, params[0]);
+		params[2] = coerce_to_string (cx, params[2]);
+		assign_path_typed (cx, ret_path, new Types ("string"));
+	}
 	else if (*info->name == "str_repeat")
 	{
 		params[0] = coerce_to_string (cx, params[0]);
@@ -1400,6 +1414,11 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	{
 		params[0] = coerce_to_string (cx, params[0]);
 		assign_path_typed (cx, ret_path, new Types ("bool"));
+	}
+	else if (*info->name == "urlencode")
+	{
+		params[0] = coerce_to_string (cx, params[0]);
+		assign_path_typed (cx, ret_path, new Types ("string"));
 	}
 	else if (*info->name == "var_dump")
 	{
