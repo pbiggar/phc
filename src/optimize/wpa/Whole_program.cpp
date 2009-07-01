@@ -577,7 +577,11 @@ Whole_program::assign_attribute (Context* cx, string obj, MIR::Attribute* attr)
 	}
 	else if (Constant* constant = dynamic_cast<Constant*> (default_value))
 	{
-		phc_TODO ();
+		if (constant->class_name)
+			phc_TODO ();
+
+		Abstract_value* absval = constants->get_constant (block_cx (), R_IN, *constant->constant_name->value);
+		assign_path_scalar (block_cx (), path, absval);
 	}
 	else
 	{
@@ -3687,15 +3691,6 @@ Whole_program::visit_nil (Statement_block* bb, MIR::NIL* in)
 void
 Whole_program::visit_new (Statement_block* bb, MIR::New* in)
 {
-	string ns = block_cx ()->symtable_name ();
-
-	if (saved_plhs () == NULL)
-		phc_TODO ();
-
-	// This will be easy - just kill the LHS references.
-	if (saved_is_ref ())
-		phc_TODO ();
-
 	instantiate_object (block_cx (), saved_lhs (), in);
 }
 
