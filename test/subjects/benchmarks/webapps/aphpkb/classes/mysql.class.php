@@ -31,37 +31,22 @@ class mysql {
 /* Connects to the MySQL database server. */
 	   
 function connect() {
-	   try {
 			 $this->linkid = @mysql_connect($this->host, $this->user, $this->pswd);
 			 if (! $this->linkid)
-				    throw new Exception("Could not connect to the MySQL Server.");
+				    die ("Could not connect to the MySQL Server.");
 			 }
-			 catch (Exception $e) {
-				    die($e->getMessage());
-			 }
-	   }
 	   /* selects the Mysql Database */
 	   
 	   function select() {
-			 try {
-				    if (! @mysql_select_db($this->db, $this->linkid))
-						  throw new Exception("Could not connect to the MySQL database");
-			 }
-			 catch (Exception $e) {
-				    die($e->getMessage());
-			 }
+				   if (! @mysql_select_db($this->db, $this->linkid))
+						  die ("Could not connect to the MySQL database");
 	   }
 	   
 	   /* Execute database query */
 	   function query($query) {
-			 try {
 				    $this->result = @mysql_query($query, $this->linkid);
 				    if (! $this->result)
-						  throw new Exception("The Database query failed");
-			 }
-			 catch (Exception $e) {
-				    echo ($e->getMessage());
-			 }
+						  die ("The Database query failed");
 			 $this->querycount++;
 			 return $this->result;
 	   }
