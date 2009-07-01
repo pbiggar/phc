@@ -1079,6 +1079,16 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		// Really, this is a pure function with on parameters. This should be inlined.
 		assign_path_typed (cx, ret_path, new Types ("string"));
 	}
+	else if (*info->name == "header")
+	{
+		params[0] = coerce_to_string (cx, params[0]);
+	}
+	else if (*info->name == "htmlentities")
+	{
+		params[0] = coerce_to_string (cx, params[0]);
+		params[2] = coerce_to_string (cx, params[2]);
+		assign_path_typed (cx, ret_path, new Types ("string"));
+	}
 	else if (*info->name == "in_array")
 	{
 		assign_path_typed (cx, ret_path, new Types ("bool"));
@@ -1166,6 +1176,11 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 
 		assign_path_typed (cx, ret_path, result);
 	}
+	else if (*info->name == "md5")
+	{
+		params[0] = coerce_to_string (cx, params[0]);
+		assign_path_typed (cx, ret_path, new Types ("string"));
+	}
 	else if (*info->name == "method_exists")
 	{
 		// TODO: we can do better here
@@ -1183,12 +1198,9 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	}
 	else if (*info->name == "mysql_connect" || *info->name == "mysql_pconnect")
 	{
-		if (params[0])
-			params[0] = coerce_to_string (cx, params[0]);
-		if (params[1])
-			params[1] = coerce_to_string (cx, params[1]);
-		if (params[2])
-			params[2] = coerce_to_string (cx, params[2]);
+		params[0] = coerce_to_string (cx, params[0]);
+		params[1] = coerce_to_string (cx, params[1]);
+		params[2] = coerce_to_string (cx, params[2]);
 
 		assign_path_typed (cx, ret_path, new Types ("resource", "bool"));
 	}
@@ -1244,6 +1256,10 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	{
 		params[0] = coerce_to_string (cx, params[0]);
 		assign_path_typed (cx, ret_path, new Types ("int"));
+	}
+	else if (*info->name == "phpinfo")
+	{
+		assign_path_typed (cx, ret_path, new Types ("bool"));
 	}
 	else if (*info->name == "pow")
 	{
@@ -1320,6 +1336,12 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		params[0] = coerce_to_string (cx, params[0]);
 		params[1] = coerce_to_string (cx, params[1]);
 		assign_path_typed (cx, ret_path, new Types ("string"));
+	}
+	else if (*info->name == "session_start")
+	{
+		// TODO: look closer at sessions. It looks like they serialize their
+		// objects, so there isnt a danger from object_handlers.
+		assign_path_typed (cx, ret_path, new Types ("bool"));
 	}
 	else if (*info->name == "shell_exec")
 	{
@@ -2466,6 +2488,10 @@ Whole_program::cast_value (Context* cx, Index_node* lhs, Index_node* rhs, string
 Index_node*
 Whole_program::coerce_to_string (Context* cx, Index_node* node)
 {
+	if (node == NULL)
+		return NULL;
+
+
 	Abstract_value* absval = get_abstract_value (cx, R_WORKING, node->name ());
 
 	Types* objects = Type_info::get_object_types (absval->types);
