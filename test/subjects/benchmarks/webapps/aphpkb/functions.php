@@ -229,5 +229,5 @@ function errhandler($e_number, $e_message, $e_file, $e_line) {
         	// echo '<font color="red" size="1">', $message, '</font>';
         }
 }
-set_error_handler('errhandler');
+#set_error_handler('errhandler');
 ?>

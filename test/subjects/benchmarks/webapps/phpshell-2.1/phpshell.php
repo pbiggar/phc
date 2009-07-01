@@ -76,7 +76,7 @@ function error_handler($errno, $errstr, $errfile, $errline, $errcontext) {
 
 /* Installing our error handler makes PHP die on even the slightest problem.
  * This is what we want in a security critical application like this. */
-set_error_handler('error_handler');
+#set_error_handler('error_handler');
 
 
 function logout() {
