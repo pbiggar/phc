@@ -354,8 +354,8 @@ Stat_collector::collect_uninit_var_stats (Basic_block* bb)
 	{
 		foreach (Alias_name* phi_arg, *bb->get_phi_args (phi_lhs))
 		{
-			if (phi_arg->ssa_version == 0)
-				add_to_stringset_stat ("uninitialised_vars", phi_lhs.name);	
+			if (phi_arg->get_version () == 0)
+				add_to_stringset_stat ("uninitialised_vars", phi_lhs.get_name ());
 		}
 	}
 }

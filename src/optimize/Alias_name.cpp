@@ -19,18 +19,18 @@ using namespace std;
 using namespace MIR;
 
 Alias_name::Alias_name ()
-: ssa_version (0)
+: cached_name (NULL)
+, ssa_version (0)
 {
 }
 
 Alias_name::Alias_name (string prefix, string name)
-: prefix (prefix)
+: cached_name (NULL)
+, prefix (prefix)
 , name (name)
 , ssa_version (0)
 {
 	assert (prefix != "");
-	// See comment in Index_node::Index_node().
-//	assert (name != "");
 }
 
 bool
@@ -50,6 +50,9 @@ Alias_name::operator!= (const Alias_name& other) const
 string
 Alias_name::str () const
 {
+	if (cached_name)
+		return *cached_name;
+
 	stringstream ss;
 
 	if (prefix != "")
@@ -60,7 +63,26 @@ Alias_name::str () const
 	if (ssa_version)
 		ss << "__v" << ssa_version;
 
-	return ss.str ();
+	this->cached_name = s (ss.str ());
+	return *cached_name;
+}
+
+string
+Alias_name::get_name () const
+{
+	return name;
+}
+
+string
+Alias_name::get_prefix () const
+{
+	return prefix;
+}
+
+int
+Alias_name::get_version () const
+{
+	return ssa_version;
 }
 
 string
@@ -72,12 +94,14 @@ Alias_name::get_key () const
 void
 Alias_name::drop_ssa_version ()
 {
+	this->cached_name = NULL;
 	this->ssa_version = 0;
 }
 
 void
 Alias_name::set_version (int version)
 {
+	this->cached_name = NULL;
 	this->ssa_version = version;
 }
 

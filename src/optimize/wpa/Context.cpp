@@ -151,7 +151,7 @@ Context::name () const
 		}
 	}
 
-	this->cached_name = new string (ss.str ());
+	this->cached_name = s (ss.str ());
 	return *cached_name;
 }
 

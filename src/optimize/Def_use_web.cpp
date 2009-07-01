@@ -265,18 +265,18 @@ Def_use_web::ssa_consistency_check ()
 	SSA_def_list def_list;
 	foreach (tie (use, def_list), named_defs)
 	{
-		assert (use.ssa_version);
+		assert (use.get_version ());
 		foreach (SSA_def* def, def_list)
-			assert (def->name->ssa_version);
+			assert (def->name->get_version ());
 	}
 	
 	Alias_name def;
 	SSA_use_list use_list;
 	foreach (tie (def, use_list), named_uses)
 	{
-		assert (def.ssa_version);
+		assert (def.get_version ());
 		foreach (SSA_use* use, use_list)
-			assert (use->name->ssa_version);
+			assert (use->name->get_version ());
 	}
 
 
@@ -387,7 +387,7 @@ Def_use_web::add_phi_arg (Basic_block* bb, Alias_name phi_lhs, int version, Edge
 	// phi_lhs doesnt have to be in SSA, since it will be updated later using
 	// update_phi_node, if it is not.
 	assert (has_phi_node (bb, phi_lhs));
-	DEBUG("ADDING PHI ARG V"<<version<<" for "<<phi_lhs.name);
+	DEBUG("ADDING PHI ARG V"<<version<<" for "<<phi_lhs.str ());
 	Alias_name arg = phi_lhs; // copy
 	arg.set_version (version);
 	set_phi_arg_for_edge (edge, phi_lhs, arg);
@@ -425,9 +425,9 @@ Def_use_web::update_phi_node (Basic_block* bb, Alias_name phi_lhs, Alias_name ne
 	// If a phi_lhs changes into SSA form, its indexing will change. So we must
 	// re-insert its args with the new index.
 
-	assert (phi_lhs.ssa_version == 0);							
-	assert (new_phi_lhs.ssa_version != 0);
-	assert (phi_lhs.name == new_phi_lhs.name);
+	assert (phi_lhs.get_version () == 0);							
+	assert (new_phi_lhs.get_version () != 0);
+	assert (phi_lhs.get_name() == new_phi_lhs.get_name ());
 	add_phi_node (bb, new_phi_lhs);
 
 	foreach (Edge* pred, *bb->get_predecessor_edges ())
@@ -472,7 +472,7 @@ Def_use_web::get_phi_arg_for_edge (Edge* edge, Alias_name phi_lhs)
 void
 Def_use_web::set_phi_arg_for_edge (Edge* edge, Alias_name phi_lhs, Alias_name arg)
 {
-	DEBUG("SETTING "<<arg.name<<"V "<<arg.ssa_version<<" AS PHI ARG FOR "<<phi_lhs.name<<"V "<<phi_lhs.ssa_version);
+	DEBUG("SETTING "<<arg.str ()<<"V "<<arg.get_version ()<<" AS PHI ARG FOR "<<phi_lhs.str ()<<"V "<<phi_lhs.get_version ());
 	phi_rhss[edge][phi_lhs] = arg;
 }
 

@@ -26,7 +26,7 @@ class Context : virtual public GC_obj
 
 	bool use_caller;
 
-	mutable string* cached_name;
+	mutable String* cached_name;
 
 public:
 	friend std::ostream& operator<<(std::ostream&, const Context*);

@@ -669,10 +669,10 @@ Points_to_impl::get_nodes ()
 	{
 		if (not all.has (storage))
 		{
-			if (storage.name == "SCL")
-				all[storage] = new Value_node (storage.prefix);
+			if (storage.get_name () == "SCL")
+				all[storage] = new Value_node (storage.get_prefix());
 			else
-				all[storage] = SN (storage.name);
+				all[storage] = SN (storage.get_name ());
 		}
 	}
 

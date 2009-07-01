@@ -369,7 +369,7 @@ HSSA::convert_out_of_ssa_form ()
 void
 HSSA::push_to_var_stack (Alias_name* name)
 {
-	assert (name->ssa_version == 0);
+	assert (name->get_version () == 0);
 	var_stacks[name->get_key ()].push (counter);
 	name->set_version (counter);
 	counter++;
@@ -464,7 +464,7 @@ HSSA::rename_vars (Basic_block* bb)
 	// TODO: Already covered by defs?	
 	foreach (Alias_name* may_def, *bb->cfg->duw->get_may_defs (bb))
 	{
-		DEBUG("MAY-DEF: " << may_def->name);
+		DEBUG("MAY-DEF: " << may_def->str ());
 		create_new_ssa_name (may_def);
 	}
 

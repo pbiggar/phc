@@ -385,7 +385,7 @@ CFG::dump_graphviz (String* label)
 							block_info << ",";
 						}
 						first=false;
-						block_info << rhs->ssa_version;
+						block_info << rhs->get_version ();
 						
 					}
 					block_info << ")\\n";

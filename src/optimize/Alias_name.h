@@ -37,23 +37,32 @@ DECL(Alias_name);
 
 class Alias_name : virtual public GC_obj
 {
+	mutable String* cached_name;
+	string prefix;
+	string name;
+	int ssa_version;
+
+public:
+
 public:
 	Alias_name ();
-	Alias_name (std::string prefix, std::string name);
+	Alias_name (string prefix, string name);
 
-	std::string prefix;
-	std::string name;
-	int ssa_version;
 
 	bool operator== (const Alias_name& other) const;
 	bool operator!= (const Alias_name& other) const;
 
 	// In some cases (at least lattice_map, maybe elsewhere), its hard to use an
 	// Alias_name instead of a string.
-	std::string str () const;
+	string str () const;
 
 	// Get key for indexing var_stacks
 	string get_key () const;
+
+	// We'd like to make these private
+	string get_name () const;
+	string get_prefix () const;
+	int get_version () const;
 
 	void set_version (int version);
 	void drop_ssa_version ();

@@ -269,7 +269,7 @@ bool
 in_scope (Context* cx, Alias_name& name)
 {
 	// Index_node alias_names put the name of the symtable as the prefix.
-	return name.prefix == cx->symtable_node ()->for_index_node ();
+	return name.get_prefix () == cx->symtable_node ()->for_index_node ();
 }
 
 void
@@ -352,7 +352,7 @@ Def_use::get_alias_name (Basic_block* bb, deftype dt)
 Alias_name*
 Def_use::get_starred_name (Alias_name name)
 {
-	return new Alias_name (name.prefix, get_starred_name (name.name));
+	return new Alias_name (name.get_prefix (), get_starred_name (name.get_name ()));
 }
 
 
