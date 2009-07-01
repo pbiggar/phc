@@ -384,10 +384,15 @@ Whole_program::get_possible_receivers (Context* cx, Result_state state, Target* 
 {
 	Method_info_list* result = new Method_info_list;
 
-	if (isa<Variable_method> (method_name))
-		phc_TODO ();
-
-	String* name = dyc<METHOD_NAME> (method_name)->value;
+	String* name;
+	if (Variable_method* vm =  dynamic_cast<Variable_method*> (method_name))
+	{
+		name = get_string_value (cx, VN (cx->symtable_name (), dyc<Variable_method> (method_name)->variable_name));
+		if (*name == UNKNOWN)
+			phc_TODO ();
+	}
+	else
+		name = dyc<METHOD_NAME> (method_name)->value;
 
 	// If there is a target or a variable_method, there may be > 1 methods that
 	// match it.
@@ -714,7 +719,8 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 
 	// It seems I should use a Vector, but I really would like to access this
 	// without having initialized it (and get NULL).
-	Map<int, Index_node*> params; 
+	Map<int, Index_node*> params;
+	Map<int, Path*> paths;
 
 	string symtable = cx->symtable_name ();
 	for (int i = 0; ; i++) // NOTE: lack of cond in loop
@@ -729,6 +735,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 			break;
 
 
+		paths[i] = P (symtable, new VARIABLE_NAME (UNNAMED (i)));
 		params[i] = param;
 		record_use (cx, param); // use parameters
 	}
@@ -772,7 +779,15 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 			}
 		}
 	}
-	if (*info->name == "array_merge")
+
+	/*
+	 * Model functions
+	 */
+	if (*info->name == "array_key_exists")
+	{
+		assign_path_typed (cx, ret_path, new Types ("bool"));
+	}
+	else if (*info->name == "array_merge")
 	{
 		// Create new array for this
 		string name = assign_path_empty_array (cx, ret_path, ANON);
@@ -995,6 +1010,10 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		// Return an array of strings
 		assign_path_typed_array (cx, ret_path, new Types ("string"), ANON);
 	}
+	else if (*info->name == "get_magic_quotes_gpc")
+	{
+		assign_path_typed (cx, ret_path, new Types ("int"));
+	}
 	else if (*info->name == "get_parent_class")
 	{
 		assign_path_typed (cx, ret_path, new Types ("string" ,"bool"));
@@ -1002,7 +1021,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	else if (*info->name == "gettimeofday")
 	{
 		// TODO handle better
-		bool can_be_real= true;
+		bool can_be_real = true;
 		bool can_be_array = true;
 
 		if (aliasing->has_field (cx, R_WORKING, params[0])) // TODO: just use params[0]?
@@ -1152,7 +1171,8 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	{
 		assign_path_typed (cx, ret_path, new Types ("string", "real"));
 	}
-	else if (*info->name == "mysql_pconnect")
+	// mt_rand: see rand
+	else if (*info->name == "mysql_connect" || *info->name == "mysql_pconnect")
 	{
 		if (params[0])
 			params[0] = coerce_to_string (cx, params[0]);
@@ -1161,13 +1181,13 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		if (params[2])
 			params[2] = coerce_to_string (cx, params[2]);
 
-		assign_path_typed (cx, ret_path, new Types ("resource"));
+		assign_path_typed (cx, ret_path, new Types ("resource", "bool"));
 	}
 	else if (*info->name == "mysql_query")
 	{
 		params[0] = coerce_to_string (cx, params[0]);
 
-		assign_path_typed (cx, ret_path, new Types ("resource"));
+		assign_path_typed (cx, ret_path, new Types ("resource", "bool"));
 	}
 	else if (*info->name == "number_format")
 	{
@@ -1213,6 +1233,18 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		params[0] = coerce_to_string (cx, params[0]);
 		assign_path_typed (cx, ret_path, new Types ("int"));
 	}
+	else if (*info->name == "preg_match")
+	{
+		params[0] = coerce_to_string (cx, params[0]);
+		params[1] = coerce_to_string (cx, params[1]);
+
+		if (params[2])
+		{
+			assign_path_typed_array (cx, paths[2], new Types ("string"), ANON);
+		}
+
+		assign_path_typed (cx, ret_path, new Types ("int"));
+	}
 	else if (*info->name == "preg_replace")
 	{
 		Abstract_value* replacement = get_abstract_value (cx, R_WORKING, params[1]->name());
@@ -1239,7 +1271,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 
 		assign_path_typed_array (cx, ret_path, new Types ("string"), ANON);
 	}
-	else if (*info->name == "rand")
+	else if (*info->name == "rand" || *info->name == "mt_rand")
 	{
 		assign_path_typed (cx, ret_path, new Types ("int"));
 	}
@@ -1283,6 +1315,11 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	{
 		// do nothing
 	}
+	else if (*info->name == "stripslashes")
+	{
+		params[0] = coerce_to_string (cx, params[0]);
+		assign_path_typed (cx, ret_path, new Types ("string"));
+	}
 	else if (*info->name == "strlen")
 	{
 		// TODO: we can tell the length
@@ -1301,7 +1338,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		params[0] = coerce_to_string (cx, params[0]);
 		assign_path_typed (cx, ret_path, new Types ("string"));
 	}
-	else if (*info->name == "strtoupper")
+	else if (*info->name == "strtoupper" || *info->name == "strtolower")
 	{
 		params[0] = coerce_to_string (cx, params[0]);
 		assign_path_typed (cx, ret_path, new Types ("string"));
