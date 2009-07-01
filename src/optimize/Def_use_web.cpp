@@ -44,6 +44,17 @@ Def_use_web::build_web (CFG* cfg, bool update)
 		named_defs.clear ();
 		use_ops.clear ();
 		def_ops.clear ();
+		foreach (Basic_block* bb, *cfg->get_all_bbs ())
+		{	
+			DEBUG ("BBID: " << bb->ID);
+			foreach (Alias_name phi_lhs, *get_phi_lhss (bb))
+			{
+				Alias_name* clone = new Alias_name(phi_lhs);
+				phi_defs[bb->ID].push_back (clone);
+				foreach (Alias_name* phi_arg, *get_phi_args (bb, phi_lhs))
+					phi_uses[bb->ID].push_back (phi_arg);	
+			}
+		}
 	}
 	else
 	{
@@ -58,10 +69,20 @@ Def_use_web::build_web (CFG* cfg, bool update)
 	foreach (Basic_block* bb, *cfg->get_all_bbs ())
 	{
 		foreach (Alias_name* use, uses[bb->ID])
-			named_uses[*use].push_back (new SSA_use (bb, use, SSA_BB));
+			named_uses[use->str ()].push_back (new SSA_use (bb, use, SSA_BB));
 
 		foreach (Alias_name* def, defs[bb->ID])
-			named_defs[*def].push_back (new SSA_def (bb, def, SSA_BB));
+			named_defs[def->str()].push_back (new SSA_def (bb, def, SSA_BB));
+		
+		uses[bb->ID].push_back_all (&phi_uses[bb->ID]);
+		defs[bb->ID].push_back_all (&phi_defs[bb->ID]);
+
+		foreach (Alias_name* use, phi_uses[bb->ID])
+			named_uses[use->str ()].push_back (new SSA_use (bb, use, SSA_PHI));
+
+		foreach (Alias_name* def, phi_defs[bb->ID])
+			named_defs[def->str()].push_back (new SSA_def (bb, def, SSA_PHI));
+		
 
 /*		foreach (Alias_name* may_def, may_defs[bb->ID])
 		{
@@ -71,10 +92,15 @@ Def_use_web::build_web (CFG* cfg, bool update)
 					new Alias_name (*may_def),
 					SSA_CHI));
 		}
+
 */	}
 
+
+
+
+
 	// Create the web
-	Alias_name name;
+	std::string name;
 	SSA_def_list& def_list = *(new SSA_def_list ());
 	foreach (tie (name, def_list), named_defs)
 	{
@@ -83,7 +109,7 @@ Def_use_web::build_web (CFG* cfg, bool update)
 			def_ops[def->bb->ID].push_back (def);
 
 			// Add to all uses
-			foreach (SSA_use* use, named_uses[*def->name])
+			foreach (SSA_use* use, named_uses[name])
 				use->aux_ops.push_back (def);
 		}
 	}
@@ -96,7 +122,7 @@ Def_use_web::build_web (CFG* cfg, bool update)
 			use_ops[use->bb->ID].push_back (use);
 
 			// Add to all uses
-			foreach (SSA_def* def, named_defs[*use->name])
+			foreach (SSA_def* def, named_defs[name])
 				def->aux_ops.push_back (use);
 		}
 	}
@@ -183,7 +209,7 @@ Def_use_web::build_web (CFG* cfg, bool update)
 void
 Def_use_web::dump ()
 {
-	CHECK_DEBUG ();
+/*	CHECK_DEBUG ();
 
 	cdebug << "def_ops:\n";
 	foreach (long key, *def_ops.keys ())
@@ -214,7 +240,7 @@ Def_use_web::dump ()
 	foreach (Alias_name key, *named_defs.keys ())
 	{
 		cdebug << key.str () << ":\n";
-		foreach (SSA_def* def, named_defs[key])
+		foreach (SSA_def* def, named_defs[key.str ()])
 		{
 			cdebug << "\t";
 			def->dump ();
@@ -226,7 +252,7 @@ Def_use_web::dump ()
 	foreach (Alias_name key, *named_uses.keys ())
 	{
 		cdebug << key.str () << ":\n";
-		foreach (SSA_use* use, named_uses[key])
+		foreach (SSA_use* use, named_uses[key.str ()])
 		{
 			cdebug << "\t";
 			use->dump ();
@@ -234,7 +260,7 @@ Def_use_web::dump ()
 		}
 	}
 
-/*
+
 	TODO: dump:
 
 	Map<long, Var_set> phi_lhss;
@@ -252,7 +278,7 @@ void
 Def_use_web::ssa_consistency_check ()
 {
 	// TODO: a lot of stuff isnt in SSA, but we don't want to break everything with a commit
-	
+return;	
 
 	// There isnt much that will help here. I'll implement it if its buggy.
 	// Check that named defs are correctly named
@@ -261,7 +287,7 @@ Def_use_web::ssa_consistency_check ()
 	// and vice-versa
 
 	// Check that each key is in SSA form
-	Alias_name use;
+/*	Alias_name use;
 	SSA_def_list def_list;
 	foreach (tie (use, def_list), named_defs)
 	{
@@ -302,7 +328,7 @@ Def_use_web::ssa_consistency_check ()
 				assert (ssa_use->bb->is_dominated_by (def_bb));
 			}
 		}
-	}
+	}*/
 }
 
 
@@ -340,13 +366,13 @@ Def_use_web::get_block_defs (Basic_block* bb)
 SSA_use_list*
 Def_use_web::get_named_uses (Alias_name* name)
 {
-	return &named_uses[*name];
+	return &named_uses[name->str ()];
 }
 
 SSA_def_list*
 Def_use_web::get_named_defs (Alias_name* name)
 {
-	return &named_defs[*name];
+	return &named_defs[name->str ()];
 }
 
 /*

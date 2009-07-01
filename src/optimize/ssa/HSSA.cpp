@@ -306,10 +306,10 @@ HSSA::convert_to_hssa_form ()
 	if (debugging_enabled)
 		cfg->dump_graphviz (s("Post-renaming"));
 
-//	cfg->duw->build_web(cfg, true);
+	cfg->duw->build_web(cfg, true);
 	
-	cfg->duw->dump ();
-//	cfg->duw->ssa_consistency_check ();
+//	cfg->duw->dump ();
+	cfg->duw->ssa_consistency_check ();
 	
 
 

@@ -202,11 +202,14 @@ DCE::mark_entire_block (Basic_block* bb, string why)
 	// uses. Also, "entire block" doesnt include Phis.
 
 	foreach (SSA_use* use, *bb->cfg->duw->get_block_uses (bb))
+	{
 		mark_def (use);
-
+	}
 	foreach (SSA_def* def, *bb->cfg->duw->get_block_defs (bb))
-		mark (def, "");
-
+	{
+		if (def->type_flag == SSA_BB)
+			mark (def, "");
+	}
 	// Mark the critical branches (ie, the reverse dominance frontier of
 	// the critical blocks: The dominance frontier occurs at joins. The
 	// reverse-dominance frontier is therefore at splits, which must be
@@ -230,7 +233,8 @@ DCE::mark (SSA_def* def, string why)
 {
 	if (marks[def])
 		return;
-
+	
+		
 	DEBUG ("marking ");
 	def->dump();
 	DEBUG (why);
@@ -247,11 +251,42 @@ DCE::mark (SSA_def* def, string why)
 void
 DCE::mark_def (SSA_use* use)
 {
-	// There might be zero or one def.
-	foreach (SSA_def* def, *use->get_defs ())
+
+	if (use->get_defs ()->size () == 1)
 	{
-		mark (def, "due to def of " + use->name->str ());
-	}
+		SSA_def* def = use->get_defs ()->front ();
+		// When a def which is a phi node is marked, we need to mark it's arguments also
+		if (def->type_flag == SSA_PHI)
+		{	
+			foreach (Alias_name* phi_arg, *def->bb->get_phi_args (*def->name))
+			{
+				if (phi_arg->str () != use->name->str ())
+				{	
+					if (phi_arg->get_version ())			
+					{
+						if (def->bb->cfg->duw->get_named_uses (phi_arg)->size ())
+						{	
+							SSA_use* arg_use = def->bb->cfg->duw->get_named_uses (phi_arg)->front ();
+							foreach (SSA_def* def, *arg_use->get_defs ())
+							{
+								mark (def, "due to def of " + use->name->str ());
+							}
+						}	
+					}	
+				}
+			}
+		}
+	
+		if (use->type_flag != SSA_PHI)
+		{
+			// There might be zero or one def.
+			foreach (SSA_def* def, *use->get_defs ())
+			{
+				mark (def, "due to def of " + use->name->str ());
+			}
+		}
+	}	
+
 }
 
 void
@@ -327,6 +362,7 @@ DCE::sweep_pass ()
 void
 DCE::run (CFG* cfg)
 {
+
 	marks.clear ();
 	bb_marks.clear ();
 

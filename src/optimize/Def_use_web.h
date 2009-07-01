@@ -90,8 +90,8 @@ private:
 	Map<long, SSA_def_list> def_ops;
 	Map<long, SSA_use_list> use_ops;
 
-	Map<Alias_name, SSA_def_list> named_defs;
-	Map<Alias_name, SSA_use_list> named_uses;
+	Map<std::string, SSA_def_list> named_defs;
+	Map<std::string, SSA_use_list> named_uses;
 
 	// Instead of an explicit phi node, store the phi->lhs here, mapped by BB.
 	Map<long, Var_set> phi_lhss;
@@ -118,6 +118,8 @@ private:
 	 */
 	Map<long, Alias_name_list> uses;
 	Map<long, Alias_name_list> defs;
+	Map<long, Alias_name_list> phi_uses;
+	Map<long, Alias_name_list> phi_defs;
 
 	// Uses and defs don't include the chis or phis.
 	Map<long, Alias_name_list> may_defs;
