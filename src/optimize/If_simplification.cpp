@@ -17,7 +17,7 @@ If_simplification::visit_branch_block (Branch_block* bb)
 	 *		if ($x) goto L2; else goto L1;
 	 */
 
-	Def_use_web* duw = bb->cfg->duw;
+/*	Def_use_web* duw = bb->cfg->duw;
 
 //	cerr << *bb->branch->variable_name->value << endl;
 	SSA_use* use;
@@ -49,4 +49,4 @@ If_simplification::visit_branch_block (Branch_block* bb)
 	{
 		phc_unreachable ();
 	}
-}
+*/}

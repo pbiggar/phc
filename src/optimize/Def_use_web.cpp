@@ -278,7 +278,7 @@ void
 Def_use_web::ssa_consistency_check ()
 {
 	// TODO: a lot of stuff isnt in SSA, but we don't want to break everything with a commit
-return;	
+	
 
 	// There isnt much that will help here. I'll implement it if its buggy.
 	// Check that named defs are correctly named
@@ -287,22 +287,21 @@ return;
 	// and vice-versa
 
 	// Check that each key is in SSA form
-/*	Alias_name use;
+	std::string use;
 	SSA_def_list def_list;
 	foreach (tie (use, def_list), named_defs)
 	{
-		assert (use.get_version ());
 		foreach (SSA_def* def, def_list)
 			assert (def->name->get_version ());
 	}
 	
-	Alias_name def;
+	std::string def;
 	SSA_use_list use_list;
 	foreach (tie (def, use_list), named_uses)
-	{
-		assert (def.get_version ());
+	{			
 		foreach (SSA_use* use, use_list)
-			assert (use->name->get_version ());
+			assert (use->name->get_version () || use->type_flag == SSA_PHI); //Phi arguments can be zero versions (uninitialised)
+			
 	}
 
 
@@ -324,11 +323,10 @@ return;
 
 			foreach (SSA_use* ssa_use, named_uses[use])
 			{
-				DEBUG("SSAUSE: " << ssa_use->name->str () << "DEF: " << def_list.front ()->name->str () << " BBID: " << def_bb->ID );
-				assert (ssa_use->bb->is_dominated_by (def_bb));
+				assert (ssa_use->bb->is_dominated_by (def_bb) || ssa_use->bb == def_bb || ssa_use->type_flag == SSA_PHI);
 			}
 		}
-	}*/
+	}
 }
 
 
