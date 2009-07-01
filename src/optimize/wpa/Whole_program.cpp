@@ -819,6 +819,39 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		// We may learn to count later
 		assign_path_typed (cx, ret_path, new Types ("int"));
 	}
+	else if (*info->name == "bcadd"
+			|| *info->name == "bcdiv"
+			|| *info->name == "bcmod"
+			|| *info->name == "bcmul"
+			|| *info->name == "bcsub"
+		)
+	{
+		params[0] = coerce_to_string (cx, params[0]);
+		params[1] = coerce_to_string (cx, params[1]);
+		assign_path_typed (cx, ret_path, new Types ("string"));
+	}
+	else if (*info->name == "bccomp")
+	{
+		params[0] = coerce_to_string (cx, params[0]);
+		params[1] = coerce_to_string (cx, params[1]);
+		assign_path_typed (cx, ret_path, new Types ("int"));
+	}
+	else if (*info->name == "bcpowmod")
+	{
+		params[0] = coerce_to_string (cx, params[0]);
+		params[1] = coerce_to_string (cx, params[1]);
+		params[2] = coerce_to_string (cx, params[2]);
+		assign_path_typed (cx, ret_path, new Types ("string", "unset"));
+	}
+	else if (*info->name == "bcscale")
+	{
+		assign_path_typed (cx, ret_path, new Types ("int"));
+	}
+	else if (*info->name == "bcsqrt")
+	{
+		params[0] = coerce_to_string (cx, params[0]);
+		assign_path_typed (cx, ret_path, new Types ("string", "unset"));
+	}
 	else if (*info->name == "compact")
 	{
 		// Return an array with a copy of the named parameters.
