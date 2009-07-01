@@ -1214,7 +1214,10 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	}
 	else if (*info->name == "mysql_fetch_array")
 	{
-		params[0] = coerce_to_string (cx, params[0]);
+		assign_path_typed_array (cx, ret_path, new Types ("string"), ANON);
+	}
+	else if (*info->name == "mysql_fetch_assoc")
+	{
 		assign_path_typed_array (cx, ret_path, new Types ("string"), ANON);
 	}
 	else if (*info->name == "mysql_free_result")
@@ -1374,6 +1377,12 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	else if (*info->name == "stripslashes")
 	{
 		params[0] = coerce_to_string (cx, params[0]);
+		assign_path_typed (cx, ret_path, new Types ("string"));
+	}
+	else if (*info->name == "striptags")
+	{
+		params[0] = coerce_to_string (cx, params[0]);
+		params[1] = coerce_to_string (cx, params[1]);
 		assign_path_typed (cx, ret_path, new Types ("string"));
 	}
 	else if (*info->name == "strlen")
