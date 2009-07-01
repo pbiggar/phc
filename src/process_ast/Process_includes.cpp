@@ -284,11 +284,14 @@ get_search_directories (String* filename, Node* in)
 
 	// If the filename starts with "../" or "./", only check the current
 	// directory)
-	if (filename->substr(0, 3) == "../"
-		or filename->substr (0, 2) == "./")
+	if (not pm->args_info->include_harder_flag)
 	{
-		DEBUG ("Search directory: ./");
-		return new String_list (s("./"));
+		if (filename->substr(0, 3) == "../"
+				or filename->substr (0, 2) == "./")
+		{
+			DEBUG ("Search directory: ./");
+			return new String_list (s("./"));
+		}
 	}
 
 	String_list* result = PHP::get_include_paths ();

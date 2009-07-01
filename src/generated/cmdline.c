@@ -44,6 +44,7 @@ const char *gengetopt_args_info_full_help[] = {
   "      --read-xml=PASSNAME       Assume the input is in XML format. Start \n                                  processing after the named pass (passes are \n                                  ast|hir|mir)",
   "      --no-xml-validation       Toggle XML validation  (default=on)",
   "      --include                 Parse included or required files at \n                                  compile-time  (default=off)",
+  "      --include-harder          Try harder to find included files, possibly \n                                  slightly breaking some of PHP's rules  \n                                  (default=off)",
   "\nCOMPILATION OPTIONS:",
   "  -C, --c-option=STRING         Pass option to the C compile (e.g., -C-g; can \n                                  be specified multiple times)",
   "      --generate-c              Generate C code  (default=off)",
@@ -112,9 +113,9 @@ init_help_array(void)
   gengetopt_args_info_help[14] = gengetopt_args_info_full_help[15];
   gengetopt_args_info_help[15] = gengetopt_args_info_full_help[16];
   gengetopt_args_info_help[16] = gengetopt_args_info_full_help[17];
-  gengetopt_args_info_help[17] = gengetopt_args_info_full_help[19];
+  gengetopt_args_info_help[17] = gengetopt_args_info_full_help[18];
   gengetopt_args_info_help[18] = gengetopt_args_info_full_help[20];
-  gengetopt_args_info_help[19] = gengetopt_args_info_full_help[22];
+  gengetopt_args_info_help[19] = gengetopt_args_info_full_help[21];
   gengetopt_args_info_help[20] = gengetopt_args_info_full_help[23];
   gengetopt_args_info_help[21] = gengetopt_args_info_full_help[24];
   gengetopt_args_info_help[22] = gengetopt_args_info_full_help[25];
@@ -126,17 +127,18 @@ init_help_array(void)
   gengetopt_args_info_help[28] = gengetopt_args_info_full_help[31];
   gengetopt_args_info_help[29] = gengetopt_args_info_full_help[32];
   gengetopt_args_info_help[30] = gengetopt_args_info_full_help[33];
-  gengetopt_args_info_help[31] = gengetopt_args_info_full_help[36];
-  gengetopt_args_info_help[32] = gengetopt_args_info_full_help[47];
+  gengetopt_args_info_help[31] = gengetopt_args_info_full_help[34];
+  gengetopt_args_info_help[32] = gengetopt_args_info_full_help[37];
   gengetopt_args_info_help[33] = gengetopt_args_info_full_help[48];
   gengetopt_args_info_help[34] = gengetopt_args_info_full_help[49];
   gengetopt_args_info_help[35] = gengetopt_args_info_full_help[50];
-  gengetopt_args_info_help[36] = gengetopt_args_info_full_help[60];
-  gengetopt_args_info_help[37] = 0; 
+  gengetopt_args_info_help[36] = gengetopt_args_info_full_help[51];
+  gengetopt_args_info_help[37] = gengetopt_args_info_full_help[61];
+  gengetopt_args_info_help[38] = 0; 
   
 }
 
-const char *gengetopt_args_info_help[38];
+const char *gengetopt_args_info_help[39];
 
 typedef enum {ARG_NO
   , ARG_FLAG
@@ -176,6 +178,7 @@ void clear_given (struct gengetopt_args_info *args_info)
   args_info->read_xml_given = 0 ;
   args_info->no_xml_validation_given = 0 ;
   args_info->include_given = 0 ;
+  args_info->include_harder_given = 0 ;
   args_info->c_option_given = 0 ;
   args_info->generate_c_given = 0 ;
   args_info->extension_given = 0 ;
@@ -232,6 +235,7 @@ void clear_args (struct gengetopt_args_info *args_info)
   args_info->read_xml_orig = NULL;
   args_info->no_xml_validation_flag = 1;
   args_info->include_flag = 0;
+  args_info->include_harder_flag = 0;
   args_info->c_option_arg = NULL;
   args_info->c_option_orig = NULL;
   args_info->generate_c_flag = 0;
@@ -310,56 +314,57 @@ void init_args_info(struct gengetopt_args_info *args_info)
   args_info->read_xml_help = gengetopt_args_info_full_help[13] ;
   args_info->no_xml_validation_help = gengetopt_args_info_full_help[14] ;
   args_info->include_help = gengetopt_args_info_full_help[15] ;
-  args_info->c_option_help = gengetopt_args_info_full_help[17] ;
+  args_info->include_harder_help = gengetopt_args_info_full_help[16] ;
+  args_info->c_option_help = gengetopt_args_info_full_help[18] ;
   args_info->c_option_min = 0;
   args_info->c_option_max = 0;
-  args_info->generate_c_help = gengetopt_args_info_full_help[18] ;
-  args_info->extension_help = gengetopt_args_info_full_help[19] ;
-  args_info->web_app_help = gengetopt_args_info_full_help[20] ;
-  args_info->with_php_help = gengetopt_args_info_full_help[21] ;
-  args_info->optimize_help = gengetopt_args_info_full_help[22] ;
-  args_info->output_help = gengetopt_args_info_full_help[23] ;
-  args_info->execute_help = gengetopt_args_info_full_help[24] ;
-  args_info->next_line_curlies_help = gengetopt_args_info_full_help[26] ;
-  args_info->no_leading_tab_help = gengetopt_args_info_full_help[27] ;
-  args_info->tab_help = gengetopt_args_info_full_help[28] ;
-  args_info->no_hash_bang_help = gengetopt_args_info_full_help[29] ;
-  args_info->dump_help = gengetopt_args_info_full_help[31] ;
+  args_info->generate_c_help = gengetopt_args_info_full_help[19] ;
+  args_info->extension_help = gengetopt_args_info_full_help[20] ;
+  args_info->web_app_help = gengetopt_args_info_full_help[21] ;
+  args_info->with_php_help = gengetopt_args_info_full_help[22] ;
+  args_info->optimize_help = gengetopt_args_info_full_help[23] ;
+  args_info->output_help = gengetopt_args_info_full_help[24] ;
+  args_info->execute_help = gengetopt_args_info_full_help[25] ;
+  args_info->next_line_curlies_help = gengetopt_args_info_full_help[27] ;
+  args_info->no_leading_tab_help = gengetopt_args_info_full_help[28] ;
+  args_info->tab_help = gengetopt_args_info_full_help[29] ;
+  args_info->no_hash_bang_help = gengetopt_args_info_full_help[30] ;
+  args_info->dump_help = gengetopt_args_info_full_help[32] ;
   args_info->dump_min = 0;
   args_info->dump_max = 0;
-  args_info->dump_xml_help = gengetopt_args_info_full_help[32] ;
+  args_info->dump_xml_help = gengetopt_args_info_full_help[33] ;
   args_info->dump_xml_min = 0;
   args_info->dump_xml_max = 0;
-  args_info->dump_dot_help = gengetopt_args_info_full_help[33] ;
+  args_info->dump_dot_help = gengetopt_args_info_full_help[34] ;
   args_info->dump_dot_min = 0;
   args_info->dump_dot_max = 0;
-  args_info->dump_parse_tree_help = gengetopt_args_info_full_help[34] ;
-  args_info->dump_tokens_help = gengetopt_args_info_full_help[35] ;
-  args_info->list_passes_help = gengetopt_args_info_full_help[36] ;
-  args_info->convert_uppered_help = gengetopt_args_info_full_help[38] ;
-  args_info->no_dot_line_numbers_help = gengetopt_args_info_full_help[40] ;
-  args_info->no_dot_nulls_help = gengetopt_args_info_full_help[41] ;
-  args_info->no_dot_empty_lists_help = gengetopt_args_info_full_help[42] ;
-  args_info->no_xml_line_numbers_help = gengetopt_args_info_full_help[44] ;
-  args_info->no_xml_base_64_help = gengetopt_args_info_full_help[45] ;
-  args_info->no_xml_attrs_help = gengetopt_args_info_full_help[46] ;
-  args_info->flow_insensitive_help = gengetopt_args_info_full_help[48] ;
-  args_info->object_insensitive_help = gengetopt_args_info_full_help[49] ;
-  args_info->call_string_length_help = gengetopt_args_info_full_help[50] ;
-  args_info->stats_help = gengetopt_args_info_full_help[52] ;
-  args_info->rt_stats_help = gengetopt_args_info_full_help[53] ;
-  args_info->cfg_dump_help = gengetopt_args_info_full_help[54] ;
+  args_info->dump_parse_tree_help = gengetopt_args_info_full_help[35] ;
+  args_info->dump_tokens_help = gengetopt_args_info_full_help[36] ;
+  args_info->list_passes_help = gengetopt_args_info_full_help[37] ;
+  args_info->convert_uppered_help = gengetopt_args_info_full_help[39] ;
+  args_info->no_dot_line_numbers_help = gengetopt_args_info_full_help[41] ;
+  args_info->no_dot_nulls_help = gengetopt_args_info_full_help[42] ;
+  args_info->no_dot_empty_lists_help = gengetopt_args_info_full_help[43] ;
+  args_info->no_xml_line_numbers_help = gengetopt_args_info_full_help[45] ;
+  args_info->no_xml_base_64_help = gengetopt_args_info_full_help[46] ;
+  args_info->no_xml_attrs_help = gengetopt_args_info_full_help[47] ;
+  args_info->flow_insensitive_help = gengetopt_args_info_full_help[49] ;
+  args_info->object_insensitive_help = gengetopt_args_info_full_help[50] ;
+  args_info->call_string_length_help = gengetopt_args_info_full_help[51] ;
+  args_info->stats_help = gengetopt_args_info_full_help[53] ;
+  args_info->rt_stats_help = gengetopt_args_info_full_help[54] ;
+  args_info->cfg_dump_help = gengetopt_args_info_full_help[55] ;
   args_info->cfg_dump_min = 0;
   args_info->cfg_dump_max = 0;
-  args_info->debug_help = gengetopt_args_info_full_help[55] ;
+  args_info->debug_help = gengetopt_args_info_full_help[56] ;
   args_info->debug_min = 0;
   args_info->debug_max = 0;
-  args_info->dont_fail_help = gengetopt_args_info_full_help[56] ;
-  args_info->missed_opt_help = gengetopt_args_info_full_help[57] ;
-  args_info->disable_help = gengetopt_args_info_full_help[58] ;
+  args_info->dont_fail_help = gengetopt_args_info_full_help[57] ;
+  args_info->missed_opt_help = gengetopt_args_info_full_help[58] ;
+  args_info->disable_help = gengetopt_args_info_full_help[59] ;
   args_info->disable_min = 0;
   args_info->disable_max = 0;
-  args_info->pause_help = gengetopt_args_info_full_help[59] ;
+  args_info->pause_help = gengetopt_args_info_full_help[60] ;
   
 }
 
@@ -586,6 +591,8 @@ cmdline_parser_dump(FILE *outfile, struct gengetopt_args_info *args_info)
     write_into_file(outfile, "no-xml-validation", 0, 0 );
   if (args_info->include_given)
     write_into_file(outfile, "include", 0, 0 );
+  if (args_info->include_harder_given)
+    write_into_file(outfile, "include-harder", 0, 0 );
   write_multiple_into_file(outfile, args_info->c_option_given, "c-option", args_info->c_option_orig, 0);
   if (args_info->generate_c_given)
     write_into_file(outfile, "generate-c", 0, 0 );
@@ -1239,6 +1246,7 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
         { "read-xml",	1, NULL, 0 },
         { "no-xml-validation",	0, NULL, 0 },
         { "include",	0, NULL, 0 },
+        { "include-harder",	0, NULL, 0 },
         { "c-option",	1, NULL, 'C' },
         { "generate-c",	0, NULL, 0 },
         { "extension",	1, NULL, 0 },
@@ -1466,6 +1474,18 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
             if (update_arg((void *)&(args_info->include_flag), 0, &(args_info->include_given),
                 &(local_args_info.include_given), optarg, 0, 0, ARG_FLAG,
                 check_ambiguity, override, 1, 0, "include", '-',
+                additional_error))
+              goto failure;
+          
+          }
+          /* Try harder to find included files, possibly slightly breaking some of PHP's rules.  */
+          else if (strcmp (long_options[option_index].name, "include-harder") == 0)
+          {
+          
+          
+            if (update_arg((void *)&(args_info->include_harder_flag), 0, &(args_info->include_harder_given),
+                &(local_args_info.include_harder_given), optarg, 0, 0, ARG_FLAG,
+                check_ambiguity, override, 1, 0, "include-harder", '-',
                 additional_error))
               goto failure;
           

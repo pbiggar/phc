@@ -67,6 +67,8 @@ struct gengetopt_args_info
   const char *no_xml_validation_help; /**< @brief Toggle XML validation help description.  */
   int include_flag;	/**< @brief Parse included or required files at compile-time (default=off).  */
   const char *include_help; /**< @brief Parse included or required files at compile-time help description.  */
+  int include_harder_flag;	/**< @brief Try harder to find included files, possibly slightly breaking some of PHP's rules (default=off).  */
+  const char *include_harder_help; /**< @brief Try harder to find included files, possibly slightly breaking some of PHP's rules help description.  */
   char ** c_option_arg;	/**< @brief Pass option to the C compile (e.g., -C-g; can be specified multiple times).  */
   char ** c_option_orig;	/**< @brief Pass option to the C compile (e.g., -C-g; can be specified multiple times) original value given at command line.  */
   unsigned int c_option_min; /**< @brief Pass option to the C compile (e.g., -C-g; can be specified multiple times)'s minimum occurreces */
@@ -182,6 +184,7 @@ struct gengetopt_args_info
   unsigned int read_xml_given ;	/**< @brief Whether read-xml was given.  */
   unsigned int no_xml_validation_given ;	/**< @brief Whether no-xml-validation was given.  */
   unsigned int include_given ;	/**< @brief Whether include was given.  */
+  unsigned int include_harder_given ;	/**< @brief Whether include-harder was given.  */
   unsigned int c_option_given ;	/**< @brief Whether c-option was given.  */
   unsigned int generate_c_given ;	/**< @brief Whether generate-c was given.  */
   unsigned int extension_given ;	/**< @brief Whether extension was given.  */

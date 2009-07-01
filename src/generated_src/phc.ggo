@@ -14,6 +14,7 @@ section "INPUT OPTIONS"
 option "read-xml" - "Assume the input is in XML format. Start processing after the named pass (passes are ast|hir|mir)" string typestr="PASSNAME" optional
 option "no-xml-validation" - "Toggle XML validation"  flag on hidden 
 option "include" - "Parse included or required files at compile-time" flag off
+option "include-harder" - "Try harder to find included files, possibly slightly breaking some of PHP's rules" flag off
 
 section "COMPILATION OPTIONS"
 option "c-option" C "Pass option to the C compile (e.g., -C-g; can be specified multiple times)" string optional multiple 
