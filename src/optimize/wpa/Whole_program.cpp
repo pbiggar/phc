@@ -1009,6 +1009,11 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		// string or false
 		assign_path_typed (cx, ret_path, new Types ("string", "bool"));
 	}
+	else if (*info->name == "filesize")
+	{
+		params[0] = coerce_to_string (cx, params[0]);
+		assign_path_typed (cx, ret_path, new Types ("int"));
+	}
 	else if (*info->name == "flush")
 	{
 		// do nothing
@@ -1023,6 +1028,12 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		params[1] = coerce_to_string (cx, params[1]);
 		assign_path_typed (cx, ret_path, new Types ("resource"));
 	}
+	else if (*info->name == "fwrite")
+	{
+		params[1] = coerce_to_string (cx, params[1]);
+		assign_path_typed (cx, ret_path, new Types ("int", "bool"));
+	}
+	else if (*info->name == "get_declared_classes")
 	else if (*info->name == "get_declared_classes")
 	{
 		// Return an array of strings
@@ -1111,6 +1122,10 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		)
 	{
 		assign_path_typed (cx, ret_path, new Types ("int"));
+	}
+	else if (*info->name == "imagecreate")
+	{
+		assign_path_typed (cx, ret_path, new Types ("resource"));
 	}
 	else if (*info->name == "in_array")
 	{
@@ -1234,6 +1249,10 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	else if (*info->name == "mysql_error")
 	{
 		assign_path_typed (cx, ret_path, new Types ("string"));
+	}
+	else if (*info->name == "mysql_errno")
+	{
+		assign_path_typed (cx, ret_path, new Types ("int"));
 	}
 	else if (*info->name == "mysql_fetch_array"
 			|| *info->name == "mysql_fetch_assoc"
@@ -1381,15 +1400,14 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		// string or false
 		assign_path_typed (cx, ret_path, new Types ("string", "bool"));
 	}
-	else if (*info->name == "rtrim")
-	{
-		params[0] = coerce_to_string (cx, params[0]);
-		params[1] = coerce_to_string (cx, params[1]);
-		assign_path_typed (cx, ret_path, new Types ("string"));
-	}
 	else if (*info->name == "session_destroy")
 	{
 		assign_path_typed (cx, ret_path, new Types ("bool"));
+	}
+	else if (*info->name == "session_name")
+	{
+		params[0] = coerce_to_string (cx, params[0]);
+		assign_path_typed (cx, ret_path, new Types ("string"));
 	}
 	else if (*info->name == "session_start")
 	{
@@ -1475,6 +1493,15 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	{
 		params[0] = coerce_to_string (cx, params[0]);
 		assign_path_typed (cx, ret_path, new Types ("bool"));
+	}
+	else if (*info->name == "trim"
+			|| *info->name == "rtrim"
+			|| *info->name == "ltrim"
+		)
+	{
+		params[0] = coerce_to_string (cx, params[0]);
+		params[1] = coerce_to_string (cx, params[1]);
+		assign_path_typed (cx, ret_path, new Types ("string"));
 	}
 	else if (*info->name == "urlencode")
 	{
