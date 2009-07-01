@@ -1,13 +1,7 @@
 #!/bin/bash
 
 # Runs out the clock
-#test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_crypto.php
-#test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_deltablue.php
-#test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_gaussjordan.php
-#test/subjects/benchmarks/php-benchmarks/richards.php
-#test/subjects/benchmarks/shootout/binarytrees.php
-#test/subjects/benchmarks/shootout/nbody.php
-#test/subjects/benchmarks/zend/bench_less_recursive.php
+
 
 # Runs out of memory (on 1.5G)
 #test/subjects/benchmarks/shootout/fasta.php-2.php											\
@@ -20,6 +14,7 @@
 #test/subjects/benchmarks/RUBBoS/PHP/StoreModeratorLog.php								\
 #test/subjects/benchmarks/RUBBoS/PHP/RegisterUser.php										\
 #test/subjects/benchmarks/RUBBoS/PHP/BrowseStoriesByCategory.php						\
+#test/subjects/benchmarks/webapps/eveactive_1.0/edit.php									\
 
 
 # Beyond hope
@@ -96,15 +91,25 @@
 #test/subjects/benchmarks/RUBBoS/PHP/RejectStory.php										\
 #test/subjects/benchmarks/RUBBoS/PHP/ReviewStories.php										\
 #test/subjects/benchmarks/RUBBoS/PHP/BrowseCategories.php									\
+#test/subjects/benchmarks/webapps/eveactive_1.0/user.php									\
+#test/subjects/benchmarks/webapps/aphpkb/config/dbsettings.php											\
 
 
 
 
 BENCHES="\
+test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_crypto.php			\
+test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_deltablue.php			\
+test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_gaussjordan.php		\
 test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_whirl.php				\
+test/subjects/benchmarks/php-benchmarks/richards.php										\
 test/subjects/benchmarks/RUBBoS/PHP/OlderStories.php										\
 test/subjects/benchmarks/RUBBoS/PHP/Search.php												\
+test/subjects/benchmarks/shootout/binarytrees.php											\
 test/subjects/benchmarks/shootout/knucleotide.php											\
+test/subjects/benchmarks/shootout/knucleotide.php											\
+test/subjects/benchmarks/shootout/nbody.php													\
+test/subjects/benchmarks/webapps/aphpkb/aal.php											\
 test/subjects/benchmarks/webapps/aphpkb/aal.php											\
 test/subjects/benchmarks/webapps/aphpkb/a_approvec.php											\
 test/subjects/benchmarks/webapps/aphpkb/a_approve.php											\
@@ -120,7 +125,6 @@ test/subjects/benchmarks/webapps/aphpkb/authors.php											\
 test/subjects/benchmarks/webapps/aphpkb/a_viewall.php											\
 test/subjects/benchmarks/webapps/aphpkb/a_viewauthors.php											\
 test/subjects/benchmarks/webapps/aphpkb/change_password.php											\
-test/subjects/benchmarks/webapps/aphpkb/config/dbsettings.php											\
 test/subjects/benchmarks/webapps/aphpkb/confirm.php											\
 test/subjects/benchmarks/webapps/aphpkb/forgot_password.php											\
 test/subjects/benchmarks/webapps/aphpkb/functions.php											\
@@ -135,8 +139,6 @@ test/subjects/benchmarks/webapps/aphpkb/install/step5.php											\
 test/subjects/benchmarks/webapps/aphpkb/login.php											\
 test/subjects/benchmarks/webapps/aphpkb/logout.php											\
 test/subjects/benchmarks/webapps/aphpkb/pending.php											\
-test/subjects/benchmarks/shootout/knucleotide.php											\
-test/subjects/benchmarks/webapps/aphpkb/aal.php											\
 test/subjects/benchmarks/webapps/aphpkb/plugins/pdfClasses/pdfgen.php											\
 test/subjects/benchmarks/webapps/aphpkb/q.php											\
 test/subjects/benchmarks/webapps/aphpkb/rating.php											\
@@ -145,8 +147,6 @@ test/subjects/benchmarks/webapps/aphpkb/saa.php											\
 test/subjects/benchmarks/webapps/aphpkb/ssa.php											\
 test/subjects/benchmarks/webapps/aphpkb/submit_comment.php											\
 test/subjects/benchmarks/webapps/aphpkb/v.php											\
-test/subjects/benchmarks/webapps/eveactive_1.0/edit.php									\
-test/subjects/benchmarks/webapps/eveactive_1.0/user.php									\
 test/subjects/benchmarks/webapps/phpshell-2.1/phpshell.php											\
 test/subjects/benchmarks/webapps/phpshell-2.1/pwhash.php											\
 test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/dbaction.php											\
@@ -156,6 +156,7 @@ test/subjects/benchmarks/webapps/tigerPhpNewsSystem_1.0_beta_build39/index.php		
 test/subjects/benchmarks/webapps/tigerPhpNewsSystem_1.0_beta_build39/Main.php									\
 test/subjects/benchmarks/webapps/tigerPhpNewsSystem_1.0_beta_build39/randimg.php									\
 test/subjects/benchmarks/webapps/tigerPhpNewsSystem_1.0_beta_build39/rss.php									\
+test/subjects/benchmarks/zend/bench_less_recursive.php									\
 "
 
 set -x
