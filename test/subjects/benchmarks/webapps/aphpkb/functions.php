@@ -1,5 +1,7 @@
 <?php
 
+include_once "./classes/mysql.class.php";
+
 // Start output buffering and initialise a session.
 ob_start();
 session_start();

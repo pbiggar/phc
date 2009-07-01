@@ -1,5 +1,4 @@
 <?php
-include_once "./classes/mysql.class.php";
 $tagfirst=TRUE;
  $mysqldb = new mysql();
  $mysqldb->connect();
