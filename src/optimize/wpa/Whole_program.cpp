@@ -959,6 +959,17 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		// to optimize this.
 		assign_path_typed (cx, ret_path, new Types ("bool"));
 	}
+	else if (*info->name == "ereg_replace")
+	{
+		params[0] = coerce_to_string (cx, params[0]);
+		params[1] = coerce_to_string (cx, params[1]);
+		params[2] = coerce_to_string (cx, params[2]);
+		assign_path_typed (cx, ret_path, new Types ("string"));
+	}
+	else if (*info->name == "error_reporting")
+	{
+		assign_path_typed (cx, ret_path, new Types ("int"));
+	}
 	else if (*info->name == "explode")
 	{
 		params[0] = coerce_to_string (cx, params[0]);
@@ -972,10 +983,6 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 
 		// see comment in 'die'
 		// do nothing
-	}
-	else if (*info->name == "error_reporting")
-	{
-		assign_path_typed (cx, ret_path, new Types ("int"));
 	}
 	else if (*info->name == "fclose")
 	{
@@ -1009,6 +1016,12 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	else if (*info->name == "floor")
 	{
 		assign_path_typed (cx, ret_path, new Types ("real"));
+	}
+	else if (*info->name == "fopen")
+	{
+		params[0] = coerce_to_string (cx, params[0]);
+		params[1] = coerce_to_string (cx, params[1]);
+		assign_path_typed (cx, ret_path, new Types ("resource"));
 	}
 	else if (*info->name == "get_declared_classes")
 	{
@@ -1089,6 +1102,10 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		params[2] = coerce_to_string (cx, params[2]);
 		assign_path_typed (cx, ret_path, new Types ("string"));
 	}
+	else if (*info->name == "imagefontcreate")
+	{
+		assign_path_typed (cx, ret_path, new Types ("resource"));
+	}
 	else if (*info->name == "imagefontheight"
 			|| *info->name == "imagefontwidth"
 		)
@@ -1098,6 +1115,10 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	else if (*info->name == "in_array")
 	{
 		assign_path_typed (cx, ret_path, new Types ("bool"));
+	}
+	else if (*info->name == "ini_get")
+	{
+		assign_path_typed (cx, ret_path, new Types ("string"));
 	}
 	else if (*info->name == "is_array")
 	{
@@ -1220,6 +1241,15 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		)
 	{
 		assign_path_typed_array (cx, ret_path, new Types ("string"), ANON);
+	}
+	else if (*info->name == "mysql_fetch_object")
+	{
+		// instantiate an object of the named type, then fill it
+		if (params[1])
+			phc_TODO ();
+
+		string obj = assign_path_empty_object (cx, ret_path, "stdClass", ANON);
+		assign_path_typed (cx, P (obj, UNKNOWN), new Types ("string"));
 	}
 	else if (*info->name == "mysql_free_result")
 	{
@@ -1357,6 +1387,10 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		params[1] = coerce_to_string (cx, params[1]);
 		assign_path_typed (cx, ret_path, new Types ("string"));
 	}
+	else if (*info->name == "session_destroy")
+	{
+		assign_path_typed (cx, ret_path, new Types ("bool"));
+	}
 	else if (*info->name == "session_start")
 	{
 		// TODO: look closer at sessions. It looks like they serialize their
@@ -1394,9 +1428,18 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		params[1] = coerce_to_string (cx, params[1]);
 		assign_path_typed (cx, ret_path, new Types ("string"));
 	}
+	else if (*info->name == "strstr"
+			|| *info->name == "stristr"
+			|| *info->name == "strchr"
+			)
+	{
+		params[0] = coerce_to_string (cx, params[0]);
+		assign_path_typed (cx, ret_path, new Types ("string"));
+	}
+
 	else if (*info->name == "strlen")
 	{
-		// TODO: we can tell the length
+		// If we know the value, it'll be handled earlier
 		params[0] = coerce_to_string (cx, params[0]);
 		assign_path_typed (cx, ret_path, new Types ("int"));
 	}
