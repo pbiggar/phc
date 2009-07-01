@@ -378,7 +378,6 @@ Optimization_transformer::visit_nil (Statement_block* bb, MIR::NIL* in)
 void
 Optimization_transformer::visit_param_is_ref (Statement_block* bb, MIR::Param_is_ref* in)
 {
-	phc_TODO ();
 }
 
 void

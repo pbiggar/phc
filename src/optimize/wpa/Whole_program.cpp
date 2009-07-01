@@ -1466,6 +1466,10 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 void
 Whole_program::apply_results (User_method_info* info)
 {
+	if (debugging_enabled)
+		info->get_cfg ()->dump_graphviz (s("Pre-apply results"));
+
+
 	// Since we use information from lots of sources, and we need this
 	// information for tons of differernt optimizations, its best to have a
 	// single transformer applying the results.
