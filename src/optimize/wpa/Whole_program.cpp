@@ -1089,7 +1089,9 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		params[2] = coerce_to_string (cx, params[2]);
 		assign_path_typed (cx, ret_path, new Types ("string"));
 	}
-	else if (*info->name == "imagefontwidth")
+	else if (*info->name == "imagefontheight"
+			|| *info->name == "imagefontwidth"
+		)
 	{
 		assign_path_typed (cx, ret_path, new Types ("int"));
 	}
@@ -1212,11 +1214,10 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	{
 		assign_path_typed (cx, ret_path, new Types ("string"));
 	}
-	else if (*info->name == "mysql_fetch_array")
-	{
-		assign_path_typed_array (cx, ret_path, new Types ("string"), ANON);
-	}
-	else if (*info->name == "mysql_fetch_assoc")
+	else if (*info->name == "mysql_fetch_array"
+			|| *info->name == "mysql_fetch_assoc"
+			|| *info->name == "mysql_fetch_row"
+		)
 	{
 		assign_path_typed_array (cx, ret_path, new Types ("string"), ANON);
 	}
@@ -1267,6 +1268,14 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	{
 		params[0] = coerce_to_string (cx, params[0]);
 		assign_path_typed (cx, ret_path, new Types ("int"));
+	}
+	else if (*info->name == "parse_ini_file")
+	{
+		params[0] = coerce_to_string (cx, params[0]);
+
+		// array or scalar
+		assign_path_typed_array (cx, ret_path, new Types ("string"), ANON);
+		assign_path_scalar (cx, ret_path, new BOOL (false), false);
 	}
 	else if (*info->name == "phpinfo")
 	{
@@ -1379,7 +1388,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		params[0] = coerce_to_string (cx, params[0]);
 		assign_path_typed (cx, ret_path, new Types ("string"));
 	}
-	else if (*info->name == "striptags")
+	else if (*info->name == "strip_tags")
 	{
 		params[0] = coerce_to_string (cx, params[0]);
 		params[1] = coerce_to_string (cx, params[1]);
