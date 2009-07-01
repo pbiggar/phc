@@ -212,7 +212,7 @@ Value_analysis::get_unary_op_types (Context* cx, Abstract_value* operand, string
 	if (always_bool_ops.has (op))
 		return new Types ("bool");
 
-	if (op == "-")
+	if (op == "-" || op == "~")
 		return operand->types;
 
 	DEBUG ("unary op: " << op << " not handled");
