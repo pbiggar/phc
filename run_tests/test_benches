@@ -9,7 +9,10 @@
 #test/subjects/benchmarks/shootout/nbody.php
 #test/subjects/benchmarks/zend/bench_less_recursive.php
 
-# Runs out of memory (on 4G)
+# Runs out of memory (on 1.5G)
+#test/subjects/benchmarks/shootout/fasta.php-2.php											\
+#test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_raytrace.php			\
+
 
 # Beyond hope
 #test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_j4p5.php
@@ -21,7 +24,28 @@
 #test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_pcre.php
 
 # Works
+#test/subjects/benchmarks/RUBBoS/PHP/PHPprinter.php											\
+#test/subjects/benchmarks/RUBBoS/PHP/PostComment.php										\
 #test/subjects/benchmarks/shootout/fannkuch.php												\
+#test/subjects/benchmarks/shootout/pidigits.php												\
+#test/subjects/benchmarks/webapps/eveactive_1.0/add.php									\
+#test/subjects/benchmarks/webapps/eveactive_1.0/config.php									\
+#test/subjects/benchmarks/webapps/eveactive_1.0/index.php									\
+#test/subjects/benchmarks/webapps/eveactive_1.0/member_config.php									\
+#test/subjects/benchmarks/webapps/eveactive_1.0/member.php									\
+#test/subjects/benchmarks/webapps/eveactive_1.0/server.php									\
+#test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/config.php											\
+#test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/dbconfig.php											\
+#test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/editdb.php											\
+#test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/include.php											\
+#test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/index.php											\
+#test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/leftframe.php											\
+#test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/mainframe.php											\
+#test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/SPSQLite.class-0.6.php											\
+#test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/SPSQLite.class.php											\
+#test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/table_browse.php											\
+#test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/table_create.php											\
+#test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/table_structure.php											\
 #test/subjects/benchmarks/zend/individual/ary2.php											\
 #test/subjects/benchmarks/zend/individual/ary3.php											\
 #test/subjects/benchmarks/zend/individual/ary.php											\
@@ -43,7 +67,6 @@
 
 
 BENCHES="\
-test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_raytrace.php			\
 test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_whirl.php				\
 test/subjects/benchmarks/RUBBoS/PHP/AcceptStory.php										\
 test/subjects/benchmarks/RUBBoS/PHP/Author.php												\
@@ -51,8 +74,6 @@ test/subjects/benchmarks/RUBBoS/PHP/BrowseCategories.php									\
 test/subjects/benchmarks/RUBBoS/PHP/BrowseStoriesByCategory.php						\
 test/subjects/benchmarks/RUBBoS/PHP/ModerateComment.php									\
 test/subjects/benchmarks/RUBBoS/PHP/OlderStories.php										\
-test/subjects/benchmarks/RUBBoS/PHP/PHPprinter.php											\
-test/subjects/benchmarks/RUBBoS/PHP/PostComment.php										\
 test/subjects/benchmarks/RUBBoS/PHP/RegisterUser.php										\
 test/subjects/benchmarks/RUBBoS/PHP/RejectStory.php										\
 test/subjects/benchmarks/RUBBoS/PHP/ReviewStories.php										\
@@ -64,9 +85,7 @@ test/subjects/benchmarks/RUBBoS/PHP/StoriesOfTheDay.php									\
 test/subjects/benchmarks/RUBBoS/PHP/SubmitStory.php										\
 test/subjects/benchmarks/RUBBoS/PHP/ViewComment.php										\
 test/subjects/benchmarks/RUBBoS/PHP/ViewStory.php											\
-test/subjects/benchmarks/shootout/fasta.php-2.php											\
 test/subjects/benchmarks/shootout/knucleotide.php											\
-test/subjects/benchmarks/shootout/pidigits.php												\
 test/subjects/benchmarks/webapps/aphpkb/aal.php											\
 test/subjects/benchmarks/webapps/aphpkb/a_approvec.php											\
 test/subjects/benchmarks/webapps/aphpkb/a_approve.php											\
@@ -117,34 +136,15 @@ test/subjects/benchmarks/webapps/aphpkb/submit_comment.php											\
 test/subjects/benchmarks/webapps/aphpkb/tags.php											\
 test/subjects/benchmarks/webapps/aphpkb/textarea.php											\
 test/subjects/benchmarks/webapps/aphpkb/v.php											\
-test/subjects/benchmarks/webapps/eveactive_1.0/add.php									\
-test/subjects/benchmarks/webapps/eveactive_1.0/config.php									\
 test/subjects/benchmarks/webapps/eveactive_1.0/edit.php									\
-test/subjects/benchmarks/webapps/eveactive_1.0/index.php									\
-test/subjects/benchmarks/webapps/eveactive_1.0/member_config.php									\
-test/subjects/benchmarks/webapps/eveactive_1.0/member.php									\
-test/subjects/benchmarks/webapps/eveactive_1.0/server.php									\
 test/subjects/benchmarks/webapps/eveactive_1.0/user.php									\
 test/subjects/benchmarks/webapps/phpshell-2.1/config.php											\
 test/subjects/benchmarks/webapps/phpshell-2.1/phpshell.php											\
 test/subjects/benchmarks/webapps/phpshell-2.1/pwhash.php											\
-test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2											\
-test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/config.php											\
 test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/dbaction.php											\
-test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/dbconfig.php											\
-test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/editdb.php											\
-test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/include.php											\
-test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/index.php											\
-test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/leftframe.php											\
-test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/mainframe.php											\
 test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/phpinfo.php											\
 test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/query.php											\
 test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/set_session.php											\
-test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/SPSQLite.class-0.6.php											\
-test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/SPSQLite.class.php											\
-test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/table_browse.php											\
-test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/table_create.php											\
-test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/table_structure.php											\
 test/subjects/benchmarks/webapps/tigerPhpNewsSystem_1.0_beta_build39/atom.php									\
 test/subjects/benchmarks/webapps/tigerPhpNewsSystem_1.0_beta_build39/dist_config.php									\
 test/subjects/benchmarks/webapps/tigerPhpNewsSystem_1.0_beta_build39/index.php									\
@@ -158,8 +158,8 @@ test/subjects/benchmarks/webapps/tigerPhpNewsSystem_1.0_beta_build39/Table.php		
 "
 
 set -x
-ulimit -t 1800 # 30 mins
-ulimit -m 20000000 # 2G-ish
+ulimit -t 1200 # 30 mins
+ulimit -v 1500000 # 1.5G-ish
 
 #!/bin/bash
 
@@ -172,13 +172,13 @@ do
 		dirname=`dirname $i`
 
 		rm -f $SAVE_FILE
-		svn update
-		make 2>&1 | tee -a $SAVE_FILE
 		echo $i 2>&1 | tee -a $SAVE_FILE
-		/usr/bin/time src/phc				\
-			--include -O2 --stats -c		\
-			-d include_path=$dirname $i	\
-			2>&1 | tee -a $SAVE_FILE
+		svn update
+		make
+		echo $? for make 2>&1 | tee -a $SAVE_FILE
+		COMMAND="/usr/bin/time src/phc --include -O2 --stats -c -d include_path=$dirname $i"
+		echo "$COMMAND" | tee -a $SAVE_FILE
+		$COMMAND 2>&1 | tee -a $SAVE_FILE
 
 		mail -t paul.biggar@gmail.com -s "benchmark test" < $SAVE_FILE
 	done

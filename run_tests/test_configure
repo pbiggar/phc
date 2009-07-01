@@ -1,1 +1,1 @@
-./configure --with-readline --enable-maintainer-zts --enable-debug --enable-bcmath --with-mysql
+./configure --enable-embed --enable-maintainer-zts --enable-debug --enable-bcmath --with-mysql --with-readline 
