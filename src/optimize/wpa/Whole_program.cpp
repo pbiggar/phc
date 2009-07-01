@@ -1089,7 +1089,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		params[2] = coerce_to_string (cx, params[2]);
 		assign_path_typed (cx, ret_path, new Types ("string"));
 	}
-	else if (*info->name == "image_font_width")
+	else if (*info->name == "imagefontwidth")
 	{
 		assign_path_typed (cx, ret_path, new Types ("int"));
 	}
