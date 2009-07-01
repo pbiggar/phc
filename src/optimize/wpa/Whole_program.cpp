@@ -888,6 +888,11 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		// TODO: If the parameter is an object, then count can call the interface countable.
 		assign_path_typed (cx, ret_path, new Types ("int"));
 	}
+	else if (*info->name == "date")
+	{
+		coerce_to_string (cx, params[0]);
+		assign_path_typed (cx, ret_path, new Types ("string", "bool"));
+	}
 	else if (*info->name == "date_default_timezone_set")
 	{
 		coerce_to_string (cx, params[0]);
@@ -1172,6 +1177,10 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		assign_path_typed (cx, ret_path, new Types ("string", "real"));
 	}
 	// mt_rand: see rand
+	else if (*info->name == "mysql_close")
+	{
+		assign_path_typed (cx, ret_path, new Types ("bool"));
+	}
 	else if (*info->name == "mysql_connect" || *info->name == "mysql_pconnect")
 	{
 		if (params[0])
@@ -1183,10 +1192,27 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 
 		assign_path_typed (cx, ret_path, new Types ("resource", "bool"));
 	}
+	else if (*info->name == "mysql_fetch_array")
+	{
+		params[0] = coerce_to_string (cx, params[0]);
+		assign_path_typed_array (cx, ret_path, new Types ("string"), ANON);
+	}
+	else if (*info->name == "mysql_free_result")
+	{
+		assign_path_typed_array (cx, ret_path, new Types ("bool"), ANON);
+	}
+	else if (*info->name == "mysql_num_rows")
+	{
+		assign_path_typed_array (cx, ret_path, new Types ("int"), ANON);
+	}
+	else if (*info->name == "mysql_select_db")
+	{
+		params[0] = coerce_to_string (cx, params[0]);
+		assign_path_typed (cx, ret_path, new Types ("bool"));
+	}
 	else if (*info->name == "mysql_query")
 	{
 		params[0] = coerce_to_string (cx, params[0]);
-
 		assign_path_typed (cx, ret_path, new Types ("resource", "bool"));
 	}
 	else if (*info->name == "number_format")
