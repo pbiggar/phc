@@ -1,1 +1,4 @@
-./configure --enable-embed --enable-maintainer-zts --enable-debug --enable-bcmath --with-mysql --with-readline 
+make clean
+./configure --enable-embed --enable-maintainer-zts --enable-debug --enable-bcmath --with-mysql --with-readline --with-gd
+make -j 5
+sudo make install

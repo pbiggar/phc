@@ -12,6 +12,14 @@
 # Runs out of memory (on 1.5G)
 #test/subjects/benchmarks/shootout/fasta.php-2.php											\
 #test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_raytrace.php			\
+#test/subjects/benchmarks/webapps/tigerPhpNewsSystem_1.0_beta_build39/lang/en.php									\
+#test/subjects/benchmarks/webapps/tigerPhpNewsSystem_1.0_beta_build39/lang/sv.php									\
+#test/subjects/benchmarks/RUBBoS/PHP/ViewComment.php										\
+#test/subjects/benchmarks/RUBBoS/PHP/ViewStory.php											\
+#test/subjects/benchmarks/RUBBoS/PHP/StoreComment.php										\
+#test/subjects/benchmarks/RUBBoS/PHP/StoreModeratorLog.php								\
+#test/subjects/benchmarks/RUBBoS/PHP/RegisterUser.php										\
+#test/subjects/benchmarks/RUBBoS/PHP/BrowseStoriesByCategory.php						\
 
 
 # Beyond hope
@@ -46,6 +54,9 @@
 #test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/table_browse.php											\
 #test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/table_create.php											\
 #test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/table_structure.php											\
+#test/subjects/benchmarks/webapps/tigerPhpNewsSystem_1.0_beta_build39/dist_config.php									\
+#test/subjects/benchmarks/webapps/tigerPhpNewsSystem_1.0_beta_build39/sessions.php									\
+#test/subjects/benchmarks/webapps/tigerPhpNewsSystem_1.0_beta_build39/Table.php									\
 #test/subjects/benchmarks/zend/individual/ary2.php											\
 #test/subjects/benchmarks/zend/individual/ary3.php											\
 #test/subjects/benchmarks/zend/individual/ary.php											\
@@ -62,29 +73,37 @@
 #test/subjects/benchmarks/zend/individual/simpleucall.php									\
 #test/subjects/benchmarks/zend/individual/simpleudcall.php								\
 #test/subjects/benchmarks/zend/individual/strcat.php										\
+#test/subjects/benchmarks/webapps/aphpkb/classes/mysql.class.php											\
+#test/subjects/benchmarks/webapps/aphpkb/config/config.php											\
+#test/subjects/benchmarks/webapps/aphpkb/plugins/pdfClasses/pdfform.php											\
+#test/subjects/benchmarks/webapps/aphpkb/plugins/pdfClasses/class.pdf.php											\
+#test/subjects/benchmarks/webapps/aphpkb/plugins/whizzywig/plugin-textarea.php											\
+#test/subjects/benchmarks/webapps/aphpkb/related.php											\
+#test/subjects/benchmarks/webapps/aphpkb/search.php											\
+#test/subjects/benchmarks/webapps/aphpkb/textarea.php											\
+#test/subjects/benchmarks/RUBBoS/PHP/StoreStory.php											\
+#test/subjects/benchmarks/RUBBoS/PHP/StoriesOfTheDay.php									\
+#test/subjects/benchmarks/RUBBoS/PHP/SubmitStory.php										\
+#test/subjects/benchmarks/webapps/aphpkb/config/auth
+#test/subjects/benchmarks/webapps/aphpkb/plugins/pdfClasses/class.ezpdf.php											\
+#test/subjects/benchmarks/webapps/aphpkb/tags.php											\
+#test/subjects/benchmarks/webapps/phpshell-2.1/config.php											\
+#test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/phpinfo.php											\
+#test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/query.php											\
+#test/subjects/benchmarks/RUBBoS/PHP/AcceptStory.php										\
+#test/subjects/benchmarks/RUBBoS/PHP/Author.php												\
+#test/subjects/benchmarks/RUBBoS/PHP/ModerateComment.php									\
+#test/subjects/benchmarks/RUBBoS/PHP/RejectStory.php										\
+#test/subjects/benchmarks/RUBBoS/PHP/ReviewStories.php										\
+#test/subjects/benchmarks/RUBBoS/PHP/BrowseCategories.php									\
 
 
 
 
 BENCHES="\
 test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_whirl.php				\
-test/subjects/benchmarks/RUBBoS/PHP/AcceptStory.php										\
-test/subjects/benchmarks/RUBBoS/PHP/Author.php												\
-test/subjects/benchmarks/RUBBoS/PHP/BrowseCategories.php									\
-test/subjects/benchmarks/RUBBoS/PHP/BrowseStoriesByCategory.php						\
-test/subjects/benchmarks/RUBBoS/PHP/ModerateComment.php									\
 test/subjects/benchmarks/RUBBoS/PHP/OlderStories.php										\
-test/subjects/benchmarks/RUBBoS/PHP/RegisterUser.php										\
-test/subjects/benchmarks/RUBBoS/PHP/RejectStory.php										\
-test/subjects/benchmarks/RUBBoS/PHP/ReviewStories.php										\
 test/subjects/benchmarks/RUBBoS/PHP/Search.php												\
-test/subjects/benchmarks/RUBBoS/PHP/StoreComment.php										\
-test/subjects/benchmarks/RUBBoS/PHP/StoreModeratorLog.php								\
-test/subjects/benchmarks/RUBBoS/PHP/StoreStory.php											\
-test/subjects/benchmarks/RUBBoS/PHP/StoriesOfTheDay.php									\
-test/subjects/benchmarks/RUBBoS/PHP/SubmitStory.php										\
-test/subjects/benchmarks/RUBBoS/PHP/ViewComment.php										\
-test/subjects/benchmarks/RUBBoS/PHP/ViewStory.php											\
 test/subjects/benchmarks/shootout/knucleotide.php											\
 test/subjects/benchmarks/webapps/aphpkb/aal.php											\
 test/subjects/benchmarks/webapps/aphpkb/a_approvec.php											\
@@ -101,14 +120,10 @@ test/subjects/benchmarks/webapps/aphpkb/authors.php											\
 test/subjects/benchmarks/webapps/aphpkb/a_viewall.php											\
 test/subjects/benchmarks/webapps/aphpkb/a_viewauthors.php											\
 test/subjects/benchmarks/webapps/aphpkb/change_password.php											\
-test/subjects/benchmarks/webapps/aphpkb/classes/mysql.class.php											\
-test/subjects/benchmarks/webapps/aphpkb/config/auth.php											\
-test/subjects/benchmarks/webapps/aphpkb/config/config.php											\
 test/subjects/benchmarks/webapps/aphpkb/config/dbsettings.php											\
 test/subjects/benchmarks/webapps/aphpkb/confirm.php											\
 test/subjects/benchmarks/webapps/aphpkb/forgot_password.php											\
 test/subjects/benchmarks/webapps/aphpkb/functions.php											\
-test/subjects/benchmarks/webapps/aphpkb/inc/rating.php											\
 test/subjects/benchmarks/webapps/aphpkb/inc/tags.php											\
 test/subjects/benchmarks/webapps/aphpkb/index.php											\
 test/subjects/benchmarks/webapps/aphpkb/install/index.php											\
@@ -120,41 +135,27 @@ test/subjects/benchmarks/webapps/aphpkb/install/step5.php											\
 test/subjects/benchmarks/webapps/aphpkb/login.php											\
 test/subjects/benchmarks/webapps/aphpkb/logout.php											\
 test/subjects/benchmarks/webapps/aphpkb/pending.php											\
-test/subjects/benchmarks/webapps/aphpkb/plugins/pdfClasses/class.ezpdf.php											\
-test/subjects/benchmarks/webapps/aphpkb/plugins/pdfClasses/class.pdf.php											\
-test/subjects/benchmarks/webapps/aphpkb/plugins/pdfClasses/pdfform.php											\
+test/subjects/benchmarks/shootout/knucleotide.php											\
+test/subjects/benchmarks/webapps/aphpkb/aal.php											\
 test/subjects/benchmarks/webapps/aphpkb/plugins/pdfClasses/pdfgen.php											\
-test/subjects/benchmarks/webapps/aphpkb/plugins/whizzywig/plugin-textarea.php											\
 test/subjects/benchmarks/webapps/aphpkb/q.php											\
 test/subjects/benchmarks/webapps/aphpkb/rating.php											\
 test/subjects/benchmarks/webapps/aphpkb/register.php											\
-test/subjects/benchmarks/webapps/aphpkb/related.php											\
 test/subjects/benchmarks/webapps/aphpkb/saa.php											\
-test/subjects/benchmarks/webapps/aphpkb/search.php											\
 test/subjects/benchmarks/webapps/aphpkb/ssa.php											\
 test/subjects/benchmarks/webapps/aphpkb/submit_comment.php											\
-test/subjects/benchmarks/webapps/aphpkb/tags.php											\
-test/subjects/benchmarks/webapps/aphpkb/textarea.php											\
 test/subjects/benchmarks/webapps/aphpkb/v.php											\
 test/subjects/benchmarks/webapps/eveactive_1.0/edit.php									\
 test/subjects/benchmarks/webapps/eveactive_1.0/user.php									\
-test/subjects/benchmarks/webapps/phpshell-2.1/config.php											\
 test/subjects/benchmarks/webapps/phpshell-2.1/phpshell.php											\
 test/subjects/benchmarks/webapps/phpshell-2.1/pwhash.php											\
 test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/dbaction.php											\
-test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/phpinfo.php											\
-test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/query.php											\
 test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/set_session.php											\
 test/subjects/benchmarks/webapps/tigerPhpNewsSystem_1.0_beta_build39/atom.php									\
-test/subjects/benchmarks/webapps/tigerPhpNewsSystem_1.0_beta_build39/dist_config.php									\
 test/subjects/benchmarks/webapps/tigerPhpNewsSystem_1.0_beta_build39/index.php									\
-test/subjects/benchmarks/webapps/tigerPhpNewsSystem_1.0_beta_build39/lang/en.php									\
-test/subjects/benchmarks/webapps/tigerPhpNewsSystem_1.0_beta_build39/lang/sv.php									\
 test/subjects/benchmarks/webapps/tigerPhpNewsSystem_1.0_beta_build39/Main.php									\
 test/subjects/benchmarks/webapps/tigerPhpNewsSystem_1.0_beta_build39/randimg.php									\
 test/subjects/benchmarks/webapps/tigerPhpNewsSystem_1.0_beta_build39/rss.php									\
-test/subjects/benchmarks/webapps/tigerPhpNewsSystem_1.0_beta_build39/sessions.php									\
-test/subjects/benchmarks/webapps/tigerPhpNewsSystem_1.0_beta_build39/Table.php									\
 "
 
 set -x
@@ -163,7 +164,7 @@ ulimit -v 1500000 # 1.5G-ish
 
 #!/bin/bash
 
-SAVE_FILE="test_benches_output"
+SAVE_FILE="run_tests/output"
 
 while true;
 do
@@ -171,12 +172,12 @@ do
 	do
 		dirname=`dirname $i`
 
-		rm -f $SAVE_FILE
+		rm $SAVE_FILE
 		echo $i 2>&1 | tee -a $SAVE_FILE
 		svn update
-		make
-		echo $? for make 2>&1 | tee -a $SAVE_FILE
-		COMMAND="/usr/bin/time src/phc --include -O2 --stats -c -d include_path=$dirname $i"
+		/usr/bin/make
+		echo "Make result: $?" 2>&1 | tee -a $SAVE_FILE
+		COMMAND="/usr/bin/time --format %E-%K src/phc --include --include-harder -O2 --stats -c -d include_path=$dirname $i"
 		echo "$COMMAND" | tee -a $SAVE_FILE
 		$COMMAND 2>&1 | tee -a $SAVE_FILE
 
