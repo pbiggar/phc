@@ -170,8 +170,6 @@ class Branch_block : public Basic_block
 public:
 	MIR::Branch* branch;
 
-	bool if_simplified;
-
 public:
 	Branch_block (CFG* parent, MIR::Branch* b);
 

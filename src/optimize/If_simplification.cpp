@@ -16,8 +16,8 @@ If_simplification::visit_branch_block (Branch_block* bb)
 	 *
 	 *		if ($x) goto L2; else goto L1;
 	 */
-	if (!bb->if_simplified)
-	{
+
+
 		Def_use_web* duw = bb->cfg->duw;
 
 		bool simplify = false;
@@ -25,14 +25,16 @@ If_simplification::visit_branch_block (Branch_block* bb)
 
 		// Check if the correct use is actually in the block
 		foreach (SSA_use* temp, *duw->get_block_uses (bb))
-		{
-			string v = *bb->branch->variable_name->value;
-			string s = temp->name->get_name ();
-
-			if (s == "*_"+v)
+		{	if (use->type_flag != SSA_PHI)
 			{
-				use = temp;
-				simplify = true;
+				string v = *bb->branch->variable_name->value;
+				string s = temp->name->get_name ();
+
+				if (s == "*_"+v)
+				{
+					use = temp;
+					simplify = true;
+				}
 			}
 		}
 		
@@ -42,18 +44,25 @@ If_simplification::visit_branch_block (Branch_block* bb)
 
 			if (defs->size () == 1)
 			{
-				Wildcard<Unary_op>* uop = new Wildcard<Unary_op>;
 				Statement_block* sb; 
 				if ((sb = dynamic_cast<Statement_block*> (defs->front()->bb)))
 				{
-					if (sb->statement->match (
-							new Assign_var (
-							new Wildcard<VARIABLE_NAME>, false, uop))
-						&& *uop->value->op->value == "!")
+					Assign_var* ass_var;
+					Unary_op* un_op;
+					if ((ass_var = dynamic_cast<Assign_var*> (sb->statement)))
 					{
-						bb->branch->variable_name = uop->value->variable_name->clone ();
-						bb->switch_successors ();
-						bb->if_simplified = true;
+						if ((un_op = dynamic_cast<Unary_op*> (ass_var->rhs)))
+						{
+							if (*un_op->op->value == "!")	
+							{
+								// I don't like this, I don't think I should need it....
+								if (*un_op->variable_name->value != *bb->branch->variable_name->value)
+								{	
+									bb->branch->variable_name = un_op->variable_name->clone ();
+									bb->switch_successors ();
+								}
+							}
+						}
 					}
 				}
 			}
@@ -63,5 +72,5 @@ If_simplification::visit_branch_block (Branch_block* bb)
 			}
 			
 		}
-	}
+
 }

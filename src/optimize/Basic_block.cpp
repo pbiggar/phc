@@ -29,7 +29,6 @@ Branch_block::Branch_block (CFG* cfg, Branch* b)
 : Basic_block (cfg)
 , branch (b) 
 {
-	if_simplified = false;
 }
 
 Statement_block::Statement_block (CFG* cfg, Statement* s) 
