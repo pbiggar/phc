@@ -23,12 +23,12 @@ if ( preg_match("/bot|spider|crawl|seek|search|slurp|checker|meta|validator/is",
 header("Content-Type: text/html; charset=ISO-8859-15");
 require_once( 'Main.php' );
 include( 'config.php' );
+require_once( 'sessions.php' );
 $confnr=$nr;
 
 $main = new Main();
 if ($usedbsessions)
 {
-    require_once( 'sessions.php' );
     $session = new session();
     $session->setMain($main);
     session_set_save_handler(array(&$session,"open"), array(&$session,"close"), array(&$session,"read"), array(&$session,"write"), array(&$session,"destroy"), array(&$session,"gc")); 
