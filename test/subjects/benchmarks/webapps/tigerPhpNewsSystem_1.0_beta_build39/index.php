@@ -51,10 +51,11 @@ if (isset($_REQUEST['page']) and $logannoncomment)
         fwrite($fp, "\nHTTP_ACCEPT_LANGUAGE=".$_SERVER['HTTP_ACCEPT_LANGUAGE']);
         fwrite($fp, "\nHTTP_ACCEPT_ENCODING=".$_SERVER['HTTP_ACCEPT_ENCODING']);
         fwrite($fp, "\nHTTP_ACCEPT_CHARSET=".$_SERVER['HTTP_ACCEPT_CHARSET']);
-        while(list($key,$val) = each($_GET)){fwrite($fp, "\n_GET: ".$key."=".$val);}
-        while(list($key,$val) = each($_POST)){fwrite($fp, "\n_POST: ".$key."=".$val);}
-        while(list($key,$val) = each($_SESSION)){fwrite($fp, "\n_SESSION: ".$key."=".$val);}
-        while(list($key,$val) = each($_COOKIE)){fwrite($fp, "\n_COOKIE: ".$key."=".$val);}
+        foreach ($_GET as $key => $val) {fwrite($fp, "\n_GET: ".$key."=".$val);}
+        foreach ($_POST as $key => $val) {fwrite($fp, "\n_POST: ".$key."=".$val);}
+        foreach ($_SESSION as $key => $val) {fwrite($fp, "\n_SESSION: ".$key."=".$val);}
+        foreach ($_COOKIE as $key => $val) { fwrite($fp, "\n_COOKIE: ".$key."=".$val);
+			}
         fwrite($fp, "\n");
         // Close the file
         fclose($fp);
@@ -263,23 +264,8 @@ if ( $page == "logout"  )
 }
 //}}}
 //{{{ Set Lang
-if (isset($_SESSION['lang']) )
-{
-    include_once( "lang/" . $_SESSION['lang'] .".php" );
-    if (is_file("lang/mod_$lang.php"))
-    {
-        include_once( "lang/mod_$lang.php");
-    }
-}
-else
-{
-    include_once( "lang/$lang.php");
-    if (is_file("lang/mod_$lang.php"))
-    {
-        include_once( "lang/mod_$lang.php");
-    }
+include_once( "lang/en.php" );
 
-}
 $text=$main->clean_array( $text, false, true );
 $main->settext($text);
 //}}}
@@ -746,14 +732,7 @@ if ( "$page" == "saveuser" )
             $_SESSION['nr']=$nr;
             $_SESSION['name']=$newname;
             $_SESSION['email']=$newemail;
-            if (isset($_SESSION['lang']) )
-            {
-                include_once( "lang/" . $_SESSION['lang'] .".php" );
-                if (is_file("lang/mod_$lang.php"))
-                {
-                    include_once( "lang/mod_$lang.php");
-                }
-            }
+            include_once( "lang/en.php" );
             $text=$main->clean_array( $text, false, true );
             $main->settext($text);
         }
@@ -952,30 +931,7 @@ if ($category->rows != "0" )
         print "<a href='?page=newscat&amp;catid=$item[id]'>$menuitem</a>&nbsp;<br />\n";
     }
 }
-if ( $enableplugin == "true" )
-{
-    $d=dir("plugins");
-    $foundplugins=false;
-    while($entry = $d->read()) 
-    {
-        if( is_file("plugins/$entry"))
-        {
-            $entry=str_replace(".php","" ,$entry);
-            if(  is_file("plugins/$entry.php"))
-            {
-                include_once("plugins/$entry.php");
-                $plugin=new $entry();
-                if ($plugin->getAccess() <= $role )
-                {
-                    print "<br /><a href='?page=plugin&amp;plug=$entry'>".$plugin->getName()."</a>&nbsp;";
-                    $plugins[$entry]=$plugin;
-                    $foundplugins=true;
-                }
-            }
-        }
-    }
-    if ($foundplugins ){print "<br />";}
-}
+
 if ( $enablerss == "true" and "$userid" != "0" )
 {
     print "<br /><a href='rss.php?user=$_SESSION[user]&amp;passwd=$_SESSION[passwd]'><img src='images/rss.gif' alt='$text[rss]'/></a>&nbsp;<br />\n";

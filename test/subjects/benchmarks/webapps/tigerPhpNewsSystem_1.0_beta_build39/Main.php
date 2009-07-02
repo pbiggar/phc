@@ -631,7 +631,7 @@ class Main
             $bbcode=array("news","extnews","data","data2","homepage", "anonhomepage","cookietext");
 
             $rs = array();
-            while(list($key,$val) = each($arr)) 
+            foreach ($arr as $key => $val)
             {
                 if(is_array($val)) 
                 {
@@ -688,7 +688,7 @@ class Main
         else
         {
             $rs = array();
-            while(list($key,$val) = each($arr)) 
+            foreach ($arr as $key => $val)
             {
                 if(is_array($val)) 
                 {
@@ -985,7 +985,7 @@ function removeacronym ( $string )
     function rss_array($arr = array()) 
     {
         $rs = array();
-        while(list($key,$val) = each($arr)) 
+        foreach ($arr as $key => $val)
         {
             if(is_array($val)) 
             {
