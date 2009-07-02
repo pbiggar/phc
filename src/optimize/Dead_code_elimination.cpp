@@ -207,7 +207,7 @@ DCE::mark_entire_block (Basic_block* bb, string why)
 	}
 	foreach (SSA_def* def, *bb->cfg->duw->get_block_defs (bb))
 	{
-		if (def->type_flag == SSA_BB)
+		if (def->type_flag != SSA_PHI)
 			mark (def, "");
 	}
 	// Mark the critical branches (ie, the reverse dominance frontier of
@@ -231,7 +231,9 @@ DCE::mark_rdf (Basic_block* bb)
 void
 DCE::mark (SSA_def* def, string why)
 {
-	if (marks[def])
+	// Here I'm making the assumption that the RDF of a phi node whose arguments we're marking 
+	// doesn't need to be marked.  This could be wrong however...
+	if (marks[def] || def->type_flag == SSA_PHI)
 		return;
 	
 		
@@ -269,7 +271,7 @@ DCE::mark_def (SSA_use* use)
 							SSA_use* arg_use = def->bb->cfg->duw->get_named_uses (phi_arg)->front ();
 							foreach (SSA_def* def, *arg_use->get_defs ())
 							{
-								mark (def, "due to def of " + use->name->str ());
+								mark (def, "due to def (phi) of " + use->name->str ());
 							}
 						}	
 					}	
@@ -317,7 +319,7 @@ void
 DCE::sweep_pass ()
 {
 	DEBUG("START SWEEP PASS");
-	foreach (Basic_block* bb, *cfg->get_all_bbs ())
+/*	foreach (Basic_block* bb, *cfg->get_all_bbs ())
 	{
 		// Remove the phi nodes first, since the BB* may be replaced with an
 		// Empty BB.
@@ -327,7 +329,7 @@ DCE::sweep_pass ()
 				bb->remove_phi_node (phi_lhs);
 		}
 	}
-
+*/
 	foreach (Basic_block* bb, *cfg->get_all_bbs ())
 	{
 		if (is_marked (bb))
@@ -362,7 +364,7 @@ DCE::sweep_pass ()
 void
 DCE::run (CFG* cfg)
 {
-
+	DEBUG ("START DCE");
 	marks.clear ();
 	bb_marks.clear ();
 
@@ -372,6 +374,7 @@ DCE::run (CFG* cfg)
 	mark_pass ();
 	dump ();
 	sweep_pass ();
+	dump ();
 }
 
 void

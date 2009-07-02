@@ -16,49 +16,52 @@ If_simplification::visit_branch_block (Branch_block* bb)
 	 *
 	 *		if ($x) goto L2; else goto L1;
 	 */
-
-	Def_use_web* duw = bb->cfg->duw;
-
-	bool simplify = false;
-	SSA_use* use;
-
-	// Check if the correct use is actually in the block
-	foreach (SSA_use* temp, *duw->get_block_uses (bb))
+	if (!bb->if_simplified)
 	{
-		string v = *bb->branch->variable_name->value;
-		string s = temp->name->get_name ();
+		Def_use_web* duw = bb->cfg->duw;
 
-		if (s == "*_"+v)
-		{
-			use = temp;
-			simplify = true;
-		}
-	}
-	
-	if (simplify)
-	{
-		SSA_def_list* defs = use->get_defs ();
+		bool simplify = false;
+		SSA_use* use;
 
-		if (defs->size () == 1)
+		// Check if the correct use is actually in the block
+		foreach (SSA_use* temp, *duw->get_block_uses (bb))
 		{
-			Wildcard<Unary_op>* uop = new Wildcard<Unary_op>;
-			Statement_block* sb; 
-			if ((sb = dynamic_cast<Statement_block*> (defs->front()->bb)))
+			string v = *bb->branch->variable_name->value;
+			string s = temp->name->get_name ();
+
+			if (s == "*_"+v)
 			{
-				if (sb->statement->match (
-						new Assign_var (
-						new Wildcard<VARIABLE_NAME>, false, uop))
-					&& *uop->value->op->value == "!")
-				{
-					bb->branch->variable_name = uop->value->variable_name->clone ();
-					bb->switch_successors ();
-				}
+				use = temp;
+				simplify = true;
 			}
 		}
-		else
-		{
-			phc_unreachable ();
-		}
 		
+		if (simplify)
+		{
+			SSA_def_list* defs = use->get_defs ();
+
+			if (defs->size () == 1)
+			{
+				Wildcard<Unary_op>* uop = new Wildcard<Unary_op>;
+				Statement_block* sb; 
+				if ((sb = dynamic_cast<Statement_block*> (defs->front()->bb)))
+				{
+					if (sb->statement->match (
+							new Assign_var (
+							new Wildcard<VARIABLE_NAME>, false, uop))
+						&& *uop->value->op->value == "!")
+					{
+						bb->branch->variable_name = uop->value->variable_name->clone ();
+						bb->switch_successors ();
+						bb->if_simplified = true;
+					}
+				}
+			}
+			else
+			{
+				phc_unreachable ();
+			}
+			
+		}
 	}
 }
