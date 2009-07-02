@@ -833,6 +833,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (bcscale, (), "int");
 	MODEL (bcsqrt, (0), "string", "unset");
 	MODEL (bcsub, (0, 1), "string");
+	MODEL (ceil, (), "real");
 	MODEL (count, (), "int");
 	MODEL (date, (0), "string", "bool");
 	MODEL (date_default_timezone_set, (0), "bool");
@@ -851,6 +852,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (floor, (), "real");
 	MODEL (flush, ());
 	MODEL (fopen, (0, 1), "resource");
+	MODEL (fread, (), "string", "bool");
 	MODEL (fwrite, (1), "int", "bool");
 	MODEL (get_magic_quotes_gpc, (), "int");
 	MODEL (get_parent_class, (), "string" ,"bool");
@@ -865,6 +867,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (imagefontheight, (), "int");
 	MODEL (imagefontwidth, (), "int");
 	MODEL (imageline, (), "bool");
+	MODEL (imagepng, (1), "bool");
 	MODEL (imagestring, (4), "bool");
 	MODEL (in_array, (), "bool");
 	MODEL (ini_get, (), "string");
@@ -879,6 +882,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (mysql_errno, (), "int");
 	MODEL (mysql_error, (), "string");
 	MODEL (mysql_pconnect, (0, 1, 2), "resource", "bool");
+	MODEL (mysql_real_escape_string, (0), "string", "bool");
 	MODEL (mysql_query, (0), "resource", "bool");
 	MODEL (mysql_select_db, (0), "bool");
 	MODEL (number_format, (2, 3), "string");
@@ -895,6 +899,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (shell_exec, (0), "string");
 	MODEL (sizeof, (), "int");
 	MODEL (sqrt, (), "real");
+	MODEL (sqlite_open, (0, 2), "resource");
 	MODEL (srand, ());
 	MODEL (strchr, (0), "string");
 	MODEL (stripslashes, (0), "string");
@@ -908,6 +913,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (strtoupper, (0), "string");
 	MODEL (substr, (0), "string", "bool");
 //	MODEL (trigger_error, (0), "bool");
+	MODEL (time, (), "int");
 	MODEL (trim, (0, 1), "string");
 	MODEL (urlencode, (0), "string");
 	MODEL (var_dump, ());
