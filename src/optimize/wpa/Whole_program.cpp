@@ -854,12 +854,14 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (fopen, (0, 1), "resource");
 	MODEL (fread, (), "string", "bool");
 	MODEL (fwrite, (1), "int", "bool");
+	MODEL (get_magic_quotes_runtime, (), "int");
 	MODEL (get_magic_quotes_gpc, (), "int");
 	MODEL (get_parent_class, (), "string" ,"bool");
 	MODEL (getrandmax, (), "int");
 	MODEL (gettype, (), "string");
 	MODEL (header, (0));
 	MODEL (htmlentities, (0, 2), "string");
+	MODEL (htmlspecialchars, (0, 2), "string");
 	MODEL (imagecolorallocate, (), "resource", "bool");
 	MODEL (imagecreate, (), "resource");
 	MODEL (imagefill, (), "bool");
@@ -869,8 +871,10 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (imageline, (), "bool");
 	MODEL (imagepng, (1), "bool");
 	MODEL (imagestring, (4), "bool");
+	MODEL (implode, (0), "string"); // um, this takes parameters in either order
 	MODEL (in_array, (), "bool");
 	MODEL (ini_get, (), "string");
+	MODEL (is_dir, (0), "bool");
 	MODEL (is_readable, (0), "bool");
 	MODEL (is_writable, (0), "bool");
 	MODEL (ltrim, (0, 1), "string");
@@ -896,10 +900,12 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (session_destroy, (), "bool");
 	MODEL (session_name, (0), "string");
 	MODEL (session_start, (), "bool");
+	MODEL (set_magic_quotes_runtime, (), "bool");
 	MODEL (shell_exec, (0), "string");
 	MODEL (sizeof, (), "int");
 	MODEL (sqrt, (), "real");
-	MODEL (sqlite_open, (0, 2), "resource");
+	MODEL (sqlite_open, (0, 2), "resource", "bool");
+	MODEL (sqlite_popen, (0, 2), "resource", "bool");
 	MODEL (srand, ());
 	MODEL (strchr, (0), "string");
 	MODEL (stripslashes, (0), "string");
@@ -1238,7 +1244,8 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 
 		assign_path_typed (cx, ret_path, new Types ("int"));
 	}
-	else if (*info->name == "preg_replace")
+	else if (*info->name == "preg_replace"
+			|| *info->name == "str_replace")
 	{
 		Abstract_value* replacement = get_abstract_value (cx, R_WORKING, params[1]->name());
 		foreach (string type, *replacement->types)
