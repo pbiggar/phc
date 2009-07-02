@@ -17,36 +17,49 @@ If_simplification::visit_branch_block (Branch_block* bb)
 	 *		if ($x) goto L2; else goto L1;
 	 */
 
-/*	Def_use_web* duw = bb->cfg->duw;
+	Def_use_web* duw = bb->cfg->duw;
 
-//	cerr << *bb->branch->variable_name->value << endl;
+	bool simplify = false;
 	SSA_use* use;
+
+	// Check if the correct use is actually in the block
 	foreach (SSA_use* temp, *duw->get_block_uses (bb))
 	{
+		string v = *bb->branch->variable_name->value;
 		string s = temp->name->get_name ();
-		if (s[0] == '*')
-			use=temp;
-	}
-	SSA_def_list* defs = use->get_defs ();
 
-	if (defs->size () == 1)
-	{
-		Wildcard<Unary_op>* uop = new Wildcard<Unary_op>;
-		Statement_block* sb; 
-		if ((sb = dynamic_cast<Statement_block*> (defs->front()->bb)))
+		if (s == "*_"+v)
 		{
-			if (sb->statement->match (
-					new Assign_var (
-					new Wildcard<VARIABLE_NAME>, false, uop))
-				&& *uop->value->op->value == "!")
-			{
-				bb->branch->variable_name = uop->value->variable_name->clone ();
-				bb->switch_successors ();
-			}
+			use = temp;
+			simplify = true;
 		}
 	}
-	else
+	
+	if (simplify)
 	{
-		phc_unreachable ();
+		SSA_def_list* defs = use->get_defs ();
+
+		if (defs->size () == 1)
+		{
+			Wildcard<Unary_op>* uop = new Wildcard<Unary_op>;
+			Statement_block* sb; 
+			if ((sb = dynamic_cast<Statement_block*> (defs->front()->bb)))
+			{
+				if (sb->statement->match (
+						new Assign_var (
+						new Wildcard<VARIABLE_NAME>, false, uop))
+					&& *uop->value->op->value == "!")
+				{
+					bb->branch->variable_name = uop->value->variable_name->clone ();
+					bb->switch_successors ();
+					bb->cfg->duw->kill_uses (bb);	
+				}
+			}
+		}
+		else
+		{
+			phc_unreachable ();
+		}
+		
 	}
-*/}
+}
