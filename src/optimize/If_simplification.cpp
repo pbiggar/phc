@@ -52,7 +52,6 @@ If_simplification::visit_branch_block (Branch_block* bb)
 				{
 					bb->branch->variable_name = uop->value->variable_name->clone ();
 					bb->switch_successors ();
-					bb->cfg->duw->kill_uses (bb);	
 				}
 			}
 		}
