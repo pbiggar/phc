@@ -1206,8 +1206,10 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	}
 	else if (*info->name == "ob_start")
 	{
-		if (params[0])
-			phc_TODO (); // If first parameter is set, thats a callback.
+		// ob_start seems to always have 1 param, which is a callback.
+		Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]->name());
+		if (*absval->types != Types ("unset"))
+			phc_TODO ();
 		
 		assign_path_typed (cx, ret_path, new Types ("bool"));
 	}
