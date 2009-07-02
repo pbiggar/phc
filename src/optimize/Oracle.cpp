@@ -90,7 +90,10 @@ Oracle::get_method_info (String* method_name)
 
 	// require etc al have to be done.
 	if (is_builtin_function (name))
+	{
+		cerr << "Builtin function '" << *name << "' is not modelled" << endl;
 		phc_TODO ();
+	}
 
 	return NULL;
 }
