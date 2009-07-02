@@ -785,12 +785,152 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	}
 
 	/*
-	 * Model functions
+	 * Model straightforward functions
 	 */
-	if (*info->name == "array_key_exists")
+
+	Set<string> modelled_functions;
+	Map<string, List<int> > coercion_model;
+	Map<string, Types*> type_model;
+
+/* Define a macro to model the types of return values, and the parameters which
+ * may be coerced. */
+#define COERCE(...)															\
+	do																				\
+	{																				\
+		int __coerced_array[] = {-1, __VA_ARGS__};					\
+																					\
+		foreach (int __int, __coerced_array)							\
+			coercion_model[__name].push_back (__int);					\
+																					\
+		coercion_model[__name].pop_front (); /* get rid of -1	*/	\
+																					\
+	} while (0)
+
+// There's a nice trick that I want () to be the empty set, so that's why I
+// have COERCE as well.
+#define MODEL(NAME, COERCED, ...)	\
+	do																				\
+	{																				\
+		string __name = #NAME;												\
+		modelled_functions.insert (__name);								\
+																					\
+		COERCE COERCED; /* We want () to be the empty set. */		\
+																					\
+		Types* __types  = new Types (__VA_ARGS__);					\
+		if (__types->size ())												\
+			type_model[__name] = __types;									\
+	} while (0)
+
+
+
+	MODEL (array_key_exists, (), "bool");
+	MODEL (bcadd, (0, 1), "string");
+	MODEL (bccomp, (0, 1), "int");
+	MODEL (bccomp, (0, 1), "string", "unset");
+	MODEL (bcdiv, (0, 1), "string");
+	MODEL (bcmod, (0, 1), "string");
+	MODEL (bcmul, (0, 1), "string");
+	MODEL (bcscale, (), "int");
+	MODEL (bcsqrt, (0), "string", "unset");
+	MODEL (bcsub, (0, 1), "string");
+	MODEL (count, (), "int");
+	MODEL (date, (0), "string", "bool");
+	MODEL (date_default_timezone_set, (0), "bool");
+	MODEL (debug_zval_dump, ());
+	MODEL (dechex, (), "string");
+	MODEL (defined, (0), "bool");
+	MODEL (empty, (), "bool");
+	MODEL (ereg_replace, (0, 1, 2), "string");
+	MODEL (error_reporting, (), "int");
+	MODEL (fclose, (), "bool");
+	MODEL (feof, (), "bool");
+	MODEL (fgets, (), "bool", "string");
+	MODEL (file_exists, (0), "bool");
+	MODEL (file_get_contents, (0), "string", "bool");
+	MODEL (filesize, (0), "int");
+	MODEL (floor, (), "real");
+	MODEL (flush, ());
+	MODEL (fopen, (0, 1), "resource");
+	MODEL (fwrite, (1), "int", "bool");
+	MODEL (get_magic_quotes_gpc, (), "int");
+	MODEL (get_parent_class, (), "string" ,"bool");
+	MODEL (getrandmax, (), "int");
+	MODEL (gettype, (), "string");
+	MODEL (header, (0));
+	MODEL (htmlentities, (0, 2), "string");
+	MODEL (imagecolorallocate, (), "resource", "bool");
+	MODEL (imagecreate, (), "resource");
+	MODEL (imagefill, (), "bool");
+	MODEL (imagefontcreate, (), "resource");
+	MODEL (imagefontheight, (), "int");
+	MODEL (imagefontwidth, (), "int");
+	MODEL (imageline, (), "bool");
+	MODEL (imagestring, (4), "bool");
+	MODEL (in_array, (), "bool");
+	MODEL (ini_get, (), "string");
+	MODEL (is_readable, (0), "bool");
+	MODEL (is_writable, (0), "bool");
+	MODEL (ltrim, (0, 1), "string");
+	MODEL (md5, (0), "string");
+	MODEL (microtime, (), "string", "real");
+	MODEL (mt_rand, (), "int");
+	MODEL (mysql_close, (), "bool");
+	MODEL (mysql_connect, (0, 1, 2), "resource", "bool");
+	MODEL (mysql_errno, (), "int");
+	MODEL (mysql_error, (), "string");
+	MODEL (mysql_pconnect, (0, 1, 2), "resource", "bool");
+	MODEL (mysql_query, (0), "resource", "bool");
+	MODEL (mysql_select_db, (0), "bool");
+	MODEL (number_format, (2, 3), "string");
+	MODEL (ord, (0), "int");
+	MODEL (phpinfo, (), "bool");
+	MODEL (pow, (), "int", "real", "bool");
+	MODEL (printf, (0), "int");
+	MODEL (rand, (), "int");
+	MODEL (readdir, (), "string", "bool");
+	MODEL (rtrim, (0, 1), "string");
+	MODEL (session_destroy, (), "bool");
+	MODEL (session_name, (0), "string");
+	MODEL (session_start, (), "bool");
+	MODEL (shell_exec, (0), "string");
+	MODEL (sizeof, (), "int");
+	MODEL (sqrt, (), "real");
+	MODEL (srand, ());
+	MODEL (strchr, (0), "string");
+	MODEL (stripslashes, (0), "string");
+	MODEL (strip_tags, (0, 1), "string");
+	MODEL (stristr, (0), "string");
+	MODEL (strlen, (0), "int");
+	MODEL (str_pad, (0, 2), "string");
+	MODEL (str_repeat, (0), "string");
+	MODEL (strstr, (0), "string");
+	MODEL (strtolower, (0), "string");
+	MODEL (strtoupper, (0), "string");
+	MODEL (substr, (0), "string", "bool");
+//	MODEL (trigger_error, (0), "bool");
+	MODEL (trim, (0, 1), "string");
+	MODEL (urlencode, (0), "string");
+	MODEL (var_dump, ());
+
+
+
+#undef MODEL
+#undef COERCE
+
+	// Handle all the simple cases
+	if (modelled_functions.has (*info->name))
 	{
-		assign_path_typed (cx, ret_path, new Types ("bool"));
+		foreach (int i, coercion_model [*info->name])
+		{
+			params[i] = coerce_to_string (cx, params[i]);
+		}
+
+		// It may not have a return type
+		if (type_model.has (*info->name))
+			assign_path_typed (cx, ret_path, type_model[*info->name]->clone ());
 	}
+
+	// Now all the hard cases
 	else if (*info->name == "array_merge")
 	{
 		// Create new array for this
@@ -841,39 +981,6 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		// We may learn to count later
 		assign_path_typed (cx, ret_path, new Types ("int"));
 	}
-	else if (*info->name == "bcadd"
-			|| *info->name == "bcdiv"
-			|| *info->name == "bcmod"
-			|| *info->name == "bcmul"
-			|| *info->name == "bcsub"
-		)
-	{
-		params[0] = coerce_to_string (cx, params[0]);
-		params[1] = coerce_to_string (cx, params[1]);
-		assign_path_typed (cx, ret_path, new Types ("string"));
-	}
-	else if (*info->name == "bccomp")
-	{
-		params[0] = coerce_to_string (cx, params[0]);
-		params[1] = coerce_to_string (cx, params[1]);
-		assign_path_typed (cx, ret_path, new Types ("int"));
-	}
-	else if (*info->name == "bcpowmod")
-	{
-		params[0] = coerce_to_string (cx, params[0]);
-		params[1] = coerce_to_string (cx, params[1]);
-		params[2] = coerce_to_string (cx, params[2]);
-		assign_path_typed (cx, ret_path, new Types ("string", "unset"));
-	}
-	else if (*info->name == "bcscale")
-	{
-		assign_path_typed (cx, ret_path, new Types ("int"));
-	}
-	else if (*info->name == "bcsqrt")
-	{
-		params[0] = coerce_to_string (cx, params[0]);
-		assign_path_typed (cx, ret_path, new Types ("string", "unset"));
-	}
 	else if (*info->name == "compact")
 	{
 		// Return an array with a copy of the named parameters.
@@ -887,30 +994,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 			assign_path_by_copy (cx, lhs, rhs);
 		}
 	}
-	else if (*info->name == "count" || *info->name == "sizeof")
-	{
-		// TODO: If the parameter is an object, then count can call the interface countable.
-		assign_path_typed (cx, ret_path, new Types ("int"));
-	}
-	else if (*info->name == "date")
-	{
-		coerce_to_string (cx, params[0]);
-		assign_path_typed (cx, ret_path, new Types ("string", "bool"));
-	}
-	else if (*info->name == "date_default_timezone_set")
-	{
-		coerce_to_string (cx, params[0]);
-		assign_path_typed (cx, ret_path, new Types ("bool"));
-	}
-	else if (*info->name == "debug_zval_dump")
-	{
-		assign_path_typed (cx, ret_path, new Types ("unset"));
-	}
-	else if (*info->name == "dechex")
-	{
-		assign_path_typed (cx, ret_path, new Types ("string"));
-	}
-	else if (*info->name == "die")
+	else if (*info->name == "die" || *info->name == "exit")
 	{
 		// Model that the next statement is not executable.
 		skip_after_die = true;
@@ -950,105 +1034,10 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 			}
 		}
 	}
-	else if (*info->name == "defined")
-	{
-		params[0] = coerce_to_string (cx, params[0]);
-
-		// TODO: We don't correctly identify is a constant is actually defined.
-		assign_path_typed (cx, ret_path, new Types ("bool"));
-	}
-	else if (*info->name == "empty")
-	{
-		// TODO: If we modelled POSSIBLE/DEFINITE on field edges, we'd be able
-		// to optimize this.
-		assign_path_typed (cx, ret_path, new Types ("bool"));
-	}
-	else if (*info->name == "ereg_replace")
-	{
-		params[0] = coerce_to_string (cx, params[0]);
-		params[1] = coerce_to_string (cx, params[1]);
-		params[2] = coerce_to_string (cx, params[2]);
-		assign_path_typed (cx, ret_path, new Types ("string"));
-	}
-	else if (*info->name == "error_reporting")
-	{
-		assign_path_typed (cx, ret_path, new Types ("int"));
-	}
-	else if (*info->name == "explode")
-	{
-		params[0] = coerce_to_string (cx, params[0]);
-		params[1] = coerce_to_string (cx, params[1]);
-
-		assign_path_typed_array (cx, ret_path, new Types ("string"), ANON);
-	}
-	else if (*info->name == "exit")
-	{
-		skip_after_die = true;
-
-		// see comment in 'die'
-		// do nothing
-	}
-	else if (*info->name == "fclose")
-	{
-		assign_path_typed (cx, ret_path, new Types ("bool"));
-	}
-	else if (*info->name == "feof")
-	{
-		assign_path_typed (cx, ret_path, new Types ("bool"));
-	}
-	else if (*info->name == "fgets")
-	{
-		assign_path_typed (cx, ret_path, new Types ("bool", "string"));
-	}
-	else if (*info->name == "file_exists")
-	{
-		params[0] = coerce_to_string (cx, params[0]);
-
-		assign_path_typed (cx, ret_path, new Types ("bool"));
-	}
-	else if (*info->name == "file_get_contents")
-	{
-		params[0] = coerce_to_string (cx, params[0]);
-
-		// string or false
-		assign_path_typed (cx, ret_path, new Types ("string", "bool"));
-	}
-	else if (*info->name == "filesize")
-	{
-		params[0] = coerce_to_string (cx, params[0]);
-		assign_path_typed (cx, ret_path, new Types ("int"));
-	}
-	else if (*info->name == "flush")
-	{
-		// do nothing
-	}
-	else if (*info->name == "floor")
-	{
-		assign_path_typed (cx, ret_path, new Types ("real"));
-	}
-	else if (*info->name == "fopen")
-	{
-		params[0] = coerce_to_string (cx, params[0]);
-		params[1] = coerce_to_string (cx, params[1]);
-		assign_path_typed (cx, ret_path, new Types ("resource"));
-	}
-	else if (*info->name == "fwrite")
-	{
-		params[1] = coerce_to_string (cx, params[1]);
-		assign_path_typed (cx, ret_path, new Types ("int", "bool"));
-	}
 	else if (*info->name == "get_declared_classes")
 	{
 		// Return an array of strings
 		assign_path_typed_array (cx, ret_path, new Types ("string"), ANON);
-	}
-	else if (*info->name == "get_magic_quotes_gpc")
-	{
-		assign_path_typed (cx, ret_path, new Types ("int"));
-	}
-	else if (*info->name == "get_parent_class")
-	{
-		assign_path_typed (cx, ret_path, new Types ("string" ,"bool"));
 	}
 	else if (*info->name == "gettimeofday")
 	{
@@ -1095,48 +1084,12 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 
 		}
 	}
-	else if (*info->name == "getrandmax")
-	{
-		// Really, this is a pure function with on parameters. This should be inlined.
-		assign_path_typed (cx, ret_path, new Types ("int"));
-	}
-	else if (*info->name == "gettype")
-	{
-		// TODO: we can return the real type here.
-		// Really, this is a pure function with on parameters. This should be inlined.
-		assign_path_typed (cx, ret_path, new Types ("string"));
-	}
-	else if (*info->name == "header")
+	else if (*info->name == "explode")
 	{
 		params[0] = coerce_to_string (cx, params[0]);
-	}
-	else if (*info->name == "htmlentities")
-	{
-		params[0] = coerce_to_string (cx, params[0]);
-		params[2] = coerce_to_string (cx, params[2]);
-		assign_path_typed (cx, ret_path, new Types ("string"));
-	}
-	else if (*info->name == "imagefontcreate")
-	{
-		assign_path_typed (cx, ret_path, new Types ("resource"));
-	}
-	else if (*info->name == "imagefontheight"
-			|| *info->name == "imagefontwidth"
-		)
-	{
-		assign_path_typed (cx, ret_path, new Types ("int"));
-	}
-	else if (*info->name == "imagecreate")
-	{
-		assign_path_typed (cx, ret_path, new Types ("resource"));
-	}
-	else if (*info->name == "in_array")
-	{
-		assign_path_typed (cx, ret_path, new Types ("bool"));
-	}
-	else if (*info->name == "ini_get")
-	{
-		assign_path_typed (cx, ret_path, new Types ("string"));
+		params[1] = coerce_to_string (cx, params[1]);
+
+		assign_path_typed_array (cx, ret_path, new Types ("string"), ANON);
 	}
 	else if (*info->name == "is_array")
 	{
@@ -1159,11 +1112,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	else if (*info->name == "is_null")
 	{
 		Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]->name());
-		if (*absval->types == Types ("unset"))
-		{
-			assign_path_scalar (cx, ret_path, new BOOL (true));
-		}
-		else if (not absval->types->has ("unset"))
+		if (not absval->types->has ("unset"))
 		{
 			assign_path_scalar (cx, ret_path, new BOOL (false));
 		}
@@ -1198,11 +1147,6 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 			assign_path_typed (cx, ret_path, new Types ("bool"));
 		}
 	}
-	else if (*info->name == "is_readable" || *info->name == "is_writable")
-	{
-		params[0] = coerce_to_string (cx, params[0]);
-		assign_path_typed (cx, ret_path, new Types ("bool"));
-	}
 	else if (*info->name == "max" || *info->name == "min")
 	{
 		Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]->name());
@@ -1221,41 +1165,10 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 
 		assign_path_typed (cx, ret_path, result);
 	}
-	else if (*info->name == "md5")
-	{
-		params[0] = coerce_to_string (cx, params[0]);
-		assign_path_typed (cx, ret_path, new Types ("string"));
-	}
 	else if (*info->name == "method_exists")
 	{
 		// TODO: we can do better here
 		assign_path_typed (cx, ret_path, new Types ("bool"));
-	}
-	// max: see min
-	else if (*info->name == "microtime")
-	{
-		assign_path_typed (cx, ret_path, new Types ("string", "real"));
-	}
-	// mt_rand: see rand
-	else if (*info->name == "mysql_close")
-	{
-		assign_path_typed (cx, ret_path, new Types ("bool"));
-	}
-	else if (*info->name == "mysql_connect" || *info->name == "mysql_pconnect")
-	{
-		params[0] = coerce_to_string (cx, params[0]);
-		params[1] = coerce_to_string (cx, params[1]);
-		params[2] = coerce_to_string (cx, params[2]);
-
-		assign_path_typed (cx, ret_path, new Types ("resource", "bool"));
-	}
-	else if (*info->name == "mysql_error")
-	{
-		assign_path_typed (cx, ret_path, new Types ("string"));
-	}
-	else if (*info->name == "mysql_errno")
-	{
-		assign_path_typed (cx, ret_path, new Types ("int"));
 	}
 	else if (*info->name == "mysql_fetch_array"
 			|| *info->name == "mysql_fetch_assoc"
@@ -1281,30 +1194,6 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	{
 		assign_path_typed_array (cx, ret_path, new Types ("int"), ANON);
 	}
-	else if (*info->name == "mysql_select_db")
-	{
-		params[0] = coerce_to_string (cx, params[0]);
-		assign_path_typed (cx, ret_path, new Types ("bool"));
-	}
-	else if (*info->name == "mysql_query")
-	{
-		params[0] = coerce_to_string (cx, params[0]);
-		assign_path_typed (cx, ret_path, new Types ("resource", "bool"));
-	}
-	else if (*info->name == "number_format")
-	{
-		params[2] = coerce_to_string (cx, params[2]);
-		params[3] = coerce_to_string (cx, params[3]);
-		assign_path_typed (cx, ret_path, new Types ("string"));
-	}
-	else if (*info->name == "ob_start")
-	{
-		Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]->name());
-		if (*absval->types != Types ("unset"))
-			phc_TODO ();
-
-		assign_path_typed (cx, ret_path, new Types ("bool"));
-	}
 	else if (*info->name == "ob_end_clean")
 	{
 		assign_path_typed (cx, ret_path, new Types ("bool"));
@@ -1316,11 +1205,6 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		
 		assign_path_typed (cx, ret_path, new Types ("bool"));
 	}
-	else if (*info->name == "ord")
-	{
-		params[0] = coerce_to_string (cx, params[0]);
-		assign_path_typed (cx, ret_path, new Types ("int"));
-	}
 	else if (*info->name == "parse_ini_file")
 	{
 		params[0] = coerce_to_string (cx, params[0]);
@@ -1329,23 +1213,10 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		assign_path_typed_array (cx, ret_path, new Types ("string"), ANON);
 		assign_path_scalar (cx, ret_path, new BOOL (false), false);
 	}
-	else if (*info->name == "phpinfo")
-	{
-		assign_path_typed (cx, ret_path, new Types ("bool"));
-	}
-	else if (*info->name == "pow")
-	{
-		assign_path_typed (cx, ret_path, new Types ("int", "real", "bool"));
-	}
 	else if (*info->name == "print")
 	{
 		params[0] = coerce_to_string (cx, params[0]);
 		assign_path_scalar (cx, ret_path, new INT (1));
-	}
-	else if (*info->name == "printf")
-	{
-		params[0] = coerce_to_string (cx, params[0]);
-		assign_path_typed (cx, ret_path, new Types ("int"));
 	}
 	else if (*info->name == "preg_match")
 	{
@@ -1385,10 +1256,6 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 
 		assign_path_typed_array (cx, ret_path, new Types ("string"), ANON);
 	}
-	else if (*info->name == "rand" || *info->name == "mt_rand")
-	{
-		assign_path_typed (cx, ret_path, new Types ("int"));
-	}
 	else if (*info->name == "range")
 	{
 		// Returns an array with a range of values of the given type.
@@ -1398,71 +1265,11 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 
 		assign_path_typed_array (cx, ret_path, merged, ANON);
 	}
-	else if (*info->name == "readdir")
-	{
-		// string or false
-		assign_path_typed (cx, ret_path, new Types ("string", "bool"));
-	}
-	else if (*info->name == "session_destroy")
-	{
-		assign_path_typed (cx, ret_path, new Types ("bool"));
-	}
-	else if (*info->name == "session_name")
-	{
-		params[0] = coerce_to_string (cx, params[0]);
-		assign_path_typed (cx, ret_path, new Types ("string"));
-	}
-	else if (*info->name == "session_start")
-	{
-		// TODO: look closer at sessions. It looks like they serialize their
-		// objects, so there isnt a danger from object_handlers.
-		assign_path_typed (cx, ret_path, new Types ("bool"));
-	}
-	else if (*info->name == "shell_exec")
-	{
-		params[0] = coerce_to_string (cx, params[0]);
-		assign_path_typed (cx, ret_path, new Types ("string"));
-	}
 	else if (*info->name == "split")
 	{
 		params[0] = coerce_to_string (cx, params[0]);
 		params[1] = coerce_to_string (cx, params[1]);
 		assign_path_typed_array (cx, ret_path, new Types ("string"), ANON);
-	}
-	// sizeof: see count()
-	else if (*info->name == "sqrt")
-	{
-		assign_path_typed (cx, ret_path, new Types ("real"));
-	}
-	else if (*info->name == "srand")
-	{
-		// do nothing
-	}
-	else if (*info->name == "stripslashes")
-	{
-		params[0] = coerce_to_string (cx, params[0]);
-		assign_path_typed (cx, ret_path, new Types ("string"));
-	}
-	else if (*info->name == "strip_tags")
-	{
-		params[0] = coerce_to_string (cx, params[0]);
-		params[1] = coerce_to_string (cx, params[1]);
-		assign_path_typed (cx, ret_path, new Types ("string"));
-	}
-	else if (*info->name == "strstr"
-			|| *info->name == "stristr"
-			|| *info->name == "strchr"
-			)
-	{
-		params[0] = coerce_to_string (cx, params[0]);
-		assign_path_typed (cx, ret_path, new Types ("string"));
-	}
-
-	else if (*info->name == "strlen")
-	{
-		// If we know the value, it'll be handled earlier
-		params[0] = coerce_to_string (cx, params[0]);
-		assign_path_typed (cx, ret_path, new Types ("int"));
 	}
 	else if (*info->name == "strval")
 	{
@@ -1470,50 +1277,6 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		params[0] = coerce_to_string (cx, params[0]);
 		Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]->name());
 		assign_path_scalar (cx, ret_path, absval);
-	}
-	else if (*info->name == "str_pad")
-	{
-		params[0] = coerce_to_string (cx, params[0]);
-		params[2] = coerce_to_string (cx, params[2]);
-		assign_path_typed (cx, ret_path, new Types ("string"));
-	}
-	else if (*info->name == "str_repeat")
-	{
-		params[0] = coerce_to_string (cx, params[0]);
-		assign_path_typed (cx, ret_path, new Types ("string"));
-	}
-	else if (*info->name == "strtoupper" || *info->name == "strtolower")
-	{
-		params[0] = coerce_to_string (cx, params[0]);
-		assign_path_typed (cx, ret_path, new Types ("string"));
-	}
-	else if (*info->name == "substr")
-	{
-		params[0] = coerce_to_string (cx, params[0]);
-		assign_path_typed (cx, ret_path, new Types ("string", "bool"));
-	}
-	else if (*info->name == "trigger_error")
-	{
-		params[0] = coerce_to_string (cx, params[0]);
-		assign_path_typed (cx, ret_path, new Types ("bool"));
-	}
-	else if (*info->name == "trim"
-			|| *info->name == "rtrim"
-			|| *info->name == "ltrim"
-		)
-	{
-		params[0] = coerce_to_string (cx, params[0]);
-		params[1] = coerce_to_string (cx, params[1]);
-		assign_path_typed (cx, ret_path, new Types ("string"));
-	}
-	else if (*info->name == "urlencode")
-	{
-		params[0] = coerce_to_string (cx, params[0]);
-		assign_path_typed (cx, ret_path, new Types ("string"));
-	}
-	else if (*info->name == "var_dump")
-	{
-		// do nothing
 	}
 	else if (*info->name == "var_export")
 	{
