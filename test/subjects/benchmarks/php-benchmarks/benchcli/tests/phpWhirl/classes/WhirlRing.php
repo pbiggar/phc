@@ -83,16 +83,6 @@ abstract class WhirlRing {
             echo "rotated to: ", $this->_position, "\n";
     }
 
-    public function execute() {
-        $functionToCall = "RINGFUNC_" . $this->_commands[$this->_position];
-        if (!method_exists($this, $functionToCall)) {
-            die ("Ring Function could not be called, because it wasn't defined: $functionToCall undefined.");
-        }
-        call_user_func(array($this,$functionToCall));
-        if (defined('DEBUG'))
-            echo "executed func: ", $functionToCall,", Value: ", $this->_value, "\n";
-    }
-
 }
 
 ?>

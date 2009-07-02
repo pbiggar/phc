@@ -110,6 +110,48 @@ class WhirlOpsRing extends WhirlRing {
             WhirlParser::instance()->output(chr(WhirlMemory::instance()->getValue()));
         }
     }
+
+    public function execute() {
+        switch ($this->_commands[$this->_position])
+		{
+		   case "AscIO":
+			   return $this->RINGFUNC_AscIO();
+		 case "Noop":
+			   return $this->RINGFUNC_Noop();
+
+		 case "Exit":
+			   return $this->RINGFUNC_Exit();
+
+		 case "One":
+			   return $this->RINGFUNC_One();
+
+		 case "Zero":
+			   return $this->RINGFUNC_Zero();
+
+		 case "Load":
+			   return $this->RINGFUNC_Load();
+   
+		 case "Store":
+			   return $this->RINGFUNC_Store();
+
+		 case "PAdd":
+			   return $this->RINGFUNC_PAdd();
+
+		 case "DAdd":
+			   return $this->RINGFUNC_DAdd();
+
+		 case "Logic":
+			   return $this->RINGFUNC_Logic();
+
+		 case "If":
+			   return $this->RINGFUNC_If();
+
+		 case "IntIO":
+			   return $this->RINGFUNC_IntIO();
+		}
+    }
+
+
 }
 
 

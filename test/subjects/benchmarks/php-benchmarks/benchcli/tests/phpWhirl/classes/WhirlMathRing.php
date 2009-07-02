@@ -112,6 +112,47 @@ class WhirlMathRing extends WhirlRing {
         $this->_setValue($this->_getValue() * -1);
     }
 
+	public function execute() {
+	   switch ($this->_commands[$this->_position])
+	   {
+		  case "Noop":
+			 return $this->RINGFUNC_Noop();
+
+		  case "Load":
+			 return $this->RINGFUNC_Load();
+
+		  case "Store":
+			 return $this->RINGFUNC_Store();
+
+		  case "Add":
+			 return $this->RINGFUNC_Add();
+
+		  case "Mult":
+			 return $this->RINGFUNC_Mult();
+
+		  case "Div":
+			 return $this->RINGFUNC_Div();
+
+		  case "Zero":
+			 return $this->RINGFUNC_Zero();
+
+		  case "Less":
+			 return $this->RINGFUNC_Less();
+
+		  case "Greater":
+			 return $this->RINGFUNC_Greater();
+
+		  case "Equal":
+			 return $this->RINGFUNC_Equal();
+
+		  case "Not":
+			 return $this->RINGFUNC_Not();
+
+		  case "Neg":
+			 return $this->RINGFUNC_Neg();
+	   }
+	}
+
 }
 
 ?>
