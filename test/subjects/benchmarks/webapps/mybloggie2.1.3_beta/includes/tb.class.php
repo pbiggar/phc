@@ -170,7 +170,7 @@ class tb
                         $frameurls = $this->_frameurls;
                         $this->_frameurls = array();
                         
-                        while(list(,$frameurl) = each($frameurls))
+                        foreach ($frameurls as $frameurl)
                         {                                                        
                             if($this->_framedepth < $this->maxframes)
                             {
@@ -237,7 +237,7 @@ class tb
                     $frameurls = $this->_frameurls;
                     $this->_frameurls = array();
 
-                    while(list(,$frameurl) = each($frameurls))
+                    foreach ($frameurls as $frameurl)
                     {                                                        
                         if($this->_framedepth < $this->maxframes)
                         {
@@ -408,7 +408,7 @@ class tb
         {
             if(!is_array($this->rawheaders))
                 $this->rawheaders = (array)$this->rawheaders;
-            while(list($headerKey,$headerVal) = each($this->rawheaders))
+            foreach ($this->rawheaders as $headerKey => $headerVal)
                 $headers .= $headerKey.": ".$headerVal."\r\n";
         }
         if(!empty($content_type)) {

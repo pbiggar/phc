@@ -460,7 +460,7 @@ function bbcode_array_pop(&$stack)
    $x = 1;
       //print_r($stack);
       //echo $arrSize;
-   while(list($key, $val) = each($stack))
+   foreach ($stack as $key => $val)
    {
       if($x < count($stack))
       {
