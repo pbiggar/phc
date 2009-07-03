@@ -105,9 +105,9 @@ am_libphc_la_OBJECTS = getopt1.lo getopt.lo AST_annotate.lo \
 	php_dot.tab.lo php_parser.tab.lo HIR_lower_expr.lo \
 	Lower_control_flow.lo Lower_dynamic_definitions.lo \
 	Lower_method_invocations.lo AttrMap.lo base64.lo Boolean.lo \
-	demangle.lo error.lo escape.lo Integer.lo Object.lo String.lo \
-	Abstract_value.lo Alias_name.lo Basic_block.lo CFG.lo \
-	CFG_visitor.lo Class_info.lo Dead_code_elimination.lo \
+	demangle.lo error.lo escape.lo Integer.lo Map.lo Object.lo \
+	String.lo Abstract_value.lo Alias_name.lo Basic_block.lo \
+	CFG.lo CFG_visitor.lo Class_info.lo Dead_code_elimination.lo \
 	Def_use_web.lo Edge.lo Flow_visitor.lo If_simplification.lo \
 	Inlining.lo Mark_initialized.lo Method_info.lo \
 	Misc_annotations.lo Oracle.lo Prune_symbol_table.lo \
@@ -767,6 +767,7 @@ libphc_la_SOURCES = \
 	src/lib/Integer.cpp										\
 	src/lib/Integer.h											\
 	src/lib/List.h												\
+	src/lib/Map.cpp											\
 	src/lib/Map.h												\
 	src/lib/Object.cpp										\
 	src/lib/Object.h											\
@@ -1500,6 +1501,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MIR_transform.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MIR_unparser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MIR_visitor.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Map.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Mark_initialized.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Method_info.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Misc_annotations.Plo@am__quote@
@@ -2020,6 +2022,13 @@ Integer.lo: src/lib/Integer.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/lib/Integer.cpp' object='Integer.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Integer.lo `test -f 'src/lib/Integer.cpp' || echo '$(srcdir)/'`src/lib/Integer.cpp
+
+Map.lo: src/lib/Map.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Map.lo -MD -MP -MF $(DEPDIR)/Map.Tpo -c -o Map.lo `test -f 'src/lib/Map.cpp' || echo '$(srcdir)/'`src/lib/Map.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Map.Tpo $(DEPDIR)/Map.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/lib/Map.cpp' object='Map.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Map.lo `test -f 'src/lib/Map.cpp' || echo '$(srcdir)/'`src/lib/Map.cpp
 
 Object.lo: src/lib/Object.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Object.lo -MD -MP -MF $(DEPDIR)/Object.Tpo -c -o Object.lo `test -f 'src/lib/Object.cpp' || echo '$(srcdir)/'`src/lib/Object.cpp

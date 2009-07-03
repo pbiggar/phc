@@ -24,7 +24,22 @@ template <
 >
 class phc_unordered_map : virtual public GC_obj, public std::tr1::unordered_map<_Key, _Tp, _Hash, _Pred, _Alloc>
 {
+public:
+	int reference_count;
 };
+
+#define MAP_PROFILE(NAME) __map_private_##NAME##_count++;
+//#define MAP_PROFILE(NAME) /* do nothing */
+
+// We want these global, not per-template.
+extern long long __map_private_construct_count;
+extern long long __map_private_op_eq_count;
+extern long long __map_private_detach_count;
+extern long long __map_private_copy_construct_count;
+
+void print_map_memory_stats ();
+
+
 
 
 template <
@@ -61,21 +76,31 @@ public:
 private:
 	inner_type* inner;
 
-
 public:
 	typedef Map<_Key, _Tp, _Hash, _Pred, _Alloc> this_type;
 
+	/*
+	 * Copy-on-write implementation
+	 */
 	Map ()
 	: inner (new inner_type)
 	{
+		inner->reference_count = 1;
+		MAP_PROFILE (construct);
 	}
 
-	virtual ~Map() {}
+	virtual ~Map()
+	{
+		this->inner->reference_count--;
+	}
 
 	Map (const this_type& other)
 	{
+		MAP_PROFILE (copy_construct);
+
 		// Deep copy of the delegated type.
-		this->inner = new inner_type (*other.inner);
+		this->inner = other.inner;
+		this->inner->reference_count++;
 	}
 
 	const this_type& operator=(const this_type& other)
@@ -83,11 +108,34 @@ public:
 		if (this == &other)
 			return *this;
 
-		this->inner = new inner_type (*other.inner);
+		// Dont add extra references where they arent needed
+		if (this->inner == other.inner)
+			return *this;
+
+		MAP_PROFILE (op_eq);
+
+		// Start sharing.
+		this->inner = other.inner;
+		this->inner->reference_count++;
 
 		// This is the result of the entire (x = y), and doesnt affect what goes
 		// into x.
 		return *this;
+	}
+
+	void detach ()
+	{
+		if (this->inner->reference_count == 1)
+			return;
+
+		MAP_PROFILE (detach);
+
+		assert (this->inner->reference_count > 0);
+
+		this->inner->reference_count--;
+
+		this->inner = new inner_type (*this->inner);
+		this->inner->reference_count = 1;
 	}
 
 public:
@@ -169,32 +217,31 @@ public:
 	 */
 
 	const_iterator begin () const { return inner->begin (); }
-	iterator begin () { return inner->begin (); }
+	iterator begin () { detach(); return inner->begin (); }
 	const_iterator end () const { return inner->end (); }
-	iterator end () { return inner->end (); }
+	iterator end () { detach(); return inner->end (); }
 
 	bool empty () const { return inner->empty (); }
 	size_type size () const { return inner->size (); }
 	size_type count (const key_type& x) const { return inner->count (x); }
 
-	_Tp& operator[] (const key_type& x) { return (*this->inner)[x]; }
+	_Tp& operator[] (const key_type& x) { detach(); return (*this->inner)[x]; }
 	const _Tp& operator[] (const key_type& x) const { return get (x); }
 
-	std::pair<iterator,bool> insert (const value_type& x) { return inner->insert (x); }
-	iterator insert (iterator position, const value_type& x) { return inner->insert (position, x); }
+	std::pair<iterator,bool> insert (const value_type& x) { detach(); return inner->insert (x); }
+	iterator insert (iterator position, const value_type& x) { detach(); return inner->insert (position, x); }
 	template <class InputIterator>
-	void insert (InputIterator first, InputIterator last) { return inner->insert (first, last); }
+	void insert (InputIterator first, InputIterator last) { detach(); return inner->insert (first, last); }
 
-	void erase (iterator position) { return inner->erase (position); }
-	size_type erase (const key_type& x) { return inner->erase (x); }
-	void erase (iterator first, iterator last) { return inner->erase (first, last); }
+	void erase (iterator position) { detach(); return inner->erase (position); }
+	size_type erase (const key_type& x) { detach(); return inner->erase (x); }
+	void erase (iterator first, iterator last) { detach(); return inner->erase (first, last); }
 
-	void clear () { return inner->clear (); }
+	void clear () { detach(); return inner->clear (); }
 
-	iterator find (const key_type& x) { return inner->find (x); }
+	iterator find (const key_type& x) { detach(); return inner->find (x); }
 	const_iterator find (const key_type& x) const { return inner->find (x); }
 };
-
 
 template<typename _Key, typename _Tp, typename _Hash, typename _Pred, typename _Alloc>
 struct
@@ -210,6 +257,6 @@ supports_equality<Map<_Key, _Tp, _Hash, _Pred, _Alloc> >
 	static const bool value = true;
 };
 
-
+#undef MAP_PROFILE
 
 #endif // PHC_MAP_H

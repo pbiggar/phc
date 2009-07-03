@@ -176,6 +176,7 @@ libphc_la_SOURCES= 											\
 	src/lib/Integer.cpp										\
 	src/lib/Integer.h											\
 	src/lib/List.h												\
+	src/lib/Map.cpp											\
 	src/lib/Map.h												\
 	src/lib/Object.cpp										\
 	src/lib/Object.h											\
