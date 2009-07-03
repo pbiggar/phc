@@ -551,7 +551,6 @@ P (string symtable, Node* in)
 			//		((X) -> I0) -> I1
 			//	etc
 		
-			phc_TODO ();
 			foreach (Rvalue* rval, *unset->array_indices)
 			{
 				Path* index;
