@@ -27,12 +27,12 @@ require_once( 'sessions.php' );
 $confnr=$nr;
 
 $main = new Main();
-if ($usedbsessions)
-{
-    $session = new session();
-    $session->setMain($main);
-    session_set_save_handler(array(&$session,"open"), array(&$session,"close"), array(&$session,"read"), array(&$session,"write"), array(&$session,"destroy"), array(&$session,"gc")); 
-}
+#if ($usedbsessions)
+#{
+#    $session = new session();
+#    $session->setMain($main);
+#    session_set_save_handler(array(&$session,"open"), array(&$session,"close"), array(&$session,"read"), array(&$session,"write"), array(&$session,"destroy"), array(&$session,"gc")); 
+#}
 session_start();
 //{{{ LOG ANON COMMENTS
 if (isset($_REQUEST['page']) and $logannoncomment)

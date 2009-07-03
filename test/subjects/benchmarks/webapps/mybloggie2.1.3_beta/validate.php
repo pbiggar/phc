@@ -19,7 +19,7 @@ include_once('./language/lang_eng.php');
             FROM ' . SESSIONS_TABLE; 
         if (!($result = $db->sql_query($sql)))
         {
-            message_die(GENERAL_ERROR, 'Could not select session data', '', __LINE__, __FILE__, $sql);
+            die(GENERAL_ERROR, 'Could not select session data', '', __LINE__, __FILE__, $sql);
         }
 
         if ($row = $db->sql_fetchrow($result))
@@ -35,7 +35,7 @@ include_once('./language/lang_eng.php');
                 WHERE session_id NOT IN ($confirm_sql)";
             if (!$db->sql_query($sql))
             {
-                message_die(GENERAL_ERROR, 'Could not delete stale confirm data', '', __LINE__, __FILE__, $sql);
+                die(GENERAL_ERROR, 'Could not delete stale confirm data', '', __LINE__, __FILE__, $sql);
             }
         }
         $db->sql_freeresult($result);
@@ -45,14 +45,14 @@ include_once('./language/lang_eng.php');
             WHERE session_id = '" . $userdata['session_id'] . "'";
         if (!($result = $db->sql_query($sql)))
         {
-            message_die(GENERAL_ERROR, 'Could not obtain confirm code count', '', __LINE__, __FILE__, $sql);
+            die(GENERAL_ERROR, 'Could not obtain confirm code count', '', __LINE__, __FILE__, $sql);
         }
 
         if ($row = $db->sql_fetchrow($result))
         {
             if ($row['attempts'] > 3)
             {
-                message_die(GENERAL_MESSAGE, $lang['Too_many_registers']);
+                die(GENERAL_MESSAGE, $lang['Too_many_registers']);
             }
         }
         $db->sql_freeresult($result);
@@ -75,7 +75,7 @@ include_once('./language/lang_eng.php');
             VALUES ('$confirm_id', '". $userdata['session_id'] . "', '$code')";
         if (!$db->sql_query($sql))
         {
-            message_die(GENERAL_ERROR, 'Could not insert new confirm code information', '', __LINE__, __FILE__, $sql);
+            die(GENERAL_ERROR, 'Could not insert new confirm code information', '', __LINE__, __FILE__, $sql);
         }
 
         unset($code);

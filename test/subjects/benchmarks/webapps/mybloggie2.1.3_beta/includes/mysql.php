@@ -105,8 +105,10 @@ class sql_db
         }
         if($this->query_result)
         {
-            unset($this->row[$this->query_result]);
-            unset($this->rowset[$this->query_result]);
+			  $T1 = $this->row;
+            unset($T1[$this->query_result]);
+			  $T2 = $this->rowset;
+            unset($T2[$this->query_result]);
             return $this->query_result;
         }
         else
