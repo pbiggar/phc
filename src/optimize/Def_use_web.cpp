@@ -29,6 +29,12 @@ Def_use_web::Def_use_web (Def_use* du)
 {
 }
 
+Def_use*
+Def_use_web::get_def_use()
+{
+	return du;
+}
+
 void
 Def_use_web::build_web (CFG* cfg, bool update)
 {

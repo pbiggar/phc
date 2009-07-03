@@ -25,7 +25,7 @@ If_simplification::visit_branch_block (Branch_block* bb)
 
 		// Check if the correct use is actually in the block
 		foreach (SSA_use* temp, *duw->get_block_uses (bb))
-		{	if (use->type_flag != SSA_PHI)
+		{	if (temp->type_flag != SSA_PHI)
 			{
 				string v = *bb->branch->variable_name->value;
 				string s = temp->name->get_name ();

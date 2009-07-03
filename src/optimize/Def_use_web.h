@@ -34,6 +34,8 @@ private:
 
 public:
 	void build_web (CFG* cfg, bool update);
+	Def_use* get_def_use ();
+	
 
 	// Returned Alias_name*s point to the actual Alias_names, so that their SSA
 	// version can be updated.

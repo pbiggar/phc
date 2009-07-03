@@ -91,29 +91,47 @@ Remove_loop_booleans::is_applicable_branch (Branch_block* bb)
 	//	- The boolean is defined has two defs
 	//	- The first def is to true, and is in the predecessor
 	//	- the second def is to false, and is in a successor
-//TODO: come back to this
 
-	return false;
-//phc_TODO ();
-/*
-	// must have a def
-	if (!cfg->duw->has_def (bb->branch->variable_name))
-		return false;
 
-	// If this happens, SCCP will sort it out.
+	// convert out of SSA form
+	bb->cfg->duw = new Def_use_web (bb->cfg->duw->get_def_use ());
+	bb->cfg->duw->build_web (bb->cfg, false);
+
+	//Do we need to convert back to SSA after this pass??
+
+	
 	if (bb->get_predecessors()->size() < 2)
 		return false;
 
-	SSA_op_list* defs = cfg->duw->get_defs (bb->branch->variable_name, SSA_ALL);
+	// Extract the correct use from the branch
+	SSA_use* use;
+	bool proceed = false;
+	foreach (SSA_use* temp, *bb->cfg->duw->get_block_uses (bb))
+	{	if (temp->type_flag != SSA_PHI)
+		{
+			string v = *bb->branch->variable_name->value;
+			string s = temp->name->get_name ();
+			if (s == "*_"+v)
+			{
+				use = temp;
+				proceed = true;
+			}
+		}
+	}
+	
+	if (!proceed)
+	{	
+		// There should be a use of the branch variable in a branch block, right?
+		phc_unreachable ();		
+	}
+		
+	SSA_def_list* defs  = use->get_defs ();	// Needs to not be in SSA...
+	// Check if there are two defs
 	if (defs->size() != 2)
 		return false;
 
-	if (!isa<SSA_stmt> (defs->front()) || !isa<SSA_stmt> (defs->back ()))
-		return false;
-	
-
-	Basic_block* bb0 = defs->front ()->get_bb ();
-	Basic_block* bb1 = defs->back ()->get_bb ();
+	Basic_block* bb0 = defs->front ()->bb;
+	Basic_block* bb1 = defs->back ()->bb;
 
 	Basic_block* true_bb;
 	Basic_block* false_bb;
@@ -132,6 +150,10 @@ Remove_loop_booleans::is_applicable_branch (Branch_block* bb)
 	else
 		return false;
 
+
+	// Might need to do a dynamic_cast instead of dyc in the below two blocks, since if the branch variable is argv or argc, 
+	// it'll be defined in the entry block, not a statement block (???)
+
 	// The predecessor is the true block
 	if (!(dyc<Statement_block> (true_bb))->statement->match (
 			new Assign_var (
@@ -149,5 +171,4 @@ Remove_loop_booleans::is_applicable_branch (Branch_block* bb)
 		return false;
 
 	return true;
-	*/
 }
