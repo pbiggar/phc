@@ -370,7 +370,7 @@ void
 HSSA::push_to_var_stack (Alias_name* name)
 {
 	assert (name->get_version () == 0);
-	var_stacks[name->get_key ()].push (counter);
+	var_stacks[name->non_ssa_str ()].push (counter);
 	name->set_version (counter);
 	counter++;
 }
@@ -385,18 +385,18 @@ HSSA::read_var_stack (Alias_name* name)
 	// indexing.
 	
 	Alias_name index = *name;
-	if (var_stacks[index.get_key ()].size () == 0)
+	if (var_stacks[index.non_ssa_str ()].size () == 0)
 		push_to_var_stack (name);
 	
-	return var_stacks[index.get_key ()].top();
+	return var_stacks[index.non_ssa_str ()].top();
 }
 
 void
 HSSA::pop_var_stack (Alias_name* name)
 {
-	if (var_stacks[name->get_key ()].size () > 0)
+	if (var_stacks[name->non_ssa_str ()].size () > 0)
 	{
-		var_stacks[name->get_key ()].pop();
+		var_stacks[name->non_ssa_str ()].pop();
 	}	
 }
 
@@ -431,12 +431,12 @@ HSSA::debug_top_var_stack (Alias_name* var, string type)
 {
 	CHECK_DEBUG ();
 	DEBUG(type << ": " << var->str () << "\n");
-	if (var_stacks[var->get_key ()].size () == 0)
+	if (var_stacks[var->non_ssa_str ()].size () == 0)
 	{
 		DEBUG ("var stack empty");
 	}else
 	{
-		DEBUG ("TOP OF VAR STACK:" << var_stacks[var->get_key ()].top ());
+		DEBUG ("TOP OF VAR STACK:" << var_stacks[var->non_ssa_str ()].top ());
 	}
 }
 
@@ -482,7 +482,7 @@ HSSA::rename_vars (Basic_block* bb)
 		foreach (Alias_name phi_lhs, *succ->get_phi_lhss())
 		{	
 			debug_top_var_stack (&phi_lhs, "PHI");
-			if (var_stacks[phi_lhs.get_key ()].size () != 0) // No point if nothing on var stack
+			if (var_stacks[phi_lhs.non_ssa_str ()].size () != 0) // No point if nothing on var stack
 			{
 				if (succ->has_phi_node (phi_lhs))
 				{

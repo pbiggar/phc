@@ -86,7 +86,7 @@ Alias_name::get_version () const
 }
 
 string
-Alias_name::get_key () const
+Alias_name::non_ssa_str () const
 {
 	return prefix+"::"+name;
 }

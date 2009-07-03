@@ -57,7 +57,7 @@ public:
 	string str () const;
 
 	// Get key for indexing var_stacks
-	string get_key () const;
+	string non_ssa_str () const;
 
 	// We'd like to make these private
 	string get_name () const;
