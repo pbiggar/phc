@@ -531,19 +531,27 @@ P (string symtable, Node* in)
 		{
 			Unset* unset = dyc<Unset> (in);
 
+			Path* result = NULL;
 			if (unset->target)
-				phc_TODO ();
+			{
+				result = P (symtable, unset->target);
+			}
 
 			// VARIABLE_NAME: ST -> var
 			// or
 			// Variable_variable: ST -> (ST -> var_name)
-			Path* result = P (symtable, unset->variable_name);
+			Path* var_path = P (symtable, unset->variable_name);
+			if (result == NULL)
+				result = var_path;
+			else
+				result = new Indexing (result, var_path);
 
 			// Given the current is X, this will be:
 			//		(X) -> I0
 			//		((X) -> I0) -> I1
 			//	etc
-			
+		
+			phc_TODO ();
 			foreach (Rvalue* rval, *unset->array_indices)
 			{
 				Path* index;
