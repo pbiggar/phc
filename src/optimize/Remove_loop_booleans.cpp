@@ -91,14 +91,6 @@ Remove_loop_booleans::is_applicable_branch (Branch_block* bb)
 	//	- The boolean is defined has two defs
 	//	- The first def is to true, and is in the predecessor
 	//	- the second def is to false, and is in a successor
-
-
-	// convert out of SSA form
-	bb->cfg->duw = new Def_use_web (bb->cfg->duw->get_def_use ());
-	bb->cfg->duw->build_web (bb->cfg, false);
-
-	//Do we need to convert back to SSA after this pass??
-
 	
 	if (bb->get_predecessors()->size() < 2)
 		return false;
