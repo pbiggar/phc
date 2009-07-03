@@ -1124,7 +1124,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 
 		Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]->name());
 
-		// If the array type is the only type, this is true.
+		// If the type is the only type, this is true.
 		if (*absval->types == Types (type_name))
 		{
 			assign_path_scalar (cx, ret_path, new BOOL (true));
@@ -1138,24 +1138,37 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 			assign_path_typed (cx, ret_path, new Types ("bool"));
 		}
 	}
-	else if (*info->name == "is_object")
+	else if (*info->name == "is_numeric")
 	{
 		Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]->name());
-		bool all_objects = true;
-		bool no_objects = true;
-		foreach  (string type, *absval->types)
-		{
-			if (type == "array" || Type_info::is_scalar (type))
-				all_objects = false;
-			else
-				no_objects = false;
-		}
+		Types* types = absval->types->clone ();
+		bool has_numeric = types->has ("int") || types->has ("real");
+		types->erase ("int");
+		types->erase ("real");
 
-		if (all_objects)
+		if (absval->types->size () == 0) // Must be numeric
 		{
 			assign_path_scalar (cx, ret_path, new BOOL (true));
 		}
-		else if (no_objects)
+		else if (has_numeric == false) // cant be numeric
+		{
+			assign_path_scalar (cx, ret_path, new BOOL (false));
+		}
+		else
+		{
+			assign_path_typed (cx, ret_path, new Types ("bool"));
+		}
+	}
+	else if (*info->name == "is_object")
+	{
+		Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]->name());
+		Types* obj_types = Type_info::get_object_types (absval->types);
+
+		if (absval->types->size () == obj_types->size ()) // all objects
+		{
+			assign_path_scalar (cx, ret_path, new BOOL (true));
+		}
+		else if (obj_types->size () == 0) // no objects
 		{
 			assign_path_scalar (cx, ret_path, new BOOL (false));
 		}
