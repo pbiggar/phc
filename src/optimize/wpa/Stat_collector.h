@@ -33,6 +33,7 @@ public:
 	DECLARE_STATEMENT_CFG_VISITORS
 	DECLARE_EXPR_CFG_VISITORS
 
+	void get_number_of_statements (CFG* cfg);
 	void collect_uninit_var_stats (Basic_block* bb);
 	void collect_type_stats (Basic_block* bb, MIR::Rvalue* rval,string statname );
 private:

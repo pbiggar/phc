@@ -42,7 +42,7 @@ Stat_collector::visit_basic_block (Basic_block* bb)
 void
 Stat_collector::visit_statement_block (Statement_block* bb)
 {
-
+	CTS ("num_statement_blocks");
 }
 
 void
@@ -257,18 +257,25 @@ Stat_collector::visit_isset (Statement_block* bb, MIR::Isset* in)
 void
 Stat_collector::visit_method_invocation (Statement_block* bb, MIR::Method_invocation* in)
 {
+	CTS ("method_call_sites");	
 	Method_info_list* minfolist = wp->get_possible_receivers (Context::non_contextual(bb),R_OUT,in);
+	
+	int n = minfolist->size ();	
+	stringstream s;
+	s << "methods_with_" << n << "_receivers";
 	foreach (Method_info* minfo, *minfolist)
 	{
 		User_method_info* info = dynamic_cast<User_method_info*> (minfo);
 		if (info != NULL)
+		{
 			if (info->get_method ()->statements->size () == 1 
 				&& info->get_method ()->statements->at (0)->classid () == Return::ID)			
 			{
 				add_to_stringset_stat ("inlinable_methods",*info->name);	
 				CTS ("num_inlinable_methods");
 			}
-
+			add_to_stringset_stat(s.str (),*info->name);
+		}
 	}
 			
 	foreach (Actual_parameter* param, *in->actual_parameters)
@@ -360,3 +367,15 @@ Stat_collector::collect_uninit_var_stats (Basic_block* bb)
 	}
 }
 
+void 
+Stat_collector::get_number_of_statements (CFG* cfg)
+{
+	foreach (Basic_block* bb, *cfg->get_all_bbs ())
+	{
+	
+		if ((dynamic_cast<Statement_block*> (bb)))
+		{
+			CTS ("num_statements");
+		}
+	}
+}
