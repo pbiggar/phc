@@ -124,7 +124,10 @@ Remove_loop_booleans::is_applicable_branch (Branch_block* bb)
 		// There should be a use of the branch variable in a branch block, right?
 		phc_unreachable ();		
 	}
-		
+	
+	if (!bb->branch->variable_name->attrs->has ("phc.codegen.compiler_generated"))
+		return false;
+	
 	SSA_def_list* defs  = use->get_defs ();	// Needs to not be in SSA...
 	// Check if there are two defs
 	if (defs->size() != 2)
