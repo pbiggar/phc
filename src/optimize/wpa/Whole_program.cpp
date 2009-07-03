@@ -877,6 +877,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (is_dir, (0), "bool");
 	MODEL (is_readable, (0), "bool");
 	MODEL (is_writable, (0), "bool");
+	MODEL (intval, (), "int");
 	MODEL (ltrim, (0, 1), "string");
 	MODEL (md5, (0), "string");
 	MODEL (microtime, (), "string", "real");
@@ -1103,28 +1104,32 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 
 		assign_path_typed_array (cx, ret_path, new Types ("string"), ANON);
 	}
-	else if (*info->name == "is_array")
+	else if (*info->name == "is_array"
+			|| *info->name == "is_int"
+			|| *info->name == "is_null"
+			|| *info->name == "is_real"
+			|| *info->name == "is_resource"
+			|| *info->name == "is_bool"
+			)
 	{
+		Map<string, string> types;
+		types ["is_array"] = "array";
+		types ["is_bool"] = "bool";
+		types ["is_int"] = "int";
+		types ["is_null"] = "unset";
+		types ["is_real"] = "real";
+		types ["is_resource"] = "resource";
+
+		string type_name = types[*info->name];
+
 		Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]->name());
 
 		// If the array type is the only type, this is true.
-		if (*absval->types == Types ("array"))
+		if (*absval->types == Types (type_name))
 		{
 			assign_path_scalar (cx, ret_path, new BOOL (true));
 		}
-		else if (Type_info::get_array_types (absval->types)->size () == 0)
-		{
-			assign_path_scalar (cx, ret_path, new BOOL (false));
-		}
-		else
-		{
-			assign_path_typed (cx, ret_path, new Types ("bool"));
-		}
-	}
-	else if (*info->name == "is_null")
-	{
-		Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]->name());
-		if (not absval->types->has ("unset"))
+		else if (not absval->types->has (type_name))
 		{
 			assign_path_scalar (cx, ret_path, new BOOL (false));
 		}
@@ -1695,8 +1700,6 @@ Whole_program::init_superglobals (Context* cx)
 	// Do the other superglobals
 	foreach (VARIABLE_NAME* sg, *PHP::get_superglobals ())
 	{
-		break; // simplify graph
-
 		if (*sg->value == "GLOBALS")
 			continue;
 
