@@ -146,26 +146,17 @@ Whole_program::run (MIR::PHP_script* in)
 			// Summarize the current results
 			generate_summary (info);
 
-			// These should converge fairly rapidly, I think
-			for (int i = 0; i < 10; i++)
-			{
-				DEBUG ((i+1) << "th intraprocedural iteration for " << *info->name);
+			// Don't iterate here, its hard to get the SSA forms right, since we
+			// dont update the use-def between passes.
 
-				CFG* before = info->get_cfg ()->clone ();
+			// Perform DCE and CP, and some small but useful optimizations.
+			perform_local_optimizations (info);
 
-				// Perform DCE and CP, and some small but useful optimizations.
-				perform_local_optimizations (info);
+			// Inlining and such.
+			perform_interprocedural_optimizations (info);
 
-				// Inlining and such.
-				perform_interprocedural_optimizations (info);
-
-				// Summarize the current results
-				generate_summary (info);
-
-				// Check if we can stop iterating.
-				if (before->equals (info->get_cfg ()))
-					break;
-			}
+			// Summarize the current results
+			generate_summary (info);
 		}
 
 		// Check if we can stop iterating the Whole-program solution.
