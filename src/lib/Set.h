@@ -298,7 +298,20 @@ public:
 	size_type erase (const key_type& x) { detach(); return inner->erase (x); }
 	void erase (iterator first, iterator last) { detach(); return inner->erase (first, last); }
 
-	void clear () { detach(); return inner->clear (); }
+	void clear ()
+	{
+		if (this->inner->reference_count == 1)
+		{
+			this->inner->clear ();
+		}
+		else
+		{
+			this->inner->reference_count--;
+
+			this->inner = new inner_type;
+			this->inner->reference_count = 1;
+		}
+	}
 
 	iterator find (const key_type& x) { detach(); return inner->find (x); }
 	const_iterator find (const key_type& x) const { return inner->find (x); }
