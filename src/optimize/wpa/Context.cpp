@@ -196,38 +196,56 @@ Context::storage_name (string type)
 string
 Context::convert_context_name (string name)
 {
-	string BB_ID = "/\\d+";
-	string all_IDs = "(" + BB_ID + ")+";
+	// We want to remove traces of the contexts. So:
+	//		- symtables get their entire number removed (= to ::)
+	//		- heap objects keep the number before the '-'
+	//
 
-	string symtable = all_IDs;
-	string heap = all_IDs + "(" + BB_ID + "-\\d+)";
+	string result;
 
-
-	// If it starts with "$type$SEP", we want the last BB ID, its a
-	// heap allocation, and we want its last BB ID.
-   static boost::regex re1 ("(ST::)?(\\w+)=" + heap + "(.*)");
-   if (boost::regex_match (name, re1))
-	{
-		string result = boost::regex_replace (name, re1, "\\1\\2\\4\\5");
-//		cdebug << "RE1 matches: " << name << " -> " << result << "\n";
-		return result;
-	}
-
-
-
-	// Remove other BB IDs
-   static boost::regex re2("([^/]+)" + symtable + "(.*)");
-   if (boost::regex_match (name, re2))
-	{
-		string result = boost::regex_replace (name, re2, "\\1\\3");
-//		cdebug << "RE2 matches: " << name << " -> " << result << "\n";
-		return result;
-	}
+	/* 
+	 * Hand-written lexer:
+	 *		Start in COPY state.
+	 *			Move out of COPY state upon seeing a '/'
+	 *			Otherwise copy the character
+	 *		If not in COPY state
+	 *			Store last number (starts with a '/') and copy it on seeing '-'
+	 *			If character is not in [0-9/], copy char and move to COPY state.
+	 */
+	bool copy = true;
+	string last_number;
 	
-	// Otherwise, just leave it
+	foreach (char c, name)
+	{
+		if (copy)
+		{
+			if (c == '/')
+				copy = false;
+			else
+				result += c;
+		}
+		else
+		{
+			if (c != '/' && (c < '0' || c > '9'))
+			{
+				if (c == '-')
+				{
+					result += last_number;
+				}
 
-//	cdebug << "No matches: " << name << "\n";
-	return name;
+				result += c;
+				copy = true;
+			}
+			else
+			{
+				if (c == '/')
+					last_number = "/";
+				else
+					last_number += c;
+			}
+		}
+	}
+	return result;
 }
 
 Storage_node*
