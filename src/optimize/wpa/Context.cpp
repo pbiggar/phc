@@ -101,19 +101,12 @@ Context::empty ()
 }
 
 bool
-Context::operator< (const Context &other) const
-{
-	if (this->use_caller != other.use_caller)
-		return this->use_caller < other.use_caller;
-
-	// Not using context means any BB with the same ID matches.
-	return this->name() < other.name();
-}
-
-bool
 Context::operator== (const Context &other) const
 {
-	return !(*this < other) && !(other < *this);
+	if (this->use_caller != other.use_caller)
+		return false;
+
+	return this->name() == other.name();
 }
 
 string

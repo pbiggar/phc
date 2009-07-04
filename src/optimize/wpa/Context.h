@@ -44,7 +44,6 @@ public:
 	Basic_block* get_bb ();
 	bool is_outer (); // Is it the caller of __MAIN__
 
-	bool operator< (const Context &other) const;
 	bool operator== (const Context &other) const;
 	string name () const;
 	string full_name () const;
