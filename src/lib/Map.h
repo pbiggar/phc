@@ -28,8 +28,8 @@ public:
 	int reference_count;
 };
 
-#define MAP_PROFILE(NAME) __map_private_##NAME##_count++;
-//#define MAP_PROFILE(NAME) /* do nothing */
+#define COW_PROFILE(NAME) __map_private_##NAME##_count++;
+//#define COW_PROFILE(NAME) /* do nothing */
 
 // We want these global, not per-template.
 extern long long __map_private_construct_count;
@@ -37,7 +37,7 @@ extern long long __map_private_op_eq_count;
 extern long long __map_private_detach_count;
 extern long long __map_private_copy_construct_count;
 
-void print_map_memory_stats ();
+void print_cow_memory_stats ();
 
 
 
@@ -70,7 +70,6 @@ public:
 	EXPOSE (size_type);
 	EXPOSE (key_type);
 	EXPOSE (value_type);
-
 #undef EXPOSE
 
 private:
@@ -86,7 +85,7 @@ public:
 	: inner (new inner_type)
 	{
 		inner->reference_count = 1;
-		MAP_PROFILE (construct);
+		COW_PROFILE (construct);
 	}
 
 	virtual ~Map()
@@ -96,7 +95,7 @@ public:
 
 	Map (const this_type& other)
 	{
-		MAP_PROFILE (copy_construct);
+		COW_PROFILE (copy_construct);
 
 		// Deep copy of the delegated type.
 		this->inner = other.inner;
@@ -112,7 +111,7 @@ public:
 		if (this->inner == other.inner)
 			return *this;
 
-		MAP_PROFILE (op_eq);
+		COW_PROFILE (op_eq);
 
 		// Start sharing.
 		this->inner = other.inner;
@@ -128,7 +127,7 @@ public:
 		if (this->inner->reference_count == 1)
 			return;
 
-		MAP_PROFILE (detach);
+		COW_PROFILE (detach);
 
 		assert (this->inner->reference_count > 0);
 
@@ -257,6 +256,6 @@ supports_equality<Map<_Key, _Tp, _Hash, _Pred, _Alloc> >
 	static const bool value = true;
 };
 
-#undef MAP_PROFILE
+#undef COW_PROFILE
 
 #endif // PHC_MAP_H

@@ -60,6 +60,7 @@ using namespace std;
 
 void init_plugins (Pass_manager* pm);
 void initialize_ini_entries ();
+void print_stats ();
 
 extern struct gengetopt_args_info error_args_info;
 struct gengetopt_args_info args_info;
@@ -82,6 +83,9 @@ void sighandler(int signum)
 
 	fprintf(stderr, "This could be a bug in phc. If you suspect it is, please email\n");
 	fprintf(stderr, "a bug report to phc-general@phpcompiler.org.\n");
+
+	print_stats ();
+
 	exit(-1);
 }
 
@@ -326,6 +330,8 @@ int main(int argc, char** argv)
 	 * Destruction
 	 */
 
+	print_stats ();
+
 	int ret = lt_dlexit();
 	if (ret != 0) 
 		phc_error ("Error closing ltdl plugin infrastructure: %s", lt_dlerror ());
@@ -336,6 +342,14 @@ int main(int argc, char** argv)
 	shutdown_xml ();
 
 	return 0;
+}
+
+void print_stats ()
+{
+	if (args_info.stats_flag)
+	{
+		print_cow_memory_stats ();
+	}
 }
 		
 
