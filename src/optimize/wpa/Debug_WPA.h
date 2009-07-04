@@ -46,6 +46,7 @@ public:
 	void finish_block (Context* cx);
 
 	bool solution_changed (Context* cx);
+	bool has_analysis_result (Context* cx, Result_state);
 
 	bool equals (WPA* other);
 	void dump (Context* cx, Result_state state, string comment);

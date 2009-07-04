@@ -32,6 +32,9 @@ public:
 	void merge_contexts ();
 
 
+	bool has_analysis_result (Context* cx, Result_state state);
+
+
 private:
 
 	void dump_graphviz (String* label);

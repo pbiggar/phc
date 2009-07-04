@@ -323,6 +323,12 @@ Def_use::merge_contexts ()
 	}
 }
 
+bool
+Def_use::has_analysis_result (Context* cx, Result_state state)
+{
+	return maps.has (cx);
+}
+
 void
 Def_use::backward_bind (Context* caller, Context* exit)
 {

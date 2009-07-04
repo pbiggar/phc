@@ -73,6 +73,9 @@ public:
 
 	void merge_contexts ();
 
+	bool has_analysis_result (Context* cx, Result_state state);
+
+
 	// These return pointers to the actual values, not copies. This allows the
 	// SSA name to be updated.
 	Alias_name_list* get_defs (Basic_block* bb);

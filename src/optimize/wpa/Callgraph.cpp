@@ -149,3 +149,10 @@ Callgraph::dump_graphviz (String* label)
 	<< "}\n"
 	;
 }
+
+bool
+Callgraph::has_analysis_result (Context* cx, Result_state)
+{
+	// I dont know whether to return true or false.
+	phc_TODO ();
+}

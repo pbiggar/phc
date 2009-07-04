@@ -312,14 +312,18 @@ public:
 	void dump (Context* cx, Result_state state, string comment);
 
 
-
+private:
 	// Get the value of node (can be UNKNOWN).
 	String* get_string_value (Context* cx, Index_node* node);
 
 	Abstract_value* get_abstract_value (Context* cx, Result_state state, Alias_name name);
+	friend class WPA;
+	friend class Points_to;
+	friend class Points_to_impl;
 
-	// Get all the possible names, and merge them.
+public:
 	Abstract_value* get_abstract_value (Context* cx, Result_state state, MIR::Rvalue* rval);
+	Abstract_value* get_abstract_value (Context* cx, Result_state state, MIR::VARIABLE_NAME*);
 
 
 

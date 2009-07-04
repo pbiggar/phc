@@ -333,9 +333,7 @@ Whole_program::get_successors (Context* cx)
 
 	if (Branch_block* branch = dynamic_cast<Branch_block*> (bb))
 	{
-		Index_node* cond = VN (cx->symtable_name (), branch->branch->variable_name);
-
-		Abstract_value* absval = get_abstract_value (cx, R_WORKING, cond->name ());
+		Abstract_value* absval = get_abstract_value (cx, R_WORKING, branch->branch->variable_name);
 
 		if (not absval->known_true ())
 			result->push_back (branch->get_false_successor_edge ());
@@ -1334,7 +1332,6 @@ Whole_program::apply_results (User_method_info* info)
 	// single transformer applying the results.
 	foreach (Basic_block* bb, *info->get_cfg ()->get_all_bbs ())
 	{
-		// TODO: I should probably use CCP results here to optimize branches.
 		if (Statement_block* sb = dynamic_cast<Statement_block*> (bb))
 		{
 			bool saved = debugging_enabled;
@@ -2735,6 +2732,25 @@ Whole_program::get_abstract_value (Context* cx, Result_state state, Alias_name n
 	return dyc<Absval_cell> (values->get_value (cx, state, name))->value;
 }
 
+/*
+ * The variable name might not exist, in which case we need to use the UNKNOWN value
+ */
+Abstract_value*
+Whole_program::get_abstract_value (Context* cx, Result_state state, VARIABLE_NAME* var_name)
+{
+	string ns = cx->symtable_name ();
+
+	Index_node* var_index = VN (ns, var_name);
+
+	if (aliasing->has_field (cx, state, var_index))
+	{
+		return get_abstract_value (cx, state, var_index->name ());
+	}
+
+	Index_node* unknown_index = new Index_node (ns, UNKNOWN);
+	return get_abstract_value (cx, state, unknown_index->name ());
+}
+
 
 Abstract_value*
 Whole_program::get_abstract_value (Context* cx, Result_state state, MIR::Rvalue* rval)
@@ -2744,11 +2760,7 @@ Whole_program::get_abstract_value (Context* cx, Result_state state, MIR::Rvalue*
 	if (isa<Literal> (rval))
 		return new Abstract_value (dyc<Literal> (rval));
 
-	// The variables are not expected to already have the same value. Perhaps
-	// there was an assignment to $x[0], and we are accessing $x[$i].
-	Index_node* index = VN (ns, dyc<VARIABLE_NAME> (rval));
-
-	return get_abstract_value (cx, state, index->name ());
+	return get_abstract_value (cx, state, dyc<VARIABLE_NAME> (rval));
 }
 
 

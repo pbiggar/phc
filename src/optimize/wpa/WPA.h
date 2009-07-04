@@ -194,6 +194,9 @@ public:
 		return changed_flags[cx];
 	}
 
+	// Check if the block has been analysed
+	virtual bool has_analysis_result (Context* cx, Result_state) = 0;
+
 	// Return whether the solutions are equal (ie, whether we have reached a
 	// fixed-point in our Whole-program iteration).
 	virtual bool equals (WPA* other) = 0;

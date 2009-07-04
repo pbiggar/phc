@@ -58,7 +58,7 @@ Aliasing::dump (Context* cx, Result_state state, string comment)
 {
 	CHECK_DEBUG();
 
-	if (ptgs[state].has (cx))
+	if (has_analysis_result (cx, state))
 	{
 		stringstream ss;
 		ss << cx << "(" << result_state_string (state) << "): " << comment;
@@ -167,6 +167,12 @@ Aliasing::pull_finish (Context* cx)
 	ins[cx]->consistency_check (cx, R_IN, wp);
 
 	init_block_results (cx);
+}
+
+bool
+Aliasing::has_analysis_result (Context* cx, Result_state state)
+{
+	return ptgs[state].has (cx);
 }
 
 

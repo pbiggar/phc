@@ -249,6 +249,12 @@ public:
 		return lattices[state][cx][name.str()];
 	}
 
+
+	bool has_analysis_result (Context* cx, Result_state state)
+	{
+		return lattices[state].has (cx);
+	}
+
 private:
 
 	void init_block_results (Context* cx)

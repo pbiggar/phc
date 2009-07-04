@@ -26,6 +26,7 @@ public:
 
 	MIR::Rvalue* get_literal (Basic_block* bb, MIR::Rvalue* in);
 
+	virtual void visit_block (Basic_block* bb);
 
 	Abstract_value* get_in_abstract_value (Basic_block* bb, MIR::Rvalue* in);
 	Abstract_value* get_out_abstract_value (Basic_block* bb, MIR::Rvalue* in);

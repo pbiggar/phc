@@ -13,6 +13,7 @@
 #include "optimize/Abstract_value.h"
 
 #include "Optimization_transformer.h"
+#include "Value_analysis.h"
 
 
 using namespace MIR;
@@ -39,10 +40,7 @@ Optimization_transformer::get_in_abstract_value (Basic_block* bb, Rvalue* in)
 		return new Abstract_value (dyc<Literal> (in));
 
 	Context* cx = Context::non_contextual (bb);
-	return wp->get_abstract_value (
-			cx,
-			R_IN,
-			VN (cx->symtable_name (), dyc<VARIABLE_NAME> (in))->name ());
+	return wp->get_abstract_value (cx, R_IN, dyc<VARIABLE_NAME> (in));
 }
 
 Abstract_value*
@@ -52,10 +50,7 @@ Optimization_transformer::get_out_abstract_value (Basic_block* bb, Rvalue* in)
 		return new Abstract_value (dyc<Literal> (in));
 
 	Context* cx = Context::non_contextual (bb);
-	return wp->get_abstract_value (
-			cx,
-			R_OUT,
-			VN (cx->symtable_name (), dyc<VARIABLE_NAME> (in))->name ());
+	return wp->get_abstract_value (cx, R_OUT, dyc<VARIABLE_NAME> (in));
 }
 
 
@@ -68,6 +63,16 @@ Optimization_transformer::get_literal (Basic_block* bb, Rvalue* in)
 		return in;
 
 	return absval->lit;
+}
+
+void
+Optimization_transformer::visit_block (Basic_block* bb)
+{
+	Context* cx = Context::non_contextual (bb);
+	if (!wp->values->has_analysis_result (cx, R_IN))
+		return;
+
+	CFG_visitor::visit_block (bb);
 }
 
 void

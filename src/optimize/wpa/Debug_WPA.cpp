@@ -198,6 +198,10 @@ Debug_WPA::dump_everything (string comment)
 {
 }
 
+bool
+Debug_WPA::has_analysis_result (Context* cx, Result_state)
+{
+}
 
 void
 Debug_WPA::merge_contexts ()

@@ -87,6 +87,8 @@ public:
 
 	void merge_contexts ();
 
+	bool has_analysis_result (Context* cx, Result_state state);
+
 	// I dont have a nice generic way to do this:
 	void kill_specific_value (Context* cx, Result_state state, Index_node* lhs, Storage_node* rhs);
 
