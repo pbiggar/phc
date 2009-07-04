@@ -844,9 +844,6 @@ CFG::remove_branch (Branch_block* branch, Basic_block* new_successor)
 {
 	consistency_check ();
 
-	// If the predeccessors are dead, the phis should be too.
-	assert (new_successor->get_phi_lhss ()->size () == 0);
-
 	Edge* true_edge = branch->get_true_successor_edge ();
 	Edge* false_edge = branch->get_false_successor_edge ();
 
