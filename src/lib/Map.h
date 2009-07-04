@@ -145,12 +145,12 @@ public:
 
 	bool has (const _Key& key) const
 	{
-		return this->inner->find (key) != this->inner->end ();
+		return this->find (key) != this->end ();
 	}
 
 	_Tp at (const _Key& key) const
 	{
-		return this->inner->find (key)->second;
+		return this->find (key)->second;
 	}
 
 	_Tp get(const _Key& key) const
@@ -163,7 +163,7 @@ public:
 
 	void set (_Key key, _Tp value)
 	{
-		(*this->inner)[key] = value;
+		(*this)[key] = value;
 	}
 
 	List<_Key>* keys () const
@@ -172,7 +172,7 @@ public:
 
 		_Key key;
 		_Tp value;
-		foreach (boost::tie (key, value), *this->inner)
+		foreach (boost::tie (key, value), *this)
 			result->push_back (key);
 
 		return result;
@@ -184,7 +184,7 @@ public:
 
 		_Key key;
 		_Tp value;
-		foreach (boost::tie (key, value), *this->inner)
+		foreach (boost::tie (key, value), *this)
 			result->push_back (value);
 
 		return result;
@@ -192,6 +192,9 @@ public:
 
 	bool equals (this_type* other)
 	{
+		if (this->inner == other->inner)
+			return true;
+
 		if (other->size () != this->size ())
 			return false;
 
