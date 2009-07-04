@@ -739,6 +739,10 @@ Pass_manager::run_optimization_pass (Pass* pass, Whole_program* wp, CFG* cfg)
 		cfg->clean ();
 		cfg_dump (cfg, pass->name, s("Out of SSA (cleaned)"));
 	}
+	else
+	{
+		cfg->duw = NULL;
+	}
 }
 
 
