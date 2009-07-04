@@ -910,7 +910,6 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (strtolower, (0), "string");
 	MODEL (strtoupper, (0), "string");
 	MODEL (substr, (0), "string", "bool");
-//	MODEL (trigger_error, (0), "bool");
 	MODEL (time, (), "int");
 	MODEL (trim, (0, 1), "string");
 	MODEL (urlencode, (0), "string");
@@ -998,7 +997,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 			assign_path_by_copy (cx, lhs, rhs);
 		}
 	}
-	else if (*info->name == "die" || *info->name == "exit")
+	else if (*info->name == "die" || *info->name == "exit" || *info->name == "trigger_error")
 	{
 		// Model that the next statement is not executable.
 		skip_after_die = true;
