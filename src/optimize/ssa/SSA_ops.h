@@ -76,7 +76,7 @@ public:
 	{
 		size_t seed = 0;
 
-		boost::hash_combine(seed, op->name->str ());
+		boost::hash_combine(seed, op->name->hash ());
 		boost::hash_combine(seed, op->type_flag);
 		boost::hash_combine(seed, op->bb->vertex);
 

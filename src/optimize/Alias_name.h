@@ -51,11 +51,11 @@ public:
 
 	bool operator== (const Alias_name& other) const;
 	bool operator!= (const Alias_name& other) const;
-
-	// In some cases (at least lattice_map, maybe elsewhere), its hard to use an
-	// Alias_name instead of a string.
+	size_t hash () const;
 	string str () const;
 
+
+public:
 	// Get key for indexing var_stacks
 	string non_ssa_str () const;
 
@@ -81,7 +81,7 @@ namespace std
 		{
 			size_t operator() (const Alias_name& an) const
 			{
-				return hash<string>() (an.str ());
+				return an.hash ();
 			}
 		};
 	}

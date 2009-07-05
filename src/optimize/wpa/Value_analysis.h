@@ -74,7 +74,8 @@ public:
 
 SET_COMPARABLE (Absval_cell);
 SET_COMPARABLE (CX_lattices<Absval_cell>);
-SET_COMPARABLE (Lattice_map<Absval_cell>);
+typedef Lattice_map<string, Absval_cell> __myhandytypedef;
+SET_COMPARABLE (__myhandytypedef);
 
 
 

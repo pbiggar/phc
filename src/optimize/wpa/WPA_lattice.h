@@ -18,7 +18,7 @@ template <class Cell_type>
 class WPA_lattice : public WPA
 {
 protected:
-	typedef Lattice_map<Cell_type> Lattice_type;
+	typedef Lattice_map<string, Cell_type> Lattice_type;
 	typedef WPA_lattice<Cell_type> this_type;
 
 protected:

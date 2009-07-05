@@ -45,6 +45,12 @@ Alias_name::operator!= (const Alias_name& other) const
 	return not (operator== (other));
 }
 
+size_t
+Alias_name::hash () const
+{
+	return std::tr1::hash<string>() (this->str ());
+}
+
 // In some cases (at least lattice_map, maybe elsewhere), its hard to put use
 // an Alias_name instead of a string.
 string

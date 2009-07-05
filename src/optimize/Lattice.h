@@ -10,16 +10,16 @@
 #include <boost/tuple/tuple.hpp> // for tie
 
 
-template <class Cell_type>
+template <class Key_type, class Cell_type>
 class Lattice_map
-: public Map<string, Cell_type*>
+: public Map<Key_type, Cell_type*>
 {
-	typedef Map<string, Cell_type*> parent;
-	typedef Lattice_map <Cell_type> this_type;
+	typedef Map<Key_type, Cell_type*> parent;
+	typedef Lattice_map <Key_type, Cell_type> this_type;
 
 public:
 	Lattice_map ()
-	: Map<string, Cell_type*> ()
+	: Map<Key_type, Cell_type*> ()
 	{
 	}
 
@@ -27,7 +27,7 @@ public:
 	{
 		CHECK_DEBUG ();
 
-		string index;
+		Key_type index;
 		Cell_type* cell;
 		foreach (tie (index, cell), *this)
 		{
@@ -37,7 +37,7 @@ public:
 		}
 	}
 
-	Cell_type* operator[](string var) const // const version
+	Cell_type* operator[](Key_type var) const // const version
 	{
 		if (parent::has (var))
 			return parent::operator[](var);
@@ -47,7 +47,7 @@ public:
 
 
 	// We want to offer the option of the default value not being TOP.
-	Cell_type*& operator[](string var)
+	Cell_type*& operator[](Key_type var)
 	{
 		if (parent::has (var))
 		{
@@ -65,7 +65,7 @@ public:
 	{
 		this_type* result = new this_type;
 
-		string var;
+		Key_type var;
 		Cell_type* cell;
 		foreach (tie (var, cell), *this)
 			(*result)[var] = cell;
@@ -78,7 +78,7 @@ public:
 		if (this->size () != other->size ())
 			return false;
 
-		string var;
+		Key_type var;
 		Cell_type* cell;
 		foreach (tie (var, cell), *other)
 			if (!cell->equals ((*this)[var]))
@@ -90,7 +90,7 @@ public:
 
 	void merge (this_type* other)
 	{
-		string key;
+		Key_type key;
 		Cell_type* val;
 		foreach (tie (key, val), *other)
 		{
