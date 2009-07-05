@@ -174,12 +174,12 @@ public:
 			&& this->outs.equals (&other->outs);
 	}
 
-	void dump (Context* cx, Result_state state, string comment)
+	void dump (Context* cx, Result_state state, string comment) const
 	{
 		lattices[state].dump (cx, comment);
 	}
 
-	void dump_everything (string comment)
+	void dump_everything (string comment) const
 	{
 		ins.dump_everything ("IN");
 		outs.dump_everything ("OUT");
@@ -244,13 +244,13 @@ public:
 	}
 
 	// Get results
-	Cell_type* get_value (Context* cx, Result_state state, Alias_name name)
+	Cell_type* get_value (Context* cx, Result_state state, Alias_name name) const
 	{
 		return lattices[state][cx][name.str()];
 	}
 
 
-	bool has_analysis_result (Context* cx, Result_state state)
+	bool has_analysis_result (Context* cx, Result_state state) const
 	{
 		return lattices[state].has (cx);
 	}

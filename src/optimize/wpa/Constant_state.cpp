@@ -30,7 +30,7 @@ Constant_state::set_constant (Context* cx, string name, Abstract_value* value)
 // TODO: for conditionally defined constants, this might return true, even
 // though its unknown.
 bool
-Constant_state::is_constant_defined (Context* cx, Result_state state, string name)
+Constant_state::is_constant_defined (Context* cx, Result_state state, string name) const
 {
 	if (lattices[state][cx].has (name))
 		return true;
@@ -49,7 +49,7 @@ Constant_state::set_unknown_constant (Context* cx, Abstract_value* value)
 }
 
 Abstract_value*
-Constant_state::get_constant (Context* cx, Result_state state, string name)
+Constant_state::get_constant (Context* cx, Result_state state, string name) const
 {
 	if (lattices[state][cx].has (name))
 		return lattices[state][cx][name]->value;

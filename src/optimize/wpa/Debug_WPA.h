@@ -45,12 +45,12 @@ public:
 
 	void finish_block (Context* cx);
 
-	bool solution_changed (Context* cx);
-	bool has_analysis_result (Context* cx, Result_state);
+	bool solution_changed (Context* cx) const;
+	bool has_analysis_result (Context* cx, Result_state) const;
 
 	bool equals (WPA* other);
-	void dump (Context* cx, Result_state state, string comment);
-	void dump_everything (string comment);
+	void dump (Context* cx, Result_state state, string comment) const;
+	void dump_everything (string comment) const;
 	void merge_contexts ();
 };
 

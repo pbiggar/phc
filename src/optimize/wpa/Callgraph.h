@@ -27,17 +27,17 @@ public:
 	Method_info_list* bottom_up ();
 
 	bool equals (WPA* other);
-	void dump (Context* cx, Result_state state, string comment);
-	void dump_everything (string comment);
+	void dump (Context* cx, Result_state state, string comment) const;
+	void dump_everything (string comment) const;
 	void merge_contexts ();
 
 
-	bool has_analysis_result (Context* cx, Result_state state);
+	bool has_analysis_result (Context* cx, Result_state state) const;
 
 
 private:
 
-	void dump_graphviz (String* label);
+	void dump_graphviz (String* label) const;
 };
 
 #endif // PHC_CALLGRAPH

@@ -66,21 +66,21 @@ public:
 	void finish_block (Context* cx);
 
 	bool equals (WPA* other);
-	void dump (Context* cx, Result_state state, string comment);
-	void dump_everything (string comment);
+	void dump (Context* cx, Result_state state, string comment) const;
+	void dump_everything (string comment) const;
 
 	void backward_bind (Context* caller, Context* exit);
 
 	void merge_contexts ();
 
-	bool has_analysis_result (Context* cx, Result_state state);
+	bool has_analysis_result (Context* cx, Result_state state) const;
 
 
 	// These return pointers to the actual values, not copies. This allows the
 	// SSA name to be updated.
-	Alias_name_list* get_defs (Basic_block* bb);
-	Alias_name_list* get_may_defs (Basic_block* bb);
-	Alias_name_list* get_uses (Basic_block* bb);
+	Alias_name_list* get_defs (Basic_block* bb) const;
+	Alias_name_list* get_may_defs (Basic_block* bb) const;
+	Alias_name_list* get_uses (Basic_block* bb) const;
 
 public:
 
@@ -88,14 +88,14 @@ public:
 	static string get_starred_name (string name);
 
 private:
-	Alias_name_list* get_alias_name (Basic_block* bb, deftype dt);
+	Alias_name_list* get_alias_name (Basic_block* bb, deftype dt) const;
 
 private:
 
 
-	void dump_set (Context* cx, reftype rt, deftype dt);
+	void dump_set (Context* cx, reftype rt, deftype dt) const;
 	void record (Context* cx, reftype rt, deftype dt, Index_node* index);
-	bool has (Context* cx, reftype rt, deftype dt, Index_node* index);
+	bool has (Context* cx, reftype rt, deftype dt, Index_node* index) const;
 
 	CX_map<Map<reftype, Map<deftype, Set<Alias_name> > > > maps;
 

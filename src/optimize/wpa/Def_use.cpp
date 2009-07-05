@@ -141,7 +141,7 @@ string debug_name (reftype rt, deftype dt)
 
 
 void
-Def_use::dump_set (Context* cx, reftype rt, deftype dt)
+Def_use::dump_set (Context* cx, reftype rt, deftype dt) const
 {
 	string set_name = debug_name (rt, dt);
 	if (maps[cx][rt][dt].size())
@@ -156,7 +156,7 @@ Def_use::dump_set (Context* cx, reftype rt, deftype dt)
 }
 
 void
-Def_use::dump (Context* cx, Result_state, string comment)
+Def_use::dump (Context* cx, Result_state, string comment) const
 {
 	// Print out the results for existing BBs (done this way so that IN and OUT
 	// results are presented together).
@@ -184,7 +184,7 @@ Def_use::dump (Context* cx, Result_state, string comment)
 }
 
 void
-Def_use::dump_everything (string comment)
+Def_use::dump_everything (string comment) const
 {
 	foreach (Context* cx, *maps.keys ())
 		dump (cx, R_OUT, comment);
@@ -252,7 +252,7 @@ Def_use::record (Context* cx, reftype rt, deftype dt, Index_node* index)
 }
 
 bool
-Def_use::has (Context* cx, reftype rt, deftype dt, Index_node* index)
+Def_use::has (Context* cx, reftype rt, deftype dt, Index_node* index) const
 {
 	return maps[cx][rt][dt].has (index->name ());
 }
@@ -324,7 +324,7 @@ Def_use::merge_contexts ()
 }
 
 bool
-Def_use::has_analysis_result (Context* cx, Result_state state)
+Def_use::has_analysis_result (Context* cx, Result_state state) const
 {
 	return maps.has (cx);
 }
@@ -341,7 +341,7 @@ Def_use::backward_bind (Context* caller, Context* exit)
 }
 
 Alias_name_list*
-Def_use::get_alias_name (Basic_block* bb, deftype dt)
+Def_use::get_alias_name (Basic_block* bb, deftype dt) const
 {
 	Alias_name_list* result = new Alias_name_list;
 	Context* cx = Context::non_contextual (bb);
@@ -369,19 +369,19 @@ Def_use::get_starred_name (string name)
 }
 
 Alias_name_list*
-Def_use::get_defs (Basic_block* bb)
+Def_use::get_defs (Basic_block* bb) const
 {
 	return get_alias_name (bb, DEF);
 }
 
 Alias_name_list*
-Def_use::get_may_defs (Basic_block* bb)
+Def_use::get_may_defs (Basic_block* bb) const
 {
 	return get_alias_name (bb, MAYDEF);
 }
 
 Alias_name_list*
-Def_use::get_uses (Basic_block* bb)
+Def_use::get_uses (Basic_block* bb) const
 {
 	return get_alias_name (bb, USE);
 }

@@ -87,7 +87,7 @@ Callgraph::equals (WPA* wpa)
 
 
 void
-Callgraph::dump (Context* cx, Result_state, string comment)
+Callgraph::dump (Context* cx, Result_state, string comment) const
 {
 	// Only dump on entry and exit
 	if (!isa<Entry_block> (cx->get_bb()) && !isa<Exit_block> (cx->get_bb()))
@@ -97,7 +97,7 @@ Callgraph::dump (Context* cx, Result_state, string comment)
 }
 
 void
-Callgraph::dump_everything (string comment)
+Callgraph::dump_everything (string comment) const
 {
 	dump_graphviz (s(comment));
 }
@@ -108,7 +108,7 @@ Callgraph::merge_contexts ()
 }
 
 void
-Callgraph::dump_graphviz (String* label)
+Callgraph::dump_graphviz (String* label) const
 {
 	if (label == NULL)
 	{
@@ -151,7 +151,7 @@ Callgraph::dump_graphviz (String* label)
 }
 
 bool
-Callgraph::has_analysis_result (Context* cx, Result_state)
+Callgraph::has_analysis_result (Context* cx, Result_state) const
 {
 	// I dont know whether to return true or false.
 	phc_TODO ();

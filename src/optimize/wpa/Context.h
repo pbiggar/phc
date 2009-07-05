@@ -37,29 +37,29 @@ public:
 	static Context* contextual (Context* caller, Basic_block* bb);
 	static Context* as_peer (Context* peer, Basic_block* bb);
 
-	Context* caller ();
-	Context* get_non_contextual ();
+	Context* caller () const;
+	Context* get_non_contextual () const;
 
-	bool empty ();
-	Basic_block* get_bb ();
-	bool is_outer (); // Is it the caller of __MAIN__
+	bool empty () const;
+	Basic_block* get_bb () const;
+	bool is_outer () const; // Is it the caller of __MAIN__
 
 	bool operator== (const Context &other) const;
 	string name () const;
 	string full_name () const;
 
-	Storage_node* array_node ();
-	Storage_node* symtable_node ();
-	Storage_node* storage_node (string type);
+	Storage_node* array_node () const;
+	Storage_node* symtable_node () const;
+	Storage_node* storage_node (string type) const;
 
-	string symtable_name ();
-	string array_name ();
-	string storage_name (string type);
+	string symtable_name () const;
+	string array_name () const;
+	string storage_name (string type) const;
 
 	// Apply the HACK rules for new context names.
 	static string convert_context_name (string);
 
-	bool is_recursive ();
+	bool is_recursive () const;
 
 };
 
@@ -93,19 +93,19 @@ template <class Cell_type>
 class CX_lattices : public CX_map<Lattice_map<Cell_type> >
 {
 public:
-	void dump (Context* cx, string name)
+	void dump (Context* cx, string name) const
 	{
 		if (this->has (cx))
 		{
 			cdebug << name << " Lattice for BB: " << cx << std::endl;
-			(*this)[cx].dump();
+			this->operator[](cx).dump();
 			cdebug << std::endl;
 		}
 		else
 			cdebug << "No " << name << " results for BB: " << cx << std::endl;
 	}
 
-	void dump_everything (string name)
+	void dump_everything (string name) const
 	{
 		foreach (Context* cx, *this->keys())
 		{

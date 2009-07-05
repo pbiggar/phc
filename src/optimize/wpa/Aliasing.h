@@ -82,12 +82,12 @@ public:
 	void finish_block (Context* cx);
 
 	bool equals (WPA* other);
-	void dump (Context* cx, Result_state state, string comment);
-	void dump_everything (string comment);
+	void dump (Context* cx, Result_state state, string comment) const;
+	void dump_everything (string comment) const;
 
 	void merge_contexts ();
 
-	bool has_analysis_result (Context* cx, Result_state state);
+	bool has_analysis_result (Context* cx, Result_state state) const;
 
 	// I dont have a nice generic way to do this:
 	void kill_specific_value (Context* cx, Result_state state, Index_node* lhs, Storage_node* rhs);

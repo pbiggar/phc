@@ -23,7 +23,7 @@ public:
 	{
 	}
 
-	void dump (std::ostream& os = cdebug)
+	void dump (std::ostream& os = cdebug) const
 	{
 		CHECK_DEBUG ();
 
@@ -36,6 +36,15 @@ public:
 			os << "\n";
 		}
 	}
+
+	Cell_type* operator[](string var) const // const version
+	{
+		if (parent::has (var))
+			return parent::operator[](var);
+		else
+		return Cell_type::get_default ();
+	}
+
 
 	// We want to offer the option of the default value not being TOP.
 	Cell_type*& operator[](string var)

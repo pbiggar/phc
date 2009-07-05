@@ -61,7 +61,7 @@ Context::as_peer (Context* peer, Basic_block* bb)
 }
 
 Context* 
-Context::caller ()
+Context::caller () const
 {
 	assert (this->use_caller);
 
@@ -76,26 +76,26 @@ Context::caller ()
 }
 
 Context* 
-Context::get_non_contextual ()
+Context::get_non_contextual () const
 {
 	assert (this->use_caller);
 	return Context::non_contextual (this->get_bb());
 }
 
 Basic_block*
-Context::get_bb ()
+Context::get_bb () const
 {
 	return BBs.back();
 }
 
 bool
-Context::is_outer ()
+Context::is_outer () const
 {
 	return get_bb ()->ID == 0;
 }
 
 bool
-Context::empty ()
+Context::empty () const
 {
 	return BBs.empty ();
 }
@@ -149,7 +149,7 @@ Context::name () const
 }
 
 bool
-Context::is_recursive ()
+Context::is_recursive () const
 {
 	foreach (int count, *BB_counts.values ())
 		if (count > 1)
@@ -172,13 +172,13 @@ Context::full_name () const
 std::ostream &operator<< (std::ostream &out, const Context &num);
 
 string
-Context::array_name ()
+Context::array_name () const
 {
 	return storage_name ("array");
 }
 
 string
-Context::symtable_name ()
+Context::symtable_name () const
 {
 	if (this->use_caller)
 		return get_bb()->get_prefix () + this->caller ()->name();
@@ -187,7 +187,7 @@ Context::symtable_name ()
 }
 
 string
-Context::storage_name (string type)
+Context::storage_name (string type) const
 {
 	return type + SEP + this->name ();
 }
@@ -249,19 +249,19 @@ Context::convert_context_name (string name)
 }
 
 Storage_node*
-Context::array_node ()
+Context::array_node () const
 {
-	return SN (array_name());
+	return SN (array_name ());
 }
 
 Storage_node*
-Context::storage_node (string type)
+Context::storage_node (string type) const
 {
 	return SN (storage_name (type));
 }
 
 Storage_node*
-Context::symtable_node ()
+Context::symtable_node () const
 {
 	return SN (symtable_name ());
 }

@@ -54,7 +54,7 @@ Aliasing::equals (WPA* wpa)
 }
 
 void
-Aliasing::dump (Context* cx, Result_state state, string comment)
+Aliasing::dump (Context* cx, Result_state state, string comment) const
 {
 	CHECK_DEBUG();
 
@@ -67,7 +67,7 @@ Aliasing::dump (Context* cx, Result_state state, string comment)
 }
 
 void
-Aliasing::dump_everything (string comment)
+Aliasing::dump_everything (string comment) const
 {
 	foreach (Context* cx, *outs.keys ())
 		dump (cx, R_OUT, comment);
@@ -170,7 +170,7 @@ Aliasing::pull_finish (Context* cx)
 }
 
 bool
-Aliasing::has_analysis_result (Context* cx, Result_state state)
+Aliasing::has_analysis_result (Context* cx, Result_state state) const
 {
 	return ptgs[state].has (cx);
 }

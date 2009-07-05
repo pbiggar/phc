@@ -174,7 +174,7 @@ Debug_WPA::finish_block (Context* cx)
 }
 
 bool
-Debug_WPA::solution_changed (Context* cx)
+Debug_WPA::solution_changed (Context* cx) const
 {
 	DEBUG (__FUNCTION__ << " " << cx);
 	return false;
@@ -188,19 +188,20 @@ Debug_WPA::equals (WPA* other)
 }
 
 void
-Debug_WPA::dump (Context* cx, Result_state state, string comment)
+Debug_WPA::dump (Context* cx, Result_state state, string comment) const
 {
 }
 
 
 void
-Debug_WPA::dump_everything (string comment)
+Debug_WPA::dump_everything (string comment) const
 {
 }
 
 bool
-Debug_WPA::has_analysis_result (Context* cx, Result_state)
+Debug_WPA::has_analysis_result (Context* cx, Result_state) const
 {
+	return false;
 }
 
 void

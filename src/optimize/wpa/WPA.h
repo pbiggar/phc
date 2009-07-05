@@ -189,13 +189,13 @@ public:
 	virtual void finish_block (Context* cx) CT_IMPL;
 
 	// Do we need to iterate again?
-	virtual bool solution_changed (Context* cx)
+	virtual bool solution_changed (Context* cx) const
 	{
 		return changed_flags[cx];
 	}
 
 	// Check if the block has been analysed
-	virtual bool has_analysis_result (Context* cx, Result_state) = 0;
+	virtual bool has_analysis_result (Context* cx, Result_state) const = 0;
 
 	// Return whether the solutions are equal (ie, whether we have reached a
 	// fixed-point in our Whole-program iteration).
@@ -206,9 +206,9 @@ public:
 	/*
 	 * Debugging information
 	 */
-	virtual void dump (Context* cx, Result_state state, string comment) = 0;
+	virtual void dump (Context* cx, Result_state state, string comment) const = 0;
 
-	virtual void dump_everything (string comment) = 0;
+	virtual void dump_everything (string comment) const= 0;
 
 private:
 	/* Some helper functions for merges */

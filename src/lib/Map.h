@@ -228,7 +228,7 @@ public:
 	size_type count (const key_type& x) const { return inner->count (x); }
 
 	_Tp& operator[] (const key_type& x) { detach(); return (*this->inner)[x]; }
-	const _Tp& operator[] (const key_type& x) const { return get (x); }
+	const _Tp& operator[] (const key_type& x) const { return (*this->inner)[x]; }
 
 	std::pair<iterator,bool> insert (const value_type& x) { detach(); return inner->insert (x); }
 	iterator insert (iterator position, const value_type& x) { detach(); return inner->insert (position, x); }
