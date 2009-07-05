@@ -183,7 +183,7 @@ public:
 	// versions since the STL includes only out-of-place versions. In-place
 	// versions could be created in some cases, however, possibly with lower
 	// complexity.
-	this_type* set_union (this_type* other) const
+	this_type* set_union (const this_type* other) const
 	{
 		this_type* result = new this_type ();
 
@@ -195,7 +195,7 @@ public:
 
 		return result;
 	}
-	this_type* set_intersection (this_type* other) const
+	this_type* set_intersection (const this_type* other) const
 	{
 		this_type* result = new this_type ();
 
@@ -207,7 +207,7 @@ public:
 	}
 
 
-	this_type* set_difference (this_type* other) const
+	this_type* set_difference (const this_type* other) const
 	{
 		this_type* result = new this_type ();
 
@@ -225,7 +225,7 @@ public:
 		return find (entry) != this->end ();
 	}
 
-	this_type* clone ()
+	this_type* clone () const
 	{
 		this_type* result = new this_type ();
 		foreach (_Tp entry, *this)
@@ -258,7 +258,7 @@ public:
 		return not (*this == other);
 	}
 
-	_Tp front ()
+	_Tp front () const
 	{
 		assert (this->size ());
 		return *this->begin ();

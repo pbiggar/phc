@@ -165,18 +165,18 @@ public:
 	using std::list<_Tp, _Alloc>::begin;
 	using std::list<_Tp, _Alloc>::end;
 
-	void push_back_all(List* other) 
+	void push_back_all (List* other) 
 	{
 		insert(end(), other->begin(), other->end());
 	}
 	
-	void push_front_all(List* other) 
+	void push_front_all (List* other) 
 	{
 		insert(begin(), other->begin(), other->end());
 	}
 
 public:
-	List* clone()
+	List* clone ()
 	{
 		List* result = new List<_Tp, _Alloc>;
 
@@ -188,7 +188,14 @@ public:
 		return result;
 	}
 
-	_Tp at (int index)
+	List* clone () const
+	{
+		// Just reuse clone(), we know its const.
+		return const_cast<const List<_Tp, _Alloc>*> (this)->clone ();
+	}
+	
+
+	_Tp at (int index) const
 	{
 		int i = 0;
 		assert (this->size () > (unsigned int)(i));
@@ -203,7 +210,7 @@ public:
 		assert (0);
 	}
 
-	bool has (_Tp needle)
+	bool has (const _Tp needle) const
 	{
 		foreach (_Tp elem, *this)
 			if (elem == needle)
@@ -214,7 +221,7 @@ public:
 };
 
 template <class Result_type, class List_type>
-List<Result_type*>* rewrap_list (List<List_type*>* list)
+List<Result_type*>* rewrap_list (const List<List_type*>* list)
 {
 	List<Result_type*>* result = new List<Result_type*>;
 	foreach (List_type* n, *list)
@@ -226,7 +233,7 @@ List<Result_type*>* rewrap_list (List<List_type*>* list)
 
 // A filter that removes objects not of the type FILTER_TYPE.
 template <class Filter_type, class List_type>
-List<Filter_type*>* filter_types (List<List_type*>* list)
+List<Filter_type*>* filter_types (const List<List_type*>* list)
 {
 	List<Filter_type*>* result = new List<Filter_type*>;
 	foreach (List_type* n, *list)

@@ -82,12 +82,12 @@ public:
 
 /* These are copies of ideas from LLVM. All of our uses of casts can be
  * characterized as one of these. */
-template <class T> bool isa(GC_obj* in) 
+template <class T> bool isa (GC_obj* in) 
 { 
 	return dynamic_cast<T*> (in) != NULL;
 }
 
-template <class T> T* dyc(GC_obj* in)
+template <class T> T* dyc (GC_obj* in)
 {
 	if (in == NULL) return NULL;
 

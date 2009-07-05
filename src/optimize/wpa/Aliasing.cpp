@@ -231,7 +231,7 @@ Aliasing::remove_fake_node (Context* cx, Index_node* fake)
 }
 
 void
-Aliasing::set_storage (Context* cx, Storage_node* storage, Types* types)
+Aliasing::set_storage (Context* cx, Storage_node* storage, const Types* types)
 {
 	// Check if its gone abstract.
 	working[cx]->inc_abstract (storage);
@@ -239,7 +239,7 @@ Aliasing::set_storage (Context* cx, Storage_node* storage, Types* types)
 
 
 void
-Aliasing::set_scalar (Context* cx, Value_node* storage, Abstract_value* val)
+Aliasing::set_scalar (Context* cx, Value_node* storage, const Abstract_value* val)
 {
 	// See set storage
 }

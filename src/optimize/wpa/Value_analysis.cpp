@@ -10,13 +10,14 @@
 #include "optimize/Abstract_value.h"
 #include "Points_to.h"
 #include "Value_analysis.h"
+#include "process_ir/IR.h"
 
 using namespace std;
 using namespace boost;
 using namespace MIR;
 
 Value_analysis::Value_analysis (Whole_program* wp)
-: WPA_lattice<Absval_cell> (wp)
+: WPA_lattice<const Absval_cell> (wp)
 {
 }
 
@@ -27,7 +28,7 @@ Value_analysis::Value_analysis (Whole_program* wp)
 
 
 void
-Value_analysis::set_storage (Context* cx, Storage_node* storage, Types* types)
+Value_analysis::set_storage (Context* cx, Storage_node* storage, const Types* types)
 {
 	Lattice_type& lat = working[cx];
 	string name = storage->name().str();
@@ -36,7 +37,7 @@ Value_analysis::set_storage (Context* cx, Storage_node* storage, Types* types)
 }
 
 void
-Value_analysis::set_scalar (Context* cx, Value_node* storage, Abstract_value* val)
+Value_analysis::set_scalar (Context* cx, Value_node* storage, const Abstract_value* val)
 {
 	Lattice_type& lat = working[cx];
 	string name = storage->name().str();
@@ -63,8 +64,8 @@ Value_analysis::pull_possible_null (Context* cx, Index_node* index)
  * Literals
  */
 
-MIR::Literal*
-Value_analysis::get_lit (Context* cx, Result_state state, Alias_name name)
+const MIR::Literal*
+Value_analysis::get_lit (Context* cx, Result_state state, Alias_name name) const
 {
 	return get_value (cx, state, name)->value->lit;
 }
@@ -77,7 +78,7 @@ void
 Value_analysis::remove_non_objects (Context* cx, Result_state state, Alias_name name)
 {
 	// Remove the object types (we assume there are already object types)
-	Abstract_value* val = get_value (cx, state, name)->value;
+	const Abstract_value* val = get_value (cx, state, name)->value;
 	val = new Abstract_value (Type_info::get_object_types (val->types));
 
 	// Set it back
@@ -85,10 +86,10 @@ Value_analysis::remove_non_objects (Context* cx, Result_state state, Alias_name 
 	lat[name.str ()] = new Absval_cell (val);
 }
 
-Types*
-Value_analysis::get_types (Context* cx, Result_state state, Alias_name name)
+const Types*
+Value_analysis::get_types (Context* cx, Result_state state, const Alias_name& name) const
 {
-	Types* types = get_value (cx, state, name)->value->types;
+	const Types* types = get_value (cx, state, name)->value->types;
 	assert (types->size ());
 	return types;
 }
@@ -96,7 +97,7 @@ Value_analysis::get_types (Context* cx, Result_state state, Alias_name name)
 
 
 Types*
-Value_analysis::get_bin_op_types (Context* cx, Abstract_value* left, Abstract_value* right, string op)
+Value_analysis::get_bin_op_types (Context* cx, const Abstract_value* left, const Abstract_value* right, string op)
 {
 	if (left->types == NULL || right->types == NULL)
 		phc_TODO ();
@@ -205,7 +206,7 @@ Value_analysis::get_bin_op_type (string ltype, string rtype, string op)
 }
 
 Types*
-Value_analysis::get_unary_op_types (Context* cx, Abstract_value* operand, string op)
+Value_analysis::get_unary_op_types (Context* cx, const Abstract_value* operand, string op)
 {
 	Set<string> always_bool_ops;
 	always_bool_ops.insert ("!");
@@ -213,7 +214,7 @@ Value_analysis::get_unary_op_types (Context* cx, Abstract_value* operand, string
 		return new Types ("bool");
 
 	if (op == "-" || op == "~")
-		return operand->types;
+		return operand->types->clone ();
 
 	DEBUG ("unary op: " << op << " not handled");
 	phc_TODO ();
@@ -225,27 +226,27 @@ Value_analysis::get_unary_op_types (Context* cx, Abstract_value* operand, string
  * Lattice_cell interface
  */
 
-Absval_cell* Absval_cell::TOP = new Absval_cell (new Abstract_value (new NIL));
+const Absval_cell* Absval_cell::TOP = new Absval_cell (new Abstract_value (new NIL));
 
-Absval_cell::Absval_cell (Abstract_value* value)
+Absval_cell::Absval_cell (const Abstract_value* value)
 : value (value)
 {
 }
 
 void
-Absval_cell::dump (std::ostream& os)
+Absval_cell::dump (std::ostream& os) const
 {
 	value->dump (os);
 }
 
 bool
-Absval_cell::equals (Absval_cell* other)
+Absval_cell::equals (const Absval_cell* other) const
 {
 	return value->equals (other->value);
 }
 
-Absval_cell*
-Absval_cell::meet (Absval_cell* other)
+const Absval_cell*
+Absval_cell::meet (const Absval_cell* other) const
 {
 	// There is a trick here, that TOP has a value, but it also represents TOP,
 	// so that meet() works as expected. So the Abstract_value for NIL is the
@@ -261,16 +262,20 @@ Absval_cell::meet (Absval_cell* other)
 	if (other == TOP)
 		return this;
 
-	if (this->value->lit && other->value->lit && this->value->lit->equals (other->value->lit))
+	if (	this->value->lit
+		&& other->value->lit
+		&& ::equals (this->value->lit, other->value->lit))
 		return new Absval_cell (new Abstract_value (this->value->lit));
 
 	if (this->value->types && other->value->types)
-		return new Absval_cell (new Abstract_value (this->value->types->set_union (other->value->types)));
+		return new Absval_cell (
+			new Abstract_value (
+				this->value->types->set_union (other->value->types)));
 
 	return new Absval_cell (Abstract_value::unknown ());
 }
 
-Absval_cell*
+const Absval_cell*
 Absval_cell::get_default ()
 {
 	return TOP;

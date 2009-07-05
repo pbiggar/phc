@@ -26,34 +26,34 @@ typedef Set<string> Types;
 class Abstract_value : virtual public GC_obj
 {
 public:
-	MIR::Literal* const lit;
-	Types* const types;
+	const MIR::Literal* const lit;
+	const Types* const types;
 
 public:
-	Abstract_value (MIR::Literal* lit);
-	Abstract_value (Types* types);
+	Abstract_value (const MIR::Literal* lit);
+	Abstract_value (const Types* types);
 
 	// An unknown type is awful.
 	static Abstract_value* unknown ();
 
 	// These could have a truth value incorporated - for now just use the
 	// constant.
-	bool known_true ();
-	bool known_false ();
+	bool known_true () const;
+	bool known_false () const;
 
-	bool equals (Abstract_value* absval);
-	Abstract_value* clone ();
+	bool equals (const Abstract_value* absval) const;
+	Abstract_value* clone () const;
 
-	void dump (std::ostream& os = cdebug);
+	void dump (std::ostream& os = cdebug) const;
 
 private:
-	Abstract_value (MIR::Literal*, Types* types);
+	Abstract_value (const MIR::Literal*, const Types* types);
 };
 
 namespace Type_info
 {
-	void dump_types (std::ostream& os, Types* types);
-	Types* get_type (MIR::Literal* lit);
+	void dump_types (std::ostream& os, const Types* types);
+	Types* get_type (const MIR::Literal* lit);
 	Types* get_all_scalar_types ();
 	bool is_scalar (string type);
 
@@ -61,9 +61,9 @@ namespace Type_info
 	// an array, and which are objects. These return new sets with only the
 	// appropriate types in them.
 	// TODO: all this time I've been ignoring resources!!
-	Types* get_scalar_types (Types*);
-	Types* get_array_types (Types*); // can only be "array" or empty
-	Types* get_object_types (Types*); // anything thats not covered above.
+	Types* get_scalar_types (const Types*);
+	Types* get_array_types (const Types*); // can only be "array" or empty
+	Types* get_object_types (const Types*); // anything thats not covered above.
 }
 
 

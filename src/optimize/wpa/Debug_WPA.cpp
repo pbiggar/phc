@@ -80,7 +80,7 @@ Debug_WPA::create_reference (Context* cx, Index_node* lhs,
 }
 
 void
-Debug_WPA::set_scalar (Context* cx, Value_node* storage, Abstract_value* val)
+Debug_WPA::set_scalar (Context* cx, Value_node* storage, const Abstract_value* val)
 {
 	CHECK_DEBUG ();
 
@@ -95,7 +95,7 @@ Debug_WPA::set_scalar (Context* cx, Value_node* storage, Abstract_value* val)
 }
 
 void
-Debug_WPA::set_storage (Context* cx, Storage_node* storage, Types* types)
+Debug_WPA::set_storage (Context* cx, Storage_node* storage, const Types* types)
 {
 	CHECK_DEBUG ();
 

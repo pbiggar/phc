@@ -12,14 +12,14 @@
 using namespace MIR;
 
 Constant_state::Constant_state (Whole_program* wp)
-: WPA_lattice<Absval_cell> (wp)
+: WPA_lattice <const Absval_cell> (wp)
 {
 }
 
 // TODO: can be case-insensitive
 
 void
-Constant_state::set_constant (Context* cx, string name, Abstract_value* value)
+Constant_state::set_constant (Context* cx, string name, const Abstract_value* value)
 {
 	// Should be handled in Whole_program.
 	assert (not is_constant_defined (cx, R_WORKING, name));
@@ -43,12 +43,12 @@ Constant_state::is_constant_defined (Context* cx, Result_state state, string nam
 }
 
 void
-Constant_state::set_unknown_constant (Context* cx, Abstract_value* value)
+Constant_state::set_unknown_constant (Context* cx, const Abstract_value* value)
 {
 	phc_TODO ();
 }
 
-Abstract_value*
+const Abstract_value*
 Constant_state::get_constant (Context* cx, Result_state state, string name) const
 {
 	if (lattices[state][cx].has (name))

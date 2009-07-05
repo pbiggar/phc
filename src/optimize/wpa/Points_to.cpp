@@ -373,7 +373,7 @@ Points_to_impl::dump_graphviz (String* label, Context* cx, Result_state state, W
 		if (isa<Value_node> (node))
 		{
 			stringstream cell_label;
-			Abstract_value* val = wp->get_abstract_value (cx, state, node->name ());
+			const Abstract_value* val = wp->get_abstract_value (cx, state, node->name ());
 			val->dump (cell_label);
 
 			label

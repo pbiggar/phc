@@ -33,7 +33,7 @@ Optimization_transformer::run (CFG* cfg)
 {
 }
 
-Abstract_value*
+const Abstract_value*
 Optimization_transformer::get_in_abstract_value (Basic_block* bb, Rvalue* in)
 {
 	if (isa<Literal> (in))
@@ -43,7 +43,7 @@ Optimization_transformer::get_in_abstract_value (Basic_block* bb, Rvalue* in)
 	return wp->get_abstract_value (cx, R_IN, dyc<VARIABLE_NAME> (in));
 }
 
-Abstract_value*
+const Abstract_value*
 Optimization_transformer::get_out_abstract_value (Basic_block* bb, Rvalue* in)
 {
 	if (isa<Literal> (in))
@@ -57,12 +57,12 @@ Optimization_transformer::get_out_abstract_value (Basic_block* bb, Rvalue* in)
 Rvalue*
 Optimization_transformer::get_literal (Basic_block* bb, Rvalue* in)
 {
-	Abstract_value* absval = get_in_abstract_value (bb, in);
+	const Abstract_value* absval = get_in_abstract_value (bb, in);
 
 	if (absval->lit == NULL)
 		return in;
 
-	return absval->lit;
+	return clone (absval->lit);
 }
 
 void
@@ -140,10 +140,10 @@ void
 Optimization_transformer::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 {
 	// If the RHS value is known, replace it outright.
-	Literal* lit = get_out_abstract_value (bb, in->lhs)->lit;
+	const Literal* lit = get_out_abstract_value (bb, in->lhs)->lit;
 
 	if (lit && in->is_ref == false && rhs_is_pure (bb, in))
-		in->rhs = lit;
+		in->rhs = clone (lit);
 	else
 		visit_expr (bb, in->rhs);
 }
@@ -205,10 +205,10 @@ Optimization_transformer::visit_method_alias (Statement_block* bb, MIR::Method_a
 void
 Optimization_transformer::visit_pre_op (Statement_block* bb, MIR::Pre_op* in)
 {
-	Literal* lit = get_out_abstract_value (bb, in->variable_name)->lit;
+	const Literal* lit = get_out_abstract_value (bb, in->variable_name)->lit;
 
 	if (lit)
-		bb->statement = new Assign_var (in->variable_name, lit);
+		bb->statement = new Assign_var (in->variable_name, clone (lit));
 }
 
 void

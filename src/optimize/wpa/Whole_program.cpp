@@ -333,7 +333,7 @@ Whole_program::get_successors (Context* cx)
 
 	if (Branch_block* branch = dynamic_cast<Branch_block*> (bb))
 	{
-		Abstract_value* absval = get_abstract_value (cx, R_WORKING, branch->branch->variable_name);
+		const Abstract_value* absval = get_abstract_value (cx, R_WORKING, branch->branch->variable_name);
 
 		if (not absval->known_true ())
 			result->push_back (branch->get_false_successor_edge ());
@@ -410,7 +410,7 @@ Whole_program::get_possible_receivers (Context* cx, Result_state state, Target* 
 					bool fail = true;
 
 					// Object types
-					Types* types = values->get_types (cx, state, rhs->name ());
+					const Types* types = values->get_types (cx, state, rhs->name ());
 					if (Type_info::get_object_types (types)->size ())
 					{
 						assert (types->size () == 1);
@@ -569,7 +569,7 @@ Whole_program::assign_attribute (Context* cx, string obj, MIR::Attribute* attr)
 		if (constant->class_name)
 			phc_TODO ();
 
-		Abstract_value* absval = constants->get_constant (block_cx (), R_IN, *constant->constant_name->value);
+		const Abstract_value* absval = constants->get_constant (block_cx (), R_IN, *constant->constant_name->value);
 		assign_path_scalar (block_cx (), path, absval);
 	}
 	else
@@ -749,14 +749,14 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 			if (not params.has (i))
 				break;
 
-			Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[i]->name ());
+			const Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[i]->name ());
 			if (absval->lit == NULL)
 			{
 				all_literals = false;
 				break;
 			}
 
-			lits.push_back (absval->lit);
+			lits.push_back (C(absval->lit));
 		}
 
 		if (all_literals)
@@ -1008,8 +1008,8 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	{
 		// Read parameters
 		params[0] = coerce_to_string (cx, params[0]);
-		Abstract_value* name = get_abstract_value (cx, R_WORKING, params[0]->name ());
-		Abstract_value* value = get_abstract_value (cx, R_WORKING, params[1]->name ());
+		const Abstract_value* name = get_abstract_value (cx, R_WORKING, params[0]->name ());
+		const Abstract_value* value = get_abstract_value (cx, R_WORKING, params[1]->name ());
 		if (params[3])
 			phc_TODO (); // case-insensitive
 
@@ -1022,7 +1022,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		}
 		else
 		{
-			String* str_name = PHP::get_string_value (name->lit);
+			String* str_name = PHP::get_string_value (C(name->lit));
 			if (constants->is_constant_defined (cx, R_WORKING, *str_name))
 			{
 				// If its already defined, it cant be redefined
@@ -1048,7 +1048,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 
 		if (aliasing->has_field (cx, R_WORKING, params[0])) // TODO: just use params[0]?
 		{
-			Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]->name());
+			const Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]->name());
 
 			if (absval->known_true ())
 				can_be_array = false;
@@ -1110,7 +1110,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 
 		string type_name = types[*info->name];
 
-		Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]->name());
+		const Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]->name());
 
 		// If the type is the only type, this is true.
 		if (*absval->types == Types (type_name))
@@ -1128,7 +1128,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	}
 	else if (*info->name == "is_numeric")
 	{
-		Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]->name());
+		const Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]->name());
 		Types* types = absval->types->clone ();
 		bool has_numeric = types->has ("int") || types->has ("real");
 		types->erase ("int");
@@ -1149,7 +1149,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	}
 	else if (*info->name == "is_object")
 	{
-		Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]->name());
+		const Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]->name());
 		Types* obj_types = Type_info::get_object_types (absval->types);
 
 		if (absval->types->size () == obj_types->size ()) // all objects
@@ -1167,7 +1167,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	}
 	else if (*info->name == "max" || *info->name == "min")
 	{
-		Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]->name());
+		const Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]->name());
 		if (absval->types->has ("array"))
 			phc_TODO ();
 
@@ -1175,7 +1175,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		Types* result = new Types;
 		foreach (Index_node* param, *params.values ())
 		{
-			Abstract_value* absval = get_abstract_value (cx, R_WORKING, param->name());
+			const Abstract_value* absval = get_abstract_value (cx, R_WORKING, param->name());
 
 			// Can only return scalars (um, probably).
 			result = result->set_union (Type_info::get_scalar_types (absval->types));
@@ -1219,7 +1219,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	else if (*info->name == "ob_start")
 	{
 		// ob_start seems to always have 1 param, which is a callback.
-		Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]->name());
+		const Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]->name());
 		if (*absval->types != Types ("unset"))
 			phc_TODO ();
 		
@@ -1253,12 +1253,12 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	else if (*info->name == "preg_replace"
 			|| *info->name == "str_replace")
 	{
-		Abstract_value* replacement = get_abstract_value (cx, R_WORKING, params[1]->name());
+		const Abstract_value* replacement = get_abstract_value (cx, R_WORKING, params[1]->name());
 		foreach (string type, *replacement->types)
 			if (type != "array" && not Type_info::is_scalar (type))
 				phc_TODO ();
 
-		Abstract_value* subject = get_abstract_value (cx, R_WORKING, params[2]->name());
+		const Abstract_value* subject = get_abstract_value (cx, R_WORKING, params[2]->name());
 		foreach (string type, *subject->types)
 			if (type != "array" && not Type_info::is_scalar (type))
 				phc_TODO ();
@@ -1280,8 +1280,8 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	else if (*info->name == "range")
 	{
 		// Returns an array with a range of values of the given type.
-		Abstract_value* absval0 = get_abstract_value (cx, R_WORKING, params[0]->name());
-		Abstract_value* absval1 = get_abstract_value (cx, R_WORKING, params[1]->name());
+		const Abstract_value* absval0 = get_abstract_value (cx, R_WORKING, params[0]->name());
+		const Abstract_value* absval1 = get_abstract_value (cx, R_WORKING, params[1]->name());
 		Types* merged = absval0->types->set_union (absval1->types);
 
 		assign_path_typed_array (cx, ret_path, merged, ANON);
@@ -1296,13 +1296,13 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	{
 		// TODO: It shouldn't be an object or array
 		params[0] = coerce_to_string (cx, params[0]);
-		Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]->name());
+		const Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]->name());
 		assign_path_scalar (cx, ret_path, absval);
 	}
 	else if (*info->name == "var_export")
 	{
 		// Return string or NULL depending on true/false.
-		Abstract_value* absval1 = get_abstract_value (cx, R_WORKING, params[1]->name());
+		const Abstract_value* absval1 = get_abstract_value (cx, R_WORKING, params[1]->name());
 
 		Types* types = new Types;
 		if (not absval1->known_false ())
@@ -2064,7 +2064,7 @@ Whole_program::build_static_array (Context* cx, Static_array* array)
 }
 
 void
-Whole_program::assign_path_scalar (Context* cx, Path* plhs, Abstract_value* absval, bool allow_kill)
+Whole_program::assign_path_scalar (Context* cx, Path* plhs, const Abstract_value* absval, bool allow_kill)
 {
 	DEBUG ("assign_path_scalar");
 
@@ -2084,13 +2084,13 @@ Whole_program::assign_path_scalar (Context* cx, Path* plhs, Abstract_value* absv
 }
 
 void
-Whole_program::assign_path_scalar (Context* cx, Path* plhs, Literal* lit, bool allow_kill)
+Whole_program::assign_path_scalar (Context* cx, Path* plhs, const Literal* lit, bool allow_kill)
 {
 	assign_path_scalar (cx, plhs, new Abstract_value (lit), allow_kill);
 }
 
 void
-Whole_program::assign_path_typed (Context* cx, Path* plhs, Types* types, bool allow_kill)
+Whole_program::assign_path_typed (Context* cx, Path* plhs, const Types* types, bool allow_kill)
 {
 	DEBUG ("assign_path_typed");
 
@@ -2138,7 +2138,7 @@ Whole_program::assign_path_empty_array (Context* cx, Path* plhs, string name, bo
 }
 
 string
-Whole_program::assign_path_typed_array (Context* cx, Path* plhs, Types* types, string name, bool allow_kill)
+Whole_program::assign_path_typed_array (Context* cx, Path* plhs, const Types* types, string name, bool allow_kill)
 {
 	name = assign_path_empty_array (cx, plhs, name);
 	assign_path_typed (cx, P (name, UNKNOWN), types, allow_kill);
@@ -2263,7 +2263,7 @@ Whole_program::assign_path_by_cast (Context* cx, Path* plhs, Path* prhs, string 
 }
 
 void
-Whole_program::assign_absval (Context* cx, Index_node* lhs, Abstract_value* absval)
+Whole_program::assign_absval (Context* cx, Index_node* lhs, const Abstract_value* absval)
 {
 	FWPA->set_scalar (cx, SCLVAL (lhs), absval);
 	FWPA->assign_value (cx, lhs, SCLVAL (lhs));
@@ -2275,7 +2275,7 @@ Whole_program::copy_value (Context* cx, Index_node* lhs, Index_node* rhs, Name_m
 	lhs = check_owner_type (cx, lhs);
 
 	// Check if RHS is an indexing a scalar.
-	if (Abstract_value* absval = read_from_scalar_value (cx, rhs))
+	if (const Abstract_value* absval = read_from_scalar_value (cx, rhs))
 	{
 		DEBUG ("copy_from_abstract_value");
 		assign_absval (cx, lhs, absval);
@@ -2300,7 +2300,7 @@ Whole_program::copy_value (Context* cx, Index_node* lhs, Index_node* rhs, Name_m
 	foreach (Storage_node* st, *aliasing->get_points_to (cx, R_WORKING, rhs))
 	{
 		// Get the type of the value
-		Types* types = values->get_types (cx, R_WORKING, st->name());
+		const Types* types = values->get_types (cx, R_WORKING, st->name());
 
 		// It must be either all scalars, array, list of classes, or bottom.
 		Types* scalars = Type_info::get_scalar_types (types);
@@ -2343,10 +2343,10 @@ Whole_program::cast_value (Context* cx, Index_node* lhs, Index_node* rhs, string
 	// overwriting the GLOBALS array with an integer)
 	record_use (cx, rhs);
 
-	Abstract_value* absval = get_abstract_value (cx, R_WORKING, rhs->name ());
+	const Abstract_value* absval = get_abstract_value (cx, R_WORKING, rhs->name ());
 	if (Type_info::is_scalar (type))
 	{
-		Abstract_value* absval = get_abstract_value (cx, R_WORKING, rhs->name ());
+		const Abstract_value* absval = get_abstract_value (cx, R_WORKING, rhs->name ());
 		if (absval->lit == NULL)
 		{
 			if (type == "string")
@@ -2364,7 +2364,7 @@ Whole_program::cast_value (Context* cx, Index_node* lhs, Index_node* rhs, string
 		{
 			assign_absval (cx, lhs,
 								new Abstract_value (
-									PHP::cast_to (new CAST (s(type)), absval->lit)));
+									PHP::cast_to (new CAST (s(type)), C(absval->lit))));
 		}
 	}
 	else if (type == "array")
@@ -2387,7 +2387,7 @@ Whole_program::coerce_to_string (Context* cx, Index_node* node)
 		return NULL;
 
 
-	Abstract_value* absval = get_abstract_value (cx, R_WORKING, node->name ());
+	const Abstract_value* absval = get_abstract_value (cx, R_WORKING, node->name ());
 
 	Types* objects = Type_info::get_object_types (absval->types);
 	if (objects->size ())
@@ -2408,7 +2408,7 @@ Whole_program::cast_to_storage (Context* cx, Index_node* lhs, Index_node* rhs, s
 	foreach (Storage_node* st, *aliasing->get_points_to (cx, R_WORKING, rhs))
 	{
 		// Get the type of the value
-		Types* types = values->get_types (cx, R_WORKING, st->name());
+		const Types* types = values->get_types (cx, R_WORKING, st->name());
 
 		// It must be either all scalars, array, list of classes, or bottom.
 		Types* scalars = Type_info::get_scalar_types (types);
@@ -2422,12 +2422,9 @@ Whole_program::cast_to_storage (Context* cx, Index_node* lhs, Index_node* rhs, s
 			Storage_node* new_array = create_empty_storage (cx, type);
 
 			// If its not null, it must be put in the "scalar" field
-			Abstract_value* absval = get_abstract_value (cx, R_WORKING, st->name ());
-			if (not isa<NIL> (absval->lit))
+			const Abstract_value* absval = get_abstract_value (cx, R_WORKING, st->name ());
+			if (not isa<NIL> (C(absval->lit)))
 			{
-				absval = absval->clone ();
-				absval->types->erase ("unset"); // Cant be NULL
-
 				// Copy to a new array to the "scalar" field.
 				assign_absval (cx,
 									new Index_node (new_array->storage, "scalar"),
@@ -2534,7 +2531,7 @@ Index_node*
 Whole_program::check_owner_type (Context* cx, Index_node* index)
 {
 	Storage_node* owner = aliasing->get_owner (cx, R_WORKING, index);
-	Types* types = values->get_types (cx, R_WORKING, owner->name ());
+	const Types* types = values->get_types (cx, R_WORKING, owner->name ());
 	Types* scalar_types = Type_info::get_scalar_types (types);
 
 	if (scalar_types->size ())
@@ -2610,7 +2607,7 @@ Whole_program::check_owner_type (Context* cx, Index_node* index)
 
 
 
-Abstract_value*
+const Abstract_value*
 Whole_program::read_from_scalar_value (Context* cx, Index_node* rhs)
 {
 	// Special case - the RHS's storage node might be a sclval (however, if it
@@ -2620,12 +2617,12 @@ Whole_program::read_from_scalar_value (Context* cx, Index_node* rhs)
 	Storage_node* st = aliasing->get_owner (cx, R_WORKING, rhs);
 
 	// Get the type of the value
-	Types* types = values->get_types (cx, R_WORKING, st->name());
+	const Types* types = values->get_types (cx, R_WORKING, st->name());
 
 	// It must be either all scalars, array, or list of classes.
-	Types* scalars = Type_info::get_scalar_types (types);
-	Types* array = Type_info::get_array_types (types);
-	Types* objects = Type_info::get_object_types (types);
+	const Types* scalars = Type_info::get_scalar_types (types);
+	const Types* array = Type_info::get_array_types (types);
+	const Types* objects = Type_info::get_object_types (types);
 
 	if (scalars->size() == 0)
 		return NULL;
@@ -2645,11 +2642,11 @@ Whole_program::read_from_scalar_value (Context* cx, Index_node* rhs)
 	{
 		if (scalars->has ("string"))
 		{
-			Literal* array = values->get_lit (cx, R_WORKING, st->name ());
+			const Literal* array = values->get_lit (cx, R_WORKING, st->name ());
 			string index = rhs->index;
 			if (array && index != UNKNOWN)
 			{
-				Literal* value = PHP::fold_string_index (array, new STRING (s(index)));
+				Literal* value = PHP::fold_string_index (C(array), new STRING (s(index)));
 				if (value)
 					return new Abstract_value (value);
 			}
@@ -2717,25 +2714,25 @@ String*
 Whole_program::get_string_value (Context* cx, Index_node* index)
 {
 	index = coerce_to_string (cx, index);
-	Abstract_value* absval = get_abstract_value (cx, R_WORKING, index->name ());
+	const Abstract_value* absval = get_abstract_value (cx, R_WORKING, index->name ());
 	if (absval->lit == NULL)
 		return s (UNKNOWN);
 
-	return PHP::get_string_value (absval->lit);
+	return PHP::get_string_value (C(absval->lit));
 }
 
 
 
-Abstract_value*
+const Abstract_value*
 Whole_program::get_abstract_value (Context* cx, Result_state state, Alias_name name)
 {
-	return dyc<Absval_cell> (values->get_value (cx, state, name))->value;
+	return values->get_value (cx, state, name)->value;
 }
 
 /*
  * The variable name might not exist, in which case we need to use the UNKNOWN value
  */
-Abstract_value*
+const Abstract_value*
 Whole_program::get_abstract_value (Context* cx, Result_state state, VARIABLE_NAME* var_name)
 {
 	string ns = cx->symtable_name ();
@@ -2752,7 +2749,7 @@ Whole_program::get_abstract_value (Context* cx, Result_state state, VARIABLE_NAM
 }
 
 
-Abstract_value*
+const Abstract_value*
 Whole_program::get_abstract_value (Context* cx, Result_state state, MIR::Rvalue* rval)
 {
 	string ns = cx->symtable_name ();
@@ -3170,16 +3167,16 @@ Whole_program::visit_pre_op (Statement_block* bb, Pre_op* in)
 	Index_node* n = VN (ns, in->variable_name);
 
 	// Case where we know the value
-	Literal* value = values->get_lit (block_cx (), R_WORKING, n->name ());
+	const Literal* value = values->get_lit (block_cx (), R_WORKING, n->name ());
 	if (value)
 	{
-		Literal* result = PHP::fold_pre_op (value, in->op);
+		Literal* result = PHP::fold_pre_op (C(value), in->op);
 		assign_path_scalar (block_cx (), path, result);
 		return;
 	}
 
 	// Maybe we know the type?
-	Types* types = values->get_types (block_cx (), R_WORKING, n->name());
+	const Types* types = values->get_types (block_cx (), R_WORKING, n->name());
 	assign_path_typed (block_cx (), path, types);
 }
 
@@ -3335,12 +3332,12 @@ Whole_program::visit_bin_op (Statement_block* bb, MIR::Bin_op* in)
 {
 	string ns = block_cx ()->symtable_name ();
 
-	Abstract_value* left = get_abstract_value (block_cx (), R_WORKING, in->left);
-	Abstract_value* right = get_abstract_value (block_cx (), R_WORKING, in->right);
+	const Abstract_value* left = get_abstract_value (block_cx (), R_WORKING, in->left);
+	const Abstract_value* right = get_abstract_value (block_cx (), R_WORKING, in->right);
 
 	if (left->lit && right->lit)
 	{
-		Literal* result = PHP::fold_bin_op (left->lit, in->op, right->lit);
+		Literal* result = PHP::fold_bin_op (C(left->lit), in->op, C(right->lit));
 		if (result) // can be NULL
 		{
 			assign_path_scalar (block_cx (), saved_plhs (), result);
@@ -3381,7 +3378,7 @@ Whole_program::visit_constant (Statement_block* bb, MIR::Constant* in)
 	if (in->class_name)
 		phc_TODO ();
 
-	Abstract_value* absval = constants->get_constant (block_cx (), R_IN, *in->constant_name->value);
+	const Abstract_value* absval = constants->get_constant (block_cx (), R_IN, *in->constant_name->value);
 	assign_path_scalar (block_cx (), saved_plhs (), absval);
 }
 
@@ -3539,11 +3536,11 @@ Whole_program::visit_unary_op (Statement_block* bb, MIR::Unary_op* in)
 {
 	string ns = block_cx ()->symtable_name ();
 
-	Abstract_value* val = get_abstract_value (block_cx (), R_WORKING, in->variable_name);
+	const Abstract_value* val = get_abstract_value (block_cx (), R_WORKING, in->variable_name);
 
 	if (val->lit)
 	{
-		Literal* result = PHP::fold_unary_op (in->op, val->lit);
+		Literal* result = PHP::fold_unary_op (in->op, C(val->lit));
 		assign_path_scalar (block_cx (), saved_plhs (), result);
 		return;
 	}

@@ -16,7 +16,7 @@
 
 class Absval_cell;
 
-class Value_analysis : public WPA_lattice <Absval_cell>
+class Value_analysis : public WPA_lattice <const Absval_cell>
 {
 public:
 	Value_analysis (Whole_program* wp);
@@ -25,8 +25,8 @@ public:
 	 * WPA interface
 	 */
 
-	void set_storage (Context* cx, Storage_node* storage, Types* types);
-	void set_scalar (Context* cx, Value_node* storage, Abstract_value* val);
+	void set_storage (Context* cx, Storage_node* storage, const Types* types);
+	void set_scalar (Context* cx, Value_node* storage, const Abstract_value* val);
 	void pull_possible_null (Context* cx, Index_node* node);
 
 
@@ -34,7 +34,7 @@ public:
 	 * Literals
 	 */
 
-	MIR::Literal* get_lit (Context* cx, Result_state state, Alias_name name);
+	const MIR::Literal* get_lit (Context* cx, Result_state state, Alias_name name) const;
 	
 
 	/*
@@ -43,38 +43,38 @@ public:
 
 	void remove_non_objects (Context* cx, Result_state state, Alias_name);
 
-	Types* get_types (Context* cx, Result_state state, Alias_name name);
+	const Types* get_types (Context* cx, Result_state state, const Alias_name& name) const;
 
 
 	static Types* get_bin_op_types (	Context* cx,
-												Abstract_value* left,
-												Abstract_value* right,
+												const Abstract_value* left,
+												const Abstract_value* right,
 												string op);
 
 	static Types* get_bin_op_type (string left, string right, string op);
 
-	static Types* get_unary_op_types (Context* cx, Abstract_value* operand, string op);
+	static Types* get_unary_op_types (Context* cx, const Abstract_value* operand, string op);
 };
 
 
 class Absval_cell : virtual public GC_obj
 {
 public:
-	Absval_cell (Abstract_value*);
-	Abstract_value* const value;
+	Absval_cell (const Abstract_value*);
+	const Abstract_value* const value;
 
 public:
-	void dump (std::ostream& os = cdebug);
-	bool equals (Absval_cell* other);
-	Absval_cell* meet (Absval_cell* other);
+	void dump (std::ostream& os = cdebug) const;
+	bool equals (const Absval_cell* other) const;
+	const Absval_cell* meet (const Absval_cell* other) const;
 
-	static Absval_cell* get_default ();
-	static Absval_cell* TOP;
+	static const Absval_cell* get_default ();
+	static const Absval_cell* TOP;
 };
 
 SET_COMPARABLE (Absval_cell);
-SET_COMPARABLE (CX_lattices<Absval_cell>);
-typedef Lattice_map<string, Absval_cell> __myhandytypedef;
+typedef Lattice_map<string, const Absval_cell> __myhandytypedef;
+SET_COMPARABLE (CX_lattices<const Absval_cell>);
 SET_COMPARABLE (__myhandytypedef);
 
 

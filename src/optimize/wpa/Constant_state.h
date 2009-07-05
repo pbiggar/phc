@@ -12,7 +12,7 @@
 #include "WPA_lattice.h"
 #include "Value_analysis.h"
 
-class Constant_state : public WPA_lattice <Absval_cell>
+class Constant_state : public WPA_lattice <const Absval_cell>
 {
 public:
 	Constant_state (Whole_program* wp);
@@ -21,13 +21,13 @@ public:
 	 * Interface
 	 */
 
-	void set_constant (Context* cx, string name, Abstract_value* value);
+	void set_constant (Context* cx, string name, const Abstract_value* value);
 
 	// Sets a constant whose name we don't know
-	void set_unknown_constant (Context* cx, Abstract_value* value);
+	void set_unknown_constant (Context* cx, const Abstract_value* value);
 
 	bool is_constant_defined (Context* cx, Result_state state, string name) const;
-	Abstract_value* get_constant (Context* cx, Result_state state, string name) const;
+	const Abstract_value* get_constant (Context* cx, Result_state state, string name) const;
 
 	/*
 	 * WPA interface

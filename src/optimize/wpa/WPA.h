@@ -136,11 +136,11 @@ public:
 
 	// Create STORAGE, with the gives TYPES.
 	virtual void set_storage (Context* cx, Storage_node* storage,
-									  Types* types) CT_IMPL;
+									  const Types* types) CT_IMPL;
 
 	// Create STORAGE, an abstract value with the given types.
 	virtual void set_scalar (Context* cx, Value_node* storage,
-									 Abstract_value* val) CT_IMPL;
+									 const Abstract_value* val) CT_IMPL;
 
 	/*
 	 * Killing values

@@ -338,7 +338,7 @@ Stat_collector::visit_variable_variable (Statement_block* bb, MIR::Variable_vari
 void
 Stat_collector::collect_type_stats (Basic_block* bb, MIR::Rvalue* rval,string statname )
 {
-	Abstract_value* absval = wp->get_abstract_value (Context::non_contextual (bb), R_OUT, rval);
+	const Abstract_value* absval = wp->get_abstract_value (Context::non_contextual (bb), R_OUT, rval);
 	if (absval->types)
 	{
 		foreach (string type, *absval->types)

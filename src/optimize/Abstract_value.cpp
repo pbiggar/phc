@@ -12,6 +12,8 @@
 
 #include "process_ir/debug.h"
 #include "MIR.h"
+#include "process_ir/General.h"
+#include "process_ir/IR.h"
 
 #include "Abstract_value.h"
 #include "embed/embed.h"
@@ -19,19 +21,19 @@
 using MIR::Literal;
 using namespace std;
 
-Abstract_value::Abstract_value (Literal* lit)
+Abstract_value::Abstract_value (const Literal* lit)
 : lit (lit)
 , types (Type_info::get_type (lit))
 {
 }
 
-Abstract_value::Abstract_value (Types* types)
+Abstract_value::Abstract_value (const Types* types)
 : lit (NULL)
 , types (types)
 {
 }
 
-Abstract_value::Abstract_value (Literal* lit, Types* types)
+Abstract_value::Abstract_value (const Literal* lit, const Types* types)
 : lit (lit)
 , types (types)
 {
@@ -44,13 +46,15 @@ Abstract_value::unknown ()
 }
 
 Abstract_value*
-Abstract_value::clone ()
+Abstract_value::clone () const
 {
-	Literal* newlit = this->lit;
+	const Literal* newlit = this->lit;
 	if (newlit)
-		newlit = newlit->clone ();
+	{
+		newlit = ::clone (newlit);
+	}
 	
-	Types* newtypes = this->types;
+	const Types* newtypes = this->types;
 	if (newtypes)
 		newtypes = newtypes->clone ();
 
@@ -59,12 +63,13 @@ Abstract_value::clone ()
 
 
 void
-Abstract_value::dump (ostream& os)
+Abstract_value::dump (ostream& os) const
 {
 	CHECK_DEBUG ();
+
 	os << "(";
 	if (lit)
-		os << *lit->get_value_as_string ();
+		os << *C(lit)->get_value_as_string ();
 	else
 		os << "(B)";
 
@@ -79,7 +84,7 @@ Abstract_value::dump (ostream& os)
 }
 
 bool
-Abstract_value::known_false ()
+Abstract_value::known_false () const
 {
 	if (lit == NULL)
 		return false;
@@ -88,27 +93,27 @@ Abstract_value::known_false ()
 }
 
 bool
-Abstract_value::known_true ()
+Abstract_value::known_true () const
 {
 	if (lit == NULL)
 		return false;
 
-	return PHP::is_true (lit);
+	return PHP::is_true (C(lit));
 }
 
 
 bool
-Abstract_value::equals (Abstract_value* other)
+Abstract_value::equals (const Abstract_value* other) const
 {
 	if (this->lit == NULL || other->lit == NULL)
 		return this->lit == other->lit;
 	else
-		return this->lit->equals (other->lit);
+		return ::equals (this->lit, other->lit);
 
 	if (this->types == NULL || other->types == NULL)
 		return this->types == other->types;
 	else
-		return this->types->equals (other->types);
+		return ::equals (this->types, other->types);
 }
 
 
@@ -117,7 +122,7 @@ namespace Type_info
 {
 
 void
-dump_types (ostream& os, Types* types)
+dump_types (ostream& os, const Types* types)
 {
 	foreach (string type, *types)
 	{
@@ -173,9 +178,9 @@ get_all_scalar_types ()
 }
 
 Types*
-get_type (MIR::Literal* lit)
+get_type (const MIR::Literal* lit)
 {
-	return new Types (mir_types() [lit->classid()]);
+	return new Types (mir_types() [C(lit)->classid ()]);
 }
 
 bool is_scalar (string type)
@@ -185,7 +190,7 @@ bool is_scalar (string type)
 
 
 Types*
-get_scalar_types (Types* in)
+get_scalar_types (const Types* in)
 {
 	Types* out = new Types;
 
@@ -199,7 +204,7 @@ get_scalar_types (Types* in)
 }
 
 Types*
-get_array_types (Types* in)
+get_array_types (const Types* in)
 {
 	if (in->has ("array"))
 		return new Types ("array");
@@ -208,7 +213,7 @@ get_array_types (Types* in)
 }
 
 Types*
-get_object_types (Types* in)
+get_object_types (const Types* in)
 {
 	Types* out = new Types;
 	foreach (string type, *in)
