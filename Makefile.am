@@ -21,7 +21,7 @@ AM_CPPFLAGS = \
 	-DDATADIR=\"$(datadir)\" -DPKGLIBDIR=\"$(pkglibdir)\"								\
 	-Wall
 
-AM_LDFLAGS = $(BOOST_LDFLAGS) $(BOOST_REGEX_LIB)
+AM_LDFLAGS = $(BOOST_LDFLAGS)
 
 lib_LTLIBRARIES = libphc.la
 bin_PROGRAMS = src/phc

@@ -468,7 +468,6 @@ AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
 BOOST_CPPFLAGS = @BOOST_CPPFLAGS@
 BOOST_LDFLAGS = @BOOST_LDFLAGS@
-BOOST_REGEX_LIB = @BOOST_REGEX_LIB@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
@@ -618,7 +617,7 @@ AM_CPPFLAGS = \
 	-DDATADIR=\"$(datadir)\" -DPKGLIBDIR=\"$(pkglibdir)\"								\
 	-Wall
 
-AM_LDFLAGS = $(BOOST_LDFLAGS) $(BOOST_REGEX_LIB)
+AM_LDFLAGS = $(BOOST_LDFLAGS)
 lib_LTLIBRARIES = libphc.la
 
 # By using CXXFLAGS we avoid warnings in generated_src, which we dont want to
@@ -635,7 +634,7 @@ ACLOCAL_AMFLAGS = -I m4 -I libltdl
 
 # -export-dynammic: Special libtool flag for later plugin loading
 src_phc_LDFLAGS = -export-dynamic
-src_phc_LDADD = @gc_lib@ $(LIBLTDL) libphc.la $(BOOST_REGEX_LIB)
+src_phc_LDADD = @gc_lib@ $(LIBLTDL) libphc.la
 bin_SCRIPTS = src/phc_compile_plugin
 libexec_SCRIPTS = libtool
 # pkgdata_DATA = phc-1.0.xsd
