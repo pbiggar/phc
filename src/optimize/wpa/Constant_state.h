@@ -12,10 +12,16 @@
 #include "WPA_lattice.h"
 #include "Value_analysis.h"
 
-class Constant_state : public WPA_lattice <const Absval_cell>
+class Constant_state : public WPA_lattice <string, const Absval_cell>
 {
 public:
 	Constant_state (Whole_program* wp);
+
+	/*
+	 * WPA lattice interface
+	 */
+
+	string context_merge_key (string) const;
 
 	/*
 	 * Interface
@@ -33,7 +39,7 @@ public:
 	 * WPA interface
 	 */
 
-	// These should maybe be moved out?
+	// TODO: I think these aren't pure virtual, so they can be removed.
 	void pull_possible_null (Context* cx, Index_node* node) {};
 	void kill_value (Context* cx, Index_node*, bool) {};
 	void assign_value (Context* cx, Index_node*, Storage_node*) {};

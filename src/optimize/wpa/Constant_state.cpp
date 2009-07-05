@@ -12,11 +12,18 @@
 using namespace MIR;
 
 Constant_state::Constant_state (Whole_program* wp)
-: WPA_lattice <const Absval_cell> (wp)
+: WPA_lattice <string, const Absval_cell> (wp)
 {
 }
 
 // TODO: can be case-insensitive
+string
+Constant_state::context_merge_key (string key) const
+{
+	// Constant keys have context in them.
+	return key;
+}
+
 
 void
 Constant_state::set_constant (Context* cx, string name, const Abstract_value* value)

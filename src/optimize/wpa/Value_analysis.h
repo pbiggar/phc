@@ -16,10 +16,15 @@
 
 class Absval_cell;
 
-class Value_analysis : public WPA_lattice <const Absval_cell>
+class Value_analysis : public WPA_lattice <const Alias_name*, const Absval_cell>
 {
 public:
 	Value_analysis (Whole_program* wp);
+
+	/*
+	 * WPA lattice interface
+	 */
+	const Alias_name* context_merge_key (const Alias_name*) const;
 
 	/*
 	 * WPA interface
@@ -28,6 +33,16 @@ public:
 	void set_storage (Context* cx, Storage_node* storage, const Types* types);
 	void set_scalar (Context* cx, Value_node* storage, const Abstract_value* val);
 	void pull_possible_null (Context* cx, Index_node* node);
+
+
+	void kill_value (Context* cx, Index_node*, bool);
+	void assign_value (Context* cx, Index_node*, Storage_node*);
+
+	void remove_fake_node (Context* cx, Index_node* fake);
+
+	const Absval_cell* get_value (Context* cx, Result_state state, const Alias_name* name) const;
+
+
 
 
 	/*
@@ -73,9 +88,16 @@ public:
 };
 
 SET_COMPARABLE (Absval_cell);
-typedef Lattice_map<string, const Absval_cell> __myhandytypedef;
-SET_COMPARABLE (CX_lattices<const Absval_cell>);
-SET_COMPARABLE (__myhandytypedef);
+typedef Lattice_map<string, const Absval_cell> __str_lattice_type;
+typedef CX_lattices<string, const Absval_cell> __str_cx_lattice_type;
+typedef Lattice_map<const Alias_name*, const Absval_cell> __alias_lattice_type;
+typedef CX_lattices<const Alias_name*, const Absval_cell> __alias_cx_lattice_type;
+
+
+SET_COMPARABLE (__str_cx_lattice_type);
+SET_COMPARABLE (__str_lattice_type);
+SET_COMPARABLE (__alias_cx_lattice_type);
+SET_COMPARABLE (__alias_lattice_type);
 
 
 

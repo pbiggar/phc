@@ -89,8 +89,8 @@ class CX_map : public Map<Context*, _Tp, CX_map_hash, CX_map_equals>
 {
 };
 
-template <class Cell_type>
-class CX_lattices : public CX_map<Lattice_map<string, Cell_type> >
+template <class Key_type, class Cell_type>
+class CX_lattices : public CX_map<Lattice_map<Key_type, Cell_type> >
 {
 public:
 	void dump (Context* cx, string name) const

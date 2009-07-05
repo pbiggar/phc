@@ -14,19 +14,19 @@
 #include "Points_to.h"
 #include "optimize/Lattice.h"
 
-template <class Cell_type>
+template <class Key_type, class Cell_type>
 class WPA_lattice : public WPA
 {
 protected:
-	typedef Lattice_map<string, Cell_type> Lattice_type;
-	typedef WPA_lattice<Cell_type> this_type;
+	typedef Lattice_map<Key_type, Cell_type> Lattice_type;
+	typedef WPA_lattice<Key_type, Cell_type> this_type;
 
 protected:
-	Map<Result_state, CX_lattices<Cell_type> > lattices;
-	CX_lattices<Cell_type>& outs;
-	CX_lattices<Cell_type>& ins;
-	CX_lattices<Cell_type>& working;
-	CX_lattices<Cell_type>& post_bind;
+	Map<Result_state, CX_lattices<Key_type, Cell_type> > lattices;
+	CX_lattices<Key_type, Cell_type>& outs;
+	CX_lattices<Key_type, Cell_type>& ins;
+	CX_lattices<Key_type, Cell_type>& working;
+	CX_lattices<Key_type, Cell_type>& post_bind;
 
 
 public:
@@ -38,6 +38,8 @@ public:
 	, post_bind (lattices[R_POST_BIND])
 	{
 	}
+
+	virtual Key_type context_merge_key (Key_type) const = 0;
 
 
 	/*
@@ -115,26 +117,6 @@ public:
 	 *	Pioli avoided all this by doing flow-insensitive analysis. I'm sure its
 	 *	doable, but not a priority.
 	 */
-	void kill_value (Context* cx, Index_node* lhs, bool also_kill_refs)
-	{
-		Lattice_type& lat = working[cx];
-		lat.erase (lhs->name()->str());
-		lat.erase (SCLVAL (lhs)->name()->str());
-	}
-
-
-	void remove_fake_node (Context* cx, Index_node* fake)
-	{
-		this->kill_value (cx, fake, false /* dont care */);
-	}
-
-	void assign_value (Context* cx, Index_node* lhs, Storage_node* storage)
-	{
-		Lattice_type& lat = working[cx];
-		string name = lhs->name()->str();
-		lat[name] = lat[name]->meet (lat[storage->name()->str()]);
-	}
-
 
 	void pull_init (Context* cx)
 	{
@@ -198,20 +180,18 @@ public:
 		// Non-overwriting inserts do not invalidate iterators, which
 		// makes this OK.
 
-		CX_lattices<Cell_type> new_ins;
+		CX_lattices<Key_type, Cell_type> new_ins;
 		foreach (tie (cx, map), ins)
 		{
 			// Each map needs its key's names changed.
 			Lattice_type newmap;
 
-			string str;
+			Key_type key;
 			Cell_type* cell;
-			foreach (tie (str, cell), map)
+			foreach (tie (key, cell), map)
 			{
-				str = Context::convert_context_name (str);
-
-				// There may be multiple cells for the same name.
-				newmap[str] = newmap[str]->meet (cell);
+				Key_type new_key = context_merge_key (key);
+				newmap[new_key] = newmap[new_key]->meet (cell);
 			}
 
 			// The context needs to change names too.
@@ -220,20 +200,18 @@ public:
 		ins = new_ins;
 
 		// TODO: remove code duplication
-		CX_lattices<Cell_type> new_outs;
+		CX_lattices<Key_type, Cell_type> new_outs;
 		foreach (tie (cx, map), outs)
 		{
 			// Each map needs its key's names changed.
 			Lattice_type newmap;
 
-			string str;
+			Key_type key;
 			Cell_type* cell;
-			foreach (tie (str, cell), map)
+			foreach (tie (key, cell), map)
 			{
-				str = Context::convert_context_name (str);
-
-				// There may be multiple cells for the same name.
-				newmap[str] = newmap[str]->meet (cell);
+				Key_type new_key = context_merge_key (key);
+				newmap[new_key] = newmap[new_key]->meet (cell);
 			}
 
 			// The context needs to change names too.
@@ -241,12 +219,6 @@ public:
 		}
 		outs = new_outs;
 
-	}
-
-	// Get results
-	Cell_type* get_value (Context* cx, Result_state state, const Alias_name* name) const
-	{
-		return lattices[state][cx][name->str()];
 	}
 
 

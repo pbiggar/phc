@@ -17,8 +17,15 @@ using namespace boost;
 using namespace MIR;
 
 Value_analysis::Value_analysis (Whole_program* wp)
-: WPA_lattice<const Absval_cell> (wp)
+: WPA_lattice<const Alias_name*, const Absval_cell> (wp)
 {
+}
+
+
+const Alias_name*
+Value_analysis::context_merge_key (const Alias_name* name) const
+{
+	return name->convert_context_name ();
 }
 
 
@@ -31,7 +38,7 @@ void
 Value_analysis::set_storage (Context* cx, Storage_node* storage, const Types* types)
 {
 	Lattice_type& lat = working[cx];
-	string name = storage->name()->str();
+	const Alias_name* name = storage->name ();
 
 	lat[name] = lat[name]->meet (new Absval_cell (new Abstract_value (types)));
 }
@@ -40,7 +47,7 @@ void
 Value_analysis::set_scalar (Context* cx, Value_node* storage, const Abstract_value* val)
 {
 	Lattice_type& lat = working[cx];
-	string name = storage->name()->str();
+	const Alias_name* name = storage->name ();
 
 	lat[name] = lat[name]->meet (new Absval_cell (val));
 }
@@ -52,12 +59,43 @@ Value_analysis::pull_possible_null (Context* cx, Index_node* index)
 
 	// WPA_lattice::assign_value copies the SCLVAL to the index_node in the
 	// general case. However, we need to do it ourselves here.
-	string scalar_name = SCLVAL (index)->name()->str();
+	const Alias_name* scalar_name = SCLVAL (index)->name();
 	lat[scalar_name] = lat[scalar_name]->meet (new Absval_cell (new Abstract_value (new NIL)));
 
-	string name = index->name()->str();
+	const Alias_name* name = index->name ();
 	lat[name] = lat[name]->meet (new Absval_cell (new Abstract_value (new NIL)));
 }
+
+const Absval_cell*
+Value_analysis::get_value (Context* cx, Result_state state, const Alias_name* name) const
+{
+	return lattices[state][cx][name];
+}
+
+void
+Value_analysis::kill_value (Context* cx, Index_node* lhs, bool also_kill_refs)
+{
+	Lattice_type& lat = working[cx];
+	lat.erase (lhs->name());
+	lat.erase (SCLVAL (lhs)->name());
+}
+
+
+void
+Value_analysis::remove_fake_node (Context* cx, Index_node* fake)
+{
+	this->kill_value (cx, fake, false /* dont care */);
+}
+
+void
+Value_analysis::assign_value (Context* cx, Index_node* lhs, Storage_node* storage)
+{
+	Lattice_type& lat = working[cx];
+	const Alias_name* name = lhs->name();
+	lat[name] = lat[name]->meet (lat[storage->name()]);
+}
+
+
 
 
 /*
@@ -83,7 +121,7 @@ Value_analysis::remove_non_objects (Context* cx, Result_state state, const Alias
 
 	// Set it back
 	Lattice_type& lat = lattices[state][cx];
-	lat[name->str ()] = new Absval_cell (val);
+	lat[name] = new Absval_cell (val);
 }
 
 const Types*
