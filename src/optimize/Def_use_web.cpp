@@ -66,9 +66,14 @@ Def_use_web::build_web (CFG* cfg, bool update)
 	{
 		foreach (Basic_block* bb, *cfg->get_all_bbs ())
 		{
-			defs[bb->ID].push_back_all (du->get_defs (bb));
-			uses[bb->ID].push_back_all (du->get_uses (bb));
-			may_defs [bb->ID].push_back_all (du->get_may_defs (bb));
+			foreach (const Alias_name* name, *du->get_defs (bb))
+				defs[bb->ID].push_back (new Alias_name (name));
+
+			foreach (const Alias_name* name, *du->get_uses (bb))
+				uses[bb->ID].push_back (new Alias_name (name));
+
+			foreach (const Alias_name* name, *du->get_may_defs (bb))
+				may_defs[bb->ID].push_back (new Alias_name (name));
 		}
 	}
 	// Build all the ops

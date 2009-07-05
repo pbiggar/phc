@@ -45,14 +45,14 @@ Points_to_impl::open_scope (Storage_node* st)
 void
 Points_to_impl::inc_abstract (Storage_node* st)
 {
-	Alias_name name = st->name ();
+	const Alias_name* name = st->name ();
 	abstract_states [name] = Abstract_state::inc (abstract_states [name]);
 }
 
 void
 Points_to_impl::dec_abstract (Storage_node* st)
 {
-	Alias_name name = st->name ();
+	const Alias_name* name = st->name ();
 	abstract_states [name] = Abstract_state::dec (abstract_states [name]);
 
 	if (abstract_states [name] == Abstract_state::MISSING)
@@ -328,9 +328,9 @@ string print_pair (E* edge, string label)
 	stringstream ss;
 	ss
 	<< "\""
-	<< *escape_DOT (s (edge->source->name ().str())) 
+	<< *escape_DOT (s (edge->source->name ()->str())) 
 	<< "\" -> \"" 
-	<< *escape_DOT (s (edge->target->name ().str())) 
+	<< *escape_DOT (s (edge->target->name ()->str())) 
 	<< "\" [label=\"" << label << "\"];\n"
 	;
 	return ss.str ();
@@ -357,7 +357,7 @@ Points_to_impl::dump_graphviz (String* label, Context* cx, Result_state state, W
 	{
 		cout
 		<< "\""
-		<< *escape_DOT (s (node->name().str ()))
+		<< *escape_DOT (s (node->name()->str ()))
 		<< "\" ["
 		;
 
@@ -461,7 +461,7 @@ Points_to_impl::consistency_check (Context* cx, Result_state state, Whole_progra
 		{
 			dump_graphviz (NULL, cx, state, wp);
 			phc_internal_error ("No field-edge to %s",
-					index->name().str().c_str());
+					index->name()->str().c_str());
 		}
 
 		// Check every index node points_to something.
@@ -469,14 +469,14 @@ Points_to_impl::consistency_check (Context* cx, Result_state state, Whole_progra
 		{
 			dump_graphviz (NULL, cx, state, wp);
 			phc_internal_error ("No points-to edge from %s",
-					index->name().str().c_str());
+					index->name()->str().c_str());
 		}
 
 		if (isa<Value_node> (this->get_storage (index)))
 		{
 			dump_graphviz (NULL, cx, state, wp);
 			phc_internal_error ("Abstract values can't have fields %s",
-					index->name().str().c_str());
+					index->name()->str().c_str());
 		}
 	}
 
@@ -488,8 +488,8 @@ Points_to_impl::consistency_check (Context* cx, Result_state state, Whole_progra
 			dump_graphviz (NULL, cx, state, wp);
 			phc_internal_error ("Certs can't be %d between %s and %s",
 					cert,
-					ref_edge->source->name().str().c_str(),
-					ref_edge->target->name().str().c_str());
+					ref_edge->source->name()->str().c_str(),
+					ref_edge->target->name()->str().c_str());
 		}
 	}
 }
@@ -528,7 +528,7 @@ Points_to_impl::remove_unreachable_nodes ()
 	}
 
 	// Mark all reachable nodes
-	Set<Alias_name> reachable;
+	Set<const Alias_name*> reachable;
 	while (worklist->size () > 0)
 	{
 		PT_node* node = worklist->front ();
@@ -627,7 +627,7 @@ Points_to_impl::merge (Points_to_impl* other)
 
 	// For counts in OTHER, use the max (for counts only in OTHER, OTHER's
 	// version will be used).
-	Alias_name name;
+	const Alias_name* name;
 	Abstract_state::AS state;
 	foreach (tie (name, state), other->abstract_states)
 		result->abstract_states [name] = Abstract_state::merge (state, other->abstract_states [name]);
@@ -643,7 +643,7 @@ PT_node_list*
 Points_to_impl::get_nodes ()
 {
 	// Only have the nodes once
-	Map<Alias_name, PT_node*> all;
+	Map<const Alias_name*, PT_node*> all;
 
 	foreach (Reference_edge* edge, *this->references.get_edges ())
 	{
@@ -663,16 +663,16 @@ Points_to_impl::get_nodes ()
 		all[edge->target->name ()] = edge->target;
 	}
 
-	List<Alias_name>* storages = abstract_states.keys ();
+	List<const Alias_name*>* storages = abstract_states.keys ();
 	storages->push_back_all (symtables.to_list ());
-	foreach (Alias_name storage, *storages)
+	foreach (const Alias_name* storage, *storages)
 	{
 		if (not all.has (storage))
 		{
-			if (storage.get_name () == "SCL")
-				all[storage] = new Value_node (storage.get_prefix());
+			if (storage->get_name () == "SCL")
+				all[storage] = new Value_node (storage->get_prefix ());
 			else
-				all[storage] = SN (storage.get_name ());
+				all[storage] = SN (storage->get_name ());
 		}
 	}
 
@@ -718,22 +718,22 @@ Points_to_impl::convert_context_names ()
 
 
 	// Convert symtable names
-	Set<Alias_name> old_symtables = this->symtables;
+	Set<const Alias_name*> old_symtables = this->symtables;
 	this->symtables.clear ();
-	foreach (Alias_name name, old_symtables)
+	foreach (const Alias_name* name, old_symtables)
 	{
-		this->symtables.insert (name.convert_context_name ());
+		this->symtables.insert (name->convert_context_name ());
 	}
 
 	// Convert abstract counts
 	// I'm not really sure what to do here.
-	Alias_name name;
+	const Alias_name* name;
 	Abstract_state::AS state;
-	Map<Alias_name, Abstract_state::AS> old_abstract_states = this->abstract_states;
+	Map<const Alias_name*, Abstract_state::AS> old_abstract_states = this->abstract_states;
 	this->abstract_states.clear ();
 	foreach (tie (name, state), old_abstract_states)
 	{
-		Alias_name converted = name.convert_context_name ();
+		const Alias_name* converted = name->convert_context_name ();
 		abstract_states[converted] = Abstract_state::merge (state, abstract_states[converted]);
 	}
 }
@@ -782,10 +782,10 @@ Storage_node::Storage_node (string storage)
 	assert (storage != "");
 }
 
-Alias_name
+const Alias_name*
 Storage_node::name ()
 {
-	return Alias_name (SNP, storage);
+	return new Alias_name (SNP, storage);
 }
 
 String*
@@ -807,10 +807,10 @@ Index_node::Index_node (string storage, string index)
 //	assert (index != "");
 }
 
-Alias_name
+const Alias_name*
 Index_node::name ()
 {
-	return Alias_name (storage, index);
+	return new Alias_name (storage, index);
 }
 
 String*
@@ -820,7 +820,7 @@ Index_node::get_graphviz_label ()
 }
 
 Value_node::Value_node (Index_node* owner)
-: Storage_node (owner->name().str())
+: Storage_node (owner->name()->str())
 {
 	assert (storage != "");
 }
@@ -831,10 +831,10 @@ Value_node::Value_node (string owner)
 	assert (storage != "");
 }
 
-Alias_name
+const Alias_name*
 Value_node::name ()
 {
-	return Alias_name (storage, SCL);
+	return new Alias_name (storage, SCL);
 }
 
 String*
@@ -876,7 +876,7 @@ Storage_node::for_index_node ()
 string
 Value_node::for_index_node ()
 {
-	return this->name().str ();
+	return this->name()->str ();
 }
 
 

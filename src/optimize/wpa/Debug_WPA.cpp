@@ -74,8 +74,8 @@ Debug_WPA::create_reference (Context* cx, Index_node* lhs,
 									  Index_node* rhs, Certainty cert)
 {
 	DEBUG (__FUNCTION__
-			<< ": " << lhs->name().str ()
-			<< ", " << rhs->name().str ()
+			<< ": " << lhs->name()->str ()
+			<< ", " << rhs->name()->str ()
 			<< ", " << cert_to_string (cert));
 }
 
@@ -86,7 +86,7 @@ Debug_WPA::set_scalar (Context* cx, Value_node* storage, const Abstract_value* v
 
 	cdebug
 	<< __FUNCTION__
-	<< ": " << storage->name().str ()
+	<< ": " << storage->name()->str ()
 	<< ", ";
 
 	val->dump();
@@ -101,7 +101,7 @@ Debug_WPA::set_storage (Context* cx, Storage_node* storage, const Types* types)
 
 	cdebug
 	<< __FUNCTION__
-	<< ": " << storage->name().str ()
+	<< ": " << storage->name()->str ()
 	<< ", (";
 
 	Type_info::dump_types (cdebug, types);
@@ -113,8 +113,8 @@ void
 Debug_WPA::assign_value (Context* cx, Index_node* lhs, Storage_node* storage)
 {
 	DEBUG (__FUNCTION__
-	<< ": " << lhs->name().str ()
-	<< ", " << storage->name().str ()
+	<< ": " << lhs->name()->str ()
+	<< ", " << storage->name()->str ()
 	);
 }
 
@@ -124,14 +124,14 @@ Debug_WPA::kill_value (Context* cx, Index_node* lhs, bool also_kill_refs)
 {
 	DEBUG (__FUNCTION__
 	<< (also_kill_refs ? " (and refs)" : "")
-	<< ": " << lhs->name().str ());
+	<< ": " << lhs->name()->str ());
 }
 
 void
 Debug_WPA::record_use (Context* cx, Index_node* use, Certainty cert)
 {
 	DEBUG (__FUNCTION__
-	<< ": " << use->name().str ()
+	<< ": " << use->name()->str ()
 	<< ", " << cert_to_string (cert));
 }
 
@@ -157,7 +157,7 @@ Debug_WPA::pull_pred (Context* cx, Context* pred)
 void
 Debug_WPA::pull_possible_null (Context* cx, Index_node* node)
 {
-	DEBUG (__FUNCTION__ << " for " << node->name().str());
+	DEBUG (__FUNCTION__ << " for " << node->name()->str());
 }
 
 void

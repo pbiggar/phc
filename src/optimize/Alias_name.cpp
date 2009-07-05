@@ -33,6 +33,16 @@ Alias_name::Alias_name (string prefix, string name)
 	assert (prefix != "");
 }
 
+Alias_name::Alias_name (const Alias_name* other)
+: cached_name (other->cached_name)
+, prefix (other->prefix)
+, name (other->name)
+, ssa_version (other->ssa_version)
+{
+}
+
+
+
 bool
 Alias_name::operator== (const Alias_name& other) const
 {
@@ -119,14 +129,11 @@ Alias_name::set_version (int version)
 // contextual to a non-contextual context. This is hard to fix, so this hacks
 // it instead of fixing it properly. We just do a string replacement from the
 // name in OLDc to the name in NEWC.
-Alias_name
+Alias_name*
 Alias_name::convert_context_name () const
 {
-	Alias_name result (
+	return new Alias_name (
 		Context::convert_context_name (this->prefix), 
 		Context::convert_context_name (this->name));
-	assert (this->ssa_version == 0);
-
-	return result;
 }
 

@@ -1061,22 +1061,19 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 			can_be_real = false;
 		}
 
-		// How to do both?
-		if (can_be_real && can_be_array)
-			phc_TODO ();
-
 		// it cant be neither
 		assert (can_be_real || can_be_array);
 	
 		if (can_be_real)
 			assign_path_typed (cx, ret_path, new Types ("real"));
-		else if (can_be_array)
+
+		if (can_be_array)
 		{
 			// Cut-and-pasted: but this all needs to be fixed. We need to call this from 
 
 			// If there its parameter is true, it returns a real. Else, if returns a
 			// hashtable with 4 ints: sec, usec, minuteswest, dsttime
-			string name = assign_path_empty_array (cx, ret_path, ANON);
+			string name = assign_path_empty_array (cx, ret_path, ANON, false);
 
 			assign_path_typed (cx, P (name, "sec"), new Types ("int"));
 			assign_path_typed (cx, P (name, "usec"), new Types ("int"));
@@ -1577,7 +1574,7 @@ Whole_program::get_possible_nulls (Context_list* cxs)
 {
 	Index_node_list* norefs = new Index_node_list;
 
-	Set<Alias_name> existing;
+	Set<const Alias_name*> existing;
 
 	// Get the nodes which exist in some graph, but do not exist in other graphs.
 	foreach (Context* cx, *cxs)
@@ -2724,7 +2721,7 @@ Whole_program::get_string_value (Context* cx, Index_node* index)
 
 
 const Abstract_value*
-Whole_program::get_abstract_value (Context* cx, Result_state state, Alias_name name)
+Whole_program::get_abstract_value (Context* cx, Result_state state, const Alias_name* name)
 {
 	return values->get_value (cx, state, name)->value;
 }

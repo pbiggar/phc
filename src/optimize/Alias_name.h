@@ -33,7 +33,7 @@ class Storage_node;
 #define SEP "="
 
 DECL(Alias_name);
-
+typedef List<const Alias_name*> cAlias_name_list;
 
 class Alias_name : virtual public GC_obj
 {
@@ -43,9 +43,8 @@ class Alias_name : virtual public GC_obj
 	int ssa_version;
 
 public:
-
-public:
 	Alias_name ();
+	Alias_name (const Alias_name* other);
 	Alias_name (string prefix, string name);
 
 
@@ -53,7 +52,6 @@ public:
 	bool operator!= (const Alias_name& other) const;
 	size_t hash () const;
 	string str () const;
-
 
 public:
 	// Get key for indexing var_stacks
@@ -68,12 +66,33 @@ public:
 	void drop_ssa_version ();
 
 	// Drops the context info
-	Alias_name convert_context_name () const;
+	// TODO: if we want to cache these, we should make it const Alias_name
+	Alias_name* convert_context_name () const;
 };
 
 
 namespace std
 {
+	template <>                                     
+	struct equal_to <const Alias_name*>
+	{                                                     
+		bool operator () (const Alias_name* const an1, const Alias_name* const an2) const
+		{
+			return *an1 == *an2;
+		}
+	};
+
+	template <>                                     
+	struct equal_to <Alias_name*>
+	{                                                     
+		bool operator () (const Alias_name*& an1, const Alias_name*& an2) const
+		{
+			return *an1 == *an2;
+		}
+	};
+
+
+
 	namespace tr1
 	{
 		template <>
@@ -82,6 +101,33 @@ namespace std
 			size_t operator() (const Alias_name& an) const
 			{
 				return an.hash ();
+			}
+		};
+
+		template <>
+		struct hash<const Alias_name>
+		{
+			size_t operator() (const Alias_name& an) const
+			{
+				return an.hash ();
+			}
+		};
+
+		template <>
+		struct hash<Alias_name*>
+		{
+			size_t operator() (const Alias_name*& an) const
+			{
+				return an->hash ();
+			}
+		};
+
+		template <>
+		struct hash<const Alias_name*>
+		{
+			size_t operator() (const Alias_name* const an) const
+			{
+				return an->hash ();
 			}
 		};
 	}

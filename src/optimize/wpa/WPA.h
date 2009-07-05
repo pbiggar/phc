@@ -15,6 +15,7 @@
 #include "optimize/CFG_visitor.h"
 #include "optimize/Lattice.h"
 #include "optimize/Abstract_value.h"
+#include "optimize/Alias_name.h"
 #include "Context.h"
 
 class Whole_program;

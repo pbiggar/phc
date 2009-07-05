@@ -31,7 +31,7 @@ void
 Value_analysis::set_storage (Context* cx, Storage_node* storage, const Types* types)
 {
 	Lattice_type& lat = working[cx];
-	string name = storage->name().str();
+	string name = storage->name()->str();
 
 	lat[name] = lat[name]->meet (new Absval_cell (new Abstract_value (types)));
 }
@@ -40,7 +40,7 @@ void
 Value_analysis::set_scalar (Context* cx, Value_node* storage, const Abstract_value* val)
 {
 	Lattice_type& lat = working[cx];
-	string name = storage->name().str();
+	string name = storage->name()->str();
 
 	lat[name] = lat[name]->meet (new Absval_cell (val));
 }
@@ -52,10 +52,10 @@ Value_analysis::pull_possible_null (Context* cx, Index_node* index)
 
 	// WPA_lattice::assign_value copies the SCLVAL to the index_node in the
 	// general case. However, we need to do it ourselves here.
-	string scalar_name = SCLVAL (index)->name().str();
+	string scalar_name = SCLVAL (index)->name()->str();
 	lat[scalar_name] = lat[scalar_name]->meet (new Absval_cell (new Abstract_value (new NIL)));
 
-	string name = index->name().str();
+	string name = index->name()->str();
 	lat[name] = lat[name]->meet (new Absval_cell (new Abstract_value (new NIL)));
 }
 
@@ -65,7 +65,7 @@ Value_analysis::pull_possible_null (Context* cx, Index_node* index)
  */
 
 const MIR::Literal*
-Value_analysis::get_lit (Context* cx, Result_state state, Alias_name name) const
+Value_analysis::get_lit (Context* cx, Result_state state, const Alias_name* name) const
 {
 	return get_value (cx, state, name)->value->lit;
 }
@@ -75,7 +75,7 @@ Value_analysis::get_lit (Context* cx, Result_state state, Alias_name name) const
  */
 
 void
-Value_analysis::remove_non_objects (Context* cx, Result_state state, Alias_name name)
+Value_analysis::remove_non_objects (Context* cx, Result_state state, const Alias_name* name)
 {
 	// Remove the object types (we assume there are already object types)
 	const Abstract_value* val = get_value (cx, state, name)->value;
@@ -83,11 +83,11 @@ Value_analysis::remove_non_objects (Context* cx, Result_state state, Alias_name 
 
 	// Set it back
 	Lattice_type& lat = lattices[state][cx];
-	lat[name.str ()] = new Absval_cell (val);
+	lat[name->str ()] = new Absval_cell (val);
 }
 
 const Types*
-Value_analysis::get_types (Context* cx, Result_state state, const Alias_name& name) const
+Value_analysis::get_types (Context* cx, Result_state state, const Alias_name* name) const
 {
 	const Types* types = get_value (cx, state, name)->value->types;
 	assert (types->size ());

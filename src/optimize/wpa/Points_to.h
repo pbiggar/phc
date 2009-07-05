@@ -10,7 +10,6 @@
 #ifndef PHC_POINTS_TO
 #define PHC_POINTS_TO
 
-#include <boost/type_traits/is_same.hpp> // TODO: probably unused soon
 #include "MIR.h"
 
 #include "lib/List.h"
@@ -46,7 +45,7 @@ class PT_node : virtual public GC_obj
 {
 public:
 	// Each PT node gets a unique name for the alias pairs representation.
-	virtual Alias_name name () = 0;
+	virtual const Alias_name* name () = 0;
 	virtual String* get_graphviz_label () = 0;
 
 	virtual PT_node* convert_context_name () = 0;
@@ -73,7 +72,7 @@ public:
 public:
 	Index_node (string storage, string index);
 
-	virtual Alias_name name ();
+	virtual const Alias_name* name ();
 	virtual String* get_graphviz_label ();
 	virtual Index_node* convert_context_name ();
 	Path* to_path ();
@@ -90,7 +89,7 @@ public:
 public:
 	Storage_node (string storage);
 
-	virtual Alias_name name ();
+	virtual const Alias_name* name ();
 	virtual String* get_graphviz_label ();
 	virtual Storage_node* convert_context_name ();
 
@@ -108,7 +107,7 @@ public:
 	Value_node (Index_node* owner);
 	Value_node (string owner);
 
-	Alias_name name ();
+	const Alias_name* name ();
 	String* get_graphviz_label ();
 	Value_node* convert_context_name ();
 
@@ -150,10 +149,10 @@ public:
 
 	bool equals (parent* other)
 	{
-		Alias_name this_source = this->source->name();
-		Alias_name this_target = this->target->name();
-		Alias_name other_source = other->source->name();
-		Alias_name other_target = other->target->name();
+		const Alias_name* this_source = this->source->name();
+		const Alias_name* this_target = this->target->name();
+		const Alias_name* other_source = other->source->name();
+		const Alias_name* other_target = other->target->name();
 
 		return true
 			&& this_source == other_source
@@ -331,7 +330,7 @@ public:
 	{
 		List<Edge_type*>* result = new List<Edge_type*>;
 
-		typedef Map<Alias_name, Edge_type*> Map_type;
+		typedef Map<const Alias_name*, Edge_type*> Map_type;
 		foreach (Map_type& map, *by_source.values ())
 			result->push_back_all (map.values ());
 
@@ -367,8 +366,8 @@ public:
 
 	void add_edge (Edge_type* edge, Value_type v = Default::default_value ())
 	{
-		Alias_name source_name = edge->source->name ();
-		Alias_name target_name = edge->target->name ();
+		const Alias_name* source_name = edge->source->name ();
+		const Alias_name* target_name = edge->target->name ();
 
 		if (this->has_edge (edge))
 		{
@@ -477,9 +476,9 @@ public:
 
 
 private:
-	Map<Alias_name, Map<Alias_name, Value_type> > values;
-	Map<Alias_name, Map<Alias_name, Edge_type*> > by_source;
-	Map<Alias_name, Map<Alias_name, Edge_type*> > by_target;
+	Map<const Alias_name*, Map<const Alias_name*, Value_type> > values;
+	Map<const Alias_name*, Map<const Alias_name*, Edge_type*> > by_source;
+	Map<const Alias_name*, Map<const Alias_name*, Edge_type*> > by_target;
 };
 
 /*
@@ -509,10 +508,10 @@ private:
 private:
 	// This keeps count of whether something is abstract or not (subsuming
 	// whether it is in scope).
-	Map<Alias_name, Abstract_state::AS> abstract_states;
+	Map<const Alias_name*, Abstract_state::AS> abstract_states;
 
 	// The set of storage nodes which are a function's symbol table.
-	Set<Alias_name> symtables;
+	Set<const Alias_name*> symtables;
 
 	typedef Pair_map<Index_node, Index_node, Reference_edge, Certainty, Certainty_default, Certainty_combiner> reference_pair_type;
 

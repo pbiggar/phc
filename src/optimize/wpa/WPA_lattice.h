@@ -118,8 +118,8 @@ public:
 	void kill_value (Context* cx, Index_node* lhs, bool also_kill_refs)
 	{
 		Lattice_type& lat = working[cx];
-		lat.erase (lhs->name().str());
-		lat.erase (SCLVAL (lhs)->name().str());
+		lat.erase (lhs->name()->str());
+		lat.erase (SCLVAL (lhs)->name()->str());
 	}
 
 
@@ -131,8 +131,8 @@ public:
 	void assign_value (Context* cx, Index_node* lhs, Storage_node* storage)
 	{
 		Lattice_type& lat = working[cx];
-		string name = lhs->name().str();
-		lat[name] = lat[name]->meet (lat[storage->name().str()]);
+		string name = lhs->name()->str();
+		lat[name] = lat[name]->meet (lat[storage->name()->str()]);
 	}
 
 
@@ -244,9 +244,9 @@ public:
 	}
 
 	// Get results
-	Cell_type* get_value (Context* cx, Result_state state, Alias_name name) const
+	Cell_type* get_value (Context* cx, Result_state state, const Alias_name* name) const
 	{
-		return lattices[state][cx][name.str()];
+		return lattices[state][cx][name->str()];
 	}
 
 

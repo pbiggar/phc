@@ -34,16 +34,16 @@ public:
 	 * Literals
 	 */
 
-	const MIR::Literal* get_lit (Context* cx, Result_state state, Alias_name name) const;
+	const MIR::Literal* get_lit (Context* cx, Result_state state, const Alias_name* name) const;
 	
 
 	/*
 	 * Types
 	 */
 
-	void remove_non_objects (Context* cx, Result_state state, Alias_name);
+	void remove_non_objects (Context* cx, Result_state state, const Alias_name*);
 
-	const Types* get_types (Context* cx, Result_state state, const Alias_name& name) const;
+	const Types* get_types (Context* cx, Result_state state, const Alias_name* name) const;
 
 
 	static Types* get_bin_op_types (	Context* cx,
