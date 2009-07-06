@@ -411,4 +411,17 @@ Stat_collector::collect_def_use_stats (CFG* cfg)
 	set_stat ("starred_may_defs", starred);
 	set_stat ("unstarred_may_defs", unstarred);
 	set_stat ("may_defs", starred + unstarred);
+
+	foreach (Basic_block* bb, *cfg->get_all_bbs ())
+	{
+		if (!((dynamic_cast<Entry_block*> (bb)) || (dynamic_cast<Exit_block*> (bb))))
+		{
+			foreach (const Alias_name* def, *du->get_defs (bb))
+			{
+				add_to_stringset_stat ("initialised_vars", def->str ());
+				if (def->str ()[0] == '*')
+					add_to_stringset_stat("starred_initialised_vars", def->str ());
+			}
+		}
+	}
 }
