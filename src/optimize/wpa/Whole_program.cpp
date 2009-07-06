@@ -140,6 +140,9 @@ Whole_program::run (MIR::PHP_script* in)
 			if (info == NULL)
 				continue;
 
+			if (w == 0)
+				collect_preliminary_stats (info);
+			
 			// Apply the results
 			apply_results (info);
 
@@ -1374,12 +1377,20 @@ Whole_program::annotate_results (User_method_info* info)
 }
 
 void
+Whole_program::collect_preliminary_stats (User_method_info* info)
+{
+	stat_coll->get_number_of_statements (info->get_cfg (), "before");
+
+}
+
+void
 Whole_program::collect_stats (User_method_info* info)
 {
 	if (pm->args_info->stats_given)
 	{
 
 		// TODO: maybe stat_coll->run(info->get_cfg ()) ?
+		stat_coll->get_number_of_statements (info->get_cfg (), "after");
 		stat_coll->collect_def_use_stats (info->get_cfg ());
 		foreach (Basic_block* bb, *info->get_cfg ()->get_all_bbs ())
 			stat_coll->visit_block (bb);

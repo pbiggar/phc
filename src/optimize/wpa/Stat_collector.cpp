@@ -370,14 +370,14 @@ Stat_collector::collect_uninit_var_stats (Basic_block* bb)
 }
 
 void 
-Stat_collector::get_number_of_statements (CFG* cfg)
+Stat_collector::get_number_of_statements (CFG* cfg, string beforeafter)
 {
 	foreach (Basic_block* bb, *cfg->get_all_bbs ())
 	{
 	
 		if ((dynamic_cast<Statement_block*> (bb)))
 		{
-			CTS ("num_statements");
+			CTS ("num_statements_" + beforeafter);
 		}
 	}
 }

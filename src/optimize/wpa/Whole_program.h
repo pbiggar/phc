@@ -177,6 +177,7 @@ public:
 	void perform_local_optimizations (User_method_info* info);
 	void perform_interprocedural_optimizations (User_method_info* info);
 	void collect_stats (User_method_info* info);
+	void collect_preliminary_stats (User_method_info* info);
 	void strip (MIR::PHP_script* in);
 
 
