@@ -358,7 +358,7 @@ Def_use::get_alias_name (Basic_block* bb, deftype dt) const
 const Alias_name*
 Def_use::get_starred_name (const Alias_name* name)
 {
-	return new Alias_name (name->get_prefix (), get_starred_name (name->get_name ()));
+	return new Alias_name (get_starred_name (name->get_prefix ()), name->get_name ());
 }
 
 

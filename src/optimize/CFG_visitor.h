@@ -62,7 +62,7 @@ public:
 	 * Automatically called for each block.
 	 */
 
-	virtual void visit_phi_node (Basic_block* bb, Alias_name lhs);
+	virtual void visit_phi_node (Basic_block* bb, SSA_name lhs);
 
 	/*
 	 * Statement visitors - Override in clients.
@@ -145,7 +145,7 @@ public:
 	// This has the same signature as visit_phi_node, but it must obviously be
 	// a different function from visit_phi_node, or else it would be called
 	// twice.
-	virtual void transform_phi_node (Basic_block* bb, Alias_name lhs);
+	virtual void transform_phi_node (Basic_block* bb, SSA_name lhs);
 
 	/*
 	 * Statement transforms - Override in clients.

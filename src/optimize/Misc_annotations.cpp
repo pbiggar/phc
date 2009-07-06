@@ -108,19 +108,19 @@ Misc_annotations::visit_method_invocation (Statement_block* bb, MIR::Method_invo
 void
 Misc_annotations::annotate_non_by_ref_vars (Basic_block* bb)
 {
-	Alias_name_list* names = new Alias_name_list;
+//	Alias_name_list* names = new Alias_name_list;
 	phc_TODO ();
 //	names->push_back_all (bb->cfg->duw->get_block_defs (bb));
 //	names->push_back_all (bb->cfg->duw->get_block_uses (bb));
-	foreach (Alias_name* name, *names)
-	{
+//	foreach (Alias_name* name, *names)
+//	{
 		phc_TODO ();
 /*		if (!aliasing->aliases->has (var))
 		{
 			CTS ("resolve-non-ref");
 			var->attrs->set_true ("phc.optimize.cannot_be_ref");
 		}*/
-	}
+//	}
 }
 
 void

@@ -260,7 +260,7 @@ DCE::mark_def (SSA_use* use)
 		// When a def which is a phi node is marked, we need to mark it's arguments also
 		if (def->type_flag == SSA_PHI)
 		{	
-			foreach (Alias_name* phi_arg, *def->bb->get_phi_args (*def->name))
+			foreach (SSA_name* phi_arg, *def->bb->get_phi_args (*def->name))
 			{
 				if (phi_arg->str () != use->name->str ())
 				{	
@@ -323,7 +323,7 @@ DCE::sweep_pass ()
 	{
 		// Remove the phi nodes first, since the BB* may be replaced with an
 		// Empty BB.
-		foreach (Alias_name phi_lhs, *bb->get_phi_lhss ())
+		foreach (SSA_name phi_lhs, *bb->get_phi_lhss ())
 		{
 			if (!marks[new SSA_def (bb, &phi_lhs,SSA_PHI)])
 				bb->remove_phi_node (phi_lhs);

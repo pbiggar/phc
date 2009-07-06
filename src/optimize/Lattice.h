@@ -3,7 +3,6 @@
 
 
 #include "lib/Map.h"
-#include "Var_map.h"
 
 #include "MIR.h"
 #include "process_ir/General.h"

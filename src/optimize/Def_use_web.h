@@ -1,13 +1,11 @@
 #ifndef PHC_DEF_USE_WEB
 #define PHC_DEF_USE_WEB
 
-#include "Var_map.h"
 #include "MIR.h"
-#include "Var_set.h"
 #include "Edge.h"
 #include "Flow_visitor.h"
 #include "Visit_once.h"
-#include "Alias_name.h"
+#include "ssa/SSA_name.h"
 #include "ssa/SSA_ops.h"
 
 class CFG;
@@ -37,11 +35,11 @@ public:
 	Def_use* get_def_use ();
 	
 
-	// Returned Alias_name*s point to the actual Alias_names, so that their SSA
+	// Returned SSA_name*s point to the actual SSA_names, so that their SSA
 	// version can be updated.
-	Alias_name_list* get_uses (Basic_block* bb);
-	Alias_name_list* get_defs (Basic_block* bb);
-	Alias_name_list* get_may_defs (Basic_block* bb);
+	SSA_name_list* get_uses (Basic_block* bb);
+	SSA_name_list* get_defs (Basic_block* bb);
+	SSA_name_list* get_may_defs (Basic_block* bb);
 
 
 	// Get the SSA_ops from the block. Doesnt include PHIs or CHIs.
@@ -49,8 +47,8 @@ public:
 	SSA_use_list* get_block_uses (Basic_block* bb);
 	SSA_def_list* get_block_defs (Basic_block* bb);
 
-	SSA_use_list* get_named_uses (Alias_name* name);
-	SSA_def_list* get_named_defs (Alias_name* name);
+	SSA_use_list* get_named_uses (SSA_name* name);
+	SSA_def_list* get_named_defs (SSA_name* name);
 
 	/*
 	 * Phi functions (or nodes)
@@ -62,29 +60,29 @@ public:
 	void copy_phi_map (Edge* source, Edge* dest);
 
 	// For SSA creation/destruction
-	void add_phi_node (Basic_block* bb, Alias_name phi_lhs);
-	bool has_phi_node (Basic_block* bb, Alias_name phi_lhs);
-	void add_phi_arg (Basic_block* bb, Alias_name phi_lhs, int version, Edge* edge);
+	void add_phi_node (Basic_block* bb, SSA_name phi_lhs);
+	bool has_phi_node (Basic_block* bb, SSA_name phi_lhs);
+	void add_phi_arg (Basic_block* bb, SSA_name phi_lhs, int version, Edge* edge);
 	void remove_phi_nodes (Basic_block* bb);
 
 	// These are stored using operator< in VARIABLE_NAME, which changes when
 	// there VARIABLE_NAME changes.
-	void update_phi_node (Basic_block* bb, Alias_name old_phi_lhs, Alias_name new_phi_lhs);
+	void update_phi_node (Basic_block* bb, SSA_name old_phi_lhs, SSA_name new_phi_lhs);
 
 	// Remove a node (including its args from the edges)
-	void remove_phi_node (Basic_block* bb, Alias_name phi_lhs);
+	void remove_phi_node (Basic_block* bb, SSA_name phi_lhs);
 
 	// If the nodes have 1 argument, remove them, putting them into
 	// predecessors.
 	void fix_solo_phi_args (Basic_block* bb);
 
 	// Get the arguments with VARIABLE_NAME as the lhs.
-	Alias_name_list* get_phi_args (Basic_block* bb, Alias_name phi_lhs);
+	SSA_name_list* get_phi_args (Basic_block* bb, SSA_name phi_lhs);
 	
-	Var_set* get_phi_lhss (Basic_block* bb);
+	Set<SSA_name>* get_phi_lhss (Basic_block* bb);
 
-	Alias_name get_phi_arg_for_edge (Edge*, Alias_name phi_lhs);
-	void set_phi_arg_for_edge (Edge*, Alias_name phi_lhs, Alias_name arg);
+	SSA_name get_phi_arg_for_edge (Edge*, SSA_name phi_lhs);
+	void set_phi_arg_for_edge (Edge*, SSA_name phi_lhs, SSA_name arg);
 
 
 private:
@@ -96,7 +94,7 @@ private:
 	Map<std::string, SSA_use_list> named_uses;
 
 	// Instead of an explicit phi node, store the phi->lhs here, mapped by BB.
-	Map<long, Var_set> phi_lhss;
+	Map<long, Set<SSA_name> > phi_lhss;
 
 	// Store phi arguments by edge. Then they can be updated all-at-once.
 	Map<Edge*, Phi_map> phi_rhss;
@@ -118,13 +116,13 @@ private:
 	 * depends on whether they come from the method_invocation, or whether
 	 * they come from the def.
 	 */
-	Map<long, Alias_name_list> uses;
-	Map<long, Alias_name_list> defs;
-	Map<long, Alias_name_list> phi_uses;
-	Map<long, Alias_name_list> phi_defs;
+	Map<long, SSA_name_list> uses;
+	Map<long, SSA_name_list> defs;
+	Map<long, SSA_name_list> phi_uses;
+	Map<long, SSA_name_list> phi_defs;
 
 	// Uses and defs don't include the chis or phis.
-	Map<long, Alias_name_list> may_defs;
+	Map<long, SSA_name_list> may_defs;
 };
 
 #endif // PHC_DEF_USE_WEB

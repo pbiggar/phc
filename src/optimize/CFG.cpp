@@ -288,7 +288,7 @@ escape_portname (String* in)
 }
 
 String*
-CFG::get_graphviz_def_portname (Basic_block* bb, Alias_name* def)
+CFG::get_graphviz_def_portname (Basic_block* bb, SSA_name* def)
 {
 	stringstream ss;
 	ss
@@ -298,7 +298,7 @@ CFG::get_graphviz_def_portname (Basic_block* bb, Alias_name* def)
 }
 
 String*
-CFG::get_graphviz_phi_portname (Basic_block* bb, Alias_name* phi)
+CFG::get_graphviz_phi_portname (Basic_block* bb, SSA_name* phi)
 {
 	stringstream ss;
 	ss
@@ -308,7 +308,7 @@ CFG::get_graphviz_phi_portname (Basic_block* bb, Alias_name* phi)
 }
 
 String*
-CFG::get_graphviz_use_portname (Basic_block* bb, Alias_name* use)
+CFG::get_graphviz_use_portname (Basic_block* bb, SSA_name* use)
 {
 	stringstream ss;
 	ss
@@ -319,7 +319,7 @@ CFG::get_graphviz_use_portname (Basic_block* bb, Alias_name* use)
 }
 
 String*
-CFG::get_graphviz_def (Basic_block* bb, Alias_name* def)
+CFG::get_graphviz_def (Basic_block* bb, SSA_name* def)
 {
 	stringstream ss;
 	ss
@@ -330,7 +330,7 @@ CFG::get_graphviz_def (Basic_block* bb, Alias_name* def)
 }
 
 String*
-CFG::get_graphviz_use (Basic_block* bb, Alias_name* use)
+CFG::get_graphviz_use (Basic_block* bb, SSA_name* use)
 {
 
 	stringstream ss;
@@ -369,15 +369,15 @@ CFG::dump_graphviz (String* label)
 		stringstream block_info;
 		if (duw)
 		{
-			Var_set* phis = duw->get_phi_lhss(bb);		
+			Set<SSA_name>* phis = duw->get_phi_lhss (bb);
 		
 			if (phis -> size () )
 			{
-				foreach (Alias_name phi, *phis)
+				foreach (SSA_name phi, *phis)
 				{
 					block_info << phi.str () << " = phi(";
 					bool first=true;
-					foreach(Alias_name* rhs, *duw->get_phi_args(bb,phi) )
+					foreach(SSA_name* rhs, *duw->get_phi_args(bb,phi))
 					{
 
 						if(!first)
@@ -413,16 +413,16 @@ CFG::dump_graphviz (String* label)
 		// DUW nodes are fields in the BB
 		if (duw)
 		{
-			Alias_name_list* defs = duw->get_defs (bb);
-			Alias_name_list* uses = duw->get_uses (bb);
-			Alias_name_list* may_defs = duw->get_may_defs(bb);	
+			SSA_name_list* defs = duw->get_defs (bb);
+			SSA_name_list* uses = duw->get_uses (bb);
+			SSA_name_list* may_defs = duw->get_may_defs(bb);	
 
 			if (defs->size() || uses->size () || may_defs->size ())
 			{
 				// open dual columns
 				cout << FIELD_SEPARATOR << "{ { ";
 				bool first = true;
-				foreach (Alias_name* def, *defs)
+				foreach (SSA_name* def, *defs)
 				{
 					cout
 					<< (first ? "" : FIELD_SEPARATOR) // no field separate
@@ -431,7 +431,7 @@ CFG::dump_graphviz (String* label)
 					first = false;
 				}
 			
-				foreach (Alias_name* may_def, *may_defs)
+				foreach (SSA_name* may_def, *may_defs)
 				{
 					cout
 					<< (first ? "" : FIELD_SEPARATOR) // no field separate
@@ -441,7 +441,7 @@ CFG::dump_graphviz (String* label)
 				// open second column
 				cout << " } " << FIELD_SEPARATOR <<  " { ";
 				first = true;
-				foreach (Alias_name* use, *uses)
+				foreach (SSA_name* use, *uses)
 				{
 					cout
 					<< (first ? "" : FIELD_SEPARATOR)
@@ -521,7 +521,7 @@ CFG::consistency_check ()
 
 
 		// Check phi nodes
-		foreach (Alias_name phi_lhs, *bb->get_phi_lhss ())
+		foreach (SSA_name phi_lhs, *bb->get_phi_lhss ())
 		{
 			assert (bb->get_phi_args (phi_lhs)->size () == bb->get_predecessors ()->size ());
 			foreach (Edge* pred, *bb->get_predecessor_edges ())

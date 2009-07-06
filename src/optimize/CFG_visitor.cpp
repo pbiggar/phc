@@ -12,7 +12,7 @@ using namespace boost;
 void
 CFG_visitor::visit_block (Basic_block* bb)
 {
-	foreach (Alias_name phi_lhs, *bb->get_phi_lhss ())
+	foreach (SSA_name phi_lhs, *bb->get_phi_lhss ())
 		visit_phi_node (bb, phi_lhs);
 
 	// TODO: visit_ssa_op?
@@ -141,7 +141,7 @@ CFG_visitor::visit_statement_block (Statement_block*)
 
 
 void
-CFG_visitor::visit_phi_node (Basic_block* bb, Alias_name phi_lhs)
+CFG_visitor::visit_phi_node (Basic_block* bb, SSA_name phi_lhs)
 {
 }
 
@@ -452,7 +452,7 @@ CFG_visitor::transform_block (Basic_block* bb)
 	// just update BB.
 	
 	// Allow it to update the CFG directly, its much easier.
-	foreach (Alias_name phi_lhs, *bb->get_phi_lhss ())
+	foreach (SSA_name phi_lhs, *bb->get_phi_lhss ())
 		transform_phi_node (bb, phi_lhs);
 
 	// TODO transform ssa_op?
@@ -576,7 +576,7 @@ CFG_visitor::transform_branch_block (Branch_block* in, BB_list* out)
 
 
 void
-CFG_visitor::transform_phi_node (Basic_block* bb, Alias_name lhs)
+CFG_visitor::transform_phi_node (Basic_block* bb, SSA_name lhs)
 {
 }
 

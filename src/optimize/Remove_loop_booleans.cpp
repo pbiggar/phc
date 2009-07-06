@@ -74,6 +74,7 @@
 #include "Remove_loop_booleans.h"
 #include "process_ir/General.h"
 #include "Def_use_web.h"
+#include "wpa/Def_use.h"
 
 using namespace MIR;
 
@@ -95,15 +96,18 @@ Remove_loop_booleans::is_applicable_branch (Branch_block* bb)
 	if (bb->get_predecessors()->size() < 2)
 		return false;
 
+	Context* cx = Context::non_contextual (bb);
+	string ns = cx->symtable_name ();
+
 	// Extract the correct use from the branch
 	SSA_use* use;
 	bool proceed = false;
 	foreach (SSA_use* temp, *bb->cfg->duw->get_block_uses (bb))
 	{	if (temp->type_flag != SSA_PHI)
 		{
-			string v = *bb->branch->variable_name->value;
 			string s = temp->name->get_name ();
-			if (s == "*_"+v)
+			Alias_name name (ns, *bb->branch->variable_name->value);
+			if (s == Def_use::get_starred_name (&name)->str())
 			{
 				use = temp;
 				proceed = true;

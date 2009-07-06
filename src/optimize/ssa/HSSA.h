@@ -29,20 +29,20 @@ private:
 	 */
 
 	void rename_vars (Basic_block* bb);
-	void push_to_var_stack (Alias_name* name);
-	int read_var_stack (Alias_name* name);
-	void pop_var_stack (Alias_name* name);
+	void push_to_var_stack (SSA_name* name);
+	int read_var_stack (SSA_name* name);
+	void pop_var_stack (SSA_name* name);
 
 	// Rename the variable into SSA, giving it a version.
-	void create_new_ssa_name (Alias_name* name);
+	void create_new_ssa_name (SSA_name* name);
 	void debug_var_stacks ();
-	void debug_top_var_stack (Alias_name* var, string type);
+	void debug_top_var_stack (SSA_name* var, string type);
 
 private:
 	/*
 	 * Following the example of GCC, we give each SSA_NAME a distinct number.
 	 * So instead of x_0, y_0, x_1, y_1, as in textbooks, we use x_0, y_1, x_2,
-	 * y_3. This allows us use the version as an index into a bitvector (which
+	 * y_3. This allows us to use the version as an index into a bitvector (which
 	 * we may or may not do in the future).
 	 */
 	int counter;

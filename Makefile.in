@@ -111,8 +111,8 @@ am_libphc_la_OBJECTS = getopt1.lo getopt.lo AST_annotate.lo \
 	Def_use_web.lo Edge.lo Flow_visitor.lo If_simplification.lo \
 	Inlining.lo Mark_initialized.lo Method_info.lo \
 	Misc_annotations.lo Oracle.lo Prune_symbol_table.lo \
-	Remove_loop_booleans.lo Dominance.lo HSSA.lo Phi.lo SSA_ops.lo \
-	Var_set.lo Visit_once.lo Aliasing.lo Callgraph.lo \
+	Remove_loop_booleans.lo Dominance.lo HSSA.lo Phi.lo \
+	SSA_name.lo SSA_ops.lo Visit_once.lo Aliasing.lo Callgraph.lo \
 	Constant_state.lo Context.lo Debug_WPA.lo Def_use.lo \
 	Include_analysis.lo Optimization_annotator.lo \
 	Optimization_transformer.lo Points_to.lo Stat_collector.lo \
@@ -819,10 +819,10 @@ libphc_la_SOURCES = \
 	src/optimize/ssa/HSSA.h									\
 	src/optimize/ssa/Phi.cpp								\
 	src/optimize/ssa/Phi.h									\
+	src/optimize/ssa/SSA_name.cpp							\
+	src/optimize/ssa/SSA_name.h							\
 	src/optimize/ssa/SSA_ops.cpp							\
 	src/optimize/ssa/SSA_ops.h								\
-	src/optimize/Var_map.h									\
-	src/optimize/Var_set.cpp								\
 	src/optimize/Visit_once.cpp							\
 	src/optimize/Visit_once.h								\
 	src/optimize/wpa/Aliasing.cpp							\
@@ -1525,6 +1525,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Remove_concat_null.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Remove_loop_booleans.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Remove_parser_temporaries.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SSA_name.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SSA_ops.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Split_multiple_arguments.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Split_unset_isset.Plo@am__quote@
@@ -1536,7 +1537,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Token_conversion.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VRP.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Value_analysis.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Var_set.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Visit_once.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/WPA.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Whole_program.Plo@am__quote@
@@ -2190,19 +2190,19 @@ Phi.lo: src/optimize/ssa/Phi.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Phi.lo `test -f 'src/optimize/ssa/Phi.cpp' || echo '$(srcdir)/'`src/optimize/ssa/Phi.cpp
 
+SSA_name.lo: src/optimize/ssa/SSA_name.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT SSA_name.lo -MD -MP -MF $(DEPDIR)/SSA_name.Tpo -c -o SSA_name.lo `test -f 'src/optimize/ssa/SSA_name.cpp' || echo '$(srcdir)/'`src/optimize/ssa/SSA_name.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/SSA_name.Tpo $(DEPDIR)/SSA_name.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/ssa/SSA_name.cpp' object='SSA_name.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o SSA_name.lo `test -f 'src/optimize/ssa/SSA_name.cpp' || echo '$(srcdir)/'`src/optimize/ssa/SSA_name.cpp
+
 SSA_ops.lo: src/optimize/ssa/SSA_ops.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT SSA_ops.lo -MD -MP -MF $(DEPDIR)/SSA_ops.Tpo -c -o SSA_ops.lo `test -f 'src/optimize/ssa/SSA_ops.cpp' || echo '$(srcdir)/'`src/optimize/ssa/SSA_ops.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/SSA_ops.Tpo $(DEPDIR)/SSA_ops.Plo
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/ssa/SSA_ops.cpp' object='SSA_ops.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o SSA_ops.lo `test -f 'src/optimize/ssa/SSA_ops.cpp' || echo '$(srcdir)/'`src/optimize/ssa/SSA_ops.cpp
-
-Var_set.lo: src/optimize/Var_set.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Var_set.lo -MD -MP -MF $(DEPDIR)/Var_set.Tpo -c -o Var_set.lo `test -f 'src/optimize/Var_set.cpp' || echo '$(srcdir)/'`src/optimize/Var_set.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Var_set.Tpo $(DEPDIR)/Var_set.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Var_set.cpp' object='Var_set.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Var_set.lo `test -f 'src/optimize/Var_set.cpp' || echo '$(srcdir)/'`src/optimize/Var_set.cpp
 
 Visit_once.lo: src/optimize/Visit_once.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Visit_once.lo -MD -MP -MF $(DEPDIR)/Visit_once.Tpo -c -o Visit_once.lo `test -f 'src/optimize/Visit_once.cpp' || echo '$(srcdir)/'`src/optimize/Visit_once.cpp

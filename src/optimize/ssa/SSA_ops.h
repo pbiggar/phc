@@ -24,10 +24,10 @@ class SSA_op : virtual public GC_obj
 {
 public:
 	Basic_block* bb;
-	Alias_name* name;
+	SSA_name* name;
 	int type_flag;
 
-	SSA_op (Basic_block* bb, Alias_name* name, int type_flag);
+	SSA_op (Basic_block* bb, SSA_name* name, int type_flag);
 	void dump();
 
 public:
@@ -41,7 +41,7 @@ public:
 class SSA_def : public SSA_op
 {
 public:
-	SSA_def (Basic_block* bb, Alias_name* name, int type_flag);
+	SSA_def (Basic_block* bb, SSA_name* name, int type_flag);
 
 	SSA_use_list* get_uses ();
 };
@@ -49,7 +49,7 @@ public:
 class SSA_use : public SSA_op
 {
 public:
-	SSA_use (Basic_block* bb, Alias_name* name, int type_flag);
+	SSA_use (Basic_block* bb, SSA_name* name, int type_flag);
 
 	SSA_def_list* get_defs ();
 };

@@ -4,6 +4,7 @@
 
 #include "Basic_block.h"
 #include "Def_use_web.h"
+#include "Alias_name.h"
 
 #include "ssa/Dominance.h"
 
@@ -121,19 +122,19 @@ Basic_block::copy_phi_nodes (Basic_block* other)
 }
 
 bool
-Basic_block::has_phi_node (Alias_name phi_lhs)
+Basic_block::has_phi_node (SSA_name phi_lhs)
 {
 	return cfg->duw->has_phi_node (this, phi_lhs);
 }
 
 void
-Basic_block::add_phi_node (Alias_name phi_lhs)
+Basic_block::add_phi_node (SSA_name phi_lhs)
 {
 	cfg->duw->add_phi_node (this, phi_lhs);
 }
 
 void
-Basic_block::add_phi_arg (Alias_name phi_lhs, int version, Edge* edge)
+Basic_block::add_phi_arg (SSA_name phi_lhs, int version, Edge* edge)
 {
 	cfg->duw->add_phi_arg (this, phi_lhs, version, edge);
 }
@@ -148,42 +149,42 @@ Basic_block::remove_phi_nodes ()
 }
 
 void
-Basic_block::remove_phi_node (Alias_name phi_lhs)
+Basic_block::remove_phi_node (SSA_name phi_lhs)
 {
 	cfg->duw->remove_phi_node (this, phi_lhs);
 }
 
 
 void
-Basic_block::update_phi_node (Alias_name phi_lhs, Alias_name new_phi_lhs)
+Basic_block::update_phi_node (SSA_name phi_lhs, SSA_name new_phi_lhs)
 {
 	cfg->duw->update_phi_node (this, phi_lhs, new_phi_lhs);
 }
 
 
-Alias_name_list*
-Basic_block::get_phi_args (Alias_name phi_lhs)
+SSA_name_list*
+Basic_block::get_phi_args (SSA_name phi_lhs)
 {
 	return cfg->duw->get_phi_args (this, phi_lhs);
 }
 
-Var_set*
+Set<SSA_name>*
 Basic_block::get_phi_lhss ()
 {
 	if (cfg->duw == NULL)
-		return new Var_set;
+		return new Set<SSA_name>;
 
 	return cfg->duw->get_phi_lhss (this);
 }
 
-Alias_name
-Basic_block::get_phi_arg_for_edge (Edge* edge, Alias_name phi_lhs)
+SSA_name
+Basic_block::get_phi_arg_for_edge (Edge* edge, SSA_name phi_lhs)
 {
 	return cfg->duw->get_phi_arg_for_edge (edge, phi_lhs);
 }
 
 void
-Basic_block::set_phi_arg_for_edge (Edge* edge, Alias_name phi_lhs, Alias_name arg)
+Basic_block::set_phi_arg_for_edge (Edge* edge, SSA_name phi_lhs, SSA_name arg)
 {
 	cfg->duw->set_phi_arg_for_edge (edge, phi_lhs, arg);
 }

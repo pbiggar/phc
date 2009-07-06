@@ -3,7 +3,7 @@
 using namespace MIR;
 
 Phi_map::Phi_map()
-: Var_map<Alias_name>()
+: Map<SSA_name, SSA_name>()
 {
 
 }

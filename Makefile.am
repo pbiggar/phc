@@ -229,10 +229,10 @@ libphc_la_SOURCES= 											\
 	src/optimize/ssa/HSSA.h									\
 	src/optimize/ssa/Phi.cpp								\
 	src/optimize/ssa/Phi.h									\
+	src/optimize/ssa/SSA_name.cpp							\
+	src/optimize/ssa/SSA_name.h							\
 	src/optimize/ssa/SSA_ops.cpp							\
 	src/optimize/ssa/SSA_ops.h								\
-	src/optimize/Var_map.h									\
-	src/optimize/Var_set.cpp								\
 	src/optimize/Visit_once.cpp							\
 	src/optimize/Visit_once.h								\
 	src/optimize/wpa/Aliasing.cpp							\

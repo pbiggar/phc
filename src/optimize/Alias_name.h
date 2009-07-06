@@ -40,7 +40,6 @@ class Alias_name : virtual public GC_obj
 	mutable String* cached_name;
 	string prefix;
 	string name;
-	int ssa_version;
 
 public:
 	Alias_name ();
@@ -60,10 +59,6 @@ public:
 	// We'd like to make these private
 	string get_name () const;
 	string get_prefix () const;
-	int get_version () const;
-
-	void set_version (int version);
-	void drop_ssa_version ();
 
 	// Drops the context info
 	// TODO: if we want to cache these, we should make it const Alias_name

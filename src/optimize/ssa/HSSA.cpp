@@ -271,9 +271,9 @@ HSSA::convert_to_hssa_form ()
 			defs->push_back_all (cfg->duw->get_block_defs (bb));
 		
 			// phis add a def thats not in the DUW
-			Var_set* phidefs = bb->get_phi_lhss ();	
+			Set<SSA_name>* phidefs = bb->get_phi_lhss ();	
 			
-			foreach (Alias_name name, *phidefs)
+			foreach (SSA_name name, *phidefs)
 			{
 				defs->push_back (new SSA_def (bb, &name, SSA_PHI)); 
 			}
@@ -367,7 +367,7 @@ HSSA::convert_out_of_ssa_form ()
  * Renaming
  */
 void
-HSSA::push_to_var_stack (Alias_name* name)
+HSSA::push_to_var_stack (SSA_name* name)
 {
 	assert (name->get_version () == 0);
 	var_stacks[name->non_ssa_str ()].push (counter);
@@ -376,7 +376,7 @@ HSSA::push_to_var_stack (Alias_name* name)
 }
 
 int
-HSSA::read_var_stack (Alias_name* name)
+HSSA::read_var_stack (SSA_name* name)
 {
 	// In traditional SSA, all variables are initialized at the start of a
 	// function. Not so here (though it could be done that way).
@@ -384,7 +384,7 @@ HSSA::read_var_stack (Alias_name* name)
 	// NAME gets an SSA version in push_to_var_stack, which changes the
 	// indexing.
 	
-	Alias_name index = *name;
+	SSA_name index = *name;
 	if (var_stacks[index.non_ssa_str ()].size () == 0)
 		push_to_var_stack (name);
 	
@@ -392,7 +392,7 @@ HSSA::read_var_stack (Alias_name* name)
 }
 
 void
-HSSA::pop_var_stack (Alias_name* name)
+HSSA::pop_var_stack (SSA_name* name)
 {
 	if (var_stacks[name->non_ssa_str ()].size () > 0)
 	{
@@ -402,7 +402,7 @@ HSSA::pop_var_stack (Alias_name* name)
 
 
 void 
-HSSA::create_new_ssa_name (Alias_name* name)
+HSSA::create_new_ssa_name (SSA_name* name)
 {
 	push_to_var_stack (name);
 }
@@ -411,7 +411,7 @@ void
 HSSA::debug_var_stacks ()
 {
 	/*CHECK_DEBUG ();
-	Alias_name name;
+	SSA_name name;
 	Stack<int> st;
 	foreach (tie (name, st), var_stacks)
 	{
@@ -427,7 +427,7 @@ HSSA::debug_var_stacks ()
 }
 
 void
-HSSA::debug_top_var_stack (Alias_name* var, string type)
+HSSA::debug_top_var_stack (SSA_name* var, string type)
 {
 	CHECK_DEBUG ();
 	DEBUG(type << ": " << var->str () << "\n");
@@ -446,10 +446,10 @@ HSSA::rename_vars (Basic_block* bb)
 	// For each phi function in bb, rename lhs
 	
 	DEBUG ("BB:"<<bb->ID);
-	foreach (Alias_name phi_lhs, *bb->get_phi_lhss())
+	foreach (SSA_name phi_lhs, *bb->get_phi_lhss())
 	{
 		debug_top_var_stack (&phi_lhs, "PHI");
-		Alias_name clone = phi_lhs;
+		SSA_name clone = phi_lhs;
 		
 		create_new_ssa_name (&clone);
 		debug_top_var_stack (&phi_lhs, "PHI");	
@@ -457,19 +457,19 @@ HSSA::rename_vars (Basic_block* bb)
 	}
 	
 	// Rename each use in bb
-	foreach (Alias_name* use, *bb->cfg->duw->get_uses (bb))
+	foreach (SSA_name* use, *bb->cfg->duw->get_uses (bb))
 	{
 		use->set_version (read_var_stack (use));
 	}	
 	// TODO: Already covered by defs?	
-	foreach (Alias_name* may_def, *bb->cfg->duw->get_may_defs (bb))
+	foreach (SSA_name* may_def, *bb->cfg->duw->get_may_defs (bb))
 	{
 		DEBUG("MAY-DEF: " << may_def->str ());
 		create_new_ssa_name (may_def);
 	}
 
 	// Rename each def in bb	
-       foreach (Alias_name* def, *bb->cfg->duw->get_defs (bb))
+       foreach (SSA_name* def, *bb->cfg->duw->get_defs (bb))
 	{
 		debug_top_var_stack (def,"DEF");
 		create_new_ssa_name (def);
@@ -479,7 +479,7 @@ HSSA::rename_vars (Basic_block* bb)
 	foreach (Basic_block* succ, *bb->get_successors ())
 	{
 		DEBUG("Filling in successors' phi args\n" << " SUCC:" << succ->ID);
-		foreach (Alias_name phi_lhs, *succ->get_phi_lhss())
+		foreach (SSA_name phi_lhs, *succ->get_phi_lhss())
 		{	
 			debug_top_var_stack (&phi_lhs, "PHI");
 			if (var_stacks[phi_lhs.non_ssa_str ()].size () != 0) // No point if nothing on var stack
@@ -497,13 +497,13 @@ HSSA::rename_vars (Basic_block* bb)
 	
 	// Before going back up the tree, get rid of new variable names from
 	// the stack, so the next node up sees its own names.
-	Alias_name_list* defs_to_pop = new Alias_name_list;
-	foreach (Alias_name phi_lhs, *bb->get_phi_lhss())
+	SSA_name_list* defs_to_pop = new SSA_name_list;
+	foreach (SSA_name phi_lhs, *bb->get_phi_lhss())
         {
                 defs_to_pop->push_back(&phi_lhs);
         }
 	defs_to_pop->push_back_all (bb->cfg->duw->get_defs (bb));
-	foreach (Alias_name* def, *defs_to_pop)
+	foreach (SSA_name* def, *defs_to_pop)
 		pop_var_stack (def);
 	
 }

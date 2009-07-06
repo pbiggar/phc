@@ -13,6 +13,8 @@
 #include "optimize/Lattice.h"
 #include "optimize/CFG_visitor.h"
 
+class Storage_node;
+
 DECL (Context);
 class Context : virtual public GC_obj
 {

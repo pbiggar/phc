@@ -6,19 +6,19 @@
 
 using namespace MIR;
 
-SSA_op::SSA_op (Basic_block* bb, Alias_name* name, int type_flag)
+SSA_op::SSA_op (Basic_block* bb, SSA_name* name, int type_flag)
 : bb (bb)
 , name (name)
 , type_flag (type_flag)
 {
 }
 
-SSA_use::SSA_use (Basic_block* bb, Alias_name* name, int type_flag)
+SSA_use::SSA_use (Basic_block* bb, SSA_name* name, int type_flag)
 : SSA_op (bb, name, type_flag)
 {
 }
 
-SSA_def::SSA_def (Basic_block* bb, Alias_name* name, int type_flag)
+SSA_def::SSA_def (Basic_block* bb, SSA_name* name, int type_flag)
 : SSA_op (bb, name, type_flag)
 {
 }

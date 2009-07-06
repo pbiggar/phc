@@ -5,8 +5,8 @@
 
 #include "CFG.h"
 #include "MIR.h"
-#include "Var_set.h"
-#include "Var_map.h"
+
+#include "lib/Set.h"
 
 class Points_to;
 class WPA;
@@ -85,29 +85,29 @@ public:
 	void copy_phi_nodes (Basic_block* other);
 
 	// For SSA creation/destruction
-	void add_phi_node (Alias_name phi_lhs);
-	bool has_phi_node (Alias_name phi_lhs);
-	void add_phi_arg (Alias_name phi_lhs, int version, Edge* edge);
+	void add_phi_node (SSA_name phi_lhs);
+	bool has_phi_node (SSA_name phi_lhs);
+	void add_phi_arg (SSA_name phi_lhs, int version, Edge* edge);
 	void remove_phi_nodes ();
 
 	// These are stored using operator< in VARIABLE_NAME, which changes when
 	// there VARIABLE_NAME changes.
-	void update_phi_node (Alias_name phi_lhs, Alias_name new_phi_lhs);
+	void update_phi_node (SSA_name phi_lhs, SSA_name new_phi_lhs);
 
 	// Remove a node (including its args from the edges)
-	void remove_phi_node (Alias_name phi_lhs);
+	void remove_phi_node (SSA_name phi_lhs);
 
 	// If the nodes have 1 argument, remove them, putting them into
 	// predecessors.
 	void fix_solo_phi_args ();
 
 	// Get the arguments with VARIABLE_NAME as the lhs.
-	Alias_name_list* get_phi_args (Alias_name phi_lhs);
+	SSA_name_list* get_phi_args (SSA_name phi_lhs);
 
-	Var_set* get_phi_lhss ();
+	Set<SSA_name>* get_phi_lhss ();
 
-	Alias_name get_phi_arg_for_edge (Edge*, Alias_name phi_lhs);
-	void set_phi_arg_for_edge (Edge*, Alias_name phi_lhs, Alias_name arg);
+	SSA_name get_phi_arg_for_edge (Edge*, SSA_name phi_lhs);
+	void set_phi_arg_for_edge (Edge*, SSA_name phi_lhs, SSA_name arg);
 
 
 	/*
@@ -120,7 +120,7 @@ public:
 	virtual Basic_block* clone () = 0;
 	virtual bool equals (Basic_block* other) = 0;
 
-	// the prefix for Alias_names
+	// the prefix for SSA_names
 	string get_prefix ();
 
 	long ID;

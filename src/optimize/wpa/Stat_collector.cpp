@@ -357,9 +357,9 @@ Stat_collector::collect_uninit_var_stats (Basic_block* bb)
 		hssa->convert_to_hssa_form ();
 	}
 
-	foreach (Alias_name phi_lhs, *bb->get_phi_lhss())
+	foreach (SSA_name phi_lhs, *bb->get_phi_lhss())
 	{
-		foreach (Alias_name* phi_arg, *bb->get_phi_args (phi_lhs))
+		foreach (SSA_name* phi_arg, *bb->get_phi_args (phi_lhs))
 		{
 			if (phi_arg->get_version () == 0)
 				add_to_stringset_stat ("uninitialised_vars", phi_lhs.get_name ());

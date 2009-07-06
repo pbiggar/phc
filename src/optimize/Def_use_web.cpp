@@ -5,7 +5,6 @@
 
 #include "Def_use_web.h"
 #include "optimize/wpa/Def_use.h"
-#include "Var_set.h"
 
 #include "wpa/Aliasing.h"
 
@@ -53,11 +52,11 @@ Def_use_web::build_web (CFG* cfg, bool update)
 		foreach (Basic_block* bb, *cfg->get_all_bbs ())
 		{	
 			DEBUG ("BBID: " << bb->ID);
-			foreach (Alias_name phi_lhs, *get_phi_lhss (bb))
+			foreach (SSA_name phi_lhs, *get_phi_lhss (bb))
 			{
-				Alias_name* clone = new Alias_name(phi_lhs);
+				SSA_name* clone = new SSA_name(phi_lhs);
 				phi_defs[bb->ID].push_back (clone);
-				foreach (Alias_name* phi_arg, *get_phi_args (bb, phi_lhs))
+				foreach (SSA_name* phi_arg, *get_phi_args (bb, phi_lhs))
 					phi_uses[bb->ID].push_back (phi_arg);	
 			}
 		}
@@ -67,40 +66,40 @@ Def_use_web::build_web (CFG* cfg, bool update)
 		foreach (Basic_block* bb, *cfg->get_all_bbs ())
 		{
 			foreach (const Alias_name* name, *du->get_defs (bb))
-				defs[bb->ID].push_back (new Alias_name (name));
+				defs[bb->ID].push_back (new SSA_name (name->str ()));
 
 			foreach (const Alias_name* name, *du->get_uses (bb))
-				uses[bb->ID].push_back (new Alias_name (name));
+				uses[bb->ID].push_back (new SSA_name (name->str ()));
 
 			foreach (const Alias_name* name, *du->get_may_defs (bb))
-				may_defs[bb->ID].push_back (new Alias_name (name));
+				may_defs[bb->ID].push_back (new SSA_name (name->str ()));
 		}
 	}
 	// Build all the ops
 	foreach (Basic_block* bb, *cfg->get_all_bbs ())
 	{
-		foreach (Alias_name* use, uses[bb->ID])
+		foreach (SSA_name* use, uses[bb->ID])
 			named_uses[use->str ()].push_back (new SSA_use (bb, use, SSA_BB));
 
-		foreach (Alias_name* def, defs[bb->ID])
+		foreach (SSA_name* def, defs[bb->ID])
 			named_defs[def->str()].push_back (new SSA_def (bb, def, SSA_BB));
 		
 		uses[bb->ID].push_back_all (&phi_uses[bb->ID]);
 		defs[bb->ID].push_back_all (&phi_defs[bb->ID]);
 
-		foreach (Alias_name* use, phi_uses[bb->ID])
+		foreach (SSA_name* use, phi_uses[bb->ID])
 			named_uses[use->str ()].push_back (new SSA_use (bb, use, SSA_PHI));
 
-		foreach (Alias_name* def, phi_defs[bb->ID])
+		foreach (SSA_name* def, phi_defs[bb->ID])
 			named_defs[def->str()].push_back (new SSA_def (bb, def, SSA_PHI));
 		
 
-/*		foreach (Alias_name* may_def, may_defs[bb->ID])
+/*		foreach (SSA_name* may_def, may_defs[bb->ID])
 		{
 			named_defs[*may_def].push_back (new SSA_def (bb, may_def, SSA_CHI));
 			named_uses[*may_def].push_back (new SSA_use (
 					bb,
-					new Alias_name (*may_def),
+					new SSA_name (*may_def),
 					SSA_CHI));
 		}
 
@@ -248,7 +247,7 @@ Def_use_web::dump ()
 	}
 
 	cdebug << "\n\nnamed_defs:\n";
-	foreach (Alias_name key, *named_defs.keys ())
+	foreach (SSA_name key, *named_defs.keys ())
 	{
 		cdebug << key.str () << ":\n";
 		foreach (SSA_def* def, named_defs[key.str ()])
@@ -260,7 +259,7 @@ Def_use_web::dump ()
 	}
 
 	cdebug << "\n\nnamed_uses:\n";
-	foreach (Alias_name key, *named_uses.keys ())
+	foreach (SSA_name key, *named_uses.keys ())
 	{
 		cdebug << key.str () << ":\n";
 		foreach (SSA_use* use, named_uses[key.str ()])
@@ -274,12 +273,12 @@ Def_use_web::dump ()
 
 	TODO: dump:
 
-	Map<long, Var_set> phi_lhss;
+	Map<long, Set<SSA_name> > phi_lhss;
 	Map<edge_t, Phi_map> phi_rhss;
 
-	Map<long, Alias_name_list> uses;
-	Map<long, Alias_name_list> defs;
-	Map<long, Alias_name_list> may_defs;
+	Map<long, SSA_name_list> uses;
+	Map<long, SSA_name_list> defs;
+	Map<long, SSA_name_list> may_defs;
 
 */
 
@@ -341,19 +340,19 @@ Def_use_web::ssa_consistency_check ()
 }
 
 
-Alias_name_list*
+SSA_name_list*
 Def_use_web::get_defs (Basic_block* bb)
 {
 	return &defs[bb->ID];
 }
 
-Alias_name_list*
+SSA_name_list*
 Def_use_web::get_uses (Basic_block* bb)
 {
 	return &uses[bb->ID];
 }
 
-Alias_name_list*
+SSA_name_list*
 Def_use_web::get_may_defs (Basic_block* bb)
 {
 	return &may_defs[bb->ID];
@@ -373,13 +372,13 @@ Def_use_web::get_block_defs (Basic_block* bb)
 }
 
 SSA_use_list*
-Def_use_web::get_named_uses (Alias_name* name)
+Def_use_web::get_named_uses (SSA_name* name)
 {
 	return &named_uses[name->str ()];
 }
 
 SSA_def_list*
-Def_use_web::get_named_defs (Alias_name* name)
+Def_use_web::get_named_defs (SSA_name* name)
 {
 	return &named_defs[name->str ()];
 }
@@ -393,7 +392,7 @@ Def_use_web::copy_phi_nodes (Basic_block* source, Basic_block* dest)
 {
 	// Since a phi is an assignment, and variables can only be assigned to
 	// once, DEST's PHIs cant exist in SOURCE.
-	foreach (Alias_name phi_lhs, *get_phi_lhss (dest))
+	foreach (SSA_name phi_lhs, *get_phi_lhss (dest))
 	{
 		add_phi_node (source, phi_lhs);
 	}
@@ -401,13 +400,13 @@ Def_use_web::copy_phi_nodes (Basic_block* source, Basic_block* dest)
 
 
 bool
-Def_use_web::has_phi_node (Basic_block* bb, Alias_name phi_lhs)
+Def_use_web::has_phi_node (Basic_block* bb, SSA_name phi_lhs)
 {
 	return phi_lhss[bb->ID].has (phi_lhs);
 }
 
 void
-Def_use_web::add_phi_node (Basic_block* bb, Alias_name phi_lhs)
+Def_use_web::add_phi_node (Basic_block* bb, SSA_name phi_lhs)
 {
 	assert (!has_phi_node (bb, phi_lhs));
 
@@ -417,13 +416,13 @@ Def_use_web::add_phi_node (Basic_block* bb, Alias_name phi_lhs)
 }
 
 void
-Def_use_web::add_phi_arg (Basic_block* bb, Alias_name phi_lhs, int version, Edge* edge)
+Def_use_web::add_phi_arg (Basic_block* bb, SSA_name phi_lhs, int version, Edge* edge)
 {
 	// phi_lhs doesnt have to be in SSA, since it will be updated later using
 	// update_phi_node, if it is not.
 	assert (has_phi_node (bb, phi_lhs));
 	DEBUG("ADDING PHI ARG V"<<version<<" for "<<phi_lhs.str ());
-	Alias_name arg = phi_lhs; // copy
+	SSA_name arg = phi_lhs; // copy
 	arg.set_version (version);
 	set_phi_arg_for_edge (edge, phi_lhs, arg);
 }
@@ -438,7 +437,7 @@ Def_use_web::remove_phi_nodes (Basic_block* bb)
 }
 
 void
-Def_use_web::remove_phi_node (Basic_block* bb, Alias_name phi_lhs)
+Def_use_web::remove_phi_node (Basic_block* bb, SSA_name phi_lhs)
 {
 	assert (has_phi_node (bb, phi_lhs));
 
@@ -454,7 +453,7 @@ Def_use_web::remove_phi_node (Basic_block* bb, Alias_name phi_lhs)
 
 
 void
-Def_use_web::update_phi_node (Basic_block* bb, Alias_name phi_lhs, Alias_name new_phi_lhs)
+Def_use_web::update_phi_node (Basic_block* bb, SSA_name phi_lhs, SSA_name new_phi_lhs)
 {
 	// TODO: too complicated for the mechanical conversion we're doing now. Its easier
 	// If a phi_lhs changes into SSA form, its indexing will change. So we must
@@ -479,33 +478,33 @@ Def_use_web::update_phi_node (Basic_block* bb, Alias_name phi_lhs, Alias_name ne
 }
 
 
-Alias_name_list*
-Def_use_web::get_phi_args (Basic_block* bb, Alias_name phi_lhs)
+SSA_name_list*
+Def_use_web::get_phi_args (Basic_block* bb, SSA_name phi_lhs)
 {
-	Alias_name_list* result = new Alias_name_list;
+	SSA_name_list* result = new SSA_name_list;
 
 	foreach (Edge* pred, *bb->get_predecessor_edges ())
-		result->push_back (new Alias_name (get_phi_arg_for_edge (pred, phi_lhs)));
+		result->push_back (new SSA_name (get_phi_arg_for_edge (pred, phi_lhs)));
 		
 	return result;
 }
 
-Var_set*
+Set<SSA_name>*
 Def_use_web::get_phi_lhss (Basic_block* bb)
 {
 	// Return a clone, since we sometimes like to update the list
 	// (but dont call ->clone, since we dont want clones of the variables).
-	return phi_lhss[bb->ID].set_union (new Var_set);
+	return phi_lhss[bb->ID].set_union (new Set<SSA_name>);
 }
 
-Alias_name
-Def_use_web::get_phi_arg_for_edge (Edge* edge, Alias_name phi_lhs)
+SSA_name
+Def_use_web::get_phi_arg_for_edge (Edge* edge, SSA_name phi_lhs)
 {
 	return phi_rhss[edge][phi_lhs];
 }
 
 void
-Def_use_web::set_phi_arg_for_edge (Edge* edge, Alias_name phi_lhs, Alias_name arg)
+Def_use_web::set_phi_arg_for_edge (Edge* edge, SSA_name phi_lhs, SSA_name arg)
 {
 	DEBUG("SETTING "<<arg.str ()<<"V "<<arg.get_version ()<<" AS PHI ARG FOR "<<phi_lhs.str ()<<"V "<<phi_lhs.get_version ());
 	phi_rhss[edge][phi_lhs] = arg;
@@ -522,8 +521,8 @@ Def_use_web::copy_phi_map (Edge* source, Edge* dest)
 	
 	// They're not required to have the same target, only that this.target has
 	// all of other.target's phi_lhss (which must be guaranteed by the caller).
-	Alias_name phi_lhs;
-	Alias_name arg;
+	SSA_name phi_lhs;
+	SSA_name arg;
 	foreach (tie (phi_lhs, arg), phi_rhss[dest])
 	{
 		source->get_target()->set_phi_arg_for_edge (source, phi_lhs, arg);

@@ -20,7 +20,6 @@ using namespace MIR;
 
 Alias_name::Alias_name ()
 : cached_name (NULL)
-, ssa_version (0)
 {
 }
 
@@ -28,7 +27,6 @@ Alias_name::Alias_name (string prefix, string name)
 : cached_name (NULL)
 , prefix (prefix)
 , name (name)
-, ssa_version (0)
 {
 	assert (prefix != "");
 }
@@ -37,7 +35,6 @@ Alias_name::Alias_name (const Alias_name* other)
 : cached_name (other->cached_name)
 , prefix (other->prefix)
 , name (other->name)
-, ssa_version (other->ssa_version)
 {
 }
 
@@ -76,9 +73,6 @@ Alias_name::str () const
 
 	ss << name;
 
-	if (ssa_version)
-		ss << "__v" << ssa_version;
-
 	this->cached_name = s (ss.str ());
 	return *cached_name;
 }
@@ -95,31 +89,13 @@ Alias_name::get_prefix () const
 	return prefix;
 }
 
-int
-Alias_name::get_version () const
-{
-	return ssa_version;
-}
-
 string
 Alias_name::non_ssa_str () const
 {
-	return prefix+"::"+name;
+	return prefix + "::" + name;
 }
 
-void
-Alias_name::drop_ssa_version ()
-{
-	this->cached_name = NULL;
-	this->ssa_version = 0;
-}
 
-void
-Alias_name::set_version (int version)
-{
-	this->cached_name = NULL;
-	this->ssa_version = version;
-}
 
 // Return a new Alias_name, which has had its name converted from OLDC to NEWC.
 //

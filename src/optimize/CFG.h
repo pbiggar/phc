@@ -17,7 +17,7 @@
 #include "lib/Map.h"
 #include "lib/String.h"
 
-#include "Alias_name.h"
+#include "ssa/SSA_name.h"
 
 class Basic_block;
 class Branch_block;
@@ -239,11 +239,11 @@ public:
 	void dump_graphviz (String* label);
 	String_list* get_graphviz_phis (Basic_block* bb);
 	String_list* get_graphviz_chis (Basic_block* bb);
-	String* get_graphviz_def (Basic_block* bb, Alias_name* def);
-	String* get_graphviz_use (Basic_block* bb, Alias_name* use);
-	String* get_graphviz_def_portname (Basic_block* bb, Alias_name* def);
-	String* get_graphviz_use_portname (Basic_block* bb, Alias_name* use);
-	String* get_graphviz_phi_portname (Basic_block* bb, Alias_name* phi);
+	String* get_graphviz_def (Basic_block* bb, SSA_name* def);
+	String* get_graphviz_use (Basic_block* bb, SSA_name* use);
+	String* get_graphviz_def_portname (Basic_block* bb, SSA_name* def);
+	String* get_graphviz_use_portname (Basic_block* bb, SSA_name* use);
+	String* get_graphviz_phi_portname (Basic_block* bb, SSA_name* phi);
 
 public:
 
