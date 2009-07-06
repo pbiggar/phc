@@ -355,6 +355,50 @@ Def_use::get_index_nodes (Basic_block* bb, deftype dt) const
 	return result;
 }
 
+int
+Def_use::get_num_refs (CFG* cfg, deftype dt, bool entryexit)
+{
+	int res = 0;
+	foreach (Basic_block* bb,  *cfg->get_all_bbs ())
+	{
+		if ((entryexit || !((dynamic_cast<Entry_block*> (bb))
+							|| (dynamic_cast<Exit_block*> (bb)))))
+		{
+			Context* cx = Context::non_contextual (bb);
+			res += maps[cx][REF][dt].size ();	
+		/*	foreach (const Index_node* in, maps[cx][REF][dt])
+			{
+				if ((cx->get_bb ()->cfg) && in_scope (cx, in))
+				res++;
+			}
+		*/
+		}
+	}
+	return res;
+}
+
+int
+Def_use::get_num_vals (CFG* cfg, deftype dt, bool entryexit)
+{
+	int res = 0;
+	foreach (Basic_block* bb,  *cfg->get_all_bbs ())
+	{
+		if ((entryexit || !((dynamic_cast<Entry_block*> (bb))
+							|| (dynamic_cast<Exit_block*> (bb)))))
+		{
+			Context* cx = Context::non_contextual (bb);
+			res += maps[cx][VAL][dt].size ();	
+		/*	foreach (const Index_node* in, maps[cx][REF][dt])
+			{
+				if ((cx->get_bb ()->cfg) && in_scope (cx, in))
+				res++;
+			}
+		*/
+		}
+	}
+	return res;
+}
+
 cIndex_node_list*
 Def_use::get_defs (Basic_block* bb) const
 {

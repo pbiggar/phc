@@ -135,8 +135,8 @@ Whole_program::run (MIR::PHP_script* in)
 		// Optimize based on analysis results
 		foreach (Method_info* mi, *callgraph->bottom_up ())
 		{
-			User_method_info* info = dynamic_cast<User_method_info*> (mi);
-
+			User_method_info* info = dynamic_cast<User_method_info*> (mi);	
+			
 			if (info == NULL)
 				continue;
 
@@ -1378,6 +1378,9 @@ Whole_program::collect_stats (User_method_info* info)
 {
 	if (pm->args_info->stats_given)
 	{
+
+		// TODO: maybe stat_coll->run(info->get_cfg ()) ?
+		stat_coll->collect_def_use_stats (info->get_cfg ());
 		foreach (Basic_block* bb, *info->get_cfg ()->get_all_bbs ())
 			stat_coll->visit_block (bb);
 		

@@ -94,16 +94,17 @@ Def_use_web::build_web (CFG* cfg, bool update)
 			named_defs[def->str()].push_back (new SSA_def (bb, def, SSA_PHI));
 		
 
-/*		foreach (SSA_name* may_def, may_defs[bb->ID])
+
+		foreach (SSA_name* may_def, may_defs[bb->ID])
 		{
-			named_defs[*may_def].push_back (new SSA_def (bb, may_def, SSA_CHI));
-			named_uses[*may_def].push_back (new SSA_use (
+			named_defs[may_def->str ()].push_back (new SSA_def (bb, may_def, SSA_CHI));
+			named_uses[may_def->str ()].push_back (new SSA_use (
 					bb,
 					new SSA_name (*may_def),
 					SSA_CHI));
 		}
 
-*/	}
+	}
 
 
 

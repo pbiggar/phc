@@ -8,6 +8,7 @@
 #include "Whole_program.h"
 #include "../CFG.h"
 #include "../Def_use_web.h"
+#include "Def_use.h"
 #include "../ssa/HSSA.h"
 
 #include "Stat_collector.h"
@@ -37,6 +38,7 @@ Stat_collector::visit_basic_block (Basic_block* bb)
 {
 	inc_stat("total_num_bbs");
 	collect_uninit_var_stats (bb);
+
 }
 
 void
@@ -378,4 +380,35 @@ Stat_collector::get_number_of_statements (CFG* cfg)
 			CTS ("num_statements");
 		}
 	}
+}
+
+void 
+Stat_collector::collect_def_use_stats (CFG* cfg)
+{
+	if (!cfg->duw)
+	{
+		HSSA* hssa = new HSSA(wp, cfg);	
+		hssa->convert_to_hssa_form ();
+	}
+
+	int starred, unstarred;
+	Def_use* du = cfg->duw->get_def_use ();
+	
+	starred = du->get_num_vals (cfg, DEF, false);
+	unstarred = du->get_num_refs (cfg, DEF, false);
+	set_stat ("starred_defs", starred);
+	set_stat ("unstarred_defs",unstarred);
+	set_stat ("defs", starred + unstarred);
+
+ 	starred = du->get_num_vals (cfg, USE, false);
+	unstarred = du->get_num_refs (cfg, USE, false);
+	set_stat ("starred_uses", starred);
+	set_stat ("unstarred_uses", unstarred);
+	set_stat ("uses",starred + unstarred);
+
+	starred = du->get_num_vals (cfg, MAYDEF, false);
+	unstarred = du->get_num_refs (cfg, MAYDEF, false);
+	set_stat ("starred_may_defs", starred);
+	set_stat ("unstarred_may_defs", unstarred);
+	set_stat ("may_defs", starred + unstarred);
 }

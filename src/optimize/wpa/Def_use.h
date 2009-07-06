@@ -76,6 +76,9 @@ public:
 
 	bool has_analysis_result (Context* cx, Result_state state) const;
 
+	int get_num_refs (CFG* cfg, deftype dt, bool entryexit);
+	int get_num_vals (CFG* cfg, deftype dt, bool entryexit);
+
 
 	// These return pointers to the actual values, not copies. This allows the
 	// SSA name to be updated.

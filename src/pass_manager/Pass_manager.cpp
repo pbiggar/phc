@@ -741,7 +741,9 @@ Pass_manager::run_optimization_pass (Pass* pass, Whole_program* wp, CFG* cfg)
 	}
 	else
 	{
-		cfg->duw = NULL;
+		// We need the DUW for gathering stats
+		if (!args_info->stats_given)
+			cfg->duw = NULL;
 	}
 }
 
