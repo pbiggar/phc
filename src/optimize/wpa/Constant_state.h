@@ -39,11 +39,7 @@ public:
 	 * WPA interface
 	 */
 
-	// TODO: I think these aren't pure virtual, so they can be removed.
-	void pull_possible_null (Context* cx, Index_node* node) {};
-	void kill_value (Context* cx, Index_node*, bool) {};
-	void assign_value (Context* cx, Index_node*, Storage_node*) {};
-
+	void pull_possible_null (Context* cx, const Index_node* node) {};
 };
 
 

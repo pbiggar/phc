@@ -12,6 +12,7 @@
 #define PHC_DEF_USE
 
 #include "WPA.h"
+#include "Points_to.h"
 
 // TODO: better names for deftype and reftype.
 enum _reftype { REF, VAL };
@@ -53,14 +54,14 @@ public:
 	void init (Context* outer) {}
 
 
-	void create_reference (Context* cx, Index_node* lhs,
-								 Index_node* rhs, Certainty cert);
+	void create_reference (Context* cx, const Index_node* lhs,
+								 const Index_node* rhs, Certainty cert);
 
-	void assign_value (Context* cx, Index_node* lhs, Storage_node* storage);
+	void assign_value (Context* cx, const Index_node* lhs, const Storage_node* storage);
 
-	void kill_value (Context* cx, Index_node* lhs, bool also_kill_refs = false);
+	void kill_value (Context* cx, const Index_node* lhs, bool also_kill_refs = false);
 
-	void record_use (Context* cx, Index_node* use, Certainty cert);
+	void record_use (Context* cx, const Index_node* use, Certainty cert);
 
 
 	void finish_block (Context* cx);
@@ -78,30 +79,26 @@ public:
 
 	// These return pointers to the actual values, not copies. This allows the
 	// SSA name to be updated.
-	cAlias_name_list* get_defs (Basic_block* bb) const;
-	cAlias_name_list* get_may_defs (Basic_block* bb) const;
-	cAlias_name_list* get_uses (Basic_block* bb) const;
+	cIndex_node_list* get_defs (Basic_block* bb) const;
+	cIndex_node_list* get_may_defs (Basic_block* bb) const;
+	cIndex_node_list* get_uses (Basic_block* bb) const;
 
-public:
-
-	static const Alias_name* get_starred_name (const Alias_name* name);
-	static string get_starred_name (string name);
 
 private:
-	cAlias_name_list* get_alias_name (Basic_block* bb, deftype dt) const;
+	cIndex_node_list* get_index_nodes (Basic_block* bb, deftype dt) const;
 
 private:
 
 
 	void dump_set (Context* cx, reftype rt, deftype dt) const;
-	void record (Context* cx, reftype rt, deftype dt, Index_node* index);
-	bool has (Context* cx, reftype rt, deftype dt, Index_node* index) const;
+	void record (Context* cx, reftype rt, deftype dt, const Index_node* index);
+	bool has (Context* cx, reftype rt, deftype dt, const Index_node* index) const;
 
-	CX_map<Map<reftype, Map<deftype, Set<const Alias_name*> > > > maps;
+	CX_map<Map<reftype, Map<deftype, Set<const Index_node*> > > > maps;
 
 	// The exit block gets a use for every non-local def. This prevents DCE from
 	// killing them.
-	Map<string, Map<reftype, Map<deftype, Set<const Alias_name*> > > > summary_maps;
+	Map<string, Map<reftype, Map<deftype, Set<const Index_node*> > > > summary_maps;
 };
 
 #endif // PHC_DEF_USE

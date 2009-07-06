@@ -28,8 +28,8 @@ Points_to_impl::Points_to_impl ()
 : reference_count (1)
 {
 	// Pretend this is abstract so that it doesnt get removed.
-	abstract_states [SN("_SESSION")->name()] = Abstract_state::ABSTRACT;
-	abstract_states [SN("FAKE")->name()] = Abstract_state::ABSTRACT;
+	abstract_states [SN("_SESSION")] = Abstract_state::ABSTRACT;
+	abstract_states [SN("FAKE")] = Abstract_state::ABSTRACT;
 }
 
 /*
@@ -37,25 +37,23 @@ Points_to_impl::Points_to_impl ()
  * recursion).
  */
 void
-Points_to_impl::open_scope (Storage_node* st)
+Points_to_impl::open_scope (const Storage_node* st)
 {
-	symtables.insert (st->name ());
+	symtables.insert (st);
 }
 
 void
-Points_to_impl::inc_abstract (Storage_node* st)
+Points_to_impl::inc_abstract (const Storage_node* st)
 {
-	const Alias_name* name = st->name ();
-	abstract_states [name] = Abstract_state::inc (abstract_states [name]);
+	abstract_states [st] = Abstract_state::inc (abstract_states [st]);
 }
 
 void
-Points_to_impl::dec_abstract (Storage_node* st)
+Points_to_impl::dec_abstract (const Storage_node* st)
 {
-	const Alias_name* name = st->name ();
-	abstract_states [name] = Abstract_state::dec (abstract_states [name]);
+	abstract_states [st] = Abstract_state::dec (abstract_states [st]);
 
-	if (abstract_states [name] == Abstract_state::MISSING)
+	if (abstract_states [st] == Abstract_state::MISSING)
 	{
 		// Remove the symbol table. Then do a mark-and-sweep from all the other
 		// symbol tables.
@@ -65,13 +63,13 @@ Points_to_impl::dec_abstract (Storage_node* st)
 }
 
 void
-Points_to_impl::close_scope (Storage_node* st)
+Points_to_impl::close_scope (const Storage_node* st)
 {
 	dec_abstract (st);
 }
 
 bool
-Points_to_impl::is_abstract (Storage_node* st)
+Points_to_impl::is_abstract (const Storage_node* st) const
 {
 	// An abstract storage_node represents more than 1 real node. For example:
 	//		an object instantiation
@@ -84,19 +82,19 @@ Points_to_impl::is_abstract (Storage_node* st)
 	//		multiple times in the (exact) same context
 	//		etc
 	//
-	return abstract_states [st->name()] == Abstract_state::ABSTRACT;
+	return abstract_states [st] == Abstract_state::ABSTRACT;
 }
 
 bool
-Points_to_impl::is_abstract_field (Index_node* index)
+Points_to_impl::is_abstract_field (const Index_node* index) const
 {
 	return is_abstract (get_owner (index));
 }
 
 bool
-Points_to_impl::is_symtable (Storage_node* st)
+Points_to_impl::is_symtable (const Storage_node* st) const
 {
-	return symtables.has (st->name ());
+	return symtables.has (st);
 }
 
 
@@ -106,11 +104,11 @@ Points_to_impl::is_symtable (Storage_node* st)
 
 // Return a list of aliases which are references, and have the same certainty.
 // INDEX is not included in the returned list.
-Reference_list*
-Points_to_impl::get_references (Index_node* index, Certainty cert)
+cReference_list*
+Points_to_impl::get_references (const Index_node* index, Certainty cert) const
 {
-	Reference_list* result = new Reference_list;
-	foreach (Index_node* target, *references.get_targets (index))
+	cReference_list* result = new cReference_list;
+	foreach (const Index_node* target, *references.get_targets (index))
 	{
 		Certainty target_cert = references.get_value (index, target);
 		if (cert & target_cert)
@@ -120,7 +118,7 @@ Points_to_impl::get_references (Index_node* index, Certainty cert)
 }
 
 Certainty
-Points_to_impl::get_reference_cert (Index_node* source, Index_node* target)
+Points_to_impl::get_reference_cert (const Index_node* source, const Index_node* target) const
 {
 	Certainty result = this->references.get_value (source, target);
 	assert (is_valid_certainty (result));
@@ -128,20 +126,20 @@ Points_to_impl::get_reference_cert (Index_node* source, Index_node* target)
 }
 
 Certainty
-Points_to_impl::get_reference_cert (Reference_edge* edge)
+Points_to_impl::get_reference_cert (const Reference_edge* edge) const
 {
 	return get_reference_cert (edge->source, edge->target);
 }
 
 void
-Points_to_impl::add_reference (Index_node* source, Index_node* target, Certainty cert)
+Points_to_impl::add_reference (const Index_node* source, const Index_node* target, Certainty cert)
 {
 	assert (is_valid_certainty (cert));
 
 	this->add_field (source);
 	this->add_field (target);
 
-	if (source->name () == target->name ())
+	if (*source == *target)
 		return;
 
 	if (references.has_edge (source, target) and references.get_value (source, target) != cert)
@@ -154,19 +152,19 @@ Points_to_impl::add_reference (Index_node* source, Index_node* target, Certainty
 
 
 bool
-Points_to_impl::has_reference (Reference_edge* edge)
+Points_to_impl::has_reference (const Reference_edge* edge) const
 {
 	return has_reference (edge->source, edge->target);
 }
 
 bool
-Points_to_impl::has_reference (Index_node* source, Index_node* target)
+Points_to_impl::has_reference (const Index_node* source, const Index_node* target) const
 {
 	return references.has_edge (source, target);
 }
 
 void
-Points_to_impl::remove_reference (Index_node* source, Index_node* target)
+Points_to_impl::remove_reference (const Index_node* source, const Index_node* target)
 {
 	references.remove_edge (source, target);
 	references.remove_edge (target, source);
@@ -177,33 +175,33 @@ Points_to_impl::remove_reference (Index_node* source, Index_node* target)
  * Points-to edges
  */
 
-Storage_node_list*
-Points_to_impl::get_points_to (Index_node* index)
+cStorage_node_list*
+Points_to_impl::get_points_to (const Index_node* index) const
 {
 	return points_to.get_targets (index);
 }
 
-Index_node_list*
-Points_to_impl::get_points_to_incoming (Storage_node* st)
+cIndex_node_list*
+Points_to_impl::get_points_to_incoming (const Storage_node* st) const
 {
 	return points_to.get_sources (st);
 }
 
 void
-Points_to_impl::add_points_to (Index_node* index, Storage_node* st)
+Points_to_impl::add_points_to (const Index_node* index, const Storage_node* st)
 {
 	this->add_field (index);
 	points_to.add_edge (index, st);
 }
 
 bool
-Points_to_impl::has_points_to (Index_node* index, Storage_node* st)
+Points_to_impl::has_points_to (const Index_node* index, const Storage_node* st) const
 {
 	return points_to.has_edge (index, st);
 }
 
 void
-Points_to_impl::remove_points_to (Index_node* index, Storage_node* st)
+Points_to_impl::remove_points_to (const Index_node* index, const Storage_node* st)
 {
 	// If this has no remaining points-to edges, it should be redirected to
 	// point-to NULL (or SCLVAL, whose value should be set to NULL). But its
@@ -217,44 +215,44 @@ Points_to_impl::remove_points_to (Index_node* index, Storage_node* st)
  * Field edges
  */
 
-Index_node_list*
-Points_to_impl::get_fields (Storage_node* st)
+cIndex_node_list*
+Points_to_impl::get_fields (const Storage_node* st) const
 {
 	return fields.get_targets (st);
 }
 
 void
-Points_to_impl::add_field (Index_node* index)
+Points_to_impl::add_field (const Index_node* index)
 {
 	fields.add_edge (SN (index->storage), index);
 }
 
 bool
-Points_to_impl::has_field (Index_node* index)
+Points_to_impl::has_field (const Index_node* index) const
 {
 	return fields.has_edge (SN (index->storage), index);
 }
 
-Storage_node*
-Points_to_impl::get_storage (Index_node* index)
+const Storage_node*
+Points_to_impl::get_storage (const Index_node* index) const
 {
-	Storage_node_list* storage = fields.get_sources (index);
+	cStorage_node_list* storage = fields.get_sources (index);
 	assert (storage->size () == 1);
 	return storage->front ();
 }
 
 
-Index_node_list*
-Points_to_impl::get_incoming (Storage_node* st)
+cIndex_node_list*
+Points_to_impl::get_incoming (const Storage_node* st) const
 {
 	return points_to.get_sources (st);
 }
 
-Storage_node*
-Points_to_impl::get_owner (Index_node* index)
+const Storage_node*
+Points_to_impl::get_owner (const Index_node* index) const
 {
 	// Simplest case: the first and node exist
-	Storage_node_list* storages = fields.get_sources (index);
+	cStorage_node_list* storages = fields.get_sources (index);
 	if (storages->size () == 1)
 		return storages->front ();
 
@@ -269,19 +267,12 @@ Points_to_impl::get_owner (Index_node* index)
 		return SN (index->storage);
 
 
-	// If it ends in ::SCL, its a value node
-	if (index->storage.find ("::SCL") == index->storage.size () - 5)
-	{
-		string new_name = index->storage.substr (0, index->storage.size () - 5);
-		return new Value_node (new_name);
-	}
-
-
-	phc_TODO ();
+	// It must be a value node
+	return new Value_node (index->storage);
 }
 
 void
-Points_to_impl::remove_field (Index_node* index)
+Points_to_impl::remove_field (const Index_node* index)
 {
 	fields.remove_edge (SN (index->storage), index);
 
@@ -298,7 +289,7 @@ Points_to_impl::remove_field (Index_node* index)
  */
 
 bool
-Points_to_impl::has_storage_node (Storage_node* st)
+Points_to_impl::has_storage_node (const Storage_node* st) const
 {
 	return points_to.has_target (st) or fields.has_source (st);
 }
@@ -328,9 +319,9 @@ string print_pair (E* edge, string label)
 	stringstream ss;
 	ss
 	<< "\""
-	<< *escape_DOT (s (edge->source->name ()->str())) 
+	<< *escape_DOT (s (edge->source->str())) 
 	<< "\" -> \"" 
-	<< *escape_DOT (s (edge->target->name ()->str())) 
+	<< *escape_DOT (s (edge->target->str())) 
 	<< "\" [label=\"" << label << "\"];\n"
 	;
 	return ss.str ();
@@ -338,7 +329,7 @@ string print_pair (E* edge, string label)
 
 
 void
-Points_to_impl::dump_graphviz (String* label, Context* cx, Result_state state, Whole_program* wp)
+Points_to_impl::dump_graphviz (String* label, Context* cx, Result_state state, Whole_program* wp) const
 {
 	if (label == NULL)
 	{
@@ -353,11 +344,11 @@ Points_to_impl::dump_graphviz (String* label, Context* cx, Result_state state, W
 	;
 
 	// Add nodes
-	foreach (PT_node* node, *get_nodes ())
+	foreach (const Alias_name* node, *this->get_nodes ())
 	{
 		cout
 		<< "\""
-		<< *escape_DOT (s (node->name()->str ()))
+		<< *escape_DOT (s (node->str ()))
 		<< "\" ["
 		;
 
@@ -373,7 +364,7 @@ Points_to_impl::dump_graphviz (String* label, Context* cx, Result_state state, W
 		if (isa<Value_node> (node))
 		{
 			stringstream cell_label;
-			const Abstract_value* val = wp->get_abstract_value (cx, state, node->name ());
+			const Abstract_value* val = wp->get_abstract_value (cx, state, node);
 			val->dump (cell_label);
 
 			label
@@ -418,13 +409,13 @@ Points_to_impl::dump_graphviz (String* label, Context* cx, Result_state state, W
 	}
 
 	// Add edges
-	foreach (Reference_edge* edge, *references.get_edges ())
+	foreach (const Reference_edge* edge, *references.get_edges ())
 		cout << print_pair (edge, (references.get_value (edge) == POSSIBLE ? "P" : "D"));
 
-	foreach (Field_edge* edge, *fields.get_edges ())
+	foreach (const Field_edge* edge, *fields.get_edges ())
 		cout << print_pair (edge, "");
 
-	foreach (Points_to_edge* edge, *points_to.get_edges ())
+	foreach (const Points_to_edge* edge, *points_to.get_edges ())
 		cout << print_pair (edge, "");
 
 	cout
@@ -433,7 +424,7 @@ Points_to_impl::dump_graphviz (String* label, Context* cx, Result_state state, W
 }
 
 Points_to_impl*
-Points_to_impl::clone ()
+Points_to_impl::clone () const
 {
 	Points_to_impl* result = new Points_to_impl;
 
@@ -451,17 +442,16 @@ Points_to_impl::clone ()
 }
 
 void
-Points_to_impl::consistency_check (Context* cx, Result_state state, Whole_program* wp)
+Points_to_impl::consistency_check (Context* cx, Result_state state, Whole_program* wp) const
 {
-	foreach (Index_node* index, *this->get_index_nodes ())
+	foreach (const Index_node* index, *this->get_index_nodes ())
 	{
-
 		// Check index nodes are pointed to by their storage node
 		if (not this->has_field (index))
 		{
 			dump_graphviz (NULL, cx, state, wp);
 			phc_internal_error ("No field-edge to %s",
-					index->name()->str().c_str());
+					index->str().c_str());
 		}
 
 		// Check every index node points_to something.
@@ -469,18 +459,18 @@ Points_to_impl::consistency_check (Context* cx, Result_state state, Whole_progra
 		{
 			dump_graphviz (NULL, cx, state, wp);
 			phc_internal_error ("No points-to edge from %s",
-					index->name()->str().c_str());
+					index->str().c_str());
 		}
 
 		if (isa<Value_node> (this->get_storage (index)))
 		{
 			dump_graphviz (NULL, cx, state, wp);
 			phc_internal_error ("Abstract values can't have fields %s",
-					index->name()->str().c_str());
+					index->str().c_str());
 		}
 	}
 
-	foreach (Reference_edge* ref_edge, *this->references.get_edges ())
+	foreach (const Reference_edge* ref_edge, *this->references.get_edges ())
 	{
 		Certainty cert = this->references.get_value (ref_edge);
 		if (not is_valid_certainty (cert))
@@ -488,8 +478,8 @@ Points_to_impl::consistency_check (Context* cx, Result_state state, Whole_progra
 			dump_graphviz (NULL, cx, state, wp);
 			phc_internal_error ("Certs can't be %d between %s and %s",
 					cert,
-					ref_edge->source->name()->str().c_str(),
-					ref_edge->target->name()->str().c_str());
+					ref_edge->source->str().c_str(),
+					ref_edge->target->str().c_str());
 		}
 	}
 }
@@ -498,17 +488,17 @@ Points_to_impl::consistency_check (Context* cx, Result_state state, Whole_progra
 
 
 
-Index_node_list*
-Points_to_impl::get_index_nodes ()
+cIndex_node_list*
+Points_to_impl::get_index_nodes () const
 {
-	return filter_types <Index_node> (this->get_nodes ());
+	return filter_types <const Index_node> (this->get_nodes ());
 }
 
 
-Storage_node_list*
-Points_to_impl::get_storage_nodes ()
+cStorage_node_list*
+Points_to_impl::get_storage_nodes () const
 {
-	return filter_types <Storage_node> (this->get_nodes ());
+	return filter_types <const Storage_node> (this->get_nodes ());
 }
 
 
@@ -518,10 +508,10 @@ Points_to_impl::get_storage_nodes ()
 void
 Points_to_impl::remove_unreachable_nodes ()
 {
-	PT_node_list* worklist = new PT_node_list;
+	cAlias_name_list* worklist = new cAlias_name_list;
 
 	// Put all symtables into the worklist
-	foreach (Storage_node* st, *this->get_storage_nodes ())
+	foreach (const Storage_node* st, *this->get_storage_nodes ())
 	{
 		if (this->is_symtable (st) || is_abstract (st))
 			worklist->push_back (st);
@@ -531,33 +521,33 @@ Points_to_impl::remove_unreachable_nodes ()
 	Set<const Alias_name*> reachable;
 	while (worklist->size () > 0)
 	{
-		PT_node* node = worklist->front ();
+		const Alias_name* node = worklist->front ();
 		worklist->pop_front ();
 
-		if (reachable.has (node->name ()))
+		if (reachable.has (node))
 			continue;
 
 		// Mark reachable
-		reachable.insert (node->name ());
+		reachable.insert (node);
 
 		// Fetch the targets
 		if (isa<Storage_node> (node))
 		{
-			Index_node_list* fields = this->get_fields (dyc<Storage_node> (node)); 
-			worklist->push_back_all (rewrap_list<PT_node, Index_node> (fields));
+			cIndex_node_list* fields = this->get_fields (dyc<Storage_node> (node)); 
+			worklist->push_back_all (rewrap_list<const Alias_name, const Index_node> (fields));
 		}
 		else
 		{
 			// Dont follow reference edges (not necessary cause of transitive-closure)
-			Storage_node_list* points_to = this->get_points_to (dyc<Index_node> (node)); 
-			worklist->push_back_all (rewrap_list<PT_node, Storage_node> (points_to));
+			cStorage_node_list* points_to = this->get_points_to (dyc<Index_node> (node)); 
+			worklist->push_back_all (rewrap_list<const Alias_name, const Storage_node> (points_to));
 		}
 	}
 
 	// remove all nodes not marked as reachable
-	foreach (PT_node* node, *this->get_nodes ())
+	foreach (const Alias_name* node, *this->get_nodes ())
 	{
-		if (!reachable.has (node->name ()))
+		if (!reachable.has (node))
 		{
 			this->remove_node (node);
 		}
@@ -570,7 +560,7 @@ Points_to_impl::remove_unreachable_nodes ()
  */
 
 void
-Points_to_impl::remove_node (PT_node* node)
+Points_to_impl::remove_node (const Alias_name* node)
 {
 	if (isa<Index_node> (node))
 		this->remove_field (dyc<Index_node> (node));
@@ -579,7 +569,7 @@ Points_to_impl::remove_node (PT_node* node)
 }
 
 Points_to_impl::reference_pair_type*
-Points_to_impl::merge_references (Points_to_impl* other)
+Points_to_impl::merge_references (Points_to_impl* other) const
 {
 	reference_pair_type* result = this->references.merge (&other->references);
 
@@ -587,7 +577,7 @@ Points_to_impl::merge_references (Points_to_impl* other)
 	// A->C is added too.
 	
 
-	foreach (Reference_edge* edge, *result->get_edges ())
+	foreach (const Reference_edge* edge, *result->get_edges ())
 	{
 		bool this_has = this->has_reference (edge);
 		bool other_has = other->has_reference (edge);
@@ -614,7 +604,7 @@ Points_to_impl::merge_references (Points_to_impl* other)
  * Whole_program, using get_possible_nulls().
  */
 Points_to_impl*
-Points_to_impl::merge (Points_to_impl* other)
+Points_to_impl::merge (Points_to_impl* other) const
 {
 	Points_to_impl* result = new Points_to_impl;
 
@@ -627,7 +617,7 @@ Points_to_impl::merge (Points_to_impl* other)
 
 	// For counts in OTHER, use the max (for counts only in OTHER, OTHER's
 	// version will be used).
-	const Alias_name* name;
+	const Storage_node* name;
 	Abstract_state::AS state;
 	foreach (tie (name, state), other->abstract_states)
 		result->abstract_states [name] = Abstract_state::merge (state, other->abstract_states [name]);
@@ -639,57 +629,48 @@ Points_to_impl::merge (Points_to_impl* other)
 	return result;
 }
 
-PT_node_list*
-Points_to_impl::get_nodes ()
+cAlias_name_list*
+Points_to_impl::get_nodes () const
 {
 	// Only have the nodes once
-	Map<const Alias_name*, PT_node*> all;
+	Set<const Alias_name*> all;
 
-	foreach (Reference_edge* edge, *this->references.get_edges ())
+	foreach (const Reference_edge* edge, *this->references.get_edges ())
 	{
-		all[edge->source->name ()] = edge->source;
-		all[edge->target->name ()] = edge->target;
+		all.insert (edge->source);
+		all.insert (edge->target);
 	}
 
-	foreach (Field_edge* edge, *this->fields.get_edges ())
+	foreach (const Field_edge* edge, *this->fields.get_edges ())
 	{
-		all[edge->source->name ()] = edge->source;
-		all[edge->target->name ()] = edge->target;
+		all.insert (edge->source);
+		all.insert (edge->target);
 	}
 
-	foreach (Points_to_edge* edge, *this->points_to.get_edges ())
+	foreach (const Points_to_edge* edge, *this->points_to.get_edges ())
 	{
-		all[edge->source->name ()] = edge->source;
-		all[edge->target->name ()] = edge->target;
+		all.insert (edge->source);
+		all.insert (edge->target);
 	}
 
-	List<const Alias_name*>* storages = abstract_states.keys ();
-	storages->push_back_all (symtables.to_list ());
-	foreach (const Alias_name* storage, *storages)
-	{
-		if (not all.has (storage))
-		{
-			if (storage->get_name () == "SCL")
-				all[storage] = new Value_node (storage->get_prefix ());
-			else
-				all[storage] = SN (storage->get_name ());
-		}
-	}
+	List<const Storage_node*>* storages = abstract_states.keys ();
+	all.insert (storages->begin (), storages->end ());
+	all.insert (symtables.begin (), symtables.end ());
 
-	return all.values();
+	return all.to_list ();
 }
 
 
 void
-Points_to_impl::remove_storage_node (Storage_node* st)
+Points_to_impl::remove_storage_node (const Storage_node* st)
 {
-	foreach (Index_node* field, *this->get_fields (st))
+	foreach (const Index_node* field, *this->get_fields (st))
 	{
 		remove_field (field);
 	}
 
-	symtables.erase (st->name ());
-	abstract_states.erase (st->name ());
+	symtables.erase (st);
+	abstract_states.erase (st);
 }
 
 /*
@@ -718,22 +699,22 @@ Points_to_impl::convert_context_names ()
 
 
 	// Convert symtable names
-	Set<const Alias_name*> old_symtables = this->symtables;
+	Set<const Storage_node*> old_symtables = this->symtables;
 	this->symtables.clear ();
-	foreach (const Alias_name* name, old_symtables)
+	foreach (const Storage_node* name, old_symtables)
 	{
 		this->symtables.insert (name->convert_context_name ());
 	}
 
 	// Convert abstract counts
 	// I'm not really sure what to do here.
-	const Alias_name* name;
+	const Storage_node* name;
 	Abstract_state::AS state;
-	Map<const Alias_name*, Abstract_state::AS> old_abstract_states = this->abstract_states;
+	Map<const Storage_node*, Abstract_state::AS> old_abstract_states = this->abstract_states;
 	this->abstract_states.clear ();
 	foreach (tie (name, state), old_abstract_states)
 	{
-		const Alias_name* converted = name->convert_context_name ();
+		const Storage_node* converted = name->convert_context_name ();
 		abstract_states[converted] = Abstract_state::merge (state, abstract_states[converted]);
 	}
 }
@@ -768,13 +749,15 @@ FN (string scope, MIR::FIELD_NAME* field)
 }
 
 Value_node*
-SCLVAL (Index_node* node)
+SCLVAL (const Index_node* node)
 {
-	// we dont want to do this on an alias_name, or it'll be difficult.
 	return new Value_node (node);
 }
 
 
+/*
+ * Storage node
+ */
 
 Storage_node::Storage_node (string storage)
 : storage (storage)
@@ -782,47 +765,78 @@ Storage_node::Storage_node (string storage)
 	assert (storage != "");
 }
 
-const Alias_name*
-Storage_node::name ()
+string
+Storage_node::str () const
 {
-	return new Alias_name (SNP, storage);
+	return string(SNP) + "::" + storage;
 }
 
 String*
-Storage_node::get_graphviz_label ()
+Storage_node::get_graphviz_label () const
 {
 	return s(storage);
 }
 
+Storage_node*
+Storage_node::convert_context_name () const
+{
+	return SN (Context::convert_context_name (storage));
+}
+
+
+
+
+/*
+ * Index node
+ */
 
 Index_node::Index_node (string storage, string index)
 : storage (storage)
 , index (index)
 {
 	assert (storage != "");
-
-	// An index can be "", but this can be caused by an error in the analyses.
-	// However, its starting to come up in test code, so we should disable the
-	// assertion.
-//	assert (index != "");
 }
 
-const Alias_name*
-Index_node::name ()
+string
+Index_node::str () const
 {
-	return new Alias_name (storage, index);
+	return this->storage + "::" + this->index;
+}
+
+Index_node*
+Index_node::get_starred_name () const
+{
+	return new Index_node ("*_" + this->storage, this->index);
 }
 
 String*
-Index_node::get_graphviz_label ()
+Index_node::get_graphviz_label () const
 {
 	return s(index);
 }
 
-Value_node::Value_node (Index_node* owner)
-: Storage_node (owner->name()->str())
+Index_node*
+Index_node::convert_context_name () const
+{
+	return new Index_node (
+		Context::convert_context_name (storage),
+		Context::convert_context_name (index));
+}
+
+/*
+ * Value node
+ */
+
+Value_node::Value_node (const Index_node* owner)
+: Storage_node (owner->str())
 {
 	assert (storage != "");
+}
+
+string
+Value_node::str () const
+{
+	return storage + "::" + SCL;
 }
 
 Value_node::Value_node (string owner)
@@ -831,53 +845,18 @@ Value_node::Value_node (string owner)
 	assert (storage != "");
 }
 
-const Alias_name*
-Value_node::name ()
-{
-	return new Alias_name (storage, SCL);
-}
-
 String*
-Value_node::get_graphviz_label ()
+Value_node::get_graphviz_label () const
 {
 	return s("");
 }
 
-
-
-Index_node*
-Index_node::convert_context_name ()
-{
-	return new Index_node (
-		Context::convert_context_name (storage),
-		Context::convert_context_name (index));
-}
-
-
-Storage_node*
-Storage_node::convert_context_name ()
-{
-	return SN (Context::convert_context_name (storage));
-}
-
-
 Value_node*
-Value_node::convert_context_name ()
+Value_node::convert_context_name () const
 {
 	return new Value_node (Context::convert_context_name (storage));
 }
 
-string
-Storage_node::for_index_node ()
-{
-	return this->storage;
-}
-
-string
-Value_node::for_index_node ()
-{
-	return this->name()->str ();
-}
 
 
 /*

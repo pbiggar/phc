@@ -124,35 +124,35 @@ public:
 
 	// This creates a reference between lhs and rhs. Values are propagated
 	// separately.
-	virtual void create_reference (Context* cx, Index_node* lhs,
-											 Index_node* rhs, Certainty cert) CT_IMPL;
+	virtual void create_reference (Context* cx, const Index_node* lhs,
+											 const Index_node* rhs, Certainty cert) CT_IMPL;
 
 	// It might seem that copying should naturally be included here, but
 	// actually copying is has context-dependant semantics, and instead calls
 	// the lower-level functions here.
 
 	// LHS has a value taken from STORAGE. STORAGE must already exist.
-	virtual void assign_value (Context* cx, Index_node* lhs,
-										Storage_node* storage) CT_IMPL;
+	virtual void assign_value (Context* cx, const Index_node* lhs,
+										const Storage_node* storage) CT_IMPL;
 
 	// Create STORAGE, with the gives TYPES.
-	virtual void set_storage (Context* cx, Storage_node* storage,
+	virtual void set_storage (Context* cx, const Storage_node* storage,
 									  const Types* types) CT_IMPL;
 
 	// Create STORAGE, an abstract value with the given types.
-	virtual void set_scalar (Context* cx, Value_node* storage,
+	virtual void set_scalar (Context* cx, const Value_node* storage,
 									 const Abstract_value* val) CT_IMPL;
 
 	/*
 	 * Killing values
 	 */
 
-	virtual void kill_value (Context* cx, Index_node* lhs, bool also_kill_refs = false) CT_IMPL;
+	virtual void kill_value (Context* cx, const Index_node* lhs, bool also_kill_refs = false) CT_IMPL;
 
 	// Its best to have a special call for this, so as not to accidentally do
 	// too much (such as when FAKE must-ref other values, and the other values
 	// get killed).
-	virtual void remove_fake_node (Context* cx, Index_node* fake) CT_IMPL;
+	virtual void remove_fake_node (Context* cx, const Index_node* fake) CT_IMPL;
 
 
 	/*
@@ -160,7 +160,7 @@ public:
 	 */
 
 	// There has been a use of USE, with the certainty CERT.
-	virtual void record_use (Context* cx, Index_node* use,
+	virtual void record_use (Context* cx, const Index_node* use,
 									 Certainty cert) CT_IMPL;
 
 
@@ -181,7 +181,7 @@ public:
 	// fine-grained level, but much easier at a higher level. pulls typically
 	// work on INs, so this needs to be done now, rather than trying to do it
 	// with an out.
-	virtual void pull_possible_null (Context* cx, Index_node* node) CT_IMPL;
+	virtual void pull_possible_null (Context* cx, const Index_node* node) CT_IMPL;
 
 	virtual void pull_finish (Context* cx) CT_IMPL;
 

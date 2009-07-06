@@ -70,23 +70,23 @@ Debug_WPA::post_invoke_method (Context* caller)
 
 
 void
-Debug_WPA::create_reference (Context* cx, Index_node* lhs,
-									  Index_node* rhs, Certainty cert)
+Debug_WPA::create_reference (Context* cx, const Index_node* lhs,
+									  const Index_node* rhs, Certainty cert)
 {
 	DEBUG (__FUNCTION__
-			<< ": " << lhs->name()->str ()
-			<< ", " << rhs->name()->str ()
+			<< ": " << lhs->str ()
+			<< ", " << rhs->str ()
 			<< ", " << cert_to_string (cert));
 }
 
 void
-Debug_WPA::set_scalar (Context* cx, Value_node* storage, const Abstract_value* val)
+Debug_WPA::set_scalar (Context* cx, const Value_node* storage, const Abstract_value* val)
 {
 	CHECK_DEBUG ();
 
 	cdebug
 	<< __FUNCTION__
-	<< ": " << storage->name()->str ()
+	<< ": " << storage->str ()
 	<< ", ";
 
 	val->dump();
@@ -95,13 +95,13 @@ Debug_WPA::set_scalar (Context* cx, Value_node* storage, const Abstract_value* v
 }
 
 void
-Debug_WPA::set_storage (Context* cx, Storage_node* storage, const Types* types)
+Debug_WPA::set_storage (Context* cx, const Storage_node* storage, const Types* types)
 {
 	CHECK_DEBUG ();
 
 	cdebug
 	<< __FUNCTION__
-	<< ": " << storage->name()->str ()
+	<< ": " << storage->str ()
 	<< ", (";
 
 	Type_info::dump_types (cdebug, types);
@@ -110,28 +110,28 @@ Debug_WPA::set_storage (Context* cx, Storage_node* storage, const Types* types)
 }
 
 void
-Debug_WPA::assign_value (Context* cx, Index_node* lhs, Storage_node* storage)
+Debug_WPA::assign_value (Context* cx, const Index_node* lhs, const Storage_node* storage)
 {
 	DEBUG (__FUNCTION__
-	<< ": " << lhs->name()->str ()
-	<< ", " << storage->name()->str ()
+	<< ": " << lhs->str ()
+	<< ", " << storage->str ()
 	);
 }
 
 
 void
-Debug_WPA::kill_value (Context* cx, Index_node* lhs, bool also_kill_refs)
+Debug_WPA::kill_value (Context* cx, const Index_node* lhs, bool also_kill_refs)
 {
 	DEBUG (__FUNCTION__
 	<< (also_kill_refs ? " (and refs)" : "")
-	<< ": " << lhs->name()->str ());
+	<< ": " << lhs->str ());
 }
 
 void
-Debug_WPA::record_use (Context* cx, Index_node* use, Certainty cert)
+Debug_WPA::record_use (Context* cx, const Index_node* use, Certainty cert)
 {
 	DEBUG (__FUNCTION__
-	<< ": " << use->name()->str ()
+	<< ": " << use->str ()
 	<< ", " << cert_to_string (cert));
 }
 
@@ -155,9 +155,9 @@ Debug_WPA::pull_pred (Context* cx, Context* pred)
 }
 
 void
-Debug_WPA::pull_possible_null (Context* cx, Index_node* node)
+Debug_WPA::pull_possible_null (Context* cx, const Index_node* node)
 {
-	DEBUG (__FUNCTION__ << " for " << node->name()->str());
+	DEBUG (__FUNCTION__ << " for " << node->str());
 }
 
 void

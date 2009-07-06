@@ -248,7 +248,8 @@ List<Filter_type*>* filter_types (const List<List_type*>* list)
 typedef List<Object*> Object_list;
 
 #define DECL_LIST(T) typedef List<T*> T##_list;
-#define DECL(T) class T; DECL_LIST (T)
+#define DECL_CONST_LIST(T) typedef List<const T*> c##T##_list;
+#define DECL(T) class T; DECL_LIST(T); DECL_CONST_LIST(T)
 DECL (Boolean);
 DECL (Integer);
 DECL (String);

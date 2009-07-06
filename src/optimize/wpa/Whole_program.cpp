@@ -400,17 +400,17 @@ Whole_program::get_possible_receivers (Context* cx, Result_state state, Target* 
 
 			// Do the killing on all DEFINITE references (we look at references
 			// since they'll all have a SCLVAL node).
-			Reference_list* refs = aliasing->get_references (cx, state, lhs, DEFINITE);
+			cReference_list* refs = aliasing->get_references (cx, state, lhs, DEFINITE);
 			refs->push_back (new Reference (lhs, DEFINITE));
-			foreach (Reference* ref, *refs)
+			foreach (const Reference* ref, *refs)
 			{
-				Storage_node_list* rhss = aliasing->get_points_to (cx, state, ref->index);
-				foreach (Storage_node* rhs, *rhss)
+				cStorage_node_list* rhss = aliasing->get_points_to (cx, state, ref->index);
+				foreach (const Storage_node* rhs, *rhss)
 				{
 					bool fail = true;
 
 					// Object types
-					const Types* types = values->get_types (cx, state, rhs->name ());
+					const Types* types = values->get_types (cx, state, rhs);
 					if (Type_info::get_object_types (types)->size ())
 					{
 						assert (types->size () == 1);
@@ -436,7 +436,7 @@ Whole_program::get_possible_receivers (Context* cx, Result_state state, Target* 
 					{
 
 						// Remove the types from the type inference
-						values->remove_non_objects (cx, state, ref->index->name ());
+						values->remove_non_objects (cx, state, ref->index);
 
 						// Remove that possible edge.
 						aliasing->kill_specific_value (cx, state, ref->index, rhs);
@@ -712,7 +712,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 
 	// It seems I should use a Vector, but I really would like to access this
 	// without having initialized it (and get NULL).
-	Map<int, Index_node*> params;
+	Map<int, const Index_node*> params;
 	Map<int, Path*> paths;
 
 	string symtable = cx->symtable_name ();
@@ -749,7 +749,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 			if (not params.has (i))
 				break;
 
-			const Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[i]->name ());
+			const Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[i]);
 			if (absval->lit == NULL)
 			{
 				all_literals = false;
@@ -942,9 +942,9 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		// TODO: integer indices should be appended. I think we've only seen string indices so far
 		while (params.has (i))
 		{
-			foreach (Storage_node* st, *aliasing->get_points_to (cx, R_WORKING, params[i]))
+			foreach (const Storage_node* st, *aliasing->get_points_to (cx, R_WORKING, params[i]))
 			{
-				foreach (Index_node* index, *aliasing->get_fields (cx, R_WORKING, st))
+				foreach (const Index_node* index, *aliasing->get_fields (cx, R_WORKING, st))
 				{
 					// TODO: we could kill here...
 					Index_node* target = new Index_node (name, index->index);
@@ -986,7 +986,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	{
 		// Return an array with a copy of the named parameters.
 		string name = assign_path_empty_array (cx, ret_path, ANON);
-		foreach (Index_node* param, *params.values ()) // reading
+		foreach (const Index_node* param, *params.values ()) // reading
 		{
 			// For a parameter P1, in this scope SC1, with the caller scope SC0, this is:
 			// (ARR -> (SC1 -> P1)) = (SC0 -> (SC1 -> P1))
@@ -1008,8 +1008,8 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	{
 		// Read parameters
 		params[0] = coerce_to_string (cx, params[0]);
-		const Abstract_value* name = get_abstract_value (cx, R_WORKING, params[0]->name ());
-		const Abstract_value* value = get_abstract_value (cx, R_WORKING, params[1]->name ());
+		const Abstract_value* name = get_abstract_value (cx, R_WORKING, params[0]);
+		const Abstract_value* value = get_abstract_value (cx, R_WORKING, params[1]);
 		if (params[3])
 			phc_TODO (); // case-insensitive
 
@@ -1048,7 +1048,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 
 		if (aliasing->has_field (cx, R_WORKING, params[0])) // TODO: just use params[0]?
 		{
-			const Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]->name());
+			const Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]);
 
 			if (absval->known_true ())
 				can_be_array = false;
@@ -1107,7 +1107,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 
 		string type_name = types[*info->name];
 
-		const Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]->name());
+		const Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]);
 
 		// If the type is the only type, this is true.
 		if (*absval->types == Types (type_name))
@@ -1125,7 +1125,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	}
 	else if (*info->name == "is_numeric")
 	{
-		const Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]->name());
+		const Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]);
 		Types* types = absval->types->clone ();
 		bool has_numeric = types->has ("int") || types->has ("real");
 		types->erase ("int");
@@ -1146,7 +1146,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	}
 	else if (*info->name == "is_object")
 	{
-		const Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]->name());
+		const Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]);
 		Types* obj_types = Type_info::get_object_types (absval->types);
 
 		if (absval->types->size () == obj_types->size ()) // all objects
@@ -1164,15 +1164,15 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	}
 	else if (*info->name == "max" || *info->name == "min")
 	{
-		const Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]->name());
+		const Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]);
 		if (absval->types->has ("array"))
 			phc_TODO ();
 
 
 		Types* result = new Types;
-		foreach (Index_node* param, *params.values ())
+		foreach (const Index_node* param, *params.values ())
 		{
-			const Abstract_value* absval = get_abstract_value (cx, R_WORKING, param->name());
+			const Abstract_value* absval = get_abstract_value (cx, R_WORKING, param);
 
 			// Can only return scalars (um, probably).
 			result = result->set_union (Type_info::get_scalar_types (absval->types));
@@ -1216,7 +1216,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	else if (*info->name == "ob_start")
 	{
 		// ob_start seems to always have 1 param, which is a callback.
-		const Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]->name());
+		const Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]);
 		if (*absval->types != Types ("unset"))
 			phc_TODO ();
 		
@@ -1250,12 +1250,12 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	else if (*info->name == "preg_replace"
 			|| *info->name == "str_replace")
 	{
-		const Abstract_value* replacement = get_abstract_value (cx, R_WORKING, params[1]->name());
+		const Abstract_value* replacement = get_abstract_value (cx, R_WORKING, params[1]);
 		foreach (string type, *replacement->types)
 			if (type != "array" && not Type_info::is_scalar (type))
 				phc_TODO ();
 
-		const Abstract_value* subject = get_abstract_value (cx, R_WORKING, params[2]->name());
+		const Abstract_value* subject = get_abstract_value (cx, R_WORKING, params[2]);
 		foreach (string type, *subject->types)
 			if (type != "array" && not Type_info::is_scalar (type))
 				phc_TODO ();
@@ -1277,8 +1277,8 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	else if (*info->name == "range")
 	{
 		// Returns an array with a range of values of the given type.
-		const Abstract_value* absval0 = get_abstract_value (cx, R_WORKING, params[0]->name());
-		const Abstract_value* absval1 = get_abstract_value (cx, R_WORKING, params[1]->name());
+		const Abstract_value* absval0 = get_abstract_value (cx, R_WORKING, params[0]);
+		const Abstract_value* absval1 = get_abstract_value (cx, R_WORKING, params[1]);
 		Types* merged = absval0->types->set_union (absval1->types);
 
 		assign_path_typed_array (cx, ret_path, merged, ANON);
@@ -1293,13 +1293,13 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	{
 		// TODO: It shouldn't be an object or array
 		params[0] = coerce_to_string (cx, params[0]);
-		const Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]->name());
+		const Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]);
 		assign_path_scalar (cx, ret_path, absval);
 	}
 	else if (*info->name == "var_export")
 	{
 		// Return string or NULL depending on true/false.
-		const Abstract_value* absval1 = get_abstract_value (cx, R_WORKING, params[1]->name());
+		const Abstract_value* absval1 = get_abstract_value (cx, R_WORKING, params[1]);
 
 		Types* types = new Types;
 		if (not absval1->known_false ())
@@ -1569,19 +1569,19 @@ Whole_program::analyse_block (Context* cx)
  * in a graph in which it does not appear.
  * It may also be NULL if it references NULL in any of the graphs.
  */
-Index_node_list*
+cIndex_node_list*
 Whole_program::get_possible_nulls (Context_list* cxs)
 {
-	Index_node_list* norefs = new Index_node_list;
+	cIndex_node_list* norefs = new cIndex_node_list;
 
 	Set<const Alias_name*> existing;
 
 	// Get the nodes which exist in some graph, but do not exist in other graphs.
 	foreach (Context* cx, *cxs)
 	{
-		foreach (Storage_node* st, *aliasing->get_storage_nodes (cx, R_OUT))
+		foreach (const Storage_node* st, *aliasing->get_storage_nodes (cx, R_OUT))
 		{
-			foreach (Index_node* index, *aliasing->get_fields (cx, R_OUT, st))
+			foreach (const Index_node* index, *aliasing->get_fields (cx, R_OUT, st))
 			{
 				// Check all the other graphs
 				foreach (Context* other, *cxs)
@@ -1593,9 +1593,9 @@ Whole_program::get_possible_nulls (Context_list* cxs)
 						&& !aliasing->has_field (other, R_OUT, index))
 					{
 						// Add it
-						if (!existing.has (index->name()))
+						if (!existing.has (index))
 						{
-							existing.insert (index->name ());
+							existing.insert (index);
 							norefs->push_back (index);
 						}
 					}
@@ -1625,7 +1625,7 @@ Whole_program::pull_results (Context* cx, BB_list* bb_preds)
 
 	// Some index nodes may only have existed on one path. If their storage
 	// node exists, then we assume that they are NULL on the other paths.
-	Index_node_list* possible_nulls = this->get_possible_nulls (preds);
+	cIndex_node_list* possible_nulls = this->get_possible_nulls (preds);
 
 	// Separate the first from the remainder, to simplfiy the remainder.
 	Context* first = preds->front ();
@@ -1640,7 +1640,7 @@ Whole_program::pull_results (Context* cx, BB_list* bb_preds)
 		FWPA->pull_pred (cx, pred);
 
 	// Use possible NULLs
-	foreach (Index_node* index, *possible_nulls)
+	foreach (const Index_node* index, *possible_nulls)
 		FWPA->pull_possible_null (cx, index);
 
 	FWPA->pull_finish (cx);
@@ -1902,7 +1902,7 @@ Whole_program::backward_bind (Method_info* info, Context* exit_cx, MIR::VARIABLE
  *	4.) its name is not UNKNOWN.
  */
 bool
-Whole_program::is_killable (Context* cx, Index_node_list* indices)
+Whole_program::is_killable (Context* cx, cIndex_node_list* indices)
 {
 	// Allow it to be turned off at the command-line.
 	if (pm->args_info->flow_insensitive_flag)
@@ -1911,7 +1911,7 @@ Whole_program::is_killable (Context* cx, Index_node_list* indices)
 	if (indices->size () > 1)
 		return false;
 
-	Index_node* index = indices->front ();
+	const Index_node* index = indices->front ();
 	
 	if (aliasing->is_abstract_field (cx, R_WORKING, index))
 		return false;
@@ -1923,13 +1923,13 @@ Whole_program::is_killable (Context* cx, Index_node_list* indices)
 }
 
 void
-Whole_program::refer_to_value (Context* cx, Index_node* lhs, Index_node* rhs, Certainty cert)
+Whole_program::refer_to_value (Context* cx, const Index_node* lhs, const Index_node* rhs, Certainty cert)
 {
 	// Create the references
-	foreach (Storage_node* st, *aliasing->get_points_to (cx, R_WORKING, rhs))
+	foreach (const Storage_node* st, *aliasing->get_points_to (cx, R_WORKING, rhs))
 	{
 		if (isa<Value_node> (st))
-			assign_absval (cx, lhs, get_abstract_value (cx, R_WORKING, st->name ()));
+			assign_absval (cx, lhs, get_abstract_value (cx, R_WORKING, st));
 		else
 			// Make L point to the value (not a deep copy, under any circumstances).
 			FWPA->assign_value (cx, lhs, st);
@@ -1942,7 +1942,7 @@ Whole_program::refer_to_value (Context* cx, Index_node* lhs, Index_node* rhs, Ce
 	// Note that we aren't required to do unification, even though the
 	// edges are bidirectional. It may be that A may-ref B and A may-ref
 	// C, but B does not may-ref C. An example is after CFG merges.
-	foreach (Reference* ref, *aliasing->get_references (cx, R_WORKING, rhs, PTG_ALL))
+	foreach (const Reference* ref, *aliasing->get_references (cx, R_WORKING, rhs, PTG_ALL))
 		FWPA->create_reference (cx, lhs, ref->index, combine_certs (cert, ref->cert));
 
 
@@ -1973,20 +1973,20 @@ Whole_program::assign_path_by_ref (Context* cx, Path* plhs, Path* prhs, bool all
 	Index_node* fake = create_fake_index (cx);
 
 	// Get the Rvalues
-	Index_node_list* rhss = get_named_indices (cx, prhs);
+	cIndex_node_list* rhss = get_named_indices (cx, prhs);
 	bool rhs_killable = is_killable (cx, rhss) && allow_kill;
 	Certainty rhs_cert = rhs_killable ? DEFINITE : POSSIBLE;
 
 
 	// Get the lvalues (best to get them early, in case they get changed by the
 	// new references to the rvalues)
-	Index_node_list* lhss = get_named_indices (cx, plhs);
+	cIndex_node_list* lhss = get_named_indices (cx, plhs);
 	bool lhs_killable = is_killable (cx, lhss) && allow_kill;
 	Certainty lhs_cert = lhs_killable ? DEFINITE : POSSIBLE;
 
 
 	// Create the references in FAKE from RHS
-	foreach (Index_node* rhs, *rhss)
+	foreach (const Index_node* rhs, *rhss)
 	{
 		rhs = check_owner_type (cx, rhs);
 
@@ -2007,7 +2007,7 @@ Whole_program::assign_path_by_ref (Context* cx, Path* plhs, Path* prhs, bool all
 		FWPA->kill_value (cx, lhss->front (), true);
 	}
 
-	foreach (Index_node* lhs, *lhss)
+	foreach (const Index_node* lhs, *lhss)
 	{
 		refer_to_value (cx, lhs, fake, lhs_cert);
 	}
@@ -2019,7 +2019,7 @@ Whole_program::assign_path_static_array (Context* cx, Path* plhs, Static_array* 
 	DEBUG ("assign_path_static_value");
 
 	// Build the array
-	Storage_node* result = build_static_array (cx, array);
+	const Storage_node* result = build_static_array (cx, array);
 	assign_path_value (cx, plhs, result, allow_kill);
 }
 
@@ -2069,7 +2069,7 @@ Whole_program::assign_path_scalar (Context* cx, Path* plhs, const Abstract_value
 	Index_node* fake = create_fake_index (cx);
 	assign_absval (cx, fake, absval);
 
-	foreach (Reference* lhs_ref, *get_lhs_references (cx, plhs))
+	foreach (const Reference* lhs_ref, *get_lhs_references (cx, plhs))
 	{
 		if (lhs_ref->cert == DEFINITE && allow_kill)
 		{
@@ -2109,12 +2109,12 @@ Whole_program::assign_path_typed (Context* cx, Path* plhs, const Types* types, b
 }
 
 void
-Whole_program::assign_path_value (Context* cx, Path* plhs, Storage_node* st, bool allow_kill)
+Whole_program::assign_path_value (Context* cx, Path* plhs, const Storage_node* st, bool allow_kill)
 {
 	DEBUG ("assign_path_value");
 
 	// Assign the value to all referenced names.
-	foreach (Reference* ref, *get_lhs_references (cx, plhs))
+	foreach (const Reference* ref, *get_lhs_references (cx, plhs))
 	{
 		if (ref->cert == DEFINITE && allow_kill)
 		{
@@ -2161,7 +2161,7 @@ Whole_program::assign_path_unknown (Context* cx, Path* plhs, bool allow_kill)
 
 	// Unknown may be an array, a scalar or an object, all of which have
 	// different properties. We must be careful to separate these.
-	foreach (Reference* ref, *get_lhs_references (cx, plhs))
+	foreach (const Reference* ref, *get_lhs_references (cx, plhs))
 	{
 		// When assigning to different references:
 		//		- scalar values are copied (though they are conceptually shared,
@@ -2214,13 +2214,13 @@ Whole_program::assign_path_by_copy (Context* cx, Path* plhs, Path* prhs, bool al
 	// We keep the graph in transitive-closure form, so each RHS will have
 	// all the values of its references already. Therefore, there is no need
 	// for a call to get_lhs_references ().
-	foreach (Index_node* rhs, *get_named_indices (cx, prhs, true))
+	foreach (const Index_node* rhs, *get_named_indices (cx, prhs, true))
 		copy_value (cx, fake, rhs);
 
 
 
 	/* Now that we have the new value, and its separated from the RHS. */
-	foreach (Reference* lhs_ref, *get_lhs_references (cx, plhs))
+	foreach (const Reference* lhs_ref, *get_lhs_references (cx, plhs))
 	{
 		if (lhs_ref->cert == DEFINITE && allow_kill)
 		{
@@ -2242,13 +2242,13 @@ Whole_program::assign_path_by_cast (Context* cx, Path* plhs, Path* prhs, string 
 	// We keep the graph in transitive-closure form, so each RHS will have
 	// all the values of its references already. Therefore, there is no need
 	// for a call to get_lhs_references ().
-	foreach (Index_node* rhs, *get_named_indices (cx, prhs, true))
+	foreach (const Index_node* rhs, *get_named_indices (cx, prhs, true))
 		cast_value (cx, fake, rhs, type);
 
 
 
 	/* Now that we have the new value, and its separated from the RHS,  */
-	foreach (Reference* lhs_ref, *get_lhs_references (cx, plhs))
+	foreach (const Reference* lhs_ref, *get_lhs_references (cx, plhs))
 	{
 		if (lhs_ref->cert == DEFINITE && allow_kill)
 		{
@@ -2260,14 +2260,14 @@ Whole_program::assign_path_by_cast (Context* cx, Path* plhs, Path* prhs, string 
 }
 
 void
-Whole_program::assign_absval (Context* cx, Index_node* lhs, const Abstract_value* absval)
+Whole_program::assign_absval (Context* cx, const Index_node* lhs, const Abstract_value* absval)
 {
 	FWPA->set_scalar (cx, SCLVAL (lhs), absval);
 	FWPA->assign_value (cx, lhs, SCLVAL (lhs));
 }
 
 void
-Whole_program::copy_value (Context* cx, Index_node* lhs, Index_node* rhs, Name_map map)
+Whole_program::copy_value (Context* cx, const Index_node* lhs, const Index_node* rhs, Name_map map)
 {
 	lhs = check_owner_type (cx, lhs);
 
@@ -2294,10 +2294,10 @@ Whole_program::copy_value (Context* cx, Index_node* lhs, Index_node* rhs, Name_m
 	record_use (cx, rhs);
 
 	// Get the value for each RHS. Copy it using the correct semantics.
-	foreach (Storage_node* st, *aliasing->get_points_to (cx, R_WORKING, rhs))
+	foreach (const Storage_node* st, *aliasing->get_points_to (cx, R_WORKING, rhs))
 	{
 		// Get the type of the value
-		const Types* types = values->get_types (cx, R_WORKING, st->name());
+		const Types* types = values->get_types (cx, R_WORKING, st);
 
 		// It must be either all scalars, array, list of classes, or bottom.
 		Types* scalars = Type_info::get_scalar_types (types);
@@ -2308,7 +2308,7 @@ Whole_program::copy_value (Context* cx, Index_node* lhs, Index_node* rhs, Name_m
 
 		if (scalars->size())
 		{
-			assign_absval (cx, lhs, get_abstract_value (cx, R_WORKING, st->name ()));
+			assign_absval (cx, lhs, get_abstract_value (cx, R_WORKING, st));
 		}
 
 		// Deep copy
@@ -2326,7 +2326,7 @@ Whole_program::copy_value (Context* cx, Index_node* lhs, Index_node* rhs, Name_m
 }
 
 void
-Whole_program::cast_value (Context* cx, Index_node* lhs, Index_node* rhs, string type)
+Whole_program::cast_value (Context* cx, const Index_node* lhs, const Index_node* rhs, string type)
 {
 	DEBUG ("cast_value");
 
@@ -2340,10 +2340,10 @@ Whole_program::cast_value (Context* cx, Index_node* lhs, Index_node* rhs, string
 	// overwriting the GLOBALS array with an integer)
 	record_use (cx, rhs);
 
-	const Abstract_value* absval = get_abstract_value (cx, R_WORKING, rhs->name ());
+	const Abstract_value* absval = get_abstract_value (cx, R_WORKING, rhs);
 	if (Type_info::is_scalar (type))
 	{
-		const Abstract_value* absval = get_abstract_value (cx, R_WORKING, rhs->name ());
+		const Abstract_value* absval = get_abstract_value (cx, R_WORKING, rhs);
 		if (absval->lit == NULL)
 		{
 			if (type == "string")
@@ -2377,14 +2377,14 @@ Whole_program::cast_value (Context* cx, Index_node* lhs, Index_node* rhs, string
 /* Handle all the string coersions. If node is a string, return it. If it is an
  * object, call toString, and return the Index_node storing its value. If its
  * another type, perform the coersion. */
-Index_node*
-Whole_program::coerce_to_string (Context* cx, Index_node* node)
+const Index_node*
+Whole_program::coerce_to_string (Context* cx, const Index_node* node)
 {
 	if (node == NULL)
 		return NULL;
 
 
-	const Abstract_value* absval = get_abstract_value (cx, R_WORKING, node->name ());
+	const Abstract_value* absval = get_abstract_value (cx, R_WORKING, node);
 
 	Types* objects = Type_info::get_object_types (absval->types);
 	if (objects->size ())
@@ -2400,12 +2400,12 @@ Whole_program::coerce_to_string (Context* cx, Index_node* node)
 }
 
 void
-Whole_program::cast_to_storage (Context* cx, Index_node* lhs, Index_node* rhs, string type)
+Whole_program::cast_to_storage (Context* cx, const Index_node* lhs, const Index_node* rhs, string type)
 {
-	foreach (Storage_node* st, *aliasing->get_points_to (cx, R_WORKING, rhs))
+	foreach (const Storage_node* st, *aliasing->get_points_to (cx, R_WORKING, rhs))
 	{
 		// Get the type of the value
-		const Types* types = values->get_types (cx, R_WORKING, st->name());
+		const Types* types = values->get_types (cx, R_WORKING, st);
 
 		// It must be either all scalars, array, list of classes, or bottom.
 		Types* scalars = Type_info::get_scalar_types (types);
@@ -2419,13 +2419,13 @@ Whole_program::cast_to_storage (Context* cx, Index_node* lhs, Index_node* rhs, s
 			Storage_node* new_array = create_empty_storage (cx, type);
 
 			// If its not null, it must be put in the "scalar" field
-			const Abstract_value* absval = get_abstract_value (cx, R_WORKING, st->name ());
+			const Abstract_value* absval = get_abstract_value (cx, R_WORKING, st);
 			if (not isa<NIL> (C(absval->lit)))
 			{
 				// Copy to a new array to the "scalar" field.
 				assign_absval (cx,
 									new Index_node (new_array->storage, "scalar"),
-									get_abstract_value (cx, R_WORKING, st->name ()));
+									get_abstract_value (cx, R_WORKING, st));
 			}
 
 
@@ -2449,7 +2449,7 @@ Whole_program::cast_to_storage (Context* cx, Index_node* lhs, Index_node* rhs, s
 // This does a shallow copy, but if the shallow copy has arrays, it becomes a
 // deep copy of the array (aka, it does the right thing).
 void
-Whole_program::copy_structure (Context* cx, Index_node* lhs, Storage_node* rhs, string type, Name_map map)
+Whole_program::copy_structure (Context* cx, const Index_node* lhs, const Storage_node* rhs, string type, Name_map map)
 {
 	Storage_node* new_array;
 
@@ -2465,10 +2465,10 @@ Whole_program::copy_structure (Context* cx, Index_node* lhs, Storage_node* rhs, 
 		map[rhs->storage] = new_array->storage;
 
 		// Copy all the indices.
-		foreach (Index_node* index, *aliasing->get_fields (cx, R_WORKING, rhs))
+		foreach (const Index_node* index, *aliasing->get_fields (cx, R_WORKING, rhs))
 		{
 			copy_value (cx,
-					new Index_node (new_array->for_index_node (), index->index),
+					new Index_node (new_array->storage, index->index),
 					index,
 					map);
 		}
@@ -2510,7 +2510,7 @@ Whole_program::create_fake_index (Context* cx)
 void
 Whole_program::destroy_fake_indices (Context* cx)
 {
-	foreach (Index_node* fake, *aliasing->get_fields (cx, R_WORKING, SN ("FAKE")))
+	foreach (const Index_node* fake, *aliasing->get_fields (cx, R_WORKING, SN ("FAKE")))
 	{
 		FWPA->remove_fake_node (cx, fake);
 	}
@@ -2524,11 +2524,11 @@ Whole_program::destroy_fake_indices (Context* cx)
  * Check if the storage node of INDEX is a scalar, and handle it (in a
  * non-readonly sense).
  */
-Index_node*
-Whole_program::check_owner_type (Context* cx, Index_node* index)
+const Index_node*
+Whole_program::check_owner_type (Context* cx, const Index_node* index)
 {
-	Storage_node* owner = aliasing->get_owner (cx, R_WORKING, index);
-	const Types* types = values->get_types (cx, R_WORKING, owner->name ());
+	const Storage_node* owner = aliasing->get_owner (cx, R_WORKING, index);
+	const Types* types = values->get_types (cx, R_WORKING, owner);
 	Types* scalar_types = Type_info::get_scalar_types (types);
 
 	if (scalar_types->size ())
@@ -2558,7 +2558,7 @@ Whole_program::check_owner_type (Context* cx, Index_node* index)
 			 * If this is NIL, then it must be a value_node, so we can get the
 			 * index node that points to it, and there can only be one such node.
 			 */
-			Index_node* owner_index = aliasing->get_incoming (cx, R_WORKING, owner)->front ();
+			const Index_node* owner_index = aliasing->get_incoming (cx, R_WORKING, owner)->front ();
 
 
 			/* We might be able to kill the current value! But not if it has > 1
@@ -2571,13 +2571,13 @@ Whole_program::check_owner_type (Context* cx, Index_node* index)
 			Storage_node* st = create_empty_storage (cx, "array");
 
 			// We need to point not just this node, but all references, at the new array
-			Reference_list* refs = aliasing->get_references (cx, 
+			cReference_list* refs = aliasing->get_references (cx, 
 					R_WORKING, owner_index, PTG_ALL);
 
 			refs->push_back (new Reference (owner_index, DEFINITE));
 
 			// references are immutable
-			foreach (Reference* ref, *refs)
+			foreach (const Reference* ref, *refs)
 			{
 				Certainty final_cert = combine_certs (ref->cert, cert);
 
@@ -2605,16 +2605,16 @@ Whole_program::check_owner_type (Context* cx, Index_node* index)
 
 
 const Abstract_value*
-Whole_program::read_from_scalar_value (Context* cx, Index_node* rhs)
+Whole_program::read_from_scalar_value (Context* cx, const Index_node* rhs)
 {
 	// Special case - the RHS's storage node might be a sclval (however, if it
 	// has both an sclval and another storage node, then the other storage nodes
 	// will be handled in a different call, and we need concern ourselves only
 	// with the sclval here).
-	Storage_node* st = aliasing->get_owner (cx, R_WORKING, rhs);
+	const Storage_node* st = aliasing->get_owner (cx, R_WORKING, rhs);
 
 	// Get the type of the value
-	const Types* types = values->get_types (cx, R_WORKING, st->name());
+	const Types* types = values->get_types (cx, R_WORKING, st);
 
 	// It must be either all scalars, array, or list of classes.
 	const Types* scalars = Type_info::get_scalar_types (types);
@@ -2639,7 +2639,7 @@ Whole_program::read_from_scalar_value (Context* cx, Index_node* rhs)
 	{
 		if (scalars->has ("string"))
 		{
-			const Literal* array = values->get_lit (cx, R_WORKING, st->name ());
+			const Literal* array = values->get_lit (cx, R_WORKING, st);
 			string index = rhs->index;
 			if (array && index != UNKNOWN)
 			{
@@ -2680,7 +2680,7 @@ Whole_program::read_from_scalar_value (Context* cx, Index_node* rhs)
 
 
 void
-Whole_program::record_use (Context* cx, Index_node* node)
+Whole_program::record_use (Context* cx, const Index_node* node)
 {
 	// TODO: this marks it as a use, not a must use. Is there any difference
 	// as far as analyses are concerned? If so, fix this. If not, remove the
@@ -2708,10 +2708,10 @@ Whole_program::ruin_everything (Context* cx, Path* plhs)
  * disambiguate for indexing other nodes.
  */
 String*
-Whole_program::get_string_value (Context* cx, Index_node* index)
+Whole_program::get_string_value (Context* cx, const Index_node* index)
 {
 	index = coerce_to_string (cx, index);
-	const Abstract_value* absval = get_abstract_value (cx, R_WORKING, index->name ());
+	const Abstract_value* absval = get_abstract_value (cx, R_WORKING, index);
 	if (absval->lit == NULL)
 		return s (UNKNOWN);
 
@@ -2738,11 +2738,11 @@ Whole_program::get_abstract_value (Context* cx, Result_state state, VARIABLE_NAM
 
 	if (aliasing->has_field (cx, state, var_index))
 	{
-		return get_abstract_value (cx, state, var_index->name ());
+		return get_abstract_value (cx, state, var_index);
 	}
 
 	Index_node* unknown_index = new Index_node (ns, UNKNOWN);
-	return get_abstract_value (cx, state, unknown_index->name ());
+	return get_abstract_value (cx, state, unknown_index);
 }
 
 
@@ -2787,7 +2787,7 @@ Index_node* path_to_index (Path* p)
  *	stored in transitive-closure form (ie if A ref B, B's outgoing nodes should
  *	exist in A).
  */
-Index_node_list*
+cIndex_node_list*
 Whole_program::get_named_indices (Context* cx, Path* path, bool is_readonly)
 {
 	/*
@@ -2806,7 +2806,7 @@ Whole_program::get_named_indices (Context* cx, Path* path, bool is_readonly)
 	{
 		// I'm almost certain that any use of UNKNOWN here refers directly to the
 		// single field, and not to the set of possible fields.
-		return new Index_node_list (path_to_index (p));
+		return new cIndex_node_list (path_to_index (p));
 	}
 
 	/*
@@ -2826,11 +2826,11 @@ Whole_program::get_named_indices (Context* cx, Path* path, bool is_readonly)
 
 		// We need to convert ST::UNKNOWN to all possible variables.
 		if (single_result->index != UNKNOWN)
-			return new Index_node_list (single_result);
+			return new cIndex_node_list (single_result);
 
 
-		Index_node_list* result = new Index_node_list (single_result);
-		foreach (Index_node* var, *aliasing->get_fields (cx, R_WORKING, SN (single_result->storage)))
+		cIndex_node_list* result = new cIndex_node_list (single_result);
+		foreach (const Index_node* var, *aliasing->get_fields (cx, R_WORKING, SN (single_result->storage)))
 		{
 			// Already added
 			if (var->index == UNKNOWN)
@@ -2886,10 +2886,10 @@ Whole_program::get_named_indices (Context* cx, Path* path, bool is_readonly)
 	phc_unreachable ();
 }
 
-Index_node_list*
+cIndex_node_list*
 Whole_program::get_array_named_indices (Context* cx, Path* plhs, String* index, bool is_readonly)
 {
-	Index_node_list* result = new Index_node_list;
+	cIndex_node_list* result = new cIndex_node_list;
 
 	Index_node* array = path_to_index (dyc<Indexing> (plhs));
 
@@ -2934,7 +2934,7 @@ Whole_program::get_array_named_indices (Context* cx, Path* plhs, String* index, 
 	 * Get the index nodes.
 	 */
 
-	Storage_node_list* storages = aliasing->get_points_to (cx, R_WORKING, array);
+	cStorage_node_list* storages = aliasing->get_points_to (cx, R_WORKING, array);
 
 
 	// We only read the value of INDEX, so we don't need the implicit array
@@ -2945,22 +2945,22 @@ Whole_program::get_array_named_indices (Context* cx, Path* plhs, String* index, 
 		storages->push_back (SCLVAL (array));
 	}
 
-	foreach (Storage_node* storage, *storages)
+	foreach (const Storage_node* storage, *storages)
 	{
 		if (*index == UNKNOWN)
 		{
 			// Reading an abstract value: set it up for whole_program.
 			if (isa<Value_node> (storage))
-				result->push_back (new Index_node (storage->for_index_node (), *index));
+				result->push_back (new Index_node (storage->storage, *index));
 			else
 			{
 				// Include all possible nodes
-				foreach (Index_node* field, *aliasing->get_fields (cx, R_WORKING, storage))
+				foreach (const Index_node* field, *aliasing->get_fields (cx, R_WORKING, storage))
 					result->push_back (field);
 			}
 		}
 		else
-			result->push_back (new Index_node (storage->for_index_node (), *index));
+			result->push_back (new Index_node (storage->storage, *index));
 	}
 
 	// Even in weird cases, we should always return something.
@@ -2972,24 +2972,24 @@ Whole_program::get_array_named_indices (Context* cx, Path* plhs, String* index, 
 
 
 
-Reference_list*
+cReference_list*
 Whole_program::get_lhs_references (Context* cx, Path* path)
 {
 	// Returns a list of (Index_node, certainty) pairs. Although the certainty
 	// originally comes from alias analysis, it is updated to reflect if the
 	// index_node is killable, from is_killable().
 
-	Index_node_list* lhss = get_named_indices (cx, path);
-	Reference_list* refs = new Reference_list;
+	cIndex_node_list* lhss = get_named_indices (cx, path);
+	cReference_list* refs = new cReference_list;
 
 	bool killable = is_killable (cx, lhss);
-	foreach (Index_node* lhs, *lhss)
+	foreach (const Index_node* lhs, *lhss)
 	{
-		Reference_list* initial_refs = aliasing->get_references (cx, R_WORKING, lhs, PTG_ALL);
+		cReference_list* initial_refs = aliasing->get_references (cx, R_WORKING, lhs, PTG_ALL);
 		initial_refs->push_back (new Reference (lhs, DEFINITE));
 
 		// references are immutable
-		foreach (Reference* ref, *initial_refs)
+		foreach (const Reference* ref, *initial_refs)
 			refs->push_back (new Reference (
 				ref->index,
 				killable ? ref->cert : POSSIBLE));
@@ -3164,7 +3164,7 @@ Whole_program::visit_pre_op (Statement_block* bb, Pre_op* in)
 	Index_node* n = VN (ns, in->variable_name);
 
 	// Case where we know the value
-	const Literal* value = values->get_lit (block_cx (), R_WORKING, n->name ());
+	const Literal* value = values->get_lit (block_cx (), R_WORKING, n);
 	if (value)
 	{
 		Literal* result = PHP::fold_pre_op (C(value), in->op);
@@ -3173,7 +3173,7 @@ Whole_program::visit_pre_op (Statement_block* bb, Pre_op* in)
 	}
 
 	// Maybe we know the type?
-	const Types* types = values->get_types (block_cx (), R_WORKING, n->name());
+	const Types* types = values->get_types (block_cx (), R_WORKING, n);
 	assign_path_typed (block_cx (), path, types);
 }
 
@@ -3212,7 +3212,7 @@ Whole_program::visit_unset (Statement_block* bb, MIR::Unset* in)
 
 	// FYI, unset ($x[$y]), where $x is not set, does nothing. Therefore,
 	// RHS_BY_REF does not need to be set for the call the get_named_indices.
-	Index_node_list* indices = get_named_indices (block_cx (), path);
+	cIndex_node_list* indices = get_named_indices (block_cx (), path);
 	bool lhs_killable = is_killable (block_cx (), indices);
 
 	// Send the results to the analyses for all variables which could be
@@ -3222,7 +3222,7 @@ Whole_program::visit_unset (Statement_block* bb, MIR::Unset* in)
 	if (lhs_killable)
 	{
 		// Kill the value and the reference
-		foreach (Index_node* index, *indices)
+		foreach (const Index_node* index, *indices)
 		{
 			FWPA->kill_value (block_cx (), index, true);
 		}

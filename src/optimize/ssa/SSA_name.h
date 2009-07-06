@@ -30,9 +30,6 @@ public:
 	std::string str () const;
 	std::string get_name () const;
 
-	// Get key for indexing var_stacks
-	std::string non_ssa_str () const;
-
 	// We'd like to make these private
 	int get_version () const;
 	void set_version (int version);

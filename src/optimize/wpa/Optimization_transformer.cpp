@@ -110,8 +110,8 @@ Optimization_transformer::rhs_is_pure (Statement_block* bb, MIR::Assign_var* in)
 		return false;
 
 	// If the only definition is the LHS, nothing else has happened
-	cAlias_name_list* defs = wp->def_use->get_defs (bb);
-	cAlias_name_list* may_defs = wp->def_use->get_may_defs (bb);
+	cIndex_node_list* defs = wp->def_use->get_defs (bb);
+	cIndex_node_list* may_defs = wp->def_use->get_may_defs (bb);
 
 	if (defs->size () + may_defs->size () == 1)
 	{
@@ -122,11 +122,11 @@ Optimization_transformer::rhs_is_pure (Statement_block* bb, MIR::Assign_var* in)
 		if (debugging_enabled)
 		{
 			cdebug << "defs: \n";
-			foreach (const Alias_name* def, *defs)
+			foreach (const Index_node* def, *defs)
 				cdebug << def->str () << ", ";
 
 			cdebug << "\n\nmay-defs: \n";
-			foreach (const Alias_name* def, *may_defs)
+			foreach (const Index_node* def, *may_defs)
 				cdebug << def->str () << ", ";
 
 		}

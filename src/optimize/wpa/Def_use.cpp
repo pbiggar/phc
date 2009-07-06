@@ -147,7 +147,7 @@ Def_use::dump_set (Context* cx, reftype rt, deftype dt) const
 	if (maps[cx][rt][dt].size())
 	{
 		cdebug << cx << ": " << set_name << " list: ";
-		foreach (const Alias_name* name, maps[cx][rt][dt])
+		foreach (const Index_node* name, maps[cx][rt][dt])
 			cdebug << name->str() << ", ";
 		cdebug << endl;
 	}
@@ -174,7 +174,7 @@ Def_use::dump (Context* cx, Result_state, string comment) const
 		if (summary_maps[st_name][rt][dt].size())
 		{
 			cdebug << st_name << " (summary): " << set_name << " list: ";
-			foreach (const Alias_name* name, summary_maps[st_name][rt][dt])
+			foreach (const Index_node* name, summary_maps[st_name][rt][dt])
 				cdebug << name->str() << ", ";
 			cdebug << endl;
 		}
@@ -195,7 +195,7 @@ Def_use::dump_everything (string comment) const
  */
 
 void
-Def_use::create_reference (Context* cx, Index_node* lhs, Index_node* rhs, Certainty cert)
+Def_use::create_reference (Context* cx, const Index_node* lhs, const Index_node* rhs, Certainty cert)
 {
 	// A may-ref is a must-def with no killing
 	if (has (cx, REF, DEF, lhs))
@@ -214,7 +214,7 @@ Def_use::create_reference (Context* cx, Index_node* lhs, Index_node* rhs, Certai
  * Value
  */
 void
-Def_use::kill_value (Context* cx, Index_node* lhs, bool also_kill_refs)
+Def_use::kill_value (Context* cx, const Index_node* lhs, bool also_kill_refs)
 {
 	record (cx, VAL, DEF, lhs);
 	record (cx, REF, USE, lhs);
@@ -224,7 +224,7 @@ Def_use::kill_value (Context* cx, Index_node* lhs, bool also_kill_refs)
 }
 
 void
-Def_use::assign_value (Context* cx, Index_node* lhs, Storage_node* storage_name)
+Def_use::assign_value (Context* cx, const Index_node* lhs, const Storage_node*)
 {
 	if (not has (cx, VAL, DEF, lhs))
 		record (cx, VAL, MAYDEF, lhs);
@@ -235,7 +235,7 @@ Def_use::assign_value (Context* cx, Index_node* lhs, Storage_node* storage_name)
 
 
 void
-Def_use::record_use (Context* cx, Index_node* use, Certainty cert)
+Def_use::record_use (Context* cx, const Index_node* use, Certainty cert)
 {
 	record (cx, REF, USE, use);
 	record (cx, VAL, USE, use);
@@ -243,18 +243,18 @@ Def_use::record_use (Context* cx, Index_node* use, Certainty cert)
 
 
 void
-Def_use::record (Context* cx, reftype rt, deftype dt, Index_node* index)
+Def_use::record (Context* cx, reftype rt, deftype dt, const Index_node* index)
 {
 	if (index->storage == "FAKE")
 		return;
 
-	maps[cx][rt][dt].insert (index->name ());
+	maps[cx][rt][dt].insert (index);
 }
 
 bool
-Def_use::has (Context* cx, reftype rt, deftype dt, Index_node* index) const
+Def_use::has (Context* cx, reftype rt, deftype dt, const Index_node* index) const
 {
-	return maps[cx][rt][dt].has (index->name ());
+	return maps[cx][rt][dt].has (index);
 }
 
 
@@ -266,10 +266,10 @@ Def_use::has (Context* cx, reftype rt, deftype dt, Index_node* index) const
 
 
 bool 
-in_scope (Context* cx, const Alias_name* name)
+in_scope (Context* cx, const Index_node* index)
 {
-	// Index_node alias_names put the name of the symtable as the prefix.
-	return name->get_prefix () == cx->symtable_node ()->for_index_node ();
+	// Index_node index_nodes put the name of the symtable as the prefix.
+	return index->storage == cx->symtable_name ();
 }
 
 void
@@ -281,10 +281,10 @@ Def_use::finish_block (Context* cx)
 	// summary.
 	foreach_rtdt
 	{
-		foreach (const Alias_name* name, maps[cx][rt][dt])
+		foreach (const Index_node* index, maps[cx][rt][dt])
 		{
-			if (not in_scope (cx, name))
-				summary_maps[symtable][rt][dt].insert (name);
+			if (not in_scope (cx, index))
+				summary_maps[symtable][rt][dt].insert (index);
 		}
 	}
 
@@ -295,11 +295,11 @@ Def_use::finish_block (Context* cx)
 		if (dt == USE)
 			continue;
 
-		foreach (const Alias_name* name, maps[cx][rt][dt])
+		foreach (const Index_node* index, maps[cx][rt][dt])
 		{
 			Context* exit_cx = Context::as_peer (cx, cx->get_bb()->cfg->get_exit_bb ());
-			if (not in_scope (cx, name))
-				maps[exit_cx][rt][USE].insert (name);
+			if (not in_scope (cx, index))
+				maps[exit_cx][rt][USE].insert (index);
 		}
 	}
 }
@@ -313,10 +313,10 @@ Def_use::merge_contexts ()
 		Context* new_cx = cx->get_non_contextual ();
 		foreach_dtrt
 		{
-			Set<const Alias_name*> new_map;
+			Set<const Index_node*> new_map;
 
-			foreach (const Alias_name* name, maps[cx][rt][dt])
-				new_map.insert (name->convert_context_name ());
+			foreach (const Index_node *index, maps[cx][rt][dt])
+				new_map.insert (index->convert_context_name ());
 
 			maps[new_cx][rt][dt] = new_map;
 		}
@@ -335,53 +335,40 @@ Def_use::backward_bind (Context* caller, Context* exit)
 	string st_name = exit->symtable_name ();
 	foreach_dtrt
 	{
-		Set<const Alias_name*>& set = summary_maps[st_name][rt][dt];
+		Set<const Index_node*>& set = summary_maps[st_name][rt][dt];
 		maps[caller][rt][dt].insert (set.begin(), set.end ());
 	}
 }
 
-cAlias_name_list*
-Def_use::get_alias_name (Basic_block* bb, deftype dt) const
+cIndex_node_list*
+Def_use::get_index_nodes (Basic_block* bb, deftype dt) const
 {
-	cAlias_name_list* result = new cAlias_name_list;
+	cIndex_node_list* result = new cIndex_node_list;
 	Context* cx = Context::non_contextual (bb);
 
-	foreach (const Alias_name* name, maps[cx][VAL][dt])
-		result->push_back (get_starred_name (name));
+	foreach (const Index_node* name, maps[cx][VAL][dt])
+		result->push_back (name->get_starred_name ());
 
-	foreach (const Alias_name* name, maps[cx][REF][dt])
+	foreach (const Index_node* name, maps[cx][REF][dt])
 		result->push_back (name);
 	
 	return result;
 }
 
-const Alias_name*
-Def_use::get_starred_name (const Alias_name* name)
-{
-	return new Alias_name (get_starred_name (name->get_prefix ()), name->get_name ());
-}
-
-
-string
-Def_use::get_starred_name (string name)
-{
-	return "*_" + name;
-}
-
-cAlias_name_list*
+cIndex_node_list*
 Def_use::get_defs (Basic_block* bb) const
 {
-	return get_alias_name (bb, DEF);
+	return get_index_nodes (bb, DEF);
 }
 
-cAlias_name_list*
+cIndex_node_list*
 Def_use::get_may_defs (Basic_block* bb) const
 {
-	return get_alias_name (bb, MAYDEF);
+	return get_index_nodes (bb, MAYDEF);
 }
 
-cAlias_name_list*
+cIndex_node_list*
 Def_use::get_uses (Basic_block* bb) const
 {
-	return get_alias_name (bb, USE);
+	return get_index_nodes (bb, USE);
 }

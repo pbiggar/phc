@@ -37,32 +37,30 @@ typedef List<const Alias_name*> cAlias_name_list;
 
 class Alias_name : virtual public GC_obj
 {
-	mutable String* cached_name;
-	string prefix;
-	string name;
-
 public:
 	Alias_name ();
-	Alias_name (const Alias_name* other);
-	Alias_name (string prefix, string name);
 
-
-	bool operator== (const Alias_name& other) const;
-	bool operator!= (const Alias_name& other) const;
+	virtual bool operator== (const Alias_name& other) const;
+	virtual bool operator!= (const Alias_name& other) const;
 	size_t hash () const;
-	string str () const;
+
+	virtual string str () const = 0;
 
 public:
-	// Get key for indexing var_stacks
-	string non_ssa_str () const;
 
-	// We'd like to make these private
-	string get_name () const;
-	string get_prefix () const;
-
-	// Drops the context info
 	// TODO: if we want to cache these, we should make it const Alias_name
-	Alias_name* convert_context_name () const;
+
+	// Return a new Alias_name, which has had its name converted from OLDC to NEWC.
+	//
+	// XXX HACK:
+	// There is a problem that context has been converted to a string by the
+	// time it gets put into an alias name. So we find it hard to switch from a
+	// contextual to a non-contextual context. This is hard to fix, so this
+	// hacks it instead of fixing it properly. We just do a string replacement
+	// from the name in OLDc to the name in NEWC.
+
+	virtual Alias_name* convert_context_name () const = 0;
+	virtual String* get_graphviz_label () const = 0;
 };
 
 

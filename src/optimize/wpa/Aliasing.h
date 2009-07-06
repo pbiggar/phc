@@ -56,26 +56,26 @@ public:
 	void backward_bind (Context* caller, Context* exit);
 	void post_invoke_method (Context* caller);
 
-	void create_reference (Context* cx, Index_node* lhs,
-								  Index_node* rhs, Certainty cert);
+	void create_reference (Context* cx, const Index_node* lhs,
+								  const Index_node* rhs, Certainty cert);
 
-	void assign_value (Context* cx, Index_node* lhs, Storage_node* storage);
+	void assign_value (Context* cx, const Index_node* lhs, const Storage_node* storage);
 
 	// Create STORAGE, with the gives TYPES.
-	void set_storage (Context* cx, Storage_node* storage, const Types* types);
+	void set_storage (Context* cx, const Storage_node* storage, const Types* types);
 
 	// Create STORAGE, an abstract value with the given types.
-	void set_scalar (Context* cx, Value_node* storage, const Abstract_value* val);
+	void set_scalar (Context* cx, const Value_node* storage, const Abstract_value* val);
 
 
-	void kill_value (Context* cx, Index_node* lhs, bool also_kill_refs = true);
-	void remove_fake_node (Context* cx, Index_node* fake);
+	void kill_value (Context* cx, const Index_node* lhs, bool also_kill_refs = true);
+	void remove_fake_node (Context* cx, const Index_node* fake);
 
 
 	void pull_init (Context* cx);
 	void pull_first_pred (Context* cx, Context* pred);
 	void pull_pred (Context* cx, Context* pred);
-	void pull_possible_null (Context* cx, Index_node* node);
+	void pull_possible_null (Context* cx, const Index_node* node);
 	void pull_finish (Context* cx);
 
 
@@ -90,7 +90,7 @@ public:
 	bool has_analysis_result (Context* cx, Result_state state) const;
 
 	// I dont have a nice generic way to do this:
-	void kill_specific_value (Context* cx, Result_state state, Index_node* lhs, Storage_node* rhs);
+	void kill_specific_value (Context* cx, Result_state state, const Index_node* lhs, const Storage_node* rhs);
 
 public:
 	/*
@@ -98,20 +98,20 @@ public:
 	 */
 
 
-	Reference_list* get_references (Context* cx, Result_state state, Index_node* index, Certainty cert);
-	Index_node_list* get_fields (Context* cx, Result_state state, Storage_node* storage);
-	Storage_node_list* get_points_to (Context* cx, Result_state state, Index_node* index);
+	cReference_list* get_references (Context* cx, Result_state state, const Index_node* index, Certainty cert) const;
+	cIndex_node_list* get_fields (Context* cx, Result_state state, const Storage_node* storage) const;
+	cStorage_node_list* get_points_to (Context* cx, Result_state state, const Index_node* index) const;
 
-	bool is_abstract (Context* cx, Result_state state, Storage_node* st);
-	bool is_abstract_field (Context* cx, Result_state state, Index_node* st);
+	bool is_abstract (Context* cx, Result_state state, const Storage_node* st) const;
+	bool is_abstract_field (Context* cx, Result_state state, const Index_node* st) const;
 
-	bool has_storage_node (Context* cx, Result_state state, Storage_node* st);
-	bool has_field (Context* cx, Result_state state, Index_node* ind);
+	bool has_storage_node (Context* cx, Result_state state, const Storage_node* st) const;
+	bool has_field (Context* cx, Result_state state, const Index_node* index) const;
 
-	Index_node_list* get_incoming (Context* cx, Result_state state, Storage_node* st);
-	Storage_node_list* get_storage_nodes (Context* cx, Result_state state);
+	cIndex_node_list* get_incoming (Context* cx, Result_state state, const Storage_node* st) const;
+	cStorage_node_list* get_storage_nodes (Context* cx, Result_state state) const;
 
-	Storage_node* get_owner (Context* cx, Result_state state, Index_node* index);
+	const Storage_node* get_owner (Context* cx, Result_state state, const Index_node* index) const;
 };
 
 /* A Path is a way of representing some dereferencing. See Aliasing.cpp. */

@@ -75,6 +75,7 @@
 #include "process_ir/General.h"
 #include "Def_use_web.h"
 #include "wpa/Def_use.h"
+#include "wpa/Points_to.h"
 
 using namespace MIR;
 
@@ -103,11 +104,12 @@ Remove_loop_booleans::is_applicable_branch (Branch_block* bb)
 	SSA_use* use;
 	bool proceed = false;
 	foreach (SSA_use* temp, *bb->cfg->duw->get_block_uses (bb))
-	{	if (temp->type_flag != SSA_PHI)
+	{
+		if (temp->type_flag != SSA_PHI)
 		{
 			string s = temp->name->get_name ();
-			Alias_name name (ns, *bb->branch->variable_name->value);
-			if (s == Def_use::get_starred_name (&name)->str())
+			Index_node name (ns, *bb->branch->variable_name->value);
+			if (s == name.get_starred_name()->str())
 			{
 				use = temp;
 				proceed = true;

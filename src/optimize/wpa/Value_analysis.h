@@ -30,15 +30,15 @@ public:
 	 * WPA interface
 	 */
 
-	void set_storage (Context* cx, Storage_node* storage, const Types* types);
-	void set_scalar (Context* cx, Value_node* storage, const Abstract_value* val);
-	void pull_possible_null (Context* cx, Index_node* node);
+	void set_storage (Context* cx, const Storage_node* storage, const Types* types);
+	void set_scalar (Context* cx, const Value_node* storage, const Abstract_value* val);
+	void pull_possible_null (Context* cx, const Index_node* node);
 
 
-	void kill_value (Context* cx, Index_node*, bool);
-	void assign_value (Context* cx, Index_node*, Storage_node*);
+	void kill_value (Context* cx, const Index_node*, bool);
+	void assign_value (Context* cx, const Index_node*, const Storage_node*);
 
-	void remove_fake_node (Context* cx, Index_node* fake);
+	void remove_fake_node (Context* cx, const Index_node* fake);
 
 	const Absval_cell* get_value (Context* cx, Result_state state, const Alias_name* name) const;
 
@@ -56,7 +56,7 @@ public:
 	 * Types
 	 */
 
-	void remove_non_objects (Context* cx, Result_state state, const Alias_name*);
+	void remove_non_objects (Context* cx, Result_state state, const Index_node*);
 
 	const Types* get_types (Context* cx, Result_state state, const Alias_name* name) const;
 

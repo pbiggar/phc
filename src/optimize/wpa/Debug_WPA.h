@@ -24,23 +24,23 @@ public:
 	void pre_invoke_method (Context* caller);
 	void post_invoke_method (Context* caller);
 
-	void create_reference (Context* cx, Index_node* lhs,
-								 Index_node* rhs, Certainty cert);
+	void create_reference (Context* cx, const Index_node* lhs,
+								 const Index_node* rhs, Certainty cert);
 
-	void assign_value (Context* cx, Index_node* lhs, Storage_node* storage);
+	void assign_value (Context* cx, const Index_node* lhs, const Storage_node* storage);
 
-	void set_storage (Context* cx, Storage_node* storage, const Types* types);
-	void set_scalar (Context* cx, Value_node* storage, const Abstract_value* val);
+	void set_storage (Context* cx, const Storage_node* storage, const Types* types);
+	void set_scalar (Context* cx, const Value_node* storage, const Abstract_value* val);
 
-	void kill_value (Context* cx, Index_node* lhs, bool also_kill_refs = false);
+	void kill_value (Context* cx, const Index_node* lhs, bool also_kill_refs = false);
 
-	void record_use (Context* cx, Index_node* use, Certainty cert);
+	void record_use (Context* cx, const Index_node* use, Certainty cert);
 	
 
 	void pull_init (Context* cx);
 	void pull_first_pred (Context* cx, Context* pred);
 	void pull_pred (Context* cx, Context* pred);
-	void pull_possible_null (Context* cx, Index_node* node);
+	void pull_possible_null (Context* cx, const Index_node* node);
 	void pull_finish (Context* cx);
 
 	void finish_block (Context* cx);

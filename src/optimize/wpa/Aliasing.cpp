@@ -153,7 +153,7 @@ Aliasing::pull_pred (Context* cx, Context* pred)
 }
 
 void
-Aliasing::pull_possible_null (Context* cx, Index_node* index)
+Aliasing::pull_possible_null (Context* cx, const Index_node* index)
 {
 	ins[cx]->add_points_to (index, SCLVAL (index));
 }
@@ -195,12 +195,12 @@ Aliasing::finish_block (Context* cx)
 }
 
 void
-Aliasing::kill_value (Context* cx, Index_node* lhs, bool also_kill_refs)
+Aliasing::kill_value (Context* cx, const Index_node* lhs, bool also_kill_refs)
 {
 	Points_to* ptg = working[cx];
 
 	// This removes LHS from the Points-to graph.
-	foreach (Storage_node* st, *ptg->get_points_to (lhs))
+	foreach (const Storage_node* st, *ptg->get_points_to (lhs))
 	{
 		ptg->remove_points_to (lhs, st);
 	}
@@ -216,7 +216,7 @@ Aliasing::kill_value (Context* cx, Index_node* lhs, bool also_kill_refs)
 
 
 void
-Aliasing::kill_specific_value (Context* cx, Result_state state, Index_node* lhs, Storage_node* rhs)
+Aliasing::kill_specific_value (Context* cx, Result_state state, const Index_node* lhs, const Storage_node* rhs)
 {
 	Points_to* ptg = ptgs[state][cx];
 
@@ -225,13 +225,13 @@ Aliasing::kill_specific_value (Context* cx, Result_state state, Index_node* lhs,
 }
 
 void
-Aliasing::remove_fake_node (Context* cx, Index_node* fake)
+Aliasing::remove_fake_node (Context* cx, const Index_node* fake)
 {
 	working[cx]->remove_field (fake);
 }
 
 void
-Aliasing::set_storage (Context* cx, Storage_node* storage, const Types* types)
+Aliasing::set_storage (Context* cx, const Storage_node* storage, const Types* types)
 {
 	// Check if its gone abstract.
 	working[cx]->inc_abstract (storage);
@@ -239,13 +239,13 @@ Aliasing::set_storage (Context* cx, Storage_node* storage, const Types* types)
 
 
 void
-Aliasing::set_scalar (Context* cx, Value_node* storage, const Abstract_value* val)
+Aliasing::set_scalar (Context* cx, const Value_node* storage, const Abstract_value* val)
 {
 	// See set storage
 }
 
 void
-Aliasing::create_reference (Context* cx, Index_node* lhs, Index_node* rhs, Certainty cert)
+Aliasing::create_reference (Context* cx, const Index_node* lhs, const Index_node* rhs, Certainty cert)
 {
 	Points_to* ptg = working[cx];
 
@@ -254,7 +254,7 @@ Aliasing::create_reference (Context* cx, Index_node* lhs, Index_node* rhs, Certa
 }
 
 void
-Aliasing::assign_value (Context* cx, Index_node* lhs, Storage_node* storage)
+Aliasing::assign_value (Context* cx, const Index_node* lhs, const Storage_node* storage)
 {
 	Points_to* ptg = working[cx];
 
@@ -311,65 +311,65 @@ Aliasing::merge_contexts ()
 	outs = new_outs;
 }
 
-Reference_list*
-Aliasing::get_references (Context* cx, Result_state state, Index_node* index, Certainty cert)
+cReference_list*
+Aliasing::get_references (Context* cx, Result_state state, const Index_node* index, Certainty cert) const
 {
 	return ptgs[state][cx]->get_references (index, cert);
 }
 
-Storage_node_list*
-Aliasing::get_points_to (Context* cx, Result_state state, Index_node* index)
+cStorage_node_list*
+Aliasing::get_points_to (Context* cx, Result_state state, const Index_node* index) const
 {
 	return ptgs[state][cx]->get_points_to (index);
 }
 
 
-Index_node_list*
-Aliasing::get_fields (Context* cx, Result_state state, Storage_node* storage)
+cIndex_node_list*
+Aliasing::get_fields (Context* cx, Result_state state, const Storage_node* storage) const
 {
 	return ptgs[state][cx]->get_fields (storage);
 }
 
 bool
-Aliasing::is_abstract (Context* cx, Result_state state, Storage_node* st)
+Aliasing::is_abstract (Context* cx, Result_state state, const Storage_node* st) const
 {
 	return ptgs[state][cx]->is_abstract (st);
 }
 
 bool
-Aliasing::is_abstract_field (Context* cx, Result_state state, Index_node* index)
+Aliasing::is_abstract_field (Context* cx, Result_state state, const Index_node* index) const
 {
 	return ptgs[state][cx]->is_abstract_field (index);
 }
 
 bool
-Aliasing::has_storage_node (Context* cx, Result_state state, Storage_node* st)
+Aliasing::has_storage_node (Context* cx, Result_state state, const Storage_node* st) const
 {
 	return ptgs[state][cx]->has_storage_node (st);
 }
 
 bool
-Aliasing::has_field (Context* cx, Result_state state, Index_node* ind)
+Aliasing::has_field (Context* cx, Result_state state, const Index_node* index) const
 {
-	return ptgs[state][cx]->has_field (ind);
+	return ptgs[state][cx]->has_field (index);
 }
 
-Storage_node_list*
-Aliasing::get_storage_nodes (Context* cx, Result_state state)
+cStorage_node_list*
+Aliasing::get_storage_nodes (Context* cx, Result_state state) const
 {
 	return ptgs[state][cx]->get_storage_nodes ();
 }
 
 
-Index_node_list*
-Aliasing::get_incoming (Context* cx, Result_state state, Storage_node* st)
+cIndex_node_list*
+Aliasing::get_incoming (Context* cx, Result_state state, const Storage_node* st) const
 {
 	return ptgs[state][cx]->get_incoming (st);
 }
 
 
-Storage_node*
-Aliasing::get_owner (Context* cx, Result_state state, Index_node* index)
+const Storage_node*
+Aliasing::get_owner (Context* cx, Result_state state, const Index_node* index) const
 {
 	return ptgs[state][cx]->get_owner (index);
 }

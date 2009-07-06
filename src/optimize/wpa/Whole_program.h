@@ -231,7 +231,7 @@ public:
 	void assign_path_by_ref (Context* cx, Path* lhs, Path* rhs, bool allow_kill = true);
 	void assign_path_by_copy (Context* cx, Path* lhs, Path* rhs, bool allow_kill = true);
 	void assign_path_by_cast (Context* cx, Path* lhs, Path* rhs, string type, bool allow_kill = true);
-	void assign_path_value (Context* cx, Path* lhs, Storage_node* st, bool allow_kill = true);
+	void assign_path_value (Context* cx, Path* lhs, const Storage_node* st, bool allow_kill = true);
 	string assign_path_empty_array (Context* cx, Path* lhs, string name, bool allow_kill = true);
 	string assign_path_typed_array (Context* cx, Path* lhs, const Types* types, string name, bool allow_kill = true);
 	string assign_path_empty_object (Context* cx, Path* lhs, string type, string name, bool allow_kill = true);
@@ -246,8 +246,8 @@ public:
 	 * Assignments by node (aka lower-level)
 	 */
 
-	void assign_absval (Context* cx, Index_node* lhs, const Abstract_value* absval);
-	void assign_storage (Context* cx, Index_node* lhs, Storage_node* storage);
+	void assign_absval (Context* cx, const Index_node* lhs, const Abstract_value* absval);
+	void assign_storage (Context* cx, const Index_node* lhs, const Storage_node* storage);
 	Index_node* create_fake_index (Context* cx);
 	void destroy_fake_indices (Context* cx);
 	Storage_node* build_static_array (Context* cx, MIR::Static_array* array);
@@ -260,19 +260,19 @@ public:
 	// this will go into an infinite-loop).
 	typedef Map<string, string> Name_map;
 
-	void copy_value (Context* cx, Index_node* lhs, Index_node* rhs, Name_map map = Name_map());
-	void copy_structure (Context* cx, Index_node* lhs, Storage_node* rhs, string type, Name_map map = Name_map());
+	void copy_value (Context* cx, const Index_node* lhs, const Index_node* rhs, Name_map map = Name_map());
+	void copy_structure (Context* cx, const Index_node* lhs, const Storage_node* rhs, string type, Name_map map = Name_map());
 
-	void refer_to_value (Context* cx, Index_node* lhs, Index_node* rhs, Certainty cert);
+	void refer_to_value (Context* cx, const Index_node* lhs, const Index_node* rhs, Certainty cert);
 
 	// Cast the value from RHS to LHS
-	void cast_value (Context* cx, Index_node* lhs, Index_node* rhs, string type);
-	void cast_to_storage (Context* cx, Index_node* lhs, Index_node* rhs, string type);
+	void cast_value (Context* cx, const Index_node* lhs, const Index_node* rhs, string type);
+	void cast_to_storage (Context* cx, const Index_node* lhs, const Index_node* rhs, string type);
 
-	Index_node* check_owner_type (Context* cx, Index_node* index);
-	const Abstract_value* read_from_scalar_value (Context* cx, Index_node* rhs);
+	const Index_node* check_owner_type (Context* cx, const Index_node* index);
+	const Abstract_value* read_from_scalar_value (Context* cx, const Index_node* rhs);
 
-	bool is_killable (Context* cx, Index_node_list* indices);
+	bool is_killable (Context* cx, cIndex_node_list* indices);
 
 	/*
 	 * Misc
@@ -281,20 +281,20 @@ public:
 	// PATH can refer to many nodes. Get the list of Index_nodes it points to.
 	// Set the RHS_BY_REF flag if PATH represents the RHS of an
 	// assignment-by-reference.
-	Index_node_list* get_named_indices (Context* cx, Path* path, bool is_readonly = false);
-	Index_node_list* get_array_named_indices (Context* cx, Path* lhs, String* index, bool is_readonly);
+	cIndex_node_list* get_named_indices (Context* cx, Path* path, bool is_readonly = false);
+	cIndex_node_list* get_array_named_indices (Context* cx, Path* lhs, String* index, bool is_readonly);
 
 	// Get anything the path can point to, and all nodes that they may reference.
-	Reference_list* get_lhs_references (Context* cx, Path* path);
+	cReference_list* get_lhs_references (Context* cx, Path* path);
 
-	Index_node* coerce_to_string (Context* cx, Index_node* val);
+	const Index_node* coerce_to_string (Context* cx, const Index_node* val);
 
 
 	Edge_list* get_successors (Context* cx);
 	void pull_results (Context* cx, BB_list* bbs);
-	Index_node_list* get_possible_nulls (List<Context*>*);
+	cIndex_node_list* get_possible_nulls (List<Context*>*);
 
-	void record_use (Context* cx, Index_node* node);
+	void record_use (Context* cx, const Index_node* node);
 
 
 
@@ -314,7 +314,7 @@ public:
 
 private:
 	// Get the value of node (can be UNKNOWN).
-	String* get_string_value (Context* cx, Index_node* node);
+	String* get_string_value (Context* cx, const Index_node* node);
 
 	const Abstract_value* get_abstract_value (Context* cx, Result_state state, const Alias_name* name);
 	friend class WPA;

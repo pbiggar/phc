@@ -133,7 +133,7 @@ public:
 		ins[cx].merge (&outs[pred]);
 	}
 
-	void pull_possible_null (Context* cx, Index_node* node) = 0;
+	void pull_possible_null (Context* cx, const Index_node* node) = 0;
 
 	void pull_finish (Context* cx)
 	{
