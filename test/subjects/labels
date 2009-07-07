@@ -72,6 +72,8 @@ reduced/0052.php								no-Optimiz # __destruct
 reduced/0053.php								no-Optimiz # class error
 reduced/0054.php								no-Optimiz # class error
 reduced/0054.php								no-Optimiz # class error
+unsupported/.*									no-Optimiz
+warnings/.*										no-Optimiz
 
 
 
