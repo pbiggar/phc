@@ -875,6 +875,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (ltrim, (0, 1), "string");
 	MODEL (md5, (0), "string");
 	MODEL (microtime, (), "string", "real");
+	MODEL (mktime, (), "int");
 	MODEL (mt_rand, (), "int");
 	MODEL (mysql_close, (), "bool");
 	MODEL (mysql_connect, (0, 1, 2), "resource", "bool");
