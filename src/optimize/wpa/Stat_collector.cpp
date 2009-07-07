@@ -10,6 +10,7 @@
 #include "../Def_use_web.h"
 #include "Def_use.h"
 #include "../ssa/HSSA.h"
+#include "Callgraph.h"
 
 #include "Stat_collector.h"
 
@@ -424,4 +425,15 @@ Stat_collector::collect_def_use_stats (CFG* cfg)
 			}
 		}
 	}
+}
+
+void
+Stat_collector::collect_method_stats ()
+{
+	int num_functions = filter_types<User_method_info> (Oracle::get_all_methods())->size ();
+	foreach (User_class_info* cinf, *filter_types<User_class_info> (Oracle::get_all_classes ()))
+		num_functions += cinf->get_methods ()->size ();	
+
+	set_stat ("total_num_methods", num_functions);
+	set_stat ("num_unreachable_methods", num_functions - filter_types<User_method_info> (wp->callgraph->get_called_methods ())->size ());
 }

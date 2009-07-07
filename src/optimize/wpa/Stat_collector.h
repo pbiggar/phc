@@ -34,6 +34,7 @@ public:
 	void collect_uninit_var_stats (Basic_block* bb);
 	void collect_def_use_stats (CFG* cfg);
 	void collect_type_stats (Basic_block* bb, MIR::Rvalue* rval,string statname );
+	void collect_method_stats ();
 private:
 	String last_assignment_lhs;
 };

@@ -19,6 +19,19 @@ Class_info::Class_info (String* name)
 	this->lc_name = name->to_lower ();
 }
 
+Method_info_list*
+Class_info::get_methods ()
+{
+	Method_info_list* result = new Method_info_list ();
+	
+	string s;
+	Method_info* m;
+	foreach (tie (s, m), methods)
+		result->push_back (m);
+
+	return result;
+}
+
 Method_info*
 Class_info::get_method_info (String* method_name, bool search)
 {

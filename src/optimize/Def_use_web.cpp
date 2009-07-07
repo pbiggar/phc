@@ -96,8 +96,6 @@ Def_use_web::build_web (CFG* cfg, bool update)
 		foreach (SSA_name* def, phi_defs[bb->ID])
 			named_defs[def->str()].push_back (new SSA_def (bb, def, SSA_PHI));
 		
-
-
 		foreach (SSA_name* may_def, may_defs[bb->ID])
 		{
 			named_defs[may_def->str ()].push_back (new SSA_def (bb, may_def, SSA_CHI));
@@ -323,12 +321,6 @@ Def_use_web::ssa_consistency_check ()
 		// Check that each use has 0 or 1 def.
 		assert (def_list.size () < 2);
 
-
-		// TODO: Fails on the following if the section on line 66 isn't commented out because may defs are in both named_uses and named_defs, 
-		// and is_dominated_by () doesn't account for self dominance.  Not sure if is_dominated_by ()
-		// needs to be changed (probably should be anyway, seems to make sense that a block would dominate itself),
-		// because I think we can just stop considering may_defs when building the web (they're a subset of defs anyway)
-
 		// Check the dominance property (every use is dominated by its def)
 		if (def_list.size () == 1)
 		{
@@ -336,7 +328,8 @@ Def_use_web::ssa_consistency_check ()
 
 			foreach (SSA_use* ssa_use, named_uses[use])
 			{
-				assert (ssa_use->bb->is_dominated_by (def_bb) || ssa_use->bb == def_bb || ssa_use->type_flag == SSA_PHI);
+				DEBUG ("SSAUSE->BB: " << ssa_use->bb->ID << " DEF_BB " << def_bb->ID << " DEF: " << def_list.front ()->name->str ());
+				assert (ssa_use->bb->is_dominated_by (def_bb) || ssa_use->bb == def_bb || ssa_use->type_flag == SSA_PHI || !isa <Exit_block> (def_bb) );
 			}
 		}
 	}

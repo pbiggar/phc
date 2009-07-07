@@ -30,7 +30,7 @@ public:
 	Class_info* get_parent ();
 	void set_parent (Class_info* parent);
 
-
+	Method_info_list* get_methods ();
 
 protected:
 	Class_info (String* name);

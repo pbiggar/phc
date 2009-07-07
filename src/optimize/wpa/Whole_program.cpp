@@ -1392,6 +1392,7 @@ Whole_program::collect_stats (User_method_info* info)
 	{
 
 		// TODO: maybe stat_coll->run(info->get_cfg ()) ?
+		stat_coll->collect_method_stats ();
 		stat_coll->get_number_of_statements (info->get_cfg (), "after");
 		stat_coll->collect_def_use_stats (info->get_cfg ());
 		foreach (Basic_block* bb, *info->get_cfg ()->get_all_bbs ())
