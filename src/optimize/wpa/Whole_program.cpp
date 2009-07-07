@@ -1097,6 +1097,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 			|| *info->name == "is_null"
 			|| *info->name == "is_real"
 			|| *info->name == "is_resource"
+			|| *info->name == "is_string"
 			|| *info->name == "is_bool"
 			)
 	{
@@ -1107,6 +1108,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		types ["is_null"] = "unset";
 		types ["is_real"] = "real";
 		types ["is_resource"] = "resource";
+		types ["is_string"] = "string";
 
 		string type_name = types[*info->name];
 
