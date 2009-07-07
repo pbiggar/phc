@@ -550,6 +550,8 @@ Whole_program::instantiate_object (Context* caller_cx, MIR::VARIABLE_NAME* self,
 				receivers,
 				in->actual_parameters);
 	}
+	
+	callgraph->register_class_use (class_info);
 }
 
 void

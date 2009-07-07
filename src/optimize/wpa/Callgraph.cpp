@@ -156,3 +156,20 @@ Callgraph::has_analysis_result (Context* cx, Result_state) const
 	// I dont know whether to return true or false.
 	phc_TODO ();
 }
+
+void
+Callgraph::register_class_use (Class_info* cinfo)
+{
+	do
+	{
+		used_classes.insert (cinfo);
+		cinfo = cinfo->get_parent ();
+	}
+	while(cinfo!=NULL);
+}
+
+Class_info_list*
+Callgraph::get_used_classes ()
+{
+	return used_classes.to_list ();
+}

@@ -431,9 +431,16 @@ void
 Stat_collector::collect_method_stats ()
 {
 	int num_functions = filter_types<User_method_info> (Oracle::get_all_methods())->size ();
+	int num_classes = 0;
 	foreach (User_class_info* cinf, *filter_types<User_class_info> (Oracle::get_all_classes ()))
+	{
 		num_functions += cinf->get_methods ()->size ();	
+		num_classes++;
+	}
 
 	set_stat ("total_num_methods", num_functions);
 	set_stat ("num_unreachable_methods", num_functions - filter_types<User_method_info> (wp->callgraph->get_called_methods ())->size ());
+
+	set_stat ("total_classes_used", wp->callgraph->get_used_classes ()->size ());
+	set_stat ("num_unreachable_classes", num_classes - wp->callgraph->get_used_classes ()->size ());
 }
