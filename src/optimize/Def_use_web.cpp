@@ -72,7 +72,10 @@ Def_use_web::build_web (CFG* cfg, bool update)
 				uses[bb->ID].push_back (new SSA_name (name->str ()));
 
 			foreach (const Alias_name* name, *du->get_may_defs (bb))
+			{
 				may_defs[bb->ID].push_back (new SSA_name (name->str ()));
+				uses[bb->ID].push_back (new SSA_name (name->str ()));
+			}
 		}
 	}
 	// Build all the ops
@@ -116,9 +119,9 @@ Def_use_web::build_web (CFG* cfg, bool update)
 	foreach (tie (name, def_list), named_defs)
 	{
 		foreach (SSA_def* def, def_list)
-		{
+		{		
 			def_ops[def->bb->ID].push_back (def);
-
+		
 			// Add to all uses
 			foreach (SSA_use* use, named_uses[name])
 				use->aux_ops.push_back (def);
@@ -289,7 +292,6 @@ void
 Def_use_web::ssa_consistency_check ()
 {
 	// TODO: a lot of stuff isnt in SSA, but we don't want to break everything with a commit
-	
 
 	// There isnt much that will help here. I'll implement it if its buggy.
 	// Check that named defs are correctly named
