@@ -52,8 +52,11 @@ Stat_collector::visit_statement_block (Statement_block* bb)
 
 	foreach (MIR::VARIABLE_NAME* varname, gvn->var_names)
 	{
-		add_to_stringset_stat ("total_num_vars", *varname->value);
-		collect_type_stats (bb, varname, "total_num_types");
+		if (!get_stringset_stat ("total_num_vars")->has (*varname->value))
+		{
+			add_to_stringset_stat ("total_num_vars", *varname->value);
+			collect_type_stats (bb, varname, "total_num_unique_types","total_num_types");
+		}
 	}
 
 }
@@ -349,14 +352,16 @@ Stat_collector::visit_variable_variable (Statement_block* bb, MIR::Variable_vari
 }
 
 void
-Stat_collector::collect_type_stats (Basic_block* bb, MIR::Rvalue* rval,string statname )
+Stat_collector::collect_type_stats (Basic_block* bb, MIR::Rvalue* rval, string ssstatname, string statname)
 {
 	const Abstract_value* absval = wp->get_abstract_value (Context::non_contextual (bb), R_OUT, rval);
 	if (absval->types)
 	{
 		foreach (string type, *absval->types)
 		{
-			add_to_stringset_stat (statname,type);	
+			if (statname != " ")
+				CTS (statname);
+			add_to_stringset_stat (ssstatname,type);	
 		}
 	}
 }

@@ -35,7 +35,10 @@ void add_to_stringset_stat (string name, string s)
 
 Stringset_stats* get_stringset_stat (string name)
 {
-	return stringset_stats[name];
+	if (stringset_stats[name])
+		return stringset_stats[name];
+
+	return new Stringset_stats;
 }
 
 int stringset_stats_size()
