@@ -1363,8 +1363,12 @@ Whole_program::apply_results (User_method_info* info)
 				DEBUG ("No changes in BB: " << bb->ID);
 			else
 			{
+				stringstream ss;
+				ss << bb->ID;
 				DEBUG ("BB " << bb->ID << " changed");
-				CTS ("num_bbs_changed_in_opt_trans");
+				add_to_stringset_stat ("bbs_changed_in_opt_trans", ss.str ());
+				if (isa<Statement_block> (bb))
+					add_to_stringset_stat ("statements_optimised", ss.str ());
 			}	
 		}
 		else if (isa<Branch_block> (bb))
