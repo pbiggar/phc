@@ -95,8 +95,9 @@ Stat_collector::visit_assign_next (Statement_block* bb, MIR::Assign_next* in)
 void
 Stat_collector::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 {
-	last_assignment_lhs = *in->lhs->value;
+	last_assignment_lhs = in->lhs;
 	visit_expr(bb,in->rhs);
+	last_assignment_lhs = NULL;	
 	
 	if (in->is_ref && isa<MIR::Array_access> (in->rhs))
 	{
@@ -288,16 +289,27 @@ void
 Stat_collector::visit_method_invocation (Statement_block* bb, MIR::Method_invocation* in)
 {
 	CTS ("method_call_sites");	
+	
 	Method_info_list* minfolist = wp->get_possible_receivers (Context::non_contextual(bb),R_OUT,in);
 	
-	int n = minfolist->size ();	
-	stringstream s;
-	s << "methods_with_" << n << "_receivers";
 	foreach (Method_info* minfo, *minfolist)
 	{
 		User_method_info* info = dynamic_cast<User_method_info*> (minfo);
 		if (info != NULL)
-		{
+		{	
+			bool is_object = false;
+			if (last_assignment_lhs)
+			{
+				is_object = Type_info::get_object_types (wp->get_abstract_value (Context::non_contextual (bb), R_OUT, last_assignment_lhs)->types)->size ();
+			}	
+				
+			int n = minfolist->size ();	
+			stringstream s;
+			if (is_object)	
+				s << "object_methods_with_" << n << "_receivers";
+			else
+				s << "scalar_methods_with_" << n << "_receivers";
+		
 			if (info->get_method ()->statements->size () == 1 
 				&& info->get_method ()->statements->at (0)->classid () == Return::ID)			
 			{

@@ -36,7 +36,7 @@ public:
 	void collect_type_stats (Basic_block* bb, MIR::Rvalue* rval, string ssstatname, string statname = " ");
 	void collect_method_stats ();
 private:
-	String last_assignment_lhs;
+	MIR::VARIABLE_NAME* last_assignment_lhs;
 };
 
 class Get_var_name : public MIR::Visitor, virtual public GC_obj
