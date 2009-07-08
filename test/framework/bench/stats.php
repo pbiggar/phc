@@ -2,6 +2,7 @@
 	/*
 	*	Run from the phc root directory
 	*	Use the -d flag to run tests on a whole directory
+	*  The PHP file must be the first argument otherwise, and --stats and -O2 are implicit (it will fail if you pass -O2 or --stats)
 	*/
 
 	include 'lib/header.php';
@@ -34,7 +35,7 @@
 				$flags = $flags." ";
 			}
 		}
-		if ($argv[$count] == "-d")
+		if ($argv[$count] == "-D")
 		{
 			$dir_mode = true;
 			$path = $argv[$count+1];
@@ -72,12 +73,12 @@
 	{
 		print ("$filename\n");	
 	
-		list ($output, $err, $exit_code) = complete_exec ("src/phc --stats -O2 $filename $flags");
+		list ($output, $err, $exit_code) = complete_exec ("src/phc --stats -O2 $filename $flags", NULL, 0);
 
 		if ($err or $exit_code)
 		{
+			print ("exit: $exit_code\n");
 			print ($err);
-			print ($exit_code);
 		}
 		
 		$output = split ("\n", $output);
