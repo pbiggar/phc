@@ -103,8 +103,8 @@ require_once ("compiled_vs_interpreted.php");
 
 #$opt = " -O1 --include --disable=ifsimple,dce,rlb ";
 $opt = " -O1 --include ";
-$tests[] = new BasicTest ("FastOptimize", "$opt --flow-insensitive --object-insensitive --call-string-length=1", "cb_mir");
 $tests[] = new BasicTest ("FastOptAnalyse", "$opt --flow-insensitive --object-insensitive --call-string-length=1 --disable=ifsimple,rlb,dce", "cb_mir");
+$tests[] = new BasicTest ("FastOptimize", "$opt --flow-insensitive --object-insensitive --call-string-length=1", "cb_mir");
 $tests[] = new BasicTest ("PreciseOptimize", "$opt", "cb_mir");
 $tests[] = new CompareWithPHP ("InterpretOptimized", "$opt --dump=codegen --convert-uppered", "BasicPreciseOptimizeTest");
 require_once ("compile_optimized.php");
