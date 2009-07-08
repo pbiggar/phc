@@ -58,7 +58,6 @@ Stat_collector::visit_statement_block (Statement_block* bb)
 			collect_type_stats (bb, varname, "total_num_unique_types","total_num_types");
 		}
 	}
-
 }
 
 void
@@ -71,9 +70,14 @@ void
 Stat_collector::visit_assign_array (Statement_block* bb, MIR::Assign_array* in)
 {
 	visit_expr(bb,in->rhs);
+		
+	if (wp->get_abstract_value (Context::non_contextual (bb), R_IN, in->lhs)->types->has ("unset"))
+		CTS ("num_implicit_array_defs");		
+	
+	CTS ("num_array_def_sites");	
 
-	collect_type_stats(bb,in->lhs,"types_assign_array");
-	collect_type_stats(bb,in->index,"types_array_index");
+	collect_type_stats(bb, in->rhs,"types_assign_array");
+	collect_type_stats(bb, in->index,"types_array_index");
 
 }
 
@@ -93,6 +97,17 @@ Stat_collector::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 {
 	last_assignment_lhs = *in->lhs->value;
 	visit_expr(bb,in->rhs);
+	
+	if (in->is_ref && isa<MIR::Array_access> (in->rhs))
+	{
+		CTS ("num_implicit_array_defs");
+		CTS ("num_array_def_sites");
+	}
+	else
+	{
+		if (wp->get_abstract_value (Context::non_contextual (bb), R_OUT, in->lhs)->types->has ("array"))
+			CTS ("num_array_def_sites");
+	}
 
 	collect_type_stats(bb,in->lhs,"types_assign_var");
 
@@ -159,7 +174,7 @@ Stat_collector::visit_method_alias (Statement_block* bb, MIR::Method_alias* in)
 void
 Stat_collector::visit_pre_op (Statement_block* bb, MIR::Pre_op* in)
 {
-		collect_type_stats (bb, in->variable_name, "types_pre_op_var");
+	collect_type_stats (bb, in->variable_name, "types_pre_op_var");
 }
 
 void
@@ -194,7 +209,6 @@ Stat_collector::visit_array_access (Statement_block* bb, MIR::Array_access* in)
 {
 	collect_type_stats (bb, in->variable_name, "types_array_access");
 	collect_type_stats (bb, in->index, "types_array_index");
-
 }
 
 void
