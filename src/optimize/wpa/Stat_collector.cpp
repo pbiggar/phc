@@ -50,9 +50,11 @@ Stat_collector::visit_statement_block (Statement_block* bb)
 
 	bb->statement->visit (gvn);
 
-	foreach (string varname, gvn->var_names)
-		add_to_stringset_stat ("total_num_vars", varname);
-
+	foreach (MIR::VARIABLE_NAME* varname, gvn->var_names)
+	{
+		add_to_stringset_stat ("total_num_vars", *varname->value);
+		collect_type_stats (bb, varname, "total_num_types");
+	}
 
 }
 

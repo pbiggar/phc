@@ -42,11 +42,11 @@ private:
 class Get_var_name : public MIR::Visitor, virtual public GC_obj
 {  
 	public: 
-		Set<string> var_names;
+		Set<MIR::VARIABLE_NAME*> var_names;
 
 		void pre_variable_name (MIR::VARIABLE_NAME* in)
 		{
-			var_names.insert (*in->value);
+			var_names.insert (in);
 		}
 		
 
