@@ -852,6 +852,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (get_parent_class, (), "string" ,"bool");
 	MODEL (getrandmax, (), "int");
 	MODEL (gettype, (), "string");
+	MODEL (gmdate, (0), "string");
 	MODEL (header, (0));
 	MODEL (htmlentities, (0, 2), "string");
 	MODEL (htmlspecialchars, (0, 2), "string");
@@ -886,6 +887,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (mysql_select_db, (0), "bool");
 	MODEL (number_format, (2, 3), "string");
 	MODEL (ord, (0), "int");
+	MODEL (ob_end_clean, (0), "bool");
 	MODEL (phpinfo, (), "bool");
 	MODEL (pow, (), "int", "real", "bool");
 	MODEL (printf, (0), "int");
@@ -1053,6 +1055,19 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		else
 			assign_path_typed (cx, ret_path, new Types ("bool"));
 	}
+	else if (*info->name == "explode")
+	{
+		params[0] = coerce_to_string (cx, params[0]);
+		params[1] = coerce_to_string (cx, params[1]);
+
+		assign_path_typed_array (cx, ret_path, new Types ("string"), ANON);
+	}
+	else if (*info->name == "file")
+	{
+		params[0] = coerce_to_string (cx, params[0]);
+
+		assign_path_typed_array (cx, ret_path, new Types ("string"), ANON);
+	}
 	else if (*info->name == "get_declared_classes")
 	{
 		// Return an array of strings
@@ -1100,13 +1115,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 
 		}
 	}
-	else if (*info->name == "explode")
-	{
-		params[0] = coerce_to_string (cx, params[0]);
-		params[1] = coerce_to_string (cx, params[1]);
 
-		assign_path_typed_array (cx, ret_path, new Types ("string"), ANON);
-	}
 	else if (*info->name == "is_array"
 			|| *info->name == "is_int"
 			|| *info->name == "is_null"
@@ -1228,10 +1237,6 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	else if (*info->name == "mysql_num_rows")
 	{
 		assign_path_typed_array (cx, ret_path, new Types ("int"), ANON);
-	}
-	else if (*info->name == "ob_end_clean")
-	{
-		assign_path_typed (cx, ret_path, new Types ("bool"));
 	}
 	else if (*info->name == "ob_start")
 	{
