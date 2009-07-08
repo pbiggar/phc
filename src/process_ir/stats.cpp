@@ -76,7 +76,7 @@ void dump_stats ()
 	int count;
 	foreach (tie (name, count), stats)
 	{
-		cout << name << count << "| |" << endl;
+		cout << name << '|' << count << "|" << endl;
 	}
 }
 
