@@ -39,4 +39,19 @@ private:
 	String last_assignment_lhs;
 };
 
+class Get_var_name : public MIR::Visitor, virtual public GC_obj
+{  
+	public: 
+		Set<string> var_names;
+
+		void pre_variable_name (MIR::VARIABLE_NAME* in)
+		{
+			var_names.insert (*in->value);
+		}
+		
+
+};  
+
+
+
 #endif // PHC_STAT_COLLECTOR

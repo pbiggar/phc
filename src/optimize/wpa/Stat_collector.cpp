@@ -46,6 +46,14 @@ void
 Stat_collector::visit_statement_block (Statement_block* bb)
 {
 	CTS ("num_statement_blocks");
+	Get_var_name* gvn = new Get_var_name ();
+
+	bb->statement->visit (gvn);
+
+	foreach (string varname, gvn->var_names)
+		add_to_stringset_stat ("total_num_vars", varname);
+
+
 }
 
 void
@@ -444,3 +452,6 @@ Stat_collector::collect_method_stats ()
 	set_stat ("total_classes_used", wp->callgraph->get_used_classes ()->size ());
 	set_stat ("num_unreachable_classes", num_classes - wp->callgraph->get_used_classes ()->size ());
 }
+
+
+  
