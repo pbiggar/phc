@@ -101,9 +101,11 @@ $tests[] = new CompareWithPHP ("InterpretObfuscated", "--obfuscate", "cb_mir");
 require_once ("generate_c.php");
 require_once ("compiled_vs_interpreted.php");
 
-$tests[] = new BasicTest ("FastOptimize", "--include -O1 --flow-insensitive --object-insensitive --call-string-length=1", "cb_mir");
-$tests[] = new BasicTest ("PreciseOptimize", "--include -O1 --call-string-length=0", "cb_mir");
-$tests[] = new CompareWithPHP ("InterpretOptimized", "--include -O1 --dump=codegen --convert-uppered", "BasicPreciseOptimizeTest");
+#$opt = " -O1 --include --disable=ifsimple,dce,rlb ";
+$opt = " -O1 --include ";
+$tests[] = new BasicTest ("FastOptimize", "$opt --flow-insensitive --object-insensitive --call-string-length=1", "cb_mir");
+$tests[] = new BasicTest ("PreciseOptimize", "$opt", "cb_mir");
+$tests[] = new CompareWithPHP ("InterpretOptimized", "$opt --dump=codegen --convert-uppered", "BasicPreciseOptimizeTest");
 require_once ("compile_optimized.php");
 
 
