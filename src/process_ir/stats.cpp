@@ -76,7 +76,7 @@ void dump_stats ()
 	int count;
 	foreach (tie (name, count), stats)
 	{
-		cout << name << "| |" << count << endl;
+		cout << name << << count << "| |" << endl;
 	}
 }
 
@@ -100,6 +100,7 @@ void dump_stringset_stats ()
 	
 	foreach (tie (s,sss), stringset_stats)
 	{
+		stringstream elements;
 		int count=0;
 		bool first=true;
 
@@ -108,13 +109,13 @@ void dump_stringset_stats ()
 		{	
 			if (!first)
 			{
-				cout << ",";
+				elements << ",";
 			}
-			first=false;
-			cout << str ;
+			first=false;		
+			elements << str ;
 			count++;
 		}
-		cout << "|" << count << endl;	//num of elements
+		cout << count << '|' << elements.str () << endl;
 	}
 
 }
