@@ -28,7 +28,7 @@
 	{
 		if($count > 1)
 		{
-			if ($arg != "-O2" || $arg != "--stats")
+			if ($arg != "-O1" || $arg != "--stats")
 			{
 				$flags = $flags.$arg;
 				$flags = $flags." ";
@@ -72,9 +72,15 @@
 	{
 		print ("$filename\n");	
 	
-		$arr = complete_exec ("src/phc --stats -O2 $filename $flags 2>&1");
+		list ($output, $err, $exit_code) = complete_exec ("src/phc --stats -O2 $filename $flags");
 
-		$output = split ("\n", $arr[0]);
+		if ($err or $exit_code)
+		{
+			print ($err);
+			print ($exit_code);
+		}
+		
+		$output = split ("\n", $output);
 
 		$date = date ("c");		
 
@@ -82,13 +88,19 @@
 
 		foreach ($output as $o)
 		{
-			$DB->exec ("
-				INSERT INTO results
-				VALUES ('$date',
-					'$filename',
-					'$flags',
-					$o)
-				");
+			$fields = split ("\|", $o);
+			if (count($fields) == 3)
+			{	
+				$DB->exec ("
+					INSERT INTO results
+					VALUES ('$date',
+						'$filename',
+						'$flags',
+						'".$fields[0]."',
+						'".$fields[1]."',
+						'".$fields[2]."')
+					");
+			}
 		}
 
 

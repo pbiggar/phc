@@ -73,7 +73,7 @@ void dump_stats ()
 	int count;
 	foreach (tie (name, count), stats)
 	{
-		cerr << name << " - " << count << endl;
+		cout << name << "| |" << count << endl;
 	}
 }
 
@@ -85,7 +85,7 @@ void dump_types_per_var_name ()
 	{
 		if ( (s.substr(0,28) == "Number of types assigned to "))
 		{
-			cerr << "\'" << s.substr(28) << "\'" << ',' << n << endl;
+			cout << "\'" << s.substr(28) << "\'" << ',' << n << endl;
 		}
 	}	
 }
@@ -100,17 +100,18 @@ void dump_stringset_stats ()
 		int count=0;
 		bool first=true;
 
-		cerr << "\'" << s << "\',\'";	//name
+		cout << s << "|";	//name
 		foreach (string str, *sss)		//elements
-		{	if (!first)
+		{	
+			if (!first)
 			{
-				cerr << ",";
+				cout << ",";
 			}
 			first=false;
-			cerr << str ;
+			cout << str ;
 			count++;
 		}
-		cerr << "\'," << count << endl;	//num of elements
+		cout << "|" << count << endl;	//num of elements
 	}
 
 }

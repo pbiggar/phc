@@ -84,6 +84,11 @@ void sighandler(int signum)
 	fprintf(stderr, "This could be a bug in phc. If you suspect it is, please email\n");
 	fprintf(stderr, "a bug report to phc-general@phpcompiler.org.\n");
 
+	if (pm->args_info->stats_given)
+	{
+		dump_stats ();
+		dump_stringset_stats ();
+	}
 	print_stats ();
 
 	exit(-1);
