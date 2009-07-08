@@ -834,7 +834,6 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (debug_zval_dump, ());
 	MODEL (dechex, (), "string");
 	MODEL (defined, (0), "bool");
-	MODEL (empty, (), "bool");
 	MODEL (ereg_replace, (0, 1, 2), "string");
 	MODEL (error_reporting, (), "int");
 	MODEL (fclose, (), "bool");
@@ -1041,6 +1040,19 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 			}
 		}
 	}
+	else if (*info->name == "empty")
+	{
+		const Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]);
+		if (absval->lit)
+		{
+			if (PHP::is_true (C(absval->lit)))
+				assign_path_scalar (cx, ret_path, new BOOL (false));
+			else
+				assign_path_scalar (cx, ret_path, new BOOL (true));
+		}
+		else
+			assign_path_typed (cx, ret_path, new Types ("bool"));
+	}
 	else if (*info->name == "get_declared_classes")
 	{
 		// Return an array of strings
@@ -1052,7 +1064,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		bool can_be_real = true;
 		bool can_be_array = true;
 
-		if (aliasing->has_field (cx, R_WORKING, params[0])) // TODO: just use params[0]?
+		if (aliasing->has_field (cx, R_WORKING, params[0]))
 		{
 			const Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]);
 

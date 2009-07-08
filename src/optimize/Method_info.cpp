@@ -276,7 +276,7 @@ Builtin_method_info::default_param (int param_index)
 bool
 Builtin_method_info::get_side_effecting ()
 {
-	return true;
+	return *name != "empty";
 }
 
 int
