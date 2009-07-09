@@ -339,6 +339,9 @@ public:
 
 	DECLARE_STATEMENT_CFG_VISITORS
 	DECLARE_EXPR_CFG_VISITORS
+
+private:
+	int iteration_num;
 };
 
 

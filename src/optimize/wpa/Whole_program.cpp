@@ -113,6 +113,8 @@ Whole_program::run (MIR::PHP_script* in)
 
 	for (int w = 0; w < 10; w++)
 	{
+		iteration_num = w;
+
 		initialize (outer_cx);
 
 		// Perform the whole-program analysis
@@ -697,6 +699,8 @@ Whole_program::analyse_summary (Summary_method_info* info, Context* caller_cx, A
 void
 Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, Context* caller_cx)
 {
+
+	CTS ("modelled_functions_analysed");
 	// TODO:
 	//	If we know all the values for all the parameters, and the function has
 	//	no side-effects, call the function on its parameters.
@@ -1412,7 +1416,7 @@ Whole_program::collect_stats (User_method_info* info)
 {
 	if (pm->args_info->stats_given)
 	{
-
+		set_stat ("num_iterations", iteration_num + 1);
 		// TODO: maybe stat_coll->run(info->get_cfg ()) ?
 		stat_coll->collect_method_stats ();
 		stat_coll->get_number_of_statements (info->get_cfg (), "after");
@@ -1559,6 +1563,13 @@ Whole_program::finish_block (Context* cx, bool pop)
 	// We need to remove these to make the results converge.
 	destroy_fake_indices (cx);
 
+	CTS ("bbs_analysed");
+
+	stringstream ss;
+  	ss	<< "bbs_analysed_in_iteration_" << iteration_num;
+
+	CTS (ss.str ());	
+
 	FWPA->finish_block (cx);
 
 	if (pop)
@@ -1575,6 +1586,7 @@ bool
 Whole_program::analyse_block (Context* cx)
 {
 	DEBUG ("\nAnalysing BB: " << cx << ": " << *cx->get_bb()->get_graphviz_label ());
+
 
 	init_block (cx);
 
