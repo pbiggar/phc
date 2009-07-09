@@ -28,8 +28,8 @@ User_method_info::User_method_info (Method* method)
 : Method_info (method->signature->method_name->value)
 , class_info (NULL)
 , method (method)
+, signature (method->signature->clone())
 , side_effecting (true)
-, has_self_parameter (false)
 {
 }
 
@@ -37,9 +37,20 @@ User_method_info::User_method_info (User_class_info* class_info, Method* method)
 : Method_info (method->signature->method_name->value)
 , class_info (class_info)
 , method (method)
+, signature (method->signature->clone())
 , side_effecting (true)
-, has_self_parameter (false)
 {
+	if (!signature->method_mod->is_static)
+	{
+		// Add the self parameter
+		signature->formal_parameters->push_front (
+				new Formal_parameter (
+					NULL,
+					false,
+					new Name_with_default (
+						new VARIABLE_NAME ("this"),
+						NULL)));
+	}
 }
 
 bool
@@ -48,38 +59,24 @@ User_method_info::has_implementation ()
 	return true;
 }
 
-void
-User_method_info::add_self_parameter ()
-{
-	this->has_self_parameter = true;
-
-	method->signature->formal_parameters->push_front (
-		new Formal_parameter (
-			NULL,
-			false,
-			new Name_with_default (
-				new VARIABLE_NAME ("this"),
-				NULL)));
-}
-
 bool
 User_method_info::return_by_ref ()
 {
-	return method->signature->return_by_ref;
+	return signature->return_by_ref;
 }
 
 bool
 User_method_info::param_by_ref (int param_index)
 {
 	if ((unsigned int)(param_index+1)
-			> method->signature->formal_parameters->size())
+			> signature->formal_parameters->size())
 	{
 		// TODO: remove pass_rest_by_ref
 		return false;
 	}
 	else
 	{
-		return method->signature->formal_parameters->at (param_index)->is_ref;
+		return signature->formal_parameters->at (param_index)->is_ref;
 	}
 }
 
@@ -87,13 +84,13 @@ VARIABLE_NAME*
 User_method_info::param_name (int param_index)
 {
 	if ((unsigned int)(param_index+1)
-			> method->signature->formal_parameters->size())
+			> signature->formal_parameters->size())
 	{
 		return unnamed_param (param_index);
 	}
 	else
 	{
-		return method->signature->formal_parameters->at (
+		return signature->formal_parameters->at (
 			param_index)->var->variable_name;
 	}
 }
@@ -102,11 +99,11 @@ Static_value*
 User_method_info::default_param (int param_index)
 {
 	if ((unsigned int)(param_index+1) 
-			> method->signature->formal_parameters->size())
+			> signature->formal_parameters->size())
 		return NULL;
 	else
 	{
-		return method->signature->formal_parameters->at (
+		return signature->formal_parameters->at (
 			param_index)->var->default_value;
 	}
 }
@@ -140,24 +137,12 @@ unnamed_param (int param_index)
 int
 User_method_info::formal_param_count ()
 {
-	return method->signature->formal_parameters->size ();
+	return signature->formal_parameters->size ();
 }
 
 Method*
 User_method_info::get_method ()
 {
-	if (this->has_self_parameter)
-	{
-		Formal_parameter_list* params = this->method->signature->formal_parameters;
-
-		// Check the SELF parameter is there.
-		assert (params->size () >= 1);
-		assert (*params->front ()->var->variable_name->value == "this");
-
-		// Remove it
-		params->pop_front ();
-	}
-
 	return method;
 }
 

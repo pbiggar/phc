@@ -118,8 +118,8 @@ class User_method_info : public Method_info
 private:
 	User_class_info* class_info;
 	MIR::Method* method;
+	MIR::Signature* signature;
 	bool side_effecting;
-	bool has_self_parameter;
 
 
 public:
@@ -127,9 +127,6 @@ public:
 	User_method_info (User_class_info* class_info, MIR::Method* method);
 
 	bool has_implementation ();
-
-	// Add THIS to the method, but don't forget to remove it later, in get_method.
-	void add_self_parameter ();
 
 	bool return_by_ref ();
 	MIR::VARIABLE_NAME* param_name (int param_index);

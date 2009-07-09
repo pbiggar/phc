@@ -103,10 +103,6 @@ User_class_info::User_class_info (Class_def* class_def)
 			}
 
 			User_method_info* umi = new User_method_info (this, method);
-
-			if (!method->signature->method_mod->is_static)
-				umi->add_self_parameter ();
-
 			this->methods[*name] = umi;
 		}
 	}
