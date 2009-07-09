@@ -502,7 +502,23 @@ Points_to_impl::get_storage_nodes () const
 }
 
 
+cField_edge_list* 
+Points_to_impl::get_field_edges () const
+{
+	return fields.get_edges (); 
+}
 
+cPoints_to_edge_list*
+Points_to_impl::get_points_to_edges () const
+{
+	return points_to.get_edges ();
+}
+
+cReference_edge_list*
+Points_to_impl::get_reference_edges () const
+{
+	return references.get_edges ();
+}
 // Mark all symtable nodes, then sweep anything they can reach. Remove the
 // rest.
 void

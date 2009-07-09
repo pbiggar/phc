@@ -274,7 +274,7 @@ Aliasing::merge_contexts ()
 
 	// Don't like putting this here (would rather have something in Stat_collector),
 	// but not sure if it can be avoided:
-	set_stat ("num_contexts",ins.size ());
+	set_stat ("num_contexts", ins.size ());
 
 	// First create a noncontextual context for each BB
 	// (Careful not to overwrite outer_scope)
@@ -374,7 +374,59 @@ Aliasing::get_owner (Context* cx, Result_state state, const Index_node* index) c
 	return ptgs[state][cx]->get_owner (index);
 }
 
+cField_edge_list* 
+Aliasing::get_field_edges (Context* cx, Result_state state) const
+{
+	return ptgs[state][cx]->get_field_edges ();
+}
 
+int
+Aliasing::get_total_num_field_edges () const
+{
+	int res = 0;
+	Context* cx;
+	Points_to* ptg;
+	foreach (tie (cx, ptg), ins)
+		res += get_field_edges (cx, R_IN)->size ();
+
+	return res;
+}
+
+cPoints_to_edge_list* 
+Aliasing::get_points_to_edges (Context* cx, Result_state state) const
+{
+	return ptgs[state][cx]->get_points_to_edges ();
+}
+
+int
+Aliasing::get_total_num_points_to_edges () const
+{
+	int res = 0;
+	Context* cx;
+	Points_to* ptg;
+	foreach (tie (cx, ptg), ins)
+		res += get_points_to_edges (cx, R_IN)->size ();
+
+	return res;
+}
+
+cReference_edge_list*
+Aliasing::get_reference_edges (Context* cx, Result_state state) const
+{
+	return ptgs[state][cx]->get_reference_edges ();
+}
+
+int
+Aliasing::get_num_possible_reference_edges () const
+{
+	phc_TODO ();	
+}
+
+int 
+Aliasing::get_num_definite_reference_edges () const
+{
+	phc_TODO ();
+}
 /*
  * Path is used to represent the MIR constructs in an abstract way that
  * models all the MIR constructs. A name is a limited combination of Index_

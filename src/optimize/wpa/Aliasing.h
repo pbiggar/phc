@@ -18,6 +18,7 @@
 #define PHC_ALIASING
 
 #include "WPA.h"
+#include "Points_to.h"
 
 class Path;
 class Points_to;
@@ -102,6 +103,15 @@ public:
 	cIndex_node_list* get_fields (Context* cx, Result_state state, const Storage_node* storage) const;
 	cStorage_node_list* get_points_to (Context* cx, Result_state state, const Index_node* index) const;
 
+	cField_edge_list* get_field_edges (Context* cx, Result_state state) const;
+	cPoints_to_edge_list* get_points_to_edges (Context* cx, Result_state state) const;
+	cReference_edge_list* get_reference_edges (Context* cx, Result_state state) const;
+	int get_total_num_field_edges () const;
+	int get_total_num_points_to_edges () const;
+	int get_num_possible_reference_edges () const;
+	int get_num_definite_reference_edges () const;	
+
+   
 	bool is_abstract (Context* cx, Result_state state, const Storage_node* st) const;
 	bool is_abstract_field (Context* cx, Result_state state, const Index_node* st) const;
 

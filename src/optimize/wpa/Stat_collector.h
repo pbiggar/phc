@@ -35,6 +35,7 @@ public:
 	void collect_def_use_stats (CFG* cfg);
 	void collect_type_stats (Basic_block* bb, MIR::Rvalue* rval, string ssstatname, string statname = " ");
 	void collect_method_stats ();
+	void collect_alias_analysis_stats ();
 private:
 	MIR::VARIABLE_NAME* last_assignment_lhs;
 };

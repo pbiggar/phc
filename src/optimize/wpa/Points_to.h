@@ -37,7 +37,6 @@ Storage_node* CX_object_node (Context* cx);
 Storage_node* CX_symtable_node (Context* cx);
 
 
-
 /*
  * An index_node represents a variable, array-index or field of a storage node.
  *
@@ -325,9 +324,10 @@ typedef Alias_pair<const Index_node, const Index_node> Reference_edge;
 typedef Alias_pair<const Index_node, const Storage_node> Points_to_edge; 
 typedef Alias_pair<const Storage_node, const Index_node> Field_edge; 
 
-DECL_LIST (Points_to_edge);
-DECL_LIST (Field_edge);
-DECL_LIST (Reference_edge);
+
+DECL_CONST_LIST (Points_to_edge);
+DECL_CONST_LIST (Field_edge);
+DECL_CONST_LIST (Reference_edge);
 
 SET_COMPARABLE (Points_to_edge);
 SET_COMPARABLE (Field_edge);
@@ -751,8 +751,10 @@ public:
 	cAlias_name_list* get_nodes () const;
 	cIndex_node_list* get_index_nodes () const;
 	cStorage_node_list* get_storage_nodes () const;
-
-
+	cField_edge_list* get_field_edges () const;
+	cPoints_to_edge_list* get_points_to_edges () const;
+	cReference_edge_list* get_reference_edges () const;
+	
 	bool has_storage_node (const Storage_node* st) const;
 
 	void remove_index_node (const Index_node* index);
@@ -850,6 +852,9 @@ public:
 	cIndex_node_list* get_incoming (const Storage_node* st) const { return impl->get_incoming (st); }
 	cStorage_node_list* get_points_to (const Index_node* index) const { return impl->get_points_to (index); }
 	cStorage_node_list* get_storage_nodes () const { return impl->get_storage_nodes (); }
+	cField_edge_list* get_field_edges () const { return impl->get_field_edges ();	}
+	cPoints_to_edge_list* get_points_to_edges () const { return impl->get_points_to_edges (); }
+	cReference_edge_list* get_reference_edges () const { return impl->get_reference_edges (); }
 	void consistency_check (Context* cx, Result_state state, Whole_program* wp) const { return impl->consistency_check (cx, state, wp); }
 	void dump_graphviz (String* label, Context* cx, Result_state state, Whole_program* wp) const { return impl->dump_graphviz (label, cx, state, wp); }
 

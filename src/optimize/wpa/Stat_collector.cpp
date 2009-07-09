@@ -11,6 +11,7 @@
 #include "Def_use.h"
 #include "../ssa/HSSA.h"
 #include "Callgraph.h"
+#include "Aliasing.h"
 
 #include "Stat_collector.h"
 
@@ -486,5 +487,12 @@ Stat_collector::collect_method_stats ()
 	set_stat ("num_unreachable_classes", num_classes - wp->callgraph->get_used_classes ()->size ());
 }
 
+void
+Stat_collector::collect_alias_analysis_stats ()
+{
+	set_stat ("num_field_edges", wp->aliasing->get_total_num_field_edges ());
+	set_stat ("num_points_to_edges", wp->aliasing->get_total_num_points_to_edges ());
 
+
+}
   
