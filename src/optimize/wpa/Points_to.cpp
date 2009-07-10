@@ -515,10 +515,34 @@ Points_to_impl::get_points_to_edges () const
 }
 
 cReference_edge_list*
-Points_to_impl::get_reference_edges () const
+Points_to_impl::get_possible_reference_edges () const
 {
-	return references.get_edges ();
+	cReference_edge_list* result = new cReference_edge_list ();
+	
+	foreach (const Reference_edge* refedge, *references.get_edges ())
+	{
+		if (references.get_value (refedge) == POSSIBLE)
+			result->push_back (refedge);
+	}
+	
+	return result;
 }
+
+cReference_edge_list*
+Points_to_impl::get_definite_reference_edges () const
+{
+	cReference_edge_list* result = new cReference_edge_list ();
+	
+	foreach (const Reference_edge* refedge, *references.get_edges ())
+	{
+		if (references.get_value (refedge) == DEFINITE)
+			result->push_back (refedge);
+	}
+	
+	return result;
+}
+
+
 // Mark all symtable nodes, then sweep anything they can reach. Remove the
 // rest.
 void

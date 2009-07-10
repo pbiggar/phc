@@ -411,21 +411,39 @@ Aliasing::get_total_num_points_to_edges () const
 }
 
 cReference_edge_list*
-Aliasing::get_reference_edges (Context* cx, Result_state state) const
+Aliasing::get_possible_reference_edges (Context* cx, Result_state state) const
 {
-	return ptgs[state][cx]->get_reference_edges ();
+	return ptgs[state][cx]->get_possible_reference_edges ();
+}
+
+cReference_edge_list*
+Aliasing::get_definite_reference_edges (Context* cx, Result_state state) const
+{
+	return ptgs[state][cx]->get_definite_reference_edges ();
 }
 
 int
 Aliasing::get_num_possible_reference_edges () const
 {
-	phc_TODO ();	
+	int res = 0;
+	Context* cx;
+	Points_to* ptg;	
+	foreach (tie (cx, ptg), ins)
+		res += get_possible_reference_edges (cx, R_IN)->size ();
+
+	return res;
 }
 
 int 
 Aliasing::get_num_definite_reference_edges () const
 {
-	phc_TODO ();
+	int res = 0;
+	Context* cx;
+	Points_to* ptg;
+	foreach (tie (cx, ptg), ins)
+		res += get_definite_reference_edges (cx, R_IN)->size ();	
+
+	return res;
 }
 /*
  * Path is used to represent the MIR constructs in an abstract way that

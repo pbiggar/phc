@@ -105,7 +105,8 @@ public:
 
 	cField_edge_list* get_field_edges (Context* cx, Result_state state) const;
 	cPoints_to_edge_list* get_points_to_edges (Context* cx, Result_state state) const;
-	cReference_edge_list* get_reference_edges (Context* cx, Result_state state) const;
+	cReference_edge_list* get_possible_reference_edges (Context* cx, Result_state state) const;
+	cReference_edge_list* get_definite_reference_edges (Context* cx, Result_state state) const;
 	int get_total_num_field_edges () const;
 	int get_total_num_points_to_edges () const;
 	int get_num_possible_reference_edges () const;

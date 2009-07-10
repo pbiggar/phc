@@ -492,7 +492,10 @@ Stat_collector::collect_alias_analysis_stats ()
 {
 	set_stat ("num_field_edges", wp->aliasing->get_total_num_field_edges ());
 	set_stat ("num_points_to_edges", wp->aliasing->get_total_num_points_to_edges ());
-
-
+	int poss_ref_edges = wp->aliasing->get_num_possible_reference_edges ();
+	int def_ref_edges = wp->aliasing->get_num_definite_reference_edges ();
+	set_stat ("num_possible_reference_edges", poss_ref_edges);
+	set_stat ("num_definite_reference_edges", def_ref_edges);
+	set_stat ("num_reference_edges", poss_ref_edges + def_ref_edges);
 }
   

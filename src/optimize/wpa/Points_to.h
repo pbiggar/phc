@@ -752,9 +752,10 @@ public:
 	cIndex_node_list* get_index_nodes () const;
 	cStorage_node_list* get_storage_nodes () const;
 	cField_edge_list* get_field_edges () const;
-	cPoints_to_edge_list* get_points_to_edges () const;
-	cReference_edge_list* get_reference_edges () const;
-	
+	cPoints_to_edge_list* get_points_to_edges () const;	
+	cReference_edge_list* get_possible_reference_edges () const;
+	cReference_edge_list* get_definite_reference_edges () const;
+
 	bool has_storage_node (const Storage_node* st) const;
 
 	void remove_index_node (const Index_node* index);
@@ -854,7 +855,8 @@ public:
 	cStorage_node_list* get_storage_nodes () const { return impl->get_storage_nodes (); }
 	cField_edge_list* get_field_edges () const { return impl->get_field_edges ();	}
 	cPoints_to_edge_list* get_points_to_edges () const { return impl->get_points_to_edges (); }
-	cReference_edge_list* get_reference_edges () const { return impl->get_reference_edges (); }
+	cReference_edge_list* get_possible_reference_edges () const { return impl->get_possible_reference_edges (); }
+	cReference_edge_list* get_definite_reference_edges () const { return impl->get_definite_reference_edges (); }
 	void consistency_check (Context* cx, Result_state state, Whole_program* wp) const { return impl->consistency_check (cx, state, wp); }
 	void dump_graphviz (String* label, Context* cx, Result_state state, Whole_program* wp) const { return impl->dump_graphviz (label, cx, state, wp); }
 
