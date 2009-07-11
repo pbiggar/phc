@@ -36,44 +36,44 @@ codegen/\d.*							short
 reduced/.*								short
 
 # Bugs/features we want to ignore for the optimizer
-bugs/bug0008.php								no-Optimiz # clone
-codegen/006b.php								no-Optimiz # eval
-codegen/006c.php								no-Optimiz # eval
-codegen/006.php								no-Optimiz # eval
-codegen/019a.php								no-Optimiz # eval
-codegen/019c.php								no-Optimiz # eval
-codegen/bailout_die.php						no-Optimiz # set_error_handler
-codegen/call_evaled_fn.php					no-Optimiz # eval
-codegen/foreach_object.php					no-Optimiz # containts a fatal error
-codegen/same_parameters.php				no-Optimiz # bizarre edge case, where i'm not sure why PHP does what it does.
-dynamic/.*										no-Optimiz # we dont support dynamic classes yet
-errors/.*										no-Optimiz
-inline-c/.*										no-Optimiz
-optimization/indirect_string.php			no-Optimiz # reading from a string by reference gives an error
-optimization/object_casting.php			no-Optimiz # error
-optimization/reference2.php				no-Optimiz # accessing an object as an array.
-optimization/unknown_everything.php		no-Optimiz # eval
-parsing/brackets.php							no-Optimiz # includes non-existent files
-parsing/empty.php								no-Optimiz # empty takes a NULL value
-parsing/for.php								no-Optimiz # exit isnt reachable due to infinite-loop, so it segfaults.
-parsing/functions.php						no-Optimiz # multiple function declaration
-parsing/included_cc2.php					no-Optimiz # class error
-parsing/listassignment.php					no-Optimiz # breaks the rules for list-assignments by using arrays which are indexed by a string key.
-reduced/0001.php								no-Optimiz # eval
-reduced/0002.php								no-Optimiz # debug_zval_dump
-reduced/0004.php								no-Optimiz # eval
-reduced/0005.php								no-Optimiz # debug_zval_dump
-reduced/0010.php								no-Optimiz # eval
-reduced/0011.php								no-Optimiz # eval
-reduced/0012.php								no-Optimiz # eval
-reduced/0013.php								no-Optimiz # eval
-reduced/0019.php								no-Optimiz # eval
-reduced/0052.php								no-Optimiz # __destruct
-reduced/0053.php								no-Optimiz # class error
-reduced/0054.php								no-Optimiz # class error
-reduced/0054.php								no-Optimiz # class error
-unsupported/.*									no-Optimiz
-warnings/.*										no-Optimiz
+bugs/bug0008.php								no-Opt # clone
+codegen/006b.php								no-Opt # eval
+codegen/006c.php								no-Opt # eval
+codegen/006.php								no-Opt # eval
+codegen/019a.php								no-Opt # eval
+codegen/019c.php								no-Opt # eval
+codegen/bailout_die.php						no-Opt # set_error_handler
+codegen/call_evaled_fn.php					no-Opt # eval
+codegen/foreach_object.php					no-Opt # containts a fatal error
+codegen/same_parameters.php				no-Opt # bizarre edge case, where i'm not sure why PHP does what it does.
+dynamic/.*										no-Opt # we dont support dynamic classes yet
+errors/.*										no-Opt
+inline-c/.*										no-Opt
+optimization/indirect_string.php			no-Opt # reading from a string by reference gives an error
+optimization/object_casting.php			no-Opt # error
+optimization/reference2.php				no-Opt # accessing an object as an array.
+optimization/unknown_everything.php		no-Opt # eval
+parsing/brackets.php							no-Opt # includes non-existent files
+parsing/empty.php								no-Opt # empty takes a NULL value
+parsing/for.php								no-Opt # exit isnt reachable due to infinite-loop, so it segfaults.
+parsing/functions.php						no-Opt # multiple function declaration
+parsing/included_cc2.php					no-Opt # class error
+parsing/listassignment.php					no-Opt # breaks the rules for list-assignments by using arrays which are indexed by a string key.
+reduced/0001.php								no-Opt # eval
+reduced/0002.php								no-Opt # debug_zval_dump
+reduced/0004.php								no-Opt # eval
+reduced/0005.php								no-Opt # debug_zval_dump
+reduced/0010.php								no-Opt # eval
+reduced/0011.php								no-Opt # eval
+reduced/0012.php								no-Opt # eval
+reduced/0013.php								no-Opt # eval
+reduced/0019.php								no-Opt # eval
+reduced/0052.php								no-Opt # __destruct
+reduced/0053.php								no-Opt # class error
+reduced/0054.php								no-Opt # class error
+reduced/0054.php								no-Opt # class error
+unsupported/.*									no-Opt
+warnings/.*										no-Opt
 
 
 
