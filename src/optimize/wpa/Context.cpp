@@ -180,6 +180,9 @@ Context::array_name () const
 string
 Context::symtable_name () const
 {
+	// TODO: This name should include the class, or else we're overlapping other
+	// methods of the same name.
+
 	if (this->use_caller)
 		return "SYM" + get_bb()->get_prefix () + this->caller ()->name();
 	else

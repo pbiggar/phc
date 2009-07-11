@@ -1581,6 +1581,9 @@ Whole_program::finish_block (Context* cx, bool pop)
 		saved_lhss.pop ();
 		saved_plhss.pop ();
 	}
+
+	if (pm->args_info->verbose_flag)
+		cerr << ".";
 }
 
 bool
