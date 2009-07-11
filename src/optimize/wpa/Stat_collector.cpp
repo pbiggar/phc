@@ -56,7 +56,7 @@ Stat_collector::visit_statement_block (Statement_block* bb)
 		if (!get_stringset_stat ("total_num_vars")->has (*varname->value))
 		{
 			add_to_stringset_stat ("total_num_vars", *varname->value);
-			collect_type_stats (bb, varname, "total_num_unique_types","total_num_types");
+			collect_type_stats (bb, varname,"total_num_types");
 		}
 	}
 }
@@ -79,6 +79,7 @@ Stat_collector::visit_assign_array (Statement_block* bb, MIR::Assign_array* in)
 		CTS ("num_array_def_sites");	
 	}
 
+	CTS ("num_assign_array");
 	collect_type_stats(bb, in->rhs,"types_assign_array");
 	collect_type_stats(bb, in->index,"types_array_index");
 
@@ -99,6 +100,7 @@ Stat_collector::visit_assign_field (Statement_block* bb, MIR::Assign_field * in)
 void
 Stat_collector::visit_assign_next (Statement_block* bb, MIR::Assign_next* in)
 {
+	CTS ("num_assign_next");
 	collect_type_stats (bb, in->lhs, "types_assign_next");
 }
 
@@ -126,7 +128,7 @@ Stat_collector::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 	}
 
 	collect_type_stats(bb,in->lhs,"types_assign_var");
-
+	CTS ("num_assign_var");
 }
 
 void
@@ -135,6 +137,7 @@ Stat_collector::visit_assign_var_var (Statement_block* bb, MIR::Assign_var_var* 
 	visit_expr(bb,in->rhs);
 
 	collect_type_stats(bb,in->lhs,"types_assign_var_var");
+	CTS ("num_assign_var_var");
 }
 
 void
@@ -191,12 +194,14 @@ void
 Stat_collector::visit_pre_op (Statement_block* bb, MIR::Pre_op* in)
 {
 	collect_type_stats (bb, in->variable_name, "types_pre_op_var");
+	CTS ("num_pre_op_var");
 }
 
 void
 Stat_collector::visit_return (Statement_block* bb, MIR::Return* in)
 {
 	collect_type_stats (bb, in->rvalue, "types_return");
+	CTS ("num_return");
 }
 
 void
@@ -225,6 +230,7 @@ Stat_collector::visit_array_access (Statement_block* bb, MIR::Array_access* in)
 {
 	collect_type_stats (bb, in->variable_name, "types_array_access");
 	collect_type_stats (bb, in->index, "types_array_index");
+	CTS ("num_array_access");
 }
 
 void
@@ -239,7 +245,7 @@ Stat_collector::visit_bin_op (Statement_block* bb, MIR::Bin_op* in)
 
 	collect_type_stats (bb, in->left, "types_bin_op_lhs");
 	collect_type_stats (bb, in->right, "types_bin_op_rhs");
-
+	CTS ("num_bin_op_lhs");
 }
 
 void
@@ -339,6 +345,7 @@ Stat_collector::visit_method_invocation (Statement_block* bb, MIR::Method_invoca
 	foreach (Actual_parameter* param, *in->actual_parameters)
 	{
 		collect_type_stats (bb,param->rvalue,"types_method_parameter");
+		CTS ("num_method_parameter");
 	}
 }
 
@@ -379,6 +386,7 @@ void
 Stat_collector::visit_unary_op (Statement_block* bb, MIR::Unary_op* in)
 {
 	collect_type_stats (bb, in->variable_name, "types_unary_op_var");
+	CTS ("num_unary_op_var");
 }
 
 void
@@ -394,16 +402,15 @@ Stat_collector::visit_variable_variable (Statement_block* bb, MIR::Variable_vari
 }
 
 void
-Stat_collector::collect_type_stats (Basic_block* bb, MIR::Rvalue* rval, string ssstatname, string statname)
+Stat_collector::collect_type_stats (Basic_block* bb, MIR::Rvalue* rval,string statname)
 {
 	const Abstract_value* absval = wp->get_abstract_value (Context::non_contextual (bb), R_OUT, rval);
 	if (absval->types)
 	{
 		foreach (string type, *absval->types)
 		{
-			if (statname != " ")
-				CTS (statname);
-			add_to_stringset_stat (ssstatname,type);	
+			CTS (statname);
+//			add_to_str_stat (statname,type);	
 		}
 	}
 }
