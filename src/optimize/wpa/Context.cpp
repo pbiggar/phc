@@ -181,9 +181,9 @@ string
 Context::symtable_name () const
 {
 	if (this->use_caller)
-		return get_bb()->get_prefix () + this->caller ()->name();
+		return "SYM" + get_bb()->get_prefix () + this->caller ()->name();
 	else
-		return get_bb()->get_prefix ();
+		return "SYM" + get_bb()->get_prefix ();
 }
 
 string

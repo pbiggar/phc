@@ -2539,12 +2539,23 @@ Whole_program::create_empty_storage (Context* cx, string type, string name)
 	if (name == "")
 	{
 		// Use a - so that the convert_context_name hack doesnt get confused.
-		name = cx->storage_name (type) + "-" + lexical_cast<string> (unique_count ());
+		name = cx->storage_name (type);
 	}
 
 	Storage_node* st = SN (name);
 
+	bool old_abstract = aliasing->is_abstract (cx, R_WORKING, st);
+
 	FWPA->set_storage (cx, st, new Types (type));
+
+	if (old_abstract == false && aliasing->is_abstract (cx, R_WORKING, st))
+	{
+		// We need to make all the fields potentially NULL, since the new storage is empty.
+		foreach (const Index_node* index, *aliasing->get_fields (cx, R_WORKING, st))
+		{
+			assign_absval (cx, index, new Abstract_value (new NIL));
+		}
+	}
 
 	// All the entries are NULL.
 	assign_path_scalar (cx, P (name, UNKNOWN), new NIL);
