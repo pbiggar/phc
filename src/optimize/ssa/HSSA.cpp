@@ -8,6 +8,8 @@
 #include <boost/graph/reverse_graph.hpp>
 #include <boost/graph/topological_sort.hpp>
 
+#include <iostream>
+
 #include "process_ir/General.h"
 #include "process_mir/MIR_unparser.h"
 
@@ -258,43 +260,7 @@ HSSA::convert_to_hssa_form ()
 
 	// For an assignment to X in BB, add a PHI function for variable X in the
 	// dominance frontier of BB.
-	BB_list* worklist = cfg->get_all_bbs_top_down ();
-	BB_list::iterator i = worklist->begin ();
-	while (i != worklist->end ())
-	{
-		Basic_block* bb = *i;
-		foreach (Basic_block* frontier, *bb->get_dominance_frontier ())
-		{
-			// Get defs (including phis and chis)
-			bool def_added = false;
-			SSA_def_list* defs = new SSA_def_list;
-			defs->push_back_all (cfg->duw->get_block_defs (bb));
-		
-			// phis add a def thats not in the DUW
-			Set<SSA_name>* phidefs = bb->get_phi_lhss ();	
-			
-			foreach (SSA_name name, *phidefs)
-			{
-				defs->push_back (new SSA_def (bb, &name, SSA_PHI)); 
-			}
-
-			foreach (SSA_def* def, *defs)
-			{
-				if (!frontier->has_phi_node (*(def->name)))
-				{
-					frontier->add_phi_node (*(def->name));
-					
-					def_added = true;
-				}
-			}
-
-			// This adds a new def, which requires us to iterate.
-			if (def_added)
-				worklist->push_back (frontier);
-		}
-		i++;
-	}
-
+	insert_phi_nodes ();
 
 	// 4) Rename all scalar and virtual variables using Cytron algorithm
 	if (debugging_enabled)
@@ -307,7 +273,8 @@ HSSA::convert_to_hssa_form ()
 		cfg->dump_graphviz (s("Post-renaming"));
 
 	cfg->duw->build_web(cfg, true);
-	
+
+
 //	cfg->duw->dump ();
 	cfg->duw->ssa_consistency_check ();
 	
@@ -335,7 +302,48 @@ HSSA::convert_to_hssa_form ()
 	// must support the overlapping-live-ranges invariant.
 }
 
+void
+HSSA::insert_phi_nodes ()
+{
+	BB_list* worklist = cfg->get_all_bbs_top_down ();
+	BB_list::iterator i = worklist->begin ();
+	while (i != worklist->end ())
+	{
+		Basic_block* bb = *i;
+		foreach (Basic_block* frontier, *bb->get_dominance_frontier ())
+		{
+			// Get defs (including phis and chis)
+			bool def_added = false;
+			SSA_def_list* defs = new SSA_def_list;
+			defs->push_back_all (cfg->duw->get_block_defs (bb));
+		
+			// phis add a def thats not in the DUW
+			Set<SSA_name>* phidefs = bb->get_phi_lhss ();	
+			
+			foreach (SSA_name name, *phidefs)
+			{
+				SSA_def* phi = new SSA_def (bb, new SSA_name (name), SSA_PHI);
+				defs->push_back (phi);				 
+			}
 
+			foreach (SSA_def* def, *defs)
+			{
+				if (!frontier->has_phi_node (*(def->name)))
+				{
+					frontier->add_phi_node (*(def->name));
+					
+					def_added = true;
+				}
+			}
+
+			// This adds a new def, which requires us to iterate.
+			if (def_added)
+				worklist->push_back (frontier);
+		}
+		i++;
+	}
+
+}
 
 void
 HSSA::convert_out_of_ssa_form ()
@@ -385,10 +393,10 @@ HSSA::read_var_stack (SSA_name* name)
 	// indexing.
 	
 	SSA_name index = *name;
-	if (var_stacks[index.get_name()].size () == 0)
+	if (var_stacks[index.get_name ()].size () == 0)
 		push_to_var_stack (name);
 	
-	return var_stacks[index.get_name()].top();
+	return var_stacks[index.get_name ()].top();
 }
 
 void

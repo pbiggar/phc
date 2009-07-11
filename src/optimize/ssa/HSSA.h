@@ -37,7 +37,7 @@ private:
 	void create_new_ssa_name (SSA_name* name);
 	void debug_var_stacks ();
 	void debug_top_var_stack (SSA_name* var, string type);
-
+	void insert_phi_nodes ();
 private:
 	/*
 	 * Following the example of GCC, we give each SSA_NAME a distinct number.
