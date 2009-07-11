@@ -187,10 +187,10 @@ int main(int argc, char** argv)
 	pm->add_local_optimization_pass (new Fake_pass (s("wpa"), s("Whole-program analysis")));
 	pm->add_local_optimization_pass (new Fake_pass (s("cfg"), s("Initial Control-Flow Graph")));
 	pm->add_local_optimization_pass (new Fake_pass (s("build_ssa"), s("Create SSA form")));	
-	pm->add_local_optimization (new Remove_loop_booleans (), s("rlb"), s("Remove loop-booleans"), false);
 	pm->add_local_optimization (new If_simplification (), s("ifsimple"), s("If-simplification"), true);
 	pm->add_local_optimization (new DCE (), s("dce"), s("Aggressive Dead-code elimination"), true);
 	pm->add_local_optimization_pass (new Fake_pass (s("drop_ssa"), s("Drop SSA form")));
+	pm->add_local_optimization (new Remove_loop_booleans (), s("rlb"), s("Remove loop-booleans"), false);
 
 	pm->add_ipa_optimization (new Inlining (), s("inlining"), s("Method inlining"), false);
 
