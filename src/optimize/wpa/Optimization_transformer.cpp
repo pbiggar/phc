@@ -80,7 +80,10 @@ Optimization_transformer::visit_branch_block (Branch_block* bb)
 {
 	Literal* lit = dynamic_cast <Literal*> (get_literal (bb, bb->branch->variable_name));
 	if (lit)
+	{
+		CTS ("num_branches_replaced_with_direction");
 		bb->cfg->set_branch_direction (bb, PHP::is_true (lit));
+	}
 }
 
 

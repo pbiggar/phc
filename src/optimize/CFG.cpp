@@ -464,7 +464,7 @@ CFG::dump_graphviz (String* label)
 		{
 			// Add an edge from each use to each def (there can be more than 1 in
 			// non-SSA form)
-			foreach (SSA_use* use, *duw->get_block_uses (bb))
+/*			foreach (SSA_use* use, *duw->get_block_uses (bb))
 			{
 				foreach (SSA_def* def, *use->get_defs ())
 				{
@@ -477,7 +477,7 @@ CFG::dump_graphviz (String* label)
 					<< " [color=lightgrey,dir=both];\n"
 					;
 				}
-			}
+			}*/
 		}
 	}
 

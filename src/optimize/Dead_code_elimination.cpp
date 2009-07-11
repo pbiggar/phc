@@ -234,8 +234,10 @@ DCE::mark (SSA_def* def, string why)
 	// Here I'm making the assumption that the RDF of a phi node whose arguments we're marking 
 	// doesn't need to be marked.  This could be wrong however...
 	if (marks[def] || def->type_flag == SSA_PHI)
+	{
+		mark_rdf (def->bb);
 		return;
-	
+	}
 		
 	DEBUG ("marking ");
 	def->dump();

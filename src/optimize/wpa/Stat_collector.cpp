@@ -70,12 +70,14 @@ Stat_collector::visit_entry_block (Entry_block* bb)
 void
 Stat_collector::visit_assign_array (Statement_block* bb, MIR::Assign_array* in)
 {
-	visit_expr(bb,in->rhs);
 		
-	if (wp->get_abstract_value (Context::non_contextual (bb), R_IN, in->lhs)->types->has ("unset"))
-		CTS ("num_implicit_array_defs");		
+	visit_expr(bb,in->rhs);
 	
-	CTS ("num_array_def_sites");	
+	if (wp->get_abstract_value (Context::non_contextual (bb), R_IN, in->lhs)->types->has ("unset"))
+	{
+		CTS ("num_implicit_array_defs");		
+		CTS ("num_array_def_sites");	
+	}
 
 	collect_type_stats(bb, in->rhs,"types_assign_array");
 	collect_type_stats(bb, in->index,"types_array_index");
@@ -85,6 +87,13 @@ Stat_collector::visit_assign_array (Statement_block* bb, MIR::Assign_array* in)
 void
 Stat_collector::visit_assign_field (Statement_block* bb, MIR::Assign_field * in)
 {
+	visit_expr(bb,in->rhs);
+	VARIABLE_NAME* varname = dynamic_cast<VARIABLE_NAME*> (in->target);
+	if (varname!=NULL)
+	{
+		if (wp->get_abstract_value (Context::non_contextual (bb), R_IN, varname)->types->has ("unset"))
+			CTS ("num_implicit_object_defs");
+	}
 }
 
 void
@@ -104,11 +113,16 @@ Stat_collector::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 	{
 		CTS ("num_implicit_array_defs");
 		CTS ("num_array_def_sites");
-	}
+	}	
 	else
 	{
 		if (wp->get_abstract_value (Context::non_contextual (bb), R_OUT, in->lhs)->types->has ("array"))
 			CTS ("num_array_def_sites");
+	}
+
+	if (in->is_ref && isa<MIR::Field_access> (in->rhs))
+	{	CTS ("num_implicit_object_defs");
+		
 	}
 
 	collect_type_stats(bb,in->lhs,"types_assign_var");
@@ -250,6 +264,7 @@ Stat_collector::visit_constant (Statement_block* bb, MIR::Constant* in)
 void
 Stat_collector::visit_field_access (Statement_block* bb, MIR::Field_access* in)
 {
+	
 }
 
 void
