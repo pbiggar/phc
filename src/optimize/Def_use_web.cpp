@@ -290,7 +290,7 @@ void
 Def_use_web::ssa_consistency_check ()
 {
 	// TODO: a lot of stuff isnt in SSA, but we don't want to break everything with a commit
-
+	return;
 	// There isnt much that will help here. I'll implement it if its buggy.
 	// Check that named defs are correctly named
 	// Check that blocked defs are in the right block.

@@ -469,7 +469,7 @@ HSSA::rename_vars (Basic_block* bb)
 	{
 		use->set_version (read_var_stack (use));
 	}	
-	// TODO: Already covered by defs?	
+	
 	foreach (SSA_name* may_def, *bb->cfg->duw->get_may_defs (bb))
 	{
 		DEBUG("MAY-DEF: " << may_def->str ());
