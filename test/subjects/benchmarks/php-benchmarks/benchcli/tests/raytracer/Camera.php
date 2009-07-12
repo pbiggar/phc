@@ -1,4 +1,5 @@
 <?php
+		require_once 'Ray.php';
 class RayTracer_Camera {
     public $position = null;
     public $lookAt = null;
@@ -31,7 +32,6 @@ class RayTracer_Camera {
             $pos,
             $this->position
         );
-		require_once 'Ray.php';
         $ray = new RayTracer_Ray($pos, $dir->normalize());
 
         return $ray;
