@@ -270,7 +270,7 @@ public:
 	void cast_value (Context* cx, const Index_node* lhs, const Index_node* rhs, string type);
 	void cast_to_storage (Context* cx, const Index_node* lhs, const Index_node* rhs, string type);
 
-	const Index_node* check_owner_type (Context* cx, const Index_node* index);
+	const Index_node* check_owner_type (Context* cx, const Index_node* index, bool ref_rhs);
 	const Abstract_value* read_from_scalar_value (Context* cx, const Index_node* rhs);
 
 	bool is_killable (Context* cx, cIndex_node_list* indices);

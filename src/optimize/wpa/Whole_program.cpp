@@ -919,6 +919,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (str_repeat, (0), "string");
 	MODEL (strstr, (0), "string");
 	MODEL (strtolower, (0), "string");
+	MODEL (strtotime, (0), "int", "bool");
 	MODEL (strtoupper, (0), "string");
 	MODEL (substr, (0), "string", "bool");
 	MODEL (time, (), "int");
@@ -2048,7 +2049,9 @@ Whole_program::assign_path_by_ref (Context* cx, Path* plhs, Path* prhs, bool all
 	// Create the references in FAKE from RHS
 	foreach (const Index_node* rhs, *rhss)
 	{
-		rhs = check_owner_type (cx, rhs);
+		rhs = check_owner_type (cx, rhs, true);
+		if (rhs == NULL)
+			continue;
 
 		if (not aliasing->has_field (cx, R_WORKING, rhs))
 		{
@@ -2329,7 +2332,9 @@ Whole_program::assign_absval (Context* cx, const Index_node* lhs, const Abstract
 void
 Whole_program::copy_value (Context* cx, const Index_node* lhs, const Index_node* rhs, Name_map map)
 {
-	lhs = check_owner_type (cx, lhs);
+	lhs = check_owner_type (cx, lhs, false);
+	if (lhs == NULL)
+		return;
 
 	// Check if RHS is an indexing a scalar.
 	if (const Abstract_value* absval = read_from_scalar_value (cx, rhs))
@@ -2596,80 +2601,95 @@ Whole_program::destroy_fake_indices (Context* cx)
  * non-readonly sense).
  */
 const Index_node*
-Whole_program::check_owner_type (Context* cx, const Index_node* index)
+Whole_program::check_owner_type (Context* cx, const Index_node* index, bool ref_rhs)
 {
+	// There are a few possible cases here:
+	//  - no scalars: carry on, nothing to see here
+	//  - scalars:
+	//    - NULL: convert to array
+	//    - string: if ref_rhs, run-time error - return anything
+	//    - other scalars: run-time error - return anything
+	//
+	//  The difficulty comes when there are more than 1 valid options, that is,
+	//  when ref_rhs == false, and string and unset are both valid.
+
 	const Storage_node* owner = aliasing->get_owner (cx, R_WORKING, index);
 	const Types* types = values->get_types (cx, R_WORKING, owner);
 	Types* scalar_types = Type_info::get_scalar_types (types);
 
-	if (scalar_types->size ())
+	// Nothing special here.
+	if (scalar_types->size () == 0)
+		return index;
+
+
+	bool possible_string = scalar_types->has ("string");
+	bool possible_null = scalar_types->has ("unset");
+//	scalar_types->erase ("string");
+//	scalar_types->erase ("unset");
+//	bool other_types = scalar_types->size() > 0;
+
+	if (possible_string && ref_rhs == false)
+		phc_TODO ();
+
+	// A different type means a run-time error, let it die.
+	if (possible_null == false)
+		return NULL;
+
+
+
+	/*
+	 * Convert to an array
+	 */
+
+	// The owner has not yet been created (I think this means its a CLASS_NAME).
+	// The caller will make this into an array.
+	if (not isa<Value_node> (owner))
 	{
-		// Do we know the value of the string?
-		// We may need to kill LHS.
-		if (scalar_types->has ("string"))
-			phc_TODO ();
-		else
-		{
-			// Treat all others as if they convert to arrays
-			// TODO: for non-null, nothign should happen, and the old values
-			// should pass through.
-
-
-			// The owner has not yet been created (I think this means its a CLASS_NAME).
-			// The caller will make this into an array.
-			if (not isa<Value_node> (owner))
-			{
-				// TODO this might be an object, not an array!
-				create_empty_storage (cx, "array", owner->storage);
-				return index;
-			}
-
-
-			/*
-			 * If this is NIL, then it must be a value_node, so we can get the
-			 * index node that points to it, and there can only be one such node.
-			 */
-			const Index_node* owner_index = aliasing->get_incoming (cx, R_WORKING, owner)->front ();
-
-
-			/* We might be able to kill the current value! But not if it has > 1
-			 * value as it stands. */
-			Certainty cert = aliasing->get_points_to (cx, R_WORKING, owner_index)->size () > 1
-				?  POSSIBLE : DEFINITE;
-
-
-			// Convert to an array
-			Storage_node* st = create_empty_storage (cx, "array");
-
-			// We need to point not just this node, but all references, at the new array
-			cReference_list* refs = aliasing->get_references (cx, 
-					R_WORKING, owner_index, PTG_ALL);
-
-			refs->push_back (new Reference (owner_index, DEFINITE));
-
-			// references are immutable
-			foreach (const Reference* ref, *refs)
-			{
-				Certainty final_cert = combine_certs (ref->cert, cert);
-
-				if (final_cert == DEFINITE)
-				{
-					FWPA->kill_value (cx, ref->index, false);
-				}
-
-				FWPA->assign_value (cx, ref->index, st);
-
-			}
-
-			// We dont want the caller to index an abstract value, so return
-			// the new index_node.
-			return new Index_node (st->storage, index->index);
-		}
+		// TODO this might be an object, not an array!
+		create_empty_storage (cx, "array", owner->storage);
+		return index;
 	}
 
 
-	// OK, carry on, nothing special here.
-	return index;
+	/*
+	 * If this is NIL, then it must be a value_node, so we can get the
+	 * index node that points to it, and there can only be one such node.
+	 */
+	const Index_node* owner_index = aliasing->get_incoming (cx, R_WORKING, owner)->front ();
+
+
+	/* We might be able to kill the current value! But not if it has > 1
+	 * value as it stands. */
+	Certainty cert = aliasing->get_points_to (cx, R_WORKING, owner_index)->size () > 1
+		?  POSSIBLE : DEFINITE;
+
+
+	// Convert to an array
+	Storage_node* st = create_empty_storage (cx, "array");
+
+	// We need to point not just this node, but all references, at the new array
+	cReference_list* refs = aliasing->get_references (cx, 
+			R_WORKING, owner_index, PTG_ALL);
+
+	refs->push_back (new Reference (owner_index, DEFINITE));
+
+	// references are immutable
+	foreach (const Reference* ref, *refs)
+	{
+		Certainty final_cert = combine_certs (ref->cert, cert);
+
+		if (final_cert == DEFINITE)
+		{
+			FWPA->kill_value (cx, ref->index, false);
+		}
+
+		FWPA->assign_value (cx, ref->index, st);
+
+	}
+
+	// We dont want the caller to index an abstract value, so return
+	// the new index_node.
+	return new Index_node (st->storage, index->index);
 }
 
 
