@@ -848,6 +848,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (filesize, (0), "int");
 	MODEL (floor, (), "real");
 	MODEL (flush, ());
+	MODEL (fmod, (), "real");
 	MODEL (fopen, (0, 1), "resource");
 	MODEL (fread, (), "string", "bool");
 	MODEL (fwrite, (1), "int", "bool");
@@ -858,6 +859,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (gettype, (), "string");
 	MODEL (gmdate, (0), "string");
 	MODEL (header, (0));
+	MODEL (hexdec, (0), "int", "real");
 	MODEL (htmlentities, (0, 2), "string");
 	MODEL (htmlspecialchars, (0, 2), "string");
 	MODEL (imagecolorallocate, (), "resource", "bool");
