@@ -140,6 +140,7 @@ Context::name () const
 			// changing its representation (allowing us to keep caller()
 			// accurate).
 			ss << "/" << "R";
+			phc_TODO (); // we dont properly support recursion...
 			break;
 		}
 	}
