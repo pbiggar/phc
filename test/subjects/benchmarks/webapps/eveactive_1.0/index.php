@@ -7,6 +7,24 @@ include "config.php";
 
 include "server.php";
 include "config.php";
+
+function getName($ID){
+
+$sql = "SELECT
+                MemberID,
+                Name
+            FROM
+                MembersMain
+            WHERE
+                MemberID = '".$ID."'";
+$result = mysql_query($sql) OR die(mysql_error());
+
+while($row = mysql_fetch_assoc($result)) {
+return $row['Name'];
+}
+
+}
+
 echo("<HTML><title>".$corp." Member Pages</title><body>");
 
 //echo $_SERVER["SERVER_NAME"].$_SERVER['REQUEST_URI']."<br>";
