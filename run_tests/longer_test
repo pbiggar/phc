@@ -133,30 +133,22 @@ test/subjects/benchmarks/zend/bench_less_recursive.php	\
 
 # Run all the benchmarks on
 
-ulimit -t 2400 # 40 mins
-ulimit -v 8000000 # 8G-ish
+ulimit -t 300 # 5 mins
+ulimit -v 500000 # .5G-ish
 
-#!/bin/bash
-SAVE_FILE="results/benchmark_output-"`date | sed 's/ /-/g'`
-
-svn update >> $SAVE_FILE 2>&1 
-/usr/bin/make >> $SAVE_FILE 2>&1 
-echo -e "\n\n\n" >> $SAVE_FILE
-
+SAVE_FILE="run_tests/output"
 
 for i in $BENCHES;
 do
-	echo "===================================================================================================================" >> $SAVE_FILE;
-	echo $i >> $SAVE_FILE;
-
 	dirname=`dirname $i`
 
-	PROF_COMMAND="smprof src/phc $i --include --include-harder -O2 --stats -c -d include_path=$dirname"
-	echo "$PROF_COMMAND" >> $SAVE_FILE
-	$PROF_COMMAND >> $SAVE_FILE 2>&1 
-	echo -e "\n\n\n" >> $SAVE_FILE
+	rm $SAVE_FILE
+	echo $i 2>&1 | tee -a $SAVE_FILE
+	svn update
+	/usr/bin/make
+	echo "Make result: $?" 2>&1 | tee -a $SAVE_FILE
 
-	COMMAND="php test/framework/bench/stats.php $i --include --include-harder -c -d include_path=$dirname"
+	COMMAND="smprof src/phc $i --include --include-harder -O2 --stats -c -d include_path=$dirname"
 
 	THIS_COMMAND="$COMMAND --flow-insensitive --call-string-length=1"
 	echo "$THIS_COMMAND" >> $SAVE_FILE
@@ -178,4 +170,5 @@ do
 	$THIS_COMMAND >> $SAVE_FILE 2>&1 
 	echo -e "\n\n\n" >> $SAVE_FILE
 
+	mail -t paul.biggar@gmail.com -s "benchmark test" < $SAVE_FILE
 done
