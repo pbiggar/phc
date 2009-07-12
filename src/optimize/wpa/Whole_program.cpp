@@ -1461,6 +1461,9 @@ Whole_program::generate_summary (User_method_info* info)
 void
 Whole_program::merge_contexts ()
 {
+	if (pm->args_info->verbose_flag)
+		cdebug << "!!";
+
 	FWPA->merge_contexts ();
 }
 
