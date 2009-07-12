@@ -199,7 +199,9 @@ Value_analysis::get_bin_op_type (string ltype, string rtype, string op)
 	}
 	else if (op == "+")
 	{
-		if (ltype == "array" || rtype == "array")
+		// If its just one array, thats a run-time error, so we can ignore what
+		// happens here.
+		if (ltype == "array" && rtype == "array")
 			phc_TODO ();
 
 		if (ltype == "real" || rtype == "real")
@@ -233,6 +235,8 @@ Value_analysis::get_bin_op_type (string ltype, string rtype, string op)
 		return new Types ("int");
 	}
 
+
+	cdebug << "Not modelled, a " << left << " " << op << " a " << right << endl;
 	phc_TODO ();
 
 //	Map<string, Map <string, Map<string, Types > > > type_map;
