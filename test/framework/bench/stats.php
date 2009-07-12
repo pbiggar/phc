@@ -7,7 +7,8 @@
 
 	include 'lib/header.php';
 	
-	$name = "types";
+	$name = "results__";
+
 	$DB = new PDO ("sqlite:results/statdb/$name.db");
 
 	$DB->exec ("
@@ -65,7 +66,7 @@
 	}
 	else
 	{
-		insert_results ($DB, $filename, $flags);
+		exit (insert_results ($DB, $filename, $flags));
 	}
 
 	
@@ -104,7 +105,7 @@
 			}
 		}
 
-
+		return $exit_code;
 	}
 
 ?>
