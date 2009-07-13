@@ -89,7 +89,6 @@ void sighandler(int signum)
 		dump_stats ();
 		dump_stringset_stats ();
 	}
-	print_stats ();
 
 	_exit(-1);
 }
@@ -334,8 +333,6 @@ int main(int argc, char** argv)
 	/*
 	 * Destruction
 	 */
-
-	print_stats ();
 
 	int ret = lt_dlexit();
 	if (ret != 0) 
