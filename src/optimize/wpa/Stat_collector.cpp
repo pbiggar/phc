@@ -330,7 +330,8 @@ void
 Stat_collector::visit_method_invocation (Statement_block* bb, MIR::Method_invocation* in)
 {
 	string meth_func = "function";
-	if (isa<VARIABLE_NAME> (in->target))
+	MIR::VARIABLE_NAME* varname;
+	if (varname = dynamic_cast<VARIABLE_NAME*> (in->target))
 		meth_func = "method";
 
 	CTS (meth_func + "_call_sites");	
@@ -340,7 +341,7 @@ Stat_collector::visit_method_invocation (Statement_block* bb, MIR::Method_invoca
 	bool is_object = false;
 	if (last_assignment_lhs)
 	{
-		is_object = Type_info::get_object_types (wp->get_abstract_value (Context::non_contextual (bb), R_OUT, last_assignment_lhs)->types)->size ();
+		is_object = Type_info::get_object_types (wp->get_abstract_value (Context::non_contextual (bb), R_OUT, varname)->types)->size ();
 	}	
 			
 	int n = minfolist->size ();	
