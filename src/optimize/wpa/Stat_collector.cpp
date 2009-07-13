@@ -337,40 +337,23 @@ Stat_collector::visit_method_invocation (Statement_block* bb, MIR::Method_invoca
 	CTS (meth_func + "_call_sites");	
 	
 	Method_info_list* minfolist = wp->get_possible_receivers (Context::non_contextual(bb),R_OUT,in);
-	
-	bool is_object = false;
-	if (last_assignment_lhs)
-	{
-		is_object = Type_info::get_object_types (wp->get_abstract_value (Context::non_contextual (bb), R_OUT, varname)->types)->size ();
-	}	
-			
 	int n = minfolist->size ();	
-	stringstream s;
-	if (is_object)	
-		s << "object_" << meth_func << "s_with_" << n << "_receivers";
-	else if (last_assignment_lhs)
-		s << "scalar_" << meth_func << "s_with_" << n << "_receivers";
+	
+	CTS (meth_func + "s_with_" + lexical_cast<string> (n) + "_receivers");
 
-	CTS(s.str ());
-
-	bool inlinable = false;		 
-	foreach (Method_info* minfo, *minfolist)
+	if (minfolist->size () == 1)
 	{
-		 User_method_info* info = dynamic_cast<User_method_info*> (minfo);
-		 if (info != NULL && minfolist->size () == 1)
+		 User_method_info* info = dynamic_cast<User_method_info*> (minfolist->front ());
+		 if (info != NULL)
 		 {	
 			 if (info->get_method ()->statements->size () == 0 || 
 					 info->get_method ()->statements->size () == 1 
 					 && info->get_method ()->statements->at (0)->classid () == Return::ID)			
 			 {
-				 inlinable = true;
+				 CTS ("num_inlinable_" + meth_func + "s");
 			 }
 
 		 }	
-	}
-	if (inlinable)
-	{	
-		 CTS ("num_inlinable_" + meth_func + "s");
 	}
 			
 	foreach (Actual_parameter* param, *in->actual_parameters)
