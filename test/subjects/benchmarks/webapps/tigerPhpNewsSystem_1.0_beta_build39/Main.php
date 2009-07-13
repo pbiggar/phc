@@ -8,6 +8,7 @@
  * did not receive this file, see http://www.gnu.org/licenses/gpl.txt.
  * 
  */
+        require_once( 'Table.php' ); 
 class Main
 {
     //{{{ Some initialization
@@ -618,11 +619,11 @@ class Main
         {
             if ( $bbcodeabbr )
             {
-                return $this->addacronym($this->bbcodetohtml($this->encode($arr)));
+                return $this->addacronym($this->bbcodetohtml($this->encode($arr, array("&","#","[","]",";","=","/","*",":","@",".","-","_","?","~","!") )));
             }
             else
             {
-                return $this->encode($arr);
+                return $this->encode($arr, array("&","#","[","]",";","=","/","*",":","@",".","-","_","?","~","!"));
             }
         }
         else
@@ -652,11 +653,11 @@ class Main
                         }
                         if ( $bbcodeabbr and in_array($key, $bbcode))
                         {
-                            $rs[$key] = $this->addacronym($this->bbcodetohtml($this->encode($val)));
+                            $rs[$key] = $this->addacronym($this->bbcodetohtml($this->encode($val, array("&","#","[","]",";","=","/","*",":","@",".","-","_","?","~","!"))));
                         }
                         else
                         {
-                            $rs[$key] = $this->encode($val);
+                            $rs[$key] = $this->encode($val, array("&","#","[","]",";","=","/","*",":","@",".","-","_","?","~","!"));
                         }
                     }
                 }
@@ -719,7 +720,7 @@ class Main
     }
     //}}}
 //{{{Encode
-function encode($string, $donttranslate=array("&","#","[","]",";","=","/","*",":","@",".","-","_","?","~","!") )
+function encode($string, $donttranslate)
 {
     $string = stripslashes($string);
     $string = str_replace("&","&amp;"   ,$string);
@@ -982,7 +983,7 @@ function removeacronym ( $string )
     //}}}
 
 //{{{ RSS array
-    function rss_array($arr = array()) 
+    function rss_array($arr) 
     {
         $rs = array();
         foreach ($arr as $key => $val)
@@ -1971,7 +1972,6 @@ function getbrowserstat($crawler)
             $stimer = $stimer[1] + $stimer[0];
             $this->sqlstatments.="$sql";
         }
-        require_once( 'Table.php' ); 
         $db = $this->db;
         $t = new Table();
         $rows=0;
