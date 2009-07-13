@@ -53,11 +53,12 @@ Stat_collector::visit_statement_block (Statement_block* bb)
 
 	foreach (MIR::VARIABLE_NAME* varname, gvn->var_names)
 	{
-		if (!get_stringset_stat ("total_num_vars")->has (*varname->value))
+		if (!get_stringset_stat ("total_num_unique_vars")->has (*varname->value))
 		{
-			add_to_stringset_stat ("total_num_vars", *varname->value);
-			collect_type_stats (bb, varname,"total_num_types");
+			add_to_stringset_stat ("total_num_unique_vars", *varname->value);
 		}
+		collect_type_stats (bb, varname,"total_num_types");
+		CTS ("total_num_vars");
 	}
 }
 
@@ -113,8 +114,11 @@ Stat_collector::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 	
 	if (in->is_ref && isa<MIR::Array_access> (in->rhs))
 	{
-		CTS ("num_implicit_array_defs");
-		CTS ("num_array_def_sites");
+		if (wp->get_abstract_value (Context::non_contextual (bb), R_IN, in->lhs)->types->has ("unset"))
+		{	
+			CTS ("num_implicit_array_defs");
+			CTS ("num_array_def_sites");
+		}
 	}	
 	else
 	{
@@ -123,8 +127,9 @@ Stat_collector::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 	}
 
 	if (in->is_ref && isa<MIR::Field_access> (in->rhs))
-	{	CTS ("num_implicit_object_defs");
-		
+	{
+		if (wp->get_abstract_value (Context::non_contextual (bb), R_IN, in->lhs)->types->has ("unset"))
+			CTS ("num_implicit_object_defs");
 	}
 
 	collect_type_stats(bb,in->lhs,"types_assign_var");
@@ -310,7 +315,11 @@ Stat_collector::visit_isset (Statement_block* bb, MIR::Isset* in)
 void
 Stat_collector::visit_method_invocation (Statement_block* bb, MIR::Method_invocation* in)
 {
-	CTS ("method_call_sites");	
+	string meth_func = "function";
+// TODO	if (in->target != NULL)
+		meth_func = "method";
+
+	CTS (meth_func + "_call_sites");	
 	
 	Method_info_list* minfolist = wp->get_possible_receivers (Context::non_contextual(bb),R_OUT,in);
 	
@@ -328,15 +337,16 @@ Stat_collector::visit_method_invocation (Statement_block* bb, MIR::Method_invoca
 			int n = minfolist->size ();	
 			stringstream s;
 			if (is_object)	
-				s << "object_methods_with_" << n << "_receivers";
-			else
-				s << "scalar_methods_with_" << n << "_receivers";
+				s << "object_" << meth_func << "s_with_" << n << "_receivers";
+			else if (last_assignment_lhs)
+				s << "scalar_" << meth_func << "s_with_" << n << "_receivers";
 		
-			if (info->get_method ()->statements->size () == 1 
+			if (info->get_method ()->statements->size () == 0 || 
+				info->get_method ()->statements->size () == 1 
 				&& info->get_method ()->statements->at (0)->classid () == Return::ID)			
 			{
-				add_to_stringset_stat ("inlinable_methods",*info->name);	
-				CTS ("num_inlinable_methods");
+				add_to_stringset_stat ("inlinable_" + meth_func + "s",*info->name);	
+				CTS ("num_inlinable_" + meth_func + "s");
 			}
 			add_to_stringset_stat(s.str (),*info->name);
 		}
@@ -344,8 +354,8 @@ Stat_collector::visit_method_invocation (Statement_block* bb, MIR::Method_invoca
 			
 	foreach (Actual_parameter* param, *in->actual_parameters)
 	{
-		collect_type_stats (bb,param->rvalue,"types_method_parameter");
-		CTS ("num_method_parameter");
+		collect_type_stats (bb,param->rvalue,"types_" + meth_func + "_parameter");
+		CTS ("num_" + meth_func + "_parameter");
 	}
 }
 
@@ -418,8 +428,10 @@ Stat_collector::collect_type_stats (Basic_block* bb, MIR::Rvalue* rval,string st
 void
 Stat_collector::collect_uninit_var_stats (Basic_block* bb)
 {
+	bool createdcfg = false;
 	if (!bb->cfg->duw)
 	{
+		createdcfg = true;
 		HSSA* hssa = new HSSA(wp, bb->cfg);	
 		hssa->convert_to_hssa_form ();
 	}
@@ -432,6 +444,8 @@ Stat_collector::collect_uninit_var_stats (Basic_block* bb)
 				add_to_stringset_stat ("uninitialised_vars", phi_lhs.get_name ());
 		}
 	}
+	if (createdcfg)
+		bb->cfg->duw = NULL;
 }
 
 void 
@@ -450,8 +464,10 @@ Stat_collector::get_number_of_statements (CFG* cfg, string beforeafter)
 void 
 Stat_collector::collect_def_use_stats (CFG* cfg)
 {
+	bool createdcfg = false;
 	if (!cfg->duw)
 	{
+		createdcfg = true;
 		HSSA* hssa = new HSSA(wp, cfg);	
 		hssa->convert_to_hssa_form ();
 	}
@@ -489,6 +505,8 @@ Stat_collector::collect_def_use_stats (CFG* cfg)
 			}
 		}
 	}
+	if (createdcfg)
+		cfg->duw = NULL;
 }
 
 void
@@ -502,8 +520,8 @@ Stat_collector::collect_method_stats ()
 		num_classes++;
 	}
 
-	set_stat ("total_num_methods", num_functions);
-	set_stat ("num_unreachable_methods", num_functions - filter_types<User_method_info> (wp->callgraph->get_called_methods ())->size ());
+	set_stat ("total_num_methods/functions", num_functions);
+	set_stat ("num_unreachable_methods/functions", num_functions - filter_types<User_method_info> (wp->callgraph->get_called_methods ())->size ());
 
 	set_stat ("total_classes_used", wp->callgraph->get_used_classes ()->size ());
 	set_stat ("num_unreachable_classes", num_classes - wp->callgraph->get_used_classes ()->size ());
