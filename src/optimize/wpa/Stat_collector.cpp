@@ -12,6 +12,7 @@
 #include "../ssa/HSSA.h"
 #include "Callgraph.h"
 #include "Aliasing.h"
+#include "lib/demangle.h"
 
 #include "Stat_collector.h"
 
@@ -84,6 +85,7 @@ Stat_collector::visit_assign_array (Statement_block* bb, MIR::Assign_array* in)
 	collect_type_stats(bb, in->rhs,"types_assign_array");
 	collect_type_stats(bb, in->index,"types_array_index");
 
+	collect_deref_stats (bb, in, "writes");
 }
 
 void
@@ -96,6 +98,7 @@ Stat_collector::visit_assign_field (Statement_block* bb, MIR::Assign_field * in)
 		if (wp->get_abstract_value (Context::non_contextual (bb), R_IN, varname)->types->has ("unset"))
 			CTS ("num_implicit_object_defs");
 	}
+	collect_deref_stats (bb, in, "writes");
 }
 
 void
@@ -103,6 +106,7 @@ Stat_collector::visit_assign_next (Statement_block* bb, MIR::Assign_next* in)
 {
 	CTS ("num_assign_next");
 	collect_type_stats (bb, in->lhs, "types_assign_next");
+	collect_deref_stats(bb, in, "writes");
 }
 
 void
@@ -126,10 +130,15 @@ Stat_collector::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 			CTS ("num_array_def_sites");
 	}
 
-	if (in->is_ref && isa<MIR::Field_access> (in->rhs))
+	MIR::Field_access* fa;
+	MIR::VARIABLE_NAME* vn;
+	if (in->is_ref && (fa = dynamic_cast<MIR::Field_access*> (in->rhs)))
 	{
-		if (wp->get_abstract_value (Context::non_contextual (bb), R_IN, in->lhs)->types->has ("unset"))
-			CTS ("num_implicit_object_defs");
+		if (vn = dynamic_cast<MIR::VARIABLE_NAME*> (fa->target))
+		{
+			if (wp->get_abstract_value (Context::non_contextual (bb), R_IN, vn)->types->has ("unset"))
+				CTS ("num_implicit_object_defs");
+		}
 	}
 
 	collect_type_stats(bb,in->lhs,"types_assign_var");
@@ -143,6 +152,7 @@ Stat_collector::visit_assign_var_var (Statement_block* bb, MIR::Assign_var_var* 
 
 	collect_type_stats(bb,in->lhs,"types_assign_var_var");
 	CTS ("num_assign_var_var");
+	collect_deref_stats (bb, in, "writes");
 }
 
 void
@@ -236,12 +246,14 @@ Stat_collector::visit_array_access (Statement_block* bb, MIR::Array_access* in)
 	collect_type_stats (bb, in->variable_name, "types_array_access");
 	collect_type_stats (bb, in->index, "types_array_index");
 	CTS ("num_array_access");
+	collect_deref_stats (bb, in, "reads");
 }
 
 void
 Stat_collector::visit_array_next (Statement_block* bb, MIR::Array_next* in)
 {
-	phc_TODO ();
+
+	collect_deref_stats (bb, in, "reads");
 }
 
 void
@@ -275,6 +287,7 @@ Stat_collector::visit_constant (Statement_block* bb, MIR::Constant* in)
 void
 Stat_collector::visit_field_access (Statement_block* bb, MIR::Field_access* in)
 {
+	collect_deref_stats (bb, in, "reads");
 	
 }
 
@@ -316,7 +329,7 @@ void
 Stat_collector::visit_method_invocation (Statement_block* bb, MIR::Method_invocation* in)
 {
 	string meth_func = "function";
-// TODO	if (in->target != NULL)
+	if (isa<VARIABLE_NAME> (in->target))
 		meth_func = "method";
 
 	CTS (meth_func + "_call_sites");	
@@ -348,7 +361,7 @@ Stat_collector::visit_method_invocation (Statement_block* bb, MIR::Method_invoca
 				add_to_stringset_stat ("inlinable_" + meth_func + "s",*info->name);	
 				CTS ("num_inlinable_" + meth_func + "s");
 			}
-			add_to_stringset_stat(s.str (),*info->name);
+			CTS(s.str ());
 		}
 	}
 			
@@ -408,6 +421,7 @@ Stat_collector::visit_variable_name (Statement_block* bb, MIR::VARIABLE_NAME* in
 void
 Stat_collector::visit_variable_variable (Statement_block* bb, MIR::Variable_variable* in)
 {
+	collect_deref_stats (bb, in, "reads");
 
 }
 
@@ -425,6 +439,7 @@ Stat_collector::collect_type_stats (Basic_block* bb, MIR::Rvalue* rval,string st
 	}
 }
 
+// TODO: get rid of
 void
 Stat_collector::collect_uninit_var_stats (Basic_block* bb)
 {
@@ -441,7 +456,7 @@ Stat_collector::collect_uninit_var_stats (Basic_block* bb)
 		foreach (SSA_name* phi_arg, *bb->get_phi_args (phi_lhs))
 		{
 			if (phi_arg->get_version () == 0)
-				add_to_stringset_stat ("uninitialised_vars", phi_lhs.get_name ());
+				 add_to_stringset_stat("uninitialised_vars", phi_lhs.get_name ());
 		}
 	}
 	if (createdcfg)
@@ -538,4 +553,23 @@ Stat_collector::collect_alias_analysis_stats ()
 	set_stat ("num_definite_reference_edges", def_ref_edges);
 	set_stat ("num_reference_edges", poss_ref_edges + def_ref_edges);
 }
-  
+ 
+void 
+Stat_collector::collect_deref_stats (Basic_block* bb, MIR::Node* in, string read_write)
+{
+	Context* cx = Context::non_contextual (bb);
+	
+	Path* p = P (cx->symtable_name (), in);
+
+	cIndex_node_list* indices = new cIndex_node_list;
+	indices-> push_back_all(wp->get_named_indices (cx, R_IN, p, true));
+	
+	foreach (const Index_node* index, *indices)
+	{
+		cStorage_node_list* snl = wp->aliasing->get_points_to (cx, R_IN, index);
+		foreach (const Storage_node* sn, *snl)
+			CTS ("storage_nodes_deref_" + read_write + "_" + demangle (in, false));		
+	}
+	CTS ("IR_Nodes_dereferenced_" + read_write + "_" +  demangle (in, false));
+}
+ 

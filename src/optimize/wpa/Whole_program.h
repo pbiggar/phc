@@ -282,8 +282,8 @@ public:
 	// PATH can refer to many nodes. Get the list of Index_nodes it points to.
 	// Set the RHS_BY_REF flag if PATH represents the RHS of an
 	// assignment-by-reference.
-	cIndex_node_list* get_named_indices (Context* cx, Path* path, bool is_readonly = false);
-	cIndex_node_list* get_array_named_indices (Context* cx, Path* lhs, String* index, bool is_readonly);
+	cIndex_node_list* get_named_indices (Context* cx, Result_state state, Path* path, bool is_readonly = false);
+	cIndex_node_list* get_array_named_indices (Context* cx, Result_state state, Path* lhs, String* index, bool is_readonly);
 
 	// Get anything the path can point to, and all nodes that they may reference.
 	cReference_list* get_lhs_references (Context* cx, Path* path);

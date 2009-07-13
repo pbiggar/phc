@@ -2042,14 +2042,14 @@ Whole_program::assign_path_by_ref (Context* cx, Path* plhs, Path* prhs, bool all
 	Index_node* fake = create_fake_index (cx);
 
 	// Get the Rvalues
-	cIndex_node_list* rhss = get_named_indices (cx, prhs);
+	cIndex_node_list* rhss = get_named_indices (cx, R_WORKING, prhs);
 	bool rhs_killable = is_killable (cx, rhss) && allow_kill;
 	Certainty rhs_cert = rhs_killable ? DEFINITE : POSSIBLE;
 
 
 	// Get the lvalues (best to get them early, in case they get changed by the
 	// new references to the rvalues)
-	cIndex_node_list* lhss = get_named_indices (cx, plhs);
+	cIndex_node_list* lhss = get_named_indices (cx, R_WORKING, plhs);
 	bool lhs_killable = is_killable (cx, lhss) && allow_kill;
 	Certainty lhs_cert = lhs_killable ? DEFINITE : POSSIBLE;
 
@@ -2285,7 +2285,7 @@ Whole_program::assign_path_by_copy (Context* cx, Path* plhs, Path* prhs, bool al
 	// We keep the graph in transitive-closure form, so each RHS will have
 	// all the values of its references already. Therefore, there is no need
 	// for a call to get_lhs_references ().
-	foreach (const Index_node* rhs, *get_named_indices (cx, prhs, true))
+	foreach (const Index_node* rhs, *get_named_indices (cx, R_WORKING, prhs, true))
 		copy_value (cx, fake, rhs);
 
 
@@ -2313,7 +2313,7 @@ Whole_program::assign_path_by_cast (Context* cx, Path* plhs, Path* prhs, string 
 	// We keep the graph in transitive-closure form, so each RHS will have
 	// all the values of its references already. Therefore, there is no need
 	// for a call to get_lhs_references ().
-	foreach (const Index_node* rhs, *get_named_indices (cx, prhs, true))
+	foreach (const Index_node* rhs, *get_named_indices (cx, R_WORKING, prhs, true))
 		cast_value (cx, fake, rhs, type);
 
 
@@ -2887,7 +2887,7 @@ Index_node* path_to_index (Path* p)
  *	exist in A).
  */
 cIndex_node_list*
-Whole_program::get_named_indices (Context* cx, Path* path, bool is_readonly)
+Whole_program::get_named_indices (Context* cx, Result_state state, Path* path, bool is_readonly)
 {
 	/*
 	 * TODO: check type handlers.
@@ -2929,7 +2929,7 @@ Whole_program::get_named_indices (Context* cx, Path* path, bool is_readonly)
 
 
 		cIndex_node_list* result = new cIndex_node_list (single_result);
-		foreach (const Index_node* var, *aliasing->get_fields (cx, R_WORKING, SN (single_result->storage)))
+		foreach (const Index_node* var, *aliasing->get_fields (cx, state, SN (single_result->storage)))
 		{
 			// Already added
 			if (var->index == UNKNOWN)
@@ -2959,7 +2959,7 @@ Whole_program::get_named_indices (Context* cx, Path* path, bool is_readonly)
 	if (isa<Indexing> (p->lhs) && isa<Index_path> (p->rhs))
 	{
 		string index_value = dyc<Index_path> (p->rhs)->name;
-		return get_array_named_indices (cx, p->lhs, s(index_value), is_readonly);
+		return get_array_named_indices (cx, state, p->lhs, s(index_value), is_readonly);
 	}
 
 
@@ -2978,7 +2978,7 @@ Whole_program::get_named_indices (Context* cx, Path* path, bool is_readonly)
 		String* index_value = this->get_string_value (cx, index);
 		record_use (cx, index);
 
-		return get_array_named_indices (cx, p->lhs, index_value, is_readonly);
+		return get_array_named_indices (cx, state, p->lhs, index_value, is_readonly);
 	}
 
 
@@ -2986,7 +2986,7 @@ Whole_program::get_named_indices (Context* cx, Path* path, bool is_readonly)
 }
 
 cIndex_node_list*
-Whole_program::get_array_named_indices (Context* cx, Path* plhs, String* index, bool is_readonly)
+Whole_program::get_array_named_indices (Context* cx, Result_state state, Path* plhs, String* index, bool is_readonly)
 {
 	cIndex_node_list* result = new cIndex_node_list;
 
@@ -3009,7 +3009,7 @@ Whole_program::get_array_named_indices (Context* cx, Path* plhs, String* index, 
 
 	// In a writing context, if the variable containing the array doesn't
 	// already exist, it must be implicitly created.
-	if (not is_readonly && not aliasing->has_field (cx, R_WORKING, array))
+	if (not is_readonly && not aliasing->has_field (cx, state, array))
 	{
 		assign_path_empty_array (cx, plhs, ANON);
 	}
@@ -3033,12 +3033,12 @@ Whole_program::get_array_named_indices (Context* cx, Path* plhs, String* index, 
 	 * Get the index nodes.
 	 */
 
-	cStorage_node_list* storages = aliasing->get_points_to (cx, R_WORKING, array);
+	cStorage_node_list* storages = aliasing->get_points_to (cx, state, array);
 
 
 	// We only read the value of INDEX, so we don't need the implicit array
 	// creation.
-	if (is_readonly && not aliasing->has_field (cx, R_WORKING, array))
+	if (is_readonly && not aliasing->has_field (cx, state, array))
 	{
 		assert (storages->size () == 0);
 		storages->push_back (SCLVAL (array));
@@ -3054,7 +3054,7 @@ Whole_program::get_array_named_indices (Context* cx, Path* plhs, String* index, 
 			else
 			{
 				// Include all possible nodes
-				foreach (const Index_node* field, *aliasing->get_fields (cx, R_WORKING, storage))
+				foreach (const Index_node* field, *aliasing->get_fields (cx, state, storage))
 					result->push_back (field);
 			}
 		}
@@ -3078,7 +3078,7 @@ Whole_program::get_lhs_references (Context* cx, Path* path)
 	// originally comes from alias analysis, it is updated to reflect if the
 	// index_node is killable, from is_killable().
 
-	cIndex_node_list* lhss = get_named_indices (cx, path);
+	cIndex_node_list* lhss = get_named_indices (cx, R_WORKING, path);
 	cReference_list* refs = new cReference_list;
 
 	bool killable = is_killable (cx, lhss);
@@ -3311,7 +3311,7 @@ Whole_program::visit_unset (Statement_block* bb, MIR::Unset* in)
 
 	// FYI, unset ($x[$y]), where $x is not set, does nothing. Therefore,
 	// RHS_BY_REF does not need to be set for the call the get_named_indices.
-	cIndex_node_list* indices = get_named_indices (block_cx (), path);
+	cIndex_node_list* indices = get_named_indices (block_cx (), R_WORKING, path);
 	bool lhs_killable = is_killable (block_cx (), indices);
 
 	// Send the results to the analyses for all variables which could be
