@@ -13,6 +13,7 @@
 #include "Callgraph.h"
 #include "Aliasing.h"
 #include "lib/demangle.h"
+#include "lib/Set.h"
 
 #include "Stat_collector.h"
 
@@ -336,33 +337,39 @@ Stat_collector::visit_method_invocation (Statement_block* bb, MIR::Method_invoca
 	
 	Method_info_list* minfolist = wp->get_possible_receivers (Context::non_contextual(bb),R_OUT,in);
 	
+	bool is_object = false;
+	if (last_assignment_lhs)
+	{
+		is_object = Type_info::get_object_types (wp->get_abstract_value (Context::non_contextual (bb), R_OUT, last_assignment_lhs)->types)->size ();
+	}	
+			
+	int n = minfolist->size ();	
+	stringstream s;
+	if (is_object)	
+		s << "object_" << meth_func << "s_with_" << n << "_receivers";
+	else if (last_assignment_lhs)
+		s << "scalar_" << meth_func << "s_with_" << n << "_receivers";
+
+	CTS(s.str ());
+
+	bool inlinable = false;		 
 	foreach (Method_info* minfo, *minfolist)
 	{
-		User_method_info* info = dynamic_cast<User_method_info*> (minfo);
-		if (info != NULL)
-		{	
-			bool is_object = false;
-			if (last_assignment_lhs)
-			{
-				is_object = Type_info::get_object_types (wp->get_abstract_value (Context::non_contextual (bb), R_OUT, last_assignment_lhs)->types)->size ();
-			}	
-				
-			int n = minfolist->size ();	
-			stringstream s;
-			if (is_object)	
-				s << "object_" << meth_func << "s_with_" << n << "_receivers";
-			else if (last_assignment_lhs)
-				s << "scalar_" << meth_func << "s_with_" << n << "_receivers";
-		
-			if (info->get_method ()->statements->size () == 0 || 
-				info->get_method ()->statements->size () == 1 
-				&& info->get_method ()->statements->at (0)->classid () == Return::ID)			
-			{
-				add_to_stringset_stat ("inlinable_" + meth_func + "s",*info->name);	
-				CTS ("num_inlinable_" + meth_func + "s");
-			}
-			CTS(s.str ());
-		}
+		 User_method_info* info = dynamic_cast<User_method_info*> (minfo);
+		 if (info != NULL)
+		 {	
+			 if (info->get_method ()->statements->size () == 0 || 
+					 info->get_method ()->statements->size () == 1 
+					 && info->get_method ()->statements->at (0)->classid () == Return::ID)			
+			 {
+				 inlinable = true;
+			 }
+
+		 }	
+	}
+	if (inlinable)
+	{	
+		 CTS ("num_inlinable_" + meth_func + "s");
 	}
 			
 	foreach (Actual_parameter* param, *in->actual_parameters)
@@ -559,6 +566,8 @@ Stat_collector::collect_deref_stats (Basic_block* bb, MIR::Node* in, string read
 {
 	Context* cx = Context::non_contextual (bb);
 	
+	Set<string> temp;	
+
 	Path* p = P (cx->symtable_name (), in);
 
 	cIndex_node_list* indices = new cIndex_node_list;
@@ -568,8 +577,10 @@ Stat_collector::collect_deref_stats (Basic_block* bb, MIR::Node* in, string read
 	{
 		cStorage_node_list* snl = wp->aliasing->get_points_to (cx, R_IN, index);
 		foreach (const Storage_node* sn, *snl)
-			CTS ("storage_nodes_deref_" + read_write + "_" + demangle (in, false));		
+			temp.insert (sn->str ());
 	}
 	CTS ("IR_Nodes_dereferenced_" + read_write + "_" +  demangle (in, false));
+	foreach (string s, temp)
+		CTS ("storage_nodes_deref_" + read_write + "_" + demangle (in, false));		
 }
  

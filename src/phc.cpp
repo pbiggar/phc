@@ -91,7 +91,7 @@ void sighandler(int signum)
 	}
 	print_stats ();
 
-	exit(-1);
+	_exit(-1);
 }
 
 int main(int argc, char** argv)
