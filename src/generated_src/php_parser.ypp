@@ -1003,7 +1003,7 @@ unticked_function_declaration_statement:
 unticked_class_declaration_statement:
 	  class_entry_type IDENT {context->current_class = dynamic_cast<String*>($2);} extends_from implements_list '{' class_statement_list '}' {context->current_class = new String ();}
 		{
-			CLASS_NAME* name = new CLASS_NAME($2);
+			CLASS_NAME* name = NEW (CLASS_NAME, $2);
 
 			$1->class_name = name;
 			$1->extends = $4;
@@ -1454,7 +1454,7 @@ optional_class_type:
 		}
 	| IDENT
 		{
-			CLASS_NAME* class_name = new CLASS_NAME($1);
+			CLASS_NAME* class_name = NEW (CLASS_NAME, $1);
 			$$ = NEW(Type, (class_name));
 		}
 	| K_ARRAY
@@ -2128,7 +2128,7 @@ function_call:
 fully_qualified_class_name:
 	  IDENT
 		{
-			CLASS_NAME* name = new CLASS_NAME($1);
+			CLASS_NAME* name = NEW (CLASS_NAME, $1);
 			$$ = name;
 		}
 	;
@@ -2136,7 +2136,7 @@ fully_qualified_class_name:
 class_name_reference:
 	  IDENT
 		{
-			CLASS_NAME* name = new CLASS_NAME($1);
+			CLASS_NAME* name = NEW (CLASS_NAME, $1);
 
 			$$ = name;
 		}
@@ -2325,7 +2325,7 @@ static_scalar:
 static_class_constant:
 	  IDENT O_COLONCOLON IDENT
 		{
-			CLASS_NAME* class_name = new CLASS_NAME($1);
+			CLASS_NAME* class_name = NEW (CLASS_NAME, $1);
 			CONSTANT_NAME* constant = new CONSTANT_NAME($3);
 			
 			$$ = NEW(Constant, (class_name, constant));
