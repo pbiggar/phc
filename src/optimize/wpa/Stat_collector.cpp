@@ -40,7 +40,7 @@ void
 Stat_collector::visit_basic_block (Basic_block* bb)
 {
 	inc_stat("total_num_bbs");
-	collect_uninit_var_stats (bb);
+//	collect_uninit_var_stats (bb);
 
 }
 
@@ -442,7 +442,7 @@ Stat_collector::collect_type_stats (Basic_block* bb, MIR::Rvalue* rval,string st
 // TODO: get rid of
 void
 Stat_collector::collect_uninit_var_stats (Basic_block* bb)
-{
+{/*
 	bool createdcfg = false;
 	if (!bb->cfg->duw)
 	{
@@ -461,7 +461,7 @@ Stat_collector::collect_uninit_var_stats (Basic_block* bb)
 	}
 	if (createdcfg)
 		bb->cfg->duw = NULL;
-}
+*/}
 
 void 
 Stat_collector::get_number_of_statements (CFG* cfg, string beforeafter)

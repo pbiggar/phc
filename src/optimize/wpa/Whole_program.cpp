@@ -381,7 +381,7 @@ Whole_program::get_possible_receivers (Context* cx, Result_state state, Target* 
 	String* name;
 	if (Variable_method* vm =  dynamic_cast<Variable_method*> (method_name))
 	{
-		name = get_string_value (cx, VN (cx->symtable_name (), dyc<Variable_method> (method_name)->variable_name));
+		name = get_string_value (cx, state, VN (cx->symtable_name (), dyc<Variable_method> (method_name)->variable_name));
 		if (*name == UNKNOWN)
 			phc_TODO ();
 	}
@@ -2807,10 +2807,13 @@ Whole_program::ruin_everything (Context* cx, Path* plhs)
  * disambiguate for indexing other nodes.
  */
 String*
-Whole_program::get_string_value (Context* cx, const Index_node* index)
+Whole_program::get_string_value (Context* cx, Result_state state, const Index_node* index)
 {
-	index = coerce_to_string (cx, index);
-	const Abstract_value* absval = get_abstract_value (cx, R_WORKING, index);
+	// Unless we're dealing with the working state, we don't want to change any results.
+	if (state == R_WORKING)
+		index = coerce_to_string (cx, index);
+	
+	const Abstract_value* absval = get_abstract_value (cx, state, index);
 	if (absval->lit == NULL)
 		return s (UNKNOWN);
 
@@ -2889,6 +2892,8 @@ Index_node* path_to_index (Path* p)
 cIndex_node_list*
 Whole_program::get_named_indices (Context* cx, Result_state state, Path* path, bool is_readonly)
 {
+	// It should only be non readonly if we're in the working state.
+	assert (is_readonly || state == R_WORKING);
 	/*
 	 * TODO: check type handlers.
 	 */
@@ -2916,8 +2921,12 @@ Whole_program::get_named_indices (Context* cx, Result_state state, Path* path, b
 	if (isa<ST_path> (p->lhs) && isa<Indexing> (p->rhs))
 	{
 		Index_node* index = path_to_index (p->rhs);
-		String* index_value = this->get_string_value (cx, index);
-		record_use (cx, index);
+		String* index_value = this->get_string_value (cx, state, index);
+
+		// We don't want to cahnge any results unless we're in the working state.
+		if (state == R_WORKING)
+			record_use (cx, index);
+
 
 		Index_node* single_result = new Index_node (
 				dyc<ST_path> (p->lhs)->name,
@@ -2975,8 +2984,12 @@ Whole_program::get_named_indices (Context* cx, Result_state state, Path* path, b
 	if (isa<Indexing> (p->lhs) && isa<Indexing> (p->rhs))
 	{
 		Index_node* index = path_to_index (p->rhs);
-		String* index_value = this->get_string_value (cx, index);
-		record_use (cx, index);
+		String* index_value = this->get_string_value (cx, state, index);
+		
+		// We don't want to cahnge any results unless we're in the working state.
+		if (state == R_WORKING)
+			record_use (cx, index);
+
 
 		return get_array_named_indices (cx, state, p->lhs, index_value, is_readonly);
 	}
@@ -3011,7 +3024,7 @@ Whole_program::get_array_named_indices (Context* cx, Result_state state, Path* p
 	// already exist, it must be implicitly created.
 	if (not is_readonly && not aliasing->has_field (cx, state, array))
 	{
-		assign_path_empty_array (cx, plhs, ANON);
+		assign_path_empty_array (cx, plhs, ANON);	//Don't need to worry about Result_state because of 'not is_readonly'
 	}
 
 

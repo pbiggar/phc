@@ -315,7 +315,7 @@ public:
 
 private:
 	// Get the value of node (can be UNKNOWN).
-	String* get_string_value (Context* cx, const Index_node* node);
+	String* get_string_value (Context* cx, Result_state state, const Index_node* node);
 
 	const Abstract_value* get_abstract_value (Context* cx, Result_state state, const Alias_name* name);
 	friend class WPA;
