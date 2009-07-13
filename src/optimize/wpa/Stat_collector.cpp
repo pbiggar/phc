@@ -357,7 +357,7 @@ Stat_collector::visit_method_invocation (Statement_block* bb, MIR::Method_invoca
 	foreach (Method_info* minfo, *minfolist)
 	{
 		 User_method_info* info = dynamic_cast<User_method_info*> (minfo);
-		 if (info != NULL)
+		 if (info != NULL && minfolist->size () == 1)
 		 {	
 			 if (info->get_method ()->statements->size () == 0 || 
 					 info->get_method ()->statements->size () == 1 
