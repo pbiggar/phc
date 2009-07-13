@@ -80,6 +80,7 @@ require_once ("lib/regression.php");
 require_once ("lib/compare_backwards.php");
 require_once ("lib/pass_dump.php");
 require_once ("lib/basic_test.php");
+require_once ("lib/test_ignore_output.php");
 
 // Add tests to list
 $tests = array ();
@@ -105,10 +106,16 @@ require_once ("compiled_vs_interpreted.php");
 $opt = " -O1 --include ";
 $fast = " --flow-insensitive --object-insensitive --call-string-length=1";
 $disable = "--disable=ifsimple,rlb,dce";
+$stats = " --stats ";
+
 $tests[] = new BasicTest ("PreciseOptAnalyse", "$opt $disable", "cb_mir");
 $tests[] = new BasicTest ("PreciseOptimize", "$opt", "BasicPreciseOptAnalyseTest");
+$tests[] = new BasicIgnoreOutputTest ("PreciseOptimize", "$opt $stats", "BasicPreciseOptimizeTest");
+
 $tests[] = new BasicTest ("FastOptAnalyse", "$opt $disable $fast", "BasicPreciseOptAnalyseTest");
 $tests[] = new BasicTest ("FastOptimize", "$opt $fast", "BasicFastOptAnalyseTest");
+$tests[] = new BasicIgnoreOutputTest ("FastOptimize", "$opt $fast $stats", "BasicFastOptimizeTest");
+
 $tests[] = new CompareWithPHP ("InterpretOptimized", "$opt --dump=codegen --convert-uppered", "BasicPreciseOptimizeTest");
 require_once ("compile_optimized.php");
 
