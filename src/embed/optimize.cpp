@@ -286,6 +286,8 @@ Internal_method_info::get_side_effecting ()
 			|| name == "atan"
 			|| name == "atan2"
 			|| name == "atanh"
+			|| name == "base64_decode"
+			|| name == "base64_encode"
 			|| name == "base_convert"
 			|| name == "basename"
 			|| name == "bindec"

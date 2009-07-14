@@ -821,7 +821,11 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 
 
 
+	MODEL (add_slashes, (0), "string");
 	MODEL (array_key_exists, (), "bool");
+	MODEL (base64_decode, (0), "string", "bool");
+	MODEL (base64_encode, (0), "string");
+	MODEL (basename, (0, 1), "string");
 	MODEL (bcadd, (0, 1), "string");
 	MODEL (bccomp, (0, 1), "int");
 	MODEL (bccomp, (0, 1), "string", "unset");
@@ -832,14 +836,18 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (bcsqrt, (0), "string", "unset");
 	MODEL (bcsub, (0, 1), "string");
 	MODEL (ceil, (), "real");
+	MODEL (chmod, (0), "bool");
+	MODEL (chop, (0, 1), "string");
 	MODEL (count, (), "int");
 	MODEL (date, (0), "string", "bool");
 	MODEL (date_default_timezone_set, (0), "bool");
 	MODEL (debug_zval_dump, ());
 	MODEL (dechex, (), "string");
 	MODEL (defined, (0), "bool");
+	MODEL (dirname, (0), "string");
 	MODEL (ereg_replace, (0, 1, 2), "string");
 	MODEL (error_reporting, (), "int");
+	MODEL (extension_loaded, (0), "bool");
 	MODEL (fclose, (), "bool");
 	MODEL (feof, (), "bool");
 	MODEL (fgets, (), "bool", "string");
@@ -850,10 +858,13 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (flush, ());
 	MODEL (fmod, (), "real");
 	MODEL (fopen, (0, 1), "resource");
+	MODEL (fputs, (1), "int", "bool");
 	MODEL (fread, (), "string", "bool");
+	MODEL (fsockopen, (0, 3), "resource", "bool");
+	MODEL (function_exists, (0), "bool");
 	MODEL (fwrite, (1), "int", "bool");
-	MODEL (get_magic_quotes_runtime, (), "int");
 	MODEL (get_magic_quotes_gpc, (), "int");
+	MODEL (get_magic_quotes_runtime, (), "int");
 	MODEL (get_parent_class, (), "string" ,"bool");
 	MODEL (getrandmax, (), "int");
 	MODEL (gettype, (), "string");
