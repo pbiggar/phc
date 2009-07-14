@@ -14,5 +14,3 @@ test/subjects/benchmarks/RUBBoS/PHP/StoreModeratorLog.php
 test/subjects/benchmarks/RUBBoS/PHP/StoreStory.php
 test/subjects/benchmarks/RUBBoS/PHP/StoriesOfTheDay.php
 test/subjects/benchmarks/RUBBoS/PHP/SubmitStory.php
-test/subjects/benchmarks/RUBBoS/PHP/ViewComment.php
-test/subjects/benchmarks/RUBBoS/PHP/ViewStory.php
