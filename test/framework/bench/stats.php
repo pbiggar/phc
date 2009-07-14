@@ -43,7 +43,7 @@
 			}
 
 			if ($arg == "--call_string_length=1")
-				$flow_context = $flow_context.$arg
+				$flow_context = $flow_context.$arg;
 		}
 		if ($argv[$count] == "-D")
 		{
