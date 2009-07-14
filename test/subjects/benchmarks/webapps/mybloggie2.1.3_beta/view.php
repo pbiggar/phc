@@ -190,14 +190,7 @@ if ($mode=="viewid" && $guest_comment )
       $result = $db->sql_query($sqladd) or die("Cannot query the database.<br>" . mysql_error());
 
        if ($emailnotification) {
-           function sendmail( $from, $to, $subject, $body )
-           {
-           $headers  = "MIME-Version: 1.0\r\n";
-           $headers .= "Content-type: text/plain\r\n";
-           $headers .= "From: {$from}\r\n";
-           $result = @mail( $to, $subject, $body, $headers );
-           if( $result ) return true;
-           }
+
             $time = date("h:i:s a", $timestamp);
             $date = date("d M Y", $timestamp);
 

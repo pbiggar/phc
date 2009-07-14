@@ -34,6 +34,7 @@ include_once('./includes/db.php');
 include_once('./includes/template.php');
 include_once('./includes/function.php');
 include_once('./language/lang_eng.php');
+include_once('./includes/special_for_benchmark.php');
 
 $mth_text[0]  = $lang['January'];
 $mth_text[1]  = $lang['February'];
