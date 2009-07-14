@@ -37,11 +37,6 @@
 #test/subjects/benchmarks/shootout/fasta.php-2.php											\
 #test/subjects/benchmarks/shootout/nbody.php													\
 #test/subjects/benchmarks/webapps/eveactive_1.0/edit.php									\
-#test/subjects/benchmarks/webapps/mybloggie2.1.3_beta/admin.php							\
-#test/subjects/benchmarks/webapps/mybloggie2.1.3_beta/index.php							\
-#test/subjects/benchmarks/webapps/mybloggie2.1.3_beta/login.php							\
-#test/subjects/benchmarks/webapps/mybloggie2.1.3_beta/oops.php							\
-#test/subjects/benchmarks/webapps/mybloggie2.1.3_beta/trackback.php							\
 #test/subjects/benchmarks/webapps/tigerPhpNewsSystem_1.0_beta_build39/lang/en.php		\
 #test/subjects/benchmarks/webapps/tigerPhpNewsSystem_1.0_beta_build39/lang/sv.php		\
 #test/subjects/benchmarks/zend/bench_less_recursive.php									\
@@ -170,9 +165,6 @@
 
 
 BENCHES="\
-test/subjects/benchmarks/webapps/mybloggie2.1.3_beta/rss/rss2.php							\
-test/subjects/benchmarks/webapps/mybloggie2.1.3_beta/rss/rss.php							\
-test/subjects/benchmarks/webapps/mybloggie2.1.3_beta/validate.php							\
 test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/dbaction.php				\
 test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/set_session.php				\
 test/subjects/benchmarks/webapps/tigerPhpNewsSystem_1.0_beta_build39/atom.php		\
