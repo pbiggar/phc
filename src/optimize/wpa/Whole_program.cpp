@@ -1774,8 +1774,9 @@ Whole_program::init_superglobals (Context* cx)
 	}
 
 
-	// We actually have no idea whats in _SESSION
-	assign_path_unknown (cx, P ("_SESSION", UNKNOWN));
+	// We actually have no idea whats in _SESSION, but for the tests we're
+	// running, it looks safe to assume an unknown scalar.
+	assign_path_typed_array (cx, P (MSN, "_SESSION"), Type_info::get_all_scalar_types (), "_SESSION");
 
 	// argc
 	assign_path_typed (cx, P (MSN, "argc"), new Types ("int"));
