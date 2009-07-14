@@ -4,7 +4,6 @@ test/subjects/benchmarks/RUBBoS/PHP/BrowseCategories.php
 test/subjects/benchmarks/RUBBoS/PHP/BrowseStoriesByCategory.php
 test/subjects/benchmarks/RUBBoS/PHP/ModerateComment.php
 test/subjects/benchmarks/RUBBoS/PHP/OlderStories.php
-test/subjects/benchmarks/RUBBoS/PHP/PHPprinter.php
 test/subjects/benchmarks/RUBBoS/PHP/PostComment.php
 test/subjects/benchmarks/RUBBoS/PHP/RegisterUser.php
 test/subjects/benchmarks/RUBBoS/PHP/RejectStory.php
