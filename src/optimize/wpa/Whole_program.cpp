@@ -840,6 +840,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (chop, (0, 1), "string");
 	MODEL (chr, (), "string");
 	MODEL (closedir, ());
+	MODEL (clearstatcache, (1));
 	MODEL (count, (), "int");
 	MODEL (date, (0), "string", "bool");
 	MODEL (date_default_timezone_set, (0), "bool");
@@ -855,6 +856,9 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (feof, (), "bool");
 	MODEL (fgets, (), "bool", "string");
 	MODEL (file_exists, (0), "bool");
+	MODEL (fileatime, (0), "int", "bool");
+	MODEL (filemtime, (0), "int", "bool");
+	MODEL (fileowner, (0), "int", "bool");
 	MODEL (file_get_contents, (0), "string", "bool");
 	MODEL (filesize, (0), "int");
 	MODEL (floor, (), "real");
@@ -909,6 +913,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (is_file, (0), "bool");
 	MODEL (is_readable, (0), "bool");
 	MODEL (is_writable, (0), "bool");
+	MODEL (key, (), "int", "string");
 	MODEL (ltrim, (0, 1), "string");
 	MODEL (mail, (0, 1, 2, 3, 4), "bool");
 	MODEL (md5, (0), "string");
@@ -967,6 +972,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (stristr, (0), "string");
 	MODEL (strlen, (0), "int");
 	MODEL (str_pad, (0, 2), "string");
+	MODEL (strpos, (0, 1), "int", "bool");
 	MODEL (str_repeat, (0), "string");
 	MODEL (strstr, (0), "string");
 	MODEL (strtolower, (0), "string");
