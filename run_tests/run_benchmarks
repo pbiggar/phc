@@ -23,7 +23,7 @@ do
 
 	dirname=`dirname $i`
 
-	COMMAND="/usr/bin/time --format %E-%K php test/framework/bench/stats.php $i $DBNAME --include --include-harder -c -d include_path=$dirname"
+	COMMAND="/usr/bin/time --format %E-%K php test/framework/bench/stats.php $i $DBNAME --include --include-harder -d include_path=$dirname"
 
 	THIS_COMMAND="$COMMAND --flow-insensitive --call-string-length=1"
 	echo "$THIS_COMMAND" >> $SAVE_FILE

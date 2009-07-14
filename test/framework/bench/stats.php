@@ -24,7 +24,8 @@
 	$dir_mode = false;
 	$count = 0;
 	$flags = "";
-	
+
+	$flow_context = "";	
 	// Extract flags
 	foreach ($argv as $arg)
 	{
@@ -35,6 +36,14 @@
 				$flags = $flags.$arg;
 				$flags = $flags." ";
 			}
+			if ($arg == "--flow-insensitive")
+			{
+				$flow_context = $flow_context.$arg;
+				$flow_context = $flow_context." ";
+			}
+
+			if ($arg == "--call_string_length=1")
+				$flow_context = $flow_context.$arg
 		}
 		if ($argv[$count] == "-D")
 		{
@@ -98,7 +107,7 @@
 					INSERT INTO results
 					VALUES ('$date',
 						'$filename',
-						'$flags',
+						'$flow_context',
 						'".$fields[0]."',
 						'".$fields[2]."',
 						'".$fields[1]."')
