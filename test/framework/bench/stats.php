@@ -7,9 +7,9 @@
 
 	include 'lib/header.php';
 	
-	$name = "results__";
+	$name = $argv[2];
 
-	$DB = new PDO ("sqlite:results/statdb/$name.db");
+	$DB = new PDO ("sqlite:results/statdb/$name");
 
 	$DB->exec ("
 		CREATE table results 
@@ -17,8 +17,8 @@
 		file varchar(200),
 		flags varchar(200),
 		test varchar(200),
-		types varchar(200),
-		num_types int)
+		strings varchar(200),
+		num real)
 		");
  
 	$dir_mode = false;
@@ -28,9 +28,9 @@
 	// Extract flags
 	foreach ($argv as $arg)
 	{
-		if($count > 1)
+		if($count > 2)
 		{
-			if ($arg != "-O1" || $arg != "--stats")
+			if ($arg != "-O2" || $arg != "--stats")
 			{
 				$flags = $flags.$arg;
 				$flags = $flags." ";
@@ -74,7 +74,8 @@
 	{
 		print ("$filename\n");	
 	
-		list ($output, $err, $exit_code) = complete_exec ("src/phc --stats -O2 $filename $flags", NULL, 0);
+		list ($output, $err, $exit_code) = complete_exec ("ulimit -t 2400 && ulimit -v 8000000 && src/phc --stats -O2 $filename $flags", NULL, 0);
+
 
 		if ($err or $exit_code)
 		{
@@ -104,8 +105,6 @@
 					");
 			}
 		}
-
 		return $exit_code;
 	}
-
 ?>
