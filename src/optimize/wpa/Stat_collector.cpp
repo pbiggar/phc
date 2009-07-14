@@ -589,6 +589,8 @@ Stat_collector::register_type_stats ()
 	{
 		if (n > 0)
 			CTS ("vars_with_" + lexical_cast<string> (n) + "_alias(es)");
+		else
+			CTS ("unaliased_vars");
 	}
 
 	peak_aliases.clear ();
