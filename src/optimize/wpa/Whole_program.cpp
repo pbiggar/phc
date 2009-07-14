@@ -933,6 +933,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (time, (), "int");
 	MODEL (trim, (0, 1), "string");
 	MODEL (urlencode, (0), "string");
+	MODEL (urldecode, (0), "string");
 	MODEL (var_dump, ());
 
 
