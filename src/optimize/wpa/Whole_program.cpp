@@ -901,6 +901,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (number_format, (2, 3), "string");
 	MODEL (ord, (0), "int");
 	MODEL (ob_end_clean, (0), "bool");
+	MODEL (ob_end_flush, (), "bool");
 	MODEL (phpinfo, (), "bool");
 	MODEL (pow, (), "int", "real", "bool");
 	MODEL (printf, (0), "int");
