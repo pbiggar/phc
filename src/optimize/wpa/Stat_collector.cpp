@@ -364,7 +364,6 @@ Stat_collector::visit_method_invocation (Statement_block* bb, MIR::Method_invoca
 			 {
 				 CTS ("num_inlinable_" + meth_func + "s");
 			 }
-
 		 }	
 	}
 			
@@ -587,10 +586,7 @@ Stat_collector::register_type_stats ()
 	string s;
 	foreach (tie (s, n), peak_aliases)
 	{
-		if (n > 0)
-			CTS ("vars_with_" + lexical_cast<string> (n) + "_alias(es)");
-		else
-			CTS ("unaliased_vars");
+			CTS ("vars_with_" + lexical_cast<string> (n) + "_aliases");
 	}
 
 	peak_aliases.clear ();
@@ -598,7 +594,7 @@ Stat_collector::register_type_stats ()
 	Set<string> ss;
 	foreach (tie (s, ss), types_per_var)
 	{
-		CTS ("num_vars_" + lexical_cast<string> (ss.size ()) + "_type(s)");
+		CTS ("num_vars_" + lexical_cast<string> (ss.size ()) + "_types");
 	}
 
 	types_per_var.clear ();

@@ -376,7 +376,7 @@ Whole_program::get_possible_receivers (Context* cx, Result_state state, Param_is
 Method_info_list*
 Whole_program::get_possible_receivers (Context* cx, Result_state state, Target* target, Method_name* method_name)
 {
-	Method_info_list* result = new Method_info_list;
+	Set<Method_info*>* result = new Set<Method_info*>;
 
 	String* name;
 	if (Variable_method* vm =  dynamic_cast<Variable_method*> (method_name))
@@ -464,7 +464,7 @@ Whole_program::get_possible_receivers (Context* cx, Result_state state, Target* 
 			Method_info* info = classinfo->get_method_info (name);
 			assert (info);
 
-			result->push_back (info);
+			result->insert (info);
 		}
 
 	}
@@ -481,13 +481,13 @@ Whole_program::get_possible_receivers (Context* cx, Result_state state, Target* 
 			phc_TODO (); // ?
 		}
 
-		result->push_back (info);
+		result->insert (info);
 	}
 
 
 	assert (result->size () > 0);
 
-	return result;	
+	return result->to_list();	
 }
 
 // New is slightly different, since it's Class_name is not the same as
