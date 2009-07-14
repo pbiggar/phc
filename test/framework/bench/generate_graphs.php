@@ -119,6 +119,10 @@
 	// Check that we have some result in the database for the file in question
 	check_presence ($DB, $stats, $all_files);
 
+	define("DEBUG", 1);
+
+
+
 
 
 
@@ -166,10 +170,10 @@
 		$result = $pdos->fetchColumn (0);
 
 
-		if ($result == 0)
+		if ($result === false)
 		{
-			die ("...");
-			l ("returning zero for missing stat: $stat, '$flag', $file");
+			var_dump ($result);
+			i ("returning zero for missing stat: $stat, '$flag', $file");
 			return 0;
 		}
 
@@ -189,6 +193,12 @@
 	}
 
 	function l ($msg)
+	{
+		if (defined ("DEBUG"))
+			i ($msg);
+	}
+
+	function i ($msg)
 	{
 		echo "$msg\n";
 	}
