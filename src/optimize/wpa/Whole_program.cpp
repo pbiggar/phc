@@ -1437,7 +1437,7 @@ Whole_program::collect_stats (User_method_info* info)
 		stat_coll->collect_def_use_stats (info->get_cfg ());
 		foreach (Basic_block* bb, *info->get_cfg ()->get_all_bbs ())
 			stat_coll->visit_block (bb);
-		
+		stat_coll->register_type_stats ();	
 	}
 }
 

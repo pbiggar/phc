@@ -37,8 +37,11 @@ public:
 	void collect_method_stats ();
 	void collect_alias_analysis_stats ();
 	void collect_deref_stats (Basic_block* bb, MIR::Node* in, string read_write);
+	void register_type_stats ();
 private:
 	MIR::VARIABLE_NAME* last_assignment_lhs;
+	Map<string, Set<string> > types_per_var;
+	Map<string, int> peak_aliases;
 };
 
 class Get_var_name : public MIR::Visitor, virtual public GC_obj

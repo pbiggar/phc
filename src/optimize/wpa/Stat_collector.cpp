@@ -48,6 +48,7 @@ Stat_collector::visit_basic_block (Basic_block* bb)
 void
 Stat_collector::visit_statement_block (Statement_block* bb)
 {
+	Context* cx = Context::non_contextual (bb);
 	CTS ("num_statement_blocks");
 	Get_var_name* gvn = new Get_var_name ();
 
@@ -59,8 +60,19 @@ Stat_collector::visit_statement_block (Statement_block* bb)
 		{
 			add_to_stringset_stat ("total_num_unique_vars", *varname->value);
 		}
-		collect_type_stats (bb, varname,"total_num_types");
+		
+		const Types * types = wp->get_abstract_value (cx, R_OUT, varname)->types;
+		
+		foreach (string t, *types)
+			types_per_var[*varname->value].insert (t);
+
+
 		CTS ("total_num_vars");
+
+		int m = wp->aliasing->get_references (cx, R_IN, new Index_node (cx->symtable_name (), *varname->value), PTG_ALL)->size ();
+
+		if (m > peak_aliases[*varname->value])
+			peak_aliases[*varname->value] = m;
 	}
 }
 
@@ -567,4 +579,25 @@ Stat_collector::collect_deref_stats (Basic_block* bb, MIR::Node* in, string read
 	foreach (string s, temp)
 		CTS ("storage_nodes_deref_" + read_write + "_" + demangle (in, false));		
 }
- 
+
+void 
+Stat_collector::register_type_stats ()
+{
+	int n;
+	string s;
+	foreach (tie (s, n), peak_aliases)
+	{
+		if (n > 0)
+			CTS ("vars_with_" + lexical_cast<string> (n) + "_alias(es)");
+	}
+
+	peak_aliases.clear ();
+
+	Set<string> ss;
+	foreach (tie (s, ss), types_per_var)
+	{
+		CTS ("num_vars_" + lexical_cast<string> (ss.size ()) + "_type(s)");
+	}
+
+	types_per_var.clear ();
+} 
