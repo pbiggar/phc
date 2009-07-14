@@ -25,7 +25,7 @@
 	$count = 0;
 	$flags = "";
 
-	$flow_context = "";	
+	$flow_context = " ";	
 	// Extract flags
 	foreach ($argv as $arg)
 	{
@@ -42,7 +42,7 @@
 				$flow_context = $flow_context." ";
 			}
 
-			if ($arg == "--call_string_length=1")
+			if ($arg == "--call-string-length=1")
 				$flow_context = $flow_context.$arg;
 		}
 		if ($argv[$count] == "-D")
@@ -68,14 +68,14 @@
 			if (preg_match($phpext, $filename))
 			{ 
 				$filename = $path.$filename;
-				insert_results($DB, $filename, $flags);
+				insert_results($DB, $filename, $flow_context);
 			}
 		}
 
 	}
 	else
 	{
-		exit (insert_results ($DB, $filename, $flags));
+		exit (insert_results ($DB, $filename, $flow_context));
 	}
 
 	
@@ -107,7 +107,7 @@
 					INSERT INTO results
 					VALUES ('$date',
 						'$filename',
-						'$flow_context',
+						'$flags',
 						'".$fields[0]."',
 						'".$fields[2]."',
 						'".$fields[1]."')
