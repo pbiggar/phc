@@ -990,7 +990,10 @@ function removeacronym ( $string )
         {
             if(is_array($val)) 
             {
-                $rs[$key] = $this->rss_array($val);
+					// we removed the recursion here to make the analysis work.
+					// Either way, the result would be a string, and we wont get a
+					// constant string because of the _SERVER checks in rssstr.
+                $rs[$key] = $this->rssstr("some string");
             }
             else 
             {
