@@ -2786,7 +2786,12 @@ Whole_program::check_owner_type (Context* cx, const Index_node* index, bool ref_
 //	bool other_types = scalar_types->size() > 0;
 
 	if (possible_string && ref_rhs == false)
-		phc_TODO ();
+	{
+		// This means we assign into a string, which is legal. Dont copy anymore,
+		// just set the string to unknown.
+		values->set_scalar (cx, dyc<Value_node> (owner), new Abstract_value (new Types ("string")));
+		return NULL;
+	}
 
 	// A different type means a run-time error, let it die.
 	if (possible_null == false)
