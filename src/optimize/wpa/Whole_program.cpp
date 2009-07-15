@@ -824,6 +824,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 
 
 
+	MODEL (abs, (0), "int", "real");
 	MODEL (add_slashes, (0), "string");
 	MODEL (array_key_exists, (), "bool");
 	MODEL (base64_decode, (0), "string", "bool");
@@ -831,7 +832,6 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (basename, (0, 1), "string");
 	MODEL (bcadd, (0, 1), "string");
 	MODEL (bccomp, (0, 1), "int");
-	MODEL (bccomp, (0, 1), "string", "unset");
 	MODEL (bcdiv, (0, 1), "string");
 	MODEL (bcmod, (0, 1), "string");
 	MODEL (bcmul, (0, 1), "string");
@@ -845,12 +845,14 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (closedir, ());
 	MODEL (clearstatcache, (1));
 	MODEL (count, (), "int");
+	MODEL (cos, (), "real");
 	MODEL (date, (0), "string", "bool");
 	MODEL (date_default_timezone_set, (0), "bool");
 	MODEL (debug_zval_dump, ());
 	MODEL (dechex, (), "string");
 	MODEL (defined, (0), "bool");
 	MODEL (dirname, (0), "string");
+	MODEL (doubleval, (0), "float");
 	MODEL (ereg_replace, (0, 1, 2), "string");
 	MODEL (error_reporting, (), "int");
 	MODEL (escapeshellcmd, (0), "string");
@@ -913,11 +915,13 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (ip2long, (0), "int", "bool");
 	MODEL (is_dir, (0), "bool");
 	MODEL (is_executable, (0), "bool");
+	MODEL (is_infinite, (), "bool");
 	MODEL (is_file, (0), "bool");
 	MODEL (is_readable, (0), "bool");
 	MODEL (is_writable, (0), "bool");
 	MODEL (key, (), "int", "string");
 	MODEL (ltrim, (0, 1), "string");
+	MODEL (log, (), "float");
 	MODEL (mail, (0, 1, 2, 3, 4), "bool");
 	MODEL (md5, (0), "string");
 	MODEL (microtime, (), "string", "real");
@@ -955,14 +959,16 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (readdir, (), "string", "bool");
 	MODEL (readfile, (0), "int", "bool");
 	MODEL (rmdir, (0), "bool");
-	MODEL (round, (), "float");
+	MODEL (round, (), "real");
 	MODEL (rtrim, (0, 1), "string");
 	MODEL (session_destroy, (), "bool");
 	MODEL (session_id, (0), "string");
 	MODEL (session_name, (0), "string");
 	MODEL (session_start, (), "bool");
+	MODEL (set_time_limit, ());
 	MODEL (set_magic_quotes_runtime, (), "bool");
 	MODEL (shell_exec, (0), "string");
+	MODEL (sin, (), "real");
 	MODEL (sizeof, (), "int");
 	MODEL (sqlite_busy_timeout, ());
 	MODEL (sqlite_changes, (), "int");
@@ -983,6 +989,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (sqrt, (), "real");
 	MODEL (srand, ());
 	MODEL (strchr, (0), "string");
+	MODEL (strcmp, (0), "int");
 	MODEL (strftime, (0), "string");
 	MODEL (stripslashes, (0), "string");
 	MODEL (strip_tags, (0, 1), "string");
@@ -991,10 +998,13 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (str_pad, (0, 2), "string");
 	MODEL (strpos, (0, 1), "int", "bool");
 	MODEL (str_repeat, (0), "string");
+	MODEL (strrev, (0), "string");
 	MODEL (strstr, (0), "string");
 	MODEL (strtolower, (0), "string");
 	MODEL (strtotime, (0), "int", "bool");
 	MODEL (strtoupper, (0), "string");
+	MODEL (strtr, (0, 1, 2), "string");
+	MODEL (strval, (0), "string");
 	MODEL (substr, (0), "string", "bool");
 	MODEL (substr_count, (0, 1), "int");
 	MODEL (time, (), "int");
@@ -1004,6 +1014,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (urldecode, (0), "string");
 	MODEL (urlencode, (0), "string");
 	MODEL (var_dump, ());
+	MODEL (wordwrap, (0, 2), "string");
 
 
 
@@ -1397,7 +1408,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		params[0] = coerce_to_string (cx, params[0]);
 		assign_path_scalar (cx, ret_path, new INT (1));
 	}
-	else if (*info->name == "preg_match")
+	else if (*info->name == "preg_match" || *info->name == "preg_match_all")
 	{
 		params[0] = coerce_to_string (cx, params[0]);
 		params[1] = coerce_to_string (cx, params[1]);

@@ -52,8 +52,12 @@ function CmpCountAndName($a, $b){
    else { return $a[1] < $b[1]; }
 }
 
-while (list($k,$v) = each($counts)) $wordcounts[] = array($k,$v);
+foreach ($counts as $k => $v)
+	$wordcounts[] = array($k,$v);
+
 usort($wordcounts,'CmpCountAndName');
-while (list($k,$v) = each($wordcounts)) printf("%7d %s\n", $v[1], $v[0]);
+
+foreach ($counts as $k => $v)
+	printf("%7d %s\n", $v[1], $v[0]);
 
 ?>
