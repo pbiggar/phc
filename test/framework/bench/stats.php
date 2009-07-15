@@ -68,18 +68,18 @@
 			if (preg_match($phpext, $filename))
 			{ 
 				$filename = $path.$filename;
-				insert_results($DB, $filename, $flow_context);
+				insert_results($DB, $filename, $flags, $flow_context);
 			}
 		}
 
 	}
 	else
 	{
-		exit (insert_results ($DB, $filename, $flow_context));
+		exit (insert_results ($DB, $filename, $flags, $flow_context));
 	}
 
 	
-	function insert_results (PDO $DB, $filename, $flags)
+	function insert_results (PDO $DB, $filename, $flags, $flow_context)
 	{
 		print ("$filename\n");	
 	
@@ -107,7 +107,7 @@
 					INSERT INTO results
 					VALUES ('$date',
 						'$filename',
-						'$flags',
+						'$flow_context',
 						'".$fields[0]."',
 						'".$fields[2]."',
 						'".$fields[1]."')
