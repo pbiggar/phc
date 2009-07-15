@@ -26,7 +26,7 @@ function gen_random($max) {
 function makeCumulative(&$genelist) {
    $count = count($genelist);
    for ($i=1; $i < $count; $i++) {
-      $genelist[$i][1] += $genelist[$i-1][1];
+      $genelist[$i][1] = array_merge ($genelist[$i][1], $genelist[$i-1][1]);
    }
 }
 
