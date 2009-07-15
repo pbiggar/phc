@@ -529,16 +529,21 @@ Whole_program::instantiate_object (Context* caller_cx, MIR::VARIABLE_NAME* self,
 
 	CLASS_NAME* class_name = dyc<CLASS_NAME> (in->class_name);
 
-	// Allocate memory
-	string obj = assign_path_empty_object (block_cx (), saved_plhs (), *class_name->value, ANON);
+	// Verify assumption
+	assert (caller_cx == block_cx ());
 
+	// Allocate memory
+	string obj = assign_path_empty_object (caller_cx, saved_plhs (), *class_name->value, ANON);
+
+
+	Class_info* class_info = Oracle::get_class_info (class_name->value);
+	callgraph->register_class_use (class_info);
 
 	// Assign members
-	Class_info* class_info = Oracle::get_class_info (class_name->value);
 	foreach (Attribute* attr, *class_info->get_attributes ())
 	{
 		if (not attr->attr_mod->is_static && not attr->attr_mod->is_const)
-			assign_attribute (block_cx (), obj, attr);
+			assign_attribute (caller_cx, obj, attr);
 	}
 
 
@@ -552,8 +557,6 @@ Whole_program::instantiate_object (Context* caller_cx, MIR::VARIABLE_NAME* self,
 				receivers,
 				in->actual_parameters);
 	}
-	
-	callgraph->register_class_use (class_info);
 }
 
 void
@@ -576,8 +579,8 @@ Whole_program::assign_attribute (Context* cx, string obj, MIR::Attribute* attr)
 		if (constant->class_name)
 			phc_TODO ();
 
-		const Abstract_value* absval = constants->get_constant (block_cx (), R_IN, *constant->constant_name->value);
-		assign_path_scalar (block_cx (), path, absval);
+		const Abstract_value* absval = constants->get_constant (cx, R_IN, *constant->constant_name->value);
+		assign_path_scalar (cx, path, absval);
 	}
 	else
 	{
@@ -1610,6 +1613,10 @@ Whole_program::finish_stacks ()
 void
 Whole_program::init_block (Context* cx)
 {
+	// We need to remove these to make the results converge.
+	if (aliasing->ins.has (cx))
+		destroy_fake_indices (cx);
+
 	block_cxs.push (cx);
 	unique_counts.push (0);
 
@@ -1617,10 +1624,6 @@ Whole_program::init_block (Context* cx)
 	saved_is_refs.push (false);
 	saved_lhss.push (NULL);
 	saved_plhss.push (NULL);
-
-	// We need to remove these to make the results converge.
-	if (aliasing->ins.has (cx))
-		destroy_fake_indices (cx);
 }
 
 
@@ -1871,6 +1874,8 @@ Whole_program::forward_bind (Method_info* info, Context* entry_cx, MIR::Actual_p
 {
 	Context* caller_cx = entry_cx->caller ();
 
+	destroy_fake_indices (caller_cx);
+
 	init_block (entry_cx);
 
 	// Initialize the analyses
@@ -1972,6 +1977,8 @@ Whole_program::backward_bind (Method_info* info, Context* exit_cx, MIR::VARIABLE
 	// strip the callees results from the solution without worrying. There is a
 	// danger that it might make an analysis think that return value somehow
 	// escapes. I'm not sure if anything needs to be done about that.
+
+	destroy_fake_indices (exit_cx);
 
 	Context* caller_cx = exit_cx->caller ();
 	if (lhs)
@@ -2648,8 +2655,20 @@ Whole_program::create_fake_index (Context* cx)
 void
 Whole_program::destroy_fake_indices (Context* cx)
 {
+	// These are designed to stop getting wrong results for fake nodes. The
+	// results may be forward_binded or something, so we're trying to kill them
+	// all.
+
+	// This fixes some bug, which I dont remember. It should be removed, but I'm not doing it now.
 	foreach (const Index_node* fake, *aliasing->get_fields (cx, R_WORKING, SN ("FAKE")))
 	{
+		FWPA->remove_fake_node (cx, fake);
+	}
+
+	// This isnt perfect, since we might have lost the unique_count number.
+	for (int i = 0; i < unique_counts.top (); i++)
+	{
+		Index_node* fake = new Index_node ("FAKE", "fake" + lexical_cast<string> (i));
 		FWPA->remove_fake_node (cx, fake);
 	}
 }
