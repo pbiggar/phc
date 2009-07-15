@@ -4,7 +4,7 @@
  *
  * 
  * */
-
+ 
 #include "Whole_program.h"
 #include "../CFG.h"
 #include "../Def_use_web.h"
@@ -475,7 +475,9 @@ Stat_collector::get_number_of_statements (CFG* cfg, string beforeafter)
 		{
 			CTS ("num_statements_" + beforeafter);
 		}
-	}
+		if (isa<Basic_block> (bb))
+			CTS ("num_branches_"+beforeafter);
+	}	
 }
 
 void 
