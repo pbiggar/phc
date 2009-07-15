@@ -1324,19 +1324,22 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	{
 		const Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]);
 		if (absval->types->has ("array"))
-			phc_TODO ();
-
-
-		Types* result = new Types;
-		foreach (const Index_node* param, *params.values ())
 		{
-			const Abstract_value* absval = get_abstract_value (cx, R_WORKING, param);
-
-			// Can only return scalars (um, probably).
-			result = result->set_union (Type_info::get_scalar_types (absval->types));
+			assign_path_typed (cx, ret_path, Type_info::get_all_scalar_types ());
 		}
+		else
+		{
+			Types* result = new Types;
+			foreach (const Index_node* param, *params.values ())
+			{
+				const Abstract_value* absval = get_abstract_value (cx, R_WORKING, param);
 
-		assign_path_typed (cx, ret_path, result);
+				// Can only return scalars (um, probably).
+				result = result->set_union (Type_info::get_scalar_types (absval->types));
+			}
+
+			assign_path_typed (cx, ret_path, result);
+		}
 	}
 	else if (*info->name == "method_exists")
 	{
