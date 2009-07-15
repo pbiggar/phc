@@ -36,7 +36,7 @@ public:
 	void collect_type_stats (Basic_block* bb, MIR::Rvalue* rval,string statname);
 	void collect_method_stats ();
 	void collect_alias_analysis_stats ();
-	void collect_deref_stats (Basic_block* bb, MIR::Node* in, string read_write);
+	void collect_deref_stats (Basic_block* bb, MIR::VARIABLE_NAME* in, string read_write, string node_type);
 	void register_type_stats ();
 private:
 	MIR::VARIABLE_NAME* last_assignment_lhs;

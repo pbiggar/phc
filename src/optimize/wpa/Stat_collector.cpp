@@ -98,7 +98,7 @@ Stat_collector::visit_assign_array (Statement_block* bb, MIR::Assign_array* in)
 	collect_type_stats(bb, in->rhs,"types_assign_array");
 	collect_type_stats(bb, in->index,"types_array_index");
 
-	collect_deref_stats (bb, in, "writes");
+	collect_deref_stats (bb, in->lhs, "writes", "Assign_array");
 }
 
 void
@@ -110,8 +110,9 @@ Stat_collector::visit_assign_field (Statement_block* bb, MIR::Assign_field * in)
 	{
 		if (wp->get_abstract_value (Context::non_contextual (bb), R_IN, varname)->types->has ("unset"))
 			CTS ("num_implicit_object_defs");
+		
+		collect_deref_stats (bb, varname, "writes", "Assign_field");
 	}
-	collect_deref_stats (bb, in, "writes");
 }
 
 void
@@ -119,7 +120,6 @@ Stat_collector::visit_assign_next (Statement_block* bb, MIR::Assign_next* in)
 {
 	CTS ("num_assign_next");
 	collect_type_stats (bb, in->lhs, "types_assign_next");
-	collect_deref_stats(bb, in, "writes");
 }
 
 void
@@ -165,7 +165,6 @@ Stat_collector::visit_assign_var_var (Statement_block* bb, MIR::Assign_var_var* 
 
 	collect_type_stats(bb,in->lhs,"types_assign_var_var");
 	CTS ("num_assign_var_var");
-	collect_deref_stats (bb, in, "writes");
 }
 
 void
@@ -259,14 +258,13 @@ Stat_collector::visit_array_access (Statement_block* bb, MIR::Array_access* in)
 	collect_type_stats (bb, in->variable_name, "types_array_access");
 	collect_type_stats (bb, in->index, "types_array_index");
 	CTS ("num_array_access");
-	collect_deref_stats (bb, in, "reads");
+	collect_deref_stats (bb, in->variable_name, "reads", "Array_access");
 }
 
 void
 Stat_collector::visit_array_next (Statement_block* bb, MIR::Array_next* in)
 {
 
-	collect_deref_stats (bb, in, "reads");
 }
 
 void
@@ -300,7 +298,9 @@ Stat_collector::visit_constant (Statement_block* bb, MIR::Constant* in)
 void
 Stat_collector::visit_field_access (Statement_block* bb, MIR::Field_access* in)
 {
-	collect_deref_stats (bb, in, "reads");
+	MIR::VARIABLE_NAME* varname = dynamic_cast<VARIABLE_NAME*> (in->target);
+	if (varname)
+		collect_deref_stats (bb, varname, "reads", "Field_access");
 	
 }
 
@@ -423,7 +423,6 @@ Stat_collector::visit_variable_name (Statement_block* bb, MIR::VARIABLE_NAME* in
 void
 Stat_collector::visit_variable_variable (Statement_block* bb, MIR::Variable_variable* in)
 {
-	collect_deref_stats (bb, in, "reads");
 
 }
 
@@ -559,26 +558,24 @@ Stat_collector::collect_alias_analysis_stats ()
 }
  
 void 
-Stat_collector::collect_deref_stats (Basic_block* bb, MIR::Node* in, string read_write)
+Stat_collector::collect_deref_stats (Basic_block* bb, MIR::VARIABLE_NAME* in, string read_write, string node_type)
 {
 	Context* cx = Context::non_contextual (bb);
 	
 	Set<string> temp;	
 
 	Path* p = P (cx->symtable_name (), in);
-
-	cIndex_node_list* indices = new cIndex_node_list;
-	indices-> push_back_all(wp->get_named_indices (cx, R_IN, p, true));
 	
-	foreach (const Index_node* index, *indices)
+	foreach (const Index_node* index, *wp->get_named_indices (cx, R_IN, p, true))
 	{
 		cStorage_node_list* snl = wp->aliasing->get_points_to (cx, R_IN, index);
 		foreach (const Storage_node* sn, *snl)
 			temp.insert (sn->str ());
 	}
-	CTS ("IR_Nodes_dereferenced_" + read_write + "_" +  demangle (in, false));
+	CTS ("IR_Nodes_dereferenced_" + read_write + "_" +  node_type);
+	assert (temp.size () > 0);	
 	foreach (string s, temp)
-		CTS ("storage_nodes_deref_" + read_write + "_" + demangle (in, false));		
+		CTS ("storage_nodes_deref_" + read_write + "_" + node_type);		
 }
 
 void 
