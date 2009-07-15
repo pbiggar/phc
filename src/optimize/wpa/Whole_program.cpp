@@ -964,8 +964,22 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (set_magic_quotes_runtime, (), "bool");
 	MODEL (shell_exec, (0), "string");
 	MODEL (sizeof, (), "int");
+	MODEL (sqlite_busy_timeout, ());
+	MODEL (sqlite_changes, (), "int");
+	MODEL (sqlite_error_string, (), "string");
+	MODEL (sqlite_escape_string, (0), "string");
+	MODEL (sqlite_last_error, (), "int");
+	MODEL (sqlite_last_insert_rowid, (), "int");
+	MODEL (sqlite_libencoding, (), "string");
+	MODEL (sqlite_libversion, (), "string");
+	MODEL (sqlite_num_rows, (), "int");
 	MODEL (sqlite_open, (0, 2), "resource", "bool");
 	MODEL (sqlite_popen, (0, 2), "resource", "bool");
+	MODEL (sqlite_query, (1, 3), "resource", "bool");
+	MODEL (sqlite_seek, (), "bool");
+	MODEL (sqlite_udf_decode_binary, (0), "string");
+	MODEL (sqlite_udf_encode_binary, (0), "string");
+	MODEL (sqlite_unbuffered_query, (1, 3), "resource", "bool");
 	MODEL (sqrt, (), "real");
 	MODEL (srand, ());
 	MODEL (strchr, (0), "string");
@@ -1010,6 +1024,10 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	}
 
 	// Now all the hard cases
+	else if (*info->name == "array_keys")
+	{
+		assign_path_typed_array (cx, ret_path, new Types ("string", "int"), ANON);
+	}
 	else if (*info->name == "array_merge")
 	{
 		// Create new array for this
@@ -1126,6 +1144,32 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		else
 			assign_path_typed (cx, ret_path, new Types ("bool"));
 	}
+	else if (*info->name == "eregi")
+	{
+		params[0] = coerce_to_string (cx, params[0]);
+		params[1] = coerce_to_string (cx, params[1]);
+
+		if (params[2])
+		{
+			assign_path_typed_array (cx, paths[2], new Types ("string"), ANON);
+		}
+
+		assign_path_typed (cx, ret_path, new Types ("int", "bool"));
+	}
+	else if (*info->name == "exec")
+	{
+		params[0] = coerce_to_string (cx, params[0]);
+
+		// Output
+		if (params[1])
+			assign_path_typed_array (cx, paths[1], new Types ("string"), ANON);
+
+		// Return code
+		if (params[2])
+			assign_path_typed (cx, paths[2], new Types ("int"));
+
+		assign_path_typed (cx, ret_path, new Types ("string"));
+	}
 	else if (*info->name == "explode")
 	{
 		params[0] = coerce_to_string (cx, params[0]);
@@ -1142,6 +1186,20 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	else if (*info->name == "get_declared_classes")
 	{
 		// Return an array of strings
+		assign_path_typed_array (cx, ret_path, new Types ("string"), ANON);
+	}
+	else if (*info->name == "getimagesize")
+	{
+		params[0] = coerce_to_string (cx, params[0]);
+
+		// Output
+		if (params[1])
+			assign_path_typed_array (cx, paths[1], new Types ("string"), ANON);
+
+		assign_path_typed_array (cx, ret_path, new Types ("string"), ANON);
+	}
+	else if (*info->name == "get_loaded_extensions")
+	{
 		assign_path_typed_array (cx, ret_path, new Types ("string"), ANON);
 	}
 	else if (*info->name == "gettimeofday")
@@ -1326,6 +1384,11 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		assign_path_typed_array (cx, ret_path, new Types ("string"), ANON);
 		assign_path_scalar (cx, ret_path, new BOOL (false), false);
 	}
+	else if (*info->name == "posix_grgid"
+		|| *info->name == "posix_pwuid")
+	{
+		assign_path_typed_array (cx, ret_path, new Types ("string"), ANON);
+	}
 	else if (*info->name == "print")
 	{
 		params[0] = coerce_to_string (cx, params[0]);
@@ -1341,7 +1404,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 			assign_path_typed_array (cx, paths[2], new Types ("string"), ANON);
 		}
 
-		assign_path_typed (cx, ret_path, new Types ("int"));
+		assign_path_typed (cx, ret_path, new Types ("int", "bool"));
 	}
 	else if (*info->name == "preg_replace"
 			|| *info->name == "str_replace")
@@ -1370,6 +1433,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 
 		assign_path_typed_array (cx, ret_path, new Types ("string"), ANON);
 	}
+	// print_r: see var_export
 	else if (*info->name == "range")
 	{
 		// Returns an array with a range of values of the given type.
@@ -1379,10 +1443,22 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 
 		assign_path_typed_array (cx, ret_path, merged, ANON);
 	}
+	else if (*info->name == "stat")
+	{
+		params[0] = coerce_to_string (cx, params[0]);
+
+		assign_path_typed_array (cx, ret_path, new Types ("string", "int"), ANON);
+	}
 	else if (*info->name == "split")
 	{
 		params[0] = coerce_to_string (cx, params[0]);
 		params[1] = coerce_to_string (cx, params[1]);
+		assign_path_typed_array (cx, ret_path, new Types ("string"), ANON);
+	}
+	else if (*info->name == "sqlite_current"
+		|| *info->name == "sqlite_fetch_array"
+		)
+	{
 		assign_path_typed_array (cx, ret_path, new Types ("string"), ANON);
 	}
 	else if (*info->name == "strval")
@@ -1392,7 +1468,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		const Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]);
 		assign_path_scalar (cx, ret_path, absval);
 	}
-	else if (*info->name == "var_export")
+	else if (*info->name == "var_export" || *info->name == "print_r")
 	{
 		// Return string or NULL depending on true/false.
 		const Abstract_value* absval1 = get_abstract_value (cx, R_WORKING, params[1]);
