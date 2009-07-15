@@ -23,7 +23,7 @@ print "<table border=1>\n";
 print "<tr><th>Column</th><th>Type</th></tr>\n";
 $userdbh->_setTableInfo($_GET['object']);
 $cols = $userdbh->getColsType();
-while (list($key,$value) = each($cols)) {
+foreach ($cols as $key => $val) {
 	print "<tr><td>$key</td><td>$value</td></tr>\n";
 }
 print "</table>\n";
