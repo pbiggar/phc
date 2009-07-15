@@ -390,9 +390,12 @@ class SPSQLite
 		$n = strpos($SQLCreateTable, '(');
 		$cols = substr($SQLCreateTable, $n + 1, -1) ;
 		$cols = split(',[^0-9]', $cols);	// preserve the integrity in NUM(XX,XX)
-		$cols = array_map(array(&$this, '_filterTrim'), $cols);
-		$name = array_map(array(&$this, '_filterName'), $cols);
-		$type = array_map(array(&$this, '_filterType'), $cols);
+        foreach ($cols as &$col)
+        {
+            $col = $this->_filterTrim ($col);
+            $col = $this->_filterName ($col);
+            $col = $this->_filterType ($col);
+        }
 		$this->_colsType = $this->_colsTypeCombine($name, $type);
 	}
 	
