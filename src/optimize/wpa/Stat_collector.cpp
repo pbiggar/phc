@@ -573,7 +573,8 @@ Stat_collector::collect_deref_stats (Basic_block* bb, MIR::VARIABLE_NAME* in, st
 			temp.insert (sn->str ());
 	}
 	CTS ("IR_Nodes_dereferenced_" + read_write + "_" +  node_type);
-	assert (temp.size () > 0);	
+	if (temp.size () > 0)	
+		CTS ("storage_nodes_deref_" + read_write + "_" + node_type);		
 	foreach (string s, temp)
 		CTS ("storage_nodes_deref_" + read_write + "_" + node_type);		
 }
