@@ -474,7 +474,7 @@ Stat_collector::get_number_of_statements (CFG* cfg, string beforeafter)
 		{
 			CTS ("num_statements_" + beforeafter);
 		}
-		if (isa<Basic_block> (bb))
+		if (isa<Branch_block> (bb))
 			CTS ("num_branches_"+beforeafter);
 	}	
 }
