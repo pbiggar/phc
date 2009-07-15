@@ -636,7 +636,11 @@ class Main
             {
                 if(is_array($val)) 
                 {
-                    $rs[$key] = $this->clean_array($val, $checknumeric, $bbcodeabbr);
+						 $inner_result = array ();
+						 foreach ($val as $inner_val)
+							$inner_result[] = $this->adacronym ($inner_val);
+
+                    $rs[$key] = $iiner_result;
                 }
                 else 
                 {
