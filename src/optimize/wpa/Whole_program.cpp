@@ -1440,8 +1440,8 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		assign_path_typed_array (cx, ret_path, new Types ("string"), ANON);
 		assign_path_scalar (cx, ret_path, new BOOL (false), false);
 	}
-	else if (*info->name == "posix_grgid"
-		|| *info->name == "posix_pwuid")
+	else if (*info->name == "posix_getgrgid"
+		|| *info->name == "posix_getpwuid")
 	{
 		assign_path_typed_array (cx, ret_path, new Types ("string"), ANON);
 	}
