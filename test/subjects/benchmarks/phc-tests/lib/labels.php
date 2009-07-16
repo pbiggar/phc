@@ -34,7 +34,7 @@ function strip_long_files ($label_struct)
 	foreach($labels as $label)
 	{
 		// remove the long files from 
-		$label_struct{$label} = array_values (array_diff($label_struct{$label}, $long_files));
+//		$label_struct{$label} = array_values (array_diff($label_struct{$label}, $long_files));
 	}
 	return $label_struct;
 }
@@ -157,7 +157,7 @@ function create_label_struct ($directory, $label_filename, $third_party_filename
 	// sort and generally fix up the arrays
 	foreach ($labels as $label)
 	{
-		sort($label_struct{$label});
+//		sort($label_struct{$label});
 	}
 
 	return $label_struct;
@@ -235,14 +235,13 @@ function is_labelled($script, $label)
 	global $label_struct;
 	phc_assert($label_struct !== null, "label structure not yet initialized");
 	# this doesnt return a simple true/false, so wrap it
-	if (array_search($script, $label_struct{$label}) === false)
+	foreach ($label_struct{$label} as $name)
 	{
-		return false;
+		if ($script == $name)
+			return true;
 	}
-	else
-	{
-		return true;
-	}
+
+	return false;
 }
 
 // returns a list of all php scripts
@@ -260,7 +259,6 @@ function get_all_scripts()
 	{
 		$result = array_merge($result, $array);
 	}
-	$result = array_unique($result);
 	return $result;
 }
 

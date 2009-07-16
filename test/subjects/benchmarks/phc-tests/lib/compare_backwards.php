@@ -62,7 +62,7 @@ class CompareBackwards extends AsyncTest
 		$commands = array ();
 		foreach (get_pass_list () as $pass)
 		{
-			array_unshift ($commands, $this->get_command_line ($subject, $this->dump, $pass));
+			$commands[] = $this->get_command_line ($subject, $this->dump, $pass);
 			if ($this->last_pass == $pass)
 				break;
 		}

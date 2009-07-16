@@ -384,7 +384,7 @@ function log_failure ($test_name, $subject, $commands, $outs, $errs, $exits, $mi
 
 	$out_string = "";
 	// create the stdout logs - but only if there is more than 1 log
-	if (count ($outs) > 1 && count (array_filter ($outs, "strlen")))
+	if (count ($outs) > 1)
 	{
 		foreach ($outs as $i => $out)
 		{
