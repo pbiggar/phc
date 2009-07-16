@@ -1,0 +1,65 @@
+#!/usr/bin/env php
+<?php
+
+	if ($argc != 2)
+	{
+		die ("usage: misc/bench_memory NAME\n\n    creates results/NAME_memory.eps\n");
+	}
+
+	$phc = `for i in test/subjects/3rdparty/benchmarks/zend/individual/*; do echo \$i; misc/comp -O -M \$i 2>&1 | grep spacetime; done`;
+	$php = `for i in test/subjects/3rdparty/benchmarks/zend/individual/*; do echo \$i; valgrind --tool=massif /usr/local/php-opt/bin/php \$i 2>&1 | grep spacetime; done`;
+
+	$phc_results = process_data ($phc);
+	$php_results = process_data ($php);
+
+	function process_data ($input)
+	{
+		$result = array();
+		
+		foreach (split ("\n", $input) as $index => $line)
+		{
+			if ($index % 2 === 0) 
+			{
+				// even lines are the test name (starting at 0)
+				$name = basename ($line, ".php");
+			}
+			else 
+			{
+				// odd lines are the result
+				$msb = preg_match ("/^==\d+== Total spacetime:\s+([0-9,]+) ms\.B$/", $line, $matches);
+				$num = $matches[1];
+				$num = preg_replace ("/,/", "", $num);
+				$result[$name] = $num;
+			}
+		}
+		return $result;
+	}
+
+	# work out the reductions
+	foreach ($php_results as $name => $php)
+	{
+		$phc = $phc_results[$name];
+		$time = ($php / $phc);
+		$speedups .= "$name $time\n";
+	}
+
+
+
+//=base1
+	$string = <<<BARGRAPH
+yformat=%g
+ylabel=Relative memory reduction
+=arithmean
+=sort
+
+$speedups
+
+ 
+BARGRAPH;
+
+	$title = $argv[1];
+	
+	file_put_contents ("results/{$title}_memory.plot", $string);
+	echo `bargraph.pl results/{$title}_memory.plot > results/{$title}_memory.eps`;
+
+?>

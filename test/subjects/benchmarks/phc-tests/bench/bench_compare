@@ -1,0 +1,92 @@
+#!/usr/bin/env php
+<?php
+	
+# Takes a command line argument, either php_NAME.txt, phc_NAME, NAME, or
+# NAME.txt, and finds 2 files of the form php_NAME.txt and phc_NAME.txt. Each
+# of the files will contain single two columns, the name of the test and the
+# times. It will then calculate the speedup, and plot them on a single graph,
+# NAME.plot.
+
+# bargraph.pl is available from http://www.burningcutlery.com/derek/bargraph/
+
+if (count ($argv) < 1)
+{
+	print ("usage: bench_compare php_NAME\n
+			  or:    bench_compare phc_NAME\n 
+			  or:    bench_compare NAME\n
+			  
+			  to compare php_NAME.txt with phc_NAME.txt");
+	die ();
+}
+
+	# return a hashtable of test_name => time
+	function parse ($filename)
+	{
+		// format is "name     time"
+		$results_strings = split ("\n", chop (file_get_contents ($filename)));
+		foreach ($results_strings as $res)
+		{
+			# by default, the bench results include lines like ackermann(7). Strip off the (7)
+			$res = preg_replace ("/\(\d+\)/", "", $res);
+
+			# skip the blank and the last line
+			if ($res === "------------------------")
+				break;
+
+			# check the format
+			if (!preg_match ("/^\w+\s+[0-9\.]+$/", $res))
+				die ("bad line: '$res'");
+			list ($name, $time) = split ("[ ]+", $res);
+
+			if ($name == "Total") // ignore total
+				continue;
+
+			$results [$name] = $time;
+		}
+		return $results;
+	}
+
+
+	$title = $argv[1];
+	$dirname = dirname ($title);
+
+	# remove the dirname
+	$title = basename ($title);
+
+	# strip the prefix
+	$title = preg_replace ("/^ph[cp]_/", "", $title);
+
+	# strip the suffix
+	$title = preg_replace ("/.txt$/", "", $title);
+
+	# fetch both sets of data
+	$php_results = parse ("$dirname/php_$title.txt");
+	$phc_results = parse ("$dirname/phc_$title.txt");
+
+	# work out the speedups
+	foreach ($php_results as $name => $php)
+	{
+		$phc = $phc_results[$name];
+		$time = ($php / $phc);
+		$speedups .= "$name $time\n";
+	}
+
+	
+
+//=base1
+	$string = <<<BARGRAPH
+yformat=%g
+ylabel=Speedup of compiled benchmark
+=arithmean
+=sort
+
+$speedups
+
+ 
+BARGRAPH;
+
+	
+	file_put_contents ("results/$title.plot", $string);
+	echo `bargraph.pl results/$title.plot > results/$title.eps`;
+
+?>
