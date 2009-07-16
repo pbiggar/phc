@@ -8,7 +8,6 @@
 
 // when dealing with the manual, we need more space
 ini_set("memory_limit","256M");
-ini_set("include_path","test/framework/external/:". get_include_path());
 
 // check version of php
 if (substr (phpversion (), 0, 1) < 5)

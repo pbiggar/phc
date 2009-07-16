@@ -107,28 +107,6 @@ class XML_roundtrip extends AsyncTest
 		else
 		{
 			$pass_string = "";
-			if ($opt_debug) // this will take a while
-			{
-				$last_pass = end (get_pass_list ());
-				// find the failing part
-				foreach (get_pass_list() as $pass)
-				{
-					$command1 = $this->get_command_line ($pass, $bundle->subject);
-					$command2 = $this->get_long_command_line ($bundle->subject, $pass);
-					if (($result1 = complete_exec ($command1)) !== ($result2 = complete_exec ($command2)))
-					{
-						$bundle->commands[2] = $command1;
-						list ($bundle->outs[2], $bundle->errs[2], $bundle->exits[2]) = $result1;
-
-						$bundle->commands[3] = $command2;
-						list ($bundle->outs[3], $bundle->errs[3], $bundle->exits[3]) = $result2;
-
-						$pass_string = " in pass '$pass'";
-						break;
-					}
-				}
-			}
-
 			$this->async_failure ("Final output doesnt match expected$pass_string", $bundle);
 		}
 	}

@@ -6,16 +6,8 @@
  * Handle command line parameters
  */
 
-require_once ("Console/Getopt.php");
-require_once ("Console/ProgressBar.php");
-
-$cg = new Console_Getopt();
-$argv = $cg->readPHPArgv ();
-$getopt = $cg->getOpt($cg->readPHPArgv(), "lvVshnpicqO:D", array ("long", "verbose", "valgrind", "support", "help", "number", "no-progress", "installed", "clean", "quick", "one", "debug"));
-if ($getopt instanceof PEAR_Error)
-	die ("Command line error: {$getopt->message}\n");
-
-list ($opts, $arguments) = $getopt;
+$opts = $argv;
+$arguments = $argv;
 foreach ($opts as $opt) 
 {
 	if ($opt[1] == NULL) $options{$opt[0]} = "";
