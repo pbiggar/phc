@@ -195,6 +195,9 @@ class Annotation_translator extends Test_annotation
 {
 	function __construct ($name, $description, $translations, $extras = array())
 	{
+		if ($extra === NULL)
+			$extras == array ();
+
 		parent::__construct ();
 		$this->name = $name;
 		$this->description = $description;

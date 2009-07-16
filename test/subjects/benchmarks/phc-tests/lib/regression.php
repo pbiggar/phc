@@ -8,8 +8,11 @@ require_once ("support_file_test.php");
 class RegressionTest extends SupportFileTest
 {
 	// Note that the name is the support file directory 
-	function RegressionTest ($name, $command_line_options, $support_file_suffix, $dependencies = array ())
+	function RegressionTest ($name, $command_line_options, $support_file_suffix, $dependencies)
 	{
+		if ($dependencies === NULL)
+			$dependencies == array ();
+
 		$this->name = $name;
 		$this->options = $command_line_options;
 		$this->suffix = $support_file_suffix;
