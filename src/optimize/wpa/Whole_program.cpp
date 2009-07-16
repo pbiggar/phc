@@ -823,10 +823,10 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	} while (0)
 
 
-
 	MODEL (abs, (0), "int", "real");
 	MODEL (add_slashes, (0), "string");
 	MODEL (array_key_exists, (), "bool");
+	MODEL (assert, (), "bool");
 	MODEL (base64_decode, (0), "string", "bool");
 	MODEL (base64_encode, (0), "string");
 	MODEL (basename, (0, 1), "string");
@@ -839,32 +839,39 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (bcsqrt, (0), "string", "unset");
 	MODEL (bcsub, (0, 1), "string");
 	MODEL (ceil, (), "real");
+	MODEL (chdir, (0), "bool");
 	MODEL (chmod, (0), "bool");
 	MODEL (chop, (0, 1), "string");
 	MODEL (chr, (), "string");
-	MODEL (closedir, ());
 	MODEL (clearstatcache, (1));
-	MODEL (count, (), "int");
+	MODEL (closedir, ());
+	MODEL (copy, (0, 1), "bool");
 	MODEL (cos, (), "real");
+	MODEL (count, (), "int");
 	MODEL (date, (0), "string", "bool");
 	MODEL (date_default_timezone_set, (0), "bool");
+	MODEL (debug_backtrace, ());
 	MODEL (debug_zval_dump, ());
 	MODEL (dechex, (), "string");
 	MODEL (defined, (0), "bool");
 	MODEL (dirname, (0), "string");
 	MODEL (doubleval, (0), "float");
 	MODEL (ereg_replace, (0, 1, 2), "string");
+	MODEL (error_reporting, ());
 	MODEL (error_reporting, (), "int");
 	MODEL (escapeshellcmd, (0), "string");
 	MODEL (extension_loaded, (0), "bool");
 	MODEL (fclose, (), "bool");
 	MODEL (feof, (), "bool");
+	MODEL (fflush, (), "bool");
 	MODEL (fgets, (), "bool", "string");
-	MODEL (file_exists, (0), "bool");
 	MODEL (fileatime, (0), "int", "bool");
+	MODEL (file_exists, (0), "bool");
+	MODEL (file_get_contents, (0), "string", "bool");
 	MODEL (filemtime, (0), "int", "bool");
 	MODEL (fileowner, (0), "int", "bool");
-	MODEL (file_get_contents, (0), "string", "bool");
+	MODEL (fileperms, (0), "int");
+	MODEL (file_put_contents, (0), "int", "bool");
 	MODEL (filesize, (0), "int");
 	MODEL (floor, (), "real");
 	MODEL (flush, ());
@@ -876,9 +883,12 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (function_exists, (0), "bool");
 	MODEL (fwrite, (1), "int", "bool");
 	MODEL (get_cfg_var, (0), "string");
+	MODEL (get_class, (), "string", "false");
+	MODEL (getcwd, (), "string");
 	MODEL (get_hostbyname, (0), "string");
 	MODEL (get_magic_quotes_gpc, (), "int");
 	MODEL (get_magic_quotes_runtime, (), "int");
+	MODEL (getmypid, (), "int", "bool");
 	MODEL (get_parent_class, (), "string" ,"bool");
 	MODEL (getrandmax, (), "int");
 	MODEL (gettype, (), "string");
@@ -915,16 +925,19 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (ip2long, (0), "int", "bool");
 	MODEL (is_dir, (0), "bool");
 	MODEL (is_executable, (0), "bool");
-	MODEL (is_infinite, (), "bool");
 	MODEL (is_file, (0), "bool");
+	MODEL (is_infinite, (), "bool");
 	MODEL (is_readable, (0), "bool");
 	MODEL (is_writable, (0), "bool");
+	MODEL (join, (0), "string"); // alias of implode
 	MODEL (key, (), "int", "string");
-	MODEL (ltrim, (0, 1), "string");
 	MODEL (log, (), "float");
+	MODEL (ltrim, (0, 1), "string");
 	MODEL (mail, (0, 1, 2, 3, 4), "bool");
 	MODEL (md5, (0), "string");
+	MODEL (method_exists, (1), "bool");
 	MODEL (microtime, (), "string", "real");
+	MODEL (mkdir, (0), "bool");
 	MODEL (mktime, (), "int");
 	MODEL (move_uploaded_file, (0, 1), "bool");
 	MODEL (mt_rand, (), "int");
@@ -952,9 +965,14 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (passthru, (0));
 	MODEL (phpinfo, (), "bool");
 	MODEL (php_uname, (0), "string");
-	MODEL (php_version, (0), "string", "bool");
+	MODEL (phpversion, (0), "string", "bool");
+	MODEL (posix_kill, (), "bool");
 	MODEL (pow, (), "int", "real", "bool");
+	MODEL (preg_quote, (0, 1), "string");
 	MODEL (printf, (0), "int");
+	MODEL (proc_close, (), "int");
+	MODEL (proc_open, (0, 3), "resource");
+	MODEL (proc_terminate, (), "bool");
 	MODEL (rand, (), "int");
 	MODEL (readdir, (), "string", "bool");
 	MODEL (readfile, (0), "int", "bool");
@@ -965,11 +983,12 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (session_id, (0), "string");
 	MODEL (session_name, (0), "string");
 	MODEL (session_start, (), "bool");
-	MODEL (set_time_limit, ());
 	MODEL (set_magic_quotes_runtime, (), "bool");
+	MODEL (set_time_limit, ());
 	MODEL (shell_exec, (0), "string");
 	MODEL (sin, (), "real");
 	MODEL (sizeof, (), "int");
+	MODEL (sprintf, (0), "string");
 	MODEL (sqlite_busy_timeout, ());
 	MODEL (sqlite_changes, (), "int");
 	MODEL (sqlite_error_string, (), "string");
@@ -990,6 +1009,8 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (srand, ());
 	MODEL (strchr, (0), "string");
 	MODEL (strcmp, (0), "int");
+	MODEL (stream_get_contents, (), "string", "false");
+	MODEL (stream_set_blocking, (), "bool");
 	MODEL (strftime, (0), "string");
 	MODEL (stripslashes, (0), "string");
 	MODEL (strip_tags, (0, 1), "string");
@@ -1007,15 +1028,21 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (strval, (0), "string");
 	MODEL (substr, (0), "string", "bool");
 	MODEL (substr_count, (0, 1), "int");
+	MODEL (symlink, (0, 1), "bool");
+	MODEL (sys_get_temp_dir, (), "string");
+	MODEL (tempnam, (0, 1), "string");
 	MODEL (time, (), "int");
 	MODEL (trim, (0, 1), "string");
+	MODEL (ucfirst, (0), "string");
 	MODEL (uniqid, (0), "string");
 	MODEL (unlink, (0), "bool");
 	MODEL (urldecode, (0), "string");
 	MODEL (urlencode, (0), "string");
+	MODEL (usleep, ());
 	MODEL (var_dump, ());
+	MODEL (version_compare, (0, 1, 2), "bool", "int");
 	MODEL (wordwrap, (0, 2), "string");
-
+	MODEL (zend_version, (), "string");
 
 
 #undef MODEL
@@ -1088,6 +1115,19 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 
 		// We may learn to count later
 		assign_path_typed (cx, ret_path, new Types ("int"));
+	}
+	else if (*info->name == "array_shift")
+	{
+		// (ST -> UNNAMED0) -> "*"
+		Path* path = new Indexing (
+			P (symtable, new VARIABLE_NAME (UNNAMED(0))),
+			new Index_path (UNKNOWN));
+
+		// Mark any index as potentially NULL.
+		assign_path_scalar (cx, path, new NIL), 
+
+		// Copy the existing values to RETNAME
+		assign_path_by_copy (cx, ret_path, path);
 	}
 	else if (*info->name == "compact")
 	{
@@ -1258,6 +1298,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 
 	else if (*info->name == "is_array"
 			|| *info->name == "is_int"
+			|| *info->name == "is_integer"
 			|| *info->name == "is_null"
 			|| *info->name == "is_real"
 			|| *info->name == "is_resource"
@@ -1269,6 +1310,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		types ["is_array"] = "array";
 		types ["is_bool"] = "bool";
 		types ["is_int"] = "int";
+		types ["is_integer"] = "int";
 		types ["is_null"] = "unset";
 		types ["is_real"] = "real";
 		types ["is_resource"] = "resource";
@@ -1408,6 +1450,12 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		params[0] = coerce_to_string (cx, params[0]);
 		assign_path_scalar (cx, ret_path, new INT (1));
 	}
+	else if (*info->name == "preg_grep")
+	{
+		params[0] = coerce_to_string (cx, params[0]);
+
+		assign_path_typed_array (cx, ret_path, new Types ("string"), ANON);
+	}
 	else if (*info->name == "preg_match" || *info->name == "preg_match_all")
 	{
 		params[0] = coerce_to_string (cx, params[0]);
@@ -1445,6 +1493,10 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		params[0] = coerce_to_string (cx, params[0]);
 		params[1] = coerce_to_string (cx, params[1]);
 
+		assign_path_typed_array (cx, ret_path, new Types ("string"), ANON);
+	}
+	else if (*info->name == "proc_get_status")
+	{
 		assign_path_typed_array (cx, ret_path, new Types ("string"), ANON);
 	}
 	// print_r: see var_export
