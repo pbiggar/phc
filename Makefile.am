@@ -478,6 +478,10 @@ nobase_pkglib_LTLIBRARIES += plugins/tools/purity_test.la
 plugins_tools_purity_test_la_SOURCES = plugins/tools/purity_test.cpp
 plugins_tools_purity_test_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
+nobase_pkglib_LTLIBRARIES += plugins/tools/dynamic_things.la
+plugins_tools_dynamic_things_la_SOURCES = plugins/tools/dynamic_things.cpp
+plugins_tools_dynamic_things_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+
 nobase_pkglib_LTLIBRARIES += plugins/tools/reduce_statements.la
 plugins_tools_reduce_statements_la_SOURCES = plugins/tools/reduce_statements.cpp
 plugins_tools_reduce_statements_la_LDFLAGS = ${PLUGIN_LDFLAGS}
