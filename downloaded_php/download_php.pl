@@ -15,42 +15,45 @@ do
 
 	foreach $link (@links)
 	{
+		print ("Navigating to ");
 		print ($link->url ());	
 		print ("\n");
 		$mech->get ($link->url ());
 		if ($mech->find_link (text => 'direct link'))
 		{
 			$mech->follow_link (text => 'direct link');
-			print ($mech->uri ());
 			$mech->uri () =~ m/.*\/(.*)$/;
 			$filename = $1;
-			print ("$filename\n");
+			print ("Downloading $filename\n");
 			$filename =~ m/(.*)\..*/;
 			$dirname = $1;
-			`mkdir downloaded_php\/downloads\/$dirname\/`;
-			$mech->save_content ("downloaded_php\/downloads\/$dirname\/$filename");
-			`tar -C downloaded_php\/downloads\/$dirname\/ -xvf downloaded_php\/downloads\/$dirname\/$filename`;
-			if (!$?)
-			{
-				`rm downloaded_php\/downloads\/$dirname\/$filename`;
-			}
-			else
-			{
-				`unzip downloaded_php\/downloads\/$dirname\/$filename -ddownloaded_php\/downloads\/$dirname`;
+		#	if (! -e "downloaded_php\/downloads\/$dirname")
+		#	{
+				`mkdir downloaded_php\/downloads\/$dirname\/`;
+				$mech->save_content ("downloaded_php\/downloads\/$dirname\/$filename");
+				`tar -C downloaded_php\/downloads\/$dirname\/ -xvf downloaded_php\/downloads\/$dirname\/$filename`;
 				if (!$?)
 				{
 					`rm downloaded_php\/downloads\/$dirname\/$filename`;
 				}
+				else
+				{
+					`unzip downloaded_php\/downloads\/$dirname\/$filename -ddownloaded_php\/downloads\/$dirname`;
+					if (!$?)
+					{
+						`rm downloaded_php\/downloads\/$dirname\/$filename`;
+					}
+				}
 			}
-		}
+	#	}
 		$mech->get ($current_url);
 	}
 
 
-	$test = $mech->find_link (text => 'Next >>');
+	$test = $mech->find_link (text_regex => qr/Next ./);
 	if ($test)
 	{
-		$mech->follow_link (text => 'Next');
+		$mech->follow_link (text_regex => qr/Next ./);
 	}
 
 }
