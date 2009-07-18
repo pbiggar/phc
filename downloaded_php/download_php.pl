@@ -1,4 +1,4 @@
-#!usr/bin/perl/
+#!/usr/bin/perl
 
 use WWW::Mechanize
 
@@ -31,7 +31,7 @@ do
 		#	{
 				`mkdir downloaded_php\/downloads\/$dirname\/`;
 				$mech->save_content ("downloaded_php\/downloads\/$dirname\/$filename");
-				`tar -C downloaded_php\/downloads\/$dirname\/ -xvf downloaded_php\/downloads\/$dirname\/$filename`;
+				`tar -C downloaded_php\/downloads\/$dirname\/ -xvf downloaded_php\/downloads\/$dirname\/$filename 2>/dev/null`;
 				if (!$?)
 				{
 					`rm downloaded_php\/downloads\/$dirname\/$filename`;
