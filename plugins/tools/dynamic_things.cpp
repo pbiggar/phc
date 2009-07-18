@@ -15,7 +15,7 @@
 using namespace AST;
 using namespace std;
 
-class Dynamic_things : public Visitor
+class Dynamic_things : virtual public GC_obj, public Visitor
 {
 public:
 

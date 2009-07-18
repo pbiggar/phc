@@ -1,7 +1,21 @@
 #!/usr/bin/env php
 <?php
 
-	$directory_name = "all_php_downloads/";
+	include ("test/framework/lib/header.php");
+
+	function eh ($errno, $errstr)
+	{
+		if ($errno == E_NOTICE)
+			return;
+
+		print "$errno, $errstr";
+	}
+
+	set_error_handler ("eh", E_ALL);
+
+
+
+	$directory_name = "downloaded_php/downloads/";
 
 	$dirs = get_directories ($directory_name);
 
@@ -11,12 +25,15 @@
 		foreach ($files as $file)
 		{
 			$file_stats = get_file_stats ($file);
+			if ($file_stats === NULL)
+				continue;
 
 			add_stat ($dir, $file, $file_stats);
 			echo "$file\n";
 		}
 	}
 
+	aggregate_stats ();
 	dump_stats ();
 
 
@@ -30,7 +47,6 @@
 				continue;
 
 			$result[] = $fileInfo->getPathname ();
-
 		}
 
 		return $result;
@@ -38,18 +54,18 @@
 
 	function get_all_files ($dir)
 	{
-		$results = split ("\n", `find $dir/ -type f -name "*.php"`);
+		$results = split ("\n", _exec ("find $dir/ -type f -name \"*.php\""));
 		array_pop ($results);
 		return $results;
 	}
 
 	function get_file_stats ($file)
 	{
-		$result = `src/phc $file --run plugins/tools/dynamic_things.la 2>/dev/null`;
+		$result = _exec ("src/phc $file --run plugins/tools/dynamic_things.la 2>/dev/null");
 		$result = rtrim ($result);
 
 		if ($result == "")
-			return array ("0", "0", "0");
+			return NULL;
 
 
 		$result = split (":", $result);
@@ -60,14 +76,44 @@
 	function add_stat ($package, $file, $file_stats)
 	{
 		global $stats;
+		$linecount = (int)(_exec ("cat $file | wc -l"));
 
 		$stats[$package]["eval"] += $file_stats[0];
 		$stats[$package]["include"] += $file_stats[1];
 		$stats[$package]["dynamic_include"] += $file_stats[2];
+		$stats[$package]["filecount"] += 1;
+		$stats[$package]["linecount"] += $linecount;
 
 		$stats["all"]["eval"] += $file_stats[0];
 		$stats["all"]["include"] += $file_stats[1];
 		$stats["all"]["dynamic_include"] += $file_stats[2];
+		$stats["all"]["filecount"] += 1;
+		$stats["all"]["linecount"] += $linecount;
+	}
+
+	function aggregate_stats ()
+	{
+		global $stats;
+
+		# Calculate averages
+		$package_count = count ($stats) - 1;
+		foreach (array ("eval", "include", "dynamic_include", "filecount", "linecount") as $name)
+		{
+			$stats["average"][$name] = $stats["all"][$name] / $package_count;
+		}
+
+		# How many have at least 1?
+		foreach ($stats as $package => $actual_stats)
+		{
+			if ($package == "all" || $package == "average" || $package == "aggregate")
+				continue;
+
+			foreach ($actual_stats as $key => $val)
+			{
+				if ($val > 1)
+					$stats["aggregate"][$key] += 1;
+			}
+		}
 	}
 
 	function dump_stats ()
@@ -76,13 +122,23 @@
 
 		foreach ($stats as $package => $actual_stats)
 		{
-			print "$package";
-			foreach ($actual_stats as $key => $val)
+			if ($package == "all" || $package == "average" || $package == "aggregate")
 			{
-				print ", $key = $val";
+				print "$package";
+				foreach ($actual_stats as $key => $val)
+				{
+					print ", $key = $val";
+				}
+				print "\n";
 			}
-			print "\n";
 		}
+	}
+
+	function _exec ($command)
+	{
+		// 20 seconds, max
+		list ($output) = complete_exec ($command, NULL, 20);
+		return $output;
 	}
 
 
