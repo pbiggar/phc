@@ -32,6 +32,12 @@ do
 	then
 		PHC_ARGS="$PHC_ARGS --rt-stats"
 		STATS=1
+	elif [ "-$var" = "--F" ] # Generate FDO
+	then
+		GCC_ARGS="$GCC_ARGS -fprofile-generate"
+	elif [ "-$var" = "--f" ] # Use FDO
+	then
+		GCC_ARGS="$GCC_ARGS -fprofile-use"
 	elif [ "-$var" = "--r" ] # references
 	then
 		PHC_ARGS="$PHC_ARGS --run plugins/tools/debug_zval.la"
@@ -57,7 +63,8 @@ NAME=${NAME%.php}
 OUT_NAME=$NAME.out
 EXEC_NAME="$EXEC_NAME./$OUT_NAME"
 DIRNAME=`dirname $PHP_NAME`
-PHC_ARGS="$PHC_ARGS -d include_path=.:test/subjects:$DIRNAME"
+#PHC_ARGS="$PHC_ARGS -d include_path=.:test/subjects:$DIRNAME"
+PHC_ARGS="$PHC_ARGS "
 
 cp $PHP_NAME $NAME.orig.php || exit 1;
 
@@ -111,6 +118,8 @@ then
 		exit 1
 	fi
 fi
+
+GCC_COMMAND="$GCC_COMMAND $GCC_ARGS"
 
 $GCC_COMMAND
 if [[ $? != 0 ]]; then 
