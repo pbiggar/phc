@@ -1,0 +1,11 @@
+Core:
+
+Jakob Westhoff <jakob@westhoffswelt.de>
+	- main work
+
+
+Thanks to:
+
+BigZaphod <Sean@fifthhace.com>
+	- for inventing the Whirl Language and writing the first
+	  c++ interpreter for it.
