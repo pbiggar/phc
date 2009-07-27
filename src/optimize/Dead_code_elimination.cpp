@@ -235,7 +235,7 @@ DCE::mark (SSA_def* def, string why)
 	// doesn't need to be marked.  This could be wrong however...
 	if (marks[def] || def->type_flag == SSA_PHI)
 	{
-		mark_rdf (def->bb);
+	//	mark_rdf (def->bb);
 		return;
 	}
 		
@@ -259,36 +259,31 @@ DCE::mark_def (SSA_use* use)
 	if (use->get_defs ()->size () == 1)
 	{
 		SSA_def* def = use->get_defs ()->front ();
+		if (marks[def])
+			return;
+
 		// When a def which is a phi node is marked, we need to mark it's arguments also
 		if (def->type_flag == SSA_PHI)
-		{	
+		{
+			marks[def] = true;	
 			foreach (SSA_name* phi_arg, *def->bb->get_phi_args (*def->name))
 			{
 				if (phi_arg->str () != use->name->str ())
-				{	
+				{
 					if (phi_arg->get_version ())			
 					{
 						if (def->bb->cfg->duw->get_named_uses (phi_arg)->size ())
-						{	
+						{
 							SSA_use* arg_use = def->bb->cfg->duw->get_named_uses (phi_arg)->front ();
-							foreach (SSA_def* def, *arg_use->get_defs ())
-							{
-								mark (def, "due to def (phi) of " + use->name->str ());
-							}
+							mark_def (arg_use);	
 						}	
 					}	
 				}
 			}
-		}
-	
-		if (use->type_flag != SSA_PHI)
-		{
-			// There might be zero or one def.
-			foreach (SSA_def* def, *use->get_defs ())
-			{
-				mark (def, "due to def of " + use->name->str ());
-			}
-		}
+		}	
+		else
+			mark (def, "due to def of " + use->name->str ());
+		
 	}	
 
 }
