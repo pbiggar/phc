@@ -153,7 +153,8 @@ DCE::mark_pass ()
 
 		foreach (SSA_use* use, *def->get_uses ())
 		{
-			mark_def (use);
+			if (use->type_flag != SSA_PHI)
+				mark_def (use);
 		}
 	}
 
@@ -203,7 +204,8 @@ DCE::mark_entire_block (Basic_block* bb, string why)
 
 	foreach (SSA_use* use, *bb->cfg->duw->get_block_uses (bb))
 	{
-		mark_def (use);
+		if (use->type_flag != SSA_PHI)
+			mark_def (use);
 	}
 	foreach (SSA_def* def, *bb->cfg->duw->get_block_defs (bb))
 	{
@@ -255,7 +257,6 @@ DCE::mark (SSA_def* def, string why)
 void
 DCE::mark_def (SSA_use* use)
 {
-
 	if (use->get_defs ()->size () == 1)
 	{
 		SSA_def* def = use->get_defs ()->front ();
