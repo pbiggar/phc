@@ -108,10 +108,16 @@
 			if ($package == "all" || $package == "average" || $package == "aggregate")
 				continue;
 
+				
 			foreach ($actual_stats as $key => $val)
 			{
-				if ($val > 1)
+				if ($val >= 1)
 					$stats["aggregate"][$key] += 1;
+			}
+
+			if ($actual_stats["eval"] >= 1 || $actual_stats["dynamic_include"] >= 1)
+			{
+				$stats["aggregate"]["either"] += 1;
 			}
 		}
 	}
