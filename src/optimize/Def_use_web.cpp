@@ -29,7 +29,7 @@ Def_use_web::Def_use_web (Def_use* du)
 }
 
 Def_use*
-Def_use_web::get_def_use()
+Def_use_web::get_def_use ()
 {
 	return du;
 }
@@ -49,13 +49,15 @@ Def_use_web::build_web (CFG* cfg, bool update)
 		named_defs.clear ();
 		use_ops.clear ();
 		def_ops.clear ();
+		
 		foreach (Basic_block* bb, *cfg->get_all_bbs ())
 		{	
 			DEBUG ("BBID: " << bb->ID);
 			foreach (SSA_name phi_lhs, *get_phi_lhss (bb))
 			{
-				SSA_name* clone = new SSA_name(phi_lhs);
+				SSA_name* clone = new SSA_name (phi_lhs);
 				phi_defs[bb->ID].push_back (clone);
+				
 				foreach (SSA_name* phi_arg, *get_phi_args (bb, phi_lhs))
 					phi_uses[bb->ID].push_back (phi_arg);	
 			}
@@ -85,7 +87,7 @@ Def_use_web::build_web (CFG* cfg, bool update)
 			named_uses[use->str ()].push_back (new SSA_use (bb, use, SSA_BB));
 
 		foreach (SSA_name* def, defs[bb->ID])
-			named_defs[def->str()].push_back (new SSA_def (bb, def, SSA_BB));
+			named_defs[def->str ()].push_back (new SSA_def (bb, def, SSA_BB));
 		
 		uses[bb->ID].push_back_all (&phi_uses[bb->ID]);
 		defs[bb->ID].push_back_all (&phi_defs[bb->ID]);
@@ -94,7 +96,7 @@ Def_use_web::build_web (CFG* cfg, bool update)
 			named_uses[use->str ()].push_back (new SSA_use (bb, use, SSA_PHI));
 
 		foreach (SSA_name* def, phi_defs[bb->ID])
-			named_defs[def->str()].push_back (new SSA_def (bb, def, SSA_PHI));
+			named_defs[def->str ()].push_back (new SSA_def (bb, def, SSA_PHI));
 		
 		foreach (SSA_name* may_def, may_defs[bb->ID])
 		{
@@ -106,10 +108,6 @@ Def_use_web::build_web (CFG* cfg, bool update)
 		}
 
 	}
-
-
-
-
 
 	// Create the web
 	std::string name;
@@ -139,8 +137,6 @@ Def_use_web::build_web (CFG* cfg, bool update)
 		}
 	}
 }
-
-
 
 // TODO: CHIs are not created for the parameters to a method call. They
 // clearly should be.
@@ -329,6 +325,7 @@ Def_use_web::ssa_consistency_check ()
 			foreach (SSA_use* ssa_use, named_uses[use])
 			{
 				DEBUG ("SSAUSE->BB: " << ssa_use->bb->ID << " DEF_BB " << def_bb->ID << " DEF: " << def_list.front ()->name->str ());
+				//TODO: Look at this
 				assert (ssa_use->bb->is_dominated_by (def_bb) || ssa_use->bb == def_bb || ssa_use->type_flag == SSA_PHI || isa <Exit_block> (def_bb) || isa<Exit_block> (ssa_use->bb) );
 			}
 		}
@@ -417,7 +414,7 @@ Def_use_web::add_phi_arg (Basic_block* bb, SSA_name phi_lhs, int version, Edge* 
 	// phi_lhs doesnt have to be in SSA, since it will be updated later using
 	// update_phi_node, if it is not.
 	assert (has_phi_node (bb, phi_lhs));
-	DEBUG("ADDING PHI ARG V"<<version<<" for "<<phi_lhs.str ());
+	DEBUG("ADDING PHI ARG V" << version << " for " << phi_lhs.str ());
 	SSA_name arg = phi_lhs; // copy
 	arg.set_version (version);
 	set_phi_arg_for_edge (edge, phi_lhs, arg);
@@ -502,7 +499,7 @@ Def_use_web::get_phi_arg_for_edge (Edge* edge, SSA_name phi_lhs)
 void
 Def_use_web::set_phi_arg_for_edge (Edge* edge, SSA_name phi_lhs, SSA_name arg)
 {
-	DEBUG("SETTING "<<arg.str ()<<"V "<<arg.get_version ()<<" AS PHI ARG FOR "<<phi_lhs.str ()<<"V "<<phi_lhs.get_version ());
+	DEBUG("SETTING " << arg.str () << "V " << arg.get_version () << " AS PHI ARG FOR " << phi_lhs.str () << "V " << phi_lhs.get_version ());
 	phi_rhss[edge][phi_lhs] = arg;
 }
 
@@ -524,7 +521,3 @@ Def_use_web::copy_phi_map (Edge* source, Edge* dest)
 		source->get_target()->set_phi_arg_for_edge (source, phi_lhs, arg);
 	}
 }
-
-
-
-

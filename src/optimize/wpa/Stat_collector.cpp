@@ -41,7 +41,6 @@ void
 Stat_collector::visit_basic_block (Basic_block* bb)
 {
 	inc_stat("total_num_bbs");
-//	collect_uninit_var_stats (bb);
 
 }
 
@@ -249,7 +248,6 @@ Stat_collector::visit_try (Statement_block* bb, MIR::Try* in)
 void
 Stat_collector::visit_unset (Statement_block* bb, MIR::Unset* in)
 {
-//	collect_type_stats (bb, in->variable_name, "types_unset_var");
 }
 
 void
@@ -279,11 +277,7 @@ Stat_collector::visit_bin_op (Statement_block* bb, MIR::Bin_op* in)
 void
 Stat_collector::visit_bool (Statement_block* bb, MIR::BOOL* in)
 {
-/*	if (!CTS(last_assignment_lhs+" assigned to BOOL"))
-	{
-		CTS ("Number of types assigned to "+last_assignment_lhs);
-	}
-*/}
+}
 
 void
 Stat_collector::visit_cast (Statement_block* bb, MIR::Cast* in)
@@ -300,8 +294,7 @@ Stat_collector::visit_field_access (Statement_block* bb, MIR::Field_access* in)
 {
 	MIR::VARIABLE_NAME* varname = dynamic_cast<VARIABLE_NAME*> (in->target);
 	if (varname)
-		collect_deref_stats (bb, varname, "reads", "Field_access");
-	
+		collect_deref_stats (bb, varname, "reads", "Field_access");	
 }
 
 void
@@ -327,11 +320,7 @@ Stat_collector::visit_instanceof (Statement_block* bb, MIR::Instanceof* in)
 void
 Stat_collector::visit_int (Statement_block* bb, MIR::INT* in)
 {
-/*	if(! CTS (last_assignment_lhs+" assigned to INT"))
-	{
-		CTS ("Number of types assigned to "+last_assignment_lhs);
-	}
-*/}
+}
 
 void
 Stat_collector::visit_isset (Statement_block* bb, MIR::Isset* in)
@@ -392,20 +381,12 @@ Stat_collector::visit_param_is_ref (Statement_block* bb, MIR::Param_is_ref* in)
 void
 Stat_collector::visit_real (Statement_block* bb, MIR::REAL* in)
 {
-/*	if (!CTS (last_assignment_lhs+" assigned to REAL"))
-	{
-		CTS ("Number of types assigned to "+last_assignment_lhs);
-	}
-*/}
+}
 
 void
 Stat_collector::visit_string (Statement_block* bb, MIR::STRING* in)
 {
-/*	if (!CTS (last_assignment_lhs+" assigned to STRING"))
-	{
-		CTS ("Number of types assigned to "+last_assignment_lhs);
-	}
-*/}
+}
 
 void
 Stat_collector::visit_unary_op (Statement_block* bb, MIR::Unary_op* in)
@@ -435,34 +416,9 @@ Stat_collector::collect_type_stats (Basic_block* bb, MIR::Rvalue* rval,string st
 		foreach (string type, *absval->types)
 		{
 			CTS (statname);
-//			add_to_str_stat (statname,type);	
 		}
 	}
 }
-
-// TODO: get rid of
-void
-Stat_collector::collect_uninit_var_stats (Basic_block* bb)
-{/*
-	bool createdcfg = false;
-	if (!bb->cfg->duw)
-	{
-		createdcfg = true;
-		HSSA* hssa = new HSSA(wp, bb->cfg);	
-		hssa->convert_to_hssa_form ();
-	}
-
-	foreach (SSA_name phi_lhs, *bb->get_phi_lhss())
-	{
-		foreach (SSA_name* phi_arg, *bb->get_phi_args (phi_lhs))
-		{
-			if (phi_arg->get_version () == 0)
-				 add_to_stringset_stat("uninitialised_vars", phi_lhs.get_name ());
-		}
-	}
-	if (createdcfg)
-		bb->cfg->duw = NULL;
-*/}
 
 void 
 Stat_collector::get_number_of_statements (CFG* cfg, string beforeafter)

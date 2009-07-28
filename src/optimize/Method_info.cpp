@@ -69,7 +69,7 @@ bool
 User_method_info::param_by_ref (int param_index)
 {
 	if ((unsigned int)(param_index+1)
-			> signature->formal_parameters->size())
+			> signature->formal_parameters->size ())
 	{
 		// TODO: remove pass_rest_by_ref
 		return false;
@@ -84,7 +84,7 @@ VARIABLE_NAME*
 User_method_info::param_name (int param_index)
 {
 	if ((unsigned int)(param_index+1)
-			> signature->formal_parameters->size())
+			> signature->formal_parameters->size ())
 	{
 		return unnamed_param (param_index);
 	}
@@ -99,7 +99,7 @@ Static_value*
 User_method_info::default_param (int param_index)
 {
 	if ((unsigned int)(param_index+1) 
-			> signature->formal_parameters->size())
+			> signature->formal_parameters->size ())
 		return NULL;
 	else
 	{

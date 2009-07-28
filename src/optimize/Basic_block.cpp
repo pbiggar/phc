@@ -211,7 +211,7 @@ Basic_block*
 Basic_block::get_successor ()
 {
 	BB_list* succs = get_successors ();
-	assert (succs->size() == 1);
+	assert (succs->size () == 1);
 	return succs->front ();
 }
 
@@ -232,7 +232,7 @@ Edge*
 Basic_block::get_successor_edge ()
 {
 	Edge_list* succs = get_successor_edges ();
-	assert (succs->size() == 1);
+	assert (succs->size () == 1);
 	return succs->front ();
 }
 
@@ -241,7 +241,7 @@ Basic_block*
 Branch_block::get_true_successor ()
 {
 	Edge_list* succs = get_successor_edges ();
-	assert (succs->size() == 2);
+	assert (succs->size () == 2);
 
 	foreach (Edge* succ, *succs)
 		if (cfg->is_true_edge (succ))
@@ -255,7 +255,7 @@ Basic_block*
 Branch_block::get_false_successor ()
 {
 	Edge_list* succs = get_successor_edges ();
-	assert (succs->size() == 2);
+	assert (succs->size () == 2);
 
 	foreach (Edge* succ, *succs)
 		if (not cfg->is_true_edge (succ))
@@ -268,7 +268,7 @@ Edge*
 Branch_block::get_true_successor_edge ()
 {
 	Edge_list* succs = get_successor_edges ();
-	assert (succs->size() == 2);
+	assert (succs->size () == 2);
 
 	foreach (Edge* succ, *succs)
 		if (cfg->is_true_edge (succ))

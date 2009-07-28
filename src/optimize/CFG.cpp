@@ -1037,7 +1037,7 @@ CFG::clean ()
 	unsigned int last_edge_count;
 	do
 	{
-		last_node_count = get_all_bbs()->size();
+		last_node_count = get_all_bbs ()->size();
 		last_edge_count = get_all_edges ()->size();
 
 		remove_unreachable_blocks ();
@@ -1209,7 +1209,7 @@ CFG::equals (CFG* other)
 		if (edges->size () == 1)
 		{
 			Basic_block* target = edges->front()->get_target ();
-			Basic_block* other_target = other_edges->front()->get_target();
+			Basic_block* other_target = other_edges->front()->get_target ();
 			if (target->get_index() != other_target->get_index ())
 				return false;
 		}

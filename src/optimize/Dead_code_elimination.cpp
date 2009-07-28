@@ -233,11 +233,10 @@ DCE::mark_rdf (Basic_block* bb)
 void
 DCE::mark (SSA_def* def, string why)
 {
-	// Here I'm making the assumption that the RDF of a phi node whose arguments we're marking 
-	// doesn't need to be marked.  This could be wrong however...
-	if (marks[def] || def->type_flag == SSA_PHI)
+	assert (def->type_flag != SSA_PHI);		//Not 100% sure if this assertion is correct, think so though
+
+	if (marks[def])
 	{
-	//	mark_rdf (def->bb);
 		return;
 	}
 		
@@ -266,7 +265,10 @@ DCE::mark_def (SSA_use* use)
 		// When a def which is a phi node is marked, we need to mark it's arguments also
 		if (def->type_flag == SSA_PHI)
 		{
-			marks[def] = true;	
+			// Here I'm making the assumption that the RDF of a phi node whose arguments we're marking 
+			// doesn't need to be marked.  This could be wrong however...
+			
+			marks[def] = true;		//should I call mark () here?  Probably... I'd need to change mark () though.. TODO
 			foreach (SSA_name* phi_arg, *def->bb->get_phi_args (*def->name))
 			{
 				if (phi_arg->str () != use->name->str ())
@@ -317,7 +319,10 @@ void
 DCE::sweep_pass ()
 {
 	DEBUG("START SWEEP PASS");
-/*	foreach (Basic_block* bb, *cfg->get_all_bbs ())
+
+	// TODO: Verify if the below code for removing phis is in anyway useful 
+	//	(I think the ones we remove will just not get recreated when the DUW is rebuilt)
+	foreach (Basic_block* bb, *cfg->get_all_bbs ())
 	{
 		// Remove the phi nodes first, since the BB* may be replaced with an
 		// Empty BB.
@@ -327,7 +332,7 @@ DCE::sweep_pass ()
 				bb->remove_phi_node (phi_lhs);
 		}
 	}
-*/
+
 	foreach (Basic_block* bb, *cfg->get_all_bbs ())
 	{
 		if (is_marked (bb))

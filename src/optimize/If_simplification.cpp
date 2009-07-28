@@ -72,8 +72,6 @@ If_simplification::visit_branch_block (Branch_block* bb)
 		else
 		{
 			phc_unreachable ();
-		}
-		
+		}	
 	}
-
 }

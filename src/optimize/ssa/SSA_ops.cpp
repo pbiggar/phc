@@ -24,7 +24,7 @@ SSA_def::SSA_def (Basic_block* bb, SSA_name* name, int type_flag)
 }
 
 
-void SSA_op::dump()
+void SSA_op::dump ()
 {
 	CHECK_DEBUG ();
 	cdebug << demangle (this) << " (" << name->str () << ") in BB " << bb->ID << " ";

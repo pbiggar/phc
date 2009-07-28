@@ -73,7 +73,7 @@ calculate_dominance (Dominance* info, Graph_type& graph, vertex_t entry)
 	info->cfg->renumber_vertex_indices ();	
 	Vector<vertex_t> domTreePredVector = Vector<vertex_t> (
 		num_vertices (graph),
-		graph_traits<Graph_type>::null_vertex());
+		graph_traits<Graph_type>::null_vertex ());
 
 	// Use new instance, because the reverse_map<Graph> one is read-only.
 	IndexMap indices; 
@@ -84,7 +84,7 @@ calculate_dominance (Dominance* info, Graph_type& graph, vertex_t entry)
 	lengauer_tarjan_dominator_tree(graph, entry, idom_calc);
 	foreach (vertex_t v, vertices (graph))
 	{
-		if (get(idom_calc, v) != graph_traits<Graph_type>::null_vertex())
+		if (get(idom_calc, v) != graph_traits<Graph_type>::null_vertex ())
 			info->idominator[v] = get(idom_calc, v);
 		else
 			info->idominator[v] = NULL;
@@ -161,11 +161,11 @@ Dominance::dump ()
 
 	foreach (vertex_t v, vertices (cfg->bs))
 	{
-		cfg->vb[v]->dump();
+		cfg->vb[v]->dump ();
 		cdebug << " - dominates (forward_idom): [";
 		foreach (vertex_t dominated, idominated[v])
 		{
-			cfg->vb[dominated]->dump();
+			cfg->vb[dominated]->dump ();
 			cdebug << ", ";
 		}
 		cdebug << "]\n\n";
@@ -174,13 +174,13 @@ Dominance::dump ()
 		if (idominator[v] == NULL)
 			cdebug << "NONE";
 		else
-			cfg->vb[idominator[v]]->dump();
+			cfg->vb[idominator[v]]->dump ();
 		cdebug << "\n\n";
 
 		cdebug << " - dominance frontier: [";
 		foreach (vertex_t frontier, df[v])
 		{
-			cfg->vb[frontier]->dump();
+			cfg->vb[frontier]->dump ();
 			cdebug << ", ";
 		}
 		cdebug << "]\n\n";

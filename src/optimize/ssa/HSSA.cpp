@@ -246,8 +246,6 @@ HSSA::convert_to_hssa_form ()
 	cfg->duw = new Def_use_web (wp->def_use);
 	cfg->duw->build_web (cfg, false);
 
-
-
 	//	3) Insert PHIs using Cytron algorithm, including CHI as assignments
 
 	// We use Cooper/Torczon, Section 9.3.3, with some minor changes. Since we
@@ -273,7 +271,6 @@ HSSA::convert_to_hssa_form ()
 		cfg->dump_graphviz (s("Post-renaming"));
 
 	cfg->duw->build_web(cfg, true);
-
 
 //	cfg->duw->dump ();
 	cfg->duw->ssa_consistency_check ();
@@ -378,7 +375,7 @@ void
 HSSA::push_to_var_stack (SSA_name* name)
 {
 	assert (name->get_version () == 0);
-	var_stacks[name->get_name()].push (counter);
+	var_stacks[name->get_name ()].push (counter);
 	name->set_version (counter);
 	counter++;
 }
@@ -487,7 +484,7 @@ HSSA::rename_vars (Basic_block* bb)
 	foreach (Basic_block* succ, *bb->get_successors ())
 	{
 		DEBUG("Filling in successors' phi args\n" << " SUCC:" << succ->ID);
-		foreach (SSA_name phi_lhs, *succ->get_phi_lhss())
+		foreach (SSA_name phi_lhs, *succ->get_phi_lhss ())
 		{	
 			debug_top_var_stack (&phi_lhs, "PHI");
 			if (var_stacks[phi_lhs.get_name ()].size () != 0) // No point if nothing on var stack
@@ -506,9 +503,9 @@ HSSA::rename_vars (Basic_block* bb)
 	// Before going back up the tree, get rid of new variable names from
 	// the stack, so the next node up sees its own names.
 	SSA_name_list* defs_to_pop = new SSA_name_list;
-	foreach (SSA_name phi_lhs, *bb->get_phi_lhss())
+	foreach (SSA_name phi_lhs, *bb->get_phi_lhss ())
 	{
-		defs_to_pop->push_back(&phi_lhs);
+		defs_to_pop->push_back (&phi_lhs);
 	}
 	defs_to_pop->push_back_all (bb->cfg->duw->get_defs (bb));
 	foreach (SSA_name* def, *defs_to_pop)

@@ -109,7 +109,7 @@ Remove_loop_booleans::is_applicable_branch (Branch_block* bb)
 		{
 			string s = temp->name->get_name ();
 			Index_node name (ns, *bb->branch->variable_name->value);
-			if (s == name.get_starred_name()->str())
+			if (s == name.get_starred_name ()->str())
 			{
 				use = temp;
 				proceed = true;
@@ -128,7 +128,7 @@ Remove_loop_booleans::is_applicable_branch (Branch_block* bb)
 	
 	SSA_def_list* defs  = use->get_defs ();	// Needs to not be in SSA...
 	// Check if there are two defs
-	if (defs->size() != 2)
+	if (defs->size () != 2)
 		return false;
 
 	Basic_block* bb0 = defs->front ()->bb;

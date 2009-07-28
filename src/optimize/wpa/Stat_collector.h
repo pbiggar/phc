@@ -31,7 +31,6 @@ public:
 	DECLARE_EXPR_CFG_VISITORS
 
 	void get_number_of_statements (CFG* cfg, string beforeafter);
-	void collect_uninit_var_stats (Basic_block* bb);
 	void collect_def_use_stats (CFG* cfg);
 	void collect_type_stats (Basic_block* bb, MIR::Rvalue* rval,string statname);
 	void collect_method_stats ();

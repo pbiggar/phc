@@ -5,16 +5,16 @@
 	// { phc-regex-output: !/false/ }
 
 
-	for ($i = 0; $i < 100; $i++)
+	/*for ($i = 0; $i < 100; $i++)
 	{
-		echo $i;
+		echo "$i\n";
 	}
 
 	for ($j = 0; $j < 100 && $j >= 0; $j++)
 	{
-		echo $j;
+		echo "$j\n";
 	}
-
+*/
 	// nested loop
 	for ($k = 0; $k < 100; $k++)
 	{
@@ -25,14 +25,14 @@
 	}
 	echo $sum;
 
-	// The branch block has 3 entry points.
+	/*// The branch block has 3 entry points.
 	for ($y=0 ; $y<=$w1; $y=$y+1) {
       if ( $y==5 ) {
         print "_";
       } else {
         print "#";
       }
-  }
+  }*/
 
 
 ?>
