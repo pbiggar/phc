@@ -54,11 +54,12 @@ HSSA::convert_to_hssa_form ()
 	// Rename variables to SSA versions
 	rename_vars (cfg->get_entry_bb ());
 
+	// update Def Use Web with SSA versions of variables and Phis
+	cfg->duw->build_web(cfg, true);
+	
 	if (debugging_enabled)
 		cfg->dump_graphviz (s("Post-renaming"));
 
-	// update Def Use Web with SSA versions of variables and Phis
-	cfg->duw->build_web(cfg, true);
 
 //	cfg->duw->dump ();
 	cfg->duw->ssa_consistency_check ();
@@ -126,6 +127,7 @@ HSSA::push_to_var_stack (SSA_name* name)
 	assert (name->get_version () == 0);
 	var_stacks[name->get_name ()].push (counter);
 	name->set_version (counter);
+	DEBUG ("Pushed " << counter << " to var stack for " << name->str ());
 	counter++;
 }
 
@@ -226,17 +228,33 @@ HSSA::rename_vars (Basic_block* bb)
 		}
 	}
 	// Recurse down the dominator tree
-	foreach (Basic_block* dominated, *bb->get_dominated_blocks ())
+	foreach (Basic_block* dominated, *bb->get_dominated_blocks ())	
 		rename_vars (dominated);
+	
 	
 	// Before going back up the tree, get rid of new variable names from
 	// the stack, so the next node up sees its own names.
 	SSA_name_list* defs_to_pop = new SSA_name_list;
 	foreach (SSA_name phi_lhs, *bb->get_phi_lhss ())
 	{
-		defs_to_pop->push_back (&phi_lhs);
+		defs_to_pop->push_back (new SSA_name(phi_lhs));
 	}
+
+	// TODO: Eventually remove the DEBUGs
+
+	DEBUG ("Popping Var stack of: " << bb->ID );
 	defs_to_pop->push_back_all (bb->cfg->duw->get_defs (bb));
+	defs_to_pop->push_back_all (bb->cfg->duw->get_may_defs (bb));
 	foreach (SSA_name* def, *defs_to_pop)
+	{
+		if (var_stacks[def->get_name ()].size () > 0)
+			DEBUG ("Initial Top Var Stack: " << var_stacks[def->get_name ()].top ());
+
+		DEBUG ("Popping: " << def->str ());
+		
 		pop_var_stack (def);
+		
+		if (var_stacks[def->get_name ()].size () > 0)
+			DEBUG ("Top Var Stack: " << var_stacks[def->get_name ()].top ());
+	}
 }

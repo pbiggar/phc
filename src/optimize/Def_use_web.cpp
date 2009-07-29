@@ -212,7 +212,7 @@ void
 Def_use_web::ssa_consistency_check ()
 {
 	// TODO: a lot of stuff isnt in SSA, but we don't want to break everything with a commit
-	return;
+
 	// There isnt much that will help here. I'll implement it if its buggy.
 	// Check that named defs are correctly named
 	// Check that blocked defs are in the right block.
@@ -246,16 +246,13 @@ Def_use_web::ssa_consistency_check ()
 		// Check the dominance property (every use is dominated by its def)
 		if (def_list.size () == 1)
 		{
-			Basic_block* def_bb = def_list.front()->bb;
+			Basic_block* def_bb = def_list.front ()->bb;
 
 			foreach (SSA_use* ssa_use, named_uses[use])
 			{
 				DEBUG ("SSAUSE->BB: " << ssa_use->bb->ID << " DEF_BB " << def_bb->ID << " DEF: " << def_list.front ()->name->str ());
-				//TODO: Look at this
 				assert (ssa_use->bb->is_dominated_by (def_bb) || 
-					ssa_use->type_flag == SSA_PHI || 
-					isa <Exit_block> (def_bb) || 
-					isa<Exit_block> (ssa_use->bb) );
+					ssa_use->type_flag == SSA_PHI);		// Phi nodes don't need to be dominated by each of their arguments
 			}
 		}
 	}
