@@ -14,13 +14,6 @@ using namespace std;
 using namespace boost;
 
 
-/*
- * SSA-web. 
- *
- * Use the SSA-web (which doesnt actually rely on SSA form, nor is
- * it built during it) both for getting into SSA form, and for creating the
- * SSA web.
- */
 
 
 Def_use_web::Def_use_web (Def_use* du)
@@ -137,80 +130,6 @@ Def_use_web::build_web (CFG* cfg, bool update)
 		}
 	}
 }
-
-// TODO: CHIs are not created for the parameters to a method call. They
-// clearly should be.
-
-// TODO:
-// There is a special problem that occurs when you have two indirect
-// assignments in the same statement. Suppose you have:
-//
-//		$x = my_func ($y);
-//
-//	Then you have to add CHIs for the aliases of $y AND for the aliases of
-//	$x. However, the CHIs for the variables which alias $x do not occur at
-//	the same time as the variables which alias $y. Instead, $y's aliases
-//	should occur after the method invocation, and $x's aliases should occur
-//	after the assignment to $x. $x is in the first set, but not in the
-//	second. Anything which aliases both $y and $x gets 2 CHIs. $y will get
-//	2 CHIs.
-//
-//	So:
-//		$x0 = 5;
-//		$x2 = my_func ($y0);
-//		$x1 = CHI ($x0); // METHOD
-//		$y1 = CHI ($y0); // METHOD
-//		$y2 = CHI ($y1); // ASSIGNMENT
-//
-//	Some interesting notes:
-//		- There is no use of $x1.
-//		- This problem only occurs when there can be > 1 assignment, which
-//		can only occur in assignments from method invocations.
-//		- The same variable can get given a CHI from each of a method's
-//		parameters, but that is only 1 CHI overall.
-//		- There can only be 1 or 2 CHIs, not more (see above).
-//		- If we were to use zero versions, the first chi would have a zero
-//		version, since it has no real use.
-//		- This is only really important for getting the numbering right.
-//		Anywhere that uses phis would get them all.
-//
-//
-//
-// Some possible solutions:
-//		Associate CHIs with other definitions, maybe each def has a list of
-//		maydefs. But there is no def in the function call to associate it
-//		with, though I think one could safely be added (the MU would ensure
-//		that it is not overwritten).
-//
-//		Allow multiple CHIs in the CHI list. If there is more than 1 of the
-//		same name, they are assumed to be in the same order in which they
-//		occur. I believe that the only variable which will only occur once
-//		in the variable on the RHS.
-//		 - but what about when we have small alias sets? Then we dont really
-//		 know which is which.
-//		 - besides, keeping track of that seems very buggy
-//
-// XXX: I like this one best, I think.
-//		Have two CHI lists, one for 'mid' statement, one for
-//		'post-statement'. Aliases of assignments go in the latter. Aliases
-//		due to the call go in the former.
-//
-//	I think this will also solve the problem of 'vanishing globals'. In the
-//	case of:
-//		global $x;
-//		$x = 5;
-//
-//	The global statement is remove because $x_0 is not used. However, $x = 5
-//	is a must_def of $x_0. We can model it as a may-def however, giving it a
-//	CHI in the mid-part, and the CHI in the post-statement part gives it the
-//	new value.
-//
-//	The global statement will not in fact be solved by this. If there were
-//	an extra statement, $x = 8 after $x = 5, then $x = 5 would be kept live
-//	by this 'Early CHI'.
-//
-//	How about each assignment to an alias gets a MU of the variables in the
-//	statement which created the alias.
 
 
 
