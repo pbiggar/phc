@@ -6,8 +6,8 @@
 		die ("usage: misc/bench_memory NAME\n\n    creates results/NAME_memory.eps\n");
 	}
 
-	$phc = `for i in test/subjects/3rdparty/benchmarks/zend/individual/*; do echo \$i; misc/comp -O -M \$i 2>&1 | grep spacetime; done`;
-	$php = `for i in test/subjects/3rdparty/benchmarks/zend/individual/*; do echo \$i; valgrind --tool=massif /usr/local/php-opt/bin/php \$i 2>&1 | grep spacetime; done`;
+	$phc = `for i in test/subjects/benchmarks/zend/individual/*; do echo \$i; misc/comp -O -M \$i 2>&1 | grep spacetime; done`;
+	$php = `for i in test/subjects/benchmarks/zend/individual/*; do echo \$i; valgrind --tool=massif /usr/local/php-opt/bin/php \$i 2>&1 | grep spacetime; done`;
 
 	$phc_results = process_data ($phc);
 	$php_results = process_data ($php);
