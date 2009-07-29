@@ -13,7 +13,11 @@ using namespace MIR;
 using namespace std;
 using namespace boost;
 
-
+/*
+* defs, uses, may_defs => maps of BB IDs to lists of SSA_names in that block
+* named_defs, named_uses => maps of SSA_names to lists of SSA_defs/SSA_uses
+* def_ops, use_ops => maps of BB IDs to lists of SSA_uses/SSA_defs in that block
+*/
 
 
 Def_use_web::Def_use_web (Def_use* du)
@@ -38,11 +42,13 @@ Def_use_web::build_web (CFG* cfg, bool update)
 	// Otherwise, we get the information from the def_use
 	if (update) 
 	{
+		// Need to clear these before we put new versions in.
 		named_uses.clear ();
 		named_defs.clear ();
 		use_ops.clear ();
 		def_ops.clear ();
 		
+		// Collect all new defs and uses created by the insertion of phi nodes.
 		foreach (Basic_block* bb, *cfg->get_all_bbs ())
 		{	
 			DEBUG ("BBID: " << bb->ID);
@@ -58,6 +64,7 @@ Def_use_web::build_web (CFG* cfg, bool update)
 	}
 	else
 	{
+		// Collect all uses, defs and may defs from the Def Use
 		foreach (Basic_block* bb, *cfg->get_all_bbs ())
 		{
 			foreach (const Alias_name* name, *du->get_defs (bb))
@@ -69,7 +76,7 @@ Def_use_web::build_web (CFG* cfg, bool update)
 			foreach (const Alias_name* name, *du->get_may_defs (bb))
 			{
 				may_defs[bb->ID].push_back (new SSA_name (name->str ()));
-				uses[bb->ID].push_back (new SSA_name (name->str ()));
+				uses[bb->ID].push_back (new SSA_name (name->str ()));	// Every may def needs a use
 			}
 		}
 	}
@@ -245,7 +252,10 @@ Def_use_web::ssa_consistency_check ()
 			{
 				DEBUG ("SSAUSE->BB: " << ssa_use->bb->ID << " DEF_BB " << def_bb->ID << " DEF: " << def_list.front ()->name->str ());
 				//TODO: Look at this
-				assert (ssa_use->bb->is_dominated_by (def_bb) || ssa_use->bb == def_bb || ssa_use->type_flag == SSA_PHI || isa <Exit_block> (def_bb) || isa<Exit_block> (ssa_use->bb) );
+				assert (ssa_use->bb->is_dominated_by (def_bb) || 
+					ssa_use->type_flag == SSA_PHI || 
+					isa <Exit_block> (def_bb) || 
+					isa<Exit_block> (ssa_use->bb) );
 			}
 		}
 	}

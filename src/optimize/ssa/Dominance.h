@@ -44,5 +44,6 @@ private:
 	Basic_block* get_bb_immediate_dominator (Basic_block*);
 	BB_list* get_blocks_dominated_by_bb (Basic_block* bb);
 	bool is_bb_dominated_by (Basic_block* bb, Basic_block* potential_dom);
+	bool is_bb_strictly_dominated_by (Basic_block* bb, Basic_block* potential_dom);
 };
 #endif // PHC_DOMINANCE

@@ -214,9 +214,14 @@ Dominance::get_blocks_dominated_by_bb (Basic_block* bb)
 	return result;
 }
 
-bool
+bool 
 Dominance::is_bb_dominated_by (Basic_block* bb, Basic_block* potential_dom)
 {
+	return is_bb_strictly_dominated_by (bb, potential_dom) || bb == potential_dom;
+}
+bool
+Dominance::is_bb_strictly_dominated_by (Basic_block* bb, Basic_block* potential_dom)
+{	
 	vertex_t v = bb->vertex;
 	// Go up the dominator chain
 	while (idominator[v] != NULL)
