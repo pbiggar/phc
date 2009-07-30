@@ -26,17 +26,16 @@
 	}
 
 	# help message
-	if ($opt_help || count ($arguments) != 2)
+	if ($opt_help || count ($arguments) < 2)
 	{
 		die (<<<EOL
 valbench_compare - Compares valbench results with a baseline. The baseline and the results are a serialized array, as produced by valbench -s.
 
-Usage: valbench_compare [OPTIONS] BASELINE RESULT
+Usage: valbench_compare [OPTIONS] BASELINE RESULT [BEST] [WORST]
 
 Options:
     -h     Print this help message
-    -s     Print a combined result, but only for instruction count,
-			  cache misses and branch mispredictions
+    -s     Generate a short result (best/worst/overall for instr/l1 caches/branch misprediction, ignoring insignficant results). This expects the arguments for best and worst.
     -p     Create PNGs instead of EPSs.
 EOL
 		);
@@ -80,6 +79,9 @@ EOL
 
 	$baseline = unserialize ($arguments[0]);
 	$other = unserialize ($arguments[1]);
+	$best = $arguments[2];
+	$worst = $arguments[3];
+
 
 	if ($baseline === FALSE)
 		die ("Error in unserializing arg0: $arguments[0]");
@@ -90,36 +92,34 @@ EOL
 	$other = strip_useless ($other);
 
 	$results = compare ($baseline, $other);
-	$short_results = shorten ($results);
 
 
 	/*
 	 *	Generate graphs
 	 */
 
-	// Foreach test, a bar chart with each metric
-	foreach ($results as $key => $individual)
+
+
+	if ($opt_short)
 	{
-		print_barchart ($key, $individual);
+		// This could probably be done first?
+		$results["All"] = combine ($results);
+
+		$short_results = shorten ($results);
+
+		print_short_barchart ($short_results);
 	}
-
-	// A barchart with each metric, averaged over all tests
-	print_barchart ("All", combine ($results));
-
-	// For each short metric, a barchart containing all tests.
-	foreach ($short_keys as $key)
+	else
 	{
-		$result = array();
-		foreach ($short_results as $test_name => $test_result)
+		// Foreach test, a bar chart with each metric
+		foreach ($results as $key => $individual)
 		{
-			$result[$test_name] = $test_result[$key];
+			print_barchart ($key, $individual);
 		}
-		print_barchart ($key, $result, "mean", "sort");
-	}
-	
-	// Print the short results
-	echo (serialize (combine ($short_results)));
 
+		// A barchart with each metric, averaged over all tests
+		print_barchart ("All", combine ($results));
+	}
 
 
 
@@ -177,6 +177,52 @@ BARGRAPH;
 			`bash -c "bargraph.pl <(echo '$string') > $title.eps"`;
 	}
 
+
+	// A special barchart for the short results.
+	function print_short_barchart ($results, $mean = false, $sort = false)
+	{
+		global $abbreviations, $opt_png;
+
+		$title = "short";
+
+		$mean = $mean ? "=arithmean" : "";
+		$sort = $sort ? "=sort" : "";
+
+		$data = "";
+		foreach ($results as $name => $array)
+		{
+			foreach ($array as $key => $value)
+			{
+				if (isset ($abbreviations[$key]))
+					$data .= "{$abbreviations[$key]}-$name $value\n";
+				else
+					$data .= "$key-$name $value\n";
+			}
+		}
+
+
+		$string = <<<BARGRAPH
+yformat=%gx
+ylabel=Improvement of $title
+$mean
+$sort
+
+$data
+ 
+BARGRAPH;
+
+		var_dump ($string);
+
+		# bargraph.pl is available from
+		# http://www.burningcutlery.com/derek/bargraph/
+		if ($opt_png)
+			`bash -c "bargraph.pl -png <(echo '$string') > $title.png"`;
+		else
+			`bash -c "bargraph.pl <(echo '$string') > $title.eps"`;
+	}
+
+
+
 	function combine_reducer ($combined, $arr)
 	{
 		foreach ($arr as $key => $val)
@@ -205,15 +251,27 @@ BARGRAPH;
 	// Remove all but the most interesting of results.
 	function shorten ($all_results)
 	{
-		global $short_keys;
+		// $all_results is passed by copy.
+		global $short_keys, $best, $worst;
 
 
 		foreach ($all_results as $test_name => $test_result)
 		{
-			foreach ($test_result as $key => $value)
+			if ($test_name == $best
+				|| $test_name == $worst
+				|| $test_name == "All"
+				|| $best == ""
+				|| $worst == "")
 			{
-				if (!in_array ($key, $short_keys))
-					unset ($all_results[$test_name][$key]);
+				foreach ($test_result as $key => $value)
+				{
+					if (!in_array ($key, $short_keys))
+						unset ($all_results[$test_name][$key]);
+				}
+			}
+			else
+			{
+				unset ($all_results[$test_name]);
 			}
 		}
 
