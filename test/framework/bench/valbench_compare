@@ -7,7 +7,7 @@
 	set_include_path ("test/framework/external/" . PATH_SEPARATOR . get_include_path () );
 	$cg = new Console_Getopt();
 	$command_line = join (" ", $cg->readPHPArgv());
-	$opt_result = $cg->getopt($cg->readPHPArgv(), "shpd");
+	$opt_result = $cg->getopt($cg->readPHPArgv(), "shpdc");
 	if (!is_array ($opt_result))
 		die ($opt_result->message."\n");
 
@@ -16,6 +16,7 @@
 	$opt_help = false;
 	$opt_png = false;
 	$opt_debug = false;
+	$opt_cost = false;
 	foreach ($opts as $opt) 
 	{
 		switch ($opt[0])
@@ -24,6 +25,7 @@
 			case 's': $opt_short = true; break;
 			case 'p': $opt_png = true; break;
 			case 'd': $opt_debug = true; break;
+			case 'c': $opt_cost = true; break;
 		}
 	}
 
@@ -37,8 +39,10 @@ Usage: valbench_compare [OPTIONS] BASELINE RESULT [BENCHMARKS_NAMES]
 
 Options:
     -h     Print this help message
-    -s     Generate a short result (named benchmarks for important metrics, ignoring insignficant results[TODO]). This expects extra arguments.
+    -s     Generate a short result (named benchmarks for important metrics, ignoring insignficant results). This expects extra arguments.
+    -c     Generate a costed result (named benchmarks for important metrics). This expects extra arguments.
     -p     Create PNGs instead of EPSs.
+    -d     Print debug info
 EOL
 		);
 	}
@@ -48,12 +52,11 @@ EOL
 
 	$short_keys = array (
 #			"branch",
-#			"branch_conditional",
+#			"branch_misprediction",
+			"branch_conditional",
 #			"branch_conditional_misprediction",
-#			"branch_indirect",
+			"branch_indirect",
 #			"branch_indirect_misprediction",
-			"branch_misprediction",
-			"data",
 #			"data_l1_miss",
 #			"data_l1_miss_read",
 #			"data_l1_miss_write",
@@ -62,11 +65,12 @@ EOL
 #			"data_l2_miss_write",
 #			"data_read",
 #			"data_write",
-			"instruction",
+#			"data",
+#			"instruction",
 #			"instruction_l1_miss",
 #			"instruction_l2_miss",
-			"l2",
-			"l2_miss",
+#			"l2",
+#			"l2_miss",
 #			"l2_miss_read",
 #			"l2_miss_write",
 #			"l2_read",
@@ -101,11 +105,11 @@ EOL
 			);
 
 	$descriptions = array(
-			"branch" => "branch",
-			"branch_conditional" => "b_cond",
-			"branch_conditional_misprediction" => "bc_miss",
-			"branch_indirect" => "b_indir",
-			"branch_indirect_misprediction" => "bi_miss",
+			"branch" => "Branches",
+			"branch_conditional" => "Conditional Branches",
+			"branch_conditional_misprediction" => "Conditional Branch Mispredictions",
+			"branch_indirect" => "Indirect Branches",
+			"branch_indirect_misprediction" => "Indirect Branch Mispredictions",
 			"branch_misprediction" => "Branch misprediction",
 			"data" => "Memory accesses",
 			"data_l1_miss" => "d1_miss",
@@ -116,7 +120,7 @@ EOL
 			"data_l2_miss_write" => "d2m_wr",
 			"data_read" => "data_rd",
 			"data_write" => "data_wr",
-			"instruction" => "Instruction fetch",
+			"instruction" => "Instructions executed",
 			"instruction_l1_miss" => "i1_miss",
 			"instruction_l2_miss" => "i2_miss",
 			"l2" => "Level 1 cache miss",
@@ -132,10 +136,10 @@ EOL
 	$costs = array(
 			"branch" => 1,
 			"branch_conditional" => 1,
-			"branch_conditional_misprediction" => 13,
+			"branch_conditional_misprediction" => 12,
 			"branch_indirect" => 1,
-			"branch_indirect_misprediction" => 13,
-			"branch_misprediction" => 13,
+			"branch_indirect_misprediction" => 12,
+			"branch_misprediction" => 12,
 			"data" => 2,
 			"data_l1_miss" => 10,
 			"data_l1_miss_read" => 10,
@@ -183,10 +187,16 @@ EOL
 	$baseline = strip_useless ($baseline);
 	$other = strip_useless ($other);
 
-#	$baseline["All"] = combine ($baseline);
-#	$other["All"] = combine ($other);
+	if (!$opt_short and !$opt_cost)
+	{
+		$baseline["All"] = combine ($baseline);
+		$other["All"] = combine ($other);
+	}
 
-	list ($baseline, $other) = strip_cheap ($baseline, $other);
+	if ($opt_short)
+	{
+		list ($baseline, $other) = strip_cheap ($baseline, $other);
+	}
 
 	$results = compare ($baseline, $other);
 
@@ -202,6 +212,10 @@ EOL
 		$short_results = shorten ($results);
 
 		print_short_barchart ($short_results);
+	}
+	else if ($opt_cost)
+	{
+		print_costed_barchart ($baseline, $other);
 	}
 	else
 	{
@@ -274,23 +288,25 @@ BARGRAPH;
 	{
 		global $opt_png;
 
+		file_put_contents ("$title.plot", $string);
+
 		# bargraph.pl is available from
 		# http://www.burningcutlery.com/derek/bargraph/
 		if ($opt_png)
-			`bash -c "bargraph.pl -png <(echo '$string') > $title.png"`;
+			`bash -c "bargraph.pl -png $title.plot > $title.png"`;
 		else
-			`bash -c "bargraph.pl <(echo '$string') > $title.eps"`;
+			`bash -c "bargraph.pl $title.plot > $title.eps"`;
 	}
 
 
 	// A special barchart for the short results.
-	function print_short_barchart ($results, $mean = false, $sort = false)
+	function print_short_barchart ($results)
 	{
-		global $opt_debug;
+		global $descriptions, $short_keys, $costs, $opt_debug;
+
 		if ($opt_debug)
 			var_dump ($results);
 
-		global $descriptions, $short_keys, $costs;
 
 		$cluster = "=cluster";
 		foreach ($short_keys as $key)
@@ -317,9 +333,75 @@ BARGRAPH;
 yformat=%gx
 ylabel=Reduction due to phc compiled code
 =sort
+=arithmean
 $cluster
 =table
-colors=white,black,grey3,grey7,grey6
+
+$data
+ 
+BARGRAPH;
+#legendy=1370
+#legendx=2350
+
+		if ($opt_debug) var_dump ($string);
+
+		create_barchart ($string, "short");
+	}
+
+	// A special barchart for the short results.
+	function print_costed_barchart ($old_results, $new_results)
+	{
+		global $descriptions, $short_keys, $costs, $opt_debug;
+
+		if ($opt_debug)
+			var_dump ($results);
+
+
+		$cluster = "=cluster";
+		foreach ($short_keys as $key)
+		{
+			if ($key == "instruction")
+				continue; 
+
+			if (isset ($descriptions[$key]))
+				$key = $descriptions[$key];
+
+			$cluster .= ";$key";
+		}
+	
+		$data = "";
+		foreach ($new_results as $testname => $array)
+		{
+			// We want to print: (new - old) * cost / new_instructions
+			$data .= "$testname ";
+			foreach ($short_keys as $key)
+			{
+				if ($key != "instruction")
+				{
+					$new = $new_results[$testname][$key];
+					$old = $old_results[$testname][$key];
+					$cost = $costs[$key];
+					$new_instructions = $new_results[$testname]["instruction"];
+					$total = ($old - $new) * $cost * 100 / $new_instructions;
+
+					$data .= "$total ";
+				}
+			}
+			$data .= "\n";
+		}
+
+
+		$string = <<<BARGRAPH
+yformat=%g%%
+ylabel=Reduction due to phc compiled code
+=sort
+=arithmean
+$cluster
+=table
+extraops=set yrange [-5:15]
+legendy=1370
+legendx=2350
+
 
 $data
  
@@ -327,7 +409,7 @@ BARGRAPH;
 
 		if ($opt_debug) var_dump ($string);
 
-		create_barchart ($string, "short");
+		create_barchart ($string, "cost");
 	}
 
 
@@ -408,7 +490,6 @@ BARGRAPH;
 
 				if ($base_cost < $base_instructions && $other_cost < $other_instructions)
 				{
-					if ($opt_debug) print "Ignore: $test_name, $key with ($base_cost, $other_cost < $instructions)\n";
 					$other[$test_name][$key]	= 987654321;
 					$baseline[$test_name][$key]		= 1;
 				}
