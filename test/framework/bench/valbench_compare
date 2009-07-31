@@ -31,11 +31,11 @@
 		die (<<<EOL
 valbench_compare - Compares valbench results with a baseline. The baseline and the results are a serialized array, as produced by valbench -s.
 
-Usage: valbench_compare [OPTIONS] BASELINE RESULT [BEST] [WORST]
+Usage: valbench_compare [OPTIONS] BASELINE RESULT [BENCHMARKS_NAMES]
 
 Options:
     -h     Print this help message
-    -s     Generate a short result (best/worst/overall for instr/l1 caches/branch misprediction, ignoring insignficant results). This expects the arguments for best and worst.
+    -s     Generate a short result (named benchmarks for important metrics, ignoring insignficant results[TODO]). This expects extra arguments.
     -p     Create PNGs instead of EPSs.
 EOL
 		);
@@ -43,11 +43,32 @@ EOL
 
 	$useless_tests = array ("simple", "simplecall", "simpleucall", "simpleudcall");
 
-	$short_keys = array ("instruction",
-								"instruction_l1_miss",
-								"data_l1_miss",
-								"l2_miss",
-								"branch_misprediction");
+	$short_keys = array (
+			"branch",
+			"branch_conditional",
+			"branch_conditional_misprediction",
+			"branch_indirect",
+			"branch_indirect_misprediction",
+			"branch_misprediction",
+			"data",
+			"data_l1_miss",
+			"data_l1_miss_read",
+			"data_l1_miss_write",
+			"data_l2_miss",
+			"data_l2_miss_read",
+			"data_l2_miss_write",
+			"data_read",
+			"data_write",
+			"instruction",
+			"instruction_l1_miss",
+			"instruction_l2_miss",
+			"l2",
+			"l2_miss",
+			"l2_miss_read",
+			"l2_miss_write",
+			"l2_read",
+			"l2_write",
+			);
 
 	$abbreviations = array(
 			"branch" => "branch",
@@ -73,14 +94,25 @@ EOL
 			"l2_miss_read" => "l2m_rd",
 			"l2_miss_write" => "l2m_wr",
 			"l2_read" => "l2_rd",
-			"l2_write" => "l2_wr");
+			"l2_write" => "l2_wr"
+			);
 
 
 
 	$baseline = unserialize ($arguments[0]);
 	$other = unserialize ($arguments[1]);
-	$best = $arguments[2];
-	$worst = $arguments[3];
+
+	file_put_contents ("baseline.data", var_export ($baseline, true));
+	file_put_contents ("other.data", var_export ($other, true));
+
+	$included = array ();
+	foreach ($arguments as $key => $value)
+	{
+		if ($key < 2)
+			continue;
+
+		$included[] = $value;
+	}
 
 
 	if ($baseline === FALSE)
@@ -128,16 +160,18 @@ EOL
 	// baseline. Returns a new array.
 	function compare ($r1, $r2)
 	{
-		foreach ($r2 as $test_name => &$test_result)
+		foreach ($r2 as $test_name => $test_result)
 		{
-			foreach ($test_result as $key => &$value)
+			foreach ($test_result as $key => $value)
 			{
 				$base_val = $r1[$test_name][$key];
-				if ($base_val != 0)
-					$value = $base_val / $value; // go for 'bigger numbers are better'
+				assert ($base_val != 0);
+				$answer = $base_val / $value; // go for 'bigger numbers are better'
+				$result[$test_name][$key] = $base_val / $value; // go for 'bigger numbers are better'
+				echo "$test_name => $key: $answer = $base_val / $value\n";
 			}
 		}
-		return $r2;
+		return $result;
 	}
 
 	// Create a barchart with TITLE, and the bars named with the keys of
@@ -169,6 +203,13 @@ $data
  
 BARGRAPH;
 
+		create_barchart ($string, $title);
+	}
+
+	function create_barchart ($string, $title)
+	{
+		global $opt_png;
+
 		# bargraph.pl is available from
 		# http://www.burningcutlery.com/derek/bargraph/
 		if ($opt_png)
@@ -181,31 +222,31 @@ BARGRAPH;
 	// A special barchart for the short results.
 	function print_short_barchart ($results, $mean = false, $sort = false)
 	{
-		global $abbreviations, $opt_png;
+		var_dump ($results);
+		global $abbreviations, $short_keys;
 
-		$title = "short";
-
-		$mean = $mean ? "=arithmean" : "";
-		$sort = $sort ? "=sort" : "";
-
+		$cluster = "=cluster";
+		foreach ($short_keys as $key)
+			$cluster .= ";$key";
+	
 		$data = "";
 		foreach ($results as $name => $array)
 		{
-			foreach ($array as $key => $value)
+			$data .= "$name ";
+			foreach ($short_keys as $key)
 			{
-				if (isset ($abbreviations[$key]))
-					$data .= "{$abbreviations[$key]}-$name $value\n";
-				else
-					$data .= "$key-$name $value\n";
+				$data .= "$array[$key] ";
 			}
+			$data .= "\n";
 		}
 
 
 		$string = <<<BARGRAPH
 yformat=%gx
-ylabel=Improvement of $title
-$mean
-$sort
+ylabel=Reduction in phc compiled code
+=sort
+$cluster
+=table
 
 $data
  
@@ -213,12 +254,7 @@ BARGRAPH;
 
 		var_dump ($string);
 
-		# bargraph.pl is available from
-		# http://www.burningcutlery.com/derek/bargraph/
-		if ($opt_png)
-			`bash -c "bargraph.pl -png <(echo '$string') > $title.png"`;
-		else
-			`bash -c "bargraph.pl <(echo '$string') > $title.eps"`;
+		create_barchart ($string, "short");
 	}
 
 
@@ -252,16 +288,14 @@ BARGRAPH;
 	function shorten ($all_results)
 	{
 		// $all_results is passed by copy.
-		global $short_keys, $best, $worst;
+		global $short_keys, $included;
 
 
 		foreach ($all_results as $test_name => $test_result)
 		{
-			if ($test_name == $best
-				|| $test_name == $worst
+			if (in_array ($test_name, $included)
 				|| $test_name == "All"
-				|| $best == ""
-				|| $worst == "")
+				|| sizeof ($included) == 0)
 			{
 				foreach ($test_result as $key => $value)
 				{
