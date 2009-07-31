@@ -43,7 +43,8 @@ EOL
 		);
 	}
 
-	$useless_tests = array ("simple", "simplecall", "simpleucall", "simpleudcall");
+#	$useless_tests = array ("simple", "simplecall", "simpleucall", "simpleudcall");
+	$useless_tests = array ();
 
 	$short_keys = array (
 #			"branch",
@@ -52,7 +53,7 @@ EOL
 #			"branch_indirect",
 #			"branch_indirect_misprediction",
 			"branch_misprediction",
-#			"data",
+			"data",
 #			"data_l1_miss",
 #			"data_l1_miss_read",
 #			"data_l1_miss_write",
@@ -106,7 +107,7 @@ EOL
 			"branch_indirect" => "b_indir",
 			"branch_indirect_misprediction" => "bi_miss",
 			"branch_misprediction" => "Branch misprediction",
-			"data" => "data",
+			"data" => "Memory accesses",
 			"data_l1_miss" => "d1_miss",
 			"data_l1_miss_read" => "d1m_rd",
 			"data_l1_miss_write" => "d1m_wr",
@@ -318,7 +319,7 @@ ylabel=Reduction due to phc compiled code
 =sort
 $cluster
 =table
-colors=grey5,black,grey3,grey7
+colors=white,black,grey3,grey7,grey6
 
 $data
  
@@ -397,14 +398,15 @@ BARGRAPH;
 		{
 			foreach ($test_result as $key => $value)
 			{
-				$instructions = $test_result["instruction"];
+				$base_instructions = $test_result["instruction"];
+				$other_instructions = $other[$test_name]["instruction"];
 
 				$threshhold = 10;
 
 				$base_cost = $threshhold * $value * $costs[$key];
 				$other_cost = $threshhold * $other[$test_name][$key] * $costs[$key];
 
-				if ($base_cost < $instructions && $other_cost < $instructions)
+				if ($base_cost < $base_instructions && $other_cost < $other_instructions)
 				{
 					if ($opt_debug) print "Ignore: $test_name, $key with ($base_cost, $other_cost < $instructions)\n";
 					$other[$test_name][$key]	= 987654321;
