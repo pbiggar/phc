@@ -7,7 +7,7 @@
 	set_include_path ("test/framework/external/" . PATH_SEPARATOR . get_include_path () );
 	$cg = new Console_Getopt();
 	$command_line = join (" ", $cg->readPHPArgv());
-	$opt_result = $cg->getopt($cg->readPHPArgv(), "shp");
+	$opt_result = $cg->getopt($cg->readPHPArgv(), "shpd");
 	if (!is_array ($opt_result))
 		die ($opt_result->message."\n");
 
@@ -15,6 +15,7 @@
 	$opt_short = false;
 	$opt_help = false;
 	$opt_png = false;
+	$opt_debug = false;
 	foreach ($opts as $opt) 
 	{
 		switch ($opt[0])
@@ -22,6 +23,7 @@
 			case 'h': $opt_help = true; break;
 			case 's': $opt_short = true; break;
 			case 'p': $opt_png = true; break;
+			case 'd': $opt_debug = true; break;
 		}
 	}
 
@@ -44,30 +46,30 @@ EOL
 	$useless_tests = array ("simple", "simplecall", "simpleucall", "simpleudcall");
 
 	$short_keys = array (
-			"branch",
-			"branch_conditional",
-			"branch_conditional_misprediction",
-			"branch_indirect",
-			"branch_indirect_misprediction",
+#			"branch",
+#			"branch_conditional",
+#			"branch_conditional_misprediction",
+#			"branch_indirect",
+#			"branch_indirect_misprediction",
 			"branch_misprediction",
-			"data",
-			"data_l1_miss",
-			"data_l1_miss_read",
-			"data_l1_miss_write",
-			"data_l2_miss",
-			"data_l2_miss_read",
-			"data_l2_miss_write",
-			"data_read",
-			"data_write",
+#			"data",
+#			"data_l1_miss",
+#			"data_l1_miss_read",
+#			"data_l1_miss_write",
+#			"data_l2_miss",
+#			"data_l2_miss_read",
+#			"data_l2_miss_write",
+#			"data_read",
+#			"data_write",
 			"instruction",
-			"instruction_l1_miss",
-			"instruction_l2_miss",
+#			"instruction_l1_miss",
+#			"instruction_l2_miss",
 			"l2",
 			"l2_miss",
-			"l2_miss_read",
-			"l2_miss_write",
-			"l2_read",
-			"l2_write",
+#			"l2_miss_read",
+#			"l2_miss_write",
+#			"l2_read",
+#			"l2_write",
 			);
 
 	$abbreviations = array(
@@ -97,6 +99,63 @@ EOL
 			"l2_write" => "l2_wr"
 			);
 
+	$descriptions = array(
+			"branch" => "branch",
+			"branch_conditional" => "b_cond",
+			"branch_conditional_misprediction" => "bc_miss",
+			"branch_indirect" => "b_indir",
+			"branch_indirect_misprediction" => "bi_miss",
+			"branch_misprediction" => "Branch misprediction",
+			"data" => "data",
+			"data_l1_miss" => "d1_miss",
+			"data_l1_miss_read" => "d1m_rd",
+			"data_l1_miss_write" => "d1m_wr",
+			"data_l2_miss" => "d2_miss",
+			"data_l2_miss_read" => "d2m_rd",
+			"data_l2_miss_write" => "d2m_wr",
+			"data_read" => "data_rd",
+			"data_write" => "data_wr",
+			"instruction" => "Instruction fetch",
+			"instruction_l1_miss" => "i1_miss",
+			"instruction_l2_miss" => "i2_miss",
+			"l2" => "Level 1 cache miss",
+			"l2_miss" => "Level 2 cache miss",
+			"l2_miss_read" => "l2m_rd",
+			"l2_miss_write" => "l2m_wr",
+			"l2_read" => "l2_rd",
+			"l2_write" => "l2_wr"
+			);
+
+
+	# What is the cost of one of these
+	$costs = array(
+			"branch" => 1,
+			"branch_conditional" => 1,
+			"branch_conditional_misprediction" => 13,
+			"branch_indirect" => 1,
+			"branch_indirect_misprediction" => 13,
+			"branch_misprediction" => 13,
+			"data" => 2,
+			"data_l1_miss" => 10,
+			"data_l1_miss_read" => 10,
+			"data_l1_miss_write" => 10,
+			"data_l2_miss" => 100,
+			"data_l2_miss_read" => 100,
+			"data_l2_miss_write" => 100,
+			"data_read" => 2,
+			"data_write" => 2,
+			"instruction" => 1,
+			"instruction_l1_miss" => 20,
+			"instruction_l2_miss" => 100,
+			"l2" => 10,
+			"l2_miss" => 100,
+			"l2_miss_read" => 100,
+			"l2_miss_write" => 100,
+			"l2_read" => 10,
+			"l2_write" => 10,
+			);
+
+
 
 
 	$baseline = unserialize ($arguments[0]);
@@ -123,6 +182,11 @@ EOL
 	$baseline = strip_useless ($baseline);
 	$other = strip_useless ($other);
 
+#	$baseline["All"] = combine ($baseline);
+#	$other["All"] = combine ($other);
+
+	list ($baseline, $other) = strip_cheap ($baseline, $other);
+
 	$results = compare ($baseline, $other);
 
 
@@ -134,9 +198,6 @@ EOL
 
 	if ($opt_short)
 	{
-		// This could probably be done first?
-		$results["All"] = combine ($results);
-
 		$short_results = shorten ($results);
 
 		print_short_barchart ($short_results);
@@ -160,6 +221,8 @@ EOL
 	// baseline. Returns a new array.
 	function compare ($r1, $r2)
 	{
+		global $opt_debug;
+
 		foreach ($r2 as $test_name => $test_result)
 		{
 			foreach ($test_result as $key => $value)
@@ -168,7 +231,7 @@ EOL
 				assert ($base_val != 0);
 				$answer = $base_val / $value; // go for 'bigger numbers are better'
 				$result[$test_name][$key] = $base_val / $value; // go for 'bigger numbers are better'
-				echo "$test_name => $key: $answer = $base_val / $value\n";
+				if ($opt_debug) echo "$test_name => $key: $answer = $base_val / $value\n";
 			}
 		}
 		return $result;
@@ -222,12 +285,20 @@ BARGRAPH;
 	// A special barchart for the short results.
 	function print_short_barchart ($results, $mean = false, $sort = false)
 	{
-		var_dump ($results);
-		global $abbreviations, $short_keys;
+		global $opt_debug;
+		if ($opt_debug)
+			var_dump ($results);
+
+		global $descriptions, $short_keys, $costs;
 
 		$cluster = "=cluster";
 		foreach ($short_keys as $key)
+		{
+			if (isset ($descriptions[$key]))
+				$key = $descriptions[$key];
+
 			$cluster .= ";$key";
+		}
 	
 		$data = "";
 		foreach ($results as $name => $array)
@@ -243,16 +314,17 @@ BARGRAPH;
 
 		$string = <<<BARGRAPH
 yformat=%gx
-ylabel=Reduction in phc compiled code
+ylabel=Reduction due to phc compiled code
 =sort
 $cluster
 =table
+colors=grey5,black,grey3,grey7
 
 $data
  
 BARGRAPH;
 
-		var_dump ($string);
+		if ($opt_debug) var_dump ($string);
 
 		create_barchart ($string, "short");
 	}
@@ -271,17 +343,8 @@ BARGRAPH;
 	// Take an array of array of results. Combine all the sets into a singleset of results
 	function combine ($array)
 	{
-		// TODO: this loses the ability to use bargraph's error bars.
-
 		// Sum them
-		$result = array_reduce (array_values ($array), "combine_reducer");
-
-		// Average them
-		$count = count ($array);
-		foreach ($result as &$val)
-			$val /= $count;
-
-		return $result;
+		return array_reduce (array_values ($array), "combine_reducer");
 	}
 
 	// Remove all but the most interesting of results.
@@ -322,4 +385,33 @@ BARGRAPH;
 				unset ($results[$test_name]);
 		}
 		return $results;
+	}
+
+	function strip_cheap ($baseline, $other)
+	{
+		// $all_results is passed by copy.
+		global $short_keys, $costs, $opt_debug;
+
+
+		foreach ($baseline as $test_name => $test_result)
+		{
+			foreach ($test_result as $key => $value)
+			{
+				$instructions = $test_result["instruction"];
+
+				$threshhold = 10;
+
+				$base_cost = $threshhold * $value * $costs[$key];
+				$other_cost = $threshhold * $other[$test_name][$key] * $costs[$key];
+
+				if ($base_cost < $instructions && $other_cost < $instructions)
+				{
+					if ($opt_debug) print "Ignore: $test_name, $key with ($base_cost, $other_cost < $instructions)\n";
+					$other[$test_name][$key]	= 987654321;
+					$baseline[$test_name][$key]		= 1;
+				}
+			}
+		}
+
+		return array ($baseline, $other);
 	}
