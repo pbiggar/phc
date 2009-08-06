@@ -1,9 +1,9 @@
 Immediately after doing an svn checkout or svn export, you need to do:
 
-touch src/generated/*
+	$ touch src/generated/*
 
-otherwise you will get this error:
+otherwise you will get this error (or similar):
 
-src/tools/maketea/maketea src/generated_src/phc.tea
-make[2]: src/tools/maketea/maketea: Command not found
-make[2]: *** [src/generated/Tree_transform.cpp] Error 127
+src/generated_src/ast.tea
+/bin/bash: src/generated_src/ast.tea: Permission denied
+make: *** [src/generated/AST.h] Error 126

@@ -9,7 +9,7 @@ define('SM_TAG_PREGEXP','/<\s*'.SM_TAG_IDENTIFIER.'\s(.+)\s*>/Ui');
 define('SM_TAG_ATTR_PREGEXP','/(\w+)\s*=\s*[\"\'](.+)[\"\']/SUi');
 
 function test() {
-  $htmlTemplate = file("data/pcre-data.xml");
+  $htmlTemplate = file("test/subjects/benchmarks/php-benchmarks/benchcli/data/pcre-data.xml");
 
   // for each line in the file...
   foreach ($htmlTemplate as $line) {

@@ -19,6 +19,10 @@ extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 static bool already = false;
 extern "C" void run_ast (AST::PHP_script* in, Pass_manager* pm, String* option)
 {
+	// Cant put comments into HIR
+	if (already)
+		exit (0); // just retuning means the pass is dumped many times.
+
 	String* comment = new String ("// ");
 	comment->append (*option);
 	// Add a comment to the first statement

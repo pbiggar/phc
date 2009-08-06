@@ -48,7 +48,7 @@ class Variable {
   function removeConstraint($c)
   {
     $this->constraints->remove($c);
-    if ($this->determinedBy == $c) $this->determinedBy = null;
+    if ($this->determinedBy === $c) $this->determinedBy = null;
   }
 
 }
@@ -81,7 +81,7 @@ class OrderedCollection{
 		for($i = 0; $i < count($this->elms); $i++)
 		{
 			$value = $this->elms[$i];
-			if($value != $elm)
+			if($value !== $elm)
 			{
 				$this->elms[$index] = $value;
 				$index++;
@@ -708,7 +708,7 @@ class Planner {
       $determiningC= $v->determinedBy;
       for ($i= 0; $i < $v->constraints->size(); ++$i) {
 	$nextC= $v->constraints->at($i);
-	if ($nextC != $determiningC && $nextC->isSatisfied()) {
+	if ($nextC !== $determiningC && $nextC->isSatisfied()) {
 	  $nextC->recalculate();
 	  $todo->add($nextC->output());
 	}
@@ -772,7 +772,7 @@ class Planner {
     $cc= $v->constraints;
     for ($i= 0; $i < $cc->size(); ++$i) {
       $c= $cc->at($i);
-      if ($c != $determiningC && $c->isSatisfied())
+      if ($c !== $determiningC && $c->isSatisfied())
 	$coll->add($c);
     }
   }
@@ -889,3 +889,4 @@ for ($i = 0; $i < $length; ++$i)
 
 run(10);
 ?>
+

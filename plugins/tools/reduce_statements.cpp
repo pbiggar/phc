@@ -96,7 +96,7 @@ public:
 	// Things which can be removed
 	void post_statement (Statement *in, List<Statement*>* out)
 	{
-		if (index > start && index < (start + length))
+		if (index >= start && index < (start + length))
 			Transform::post_statement(in, out);
 		else
 			out->push_back (in);
@@ -252,7 +252,7 @@ public:
 
 extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 {
-	// We want to run this immediately after the XML is red in, so we add it after every pass.
+	// We want to run this immediately after the XML is read in, so we add it after every pass.
 	pm->add_after_each_pass (pass);
 }
 

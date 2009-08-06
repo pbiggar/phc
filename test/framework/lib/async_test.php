@@ -15,10 +15,10 @@ if (isset($_ENV["PHC_NUM_PROCS"]))
 else
 	define ("PHC_NUM_PROCS", 1);
 
-#function inst ($string)
-#{
+function inst ($string)
+{
 #	print "\n" . microtime () . " $string\n";
-#}
+}
 
 class AsyncBundle
 {
@@ -49,7 +49,7 @@ class AsyncBundle
 
 	function continuation ()
 	{
-#		inst ("continuing from state {$this->state} of {$this->subject}\n");
+		inst ("continuing from state {$this->state} of {$this->subject}\n");
 
 		$state = $this->state; // state is just an int
 		$this->outs[$state] = $this->out; // copy
@@ -105,12 +105,12 @@ class AsyncBundle
 
 		if (isset ($this->commands[$state]))
 		{
-#			inst ("Start next program: {$this->commands[$state]}");
+			inst ("Start next program: {$this->commands[$state]}");
 			$object->start_program ($this);
 		}
 		elseif (isset ($this->final))
 		{
-#			inst ("Finalize");
+			inst ("Finalize");
 			$object->{$this->final} ($this);
 		}
 		else
@@ -144,48 +144,182 @@ abstract class AsyncTest extends Test
 	{
 		$this->waiting_procs = array ();
 		$this->running_procs = array ();
+
+		$this->reductions = array ();
+		$this->reduction_result = array ();
+		$this->is_special_reduction = array ();
+
 		parent::__construct ();
 	}
 
-	function async_failure ($reason, $bundle)
+	/*
+	 * This is the best place to handle reduce
+	 */
+
+	function reduce_run_function ($command, $stdin)
 	{
-		$this->mark_failure (
+		$result = complete_exec ($command, $stdin, 3);
+		if ($result[0] == "Timeout")
+			return array ("", "", 0);
+
+		return $result;
+	}
+
+	function reduce_checking_function ($program)
+	{
+		global $working_directory;
+		$filename = tempnam ($working_directory, "reduce_");
+		file_put_contents ($filename, $program);
+
+		$this->is_special_reduction[$filename] = true;
+
+		$this->run_test ($filename);
+
+		$this->run_out_all_procs ();
+
+		return $this->reduction_result[$filename];
+	}
+
+	function reduce_debug_function ($level, $message)
+	{
+		// Do nothing
+	}
+
+	function reduce_failure ($reason, $bundle)
+	{
+		inst ("reduce failure: $reason, $bundle->subject");
+		global $phc;
+		$subject = $bundle->subject;
+
+		if (isset ($this->is_special_reduction[$subject]))
+		{
+			// Found: we're already reducing, and the bug is kept in
+			$this->reduction_result[$subject] = true;
+		}
+		else
+		{
+			// Start reducing
+			try
+			{
+				$reduce = new Reduce ();
+				$this->reductions[$subject] = $reduce;
+				$reduce->set_checking_function (array ($this, "reduce_checking_function"));
+				$reduce->set_run_command_function (array ($this, "reduce_run_function"));
+				$reduce->set_phc ($phc);
+				$reduce->set_debug_function (array ($this, "reduce_debug_function"));
+
+				// Get the file, and send it to the reducer
+				$contents = file_get_contents ($subject);
+
+				if (!$reduce->has_syntax_errors ($contents))
+				{
+					$final_contents = $reduce->run_on_php ($contents);
+					file_put_contents ("$subject.{$this->get_name ()}_reduced", $final_contents);
+				}
+			}
+			catch (ReduceException $e)
+			{
+				// There can be lots of reasons for this, many benign. Ignore it.
+			}
+
+			$this->mark_failure (
 					$bundle->subject, 
 					$bundle->commands,
 					$bundle->outs,
 					$bundle->errs,
 					$bundle->exits,
 					$reason);
+		}
+	}
+
+	function reduce_success ($bundle)
+	{
+		inst ("reduce success: $bundle->subject");
+		if (isset ($this->is_special_reduction[$bundle->subject]))
+		{
+			// The bug has been eliminated.
+			$this->reduction_result[$bundle->subject] = false;
+		}
+		else
+		{
+			$this->mark_success (
+					$bundle->subject, 
+					$bundle->commands,
+					$bundle->outs,
+					$bundle->errs,
+					$bundle->exits);
+		}
+	}
+
+	function reduce_timeout ($reason, $bundle)
+	{
+		if (isset ($this->is_special_reduction[$bundle->subject]))
+		{
+			// Don't know if this has helped. Lets say it hasn't (ie say 'dont
+			// remove that line').
+			$this->reduction_result[$bundle->subject] = false;
+		}
+		else
+		{
+			$this->mark_timeout (
+					$bundle->subject, 
+					$bundle->commands,
+					$bundle->outs,
+					$bundle->errs,
+					$bundle->exits);
+		}
+	}
+
+
+
+
+	function async_failure ($reason, $bundle)
+	{
+		global $opt_reduce;
+		if ($opt_reduce)
+			$this->reduce_failure ($reason, $bundle);
+		else
+		{
+			$this->mark_failure (
+					$bundle->subject, 
+					$bundle->commands,
+					$bundle->outs,
+					$bundle->errs,
+					$bundle->exits,
+					$reason);
+		}
 	}
 
 	function async_timeout ($reason, $bundle)
 	{
-		$this->mark_timeout (
+		global $opt_reduce;
+		if ($opt_reduce)
+			$this->reduce_timeout ($reason, $bundle);
+		else
+		{
+			$this->mark_timeout (
 					$bundle->subject, 
 					$bundle->commands,
 					$bundle->outs,
 					$bundle->errs,
 					$bundle->exits);
+		}
 	}
 
 	function async_success ($bundle)
 	{
-		$this->mark_success (
+		global $opt_reduce;
+		if ($opt_reduce)
+			$this->reduce_success ($bundle);
+		else
+		{
+			$this->mark_success (
 					$bundle->subject, 
 					$bundle->commands,
 					$bundle->outs,
 					$bundle->errs,
 					$bundle->exits);
-	}
-
-	function async_skipped ($bundle)
-	{
-		$this->mark_skipped (
-					$bundle->subject, 
-					$bundle->commands,
-					$bundle->outs,
-					$bundle->errs,
-					$bundle->exits);
+		}
 	}
 
 	function fail_on_output (&$stream, $bundle)
@@ -218,13 +352,18 @@ abstract class AsyncTest extends Test
 
 	function finish_test ()
 	{
+		$this->run_out_all_procs ();
+		parent::finish_test ();
+	}
+
+	function run_out_all_procs ()
+	{
 		while (count ($this->running_procs) or count ($this->waiting_procs))
 		{
 			usleep (30000);
 			$this->run_waiting_procs ();
 			$this->check_running_procs ();
 		}
-		parent::finish_test ();
 	}
 
 	function check_capacity ()
@@ -273,9 +412,8 @@ abstract class AsyncTest extends Test
 				$bundle->out .= "\n--- TIMEOUT ---";
 				$bundle->outs[] = $bundle->out;
 				$bundle->errs[] = $bundle->err;
-				$this->async_timeout ("Timeout", $bundle);
-
 				unset ($this->running_procs [$index]); // remove from the running list
+				$this->async_timeout ("Timeout", $bundle);
 			}
 			else
 			{
@@ -289,10 +427,10 @@ abstract class AsyncTest extends Test
 		while (count ($this->running_procs) 
 				< ($this->get_num_procs () / $this->get_phc_num_procs_divisor()))
 		{
-#			inst ("Poll waiting");
+			inst ("Poll waiting");
 			if (count ($this->waiting_procs) == 0)
 			{
-#				inst ("No procs waiting");
+				inst ("No procs waiting");
 				break;
 			}
 
@@ -309,7 +447,7 @@ abstract class AsyncTest extends Test
 		if ($opt_verbose)
 			print "Running command: $command\n";
 
-#		inst ("Running prog: $command");
+		inst ("Running prog: $command");
 
 		// now start this process and add it to the list
 		$descriptorspec = array(1 => array("pipe", "w"),

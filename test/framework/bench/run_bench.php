@@ -1,123 +1,97 @@
 <?php
+	/*
+	* Runs the list of files (stripped of ".php") in test/framework/bench/list.txt
+	*/
 
-	// TODO make sure they compute the same result.
-
-	$prefix = "test/subjects/3rdparty/benchmarks/shootout";
 	$php = "/usr/local/php-opt/bin/php";
-	$memory_limit = 128;
 
 	function run_phc ($filename, $name, $input)
 	{
+		global $date;
 		// Compile it. The tests are run after this, but they
 		// all have a very short run if no command line
 		// parameters are given.
-		$compile_cmd = "misc/comp -O $filename";
+		$compile_cmd = "misc/comp -O -i $filename";
 		print $compile_cmd."\n";
-		`$compile_cmd`;
-
-
-		// run it.
-		$run_cmd = "./$name.out $input";
-		$start = microtime (1);
-		print "$run_cmd\n";;
-		print `$run_cmd`;
-		$stop = microtime (1);
-
-		return $stop - $start;
+		system ($compile_cmd, $exit_code);
+		print ($exit_code);
+		if($exit_code)
+		{
+			$error_file = fopen ("results/".$date."_errors", "a");
+			fwrite ($error_file, "$filename did not compile\n");
+			fclose ($error_file);
+		}
+		else
+		{
+			// run it.
+			$run_cmd = "./".`basename "$name.out"`;
+			$start = microtime (1);
+			print "$run_cmd\n";
+			system($run_cmd, $exit_code);
+			$stop = microtime (1);
+			print ($exit_code);
+			if ($exit_code)
+			{
+				$error_file = fopen ("results/".$date."_errors", "a");
+				fwrite ($error_file, "$run_cmd failed\n");
+				fclose ($error_file);
+				return 0;
+			}
+			return $stop - $start;
+		}
+		return 0;
 	}
 
 	function run_php ($filename, $input)
 	{
 		global $php;
-		global $memory_limit;
 
 		// start the timer
 		$start = microtime (1);
 
-		$command = "$php -d memory_limit={$memory_limit}M $filename $input";
+		$command = "$php $filename $input";
 		print "$command\n";
 		print `$command`;
 
 		// stop the timer
 		$stop = microtime (1);
 
-		// if it runs outside of the 20-30 second range, fail.
 		return $stop - $start;
 	}
 
 	function run ($name, $cmdline_input)
 	{
-//		$cmdline_input = ""; // run the test very quickly
-		global $prefix;
-		$filename = "$prefix/$name.php";
+		global $date;
+		$filename = "$name.php";
 
 
 		// run it in php first
 		$time = run_php ($filename, $cmdline_input);
-		print "PHP: $name: $time";
+		print "PHP: ".basename ($name).": $time";
+		print "\n";		
 
-		if ($time > 30 or $time < 20)
-			print " - Test outside time range\n";
-
-		print "\n";
-
-
+		$php_res = fopen ("results/php_$date.txt","a");
+		fwrite ($php_res, basename ($name)."     ".$time."\n");
+		fclose ($php_res);
+		
 		// run it with phc
 		$time = run_phc ($filename, $name, $cmdline_input);
-		print "phc: $name: $time\n";
+		print "phc: ".basename ($name).": $time\n";
+			
+		$phc_res = fopen ("results/phc_$date.txt", "a");
+		fwrite ($phc_res, basename ($name)."     ".$time."\n");
+		fclose ($phc_res);
 	}
 
-	function inc_mem ($mem) { global $memory_limit; $memory_limit = $mem; }
-	function dec_mem () { global $memory_limit; $memory_limit = 128; }
+	$date = date ("c");
+	
+	$bench_list = fopen ("test/framework/bench/list.txt", "r");
+	while ($bench = fgets ($bench_list))
+	{
+		run (chop ($bench), "");
+	}
 
-
-	// broken or worthless
-//	run ("hello", x);
-//	run ("meteor", 100); // test doesnt work
-
-
-	// simple
-
-	run ("ackermann", 9);
-	run ("ary", 60000);
-	run ("binarytrees", 13);
-	run ("binarytrees.php-2", 14);
-	run ("dispatch", 70000);
-	run ("fannkuch", 9);
-	run ("fasta.php-2", 450000);
-	run ("fibo", 34);
-	run ("harmonic", 40000000);
-	run ("hash2", 3000);
-	run ("heapsort", 800000);
-	run ("lists", 16);
-	run ("mandelbrot.php-2", 800);
-	run ("matrix", 1200);
-	run ("methcall", 5000000);
-	run ("nbody", 250000);
-	run ("nestedloop", 22);
-	run ("nsievebits", 8);
-	run ("nsievebits.php-2", 9);
-	run ("objinst", 4000000);
-	run ("partialsums", 4500000);
-	run ("pidigits", 1600);
-	run ("pidigits.php-2", 11000);
-	run ("random", 9000000);
-	run ("raytracer", 5);
-	run ("raytracer.php-2", 5);
-	run ("recursive.php-2", 7);
-	run ("sieve", 1800);
-	run ("spectralnorm", 550);
-	run ("takfp", 9);
-
-	// need extra memory
-	inc_mem (512);
-
-	run ("hash", 6000000);
-	run ("nsieve", 9);
-	run ("nsieve.php-2", 10);
-
-	dec_mem ();
-
+	fclose ($bench_list);
 
 	// special input // TODO
 

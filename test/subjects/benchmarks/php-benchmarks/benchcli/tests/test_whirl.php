@@ -8,7 +8,7 @@
 
 
 include_once("phpWhirl/classes/WhirlParser.php");
-$filename = "phpWhirl/keymaker.wr";
+$filename = "test/subjects/benchmarks/php-benchmarks/benchcli/tests/phpWhirl/keymaker.wr";
 
 $whirl = new WhirlParser();
 $whirl->loadfile($filename);

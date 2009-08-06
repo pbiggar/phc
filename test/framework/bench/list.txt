@@ -1,0 +1,17 @@
+test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_ackermann
+test/subjects/benchmarks/php-benchmarks/benchcli/misc/cachegrindparser
+test/subjects/benchmarks/php-benchmarks/benchcli/misc/getargs
+test/subjects/benchmarks/php-benchmarks/benchcli/misc/smapsparser
+test/subjects/benchmarks/php-benchmarks/benchcli/misc/timer
+test/subjects/benchmarks/php-benchmarks/benchcli/tests/phpWhirl/whirl
+test/subjects/benchmarks/php-benchmarks/benchcli/tests/raytracer/raytrace
+test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_crypto-aes
+test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_crypto-md5
+test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_crypto
+test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_deltablue
+test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_gaussjordan
+test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_j4p5
+test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_pcre
+test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_raytrace
+test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_richards
+test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_whirl

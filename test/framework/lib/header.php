@@ -123,6 +123,8 @@ function phc_error_handler ($errno, $errstr, $errfile, $errline, $errcontext)
 	global $strict;
 	if (error_reporting() == 0) return; // means the @ suppression was used
 	if ($errno === E_STRICT && $strict == false) return;
+	if ($errno === E_WARNING && $strict == false) return;
+	if ($errno === E_USER_WARNING && $strict == false) return;
 
 	$red = red_string ();
 	$reset = reset_string();
@@ -332,7 +334,16 @@ function log_failure ($test_name, $subject, $commands, $outs, $errs, $exits, $mi
 	$red = red_string();
 	$reset = reset_string();
 
-	// we have 1 or more outputs, only 1 error, and 1 or more commands, with the same number of error codes as commands
+	// I can't find where this comes from.
+	if (count ($commands < count ($exits)))
+		$commands[] = "Missing command";
+
+	assert (count ($outs) == count ($errs));
+	assert (count ($exits) == count ($errs));
+	assert (count ($commands) == count ($errs));
+
+	// We have 1 or more outputs, only 1 error, and 1 or more commands, with the
+	// same number of error codes as commands
 	$err_string = "";
 	if (is_array ($commands))
 	{
@@ -354,7 +365,14 @@ function log_failure ($test_name, $subject, $commands, $outs, $errs, $exits, $mi
 			$err_string = "";
 			foreach ($exits as $i => $exit)
 			{
+				if (!isset ($commands[$i]))
+				{
+					var_dump ($outs, $exits, $commands, $errs);
+					die ();
+				}
+
 				$command = $commands[$i];
+
 				$err = $errs [$i];
 				$command_string .= "{$red}Command $i$reset ($exit): $command\n";
 				if ($err)

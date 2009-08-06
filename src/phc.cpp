@@ -145,8 +145,8 @@ int main(int argc, char** argv)
 	pm->add_ast_visitor (new Note_top_level_declarations (), s("ntld"), s("Make a note of top-level-declarations before the information is lost"));
 
 	// Small optimization on the AST
-//	pm->add_ast_transform (new Constant_folding(), s("const-fold"), s("Fold constant expressions"));
-//	pm->add_ast_transform (new Remove_concat_null (), s("rcn"), s("Remove concatentations with \")\""));
+	pm->add_ast_transform (new Constant_folding(), s("const-fold"), s("Fold constant expressions"));
+	pm->add_ast_transform (new Remove_concat_null (), s("rcn"), s("Remove concatentations with \")\""));
 
 
 

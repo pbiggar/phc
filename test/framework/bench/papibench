@@ -1,0 +1,148 @@
+#!/usr/bin/env php
+<?php
+
+	set_include_path ("test/framework/external/" . PATH_SEPARATOR . "test/framework/" . get_include_path () );
+	require_once ("lib/header.php");
+	require_once ("Console/Getopt.php");
+
+	# get command line options
+	$cg = new Console_Getopt();
+	$command_line = join (" ", $cg->readPHPArgv());
+	$opt_result = $cg->getopt($cg->readPHPArgv(), "hps");
+	if (!is_array ($opt_result))
+		die ($opt_result->message."\n");
+
+	list ($opts, $arguments) = $opt_result;
+	$opt_help = false;
+	$opt_php = false;
+	$opt_serialize = false;
+	foreach ($opts as $opt) 
+	{
+		switch ($opt[0])
+		{
+			case 'h': $opt_help = true; break;
+			case 'p': $opt_php = true; break;
+			case 's': $opt_serialize = true; break;
+		}
+	}
+
+	# help message
+	if ($opt_help || count ($arguments) > 0)
+	{
+		die (<<<EOL
+bench - Compiles (with optimization) the Zend benchmark, and measures performance results using Cachegrind - phpcompiler.org
+
+Usage: benchmark [OPTIONS]
+
+Options:
+	 -h     Print this help message
+	 -p     Run the benchmark using PHP, instead of compiling the code with phc
+
+EOL
+		);
+	}
+
+
+	# We want to use the latest versions of the files, when running 'records/run'.
+	$benchs = glob (dirname (__FILE__)."/../../subjects/benchmarks/zend/individual/*.php");
+	foreach ($benchs as $filename)
+	{
+		$bench = basename ($filename, ".php");
+		$results[$bench] = run_benchmark ($filename);
+	}
+
+
+
+	// print out (serialization is for test scripts to use the data)
+	if ($opt_serialize)
+		echo (serialize ($results));
+	else
+		var_dump ($results);
+
+
+
+	function run_benchmark ($filename)
+	{
+		global $opt_php;
+
+		# which programs to use for testing
+		if ($opt_php)
+			$command = "valgrind --tool=cachegrind --branch-sim=yes /usr/local/php-opt/bin/php $filename";
+		else
+			$command = "misc/comp -B -O $filename";
+
+
+		// dont care about the output
+		list ($out, $err, $exit) = complete_exec ($command, NULL, 0);
+
+		if ($exit != 0)
+			die ("FAILURE:\n\n$err");
+
+		$match_names = array (	"instruction"
+									,	"instruction_l1_miss"
+									,	"instruction_l2_miss"
+
+									,	"data"
+									,	"data_read"
+									,	"data_write"
+
+									,	"data_l1_miss"
+									,	"data_l1_miss_read"
+									,	"data_l1_miss_write"
+
+									,	"data_l2_miss"
+									,	"data_l2_miss_read"
+									,	"data_l2_miss_write"
+									
+									,	"l2"
+									,	"l2_read"
+									,	"l2_write"
+
+									,	"l2_miss"
+									,	"l2_miss_read"
+									,	"l2_miss_write"
+
+									,	"branch"
+									,	"branch_conditional"
+									,	"branch_indirect"
+
+									,	"branch_misprediction"
+									,	"branch_conditional_misprediction"
+									,	"branch_indirect_misprediction");
+
+		$start = "^==\d+==";
+		$middle = ":\s+";
+		$number = "([0-9,]+)";
+		$rw			= "\s*\(\s*$number rd\s*\+\s*$number wr\)";
+		$branch_rw  = "\s*\(\s*$number cond\s*\+\s*$number ind\)";
+		$end = "$.";
+		preg_match ("/"
+		."$start I\s+refs$middle$number$end"
+		."$start I1\s+misses$middle$number$end"
+		."$start L2i\s+misses$middle$number$end"
+		.".*"
+		."$start D\s+refs$middle$number$rw$end"
+		."$start D1\s+misses$middle$number$rw$end"
+		."$start L2d\s+misses$middle$number$rw$end"
+		.".*"
+		."$start L2\s+refs$middle$number$rw$end"
+		."$start L2\s+misses$middle$number$rw$end"
+		.".*"
+		."$start Branches$middle$number$branch_rw$end"
+		."$start Mispredicts$middle$number$branch_rw$end"
+		."/ms", $err, $matches);
+
+		array_shift ($matches); // strip off the 
+
+		// remove commas
+		foreach ($matches as &$match)
+			$match = preg_replace ("/,/", "", $match);
+
+		unset ($match); // remove the reference from match
+
+		// make key-value pairs
+		$results = array_combine ($match_names, $matches);
+
+		return $results;
+	}
+?>

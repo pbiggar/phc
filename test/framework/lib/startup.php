@@ -11,7 +11,7 @@ require_once ("Console/ProgressBar.php");
 
 $cg = new Console_Getopt();
 $argv = $cg->readPHPArgv ();
-$getopt = $cg->getOpt($cg->readPHPArgv(), "lvVshnpicqO:D", array ("long", "verbose", "valgrind", "support", "help", "number", "no-progress", "installed", "clean", "quick", "one", "debug"));
+$getopt = $cg->getOpt($cg->readPHPArgv(), "lvVshnpicqO:Dr", array ("long", "verbose", "valgrind", "support", "help", "number", "no-progress", "installed", "clean", "quick", "one", "debug", "reduce"));
 if ($getopt instanceof PEAR_Error)
 	die ("Command line error: {$getopt->message}\n");
 
@@ -33,6 +33,7 @@ $opt_clean = isset($options{"c"});
 $opt_quick = isset($options{"q"});
 $opt_one = isset($options{"O"}) ? $options{"O"} : false;
 $opt_debug = isset($options{"D"});
+$opt_reduce = isset($options{"r"});
 
 
 if ($opt_help)
@@ -56,6 +57,7 @@ Options:
     -q     Just use the first 10 test subjects, for a real quick test run
     -O filename       Only test a single named file
     -D     Run in debug mode.
+    -r     Automatically reduce failing test cases.
 
 Regex:
     A list of regular expressions matching the tests to be run. Any test name

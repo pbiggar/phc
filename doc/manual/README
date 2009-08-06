@@ -1,0 +1,36 @@
+phc's documentation now uses sphinx. On Debian/Ubuntu, install the
+python-sphinx package (note, we use features of sphinx 0.6.x. At time of
+writing, this wasn't in ubuntu, so use 'easy_install sphinx' instead.
+
+There were previous failed experiments with latex and docbook, the latter being
+too cumbersome to use in practice.
+
+To make html documentation (which gets output in the .build directory), use
+	$ make html
+
+To make pdf documentation, use:
+	$ make latex
+and follow the instructions.
+
+
+The .sgml files will be removed once we verify that nothing is lost in their
+conversion to reST (or sooner, if that never happens). They can be built with:
+	jade -t sgml -d manual.dsl#html manual.sgml
+
+
+Writing documentation:
+	Some defintions are in include.rst, so include that in every document.
+
+	A TODO list is maintained at the bottom of manual.rst.
+
+	Use the following conventions for section headings.
+
+		* > with overline, for top-level
+		* & with overline, for books
+		* # with overline, for parts
+		* * with overline, for chapters
+		* =, for sections
+		* -, for subsections
+		* ^, for subsubsections
+		* ", for paragraphs
+

@@ -6,7 +6,7 @@ require_once ("Console/Getopt.php");
 set_include_path ("test/framework/external/" . PATH_SEPARATOR . get_include_path () );
 $cg = new Console_Getopt();
 $command_line = join (" ", $cg->readPHPArgv());
-$opt_result = $cg->getopt($cg->readPHPArgv(), "lhp");
+$opt_result = $cg->getopt($cg->readPHPArgv(), "lhpf");
 if (!is_array ($opt_result))
 	die ($opt_result->message."\n");
 
@@ -14,6 +14,7 @@ list ($opts, $arguments) = $opt_result;
 $opt_help = false;
 $opt_long = false;
 $opt_php = false;
+$opt_fdo = false;
 foreach ($opts as $opt) 
 {
 	switch ($opt[0])
@@ -21,6 +22,7 @@ foreach ($opts as $opt)
 		case 'h': $opt_help = true; break;
 		case 'l': $opt_long = true; break;
 		case 'p': $opt_php = true; break;
+		case 'f': $opt_fdo = true; break;
 	}
 }
 
@@ -36,6 +38,7 @@ Options:
 	 -h     Print this help message
 	 -l     Run the long benchmark, instead of the standard one.
 	 -p     Run the benchmark using PHP, instead of compiling the code with phc
+	 -f     Use gcc's feedback directed optimizations
 
 EOL
 	);
@@ -58,7 +61,21 @@ if ($opt_php)
 else
 {
 	print "Initializing test\n";
-	`misc/comp -O $filename`;
+	if ($opt_fdo)
+	{
+		print "Generating FDO\n";
+		`misc/comp -O -F $filename`;
+
+		print "Using and generating FDO\n";
+		`misc/comp -O -f -F $filename`;
+
+		print "Using FDO\n";
+		`misc/comp -O -f $filename`;
+	}
+	else
+	{
+		`misc/comp -O $filename`;
+	}
 }
 
 

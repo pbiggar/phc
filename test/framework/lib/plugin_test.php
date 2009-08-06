@@ -54,9 +54,6 @@ class PluginTest extends AsyncTest
 		return "$phc $commands --run $plugin_dir/tests/$plugin.la $subject";
 	}
 
-	# TODO: this could be simplified if we removed the ability to do
-	# 'skipped'.  Skipped has kinda changed meaning since we wrote this
-	# anyway, so I this should be done.
 	function finish ($async)
 	{
 		if ($async->outs[0] === "Success\n" 
@@ -64,11 +61,6 @@ class PluginTest extends AsyncTest
 			and $async->errs[0] === "")
 		{
 			$this->async_success ($async);
-		}
-		elseif ($async->outs[0] === "Skipped\n")
-		{
-			$name = $this->plugin_name;
-			$this->async_skipped ("Plugin $name returns skipped", $async);
 		}
 		else
 		{
