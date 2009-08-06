@@ -22,7 +22,7 @@
 #include "ast_to_hir/Split_unset_isset.h"
 #include "ast_to_hir/Strip_comments.h"
 #include "ast_to_hir/Switch_bin_op.h"
-#include "cmdline.h"
+#include "generated/cmdline.h"
 #include "codegen/Clarify.h"
 #include "codegen/Compile_C.h"
 #include "codegen/Generate_C_annotations.h"

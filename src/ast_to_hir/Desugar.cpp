@@ -123,8 +123,17 @@ Desugar::pre_class_name (CLASS_NAME* in)
 	}
 	else if (*in->value == "parent")
 	{
-		// parent:: means the parent class name
-		in->value = parent_class->value->clone();
+
+		if (this->parent_class == NULL)
+		{
+			// We would ideally like to replace this with a run-time warning, but that's a bit awkward.
+			phc_warning ("Attempt to use 'parent::' in a class with no parent class", in);
+		}
+		else
+		{
+			// parent:: means the parent class name
+			in->value = parent_class->value->clone();
+		}
 	}
 
 	return in;

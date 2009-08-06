@@ -244,7 +244,6 @@ List<Filter_type*>* filter_types (const List<List_type*>* list)
 	return result;
 }
 
-
 typedef List<Object*> Object_list;
 
 #define DECL_LIST(T) typedef List<T*> T##_list;

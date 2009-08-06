@@ -317,6 +317,13 @@ public:
 	const_iterator find (const key_type& x) const { return inner->find (x); }
 };
 
+template<typename _Tp, typename _Compare, typename _Alloc>
+struct
+supports_equality<Set<_Tp, _Compare, _Alloc>* >
+{
+	static const bool value = true;
+};
+
 
 template<typename _Tp, typename _Hash, typename _Pred, typename _Alloc>
 struct

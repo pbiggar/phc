@@ -268,37 +268,40 @@ PHP::is_initial_var_string_array (MIR::VARIABLE_NAME* iv)
 
 bool PHP::is_started = false;
 
-bool PHP::is_available ()
+bool
+PHP::is_available ()
 {
 	return false;
 }
 
-void PHP::startup_php ()
+void
+PHP::startup_php ()
 {
-
 	assert (is_started == false);
 	is_started = true;
 }
 
-void PHP::shutdown_php ()
+void
+PHP::shutdown_php ()
 {
 	assert (is_started);
 	is_started = false;
 }
 
-Literal* PHP::convert_token (Literal *token)
+AST::Literal*
+PHP::convert_token (AST::Literal *token)
 {
 	assert (is_started);
 
 	// Add the naive value
-	if (INT* in = dynamic_cast<INT*> (token))
+	if (AST::INT* in = dynamic_cast<AST::INT*> (token))
 		in->value = strtol(in->get_source_rep ()->c_str(), NULL, 0);
-	else if (REAL* in = dynamic_cast<REAL*> (token))
+	else if (AST::REAL* in = dynamic_cast<AST::REAL*> (token))
 		in->value = lexical_cast<double> (*in->get_source_rep ());
 
 
 	/* Handle INT overflows and underflows */
-	INT* in = dynamic_cast<INT*> (token);
+	AST::INT* in = dynamic_cast<AST::INT*> (token);
 	if (in == NULL)
 		return token;
 
@@ -323,31 +326,31 @@ Literal* PHP::convert_token (Literal *token)
 			if(strtoll(in->get_source_rep()->c_str(), NULL, 16) > (long long)(ULONG_MAX))
 			{
 				assert(errno == 0);
-				INT* i = new INT(LONG_MAX, in->get_source_rep ());
+				AST::INT* i = new AST::INT (LONG_MAX, in->get_source_rep ());
 				i->attrs->set("phc.line_number", in->attrs->get("phc.line_number"));
 				return i;
 			}
 			else
 			{
 				assert(errno == 0);
-				if(strtoll(in->get_source_rep ()->c_str(), NULL, 16) < -(long long)(ULONG_MAX))
+				if (strtoll(in->get_source_rep ()->c_str(), NULL, 16) < -(long long)(ULONG_MAX))
 				{
-					assert(errno == 0);
+					assert (errno == 0);
 					// Why LONG_MIN + 1? Well. Ask the PHP folks :)
-					INT* i = new INT(LONG_MIN + 1, in->get_source_rep ());
+					AST::INT* i = new AST::INT (LONG_MIN + 1, in->get_source_rep ());
 					i->attrs->set("phc.line_number", in->attrs->get("phc.line_number"));
 					return i;
 				}
 				else
 				{
-					assert(errno == 0);
+					assert (errno == 0);
 					// some platforms (cygwin and solaris at least) dont like atof (or strtod) on
 					// hex numbers, despite it being part of the C standard for a very
 					// long time. Since we're processing digits, we can safely go the long way.
 					double value = static_cast<double>(strtoll(in->get_source_rep ()->c_str(), NULL, 16));
-					assert(errno == 0);
-					REAL* r = new REAL(value, in->get_source_rep ());
-					r->attrs->set("phc.line_number", in->attrs->get("phc.line_number"));
+					assert (errno == 0);
+					AST::REAL* r = new AST::REAL (value, in->get_source_rep ());
+					r->attrs->set ("phc.line_number", in->attrs->get ("phc.line_number"));
 					return r;
 				}
 			}
@@ -356,8 +359,8 @@ Literal* PHP::convert_token (Literal *token)
 		// get a real in the case of overflow
 		double value = strtod(in->get_source_rep ()->c_str(), (char **)NULL);
 		assert(errno == 0);
-		REAL* r = new REAL(value, in->get_source_rep ());
-		r->attrs->set("phc.line_number", in->attrs->get("phc.line_number"));
+		AST::REAL* r = new AST::REAL (value, in->get_source_rep ());
+		r->attrs->set ("phc.line_number", in->attrs->get ("phc.line_number"));
 		return r;
 	}
 	else
@@ -366,14 +369,16 @@ Literal* PHP::convert_token (Literal *token)
 	}
 }
 
-unsigned long PHP::get_hash (String* string)
+unsigned long
+PHP::get_hash (String* string)
 {
 	// TODO people who dont have PHP installed may still want to see
 	// generated C code (perhaps to be cross compiled?)
-	assert (0);
+	phc_unreachable ();
 }
 
-Expr* PHP::fold_constant_expr (Expr* in)
+AST::Expr*
+PHP::fold_constant_expr (AST::Expr* in)
 {
 	return in;
 }

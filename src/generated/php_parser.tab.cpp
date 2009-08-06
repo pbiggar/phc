@@ -4080,7 +4080,7 @@ yyreduce:
   case 74:
 #line 1005 "src/generated_src/php_parser.ypp"
     {
-			CLASS_NAME* name = new CLASS_NAME((yyvsp[(2) - (9)].string));
+			CLASS_NAME* name = NEW (CLASS_NAME, (yyvsp[(2) - (9)].string));
 
 			(yyvsp[(1) - (9)].ast_class_def)->class_name = name;
 			(yyvsp[(1) - (9)].ast_class_def)->extends = (yyvsp[(4) - (9)].token_class_name);
@@ -4597,7 +4597,7 @@ yyreduce:
   case 130:
 #line 1456 "src/generated_src/php_parser.ypp"
     {
-			CLASS_NAME* class_name = new CLASS_NAME((yyvsp[(1) - (1)].string));
+			CLASS_NAME* class_name = NEW (CLASS_NAME, (yyvsp[(1) - (1)].string));
 			(yyval.ast_type) = NEW(Type, (class_name));
 		;}
     break;
@@ -5570,7 +5570,7 @@ yyreduce:
   case 252:
 #line 2130 "src/generated_src/php_parser.ypp"
     {
-			CLASS_NAME* name = new CLASS_NAME((yyvsp[(1) - (1)].string));
+			CLASS_NAME* name = NEW (CLASS_NAME, (yyvsp[(1) - (1)].string));
 			(yyval.token_class_name) = name;
 		;}
     break;
@@ -5578,7 +5578,7 @@ yyreduce:
   case 253:
 #line 2138 "src/generated_src/php_parser.ypp"
     {
-			CLASS_NAME* name = new CLASS_NAME((yyvsp[(1) - (1)].string));
+			CLASS_NAME* name = NEW (CLASS_NAME, (yyvsp[(1) - (1)].string));
 
 			(yyval.ast_class_name) = name;
 		;}
@@ -5819,7 +5819,7 @@ yyreduce:
   case 282:
 #line 2327 "src/generated_src/php_parser.ypp"
     {
-			CLASS_NAME* class_name = new CLASS_NAME((yyvsp[(1) - (3)].string));
+			CLASS_NAME* class_name = NEW (CLASS_NAME, (yyvsp[(1) - (3)].string));
 			CONSTANT_NAME* constant = new CONSTANT_NAME((yyvsp[(3) - (3)].string));
 			
 			(yyval.ast_constant) = NEW(Constant, (class_name, constant));

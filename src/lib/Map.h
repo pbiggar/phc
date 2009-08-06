@@ -194,7 +194,6 @@ public:
 	{
 		if (this->inner == other->inner)
 			return true;
-
 		if (other->size () != this->size ())
 			return false;
 
