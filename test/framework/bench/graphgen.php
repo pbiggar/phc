@@ -245,10 +245,10 @@ fcs	".$stat_matrix[3][0]."  ".$stat_matrix[3][2]."
 
 
 	
-	function	ifs_replaced_constants (PDO $DB, $BENCHES, $FLAGS, $DEST)
+	function ifs_replaced_constants (PDO $DB, $BENCHES, $FLAGS, $DEST)
 	{
 		$fh = fopen ($DEST."irc.txt", "w");
-		fwrite ($fh, "=stackcluster;Ifs After Optimisation;Ifs Replaced With Constants;Ifs Removed with DCE;\ncolors=grey7,grey6,grey5,grey4,grey3,grey2\nlegendx=6000\nlegendy=1500\nfontsz=7\n=nogridy\n=noupperright\nxlabel=Ifs Replaced With Constants\nextraops=set label \"fci = flow and context insensitive\\nci = context insensitive\\nfi = flow insensitive\\nfcs = flow and context sensitive\" at 3,3500 left font \"Times,10\"
+		fwrite ($fh, "=stackcluster;Branches After Optimisation;Branches Replaced With Constants;Branches Removed with DCE;\ncolors=grey7,grey6,grey5,grey4,grey3,grey2\nlegendx=6000\nlegendy=1500\nfontsz=7\n=nogridy\n=noupperright\nxlabel=Ifs Replaced With Constants\nextraops=set label \"fci = flow and context insensitive\\nci = context insensitive\\nfi = flow insensitive\\nfcs = flow and context sensitive\" at 3,3500 left font \"Times,10\"
 =table\n");
 
 		foreach ($BENCHES as $bench)
@@ -273,7 +273,7 @@ fcs	".$stat_matrix[3][0]."  ".$stat_matrix[3][1]."  ".$stat_matrix[3][2]."
 	function	unreachable_statements (PDO $DB, $BENCHES, $FLAGS, $DEST)
 	{
 		$fh = fopen ($DEST."se.txt", "w");
-		fwrite ($fh, "=stackcluster;Statements After;Statements Elminated;i\ncolors=grey7,grey6,grey5,grey4,grey3,grey2\nlegendx=6000\nlegendy=1500\nfontsz=7\n=nogridy\n=noupperright\nxlabel=Statements Eliminated\nextraops=set label \"fci = flow and context insensitive\\nci = context insensitive\\nfi = flow insensitive\\nfcs = flow and context sensitive\" at 3.3,4100 left\n=table\n");
+		fwrite ($fh, "=stackcluster;Statements Remaining;Statements Eliminated;i\ncolors=grey7,grey6,grey5,grey4,grey3,grey2\nlegendx=6000\nlegendy=1500\nfontsz=7\n=nogridy\n=noupperright\nxlabel=Statements Eliminated\nextraops=set label \"fci = flow and context insensitive\\nci = context insensitive\\nfi = flow insensitive\\nfcs = flow and context sensitive\" at 3.3,4100 left\n=table\n");
 
 		foreach ($BENCHES as $bench)
 		{

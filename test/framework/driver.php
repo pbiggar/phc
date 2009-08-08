@@ -105,7 +105,7 @@ require_once ("compiled_vs_interpreted.php");
 
 #$opt = " -O1 --include --disable=ifsimple,dce,rlb ";
 $opt = " -O1 --include ";
-$fast = " --flow-insensitive --object-insensitive --call-string-length=1";
+$fast = " --flow-insensitive --call-string-length=1";
 $disable = "--disable=ifsimple,rlb,dce";
 $stats = " --stats ";
 
