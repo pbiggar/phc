@@ -78,7 +78,6 @@ const char *gengetopt_args_info_full_help[] = {
   "      --no-xml-attrs            When dumping XML, omit node attributes  \n                                  (default=off)",
   "\nOPTIMIZATION OPTIONS:",
   "      --flow-insensitive        Turn off flow-sensitivity  (default=off)",
-  "      --object-insensitive      Turn off object-sensitivity  (default=off)",
   "      --call-string-length=LENGTH\n                                Choose the call-string length ('0' indicates \n                                  infinite call-string)  (default=`0')",
   "\nDEBUGGING PHC:",
   "      --stats                   Print compile-time statistics  (default=off)",
@@ -132,13 +131,12 @@ init_help_array(void)
   gengetopt_args_info_help[33] = gengetopt_args_info_full_help[48];
   gengetopt_args_info_help[34] = gengetopt_args_info_full_help[49];
   gengetopt_args_info_help[35] = gengetopt_args_info_full_help[50];
-  gengetopt_args_info_help[36] = gengetopt_args_info_full_help[51];
-  gengetopt_args_info_help[37] = gengetopt_args_info_full_help[61];
-  gengetopt_args_info_help[38] = 0; 
+  gengetopt_args_info_help[36] = gengetopt_args_info_full_help[60];
+  gengetopt_args_info_help[37] = 0; 
   
 }
 
-const char *gengetopt_args_info_help[39];
+const char *gengetopt_args_info_help[38];
 
 typedef enum {ARG_NO
   , ARG_FLAG
@@ -205,7 +203,6 @@ void clear_given (struct gengetopt_args_info *args_info)
   args_info->no_xml_base_64_given = 0 ;
   args_info->no_xml_attrs_given = 0 ;
   args_info->flow_insensitive_given = 0 ;
-  args_info->object_insensitive_given = 0 ;
   args_info->call_string_length_given = 0 ;
   args_info->stats_given = 0 ;
   args_info->rt_stats_given = 0 ;
@@ -272,7 +269,6 @@ void clear_args (struct gengetopt_args_info *args_info)
   args_info->no_xml_base_64_flag = 0;
   args_info->no_xml_attrs_flag = 0;
   args_info->flow_insensitive_flag = 0;
-  args_info->object_insensitive_flag = 0;
   args_info->call_string_length_arg = 0;
   args_info->call_string_length_orig = NULL;
   args_info->stats_flag = 0;
@@ -349,22 +345,21 @@ void init_args_info(struct gengetopt_args_info *args_info)
   args_info->no_xml_base_64_help = gengetopt_args_info_full_help[46] ;
   args_info->no_xml_attrs_help = gengetopt_args_info_full_help[47] ;
   args_info->flow_insensitive_help = gengetopt_args_info_full_help[49] ;
-  args_info->object_insensitive_help = gengetopt_args_info_full_help[50] ;
-  args_info->call_string_length_help = gengetopt_args_info_full_help[51] ;
-  args_info->stats_help = gengetopt_args_info_full_help[53] ;
-  args_info->rt_stats_help = gengetopt_args_info_full_help[54] ;
-  args_info->cfg_dump_help = gengetopt_args_info_full_help[55] ;
+  args_info->call_string_length_help = gengetopt_args_info_full_help[50] ;
+  args_info->stats_help = gengetopt_args_info_full_help[52] ;
+  args_info->rt_stats_help = gengetopt_args_info_full_help[53] ;
+  args_info->cfg_dump_help = gengetopt_args_info_full_help[54] ;
   args_info->cfg_dump_min = 0;
   args_info->cfg_dump_max = 0;
-  args_info->debug_help = gengetopt_args_info_full_help[56] ;
+  args_info->debug_help = gengetopt_args_info_full_help[55] ;
   args_info->debug_min = 0;
   args_info->debug_max = 0;
-  args_info->dont_fail_help = gengetopt_args_info_full_help[57] ;
-  args_info->missed_opt_help = gengetopt_args_info_full_help[58] ;
-  args_info->disable_help = gengetopt_args_info_full_help[59] ;
+  args_info->dont_fail_help = gengetopt_args_info_full_help[56] ;
+  args_info->missed_opt_help = gengetopt_args_info_full_help[57] ;
+  args_info->disable_help = gengetopt_args_info_full_help[58] ;
   args_info->disable_min = 0;
   args_info->disable_max = 0;
-  args_info->pause_help = gengetopt_args_info_full_help[60] ;
+  args_info->pause_help = gengetopt_args_info_full_help[59] ;
   
 }
 
@@ -641,8 +636,6 @@ cmdline_parser_dump(FILE *outfile, struct gengetopt_args_info *args_info)
     write_into_file(outfile, "no-xml-attrs", 0, 0 );
   if (args_info->flow_insensitive_given)
     write_into_file(outfile, "flow-insensitive", 0, 0 );
-  if (args_info->object_insensitive_given)
-    write_into_file(outfile, "object-insensitive", 0, 0 );
   if (args_info->call_string_length_given)
     write_into_file(outfile, "call-string-length", args_info->call_string_length_orig, 0);
   if (args_info->stats_given)
@@ -1273,7 +1266,6 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
         { "no-xml-base-64",	0, NULL, 0 },
         { "no-xml-attrs",	0, NULL, 0 },
         { "flow-insensitive",	0, NULL, 0 },
-        { "object-insensitive",	0, NULL, 0 },
         { "call-string-length",	1, NULL, 0 },
         { "stats",	0, NULL, 0 },
         { "rt-stats",	0, NULL, 0 },
@@ -1755,18 +1747,6 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
             if (update_arg((void *)&(args_info->flow_insensitive_flag), 0, &(args_info->flow_insensitive_given),
                 &(local_args_info.flow_insensitive_given), optarg, 0, 0, ARG_FLAG,
                 check_ambiguity, override, 1, 0, "flow-insensitive", '-',
-                additional_error))
-              goto failure;
-          
-          }
-          /* Turn off object-sensitivity.  */
-          else if (strcmp (long_options[option_index].name, "object-insensitive") == 0)
-          {
-          
-          
-            if (update_arg((void *)&(args_info->object_insensitive_flag), 0, &(args_info->object_insensitive_given),
-                &(local_args_info.object_insensitive_given), optarg, 0, 0, ARG_FLAG,
-                check_ambiguity, override, 1, 0, "object-insensitive", '-',
                 additional_error))
               goto failure;
           

@@ -59,9 +59,9 @@ bool String::ci_compare (const string& other)
 }
 
 String*
-String::to_lower ()
+String::to_lower () const
 {
-	String* result = this->clone ();
+	String* result = new String (*this); 
 	boost::to_lower (*result);
 	return result;
 }

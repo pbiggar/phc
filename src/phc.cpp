@@ -33,6 +33,8 @@
 #include "hir_to_mir/Lower_control_flow.h"
 #include "hir_to_mir/Lower_dynamic_definitions.h"
 #include "hir_to_mir/Lower_method_invocations.h"
+#include "optimize/hacks/Copy_propagation.h"
+#include "optimize/hacks/Dead_temp_cleanup.h"
 #include "optimize/Dead_code_elimination.h"
 #include "optimize/Def_use_web.h"
 #include "optimize/If_simplification.h"
@@ -146,7 +148,7 @@ int main(int argc, char** argv)
 
 	// Small optimization on the AST
 	pm->add_ast_transform (new Constant_folding(), s("const-fold"), s("Fold constant expressions"));
-	pm->add_ast_transform (new Remove_concat_null (), s("rcn"), s("Remove concatentations with \")\""));
+	pm->add_ast_transform (new Remove_concat_null (), s("rcn"), s("Remove concatentations with \"\"")); // TODO: this is wrong - it really should be converted to a cast to string.
 
 
 
@@ -167,6 +169,8 @@ int main(int argc, char** argv)
 
 
 	pm->add_hir_pass (new Fake_pass (s("hir"), s("High-level Internal Representation - the smallest subset of PHP which can represent the entire language")));
+	pm->add_hir_transform (new Copy_propagation (), s("prc"), s("Propagate copies - Remove some copies introduced as a result of lowering"));
+	pm->add_hir_transform (new Dead_temp_cleanup (), s("dtc"), s("Dead temp cleanup")); // TODO: Description?
 	pm->add_hir_transform (new Lower_dynamic_definitions (), s("ldd"), s("Lower Dynamic Defintions - Lower dynamic class, interface and method definitions using aliases"));
 	pm->add_hir_transform (new Lower_method_invocations (), s("lmi"), s("Lower Method Invocations - Lower parameters using run-time reference checks"));
 	pm->add_hir_transform (new Lower_control_flow (), s("lcf"), s("Lower Control Flow - Use gotos in place of loops, ifs, breaks and continues"));

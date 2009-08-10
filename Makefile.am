@@ -223,6 +223,14 @@ libphc_la_SOURCES= 											\
 	src/optimize/Prune_symbol_table.h					\
 	src/optimize/Remove_loop_booleans.cpp				\
 	src/optimize/Remove_loop_booleans.h					\
+	src/optimize/hacks/Copy_propagation.cpp				\
+	src/optimize/hacks/Copy_propagation.h				\
+	src/optimize/hacks/Dead_temp_cleanup.cpp			\
+	src/optimize/hacks/Dead_temp_cleanup.h				\
+	src/optimize/hacks/Fix_point.cpp				\
+	src/optimize/hacks/Fix_point.h				\
+	src/optimize/hacks/Use_def_counter.cpp				\
+	src/optimize/hacks/Use_def_counter.h				\
 	src/optimize/ssa/Dominance.cpp						\
 	src/optimize/ssa/Dominance.h							\
 	src/optimize/ssa/HSSA.cpp								\
@@ -566,6 +574,10 @@ plugins_tools_purity_test_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 nobase_pkglib_LTLIBRARIES += plugins/tools/function_finder.la
 plugins_tools_function_finder_la_SOURCES = plugins/tools/function_finder.cpp
 plugins_tools_function_finder_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+
+nobase_pkglib_LTLIBRARIES += plugins/tools/dynamic_things.la
+plugins_tools_dynamic_things_la_SOURCES = plugins/tools/dynamic_things.cpp
+plugins_tools_dynamic_things_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
 nobase_pkglib_LTLIBRARIES += plugins/tools/reduce_statements.la
 plugins_tools_reduce_statements_la_SOURCES = plugins/tools/reduce_statements.cpp

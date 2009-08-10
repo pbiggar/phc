@@ -16,47 +16,70 @@ You should see ::
 
    Usage: phc [OPTIONS]... [FILES]...
 
-     -h, --help               Print help and exit
-         --full-help          Print help, including hidden options, and exit
-     -V, --version            Print version and exit
+     -h, --help                    Print help and exit
+         --full-help               Print help, including hidden options, and exit
+     -V, --version                 Print version and exit
 
    GENERAL OPTIONS:
-     -v, --verbose            Verbose output  (default=off)
-     -c, --compile            Compile  (default=off)
-         --pretty-print       Pretty print input according to the Zend style 
-                                guidelines  (default=off)
-         --obfuscate          Obfuscate input  (default=off)
-         --run=STRING         Run the specified plugin (may be specified multiple 
-                                times)
-         --r-option=STRING    Pass option to a plugin (specify multiple flags in 
-                                the same order as multiple plugins - 1 option only 
-                                per plugin)
-     -d, --define=STRING      Define ini entry (only affects -c and --include)
+     -v, --verbose                 Verbose output  (default=off)
+     -c, --compile                 Compile  (default=off)
+         --pretty-print            Pretty print input according to the Zend style 
+                                     guidelines  (default=off)
+         --obfuscate               Obfuscate input  (default=off)
+         --run=STRING              Run the specified plugin (may be specified 
+                                     multiple times)
+         --r-option=STRING         Pass option to a plugin (specify multiple flags 
+                                     in the same order as multiple plugins - 1 
+                                     option only per plugin)
+     -d, --define=STRING           Define ini entry (only affects -c and 
+                                     --include)
+         --no-warnings             Allow warnings to be printed  (default=off)
 
    INPUT OPTIONS:
-         --read-xml=passname  Assume the input is in XML format. Start processing 
-                                after the named pass
-         --include            Parse included or required files at compile-time  
-                                (default=off)
+         --read-xml=PASSNAME       Assume the input is in XML format. Start 
+                                     processing after the named pass (passes are 
+                                     ast|hir|mir)
+         --include                 Parse included or required files at 
+                                     compile-time  (default=off)
+         --include-harder          Try harder to find included files, possibly 
+                                     slightly breaking some of PHP's rules  
+                                     (default=off)
 
    COMPILATION OPTIONS:
-     -C, --c-option=STRING    Pass option to the C compile (e.g., -C-g; can be 
-                                specified multiple times)
-         --extension=NAME     Generate a PHP extension called NAME instead of a 
-                                standalone application
-     -O, --optimize=STRING    Optimize  (default=`0')
-     -o, --output=FILE        Place executable into file FILE
-     -e, --execute            Run executable after compiling (implies -c)  
-                                (default=off)
+     -C, --c-option=STRING         Pass option to the C compile (e.g., -C-g; can 
+                                     be specified multiple times)
+         --extension=EXTENSION     Generate a PHP extension called EXTENSION 
+                                     instead of a standalone application
+         --web-app=CONFIG          Generate a web-application (experimental)
+     -O, --optimize=STRING         Optimize  (default=`0')
+     -o, --output=FILE             Place executable into file FILE
+     -e, --execute                 Run executable after compiling (implies -c)  
+                                  (default=off)
 
    PRETTY PRINTING OPTIONS:
-         --next-line-curlies  Output the opening curly on the next line instead of 
-                                on the same line  (default=off)
-         --no-leading-tab     Don't start every line in between <?php .. ?> with a 
-                                tab  (default=off)
-         --tab=STRING         String to use for tabs while unparsing  
-                                (default=`	')
-         --no-hash-bang       Do not output any #! lines  (default=off)
+         --next-line-curlies       Output the opening curly on the next line 
+                                     instead of on the same line  (default=off)
+         --no-leading-tab          Don't start every line in between <?php .. ?> 
+                                     with a tab  (default=off)
+         --tab=STRING              String to use for tabs while unparsing  
+                                     (default=`	')
+         --no-hash-bang            Do not output any #! lines  (default=off)
+
+   OUTPUT OPTIONS:
+         --dump=PASSNAME           Dump input as PHP (although potentially with 
+                                     gotos and labels) after PASSNAME
+         --dump-xml=PASSNAME       Dump input as XML after PASSNAME
+         --dump-dot=PASSNAME       Dump input as DOT after PASSNAME
+         --list-passes             List of available passes (for PASSNAME)  
+                                  (default=off)
+
+   OPTIMIZATION OPTIONS:
+         --flow-insensitive        Turn off flow-sensitivity  (default=off)
+         --call-string-length=LENGTH
+                                   Choose the call-string length ('0' indicates 
+                                     infinite call-string)  (default=`0')
+
+   More options are available via --full-help
 
 
 Now write a very small PHP script, for example

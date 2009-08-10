@@ -111,23 +111,24 @@ am_libphc_la_OBJECTS = getopt1.lo getopt.lo AST_annotate.lo \
 	Def_use_web.lo Edge.lo Flow_visitor.lo If_simplification.lo \
 	Inlining.lo Mark_initialized.lo Method_info.lo \
 	Misc_annotations.lo Oracle.lo Prune_symbol_table.lo \
-	Remove_loop_booleans.lo Dominance.lo HSSA.lo Phi.lo \
-	SSA_name.lo SSA_ops.lo Visit_once.lo Aliasing.lo Callgraph.lo \
-	Constant_state.lo Context.lo Debug_WPA.lo Def_use.lo \
-	Include_analysis.lo Optimization_annotator.lo \
-	Optimization_transformer.lo Points_to.lo Stat_collector.lo \
-	Value_analysis.lo VRP.lo Whole_program.lo Worklist.lo WPA.lo \
-	MICG_parser.lo Parse_buffer.lo parse.lo PHP_context.lo \
-	XML_parser.lo Optimization_pass.lo Pass_manager.lo \
-	Plugin_pass.lo AST_unparser.lo Constant_folding.lo \
-	DOT_unparser.lo Invalid_check.lo \
-	Note_top_level_declarations.lo Process_includes.lo \
-	Remove_concat_null.lo Remove_parser_temporaries.lo \
-	Strip_unparser_attributes.lo Token_conversion.lo \
-	HIR_unparser.lo debug.lo fresh.lo General.lo IR.lo \
-	PHP_unparser.lo stats.lo XML_unparser.lo Alias_uppering.lo \
-	Foreach_uppering.lo Goto_uppering.lo MIR_unparser.lo \
-	Param_is_ref_uppering.lo
+	Remove_loop_booleans.lo Copy_propagation.lo \
+	Dead_temp_cleanup.lo Fix_point.lo Use_def_counter.lo \
+	Dominance.lo HSSA.lo Phi.lo SSA_name.lo SSA_ops.lo \
+	Visit_once.lo Aliasing.lo Callgraph.lo Constant_state.lo \
+	Context.lo Debug_WPA.lo Def_use.lo Include_analysis.lo \
+	Optimization_annotator.lo Optimization_transformer.lo \
+	Points_to.lo Stat_collector.lo Value_analysis.lo VRP.lo \
+	Whole_program.lo Worklist.lo WPA.lo MICG_parser.lo \
+	Parse_buffer.lo parse.lo PHP_context.lo XML_parser.lo \
+	Optimization_pass.lo Pass_manager.lo Plugin_pass.lo \
+	AST_unparser.lo Constant_folding.lo DOT_unparser.lo \
+	Invalid_check.lo Note_top_level_declarations.lo \
+	Process_includes.lo Remove_concat_null.lo \
+	Remove_parser_temporaries.lo Strip_unparser_attributes.lo \
+	Token_conversion.lo HIR_unparser.lo debug.lo fresh.lo \
+	General.lo IR.lo PHP_unparser.lo stats.lo XML_unparser.lo \
+	Alias_uppering.lo Foreach_uppering.lo Goto_uppering.lo \
+	MIR_unparser.lo Param_is_ref_uppering.lo
 libphc_la_OBJECTS = $(am_libphc_la_OBJECTS)
 plugins_tests_canonical_unparser_la_LIBADD =
 am_plugins_tests_canonical_unparser_la_OBJECTS =  \
@@ -240,6 +241,14 @@ plugins_tools_demi_eval_la_LINK = $(LIBTOOL) --tag=CXX \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
 	$(AM_CXXFLAGS) $(CXXFLAGS) \
 	$(plugins_tools_demi_eval_la_LDFLAGS) $(LDFLAGS) -o $@
+plugins_tools_dynamic_things_la_LIBADD =
+am_plugins_tools_dynamic_things_la_OBJECTS = dynamic_things.lo
+plugins_tools_dynamic_things_la_OBJECTS =  \
+	$(am_plugins_tools_dynamic_things_la_OBJECTS)
+plugins_tools_dynamic_things_la_LINK = $(LIBTOOL) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(AM_CXXFLAGS) $(CXXFLAGS) \
+	$(plugins_tools_dynamic_things_la_LDFLAGS) $(LDFLAGS) -o $@
 plugins_tools_function_finder_la_LIBADD =
 am_plugins_tools_function_finder_la_OBJECTS = function_finder.lo
 plugins_tools_function_finder_la_OBJECTS =  \
@@ -390,6 +399,7 @@ SOURCES = $(libphc_la_SOURCES) \
 	$(plugins_tools_add_comment_la_SOURCES) \
 	$(plugins_tools_debug_zval_la_SOURCES) \
 	$(plugins_tools_demi_eval_la_SOURCES) \
+	$(plugins_tools_dynamic_things_la_SOURCES) \
 	$(plugins_tools_function_finder_la_SOURCES) \
 	$(plugins_tools_purity_test_la_SOURCES) \
 	$(plugins_tools_reduce_statements_la_SOURCES) \
@@ -417,6 +427,7 @@ DIST_SOURCES = $(libphc_la_SOURCES) \
 	$(plugins_tools_add_comment_la_SOURCES) \
 	$(plugins_tools_debug_zval_la_SOURCES) \
 	$(plugins_tools_demi_eval_la_SOURCES) \
+	$(plugins_tools_dynamic_things_la_SOURCES) \
 	$(plugins_tools_function_finder_la_SOURCES) \
 	$(plugins_tools_purity_test_la_SOURCES) \
 	$(plugins_tools_reduce_statements_la_SOURCES) \
@@ -823,6 +834,14 @@ libphc_la_SOURCES = \
 	src/optimize/Prune_symbol_table.h					\
 	src/optimize/Remove_loop_booleans.cpp				\
 	src/optimize/Remove_loop_booleans.h					\
+	src/optimize/hacks/Copy_propagation.cpp				\
+	src/optimize/hacks/Copy_propagation.h				\
+	src/optimize/hacks/Dead_temp_cleanup.cpp			\
+	src/optimize/hacks/Dead_temp_cleanup.h				\
+	src/optimize/hacks/Fix_point.cpp				\
+	src/optimize/hacks/Fix_point.h				\
+	src/optimize/hacks/Use_def_counter.cpp				\
+	src/optimize/hacks/Use_def_counter.h				\
 	src/optimize/ssa/Dominance.cpp						\
 	src/optimize/ssa/Dominance.h							\
 	src/optimize/ssa/HSSA.cpp								\
@@ -1110,6 +1129,7 @@ nobase_pkglib_LTLIBRARIES = plugins/tests/canonical_unparser.la \
 	plugins/tools/C_unparser.la plugins/tools/debug_zval.la \
 	plugins/tools/demi_eval.la plugins/tools/purity_test.la \
 	plugins/tools/function_finder.la \
+	plugins/tools/dynamic_things.la \
 	plugins/tools/reduce_statements.la plugins/tools/remove_all.la \
 	plugins/tutorials/Comment_ifs.la \
 	plugins/tutorials/count_statements_difficult.la \
@@ -1149,6 +1169,8 @@ plugins_tools_purity_test_la_SOURCES = plugins/tools/purity_test.cpp
 plugins_tools_purity_test_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tools_function_finder_la_SOURCES = plugins/tools/function_finder.cpp
 plugins_tools_function_finder_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+plugins_tools_dynamic_things_la_SOURCES = plugins/tools/dynamic_things.cpp
+plugins_tools_dynamic_things_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tools_reduce_statements_la_SOURCES = plugins/tools/reduce_statements.cpp
 plugins_tools_reduce_statements_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tools_remove_all_la_SOURCES = plugins/tools/remove_all.cpp
@@ -1333,6 +1355,8 @@ plugins/tools/debug_zval.la: $(plugins_tools_debug_zval_la_OBJECTS) $(plugins_to
 	$(plugins_tools_debug_zval_la_LINK) -rpath $(pkglibdir) $(plugins_tools_debug_zval_la_OBJECTS) $(plugins_tools_debug_zval_la_LIBADD) $(LIBS)
 plugins/tools/demi_eval.la: $(plugins_tools_demi_eval_la_OBJECTS) $(plugins_tools_demi_eval_la_DEPENDENCIES) plugins/tools/$(am__dirstamp)
 	$(plugins_tools_demi_eval_la_LINK) -rpath $(pkglibdir) $(plugins_tools_demi_eval_la_OBJECTS) $(plugins_tools_demi_eval_la_LIBADD) $(LIBS)
+plugins/tools/dynamic_things.la: $(plugins_tools_dynamic_things_la_OBJECTS) $(plugins_tools_dynamic_things_la_DEPENDENCIES) plugins/tools/$(am__dirstamp)
+	$(plugins_tools_dynamic_things_la_LINK) -rpath $(pkglibdir) $(plugins_tools_dynamic_things_la_OBJECTS) $(plugins_tools_dynamic_things_la_LIBADD) $(LIBS)
 plugins/tools/function_finder.la: $(plugins_tools_function_finder_la_OBJECTS) $(plugins_tools_function_finder_la_DEPENDENCIES) plugins/tools/$(am__dirstamp)
 	$(plugins_tools_function_finder_la_LINK) -rpath $(pkglibdir) $(plugins_tools_function_finder_la_OBJECTS) $(plugins_tools_function_finder_la_LIBADD) $(LIBS)
 plugins/tools/purity_test.la: $(plugins_tools_purity_test_la_OBJECTS) $(plugins_tools_purity_test_la_DEPENDENCIES) plugins/tools/$(am__dirstamp)
@@ -1465,8 +1489,10 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Constant_folding.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Constant_state.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Context.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Copy_propagation.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/DOT_unparser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Dead_code_elimination.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Dead_temp_cleanup.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Debug_WPA.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Def_use.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Def_use_web.Plo@am__quote@
@@ -1476,6 +1502,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Echo_split.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Edge.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Expand_includes.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Fix_point.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Flow_visitor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Foreach_uppering.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/General.Plo@am__quote@
@@ -1550,6 +1577,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Strip_unparser_attributes.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Switch_bin_op.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Token_conversion.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Use_def_counter.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VRP.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Value_analysis.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Visit_once.Plo@am__quote@
@@ -1569,6 +1597,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/debug_zval.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/demangle.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/demi_eval.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dynamic_things.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/embed.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/error.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/escape.Plo@am__quote@
@@ -2185,6 +2214,34 @@ Remove_loop_booleans.lo: src/optimize/Remove_loop_booleans.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Remove_loop_booleans.lo `test -f 'src/optimize/Remove_loop_booleans.cpp' || echo '$(srcdir)/'`src/optimize/Remove_loop_booleans.cpp
 
+Copy_propagation.lo: src/optimize/hacks/Copy_propagation.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Copy_propagation.lo -MD -MP -MF $(DEPDIR)/Copy_propagation.Tpo -c -o Copy_propagation.lo `test -f 'src/optimize/hacks/Copy_propagation.cpp' || echo '$(srcdir)/'`src/optimize/hacks/Copy_propagation.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Copy_propagation.Tpo $(DEPDIR)/Copy_propagation.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/hacks/Copy_propagation.cpp' object='Copy_propagation.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Copy_propagation.lo `test -f 'src/optimize/hacks/Copy_propagation.cpp' || echo '$(srcdir)/'`src/optimize/hacks/Copy_propagation.cpp
+
+Dead_temp_cleanup.lo: src/optimize/hacks/Dead_temp_cleanup.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Dead_temp_cleanup.lo -MD -MP -MF $(DEPDIR)/Dead_temp_cleanup.Tpo -c -o Dead_temp_cleanup.lo `test -f 'src/optimize/hacks/Dead_temp_cleanup.cpp' || echo '$(srcdir)/'`src/optimize/hacks/Dead_temp_cleanup.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Dead_temp_cleanup.Tpo $(DEPDIR)/Dead_temp_cleanup.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/hacks/Dead_temp_cleanup.cpp' object='Dead_temp_cleanup.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Dead_temp_cleanup.lo `test -f 'src/optimize/hacks/Dead_temp_cleanup.cpp' || echo '$(srcdir)/'`src/optimize/hacks/Dead_temp_cleanup.cpp
+
+Fix_point.lo: src/optimize/hacks/Fix_point.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Fix_point.lo -MD -MP -MF $(DEPDIR)/Fix_point.Tpo -c -o Fix_point.lo `test -f 'src/optimize/hacks/Fix_point.cpp' || echo '$(srcdir)/'`src/optimize/hacks/Fix_point.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Fix_point.Tpo $(DEPDIR)/Fix_point.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/hacks/Fix_point.cpp' object='Fix_point.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Fix_point.lo `test -f 'src/optimize/hacks/Fix_point.cpp' || echo '$(srcdir)/'`src/optimize/hacks/Fix_point.cpp
+
+Use_def_counter.lo: src/optimize/hacks/Use_def_counter.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Use_def_counter.lo -MD -MP -MF $(DEPDIR)/Use_def_counter.Tpo -c -o Use_def_counter.lo `test -f 'src/optimize/hacks/Use_def_counter.cpp' || echo '$(srcdir)/'`src/optimize/hacks/Use_def_counter.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Use_def_counter.Tpo $(DEPDIR)/Use_def_counter.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/hacks/Use_def_counter.cpp' object='Use_def_counter.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Use_def_counter.lo `test -f 'src/optimize/hacks/Use_def_counter.cpp' || echo '$(srcdir)/'`src/optimize/hacks/Use_def_counter.cpp
+
 Dominance.lo: src/optimize/ssa/Dominance.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Dominance.lo -MD -MP -MF $(DEPDIR)/Dominance.Tpo -c -o Dominance.lo `test -f 'src/optimize/ssa/Dominance.cpp' || echo '$(srcdir)/'`src/optimize/ssa/Dominance.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Dominance.Tpo $(DEPDIR)/Dominance.Plo
@@ -2646,6 +2703,13 @@ demi_eval.lo: plugins/tools/demi_eval.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='plugins/tools/demi_eval.cpp' object='demi_eval.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o demi_eval.lo `test -f 'plugins/tools/demi_eval.cpp' || echo '$(srcdir)/'`plugins/tools/demi_eval.cpp
+
+dynamic_things.lo: plugins/tools/dynamic_things.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT dynamic_things.lo -MD -MP -MF $(DEPDIR)/dynamic_things.Tpo -c -o dynamic_things.lo `test -f 'plugins/tools/dynamic_things.cpp' || echo '$(srcdir)/'`plugins/tools/dynamic_things.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/dynamic_things.Tpo $(DEPDIR)/dynamic_things.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='plugins/tools/dynamic_things.cpp' object='dynamic_things.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o dynamic_things.lo `test -f 'plugins/tools/dynamic_things.cpp' || echo '$(srcdir)/'`plugins/tools/dynamic_things.cpp
 
 function_finder.lo: plugins/tools/function_finder.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT function_finder.lo -MD -MP -MF $(DEPDIR)/function_finder.Tpo -c -o function_finder.lo `test -f 'plugins/tools/function_finder.cpp' || echo '$(srcdir)/'`plugins/tools/function_finder.cpp

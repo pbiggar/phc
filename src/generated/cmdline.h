@@ -139,8 +139,6 @@ struct gengetopt_args_info
   const char *no_xml_attrs_help; /**< @brief When dumping XML, omit node attributes help description.  */
   int flow_insensitive_flag;	/**< @brief Turn off flow-sensitivity (default=off).  */
   const char *flow_insensitive_help; /**< @brief Turn off flow-sensitivity help description.  */
-  int object_insensitive_flag;	/**< @brief Turn off object-sensitivity (default=off).  */
-  const char *object_insensitive_help; /**< @brief Turn off object-sensitivity help description.  */
   int call_string_length_arg;	/**< @brief Choose the call-string length ('0' indicates infinite call-string) (default='0').  */
   char * call_string_length_orig;	/**< @brief Choose the call-string length ('0' indicates infinite call-string) original value given at command line.  */
   const char *call_string_length_help; /**< @brief Choose the call-string length ('0' indicates infinite call-string) help description.  */
@@ -211,7 +209,6 @@ struct gengetopt_args_info
   unsigned int no_xml_base_64_given ;	/**< @brief Whether no-xml-base-64 was given.  */
   unsigned int no_xml_attrs_given ;	/**< @brief Whether no-xml-attrs was given.  */
   unsigned int flow_insensitive_given ;	/**< @brief Whether flow-insensitive was given.  */
-  unsigned int object_insensitive_given ;	/**< @brief Whether object-insensitive was given.  */
   unsigned int call_string_length_given ;	/**< @brief Whether call-string-length was given.  */
   unsigned int stats_given ;	/**< @brief Whether stats was given.  */
   unsigned int rt_stats_given ;	/**< @brief Whether rt-stats was given.  */

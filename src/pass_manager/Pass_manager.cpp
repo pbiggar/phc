@@ -649,7 +649,7 @@ Pass_manager::cfg_dump (CFG* cfg, String* passname, String* comment)
 
 void Pass_manager::optimize (MIR::PHP_script* in)
 {
-	if (lexical_cast<int> (args_info->optimize_arg) == 0)
+	if (args_info->optimize_arg == "0")
 		return;
 
 	// Initialize the optimization oracle (also builds CFGs)
