@@ -36,7 +36,7 @@
 	function	peak_aliases_per_var (PDO $DB, $BENCHES, $FLAGS, $DEST)
 	{
 		$fh = fopen ($DEST."papv.txt", "w");
-		fwrite ($fh, "=stackcluster;0;1;2;3;4;5+;\ncolors=grey7,grey6,grey5,grey4,grey3,grey2\nlegendx=6000\nlegendy=1500\nfontsz=7\n=nogridy\n=noupperright\nxlabel=Peak Aliases Per Variable\nextraops=set label \"fci = flow and context insensitive\\nci = context insensitive\\nfi = flow insensitive\\nfcs = flow and context sensitive\" at 3,1700 left font \"Times,10\"\n=table\n");
+		fwrite ($fh, "=stackcluster;0;1;2;3;4;5+;\ncolors=grey7,grey6,grey5,grey4,grey3,grey2\nlegendx=6400\nlegendy=1500\nfontsz=7\n=nogridy\nextraops=set label \"fci = flow and context insensitive\\nci = context insensitive\\nfi = flow insensitive\\nfcs = flow and context sensitive\" at 3,1700 left font \"Times,10\"\nxlabelshift=0,1\n");
 
 		foreach ($BENCHES as $bench)
 		{
@@ -84,7 +84,7 @@ fcs	".$stat_matrix[3][0]."  ".$stat_matrix[3][1]."  ".$stat_matrix[3][2]."  ".$s
 	function	types_per_variable (PDO $DB, $BENCHES, $FLAGS, $DEST)
 	{
 		$fh = fopen ($DEST."tpv.txt", "w");
-		fwrite ($fh, "=stackcluster;1;2;3;4;5+;\ncolors=grey7,grey6,grey5,grey4,grey3,grey2\nfontsz=7\nlegendx=6400\nlegendy=1500\n=nogridy\n=noupperright\nxlabel=Types Per Variable\nextraops=set label \"fci = flow and context insensitive\\nci = context insensitive\\nfi = flow insensitive\\nfcs = flow and context sensitive\" at 3,1700 left font \"Times,10\"\n=table\n");
+		fwrite ($fh, "=stackcluster;1;2;3;4;5+;\ncolors=grey7,grey6,grey5,grey4,grey3,grey2\nfontsz=7\nlegendx=6400\nlegendy=1500\n=nogridy\nextraops=set label \"fci = flow and context insensitive\\nci = context insensitive\\nfi = flow insensitive\\nfcs = flow and context sensitive\" at 3,1700 left font \"Times,10\"\nxlabelshift=0,1\n");
 
 		foreach ($BENCHES as $bench)
 		{
@@ -119,10 +119,11 @@ fcs	".$stat_matrix[3][1]."  ".$stat_matrix[3][2]."  ".$stat_matrix[3][3]."  ".$s
 		}
 		var_dump ($stat_matrix);
 	}
-	
+
 	function	receivers_per_call (PDO $DB, $BENCHES, $FLAGS, $DEST)
 	{
 		$fh = fopen ($DEST."rpc.txt", "w");
+		// Not currently used, this line needs to be updated if to be used in the future	
 		fwrite ($fh, "=stackcluster;0;1;2;3;4;5+;\ncolors=grey7,grey6,grey5,grey4,grey3,grey2\nlegendx=6855\nlegendy=600\n=nogridy\n=noupperright\nxlabel=Receivers Per Call\nextraops=set size 1,1.2\n=table\n");
 
 		foreach ($BENCHES as $bench)
@@ -166,6 +167,7 @@ fcs	".$stat_matrix[3][0]."  ".$stat_matrix[3][1]."  ".$stat_matrix[3][2]."  ".$s
 	function	precision_in_rw (PDO $DB, $BENCHES, $FLAGS, $DEST)
 	{
 		$fh = fopen ($DEST."pirw.txt", "w");
+		// Not currently used, this line needs to be updated if to be used in the future	
 		fwrite ($fh, "=stackcluster;Array;Field;\ncolors=grey7,grey2\nlegendx=5700\nlegendy=1500\nfontsz=7\n=nogridy\n=noupperright\nxlabel=Precision in Reads/Writes\nextraops=set label \"fci = flow and context insensitive\\nci = context insensitive\\nfi = flow insensitive\\nfcs = flow and context sensitive\" at 1,17 left font \"Times,10\"\n=table\n");
 		
 		$ir_nodes_reads = array ("IR_Nodes_dereferenced_reads_Array_access",
@@ -248,8 +250,7 @@ fcs	".$stat_matrix[3][0]."  ".$stat_matrix[3][2]."
 	function ifs_replaced_constants (PDO $DB, $BENCHES, $FLAGS, $DEST)
 	{
 		$fh = fopen ($DEST."irc.txt", "w");
-		fwrite ($fh, "=stackcluster;Branches After Optimisation;Branches Replaced With Constants;Branches Removed with DCE;\ncolors=grey7,grey6,grey5,grey4,grey3,grey2\nlegendx=6000\nlegendy=1500\nfontsz=7\n=nogridy\n=noupperright\nxlabel=Ifs Replaced With Constants\nextraops=set label \"fci = flow and context insensitive\\nci = context insensitive\\nfi = flow insensitive\\nfcs = flow and context sensitive\" at 3,3500 left font \"Times,10\"
-=table\n");
+		fwrite ($fh, "=stackcluster;Branches After Optimisation;Branches Replaced With Constants;Branches Removed with DCE;\ncolors=grey7,grey6,grey5,grey4,grey3,grey2\nlegendx=2200\nlegendy=1400\nfontsz=7\n=nogridy\nextraops=set label \"fci = flow and context insensitive\\nci = context insensitive\\nfi = flow insensitive\\nfcs = flow and context sensitive\" at 3,3500 left font \"Times,10\"\nxlabelshift=0,1\n");
 
 		foreach ($BENCHES as $bench)
 		{
@@ -273,7 +274,7 @@ fcs	".$stat_matrix[3][0]."  ".$stat_matrix[3][1]."  ".$stat_matrix[3][2]."
 	function	unreachable_statements (PDO $DB, $BENCHES, $FLAGS, $DEST)
 	{
 		$fh = fopen ($DEST."se.txt", "w");
-		fwrite ($fh, "=stackcluster;Statements Remaining;Statements Eliminated;i\ncolors=grey7,grey6,grey5,grey4,grey3,grey2\nlegendx=6000\nlegendy=1500\nfontsz=7\n=nogridy\n=noupperright\nxlabel=Statements Eliminated\nextraops=set label \"fci = flow and context insensitive\\nci = context insensitive\\nfi = flow insensitive\\nfcs = flow and context sensitive\" at 3.3,4100 left\n=table\n");
+		fwrite ($fh, "=stackcluster;Statements Remaining;Statements Eliminated;\ncolors=grey7,grey6,grey5,grey4,grey3,grey2\nlegendx=5600\nlegendy=1500\nfontsz=7\n=nogridy\nextraops=set label \"fci = flow and context insensitive\\nci = context insensitive\\nfi = flow insensitive\\nfcs = flow and context sensitive\" at 2.6,4100 left\nxlabelshift=0,1\n");
 
 		foreach ($BENCHES as $bench)
 		{
