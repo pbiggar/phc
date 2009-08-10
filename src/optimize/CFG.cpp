@@ -953,6 +953,7 @@ CFG::split_block (Basic_block* bb)
 	{
 		Basic_block* copy = bb->clone ();
 		add_bb (copy);
+		CTS ("num_branches_before");		
 
 		Edge* new_edge = add_edge (edge->get_source (), copy);
 		new_edge->direction = edge->direction;
