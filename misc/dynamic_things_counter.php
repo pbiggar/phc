@@ -15,18 +15,28 @@
 
 
 
-	$directory_name = "downloaded_php/downloads/";
+	$directory_name = "../downloads/";
 
 	$dirs = get_directories ($directory_name);
 
 	foreach ($dirs as $dir)
 	{
+		echo "Analysing $dir\n";
 		$files = get_all_files ($dir);
 		foreach ($files as $file)
 		{
 			$file_stats = get_file_stats ($file);
 			if ($file_stats === NULL)
+			{
 				continue;
+			}
+			else
+				if ($argv[1] == "-delete")	
+				{
+					`rm -r -f $dir`;
+					echo "Deleting $dir\n";
+					continue 2;
+				}
 
 			add_stat ($dir, $file, $file_stats);
 			echo "$file\n";
