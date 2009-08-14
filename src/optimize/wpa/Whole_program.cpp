@@ -843,6 +843,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (chmod, (0), "bool");
 	MODEL (chop, (0, 1), "string");
 	MODEL (chr, (), "string");
+	MODEL (chunk_split, (0, 2), "string");
 	MODEL (clearstatcache, (1));
 	MODEL (closedir, ());
 	MODEL (copy, (0, 1), "bool");
