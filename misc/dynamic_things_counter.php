@@ -15,7 +15,7 @@
 
 
 
-	$directory_name = "../downloads/";
+	$directory_name = "downloaded_php/downloads/";
 
 	$dirs = get_directories ($directory_name);
 
@@ -26,7 +26,8 @@
 		foreach ($files as $file)
 		{
 			$file_stats = get_file_stats ($file);
-			if ($file_stats === NULL)
+			if ($file_stats === NULL 
+					|| ($file_stats[0] == (string)"0" && $file_stats[1] == (string)"0" && $file_stats[2] == (string)"0"))
 			{
 				continue;
 			}
