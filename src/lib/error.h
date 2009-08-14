@@ -56,4 +56,7 @@ void phc_missed_opt (const char* message, HIR::Node*, ...);
 void phc_missed_opt (const char* message, MIR::Node*, ...);
 void phc_missed_opt (const char* message, MICG::Node*, ...);
 
+void handle (String* e, String* pass);
+void phc_exception (String* msg);
+
 #endif // PHC_ERROR_H

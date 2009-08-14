@@ -147,3 +147,22 @@ define_node_message_func (missed_opt, MISSED_OPT, AST::Node);
 define_node_message_func (missed_opt, MISSED_OPT, HIR::Node);
 define_node_message_func (missed_opt, MISSED_OPT, MIR::Node);
 define_node_message_func (missed_opt, MISSED_OPT, MICG::Node);
+
+/*
+*
+* Exception Handling
+*
+*/
+
+void handle (String* e, String* pass)
+{
+	if (pass == s(""))
+		fprintf (stderr, "\nException:\n%s\n", e->c_str ());
+	else
+		fprintf (stderr, "\nException in pass '%s':\n%s\n", pass->c_str (), e->c_str ());
+}
+
+void phc_exception (String* msg)
+{
+	throw msg;
+}
