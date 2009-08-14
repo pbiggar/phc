@@ -858,6 +858,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (defined, (0), "bool");
 	MODEL (dirname, (0), "string");
 	MODEL (doubleval, (0), "float");
+	MODEL (ereg, (0, 1), "int", "bool");
 	MODEL (ereg_replace, (0, 1, 2), "string");	
 	MODEL (eregi_replace, (0, 1, 2), "string");
 	MODEL (error_reporting, ());
@@ -995,6 +996,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (shell_exec, (0), "string");
 	MODEL (sin, (), "real");
 	MODEL (sizeof, (), "int");
+	MODEL (sleep, (), "int", "bool");
 	MODEL (sprintf, (0), "string");
 	MODEL (sqlite_busy_timeout, ());
 	MODEL (sqlite_changes, (), "int");
