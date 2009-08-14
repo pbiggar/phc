@@ -90,6 +90,8 @@
 #include "Stat_collector.h"
 #include "Points_to.h"
 
+#include "lib/error.h"
+
 #define ANON ""
 
 using namespace MIR;
@@ -474,19 +476,18 @@ Whole_program::get_possible_receivers (Context* cx, Result_state state, Target* 
 		// there are multiple versions, they are lowered to different names before
 		// MIR.
 		Method_info* info = Oracle::get_method_info (name);
-
 		if (info == NULL)
 		{
-			cerr << "Function '" << *name << "' is missing " << endl;
-			phc_TODO (); // ?
-		}
+			stringstream ss;
+			ss << "Function '" << *name << "' is missing";
+			phc_exception(s(ss.str()));
+		}	
 
-		result->insert (info);
+		result->insert (info);	
 	}
 
-
 	assert (result->size () > 0);
-
+				
 	return result->to_list();	
 }
 
@@ -857,7 +858,8 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (defined, (0), "bool");
 	MODEL (dirname, (0), "string");
 	MODEL (doubleval, (0), "float");
-	MODEL (ereg_replace, (0, 1, 2), "string");
+	MODEL (ereg_replace, (0, 1, 2), "string");	
+	MODEL (eregi_replace, (0, 1, 2), "string");
 	MODEL (error_reporting, ());
 	MODEL (error_reporting, (), "int");
 	MODEL (escapeshellcmd, (0), "string");
@@ -891,6 +893,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (get_magic_quotes_runtime, (), "int");
 	MODEL (getmypid, (), "int", "bool");
 	MODEL (get_parent_class, (), "string" ,"bool");
+	MODEL (getenv, (0), "string");
 	MODEL (getrandmax, (), "int");
 	MODEL (gettype, (), "string");
 	MODEL (gmdate, (0), "string");
@@ -930,6 +933,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (is_infinite, (), "bool");
 	MODEL (is_readable, (0), "bool");
 	MODEL (is_writable, (0), "bool");
+	MODEL (is_writeable, (0), "bool");
 	MODEL (join, (0), "string"); // alias of implode
 	MODEL (key, (), "int", "string");
 	MODEL (log, (), "float");
@@ -982,10 +986,12 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (rtrim, (0, 1), "string");
 	MODEL (session_destroy, (), "bool");
 	MODEL (session_id, (0), "string");
+	MODEL (session_is_registered, (0), "bool");
 	MODEL (session_name, (0), "string");
 	MODEL (session_start, (), "bool");
 	MODEL (set_magic_quotes_runtime, (), "bool");
 	MODEL (set_time_limit, ());
+	MODEL (setcookie, (0, 1, 3, 4), "bool");
 	MODEL (shell_exec, (0), "string");
 	MODEL (sin, (), "real");
 	MODEL (sizeof, (), "int");

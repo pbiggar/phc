@@ -32,6 +32,8 @@
 #include "optimize/ssa/HSSA.h"
 #include "optimize/wpa/Whole_program.h"
 
+#include "lib/error.h"
+
 using namespace std;
 
 Pass_manager::Pass_manager (gengetopt_args_info* args_info)
@@ -462,21 +464,27 @@ void Pass_manager::run (IR::PHP_script* in, bool main)
 // small snippets, and to true for the main program.
 void Pass_manager::run_pass (Pass* pass, IR::PHP_script* in, bool main)
 {
-	assert (pass->name);
+	try
+	{
+		assert (pass->name);
 
-	if (args_info->verbose_flag && main)
-		cout << "Running pass: " << *pass->name << endl;
+		if (args_info->verbose_flag && main)
+			cout << "Running pass: " << *pass->name << endl;
 
-	if (main)
-		maybe_enable_debug (pass->name);
+		if (main)
+			maybe_enable_debug (pass->name);
 
-	pass->run_pass (in, this);
-	if (main)
-		this->dump (in, pass->name);
+		pass->run_pass (in, this);
+		if (main)
+			this->dump (in, pass->name);
 
-	if (check)
-		::check (in, false);
-
+		if (check)
+			::check (in, false);
+	}
+	catch (String* e)
+	{
+		handle (e, s(*pass->name));
+	}
 }
 
 /* Run all passes between FROM and TO, inclusive. */
@@ -649,20 +657,27 @@ Pass_manager::cfg_dump (CFG* cfg, String* passname, String* comment)
 
 void Pass_manager::optimize (MIR::PHP_script* in)
 {
-	if (args_info->optimize_arg == "0")
-		return;
+	try
+	{	
+		if (args_info->optimize_arg == "0")
+			return;
 
-	// Initialize the optimization oracle (also builds CFGs)
-	maybe_enable_debug (s("cfg"));
-	Oracle::initialize (in);
+		// Initialize the optimization oracle (also builds CFGs)
+		maybe_enable_debug (s("cfg"));
+		Oracle::initialize (in);
 
-	// TODO: check if WPA is enabled
+		// TODO: check if WPA is enabled
 
 
-	// WPA calls all other passes
-	maybe_enable_debug (s("wpa"));
-	Whole_program* wpa = new Whole_program (this);
-	wpa->run (in);
+		// WPA calls all other passes
+		maybe_enable_debug (s("wpa"));
+		Whole_program* wpa = new Whole_program (this);
+		wpa->run (in);
+	}
+	catch (String* e)
+	{
+		handle (e, s(""));
+	}
 }
 
 void
