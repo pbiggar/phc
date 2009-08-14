@@ -257,6 +257,14 @@ plugins_tools_function_finder_la_LINK = $(LIBTOOL) --tag=CXX \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
 	$(AM_CXXFLAGS) $(CXXFLAGS) \
 	$(plugins_tools_function_finder_la_LDFLAGS) $(LDFLAGS) -o $@
+plugins_tools_get_defines_la_LIBADD =
+am_plugins_tools_get_defines_la_OBJECTS = get_defines.lo
+plugins_tools_get_defines_la_OBJECTS =  \
+	$(am_plugins_tools_get_defines_la_OBJECTS)
+plugins_tools_get_defines_la_LINK = $(LIBTOOL) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(AM_CXXFLAGS) $(CXXFLAGS) \
+	$(plugins_tools_get_defines_la_LDFLAGS) $(LDFLAGS) -o $@
 plugins_tools_purity_test_la_LIBADD =
 am_plugins_tools_purity_test_la_OBJECTS = purity_test.lo
 plugins_tools_purity_test_la_OBJECTS =  \
@@ -401,6 +409,7 @@ SOURCES = $(libphc_la_SOURCES) \
 	$(plugins_tools_demi_eval_la_SOURCES) \
 	$(plugins_tools_dynamic_things_la_SOURCES) \
 	$(plugins_tools_function_finder_la_SOURCES) \
+	$(plugins_tools_get_defines_la_SOURCES) \
 	$(plugins_tools_purity_test_la_SOURCES) \
 	$(plugins_tools_reduce_statements_la_SOURCES) \
 	$(plugins_tools_remove_all_la_SOURCES) \
@@ -429,6 +438,7 @@ DIST_SOURCES = $(libphc_la_SOURCES) \
 	$(plugins_tools_demi_eval_la_SOURCES) \
 	$(plugins_tools_dynamic_things_la_SOURCES) \
 	$(plugins_tools_function_finder_la_SOURCES) \
+	$(plugins_tools_get_defines_la_SOURCES) \
 	$(plugins_tools_purity_test_la_SOURCES) \
 	$(plugins_tools_reduce_statements_la_SOURCES) \
 	$(plugins_tools_remove_all_la_SOURCES) \
@@ -1129,7 +1139,7 @@ nobase_pkglib_LTLIBRARIES = plugins/tests/canonical_unparser.la \
 	plugins/tools/C_unparser.la plugins/tools/debug_zval.la \
 	plugins/tools/demi_eval.la plugins/tools/purity_test.la \
 	plugins/tools/function_finder.la \
-	plugins/tools/dynamic_things.la \
+	plugins/tools/dynamic_things.la plugins/tools/get_defines.la \
 	plugins/tools/reduce_statements.la plugins/tools/remove_all.la \
 	plugins/tutorials/Comment_ifs.la \
 	plugins/tutorials/count_statements_difficult.la \
@@ -1171,6 +1181,8 @@ plugins_tools_function_finder_la_SOURCES = plugins/tools/function_finder.cpp
 plugins_tools_function_finder_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tools_dynamic_things_la_SOURCES = plugins/tools/dynamic_things.cpp
 plugins_tools_dynamic_things_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+plugins_tools_get_defines_la_SOURCES = plugins/tools/get_defines.cpp
+plugins_tools_get_defines_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tools_reduce_statements_la_SOURCES = plugins/tools/reduce_statements.cpp
 plugins_tools_reduce_statements_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tools_remove_all_la_SOURCES = plugins/tools/remove_all.cpp
@@ -1359,6 +1371,8 @@ plugins/tools/dynamic_things.la: $(plugins_tools_dynamic_things_la_OBJECTS) $(pl
 	$(plugins_tools_dynamic_things_la_LINK) -rpath $(pkglibdir) $(plugins_tools_dynamic_things_la_OBJECTS) $(plugins_tools_dynamic_things_la_LIBADD) $(LIBS)
 plugins/tools/function_finder.la: $(plugins_tools_function_finder_la_OBJECTS) $(plugins_tools_function_finder_la_DEPENDENCIES) plugins/tools/$(am__dirstamp)
 	$(plugins_tools_function_finder_la_LINK) -rpath $(pkglibdir) $(plugins_tools_function_finder_la_OBJECTS) $(plugins_tools_function_finder_la_LIBADD) $(LIBS)
+plugins/tools/get_defines.la: $(plugins_tools_get_defines_la_OBJECTS) $(plugins_tools_get_defines_la_DEPENDENCIES) plugins/tools/$(am__dirstamp)
+	$(plugins_tools_get_defines_la_LINK) -rpath $(pkglibdir) $(plugins_tools_get_defines_la_OBJECTS) $(plugins_tools_get_defines_la_LIBADD) $(LIBS)
 plugins/tools/purity_test.la: $(plugins_tools_purity_test_la_OBJECTS) $(plugins_tools_purity_test_la_DEPENDENCIES) plugins/tools/$(am__dirstamp)
 	$(plugins_tools_purity_test_la_LINK) -rpath $(pkglibdir) $(plugins_tools_purity_test_la_OBJECTS) $(plugins_tools_purity_test_la_LIBADD) $(LIBS)
 plugins/tools/reduce_statements.la: $(plugins_tools_reduce_statements_la_OBJECTS) $(plugins_tools_reduce_statements_la_DEPENDENCIES) plugins/tools/$(am__dirstamp)
@@ -1603,6 +1617,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/escape.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fresh.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/function_finder.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/get_defines.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/getopt.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/getopt1.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/helloworld.Plo@am__quote@
@@ -2717,6 +2732,13 @@ function_finder.lo: plugins/tools/function_finder.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='plugins/tools/function_finder.cpp' object='function_finder.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o function_finder.lo `test -f 'plugins/tools/function_finder.cpp' || echo '$(srcdir)/'`plugins/tools/function_finder.cpp
+
+get_defines.lo: plugins/tools/get_defines.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT get_defines.lo -MD -MP -MF $(DEPDIR)/get_defines.Tpo -c -o get_defines.lo `test -f 'plugins/tools/get_defines.cpp' || echo '$(srcdir)/'`plugins/tools/get_defines.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/get_defines.Tpo $(DEPDIR)/get_defines.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='plugins/tools/get_defines.cpp' object='get_defines.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o get_defines.lo `test -f 'plugins/tools/get_defines.cpp' || echo '$(srcdir)/'`plugins/tools/get_defines.cpp
 
 purity_test.lo: plugins/tools/purity_test.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT purity_test.lo -MD -MP -MF $(DEPDIR)/purity_test.Tpo -c -o purity_test.lo `test -f 'plugins/tools/purity_test.cpp' || echo '$(srcdir)/'`plugins/tools/purity_test.cpp

@@ -579,6 +579,10 @@ nobase_pkglib_LTLIBRARIES += plugins/tools/dynamic_things.la
 plugins_tools_dynamic_things_la_SOURCES = plugins/tools/dynamic_things.cpp
 plugins_tools_dynamic_things_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
+nobase_pkglib_LTLIBRARIES += plugins/tools/get_defines.la
+plugins_tools_get_defines_la_SOURCES = plugins/tools/get_defines.cpp
+plugins_tools_get_defines_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+
 nobase_pkglib_LTLIBRARIES += plugins/tools/reduce_statements.la
 plugins_tools_reduce_statements_la_SOURCES = plugins/tools/reduce_statements.cpp
 plugins_tools_reduce_statements_la_LDFLAGS = ${PLUGIN_LDFLAGS}
