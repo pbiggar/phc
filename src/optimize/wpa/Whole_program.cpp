@@ -858,7 +858,6 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (defined, (0), "bool");
 	MODEL (dirname, (0), "string");
 	MODEL (doubleval, (0), "float");
-	MODEL (ereg, (0, 1), "int", "bool");
 	MODEL (ereg_replace, (0, 1, 2), "string");	
 	MODEL (eregi_replace, (0, 1, 2), "string");
 	MODEL (error_reporting, ());
@@ -894,7 +893,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	MODEL (get_magic_quotes_runtime, (), "int");
 	MODEL (getmypid, (), "int", "bool");
 	MODEL (get_parent_class, (), "string" ,"bool");
-	MODEL (getenv, (0), "string");
+	MODEL (getenv, (0), "string", "bool");
 	MODEL (getrandmax, (), "int");
 	MODEL (gettype, (), "string");
 	MODEL (gmdate, (0), "string");
@@ -1204,7 +1203,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		else
 			assign_path_typed (cx, ret_path, new Types ("bool"));
 	}
-	else if (*info->name == "eregi")
+	else if (*info->name == "ereg" || *info->name == "eregi")
 	{
 		params[0] = coerce_to_string (cx, params[0]);
 		params[1] = coerce_to_string (cx, params[1]);
