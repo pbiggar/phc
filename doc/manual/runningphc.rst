@@ -183,6 +183,7 @@ Should you wish to bypass phc optimizations, but still have gcc perform optimiza
 the :option:`-O` flag to gcc via |phc|'s :option:`-C` flag:
 
 .. sourcecode:: bash
+
    phc -c helloworld.php -o helloworld -C-O3
 
 |phc| also offers a great deal of control over its optimizations, allowing the user to disable 
