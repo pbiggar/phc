@@ -112,6 +112,14 @@ Oracle::add_method_info (Method_info* info)
 	methods[*info->lc_name] = info;
 }
 
+void
+Oracle::add_method_alias (String* original, String* alias)
+{
+	Method_info* info = get_method_info (original->to_lower ());
+
+	methods[*alias] = info;
+}
+
 Method_info_list*
 Oracle::get_all_methods ()
 {
@@ -140,6 +148,14 @@ Oracle::add_class_info (Class_info* info)
 	assert (!classes.has (*info->lc_name));
 
 	classes[*info->lc_name] = info;
+}
+
+void
+Oracle::add_class_alias (String* original, String* alias)
+{
+	Class_info* info = get_class_info (original->to_lower ());
+
+	classes[*alias] = info;
 }
 
 Class_info*

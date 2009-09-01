@@ -32,6 +32,7 @@ public:
 	 */
 
 	static void add_method_info (Method_info* info);
+	static void add_method_alias (String* original, String* alias);
 	static Method_info_list* get_all_methods ();
 
 	// Returns NULL if the method_info is not found.
@@ -47,6 +48,7 @@ public:
 	 */
 
 	static void add_class_info (Class_info* info);
+	static void add_class_alias (String* original, String* alias);
 	static Class_info* get_class_info (String* name);
 	static Class_info_list* get_all_classes ();
 	static User_class_info* get_user_class_info (String* name);

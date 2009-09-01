@@ -498,7 +498,7 @@ Method_info_list*
 Whole_program::get_possible_receivers (Context* cx, Result_state state, New* in)
 {
 	if (isa<Variable_class> (in->class_name))
-		phc_TODO ();
+		phc_exception (s("Variable classes not supported"));
 
 	CLASS_NAME* class_name = dyc<CLASS_NAME> (in->class_name);
 
@@ -526,7 +526,7 @@ Whole_program::instantiate_object (Context* caller_cx, MIR::VARIABLE_NAME* self,
 
 	// Get the classes (there might not be receivers, even when there are classes)
 	if (isa<Variable_class> (in->class_name))
-		phc_TODO ();
+		phc_exception (s("Variable classes not supported"));
 
 	CLASS_NAME* class_name = dyc<CLASS_NAME> (in->class_name);
 
@@ -1166,8 +1166,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		const Abstract_value* name = get_abstract_value (cx, R_WORKING, params[0]);
 		const Abstract_value* value = get_abstract_value (cx, R_WORKING, params[1]);
 		if (params[3])
-			phc_TODO (); // case-insensitive
-
+			phc_exception (s("Warning: Only two parameters supported for define ()."));	// case-sensitivity
 
 		if (name->lit == NULL)
 		{
@@ -3417,7 +3416,7 @@ Whole_program::visit_catch (Statement_block* bb, MIR::Catch* in)
 void
 Whole_program::visit_class_alias (Statement_block* bb, MIR::Class_alias* in)
 {
-	phc_TODO ();
+	Oracle::add_class_alias (in->class_name->value, in->alias->value);
 }
 
 
@@ -3489,7 +3488,7 @@ Whole_program::visit_interface_alias (Statement_block* bb, MIR::Interface_alias*
 void
 Whole_program::visit_method_alias (Statement_block* bb, MIR::Method_alias* in)
 {
-	phc_TODO ();
+	Oracle::add_method_alias (in->method_name->value, in->alias->value);
 }
 
 void
