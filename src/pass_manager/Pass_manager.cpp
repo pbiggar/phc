@@ -722,7 +722,7 @@ Pass_manager::run_optimization_pass (Pass* pass, Whole_program* wp, CFG* cfg)
 	// If an optimization pass sees something it cant handle, it throws an
 	// exception, and we skip optimizing the function.
 
-	maybe_enable_debug (s("build_ssa"));
+	maybe_enable_debug (s("build-ssa"));
 	HSSA* hssa;
 	if (opt->require_ssa)
 	{
@@ -749,7 +749,7 @@ Pass_manager::run_optimization_pass (Pass* pass, Whole_program* wp, CFG* cfg)
 	// Convert out of SSA
 	if (opt->require_ssa)
 	{
-		maybe_enable_debug (s("drop_ssa"));
+		maybe_enable_debug (s("drop-ssa"));
 		hssa->convert_out_of_ssa_form ();
 		cfg->clean ();
 		cfg_dump (cfg, pass->name, s("Out of SSA (cleaned)"));

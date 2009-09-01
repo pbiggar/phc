@@ -91,7 +91,7 @@ to the :option:`--cfg-dump` flag, e.g.
 
 .. sourcecode:: bash
    
-   phc helloworld.php -O2 --debug=build_ssa
+   phc helloworld.php -O2 --debug=build-ssa
 
 |phc| supports DEBUG() and CHECK_DEBUG() macros.  When writing your own optimization passes, you can use DEBUG() to
 print out debug information about your pass at runtime when the :option:`--debug=yourpass` flag is passed.  If you place 

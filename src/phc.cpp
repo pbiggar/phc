@@ -148,12 +148,12 @@ int main(int argc, char** argv)
 
 	// Small optimization on the AST
 	pm->add_ast_transform (new Constant_folding(), s("const-fold"), s("Fold constant expressions"));
-	pm->add_ast_transform (new Remove_concat_null (), s("rcn"), s("Remove concatentations with \"\"")); // TODO: this is wrong - it really should be converted to a cast to string.
+	pm->add_ast_transform (new Remove_concat_null (), s("rcn"), s("Remove concatenations with \"\"")); // TODO: this is wrong - it really should be converted to a cast to string.
 
 
 
 	// Make simple statements simpler
-	pm->add_ast_transform (new Desugar (), s("desug"), s("Canonicalize simple constucts"));
+	pm->add_ast_transform (new Desugar (), s("desug"), s("Canonicalize simple constructs"));
 	pm->add_ast_transform (new Split_multiple_arguments (), s("sma"), s("Split multiple arguments for globals, attributes and static declarations"));
 	pm->add_ast_transform (new Split_unset_isset (), s("sui"), s("Split unset() and isset() into multiple calls with one argument each"));
 	pm->add_ast_transform (new Echo_split (), s("ecs"), s("Split echo() into multiple calls with one argument each"));
@@ -171,7 +171,7 @@ int main(int argc, char** argv)
 	pm->add_hir_pass (new Fake_pass (s("hir"), s("High-level Internal Representation - the smallest subset of PHP which can represent the entire language")));
 	pm->add_hir_transform (new Copy_propagation (), s("prc"), s("Propagate copies - Remove some copies introduced as a result of lowering"));
 	pm->add_hir_transform (new Dead_temp_cleanup (), s("dtc"), s("Dead temp cleanup")); // TODO: Description?
-	pm->add_hir_transform (new Lower_dynamic_definitions (), s("ldd"), s("Lower Dynamic Defintions - Lower dynamic class, interface and method definitions using aliases"));
+	pm->add_hir_transform (new Lower_dynamic_definitions (), s("ldd"), s("Lower Dynamic Definitions - Lower dynamic class, interface and method definitions using aliases"));
 	pm->add_hir_transform (new Lower_method_invocations (), s("lmi"), s("Lower Method Invocations - Lower parameters using run-time reference checks"));
 	pm->add_hir_transform (new Lower_control_flow (), s("lcf"), s("Lower Control Flow - Use gotos in place of loops, ifs, breaks and continues"));
 	pm->add_hir_pass (new Fake_pass (s("HIR-to-MIR"), s("The MIR in HIR form")));
@@ -181,7 +181,7 @@ int main(int argc, char** argv)
 	pm->add_mir_pass (new Obfuscate ());
 //	pm->add_mir_pass (new Process_includes (true, new String ("mir"), pm, "incl2"));
 	pm->add_mir_transform (new Lift_functions_and_classes (), s("lfc"), s("Move statements from global scope into __MAIN__ method"));
-	pm->add_mir_visitor (new Clarify (), s("clar"), s("Clarify - Make implicit defintions explicit"));
+	pm->add_mir_visitor (new Clarify (), s("clar"), s("Clarify - Make implicit definitions explicit"));
 	// TODO: move this into optimization passes
 	pm->add_mir_visitor (new Prune_symbol_table (), s("pst"), s("Prune Symbol Table - Note whether a symbol table is required in generated code"));
 
@@ -189,10 +189,10 @@ int main(int argc, char** argv)
 	// Optimization passes
 	pm->add_local_optimization_pass (new Fake_pass (s("wpa"), s("Whole-program analysis")));
 	pm->add_local_optimization_pass (new Fake_pass (s("cfg"), s("Initial Control-Flow Graph")));
-	pm->add_local_optimization_pass (new Fake_pass (s("build_ssa"), s("Create SSA form")));	
+	pm->add_local_optimization_pass (new Fake_pass (s("build-ssa"), s("Create SSA form")));	
 	pm->add_local_optimization (new If_simplification (), s("ifsimple"), s("If-simplification"), true);
 	pm->add_local_optimization (new DCE (), s("dce"), s("Aggressive Dead-code elimination"), true);
-	pm->add_local_optimization_pass (new Fake_pass (s("drop_ssa"), s("Drop SSA form")));
+	pm->add_local_optimization_pass (new Fake_pass (s("drop-ssa"), s("Drop SSA form")));
 	pm->add_local_optimization (new Remove_loop_booleans (), s("rlb"), s("Remove loop-booleans"), false);
 
 	pm->add_ipa_optimization (new Inlining (), s("inlining"), s("Method inlining"), false);
@@ -205,8 +205,8 @@ int main(int argc, char** argv)
 
 	// codegen passes
 	stringstream ss;
-	pm->add_codegen_pass (new Fake_pass(s("codegen"), s("Last pass before codegen")));
-	pm->add_codegen_visitor (new Generate_C_annotations, s("cgann"), s("Codegen annotation"));
+	pm->add_codegen_pass (new Fake_pass(s("codegen"), s("Last pass before codegen generation begins")));
+	pm->add_codegen_visitor (new Generate_C_annotations, s("cgann"), s("Make annotations for code generation"));
 	pm->add_codegen_pass (new Generate_C_pass (ss));
 	pm->add_codegen_pass (new Compile_C (ss));
 
