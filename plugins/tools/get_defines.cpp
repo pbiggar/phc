@@ -44,7 +44,17 @@ public:
 				Literal* value = dynamic_cast<Literal*> (params->back ()->expr);
 
 				if (key && value)
+				{
+					foreach (char c, *key->get_value_as_string ())
+						if (c == '\n' || c == '"' || c == '\'')
+							return;
+				
+					foreach (char c, *value->get_value_as_string ())
+						if (c == '\n' || c == '"' || c == '\'')
+							return;
+
 					definitions [*key->get_value_as_string ()] = *value->get_value_as_string ();
+				}
 			}
 		}	
 	}
@@ -53,7 +63,7 @@ public:
 	{
 		string s,t;
 		foreach (tie (s,t), definitions)
-			cout << s << "," << t << endl;
+			cout << s << "\\," << t << "\\|";
 	
 		exit (0);
 	}

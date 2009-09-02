@@ -591,6 +591,10 @@ nobase_pkglib_LTLIBRARIES += plugins/tools/remove_all.la
 plugins_tools_remove_all_la_SOURCES = plugins/tools/remove_all.cpp
 plugins_tools_remove_all_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
+nobase_pkglib_LTLIBRARIES += plugins/tools/replace_include_constants.la
+plugins_tools_replace_include_constants_la_SOURCES = plugins/tools/replace_include_constants.cpp
+plugins_tools_replace_include_constants_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+
 nobase_pkglib_LTLIBRARIES += plugins/tutorials/Comment_ifs.la
 plugins_tutorials_Comment_ifs_la_SOURCES = plugins/tutorials/Comment_ifs.cpp
 plugins_tutorials_Comment_ifs_la_LDFLAGS = ${PLUGIN_LDFLAGS}
