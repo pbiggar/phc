@@ -1,7 +1,15 @@
-0.3.0 (XX XXXXXXXX XXXX)
+0.2.0.3 (14 February 2009)
 ------------------------
 
-Bug fixes:
+Bug Fix release:
+	* Version 0.2.0.2 was incorrectly packaged. 0.2.0.3 is what we intended to
+	release as 0.2.0.2. We increased the version number to show that it
+	differed from 0.2.0.2.
+
+0.2.0.2 (28 January 2009)
+------------------------
+
+Bug Fix release:
 	* Fix bug where phc would not build if the PHP embed SAPI was not available.
 	* Fix bug where phc did not install files needed to compile PHP scripts.
 
