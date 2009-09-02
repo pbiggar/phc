@@ -199,6 +199,8 @@ And any pass(es) in the list can be disabled by simply passing its name as an ar
 
 	phc -c -O2 --disable=dce,rlb helloworld.php -o helloworld
 
+Optimization does not currently work extremely well.  However, contributions are very welcome.  See the 'Contributors' section for 
+details.
 
 Compiling web applications
 --------------------------
