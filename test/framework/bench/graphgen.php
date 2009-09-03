@@ -1,5 +1,11 @@
 <?php
-
+/*
+*
+* Generates source files for generating graphs with bargraph.pl
+*
+* Usage: php test/framework/bench/graphgen.php <path of database> <destination directory for output>
+*
+*/
 	$BENCHES = array (
 			"test/subjects/benchmarks/RUBBoS/PHP/",
 			"test/subjects/benchmarks/RUBiS/",

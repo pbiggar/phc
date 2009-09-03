@@ -1,4 +1,12 @@
 <?php
+/*
+*
+* Combines results from individual files into the benchmark they are a member of in a combined_results table.
+*
+* Usage: php test/framework/bench/combine_bench_results.php <path of database>
+*
+*/
+
 	
 	$date = date ("c");
 
