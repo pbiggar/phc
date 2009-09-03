@@ -1,5 +1,13 @@
 #!/usr/bin/env php
 <?php
+/*
+*
+* Replaces define ("MYCONSTANT", "mydir/"); include (MYCONSTANT."myfile.php"); with include ("mydir/"."myfile.php");
+* in all php files in downloaded_php/downloads
+*
+* TODO:  This isn't working properly.  Probably need to escape more characters passed to r-option.  This is probably best done in 
+* the replace_include_constants plugin, however.
+*/
 
 	include ("test/framework/lib/header.php");
 
