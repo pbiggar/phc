@@ -660,7 +660,7 @@ void Pass_manager::optimize (MIR::PHP_script* in)
 {
 	try
 	{	
-		if (args_info->optimize_arg == "0")
+		if (args_info->optimize_arg == string("0"))
 			return;
 
 		// Initialize the optimization oracle (also builds CFGs)

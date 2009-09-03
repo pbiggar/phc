@@ -16,6 +16,9 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
+#include <iostream>
+#include <string>
+
 #include "cmdline.h"
 
 // Generally we pass this through the pass manager. However, this is
@@ -149,3 +152,9 @@ define_node_message_func (missed_opt, MISSED_OPT, MIR::Node);
 define_node_message_func (missed_opt, MISSED_OPT, MICG::Node);
 
 
+void _phc_optimization_exception (string message, string filename, int line)
+{
+	stringstream ss;		
+	ss << filename << ":" << line << ":\n" << message << "\n"; 
+	throw s(ss.str ());	
+}

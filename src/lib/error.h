@@ -11,6 +11,8 @@
 #include <stdarg.h>
 #include <iostream>
 
+using namespace std;
+
 class String;
 
 namespace AST { class Node; }
@@ -57,17 +59,14 @@ void phc_missed_opt (const char* message, HIR::Node*, ...);
 void phc_missed_opt (const char* message, MIR::Node*, ...);
 void phc_missed_opt (const char* message, MICG::Node*, ...);
 
-#define phc_optimization_exception(MSG) \
-do{		\
-	stringstream ss;		\
-	ss << __FILE__ << ":" << __LINE__ << ":\n" << MSG << endl; \
-	throw s(ss.str ());	\
-}while(0)
+void _phc_optimization_exception (string message, string filename, int line);
 
-#define phc_optimization_assertion(COND,MSG)	\
+#define phc_optimization_exception(MSG) _phc_optimization_exception(MSG,__FILE__,__LINE__)
+
+#define phc_optimization_assertion(COND)	\
 do{												\
-	if (COND)										\
-		phc_optimization_exception(MSG);			\
+	if (!(COND))										\
+		phc_optimization_exception("Assertion Failure.  This means there is a bug in phc which should be reported.");			\
 }while(0)									
 
 #endif // PHC_ERROR_H

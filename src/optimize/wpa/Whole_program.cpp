@@ -421,7 +421,7 @@ Whole_program::get_possible_receivers (Context* cx, Result_state state, Target* 
 					const Types* types = values->get_types (cx, state, rhs);
 					if (Type_info::get_object_types (types)->size ())
 					{
-						assert (types->size () == 1);	
+						phc_optimization_assertion (types->size () == 1);	
 
 						string type = types->front ();
 
@@ -453,7 +453,7 @@ Whole_program::get_possible_receivers (Context* cx, Result_state state, Target* 
 			}
 		}
 
-		assert (classnames.size () > 0);
+		phc_optimization_assertion (classnames.size () > 0);
 		foreach (string type, classnames)
 		{
 			Class_info* classinfo = Oracle::get_class_info (s(type));
@@ -462,10 +462,10 @@ Whole_program::get_possible_receivers (Context* cx, Result_state state, Target* 
 			// therefore a run-time error will occur. So we can pretend this isnt
 			// a receiver. (We shouldn't issue a warning, since this path might
 			// not be realizable in practice).
-			assert (classinfo);
+			phc_optimization_assertion (classinfo);
 
 			Method_info* info = classinfo->get_method_info (name);
-			assert (info);
+			phc_optimization_assertion (info);
 
 			result->insert (info);
 		}
@@ -487,7 +487,7 @@ Whole_program::get_possible_receivers (Context* cx, Result_state state, Target* 
 		result->insert (info);	
 	}
 
-	assert (result->size () > 0);
+	phc_optimization_assertion (result->size () > 0);
 				
 	return result->to_list();	
 }
@@ -532,7 +532,7 @@ Whole_program::instantiate_object (Context* caller_cx, MIR::VARIABLE_NAME* self,
 	CLASS_NAME* class_name = dyc<CLASS_NAME> (in->class_name);
 
 	// Verify assumption
-	assert (caller_cx == block_cx ());
+	phc_optimization_assertion (caller_cx == block_cx ());
 
 	// Allocate memory
 	string obj = assign_path_empty_object (caller_cx, saved_plhs (), *class_name->value, ANON);
@@ -613,7 +613,7 @@ Whole_program::invoke_method (Context* caller_cx, VARIABLE_NAME* lhs, VARIABLE_N
 	}
 
 
-	assert (receivers->size ());
+	phc_optimization_assertion (receivers->size ());
 
 	FWPA->pre_invoke_method (caller_cx);
 
@@ -1283,7 +1283,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		}
 
 		// it cant be neither
-		assert (can_be_real || can_be_array);
+		phc_optimization_assertion (can_be_real || can_be_array);
 	
 		if (can_be_real)
 			assign_path_typed (cx, ret_path, new Types ("real"));
@@ -1747,11 +1747,11 @@ Whole_program::init_stacks ()
 void
 Whole_program::finish_stacks ()
 {
-	assert (block_cxs.size () == 1);
-	assert (unique_counts.size () == 1); // added in ::initialize ();
-	assert (saved_is_refs.size () == 1);
-	assert (saved_lhss.size () == 1);
-	assert (saved_plhss.size () == 1);
+	phc_optimization_assertion (block_cxs.size () == 1);
+	phc_optimization_assertion (unique_counts.size () == 1); // added in ::initialize ();
+	phc_optimization_assertion (saved_is_refs.size () == 1);
+	phc_optimization_assertion (saved_lhss.size () == 1);
+	phc_optimization_assertion (saved_plhss.size () == 1);
 
 	block_cxs.pop ();
 	unique_counts.pop ();
@@ -2574,7 +2574,7 @@ Whole_program::copy_value (Context* cx, const Index_node* lhs, const Index_node*
 		rhs = new Index_node (rhs->storage, UNKNOWN);
 	}
 
-	assert (aliasing->has_field (cx, R_WORKING, rhs));
+	phc_optimization_assertion (aliasing->has_field (cx, R_WORKING, rhs));
 
 	record_use (cx, rhs);
 
@@ -2589,7 +2589,7 @@ Whole_program::copy_value (Context* cx, const Index_node* lhs, const Index_node*
 		Types* array = Type_info::get_array_types (types);
 		Types* objects = Type_info::get_object_types (types);
 
-		assert (scalars->empty () + array->empty () + objects->empty () == 2);
+		phc_optimization_assertion (scalars->empty () + array->empty () + objects->empty () == 2);
 
 		if (scalars->size())
 		{
@@ -2697,7 +2697,7 @@ Whole_program::cast_to_storage (Context* cx, const Index_node* lhs, const Index_
 		Types* array = Type_info::get_array_types (types);
 		Types* objects = Type_info::get_object_types (types);
 
-		assert (!scalars->empty() ^ !array->empty() ^ !objects->empty());
+		phc_optimization_assertion (!scalars->empty() ^ !array->empty() ^ !objects->empty());
 
 		if (scalars->size())
 		{
@@ -2766,7 +2766,7 @@ Whole_program::copy_structure (Context* cx, const Index_node* lhs, const Storage
 Storage_node*
 Whole_program::create_empty_storage (Context* cx, string type, string name)
 {
-	assert (name != "array");
+	phc_optimization_assertion (name != "array");
 
 	// Anonymous storage
 	if (name == "")
@@ -2952,8 +2952,8 @@ Whole_program::read_from_scalar_value (Context* cx, const Index_node* rhs)
 	if (scalars->size() == 0)
 		return NULL;
 
-	assert (array->empty ());
-	assert (objects->empty ());
+	phc_optimization_assertion (array->empty ());
+	phc_optimization_assertion (objects->empty ());
 
 	DEBUG ("read_from_scalar_value");
 
@@ -3114,7 +3114,7 @@ cIndex_node_list*
 Whole_program::get_named_indices (Context* cx, Result_state state, Path* path, bool is_readonly)
 {
 	// It should only be non readonly if we're in the working state.
-	assert (is_readonly || state == R_WORKING);
+	phc_optimization_assertion (is_readonly || state == R_WORKING);
 	/*
 	 * TODO: check type handlers.
 	 */
@@ -3226,7 +3226,7 @@ Whole_program::get_array_named_indices (Context* cx, Result_state state, Path* p
 
 	Index_node* array = path_to_index (dyc<Indexing> (plhs));
 
-	assert (array->index != UNKNOWN);
+	phc_optimization_assertion (array->index != UNKNOWN);
 
 	// Make a note of the uses
 	record_use (cx, array);
@@ -3274,7 +3274,7 @@ Whole_program::get_array_named_indices (Context* cx, Result_state state, Path* p
 	// creation.
 	if (is_readonly && not aliasing->has_field (cx, state, array))
 	{
-		assert (storages->size () == 0);
+		phc_optimization_assertion (storages->size () == 0);
 		storages->push_back (SCLVAL (array));
 	}
 
@@ -3297,7 +3297,7 @@ Whole_program::get_array_named_indices (Context* cx, Result_state state, Path* p
 	}
 
 	// Even in weird cases, we should always return something.
-	assert (result->size ());
+	phc_optimization_assertion (result->size ());
 
 	return result;
 
@@ -3352,7 +3352,7 @@ Whole_program::standard_lhs (Basic_block* bb, MIR::Node* lhs, bool is_ref, MIR::
 
 	if (isa<Literal> (rhs))
 	{
-		assert (not is_ref);
+		phc_optimization_assertion (not is_ref);
 		assign_path_scalar (block_cx (), plhs, dyc<Literal> (rhs));
 	}
 	else
@@ -3597,7 +3597,7 @@ Whole_program::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 		case Isset::ID:
 		case Param_is_ref::ID:
 		case Unary_op::ID:
-			assert (!in->is_ref);
+			phc_optimization_assertion (!in->is_ref);
 			// fall-through
 
 		case Array_access::ID:
@@ -3616,7 +3616,7 @@ Whole_program::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 		case NIL::ID:
 		case REAL::ID:
 		case STRING::ID:
-			assert (!in->is_ref);
+			phc_optimization_assertion (!in->is_ref);
 			assign_path_scalar (block_cx (), saved_plhs (), dyc<Literal> (in->rhs));
 			break;
 
