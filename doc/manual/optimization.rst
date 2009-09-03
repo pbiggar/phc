@@ -5,8 +5,8 @@ Optimization
 
 |phc| now incorporates full dataflow analysis and a number of useful optimizations as a result.  
 Users can take advantage of these built in optimizations by passing the :option:`-O` flag to |phc|.  
-This is equivilant to the gcc :option:`-O` flag and thus a number or 's' must follow it (:option:`-O1`,
- :option:`-Os` etc.) is also passed to gcc if applicible.  It is also possible to dump information about 
+This is equivilant to the gcc :option:`-O` flag and thus a number or 's' must follow it (:option:`-O1`, 
+:option:`-Os` etc.).  It is also passed to gcc if applicible.  It is also possible to dump information about 
 optimizations, such as debug information and CFGs.  Developers also have the option of writing their own 
 optimizations or modifying included optimisations.
 
