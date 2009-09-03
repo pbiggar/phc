@@ -239,10 +239,6 @@ public:
 
 	void assign_attribute (Context* cx, string obj, MIR::Attribute*);
 
-	// Most pesimistic case
-	void ruin_everything (Context* cx, Path* path);
-
-
 	/*
 	 * Assignments by node (aka lower-level)
 	 */

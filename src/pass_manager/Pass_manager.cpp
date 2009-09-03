@@ -33,6 +33,7 @@
 #include "optimize/wpa/Whole_program.h"
 
 #include "lib/error.h"
+#include <iostream>
 
 using namespace std;
 
@@ -483,7 +484,7 @@ void Pass_manager::run_pass (Pass* pass, IR::PHP_script* in, bool main)
 	}
 	catch (String* e)
 	{
-		handle (e, s(*pass->name));
+		// TODO: Handle this	
 	}
 }
 
@@ -676,7 +677,7 @@ void Pass_manager::optimize (MIR::PHP_script* in)
 	}
 	catch (String* e)
 	{
-		handle (e, s(""));
+		cout << "Warning: The optimizer has failed for the following reason:\n" << *e << endl; 
 	}
 }
 

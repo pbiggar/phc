@@ -9,6 +9,7 @@
 #define PHC_ERROR_H
 
 #include <stdarg.h>
+#include <iostream>
 
 class String;
 
@@ -56,7 +57,17 @@ void phc_missed_opt (const char* message, HIR::Node*, ...);
 void phc_missed_opt (const char* message, MIR::Node*, ...);
 void phc_missed_opt (const char* message, MICG::Node*, ...);
 
-void handle (String* e, String* pass);
-void phc_exception (String* msg);
+#define phc_optimization_exception(MSG) \
+do{		\
+	stringstream ss;		\
+	ss << __FILE__ << ":" << __LINE__ << ":\n" << MSG << endl; \
+	throw s(ss.str ());	\
+}while(0)
+
+#define phc_optimization_assertion(COND,MSG)	\
+do{												\
+	if (COND)										\
+		phc_optimization_exception(MSG);			\
+}while(0)									
 
 #endif // PHC_ERROR_H

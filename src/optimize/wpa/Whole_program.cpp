@@ -91,6 +91,7 @@
 #include "Points_to.h"
 
 #include "lib/error.h"
+#include <iostream>
 
 #define ANON ""
 
@@ -172,7 +173,7 @@ Whole_program::run (MIR::PHP_script* in)
 			break;
 
 		if (w == 9)
-			phc_TODO (); // on the examples I'm running, this shouldnt happen.
+			phc_optimization_exception ("Does not converge"); // on the examples I'm running, this shouldnt happen.
 	}
 
 	// All the analysis and iteration is done
@@ -385,7 +386,7 @@ Whole_program::get_possible_receivers (Context* cx, Result_state state, Target* 
 	{
 		name = get_string_value (cx, state, VN (cx->symtable_name (), dyc<Variable_method> (method_name)->variable_name));
 		if (*name == UNKNOWN)
-			phc_TODO ();
+			phc_optimization_exception ("Variable method calls not supported");
 	}
 	else
 		name = dyc<METHOD_NAME> (method_name)->value;
@@ -420,7 +421,7 @@ Whole_program::get_possible_receivers (Context* cx, Result_state state, Target* 
 					const Types* types = values->get_types (cx, state, rhs);
 					if (Type_info::get_object_types (types)->size ())
 					{
-						assert (types->size () == 1);
+						assert (types->size () == 1);	
 
 						string type = types->front ();
 
@@ -480,7 +481,7 @@ Whole_program::get_possible_receivers (Context* cx, Result_state state, Target* 
 		{
 			stringstream ss;
 			ss << "Function '" << *name << "' is missing";
-			phc_exception(s(ss.str()));
+			phc_optimization_exception (ss.str());
 		}	
 
 		result->insert (info);	
@@ -498,7 +499,7 @@ Method_info_list*
 Whole_program::get_possible_receivers (Context* cx, Result_state state, New* in)
 {
 	if (isa<Variable_class> (in->class_name))
-		phc_exception (s("Variable classes not supported"));
+		phc_optimization_exception ("Variable classes not supported");
 
 	CLASS_NAME* class_name = dyc<CLASS_NAME> (in->class_name);
 
@@ -526,7 +527,7 @@ Whole_program::instantiate_object (Context* caller_cx, MIR::VARIABLE_NAME* self,
 
 	// Get the classes (there might not be receivers, even when there are classes)
 	if (isa<Variable_class> (in->class_name))
-		phc_exception (s("Variable classes not supported"));
+		phc_optimization_exception ("Variable classes not supported");
 
 	CLASS_NAME* class_name = dyc<CLASS_NAME> (in->class_name);
 
@@ -578,7 +579,7 @@ Whole_program::assign_attribute (Context* cx, string obj, MIR::Attribute* attr)
 	else if (Constant* constant = dynamic_cast<Constant*> (default_value))
 	{
 		if (constant->class_name)
-			phc_TODO ();
+			phc_optimization_exception ("Class constants in attributes not supported");
 
 		const Abstract_value* absval = constants->get_constant (cx, R_IN, *constant->constant_name->value);
 		assign_path_scalar (cx, path, absval);
@@ -1165,8 +1166,8 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		params[0] = coerce_to_string (cx, params[0]);
 		const Abstract_value* name = get_abstract_value (cx, R_WORKING, params[0]);
 		const Abstract_value* value = get_abstract_value (cx, R_WORKING, params[1]);
-		if (params[3])
-			phc_exception (s("Warning: Only two parameters supported for define ()."));	// case-sensitivity
+		if (params[2])
+			phc_optimization_exception ("Warning: Only two parameters supported for define ().");	// case-sensitivity
 
 		if (name->lit == NULL)
 		{
@@ -1417,7 +1418,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	{
 		// instantiate an object of the named type, then fill it
 		if (params[1])
-			phc_TODO ();
+			phc_optimization_exception ("Dynamic object instantiation not supported when analysing mysql_fetch_object ()");
 
 		string obj = assign_path_empty_object (cx, ret_path, "stdClass", ANON);
 		assign_path_typed (cx, P (obj, UNKNOWN), new Types ("string"));
@@ -1435,7 +1436,7 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		// ob_start seems to always have 1 param, which is a callback.
 		const Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]);
 		if (*absval->types != Types ("unset"))
-			phc_TODO ();
+			phc_optimization_exception ("Callbacks not supported when analysing ob_start");
 		
 		assign_path_typed (cx, ret_path, new Types ("bool"));
 	}
@@ -1480,13 +1481,13 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	{
 		const Abstract_value* replacement = get_abstract_value (cx, R_WORKING, params[1]);
 		foreach (string type, *replacement->types)
-			if (type != "array" && not Type_info::is_scalar (type))
-				phc_TODO ();
+			if (not Type_info::is_scalar (type))
+				phc_optimization_exception ("Non-scalars not supported when analysing preg_replace or str_replace");
 
 		const Abstract_value* subject = get_abstract_value (cx, R_WORKING, params[2]);
 		foreach (string type, *subject->types)
-			if (type != "array" && not Type_info::is_scalar (type))
-				phc_TODO ();
+			if (not Type_info::is_scalar (type))
+				phc_optimization_exception ("Non-scalars not supported when analysing preg_replace or str_replace");
 
 
 		params[0] = coerce_to_string (cx, params[0]);
@@ -1557,8 +1558,9 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	}
 	else
 	{
-		cdebug << "Function \"" << *info->name << "\" not modelled" << endl;
-		phc_TODO ();
+		stringstream ss;
+		ss << "Function \"" << *info->name << "\" not modelled" << endl;
+		phc_optimization_exception (ss.str ());
 	}
 }
 
@@ -1693,7 +1695,7 @@ Whole_program::unique_count ()
 {
 	int result = unique_counts.top ()++;
 	if (result > 500)
-		phc_TODO (); // most likely a problem
+		phc_optimization_exception ("Probable cycle in points-to graph"); // most likely a problem
 	return result;
 }
 
@@ -2010,7 +2012,7 @@ Whole_program::init_classes (Context* cx)
 
 				// Fill constants
 				if (attr->attr_mod->is_const)
-					phc_TODO ();
+					phc_optimization_exception ("Class constants not supported");
 			}
 			
 		}
@@ -2090,7 +2092,7 @@ Whole_program::forward_bind (Method_info* info, Context* entry_cx, MIR::Actual_p
 		if (_default)
 		{
 			if (not isa<Literal> (_default))
-				phc_TODO ();
+				phc_optimization_exception ("Non-scalar default parameters not supported");
 
 			assign_path_scalar (entry_cx, P (scope, info->param_name (i)), dyc<Literal> (_default));
 		}
@@ -2315,7 +2317,7 @@ Whole_program::build_static_array (Context* cx, Static_array* array)
 	{
 		// I'm not sure this is allowed?
 		if (elem->is_ref)
-			phc_TODO ();
+			phc_optimization_exception ("Reference members of static arrays not supported");
 
 		// Get the field name (TODO: this could also be a constant!)
 		Literal* key = dyc<Literal> (elem->key);
@@ -2336,7 +2338,7 @@ Whole_program::build_static_array (Context* cx, Static_array* array)
 			assign_absval (cx, index, new Abstract_value (lit));
 		}
 		else
-			phc_TODO ();
+			phc_optimization_exception ("Non-scalar members of static arrays not supported");
 	}
 	return result;
 }
@@ -2381,10 +2383,10 @@ Whole_program::assign_path_typed (Context* cx, Path* plhs, const Types* types, b
 
 	// In these cases, we must copy to an intermediate value before the kill.
 	if (array->size ())
-		phc_TODO ();
+		phc_optimization_exception ("assign_path_typed shouldn't be used in this context");
 
 	if (objects->size ())
-		phc_TODO ();
+		phc_optimization_exception ("assign_path_typed shouldn't be used in this context");
 
 	assign_path_scalar (cx, plhs, new Abstract_value (types), allow_kill);
 }
@@ -2631,7 +2633,7 @@ Whole_program::cast_value (Context* cx, const Index_node* lhs, const Index_node*
 		{
 			if (type == "string")
 			{
-				phc_TODO ();
+				phc_optimization_exception ("Casts to strings not supported");
 				//		coerce_to_string (...);
 			}
 			else
@@ -2675,7 +2677,7 @@ Whole_program::coerce_to_string (Context* cx, const Index_node* node)
 		node = create_fake_index (cx);
 		foreach (string type, *absval->types)
 		{
-			phc_TODO ();
+			phc_optimization_exception ("Using objects as strings not supported");
 		}
 	}
 
@@ -3019,14 +3021,6 @@ Whole_program::record_use (Context* cx, const Index_node* node)
 }
 
 
-
-void
-Whole_program::ruin_everything (Context* cx, Path* plhs)
-{
-	// For every storage node we can reach, mark its "*" index as completely
-	// unknown.
-	phc_TODO ();
-}
 
 
 /*
@@ -3410,7 +3404,7 @@ Whole_program::visit_assign_next (Statement_block* bb, MIR::Assign_next* in)
 void
 Whole_program::visit_catch (Statement_block* bb, MIR::Catch* in)
 {
-	phc_TODO ();
+	phc_optimization_exception ("Exceptions not supported");
 }
 
 void
@@ -3482,7 +3476,7 @@ Whole_program::visit_global (Statement_block* bb, MIR::Global* in)
 void
 Whole_program::visit_interface_alias (Statement_block* bb, MIR::Interface_alias* in)
 {
-	phc_TODO ();
+	phc_optimization_exception ("Interfaces are not supported");
 }
 
 void
@@ -3527,19 +3521,19 @@ Whole_program::visit_return (Statement_block* bb, MIR::Return* in)
 void
 Whole_program::visit_static_declaration (Statement_block*, MIR::Static_declaration*)
 {
-	phc_TODO ();
+	phc_optimization_exception ("Static variables are not supported");
 }
 
 void
 Whole_program::visit_throw (Statement_block*, MIR::Throw*)
 {
-	phc_TODO ();
+	phc_optimization_exception ("Throw is not currently supported");
 }
 
 void
 Whole_program::visit_try (Statement_block*, MIR::Try*)
 {
-	phc_TODO ();
+	phc_optimization_exception ("Try is not currently supported");
 }
 
 void
@@ -3712,7 +3706,7 @@ Whole_program::visit_constant (Statement_block* bb, MIR::Constant* in)
 {
 	// Needs to go through the class definitions
 	if (in->class_name)
-		phc_TODO ();
+		phc_optimization_exception ("Class constants not supported");
 
 	const Abstract_value* absval = constants->get_constant (block_cx (), R_IN, *in->constant_name->value);
 	assign_path_scalar (block_cx (), saved_plhs (), absval);
@@ -3768,7 +3762,7 @@ Whole_program::visit_foreach_has_key (Statement_block* bb, MIR::Foreach_has_key*
 void
 Whole_program::visit_instanceof (Statement_block* bb, MIR::Instanceof* in)
 {
-	phc_TODO ();
+	phc_optimization_exception ("Instanceof is not currently supported");
 }
 
 void
@@ -3784,12 +3778,12 @@ Whole_program::visit_isset (Statement_block* bb, MIR::Isset* in)
 
 	/* Mark all the uses */
 	if (isa<Variable_variable> (in->variable_name))
-		phc_TODO ();
+		phc_optimization_exception ("Variable-variables not supported in isset ()");
 
 	if (isa<VARIABLE_NAME> (in->target))
 		record_use (block_cx (), VN (ns, dyc<VARIABLE_NAME> (in->target)));
 	else if (in->target)
-		phc_TODO ();
+		phc_optimization_exception ("Object fields not supported in isset ()");
 
 	if (isa<VARIABLE_NAME> (in->variable_name)
 		&& in->target == NULL)
@@ -3832,10 +3826,6 @@ Whole_program::visit_param_is_ref (Statement_block* bb, MIR::Param_is_ref* in)
 	// Get the set of receivers (we need to check them all to see if this
 	// parameter is by reference.
 	Method_info_list* receivers = get_possible_receivers (block_cx (), R_WORKING, in);
-
-	// Need to clone the information and merge it when it returns.
-	if (receivers->size () != 1)
-		phc_TODO ();
 
 	bool direction_known = true;
 	bool param_by_ref = false;
