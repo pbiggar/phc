@@ -111,6 +111,11 @@ public:
 		// record variable names for removing globals
 		if (record_globals)
 			(*vars)[*in->value] = true;
+
+		// Dont do this optimization in the presence of php_errormsg.
+		// There are much better ways of doing this, but this is the simplest.
+		if (*in->value == "php_errormsg")
+			prune = false;
 	}
 
 	void post_variable_variable (Variable_variable* in)
