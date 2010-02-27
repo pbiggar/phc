@@ -19,7 +19,7 @@ get_string_val (zval* zvp)
 {
   if (Z_TYPE_P (zvp) == IS_STRING)
     {
-      zvp->refcount++;
+      Z_ADDREF_P(zvp);
       return zvp;
     }
   else

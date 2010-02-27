@@ -479,7 +479,7 @@ function complete_exec($command, $stdin = NULL, $timeout = 20, $pass_through = f
 									1 => array("pipe", "w"),
 									2 => array("pipe", "w"));
 	$pipes = array();
-	$handle = proc_open($command, $descriptorspec, &$pipes, getcwd());
+	$handle = proc_open($command, $descriptorspec, $pipes, getcwd());
 	
 	# read stdin into the process
 	if ($stdin !== NULL)
@@ -552,7 +552,7 @@ function kill_properly (&$handle, &$pipes)
 	# proc_terminate kills the shell process, but won't kill a runaway infinite
 	# loop. Get the child processes using ps, before killing the parent.
 	$ppid = $status["pid"];
-	$pids = split ("/\s+/", trim (`ps -o pid --no-heading --ppid $ppid`));
+	$pids = preg_split ("/\s+/", trim (`ps -o pid --no-heading --ppid $ppid`));
 
 	# if we dont close pipes, we can create deadlock, leaving zombie processes.
 	foreach ($pipes as &$pipe) fclose ($pipe);
@@ -579,7 +579,7 @@ function check_for_plugin ($plugin_name)
 function check_for_program ($program_name)
 {
 	// only use the first word
-	$program_names = split (" ", $program_name);
+	$program_names = explode (" ", $program_name);
 	$program_name = $program_names[0];
 
 	return ($program_name !== "" 

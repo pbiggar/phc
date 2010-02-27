@@ -23,6 +23,19 @@
  * responsible for generating calls to these functions.
  */
 
+//Support macros for PHP 5.3 compatibility
+#if PHP_VERSION_ID < 50300
+	#define zend_fcall_info_init(fn, i, fci, fcic, p1, p2) zend_fcall_info_init(fn, fci, fcic TSRMLS_CC);
+	#define Z_SET_OBJECT_PTR(lhs, rhs) (lhs)->object_pp = rhs
+	#define Z_ISREF_P(p) (p)->is_ref
+	#define Z_SET_ISREF_P(p) (p)->is_ref = 1
+	#define Z_REFCOUNT_P(p) (p)->refcount
+	#define Z_ADDREF_P(p) (p)->refcount++
+	#define Z_DELREF_P(p) (p)->refcount--
+#else
+	#define Z_SET_OBJECT_PTR(lhs, rhs) lhs->object_ptr = *rhs
+#endif
+
 void
 init_runtime ()
 {

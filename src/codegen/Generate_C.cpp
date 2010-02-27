@@ -261,7 +261,7 @@ string get_st_entry (Scope scope, string zvp, VARIABLE_NAME* var_name)
 		<< "if (" << name << " == NULL)\n"
 		<< "{\n"
 		<<		name << " = EG (uninitialized_zval_ptr);\n"
-		<<		name << "->refcount++;\n"
+		<<		"Z_ADDREF_P(" << name << ");\n"
 		<< "}\n"
 		<<	"zval** " << zvp << " = &" << name << ";\n";
 	}
@@ -626,8 +626,8 @@ void Generate_C::compile_static_value(string result, ostream& os, Static_value* 
 	// so that it does not get cleaned up with the rest of the temps
 	os 
 	<< result << " = local___static_value__;\n" 
-	<< "assert(!" << result << "->is_ref);\n" 
-	<< result << "->refcount++;\n";
+	<< "assert(!Z_ISREF_P(" << result << "));\n" 
+	<< "Z_ADDREF_P(" << result << ");\n";
 
 	// Clean up the temps again
 	foreach (string temp, gen_ann->var_names)
@@ -789,7 +789,7 @@ protected:
 		<<		"while (arg_count > 0)\n"
 		<<		"{\n"
 		<<		"	param_ptr = *(p-arg_count);\n"
-		<<		"	printf(\"addr = %08X, refcount = %d, is_ref = %d\\n\", (long)param_ptr, param_ptr->refcount, param_ptr->is_ref);\n"
+		<<		"	printf(\"addr = %08X, refcount = %d, is_ref = %d\\n\", (long)param_ptr, Z_REFCOUNT_P(param_ptr), Z_ISREF_P(param_ptr));\n"
 		<<		"	arg_count--;\n"
 		<<		"}\n"
 		<<		"printf(\"END ARGUMENT STACK\\n\");\n"
@@ -868,7 +868,7 @@ protected:
 			int index = 0;
 			foreach (Formal_parameter* param, *parameters)
 			{
-//				buf << "printf(\"refcount = %d, is_ref = %d\\n\", params[" << index << "]->refcount, params[" << index << "]->is_ref);\n";
+//				buf << "printf(\"refcount = %d, is_ref = %d\\n\", Z_REFCOUNT_P(params[" << index << "]), Z_ISREF_P(params[" << index << "]));\n";
 				buf << "// param " << index << "\n";
 
 				// if a default value is available, then create code to
@@ -886,14 +886,14 @@ protected:
 					gen->compile_static_value ("default_value", buf, param->var->default_value);
 
 					buf
-					<< "default_value->refcount--;\n"
+					<< "Z_DELREF_P(default_value);\n"
 					<<	"	params[" << index << "] = default_value;\n"
 					<< "}\n"
 					;
 				}
 
 				buf
-				<< "params[" << index << "]->refcount++;\n";
+				<< "Z_ADDREF_P(params[" << index << "]);\n";
 
 				// TODO this should be abstactable, but it work now, so
 				// leave it.
@@ -982,7 +982,7 @@ protected:
 		{
 			buf
 			<< "if (*return_value_ptr)\n"
-			<< "	saved_refcount = (*return_value_ptr)->refcount;\n"
+			<< "	saved_refcount = Z_REFCOUNT_P(*return_value_ptr);\n"
 			;
 		}
 
@@ -2799,7 +2799,6 @@ void Generate_C::post_php_script(PHP_script* in)
 		"   signal(SIGABRT, sighandler);\n"
 		"   signal(SIGSEGV, sighandler);\n"
 		"\n"
-		"   TSRMLS_D;\n"
 		"   php_embed_init (argc, argv PTSRMLS_CC);\n"
 		"   zend_first_try\n"
 		"   {\n"

@@ -81,7 +81,7 @@ function create_label_struct ($directory, $label_filename, $third_party_filename
 		$line = preg_replace("/#.*$/", "", $line); // remove comments
 		$line = trim($line); // remove superfluous whitespace
 		if ($line == "") continue; // skip blank lines
-		process_label_file_line ($line, $files, &$labelled_files);
+		process_label_file_line ($line, $files, $labelled_files);
 	}
 
 	foreach($third_party_lines as $line)
@@ -89,7 +89,7 @@ function create_label_struct ($directory, $label_filename, $third_party_filename
 		$line = preg_replace("/#.*$/", "", $line); // remove comments
 		$line = trim($line); // remove superfluous whitespace
 		if ($line == "") continue; // skip blank lines
-		process_label_file_line ("3rdparty/".$line, $files, &$labelled_files);
+		process_label_file_line ("3rdparty/".$line, $files, $labelled_files);
 	}
 
 	# if -O is provided, remove all other files
@@ -163,7 +163,7 @@ function create_label_struct ($directory, $label_filename, $third_party_filename
 	return $label_struct;
 }
 
-function process_label_file_line ($line, $files, $labelled_files)
+function process_label_file_line ($line, $files, &$labelled_files)
 {
 	global $default_labels;
 	global $non_default_labels;
@@ -272,7 +272,7 @@ function get_all_scripts_in_dir($directory)
 	phc_assert(preg_match("/\/$/", $directory), "directory '$directory' must end in a '/'");
 
 	$command = "find -L $directory -name \"*.php\"";
-	$result = split ("\n", trim (`$command`));
+	$result = explode ("\n", trim (`$command`));
 	if (count ($result) == 1 && $result[0] == "")
 		return array ();
 	return $result;

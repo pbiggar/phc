@@ -235,7 +235,7 @@ get_ht_entry (zval ** p_var, zval * ind TSRMLS_DC)
 
   // If we dont find it, put EG (uninitialized_zval_ptr) into the
   // hashtable, and return a pointer to its container.
-  EG (uninitialized_zval_ptr)->refcount++;
+  Z_ADDREF_P(EG(uninitialized_zval_ptr));
   ht_update (ht, ind, EG (uninitialized_zval_ptr), &data);
 
   assert (data != NULL);
@@ -297,7 +297,7 @@ get_field (zval ** p_var, char *ind TSRMLS_DC)
 
   // If we dont find it, put EG (uninitialized_zval_ptr) into the
   // hashtable, and return a pointer to its container.
-  EG (uninitialized_zval_ptr)->refcount++;
+  Z_ADDREF_P(EG(uninitialized_zval_ptr));
   zend_symtable_update (ht, ind, strlen (ind) + 1,
 			&EG (uninitialized_zval_ptr), sizeof (zval *),
 			(void **) &data);
@@ -415,7 +415,7 @@ push_and_index_ht (zval ** p_var TSRMLS_DC)
   HashTable *ht = extract_ht (p_var TSRMLS_CC);
   zval **data;
 
-  EG (uninitialized_zval_ptr)->refcount++;
+  Z_ADDREF_P(EG(uninitialized_zval_ptr));
   int result = zend_hash_next_index_insert (ht, &EG (uninitialized_zval_ptr),
 					    sizeof (zval *), (void **) &data);
   assert (result == SUCCESS);

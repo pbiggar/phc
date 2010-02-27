@@ -17,13 +17,13 @@ zvp_clone_ex (zval * zvp)
 static inline int
 in_copy_on_write (zval * zvp)
 {
-  return (zvp->refcount > 1 && !zvp->is_ref);
+  return (Z_REFCOUNT_P(zvp) > 1 && !Z_ISREF_P(zvp));
 }
 
 static inline int
 in_change_on_write (zval * zvp)
 {
-  return (zvp->refcount > 1 && zvp->is_ref);
+  return (Z_REFCOUNT_P(zvp) > 1 && Z_ISREF_P(zvp));
 }
 
 /* If *P_ZVP is in a copy-on-write set, separate it by overwriting
@@ -62,8 +62,8 @@ sep_change_on_write (zval ** p_zvp)
 static void
 copy_into_ref (zval ** lhs, zval ** rhs)
 {
-  (*rhs)->is_ref = 1;
-  (*rhs)->refcount++;
+  Z_SET_ISREF_P(*rhs);
+  Z_ADDREF_P(*rhs);
   zval_ptr_dtor (lhs);
   *lhs = *rhs;
 }
@@ -101,17 +101,17 @@ overwrite_lhs_no_copy (zval * lhs, zval * rhs)
 static void
 write_var (zval ** p_lhs, zval * rhs)
 {
-  if (!(*p_lhs)->is_ref)
+  if (!Z_ISREF_P(*p_lhs))
     {
       zval_ptr_dtor (p_lhs);
       // Take a copy of RHS for LHS.
-      if (rhs->is_ref)
+      if (Z_ISREF_P(rhs))
 	{
 	  *p_lhs = zvp_clone_ex (rhs);
 	}
       else			// share a copy
 	{
-	  rhs->refcount++;
+	  Z_ADDREF_P(rhs);
 	  *p_lhs = rhs;
 	}
     }
@@ -135,7 +135,7 @@ get_st_entry (HashTable * st, char *name, int length, ulong hashval TSRMLS_DC)
 
   // If we dont find it, put EG (uninitialized_zval_ptr) into the
   // hashtable, and return a pointer to its container.
-  EG (uninitialized_zval_ptr)->refcount++;
+  Z_ADDREF_P(EG(uninitialized_zval_ptr));
   int result = zend_hash_quick_add (st, name, length, hashval,
 				    &EG (uninitialized_zval_ptr),
 				    sizeof (zval *), (void **) &p_zvp);
