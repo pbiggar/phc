@@ -32,6 +32,7 @@
 	#define Z_REFCOUNT_P(p) (p)->refcount
 	#define Z_ADDREF_P(p) (p)->refcount++
 	#define Z_DELREF_P(p) (p)->refcount--
+  #define Z_SET_REFCOUNT_P(p, val) (p)->refcount=val
 #else
 	#define Z_SET_OBJECT_PTR(lhs, rhs) lhs->object_ptr = *rhs
 #endif

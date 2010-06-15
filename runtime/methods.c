@@ -86,16 +86,17 @@ initialize_function_call (zend_fcall_info * fci, zend_fcall_info_cache * fcic,
   if (fcic->initialized)
     return;
 
-  zval fn;
-  INIT_PZVAL (&fn);
-  ZVAL_STRING (&fn, function_name, 0);
-  int result = zend_fcall_info_init (&fn, 0, fci, fcic, NULL, NULL TSRMLS_CC);
+  zval * fn;
+  MAKE_STD_ZVAL (fn);
+  ZVAL_STRING (fn, function_name, 0);
+  int result = zend_fcall_info_init (fn, 0, fci, fcic, NULL, NULL TSRMLS_CC);
   if (result != SUCCESS)
     {
       phc_setup_error (1, filename, line_number, NULL TSRMLS_CC);
       php_error_docref (NULL TSRMLS_CC, E_ERROR,
 			"Call to undefined function %s()", function_name);
     }
+
 }
 
 /*

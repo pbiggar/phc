@@ -1139,7 +1139,7 @@ call_function (string MN, list ARGS, string FILENAME, string LINE, string FCI_NA
       Z_SET_ISREF_P(rhs);
       if (saved_refcount != 0)
       {
-	 Z_REFCOUNT_P(rhs) = saved_refcount;
+	 Z_SET_REFCOUNT_P(rhs, saved_refcount);
       }
       Z_ADDREF_P(rhs);
    }
