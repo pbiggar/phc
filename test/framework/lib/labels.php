@@ -282,7 +282,7 @@ function get_all_plugins ()
 {
 	global $base_dir;
 	$command = "find $base_dir/plugins -name \"*.cpp\"";
-	$result = split ("\n", trim (`$command`));
+	$result = preg_split ("/\n/", trim (`$command`));
 	if (count ($result) == 1 && $result[0] == "")
 		return array ();
 
