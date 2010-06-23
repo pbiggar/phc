@@ -38,6 +38,7 @@ endswitch,			K_ENDSWITCH
 endwhile,			K_ENDWHILE
 eval,					K_EVAL
 exit,					K_EXIT
+die,					K_DIE
 extends,				K_EXTENDS
 for,					K_FOR
 foreach,				K_FOREACH
