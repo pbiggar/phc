@@ -858,7 +858,7 @@ protected:
 			buf 
 			<< "// Add all parameters as local variables\n"
 			<< "{\n"
-			<< "int num_args = ZEND_NUM_ARGS ();\n"
+			<< "int num_args = MIN(ZEND_NUM_ARGS (), " << parameters->size() << ");\n"
 			<< "zval* params[" << parameters->size() << "];\n"
 			// First parameter to zend_get_parameters_array does not appear
 			// to be used (by looking at the source)
