@@ -85,15 +85,18 @@ static int
 phc_declare_property (zend_class_entry * ce, char *name, int name_length,
 		      zval * property, int access_type TSRMLS_DC)
 {
+  int rc;
   assert (!(ce->type & ZEND_INTERNAL_CLASS));
-  assert (zend_declare_property
+  rc = zend_declare_property
 	  (ce, name, name_length, persistent_clone (property, 1 TSRMLS_CC),
-	   access_type TSRMLS_CC) == SUCCESS);
+	   access_type TSRMLS_CC);
+  assert(rc == SUCCESS);
 
   zend_property_info *property_info;
-  assert (zend_hash_find
+  rc = zend_hash_find
 	  (&ce->properties_info, name, name_length + 1,
-	   (void **) &property_info) == SUCCESS);
+	   (void **) &property_info);
+  assert(rc == SUCCESS);
   efree (property_info->name);
   property_info->name = name;
 
