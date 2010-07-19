@@ -1328,7 +1328,7 @@ public:
 		buf
 		<< get_st_entry (LOCAL, "p_lhs", lhs->value)
 		<< "zval* value;\n"
-		<< "if ((*p_lhs)->is_ref)\n"
+		<< "if (Z_ISREF_P(*p_lhs))\n"
 		<< "{\n"
 		<< "  // Always overwrite the current value\n"
 		<< "  value = *p_lhs;\n"
