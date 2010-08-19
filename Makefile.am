@@ -430,6 +430,56 @@ strangephc_HEADERS =							\
 	src/generated/MIR_user_defined.h		\
 	src/generated/MIR_visitor.h
 
+strangeoptimizedir = $(pkgincludedir)/optimize
+strangeoptimize_HEADERS =					\
+	src/optimize/Abstract_value.h		\
+	src/optimize/Alias_name.h		\
+	src/optimize/Basic_block.h		\
+	src/optimize/CFG.h		\
+	src/optimize/CFG_visitor.h		\
+	src/optimize/Class_info.h		\
+	src/optimize/Dead_code_elimination.h		\
+	src/optimize/Def_use_web.h		\
+	src/optimize/Edge.h		\
+	src/optimize/Flow_visitor.h		\
+	src/optimize/hacks/Copy_propagation.h		\
+	src/optimize/hacks/Dead_temp_cleanup.h		\
+	src/optimize/hacks/Fix_point.h		\
+	src/optimize/hacks/Use_def_counter.h		\
+	src/optimize/If_simplification.h		\
+	src/optimize/Inlining.h		\
+	src/optimize/Lattice.h		\
+	src/optimize/Mark_initialized.h		\
+	src/optimize/Method_info.h		\
+	src/optimize/Method_pruner.h		\
+	src/optimize/Misc_annotations.h		\
+	src/optimize/Oracle.h		\
+	src/optimize/Prune_symbol_table.h		\
+	src/optimize/Remove_loop_booleans.h		\
+	src/optimize/ssa/Dominance.h		\
+	src/optimize/ssa/HSSA.h		\
+	src/optimize/ssa/Phi.h		\
+	src/optimize/ssa/SSA_name.h		\
+	src/optimize/ssa/SSA_ops.h		\
+	src/optimize/Visit_once.h		\
+	src/optimize/wpa/Aliasing.h		\
+	src/optimize/wpa/Callgraph.h		\
+	src/optimize/wpa/Constant_state.h		\
+	src/optimize/wpa/Context.h		\
+	src/optimize/wpa/Debug_WPA.h		\
+	src/optimize/wpa/Def_use.h		\
+	src/optimize/wpa/Include_analysis.h		\
+	src/optimize/wpa/Optimization_annotator.h		\
+	src/optimize/wpa/Optimization_transformer.h		\
+	src/optimize/wpa/Points_to.h		\
+	src/optimize/wpa/Stat_collector.h		\
+	src/optimize/wpa/Value_analysis.h		\
+	src/optimize/wpa/VRP.h		\
+	src/optimize/wpa/Whole_program.h		\
+	src/optimize/wpa/Worklist.h		\
+	src/optimize/wpa/WPA.h		\
+	src/optimize/wpa/WPA_lattice.h
+
 strangeparsingdir = $(pkgincludedir)/parsing
 strangeparsing_HEADERS =					\
 	src/parsing/parse.h						\
