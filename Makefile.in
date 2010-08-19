@@ -51,12 +51,14 @@ subdir = .
 DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(srcdir)/config.h.in \
 	$(strangelib_HEADERS) $(strangeoptimize_HEADERS) \
-	$(strangeparsing_HEADERS) $(strangepassmanager_HEADERS) \
-	$(strangephc_HEADERS) $(strangeprocessast_HEADERS) \
-	$(strangeprocesshir_HEADERS) $(strangeprocessir_HEADERS) \
-	$(strangeprocessmir_HEADERS) $(top_srcdir)/configure ChangeLog \
-	config/config.guess config/config.sub config/depcomp \
-	config/install-sh config/ltmain.sh config/missing
+	$(strangeoptimizehacks_HEADERS) $(strangeoptimizessa_HEADERS) \
+	$(strangeoptimizewpa_HEADERS) $(strangeparsing_HEADERS) \
+	$(strangepassmanager_HEADERS) $(strangephc_HEADERS) \
+	$(strangeprocessast_HEADERS) $(strangeprocesshir_HEADERS) \
+	$(strangeprocessir_HEADERS) $(strangeprocessmir_HEADERS) \
+	$(top_srcdir)/configure ChangeLog config/config.guess \
+	config/config.sub config/depcomp config/install-sh \
+	config/ltmain.sh config/missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/argz.m4 \
 	$(top_srcdir)/m4/boost.m4 $(top_srcdir)/m4/libtool.m4 \
@@ -98,6 +100,9 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkglibdir)" \
 	"$(DESTDIR)$(libexecdir)" "$(DESTDIR)$(strangeruntimedir)" \
 	"$(DESTDIR)$(strangeruntimetemplatesdir)" \
 	"$(DESTDIR)$(strangelibdir)" "$(DESTDIR)$(strangeoptimizedir)" \
+	"$(DESTDIR)$(strangeoptimizehacksdir)" \
+	"$(DESTDIR)$(strangeoptimizessadir)" \
+	"$(DESTDIR)$(strangeoptimizewpadir)" \
 	"$(DESTDIR)$(strangeparsingdir)" \
 	"$(DESTDIR)$(strangepassmanagerdir)" \
 	"$(DESTDIR)$(strangephcdir)" \
@@ -488,10 +493,11 @@ RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	ps-recursive uninstall-recursive
 DATA = $(strangeruntime_DATA) $(strangeruntimetemplates_DATA)
 HEADERS = $(strangelib_HEADERS) $(strangeoptimize_HEADERS) \
-	$(strangeparsing_HEADERS) $(strangepassmanager_HEADERS) \
-	$(strangephc_HEADERS) $(strangeprocessast_HEADERS) \
-	$(strangeprocesshir_HEADERS) $(strangeprocessir_HEADERS) \
-	$(strangeprocessmir_HEADERS)
+	$(strangeoptimizehacks_HEADERS) $(strangeoptimizessa_HEADERS) \
+	$(strangeoptimizewpa_HEADERS) $(strangeparsing_HEADERS) \
+	$(strangepassmanager_HEADERS) $(strangephc_HEADERS) \
+	$(strangeprocessast_HEADERS) $(strangeprocesshir_HEADERS) \
+	$(strangeprocessir_HEADERS) $(strangeprocessmir_HEADERS)
 RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
 AM_RECURSIVE_TARGETS = $(RECURSIVE_TARGETS:-recursive=) \
@@ -1113,10 +1119,6 @@ strangeoptimize_HEADERS = \
 	src/optimize/Def_use_web.h		\
 	src/optimize/Edge.h		\
 	src/optimize/Flow_visitor.h		\
-	src/optimize/hacks/Copy_propagation.h		\
-	src/optimize/hacks/Dead_temp_cleanup.h		\
-	src/optimize/hacks/Fix_point.h		\
-	src/optimize/hacks/Use_def_counter.h		\
 	src/optimize/If_simplification.h		\
 	src/optimize/Inlining.h		\
 	src/optimize/Lattice.h		\
@@ -1127,12 +1129,25 @@ strangeoptimize_HEADERS = \
 	src/optimize/Oracle.h		\
 	src/optimize/Prune_symbol_table.h		\
 	src/optimize/Remove_loop_booleans.h		\
+	src/optimize/Visit_once.h
+
+strangeoptimizehacksdir = $(pkgincludedir)/optimize/hacks
+strangeoptimizehacks_HEADERS = \
+	src/optimize/hacks/Copy_propagation.h		\
+	src/optimize/hacks/Dead_temp_cleanup.h		\
+	src/optimize/hacks/Fix_point.h		\
+	src/optimize/hacks/Use_def_counter.h
+
+strangeoptimizessadir = $(pkgincludedir)/optimize/ssa
+strangeoptimizessa_HEADERS = \
 	src/optimize/ssa/Dominance.h		\
 	src/optimize/ssa/HSSA.h		\
 	src/optimize/ssa/Phi.h		\
 	src/optimize/ssa/SSA_name.h		\
-	src/optimize/ssa/SSA_ops.h		\
-	src/optimize/Visit_once.h		\
+	src/optimize/ssa/SSA_ops.h
+
+strangeoptimizewpadir = $(pkgincludedir)/optimize/wpa
+strangeoptimizewpa_HEADERS = \
 	src/optimize/wpa/Aliasing.h		\
 	src/optimize/wpa/Callgraph.h		\
 	src/optimize/wpa/Constant_state.h		\
@@ -3117,6 +3132,66 @@ uninstall-strangeoptimizeHEADERS:
 	test -n "$$files" || exit 0; \
 	echo " ( cd '$(DESTDIR)$(strangeoptimizedir)' && rm -f" $$files ")"; \
 	cd "$(DESTDIR)$(strangeoptimizedir)" && rm -f $$files
+install-strangeoptimizehacksHEADERS: $(strangeoptimizehacks_HEADERS)
+	@$(NORMAL_INSTALL)
+	test -z "$(strangeoptimizehacksdir)" || $(MKDIR_P) "$(DESTDIR)$(strangeoptimizehacksdir)"
+	@list='$(strangeoptimizehacks_HEADERS)'; test -n "$(strangeoptimizehacksdir)" || list=; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(strangeoptimizehacksdir)'"; \
+	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(strangeoptimizehacksdir)" || exit $$?; \
+	done
+
+uninstall-strangeoptimizehacksHEADERS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(strangeoptimizehacks_HEADERS)'; test -n "$(strangeoptimizehacksdir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	test -n "$$files" || exit 0; \
+	echo " ( cd '$(DESTDIR)$(strangeoptimizehacksdir)' && rm -f" $$files ")"; \
+	cd "$(DESTDIR)$(strangeoptimizehacksdir)" && rm -f $$files
+install-strangeoptimizessaHEADERS: $(strangeoptimizessa_HEADERS)
+	@$(NORMAL_INSTALL)
+	test -z "$(strangeoptimizessadir)" || $(MKDIR_P) "$(DESTDIR)$(strangeoptimizessadir)"
+	@list='$(strangeoptimizessa_HEADERS)'; test -n "$(strangeoptimizessadir)" || list=; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(strangeoptimizessadir)'"; \
+	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(strangeoptimizessadir)" || exit $$?; \
+	done
+
+uninstall-strangeoptimizessaHEADERS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(strangeoptimizessa_HEADERS)'; test -n "$(strangeoptimizessadir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	test -n "$$files" || exit 0; \
+	echo " ( cd '$(DESTDIR)$(strangeoptimizessadir)' && rm -f" $$files ")"; \
+	cd "$(DESTDIR)$(strangeoptimizessadir)" && rm -f $$files
+install-strangeoptimizewpaHEADERS: $(strangeoptimizewpa_HEADERS)
+	@$(NORMAL_INSTALL)
+	test -z "$(strangeoptimizewpadir)" || $(MKDIR_P) "$(DESTDIR)$(strangeoptimizewpadir)"
+	@list='$(strangeoptimizewpa_HEADERS)'; test -n "$(strangeoptimizewpadir)" || list=; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(strangeoptimizewpadir)'"; \
+	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(strangeoptimizewpadir)" || exit $$?; \
+	done
+
+uninstall-strangeoptimizewpaHEADERS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(strangeoptimizewpa_HEADERS)'; test -n "$(strangeoptimizewpadir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	test -n "$$files" || exit 0; \
+	echo " ( cd '$(DESTDIR)$(strangeoptimizewpadir)' && rm -f" $$files ")"; \
+	cd "$(DESTDIR)$(strangeoptimizewpadir)" && rm -f $$files
 install-strangeparsingHEADERS: $(strangeparsing_HEADERS)
 	@$(NORMAL_INSTALL)
 	test -z "$(strangeparsingdir)" || $(MKDIR_P) "$(DESTDIR)$(strangeparsingdir)"
@@ -3577,7 +3652,7 @@ install-binPROGRAMS: install-libLTLIBRARIES
 
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkglibdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(libexecdir)" "$(DESTDIR)$(strangeruntimedir)" "$(DESTDIR)$(strangeruntimetemplatesdir)" "$(DESTDIR)$(strangelibdir)" "$(DESTDIR)$(strangeoptimizedir)" "$(DESTDIR)$(strangeparsingdir)" "$(DESTDIR)$(strangepassmanagerdir)" "$(DESTDIR)$(strangephcdir)" "$(DESTDIR)$(strangeprocessastdir)" "$(DESTDIR)$(strangeprocesshirdir)" "$(DESTDIR)$(strangeprocessirdir)" "$(DESTDIR)$(strangeprocessmirdir)"; do \
+	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkglibdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(libexecdir)" "$(DESTDIR)$(strangeruntimedir)" "$(DESTDIR)$(strangeruntimetemplatesdir)" "$(DESTDIR)$(strangelibdir)" "$(DESTDIR)$(strangeoptimizedir)" "$(DESTDIR)$(strangeoptimizehacksdir)" "$(DESTDIR)$(strangeoptimizessadir)" "$(DESTDIR)$(strangeoptimizewpadir)" "$(DESTDIR)$(strangeparsingdir)" "$(DESTDIR)$(strangepassmanagerdir)" "$(DESTDIR)$(strangephcdir)" "$(DESTDIR)$(strangeprocessastdir)" "$(DESTDIR)$(strangeprocesshirdir)" "$(DESTDIR)$(strangeprocessirdir)" "$(DESTDIR)$(strangeprocessmirdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: $(BUILT_SOURCES)
@@ -3640,7 +3715,11 @@ info: info-recursive
 info-am:
 
 install-data-am: install-strangelibHEADERS \
-	install-strangeoptimizeHEADERS install-strangeparsingHEADERS \
+	install-strangeoptimizeHEADERS \
+	install-strangeoptimizehacksHEADERS \
+	install-strangeoptimizessaHEADERS \
+	install-strangeoptimizewpaHEADERS \
+	install-strangeparsingHEADERS \
 	install-strangepassmanagerHEADERS install-strangephcHEADERS \
 	install-strangeprocessastHEADERS \
 	install-strangeprocesshirHEADERS \
@@ -3700,6 +3779,9 @@ uninstall-am: uninstall-binPROGRAMS uninstall-binSCRIPTS \
 	uninstall-libLTLIBRARIES uninstall-libexecSCRIPTS \
 	uninstall-nobase_pkglibLTLIBRARIES uninstall-strangelibHEADERS \
 	uninstall-strangeoptimizeHEADERS \
+	uninstall-strangeoptimizehacksHEADERS \
+	uninstall-strangeoptimizessaHEADERS \
+	uninstall-strangeoptimizewpaHEADERS \
 	uninstall-strangeparsingHEADERS \
 	uninstall-strangepassmanagerHEADERS \
 	uninstall-strangephcHEADERS uninstall-strangeprocessastHEADERS \
@@ -3729,7 +3811,11 @@ uninstall-am: uninstall-binPROGRAMS uninstall-binSCRIPTS \
 	install-libLTLIBRARIES install-libexecSCRIPTS install-man \
 	install-nobase_pkglibLTLIBRARIES install-pdf install-pdf-am \
 	install-ps install-ps-am install-strangelibHEADERS \
-	install-strangeoptimizeHEADERS install-strangeparsingHEADERS \
+	install-strangeoptimizeHEADERS \
+	install-strangeoptimizehacksHEADERS \
+	install-strangeoptimizessaHEADERS \
+	install-strangeoptimizewpaHEADERS \
+	install-strangeparsingHEADERS \
 	install-strangepassmanagerHEADERS install-strangephcHEADERS \
 	install-strangeprocessastHEADERS \
 	install-strangeprocesshirHEADERS \
@@ -3744,6 +3830,9 @@ uninstall-am: uninstall-binPROGRAMS uninstall-binSCRIPTS \
 	uninstall-libLTLIBRARIES uninstall-libexecSCRIPTS \
 	uninstall-nobase_pkglibLTLIBRARIES uninstall-strangelibHEADERS \
 	uninstall-strangeoptimizeHEADERS \
+	uninstall-strangeoptimizehacksHEADERS \
+	uninstall-strangeoptimizessaHEADERS \
+	uninstall-strangeoptimizewpaHEADERS \
 	uninstall-strangeparsingHEADERS \
 	uninstall-strangepassmanagerHEADERS \
 	uninstall-strangephcHEADERS uninstall-strangeprocessastHEADERS \

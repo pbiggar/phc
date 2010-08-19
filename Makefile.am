@@ -442,10 +442,6 @@ strangeoptimize_HEADERS =					\
 	src/optimize/Def_use_web.h		\
 	src/optimize/Edge.h		\
 	src/optimize/Flow_visitor.h		\
-	src/optimize/hacks/Copy_propagation.h		\
-	src/optimize/hacks/Dead_temp_cleanup.h		\
-	src/optimize/hacks/Fix_point.h		\
-	src/optimize/hacks/Use_def_counter.h		\
 	src/optimize/If_simplification.h		\
 	src/optimize/Inlining.h		\
 	src/optimize/Lattice.h		\
@@ -456,12 +452,25 @@ strangeoptimize_HEADERS =					\
 	src/optimize/Oracle.h		\
 	src/optimize/Prune_symbol_table.h		\
 	src/optimize/Remove_loop_booleans.h		\
+	src/optimize/Visit_once.h
+
+strangeoptimizehacksdir = $(pkgincludedir)/optimize/hacks
+strangeoptimizehacks_HEADERS =					\
+	src/optimize/hacks/Copy_propagation.h		\
+	src/optimize/hacks/Dead_temp_cleanup.h		\
+	src/optimize/hacks/Fix_point.h		\
+	src/optimize/hacks/Use_def_counter.h
+
+strangeoptimizessadir = $(pkgincludedir)/optimize/ssa
+strangeoptimizessa_HEADERS =					\
 	src/optimize/ssa/Dominance.h		\
 	src/optimize/ssa/HSSA.h		\
 	src/optimize/ssa/Phi.h		\
 	src/optimize/ssa/SSA_name.h		\
-	src/optimize/ssa/SSA_ops.h		\
-	src/optimize/Visit_once.h		\
+	src/optimize/ssa/SSA_ops.h
+
+strangeoptimizewpadir = $(pkgincludedir)/optimize/wpa
+strangeoptimizewpa_HEADERS =					\
 	src/optimize/wpa/Aliasing.h		\
 	src/optimize/wpa/Callgraph.h		\
 	src/optimize/wpa/Constant_state.h		\
