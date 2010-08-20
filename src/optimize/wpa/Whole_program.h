@@ -347,6 +347,19 @@ public:
 
 private:
 	int iteration_num;
+
+private:
+	/*
+	 * Model straightforward functions
+	 */
+	Set<string> modelled_functions;
+	Map<string, List<int> > coercion_model;
+	Map<string, Types*> type_model;
+
+	/*
+	 * Initial population of modelled functions.
+	 */
+	void populate_modelled_functions();
 };
 
 

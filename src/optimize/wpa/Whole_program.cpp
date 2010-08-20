@@ -110,6 +110,9 @@ Whole_program::Whole_program (Pass_manager* pm)
 void
 Whole_program::run (MIR::PHP_script* in)
 {
+	// Modelled PHP builtin functions.
+	populate_modelled_functions();
+
 	// Represents __MAIN__'s caller
 	Basic_block* outer_bb = new Empty_block (NULL);
 	Context* outer_cx = Context::outer (outer_bb);
@@ -702,6 +705,293 @@ Whole_program::analyse_summary (Summary_method_info* info, Context* caller_cx, A
 	backward_bind (info, exit_cx, lhs);
 }
 
+void
+Whole_program::populate_modelled_functions()
+{
+/* Define a macro to model the types of return values, and the parameters which
+ * may be coerced. */
+#define COERCE(...)															\
+	do																				\
+	{																				\
+		int __coerced_array[] = {-1, __VA_ARGS__};					\
+																					\
+		foreach (int __int, __coerced_array)							\
+			coercion_model[__name].push_back (__int);					\
+																					\
+		coercion_model[__name].pop_front (); /* get rid of -1	*/	\
+																					\
+	} while (0)
+
+// There's a nice trick that I want () to be the empty set, so that's why I
+// have COERCE as well.
+#define MODEL(NAME, COERCED, ...)	\
+	do																				\
+	{																				\
+		string __name = #NAME;												\
+		modelled_functions.insert (__name);								\
+																					\
+		COERCE COERCED; /* We want () to be the empty set. */		\
+																					\
+		Types* __types  = new Types (__VA_ARGS__);					\
+		if (__types->size ())												\
+			type_model[__name] = __types;									\
+	} while (0)
+
+
+	MODEL (abs, (0), "int", "real");
+	MODEL (addslashes, (0), "string");
+	MODEL (array_key_exists, (), "bool");
+	MODEL (assert, (), "bool");
+	MODEL (base64_decode, (0), "string", "bool");
+	MODEL (base64_encode, (0), "string");
+	MODEL (basename, (0, 1), "string");
+	MODEL (bcadd, (0, 1), "string");
+	MODEL (bccomp, (0, 1), "int");
+	MODEL (bcdiv, (0, 1), "string");
+	MODEL (bcmod, (0, 1), "string");
+	MODEL (bcmul, (0, 1), "string");
+	MODEL (bcscale, (), "int");
+	MODEL (bcsqrt, (0), "string", "unset");
+	MODEL (bcsub, (0, 1), "string");
+	MODEL (bin2hex, (0), "string");
+	MODEL (ceil, (), "real");
+	MODEL (chdir, (0), "bool");
+	MODEL (chmod, (0), "bool");
+	MODEL (chop, (0, 1), "string");
+	MODEL (chr, (), "string");
+	MODEL (chunk_split, (0, 2), "string");
+	MODEL (class_exists, (0), "bool"); // FIXME: We can do better.
+	MODEL (clearstatcache, (1));
+	MODEL (closedir, ());
+	MODEL (copy, (0, 1), "bool");
+	MODEL (cos, (), "real");
+	MODEL (count, (), "int");
+	MODEL (convert_uuencode, (0), "string");
+	MODEL (crc32, (0), "int");
+	MODEL (crypt, (0, 1), "string");
+	MODEL (ctype_alnum, (0), "bool");
+	MODEL (date, (0), "string", "bool");
+	MODEL (date_default_timezone_set, (0), "bool");
+	MODEL (debug_backtrace, ());
+	MODEL (debug_zval_dump, ());
+	MODEL (dechex, (), "string");
+	MODEL (defined, (0), "bool");
+	MODEL (dirname, (0), "string");
+	MODEL (doubleval, (0), "float");
+	MODEL (ereg_replace, (0, 1, 2), "string");	
+	MODEL (eregi_replace, (0, 1, 2), "string");
+	MODEL (error_reporting, ());
+	MODEL (error_reporting, (), "int");
+	MODEL (escapeshellcmd, (0), "string");
+	MODEL (extension_loaded, (0), "bool");
+	MODEL (fclose, (), "bool");
+	MODEL (feof, (), "bool");
+	MODEL (fflush, (), "bool");
+	MODEL (fgets, (), "bool", "string");
+	MODEL (fileatime, (0), "int", "bool");
+	MODEL (file_exists, (0), "bool");
+	MODEL (file_get_contents, (0), "string", "bool");
+	MODEL (filemtime, (0), "int", "bool");
+	MODEL (fileowner, (0), "int", "bool");
+	MODEL (fileperms, (0), "int");
+	MODEL (file_put_contents, (0), "int", "bool");
+	MODEL (filesize, (0), "int");
+	MODEL (floor, (), "real");
+	MODEL (flush, ());
+	MODEL (fmod, (), "real");
+	MODEL (fopen, (0, 1), "resource");
+	MODEL (fputs, (1), "int", "bool");
+	MODEL (fread, (), "string", "bool");
+	MODEL (fsockopen, (0, 3), "resource", "bool");
+	MODEL (function_exists, (0), "bool");
+	MODEL (fwrite, (1), "int", "bool");
+	MODEL (get_cfg_var, (0), "string");
+	MODEL (get_class, (), "string", "false");
+	MODEL (getcwd, (), "string");
+	MODEL (get_hostbyname, (0), "string");
+	MODEL (get_magic_quotes_gpc, (), "int");
+	MODEL (get_magic_quotes_runtime, (), "int");
+	MODEL (getmypid, (), "int", "bool");
+	MODEL (get_parent_class, (), "string" ,"bool");
+	MODEL (getenv, (0), "string", "bool");
+	MODEL (getrandmax, (), "int");
+	MODEL (gettype, (), "string");
+	MODEL (gmdate, (0), "string");
+	MODEL (header, (0));
+	MODEL (hexdec, (0), "int", "real");
+	MODEL (highlight_string, (0), "string", "bool");
+	MODEL (html_entity_decode, (0, 2), "string");
+	MODEL (htmlentities, (0, 2), "string");
+	MODEL (htmlspecialchars, (0, 2), "string");
+	MODEL (ignore_user_abort, (0), "int");
+	MODEL (imagecolorallocate, (), "resource", "bool");
+	MODEL (imagecopyresampled, (), "bool");
+	MODEL (imagecreatefromgif, (0), "resource");
+	MODEL (imagecreatefrompng, (0), "resource");
+	MODEL (imagecreatefromwbmp, (0), "resource");
+	MODEL (imagecreate, (), "resource");
+	MODEL (imagecreatetruecolor, (), "resource");
+	MODEL (imagedestroy, (), "bool");
+	MODEL (imagefill, (), "bool");
+	MODEL (imagefontcreate, (), "resource");
+	MODEL (imagefontheight, (), "int");
+	MODEL (imagefontwidth, (), "int");
+	MODEL (imagegif, (1), "bool");
+	MODEL (imageline, (), "bool");
+	MODEL (imagepng, (1), "bool");
+	MODEL (imagestring, (4), "bool");
+	MODEL (imagesx, (), "int");
+	MODEL (imagesy, (), "int");
+	MODEL (imagetypes, (), "int");
+	MODEL (imagewbmp, (1), "bool");
+	MODEL (implode, (0), "string"); // um, this takes parameters in either order
+	MODEL (in_array, (), "bool");
+	MODEL (ini_get, (), "string");
+	MODEL (ini_set, (0, 1), "string");
+	MODEL (intval, (), "int");
+	MODEL (ip2long, (0), "int", "bool");
+	MODEL (is_callable, (3), "bool"); // FIXME: Should be a special case.
+	MODEL (is_dir, (0), "bool");
+	MODEL (is_executable, (0), "bool");
+	MODEL (is_file, (0), "bool");
+	MODEL (is_infinite, (), "bool");
+	MODEL (is_readable, (0), "bool");
+	MODEL (is_writable, (0), "bool");
+	MODEL (is_writeable, (0), "bool");
+	MODEL (join, (0), "string"); // alias of implode
+	MODEL (key, (), "int", "string");
+	MODEL (log, (), "float");
+	MODEL (ltrim, (0, 1), "string");
+	MODEL (mail, (0, 1, 2, 3, 4), "bool");
+	MODEL (md5, (0), "string");
+	MODEL (method_exists, (1), "bool");
+	MODEL (microtime, (), "string", "real");
+	MODEL (mime_content_type, (0), "string");
+	MODEL (mkdir, (0), "bool");
+	MODEL (mktime, (), "int");
+	MODEL (move_uploaded_file, (0, 1), "bool");
+	MODEL (mt_rand, (), "int");
+	MODEL (mysql_affected_rows, (), "int");
+	MODEL (mysql_close, (), "bool");
+	MODEL (mysql_connect, (0, 1, 2), "resource", "bool");
+	MODEL (mysql_data_seek, (), "bool");
+	MODEL (mysql_errno, (), "int");
+	MODEL (mysql_error, (), "string");
+	MODEL (mysql_field_name, (), "string", "bool");
+	MODEL (mysql_field_type, (), "string");
+	MODEL (mysql_get_server_info, (), "string", "bool");
+	MODEL (mysql_insert_id, (), "int", "bool");
+	MODEL (mysql_num_fields, (), "int", "bool");
+	MODEL (mysql_num_rows, (), "int", "bool");
+	MODEL (mysql_pconnect, (0, 1, 2), "resource", "bool");
+	MODEL (mysql_query, (0), "resource", "bool");
+	MODEL (mysql_real_escape_string, (0), "string", "bool");
+	MODEL (mysql_result, (), "string", "bool");
+	MODEL (mysql_select_db, (0), "bool");
+	MODEL (nl2br, (0), "string");
+	MODEL (number_format, (2, 3), "string");
+	MODEL (ob_get_contents, (), "string", "bool");
+	MODEL (ob_get_level, (0), "int");
+	MODEL (ob_end_clean, (0), "bool");
+	MODEL (ob_end_flush, (), "bool");
+	MODEL (opendir, (0), "resource");
+	MODEL (ord, (0), "int");
+	MODEL (passthru, (0));
+	MODEL (phpinfo, (), "bool");
+	MODEL (php_uname, (0), "string");
+	MODEL (phpversion, (0), "string", "bool");
+	MODEL (posix_kill, (), "bool");
+	MODEL (pow, (), "int", "real", "bool");
+	MODEL (preg_quote, (0, 1), "string");
+	MODEL (printf, (0), "int");
+	MODEL (proc_close, (), "int");
+	MODEL (proc_open, (0, 3), "resource");
+	MODEL (proc_terminate, (), "bool");
+	MODEL (quotemeta, (0), "string");
+	MODEL (rand, (), "int");
+	MODEL (readdir, (), "string", "bool");
+	MODEL (readfile, (0), "int", "bool");
+	MODEL (rmdir, (0), "bool");
+	MODEL (round, (), "real");
+	MODEL (rtrim, (0, 1), "string");
+	MODEL (session_destroy, (), "bool");
+	MODEL (session_id, (0), "string");
+	MODEL (session_is_registered, (0), "bool");
+	MODEL (session_name, (0), "string");
+	MODEL (session_regenerate_id, (), "bool");
+	MODEL (session_start, (), "bool");
+	MODEL (session_write_close, ());
+	MODEL (set_magic_quotes_runtime, (), "bool");
+	MODEL (set_time_limit, ());
+	MODEL (setcookie, (0, 1, 3, 4), "bool");
+	MODEL (shell_exec, (0), "string");
+	MODEL (shuffle, (), "bool");
+	MODEL (sin, (), "real");
+	MODEL (sizeof, (), "int");
+	MODEL (sleep, (), "int", "bool");
+	MODEL (sort, (), "bool");
+	MODEL (sprintf, (0), "string");
+	MODEL (sqlite_busy_timeout, ());
+	MODEL (sqlite_changes, (), "int");
+	MODEL (sqlite_error_string, (), "string");
+	MODEL (sqlite_escape_string, (0), "string");
+	MODEL (sqlite_last_error, (), "int");
+	MODEL (sqlite_last_insert_rowid, (), "int");
+	MODEL (sqlite_libencoding, (), "string");
+	MODEL (sqlite_libversion, (), "string");
+	MODEL (sqlite_num_rows, (), "int");
+	MODEL (sqlite_open, (0, 2), "resource", "bool");
+	MODEL (sqlite_popen, (0, 2), "resource", "bool");
+	MODEL (sqlite_query, (1, 3), "resource", "bool");
+	MODEL (sqlite_seek, (), "bool");
+	MODEL (sqlite_udf_decode_binary, (0), "string");
+	MODEL (sqlite_udf_encode_binary, (0), "string");
+	MODEL (sqlite_unbuffered_query, (1, 3), "resource", "bool");
+	MODEL (sqrt, (), "real");
+	MODEL (srand, ());
+	MODEL (strchr, (0), "string");
+	MODEL (strcmp, (0), "int");
+	MODEL (stream_get_contents, (), "string", "false");
+	MODEL (stream_set_blocking, (), "bool");
+	MODEL (strftime, (0), "string");
+	MODEL (stripslashes, (0), "string");
+	MODEL (strip_tags, (0, 1), "string");
+	MODEL (stristr, (0), "string");
+	MODEL (strlen, (0), "int");
+	MODEL (str_pad, (0, 2), "string");
+	MODEL (strpos, (0, 1), "int", "bool");
+	MODEL (str_repeat, (0), "string");
+	MODEL (strrchr, (0), "string", "bool");
+	MODEL (strrev, (0), "string");
+	MODEL (strstr, (0), "string");
+	MODEL (strtolower, (0), "string");
+	MODEL (strtotime, (0), "int", "bool");
+	MODEL (strtoupper, (0), "string");
+	MODEL (strtr, (0, 1, 2), "string");
+	MODEL (strval, (0), "string");
+	MODEL (substr, (0), "string", "bool");
+	MODEL (substr_count, (0, 1), "int");
+	MODEL (symlink, (0, 1), "bool");
+	MODEL (sys_get_temp_dir, (), "string");
+	MODEL (tempnam, (0, 1), "string");
+	MODEL (time, (), "int");
+	MODEL (trim, (0, 1), "string");
+	MODEL (ucfirst, (0), "string");
+	MODEL (uniqid, (0), "string");
+	MODEL (unlink, (0), "bool");
+	MODEL (urldecode, (0), "string");
+	MODEL (urlencode, (0), "string");
+	MODEL (usleep, ());
+	MODEL (var_dump, ());
+	MODEL (version_compare, (0, 1, 2), "bool", "int");
+	MODEL (wordwrap, (0, 2), "string");
+	MODEL (zend_version, (), "string");
+
+
+#undef MODEL
+#undef COERCE
+}
+
 // BB is the block representing the whole method
 void
 Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, Context* caller_cx)
@@ -788,276 +1078,6 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 			}
 		}
 	}
-
-	/*
-	 * Model straightforward functions
-	 */
-
-	Set<string> modelled_functions;
-	Map<string, List<int> > coercion_model;
-	Map<string, Types*> type_model;
-
-/* Define a macro to model the types of return values, and the parameters which
- * may be coerced. */
-#define COERCE(...)															\
-	do																				\
-	{																				\
-		int __coerced_array[] = {-1, __VA_ARGS__};					\
-																					\
-		foreach (int __int, __coerced_array)							\
-			coercion_model[__name].push_back (__int);					\
-																					\
-		coercion_model[__name].pop_front (); /* get rid of -1	*/	\
-																					\
-	} while (0)
-
-// There's a nice trick that I want () to be the empty set, so that's why I
-// have COERCE as well.
-#define MODEL(NAME, COERCED, ...)	\
-	do																				\
-	{																				\
-		string __name = #NAME;												\
-		modelled_functions.insert (__name);								\
-																					\
-		COERCE COERCED; /* We want () to be the empty set. */		\
-																					\
-		Types* __types  = new Types (__VA_ARGS__);					\
-		if (__types->size ())												\
-			type_model[__name] = __types;									\
-	} while (0)
-
-
-	MODEL (abs, (0), "int", "real");
-	MODEL (add_slashes, (0), "string");
-	MODEL (array_key_exists, (), "bool");
-	MODEL (assert, (), "bool");
-	MODEL (base64_decode, (0), "string", "bool");
-	MODEL (base64_encode, (0), "string");
-	MODEL (basename, (0, 1), "string");
-	MODEL (bcadd, (0, 1), "string");
-	MODEL (bccomp, (0, 1), "int");
-	MODEL (bcdiv, (0, 1), "string");
-	MODEL (bcmod, (0, 1), "string");
-	MODEL (bcmul, (0, 1), "string");
-	MODEL (bcscale, (), "int");
-	MODEL (bcsqrt, (0), "string", "unset");
-	MODEL (bcsub, (0, 1), "string");
-	MODEL (ceil, (), "real");
-	MODEL (chdir, (0), "bool");
-	MODEL (chmod, (0), "bool");
-	MODEL (chop, (0, 1), "string");
-	MODEL (chr, (), "string");
-	MODEL (chunk_split, (0, 2), "string");
-	MODEL (clearstatcache, (1));
-	MODEL (closedir, ());
-	MODEL (copy, (0, 1), "bool");
-	MODEL (cos, (), "real");
-	MODEL (count, (), "int");
-	MODEL (date, (0), "string", "bool");
-	MODEL (date_default_timezone_set, (0), "bool");
-	MODEL (debug_backtrace, ());
-	MODEL (debug_zval_dump, ());
-	MODEL (dechex, (), "string");
-	MODEL (defined, (0), "bool");
-	MODEL (dirname, (0), "string");
-	MODEL (doubleval, (0), "float");
-	MODEL (ereg_replace, (0, 1, 2), "string");	
-	MODEL (eregi_replace, (0, 1, 2), "string");
-	MODEL (error_reporting, ());
-	MODEL (error_reporting, (), "int");
-	MODEL (escapeshellcmd, (0), "string");
-	MODEL (extension_loaded, (0), "bool");
-	MODEL (fclose, (), "bool");
-	MODEL (feof, (), "bool");
-	MODEL (fflush, (), "bool");
-	MODEL (fgets, (), "bool", "string");
-	MODEL (fileatime, (0), "int", "bool");
-	MODEL (file_exists, (0), "bool");
-	MODEL (file_get_contents, (0), "string", "bool");
-	MODEL (filemtime, (0), "int", "bool");
-	MODEL (fileowner, (0), "int", "bool");
-	MODEL (fileperms, (0), "int");
-	MODEL (file_put_contents, (0), "int", "bool");
-	MODEL (filesize, (0), "int");
-	MODEL (floor, (), "real");
-	MODEL (flush, ());
-	MODEL (fmod, (), "real");
-	MODEL (fopen, (0, 1), "resource");
-	MODEL (fputs, (1), "int", "bool");
-	MODEL (fread, (), "string", "bool");
-	MODEL (fsockopen, (0, 3), "resource", "bool");
-	MODEL (function_exists, (0), "bool");
-	MODEL (fwrite, (1), "int", "bool");
-	MODEL (get_cfg_var, (0), "string");
-	MODEL (get_class, (), "string", "false");
-	MODEL (getcwd, (), "string");
-	MODEL (get_hostbyname, (0), "string");
-	MODEL (get_magic_quotes_gpc, (), "int");
-	MODEL (get_magic_quotes_runtime, (), "int");
-	MODEL (getmypid, (), "int", "bool");
-	MODEL (get_parent_class, (), "string" ,"bool");
-	MODEL (getenv, (0), "string", "bool");
-	MODEL (getrandmax, (), "int");
-	MODEL (gettype, (), "string");
-	MODEL (gmdate, (0), "string");
-	MODEL (header, (0));
-	MODEL (hexdec, (0), "int", "real");
-	MODEL (htmlentities, (0, 2), "string");
-	MODEL (htmlspecialchars, (0, 2), "string");
-	MODEL (imagecolorallocate, (), "resource", "bool");
-	MODEL (imagecopyresampled, (), "bool");
-	MODEL (imagecreatefromgif, (0), "resource");
-	MODEL (imagecreatefrompng, (0), "resource");
-	MODEL (imagecreatefromwbmp, (0), "resource");
-	MODEL (imagecreate, (), "resource");
-	MODEL (imagecreatetruecolor, (), "resource");
-	MODEL (imagedestroy, (), "bool");
-	MODEL (imagefill, (), "bool");
-	MODEL (imagefontcreate, (), "resource");
-	MODEL (imagefontheight, (), "int");
-	MODEL (imagefontwidth, (), "int");
-	MODEL (imagegif, (1), "bool");
-	MODEL (imageline, (), "bool");
-	MODEL (imagepng, (1), "bool");
-	MODEL (imagestring, (4), "bool");
-	MODEL (imagesx, (), "int");
-	MODEL (imagesy, (), "int");
-	MODEL (imagetypes, (), "int");
-	MODEL (imagewbmp, (1), "bool");
-	MODEL (implode, (0), "string"); // um, this takes parameters in either order
-	MODEL (in_array, (), "bool");
-	MODEL (ini_get, (), "string");
-	MODEL (ini_set, (0, 1), "string");
-	MODEL (intval, (), "int");
-	MODEL (ip2long, (0), "int", "bool");
-	MODEL (is_dir, (0), "bool");
-	MODEL (is_executable, (0), "bool");
-	MODEL (is_file, (0), "bool");
-	MODEL (is_infinite, (), "bool");
-	MODEL (is_readable, (0), "bool");
-	MODEL (is_writable, (0), "bool");
-	MODEL (is_writeable, (0), "bool");
-	MODEL (join, (0), "string"); // alias of implode
-	MODEL (key, (), "int", "string");
-	MODEL (log, (), "float");
-	MODEL (ltrim, (0, 1), "string");
-	MODEL (mail, (0, 1, 2, 3, 4), "bool");
-	MODEL (md5, (0), "string");
-	MODEL (method_exists, (1), "bool");
-	MODEL (microtime, (), "string", "real");
-	MODEL (mkdir, (0), "bool");
-	MODEL (mktime, (), "int");
-	MODEL (move_uploaded_file, (0, 1), "bool");
-	MODEL (mt_rand, (), "int");
-	MODEL (mysql_affected_rows, (), "int");
-	MODEL (mysql_close, (), "bool");
-	MODEL (mysql_connect, (0, 1, 2), "resource", "bool");
-	MODEL (mysql_data_seek, (), "bool");
-	MODEL (mysql_errno, (), "int");
-	MODEL (mysql_error, (), "string");
-	MODEL (mysql_field_name, (), "string", "bool");
-	MODEL (mysql_field_type, (), "string");
-	MODEL (mysql_insert_id, (), "int", "bool");
-	MODEL (mysql_num_fields, (), "int", "bool");
-	MODEL (mysql_num_rows, (), "int", "bool");
-	MODEL (mysql_pconnect, (0, 1, 2), "resource", "bool");
-	MODEL (mysql_query, (0), "resource", "bool");
-	MODEL (mysql_real_escape_string, (0), "string", "bool");
-	MODEL (mysql_result, (), "string", "bool");
-	MODEL (mysql_select_db, (0), "bool");
-	MODEL (number_format, (2, 3), "string");
-	MODEL (ob_end_clean, (0), "bool");
-	MODEL (ob_end_flush, (), "bool");
-	MODEL (opendir, (0), "resource");
-	MODEL (ord, (0), "int");
-	MODEL (passthru, (0));
-	MODEL (phpinfo, (), "bool");
-	MODEL (php_uname, (0), "string");
-	MODEL (phpversion, (0), "string", "bool");
-	MODEL (posix_kill, (), "bool");
-	MODEL (pow, (), "int", "real", "bool");
-	MODEL (preg_quote, (0, 1), "string");
-	MODEL (printf, (0), "int");
-	MODEL (proc_close, (), "int");
-	MODEL (proc_open, (0, 3), "resource");
-	MODEL (proc_terminate, (), "bool");
-	MODEL (rand, (), "int");
-	MODEL (readdir, (), "string", "bool");
-	MODEL (readfile, (0), "int", "bool");
-	MODEL (rmdir, (0), "bool");
-	MODEL (round, (), "real");
-	MODEL (rtrim, (0, 1), "string");
-	MODEL (session_destroy, (), "bool");
-	MODEL (session_id, (0), "string");
-	MODEL (session_is_registered, (0), "bool");
-	MODEL (session_name, (0), "string");
-	MODEL (session_start, (), "bool");
-	MODEL (set_magic_quotes_runtime, (), "bool");
-	MODEL (set_time_limit, ());
-	MODEL (setcookie, (0, 1, 3, 4), "bool");
-	MODEL (shell_exec, (0), "string");
-	MODEL (sin, (), "real");
-	MODEL (sizeof, (), "int");
-	MODEL (sleep, (), "int", "bool");
-	MODEL (sprintf, (0), "string");
-	MODEL (sqlite_busy_timeout, ());
-	MODEL (sqlite_changes, (), "int");
-	MODEL (sqlite_error_string, (), "string");
-	MODEL (sqlite_escape_string, (0), "string");
-	MODEL (sqlite_last_error, (), "int");
-	MODEL (sqlite_last_insert_rowid, (), "int");
-	MODEL (sqlite_libencoding, (), "string");
-	MODEL (sqlite_libversion, (), "string");
-	MODEL (sqlite_num_rows, (), "int");
-	MODEL (sqlite_open, (0, 2), "resource", "bool");
-	MODEL (sqlite_popen, (0, 2), "resource", "bool");
-	MODEL (sqlite_query, (1, 3), "resource", "bool");
-	MODEL (sqlite_seek, (), "bool");
-	MODEL (sqlite_udf_decode_binary, (0), "string");
-	MODEL (sqlite_udf_encode_binary, (0), "string");
-	MODEL (sqlite_unbuffered_query, (1, 3), "resource", "bool");
-	MODEL (sqrt, (), "real");
-	MODEL (srand, ());
-	MODEL (strchr, (0), "string");
-	MODEL (strcmp, (0), "int");
-	MODEL (stream_get_contents, (), "string", "false");
-	MODEL (stream_set_blocking, (), "bool");
-	MODEL (strftime, (0), "string");
-	MODEL (stripslashes, (0), "string");
-	MODEL (strip_tags, (0, 1), "string");
-	MODEL (stristr, (0), "string");
-	MODEL (strlen, (0), "int");
-	MODEL (str_pad, (0, 2), "string");
-	MODEL (strpos, (0, 1), "int", "bool");
-	MODEL (str_repeat, (0), "string");
-	MODEL (strrev, (0), "string");
-	MODEL (strstr, (0), "string");
-	MODEL (strtolower, (0), "string");
-	MODEL (strtotime, (0), "int", "bool");
-	MODEL (strtoupper, (0), "string");
-	MODEL (strtr, (0, 1, 2), "string");
-	MODEL (strval, (0), "string");
-	MODEL (substr, (0), "string", "bool");
-	MODEL (substr_count, (0, 1), "int");
-	MODEL (symlink, (0, 1), "bool");
-	MODEL (sys_get_temp_dir, (), "string");
-	MODEL (tempnam, (0, 1), "string");
-	MODEL (time, (), "int");
-	MODEL (trim, (0, 1), "string");
-	MODEL (ucfirst, (0), "string");
-	MODEL (uniqid, (0), "string");
-	MODEL (unlink, (0), "bool");
-	MODEL (urldecode, (0), "string");
-	MODEL (urlencode, (0), "string");
-	MODEL (usleep, ());
-	MODEL (var_dump, ());
-	MODEL (version_compare, (0, 1, 2), "bool", "int");
-	MODEL (wordwrap, (0, 2), "string");
-	MODEL (zend_version, (), "string");
-
-
-#undef MODEL
-#undef COERCE
 
 	// Handle all the simple cases
 	if (modelled_functions.has (*info->name))
@@ -1306,6 +1326,11 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		}
 	}
 
+	else if (*info->name == "glob")
+	{
+		assign_path_typed_array (cx, ret_path, new Types ("string"), ANON);
+	}
+
 	else if (*info->name == "is_array"
 			|| *info->name == "is_int"
 			|| *info->name == "is_integer"
@@ -1348,15 +1373,14 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 	{
 		const Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]);
 		Types* types = absval->types->clone ();
-		bool has_numeric = types->has ("int") || types->has ("real");
 		types->erase ("int");
 		types->erase ("real");
 
-		if (absval->types->size () == 0) // Must be numeric
+		if (types->size () == 0) // Must be numeric
 		{
 			assign_path_scalar (cx, ret_path, new BOOL (true));
 		}
-		else if (has_numeric == false) // cant be numeric
+		else if (!types->has("string")) // Can't be numeric since it's not a string.
 		{
 			assign_path_scalar (cx, ret_path, new BOOL (false));
 		}
@@ -1415,6 +1439,10 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		)
 	{
 		assign_path_typed_array (cx, ret_path, new Types ("string"), ANON);
+	}
+	else if (*info->name == "mysql_fetch_field") {
+		string obj = assign_path_empty_object (cx, ret_path, "stdClass", ANON);
+		assign_path_typed (cx, P (obj, UNKNOWN), new Types ("string"));
 	}
 	else if (*info->name == "mysql_fetch_object")
 	{
@@ -2666,6 +2694,10 @@ Whole_program::cast_value (Context* cx, const Index_node* lhs, const Index_node*
 	else if (type == "object")
 	{
 		cast_to_storage (cx, lhs, rhs, "stdClass");
+	}
+	else
+	{
+		phc_unreachable();
 	}
 }
 
