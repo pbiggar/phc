@@ -314,19 +314,38 @@ Whole_program::analyse_function (User_method_info* info, Context* caller_cx, MIR
 		// Merge results from predecessors
 		pull_results (target_cx, preds);
 
-
-
 		// Analyse the block, storing per-basic-block results.
 		// This does not update the block's structure.
 		bool changed = analyse_block (target_cx);
 
-
 		// Add next	block(s) if the result has changed, or if this the first
 		// time the edge could be executed.
-		foreach (Edge* next, *get_successors (target_cx))
-			if ((skip_after_die == false || wl.size () == 0) // we need to get results to the exit_block though.
-					&& (!wl.is_executable (next) || changed))
-				wl.add (next);
+		foreach (Edge* next, *get_successors (target_cx)) {
+			if (!wl.is_executable (next) || changed) {
+				Edge *edge = next;
+
+				// The exit block must be visited even with an instruction
+				// to terminate the exectuion (like die, exit...)
+				if (skip_after_die && wl.size () == 0) {
+					// If the successor block after die is the exit block
+					// do nothing. Otherwise, fix the cfg by connecting
+					// the basic block to this exit block.
+					if (!isa<Exit_block>(edge->get_target())) {
+						// TODO: We are modifying the cfg from the whole
+						// program analysis. Move this to somewhere else.
+
+						// Add the edge to the exit block.
+						edge = cfg->add_edge(target, cfg->get_exit_bb());
+
+						// Remove the old edge.
+						cfg->remove_edge (next);
+					}
+				}
+
+				// Put it in the worklist to be processed.
+				wl.add (edge);
+			}
+		}
 
 		skip_after_die = false;
 	}
