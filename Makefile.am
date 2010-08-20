@@ -536,10 +536,10 @@ strangeprocessir_HEADERS =						\
 
 strangepassmanagerdir = $(pkgincludedir)/pass_manager
 strangepassmanager_HEADERS =					\
+	src/pass_manager/Optimization_pass.h		\
 	src/pass_manager/Pass.h						\
 	src/pass_manager/Pass_manager.h			\
 	src/pass_manager/Plugin_pass.h
-
 
 
 strangelibdir = $(pkgincludedir)/lib
@@ -665,6 +665,10 @@ plugins_tools_remove_all_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 nobase_pkglib_LTLIBRARIES += plugins/tools/replace_include_constants.la
 plugins_tools_replace_include_constants_la_SOURCES = plugins/tools/replace_include_constants.cpp
 plugins_tools_replace_include_constants_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+
+nobase_pkglib_LTLIBRARIES += plugins/tools/test_ssi.la
+plugins_tools_test_ssi_la_SOURCES = plugins/tools/test_ssi.cpp
+plugins_tools_test_ssi_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
 nobase_pkglib_LTLIBRARIES += plugins/tutorials/Comment_ifs.la
 plugins_tutorials_Comment_ifs_la_SOURCES = plugins/tutorials/Comment_ifs.cpp

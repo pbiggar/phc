@@ -324,6 +324,14 @@ plugins_tools_replace_include_constants_la_LINK = $(LIBTOOL) --tag=CXX \
 	$(AM_CXXFLAGS) $(CXXFLAGS) \
 	$(plugins_tools_replace_include_constants_la_LDFLAGS) \
 	$(LDFLAGS) -o $@
+plugins_tools_test_ssi_la_LIBADD =
+am_plugins_tools_test_ssi_la_OBJECTS = test_ssi.lo
+plugins_tools_test_ssi_la_OBJECTS =  \
+	$(am_plugins_tools_test_ssi_la_OBJECTS)
+plugins_tools_test_ssi_la_LINK = $(LIBTOOL) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(AM_CXXFLAGS) $(CXXFLAGS) \
+	$(plugins_tools_test_ssi_la_LDFLAGS) $(LDFLAGS) -o $@
 plugins_tutorials_Comment_ifs_la_LIBADD =
 am_plugins_tutorials_Comment_ifs_la_OBJECTS = Comment_ifs.lo
 plugins_tutorials_Comment_ifs_la_OBJECTS =  \
@@ -447,6 +455,7 @@ SOURCES = $(libphc_la_SOURCES) \
 	$(plugins_tools_reduce_statements_la_SOURCES) \
 	$(plugins_tools_remove_all_la_SOURCES) \
 	$(plugins_tools_replace_include_constants_la_SOURCES) \
+	$(plugins_tools_test_ssi_la_SOURCES) \
 	$(plugins_tutorials_Comment_ifs_la_SOURCES) \
 	$(plugins_tutorials_Expand_includes_la_SOURCES) \
 	$(plugins_tutorials_InsertDB_la_SOURCES) \
@@ -477,6 +486,7 @@ DIST_SOURCES = $(libphc_la_SOURCES) \
 	$(plugins_tools_reduce_statements_la_SOURCES) \
 	$(plugins_tools_remove_all_la_SOURCES) \
 	$(plugins_tools_replace_include_constants_la_SOURCES) \
+	$(plugins_tools_test_ssi_la_SOURCES) \
 	$(plugins_tutorials_Comment_ifs_la_SOURCES) \
 	$(plugins_tutorials_Expand_includes_la_SOURCES) \
 	$(plugins_tutorials_InsertDB_la_SOURCES) \
@@ -1216,6 +1226,7 @@ strangeprocessir_HEADERS = \
 
 strangepassmanagerdir = $(pkgincludedir)/pass_manager
 strangepassmanager_HEADERS = \
+	src/pass_manager/Optimization_pass.h		\
 	src/pass_manager/Pass.h						\
 	src/pass_manager/Pass_manager.h			\
 	src/pass_manager/Plugin_pass.h
@@ -1271,7 +1282,7 @@ nobase_pkglib_LTLIBRARIES = plugins/tests/canonical_unparser.la \
 	plugins/tools/dynamic_things.la plugins/tools/get_defines.la \
 	plugins/tools/reduce_statements.la plugins/tools/remove_all.la \
 	plugins/tools/replace_include_constants.la \
-	plugins/tutorials/Comment_ifs.la \
+	plugins/tools/test_ssi.la plugins/tutorials/Comment_ifs.la \
 	plugins/tutorials/count_statements_difficult.la \
 	plugins/tutorials/count_statements_easy.la \
 	plugins/tutorials/Expand_includes.la \
@@ -1319,6 +1330,8 @@ plugins_tools_remove_all_la_SOURCES = plugins/tools/remove_all.cpp
 plugins_tools_remove_all_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tools_replace_include_constants_la_SOURCES = plugins/tools/replace_include_constants.cpp
 plugins_tools_replace_include_constants_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+plugins_tools_test_ssi_la_SOURCES = plugins/tools/test_ssi.cpp
+plugins_tools_test_ssi_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tutorials_Comment_ifs_la_SOURCES = plugins/tutorials/Comment_ifs.cpp
 plugins_tutorials_Comment_ifs_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tutorials_count_statements_difficult_la_SOURCES = plugins/tutorials/count_statements_difficult.cpp
@@ -1529,6 +1542,8 @@ plugins/tools/remove_all.la: $(plugins_tools_remove_all_la_OBJECTS) $(plugins_to
 	$(plugins_tools_remove_all_la_LINK) -rpath $(pkglibdir)/plugins/tools $(plugins_tools_remove_all_la_OBJECTS) $(plugins_tools_remove_all_la_LIBADD) $(LIBS)
 plugins/tools/replace_include_constants.la: $(plugins_tools_replace_include_constants_la_OBJECTS) $(plugins_tools_replace_include_constants_la_DEPENDENCIES) plugins/tools/$(am__dirstamp)
 	$(plugins_tools_replace_include_constants_la_LINK) -rpath $(pkglibdir)/plugins/tools $(plugins_tools_replace_include_constants_la_OBJECTS) $(plugins_tools_replace_include_constants_la_LIBADD) $(LIBS)
+plugins/tools/test_ssi.la: $(plugins_tools_test_ssi_la_OBJECTS) $(plugins_tools_test_ssi_la_DEPENDENCIES) plugins/tools/$(am__dirstamp)
+	$(plugins_tools_test_ssi_la_LINK) -rpath $(pkglibdir)/plugins/tools $(plugins_tools_test_ssi_la_OBJECTS) $(plugins_tools_test_ssi_la_LIBADD) $(LIBS)
 plugins/tutorials/$(am__dirstamp):
 	@$(MKDIR_P) plugins/tutorials
 	@: > plugins/tutorials/$(am__dirstamp)
@@ -1838,6 +1853,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/source_vs_semantic_values.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stats.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/strip_includes.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_ssi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/util.Plo@am__quote@
 
 .c.o:
@@ -2987,6 +3003,13 @@ replace_include_constants.lo: plugins/tools/replace_include_constants.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='plugins/tools/replace_include_constants.cpp' object='replace_include_constants.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o replace_include_constants.lo `test -f 'plugins/tools/replace_include_constants.cpp' || echo '$(srcdir)/'`plugins/tools/replace_include_constants.cpp
+
+test_ssi.lo: plugins/tools/test_ssi.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_ssi.lo -MD -MP -MF $(DEPDIR)/test_ssi.Tpo -c -o test_ssi.lo `test -f 'plugins/tools/test_ssi.cpp' || echo '$(srcdir)/'`plugins/tools/test_ssi.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/test_ssi.Tpo $(DEPDIR)/test_ssi.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='plugins/tools/test_ssi.cpp' object='test_ssi.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_ssi.lo `test -f 'plugins/tools/test_ssi.cpp' || echo '$(srcdir)/'`plugins/tools/test_ssi.cpp
 
 Comment_ifs.lo: plugins/tutorials/Comment_ifs.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Comment_ifs.lo -MD -MP -MF $(DEPDIR)/Comment_ifs.Tpo -c -o Comment_ifs.lo `test -f 'plugins/tutorials/Comment_ifs.cpp' || echo '$(srcdir)/'`plugins/tutorials/Comment_ifs.cpp
