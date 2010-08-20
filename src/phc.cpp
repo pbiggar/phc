@@ -78,6 +78,9 @@ void sighandler(int signum)
 		case SIGSEGV:
 			fprintf(stderr, "SIGSEGV received!\n");
 			break;
+		case SIGALRM:
+			fprintf(stderr, "SIGALRM received!\n");
+			break;
 		default:
 			fprintf(stderr, "Unknown signal received!\n");
 			break;
@@ -101,7 +104,6 @@ int main(int argc, char** argv)
 	/* 
 	 *	Startup
 	 */
-
 	IR::PHP_script* ir = NULL;
 
 	// Start the embedded interpreter
@@ -117,6 +119,7 @@ int main(int argc, char** argv)
 	// We do this so that tests will still continue if theres a seg fault
 	signal(SIGSEGV, sighandler);
 	signal(SIGABRT, sighandler);
+	signal(SIGALRM, sighandler);
 
 	// Parse command line parameters 
 	if(cmdline_parser(argc, argv, &args_info) != 0)
@@ -189,10 +192,10 @@ int main(int argc, char** argv)
 	// Optimization passes
 	pm->add_local_optimization_pass (new Fake_pass (s("wpa"), s("Whole-program analysis")));
 	pm->add_local_optimization_pass (new Fake_pass (s("cfg"), s("Initial Control-Flow Graph")));
-	pm->add_local_optimization_pass (new Fake_pass (s("build-ssa"), s("Create SSA form")));	
+	pm->add_local_optimization_pass (new Fake_pass (s("build-ssa-ssi"), s("Create SSA/SSI form")));
 	pm->add_local_optimization (new If_simplification (), s("ifsimple"), s("If-simplification"), true);
 	pm->add_local_optimization (new DCE (), s("dce"), s("Aggressive Dead-code elimination"), true);
-	pm->add_local_optimization_pass (new Fake_pass (s("drop-ssa"), s("Drop SSA form")));
+	pm->add_local_optimization_pass (new Fake_pass (s("drop-ssa-ssi"), s("Drop SSA/SSI form")));
 	pm->add_local_optimization (new Remove_loop_booleans (), s("rlb"), s("Remove loop-booleans"), false);
 
 	pm->add_ipa_optimization (new Inlining (), s("inlining"), s("Method inlining"), false);

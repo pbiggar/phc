@@ -341,9 +341,14 @@ CFG::get_graphviz_use (Basic_block* bb, SSA_name* use)
 	return s (ss.str ());
 }
  
-
 void
 CFG::dump_graphviz (String* label)
+{
+  dump_graphviz(label, std::cout);
+}
+
+void
+CFG::dump_graphviz (String* label, std::ostream &out)
 {
 	if (label == NULL) // for debugging
 	{
@@ -354,7 +359,7 @@ CFG::dump_graphviz (String* label)
 	}
 	renumber_vertex_indices ();
 
-	cout
+	out
 	<< "digraph G {\n"
 	<< "graph [outputorder=edgesfirst];\n"
 	<< "graph [labelloc=t];\n"
@@ -396,11 +401,37 @@ CFG::dump_graphviz (String* label)
 
 		block_info	
 		<< "(" << bb->ID << ") "
-		<< *escape_DOT_record (bb->get_graphviz_label ());
+		<< *escape_DOT_record (bb->get_graphviz_label ()) << "\\n";
+
+		// Print sigma functions.
+		if (duw) {
+			block_info << "\\n";
+
+			Set<SSA_name> *sigmas = duw->get_sigma_rhss(bb);
+			if (sigmas->size() > 0) {
+				foreach (SSA_name sigma, *sigmas) {
+					block_info << "sigma(";
+
+					bool first = true;
+					foreach (SSA_name *rhs, *duw->get_sigma_args(bb, sigma)) {
+						if (!first) {
+							block_info << ",";
+						}
+
+						first = false;
+						block_info << rhs->get_version();
+					}
+
+					block_info << ") = " << sigma.str() << "\\n";
+				}
+
+				block_info << "\\n";
+			}
+		}
 
 #define CFG_PENWIDTH "penwidth=\"2.0\""
 		
-		cout
+		out
 		<< index
 		<< " [shape="
 		<< (isa<Branch_block> (bb) ? "Mrecord" : "record") // branches are rounded
@@ -408,7 +439,7 @@ CFG::dump_graphviz (String* label)
 		<< CFG_PENWIDTH << ","
 		<< "label=\"{"; // arrange fields vertically
 
-		cout << "\\n" << block_info.str () << "\\n\\n";
+		out << "\\n" << block_info.str ();
 
 		// DUW nodes are fields in the BB
 		if (duw)
@@ -420,43 +451,46 @@ CFG::dump_graphviz (String* label)
 			if (defs->size() || uses->size () || may_defs->size ())
 			{
 				// open dual columns
-				cout << FIELD_SEPARATOR << "{ { ";
+				out << FIELD_SEPARATOR << "{ { ";
 				bool first = true;
-				foreach (SSA_name* def, *defs)
+
+				foreach (SSA_name* may_def, *may_defs)
 				{
-					cout
+					out
 					<< (first ? "" : FIELD_SEPARATOR) // no field separate
-					<< *get_graphviz_def (bb, def);
+					<< *get_graphviz_def (bb, may_def) << " (May Def)";
 
 					first = false;
 				}
-			
-				foreach (SSA_name* may_def, *may_defs)
+
+				foreach (SSA_name* def, *defs)
 				{
-					cout
+					out
 					<< (first ? "" : FIELD_SEPARATOR) // no field separate
-					<< *get_graphviz_def (bb, may_def) << " (May def)";
+					<< *get_graphviz_def (bb, def) << " (Def)";
+
+					first = false;
 				}
-			
+
 				// open second column
-				cout << " } " << FIELD_SEPARATOR <<  " { ";
+				out << " } " << FIELD_SEPARATOR <<  " { ";
 				first = true;
 				foreach (SSA_name* use, *uses)
 				{
-					cout
+					out
 					<< (first ? "" : FIELD_SEPARATOR)
-					<< *get_graphviz_use (bb, use);
+					<< *get_graphviz_use (bb, use) << " (Use)";
 
 					first = false;
 				}
 
 				// close dual columns
-				cout << " } } ";
+				out << " } } ";
 			}
 		}
 
 
-		cout << "}\"];\n";
+		out << "}\"];\n";
 
 		// DUW edges
 		//Currently messing up a bit, left it commented out for now
@@ -484,7 +518,7 @@ CFG::dump_graphviz (String* label)
 	// Edges
 	foreach (Edge* edge, *get_all_edges ())
 	{
-		cout
+		out
 		<< edge->get_source()->get_index() 
 		<< " -> "
 		<< edge->get_target()->get_index ()
@@ -494,15 +528,15 @@ CFG::dump_graphviz (String* label)
 		if (! indeterminate (edge->direction))
 		{
 			if (edge->direction)
-				cout << "label=T";
+				out << "label=T";
 			else
-				cout << "label=F";
+				out << "label=F";
 		}
 
-		cout << "];\n";
+		out << "];\n";
 	}
 
-	cout << "}\n\n";
+	out << "}\n\n";
 }
 
 /* Error checking */
@@ -528,6 +562,12 @@ CFG::consistency_check ()
 				bb->get_phi_arg_for_edge (pred, phi_lhs);
 		}
 
+		// Check sigma nodes.
+		foreach (SSA_name sigma_rhs, *bb->get_sigma_rhss ()) {
+			assert (bb->get_sigma_args(sigma_rhs)->size () == 2);
+			foreach (Edge *succ, *bb->get_successor_edges())
+				bb->get_sigma_arg_for_edge(succ, sigma_rhs);
+		}
 	}
 
 	foreach (edge_t e, edges (bs))

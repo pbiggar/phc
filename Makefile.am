@@ -241,6 +241,12 @@ libphc_la_SOURCES= 											\
 	src/optimize/ssa/SSA_name.h							\
 	src/optimize/ssa/SSA_ops.cpp							\
 	src/optimize/ssa/SSA_ops.h								\
+	src/optimize/ssi/Sigma.cpp								\
+	src/optimize/ssi/Sigma.h								\
+	src/optimize/ssi/SSI.cpp								\
+	src/optimize/ssi/SSI.h								\
+	src/optimize/ssi/SSI_ops.cpp								\
+	src/optimize/ssi/SSI_ops.h								\
 	src/optimize/Visit_once.cpp							\
 	src/optimize/Visit_once.h								\
 	src/optimize/wpa/Aliasing.cpp							\
@@ -468,6 +474,12 @@ strangeoptimizessa_HEADERS =					\
 	src/optimize/ssa/Phi.h		\
 	src/optimize/ssa/SSA_name.h		\
 	src/optimize/ssa/SSA_ops.h
+
+strangeoptimizessidir = $(pkgincludedir)/optimize/ssi
+strangeoptimizessi_HEADERS =					\
+	src/optimize/ssi/Sigma.h		\
+	src/optimize/ssi/SSI.h		\
+	src/optimize/ssi/SSI_ops.h
 
 strangeoptimizewpadir = $(pkgincludedir)/optimize/wpa
 strangeoptimizewpa_HEADERS =					\

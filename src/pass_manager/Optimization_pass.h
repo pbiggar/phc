@@ -19,8 +19,9 @@ class Optimization_pass : public Pass
 	CFG_visitor* visitor;
 public:
 	bool require_ssa;
+	bool require_ssi;
 
-	Optimization_pass (CFG_visitor* v, String* name, String* description, bool require_ssa);
+	Optimization_pass (CFG_visitor* v, String* name, String* description, bool require_ssa = false, bool require_ssi = false);
 	void run (CFG* in, Pass_manager* pm);
 	void run (IR::PHP_script* in, Pass_manager* pm);
 

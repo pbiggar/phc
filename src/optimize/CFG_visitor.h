@@ -17,7 +17,7 @@
 
 #include "Basic_block.h"
 #include "CFG.h"
-#include "ssa/Phi.h"
+#include "ssa/SSA_name.h"
 
 class CFG_visitor : virtual public GC_obj
 {
@@ -63,6 +63,12 @@ public:
 	 */
 
 	virtual void visit_phi_node (Basic_block* bb, SSA_name lhs);
+
+	/*
+	 * Sigma visitor - Override in clients.
+	 * Automatically called for each block.
+	 */
+	virtual void visit_sigma_node (Branch_block* brb, SSA_name rhs);
 
 	/*
 	 * Statement visitors - Override in clients.

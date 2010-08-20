@@ -438,28 +438,23 @@ Stat_collector::get_number_of_statements (CFG* cfg, string beforeafter)
 void 
 Stat_collector::collect_def_use_stats (CFG* cfg)
 {
-	bool createdcfg = false;
-	if (!cfg->duw)
-	{
-		createdcfg = true;
-		HSSA* hssa = new HSSA(wp, cfg);	
-		hssa->convert_to_hssa_form ();
-	}
-
 	int starred, unstarred;
-	Def_use* du = cfg->duw->get_def_use ();
-	
+
+	Def_use* du = wp->def_use;
+	if (cfg->duw)
+		du = cfg->duw->get_def_use ();
+
 	starred = du->get_num_vals (cfg, DEF, false);
 	unstarred = du->get_num_refs (cfg, DEF, false);
 	set_stat ("starred_defs", starred);
-	set_stat ("unstarred_defs",unstarred);
+	set_stat ("unstarred_defs", unstarred);
 	set_stat ("defs", starred + unstarred);
 
  	starred = du->get_num_vals (cfg, USE, false);
 	unstarred = du->get_num_refs (cfg, USE, false);
 	set_stat ("starred_uses", starred);
 	set_stat ("unstarred_uses", unstarred);
-	set_stat ("uses",starred + unstarred);
+	set_stat ("uses", starred + unstarred);
 
 	starred = du->get_num_vals (cfg, MAYDEF, false);
 	unstarred = du->get_num_refs (cfg, MAYDEF, false);
@@ -479,8 +474,6 @@ Stat_collector::collect_def_use_stats (CFG* cfg)
 			}
 		}
 	}
-	if (createdcfg)
-		cfg->duw = NULL;
 }
 
 void

@@ -29,8 +29,12 @@ CFG_visitor::visit_block (Basic_block* bb)
 	else if (Exit_block* eb = dynamic_cast<Exit_block*> (bb))
 		visit_exit_block (eb);
 
-	else if (Branch_block* brb = dynamic_cast<Branch_block*> (bb))
+	else if (Branch_block* brb = dynamic_cast<Branch_block*> (bb)) {
 		visit_branch_block (brb);
+
+		foreach (SSA_name sigma_rhs, *bb->get_sigma_rhss())
+			visit_sigma_node(brb, sigma_rhs);
+	}
 
 	else if (Statement_block* sb = dynamic_cast<Statement_block*> (bb))
 	{
@@ -145,6 +149,10 @@ CFG_visitor::visit_phi_node (Basic_block* bb, SSA_name phi_lhs)
 {
 }
 
+void
+CFG_visitor::visit_sigma_node (Branch_block* brb, SSA_name sigma_rhs)
+{
+}
 
 
 

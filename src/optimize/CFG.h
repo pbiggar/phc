@@ -237,6 +237,7 @@ public:
 	 */
 
 	void dump_graphviz (String* label);
+	void dump_graphviz (String* label, std::ostream &out);
 	String_list* get_graphviz_phis (Basic_block* bb);
 	String_list* get_graphviz_chis (Basic_block* bb);
 	String* get_graphviz_def (Basic_block* bb, SSA_name* def);

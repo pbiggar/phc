@@ -30,6 +30,7 @@
 #include "optimize/CFG.h"
 #include "optimize/Def_use_web.h"
 #include "optimize/ssa/HSSA.h"
+#include "optimize/ssi/SSI.h"
 #include "optimize/wpa/Whole_program.h"
 
 #include "lib/error.h"
@@ -133,9 +134,9 @@ void Pass_manager::add_after_each_mir_pass (Pass* pass)
 
 
 // Optimization
-void Pass_manager::add_local_optimization (CFG_visitor* v, String* name, String* description, bool require_ssa)
+void Pass_manager::add_local_optimization (CFG_visitor* v, String* name, String* description, bool require_ssa, bool require_ssi)
 {
-	Pass* pass = new Optimization_pass (v, name, description, require_ssa);
+	Pass* pass = new Optimization_pass (v, name, description, require_ssa, require_ssi);
 	add_pass (pass, opt_queue);
 }
 
@@ -144,9 +145,9 @@ void Pass_manager::add_local_optimization_pass (Pass* pass)
 	add_pass (pass, opt_queue);
 }
 
-void Pass_manager::add_ipa_optimization (CFG_visitor* v, String* name, String* description, bool require_ssa)
+void Pass_manager::add_ipa_optimization (CFG_visitor* v, String* name, String* description, bool require_ssa, bool require_ssi)
 {
-	Pass* pass = new Optimization_pass (v, name, description, require_ssa);
+	Pass* pass = new Optimization_pass (v, name, description, require_ssa, require_ssi);
 	add_pass (pass, ipa_queue);
 }
 
@@ -723,15 +724,21 @@ Pass_manager::run_optimization_pass (Pass* pass, Whole_program* wp, CFG* cfg)
 	// If an optimization pass sees something it cant handle, it throws an
 	// exception, and we skip optimizing the function.
 
-	maybe_enable_debug (s("build-ssa"));
-	HSSA* hssa;
-	if (opt->require_ssa)
+	maybe_enable_debug (s("build-ssa-ssi"));
+
+	HSSA *hssa = NULL;
+	if (opt->require_ssa || opt->require_ssi)
 	{
-		// Convert to SSA form
-		hssa = new HSSA (wp, cfg);
+		// Convert to SSA/SSI form
+		if (opt->require_ssi)
+			hssa = new SSI(wp, cfg);
+		else
+			hssa = new HSSA(wp, cfg);
+
 		hssa->convert_to_hssa_form ();
+
 		cfg->clean ();
-		cfg_dump (cfg, pass->name, s("In SSA (cleaned)"));
+		cfg_dump (cfg, pass->name, s("In SSA/SSI (cleaned)"));
 	}
 	else
 	{
@@ -747,13 +754,13 @@ Pass_manager::run_optimization_pass (Pass* pass, Whole_program* wp, CFG* cfg)
 	cfg->clean ();
 	cfg_dump (cfg, pass->name, s("After optimization (cleaned)"));
 
-	// Convert out of SSA
-	if (opt->require_ssa)
+	// Convert out of SSA/SSI
+	if (opt->require_ssa || opt->require_ssi)
 	{
-		maybe_enable_debug (s("drop-ssa"));
-		hssa->convert_out_of_ssa_form ();
+		maybe_enable_debug (s("drop-ssa-ssi"));
+		hssa->convert_out_of_hssa_form ();
 		cfg->clean ();
-		cfg_dump (cfg, pass->name, s("Out of SSA (cleaned)"));
+		cfg_dump (cfg, pass->name, s("Out of SSA/SSI (cleaned)"));
 	}
 	else
 	{
@@ -762,5 +769,3 @@ Pass_manager::run_optimization_pass (Pass* pass, Whole_program* wp, CFG* cfg)
 			cfg->duw = NULL;
 	}
 }
-
-

@@ -7,16 +7,20 @@
 #include "Visit_once.h"
 #include "ssa/SSA_name.h"
 #include "ssa/SSA_ops.h"
+#include "ssa/Phi.h"
+#include "ssi/Sigma.h"
 
 class CFG;
 class Def_use;
 class Points_to;
 
-#define SSA_BB			(1 << 0)
+#define SSA_BB		(1 << 0)
 #define SSA_PHI		(1 << 1)
 #define SSA_CHI		(1 << 2)
 #define SSA_ALL		(SSA_BB|SSA_PHI|SSA_CHI)
 
+#define SSI_SIGMA 	(1 << 3)
+#define SSI_ALL		(SSI_SIGMA|SSA_ALL)
 
 class Def_use_web : virtual public GC_obj
 {
@@ -27,6 +31,7 @@ public:
 
 	void dump ();
 	void ssa_consistency_check ();
+	void ssi_consistency_check ();
 
 private:
 
@@ -84,7 +89,33 @@ public:
 	SSA_name get_phi_arg_for_edge (Edge*, SSA_name phi_lhs);
 	void set_phi_arg_for_edge (Edge*, SSA_name phi_lhs, SSA_name arg);
 
+	Edge *get_edge_for_phi_arg(SSA_name arg);
 
+	/*
+	 * Sigma functions (or nodes)
+	 */
+public:
+	// For SSI creation/destruction
+	void add_sigma_node(Basic_block *bb, SSA_name sigma_rhs);
+	bool has_sigma_node(Basic_block *bb, SSA_name sigma_rhs);
+	void add_sigma_arg(Basic_block *bb, SSA_name sigma_rhs, int version, Edge *edge);
+	void remove_sigma_nodes(Basic_block *bb);
+
+	// These are stored using operator< in VARIABLE_NAME, which changes when
+	// there VARIABLE_NAME changes.
+	void update_sigma_node(Basic_block *bb, SSA_name old_sigma_rhs, SSA_name new_sigma_rhs);
+
+	// Remove a node (including its args from the edges)
+	void remove_sigma_node(Basic_block *bb, SSA_name sigma_rhs);
+
+	// Get the arguments with VARIABLE_NAME as the lhs.
+	SSA_name_list *get_sigma_args(Basic_block *bb, SSA_name sigma_rhs);
+	Set<SSA_name> *get_sigma_rhss (Basic_block *bb);
+
+	SSA_name get_sigma_arg_for_edge(Edge *, SSA_name sigma_rhs);
+	void set_sigma_arg_for_edge(Edge *, SSA_name sigma_rhs, SSA_name arg);
+
+	Edge *get_edge_for_sigma_arg(SSA_name arg);
 private:
 
 	Map<long, SSA_def_list> def_ops;
@@ -98,6 +129,11 @@ private:
 
 	// Store phi arguments by edge. Then they can be updated all-at-once.
 	Map<Edge*, Phi_map> phi_rhss;
+
+	// Dual for Sigma's. sigma->rhs will be indexed by edge and sigma->lhs by basic block id.
+	// Instead of an explicit phi node, store the phi->lhs here, mapped by BB.
+	Map<long, Set<SSA_name> > sigma_rhss;
+	Map<Edge *, Sigma_map> sigma_lhss;
 
 	/*
 	 * The DUW holds an ordered list of SSA_ops for each BB. An op is a use,
@@ -118,11 +154,17 @@ private:
 	 */
 	Map<long, SSA_name_list> uses;
 	Map<long, SSA_name_list> defs;
-	Map<long, SSA_name_list> phi_uses;
-	Map<long, SSA_name_list> phi_defs;
 
 	// Uses and defs don't include the chis or phis.
 	Map<long, SSA_name_list> may_defs;
+
+	Map<long, SSA_name_list> phi_uses;
+	Map<long, SSA_name_list> phi_defs;
+
+	Map<long, SSA_name_list> sigma_uses;
+	Map<long, SSA_name_list> sigma_defs;
+
 };
 
 #endif // PHC_DEF_USE_WEB
+

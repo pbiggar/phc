@@ -48,10 +48,11 @@ Def_use_web::build_web (CFG* cfg, bool update)
 		use_ops.clear ();
 		def_ops.clear ();
 		
-		// Collect all new defs and uses created by the insertion of phi nodes.
 		foreach (Basic_block* bb, *cfg->get_all_bbs ())
 		{	
 			DEBUG ("BBID: " << bb->ID);
+
+			// Collect all new defs and uses created by the insertion of phi nodes.
 			foreach (SSA_name phi_lhs, *get_phi_lhss (bb))
 			{
 				SSA_name* clone = new SSA_name (phi_lhs);
@@ -59,6 +60,16 @@ Def_use_web::build_web (CFG* cfg, bool update)
 				
 				foreach (SSA_name* phi_arg, *get_phi_args (bb, phi_lhs))
 					phi_uses[bb->ID].push_back (phi_arg);	
+			}
+
+			// Collect all new defs and uses created by the insertion of sigma nodes.
+			foreach (SSA_name sigma_rhs, *get_sigma_rhss(bb)) {
+				SSA_name *clone = new SSA_name(sigma_rhs);
+				sigma_uses[bb->ID].push_back(clone);
+
+				foreach (SSA_name *sigma_arg, *get_sigma_args(bb, sigma_rhs)) {
+					sigma_defs[bb->ID].push_back(sigma_arg);
+				}
 			}
 		}
 	}
@@ -80,6 +91,7 @@ Def_use_web::build_web (CFG* cfg, bool update)
 			}
 		}
 	}
+
 	// Build all the ops
 	foreach (Basic_block* bb, *cfg->get_all_bbs ())
 	{
@@ -90,14 +102,23 @@ Def_use_web::build_web (CFG* cfg, bool update)
 			named_defs[def->str ()].push_back (new SSA_def (bb, def, SSA_BB));
 		
 		uses[bb->ID].push_back_all (&phi_uses[bb->ID]);
+		uses[bb->ID].push_back_all(&sigma_uses[bb->ID]);
+
 		defs[bb->ID].push_back_all (&phi_defs[bb->ID]);
+		defs[bb->ID].push_back_all(&sigma_defs[bb->ID]);
 
 		foreach (SSA_name* use, phi_uses[bb->ID])
 			named_uses[use->str ()].push_back (new SSA_use (bb, use, SSA_PHI));
 
+		foreach (SSA_name *use, sigma_uses[bb->ID])
+			named_uses[use->str()].push_back(new SSA_use(bb, use, SSI_SIGMA));
+
 		foreach (SSA_name* def, phi_defs[bb->ID])
 			named_defs[def->str ()].push_back (new SSA_def (bb, def, SSA_PHI));
-		
+
+		foreach (SSA_name *def, sigma_defs[bb->ID])
+			named_defs[def->str()].push_back(new SSA_def(bb, def, SSI_SIGMA));
+
 		foreach (SSA_name* may_def, may_defs[bb->ID])
 		{
 			named_defs[may_def->str ()].push_back (new SSA_def (bb, may_def, SSA_CHI));
@@ -234,9 +255,7 @@ Def_use_web::ssa_consistency_check ()
 	{			
 		foreach (SSA_use* use, use_list)
 			assert (use->name->get_version () || use->type_flag == SSA_PHI); //Phi arguments can be zero versions (uninitialised)
-			
 	}
-
 
 	foreach (tie (use, def_list), named_defs)
 	{
@@ -258,6 +277,38 @@ Def_use_web::ssa_consistency_check ()
 	}
 }
 
+void
+Def_use_web::ssi_consistency_check ()
+{
+  // This function only checks the ssi post-dominance property.
+  // It must be called in conjunction with ssa_consistency_check.
+
+  std::string def;
+  SSA_use_list use_list;
+  foreach (tie (def, use_list), named_uses) {
+    foreach (SSA_use *use, use_list) {
+      Basic_block *use_bb = use->bb;
+
+      // Check post dominance property.
+      // Each def it is post dominates by its use.
+      foreach (SSA_def *ssa_def, named_defs[def]) {
+        Basic_block *ssa_def_bb = ssa_def->bb;
+
+        // If the definition is a sigma def, use the correct successor
+        // basic block.
+        if (ssa_def->type_flag == SSI_SIGMA) {
+          Edge *edge = get_edge_for_sigma_arg(*ssa_def->name);
+          assert(edge);
+
+          ssa_def_bb = edge->get_target();
+        }
+
+        assert(ssa_def_bb->is_reverse_dominated_by (use_bb) ||
+               use->type_flag == SSA_PHI);    // Phi nodes don't need to be dominated by each of their arguments
+      }
+    }
+  }
+}
 
 SSA_name_list*
 Def_use_web::get_defs (Basic_block* bb)
@@ -317,6 +368,24 @@ Def_use_web::copy_phi_nodes (Basic_block* source, Basic_block* dest)
 	}
 }
 
+void
+Def_use_web::copy_phi_map (Edge* source, Edge* dest)
+{
+  // The target of either edge may have changed, so use the keys of other's
+  // phi_map.
+
+  // It should all work out in the end, and will be verified by
+  // consistency_check.
+
+  // They're not required to have the same target, only that this.target has
+  // all of other.target's phi_lhss (which must be guaranteed by the caller).
+  SSA_name phi_lhs;
+  SSA_name arg;
+  foreach (tie (phi_lhs, arg), phi_rhss[dest])
+  {
+    source->get_target()->set_phi_arg_for_edge (source, phi_lhs, arg);
+  }
+}
 
 bool
 Def_use_web::has_phi_node (Basic_block* bb, SSA_name phi_lhs)
@@ -429,21 +498,129 @@ Def_use_web::set_phi_arg_for_edge (Edge* edge, SSA_name phi_lhs, SSA_name arg)
 	phi_rhss[edge][phi_lhs] = arg;
 }
 
-void
-Def_use_web::copy_phi_map (Edge* source, Edge* dest)
-{
-	// The target of either edge may have changed, so use the keys of other's
-	// phi_map.
-	
-	// It should all work out in the end, and will be verified by
-	// consistency_check.
-	
-	// They're not required to have the same target, only that this.target has
-	// all of other.target's phi_lhss (which must be guaranteed by the caller).
-	SSA_name phi_lhs;
-	SSA_name arg;
-	foreach (tie (phi_lhs, arg), phi_rhss[dest])
-	{
-		source->get_target()->set_phi_arg_for_edge (source, phi_lhs, arg);
-	}
+Edge *Def_use_web::get_edge_for_phi_arg(SSA_name arg) {
+  Edge *edge;
+  Phi_map &phi_map = *(new Phi_map());
+
+  foreach (tie(edge, phi_map), phi_rhss) {
+    SSA_name sigma_lhs;
+    SSA_name sigma_rhs;
+
+    foreach (tie(sigma_lhs, sigma_rhs), phi_map) {
+      if (sigma_rhs.str() == arg.str())
+        return edge;
+    }
+  }
+
+  return NULL;
+}
+
+
+/*
+ * SSI
+ */
+
+void Def_use_web::add_sigma_node(Basic_block *bb, SSA_name sigma_rhs) {
+  assert (!has_sigma_node(bb, sigma_rhs));
+
+  sigma_rhss[bb->ID].insert(sigma_rhs);
+
+  assert(has_sigma_node(bb, sigma_rhs));
+}
+
+bool Def_use_web::has_sigma_node(Basic_block *bb, SSA_name sigma_rhs) {
+  return sigma_rhss[bb->ID].has(sigma_rhs);
+}
+
+void Def_use_web::add_sigma_arg(Basic_block *bb, SSA_name sigma_rhs, int version, Edge* edge) {
+  assert (has_sigma_node(bb, sigma_rhs));
+
+  DEBUG("ADDING SIGMA ARG V" << version << " for " << sigma_rhs.str ());
+
+  SSA_name arg = sigma_rhs; // copy
+  arg.set_version(version);
+  set_sigma_arg_for_edge(edge, sigma_rhs, arg);
+}
+
+void Def_use_web::remove_sigma_nodes(Basic_block* bb) {
+  foreach (Edge *succ, *bb->get_successor_edges())
+    sigma_lhss[succ].clear();
+
+  sigma_rhss[bb->ID].clear();
+}
+
+void Def_use_web::update_sigma_node(Basic_block *bb, SSA_name sigma_rhs,
+                                    SSA_name new_sigma_rhs) {
+  assert (sigma_rhs.get_version () == 0);
+  assert (new_sigma_rhs.get_version () != 0);
+  assert (sigma_rhs.get_name() == new_sigma_rhs.get_name ());
+
+  add_sigma_node(bb, new_sigma_rhs);
+
+  foreach (Edge *succ, *bb->get_successor_edges()) {
+    // Not all nodes have their sigma argument added yet.
+    if (sigma_lhss[succ].has(sigma_rhs))
+      set_sigma_arg_for_edge (
+          succ,
+          new_sigma_rhs,
+          get_sigma_arg_for_edge(succ, sigma_rhs));
+  }
+
+  remove_sigma_node(bb, sigma_rhs);
+}
+
+void Def_use_web::remove_sigma_node(Basic_block *bb, SSA_name sigma_rhs) {
+  assert (has_sigma_node(bb, sigma_rhs));
+
+  foreach (Edge *succ, *bb->get_successor_edges())
+    sigma_lhss[succ].erase (sigma_rhs);
+
+  // TODO: are we trying to remove the pointer, when we have a different
+  // pointer to the same thing?
+  sigma_rhss[bb->ID].erase(sigma_rhs);
+
+  assert (!has_sigma_node(bb, sigma_rhs));
+}
+
+SSA_name_list *Def_use_web::get_sigma_args(Basic_block* bb, SSA_name sigma_rhs) {
+  SSA_name_list *result = new SSA_name_list;
+
+  foreach (Edge *succ, *bb->get_successor_edges())
+    result->push_back(
+        new SSA_name(get_sigma_arg_for_edge(succ, sigma_rhs))
+    );
+
+  return result;
+}
+
+Set<SSA_name> *Def_use_web::get_sigma_rhss(Basic_block *bb) {
+  // Return a clone, since we sometimes like to update the list
+  // (but dont call ->clone, since we dont want clones of the variables).
+  return sigma_rhss[bb->ID].set_union(new Set<SSA_name>);
+}
+
+SSA_name Def_use_web::get_sigma_arg_for_edge(Edge *edge, SSA_name sigma_rhs) {
+  return sigma_lhss[edge][sigma_rhs];
+}
+
+void Def_use_web::set_sigma_arg_for_edge(Edge *edge, SSA_name sigma_rhs, SSA_name arg) {
+  DEBUG("SETTING " << arg.str() << "V " << arg.get_version() << " AS SIGMA ARG FOR " << sigma_rhs.str() << "V " << sigma_rhs.get_version());
+  sigma_lhss[edge][sigma_rhs] = arg;
+}
+
+Edge *Def_use_web::get_edge_for_sigma_arg(SSA_name arg) {
+  Edge *edge;
+  Sigma_map &sigma_map = *(new Sigma_map());
+
+  foreach (tie(edge, sigma_map), sigma_lhss) {
+    SSA_name sigma_lhs;
+    SSA_name sigma_rhs;
+
+    foreach (tie(sigma_rhs, sigma_lhs), sigma_map) {
+      if (sigma_lhs.str() == arg.str())
+        return edge;
+    }
+  }
+
+  return NULL;
 }

@@ -92,8 +92,9 @@ String* Empty_block::get_graphviz_label ()
 
 String* Branch_block::get_graphviz_label ()
 {
-	String* result = s("$");
+	String* result = s("if ($");
 	result->append (*branch->variable_name->value);
+	result->append (")");
 
 	return result;
 }
@@ -187,6 +188,54 @@ void
 Basic_block::set_phi_arg_for_edge (Edge* edge, SSA_name phi_lhs, SSA_name arg)
 {
 	cfg->duw->set_phi_arg_for_edge (edge, phi_lhs, arg);
+}
+
+/*
+ * SSI.
+ */
+
+void Basic_block::add_sigma_node(SSA_name sigma_rhs) {
+  cfg->duw->add_sigma_node(this, sigma_rhs);
+}
+
+bool Basic_block::has_sigma_node(SSA_name sigma_rhs) {
+  return cfg->duw->has_sigma_node(this, sigma_rhs);
+}
+
+void Basic_block::add_sigma_arg(SSA_name sigma_rhs, int version, Edge* edge) {
+  cfg->duw->add_sigma_arg(this, sigma_rhs, version, edge);
+}
+
+void Basic_block::remove_sigma_nodes() {
+  if (cfg->duw)
+    cfg->duw->remove_sigma_nodes(this);
+}
+
+void Basic_block::update_sigma_node(SSA_name sigma_rhs, SSA_name new_sigma_rhs) {
+  cfg->duw->update_sigma_node(this, sigma_rhs, new_sigma_rhs);
+}
+
+void Basic_block::remove_sigma_node(SSA_name sigma_rhs) {
+  cfg->duw->remove_sigma_node(this, sigma_rhs);
+}
+
+SSA_name_list *Basic_block::get_sigma_args(SSA_name sigma_rhs) {
+  return cfg->duw->get_sigma_args(this, sigma_rhs);
+}
+
+Set<SSA_name> *Basic_block::get_sigma_rhss() {
+  if (cfg->duw == NULL)
+    return new Set<SSA_name>;
+
+  return cfg->duw->get_sigma_rhss(this);
+}
+
+SSA_name Basic_block::get_sigma_arg_for_edge(Edge *edge, SSA_name sigma_rhs) {
+  return cfg->duw->get_sigma_arg_for_edge(edge, sigma_rhs);
+}
+
+void Basic_block::set_sigma_arg_for_edge(Edge *edge, SSA_name sigma_rhs, SSA_name arg) {
+  cfg->duw->set_sigma_arg_for_edge(edge, sigma_rhs, arg);
 }
 
 

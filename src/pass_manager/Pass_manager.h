@@ -70,11 +70,11 @@ public:
 	void run_optimization_pass (Pass* pass, Whole_program* wp, CFG* cfg);
 
 	void run_local_optimization_passes (Whole_program* wp, CFG* cfg);
-	void add_local_optimization (CFG_visitor* visitor, String* name, String* description, bool require_ssa);
+	void add_local_optimization (CFG_visitor* visitor, String* name, String* description, bool require_ssa = false, bool require_ssi = false);
 	void add_local_optimization_pass (Pass*);
 
 	void run_ipa_passes (Whole_program* wp, CFG* cfg);
-	void add_ipa_optimization (CFG_visitor* visitor, String* name, String* description, bool require_ssa);
+	void add_ipa_optimization (CFG_visitor* visitor, String* name, String* description, bool require_ssa = false, bool require_ssi = false);
 	void add_ipa_optimization_pass (Pass*);
 
 	// Add codegen passes

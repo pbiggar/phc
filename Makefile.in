@@ -52,13 +52,13 @@ DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(srcdir)/config.h.in \
 	$(strangelib_HEADERS) $(strangeoptimize_HEADERS) \
 	$(strangeoptimizehacks_HEADERS) $(strangeoptimizessa_HEADERS) \
-	$(strangeoptimizewpa_HEADERS) $(strangeparsing_HEADERS) \
-	$(strangepassmanager_HEADERS) $(strangephc_HEADERS) \
-	$(strangeprocessast_HEADERS) $(strangeprocesshir_HEADERS) \
-	$(strangeprocessir_HEADERS) $(strangeprocessmir_HEADERS) \
-	$(top_srcdir)/configure ChangeLog config/config.guess \
-	config/config.sub config/depcomp config/install-sh \
-	config/ltmain.sh config/missing
+	$(strangeoptimizessi_HEADERS) $(strangeoptimizewpa_HEADERS) \
+	$(strangeparsing_HEADERS) $(strangepassmanager_HEADERS) \
+	$(strangephc_HEADERS) $(strangeprocessast_HEADERS) \
+	$(strangeprocesshir_HEADERS) $(strangeprocessir_HEADERS) \
+	$(strangeprocessmir_HEADERS) $(top_srcdir)/configure ChangeLog \
+	config/config.guess config/config.sub config/depcomp \
+	config/install-sh config/ltmain.sh config/missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/argz.m4 \
 	$(top_srcdir)/m4/boost.m4 $(top_srcdir)/m4/libtool.m4 \
@@ -102,6 +102,7 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkglibdir)" \
 	"$(DESTDIR)$(strangelibdir)" "$(DESTDIR)$(strangeoptimizedir)" \
 	"$(DESTDIR)$(strangeoptimizehacksdir)" \
 	"$(DESTDIR)$(strangeoptimizessadir)" \
+	"$(DESTDIR)$(strangeoptimizessidir)" \
 	"$(DESTDIR)$(strangeoptimizewpadir)" \
 	"$(DESTDIR)$(strangeparsingdir)" \
 	"$(DESTDIR)$(strangepassmanagerdir)" \
@@ -136,22 +137,23 @@ am_libphc_la_OBJECTS = getopt1.lo getopt.lo AST_annotate.lo \
 	Misc_annotations.lo Oracle.lo Prune_symbol_table.lo \
 	Remove_loop_booleans.lo Copy_propagation.lo \
 	Dead_temp_cleanup.lo Fix_point.lo Use_def_counter.lo \
-	Dominance.lo HSSA.lo Phi.lo SSA_name.lo SSA_ops.lo \
-	Visit_once.lo Aliasing.lo Callgraph.lo Constant_state.lo \
-	Context.lo Debug_WPA.lo Def_use.lo Include_analysis.lo \
-	Optimization_annotator.lo Optimization_transformer.lo \
-	Points_to.lo Stat_collector.lo Value_analysis.lo VRP.lo \
-	Whole_program.lo Worklist.lo WPA.lo MICG_parser.lo \
-	Parse_buffer.lo parse.lo PHP_context.lo XML_parser.lo \
-	Optimization_pass.lo Pass_manager.lo Plugin_pass.lo \
-	AST_unparser.lo Constant_folding.lo DOT_unparser.lo \
-	Invalid_check.lo Note_top_level_declarations.lo \
-	Process_includes.lo Remove_concat_null.lo \
-	Remove_parser_temporaries.lo Strip_unparser_attributes.lo \
-	Token_conversion.lo HIR_unparser.lo debug.lo fresh.lo \
-	General.lo IR.lo PHP_unparser.lo stats.lo XML_unparser.lo \
-	Alias_uppering.lo Foreach_uppering.lo Goto_uppering.lo \
-	MIR_unparser.lo Param_is_ref_uppering.lo
+	Dominance.lo HSSA.lo Phi.lo SSA_name.lo SSA_ops.lo Sigma.lo \
+	SSI.lo SSI_ops.lo Visit_once.lo Aliasing.lo Callgraph.lo \
+	Constant_state.lo Context.lo Debug_WPA.lo Def_use.lo \
+	Include_analysis.lo Optimization_annotator.lo \
+	Optimization_transformer.lo Points_to.lo Stat_collector.lo \
+	Value_analysis.lo VRP.lo Whole_program.lo Worklist.lo WPA.lo \
+	MICG_parser.lo Parse_buffer.lo parse.lo PHP_context.lo \
+	XML_parser.lo Optimization_pass.lo Pass_manager.lo \
+	Plugin_pass.lo AST_unparser.lo Constant_folding.lo \
+	DOT_unparser.lo Invalid_check.lo \
+	Note_top_level_declarations.lo Process_includes.lo \
+	Remove_concat_null.lo Remove_parser_temporaries.lo \
+	Strip_unparser_attributes.lo Token_conversion.lo \
+	HIR_unparser.lo debug.lo fresh.lo General.lo IR.lo \
+	PHP_unparser.lo stats.lo XML_unparser.lo Alias_uppering.lo \
+	Foreach_uppering.lo Goto_uppering.lo MIR_unparser.lo \
+	Param_is_ref_uppering.lo
 libphc_la_OBJECTS = $(am_libphc_la_OBJECTS)
 plugins_tests_canonical_unparser_la_LIBADD =
 am_plugins_tests_canonical_unparser_la_OBJECTS =  \
@@ -494,10 +496,11 @@ RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 DATA = $(strangeruntime_DATA) $(strangeruntimetemplates_DATA)
 HEADERS = $(strangelib_HEADERS) $(strangeoptimize_HEADERS) \
 	$(strangeoptimizehacks_HEADERS) $(strangeoptimizessa_HEADERS) \
-	$(strangeoptimizewpa_HEADERS) $(strangeparsing_HEADERS) \
-	$(strangepassmanager_HEADERS) $(strangephc_HEADERS) \
-	$(strangeprocessast_HEADERS) $(strangeprocesshir_HEADERS) \
-	$(strangeprocessir_HEADERS) $(strangeprocessmir_HEADERS)
+	$(strangeoptimizessi_HEADERS) $(strangeoptimizewpa_HEADERS) \
+	$(strangeparsing_HEADERS) $(strangepassmanager_HEADERS) \
+	$(strangephc_HEADERS) $(strangeprocessast_HEADERS) \
+	$(strangeprocesshir_HEADERS) $(strangeprocessir_HEADERS) \
+	$(strangeprocessmir_HEADERS)
 RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
 AM_RECURSIVE_TARGETS = $(RECURSIVE_TARGETS:-recursive=) \
@@ -917,6 +920,12 @@ libphc_la_SOURCES = \
 	src/optimize/ssa/SSA_name.h							\
 	src/optimize/ssa/SSA_ops.cpp							\
 	src/optimize/ssa/SSA_ops.h								\
+	src/optimize/ssi/Sigma.cpp								\
+	src/optimize/ssi/Sigma.h								\
+	src/optimize/ssi/SSI.cpp								\
+	src/optimize/ssi/SSI.h								\
+	src/optimize/ssi/SSI_ops.cpp								\
+	src/optimize/ssi/SSI_ops.h								\
 	src/optimize/Visit_once.cpp							\
 	src/optimize/Visit_once.h								\
 	src/optimize/wpa/Aliasing.cpp							\
@@ -1145,6 +1154,12 @@ strangeoptimizessa_HEADERS = \
 	src/optimize/ssa/Phi.h		\
 	src/optimize/ssa/SSA_name.h		\
 	src/optimize/ssa/SSA_ops.h
+
+strangeoptimizessidir = $(pkgincludedir)/optimize/ssi
+strangeoptimizessi_HEADERS = \
+	src/optimize/ssi/Sigma.h		\
+	src/optimize/ssi/SSI.h		\
+	src/optimize/ssi/SSI_ops.h
 
 strangeoptimizewpadir = $(pkgincludedir)/optimize/wpa
 strangeoptimizewpa_HEADERS = \
@@ -1763,6 +1778,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Remove_parser_temporaries.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SSA_name.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SSA_ops.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SSI.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SSI_ops.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Sigma.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Split_multiple_arguments.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Split_unset_isset.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Stat_collector.Plo@am__quote@
@@ -2473,6 +2491,27 @@ SSA_ops.lo: src/optimize/ssa/SSA_ops.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o SSA_ops.lo `test -f 'src/optimize/ssa/SSA_ops.cpp' || echo '$(srcdir)/'`src/optimize/ssa/SSA_ops.cpp
 
+Sigma.lo: src/optimize/ssi/Sigma.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Sigma.lo -MD -MP -MF $(DEPDIR)/Sigma.Tpo -c -o Sigma.lo `test -f 'src/optimize/ssi/Sigma.cpp' || echo '$(srcdir)/'`src/optimize/ssi/Sigma.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Sigma.Tpo $(DEPDIR)/Sigma.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/ssi/Sigma.cpp' object='Sigma.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Sigma.lo `test -f 'src/optimize/ssi/Sigma.cpp' || echo '$(srcdir)/'`src/optimize/ssi/Sigma.cpp
+
+SSI.lo: src/optimize/ssi/SSI.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT SSI.lo -MD -MP -MF $(DEPDIR)/SSI.Tpo -c -o SSI.lo `test -f 'src/optimize/ssi/SSI.cpp' || echo '$(srcdir)/'`src/optimize/ssi/SSI.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/SSI.Tpo $(DEPDIR)/SSI.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/ssi/SSI.cpp' object='SSI.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o SSI.lo `test -f 'src/optimize/ssi/SSI.cpp' || echo '$(srcdir)/'`src/optimize/ssi/SSI.cpp
+
+SSI_ops.lo: src/optimize/ssi/SSI_ops.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT SSI_ops.lo -MD -MP -MF $(DEPDIR)/SSI_ops.Tpo -c -o SSI_ops.lo `test -f 'src/optimize/ssi/SSI_ops.cpp' || echo '$(srcdir)/'`src/optimize/ssi/SSI_ops.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/SSI_ops.Tpo $(DEPDIR)/SSI_ops.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/ssi/SSI_ops.cpp' object='SSI_ops.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o SSI_ops.lo `test -f 'src/optimize/ssi/SSI_ops.cpp' || echo '$(srcdir)/'`src/optimize/ssi/SSI_ops.cpp
+
 Visit_once.lo: src/optimize/Visit_once.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Visit_once.lo -MD -MP -MF $(DEPDIR)/Visit_once.Tpo -c -o Visit_once.lo `test -f 'src/optimize/Visit_once.cpp' || echo '$(srcdir)/'`src/optimize/Visit_once.cpp
 @am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Visit_once.Tpo $(DEPDIR)/Visit_once.Plo
@@ -3172,6 +3211,26 @@ uninstall-strangeoptimizessaHEADERS:
 	test -n "$$files" || exit 0; \
 	echo " ( cd '$(DESTDIR)$(strangeoptimizessadir)' && rm -f" $$files ")"; \
 	cd "$(DESTDIR)$(strangeoptimizessadir)" && rm -f $$files
+install-strangeoptimizessiHEADERS: $(strangeoptimizessi_HEADERS)
+	@$(NORMAL_INSTALL)
+	test -z "$(strangeoptimizessidir)" || $(MKDIR_P) "$(DESTDIR)$(strangeoptimizessidir)"
+	@list='$(strangeoptimizessi_HEADERS)'; test -n "$(strangeoptimizessidir)" || list=; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(strangeoptimizessidir)'"; \
+	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(strangeoptimizessidir)" || exit $$?; \
+	done
+
+uninstall-strangeoptimizessiHEADERS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(strangeoptimizessi_HEADERS)'; test -n "$(strangeoptimizessidir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	test -n "$$files" || exit 0; \
+	echo " ( cd '$(DESTDIR)$(strangeoptimizessidir)' && rm -f" $$files ")"; \
+	cd "$(DESTDIR)$(strangeoptimizessidir)" && rm -f $$files
 install-strangeoptimizewpaHEADERS: $(strangeoptimizewpa_HEADERS)
 	@$(NORMAL_INSTALL)
 	test -z "$(strangeoptimizewpadir)" || $(MKDIR_P) "$(DESTDIR)$(strangeoptimizewpadir)"
@@ -3652,7 +3711,7 @@ install-binPROGRAMS: install-libLTLIBRARIES
 
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkglibdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(libexecdir)" "$(DESTDIR)$(strangeruntimedir)" "$(DESTDIR)$(strangeruntimetemplatesdir)" "$(DESTDIR)$(strangelibdir)" "$(DESTDIR)$(strangeoptimizedir)" "$(DESTDIR)$(strangeoptimizehacksdir)" "$(DESTDIR)$(strangeoptimizessadir)" "$(DESTDIR)$(strangeoptimizewpadir)" "$(DESTDIR)$(strangeparsingdir)" "$(DESTDIR)$(strangepassmanagerdir)" "$(DESTDIR)$(strangephcdir)" "$(DESTDIR)$(strangeprocessastdir)" "$(DESTDIR)$(strangeprocesshirdir)" "$(DESTDIR)$(strangeprocessirdir)" "$(DESTDIR)$(strangeprocessmirdir)"; do \
+	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkglibdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(libexecdir)" "$(DESTDIR)$(strangeruntimedir)" "$(DESTDIR)$(strangeruntimetemplatesdir)" "$(DESTDIR)$(strangelibdir)" "$(DESTDIR)$(strangeoptimizedir)" "$(DESTDIR)$(strangeoptimizehacksdir)" "$(DESTDIR)$(strangeoptimizessadir)" "$(DESTDIR)$(strangeoptimizessidir)" "$(DESTDIR)$(strangeoptimizewpadir)" "$(DESTDIR)$(strangeparsingdir)" "$(DESTDIR)$(strangepassmanagerdir)" "$(DESTDIR)$(strangephcdir)" "$(DESTDIR)$(strangeprocessastdir)" "$(DESTDIR)$(strangeprocesshirdir)" "$(DESTDIR)$(strangeprocessirdir)" "$(DESTDIR)$(strangeprocessmirdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: $(BUILT_SOURCES)
@@ -3718,6 +3777,7 @@ install-data-am: install-strangelibHEADERS \
 	install-strangeoptimizeHEADERS \
 	install-strangeoptimizehacksHEADERS \
 	install-strangeoptimizessaHEADERS \
+	install-strangeoptimizessiHEADERS \
 	install-strangeoptimizewpaHEADERS \
 	install-strangeparsingHEADERS \
 	install-strangepassmanagerHEADERS install-strangephcHEADERS \
@@ -3781,6 +3841,7 @@ uninstall-am: uninstall-binPROGRAMS uninstall-binSCRIPTS \
 	uninstall-strangeoptimizeHEADERS \
 	uninstall-strangeoptimizehacksHEADERS \
 	uninstall-strangeoptimizessaHEADERS \
+	uninstall-strangeoptimizessiHEADERS \
 	uninstall-strangeoptimizewpaHEADERS \
 	uninstall-strangeparsingHEADERS \
 	uninstall-strangepassmanagerHEADERS \
@@ -3814,6 +3875,7 @@ uninstall-am: uninstall-binPROGRAMS uninstall-binSCRIPTS \
 	install-strangeoptimizeHEADERS \
 	install-strangeoptimizehacksHEADERS \
 	install-strangeoptimizessaHEADERS \
+	install-strangeoptimizessiHEADERS \
 	install-strangeoptimizewpaHEADERS \
 	install-strangeparsingHEADERS \
 	install-strangepassmanagerHEADERS install-strangephcHEADERS \
@@ -3832,6 +3894,7 @@ uninstall-am: uninstall-binPROGRAMS uninstall-binSCRIPTS \
 	uninstall-strangeoptimizeHEADERS \
 	uninstall-strangeoptimizehacksHEADERS \
 	uninstall-strangeoptimizessaHEADERS \
+	uninstall-strangeoptimizessiHEADERS \
 	uninstall-strangeoptimizewpaHEADERS \
 	uninstall-strangeparsingHEADERS \
 	uninstall-strangepassmanagerHEADERS \

@@ -109,6 +109,26 @@ public:
 	SSA_name get_phi_arg_for_edge (Edge*, SSA_name phi_lhs);
 	void set_phi_arg_for_edge (Edge*, SSA_name phi_lhs, SSA_name arg);
 
+public:
+	// For SSI creation/destruction
+	void add_sigma_node(SSA_name sigma_rhs);
+	bool has_sigma_node(SSA_name sigma_rhs);
+	void add_sigma_arg(SSA_name sigma_rhs, int version, Edge* edge);
+	void remove_sigma_nodes();
+
+	// These are stored using operator< in VARIABLE_NAME, which changes when
+	// there VARIABLE_NAME changes.
+	void update_sigma_node(SSA_name sigma_rhs, SSA_name new_sigma_rhs);
+
+	// Remove a node (including its args from the edges)
+	void remove_sigma_node(SSA_name sigma_rhs);
+
+	// Get the arguments with VARIABLE_NAME as the lhs.
+	SSA_name_list *get_sigma_args(SSA_name sigma_rhs);
+	Set<SSA_name> *get_sigma_rhss();
+
+	SSA_name get_sigma_arg_for_edge(Edge *, SSA_name sigma_rhs);
+	void set_sigma_arg_for_edge (Edge *, SSA_name sigma_rhs, SSA_name arg);
 
 	/*
 	 * Misc
