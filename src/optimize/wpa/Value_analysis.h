@@ -75,9 +75,10 @@ public:
 class Absval_cell : virtual public GC_obj
 {
 public:
-	Absval_cell (const Abstract_value*);
 	const Abstract_value* const value;
+	bool case_insensitive;
 
+	Absval_cell (const Abstract_value*, bool case_insensitive = false);
 public:
 	void dump (std::ostream& os = cdebug) const;
 	bool equals (const Absval_cell* other) const;

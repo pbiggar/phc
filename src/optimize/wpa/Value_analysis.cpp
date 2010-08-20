@@ -267,8 +267,9 @@ Value_analysis::get_unary_op_types (Context* cx, const Abstract_value* operand, 
 
 const Absval_cell* Absval_cell::TOP = new Absval_cell (new Abstract_value (new NIL));
 
-Absval_cell::Absval_cell (const Abstract_value* value)
-: value (value)
+Absval_cell::Absval_cell (const Abstract_value* value, bool case_insensitive)
+: value (value),
+  case_insensitive (case_insensitive)
 {
 }
 
@@ -304,7 +305,7 @@ Absval_cell::meet (const Absval_cell* other) const
 	if (	this->value->lit
 		&& other->value->lit
 		&& ::equals (this->value->lit, other->value->lit))
-		return new Absval_cell (new Abstract_value (this->value->lit));
+		return new Absval_cell (new Abstract_value (this->value->lit), this->case_insensitive);
 
 	if (this->value->types && other->value->types)
 		return new Absval_cell (

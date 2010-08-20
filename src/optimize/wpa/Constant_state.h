@@ -27,10 +27,11 @@ public:
 	 * Interface
 	 */
 
-	void set_constant (Context* cx, string name, const Abstract_value* value);
+	bool can_constant_be_defined (Context* cx, Result_state state, string name, bool case_insensitive = false) const;
+	void set_constant (Context* cx, string name, const Abstract_value* value, bool case_insensitive = false);
 
 	// Sets a constant whose name we don't know
-	void set_unknown_constant (Context* cx, const Abstract_value* value);
+	void set_unknown_constant (Context* cx, const Abstract_value* value, bool case_insensitive = false);
 
 	bool is_constant_defined (Context* cx, Result_state state, string name) const;
 	const Abstract_value* get_constant (Context* cx, Result_state state, string name) const;

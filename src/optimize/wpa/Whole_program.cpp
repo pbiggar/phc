@@ -1188,27 +1188,35 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		params[0] = coerce_to_string (cx, params[0]);
 		const Abstract_value* name = get_abstract_value (cx, R_WORKING, params[0]);
 		const Abstract_value* value = get_abstract_value (cx, R_WORKING, params[1]);
-		if (params[2])
-			phc_optimization_exception ("Warning: Only two parameters supported for define ().");	// case-sensitivity
+
+		bool case_insensitive = false;
+		if (params[2]) {
+			const Abstract_value *cs_value = get_abstract_value (cx, R_WORKING, params[2]);
+			if (cs_value->lit == NULL)
+				phc_optimization_exception ("Warning: Unknown third parameter for define ().");
+
+			if (PHP::is_true (C(cs_value->lit)))
+				case_insensitive = true;
+		}
 
 		if (name->lit == NULL)
 		{
 			// We dont know if this was redefined or not
-			constants->set_unknown_constant (cx, value);
+			constants->set_unknown_constant (cx, value, case_insensitive);
 			assign_path_typed (cx, ret_path, new Types ("bool"));
 		}
 		else
 		{
 			String* str_name = PHP::get_string_value (C(name->lit));
-			if (constants->is_constant_defined (cx, R_WORKING, *str_name))
+			if (constants->can_constant_be_defined (cx, R_WORKING, *str_name, case_insensitive))
 			{
-				// If its already defined, it cant be redefined
-				assign_path_scalar (cx, ret_path, new BOOL (false));
+				assign_path_scalar (cx, ret_path, new BOOL (true));
+				constants->set_constant (cx, *str_name, value, case_insensitive);
 			}
 			else
 			{
-				assign_path_scalar (cx, ret_path, new BOOL (true));
-				constants->set_constant (cx, *str_name, value);
+				// If its already defined, it cant be redefined
+				assign_path_scalar (cx, ret_path, new BOOL (false));
 			}
 		}
 	}
