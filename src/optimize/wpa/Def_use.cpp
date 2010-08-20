@@ -416,3 +416,63 @@ Def_use::get_uses (Basic_block* bb) const
 {
 	return get_index_nodes (bb, USE);
 }
+
+void
+Def_use::insert_index_node (Basic_block* bb, const Index_node *name, deftype dt)
+{
+	Context* cx = Context::non_contextual (bb);
+
+	// Only insert non starred nodes.
+	if (!name->is_starred()) {
+		maps[cx][VAL][dt].insert(name);
+		maps[cx][REF][dt].insert(name);
+	}
+}
+
+void
+Def_use::insert_def(Basic_block *bb, const Index_node *name)
+{
+	insert_index_node(bb, name, DEF);
+}
+
+void
+Def_use::insert_may_def(Basic_block *bb, const Index_node *name)
+{
+	insert_index_node(bb, name, MAYDEF);
+}
+
+void
+Def_use::insert_use(Basic_block *bb, const Index_node *name)
+{
+	insert_index_node(bb, name, USE);
+}
+
+void
+Def_use::remove_index_node (Basic_block* bb, const Index_node *name, deftype dt)
+{
+	Context* cx = Context::non_contextual (bb);
+
+	// Only remove non starred nodes.
+	if (!name->is_starred()) {
+		maps[cx][VAL][dt].erase(name);
+		maps[cx][REF][dt].erase(name);
+	}
+}
+
+void
+Def_use::remove_def(Basic_block *bb, const Index_node *name)
+{
+	remove_index_node(bb, name, DEF);
+}
+
+void
+Def_use::remove_may_def(Basic_block *bb, const Index_node *name)
+{
+	remove_index_node(bb, name, MAYDEF);
+}
+
+void
+Def_use::remove_use(Basic_block *bb, const Index_node *name)
+{
+	remove_index_node(bb, name, USE);
+}

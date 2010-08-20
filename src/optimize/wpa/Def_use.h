@@ -86,13 +86,21 @@ public:
 	cIndex_node_list* get_may_defs (Basic_block* bb) const;
 	cIndex_node_list* get_uses (Basic_block* bb) const;
 
+	void insert_def (Basic_block *bb, const Index_node *name);
+	void insert_may_def (Basic_block *bb, const Index_node *name);
+	void insert_use (Basic_block *bb, const Index_node *name);
+ 
+	void remove_def (Basic_block *bb, const Index_node *name);
+	void remove_may_def (Basic_block *bb, const Index_node *name);
+	void remove_use (Basic_block *bb, const Index_node *name);
 
 private:
 	cIndex_node_list* get_index_nodes (Basic_block* bb, deftype dt) const;
 
+	void insert_index_node (Basic_block* bb, const Index_node *name, deftype dt);
+	void remove_index_node (Basic_block* bb, const Index_node *name, deftype dt);
+
 private:
-
-
 	void dump_set (Context* cx, reftype rt, deftype dt) const;
 	void record (Context* cx, reftype rt, deftype dt, const Index_node* index);
 	bool has (Context* cx, reftype rt, deftype dt, const Index_node* index) const;
