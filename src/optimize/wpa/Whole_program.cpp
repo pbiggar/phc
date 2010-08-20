@@ -228,7 +228,6 @@ Whole_program::initialize (Context* outer_cx)
 	old_analyses.push_back_all (&analyses);
 	analyses.clear ();
 
-
 	// Create new analyses with empty results
 	aliasing = new Aliasing (this);
 	callgraph = new Callgraph (this);
@@ -258,6 +257,9 @@ Whole_program::initialize (Context* outer_cx)
 
 	// This will be here for a while.
 	create_empty_storage (outer_cx, "array", "FAKE");
+
+	// First empty storage node should be assigned with name "array0".
+	next_storage_count = 0;
 
 	// False until we see otherwise
 	this->skip_after_die = false;
@@ -1699,6 +1701,11 @@ Whole_program::unique_count ()
 	return result;
 }
 
+int Whole_program::storage_count() {
+  next_storage_count = storage_counts.top();
+  return next_storage_count++;
+}
+
 Context*
 Whole_program::block_cx ()
 {
@@ -1769,7 +1776,9 @@ Whole_program::init_block (Context* cx)
 		destroy_fake_indices (cx);
 
 	block_cxs.push (cx);
+
 	unique_counts.push (0);
+	storage_counts.push(next_storage_count);
 
 	// Blocks which arent assign_var need to see correct results here.
 	saved_is_refs.push (false);
@@ -1796,11 +1805,12 @@ Whole_program::finish_block (Context* cx, bool pop)
 
 	if (pop)
 	{
-		unique_counts.pop ();
-		block_cxs.pop ();
-		saved_is_refs.pop ();
-		saved_lhss.pop ();
-		saved_plhss.pop ();
+	  block_cxs.pop ();
+	  unique_counts.pop ();
+	  storage_counts.pop();
+	  saved_is_refs.pop ();
+	  saved_lhss.pop ();
+	  saved_plhss.pop ();
 	}
 
 	if (pm->args_info->verbose_flag)
@@ -2772,7 +2782,7 @@ Whole_program::create_empty_storage (Context* cx, string type, string name)
 	if (name == "")
 	{
 		// Use a - so that the convert_context_name hack doesnt get confused.
-		name = cx->storage_name (type);
+		name = cx->storage_name (type + lexical_cast<string>(storage_count()));
 	}
 
 	Storage_node* st = SN (name);

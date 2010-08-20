@@ -99,6 +99,11 @@ public:
 	string main_scope;
 
 	/*
+	 * Special shortcut to mark the successor of die() and exit() as non-executable
+	 */
+	bool skip_after_die;
+
+	/*
 	 * When copying data, we dont want to collapse stuff into a single
 	 * array/object. This is used for new objects and arrays, but also for fake
 	 * nodes used for copying.
@@ -110,17 +115,21 @@ public:
 	 */
 	int unique_count ();
 
-
-	/*
-	 * Special shortcut to mark the successor of die() and exit() as non-executable
-	 */
-
-	bool skip_after_die;
-
 	/*
 	 * Stacks for every block
 	 */
 	Stack<int> unique_counts;
+
+	/*
+	 * Empty storage counts.
+	 */
+	int next_storage_count; // Keep track of newly created empty storage nodes.
+	Stack<int> storage_counts;
+	int storage_count();
+
+	/*
+	 * Block contexts.
+	 */
 	Stack<Context*> block_cxs;
 	Context* block_cx ();
 
