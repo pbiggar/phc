@@ -775,7 +775,6 @@ Whole_program::populate_modelled_functions()
 	MODEL (debug_backtrace, ());
 	MODEL (debug_zval_dump, ());
 	MODEL (dechex, (), "string");
-	MODEL (defined, (0), "bool");
 	MODEL (dirname, (0), "string");
 	MODEL (doubleval, (0), "float");
 	MODEL (ereg_replace, (0, 1, 2), "string");	
@@ -1220,6 +1219,22 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 			}
 		}
 	}
+	else if (*info->name == "defined")
+	{
+		// Read parameters
+		params[0] = coerce_to_string (cx, params[0]);
+		const Abstract_value* name = get_abstract_value (cx, R_WORKING, params[0]);
+
+		if (name->lit == NULL)
+			assign_path_typed (cx, ret_path, new Types ("bool"));
+		else {
+			String* str_name = PHP::get_string_value (C(name->lit));
+			if (constants->is_constant_defined (cx, R_WORKING, *str_name))
+ 				assign_path_scalar (cx, ret_path, new BOOL (true));
+			else
+				assign_path_scalar (cx, ret_path, new BOOL (false));
+ 		}
+ 	}
 	else if (*info->name == "empty")
 	{
 		const Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]);

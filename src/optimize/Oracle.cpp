@@ -133,7 +133,11 @@ Oracle::is_pure_function (MIR::METHOD_NAME* name)
 	if (info == NULL)
 		return false;
 
-	return not info->get_side_effecting ();
+	// Special case for constant functions.
+	if (*info->name == "defined")
+		return true;
+	else
+		return not info->get_side_effecting ();
 }
 
 
