@@ -134,6 +134,7 @@ Oracle::is_pure_function (MIR::METHOD_NAME* name)
 		return false;
 
 	// Special case for constant functions.
+	// These functions can be removed by dce.
 	if (*info->name == "defined")
 		return true;
 	else
