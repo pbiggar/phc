@@ -12,6 +12,8 @@
 
 DECL(SSA_name);
 
+class Index_node;
+
 class SSA_name : virtual public GC_obj
 {
 	std::string name;
@@ -34,6 +36,9 @@ public:
 	int get_version () const;
 	void set_version (int version);
 	void drop_ssa_version ();
+
+	bool is_starred() const;
+	Index_node *reverse() const;
 };
 
 

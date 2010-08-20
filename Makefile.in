@@ -137,10 +137,10 @@ am_libphc_la_OBJECTS = getopt1.lo getopt.lo AST_annotate.lo \
 	Misc_annotations.lo Oracle.lo Prune_symbol_table.lo \
 	Remove_loop_booleans.lo Copy_propagation.lo \
 	Dead_temp_cleanup.lo Fix_point.lo Use_def_counter.lo \
-	Dominance.lo HSSA.lo Phi.lo SSA_name.lo SSA_ops.lo Sigma.lo \
-	SSI.lo SSI_ops.lo Visit_once.lo Aliasing.lo Callgraph.lo \
-	Constant_state.lo Context.lo Debug_WPA.lo Def_use.lo \
-	Include_analysis.lo Optimization_annotator.lo \
+	Dominance.lo HSSA.lo Phi.lo SSA_name.lo SSA_ops.lo ESSA.lo \
+	Sigma.lo SSI.lo SSI_ops.lo Visit_once.lo Aliasing.lo \
+	Callgraph.lo Constant_state.lo Context.lo Debug_WPA.lo \
+	Def_use.lo Include_analysis.lo Optimization_annotator.lo \
 	Optimization_transformer.lo Points_to.lo Stat_collector.lo \
 	Value_analysis.lo VRP.lo Whole_program.lo Worklist.lo WPA.lo \
 	MICG_parser.lo Parse_buffer.lo parse.lo PHP_context.lo \
@@ -930,6 +930,8 @@ libphc_la_SOURCES = \
 	src/optimize/ssa/SSA_name.h							\
 	src/optimize/ssa/SSA_ops.cpp							\
 	src/optimize/ssa/SSA_ops.h								\
+	src/optimize/ssi/ESSA.cpp								\
+	src/optimize/ssi/ESSA.h								\
 	src/optimize/ssi/Sigma.cpp								\
 	src/optimize/ssi/Sigma.h								\
 	src/optimize/ssi/SSI.cpp								\
@@ -1167,6 +1169,7 @@ strangeoptimizessa_HEADERS = \
 
 strangeoptimizessidir = $(pkgincludedir)/optimize/ssi
 strangeoptimizessi_HEADERS = \
+	src/optimize/ssi/ESSA.h		\
 	src/optimize/ssi/Sigma.h		\
 	src/optimize/ssi/SSI.h		\
 	src/optimize/ssi/SSI_ops.h
@@ -1722,6 +1725,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Def_use_web.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Desugar.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Dominance.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ESSA.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Early_lower_control_flow.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Echo_split.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Edge.Plo@am__quote@
@@ -2506,6 +2510,13 @@ SSA_ops.lo: src/optimize/ssa/SSA_ops.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/ssa/SSA_ops.cpp' object='SSA_ops.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o SSA_ops.lo `test -f 'src/optimize/ssa/SSA_ops.cpp' || echo '$(srcdir)/'`src/optimize/ssa/SSA_ops.cpp
+
+ESSA.lo: src/optimize/ssi/ESSA.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ESSA.lo -MD -MP -MF $(DEPDIR)/ESSA.Tpo -c -o ESSA.lo `test -f 'src/optimize/ssi/ESSA.cpp' || echo '$(srcdir)/'`src/optimize/ssi/ESSA.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/ESSA.Tpo $(DEPDIR)/ESSA.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/ssi/ESSA.cpp' object='ESSA.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ESSA.lo `test -f 'src/optimize/ssi/ESSA.cpp' || echo '$(srcdir)/'`src/optimize/ssi/ESSA.cpp
 
 Sigma.lo: src/optimize/ssi/Sigma.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Sigma.lo -MD -MP -MF $(DEPDIR)/Sigma.Tpo -c -o Sigma.lo `test -f 'src/optimize/ssi/Sigma.cpp' || echo '$(srcdir)/'`src/optimize/ssi/Sigma.cpp

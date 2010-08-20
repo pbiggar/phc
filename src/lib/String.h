@@ -10,6 +10,7 @@
 
 #include <string>
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 #include "lib/Object.h"
 #include "lib/List.h"
 

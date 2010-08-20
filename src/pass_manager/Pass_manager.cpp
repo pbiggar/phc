@@ -31,6 +31,7 @@
 #include "optimize/Def_use_web.h"
 #include "optimize/ssa/HSSA.h"
 #include "optimize/ssi/SSI.h"
+#include "optimize/ssi/ESSA.h"
 #include "optimize/wpa/Whole_program.h"
 
 #include "lib/error.h"
@@ -729,10 +730,12 @@ Pass_manager::run_optimization_pass (Pass* pass, Whole_program* wp, CFG* cfg)
 	HSSA *hssa = NULL;
 	if (opt->require_ssa || opt->require_ssi)
 	{
-		// Convert to SSA/SSI form
-		if (opt->require_ssi)
-			hssa = new SSI(wp, cfg);
-		else
+		if (opt->require_ssi) { // Convert to SSI
+			if (args_info->ssi_type_arg == ssi_type_arg_ssi)
+				hssa = new SSI(wp, cfg);
+			else
+				hssa = new ESSA(wp, cfg);
+		} else // Convert to SSA
 			hssa = new HSSA(wp, cfg);
 
 		hssa->convert_to_hssa_form ();

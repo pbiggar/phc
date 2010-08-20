@@ -62,7 +62,7 @@ public:
 	String* get_graphviz_label () const;
 	Index_node* convert_context_name () const;
 	Index_node* get_starred_name () const;
-
+	bool is_starred() const;
 	Path* to_path () const;
 };
 

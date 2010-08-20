@@ -56,7 +56,7 @@ option "no-xml-attrs" - "When dumping XML, omit node attributes" flag off hidden
 section "OPTIMIZATION OPTIONS"
 option "flow-insensitive" - "Turn off flow-sensitivity" flag off
 option "call-string-length" - "Choose the call-string length ('0' indicates infinite call-string)" int typestr="LENGTH" default="0" optional
-
+option "ssi-type" - "Select SSI flavor." values="ssi","essa" enum typestr="FLAVOR" default="ssi" optional
 
 section "DEBUGGING PHC"
 option "stats" - "Print compile-time statistics" flag off hidden

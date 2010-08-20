@@ -6,6 +6,8 @@
 
 #include "process_ir/General.h"
 #include "SSA_name.h"
+#include "lib/String.h"
+#include "optimize/wpa/Points_to.h"
 
 using namespace std;
 using namespace MIR;
@@ -75,3 +77,27 @@ SSA_name::set_version (int version)
 	this->ssa_version = version;
 }
 
+bool SSA_name::is_starred() const {
+	return boost::starts_with(name, "*_");
+}
+
+/*
+ * This functions builds an Index_node based on the current SSA name.
+ * This is considered to be a dangerous conversion, and its use
+ * is highly discouraged.
+ */
+Index_node *SSA_name::reverse() const {
+  // Do not build starred index nodes.
+  string n = is_starred() ? name.substr(2) : name;
+
+  // Seek the last delimiter.
+  size_t idx = n.rfind("::");
+  phc_optimization_assertion(idx != string::npos);
+
+  // Split between the storage node and the index node.
+  string storage = n.substr(0, idx);
+  string index = n.substr(idx + 2);
+
+  // Return the correspondent index node.
+  return (new Index_node(storage, index));
+}

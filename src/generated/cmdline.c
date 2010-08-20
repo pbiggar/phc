@@ -83,6 +83,7 @@ const char *gengetopt_args_info_full_help[] = {
   "\nOPTIMIZATION OPTIONS:",
   "      --flow-insensitive        Turn off flow-sensitivity  (default=off)",
   "      --call-string-length=LENGTH\n                                Choose the call-string length ('0' indicates \n                                  infinite call-string)  (default=`0')",
+  "      --ssi-type=FLAVOR         Select SSI flavor.  (possible values=\"ssi\", \n                                  \"essa\" default=`ssi')",
   "\nDEBUGGING PHC:",
   "      --stats                   Print compile-time statistics  (default=off)",
   "      --rt-stats                Print statistics about a program at run-time  \n                                  (default=off)",
@@ -135,17 +136,19 @@ init_help_array(void)
   gengetopt_args_info_help[33] = gengetopt_args_info_full_help[48];
   gengetopt_args_info_help[34] = gengetopt_args_info_full_help[49];
   gengetopt_args_info_help[35] = gengetopt_args_info_full_help[50];
-  gengetopt_args_info_help[36] = gengetopt_args_info_full_help[60];
-  gengetopt_args_info_help[37] = 0; 
+  gengetopt_args_info_help[36] = gengetopt_args_info_full_help[51];
+  gengetopt_args_info_help[37] = gengetopt_args_info_full_help[61];
+  gengetopt_args_info_help[38] = 0; 
   
 }
 
-const char *gengetopt_args_info_help[38];
+const char *gengetopt_args_info_help[39];
 
 typedef enum {ARG_NO
   , ARG_FLAG
   , ARG_STRING
   , ARG_INT
+  , ARG_ENUM
 } cmdline_parser_arg_type;
 
 static
@@ -159,6 +162,8 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
 
 static int
 cmdline_parser_required2 (struct gengetopt_args_info *args_info, const char *prog_name, const char *additional_error);
+
+const char *cmdline_parser_ssi_type_values[] = {"ssi", "essa", 0}; /*< Possible values for ssi-type. */
 
 static char *
 gengetopt_strdup (const char *s);
@@ -208,6 +213,7 @@ void clear_given (struct gengetopt_args_info *args_info)
   args_info->no_xml_attrs_given = 0 ;
   args_info->flow_insensitive_given = 0 ;
   args_info->call_string_length_given = 0 ;
+  args_info->ssi_type_given = 0 ;
   args_info->stats_given = 0 ;
   args_info->rt_stats_given = 0 ;
   args_info->cfg_dump_given = 0 ;
@@ -276,6 +282,8 @@ void clear_args (struct gengetopt_args_info *args_info)
   args_info->flow_insensitive_flag = 0;
   args_info->call_string_length_arg = 0;
   args_info->call_string_length_orig = NULL;
+  args_info->ssi_type_arg = ssi_type_arg_ssi;
+  args_info->ssi_type_orig = NULL;
   args_info->stats_flag = 0;
   args_info->rt_stats_flag = 0;
   args_info->cfg_dump_arg = NULL;
@@ -351,20 +359,21 @@ void init_args_info(struct gengetopt_args_info *args_info)
   args_info->no_xml_attrs_help = gengetopt_args_info_full_help[47] ;
   args_info->flow_insensitive_help = gengetopt_args_info_full_help[49] ;
   args_info->call_string_length_help = gengetopt_args_info_full_help[50] ;
-  args_info->stats_help = gengetopt_args_info_full_help[52] ;
-  args_info->rt_stats_help = gengetopt_args_info_full_help[53] ;
-  args_info->cfg_dump_help = gengetopt_args_info_full_help[54] ;
+  args_info->ssi_type_help = gengetopt_args_info_full_help[51] ;
+  args_info->stats_help = gengetopt_args_info_full_help[53] ;
+  args_info->rt_stats_help = gengetopt_args_info_full_help[54] ;
+  args_info->cfg_dump_help = gengetopt_args_info_full_help[55] ;
   args_info->cfg_dump_min = 0;
   args_info->cfg_dump_max = 0;
-  args_info->debug_help = gengetopt_args_info_full_help[55] ;
+  args_info->debug_help = gengetopt_args_info_full_help[56] ;
   args_info->debug_min = 0;
   args_info->debug_max = 0;
-  args_info->dont_fail_help = gengetopt_args_info_full_help[56] ;
-  args_info->missed_opt_help = gengetopt_args_info_full_help[57] ;
-  args_info->disable_help = gengetopt_args_info_full_help[58] ;
+  args_info->dont_fail_help = gengetopt_args_info_full_help[57] ;
+  args_info->missed_opt_help = gengetopt_args_info_full_help[58] ;
+  args_info->disable_help = gengetopt_args_info_full_help[59] ;
   args_info->disable_min = 0;
   args_info->disable_max = 0;
-  args_info->pause_help = gengetopt_args_info_full_help[59] ;
+  args_info->pause_help = gengetopt_args_info_full_help[60] ;
   
 }
 
@@ -524,6 +533,7 @@ cmdline_parser_release (struct gengetopt_args_info *args_info)
   free_multiple_string_field (args_info->dump_xml_given, &(args_info->dump_xml_arg), &(args_info->dump_xml_orig));
   free_multiple_string_field (args_info->dump_dot_given, &(args_info->dump_dot_arg), &(args_info->dump_dot_orig));
   free_string_field (&(args_info->call_string_length_orig));
+  free_string_field (&(args_info->ssi_type_orig));
   free_multiple_string_field (args_info->cfg_dump_given, &(args_info->cfg_dump_arg), &(args_info->cfg_dump_orig));
   free_multiple_string_field (args_info->debug_given, &(args_info->debug_arg), &(args_info->debug_orig));
   free_multiple_string_field (args_info->disable_given, &(args_info->disable_arg), &(args_info->disable_orig));
@@ -538,13 +548,54 @@ cmdline_parser_release (struct gengetopt_args_info *args_info)
   clear_given (args_info);
 }
 
+/**
+ * @param val the value to check
+ * @param values the possible values
+ * @return the index of the matched value:
+ * -1 if no value matched,
+ * -2 if more than one value has matched
+ */
+static int
+check_possible_values(const char *val, const char *values[])
+{
+  int i, found, last;
+  size_t len;
+
+  if (!val)   /* otherwise strlen() crashes below */
+    return -1; /* -1 means no argument for the option */
+
+  found = last = 0;
+
+  for (i = 0, len = strlen(val); values[i]; ++i)
+    {
+      if (strncmp(val, values[i], len) == 0)
+        {
+          ++found;
+          last = i;
+          if (strlen(values[i]) == len)
+            return i; /* exact macth no need to check more */
+        }
+    }
+
+  if (found == 1) /* one match: OK */
+    return last;
+
+  return (found ? -2 : -1); /* return many values or none matched */
+}
+
 
 static void
 write_into_file(FILE *outfile, const char *opt, const char *arg, const char *values[])
 {
-  FIX_UNUSED (values);
+  int found = -1;
   if (arg) {
-    fprintf(outfile, "%s=\"%s\"\n", opt, arg);
+    if (values) {
+      found = check_possible_values(arg, values);      
+    }
+    if (found >= 0)
+      fprintf(outfile, "%s=\"%s\" # %s\n", opt, arg, values[found]);
+    else
+      fprintf(outfile, "%s=\"%s\"\n", opt, arg);
   } else {
     fprintf(outfile, "%s\n", opt);
   }
@@ -647,6 +698,8 @@ cmdline_parser_dump(FILE *outfile, struct gengetopt_args_info *args_info)
     write_into_file(outfile, "flow-insensitive", 0, 0 );
   if (args_info->call_string_length_given)
     write_into_file(outfile, "call-string-length", args_info->call_string_length_orig, 0);
+  if (args_info->ssi_type_given)
+    write_into_file(outfile, "ssi-type", args_info->ssi_type_orig, cmdline_parser_ssi_type_values);
   if (args_info->stats_given)
     write_into_file(outfile, "stats", 0, 0 );
   if (args_info->rt_stats_given)
@@ -1000,7 +1053,18 @@ int update_arg(void *field, char **orig_field,
       return 1; /* failure */
     }
 
-  FIX_UNUSED (default_value);
+  if (possible_values && (found = check_possible_values((value ? value : default_value), possible_values)) < 0)
+    {
+      if (short_opt != '-')
+        fprintf (stderr, "%s: %s argument, \"%s\", for option `--%s' (`-%c')%s\n", 
+          package_name, (found == -2) ? "ambiguous" : "invalid", value, long_opt, short_opt,
+          (additional_error ? additional_error : ""));
+      else
+        fprintf (stderr, "%s: %s argument, \"%s\", for option `--%s'%s\n", 
+          package_name, (found == -2) ? "ambiguous" : "invalid", value, long_opt,
+          (additional_error ? additional_error : ""));
+      return 1; /* failure */
+    }
     
   if (field_given && *field_given && ! override)
     return 0;
@@ -1017,6 +1081,9 @@ int update_arg(void *field, char **orig_field,
     break;
   case ARG_INT:
     if (val) *((int *)field) = strtol (val, &stop_char, 0);
+    break;
+  case ARG_ENUM:
+    if (val) *((int *)field) = found;
     break;
   case ARG_STRING:
     if (val) {
@@ -1144,6 +1211,7 @@ void update_multiple_arg(void *field, char ***orig_field,
 
     switch(arg_type) {
     case ARG_INT:
+    case ARG_ENUM:
       *((int **)field) = (int *)realloc (*((int **)field), (field_given + prev_given) * sizeof (int)); break;
     case ARG_STRING:
       *((char ***)field) = (char **)realloc (*((char ***)field), (field_given + prev_given) * sizeof (char *)); break;
@@ -1158,6 +1226,8 @@ void update_multiple_arg(void *field, char ***orig_field,
         switch(arg_type) {
         case ARG_INT:
           (*((int **)field))[i + field_given] = tmp->arg.int_arg; break;
+        case ARG_ENUM:
+          (*((int **)field))[i + field_given] = tmp->arg.int_arg; break;
         case ARG_STRING:
           (*((char ***)field))[i + field_given] = tmp->arg.string_arg; break;
         default:
@@ -1171,6 +1241,7 @@ void update_multiple_arg(void *field, char ***orig_field,
     if (default_value && ! field_given) {
       switch(arg_type) {
       case ARG_INT:
+      case ARG_ENUM:
         if (! *((int **)field)) {
           *((int **)field) = (int *)malloc (sizeof (int));
           (*((int **)field))[0] = default_value->int_arg; 
@@ -1281,6 +1352,7 @@ cmdline_parser_internal (
         { "no-xml-attrs",	0, NULL, 0 },
         { "flow-insensitive",	0, NULL, 0 },
         { "call-string-length",	1, NULL, 0 },
+        { "ssi-type",	1, NULL, 0 },
         { "stats",	0, NULL, 0 },
         { "rt-stats",	0, NULL, 0 },
         { "cfg-dump",	1, NULL, 0 },
@@ -1775,6 +1847,20 @@ cmdline_parser_internal (
                 &(local_args_info.call_string_length_given), optarg, 0, "0", ARG_INT,
                 check_ambiguity, override, 0, 0,
                 "call-string-length", '-',
+                additional_error))
+              goto failure;
+          
+          }
+          /* Select SSI flavor..  */
+          else if (strcmp (long_options[option_index].name, "ssi-type") == 0)
+          {
+          
+          
+            if (update_arg( (void *)&(args_info->ssi_type_arg), 
+                 &(args_info->ssi_type_orig), &(args_info->ssi_type_given),
+                &(local_args_info.ssi_type_given), optarg, cmdline_parser_ssi_type_values, "ssi", ARG_ENUM,
+                check_ambiguity, override, 0, 0,
+                "ssi-type", '-',
                 additional_error))
               goto failure;
           

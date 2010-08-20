@@ -849,6 +849,10 @@ Index_node::get_starred_name () const
 	return new Index_node ("*_" + this->storage, this->index);
 }
 
+bool Index_node::is_starred() const {
+	return boost::starts_with(this->storage, "*_");
+}
+
 String*
 Index_node::get_graphviz_label () const
 {

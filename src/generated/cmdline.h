@@ -38,6 +38,8 @@ extern "C" {
 #define CMDLINE_PARSER_VERSION VERSION
 #endif
 
+enum enum_ssi_type { ssi_type_arg_ssi = 0 , ssi_type_arg_essa };
+
 /** @brief Where the command line options are stored */
 struct gengetopt_args_info
 {
@@ -151,6 +153,9 @@ struct gengetopt_args_info
   int call_string_length_arg;	/**< @brief Choose the call-string length ('0' indicates infinite call-string) (default='0').  */
   char * call_string_length_orig;	/**< @brief Choose the call-string length ('0' indicates infinite call-string) original value given at command line.  */
   const char *call_string_length_help; /**< @brief Choose the call-string length ('0' indicates infinite call-string) help description.  */
+  enum enum_ssi_type ssi_type_arg;	/**< @brief Select SSI flavor. (default='ssi').  */
+  char * ssi_type_orig;	/**< @brief Select SSI flavor. original value given at command line.  */
+  const char *ssi_type_help; /**< @brief Select SSI flavor. help description.  */
   int stats_flag;	/**< @brief Print compile-time statistics (default=off).  */
   const char *stats_help; /**< @brief Print compile-time statistics help description.  */
   int rt_stats_flag;	/**< @brief Print statistics about a program at run-time (default=off).  */
@@ -219,6 +224,7 @@ struct gengetopt_args_info
   unsigned int no_xml_attrs_given ;	/**< @brief Whether no-xml-attrs was given.  */
   unsigned int flow_insensitive_given ;	/**< @brief Whether flow-insensitive was given.  */
   unsigned int call_string_length_given ;	/**< @brief Whether call-string-length was given.  */
+  unsigned int ssi_type_given ;	/**< @brief Whether ssi-type was given.  */
   unsigned int stats_given ;	/**< @brief Whether stats was given.  */
   unsigned int rt_stats_given ;	/**< @brief Whether rt-stats was given.  */
   unsigned int cfg_dump_given ;	/**< @brief Whether cfg-dump was given.  */
@@ -356,6 +362,8 @@ void cmdline_parser_free (struct gengetopt_args_info *args_info);
  */
 int cmdline_parser_required (struct gengetopt_args_info *args_info,
   const char *prog_name);
+
+extern const char *cmdline_parser_ssi_type_values[];  /**< @brief Possible values for ssi-type. */
 
 
 #ifdef __cplusplus

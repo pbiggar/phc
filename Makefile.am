@@ -241,6 +241,8 @@ libphc_la_SOURCES= 											\
 	src/optimize/ssa/SSA_name.h							\
 	src/optimize/ssa/SSA_ops.cpp							\
 	src/optimize/ssa/SSA_ops.h								\
+	src/optimize/ssi/ESSA.cpp								\
+	src/optimize/ssi/ESSA.h								\
 	src/optimize/ssi/Sigma.cpp								\
 	src/optimize/ssi/Sigma.h								\
 	src/optimize/ssi/SSI.cpp								\
@@ -477,6 +479,7 @@ strangeoptimizessa_HEADERS =					\
 
 strangeoptimizessidir = $(pkgincludedir)/optimize/ssi
 strangeoptimizessi_HEADERS =					\
+	src/optimize/ssi/ESSA.h		\
 	src/optimize/ssi/Sigma.h		\
 	src/optimize/ssi/SSI.h		\
 	src/optimize/ssi/SSI_ops.h
