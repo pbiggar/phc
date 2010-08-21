@@ -80,6 +80,13 @@ struct gengetopt_args_info
   const char *include_help; /**< @brief Parse included or required files at compile-time help description.  */
   int include_harder_flag;	/**< @brief Try harder to find included files, possibly slightly breaking some of PHP's rules (default=off).  */
   const char *include_harder_help; /**< @brief Try harder to find included files, possibly slightly breaking some of PHP's rules help description.  */
+  int include_regexp_flag;	/**< @brief Use regular expressions to find include files (default=off).  */
+  const char *include_regexp_help; /**< @brief Use regular expressions to find include files help description.  */
+  int include_name_flag;	/**< @brief Try even harder to find include files, searching the basename of the include argument. (default=off).  */
+  const char *include_name_help; /**< @brief Try even harder to find include files, searching the basename of the include argument. help description.  */
+  char * include_searchdir_arg;	/**< @brief Search regular expressions starting from the search directory.  */
+  char * include_searchdir_orig;	/**< @brief Search regular expressions starting from the search directory original value given at command line.  */
+  const char *include_searchdir_help; /**< @brief Search regular expressions starting from the search directory help description.  */
   char ** c_option_arg;	/**< @brief Pass option to the C compile (e.g., -C-g; can be specified multiple times).  */
   char ** c_option_orig;	/**< @brief Pass option to the C compile (e.g., -C-g; can be specified multiple times) original value given at command line.  */
   unsigned int c_option_min; /**< @brief Pass option to the C compile (e.g., -C-g; can be specified multiple times)'s minimum occurreces */
@@ -197,6 +204,9 @@ struct gengetopt_args_info
   unsigned int no_xml_validation_given ;	/**< @brief Whether no-xml-validation was given.  */
   unsigned int include_given ;	/**< @brief Whether include was given.  */
   unsigned int include_harder_given ;	/**< @brief Whether include-harder was given.  */
+  unsigned int include_regexp_given ;	/**< @brief Whether include-regexp was given.  */
+  unsigned int include_name_given ;	/**< @brief Whether include-name was given.  */
+  unsigned int include_searchdir_given ;	/**< @brief Whether include-searchdir was given.  */
   unsigned int c_option_given ;	/**< @brief Whether c-option was given.  */
   unsigned int generate_c_given ;	/**< @brief Whether generate-c was given.  */
   unsigned int extension_given ;	/**< @brief Whether extension was given.  */

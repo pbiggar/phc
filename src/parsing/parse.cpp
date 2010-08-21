@@ -11,6 +11,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <dirent.h> // for search dirs.
+#include <libgen.h> // for basename.
+#include <boost/regex.hpp> // for regular expression.
 #include "parse.h"
 #include "cmdline.h"
 #include "php_parser.tab.hpp"
@@ -132,7 +135,35 @@ dump_parse_tree (String* filename, String_list* dirs)
 	if (file_input.is_open ()) file_input.close ();
 }
 
-String* search_file(String* filename, String_list* dirs)
+bool is_directory(String *dir) {
+	// Simple checking. We can't process directory if it is unknown.
+	if (dir == NULL or dir->empty())
+		return false;
+
+	// Let us test whenever doc root points to a valid directory.
+	struct stat st;
+	if (stat(dir->c_str(), &st) < 0)
+		return false;
+
+	// Test if it is a directory.
+	return (st.st_mode & S_IFDIR);
+}
+
+String *get_basename(String* filename) {
+	// I believe this is OK, memory wise. The cloned memory is overwritten by
+	// dirname, but that is then copied into the result, and then never touched
+	// again.
+	String *base = NULL;
+	char* copy = strdup (filename->c_str());
+	if (copy != NULL) {
+		base = s(basename (copy));
+		free(copy);
+	}
+
+	return base;
+}
+
+String* search_file_from_dirs(String* filename, String_list* dirs)
 {
 	struct stat buf;
 
@@ -141,6 +172,10 @@ String* search_file(String* filename, String_list* dirs)
 	
 	if(dirs == NULL)
 		return filename;
+
+	// Check if contains a regular expression.
+	if (filename->find("(.*)") != string::npos)
+		return NULL;
 
 	// Check whether filename can be opened without searching dirs
 	if(!stat(filename->c_str(), &buf))
@@ -180,6 +215,128 @@ String* search_file(String* filename, String_list* dirs)
 	
 	// If file could not be found, return NULL
 	return NULL;
+}
+
+/*
+ * Search for the basename of the filename beginning from the
+ * root directory passed by --include-searchdir argument. If
+ * no root directory is provided, attempt to use the current
+ * working directory.
+ *
+ * The search will continue until the whole root directory
+ * tree is covered and only a SINGLE file match happened.
+ * This is the only way to ensure that we are including the
+ * supposed correct file.
+ */
+String *search_file_with_regexp(String *filename, bool basename = false) {
+	if (filename == NULL)
+		return NULL;
+
+	// Get the root directory to be the base of the search.
+	String *root = NULL;
+
+	if (args_info.include_searchdir_arg) {
+		root = s(args_info.include_searchdir_arg);
+		if (not is_directory(root))
+			root = NULL;
+	}
+
+	if (root == NULL) {
+		// Get current working directory.
+		char cwd[PATH_MAX];
+		if (!getcwd(cwd, PATH_MAX))
+			return NULL;
+
+		// Make the initial root directory as the current directory.
+		root = s(cwd);
+	}
+
+	String *expression = filename;
+	/*
+	 * We shall search extracting any directory information
+	 * from the filename, leaving only its base name.
+	 */
+	if (basename)
+		expression = get_basename(filename);
+
+	// Regular expressions to match file names.
+	boost::regex exp(*expression, boost::regex::perl);
+
+	// Search for the filename recursively starting at the document root.
+	String_list *dirlist = new String_list;
+	dirlist->push_back(root);
+
+	// Matched file names with regular expression.
+	String *matched = NULL;
+
+	// Search the tree.
+	while (!dirlist->empty()) {
+		// Get the top directory to test.
+		String *dir = dirlist->front();
+		dirlist->pop_front();
+
+		// Open the directory.
+		DIR *dirp = opendir(dir->c_str());
+		if (!dirp)
+			continue;
+
+		// Get all the directory contents.
+		struct dirent *dptr;
+		while ((dptr = readdir(dirp))) {
+			if (dptr->d_type == DT_REG) { // The path is a file.
+				// Build the full path file name.
+				String *uri = dir->clone();
+				uri->append("/");
+				uri->append(dptr->d_name);
+
+						 // Try to match only the base name.
+				bool reg_match = basename ? regex_match(dptr->d_name, exp) :
+						 // Try to match the original filename.
+						 regex_match(*uri, exp);
+
+				// Check if regular expressions matches.
+				if (reg_match) {
+					// We can only be sure if we have the correct
+					// include file if it is the only one matched.
+					// More than one match means an error.
+					if (matched)
+						return NULL;
+
+					// Saved it to matched.
+					matched = uri;
+				}
+			} else if (dptr->d_type == DT_DIR) { // The path is another directory.
+				// Do not process current dir and one level down dir.
+				if (strcmp(dptr->d_name, ".") and
+				    strcmp(dptr->d_name, "..")) {
+					// Build the path.
+					String *uri = dir->clone();
+					uri->append("/");
+					uri->append(dptr->d_name);
+
+					// Add the newly discovered directory path to be tested.
+					dirlist->push_back(uri);
+				}
+			}
+		}
+
+		// Close the directory.
+		closedir(dirp);
+	}
+
+	return matched;
+}
+
+String* search_file(String* filename, String_list* dirs) {
+	String *file = search_file_from_dirs(filename, dirs);
+	if (!file && args_info.include_regexp_flag)
+		file = search_file_with_regexp(filename);
+
+	if (!file && args_info.include_name_flag)
+		file = search_file_with_regexp(filename, true);
+
+	// If file could not be found, return NULL
+	return file;
 }
 
 void run_standard_transforms(PHP_script* php_script)
