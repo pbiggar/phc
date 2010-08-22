@@ -2799,6 +2799,7 @@ void Generate_C::post_php_script(PHP_script* in)
 		"   signal(SIGABRT, sighandler);\n"
 		"   signal(SIGSEGV, sighandler);\n"
 		"\n"
+    "   TSRMLS_D;\n"
 		"   php_embed_init (argc, argv PTSRMLS_CC);\n"
 		"   zend_first_try\n"
 		"   {\n"
