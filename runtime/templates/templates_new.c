@@ -231,8 +231,8 @@ return (token RETVAL, node RET)
    \get_st_entry ("LOCAL", "p_rhs", RETVAL);
    sep_copy_on_write (p_rhs);
    zval_ptr_dtor (return_value_ptr);
-   (*p_rhs)->is_ref = 1;
-   (*p_rhs)->refcount++;
+   Z_SET_ISREF_P(*p_rhs);
+   Z_ADDREF_P((*p_rhs));
    *return_value_ptr = *p_rhs;
    goto end_of_function;
 @@@
@@ -351,7 +351,7 @@ assign_expr_constant (token LHS, string CONSTANT)
    // No null-terminator in length for get_constant.
    // zend_get_constant always returns a copy of the constant.
    \get_st_entry ("LOCAL", "p_lhs", LHS);
-   if (\is_ref ("*p_lhs", LHS))
+   if (!\is_ref ("*p_lhs", LHS))
    {
       zval* constant;
       get_constant ("$CONSTANT", \cb:length(CONSTANT), p_lhs TSRMLS_CC);
@@ -397,7 +397,7 @@ get_st_entry (string SCOPE, string ZVP, token VAR)
   if (local_$VAR == NULL)
     {
       local_$VAR = EG (uninitialized_zval_ptr);
-      local_$VAR->refcount++;
+      Z_ADDREF_P(local_$VAR);
     }
   zval** $ZVP = &local_$VAR;
 @@@
@@ -518,7 +518,7 @@ write_var_inner (string LHS, string RHS, node TLHS, node TRHS)
   else
     {
       // Share a copy
-      $RHS->refcount++;
+      Z_ADDREF_P($RHS);
       *$LHS = $RHS;
     }
 @@@
@@ -953,7 +953,7 @@ var_static_field_access_ref (token LHS, token CLASS, token VAR_FIELD)
 is_ref (string ZVP, node ATTRS) where ATTRS.cannot_be_ref @@@ 0 @@@
 is_ref (string ZVP, node ATTRS) where ATTRS.pool_name @@@ 0 @@@
 is_ref (string ZVP, node ATTRS) where ATTRS.is_uninitialized @@@ 0 @@@
-is_ref (string ZVP, node ATTRS) @@@ ($ZVP)->is_ref @@@
+is_ref (string ZVP, node ATTRS) @@@ Z_ISREF_P($ZVP) @@@
 
 /*
  * Object creation
@@ -1171,12 +1171,12 @@ call_function (node ATTRS, string MN, list ARGS, string FILENAME, string LINE, s
    if(\return_reference_bug(ATTRS))
    {
       assert (rhs != EG(uninitialized_zval_ptr));
-      rhs->is_ref = 1;
+      Z_SET_ISREF_P(rhs);
       if (saved_refcount != 0)
       {
-	 rhs->refcount = saved_refcount;
+	 Z_SET_REFCOUNT_P(rhs, saved_refcount);
       }
-      rhs->refcount++;
+      Z_ADDREF_P(rhs);
    }
    saved_refcount = 0; // for 'obscure cases'
 

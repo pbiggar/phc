@@ -31,7 +31,7 @@ class CompilePluginTest extends AsyncTest
 
 		// copy the header files from the plugin's directory to
 		// working dir
-		$headers = split ("\n", chop (`find $base_dir/plugins -name "*.h"`));
+		$headers = preg_split ("/\n/", chop (`find $base_dir/plugins -name "*.h"`));
 		$new_headers = array ();
 		if ($headers !== array (""))
 		{

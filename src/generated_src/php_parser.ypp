@@ -2074,6 +2074,12 @@ expr_without_variable:
 	| K_EXIT exit_expr
 		{
 			$$ = $2;
+		}	
+  | K_DIE exit_expr
+		{
+			$$ = $2;
+      delete $2->method_name;
+			$2->method_name = new METHOD_NAME(new String("die"));
 		}
 	| '@' expr
 		{

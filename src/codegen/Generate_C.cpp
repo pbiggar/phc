@@ -73,6 +73,14 @@ extern struct gengetopt_args_info args_info;
 // we need access to the pass manager in compile_static_value
 extern Pass_manager* pm;
 
+
+/* While its tough to remove these, we can at least limit them so that they
+ * arent usable from patterns. */
+static stringstream prologue;
+static stringstream initializations;
+static stringstream embed_initializations;
+static stringstream finalizations;
+
 /*
  * Helper functions
  */
@@ -253,7 +261,7 @@ string get_st_entry (Scope scope, string zvp, VARIABLE_NAME* var_name)
 		<< "if (" << name << " == NULL)\n"
 		<< "{\n"
 		<<		name << " = EG (uninitialized_zval_ptr);\n"
-		<<		name << "->refcount++;\n"
+		<<		"Z_ADDREF_P(" << name << ");\n"
 		<< "}\n"
 		<<	"zval** " << zvp << " = &" << name << ";\n";
 	}
@@ -618,8 +626,8 @@ void Generate_C::compile_static_value(string result, ostream& os, Static_value* 
 	// so that it does not get cleaned up with the rest of the temps
 	os 
 	<< result << " = local___static_value__;\n" 
-	<< "assert(!" << result << "->is_ref);\n" 
-	<< result << "->refcount++;\n";
+	<< "assert(!Z_ISREF_P(" << result << "));\n" 
+	<< "Z_ADDREF_P(" << result << ");\n";
 
 	// Clean up the temps again
 	foreach (string temp, gen_ann->var_names)
@@ -781,7 +789,7 @@ protected:
 		<<		"while (arg_count > 0)\n"
 		<<		"{\n"
 		<<		"	param_ptr = *(p-arg_count);\n"
-		<<		"	printf(\"addr = %08X, refcount = %d, is_ref = %d\\n\", (long)param_ptr, param_ptr->refcount, param_ptr->is_ref);\n"
+		<<		"	printf(\"addr = %08X, refcount = %d, is_ref = %d\\n\", (long)param_ptr, Z_REFCOUNT_P(param_ptr), Z_ISREF_P(param_ptr));\n"
 		<<		"	arg_count--;\n"
 		<<		"}\n"
 		<<		"printf(\"END ARGUMENT STACK\\n\");\n"
@@ -850,7 +858,7 @@ protected:
 			buf 
 			<< "// Add all parameters as local variables\n"
 			<< "{\n"
-			<< "int num_args = ZEND_NUM_ARGS ();\n"
+			<< "int num_args = MIN(ZEND_NUM_ARGS (), " << parameters->size() << ");\n"
 			<< "zval* params[" << parameters->size() << "];\n"
 			// First parameter to zend_get_parameters_array does not appear
 			// to be used (by looking at the source)
@@ -860,7 +868,7 @@ protected:
 			int index = 0;
 			foreach (Formal_parameter* param, *parameters)
 			{
-//				buf << "printf(\"refcount = %d, is_ref = %d\\n\", params[" << index << "]->refcount, params[" << index << "]->is_ref);\n";
+//				buf << "printf(\"refcount = %d, is_ref = %d\\n\", Z_REFCOUNT_P(params[" << index << "]), Z_ISREF_P(params[" << index << "]));\n";
 				buf << "// param " << index << "\n";
 
 				// if a default value is available, then create code to
@@ -878,14 +886,14 @@ protected:
 					gen->compile_static_value ("default_value", buf, param->var->default_value);
 
 					buf
-					<< "default_value->refcount--;\n"
+					<< "Z_DELREF_P(default_value);\n"
 					<<	"	params[" << index << "] = default_value;\n"
 					<< "}\n"
 					;
 				}
 
 				buf
-				<< "params[" << index << "]->refcount++;\n";
+				<< "Z_ADDREF_P(params[" << index << "]);\n";
 
 				// TODO this should be abstactable, but it work now, so
 				// leave it.
@@ -974,8 +982,13 @@ protected:
 		{
 			buf
 			<< "if (*return_value_ptr)\n"
-			<< "	saved_refcount = (*return_value_ptr)->refcount;\n"
+			<< "	saved_refcount = Z_REFCOUNT_P(*return_value_ptr);\n"
 			;
+		}
+
+		if (*signature->method_name->value == "__MAIN__")
+		{
+			buf << finalizations.str ();
 		}
 
 		buf << "}\n" ;
@@ -1315,7 +1328,7 @@ public:
 		buf
 		<< get_st_entry (LOCAL, "p_lhs", lhs->value)
 		<< "zval* value;\n"
-		<< "if ((*p_lhs)->is_ref)\n"
+		<< "if (Z_ISREF_P(*p_lhs))\n"
 		<< "{\n"
 		<< "  // Always overwrite the current value\n"
 		<< "  value = *p_lhs;\n"
@@ -2611,11 +2624,6 @@ void include_file (ostream& out, String* filename)
 	out << read_file (filename);
 }
 
-/* While its tough to remove these, we can at least limit them so that they
- * arent usable from patterns. */
-static stringstream prologue;
-static stringstream initializations;
-static stringstream finalizations;
 void Generate_C::pre_php_script(PHP_script* in)
 {
 	micg.add_macro_def (read_file (s("templates/templates_new.c")), "templates/templates_new.c");
@@ -2667,7 +2675,7 @@ void Generate_C::pre_php_script(PHP_script* in)
 	foreach (String* key, *PHP::get_altered_ini_entries ())
 	{
 		String* value = PHP::get_ini_entry (key);
-		initializations
+		embed_initializations
 		<< "zend_alter_ini_entry ("
 		<< "\"" << *key << "\", "
 		<< (key->size () + 1) << ", " // include NULL byte
@@ -2698,11 +2706,38 @@ void Generate_C::post_php_script(PHP_script* in)
 	os << body.str();
 
 	// MINIT
-	os << "// Module initialization\n";
-	os << "PHP_MINIT_FUNCTION(" << *extension_name << ")\n{\n";
-	os << minit.str();
-	os << "return SUCCESS;";
-	os << "}";
+	os << "// Module initialization\n"
+		<< "PHP_MINIT_FUNCTION(" << *extension_name << ")\n{\n"
+
+		<< "	// initialize the phc runtime\n"
+		<< "	init_runtime();\n"
+		<< "\n"
+		<< "	// initialize the module\n"
+		<<		minit.str()
+		<< "\n"
+		<< "	// initialize the stats\n"
+		<<		init_stats ()
+		<< "\n"
+		<<	"	// Other initializations\n"
+		<<		initializations.str ()
+		<< "\n"
+		<< "return SUCCESS;\n"
+		<< "}\n";
+
+	// MSHUTDOWN
+	os << "// Module finalization\n"
+		<< "PHP_MSHUTDOWN_FUNCTION(" << *extension_name << ")\n{\n"
+		<< "\n"
+		<<	"	// Other finalizations occur at the end of __MAIN__\n"
+		<< "\n"
+		<<	"	// finalize the stats\n"
+		<<		finalize_stats ()
+		<< "\n"
+		<< "	// Finalize the runtime\n"
+		<<	"	finalize_runtime();\n"
+		<< "\n"
+		<< "return SUCCESS;\n"
+		<< "}";
 
 
 	function_declaration_block(os, in->attrs->get_list<Signature>("phc.codegen.compiled_functions"), extension_name);
@@ -2714,7 +2749,7 @@ void Generate_C::post_php_script(PHP_script* in)
 	<< "\"" << *extension_name << "\",\n"
 	<< *extension_name << "_functions,\n"
 	<< "PHP_MINIT(" << *extension_name << "), /* MINIT */\n"
-	<< "NULL, /* MSHUTDOWN */\n"
+	<< "PHP_MSHUTDOWN(" << *extension_name << "), /* MSHUTDOWN */\n"
 	<< "NULL, /* RINIT */\n"
 	<< "NULL, /* RSHUTDOWN */\n"
 	<< "NULL, /* MINFO */\n"
@@ -2761,14 +2796,10 @@ void Generate_C::post_php_script(PHP_script* in)
 		"   signal(SIGABRT, sighandler);\n"
 		"   signal(SIGSEGV, sighandler);\n"
 		"\n"
-		"   TSRMLS_D;\n"
-		"   int dealloc_pools = 1;\n"
 		"   php_embed_init (argc, argv PTSRMLS_CC);\n"
 		"   zend_first_try\n"
 		"   {\n"
 		"\n"
-		"      // initialize the phc runtime\n"
-		"      init_runtime();\n"
 		"\n"
 		"      // load the compiled extension\n"
 		"      zend_startup_module (&" << *extension_name << "_module_entry);\n"
@@ -2782,9 +2813,7 @@ void Generate_C::post_php_script(PHP_script* in)
 		"      zend_alter_ini_entry (\"report_zend_debug\", sizeof(\"report_zend_debug\"), \"0\", sizeof(\"0\") - 1, PHP_INI_ALL, PHP_INI_STAGE_RUNTIME);\n"
 		"      zend_alter_ini_entry (\"display_startup_errors\", sizeof(\"display_startup_errors\"), \"1\", sizeof(\"1\") - 1, PHP_INI_ALL, PHP_INI_STAGE_RUNTIME);\n"
 		"\n"
-		<< init_stats () << 
-		"      // initialize all the constants\n"
-		<< initializations.str () << // TODO put this in __MAIN__, or else extensions cant use it.
+		<<	embed_initializations.str () <<
 		"\n"
 		"      // call __MAIN__\n"
 		"      int success = call_user_function( \n"
@@ -2798,20 +2827,12 @@ void Generate_C::post_php_script(PHP_script* in)
 		"\n"
 		"      assert (success == SUCCESS);\n"
 		"\n"
-		<< finalize_stats () <<
-		"      // finalize the runtime\n"
-		"      finalize_runtime();\n"
 		"\n"
 		"   }\n"
 		"   zend_catch\n"
 		"   {\n"
-		"		dealloc_pools = 0;\n"
 		"   }\n"
 		"   zend_end_try ();\n"
-		"   if (dealloc_pools)\n"
-		"   {\n"
-		<< finalizations.str () << 
-		"   }\n"
 		"   phc_exit_status = EG(exit_status);\n"
 		"   php_embed_shutdown (TSRMLS_C);\n"
 		"\n"

@@ -301,7 +301,7 @@ function parse_options ($options)
 			$result[$key_pair] = true;
 		else
 		{
-			list ($key, $pair) = split ("=", $key_pair);
+			list ($key, $pair) = explode ("=", $key_pair);
 			$result[$key] = $pair;
 		}
 	}
@@ -361,7 +361,7 @@ class Annotated_test extends AsyncTest
 		$triples = array ();
 
 		// match the annotations 
-		$lines = split ("\n", $out);
+		$lines = explode ("\n", $out);
 		$pregs = array ("/#(.*)$/", "/\/\/(.*)$/", "/\/\*(.*)\*\//");
 		foreach ($lines as $line)
 		{

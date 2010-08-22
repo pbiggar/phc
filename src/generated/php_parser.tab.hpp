@@ -1,24 +1,23 @@
-/* A Bison parser, made by GNU Bison 2.3.  */
+
+/* A Bison parser, made by GNU Bison 2.4.1.  */
 
 /* Skeleton interface for Bison's Yacc-like parsers in C
-
-   Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006
+   
+      Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006
    Free Software Foundation, Inc.
-
-   This program is free software; you can redistribute it and/or modify
+   
+   This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2, or (at your option)
-   any later version.
-
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+   
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-
+   
    You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin Street, Fifth Floor,
-   Boston, MA 02110-1301, USA.  */
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 /* As a special exception, you may create a larger work that contains
    part or all of the Bison parser skeleton and distribute that work
@@ -29,9 +28,10 @@
    special exception, which will cause the skeleton and the resulting
    Bison output files to be licensed under the GNU General Public
    License without this special exception.
-
+   
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
+
 
 /* Tokens.  */
 #ifndef YYTOKENTYPE
@@ -154,128 +154,16 @@
      INVALID_TOKEN = 370
    };
 #endif
-/* Tokens.  */
-#define K_AND 258
-#define K_OR 259
-#define K_XOR 260
-#define K___FILE__ 261
-#define K_EXCEPTION 262
-#define K___LINE__ 263
-#define K_ARRAY 264
-#define K_AS 265
-#define K_BREAK 266
-#define K_CASE 267
-#define K_CLASS 268
-#define K_CONST 269
-#define K_CONTINUE 270
-#define K_DECLARE 271
-#define K_DEFAULT 272
-#define K_DIE 273
-#define K_DO 274
-#define K_ECHO 275
-#define K_ELSE 276
-#define K_ELSEIF 277
-#define K_EMPTY 278
-#define K_ENDDECLARE 279
-#define K_ENDFOR 280
-#define K_ENDFOREACH 281
-#define K_ENDIF 282
-#define K_ENDSWITCH 283
-#define K_ENDWHILE 284
-#define K_EVAL 285
-#define K_EXIT 286
-#define K_EXTENDS 287
-#define K_FOR 288
-#define K_FOREACH 289
-#define K_FUNCTION 290
-#define K_GLOBAL 291
-#define K_IF 292
-#define K_INCLUDE 293
-#define K_INCLUDE_ONCE 294
-#define K_INSTANCEOF 295
-#define K_ISSET 296
-#define K_LIST 297
-#define K_NEW 298
-#define K_PRINT 299
-#define K_REQUIRE 300
-#define K_REQUIRE_ONCE 301
-#define K_RETURN 302
-#define K_STATIC 303
-#define K_SWITCH 304
-#define K_UNSET 305
-#define K_USE 306
-#define K_VAR 307
-#define K_WHILE 308
-#define K___FUNCTION__ 309
-#define K___CLASS__ 310
-#define K___METHOD__ 311
-#define K_FINAL 312
-#define K_PHP_USER_FILTER 313
-#define K_INTERFACE 314
-#define K_IMPLEMENTS 315
-#define K_PUBLIC 316
-#define K_PRIVATE 317
-#define K_PROTECTED 318
-#define K_ABSTRACT 319
-#define K_CLONE 320
-#define K_TRY 321
-#define K_CATCH 322
-#define K_THROW 323
-#define K_CFUNCTION 324
-#define K_OLD_FUNCTION 325
-#define K_HALT_COMPILER 326
-#define C_TRUE 327
-#define C_FALSE 328
-#define C_NULL 329
-#define O_EQEQ 330
-#define O_EQEQEQ 331
-#define O_NOTEQ 332
-#define O_NOTEQEQ 333
-#define O_LE 334
-#define O_GE 335
-#define O_INC 336
-#define O_DEC 337
-#define O_DOUBLEARROW 338
-#define O_SINGLEARROW 339
-#define O_SL 340
-#define O_SR 341
-#define O_COLONCOLON 342
-#define O_LOGICOR 343
-#define O_LOGICAND 344
-#define O_PLUSEQ 345
-#define O_MINUSEQ 346
-#define O_MULEQ 347
-#define O_DIVEQ 348
-#define O_CONCATEQ 349
-#define O_MODEQ 350
-#define O_ANDEQ 351
-#define O_OREQ 352
-#define O_XOREQ 353
-#define O_SLEQ 354
-#define O_SREQ 355
-#define O_MAGIC_CONCAT 356
-#define CAST_INT 357
-#define CAST_REAL 358
-#define CAST_STRING 359
-#define CAST_ARRAY 360
-#define CAST_OBJECT 361
-#define CAST_BOOL 362
-#define CAST_UNSET 363
-#define T_STRING 364
-#define IDENT 365
-#define VARIABLE 366
-#define T_INT 367
-#define T_REAL 368
-#define INLINE_HTML 369
-#define INVALID_TOKEN 370
-
 
 
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 95 "src/generated_src/php_parser.ypp"
 {
+
+/* Line 1676 of yacc.c  */
+#line 95 "src/generated_src/php_parser.ypp"
+
 	Object* object;
 	List<AST::Statement*>* list_ast_statement;
 	List<AST::Catch*>* list_ast_catch;
@@ -329,14 +217,17 @@ typedef union YYSTYPE
 	AST::Member* ast_member;
 	AST::Attribute* ast_attribute;
 	AST::New* ast_new;
-}
-/* Line 1489 of yacc.c.  */
-#line 335 "src/generated/php_parser.tab.hpp"
-	YYSTYPE;
+
+
+
+/* Line 1676 of yacc.c  */
+#line 225 "src/generated/php_parser.tab.hpp"
+} YYSTYPE;
+# define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
-# define YYSTYPE_IS_TRIVIAL 1
 #endif
+
 
 
 

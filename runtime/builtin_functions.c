@@ -25,7 +25,7 @@ phc_builtin_eval (zval * arg, zval ** p_result, char *filename TSRMLS_DC)
     }
 
   // cleanup
-  assert (copy->refcount == 1);
+  assert (Z_REFCOUNT_P(copy) == 1);
   zval_ptr_dtor (&copy);
 }
 
@@ -174,7 +174,7 @@ include_backend (zval * arg, zval ** p_result, char *filename, int type, int is_
    // run it
    success = zend_execute_scripts (type TSRMLS_CC, p_result, 1, &handle);
    assert (success == SUCCESS);
-   zend_stream_close (&handle);
+   zend_file_handle_dtor (&handle);
 
    // Success
    if (*p_result)

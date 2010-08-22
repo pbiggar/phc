@@ -33,8 +33,8 @@ ht_debug (HashTable * ht)
 	}
 
       printf (": addr = %08lX, refcount = %d, is_ref = %d ",
-	      (long unsigned int) (*ppzval), (*ppzval)->refcount,
-	      (*ppzval)->is_ref);
+	      (long unsigned int) (*ppzval), Z_REFCOUNT_P(*ppzval),
+	      Z_ISREF_P(*ppzval));
       switch (Z_TYPE_P (zvp))
 	{
 	case IS_NULL:

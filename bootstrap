@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -x
-AUTOCONF_ARCHIVE=/usr/share/autoconf-archive/m4
+AUTOCONF_ARCHIVE=/usr/share/aclocal
 
 # autotools invocations are hard to get right.
 

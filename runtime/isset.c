@@ -17,7 +17,7 @@ isset_array (zval ** p_var, zval * ind)
       convert_to_long (ind);
       int result = (Z_LVAL_P (ind) >= 0
 		    && Z_LVAL_P (ind) < Z_STRLEN_PP (p_var));
-      assert (ind->refcount == 1);
+      assert (Z_REFCOUNT_P(ind) == 1);
       zval_ptr_dtor (&ind);
       return result;
     }

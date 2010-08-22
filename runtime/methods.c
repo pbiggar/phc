@@ -15,7 +15,7 @@ fetch_var_arg_by_ref (zval ** p_arg)
   // not, that means that the variable would have been
   // in a copy-on-write set, and would have been
   // seperated above).
-  (*p_arg)->is_ref = 1;
+  Z_SET_ISREF_P(*p_arg);
 
   return p_arg;
 }
@@ -24,7 +24,7 @@ fetch_var_arg_by_ref (zval ** p_arg)
 static zval *
 fetch_var_arg (zval * arg, int *is_arg_new)
 {
-  if (arg->is_ref)
+  if (Z_ISREF_P(arg))
     {
       // We dont separate since we don't own one of ARG's references.
       arg = zvp_clone_ex (arg);
@@ -35,7 +35,7 @@ fetch_var_arg (zval * arg, int *is_arg_new)
       // but gives the right answer. We should look at how zend does
       // this.
 
-      arg->refcount--;
+      Z_DELREF_P(arg);
     }
   return arg;
 }
@@ -59,14 +59,14 @@ phc_setup_error (int init, char *filename, int line_number,
       old_in_execution = EG (in_execution);
       old_filename = CG (compiled_filename);
       old_lineno = CG (zend_lineno);
-      old_function = EG (function_state_ptr)->function;
+      old_function = EG (current_execute_data)->function_state.function;
       // Put in our values
       CG (in_compilation) = 1;
       EG (in_execution) = 1;
       CG (compiled_filename) = filename;
       CG (zend_lineno) = line_number;
       if (function)
-	EG (function_state_ptr)->function = function;
+	EG (current_execute_data)->function_state.function = function;
     }
   else
     {
@@ -74,7 +74,7 @@ phc_setup_error (int init, char *filename, int line_number,
       EG (in_execution) = old_in_execution;
       CG (compiled_filename) = old_filename;
       CG (zend_lineno) = old_lineno;
-      EG (function_state_ptr)->function = old_function;
+      EG (current_execute_data)->function_state.function = old_function;
     }
 }
 
@@ -86,16 +86,17 @@ initialize_function_call (zend_fcall_info * fci, zend_fcall_info_cache * fcic,
   if (fcic->initialized)
     return;
 
-  zval fn;
-  INIT_PZVAL (&fn);
-  ZVAL_STRING (&fn, function_name, 0);
-  int result = zend_fcall_info_init (&fn, fci, fcic TSRMLS_CC);
+  zval * fn;
+  MAKE_STD_ZVAL (fn);
+  ZVAL_STRING (fn, function_name, 0);
+  int result = zend_fcall_info_init (fn, 0, fci, fcic, NULL, NULL TSRMLS_CC);
   if (result != SUCCESS)
     {
       phc_setup_error (1, filename, line_number, NULL TSRMLS_CC);
       php_error_docref (NULL TSRMLS_CC, E_ERROR,
 			"Call to undefined function %s()", function_name);
     }
+
 }
 
 /*
@@ -129,13 +130,13 @@ initialize_method_call (zend_fcall_info * fci, zend_fcall_info_cache * fcic,
    *   params          --  should be initialized by caller
    */
   fci->size = sizeof (*fci);
-  fci->object_pp = obj;
+  Z_SET_OBJECT_PTR(fci, obj);
   fci->no_separation = 1;
   fci->symbol_table = NULL;
 
   fcic->initialized = 1;
   fcic->calling_scope = obj_ce;
-  fcic->object_pp = obj;
+  Z_SET_OBJECT_PTR(fcic, obj);
   fcic->function_handler
     = Z_OBJ_HT_PP (obj)->get_method (obj,
 				     function_name,
@@ -177,13 +178,13 @@ initialize_constructor_call (zend_fcall_info * fci,
    *   params          --  should be initialized by caller
    */
   fci->size = sizeof (*fci);
-  fci->object_pp = obj;
+  Z_SET_OBJECT_PTR(fci, obj);
   fci->no_separation = 1;
   fci->symbol_table = NULL;
 
   fcic->initialized = 1;
   fcic->calling_scope = obj_ce;
-  fcic->object_pp = obj;
+  Z_SET_OBJECT_PTR(fcic, obj);
   fcic->function_handler
     = Z_OBJ_HT_PP (obj)->get_constructor (*obj TSRMLS_CC);
 

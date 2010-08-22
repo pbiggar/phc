@@ -457,7 +457,7 @@ abstract class AsyncTest extends Test
 		if ($in)
 			$descriptorspec[0] = array ("pipe", "r");
 		$pipes = array();
-		$handle = proc_open ($command, $descriptorspec, &$pipes);
+		$handle = proc_open ($command, $descriptorspec, $pipes);
 		stream_set_blocking ($pipes[1], 0);
 		stream_set_blocking ($pipes[2], 0);
 		if ($in)
