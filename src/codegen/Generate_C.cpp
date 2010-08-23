@@ -2694,8 +2694,17 @@ void Generate_C::pre_php_script(PHP_script* in)
 
 		prologue
 		<< "static zend_fcall_info " << fci_name << ";\n"
-		<< "static zend_fcall_info_cache " << fcic_name << " = {0,NULL,NULL,NULL};\n"
+		<< "static zend_fcall_info_cache " << fcic_name << ";\n"
 		;
+
+    initializations
+    << "memset (&" << fci_name << ", 0, sizeof (zend_fcall_info));\n"
+    << "memset (&" << fcic_name << ", 0, sizeof (zend_fcall_info_cache));\n"
+    ;
+
+    finalizations
+    << "destroy_function_call (&" << fci_name << ");\n"
+    ;
 	}
 
 }
@@ -2796,6 +2805,7 @@ void Generate_C::post_php_script(PHP_script* in)
 		"   signal(SIGABRT, sighandler);\n"
 		"   signal(SIGSEGV, sighandler);\n"
 		"\n"
+    "   TSRMLS_D;\n"
 		"   php_embed_init (argc, argv PTSRMLS_CC);\n"
 		"   zend_first_try\n"
 		"   {\n"

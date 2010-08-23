@@ -16,7 +16,7 @@ SUBDIRS = libltdl
 # Note the preprocessor supports -Wall, so we put that here, rather than a seperate CXX_FLAGS
 AM_CPPFLAGS = \
 	$(BOOST_CPPFLAGS) $(LTDLINCL) 															\
-	-I$(srcdir)/src -I$(srcdir)/3rdparty/getopt -I$(srcdir)/src/generated		\
+	-I$(srcdir)/src -I$(srcdir) -I$(srcdir)/3rdparty/getopt -I$(srcdir)/src/generated		\
 	@libphp_headers@																				\
 	-DDATADIR=\"$(datadir)\" -DPKGLIBDIR=\"$(pkglibdir)\"								\
 	-Wall

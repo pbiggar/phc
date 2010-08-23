@@ -88,7 +88,7 @@ initialize_function_call (zend_fcall_info * fci, zend_fcall_info_cache * fcic,
 
   zval * fn;
   MAKE_STD_ZVAL (fn);
-  ZVAL_STRING (fn, function_name, 0);
+  ZVAL_STRING (fn, function_name, 1);
   int result = zend_fcall_info_init (fn, 0, fci, fcic, NULL, NULL TSRMLS_CC);
   if (result != SUCCESS)
     {
@@ -97,6 +97,13 @@ initialize_function_call (zend_fcall_info * fci, zend_fcall_info_cache * fcic,
 			"Call to undefined function %s()", function_name);
     }
 
+}
+
+static void
+destroy_function_call (zend_fcall_info * fci)
+{
+  if (fci->function_name)
+    zval_ptr_dtor (&fci->function_name);
 }
 
 /*
