@@ -2,6 +2,7 @@
 #define PHC_ESSA
 
 class CFG;
+class SSA_def;
 class Aliasing;
 class BasicBlock;
 class Whole_program;
