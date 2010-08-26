@@ -1532,8 +1532,6 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		// it may return bool if the parameter is bigger then PHP_URL_FRAGMENT
 		// it may return an array if the parameter is lower than 0 (threat as if it wasn't a parameter).
 		if (params[1]) {
-			use_array = false;
-
 			const Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[1]);
 
 			// If it is not a literal might by anything.
@@ -1545,7 +1543,11 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 				types->insert("string"); // Might be string if the url contains the requested PHP_URL_* value.
 
 				assign_path_typed(cx, ret_path, types);
+
+				// This case will also add the array.
 			} else { // It is a constant value.
+				use_array = false;
+
 				const MIR::INT *v1 = dynamic_cast<const MIR::INT *>(absval->lit);
 				if (v1 == NULL) // If the constant isn't int, return null.
 					assign_path_scalar(cx, ret_path, new NIL);
