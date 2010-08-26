@@ -1521,6 +1521,97 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		assign_path_typed_array (cx, ret_path, new Types ("string"), ANON);
 		assign_path_scalar (cx, ret_path, new BOOL (false), false);
 	}
+	else if (*info->name == "parse_url")
+ 	{
+		// return array.
+		bool use_array = true;
+
+		// Second argument governs which url field is being requested.
+		// it may return string for the PHP_URL_* (except port)
+		// it may return int for PHP_URL_PORT
+		// it may return bool if the parameter is bigger then PHP_URL_FRAGMENT
+		// it may return an array if the parameter is lower than 0 (threat as if it wasn't a parameter).
+		if (params[1]) {
+			use_array = false;
+
+			const Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[1]);
+
+			// If it is not a literal might by anything.
+			if (absval->lit == NULL) {
+				Types* types = new Types;
+				types->insert("unset");  // Might be null in enumerous cases.
+				types->insert("bool");   // Might be bool if is any of the PHP_URL_* constants.
+				types->insert("int");    // Might be int if is PHP_URL_PORT.
+				types->insert("string"); // Might be string if the url contains the requested PHP_URL_* value.
+
+				assign_path_typed(cx, ret_path, types);
+			} else { // It is a constant value.
+				const MIR::INT *v1 = dynamic_cast<const MIR::INT *>(absval->lit);
+				if (v1 == NULL) // If the constant isn't int, return null.
+					assign_path_scalar(cx, ret_path, new NIL);
+				else if (v1->value < 0) // Threat as if it wasn't a second parameter.
+					use_array = true;
+				else {
+					Types* types = new Types;
+
+					// Even with the correct PHP_URL_* value
+					// the url string may not have the desired
+					// field, hence the use of unset (null).
+					types->insert("unset");
+
+					// Test all possible url field values.
+					List<string> url_fields;
+					url_fields.push_back("PHP_URL_SCHEME");
+					url_fields.push_back("PHP_URL_HOST");
+					url_fields.push_back("PHP_URL_PORT");
+					url_fields.push_back("PHP_URL_USER");
+					url_fields.push_back("PHP_URL_PASS");
+					url_fields.push_back("PHP_URL_PATH");
+					url_fields.push_back("PHP_URL_QUERY");
+					url_fields.push_back("PHP_URL_FRAGMENT");
+
+					bool found_field = false;
+					foreach (string field, url_fields) {
+						// Get the constant directly.
+						Literal *ct = PHP::fold_constant(new Constant(NULL, new CONSTANT_NAME(s(field))));
+						phc_optimization_assertion(ct != NULL);
+
+						const MIR::INT *v2 = dynamic_cast<const MIR::INT *>(ct);
+						phc_optimization_assertion(v2 != NULL);
+
+						if (v1->value == v2->value) {
+							if (field == "PHP_URL_PORT")
+								types->insert("int");
+							else
+								types->insert("string");
+
+							found_field = true;
+							break; // We don't need to search anymore.
+						}
+					}
+
+					if (found_field)
+						assign_path_typed(cx, ret_path, types);
+					else // if the constant is not found return false.
+						assign_path_scalar(cx, ret_path, new BOOL(false));
+				}
+			}
+		}
+
+		// Return an array containing url fields.
+		if (use_array) {
+			string name = assign_path_empty_array (cx, ret_path, ANON, false);
+
+			assign_path_typed (cx, P (name, "scheme"), new Types ("string"));
+			assign_path_typed (cx, P (name, "host"), new Types ("string"));
+			assign_path_typed (cx, P (name, "port"), new Types ("int"));
+			assign_path_typed (cx, P (name, "user"), new Types ("string"));
+			assign_path_typed (cx, P (name, "pass"), new Types ("string"));
+			assign_path_typed (cx, P (name, "path"), new Types ("string"));
+			assign_path_typed (cx, P (name, "query"), new Types ("string"));
+			assign_path_typed (cx, P (name, "fragment"), new Types ("string"));
+		}
+	}
 	else if (*info->name == "posix_getgrgid"
 		|| *info->name == "posix_getpwuid")
 	{
