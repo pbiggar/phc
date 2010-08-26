@@ -932,6 +932,7 @@ Whole_program::populate_modelled_functions()
 	MODEL (rmdir, (0), "bool");
 	MODEL (round, (), "real");
 	MODEL (rtrim, (0, 1), "string");
+	MODEL (serialize, (), "string");
 	MODEL (session_destroy, (), "bool");
 	MODEL (session_id, (0), "string");
 	MODEL (session_is_registered, (0), "bool");
@@ -1613,6 +1614,10 @@ Whole_program::apply_modelled_function (Summary_method_info* info, Context* cx, 
 		params[0] = coerce_to_string (cx, params[0]);
 		const Abstract_value* absval = get_abstract_value (cx, R_WORKING, params[0]);
 		assign_path_scalar (cx, ret_path, absval);
+	}
+	else if (*info->name == "unserialize")
+	{
+		assign_path_typed (cx, ret_path, Type_info::get_all_scalar_types ());
 	}
 	else if (*info->name == "var_export" || *info->name == "print_r")
 	{
