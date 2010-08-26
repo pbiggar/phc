@@ -2267,10 +2267,28 @@ Whole_program::forward_bind (Method_info* info, Context* entry_cx, MIR::Actual_p
 		Static_value* _default = info->default_param (i);
 		if (_default)
 		{
-			if (not isa<Literal> (_default))
-				phc_optimization_exception ("Non-scalar default parameters not supported");
+			const Literal *_literal = NULL;
+			if (isa<Literal> (_default))
+			{
+				_literal = dyc<Literal> (_default);
+			}
+			else if (isa<Constant>(_default))
+			{
+				const Constant* _constant = dyc<Constant> (_default);
 
-			assign_path_scalar (entry_cx, P (scope, info->param_name (i)), dyc<Literal> (_default));
+				// Query the constant analysis for the constant value.
+				const Abstract_value* absval = constants->get_constant (block_cx (), R_IN, *_constant->constant_name->value);
+				if (absval->lit == NULL)
+					phc_optimization_exception("Unable to resolve default parameter constant");
+
+				_literal = absval->lit;
+			}
+			else
+			{
+ 				phc_optimization_exception ("Non-scalar default parameters not supported");
+			}
+
+			assign_path_scalar (entry_cx, P (scope, info->param_name (i)), _literal);
 		}
 		else
 		{
