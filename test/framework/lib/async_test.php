@@ -442,7 +442,7 @@ abstract class AsyncTest extends Test
 	function run_program ($bundle)
 	{
 		$command = $bundle->get_command ();
-		$command = "ulimit -v 262144 && $command";
+		$command = "ulimit -v 262144 && ulimit -t 300 && $command";
 		global $opt_verbose;
 		if ($opt_verbose)
 			print "Running command: $command\n";
