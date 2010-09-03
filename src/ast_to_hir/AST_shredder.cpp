@@ -278,12 +278,27 @@ Expr* Shredder::post_array(Array* in)
 					var->clone ()))));
 
 
+	// It makes it much much easier to analyse if we don't throw this
+	// information away. A key without an index uses the next largest key. 
+	int key_count = 0;
+	bool use_count = true;
 	foreach (Array_elem* ae, *in->array_elems)
 	{
 		Expr* key;
 
 		if(ae->key != NULL)
+		{
 			key = ae->key;
+
+			// This disrupts the count (we could carry on, but it'll only helpful
+			// in rare occasions).
+			use_count = false;
+		}
+		else if (use_count)
+		{
+			key = new INT (key_count);
+			key_count++;
+		}
 		else
 			key = NULL;
 

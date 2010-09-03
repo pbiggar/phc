@@ -164,10 +164,11 @@ public:
 		return result;
 	}
 
-	MIR::Signature* fold_impl_signature(HIR::Signature* orig, MIR::Method_mod* method_mod, bool is_ref, MIR::METHOD_NAME* method_name, MIR::Formal_parameter_list* formal_parameters) 
+	MIR::Signature* fold_impl_signature(HIR::Signature* orig, MIR::Method_mod* method_mod, bool return_by_ref, MIR::METHOD_NAME* method_name, MIR::Formal_parameter_list* formal_parameters) 
 	{
 		MIR::Signature* result;
-		result = new MIR::Signature(method_mod, is_ref, method_name, formal_parameters);
+		// The HIR doesnt have a pass_rest_by_ref field
+		result = new MIR::Signature(method_mod, false, return_by_ref, method_name, formal_parameters);
 		copy_attrs (result, orig);
 		return result;
 	}

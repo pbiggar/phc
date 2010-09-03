@@ -7,6 +7,7 @@
 
 #include <sstream>
 #include <iostream>
+#include <string.h>
 #include <cstring>
 #include <cstdlib>
 #include <cerrno>
@@ -114,13 +115,16 @@ void Compile_C::run (IR::PHP_script* in, Pass_manager* pm)
 		cout << command.str () << endl;
 	}
 
-
 	// Pipe output of Generate_C into gcc
 	int pfd[2];
+	int error_pipe[2];
 #define READ_END 0
 #define WRITE_END 1
 	if(pipe(pfd) == -1) 
 		phc_error ("Could not create pipe");
+	
+	if (pipe (error_pipe) == -1)
+		phc_error ("Could not create error pipe");
 
 	int cpid = fork();
 	if(cpid == -1)
@@ -131,6 +135,10 @@ void Compile_C::run (IR::PHP_script* in, Pass_manager* pm)
 		// Child (gcc)
 		close(pfd[WRITE_END]);
 		dup2(pfd[READ_END], STDIN_FILENO);
+		
+		close (error_pipe[READ_END]);
+		dup2 (error_pipe[WRITE_END], STDERR_FILENO);
+
 		execvp("gcc", argv);
 	}
 	else
@@ -142,6 +150,8 @@ void Compile_C::run (IR::PHP_script* in, Pass_manager* pm)
 		// Redirect stdout to the pipe
 		close(pfd[READ_END]);
 		dup2(pfd[WRITE_END], STDOUT_FILENO);
+
+		close (error_pipe[WRITE_END]);
 
 		// Output previously generated C
 		cout << os.str ();
@@ -157,6 +167,27 @@ void Compile_C::run (IR::PHP_script* in, Pass_manager* pm)
 		if (WEXITSTATUS (exit_code))
 		{
 			phc_error ("gcc exited with error %d (executed via '%s')", exit_code, command.str().c_str ());
+		}
+
+		FILE* stderr_file = fdopen (error_pipe[READ_END], "r");
+		char buffer[100];
+		while (!feof (stderr_file))
+		{
+			fgets (buffer, 100, stderr_file);
+			string s(buffer);
+			if (s.substr (0, 32) == "<stdin>: In function ‘main’:")
+			{
+				char otherbuffer[100];
+				fgets (otherbuffer, 100, stderr_file);
+				string t(otherbuffer);
+				if (t.substr (t.find_first_of ('w',0) ,47 ) != "warning: useless type name in empty declaration")
+				{
+					cerr << buffer;
+					cerr << otherbuffer;
+				}	
+			}
+			else
+				cerr << buffer;
 		}
 
 		// Restore stdout

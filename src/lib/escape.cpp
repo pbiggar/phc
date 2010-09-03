@@ -144,6 +144,9 @@ String* escape_DOT (String* in, int max_length)
 		{
 			case '\\':
 			case '"':
+			case '|':
+			case '{':
+			case '}':
 				escaped << "\\" << (*in)[i];
 				break;
 			default:

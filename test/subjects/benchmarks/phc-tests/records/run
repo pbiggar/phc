@@ -1,0 +1,565 @@
+#!/usr/bin/env php
+<?php
+
+	/*
+	 * Logging detail:
+	 *	All data is stored, in a log. Before the log is created, all
+	 *	data is kept in a string, which is emailed to me on failure.
+	 */
+
+	require_once ("test/framework/lib/header.php");
+
+	ob_start (); // keep all output
+	$full_log = "";
+
+	$REPO = "http://phc.googlecode.com/svn/";
+	$CWD = getcwd ();
+	$WORKING_DIR = "$CWD/testing";
+	$RESULTS_DIR = "$CWD/results";
+	$DB_FILENAME = "$RESULTS_DIR/results.db";
+
+	$allowed_branches = array ("trunk", "branches/dataflow", "branches/0.2.0");
+
+	// start the DB
+	initialize_db ();
+
+	// Prepare the test
+	$START_TIME = time ();
+
+
+
+	// Do SVN work - fails mean test wasnt affected
+	try
+	{
+		$LATEST_REVISION = get_latest_revision ();
+		list ($REV, $AUTHOR, $DATE) = get_test_revision () or svn_problem ();
+		$BRANCH = get_svn_branch ($REV);
+
+		record_revision_data ();
+
+		if (!in_array ($BRANCH, $allowed_branches))
+			skip_revision ();
+
+		initialize_test ();
+
+		c ("svn export -q --revision=$REV $REPO$BRANCH $WORKING_DIR");
+	}
+	catch (Exception $e) { svn_problem (); }
+
+	// Compile, test and benchmark
+	$components = array (new Compile_component(), new Test_component(), new Benchmark_component());
+	foreach ($components as $comp)
+	{
+		try
+		{
+			if ($comp->is_needed ())
+			{
+				$comp->start ();
+				$comp->run ();
+				$comp->finish ();
+			}
+		}
+		catch (Exception $e)
+		{
+			$comp->fail ();
+		}
+	}
+	save_log ();
+
+
+	/*
+	 * Error checking
+	 */
+
+	function svn_problem ()
+	{
+		print "SVN problem. Wait 1 min\n";
+		save_log ();
+		print "SVN problem. Wait 1 min\n";
+		sleep (60);
+		die ();
+	}
+
+	function script_problem ()
+	{
+		print "Script problem, saving and mailing error\n";
+		$info = ob_get_contents ();
+		save_log ();
+
+		mail ("paul.biggar@gmail.com", "Script error", $info);
+
+		die ();
+	}
+
+
+	/*
+	 * Initialization
+	 */
+
+	function initialize_test ()
+	{
+		global $REV, $LOG_DIR, $WORKING_DIR, $RESULTS_DIR;
+
+		# create directory structure
+		$LOG_DIR = "$RESULTS_DIR/$REV";
+		del_dir ($WORKING_DIR);
+
+		// dont delete the old test directory, it might have useful results from
+		// a different component.
+		create_dir ($LOG_DIR);
+
+		// Record what revision is being tested now
+		e ("DELETE FROM running");
+		e ("INSERT INTO running VALUES ($REV)");
+	}
+
+	function initialize_db ()
+	{
+		global $RESULTS_DIR;
+		create_dir ($RESULTS_DIR);
+
+		global $DB, $DB_FILENAME;
+		$DB = new PDO ("sqlite:$DB_FILENAME");
+	}
+
+	function record_revision_data ()
+	{
+		global $REV, $AUTHOR, $DATE, $BRANCH;
+
+		// The result can possibly exist already. But better to delete and
+		// insert, than update, in case its not there.
+		e ("DELETE FROM complete WHERE revision == $REV");
+		e ("INSERT INTO complete VALUES ($REV, '$BRANCH', '$AUTHOR', '$DATE')");
+	}
+	
+
+	/* 
+	 * Logging
+	 */
+
+	function save ($string, $log_name)
+	{
+		global $LOG_DIR;
+		if ($LOG_DIR)
+			file_put_contents ("$LOG_DIR/$log_name.log", $string);
+		else
+			print "No log yet:\n $string";
+	}
+
+	// Clear the buffer, so that the contents from now on can be used.
+	function start_log ()
+	{
+		global $full_log;
+		$full_log .= ob_get_clean ();
+		ob_start ();
+	}
+
+	function end_log ($log_name)
+	{
+		save (ob_get_contents(), $log_name);
+	}
+
+	function save_log ()
+	{
+		global $full_log;
+		$full_log .= ob_get_contents ();
+		save ($full_log, "log");
+	}
+
+
+
+	/*
+	 * Utility functions
+	 */
+
+	function del_dir ($dir)	{ c ("rm -Rf $dir"); }
+	function create_dir ($dir) { c ("mkdir -p $dir"); }
+
+	/* These functions add logging. They throw an error (with no information) in the case of error. */
+
+	// C for Command.
+	// Execute COMMAND in the shell. If LOG_NAME is given, log in LOG_NAME, as
+	// well as the normal log. Returns the STDOUT of the program, and throws an
+	// exception if there is STDERR or a non-zero exit_code.
+	function c ($command, $log_name = false)
+	{
+		print "Running command '$command'\n";
+		// We limit PHP to 256M, but that only includes PHP allocated data. (Later versions of the tests add this check themselves
+		list ($out, $err, $exit) = complete_exec ("ulimit -v 307200; $command", NULL, 60*60*12, true); // allow no more than 12 hours for the process
+
+		if ($log_name)
+		{
+			save ("Exit: $exit\n\nError:\n$err\n\nOutput:\n$out", $log_name);
+		}
+
+		if ($out === "Timeout")
+		{
+			$out = $err; $err = $exit;
+			print "Timeout\nOutput:$out\nError:$err\n";
+			throw new Exception;
+		}
+
+		// print before the program ends 
+		print "Returning result '$out'\n";
+		print "Returning error '$err'\n";
+		print "Returning exit '$exit'\n";
+
+		if ($exit !== 0)
+		{
+			print "Exit code is not zero: $exit\n";
+			throw new Exception ();
+		}
+
+		return $out;
+	}
+
+	// CD for Command in Directory.
+	// Change to the working directory, and call 'c()'
+	function cd ($command, $log_name = false)
+	{
+		global $WORKING_DIR;
+		$cwd = getcwd ();
+		print "Entering $WORKING_DIR\n";
+		chdir ($WORKING_DIR) or x ("Couldnt change dir to $WORKING_DIR");
+		$result = c ($command, $log_name);
+		chdir ($cwd);
+		print "Leaving $WORKING_DIR for $cwd\n";
+		return $result;
+	}
+
+
+	// E for Exec
+	// Execute the statement SQL.
+	function e ($sql)
+	{
+		print "Execing '$sql'\n";
+		global $DB;
+		if ($DB->exec ($sql) === FALSE)
+		{
+			var_dump ($DB->errorInfo());
+			script_problem ();
+		}
+	}
+
+	// Q For query
+	// Return the result of the query SQL. How the result is presented in
+	// specified by $RESULT_TYPE, which should probably be PDO::FETCH_COLUMN or
+	// PDO::FETCH_ASSOC.
+	function q ($sql, $result_type)
+	{
+		print "Querying '$sql'\n";
+		global $DB;
+		$query = $DB->query ($sql);
+
+		if ($query === FALSE)
+		{
+			var_dump ($DB->errorInfo());
+			script_problem ();
+		}
+		$result = $query->fetchAll($result_type);
+		var_dump ($result);
+		return $result;
+	}
+
+	/*
+	 * SVN data
+	 */
+
+	function get_svn_info ($rev)
+	{
+		global $REPO;
+		$output = c ("svn info $REPO -r $rev");
+
+		preg_match ("/^Last Changed Author: (.*)$/m", $output, $matches);
+		$author = $matches[1];
+
+		preg_match ("/^Revision: (.*?)$/m", $output, $matches);
+		$revision = $matches[1];
+		assert ($revision == $rev);
+
+		preg_match ("/^Last Changed Date: (.*)$/m", $output, $matches);
+		$date = $matches[1];
+
+		return array ($rev, $author, $date);
+	}
+
+	function get_test_revision () 
+	{
+		// Get list of processed revisions
+		global $LATEST_REVISION, $DB;
+		$revs = q ("SELECT revision FROM complete", PDO::FETCH_COLUMN);
+		$redo_revs = q ("SELECT revision FROM components WHERE redo == 1", PDO::FETCH_COLUMN);
+		$revs = array_flip ($revs);
+		$redo_revs = array_flip ($redo_revs);
+
+		// Go backwards until we find an unprocessed revision
+		for ($i = $LATEST_REVISION; $i > 0; $i--)
+		{
+			if (!isset ($revs[$i]) || isset ($redo_revs[$i]))
+				return get_svn_info ($i);
+		}
+		return FALSE;
+	}
+
+	function get_latest_revision ()
+	{
+		global $REPO;
+		$result = c ("svn info $REPO");
+		preg_match ("/Revision: (\d+)/", $result, $matches);
+		return $matches[1];
+	}
+
+	// return "trunk", "branches/dataflow", or NULL (we dont care about other branches)
+	function get_svn_branch ($rev)
+	{
+		global $REPO;
+
+		$diff = c ("svn diff -c $rev $REPO");
+
+		// Just check the first file.
+		if (preg_match ("#^Index: (branches/[^\/]+)/#", $diff, $matches))
+		{
+			return $matches[1];
+		}
+		else if (preg_match ("#^Index: trunk#", $diff))
+			return "trunk";
+		else if (preg_match ("#^Index: www#", $diff))
+			return "www";
+		else if (preg_match ("#^Index: tags#", $diff))
+			return "tags";
+		else
+		{
+			// TODO: we could get more info with --summarize
+			// This happened when we deleted a branch. It might happen other
+			// times?
+			return "unknown_branch";
+		}
+	}
+
+	function skip_revision ()
+	{
+		global $REV, $LATEST_REVISION;
+		e ("	DELETE FROM components WHERE revision == $REV");
+		foreach (array ("compile", "test", "benchmark") as $component)
+		{
+			e ("	INSERT INTO components VALUES (
+				$REV, '$component', 0, 
+				0, $LATEST_REVISION, 0, 0)");
+		}
+
+		e ("DELETE FROM tests where revision == $REV;");
+		e ("DELETE FROM benchmarks WHERE revision == $REV");
+		print "Skip revision $REV\n";
+		save_log ();
+		exit ();
+	}
+
+
+	abstract class Component
+	{
+		function is_needed ()
+		{
+			global $REV;
+			$components = q ("
+					SELECT redo FROM components
+					WHERE revision == $REV
+					AND component == '$this->component_name'
+					", PDO::FETCH_COLUMN);
+			return count ($components) == 0 || $components[0] == 1;
+		}
+
+		function start ()
+		{
+			global $REV, $overall;
+
+			// Ready the DB
+			e ("	DELETE FROM components
+					WHERE revision == $REV
+					AND component == '$this->component_name'");
+
+			if (isset ($this->table_name))
+			{
+				e ("	DELETE FROM {$this->table_name}
+						WHERE revision == $REV");
+			}
+
+			start_log ();
+
+			$this->start_time = time();
+		}
+
+		function finish ()
+		{
+			global $REV, $LATEST_REVISION;
+
+			$end_time = time();
+			$time_taken = $end_time - $this->start_time;
+			e ("	INSERT INTO components VALUES (
+					$REV, '$this->component_name', $time_taken, 
+					$end_time, $LATEST_REVISION, 0, 0)");
+
+			end_log ($this->component_name);
+		}
+
+		function fail ()
+		{
+			global $REV, $LATEST_REVISION;
+
+			$end_time = time();
+			$time_taken = $end_time - $this->start_time;
+			e ("	INSERT INTO components VALUES (
+					$REV, '$this->component_name', $time_taken, 
+					$end_time, $LATEST_REVISION, 1, 0)");
+
+			print "Problem with $this->component_name component\n";
+
+			end_log ($this->component_name);
+		}
+
+		abstract function run ();
+	}
+
+	class Compile_component extends Component
+	{
+		public $component_name = "compile";
+		function is_needed ()
+		{
+			// If we get as far as checking if its needed, its needed.
+			return true;
+		}
+
+		function run()
+		{
+			global $WORKING_DIR, $BRANCH, $REV;
+
+			// GC didnt work for a while
+			$configure = "";
+			if ($BRANCH == "branches/dataflow" && $REV <= 2236)
+				$configure = "--disable-gc";
+
+			// Always do these steps
+			cd ("touch src/generated/*");
+			cd ("./configure --prefix=$WORKING_DIR/installed $configure");
+			cd ("make install");
+		}
+	}
+
+	class Test_component extends Component
+	{
+		public $component_name = "test";
+		public $table_name = "tests";
+
+		function run ()
+		{
+			$results = cd ("php test/framework/driver.php -i -p", "test");
+			$this->store_test_results ($results);
+			$this->save_test_logs ();
+		}
+
+		function save_test_logs ()
+		{
+			global $LOG_DIR;
+			global $WORKING_DIR;
+			$test_dir = "$LOG_DIR/test_logs";
+			c ("mv " . readlink ("$WORKING_DIR/test/logs/latest"). " $test_dir");
+
+			# tar-gzip them (directories only)
+			$dirs = scandir ($test_dir);
+			unset ($dirs[0]); // remove "."
+			unset ($dirs[1]); // remove ".."
+			foreach ($dirs as $dir)
+			{
+				$dir = "$test_dir/$dir";
+				if (is_dir ($dir))
+				{
+					$dir = str_replace (getcwd ()."/", "", $dir); // make it relative
+					c ("tar czf $dir.tar.gz $dir");
+					del_dir ($dir);
+				}
+			}
+		}
+
+		function store_test_results ($result_string)
+		{
+			global $REV;
+			# there a few different test formats, so add them as we go
+			$matchers[] = "matcher_902";
+			foreach ($matchers as $matcher)
+			{
+				$results = $this->$matcher ($result_string);
+				if ($results !== false)
+					break;
+			}
+
+			if ($results === false)
+				throw new Exception;
+
+			// We do this for tests because it saves time and effort, and we dont
+			// need to be flexible. For benchmarks, we need to be flexible.
+			$total_pass = 0; // whats the point of auto-initialized vars if they dont work for +=
+			$total_fail = 0;
+			$total_timeout = 0;
+			$total_skip = 0;
+			foreach ($results as $result)
+			{
+				list ($name, $pass, $fail, $timeout, $skip) = $result;
+				e ("INSERT INTO tests VALUES ($REV, '$name', $pass, $fail, $timeout, $skip)");
+				$total_pass += $pass;
+				$total_fail += $fail;
+				$total_timeout += $timeout;
+				$total_skip += $skip;
+			}
+
+			e ("INSERT INTO tests VALUES ($REV, 'Total', $total_pass, $total_fail, $total_timeout, $total_skip)");
+		}
+
+		function matcher_858 ($string)
+		{
+			$string = strip_console_codes ($string);
+			# TODO InterpretObfuscated  avg  0s; max(135) 11s  Failure ( 25/213 failed)
+			return false;
+		}
+
+		function matcher_902 ($string)
+		{
+			$string = strip_console_codes ($string);
+			#Demi_eval_true     Failure:   0 P,   8 F,   0 T,   2 S
+			$results = preg_match_all ("/(\S+)\s+\S+:\s+(\d+) P,\s*(\d+) F,\s*(\d+) T,\s*(\d+) S/", $string, $matches, PREG_SET_ORDER);
+
+			if ($results)
+			{
+				array_map ("array_shift", &$matches);
+				return $matches;
+			}
+
+			return false;
+		}
+	}
+
+
+	class Benchmark_component extends Component
+	{
+		public $component_name = "benchmark";
+		public $table_name = "benchmarks";
+
+		function run ()
+		{
+			$benchmark = cd ("../test/framework/bench/valbench -s", "benchmark");
+			$this->store_benchmark_results ($benchmark);
+		}
+
+		function store_benchmark_results ($result_string)
+		{
+			global $REV;
+
+			if (preg_match ("/^FAILURE:.*/", $result_string))
+				return -1;
+
+			$results = unserialize ($result_string);
+
+			foreach ($results as $bench => $result_array)
+				foreach ($result_array as $metric => $result)
+					e ("INSERT INTO benchmarks VALUES ($REV, '$bench', '$metric', $result)");
+		}
+	}
+?>

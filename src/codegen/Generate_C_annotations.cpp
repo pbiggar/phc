@@ -166,7 +166,7 @@ Generate_C_annotations::post_return (Return* in)
 	// The signature at the back is this function.
 	in->attrs->set ("phc.codegen.return_by_ref",
 		new Boolean (
-			(compiled_functions.top())->back ()->is_ref));
+			(compiled_functions.top())->back ()->return_by_ref));
 }
 
 // Make sure phc.codegen.compiled_functions gets added to the class

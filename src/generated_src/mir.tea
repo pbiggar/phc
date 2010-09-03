@@ -59,7 +59,8 @@ Interface_def ::= INTERFACE_NAME extends:INTERFACE_NAME* Member* ;
 Member ::= Method | Attribute ;
 
 Method ::= Signature Statement*? ;
-Signature ::= Method_mod is_ref:"&"? METHOD_NAME Formal_parameter* ;
+-- Pass_rest_by_ref is so that we can fully model ZEND_INTERNAL_FUNCTIONs as Signatures
+Signature ::= Method_mod pass_rest_by_ref:"rest_by_ref"? return_by_ref:"&"? METHOD_NAME Formal_parameter* ;
 Method_mod ::= "public"? "protected"? "private"? "static"? "abstract"? "final"? ;
 Formal_parameter ::= Type is_ref:"&"? var:Name_with_default ;
 Type ::= CLASS_NAME? ;
@@ -113,7 +114,7 @@ Expr ::=
 	  Cast | Unary_op | Bin_op
 	| Constant | Instanceof
 	| Method_invocation | New
-	| Literal 
+	| Rvalue 
 	| Variable_name | Array_access | Field_access
 	| Array_next
 	| FOREIGN<IR::Node*>
@@ -261,9 +262,19 @@ public:
 	Signature(const char* name) 
 	{
 		this->method_mod = Method_mod::new_PUBLIC();
-		this->is_ref = false;
+		this->pass_rest_by_ref = false;
+		this->return_by_ref = false;
 		this->method_name = new METHOD_NAME(name);
 		this->formal_parameters = new Formal_parameter_list;
+	}
+
+	// Returns if the parameter at index PARAM_INDEX is passed by reference.
+	bool is_param_passed_by_ref (int param_index)
+	{
+		if (this->formal_parameters->size () > (unsigned int)(param_index))
+			return formal_parameters->at (param_index)->is_ref;
+		else
+			return this->pass_rest_by_ref;
 	}
 };
 

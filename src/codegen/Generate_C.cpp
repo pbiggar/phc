@@ -526,7 +526,7 @@ void function_declaration_block(ostream& buf, Signature_list* methods, String* b
 		// TODO: pass by reference only works for PHP>5.1.0. Do we care?
 		buf 
 		<< "ZEND_BEGIN_ARG_INFO_EX(" << *block_name << "_" << *name << "_arg_info, 0, "
-		<< (s->is_ref ? "1" : "0")
+		<< (s->return_by_ref ? "1" : "0")
 		<< ", 0)\n"
 		;
 
@@ -978,7 +978,7 @@ protected:
 		// return_by_reference. Note that we get the wrong answer if we do this
 		// before the destructors have run, since we can't tell how many
 		// destructors will affect it.
-		if (signature->is_ref)
+		if (signature->return_by_ref)
 		{
 			buf
 			<< "if (*return_value_ptr)\n"
@@ -1756,6 +1756,7 @@ public:
 				function_name = *name->value;
 
 				INST (buf, "method_invocation",
+						rhs->value,
 						s(function_name),
 						params,
 						rhs->value->get_filename (),
@@ -1787,6 +1788,7 @@ public:
 		}
 
 		INST (buf, "function_invocation",
+				rhs->value,
 				s(function_name),
 				params,
 				rhs->value->get_filename (),
@@ -2342,10 +2344,8 @@ class Pattern_method_alias : public Pattern
 
 	void generate_code(Generate_C* gen)
 	{
-		String alias_name = *alias->value->alias->value->clone();
-		alias_name.toLower();
-		String method_name = *alias->value->method_name->value->clone();
-		method_name.toLower();
+		String alias_name = *alias->value->alias->value->to_lower ();
+		String method_name = *alias->value->method_name->value->to_lower ();
 
 		buf
 		<<	"zend_function* existing;\n"
@@ -2402,11 +2402,8 @@ class Pattern_class_or_interface_alias : public Pattern
 		else
 			phc_unreachable ();
 
-		alias_name = alias_name->clone ();
-		alias_name->toLower();
-
-		aliased_name = aliased_name->clone ();
-		aliased_name->toLower();
+		alias_name = alias_name->to_lower ();
+		aliased_name = aliased_name->to_lower ();
 
 		buf
 		<<	"zend_class_entry* existing;\n"

@@ -238,7 +238,7 @@ return (token RETVAL, node RET)
 @@@
 
 // Return-by-value
-return (token RETVAL, node RET)
+return (node RETVAL, node RET)
 @@@
    \read_rvalue ("rhs", RETVAL)
    // Run-time return by reference has different semantics to compile-time.
@@ -295,7 +295,7 @@ assign_expr_ref_var_var (token LHS, token INDEX)
 /*
  * Array access
  */
-assign_expr_array_access (token LHS, token ARRAY, token INDEX)
+assign_expr_array_access (token LHS, node ARRAY, node INDEX)
 @@@
    \get_st_entry ("LOCAL", "p_lhs", LHS);
    \read_rvalue ("r_array", ARRAY);
@@ -331,7 +331,7 @@ assign_expr_array_access (token LHS, token ARRAY, token INDEX)
    if (is_rhs_new) zval_ptr_dtor (&rhs);
 @@@
 
-assign_expr_ref_array_access (token LHS, token ARRAY, token INDEX)
+assign_expr_ref_array_access (token LHS, token ARRAY, node INDEX)
 @@@
    \get_st_entry ("LOCAL", "p_lhs", LHS);
    \get_st_entry ("LOCAL", "p_r_array", ARRAY);
@@ -346,34 +346,22 @@ assign_expr_ref_array_access (token LHS, token ARRAY, token INDEX)
  * Constants
  */
 
-assign_expr_constant_body (token LHS, string CONSTANT)
-   where LHS.use_non_ref_version
-@@@
-   zval_ptr_dtor (p_lhs);
-   get_constant ("$CONSTANT", \cb:length(CONSTANT), p_lhs TSRMLS_CC);
-@@@
-
-assign_expr_constant_body (token LHS, string CONSTANT)
-   where LHS.use_ref_version
-@@@
-    zval* constant;
-    get_constant ("$CONSTANT", \cb:length(CONSTANT), p_lhs TSRMLS_CC);
-    overwrite_lhs_no_copy (*p_lhs, constant);
-    safe_free_zval_ptr (constant);
-@@@
-
 assign_expr_constant (token LHS, string CONSTANT)
 @@@
    // No null-terminator in length for get_constant.
    // zend_get_constant always returns a copy of the constant.
    \get_st_entry ("LOCAL", "p_lhs", LHS);
-   if (!Z_ISREF_P(*p_lhs))
+   if (!\is_ref ("*p_lhs", LHS))
    {
-     \assign_expr_constant_body (LHS#use_non_ref_version, CONSTANT);
+      zval* constant;
+      get_constant ("$CONSTANT", \cb:length(CONSTANT), p_lhs TSRMLS_CC);
+      overwrite_lhs_no_copy (*p_lhs, constant);
+      safe_free_zval_ptr (constant);
    }
    else
    {
-     \assign_expr_constant_body (LHS#use_ref_version, CONSTANT);
+      zval_ptr_dtor (p_lhs);
+      get_constant ("$CONSTANT", \cb:length(CONSTANT), p_lhs TSRMLS_CC);
    }
 @@@
 
@@ -384,6 +372,24 @@ assign_expr_constant (token LHS, string CONSTANT)
  * NAME: A name for the zvpp.
  * VAR: Attribute map
  */
+get_st_entry (string SCOPE, string ZVP, token VAR)
+   where SCOPE == "LOCAL"
+   where VAR.st_entry_not_required
+   where VAR.is_initialized
+@@@
+  zval** $ZVP = &local_$VAR;
+@@@
+
+get_st_entry (string SCOPE, string ZVP, token VAR)
+   where SCOPE == "LOCAL"
+   where VAR.st_entry_not_required
+   where VAR.is_uninitialized
+@@@
+  local_$VAR = EG (uninitialized_zval_ptr);
+  local_$VAR->refcount++;
+  zval** $ZVP = &local_$VAR;
+@@@
+
 get_st_entry (string SCOPE, string ZVP, token VAR)
    where SCOPE == "LOCAL"
    where VAR.st_entry_not_required
@@ -410,10 +416,16 @@ scope (string SCOPE) where SCOPE == "GLOBAL" @@@&EG(symbol_table)@@@
  * rvalue, but we always want a new value for LHS, and read_rvalue generates a
  * zval, not a zval* (except when optimized, but we cant guarantee that).
  */
-assign_expr_literal (token LHS, node RHS)
+assign_expr_literal (token LHS, node LIT)
+   where LIT.pool_name
+@@@
+   \assign_expr_var (LHS, LIT);
+@@@
+
+assign_expr_literal (token LHS, node LIT)
 @@@
    \new_lhs (LHS, "value");
-   \cb:write_literal_directly_into_zval ("value", RHS);
+   \cb:write_literal_directly_into_zval ("value", LIT);
 @@@
 
 
@@ -474,15 +486,20 @@ read_rvalue (string ZVP, token TVAR)
  * write_var
  */
 
+star (string VAR) @@@ (*$VAR) @@@
+
+// Do IS_UNINITIALIZED before CANNOT_BE_REF, or else we'll have a segfault
+// from the zval_ptr_dtor.
 write_var (string LHS, string RHS, node TLHS, node TRHS)
    where TLHS.is_uninitialized
 @@@
-  \write_var_inner (LHS, RHS, TLHS, TRHS);
+   \write_var_inner (LHS, RHS, TLHS, TRHS);
 @@@
 
 write_var (string LHS, string RHS, node TLHS, node TRHS)
 @@@
-  if (Z_ISREF_P(*$LHS))
+  // Would be better with string interpolation, but what can you do.
+  if (\is_ref (\star (LHS), TLHS))
       overwrite_lhs (*$LHS, $RHS);
   else
     {
@@ -492,17 +509,8 @@ write_var (string LHS, string RHS, node TLHS, node TRHS)
 @@@
 
 write_var_inner (string LHS, string RHS, node TLHS, node TRHS)
-   where TRHS.is_uninitialized
 @@@
-  // Share a copy
-  Z_ADDREF_P($RHS);
-  *$LHS = $RHS;
-@@@
-
-
-write_var_inner (string LHS, string RHS, node TLHS, node TRHS)
-@@@
-  if (Z_ISREF_P($RHS))
+  if (\is_ref (RHS, TRHS))
     {
       // Take a copy of RHS for LHS
       *$LHS = zvp_clone_ex ($RHS);
@@ -554,7 +562,7 @@ assign_var_var_ref (token INDEX, node RHS)
  * Assign_next
  * TODO: These are are more than a bit of a mess.
  */
-assign_next (token LHS, token RHS)
+assign_next (token LHS, node RHS)
 @@@
    \get_st_entry ("LOCAL", "p_array", LHS);
    // Push EG(uninit) and get a pointer to the symtable entry
@@ -569,7 +577,7 @@ assign_next (token LHS, token RHS)
    // push onto it.
 @@@
 
-assign_next_ref (token LHS, node RHS)
+assign_next_ref (token LHS, token RHS)
 @@@
    \get_st_entry ("LOCAL", "p_array", LHS);
    // Push EG(uninit) and get a pointer to the symtable entry
@@ -588,7 +596,7 @@ assign_next_ref (token LHS, node RHS)
  * Assign_array
  */
 
-assign_array (token ARRAY, token INDEX, token RHS)
+assign_array (token ARRAY, node INDEX, node RHS)
 @@@
    \get_st_entry ("LOCAL", "p_array", ARRAY);
    check_array_type (p_array TSRMLS_CC);
@@ -658,7 +666,7 @@ global_var_var (token INDEX)
  * Builtins
  */
 
-builtin_with_lhs (token LHS, token ARG, string NAME, string FILENAME)
+builtin_with_lhs (token LHS, node ARG, string NAME, string FILENAME)
 @@@
    \read_rvalue ("arg", ARG);
 
@@ -671,7 +679,7 @@ builtin_with_lhs (token LHS, token ARG, string NAME, string FILENAME)
 @@@
 
 
-builtin_no_lhs (token ARG, string NAME, string FILENAME)
+builtin_no_lhs (node ARG, string NAME, string FILENAME)
 @@@
    \read_rvalue ("arg", ARG);
 
@@ -945,6 +953,12 @@ var_static_field_access_ref (token LHS, token CLASS, token VAR_FIELD)
 	zval_ptr_dtor(&field_name_str);
 @@@
 
+// Takes a ZVP, so if passing a ZVPP, make sure to deref.
+is_ref (string ZVP, node ATTRS) where ATTRS.cannot_be_ref @@@ 0 @@@
+is_ref (string ZVP, node ATTRS) where ATTRS.pool_name @@@ 0 @@@
+is_ref (string ZVP, node ATTRS) where ATTRS.is_uninitialized @@@ 0 @@@
+is_ref (string ZVP, node ATTRS) @@@ Z_ISREF_P($ZVP) @@@
+
 /*
  * Object creation
  */
@@ -1000,7 +1014,7 @@ new_lhs (token LHS, string VAL)
 @@@
    \get_st_entry ("LOCAL", "p_lhs", LHS);
    zval* $VAL;
-   if (Z_ISREF_P(*p_lhs))
+   if (\is_ref ("*p_lhs", LHS))
    {
      // Always overwrite the current value
      $VAL = *p_lhs;
@@ -1018,6 +1032,11 @@ new_lhs (token LHS, string VAL)
  * Method and function calls
  */
 
+// If we know param_*_by_ref, then we don't need these results.
+arg_by_ref (node ARG) where ARG.param_by_ref @@@ @@@
+arg_by_ref (node ARG) where ARG.param_not_by_ref @@@ @@@
+
+// This is taken into account for param*_by_ref, but we need it for the unoptimized case.
 arg_by_ref (node ARG)
    where ARG.is_ref
 @@@
@@ -1026,9 +1045,9 @@ arg_by_ref (node ARG)
 @@@
 
 
+
 arg_by_ref (node ARG)
 @@@
-   // TODO: find names to replace index
    if (arg_info)
    {
       by_ref[abr_index] = arg_info->pass_by_reference;
@@ -1040,18 +1059,11 @@ arg_by_ref (node ARG)
    abr_index++;
 @@@
 
-// TODO: these can easily be combined
-arg_fetch (token ARG)
+// Literals cant be passed-by-ref
+arg_fetch (node ARG)
+   where ARG.param_not_by_ref
 @@@
    destruct[af_index] = 0;
-   if (by_ref[af_index])
-   {
-      \get_st_entry ("LOCAL", "p_arg", ARG);
-      args_ind[af_index] = fetch_var_arg_by_ref (p_arg);
-      assert (!in_copy_on_write (*args_ind[af_index]));
-      args[af_index] = *args_ind[af_index];
-   }
-   else
    {
       \read_rvalue ("arg", ARG);
       args[af_index] = fetch_var_arg (arg, &destruct[af_index]);
@@ -1060,20 +1072,48 @@ arg_fetch (token ARG)
    af_index++;
 @@@
 
-call_function (string MN, list ARGS, string FILENAME, string LINE, string FCI_NAME, string FCIC_NAME, string ARG_COUNT, string USE_REF, token LHS)
+arg_fetch (node ARG)
+   where ARG.param_by_ref
+@@@
+   destruct[af_index] = 0;
+   {
+     \get_st_entry ("LOCAL", "p_arg", ARG);
+     args_ind[af_index] = fetch_var_arg_by_ref (p_arg);
+     assert (!in_copy_on_write (*args_ind[af_index]));
+     args[af_index] = *args_ind[af_index];
+   }
+   af_index++;
+@@@
+
+// For literals, when not optimizing - we cant do get_st_entry on literal.
+arg_fetch (node ARG) where ARG.pool_name @@@ \arg_fetch (ARG#param_not_by_ref); @@@
+
+arg_fetch (token ARG)
+@@@
+   if (by_ref[af_index])
+   {
+     \arg_fetch (ARG#param_by_ref);
+   }
+   else
+   {
+     \arg_fetch (ARG#param_not_by_ref);
+   }
+@@@
+
+call_function (node ATTRS, string MN, list ARGS, string FILENAME, string LINE, string FCI_NAME, string FCIC_NAME, string ARG_COUNT, string USE_REF, token LHS)
 @@@
    zend_function* signature = $FCIC_NAME.function_handler;
    zend_arg_info* arg_info = signature->common.arg_info; // optional
 
-   int by_ref[$ARG_COUNT];
-   int abr_index = 0;
-   \arg_by_ref (ARGS);
-
    // Setup array of arguments
    // TODO: i think arrays of size 0 is an error
+   int by_ref[$ARG_COUNT];
    int destruct [$ARG_COUNT];
    zval* args [$ARG_COUNT];
    zval** args_ind [$ARG_COUNT];
+
+   int abr_index = 0;
+   \arg_by_ref (ARGS);
 
    int af_index = 0;
    \arg_fetch (ARGS);
@@ -1114,7 +1154,6 @@ call_function (string MN, list ARGS, string FILENAME, string LINE, string FCI_NA
       }
    }
 
-
    // When the Zend engine returns by reference, it allocates a zval into
    // retval_ptr_ptr. To return by reference, the callee writes into the
    // retval_ptr_ptr, freeing the allocated value as it does.  (Note, it may
@@ -1133,7 +1172,7 @@ call_function (string MN, list ARGS, string FILENAME, string LINE, string FCI_NA
    // that we may create an error if our code is called by a callback, and
    // returns by reference, and the callback returns by reference. At least
    // this is an obscure case.
-   if(signature->common.return_reference && signature->type != ZEND_USER_FUNCTION)
+   if(\return_reference_bug(ATTRS))
    {
       assert (rhs != EG(uninitialized_zval_ptr));
       Z_SET_ISREF_P(rhs);
@@ -1148,9 +1187,14 @@ call_function (string MN, list ARGS, string FILENAME, string LINE, string FCI_NA
    \function_lhs (USE_REF, LHS);
 
    zval_ptr_dtor (&rhs);
-   if(signature->common.return_reference && signature->type != ZEND_USER_FUNCTION)
+   if(\return_reference_bug(ATTRS))
       zval_ptr_dtor (&rhs);
 @@@
+
+// We can tell this at compile-time.
+return_reference_bug (node ATTRS) where ATTRS.return_reference_bug @@@ 1 @@@
+return_reference_bug (node ATTRS) where ATTRS.no_return_reference_bug @@@ 0 @@@
+return_reference_bug (node ATTRS) @@@ signature->common.return_reference && signature->type != ZEND_USER_FUNCTION @@@
 
 
 function_lhs (string USE_LHS, token LHS) where USE_LHS == "NONE" @@@@@@
@@ -1170,10 +1214,10 @@ function_lhs (string USE_LHS, token LHS)
    write_var (p_lhs, rhs);
 @@@
 
-function_invocation (string MN, list ARGS, string FILENAME, string LINE, string FCI_NAME, string FCIC_NAME, string ARG_COUNT, string LHS_REF, token LHS)
+function_invocation (node ATTRS, string MN, list ARGS, string FILENAME, string LINE, string FCI_NAME, string FCIC_NAME, string ARG_COUNT, string LHS_REF, token LHS)
 @@@
    initialize_function_call (&$FCI_NAME, &$FCIC_NAME, "$MN", "$FILENAME", $LINE TSRMLS_CC);
-   \call_function (MN, ARGS, FILENAME, LINE, FCI_NAME, FCIC_NAME, ARG_COUNT, LHS_REF, LHS);
+   \call_function (ATTRS, MN, ARGS, FILENAME, LINE, FCI_NAME, FCIC_NAME, ARG_COUNT, LHS_REF, LHS);
 @@@
 
 
@@ -1219,16 +1263,16 @@ assign_param_is_ref (string MN, string FILENAME, string LINE, string FCI_NAME, s
 @@@
 
 
-method_invocation (string MN, list ARGS, string FILENAME, string LINE, string ARG_COUNT, node TARGET, string USE_REF, token LHS)
+method_invocation (node ATTRS, string MN, list ARGS, string FILENAME, string LINE, string ARG_COUNT, node TARGET, string USE_REF, token LHS)
 @@@
    \get_st_entry ("LOCAL", "p_obj", TARGET);
    zend_fcall_info fci_object;
    zend_fcall_info_cache fcic_object = {0, NULL, NULL, NULL};
    initialize_method_call (&fci_object, &fcic_object, p_obj, "$MN", "$FILENAME", $LINE TSRMLS_CC);
-   \call_function (MN, ARGS, FILENAME, LINE, "fci_object", "fcic_object", ARG_COUNT, USE_REF, LHS);
+   \call_function (ATTRS, MN, ARGS, FILENAME, LINE, "fci_object", "fcic_object", ARG_COUNT, USE_REF, LHS);
 @@@
 
-constructor_invocation (list ARGS, string FILENAME, string LINE, string ARG_COUNT, token LHS)
+constructor_invocation (node ATTRS, list ARGS, string FILENAME, string LINE, string ARG_COUNT, token LHS)
 @@@
   \get_st_entry ("LOCAL", "p_obj", LHS);
    zend_fcall_info fci_object;
@@ -1239,7 +1283,7 @@ constructor_invocation (list ARGS, string FILENAME, string LINE, string ARG_COUN
    // However, \call_function does not actually use this name at all atm.
    if(has_constructor)
    {
-     \call_function ("__construct", ARGS, FILENAME, LINE, "fci_object", "fcic_object", ARG_COUNT, "NONE", LHS);
+     \call_function (ATTRS, "__construct", ARGS, FILENAME, LINE, "fci_object", "fcic_object", ARG_COUNT, "NONE", LHS);
    }
 @@@
 

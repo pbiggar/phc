@@ -1,0 +1,207 @@
+The expansion of whole-program analysis should handle, in this order:
+	codegen/function_call_index.php
+	codegen/oop_method_invocation1.php
+	codegen/bench_fibo.php
+	3rdparty/shootout/raytrace.php
+	TODO: something with includes.
+
+That should cover the vast majority of everything.
+
+============================================================
+Combine prints:
+
+	print ("str");
+	print ("str2");
+
+into 
+
+	print ("strstr2");
+
+============================================================
+Optimize pow:
+
+pow ($a, 0) => 1
+pow ($a, 1) => $a
+
+We can only do the latter is $a is a number.
+
+============================================================
+Convert print to echo
+
+It does actually make a minor difference
+============================================================
+CONSTANTs defined in the engine can be constant propagated
+============================================================
+Types and === can be converted to false
+============================================================
+Return types of built-in functions (as well as values)
+============================================================
+if ($a == true) can be converted to just if ($a)
+Same for
+if ($a != false)
+============================================================
+Remove echo ("")
+============================================================
+Pure functions:
+strlen
+zend_function
+md5
+sha1
+crc32
+pi
+getrandmax
+mt_getrandmax
+ord
+chr
+strtoupper
+strtoupper
+strcmp
+addslashes
+htmlspecialchars
+htmlentities
+dirname
+basename
+realpath
+version_compare
+strncmp
+strcasecmp
+strncasecmp
+dechex
+hexdec
+decbin
+decoct
+octdec
+str_repeat
+str_pad
+intval
+substr
+abs
+acos
+acosh
+asin
+asinh
+atan2
+atan
+atanh
+base_convert
+bindec
+ceil
+cos
+cosh
+decbin
+dechex
+decoct
+deg2rad
+exp
+expm1
+floor
+fmod
+getrandmax
+hexdec
+hypot
+is_finite
+is_infinite
+is_nan
+lcg_value
+log10
+log1p
+log
+max
+min
+mt_getrandmax
+octdec
+pi
+pow
+rad2deg
+round
+sin
+sinh
+sqrt
+tan
+tanh
+ip2long
+long2ip
+trim
+rtrim
+ltrim
+chop
+php_logo_guide
+zend_logo_guide
+php_edgg_logo_guide
+
+============================================================
+Functions where we know the return type:
+============================================================
+Functions where we know the return value:
+============================================================
+Fcuntnio which can be optimized, unless the result is false, in which case it may later change:
+extension_loaded 
+function_exists
+class_exists
+interface_exists
+is_callable
+php_version
+get_cfg_var
+============================================================
+Unsafe function optimizations performed by APC optimizer:
+ini_get
+get_magic_quotes_qpc
+============================================================
+Function we probably break:
+getlastmod - would be tough to support in a compiler
+getmyuid
+getmygid
+getmyinode
+============================================================
+Function optimizations performed by APC which arent safe ahead-of-time, but are probably safe for APC:
+get_current_user
+php_sapi_name
+php_ini_scanned_files
+php_uname
+============================================================
+$x[5] is NULL for non-{string/array}
+is this just scalars
+============================================================
+dont forget to lowercase all functions
+============================================================
+printf to echo
+============================================================
+merge constants into printf
+============================================================
+============================================================
+============================================================
+============================================================
+============================================================
+============================================================
+============================================================
+============================================================
+optimize $x[5] for int and $x["str"] for strings
+============================================================
+Zend_call_function:
+   we can optimize this a lot. If we control the callee and the caller, then we can call it directly, and, importantly, skip the allocation and deallocation of return values.
+   if we control only the caller, we can pass the return value to avoid an allocation and deallocation.
+============================================================
+type-inference everywhere.
+ - remove extra array stuff
+ - use booleans for conditionals
+ - remove unnecessary casts
+ - remove concat with ""
+ - optimize array access even without constants
+============================================================
+Split every node which has > 1 predecessor.
+Optimize
+Merge nodes with > 1 predecessor where the predecessors are identical
+
+I think this will see good results for uninitialized variables in particular.
+============================================================
+we could move constants into rvalues. Then we could get the constant zval
+without copying it, and just use its result. This would help in heapsort's
+gen_random as it just uses them for multiplies.
+============================================================
+Copy-propagation has a few useful places, notably strcat (I measure a 35% improvement).
+However, there is a live-range problem, due to SSA. So we need to move the
+modification of a variable after its use, if they are independent.
+============================================================
+============================================================
+============================================================
+============================================================

@@ -1,0 +1,6 @@
+#!/bin/bash
+
+make clean
+./configure --enable-embed --enable-maintainer-zts --enable-debug --enable-bcmath --with-mysql --with-readline --with-gd $@
+make -j 5
+make install

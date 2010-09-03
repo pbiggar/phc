@@ -57,11 +57,12 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     if(!strcmp(type_id, "Signature"))
     {
     	Method_mod* method_mod = dynamic_cast<Method_mod*>(*i++);
-    	bool is_ref = dynamic_cast<Boolean*>(*i++)->value();
+    	bool pass_rest_by_ref = dynamic_cast<Boolean*>(*i++)->value();
+    	bool return_by_ref = dynamic_cast<Boolean*>(*i++)->value();
     	METHOD_NAME* method_name = dynamic_cast<METHOD_NAME*>(*i++);
     	Formal_parameter_list* formal_parameters = dynamic_cast<Formal_parameter_list*>(*i++);
     	assert(i == args->end());
-    	return new Signature(method_mod, is_ref, method_name, formal_parameters);
+    	return new Signature(method_mod, pass_rest_by_ref, return_by_ref, method_name, formal_parameters);
     }
     if(!strcmp(type_id, "Method_mod"))
     {

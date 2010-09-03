@@ -9,6 +9,9 @@
 #define PHC_ERROR_H
 
 #include <stdarg.h>
+#include <iostream>
+
+using namespace std;
 
 class String;
 
@@ -47,5 +50,23 @@ void phc_warning (const char* message, MICG::Node*, ...);
 
 #define phc_unreachable() assert(0 && "Should be unreachable")
 #define phc_TODO() assert(0 && "TODO")
+
+void phc_missed_opt (const char* message, ...);
+void phc_missed_opt (const char* message, va_list args, String* filename, int line, int column); 
+void phc_missed_opt (const char* message, String* filename, int line, int column, ...);
+void phc_missed_opt (const char* message, AST::Node*, ...);
+void phc_missed_opt (const char* message, HIR::Node*, ...);
+void phc_missed_opt (const char* message, MIR::Node*, ...);
+void phc_missed_opt (const char* message, MICG::Node*, ...);
+
+void _phc_optimization_exception (string message, string filename, int line);
+
+#define phc_optimization_exception(MSG) _phc_optimization_exception(MSG,__FILE__,__LINE__)
+
+#define phc_optimization_assertion(COND)	\
+do{												\
+	if (!(COND))										\
+		phc_optimization_exception("Assertion Failure.  This means there is a bug in phc which should be reported.");			\
+}while(0)									
 
 #endif // PHC_ERROR_H

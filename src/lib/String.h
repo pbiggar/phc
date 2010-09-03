@@ -10,6 +10,7 @@
 
 #include <string>
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 #include "lib/Object.h"
 #include "lib/List.h"
 
@@ -39,7 +40,7 @@ public:
 
 public:
 	bool ci_compare (const string& s);
-	void toLower();
+	String* to_lower() const;
 	String* clone();
 };
 

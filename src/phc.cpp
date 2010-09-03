@@ -22,7 +22,7 @@
 #include "ast_to_hir/Split_unset_isset.h"
 #include "ast_to_hir/Strip_comments.h"
 #include "ast_to_hir/Switch_bin_op.h"
-#include "cmdline.h"
+#include "generated/cmdline.h"
 #include "codegen/Clarify.h"
 #include "codegen/Compile_C.h"
 #include "codegen/Generate_C_annotations.h"
@@ -33,9 +33,16 @@
 #include "hir_to_mir/Lower_control_flow.h"
 #include "hir_to_mir/Lower_dynamic_definitions.h"
 #include "hir_to_mir/Lower_method_invocations.h"
-#include "optimize/Copy_propagation.h"
+#include "optimize/hacks/Copy_propagation.h"
+#include "optimize/hacks/Dead_temp_cleanup.h"
 #include "optimize/Dead_code_elimination.h"
+#include "optimize/Def_use_web.h"
+#include "optimize/If_simplification.h"
+#include "optimize/Inlining.h"
+#include "optimize/Mark_initialized.h"
+#include "optimize/Misc_annotations.h"
 #include "optimize/Prune_symbol_table.h"
+#include "optimize/Remove_loop_booleans.h"
 #include "parsing/parse.h"
 #include "parsing/XML_parser.h"
 #include "pass_manager/Fake_pass.h"
@@ -55,6 +62,7 @@ using namespace std;
 
 void init_plugins (Pass_manager* pm);
 void initialize_ini_entries ();
+void print_stats ();
 
 extern struct gengetopt_args_info error_args_info;
 struct gengetopt_args_info args_info;
@@ -70,6 +78,9 @@ void sighandler(int signum)
 		case SIGSEGV:
 			fprintf(stderr, "SIGSEGV received!\n");
 			break;
+		case SIGALRM:
+			fprintf(stderr, "SIGALRM received!\n");
+			break;
 		default:
 			fprintf(stderr, "Unknown signal received!\n");
 			break;
@@ -77,7 +88,14 @@ void sighandler(int signum)
 
 	fprintf(stderr, "This could be a bug in phc. If you suspect it is, please email\n");
 	fprintf(stderr, "a bug report to phc-general@phpcompiler.org.\n");
-	exit(-1);
+
+	if (pm->args_info->stats_given)
+	{
+		dump_stats ();
+		dump_stringset_stats ();
+	}
+
+	_exit(-1);
 }
 
 int main(int argc, char** argv)
@@ -86,7 +104,6 @@ int main(int argc, char** argv)
 	/* 
 	 *	Startup
 	 */
-
 	IR::PHP_script* ir = NULL;
 
 	// Start the embedded interpreter
@@ -102,6 +119,7 @@ int main(int argc, char** argv)
 	// We do this so that tests will still continue if theres a seg fault
 	signal(SIGSEGV, sighandler);
 	signal(SIGABRT, sighandler);
+	signal(SIGALRM, sighandler);
 
 	// Parse command line parameters 
 	if(cmdline_parser(argc, argv, &args_info) != 0)
@@ -133,12 +151,12 @@ int main(int argc, char** argv)
 
 	// Small optimization on the AST
 	pm->add_ast_transform (new Constant_folding(), s("const-fold"), s("Fold constant expressions"));
-	pm->add_ast_transform (new Remove_concat_null (), s("rcn"), s("Remove concatentations with \"\"")); // TODO: this is wrong - it really should be converted to a cast to string.
+	pm->add_ast_transform (new Remove_concat_null (), s("rcn"), s("Remove concatenations with \"\"")); // TODO: this is wrong - it really should be converted to a cast to string.
 
 
 
 	// Make simple statements simpler
-	pm->add_ast_transform (new Desugar (), s("desug"), s("Canonicalize simple constucts"));
+	pm->add_ast_transform (new Desugar (), s("desug"), s("Canonicalize simple constructs"));
 	pm->add_ast_transform (new Split_multiple_arguments (), s("sma"), s("Split multiple arguments for globals, attributes and static declarations"));
 	pm->add_ast_transform (new Split_unset_isset (), s("sui"), s("Split unset() and isset() into multiple calls with one argument each"));
 	pm->add_ast_transform (new Echo_split (), s("ecs"), s("Split echo() into multiple calls with one argument each"));
@@ -155,8 +173,8 @@ int main(int argc, char** argv)
 
 	pm->add_hir_pass (new Fake_pass (s("hir"), s("High-level Internal Representation - the smallest subset of PHP which can represent the entire language")));
 	pm->add_hir_transform (new Copy_propagation (), s("prc"), s("Propagate copies - Remove some copies introduced as a result of lowering"));
-	pm->add_hir_transform (new Dead_code_elimination (), s("dce"), s("Dead code elimination - Remove some copies introduced by lowered"));
-	pm->add_hir_transform (new Lower_dynamic_definitions (), s("ldd"), s("Lower Dynamic Defintions - Lower dynamic class, interface and method definitions using aliases"));
+	pm->add_hir_transform (new Dead_temp_cleanup (), s("dtc"), s("Dead temp cleanup")); // TODO: Description?
+	pm->add_hir_transform (new Lower_dynamic_definitions (), s("ldd"), s("Lower Dynamic Definitions - Lower dynamic class, interface and method definitions using aliases"));
 	pm->add_hir_transform (new Lower_method_invocations (), s("lmi"), s("Lower Method Invocations - Lower parameters using run-time reference checks"));
 	pm->add_hir_transform (new Lower_control_flow (), s("lcf"), s("Lower Control Flow - Use gotos in place of loops, ifs, breaks and continues"));
 	pm->add_hir_pass (new Fake_pass (s("HIR-to-MIR"), s("The MIR in HIR form")));
@@ -166,15 +184,32 @@ int main(int argc, char** argv)
 	pm->add_mir_pass (new Obfuscate ());
 //	pm->add_mir_pass (new Process_includes (true, new String ("mir"), pm, "incl2"));
 	pm->add_mir_transform (new Lift_functions_and_classes (), s("lfc"), s("Move statements from global scope into __MAIN__ method"));
-	pm->add_mir_visitor (new Clarify (), s("clar"), s("Clarify - Make implicit defintions explicit"));
-
+	pm->add_mir_visitor (new Clarify (), s("clar"), s("Clarify - Make implicit definitions explicit"));
+	// TODO: move this into optimization passes
 	pm->add_mir_visitor (new Prune_symbol_table (), s("pst"), s("Prune Symbol Table - Note whether a symbol table is required in generated code"));
+
+
+	// Optimization passes
+	pm->add_local_optimization_pass (new Fake_pass (s("wpa"), s("Whole-program analysis")));
+	pm->add_local_optimization_pass (new Fake_pass (s("cfg"), s("Initial Control-Flow Graph")));
+	pm->add_local_optimization_pass (new Fake_pass (s("build-ssa-ssi"), s("Create SSA/SSI form")));
+	pm->add_local_optimization (new If_simplification (), s("ifsimple"), s("If-simplification"), true);
+	pm->add_local_optimization (new DCE (), s("dce"), s("Aggressive Dead-code elimination"), true);
+	pm->add_local_optimization_pass (new Fake_pass (s("drop-ssa-ssi"), s("Drop SSA/SSI form")));
+	pm->add_local_optimization (new Remove_loop_booleans (), s("rlb"), s("Remove loop-booleans"), false);
+
+	pm->add_ipa_optimization (new Inlining (), s("inlining"), s("Method inlining"), false);
+
+	// TODO: we could consider this for resolving isset/empty/unset queries
+	// TODO: I think these should mostly move to WPA
+//	pm->add_optimization (new Mark_initialized (), s("mvi"), s("Mark variable initialization status"), false);
+//	pm->add_optimization (new Misc_annotations (), s("mao"), s("Miscellaneous annotations for optimization"), false);
 
 
 	// codegen passes
 	stringstream ss;
-	pm->add_codegen_pass (new Fake_pass(s("codegen"), s("Last pass before codegen")));
-	pm->add_codegen_visitor (new Generate_C_annotations, s("cgann"), s("Codegen annotation"));
+	pm->add_codegen_pass (new Fake_pass(s("codegen"), s("Last pass before codegen generation begins")));
+	pm->add_codegen_visitor (new Generate_C_annotations, s("cgann"), s("Make annotations for code generation"));
 	pm->add_codegen_pass (new Generate_C_pass (ss));
 	pm->add_codegen_pass (new Compile_C (ss));
 
@@ -189,11 +224,11 @@ int main(int argc, char** argv)
 		if (!pm->has_pass_named (new String (args_info.FLAG##_arg [i])))			\
 			phc_error ("Pass %s, specified with flag --" #FLAG ", is not valid", args_info.FLAG##_arg [i]);	\
 	}
-	check_passes (stats);
+	// check_passes (stats);
 	check_passes (dump);
 	check_passes (dump_xml);
 	check_passes (dump_dot);
-	check_passes (debug);
+//	check_passes (debug); // we're a bit fast and loose in optimizing
 	check_passes (disable);
 
 	// There's only one read-xml option.
@@ -310,11 +345,20 @@ int main(int argc, char** argv)
 	if (ret != 0) 
 		phc_error ("Error closing ltdl plugin infrastructure: %s", lt_dlerror ());
 
+
 	PHP::shutdown_php ();
 
 	shutdown_xml ();
 
 	return 0;
+}
+
+void print_stats ()
+{
+	if (args_info.stats_flag)
+	{
+		print_cow_memory_stats ();
+	}
 }
 		
 

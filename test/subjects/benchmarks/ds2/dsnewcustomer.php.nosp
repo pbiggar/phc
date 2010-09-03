@@ -1,0 +1,186 @@
+
+<?php
+/*  
+ * DVD Store New Customer PHP Page, No Stored Procedures - dsnewcustomer_nosp.php
+ *
+ * Copyright (C) 2005 Dell, Inc. <dave_jaffe@dell.com> and <todd_muirhead@dell.com>
+ *
+ * Prompts for new customer data; creates new entry in MySQL DVD Store CUSTOMERS table
+ *
+ * Last Updated 6/30/05
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/ 
+
+include("dscommon.inc");
+
+ds_html_header("New Customer Login");
+
+$firstname = $_REQUEST["firstname"];
+$lastname  = $_REQUEST["lastname"];
+$address1  = $_REQUEST["address1"];
+$address2  = $_REQUEST["address2"];
+$city      = $_REQUEST["city"];
+$state     = $_REQUEST["state"];
+$zip       = $_REQUEST["zip"];
+$country   = $_REQUEST["country"];
+$email     = $_REQUEST["email"];
+$phone     = $_REQUEST["phone"];
+$creditcardtype   = $_REQUEST["creditcardtype"];
+$creditcard  = $_REQUEST["creditcard"];
+$ccexpmon  = $_REQUEST["ccexpmon"];
+$ccexpyr   = $_REQUEST["ccexpyr"];
+$username  = $_REQUEST["username"];
+$password  = $_REQUEST["password"];
+$age       = $_REQUEST["age"];
+$income    = $_REQUEST["income"];
+$gender    = $_REQUEST["gender"];
+
+if (!( empty($firstname) OR empty($lastname) OR empty($address1) OR empty($city) OR empty($country) 
+  OR empty($username) OR empty($password) ))
+  {
+  if (!($link_id=mysqli_connect())) die(mysqli_connect_error());
+  $query = "select COUNT(*) from DS2.CUSTOMERS where USERNAME='$username';";
+  mysqli_real_query($link_id, $query);
+  $result = mysqli_store_result($link_id);
+  $row = mysqli_fetch_row($result);
+  mysqli_free_result($result);
+  if ($row[0] != 0)
+    {
+    echo "<H2>Username already in use! Please try another username</H2>\n";
+    dsnewcustomer_form($firstname,$lastname,$address1,$address2,$city,$state,$zip,$country,
+      $email,$phone,$creditcardtype,$creditcard,$ccexpmon,$ccexpyr,$username,$password,$age,$income,$gender);
+    }
+  else
+    {
+    $region = 1;
+    if ($country != "US") $region = 2;
+    $creditcardexpiration = sprintf("%4d/%02d", $ccexpyr, $ccexpmon);
+//  $new_customer_proc_call = "call DS2.NEW_CUSTOMER(" .
+//    "'$firstname','$lastname','$address1','$address2','$city','$state','$zip','$country'," . 
+//    "'$region','$email','$phone','$creditcardtype', '$creditcard','$creditcardexpiration'," .
+//    "'$username','$password','$age','$income','$gender',@customerid_out);";
+    $query = "INSERT INTO DS2.CUSTOMERS ( FIRSTNAME, LASTNAME, EMAIL, PHONE, " . 
+       "USERNAME, PASSWORD, ADDRESS1, ADDRESS2, CITY, STATE, ZIP, COUNTRY, REGION, CREDITCARDTYPE, " .
+       "CREDITCARD, CREDITCARDEXPIRATION, AGE, INCOME, GENDER) VALUES " .
+        "('$firstname','$lastname','$email','$phone','$username','$password','$address1','$address2','$city','$state'," .
+        "'$zip','$country','$region','$creditcardtype','$creditcard','$creditcardexpiration','$age','$income','$gender');"; 
+    if (!mysqli_query($link_id, $query))
+      {
+      echo "Insert into CUSTOMERS table failed:  insert= $query\n";
+      echo mysqli_error($link_id);
+      }
+    $query = "select last_insert_id() into @customerid_out"; 
+    mysqli_query($link_id, $query);
+    $query = "select @customerid_out;";
+    mysqli_real_query($link_id, $query);
+    $result = mysqli_store_result($link_id);
+    $row = mysqli_fetch_row($result);
+    $customerid = $row[0];
+    mysqli_free_result($result);
+
+    echo "<H2>New Customer Successfully Added.  Click below to begin shopping<H2>\n";
+    echo "<FORM ACTION='./dsbrowse.php' METHOD=GET>\n";
+    echo "<INPUT TYPE=HIDDEN NAME=customerid VALUE=$customerid>\n";
+    echo "<INPUT TYPE=SUBMIT VALUE='Start Shopping'>\n";
+    echo "</FORM>\n";
+    }
+  }
+else
+  {
+  echo "<H2>New Customer - Please Complete All Required Fields Below (marked with *)</H2>\n";
+  dsnewcustomer_form($firstname,$lastname,$address1,$address2,$city,$state,$zip,$country,
+    $email,$phone,$creditcardtype,$creditcard,$ccexpmon,$ccexpyr,$username,$password,$age,$income,$gender);
+  }
+
+ds_html_footer();
+  
+function dsnewcustomer_form($firstname,$lastname,$address1,$address2,$city,$state,$zip,$country,
+  $email,$phone,$creditcardtype,$creditcard,$ccexpmon,$ccexpyr,$username,$password,$age,$income,$gender)
+  {
+  $countries = array("United States", "Australia", "Canada", "Chile", "China", "France", "Germany", "Japan", 
+                           "Russia", "South Africa", "UK");
+
+  $cctypes = array("MasterCard", "Visa", "Discover", "Amex", "Dell Preferred");
+  $months = array("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec");
+
+  echo "<FORM ACTION='./dsnewcustomer.php' METHOD='GET'>\n";
+  echo "Firstname <INPUT TYPE=TEXT NAME='firstname' VALUE='$firstname' SIZE=16 MAXLENGTH=50>* <BR>\n";
+  echo "Lastname <INPUT TYPE=TEXT NAME='lastname' VALUE='$lastname' SIZE=16 MAXLENGTH=50>* <BR>\n";
+  echo "Address1 <INPUT TYPE=TEXT NAME='address1' VALUE='$address1' SIZE=16 MAXLENGTH=50>* <BR>\n";
+  echo "Address2 <INPUT TYPE=TEXT NAME='address2' VALUE='$address2' SIZE=16 MAXLENGTH=50> <BR>\n";
+  echo "City <INPUT TYPE=TEXT NAME='city' VALUE='$city' SIZE=16 MAXLENGTH=50>* <BR>\n";
+  echo "State <INPUT TYPE=TEXT NAME='state' VALUE='$state' SIZE=16 MAXLENGTH=50> <BR>\n";
+  echo "Zipcode <INPUT TYPE=TEXT NAME='zip' VALUE='$zip' SIZE=16 MAXLENGTH='5'> <BR>\n";
+  echo "Country <SELECT NAME='country' SIZE=1>\n";
+  for ($i=0; $i<count($countries); $i++)
+    {
+    if ($countries[$i] == $country)
+      {echo "  <OPTION VALUE=\"$countries[$i]\" SELECTED>$countries[$i]</OPTION>\n";}
+    else
+      {echo "  <OPTION VALUE=\"$countries[$i]\">$countries[$i]</OPTION>\n";}
+    }
+  echo "</SELECT>* <BR>\n";
+  echo "Email <INPUT TYPE=TEXT NAME='email' VALUE='$email' SIZE=16 MAXLENGTH=50> <BR>\n";
+  echo "Phone <INPUT TYPE=TEXT NAME='phone' VALUE='$phone' SIZE=16 MAXLENGTH=50> <BR>\n";
+
+  echo "Credit Card Type "; 
+  echo "<SELECT NAME='creditcardtype' SIZE=1>\n";
+  for ($i=0; $i<5; $i++)
+    {
+    $j = $i + 1;
+    if ($j == $creditcardtype)
+      {echo "  <OPTION VALUE=\"$j\" SELECTED>$cctypes[$i]</OPTION>\n";}
+    else
+      {echo "  <OPTION VALUE=\"$j\">$cctypes[$i]</OPTION>\n";}
+    }
+  echo "</SELECT>\n";
+
+  echo "  Credit Card Number <INPUT TYPE=TEXT NAME='creditcard' VALUE='$creditcard' SIZE=16 MAXLENGTH=50>\n";
+
+  echo "  Credit Card Expiration "; 
+  echo "<SELECT NAME='ccexpmon' SIZE=1>\n";
+  for ($i=0; $i<12; $i++)
+    {
+    $j = $i+1;
+    if ($j == $ccexpmon)
+      {echo "  <OPTION VALUE=\"$j\" SELECTED>$months[$i]</OPTION>\n";}
+    else
+      {echo "  <OPTION VALUE=\"$j\">$months[$i]</OPTION>\n";}
+    }
+  echo "</SELECT>\n";
+  echo "<SELECT NAME='ccexpyr' SIZE=1>\n";
+  for ($i=0; $i<6; $i++)
+    {
+    $yr = 2008 + $i;
+    if ($yr == $ccexpyr)
+      {echo "  <OPTION VALUE=\"$yr\" SELECTED>$yr</OPTION>\n";}
+    else
+      {echo "  <OPTION VALUE=\"$yr\">$yr</OPTION>\n";}
+    }
+  echo "</SELECT><BR>\n";
+
+  echo "Username <INPUT TYPE=TEXT NAME='username' VALUE='$username' SIZE=16 MAXLENGTH=50>* <BR>\n";
+  echo "Password <INPUT TYPE='PASSWORD' NAME='password' VALUE='$password' SIZE=16 MAXLENGTH=50>* <BR>\n";
+  echo "Age <INPUT TYPE=TEXT NAME='age' VALUE='$age' SIZE=3 MAXLENGTH=3> <BR>\n";
+  echo "Income (\$US) <INPUT TYPE=TEXT NAME='income' VALUE='$income' SIZE=16 MAXLENGTH=50> <BR>\n";
+  echo "Gender <INPUT TYPE=RADIO NAME='gender' VALUE=\"M\" "; if($gender == 'M') echo "CHECKED"; echo "> Male \n";
+  echo "       <INPUT TYPE=RADIO NAME='gender' VALUE=\"F\" "; if($gender == 'F') echo "CHECKED"; echo "> Female \n";
+  echo "       <INPUT TYPE=RADIO NAME='gender' VALUE=\"?\" "; if($gender == '?' || $gender == '') echo "CHECKED"; echo "> Don't Know <BR>\n";
+  echo "<INPUT TYPE='submit' VALUE='Submit New Customer Data'>\n";
+  echo "</FORM>\n";
+  }
+
+?>

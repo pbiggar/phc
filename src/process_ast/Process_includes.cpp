@@ -9,6 +9,7 @@
 #include <libgen.h> // for dirname
 #include <iostream>
 #include <fstream>
+#include <boost/regex.hpp> // for regular expression.
 #include "Process_includes.h"
 #include "AST_visitor.h"
 #include "AST.h"
@@ -258,12 +259,101 @@ matching_param (Eval_expr* in, Statement_list* out, bool* include_once)
 	return NULL;
 }
 
+/*
+ * Escape regular expression special chars.
+ * We will use boost perl like syntax, which uses the following special
+ * chars: . [ { ( ) * + ? | ^ $ \
+ * This function was ripped from a user post at stackoverflow.com.
+ */
+String *regexp_escape(String *to_escape) {
+	const std::string rep("\\\\\\1&");
+	const boost::regex esc("[" \
+		"\\."	// .
+		"\\["	// [
+		"\\{"	// {
+		"\\("	// (
+		"\\)"	// )
+		"\\*"	// *
+		"\\+"	// +
+		"\\?"	// ?
+		"\\|"	// |
+		"\\^"	// ^
+		"\\$"	// $
+		"\\\\"	// \ (this must be the last argument)
+	"]");
+
+	std::string result;
+	result = regex_replace(*to_escape, esc, rep, boost::match_default | boost::format_sed);
+
+	return new String(result);
+}
+
+/*
+ * Build a regular expression from the given expression.
+ * It searches the entire expression tree, resolving
+ * every string to its constant value and everything
+ * else into a regular expression matching anything (.*).
+ *
+ * Example:
+ *   - Original expression: "directory/file" + $x + ".php";
+ *   - Generated regular expression: "directory/file(.*)\.php";
+ */
+String*
+get_regexp_filename(Expr *expr) {
+	// Matches anything.
+	static const char *default_regexp = "(.*)";
+
+	// The resultant regular expression from the expression.
+	stringstream regexp;
+
+	// Artificial stack to visit the whole expression tree.
+	Stack<Expr *> stack;
+	stack.push(expr);
+
+	// Binary operator match.
+	Bin_op *bin_op = NULL;
+
+	// Search the entire expression tree.
+	while (!stack.empty()) {
+		// Expand the first element on the stack.
+		Expr *tmp = stack.top();
+		stack.pop();
+
+		if (STRING *str = dynamic_cast<STRING *>(tmp)) { // String constant match.
+			regexp << *regexp_escape(str->value); // Direct conversion.
+		} else if ((bin_op = dynamic_cast<Bin_op *>(tmp)) and
+			   *bin_op->op->value == ".") { // Only matches the dot operator.
+			stack.push(bin_op->right);
+			stack.push(bin_op->left);
+		} else { // Default to match anything.
+			regexp << default_regexp;
+		}
+	}
+
+	// The resultant regular expression.
+	String *ret = s(regexp.str());
+
+	// Avoid simple cases.
+	if (ret->empty() or *ret == default_regexp)
+		return NULL;
+
+	return ret;
+}
+
 String* get_filename_from_param (Actual_parameter* param)
 {
-	STRING* token_filename = dynamic_cast<STRING*> (param->expr);
+	Expr *expr = param->expr;
+
+	STRING* token_filename = dynamic_cast<STRING*> (expr);
 	if (token_filename != NULL)
 		return token_filename->value;
-	return NULL;
+
+	// It is not a direct include. Let try to find if we can extract any names...
+	String *filename = NULL;
+	if (pm->args_info->include_regexp_given)
+		filename = get_regexp_filename(expr);
+
+	return filename;
 }
 
 String*
@@ -272,8 +362,14 @@ get_dirname (String* filename)
 	// I believe this is OK, memory wise. The cloned memory is overwritten by
 	// dirname, but that is then copied into the result, and then never touched
 	// again.
+	String *dir = NULL;
 	char* copy = strdup (filename->c_str());
-	return new String (dirname (copy));
+	if (copy != NULL) {
+		dir = s(dirname (copy));
+		free(copy);
+	}
+
+	return dir;
 }
 
 String_list*
@@ -284,11 +380,14 @@ get_search_directories (String* filename, Node* in)
 
 	// If the filename starts with "../" or "./", only check the current
 	// directory)
-	if (filename->substr(0, 3) == "../"
-		or filename->substr (0, 2) == "./")
+	if (not pm->args_info->include_harder_flag)
 	{
-		DEBUG ("Search directory: ./");
-		return new String_list (s("./"));
+		if (filename->substr(0, 3) == "../"
+				or filename->substr (0, 2) == "./")
+		{
+			DEBUG ("Search directory: ./");
+			return new String_list (s("./"));
+		}
 	}
 
 	String_list* result = PHP::get_include_paths ();
@@ -370,6 +469,7 @@ Process_includes::pre_eval_expr(Eval_expr* in, Statement_list* out)
 	rc.visit_statement_list (new_file->statements);
 	if(rc.found)
 	{
+		DEBUG ("Return statement found in " << *full_path);
 		if (hir)
 		{
 			assert (0); // TODO re-enable
@@ -385,10 +485,9 @@ Process_includes::pre_eval_expr(Eval_expr* in, Statement_list* out)
 		}
 	}
 
-	// bring the statements to the expected level of the IR
-	// We only need this in the HIR, and it causes infinite recursion in the
-	// AST. Disable until the HIR is re-enabled.
-//	pm->run_until (pass_name, new_file);
+	// Bring the IR to the correct level, which causes the recursive include to
+	// work.
+	pm->run_until (pass_name, new_file);
 
 	// copy the statements
 	out->push_back_all (new_file->statements);

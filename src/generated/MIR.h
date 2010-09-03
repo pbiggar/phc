@@ -33,7 +33,6 @@ class Attr_mod;
 class Name_with_default;
 class Catch;
 class Expr;
-class Rvalue;
 class Target;
 class Actual_parameter;
 class Method_name;
@@ -65,7 +64,7 @@ class Pre_op;
 class Eval_expr;
 class Unset;
 class Isset;
-class Literal;
+class Rvalue;
 class Field_access;
 class Array_access;
 class Array_next;
@@ -101,6 +100,7 @@ class CONSTANT_NAME;
 class FIELD_NAME;
 class LABEL_NAME;
 class HT_ITERATOR;
+class Literal;
 class Variable_variable;
 class VARIABLE_NAME;
 class INT;
@@ -123,7 +123,6 @@ typedef List<Attr_mod*> Attr_mod_list;
 typedef List<Name_with_default*> Name_with_default_list;
 typedef List<Catch*> Catch_list;
 typedef List<Expr*> Expr_list;
-typedef List<Rvalue*> Rvalue_list;
 typedef List<Target*> Target_list;
 typedef List<Actual_parameter*> Actual_parameter_list;
 typedef List<Method_name*> Method_name_list;
@@ -155,7 +154,7 @@ typedef List<Pre_op*> Pre_op_list;
 typedef List<Eval_expr*> Eval_expr_list;
 typedef List<Unset*> Unset_list;
 typedef List<Isset*> Isset_list;
-typedef List<Literal*> Literal_list;
+typedef List<Rvalue*> Rvalue_list;
 typedef List<Field_access*> Field_access_list;
 typedef List<Array_access*> Array_access_list;
 typedef List<Array_next*> Array_next_list;
@@ -191,6 +190,7 @@ typedef List<CONSTANT_NAME*> CONSTANT_NAME_list;
 typedef List<FIELD_NAME*> FIELD_NAME_list;
 typedef List<LABEL_NAME*> LABEL_NAME_list;
 typedef List<HT_ITERATOR*> HT_ITERATOR_list;
+typedef List<Literal*> Literal_list;
 typedef List<Variable_variable*> Variable_variable_list;
 typedef List<VARIABLE_NAME*> VARIABLE_NAME_list;
 typedef List<INT*> INT_list;
@@ -203,7 +203,7 @@ typedef List<None*> None_list;
 class Transform;
 class Visitor;
 
-/* Node ::= PHP_script | Statement | Class_mod | Member | Signature | Method_mod | Formal_parameter | Type | Attr_mod | Name_with_default | Catch | Expr | Rvalue | Target | Actual_parameter | Method_name | Class_name | Field_name | Static_value | Static_array_elem | Static_array_key | Identifier | PARAM_INDEX<int>; */
+/* Node ::= PHP_script | Statement | Class_mod | Member | Signature | Method_mod | Formal_parameter | Type | Attr_mod | Name_with_default | Catch | Expr | Target | Actual_parameter | Method_name | Class_name | Field_name | Static_value | Static_array_elem | Static_array_key | Identifier | PARAM_INDEX<int>; */
 class Node : virtual public IR::Node
 {
 public:
@@ -337,16 +337,17 @@ public:
     virtual void assert_valid() = 0;
 };
 
-/* Signature ::= Method_mod is_ref:"&" METHOD_NAME Formal_parameter* ; */
+/* Signature ::= Method_mod pass_rest_by_ref:"rest_by_ref" return_by_ref:"&" METHOD_NAME Formal_parameter* ; */
 class Signature : virtual public Node
 {
 public:
-    Signature(Method_mod* method_mod, bool is_ref, METHOD_NAME* method_name, Formal_parameter_list* formal_parameters);
+    Signature(Method_mod* method_mod, bool pass_rest_by_ref, bool return_by_ref, METHOD_NAME* method_name, Formal_parameter_list* formal_parameters);
 protected:
     Signature();
 public:
     Method_mod* method_mod;
-    bool is_ref;
+    bool pass_rest_by_ref;
+    bool return_by_ref;
     METHOD_NAME* method_name;
     Formal_parameter_list* formal_parameters;
 public:
@@ -369,6 +370,8 @@ public:
     virtual void assert_valid();
 public:
     Signature(const char* name);
+    /*  Returns if the parameter at index PARAM_INDEX is passed by reference. */
+    bool is_param_passed_by_ref(int param_index);
 };
 
 /* Method_mod ::= "public"? "protected"? "private"? "static"? "abstract"? "final"? ; */
@@ -575,7 +578,7 @@ public:
     virtual void assert_valid();
 };
 
-/* Expr ::= Cast | Unary_op | Bin_op | Constant | Instanceof | Method_invocation | New | Literal | Variable_name | Array_access | Field_access | Array_next | FOREIGN<IR::Node*> | Isset | Foreach_has_key | Foreach_get_key | Foreach_get_val | Param_is_ref; */
+/* Expr ::= Cast | Unary_op | Bin_op | Constant | Instanceof | Method_invocation | New | Rvalue | Variable_name | Array_access | Field_access | Array_next | FOREIGN<IR::Node*> | Isset | Foreach_has_key | Foreach_get_key | Foreach_get_val | Param_is_ref; */
 class Expr : virtual public Node
 {
 public:
@@ -591,30 +594,6 @@ public:
     virtual bool equals(Node* in) = 0;
 public:
     virtual Expr* clone() = 0;
-public:
-    virtual Node* find(Node* in) = 0;
-public:
-    virtual void find_all(Node* in, Node_list* out) = 0;
-public:
-    virtual void assert_valid() = 0;
-};
-
-/* Rvalue ::= Literal | VARIABLE_NAME; */
-class Rvalue : virtual public Node
-{
-public:
-    Rvalue();
-public:
-    virtual void visit(Visitor* visitor) = 0;
-    virtual void transform_children(Transform* transform) = 0;
-public:
-    virtual int classid() = 0;
-public:
-    virtual bool match(Node* in) = 0;
-public:
-    virtual bool equals(Node* in) = 0;
-public:
-    virtual Rvalue* clone() = 0;
 public:
     virtual Node* find(Node* in) = 0;
 public:
@@ -1535,11 +1514,11 @@ public:
     virtual void assert_valid();
 };
 
-/* Literal ::= INT<long> | REAL<double> | STRING<String*> | BOOL<bool> | NIL<>; */
-class Literal : virtual public Expr, virtual public Rvalue, virtual public Static_value, virtual public Static_array_key
+/* Rvalue ::= Literal | VARIABLE_NAME; */
+class Rvalue : virtual public Expr
 {
 public:
-    Literal();
+    Rvalue();
 public:
     virtual void visit(Visitor* visitor) = 0;
     virtual void transform_children(Transform* transform) = 0;
@@ -1550,16 +1529,13 @@ public:
 public:
     virtual bool equals(Node* in) = 0;
 public:
-    virtual Literal* clone() = 0;
+    virtual Rvalue* clone() = 0;
 public:
     virtual Node* find(Node* in) = 0;
 public:
     virtual void find_all(Node* in, Node_list* out) = 0;
 public:
     virtual void assert_valid() = 0;
-public:
-    /*  We wish to match on this, so it cannot be pure virtual */
-    virtual String* get_value_as_string();
 };
 
 /* Field_access ::= Target Field_name ; */
@@ -2613,6 +2589,33 @@ public:
     virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
+};
+
+/* Literal ::= INT<long> | REAL<double> | STRING<String*> | BOOL<bool> | NIL<>; */
+class Literal : virtual public Rvalue, virtual public Static_value, virtual public Static_array_key
+{
+public:
+    Literal();
+public:
+    virtual void visit(Visitor* visitor) = 0;
+    virtual void transform_children(Transform* transform) = 0;
+public:
+    virtual int classid() = 0;
+public:
+    virtual bool match(Node* in) = 0;
+public:
+    virtual bool equals(Node* in) = 0;
+public:
+    virtual Literal* clone() = 0;
+public:
+    virtual Node* find(Node* in) = 0;
+public:
+    virtual void find_all(Node* in, Node_list* out) = 0;
+public:
+    virtual void assert_valid() = 0;
+public:
+    /*  We wish to match on this, so it cannot be pure virtual */
+    virtual String* get_value_as_string();
 };
 
 /* Variable_variable ::= VARIABLE_NAME ; */

@@ -30,7 +30,11 @@ namespace MIR
 	class OP;
 	class CAST;
 	class Constant;
+	class VARIABLE_NAME;
+	typedef List<VARIABLE_NAME*> VARIABLE_NAME_list;
 }
+
+class Method_info;
 
 class PHP
 {
@@ -67,6 +71,31 @@ public:
 	static void add_include (String* full_path);
 	static bool is_included (String* full_path);
 	static String_list* get_include_paths ();
+
+	/* Superglobals */
+	static MIR::VARIABLE_NAME_list* get_superglobals ();
+	static MIR::VARIABLE_NAME_list* get_initial_vars ();
+
+	// Is the superglobal an array of strings.
+	static bool is_initial_var_string_array (MIR::VARIABLE_NAME* sg);
+
+	/*
+	 * Optimization (defined in optimize.cpp)
+	 */
+
+	// Folding
+	static MIR::Literal* fold_unary_op (MIR::OP* op, MIR::Literal* literal);
+	static bool is_true (MIR::Literal* literal);
+	static MIR::Literal* cast_to (MIR::CAST* cast, MIR::Literal* literal);
+	static String* get_string_value (MIR::Literal* lit);
+	static MIR::Literal* fold_bin_op (MIR::Literal* left, MIR::OP* op, MIR::Literal* right);
+	static MIR::Literal* fold_pre_op (MIR::Literal* literal, MIR::OP* op);
+	static MIR::Literal* fold_constant (MIR::Constant* constant);
+	static MIR::Literal* fold_string_index (MIR::Literal* array, MIR::Literal* index);
+
+	// Functions
+	static Method_info* get_method_info (String* name);
+	static MIR::Literal* call_function (MIR::METHOD_NAME* in, MIR::Literal_list* params);
 };
 
 #endif // PHC_EMBED_H

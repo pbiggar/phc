@@ -14,8 +14,11 @@
 		}
 	}
 	A::bar();
+	var_dump (A::$q);
 	A::bar();
+	var_dump (A::$q);
 	A::bar();
+	var_dump (A::$q);
 
 
 	$q = 2345;

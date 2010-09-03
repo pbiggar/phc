@@ -25,9 +25,9 @@ using namespace std;
 class Strip_labels : public MIR::Transform
 {
 public:
-	map<string, bool>* labels;
+	Map<string, bool>* labels;
 
-	Strip_labels (map<string, bool>* labels)
+	Strip_labels (Map<string, bool>* labels)
 	{
 		this->labels = labels;
 	}
@@ -191,11 +191,11 @@ public:
 	MIR_reduce (int start, int length)
 	: Reduce <MIR::Transform, MIR::Statement> (start, length)
 	{
-		labels = new map<string, bool>;
+		labels = new Map<string, bool>;
 	}
 
 public:
-	map<string, bool>* labels;
+	Map<string, bool>* labels;
 
 
 	// Things which can be removed

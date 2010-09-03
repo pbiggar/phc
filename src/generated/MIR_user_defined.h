@@ -19,7 +19,6 @@ class Attr_mod;
 class Name_with_default;
 class Catch;
 class Expr;
-class Rvalue;
 class Target;
 class Actual_parameter;
 class Method_name;
@@ -51,7 +50,7 @@ class Pre_op;
 class Eval_expr;
 class Unset;
 class Isset;
-class Literal;
+class Rvalue;
 class Field_access;
 class Array_access;
 class Array_next;
@@ -87,6 +86,7 @@ class CONSTANT_NAME;
 class FIELD_NAME;
 class LABEL_NAME;
 class HT_ITERATOR;
+class Literal;
 class Variable_variable;
 class VARIABLE_NAME;
 class INT;
@@ -111,7 +111,6 @@ MAKETEA_USER_DEFINED(MIR::Attr_mod)
 MAKETEA_USER_DEFINED(MIR::Name_with_default)
 MAKETEA_USER_DEFINED(MIR::Catch)
 MAKETEA_USER_DEFINED(MIR::Expr)
-MAKETEA_USER_DEFINED(MIR::Rvalue)
 MAKETEA_USER_DEFINED(MIR::Target)
 MAKETEA_USER_DEFINED(MIR::Actual_parameter)
 MAKETEA_USER_DEFINED(MIR::Method_name)
@@ -143,7 +142,7 @@ MAKETEA_USER_DEFINED(MIR::Pre_op)
 MAKETEA_USER_DEFINED(MIR::Eval_expr)
 MAKETEA_USER_DEFINED(MIR::Unset)
 MAKETEA_USER_DEFINED(MIR::Isset)
-MAKETEA_USER_DEFINED(MIR::Literal)
+MAKETEA_USER_DEFINED(MIR::Rvalue)
 MAKETEA_USER_DEFINED(MIR::Field_access)
 MAKETEA_USER_DEFINED(MIR::Array_access)
 MAKETEA_USER_DEFINED(MIR::Array_next)
@@ -179,6 +178,7 @@ MAKETEA_USER_DEFINED(MIR::CONSTANT_NAME)
 MAKETEA_USER_DEFINED(MIR::FIELD_NAME)
 MAKETEA_USER_DEFINED(MIR::LABEL_NAME)
 MAKETEA_USER_DEFINED(MIR::HT_ITERATOR)
+MAKETEA_USER_DEFINED(MIR::Literal)
 MAKETEA_USER_DEFINED(MIR::Variable_variable)
 MAKETEA_USER_DEFINED(MIR::VARIABLE_NAME)
 MAKETEA_USER_DEFINED(MIR::INT)

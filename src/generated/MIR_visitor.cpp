@@ -748,7 +748,8 @@ void Visitor::children_method(Method* in)
 void Visitor::children_signature(Signature* in)
 {
     visit_method_mod(in->method_mod);
-    visit_marker("is_ref", in->is_ref);
+    visit_marker("pass_rest_by_ref", in->pass_rest_by_ref);
+    visit_marker("return_by_ref", in->return_by_ref);
     visit_method_name(in->method_name);
     visit_formal_parameter_list(in->formal_parameters);
 }
@@ -1594,8 +1595,8 @@ void Visitor::pre_variable_name_chain(VARIABLE_NAME* in)
 {
     pre_node((Node*) in);
     pre_expr((Expr*) in);
-    pre_variable_name((Variable_name*) in);
     pre_rvalue((Rvalue*) in);
+    pre_variable_name((Variable_name*) in);
     pre_target((Target*) in);
     pre_identifier((Identifier*) in);
     pre_variable_name((VARIABLE_NAME*) in);
@@ -2137,8 +2138,8 @@ void Visitor::post_variable_name_chain(VARIABLE_NAME* in)
     post_variable_name((VARIABLE_NAME*) in);
     post_identifier((Identifier*) in);
     post_target((Target*) in);
-    post_rvalue((Rvalue*) in);
     post_variable_name((Variable_name*) in);
+    post_rvalue((Rvalue*) in);
     post_expr((Expr*) in);
     post_node((Node*) in);
 }

@@ -1,0 +1,16 @@
+test/subjects/benchmarks/RUBBoS/PHP/AcceptStory.php
+test/subjects/benchmarks/RUBBoS/PHP/Author.php
+test/subjects/benchmarks/RUBBoS/PHP/BrowseCategories.php
+test/subjects/benchmarks/RUBBoS/PHP/BrowseStoriesByCategory.php
+test/subjects/benchmarks/RUBBoS/PHP/ModerateComment.php
+test/subjects/benchmarks/RUBBoS/PHP/OlderStories.php
+test/subjects/benchmarks/RUBBoS/PHP/PostComment.php
+test/subjects/benchmarks/RUBBoS/PHP/RegisterUser.php
+test/subjects/benchmarks/RUBBoS/PHP/RejectStory.php
+test/subjects/benchmarks/RUBBoS/PHP/ReviewStories.php
+test/subjects/benchmarks/RUBBoS/PHP/Search.php
+test/subjects/benchmarks/RUBBoS/PHP/StoreComment.php
+test/subjects/benchmarks/RUBBoS/PHP/StoreModeratorLog.php
+test/subjects/benchmarks/RUBBoS/PHP/StoreStory.php
+test/subjects/benchmarks/RUBBoS/PHP/StoriesOfTheDay.php
+test/subjects/benchmarks/RUBBoS/PHP/SubmitStory.php

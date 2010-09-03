@@ -36,10 +36,13 @@ AC_PATH_PROG([gengetopt], [gengetopt])
 AC_PATH_PROG([gperf], [gperf])
 AC_PATH_PROG([flex], [flex])
 AC_PATH_PROG([bison], [bison])
+AC_PATH_PROG([patch], [patch])
+AC_PATH_PROG([diff], [diff])
 AC_PATH_PROG([valgrind], [valgrind])
 AC_PATH_PROG([dot], [dot])
 AC_PATH_PROG([graphviz_gc], [gc])
 AX_BOOST_BASE([1.35.0])
+AX_BOOST_REGEX
 
 AC_ARG_WITH([maketea], 
    AS_HELP_STRING([--with-maketea], [path to maketea (if installed)]),
@@ -81,11 +84,13 @@ dnl check xerces unless disabled
 AS_IF([test "x$with_xerces" != xno], [AC_CHECK_LIB_XERCES], [])
 
 # USE GC unless disabled
+# libgccpp overrides ::new, which is required to collect the Boost Graph Library.
 AS_IF([test "x$enable_gc" != xno],
 		[
 			AC_CHECK_HEADER([gc/gc_cpp.h], [], [AC_MSG_FAILURE(libgc required)])
 			AC_CHECK_LIB([gc], [main], [], [AC_MSG_FAILURE(libgc required)])
-			AC_SUBST([gc_lib], [-lgc])
+			AC_CHECK_LIB([gccpp], [main], [], [AC_MSG_FAILURE(libgccpp required)])
+			AC_SUBST([gc_lib], ["-lgc -lgccpp"])
 		],
 		[AC_DEFINE(DISABLE_GC, 1)])
 
@@ -114,5 +119,3 @@ AS_IF(
 * script.                                                                     *
 *******************************************************************************]
 	)])
-
-PHC_CHECK_SVN

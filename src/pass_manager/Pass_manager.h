@@ -13,12 +13,17 @@
 #include "cmdline.h"
 #include "lib/List.h"
 
+class CFG;
+class CFG_visitor;
+class Optimization_pass;
+class Whole_program;
 class Pass;
 class String;
+
 typedef List<Pass*> Pass_queue;
 namespace AST { class Visitor; class Transform; }
 namespace HIR { class Visitor; class Transform; }
-namespace MIR { class Visitor; class Transform; }
+namespace MIR { class Visitor; class Transform; class Method; }
 namespace IR { class PHP_script; }
 
 class Pass_manager : virtual public GC_obj
@@ -60,6 +65,17 @@ public:
 	void add_mir_transform (MIR::Transform* transform, String* name, String* description);
 	void add_after_each_mir_pass (Pass* pass);
 
+	// Add Optimization passes
+	void optimize (MIR::PHP_script* in);
+	void run_optimization_pass (Pass* pass, Whole_program* wp, CFG* cfg);
+
+	void run_local_optimization_passes (Whole_program* wp, CFG* cfg);
+	void add_local_optimization (CFG_visitor* visitor, String* name, String* description, bool require_ssa = false, bool require_ssi = false);
+	void add_local_optimization_pass (Pass*);
+
+	void run_ipa_passes (Whole_program* wp, CFG* cfg);
+	void add_ipa_optimization (CFG_visitor* visitor, String* name, String* description, bool require_ssa = false, bool require_ssi = false);
+	void add_ipa_optimization_pass (Pass*);
 
 	// Add codegen passes
 	void add_codegen_pass (Pass* pass);
@@ -91,10 +107,16 @@ public:
 	void dump (IR::PHP_script* in, String* passname);
 	void maybe_enable_debug (String* passname);
 
+	// HACK: debugging for optimization passes.
+	void cfg_dump (CFG* cfg, String* passname, String* comment);
+
 protected:
 	Pass_queue* ast_queue;
 	Pass_queue* hir_queue;
 	Pass_queue* mir_queue;
+	Pass_queue* wpa_queue;
+	Pass_queue* opt_queue;
+	Pass_queue* ipa_queue;
 	Pass_queue* codegen_queue;
 	List<Pass_queue*>* queues;
 };

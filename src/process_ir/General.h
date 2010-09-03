@@ -17,8 +17,30 @@
 #include "fresh.h"
 #include "parsing/Parse_buffer.h"
 
+//#define PUNT do { throw "punting"; } while (0)
+//#define OPT_ASSERT(A) do { if (A) throw "punting"; } while (0)
+
+// TODO: change these back later
+#define PUNT assert (0);
+#define OPT_ASSERT(A) assert (A);
+
 using boost::lexical_cast;
 
 bool is_builtin_function (String* name);
+
+template<class T> T* C(const T* x) { return const_cast<T*> (x); }
+
+template<class T>
+T* clone (const T* t)
+{
+	return C(t)->clone ();
+}
+
+template<class T>
+bool equals (const T* t1, const T* t2)
+{
+	return C(t1)->equals (C(t2));
+}
+
 
 #endif // PHC_GENERAL

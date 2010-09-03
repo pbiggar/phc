@@ -1,0 +1,53 @@
+<center>
+<h2>Sell your item</h2></center>
+
+<p><p><br>
+<center>
+<font color="#FF0000">
+Just fill the following form to register your item !
+</font>
+
+<table>
+<form action="/PHP/RegisterItem.php" method=POST>
+<tr><td>
+Name:
+<td>
+<input type=text size=20 name=name>
+<tr><td>
+Description:
+<td>
+<input type=text size=50 maxlenght=100 name=description>
+<tr><td>
+Initial price:
+<td>
+<input type=text size=10 name=initialPrice>
+<tr><td>
+Reserve price:
+<td>
+<input type=text size=10 name=reservePrice>
+<tr><td>
+Buy now price:
+<td>
+<input type=text size=10 name=buyNow>
+<tr><td>
+Quantity:
+<td>
+<input type=text size=10 name=quantity>
+<tr><td>
+Auction duration:
+<td>
+<select name="duration">
+  <option selected label="1 day" value="1">1 day</option>
+  <option label="2 days" value="2">2 days</option>
+  <option label="3 days" value="3">3 days</option>
+  <option label="4 days" value="4">4 days</option>
+  <option label="5 days" value="5">5 days</option>
+  <option label="6 days" value="6">6 days</option>
+  <option label="6 days" value="6">6 days</option>
+  <option label="7 days" value="7">7 days</option>
+</select>
+</table></center>
+<br>
+<center><input type=submit value="Register item!"></center>
+<br>
+<p>

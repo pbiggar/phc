@@ -21,12 +21,23 @@
 
 	foreach ($dirs as $dir)
 	{
+		echo "Analysing $dir\n";
 		$files = get_all_files ($dir);
 		foreach ($files as $file)
 		{
 			$file_stats = get_file_stats ($file);
-			if ($file_stats === NULL)
+			if ($file_stats === NULL 
+					|| ($file_stats[0] == (string)"0" && $file_stats[1] == (string)"0" && $file_stats[2] == (string)"0"))
+			{
 				continue;
+			}
+			else
+				if ($argv[1] == "-delete")	
+				{
+					`rm -r -f $dir`;
+					echo "Deleting $dir\n";
+					continue 2;
+				}
 
 			add_stat ($dir, $file, $file_stats);
 			echo "$file\n";

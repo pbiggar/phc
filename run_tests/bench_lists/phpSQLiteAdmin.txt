@@ -1,0 +1,10 @@
+test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/dbaction.php
+test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/dbconfig.php
+test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/editdb.php
+test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/index.php
+test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/leftframe.php
+test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/mainframe.php
+test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/query.php
+test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/table_browse.php
+test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/table_create.php
+test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/table_structure.php

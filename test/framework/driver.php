@@ -80,12 +80,14 @@ require_once ("lib/plugin_test.php");
 require_once ("lib/regression.php");
 require_once ("lib/compare_backwards.php");
 require_once ("lib/pass_dump.php");
+require_once ("lib/basic_test.php");
+require_once ("lib/test_ignore_output.php");
 
 // Add tests to list
 $tests = array ();
 
 require_once ("annotated_test.php");
-require_once ("basic_parse_test.php");
+$tests[] = new BasicTest ("Parse", "", "Annotated_test");
 require_once ("no_whitespace.php");
 $tests[] = new CompareBackwards ("ast");
 $tests[] = new CompareBackwards ("sua",			"dump",	"cb_ast");
@@ -95,13 +97,30 @@ $tests[] = new CompareBackwards ("hir",			"dump",	"cb_AST-to-HIR");
 $tests[] = new CompareBackwards ("mir",			"convert-uppered --dump",	"cb_hir");
 $tests[] = new Pass_dump (			"HIR-to-MIR",	"dump",	"cb_hir");
 $tests[] = new Pass_dump (			"mir",			"dump",	"cb_mir");
-$tests[] = new CompareWithPHP ("InterpretOptimized", "-O1 --dump=generate-c --convert-uppered", "cb_mir");
 $tests[] = new CompareWithPHP ("InterpretCanonicalUnparsed", "--run plugins/tests/canonical_unparser.la", "BasicParseTest"); // not necessarily dependent of InterpretUnparsed
 $tests[] = new CompareWithPHP ("InterpretIncludes", "--include --dump=incl1 --no-warnings", "cb_sua");
 $tests[] = new CompareWithPHP ("InterpretObfuscated", "--obfuscate", "cb_mir");
 require_once ("generate_c.php");
 require_once ("compiled_vs_interpreted.php");
+
+#$opt = " -O1 --include --disable=ifsimple,dce,rlb ";
+$opt = " -O1 --include ";
+$fast = " --flow-insensitive --call-string-length=1";
+$disable = "--disable=ifsimple,rlb,dce";
+$stats = " --stats ";
+
+$tests[] = new BasicTest ("PreciseOptAnalyse", "$opt $disable", "cb_mir");
+$tests[] = new BasicTest ("PreciseOptimize", "$opt", "BasicPreciseOptAnalyseTest");
+$tests[] = new BasicIgnoreOutputTest ("PreciseOptimize", "$opt $stats", "BasicPreciseOptimizeTest");
+
+$tests[] = new BasicTest ("FastOptAnalyse", "$opt $disable $fast", "BasicPreciseOptAnalyseTest");
+$tests[] = new BasicTest ("FastOptimize", "$opt $fast", "BasicFastOptAnalyseTest");
+$tests[] = new BasicIgnoreOutputTest ("FastOptimize", "$opt $fast $stats", "BasicFastOptimizeTest");
+
+$tests[] = new CompareWithPHP ("InterpretOptimized", "$opt --dump=codegen --convert-uppered", "BasicPreciseOptimizeTest");
 require_once ("compile_optimized.php");
+
+
 require_once ("refcounts.php");
 require_once ("demi_eval.php");
 $tests[] = new PluginTest ("inconsistent_st_attr");

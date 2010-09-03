@@ -1,0 +1,44 @@
+#!/bin/bash
+
+FILENAME=$1;
+
+ulimit -t 300 # 5 mins
+ulimit -v 1500000 # 1.5G-ish
+
+
+SAVE_FILE="run_tests/output"
+
+for i in `cat $FILENAME`;
+do
+	dirname=`dirname $i`
+
+	rm $SAVE_FILE
+	echo $i 2>&1 | tee -a $SAVE_FILE
+	svn update
+	/usr/bin/make
+	echo "Make result: $?" 2>&1 | tee -a $SAVE_FILE
+
+	COMMAND="smprof src/phc $i --include --include-harder -O2 --stats -d include_path=$dirname"
+
+	THIS_COMMAND="$COMMAND --flow-insensitive --call-string-length=1"
+	echo "$THIS_COMMAND" >> $SAVE_FILE
+	$THIS_COMMAND >> $SAVE_FILE 2>&1 
+	echo -e "\n\n\n" >> $SAVE_FILE
+
+	THIS_COMMAND="$COMMAND --call-string-length=1"
+	echo "$THIS_COMMAND" >> $SAVE_FILE
+	$THIS_COMMAND >> $SAVE_FILE 2>&1 
+	echo -e "\n\n\n" >> $SAVE_FILE
+
+	THIS_COMMAND="$COMMAND --flow-insensitive"
+	echo "$THIS_COMMAND" >> $SAVE_FILE
+	$THIS_COMMAND >> $SAVE_FILE 2>&1 
+	echo -e "\n\n\n" >> $SAVE_FILE
+
+	THIS_COMMAND="$COMMAND"
+	echo "$THIS_COMMAND" >> $SAVE_FILE
+	$THIS_COMMAND >> $SAVE_FILE 2>&1 
+	echo -e "\n\n\n" >> $SAVE_FILE
+
+	mail -t paul.biggar@gmail.com -s "benchmark test" < $SAVE_FILE
+done

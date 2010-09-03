@@ -70,7 +70,7 @@ void Desugar::pre_declare (Declare* in, Statement_list* out)
 OP*
 Desugar::pre_op (OP* in)
 {
-	in->value->toLower();
+	in->value = in->value->to_lower();
 
 	if (*in->value == "and")
 		in->value = s("&&");
@@ -164,7 +164,7 @@ Desugar::pre_interface_name (INTERFACE_NAME* in)
 CAST*
 Desugar::pre_cast (CAST* in)
 {
-	in->value->toLower ();
+	in->value = in->value->to_lower ();
 
 	// Choosing the names for this is hard. We could use our IR names, but NIL
 	// isnt valid (isn't valid means it wont parse). We could use PHPs IS_*

@@ -1,0 +1,4 @@
+test/subjects/benchmarks/webapps/tigerPhpNewsSystem_1.0_beta_build39/atom.php
+test/subjects/benchmarks/webapps/tigerPhpNewsSystem_1.0_beta_build39/index.php
+test/subjects/benchmarks/webapps/tigerPhpNewsSystem_1.0_beta_build39/randimg.php
+test/subjects/benchmarks/webapps/tigerPhpNewsSystem_1.0_beta_build39/rss.php

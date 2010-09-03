@@ -1,0 +1,200 @@
+#!/bin/bash
+
+# Runs out the clock
+
+
+# Runs out of memory (on 1.5G)
+#test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_crypto-md5.php				\
+#test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_crypto-aes.php				\
+#test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_crypto.php			\
+#test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_deltablue.php			\
+#test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_raytrace.php			\
+#test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_richards.php			\
+#test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_whirl.php				\
+#test/subjects/benchmarks/RUBBoS/PHP/BrowseStoriesByCategory.php						\
+#test/subjects/benchmarks/RUBBoS/PHP/RegisterUser.php										\
+#test/subjects/benchmarks/RUBBoS/PHP/StoreComment.php										\
+#test/subjects/benchmarks/RUBBoS/PHP/StoreModeratorLog.php								\
+#test/subjects/benchmarks/RUBBoS/PHP/ViewComment.php										\
+#test/subjects/benchmarks/RUBBoS/PHP/ViewStory.php											\
+#test/subjects/benchmarks/RUBiS/AboutMe.php													\
+#test/subjects/benchmarks/RUBiS/BuyNow.php													\
+#test/subjects/benchmarks/RUBiS/PHPprinter.php												\
+#test/subjects/benchmarks/RUBiS/PutBidAuth.php												\
+#test/subjects/benchmarks/RUBiS/PutBid.php												\
+#test/subjects/benchmarks/RUBiS/PutComment.php												\
+#test/subjects/benchmarks/RUBiS/RegisterItem.php												\
+#test/subjects/benchmarks/RUBiS/RegisterUser.php												\
+#test/subjects/benchmarks/RUBiS/SearchItemsByCategory.php												\
+#test/subjects/benchmarks/RUBiS/SearchItemsByRegion.php												\
+#test/subjects/benchmarks/RUBiS/StoreBid.php												\
+#test/subjects/benchmarks/RUBiS/StoreBuyNow.php												\
+#test/subjects/benchmarks/RUBiS/StoreComment.php												\
+#test/subjects/benchmarks/RUBiS/ViewBidHistory.php												\
+#test/subjects/benchmarks/RUBiS/ViewItem.php												\
+#test/subjects/benchmarks/RUBiS/ViewUserInfo.php												\
+#test/subjects/benchmarks/shootout/binarytrees.php											\
+#test/subjects/benchmarks/shootout/fasta.php-2.php											\
+#test/subjects/benchmarks/shootout/nbody.php													\
+#test/subjects/benchmarks/webapps/eveactive_1.0/edit.php									\
+#test/subjects/benchmarks/webapps/tigerPhpNewsSystem_1.0_beta_build39/lang/en.php		\
+#test/subjects/benchmarks/webapps/tigerPhpNewsSystem_1.0_beta_build39/lang/sv.php		\
+#test/subjects/benchmarks/zend/bench_less_recursive.php									\
+
+
+# Beyond hope
+#test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_j4p5.php
+#test/subjects/benchmarks/ds2/dsbrowse.php													\
+#test/subjects/benchmarks/ds2/dslogin.php												\
+#test/subjects/benchmarks/ds2/dsnewcustomer.php											\
+#test/subjects/benchmarks/ds2/dsnewcustomer.php.nosp												\
+#test/subjects/benchmarks/ds2/dsnewcustomer.php.sp												\
+#test/subjects/benchmarks/ds2/dspurchase.php												\
+
+# Recursion
+#test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_ackermann.php
+
+# Poor benchmark
+#test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_pcre.php
+
+# Works
+#test/subjects/benchmarks/RUBBoS/PHP/AcceptStory.php										\
+#test/subjects/benchmarks/RUBBoS/PHP/Author.php												\
+#test/subjects/benchmarks/RUBBoS/PHP/BrowseCategories.php									\
+#test/subjects/benchmarks/RUBBoS/PHP/ModerateComment.php									\
+#test/subjects/benchmarks/RUBBoS/PHP/PHPprinter.php											\
+#test/subjects/benchmarks/RUBBoS/PHP/PostComment.php										\
+#test/subjects/benchmarks/RUBBoS/PHP/RejectStory.php										\
+#test/subjects/benchmarks/RUBBoS/PHP/ReviewStories.php										\
+#test/subjects/benchmarks/RUBBoS/PHP/Search.php												\
+#test/subjects/benchmarks/RUBBoS/PHP/StoreStory.php											\
+#test/subjects/benchmarks/RUBBoS/PHP/StoriesOfTheDay.php									\
+#test/subjects/benchmarks/RUBBoS/PHP/SubmitStory.php										\
+#test/subjects/benchmarks/RUBiS/BrowseCategories.php												\
+#test/subjects/benchmarks/RUBiS/BrowseRegions.php												\
+#test/subjects/benchmarks/RUBiS/PutCommentAuth.php												\
+#test/subjects/benchmarks/RUBiS/SellItemForm.php												\
+#test/subjects/benchmarks/shootout/fannkuch.php												\
+#test/subjects/benchmarks/shootout/pidigits.php												\
+#test/subjects/benchmarks/webapps/eveactive_1.0/add.php									\
+#test/subjects/benchmarks/webapps/eveactive_1.0/config.php									\
+#test/subjects/benchmarks/webapps/eveactive_1.0/index.php									\
+#test/subjects/benchmarks/webapps/eveactive_1.0/member_config.php									\
+#test/subjects/benchmarks/webapps/eveactive_1.0/member.php									\
+#test/subjects/benchmarks/webapps/eveactive_1.0/server.php									\
+#test/subjects/benchmarks/webapps/eveactive_1.0/user.php									\
+#test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/config.php											\
+#test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/dbconfig.php											\
+#test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/editdb.php											\
+#test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/include.php											\
+#test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/index.php											\
+#test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/leftframe.php											\
+#test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/mainframe.php											\
+#test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/phpinfo.php											\
+#test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/query.php											\
+#test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/SPSQLite.class-0.6.php				\
+#test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/SPSQLite.class.php				\
+#test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/table_browse.php				\
+#test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/table_create.php				\
+#test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/table_structure.php				\
+#test/subjects/benchmarks/webapps/tigerPhpNewsSystem_1.0_beta_build39/dist_config.php		\
+#test/subjects/benchmarks/webapps/tigerPhpNewsSystem_1.0_beta_build39/sessions.php		\
+#test/subjects/benchmarks/webapps/tigerPhpNewsSystem_1.0_beta_build39/Table.php		\
+#test/subjects/benchmarks/zend/individual/ary2.php											\
+#test/subjects/benchmarks/zend/individual/ary3.php											\
+#test/subjects/benchmarks/zend/individual/ary.php											\
+#test/subjects/benchmarks/zend/individual/hash1.php											\
+#test/subjects/benchmarks/zend/individual/hash2.php											\
+#test/subjects/benchmarks/zend/individual/heapsort.php										\
+#test/subjects/benchmarks/zend/individual/mandel2.php										\
+#test/subjects/benchmarks/zend/individual/mandel.php										\
+#test/subjects/benchmarks/zend/individual/matrix.php										\
+#test/subjects/benchmarks/zend/individual/nestedloop.php									\
+#test/subjects/benchmarks/zend/individual/sieve.php											\
+#test/subjects/benchmarks/zend/individual/simplecall.php									\
+#test/subjects/benchmarks/zend/individual/simple.php										\
+#test/subjects/benchmarks/zend/individual/simpleucall.php									\
+#test/subjects/benchmarks/zend/individual/simpleudcall.php								\
+#test/subjects/benchmarks/zend/individual/strcat.php										\
+#test/subjects/benchmarks/RUBBoS/PHP/OlderStories.php										\
+#test/subjects/benchmarks/RUBiS/BuyNowAuth.php												\
+#test/subjects/benchmarks/webapps/tigerPhpNewsSystem_1.0_beta_build39/randimg.php		\
+
+
+#SPEC needs a bit more work
+#test/subjects/benchmarks/SPEC/bank/account_summary.php									\
+#test/subjects/benchmarks/SPEC/bank/add_payee.php									\
+#test/subjects/benchmarks/SPEC/bank/bill_pay.php									\
+#test/subjects/benchmarks/SPEC/bank/bill_pay_status_input.php									\
+#test/subjects/benchmarks/SPEC/bank/bill_pay_status_output.php									\
+#test/subjects/benchmarks/SPEC/bank/change_profile.php									\
+#test/subjects/benchmarks/SPEC/bank/check_detail_html.php									\
+#test/subjects/benchmarks/SPEC/bank/check_detail_image.php									\
+#test/subjects/benchmarks/SPEC/bank/check_detail_input.php									\
+#test/subjects/benchmarks/SPEC/bank/init.php									\
+#test/subjects/benchmarks/SPEC/bank/login.php									\
+#test/subjects/benchmarks/SPEC/bank/logout.php									\
+#test/subjects/benchmarks/SPEC/bank/order_check.php									\
+#test/subjects/benchmarks/SPEC/bank/place_check_order.php									\
+#test/subjects/benchmarks/SPEC/bank/post_payee.php									\
+#test/subjects/benchmarks/SPEC/bank/post_transfer.php									\
+#test/subjects/benchmarks/SPEC/bank/profile.php									\
+#test/subjects/benchmarks/SPEC/bank/quick_pay.php									\
+#test/subjects/benchmarks/SPEC/bank/transfer.php									\
+#test/subjects/benchmarks/SPEC/ecommerce/billing.php									\
+#test/subjects/benchmarks/SPEC/ecommerce/browse.php									\
+#test/subjects/benchmarks/SPEC/ecommerce/browse_productline.php									\
+#test/subjects/benchmarks/SPEC/ecommerce/cart.php									\
+#test/subjects/benchmarks/SPEC/ecommerce/confirm.php									\
+#test/subjects/benchmarks/SPEC/ecommerce/customize.php									\
+#test/subjects/benchmarks/SPEC/ecommerce/index.php									\
+#test/subjects/benchmarks/SPEC/ecommerce/init.php									\
+#test/subjects/benchmarks/SPEC/ecommerce/login.php									\
+#test/subjects/benchmarks/SPEC/ecommerce/productdetail.php									\
+#test/subjects/benchmarks/SPEC/ecommerce/search.php									\
+#test/subjects/benchmarks/SPEC/ecommerce/shipping.php									\
+#test/subjects/benchmarks/SPEC/support/catalog.php									\
+#test/subjects/benchmarks/SPEC/support/fileCatalog.php									\
+#test/subjects/benchmarks/SPEC/support/file.php									\
+#test/subjects/benchmarks/SPEC/support/inc.common.php									\
+#test/subjects/benchmarks/SPEC/support/index.php									\
+#test/subjects/benchmarks/SPEC/support/init.php									\
+#test/subjects/benchmarks/SPEC/support/product.php									\
+#test/subjects/benchmarks/SPEC/support/search.php									\
+
+
+
+BENCHES="\
+test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/dbaction.php				\
+test/subjects/benchmarks/webapps/phpSQLiteAdmin-0.2/set_session.php				\
+test/subjects/benchmarks/webapps/tigerPhpNewsSystem_1.0_beta_build39/atom.php		\
+test/subjects/benchmarks/webapps/tigerPhpNewsSystem_1.0_beta_build39/index.php		\
+test/subjects/benchmarks/webapps/tigerPhpNewsSystem_1.0_beta_build39/Main.php		\
+test/subjects/benchmarks/webapps/tigerPhpNewsSystem_1.0_beta_build39/rss.php		\
+test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_gaussjordan.php		\
+test/subjects/benchmarks/shootout/knucleotide.php											\
+"
+
+set -x
+ulimit -t 1200 # 30 mins
+ulimit -v 1500000 # 1.5G-ish
+
+#!/bin/bash
+
+SAVE_FILE="run_tests/output"
+
+for i in $BENCHES;
+do
+	dirname=`dirname $i`
+
+	rm $SAVE_FILE
+	echo $i 2>&1 | tee -a $SAVE_FILE
+	svn update
+	/usr/bin/make
+	echo "Make result: $?" 2>&1 | tee -a $SAVE_FILE
+	COMMAND="/usr/bin/time --format %E-%K src/phc --include --include-harder -O2 --stats -c -d include_path=$dirname $i"
+	echo "$COMMAND" | tee -a $SAVE_FILE
+	$COMMAND 2>&1 | tee -a $SAVE_FILE
+
+	mail -t paul.biggar@gmail.com -s "benchmark test" < $SAVE_FILE
+done

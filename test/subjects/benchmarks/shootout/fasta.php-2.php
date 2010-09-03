@@ -14,8 +14,10 @@ define ('IM', 139968);
 define ('IA', 3877);
 define ('IC', 29573);
 
+$last = 42;
+
 function gen_random($max) {
-   static $last = 42;
+	global $last;
    return $max * ($last = ($last * IA + IC) % IM) / IM;
 }
 
@@ -24,7 +26,7 @@ function gen_random($max) {
 function makeCumulative(&$genelist) {
    $count = count($genelist);
    for ($i=1; $i < $count; $i++) {
-      $genelist[$i][1] += $genelist[$i-1][1];
+      $genelist[$i][1] = array_merge ($genelist[$i][1], $genelist[$i-1][1]);
    }
 }
 

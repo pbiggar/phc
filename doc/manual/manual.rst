@@ -38,6 +38,7 @@ Developers' manual
 
    devintro
    demo
+   optimization
 
 
 

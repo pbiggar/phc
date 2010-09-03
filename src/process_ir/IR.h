@@ -68,6 +68,10 @@ public:
 	virtual ~Node() {}
 };
 
+/*
+ * Maketea doesn't provide const versions, so this will have to do.
+ */
+
 
 class FOREIGN : virtual public Object
 {

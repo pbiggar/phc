@@ -293,10 +293,11 @@ Member::Member()
 {
 }
 
-Signature::Signature(Method_mod* method_mod, bool is_ref, METHOD_NAME* method_name, Formal_parameter_list* formal_parameters)
+Signature::Signature(Method_mod* method_mod, bool pass_rest_by_ref, bool return_by_ref, METHOD_NAME* method_name, Formal_parameter_list* formal_parameters)
 {
     this->method_mod = method_mod;
-    this->is_ref = is_ref;
+    this->pass_rest_by_ref = pass_rest_by_ref;
+    this->return_by_ref = return_by_ref;
     this->method_name = method_name;
     this->formal_parameters = formal_parameters;
 }
@@ -304,7 +305,8 @@ Signature::Signature(Method_mod* method_mod, bool is_ref, METHOD_NAME* method_na
 Signature::Signature()
 {
     this->method_mod = 0;
-    this->is_ref = 0;
+    this->pass_rest_by_ref = 0;
+    this->return_by_ref = 0;
     this->method_name = 0;
     this->formal_parameters = 0;
 }
@@ -343,7 +345,8 @@ bool Signature::match(Node* in)
     else if(!this->method_mod->match(that->method_mod))
     	return false;
     
-    that->is_ref = this->is_ref;
+    that->pass_rest_by_ref = this->pass_rest_by_ref;
+    that->return_by_ref = this->return_by_ref;
     if(this->method_name == NULL)
     {
     	if(that->method_name != NULL && !that->method_name->match(this->method_name))
@@ -388,7 +391,10 @@ bool Signature::equals(Node* in)
     else if(!this->method_mod->equals(that->method_mod))
     	return false;
     
-    if(this->is_ref != that->is_ref)
+    if(this->pass_rest_by_ref != that->pass_rest_by_ref)
+    	return false;
+    
+    if(this->return_by_ref != that->return_by_ref)
     	return false;
     
     if(this->method_name == NULL || that->method_name == NULL)
@@ -430,7 +436,8 @@ bool Signature::equals(Node* in)
 Signature* Signature::clone()
 {
     Method_mod* method_mod = this->method_mod ? this->method_mod->clone() : NULL;
-    bool is_ref = this->is_ref;
+    bool pass_rest_by_ref = this->pass_rest_by_ref;
+    bool return_by_ref = this->return_by_ref;
     METHOD_NAME* method_name = this->method_name ? this->method_name->clone() : NULL;
     Formal_parameter_list* formal_parameters = NULL;
     if(this->formal_parameters != NULL)
@@ -440,7 +447,7 @@ Signature* Signature::clone()
     	for(i = this->formal_parameters->begin(); i != this->formal_parameters->end(); i++)
     		formal_parameters->push_back(*i ? (*i)->clone() : NULL);
     }
-    Signature* clone = new Signature(method_mod, is_ref, method_name, formal_parameters);
+    Signature* clone = new Signature(method_mod, pass_rest_by_ref, return_by_ref, method_name, formal_parameters);
     clone->Node::clone_mixin_from(this);
     return clone;
 }
@@ -531,9 +538,21 @@ Signature::Signature(const char* name)
 {
     {
 		this->method_mod = Method_mod::new_PUBLIC();
-		this->is_ref = false;
+		this->pass_rest_by_ref = false;
+		this->return_by_ref = false;
 		this->method_name = new METHOD_NAME(name);
 		this->formal_parameters = new Formal_parameter_list;
+	}
+}
+
+/*  Returns if the parameter at index PARAM_INDEX is passed by reference. */
+bool Signature::is_param_passed_by_ref(int param_index)
+{
+    {
+		if (this->formal_parameters->size () > (unsigned int)(param_index))
+			return formal_parameters->at (param_index)->is_ref;
+		else
+			return this->pass_rest_by_ref;
 	}
 }
 
@@ -1482,10 +1501,6 @@ void Catch::assert_valid()
 }
 
 Expr::Expr()
-{
-}
-
-Rvalue::Rvalue()
 {
 }
 
@@ -5414,14 +5429,8 @@ void Isset::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Literal::Literal()
+Rvalue::Rvalue()
 {
-}
-
-/*  We wish to match on this, so it cannot be pure virtual */
-String* Literal::get_value_as_string()
-{
-    { assert (0); }
 }
 
 Field_access::Field_access(Target* target, Field_name* field_name)
@@ -9697,6 +9706,16 @@ void HT_ITERATOR::assert_valid()
 {
     assert(value != NULL);
     Node::assert_mixin_valid();
+}
+
+Literal::Literal()
+{
+}
+
+/*  We wish to match on this, so it cannot be pure virtual */
+String* Literal::get_value_as_string()
+{
+    { assert (0); }
 }
 
 Variable_variable::Variable_variable(VARIABLE_NAME* variable_name)

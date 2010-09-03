@@ -5,30 +5,34 @@ option "verbose" v "Verbose output" flag off
 option "compile" c "Compile" flag off
 option "pretty-print" - "Pretty print input according to the Zend style guidelines" flag off 
 option "obfuscate" - "Obfuscate input" flag off
-option "run" - "Run the specified plugin (may be specified multiple times)" string no multiple
-option "r-option" - "Pass option to a plugin (specify multiple flags in the same order as multiple plugins - 1 option only per plugin)" string no multiple
-option "define" d "Define ini entry (only affects -c and --include)" string no multiple
+option "run" - "Run the specified plugin (may be specified multiple times)" string optional multiple
+option "r-option" - "Pass option to a plugin (specify multiple flags in the same order as multiple plugins - 1 option only per plugin)" string optional multiple
+option "define" d "Define ini entry (only affects -c and --include)" string optional multiple
 option "no-warnings" - "Allow warnings to be printed" flag off
 
 section "INPUT OPTIONS"
 option "read-xml" - "Assume the input is in XML format. Start processing after the named pass (passes are ast|hir|mir)" string typestr="PASSNAME" optional
 option "no-xml-validation" - "Toggle XML validation"  flag on hidden 
 option "include" - "Parse included or required files at compile-time" flag off
+option "include-harder" - "Try harder to find included files, possibly slightly breaking some of PHP's rules" flag off
+option "include-regexp" - "Use regular expressions to find include files" dependon="include" flag off
+option "include-name" - "Try even harder to find include files, searching the basename of the include argument." dependon="include" flag off
+option "include-searchdir" - "Search regular expressions starting from the search directory" string typestr="DIRECTORY" optional
 
 section "COMPILATION OPTIONS"
-option "c-option" C "Pass option to the C compile (e.g., -C-g; can be specified multiple times)" string no multiple 
+option "c-option" C "Pass option to the C compile (e.g., -C-g; can be specified multiple times)" string optional multiple 
 option "generate-c" - "Generate C code" flag off hidden
-option "extension" - "Generate a PHP extension called EXTENSION instead of a standalone application" string typestr="EXTENSION" no 
+option "extension" - "Generate a PHP extension called EXTENSION instead of a standalone application" string typestr="EXTENSION" optional 
 option "web-app" - "Generate a web-application (experimental)" string typestr="CONFIG" optional
-option "with-php" - "PHP installation path" string typestr="PATH" no hidden 
-option "optimize" O "Optimize" string no default="0"
-option "output" o "Place executable into file FILE" string typestr="FILE" no
+option "with-php" - "PHP installation path" string typestr="PATH" optional hidden 
+option "optimize" O "Optimize" string optional default="0"
+option "output" o "Place executable into file FILE" string typestr="FILE" optional
 option "execute" e "Run executable after compiling (implies -c)" flag off
 
 section "PRETTY PRINTING OPTIONS"
 option "next-line-curlies" - "Output the opening curly on the next line instead of on the same line" flag off
 option "no-leading-tab" - "Don't start every line in between <?php .. ?> with a tab" flag off
-option "tab" - "String to use for tabs while unparsing" string default="\t" no
+option "tab" - "String to use for tabs while unparsing" string default="\t" optional
 option "no-hash-bang" - "Do not output any #! lines" flag off
 
 section "OUTPUT OPTIONS"
@@ -52,11 +56,18 @@ option "no-xml-line-numbers" - "Don't show line numbers when dumping DOT" flag o
 option "no-xml-base-64" - "Don't encode any strings into base64 when dumping XML" flag off hidden
 option "no-xml-attrs" - "When dumping XML, omit node attributes" flag off hidden
 
+section "OPTIMIZATION OPTIONS"
+option "flow-insensitive" - "Turn off flow-sensitivity" flag off
+option "call-string-length" - "Choose the call-string length ('0' indicates infinite call-string)" int typestr="LENGTH" default="0" optional
+option "ssi-type" - "Select SSI flavor." values="ssi","essa" enum typestr="FLAVOR" default="ssi" optional
+
 section "DEBUGGING PHC"
-option "stats" - "Print statistics for the pass named 'PASSNAME" string typestr="PASSNAME" multiple hidden optional
+option "stats" - "Print compile-time statistics" flag off hidden
 option "rt-stats" - "Print statistics about a program at run-time" flag off hidden
+option "cfg-dump" - "Dump CFG after the pass named 'PASSNAME'" string typestr="PASSNAME" multiple hidden optional
 option "debug" - "Print debugging information for the pass named 'PASSNAME" string typestr="PASSNAME" multiple hidden optional
 option "dont-fail" - "Dont fail on error (after parsing)" flag off hidden
+option "missed-opt" - "Give a warning when an optimization was missed" flag on hidden # this should be off by default, obviously
 option "disable" - "Disable the pass named 'PASSNAME'" string typestr="PASSNAME" multiple hidden optional
 option "pause" - "Pause compilation at pause() statements (in phc source, not user code)" flag off hidden 
 

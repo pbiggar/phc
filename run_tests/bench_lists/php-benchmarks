@@ -1,0 +1,7 @@
+test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_crypto-aes.php
+test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_crypto-md5.php
+test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_crypto.php
+test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_deltablue.php
+test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_gaussjordan.php
+test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_raytrace.php
+test/subjects/benchmarks/php-benchmarks/benchcli/tests/test_richards.php

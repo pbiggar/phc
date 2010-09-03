@@ -9,10 +9,13 @@
  */
 
 
-#-- Include the javascript library. This is a small file that may include other files as needed.
-include_once "j4p5/js.php";
+chdir("tests/j4p5/");
 
-$code = file_get_contents("test/subjects/benchmarks/php-benchmarks/benchcli/tests/j4p5/data1.js");
+#-- Include the javascript library. This is a small file that may include other files as needed.
+include_once "js.php";
+
+
+$code = file_get_contents("data1.js");
 #-- Execute the code. This automatically performs several speed optimizations whenever possible.
 js::run($code);
 ?>

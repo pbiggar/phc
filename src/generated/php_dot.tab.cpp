@@ -1,24 +1,23 @@
-/* A Bison parser, made by GNU Bison 2.3.  */
+
+/* A Bison parser, made by GNU Bison 2.4.1.  */
 
 /* Skeleton implementation for Bison's Yacc-like parsers in C
-
-   Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006
+   
+      Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006
    Free Software Foundation, Inc.
-
-   This program is free software; you can redistribute it and/or modify
+   
+   This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2, or (at your option)
-   any later version.
-
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+   
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-
+   
    You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin Street, Fifth Floor,
-   Boston, MA 02110-1301, USA.  */
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 /* As a special exception, you may create a larger work that contains
    part or all of the Bison parser skeleton and distribute that work
@@ -29,7 +28,7 @@
    special exception, which will cause the skeleton and the resulting
    Bison output files to be licensed under the GNU General Public
    License without this special exception.
-
+   
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
@@ -47,7 +46,7 @@
 #define YYBISON 1
 
 /* Bison version.  */
-#define YYBISON_VERSION "2.3"
+#define YYBISON_VERSION "2.4.1"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -55,17 +54,98 @@
 /* Pure parsers.  */
 #define YYPURE 1
 
+/* Push parsers.  */
+#define YYPUSH 0
+
+/* Pull parsers.  */
+#define YYPULL 1
+
 /* Using locations.  */
 #define YYLSP_NEEDED 0
 
 /* Substitute the variable and function names.  */
-#define yyparse PHP_dot_parse
-#define yylex   PHP_dot_lex
-#define yyerror PHP_dot_error
-#define yylval  PHP_dot_lval
-#define yychar  PHP_dot_char
-#define yydebug PHP_dot_debug
-#define yynerrs PHP_dot_nerrs
+#define yyparse         PHP_dot_parse
+#define yylex           PHP_dot_lex
+#define yyerror         PHP_dot_error
+#define yylval          PHP_dot_lval
+#define yychar          PHP_dot_char
+#define yydebug         PHP_dot_debug
+#define yynerrs         PHP_dot_nerrs
+
+
+/* Copy the first part of user declarations.  */
+
+/* Line 189 of yacc.c  */
+#line 8 "src/generated_src/php_dot.ypp"
+
+	#include <assert.h>
+	#include <typeinfo>
+	#include "AST.h"
+	using namespace AST;
+	#include "cmdline.h"
+	#include "lib/Integer.h"
+	#include "lib/String.h"
+	#include "lib/error.h"
+	#include "lib/escape.h"
+	#include "parsing/PHP_context.h"
+
+	void PHP_dot_error(PHP_context* context, const char* s)
+	{
+		phc_error(s, context->filename, context->source_line, 0);
+	}
+
+	const char* format (String* str)
+	{
+		stringstream ss;
+		ss
+		<< '\\' << '\"'
+		<< *(escape_DOT (str, 20))
+		<< '\\' << '\"'
+		;
+
+		return ss.str().c_str ();
+	}
+
+	const char* strval (AST::Source_rep* rep)
+	{
+		return format (rep->get_source_rep ());
+	}
+
+	const char* strval (Integer* rep)
+	{
+		return format (s(lexical_cast<string> (rep->value())));
+	}
+
+	const char* strval (String* rep)
+	{
+		return format (rep);
+	}
+
+
+	// Global state to generate DOT node identifiers
+	Integer* node = new Integer(0);
+
+
+/* Line 189 of yacc.c  */
+#line 131 "src/generated/php_dot.tab.cpp"
+
+/* Enabling traces.  */
+#ifndef YYDEBUG
+# define YYDEBUG 0
+#endif
+
+/* Enabling verbose error messages.  */
+#ifdef YYERROR_VERBOSE
+# undef YYERROR_VERBOSE
+# define YYERROR_VERBOSE 1
+#else
+# define YYERROR_VERBOSE 1
+#endif
+
+/* Enabling the token table.  */
+#ifndef YYTOKEN_TABLE
+# define YYTOKEN_TABLE 0
+#endif
 
 
 /* Tokens.  */
@@ -189,197 +269,16 @@
      INVALID_TOKEN = 370
    };
 #endif
-/* Tokens.  */
-#define K_AND 258
-#define K_OR 259
-#define K_XOR 260
-#define K___FILE__ 261
-#define K_EXCEPTION 262
-#define K___LINE__ 263
-#define K_ARRAY 264
-#define K_AS 265
-#define K_BREAK 266
-#define K_CASE 267
-#define K_CLASS 268
-#define K_CONST 269
-#define K_CONTINUE 270
-#define K_DECLARE 271
-#define K_DEFAULT 272
-#define K_DIE 273
-#define K_DO 274
-#define K_ECHO 275
-#define K_ELSE 276
-#define K_ELSEIF 277
-#define K_EMPTY 278
-#define K_ENDDECLARE 279
-#define K_ENDFOR 280
-#define K_ENDFOREACH 281
-#define K_ENDIF 282
-#define K_ENDSWITCH 283
-#define K_ENDWHILE 284
-#define K_EVAL 285
-#define K_EXIT 286
-#define K_EXTENDS 287
-#define K_FOR 288
-#define K_FOREACH 289
-#define K_FUNCTION 290
-#define K_GLOBAL 291
-#define K_IF 292
-#define K_INCLUDE 293
-#define K_INCLUDE_ONCE 294
-#define K_INSTANCEOF 295
-#define K_ISSET 296
-#define K_LIST 297
-#define K_NEW 298
-#define K_PRINT 299
-#define K_REQUIRE 300
-#define K_REQUIRE_ONCE 301
-#define K_RETURN 302
-#define K_STATIC 303
-#define K_SWITCH 304
-#define K_UNSET 305
-#define K_USE 306
-#define K_VAR 307
-#define K_WHILE 308
-#define K___FUNCTION__ 309
-#define K___CLASS__ 310
-#define K___METHOD__ 311
-#define K_FINAL 312
-#define K_PHP_USER_FILTER 313
-#define K_INTERFACE 314
-#define K_IMPLEMENTS 315
-#define K_PUBLIC 316
-#define K_PRIVATE 317
-#define K_PROTECTED 318
-#define K_ABSTRACT 319
-#define K_CLONE 320
-#define K_TRY 321
-#define K_CATCH 322
-#define K_THROW 323
-#define K_CFUNCTION 324
-#define K_OLD_FUNCTION 325
-#define K_HALT_COMPILER 326
-#define C_TRUE 327
-#define C_FALSE 328
-#define C_NULL 329
-#define O_EQEQ 330
-#define O_EQEQEQ 331
-#define O_NOTEQ 332
-#define O_NOTEQEQ 333
-#define O_LE 334
-#define O_GE 335
-#define O_INC 336
-#define O_DEC 337
-#define O_DOUBLEARROW 338
-#define O_SINGLEARROW 339
-#define O_SL 340
-#define O_SR 341
-#define O_COLONCOLON 342
-#define O_LOGICOR 343
-#define O_LOGICAND 344
-#define O_PLUSEQ 345
-#define O_MINUSEQ 346
-#define O_MULEQ 347
-#define O_DIVEQ 348
-#define O_CONCATEQ 349
-#define O_MODEQ 350
-#define O_ANDEQ 351
-#define O_OREQ 352
-#define O_XOREQ 353
-#define O_SLEQ 354
-#define O_SREQ 355
-#define O_MAGIC_CONCAT 356
-#define CAST_INT 357
-#define CAST_REAL 358
-#define CAST_STRING 359
-#define CAST_ARRAY 360
-#define CAST_OBJECT 361
-#define CAST_BOOL 362
-#define CAST_UNSET 363
-#define T_STRING 364
-#define IDENT 365
-#define VARIABLE 366
-#define T_INT 367
-#define T_REAL 368
-#define INLINE_HTML 369
-#define INVALID_TOKEN 370
 
 
-
-
-/* Copy the first part of user declarations.  */
-#line 8 "src/generated_src/php_dot.ypp"
-
-	#include <assert.h>
-	#include <typeinfo>
-	#include "AST.h"
-	using namespace AST;
-	#include "cmdline.h"
-	#include "lib/Integer.h"
-	#include "lib/String.h"
-	#include "lib/error.h"
-	#include "lib/escape.h"
-	#include "parsing/PHP_context.h"
-
-	void PHP_dot_error(PHP_context* context, const char* s)
-	{
-		phc_error(s, context->filename, context->source_line, 0);
-	}
-
-	const char* format (String* str)
-	{
-		stringstream ss;
-		ss
-		<< '\\' << '\"'
-		<< *(escape_DOT (str, 20))
-		<< '\\' << '\"'
-		;
-
-		return ss.str().c_str ();
-	}
-
-	const char* strval (AST::Source_rep* rep)
-	{
-		return format (rep->get_source_rep ());
-	}
-
-	const char* strval (Integer* rep)
-	{
-		return format (s(lexical_cast<string> (rep->value())));
-	}
-
-	const char* strval (String* rep)
-	{
-		return format (rep);
-	}
-
-
-	// Global state to generate DOT node identifiers
-	Integer* node = new Integer(0);
-
-
-/* Enabling traces.  */
-#ifndef YYDEBUG
-# define YYDEBUG 0
-#endif
-
-/* Enabling verbose error messages.  */
-#ifdef YYERROR_VERBOSE
-# undef YYERROR_VERBOSE
-# define YYERROR_VERBOSE 1
-#else
-# define YYERROR_VERBOSE 1
-#endif
-
-/* Enabling the token table.  */
-#ifndef YYTOKEN_TABLE
-# define YYTOKEN_TABLE 0
-#endif
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 58 "src/generated_src/php_dot.ypp"
 {
+
+/* Line 214 of yacc.c  */
+#line 58 "src/generated_src/php_dot.ypp"
+
 	Integer* node;
 	Object* object;
 	List<AST::Statement*>* list_ast_statement;
@@ -434,18 +333,21 @@ typedef union YYSTYPE
 	AST::Member* ast_member;
 	AST::Attribute* ast_attribute;
 	AST::New* ast_new;
-}
-/* Line 187 of yacc.c.  */
-#line 440 "src/generated/php_dot.tab.cpp"
-	YYSTYPE;
+
+
+
+/* Line 214 of yacc.c  */
+#line 341 "src/generated/php_dot.tab.cpp"
+} YYSTYPE;
+# define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
-# define YYSTYPE_IS_TRIVIAL 1
 #endif
 
 
-
 /* Copy the second part of user declarations.  */
+
+/* Line 264 of yacc.c  */
 #line 115 "src/generated_src/php_dot.ypp"
 
 	int PHP_lex(YYSTYPE* yylval, void* scanner);
@@ -457,8 +359,8 @@ typedef union YYSTYPE
 	#define scanner context->scanner
 
 
-/* Line 216 of yacc.c.  */
-#line 462 "src/generated/php_dot.tab.cpp"
+/* Line 264 of yacc.c  */
+#line 364 "src/generated/php_dot.tab.cpp"
 
 #ifdef short
 # undef short
@@ -533,14 +435,14 @@ typedef short int yytype_int16;
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static int
-YYID (int i)
+YYID (int yyi)
 #else
 static int
-YYID (i)
-    int i;
+YYID (yyi)
+    int yyi;
 #endif
 {
-  return i;
+  return yyi;
 }
 #endif
 
@@ -621,9 +523,9 @@ void free (void *); /* INFRINGES ON USER NAME SPACE */
 /* A type that is properly aligned for any stack member.  */
 union yyalloc
 {
-  yytype_int16 yyss;
-  YYSTYPE yyvs;
-  };
+  yytype_int16 yyss_alloc;
+  YYSTYPE yyvs_alloc;
+};
 
 /* The size of the maximum gap between one aligned stack and the next.  */
 # define YYSTACK_GAP_MAXIMUM (sizeof (union yyalloc) - 1)
@@ -657,12 +559,12 @@ union yyalloc
    elements in the stack, and YYPTR gives the new location of the
    stack.  Advance YYPTR to a properly aligned location for the next
    stack.  */
-# define YYSTACK_RELOCATE(Stack)					\
+# define YYSTACK_RELOCATE(Stack_alloc, Stack)				\
     do									\
       {									\
 	YYSIZE_T yynewbytes;						\
-	YYCOPY (&yyptr->Stack, Stack, yysize);				\
-	Stack = &yyptr->Stack;						\
+	YYCOPY (&yyptr->Stack_alloc, Stack, yysize);			\
+	Stack = &yyptr->Stack_alloc;					\
 	yynewbytes = yystacksize * sizeof (*Stack) + YYSTACK_GAP_MAXIMUM; \
 	yyptr += yynewbytes / sizeof (*yyptr);				\
       }									\
@@ -2737,17 +2639,20 @@ yy_symbol_print (yyoutput, yytype, yyvaluep, context)
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yy_stack_print (yytype_int16 *bottom, yytype_int16 *top)
+yy_stack_print (yytype_int16 *yybottom, yytype_int16 *yytop)
 #else
 static void
-yy_stack_print (bottom, top)
-    yytype_int16 *bottom;
-    yytype_int16 *top;
+yy_stack_print (yybottom, yytop)
+    yytype_int16 *yybottom;
+    yytype_int16 *yytop;
 #endif
 {
   YYFPRINTF (stderr, "Stack now");
-  for (; bottom <= top; ++bottom)
-    YYFPRINTF (stderr, " %d", *bottom);
+  for (; yybottom <= yytop; yybottom++)
+    {
+      int yybot = *yybottom;
+      YYFPRINTF (stderr, " %d", yybot);
+    }
   YYFPRINTF (stderr, "\n");
 }
 
@@ -2786,11 +2691,11 @@ yy_reduce_print (yyvsp, yyrule, context)
   /* The symbols being reduced.  */
   for (yyi = 0; yyi < yynrhs; yyi++)
     {
-      fprintf (stderr, "   $%d = ", yyi + 1);
+      YYFPRINTF (stderr, "   $%d = ", yyi + 1);
       yy_symbol_print (stderr, yyrhs[yyprhs[yyrule] + yyi],
 		       &(yyvsp[(yyi + 1) - (yynrhs)])
 		       		       , context);
-      fprintf (stderr, "\n");
+      YYFPRINTF (stderr, "\n");
     }
 }
 
@@ -3076,10 +2981,8 @@ yydestruct (yymsg, yytype, yyvaluep, context)
 	break;
     }
 }
-
 
 /* Prevent warnings from -Wmissing-prototypes.  */
-
 #ifdef YYPARSE_PARAM
 #if defined __STDC__ || defined __cplusplus
 int yyparse (void *YYPARSE_PARAM);
@@ -3100,10 +3003,9 @@ int yyparse ();
 
 
 
-
-/*----------.
-| yyparse.  |
-`----------*/
+/*-------------------------.
+| yyparse or yypush_parse.  |
+`-------------------------*/
 
 #ifdef YYPARSE_PARAM
 #if (defined __STDC__ || defined __C99__FUNC__ \
@@ -3131,22 +3033,46 @@ yyparse (context)
 #endif
 #endif
 {
-  /* The look-ahead symbol.  */
+/* The lookahead symbol.  */
 int yychar;
 
-/* The semantic value of the look-ahead symbol.  */
+/* The semantic value of the lookahead symbol.  */
 YYSTYPE yylval;
 
-/* Number of syntax errors so far.  */
-int yynerrs;
+    /* Number of syntax errors so far.  */
+    int yynerrs;
 
-  int yystate;
+    int yystate;
+    /* Number of tokens to shift before error messages enabled.  */
+    int yyerrstatus;
+
+    /* The stacks and their tools:
+       `yyss': related to states.
+       `yyvs': related to semantic values.
+
+       Refer to the stacks thru separate pointers, to allow yyoverflow
+       to reallocate them elsewhere.  */
+
+    /* The state stack.  */
+    yytype_int16 yyssa[YYINITDEPTH];
+    yytype_int16 *yyss;
+    yytype_int16 *yyssp;
+
+    /* The semantic value stack.  */
+    YYSTYPE yyvsa[YYINITDEPTH];
+    YYSTYPE *yyvs;
+    YYSTYPE *yyvsp;
+
+    YYSIZE_T yystacksize;
+
   int yyn;
   int yyresult;
-  /* Number of tokens to shift before error messages enabled.  */
-  int yyerrstatus;
-  /* Look-ahead token as an internal (translated) token number.  */
-  int yytoken = 0;
+  /* Lookahead token as an internal (translated) token number.  */
+  int yytoken;
+  /* The variables used to return semantic value and location from the
+     action routines.  */
+  YYSTYPE yyval;
+
 #if YYERROR_VERBOSE
   /* Buffer for error messages, and its allocated size.  */
   char yymsgbuf[128];
@@ -3154,51 +3080,28 @@ int yynerrs;
   YYSIZE_T yymsg_alloc = sizeof yymsgbuf;
 #endif
 
-  /* Three stacks and their tools:
-     `yyss': related to states,
-     `yyvs': related to semantic values,
-     `yyls': related to locations.
-
-     Refer to the stacks thru separate pointers, to allow yyoverflow
-     to reallocate them elsewhere.  */
-
-  /* The state stack.  */
-  yytype_int16 yyssa[YYINITDEPTH];
-  yytype_int16 *yyss = yyssa;
-  yytype_int16 *yyssp;
-
-  /* The semantic value stack.  */
-  YYSTYPE yyvsa[YYINITDEPTH];
-  YYSTYPE *yyvs = yyvsa;
-  YYSTYPE *yyvsp;
-
-
-
 #define YYPOPSTACK(N)   (yyvsp -= (N), yyssp -= (N))
-
-  YYSIZE_T yystacksize = YYINITDEPTH;
-
-  /* The variables used to return semantic value and location from the
-     action routines.  */
-  YYSTYPE yyval;
-
 
   /* The number of symbols on the RHS of the reduced rule.
      Keep to zero when no symbol should be popped.  */
   int yylen = 0;
+
+  yytoken = 0;
+  yyss = yyssa;
+  yyvs = yyvsa;
+  yystacksize = YYINITDEPTH;
 
   YYDPRINTF ((stderr, "Starting parse\n"));
 
   yystate = 0;
   yyerrstatus = 0;
   yynerrs = 0;
-  yychar = YYEMPTY;		/* Cause a token to be read.  */
+  yychar = YYEMPTY; /* Cause a token to be read.  */
 
   /* Initialize stack pointers.
      Waste one element of value and location stack
      so that they stay on the same level as the state stack.
      The wasted elements are never initialized.  */
-
   yyssp = yyss;
   yyvsp = yyvs;
 
@@ -3228,7 +3131,6 @@ int yynerrs;
 	YYSTYPE *yyvs1 = yyvs;
 	yytype_int16 *yyss1 = yyss;
 
-
 	/* Each stack pointer address is followed by the size of the
 	   data in use in that stack, in bytes.  This used to be a
 	   conditional around just the two extra args, but that might
@@ -3236,7 +3138,6 @@ int yynerrs;
 	yyoverflow (YY_("memory exhausted"),
 		    &yyss1, yysize * sizeof (*yyssp),
 		    &yyvs1, yysize * sizeof (*yyvsp),
-
 		    &yystacksize);
 
 	yyss = yyss1;
@@ -3259,9 +3160,8 @@ int yynerrs;
 	  (union yyalloc *) YYSTACK_ALLOC (YYSTACK_BYTES (yystacksize));
 	if (! yyptr)
 	  goto yyexhaustedlab;
-	YYSTACK_RELOCATE (yyss);
-	YYSTACK_RELOCATE (yyvs);
-
+	YYSTACK_RELOCATE (yyss_alloc, yyss);
+	YYSTACK_RELOCATE (yyvs_alloc, yyvs);
 #  undef YYSTACK_RELOCATE
 	if (yyss1 != yyssa)
 	  YYSTACK_FREE (yyss1);
@@ -3272,7 +3172,6 @@ int yynerrs;
       yyssp = yyss + yysize - 1;
       yyvsp = yyvs + yysize - 1;
 
-
       YYDPRINTF ((stderr, "Stack size increased to %lu\n",
 		  (unsigned long int) yystacksize));
 
@@ -3282,6 +3181,9 @@ int yynerrs;
 
   YYDPRINTF ((stderr, "Entering state %d\n", yystate));
 
+  if (yystate == YYFINAL)
+    YYACCEPT;
+
   goto yybackup;
 
 /*-----------.
@@ -3290,16 +3192,16 @@ int yynerrs;
 yybackup:
 
   /* Do appropriate processing given the current state.  Read a
-     look-ahead token if we need one and don't already have one.  */
+     lookahead token if we need one and don't already have one.  */
 
-  /* First try to decide what to do without reference to look-ahead token.  */
+  /* First try to decide what to do without reference to lookahead token.  */
   yyn = yypact[yystate];
   if (yyn == YYPACT_NINF)
     goto yydefault;
 
-  /* Not known => get a look-ahead token if don't already have one.  */
+  /* Not known => get a lookahead token if don't already have one.  */
 
-  /* YYCHAR is either YYEMPTY or YYEOF or a valid look-ahead symbol.  */
+  /* YYCHAR is either YYEMPTY or YYEOF or a valid lookahead symbol.  */
   if (yychar == YYEMPTY)
     {
       YYDPRINTF ((stderr, "Reading a token: "));
@@ -3331,20 +3233,16 @@ yybackup:
       goto yyreduce;
     }
 
-  if (yyn == YYFINAL)
-    YYACCEPT;
-
   /* Count tokens shifted since error; after three, turn off error
      status.  */
   if (yyerrstatus)
     yyerrstatus--;
 
-  /* Shift the look-ahead token.  */
+  /* Shift the lookahead token.  */
   YY_SYMBOL_PRINT ("Shifting", yytoken, &yylval, &yylloc);
 
-  /* Discard the shifted token unless it is eof.  */
-  if (yychar != YYEOF)
-    yychar = YYEMPTY;
+  /* Discard the shifted token.  */
+  yychar = YYEMPTY;
 
   yystate = yyn;
   *++yyvsp = yylval;
@@ -3384,6 +3282,8 @@ yyreduce:
   switch (yyn)
     {
         case 2:
+
+/* Line 1455 of yacc.c  */
 #line 427 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"start\"];\n", node->value());
@@ -3394,6 +3294,8 @@ yyreduce:
     break;
 
   case 3:
+
+/* Line 1455 of yacc.c  */
 #line 437 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"top_statement_list\"];\n", node->value());
@@ -3405,6 +3307,8 @@ yyreduce:
     break;
 
   case 4:
+
+/* Line 1455 of yacc.c  */
 #line 445 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"top_statement_list\"];\n", node->value());
@@ -3416,6 +3320,8 @@ yyreduce:
     break;
 
   case 5:
+
+/* Line 1455 of yacc.c  */
 #line 456 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"top_statement\"];\n", node->value());
@@ -3426,6 +3332,8 @@ yyreduce:
     break;
 
   case 6:
+
+/* Line 1455 of yacc.c  */
 #line 463 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"top_statement\"];\n", node->value());
@@ -3436,6 +3344,8 @@ yyreduce:
     break;
 
   case 7:
+
+/* Line 1455 of yacc.c  */
 #line 470 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"top_statement\"];\n", node->value());
@@ -3446,6 +3356,8 @@ yyreduce:
     break;
 
   case 8:
+
+/* Line 1455 of yacc.c  */
 #line 477 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"top_statement\"];\n", node->value());
@@ -3463,6 +3375,8 @@ yyreduce:
     break;
 
   case 9:
+
+/* Line 1455 of yacc.c  */
 #line 497 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"inner_statement_list\"];\n", node->value());
@@ -3474,6 +3388,8 @@ yyreduce:
     break;
 
   case 10:
+
+/* Line 1455 of yacc.c  */
 #line 505 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"inner_statement_list\"];\n", node->value());
@@ -3485,6 +3401,8 @@ yyreduce:
     break;
 
   case 11:
+
+/* Line 1455 of yacc.c  */
 #line 516 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"inner_statement\"];\n", node->value());
@@ -3495,6 +3413,8 @@ yyreduce:
     break;
 
   case 12:
+
+/* Line 1455 of yacc.c  */
 #line 523 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"inner_statement\"];\n", node->value());
@@ -3505,6 +3425,8 @@ yyreduce:
     break;
 
   case 13:
+
+/* Line 1455 of yacc.c  */
 #line 530 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"inner_statement\"];\n", node->value());
@@ -3515,6 +3437,8 @@ yyreduce:
     break;
 
   case 14:
+
+/* Line 1455 of yacc.c  */
 #line 537 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"inner_statement\"];\n", node->value());
@@ -3532,6 +3456,8 @@ yyreduce:
     break;
 
   case 15:
+
+/* Line 1455 of yacc.c  */
 #line 554 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"statement\"];\n", node->value());
@@ -3542,6 +3468,8 @@ yyreduce:
     break;
 
   case 16:
+
+/* Line 1455 of yacc.c  */
 #line 568 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"keyword_if\"];\n", node->value());
@@ -3553,6 +3481,8 @@ yyreduce:
     break;
 
   case 17:
+
+/* Line 1455 of yacc.c  */
 #line 579 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"keyword_elseif\"];\n", node->value());
@@ -3564,6 +3494,8 @@ yyreduce:
     break;
 
   case 18:
+
+/* Line 1455 of yacc.c  */
 #line 590 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"keyword_foreach\"];\n", node->value());
@@ -3575,6 +3507,8 @@ yyreduce:
     break;
 
   case 19:
+
+/* Line 1455 of yacc.c  */
 #line 601 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"keyword_while\"];\n", node->value());
@@ -3586,6 +3520,8 @@ yyreduce:
     break;
 
   case 20:
+
+/* Line 1455 of yacc.c  */
 #line 612 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"keyword_do\"];\n", node->value());
@@ -3597,6 +3533,8 @@ yyreduce:
     break;
 
   case 21:
+
+/* Line 1455 of yacc.c  */
 #line 623 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"keyword_for\"];\n", node->value());
@@ -3608,6 +3546,8 @@ yyreduce:
     break;
 
   case 22:
+
+/* Line 1455 of yacc.c  */
 #line 634 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"keyword_switch\"];\n", node->value());
@@ -3619,6 +3559,8 @@ yyreduce:
     break;
 
   case 23:
+
+/* Line 1455 of yacc.c  */
 #line 645 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"keyword_declare\"];\n", node->value());
@@ -3630,6 +3572,8 @@ yyreduce:
     break;
 
   case 24:
+
+/* Line 1455 of yacc.c  */
 #line 656 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"keyword_try\"];\n", node->value());
@@ -3641,6 +3585,8 @@ yyreduce:
     break;
 
   case 25:
+
+/* Line 1455 of yacc.c  */
 #line 667 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"keyword_catch\"];\n", node->value());
@@ -3652,6 +3598,8 @@ yyreduce:
     break;
 
   case 26:
+
+/* Line 1455 of yacc.c  */
 #line 678 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"keyword_function\"];\n", node->value());
@@ -3663,6 +3611,8 @@ yyreduce:
     break;
 
   case 27:
+
+/* Line 1455 of yacc.c  */
 #line 689 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"keyword_case\"];\n", node->value());
@@ -3674,6 +3624,8 @@ yyreduce:
     break;
 
   case 28:
+
+/* Line 1455 of yacc.c  */
 #line 700 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"keyword_default\"];\n", node->value());
@@ -3685,6 +3637,8 @@ yyreduce:
     break;
 
   case 29:
+
+/* Line 1455 of yacc.c  */
 #line 712 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
@@ -3695,6 +3649,8 @@ yyreduce:
     break;
 
   case 30:
+
+/* Line 1455 of yacc.c  */
 #line 719 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
@@ -3713,6 +3669,8 @@ yyreduce:
     break;
 
   case 31:
+
+/* Line 1455 of yacc.c  */
 #line 734 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
@@ -3737,6 +3695,8 @@ yyreduce:
     break;
 
   case 32:
+
+/* Line 1455 of yacc.c  */
 #line 755 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
@@ -3753,6 +3713,8 @@ yyreduce:
     break;
 
   case 33:
+
+/* Line 1455 of yacc.c  */
 #line 768 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
@@ -3773,6 +3735,8 @@ yyreduce:
     break;
 
   case 34:
+
+/* Line 1455 of yacc.c  */
 #line 785 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
@@ -3795,6 +3759,8 @@ yyreduce:
     break;
 
   case 35:
+
+/* Line 1455 of yacc.c  */
 #line 804 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
@@ -3811,6 +3777,8 @@ yyreduce:
     break;
 
   case 36:
+
+/* Line 1455 of yacc.c  */
 #line 817 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
@@ -3824,6 +3792,8 @@ yyreduce:
     break;
 
   case 37:
+
+/* Line 1455 of yacc.c  */
 #line 827 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
@@ -3838,6 +3808,8 @@ yyreduce:
     break;
 
   case 38:
+
+/* Line 1455 of yacc.c  */
 #line 838 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
@@ -3851,6 +3823,8 @@ yyreduce:
     break;
 
   case 39:
+
+/* Line 1455 of yacc.c  */
 #line 848 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
@@ -3865,6 +3839,8 @@ yyreduce:
     break;
 
   case 40:
+
+/* Line 1455 of yacc.c  */
 #line 859 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
@@ -3878,6 +3854,8 @@ yyreduce:
     break;
 
   case 41:
+
+/* Line 1455 of yacc.c  */
 #line 869 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
@@ -3892,6 +3870,8 @@ yyreduce:
     break;
 
   case 42:
+
+/* Line 1455 of yacc.c  */
 #line 880 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
@@ -3906,6 +3886,8 @@ yyreduce:
     break;
 
   case 43:
+
+/* Line 1455 of yacc.c  */
 #line 891 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
@@ -3920,6 +3902,8 @@ yyreduce:
     break;
 
   case 44:
+
+/* Line 1455 of yacc.c  */
 #line 902 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
@@ -3934,6 +3918,8 @@ yyreduce:
     break;
 
   case 45:
+
+/* Line 1455 of yacc.c  */
 #line 913 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
@@ -3948,6 +3934,8 @@ yyreduce:
     break;
 
   case 46:
+
+/* Line 1455 of yacc.c  */
 #line 924 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
@@ -3959,6 +3947,8 @@ yyreduce:
     break;
 
   case 47:
+
+/* Line 1455 of yacc.c  */
 #line 932 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
@@ -3971,6 +3961,8 @@ yyreduce:
     break;
 
   case 48:
+
+/* Line 1455 of yacc.c  */
 #line 941 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
@@ -3985,6 +3977,8 @@ yyreduce:
     break;
 
   case 49:
+
+/* Line 1455 of yacc.c  */
 #line 952 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
@@ -4003,6 +3997,8 @@ yyreduce:
     break;
 
   case 50:
+
+/* Line 1455 of yacc.c  */
 #line 967 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
@@ -4023,6 +4019,8 @@ yyreduce:
     break;
 
   case 51:
+
+/* Line 1455 of yacc.c  */
 #line 984 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
@@ -4043,6 +4041,8 @@ yyreduce:
     break;
 
   case 52:
+
+/* Line 1455 of yacc.c  */
 #line 1001 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
@@ -4059,6 +4059,8 @@ yyreduce:
     break;
 
   case 53:
+
+/* Line 1455 of yacc.c  */
 #line 1014 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
@@ -4070,6 +4072,8 @@ yyreduce:
     break;
 
   case 54:
+
+/* Line 1455 of yacc.c  */
 #line 1022 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
@@ -4091,6 +4095,8 @@ yyreduce:
     break;
 
   case 55:
+
+/* Line 1455 of yacc.c  */
 #line 1040 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"unticked_statement\"];\n", node->value());
@@ -4105,6 +4111,8 @@ yyreduce:
     break;
 
   case 56:
+
+/* Line 1455 of yacc.c  */
 #line 1054 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"additional_catches\"];\n", node->value());
@@ -4115,6 +4123,8 @@ yyreduce:
     break;
 
   case 57:
+
+/* Line 1455 of yacc.c  */
 #line 1061 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"additional_catches\"];\n", node->value());
@@ -4126,6 +4136,8 @@ yyreduce:
     break;
 
   case 58:
+
+/* Line 1455 of yacc.c  */
 #line 1072 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"non_empty_additional_catches\"];\n", node->value());
@@ -4136,6 +4148,8 @@ yyreduce:
     break;
 
   case 59:
+
+/* Line 1455 of yacc.c  */
 #line 1079 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"non_empty_additional_catches\"];\n", node->value());
@@ -4147,6 +4161,8 @@ yyreduce:
     break;
 
   case 60:
+
+/* Line 1455 of yacc.c  */
 #line 1090 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"additional_catch\"];\n", node->value());
@@ -4165,6 +4181,8 @@ yyreduce:
     break;
 
   case 61:
+
+/* Line 1455 of yacc.c  */
 #line 1108 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"unset_variables\"];\n", node->value());
@@ -4175,6 +4193,8 @@ yyreduce:
     break;
 
   case 62:
+
+/* Line 1455 of yacc.c  */
 #line 1115 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"unset_variables\"];\n", node->value());
@@ -4188,6 +4208,8 @@ yyreduce:
     break;
 
   case 63:
+
+/* Line 1455 of yacc.c  */
 #line 1128 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"unset_variable\"];\n", node->value());
@@ -4198,6 +4220,8 @@ yyreduce:
     break;
 
   case 64:
+
+/* Line 1455 of yacc.c  */
 #line 1138 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"use_filename\"];\n", node->value());
@@ -4209,6 +4233,8 @@ yyreduce:
     break;
 
   case 65:
+
+/* Line 1455 of yacc.c  */
 #line 1146 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"use_filename\"];\n", node->value());
@@ -4224,6 +4250,8 @@ yyreduce:
     break;
 
   case 66:
+
+/* Line 1455 of yacc.c  */
 #line 1161 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"function_declaration_statement\"];\n", node->value());
@@ -4234,6 +4262,8 @@ yyreduce:
     break;
 
   case 67:
+
+/* Line 1455 of yacc.c  */
 #line 1171 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"class_declaration_statement\"];\n", node->value());
@@ -4244,6 +4274,8 @@ yyreduce:
     break;
 
   case 68:
+
+/* Line 1455 of yacc.c  */
 #line 1181 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"is_reference\"];\n", node->value());
@@ -4255,6 +4287,8 @@ yyreduce:
     break;
 
   case 69:
+
+/* Line 1455 of yacc.c  */
 #line 1189 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"is_reference\"];\n", node->value());
@@ -4266,6 +4300,8 @@ yyreduce:
     break;
 
   case 70:
+
+/* Line 1455 of yacc.c  */
 #line 1200 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"unticked_function_declaration_statement\"];\n", node->value());
@@ -4285,6 +4321,8 @@ yyreduce:
     break;
 
   case 71:
+
+/* Line 1455 of yacc.c  */
 #line 1219 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"unticked_class_declaration_statement\"];\n", node->value());
@@ -4304,6 +4342,8 @@ yyreduce:
     break;
 
   case 72:
+
+/* Line 1455 of yacc.c  */
 #line 1235 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"unticked_class_declaration_statement\"];\n", node->value());
@@ -4322,6 +4362,8 @@ yyreduce:
     break;
 
   case 73:
+
+/* Line 1455 of yacc.c  */
 #line 1253 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"class_entry_type\"];\n", node->value());
@@ -4333,6 +4375,8 @@ yyreduce:
     break;
 
   case 74:
+
+/* Line 1455 of yacc.c  */
 #line 1261 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"class_entry_type\"];\n", node->value());
@@ -4346,6 +4390,8 @@ yyreduce:
     break;
 
   case 75:
+
+/* Line 1455 of yacc.c  */
 #line 1271 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"class_entry_type\"];\n", node->value());
@@ -4359,6 +4405,8 @@ yyreduce:
     break;
 
   case 76:
+
+/* Line 1455 of yacc.c  */
 #line 1284 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"extends_from\"];\n", node->value());
@@ -4370,6 +4418,8 @@ yyreduce:
     break;
 
   case 77:
+
+/* Line 1455 of yacc.c  */
 #line 1292 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"extends_from\"];\n", node->value());
@@ -4382,6 +4432,8 @@ yyreduce:
     break;
 
   case 78:
+
+/* Line 1455 of yacc.c  */
 #line 1304 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"interface_entry\"];\n", node->value());
@@ -4393,6 +4445,8 @@ yyreduce:
     break;
 
   case 79:
+
+/* Line 1455 of yacc.c  */
 #line 1315 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"interface_extends_list\"];\n", node->value());
@@ -4404,6 +4458,8 @@ yyreduce:
     break;
 
   case 80:
+
+/* Line 1455 of yacc.c  */
 #line 1323 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"interface_extends_list\"];\n", node->value());
@@ -4416,6 +4472,8 @@ yyreduce:
     break;
 
   case 81:
+
+/* Line 1455 of yacc.c  */
 #line 1335 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"implements_list\"];\n", node->value());
@@ -4427,6 +4485,8 @@ yyreduce:
     break;
 
   case 82:
+
+/* Line 1455 of yacc.c  */
 #line 1343 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"implements_list\"];\n", node->value());
@@ -4439,6 +4499,8 @@ yyreduce:
     break;
 
   case 83:
+
+/* Line 1455 of yacc.c  */
 #line 1355 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"interface_list\"];\n", node->value());
@@ -4449,6 +4511,8 @@ yyreduce:
     break;
 
   case 84:
+
+/* Line 1455 of yacc.c  */
 #line 1362 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"interface_list\"];\n", node->value());
@@ -4462,6 +4526,8 @@ yyreduce:
     break;
 
   case 85:
+
+/* Line 1455 of yacc.c  */
 #line 1375 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"foreach_optional_arg\"];\n", node->value());
@@ -4473,6 +4539,8 @@ yyreduce:
     break;
 
   case 86:
+
+/* Line 1455 of yacc.c  */
 #line 1383 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"foreach_optional_arg\"];\n", node->value());
@@ -4485,6 +4553,8 @@ yyreduce:
     break;
 
   case 87:
+
+/* Line 1455 of yacc.c  */
 #line 1395 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"foreach_variable\"];\n", node->value());
@@ -4495,6 +4565,8 @@ yyreduce:
     break;
 
   case 88:
+
+/* Line 1455 of yacc.c  */
 #line 1402 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"foreach_variable\"];\n", node->value());
@@ -4507,6 +4579,8 @@ yyreduce:
     break;
 
   case 89:
+
+/* Line 1455 of yacc.c  */
 #line 1414 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"for_statement\"];\n", node->value());
@@ -4517,6 +4591,8 @@ yyreduce:
     break;
 
   case 90:
+
+/* Line 1455 of yacc.c  */
 #line 1421 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"for_statement\"];\n", node->value());
@@ -4533,6 +4609,8 @@ yyreduce:
     break;
 
   case 91:
+
+/* Line 1455 of yacc.c  */
 #line 1437 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"foreach_statement\"];\n", node->value());
@@ -4543,6 +4621,8 @@ yyreduce:
     break;
 
   case 92:
+
+/* Line 1455 of yacc.c  */
 #line 1444 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"foreach_statement\"];\n", node->value());
@@ -4559,6 +4639,8 @@ yyreduce:
     break;
 
   case 93:
+
+/* Line 1455 of yacc.c  */
 #line 1460 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"declare_statement\"];\n", node->value());
@@ -4569,6 +4651,8 @@ yyreduce:
     break;
 
   case 94:
+
+/* Line 1455 of yacc.c  */
 #line 1467 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"declare_statement\"];\n", node->value());
@@ -4585,6 +4669,8 @@ yyreduce:
     break;
 
   case 95:
+
+/* Line 1455 of yacc.c  */
 #line 1483 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"declare_list\"];\n", node->value());
@@ -4599,6 +4685,8 @@ yyreduce:
     break;
 
   case 96:
+
+/* Line 1455 of yacc.c  */
 #line 1494 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"declare_list\"];\n", node->value());
@@ -4616,6 +4704,8 @@ yyreduce:
     break;
 
   case 97:
+
+/* Line 1455 of yacc.c  */
 #line 1511 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"switch_case_list\"];\n", node->value());
@@ -4630,6 +4720,8 @@ yyreduce:
     break;
 
   case 98:
+
+/* Line 1455 of yacc.c  */
 #line 1522 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"switch_case_list\"];\n", node->value());
@@ -4646,6 +4738,8 @@ yyreduce:
     break;
 
   case 99:
+
+/* Line 1455 of yacc.c  */
 #line 1535 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"switch_case_list\"];\n", node->value());
@@ -4662,6 +4756,8 @@ yyreduce:
     break;
 
   case 100:
+
+/* Line 1455 of yacc.c  */
 #line 1548 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"switch_case_list\"];\n", node->value());
@@ -4680,6 +4776,8 @@ yyreduce:
     break;
 
   case 101:
+
+/* Line 1455 of yacc.c  */
 #line 1566 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"case_list\"];\n", node->value());
@@ -4691,6 +4789,8 @@ yyreduce:
     break;
 
   case 102:
+
+/* Line 1455 of yacc.c  */
 #line 1574 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"case_list\"];\n", node->value());
@@ -4705,6 +4805,8 @@ yyreduce:
     break;
 
   case 103:
+
+/* Line 1455 of yacc.c  */
 #line 1585 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"case_list\"];\n", node->value());
@@ -4718,6 +4820,8 @@ yyreduce:
     break;
 
   case 104:
+
+/* Line 1455 of yacc.c  */
 #line 1601 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"case_separator\"];\n", node->value());
@@ -4729,6 +4833,8 @@ yyreduce:
     break;
 
   case 105:
+
+/* Line 1455 of yacc.c  */
 #line 1609 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"case_separator\"];\n", node->value());
@@ -4740,6 +4846,8 @@ yyreduce:
     break;
 
   case 106:
+
+/* Line 1455 of yacc.c  */
 #line 1619 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"while_statement\"];\n", node->value());
@@ -4750,6 +4858,8 @@ yyreduce:
     break;
 
   case 107:
+
+/* Line 1455 of yacc.c  */
 #line 1626 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"while_statement\"];\n", node->value());
@@ -4766,6 +4876,8 @@ yyreduce:
     break;
 
   case 108:
+
+/* Line 1455 of yacc.c  */
 #line 1642 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"elseif_list\"];\n", node->value());
@@ -4777,6 +4889,8 @@ yyreduce:
     break;
 
   case 109:
+
+/* Line 1455 of yacc.c  */
 #line 1650 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"elseif_list\"];\n", node->value());
@@ -4794,6 +4908,8 @@ yyreduce:
     break;
 
   case 110:
+
+/* Line 1455 of yacc.c  */
 #line 1670 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"new_elseif_list\"];\n", node->value());
@@ -4805,6 +4921,8 @@ yyreduce:
     break;
 
   case 111:
+
+/* Line 1455 of yacc.c  */
 #line 1678 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"new_elseif_list\"];\n", node->value());
@@ -4824,6 +4942,8 @@ yyreduce:
     break;
 
   case 112:
+
+/* Line 1455 of yacc.c  */
 #line 1697 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"else_single\"];\n", node->value());
@@ -4835,6 +4955,8 @@ yyreduce:
     break;
 
   case 113:
+
+/* Line 1455 of yacc.c  */
 #line 1705 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"else_single\"];\n", node->value());
@@ -4847,6 +4969,8 @@ yyreduce:
     break;
 
   case 114:
+
+/* Line 1455 of yacc.c  */
 #line 1720 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"new_else_single\"];\n", node->value());
@@ -4858,6 +4982,8 @@ yyreduce:
     break;
 
   case 115:
+
+/* Line 1455 of yacc.c  */
 #line 1728 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"new_else_single\"];\n", node->value());
@@ -4872,6 +4998,8 @@ yyreduce:
     break;
 
   case 116:
+
+/* Line 1455 of yacc.c  */
 #line 1742 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"parameter_list\"];\n", node->value());
@@ -4882,6 +5010,8 @@ yyreduce:
     break;
 
   case 117:
+
+/* Line 1455 of yacc.c  */
 #line 1749 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"parameter_list\"];\n", node->value());
@@ -4893,6 +5023,8 @@ yyreduce:
     break;
 
   case 118:
+
+/* Line 1455 of yacc.c  */
 #line 1763 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"non_empty_parameter_list\"];\n", node->value());
@@ -4905,6 +5037,8 @@ yyreduce:
     break;
 
   case 119:
+
+/* Line 1455 of yacc.c  */
 #line 1772 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"non_empty_parameter_list\"];\n", node->value());
@@ -4919,6 +5053,8 @@ yyreduce:
     break;
 
   case 120:
+
+/* Line 1455 of yacc.c  */
 #line 1783 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"non_empty_parameter_list\"];\n", node->value());
@@ -4936,6 +5072,8 @@ yyreduce:
     break;
 
   case 121:
+
+/* Line 1455 of yacc.c  */
 #line 1797 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"non_empty_parameter_list\"];\n", node->value());
@@ -4951,6 +5089,8 @@ yyreduce:
     break;
 
   case 122:
+
+/* Line 1455 of yacc.c  */
 #line 1809 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"non_empty_parameter_list\"];\n", node->value());
@@ -4966,6 +5106,8 @@ yyreduce:
     break;
 
   case 123:
+
+/* Line 1455 of yacc.c  */
 #line 1821 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"non_empty_parameter_list\"];\n", node->value());
@@ -4983,6 +5125,8 @@ yyreduce:
     break;
 
   case 124:
+
+/* Line 1455 of yacc.c  */
 #line 1835 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"non_empty_parameter_list\"];\n", node->value());
@@ -5003,6 +5147,8 @@ yyreduce:
     break;
 
   case 125:
+
+/* Line 1455 of yacc.c  */
 #line 1852 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"non_empty_parameter_list\"];\n", node->value());
@@ -5021,6 +5167,8 @@ yyreduce:
     break;
 
   case 126:
+
+/* Line 1455 of yacc.c  */
 #line 1870 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"optional_class_type\"];\n", node->value());
@@ -5032,6 +5180,8 @@ yyreduce:
     break;
 
   case 127:
+
+/* Line 1455 of yacc.c  */
 #line 1878 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"optional_class_type\"];\n", node->value());
@@ -5043,6 +5193,8 @@ yyreduce:
     break;
 
   case 128:
+
+/* Line 1455 of yacc.c  */
 #line 1886 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"optional_class_type\"];\n", node->value());
@@ -5054,6 +5206,8 @@ yyreduce:
     break;
 
   case 129:
+
+/* Line 1455 of yacc.c  */
 #line 1897 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"function_call_parameter_list\"];\n", node->value());
@@ -5064,6 +5218,8 @@ yyreduce:
     break;
 
   case 130:
+
+/* Line 1455 of yacc.c  */
 #line 1904 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"function_call_parameter_list\"];\n", node->value());
@@ -5075,6 +5231,8 @@ yyreduce:
     break;
 
   case 131:
+
+/* Line 1455 of yacc.c  */
 #line 1915 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"non_empty_function_call_parameter_list\"];\n", node->value());
@@ -5085,6 +5243,8 @@ yyreduce:
     break;
 
   case 132:
+
+/* Line 1455 of yacc.c  */
 #line 1922 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"non_empty_function_call_parameter_list\"];\n", node->value());
@@ -5095,6 +5255,8 @@ yyreduce:
     break;
 
   case 133:
+
+/* Line 1455 of yacc.c  */
 #line 1929 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"non_empty_function_call_parameter_list\"];\n", node->value());
@@ -5107,6 +5269,8 @@ yyreduce:
     break;
 
   case 134:
+
+/* Line 1455 of yacc.c  */
 #line 1938 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"non_empty_function_call_parameter_list\"];\n", node->value());
@@ -5120,6 +5284,8 @@ yyreduce:
     break;
 
   case 135:
+
+/* Line 1455 of yacc.c  */
 #line 1948 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"non_empty_function_call_parameter_list\"];\n", node->value());
@@ -5133,6 +5299,8 @@ yyreduce:
     break;
 
   case 136:
+
+/* Line 1455 of yacc.c  */
 #line 1958 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"non_empty_function_call_parameter_list\"];\n", node->value());
@@ -5148,6 +5316,8 @@ yyreduce:
     break;
 
   case 137:
+
+/* Line 1455 of yacc.c  */
 #line 1973 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"global_var_list\"];\n", node->value());
@@ -5161,6 +5331,8 @@ yyreduce:
     break;
 
   case 138:
+
+/* Line 1455 of yacc.c  */
 #line 1983 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"global_var_list\"];\n", node->value());
@@ -5171,6 +5343,8 @@ yyreduce:
     break;
 
   case 139:
+
+/* Line 1455 of yacc.c  */
 #line 1993 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"global_var\"];\n", node->value());
@@ -5182,6 +5356,8 @@ yyreduce:
     break;
 
   case 140:
+
+/* Line 1455 of yacc.c  */
 #line 2001 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"global_var\"];\n", node->value());
@@ -5194,6 +5370,8 @@ yyreduce:
     break;
 
   case 141:
+
+/* Line 1455 of yacc.c  */
 #line 2010 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"global_var\"];\n", node->value());
@@ -5210,6 +5388,8 @@ yyreduce:
     break;
 
   case 142:
+
+/* Line 1455 of yacc.c  */
 #line 2026 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"static_var_list\"];\n", node->value());
@@ -5224,6 +5404,8 @@ yyreduce:
     break;
 
   case 143:
+
+/* Line 1455 of yacc.c  */
 #line 2037 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"static_var_list\"];\n", node->value());
@@ -5241,6 +5423,8 @@ yyreduce:
     break;
 
   case 144:
+
+/* Line 1455 of yacc.c  */
 #line 2051 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"static_var_list\"];\n", node->value());
@@ -5252,6 +5436,8 @@ yyreduce:
     break;
 
   case 145:
+
+/* Line 1455 of yacc.c  */
 #line 2059 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"static_var_list\"];\n", node->value());
@@ -5266,6 +5452,8 @@ yyreduce:
     break;
 
   case 146:
+
+/* Line 1455 of yacc.c  */
 #line 2073 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"class_statement_list\"];\n", node->value());
@@ -5277,6 +5465,8 @@ yyreduce:
     break;
 
   case 147:
+
+/* Line 1455 of yacc.c  */
 #line 2081 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"class_statement_list\"];\n", node->value());
@@ -5288,6 +5478,8 @@ yyreduce:
     break;
 
   case 148:
+
+/* Line 1455 of yacc.c  */
 #line 2092 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"class_statement\"];\n", node->value());
@@ -5301,6 +5493,8 @@ yyreduce:
     break;
 
   case 149:
+
+/* Line 1455 of yacc.c  */
 #line 2102 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"class_statement\"];\n", node->value());
@@ -5313,6 +5507,8 @@ yyreduce:
     break;
 
   case 150:
+
+/* Line 1455 of yacc.c  */
 #line 2111 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"class_statement\"];\n", node->value());
@@ -5333,6 +5529,8 @@ yyreduce:
     break;
 
   case 151:
+
+/* Line 1455 of yacc.c  */
 #line 2131 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"method_body\"];\n", node->value());
@@ -5344,6 +5542,8 @@ yyreduce:
     break;
 
   case 152:
+
+/* Line 1455 of yacc.c  */
 #line 2139 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"method_body\"];\n", node->value());
@@ -5354,6 +5554,8 @@ yyreduce:
     break;
 
   case 153:
+
+/* Line 1455 of yacc.c  */
 #line 2149 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"variable_modifiers\"];\n", node->value());
@@ -5364,6 +5566,8 @@ yyreduce:
     break;
 
   case 154:
+
+/* Line 1455 of yacc.c  */
 #line 2156 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"variable_modifiers\"];\n", node->value());
@@ -5375,6 +5579,8 @@ yyreduce:
     break;
 
   case 155:
+
+/* Line 1455 of yacc.c  */
 #line 2167 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"method_modifiers\"];\n", node->value());
@@ -5386,6 +5592,8 @@ yyreduce:
     break;
 
   case 156:
+
+/* Line 1455 of yacc.c  */
 #line 2175 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"method_modifiers\"];\n", node->value());
@@ -5396,6 +5604,8 @@ yyreduce:
     break;
 
   case 157:
+
+/* Line 1455 of yacc.c  */
 #line 2185 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"non_empty_member_modifiers\"];\n", node->value());
@@ -5406,6 +5616,8 @@ yyreduce:
     break;
 
   case 158:
+
+/* Line 1455 of yacc.c  */
 #line 2192 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"non_empty_member_modifiers\"];\n", node->value());
@@ -5417,6 +5629,8 @@ yyreduce:
     break;
 
   case 159:
+
+/* Line 1455 of yacc.c  */
 #line 2203 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"member_modifier\"];\n", node->value());
@@ -5428,6 +5642,8 @@ yyreduce:
     break;
 
   case 160:
+
+/* Line 1455 of yacc.c  */
 #line 2211 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"member_modifier\"];\n", node->value());
@@ -5439,6 +5655,8 @@ yyreduce:
     break;
 
   case 161:
+
+/* Line 1455 of yacc.c  */
 #line 2219 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"member_modifier\"];\n", node->value());
@@ -5450,6 +5668,8 @@ yyreduce:
     break;
 
   case 162:
+
+/* Line 1455 of yacc.c  */
 #line 2227 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"member_modifier\"];\n", node->value());
@@ -5461,6 +5681,8 @@ yyreduce:
     break;
 
   case 163:
+
+/* Line 1455 of yacc.c  */
 #line 2235 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"member_modifier\"];\n", node->value());
@@ -5472,6 +5694,8 @@ yyreduce:
     break;
 
   case 164:
+
+/* Line 1455 of yacc.c  */
 #line 2243 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"member_modifier\"];\n", node->value());
@@ -5483,6 +5707,8 @@ yyreduce:
     break;
 
   case 165:
+
+/* Line 1455 of yacc.c  */
 #line 2254 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"class_variable_declaration\"];\n", node->value());
@@ -5497,6 +5723,8 @@ yyreduce:
     break;
 
   case 166:
+
+/* Line 1455 of yacc.c  */
 #line 2265 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"class_variable_declaration\"];\n", node->value());
@@ -5514,6 +5742,8 @@ yyreduce:
     break;
 
   case 167:
+
+/* Line 1455 of yacc.c  */
 #line 2279 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"class_variable_declaration\"];\n", node->value());
@@ -5525,6 +5755,8 @@ yyreduce:
     break;
 
   case 168:
+
+/* Line 1455 of yacc.c  */
 #line 2287 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"class_variable_declaration\"];\n", node->value());
@@ -5539,6 +5771,8 @@ yyreduce:
     break;
 
   case 169:
+
+/* Line 1455 of yacc.c  */
 #line 2301 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"class_constant_declaration\"];\n", node->value());
@@ -5556,6 +5790,8 @@ yyreduce:
     break;
 
   case 170:
+
+/* Line 1455 of yacc.c  */
 #line 2315 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"class_constant_declaration\"];\n", node->value());
@@ -5572,6 +5808,8 @@ yyreduce:
     break;
 
   case 171:
+
+/* Line 1455 of yacc.c  */
 #line 2331 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"echo_expr_list\"];\n", node->value());
@@ -5585,6 +5823,8 @@ yyreduce:
     break;
 
   case 172:
+
+/* Line 1455 of yacc.c  */
 #line 2341 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"echo_expr_list\"];\n", node->value());
@@ -5595,6 +5835,8 @@ yyreduce:
     break;
 
   case 173:
+
+/* Line 1455 of yacc.c  */
 #line 2351 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"for_expr\"];\n", node->value());
@@ -5606,6 +5848,8 @@ yyreduce:
     break;
 
   case 174:
+
+/* Line 1455 of yacc.c  */
 #line 2359 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"for_expr\"];\n", node->value());
@@ -5616,6 +5860,8 @@ yyreduce:
     break;
 
   case 175:
+
+/* Line 1455 of yacc.c  */
 #line 2369 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"non_empty_for_expr\"];\n", node->value());
@@ -5629,6 +5875,8 @@ yyreduce:
     break;
 
   case 176:
+
+/* Line 1455 of yacc.c  */
 #line 2379 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"non_empty_for_expr\"];\n", node->value());
@@ -5639,6 +5887,8 @@ yyreduce:
     break;
 
   case 177:
+
+/* Line 1455 of yacc.c  */
 #line 2389 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -5658,6 +5908,8 @@ yyreduce:
     break;
 
   case 178:
+
+/* Line 1455 of yacc.c  */
 #line 2405 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -5671,6 +5923,8 @@ yyreduce:
     break;
 
   case 179:
+
+/* Line 1455 of yacc.c  */
 #line 2415 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -5686,6 +5940,8 @@ yyreduce:
     break;
 
   case 180:
+
+/* Line 1455 of yacc.c  */
 #line 2427 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -5704,6 +5960,8 @@ yyreduce:
     break;
 
   case 181:
+
+/* Line 1455 of yacc.c  */
 #line 2442 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -5717,6 +5975,8 @@ yyreduce:
     break;
 
   case 182:
+
+/* Line 1455 of yacc.c  */
 #line 2452 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -5729,6 +5989,8 @@ yyreduce:
     break;
 
   case 183:
+
+/* Line 1455 of yacc.c  */
 #line 2461 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -5742,6 +6004,8 @@ yyreduce:
     break;
 
   case 184:
+
+/* Line 1455 of yacc.c  */
 #line 2471 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -5755,6 +6019,8 @@ yyreduce:
     break;
 
   case 185:
+
+/* Line 1455 of yacc.c  */
 #line 2481 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -5768,6 +6034,8 @@ yyreduce:
     break;
 
   case 186:
+
+/* Line 1455 of yacc.c  */
 #line 2491 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -5781,6 +6049,8 @@ yyreduce:
     break;
 
   case 187:
+
+/* Line 1455 of yacc.c  */
 #line 2501 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -5794,6 +6064,8 @@ yyreduce:
     break;
 
   case 188:
+
+/* Line 1455 of yacc.c  */
 #line 2511 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -5807,6 +6079,8 @@ yyreduce:
     break;
 
   case 189:
+
+/* Line 1455 of yacc.c  */
 #line 2521 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -5820,6 +6094,8 @@ yyreduce:
     break;
 
   case 190:
+
+/* Line 1455 of yacc.c  */
 #line 2531 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -5833,6 +6109,8 @@ yyreduce:
     break;
 
   case 191:
+
+/* Line 1455 of yacc.c  */
 #line 2541 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -5846,6 +6124,8 @@ yyreduce:
     break;
 
   case 192:
+
+/* Line 1455 of yacc.c  */
 #line 2551 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -5859,6 +6139,8 @@ yyreduce:
     break;
 
   case 193:
+
+/* Line 1455 of yacc.c  */
 #line 2561 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -5872,6 +6154,8 @@ yyreduce:
     break;
 
   case 194:
+
+/* Line 1455 of yacc.c  */
 #line 2571 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -5884,6 +6168,8 @@ yyreduce:
     break;
 
   case 195:
+
+/* Line 1455 of yacc.c  */
 #line 2580 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -5896,6 +6182,8 @@ yyreduce:
     break;
 
   case 196:
+
+/* Line 1455 of yacc.c  */
 #line 2589 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -5908,6 +6196,8 @@ yyreduce:
     break;
 
   case 197:
+
+/* Line 1455 of yacc.c  */
 #line 2598 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -5920,6 +6210,8 @@ yyreduce:
     break;
 
   case 198:
+
+/* Line 1455 of yacc.c  */
 #line 2607 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -5933,6 +6225,8 @@ yyreduce:
     break;
 
   case 199:
+
+/* Line 1455 of yacc.c  */
 #line 2617 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -5946,6 +6240,8 @@ yyreduce:
     break;
 
   case 200:
+
+/* Line 1455 of yacc.c  */
 #line 2627 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -5959,6 +6255,8 @@ yyreduce:
     break;
 
   case 201:
+
+/* Line 1455 of yacc.c  */
 #line 2637 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -5972,6 +6270,8 @@ yyreduce:
     break;
 
   case 202:
+
+/* Line 1455 of yacc.c  */
 #line 2647 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -5985,6 +6285,8 @@ yyreduce:
     break;
 
   case 203:
+
+/* Line 1455 of yacc.c  */
 #line 2657 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -5998,6 +6300,8 @@ yyreduce:
     break;
 
   case 204:
+
+/* Line 1455 of yacc.c  */
 #line 2667 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -6011,6 +6315,8 @@ yyreduce:
     break;
 
   case 205:
+
+/* Line 1455 of yacc.c  */
 #line 2677 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -6024,6 +6330,8 @@ yyreduce:
     break;
 
   case 206:
+
+/* Line 1455 of yacc.c  */
 #line 2687 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -6037,6 +6345,8 @@ yyreduce:
     break;
 
   case 207:
+
+/* Line 1455 of yacc.c  */
 #line 2697 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -6057,6 +6367,8 @@ yyreduce:
     break;
 
   case 208:
+
+/* Line 1455 of yacc.c  */
 #line 2714 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -6070,6 +6382,8 @@ yyreduce:
     break;
 
   case 209:
+
+/* Line 1455 of yacc.c  */
 #line 2724 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -6083,6 +6397,8 @@ yyreduce:
     break;
 
   case 210:
+
+/* Line 1455 of yacc.c  */
 #line 2734 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -6096,6 +6412,8 @@ yyreduce:
     break;
 
   case 211:
+
+/* Line 1455 of yacc.c  */
 #line 2744 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -6109,6 +6427,8 @@ yyreduce:
     break;
 
   case 212:
+
+/* Line 1455 of yacc.c  */
 #line 2754 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -6122,6 +6442,8 @@ yyreduce:
     break;
 
   case 213:
+
+/* Line 1455 of yacc.c  */
 #line 2764 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -6135,6 +6457,8 @@ yyreduce:
     break;
 
   case 214:
+
+/* Line 1455 of yacc.c  */
 #line 2774 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -6148,6 +6472,8 @@ yyreduce:
     break;
 
   case 215:
+
+/* Line 1455 of yacc.c  */
 #line 2784 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -6160,6 +6486,8 @@ yyreduce:
     break;
 
   case 216:
+
+/* Line 1455 of yacc.c  */
 #line 2793 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -6172,6 +6500,8 @@ yyreduce:
     break;
 
   case 217:
+
+/* Line 1455 of yacc.c  */
 #line 2802 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -6184,6 +6514,8 @@ yyreduce:
     break;
 
   case 218:
+
+/* Line 1455 of yacc.c  */
 #line 2811 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -6196,6 +6528,8 @@ yyreduce:
     break;
 
   case 219:
+
+/* Line 1455 of yacc.c  */
 #line 2820 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -6209,6 +6543,8 @@ yyreduce:
     break;
 
   case 220:
+
+/* Line 1455 of yacc.c  */
 #line 2830 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -6222,6 +6558,8 @@ yyreduce:
     break;
 
   case 221:
+
+/* Line 1455 of yacc.c  */
 #line 2840 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -6235,6 +6573,8 @@ yyreduce:
     break;
 
   case 222:
+
+/* Line 1455 of yacc.c  */
 #line 2850 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -6248,6 +6588,8 @@ yyreduce:
     break;
 
   case 223:
+
+/* Line 1455 of yacc.c  */
 #line 2860 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -6261,6 +6603,8 @@ yyreduce:
     break;
 
   case 224:
+
+/* Line 1455 of yacc.c  */
 #line 2870 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -6274,6 +6618,8 @@ yyreduce:
     break;
 
   case 225:
+
+/* Line 1455 of yacc.c  */
 #line 2880 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -6287,6 +6633,8 @@ yyreduce:
     break;
 
   case 226:
+
+/* Line 1455 of yacc.c  */
 #line 2890 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -6300,6 +6648,8 @@ yyreduce:
     break;
 
   case 227:
+
+/* Line 1455 of yacc.c  */
 #line 2900 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -6313,6 +6663,8 @@ yyreduce:
     break;
 
   case 228:
+
+/* Line 1455 of yacc.c  */
 #line 2910 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -6327,6 +6679,8 @@ yyreduce:
     break;
 
   case 229:
+
+/* Line 1455 of yacc.c  */
 #line 2921 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -6343,6 +6697,8 @@ yyreduce:
     break;
 
   case 230:
+
+/* Line 1455 of yacc.c  */
 #line 2934 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -6353,6 +6709,8 @@ yyreduce:
     break;
 
   case 231:
+
+/* Line 1455 of yacc.c  */
 #line 2941 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -6365,6 +6723,8 @@ yyreduce:
     break;
 
   case 232:
+
+/* Line 1455 of yacc.c  */
 #line 2950 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -6377,6 +6737,8 @@ yyreduce:
     break;
 
   case 233:
+
+/* Line 1455 of yacc.c  */
 #line 2959 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -6389,6 +6751,8 @@ yyreduce:
     break;
 
   case 234:
+
+/* Line 1455 of yacc.c  */
 #line 2968 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -6401,6 +6765,8 @@ yyreduce:
     break;
 
   case 235:
+
+/* Line 1455 of yacc.c  */
 #line 2977 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -6413,6 +6779,8 @@ yyreduce:
     break;
 
   case 236:
+
+/* Line 1455 of yacc.c  */
 #line 2986 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -6425,6 +6793,8 @@ yyreduce:
     break;
 
   case 237:
+
+/* Line 1455 of yacc.c  */
 #line 2995 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -6437,6 +6807,8 @@ yyreduce:
     break;
 
   case 238:
+
+/* Line 1455 of yacc.c  */
 #line 3004 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -6449,6 +6821,8 @@ yyreduce:
     break;
 
   case 239:
+
+/* Line 1455 of yacc.c  */
 #line 3013 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -6461,6 +6835,8 @@ yyreduce:
     break;
 
   case 240:
+
+/* Line 1455 of yacc.c  */
 #line 3022 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -6471,6 +6847,8 @@ yyreduce:
     break;
 
   case 241:
+
+/* Line 1455 of yacc.c  */
 #line 3029 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -6487,6 +6865,8 @@ yyreduce:
     break;
 
   case 242:
+
+/* Line 1455 of yacc.c  */
 #line 3042 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
@@ -6499,6 +6879,8 @@ yyreduce:
     break;
 
   case 243:
+
+/* Line 1455 of yacc.c  */
 #line 3054 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"function_call\"];\n", node->value());
@@ -6515,6 +6897,8 @@ yyreduce:
     break;
 
   case 244:
+
+/* Line 1455 of yacc.c  */
 #line 3067 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"function_call\"];\n", node->value());
@@ -6534,6 +6918,8 @@ yyreduce:
     break;
 
   case 245:
+
+/* Line 1455 of yacc.c  */
 #line 3083 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"function_call\"];\n", node->value());
@@ -6552,6 +6938,8 @@ yyreduce:
     break;
 
   case 246:
+
+/* Line 1455 of yacc.c  */
 #line 3098 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"function_call\"];\n", node->value());
@@ -6567,6 +6955,8 @@ yyreduce:
     break;
 
   case 247:
+
+/* Line 1455 of yacc.c  */
 #line 3113 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"fully_qualified_class_name\"];\n", node->value());
@@ -6578,6 +6968,8 @@ yyreduce:
     break;
 
   case 248:
+
+/* Line 1455 of yacc.c  */
 #line 3124 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"class_name_reference\"];\n", node->value());
@@ -6589,6 +6981,8 @@ yyreduce:
     break;
 
   case 249:
+
+/* Line 1455 of yacc.c  */
 #line 3132 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"class_name_reference\"];\n", node->value());
@@ -6599,6 +6993,8 @@ yyreduce:
     break;
 
   case 250:
+
+/* Line 1455 of yacc.c  */
 #line 3142 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"dynamic_class_name_reference\"];\n", node->value());
@@ -6613,6 +7009,8 @@ yyreduce:
     break;
 
   case 251:
+
+/* Line 1455 of yacc.c  */
 #line 3153 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"dynamic_class_name_reference\"];\n", node->value());
@@ -6623,6 +7021,8 @@ yyreduce:
     break;
 
   case 252:
+
+/* Line 1455 of yacc.c  */
 #line 3163 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"dynamic_class_name_variable_properties\"];\n", node->value());
@@ -6634,6 +7034,8 @@ yyreduce:
     break;
 
   case 253:
+
+/* Line 1455 of yacc.c  */
 #line 3171 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"dynamic_class_name_variable_properties\"];\n", node->value());
@@ -6645,6 +7047,8 @@ yyreduce:
     break;
 
   case 254:
+
+/* Line 1455 of yacc.c  */
 #line 3182 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"dynamic_class_name_variable_property\"];\n", node->value());
@@ -6657,6 +7061,8 @@ yyreduce:
     break;
 
   case 255:
+
+/* Line 1455 of yacc.c  */
 #line 3194 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"exit_expr\"];\n", node->value());
@@ -6668,6 +7074,8 @@ yyreduce:
     break;
 
   case 256:
+
+/* Line 1455 of yacc.c  */
 #line 3202 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"exit_expr\"];\n", node->value());
@@ -6681,6 +7089,8 @@ yyreduce:
     break;
 
   case 257:
+
+/* Line 1455 of yacc.c  */
 #line 3212 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"exit_expr\"];\n", node->value());
@@ -6695,6 +7105,8 @@ yyreduce:
     break;
 
   case 258:
+
+/* Line 1455 of yacc.c  */
 #line 3226 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"ctor_arguments\"];\n", node->value());
@@ -6706,6 +7118,8 @@ yyreduce:
     break;
 
   case 259:
+
+/* Line 1455 of yacc.c  */
 #line 3234 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"ctor_arguments\"];\n", node->value());
@@ -6720,6 +7134,8 @@ yyreduce:
     break;
 
   case 260:
+
+/* Line 1455 of yacc.c  */
 #line 3248 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"common_scalar\"];\n", node->value());
@@ -6731,6 +7147,8 @@ yyreduce:
     break;
 
   case 261:
+
+/* Line 1455 of yacc.c  */
 #line 3256 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"common_scalar\"];\n", node->value());
@@ -6742,6 +7160,8 @@ yyreduce:
     break;
 
   case 262:
+
+/* Line 1455 of yacc.c  */
 #line 3264 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"common_scalar\"];\n", node->value());
@@ -6753,6 +7173,8 @@ yyreduce:
     break;
 
   case 263:
+
+/* Line 1455 of yacc.c  */
 #line 3272 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"common_scalar\"];\n", node->value());
@@ -6764,6 +7186,8 @@ yyreduce:
     break;
 
   case 264:
+
+/* Line 1455 of yacc.c  */
 #line 3280 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"common_scalar\"];\n", node->value());
@@ -6775,6 +7199,8 @@ yyreduce:
     break;
 
   case 265:
+
+/* Line 1455 of yacc.c  */
 #line 3288 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"common_scalar\"];\n", node->value());
@@ -6786,6 +7212,8 @@ yyreduce:
     break;
 
   case 266:
+
+/* Line 1455 of yacc.c  */
 #line 3296 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"common_scalar\"];\n", node->value());
@@ -6797,6 +7225,8 @@ yyreduce:
     break;
 
   case 267:
+
+/* Line 1455 of yacc.c  */
 #line 3304 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"common_scalar\"];\n", node->value());
@@ -6808,6 +7238,8 @@ yyreduce:
     break;
 
   case 268:
+
+/* Line 1455 of yacc.c  */
 #line 3312 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"common_scalar\"];\n", node->value());
@@ -6819,6 +7251,8 @@ yyreduce:
     break;
 
   case 269:
+
+/* Line 1455 of yacc.c  */
 #line 3320 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"common_scalar\"];\n", node->value());
@@ -6830,6 +7264,8 @@ yyreduce:
     break;
 
   case 270:
+
+/* Line 1455 of yacc.c  */
 #line 3328 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"common_scalar\"];\n", node->value());
@@ -6841,6 +7277,8 @@ yyreduce:
     break;
 
   case 271:
+
+/* Line 1455 of yacc.c  */
 #line 3339 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"static_scalar\"];\n", node->value());
@@ -6851,6 +7289,8 @@ yyreduce:
     break;
 
   case 272:
+
+/* Line 1455 of yacc.c  */
 #line 3346 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"static_scalar\"];\n", node->value());
@@ -6862,6 +7302,8 @@ yyreduce:
     break;
 
   case 273:
+
+/* Line 1455 of yacc.c  */
 #line 3354 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"static_scalar\"];\n", node->value());
@@ -6874,6 +7316,8 @@ yyreduce:
     break;
 
   case 274:
+
+/* Line 1455 of yacc.c  */
 #line 3363 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"static_scalar\"];\n", node->value());
@@ -6886,6 +7330,8 @@ yyreduce:
     break;
 
   case 275:
+
+/* Line 1455 of yacc.c  */
 #line 3372 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"static_scalar\"];\n", node->value());
@@ -6902,6 +7348,8 @@ yyreduce:
     break;
 
   case 276:
+
+/* Line 1455 of yacc.c  */
 #line 3385 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"static_scalar\"];\n", node->value());
@@ -6912,6 +7360,8 @@ yyreduce:
     break;
 
   case 277:
+
+/* Line 1455 of yacc.c  */
 #line 3395 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"static_class_constant\"];\n", node->value());
@@ -6927,6 +7377,8 @@ yyreduce:
     break;
 
   case 278:
+
+/* Line 1455 of yacc.c  */
 #line 3410 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"scalar\"];\n", node->value());
@@ -6938,6 +7390,8 @@ yyreduce:
     break;
 
   case 279:
+
+/* Line 1455 of yacc.c  */
 #line 3418 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"scalar\"];\n", node->value());
@@ -6948,6 +7402,8 @@ yyreduce:
     break;
 
   case 280:
+
+/* Line 1455 of yacc.c  */
 #line 3425 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"scalar\"];\n", node->value());
@@ -6958,6 +7414,8 @@ yyreduce:
     break;
 
   case 281:
+
+/* Line 1455 of yacc.c  */
 #line 3435 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"static_array_pair_list\"];\n", node->value());
@@ -6969,6 +7427,8 @@ yyreduce:
     break;
 
   case 282:
+
+/* Line 1455 of yacc.c  */
 #line 3443 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"static_array_pair_list\"];\n", node->value());
@@ -6980,6 +7440,8 @@ yyreduce:
     break;
 
   case 283:
+
+/* Line 1455 of yacc.c  */
 #line 3457 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"possible_comma\"];\n", node->value());
@@ -6991,6 +7453,8 @@ yyreduce:
     break;
 
   case 284:
+
+/* Line 1455 of yacc.c  */
 #line 3465 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"possible_comma\"];\n", node->value());
@@ -7002,6 +7466,8 @@ yyreduce:
     break;
 
   case 285:
+
+/* Line 1455 of yacc.c  */
 #line 3475 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"non_empty_static_array_pair_list\"];\n", node->value());
@@ -7018,6 +7484,8 @@ yyreduce:
     break;
 
   case 286:
+
+/* Line 1455 of yacc.c  */
 #line 3488 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"non_empty_static_array_pair_list\"];\n", node->value());
@@ -7031,6 +7499,8 @@ yyreduce:
     break;
 
   case 287:
+
+/* Line 1455 of yacc.c  */
 #line 3498 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"non_empty_static_array_pair_list\"];\n", node->value());
@@ -7044,6 +7514,8 @@ yyreduce:
     break;
 
   case 288:
+
+/* Line 1455 of yacc.c  */
 #line 3508 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"non_empty_static_array_pair_list\"];\n", node->value());
@@ -7054,6 +7526,8 @@ yyreduce:
     break;
 
   case 289:
+
+/* Line 1455 of yacc.c  */
 #line 3518 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr\"];\n", node->value());
@@ -7064,6 +7538,8 @@ yyreduce:
     break;
 
   case 290:
+
+/* Line 1455 of yacc.c  */
 #line 3525 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"expr\"];\n", node->value());
@@ -7074,6 +7550,8 @@ yyreduce:
     break;
 
   case 291:
+
+/* Line 1455 of yacc.c  */
 #line 3535 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"r_variable\"];\n", node->value());
@@ -7084,6 +7562,8 @@ yyreduce:
     break;
 
   case 292:
+
+/* Line 1455 of yacc.c  */
 #line 3545 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"w_variable\"];\n", node->value());
@@ -7094,6 +7574,8 @@ yyreduce:
     break;
 
   case 293:
+
+/* Line 1455 of yacc.c  */
 #line 3555 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"rw_variable\"];\n", node->value());
@@ -7104,6 +7586,8 @@ yyreduce:
     break;
 
   case 294:
+
+/* Line 1455 of yacc.c  */
 #line 3582 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"variable\"];\n", node->value());
@@ -7115,6 +7599,8 @@ yyreduce:
     break;
 
   case 295:
+
+/* Line 1455 of yacc.c  */
 #line 3590 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"variable\"];\n", node->value());
@@ -7125,6 +7611,8 @@ yyreduce:
     break;
 
   case 296:
+
+/* Line 1455 of yacc.c  */
 #line 3604 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"variable_properties\"];\n", node->value());
@@ -7136,6 +7624,8 @@ yyreduce:
     break;
 
   case 297:
+
+/* Line 1455 of yacc.c  */
 #line 3612 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"variable_properties\"];\n", node->value());
@@ -7146,6 +7636,8 @@ yyreduce:
     break;
 
   case 298:
+
+/* Line 1455 of yacc.c  */
 #line 3622 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"variable_property\"];\n", node->value());
@@ -7159,6 +7651,8 @@ yyreduce:
     break;
 
   case 299:
+
+/* Line 1455 of yacc.c  */
 #line 3635 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"method_or_not\"];\n", node->value());
@@ -7173,6 +7667,8 @@ yyreduce:
     break;
 
   case 300:
+
+/* Line 1455 of yacc.c  */
 #line 3646 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"method_or_not\"];\n", node->value());
@@ -7184,6 +7680,8 @@ yyreduce:
     break;
 
   case 301:
+
+/* Line 1455 of yacc.c  */
 #line 3657 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"variable_without_objects\"];\n", node->value());
@@ -7194,6 +7692,8 @@ yyreduce:
     break;
 
   case 302:
+
+/* Line 1455 of yacc.c  */
 #line 3664 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"variable_without_objects\"];\n", node->value());
@@ -7205,6 +7705,8 @@ yyreduce:
     break;
 
   case 303:
+
+/* Line 1455 of yacc.c  */
 #line 3675 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"static_member\"];\n", node->value());
@@ -7218,6 +7720,8 @@ yyreduce:
     break;
 
   case 304:
+
+/* Line 1455 of yacc.c  */
 #line 3688 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"base_variable_with_function_calls\"];\n", node->value());
@@ -7228,6 +7732,8 @@ yyreduce:
     break;
 
   case 305:
+
+/* Line 1455 of yacc.c  */
 #line 3695 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"base_variable_with_function_calls\"];\n", node->value());
@@ -7238,6 +7744,8 @@ yyreduce:
     break;
 
   case 306:
+
+/* Line 1455 of yacc.c  */
 #line 3705 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"base_variable\"];\n", node->value());
@@ -7248,6 +7756,8 @@ yyreduce:
     break;
 
   case 307:
+
+/* Line 1455 of yacc.c  */
 #line 3712 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"base_variable\"];\n", node->value());
@@ -7259,6 +7769,8 @@ yyreduce:
     break;
 
   case 308:
+
+/* Line 1455 of yacc.c  */
 #line 3720 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"base_variable\"];\n", node->value());
@@ -7269,6 +7781,8 @@ yyreduce:
     break;
 
   case 309:
+
+/* Line 1455 of yacc.c  */
 #line 3730 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"reference_variable\"];\n", node->value());
@@ -7284,6 +7798,8 @@ yyreduce:
     break;
 
   case 310:
+
+/* Line 1455 of yacc.c  */
 #line 3742 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"reference_variable\"];\n", node->value());
@@ -7299,6 +7815,8 @@ yyreduce:
     break;
 
   case 311:
+
+/* Line 1455 of yacc.c  */
 #line 3754 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"reference_variable\"];\n", node->value());
@@ -7309,6 +7827,8 @@ yyreduce:
     break;
 
   case 312:
+
+/* Line 1455 of yacc.c  */
 #line 3764 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"compound_variable\"];\n", node->value());
@@ -7320,6 +7840,8 @@ yyreduce:
     break;
 
   case 313:
+
+/* Line 1455 of yacc.c  */
 #line 3772 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"compound_variable\"];\n", node->value());
@@ -7336,6 +7858,8 @@ yyreduce:
     break;
 
   case 314:
+
+/* Line 1455 of yacc.c  */
 #line 3788 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"dim_offset\"];\n", node->value());
@@ -7347,6 +7871,8 @@ yyreduce:
     break;
 
   case 315:
+
+/* Line 1455 of yacc.c  */
 #line 3796 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"dim_offset\"];\n", node->value());
@@ -7357,6 +7883,8 @@ yyreduce:
     break;
 
   case 316:
+
+/* Line 1455 of yacc.c  */
 #line 3806 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"object_property\"];\n", node->value());
@@ -7367,6 +7895,8 @@ yyreduce:
     break;
 
   case 317:
+
+/* Line 1455 of yacc.c  */
 #line 3813 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"object_property\"];\n", node->value());
@@ -7377,6 +7907,8 @@ yyreduce:
     break;
 
   case 318:
+
+/* Line 1455 of yacc.c  */
 #line 3826 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"object_dim_list\"];\n", node->value());
@@ -7392,6 +7924,8 @@ yyreduce:
     break;
 
   case 319:
+
+/* Line 1455 of yacc.c  */
 #line 3838 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"object_dim_list\"];\n", node->value());
@@ -7407,6 +7941,8 @@ yyreduce:
     break;
 
   case 320:
+
+/* Line 1455 of yacc.c  */
 #line 3850 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"object_dim_list\"];\n", node->value());
@@ -7417,6 +7953,8 @@ yyreduce:
     break;
 
   case 321:
+
+/* Line 1455 of yacc.c  */
 #line 3863 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"variable_name\"];\n", node->value());
@@ -7428,6 +7966,8 @@ yyreduce:
     break;
 
   case 322:
+
+/* Line 1455 of yacc.c  */
 #line 3871 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"variable_name\"];\n", node->value());
@@ -7442,6 +7982,8 @@ yyreduce:
     break;
 
   case 323:
+
+/* Line 1455 of yacc.c  */
 #line 3885 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"simple_indirect_reference\"];\n", node->value());
@@ -7453,6 +7995,8 @@ yyreduce:
     break;
 
   case 324:
+
+/* Line 1455 of yacc.c  */
 #line 3893 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"simple_indirect_reference\"];\n", node->value());
@@ -7465,6 +8009,8 @@ yyreduce:
     break;
 
   case 325:
+
+/* Line 1455 of yacc.c  */
 #line 3905 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"assignment_list\"];\n", node->value());
@@ -7478,6 +8024,8 @@ yyreduce:
     break;
 
   case 326:
+
+/* Line 1455 of yacc.c  */
 #line 3915 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"assignment_list\"];\n", node->value());
@@ -7488,6 +8036,8 @@ yyreduce:
     break;
 
   case 327:
+
+/* Line 1455 of yacc.c  */
 #line 3924 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"assignment_list_element\"];\n", node->value());
@@ -7498,6 +8048,8 @@ yyreduce:
     break;
 
   case 328:
+
+/* Line 1455 of yacc.c  */
 #line 3931 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"assignment_list_element\"];\n", node->value());
@@ -7514,6 +8066,8 @@ yyreduce:
     break;
 
   case 329:
+
+/* Line 1455 of yacc.c  */
 #line 3944 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"assignment_list_element\"];\n", node->value());
@@ -7525,6 +8079,8 @@ yyreduce:
     break;
 
   case 330:
+
+/* Line 1455 of yacc.c  */
 #line 3955 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"array_pair_list\"];\n", node->value());
@@ -7536,6 +8092,8 @@ yyreduce:
     break;
 
   case 331:
+
+/* Line 1455 of yacc.c  */
 #line 3963 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"array_pair_list\"];\n", node->value());
@@ -7547,6 +8105,8 @@ yyreduce:
     break;
 
   case 332:
+
+/* Line 1455 of yacc.c  */
 #line 3977 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"non_empty_array_pair_list\"];\n", node->value());
@@ -7563,6 +8123,8 @@ yyreduce:
     break;
 
   case 333:
+
+/* Line 1455 of yacc.c  */
 #line 3990 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"non_empty_array_pair_list\"];\n", node->value());
@@ -7576,6 +8138,8 @@ yyreduce:
     break;
 
   case 334:
+
+/* Line 1455 of yacc.c  */
 #line 4000 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"non_empty_array_pair_list\"];\n", node->value());
@@ -7589,6 +8153,8 @@ yyreduce:
     break;
 
   case 335:
+
+/* Line 1455 of yacc.c  */
 #line 4010 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"non_empty_array_pair_list\"];\n", node->value());
@@ -7599,6 +8165,8 @@ yyreduce:
     break;
 
   case 336:
+
+/* Line 1455 of yacc.c  */
 #line 4017 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"non_empty_array_pair_list\"];\n", node->value());
@@ -7617,6 +8185,8 @@ yyreduce:
     break;
 
   case 337:
+
+/* Line 1455 of yacc.c  */
 #line 4032 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"non_empty_array_pair_list\"];\n", node->value());
@@ -7632,6 +8202,8 @@ yyreduce:
     break;
 
   case 338:
+
+/* Line 1455 of yacc.c  */
 #line 4044 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"non_empty_array_pair_list\"];\n", node->value());
@@ -7647,6 +8219,8 @@ yyreduce:
     break;
 
   case 339:
+
+/* Line 1455 of yacc.c  */
 #line 4056 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"non_empty_array_pair_list\"];\n", node->value());
@@ -7659,6 +8233,8 @@ yyreduce:
     break;
 
   case 340:
+
+/* Line 1455 of yacc.c  */
 #line 4068 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"internal_functions_in_yacc\"];\n", node->value());
@@ -7675,6 +8251,8 @@ yyreduce:
     break;
 
   case 341:
+
+/* Line 1455 of yacc.c  */
 #line 4081 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"internal_functions_in_yacc\"];\n", node->value());
@@ -7691,6 +8269,8 @@ yyreduce:
     break;
 
   case 342:
+
+/* Line 1455 of yacc.c  */
 #line 4094 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"internal_functions_in_yacc\"];\n", node->value());
@@ -7703,6 +8283,8 @@ yyreduce:
     break;
 
   case 343:
+
+/* Line 1455 of yacc.c  */
 #line 4103 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"internal_functions_in_yacc\"];\n", node->value());
@@ -7715,6 +8297,8 @@ yyreduce:
     break;
 
   case 344:
+
+/* Line 1455 of yacc.c  */
 #line 4112 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"internal_functions_in_yacc\"];\n", node->value());
@@ -7731,6 +8315,8 @@ yyreduce:
     break;
 
   case 345:
+
+/* Line 1455 of yacc.c  */
 #line 4125 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"internal_functions_in_yacc\"];\n", node->value());
@@ -7743,6 +8329,8 @@ yyreduce:
     break;
 
   case 346:
+
+/* Line 1455 of yacc.c  */
 #line 4134 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"internal_functions_in_yacc\"];\n", node->value());
@@ -7755,6 +8343,8 @@ yyreduce:
     break;
 
   case 347:
+
+/* Line 1455 of yacc.c  */
 #line 4146 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"isset_variables\"];\n", node->value());
@@ -7765,6 +8355,8 @@ yyreduce:
     break;
 
   case 348:
+
+/* Line 1455 of yacc.c  */
 #line 4153 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"isset_variables\"];\n", node->value());
@@ -7778,6 +8370,8 @@ yyreduce:
     break;
 
   case 349:
+
+/* Line 1455 of yacc.c  */
 #line 4166 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"class_constant\"];\n", node->value());
@@ -7792,6 +8386,8 @@ yyreduce:
     break;
 
   case 350:
+
+/* Line 1455 of yacc.c  */
 #line 4184 "src/generated_src/php_dot.ypp"
     {
 			printf("node_%ld [label=\"block\"];\n", node->value());
@@ -7806,8 +8402,9 @@ yyreduce:
     break;
 
 
-/* Line 1267 of yacc.c.  */
-#line 7811 "src/generated/php_dot.tab.cpp"
+
+/* Line 1455 of yacc.c  */
+#line 8408 "src/generated/php_dot.tab.cpp"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -7817,7 +8414,6 @@ yyreduce:
   YY_STACK_PRINT (yyss, yyssp);
 
   *++yyvsp = yyval;
-
 
   /* Now `shift' the result of the reduction.  Determine what state
      that goes to, based on the state we popped back to and the rule
@@ -7883,7 +8479,7 @@ yyerrlab:
 
   if (yyerrstatus == 3)
     {
-      /* If just tried and failed to reuse look-ahead token after an
+      /* If just tried and failed to reuse lookahead token after an
 	 error, discard it.  */
 
       if (yychar <= YYEOF)
@@ -7900,7 +8496,7 @@ yyerrlab:
 	}
     }
 
-  /* Else will try to reuse look-ahead token after shifting the error
+  /* Else will try to reuse lookahead token after shifting the error
      token.  */
   goto yyerrlab1;
 
@@ -7957,9 +8553,6 @@ yyerrlab1:
       YY_STACK_PRINT (yyss, yyssp);
     }
 
-  if (yyn == YYFINAL)
-    YYACCEPT;
-
   *++yyvsp = yylval;
 
 
@@ -7984,7 +8577,7 @@ yyabortlab:
   yyresult = 1;
   goto yyreturn;
 
-#ifndef yyoverflow
+#if !defined(yyoverflow) || YYERROR_VERBOSE
 /*-------------------------------------------------.
 | yyexhaustedlab -- memory exhaustion comes here.  |
 `-------------------------------------------------*/
@@ -7995,7 +8588,7 @@ yyexhaustedlab:
 #endif
 
 yyreturn:
-  if (yychar != YYEOF && yychar != YYEMPTY)
+  if (yychar != YYEMPTY)
      yydestruct ("Cleanup: discarding lookahead",
 		 yytoken, &yylval, context);
   /* Do not reclaim the symbols of the rule which action triggered

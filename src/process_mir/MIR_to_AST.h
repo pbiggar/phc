@@ -231,10 +231,10 @@ public:
 		return result;
 	}
 
-	AST::Signature* fold_impl_signature(MIR::Signature* orig, AST::Method_mod* method_mod, bool is_ref, AST::METHOD_NAME* method_name, AST::Formal_parameter_list* formal_parameters) 
+	AST::Signature* fold_impl_signature(MIR::Signature* orig, AST::Method_mod* method_mod, bool pass_rest_by_ref, bool return_by_ref, AST::METHOD_NAME* method_name, AST::Formal_parameter_list* formal_parameters) 
 	{
 		AST::Signature* result;
-		result = new AST::Signature(method_mod, is_ref, method_name, formal_parameters);
+		result = new AST::Signature(method_mod, return_by_ref, method_name, formal_parameters);
 		result->attrs = orig->attrs;
 		return result;
 	}

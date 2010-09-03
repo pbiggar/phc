@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# all subprocesses will have environmental variable set in their shell. That
+# way, we can identify and kill stray subprocesses after the main test has
+# completed. A number of other ways have been tried, including using $? and $1
+# with pgrep, but none have actualy manages to consistently identify
+# subprocesses.
+export PHC_SUB_PROCESS_ENVIRONMENTAL_VARIABLE_IDENTIFIER=
+
+
+while [ 1 ]
+do
+	svn update
+	php test/framework/records/run
+
+	# find all the subshells with identifier in their environment (1st column is the pid)
+	for kpid in `ps hef | grep [P]HC_SUB_PROCESS_ENVIRONMENTAL_VARIABLE_IDENTIFIER | awk '{print $1}'`; do
+		# ignore errors, as it's not uncommon for the process to die between finding out about it and killing it.
+		kill $kpid 2> /dev/null			# kill it
+		sleep 2								# give it a chance to die
+		kill -9 $kpid 2> /dev/null		# make sure its dead
+	done
+
+done

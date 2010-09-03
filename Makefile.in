@@ -50,13 +50,15 @@ bin_PROGRAMS = src/phc$(EXEEXT)
 subdir = .
 DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(srcdir)/config.h.in \
-	$(strangelib_HEADERS) $(strangeparsing_HEADERS) \
-	$(strangepassmanager_HEADERS) $(strangephc_HEADERS) \
-	$(strangeprocessast_HEADERS) $(strangeprocesshir_HEADERS) \
-	$(strangeprocessir_HEADERS) $(strangeprocessmir_HEADERS) \
-	$(top_srcdir)/configure ChangeLog config/config.guess \
-	config/config.sub config/depcomp config/install-sh \
-	config/ltmain.sh config/missing
+	$(strangelib_HEADERS) $(strangeoptimize_HEADERS) \
+	$(strangeoptimizehacks_HEADERS) $(strangeoptimizessa_HEADERS) \
+	$(strangeoptimizessi_HEADERS) $(strangeoptimizewpa_HEADERS) \
+	$(strangeparsing_HEADERS) $(strangepassmanager_HEADERS) \
+	$(strangephc_HEADERS) $(strangeprocessast_HEADERS) \
+	$(strangeprocesshir_HEADERS) $(strangeprocessir_HEADERS) \
+	$(strangeprocessmir_HEADERS) $(top_srcdir)/configure ChangeLog \
+	config/config.guess config/config.sub config/depcomp \
+	config/install-sh config/ltmain.sh config/missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/argz.m4 \
 	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/ltdl.m4 \
@@ -96,7 +98,12 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkglibdir)" \
 	"$(DESTDIR)$(bindir)" "$(DESTDIR)$(bindir)" \
 	"$(DESTDIR)$(libexecdir)" "$(DESTDIR)$(strangeruntimedir)" \
 	"$(DESTDIR)$(strangeruntimetemplatesdir)" \
-	"$(DESTDIR)$(strangelibdir)" "$(DESTDIR)$(strangeparsingdir)" \
+	"$(DESTDIR)$(strangelibdir)" "$(DESTDIR)$(strangeoptimizedir)" \
+	"$(DESTDIR)$(strangeoptimizehacksdir)" \
+	"$(DESTDIR)$(strangeoptimizessadir)" \
+	"$(DESTDIR)$(strangeoptimizessidir)" \
+	"$(DESTDIR)$(strangeoptimizewpadir)" \
+	"$(DESTDIR)$(strangeparsingdir)" \
 	"$(DESTDIR)$(strangepassmanagerdir)" \
 	"$(DESTDIR)$(strangephcdir)" \
 	"$(DESTDIR)$(strangeprocessastdir)" \
@@ -113,26 +120,39 @@ am_libphc_la_OBJECTS = getopt1.lo getopt.lo AST_annotate.lo \
 	Strip_comments.lo Switch_bin_op.lo Clarify.lo Compile_C.lo \
 	Generate_C_annotations.lo Generate_C.lo Generate_C_pass.lo \
 	Lift_functions_and_classes.lo MICG_checker.lo MICG_gen.lo \
-	embed.lo util.lo AST.lo AST_factory.lo AST_transform.lo \
-	AST_visitor.lo cmdline.lo HIR.lo HIR_factory.lo \
-	HIR_transform.lo HIR_visitor.lo lex.yy.lo MICG.lo \
-	MICG_factory.lo MICG_transform.lo MICG_visitor.lo MIR.lo \
-	MIR_factory.lo MIR_transform.lo MIR_visitor.lo php_dot.tab.lo \
-	php_parser.tab.lo HIR_lower_expr.lo Lower_control_flow.lo \
-	Lower_dynamic_definitions.lo Lower_method_invocations.lo \
-	AttrMap.lo base64.lo Boolean.lo demangle.lo error.lo escape.lo \
-	Integer.lo Object.lo String.lo Copy_propagation.lo \
-	Dead_code_elimination.lo Fix_point.lo Prune_symbol_table.lo \
-	Use_def_counter.lo MICG_parser.lo Parse_buffer.lo parse.lo \
-	PHP_context.lo XML_parser.lo Pass_manager.lo Plugin_pass.lo \
-	AST_unparser.lo Constant_folding.lo DOT_unparser.lo \
-	Invalid_check.lo Note_top_level_declarations.lo \
-	Process_includes.lo Remove_concat_null.lo \
-	Remove_parser_temporaries.lo Strip_unparser_attributes.lo \
-	Token_conversion.lo HIR_unparser.lo debug.lo fresh.lo \
-	General.lo IR.lo PHP_unparser.lo stats.lo XML_unparser.lo \
-	Alias_uppering.lo Foreach_uppering.lo Goto_uppering.lo \
-	MIR_unparser.lo Param_is_ref_uppering.lo
+	embed.lo optimize.lo util.lo AST.lo AST_factory.lo \
+	AST_transform.lo AST_visitor.lo cmdline.lo HIR.lo \
+	HIR_factory.lo HIR_transform.lo HIR_visitor.lo lex.yy.lo \
+	MICG.lo MICG_factory.lo MICG_transform.lo MICG_visitor.lo \
+	MIR.lo MIR_factory.lo MIR_transform.lo MIR_visitor.lo \
+	php_dot.tab.lo php_parser.tab.lo HIR_lower_expr.lo \
+	Lower_control_flow.lo Lower_dynamic_definitions.lo \
+	Lower_method_invocations.lo AttrMap.lo base64.lo Boolean.lo \
+	demangle.lo error.lo escape.lo Integer.lo Map.lo Object.lo \
+	String.lo Abstract_value.lo Alias_name.lo Basic_block.lo \
+	CFG.lo CFG_visitor.lo Class_info.lo Dead_code_elimination.lo \
+	Def_use_web.lo Edge.lo Flow_visitor.lo If_simplification.lo \
+	Inlining.lo Mark_initialized.lo Method_info.lo \
+	Misc_annotations.lo Oracle.lo Prune_symbol_table.lo \
+	Remove_loop_booleans.lo Copy_propagation.lo \
+	Dead_temp_cleanup.lo Fix_point.lo Use_def_counter.lo \
+	Dominance.lo HSSA.lo Phi.lo SSA_name.lo SSA_ops.lo ESSA.lo \
+	Sigma.lo SSI.lo SSI_ops.lo Visit_once.lo Aliasing.lo \
+	Callgraph.lo Constant_state.lo Context.lo Debug_WPA.lo \
+	Def_use.lo Include_analysis.lo Optimization_annotator.lo \
+	Optimization_transformer.lo Points_to.lo Stat_collector.lo \
+	Value_analysis.lo VRP.lo Whole_program.lo Worklist.lo WPA.lo \
+	MICG_parser.lo Parse_buffer.lo parse.lo PHP_context.lo \
+	XML_parser.lo Optimization_pass.lo Pass_manager.lo \
+	Plugin_pass.lo AST_unparser.lo Constant_folding.lo \
+	DOT_unparser.lo Invalid_check.lo \
+	Note_top_level_declarations.lo Process_includes.lo \
+	Remove_concat_null.lo Remove_parser_temporaries.lo \
+	Strip_unparser_attributes.lo Token_conversion.lo \
+	HIR_unparser.lo debug.lo fresh.lo General.lo IR.lo \
+	PHP_unparser.lo stats.lo XML_unparser.lo Alias_uppering.lo \
+	Foreach_uppering.lo Goto_uppering.lo MIR_unparser.lo \
+	Param_is_ref_uppering.lo
 libphc_la_OBJECTS = $(am_libphc_la_OBJECTS)
 plugins_tests_canonical_unparser_la_LIBADD =
 am_plugins_tests_canonical_unparser_la_OBJECTS =  \
@@ -187,6 +207,14 @@ plugins_tests_pre_vs_post_count_la_LINK = $(LIBTOOL) --tag=CXX \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
 	$(AM_CXXFLAGS) $(CXXFLAGS) \
 	$(plugins_tests_pre_vs_post_count_la_LDFLAGS) $(LDFLAGS) -o $@
+plugins_tests_raise_globals_la_LIBADD =
+am_plugins_tests_raise_globals_la_OBJECTS = raise_globals.lo
+plugins_tests_raise_globals_la_OBJECTS =  \
+	$(am_plugins_tests_raise_globals_la_OBJECTS)
+plugins_tests_raise_globals_la_LINK = $(LIBTOOL) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(AM_CXXFLAGS) $(CXXFLAGS) \
+	$(plugins_tests_raise_globals_la_LDFLAGS) $(LDFLAGS) -o $@
 plugins_tests_source_vs_semantic_values_la_LIBADD =
 am_plugins_tests_source_vs_semantic_values_la_OBJECTS =  \
 	source_vs_semantic_values.lo
@@ -205,6 +233,14 @@ plugins_tests_strip_includes_la_LINK = $(LIBTOOL) --tag=CXX \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
 	$(AM_CXXFLAGS) $(CXXFLAGS) \
 	$(plugins_tests_strip_includes_la_LDFLAGS) $(LDFLAGS) -o $@
+plugins_tools_C_unparser_la_LIBADD =
+am_plugins_tools_C_unparser_la_OBJECTS = C_unparser.lo
+plugins_tools_C_unparser_la_OBJECTS =  \
+	$(am_plugins_tools_C_unparser_la_OBJECTS)
+plugins_tools_C_unparser_la_LINK = $(LIBTOOL) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(AM_CXXFLAGS) $(CXXFLAGS) \
+	$(plugins_tools_C_unparser_la_LDFLAGS) $(LDFLAGS) -o $@
 plugins_tools_add_comment_la_LIBADD =
 am_plugins_tools_add_comment_la_OBJECTS = add_comment.lo
 plugins_tools_add_comment_la_OBJECTS =  \
@@ -237,6 +273,22 @@ plugins_tools_dynamic_things_la_LINK = $(LIBTOOL) --tag=CXX \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
 	$(AM_CXXFLAGS) $(CXXFLAGS) \
 	$(plugins_tools_dynamic_things_la_LDFLAGS) $(LDFLAGS) -o $@
+plugins_tools_function_finder_la_LIBADD =
+am_plugins_tools_function_finder_la_OBJECTS = function_finder.lo
+plugins_tools_function_finder_la_OBJECTS =  \
+	$(am_plugins_tools_function_finder_la_OBJECTS)
+plugins_tools_function_finder_la_LINK = $(LIBTOOL) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(AM_CXXFLAGS) $(CXXFLAGS) \
+	$(plugins_tools_function_finder_la_LDFLAGS) $(LDFLAGS) -o $@
+plugins_tools_get_defines_la_LIBADD =
+am_plugins_tools_get_defines_la_OBJECTS = get_defines.lo
+plugins_tools_get_defines_la_OBJECTS =  \
+	$(am_plugins_tools_get_defines_la_OBJECTS)
+plugins_tools_get_defines_la_LINK = $(LIBTOOL) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(AM_CXXFLAGS) $(CXXFLAGS) \
+	$(plugins_tools_get_defines_la_LDFLAGS) $(LDFLAGS) -o $@
 plugins_tools_purity_test_la_LIBADD =
 am_plugins_tools_purity_test_la_OBJECTS = purity_test.lo
 plugins_tools_purity_test_la_OBJECTS =  \
@@ -261,6 +313,24 @@ plugins_tools_remove_all_la_LINK = $(LIBTOOL) --tag=CXX \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
 	$(AM_CXXFLAGS) $(CXXFLAGS) \
 	$(plugins_tools_remove_all_la_LDFLAGS) $(LDFLAGS) -o $@
+plugins_tools_replace_include_constants_la_LIBADD =
+am_plugins_tools_replace_include_constants_la_OBJECTS =  \
+	replace_include_constants.lo
+plugins_tools_replace_include_constants_la_OBJECTS =  \
+	$(am_plugins_tools_replace_include_constants_la_OBJECTS)
+plugins_tools_replace_include_constants_la_LINK = $(LIBTOOL) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(AM_CXXFLAGS) $(CXXFLAGS) \
+	$(plugins_tools_replace_include_constants_la_LDFLAGS) \
+	$(LDFLAGS) -o $@
+plugins_tools_test_ssi_la_LIBADD =
+am_plugins_tools_test_ssi_la_OBJECTS = test_ssi.lo
+plugins_tools_test_ssi_la_OBJECTS =  \
+	$(am_plugins_tools_test_ssi_la_OBJECTS)
+plugins_tools_test_ssi_la_LINK = $(LIBTOOL) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(AM_CXXFLAGS) $(CXXFLAGS) \
+	$(plugins_tools_test_ssi_la_LDFLAGS) $(LDFLAGS) -o $@
 plugins_tutorials_Comment_ifs_la_LIBADD =
 am_plugins_tutorials_Comment_ifs_la_OBJECTS = Comment_ifs.lo
 plugins_tutorials_Comment_ifs_la_OBJECTS =  \
@@ -336,7 +406,8 @@ PROGRAMS = $(bin_PROGRAMS)
 am_src_phc_OBJECTS = phc.$(OBJEXT)
 src_phc_OBJECTS = $(am_src_phc_OBJECTS)
 am__DEPENDENCIES_1 =
-src_phc_DEPENDENCIES = $(am__DEPENDENCIES_1) libphc.la
+src_phc_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	libphc.la
 src_phc_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) \
 	$(src_phc_LDFLAGS) $(LDFLAGS) -o $@
@@ -370,15 +441,21 @@ SOURCES = $(libphc_la_SOURCES) \
 	$(plugins_tests_line_numbers_la_SOURCES) \
 	$(plugins_tests_linear_la_SOURCES) \
 	$(plugins_tests_pre_vs_post_count_la_SOURCES) \
+	$(plugins_tests_raise_globals_la_SOURCES) \
 	$(plugins_tests_source_vs_semantic_values_la_SOURCES) \
 	$(plugins_tests_strip_includes_la_SOURCES) \
+	$(plugins_tools_C_unparser_la_SOURCES) \
 	$(plugins_tools_add_comment_la_SOURCES) \
 	$(plugins_tools_debug_zval_la_SOURCES) \
 	$(plugins_tools_demi_eval_la_SOURCES) \
 	$(plugins_tools_dynamic_things_la_SOURCES) \
+	$(plugins_tools_function_finder_la_SOURCES) \
+	$(plugins_tools_get_defines_la_SOURCES) \
 	$(plugins_tools_purity_test_la_SOURCES) \
 	$(plugins_tools_reduce_statements_la_SOURCES) \
 	$(plugins_tools_remove_all_la_SOURCES) \
+	$(plugins_tools_replace_include_constants_la_SOURCES) \
+	$(plugins_tools_test_ssi_la_SOURCES) \
 	$(plugins_tutorials_Comment_ifs_la_SOURCES) \
 	$(plugins_tutorials_Expand_includes_la_SOURCES) \
 	$(plugins_tutorials_InsertDB_la_SOURCES) \
@@ -395,15 +472,21 @@ DIST_SOURCES = $(libphc_la_SOURCES) \
 	$(plugins_tests_line_numbers_la_SOURCES) \
 	$(plugins_tests_linear_la_SOURCES) \
 	$(plugins_tests_pre_vs_post_count_la_SOURCES) \
+	$(plugins_tests_raise_globals_la_SOURCES) \
 	$(plugins_tests_source_vs_semantic_values_la_SOURCES) \
 	$(plugins_tests_strip_includes_la_SOURCES) \
+	$(plugins_tools_C_unparser_la_SOURCES) \
 	$(plugins_tools_add_comment_la_SOURCES) \
 	$(plugins_tools_debug_zval_la_SOURCES) \
 	$(plugins_tools_demi_eval_la_SOURCES) \
 	$(plugins_tools_dynamic_things_la_SOURCES) \
+	$(plugins_tools_function_finder_la_SOURCES) \
+	$(plugins_tools_get_defines_la_SOURCES) \
 	$(plugins_tools_purity_test_la_SOURCES) \
 	$(plugins_tools_reduce_statements_la_SOURCES) \
 	$(plugins_tools_remove_all_la_SOURCES) \
+	$(plugins_tools_replace_include_constants_la_SOURCES) \
+	$(plugins_tools_test_ssi_la_SOURCES) \
 	$(plugins_tutorials_Comment_ifs_la_SOURCES) \
 	$(plugins_tutorials_Expand_includes_la_SOURCES) \
 	$(plugins_tutorials_InsertDB_la_SOURCES) \
@@ -421,10 +504,13 @@ RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	installcheck-recursive installdirs-recursive pdf-recursive \
 	ps-recursive uninstall-recursive
 DATA = $(strangeruntime_DATA) $(strangeruntimetemplates_DATA)
-HEADERS = $(strangelib_HEADERS) $(strangeparsing_HEADERS) \
-	$(strangepassmanager_HEADERS) $(strangephc_HEADERS) \
-	$(strangeprocessast_HEADERS) $(strangeprocesshir_HEADERS) \
-	$(strangeprocessir_HEADERS) $(strangeprocessmir_HEADERS)
+HEADERS = $(strangelib_HEADERS) $(strangeoptimize_HEADERS) \
+	$(strangeoptimizehacks_HEADERS) $(strangeoptimizessa_HEADERS) \
+	$(strangeoptimizessi_HEADERS) $(strangeoptimizewpa_HEADERS) \
+	$(strangeparsing_HEADERS) $(strangepassmanager_HEADERS) \
+	$(strangephc_HEADERS) $(strangeprocessast_HEADERS) \
+	$(strangeprocesshir_HEADERS) $(strangeprocessir_HEADERS) \
+	$(strangeprocessmir_HEADERS)
 RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
 AM_RECURSIVE_TARGETS = $(RECURSIVE_TARGETS:-recursive=) \
@@ -479,6 +565,7 @@ AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
 BOOST_CPPFLAGS = @BOOST_CPPFLAGS@
 BOOST_LDFLAGS = @BOOST_LDFLAGS@
+BOOST_REGEX_LIB = @BOOST_REGEX_LIB@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
@@ -570,6 +657,7 @@ build_vendor = @build_vendor@
 builddir = @builddir@
 datadir = @datadir@
 datarootdir = @datarootdir@
+diff = @diff@
 docdir = @docdir@
 dot = @dot@
 dvidir = @dvidir@
@@ -599,6 +687,7 @@ maketea = @maketea@
 mandir = @mandir@
 mkdir_p = @mkdir_p@
 oldincludedir = @oldincludedir@
+patch = @patch@
 pdfdir = @pdfdir@
 php = @php@
 php_install_path = @php_install_path@
@@ -625,14 +714,14 @@ AM_CPPFLAGS = \
 	-I$(srcdir)/src -I$(srcdir) -I$(srcdir)/3rdparty/getopt -I$(srcdir)/src/generated		\
 	@libphp_headers@																				\
 	-DDATADIR=\"$(datadir)\" -DPKGLIBDIR=\"$(pkglibdir)\"								\
-	-Wall -Wno-unused-parameter
+	-Wall
 
 AM_LDFLAGS = $(BOOST_LDFLAGS)
 lib_LTLIBRARIES = libphc.la
 
 # By using CXXFLAGS we avoid warnings in generated_src, which we dont want to
 # hear about. 
-AM_CXXFLAGS = -Wextra -Wno-write-strings
+AM_CXXFLAGS = -Wextra -Wno-unused-parameter -Wno-write-strings -Wno-deprecated
 ACLOCAL_AMFLAGS = -I m4 -I libltdl
 
 # Note about warnings: automake does not support per-file flags. If they did,
@@ -644,7 +733,7 @@ ACLOCAL_AMFLAGS = -I m4 -I libltdl
 
 # -export-dynammic: Special libtool flag for later plugin loading
 src_phc_LDFLAGS = -export-dynamic
-src_phc_LDADD = @gc_lib@ $(LIBLTDL) libphc.la
+src_phc_LDADD = @gc_lib@ $(LIBLTDL) $(BOOST_REGEX_LIB) libphc.la
 bin_SCRIPTS = src/phc_compile_plugin
 libexec_SCRIPTS = libtool
 # pkgdata_DATA = phc-1.0.xsd
@@ -701,6 +790,7 @@ libphc_la_SOURCES = \
 	src/codegen/MICG_gen.h									\
 	src/embed/embed.cpp										\
 	src/embed/embed.h											\
+	src/embed/optimize.cpp									\
 	src/embed/util.cpp										\
 	src/embed/util.h											\
 	src/generated/AST.cpp									\
@@ -775,6 +865,7 @@ libphc_la_SOURCES = \
 	src/lib/Integer.cpp										\
 	src/lib/Integer.h											\
 	src/lib/List.h												\
+	src/lib/Map.cpp											\
 	src/lib/Map.h												\
 	src/lib/Object.cpp										\
 	src/lib/Object.h											\
@@ -783,16 +874,105 @@ libphc_la_SOURCES = \
 	src/lib/String.cpp										\
 	src/lib/String.h											\
 	src/lib/Vector.h											\
-	src/optimize/Copy_propagation.cpp					\
-	src/optimize/Copy_propagation.h						\
+	src/optimize/Abstract_value.cpp						\
+	src/optimize/Abstract_value.h							\
+	src/optimize/Alias_name.cpp							\
+	src/optimize/Alias_name.h								\
+	src/optimize/Basic_block.cpp							\
+	src/optimize/Basic_block.h								\
+	src/optimize/CFG.cpp										\
+	src/optimize/CFG.h										\
+	src/optimize/CFG_visitor.cpp							\
+	src/optimize/CFG_visitor.h								\
+	src/optimize/Class_info.cpp							\
+	src/optimize/Class_info.h								\
 	src/optimize/Dead_code_elimination.cpp				\
 	src/optimize/Dead_code_elimination.h				\
-	src/optimize/Fix_point.cpp								\
-	src/optimize/Fix_point.h								\
+	src/optimize/Def_use_web.cpp 							\
+	src/optimize/Def_use_web.h								\
+	src/optimize/Edge.cpp									\
+	src/optimize/Edge.h										\
+	src/optimize/Flow_visitor.cpp							\
+	src/optimize/Flow_visitor.h							\
+	src/optimize/If_simplification.cpp					\
+	src/optimize/If_simplification.h						\
+	src/optimize/Inlining.cpp								\
+	src/optimize/Inlining.h									\
+	src/optimize/Lattice.h									\
+	src/optimize/Mark_initialized.cpp					\
+	src/optimize/Mark_initialized.h						\
+	src/optimize/Method_info.cpp							\
+	src/optimize/Method_info.h								\
+	src/optimize/Method_pruner.h							\
+	src/optimize/Misc_annotations.cpp					\
+	src/optimize/Misc_annotations.h						\
+	src/optimize/Oracle.cpp									\
+	src/optimize/Oracle.h									\
 	src/optimize/Prune_symbol_table.cpp					\
 	src/optimize/Prune_symbol_table.h					\
-	src/optimize/Use_def_counter.cpp 					\
-	src/optimize/Use_def_counter.h						\
+	src/optimize/Remove_loop_booleans.cpp				\
+	src/optimize/Remove_loop_booleans.h					\
+	src/optimize/hacks/Copy_propagation.cpp				\
+	src/optimize/hacks/Copy_propagation.h				\
+	src/optimize/hacks/Dead_temp_cleanup.cpp			\
+	src/optimize/hacks/Dead_temp_cleanup.h				\
+	src/optimize/hacks/Fix_point.cpp				\
+	src/optimize/hacks/Fix_point.h				\
+	src/optimize/hacks/Use_def_counter.cpp				\
+	src/optimize/hacks/Use_def_counter.h				\
+	src/optimize/ssa/Dominance.cpp						\
+	src/optimize/ssa/Dominance.h							\
+	src/optimize/ssa/HSSA.cpp								\
+	src/optimize/ssa/HSSA.h									\
+	src/optimize/ssa/Phi.cpp								\
+	src/optimize/ssa/Phi.h									\
+	src/optimize/ssa/SSA_name.cpp							\
+	src/optimize/ssa/SSA_name.h							\
+	src/optimize/ssa/SSA_ops.cpp							\
+	src/optimize/ssa/SSA_ops.h								\
+	src/optimize/ssi/ESSA.cpp								\
+	src/optimize/ssi/ESSA.h								\
+	src/optimize/ssi/Sigma.cpp								\
+	src/optimize/ssi/Sigma.h								\
+	src/optimize/ssi/SSI.cpp								\
+	src/optimize/ssi/SSI.h								\
+	src/optimize/ssi/SSI_ops.cpp								\
+	src/optimize/ssi/SSI_ops.h								\
+	src/optimize/Visit_once.cpp							\
+	src/optimize/Visit_once.h								\
+	src/optimize/wpa/Aliasing.cpp							\
+	src/optimize/wpa/Aliasing.h							\
+	src/optimize/wpa/Callgraph.cpp						\
+	src/optimize/wpa/Callgraph.h							\
+	src/optimize/wpa/Constant_state.cpp					\
+	src/optimize/wpa/Constant_state.h					\
+	src/optimize/wpa/Context.cpp							\
+	src/optimize/wpa/Context.h								\
+	src/optimize/wpa/Debug_WPA.cpp						\
+	src/optimize/wpa/Debug_WPA.h							\
+	src/optimize/wpa/Def_use.cpp							\
+	src/optimize/wpa/Def_use.h								\
+	src/optimize/wpa/Include_analysis.cpp				\
+	src/optimize/wpa/Include_analysis.h					\
+	src/optimize/wpa/Optimization_annotator.cpp		\
+	src/optimize/wpa/Optimization_annotator.h			\
+	src/optimize/wpa/Optimization_transformer.cpp	\
+	src/optimize/wpa/Optimization_transformer.h		\
+	src/optimize/wpa/Points_to.cpp						\
+	src/optimize/wpa/Points_to.h							\
+	src/optimize/wpa/Stat_collector.cpp	\
+	src/optimize/wpa/Stat_collector.h	\
+	src/optimize/wpa/Value_analysis.cpp					\
+	src/optimize/wpa/Value_analysis.h					\
+	src/optimize/wpa/VRP.cpp								\
+	src/optimize/wpa/VRP.h									\
+	src/optimize/wpa/Whole_program.cpp					\
+	src/optimize/wpa/Whole_program.h						\
+	src/optimize/wpa/Worklist.cpp							\
+	src/optimize/wpa/Worklist.h							\
+	src/optimize/wpa/WPA.cpp								\
+	src/optimize/wpa/WPA.h									\
+	src/optimize/wpa/WPA_lattice.h						\
 	src/parsing/MICG_parser.cpp							\
 	src/parsing/MICG_parser.h								\
 	src/parsing/Parse_buffer.cpp							\
@@ -804,6 +984,8 @@ libphc_la_SOURCES = \
 	src/parsing/XML_parser.cpp								\
 	src/parsing/XML_parser.h								\
 	src/pass_manager/Fake_pass.h							\
+	src/pass_manager/Optimization_pass.cpp				\
+	src/pass_manager/Optimization_pass.h				\
 	src/pass_manager/Pass.h									\
 	src/pass_manager/Pass_manager.cpp					\
 	src/pass_manager/Pass_manager.h						\
@@ -946,6 +1128,72 @@ strangephc_HEADERS = \
 	src/generated/MIR_user_defined.h		\
 	src/generated/MIR_visitor.h
 
+strangeoptimizedir = $(pkgincludedir)/optimize
+strangeoptimize_HEADERS = \
+	src/optimize/Abstract_value.h		\
+	src/optimize/Alias_name.h		\
+	src/optimize/Basic_block.h		\
+	src/optimize/CFG.h		\
+	src/optimize/CFG_visitor.h		\
+	src/optimize/Class_info.h		\
+	src/optimize/Dead_code_elimination.h		\
+	src/optimize/Def_use_web.h		\
+	src/optimize/Edge.h		\
+	src/optimize/Flow_visitor.h		\
+	src/optimize/If_simplification.h		\
+	src/optimize/Inlining.h		\
+	src/optimize/Lattice.h		\
+	src/optimize/Mark_initialized.h		\
+	src/optimize/Method_info.h		\
+	src/optimize/Method_pruner.h		\
+	src/optimize/Misc_annotations.h		\
+	src/optimize/Oracle.h		\
+	src/optimize/Prune_symbol_table.h		\
+	src/optimize/Remove_loop_booleans.h		\
+	src/optimize/Visit_once.h
+
+strangeoptimizehacksdir = $(pkgincludedir)/optimize/hacks
+strangeoptimizehacks_HEADERS = \
+	src/optimize/hacks/Copy_propagation.h		\
+	src/optimize/hacks/Dead_temp_cleanup.h		\
+	src/optimize/hacks/Fix_point.h		\
+	src/optimize/hacks/Use_def_counter.h
+
+strangeoptimizessadir = $(pkgincludedir)/optimize/ssa
+strangeoptimizessa_HEADERS = \
+	src/optimize/ssa/Dominance.h		\
+	src/optimize/ssa/HSSA.h		\
+	src/optimize/ssa/Phi.h		\
+	src/optimize/ssa/SSA_name.h		\
+	src/optimize/ssa/SSA_ops.h
+
+strangeoptimizessidir = $(pkgincludedir)/optimize/ssi
+strangeoptimizessi_HEADERS = \
+	src/optimize/ssi/ESSA.h		\
+	src/optimize/ssi/Sigma.h		\
+	src/optimize/ssi/SSI.h		\
+	src/optimize/ssi/SSI_ops.h
+
+strangeoptimizewpadir = $(pkgincludedir)/optimize/wpa
+strangeoptimizewpa_HEADERS = \
+	src/optimize/wpa/Aliasing.h		\
+	src/optimize/wpa/Callgraph.h		\
+	src/optimize/wpa/Constant_state.h		\
+	src/optimize/wpa/Context.h		\
+	src/optimize/wpa/Debug_WPA.h		\
+	src/optimize/wpa/Def_use.h		\
+	src/optimize/wpa/Include_analysis.h		\
+	src/optimize/wpa/Optimization_annotator.h		\
+	src/optimize/wpa/Optimization_transformer.h		\
+	src/optimize/wpa/Points_to.h		\
+	src/optimize/wpa/Stat_collector.h		\
+	src/optimize/wpa/Value_analysis.h		\
+	src/optimize/wpa/VRP.h		\
+	src/optimize/wpa/Whole_program.h		\
+	src/optimize/wpa/Worklist.h		\
+	src/optimize/wpa/WPA.h		\
+	src/optimize/wpa/WPA_lattice.h
+
 strangeparsingdir = $(pkgincludedir)/parsing
 strangeparsing_HEADERS = \
 	src/parsing/parse.h						\
@@ -981,6 +1229,7 @@ strangeprocessir_HEADERS = \
 
 strangepassmanagerdir = $(pkgincludedir)/pass_manager
 strangepassmanager_HEADERS = \
+	src/pass_manager/Optimization_pass.h		\
 	src/pass_manager/Pass.h						\
 	src/pass_manager/Pass_manager.h			\
 	src/pass_manager/Plugin_pass.h
@@ -1026,13 +1275,17 @@ strangeruntimetemplates_DATA = \
 nobase_pkglib_LTLIBRARIES = plugins/tests/canonical_unparser.la \
 	plugins/tests/cloning.la plugins/tests/inconsistent_st_attr.la \
 	plugins/tests/linear.la plugins/tests/line_numbers.la \
+	plugins/tests/raise_globals.la \
 	plugins/tests/pre_vs_post_count.la \
 	plugins/tests/source_vs_semantic_values.la \
 	plugins/tests/strip_includes.la plugins/tools/add_comment.la \
-	plugins/tools/debug_zval.la plugins/tools/demi_eval.la \
-	plugins/tools/purity_test.la plugins/tools/dynamic_things.la \
+	plugins/tools/C_unparser.la plugins/tools/debug_zval.la \
+	plugins/tools/demi_eval.la plugins/tools/purity_test.la \
+	plugins/tools/function_finder.la \
+	plugins/tools/dynamic_things.la plugins/tools/get_defines.la \
 	plugins/tools/reduce_statements.la plugins/tools/remove_all.la \
-	plugins/tutorials/Comment_ifs.la \
+	plugins/tools/replace_include_constants.la \
+	plugins/tools/test_ssi.la plugins/tutorials/Comment_ifs.la \
 	plugins/tutorials/count_statements_difficult.la \
 	plugins/tutorials/count_statements_easy.la \
 	plugins/tutorials/Expand_includes.la \
@@ -1050,6 +1303,8 @@ plugins_tests_linear_la_SOURCES = plugins/tests/linear.cpp plugins/tests/Collect
 plugins_tests_linear_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tests_line_numbers_la_SOURCES = plugins/tests/line_numbers.cpp
 plugins_tests_line_numbers_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+plugins_tests_raise_globals_la_SOURCES = plugins/tests/raise_globals.cpp
+plugins_tests_raise_globals_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tests_pre_vs_post_count_la_SOURCES = plugins/tests/pre_vs_post_count.cpp
 plugins_tests_pre_vs_post_count_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tests_source_vs_semantic_values_la_SOURCES = plugins/tests/source_vs_semantic_values.cpp
@@ -1058,18 +1313,28 @@ plugins_tests_strip_includes_la_SOURCES = plugins/tests/strip_includes.cpp
 plugins_tests_strip_includes_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tools_add_comment_la_SOURCES = plugins/tools/add_comment.cpp
 plugins_tools_add_comment_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+plugins_tools_C_unparser_la_SOURCES = plugins/tools/C_unparser.cpp
+plugins_tools_C_unparser_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tools_debug_zval_la_SOURCES = plugins/tools/debug_zval.cpp
 plugins_tools_debug_zval_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tools_demi_eval_la_SOURCES = plugins/tools/demi_eval.cpp
 plugins_tools_demi_eval_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tools_purity_test_la_SOURCES = plugins/tools/purity_test.cpp
 plugins_tools_purity_test_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+plugins_tools_function_finder_la_SOURCES = plugins/tools/function_finder.cpp
+plugins_tools_function_finder_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tools_dynamic_things_la_SOURCES = plugins/tools/dynamic_things.cpp
 plugins_tools_dynamic_things_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+plugins_tools_get_defines_la_SOURCES = plugins/tools/get_defines.cpp
+plugins_tools_get_defines_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tools_reduce_statements_la_SOURCES = plugins/tools/reduce_statements.cpp
 plugins_tools_reduce_statements_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tools_remove_all_la_SOURCES = plugins/tools/remove_all.cpp
 plugins_tools_remove_all_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+plugins_tools_replace_include_constants_la_SOURCES = plugins/tools/replace_include_constants.cpp
+plugins_tools_replace_include_constants_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+plugins_tools_test_ssi_la_SOURCES = plugins/tools/test_ssi.cpp
+plugins_tools_test_ssi_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tutorials_Comment_ifs_la_SOURCES = plugins/tutorials/Comment_ifs.cpp
 plugins_tutorials_Comment_ifs_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tutorials_count_statements_difficult_la_SOURCES = plugins/tutorials/count_statements_difficult.cpp
@@ -1249,6 +1514,8 @@ plugins/tests/linear.la: $(plugins_tests_linear_la_OBJECTS) $(plugins_tests_line
 	$(plugins_tests_linear_la_LINK) -rpath $(pkglibdir)/plugins/tests $(plugins_tests_linear_la_OBJECTS) $(plugins_tests_linear_la_LIBADD) $(LIBS)
 plugins/tests/pre_vs_post_count.la: $(plugins_tests_pre_vs_post_count_la_OBJECTS) $(plugins_tests_pre_vs_post_count_la_DEPENDENCIES) plugins/tests/$(am__dirstamp)
 	$(plugins_tests_pre_vs_post_count_la_LINK) -rpath $(pkglibdir)/plugins/tests $(plugins_tests_pre_vs_post_count_la_OBJECTS) $(plugins_tests_pre_vs_post_count_la_LIBADD) $(LIBS)
+plugins/tests/raise_globals.la: $(plugins_tests_raise_globals_la_OBJECTS) $(plugins_tests_raise_globals_la_DEPENDENCIES) plugins/tests/$(am__dirstamp)
+	$(plugins_tests_raise_globals_la_LINK) -rpath $(pkglibdir)/plugins/tests $(plugins_tests_raise_globals_la_OBJECTS) $(plugins_tests_raise_globals_la_LIBADD) $(LIBS)
 plugins/tests/source_vs_semantic_values.la: $(plugins_tests_source_vs_semantic_values_la_OBJECTS) $(plugins_tests_source_vs_semantic_values_la_DEPENDENCIES) plugins/tests/$(am__dirstamp)
 	$(plugins_tests_source_vs_semantic_values_la_LINK) -rpath $(pkglibdir)/plugins/tests $(plugins_tests_source_vs_semantic_values_la_OBJECTS) $(plugins_tests_source_vs_semantic_values_la_LIBADD) $(LIBS)
 plugins/tests/strip_includes.la: $(plugins_tests_strip_includes_la_OBJECTS) $(plugins_tests_strip_includes_la_DEPENDENCIES) plugins/tests/$(am__dirstamp)
@@ -1256,6 +1523,8 @@ plugins/tests/strip_includes.la: $(plugins_tests_strip_includes_la_OBJECTS) $(pl
 plugins/tools/$(am__dirstamp):
 	@$(MKDIR_P) plugins/tools
 	@: > plugins/tools/$(am__dirstamp)
+plugins/tools/C_unparser.la: $(plugins_tools_C_unparser_la_OBJECTS) $(plugins_tools_C_unparser_la_DEPENDENCIES) plugins/tools/$(am__dirstamp)
+	$(plugins_tools_C_unparser_la_LINK) -rpath $(pkglibdir)/plugins/tools $(plugins_tools_C_unparser_la_OBJECTS) $(plugins_tools_C_unparser_la_LIBADD) $(LIBS)
 plugins/tools/add_comment.la: $(plugins_tools_add_comment_la_OBJECTS) $(plugins_tools_add_comment_la_DEPENDENCIES) plugins/tools/$(am__dirstamp)
 	$(plugins_tools_add_comment_la_LINK) -rpath $(pkglibdir)/plugins/tools $(plugins_tools_add_comment_la_OBJECTS) $(plugins_tools_add_comment_la_LIBADD) $(LIBS)
 plugins/tools/debug_zval.la: $(plugins_tools_debug_zval_la_OBJECTS) $(plugins_tools_debug_zval_la_DEPENDENCIES) plugins/tools/$(am__dirstamp)
@@ -1264,12 +1533,20 @@ plugins/tools/demi_eval.la: $(plugins_tools_demi_eval_la_OBJECTS) $(plugins_tool
 	$(plugins_tools_demi_eval_la_LINK) -rpath $(pkglibdir)/plugins/tools $(plugins_tools_demi_eval_la_OBJECTS) $(plugins_tools_demi_eval_la_LIBADD) $(LIBS)
 plugins/tools/dynamic_things.la: $(plugins_tools_dynamic_things_la_OBJECTS) $(plugins_tools_dynamic_things_la_DEPENDENCIES) plugins/tools/$(am__dirstamp)
 	$(plugins_tools_dynamic_things_la_LINK) -rpath $(pkglibdir)/plugins/tools $(plugins_tools_dynamic_things_la_OBJECTS) $(plugins_tools_dynamic_things_la_LIBADD) $(LIBS)
+plugins/tools/function_finder.la: $(plugins_tools_function_finder_la_OBJECTS) $(plugins_tools_function_finder_la_DEPENDENCIES) plugins/tools/$(am__dirstamp)
+	$(plugins_tools_function_finder_la_LINK) -rpath $(pkglibdir)/plugins/tools $(plugins_tools_function_finder_la_OBJECTS) $(plugins_tools_function_finder_la_LIBADD) $(LIBS)
+plugins/tools/get_defines.la: $(plugins_tools_get_defines_la_OBJECTS) $(plugins_tools_get_defines_la_DEPENDENCIES) plugins/tools/$(am__dirstamp)
+	$(plugins_tools_get_defines_la_LINK) -rpath $(pkglibdir)/plugins/tools $(plugins_tools_get_defines_la_OBJECTS) $(plugins_tools_get_defines_la_LIBADD) $(LIBS)
 plugins/tools/purity_test.la: $(plugins_tools_purity_test_la_OBJECTS) $(plugins_tools_purity_test_la_DEPENDENCIES) plugins/tools/$(am__dirstamp)
 	$(plugins_tools_purity_test_la_LINK) -rpath $(pkglibdir)/plugins/tools $(plugins_tools_purity_test_la_OBJECTS) $(plugins_tools_purity_test_la_LIBADD) $(LIBS)
 plugins/tools/reduce_statements.la: $(plugins_tools_reduce_statements_la_OBJECTS) $(plugins_tools_reduce_statements_la_DEPENDENCIES) plugins/tools/$(am__dirstamp)
 	$(plugins_tools_reduce_statements_la_LINK) -rpath $(pkglibdir)/plugins/tools $(plugins_tools_reduce_statements_la_OBJECTS) $(plugins_tools_reduce_statements_la_LIBADD) $(LIBS)
 plugins/tools/remove_all.la: $(plugins_tools_remove_all_la_OBJECTS) $(plugins_tools_remove_all_la_DEPENDENCIES) plugins/tools/$(am__dirstamp)
 	$(plugins_tools_remove_all_la_LINK) -rpath $(pkglibdir)/plugins/tools $(plugins_tools_remove_all_la_OBJECTS) $(plugins_tools_remove_all_la_LIBADD) $(LIBS)
+plugins/tools/replace_include_constants.la: $(plugins_tools_replace_include_constants_la_OBJECTS) $(plugins_tools_replace_include_constants_la_DEPENDENCIES) plugins/tools/$(am__dirstamp)
+	$(plugins_tools_replace_include_constants_la_LINK) -rpath $(pkglibdir)/plugins/tools $(plugins_tools_replace_include_constants_la_OBJECTS) $(plugins_tools_replace_include_constants_la_LIBADD) $(LIBS)
+plugins/tools/test_ssi.la: $(plugins_tools_test_ssi_la_OBJECTS) $(plugins_tools_test_ssi_la_DEPENDENCIES) plugins/tools/$(am__dirstamp)
+	$(plugins_tools_test_ssi_la_LINK) -rpath $(pkglibdir)/plugins/tools $(plugins_tools_test_ssi_la_OBJECTS) $(plugins_tools_test_ssi_la_LIBADD) $(LIBS)
 plugins/tutorials/$(am__dirstamp):
 	@$(MKDIR_P) plugins/tutorials
 	@: > plugins/tutorials/$(am__dirstamp)
@@ -1421,21 +1698,40 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AST_transform.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AST_unparser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AST_visitor.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Abstract_value.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Alias_name.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Alias_uppering.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Aliasing.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AttrMap.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Basic_block.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Boolean.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CFG.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CFG_visitor.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/C_unparser.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Callgraph.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Clarify.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Class_info.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Comment_ifs.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Compile_C.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Constant_folding.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Constant_state.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Context.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Copy_propagation.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/DOT_unparser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Dead_code_elimination.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Dead_temp_cleanup.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Debug_WPA.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Def_use.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Def_use_web.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Desugar.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Dominance.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ESSA.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Early_lower_control_flow.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Echo_split.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Edge.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Expand_includes.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Fix_point.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Flow_visitor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Foreach_uppering.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/General.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Generate_C.Plo@am__quote@
@@ -1448,7 +1744,11 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HIR_transform.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HIR_unparser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HIR_visitor.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HSSA.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/IR.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/If_simplification.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Include_analysis.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Inlining.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/InsertDB.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Integer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Invalid_check.Plo@am__quote@
@@ -1470,28 +1770,51 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MIR_transform.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MIR_unparser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MIR_visitor.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Map.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Mark_initialized.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Method_info.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Misc_annotations.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MySQL2DBX.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Note_top_level_declarations.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Object.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Optimization_annotator.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Optimization_pass.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Optimization_transformer.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Oracle.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PHP_context.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PHP_unparser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Param_is_ref_uppering.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Parse_buffer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Pass_manager.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Phi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Plugin_pass.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Points_to.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Pre_post_op_shredder.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Process_includes.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Prune_symbol_table.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Remove_concat_null.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Remove_loop_booleans.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Remove_parser_temporaries.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SSA_name.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SSA_ops.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SSI.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SSI_ops.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Sigma.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Split_multiple_arguments.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Split_unset_isset.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Stat_collector.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/String.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Strip_comments.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Strip_unparser_attributes.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Switch_bin_op.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Token_conversion.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Use_def_counter.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VRP.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Value_analysis.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Visit_once.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/WPA.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Whole_program.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Worklist.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/XML_parser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/XML_unparser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/add_comment.Plo@am__quote@
@@ -1510,6 +1833,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/error.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/escape.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fresh.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/function_finder.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/get_defines.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/getopt.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/getopt1.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/helloworld.Plo@am__quote@
@@ -1517,18 +1842,22 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lex.yy.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/line_numbers.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/linear.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/optimize.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/parse.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/phc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/php_dot.tab.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/php_parser.tab.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pre_vs_post_count.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/purity_test.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/raise_globals.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/reduce_statements.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/remove_all.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/replace_include_constants.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/show_traversal_order.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/source_vs_semantic_values.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stats.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/strip_includes.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_ssi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/util.Plo@am__quote@
 
 .c.o:
@@ -1748,6 +2077,13 @@ embed.lo: src/embed/embed.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o embed.lo `test -f 'src/embed/embed.cpp' || echo '$(srcdir)/'`src/embed/embed.cpp
 
+optimize.lo: src/embed/optimize.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT optimize.lo -MD -MP -MF $(DEPDIR)/optimize.Tpo -c -o optimize.lo `test -f 'src/embed/optimize.cpp' || echo '$(srcdir)/'`src/embed/optimize.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/optimize.Tpo $(DEPDIR)/optimize.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/embed/optimize.cpp' object='optimize.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o optimize.lo `test -f 'src/embed/optimize.cpp' || echo '$(srcdir)/'`src/embed/optimize.cpp
+
 util.lo: src/embed/util.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT util.lo -MD -MP -MF $(DEPDIR)/util.Tpo -c -o util.lo `test -f 'src/embed/util.cpp' || echo '$(srcdir)/'`src/embed/util.cpp
 @am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/util.Tpo $(DEPDIR)/util.Plo
@@ -1965,6 +2301,13 @@ Integer.lo: src/lib/Integer.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Integer.lo `test -f 'src/lib/Integer.cpp' || echo '$(srcdir)/'`src/lib/Integer.cpp
 
+Map.lo: src/lib/Map.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Map.lo -MD -MP -MF $(DEPDIR)/Map.Tpo -c -o Map.lo `test -f 'src/lib/Map.cpp' || echo '$(srcdir)/'`src/lib/Map.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Map.Tpo $(DEPDIR)/Map.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/lib/Map.cpp' object='Map.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Map.lo `test -f 'src/lib/Map.cpp' || echo '$(srcdir)/'`src/lib/Map.cpp
+
 Object.lo: src/lib/Object.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Object.lo -MD -MP -MF $(DEPDIR)/Object.Tpo -c -o Object.lo `test -f 'src/lib/Object.cpp' || echo '$(srcdir)/'`src/lib/Object.cpp
 @am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Object.Tpo $(DEPDIR)/Object.Plo
@@ -1979,12 +2322,47 @@ String.lo: src/lib/String.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o String.lo `test -f 'src/lib/String.cpp' || echo '$(srcdir)/'`src/lib/String.cpp
 
-Copy_propagation.lo: src/optimize/Copy_propagation.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Copy_propagation.lo -MD -MP -MF $(DEPDIR)/Copy_propagation.Tpo -c -o Copy_propagation.lo `test -f 'src/optimize/Copy_propagation.cpp' || echo '$(srcdir)/'`src/optimize/Copy_propagation.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Copy_propagation.Tpo $(DEPDIR)/Copy_propagation.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Copy_propagation.cpp' object='Copy_propagation.lo' libtool=yes @AMDEPBACKSLASH@
+Abstract_value.lo: src/optimize/Abstract_value.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Abstract_value.lo -MD -MP -MF $(DEPDIR)/Abstract_value.Tpo -c -o Abstract_value.lo `test -f 'src/optimize/Abstract_value.cpp' || echo '$(srcdir)/'`src/optimize/Abstract_value.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Abstract_value.Tpo $(DEPDIR)/Abstract_value.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Abstract_value.cpp' object='Abstract_value.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Copy_propagation.lo `test -f 'src/optimize/Copy_propagation.cpp' || echo '$(srcdir)/'`src/optimize/Copy_propagation.cpp
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Abstract_value.lo `test -f 'src/optimize/Abstract_value.cpp' || echo '$(srcdir)/'`src/optimize/Abstract_value.cpp
+
+Alias_name.lo: src/optimize/Alias_name.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Alias_name.lo -MD -MP -MF $(DEPDIR)/Alias_name.Tpo -c -o Alias_name.lo `test -f 'src/optimize/Alias_name.cpp' || echo '$(srcdir)/'`src/optimize/Alias_name.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Alias_name.Tpo $(DEPDIR)/Alias_name.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Alias_name.cpp' object='Alias_name.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Alias_name.lo `test -f 'src/optimize/Alias_name.cpp' || echo '$(srcdir)/'`src/optimize/Alias_name.cpp
+
+Basic_block.lo: src/optimize/Basic_block.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Basic_block.lo -MD -MP -MF $(DEPDIR)/Basic_block.Tpo -c -o Basic_block.lo `test -f 'src/optimize/Basic_block.cpp' || echo '$(srcdir)/'`src/optimize/Basic_block.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Basic_block.Tpo $(DEPDIR)/Basic_block.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Basic_block.cpp' object='Basic_block.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Basic_block.lo `test -f 'src/optimize/Basic_block.cpp' || echo '$(srcdir)/'`src/optimize/Basic_block.cpp
+
+CFG.lo: src/optimize/CFG.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT CFG.lo -MD -MP -MF $(DEPDIR)/CFG.Tpo -c -o CFG.lo `test -f 'src/optimize/CFG.cpp' || echo '$(srcdir)/'`src/optimize/CFG.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/CFG.Tpo $(DEPDIR)/CFG.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/CFG.cpp' object='CFG.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o CFG.lo `test -f 'src/optimize/CFG.cpp' || echo '$(srcdir)/'`src/optimize/CFG.cpp
+
+CFG_visitor.lo: src/optimize/CFG_visitor.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT CFG_visitor.lo -MD -MP -MF $(DEPDIR)/CFG_visitor.Tpo -c -o CFG_visitor.lo `test -f 'src/optimize/CFG_visitor.cpp' || echo '$(srcdir)/'`src/optimize/CFG_visitor.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/CFG_visitor.Tpo $(DEPDIR)/CFG_visitor.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/CFG_visitor.cpp' object='CFG_visitor.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o CFG_visitor.lo `test -f 'src/optimize/CFG_visitor.cpp' || echo '$(srcdir)/'`src/optimize/CFG_visitor.cpp
+
+Class_info.lo: src/optimize/Class_info.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Class_info.lo -MD -MP -MF $(DEPDIR)/Class_info.Tpo -c -o Class_info.lo `test -f 'src/optimize/Class_info.cpp' || echo '$(srcdir)/'`src/optimize/Class_info.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Class_info.Tpo $(DEPDIR)/Class_info.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Class_info.cpp' object='Class_info.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Class_info.lo `test -f 'src/optimize/Class_info.cpp' || echo '$(srcdir)/'`src/optimize/Class_info.cpp
 
 Dead_code_elimination.lo: src/optimize/Dead_code_elimination.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Dead_code_elimination.lo -MD -MP -MF $(DEPDIR)/Dead_code_elimination.Tpo -c -o Dead_code_elimination.lo `test -f 'src/optimize/Dead_code_elimination.cpp' || echo '$(srcdir)/'`src/optimize/Dead_code_elimination.cpp
@@ -1993,12 +2371,68 @@ Dead_code_elimination.lo: src/optimize/Dead_code_elimination.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Dead_code_elimination.lo `test -f 'src/optimize/Dead_code_elimination.cpp' || echo '$(srcdir)/'`src/optimize/Dead_code_elimination.cpp
 
-Fix_point.lo: src/optimize/Fix_point.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Fix_point.lo -MD -MP -MF $(DEPDIR)/Fix_point.Tpo -c -o Fix_point.lo `test -f 'src/optimize/Fix_point.cpp' || echo '$(srcdir)/'`src/optimize/Fix_point.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Fix_point.Tpo $(DEPDIR)/Fix_point.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Fix_point.cpp' object='Fix_point.lo' libtool=yes @AMDEPBACKSLASH@
+Def_use_web.lo: src/optimize/Def_use_web.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Def_use_web.lo -MD -MP -MF $(DEPDIR)/Def_use_web.Tpo -c -o Def_use_web.lo `test -f 'src/optimize/Def_use_web.cpp' || echo '$(srcdir)/'`src/optimize/Def_use_web.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Def_use_web.Tpo $(DEPDIR)/Def_use_web.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Def_use_web.cpp' object='Def_use_web.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Fix_point.lo `test -f 'src/optimize/Fix_point.cpp' || echo '$(srcdir)/'`src/optimize/Fix_point.cpp
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Def_use_web.lo `test -f 'src/optimize/Def_use_web.cpp' || echo '$(srcdir)/'`src/optimize/Def_use_web.cpp
+
+Edge.lo: src/optimize/Edge.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Edge.lo -MD -MP -MF $(DEPDIR)/Edge.Tpo -c -o Edge.lo `test -f 'src/optimize/Edge.cpp' || echo '$(srcdir)/'`src/optimize/Edge.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Edge.Tpo $(DEPDIR)/Edge.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Edge.cpp' object='Edge.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Edge.lo `test -f 'src/optimize/Edge.cpp' || echo '$(srcdir)/'`src/optimize/Edge.cpp
+
+Flow_visitor.lo: src/optimize/Flow_visitor.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Flow_visitor.lo -MD -MP -MF $(DEPDIR)/Flow_visitor.Tpo -c -o Flow_visitor.lo `test -f 'src/optimize/Flow_visitor.cpp' || echo '$(srcdir)/'`src/optimize/Flow_visitor.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Flow_visitor.Tpo $(DEPDIR)/Flow_visitor.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Flow_visitor.cpp' object='Flow_visitor.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Flow_visitor.lo `test -f 'src/optimize/Flow_visitor.cpp' || echo '$(srcdir)/'`src/optimize/Flow_visitor.cpp
+
+If_simplification.lo: src/optimize/If_simplification.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT If_simplification.lo -MD -MP -MF $(DEPDIR)/If_simplification.Tpo -c -o If_simplification.lo `test -f 'src/optimize/If_simplification.cpp' || echo '$(srcdir)/'`src/optimize/If_simplification.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/If_simplification.Tpo $(DEPDIR)/If_simplification.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/If_simplification.cpp' object='If_simplification.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o If_simplification.lo `test -f 'src/optimize/If_simplification.cpp' || echo '$(srcdir)/'`src/optimize/If_simplification.cpp
+
+Inlining.lo: src/optimize/Inlining.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Inlining.lo -MD -MP -MF $(DEPDIR)/Inlining.Tpo -c -o Inlining.lo `test -f 'src/optimize/Inlining.cpp' || echo '$(srcdir)/'`src/optimize/Inlining.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Inlining.Tpo $(DEPDIR)/Inlining.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Inlining.cpp' object='Inlining.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Inlining.lo `test -f 'src/optimize/Inlining.cpp' || echo '$(srcdir)/'`src/optimize/Inlining.cpp
+
+Mark_initialized.lo: src/optimize/Mark_initialized.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Mark_initialized.lo -MD -MP -MF $(DEPDIR)/Mark_initialized.Tpo -c -o Mark_initialized.lo `test -f 'src/optimize/Mark_initialized.cpp' || echo '$(srcdir)/'`src/optimize/Mark_initialized.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Mark_initialized.Tpo $(DEPDIR)/Mark_initialized.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Mark_initialized.cpp' object='Mark_initialized.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Mark_initialized.lo `test -f 'src/optimize/Mark_initialized.cpp' || echo '$(srcdir)/'`src/optimize/Mark_initialized.cpp
+
+Method_info.lo: src/optimize/Method_info.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Method_info.lo -MD -MP -MF $(DEPDIR)/Method_info.Tpo -c -o Method_info.lo `test -f 'src/optimize/Method_info.cpp' || echo '$(srcdir)/'`src/optimize/Method_info.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Method_info.Tpo $(DEPDIR)/Method_info.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Method_info.cpp' object='Method_info.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Method_info.lo `test -f 'src/optimize/Method_info.cpp' || echo '$(srcdir)/'`src/optimize/Method_info.cpp
+
+Misc_annotations.lo: src/optimize/Misc_annotations.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Misc_annotations.lo -MD -MP -MF $(DEPDIR)/Misc_annotations.Tpo -c -o Misc_annotations.lo `test -f 'src/optimize/Misc_annotations.cpp' || echo '$(srcdir)/'`src/optimize/Misc_annotations.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Misc_annotations.Tpo $(DEPDIR)/Misc_annotations.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Misc_annotations.cpp' object='Misc_annotations.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Misc_annotations.lo `test -f 'src/optimize/Misc_annotations.cpp' || echo '$(srcdir)/'`src/optimize/Misc_annotations.cpp
+
+Oracle.lo: src/optimize/Oracle.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Oracle.lo -MD -MP -MF $(DEPDIR)/Oracle.Tpo -c -o Oracle.lo `test -f 'src/optimize/Oracle.cpp' || echo '$(srcdir)/'`src/optimize/Oracle.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Oracle.Tpo $(DEPDIR)/Oracle.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Oracle.cpp' object='Oracle.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Oracle.lo `test -f 'src/optimize/Oracle.cpp' || echo '$(srcdir)/'`src/optimize/Oracle.cpp
 
 Prune_symbol_table.lo: src/optimize/Prune_symbol_table.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Prune_symbol_table.lo -MD -MP -MF $(DEPDIR)/Prune_symbol_table.Tpo -c -o Prune_symbol_table.lo `test -f 'src/optimize/Prune_symbol_table.cpp' || echo '$(srcdir)/'`src/optimize/Prune_symbol_table.cpp
@@ -2007,12 +2441,222 @@ Prune_symbol_table.lo: src/optimize/Prune_symbol_table.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Prune_symbol_table.lo `test -f 'src/optimize/Prune_symbol_table.cpp' || echo '$(srcdir)/'`src/optimize/Prune_symbol_table.cpp
 
-Use_def_counter.lo: src/optimize/Use_def_counter.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Use_def_counter.lo -MD -MP -MF $(DEPDIR)/Use_def_counter.Tpo -c -o Use_def_counter.lo `test -f 'src/optimize/Use_def_counter.cpp' || echo '$(srcdir)/'`src/optimize/Use_def_counter.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Use_def_counter.Tpo $(DEPDIR)/Use_def_counter.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Use_def_counter.cpp' object='Use_def_counter.lo' libtool=yes @AMDEPBACKSLASH@
+Remove_loop_booleans.lo: src/optimize/Remove_loop_booleans.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Remove_loop_booleans.lo -MD -MP -MF $(DEPDIR)/Remove_loop_booleans.Tpo -c -o Remove_loop_booleans.lo `test -f 'src/optimize/Remove_loop_booleans.cpp' || echo '$(srcdir)/'`src/optimize/Remove_loop_booleans.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Remove_loop_booleans.Tpo $(DEPDIR)/Remove_loop_booleans.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Remove_loop_booleans.cpp' object='Remove_loop_booleans.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Use_def_counter.lo `test -f 'src/optimize/Use_def_counter.cpp' || echo '$(srcdir)/'`src/optimize/Use_def_counter.cpp
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Remove_loop_booleans.lo `test -f 'src/optimize/Remove_loop_booleans.cpp' || echo '$(srcdir)/'`src/optimize/Remove_loop_booleans.cpp
+
+Copy_propagation.lo: src/optimize/hacks/Copy_propagation.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Copy_propagation.lo -MD -MP -MF $(DEPDIR)/Copy_propagation.Tpo -c -o Copy_propagation.lo `test -f 'src/optimize/hacks/Copy_propagation.cpp' || echo '$(srcdir)/'`src/optimize/hacks/Copy_propagation.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Copy_propagation.Tpo $(DEPDIR)/Copy_propagation.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/hacks/Copy_propagation.cpp' object='Copy_propagation.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Copy_propagation.lo `test -f 'src/optimize/hacks/Copy_propagation.cpp' || echo '$(srcdir)/'`src/optimize/hacks/Copy_propagation.cpp
+
+Dead_temp_cleanup.lo: src/optimize/hacks/Dead_temp_cleanup.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Dead_temp_cleanup.lo -MD -MP -MF $(DEPDIR)/Dead_temp_cleanup.Tpo -c -o Dead_temp_cleanup.lo `test -f 'src/optimize/hacks/Dead_temp_cleanup.cpp' || echo '$(srcdir)/'`src/optimize/hacks/Dead_temp_cleanup.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Dead_temp_cleanup.Tpo $(DEPDIR)/Dead_temp_cleanup.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/hacks/Dead_temp_cleanup.cpp' object='Dead_temp_cleanup.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Dead_temp_cleanup.lo `test -f 'src/optimize/hacks/Dead_temp_cleanup.cpp' || echo '$(srcdir)/'`src/optimize/hacks/Dead_temp_cleanup.cpp
+
+Fix_point.lo: src/optimize/hacks/Fix_point.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Fix_point.lo -MD -MP -MF $(DEPDIR)/Fix_point.Tpo -c -o Fix_point.lo `test -f 'src/optimize/hacks/Fix_point.cpp' || echo '$(srcdir)/'`src/optimize/hacks/Fix_point.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Fix_point.Tpo $(DEPDIR)/Fix_point.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/hacks/Fix_point.cpp' object='Fix_point.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Fix_point.lo `test -f 'src/optimize/hacks/Fix_point.cpp' || echo '$(srcdir)/'`src/optimize/hacks/Fix_point.cpp
+
+Use_def_counter.lo: src/optimize/hacks/Use_def_counter.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Use_def_counter.lo -MD -MP -MF $(DEPDIR)/Use_def_counter.Tpo -c -o Use_def_counter.lo `test -f 'src/optimize/hacks/Use_def_counter.cpp' || echo '$(srcdir)/'`src/optimize/hacks/Use_def_counter.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Use_def_counter.Tpo $(DEPDIR)/Use_def_counter.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/hacks/Use_def_counter.cpp' object='Use_def_counter.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Use_def_counter.lo `test -f 'src/optimize/hacks/Use_def_counter.cpp' || echo '$(srcdir)/'`src/optimize/hacks/Use_def_counter.cpp
+
+Dominance.lo: src/optimize/ssa/Dominance.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Dominance.lo -MD -MP -MF $(DEPDIR)/Dominance.Tpo -c -o Dominance.lo `test -f 'src/optimize/ssa/Dominance.cpp' || echo '$(srcdir)/'`src/optimize/ssa/Dominance.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Dominance.Tpo $(DEPDIR)/Dominance.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/ssa/Dominance.cpp' object='Dominance.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Dominance.lo `test -f 'src/optimize/ssa/Dominance.cpp' || echo '$(srcdir)/'`src/optimize/ssa/Dominance.cpp
+
+HSSA.lo: src/optimize/ssa/HSSA.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT HSSA.lo -MD -MP -MF $(DEPDIR)/HSSA.Tpo -c -o HSSA.lo `test -f 'src/optimize/ssa/HSSA.cpp' || echo '$(srcdir)/'`src/optimize/ssa/HSSA.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/HSSA.Tpo $(DEPDIR)/HSSA.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/ssa/HSSA.cpp' object='HSSA.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o HSSA.lo `test -f 'src/optimize/ssa/HSSA.cpp' || echo '$(srcdir)/'`src/optimize/ssa/HSSA.cpp
+
+Phi.lo: src/optimize/ssa/Phi.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Phi.lo -MD -MP -MF $(DEPDIR)/Phi.Tpo -c -o Phi.lo `test -f 'src/optimize/ssa/Phi.cpp' || echo '$(srcdir)/'`src/optimize/ssa/Phi.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Phi.Tpo $(DEPDIR)/Phi.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/ssa/Phi.cpp' object='Phi.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Phi.lo `test -f 'src/optimize/ssa/Phi.cpp' || echo '$(srcdir)/'`src/optimize/ssa/Phi.cpp
+
+SSA_name.lo: src/optimize/ssa/SSA_name.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT SSA_name.lo -MD -MP -MF $(DEPDIR)/SSA_name.Tpo -c -o SSA_name.lo `test -f 'src/optimize/ssa/SSA_name.cpp' || echo '$(srcdir)/'`src/optimize/ssa/SSA_name.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/SSA_name.Tpo $(DEPDIR)/SSA_name.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/ssa/SSA_name.cpp' object='SSA_name.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o SSA_name.lo `test -f 'src/optimize/ssa/SSA_name.cpp' || echo '$(srcdir)/'`src/optimize/ssa/SSA_name.cpp
+
+SSA_ops.lo: src/optimize/ssa/SSA_ops.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT SSA_ops.lo -MD -MP -MF $(DEPDIR)/SSA_ops.Tpo -c -o SSA_ops.lo `test -f 'src/optimize/ssa/SSA_ops.cpp' || echo '$(srcdir)/'`src/optimize/ssa/SSA_ops.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/SSA_ops.Tpo $(DEPDIR)/SSA_ops.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/ssa/SSA_ops.cpp' object='SSA_ops.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o SSA_ops.lo `test -f 'src/optimize/ssa/SSA_ops.cpp' || echo '$(srcdir)/'`src/optimize/ssa/SSA_ops.cpp
+
+ESSA.lo: src/optimize/ssi/ESSA.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ESSA.lo -MD -MP -MF $(DEPDIR)/ESSA.Tpo -c -o ESSA.lo `test -f 'src/optimize/ssi/ESSA.cpp' || echo '$(srcdir)/'`src/optimize/ssi/ESSA.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/ESSA.Tpo $(DEPDIR)/ESSA.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/ssi/ESSA.cpp' object='ESSA.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ESSA.lo `test -f 'src/optimize/ssi/ESSA.cpp' || echo '$(srcdir)/'`src/optimize/ssi/ESSA.cpp
+
+Sigma.lo: src/optimize/ssi/Sigma.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Sigma.lo -MD -MP -MF $(DEPDIR)/Sigma.Tpo -c -o Sigma.lo `test -f 'src/optimize/ssi/Sigma.cpp' || echo '$(srcdir)/'`src/optimize/ssi/Sigma.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Sigma.Tpo $(DEPDIR)/Sigma.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/ssi/Sigma.cpp' object='Sigma.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Sigma.lo `test -f 'src/optimize/ssi/Sigma.cpp' || echo '$(srcdir)/'`src/optimize/ssi/Sigma.cpp
+
+SSI.lo: src/optimize/ssi/SSI.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT SSI.lo -MD -MP -MF $(DEPDIR)/SSI.Tpo -c -o SSI.lo `test -f 'src/optimize/ssi/SSI.cpp' || echo '$(srcdir)/'`src/optimize/ssi/SSI.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/SSI.Tpo $(DEPDIR)/SSI.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/ssi/SSI.cpp' object='SSI.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o SSI.lo `test -f 'src/optimize/ssi/SSI.cpp' || echo '$(srcdir)/'`src/optimize/ssi/SSI.cpp
+
+SSI_ops.lo: src/optimize/ssi/SSI_ops.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT SSI_ops.lo -MD -MP -MF $(DEPDIR)/SSI_ops.Tpo -c -o SSI_ops.lo `test -f 'src/optimize/ssi/SSI_ops.cpp' || echo '$(srcdir)/'`src/optimize/ssi/SSI_ops.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/SSI_ops.Tpo $(DEPDIR)/SSI_ops.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/ssi/SSI_ops.cpp' object='SSI_ops.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o SSI_ops.lo `test -f 'src/optimize/ssi/SSI_ops.cpp' || echo '$(srcdir)/'`src/optimize/ssi/SSI_ops.cpp
+
+Visit_once.lo: src/optimize/Visit_once.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Visit_once.lo -MD -MP -MF $(DEPDIR)/Visit_once.Tpo -c -o Visit_once.lo `test -f 'src/optimize/Visit_once.cpp' || echo '$(srcdir)/'`src/optimize/Visit_once.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Visit_once.Tpo $(DEPDIR)/Visit_once.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Visit_once.cpp' object='Visit_once.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Visit_once.lo `test -f 'src/optimize/Visit_once.cpp' || echo '$(srcdir)/'`src/optimize/Visit_once.cpp
+
+Aliasing.lo: src/optimize/wpa/Aliasing.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Aliasing.lo -MD -MP -MF $(DEPDIR)/Aliasing.Tpo -c -o Aliasing.lo `test -f 'src/optimize/wpa/Aliasing.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Aliasing.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Aliasing.Tpo $(DEPDIR)/Aliasing.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/wpa/Aliasing.cpp' object='Aliasing.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Aliasing.lo `test -f 'src/optimize/wpa/Aliasing.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Aliasing.cpp
+
+Callgraph.lo: src/optimize/wpa/Callgraph.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Callgraph.lo -MD -MP -MF $(DEPDIR)/Callgraph.Tpo -c -o Callgraph.lo `test -f 'src/optimize/wpa/Callgraph.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Callgraph.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Callgraph.Tpo $(DEPDIR)/Callgraph.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/wpa/Callgraph.cpp' object='Callgraph.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Callgraph.lo `test -f 'src/optimize/wpa/Callgraph.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Callgraph.cpp
+
+Constant_state.lo: src/optimize/wpa/Constant_state.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Constant_state.lo -MD -MP -MF $(DEPDIR)/Constant_state.Tpo -c -o Constant_state.lo `test -f 'src/optimize/wpa/Constant_state.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Constant_state.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Constant_state.Tpo $(DEPDIR)/Constant_state.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/wpa/Constant_state.cpp' object='Constant_state.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Constant_state.lo `test -f 'src/optimize/wpa/Constant_state.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Constant_state.cpp
+
+Context.lo: src/optimize/wpa/Context.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Context.lo -MD -MP -MF $(DEPDIR)/Context.Tpo -c -o Context.lo `test -f 'src/optimize/wpa/Context.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Context.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Context.Tpo $(DEPDIR)/Context.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/wpa/Context.cpp' object='Context.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Context.lo `test -f 'src/optimize/wpa/Context.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Context.cpp
+
+Debug_WPA.lo: src/optimize/wpa/Debug_WPA.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Debug_WPA.lo -MD -MP -MF $(DEPDIR)/Debug_WPA.Tpo -c -o Debug_WPA.lo `test -f 'src/optimize/wpa/Debug_WPA.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Debug_WPA.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Debug_WPA.Tpo $(DEPDIR)/Debug_WPA.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/wpa/Debug_WPA.cpp' object='Debug_WPA.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Debug_WPA.lo `test -f 'src/optimize/wpa/Debug_WPA.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Debug_WPA.cpp
+
+Def_use.lo: src/optimize/wpa/Def_use.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Def_use.lo -MD -MP -MF $(DEPDIR)/Def_use.Tpo -c -o Def_use.lo `test -f 'src/optimize/wpa/Def_use.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Def_use.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Def_use.Tpo $(DEPDIR)/Def_use.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/wpa/Def_use.cpp' object='Def_use.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Def_use.lo `test -f 'src/optimize/wpa/Def_use.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Def_use.cpp
+
+Include_analysis.lo: src/optimize/wpa/Include_analysis.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Include_analysis.lo -MD -MP -MF $(DEPDIR)/Include_analysis.Tpo -c -o Include_analysis.lo `test -f 'src/optimize/wpa/Include_analysis.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Include_analysis.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Include_analysis.Tpo $(DEPDIR)/Include_analysis.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/wpa/Include_analysis.cpp' object='Include_analysis.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Include_analysis.lo `test -f 'src/optimize/wpa/Include_analysis.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Include_analysis.cpp
+
+Optimization_annotator.lo: src/optimize/wpa/Optimization_annotator.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Optimization_annotator.lo -MD -MP -MF $(DEPDIR)/Optimization_annotator.Tpo -c -o Optimization_annotator.lo `test -f 'src/optimize/wpa/Optimization_annotator.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Optimization_annotator.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Optimization_annotator.Tpo $(DEPDIR)/Optimization_annotator.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/wpa/Optimization_annotator.cpp' object='Optimization_annotator.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Optimization_annotator.lo `test -f 'src/optimize/wpa/Optimization_annotator.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Optimization_annotator.cpp
+
+Optimization_transformer.lo: src/optimize/wpa/Optimization_transformer.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Optimization_transformer.lo -MD -MP -MF $(DEPDIR)/Optimization_transformer.Tpo -c -o Optimization_transformer.lo `test -f 'src/optimize/wpa/Optimization_transformer.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Optimization_transformer.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Optimization_transformer.Tpo $(DEPDIR)/Optimization_transformer.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/wpa/Optimization_transformer.cpp' object='Optimization_transformer.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Optimization_transformer.lo `test -f 'src/optimize/wpa/Optimization_transformer.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Optimization_transformer.cpp
+
+Points_to.lo: src/optimize/wpa/Points_to.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Points_to.lo -MD -MP -MF $(DEPDIR)/Points_to.Tpo -c -o Points_to.lo `test -f 'src/optimize/wpa/Points_to.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Points_to.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Points_to.Tpo $(DEPDIR)/Points_to.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/wpa/Points_to.cpp' object='Points_to.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Points_to.lo `test -f 'src/optimize/wpa/Points_to.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Points_to.cpp
+
+Stat_collector.lo: src/optimize/wpa/Stat_collector.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Stat_collector.lo -MD -MP -MF $(DEPDIR)/Stat_collector.Tpo -c -o Stat_collector.lo `test -f 'src/optimize/wpa/Stat_collector.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Stat_collector.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Stat_collector.Tpo $(DEPDIR)/Stat_collector.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/wpa/Stat_collector.cpp' object='Stat_collector.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Stat_collector.lo `test -f 'src/optimize/wpa/Stat_collector.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Stat_collector.cpp
+
+Value_analysis.lo: src/optimize/wpa/Value_analysis.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Value_analysis.lo -MD -MP -MF $(DEPDIR)/Value_analysis.Tpo -c -o Value_analysis.lo `test -f 'src/optimize/wpa/Value_analysis.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Value_analysis.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Value_analysis.Tpo $(DEPDIR)/Value_analysis.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/wpa/Value_analysis.cpp' object='Value_analysis.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Value_analysis.lo `test -f 'src/optimize/wpa/Value_analysis.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Value_analysis.cpp
+
+VRP.lo: src/optimize/wpa/VRP.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT VRP.lo -MD -MP -MF $(DEPDIR)/VRP.Tpo -c -o VRP.lo `test -f 'src/optimize/wpa/VRP.cpp' || echo '$(srcdir)/'`src/optimize/wpa/VRP.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/VRP.Tpo $(DEPDIR)/VRP.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/wpa/VRP.cpp' object='VRP.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o VRP.lo `test -f 'src/optimize/wpa/VRP.cpp' || echo '$(srcdir)/'`src/optimize/wpa/VRP.cpp
+
+Whole_program.lo: src/optimize/wpa/Whole_program.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Whole_program.lo -MD -MP -MF $(DEPDIR)/Whole_program.Tpo -c -o Whole_program.lo `test -f 'src/optimize/wpa/Whole_program.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Whole_program.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Whole_program.Tpo $(DEPDIR)/Whole_program.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/wpa/Whole_program.cpp' object='Whole_program.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Whole_program.lo `test -f 'src/optimize/wpa/Whole_program.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Whole_program.cpp
+
+Worklist.lo: src/optimize/wpa/Worklist.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Worklist.lo -MD -MP -MF $(DEPDIR)/Worklist.Tpo -c -o Worklist.lo `test -f 'src/optimize/wpa/Worklist.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Worklist.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Worklist.Tpo $(DEPDIR)/Worklist.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/wpa/Worklist.cpp' object='Worklist.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Worklist.lo `test -f 'src/optimize/wpa/Worklist.cpp' || echo '$(srcdir)/'`src/optimize/wpa/Worklist.cpp
+
+WPA.lo: src/optimize/wpa/WPA.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT WPA.lo -MD -MP -MF $(DEPDIR)/WPA.Tpo -c -o WPA.lo `test -f 'src/optimize/wpa/WPA.cpp' || echo '$(srcdir)/'`src/optimize/wpa/WPA.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/WPA.Tpo $(DEPDIR)/WPA.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/wpa/WPA.cpp' object='WPA.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o WPA.lo `test -f 'src/optimize/wpa/WPA.cpp' || echo '$(srcdir)/'`src/optimize/wpa/WPA.cpp
 
 MICG_parser.lo: src/parsing/MICG_parser.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT MICG_parser.lo -MD -MP -MF $(DEPDIR)/MICG_parser.Tpo -c -o MICG_parser.lo `test -f 'src/parsing/MICG_parser.cpp' || echo '$(srcdir)/'`src/parsing/MICG_parser.cpp
@@ -2048,6 +2692,13 @@ XML_parser.lo: src/parsing/XML_parser.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/parsing/XML_parser.cpp' object='XML_parser.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o XML_parser.lo `test -f 'src/parsing/XML_parser.cpp' || echo '$(srcdir)/'`src/parsing/XML_parser.cpp
+
+Optimization_pass.lo: src/pass_manager/Optimization_pass.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Optimization_pass.lo -MD -MP -MF $(DEPDIR)/Optimization_pass.Tpo -c -o Optimization_pass.lo `test -f 'src/pass_manager/Optimization_pass.cpp' || echo '$(srcdir)/'`src/pass_manager/Optimization_pass.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Optimization_pass.Tpo $(DEPDIR)/Optimization_pass.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/pass_manager/Optimization_pass.cpp' object='Optimization_pass.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Optimization_pass.lo `test -f 'src/pass_manager/Optimization_pass.cpp' || echo '$(srcdir)/'`src/pass_manager/Optimization_pass.cpp
 
 Pass_manager.lo: src/pass_manager/Pass_manager.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Pass_manager.lo -MD -MP -MF $(DEPDIR)/Pass_manager.Tpo -c -o Pass_manager.lo `test -f 'src/pass_manager/Pass_manager.cpp' || echo '$(srcdir)/'`src/pass_manager/Pass_manager.cpp
@@ -2266,6 +2917,13 @@ pre_vs_post_count.lo: plugins/tests/pre_vs_post_count.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o pre_vs_post_count.lo `test -f 'plugins/tests/pre_vs_post_count.cpp' || echo '$(srcdir)/'`plugins/tests/pre_vs_post_count.cpp
 
+raise_globals.lo: plugins/tests/raise_globals.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT raise_globals.lo -MD -MP -MF $(DEPDIR)/raise_globals.Tpo -c -o raise_globals.lo `test -f 'plugins/tests/raise_globals.cpp' || echo '$(srcdir)/'`plugins/tests/raise_globals.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/raise_globals.Tpo $(DEPDIR)/raise_globals.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='plugins/tests/raise_globals.cpp' object='raise_globals.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o raise_globals.lo `test -f 'plugins/tests/raise_globals.cpp' || echo '$(srcdir)/'`plugins/tests/raise_globals.cpp
+
 source_vs_semantic_values.lo: plugins/tests/source_vs_semantic_values.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT source_vs_semantic_values.lo -MD -MP -MF $(DEPDIR)/source_vs_semantic_values.Tpo -c -o source_vs_semantic_values.lo `test -f 'plugins/tests/source_vs_semantic_values.cpp' || echo '$(srcdir)/'`plugins/tests/source_vs_semantic_values.cpp
 @am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/source_vs_semantic_values.Tpo $(DEPDIR)/source_vs_semantic_values.Plo
@@ -2279,6 +2937,13 @@ strip_includes.lo: plugins/tests/strip_includes.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='plugins/tests/strip_includes.cpp' object='strip_includes.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o strip_includes.lo `test -f 'plugins/tests/strip_includes.cpp' || echo '$(srcdir)/'`plugins/tests/strip_includes.cpp
+
+C_unparser.lo: plugins/tools/C_unparser.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT C_unparser.lo -MD -MP -MF $(DEPDIR)/C_unparser.Tpo -c -o C_unparser.lo `test -f 'plugins/tools/C_unparser.cpp' || echo '$(srcdir)/'`plugins/tools/C_unparser.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/C_unparser.Tpo $(DEPDIR)/C_unparser.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='plugins/tools/C_unparser.cpp' object='C_unparser.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o C_unparser.lo `test -f 'plugins/tools/C_unparser.cpp' || echo '$(srcdir)/'`plugins/tools/C_unparser.cpp
 
 add_comment.lo: plugins/tools/add_comment.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT add_comment.lo -MD -MP -MF $(DEPDIR)/add_comment.Tpo -c -o add_comment.lo `test -f 'plugins/tools/add_comment.cpp' || echo '$(srcdir)/'`plugins/tools/add_comment.cpp
@@ -2308,6 +2973,20 @@ dynamic_things.lo: plugins/tools/dynamic_things.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o dynamic_things.lo `test -f 'plugins/tools/dynamic_things.cpp' || echo '$(srcdir)/'`plugins/tools/dynamic_things.cpp
 
+function_finder.lo: plugins/tools/function_finder.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT function_finder.lo -MD -MP -MF $(DEPDIR)/function_finder.Tpo -c -o function_finder.lo `test -f 'plugins/tools/function_finder.cpp' || echo '$(srcdir)/'`plugins/tools/function_finder.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/function_finder.Tpo $(DEPDIR)/function_finder.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='plugins/tools/function_finder.cpp' object='function_finder.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o function_finder.lo `test -f 'plugins/tools/function_finder.cpp' || echo '$(srcdir)/'`plugins/tools/function_finder.cpp
+
+get_defines.lo: plugins/tools/get_defines.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT get_defines.lo -MD -MP -MF $(DEPDIR)/get_defines.Tpo -c -o get_defines.lo `test -f 'plugins/tools/get_defines.cpp' || echo '$(srcdir)/'`plugins/tools/get_defines.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/get_defines.Tpo $(DEPDIR)/get_defines.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='plugins/tools/get_defines.cpp' object='get_defines.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o get_defines.lo `test -f 'plugins/tools/get_defines.cpp' || echo '$(srcdir)/'`plugins/tools/get_defines.cpp
+
 purity_test.lo: plugins/tools/purity_test.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT purity_test.lo -MD -MP -MF $(DEPDIR)/purity_test.Tpo -c -o purity_test.lo `test -f 'plugins/tools/purity_test.cpp' || echo '$(srcdir)/'`plugins/tools/purity_test.cpp
 @am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/purity_test.Tpo $(DEPDIR)/purity_test.Plo
@@ -2328,6 +3007,20 @@ remove_all.lo: plugins/tools/remove_all.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='plugins/tools/remove_all.cpp' object='remove_all.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o remove_all.lo `test -f 'plugins/tools/remove_all.cpp' || echo '$(srcdir)/'`plugins/tools/remove_all.cpp
+
+replace_include_constants.lo: plugins/tools/replace_include_constants.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT replace_include_constants.lo -MD -MP -MF $(DEPDIR)/replace_include_constants.Tpo -c -o replace_include_constants.lo `test -f 'plugins/tools/replace_include_constants.cpp' || echo '$(srcdir)/'`plugins/tools/replace_include_constants.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/replace_include_constants.Tpo $(DEPDIR)/replace_include_constants.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='plugins/tools/replace_include_constants.cpp' object='replace_include_constants.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o replace_include_constants.lo `test -f 'plugins/tools/replace_include_constants.cpp' || echo '$(srcdir)/'`plugins/tools/replace_include_constants.cpp
+
+test_ssi.lo: plugins/tools/test_ssi.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_ssi.lo -MD -MP -MF $(DEPDIR)/test_ssi.Tpo -c -o test_ssi.lo `test -f 'plugins/tools/test_ssi.cpp' || echo '$(srcdir)/'`plugins/tools/test_ssi.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/test_ssi.Tpo $(DEPDIR)/test_ssi.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='plugins/tools/test_ssi.cpp' object='test_ssi.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_ssi.lo `test -f 'plugins/tools/test_ssi.cpp' || echo '$(srcdir)/'`plugins/tools/test_ssi.cpp
 
 Comment_ifs.lo: plugins/tutorials/Comment_ifs.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Comment_ifs.lo -MD -MP -MF $(DEPDIR)/Comment_ifs.Tpo -c -o Comment_ifs.lo `test -f 'plugins/tutorials/Comment_ifs.cpp' || echo '$(srcdir)/'`plugins/tutorials/Comment_ifs.cpp
@@ -2492,6 +3185,106 @@ uninstall-strangelibHEADERS:
 	test -n "$$files" || exit 0; \
 	echo " ( cd '$(DESTDIR)$(strangelibdir)' && rm -f" $$files ")"; \
 	cd "$(DESTDIR)$(strangelibdir)" && rm -f $$files
+install-strangeoptimizeHEADERS: $(strangeoptimize_HEADERS)
+	@$(NORMAL_INSTALL)
+	test -z "$(strangeoptimizedir)" || $(MKDIR_P) "$(DESTDIR)$(strangeoptimizedir)"
+	@list='$(strangeoptimize_HEADERS)'; test -n "$(strangeoptimizedir)" || list=; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(strangeoptimizedir)'"; \
+	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(strangeoptimizedir)" || exit $$?; \
+	done
+
+uninstall-strangeoptimizeHEADERS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(strangeoptimize_HEADERS)'; test -n "$(strangeoptimizedir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	test -n "$$files" || exit 0; \
+	echo " ( cd '$(DESTDIR)$(strangeoptimizedir)' && rm -f" $$files ")"; \
+	cd "$(DESTDIR)$(strangeoptimizedir)" && rm -f $$files
+install-strangeoptimizehacksHEADERS: $(strangeoptimizehacks_HEADERS)
+	@$(NORMAL_INSTALL)
+	test -z "$(strangeoptimizehacksdir)" || $(MKDIR_P) "$(DESTDIR)$(strangeoptimizehacksdir)"
+	@list='$(strangeoptimizehacks_HEADERS)'; test -n "$(strangeoptimizehacksdir)" || list=; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(strangeoptimizehacksdir)'"; \
+	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(strangeoptimizehacksdir)" || exit $$?; \
+	done
+
+uninstall-strangeoptimizehacksHEADERS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(strangeoptimizehacks_HEADERS)'; test -n "$(strangeoptimizehacksdir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	test -n "$$files" || exit 0; \
+	echo " ( cd '$(DESTDIR)$(strangeoptimizehacksdir)' && rm -f" $$files ")"; \
+	cd "$(DESTDIR)$(strangeoptimizehacksdir)" && rm -f $$files
+install-strangeoptimizessaHEADERS: $(strangeoptimizessa_HEADERS)
+	@$(NORMAL_INSTALL)
+	test -z "$(strangeoptimizessadir)" || $(MKDIR_P) "$(DESTDIR)$(strangeoptimizessadir)"
+	@list='$(strangeoptimizessa_HEADERS)'; test -n "$(strangeoptimizessadir)" || list=; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(strangeoptimizessadir)'"; \
+	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(strangeoptimizessadir)" || exit $$?; \
+	done
+
+uninstall-strangeoptimizessaHEADERS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(strangeoptimizessa_HEADERS)'; test -n "$(strangeoptimizessadir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	test -n "$$files" || exit 0; \
+	echo " ( cd '$(DESTDIR)$(strangeoptimizessadir)' && rm -f" $$files ")"; \
+	cd "$(DESTDIR)$(strangeoptimizessadir)" && rm -f $$files
+install-strangeoptimizessiHEADERS: $(strangeoptimizessi_HEADERS)
+	@$(NORMAL_INSTALL)
+	test -z "$(strangeoptimizessidir)" || $(MKDIR_P) "$(DESTDIR)$(strangeoptimizessidir)"
+	@list='$(strangeoptimizessi_HEADERS)'; test -n "$(strangeoptimizessidir)" || list=; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(strangeoptimizessidir)'"; \
+	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(strangeoptimizessidir)" || exit $$?; \
+	done
+
+uninstall-strangeoptimizessiHEADERS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(strangeoptimizessi_HEADERS)'; test -n "$(strangeoptimizessidir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	test -n "$$files" || exit 0; \
+	echo " ( cd '$(DESTDIR)$(strangeoptimizessidir)' && rm -f" $$files ")"; \
+	cd "$(DESTDIR)$(strangeoptimizessidir)" && rm -f $$files
+install-strangeoptimizewpaHEADERS: $(strangeoptimizewpa_HEADERS)
+	@$(NORMAL_INSTALL)
+	test -z "$(strangeoptimizewpadir)" || $(MKDIR_P) "$(DESTDIR)$(strangeoptimizewpadir)"
+	@list='$(strangeoptimizewpa_HEADERS)'; test -n "$(strangeoptimizewpadir)" || list=; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(strangeoptimizewpadir)'"; \
+	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(strangeoptimizewpadir)" || exit $$?; \
+	done
+
+uninstall-strangeoptimizewpaHEADERS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(strangeoptimizewpa_HEADERS)'; test -n "$(strangeoptimizewpadir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	test -n "$$files" || exit 0; \
+	echo " ( cd '$(DESTDIR)$(strangeoptimizewpadir)' && rm -f" $$files ")"; \
+	cd "$(DESTDIR)$(strangeoptimizewpadir)" && rm -f $$files
 install-strangeparsingHEADERS: $(strangeparsing_HEADERS)
 	@$(NORMAL_INSTALL)
 	test -z "$(strangeparsingdir)" || $(MKDIR_P) "$(DESTDIR)$(strangeparsingdir)"
@@ -2953,7 +3746,7 @@ install-binPROGRAMS: install-libLTLIBRARIES
 
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkglibdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(libexecdir)" "$(DESTDIR)$(strangeruntimedir)" "$(DESTDIR)$(strangeruntimetemplatesdir)" "$(DESTDIR)$(strangelibdir)" "$(DESTDIR)$(strangeparsingdir)" "$(DESTDIR)$(strangepassmanagerdir)" "$(DESTDIR)$(strangephcdir)" "$(DESTDIR)$(strangeprocessastdir)" "$(DESTDIR)$(strangeprocesshirdir)" "$(DESTDIR)$(strangeprocessirdir)" "$(DESTDIR)$(strangeprocessmirdir)"; do \
+	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkglibdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(libexecdir)" "$(DESTDIR)$(strangeruntimedir)" "$(DESTDIR)$(strangeruntimetemplatesdir)" "$(DESTDIR)$(strangelibdir)" "$(DESTDIR)$(strangeoptimizedir)" "$(DESTDIR)$(strangeoptimizehacksdir)" "$(DESTDIR)$(strangeoptimizessadir)" "$(DESTDIR)$(strangeoptimizessidir)" "$(DESTDIR)$(strangeoptimizewpadir)" "$(DESTDIR)$(strangeparsingdir)" "$(DESTDIR)$(strangepassmanagerdir)" "$(DESTDIR)$(strangephcdir)" "$(DESTDIR)$(strangeprocessastdir)" "$(DESTDIR)$(strangeprocesshirdir)" "$(DESTDIR)$(strangeprocessirdir)" "$(DESTDIR)$(strangeprocessmirdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: $(BUILT_SOURCES)
@@ -3016,6 +3809,11 @@ info: info-recursive
 info-am:
 
 install-data-am: install-strangelibHEADERS \
+	install-strangeoptimizeHEADERS \
+	install-strangeoptimizehacksHEADERS \
+	install-strangeoptimizessaHEADERS \
+	install-strangeoptimizessiHEADERS \
+	install-strangeoptimizewpaHEADERS \
 	install-strangeparsingHEADERS \
 	install-strangepassmanagerHEADERS install-strangephcHEADERS \
 	install-strangeprocessastHEADERS \
@@ -3075,6 +3873,11 @@ ps-am:
 uninstall-am: uninstall-binPROGRAMS uninstall-binSCRIPTS \
 	uninstall-libLTLIBRARIES uninstall-libexecSCRIPTS \
 	uninstall-nobase_pkglibLTLIBRARIES uninstall-strangelibHEADERS \
+	uninstall-strangeoptimizeHEADERS \
+	uninstall-strangeoptimizehacksHEADERS \
+	uninstall-strangeoptimizessaHEADERS \
+	uninstall-strangeoptimizessiHEADERS \
+	uninstall-strangeoptimizewpaHEADERS \
 	uninstall-strangeparsingHEADERS \
 	uninstall-strangepassmanagerHEADERS \
 	uninstall-strangephcHEADERS uninstall-strangeprocessastHEADERS \
@@ -3104,6 +3907,11 @@ uninstall-am: uninstall-binPROGRAMS uninstall-binSCRIPTS \
 	install-libLTLIBRARIES install-libexecSCRIPTS install-man \
 	install-nobase_pkglibLTLIBRARIES install-pdf install-pdf-am \
 	install-ps install-ps-am install-strangelibHEADERS \
+	install-strangeoptimizeHEADERS \
+	install-strangeoptimizehacksHEADERS \
+	install-strangeoptimizessaHEADERS \
+	install-strangeoptimizessiHEADERS \
+	install-strangeoptimizewpaHEADERS \
 	install-strangeparsingHEADERS \
 	install-strangepassmanagerHEADERS install-strangephcHEADERS \
 	install-strangeprocessastHEADERS \
@@ -3118,6 +3926,11 @@ uninstall-am: uninstall-binPROGRAMS uninstall-binSCRIPTS \
 	uninstall-binPROGRAMS uninstall-binSCRIPTS \
 	uninstall-libLTLIBRARIES uninstall-libexecSCRIPTS \
 	uninstall-nobase_pkglibLTLIBRARIES uninstall-strangelibHEADERS \
+	uninstall-strangeoptimizeHEADERS \
+	uninstall-strangeoptimizehacksHEADERS \
+	uninstall-strangeoptimizessaHEADERS \
+	uninstall-strangeoptimizessiHEADERS \
+	uninstall-strangeoptimizewpaHEADERS \
 	uninstall-strangeparsingHEADERS \
 	uninstall-strangepassmanagerHEADERS \
 	uninstall-strangephcHEADERS uninstall-strangeprocessastHEADERS \

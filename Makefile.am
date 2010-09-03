@@ -19,7 +19,7 @@ AM_CPPFLAGS = \
 	-I$(srcdir)/src -I$(srcdir) -I$(srcdir)/3rdparty/getopt -I$(srcdir)/src/generated		\
 	@libphp_headers@																				\
 	-DDATADIR=\"$(datadir)\" -DPKGLIBDIR=\"$(pkglibdir)\"								\
-	-Wall -Wno-unused-parameter
+	-Wall
 
 AM_LDFLAGS = $(BOOST_LDFLAGS)
 
@@ -28,7 +28,7 @@ bin_PROGRAMS = src/phc
 
 # By using CXXFLAGS we avoid warnings in generated_src, which we dont want to
 # hear about. 
-AM_CXXFLAGS = -Wextra -Wno-write-strings
+AM_CXXFLAGS = -Wextra -Wno-unused-parameter -Wno-write-strings -Wno-deprecated
 
 ACLOCAL_AMFLAGS = -I m4 -I libltdl
 
@@ -42,7 +42,7 @@ ACLOCAL_AMFLAGS = -I m4 -I libltdl
 # -export-dynammic: Special libtool flag for later plugin loading
 src_phc_LDFLAGS = -export-dynamic
 
-src_phc_LDADD = @gc_lib@ $(LIBLTDL) libphc.la
+src_phc_LDADD = @gc_lib@ $(LIBLTDL) $(BOOST_REGEX_LIB) libphc.la
 
 bin_SCRIPTS = src/phc_compile_plugin
 libexec_SCRIPTS = libtool
@@ -101,6 +101,7 @@ libphc_la_SOURCES= 											\
 	src/codegen/MICG_gen.h									\
 	src/embed/embed.cpp										\
 	src/embed/embed.h											\
+	src/embed/optimize.cpp									\
 	src/embed/util.cpp										\
 	src/embed/util.h											\
 	src/generated/AST.cpp									\
@@ -175,6 +176,7 @@ libphc_la_SOURCES= 											\
 	src/lib/Integer.cpp										\
 	src/lib/Integer.h											\
 	src/lib/List.h												\
+	src/lib/Map.cpp											\
 	src/lib/Map.h												\
 	src/lib/Object.cpp										\
 	src/lib/Object.h											\
@@ -183,16 +185,105 @@ libphc_la_SOURCES= 											\
 	src/lib/String.cpp										\
 	src/lib/String.h											\
 	src/lib/Vector.h											\
-	src/optimize/Copy_propagation.cpp					\
-	src/optimize/Copy_propagation.h						\
+	src/optimize/Abstract_value.cpp						\
+	src/optimize/Abstract_value.h							\
+	src/optimize/Alias_name.cpp							\
+	src/optimize/Alias_name.h								\
+	src/optimize/Basic_block.cpp							\
+	src/optimize/Basic_block.h								\
+	src/optimize/CFG.cpp										\
+	src/optimize/CFG.h										\
+	src/optimize/CFG_visitor.cpp							\
+	src/optimize/CFG_visitor.h								\
+	src/optimize/Class_info.cpp							\
+	src/optimize/Class_info.h								\
 	src/optimize/Dead_code_elimination.cpp				\
 	src/optimize/Dead_code_elimination.h				\
-	src/optimize/Fix_point.cpp								\
-	src/optimize/Fix_point.h								\
+	src/optimize/Def_use_web.cpp 							\
+	src/optimize/Def_use_web.h								\
+	src/optimize/Edge.cpp									\
+	src/optimize/Edge.h										\
+	src/optimize/Flow_visitor.cpp							\
+	src/optimize/Flow_visitor.h							\
+	src/optimize/If_simplification.cpp					\
+	src/optimize/If_simplification.h						\
+	src/optimize/Inlining.cpp								\
+	src/optimize/Inlining.h									\
+	src/optimize/Lattice.h									\
+	src/optimize/Mark_initialized.cpp					\
+	src/optimize/Mark_initialized.h						\
+	src/optimize/Method_info.cpp							\
+	src/optimize/Method_info.h								\
+	src/optimize/Method_pruner.h							\
+	src/optimize/Misc_annotations.cpp					\
+	src/optimize/Misc_annotations.h						\
+	src/optimize/Oracle.cpp									\
+	src/optimize/Oracle.h									\
 	src/optimize/Prune_symbol_table.cpp					\
 	src/optimize/Prune_symbol_table.h					\
-	src/optimize/Use_def_counter.cpp 					\
-	src/optimize/Use_def_counter.h						\
+	src/optimize/Remove_loop_booleans.cpp				\
+	src/optimize/Remove_loop_booleans.h					\
+	src/optimize/hacks/Copy_propagation.cpp				\
+	src/optimize/hacks/Copy_propagation.h				\
+	src/optimize/hacks/Dead_temp_cleanup.cpp			\
+	src/optimize/hacks/Dead_temp_cleanup.h				\
+	src/optimize/hacks/Fix_point.cpp				\
+	src/optimize/hacks/Fix_point.h				\
+	src/optimize/hacks/Use_def_counter.cpp				\
+	src/optimize/hacks/Use_def_counter.h				\
+	src/optimize/ssa/Dominance.cpp						\
+	src/optimize/ssa/Dominance.h							\
+	src/optimize/ssa/HSSA.cpp								\
+	src/optimize/ssa/HSSA.h									\
+	src/optimize/ssa/Phi.cpp								\
+	src/optimize/ssa/Phi.h									\
+	src/optimize/ssa/SSA_name.cpp							\
+	src/optimize/ssa/SSA_name.h							\
+	src/optimize/ssa/SSA_ops.cpp							\
+	src/optimize/ssa/SSA_ops.h								\
+	src/optimize/ssi/ESSA.cpp								\
+	src/optimize/ssi/ESSA.h								\
+	src/optimize/ssi/Sigma.cpp								\
+	src/optimize/ssi/Sigma.h								\
+	src/optimize/ssi/SSI.cpp								\
+	src/optimize/ssi/SSI.h								\
+	src/optimize/ssi/SSI_ops.cpp								\
+	src/optimize/ssi/SSI_ops.h								\
+	src/optimize/Visit_once.cpp							\
+	src/optimize/Visit_once.h								\
+	src/optimize/wpa/Aliasing.cpp							\
+	src/optimize/wpa/Aliasing.h							\
+	src/optimize/wpa/Callgraph.cpp						\
+	src/optimize/wpa/Callgraph.h							\
+	src/optimize/wpa/Constant_state.cpp					\
+	src/optimize/wpa/Constant_state.h					\
+	src/optimize/wpa/Context.cpp							\
+	src/optimize/wpa/Context.h								\
+	src/optimize/wpa/Debug_WPA.cpp						\
+	src/optimize/wpa/Debug_WPA.h							\
+	src/optimize/wpa/Def_use.cpp							\
+	src/optimize/wpa/Def_use.h								\
+	src/optimize/wpa/Include_analysis.cpp				\
+	src/optimize/wpa/Include_analysis.h					\
+	src/optimize/wpa/Optimization_annotator.cpp		\
+	src/optimize/wpa/Optimization_annotator.h			\
+	src/optimize/wpa/Optimization_transformer.cpp	\
+	src/optimize/wpa/Optimization_transformer.h		\
+	src/optimize/wpa/Points_to.cpp						\
+	src/optimize/wpa/Points_to.h							\
+	src/optimize/wpa/Stat_collector.cpp	\
+	src/optimize/wpa/Stat_collector.h	\
+	src/optimize/wpa/Value_analysis.cpp					\
+	src/optimize/wpa/Value_analysis.h					\
+	src/optimize/wpa/VRP.cpp								\
+	src/optimize/wpa/VRP.h									\
+	src/optimize/wpa/Whole_program.cpp					\
+	src/optimize/wpa/Whole_program.h						\
+	src/optimize/wpa/Worklist.cpp							\
+	src/optimize/wpa/Worklist.h							\
+	src/optimize/wpa/WPA.cpp								\
+	src/optimize/wpa/WPA.h									\
+	src/optimize/wpa/WPA_lattice.h						\
 	src/parsing/MICG_parser.cpp							\
 	src/parsing/MICG_parser.h								\
 	src/parsing/Parse_buffer.cpp							\
@@ -204,6 +295,8 @@ libphc_la_SOURCES= 											\
 	src/parsing/XML_parser.cpp								\
 	src/parsing/XML_parser.h								\
 	src/pass_manager/Fake_pass.h							\
+	src/pass_manager/Optimization_pass.cpp				\
+	src/pass_manager/Optimization_pass.h				\
 	src/pass_manager/Pass.h									\
 	src/pass_manager/Pass_manager.cpp					\
 	src/pass_manager/Pass_manager.h						\
@@ -345,6 +438,72 @@ strangephc_HEADERS =							\
 	src/generated/MIR_user_defined.h		\
 	src/generated/MIR_visitor.h
 
+strangeoptimizedir = $(pkgincludedir)/optimize
+strangeoptimize_HEADERS =					\
+	src/optimize/Abstract_value.h		\
+	src/optimize/Alias_name.h		\
+	src/optimize/Basic_block.h		\
+	src/optimize/CFG.h		\
+	src/optimize/CFG_visitor.h		\
+	src/optimize/Class_info.h		\
+	src/optimize/Dead_code_elimination.h		\
+	src/optimize/Def_use_web.h		\
+	src/optimize/Edge.h		\
+	src/optimize/Flow_visitor.h		\
+	src/optimize/If_simplification.h		\
+	src/optimize/Inlining.h		\
+	src/optimize/Lattice.h		\
+	src/optimize/Mark_initialized.h		\
+	src/optimize/Method_info.h		\
+	src/optimize/Method_pruner.h		\
+	src/optimize/Misc_annotations.h		\
+	src/optimize/Oracle.h		\
+	src/optimize/Prune_symbol_table.h		\
+	src/optimize/Remove_loop_booleans.h		\
+	src/optimize/Visit_once.h
+
+strangeoptimizehacksdir = $(pkgincludedir)/optimize/hacks
+strangeoptimizehacks_HEADERS =					\
+	src/optimize/hacks/Copy_propagation.h		\
+	src/optimize/hacks/Dead_temp_cleanup.h		\
+	src/optimize/hacks/Fix_point.h		\
+	src/optimize/hacks/Use_def_counter.h
+
+strangeoptimizessadir = $(pkgincludedir)/optimize/ssa
+strangeoptimizessa_HEADERS =					\
+	src/optimize/ssa/Dominance.h		\
+	src/optimize/ssa/HSSA.h		\
+	src/optimize/ssa/Phi.h		\
+	src/optimize/ssa/SSA_name.h		\
+	src/optimize/ssa/SSA_ops.h
+
+strangeoptimizessidir = $(pkgincludedir)/optimize/ssi
+strangeoptimizessi_HEADERS =					\
+	src/optimize/ssi/ESSA.h		\
+	src/optimize/ssi/Sigma.h		\
+	src/optimize/ssi/SSI.h		\
+	src/optimize/ssi/SSI_ops.h
+
+strangeoptimizewpadir = $(pkgincludedir)/optimize/wpa
+strangeoptimizewpa_HEADERS =					\
+	src/optimize/wpa/Aliasing.h		\
+	src/optimize/wpa/Callgraph.h		\
+	src/optimize/wpa/Constant_state.h		\
+	src/optimize/wpa/Context.h		\
+	src/optimize/wpa/Debug_WPA.h		\
+	src/optimize/wpa/Def_use.h		\
+	src/optimize/wpa/Include_analysis.h		\
+	src/optimize/wpa/Optimization_annotator.h		\
+	src/optimize/wpa/Optimization_transformer.h		\
+	src/optimize/wpa/Points_to.h		\
+	src/optimize/wpa/Stat_collector.h		\
+	src/optimize/wpa/Value_analysis.h		\
+	src/optimize/wpa/VRP.h		\
+	src/optimize/wpa/Whole_program.h		\
+	src/optimize/wpa/Worklist.h		\
+	src/optimize/wpa/WPA.h		\
+	src/optimize/wpa/WPA_lattice.h
+
 strangeparsingdir = $(pkgincludedir)/parsing
 strangeparsing_HEADERS =					\
 	src/parsing/parse.h						\
@@ -380,10 +539,10 @@ strangeprocessir_HEADERS =						\
 
 strangepassmanagerdir = $(pkgincludedir)/pass_manager
 strangepassmanager_HEADERS =					\
+	src/pass_manager/Optimization_pass.h		\
 	src/pass_manager/Pass.h						\
 	src/pass_manager/Pass_manager.h			\
 	src/pass_manager/Plugin_pass.h
-
 
 
 strangelibdir = $(pkgincludedir)/lib
@@ -450,6 +609,10 @@ nobase_pkglib_LTLIBRARIES += plugins/tests/line_numbers.la
 plugins_tests_line_numbers_la_SOURCES = plugins/tests/line_numbers.cpp
 plugins_tests_line_numbers_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
+nobase_pkglib_LTLIBRARIES += plugins/tests/raise_globals.la
+plugins_tests_raise_globals_la_SOURCES = plugins/tests/raise_globals.cpp
+plugins_tests_raise_globals_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+
 nobase_pkglib_LTLIBRARIES += plugins/tests/pre_vs_post_count.la
 plugins_tests_pre_vs_post_count_la_SOURCES = plugins/tests/pre_vs_post_count.cpp
 plugins_tests_pre_vs_post_count_la_LDFLAGS = ${PLUGIN_LDFLAGS}
@@ -466,6 +629,10 @@ nobase_pkglib_LTLIBRARIES += plugins/tools/add_comment.la
 plugins_tools_add_comment_la_SOURCES = plugins/tools/add_comment.cpp
 plugins_tools_add_comment_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
+nobase_pkglib_LTLIBRARIES += plugins/tools/C_unparser.la
+plugins_tools_C_unparser_la_SOURCES = plugins/tools/C_unparser.cpp
+plugins_tools_C_unparser_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+
 nobase_pkglib_LTLIBRARIES += plugins/tools/debug_zval.la
 plugins_tools_debug_zval_la_SOURCES = plugins/tools/debug_zval.cpp
 plugins_tools_debug_zval_la_LDFLAGS = ${PLUGIN_LDFLAGS}
@@ -478,9 +645,17 @@ nobase_pkglib_LTLIBRARIES += plugins/tools/purity_test.la
 plugins_tools_purity_test_la_SOURCES = plugins/tools/purity_test.cpp
 plugins_tools_purity_test_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
+nobase_pkglib_LTLIBRARIES += plugins/tools/function_finder.la
+plugins_tools_function_finder_la_SOURCES = plugins/tools/function_finder.cpp
+plugins_tools_function_finder_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+
 nobase_pkglib_LTLIBRARIES += plugins/tools/dynamic_things.la
 plugins_tools_dynamic_things_la_SOURCES = plugins/tools/dynamic_things.cpp
 plugins_tools_dynamic_things_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+
+nobase_pkglib_LTLIBRARIES += plugins/tools/get_defines.la
+plugins_tools_get_defines_la_SOURCES = plugins/tools/get_defines.cpp
+plugins_tools_get_defines_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
 nobase_pkglib_LTLIBRARIES += plugins/tools/reduce_statements.la
 plugins_tools_reduce_statements_la_SOURCES = plugins/tools/reduce_statements.cpp
@@ -489,6 +664,14 @@ plugins_tools_reduce_statements_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 nobase_pkglib_LTLIBRARIES += plugins/tools/remove_all.la
 plugins_tools_remove_all_la_SOURCES = plugins/tools/remove_all.cpp
 plugins_tools_remove_all_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+
+nobase_pkglib_LTLIBRARIES += plugins/tools/replace_include_constants.la
+plugins_tools_replace_include_constants_la_SOURCES = plugins/tools/replace_include_constants.cpp
+plugins_tools_replace_include_constants_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+
+nobase_pkglib_LTLIBRARIES += plugins/tools/test_ssi.la
+plugins_tools_test_ssi_la_SOURCES = plugins/tools/test_ssi.cpp
+plugins_tools_test_ssi_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
 nobase_pkglib_LTLIBRARIES += plugins/tutorials/Comment_ifs.la
 plugins_tutorials_Comment_ifs_la_SOURCES = plugins/tutorials/Comment_ifs.cpp

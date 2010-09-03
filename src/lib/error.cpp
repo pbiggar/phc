@@ -16,6 +16,9 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
+#include <iostream>
+#include <string>
+
 #include "cmdline.h"
 
 // Generally we pass this through the pass manager. However, this is
@@ -23,11 +26,14 @@
 // everywhere we want to cause an error.
 struct gengetopt_args_info error_args_info;
 
-enum Error_type { WARNING=0, ERROR=1, INTERNAL_ERROR=2 };
-static const char* error_messages[] = { "Warning", "Error", "Internal error" };
+enum Error_type { WARNING=0, ERROR=1, INTERNAL_ERROR=2, MISSED_OPT=3 };
+static const char* error_messages[] = { "Warning", "Error", "Internal error", "Missed optimization" };
 
 void phc_message (Error_type type, const char* message_template, String* filename, int line, int column, va_list argp)
 {
+	if (type == MISSED_OPT && !error_args_info.missed_opt_given)
+		return;
+
 	if (type == WARNING && error_args_info.no_warnings_flag)
 		return;
 
@@ -52,9 +58,13 @@ void phc_message (Error_type type, const char* message_template, String* filenam
 		fprintf(stderr, "Note that line numbers are inaccurate, "
 			"and will be fixed in a later release\n");
 
-	if (type != WARNING && not error_args_info.dont_fail_flag)
-		exit(-1);
+	if (type == WARNING
+		|| type == MISSED_OPT
+		|| error_args_info.dont_fail_flag
+		)
+		return;
 
+	exit(-1);
 }
 
 // Explicit names and line numbers.
@@ -71,6 +81,7 @@ void phc_##NAME (const char* message,								\
 define_explicit_message_func (internal_error, INTERNAL_ERROR);
 define_explicit_message_func (error, ERROR);
 define_explicit_message_func (warning, WARNING);
+define_explicit_message_func (missed_opt, MISSED_OPT);
 
 #define define_va_list_message_func(NAME, TYPE)					\
 void phc_##NAME (const char* message, va_list argp,			\
@@ -83,6 +94,7 @@ void phc_##NAME (const char* message, va_list argp,			\
 define_va_list_message_func (internal_error, INTERNAL_ERROR);
 define_va_list_message_func (error, ERROR);
 define_va_list_message_func (warning, WARNING);
+define_va_list_message_func (missed_opt, MISSED_OPT);
 
 
 // No filename or line number
@@ -99,6 +111,7 @@ void phc_##NAME (const char* message, ... )						\
 define_null_message_func (internal_error, INTERNAL_ERROR);
 define_null_message_func (error, ERROR);
 define_null_message_func (warning, WARNING);
+define_null_message_func (missed_opt, MISSED_OPT);
 
 
 // Use the node to pass the name or line number
@@ -132,3 +145,16 @@ define_node_message_func (internal_error, INTERNAL_ERROR, AST::Node);
 define_node_message_func (internal_error, INTERNAL_ERROR, HIR::Node);
 define_node_message_func (internal_error, INTERNAL_ERROR, MIR::Node);
 define_node_message_func (internal_error, INTERNAL_ERROR, MICG::Node);
+
+define_node_message_func (missed_opt, MISSED_OPT, AST::Node);
+define_node_message_func (missed_opt, MISSED_OPT, HIR::Node);
+define_node_message_func (missed_opt, MISSED_OPT, MIR::Node);
+define_node_message_func (missed_opt, MISSED_OPT, MICG::Node);
+
+
+void _phc_optimization_exception (string message, string filename, int line)
+{
+	stringstream ss;		
+	ss << filename << ":" << line << ":\n" << message << "\n"; 
+	throw s(ss.str ());	
+}

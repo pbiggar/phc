@@ -1,0 +1,80 @@
+#!/bin/bash
+# Run all the benchmarks on
+
+FILENAME=$1;
+DBNAME=$2;
+
+ulimit -t 2400 # 40 mins
+ulimit -v 8000000 # 8G-ish
+
+#!/bin/bash
+SAVE_FILE="results/benchmark_output-"`date | sed 's/ /-/g'`
+FAIL_FILE="results/benchmark_fail-"`date | sed 's/ /-/g'`
+
+
+
+for i in `cat $FILENAME`;
+do
+	echo "===================================================================================================================" >> $SAVE_FILE;
+	echo $i >> $SAVE_FILE;
+
+	dirname=`dirname $i`
+
+	COMMAND="/usr/bin/time --format %E-%K php test/framework/bench/stats.php $i $DBNAME --include --include-harder -d include_path=$dirname"
+	svn update >> $SAVE_FILE 2>&1 
+	/usr/bin/make >> $SAVE_FILE 2>&1 
+	echo -e "\n\n\n" >> $SAVE_FILE
+
+	THIS_COMMAND="$COMMAND --flow-insensitive --call-string-length=1"
+	echo "$THIS_COMMAND" >> $SAVE_FILE
+	$THIS_COMMAND >> $SAVE_FILE 2>&1 
+	exit=$?
+	if [ $exit -ne 0 ] ; then 
+		echo "$exit"
+		echo "$THIS_COMMAND" >> $FAIL_FILE	
+		echo "EXIT CODE " >> $FAIL_FILE
+		echo "$exit" >> $FAIL_FILE
+		echo -e "\n\n\n" >> $FAIL_FILE
+	fi
+	echo -e "\n\n\n" >> $SAVE_FILE
+
+	THIS_COMMAND="$COMMAND --call-string-length=1"
+	echo "$THIS_COMMAND" >> $SAVE_FILE
+	$THIS_COMMAND >> $SAVE_FILE 2>&1 
+	exit=$?
+	if [ $exit -ne 0 ] ; then 
+		echo "$exit"
+		echo "$THIS_COMMAND" >> $FAIL_FILE	
+		echo "EXIT CODE " >> $FAIL_FILE
+		echo "$exit" >> $FAIL_FILE
+		echo -e "\n\n\n" >> $FAIL_FILE
+	fi
+	echo -e "\n\n\n" >> $SAVE_FILE
+
+	THIS_COMMAND="$COMMAND --flow-insensitive"
+	echo "$THIS_COMMAND" >> $SAVE_FILE
+	$THIS_COMMAND >> $SAVE_FILE 2>&1 
+	exit=$?
+	if [ $exit -ne 0 ] ; then 
+		echo "$exit"
+		echo "$THIS_COMMAND" >> $FAIL_FILE	
+		echo "EXIT CODE " >> $FAIL_FILE
+		echo "$exit" >> $FAIL_FILE
+		echo -e "\n\n\n" >> $FAIL_FILE
+	fi
+	echo -e "\n\n\n" >> $SAVE_FILE
+
+	THIS_COMMAND="$COMMAND"
+	echo "$THIS_COMMAND" >> $SAVE_FILE
+	$THIS_COMMAND >> $SAVE_FILE 2>&1 
+	exit=$?
+	if [ $exit -ne 0 ] ; then 
+		echo "$exit"
+		echo "$THIS_COMMAND" >> $FAIL_FILE	
+		echo "EXIT CODE " >> $FAIL_FILE
+		echo "$exit" >> $FAIL_FILE
+		echo -e "\n\n\n" >> $FAIL_FILE
+	fi
+	echo -e "\n\n\n" >> $SAVE_FILE
+
+done
