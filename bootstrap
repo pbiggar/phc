@@ -5,7 +5,7 @@ AUTOCONF_ARCHIVE=/usr/share/aclocal
 
 # autotools invocations are hard to get right.
 
-aclocal -I m4 -I libltdl -I $AUTOCONF_ARCHIVE
+aclocal -I m4 -I libltdl -I $AUTOCONF_ARCHIVE -I /usr/share/aclocal
 autoconf
 automake
 
