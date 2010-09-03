@@ -82,7 +82,7 @@ Reference
 .. _guide:
 
 ############################
-Internals' Guide
+Developers' Guide
 ############################
 
 .. toctree::

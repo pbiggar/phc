@@ -131,7 +131,7 @@ void Compile_C::run (IR::PHP_script* in, Pass_manager* pm)
 		phc_error ("Could not fork");
 
 	if(cpid == 0)
-	{		
+	{
 		// Child (gcc)
 		close(pfd[WRITE_END]);
 		dup2(pfd[READ_END], STDIN_FILENO);
@@ -160,7 +160,7 @@ void Compile_C::run (IR::PHP_script* in, Pass_manager* pm)
 		// Close the pipe into indicate EOF to gcc
 		close(STDOUT_FILENO);
 		close(pfd[WRITE_END]);
-		
+
 		// Wait for gcc to finish (get the exit code)
 		int exit_code;
 		waitpid(cpid, &exit_code, 0);

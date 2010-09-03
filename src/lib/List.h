@@ -190,7 +190,7 @@ public:
 
 	List* clone () const
 	{
-		// Just reuse clone(), we know its const.
+		// Just reuse clone(), we know it's const.
 		return const_cast<const List<_Tp, _Alloc>*> (this)->clone ();
 	}
 	

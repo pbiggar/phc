@@ -696,10 +696,12 @@ builtin_no_lhs (node ARG, string NAME, string FILENAME)
 assign_expr_ref_foreach_get_val (token LHS, token ARRAY, string ITERATOR)
 @@@
    \get_st_entry ("LOCAL", "p_lhs", LHS);
+   // TODO: we know this is an array
    \read_rvalue ("fe_array", ARRAY);
 
    zval** p_rhs = NULL;
-   int result = zend_hash_get_current_data_ex (fe_array->value.ht,
+   int result = zend_hash_get_current_data_ex (
+					       fe_array->value.ht,
 					       (void**)(&p_rhs),
 					       &$ITERATOR);
    assert (result == SUCCESS);
@@ -711,10 +713,12 @@ assign_expr_ref_foreach_get_val (token LHS, token ARRAY, string ITERATOR)
 assign_expr_foreach_get_val (token LHS, token ARRAY, string ITERATOR)
 @@@
    \get_st_entry ("LOCAL", "p_lhs", LHS);
+   // TODO: we know this is an array
    \read_rvalue ("fe_array", ARRAY);
 
    zval** p_rhs = NULL;
-   int result = zend_hash_get_current_data_ex (fe_array->value.ht,
+   int result = zend_hash_get_current_data_ex (
+					       fe_array->value.ht,
 					       (void**)(&p_rhs),
 					       &$ITERATOR);
    assert (result == SUCCESS);

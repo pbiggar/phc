@@ -59,7 +59,7 @@ Interface_def ::= INTERFACE_NAME extends:INTERFACE_NAME* Member* ;
 Member ::= Method | Attribute ;
 
 Method ::= Signature Statement*? ;
--- Pass_rest_by_ref is so that we can treat fully model ZEND_INTERNAL_FUNCTIONs as Signatures
+-- Pass_rest_by_ref is so that we can fully model ZEND_INTERNAL_FUNCTIONs as Signatures
 Signature ::= Method_mod pass_rest_by_ref:"rest_by_ref"? return_by_ref:"&"? METHOD_NAME Formal_parameter* ;
 Method_mod ::= "public"? "protected"? "private"? "static"? "abstract"? "final"? ;
 Formal_parameter ::= Type is_ref:"&"? var:Name_with_default ;
