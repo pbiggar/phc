@@ -19,6 +19,14 @@ Plugin_pass::Plugin_pass (String* name, lt_dlhandle handle, Pass_manager* pm, St
 	this->option = option;
 }
 
+void
+Plugin_pass::run_pass (IR::PHP_script* in, Pass_manager* pm, bool main)
+{
+  // Don't call plugin passes except from the main pipeline pass.
+  if (main)
+    Pass::run_pass(in, pm, main);
+}
+
 void Plugin_pass::run (IR::PHP_script* in, Pass_manager* pm)
 {
 	/* The ltdl interface uses C, so overloading on type doesnt work. We must

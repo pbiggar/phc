@@ -215,6 +215,14 @@ plugins_tests_raise_globals_la_LINK = $(LIBTOOL) --tag=CXX \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
 	$(AM_CXXFLAGS) $(CXXFLAGS) \
 	$(plugins_tests_raise_globals_la_LDFLAGS) $(LDFLAGS) -o $@
+plugins_tests_run_once_la_LIBADD =
+am_plugins_tests_run_once_la_OBJECTS = run_once.lo
+plugins_tests_run_once_la_OBJECTS =  \
+	$(am_plugins_tests_run_once_la_OBJECTS)
+plugins_tests_run_once_la_LINK = $(LIBTOOL) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(AM_CXXFLAGS) $(CXXFLAGS) \
+	$(plugins_tests_run_once_la_LDFLAGS) $(LDFLAGS) -o $@
 plugins_tests_source_vs_semantic_values_la_LIBADD =
 am_plugins_tests_source_vs_semantic_values_la_OBJECTS =  \
 	source_vs_semantic_values.lo
@@ -442,6 +450,7 @@ SOURCES = $(libphc_la_SOURCES) \
 	$(plugins_tests_linear_la_SOURCES) \
 	$(plugins_tests_pre_vs_post_count_la_SOURCES) \
 	$(plugins_tests_raise_globals_la_SOURCES) \
+	$(plugins_tests_run_once_la_SOURCES) \
 	$(plugins_tests_source_vs_semantic_values_la_SOURCES) \
 	$(plugins_tests_strip_includes_la_SOURCES) \
 	$(plugins_tools_C_unparser_la_SOURCES) \
@@ -473,6 +482,7 @@ DIST_SOURCES = $(libphc_la_SOURCES) \
 	$(plugins_tests_linear_la_SOURCES) \
 	$(plugins_tests_pre_vs_post_count_la_SOURCES) \
 	$(plugins_tests_raise_globals_la_SOURCES) \
+	$(plugins_tests_run_once_la_SOURCES) \
 	$(plugins_tests_source_vs_semantic_values_la_SOURCES) \
 	$(plugins_tests_strip_includes_la_SOURCES) \
 	$(plugins_tools_C_unparser_la_SOURCES) \
@@ -1273,9 +1283,9 @@ strangeruntimetemplates_DATA = \
 	runtime/templates/templates_new.c
 
 nobase_pkglib_LTLIBRARIES = plugins/tests/canonical_unparser.la \
-	plugins/tests/cloning.la plugins/tests/inconsistent_st_attr.la \
-	plugins/tests/linear.la plugins/tests/line_numbers.la \
-	plugins/tests/raise_globals.la \
+	plugins/tests/cloning.la plugins/tests/run_once.la \
+	plugins/tests/inconsistent_st_attr.la plugins/tests/linear.la \
+	plugins/tests/line_numbers.la plugins/tests/raise_globals.la \
 	plugins/tests/pre_vs_post_count.la \
 	plugins/tests/source_vs_semantic_values.la \
 	plugins/tests/strip_includes.la plugins/tools/add_comment.la \
@@ -1297,6 +1307,8 @@ plugins_tests_canonical_unparser_la_SOURCES = plugins/tests/canonical_unparser.c
 plugins_tests_canonical_unparser_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tests_cloning_la_SOURCES = plugins/tests/cloning.cpp plugins/tests/Collect_all_pointers.h
 plugins_tests_cloning_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+plugins_tests_run_once_la_SOURCES = plugins/tests/run_once.cpp
+plugins_tests_run_once_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tests_inconsistent_st_attr_la_SOURCES = plugins/tests/inconsistent_st_attr.cpp
 plugins_tests_inconsistent_st_attr_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tests_linear_la_SOURCES = plugins/tests/linear.cpp plugins/tests/Collect_all_pointers.h
@@ -1516,6 +1528,8 @@ plugins/tests/pre_vs_post_count.la: $(plugins_tests_pre_vs_post_count_la_OBJECTS
 	$(plugins_tests_pre_vs_post_count_la_LINK) -rpath $(pkglibdir)/plugins/tests $(plugins_tests_pre_vs_post_count_la_OBJECTS) $(plugins_tests_pre_vs_post_count_la_LIBADD) $(LIBS)
 plugins/tests/raise_globals.la: $(plugins_tests_raise_globals_la_OBJECTS) $(plugins_tests_raise_globals_la_DEPENDENCIES) plugins/tests/$(am__dirstamp)
 	$(plugins_tests_raise_globals_la_LINK) -rpath $(pkglibdir)/plugins/tests $(plugins_tests_raise_globals_la_OBJECTS) $(plugins_tests_raise_globals_la_LIBADD) $(LIBS)
+plugins/tests/run_once.la: $(plugins_tests_run_once_la_OBJECTS) $(plugins_tests_run_once_la_DEPENDENCIES) plugins/tests/$(am__dirstamp)
+	$(plugins_tests_run_once_la_LINK) -rpath $(pkglibdir)/plugins/tests $(plugins_tests_run_once_la_OBJECTS) $(plugins_tests_run_once_la_LIBADD) $(LIBS)
 plugins/tests/source_vs_semantic_values.la: $(plugins_tests_source_vs_semantic_values_la_OBJECTS) $(plugins_tests_source_vs_semantic_values_la_DEPENDENCIES) plugins/tests/$(am__dirstamp)
 	$(plugins_tests_source_vs_semantic_values_la_LINK) -rpath $(pkglibdir)/plugins/tests $(plugins_tests_source_vs_semantic_values_la_OBJECTS) $(plugins_tests_source_vs_semantic_values_la_LIBADD) $(LIBS)
 plugins/tests/strip_includes.la: $(plugins_tests_strip_includes_la_OBJECTS) $(plugins_tests_strip_includes_la_DEPENDENCIES) plugins/tests/$(am__dirstamp)
@@ -1853,6 +1867,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/reduce_statements.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/remove_all.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/replace_include_constants.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_once.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/show_traversal_order.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/source_vs_semantic_values.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stats.Plo@am__quote@
@@ -2923,6 +2938,13 @@ raise_globals.lo: plugins/tests/raise_globals.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='plugins/tests/raise_globals.cpp' object='raise_globals.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o raise_globals.lo `test -f 'plugins/tests/raise_globals.cpp' || echo '$(srcdir)/'`plugins/tests/raise_globals.cpp
+
+run_once.lo: plugins/tests/run_once.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT run_once.lo -MD -MP -MF $(DEPDIR)/run_once.Tpo -c -o run_once.lo `test -f 'plugins/tests/run_once.cpp' || echo '$(srcdir)/'`plugins/tests/run_once.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/run_once.Tpo $(DEPDIR)/run_once.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='plugins/tests/run_once.cpp' object='run_once.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o run_once.lo `test -f 'plugins/tests/run_once.cpp' || echo '$(srcdir)/'`plugins/tests/run_once.cpp
 
 source_vs_semantic_values.lo: plugins/tests/source_vs_semantic_values.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT source_vs_semantic_values.lo -MD -MP -MF $(DEPDIR)/source_vs_semantic_values.Tpo -c -o source_vs_semantic_values.lo `test -f 'plugins/tests/source_vs_semantic_values.cpp' || echo '$(srcdir)/'`plugins/tests/source_vs_semantic_values.cpp

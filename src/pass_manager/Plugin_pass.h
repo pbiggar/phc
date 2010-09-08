@@ -25,6 +25,8 @@ public:
 	void run (IR::PHP_script* in, Pass_manager* pm);
 	void post_process ();
 
+	void run_pass (IR::PHP_script* in, Pass_manager* pm, bool main);
+
 };
 
 // declare these for type checking

@@ -36,7 +36,7 @@ public:
 	// Passes should use this to control their activation
 	virtual bool pass_is_enabled (Pass_manager* pm) { return true; }
 
-	void run_pass (IR::PHP_script* in, Pass_manager* pm)
+	virtual void run_pass (IR::PHP_script* in, Pass_manager* pm, bool main)
 	{
 		if (is_enabled (pm))
 			run (in, pm);
@@ -45,9 +45,6 @@ public:
 public:
 
 	virtual ~Pass () {}
-
-	// not sure how this should work
-	Pass* clone () { assert (0); }
 };
 
 #endif // PHC_PASS_H

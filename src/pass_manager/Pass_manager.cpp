@@ -477,7 +477,7 @@ void Pass_manager::run_pass (Pass* pass, IR::PHP_script* in, bool main)
 		if (main)
 			maybe_enable_debug (pass->name);
 
-		pass->run_pass (in, this);
+		pass->run_pass (in, this, main);
 		if (main)
 			this->dump (in, pass->name);
 

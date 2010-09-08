@@ -597,6 +597,10 @@ nobase_pkglib_LTLIBRARIES += plugins/tests/cloning.la
 plugins_tests_cloning_la_SOURCES = plugins/tests/cloning.cpp plugins/tests/Collect_all_pointers.h
 plugins_tests_cloning_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
+nobase_pkglib_LTLIBRARIES += plugins/tests/run_once.la
+plugins_tests_run_once_la_SOURCES = plugins/tests/run_once.cpp
+plugins_tests_run_once_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+
 nobase_pkglib_LTLIBRARIES += plugins/tests/inconsistent_st_attr.la
 plugins_tests_inconsistent_st_attr_la_SOURCES = plugins/tests/inconsistent_st_attr.cpp
 plugins_tests_inconsistent_st_attr_la_LDFLAGS = ${PLUGIN_LDFLAGS}
