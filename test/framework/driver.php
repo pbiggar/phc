@@ -22,10 +22,11 @@ $plugin_dir =	"plugins";
 require_once ("lib/header.php");
 
 // setup log dir
-$log_directory =	"test/logs/".date_string ();
+$date = date_string();
+$log_directory =	"test/logs/$date";
 mkdir ($log_directory);
 @unlink ("test/logs/latest");
-symlink ($log_directory, "test/logs/latest");
+symlink ($date, "test/logs/latest");
 print ("Logs in:      $log_directory\n");
 
 //setup working dir
