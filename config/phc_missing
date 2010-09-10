@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# If you're playing with the files in src/generated/, you'll need some specialist tools. However, sometimes we try to rebuild because of bad timestamps, which would be unintentional. So in this case tell them how to get past it, and give a proper error message.
+
+function myerror {
+    echo "\`$1\` is missing. It should only be required if you have edited \`src/generated_src/$2\`. If not, run \`touch src/generated/$3\` to avoid this error.";
+}
+
+case $1 in
+
+  maketea)
+    myerror maketea "*.tea" "{AST,HIR,MIR,MICG}*"
+    ;;
+
+  gengetopt)
+    myerror gengetopt "phc.ggo" "cmdline.{c,h}"
+    ;;
+
+  gperf)
+    myerror gperf "phc.gperf" "keywords.h"
+    ;;
+
+  bison)
+    myerror bison "php_{dot,parser}.ypp" "php_{dot,parser}.tab.{cpp,hpp}"
+    ;;
+
+  flex)
+    myerror gperf "php_scanner.lex" "lex.yy.cc"
+    ;;
+
+  *)
+    echo "Unexpected program"
+
+esac
+exit 1

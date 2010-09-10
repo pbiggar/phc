@@ -732,7 +732,7 @@ src/generated/AST_visitor.cpp:		src/generated/AST.h
 src/generated/AST_visitor.h:			src/generated/AST.h
 #src/generated/schema.xsd:				src/generated/AST.h
 
-src/generated/AST.h: src/generated_src/ast.tea @maketea@
+src/generated/AST.h: src/generated_src/ast.tea
 	@maketea@ src/generated_src/ast.tea
 
 src/generated/HIR.cpp: 					src/generated/HIR.h
@@ -746,7 +746,7 @@ src/generated/HIR_visitor.cpp:		src/generated/HIR.h
 src/generated/HIR_visitor.h:			src/generated/HIR.h
 #src/generated/schema.xsd:				src/generated/HIR.h
 
-src/generated/HIR.h: src/generated_src/hir.tea @maketea@
+src/generated/HIR.h: src/generated_src/hir.tea
 	@maketea@ src/generated_src/hir.tea
 
 src/generated/MIR.cpp: 					src/generated/MIR.h
@@ -760,7 +760,7 @@ src/generated/MIR_visitor.cpp:		src/generated/MIR.h
 src/generated/MIR_visitor.h:			src/generated/MIR.h
 #src/generated/schema.xsd:				src/generated/MIR.h
 
-src/generated/MIR.h: src/generated_src/mir.tea @maketea@
+src/generated/MIR.h: src/generated_src/mir.tea
 	@maketea@ src/generated_src/mir.tea
 
 src/generated/MICG.cpp: 				src/generated/MICG.h
@@ -774,7 +774,7 @@ src/generated/MICG_visitor.cpp:		src/generated/MICG.h
 src/generated/MICG_visitor.h:			src/generated/MICG.h
 #src/generated/schema.xsd:				src/generated/MICG.h
 
-src/generated/MICG.h: src/generated_src/micg.tea @maketea@
+src/generated/MICG.h: src/generated_src/micg.tea
 	@maketea@ src/generated_src/micg.tea
 
 

@@ -32,12 +32,10 @@ LTDL_INIT([convenience])
 
 
 dnl check for other programs
-AC_PATH_PROG([gengetopt], [gengetopt])
-AC_PATH_PROG([gperf], [gperf])
-AC_PATH_PROG([flex], [flex])
-AC_PATH_PROG([bison], [bison])
-AC_PATH_PROG([patch], [patch])
-AC_PATH_PROG([diff], [diff])
+AC_PATH_PROG([gengetopt], [gengetopt], [config/phc_missing gengetopt])
+AC_PATH_PROG([gperf], [gperf], [config/phc_missing gperf])
+AC_PATH_PROG([flex], [flex], [config/phc_missing flex])
+AC_PATH_PROG([bison], [bison], [config/phc_missing bison])
 AC_PATH_PROG([valgrind], [valgrind])
 AC_PATH_PROG([dot], [dot])
 AC_PATH_PROG([graphviz_gc], [gc])
@@ -46,8 +44,8 @@ AX_BOOST_REGEX
 
 AC_ARG_WITH([maketea], 
    AS_HELP_STRING([--with-maketea], [path to maketea (if installed)]),
-  [AC_PATH_PROG([maketea], [maketea], [], [${withval}:${withval}/bin])],
-  [AC_PATH_PROG([maketea], [maketea])]
+  [AC_PATH_PROG([maketea], [maketea], [config/phc_missing maketea], [${withval}:${withval}/bin])],
+  [AC_PATH_PROG([maketea], [maketea], [config/phc_missing maketea])]
   )
 
 dnl This seems like more of a --enable/disable option, but the maketea and php options both use --with/without
