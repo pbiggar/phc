@@ -1,11 +1,9 @@
 NOTE: if building from svn, read README.svn.
 
-This README is out-of-date. Please refer to the phc manual, in docs/manual/.
+Please refer to the phc manual, in docs/manual/.
 
-However, you should be able to just
+However, you should be able to just:
 
-./configure
-make
-make check (optional)
-make install
-
+  ./configure
+  make
+  make install
