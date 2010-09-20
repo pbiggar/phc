@@ -3428,7 +3428,8 @@ Whole_program::get_array_named_indices (Context* cx, Result_state state, Path* p
 
 	phc_optimization_assertion (array->index != UNKNOWN);
 
-	if (not is_readonly)
+	// Only record a use on the working state.
+	if (state == R_WORKING)
 		// Make a note of the uses
 		record_use (cx, array);
 
