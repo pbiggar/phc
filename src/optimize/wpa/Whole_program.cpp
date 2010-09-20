@@ -3428,8 +3428,9 @@ Whole_program::get_array_named_indices (Context* cx, Result_state state, Path* p
 
 	phc_optimization_assertion (array->index != UNKNOWN);
 
-	// Make a note of the uses
-	record_use (cx, array);
+	if (not is_readonly)
+		// Make a note of the uses
+		record_use (cx, array);
 
 
 
