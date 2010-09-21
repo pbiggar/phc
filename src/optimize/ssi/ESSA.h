@@ -4,7 +4,7 @@
 class CFG;
 class SSA_def;
 class Aliasing;
-class BasicBlock;
+class Basic_block;
 class Whole_program;
 
 #include "optimize/ssa/HSSA.h"
