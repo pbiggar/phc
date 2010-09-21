@@ -231,7 +231,7 @@ SCCP::get_branch_successors (Branch_block* bb)
 void
 SCCP::visit_assign_field (Statement_block*, MIR::Assign_field *)
 {
-	PUNT;
+	phc_optimization_exception("SCCP does not support assignments to fields");
 }
 
 // In the paper, this is VisitExpression.
@@ -258,7 +258,7 @@ SCCP::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 void
 SCCP::visit_assign_var_var (Statement_block*, MIR::Assign_var_var*)
 {
-	PUNT;
+	phc_optimization_exception("SCCP does not support assignments to variable-variables");
 }
 
 void
@@ -324,13 +324,13 @@ SCCP::visit_ssa_pre_op (Statement_block* bb, MIR::SSA_pre_op* in)
 void
 SCCP::visit_static_declaration (Statement_block*, MIR::Static_declaration*)
 {
-	PUNT;
+	phc_optimization_exception("SCCP does not support assignments to statics");
 }
 
 void
 SCCP::visit_try (Statement_block*, MIR::Try*)
 {
-	PUNT;
+	phc_optimization_exception("SCCP does not support try blocks");
 }
 
 void
@@ -345,7 +345,8 @@ SCCP::visit_unset (Statement_block*, MIR::Unset* in)
 				new Literal_cell (new NIL ()));
 	}
 	else if (isa<Variable_variable> (in->variable_name))
-		phc_TODO (); // kill everything
+		// TODO: kill everything
+	  phc_optimization_exception("SCCP does not support unset-ing variable-variables");
 }
 
 /* Returns NULL, or the literal in VARIABLE_NAME. We have separate functions,
@@ -460,14 +461,14 @@ SCCP::transform_field_access (Statement_block*, Field_access* in)
 	//			if (isa<VARIABLE_NAME> (fa->target))
 	//				use (bb, dyc<VARIABLE_NAME> (fa->target));
 
-	PUNT;
+	phc_optimization_exception("SCCP does not support optimizing field-accesses");
 	return in;
 }
 
 Expr*
 SCCP::transform_instanceof (Statement_block*, Instanceof* in)
 {
-	PUNT;
+	phc_optimization_exception("SCCP does not support optimizing instanceof statements");
 	return in;
 }
 
@@ -489,7 +490,7 @@ SCCP::transform_method_invocation (Statement_block*, Method_invocation* in)
 {
 	// TODO replace Variable_variable with VARIABLE_NAME, if possible.
 	if (isa<Variable_method> (in->method_name))
-		PUNT;
+	  phc_optimization_exception("SCCP does not support optimizing method invocations involving variable-methods");
 
 	// ignore for now
 	if (METHOD_NAME* name = dynamic_cast<METHOD_NAME*> (in->method_name))
@@ -554,7 +555,7 @@ Expr*
 SCCP::transform_new (Statement_block*, New* in)
 {
 	// TODO turn a variable_class into a CLASS_NAME 
-	PUNT;
+	phc_optimization_exception("SCCP does not support optimizing `new` statements");
 	return in;
 }
 
@@ -591,7 +592,7 @@ Expr*
 SCCP::transform_variable_variable (Statement_block*, Variable_variable* in)
 {
 	if (Literal* lit = get_literal (in->variable_name))
-		PUNT;
+	  phc_optimization_exception("SCCP does not support optimizing variable-variables");
 
 	// in = new VARIABLE_NAME (PHP::to_string (lit));
 	return in;
@@ -643,7 +644,7 @@ public:
 
 	void visit_assign_field (Statement_block*, MIR::Assign_field *)
 	{
-		PUNT;
+	  phc_optimization_exception("SCCP does not support optimizing field assignments");
 	}
 
 	void visit_assign_next (Statement_block*, MIR::Assign_next* in)
@@ -666,7 +667,7 @@ public:
 
 	void visit_assign_var_var (Statement_block*, MIR::Assign_var_var*)
 	{
-		PUNT;
+	  phc_optimization_exception("SCCP does not support optimizing variable-variables");
 	}
 
 	void visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
@@ -691,7 +692,7 @@ public:
 	{
 		// if it has a Variable_variable, with a static variable, update.
 		if (isa<Variable_variable> (in->variable_name))
-			PUNT;
+	    phc_optimization_exception("SCCP does not support optimizing global variable-variables");
 	}
 
 	void visit_pre_op (Statement_block*, MIR::Pre_op*)
@@ -712,21 +713,22 @@ public:
 			return;
 
 		// TODO change Return to take an Rvalue
+	  phc_optimization_exception("SCCP does not support optimizing return values");
 	}
 
 	void visit_static_declaration (Statement_block*, MIR::Static_declaration*)
 	{
-		PUNT;
+	  phc_optimization_exception("SCCP does not support optimizing static declarations");
 	}
 
 	void visit_throw (Statement_block*, MIR::Throw*)
 	{
-		PUNT;
+	  phc_optimization_exception("SCCP does not support optimizing throw statements");
 	}
 
 	void visit_try (Statement_block*, MIR::Try*)
 	{
-		PUNT;
+	  phc_optimization_exception("SCCP does not support optimizing try blocks");
 	}
 
 	void visit_unset (Statement_block*, MIR::Unset* in)

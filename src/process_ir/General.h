@@ -17,13 +17,6 @@
 #include "fresh.h"
 #include "parsing/Parse_buffer.h"
 
-//#define PUNT do { throw "punting"; } while (0)
-//#define OPT_ASSERT(A) do { if (A) throw "punting"; } while (0)
-
-// TODO: change these back later
-#define PUNT assert (0);
-#define OPT_ASSERT(A) assert (A);
-
 using boost::lexical_cast;
 
 bool is_builtin_function (String* name);

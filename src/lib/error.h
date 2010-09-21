@@ -64,9 +64,9 @@ void _phc_optimization_exception (string message, string filename, int line);
 #define phc_optimization_exception(MSG) _phc_optimization_exception(MSG,__FILE__,__LINE__)
 
 #define phc_optimization_assertion(COND)	\
-do{												\
+do {												\
 	if (!(COND))										\
-		phc_optimization_exception("Assertion Failure.  This means there is a bug in phc which should be reported.");			\
-}while(0)									
+		phc_optimization_exception("Assertion Failure (" #COND ").  This means there is a bug in phc which should be reported.");			\
+} while(0)									
 
 #endif // PHC_ERROR_H
