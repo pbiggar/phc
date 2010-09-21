@@ -3698,7 +3698,7 @@ Whole_program::visit_pre_op (Statement_block* bb, Pre_op* in)
 	// I'm not really sure how to get a good interface on all this.
 	Index_node* n = VN (ns, in->variable_name);
 
-        // Record the used variable.
+	// Record the used variable.
 	record_use (block_cx (), n);
 
 	// Case where we know the value
