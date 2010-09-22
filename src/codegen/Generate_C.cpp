@@ -1075,6 +1075,7 @@ public:
 
 
 		INST (buf, "constructor_invocation",
+        rhs->value,
 				params,
 				rhs->value->get_filename (),
 				s(lexical_cast<string>(rhs->value->get_line_number())),
