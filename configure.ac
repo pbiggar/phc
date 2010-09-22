@@ -39,22 +39,12 @@ AC_PATH_PROG([bison], [bison], [config/phc_missing bison])
 AC_PATH_PROG([valgrind], [valgrind])
 AC_PATH_PROG([dot], [dot])
 AC_PATH_PROG([graphviz_gc], [gc])
-AX_BOOST_BASE([1.35.0])
-AX_BOOST_REGEX
 
 AC_ARG_WITH([maketea], 
    AS_HELP_STRING([--with-maketea], [path to maketea (if installed)]),
   [AC_PATH_PROG([maketea], [maketea], [config/phc_missing maketea], [${withval}:${withval}/bin])],
   [AC_PATH_PROG([maketea], [maketea], [config/phc_missing maketea])]
   )
-
-dnl This seems like more of a --enable/disable option, but the maketea and php options both use --with/without
-dnl AC_CHECK_LIB_XERCES
-AC_ARG_WITH([xerces],
-	[AS_HELP_STRING([--with-xerces], [support XML input @<:@default=check@:>@])],
-	[], # with_xerces is set to true false anyway
-	[with_xerces=check]
-	)
 
 # check PHP path
 AC_ARG_WITH([php], 
@@ -68,20 +58,24 @@ AC_ARG_WITH([php],
 	])
 
 
-dnl Package information
-AC_ARG_ENABLE([gc],
-	[AS_HELP_STRING([--disable-gc], [Link to the Boehm garbage collector @<:@default=enabled@:>@])])
-
-
 dnl checks for libraries
 AC_LANG([C++])
 AC_CHECK_COVARIANCE
 AC_CHECK_LIB_CRUN
+AX_BOOST_BASE([1.35.0])
+AX_BOOST_REGEX
 
-dnl check xerces unless disabled
-AS_IF([test "x$with_xerces" != xno], [AC_CHECK_LIB_XERCES], [])
+dnl Xerces
+AX_LIB_XERCES
+AC_SUBST([HAVE_XERCES], [$HAVE_XERCES]) # for autovars.php
+AS_IF([test "x$HAVE_XERCES" != xno],
+      [AC_DEFINE([HAVE_XERCES], [1])]) # for config.h
 
-# USE GC unless disabled
+dnl Boehm-gc
+AC_ARG_ENABLE([gc],
+	[AS_HELP_STRING([--disable-gc], [Link to the Boehm garbage collector @<:@default=enabled@:>@])])
+
+# Use GC unless disabled
 # libgccpp overrides ::new, which is required to collect the Boost Graph Library.
 AS_IF([test "x$enable_gc" != xno],
 		[
@@ -90,7 +84,7 @@ AS_IF([test "x$enable_gc" != xno],
 			AC_CHECK_LIB([gccpp], [main], [], [AC_MSG_FAILURE(libgccpp required)])
 			AC_SUBST([gc_lib], ["-lgc -lgccpp"])
 		],
-		[AC_DEFINE(DISABLE_GC, 1)])
+		[AC_DEFINE([DISABLE_GC], [1])])
 
 
 # Finishing

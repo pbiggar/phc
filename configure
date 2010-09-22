@@ -615,14 +615,22 @@ am__EXEEXT_TRUE
 LTLIBOBJS
 LIBOBJS
 gc_lib
-use_libXerces
+HAVE_XERCES
+XERCES_VERSION
+XERCES_LIBS
+XERCES_LDFLAGS
+XERCES_CPPFLAGS
+PTHREAD_CFLAGS
+PTHREAD_LIBS
+PTHREAD_CC
+acx_pthread_config
+BOOST_REGEX_LIB
+BOOST_LDFLAGS
+BOOST_CPPFLAGS
 libphp_headers
 php_install_path
 php
 maketea
-BOOST_REGEX_LIB
-BOOST_LDFLAGS
-BOOST_CPPFLAGS
 graphviz_gc
 dot
 valgrind
@@ -778,12 +786,14 @@ with_included_ltdl
 with_ltdl_include
 with_ltdl_lib
 enable_ltdl_install
+with_maketea
+with_php
 with_boost
 with_boost_libdir
 with_boost_regex
-with_maketea
 with_xerces
-with_php
+with_xerces_inc
+with_xerces_lib
 enable_gc
 '
       ac_precious_vars='build_alias
@@ -1440,6 +1450,8 @@ Optional Packages:
   --with-included-ltdl    use the GNU ltdl sources included here
   --with-ltdl-include=DIR use the ltdl headers installed in DIR
   --with-ltdl-lib=DIR     use the libltdl.la installed in DIR
+  --with-maketea          path to maketea (if installed)
+  --with-php=PATH         PHP installation path (defaults to /usr/local)
   --with-boost[=DIR]      use boost (default is yes) - it is possible to
                           specify the root directory for boost (optional)
   --with-boost-libdir=LIB_DIR
@@ -1452,9 +1464,10 @@ Optional Packages:
                           use the Regex library from boost - it is possible to
                           specify a certain library for the linker e.g.
                           --with-boost-regex=boost_regex-gcc-mt-d-1_33_1
-  --with-maketea          path to maketea (if installed)
-  --with-xerces           support XML input [default=check]
-  --with-php=PATH         PHP installation path (defaults to /usr/local)
+  --with-xerces=[ARG]     use Xerces C++ Parser from given prefix (ARG=path);
+                          check standard prefixes (ARG=yes); disable (ARG=no)
+  --with-xerces-inc=[DIR] path to Xerces C++ Parser headers
+  --with-xerces-lib=[ARG] link options for Xerces C++ Parser libraries
 
 Some influential environment variables:
   CC          C compiler command
@@ -5129,13 +5142,13 @@ if test "${lt_cv_nm_interface+set}" = set; then :
 else
   lt_cv_nm_interface="BSD nm"
   echo "int some_variable = 0;" > conftest.$ac_ext
-  (eval echo "\"\$as_me:5132: $ac_compile\"" >&5)
+  (eval echo "\"\$as_me:5145: $ac_compile\"" >&5)
   (eval "$ac_compile" 2>conftest.err)
   cat conftest.err >&5
-  (eval echo "\"\$as_me:5135: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
+  (eval echo "\"\$as_me:5148: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
   (eval "$NM \"conftest.$ac_objext\"" 2>conftest.err > conftest.out)
   cat conftest.err >&5
-  (eval echo "\"\$as_me:5138: output\"" >&5)
+  (eval echo "\"\$as_me:5151: output\"" >&5)
   cat conftest.out >&5
   if $GREP 'External.*some_variable' conftest.out > /dev/null; then
     lt_cv_nm_interface="MS dumpbin"
@@ -6341,7 +6354,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 6344 "configure"' > conftest.$ac_ext
+  echo '#line 6357 "configure"' > conftest.$ac_ext
   if { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_compile\""; } >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -8370,11 +8383,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:8373: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8386: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:8377: \$? = $ac_status" >&5
+   echo "$as_me:8390: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -8709,11 +8722,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:8712: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8725: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:8716: \$? = $ac_status" >&5
+   echo "$as_me:8729: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -8814,11 +8827,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:8817: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8830: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:8821: \$? = $ac_status" >&5
+   echo "$as_me:8834: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -8869,11 +8882,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:8872: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8885: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:8876: \$? = $ac_status" >&5
+   echo "$as_me:8889: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -11303,7 +11316,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 11306 "configure"
+#line 11319 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -11399,7 +11412,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 11402 "configure"
+#line 11415 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -13355,11 +13368,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13358: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13371: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:13362: \$? = $ac_status" >&5
+   echo "$as_me:13375: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -13454,11 +13467,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13457: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13470: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:13461: \$? = $ac_status" >&5
+   echo "$as_me:13474: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -13506,11 +13519,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13509: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13522: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:13513: \$? = $ac_status" >&5
+   echo "$as_me:13526: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -14932,7 +14945,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 14935 "configure"
+#line 14948 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -15827,471 +15840,6 @@ fi
 
 
 
-# Check whether --with-boost was given.
-if test "${with_boost+set}" = set; then :
-  withval=$with_boost;
-    if test "$withval" = "no"; then
-		want_boost="no"
-    elif test "$withval" = "yes"; then
-        want_boost="yes"
-        ac_boost_path=""
-    else
-	    want_boost="yes"
-        ac_boost_path="$withval"
-	fi
-
-else
-  want_boost="yes"
-fi
-
-
-
-
-# Check whether --with-boost-libdir was given.
-if test "${with_boost_libdir+set}" = set; then :
-  withval=$with_boost_libdir;
-        if test -d $withval
-        then
-                ac_boost_lib_path="$withval"
-        else
-                as_fn_error "--with-boost-libdir expected directory name" "$LINENO" 5
-        fi
-
-else
-  ac_boost_lib_path=""
-
-fi
-
-
-if test "x$want_boost" = "xyes"; then
-	boost_lib_version_req=1.35.0
-	boost_lib_version_req_shorten=`expr $boost_lib_version_req : '\([0-9]*\.[0-9]*\)'`
-	boost_lib_version_req_major=`expr $boost_lib_version_req : '\([0-9]*\)'`
-	boost_lib_version_req_minor=`expr $boost_lib_version_req : '[0-9]*\.\([0-9]*\)'`
-	boost_lib_version_req_sub_minor=`expr $boost_lib_version_req : '[0-9]*\.[0-9]*\.\([0-9]*\)'`
-	if test "x$boost_lib_version_req_sub_minor" = "x" ; then
-		boost_lib_version_req_sub_minor="0"
-    	fi
-	WANT_BOOST_VERSION=`expr $boost_lib_version_req_major \* 100000 \+  $boost_lib_version_req_minor \* 100 \+ $boost_lib_version_req_sub_minor`
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for boostlib >= $boost_lib_version_req" >&5
-$as_echo_n "checking for boostlib >= $boost_lib_version_req... " >&6; }
-	succeeded=no
-
-				if test "$ac_boost_path" != ""; then
-		BOOST_LDFLAGS="-L$ac_boost_path/lib"
-		BOOST_CPPFLAGS="-I$ac_boost_path/include"
-	else
-		for ac_boost_path_tmp in /usr /usr/local /opt /opt/local ; do
-			if test -d "$ac_boost_path_tmp/include/boost" && test -r "$ac_boost_path_tmp/include/boost"; then
-				BOOST_LDFLAGS="-L$ac_boost_path_tmp/lib"
-				BOOST_CPPFLAGS="-I$ac_boost_path_tmp/include"
-				break;
-			fi
-		done
-	fi
-
-            if test "$ac_boost_lib_path" != ""; then
-       BOOST_LDFLAGS="-L$ac_boost_lib_path"
-    fi
-
-	CPPFLAGS_SAVED="$CPPFLAGS"
-	CPPFLAGS="$CPPFLAGS $BOOST_CPPFLAGS"
-	export CPPFLAGS
-
-	LDFLAGS_SAVED="$LDFLAGS"
-	LDFLAGS="$LDFLAGS $BOOST_LDFLAGS"
-	export LDFLAGS
-
-	ac_ext=cpp
-ac_cpp='$CXXCPP $CPPFLAGS'
-ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
-
-     	cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-	#include <boost/version.hpp>
-
-int
-main ()
-{
-
-	#if BOOST_VERSION >= $WANT_BOOST_VERSION
-	// Everything is okay
-	#else
-	#  error Boost version is too old
-	#endif
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-
-        { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-	succeeded=yes
-	found_system=yes
-
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-	ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
-
-
-
-
-			if test "x$succeeded" != "xyes"; then
-		_version=0
-		if test "$ac_boost_path" != ""; then
-			if test -d "$ac_boost_path" && test -r "$ac_boost_path"; then
-				for i in `ls -d $ac_boost_path/include/boost-* 2>/dev/null`; do
-					_version_tmp=`echo $i | sed "s#$ac_boost_path##" | sed 's/\/include\/boost-//' | sed 's/_/./'`
-					V_CHECK=`expr $_version_tmp \> $_version`
-					if test "$V_CHECK" = "1" ; then
-						_version=$_version_tmp
-					fi
-					VERSION_UNDERSCORE=`echo $_version | sed 's/\./_/'`
-					BOOST_CPPFLAGS="-I$ac_boost_path/include/boost-$VERSION_UNDERSCORE"
-				done
-			fi
-		else
-			for ac_boost_path in /usr /usr/local /opt /opt/local ; do
-				if test -d "$ac_boost_path" && test -r "$ac_boost_path"; then
-					for i in `ls -d $ac_boost_path/include/boost-* 2>/dev/null`; do
-						_version_tmp=`echo $i | sed "s#$ac_boost_path##" | sed 's/\/include\/boost-//' | sed 's/_/./'`
-						V_CHECK=`expr $_version_tmp \> $_version`
-						if test "$V_CHECK" = "1" ; then
-							_version=$_version_tmp
-	               					best_path=$ac_boost_path
-						fi
-					done
-				fi
-			done
-
-			VERSION_UNDERSCORE=`echo $_version | sed 's/\./_/'`
-			BOOST_CPPFLAGS="-I$best_path/include/boost-$VERSION_UNDERSCORE"
-            if test "$ac_boost_lib_path" = ""
-            then
-               BOOST_LDFLAGS="-L$best_path/lib"
-            fi
-
-	    		if test "x$BOOST_ROOT" != "x"; then
-				if test -d "$BOOST_ROOT" && test -r "$BOOST_ROOT" && test -d "$BOOST_ROOT/stage/lib" && test -r "$BOOST_ROOT/stage/lib"; then
-					version_dir=`expr //$BOOST_ROOT : '.*/\(.*\)'`
-					stage_version=`echo $version_dir | sed 's/boost_//' | sed 's/_/./g'`
-			        	stage_version_shorten=`expr $stage_version : '\([0-9]*\.[0-9]*\)'`
-					V_CHECK=`expr $stage_version_shorten \>\= $_version`
-                    if test "$V_CHECK" = "1" -a "$ac_boost_lib_path" = "" ; then
-						{ $as_echo "$as_me:${as_lineno-$LINENO}: We will use a staged boost library from $BOOST_ROOT" >&5
-$as_echo "$as_me: We will use a staged boost library from $BOOST_ROOT" >&6;}
-						BOOST_CPPFLAGS="-I$BOOST_ROOT"
-						BOOST_LDFLAGS="-L$BOOST_ROOT/stage/lib"
-					fi
-				fi
-	    		fi
-		fi
-
-		CPPFLAGS="$CPPFLAGS $BOOST_CPPFLAGS"
-		export CPPFLAGS
-		LDFLAGS="$LDFLAGS $BOOST_LDFLAGS"
-		export LDFLAGS
-
-		ac_ext=cpp
-ac_cpp='$CXXCPP $CPPFLAGS'
-ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
-
-	     	cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-		#include <boost/version.hpp>
-
-int
-main ()
-{
-
-		#if BOOST_VERSION >= $WANT_BOOST_VERSION
-		// Everything is okay
-		#else
-		#  error Boost version is too old
-		#endif
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-
-        	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-		succeeded=yes
-		found_system=yes
-
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-		ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
-
-	fi
-
-	if test "$succeeded" != "yes" ; then
-		if test "$_version" = "0" ; then
-			as_fn_error "We could not detect the boost libraries (version $boost_lib_version_req_shorten or higher). If you have a staged boost library (still not installed) please specify \$BOOST_ROOT in your environment and do not give a PATH to --with-boost option.  If you are sure you have boost installed, then check your version number looking in <boost/version.hpp>. See http://randspringer.de/boost for more documentation." "$LINENO" 5
-		else
-			{ $as_echo "$as_me:${as_lineno-$LINENO}: Your boost libraries seems to old (version $_version)." >&5
-$as_echo "$as_me: Your boost libraries seems to old (version $_version)." >&6;}
-		fi
-	else
-
-
-
-$as_echo "#define HAVE_BOOST /**/" >>confdefs.h
-
-	fi
-
-        CPPFLAGS="$CPPFLAGS_SAVED"
-       	LDFLAGS="$LDFLAGS_SAVED"
-fi
-
-
-
-
-# Check whether --with-boost-regex was given.
-if test "${with_boost_regex+set}" = set; then :
-  withval=$with_boost_regex;
-        if test "$withval" = "no"; then
-			want_boost="no"
-        elif test "$withval" = "yes"; then
-            want_boost="yes"
-            ax_boost_user_regex_lib=""
-        else
-		    want_boost="yes"
-        	ax_boost_user_regex_lib="$withval"
-		fi
-
-else
-  want_boost="yes"
-
-fi
-
-
-	if test "x$want_boost" = "xyes"; then
-
-		CPPFLAGS_SAVED="$CPPFLAGS"
-		CPPFLAGS="$CPPFLAGS $BOOST_CPPFLAGS"
-		export CPPFLAGS
-
-		LDFLAGS_SAVED="$LDFLAGS"
-		LDFLAGS="$LDFLAGS $BOOST_LDFLAGS"
-		export LDFLAGS
-
-        { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether the Boost::Regex library is available" >&5
-$as_echo_n "checking whether the Boost::Regex library is available... " >&6; }
-if test "${ax_cv_boost_regex+set}" = set; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_ext=cpp
-ac_cpp='$CXXCPP $CPPFLAGS'
-ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
-
-			 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <boost/regex.hpp>
-
-int
-main ()
-{
-boost::regex r(); return 0;
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-  ax_cv_boost_regex=yes
-else
-  ax_cv_boost_regex=no
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-         ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
-
-
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ax_cv_boost_regex" >&5
-$as_echo "$ax_cv_boost_regex" >&6; }
-		if test "x$ax_cv_boost_regex" = "xyes"; then
-
-$as_echo "#define HAVE_BOOST_REGEX /**/" >>confdefs.h
-
-            BOOSTLIBDIR=`echo $BOOST_LDFLAGS | sed -e 's/[^\/]*//'`
-            if test "x$ax_boost_user_regex_lib" = "x"; then
-                for libextension in `ls $BOOSTLIBDIR/libboost_regex*.{so,a}* 2>/dev/null | sed 's,.*/,,' | sed -e 's;^lib\(boost_regex.*\)\.so.*$;\1;' -e 's;^lib\(boost_regex.*\)\.a*$;\1;'` ; do
-                     ax_lib=${libextension}
-				    as_ac_Lib=`$as_echo "ac_cv_lib_$ax_lib''_exit" | $as_tr_sh`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for exit in -l$ax_lib" >&5
-$as_echo_n "checking for exit in -l$ax_lib... " >&6; }
-if { as_var=$as_ac_Lib; eval "test \"\${$as_var+set}\" = set"; }; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-l$ax_lib  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char exit ();
-int
-main ()
-{
-return exit ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  eval "$as_ac_Lib=yes"
-else
-  eval "$as_ac_Lib=no"
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-eval ac_res=\$$as_ac_Lib
-	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
-$as_echo "$ac_res" >&6; }
-eval as_val=\$$as_ac_Lib
-   if test "x$as_val" = x""yes; then :
-  BOOST_REGEX_LIB="-l$ax_lib";  link_regex="yes"; break
-else
-  link_regex="no"
-fi
-
-  				done
-                if test "x$link_regex" != "xyes"; then
-                for libextension in `ls $BOOSTLIBDIR/boost_regex*.{dll,a}* 2>/dev/null | sed 's,.*/,,' | sed -e 's;^\(boost_regex.*\)\.dll.*$;\1;' -e 's;^\(boost_regex.*\)\.a*$;\1;'` ; do
-                     ax_lib=${libextension}
-				    as_ac_Lib=`$as_echo "ac_cv_lib_$ax_lib''_exit" | $as_tr_sh`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for exit in -l$ax_lib" >&5
-$as_echo_n "checking for exit in -l$ax_lib... " >&6; }
-if { as_var=$as_ac_Lib; eval "test \"\${$as_var+set}\" = set"; }; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-l$ax_lib  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char exit ();
-int
-main ()
-{
-return exit ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  eval "$as_ac_Lib=yes"
-else
-  eval "$as_ac_Lib=no"
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-eval ac_res=\$$as_ac_Lib
-	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
-$as_echo "$ac_res" >&6; }
-eval as_val=\$$as_ac_Lib
-   if test "x$as_val" = x""yes; then :
-  BOOST_REGEX_LIB="-l$ax_lib";  link_regex="yes"; break
-else
-  link_regex="no"
-fi
-
-  				done
-                fi
-
-            else
-               for ax_lib in $ax_boost_user_regex_lib boost_regex-$ax_boost_user_regex_lib; do
-				      as_ac_Lib=`$as_echo "ac_cv_lib_$ax_lib''_main" | $as_tr_sh`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -l$ax_lib" >&5
-$as_echo_n "checking for main in -l$ax_lib... " >&6; }
-if { as_var=$as_ac_Lib; eval "test \"\${$as_var+set}\" = set"; }; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-l$ax_lib  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-
-int
-main ()
-{
-return main ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  eval "$as_ac_Lib=yes"
-else
-  eval "$as_ac_Lib=no"
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-eval ac_res=\$$as_ac_Lib
-	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
-$as_echo "$ac_res" >&6; }
-eval as_val=\$$as_ac_Lib
-   if test "x$as_val" = x""yes; then :
-  BOOST_REGEX_LIB="-l$ax_lib";  link_regex="yes"; break
-else
-  link_regex="no"
-fi
-
-               done
-            fi
-			if test "x$link_regex" != "xyes"; then
-				as_fn_error "Could not link against $ax_lib !" "$LINENO" 5
-			fi
-		fi
-
-		CPPFLAGS="$CPPFLAGS_SAVED"
-    	LDFLAGS="$LDFLAGS_SAVED"
-	fi
-
-
-
 # Check whether --with-maketea was given.
 if test "${with_maketea+set}" = set; then :
   withval=$with_maketea; # Extract the first word of "maketea", so it can be a program name with args.
@@ -16378,17 +15926,6 @@ $as_echo "no" >&6; }
 fi
 
 
-
-fi
-
-
-
-# Check whether --with-xerces was given.
-if test "${with_xerces+set}" = set; then :
-  withval=$with_xerces;
-else
-  # with_xerces is set to true false anyway
-	with_xerces=check
 
 fi
 
@@ -16654,13 +16191,6 @@ fi
 
 
 
-# Check whether --enable-gc was given.
-if test "${enable_gc+set}" = set; then :
-  enableval=$enable_gc;
-fi
-
-
-
 ac_ext=cpp
 ac_cpp='$CXXCPP $CPPFLAGS'
 ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -16741,50 +16271,1121 @@ rm -f core conftest.err conftest.$ac_objext \
 fi
 
 
-if test "x$with_xerces" != xno; then :
 
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for -lxerces-c" >&5
-$as_echo_n "checking for -lxerces-c... " >&6; }
-	check_lib_xerces_LIBS=$LIBS
-	LIBS="-lxerces-c $LIBS"
-	cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+# Check whether --with-boost was given.
+if test "${with_boost+set}" = set; then :
+  withval=$with_boost;
+    if test "$withval" = "no"; then
+		want_boost="no"
+    elif test "$withval" = "yes"; then
+        want_boost="yes"
+        ac_boost_path=""
+    else
+	    want_boost="yes"
+        ac_boost_path="$withval"
+	fi
+
+else
+  want_boost="yes"
+fi
+
+
+
+
+# Check whether --with-boost-libdir was given.
+if test "${with_boost_libdir+set}" = set; then :
+  withval=$with_boost_libdir;
+        if test -d $withval
+        then
+                ac_boost_lib_path="$withval"
+        else
+                as_fn_error "--with-boost-libdir expected directory name" "$LINENO" 5
+        fi
+
+else
+  ac_boost_lib_path=""
+
+fi
+
+
+if test "x$want_boost" = "xyes"; then
+	boost_lib_version_req=1.35.0
+	boost_lib_version_req_shorten=`expr $boost_lib_version_req : '\([0-9]*\.[0-9]*\)'`
+	boost_lib_version_req_major=`expr $boost_lib_version_req : '\([0-9]*\)'`
+	boost_lib_version_req_minor=`expr $boost_lib_version_req : '[0-9]*\.\([0-9]*\)'`
+	boost_lib_version_req_sub_minor=`expr $boost_lib_version_req : '[0-9]*\.[0-9]*\.\([0-9]*\)'`
+	if test "x$boost_lib_version_req_sub_minor" = "x" ; then
+		boost_lib_version_req_sub_minor="0"
+    	fi
+	WANT_BOOST_VERSION=`expr $boost_lib_version_req_major \* 100000 \+  $boost_lib_version_req_minor \* 100 \+ $boost_lib_version_req_sub_minor`
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for boostlib >= $boost_lib_version_req" >&5
+$as_echo_n "checking for boostlib >= $boost_lib_version_req... " >&6; }
+	succeeded=no
+
+				if test "$ac_boost_path" != ""; then
+		BOOST_LDFLAGS="-L$ac_boost_path/lib"
+		BOOST_CPPFLAGS="-I$ac_boost_path/include"
+	else
+		for ac_boost_path_tmp in /usr /usr/local /opt /opt/local ; do
+			if test -d "$ac_boost_path_tmp/include/boost" && test -r "$ac_boost_path_tmp/include/boost"; then
+				BOOST_LDFLAGS="-L$ac_boost_path_tmp/lib"
+				BOOST_CPPFLAGS="-I$ac_boost_path_tmp/include"
+				break;
+			fi
+		done
+	fi
+
+            if test "$ac_boost_lib_path" != ""; then
+       BOOST_LDFLAGS="-L$ac_boost_lib_path"
+    fi
+
+	CPPFLAGS_SAVED="$CPPFLAGS"
+	CPPFLAGS="$CPPFLAGS $BOOST_CPPFLAGS"
+	export CPPFLAGS
+
+	LDFLAGS_SAVED="$LDFLAGS"
+	LDFLAGS="$LDFLAGS $BOOST_LDFLAGS"
+	export LDFLAGS
+
+	ac_ext=cpp
+ac_cpp='$CXXCPP $CPPFLAGS'
+ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+
+     	cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-#include <xercesc/util/PlatformUtils.hpp>
-			 XERCES_CPP_NAMESPACE_USE
+
+	#include <boost/version.hpp>
 
 int
 main ()
 {
+
+	#if BOOST_VERSION >= $WANT_BOOST_VERSION
+	// Everything is okay
+	#else
+	#  error Boost version is too old
+	#endif
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+	succeeded=yes
+	found_system=yes
+
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+	ac_ext=cpp
+ac_cpp='$CXXCPP $CPPFLAGS'
+ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+
+
+
+
+			if test "x$succeeded" != "xyes"; then
+		_version=0
+		if test "$ac_boost_path" != ""; then
+			if test -d "$ac_boost_path" && test -r "$ac_boost_path"; then
+				for i in `ls -d $ac_boost_path/include/boost-* 2>/dev/null`; do
+					_version_tmp=`echo $i | sed "s#$ac_boost_path##" | sed 's/\/include\/boost-//' | sed 's/_/./'`
+					V_CHECK=`expr $_version_tmp \> $_version`
+					if test "$V_CHECK" = "1" ; then
+						_version=$_version_tmp
+					fi
+					VERSION_UNDERSCORE=`echo $_version | sed 's/\./_/'`
+					BOOST_CPPFLAGS="-I$ac_boost_path/include/boost-$VERSION_UNDERSCORE"
+				done
+			fi
+		else
+			for ac_boost_path in /usr /usr/local /opt /opt/local ; do
+				if test -d "$ac_boost_path" && test -r "$ac_boost_path"; then
+					for i in `ls -d $ac_boost_path/include/boost-* 2>/dev/null`; do
+						_version_tmp=`echo $i | sed "s#$ac_boost_path##" | sed 's/\/include\/boost-//' | sed 's/_/./'`
+						V_CHECK=`expr $_version_tmp \> $_version`
+						if test "$V_CHECK" = "1" ; then
+							_version=$_version_tmp
+	               					best_path=$ac_boost_path
+						fi
+					done
+				fi
+			done
+
+			VERSION_UNDERSCORE=`echo $_version | sed 's/\./_/'`
+			BOOST_CPPFLAGS="-I$best_path/include/boost-$VERSION_UNDERSCORE"
+            if test "$ac_boost_lib_path" = ""
+            then
+               BOOST_LDFLAGS="-L$best_path/lib"
+            fi
+
+	    		if test "x$BOOST_ROOT" != "x"; then
+				if test -d "$BOOST_ROOT" && test -r "$BOOST_ROOT" && test -d "$BOOST_ROOT/stage/lib" && test -r "$BOOST_ROOT/stage/lib"; then
+					version_dir=`expr //$BOOST_ROOT : '.*/\(.*\)'`
+					stage_version=`echo $version_dir | sed 's/boost_//' | sed 's/_/./g'`
+			        	stage_version_shorten=`expr $stage_version : '\([0-9]*\.[0-9]*\)'`
+					V_CHECK=`expr $stage_version_shorten \>\= $_version`
+                    if test "$V_CHECK" = "1" -a "$ac_boost_lib_path" = "" ; then
+						{ $as_echo "$as_me:${as_lineno-$LINENO}: We will use a staged boost library from $BOOST_ROOT" >&5
+$as_echo "$as_me: We will use a staged boost library from $BOOST_ROOT" >&6;}
+						BOOST_CPPFLAGS="-I$BOOST_ROOT"
+						BOOST_LDFLAGS="-L$BOOST_ROOT/stage/lib"
+					fi
+				fi
+	    		fi
+		fi
+
+		CPPFLAGS="$CPPFLAGS $BOOST_CPPFLAGS"
+		export CPPFLAGS
+		LDFLAGS="$LDFLAGS $BOOST_LDFLAGS"
+		export LDFLAGS
+
+		ac_ext=cpp
+ac_cpp='$CXXCPP $CPPFLAGS'
+ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+
+	     	cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+		#include <boost/version.hpp>
+
+int
+main ()
+{
+
+		#if BOOST_VERSION >= $WANT_BOOST_VERSION
+		// Everything is okay
+		#else
+		#  error Boost version is too old
+		#endif
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+
+        	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+		succeeded=yes
+		found_system=yes
+
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+		ac_ext=cpp
+ac_cpp='$CXXCPP $CPPFLAGS'
+ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+
+	fi
+
+	if test "$succeeded" != "yes" ; then
+		if test "$_version" = "0" ; then
+			as_fn_error "We could not detect the boost libraries (version $boost_lib_version_req_shorten or higher). If you have a staged boost library (still not installed) please specify \$BOOST_ROOT in your environment and do not give a PATH to --with-boost option.  If you are sure you have boost installed, then check your version number looking in <boost/version.hpp>. See http://randspringer.de/boost for more documentation." "$LINENO" 5
+		else
+			{ $as_echo "$as_me:${as_lineno-$LINENO}: Your boost libraries seems to old (version $_version)." >&5
+$as_echo "$as_me: Your boost libraries seems to old (version $_version)." >&6;}
+		fi
+	else
+
+
+
+$as_echo "#define HAVE_BOOST /**/" >>confdefs.h
+
+	fi
+
+        CPPFLAGS="$CPPFLAGS_SAVED"
+       	LDFLAGS="$LDFLAGS_SAVED"
+fi
+
+
+
+
+# Check whether --with-boost-regex was given.
+if test "${with_boost_regex+set}" = set; then :
+  withval=$with_boost_regex;
+        if test "$withval" = "no"; then
+			want_boost="no"
+        elif test "$withval" = "yes"; then
+            want_boost="yes"
+            ax_boost_user_regex_lib=""
+        else
+		    want_boost="yes"
+        	ax_boost_user_regex_lib="$withval"
+		fi
+
+else
+  want_boost="yes"
+
+fi
+
+
+	if test "x$want_boost" = "xyes"; then
+
+		CPPFLAGS_SAVED="$CPPFLAGS"
+		CPPFLAGS="$CPPFLAGS $BOOST_CPPFLAGS"
+		export CPPFLAGS
+
+		LDFLAGS_SAVED="$LDFLAGS"
+		LDFLAGS="$LDFLAGS $BOOST_LDFLAGS"
+		export LDFLAGS
+
+        { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether the Boost::Regex library is available" >&5
+$as_echo_n "checking whether the Boost::Regex library is available... " >&6; }
+if test "${ax_cv_boost_regex+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_ext=cpp
+ac_cpp='$CXXCPP $CPPFLAGS'
+ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+
+			 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <boost/regex.hpp>
+
+int
+main ()
+{
+boost::regex r(); return 0;
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+  ax_cv_boost_regex=yes
+else
+  ax_cv_boost_regex=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+         ac_ext=cpp
+ac_cpp='$CXXCPP $CPPFLAGS'
+ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ax_cv_boost_regex" >&5
+$as_echo "$ax_cv_boost_regex" >&6; }
+		if test "x$ax_cv_boost_regex" = "xyes"; then
+
+$as_echo "#define HAVE_BOOST_REGEX /**/" >>confdefs.h
+
+            BOOSTLIBDIR=`echo $BOOST_LDFLAGS | sed -e 's/[^\/]*//'`
+            if test "x$ax_boost_user_regex_lib" = "x"; then
+                for libextension in `ls $BOOSTLIBDIR/libboost_regex*.{so,a}* 2>/dev/null | sed 's,.*/,,' | sed -e 's;^lib\(boost_regex.*\)\.so.*$;\1;' -e 's;^lib\(boost_regex.*\)\.a*$;\1;'` ; do
+                     ax_lib=${libextension}
+				    as_ac_Lib=`$as_echo "ac_cv_lib_$ax_lib''_exit" | $as_tr_sh`
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for exit in -l$ax_lib" >&5
+$as_echo_n "checking for exit in -l$ax_lib... " >&6; }
+if { as_var=$as_ac_Lib; eval "test \"\${$as_var+set}\" = set"; }; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-l$ax_lib  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char exit ();
+int
+main ()
+{
+return exit ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_link "$LINENO"; then :
+  eval "$as_ac_Lib=yes"
+else
+  eval "$as_ac_Lib=no"
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+eval ac_res=\$$as_ac_Lib
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+eval as_val=\$$as_ac_Lib
+   if test "x$as_val" = x""yes; then :
+  BOOST_REGEX_LIB="-l$ax_lib";  link_regex="yes"; break
+else
+  link_regex="no"
+fi
+
+  				done
+                if test "x$link_regex" != "xyes"; then
+                for libextension in `ls $BOOSTLIBDIR/boost_regex*.{dll,a}* 2>/dev/null | sed 's,.*/,,' | sed -e 's;^\(boost_regex.*\)\.dll.*$;\1;' -e 's;^\(boost_regex.*\)\.a*$;\1;'` ; do
+                     ax_lib=${libextension}
+				    as_ac_Lib=`$as_echo "ac_cv_lib_$ax_lib''_exit" | $as_tr_sh`
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for exit in -l$ax_lib" >&5
+$as_echo_n "checking for exit in -l$ax_lib... " >&6; }
+if { as_var=$as_ac_Lib; eval "test \"\${$as_var+set}\" = set"; }; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-l$ax_lib  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char exit ();
+int
+main ()
+{
+return exit ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_link "$LINENO"; then :
+  eval "$as_ac_Lib=yes"
+else
+  eval "$as_ac_Lib=no"
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+eval ac_res=\$$as_ac_Lib
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+eval as_val=\$$as_ac_Lib
+   if test "x$as_val" = x""yes; then :
+  BOOST_REGEX_LIB="-l$ax_lib";  link_regex="yes"; break
+else
+  link_regex="no"
+fi
+
+  				done
+                fi
+
+            else
+               for ax_lib in $ax_boost_user_regex_lib boost_regex-$ax_boost_user_regex_lib; do
+				      as_ac_Lib=`$as_echo "ac_cv_lib_$ax_lib''_main" | $as_tr_sh`
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -l$ax_lib" >&5
+$as_echo_n "checking for main in -l$ax_lib... " >&6; }
+if { as_var=$as_ac_Lib; eval "test \"\${$as_var+set}\" = set"; }; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-l$ax_lib  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+
+int
+main ()
+{
+return main ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_link "$LINENO"; then :
+  eval "$as_ac_Lib=yes"
+else
+  eval "$as_ac_Lib=no"
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+eval ac_res=\$$as_ac_Lib
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+eval as_val=\$$as_ac_Lib
+   if test "x$as_val" = x""yes; then :
+  BOOST_REGEX_LIB="-l$ax_lib";  link_regex="yes"; break
+else
+  link_regex="no"
+fi
+
+               done
+            fi
+			if test "x$link_regex" != "xyes"; then
+				as_fn_error "Could not link against $ax_lib !" "$LINENO" 5
+			fi
+		fi
+
+		CPPFLAGS="$CPPFLAGS_SAVED"
+    	LDFLAGS="$LDFLAGS_SAVED"
+	fi
+
+
+
+
+
+ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
+acx_pthread_ok=no
+
+# We used to check for pthread.h first, but this fails if pthread.h
+# requires special compiler flags (e.g. on True64 or Sequent).
+# It gets checked for in the link test anyway.
+
+# First of all, check if the user has set any of the PTHREAD_LIBS,
+# etcetera environment variables, and if threads linking works using
+# them:
+if test x"$PTHREAD_LIBS$PTHREAD_CFLAGS" != x; then
+        save_CFLAGS="$CFLAGS"
+        CFLAGS="$CFLAGS $PTHREAD_CFLAGS"
+        save_LIBS="$LIBS"
+        LIBS="$PTHREAD_LIBS $LIBS"
+        { $as_echo "$as_me:${as_lineno-$LINENO}: checking for pthread_join in LIBS=$PTHREAD_LIBS with CFLAGS=$PTHREAD_CFLAGS" >&5
+$as_echo_n "checking for pthread_join in LIBS=$PTHREAD_LIBS with CFLAGS=$PTHREAD_CFLAGS... " >&6; }
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char pthread_join ();
+int
+main ()
+{
+return pthread_join ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  acx_pthread_ok=yes
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: $acx_pthread_ok" >&5
+$as_echo "$acx_pthread_ok" >&6; }
+        if test x"$acx_pthread_ok" = xno; then
+                PTHREAD_LIBS=""
+                PTHREAD_CFLAGS=""
+        fi
+        LIBS="$save_LIBS"
+        CFLAGS="$save_CFLAGS"
+fi
+
+# We must check for the threads library under a number of different
+# names; the ordering is very important because some systems
+# (e.g. DEC) have both -lpthread and -lpthreads, where one of the
+# libraries is broken (non-POSIX).
+
+# Create a list of thread flags to try.  Items starting with a "-" are
+# C compiler flags, and other items are library names, except for "none"
+# which indicates that we try without any flags at all, and "pthread-config"
+# which is a program returning the flags for the Pth emulation library.
+
+acx_pthread_flags="pthreads none -Kthread -kthread lthread -pthread -pthreads -mthreads pthread --thread-safe -mt pthread-config"
+
+# The ordering *is* (sometimes) important.  Some notes on the
+# individual items follow:
+
+# pthreads: AIX (must check this before -lpthread)
+# none: in case threads are in libc; should be tried before -Kthread and
+#       other compiler flags to prevent continual compiler warnings
+# -Kthread: Sequent (threads in libc, but -Kthread needed for pthread.h)
+# -kthread: FreeBSD kernel threads (preferred to -pthread since SMP-able)
+# lthread: LinuxThreads port on FreeBSD (also preferred to -pthread)
+# -pthread: Linux/gcc (kernel threads), BSD/gcc (userland threads)
+# -pthreads: Solaris/gcc
+# -mthreads: Mingw32/gcc, Lynx/gcc
+# -mt: Sun Workshop C (may only link SunOS threads [-lthread], but it
+#      doesn't hurt to check since this sometimes defines pthreads too;
+#      also defines -D_REENTRANT)
+#      ... -mt is also the pthreads flag for HP/aCC
+# pthread: Linux, etcetera
+# --thread-safe: KAI C++
+# pthread-config: use pthread-config program (for GNU Pth library)
+
+case "${host_cpu}-${host_os}" in
+        *solaris*)
+
+        # On Solaris (at least, for some versions), libc contains stubbed
+        # (non-functional) versions of the pthreads routines, so link-based
+        # tests will erroneously succeed.  (We need to link with -pthreads/-mt/
+        # -lpthread.)  (The stubs are missing pthread_cleanup_push, or rather
+        # a function called by this macro, so we could check for that, but
+        # who knows whether they'll stub that too in a future libc.)  So,
+        # we'll just look for -pthreads and -lpthread first:
+
+        acx_pthread_flags="-pthreads pthread -mt -pthread $acx_pthread_flags"
+        ;;
+esac
+
+if test x"$acx_pthread_ok" = xno; then
+for flag in $acx_pthread_flags; do
+
+        case $flag in
+                none)
+                { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether pthreads work without any flags" >&5
+$as_echo_n "checking whether pthreads work without any flags... " >&6; }
+                ;;
+
+                -*)
+                { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether pthreads work with $flag" >&5
+$as_echo_n "checking whether pthreads work with $flag... " >&6; }
+                PTHREAD_CFLAGS="$flag"
+                ;;
+
+		pthread-config)
+		# Extract the first word of "pthread-config", so it can be a program name with args.
+set dummy pthread-config; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if test "${ac_cv_prog_acx_pthread_config+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test -n "$acx_pthread_config"; then
+  ac_cv_prog_acx_pthread_config="$acx_pthread_config" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
+    ac_cv_prog_acx_pthread_config="yes"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  test -z "$ac_cv_prog_acx_pthread_config" && ac_cv_prog_acx_pthread_config="no"
+fi
+fi
+acx_pthread_config=$ac_cv_prog_acx_pthread_config
+if test -n "$acx_pthread_config"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $acx_pthread_config" >&5
+$as_echo "$acx_pthread_config" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+		if test x"$acx_pthread_config" = xno; then continue; fi
+		PTHREAD_CFLAGS="`pthread-config --cflags`"
+		PTHREAD_LIBS="`pthread-config --ldflags` `pthread-config --libs`"
+		;;
+
+                *)
+                { $as_echo "$as_me:${as_lineno-$LINENO}: checking for the pthreads library -l$flag" >&5
+$as_echo_n "checking for the pthreads library -l$flag... " >&6; }
+                PTHREAD_LIBS="-l$flag"
+                ;;
+        esac
+
+        save_LIBS="$LIBS"
+        save_CFLAGS="$CFLAGS"
+        LIBS="$PTHREAD_LIBS $LIBS"
+        CFLAGS="$CFLAGS $PTHREAD_CFLAGS"
+
+        # Check for various functions.  We must include pthread.h,
+        # since some functions may be macros.  (On the Sequent, we
+        # need a special flag -Kthread to make this header compile.)
+        # We check for pthread_join because it is in -lpthread on IRIX
+        # while pthread_create is in libc.  We check for pthread_attr_init
+        # due to DEC craziness with -lpthreads.  We check for
+        # pthread_cleanup_push because it is one of the few pthread
+        # functions on Solaris that doesn't have a non-functional libc stub.
+        # We try pthread_create on general principles.
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <pthread.h>
+int
+main ()
+{
+pthread_t th; pthread_join(th, 0);
+                     pthread_attr_init(0); pthread_cleanup_push(0, 0);
+                     pthread_create(0,0,0,0); pthread_cleanup_pop(0);
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  acx_pthread_ok=yes
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+
+        LIBS="$save_LIBS"
+        CFLAGS="$save_CFLAGS"
+
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: $acx_pthread_ok" >&5
+$as_echo "$acx_pthread_ok" >&6; }
+        if test "x$acx_pthread_ok" = xyes; then
+                break;
+        fi
+
+        PTHREAD_LIBS=""
+        PTHREAD_CFLAGS=""
+done
+fi
+
+# Various other checks:
+if test "x$acx_pthread_ok" = xyes; then
+        save_LIBS="$LIBS"
+        LIBS="$PTHREAD_LIBS $LIBS"
+        save_CFLAGS="$CFLAGS"
+        CFLAGS="$CFLAGS $PTHREAD_CFLAGS"
+
+        # Detect AIX lossage: JOINABLE attribute is called UNDETACHED.
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for joinable pthread attribute" >&5
+$as_echo_n "checking for joinable pthread attribute... " >&6; }
+	attr_name=unknown
+	for attr in PTHREAD_CREATE_JOINABLE PTHREAD_CREATE_UNDETACHED; do
+	    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <pthread.h>
+int
+main ()
+{
+int attr=$attr; return attr;
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  attr_name=$attr; break
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+	done
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: $attr_name" >&5
+$as_echo "$attr_name" >&6; }
+        if test "$attr_name" != PTHREAD_CREATE_JOINABLE; then
+
+cat >>confdefs.h <<_ACEOF
+#define PTHREAD_CREATE_JOINABLE $attr_name
+_ACEOF
+
+        fi
+
+        { $as_echo "$as_me:${as_lineno-$LINENO}: checking if more special flags are required for pthreads" >&5
+$as_echo_n "checking if more special flags are required for pthreads... " >&6; }
+        flag=no
+        case "${host_cpu}-${host_os}" in
+            *-aix* | *-freebsd* | *-darwin*) flag="-D_THREAD_SAFE";;
+            *solaris* | *-osf* | *-hpux*) flag="-D_REENTRANT";;
+        esac
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: ${flag}" >&5
+$as_echo "${flag}" >&6; }
+        if test "x$flag" != xno; then
+            PTHREAD_CFLAGS="$flag $PTHREAD_CFLAGS"
+        fi
+
+        LIBS="$save_LIBS"
+        CFLAGS="$save_CFLAGS"
+
+        # More AIX lossage: must compile with xlc_r or cc_r
+	if test x"$GCC" != xyes; then
+          for ac_prog in xlc_r cc_r
+do
+  # Extract the first word of "$ac_prog", so it can be a program name with args.
+set dummy $ac_prog; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if test "${ac_cv_prog_PTHREAD_CC+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test -n "$PTHREAD_CC"; then
+  ac_cv_prog_PTHREAD_CC="$PTHREAD_CC" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
+    ac_cv_prog_PTHREAD_CC="$ac_prog"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+fi
+fi
+PTHREAD_CC=$ac_cv_prog_PTHREAD_CC
+if test -n "$PTHREAD_CC"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $PTHREAD_CC" >&5
+$as_echo "$PTHREAD_CC" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+  test -n "$PTHREAD_CC" && break
+done
+test -n "$PTHREAD_CC" || PTHREAD_CC="${CC}"
+
+        else
+          PTHREAD_CC=$CC
+	fi
+else
+        PTHREAD_CC="$CC"
+fi
+
+
+
+
+
+# Finally, execute ACTION-IF-FOUND/ACTION-IF-NOT-FOUND:
+if test x"$acx_pthread_ok" = xyes; then
+
+$as_echo "#define HAVE_PTHREAD 1" >>confdefs.h
+
+        :
+else
+        acx_pthread_ok=no
+
+fi
+ac_ext=cpp
+ac_cpp='$CXXCPP $CPPFLAGS'
+ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+
+
+
+
+
+
+# Check whether --with-xerces was given.
+if test "${with_xerces+set}" = set; then :
+  withval=$with_xerces;
+        if test "$withval" = "yes"; then
+            if test -d /usr/local/include/xercesc ; then
+                xerces_prefix=/usr/local
+            elif test -d /usr/include/xercesc ; then
+                xerces_prefix=/usr
+            else
+                xerces_prefix=""
+            fi
+            xerces_requested="yes"
+        elif test -d "$withval"; then
+            xerces_prefix="$withval"
+            xerces_requested="yes"
+        else
+            xerces_prefix=""
+            xerces_requested="no"
+        fi
+
+else
+
+                if test -d /usr/local/include/xercesc ; then
+            xerces_prefix=/usr/local
+        elif test -d /usr/include/xercesc ; then
+            xerces_prefix=/usr
+        else
+            xerces_prefix=""
+        fi
+
+
+fi
+
+
+
+# Check whether --with-xerces-inc was given.
+if test "${with_xerces_inc+set}" = set; then :
+  withval=$with_xerces_inc; xerces_include_dir="$withval"
+else
+  xerces_include_dir=""
+
+fi
+
+
+# Check whether --with-xerces-lib was given.
+if test "${with_xerces_lib+set}" = set; then :
+  withval=$with_xerces_lib; xerces_ldflags="$withval"
+else
+  xerces_ldflags=""
+
+fi
+
+
+    XERCES_CPPFLAGS=""
+    XERCES_LDFLAGS=""
+    XERCES_VERSION=""
+
+                run_xerces_test="no"
+
+    if test -n "$xerces_prefix"; then
+        xerces_include_dir="$xerces_prefix/include"
+        xerces_include_dir2="$xerces_prefix/include/xercesc"
+        xerces_ldflags="-L$xerces_prefix/lib"
+        run_xerces_test="yes"
+    elif test "$xerces_requested" = "yes"; then
+        if test -n "$xerces_include_dir" -a -n "$xerces_lib_flags"; then
+            xerces_include_dir2="$xerces_include_dir/xercesc"
+            run_xerces_test="yes"
+        fi
+    else
+        run_xerces_test="no"
+    fi
+
+    xerces_libs="-lxerces-c"
+
+                if test "$run_xerces_test" = "yes"; then
+
+        saved_CPPFLAGS="$CPPFLAGS"
+        CPPFLAGS="$CPPFLAGS -I$xerces_include_dir -I$xerces_include_dir2"
+
+        saved_LDFLAGS="$LDFLAGS"
+        LDFLAGS="$LDFLAGS $xerces_ldflags $PTHREAD_LDFLAGS"
+
+        saved_LIBS="$LIBS"
+        LIBS="$xerces_libs $PTHREAD_LIBS $LIBS"
+
+                                { $as_echo "$as_me:${as_lineno-$LINENO}: checking for Xerces C++ Parser headers in $xerces_include_dir and $xerces_include_dir2" >&5
+$as_echo_n "checking for Xerces C++ Parser headers in $xerces_include_dir and $xerces_include_dir2... " >&6; }
+
+        ac_ext=cpp
+ac_cpp='$CXXCPP $CPPFLAGS'
+ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+
+#include <xercesc/util/XercesDefs.hpp>
+#include <xercesc/util/PlatformUtils.hpp>
+
+int
+main ()
+{
+
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+
+            XERCES_CPPFLAGS="-I$xerces_include_dir -I$xerces_include_dir2"
+            xerces_header_found="yes"
+            { $as_echo "$as_me:${as_lineno-$LINENO}: result: found" >&5
+$as_echo "found" >&6; }
+
+else
+
+            xerces_header_found="no"
+            { $as_echo "$as_me:${as_lineno-$LINENO}: result: not found" >&5
+$as_echo "not found" >&6; }
+
+
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+        ac_ext=cpp
+ac_cpp='$CXXCPP $CPPFLAGS'
+ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+
+
+                                if test "$xerces_header_found" = "yes"; then
+
+            { $as_echo "$as_me:${as_lineno-$LINENO}: checking for Xerces C++ Parser libraries" >&5
+$as_echo_n "checking for Xerces C++ Parser libraries... " >&6; }
+
+            ac_ext=cpp
+ac_cpp='$CXXCPP $CPPFLAGS'
+ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+
+            cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+
+#include <xercesc/util/XercesDefs.hpp>
+#include <xercesc/util/PlatformUtils.hpp>
+#if (_XERCES_VERSION >= 20200)
+XERCES_CPP_NAMESPACE_USE
+#endif
+
+int
+main ()
+{
+
 XMLPlatformUtils::Initialize();
+
 
   ;
   return 0;
 }
 _ACEOF
 if ac_fn_cxx_try_link "$LINENO"; then :
-  use_libXerces=yes
-		 { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-		 $as_echo "#define HAVE_XERCES 1" >>confdefs.h
 
+                XERCES_LDFLAGS="$xerces_ldflags $PTHREAD_LDFLAGS"
+                XERCES_LIBS="$xerces_libs $PTHREAD_LIBS"
+                xerces_lib_found="yes"
+                { $as_echo "$as_me:${as_lineno-$LINENO}: result: found" >&5
+$as_echo "found" >&6; }
 
 else
-  use_libXerces=no
-		 { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
+
+                xerces_lib_found="no"
+                { $as_echo "$as_me:${as_lineno-$LINENO}: result: not found" >&5
+$as_echo "not found" >&6; }
+
 
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
-	LIBS=$check_lib_xerces_LIBS
-	if test $use_libXerces = yes; then :
-  LIBS="-lxerces-c $LIBS"
+            ac_ext=cpp
+ac_cpp='$CXXCPP $CPPFLAGS'
+ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+
+        fi
+
+        CPPFLAGS="$saved_CPPFLAGS"
+        LDFLAGS="$saved_LDFLAGS"
+        LIBS="$saved_LIBS"
+    fi
+
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for Xerces C++ Parser" >&5
+$as_echo_n "checking for Xerces C++ Parser... " >&6; }
+
+    if test "$run_xerces_test" = "yes"; then
+        if test "$xerces_header_found" = "yes" -a "$xerces_lib_found" = "yes"; then
+
+
+
+
+
+            HAVE_XERCES="yes"
+        else
+            HAVE_XERCES="no"
+        fi
+
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: $HAVE_XERCES" >&5
+$as_echo "$HAVE_XERCES" >&6; }
+
+                                if test "$HAVE_XERCES" = "yes"; then
+
+            xerces_version_req=
+
+            if test  -n "$xerces_version_req"; then
+
+                { $as_echo "$as_me:${as_lineno-$LINENO}: checking if Xerces C++ Parser version is >= $xerces_version_req" >&5
+$as_echo_n "checking if Xerces C++ Parser version is >= $xerces_version_req... " >&6; }
+
+                if test -f "$xerces_include_dir2/util/XercesVersion.hpp"; then
+
+                    xerces_major=`cat $xerces_include_dir2/util/XercesVersion.hpp | \
+                                    grep '^#define.*XERCES_VERSION_MAJOR.*[0-9]$' | \
+                                    sed -e 's/#define XERCES_VERSION_MAJOR.//'`
+
+                    xerces_minor=`cat $xerces_include_dir2/util/XercesVersion.hpp | \
+                                    grep '^#define.*XERCES_VERSION_MINOR.*[0-9]$' | \
+                                    sed -e 's/#define XERCES_VERSION_MINOR.//'`
+
+                    xerces_revision=`cat $xerces_include_dir2/util/XercesVersion.hpp | \
+                                    grep '^#define.*XERCES_VERSION_REVISION.*[0-9]$' | \
+                                    sed -e 's/#define XERCES_VERSION_REVISION.//'`
+
+                    XERCES_VERSION="$xerces_major.$xerces_minor.$xerces_revision"
+
+
+                                        xerces_version_req_major=`expr $xerces_version_req : '\([0-9]*\)'`
+                    xerces_version_req_minor=`expr $xerces_version_req : '[0-9]*\.\([0-9]*\)'`
+                    xerces_version_req_revision=`expr $xerces_version_req : '[0-9]*\.[0-9]*\.\([0-9]*\)'`
+                    if test "x$xerces_version_req_revision" = "x"; then
+                        xerces_version_req_revision="0"
+                    fi
+
+                    xerces_version_req_number=`expr $xerces_version_req_major \* 10000 \
+                                               \+ $xerces_version_req_minor \* 100 \
+                                               \+ $xerces_version_req_revision`
+
+                                        xerces_version_number=`expr $xerces_major \* 10000 \
+                                          \+ $xerces_minor \* 100 \
+                                           \+ $xerces_revision`
+
+                    xerces_version_check=`expr $xerces_version_number \>\= $xerces_version_req_number`
+                    if test "$xerces_version_check" = "1"; then
+                        { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+                    else
+                        { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+                        { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Found Xerces C++ Parser $XERCES_VERSION, which is older than required. Possible compilation failure." >&5
+$as_echo "$as_me: WARNING: Found Xerces C++ Parser $XERCES_VERSION, which is older than required. Possible compilation failure." >&2;}
+                    fi
+                else
+                    { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+                    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Missing header XercesVersion.hpp. Unable to determine Xerces version." >&5
+$as_echo "$as_me: WARNING: Missing header XercesVersion.hpp. Unable to determine Xerces version." >&2;}
+                fi
+            fi
+        fi
+
+    else
+        HAVE_XERCES="no"
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: $HAVE_XERCES" >&5
+$as_echo "$HAVE_XERCES" >&6; }
+
+        if test "$xerces_requested" = "yes"; then
+            { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Xerces C++ Parser support requested but headers or library not found. Specify valid prefix of Xerces C++ using --with-xerces=[DIR] or provide include directory and linker flags using --with-xerces-inc and --with-xerces-lib" >&5
+$as_echo "$as_me: WARNING: Xerces C++ Parser support requested but headers or library not found. Specify valid prefix of Xerces C++ using --with-xerces=[DIR] or provide include directory and linker flags using --with-xerces-inc and --with-xerces-lib" >&2;}
+        fi
+    fi
+
+HAVE_XERCES=$HAVE_XERCES
+ # for autovars.php
+if test "x$HAVE_XERCES" != xno; then :
+  $as_echo "#define HAVE_XERCES 1" >>confdefs.h
+
+fi # for config.h
+
+# Check whether --enable-gc was given.
+if test "${enable_gc+set}" = set; then :
+  enableval=$enable_gc;
 fi
 
 
-fi
-
-# USE GC unless disabled
+# Use GC unless disabled
 # libgccpp overrides ::new, which is required to collect the Boost Graph Library.
 
 if test "x$enable_gc" != xno; then :

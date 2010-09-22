@@ -415,7 +415,7 @@ am_src_phc_OBJECTS = phc.$(OBJEXT)
 src_phc_OBJECTS = $(am_src_phc_OBJECTS)
 am__DEPENDENCIES_1 =
 src_phc_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	libphc.la
+	libphc.la $(am__DEPENDENCIES_1)
 src_phc_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) \
 	$(src_phc_LDFLAGS) $(LDFLAGS) -o $@
@@ -597,6 +597,7 @@ EGREP = @EGREP@
 EXEEXT = @EXEEXT@
 FGREP = @FGREP@
 GREP = @GREP@
+HAVE_XERCES = @HAVE_XERCES@
 INCLTDL = @INCLTDL@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
@@ -639,12 +640,19 @@ PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
+PTHREAD_CC = @PTHREAD_CC@
+PTHREAD_CFLAGS = @PTHREAD_CFLAGS@
+PTHREAD_LIBS = @PTHREAD_LIBS@
 RANLIB = @RANLIB@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
 VERSION = @VERSION@
+XERCES_CPPFLAGS = @XERCES_CPPFLAGS@
+XERCES_LDFLAGS = @XERCES_LDFLAGS@
+XERCES_LIBS = @XERCES_LIBS@
+XERCES_VERSION = @XERCES_VERSION@
 abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
 abs_top_builddir = @abs_top_builddir@
@@ -652,6 +660,7 @@ abs_top_srcdir = @abs_top_srcdir@
 ac_ct_CC = @ac_ct_CC@
 ac_ct_CXX = @ac_ct_CXX@
 ac_ct_DUMPBIN = @ac_ct_DUMPBIN@
+acx_pthread_config = @acx_pthread_config@
 am__include = @am__include@
 am__leading_dot = @am__leading_dot@
 am__quote = @am__quote@
@@ -712,19 +721,18 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-use_libXerces = @use_libXerces@
 valgrind = @valgrind@
 SUBDIRS = libltdl
 
 # Note the preprocessor supports -Wall, so we put that here, rather than a seperate CXX_FLAGS
 AM_CPPFLAGS = \
-	$(BOOST_CPPFLAGS) $(LTDLINCL) 															\
+	$(BOOST_CPPFLAGS) $(LTDLINCL) $(XERCES_CPPFLAGS) 															\
 	-I$(srcdir)/src -I$(srcdir) -I$(srcdir)/3rdparty/getopt -I$(srcdir)/src/generated		\
 	@libphp_headers@																				\
 	-DDATADIR=\"$(datadir)\" -DPKGLIBDIR=\"$(pkglibdir)\"								\
 	-Wall
 
-AM_LDFLAGS = $(BOOST_LDFLAGS)
+AM_LDFLAGS = $(BOOST_LDFLAGS) $(XERCES_LDFLAGS)
 lib_LTLIBRARIES = libphc.la
 
 # By using CXXFLAGS we avoid warnings in generated_src, which we dont want to
@@ -741,7 +749,7 @@ ACLOCAL_AMFLAGS = -I m4 -I libltdl
 
 # -export-dynammic: Special libtool flag for later plugin loading
 src_phc_LDFLAGS = -export-dynamic
-src_phc_LDADD = @gc_lib@ $(LIBLTDL) $(BOOST_REGEX_LIB) libphc.la
+src_phc_LDADD = @gc_lib@ $(LIBLTDL) $(BOOST_REGEX_LIB) libphc.la $(XERCES_LIBS)
 bin_SCRIPTS = src/phc_compile_plugin
 libexec_SCRIPTS = libtool
 # pkgdata_DATA = phc-1.0.xsd
@@ -4056,7 +4064,7 @@ src/phc_compile_plugin: Makefile src/phc_compile_plugin.in
 	chmod 755 src/phc_compile_plugin
 
 test/framework/lib/autovars.php: Makefile test/framework/lib/autovars.php.in
-	sed -e 's!@valgrind\@!$(valgrind)!g; s!@graphviz_gc\@!$(graphviz_gc)!g;s!@dot\@!$(dot)!g; s!@php\@!$(php)!g; s!@CC\@!$(CC)!g; s!@diff\@!$(diff)!g;s!@php_install_path\@!$(php_install_path)!g; s!@bindir\@!$(bindir)!g; s!@EXEEXT\@!$(EXEEXT)!g; s!@pkglibdir\@!$(pkglibdir)!g; s!@xerces_compiled_in\@!$(use_libXerces)!g; s!@AM_CPPFLAGS\@!$(AM_CPPFLAGS)!g;' $(srcdir)/test/framework/lib/autovars.php.in > test/framework/lib/autovars.php
+	sed -e 's!@valgrind\@!$(valgrind)!g; s!@graphviz_gc\@!$(graphviz_gc)!g;s!@dot\@!$(dot)!g; s!@php\@!$(php)!g; s!@CC\@!$(CC)!g; s!@diff\@!$(diff)!g;s!@php_install_path\@!$(php_install_path)!g; s!@bindir\@!$(bindir)!g; s!@EXEEXT\@!$(EXEEXT)!g; s!@pkglibdir\@!$(pkglibdir)!g; s!@xerces_compiled_in\@!$(HAVE_XERCES)!g; s!@AM_CPPFLAGS\@!$(AM_CPPFLAGS)!g;' $(srcdir)/test/framework/lib/autovars.php.in > test/framework/lib/autovars.php
 distclean-local:
 	rm -rf autom4te.cache
 # Just delete the contents - the directory is in svn
