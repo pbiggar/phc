@@ -27,7 +27,7 @@ Oracle::initialize (MIR::PHP_script* in)
 			add_method_info (new User_method_info (m));
 
 		else if (Interface_def* i = dynamic_cast<Interface_def*> (stmt))
-			phc_TODO ();
+	    phc_optimization_exception("Interfaces are not supported");
 
 		else if (Class_def* c = dynamic_cast<Class_def*> (stmt))
 			add_class_info (new User_class_info (c));
@@ -91,8 +91,9 @@ Oracle::get_method_info (String* method_name)
 	// require etc al have to be done.
 	if (is_builtin_function (name))
 	{
-		cerr << "Builtin function '" << *name << "' is not modelled" << endl;
-		phc_TODO ();
+		stringstream ss;
+		ss << "Builtin function \"" << *name << "\" is not modelled" << endl;
+	  phc_optimization_exception (ss.str()) ;
 	}
 
 	return NULL;
@@ -170,8 +171,9 @@ Oracle::get_class_info (String* class_name)
 
 	if (not classes.has (*name))
 	{
-		cdebug << "Class \"" << *name << "\" not found" << endl;
-		phc_TODO ();
+		stringstream ss;
+		ss << "Class \"" << *name << "\" not found" << endl;
+	  phc_optimization_exception (ss.str()) ;
 	}
 
 	return classes[*name];

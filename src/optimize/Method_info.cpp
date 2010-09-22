@@ -210,7 +210,8 @@ Summary_method_info::get_fake_bb ()
 Class_info*
 Summary_method_info::get_class_info ()
 {
-	phc_TODO ();
+	phc_optimization_exception("Built-in classes not supported");
+  return NULL;
 }
 
 

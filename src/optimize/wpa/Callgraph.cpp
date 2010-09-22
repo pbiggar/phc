@@ -153,8 +153,7 @@ Callgraph::dump_graphviz (String* label) const
 bool
 Callgraph::has_analysis_result (Context* cx, Result_state) const
 {
-	// I dont know whether to return true or false.
-	phc_TODO ();
+  return false;
 }
 
 void

@@ -192,7 +192,7 @@ void
 Optimization_transformer::visit_global (Statement_block* bb, MIR::Global* in)
 {
 	if (isa<Variable_variable> (in->variable_name))
-		phc_TODO ();
+    phc_optimization_exception ("Optimization of globals unsupported");
 }
 
 void
@@ -233,19 +233,19 @@ Optimization_transformer::visit_return (Statement_block* bb, MIR::Return* in)
 void
 Optimization_transformer::visit_static_declaration (Statement_block* bb, MIR::Static_declaration* in)
 {
-	phc_TODO ();
+  phc_optimization_exception ("Optimization of static declarations unsupported");
 }
 
 void
 Optimization_transformer::visit_throw (Statement_block* bb, MIR::Throw* in)
 {
-	phc_TODO ();
+  phc_optimization_exception ("Optimization of throw statements unsupported");
 }
 
 void
 Optimization_transformer::visit_try (Statement_block* bb, MIR::Try* in)
 {
-	phc_TODO ();
+  phc_optimization_exception ("Optimization of try blocks unsupported");
 }
 
 void
@@ -267,7 +267,7 @@ Optimization_transformer::visit_array_access (Statement_block* bb, MIR::Array_ac
 void
 Optimization_transformer::visit_array_next (Statement_block* bb, MIR::Array_next* in)
 {
-	phc_TODO ();
+  phc_optimization_exception ("Optimization of array-next statements unsupported");
 }
 
 void
@@ -321,7 +321,7 @@ Optimization_transformer::visit_foreach_has_key (Statement_block* bb, MIR::Forea
 void
 Optimization_transformer::visit_instanceof (Statement_block* bb, MIR::Instanceof* in)
 {
-	phc_TODO ();
+  phc_optimization_exception ("Optimization of instanceof statements unsupported");
 }
 
 void

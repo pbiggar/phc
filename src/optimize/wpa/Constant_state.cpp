@@ -82,6 +82,7 @@ void
 Constant_state::set_unknown_constant (Context* cx, const Abstract_value* value, bool case_insensitive)
 {
 	phc_TODO ();
+  phc_optimization_exception ("Adding a new value from a new target unsupported during alias analysis");
 }
 
 // TODO: for conditionally defined constants, this might return true, even

@@ -143,7 +143,8 @@ Points_to_impl::add_reference (const Index_node* source, const Index_node* targe
 		return;
 
 	if (references.has_edge (source, target) and references.get_value (source, target) != cert)
-		phc_TODO (); // check if there already is a CERT, and combine them (which way?).
+		// TODO: check if there already is a CERT, and combine them (which way?).
+    phc_optimization_exception ("Combining reference edges of different certainty unsupported");
 
 	// These are always bidirectional.
 	references.add_edge (source, target, cert);

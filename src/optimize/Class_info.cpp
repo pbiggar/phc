@@ -99,7 +99,9 @@ User_class_info::User_class_info (Class_def* class_def)
 				|| *name == "__wakeup"
 				)
 			{
-				phc_TODO ();
+        stringstream ss;
+        ss << "Magic method '" << *name << " is not supported";
+        phc_optimization_exception (ss.str());
 			}
 
 			User_method_info* umi = new User_method_info (this, method);
@@ -123,5 +125,5 @@ User_class_info::get_attributes ()
 Summary_class_info::Summary_class_info (String* name)
 : Class_info (name)
 {
-	phc_TODO ();
+  phc_optimization_exception ("Built-in classes are not supported");
 }

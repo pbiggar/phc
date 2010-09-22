@@ -289,7 +289,7 @@ SCCP::visit_global (Statement_block*, MIR::Global* in)
 	// The Def-use info indicates this is a DEF, so we must put it to BOTTOM, or
 	// else it will be assumed TOP.
 	if (isa<Variable_variable> (in->variable_name))
-		phc_TODO ();
+		phc_optimization_exception ("SCCP does not support global variable-variables");
 
 	set_lattice (dyc<VARIABLE_NAME> (in->variable_name), BOTTOM);
 }
@@ -495,7 +495,7 @@ SCCP::transform_method_invocation (Statement_block*, Method_invocation* in)
 	// ignore for now
 	if (METHOD_NAME* name = dynamic_cast<METHOD_NAME*> (in->method_name))
 	{
-		phc_TODO ();
+		phc_optimization_exception ("SCCP does not support optimizing method invocations");
 		/*
 		Signature* sig = Oracle::get_signature (name);
 		if (Oracle::is_pure_function (name))

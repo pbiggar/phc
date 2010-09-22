@@ -663,8 +663,9 @@ P (string symtable, Node* in)
 
 
 		default:
-			DEBUG (demangle (in));
-			phc_TODO ();
+      stringstream ss;
+      ss << "Unsupported MIR statement in path creation: " << demangle (in);
+      phc_optimization_exception (ss.str());
 	}
 }
 

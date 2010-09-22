@@ -45,7 +45,7 @@ mark_by_ref (Method_invocation* in)
 	if (isa<MIR::Variable_method> (in->method_name))
 		return;
 
-	phc_TODO ();
+  phc_optimization_exception ("Optimizing by marking known references is not supported");
 /*	Signature* sig = Oracle::get_signature (dyc<METHOD_NAME> (in->method_name));
 	if (sig == NULL)
 	{
@@ -78,7 +78,7 @@ mark_zend_reference_bug (Method_invocation* in)
 	if (isa<MIR::Variable_method> (in->method_name))
 		return;
 
-	phc_TODO ();
+  phc_optimization_exception ("Optimizing by marking the zend reference bug is not supported");
 /*
 	// Any function for which we have a signature is a ZEND_FUNCTION_CALL
 	Signature* sig = Oracle::get_signature (dyc<METHOD_NAME> (in->method_name));
@@ -109,13 +109,14 @@ void
 Misc_annotations::annotate_non_by_ref_vars (Basic_block* bb)
 {
 //	Alias_name_list* names = new Alias_name_list;
-	phc_TODO ();
+  phc_optimization_exception ("Optimizing by annotating the non-reference variables is not supported");
 //	names->push_back_all (bb->cfg->duw->get_block_defs (bb));
 //	names->push_back_all (bb->cfg->duw->get_block_uses (bb));
 //	foreach (Alias_name* name, *names)
 //	{
+/*
 		phc_TODO ();
-/*		if (!aliasing->aliases->has (var))
+		if (!aliasing->aliases->has (var))
 		{
 			CTS ("resolve-non-ref");
 			var->attrs->set_true ("phc.optimize.cannot_be_ref");

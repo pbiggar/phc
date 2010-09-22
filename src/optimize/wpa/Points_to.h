@@ -516,7 +516,7 @@ public:
 		if (this->has_edge (edge))
 		{
 			if (values[edge->source][edge->target] != v)
-				phc_TODO ();
+        phc_optimization_exception ("Adding a new value from a new target unsupported during alias analysis");
 		}
 		else
 		{

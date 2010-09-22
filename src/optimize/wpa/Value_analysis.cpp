@@ -135,7 +135,7 @@ Types*
 Value_analysis::get_bin_op_types (Context* cx, const Abstract_value* left, const Abstract_value* right, string op)
 {
 	if (left->types == NULL || right->types == NULL)
-		phc_TODO ();
+    phc_optimization_exception ("Optimization of binary operations with no abstract values unsupported");
 
 	Types* result_types = new Types;
 	foreach (string ltype, *left->types)
@@ -195,14 +195,14 @@ Value_analysis::get_bin_op_type (string ltype, string rtype, string op)
 			return new Types ("int", "bool", "real"); // FALSE for divide by zero
 
 		// Other scalars are possible
-		phc_TODO ();
+    phc_optimization_exception ("Optimization of weird types of division unsupported");
 	}
 	else if (op == "+")
 	{
 		// If its just one array, thats a run-time error, so we can ignore what
 		// happens here.
 		if (ltype == "array" && rtype == "array")
-			phc_TODO ();
+      phc_optimization_exception ("Optimization of array concatenation unsupported");
 
 		if (ltype == "real" || rtype == "real")
 			return new Types ("real");
@@ -236,8 +236,10 @@ Value_analysis::get_bin_op_type (string ltype, string rtype, string op)
 	}
 
 
-	cdebug << "Not modelled, a " << left << " " << op << " a " << right << endl;
-	phc_TODO ();
+	stringstream ss;
+  ss << "Optimization of a " << left << " " << op << " a " << right << "unsupported " << endl;
+  phc_optimization_exception (ss.str());
+  return NULL; // silence warning
 
 //	Map<string, Map <string, Map<string, Types > > > type_map;
 //	type_map ["+"]["int"]["int"] = Types ("int");
@@ -255,8 +257,10 @@ Value_analysis::get_unary_op_types (Context* cx, const Abstract_value* operand, 
 	if (op == "-" || op == "~")
 		return operand->types->clone ();
 
-	DEBUG ("unary op: " << op << " not handled");
-	phc_TODO ();
+	stringstream ss;
+  ss << "Optimization of unary op '" << op << "' not supported";
+  phc_optimization_exception (ss.str());
+  return NULL; // silence warning
 }
 
 
