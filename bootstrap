@@ -1,11 +1,16 @@
 #!/bin/bash
 
 set -x
-AUTOCONF_ARCHIVE=/usr/share/aclocal
+
+# Ubuntu
+AUTOCONF_ARCHIVES+=" -I /usr/share/aclocal"
+
+# Mac OS X
+#AUTOCONF_ARCHIVES+=" -I /opt/local/share/aclocal"
 
 # autotools invocations are hard to get right.
 
-aclocal -I m4 -I libltdl -I $AUTOCONF_ARCHIVE -I /usr/share/aclocal
+aclocal -I m4 -I libltdl $AUTOCONF_ARCHIVES
 autoconf
 automake
 
