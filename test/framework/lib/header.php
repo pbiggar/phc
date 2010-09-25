@@ -161,7 +161,7 @@ function phc_error_handler ($errno, $errstr, $errfile, $errline, $errcontext)
 		$frame = $backtrace[$i];
 		$function = $frame{"function"};
 		$object = $frame{"object"};
-		$class = get_class($frame{"object"});
+		$class = @get_class($frame{"object"});
 		$type = $frame{"type"};
 
 		/* skip trigger_error and multiple asserts */
