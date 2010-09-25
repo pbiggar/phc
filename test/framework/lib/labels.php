@@ -275,6 +275,12 @@ function get_all_scripts_in_dir($directory)
 	$result = explode ("\n", trim (`$command`));
 	if (count ($result) == 1 && $result[0] == "")
 		return array ();
+
+	# I have no idea why, but on OSX `find` returns two forward-slashes in some 
+	# cases, and PHP won't open directories structured like that.
+	foreach($result as &$line)
+		$line = preg_replace("!//!", "/", $line);
+
 	return $result;
 }
 
