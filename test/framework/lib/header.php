@@ -769,6 +769,12 @@ function homogenize_all ($string, $filename)
 
 function copy_to_working_dir ($file)
 {
+	# I'm fairly sure this doesn't work properly since we libtool'ed up. To fix 
+	# it, we'd need to copy the .libs directory, and make sure the bash scripts 
+	# that libtool sets up instead of phc have all their dependencies set right.
+	return $file;
+
+
 	global $working_directory;
 	$filename = basename ($file);
 	$new_file = "$working_directory/$filename";
