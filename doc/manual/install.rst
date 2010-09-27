@@ -39,6 +39,16 @@ dependencies:
 .. sourcecode:: bash
 
    apt-get install build-essential libboost-dev libxerces27-dev graphviz libgc-dev
+
+
+On Mac OS X, install XCode, which provides the necessary compilers.
+For libraries, MacPorts can be used:
+
+.. sourcecode:: bash
+
+  port install boehmgc-devel boost xercesc
+  export CPATH=/opt/local/include
+  export LIBRARY_PATH=/opt/local/lib
    
 You will still need to install the PHP embed SAPI manually.
 
@@ -47,6 +57,8 @@ You will still need to install the PHP embed SAPI manually.
 
 PHP ``embed SAPI`` installation instructions
 --------------------------------------------
+
+If your operating system supplies a php5-embed package, or similar, you may :ref:`skip <install.instructions>` this section.
 
 If you do not intend to compile PHP code using |phc|, you may 
 :ref:`skip <install.instructions>` this section.
@@ -126,6 +138,14 @@ in their standard locations, you should be able to simply type [#configure_help]
 
    cd phc-0.2.0
    ./configure
+   make
+
+On Mac OS X, a bug prevents the use of libgc, so use:
+
+.. sourcecode:: bash
+
+   cd phc-0.2.0
+   ./configure --disable-gc
    make
 
 This should compile without any warnings or errors. If this step fails, please
