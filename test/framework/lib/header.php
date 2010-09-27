@@ -252,6 +252,49 @@ function close_status_files ()
 		fclose ($file);
 }
 
+// $matches means the command line arguments, which are regexes.
+// $quick means only the top 10 files are used, so ignore the '-'s.
+function diff_status_files ($matches = array(), $quick=false)
+{
+	print "Comparing to expected:\n";
+	global $log_directory;
+	foreach (array("failure", "skipped", "success", "timeout") as $status)
+	{
+		$log_file = "$log_directory/$status";
+		$expected_file = "test/expected_results/$status";
+
+		$cmd = "diff $expected_file $log_file -U 0";
+
+		if ($quick)
+		{
+			$cmd .= ' | grep -v \'^-\'';
+		}
+		$result = `$cmd`;
+		$result = preg_split ('/\n/', $result);
+
+		if (count ($matches))
+		{
+			$output = array();
+			foreach ($result as $line)
+			{
+				foreach ($matches as $match)
+				{
+					if (preg_match ("/$match/", $line))
+					{
+						$output[] = $line;
+						break;
+					}
+				}
+			}
+			$result = $output;
+		}
+		$result = join("\n", $result);
+		print $result;
+	}
+}
+
+
+
 function phc_assert ($boolean, $message)
 {
 	if (!$boolean)

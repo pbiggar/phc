@@ -176,5 +176,6 @@ foreach ($tests as $test)
 	else $test->run ();
 }
 close_status_files ();
+diff_status_files($arguments, $opt_quick);
 
 ?>
