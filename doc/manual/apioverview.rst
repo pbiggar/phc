@@ -20,7 +20,7 @@ or tokens, are entirely uppercase.  Examples are :class:`While`, :class:`Expr`,
 The main difference is that token classes have one additional field (and
 sometimes two). Every token class gets an attribute called :attr:`value`. The
 type of this attribute depends on the token; for most tokens it is
-:ctype:`String*` (this is the default); however, if the grammar explicitely
+:c:type:`String*` (this is the default); however, if the grammar explicitely
 specifies a type for the value (in angular brackets, for example
 ``REAL<double>``), this overrides the default.
 
