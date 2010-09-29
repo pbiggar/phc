@@ -245,7 +245,6 @@ BasicIgnoreOutputFastOptimizeTest: Timeout test/subjects/codegen/masquarading_in
 BasicIgnoreOutputFastOptimizeTest: Timeout test/subjects/codegen/odd_breaks.php
 BasicIgnoreOutputFastOptimizeTest: Timeout test/subjects/codegen/post_increment_in_break.php
 BasicIgnoreOutputFastOptimizeTest: Timeout test/subjects/codegen/post_increment_in_continue.php
-BasicIgnoreOutputFastOptimizeTest: Timeout test/subjects/codegen/print.php
 BasicIgnoreOutputFastOptimizeTest: Timeout test/subjects/codegen/reuse_array.php
 BasicIgnoreOutputFastOptimizeTest: Timeout test/subjects/codegen/switch_continue.php
 BasicIgnoreOutputFastOptimizeTest: Timeout test/subjects/codegen/switch_functions.php

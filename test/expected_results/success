@@ -238,6 +238,7 @@ Annotated_test: Success test/subjects/codegen/nested_statements_same_var.php
 Annotated_test: Success test/subjects/codegen/new.php
 Annotated_test: Success test/subjects/codegen/next.php
 Annotated_test: Success test/subjects/codegen/next_available.php
+Annotated_test: Success test/subjects/codegen/no_ashred_rvalue.php
 Annotated_test: Success test/subjects/codegen/non_existant_function.php
 Annotated_test: Success test/subjects/codegen/non_string_var_vars.php
 Annotated_test: Success test/subjects/codegen/nop.php
@@ -973,6 +974,7 @@ BasicParseTest: Success test/subjects/codegen/nested_statements_same_var.php
 BasicParseTest: Success test/subjects/codegen/new.php
 BasicParseTest: Success test/subjects/codegen/next.php
 BasicParseTest: Success test/subjects/codegen/next_available.php
+BasicParseTest: Success test/subjects/codegen/no_ashred_rvalue.php
 BasicParseTest: Success test/subjects/codegen/non_existant_function.php
 BasicParseTest: Success test/subjects/codegen/non_string_var_vars.php
 BasicParseTest: Success test/subjects/codegen/nop.php
@@ -1645,6 +1647,7 @@ NoWhitespace: Success test/subjects/codegen/nested_statements_same_var.php
 NoWhitespace: Success test/subjects/codegen/new.php
 NoWhitespace: Success test/subjects/codegen/next.php
 NoWhitespace: Success test/subjects/codegen/next_available.php
+NoWhitespace: Success test/subjects/codegen/no_ashred_rvalue.php
 NoWhitespace: Success test/subjects/codegen/non_existant_function.php
 NoWhitespace: Success test/subjects/codegen/non_string_var_vars.php
 NoWhitespace: Success test/subjects/codegen/nop.php
@@ -2290,6 +2293,7 @@ cb_ast: Success test/subjects/codegen/nested_statements_same_var.php
 cb_ast: Success test/subjects/codegen/new.php
 cb_ast: Success test/subjects/codegen/next.php
 cb_ast: Success test/subjects/codegen/next_available.php
+cb_ast: Success test/subjects/codegen/no_ashred_rvalue.php
 cb_ast: Success test/subjects/codegen/non_existant_function.php
 cb_ast: Success test/subjects/codegen/non_string_var_vars.php
 cb_ast: Success test/subjects/codegen/nop.php
@@ -2486,6 +2490,7 @@ cb_ast: Success test/subjects/optimization/die.php
 cb_ast: Success test/subjects/optimization/die_cfg.php
 cb_ast: Success test/subjects/optimization/essa.php
 cb_ast: Success test/subjects/optimization/field_on_nonobjects.php
+cb_ast: Success test/subjects/optimization/gettimeofday.php
 cb_ast: Success test/subjects/optimization/global_references.php
 cb_ast: Success test/subjects/optimization/identity_assignment.php
 cb_ast: Success test/subjects/optimization/ifs.php
@@ -2957,6 +2962,7 @@ cb_sua: Success test/subjects/codegen/nested_statements_same_var.php
 cb_sua: Success test/subjects/codegen/new.php
 cb_sua: Success test/subjects/codegen/next.php
 cb_sua: Success test/subjects/codegen/next_available.php
+cb_sua: Success test/subjects/codegen/no_ashred_rvalue.php
 cb_sua: Success test/subjects/codegen/non_existant_function.php
 cb_sua: Success test/subjects/codegen/non_string_var_vars.php
 cb_sua: Success test/subjects/codegen/nop.php
@@ -3153,6 +3159,7 @@ cb_sua: Success test/subjects/optimization/die.php
 cb_sua: Success test/subjects/optimization/die_cfg.php
 cb_sua: Success test/subjects/optimization/essa.php
 cb_sua: Success test/subjects/optimization/field_on_nonobjects.php
+cb_sua: Success test/subjects/optimization/gettimeofday.php
 cb_sua: Success test/subjects/optimization/global_references.php
 cb_sua: Success test/subjects/optimization/identity_assignment.php
 cb_sua: Success test/subjects/optimization/ifs.php
@@ -3623,6 +3630,7 @@ cb_AST-to-HIR: Success test/subjects/codegen/nested_statements.php
 cb_AST-to-HIR: Success test/subjects/codegen/nested_statements_same_var.php
 cb_AST-to-HIR: Success test/subjects/codegen/next.php
 cb_AST-to-HIR: Success test/subjects/codegen/next_available.php
+cb_AST-to-HIR: Success test/subjects/codegen/no_ashred_rvalue.php
 cb_AST-to-HIR: Success test/subjects/codegen/non_existant_function.php
 cb_AST-to-HIR: Success test/subjects/codegen/non_string_var_vars.php
 cb_AST-to-HIR: Success test/subjects/codegen/nop.php
@@ -4281,6 +4289,7 @@ cb_hir: Success test/subjects/codegen/nested_statements.php
 cb_hir: Success test/subjects/codegen/nested_statements_same_var.php
 cb_hir: Success test/subjects/codegen/next.php
 cb_hir: Success test/subjects/codegen/next_available.php
+cb_hir: Success test/subjects/codegen/no_ashred_rvalue.php
 cb_hir: Success test/subjects/codegen/non_existant_function.php
 cb_hir: Success test/subjects/codegen/non_string_var_vars.php
 cb_hir: Success test/subjects/codegen/nop.php
@@ -4937,6 +4946,7 @@ cb_mir: Success test/subjects/codegen/nested_statements.php
 cb_mir: Success test/subjects/codegen/nested_statements_same_var.php
 cb_mir: Success test/subjects/codegen/next.php
 cb_mir: Success test/subjects/codegen/next_available.php
+cb_mir: Success test/subjects/codegen/no_ashred_rvalue.php
 cb_mir: Success test/subjects/codegen/non_existant_function.php
 cb_mir: Success test/subjects/codegen/non_string_var_vars.php
 cb_mir: Success test/subjects/codegen/nop.php
@@ -5601,6 +5611,7 @@ HIR-to-MIR_dump: Success test/subjects/codegen/nested_statements.php
 HIR-to-MIR_dump: Success test/subjects/codegen/nested_statements_same_var.php
 HIR-to-MIR_dump: Success test/subjects/codegen/next.php
 HIR-to-MIR_dump: Success test/subjects/codegen/next_available.php
+HIR-to-MIR_dump: Success test/subjects/codegen/no_ashred_rvalue.php
 HIR-to-MIR_dump: Success test/subjects/codegen/non_existant_function.php
 HIR-to-MIR_dump: Success test/subjects/codegen/non_string_var_vars.php
 HIR-to-MIR_dump: Success test/subjects/codegen/nop.php
@@ -6267,6 +6278,7 @@ mir_dump: Success test/subjects/codegen/nested_statements.php
 mir_dump: Success test/subjects/codegen/nested_statements_same_var.php
 mir_dump: Success test/subjects/codegen/next.php
 mir_dump: Success test/subjects/codegen/next_available.php
+mir_dump: Success test/subjects/codegen/no_ashred_rvalue.php
 mir_dump: Success test/subjects/codegen/non_existant_function.php
 mir_dump: Success test/subjects/codegen/non_string_var_vars.php
 mir_dump: Success test/subjects/codegen/nop.php
@@ -6925,6 +6937,7 @@ InterpretCanonicalUnparsed: Success test/subjects/codegen/nested_statements_same
 InterpretCanonicalUnparsed: Success test/subjects/codegen/new.php
 InterpretCanonicalUnparsed: Success test/subjects/codegen/next.php
 InterpretCanonicalUnparsed: Success test/subjects/codegen/next_available.php
+InterpretCanonicalUnparsed: Success test/subjects/codegen/no_ashred_rvalue.php
 InterpretCanonicalUnparsed: Success test/subjects/codegen/non_existant_function.php
 InterpretCanonicalUnparsed: Success test/subjects/codegen/non_string_var_vars.php
 InterpretCanonicalUnparsed: Success test/subjects/codegen/nop.php
@@ -7121,6 +7134,7 @@ InterpretCanonicalUnparsed: Success test/subjects/optimization/die.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/die_cfg.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/essa.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/field_on_nonobjects.php
+InterpretCanonicalUnparsed: Success test/subjects/optimization/gettimeofday.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/global_references.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/identity_assignment.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/ifs.php
@@ -7593,6 +7607,7 @@ InterpretIncludes: Success test/subjects/codegen/nested_statements_same_var.php
 InterpretIncludes: Success test/subjects/codegen/new.php
 InterpretIncludes: Success test/subjects/codegen/next.php
 InterpretIncludes: Success test/subjects/codegen/next_available.php
+InterpretIncludes: Success test/subjects/codegen/no_ashred_rvalue.php
 InterpretIncludes: Success test/subjects/codegen/non_existant_function.php
 InterpretIncludes: Success test/subjects/codegen/non_string_var_vars.php
 InterpretIncludes: Success test/subjects/codegen/nop.php
@@ -7789,6 +7804,7 @@ InterpretIncludes: Success test/subjects/optimization/die.php
 InterpretIncludes: Success test/subjects/optimization/die_cfg.php
 InterpretIncludes: Success test/subjects/optimization/essa.php
 InterpretIncludes: Success test/subjects/optimization/field_on_nonobjects.php
+InterpretIncludes: Success test/subjects/optimization/gettimeofday.php
 InterpretIncludes: Success test/subjects/optimization/global_references.php
 InterpretIncludes: Success test/subjects/optimization/identity_assignment.php
 InterpretIncludes: Success test/subjects/optimization/ifs.php
@@ -8254,6 +8270,7 @@ InterpretObfuscated: Success test/subjects/codegen/nested_statements.php
 InterpretObfuscated: Success test/subjects/codegen/nested_statements_same_var.php
 InterpretObfuscated: Success test/subjects/codegen/next.php
 InterpretObfuscated: Success test/subjects/codegen/next_available.php
+InterpretObfuscated: Success test/subjects/codegen/no_ashred_rvalue.php
 InterpretObfuscated: Success test/subjects/codegen/non_existant_function.php
 InterpretObfuscated: Success test/subjects/codegen/non_string_var_vars.php
 InterpretObfuscated: Success test/subjects/codegen/nop.php
@@ -8907,6 +8924,7 @@ Generate_C: Success test/subjects/codegen/multi_way_merge.php
 Generate_C: Success test/subjects/codegen/nested_statements.php
 Generate_C: Success test/subjects/codegen/nested_statements_same_var.php
 Generate_C: Success test/subjects/codegen/next.php
+Generate_C: Success test/subjects/codegen/no_ashred_rvalue.php
 Generate_C: Success test/subjects/codegen/non_existant_function.php
 Generate_C: Success test/subjects/codegen/non_string_var_vars.php
 Generate_C: Success test/subjects/codegen/nop.php
@@ -9518,6 +9536,7 @@ CompiledVsInterpreted: Success test/subjects/codegen/multi_array_access.php
 CompiledVsInterpreted: Success test/subjects/codegen/multi_way_merge.php
 CompiledVsInterpreted: Success test/subjects/codegen/nested_statements_same_var.php
 CompiledVsInterpreted: Success test/subjects/codegen/next.php
+CompiledVsInterpreted: Success test/subjects/codegen/no_ashred_rvalue.php
 CompiledVsInterpreted: Success test/subjects/codegen/non_existant_function.php
 CompiledVsInterpreted: Success test/subjects/codegen/non_string_var_vars.php
 CompiledVsInterpreted: Success test/subjects/codegen/nop.php
@@ -10057,6 +10076,7 @@ BasicPreciseOptAnalyseTest: Success test/subjects/codegen/multi_way_merge.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/nested_statements.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/nested_statements_same_var.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/next.php
+BasicPreciseOptAnalyseTest: Success test/subjects/codegen/no_ashred_rvalue.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/non_string_var_vars.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/nop.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/null_elem.php
@@ -10535,6 +10555,7 @@ BasicPreciseOptimizeTest: Success test/subjects/codegen/multi_way_merge.php
 BasicPreciseOptimizeTest: Success test/subjects/codegen/nested_statements.php
 BasicPreciseOptimizeTest: Success test/subjects/codegen/nested_statements_same_var.php
 BasicPreciseOptimizeTest: Success test/subjects/codegen/next.php
+BasicPreciseOptimizeTest: Success test/subjects/codegen/no_ashred_rvalue.php
 BasicPreciseOptimizeTest: Success test/subjects/codegen/non_string_var_vars.php
 BasicPreciseOptimizeTest: Success test/subjects/codegen/nop.php
 BasicPreciseOptimizeTest: Success test/subjects/codegen/null_elem.php
@@ -11012,6 +11033,7 @@ BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/multi_way_me
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/nested_statements.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/nested_statements_same_var.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/next.php
+BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/no_ashred_rvalue.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/non_string_var_vars.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/nop.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/null_elem.php
@@ -11487,6 +11509,7 @@ BasicFastOptAnalyseTest: Success test/subjects/codegen/multi_way_merge.php
 BasicFastOptAnalyseTest: Success test/subjects/codegen/nested_statements.php
 BasicFastOptAnalyseTest: Success test/subjects/codegen/nested_statements_same_var.php
 BasicFastOptAnalyseTest: Success test/subjects/codegen/next.php
+BasicFastOptAnalyseTest: Success test/subjects/codegen/no_ashred_rvalue.php
 BasicFastOptAnalyseTest: Success test/subjects/codegen/non_string_var_vars.php
 BasicFastOptAnalyseTest: Success test/subjects/codegen/nop.php
 BasicFastOptAnalyseTest: Success test/subjects/codegen/null_elem.php
@@ -11946,6 +11969,7 @@ BasicFastOptimizeTest: Success test/subjects/codegen/multi_way_merge.php
 BasicFastOptimizeTest: Success test/subjects/codegen/nested_statements.php
 BasicFastOptimizeTest: Success test/subjects/codegen/nested_statements_same_var.php
 BasicFastOptimizeTest: Success test/subjects/codegen/next.php
+BasicFastOptimizeTest: Success test/subjects/codegen/no_ashred_rvalue.php
 BasicFastOptimizeTest: Success test/subjects/codegen/non_string_var_vars.php
 BasicFastOptimizeTest: Success test/subjects/codegen/nop.php
 BasicFastOptimizeTest: Success test/subjects/codegen/null_elem.php
@@ -12405,6 +12429,7 @@ BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/multi_way_merge
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/nested_statements.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/nested_statements_same_var.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/next.php
+BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/no_ashred_rvalue.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/non_string_var_vars.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/nop.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/null_elem.php
@@ -12436,6 +12461,7 @@ BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/post_increment_
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/post_increment_in_return.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/post_op_with_side_effect.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/pre_post_op.php
+BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/print.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/push_by_ref.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/push_onto_scalar.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/push_onto_scalar_by_ref.php
@@ -12865,6 +12891,7 @@ InterpretOptimized: Success test/subjects/codegen/multi_way_merge.php
 InterpretOptimized: Success test/subjects/codegen/nested_statements.php
 InterpretOptimized: Success test/subjects/codegen/nested_statements_same_var.php
 InterpretOptimized: Success test/subjects/codegen/next.php
+InterpretOptimized: Success test/subjects/codegen/no_ashred_rvalue.php
 InterpretOptimized: Success test/subjects/codegen/nop.php
 InterpretOptimized: Success test/subjects/codegen/null_elem.php
 InterpretOptimized: Success test/subjects/codegen/null_var_var_read.php
@@ -13310,6 +13337,7 @@ CompileOptimized: Success test/subjects/codegen/multi_array_access.php
 CompileOptimized: Success test/subjects/codegen/multi_way_merge.php
 CompileOptimized: Success test/subjects/codegen/nested_statements_same_var.php
 CompileOptimized: Success test/subjects/codegen/next.php
+CompileOptimized: Success test/subjects/codegen/no_ashred_rvalue.php
 CompileOptimized: Success test/subjects/codegen/nop.php
 CompileOptimized: Success test/subjects/codegen/null_elem.php
 CompileOptimized: Success test/subjects/codegen/null_var_var_read.php
@@ -14083,12 +14111,13 @@ Demi_eval_true: Success test/subjects/codegen/lazy_op.php
 Demi_eval_true: Success test/subjects/codegen/leak_on_exit.php
 Demi_eval_true: Success test/subjects/codegen/list_assignment.php
 Demi_eval_true: Success test/subjects/codegen/long_opeq.php
-Demi_eval_true: Success test/subjects/codegen/loop_separation1.php
+Demi_eval_true: Success test/subjects/codegen/loop_separation2.php
 Demi_eval_true: Success test/subjects/codegen/masquarading_int_keys.php
 Demi_eval_true: Success test/subjects/codegen/multi_array_access.php
 Demi_eval_true: Success test/subjects/codegen/multi_way_merge.php
 Demi_eval_true: Success test/subjects/codegen/nested_statements_same_var.php
 Demi_eval_true: Success test/subjects/codegen/next.php
+Demi_eval_true: Success test/subjects/codegen/no_ashred_rvalue.php
 Demi_eval_true: Success test/subjects/codegen/non_string_var_vars.php
 Demi_eval_true: Success test/subjects/codegen/nop.php
 Demi_eval_true: Success test/subjects/codegen/null_elem.php
@@ -14620,12 +14649,12 @@ Demi_eval_false: Success test/subjects/codegen/lazy_op.php
 Demi_eval_false: Success test/subjects/codegen/leak_on_exit.php
 Demi_eval_false: Success test/subjects/codegen/list_assignment.php
 Demi_eval_false: Success test/subjects/codegen/long_opeq.php
-Demi_eval_false: Success test/subjects/codegen/loop_separation2.php
 Demi_eval_false: Success test/subjects/codegen/masquarading_int_keys.php
 Demi_eval_false: Success test/subjects/codegen/multi_array_access.php
 Demi_eval_false: Success test/subjects/codegen/multi_way_merge.php
 Demi_eval_false: Success test/subjects/codegen/nested_statements_same_var.php
 Demi_eval_false: Success test/subjects/codegen/next.php
+Demi_eval_false: Success test/subjects/codegen/no_ashred_rvalue.php
 Demi_eval_false: Success test/subjects/codegen/non_existant_function.php
 Demi_eval_false: Success test/subjects/codegen/non_string_var_vars.php
 Demi_eval_false: Success test/subjects/codegen/nop.php
@@ -15211,6 +15240,7 @@ plugin_inconsistent_st_attr: Success test/subjects/codegen/nested_statements_sam
 plugin_inconsistent_st_attr: Success test/subjects/codegen/new.php
 plugin_inconsistent_st_attr: Success test/subjects/codegen/next.php
 plugin_inconsistent_st_attr: Success test/subjects/codegen/next_available.php
+plugin_inconsistent_st_attr: Success test/subjects/codegen/no_ashred_rvalue.php
 plugin_inconsistent_st_attr: Success test/subjects/codegen/non_existant_function.php
 plugin_inconsistent_st_attr: Success test/subjects/codegen/non_string_var_vars.php
 plugin_inconsistent_st_attr: Success test/subjects/codegen/nop.php
@@ -15900,6 +15930,7 @@ plugin_linear: Success test/subjects/codegen/nested_statements_same_var.php
 plugin_linear: Success test/subjects/codegen/new.php
 plugin_linear: Success test/subjects/codegen/next.php
 plugin_linear: Success test/subjects/codegen/next_available.php
+plugin_linear: Success test/subjects/codegen/no_ashred_rvalue.php
 plugin_linear: Success test/subjects/codegen/non_existant_function.php
 plugin_linear: Success test/subjects/codegen/non_string_var_vars.php
 plugin_linear: Success test/subjects/codegen/nop.php
@@ -16589,6 +16620,7 @@ plugin_cloning: Success test/subjects/codegen/nested_statements_same_var.php
 plugin_cloning: Success test/subjects/codegen/new.php
 plugin_cloning: Success test/subjects/codegen/next.php
 plugin_cloning: Success test/subjects/codegen/next_available.php
+plugin_cloning: Success test/subjects/codegen/no_ashred_rvalue.php
 plugin_cloning: Success test/subjects/codegen/non_existant_function.php
 plugin_cloning: Success test/subjects/codegen/non_string_var_vars.php
 plugin_cloning: Success test/subjects/codegen/nop.php
@@ -17278,6 +17310,7 @@ plugin_pre_vs_post_count: Success test/subjects/codegen/nested_statements_same_v
 plugin_pre_vs_post_count: Success test/subjects/codegen/new.php
 plugin_pre_vs_post_count: Success test/subjects/codegen/next.php
 plugin_pre_vs_post_count: Success test/subjects/codegen/next_available.php
+plugin_pre_vs_post_count: Success test/subjects/codegen/no_ashred_rvalue.php
 plugin_pre_vs_post_count: Success test/subjects/codegen/non_existant_function.php
 plugin_pre_vs_post_count: Success test/subjects/codegen/non_string_var_vars.php
 plugin_pre_vs_post_count: Success test/subjects/codegen/nop.php
@@ -17959,6 +17992,7 @@ ReparseUnparsed: Success test/subjects/codegen/nested_statements_same_var.php
 ReparseUnparsed: Success test/subjects/codegen/new.php
 ReparseUnparsed: Success test/subjects/codegen/next.php
 ReparseUnparsed: Success test/subjects/codegen/next_available.php
+ReparseUnparsed: Success test/subjects/codegen/no_ashred_rvalue.php
 ReparseUnparsed: Success test/subjects/codegen/non_existant_function.php
 ReparseUnparsed: Success test/subjects/codegen/non_string_var_vars.php
 ReparseUnparsed: Success test/subjects/codegen/nop.php
@@ -18645,6 +18679,7 @@ plugin_source_vs_semantic_values: Success test/subjects/codegen/nested_statement
 plugin_source_vs_semantic_values: Success test/subjects/codegen/new.php
 plugin_source_vs_semantic_values: Success test/subjects/codegen/next.php
 plugin_source_vs_semantic_values: Success test/subjects/codegen/next_available.php
+plugin_source_vs_semantic_values: Success test/subjects/codegen/no_ashred_rvalue.php
 plugin_source_vs_semantic_values: Success test/subjects/codegen/non_existant_function.php
 plugin_source_vs_semantic_values: Success test/subjects/codegen/non_string_var_vars.php
 plugin_source_vs_semantic_values: Success test/subjects/codegen/nop.php
@@ -19334,6 +19369,7 @@ XML_roundtrip: Success test/subjects/codegen/nested_statements_same_var.php
 XML_roundtrip: Success test/subjects/codegen/new.php
 XML_roundtrip: Success test/subjects/codegen/next.php
 XML_roundtrip: Success test/subjects/codegen/next_available.php
+XML_roundtrip: Success test/subjects/codegen/no_ashred_rvalue.php
 XML_roundtrip: Success test/subjects/codegen/non_existant_function.php
 XML_roundtrip: Success test/subjects/codegen/non_string_var_vars.php
 XML_roundtrip: Success test/subjects/codegen/nop.php
@@ -20050,6 +20086,7 @@ ParseASTDot: Success test/subjects/codegen/nested_statements_same_var.php
 ParseASTDot: Success test/subjects/codegen/new.php
 ParseASTDot: Success test/subjects/codegen/next.php
 ParseASTDot: Success test/subjects/codegen/next_available.php
+ParseASTDot: Success test/subjects/codegen/no_ashred_rvalue.php
 ParseASTDot: Success test/subjects/codegen/non_existant_function.php
 ParseASTDot: Success test/subjects/codegen/non_string_var_vars.php
 ParseASTDot: Success test/subjects/codegen/nop.php
@@ -20737,6 +20774,7 @@ ParseTreeDot: Success test/subjects/codegen/nested_statements_same_var.php
 ParseTreeDot: Success test/subjects/codegen/new.php
 ParseTreeDot: Success test/subjects/codegen/next.php
 ParseTreeDot: Success test/subjects/codegen/next_available.php
+ParseTreeDot: Success test/subjects/codegen/no_ashred_rvalue.php
 ParseTreeDot: Success test/subjects/codegen/non_existant_function.php
 ParseTreeDot: Success test/subjects/codegen/non_string_var_vars.php
 ParseTreeDot: Success test/subjects/codegen/nop.php

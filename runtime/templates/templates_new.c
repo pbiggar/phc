@@ -13,7 +13,7 @@
  * body. Generate_C will attempt to 'instantiate' a macro with its name and
  * some arguments. Each macro of that name will be matched against in the order
  * it appears. When all of pattern's rules match the parameters, that macro
- * will be evaluated. If no macro matches, and error is given.
+ * will be evaluated. If no macro matches, an error is given.
  *
  * Matching:
  *    Before we look at the rules, we need to look at the signature. The
@@ -21,18 +21,20 @@
  *    types (token in both cases).
  *
  *    A rule is a line starting with 'where', and followed by a boolean expression. There are only two kinds of boolean expr:
- *	 Lookup: Parameters which are 'node's (ie correspond to an MIR::Node*)
- *	 can have their attrs looked up. If they have do not have the
- *	 attribute, or they have a Boolean false stored, the lookup fails.
- *	 Otherwise it succeeds.
+ *	    Lookup:
+ *	      Parameters which are 'node's (i.e. correspond to an MIR::Node*) can
+ *	      have their attrs looked up. If they do not have the attribute, or
+ *	      they have a Boolean false stored, the lookup fails.  Otherwise it
+ *	      succeeds.
  *
- *	 Equals: In the form 'LHS == RHS' - this does a string comparison
- *	 between the parameters, where they are coerced to strings. Coersions
- *	 will be explained in the type section later.
+ *	    Equals:
+ *	      In the form 'LHS == RHS' - this does a string comparison between the
+ *	      parameters, where they are coerced to strings. Coersions will be
+ *	      explained in the type section later.
  *
- *	 The operands of an Equals are expressions: Parameters, strings, calls
- *	 to other macros or callbacks. Macro calls and callbacks are explained
- *	 later.
+ *	      The operands of an Equals are expressions: Parameters, strings, calls
+ *	      to other macros or callbacks. Macro calls and callbacks are explained
+ *	      later.
  *
  * Types:
  *    There are only 3 types, whose name must be used in a type signature:
@@ -49,10 +51,10 @@
  *
  *
  * Bodies:
- *    The body is simply a C string, interspersed with interpolations, macro calls and callbacks. It starts and
- *    ends with @@@. The evalutation of a macro is simply a string of its
- *    contents, with appropriate strings substituted in for interpolations etc.
- *    Whitespace is preserved.
+ *    The body is simply a C string, interspersed with interpolations, macro
+ *    calls and callbacks. It starts and ends with @@@. The evalutation of a
+ *    macro is simply a string of its contents, with appropriate strings
+ *    substituted in for interpolations etc.  Whitespace is preserved.
  *
  *    Bodies allow two kinds of interpolations:
  *      $LHS: coerces LHS into a string (which works for tokens and strings,
@@ -956,6 +958,7 @@ var_static_field_access_ref (token LHS, token CLASS, token VAR_FIELD)
 // Takes a ZVP, so if passing a ZVPP, make sure to deref.
 is_ref (string ZVP, node ATTRS) where ATTRS.cannot_be_ref @@@ 0 @@@
 is_ref (string ZVP, node ATTRS) where ATTRS.pool_name @@@ 0 @@@
+is_ref (string ZVP, node ATTRS) where \cb:is_literal (ATTRS) == "TRUE" @@@ 0 @@@
 is_ref (string ZVP, node ATTRS) where ATTRS.is_uninitialized @@@ 0 @@@
 is_ref (string ZVP, node ATTRS) @@@ Z_ISREF_P($ZVP) @@@
 
@@ -1059,7 +1062,6 @@ arg_by_ref (node ARG)
    abr_index++;
 @@@
 
-// Literals cant be passed-by-ref
 arg_fetch (node ARG)
    where ARG.param_not_by_ref
 @@@
@@ -1070,6 +1072,13 @@ arg_fetch (node ARG)
       args_ind[af_index] = &args[af_index];
    }
    af_index++;
+@@@
+
+// Literals cant be passed-by-ref
+arg_fetch (node ARG)
+   where \cb:is_literal(ARG) == "TRUE"
+@@@
+  \arg_fetch(ARG#param_not_by_ref)
 @@@
 
 arg_fetch (node ARG)
@@ -1088,7 +1097,7 @@ arg_fetch (node ARG)
 // For literals, when not optimizing - we cant do get_st_entry on literal.
 arg_fetch (node ARG) where ARG.pool_name @@@ \arg_fetch (ARG#param_not_by_ref); @@@
 
-arg_fetch (token ARG)
+arg_fetch (node ARG)
 @@@
    if (by_ref[af_index])
    {
