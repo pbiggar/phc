@@ -17,7 +17,7 @@
 #define create_parse_buffer_definition(NS)											\
 																									\
 /* Left-most */																				\
-NS##_parse_buffer::NS##_parse_buffer&													\
+NS##_parse_buffer&													\
 operator<<(List<NS::Statement*>& stmts, string in)									\
 {																									\
 	NS##_parse_buffer& out = *(new NS##_parse_buffer ());							\
@@ -25,7 +25,7 @@ operator<<(List<NS::Statement*>& stmts, string in)									\
 	out.ss << "<?php " << in;																\
 	return out;																					\
 }																									\
-NS##_parse_buffer::NS##_parse_buffer&													\
+NS##_parse_buffer&													\
 operator<<(List<NS::Statement*>& stmts, NS::Node* in)								\
 {																									\
 	NS##_parse_buffer& out = stmts << "";												\
@@ -34,7 +34,7 @@ operator<<(List<NS::Statement*>& stmts, NS::Node* in)								\
 }																									\
 																									\
 																									\
-NS##_parse_buffer::NS##_parse_buffer&													\
+NS##_parse_buffer&													\
 operator<<(NS##_parse_buffer& out, NS::Node* in)									\
 {																									\
 	NS##_unparser (out.ss, true).unparse (in);										\
@@ -43,19 +43,19 @@ operator<<(NS##_parse_buffer& out, NS::Node* in)									\
 	return out;																					\
 }																									\
 																									\
-NS##_parse_buffer::NS##_parse_buffer&													\
+NS##_parse_buffer&													\
 operator<<(NS##_parse_buffer& out, string in)										\
 {																									\
 	out.ss << in;																				\
 	return out;																					\
 }																									\
-NS##_parse_buffer::NS##_parse_buffer&													\
+NS##_parse_buffer&													\
 operator<<(NS##_parse_buffer& out, String* in)										\
 {																									\
 	out.ss << *in;																				\
 	return out;																					\
 }																									\
-NS##_parse_buffer::NS##_parse_buffer&													\
+NS##_parse_buffer&													\
 operator<<(NS##_parse_buffer& out, int in)											\
 {																									\
 	out.ss << in;																				\
