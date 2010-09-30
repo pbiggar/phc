@@ -38,7 +38,7 @@ dependencies:
 
 .. sourcecode:: bash
 
-   apt-get install build-essential libboost-dev libxerces27-dev graphviz libgc-dev
+   apt-get install build-essential libboost-all-dev libxerces27-dev graphviz libgc-dev
 
 
 On Mac OS X, install XCode, which provides the necessary compilers.
