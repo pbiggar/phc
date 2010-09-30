@@ -48,6 +48,10 @@ tools based on |phc|).
 *  `PHP <http://www.php.net/downloads.html>`_ if you need to
    compile PHP code, or use the *dataflow* branch. See the next section for
    instructions on configuring PHP for use.
+*  `automake <http://www.gnu.org/software/automake/>`_,
+   `autoconf <http://www.gnu.org/software/autoconf/>`_ and
+   `autoconf-archive <http://www.gnu.org/software/autoconf-archive/>_` if you
+   want to add files to be compiled as part of |phc|.
 
 .. _dev.phpbuild:
 
