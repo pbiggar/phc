@@ -39,6 +39,7 @@ Annotated_test: Success test/subjects/bugs/bug0027.php
 Annotated_test: Success test/subjects/bugs/bug0028.php
 Annotated_test: Success test/subjects/bugs/bug0029.php
 Annotated_test: Success test/subjects/bugs/bug0030.php
+Annotated_test: Success test/subjects/bugs/bug0031.php
 Annotated_test: Success test/subjects/bugs/bug0032.php
 Annotated_test: Success test/subjects/bugs/bug0033.php
 Annotated_test: Success test/subjects/bugs/bug0034.php
@@ -775,6 +776,7 @@ BasicParseTest: Success test/subjects/bugs/bug0026.php
 BasicParseTest: Success test/subjects/bugs/bug0027.php
 BasicParseTest: Success test/subjects/bugs/bug0028.php
 BasicParseTest: Success test/subjects/bugs/bug0030.php
+BasicParseTest: Success test/subjects/bugs/bug0031.php
 BasicParseTest: Success test/subjects/bugs/bug0032.php
 BasicParseTest: Success test/subjects/bugs/bug0033.php
 BasicParseTest: Success test/subjects/bugs/bug0034.php
@@ -2096,6 +2098,7 @@ cb_ast: Success test/subjects/bugs/bug0024.php
 cb_ast: Success test/subjects/bugs/bug0025.php
 cb_ast: Success test/subjects/bugs/bug0027.php
 cb_ast: Success test/subjects/bugs/bug0030.php
+cb_ast: Success test/subjects/bugs/bug0031.php
 cb_ast: Success test/subjects/bugs/bug0032.php
 cb_ast: Success test/subjects/bugs/bug0033.php
 cb_ast: Success test/subjects/bugs/bug0034.php
@@ -2490,7 +2493,6 @@ cb_ast: Success test/subjects/optimization/die.php
 cb_ast: Success test/subjects/optimization/die_cfg.php
 cb_ast: Success test/subjects/optimization/essa.php
 cb_ast: Success test/subjects/optimization/field_on_nonobjects.php
-cb_ast: Success test/subjects/optimization/gettimeofday.php
 cb_ast: Success test/subjects/optimization/global_references.php
 cb_ast: Success test/subjects/optimization/identity_assignment.php
 cb_ast: Success test/subjects/optimization/ifs.php
@@ -2523,6 +2525,7 @@ cb_ast: Success test/subjects/optimization/reference2.php
 cb_ast: Success test/subjects/optimization/reference3.php
 cb_ast: Success test/subjects/optimization/remove_for_loop_boolean.php
 cb_ast: Success test/subjects/optimization/rtrim.php
+cb_ast: Success test/subjects/optimization/sccp1.php
 cb_ast: Success test/subjects/optimization/sccp2.php
 cb_ast: Success test/subjects/optimization/sccp_cast.php
 cb_ast: Success test/subjects/optimization/sccp_pre_op.php
@@ -2765,6 +2768,7 @@ cb_sua: Success test/subjects/bugs/bug0024.php
 cb_sua: Success test/subjects/bugs/bug0025.php
 cb_sua: Success test/subjects/bugs/bug0027.php
 cb_sua: Success test/subjects/bugs/bug0030.php
+cb_sua: Success test/subjects/bugs/bug0031.php
 cb_sua: Success test/subjects/bugs/bug0032.php
 cb_sua: Success test/subjects/bugs/bug0033.php
 cb_sua: Success test/subjects/bugs/bug0034.php
@@ -3159,7 +3163,6 @@ cb_sua: Success test/subjects/optimization/die.php
 cb_sua: Success test/subjects/optimization/die_cfg.php
 cb_sua: Success test/subjects/optimization/essa.php
 cb_sua: Success test/subjects/optimization/field_on_nonobjects.php
-cb_sua: Success test/subjects/optimization/gettimeofday.php
 cb_sua: Success test/subjects/optimization/global_references.php
 cb_sua: Success test/subjects/optimization/identity_assignment.php
 cb_sua: Success test/subjects/optimization/ifs.php
@@ -3434,6 +3437,7 @@ cb_AST-to-HIR: Success test/subjects/bugs/bug0024.php
 cb_AST-to-HIR: Success test/subjects/bugs/bug0025.php
 cb_AST-to-HIR: Success test/subjects/bugs/bug0027.php
 cb_AST-to-HIR: Success test/subjects/bugs/bug0030.php
+cb_AST-to-HIR: Success test/subjects/bugs/bug0031.php
 cb_AST-to-HIR: Success test/subjects/bugs/bug0032.php
 cb_AST-to-HIR: Success test/subjects/bugs/bug0033.php
 cb_AST-to-HIR: Success test/subjects/bugs/bug0034.php
@@ -4093,6 +4097,7 @@ cb_hir: Success test/subjects/bugs/bug0024.php
 cb_hir: Success test/subjects/bugs/bug0025.php
 cb_hir: Success test/subjects/bugs/bug0027.php
 cb_hir: Success test/subjects/bugs/bug0030.php
+cb_hir: Success test/subjects/bugs/bug0031.php
 cb_hir: Success test/subjects/bugs/bug0032.php
 cb_hir: Success test/subjects/bugs/bug0033.php
 cb_hir: Success test/subjects/bugs/bug0034.php
@@ -4752,6 +4757,7 @@ cb_mir: Success test/subjects/bugs/bug0024.php
 cb_mir: Success test/subjects/bugs/bug0025.php
 cb_mir: Success test/subjects/bugs/bug0027.php
 cb_mir: Success test/subjects/bugs/bug0030.php
+cb_mir: Success test/subjects/bugs/bug0031.php
 cb_mir: Success test/subjects/bugs/bug0032.php
 cb_mir: Success test/subjects/bugs/bug0033.php
 cb_mir: Success test/subjects/bugs/bug0034.php
@@ -5415,6 +5421,7 @@ HIR-to-MIR_dump: Success test/subjects/bugs/bug0024.php
 HIR-to-MIR_dump: Success test/subjects/bugs/bug0025.php
 HIR-to-MIR_dump: Success test/subjects/bugs/bug0027.php
 HIR-to-MIR_dump: Success test/subjects/bugs/bug0030.php
+HIR-to-MIR_dump: Success test/subjects/bugs/bug0031.php
 HIR-to-MIR_dump: Success test/subjects/bugs/bug0032.php
 HIR-to-MIR_dump: Success test/subjects/bugs/bug0033.php
 HIR-to-MIR_dump: Success test/subjects/bugs/bug0034.php
@@ -6084,6 +6091,7 @@ mir_dump: Success test/subjects/bugs/bug0024.php
 mir_dump: Success test/subjects/bugs/bug0025.php
 mir_dump: Success test/subjects/bugs/bug0027.php
 mir_dump: Success test/subjects/bugs/bug0030.php
+mir_dump: Success test/subjects/bugs/bug0031.php
 mir_dump: Success test/subjects/bugs/bug0032.php
 mir_dump: Success test/subjects/bugs/bug0033.php
 mir_dump: Success test/subjects/bugs/bug0034.php
@@ -6740,6 +6748,7 @@ InterpretCanonicalUnparsed: Success test/subjects/bugs/bug0025.php
 InterpretCanonicalUnparsed: Success test/subjects/bugs/bug0026.php
 InterpretCanonicalUnparsed: Success test/subjects/bugs/bug0027.php
 InterpretCanonicalUnparsed: Success test/subjects/bugs/bug0030.php
+InterpretCanonicalUnparsed: Success test/subjects/bugs/bug0031.php
 InterpretCanonicalUnparsed: Success test/subjects/bugs/bug0032.php
 InterpretCanonicalUnparsed: Success test/subjects/bugs/bug0033.php
 InterpretCanonicalUnparsed: Success test/subjects/bugs/bug0034.php
@@ -7134,7 +7143,6 @@ InterpretCanonicalUnparsed: Success test/subjects/optimization/die.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/die_cfg.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/essa.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/field_on_nonobjects.php
-InterpretCanonicalUnparsed: Success test/subjects/optimization/gettimeofday.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/global_references.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/identity_assignment.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/ifs.php
@@ -7167,6 +7175,7 @@ InterpretCanonicalUnparsed: Success test/subjects/optimization/reference2.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/reference3.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/remove_for_loop_boolean.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/rtrim.php
+InterpretCanonicalUnparsed: Success test/subjects/optimization/sccp1.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/sccp2.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/sccp_cast.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/sccp_pre_op.php
@@ -7410,6 +7419,7 @@ InterpretIncludes: Success test/subjects/bugs/bug0024.php
 InterpretIncludes: Success test/subjects/bugs/bug0025.php
 InterpretIncludes: Success test/subjects/bugs/bug0027.php
 InterpretIncludes: Success test/subjects/bugs/bug0030.php
+InterpretIncludes: Success test/subjects/bugs/bug0031.php
 InterpretIncludes: Success test/subjects/bugs/bug0032.php
 InterpretIncludes: Success test/subjects/bugs/bug0033.php
 InterpretIncludes: Success test/subjects/bugs/bug0034.php
@@ -7804,7 +7814,6 @@ InterpretIncludes: Success test/subjects/optimization/die.php
 InterpretIncludes: Success test/subjects/optimization/die_cfg.php
 InterpretIncludes: Success test/subjects/optimization/essa.php
 InterpretIncludes: Success test/subjects/optimization/field_on_nonobjects.php
-InterpretIncludes: Success test/subjects/optimization/gettimeofday.php
 InterpretIncludes: Success test/subjects/optimization/global_references.php
 InterpretIncludes: Success test/subjects/optimization/identity_assignment.php
 InterpretIncludes: Success test/subjects/optimization/ifs.php
@@ -8076,6 +8085,7 @@ InterpretObfuscated: Success test/subjects/bugs/bug0024.php
 InterpretObfuscated: Success test/subjects/bugs/bug0025.php
 InterpretObfuscated: Success test/subjects/bugs/bug0027.php
 InterpretObfuscated: Success test/subjects/bugs/bug0030.php
+InterpretObfuscated: Success test/subjects/bugs/bug0031.php
 InterpretObfuscated: Success test/subjects/bugs/bug0032.php
 InterpretObfuscated: Success test/subjects/bugs/bug0033.php
 InterpretObfuscated: Success test/subjects/bugs/bug0034.php
@@ -8730,6 +8740,7 @@ Generate_C: Success test/subjects/bugs/bug0024.php
 Generate_C: Success test/subjects/bugs/bug0025.php
 Generate_C: Success test/subjects/bugs/bug0027.php
 Generate_C: Success test/subjects/bugs/bug0030.php
+Generate_C: Success test/subjects/bugs/bug0031.php
 Generate_C: Success test/subjects/bugs/bug0032.php
 Generate_C: Success test/subjects/bugs/bug0033.php
 Generate_C: Success test/subjects/bugs/bug0034.php
@@ -9357,6 +9368,7 @@ CompiledVsInterpreted: Success test/subjects/bugs/bug0023.php
 CompiledVsInterpreted: Success test/subjects/bugs/bug0024.php
 CompiledVsInterpreted: Success test/subjects/bugs/bug0027.php
 CompiledVsInterpreted: Success test/subjects/bugs/bug0030.php
+CompiledVsInterpreted: Success test/subjects/bugs/bug0031.php
 CompiledVsInterpreted: Success test/subjects/bugs/bug0032.php
 CompiledVsInterpreted: Success test/subjects/bugs/bug0033.php
 CompiledVsInterpreted: Success test/subjects/bugs/bug0034.php
@@ -9925,6 +9937,7 @@ BasicPreciseOptAnalyseTest: Success test/subjects/bugs/bug0023.php
 BasicPreciseOptAnalyseTest: Success test/subjects/bugs/bug0025.php
 BasicPreciseOptAnalyseTest: Success test/subjects/bugs/bug0027.php
 BasicPreciseOptAnalyseTest: Success test/subjects/bugs/bug0030.php
+BasicPreciseOptAnalyseTest: Success test/subjects/bugs/bug0031.php
 BasicPreciseOptAnalyseTest: Success test/subjects/bugs/bug0032.php
 BasicPreciseOptAnalyseTest: Success test/subjects/bugs/bug0033.php
 BasicPreciseOptAnalyseTest: Success test/subjects/bugs/bug0034.php
@@ -10404,6 +10417,7 @@ BasicPreciseOptimizeTest: Success test/subjects/bugs/bug0023.php
 BasicPreciseOptimizeTest: Success test/subjects/bugs/bug0025.php
 BasicPreciseOptimizeTest: Success test/subjects/bugs/bug0027.php
 BasicPreciseOptimizeTest: Success test/subjects/bugs/bug0030.php
+BasicPreciseOptimizeTest: Success test/subjects/bugs/bug0031.php
 BasicPreciseOptimizeTest: Success test/subjects/bugs/bug0032.php
 BasicPreciseOptimizeTest: Success test/subjects/bugs/bug0033.php
 BasicPreciseOptimizeTest: Success test/subjects/bugs/bug0034.php
@@ -10882,6 +10896,7 @@ BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/bugs/bug0023.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/bugs/bug0025.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/bugs/bug0027.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/bugs/bug0030.php
+BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/bugs/bug0031.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/bugs/bug0032.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/bugs/bug0033.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/bugs/bug0034.php
@@ -11360,6 +11375,7 @@ BasicFastOptAnalyseTest: Success test/subjects/bugs/bug0023.php
 BasicFastOptAnalyseTest: Success test/subjects/bugs/bug0025.php
 BasicFastOptAnalyseTest: Success test/subjects/bugs/bug0027.php
 BasicFastOptAnalyseTest: Success test/subjects/bugs/bug0030.php
+BasicFastOptAnalyseTest: Success test/subjects/bugs/bug0031.php
 BasicFastOptAnalyseTest: Success test/subjects/bugs/bug0032.php
 BasicFastOptAnalyseTest: Success test/subjects/bugs/bug0033.php
 BasicFastOptAnalyseTest: Success test/subjects/bugs/bug0034.php
@@ -11827,6 +11843,7 @@ BasicFastOptimizeTest: Success test/subjects/bugs/bug0023.php
 BasicFastOptimizeTest: Success test/subjects/bugs/bug0025.php
 BasicFastOptimizeTest: Success test/subjects/bugs/bug0027.php
 BasicFastOptimizeTest: Success test/subjects/bugs/bug0030.php
+BasicFastOptimizeTest: Success test/subjects/bugs/bug0031.php
 BasicFastOptimizeTest: Success test/subjects/bugs/bug0032.php
 BasicFastOptimizeTest: Success test/subjects/bugs/bug0033.php
 BasicFastOptimizeTest: Success test/subjects/bugs/bug0034.php
@@ -12287,6 +12304,7 @@ BasicIgnoreOutputFastOptimizeTest: Success test/subjects/bugs/bug0023.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/bugs/bug0025.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/bugs/bug0027.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/bugs/bug0030.php
+BasicIgnoreOutputFastOptimizeTest: Success test/subjects/bugs/bug0031.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/bugs/bug0032.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/bugs/bug0033.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/bugs/bug0034.php
@@ -12744,6 +12762,7 @@ InterpretOptimized: Success test/subjects/bugs/bug0022.php
 InterpretOptimized: Success test/subjects/bugs/bug0023.php
 InterpretOptimized: Success test/subjects/bugs/bug0025.php
 InterpretOptimized: Success test/subjects/bugs/bug0027.php
+InterpretOptimized: Success test/subjects/bugs/bug0031.php
 InterpretOptimized: Success test/subjects/bugs/bug0032.php
 InterpretOptimized: Success test/subjects/bugs/bug0033.php
 InterpretOptimized: Success test/subjects/bugs/bug0034.php
@@ -13200,6 +13219,7 @@ CompileOptimized: Success test/subjects/bugs/bug0020.php
 CompileOptimized: Success test/subjects/bugs/bug0022.php
 CompileOptimized: Success test/subjects/bugs/bug0023.php
 CompileOptimized: Success test/subjects/bugs/bug0027.php
+CompileOptimized: Success test/subjects/bugs/bug0031.php
 CompileOptimized: Success test/subjects/bugs/bug0032.php
 CompileOptimized: Success test/subjects/bugs/bug0034.php
 CompileOptimized: Success test/subjects/codegen/000.php
@@ -13607,6 +13627,7 @@ Refcounts: Success test/subjects/bugs/bug0022.php
 Refcounts: Success test/subjects/bugs/bug0024.php
 Refcounts: Success test/subjects/bugs/bug0027.php
 Refcounts: Success test/subjects/bugs/bug0030.php
+Refcounts: Success test/subjects/bugs/bug0031.php
 Refcounts: Success test/subjects/bugs/bug0032.php
 Refcounts: Success test/subjects/bugs/bug0033.php
 Refcounts: Success test/subjects/bugs/bug0034.php
@@ -13944,6 +13965,7 @@ Demi_eval_true: Success test/subjects/bugs/bug0022.php
 Demi_eval_true: Success test/subjects/bugs/bug0023.php
 Demi_eval_true: Success test/subjects/bugs/bug0027.php
 Demi_eval_true: Success test/subjects/bugs/bug0030.php
+Demi_eval_true: Success test/subjects/bugs/bug0031.php
 Demi_eval_true: Success test/subjects/bugs/bug0032.php
 Demi_eval_true: Success test/subjects/bugs/bug0033.php
 Demi_eval_true: Success test/subjects/bugs/bug0034.php
@@ -14481,6 +14503,7 @@ Demi_eval_false: Success test/subjects/bugs/bug0023.php
 Demi_eval_false: Success test/subjects/bugs/bug0024.php
 Demi_eval_false: Success test/subjects/bugs/bug0027.php
 Demi_eval_false: Success test/subjects/bugs/bug0030.php
+Demi_eval_false: Success test/subjects/bugs/bug0031.php
 Demi_eval_false: Success test/subjects/bugs/bug0032.php
 Demi_eval_false: Success test/subjects/bugs/bug0033.php
 Demi_eval_false: Success test/subjects/bugs/bug0034.php
@@ -15041,6 +15064,7 @@ plugin_inconsistent_st_attr: Success test/subjects/bugs/bug0026.php
 plugin_inconsistent_st_attr: Success test/subjects/bugs/bug0027.php
 plugin_inconsistent_st_attr: Success test/subjects/bugs/bug0028.php
 plugin_inconsistent_st_attr: Success test/subjects/bugs/bug0030.php
+plugin_inconsistent_st_attr: Success test/subjects/bugs/bug0031.php
 plugin_inconsistent_st_attr: Success test/subjects/bugs/bug0032.php
 plugin_inconsistent_st_attr: Success test/subjects/bugs/bug0033.php
 plugin_inconsistent_st_attr: Success test/subjects/bugs/bug0034.php
@@ -15731,6 +15755,7 @@ plugin_linear: Success test/subjects/bugs/bug0026.php
 plugin_linear: Success test/subjects/bugs/bug0027.php
 plugin_linear: Success test/subjects/bugs/bug0028.php
 plugin_linear: Success test/subjects/bugs/bug0030.php
+plugin_linear: Success test/subjects/bugs/bug0031.php
 plugin_linear: Success test/subjects/bugs/bug0032.php
 plugin_linear: Success test/subjects/bugs/bug0033.php
 plugin_linear: Success test/subjects/bugs/bug0034.php
@@ -16421,6 +16446,7 @@ plugin_cloning: Success test/subjects/bugs/bug0026.php
 plugin_cloning: Success test/subjects/bugs/bug0027.php
 plugin_cloning: Success test/subjects/bugs/bug0028.php
 plugin_cloning: Success test/subjects/bugs/bug0030.php
+plugin_cloning: Success test/subjects/bugs/bug0031.php
 plugin_cloning: Success test/subjects/bugs/bug0032.php
 plugin_cloning: Success test/subjects/bugs/bug0033.php
 plugin_cloning: Success test/subjects/bugs/bug0034.php
@@ -17111,6 +17137,7 @@ plugin_pre_vs_post_count: Success test/subjects/bugs/bug0026.php
 plugin_pre_vs_post_count: Success test/subjects/bugs/bug0027.php
 plugin_pre_vs_post_count: Success test/subjects/bugs/bug0028.php
 plugin_pre_vs_post_count: Success test/subjects/bugs/bug0030.php
+plugin_pre_vs_post_count: Success test/subjects/bugs/bug0031.php
 plugin_pre_vs_post_count: Success test/subjects/bugs/bug0032.php
 plugin_pre_vs_post_count: Success test/subjects/bugs/bug0033.php
 plugin_pre_vs_post_count: Success test/subjects/bugs/bug0034.php
@@ -17793,6 +17820,7 @@ ReparseUnparsed: Success test/subjects/bugs/bug0025.php
 ReparseUnparsed: Success test/subjects/bugs/bug0026.php
 ReparseUnparsed: Success test/subjects/bugs/bug0027.php
 ReparseUnparsed: Success test/subjects/bugs/bug0030.php
+ReparseUnparsed: Success test/subjects/bugs/bug0031.php
 ReparseUnparsed: Success test/subjects/bugs/bug0032.php
 ReparseUnparsed: Success test/subjects/bugs/bug0033.php
 ReparseUnparsed: Success test/subjects/bugs/bug0034.php
@@ -18480,6 +18508,7 @@ plugin_source_vs_semantic_values: Success test/subjects/bugs/bug0026.php
 plugin_source_vs_semantic_values: Success test/subjects/bugs/bug0027.php
 plugin_source_vs_semantic_values: Success test/subjects/bugs/bug0028.php
 plugin_source_vs_semantic_values: Success test/subjects/bugs/bug0030.php
+plugin_source_vs_semantic_values: Success test/subjects/bugs/bug0031.php
 plugin_source_vs_semantic_values: Success test/subjects/bugs/bug0032.php
 plugin_source_vs_semantic_values: Success test/subjects/bugs/bug0033.php
 plugin_source_vs_semantic_values: Success test/subjects/bugs/bug0034.php
@@ -19170,6 +19199,7 @@ XML_roundtrip: Success test/subjects/bugs/bug0026.php
 XML_roundtrip: Success test/subjects/bugs/bug0027.php
 XML_roundtrip: Success test/subjects/bugs/bug0028.php
 XML_roundtrip: Success test/subjects/bugs/bug0030.php
+XML_roundtrip: Success test/subjects/bugs/bug0031.php
 XML_roundtrip: Success test/subjects/bugs/bug0032.php
 XML_roundtrip: Success test/subjects/bugs/bug0033.php
 XML_roundtrip: Success test/subjects/bugs/bug0034.php
@@ -19887,6 +19917,7 @@ ParseASTDot: Success test/subjects/bugs/bug0026.php
 ParseASTDot: Success test/subjects/bugs/bug0027.php
 ParseASTDot: Success test/subjects/bugs/bug0028.php
 ParseASTDot: Success test/subjects/bugs/bug0030.php
+ParseASTDot: Success test/subjects/bugs/bug0031.php
 ParseASTDot: Success test/subjects/bugs/bug0032.php
 ParseASTDot: Success test/subjects/bugs/bug0033.php
 ParseASTDot: Success test/subjects/bugs/bug0034.php

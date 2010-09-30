@@ -1,4 +1,3 @@
-Annotated_test: Failure test/subjects/bugs/bug0031.php - Incorrect exit code: 255 (expected: 0)
 Annotated_test: Failure test/subjects/errors/expr_in_complex_syntax.php - Error not found, expected: "Error: Variable name expected" using pattern "!^[^:]+:\d+: Error: Variable name expected
 Note that line numbers are inaccurate, and will be fixed in a later release
 !ms"
@@ -21,6 +20,7 @@ NoWhitespace: Failure test/subjects/bugs/bug0015.php - Outputs dont match
 NoWhitespace: Failure test/subjects/bugs/bug0022.php - Outputs dont match
 NoWhitespace: Failure test/subjects/bugs/bug0026.php - Outputs dont match
 NoWhitespace: Failure test/subjects/bugs/bug0028.php - Outputs dont match
+NoWhitespace: Failure test/subjects/bugs/bug0031.php - Outputs dont match
 NoWhitespace: Failure test/subjects/codegen/if_nested.php - Outputs dont match
 NoWhitespace: Failure test/subjects/codegen/masquarading_int_keys.php - Outputs dont match
 NoWhitespace: Failure test/subjects/codegen/multi_way_merge.php - Outputs dont match
@@ -61,14 +61,14 @@ cb_ast: Failure test/subjects/codegen/global_param.php - Every pass fails
 cb_ast: Failure test/subjects/codegen/infinite_lists.php - Every pass fails
 cb_ast: Failure test/subjects/codegen/target_rhs.php - Every pass fails
 cb_ast: Failure test/subjects/optimization/array_use.php - Every pass fails
+cb_ast: Failure test/subjects/optimization/gettimeofday.php - Every pass fails
 cb_ast: Failure test/subjects/optimization/may_defs.php - Every pass fails
-cb_ast: Failure test/subjects/optimization/sccp1.php - Every pass fails
 cb_ast: Failure test/subjects/parsing/functions.php - Every pass fails
 cb_ast: Failure test/subjects/parsing/line_and_co.php - Every pass fails
 cb_ast: Failure test/subjects/parsing/scoped_function.php - Every pass fails
+cb_sua: Failure test/subjects/optimization/sccp1.php - Latest pass fails
 cb_AST-to-HIR: Failure test/subjects/codegen/new.php - Latest pass fails
 cb_AST-to-HIR: Failure test/subjects/optimization/concat_null.php - Latest pass fails
-cb_AST-to-HIR: Failure test/subjects/optimization/gettimeofday.php - Every pass fails
 cb_AST-to-HIR: Failure test/subjects/optimization/string_handler.php - Latest pass fails
 cb_AST-to-HIR: Failure test/subjects/parsing/constant_folding.php - Latest pass fails
 cb_AST-to-HIR: Failure test/subjects/php_bugs/4999.php - Latest pass fails
@@ -82,8 +82,8 @@ InterpretCanonicalUnparsed: Failure test/subjects/codegen/global_param.php - Out
 InterpretCanonicalUnparsed: Failure test/subjects/codegen/infinite_lists.php - Outputs dont match
 InterpretCanonicalUnparsed: Failure test/subjects/codegen/target_rhs.php - Outputs dont match
 InterpretCanonicalUnparsed: Failure test/subjects/optimization/array_use.php - Outputs dont match
+InterpretCanonicalUnparsed: Failure test/subjects/optimization/gettimeofday.php - Outputs dont match
 InterpretCanonicalUnparsed: Failure test/subjects/optimization/may_defs.php - Outputs dont match
-InterpretCanonicalUnparsed: Failure test/subjects/optimization/sccp1.php - Outputs dont match
 InterpretCanonicalUnparsed: Failure test/subjects/parsing/functions.php - Outputs dont match
 InterpretCanonicalUnparsed: Failure test/subjects/parsing/scoped_function.php - Outputs dont match
 InterpretIncludes: Failure test/subjects/parsing/include_complex_once.php - Outputs dont match
@@ -596,6 +596,7 @@ ReparseUnparsed: Failure test/subjects/parsing/inline_html_indent.php - Outputs 
 ReparseUnparsed: Failure test/subjects/reduced/0052.php - Outputs dont match
 CompilePluginTest: Failure /home/pbiggar/work/phc/svn/trunk/plugins/tools/test_ssi.cpp - exit or err not clear
 CompilePluginTest: Failure /home/pbiggar/work/phc/svn/trunk/plugins/tools/reduce_statements.cpp - exit or err not clear
+ParseTreeDot: Failure test/subjects/bugs/bug0031.php - exit or err not clear
 ParseTreeDot: Failure test/subjects/codegen/bailout_die.php - exit or err not clear
 ParseTreeDot: Failure test/subjects/codegen/die_alone.php - exit or err not clear
 ParseTreeDot: Failure test/subjects/codegen/shutdown_on_exit_bool.php - exit or err not clear
