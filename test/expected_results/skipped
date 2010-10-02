@@ -260,6 +260,7 @@ cb_sua: Skipped test/subjects/optimization/array_use.php - Test failed dependenc
 cb_sua: Skipped test/subjects/optimization/dce_foreach1.php - Test failed dependency
 cb_sua: Skipped test/subjects/optimization/gettimeofday.php - Test failed dependency
 cb_sua: Skipped test/subjects/optimization/may_defs.php - Test failed dependency
+cb_sua: Skipped test/subjects/optimization/sccp1.php - Test failed dependency
 cb_sua: Skipped test/subjects/parsing/functions.php - Test failed dependency
 cb_sua: Skipped test/subjects/parsing/line_and_co.php - Test failed dependency
 cb_sua: Skipped test/subjects/parsing/scoped_function.php - Test failed dependency

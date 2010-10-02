@@ -32,6 +32,7 @@ bool is_ref_literal (Expr* in)
 Invalid_check::Invalid_check (bool use_ice) 
 : Pass ()
 , use_ice (use_ice)
+, class_def (NULL)
 {
 	this->name = new String ("check");
 	this->description = new String ("Check for invalid PHP statements");
@@ -144,6 +145,21 @@ void Invalid_check::pre_interface_def (Interface_def* in)
 				error ("Interfaces may not include member variables", 
 					attr_mod->value);
 	}
+}
+
+void
+Invalid_check::pre_class_def (Class_def* in)
+{
+  if (class_def)
+    error ("Class declarations may not be nested", in);
+
+  this->class_def = in;
+}
+
+void
+Invalid_check::post_class_def (Class_def* in)
+{
+  this->class_def = NULL;
 }
 
 

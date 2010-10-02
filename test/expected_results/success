@@ -435,6 +435,7 @@ Annotated_test: Success test/subjects/errors/invalid_interface_member.php
 Annotated_test: Success test/subjects/errors/invalid_use.php
 Annotated_test: Success test/subjects/errors/is_ref_literal.php
 Annotated_test: Success test/subjects/errors/isset_of_ref.php
+Annotated_test: Success test/subjects/errors/nested_classes.php
 Annotated_test: Success test/subjects/errors/prepostop_error1.php
 Annotated_test: Success test/subjects/errors/prepostop_error2.php
 Annotated_test: Success test/subjects/errors/push_operator_on_strings.php
@@ -2525,7 +2526,6 @@ cb_ast: Success test/subjects/optimization/reference2.php
 cb_ast: Success test/subjects/optimization/reference3.php
 cb_ast: Success test/subjects/optimization/remove_for_loop_boolean.php
 cb_ast: Success test/subjects/optimization/rtrim.php
-cb_ast: Success test/subjects/optimization/sccp1.php
 cb_ast: Success test/subjects/optimization/sccp2.php
 cb_ast: Success test/subjects/optimization/sccp_cast.php
 cb_ast: Success test/subjects/optimization/sccp_pre_op.php
@@ -14133,7 +14133,7 @@ Demi_eval_true: Success test/subjects/codegen/lazy_op.php
 Demi_eval_true: Success test/subjects/codegen/leak_on_exit.php
 Demi_eval_true: Success test/subjects/codegen/list_assignment.php
 Demi_eval_true: Success test/subjects/codegen/long_opeq.php
-Demi_eval_true: Success test/subjects/codegen/loop_separation2.php
+Demi_eval_true: Success test/subjects/codegen/loop_separation1.php
 Demi_eval_true: Success test/subjects/codegen/masquarading_int_keys.php
 Demi_eval_true: Success test/subjects/codegen/multi_array_access.php
 Demi_eval_true: Success test/subjects/codegen/multi_way_merge.php

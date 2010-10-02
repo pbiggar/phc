@@ -27,6 +27,8 @@ public:
 
 	// If this is set, use phc_internal_error instead of phc_error
 	bool use_ice; // ice == Internal Compiler Error
+  AST::Class_def* class_def;
+
 	Invalid_check (bool use_ice = false);
 
 	// decide the error based on whether USE_ICE is set
@@ -43,6 +45,8 @@ public:
 	void pre_array_elem (AST::Array_elem* in);
 	void pre_name_with_default (AST::Name_with_default* var);
 	void pre_attribute (AST::Attribute* in);
+  void pre_class_def (AST::Class_def* in);
+  void post_class_def (AST::Class_def* in);
 };
 
 #endif // PHC_INVALID_CHECK

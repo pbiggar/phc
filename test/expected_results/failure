@@ -1,9 +1,6 @@
 Annotated_test: Failure test/subjects/errors/expr_in_complex_syntax.php - Error not found, expected: "Error: Variable name expected" using pattern "!^[^:]+:\d+: Error: Variable name expected
 Note that line numbers are inaccurate, and will be fixed in a later release
 !ms"
-Annotated_test: Failure test/subjects/errors/nested_classes.php - Error not found, expected: "Error: Class declarations may not be nested" using pattern "!^[^:]+:\d+: Error: Class declarations may not be nested
-Note that line numbers are inaccurate, and will be fixed in a later release
-!ms"
 Annotated_test: Failure test/subjects/optimization/dce_foreach1.php -  found (foreach_), not expected: "foreach_" using pattern "/foreach_/ms"
 Annotated_test: Failure test/subjects/phc/stats.php -  not found, expected: "^folded_bin_op.*1$" using pattern "/^folded_bin_op.*1$/ms"
 NoWhitespace: Failure test/subjects/inline-c/abort.php - Outputs dont match
@@ -63,10 +60,10 @@ cb_ast: Failure test/subjects/codegen/target_rhs.php - Every pass fails
 cb_ast: Failure test/subjects/optimization/array_use.php - Every pass fails
 cb_ast: Failure test/subjects/optimization/gettimeofday.php - Every pass fails
 cb_ast: Failure test/subjects/optimization/may_defs.php - Every pass fails
+cb_ast: Failure test/subjects/optimization/sccp1.php - Every pass fails
 cb_ast: Failure test/subjects/parsing/functions.php - Every pass fails
 cb_ast: Failure test/subjects/parsing/line_and_co.php - Every pass fails
 cb_ast: Failure test/subjects/parsing/scoped_function.php - Every pass fails
-cb_sua: Failure test/subjects/optimization/sccp1.php - Latest pass fails
 cb_AST-to-HIR: Failure test/subjects/codegen/new.php - Latest pass fails
 cb_AST-to-HIR: Failure test/subjects/optimization/concat_null.php - Latest pass fails
 cb_AST-to-HIR: Failure test/subjects/optimization/string_handler.php - Latest pass fails
@@ -538,7 +535,7 @@ Demi_eval_true: Failure test/subjects/codegen/include_once.php - Outputs dont ma
 Demi_eval_true: Failure test/subjects/codegen/indexing_non_arrays.php - Outputs dont match PHP outputs
 Demi_eval_true: Failure test/subjects/codegen/inherited_array_field.php - Outputs dont match PHP outputs
 Demi_eval_true: Failure test/subjects/codegen/isset_byte.php - Outputs dont match PHP outputs
-Demi_eval_true: Failure test/subjects/codegen/loop_separation1.php - Outputs dont match PHP outputs
+Demi_eval_true: Failure test/subjects/codegen/loop_separation2.php - Outputs dont match PHP outputs
 Demi_eval_true: Failure test/subjects/codegen/non_existant_function.php - Outputs dont match PHP outputs
 Demi_eval_true: Failure test/subjects/codegen/oop_inheritance1.php - Outputs dont match PHP outputs
 Demi_eval_true: Failure test/subjects/codegen/oop_method_def2.php - Outputs dont match PHP outputs
