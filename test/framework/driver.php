@@ -1,3 +1,4 @@
+#!/usr/bin/env php
 <?php
 /*
  * phc -- the open source PHP compiler
