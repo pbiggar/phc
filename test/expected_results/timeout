@@ -335,4 +335,5 @@ CompileOptimized: Timeout test/subjects/parsing/negative_literals.php
 CompileOptimized: Timeout test/subjects/parsing/scalar_array.php
 CompileOptimized: Timeout test/subjects/php_bugs/26396.php
 CompileOptimized: Timeout test/subjects/php_bugs/35106.php
+Demi_eval_true: Timeout test/subjects/codegen/loop_separation1.php
 XML_roundtrip: Timeout test/subjects/parsing/constant_folding.php

@@ -1,6 +1,3 @@
-Annotated_test: Failure test/subjects/errors/expr_in_complex_syntax.php - Error not found, expected: "Error: Variable name expected" using pattern "!^[^:]+:\d+: Error: Variable name expected
-Note that line numbers are inaccurate, and will be fixed in a later release
-!ms"
 Annotated_test: Failure test/subjects/optimization/dce_foreach1.php -  found (foreach_), not expected: "foreach_" using pattern "/foreach_/ms"
 Annotated_test: Failure test/subjects/phc/stats.php -  not found, expected: "^folded_bin_op.*1$" using pattern "/^folded_bin_op.*1$/ms"
 NoWhitespace: Failure test/subjects/inline-c/abort.php - Outputs dont match
@@ -81,6 +78,7 @@ InterpretCanonicalUnparsed: Failure test/subjects/codegen/target_rhs.php - Outpu
 InterpretCanonicalUnparsed: Failure test/subjects/optimization/array_use.php - Outputs dont match
 InterpretCanonicalUnparsed: Failure test/subjects/optimization/gettimeofday.php - Outputs dont match
 InterpretCanonicalUnparsed: Failure test/subjects/optimization/may_defs.php - Outputs dont match
+InterpretCanonicalUnparsed: Failure test/subjects/optimization/sccp1.php - Outputs dont match
 InterpretCanonicalUnparsed: Failure test/subjects/parsing/functions.php - Outputs dont match
 InterpretCanonicalUnparsed: Failure test/subjects/parsing/scoped_function.php - Outputs dont match
 InterpretIncludes: Failure test/subjects/parsing/include_complex_once.php - Outputs dont match
@@ -535,7 +533,6 @@ Demi_eval_true: Failure test/subjects/codegen/include_once.php - Outputs dont ma
 Demi_eval_true: Failure test/subjects/codegen/indexing_non_arrays.php - Outputs dont match PHP outputs
 Demi_eval_true: Failure test/subjects/codegen/inherited_array_field.php - Outputs dont match PHP outputs
 Demi_eval_true: Failure test/subjects/codegen/isset_byte.php - Outputs dont match PHP outputs
-Demi_eval_true: Failure test/subjects/codegen/loop_separation2.php - Outputs dont match PHP outputs
 Demi_eval_true: Failure test/subjects/codegen/non_existant_function.php - Outputs dont match PHP outputs
 Demi_eval_true: Failure test/subjects/codegen/oop_inheritance1.php - Outputs dont match PHP outputs
 Demi_eval_true: Failure test/subjects/codegen/oop_method_def2.php - Outputs dont match PHP outputs
@@ -565,7 +562,6 @@ Demi_eval_false: Failure test/subjects/codegen/ignore_errors2.php - Outputs dont
 Demi_eval_false: Failure test/subjects/codegen/include_once.php - Outputs dont match PHP outputs
 Demi_eval_false: Failure test/subjects/codegen/indexing_non_arrays.php - Outputs dont match PHP outputs
 Demi_eval_false: Failure test/subjects/codegen/loop_separation1.php - Outputs dont match PHP outputs
-Demi_eval_false: Failure test/subjects/codegen/loop_separation2.php - Outputs dont match PHP outputs
 Demi_eval_false: Failure test/subjects/codegen/object_exit.php - Outputs dont match PHP outputs
 Demi_eval_false: Failure test/subjects/codegen/oop_inheritance1.php - Outputs dont match PHP outputs
 Demi_eval_false: Failure test/subjects/codegen/oop_method_invocation5.php - Outputs dont match PHP outputs

@@ -426,6 +426,7 @@ Annotated_test: Success test/subjects/errors/constant_folding8.php
 Annotated_test: Success test/subjects/errors/constant_folding9.php
 Annotated_test: Success test/subjects/errors/continue_outer.php
 Annotated_test: Success test/subjects/errors/convert_ordinal_ticks.php
+Annotated_test: Success test/subjects/errors/expr_in_complex_syntax.php
 Annotated_test: Success test/subjects/errors/foreach_error1.php
 Annotated_test: Success test/subjects/errors/foreach_error2.php
 Annotated_test: Success test/subjects/errors/illegal_offset_type.php
@@ -7175,7 +7176,6 @@ InterpretCanonicalUnparsed: Success test/subjects/optimization/reference2.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/reference3.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/remove_for_loop_boolean.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/rtrim.php
-InterpretCanonicalUnparsed: Success test/subjects/optimization/sccp1.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/sccp2.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/sccp_cast.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/sccp_pre_op.php
@@ -14133,7 +14133,7 @@ Demi_eval_true: Success test/subjects/codegen/lazy_op.php
 Demi_eval_true: Success test/subjects/codegen/leak_on_exit.php
 Demi_eval_true: Success test/subjects/codegen/list_assignment.php
 Demi_eval_true: Success test/subjects/codegen/long_opeq.php
-Demi_eval_true: Success test/subjects/codegen/loop_separation1.php
+Demi_eval_true: Success test/subjects/codegen/loop_separation2.php
 Demi_eval_true: Success test/subjects/codegen/masquarading_int_keys.php
 Demi_eval_true: Success test/subjects/codegen/multi_array_access.php
 Demi_eval_true: Success test/subjects/codegen/multi_way_merge.php
@@ -14672,6 +14672,7 @@ Demi_eval_false: Success test/subjects/codegen/lazy_op.php
 Demi_eval_false: Success test/subjects/codegen/leak_on_exit.php
 Demi_eval_false: Success test/subjects/codegen/list_assignment.php
 Demi_eval_false: Success test/subjects/codegen/long_opeq.php
+Demi_eval_false: Success test/subjects/codegen/loop_separation2.php
 Demi_eval_false: Success test/subjects/codegen/masquarading_int_keys.php
 Demi_eval_false: Success test/subjects/codegen/multi_array_access.php
 Demi_eval_false: Success test/subjects/codegen/multi_way_merge.php
