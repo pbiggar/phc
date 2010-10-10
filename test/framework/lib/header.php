@@ -302,7 +302,7 @@ function diff_status_files ($matches = array(), $quick=false)
 			$result = $output;
 		}
 		$result = join("\n", $result);
-		print $result;
+		print "$result\n";
 	}
 }
 
