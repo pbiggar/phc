@@ -1,179 +1,10 @@
+
 Annotated_test: Failure test/subjects/optimization/dce_foreach1.php -  found (foreach_), not expected: "foreach_" using pattern "/foreach_/ms"
 Annotated_test: Failure test/subjects/phc/stats.php -  not found, expected: "^folded_bin_op.*1$" using pattern "/^folded_bin_op.*1$/ms"
-NoWhitespace: Failure test/subjects/inline-c/abort.php - Outputs dont match
-NoWhitespace: Failure test/subjects/inline-c/crash.php - Outputs dont match
-NoWhitespace: Failure test/subjects/inline-c/hashref.php - Outputs dont match
-NoWhitespace: Failure test/subjects/inline-c/hashref2.php - Outputs dont match
-NoWhitespace: Failure test/subjects/inline-c/hello-c.php - Outputs dont match
-NoWhitespace: Failure test/subjects/inline-c/refcount.php - Outputs dont match
-NoWhitespace: Failure test/subjects/parsing/for.php - Outputs dont match
-NoWhitespace: Failure test/subjects/bugs/bug0002.php - Outputs dont match
-NoWhitespace: Failure test/subjects/bugs/bug0009.php - Outputs dont match
-NoWhitespace: Failure test/subjects/bugs/bug0009b.php - Outputs dont match
-NoWhitespace: Failure test/subjects/bugs/bug0015.php - Outputs dont match
-NoWhitespace: Failure test/subjects/bugs/bug0022.php - Outputs dont match
-NoWhitespace: Failure test/subjects/bugs/bug0026.php - Outputs dont match
-NoWhitespace: Failure test/subjects/bugs/bug0028.php - Outputs dont match
-NoWhitespace: Failure test/subjects/bugs/bug0031.php - Outputs dont match
-NoWhitespace: Failure test/subjects/codegen/if_nested.php - Outputs dont match
-NoWhitespace: Failure test/subjects/codegen/masquarading_int_keys.php - Outputs dont match
-NoWhitespace: Failure test/subjects/codegen/multi_way_merge.php - Outputs dont match
-NoWhitespace: Failure test/subjects/codegen/return_global.php - Outputs dont match
-NoWhitespace: Failure test/subjects/codegen/shred_op_assign_target.php - Outputs dont match
-NoWhitespace: Failure test/subjects/codegen/target_rhs.php - Outputs dont match
-NoWhitespace: Failure test/subjects/codegen/undeclared_function.php - Outputs dont match
-NoWhitespace: Failure test/subjects/horrible/invocation_priorities.php - Outputs dont match
-NoWhitespace: Failure test/subjects/optimization/assignment_to_indirect.php - Outputs dont match
-NoWhitespace: Failure test/subjects/optimization/decrement.php - Outputs dont match
-NoWhitespace: Failure test/subjects/optimization/obj_simple_get.php - Outputs dont match
-NoWhitespace: Failure test/subjects/optimization/object_copy.php - Outputs dont match
-NoWhitespace: Failure test/subjects/parsing/comments.php - Outputs dont match
-NoWhitespace: Failure test/subjects/parsing/declare_ticks.php - Outputs dont match
-NoWhitespace: Failure test/subjects/parsing/do.php - Outputs dont match
-NoWhitespace: Failure test/subjects/parsing/endofscriptincomment2.php - Outputs dont match
-NoWhitespace: Failure test/subjects/parsing/foreach_with_complex_key.php - Outputs dont match
-NoWhitespace: Failure test/subjects/parsing/inline_html_indent.php - Outputs dont match
-NoWhitespace: Failure test/subjects/parsing/inlinehtml.php - Outputs dont match
-NoWhitespace: Failure test/subjects/parsing/integer_field_name.php - Outputs dont match
-NoWhitespace: Failure test/subjects/parsing/scoped_function.php - Outputs dont match
-NoWhitespace: Failure test/subjects/parsing/static.php - Outputs dont match
-NoWhitespace: Failure test/subjects/parsing/switch.php - Outputs dont match
-NoWhitespace: Failure test/subjects/parsing/tags.php - Outputs dont match
-NoWhitespace: Failure test/subjects/parsing/unary_plus.php - Outputs dont match
-NoWhitespace: Failure test/subjects/parsing/variable_name.php - Outputs dont match
-NoWhitespace: Failure test/subjects/parsing/vars.php - Outputs dont match
-NoWhitespace: Failure test/subjects/parsing/while.php - Outputs dont match
-NoWhitespace: Failure test/subjects/parsing/win_inlinehtml.php - Outputs dont match
-NoWhitespace: Failure test/subjects/phc/param_is_ref.php - Outputs dont match
-NoWhitespace: Failure test/subjects/php_bugs/4999.php - Outputs dont match
-NoWhitespace: Failure test/subjects/reduced/0035.php - Outputs dont match
-NoWhitespace: Failure test/subjects/reduced/0038.php - Outputs dont match
-NoWhitespace: Failure test/subjects/reduced/0052.php - Outputs dont match
-cb_ast: Failure test/subjects/bugs/bug0026.php - Every pass fails
-cb_ast: Failure test/subjects/bugs/bug0028.php - Every pass fails
-cb_ast: Failure test/subjects/codegen/global_param.php - Every pass fails
-cb_ast: Failure test/subjects/codegen/infinite_lists.php - Every pass fails
-cb_ast: Failure test/subjects/codegen/target_rhs.php - Every pass fails
-cb_ast: Failure test/subjects/optimization/array_use.php - Every pass fails
-cb_ast: Failure test/subjects/optimization/gettimeofday.php - Every pass fails
-cb_ast: Failure test/subjects/optimization/may_defs.php - Every pass fails
-cb_ast: Failure test/subjects/optimization/sccp1.php - Every pass fails
-cb_ast: Failure test/subjects/parsing/functions.php - Every pass fails
-cb_ast: Failure test/subjects/parsing/line_and_co.php - Every pass fails
-cb_ast: Failure test/subjects/parsing/scoped_function.php - Every pass fails
-cb_AST-to-HIR: Failure test/subjects/codegen/new.php - Latest pass fails
-cb_AST-to-HIR: Failure test/subjects/optimization/concat_null.php - Latest pass fails
-cb_AST-to-HIR: Failure test/subjects/optimization/string_handler.php - Latest pass fails
-cb_AST-to-HIR: Failure test/subjects/parsing/constant_folding.php - Latest pass fails
-cb_AST-to-HIR: Failure test/subjects/php_bugs/4999.php - Latest pass fails
-cb_mir: Failure test/subjects/codegen/loop_separation1.php - Latest pass fails
-cb_mir: Failure test/subjects/codegen/loop_separation2.php - Latest pass fails
-cb_mir: Failure test/subjects/parsing/casts.php - Latest pass fails
-cb_mir: Failure test/subjects/reduced/0050.php - Latest pass fails
-cb_mir: Failure test/subjects/reduced/0056.php - Latest pass fails
-InterpretCanonicalUnparsed: Failure test/subjects/bugs/bug0028.php - Outputs dont match
-InterpretCanonicalUnparsed: Failure test/subjects/codegen/global_param.php - Outputs dont match
-InterpretCanonicalUnparsed: Failure test/subjects/codegen/infinite_lists.php - Outputs dont match
-InterpretCanonicalUnparsed: Failure test/subjects/codegen/target_rhs.php - Outputs dont match
-InterpretCanonicalUnparsed: Failure test/subjects/optimization/array_use.php - Outputs dont match
-InterpretCanonicalUnparsed: Failure test/subjects/optimization/gettimeofday.php - Outputs dont match
-InterpretCanonicalUnparsed: Failure test/subjects/optimization/may_defs.php - Outputs dont match
-InterpretCanonicalUnparsed: Failure test/subjects/optimization/sccp1.php - Outputs dont match
-InterpretCanonicalUnparsed: Failure test/subjects/parsing/functions.php - Outputs dont match
-InterpretCanonicalUnparsed: Failure test/subjects/parsing/scoped_function.php - Outputs dont match
-InterpretIncludes: Failure test/subjects/parsing/include_complex_once.php - Outputs dont match
-InterpretIncludes: Failure test/subjects/parsing/include_massive.php - Outputs dont match
-Generate_C: Failure test/subjects/codegen/dynamic_class_def_and_constants.php - Stderr not clear
-Generate_C: Failure test/subjects/codegen/next_available.php - Stderr not clear
-Generate_C: Failure test/subjects/codegen/oop_class_constant.php - Stderr not clear
-Generate_C: Failure test/subjects/codegen/reference_to_static.php - Stderr not clear
-Generate_C: Failure test/subjects/codegen/repeated_static.php - Stderr not clear
-Generate_C: Failure test/subjects/codegen/side_effecting_break_expr.php - Stderr not clear
-Generate_C: Failure test/subjects/codegen/static.php - Stderr not clear
-Generate_C: Failure test/subjects/codegen/static_array_keys.php - Stderr not clear
-Generate_C: Failure test/subjects/codegen/static_reference.php - Stderr not clear
-Generate_C: Failure test/subjects/codegen/undefined_consts.php - Stderr not clear
-Generate_C: Failure test/subjects/dynamic/bad_nested.php - Stderr not clear
-Generate_C: Failure test/subjects/dynamic/nested.php - Stderr not clear
-Generate_C: Failure test/subjects/dynamic/use_class.php - Stderr not clear
-Generate_C: Failure test/subjects/dynamic/use_interface.php - Stderr not clear
-Generate_C: Failure test/subjects/horrible/invocation_priorities.php - Stderr not clear
-Generate_C: Failure test/subjects/horrible/method_invocation.php - Stderr not clear
-Generate_C: Failure test/subjects/parsing/allowed_offset_types.php - Stderr not clear
-Generate_C: Failure test/subjects/parsing/comments.php - Stderr not clear
-Generate_C: Failure test/subjects/parsing/const_attribute.php - Stderr not clear
-Generate_C: Failure test/subjects/parsing/constants.php - Stderr not clear
-Generate_C: Failure test/subjects/parsing/exceptions.php - Stderr not clear
-Generate_C: Failure test/subjects/parsing/instanceof.php - Stderr not clear
-Generate_C: Failure test/subjects/parsing/integer_field_name.php - Stderr not clear
-Generate_C: Failure test/subjects/parsing/interfaces.php - Stderr not clear
-Generate_C: Failure test/subjects/parsing/invocation.php - Stderr not clear
-Generate_C: Failure test/subjects/parsing/layout5.php - Stderr not clear
-Generate_C: Failure test/subjects/parsing/refs.php - Stderr not clear
-Generate_C: Failure test/subjects/parsing/variable_name.php - Stderr not clear
-Generate_C: Failure test/subjects/reduced/0052.php - Stderr not clear
-CompiledVsInterpreted: Failure test/subjects/bugs/bug0008.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/bugs/bug0025.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/codegen/019c.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/codegen/022b.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/codegen/bailout_die.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/codegen/bench_heapsort.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/codegen/constant_reference.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/codegen/decrement.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/codegen/foreach_object.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/codegen/functioncalls_compiled.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/codegen/include_fail.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/codegen/increment.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/codegen/index_object.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/codegen/indirect_fields.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/codegen/invalid_foreach_array.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/codegen/itemlist.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/codegen/nested_statements.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/codegen/oop_attribute_and_var_var.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/codegen/oop_class_attribute3.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/codegen/oop_method_invocation1_2.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/codegen/oop_set_and_get.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/codegen/oop_static_invocation2a.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/codegen/oop_static_invocation2b.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/codegen/oop_static_invocation4a.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/codegen/oop_static_invocation4b.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/codegen/oop_static_invocation5a.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/codegen/oop_static_invocation5b.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/codegen/oop_static_invocation6.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/codegen/oop_static_invocation7.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/codegen/shred_op_assign_target.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/codegen/target_lhs2.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/codegen/unregistered_constant.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/codegen/valid_callback_warning.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/horrible/obfuscated_foreach.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/optimization/define.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/optimization/field_on_nonobjects.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/optimization/looping_defines.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/optimization/object_casting.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/optimization/reference2.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/optimization/static_value_constant.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/optimization/unknown_everything.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/parsing/class_modifiers.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/parsing/clone.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/parsing/define.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/parsing/impure.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/parsing/include_complex.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/parsing/include_complex_once.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/parsing/include_once.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/parsing/included_cc2.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/parsing/null_obj_ref.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/parsing/static.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/parsing/tags.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/phc/foreach_dump.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/phc/no-warning.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/phc/oop_assign_to_this1.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/phc/param_is_ref.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/reduced/0040.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/reduced/0042.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/reduced/0043.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/reduced/0048.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/reduced/0056.php - Outputs dont match PHP outputs
-CompiledVsInterpreted: Failure test/subjects/reduced/0057.php - Outputs dont match PHP outputs
+BasicFastOptAnalyseTest: Failure test/subjects/codegen/indexing_non_arrays.php - Stdout not clear
+BasicFastOptAnalyseTest: Failure test/subjects/codegen/push_uninitialized.php - Stdout not clear
+BasicFastOptAnalyseTest: Failure test/subjects/optimization/looping_defines.php - Stderr not clear
+BasicFastOptAnalyseTest: Failure test/subjects/parsing/scalar_array.php - Stdout not clear
 BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/019b.php - Stdout not clear
 BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/bench_ackermann.php - Stdout not clear
 BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/bench_fibo.php - Stdout not clear
@@ -274,27 +105,6 @@ BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/vars.php - Stdout not 
 BasicPreciseOptAnalyseTest: Failure test/subjects/phc/no-warning.php - Stderr not clear
 BasicPreciseOptAnalyseTest: Failure test/subjects/php_bugs/6117.php - Stdout not clear
 BasicPreciseOptAnalyseTest: Failure test/subjects/reduced/0016.php - Stdout not clear
-BasicFastOptAnalyseTest: Failure test/subjects/codegen/indexing_non_arrays.php - Stdout not clear
-BasicFastOptAnalyseTest: Failure test/subjects/codegen/push_uninitialized.php - Stdout not clear
-BasicFastOptAnalyseTest: Failure test/subjects/optimization/looping_defines.php - Stderr not clear
-BasicFastOptAnalyseTest: Failure test/subjects/parsing/scalar_array.php - Stdout not clear
-InterpretOptimized: Failure test/subjects/bugs/bug0030.php - Outputs dont match
-InterpretOptimized: Failure test/subjects/codegen/array_index_integer_string.php - Outputs dont match
-InterpretOptimized: Failure test/subjects/codegen/inherited_array_field.php - Outputs dont match
-InterpretOptimized: Failure test/subjects/codegen/isset_int_var_var.php - Outputs dont match
-InterpretOptimized: Failure test/subjects/codegen/long_opeq.php - Outputs dont match
-InterpretOptimized: Failure test/subjects/codegen/non_string_var_vars.php - Outputs dont match
-InterpretOptimized: Failure test/subjects/codegen/push_by_ref.php - Outputs dont match
-InterpretOptimized: Failure test/subjects/codegen/push_onto_scalar.php - Outputs dont match
-InterpretOptimized: Failure test/subjects/codegen/push_onto_scalar_by_ref.php - Outputs dont match
-InterpretOptimized: Failure test/subjects/codegen/push_reference_through_array_by_copy.php - Outputs dont match
-InterpretOptimized: Failure test/subjects/codegen/unset_global_global.php - Outputs dont match
-InterpretOptimized: Failure test/subjects/horrible/ifscope.php - Outputs dont match
-InterpretOptimized: Failure test/subjects/parsing/nestedfndefs.php - Outputs dont match
-InterpretOptimized: Failure test/subjects/phc/oop_assign_to_this1.php - Outputs dont match
-InterpretOptimized: Failure test/subjects/reduced/0031.php - Outputs dont match
-InterpretOptimized: Failure test/subjects/reduced/0034.php - Outputs dont match
-InterpretOptimized: Failure test/subjects/reduced/0043.php - Outputs dont match
 CompileOptimized: Failure test/subjects/bugs/bug0007.php - Outputs dont match PHP outputs
 CompileOptimized: Failure test/subjects/bugs/bug0021.php - Outputs dont match PHP outputs
 CompileOptimized: Failure test/subjects/bugs/bug0033.php - Outputs dont match PHP outputs
@@ -317,6 +127,240 @@ CompileOptimized: Failure test/subjects/parsing/instring_simple_object_var.php -
 CompileOptimized: Failure test/subjects/parsing/reflect_ints.php - Outputs dont match PHP outputs
 CompileOptimized: Failure test/subjects/parsing/var_targets.php - Outputs dont match PHP outputs
 CompileOptimized: Failure test/subjects/reduced/0051.php - Outputs dont match PHP outputs
+CompilePluginTest: Failure /home/pbiggar/work/phc/svn/trunk/plugins/tools/reduce_statements.cpp - exit or err not clear
+CompilePluginTest: Failure /home/pbiggar/work/phc/svn/trunk/plugins/tools/test_ssi.cpp - exit or err not clear
+CompiledVsInterpreted: Failure test/subjects/bugs/bug0008.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/bugs/bug0025.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/codegen/019c.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/codegen/022b.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/codegen/bailout_die.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/codegen/bench_heapsort.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/codegen/constant_reference.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/codegen/decrement.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/codegen/foreach_object.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/codegen/functioncalls_compiled.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/codegen/include_fail.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/codegen/increment.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/codegen/index_object.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/codegen/indirect_fields.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/codegen/invalid_foreach_array.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/codegen/itemlist.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/codegen/nested_statements.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/codegen/oop_attribute_and_var_var.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/codegen/oop_class_attribute3.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/codegen/oop_method_invocation1_2.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/codegen/oop_set_and_get.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/codegen/oop_static_invocation2a.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/codegen/oop_static_invocation2b.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/codegen/oop_static_invocation4a.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/codegen/oop_static_invocation4b.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/codegen/oop_static_invocation5a.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/codegen/oop_static_invocation5b.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/codegen/oop_static_invocation6.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/codegen/oop_static_invocation7.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/codegen/shred_op_assign_target.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/codegen/target_lhs2.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/codegen/unregistered_constant.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/codegen/valid_callback_warning.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/horrible/obfuscated_foreach.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/optimization/define.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/optimization/field_on_nonobjects.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/optimization/looping_defines.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/optimization/object_casting.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/optimization/reference2.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/optimization/static_value_constant.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/optimization/unknown_everything.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/parsing/class_modifiers.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/parsing/clone.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/parsing/define.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/parsing/impure.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/parsing/include_complex.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/parsing/include_complex_once.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/parsing/include_once.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/parsing/included_cc2.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/parsing/null_obj_ref.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/parsing/static.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/parsing/tags.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/phc/foreach_dump.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/phc/no-warning.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/phc/oop_assign_to_this1.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/phc/param_is_ref.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/reduced/0040.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/reduced/0042.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/reduced/0043.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/reduced/0048.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/reduced/0056.php - Outputs dont match PHP outputs
+CompiledVsInterpreted: Failure test/subjects/reduced/0057.php - Outputs dont match PHP outputs
+Demi_eval_false: Failure test/subjects/bugs/bug0021.php - Outputs dont match PHP outputs
+Demi_eval_false: Failure test/subjects/codegen/bench_ackermann.php - Outputs dont match PHP outputs
+Demi_eval_false: Failure test/subjects/codegen/ignore_errors2.php - Outputs dont match PHP outputs
+Demi_eval_false: Failure test/subjects/codegen/include_once.php - Outputs dont match PHP outputs
+Demi_eval_false: Failure test/subjects/codegen/indexing_non_arrays.php - Outputs dont match PHP outputs
+Demi_eval_false: Failure test/subjects/codegen/loop_separation1.php - Outputs dont match PHP outputs
+Demi_eval_false: Failure test/subjects/codegen/object_exit.php - Outputs dont match PHP outputs
+Demi_eval_false: Failure test/subjects/codegen/oop_inheritance1.php - Outputs dont match PHP outputs
+Demi_eval_false: Failure test/subjects/codegen/oop_method_invocation5.php - Outputs dont match PHP outputs
+Demi_eval_false: Failure test/subjects/codegen/push_onto_scalar.php - Outputs dont match PHP outputs
+Demi_eval_false: Failure test/subjects/codegen/push_onto_scalar_by_ref.php - Outputs dont match PHP outputs
+Demi_eval_false: Failure test/subjects/codegen/push_uninitialized.php - Outputs dont match PHP outputs
+Demi_eval_false: Failure test/subjects/codegen/unset_local_global.php - Outputs dont match PHP outputs
+Demi_eval_false: Failure test/subjects/errors/string_index_reference_assignment.php - Outputs dont match PHP outputs
+Demi_eval_false: Failure test/subjects/optimization/indirect_string.php - Outputs dont match PHP outputs
+Demi_eval_false: Failure test/subjects/optimization/side_effecting_echo.php - Outputs dont match PHP outputs
+Demi_eval_false: Failure test/subjects/parsing/casts.php - Outputs dont match PHP outputs
+Demi_eval_false: Failure test/subjects/parsing/included_use_existing_vars.php - Outputs dont match PHP outputs
+Demi_eval_false: Failure test/subjects/parsing/transform.php - Outputs dont match PHP outputs
+Demi_eval_false: Failure test/subjects/reduced/0050.php - Outputs dont match PHP outputs
+Demi_eval_true: Failure test/subjects/bugs/bug0001.php - Outputs dont match PHP outputs
+Demi_eval_true: Failure test/subjects/bugs/bug0007.php - Outputs dont match PHP outputs
+Demi_eval_true: Failure test/subjects/bugs/bug0018.php - Outputs dont match PHP outputs
+Demi_eval_true: Failure test/subjects/bugs/bug0019.php - Outputs dont match PHP outputs
+Demi_eval_true: Failure test/subjects/bugs/bug0021.php - Outputs dont match PHP outputs
+Demi_eval_true: Failure test/subjects/bugs/bug0024.php - Outputs dont match PHP outputs
+Demi_eval_true: Failure test/subjects/codegen/bench_ackermann.php - Outputs dont match PHP outputs
+Demi_eval_true: Failure test/subjects/codegen/include_once.php - Outputs dont match PHP outputs
+Demi_eval_true: Failure test/subjects/codegen/indexing_non_arrays.php - Outputs dont match PHP outputs
+Demi_eval_true: Failure test/subjects/codegen/inherited_array_field.php - Outputs dont match PHP outputs
+Demi_eval_true: Failure test/subjects/codegen/isset_byte.php - Outputs dont match PHP outputs
+Demi_eval_true: Failure test/subjects/codegen/non_existant_function.php - Outputs dont match PHP outputs
+Demi_eval_true: Failure test/subjects/codegen/oop_inheritance1.php - Outputs dont match PHP outputs
+Demi_eval_true: Failure test/subjects/codegen/oop_method_def2.php - Outputs dont match PHP outputs
+Demi_eval_true: Failure test/subjects/codegen/push_onto_scalar_by_ref.php - Outputs dont match PHP outputs
+Demi_eval_true: Failure test/subjects/codegen/push_uninitialized.php - Outputs dont match PHP outputs
+Demi_eval_true: Failure test/subjects/codegen/return_global.php - Outputs dont match PHP outputs
+Demi_eval_true: Failure test/subjects/codegen/shutdown_on_missing_function.php - Outputs dont match PHP outputs
+Demi_eval_true: Failure test/subjects/codegen/switch_multi_break.php - Outputs dont match PHP outputs
+Demi_eval_true: Failure test/subjects/codegen/undeclared_function.php - Outputs dont match PHP outputs
+Demi_eval_true: Failure test/subjects/codegen/unset_non_array.php - Outputs dont match PHP outputs
+Demi_eval_true: Failure test/subjects/codegen/unset_string_offset.php - Outputs dont match PHP outputs
+Demi_eval_true: Failure test/subjects/errors/push_operator_on_strings.php - Outputs dont match PHP outputs
+Demi_eval_true: Failure test/subjects/horrible/static_member_invocation.php - Outputs dont match PHP outputs
+Demi_eval_true: Failure test/subjects/optimization/object_copy.php - Outputs dont match PHP outputs
+Demi_eval_true: Failure test/subjects/parsing/binarystrings.php - Outputs dont match PHP outputs
+Demi_eval_true: Failure test/subjects/parsing/casts.php - Outputs dont match PHP outputs
+Demi_eval_true: Failure test/subjects/parsing/new.php - Outputs dont match PHP outputs
+Demi_eval_true: Failure test/subjects/parsing/stringescape.php - Outputs dont match PHP outputs
+Demi_eval_true: Failure test/subjects/parsing/vars.php - Outputs dont match PHP outputs
+Demi_eval_true: Failure test/subjects/reduced/0030.php - Outputs dont match PHP outputs
+Demi_eval_true: Failure test/subjects/reduced/0050.php - Outputs dont match PHP outputs
+Demi_eval_true: Failure test/subjects/reduced/0053.php - Outputs dont match PHP outputs
+Demi_eval_true: Failure test/subjects/reduced/0054.php - Outputs dont match PHP outputs
+Generate_C: Failure test/subjects/codegen/dynamic_class_def_and_constants.php - Stderr not clear
+Generate_C: Failure test/subjects/codegen/next_available.php - Stderr not clear
+Generate_C: Failure test/subjects/codegen/oop_class_constant.php - Stderr not clear
+Generate_C: Failure test/subjects/codegen/reference_to_static.php - Stderr not clear
+Generate_C: Failure test/subjects/codegen/repeated_static.php - Stderr not clear
+Generate_C: Failure test/subjects/codegen/side_effecting_break_expr.php - Stderr not clear
+Generate_C: Failure test/subjects/codegen/static.php - Stderr not clear
+Generate_C: Failure test/subjects/codegen/static_array_keys.php - Stderr not clear
+Generate_C: Failure test/subjects/codegen/static_reference.php - Stderr not clear
+Generate_C: Failure test/subjects/codegen/undefined_consts.php - Stderr not clear
+Generate_C: Failure test/subjects/dynamic/bad_nested.php - Stderr not clear
+Generate_C: Failure test/subjects/dynamic/nested.php - Stderr not clear
+Generate_C: Failure test/subjects/dynamic/use_class.php - Stderr not clear
+Generate_C: Failure test/subjects/dynamic/use_interface.php - Stderr not clear
+Generate_C: Failure test/subjects/horrible/invocation_priorities.php - Stderr not clear
+Generate_C: Failure test/subjects/horrible/method_invocation.php - Stderr not clear
+Generate_C: Failure test/subjects/parsing/allowed_offset_types.php - Stderr not clear
+Generate_C: Failure test/subjects/parsing/comments.php - Stderr not clear
+Generate_C: Failure test/subjects/parsing/const_attribute.php - Stderr not clear
+Generate_C: Failure test/subjects/parsing/constants.php - Stderr not clear
+Generate_C: Failure test/subjects/parsing/exceptions.php - Stderr not clear
+Generate_C: Failure test/subjects/parsing/instanceof.php - Stderr not clear
+Generate_C: Failure test/subjects/parsing/integer_field_name.php - Stderr not clear
+Generate_C: Failure test/subjects/parsing/interfaces.php - Stderr not clear
+Generate_C: Failure test/subjects/parsing/invocation.php - Stderr not clear
+Generate_C: Failure test/subjects/parsing/layout5.php - Stderr not clear
+Generate_C: Failure test/subjects/parsing/refs.php - Stderr not clear
+Generate_C: Failure test/subjects/parsing/variable_name.php - Stderr not clear
+Generate_C: Failure test/subjects/reduced/0052.php - Stderr not clear
+InterpretCanonicalUnparsed: Failure test/subjects/bugs/bug0028.php - Outputs dont match
+InterpretCanonicalUnparsed: Failure test/subjects/codegen/global_param.php - Outputs dont match
+InterpretCanonicalUnparsed: Failure test/subjects/codegen/infinite_lists.php - Outputs dont match
+InterpretCanonicalUnparsed: Failure test/subjects/codegen/target_rhs.php - Outputs dont match
+InterpretCanonicalUnparsed: Failure test/subjects/optimization/array_use.php - Outputs dont match
+InterpretCanonicalUnparsed: Failure test/subjects/optimization/gettimeofday.php - Outputs dont match
+InterpretCanonicalUnparsed: Failure test/subjects/optimization/may_defs.php - Outputs dont match
+InterpretCanonicalUnparsed: Failure test/subjects/optimization/sccp1.php - Outputs dont match
+InterpretCanonicalUnparsed: Failure test/subjects/parsing/functions.php - Outputs dont match
+InterpretCanonicalUnparsed: Failure test/subjects/parsing/scoped_function.php - Outputs dont match
+InterpretIncludes: Failure test/subjects/parsing/include_complex_once.php - Outputs dont match
+InterpretIncludes: Failure test/subjects/parsing/include_massive.php - Outputs dont match
+InterpretOptimized: Failure test/subjects/bugs/bug0030.php - Outputs dont match
+InterpretOptimized: Failure test/subjects/codegen/array_index_integer_string.php - Outputs dont match
+InterpretOptimized: Failure test/subjects/codegen/inherited_array_field.php - Outputs dont match
+InterpretOptimized: Failure test/subjects/codegen/isset_int_var_var.php - Outputs dont match
+InterpretOptimized: Failure test/subjects/codegen/long_opeq.php - Outputs dont match
+InterpretOptimized: Failure test/subjects/codegen/non_string_var_vars.php - Outputs dont match
+InterpretOptimized: Failure test/subjects/codegen/push_by_ref.php - Outputs dont match
+InterpretOptimized: Failure test/subjects/codegen/push_onto_scalar.php - Outputs dont match
+InterpretOptimized: Failure test/subjects/codegen/push_onto_scalar_by_ref.php - Outputs dont match
+InterpretOptimized: Failure test/subjects/codegen/push_reference_through_array_by_copy.php - Outputs dont match
+InterpretOptimized: Failure test/subjects/codegen/unset_global_global.php - Outputs dont match
+InterpretOptimized: Failure test/subjects/horrible/ifscope.php - Outputs dont match
+InterpretOptimized: Failure test/subjects/parsing/nestedfndefs.php - Outputs dont match
+InterpretOptimized: Failure test/subjects/phc/oop_assign_to_this1.php - Outputs dont match
+InterpretOptimized: Failure test/subjects/reduced/0031.php - Outputs dont match
+InterpretOptimized: Failure test/subjects/reduced/0034.php - Outputs dont match
+InterpretOptimized: Failure test/subjects/reduced/0043.php - Outputs dont match
+NoWhitespace: Failure test/subjects/bugs/bug0002.php - Outputs dont match
+NoWhitespace: Failure test/subjects/bugs/bug0009.php - Outputs dont match
+NoWhitespace: Failure test/subjects/bugs/bug0009b.php - Outputs dont match
+NoWhitespace: Failure test/subjects/bugs/bug0015.php - Outputs dont match
+NoWhitespace: Failure test/subjects/bugs/bug0022.php - Outputs dont match
+NoWhitespace: Failure test/subjects/bugs/bug0026.php - Outputs dont match
+NoWhitespace: Failure test/subjects/bugs/bug0028.php - Outputs dont match
+NoWhitespace: Failure test/subjects/bugs/bug0031.php - Outputs dont match
+NoWhitespace: Failure test/subjects/codegen/if_nested.php - Outputs dont match
+NoWhitespace: Failure test/subjects/codegen/masquarading_int_keys.php - Outputs dont match
+NoWhitespace: Failure test/subjects/codegen/multi_way_merge.php - Outputs dont match
+NoWhitespace: Failure test/subjects/codegen/return_global.php - Outputs dont match
+NoWhitespace: Failure test/subjects/codegen/shred_op_assign_target.php - Outputs dont match
+NoWhitespace: Failure test/subjects/codegen/target_rhs.php - Outputs dont match
+NoWhitespace: Failure test/subjects/codegen/undeclared_function.php - Outputs dont match
+NoWhitespace: Failure test/subjects/horrible/invocation_priorities.php - Outputs dont match
+NoWhitespace: Failure test/subjects/inline-c/abort.php - Outputs dont match
+NoWhitespace: Failure test/subjects/inline-c/crash.php - Outputs dont match
+NoWhitespace: Failure test/subjects/inline-c/hashref.php - Outputs dont match
+NoWhitespace: Failure test/subjects/inline-c/hashref2.php - Outputs dont match
+NoWhitespace: Failure test/subjects/inline-c/hello-c.php - Outputs dont match
+NoWhitespace: Failure test/subjects/inline-c/refcount.php - Outputs dont match
+NoWhitespace: Failure test/subjects/optimization/assignment_to_indirect.php - Outputs dont match
+NoWhitespace: Failure test/subjects/optimization/decrement.php - Outputs dont match
+NoWhitespace: Failure test/subjects/optimization/obj_simple_get.php - Outputs dont match
+NoWhitespace: Failure test/subjects/optimization/object_copy.php - Outputs dont match
+NoWhitespace: Failure test/subjects/parsing/comments.php - Outputs dont match
+NoWhitespace: Failure test/subjects/parsing/declare_ticks.php - Outputs dont match
+NoWhitespace: Failure test/subjects/parsing/do.php - Outputs dont match
+NoWhitespace: Failure test/subjects/parsing/endofscriptincomment2.php - Outputs dont match
+NoWhitespace: Failure test/subjects/parsing/for.php - Outputs dont match
+NoWhitespace: Failure test/subjects/parsing/foreach_with_complex_key.php - Outputs dont match
+NoWhitespace: Failure test/subjects/parsing/inline_html_indent.php - Outputs dont match
+NoWhitespace: Failure test/subjects/parsing/inlinehtml.php - Outputs dont match
+NoWhitespace: Failure test/subjects/parsing/integer_field_name.php - Outputs dont match
+NoWhitespace: Failure test/subjects/parsing/scoped_function.php - Outputs dont match
+NoWhitespace: Failure test/subjects/parsing/static.php - Outputs dont match
+NoWhitespace: Failure test/subjects/parsing/switch.php - Outputs dont match
+NoWhitespace: Failure test/subjects/parsing/tags.php - Outputs dont match
+NoWhitespace: Failure test/subjects/parsing/unary_plus.php - Outputs dont match
+NoWhitespace: Failure test/subjects/parsing/variable_name.php - Outputs dont match
+NoWhitespace: Failure test/subjects/parsing/vars.php - Outputs dont match
+NoWhitespace: Failure test/subjects/parsing/while.php - Outputs dont match
+NoWhitespace: Failure test/subjects/parsing/win_inlinehtml.php - Outputs dont match
+NoWhitespace: Failure test/subjects/phc/param_is_ref.php - Outputs dont match
+NoWhitespace: Failure test/subjects/php_bugs/4999.php - Outputs dont match
+NoWhitespace: Failure test/subjects/reduced/0035.php - Outputs dont match
+NoWhitespace: Failure test/subjects/reduced/0038.php - Outputs dont match
+NoWhitespace: Failure test/subjects/reduced/0052.php - Outputs dont match
+ParseTreeDot: Failure test/subjects/bugs/bug0031.php - exit or err not clear
+ParseTreeDot: Failure test/subjects/codegen/bailout_die.php - exit or err not clear
+ParseTreeDot: Failure test/subjects/codegen/die_alone.php - exit or err not clear
+ParseTreeDot: Failure test/subjects/codegen/shutdown_on_exit_bool.php - exit or err not clear
+ParseTreeDot: Failure test/subjects/codegen/shutdown_on_exit_int.php - exit or err not clear
+ParseTreeDot: Failure test/subjects/codegen/shutdown_on_exit_string.php - exit or err not clear
+ParseTreeDot: Failure test/subjects/optimization/die.php - exit or err not clear
+ParseTreeDot: Failure test/subjects/optimization/die_cfg.php - exit or err not clear
+ParseTreeDot: Failure test/subjects/parsing/layout3.php - exit or err not clear
 Refcounts: Failure test/subjects/bugs/bug0007.php - Outputs dont match PHP outputs
 Refcounts: Failure test/subjects/bugs/bug0012.php - Outputs dont match PHP outputs
 Refcounts: Failure test/subjects/bugs/bug0021.php - Outputs dont match PHP outputs
@@ -522,79 +566,36 @@ Refcounts: Failure test/subjects/reduced/0045.php - Outputs dont match PHP outpu
 Refcounts: Failure test/subjects/reduced/0046.php - Outputs dont match PHP outputs
 Refcounts: Failure test/subjects/reduced/0051.php - Outputs dont match PHP outputs
 Refcounts: Failure test/subjects/reduced/0055.php - Outputs dont match PHP outputs
-Demi_eval_true: Failure test/subjects/bugs/bug0001.php - Outputs dont match PHP outputs
-Demi_eval_true: Failure test/subjects/bugs/bug0007.php - Outputs dont match PHP outputs
-Demi_eval_true: Failure test/subjects/bugs/bug0018.php - Outputs dont match PHP outputs
-Demi_eval_true: Failure test/subjects/bugs/bug0019.php - Outputs dont match PHP outputs
-Demi_eval_true: Failure test/subjects/bugs/bug0021.php - Outputs dont match PHP outputs
-Demi_eval_true: Failure test/subjects/bugs/bug0024.php - Outputs dont match PHP outputs
-Demi_eval_true: Failure test/subjects/codegen/bench_ackermann.php - Outputs dont match PHP outputs
-Demi_eval_true: Failure test/subjects/codegen/include_once.php - Outputs dont match PHP outputs
-Demi_eval_true: Failure test/subjects/codegen/indexing_non_arrays.php - Outputs dont match PHP outputs
-Demi_eval_true: Failure test/subjects/codegen/inherited_array_field.php - Outputs dont match PHP outputs
-Demi_eval_true: Failure test/subjects/codegen/isset_byte.php - Outputs dont match PHP outputs
-Demi_eval_true: Failure test/subjects/codegen/non_existant_function.php - Outputs dont match PHP outputs
-Demi_eval_true: Failure test/subjects/codegen/oop_inheritance1.php - Outputs dont match PHP outputs
-Demi_eval_true: Failure test/subjects/codegen/oop_method_def2.php - Outputs dont match PHP outputs
-Demi_eval_true: Failure test/subjects/codegen/push_onto_scalar_by_ref.php - Outputs dont match PHP outputs
-Demi_eval_true: Failure test/subjects/codegen/push_uninitialized.php - Outputs dont match PHP outputs
-Demi_eval_true: Failure test/subjects/codegen/return_global.php - Outputs dont match PHP outputs
-Demi_eval_true: Failure test/subjects/codegen/shutdown_on_missing_function.php - Outputs dont match PHP outputs
-Demi_eval_true: Failure test/subjects/codegen/switch_multi_break.php - Outputs dont match PHP outputs
-Demi_eval_true: Failure test/subjects/codegen/undeclared_function.php - Outputs dont match PHP outputs
-Demi_eval_true: Failure test/subjects/codegen/unset_non_array.php - Outputs dont match PHP outputs
-Demi_eval_true: Failure test/subjects/codegen/unset_string_offset.php - Outputs dont match PHP outputs
-Demi_eval_true: Failure test/subjects/errors/push_operator_on_strings.php - Outputs dont match PHP outputs
-Demi_eval_true: Failure test/subjects/horrible/static_member_invocation.php - Outputs dont match PHP outputs
-Demi_eval_true: Failure test/subjects/optimization/object_copy.php - Outputs dont match PHP outputs
-Demi_eval_true: Failure test/subjects/parsing/binarystrings.php - Outputs dont match PHP outputs
-Demi_eval_true: Failure test/subjects/parsing/casts.php - Outputs dont match PHP outputs
-Demi_eval_true: Failure test/subjects/parsing/new.php - Outputs dont match PHP outputs
-Demi_eval_true: Failure test/subjects/parsing/stringescape.php - Outputs dont match PHP outputs
-Demi_eval_true: Failure test/subjects/parsing/vars.php - Outputs dont match PHP outputs
-Demi_eval_true: Failure test/subjects/reduced/0030.php - Outputs dont match PHP outputs
-Demi_eval_true: Failure test/subjects/reduced/0050.php - Outputs dont match PHP outputs
-Demi_eval_true: Failure test/subjects/reduced/0053.php - Outputs dont match PHP outputs
-Demi_eval_true: Failure test/subjects/reduced/0054.php - Outputs dont match PHP outputs
-Demi_eval_false: Failure test/subjects/bugs/bug0021.php - Outputs dont match PHP outputs
-Demi_eval_false: Failure test/subjects/codegen/bench_ackermann.php - Outputs dont match PHP outputs
-Demi_eval_false: Failure test/subjects/codegen/ignore_errors2.php - Outputs dont match PHP outputs
-Demi_eval_false: Failure test/subjects/codegen/include_once.php - Outputs dont match PHP outputs
-Demi_eval_false: Failure test/subjects/codegen/indexing_non_arrays.php - Outputs dont match PHP outputs
-Demi_eval_false: Failure test/subjects/codegen/loop_separation1.php - Outputs dont match PHP outputs
-Demi_eval_false: Failure test/subjects/codegen/object_exit.php - Outputs dont match PHP outputs
-Demi_eval_false: Failure test/subjects/codegen/oop_inheritance1.php - Outputs dont match PHP outputs
-Demi_eval_false: Failure test/subjects/codegen/oop_method_invocation5.php - Outputs dont match PHP outputs
-Demi_eval_false: Failure test/subjects/codegen/push_onto_scalar.php - Outputs dont match PHP outputs
-Demi_eval_false: Failure test/subjects/codegen/push_onto_scalar_by_ref.php - Outputs dont match PHP outputs
-Demi_eval_false: Failure test/subjects/codegen/push_uninitialized.php - Outputs dont match PHP outputs
-Demi_eval_false: Failure test/subjects/codegen/unset_local_global.php - Outputs dont match PHP outputs
-Demi_eval_false: Failure test/subjects/errors/string_index_reference_assignment.php - Outputs dont match PHP outputs
-Demi_eval_false: Failure test/subjects/optimization/indirect_string.php - Outputs dont match PHP outputs
-Demi_eval_false: Failure test/subjects/optimization/side_effecting_echo.php - Outputs dont match PHP outputs
-Demi_eval_false: Failure test/subjects/parsing/casts.php - Outputs dont match PHP outputs
-Demi_eval_false: Failure test/subjects/parsing/included_use_existing_vars.php - Outputs dont match PHP outputs
-Demi_eval_false: Failure test/subjects/parsing/transform.php - Outputs dont match PHP outputs
-Demi_eval_false: Failure test/subjects/reduced/0050.php - Outputs dont match PHP outputs
+ReparseUnparsed: Failure test/subjects/bugs/bug0015.php - Outputs dont match
+ReparseUnparsed: Failure test/subjects/bugs/bug0028.php - Outputs dont match
 ReparseUnparsed: Failure test/subjects/inline-c/abort.php - Outputs dont match
 ReparseUnparsed: Failure test/subjects/inline-c/crash.php - Outputs dont match
 ReparseUnparsed: Failure test/subjects/inline-c/hashref.php - Outputs dont match
 ReparseUnparsed: Failure test/subjects/inline-c/hashref2.php - Outputs dont match
 ReparseUnparsed: Failure test/subjects/inline-c/hello-c.php - Outputs dont match
 ReparseUnparsed: Failure test/subjects/inline-c/refcount.php - Outputs dont match
-ReparseUnparsed: Failure test/subjects/bugs/bug0015.php - Outputs dont match
-ReparseUnparsed: Failure test/subjects/bugs/bug0028.php - Outputs dont match
 ReparseUnparsed: Failure test/subjects/parsing/declare_ticks.php - Outputs dont match
 ReparseUnparsed: Failure test/subjects/parsing/inline_html_indent.php - Outputs dont match
 ReparseUnparsed: Failure test/subjects/reduced/0052.php - Outputs dont match
-CompilePluginTest: Failure /home/pbiggar/work/phc/svn/trunk/plugins/tools/test_ssi.cpp - exit or err not clear
-CompilePluginTest: Failure /home/pbiggar/work/phc/svn/trunk/plugins/tools/reduce_statements.cpp - exit or err not clear
-ParseTreeDot: Failure test/subjects/bugs/bug0031.php - exit or err not clear
-ParseTreeDot: Failure test/subjects/codegen/bailout_die.php - exit or err not clear
-ParseTreeDot: Failure test/subjects/codegen/die_alone.php - exit or err not clear
-ParseTreeDot: Failure test/subjects/codegen/shutdown_on_exit_bool.php - exit or err not clear
-ParseTreeDot: Failure test/subjects/codegen/shutdown_on_exit_int.php - exit or err not clear
-ParseTreeDot: Failure test/subjects/codegen/shutdown_on_exit_string.php - exit or err not clear
-ParseTreeDot: Failure test/subjects/optimization/die.php - exit or err not clear
-ParseTreeDot: Failure test/subjects/optimization/die_cfg.php - exit or err not clear
-ParseTreeDot: Failure test/subjects/parsing/layout3.php - exit or err not clear
+cb_AST-to-HIR: Failure test/subjects/codegen/new.php - Latest pass fails
+cb_AST-to-HIR: Failure test/subjects/optimization/concat_null.php - Latest pass fails
+cb_AST-to-HIR: Failure test/subjects/optimization/string_handler.php - Latest pass fails
+cb_AST-to-HIR: Failure test/subjects/parsing/constant_folding.php - Latest pass fails
+cb_AST-to-HIR: Failure test/subjects/php_bugs/4999.php - Latest pass fails
+cb_ast: Failure test/subjects/bugs/bug0026.php - Every pass fails
+cb_ast: Failure test/subjects/bugs/bug0028.php - Every pass fails
+cb_ast: Failure test/subjects/codegen/global_param.php - Every pass fails
+cb_ast: Failure test/subjects/codegen/infinite_lists.php - Every pass fails
+cb_ast: Failure test/subjects/codegen/target_rhs.php - Every pass fails
+cb_ast: Failure test/subjects/optimization/array_use.php - Every pass fails
+cb_ast: Failure test/subjects/optimization/gettimeofday.php - Every pass fails
+cb_ast: Failure test/subjects/optimization/may_defs.php - Every pass fails
+cb_ast: Failure test/subjects/optimization/sccp1.php - Every pass fails
+cb_ast: Failure test/subjects/parsing/functions.php - Every pass fails
+cb_ast: Failure test/subjects/parsing/line_and_co.php - Every pass fails
+cb_ast: Failure test/subjects/parsing/scoped_function.php - Every pass fails
+cb_mir: Failure test/subjects/codegen/loop_separation1.php - Latest pass fails
+cb_mir: Failure test/subjects/codegen/loop_separation2.php - Latest pass fails
+cb_mir: Failure test/subjects/parsing/casts.php - Latest pass fails
+cb_mir: Failure test/subjects/reduced/0050.php - Latest pass fails
+cb_mir: Failure test/subjects/reduced/0056.php - Latest pass fails
