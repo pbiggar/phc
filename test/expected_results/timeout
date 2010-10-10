@@ -298,7 +298,6 @@ CompileOptimized: Timeout test/subjects/parsing/negative_literals.php
 CompileOptimized: Timeout test/subjects/parsing/scalar_array.php
 CompileOptimized: Timeout test/subjects/php_bugs/26396.php
 CompileOptimized: Timeout test/subjects/php_bugs/35106.php
-Demi_eval_true: Timeout test/subjects/codegen/loop_separation1.php
 InterpretOptimized: Timeout test/subjects/bugs/bug0011.php
 InterpretOptimized: Timeout test/subjects/bugs/bug0024.php
 InterpretOptimized: Timeout test/subjects/codegen/008.php
@@ -337,4 +336,8 @@ InterpretOptimized: Timeout test/subjects/parsing/scalar_array.php
 InterpretOptimized: Timeout test/subjects/parsing/variable_name.php
 InterpretOptimized: Timeout test/subjects/php_bugs/26396.php
 InterpretOptimized: Timeout test/subjects/php_bugs/35106.php
+Refcounts: Timeout test/subjects/codegen/loop_separation1.php
+Refcounts: Timeout test/subjects/codegen/loop_separation2.php
+Refcounts: Timeout test/subjects/codegen/unset_non_array.php
+XML_roundtrip: Timeout test/subjects/parsing/allchars_inline.php
 XML_roundtrip: Timeout test/subjects/parsing/constant_folding.php

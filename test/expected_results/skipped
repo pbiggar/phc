@@ -216,7 +216,6 @@ BasicFastOptAnalyseTest: Skipped test/subjects/phc/dump_bad_pass.php - Test fail
 BasicFastOptAnalyseTest: Skipped test/subjects/phc/key_value_pair.php - Test failed dependency
 BasicFastOptAnalyseTest: Skipped test/subjects/phc/no-warning.php - Test failed dependency
 BasicFastOptAnalyseTest: Skipped test/subjects/phc/read_xml_bad_pass.php - Test failed dependency
-BasicFastOptAnalyseTest: Skipped test/subjects/phc/stats.php - Test failed dependency
 BasicFastOptAnalyseTest: Skipped test/subjects/phc/warning.php - Test failed dependency
 BasicFastOptAnalyseTest: Skipped test/subjects/php_bugs/4999.php - Test failed dependency
 BasicFastOptAnalyseTest: Skipped test/subjects/php_bugs/6117.php - Test failed dependency
@@ -466,7 +465,6 @@ BasicFastOptimizeTest: Skipped test/subjects/phc/dump_bad_pass.php - Test failed
 BasicFastOptimizeTest: Skipped test/subjects/phc/key_value_pair.php - Test failed dependency
 BasicFastOptimizeTest: Skipped test/subjects/phc/no-warning.php - Test failed dependency
 BasicFastOptimizeTest: Skipped test/subjects/phc/read_xml_bad_pass.php - Test failed dependency
-BasicFastOptimizeTest: Skipped test/subjects/phc/stats.php - Test failed dependency
 BasicFastOptimizeTest: Skipped test/subjects/phc/warning.php - Test failed dependency
 BasicFastOptimizeTest: Skipped test/subjects/php_bugs/4999.php - Test failed dependency
 BasicFastOptimizeTest: Skipped test/subjects/php_bugs/6117.php - Test failed dependency
@@ -716,7 +714,6 @@ BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/phc/dump_bad_pass.php -
 BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/phc/key_value_pair.php - Test failed dependency
 BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/phc/no-warning.php - Test failed dependency
 BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/phc/read_xml_bad_pass.php - Test failed dependency
-BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/phc/stats.php - Test failed dependency
 BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/phc/warning.php - Test failed dependency
 BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/php_bugs/4999.php - Test failed dependency
 BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/php_bugs/6117.php - Test failed dependency
@@ -962,7 +959,6 @@ BasicIgnoreOutputPreciseOptimizeTest: Skipped test/subjects/phc/dump_bad_pass.ph
 BasicIgnoreOutputPreciseOptimizeTest: Skipped test/subjects/phc/key_value_pair.php - Test failed dependency
 BasicIgnoreOutputPreciseOptimizeTest: Skipped test/subjects/phc/no-warning.php - Test failed dependency
 BasicIgnoreOutputPreciseOptimizeTest: Skipped test/subjects/phc/read_xml_bad_pass.php - Test failed dependency
-BasicIgnoreOutputPreciseOptimizeTest: Skipped test/subjects/phc/stats.php - Test failed dependency
 BasicIgnoreOutputPreciseOptimizeTest: Skipped test/subjects/phc/warning.php - Test failed dependency
 BasicIgnoreOutputPreciseOptimizeTest: Skipped test/subjects/php_bugs/4999.php - Test failed dependency
 BasicIgnoreOutputPreciseOptimizeTest: Skipped test/subjects/php_bugs/6117.php - Test failed dependency
@@ -1052,7 +1048,6 @@ BasicParseTest: Skipped test/subjects/phc/debug1.php - Test failed dependency
 BasicParseTest: Skipped test/subjects/phc/dump_bad_pass.php - Test failed dependency
 BasicParseTest: Skipped test/subjects/phc/key_value_pair.php - Test failed dependency
 BasicParseTest: Skipped test/subjects/phc/read_xml_bad_pass.php - Test failed dependency
-BasicParseTest: Skipped test/subjects/phc/stats.php - Test failed dependency
 BasicParseTest: Skipped test/subjects/phc/warning.php - Test failed dependency
 BasicParseTest: Skipped test/subjects/unsupported/0007.php - Test failed dependency
 BasicParseTest: Skipped test/subjects/unsupported/0014.php - Test failed dependency
@@ -1183,7 +1178,6 @@ BasicPreciseOptAnalyseTest: Skipped test/subjects/phc/debug1.php - Test failed d
 BasicPreciseOptAnalyseTest: Skipped test/subjects/phc/dump_bad_pass.php - Test failed dependency
 BasicPreciseOptAnalyseTest: Skipped test/subjects/phc/key_value_pair.php - Test failed dependency
 BasicPreciseOptAnalyseTest: Skipped test/subjects/phc/read_xml_bad_pass.php - Test failed dependency
-BasicPreciseOptAnalyseTest: Skipped test/subjects/phc/stats.php - Test failed dependency
 BasicPreciseOptAnalyseTest: Skipped test/subjects/phc/warning.php - Test failed dependency
 BasicPreciseOptAnalyseTest: Skipped test/subjects/php_bugs/4999.php - Test failed dependency
 BasicPreciseOptAnalyseTest: Skipped test/subjects/reduced/0001.php - Test excepted
@@ -1427,7 +1421,6 @@ BasicPreciseOptimizeTest: Skipped test/subjects/phc/dump_bad_pass.php - Test fai
 BasicPreciseOptimizeTest: Skipped test/subjects/phc/key_value_pair.php - Test failed dependency
 BasicPreciseOptimizeTest: Skipped test/subjects/phc/no-warning.php - Test failed dependency
 BasicPreciseOptimizeTest: Skipped test/subjects/phc/read_xml_bad_pass.php - Test failed dependency
-BasicPreciseOptimizeTest: Skipped test/subjects/phc/stats.php - Test failed dependency
 BasicPreciseOptimizeTest: Skipped test/subjects/phc/warning.php - Test failed dependency
 BasicPreciseOptimizeTest: Skipped test/subjects/php_bugs/4999.php - Test failed dependency
 BasicPreciseOptimizeTest: Skipped test/subjects/php_bugs/6117.php - Test failed dependency
@@ -1714,7 +1707,6 @@ CompileOptimized: Skipped test/subjects/phc/no-warning.php - Test failed depende
 CompileOptimized: Skipped test/subjects/phc/oop_assign_to_this1.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/phc/param_is_ref.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/phc/read_xml_bad_pass.php - Test failed dependency
-CompileOptimized: Skipped test/subjects/phc/stats.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/phc/warning.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/php_bugs/4999.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/php_bugs/6117.php - Test failed dependency
@@ -1838,7 +1830,6 @@ CompiledVsInterpreted: Skipped test/subjects/phc/debug1.php - Test failed depend
 CompiledVsInterpreted: Skipped test/subjects/phc/dump_bad_pass.php - Test failed dependency
 CompiledVsInterpreted: Skipped test/subjects/phc/key_value_pair.php - Test failed dependency
 CompiledVsInterpreted: Skipped test/subjects/phc/read_xml_bad_pass.php - Test failed dependency
-CompiledVsInterpreted: Skipped test/subjects/phc/stats.php - Test failed dependency
 CompiledVsInterpreted: Skipped test/subjects/phc/warning.php - Test failed dependency
 CompiledVsInterpreted: Skipped test/subjects/php_bugs/4999.php - Test failed dependency
 CompiledVsInterpreted: Skipped test/subjects/reduced/0052.php - Test failed dependency
@@ -1996,7 +1987,6 @@ Demi_eval_false: Skipped test/subjects/phc/no-warning.php - Test failed dependen
 Demi_eval_false: Skipped test/subjects/phc/oop_assign_to_this1.php - Test failed dependency
 Demi_eval_false: Skipped test/subjects/phc/param_is_ref.php - Test failed dependency
 Demi_eval_false: Skipped test/subjects/phc/read_xml_bad_pass.php - Test failed dependency
-Demi_eval_false: Skipped test/subjects/phc/stats.php - Test failed dependency
 Demi_eval_false: Skipped test/subjects/phc/warning.php - Test failed dependency
 Demi_eval_false: Skipped test/subjects/php_bugs/4999.php - Test failed dependency
 Demi_eval_false: Skipped test/subjects/reduced/0040.php - Test failed dependency
@@ -2160,7 +2150,6 @@ Demi_eval_true: Skipped test/subjects/phc/no-warning.php - Test failed dependenc
 Demi_eval_true: Skipped test/subjects/phc/oop_assign_to_this1.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/phc/param_is_ref.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/phc/read_xml_bad_pass.php - Test failed dependency
-Demi_eval_true: Skipped test/subjects/phc/stats.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/phc/warning.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/php_bugs/4999.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/reduced/0040.php - Test failed dependency
@@ -2240,7 +2229,6 @@ Generate_C: Skipped test/subjects/phc/debug1.php - Test failed dependency
 Generate_C: Skipped test/subjects/phc/dump_bad_pass.php - Test failed dependency
 Generate_C: Skipped test/subjects/phc/key_value_pair.php - Test failed dependency
 Generate_C: Skipped test/subjects/phc/read_xml_bad_pass.php - Test failed dependency
-Generate_C: Skipped test/subjects/phc/stats.php - Test failed dependency
 Generate_C: Skipped test/subjects/phc/warning.php - Test failed dependency
 Generate_C: Skipped test/subjects/php_bugs/4999.php - Test failed dependency
 Generate_C: Skipped test/subjects/warnings/constant_folding0.php - Test failed dependency
@@ -2312,7 +2300,6 @@ HIR-to-MIR_dump: Skipped test/subjects/phc/debug1.php - Test failed dependency
 HIR-to-MIR_dump: Skipped test/subjects/phc/dump_bad_pass.php - Test failed dependency
 HIR-to-MIR_dump: Skipped test/subjects/phc/key_value_pair.php - Test failed dependency
 HIR-to-MIR_dump: Skipped test/subjects/phc/read_xml_bad_pass.php - Test failed dependency
-HIR-to-MIR_dump: Skipped test/subjects/phc/stats.php - Test failed dependency
 HIR-to-MIR_dump: Skipped test/subjects/phc/warning.php - Test failed dependency
 HIR-to-MIR_dump: Skipped test/subjects/php_bugs/4999.php - Test failed dependency
 HIR-to-MIR_dump: Skipped test/subjects/unsupported/0007.php - Test failed dependency
@@ -2386,7 +2373,6 @@ InterpretCanonicalUnparsed: Skipped test/subjects/phc/debug1.php - Test failed d
 InterpretCanonicalUnparsed: Skipped test/subjects/phc/dump_bad_pass.php - Test failed dependency
 InterpretCanonicalUnparsed: Skipped test/subjects/phc/key_value_pair.php - Test failed dependency
 InterpretCanonicalUnparsed: Skipped test/subjects/phc/read_xml_bad_pass.php - Test failed dependency
-InterpretCanonicalUnparsed: Skipped test/subjects/phc/stats.php - Test failed dependency
 InterpretCanonicalUnparsed: Skipped test/subjects/phc/warning.php - Test failed dependency
 InterpretCanonicalUnparsed: Skipped test/subjects/warnings/constant_folding0.php - Test failed dependency
 InterpretCanonicalUnparsed: Skipped test/subjects/warnings/constant_folding1.php - Test failed dependency
@@ -2450,7 +2436,6 @@ InterpretIncludes: Skipped test/subjects/phc/debug1.php - Test failed dependency
 InterpretIncludes: Skipped test/subjects/phc/dump_bad_pass.php - Test failed dependency
 InterpretIncludes: Skipped test/subjects/phc/key_value_pair.php - Test failed dependency
 InterpretIncludes: Skipped test/subjects/phc/read_xml_bad_pass.php - Test failed dependency
-InterpretIncludes: Skipped test/subjects/phc/stats.php - Test failed dependency
 InterpretIncludes: Skipped test/subjects/phc/warning.php - Test failed dependency
 InterpretIncludes: Skipped test/subjects/warnings/constant_folding0.php - Test failed dependency
 InterpretIncludes: Skipped test/subjects/warnings/constant_folding1.php - Test failed dependency
@@ -2524,7 +2509,6 @@ InterpretObfuscated: Skipped test/subjects/phc/debug1.php - Test failed dependen
 InterpretObfuscated: Skipped test/subjects/phc/dump_bad_pass.php - Test failed dependency
 InterpretObfuscated: Skipped test/subjects/phc/key_value_pair.php - Test failed dependency
 InterpretObfuscated: Skipped test/subjects/phc/read_xml_bad_pass.php - Test failed dependency
-InterpretObfuscated: Skipped test/subjects/phc/stats.php - Test failed dependency
 InterpretObfuscated: Skipped test/subjects/phc/warning.php - Test failed dependency
 InterpretObfuscated: Skipped test/subjects/php_bugs/4999.php - Test failed dependency
 InterpretObfuscated: Skipped test/subjects/reduced/0050.php - Test failed dependency
@@ -2727,7 +2711,6 @@ InterpretOptimized: Skipped test/subjects/phc/dump_bad_pass.php - Test failed de
 InterpretOptimized: Skipped test/subjects/phc/key_value_pair.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/phc/no-warning.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/phc/read_xml_bad_pass.php - Test failed dependency
-InterpretOptimized: Skipped test/subjects/phc/stats.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/phc/warning.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/php_bugs/4999.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/php_bugs/6117.php - Test failed dependency
@@ -2795,7 +2778,6 @@ NoWhitespace: Skipped test/subjects/phc/debug1.php - Test failed dependency
 NoWhitespace: Skipped test/subjects/phc/dump_bad_pass.php - Test failed dependency
 NoWhitespace: Skipped test/subjects/phc/key_value_pair.php - Test failed dependency
 NoWhitespace: Skipped test/subjects/phc/read_xml_bad_pass.php - Test failed dependency
-NoWhitespace: Skipped test/subjects/phc/stats.php - Test failed dependency
 NoWhitespace: Skipped test/subjects/phc/warning.php - Test failed dependency
 NoWhitespace: Skipped test/subjects/unsupported/0007.php - Test failed dependency
 NoWhitespace: Skipped test/subjects/unsupported/0014.php - Test failed dependency
@@ -2868,7 +2850,6 @@ ParseASTDot: Skipped test/subjects/phc/debug1.php - Test failed dependency
 ParseASTDot: Skipped test/subjects/phc/dump_bad_pass.php - Test failed dependency
 ParseASTDot: Skipped test/subjects/phc/key_value_pair.php - Test failed dependency
 ParseASTDot: Skipped test/subjects/phc/read_xml_bad_pass.php - Test failed dependency
-ParseASTDot: Skipped test/subjects/phc/stats.php - Test failed dependency
 ParseASTDot: Skipped test/subjects/phc/warning.php - Test failed dependency
 ParseASTDot: Skipped test/subjects/unsupported/0007.php - Test failed dependency
 ParseASTDot: Skipped test/subjects/unsupported/0014.php - Test failed dependency
@@ -2941,7 +2922,6 @@ ParseTreeDot: Skipped test/subjects/phc/debug1.php - Test failed dependency
 ParseTreeDot: Skipped test/subjects/phc/dump_bad_pass.php - Test failed dependency
 ParseTreeDot: Skipped test/subjects/phc/key_value_pair.php - Test failed dependency
 ParseTreeDot: Skipped test/subjects/phc/read_xml_bad_pass.php - Test failed dependency
-ParseTreeDot: Skipped test/subjects/phc/stats.php - Test failed dependency
 ParseTreeDot: Skipped test/subjects/phc/warning.php - Test failed dependency
 ParseTreeDot: Skipped test/subjects/unsupported/0007.php - Test failed dependency
 ParseTreeDot: Skipped test/subjects/unsupported/0014.php - Test failed dependency
@@ -3142,7 +3122,6 @@ Refcounts: Skipped test/subjects/phc/no-warning.php - Test failed dependency
 Refcounts: Skipped test/subjects/phc/oop_assign_to_this1.php - Test failed dependency
 Refcounts: Skipped test/subjects/phc/param_is_ref.php - Test failed dependency
 Refcounts: Skipped test/subjects/phc/read_xml_bad_pass.php - Test failed dependency
-Refcounts: Skipped test/subjects/phc/stats.php - Test failed dependency
 Refcounts: Skipped test/subjects/phc/warning.php - Test failed dependency
 Refcounts: Skipped test/subjects/php_bugs/4999.php - Test failed dependency
 Refcounts: Skipped test/subjects/reduced/0040.php - Test failed dependency
@@ -3201,7 +3180,6 @@ ReparseUnparsed: Skipped test/subjects/phc/debug1.php - Test failed dependency
 ReparseUnparsed: Skipped test/subjects/phc/dump_bad_pass.php - Test failed dependency
 ReparseUnparsed: Skipped test/subjects/phc/key_value_pair.php - Test failed dependency
 ReparseUnparsed: Skipped test/subjects/phc/read_xml_bad_pass.php - Test failed dependency
-ReparseUnparsed: Skipped test/subjects/phc/stats.php - Test failed dependency
 ReparseUnparsed: Skipped test/subjects/phc/warning.php - Test failed dependency
 ReparseUnparsed: Skipped test/subjects/unsupported/0007.php - Test failed dependency
 ReparseUnparsed: Skipped test/subjects/unsupported/0014.php - Test failed dependency
@@ -3274,7 +3252,6 @@ XML_roundtrip: Skipped test/subjects/phc/debug1.php - Test failed dependency
 XML_roundtrip: Skipped test/subjects/phc/dump_bad_pass.php - Test failed dependency
 XML_roundtrip: Skipped test/subjects/phc/key_value_pair.php - Test failed dependency
 XML_roundtrip: Skipped test/subjects/phc/read_xml_bad_pass.php - Test failed dependency
-XML_roundtrip: Skipped test/subjects/phc/stats.php - Test failed dependency
 XML_roundtrip: Skipped test/subjects/phc/warning.php - Test failed dependency
 XML_roundtrip: Skipped test/subjects/unsupported/0007.php - Test failed dependency
 XML_roundtrip: Skipped test/subjects/unsupported/0014.php - Test failed dependency
@@ -3363,7 +3340,6 @@ cb_AST-to-HIR: Skipped test/subjects/phc/debug1.php - Test failed dependency
 cb_AST-to-HIR: Skipped test/subjects/phc/dump_bad_pass.php - Test failed dependency
 cb_AST-to-HIR: Skipped test/subjects/phc/key_value_pair.php - Test failed dependency
 cb_AST-to-HIR: Skipped test/subjects/phc/read_xml_bad_pass.php - Test failed dependency
-cb_AST-to-HIR: Skipped test/subjects/phc/stats.php - Test failed dependency
 cb_AST-to-HIR: Skipped test/subjects/phc/warning.php - Test failed dependency
 cb_AST-to-HIR: Skipped test/subjects/warnings/constant_folding0.php - Test failed dependency
 cb_AST-to-HIR: Skipped test/subjects/warnings/constant_folding1.php - Test failed dependency
@@ -3414,7 +3390,6 @@ cb_ast: Skipped test/subjects/phc/debug1.php - Test failed dependency
 cb_ast: Skipped test/subjects/phc/dump_bad_pass.php - Test failed dependency
 cb_ast: Skipped test/subjects/phc/key_value_pair.php - Test failed dependency
 cb_ast: Skipped test/subjects/phc/read_xml_bad_pass.php - Test failed dependency
-cb_ast: Skipped test/subjects/phc/stats.php - Test failed dependency
 cb_ast: Skipped test/subjects/phc/warning.php - Test failed dependency
 cb_ast: Skipped test/subjects/warnings/constant_folding0.php - Test failed dependency
 cb_ast: Skipped test/subjects/warnings/constant_folding1.php - Test failed dependency
@@ -3485,7 +3460,6 @@ cb_hir: Skipped test/subjects/phc/debug1.php - Test failed dependency
 cb_hir: Skipped test/subjects/phc/dump_bad_pass.php - Test failed dependency
 cb_hir: Skipped test/subjects/phc/key_value_pair.php - Test failed dependency
 cb_hir: Skipped test/subjects/phc/read_xml_bad_pass.php - Test failed dependency
-cb_hir: Skipped test/subjects/phc/stats.php - Test failed dependency
 cb_hir: Skipped test/subjects/phc/warning.php - Test failed dependency
 cb_hir: Skipped test/subjects/php_bugs/4999.php - Test failed dependency
 cb_hir: Skipped test/subjects/warnings/constant_folding0.php - Test failed dependency
@@ -3557,7 +3531,6 @@ cb_mir: Skipped test/subjects/phc/debug1.php - Test failed dependency
 cb_mir: Skipped test/subjects/phc/dump_bad_pass.php - Test failed dependency
 cb_mir: Skipped test/subjects/phc/key_value_pair.php - Test failed dependency
 cb_mir: Skipped test/subjects/phc/read_xml_bad_pass.php - Test failed dependency
-cb_mir: Skipped test/subjects/phc/stats.php - Test failed dependency
 cb_mir: Skipped test/subjects/phc/warning.php - Test failed dependency
 cb_mir: Skipped test/subjects/php_bugs/4999.php - Test failed dependency
 cb_mir: Skipped test/subjects/warnings/constant_folding0.php - Test failed dependency
@@ -3613,7 +3586,6 @@ cb_sua: Skipped test/subjects/optimization/array_use.php - Test failed dependenc
 cb_sua: Skipped test/subjects/optimization/dce_foreach1.php - Test failed dependency
 cb_sua: Skipped test/subjects/optimization/gettimeofday.php - Test failed dependency
 cb_sua: Skipped test/subjects/optimization/may_defs.php - Test failed dependency
-cb_sua: Skipped test/subjects/optimization/sccp1.php - Test failed dependency
 cb_sua: Skipped test/subjects/parsing/functions.php - Test failed dependency
 cb_sua: Skipped test/subjects/parsing/line_and_co.php - Test failed dependency
 cb_sua: Skipped test/subjects/parsing/scoped_function.php - Test failed dependency
@@ -3621,7 +3593,6 @@ cb_sua: Skipped test/subjects/phc/debug1.php - Test failed dependency
 cb_sua: Skipped test/subjects/phc/dump_bad_pass.php - Test failed dependency
 cb_sua: Skipped test/subjects/phc/key_value_pair.php - Test failed dependency
 cb_sua: Skipped test/subjects/phc/read_xml_bad_pass.php - Test failed dependency
-cb_sua: Skipped test/subjects/phc/stats.php - Test failed dependency
 cb_sua: Skipped test/subjects/phc/warning.php - Test failed dependency
 cb_sua: Skipped test/subjects/warnings/constant_folding0.php - Test failed dependency
 cb_sua: Skipped test/subjects/warnings/constant_folding1.php - Test failed dependency
@@ -3695,7 +3666,6 @@ mir_dump: Skipped test/subjects/phc/debug1.php - Test failed dependency
 mir_dump: Skipped test/subjects/phc/dump_bad_pass.php - Test failed dependency
 mir_dump: Skipped test/subjects/phc/key_value_pair.php - Test failed dependency
 mir_dump: Skipped test/subjects/phc/read_xml_bad_pass.php - Test failed dependency
-mir_dump: Skipped test/subjects/phc/stats.php - Test failed dependency
 mir_dump: Skipped test/subjects/phc/warning.php - Test failed dependency
 mir_dump: Skipped test/subjects/php_bugs/4999.php - Test failed dependency
 mir_dump: Skipped test/subjects/reduced/0050.php - Test failed dependency
@@ -3771,7 +3741,6 @@ plugin_cloning: Skipped test/subjects/phc/debug1.php - Test failed dependency
 plugin_cloning: Skipped test/subjects/phc/dump_bad_pass.php - Test failed dependency
 plugin_cloning: Skipped test/subjects/phc/key_value_pair.php - Test failed dependency
 plugin_cloning: Skipped test/subjects/phc/read_xml_bad_pass.php - Test failed dependency
-plugin_cloning: Skipped test/subjects/phc/stats.php - Test failed dependency
 plugin_cloning: Skipped test/subjects/phc/warning.php - Test failed dependency
 plugin_cloning: Skipped test/subjects/unsupported/0007.php - Test failed dependency
 plugin_cloning: Skipped test/subjects/unsupported/0014.php - Test failed dependency
@@ -3844,7 +3813,6 @@ plugin_inconsistent_st_attr: Skipped test/subjects/phc/debug1.php - Test failed 
 plugin_inconsistent_st_attr: Skipped test/subjects/phc/dump_bad_pass.php - Test failed dependency
 plugin_inconsistent_st_attr: Skipped test/subjects/phc/key_value_pair.php - Test failed dependency
 plugin_inconsistent_st_attr: Skipped test/subjects/phc/read_xml_bad_pass.php - Test failed dependency
-plugin_inconsistent_st_attr: Skipped test/subjects/phc/stats.php - Test failed dependency
 plugin_inconsistent_st_attr: Skipped test/subjects/phc/warning.php - Test failed dependency
 plugin_inconsistent_st_attr: Skipped test/subjects/unsupported/0007.php - Test failed dependency
 plugin_inconsistent_st_attr: Skipped test/subjects/unsupported/0014.php - Test failed dependency
@@ -3917,7 +3885,6 @@ plugin_linear: Skipped test/subjects/phc/debug1.php - Test failed dependency
 plugin_linear: Skipped test/subjects/phc/dump_bad_pass.php - Test failed dependency
 plugin_linear: Skipped test/subjects/phc/key_value_pair.php - Test failed dependency
 plugin_linear: Skipped test/subjects/phc/read_xml_bad_pass.php - Test failed dependency
-plugin_linear: Skipped test/subjects/phc/stats.php - Test failed dependency
 plugin_linear: Skipped test/subjects/phc/warning.php - Test failed dependency
 plugin_linear: Skipped test/subjects/unsupported/0007.php - Test failed dependency
 plugin_linear: Skipped test/subjects/unsupported/0014.php - Test failed dependency
@@ -3990,7 +3957,6 @@ plugin_pre_vs_post_count: Skipped test/subjects/phc/debug1.php - Test failed dep
 plugin_pre_vs_post_count: Skipped test/subjects/phc/dump_bad_pass.php - Test failed dependency
 plugin_pre_vs_post_count: Skipped test/subjects/phc/key_value_pair.php - Test failed dependency
 plugin_pre_vs_post_count: Skipped test/subjects/phc/read_xml_bad_pass.php - Test failed dependency
-plugin_pre_vs_post_count: Skipped test/subjects/phc/stats.php - Test failed dependency
 plugin_pre_vs_post_count: Skipped test/subjects/phc/warning.php - Test failed dependency
 plugin_pre_vs_post_count: Skipped test/subjects/unsupported/0007.php - Test failed dependency
 plugin_pre_vs_post_count: Skipped test/subjects/unsupported/0014.php - Test failed dependency
@@ -4063,7 +4029,6 @@ plugin_source_vs_semantic_values: Skipped test/subjects/phc/debug1.php - Test fa
 plugin_source_vs_semantic_values: Skipped test/subjects/phc/dump_bad_pass.php - Test failed dependency
 plugin_source_vs_semantic_values: Skipped test/subjects/phc/key_value_pair.php - Test failed dependency
 plugin_source_vs_semantic_values: Skipped test/subjects/phc/read_xml_bad_pass.php - Test failed dependency
-plugin_source_vs_semantic_values: Skipped test/subjects/phc/stats.php - Test failed dependency
 plugin_source_vs_semantic_values: Skipped test/subjects/phc/warning.php - Test failed dependency
 plugin_source_vs_semantic_values: Skipped test/subjects/unsupported/0007.php - Test failed dependency
 plugin_source_vs_semantic_values: Skipped test/subjects/unsupported/0014.php - Test failed dependency
@@ -4767,7 +4732,7 @@ regression_dump_ast: Skipped test/subjects/phc/oop_assign_to_this1.php - No regr
 regression_dump_ast: Skipped test/subjects/phc/param_is_ref.php - No regression support file at test/support_files/regression_dump_ast/phc/param_is_ref.php.dot
 regression_dump_ast: Skipped test/subjects/phc/read_xml_bad_pass.php - Test failed dependency
 regression_dump_ast: Skipped test/subjects/phc/run_once.php - No regression support file at test/support_files/regression_dump_ast/phc/run_once.php.dot
-regression_dump_ast: Skipped test/subjects/phc/stats.php - Test failed dependency
+regression_dump_ast: Skipped test/subjects/phc/stats.php - No regression support file at test/support_files/regression_dump_ast/phc/stats.php.dot
 regression_dump_ast: Skipped test/subjects/phc/warning.php - Test failed dependency
 regression_dump_ast: Skipped test/subjects/php_bugs/26396.php - No regression support file at test/support_files/regression_dump_ast/php_bugs/26396.php.dot
 regression_dump_ast: Skipped test/subjects/php_bugs/35106.php - No regression support file at test/support_files/regression_dump_ast/php_bugs/35106.php.dot
@@ -5531,7 +5496,7 @@ regression_dump_php: Skipped test/subjects/phc/oop_assign_to_this1.php - No regr
 regression_dump_php: Skipped test/subjects/phc/param_is_ref.php - No regression support file at test/support_files/regression_dump_php/phc/param_is_ref.php.unparsed
 regression_dump_php: Skipped test/subjects/phc/read_xml_bad_pass.php - Test failed dependency
 regression_dump_php: Skipped test/subjects/phc/run_once.php - No regression support file at test/support_files/regression_dump_php/phc/run_once.php.unparsed
-regression_dump_php: Skipped test/subjects/phc/stats.php - Test failed dependency
+regression_dump_php: Skipped test/subjects/phc/stats.php - No regression support file at test/support_files/regression_dump_php/phc/stats.php.unparsed
 regression_dump_php: Skipped test/subjects/phc/warning.php - Test failed dependency
 regression_dump_php: Skipped test/subjects/php_bugs/26396.php - No regression support file at test/support_files/regression_dump_php/php_bugs/26396.php.unparsed
 regression_dump_php: Skipped test/subjects/php_bugs/35106.php - No regression support file at test/support_files/regression_dump_php/php_bugs/35106.php.unparsed
@@ -6295,7 +6260,7 @@ regression_dump_xml: Skipped test/subjects/phc/oop_assign_to_this1.php - No regr
 regression_dump_xml: Skipped test/subjects/phc/param_is_ref.php - No regression support file at test/support_files/regression_dump_xml/phc/param_is_ref.php.unparsed
 regression_dump_xml: Skipped test/subjects/phc/read_xml_bad_pass.php - Test failed dependency
 regression_dump_xml: Skipped test/subjects/phc/run_once.php - No regression support file at test/support_files/regression_dump_xml/phc/run_once.php.unparsed
-regression_dump_xml: Skipped test/subjects/phc/stats.php - Test failed dependency
+regression_dump_xml: Skipped test/subjects/phc/stats.php - No regression support file at test/support_files/regression_dump_xml/phc/stats.php.unparsed
 regression_dump_xml: Skipped test/subjects/phc/warning.php - Test failed dependency
 regression_dump_xml: Skipped test/subjects/php_bugs/26396.php - No regression support file at test/support_files/regression_dump_xml/php_bugs/26396.php.unparsed
 regression_dump_xml: Skipped test/subjects/php_bugs/35106.php - No regression support file at test/support_files/regression_dump_xml/php_bugs/35106.php.unparsed

@@ -337,6 +337,12 @@ int main(int argc, char** argv)
 		pm->post_process ();
 	}
 
+
+	if (pm->args_info->stats_given)
+	{
+		dump_stats ();
+	}
+
 	/*
 	 * Destruction
 	 */

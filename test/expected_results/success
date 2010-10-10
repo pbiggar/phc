@@ -668,6 +668,7 @@ Annotated_test: Success test/subjects/phc/oop_assign_to_this1.php
 Annotated_test: Success test/subjects/phc/param_is_ref.php
 Annotated_test: Success test/subjects/phc/read_xml_bad_pass.php
 Annotated_test: Success test/subjects/phc/run_once.php
+Annotated_test: Success test/subjects/phc/stats.php
 Annotated_test: Success test/subjects/phc/warning.php
 Annotated_test: Success test/subjects/php_bugs/26396.php
 Annotated_test: Success test/subjects/php_bugs/35106.php
@@ -1169,6 +1170,7 @@ BasicFastOptAnalyseTest: Success test/subjects/phc/list_passes.php
 BasicFastOptAnalyseTest: Success test/subjects/phc/oop_assign_to_this1.php
 BasicFastOptAnalyseTest: Success test/subjects/phc/param_is_ref.php
 BasicFastOptAnalyseTest: Success test/subjects/phc/run_once.php
+BasicFastOptAnalyseTest: Success test/subjects/phc/stats.php
 BasicFastOptAnalyseTest: Success test/subjects/php_bugs/41118.php
 BasicFastOptAnalyseTest: Success test/subjects/reduced/0003.php
 BasicFastOptAnalyseTest: Success test/subjects/reduced/0006.php
@@ -1630,6 +1632,7 @@ BasicFastOptimizeTest: Success test/subjects/phc/list_passes.php
 BasicFastOptimizeTest: Success test/subjects/phc/oop_assign_to_this1.php
 BasicFastOptimizeTest: Success test/subjects/phc/param_is_ref.php
 BasicFastOptimizeTest: Success test/subjects/phc/run_once.php
+BasicFastOptimizeTest: Success test/subjects/phc/stats.php
 BasicFastOptimizeTest: Success test/subjects/php_bugs/41118.php
 BasicFastOptimizeTest: Success test/subjects/reduced/0003.php
 BasicFastOptimizeTest: Success test/subjects/reduced/0006.php
@@ -2091,6 +2094,7 @@ BasicIgnoreOutputFastOptimizeTest: Success test/subjects/phc/list_passes.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/phc/oop_assign_to_this1.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/phc/param_is_ref.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/phc/run_once.php
+BasicIgnoreOutputFastOptimizeTest: Success test/subjects/phc/stats.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/php_bugs/41118.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/reduced/0003.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/reduced/0006.php
@@ -2567,6 +2571,7 @@ BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/phc/list_passes.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/phc/oop_assign_to_this1.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/phc/param_is_ref.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/phc/run_once.php
+BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/phc/stats.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/php_bugs/41118.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/reduced/0003.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/reduced/0006.php
@@ -3239,6 +3244,7 @@ BasicParseTest: Success test/subjects/phc/no-warning.php
 BasicParseTest: Success test/subjects/phc/oop_assign_to_this1.php
 BasicParseTest: Success test/subjects/phc/param_is_ref.php
 BasicParseTest: Success test/subjects/phc/run_once.php
+BasicParseTest: Success test/subjects/phc/stats.php
 BasicParseTest: Success test/subjects/php_bugs/26396.php
 BasicParseTest: Success test/subjects/php_bugs/35106.php
 BasicParseTest: Success test/subjects/php_bugs/41118.php
@@ -3738,6 +3744,7 @@ BasicPreciseOptAnalyseTest: Success test/subjects/phc/list_passes.php
 BasicPreciseOptAnalyseTest: Success test/subjects/phc/oop_assign_to_this1.php
 BasicPreciseOptAnalyseTest: Success test/subjects/phc/param_is_ref.php
 BasicPreciseOptAnalyseTest: Success test/subjects/phc/run_once.php
+BasicPreciseOptAnalyseTest: Success test/subjects/phc/stats.php
 BasicPreciseOptAnalyseTest: Success test/subjects/php_bugs/41118.php
 BasicPreciseOptAnalyseTest: Success test/subjects/reduced/0003.php
 BasicPreciseOptAnalyseTest: Success test/subjects/reduced/0006.php
@@ -4217,6 +4224,7 @@ BasicPreciseOptimizeTest: Success test/subjects/phc/list_passes.php
 BasicPreciseOptimizeTest: Success test/subjects/phc/oop_assign_to_this1.php
 BasicPreciseOptimizeTest: Success test/subjects/phc/param_is_ref.php
 BasicPreciseOptimizeTest: Success test/subjects/phc/run_once.php
+BasicPreciseOptimizeTest: Success test/subjects/phc/stats.php
 BasicPreciseOptimizeTest: Success test/subjects/php_bugs/41118.php
 BasicPreciseOptimizeTest: Success test/subjects/reduced/0003.php
 BasicPreciseOptimizeTest: Success test/subjects/reduced/0006.php
@@ -4632,6 +4640,7 @@ CompileOptimized: Success test/subjects/phc/dump_tokens.php
 CompileOptimized: Success test/subjects/phc/execute_flag.php
 CompileOptimized: Success test/subjects/phc/list_passes.php
 CompileOptimized: Success test/subjects/phc/run_once.php
+CompileOptimized: Success test/subjects/phc/stats.php
 CompileOptimized: Success test/subjects/php_bugs/41118.php
 CompileOptimized: Success test/subjects/reduced/0003.php
 CompileOptimized: Success test/subjects/reduced/0006.php
@@ -5209,6 +5218,7 @@ CompiledVsInterpreted: Success test/subjects/phc/dump_tokens.php
 CompiledVsInterpreted: Success test/subjects/phc/execute_flag.php
 CompiledVsInterpreted: Success test/subjects/phc/list_passes.php
 CompiledVsInterpreted: Success test/subjects/phc/run_once.php
+CompiledVsInterpreted: Success test/subjects/phc/stats.php
 CompiledVsInterpreted: Success test/subjects/php_bugs/26396.php
 CompiledVsInterpreted: Success test/subjects/php_bugs/35106.php
 CompiledVsInterpreted: Success test/subjects/php_bugs/41118.php
@@ -5456,7 +5466,6 @@ Demi_eval_false: Success test/subjects/codegen/lazy_op.php
 Demi_eval_false: Success test/subjects/codegen/leak_on_exit.php
 Demi_eval_false: Success test/subjects/codegen/list_assignment.php
 Demi_eval_false: Success test/subjects/codegen/long_opeq.php
-Demi_eval_false: Success test/subjects/codegen/loop_separation2.php
 Demi_eval_false: Success test/subjects/codegen/masquarading_int_keys.php
 Demi_eval_false: Success test/subjects/codegen/multi_array_access.php
 Demi_eval_false: Success test/subjects/codegen/multi_way_merge.php
@@ -5758,6 +5767,7 @@ Demi_eval_false: Success test/subjects/phc/dump_tokens.php
 Demi_eval_false: Success test/subjects/phc/execute_flag.php
 Demi_eval_false: Success test/subjects/phc/list_passes.php
 Demi_eval_false: Success test/subjects/phc/run_once.php
+Demi_eval_false: Success test/subjects/phc/stats.php
 Demi_eval_false: Success test/subjects/php_bugs/26396.php
 Demi_eval_false: Success test/subjects/php_bugs/35106.php
 Demi_eval_false: Success test/subjects/php_bugs/41118.php
@@ -5998,7 +6008,6 @@ Demi_eval_true: Success test/subjects/codegen/lazy_op.php
 Demi_eval_true: Success test/subjects/codegen/leak_on_exit.php
 Demi_eval_true: Success test/subjects/codegen/list_assignment.php
 Demi_eval_true: Success test/subjects/codegen/long_opeq.php
-Demi_eval_true: Success test/subjects/codegen/loop_separation2.php
 Demi_eval_true: Success test/subjects/codegen/masquarading_int_keys.php
 Demi_eval_true: Success test/subjects/codegen/multi_array_access.php
 Demi_eval_true: Success test/subjects/codegen/multi_way_merge.php
@@ -6294,6 +6303,7 @@ Demi_eval_true: Success test/subjects/phc/dump_tokens.php
 Demi_eval_true: Success test/subjects/phc/execute_flag.php
 Demi_eval_true: Success test/subjects/phc/list_passes.php
 Demi_eval_true: Success test/subjects/phc/run_once.php
+Demi_eval_true: Success test/subjects/phc/stats.php
 Demi_eval_true: Success test/subjects/php_bugs/26396.php
 Demi_eval_true: Success test/subjects/php_bugs/35106.php
 Demi_eval_true: Success test/subjects/php_bugs/41118.php
@@ -6914,6 +6924,7 @@ Generate_C: Success test/subjects/phc/no-warning.php
 Generate_C: Success test/subjects/phc/oop_assign_to_this1.php
 Generate_C: Success test/subjects/phc/param_is_ref.php
 Generate_C: Success test/subjects/phc/run_once.php
+Generate_C: Success test/subjects/phc/stats.php
 Generate_C: Success test/subjects/php_bugs/26396.php
 Generate_C: Success test/subjects/php_bugs/35106.php
 Generate_C: Success test/subjects/php_bugs/41118.php
@@ -7583,6 +7594,7 @@ HIR-to-MIR_dump: Success test/subjects/phc/no-warning.php
 HIR-to-MIR_dump: Success test/subjects/phc/oop_assign_to_this1.php
 HIR-to-MIR_dump: Success test/subjects/phc/param_is_ref.php
 HIR-to-MIR_dump: Success test/subjects/phc/run_once.php
+HIR-to-MIR_dump: Success test/subjects/phc/stats.php
 HIR-to-MIR_dump: Success test/subjects/php_bugs/26396.php
 HIR-to-MIR_dump: Success test/subjects/php_bugs/35106.php
 HIR-to-MIR_dump: Success test/subjects/php_bugs/41118.php
@@ -8067,6 +8079,7 @@ InterpretCanonicalUnparsed: Success test/subjects/optimization/die.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/die_cfg.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/essa.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/field_on_nonobjects.php
+InterpretCanonicalUnparsed: Success test/subjects/optimization/gettimeofday.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/global_references.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/identity_assignment.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/ifs.php
@@ -8099,6 +8112,7 @@ InterpretCanonicalUnparsed: Success test/subjects/optimization/reference2.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/reference3.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/remove_for_loop_boolean.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/rtrim.php
+InterpretCanonicalUnparsed: Success test/subjects/optimization/sccp1.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/sccp2.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/sccp_cast.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/sccp_pre_op.php
@@ -8253,6 +8267,7 @@ InterpretCanonicalUnparsed: Success test/subjects/phc/no-warning.php
 InterpretCanonicalUnparsed: Success test/subjects/phc/oop_assign_to_this1.php
 InterpretCanonicalUnparsed: Success test/subjects/phc/param_is_ref.php
 InterpretCanonicalUnparsed: Success test/subjects/phc/run_once.php
+InterpretCanonicalUnparsed: Success test/subjects/phc/stats.php
 InterpretCanonicalUnparsed: Success test/subjects/php_bugs/26396.php
 InterpretCanonicalUnparsed: Success test/subjects/php_bugs/35106.php
 InterpretCanonicalUnparsed: Success test/subjects/php_bugs/41118.php
@@ -8919,6 +8934,7 @@ InterpretIncludes: Success test/subjects/phc/no-warning.php
 InterpretIncludes: Success test/subjects/phc/oop_assign_to_this1.php
 InterpretIncludes: Success test/subjects/phc/param_is_ref.php
 InterpretIncludes: Success test/subjects/phc/run_once.php
+InterpretIncludes: Success test/subjects/phc/stats.php
 InterpretIncludes: Success test/subjects/php_bugs/26396.php
 InterpretIncludes: Success test/subjects/php_bugs/35106.php
 InterpretIncludes: Success test/subjects/php_bugs/41118.php
@@ -9577,6 +9593,7 @@ InterpretObfuscated: Success test/subjects/phc/no-warning.php
 InterpretObfuscated: Success test/subjects/phc/oop_assign_to_this1.php
 InterpretObfuscated: Success test/subjects/phc/param_is_ref.php
 InterpretObfuscated: Success test/subjects/phc/run_once.php
+InterpretObfuscated: Success test/subjects/phc/stats.php
 InterpretObfuscated: Success test/subjects/php_bugs/26396.php
 InterpretObfuscated: Success test/subjects/php_bugs/35106.php
 InterpretObfuscated: Success test/subjects/php_bugs/41118.php
@@ -10056,6 +10073,7 @@ InterpretOptimized: Success test/subjects/phc/foreach_dump.php
 InterpretOptimized: Success test/subjects/phc/list_passes.php
 InterpretOptimized: Success test/subjects/phc/param_is_ref.php
 InterpretOptimized: Success test/subjects/phc/run_once.php
+InterpretOptimized: Success test/subjects/phc/stats.php
 InterpretOptimized: Success test/subjects/php_bugs/41118.php
 InterpretOptimized: Success test/subjects/reduced/0003.php
 InterpretOptimized: Success test/subjects/reduced/0006.php
@@ -10680,6 +10698,7 @@ NoWhitespace: Success test/subjects/phc/list_passes.php
 NoWhitespace: Success test/subjects/phc/no-warning.php
 NoWhitespace: Success test/subjects/phc/oop_assign_to_this1.php
 NoWhitespace: Success test/subjects/phc/run_once.php
+NoWhitespace: Success test/subjects/phc/stats.php
 NoWhitespace: Success test/subjects/php_bugs/26396.php
 NoWhitespace: Success test/subjects/php_bugs/35106.php
 NoWhitespace: Success test/subjects/php_bugs/41118.php
@@ -11367,6 +11386,7 @@ ParseASTDot: Success test/subjects/phc/no-warning.php
 ParseASTDot: Success test/subjects/phc/oop_assign_to_this1.php
 ParseASTDot: Success test/subjects/phc/param_is_ref.php
 ParseASTDot: Success test/subjects/phc/run_once.php
+ParseASTDot: Success test/subjects/phc/stats.php
 ParseASTDot: Success test/subjects/php_bugs/26396.php
 ParseASTDot: Success test/subjects/php_bugs/35106.php
 ParseASTDot: Success test/subjects/php_bugs/41118.php
@@ -12049,6 +12069,7 @@ ParseTreeDot: Success test/subjects/phc/no-warning.php
 ParseTreeDot: Success test/subjects/phc/oop_assign_to_this1.php
 ParseTreeDot: Success test/subjects/phc/param_is_ref.php
 ParseTreeDot: Success test/subjects/phc/run_once.php
+ParseTreeDot: Success test/subjects/phc/stats.php
 ParseTreeDot: Success test/subjects/php_bugs/26396.php
 ParseTreeDot: Success test/subjects/php_bugs/35106.php
 ParseTreeDot: Success test/subjects/php_bugs/41118.php
@@ -12291,7 +12312,6 @@ Refcounts: Success test/subjects/codegen/undef_var.php
 Refcounts: Success test/subjects/codegen/unset.php
 Refcounts: Success test/subjects/codegen/unset_global_array.php
 Refcounts: Success test/subjects/codegen/unset_multiple.php
-Refcounts: Success test/subjects/codegen/unset_non_array.php
 Refcounts: Success test/subjects/codegen/unset_reference.php
 Refcounts: Success test/subjects/codegen/unset_reference2.php
 Refcounts: Success test/subjects/codegen/unset_reference3.php
@@ -12420,6 +12440,7 @@ Refcounts: Success test/subjects/phc/dump_tokens.php
 Refcounts: Success test/subjects/phc/execute_flag.php
 Refcounts: Success test/subjects/phc/list_passes.php
 Refcounts: Success test/subjects/phc/run_once.php
+Refcounts: Success test/subjects/phc/stats.php
 Refcounts: Success test/subjects/php_bugs/41118.php
 Refcounts: Success test/subjects/reduced/0001.php
 Refcounts: Success test/subjects/reduced/0002.php
@@ -13070,6 +13091,7 @@ ReparseUnparsed: Success test/subjects/phc/no-warning.php
 ReparseUnparsed: Success test/subjects/phc/oop_assign_to_this1.php
 ReparseUnparsed: Success test/subjects/phc/param_is_ref.php
 ReparseUnparsed: Success test/subjects/phc/run_once.php
+ReparseUnparsed: Success test/subjects/phc/stats.php
 ReparseUnparsed: Success test/subjects/php_bugs/26396.php
 ReparseUnparsed: Success test/subjects/php_bugs/35106.php
 ReparseUnparsed: Success test/subjects/php_bugs/41118.php
@@ -13619,7 +13641,6 @@ XML_roundtrip: Success test/subjects/optimization/unknowns.php
 XML_roundtrip: Success test/subjects/optimization/unset_set_vars.php
 XML_roundtrip: Success test/subjects/optimization/var_var_and_unknown.php
 XML_roundtrip: Success test/subjects/parsing/abstractmethods.php
-XML_roundtrip: Success test/subjects/parsing/allchars_inline.php
 XML_roundtrip: Success test/subjects/parsing/allowed_offset_types.php
 XML_roundtrip: Success test/subjects/parsing/arrays.php
 XML_roundtrip: Success test/subjects/parsing/assignments.php
@@ -13759,6 +13780,7 @@ XML_roundtrip: Success test/subjects/phc/no-warning.php
 XML_roundtrip: Success test/subjects/phc/oop_assign_to_this1.php
 XML_roundtrip: Success test/subjects/phc/param_is_ref.php
 XML_roundtrip: Success test/subjects/phc/run_once.php
+XML_roundtrip: Success test/subjects/phc/stats.php
 XML_roundtrip: Success test/subjects/php_bugs/26396.php
 XML_roundtrip: Success test/subjects/php_bugs/35106.php
 XML_roundtrip: Success test/subjects/php_bugs/41118.php
@@ -14420,6 +14442,7 @@ cb_AST-to-HIR: Success test/subjects/phc/no-warning.php
 cb_AST-to-HIR: Success test/subjects/phc/oop_assign_to_this1.php
 cb_AST-to-HIR: Success test/subjects/phc/param_is_ref.php
 cb_AST-to-HIR: Success test/subjects/phc/run_once.php
+cb_AST-to-HIR: Success test/subjects/phc/stats.php
 cb_AST-to-HIR: Success test/subjects/php_bugs/26396.php
 cb_AST-to-HIR: Success test/subjects/php_bugs/35106.php
 cb_AST-to-HIR: Success test/subjects/php_bugs/41118.php
@@ -14935,6 +14958,7 @@ cb_ast: Success test/subjects/optimization/reference2.php
 cb_ast: Success test/subjects/optimization/reference3.php
 cb_ast: Success test/subjects/optimization/remove_for_loop_boolean.php
 cb_ast: Success test/subjects/optimization/rtrim.php
+cb_ast: Success test/subjects/optimization/sccp1.php
 cb_ast: Success test/subjects/optimization/sccp2.php
 cb_ast: Success test/subjects/optimization/sccp_cast.php
 cb_ast: Success test/subjects/optimization/sccp_pre_op.php
@@ -15088,6 +15112,7 @@ cb_ast: Success test/subjects/phc/no-warning.php
 cb_ast: Success test/subjects/phc/oop_assign_to_this1.php
 cb_ast: Success test/subjects/phc/param_is_ref.php
 cb_ast: Success test/subjects/phc/run_once.php
+cb_ast: Success test/subjects/phc/stats.php
 cb_ast: Success test/subjects/php_bugs/26396.php
 cb_ast: Success test/subjects/php_bugs/35106.php
 cb_ast: Success test/subjects/php_bugs/41118.php
@@ -15749,6 +15774,7 @@ cb_hir: Success test/subjects/phc/no-warning.php
 cb_hir: Success test/subjects/phc/oop_assign_to_this1.php
 cb_hir: Success test/subjects/phc/param_is_ref.php
 cb_hir: Success test/subjects/phc/run_once.php
+cb_hir: Success test/subjects/phc/stats.php
 cb_hir: Success test/subjects/php_bugs/26396.php
 cb_hir: Success test/subjects/php_bugs/35106.php
 cb_hir: Success test/subjects/php_bugs/41118.php
@@ -16406,6 +16432,7 @@ cb_mir: Success test/subjects/phc/no-warning.php
 cb_mir: Success test/subjects/phc/oop_assign_to_this1.php
 cb_mir: Success test/subjects/phc/param_is_ref.php
 cb_mir: Success test/subjects/phc/run_once.php
+cb_mir: Success test/subjects/phc/stats.php
 cb_mir: Success test/subjects/php_bugs/26396.php
 cb_mir: Success test/subjects/php_bugs/35106.php
 cb_mir: Success test/subjects/php_bugs/41118.php
@@ -17072,6 +17099,7 @@ cb_sua: Success test/subjects/phc/no-warning.php
 cb_sua: Success test/subjects/phc/oop_assign_to_this1.php
 cb_sua: Success test/subjects/phc/param_is_ref.php
 cb_sua: Success test/subjects/phc/run_once.php
+cb_sua: Success test/subjects/phc/stats.php
 cb_sua: Success test/subjects/php_bugs/26396.php
 cb_sua: Success test/subjects/php_bugs/35106.php
 cb_sua: Success test/subjects/php_bugs/41118.php
@@ -17740,6 +17768,7 @@ mir_dump: Success test/subjects/phc/no-warning.php
 mir_dump: Success test/subjects/phc/oop_assign_to_this1.php
 mir_dump: Success test/subjects/phc/param_is_ref.php
 mir_dump: Success test/subjects/phc/run_once.php
+mir_dump: Success test/subjects/phc/stats.php
 mir_dump: Success test/subjects/php_bugs/26396.php
 mir_dump: Success test/subjects/php_bugs/35106.php
 mir_dump: Success test/subjects/php_bugs/41118.php
@@ -18428,6 +18457,7 @@ plugin_cloning: Success test/subjects/phc/no-warning.php
 plugin_cloning: Success test/subjects/phc/oop_assign_to_this1.php
 plugin_cloning: Success test/subjects/phc/param_is_ref.php
 plugin_cloning: Success test/subjects/phc/run_once.php
+plugin_cloning: Success test/subjects/phc/stats.php
 plugin_cloning: Success test/subjects/php_bugs/26396.php
 plugin_cloning: Success test/subjects/php_bugs/35106.php
 plugin_cloning: Success test/subjects/php_bugs/41118.php
@@ -19119,6 +19149,7 @@ plugin_inconsistent_st_attr: Success test/subjects/phc/no-warning.php
 plugin_inconsistent_st_attr: Success test/subjects/phc/oop_assign_to_this1.php
 plugin_inconsistent_st_attr: Success test/subjects/phc/param_is_ref.php
 plugin_inconsistent_st_attr: Success test/subjects/phc/run_once.php
+plugin_inconsistent_st_attr: Success test/subjects/phc/stats.php
 plugin_inconsistent_st_attr: Success test/subjects/php_bugs/26396.php
 plugin_inconsistent_st_attr: Success test/subjects/php_bugs/35106.php
 plugin_inconsistent_st_attr: Success test/subjects/php_bugs/41118.php
@@ -19810,6 +19841,7 @@ plugin_linear: Success test/subjects/phc/no-warning.php
 plugin_linear: Success test/subjects/phc/oop_assign_to_this1.php
 plugin_linear: Success test/subjects/phc/param_is_ref.php
 plugin_linear: Success test/subjects/phc/run_once.php
+plugin_linear: Success test/subjects/phc/stats.php
 plugin_linear: Success test/subjects/php_bugs/26396.php
 plugin_linear: Success test/subjects/php_bugs/35106.php
 plugin_linear: Success test/subjects/php_bugs/41118.php
@@ -20501,6 +20533,7 @@ plugin_pre_vs_post_count: Success test/subjects/phc/no-warning.php
 plugin_pre_vs_post_count: Success test/subjects/phc/oop_assign_to_this1.php
 plugin_pre_vs_post_count: Success test/subjects/phc/param_is_ref.php
 plugin_pre_vs_post_count: Success test/subjects/phc/run_once.php
+plugin_pre_vs_post_count: Success test/subjects/phc/stats.php
 plugin_pre_vs_post_count: Success test/subjects/php_bugs/26396.php
 plugin_pre_vs_post_count: Success test/subjects/php_bugs/35106.php
 plugin_pre_vs_post_count: Success test/subjects/php_bugs/41118.php
@@ -21192,6 +21225,7 @@ plugin_source_vs_semantic_values: Success test/subjects/phc/no-warning.php
 plugin_source_vs_semantic_values: Success test/subjects/phc/oop_assign_to_this1.php
 plugin_source_vs_semantic_values: Success test/subjects/phc/param_is_ref.php
 plugin_source_vs_semantic_values: Success test/subjects/phc/run_once.php
+plugin_source_vs_semantic_values: Success test/subjects/phc/stats.php
 plugin_source_vs_semantic_values: Success test/subjects/php_bugs/26396.php
 plugin_source_vs_semantic_values: Success test/subjects/php_bugs/35106.php
 plugin_source_vs_semantic_values: Success test/subjects/php_bugs/41118.php
