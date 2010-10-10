@@ -261,9 +261,6 @@ Whole_program::initialize (Context* outer_cx)
 	// This will be here for a while.
 	create_empty_storage (outer_cx, "array", "FAKE");
 
-	// First empty storage node should be assigned with name "array0".
-	next_storage_count = 0;
-
 	// False until we see otherwise
 	this->skip_after_die = false;
 }
@@ -1869,9 +1866,13 @@ Whole_program::unique_count ()
 	return result;
 }
 
-int Whole_program::storage_count() {
-  next_storage_count = storage_counts.top();
-  return next_storage_count++;
+int Whole_program::get_storage_count(Context *ctx) {
+	if (not storage_counts.has(ctx)) {
+		// Next storage count will be update on finish_block accordingly.
+		storage_counts[ctx] = (block_storage_count = next_storage_count);
+	}
+
+	return block_storage_count++;
 }
 
 Context*
@@ -1917,6 +1918,10 @@ Whole_program::init_stacks ()
 	saved_is_refs.push (false);
 	saved_lhss.push (NULL);
 	saved_plhss.push (NULL);
+
+	// First empty storage node should be assigned with name "array0".
+	next_storage_count = 0;
+	block_storage_count = 0;
 }
 
 void
@@ -1933,6 +1938,8 @@ Whole_program::finish_stacks ()
 	saved_is_refs.pop ();
 	saved_lhss.pop ();
 	saved_plhss.pop ();
+
+	storage_counts.clear();
 }
 
 
@@ -1944,14 +1951,16 @@ Whole_program::init_block (Context* cx)
 		destroy_fake_indices (cx);
 
 	block_cxs.push (cx);
-
 	unique_counts.push (0);
-	storage_counts.push(next_storage_count);
 
 	// Blocks which arent assign_var need to see correct results here.
 	saved_is_refs.push (false);
 	saved_lhss.push (NULL);
 	saved_plhss.push (NULL);
+
+	// If the block has a storage count, use it.
+	if (storage_counts.has(cx))
+		block_storage_count = storage_counts[cx];
 }
 
 
@@ -1973,12 +1982,15 @@ Whole_program::finish_block (Context* cx, bool pop)
 
 	if (pop)
 	{
-	  block_cxs.pop ();
-	  unique_counts.pop ();
-	  storage_counts.pop();
-	  saved_is_refs.pop ();
-	  saved_lhss.pop ();
-	  saved_plhss.pop ();
+		block_cxs.pop ();
+		unique_counts.pop ();
+		saved_is_refs.pop ();
+		saved_lhss.pop ();
+		saved_plhss.pop ();
+
+		// Update next_storage if block storage count surpass it.
+		if (block_storage_count > next_storage_count)
+			next_storage_count = block_storage_count;
 	}
 
 	if (pm->args_info->verbose_flag)
@@ -2972,7 +2984,7 @@ Whole_program::create_empty_storage (Context* cx, string type, string name)
 	if (name == "")
 	{
 		// Use a - so that the convert_context_name hack doesnt get confused.
-		name = cx->storage_name (type + lexical_cast<string>(storage_count()));
+		name = cx->storage_name (type + lexical_cast<string>(get_storage_count(cx)));
 	}
 
 	Storage_node* st = SN (name);

@@ -123,9 +123,12 @@ public:
 	/*
 	 * Empty storage counts.
 	 */
-	int next_storage_count; // Keep track of newly created empty storage nodes.
-	Stack<int> storage_counts;
-	int storage_count();
+	CX_map<int> storage_counts;
+
+	// Keep track of newly created empty storage nodes
+	// for the whole system and for each basic block.
+	int next_storage_count, block_storage_count;
+	int get_storage_count(Context *ctx);
 
 	/*
 	 * Block contexts.
