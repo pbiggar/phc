@@ -217,11 +217,11 @@ function phc_error_handler ($errno, $errstr, $errfile, $errline, $errcontext)
 }
 set_error_handler ("phc_error_handler");
 
+$status_file_names = array ("failure", "skipped", "success", "timeout", "results", "pure", "impure");
 function open_status_files ()
 {
-	global $status_files;
-	global $log_directory;
-	foreach (array ("failure", "skipped", "success", "timeout", "results", "pure", "impure") as $status)
+  global $status_file_names, $status_files, $log_directory;
+	foreach ($status_file_names as $status)
 	{
 		$status_files[$status] = fopen ("$log_directory/$status", "w") or die ("Cannot open $status file\n");
 	}
@@ -250,6 +250,18 @@ function close_status_files ()
 	global $status_files;
 	foreach ($status_files as $file)
 		fclose ($file);
+
+	// Sort them
+	global $log_directory, $status_file_names;
+	foreach ($status_file_names as $filename)
+	{
+    $log_file = "$log_directory/$filename";
+    $lines = file_get_contents($log_file);
+    $lines = explode("\n", $lines);
+    sort ($lines, SORT_STRING);
+    $lines = implode("\n", $lines);
+		file_put_contents($log_file, $lines);
+	}
 }
 
 // $matches means the command line arguments, which are regexes.
@@ -257,6 +269,7 @@ function close_status_files ()
 function diff_status_files ($matches = array(), $quick=false)
 {
 	print "Comparing to expected:\n";
+ 
 	global $log_directory;
 	foreach (array("failure", "skipped", "success", "timeout") as $status)
 	{
@@ -375,7 +388,7 @@ function diff ($string1, $string2)
 function log_failure ($test_name, $subject, $commands, $outs, $errs, $exits, $missing_dependency, $reason)
 {
 	$red = red_string();
-	$reset = reset_string();
+  $reset = reset_string();
 
 	// I can't find where this comes from.
 	if (count ($commands < count ($exits)))
