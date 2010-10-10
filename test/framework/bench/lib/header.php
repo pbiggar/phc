@@ -123,6 +123,8 @@ function phc_error_handler ($errno, $errstr, $errfile, $errline, $errcontext)
 	global $strict;
 	if (error_reporting() == 0) return; // means the @ suppression was used
 	if ($errno === E_STRICT && $strict == false) return;
+	if ($errno === E_WARNING && $strict == false) return;
+	if ($errno === E_USER_WARNING && $strict == false) return;
 
 	$red = red_string ();
 	$reset = reset_string();
@@ -159,7 +161,7 @@ function phc_error_handler ($errno, $errstr, $errfile, $errline, $errcontext)
 		$frame = $backtrace[$i];
 		$function = $frame{"function"};
 		$object = $frame{"object"};
-		$class = get_class($frame{"object"});
+		$class = @get_class($frame{"object"});
 		$type = $frame{"type"};
 
 		/* skip trigger_error and multiple asserts */
@@ -215,11 +217,11 @@ function phc_error_handler ($errno, $errstr, $errfile, $errline, $errcontext)
 }
 set_error_handler ("phc_error_handler");
 
+$status_file_names = array ("failure", "skipped", "success", "timeout", "results", "pure", "impure");
 function open_status_files ()
 {
-	global $status_files;
-	global $log_directory;
-	foreach (array ("failure", "skipped", "success", "timeout", "results", "pure", "impure") as $status)
+  global $status_file_names, $status_files, $log_directory;
+	foreach ($status_file_names as $status)
 	{
 		$status_files[$status] = fopen ("$log_directory/$status", "w") or die ("Cannot open $status file\n");
 	}
@@ -248,7 +250,63 @@ function close_status_files ()
 	global $status_files;
 	foreach ($status_files as $file)
 		fclose ($file);
+
+	// Sort them
+	global $log_directory, $status_file_names;
+	foreach ($status_file_names as $filename)
+	{
+    $log_file = "$log_directory/$filename";
+    $lines = file_get_contents($log_file);
+    $lines = explode("\n", $lines);
+    sort ($lines, SORT_STRING);
+    $lines = implode("\n", $lines);
+		file_put_contents($log_file, $lines);
+	}
 }
+
+// $matches means the command line arguments, which are regexes.
+// $quick means only the top 10 files are used, so ignore the '-'s.
+function diff_status_files ($matches = array(), $quick=false)
+{
+	print "Comparing to expected:\n";
+ 
+	global $log_directory;
+	foreach (array("failure", "skipped", "success", "timeout") as $status)
+	{
+		$log_file = "$log_directory/$status";
+		$expected_file = "test/expected_results/$status";
+
+		$cmd = "diff $expected_file $log_file -U 0";
+
+		if ($quick)
+		{
+			$cmd .= ' | grep -v \'^-\'';
+		}
+		$result = `$cmd`;
+		$result = preg_split ('/\n/', $result);
+
+		if (count ($matches))
+		{
+			$output = array();
+			foreach ($result as $line)
+			{
+				foreach ($matches as $match)
+				{
+					if (preg_match ("/$match/", $line))
+					{
+						$output[] = $line;
+						break;
+					}
+				}
+			}
+			$result = $output;
+		}
+		$result = join("\n", $result);
+		print $result;
+	}
+}
+
+
 
 function phc_assert ($boolean, $message)
 {
@@ -330,9 +388,18 @@ function diff ($string1, $string2)
 function log_failure ($test_name, $subject, $commands, $outs, $errs, $exits, $missing_dependency, $reason)
 {
 	$red = red_string();
-	$reset = reset_string();
+  $reset = reset_string();
 
-	// we have 1 or more outputs, only 1 error, and 1 or more commands, with the same number of error codes as commands
+	// I can't find where this comes from.
+	if (count ($commands < count ($exits)))
+		$commands[] = "Missing command";
+
+	assert (count ($outs) == count ($errs));
+	assert (count ($exits) == count ($errs));
+	assert (count ($commands) == count ($errs));
+
+	// We have 1 or more outputs, only 1 error, and 1 or more commands, with the
+	// same number of error codes as commands
 	$err_string = "";
 	if (is_array ($commands))
 	{
@@ -354,7 +421,14 @@ function log_failure ($test_name, $subject, $commands, $outs, $errs, $exits, $mi
 			$err_string = "";
 			foreach ($exits as $i => $exit)
 			{
+				if (!isset ($commands[$i]))
+				{
+					var_dump ($outs, $exits, $commands, $errs);
+					die ();
+				}
+
 				$command = $commands[$i];
+
 				$err = $errs [$i];
 				$command_string .= "{$red}Command $i$reset ($exit): $command\n";
 				if ($err)
@@ -461,7 +535,7 @@ function complete_exec($command, $stdin = NULL, $timeout = 20, $pass_through = f
 									1 => array("pipe", "w"),
 									2 => array("pipe", "w"));
 	$pipes = array();
-	$handle = proc_open($command, $descriptorspec, &$pipes, getcwd());
+	$handle = proc_open($command, $descriptorspec, $pipes, getcwd());
 	
 	# read stdin into the process
 	if ($stdin !== NULL)
@@ -534,7 +608,7 @@ function kill_properly (&$handle, &$pipes)
 	# proc_terminate kills the shell process, but won't kill a runaway infinite
 	# loop. Get the child processes using ps, before killing the parent.
 	$ppid = $status["pid"];
-	$pids = split ("/\s+/", trim (`ps -o pid --no-heading --ppid $ppid`));
+	$pids = preg_split ("/\s+/", trim (`ps -o pid --no-heading --ppid $ppid`));
 
 	# if we dont close pipes, we can create deadlock, leaving zombie processes.
 	foreach ($pipes as &$pipe) fclose ($pipe);
@@ -561,7 +635,7 @@ function check_for_plugin ($plugin_name)
 function check_for_program ($program_name)
 {
 	// only use the first word
-	$program_names = split (" ", $program_name);
+	$program_names = explode (" ", $program_name);
 	$program_name = $program_names[0];
 
 	return ($program_name !== "" 
@@ -751,6 +825,12 @@ function homogenize_all ($string, $filename)
 
 function copy_to_working_dir ($file)
 {
+	# I'm fairly sure this doesn't work properly since we libtool'ed up. To fix 
+	# it, we'd need to copy the .libs directory, and make sure the bash scripts 
+	# that libtool sets up instead of phc have all their dependencies set right.
+	return $file;
+
+
 	global $working_directory;
 	$filename = basename ($file);
 	$new_file = "$working_directory/$filename";
