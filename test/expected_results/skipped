@@ -2425,7 +2425,6 @@ InterpretIncludes: Skipped test/subjects/errors/sticks.php - Test failed depende
 InterpretIncludes: Skipped test/subjects/errors/try_catch_break.php - Test failed dependency
 InterpretIncludes: Skipped test/subjects/optimization/array_use.php - Test failed dependency
 InterpretIncludes: Skipped test/subjects/optimization/dce_foreach1.php - Test failed dependency
-InterpretIncludes: Skipped test/subjects/optimization/gettimeofday.php - Test failed dependency
 InterpretIncludes: Skipped test/subjects/optimization/may_defs.php - Test failed dependency
 InterpretIncludes: Skipped test/subjects/optimization/sccp1.php - Test failed dependency
 InterpretIncludes: Skipped test/subjects/parsing/functions.php - Test failed dependency
@@ -3327,7 +3326,6 @@ cb_AST-to-HIR: Skipped test/subjects/errors/sticks.php - Test failed dependency
 cb_AST-to-HIR: Skipped test/subjects/errors/try_catch_break.php - Test failed dependency
 cb_AST-to-HIR: Skipped test/subjects/optimization/array_use.php - Test failed dependency
 cb_AST-to-HIR: Skipped test/subjects/optimization/dce_foreach1.php - Test failed dependency
-cb_AST-to-HIR: Skipped test/subjects/optimization/gettimeofday.php - Test failed dependency
 cb_AST-to-HIR: Skipped test/subjects/optimization/may_defs.php - Test failed dependency
 cb_AST-to-HIR: Skipped test/subjects/optimization/sccp1.php - Test failed dependency
 cb_AST-to-HIR: Skipped test/subjects/parsing/capital_ticks.php - Test excepted
@@ -3584,8 +3582,8 @@ cb_sua: Skipped test/subjects/errors/sticks.php - Test failed dependency
 cb_sua: Skipped test/subjects/errors/try_catch_break.php - Test failed dependency
 cb_sua: Skipped test/subjects/optimization/array_use.php - Test failed dependency
 cb_sua: Skipped test/subjects/optimization/dce_foreach1.php - Test failed dependency
-cb_sua: Skipped test/subjects/optimization/gettimeofday.php - Test failed dependency
 cb_sua: Skipped test/subjects/optimization/may_defs.php - Test failed dependency
+cb_sua: Skipped test/subjects/optimization/sccp1.php - Test failed dependency
 cb_sua: Skipped test/subjects/parsing/functions.php - Test failed dependency
 cb_sua: Skipped test/subjects/parsing/line_and_co.php - Test failed dependency
 cb_sua: Skipped test/subjects/parsing/scoped_function.php - Test failed dependency

@@ -338,6 +338,5 @@ InterpretOptimized: Timeout test/subjects/php_bugs/26396.php
 InterpretOptimized: Timeout test/subjects/php_bugs/35106.php
 Refcounts: Timeout test/subjects/codegen/loop_separation1.php
 Refcounts: Timeout test/subjects/codegen/loop_separation2.php
-Refcounts: Timeout test/subjects/codegen/unset_non_array.php
 XML_roundtrip: Timeout test/subjects/parsing/allchars_inline.php
 XML_roundtrip: Timeout test/subjects/parsing/constant_folding.php

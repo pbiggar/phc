@@ -72,9 +72,12 @@ class CompilePluginTest extends AsyncTest
 		# phc_compile_plugin only allows CFLAGS and LDFLAGS, even
 		# though we use CPPFLAGS
 		if ($trunk_CPPFLAGS)
-			$CPPFLAGS = "CFLAGS=$trunk_CPPFLAGS";
+			$CPPFLAGS = "$trunk_CPPFLAGS";
 		else
-			$CPPFLAGS = "";
+			$CPPFLAGS = "''";
+
+		$CPPFLAGS[0] = ' ';
+		$CPPFLAGS="CFLAGS='-Wno-deprecated $CPPFLAGS";
 
 		$async->commands[0] = "$CPPFLAGS $phc_compile_plugin $plugin_name.cpp";
 		$async->err_handlers[0] = "fail_on_output";
