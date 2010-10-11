@@ -450,6 +450,7 @@ Annotated_test: Success test/subjects/inline-c/hashref2.php
 Annotated_test: Success test/subjects/inline-c/hello-c.php
 Annotated_test: Success test/subjects/inline-c/refcount.php
 Annotated_test: Success test/subjects/optimization/address_taken.php
+Annotated_test: Success test/subjects/optimization/array_loop.php
 Annotated_test: Success test/subjects/optimization/array_pop.php
 Annotated_test: Success test/subjects/optimization/array_use.php
 Annotated_test: Success test/subjects/optimization/assignment_to_indirect.php
@@ -763,6 +764,7 @@ BasicFastOptAnalyseTest: Success test/subjects/bugs/bug0020.php
 BasicFastOptAnalyseTest: Success test/subjects/bugs/bug0021.php
 BasicFastOptAnalyseTest: Success test/subjects/bugs/bug0022.php
 BasicFastOptAnalyseTest: Success test/subjects/bugs/bug0023.php
+BasicFastOptAnalyseTest: Success test/subjects/bugs/bug0024.php
 BasicFastOptAnalyseTest: Success test/subjects/bugs/bug0025.php
 BasicFastOptAnalyseTest: Success test/subjects/bugs/bug0027.php
 BasicFastOptAnalyseTest: Success test/subjects/bugs/bug0030.php
@@ -777,6 +779,8 @@ BasicFastOptAnalyseTest: Success test/subjects/codegen/001c.php
 BasicFastOptAnalyseTest: Success test/subjects/codegen/002.php
 BasicFastOptAnalyseTest: Success test/subjects/codegen/004.php
 BasicFastOptAnalyseTest: Success test/subjects/codegen/005.php
+BasicFastOptAnalyseTest: Success test/subjects/codegen/008.php
+BasicFastOptAnalyseTest: Success test/subjects/codegen/008a.php
 BasicFastOptAnalyseTest: Success test/subjects/codegen/010.php
 BasicFastOptAnalyseTest: Success test/subjects/codegen/011.php
 BasicFastOptAnalyseTest: Success test/subjects/codegen/012.php
@@ -810,9 +814,15 @@ BasicFastOptAnalyseTest: Success test/subjects/codegen/assign_to_variable_variab
 BasicFastOptAnalyseTest: Success test/subjects/codegen/assignment.php
 BasicFastOptAnalyseTest: Success test/subjects/codegen/assignment2.php
 BasicFastOptAnalyseTest: Success test/subjects/codegen/assignment3.php
+BasicFastOptAnalyseTest: Success test/subjects/codegen/bench_ary.php
+BasicFastOptAnalyseTest: Success test/subjects/codegen/bench_ary2.php
+BasicFastOptAnalyseTest: Success test/subjects/codegen/bench_ary3.php
+BasicFastOptAnalyseTest: Success test/subjects/codegen/bench_hash1.php
+BasicFastOptAnalyseTest: Success test/subjects/codegen/bench_hash2.php
 BasicFastOptAnalyseTest: Success test/subjects/codegen/bench_mandel.php
 BasicFastOptAnalyseTest: Success test/subjects/codegen/bench_mandel2.php
 BasicFastOptAnalyseTest: Success test/subjects/codegen/bench_nested_loop.php
+BasicFastOptAnalyseTest: Success test/subjects/codegen/bench_sieve.php
 BasicFastOptAnalyseTest: Success test/subjects/codegen/bench_simple.php
 BasicFastOptAnalyseTest: Success test/subjects/codegen/bench_simplecall.php
 BasicFastOptAnalyseTest: Success test/subjects/codegen/bench_simpleucall.php
@@ -860,6 +870,10 @@ BasicFastOptAnalyseTest: Success test/subjects/codegen/exit_alone.php
 BasicFastOptAnalyseTest: Success test/subjects/codegen/for_nested.php
 BasicFastOptAnalyseTest: Success test/subjects/codegen/for_simple.php
 BasicFastOptAnalyseTest: Success test/subjects/codegen/for_varying_cond.php
+BasicFastOptAnalyseTest: Success test/subjects/codegen/foreach_expr.php
+BasicFastOptAnalyseTest: Success test/subjects/codegen/foreach_ref_expr.php
+BasicFastOptAnalyseTest: Success test/subjects/codegen/foreach_shocking.php
+BasicFastOptAnalyseTest: Success test/subjects/codegen/foreach_simple.php
 BasicFastOptAnalyseTest: Success test/subjects/codegen/four_adds.php
 BasicFastOptAnalyseTest: Success test/subjects/codegen/function_call_index.php
 BasicFastOptAnalyseTest: Success test/subjects/codegen/global.php
@@ -1015,7 +1029,6 @@ BasicFastOptAnalyseTest: Success test/subjects/codegen/while_as_do_while.php
 BasicFastOptAnalyseTest: Success test/subjects/codegen/while_nested.php
 BasicFastOptAnalyseTest: Success test/subjects/codegen/while_simple.php
 BasicFastOptAnalyseTest: Success test/subjects/codegen/wordy_operators.php
-BasicFastOptAnalyseTest: Success test/subjects/codegen/write_var_var.php
 BasicFastOptAnalyseTest: Success test/subjects/horrible/ifscope.php
 BasicFastOptAnalyseTest: Success test/subjects/horrible/static_member_invocation.php
 BasicFastOptAnalyseTest: Success test/subjects/horrible/whilescope.php
@@ -1040,6 +1053,7 @@ BasicFastOptAnalyseTest: Success test/subjects/optimization/field_on_nonobjects.
 BasicFastOptAnalyseTest: Success test/subjects/optimization/global_references.php
 BasicFastOptAnalyseTest: Success test/subjects/optimization/identity_assignment.php
 BasicFastOptAnalyseTest: Success test/subjects/optimization/ifs.php
+BasicFastOptAnalyseTest: Success test/subjects/optimization/implicit.php
 BasicFastOptAnalyseTest: Success test/subjects/optimization/init_lattice.php
 BasicFastOptAnalyseTest: Success test/subjects/optimization/initialized_vars.php
 BasicFastOptAnalyseTest: Success test/subjects/optimization/is_obj_or_array.php
@@ -1069,12 +1083,12 @@ BasicFastOptAnalyseTest: Success test/subjects/optimization/sccp_return.php
 BasicFastOptAnalyseTest: Success test/subjects/optimization/sccp_uninit.php
 BasicFastOptAnalyseTest: Success test/subjects/optimization/scti_integer.php
 BasicFastOptAnalyseTest: Success test/subjects/optimization/simple2.php
+BasicFastOptAnalyseTest: Success test/subjects/optimization/simple_example.php
 BasicFastOptAnalyseTest: Success test/subjects/optimization/ssi.php
 BasicFastOptAnalyseTest: Success test/subjects/optimization/static_value_constant.php
 BasicFastOptAnalyseTest: Success test/subjects/optimization/two_objects.php
 BasicFastOptAnalyseTest: Success test/subjects/optimization/unknowns.php
 BasicFastOptAnalyseTest: Success test/subjects/optimization/unset_set_vars.php
-BasicFastOptAnalyseTest: Success test/subjects/optimization/var_var_and_unknown.php
 BasicFastOptAnalyseTest: Success test/subjects/parsing/abstractmethods.php
 BasicFastOptAnalyseTest: Success test/subjects/parsing/arrays.php
 BasicFastOptAnalyseTest: Success test/subjects/parsing/assignments.php
@@ -1095,6 +1109,7 @@ BasicFastOptAnalyseTest: Success test/subjects/parsing/endofscriptincomment1.php
 BasicFastOptAnalyseTest: Success test/subjects/parsing/endofscriptincomment2.php
 BasicFastOptAnalyseTest: Success test/subjects/parsing/exit.php
 BasicFastOptAnalyseTest: Success test/subjects/parsing/for_cond_with_comma.php
+BasicFastOptAnalyseTest: Success test/subjects/parsing/foreach_expansion.php
 BasicFastOptAnalyseTest: Success test/subjects/parsing/functioncalls.php
 BasicFastOptAnalyseTest: Success test/subjects/parsing/functiontarget.php
 BasicFastOptAnalyseTest: Success test/subjects/parsing/good_hint.php
@@ -1203,6 +1218,9 @@ BasicFastOptAnalyseTest: Success test/subjects/reduced/0040.php
 BasicFastOptAnalyseTest: Success test/subjects/reduced/0041.php
 BasicFastOptAnalyseTest: Success test/subjects/reduced/0042.php
 BasicFastOptAnalyseTest: Success test/subjects/reduced/0043.php
+BasicFastOptAnalyseTest: Success test/subjects/reduced/0044.php
+BasicFastOptAnalyseTest: Success test/subjects/reduced/0045.php
+BasicFastOptAnalyseTest: Success test/subjects/reduced/0046.php
 BasicFastOptAnalyseTest: Success test/subjects/reduced/0047.php
 BasicFastOptAnalyseTest: Success test/subjects/reduced/0048.php
 BasicFastOptAnalyseTest: Success test/subjects/reduced/0049.php
@@ -1232,6 +1250,7 @@ BasicFastOptimizeTest: Success test/subjects/bugs/bug0020.php
 BasicFastOptimizeTest: Success test/subjects/bugs/bug0021.php
 BasicFastOptimizeTest: Success test/subjects/bugs/bug0022.php
 BasicFastOptimizeTest: Success test/subjects/bugs/bug0023.php
+BasicFastOptimizeTest: Success test/subjects/bugs/bug0024.php
 BasicFastOptimizeTest: Success test/subjects/bugs/bug0025.php
 BasicFastOptimizeTest: Success test/subjects/bugs/bug0027.php
 BasicFastOptimizeTest: Success test/subjects/bugs/bug0030.php
@@ -1246,6 +1265,8 @@ BasicFastOptimizeTest: Success test/subjects/codegen/001c.php
 BasicFastOptimizeTest: Success test/subjects/codegen/002.php
 BasicFastOptimizeTest: Success test/subjects/codegen/004.php
 BasicFastOptimizeTest: Success test/subjects/codegen/005.php
+BasicFastOptimizeTest: Success test/subjects/codegen/008.php
+BasicFastOptimizeTest: Success test/subjects/codegen/008a.php
 BasicFastOptimizeTest: Success test/subjects/codegen/010.php
 BasicFastOptimizeTest: Success test/subjects/codegen/011.php
 BasicFastOptimizeTest: Success test/subjects/codegen/012.php
@@ -1279,7 +1300,12 @@ BasicFastOptimizeTest: Success test/subjects/codegen/assign_to_variable_variable
 BasicFastOptimizeTest: Success test/subjects/codegen/assignment.php
 BasicFastOptimizeTest: Success test/subjects/codegen/assignment2.php
 BasicFastOptimizeTest: Success test/subjects/codegen/assignment3.php
+BasicFastOptimizeTest: Success test/subjects/codegen/bench_ary.php
+BasicFastOptimizeTest: Success test/subjects/codegen/bench_ary2.php
+BasicFastOptimizeTest: Success test/subjects/codegen/bench_ary3.php
+BasicFastOptimizeTest: Success test/subjects/codegen/bench_hash1.php
 BasicFastOptimizeTest: Success test/subjects/codegen/bench_nested_loop.php
+BasicFastOptimizeTest: Success test/subjects/codegen/bench_sieve.php
 BasicFastOptimizeTest: Success test/subjects/codegen/bench_simple.php
 BasicFastOptimizeTest: Success test/subjects/codegen/bench_simplecall.php
 BasicFastOptimizeTest: Success test/subjects/codegen/bench_simpleucall.php
@@ -1322,6 +1348,8 @@ BasicFastOptimizeTest: Success test/subjects/codegen/exit_alone.php
 BasicFastOptimizeTest: Success test/subjects/codegen/for_nested.php
 BasicFastOptimizeTest: Success test/subjects/codegen/for_simple.php
 BasicFastOptimizeTest: Success test/subjects/codegen/for_varying_cond.php
+BasicFastOptimizeTest: Success test/subjects/codegen/foreach_shocking.php
+BasicFastOptimizeTest: Success test/subjects/codegen/foreach_simple.php
 BasicFastOptimizeTest: Success test/subjects/codegen/four_adds.php
 BasicFastOptimizeTest: Success test/subjects/codegen/function_call_index.php
 BasicFastOptimizeTest: Success test/subjects/codegen/global.php
@@ -1372,7 +1400,6 @@ BasicFastOptimizeTest: Success test/subjects/codegen/just_string.php
 BasicFastOptimizeTest: Success test/subjects/codegen/key_test.php
 BasicFastOptimizeTest: Success test/subjects/codegen/lazy_op.php
 BasicFastOptimizeTest: Success test/subjects/codegen/leak_on_exit.php
-BasicFastOptimizeTest: Success test/subjects/codegen/list_assignment.php
 BasicFastOptimizeTest: Success test/subjects/codegen/long_opeq.php
 BasicFastOptimizeTest: Success test/subjects/codegen/multi_array_access.php
 BasicFastOptimizeTest: Success test/subjects/codegen/multi_way_merge.php
@@ -1477,7 +1504,6 @@ BasicFastOptimizeTest: Success test/subjects/codegen/while_as_do_while.php
 BasicFastOptimizeTest: Success test/subjects/codegen/while_nested.php
 BasicFastOptimizeTest: Success test/subjects/codegen/while_simple.php
 BasicFastOptimizeTest: Success test/subjects/codegen/wordy_operators.php
-BasicFastOptimizeTest: Success test/subjects/codegen/write_var_var.php
 BasicFastOptimizeTest: Success test/subjects/horrible/ifscope.php
 BasicFastOptimizeTest: Success test/subjects/horrible/static_member_invocation.php
 BasicFastOptimizeTest: Success test/subjects/horrible/whilescope.php
@@ -1502,6 +1528,7 @@ BasicFastOptimizeTest: Success test/subjects/optimization/field_on_nonobjects.ph
 BasicFastOptimizeTest: Success test/subjects/optimization/global_references.php
 BasicFastOptimizeTest: Success test/subjects/optimization/identity_assignment.php
 BasicFastOptimizeTest: Success test/subjects/optimization/ifs.php
+BasicFastOptimizeTest: Success test/subjects/optimization/implicit.php
 BasicFastOptimizeTest: Success test/subjects/optimization/init_lattice.php
 BasicFastOptimizeTest: Success test/subjects/optimization/initialized_vars.php
 BasicFastOptimizeTest: Success test/subjects/optimization/is_obj_or_array.php
@@ -1531,14 +1558,13 @@ BasicFastOptimizeTest: Success test/subjects/optimization/sccp_return.php
 BasicFastOptimizeTest: Success test/subjects/optimization/sccp_uninit.php
 BasicFastOptimizeTest: Success test/subjects/optimization/scti_integer.php
 BasicFastOptimizeTest: Success test/subjects/optimization/simple2.php
+BasicFastOptimizeTest: Success test/subjects/optimization/simple_example.php
 BasicFastOptimizeTest: Success test/subjects/optimization/ssi.php
 BasicFastOptimizeTest: Success test/subjects/optimization/static_value_constant.php
 BasicFastOptimizeTest: Success test/subjects/optimization/two_objects.php
 BasicFastOptimizeTest: Success test/subjects/optimization/unknowns.php
 BasicFastOptimizeTest: Success test/subjects/optimization/unset_set_vars.php
-BasicFastOptimizeTest: Success test/subjects/optimization/var_var_and_unknown.php
 BasicFastOptimizeTest: Success test/subjects/parsing/abstractmethods.php
-BasicFastOptimizeTest: Success test/subjects/parsing/arrays.php
 BasicFastOptimizeTest: Success test/subjects/parsing/assignments.php
 BasicFastOptimizeTest: Success test/subjects/parsing/attributes.php
 BasicFastOptimizeTest: Success test/subjects/parsing/backtick.php
@@ -1557,6 +1583,7 @@ BasicFastOptimizeTest: Success test/subjects/parsing/endofscriptincomment1.php
 BasicFastOptimizeTest: Success test/subjects/parsing/endofscriptincomment2.php
 BasicFastOptimizeTest: Success test/subjects/parsing/exit.php
 BasicFastOptimizeTest: Success test/subjects/parsing/for_cond_with_comma.php
+BasicFastOptimizeTest: Success test/subjects/parsing/foreach_expansion.php
 BasicFastOptimizeTest: Success test/subjects/parsing/functioncalls.php
 BasicFastOptimizeTest: Success test/subjects/parsing/functiontarget.php
 BasicFastOptimizeTest: Success test/subjects/parsing/good_hint.php
@@ -1665,6 +1692,9 @@ BasicFastOptimizeTest: Success test/subjects/reduced/0040.php
 BasicFastOptimizeTest: Success test/subjects/reduced/0041.php
 BasicFastOptimizeTest: Success test/subjects/reduced/0042.php
 BasicFastOptimizeTest: Success test/subjects/reduced/0043.php
+BasicFastOptimizeTest: Success test/subjects/reduced/0044.php
+BasicFastOptimizeTest: Success test/subjects/reduced/0045.php
+BasicFastOptimizeTest: Success test/subjects/reduced/0046.php
 BasicFastOptimizeTest: Success test/subjects/reduced/0047.php
 BasicFastOptimizeTest: Success test/subjects/reduced/0048.php
 BasicFastOptimizeTest: Success test/subjects/reduced/0049.php
@@ -1694,6 +1724,7 @@ BasicIgnoreOutputFastOptimizeTest: Success test/subjects/bugs/bug0020.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/bugs/bug0021.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/bugs/bug0022.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/bugs/bug0023.php
+BasicIgnoreOutputFastOptimizeTest: Success test/subjects/bugs/bug0024.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/bugs/bug0025.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/bugs/bug0027.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/bugs/bug0030.php
@@ -1708,6 +1739,8 @@ BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/001c.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/002.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/004.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/005.php
+BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/008.php
+BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/008a.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/010.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/011.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/012.php
@@ -1741,7 +1774,12 @@ BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/assign_to_varia
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/assignment.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/assignment2.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/assignment3.php
+BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/bench_ary.php
+BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/bench_ary2.php
+BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/bench_ary3.php
+BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/bench_hash1.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/bench_nested_loop.php
+BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/bench_sieve.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/bench_simple.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/bench_simplecall.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/bench_simpleucall.php
@@ -1784,6 +1822,8 @@ BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/exit_alone.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/for_nested.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/for_simple.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/for_varying_cond.php
+BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/foreach_shocking.php
+BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/foreach_simple.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/four_adds.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/function_call_index.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/global.php
@@ -1834,7 +1874,6 @@ BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/just_string.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/key_test.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/lazy_op.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/leak_on_exit.php
-BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/list_assignment.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/long_opeq.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/multi_array_access.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/multi_way_merge.php
@@ -1939,7 +1978,6 @@ BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/while_as_do_whi
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/while_nested.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/while_simple.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/wordy_operators.php
-BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/write_var_var.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/horrible/ifscope.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/horrible/static_member_invocation.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/horrible/whilescope.php
@@ -1964,6 +2002,7 @@ BasicIgnoreOutputFastOptimizeTest: Success test/subjects/optimization/field_on_n
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/optimization/global_references.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/optimization/identity_assignment.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/optimization/ifs.php
+BasicIgnoreOutputFastOptimizeTest: Success test/subjects/optimization/implicit.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/optimization/init_lattice.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/optimization/initialized_vars.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/optimization/is_obj_or_array.php
@@ -1993,14 +2032,13 @@ BasicIgnoreOutputFastOptimizeTest: Success test/subjects/optimization/sccp_retur
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/optimization/sccp_uninit.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/optimization/scti_integer.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/optimization/simple2.php
+BasicIgnoreOutputFastOptimizeTest: Success test/subjects/optimization/simple_example.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/optimization/ssi.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/optimization/static_value_constant.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/optimization/two_objects.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/optimization/unknowns.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/optimization/unset_set_vars.php
-BasicIgnoreOutputFastOptimizeTest: Success test/subjects/optimization/var_var_and_unknown.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/parsing/abstractmethods.php
-BasicIgnoreOutputFastOptimizeTest: Success test/subjects/parsing/arrays.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/parsing/assignments.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/parsing/attributes.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/parsing/backtick.php
@@ -2019,6 +2057,7 @@ BasicIgnoreOutputFastOptimizeTest: Success test/subjects/parsing/endofscriptinco
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/parsing/endofscriptincomment2.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/parsing/exit.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/parsing/for_cond_with_comma.php
+BasicIgnoreOutputFastOptimizeTest: Success test/subjects/parsing/foreach_expansion.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/parsing/functioncalls.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/parsing/functiontarget.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/parsing/good_hint.php
@@ -2127,6 +2166,9 @@ BasicIgnoreOutputFastOptimizeTest: Success test/subjects/reduced/0040.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/reduced/0041.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/reduced/0042.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/reduced/0043.php
+BasicIgnoreOutputFastOptimizeTest: Success test/subjects/reduced/0044.php
+BasicIgnoreOutputFastOptimizeTest: Success test/subjects/reduced/0045.php
+BasicIgnoreOutputFastOptimizeTest: Success test/subjects/reduced/0046.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/reduced/0047.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/reduced/0048.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/reduced/0049.php
@@ -2156,6 +2198,7 @@ BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/bugs/bug0020.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/bugs/bug0021.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/bugs/bug0022.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/bugs/bug0023.php
+BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/bugs/bug0024.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/bugs/bug0025.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/bugs/bug0027.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/bugs/bug0030.php
@@ -2170,6 +2213,8 @@ BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/001c.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/002.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/004.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/005.php
+BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/008.php
+BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/008a.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/010.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/011.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/012.php
@@ -2203,9 +2248,14 @@ BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/assign_to_va
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/assignment.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/assignment2.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/assignment3.php
+BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/bench_ary.php
+BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/bench_ary3.php
+BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/bench_hash1.php
+BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/bench_hash2.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/bench_mandel.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/bench_mandel2.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/bench_nested_loop.php
+BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/bench_sieve.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/bench_simple.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/bench_simplecall.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/bench_simpleucall.php
@@ -2254,7 +2304,10 @@ BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/exit_alone.p
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/for_nested.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/for_simple.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/for_varying_cond.php
+BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/foreach_expr.php
+BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/foreach_ref_expr.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/foreach_shocking.php
+BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/foreach_simple.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/four_adds.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/function_call_index.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/global.php
@@ -2362,6 +2415,7 @@ BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/return.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/return_by_reference_compiled.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/return_by_reference_sep.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/return_by_reference_sep_runtime.php
+BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/reuse_array.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/run_time_array_key.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/separate_return_by_ref.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/codegen/shred_pre_op_target.php
@@ -2439,6 +2493,7 @@ BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/optimization/field_o
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/optimization/global_references.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/optimization/identity_assignment.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/optimization/ifs.php
+BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/optimization/implicit.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/optimization/init_lattice.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/optimization/initialized_vars.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/optimization/is_obj_or_array.php
@@ -2456,6 +2511,7 @@ BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/optimization/pixy2_f
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/optimization/pixy2_fig7.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/optimization/pixy2_fig8.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/optimization/pixy2_fig9.php
+BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/optimization/points_to.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/optimization/pull_maybe_null_with_references.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/optimization/ref_via_unknown.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/optimization/reference1.php
@@ -2469,6 +2525,7 @@ BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/optimization/sccp_re
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/optimization/sccp_uninit.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/optimization/scti_integer.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/optimization/simple2.php
+BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/optimization/simple_example.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/optimization/ssi.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/optimization/static_value_constant.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/optimization/two_objects.php
@@ -2572,6 +2629,7 @@ BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/phc/oop_assign_to_th
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/phc/param_is_ref.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/phc/run_once.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/phc/stats.php
+BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/php_bugs/35106.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/php_bugs/41118.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/reduced/0003.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/reduced/0006.php
@@ -3030,6 +3088,7 @@ BasicParseTest: Success test/subjects/inline-c/hashref2.php
 BasicParseTest: Success test/subjects/inline-c/hello-c.php
 BasicParseTest: Success test/subjects/inline-c/refcount.php
 BasicParseTest: Success test/subjects/optimization/address_taken.php
+BasicParseTest: Success test/subjects/optimization/array_loop.php
 BasicParseTest: Success test/subjects/optimization/array_pop.php
 BasicParseTest: Success test/subjects/optimization/array_use.php
 BasicParseTest: Success test/subjects/optimization/assignment_to_indirect.php
@@ -3328,6 +3387,7 @@ BasicPreciseOptAnalyseTest: Success test/subjects/bugs/bug0020.php
 BasicPreciseOptAnalyseTest: Success test/subjects/bugs/bug0021.php
 BasicPreciseOptAnalyseTest: Success test/subjects/bugs/bug0022.php
 BasicPreciseOptAnalyseTest: Success test/subjects/bugs/bug0023.php
+BasicPreciseOptAnalyseTest: Success test/subjects/bugs/bug0024.php
 BasicPreciseOptAnalyseTest: Success test/subjects/bugs/bug0025.php
 BasicPreciseOptAnalyseTest: Success test/subjects/bugs/bug0027.php
 BasicPreciseOptAnalyseTest: Success test/subjects/bugs/bug0030.php
@@ -3342,6 +3402,8 @@ BasicPreciseOptAnalyseTest: Success test/subjects/codegen/001c.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/002.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/004.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/005.php
+BasicPreciseOptAnalyseTest: Success test/subjects/codegen/008.php
+BasicPreciseOptAnalyseTest: Success test/subjects/codegen/008a.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/010.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/011.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/012.php
@@ -3375,9 +3437,15 @@ BasicPreciseOptAnalyseTest: Success test/subjects/codegen/assign_to_variable_var
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/assignment.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/assignment2.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/assignment3.php
+BasicPreciseOptAnalyseTest: Success test/subjects/codegen/bench_ary.php
+BasicPreciseOptAnalyseTest: Success test/subjects/codegen/bench_ary2.php
+BasicPreciseOptAnalyseTest: Success test/subjects/codegen/bench_ary3.php
+BasicPreciseOptAnalyseTest: Success test/subjects/codegen/bench_hash1.php
+BasicPreciseOptAnalyseTest: Success test/subjects/codegen/bench_hash2.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/bench_mandel.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/bench_mandel2.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/bench_nested_loop.php
+BasicPreciseOptAnalyseTest: Success test/subjects/codegen/bench_sieve.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/bench_simple.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/bench_simplecall.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/bench_simpleucall.php
@@ -3426,7 +3494,10 @@ BasicPreciseOptAnalyseTest: Success test/subjects/codegen/exit_alone.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/for_nested.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/for_simple.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/for_varying_cond.php
+BasicPreciseOptAnalyseTest: Success test/subjects/codegen/foreach_expr.php
+BasicPreciseOptAnalyseTest: Success test/subjects/codegen/foreach_ref_expr.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/foreach_shocking.php
+BasicPreciseOptAnalyseTest: Success test/subjects/codegen/foreach_simple.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/four_adds.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/function_call_index.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/global.php
@@ -3534,6 +3605,7 @@ BasicPreciseOptAnalyseTest: Success test/subjects/codegen/return.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/return_by_reference_compiled.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/return_by_reference_sep.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/return_by_reference_sep_runtime.php
+BasicPreciseOptAnalyseTest: Success test/subjects/codegen/reuse_array.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/run_time_array_key.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/separate_return_by_ref.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/shred_pre_op_target.php
@@ -3588,6 +3660,8 @@ BasicPreciseOptAnalyseTest: Success test/subjects/codegen/while_simple.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/wordy_operators.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/write_var_var.php
 BasicPreciseOptAnalyseTest: Success test/subjects/horrible/ifscope.php
+BasicPreciseOptAnalyseTest: Success test/subjects/horrible/invocation_priorities.php
+BasicPreciseOptAnalyseTest: Success test/subjects/horrible/method_invocation.php
 BasicPreciseOptAnalyseTest: Success test/subjects/horrible/static_member_invocation.php
 BasicPreciseOptAnalyseTest: Success test/subjects/horrible/whilescope.php
 BasicPreciseOptAnalyseTest: Success test/subjects/optimization/address_taken.php
@@ -3611,6 +3685,7 @@ BasicPreciseOptAnalyseTest: Success test/subjects/optimization/field_on_nonobjec
 BasicPreciseOptAnalyseTest: Success test/subjects/optimization/global_references.php
 BasicPreciseOptAnalyseTest: Success test/subjects/optimization/identity_assignment.php
 BasicPreciseOptAnalyseTest: Success test/subjects/optimization/ifs.php
+BasicPreciseOptAnalyseTest: Success test/subjects/optimization/implicit.php
 BasicPreciseOptAnalyseTest: Success test/subjects/optimization/init_lattice.php
 BasicPreciseOptAnalyseTest: Success test/subjects/optimization/initialized_vars.php
 BasicPreciseOptAnalyseTest: Success test/subjects/optimization/is_obj_or_array.php
@@ -3628,6 +3703,7 @@ BasicPreciseOptAnalyseTest: Success test/subjects/optimization/pixy2_fig6.php
 BasicPreciseOptAnalyseTest: Success test/subjects/optimization/pixy2_fig7.php
 BasicPreciseOptAnalyseTest: Success test/subjects/optimization/pixy2_fig8.php
 BasicPreciseOptAnalyseTest: Success test/subjects/optimization/pixy2_fig9.php
+BasicPreciseOptAnalyseTest: Success test/subjects/optimization/points_to.php
 BasicPreciseOptAnalyseTest: Success test/subjects/optimization/pull_maybe_null_with_references.php
 BasicPreciseOptAnalyseTest: Success test/subjects/optimization/ref_via_unknown.php
 BasicPreciseOptAnalyseTest: Success test/subjects/optimization/reference1.php
@@ -3641,6 +3717,7 @@ BasicPreciseOptAnalyseTest: Success test/subjects/optimization/sccp_return.php
 BasicPreciseOptAnalyseTest: Success test/subjects/optimization/sccp_uninit.php
 BasicPreciseOptAnalyseTest: Success test/subjects/optimization/scti_integer.php
 BasicPreciseOptAnalyseTest: Success test/subjects/optimization/simple2.php
+BasicPreciseOptAnalyseTest: Success test/subjects/optimization/simple_example.php
 BasicPreciseOptAnalyseTest: Success test/subjects/optimization/ssi.php
 BasicPreciseOptAnalyseTest: Success test/subjects/optimization/static_value_constant.php
 BasicPreciseOptAnalyseTest: Success test/subjects/optimization/two_objects.php
@@ -3707,6 +3784,7 @@ BasicPreciseOptAnalyseTest: Success test/subjects/parsing/instring_simple_object
 BasicPreciseOptAnalyseTest: Success test/subjects/parsing/instring_simple_string_array.php
 BasicPreciseOptAnalyseTest: Success test/subjects/parsing/instring_simple_var_array.php
 BasicPreciseOptAnalyseTest: Success test/subjects/parsing/instring_single_var.php
+BasicPreciseOptAnalyseTest: Success test/subjects/parsing/invocation.php
 BasicPreciseOptAnalyseTest: Success test/subjects/parsing/isset.php
 BasicPreciseOptAnalyseTest: Success test/subjects/parsing/layout1.php
 BasicPreciseOptAnalyseTest: Success test/subjects/parsing/layout2.php
@@ -3745,6 +3823,7 @@ BasicPreciseOptAnalyseTest: Success test/subjects/phc/oop_assign_to_this1.php
 BasicPreciseOptAnalyseTest: Success test/subjects/phc/param_is_ref.php
 BasicPreciseOptAnalyseTest: Success test/subjects/phc/run_once.php
 BasicPreciseOptAnalyseTest: Success test/subjects/phc/stats.php
+BasicPreciseOptAnalyseTest: Success test/subjects/php_bugs/35106.php
 BasicPreciseOptAnalyseTest: Success test/subjects/php_bugs/41118.php
 BasicPreciseOptAnalyseTest: Success test/subjects/reduced/0003.php
 BasicPreciseOptAnalyseTest: Success test/subjects/reduced/0006.php
@@ -3809,6 +3888,7 @@ BasicPreciseOptimizeTest: Success test/subjects/bugs/bug0020.php
 BasicPreciseOptimizeTest: Success test/subjects/bugs/bug0021.php
 BasicPreciseOptimizeTest: Success test/subjects/bugs/bug0022.php
 BasicPreciseOptimizeTest: Success test/subjects/bugs/bug0023.php
+BasicPreciseOptimizeTest: Success test/subjects/bugs/bug0024.php
 BasicPreciseOptimizeTest: Success test/subjects/bugs/bug0025.php
 BasicPreciseOptimizeTest: Success test/subjects/bugs/bug0027.php
 BasicPreciseOptimizeTest: Success test/subjects/bugs/bug0030.php
@@ -3823,6 +3903,8 @@ BasicPreciseOptimizeTest: Success test/subjects/codegen/001c.php
 BasicPreciseOptimizeTest: Success test/subjects/codegen/002.php
 BasicPreciseOptimizeTest: Success test/subjects/codegen/004.php
 BasicPreciseOptimizeTest: Success test/subjects/codegen/005.php
+BasicPreciseOptimizeTest: Success test/subjects/codegen/008.php
+BasicPreciseOptimizeTest: Success test/subjects/codegen/008a.php
 BasicPreciseOptimizeTest: Success test/subjects/codegen/010.php
 BasicPreciseOptimizeTest: Success test/subjects/codegen/011.php
 BasicPreciseOptimizeTest: Success test/subjects/codegen/012.php
@@ -3856,9 +3938,14 @@ BasicPreciseOptimizeTest: Success test/subjects/codegen/assign_to_variable_varia
 BasicPreciseOptimizeTest: Success test/subjects/codegen/assignment.php
 BasicPreciseOptimizeTest: Success test/subjects/codegen/assignment2.php
 BasicPreciseOptimizeTest: Success test/subjects/codegen/assignment3.php
+BasicPreciseOptimizeTest: Success test/subjects/codegen/bench_ary.php
+BasicPreciseOptimizeTest: Success test/subjects/codegen/bench_ary3.php
+BasicPreciseOptimizeTest: Success test/subjects/codegen/bench_hash1.php
+BasicPreciseOptimizeTest: Success test/subjects/codegen/bench_hash2.php
 BasicPreciseOptimizeTest: Success test/subjects/codegen/bench_mandel.php
 BasicPreciseOptimizeTest: Success test/subjects/codegen/bench_mandel2.php
 BasicPreciseOptimizeTest: Success test/subjects/codegen/bench_nested_loop.php
+BasicPreciseOptimizeTest: Success test/subjects/codegen/bench_sieve.php
 BasicPreciseOptimizeTest: Success test/subjects/codegen/bench_simple.php
 BasicPreciseOptimizeTest: Success test/subjects/codegen/bench_simplecall.php
 BasicPreciseOptimizeTest: Success test/subjects/codegen/bench_simpleucall.php
@@ -3907,7 +3994,10 @@ BasicPreciseOptimizeTest: Success test/subjects/codegen/exit_alone.php
 BasicPreciseOptimizeTest: Success test/subjects/codegen/for_nested.php
 BasicPreciseOptimizeTest: Success test/subjects/codegen/for_simple.php
 BasicPreciseOptimizeTest: Success test/subjects/codegen/for_varying_cond.php
+BasicPreciseOptimizeTest: Success test/subjects/codegen/foreach_expr.php
+BasicPreciseOptimizeTest: Success test/subjects/codegen/foreach_ref_expr.php
 BasicPreciseOptimizeTest: Success test/subjects/codegen/foreach_shocking.php
+BasicPreciseOptimizeTest: Success test/subjects/codegen/foreach_simple.php
 BasicPreciseOptimizeTest: Success test/subjects/codegen/four_adds.php
 BasicPreciseOptimizeTest: Success test/subjects/codegen/function_call_index.php
 BasicPreciseOptimizeTest: Success test/subjects/codegen/global.php
@@ -4015,6 +4105,7 @@ BasicPreciseOptimizeTest: Success test/subjects/codegen/return.php
 BasicPreciseOptimizeTest: Success test/subjects/codegen/return_by_reference_compiled.php
 BasicPreciseOptimizeTest: Success test/subjects/codegen/return_by_reference_sep.php
 BasicPreciseOptimizeTest: Success test/subjects/codegen/return_by_reference_sep_runtime.php
+BasicPreciseOptimizeTest: Success test/subjects/codegen/reuse_array.php
 BasicPreciseOptimizeTest: Success test/subjects/codegen/run_time_array_key.php
 BasicPreciseOptimizeTest: Success test/subjects/codegen/separate_return_by_ref.php
 BasicPreciseOptimizeTest: Success test/subjects/codegen/shred_pre_op_target.php
@@ -4092,6 +4183,7 @@ BasicPreciseOptimizeTest: Success test/subjects/optimization/field_on_nonobjects
 BasicPreciseOptimizeTest: Success test/subjects/optimization/global_references.php
 BasicPreciseOptimizeTest: Success test/subjects/optimization/identity_assignment.php
 BasicPreciseOptimizeTest: Success test/subjects/optimization/ifs.php
+BasicPreciseOptimizeTest: Success test/subjects/optimization/implicit.php
 BasicPreciseOptimizeTest: Success test/subjects/optimization/init_lattice.php
 BasicPreciseOptimizeTest: Success test/subjects/optimization/initialized_vars.php
 BasicPreciseOptimizeTest: Success test/subjects/optimization/is_obj_or_array.php
@@ -4109,6 +4201,7 @@ BasicPreciseOptimizeTest: Success test/subjects/optimization/pixy2_fig6.php
 BasicPreciseOptimizeTest: Success test/subjects/optimization/pixy2_fig7.php
 BasicPreciseOptimizeTest: Success test/subjects/optimization/pixy2_fig8.php
 BasicPreciseOptimizeTest: Success test/subjects/optimization/pixy2_fig9.php
+BasicPreciseOptimizeTest: Success test/subjects/optimization/points_to.php
 BasicPreciseOptimizeTest: Success test/subjects/optimization/pull_maybe_null_with_references.php
 BasicPreciseOptimizeTest: Success test/subjects/optimization/ref_via_unknown.php
 BasicPreciseOptimizeTest: Success test/subjects/optimization/reference1.php
@@ -4122,6 +4215,7 @@ BasicPreciseOptimizeTest: Success test/subjects/optimization/sccp_return.php
 BasicPreciseOptimizeTest: Success test/subjects/optimization/sccp_uninit.php
 BasicPreciseOptimizeTest: Success test/subjects/optimization/scti_integer.php
 BasicPreciseOptimizeTest: Success test/subjects/optimization/simple2.php
+BasicPreciseOptimizeTest: Success test/subjects/optimization/simple_example.php
 BasicPreciseOptimizeTest: Success test/subjects/optimization/ssi.php
 BasicPreciseOptimizeTest: Success test/subjects/optimization/static_value_constant.php
 BasicPreciseOptimizeTest: Success test/subjects/optimization/two_objects.php
@@ -4225,6 +4319,7 @@ BasicPreciseOptimizeTest: Success test/subjects/phc/oop_assign_to_this1.php
 BasicPreciseOptimizeTest: Success test/subjects/phc/param_is_ref.php
 BasicPreciseOptimizeTest: Success test/subjects/phc/run_once.php
 BasicPreciseOptimizeTest: Success test/subjects/phc/stats.php
+BasicPreciseOptimizeTest: Success test/subjects/php_bugs/35106.php
 BasicPreciseOptimizeTest: Success test/subjects/php_bugs/41118.php
 BasicPreciseOptimizeTest: Success test/subjects/reduced/0003.php
 BasicPreciseOptimizeTest: Success test/subjects/reduced/0006.php
@@ -4287,6 +4382,7 @@ CompileOptimized: Success test/subjects/bugs/bug0019.php
 CompileOptimized: Success test/subjects/bugs/bug0020.php
 CompileOptimized: Success test/subjects/bugs/bug0022.php
 CompileOptimized: Success test/subjects/bugs/bug0023.php
+CompileOptimized: Success test/subjects/bugs/bug0024.php
 CompileOptimized: Success test/subjects/bugs/bug0027.php
 CompileOptimized: Success test/subjects/bugs/bug0031.php
 CompileOptimized: Success test/subjects/bugs/bug0032.php
@@ -4298,6 +4394,8 @@ CompileOptimized: Success test/subjects/codegen/001c.php
 CompileOptimized: Success test/subjects/codegen/002.php
 CompileOptimized: Success test/subjects/codegen/004.php
 CompileOptimized: Success test/subjects/codegen/005.php
+CompileOptimized: Success test/subjects/codegen/008.php
+CompileOptimized: Success test/subjects/codegen/008a.php
 CompileOptimized: Success test/subjects/codegen/010.php
 CompileOptimized: Success test/subjects/codegen/011.php
 CompileOptimized: Success test/subjects/codegen/012.php
@@ -4329,9 +4427,14 @@ CompileOptimized: Success test/subjects/codegen/assign_to_variable_variable.php
 CompileOptimized: Success test/subjects/codegen/assignment.php
 CompileOptimized: Success test/subjects/codegen/assignment2.php
 CompileOptimized: Success test/subjects/codegen/assignment3.php
+CompileOptimized: Success test/subjects/codegen/bench_ary.php
+CompileOptimized: Success test/subjects/codegen/bench_ary3.php
+CompileOptimized: Success test/subjects/codegen/bench_hash1.php
+CompileOptimized: Success test/subjects/codegen/bench_hash2.php
 CompileOptimized: Success test/subjects/codegen/bench_mandel.php
 CompileOptimized: Success test/subjects/codegen/bench_mandel2.php
 CompileOptimized: Success test/subjects/codegen/bench_nested_loop.php
+CompileOptimized: Success test/subjects/codegen/bench_sieve.php
 CompileOptimized: Success test/subjects/codegen/bench_simple.php
 CompileOptimized: Success test/subjects/codegen/bench_simplecall.php
 CompileOptimized: Success test/subjects/codegen/bench_simpleucall.php
@@ -4376,6 +4479,8 @@ CompileOptimized: Success test/subjects/codegen/empty_exit.php
 CompileOptimized: Success test/subjects/codegen/exit_alone.php
 CompileOptimized: Success test/subjects/codegen/for_nested.php
 CompileOptimized: Success test/subjects/codegen/for_simple.php
+CompileOptimized: Success test/subjects/codegen/foreach_expr.php
+CompileOptimized: Success test/subjects/codegen/foreach_ref_expr.php
 CompileOptimized: Success test/subjects/codegen/foreach_shocking.php
 CompileOptimized: Success test/subjects/codegen/four_adds.php
 CompileOptimized: Success test/subjects/codegen/function_call_index.php
@@ -4391,7 +4496,6 @@ CompileOptimized: Success test/subjects/codegen/ignore_errors1.php
 CompileOptimized: Success test/subjects/codegen/ignore_errors2.php
 CompileOptimized: Success test/subjects/codegen/index_array.php
 CompileOptimized: Success test/subjects/codegen/indexing_non_arrays.php
-CompileOptimized: Success test/subjects/codegen/indexing_with_odd_keys.php
 CompileOptimized: Success test/subjects/codegen/indirect_arrays.php
 CompileOptimized: Success test/subjects/codegen/indirect_global.php
 CompileOptimized: Success test/subjects/codegen/inlinable_function.php
@@ -4461,6 +4565,7 @@ CompileOptimized: Success test/subjects/codegen/return.php
 CompileOptimized: Success test/subjects/codegen/return_by_reference_compiled.php
 CompileOptimized: Success test/subjects/codegen/return_by_reference_sep.php
 CompileOptimized: Success test/subjects/codegen/return_by_reference_sep_runtime.php
+CompileOptimized: Success test/subjects/codegen/reuse_array.php
 CompileOptimized: Success test/subjects/codegen/run_time_array_key.php
 CompileOptimized: Success test/subjects/codegen/separate_return_by_ref.php
 CompileOptimized: Success test/subjects/codegen/simple_array_assign.php
@@ -4529,6 +4634,7 @@ CompileOptimized: Success test/subjects/optimization/essa.php
 CompileOptimized: Success test/subjects/optimization/global_references.php
 CompileOptimized: Success test/subjects/optimization/identity_assignment.php
 CompileOptimized: Success test/subjects/optimization/ifs.php
+CompileOptimized: Success test/subjects/optimization/implicit.php
 CompileOptimized: Success test/subjects/optimization/init_lattice.php
 CompileOptimized: Success test/subjects/optimization/initialized_vars.php
 CompileOptimized: Success test/subjects/optimization/is_obj_or_array.php
@@ -4545,6 +4651,7 @@ CompileOptimized: Success test/subjects/optimization/pixy2_fig6.php
 CompileOptimized: Success test/subjects/optimization/pixy2_fig7.php
 CompileOptimized: Success test/subjects/optimization/pixy2_fig8.php
 CompileOptimized: Success test/subjects/optimization/pixy2_fig9.php
+CompileOptimized: Success test/subjects/optimization/points_to.php
 CompileOptimized: Success test/subjects/optimization/pull_maybe_null_with_references.php
 CompileOptimized: Success test/subjects/optimization/ref_via_unknown.php
 CompileOptimized: Success test/subjects/optimization/reference1.php
@@ -4558,10 +4665,10 @@ CompileOptimized: Success test/subjects/optimization/sccp_return.php
 CompileOptimized: Success test/subjects/optimization/sccp_uninit.php
 CompileOptimized: Success test/subjects/optimization/scti_integer.php
 CompileOptimized: Success test/subjects/optimization/simple2.php
+CompileOptimized: Success test/subjects/optimization/simple_example.php
 CompileOptimized: Success test/subjects/optimization/ssi.php
 CompileOptimized: Success test/subjects/optimization/unknowns.php
 CompileOptimized: Success test/subjects/optimization/unset_set_vars.php
-CompileOptimized: Success test/subjects/optimization/var_var_and_unknown.php
 CompileOptimized: Success test/subjects/parsing/abstractmethods.php
 CompileOptimized: Success test/subjects/parsing/arrays.php
 CompileOptimized: Success test/subjects/parsing/assignments.php
@@ -4641,6 +4748,7 @@ CompileOptimized: Success test/subjects/phc/execute_flag.php
 CompileOptimized: Success test/subjects/phc/list_passes.php
 CompileOptimized: Success test/subjects/phc/run_once.php
 CompileOptimized: Success test/subjects/phc/stats.php
+CompileOptimized: Success test/subjects/php_bugs/35106.php
 CompileOptimized: Success test/subjects/php_bugs/41118.php
 CompileOptimized: Success test/subjects/reduced/0003.php
 CompileOptimized: Success test/subjects/reduced/0006.php
@@ -5056,6 +5164,7 @@ CompiledVsInterpreted: Success test/subjects/horrible/ifscope.php
 CompiledVsInterpreted: Success test/subjects/horrible/static_member_invocation.php
 CompiledVsInterpreted: Success test/subjects/horrible/whilescope.php
 CompiledVsInterpreted: Success test/subjects/optimization/address_taken.php
+CompiledVsInterpreted: Success test/subjects/optimization/array_loop.php
 CompiledVsInterpreted: Success test/subjects/optimization/array_pop.php
 CompiledVsInterpreted: Success test/subjects/optimization/assignment_to_indirect.php
 CompiledVsInterpreted: Success test/subjects/optimization/bad_sccp.php
@@ -5467,7 +5576,7 @@ Demi_eval_false: Success test/subjects/codegen/lazy_op.php
 Demi_eval_false: Success test/subjects/codegen/leak_on_exit.php
 Demi_eval_false: Success test/subjects/codegen/list_assignment.php
 Demi_eval_false: Success test/subjects/codegen/long_opeq.php
-Demi_eval_false: Success test/subjects/codegen/loop_separation2.php
+Demi_eval_false: Success test/subjects/codegen/loop_separation1.php
 Demi_eval_false: Success test/subjects/codegen/masquarading_int_keys.php
 Demi_eval_false: Success test/subjects/codegen/multi_array_access.php
 Demi_eval_false: Success test/subjects/codegen/multi_way_merge.php
@@ -6010,7 +6119,7 @@ Demi_eval_true: Success test/subjects/codegen/lazy_op.php
 Demi_eval_true: Success test/subjects/codegen/leak_on_exit.php
 Demi_eval_true: Success test/subjects/codegen/list_assignment.php
 Demi_eval_true: Success test/subjects/codegen/long_opeq.php
-Demi_eval_true: Success test/subjects/codegen/loop_separation1.php
+Demi_eval_true: Success test/subjects/codegen/loop_separation2.php
 Demi_eval_true: Success test/subjects/codegen/masquarading_int_keys.php
 Demi_eval_true: Success test/subjects/codegen/multi_array_access.php
 Demi_eval_true: Success test/subjects/codegen/multi_way_merge.php
@@ -6149,6 +6258,7 @@ Demi_eval_true: Success test/subjects/errors/string_index_reference_assignment.p
 Demi_eval_true: Success test/subjects/horrible/ifscope.php
 Demi_eval_true: Success test/subjects/horrible/whilescope.php
 Demi_eval_true: Success test/subjects/optimization/address_taken.php
+Demi_eval_true: Success test/subjects/optimization/array_loop.php
 Demi_eval_true: Success test/subjects/optimization/array_pop.php
 Demi_eval_true: Success test/subjects/optimization/assignment_to_indirect.php
 Demi_eval_true: Success test/subjects/optimization/bad_sccp.php
@@ -6742,6 +6852,7 @@ Generate_C: Success test/subjects/horrible/obfuscated_foreach.php
 Generate_C: Success test/subjects/horrible/static_member_invocation.php
 Generate_C: Success test/subjects/horrible/whilescope.php
 Generate_C: Success test/subjects/optimization/address_taken.php
+Generate_C: Success test/subjects/optimization/array_loop.php
 Generate_C: Success test/subjects/optimization/array_pop.php
 Generate_C: Success test/subjects/optimization/assignment_to_indirect.php
 Generate_C: Success test/subjects/optimization/bad_sccp.php
@@ -7396,6 +7507,7 @@ HIR-to-MIR_dump: Success test/subjects/inline-c/hashref2.php
 HIR-to-MIR_dump: Success test/subjects/inline-c/hello-c.php
 HIR-to-MIR_dump: Success test/subjects/inline-c/refcount.php
 HIR-to-MIR_dump: Success test/subjects/optimization/address_taken.php
+HIR-to-MIR_dump: Success test/subjects/optimization/array_loop.php
 HIR-to-MIR_dump: Success test/subjects/optimization/array_pop.php
 HIR-to-MIR_dump: Success test/subjects/optimization/assignment_to_indirect.php
 HIR-to-MIR_dump: Success test/subjects/optimization/bad_sccp.php
@@ -8063,6 +8175,7 @@ InterpretCanonicalUnparsed: Success test/subjects/horrible/obfuscated_foreach.ph
 InterpretCanonicalUnparsed: Success test/subjects/horrible/static_member_invocation.php
 InterpretCanonicalUnparsed: Success test/subjects/horrible/whilescope.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/address_taken.php
+InterpretCanonicalUnparsed: Success test/subjects/optimization/array_loop.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/array_pop.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/assignment_to_indirect.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/bad_sccp.php
@@ -8735,6 +8848,7 @@ InterpretIncludes: Success test/subjects/horrible/obfuscated_foreach.php
 InterpretIncludes: Success test/subjects/horrible/static_member_invocation.php
 InterpretIncludes: Success test/subjects/horrible/whilescope.php
 InterpretIncludes: Success test/subjects/optimization/address_taken.php
+InterpretIncludes: Success test/subjects/optimization/array_loop.php
 InterpretIncludes: Success test/subjects/optimization/array_pop.php
 InterpretIncludes: Success test/subjects/optimization/assignment_to_indirect.php
 InterpretIncludes: Success test/subjects/optimization/bad_sccp.php
@@ -9398,6 +9512,7 @@ InterpretObfuscated: Success test/subjects/horrible/obfuscated_foreach.php
 InterpretObfuscated: Success test/subjects/horrible/static_member_invocation.php
 InterpretObfuscated: Success test/subjects/horrible/whilescope.php
 InterpretObfuscated: Success test/subjects/optimization/address_taken.php
+InterpretObfuscated: Success test/subjects/optimization/array_loop.php
 InterpretObfuscated: Success test/subjects/optimization/array_pop.php
 InterpretObfuscated: Success test/subjects/optimization/assignment_to_indirect.php
 InterpretObfuscated: Success test/subjects/optimization/bad_sccp.php
@@ -9676,6 +9791,7 @@ InterpretOptimized: Success test/subjects/bugs/bug0020.php
 InterpretOptimized: Success test/subjects/bugs/bug0021.php
 InterpretOptimized: Success test/subjects/bugs/bug0022.php
 InterpretOptimized: Success test/subjects/bugs/bug0023.php
+InterpretOptimized: Success test/subjects/bugs/bug0024.php
 InterpretOptimized: Success test/subjects/bugs/bug0025.php
 InterpretOptimized: Success test/subjects/bugs/bug0027.php
 InterpretOptimized: Success test/subjects/bugs/bug0031.php
@@ -9689,6 +9805,8 @@ InterpretOptimized: Success test/subjects/codegen/001c.php
 InterpretOptimized: Success test/subjects/codegen/002.php
 InterpretOptimized: Success test/subjects/codegen/004.php
 InterpretOptimized: Success test/subjects/codegen/005.php
+InterpretOptimized: Success test/subjects/codegen/008.php
+InterpretOptimized: Success test/subjects/codegen/008a.php
 InterpretOptimized: Success test/subjects/codegen/010.php
 InterpretOptimized: Success test/subjects/codegen/011.php
 InterpretOptimized: Success test/subjects/codegen/012.php
@@ -9721,9 +9839,14 @@ InterpretOptimized: Success test/subjects/codegen/assign_to_variable_variable.ph
 InterpretOptimized: Success test/subjects/codegen/assignment.php
 InterpretOptimized: Success test/subjects/codegen/assignment2.php
 InterpretOptimized: Success test/subjects/codegen/assignment3.php
+InterpretOptimized: Success test/subjects/codegen/bench_ary.php
+InterpretOptimized: Success test/subjects/codegen/bench_ary3.php
+InterpretOptimized: Success test/subjects/codegen/bench_hash1.php
+InterpretOptimized: Success test/subjects/codegen/bench_hash2.php
 InterpretOptimized: Success test/subjects/codegen/bench_mandel.php
 InterpretOptimized: Success test/subjects/codegen/bench_mandel2.php
 InterpretOptimized: Success test/subjects/codegen/bench_nested_loop.php
+InterpretOptimized: Success test/subjects/codegen/bench_sieve.php
 InterpretOptimized: Success test/subjects/codegen/bench_simple.php
 InterpretOptimized: Success test/subjects/codegen/bench_simplecall.php
 InterpretOptimized: Success test/subjects/codegen/bench_simpleucall.php
@@ -9771,6 +9894,8 @@ InterpretOptimized: Success test/subjects/codegen/empty_exit.php
 InterpretOptimized: Success test/subjects/codegen/exit_alone.php
 InterpretOptimized: Success test/subjects/codegen/for_nested.php
 InterpretOptimized: Success test/subjects/codegen/for_simple.php
+InterpretOptimized: Success test/subjects/codegen/foreach_expr.php
+InterpretOptimized: Success test/subjects/codegen/foreach_ref_expr.php
 InterpretOptimized: Success test/subjects/codegen/foreach_shocking.php
 InterpretOptimized: Success test/subjects/codegen/four_adds.php
 InterpretOptimized: Success test/subjects/codegen/function_call_index.php
@@ -9788,7 +9913,6 @@ InterpretOptimized: Success test/subjects/codegen/include_once_and_include.php
 InterpretOptimized: Success test/subjects/codegen/increment.php
 InterpretOptimized: Success test/subjects/codegen/index_array.php
 InterpretOptimized: Success test/subjects/codegen/index_object.php
-InterpretOptimized: Success test/subjects/codegen/indexing_with_odd_keys.php
 InterpretOptimized: Success test/subjects/codegen/indirect_arrays.php
 InterpretOptimized: Success test/subjects/codegen/indirect_fields.php
 InterpretOptimized: Success test/subjects/codegen/indirect_global.php
@@ -9871,6 +9995,7 @@ InterpretOptimized: Success test/subjects/codegen/return.php
 InterpretOptimized: Success test/subjects/codegen/return_by_reference_compiled.php
 InterpretOptimized: Success test/subjects/codegen/return_by_reference_sep.php
 InterpretOptimized: Success test/subjects/codegen/return_by_reference_sep_runtime.php
+InterpretOptimized: Success test/subjects/codegen/reuse_array.php
 InterpretOptimized: Success test/subjects/codegen/run_time_array_key.php
 InterpretOptimized: Success test/subjects/codegen/separate_return_by_ref.php
 InterpretOptimized: Success test/subjects/codegen/shred_pre_op_target.php
@@ -9946,6 +10071,7 @@ InterpretOptimized: Success test/subjects/optimization/field_on_nonobjects.php
 InterpretOptimized: Success test/subjects/optimization/global_references.php
 InterpretOptimized: Success test/subjects/optimization/identity_assignment.php
 InterpretOptimized: Success test/subjects/optimization/ifs.php
+InterpretOptimized: Success test/subjects/optimization/implicit.php
 InterpretOptimized: Success test/subjects/optimization/init_lattice.php
 InterpretOptimized: Success test/subjects/optimization/initialized_vars.php
 InterpretOptimized: Success test/subjects/optimization/is_obj_or_array.php
@@ -9963,6 +10089,7 @@ InterpretOptimized: Success test/subjects/optimization/pixy2_fig6.php
 InterpretOptimized: Success test/subjects/optimization/pixy2_fig7.php
 InterpretOptimized: Success test/subjects/optimization/pixy2_fig8.php
 InterpretOptimized: Success test/subjects/optimization/pixy2_fig9.php
+InterpretOptimized: Success test/subjects/optimization/points_to.php
 InterpretOptimized: Success test/subjects/optimization/pull_maybe_null_with_references.php
 InterpretOptimized: Success test/subjects/optimization/ref_via_unknown.php
 InterpretOptimized: Success test/subjects/optimization/reference1.php
@@ -9976,6 +10103,7 @@ InterpretOptimized: Success test/subjects/optimization/sccp_return.php
 InterpretOptimized: Success test/subjects/optimization/sccp_uninit.php
 InterpretOptimized: Success test/subjects/optimization/scti_integer.php
 InterpretOptimized: Success test/subjects/optimization/simple2.php
+InterpretOptimized: Success test/subjects/optimization/simple_example.php
 InterpretOptimized: Success test/subjects/optimization/ssi.php
 InterpretOptimized: Success test/subjects/optimization/static_value_constant.php
 InterpretOptimized: Success test/subjects/optimization/two_objects.php
@@ -10076,6 +10204,7 @@ InterpretOptimized: Success test/subjects/phc/list_passes.php
 InterpretOptimized: Success test/subjects/phc/param_is_ref.php
 InterpretOptimized: Success test/subjects/phc/run_once.php
 InterpretOptimized: Success test/subjects/phc/stats.php
+InterpretOptimized: Success test/subjects/php_bugs/35106.php
 InterpretOptimized: Success test/subjects/php_bugs/41118.php
 InterpretOptimized: Success test/subjects/reduced/0003.php
 InterpretOptimized: Success test/subjects/reduced/0006.php
@@ -10509,6 +10638,7 @@ NoWhitespace: Success test/subjects/horrible/obfuscated_foreach.php
 NoWhitespace: Success test/subjects/horrible/static_member_invocation.php
 NoWhitespace: Success test/subjects/horrible/whilescope.php
 NoWhitespace: Success test/subjects/optimization/address_taken.php
+NoWhitespace: Success test/subjects/optimization/array_loop.php
 NoWhitespace: Success test/subjects/optimization/array_pop.php
 NoWhitespace: Success test/subjects/optimization/array_use.php
 NoWhitespace: Success test/subjects/optimization/bad_sccp.php
@@ -11174,6 +11304,7 @@ ParseASTDot: Success test/subjects/inline-c/hashref2.php
 ParseASTDot: Success test/subjects/inline-c/hello-c.php
 ParseASTDot: Success test/subjects/inline-c/refcount.php
 ParseASTDot: Success test/subjects/optimization/address_taken.php
+ParseASTDot: Success test/subjects/optimization/array_loop.php
 ParseASTDot: Success test/subjects/optimization/array_pop.php
 ParseASTDot: Success test/subjects/optimization/array_use.php
 ParseASTDot: Success test/subjects/optimization/assignment_to_indirect.php
@@ -11860,6 +11991,7 @@ ParseTreeDot: Success test/subjects/inline-c/hashref2.php
 ParseTreeDot: Success test/subjects/inline-c/hello-c.php
 ParseTreeDot: Success test/subjects/inline-c/refcount.php
 ParseTreeDot: Success test/subjects/optimization/address_taken.php
+ParseTreeDot: Success test/subjects/optimization/array_loop.php
 ParseTreeDot: Success test/subjects/optimization/array_pop.php
 ParseTreeDot: Success test/subjects/optimization/array_use.php
 ParseTreeDot: Success test/subjects/optimization/assignment_to_indirect.php
@@ -12329,6 +12461,7 @@ Refcounts: Success test/subjects/errors/push_operator_on_strings.php
 Refcounts: Success test/subjects/errors/string_index_reference_assignment.php
 Refcounts: Success test/subjects/horrible/whilescope.php
 Refcounts: Success test/subjects/optimization/address_taken.php
+Refcounts: Success test/subjects/optimization/array_loop.php
 Refcounts: Success test/subjects/optimization/assignment_to_indirect.php
 Refcounts: Success test/subjects/optimization/bad_sccp.php
 Refcounts: Success test/subjects/optimization/compact_test.php
@@ -12882,6 +13015,7 @@ ReparseUnparsed: Success test/subjects/horrible/obfuscated_foreach.php
 ReparseUnparsed: Success test/subjects/horrible/static_member_invocation.php
 ReparseUnparsed: Success test/subjects/horrible/whilescope.php
 ReparseUnparsed: Success test/subjects/optimization/address_taken.php
+ReparseUnparsed: Success test/subjects/optimization/array_loop.php
 ReparseUnparsed: Success test/subjects/optimization/array_pop.php
 ReparseUnparsed: Success test/subjects/optimization/array_use.php
 ReparseUnparsed: Success test/subjects/optimization/assignment_to_indirect.php
@@ -13571,6 +13705,7 @@ XML_roundtrip: Success test/subjects/inline-c/hashref2.php
 XML_roundtrip: Success test/subjects/inline-c/hello-c.php
 XML_roundtrip: Success test/subjects/inline-c/refcount.php
 XML_roundtrip: Success test/subjects/optimization/address_taken.php
+XML_roundtrip: Success test/subjects/optimization/array_loop.php
 XML_roundtrip: Success test/subjects/optimization/array_pop.php
 XML_roundtrip: Success test/subjects/optimization/array_use.php
 XML_roundtrip: Success test/subjects/optimization/assignment_to_indirect.php
@@ -13644,6 +13779,7 @@ XML_roundtrip: Success test/subjects/optimization/unknowns.php
 XML_roundtrip: Success test/subjects/optimization/unset_set_vars.php
 XML_roundtrip: Success test/subjects/optimization/var_var_and_unknown.php
 XML_roundtrip: Success test/subjects/parsing/abstractmethods.php
+XML_roundtrip: Success test/subjects/parsing/allchars_inline.php
 XML_roundtrip: Success test/subjects/parsing/allowed_offset_types.php
 XML_roundtrip: Success test/subjects/parsing/arrays.php
 XML_roundtrip: Success test/subjects/parsing/assignments.php
@@ -14247,6 +14383,7 @@ cb_AST-to-HIR: Success test/subjects/horrible/obfuscated_foreach.php
 cb_AST-to-HIR: Success test/subjects/horrible/static_member_invocation.php
 cb_AST-to-HIR: Success test/subjects/horrible/whilescope.php
 cb_AST-to-HIR: Success test/subjects/optimization/address_taken.php
+cb_AST-to-HIR: Success test/subjects/optimization/array_loop.php
 cb_AST-to-HIR: Success test/subjects/optimization/array_pop.php
 cb_AST-to-HIR: Success test/subjects/optimization/assignment_to_indirect.php
 cb_AST-to-HIR: Success test/subjects/optimization/bad_sccp.php
@@ -14910,6 +15047,7 @@ cb_ast: Success test/subjects/horrible/obfuscated_foreach.php
 cb_ast: Success test/subjects/horrible/static_member_invocation.php
 cb_ast: Success test/subjects/horrible/whilescope.php
 cb_ast: Success test/subjects/optimization/address_taken.php
+cb_ast: Success test/subjects/optimization/array_loop.php
 cb_ast: Success test/subjects/optimization/array_pop.php
 cb_ast: Success test/subjects/optimization/assignment_to_indirect.php
 cb_ast: Success test/subjects/optimization/bad_sccp.php
@@ -15579,6 +15717,7 @@ cb_hir: Success test/subjects/horrible/obfuscated_foreach.php
 cb_hir: Success test/subjects/horrible/static_member_invocation.php
 cb_hir: Success test/subjects/horrible/whilescope.php
 cb_hir: Success test/subjects/optimization/address_taken.php
+cb_hir: Success test/subjects/optimization/array_loop.php
 cb_hir: Success test/subjects/optimization/array_pop.php
 cb_hir: Success test/subjects/optimization/assignment_to_indirect.php
 cb_hir: Success test/subjects/optimization/bad_sccp.php
@@ -16238,6 +16377,7 @@ cb_mir: Success test/subjects/horrible/obfuscated_foreach.php
 cb_mir: Success test/subjects/horrible/static_member_invocation.php
 cb_mir: Success test/subjects/horrible/whilescope.php
 cb_mir: Success test/subjects/optimization/address_taken.php
+cb_mir: Success test/subjects/optimization/array_loop.php
 cb_mir: Success test/subjects/optimization/array_pop.php
 cb_mir: Success test/subjects/optimization/assignment_to_indirect.php
 cb_mir: Success test/subjects/optimization/bad_sccp.php
@@ -16898,6 +17038,7 @@ cb_sua: Success test/subjects/horrible/obfuscated_foreach.php
 cb_sua: Success test/subjects/horrible/static_member_invocation.php
 cb_sua: Success test/subjects/horrible/whilescope.php
 cb_sua: Success test/subjects/optimization/address_taken.php
+cb_sua: Success test/subjects/optimization/array_loop.php
 cb_sua: Success test/subjects/optimization/array_pop.php
 cb_sua: Success test/subjects/optimization/assignment_to_indirect.php
 cb_sua: Success test/subjects/optimization/bad_sccp.php
@@ -16917,7 +17058,6 @@ cb_sua: Success test/subjects/optimization/die.php
 cb_sua: Success test/subjects/optimization/die_cfg.php
 cb_sua: Success test/subjects/optimization/essa.php
 cb_sua: Success test/subjects/optimization/field_on_nonobjects.php
-cb_sua: Success test/subjects/optimization/gettimeofday.php
 cb_sua: Success test/subjects/optimization/global_references.php
 cb_sua: Success test/subjects/optimization/identity_assignment.php
 cb_sua: Success test/subjects/optimization/ifs.php
@@ -17572,6 +17712,7 @@ mir_dump: Success test/subjects/inline-c/hashref2.php
 mir_dump: Success test/subjects/inline-c/hello-c.php
 mir_dump: Success test/subjects/inline-c/refcount.php
 mir_dump: Success test/subjects/optimization/address_taken.php
+mir_dump: Success test/subjects/optimization/array_loop.php
 mir_dump: Success test/subjects/optimization/array_pop.php
 mir_dump: Success test/subjects/optimization/assignment_to_indirect.php
 mir_dump: Success test/subjects/optimization/bad_sccp.php
@@ -18247,6 +18388,7 @@ plugin_cloning: Success test/subjects/inline-c/hashref2.php
 plugin_cloning: Success test/subjects/inline-c/hello-c.php
 plugin_cloning: Success test/subjects/inline-c/refcount.php
 plugin_cloning: Success test/subjects/optimization/address_taken.php
+plugin_cloning: Success test/subjects/optimization/array_loop.php
 plugin_cloning: Success test/subjects/optimization/array_pop.php
 plugin_cloning: Success test/subjects/optimization/array_use.php
 plugin_cloning: Success test/subjects/optimization/assignment_to_indirect.php
@@ -18939,6 +19081,7 @@ plugin_inconsistent_st_attr: Success test/subjects/inline-c/hashref2.php
 plugin_inconsistent_st_attr: Success test/subjects/inline-c/hello-c.php
 plugin_inconsistent_st_attr: Success test/subjects/inline-c/refcount.php
 plugin_inconsistent_st_attr: Success test/subjects/optimization/address_taken.php
+plugin_inconsistent_st_attr: Success test/subjects/optimization/array_loop.php
 plugin_inconsistent_st_attr: Success test/subjects/optimization/array_pop.php
 plugin_inconsistent_st_attr: Success test/subjects/optimization/array_use.php
 plugin_inconsistent_st_attr: Success test/subjects/optimization/assignment_to_indirect.php
@@ -19631,6 +19774,7 @@ plugin_linear: Success test/subjects/inline-c/hashref2.php
 plugin_linear: Success test/subjects/inline-c/hello-c.php
 plugin_linear: Success test/subjects/inline-c/refcount.php
 plugin_linear: Success test/subjects/optimization/address_taken.php
+plugin_linear: Success test/subjects/optimization/array_loop.php
 plugin_linear: Success test/subjects/optimization/array_pop.php
 plugin_linear: Success test/subjects/optimization/array_use.php
 plugin_linear: Success test/subjects/optimization/assignment_to_indirect.php
@@ -20323,6 +20467,7 @@ plugin_pre_vs_post_count: Success test/subjects/inline-c/hashref2.php
 plugin_pre_vs_post_count: Success test/subjects/inline-c/hello-c.php
 plugin_pre_vs_post_count: Success test/subjects/inline-c/refcount.php
 plugin_pre_vs_post_count: Success test/subjects/optimization/address_taken.php
+plugin_pre_vs_post_count: Success test/subjects/optimization/array_loop.php
 plugin_pre_vs_post_count: Success test/subjects/optimization/array_pop.php
 plugin_pre_vs_post_count: Success test/subjects/optimization/array_use.php
 plugin_pre_vs_post_count: Success test/subjects/optimization/assignment_to_indirect.php
@@ -21015,6 +21160,7 @@ plugin_source_vs_semantic_values: Success test/subjects/inline-c/hashref2.php
 plugin_source_vs_semantic_values: Success test/subjects/inline-c/hello-c.php
 plugin_source_vs_semantic_values: Success test/subjects/inline-c/refcount.php
 plugin_source_vs_semantic_values: Success test/subjects/optimization/address_taken.php
+plugin_source_vs_semantic_values: Success test/subjects/optimization/array_loop.php
 plugin_source_vs_semantic_values: Success test/subjects/optimization/array_pop.php
 plugin_source_vs_semantic_values: Success test/subjects/optimization/array_use.php
 plugin_source_vs_semantic_values: Success test/subjects/optimization/assignment_to_indirect.php

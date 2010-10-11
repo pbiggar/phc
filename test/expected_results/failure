@@ -2,7 +2,12 @@
 Annotated_test: Failure test/subjects/optimization/dce_foreach1.php -  found (foreach_), not expected: "foreach_" using pattern "/foreach_/ms"
 BasicFastOptAnalyseTest: Failure test/subjects/codegen/indexing_non_arrays.php - Stdout not clear
 BasicFastOptAnalyseTest: Failure test/subjects/codegen/push_uninitialized.php - Stdout not clear
+BasicFastOptAnalyseTest: Failure test/subjects/codegen/write_var_var.php - Stdout not clear
+BasicFastOptAnalyseTest: Failure test/subjects/horrible/invocation_priorities.php - Stdout not clear
+BasicFastOptAnalyseTest: Failure test/subjects/horrible/method_invocation.php - Stdout not clear
 BasicFastOptAnalyseTest: Failure test/subjects/optimization/looping_defines.php - Stderr not clear
+BasicFastOptAnalyseTest: Failure test/subjects/optimization/points_to.php - Stdout not clear
+BasicFastOptAnalyseTest: Failure test/subjects/parsing/invocation.php - Stdout not clear
 BasicFastOptAnalyseTest: Failure test/subjects/parsing/scalar_array.php - Stdout not clear
 BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/019b.php - Stdout not clear
 BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/bench_ackermann.php - Stdout not clear
@@ -72,8 +77,7 @@ BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/unset_2d_int.php - Std
 BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/unset_non_array.php - Stderr not clear
 BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/valid_callback_warning.php - Stdout not clear
 BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/variable_global.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/horrible/invocation_priorities.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/horrible/method_invocation.php - Stdout not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/optimization/array_loop.php - Stdout not clear
 BasicPreciseOptAnalyseTest: Failure test/subjects/optimization/decrement.php - Stdout not clear
 BasicPreciseOptAnalyseTest: Failure test/subjects/optimization/obj_simple_get.php - Stdout not clear
 BasicPreciseOptAnalyseTest: Failure test/subjects/optimization/side_effecting_echo.php - Stdout not clear
@@ -87,15 +91,12 @@ BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/factorial.php - Stdout
 BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/global.php - Stdout not clear
 BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/impure.php - Stdout not clear
 BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/include_classes.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/include_complex.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/include_complex_once.php - Stdout not clear
 BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/include_massive.php - Stderr not clear
 BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/included_recursive1.php - Stdout not clear
 BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/included_use_existing_vars.php - Stdout not clear
 BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/instanceof.php - Stdout not clear
 BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/integer_field_name.php - Stdout not clear
 BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/interfaces.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/invocation.php - Stdout not clear
 BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/layout5.php - Stdout not clear
 BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/new.php - Stdout not clear
 BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/refs.php - Stdout not clear
@@ -104,6 +105,9 @@ BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/vars.php - Stdout not 
 BasicPreciseOptAnalyseTest: Failure test/subjects/phc/no-warning.php - Stderr not clear
 BasicPreciseOptAnalyseTest: Failure test/subjects/php_bugs/6117.php - Stdout not clear
 BasicPreciseOptAnalyseTest: Failure test/subjects/reduced/0016.php - Stdout not clear
+BasicPreciseOptimizeTest: Failure test/subjects/horrible/invocation_priorities.php - Stdout not clear
+BasicPreciseOptimizeTest: Failure test/subjects/horrible/method_invocation.php - Stdout not clear
+BasicPreciseOptimizeTest: Failure test/subjects/parsing/invocation.php - Stdout not clear
 CompileOptimized: Failure test/subjects/bugs/bug0007.php - Outputs dont match PHP outputs
 CompileOptimized: Failure test/subjects/bugs/bug0021.php - Outputs dont match PHP outputs
 CompileOptimized: Failure test/subjects/bugs/bug0033.php - Outputs dont match PHP outputs
@@ -194,7 +198,7 @@ Demi_eval_false: Failure test/subjects/codegen/bench_ackermann.php - Outputs don
 Demi_eval_false: Failure test/subjects/codegen/ignore_errors2.php - Outputs dont match PHP outputs
 Demi_eval_false: Failure test/subjects/codegen/include_once.php - Outputs dont match PHP outputs
 Demi_eval_false: Failure test/subjects/codegen/indexing_non_arrays.php - Outputs dont match PHP outputs
-Demi_eval_false: Failure test/subjects/codegen/loop_separation1.php - Outputs dont match PHP outputs
+Demi_eval_false: Failure test/subjects/codegen/loop_separation2.php - Outputs dont match PHP outputs
 Demi_eval_false: Failure test/subjects/codegen/object_exit.php - Outputs dont match PHP outputs
 Demi_eval_false: Failure test/subjects/codegen/oop_inheritance1.php - Outputs dont match PHP outputs
 Demi_eval_false: Failure test/subjects/codegen/oop_method_invocation5.php - Outputs dont match PHP outputs
@@ -203,6 +207,7 @@ Demi_eval_false: Failure test/subjects/codegen/push_onto_scalar_by_ref.php - Out
 Demi_eval_false: Failure test/subjects/codegen/push_uninitialized.php - Outputs dont match PHP outputs
 Demi_eval_false: Failure test/subjects/codegen/unset_local_global.php - Outputs dont match PHP outputs
 Demi_eval_false: Failure test/subjects/errors/string_index_reference_assignment.php - Outputs dont match PHP outputs
+Demi_eval_false: Failure test/subjects/optimization/array_loop.php - Outputs dont match PHP outputs
 Demi_eval_false: Failure test/subjects/optimization/indirect_string.php - Outputs dont match PHP outputs
 Demi_eval_false: Failure test/subjects/optimization/side_effecting_echo.php - Outputs dont match PHP outputs
 Demi_eval_false: Failure test/subjects/parsing/casts.php - Outputs dont match PHP outputs
@@ -220,7 +225,7 @@ Demi_eval_true: Failure test/subjects/codegen/include_once.php - Outputs dont ma
 Demi_eval_true: Failure test/subjects/codegen/indexing_non_arrays.php - Outputs dont match PHP outputs
 Demi_eval_true: Failure test/subjects/codegen/inherited_array_field.php - Outputs dont match PHP outputs
 Demi_eval_true: Failure test/subjects/codegen/isset_byte.php - Outputs dont match PHP outputs
-Demi_eval_true: Failure test/subjects/codegen/loop_separation2.php - Outputs dont match PHP outputs
+Demi_eval_true: Failure test/subjects/codegen/loop_separation1.php - Outputs dont match PHP outputs
 Demi_eval_true: Failure test/subjects/codegen/non_existant_function.php - Outputs dont match PHP outputs
 Demi_eval_true: Failure test/subjects/codegen/oop_inheritance1.php - Outputs dont match PHP outputs
 Demi_eval_true: Failure test/subjects/codegen/oop_method_def2.php - Outputs dont match PHP outputs
@@ -282,11 +287,12 @@ InterpretCanonicalUnparsed: Failure test/subjects/optimization/may_defs.php - Ou
 InterpretCanonicalUnparsed: Failure test/subjects/optimization/sccp1.php - Outputs dont match
 InterpretCanonicalUnparsed: Failure test/subjects/parsing/functions.php - Outputs dont match
 InterpretCanonicalUnparsed: Failure test/subjects/parsing/scoped_function.php - Outputs dont match
-InterpretIncludes: Failure test/subjects/optimization/gettimeofday.php - Outputs dont match
 InterpretIncludes: Failure test/subjects/parsing/include_complex_once.php - Outputs dont match
 InterpretIncludes: Failure test/subjects/parsing/include_massive.php - Outputs dont match
 InterpretOptimized: Failure test/subjects/bugs/bug0030.php - Outputs dont match
 InterpretOptimized: Failure test/subjects/codegen/array_index_integer_string.php - Outputs dont match
+InterpretOptimized: Failure test/subjects/codegen/foreach_simple.php - Outputs dont match
+InterpretOptimized: Failure test/subjects/codegen/indexing_with_odd_keys.php - Outputs dont match
 InterpretOptimized: Failure test/subjects/codegen/inherited_array_field.php - Outputs dont match
 InterpretOptimized: Failure test/subjects/codegen/isset_int_var_var.php - Outputs dont match
 InterpretOptimized: Failure test/subjects/codegen/long_opeq.php - Outputs dont match
@@ -425,6 +431,8 @@ Refcounts: Failure test/subjects/codegen/key_test.php - Outputs dont match PHP o
 Refcounts: Failure test/subjects/codegen/lazy_op.php - Outputs dont match PHP outputs
 Refcounts: Failure test/subjects/codegen/list_assignment.php - Outputs dont match PHP outputs
 Refcounts: Failure test/subjects/codegen/long_opeq.php - Outputs dont match PHP outputs
+Refcounts: Failure test/subjects/codegen/loop_separation1.php - Outputs dont match PHP outputs
+Refcounts: Failure test/subjects/codegen/loop_separation2.php - Outputs dont match PHP outputs
 Refcounts: Failure test/subjects/codegen/masquarading_int_keys.php - Outputs dont match PHP outputs
 Refcounts: Failure test/subjects/codegen/multi_array_access.php - Outputs dont match PHP outputs
 Refcounts: Failure test/subjects/codegen/next.php - Outputs dont match PHP outputs
@@ -576,7 +584,6 @@ ReparseUnparsed: Failure test/subjects/parsing/inline_html_indent.php - Outputs 
 ReparseUnparsed: Failure test/subjects/reduced/0052.php - Outputs dont match
 cb_AST-to-HIR: Failure test/subjects/codegen/new.php - Latest pass fails
 cb_AST-to-HIR: Failure test/subjects/optimization/concat_null.php - Latest pass fails
-cb_AST-to-HIR: Failure test/subjects/optimization/gettimeofday.php - Latest pass fails
 cb_AST-to-HIR: Failure test/subjects/optimization/string_handler.php - Latest pass fails
 cb_AST-to-HIR: Failure test/subjects/parsing/constant_folding.php - Latest pass fails
 cb_AST-to-HIR: Failure test/subjects/php_bugs/4999.php - Latest pass fails
@@ -587,7 +594,7 @@ cb_ast: Failure test/subjects/codegen/infinite_lists.php - Every pass fails
 cb_ast: Failure test/subjects/codegen/target_rhs.php - Every pass fails
 cb_ast: Failure test/subjects/optimization/array_use.php - Every pass fails
 cb_ast: Failure test/subjects/optimization/may_defs.php - Every pass fails
-cb_ast: Failure test/subjects/optimization/sccp1.php - Every pass fails
+cb_ast: Failure test/subjects/optimization/sccp1.php - Latest pass fails
 cb_ast: Failure test/subjects/parsing/functions.php - Every pass fails
 cb_ast: Failure test/subjects/parsing/line_and_co.php - Every pass fails
 cb_ast: Failure test/subjects/parsing/scoped_function.php - Every pass fails
@@ -596,3 +603,4 @@ cb_mir: Failure test/subjects/codegen/loop_separation2.php - Latest pass fails
 cb_mir: Failure test/subjects/parsing/casts.php - Latest pass fails
 cb_mir: Failure test/subjects/reduced/0050.php - Latest pass fails
 cb_mir: Failure test/subjects/reduced/0056.php - Latest pass fails
+cb_sua: Failure test/subjects/optimization/gettimeofday.php - Every pass fails
