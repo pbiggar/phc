@@ -1050,6 +1050,7 @@ BasicFastOptAnalyseTest: Success test/subjects/optimization/die.php
 BasicFastOptAnalyseTest: Success test/subjects/optimization/die_cfg.php
 BasicFastOptAnalyseTest: Success test/subjects/optimization/essa.php
 BasicFastOptAnalyseTest: Success test/subjects/optimization/field_on_nonobjects.php
+BasicFastOptAnalyseTest: Success test/subjects/optimization/gettimeofday.php
 BasicFastOptAnalyseTest: Success test/subjects/optimization/global_references.php
 BasicFastOptAnalyseTest: Success test/subjects/optimization/identity_assignment.php
 BasicFastOptAnalyseTest: Success test/subjects/optimization/ifs.php
@@ -1076,6 +1077,7 @@ BasicFastOptAnalyseTest: Success test/subjects/optimization/reference1.php
 BasicFastOptAnalyseTest: Success test/subjects/optimization/reference3.php
 BasicFastOptAnalyseTest: Success test/subjects/optimization/remove_for_loop_boolean.php
 BasicFastOptAnalyseTest: Success test/subjects/optimization/rtrim.php
+BasicFastOptAnalyseTest: Success test/subjects/optimization/sccp1.php
 BasicFastOptAnalyseTest: Success test/subjects/optimization/sccp2.php
 BasicFastOptAnalyseTest: Success test/subjects/optimization/sccp_cast.php
 BasicFastOptAnalyseTest: Success test/subjects/optimization/sccp_pre_op.php
@@ -1525,6 +1527,7 @@ BasicFastOptimizeTest: Success test/subjects/optimization/die.php
 BasicFastOptimizeTest: Success test/subjects/optimization/die_cfg.php
 BasicFastOptimizeTest: Success test/subjects/optimization/essa.php
 BasicFastOptimizeTest: Success test/subjects/optimization/field_on_nonobjects.php
+BasicFastOptimizeTest: Success test/subjects/optimization/gettimeofday.php
 BasicFastOptimizeTest: Success test/subjects/optimization/global_references.php
 BasicFastOptimizeTest: Success test/subjects/optimization/identity_assignment.php
 BasicFastOptimizeTest: Success test/subjects/optimization/ifs.php
@@ -1551,6 +1554,7 @@ BasicFastOptimizeTest: Success test/subjects/optimization/reference1.php
 BasicFastOptimizeTest: Success test/subjects/optimization/reference3.php
 BasicFastOptimizeTest: Success test/subjects/optimization/remove_for_loop_boolean.php
 BasicFastOptimizeTest: Success test/subjects/optimization/rtrim.php
+BasicFastOptimizeTest: Success test/subjects/optimization/sccp1.php
 BasicFastOptimizeTest: Success test/subjects/optimization/sccp2.php
 BasicFastOptimizeTest: Success test/subjects/optimization/sccp_cast.php
 BasicFastOptimizeTest: Success test/subjects/optimization/sccp_pre_op.php
@@ -1999,6 +2003,7 @@ BasicIgnoreOutputFastOptimizeTest: Success test/subjects/optimization/die.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/optimization/die_cfg.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/optimization/essa.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/optimization/field_on_nonobjects.php
+BasicIgnoreOutputFastOptimizeTest: Success test/subjects/optimization/gettimeofday.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/optimization/global_references.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/optimization/identity_assignment.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/optimization/ifs.php
@@ -2025,6 +2030,7 @@ BasicIgnoreOutputFastOptimizeTest: Success test/subjects/optimization/reference1
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/optimization/reference3.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/optimization/remove_for_loop_boolean.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/optimization/rtrim.php
+BasicIgnoreOutputFastOptimizeTest: Success test/subjects/optimization/sccp1.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/optimization/sccp2.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/optimization/sccp_cast.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/optimization/sccp_pre_op.php
@@ -2490,6 +2496,7 @@ BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/optimization/die.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/optimization/die_cfg.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/optimization/essa.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/optimization/field_on_nonobjects.php
+BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/optimization/gettimeofday.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/optimization/global_references.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/optimization/identity_assignment.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/optimization/ifs.php
@@ -2518,6 +2525,7 @@ BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/optimization/referen
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/optimization/reference3.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/optimization/remove_for_loop_boolean.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/optimization/rtrim.php
+BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/optimization/sccp1.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/optimization/sccp2.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/optimization/sccp_cast.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/optimization/sccp_pre_op.php
@@ -3438,7 +3446,6 @@ BasicPreciseOptAnalyseTest: Success test/subjects/codegen/assignment.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/assignment2.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/assignment3.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/bench_ary.php
-BasicPreciseOptAnalyseTest: Success test/subjects/codegen/bench_ary2.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/bench_ary3.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/bench_hash1.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/bench_hash2.php
@@ -3682,6 +3689,7 @@ BasicPreciseOptAnalyseTest: Success test/subjects/optimization/die.php
 BasicPreciseOptAnalyseTest: Success test/subjects/optimization/die_cfg.php
 BasicPreciseOptAnalyseTest: Success test/subjects/optimization/essa.php
 BasicPreciseOptAnalyseTest: Success test/subjects/optimization/field_on_nonobjects.php
+BasicPreciseOptAnalyseTest: Success test/subjects/optimization/gettimeofday.php
 BasicPreciseOptAnalyseTest: Success test/subjects/optimization/global_references.php
 BasicPreciseOptAnalyseTest: Success test/subjects/optimization/identity_assignment.php
 BasicPreciseOptAnalyseTest: Success test/subjects/optimization/ifs.php
@@ -3710,6 +3718,7 @@ BasicPreciseOptAnalyseTest: Success test/subjects/optimization/reference1.php
 BasicPreciseOptAnalyseTest: Success test/subjects/optimization/reference3.php
 BasicPreciseOptAnalyseTest: Success test/subjects/optimization/remove_for_loop_boolean.php
 BasicPreciseOptAnalyseTest: Success test/subjects/optimization/rtrim.php
+BasicPreciseOptAnalyseTest: Success test/subjects/optimization/sccp1.php
 BasicPreciseOptAnalyseTest: Success test/subjects/optimization/sccp2.php
 BasicPreciseOptAnalyseTest: Success test/subjects/optimization/sccp_cast.php
 BasicPreciseOptAnalyseTest: Success test/subjects/optimization/sccp_pre_op.php
@@ -4180,6 +4189,7 @@ BasicPreciseOptimizeTest: Success test/subjects/optimization/die.php
 BasicPreciseOptimizeTest: Success test/subjects/optimization/die_cfg.php
 BasicPreciseOptimizeTest: Success test/subjects/optimization/essa.php
 BasicPreciseOptimizeTest: Success test/subjects/optimization/field_on_nonobjects.php
+BasicPreciseOptimizeTest: Success test/subjects/optimization/gettimeofday.php
 BasicPreciseOptimizeTest: Success test/subjects/optimization/global_references.php
 BasicPreciseOptimizeTest: Success test/subjects/optimization/identity_assignment.php
 BasicPreciseOptimizeTest: Success test/subjects/optimization/ifs.php
@@ -4208,6 +4218,7 @@ BasicPreciseOptimizeTest: Success test/subjects/optimization/reference1.php
 BasicPreciseOptimizeTest: Success test/subjects/optimization/reference3.php
 BasicPreciseOptimizeTest: Success test/subjects/optimization/remove_for_loop_boolean.php
 BasicPreciseOptimizeTest: Success test/subjects/optimization/rtrim.php
+BasicPreciseOptimizeTest: Success test/subjects/optimization/sccp1.php
 BasicPreciseOptimizeTest: Success test/subjects/optimization/sccp2.php
 BasicPreciseOptimizeTest: Success test/subjects/optimization/sccp_cast.php
 BasicPreciseOptimizeTest: Success test/subjects/optimization/sccp_pre_op.php
@@ -4631,6 +4642,7 @@ CompileOptimized: Success test/subjects/optimization/dce_main.php
 CompileOptimized: Success test/subjects/optimization/die.php
 CompileOptimized: Success test/subjects/optimization/die_cfg.php
 CompileOptimized: Success test/subjects/optimization/essa.php
+CompileOptimized: Success test/subjects/optimization/gettimeofday.php
 CompileOptimized: Success test/subjects/optimization/global_references.php
 CompileOptimized: Success test/subjects/optimization/identity_assignment.php
 CompileOptimized: Success test/subjects/optimization/ifs.php
@@ -4658,6 +4670,7 @@ CompileOptimized: Success test/subjects/optimization/reference1.php
 CompileOptimized: Success test/subjects/optimization/reference3.php
 CompileOptimized: Success test/subjects/optimization/remove_for_loop_boolean.php
 CompileOptimized: Success test/subjects/optimization/rtrim.php
+CompileOptimized: Success test/subjects/optimization/sccp1.php
 CompileOptimized: Success test/subjects/optimization/sccp2.php
 CompileOptimized: Success test/subjects/optimization/sccp_cast.php
 CompileOptimized: Success test/subjects/optimization/sccp_pre_op.php
@@ -4669,6 +4682,7 @@ CompileOptimized: Success test/subjects/optimization/simple_example.php
 CompileOptimized: Success test/subjects/optimization/ssi.php
 CompileOptimized: Success test/subjects/optimization/unknowns.php
 CompileOptimized: Success test/subjects/optimization/unset_set_vars.php
+CompileOptimized: Success test/subjects/optimization/var_var_and_unknown.php
 CompileOptimized: Success test/subjects/parsing/abstractmethods.php
 CompileOptimized: Success test/subjects/parsing/arrays.php
 CompileOptimized: Success test/subjects/parsing/assignments.php
@@ -5181,6 +5195,7 @@ CompiledVsInterpreted: Success test/subjects/optimization/decrement.php
 CompiledVsInterpreted: Success test/subjects/optimization/die.php
 CompiledVsInterpreted: Success test/subjects/optimization/die_cfg.php
 CompiledVsInterpreted: Success test/subjects/optimization/essa.php
+CompiledVsInterpreted: Success test/subjects/optimization/gettimeofday.php
 CompiledVsInterpreted: Success test/subjects/optimization/global_references.php
 CompiledVsInterpreted: Success test/subjects/optimization/identity_assignment.php
 CompiledVsInterpreted: Success test/subjects/optimization/ifs.php
@@ -5210,6 +5225,7 @@ CompiledVsInterpreted: Success test/subjects/optimization/reference1.php
 CompiledVsInterpreted: Success test/subjects/optimization/reference3.php
 CompiledVsInterpreted: Success test/subjects/optimization/remove_for_loop_boolean.php
 CompiledVsInterpreted: Success test/subjects/optimization/rtrim.php
+CompiledVsInterpreted: Success test/subjects/optimization/sccp1.php
 CompiledVsInterpreted: Success test/subjects/optimization/sccp2.php
 CompiledVsInterpreted: Success test/subjects/optimization/sccp_cast.php
 CompiledVsInterpreted: Success test/subjects/optimization/sccp_pre_op.php
@@ -5736,6 +5752,7 @@ Demi_eval_false: Success test/subjects/optimization/decrement.php
 Demi_eval_false: Success test/subjects/optimization/die.php
 Demi_eval_false: Success test/subjects/optimization/die_cfg.php
 Demi_eval_false: Success test/subjects/optimization/essa.php
+Demi_eval_false: Success test/subjects/optimization/gettimeofday.php
 Demi_eval_false: Success test/subjects/optimization/global_references.php
 Demi_eval_false: Success test/subjects/optimization/identity_assignment.php
 Demi_eval_false: Success test/subjects/optimization/ifs.php
@@ -5764,6 +5781,7 @@ Demi_eval_false: Success test/subjects/optimization/reference1.php
 Demi_eval_false: Success test/subjects/optimization/reference3.php
 Demi_eval_false: Success test/subjects/optimization/remove_for_loop_boolean.php
 Demi_eval_false: Success test/subjects/optimization/rtrim.php
+Demi_eval_false: Success test/subjects/optimization/sccp1.php
 Demi_eval_false: Success test/subjects/optimization/sccp2.php
 Demi_eval_false: Success test/subjects/optimization/sccp_cast.php
 Demi_eval_false: Success test/subjects/optimization/sccp_pre_op.php
@@ -6119,6 +6137,7 @@ Demi_eval_true: Success test/subjects/codegen/lazy_op.php
 Demi_eval_true: Success test/subjects/codegen/leak_on_exit.php
 Demi_eval_true: Success test/subjects/codegen/list_assignment.php
 Demi_eval_true: Success test/subjects/codegen/long_opeq.php
+Demi_eval_true: Success test/subjects/codegen/loop_separation1.php
 Demi_eval_true: Success test/subjects/codegen/loop_separation2.php
 Demi_eval_true: Success test/subjects/codegen/masquarading_int_keys.php
 Demi_eval_true: Success test/subjects/codegen/multi_array_access.php
@@ -6275,6 +6294,7 @@ Demi_eval_true: Success test/subjects/optimization/decrement.php
 Demi_eval_true: Success test/subjects/optimization/die.php
 Demi_eval_true: Success test/subjects/optimization/die_cfg.php
 Demi_eval_true: Success test/subjects/optimization/essa.php
+Demi_eval_true: Success test/subjects/optimization/gettimeofday.php
 Demi_eval_true: Success test/subjects/optimization/global_references.php
 Demi_eval_true: Success test/subjects/optimization/identity_assignment.php
 Demi_eval_true: Success test/subjects/optimization/ifs.php
@@ -6303,6 +6323,7 @@ Demi_eval_true: Success test/subjects/optimization/reference1.php
 Demi_eval_true: Success test/subjects/optimization/reference3.php
 Demi_eval_true: Success test/subjects/optimization/remove_for_loop_boolean.php
 Demi_eval_true: Success test/subjects/optimization/rtrim.php
+Demi_eval_true: Success test/subjects/optimization/sccp1.php
 Demi_eval_true: Success test/subjects/optimization/sccp2.php
 Demi_eval_true: Success test/subjects/optimization/sccp_cast.php
 Demi_eval_true: Success test/subjects/optimization/sccp_pre_op.php
@@ -6871,6 +6892,7 @@ Generate_C: Success test/subjects/optimization/die.php
 Generate_C: Success test/subjects/optimization/die_cfg.php
 Generate_C: Success test/subjects/optimization/essa.php
 Generate_C: Success test/subjects/optimization/field_on_nonobjects.php
+Generate_C: Success test/subjects/optimization/gettimeofday.php
 Generate_C: Success test/subjects/optimization/global_references.php
 Generate_C: Success test/subjects/optimization/identity_assignment.php
 Generate_C: Success test/subjects/optimization/ifs.php
@@ -6903,6 +6925,7 @@ Generate_C: Success test/subjects/optimization/reference2.php
 Generate_C: Success test/subjects/optimization/reference3.php
 Generate_C: Success test/subjects/optimization/remove_for_loop_boolean.php
 Generate_C: Success test/subjects/optimization/rtrim.php
+Generate_C: Success test/subjects/optimization/sccp1.php
 Generate_C: Success test/subjects/optimization/sccp2.php
 Generate_C: Success test/subjects/optimization/sccp_cast.php
 Generate_C: Success test/subjects/optimization/sccp_pre_op.php
@@ -7526,6 +7549,7 @@ HIR-to-MIR_dump: Success test/subjects/optimization/die.php
 HIR-to-MIR_dump: Success test/subjects/optimization/die_cfg.php
 HIR-to-MIR_dump: Success test/subjects/optimization/essa.php
 HIR-to-MIR_dump: Success test/subjects/optimization/field_on_nonobjects.php
+HIR-to-MIR_dump: Success test/subjects/optimization/gettimeofday.php
 HIR-to-MIR_dump: Success test/subjects/optimization/global_references.php
 HIR-to-MIR_dump: Success test/subjects/optimization/identity_assignment.php
 HIR-to-MIR_dump: Success test/subjects/optimization/ifs.php
@@ -7558,6 +7582,7 @@ HIR-to-MIR_dump: Success test/subjects/optimization/reference2.php
 HIR-to-MIR_dump: Success test/subjects/optimization/reference3.php
 HIR-to-MIR_dump: Success test/subjects/optimization/remove_for_loop_boolean.php
 HIR-to-MIR_dump: Success test/subjects/optimization/rtrim.php
+HIR-to-MIR_dump: Success test/subjects/optimization/sccp1.php
 HIR-to-MIR_dump: Success test/subjects/optimization/sccp2.php
 HIR-to-MIR_dump: Success test/subjects/optimization/sccp_cast.php
 HIR-to-MIR_dump: Success test/subjects/optimization/sccp_pre_op.php
@@ -8228,6 +8253,7 @@ InterpretCanonicalUnparsed: Success test/subjects/optimization/reference2.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/reference3.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/remove_for_loop_boolean.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/rtrim.php
+InterpretCanonicalUnparsed: Success test/subjects/optimization/sccp1.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/sccp2.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/sccp_cast.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/sccp_pre_op.php
@@ -8868,6 +8894,7 @@ InterpretIncludes: Success test/subjects/optimization/die.php
 InterpretIncludes: Success test/subjects/optimization/die_cfg.php
 InterpretIncludes: Success test/subjects/optimization/essa.php
 InterpretIncludes: Success test/subjects/optimization/field_on_nonobjects.php
+InterpretIncludes: Success test/subjects/optimization/gettimeofday.php
 InterpretIncludes: Success test/subjects/optimization/global_references.php
 InterpretIncludes: Success test/subjects/optimization/identity_assignment.php
 InterpretIncludes: Success test/subjects/optimization/ifs.php
@@ -8900,6 +8927,7 @@ InterpretIncludes: Success test/subjects/optimization/reference2.php
 InterpretIncludes: Success test/subjects/optimization/reference3.php
 InterpretIncludes: Success test/subjects/optimization/remove_for_loop_boolean.php
 InterpretIncludes: Success test/subjects/optimization/rtrim.php
+InterpretIncludes: Success test/subjects/optimization/sccp1.php
 InterpretIncludes: Success test/subjects/optimization/sccp2.php
 InterpretIncludes: Success test/subjects/optimization/sccp_cast.php
 InterpretIncludes: Success test/subjects/optimization/sccp_pre_op.php
@@ -9531,6 +9559,7 @@ InterpretObfuscated: Success test/subjects/optimization/die.php
 InterpretObfuscated: Success test/subjects/optimization/die_cfg.php
 InterpretObfuscated: Success test/subjects/optimization/essa.php
 InterpretObfuscated: Success test/subjects/optimization/field_on_nonobjects.php
+InterpretObfuscated: Success test/subjects/optimization/gettimeofday.php
 InterpretObfuscated: Success test/subjects/optimization/global_references.php
 InterpretObfuscated: Success test/subjects/optimization/identity_assignment.php
 InterpretObfuscated: Success test/subjects/optimization/ifs.php
@@ -9563,6 +9592,7 @@ InterpretObfuscated: Success test/subjects/optimization/reference2.php
 InterpretObfuscated: Success test/subjects/optimization/reference3.php
 InterpretObfuscated: Success test/subjects/optimization/remove_for_loop_boolean.php
 InterpretObfuscated: Success test/subjects/optimization/rtrim.php
+InterpretObfuscated: Success test/subjects/optimization/sccp1.php
 InterpretObfuscated: Success test/subjects/optimization/sccp2.php
 InterpretObfuscated: Success test/subjects/optimization/sccp_cast.php
 InterpretObfuscated: Success test/subjects/optimization/sccp_pre_op.php
@@ -10068,6 +10098,7 @@ InterpretOptimized: Success test/subjects/optimization/die.php
 InterpretOptimized: Success test/subjects/optimization/die_cfg.php
 InterpretOptimized: Success test/subjects/optimization/essa.php
 InterpretOptimized: Success test/subjects/optimization/field_on_nonobjects.php
+InterpretOptimized: Success test/subjects/optimization/gettimeofday.php
 InterpretOptimized: Success test/subjects/optimization/global_references.php
 InterpretOptimized: Success test/subjects/optimization/identity_assignment.php
 InterpretOptimized: Success test/subjects/optimization/ifs.php
@@ -10096,6 +10127,7 @@ InterpretOptimized: Success test/subjects/optimization/reference1.php
 InterpretOptimized: Success test/subjects/optimization/reference3.php
 InterpretOptimized: Success test/subjects/optimization/remove_for_loop_boolean.php
 InterpretOptimized: Success test/subjects/optimization/rtrim.php
+InterpretOptimized: Success test/subjects/optimization/sccp1.php
 InterpretOptimized: Success test/subjects/optimization/sccp2.php
 InterpretOptimized: Success test/subjects/optimization/sccp_cast.php
 InterpretOptimized: Success test/subjects/optimization/sccp_pre_op.php
@@ -12473,6 +12505,7 @@ Refcounts: Success test/subjects/optimization/dce_main.php
 Refcounts: Success test/subjects/optimization/die.php
 Refcounts: Success test/subjects/optimization/die_cfg.php
 Refcounts: Success test/subjects/optimization/essa.php
+Refcounts: Success test/subjects/optimization/gettimeofday.php
 Refcounts: Success test/subjects/optimization/ifs.php
 Refcounts: Success test/subjects/optimization/indirect_string.php
 Refcounts: Success test/subjects/optimization/init_lattice.php
@@ -14402,6 +14435,7 @@ cb_AST-to-HIR: Success test/subjects/optimization/die.php
 cb_AST-to-HIR: Success test/subjects/optimization/die_cfg.php
 cb_AST-to-HIR: Success test/subjects/optimization/essa.php
 cb_AST-to-HIR: Success test/subjects/optimization/field_on_nonobjects.php
+cb_AST-to-HIR: Success test/subjects/optimization/gettimeofday.php
 cb_AST-to-HIR: Success test/subjects/optimization/global_references.php
 cb_AST-to-HIR: Success test/subjects/optimization/identity_assignment.php
 cb_AST-to-HIR: Success test/subjects/optimization/ifs.php
@@ -14434,6 +14468,7 @@ cb_AST-to-HIR: Success test/subjects/optimization/reference2.php
 cb_AST-to-HIR: Success test/subjects/optimization/reference3.php
 cb_AST-to-HIR: Success test/subjects/optimization/remove_for_loop_boolean.php
 cb_AST-to-HIR: Success test/subjects/optimization/rtrim.php
+cb_AST-to-HIR: Success test/subjects/optimization/sccp1.php
 cb_AST-to-HIR: Success test/subjects/optimization/sccp2.php
 cb_AST-to-HIR: Success test/subjects/optimization/sccp_cast.php
 cb_AST-to-HIR: Success test/subjects/optimization/sccp_pre_op.php
@@ -15100,6 +15135,7 @@ cb_ast: Success test/subjects/optimization/reference2.php
 cb_ast: Success test/subjects/optimization/reference3.php
 cb_ast: Success test/subjects/optimization/remove_for_loop_boolean.php
 cb_ast: Success test/subjects/optimization/rtrim.php
+cb_ast: Success test/subjects/optimization/sccp1.php
 cb_ast: Success test/subjects/optimization/sccp2.php
 cb_ast: Success test/subjects/optimization/sccp_cast.php
 cb_ast: Success test/subjects/optimization/sccp_pre_op.php
@@ -15736,6 +15772,7 @@ cb_hir: Success test/subjects/optimization/die.php
 cb_hir: Success test/subjects/optimization/die_cfg.php
 cb_hir: Success test/subjects/optimization/essa.php
 cb_hir: Success test/subjects/optimization/field_on_nonobjects.php
+cb_hir: Success test/subjects/optimization/gettimeofday.php
 cb_hir: Success test/subjects/optimization/global_references.php
 cb_hir: Success test/subjects/optimization/identity_assignment.php
 cb_hir: Success test/subjects/optimization/ifs.php
@@ -15768,6 +15805,7 @@ cb_hir: Success test/subjects/optimization/reference2.php
 cb_hir: Success test/subjects/optimization/reference3.php
 cb_hir: Success test/subjects/optimization/remove_for_loop_boolean.php
 cb_hir: Success test/subjects/optimization/rtrim.php
+cb_hir: Success test/subjects/optimization/sccp1.php
 cb_hir: Success test/subjects/optimization/sccp2.php
 cb_hir: Success test/subjects/optimization/sccp_cast.php
 cb_hir: Success test/subjects/optimization/sccp_pre_op.php
@@ -16396,6 +16434,7 @@ cb_mir: Success test/subjects/optimization/die.php
 cb_mir: Success test/subjects/optimization/die_cfg.php
 cb_mir: Success test/subjects/optimization/essa.php
 cb_mir: Success test/subjects/optimization/field_on_nonobjects.php
+cb_mir: Success test/subjects/optimization/gettimeofday.php
 cb_mir: Success test/subjects/optimization/global_references.php
 cb_mir: Success test/subjects/optimization/identity_assignment.php
 cb_mir: Success test/subjects/optimization/ifs.php
@@ -16428,6 +16467,7 @@ cb_mir: Success test/subjects/optimization/reference2.php
 cb_mir: Success test/subjects/optimization/reference3.php
 cb_mir: Success test/subjects/optimization/remove_for_loop_boolean.php
 cb_mir: Success test/subjects/optimization/rtrim.php
+cb_mir: Success test/subjects/optimization/sccp1.php
 cb_mir: Success test/subjects/optimization/sccp2.php
 cb_mir: Success test/subjects/optimization/sccp_cast.php
 cb_mir: Success test/subjects/optimization/sccp_pre_op.php
@@ -17058,6 +17098,7 @@ cb_sua: Success test/subjects/optimization/die.php
 cb_sua: Success test/subjects/optimization/die_cfg.php
 cb_sua: Success test/subjects/optimization/essa.php
 cb_sua: Success test/subjects/optimization/field_on_nonobjects.php
+cb_sua: Success test/subjects/optimization/gettimeofday.php
 cb_sua: Success test/subjects/optimization/global_references.php
 cb_sua: Success test/subjects/optimization/identity_assignment.php
 cb_sua: Success test/subjects/optimization/ifs.php
@@ -17090,6 +17131,7 @@ cb_sua: Success test/subjects/optimization/reference2.php
 cb_sua: Success test/subjects/optimization/reference3.php
 cb_sua: Success test/subjects/optimization/remove_for_loop_boolean.php
 cb_sua: Success test/subjects/optimization/rtrim.php
+cb_sua: Success test/subjects/optimization/sccp1.php
 cb_sua: Success test/subjects/optimization/sccp2.php
 cb_sua: Success test/subjects/optimization/sccp_cast.php
 cb_sua: Success test/subjects/optimization/sccp_pre_op.php
@@ -17731,6 +17773,7 @@ mir_dump: Success test/subjects/optimization/die.php
 mir_dump: Success test/subjects/optimization/die_cfg.php
 mir_dump: Success test/subjects/optimization/essa.php
 mir_dump: Success test/subjects/optimization/field_on_nonobjects.php
+mir_dump: Success test/subjects/optimization/gettimeofday.php
 mir_dump: Success test/subjects/optimization/global_references.php
 mir_dump: Success test/subjects/optimization/identity_assignment.php
 mir_dump: Success test/subjects/optimization/ifs.php
@@ -17763,6 +17806,7 @@ mir_dump: Success test/subjects/optimization/reference2.php
 mir_dump: Success test/subjects/optimization/reference3.php
 mir_dump: Success test/subjects/optimization/remove_for_loop_boolean.php
 mir_dump: Success test/subjects/optimization/rtrim.php
+mir_dump: Success test/subjects/optimization/sccp1.php
 mir_dump: Success test/subjects/optimization/sccp2.php
 mir_dump: Success test/subjects/optimization/sccp_cast.php
 mir_dump: Success test/subjects/optimization/sccp_pre_op.php

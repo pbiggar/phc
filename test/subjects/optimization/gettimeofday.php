@@ -20,7 +20,7 @@
 
 	$output = ob_get_contents ();
 	ob_end_clean ();
-	$output = preg_replace ("/\d/", "x", $output);
+	$output = preg_replace ("/\d*/", "x", $output);
 
 	print ($output);
 

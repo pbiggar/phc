@@ -128,6 +128,7 @@ BasicIgnoreOutputPreciseOptimizeTest: Timeout test/subjects/parsing/scalar_array
 BasicIgnoreOutputPreciseOptimizeTest: Timeout test/subjects/parsing/variable_name.php
 BasicIgnoreOutputPreciseOptimizeTest: Timeout test/subjects/php_bugs/26396.php
 BasicPreciseOptAnalyseTest: Timeout test/subjects/bugs/bug0011.php
+BasicPreciseOptAnalyseTest: Timeout test/subjects/codegen/bench_ary2.php
 BasicPreciseOptAnalyseTest: Timeout test/subjects/codegen/bench_heapsort.php
 BasicPreciseOptAnalyseTest: Timeout test/subjects/codegen/bench_matrix.php
 BasicPreciseOptAnalyseTest: Timeout test/subjects/codegen/foreach_key_val.php
@@ -182,7 +183,6 @@ CompileOptimized: Timeout test/subjects/codegen/isset_eval_order.php
 CompileOptimized: Timeout test/subjects/codegen/masquarading_int_keys.php
 CompileOptimized: Timeout test/subjects/codegen/odd_breaks.php
 CompileOptimized: Timeout test/subjects/codegen/switch_functions.php
-CompileOptimized: Timeout test/subjects/optimization/var_var_and_unknown.php
 CompileOptimized: Timeout test/subjects/parsing/foreach.php
 CompileOptimized: Timeout test/subjects/parsing/foreach_with_complex_key.php
 CompileOptimized: Timeout test/subjects/parsing/literal_test.php

@@ -225,7 +225,6 @@ Demi_eval_true: Failure test/subjects/codegen/include_once.php - Outputs dont ma
 Demi_eval_true: Failure test/subjects/codegen/indexing_non_arrays.php - Outputs dont match PHP outputs
 Demi_eval_true: Failure test/subjects/codegen/inherited_array_field.php - Outputs dont match PHP outputs
 Demi_eval_true: Failure test/subjects/codegen/isset_byte.php - Outputs dont match PHP outputs
-Demi_eval_true: Failure test/subjects/codegen/loop_separation1.php - Outputs dont match PHP outputs
 Demi_eval_true: Failure test/subjects/codegen/non_existant_function.php - Outputs dont match PHP outputs
 Demi_eval_true: Failure test/subjects/codegen/oop_inheritance1.php - Outputs dont match PHP outputs
 Demi_eval_true: Failure test/subjects/codegen/oop_method_def2.php - Outputs dont match PHP outputs
@@ -284,7 +283,6 @@ InterpretCanonicalUnparsed: Failure test/subjects/codegen/infinite_lists.php - O
 InterpretCanonicalUnparsed: Failure test/subjects/codegen/target_rhs.php - Outputs dont match
 InterpretCanonicalUnparsed: Failure test/subjects/optimization/array_use.php - Outputs dont match
 InterpretCanonicalUnparsed: Failure test/subjects/optimization/may_defs.php - Outputs dont match
-InterpretCanonicalUnparsed: Failure test/subjects/optimization/sccp1.php - Outputs dont match
 InterpretCanonicalUnparsed: Failure test/subjects/parsing/functions.php - Outputs dont match
 InterpretCanonicalUnparsed: Failure test/subjects/parsing/scoped_function.php - Outputs dont match
 InterpretIncludes: Failure test/subjects/parsing/include_complex_once.php - Outputs dont match
@@ -522,6 +520,7 @@ Refcounts: Failure test/subjects/optimization/pixy2_fig9.php - Outputs dont matc
 Refcounts: Failure test/subjects/optimization/ref_via_unknown.php - Outputs dont match PHP outputs
 Refcounts: Failure test/subjects/optimization/reference1.php - Outputs dont match PHP outputs
 Refcounts: Failure test/subjects/optimization/reference3.php - Outputs dont match PHP outputs
+Refcounts: Failure test/subjects/optimization/sccp1.php - Outputs dont match PHP outputs
 Refcounts: Failure test/subjects/optimization/sccp2.php - Outputs dont match PHP outputs
 Refcounts: Failure test/subjects/optimization/scti_integer.php - Outputs dont match PHP outputs
 Refcounts: Failure test/subjects/optimization/simple2.php - Outputs dont match PHP outputs
@@ -594,7 +593,6 @@ cb_ast: Failure test/subjects/codegen/infinite_lists.php - Every pass fails
 cb_ast: Failure test/subjects/codegen/target_rhs.php - Every pass fails
 cb_ast: Failure test/subjects/optimization/array_use.php - Every pass fails
 cb_ast: Failure test/subjects/optimization/may_defs.php - Every pass fails
-cb_ast: Failure test/subjects/optimization/sccp1.php - Latest pass fails
 cb_ast: Failure test/subjects/parsing/functions.php - Every pass fails
 cb_ast: Failure test/subjects/parsing/line_and_co.php - Every pass fails
 cb_ast: Failure test/subjects/parsing/scoped_function.php - Every pass fails
@@ -603,4 +601,3 @@ cb_mir: Failure test/subjects/codegen/loop_separation2.php - Latest pass fails
 cb_mir: Failure test/subjects/parsing/casts.php - Latest pass fails
 cb_mir: Failure test/subjects/reduced/0050.php - Latest pass fails
 cb_mir: Failure test/subjects/reduced/0056.php - Latest pass fails
-cb_sua: Failure test/subjects/optimization/gettimeofday.php - Every pass fails

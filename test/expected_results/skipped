@@ -163,13 +163,11 @@ BasicFastOptAnalyseTest: Skipped test/subjects/optimization/array_use.php - Test
 BasicFastOptAnalyseTest: Skipped test/subjects/optimization/concat_null.php - Test failed dependency
 BasicFastOptAnalyseTest: Skipped test/subjects/optimization/dce_foreach1.php - Test failed dependency
 BasicFastOptAnalyseTest: Skipped test/subjects/optimization/decrement.php - Test failed dependency
-BasicFastOptAnalyseTest: Skipped test/subjects/optimization/gettimeofday.php - Test failed dependency
 BasicFastOptAnalyseTest: Skipped test/subjects/optimization/indirect_string.php - Test failed dependency
 BasicFastOptAnalyseTest: Skipped test/subjects/optimization/may_defs.php - Test failed dependency
 BasicFastOptAnalyseTest: Skipped test/subjects/optimization/obj_simple_get.php - Test failed dependency
 BasicFastOptAnalyseTest: Skipped test/subjects/optimization/object_casting.php - Test failed dependency
 BasicFastOptAnalyseTest: Skipped test/subjects/optimization/reference2.php - Test failed dependency
-BasicFastOptAnalyseTest: Skipped test/subjects/optimization/sccp1.php - Test failed dependency
 BasicFastOptAnalyseTest: Skipped test/subjects/optimization/side_effecting_echo.php - Test failed dependency
 BasicFastOptAnalyseTest: Skipped test/subjects/optimization/string_handler.php - Test failed dependency
 BasicFastOptAnalyseTest: Skipped test/subjects/optimization/unknown_everything.php - Test failed dependency
@@ -411,7 +409,6 @@ BasicFastOptimizeTest: Skipped test/subjects/optimization/array_use.php - Test f
 BasicFastOptimizeTest: Skipped test/subjects/optimization/concat_null.php - Test failed dependency
 BasicFastOptimizeTest: Skipped test/subjects/optimization/dce_foreach1.php - Test failed dependency
 BasicFastOptimizeTest: Skipped test/subjects/optimization/decrement.php - Test failed dependency
-BasicFastOptimizeTest: Skipped test/subjects/optimization/gettimeofday.php - Test failed dependency
 BasicFastOptimizeTest: Skipped test/subjects/optimization/indirect_string.php - Test failed dependency
 BasicFastOptimizeTest: Skipped test/subjects/optimization/looping_defines.php - Test failed dependency
 BasicFastOptimizeTest: Skipped test/subjects/optimization/may_defs.php - Test failed dependency
@@ -419,7 +416,6 @@ BasicFastOptimizeTest: Skipped test/subjects/optimization/obj_simple_get.php - T
 BasicFastOptimizeTest: Skipped test/subjects/optimization/object_casting.php - Test failed dependency
 BasicFastOptimizeTest: Skipped test/subjects/optimization/points_to.php - Test failed dependency
 BasicFastOptimizeTest: Skipped test/subjects/optimization/reference2.php - Test failed dependency
-BasicFastOptimizeTest: Skipped test/subjects/optimization/sccp1.php - Test failed dependency
 BasicFastOptimizeTest: Skipped test/subjects/optimization/side_effecting_echo.php - Test failed dependency
 BasicFastOptimizeTest: Skipped test/subjects/optimization/string_handler.php - Test failed dependency
 BasicFastOptimizeTest: Skipped test/subjects/optimization/unknown_everything.php - Test failed dependency
@@ -663,7 +659,6 @@ BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/optimization/array_use.
 BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/optimization/concat_null.php - Test failed dependency
 BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/optimization/dce_foreach1.php - Test failed dependency
 BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/optimization/decrement.php - Test failed dependency
-BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/optimization/gettimeofday.php - Test failed dependency
 BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/optimization/indirect_string.php - Test failed dependency
 BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/optimization/looping_defines.php - Test failed dependency
 BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/optimization/may_defs.php - Test failed dependency
@@ -671,7 +666,6 @@ BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/optimization/obj_simple
 BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/optimization/object_casting.php - Test failed dependency
 BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/optimization/points_to.php - Test failed dependency
 BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/optimization/reference2.php - Test failed dependency
-BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/optimization/sccp1.php - Test failed dependency
 BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/optimization/side_effecting_echo.php - Test failed dependency
 BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/optimization/string_handler.php - Test failed dependency
 BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/optimization/unknown_everything.php - Test failed dependency
@@ -912,13 +906,11 @@ BasicIgnoreOutputPreciseOptimizeTest: Skipped test/subjects/optimization/array_u
 BasicIgnoreOutputPreciseOptimizeTest: Skipped test/subjects/optimization/concat_null.php - Test failed dependency
 BasicIgnoreOutputPreciseOptimizeTest: Skipped test/subjects/optimization/dce_foreach1.php - Test failed dependency
 BasicIgnoreOutputPreciseOptimizeTest: Skipped test/subjects/optimization/decrement.php - Test failed dependency
-BasicIgnoreOutputPreciseOptimizeTest: Skipped test/subjects/optimization/gettimeofday.php - Test failed dependency
 BasicIgnoreOutputPreciseOptimizeTest: Skipped test/subjects/optimization/indirect_string.php - Test failed dependency
 BasicIgnoreOutputPreciseOptimizeTest: Skipped test/subjects/optimization/may_defs.php - Test failed dependency
 BasicIgnoreOutputPreciseOptimizeTest: Skipped test/subjects/optimization/obj_simple_get.php - Test failed dependency
 BasicIgnoreOutputPreciseOptimizeTest: Skipped test/subjects/optimization/object_casting.php - Test failed dependency
 BasicIgnoreOutputPreciseOptimizeTest: Skipped test/subjects/optimization/reference2.php - Test failed dependency
-BasicIgnoreOutputPreciseOptimizeTest: Skipped test/subjects/optimization/sccp1.php - Test failed dependency
 BasicIgnoreOutputPreciseOptimizeTest: Skipped test/subjects/optimization/side_effecting_echo.php - Test failed dependency
 BasicIgnoreOutputPreciseOptimizeTest: Skipped test/subjects/optimization/string_handler.php - Test failed dependency
 BasicIgnoreOutputPreciseOptimizeTest: Skipped test/subjects/optimization/unknown_everything.php - Test failed dependency
@@ -1158,12 +1150,10 @@ BasicPreciseOptAnalyseTest: Skipped test/subjects/inline-c/refcount.php - Test e
 BasicPreciseOptAnalyseTest: Skipped test/subjects/optimization/array_use.php - Test failed dependency
 BasicPreciseOptAnalyseTest: Skipped test/subjects/optimization/concat_null.php - Test failed dependency
 BasicPreciseOptAnalyseTest: Skipped test/subjects/optimization/dce_foreach1.php - Test failed dependency
-BasicPreciseOptAnalyseTest: Skipped test/subjects/optimization/gettimeofday.php - Test failed dependency
 BasicPreciseOptAnalyseTest: Skipped test/subjects/optimization/indirect_string.php - Test excepted
 BasicPreciseOptAnalyseTest: Skipped test/subjects/optimization/may_defs.php - Test failed dependency
 BasicPreciseOptAnalyseTest: Skipped test/subjects/optimization/object_casting.php - Test excepted
 BasicPreciseOptAnalyseTest: Skipped test/subjects/optimization/reference2.php - Test excepted
-BasicPreciseOptAnalyseTest: Skipped test/subjects/optimization/sccp1.php - Test failed dependency
 BasicPreciseOptAnalyseTest: Skipped test/subjects/optimization/string_handler.php - Test failed dependency
 BasicPreciseOptAnalyseTest: Skipped test/subjects/optimization/unknown_everything.php - Test excepted
 BasicPreciseOptAnalyseTest: Skipped test/subjects/parsing/brackets.php - Test excepted
@@ -1373,13 +1363,11 @@ BasicPreciseOptimizeTest: Skipped test/subjects/optimization/array_use.php - Tes
 BasicPreciseOptimizeTest: Skipped test/subjects/optimization/concat_null.php - Test failed dependency
 BasicPreciseOptimizeTest: Skipped test/subjects/optimization/dce_foreach1.php - Test failed dependency
 BasicPreciseOptimizeTest: Skipped test/subjects/optimization/decrement.php - Test failed dependency
-BasicPreciseOptimizeTest: Skipped test/subjects/optimization/gettimeofday.php - Test failed dependency
 BasicPreciseOptimizeTest: Skipped test/subjects/optimization/indirect_string.php - Test failed dependency
 BasicPreciseOptimizeTest: Skipped test/subjects/optimization/may_defs.php - Test failed dependency
 BasicPreciseOptimizeTest: Skipped test/subjects/optimization/obj_simple_get.php - Test failed dependency
 BasicPreciseOptimizeTest: Skipped test/subjects/optimization/object_casting.php - Test failed dependency
 BasicPreciseOptimizeTest: Skipped test/subjects/optimization/reference2.php - Test failed dependency
-BasicPreciseOptimizeTest: Skipped test/subjects/optimization/sccp1.php - Test failed dependency
 BasicPreciseOptimizeTest: Skipped test/subjects/optimization/side_effecting_echo.php - Test failed dependency
 BasicPreciseOptimizeTest: Skipped test/subjects/optimization/string_handler.php - Test failed dependency
 BasicPreciseOptimizeTest: Skipped test/subjects/optimization/unknown_everything.php - Test failed dependency
@@ -1649,14 +1637,12 @@ CompileOptimized: Skipped test/subjects/optimization/dce_foreach1.php - Test fai
 CompileOptimized: Skipped test/subjects/optimization/decrement.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/optimization/define.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/optimization/field_on_nonobjects.php - Test failed dependency
-CompileOptimized: Skipped test/subjects/optimization/gettimeofday.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/optimization/indirect_string.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/optimization/looping_defines.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/optimization/may_defs.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/optimization/obj_simple_get.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/optimization/object_casting.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/optimization/reference2.php - Test failed dependency
-CompileOptimized: Skipped test/subjects/optimization/sccp1.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/optimization/side_effecting_echo.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/optimization/static_value_constant.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/optimization/string_handler.php - Test failed dependency
@@ -1808,9 +1794,7 @@ CompiledVsInterpreted: Skipped test/subjects/horrible/method_invocation.php - Te
 CompiledVsInterpreted: Skipped test/subjects/optimization/array_use.php - Test failed dependency
 CompiledVsInterpreted: Skipped test/subjects/optimization/concat_null.php - Test failed dependency
 CompiledVsInterpreted: Skipped test/subjects/optimization/dce_foreach1.php - Test failed dependency
-CompiledVsInterpreted: Skipped test/subjects/optimization/gettimeofday.php - Test failed dependency
 CompiledVsInterpreted: Skipped test/subjects/optimization/may_defs.php - Test failed dependency
-CompiledVsInterpreted: Skipped test/subjects/optimization/sccp1.php - Test failed dependency
 CompiledVsInterpreted: Skipped test/subjects/optimization/string_handler.php - Test failed dependency
 CompiledVsInterpreted: Skipped test/subjects/parsing/allchars_inline.php - Test failed dependency
 CompiledVsInterpreted: Skipped test/subjects/parsing/allowed_offset_types.php - Test failed dependency
@@ -1945,12 +1929,10 @@ Demi_eval_false: Skipped test/subjects/optimization/concat_null.php - Test faile
 Demi_eval_false: Skipped test/subjects/optimization/dce_foreach1.php - Test failed dependency
 Demi_eval_false: Skipped test/subjects/optimization/define.php - Test failed dependency
 Demi_eval_false: Skipped test/subjects/optimization/field_on_nonobjects.php - Test failed dependency
-Demi_eval_false: Skipped test/subjects/optimization/gettimeofday.php - Test failed dependency
 Demi_eval_false: Skipped test/subjects/optimization/looping_defines.php - Test failed dependency
 Demi_eval_false: Skipped test/subjects/optimization/may_defs.php - Test failed dependency
 Demi_eval_false: Skipped test/subjects/optimization/object_casting.php - Test failed dependency
 Demi_eval_false: Skipped test/subjects/optimization/reference2.php - Test failed dependency
-Demi_eval_false: Skipped test/subjects/optimization/sccp1.php - Test failed dependency
 Demi_eval_false: Skipped test/subjects/optimization/static_value_constant.php - Test failed dependency
 Demi_eval_false: Skipped test/subjects/optimization/string_handler.php - Test failed dependency
 Demi_eval_false: Skipped test/subjects/optimization/unknown_everything.php - Test failed dependency
@@ -2108,12 +2090,10 @@ Demi_eval_true: Skipped test/subjects/optimization/concat_null.php - Test failed
 Demi_eval_true: Skipped test/subjects/optimization/dce_foreach1.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/optimization/define.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/optimization/field_on_nonobjects.php - Test failed dependency
-Demi_eval_true: Skipped test/subjects/optimization/gettimeofday.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/optimization/looping_defines.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/optimization/may_defs.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/optimization/object_casting.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/optimization/reference2.php - Test failed dependency
-Demi_eval_true: Skipped test/subjects/optimization/sccp1.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/optimization/static_value_constant.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/optimization/string_handler.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/optimization/unknown_everything.php - Test failed dependency
@@ -2219,9 +2199,7 @@ Generate_C: Skipped test/subjects/errors/try_catch_break.php - Test failed depen
 Generate_C: Skipped test/subjects/optimization/array_use.php - Test failed dependency
 Generate_C: Skipped test/subjects/optimization/concat_null.php - Test failed dependency
 Generate_C: Skipped test/subjects/optimization/dce_foreach1.php - Test failed dependency
-Generate_C: Skipped test/subjects/optimization/gettimeofday.php - Test failed dependency
 Generate_C: Skipped test/subjects/optimization/may_defs.php - Test failed dependency
-Generate_C: Skipped test/subjects/optimization/sccp1.php - Test failed dependency
 Generate_C: Skipped test/subjects/optimization/string_handler.php - Test failed dependency
 Generate_C: Skipped test/subjects/parsing/allchars_inline.php - Test excepted
 Generate_C: Skipped test/subjects/parsing/capital_ticks.php - Test failed dependency
@@ -2291,9 +2269,7 @@ HIR-to-MIR_dump: Skipped test/subjects/errors/try_catch_break.php - Test failed 
 HIR-to-MIR_dump: Skipped test/subjects/optimization/array_use.php - Test failed dependency
 HIR-to-MIR_dump: Skipped test/subjects/optimization/concat_null.php - Test failed dependency
 HIR-to-MIR_dump: Skipped test/subjects/optimization/dce_foreach1.php - Test failed dependency
-HIR-to-MIR_dump: Skipped test/subjects/optimization/gettimeofday.php - Test failed dependency
 HIR-to-MIR_dump: Skipped test/subjects/optimization/may_defs.php - Test failed dependency
-HIR-to-MIR_dump: Skipped test/subjects/optimization/sccp1.php - Test failed dependency
 HIR-to-MIR_dump: Skipped test/subjects/optimization/string_handler.php - Test failed dependency
 HIR-to-MIR_dump: Skipped test/subjects/parsing/capital_ticks.php - Test failed dependency
 HIR-to-MIR_dump: Skipped test/subjects/parsing/comments_declare.php - Test failed dependency
@@ -2431,9 +2407,7 @@ InterpretIncludes: Skipped test/subjects/errors/sticks.php - Test failed depende
 InterpretIncludes: Skipped test/subjects/errors/try_catch_break.php - Test failed dependency
 InterpretIncludes: Skipped test/subjects/optimization/array_use.php - Test failed dependency
 InterpretIncludes: Skipped test/subjects/optimization/dce_foreach1.php - Test failed dependency
-InterpretIncludes: Skipped test/subjects/optimization/gettimeofday.php - Test failed dependency
 InterpretIncludes: Skipped test/subjects/optimization/may_defs.php - Test failed dependency
-InterpretIncludes: Skipped test/subjects/optimization/sccp1.php - Test failed dependency
 InterpretIncludes: Skipped test/subjects/parsing/functions.php - Test failed dependency
 InterpretIncludes: Skipped test/subjects/parsing/hash_bang1.php - Test excepted
 InterpretIncludes: Skipped test/subjects/parsing/line_and_co.php - Test failed dependency
@@ -2499,9 +2473,7 @@ InterpretObfuscated: Skipped test/subjects/errors/try_catch_break.php - Test fai
 InterpretObfuscated: Skipped test/subjects/optimization/array_use.php - Test failed dependency
 InterpretObfuscated: Skipped test/subjects/optimization/concat_null.php - Test failed dependency
 InterpretObfuscated: Skipped test/subjects/optimization/dce_foreach1.php - Test failed dependency
-InterpretObfuscated: Skipped test/subjects/optimization/gettimeofday.php - Test failed dependency
 InterpretObfuscated: Skipped test/subjects/optimization/may_defs.php - Test failed dependency
-InterpretObfuscated: Skipped test/subjects/optimization/sccp1.php - Test failed dependency
 InterpretObfuscated: Skipped test/subjects/optimization/string_handler.php - Test failed dependency
 InterpretObfuscated: Skipped test/subjects/parsing/capital_ticks.php - Test failed dependency
 InterpretObfuscated: Skipped test/subjects/parsing/casts.php - Test failed dependency
@@ -2667,13 +2639,11 @@ InterpretOptimized: Skipped test/subjects/optimization/array_use.php - Test fail
 InterpretOptimized: Skipped test/subjects/optimization/concat_null.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/optimization/dce_foreach1.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/optimization/decrement.php - Test failed dependency
-InterpretOptimized: Skipped test/subjects/optimization/gettimeofday.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/optimization/indirect_string.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/optimization/may_defs.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/optimization/obj_simple_get.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/optimization/object_casting.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/optimization/reference2.php - Test failed dependency
-InterpretOptimized: Skipped test/subjects/optimization/sccp1.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/optimization/side_effecting_echo.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/optimization/string_handler.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/optimization/unknown_everything.php - Test failed dependency
@@ -3081,12 +3051,10 @@ Refcounts: Skipped test/subjects/optimization/concat_null.php - Test failed depe
 Refcounts: Skipped test/subjects/optimization/dce_foreach1.php - Test failed dependency
 Refcounts: Skipped test/subjects/optimization/define.php - Test failed dependency
 Refcounts: Skipped test/subjects/optimization/field_on_nonobjects.php - Test failed dependency
-Refcounts: Skipped test/subjects/optimization/gettimeofday.php - Test failed dependency
 Refcounts: Skipped test/subjects/optimization/looping_defines.php - Test failed dependency
 Refcounts: Skipped test/subjects/optimization/may_defs.php - Test failed dependency
 Refcounts: Skipped test/subjects/optimization/object_casting.php - Test failed dependency
 Refcounts: Skipped test/subjects/optimization/reference2.php - Test failed dependency
-Refcounts: Skipped test/subjects/optimization/sccp1.php - Test failed dependency
 Refcounts: Skipped test/subjects/optimization/static_value_constant.php - Test failed dependency
 Refcounts: Skipped test/subjects/optimization/string_handler.php - Test failed dependency
 Refcounts: Skipped test/subjects/optimization/unknown_everything.php - Test failed dependency
@@ -3334,9 +3302,7 @@ cb_AST-to-HIR: Skipped test/subjects/errors/sticks.php - Test failed dependency
 cb_AST-to-HIR: Skipped test/subjects/errors/try_catch_break.php - Test failed dependency
 cb_AST-to-HIR: Skipped test/subjects/optimization/array_use.php - Test failed dependency
 cb_AST-to-HIR: Skipped test/subjects/optimization/dce_foreach1.php - Test failed dependency
-cb_AST-to-HIR: Skipped test/subjects/optimization/gettimeofday.php - Test failed dependency
 cb_AST-to-HIR: Skipped test/subjects/optimization/may_defs.php - Test failed dependency
-cb_AST-to-HIR: Skipped test/subjects/optimization/sccp1.php - Test failed dependency
 cb_AST-to-HIR: Skipped test/subjects/parsing/capital_ticks.php - Test excepted
 cb_AST-to-HIR: Skipped test/subjects/parsing/comments_declare.php - Test excepted
 cb_AST-to-HIR: Skipped test/subjects/parsing/functions.php - Test failed dependency
@@ -3452,9 +3418,7 @@ cb_hir: Skipped test/subjects/errors/try_catch_break.php - Test failed dependenc
 cb_hir: Skipped test/subjects/optimization/array_use.php - Test failed dependency
 cb_hir: Skipped test/subjects/optimization/concat_null.php - Test failed dependency
 cb_hir: Skipped test/subjects/optimization/dce_foreach1.php - Test failed dependency
-cb_hir: Skipped test/subjects/optimization/gettimeofday.php - Test failed dependency
 cb_hir: Skipped test/subjects/optimization/may_defs.php - Test failed dependency
-cb_hir: Skipped test/subjects/optimization/sccp1.php - Test failed dependency
 cb_hir: Skipped test/subjects/optimization/string_handler.php - Test failed dependency
 cb_hir: Skipped test/subjects/parsing/capital_ticks.php - Test failed dependency
 cb_hir: Skipped test/subjects/parsing/comments_declare.php - Test failed dependency
@@ -3523,9 +3487,7 @@ cb_mir: Skipped test/subjects/errors/try_catch_break.php - Test failed dependenc
 cb_mir: Skipped test/subjects/optimization/array_use.php - Test failed dependency
 cb_mir: Skipped test/subjects/optimization/concat_null.php - Test failed dependency
 cb_mir: Skipped test/subjects/optimization/dce_foreach1.php - Test failed dependency
-cb_mir: Skipped test/subjects/optimization/gettimeofday.php - Test failed dependency
 cb_mir: Skipped test/subjects/optimization/may_defs.php - Test failed dependency
-cb_mir: Skipped test/subjects/optimization/sccp1.php - Test failed dependency
 cb_mir: Skipped test/subjects/optimization/string_handler.php - Test failed dependency
 cb_mir: Skipped test/subjects/parsing/capital_ticks.php - Test failed dependency
 cb_mir: Skipped test/subjects/parsing/comments_declare.php - Test failed dependency
@@ -3592,7 +3554,6 @@ cb_sua: Skipped test/subjects/errors/try_catch_break.php - Test failed dependenc
 cb_sua: Skipped test/subjects/optimization/array_use.php - Test failed dependency
 cb_sua: Skipped test/subjects/optimization/dce_foreach1.php - Test failed dependency
 cb_sua: Skipped test/subjects/optimization/may_defs.php - Test failed dependency
-cb_sua: Skipped test/subjects/optimization/sccp1.php - Test failed dependency
 cb_sua: Skipped test/subjects/parsing/functions.php - Test failed dependency
 cb_sua: Skipped test/subjects/parsing/line_and_co.php - Test failed dependency
 cb_sua: Skipped test/subjects/parsing/scoped_function.php - Test failed dependency
@@ -3657,9 +3618,7 @@ mir_dump: Skipped test/subjects/errors/try_catch_break.php - Test failed depende
 mir_dump: Skipped test/subjects/optimization/array_use.php - Test failed dependency
 mir_dump: Skipped test/subjects/optimization/concat_null.php - Test failed dependency
 mir_dump: Skipped test/subjects/optimization/dce_foreach1.php - Test failed dependency
-mir_dump: Skipped test/subjects/optimization/gettimeofday.php - Test failed dependency
 mir_dump: Skipped test/subjects/optimization/may_defs.php - Test failed dependency
-mir_dump: Skipped test/subjects/optimization/sccp1.php - Test failed dependency
 mir_dump: Skipped test/subjects/optimization/string_handler.php - Test failed dependency
 mir_dump: Skipped test/subjects/parsing/capital_ticks.php - Test failed dependency
 mir_dump: Skipped test/subjects/parsing/casts.php - Test failed dependency

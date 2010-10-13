@@ -11,17 +11,25 @@
 		// Check propagation into bin_ops
 		// { phc-regex-output: /5 </ }
 		$const = 5;
-		if ($const < rand ())
+		if ($const < rand())
 		{
-			print `ls`; // side-effecting
+			print `echo 5`; // side-effecting
+		}
+		else
+		{
+			print `echo 5`; // side-effecting
 		}
 
 		// Check propagation into unary ops
 		// { phc-regex-output: !/\$const2/ }
 		$const2 = 6;
-		if (!$const2 && rand ())
+		if (!$const2 && rand())
 		{
-			print `ls`; // side-effecting
+			print `echo 5`; // side-effecting
+		}
+		else
+		{
+			print `echo 5`; // side-effecting
 		}
 
 
@@ -31,10 +39,10 @@
 		// Check that getrandmax is optimized out
 		// { phc-regex-output: !/getrandmax/ }
 
-		while (rand () > getrandmax() / 2)
+		while ($argv[3] > getrandmax() / 2)
 		{
 			$const3 = "string";
-			print `ls $const3`;
+			print `echo $const3`;
 		}
 
 
