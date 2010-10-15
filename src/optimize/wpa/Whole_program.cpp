@@ -290,7 +290,7 @@ Whole_program::analyse_function (User_method_info* info, Context* caller_cx, MIR
 
 
 	// 2. Stop when CFG-worklist is empty
-	while (wl.size () > 0)
+	while (not wl.empty())
 	{
 		Edge* e = wl.next ();
 		DEBUG (wl.size() << " edges in the worklist");

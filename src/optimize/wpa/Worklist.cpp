@@ -63,6 +63,12 @@ Worklist::size ()
 	return queue.size ();
 }
 
+bool
+Worklist::empty ()
+{
+	return queue.empty ();
+}
+
 void
 Worklist::clear ()
 {

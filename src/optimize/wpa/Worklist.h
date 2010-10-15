@@ -45,6 +45,8 @@ public:
 
 	size_t size ();
 
+	bool empty ();
+
 	void clear ();
 };
 
