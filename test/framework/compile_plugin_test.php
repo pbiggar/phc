@@ -87,7 +87,8 @@ class CompilePluginTest extends AsyncTest
 		// Check it runs under phc
 		$files = get_all_scripts ();
 		$filename = $files[0];
-		$async->commands[1] = "$phc --run $plugin_name.la $filename";
+		// --r-option is a special option for reduce_statements.la, which doesn't harm the other tests.
+		$async->commands[1] = "$phc --run $plugin_name.la $filename --r-option 0:1";
 		$async->err_handlers[1] = "fail_on_output";
 		$async->exit_handlers[1] = "fail_on_output";
 

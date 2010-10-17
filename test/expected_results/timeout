@@ -183,6 +183,7 @@ CompileOptimized: Timeout test/subjects/codegen/isset_eval_order.php
 CompileOptimized: Timeout test/subjects/codegen/masquarading_int_keys.php
 CompileOptimized: Timeout test/subjects/codegen/odd_breaks.php
 CompileOptimized: Timeout test/subjects/codegen/switch_functions.php
+CompileOptimized: Timeout test/subjects/optimization/var_var_and_unknown.php
 CompileOptimized: Timeout test/subjects/parsing/foreach.php
 CompileOptimized: Timeout test/subjects/parsing/foreach_with_complex_key.php
 CompileOptimized: Timeout test/subjects/parsing/literal_test.php

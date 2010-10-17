@@ -4682,7 +4682,6 @@ CompileOptimized: Success test/subjects/optimization/simple_example.php
 CompileOptimized: Success test/subjects/optimization/ssi.php
 CompileOptimized: Success test/subjects/optimization/unknowns.php
 CompileOptimized: Success test/subjects/optimization/unset_set_vars.php
-CompileOptimized: Success test/subjects/optimization/var_var_and_unknown.php
 CompileOptimized: Success test/subjects/parsing/abstractmethods.php
 CompileOptimized: Success test/subjects/parsing/arrays.php
 CompileOptimized: Success test/subjects/parsing/assignments.php
@@ -4814,6 +4813,7 @@ CompilePluginTest: Success /home/pbiggar/work/phc/svn/trunk/plugins/tools/dynami
 CompilePluginTest: Success /home/pbiggar/work/phc/svn/trunk/plugins/tools/function_finder.cpp
 CompilePluginTest: Success /home/pbiggar/work/phc/svn/trunk/plugins/tools/get_defines.cpp
 CompilePluginTest: Success /home/pbiggar/work/phc/svn/trunk/plugins/tools/purity_test.cpp
+CompilePluginTest: Success /home/pbiggar/work/phc/svn/trunk/plugins/tools/reduce_statements.cpp
 CompilePluginTest: Success /home/pbiggar/work/phc/svn/trunk/plugins/tools/remove_all.cpp
 CompilePluginTest: Success /home/pbiggar/work/phc/svn/trunk/plugins/tools/replace_include_constants.cpp
 CompilePluginTest: Success /home/pbiggar/work/phc/svn/trunk/plugins/tools/test_ssi.cpp
@@ -5592,7 +5592,6 @@ Demi_eval_false: Success test/subjects/codegen/lazy_op.php
 Demi_eval_false: Success test/subjects/codegen/leak_on_exit.php
 Demi_eval_false: Success test/subjects/codegen/list_assignment.php
 Demi_eval_false: Success test/subjects/codegen/long_opeq.php
-Demi_eval_false: Success test/subjects/codegen/loop_separation1.php
 Demi_eval_false: Success test/subjects/codegen/masquarading_int_keys.php
 Demi_eval_false: Success test/subjects/codegen/multi_array_access.php
 Demi_eval_false: Success test/subjects/codegen/multi_way_merge.php
@@ -6137,8 +6136,6 @@ Demi_eval_true: Success test/subjects/codegen/lazy_op.php
 Demi_eval_true: Success test/subjects/codegen/leak_on_exit.php
 Demi_eval_true: Success test/subjects/codegen/list_assignment.php
 Demi_eval_true: Success test/subjects/codegen/long_opeq.php
-Demi_eval_true: Success test/subjects/codegen/loop_separation1.php
-Demi_eval_true: Success test/subjects/codegen/loop_separation2.php
 Demi_eval_true: Success test/subjects/codegen/masquarading_int_keys.php
 Demi_eval_true: Success test/subjects/codegen/multi_array_access.php
 Demi_eval_true: Success test/subjects/codegen/multi_way_merge.php

@@ -130,7 +130,6 @@ CompileOptimized: Failure test/subjects/parsing/instring_simple_object_var.php -
 CompileOptimized: Failure test/subjects/parsing/reflect_ints.php - Outputs dont match PHP outputs
 CompileOptimized: Failure test/subjects/parsing/var_targets.php - Outputs dont match PHP outputs
 CompileOptimized: Failure test/subjects/reduced/0051.php - Outputs dont match PHP outputs
-CompilePluginTest: Failure /home/pbiggar/work/phc/svn/trunk/plugins/tools/reduce_statements.cpp - exit or err not clear
 CompiledVsInterpreted: Failure test/subjects/bugs/bug0008.php - Outputs dont match PHP outputs
 CompiledVsInterpreted: Failure test/subjects/bugs/bug0025.php - Outputs dont match PHP outputs
 CompiledVsInterpreted: Failure test/subjects/codegen/019c.php - Outputs dont match PHP outputs
@@ -198,6 +197,7 @@ Demi_eval_false: Failure test/subjects/codegen/bench_ackermann.php - Outputs don
 Demi_eval_false: Failure test/subjects/codegen/ignore_errors2.php - Outputs dont match PHP outputs
 Demi_eval_false: Failure test/subjects/codegen/include_once.php - Outputs dont match PHP outputs
 Demi_eval_false: Failure test/subjects/codegen/indexing_non_arrays.php - Outputs dont match PHP outputs
+Demi_eval_false: Failure test/subjects/codegen/loop_separation1.php - Outputs dont match PHP outputs
 Demi_eval_false: Failure test/subjects/codegen/loop_separation2.php - Outputs dont match PHP outputs
 Demi_eval_false: Failure test/subjects/codegen/object_exit.php - Outputs dont match PHP outputs
 Demi_eval_false: Failure test/subjects/codegen/oop_inheritance1.php - Outputs dont match PHP outputs
@@ -225,6 +225,8 @@ Demi_eval_true: Failure test/subjects/codegen/include_once.php - Outputs dont ma
 Demi_eval_true: Failure test/subjects/codegen/indexing_non_arrays.php - Outputs dont match PHP outputs
 Demi_eval_true: Failure test/subjects/codegen/inherited_array_field.php - Outputs dont match PHP outputs
 Demi_eval_true: Failure test/subjects/codegen/isset_byte.php - Outputs dont match PHP outputs
+Demi_eval_true: Failure test/subjects/codegen/loop_separation1.php - Outputs dont match PHP outputs
+Demi_eval_true: Failure test/subjects/codegen/loop_separation2.php - Outputs dont match PHP outputs
 Demi_eval_true: Failure test/subjects/codegen/non_existant_function.php - Outputs dont match PHP outputs
 Demi_eval_true: Failure test/subjects/codegen/oop_inheritance1.php - Outputs dont match PHP outputs
 Demi_eval_true: Failure test/subjects/codegen/oop_method_def2.php - Outputs dont match PHP outputs
