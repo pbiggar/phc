@@ -3446,6 +3446,7 @@ BasicPreciseOptAnalyseTest: Success test/subjects/codegen/assignment.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/assignment2.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/assignment3.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/bench_ary.php
+BasicPreciseOptAnalyseTest: Success test/subjects/codegen/bench_ary2.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/bench_ary3.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/bench_hash1.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/bench_hash2.php
@@ -5473,6 +5474,7 @@ Demi_eval_false: Success test/subjects/codegen/assign_to_variable_variable.php
 Demi_eval_false: Success test/subjects/codegen/assignment.php
 Demi_eval_false: Success test/subjects/codegen/assignment2.php
 Demi_eval_false: Success test/subjects/codegen/assignment3.php
+Demi_eval_false: Success test/subjects/codegen/bench_ackermann.php
 Demi_eval_false: Success test/subjects/codegen/bench_ary.php
 Demi_eval_false: Success test/subjects/codegen/bench_ary2.php
 Demi_eval_false: Success test/subjects/codegen/bench_ary3.php
@@ -6018,6 +6020,7 @@ Demi_eval_true: Success test/subjects/codegen/assign_to_variable_variable.php
 Demi_eval_true: Success test/subjects/codegen/assignment.php
 Demi_eval_true: Success test/subjects/codegen/assignment2.php
 Demi_eval_true: Success test/subjects/codegen/assignment3.php
+Demi_eval_true: Success test/subjects/codegen/bench_ackermann.php
 Demi_eval_true: Success test/subjects/codegen/bench_ary.php
 Demi_eval_true: Success test/subjects/codegen/bench_ary2.php
 Demi_eval_true: Success test/subjects/codegen/bench_ary3.php
@@ -6136,6 +6139,8 @@ Demi_eval_true: Success test/subjects/codegen/lazy_op.php
 Demi_eval_true: Success test/subjects/codegen/leak_on_exit.php
 Demi_eval_true: Success test/subjects/codegen/list_assignment.php
 Demi_eval_true: Success test/subjects/codegen/long_opeq.php
+Demi_eval_true: Success test/subjects/codegen/loop_separation1.php
+Demi_eval_true: Success test/subjects/codegen/loop_separation2.php
 Demi_eval_true: Success test/subjects/codegen/masquarading_int_keys.php
 Demi_eval_true: Success test/subjects/codegen/multi_array_access.php
 Demi_eval_true: Success test/subjects/codegen/multi_way_merge.php
@@ -11640,6 +11645,7 @@ ParseTreeDot: Success test/subjects/bugs/bug0026.php
 ParseTreeDot: Success test/subjects/bugs/bug0027.php
 ParseTreeDot: Success test/subjects/bugs/bug0028.php
 ParseTreeDot: Success test/subjects/bugs/bug0030.php
+ParseTreeDot: Success test/subjects/bugs/bug0031.php
 ParseTreeDot: Success test/subjects/bugs/bug0032.php
 ParseTreeDot: Success test/subjects/bugs/bug0033.php
 ParseTreeDot: Success test/subjects/bugs/bug0034.php
@@ -11691,6 +11697,7 @@ ParseTreeDot: Success test/subjects/codegen/assign_to_variable_variable.php
 ParseTreeDot: Success test/subjects/codegen/assignment.php
 ParseTreeDot: Success test/subjects/codegen/assignment2.php
 ParseTreeDot: Success test/subjects/codegen/assignment3.php
+ParseTreeDot: Success test/subjects/codegen/bailout_die.php
 ParseTreeDot: Success test/subjects/codegen/bench_ackermann.php
 ParseTreeDot: Success test/subjects/codegen/bench_ary.php
 ParseTreeDot: Success test/subjects/codegen/bench_ary2.php
@@ -11738,6 +11745,7 @@ ParseTreeDot: Success test/subjects/codegen/copy_into_arrays.php
 ParseTreeDot: Success test/subjects/codegen/curly_test.php
 ParseTreeDot: Success test/subjects/codegen/decrement.php
 ParseTreeDot: Success test/subjects/codegen/default_values.php
+ParseTreeDot: Success test/subjects/codegen/die_alone.php
 ParseTreeDot: Success test/subjects/codegen/do_multi.php
 ParseTreeDot: Success test/subjects/codegen/do_simple.php
 ParseTreeDot: Success test/subjects/codegen/do_while_continue.php
@@ -11930,7 +11938,10 @@ ParseTreeDot: Success test/subjects/codegen/same_parameters.php
 ParseTreeDot: Success test/subjects/codegen/separate_return_by_ref.php
 ParseTreeDot: Success test/subjects/codegen/shred_op_assign_target.php
 ParseTreeDot: Success test/subjects/codegen/shred_pre_op_target.php
+ParseTreeDot: Success test/subjects/codegen/shutdown_on_exit_bool.php
+ParseTreeDot: Success test/subjects/codegen/shutdown_on_exit_int.php
 ParseTreeDot: Success test/subjects/codegen/shutdown_on_exit_no_exit.php
+ParseTreeDot: Success test/subjects/codegen/shutdown_on_exit_string.php
 ParseTreeDot: Success test/subjects/codegen/shutdown_on_missing_function.php
 ParseTreeDot: Success test/subjects/codegen/side_effecting_break_expr.php
 ParseTreeDot: Success test/subjects/codegen/simple_array_assign.php
@@ -12037,6 +12048,8 @@ ParseTreeDot: Success test/subjects/optimization/dce_foreach2.php
 ParseTreeDot: Success test/subjects/optimization/dce_main.php
 ParseTreeDot: Success test/subjects/optimization/decrement.php
 ParseTreeDot: Success test/subjects/optimization/define.php
+ParseTreeDot: Success test/subjects/optimization/die.php
+ParseTreeDot: Success test/subjects/optimization/die_cfg.php
 ParseTreeDot: Success test/subjects/optimization/essa.php
 ParseTreeDot: Success test/subjects/optimization/field_on_nonobjects.php
 ParseTreeDot: Success test/subjects/optimization/gettimeofday.php
@@ -12186,6 +12199,7 @@ ParseTreeDot: Success test/subjects/parsing/invocation.php
 ParseTreeDot: Success test/subjects/parsing/isset.php
 ParseTreeDot: Success test/subjects/parsing/layout1.php
 ParseTreeDot: Success test/subjects/parsing/layout2.php
+ParseTreeDot: Success test/subjects/parsing/layout3.php
 ParseTreeDot: Success test/subjects/parsing/layout4.php
 ParseTreeDot: Success test/subjects/parsing/layout5.php
 ParseTreeDot: Success test/subjects/parsing/layout5_declare.php

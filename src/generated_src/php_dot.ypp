@@ -3009,6 +3009,15 @@ expr_without_variable:
 			$$ = node;
 			node = new Integer(node->value() + 2);
 		}
+	| K_DIE exit_expr
+		{
+			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());
+			printf("node_%ld [label=\"K_DIE\"];\n", node->value()+1);
+			printf("node_%ld->node_%ld;\n", node->value(), node->value()+1);
+			printf("node_%ld->node_%ld;\n", node->value(), $2->value());
+			$$ = node;
+			node = new Integer(node->value() + 2);
+		}
 	| '@' expr
 		{
 			printf("node_%ld [label=\"expr_without_variable\"];\n", node->value());

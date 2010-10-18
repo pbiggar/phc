@@ -193,7 +193,6 @@ CompiledVsInterpreted: Failure test/subjects/reduced/0048.php - Outputs dont mat
 CompiledVsInterpreted: Failure test/subjects/reduced/0056.php - Outputs dont match PHP outputs
 CompiledVsInterpreted: Failure test/subjects/reduced/0057.php - Outputs dont match PHP outputs
 Demi_eval_false: Failure test/subjects/bugs/bug0021.php - Outputs dont match PHP outputs
-Demi_eval_false: Failure test/subjects/codegen/bench_ackermann.php - Outputs dont match PHP outputs
 Demi_eval_false: Failure test/subjects/codegen/ignore_errors2.php - Outputs dont match PHP outputs
 Demi_eval_false: Failure test/subjects/codegen/include_once.php - Outputs dont match PHP outputs
 Demi_eval_false: Failure test/subjects/codegen/indexing_non_arrays.php - Outputs dont match PHP outputs
@@ -220,13 +219,10 @@ Demi_eval_true: Failure test/subjects/bugs/bug0018.php - Outputs dont match PHP 
 Demi_eval_true: Failure test/subjects/bugs/bug0019.php - Outputs dont match PHP outputs
 Demi_eval_true: Failure test/subjects/bugs/bug0021.php - Outputs dont match PHP outputs
 Demi_eval_true: Failure test/subjects/bugs/bug0024.php - Outputs dont match PHP outputs
-Demi_eval_true: Failure test/subjects/codegen/bench_ackermann.php - Outputs dont match PHP outputs
 Demi_eval_true: Failure test/subjects/codegen/include_once.php - Outputs dont match PHP outputs
 Demi_eval_true: Failure test/subjects/codegen/indexing_non_arrays.php - Outputs dont match PHP outputs
 Demi_eval_true: Failure test/subjects/codegen/inherited_array_field.php - Outputs dont match PHP outputs
 Demi_eval_true: Failure test/subjects/codegen/isset_byte.php - Outputs dont match PHP outputs
-Demi_eval_true: Failure test/subjects/codegen/loop_separation1.php - Outputs dont match PHP outputs
-Demi_eval_true: Failure test/subjects/codegen/loop_separation2.php - Outputs dont match PHP outputs
 Demi_eval_true: Failure test/subjects/codegen/non_existant_function.php - Outputs dont match PHP outputs
 Demi_eval_true: Failure test/subjects/codegen/oop_inheritance1.php - Outputs dont match PHP outputs
 Demi_eval_true: Failure test/subjects/codegen/oop_method_def2.php - Outputs dont match PHP outputs
@@ -357,15 +353,6 @@ NoWhitespace: Failure test/subjects/php_bugs/4999.php - Outputs dont match
 NoWhitespace: Failure test/subjects/reduced/0035.php - Outputs dont match
 NoWhitespace: Failure test/subjects/reduced/0038.php - Outputs dont match
 NoWhitespace: Failure test/subjects/reduced/0052.php - Outputs dont match
-ParseTreeDot: Failure test/subjects/bugs/bug0031.php - exit or err not clear
-ParseTreeDot: Failure test/subjects/codegen/bailout_die.php - exit or err not clear
-ParseTreeDot: Failure test/subjects/codegen/die_alone.php - exit or err not clear
-ParseTreeDot: Failure test/subjects/codegen/shutdown_on_exit_bool.php - exit or err not clear
-ParseTreeDot: Failure test/subjects/codegen/shutdown_on_exit_int.php - exit or err not clear
-ParseTreeDot: Failure test/subjects/codegen/shutdown_on_exit_string.php - exit or err not clear
-ParseTreeDot: Failure test/subjects/optimization/die.php - exit or err not clear
-ParseTreeDot: Failure test/subjects/optimization/die_cfg.php - exit or err not clear
-ParseTreeDot: Failure test/subjects/parsing/layout3.php - exit or err not clear
 Refcounts: Failure test/subjects/bugs/bug0007.php - Outputs dont match PHP outputs
 Refcounts: Failure test/subjects/bugs/bug0012.php - Outputs dont match PHP outputs
 Refcounts: Failure test/subjects/bugs/bug0021.php - Outputs dont match PHP outputs
