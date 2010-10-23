@@ -353,10 +353,10 @@ assign_expr_constant (token LHS, string CONSTANT)
    // No null-terminator in length for get_constant.
    // zend_get_constant always returns a copy of the constant.
    \get_st_entry ("LOCAL", "p_lhs", LHS);
-   if (!\is_ref ("*p_lhs", LHS))
+   if (\is_ref ("*p_lhs", LHS))
    {
       zval* constant;
-      get_constant ("$CONSTANT", \cb:length(CONSTANT), p_lhs TSRMLS_CC);
+      get_constant ("$CONSTANT", \cb:length(CONSTANT), &constant TSRMLS_CC);
       overwrite_lhs_no_copy (*p_lhs, constant);
       safe_free_zval_ptr (constant);
    }

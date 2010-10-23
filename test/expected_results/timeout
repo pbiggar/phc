@@ -7,6 +7,7 @@ BasicFastOptAnalyseTest: Timeout test/subjects/codegen/foreach_key_val.php
 BasicFastOptAnalyseTest: Timeout test/subjects/codegen/foreach_nested.php
 BasicFastOptAnalyseTest: Timeout test/subjects/codegen/functioncalls_compiled.php
 BasicFastOptAnalyseTest: Timeout test/subjects/codegen/isset_eval_order.php
+BasicFastOptAnalyseTest: Timeout test/subjects/codegen/list_assignment.php
 BasicFastOptAnalyseTest: Timeout test/subjects/codegen/masquarading_int_keys.php
 BasicFastOptAnalyseTest: Timeout test/subjects/codegen/odd_breaks.php
 BasicFastOptAnalyseTest: Timeout test/subjects/codegen/post_increment_in_break.php
@@ -18,6 +19,7 @@ BasicFastOptAnalyseTest: Timeout test/subjects/codegen/switch_side_effects.php
 BasicFastOptAnalyseTest: Timeout test/subjects/horrible/obfuscated_foreach.php
 BasicFastOptAnalyseTest: Timeout test/subjects/optimization/var_var_and_unknown.php
 BasicFastOptAnalyseTest: Timeout test/subjects/parsing/allchars_inline.php
+BasicFastOptAnalyseTest: Timeout test/subjects/parsing/arrays.php
 BasicFastOptAnalyseTest: Timeout test/subjects/parsing/foreach.php
 BasicFastOptAnalyseTest: Timeout test/subjects/parsing/foreach_with_complex_key.php
 BasicFastOptAnalyseTest: Timeout test/subjects/parsing/instring.php
@@ -51,6 +53,7 @@ BasicFastOptimizeTest: Timeout test/subjects/codegen/post_increment_in_break.php
 BasicFastOptimizeTest: Timeout test/subjects/codegen/post_increment_in_continue.php
 BasicFastOptimizeTest: Timeout test/subjects/codegen/reuse_array.php
 BasicFastOptimizeTest: Timeout test/subjects/codegen/switch_continue.php
+BasicFastOptimizeTest: Timeout test/subjects/codegen/switch_fallthrough.php
 BasicFastOptimizeTest: Timeout test/subjects/codegen/switch_functions.php
 BasicFastOptimizeTest: Timeout test/subjects/codegen/switch_side_effects.php
 BasicFastOptimizeTest: Timeout test/subjects/horrible/obfuscated_foreach.php
@@ -128,6 +131,7 @@ BasicIgnoreOutputPreciseOptimizeTest: Timeout test/subjects/parsing/scalar_array
 BasicIgnoreOutputPreciseOptimizeTest: Timeout test/subjects/parsing/variable_name.php
 BasicIgnoreOutputPreciseOptimizeTest: Timeout test/subjects/php_bugs/26396.php
 BasicPreciseOptAnalyseTest: Timeout test/subjects/bugs/bug0011.php
+BasicPreciseOptAnalyseTest: Timeout test/subjects/codegen/bench_ary2.php
 BasicPreciseOptAnalyseTest: Timeout test/subjects/codegen/bench_heapsort.php
 BasicPreciseOptAnalyseTest: Timeout test/subjects/codegen/bench_matrix.php
 BasicPreciseOptAnalyseTest: Timeout test/subjects/codegen/foreach_key_val.php
@@ -164,6 +168,7 @@ BasicPreciseOptimizeTest: Timeout test/subjects/codegen/odd_breaks.php
 BasicPreciseOptimizeTest: Timeout test/subjects/codegen/push_uninitialized.php
 BasicPreciseOptimizeTest: Timeout test/subjects/codegen/switch_functions.php
 BasicPreciseOptimizeTest: Timeout test/subjects/horrible/obfuscated_foreach.php
+BasicPreciseOptimizeTest: Timeout test/subjects/optimization/var_var_and_unknown.php
 BasicPreciseOptimizeTest: Timeout test/subjects/parsing/allchars_inline.php
 BasicPreciseOptimizeTest: Timeout test/subjects/parsing/foreach.php
 BasicPreciseOptimizeTest: Timeout test/subjects/parsing/foreach_with_complex_key.php
@@ -175,6 +180,7 @@ BasicPreciseOptimizeTest: Timeout test/subjects/parsing/variable_name.php
 BasicPreciseOptimizeTest: Timeout test/subjects/php_bugs/26396.php
 CompileOptimized: Timeout test/subjects/bugs/bug0011.php
 CompileOptimized: Timeout test/subjects/codegen/bench_ary2.php
+CompileOptimized: Timeout test/subjects/codegen/bench_heapsort.php
 CompileOptimized: Timeout test/subjects/codegen/bench_matrix.php
 CompileOptimized: Timeout test/subjects/codegen/foreach_key_val.php
 CompileOptimized: Timeout test/subjects/codegen/foreach_nested.php
@@ -182,7 +188,6 @@ CompileOptimized: Timeout test/subjects/codegen/isset_eval_order.php
 CompileOptimized: Timeout test/subjects/codegen/masquarading_int_keys.php
 CompileOptimized: Timeout test/subjects/codegen/odd_breaks.php
 CompileOptimized: Timeout test/subjects/codegen/switch_functions.php
-CompileOptimized: Timeout test/subjects/optimization/var_var_and_unknown.php
 CompileOptimized: Timeout test/subjects/parsing/foreach.php
 CompileOptimized: Timeout test/subjects/parsing/foreach_with_complex_key.php
 CompileOptimized: Timeout test/subjects/parsing/literal_test.php

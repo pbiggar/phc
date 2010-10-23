@@ -924,7 +924,6 @@ BasicFastOptAnalyseTest: Success test/subjects/codegen/just_string.php
 BasicFastOptAnalyseTest: Success test/subjects/codegen/key_test.php
 BasicFastOptAnalyseTest: Success test/subjects/codegen/lazy_op.php
 BasicFastOptAnalyseTest: Success test/subjects/codegen/leak_on_exit.php
-BasicFastOptAnalyseTest: Success test/subjects/codegen/list_assignment.php
 BasicFastOptAnalyseTest: Success test/subjects/codegen/long_opeq.php
 BasicFastOptAnalyseTest: Success test/subjects/codegen/multi_array_access.php
 BasicFastOptAnalyseTest: Success test/subjects/codegen/multi_way_merge.php
@@ -1092,7 +1091,6 @@ BasicFastOptAnalyseTest: Success test/subjects/optimization/two_objects.php
 BasicFastOptAnalyseTest: Success test/subjects/optimization/unknowns.php
 BasicFastOptAnalyseTest: Success test/subjects/optimization/unset_set_vars.php
 BasicFastOptAnalyseTest: Success test/subjects/parsing/abstractmethods.php
-BasicFastOptAnalyseTest: Success test/subjects/parsing/arrays.php
 BasicFastOptAnalyseTest: Success test/subjects/parsing/assignments.php
 BasicFastOptAnalyseTest: Success test/subjects/parsing/attributes.php
 BasicFastOptAnalyseTest: Success test/subjects/parsing/backtick.php
@@ -1475,7 +1473,6 @@ BasicFastOptimizeTest: Success test/subjects/codegen/stringindex.php
 BasicFastOptimizeTest: Success test/subjects/codegen/switch_all_before_default.php
 BasicFastOptimizeTest: Success test/subjects/codegen/switch_case_cond.php
 BasicFastOptimizeTest: Success test/subjects/codegen/switch_double_default.php
-BasicFastOptimizeTest: Success test/subjects/codegen/switch_fallthrough.php
 BasicFastOptimizeTest: Success test/subjects/codegen/switch_int_vs_string.php
 BasicFastOptimizeTest: Success test/subjects/codegen/switch_more_than_once.php
 BasicFastOptimizeTest: Success test/subjects/codegen/switch_more_than_once2.php
@@ -3446,7 +3443,6 @@ BasicPreciseOptAnalyseTest: Success test/subjects/codegen/assignment.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/assignment2.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/assignment3.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/bench_ary.php
-BasicPreciseOptAnalyseTest: Success test/subjects/codegen/bench_ary2.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/bench_ary3.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/bench_hash1.php
 BasicPreciseOptAnalyseTest: Success test/subjects/codegen/bench_hash2.php
@@ -4233,7 +4229,6 @@ BasicPreciseOptimizeTest: Success test/subjects/optimization/static_value_consta
 BasicPreciseOptimizeTest: Success test/subjects/optimization/two_objects.php
 BasicPreciseOptimizeTest: Success test/subjects/optimization/unknowns.php
 BasicPreciseOptimizeTest: Success test/subjects/optimization/unset_set_vars.php
-BasicPreciseOptimizeTest: Success test/subjects/optimization/var_var_and_unknown.php
 BasicPreciseOptimizeTest: Success test/subjects/parsing/abstractmethods.php
 BasicPreciseOptimizeTest: Success test/subjects/parsing/arrays.php
 BasicPreciseOptimizeTest: Success test/subjects/parsing/assignments.php
@@ -4472,6 +4467,7 @@ CompileOptimized: Success test/subjects/codegen/break_zero.php
 CompileOptimized: Success test/subjects/codegen/comma_op.php
 CompileOptimized: Success test/subjects/codegen/compact_global.php
 CompileOptimized: Success test/subjects/codegen/conditional.php
+CompileOptimized: Success test/subjects/codegen/constant_reference.php
 CompileOptimized: Success test/subjects/codegen/copy1.php
 CompileOptimized: Success test/subjects/codegen/copy2.php
 CompileOptimized: Success test/subjects/codegen/copy_into_arrays.php
@@ -4540,6 +4536,7 @@ CompileOptimized: Success test/subjects/codegen/leak_on_exit.php
 CompileOptimized: Success test/subjects/codegen/list_assignment.php
 CompileOptimized: Success test/subjects/codegen/multi_array_access.php
 CompileOptimized: Success test/subjects/codegen/multi_way_merge.php
+CompileOptimized: Success test/subjects/codegen/nested_statements.php
 CompileOptimized: Success test/subjects/codegen/nested_statements_same_var.php
 CompileOptimized: Success test/subjects/codegen/next.php
 CompileOptimized: Success test/subjects/codegen/no_ashred_rvalue.php
@@ -4608,6 +4605,7 @@ CompileOptimized: Success test/subjects/codegen/switch_simple.php
 CompileOptimized: Success test/subjects/codegen/unary_minus.php
 CompileOptimized: Success test/subjects/codegen/unary_op.php
 CompileOptimized: Success test/subjects/codegen/undef_var.php
+CompileOptimized: Success test/subjects/codegen/unregistered_constant.php
 CompileOptimized: Success test/subjects/codegen/unset.php
 CompileOptimized: Success test/subjects/codegen/unset_array_elem.php
 CompileOptimized: Success test/subjects/codegen/unset_global_array.php
@@ -4640,6 +4638,7 @@ CompileOptimized: Success test/subjects/optimization/dce002.php
 CompileOptimized: Success test/subjects/optimization/dce_ack.php
 CompileOptimized: Success test/subjects/optimization/dce_foreach2.php
 CompileOptimized: Success test/subjects/optimization/dce_main.php
+CompileOptimized: Success test/subjects/optimization/define.php
 CompileOptimized: Success test/subjects/optimization/die.php
 CompileOptimized: Success test/subjects/optimization/die_cfg.php
 CompileOptimized: Success test/subjects/optimization/essa.php
@@ -4651,6 +4650,7 @@ CompileOptimized: Success test/subjects/optimization/implicit.php
 CompileOptimized: Success test/subjects/optimization/init_lattice.php
 CompileOptimized: Success test/subjects/optimization/initialized_vars.php
 CompileOptimized: Success test/subjects/optimization/is_obj_or_array.php
+CompileOptimized: Success test/subjects/optimization/looping_defines.php
 CompileOptimized: Success test/subjects/optimization/null_offsets.php
 CompileOptimized: Success test/subjects/optimization/object_casts.php
 CompileOptimized: Success test/subjects/optimization/object_copy.php
@@ -4681,8 +4681,10 @@ CompileOptimized: Success test/subjects/optimization/scti_integer.php
 CompileOptimized: Success test/subjects/optimization/simple2.php
 CompileOptimized: Success test/subjects/optimization/simple_example.php
 CompileOptimized: Success test/subjects/optimization/ssi.php
+CompileOptimized: Success test/subjects/optimization/static_value_constant.php
 CompileOptimized: Success test/subjects/optimization/unknowns.php
 CompileOptimized: Success test/subjects/optimization/unset_set_vars.php
+CompileOptimized: Success test/subjects/optimization/var_var_and_unknown.php
 CompileOptimized: Success test/subjects/parsing/abstractmethods.php
 CompileOptimized: Success test/subjects/parsing/arrays.php
 CompileOptimized: Success test/subjects/parsing/assignments.php
@@ -4695,6 +4697,7 @@ CompileOptimized: Success test/subjects/parsing/conditional.php
 CompileOptimized: Success test/subjects/parsing/continue.php
 CompileOptimized: Success test/subjects/parsing/curlies.php
 CompileOptimized: Success test/subjects/parsing/declare_ticks.php
+CompileOptimized: Success test/subjects/parsing/define.php
 CompileOptimized: Success test/subjects/parsing/do.php
 CompileOptimized: Success test/subjects/parsing/endofscriptincomment1.php
 CompileOptimized: Success test/subjects/parsing/endofscriptincomment2.php
@@ -4739,6 +4742,7 @@ CompileOptimized: Success test/subjects/parsing/layout2.php
 CompileOptimized: Success test/subjects/parsing/layout3.php
 CompileOptimized: Success test/subjects/parsing/layout4.php
 CompileOptimized: Success test/subjects/parsing/layout6.php
+CompileOptimized: Success test/subjects/parsing/null_obj_ref.php
 CompileOptimized: Success test/subjects/parsing/precedence.php
 CompileOptimized: Success test/subjects/parsing/prepostop.php
 CompileOptimized: Success test/subjects/parsing/removeconcatnulls.php
@@ -4746,6 +4750,7 @@ CompileOptimized: Success test/subjects/parsing/return.php
 CompileOptimized: Success test/subjects/parsing/sq_vs_dq.php
 CompileOptimized: Success test/subjects/parsing/stringescape.php
 CompileOptimized: Success test/subjects/parsing/switch.php
+CompileOptimized: Success test/subjects/parsing/tags.php
 CompileOptimized: Success test/subjects/parsing/transform.php
 CompileOptimized: Success test/subjects/parsing/unary_plus.php
 CompileOptimized: Success test/subjects/parsing/unset.php
@@ -4759,6 +4764,7 @@ CompileOptimized: Success test/subjects/phc/disable.php
 CompileOptimized: Success test/subjects/phc/dump_parse_tree.php
 CompileOptimized: Success test/subjects/phc/dump_tokens.php
 CompileOptimized: Success test/subjects/phc/execute_flag.php
+CompileOptimized: Success test/subjects/phc/foreach_dump.php
 CompileOptimized: Success test/subjects/phc/list_passes.php
 CompileOptimized: Success test/subjects/phc/run_once.php
 CompileOptimized: Success test/subjects/phc/stats.php
@@ -4789,6 +4795,7 @@ CompileOptimized: Success test/subjects/reduced/0036.php
 CompileOptimized: Success test/subjects/reduced/0037.php
 CompileOptimized: Success test/subjects/reduced/0038.php
 CompileOptimized: Success test/subjects/reduced/0039.php
+CompileOptimized: Success test/subjects/reduced/0040.php
 CompileOptimized: Success test/subjects/reduced/0041.php
 CompileOptimized: Success test/subjects/reduced/0044.php
 CompileOptimized: Success test/subjects/reduced/0045.php
@@ -4903,6 +4910,7 @@ CompiledVsInterpreted: Success test/subjects/codegen/assign_to_variable_variable
 CompiledVsInterpreted: Success test/subjects/codegen/assignment.php
 CompiledVsInterpreted: Success test/subjects/codegen/assignment2.php
 CompiledVsInterpreted: Success test/subjects/codegen/assignment3.php
+CompiledVsInterpreted: Success test/subjects/codegen/bailout_die.php
 CompiledVsInterpreted: Success test/subjects/codegen/bench_ackermann.php
 CompiledVsInterpreted: Success test/subjects/codegen/bench_ary.php
 CompiledVsInterpreted: Success test/subjects/codegen/bench_ary2.php
@@ -4910,6 +4918,7 @@ CompiledVsInterpreted: Success test/subjects/codegen/bench_ary3.php
 CompiledVsInterpreted: Success test/subjects/codegen/bench_fibo.php
 CompiledVsInterpreted: Success test/subjects/codegen/bench_hash1.php
 CompiledVsInterpreted: Success test/subjects/codegen/bench_hash2.php
+CompiledVsInterpreted: Success test/subjects/codegen/bench_heapsort.php
 CompiledVsInterpreted: Success test/subjects/codegen/bench_mandel.php
 CompiledVsInterpreted: Success test/subjects/codegen/bench_mandel2.php
 CompiledVsInterpreted: Success test/subjects/codegen/bench_matrix.php
@@ -4942,6 +4951,7 @@ CompiledVsInterpreted: Success test/subjects/codegen/call_evaled_fn.php
 CompiledVsInterpreted: Success test/subjects/codegen/comma_op.php
 CompiledVsInterpreted: Success test/subjects/codegen/compact_global.php
 CompiledVsInterpreted: Success test/subjects/codegen/conditional.php
+CompiledVsInterpreted: Success test/subjects/codegen/constant_reference.php
 CompiledVsInterpreted: Success test/subjects/codegen/copy1.php
 CompiledVsInterpreted: Success test/subjects/codegen/copy2.php
 CompiledVsInterpreted: Success test/subjects/codegen/copy_into_arrays.php
@@ -4998,6 +5008,7 @@ CompiledVsInterpreted: Success test/subjects/codegen/inherited_array_field.php
 CompiledVsInterpreted: Success test/subjects/codegen/inlinable_function.php
 CompiledVsInterpreted: Success test/subjects/codegen/int_exit.php
 CompiledVsInterpreted: Success test/subjects/codegen/integer_variable.php
+CompiledVsInterpreted: Success test/subjects/codegen/invalid_foreach_array.php
 CompiledVsInterpreted: Success test/subjects/codegen/isset_1d_int.php
 CompiledVsInterpreted: Success test/subjects/codegen/isset_1d_strings.php
 CompiledVsInterpreted: Success test/subjects/codegen/isset_2d_int.php
@@ -5031,6 +5042,7 @@ CompiledVsInterpreted: Success test/subjects/codegen/loop_separation2.php
 CompiledVsInterpreted: Success test/subjects/codegen/masquarading_int_keys.php
 CompiledVsInterpreted: Success test/subjects/codegen/multi_array_access.php
 CompiledVsInterpreted: Success test/subjects/codegen/multi_way_merge.php
+CompiledVsInterpreted: Success test/subjects/codegen/nested_statements.php
 CompiledVsInterpreted: Success test/subjects/codegen/nested_statements_same_var.php
 CompiledVsInterpreted: Success test/subjects/codegen/next.php
 CompiledVsInterpreted: Success test/subjects/codegen/no_ashred_rvalue.php
@@ -5147,6 +5159,7 @@ CompiledVsInterpreted: Success test/subjects/codegen/unary_minus.php
 CompiledVsInterpreted: Success test/subjects/codegen/unary_op.php
 CompiledVsInterpreted: Success test/subjects/codegen/undeclared_function.php
 CompiledVsInterpreted: Success test/subjects/codegen/undef_var.php
+CompiledVsInterpreted: Success test/subjects/codegen/unregistered_constant.php
 CompiledVsInterpreted: Success test/subjects/codegen/unset.php
 CompiledVsInterpreted: Success test/subjects/codegen/unset_2d_int.php
 CompiledVsInterpreted: Success test/subjects/codegen/unset_array_elem.php
@@ -5162,6 +5175,7 @@ CompiledVsInterpreted: Success test/subjects/codegen/unset_reference4.php
 CompiledVsInterpreted: Success test/subjects/codegen/unset_reference5.php
 CompiledVsInterpreted: Success test/subjects/codegen/unset_string_offset.php
 CompiledVsInterpreted: Success test/subjects/codegen/unset_with_null.php
+CompiledVsInterpreted: Success test/subjects/codegen/valid_callback_warning.php
 CompiledVsInterpreted: Success test/subjects/codegen/variable_global.php
 CompiledVsInterpreted: Success test/subjects/codegen/varvar.php
 CompiledVsInterpreted: Success test/subjects/codegen/while_as_do_while.php
@@ -5193,6 +5207,7 @@ CompiledVsInterpreted: Success test/subjects/optimization/dce_ack.php
 CompiledVsInterpreted: Success test/subjects/optimization/dce_foreach2.php
 CompiledVsInterpreted: Success test/subjects/optimization/dce_main.php
 CompiledVsInterpreted: Success test/subjects/optimization/decrement.php
+CompiledVsInterpreted: Success test/subjects/optimization/define.php
 CompiledVsInterpreted: Success test/subjects/optimization/die.php
 CompiledVsInterpreted: Success test/subjects/optimization/die_cfg.php
 CompiledVsInterpreted: Success test/subjects/optimization/essa.php
@@ -5205,6 +5220,7 @@ CompiledVsInterpreted: Success test/subjects/optimization/indirect_string.php
 CompiledVsInterpreted: Success test/subjects/optimization/init_lattice.php
 CompiledVsInterpreted: Success test/subjects/optimization/initialized_vars.php
 CompiledVsInterpreted: Success test/subjects/optimization/is_obj_or_array.php
+CompiledVsInterpreted: Success test/subjects/optimization/looping_defines.php
 CompiledVsInterpreted: Success test/subjects/optimization/null_offsets.php
 CompiledVsInterpreted: Success test/subjects/optimization/obj_simple_get.php
 CompiledVsInterpreted: Success test/subjects/optimization/object_casts.php
@@ -5237,6 +5253,7 @@ CompiledVsInterpreted: Success test/subjects/optimization/side_effecting_echo.ph
 CompiledVsInterpreted: Success test/subjects/optimization/simple2.php
 CompiledVsInterpreted: Success test/subjects/optimization/simple_example.php
 CompiledVsInterpreted: Success test/subjects/optimization/ssi.php
+CompiledVsInterpreted: Success test/subjects/optimization/static_value_constant.php
 CompiledVsInterpreted: Success test/subjects/optimization/two_objects.php
 CompiledVsInterpreted: Success test/subjects/optimization/unknowns.php
 CompiledVsInterpreted: Success test/subjects/optimization/unset_set_vars.php
@@ -5256,6 +5273,7 @@ CompiledVsInterpreted: Success test/subjects/parsing/conditional.php
 CompiledVsInterpreted: Success test/subjects/parsing/continue.php
 CompiledVsInterpreted: Success test/subjects/parsing/curlies.php
 CompiledVsInterpreted: Success test/subjects/parsing/declare_ticks.php
+CompiledVsInterpreted: Success test/subjects/parsing/define.php
 CompiledVsInterpreted: Success test/subjects/parsing/do.php
 CompiledVsInterpreted: Success test/subjects/parsing/empty.php
 CompiledVsInterpreted: Success test/subjects/parsing/endofscriptincomment1.php
@@ -5276,6 +5294,7 @@ CompiledVsInterpreted: Success test/subjects/parsing/heredoc_nl.php
 CompiledVsInterpreted: Success test/subjects/parsing/heredoc_quotes.php
 CompiledVsInterpreted: Success test/subjects/parsing/heredoc_unparsing.php
 CompiledVsInterpreted: Success test/subjects/parsing/if.php
+CompiledVsInterpreted: Success test/subjects/parsing/impure.php
 CompiledVsInterpreted: Success test/subjects/parsing/include_classes.php
 CompiledVsInterpreted: Success test/subjects/parsing/include_massive.php
 CompiledVsInterpreted: Success test/subjects/parsing/include_multiple_class_def.php
@@ -5319,6 +5338,7 @@ CompiledVsInterpreted: Success test/subjects/parsing/literal_test.php
 CompiledVsInterpreted: Success test/subjects/parsing/negative_literals.php
 CompiledVsInterpreted: Success test/subjects/parsing/nestedfndefs.php
 CompiledVsInterpreted: Success test/subjects/parsing/new.php
+CompiledVsInterpreted: Success test/subjects/parsing/null_obj_ref.php
 CompiledVsInterpreted: Success test/subjects/parsing/precedence.php
 CompiledVsInterpreted: Success test/subjects/parsing/prepostop.php
 CompiledVsInterpreted: Success test/subjects/parsing/reflect_ints.php
@@ -5328,6 +5348,7 @@ CompiledVsInterpreted: Success test/subjects/parsing/scalar_array.php
 CompiledVsInterpreted: Success test/subjects/parsing/sq_vs_dq.php
 CompiledVsInterpreted: Success test/subjects/parsing/stringescape.php
 CompiledVsInterpreted: Success test/subjects/parsing/switch.php
+CompiledVsInterpreted: Success test/subjects/parsing/tags.php
 CompiledVsInterpreted: Success test/subjects/parsing/transform.php
 CompiledVsInterpreted: Success test/subjects/parsing/unary_plus.php
 CompiledVsInterpreted: Success test/subjects/parsing/unset.php
@@ -5343,6 +5364,7 @@ CompiledVsInterpreted: Success test/subjects/phc/disable.php
 CompiledVsInterpreted: Success test/subjects/phc/dump_parse_tree.php
 CompiledVsInterpreted: Success test/subjects/phc/dump_tokens.php
 CompiledVsInterpreted: Success test/subjects/phc/execute_flag.php
+CompiledVsInterpreted: Success test/subjects/phc/foreach_dump.php
 CompiledVsInterpreted: Success test/subjects/phc/list_passes.php
 CompiledVsInterpreted: Success test/subjects/phc/run_once.php
 CompiledVsInterpreted: Success test/subjects/phc/stats.php
@@ -5387,7 +5409,9 @@ CompiledVsInterpreted: Success test/subjects/reduced/0036.php
 CompiledVsInterpreted: Success test/subjects/reduced/0037.php
 CompiledVsInterpreted: Success test/subjects/reduced/0038.php
 CompiledVsInterpreted: Success test/subjects/reduced/0039.php
+CompiledVsInterpreted: Success test/subjects/reduced/0040.php
 CompiledVsInterpreted: Success test/subjects/reduced/0041.php
+CompiledVsInterpreted: Success test/subjects/reduced/0043.php
 CompiledVsInterpreted: Success test/subjects/reduced/0044.php
 CompiledVsInterpreted: Success test/subjects/reduced/0045.php
 CompiledVsInterpreted: Success test/subjects/reduced/0046.php
@@ -5474,6 +5498,7 @@ Demi_eval_false: Success test/subjects/codegen/assign_to_variable_variable.php
 Demi_eval_false: Success test/subjects/codegen/assignment.php
 Demi_eval_false: Success test/subjects/codegen/assignment2.php
 Demi_eval_false: Success test/subjects/codegen/assignment3.php
+Demi_eval_false: Success test/subjects/codegen/bailout_die.php
 Demi_eval_false: Success test/subjects/codegen/bench_ackermann.php
 Demi_eval_false: Success test/subjects/codegen/bench_ary.php
 Demi_eval_false: Success test/subjects/codegen/bench_ary2.php
@@ -5513,6 +5538,7 @@ Demi_eval_false: Success test/subjects/codegen/call_evaled_fn.php
 Demi_eval_false: Success test/subjects/codegen/comma_op.php
 Demi_eval_false: Success test/subjects/codegen/compact_global.php
 Demi_eval_false: Success test/subjects/codegen/conditional.php
+Demi_eval_false: Success test/subjects/codegen/constant_reference.php
 Demi_eval_false: Success test/subjects/codegen/copy1.php
 Demi_eval_false: Success test/subjects/codegen/copy2.php
 Demi_eval_false: Success test/subjects/codegen/copy_into_arrays.php
@@ -5566,6 +5592,7 @@ Demi_eval_false: Success test/subjects/codegen/inherited_array_field.php
 Demi_eval_false: Success test/subjects/codegen/inlinable_function.php
 Demi_eval_false: Success test/subjects/codegen/int_exit.php
 Demi_eval_false: Success test/subjects/codegen/integer_variable.php
+Demi_eval_false: Success test/subjects/codegen/invalid_foreach_array.php
 Demi_eval_false: Success test/subjects/codegen/isset_1d_int.php
 Demi_eval_false: Success test/subjects/codegen/isset_1d_strings.php
 Demi_eval_false: Success test/subjects/codegen/isset_2d_int.php
@@ -5594,9 +5621,11 @@ Demi_eval_false: Success test/subjects/codegen/lazy_op.php
 Demi_eval_false: Success test/subjects/codegen/leak_on_exit.php
 Demi_eval_false: Success test/subjects/codegen/list_assignment.php
 Demi_eval_false: Success test/subjects/codegen/long_opeq.php
+Demi_eval_false: Success test/subjects/codegen/loop_separation1.php
 Demi_eval_false: Success test/subjects/codegen/masquarading_int_keys.php
 Demi_eval_false: Success test/subjects/codegen/multi_array_access.php
 Demi_eval_false: Success test/subjects/codegen/multi_way_merge.php
+Demi_eval_false: Success test/subjects/codegen/nested_statements.php
 Demi_eval_false: Success test/subjects/codegen/nested_statements_same_var.php
 Demi_eval_false: Success test/subjects/codegen/next.php
 Demi_eval_false: Success test/subjects/codegen/no_ashred_rvalue.php
@@ -5707,6 +5736,7 @@ Demi_eval_false: Success test/subjects/codegen/unary_minus.php
 Demi_eval_false: Success test/subjects/codegen/unary_op.php
 Demi_eval_false: Success test/subjects/codegen/undeclared_function.php
 Demi_eval_false: Success test/subjects/codegen/undef_var.php
+Demi_eval_false: Success test/subjects/codegen/unregistered_constant.php
 Demi_eval_false: Success test/subjects/codegen/unset.php
 Demi_eval_false: Success test/subjects/codegen/unset_2d_int.php
 Demi_eval_false: Success test/subjects/codegen/unset_array_elem.php
@@ -5721,6 +5751,7 @@ Demi_eval_false: Success test/subjects/codegen/unset_reference4.php
 Demi_eval_false: Success test/subjects/codegen/unset_reference5.php
 Demi_eval_false: Success test/subjects/codegen/unset_string_offset.php
 Demi_eval_false: Success test/subjects/codegen/unset_with_null.php
+Demi_eval_false: Success test/subjects/codegen/valid_callback_warning.php
 Demi_eval_false: Success test/subjects/codegen/variable_global.php
 Demi_eval_false: Success test/subjects/codegen/varvar.php
 Demi_eval_false: Success test/subjects/codegen/while_as_do_while.php
@@ -5750,6 +5781,7 @@ Demi_eval_false: Success test/subjects/optimization/dce_ack.php
 Demi_eval_false: Success test/subjects/optimization/dce_foreach2.php
 Demi_eval_false: Success test/subjects/optimization/dce_main.php
 Demi_eval_false: Success test/subjects/optimization/decrement.php
+Demi_eval_false: Success test/subjects/optimization/define.php
 Demi_eval_false: Success test/subjects/optimization/die.php
 Demi_eval_false: Success test/subjects/optimization/die_cfg.php
 Demi_eval_false: Success test/subjects/optimization/essa.php
@@ -5761,6 +5793,7 @@ Demi_eval_false: Success test/subjects/optimization/implicit.php
 Demi_eval_false: Success test/subjects/optimization/init_lattice.php
 Demi_eval_false: Success test/subjects/optimization/initialized_vars.php
 Demi_eval_false: Success test/subjects/optimization/is_obj_or_array.php
+Demi_eval_false: Success test/subjects/optimization/looping_defines.php
 Demi_eval_false: Success test/subjects/optimization/null_offsets.php
 Demi_eval_false: Success test/subjects/optimization/obj_simple_get.php
 Demi_eval_false: Success test/subjects/optimization/object_casts.php
@@ -5792,6 +5825,7 @@ Demi_eval_false: Success test/subjects/optimization/scti_integer.php
 Demi_eval_false: Success test/subjects/optimization/simple2.php
 Demi_eval_false: Success test/subjects/optimization/simple_example.php
 Demi_eval_false: Success test/subjects/optimization/ssi.php
+Demi_eval_false: Success test/subjects/optimization/static_value_constant.php
 Demi_eval_false: Success test/subjects/optimization/two_objects.php
 Demi_eval_false: Success test/subjects/optimization/unknowns.php
 Demi_eval_false: Success test/subjects/optimization/unset_set_vars.php
@@ -5810,6 +5844,7 @@ Demi_eval_false: Success test/subjects/parsing/conditional.php
 Demi_eval_false: Success test/subjects/parsing/continue.php
 Demi_eval_false: Success test/subjects/parsing/curlies.php
 Demi_eval_false: Success test/subjects/parsing/declare_ticks.php
+Demi_eval_false: Success test/subjects/parsing/define.php
 Demi_eval_false: Success test/subjects/parsing/do.php
 Demi_eval_false: Success test/subjects/parsing/empty.php
 Demi_eval_false: Success test/subjects/parsing/endofscriptincomment1.php
@@ -5830,6 +5865,7 @@ Demi_eval_false: Success test/subjects/parsing/heredoc_nl.php
 Demi_eval_false: Success test/subjects/parsing/heredoc_quotes.php
 Demi_eval_false: Success test/subjects/parsing/heredoc_unparsing.php
 Demi_eval_false: Success test/subjects/parsing/if.php
+Demi_eval_false: Success test/subjects/parsing/impure.php
 Demi_eval_false: Success test/subjects/parsing/include_classes.php
 Demi_eval_false: Success test/subjects/parsing/include_massive.php
 Demi_eval_false: Success test/subjects/parsing/include_multiple_class_def.php
@@ -5872,6 +5908,7 @@ Demi_eval_false: Success test/subjects/parsing/literal_test.php
 Demi_eval_false: Success test/subjects/parsing/negative_literals.php
 Demi_eval_false: Success test/subjects/parsing/nestedfndefs.php
 Demi_eval_false: Success test/subjects/parsing/new.php
+Demi_eval_false: Success test/subjects/parsing/null_obj_ref.php
 Demi_eval_false: Success test/subjects/parsing/precedence.php
 Demi_eval_false: Success test/subjects/parsing/prepostop.php
 Demi_eval_false: Success test/subjects/parsing/reflect_ints.php
@@ -5881,6 +5918,7 @@ Demi_eval_false: Success test/subjects/parsing/scalar_array.php
 Demi_eval_false: Success test/subjects/parsing/sq_vs_dq.php
 Demi_eval_false: Success test/subjects/parsing/stringescape.php
 Demi_eval_false: Success test/subjects/parsing/switch.php
+Demi_eval_false: Success test/subjects/parsing/tags.php
 Demi_eval_false: Success test/subjects/parsing/unary_plus.php
 Demi_eval_false: Success test/subjects/parsing/unset.php
 Demi_eval_false: Success test/subjects/parsing/var_targets.php
@@ -5895,6 +5933,7 @@ Demi_eval_false: Success test/subjects/phc/disable.php
 Demi_eval_false: Success test/subjects/phc/dump_parse_tree.php
 Demi_eval_false: Success test/subjects/phc/dump_tokens.php
 Demi_eval_false: Success test/subjects/phc/execute_flag.php
+Demi_eval_false: Success test/subjects/phc/foreach_dump.php
 Demi_eval_false: Success test/subjects/phc/list_passes.php
 Demi_eval_false: Success test/subjects/phc/run_once.php
 Demi_eval_false: Success test/subjects/phc/stats.php
@@ -5939,6 +5978,7 @@ Demi_eval_false: Success test/subjects/reduced/0036.php
 Demi_eval_false: Success test/subjects/reduced/0037.php
 Demi_eval_false: Success test/subjects/reduced/0038.php
 Demi_eval_false: Success test/subjects/reduced/0039.php
+Demi_eval_false: Success test/subjects/reduced/0040.php
 Demi_eval_false: Success test/subjects/reduced/0041.php
 Demi_eval_false: Success test/subjects/reduced/0044.php
 Demi_eval_false: Success test/subjects/reduced/0045.php
@@ -6020,6 +6060,7 @@ Demi_eval_true: Success test/subjects/codegen/assign_to_variable_variable.php
 Demi_eval_true: Success test/subjects/codegen/assignment.php
 Demi_eval_true: Success test/subjects/codegen/assignment2.php
 Demi_eval_true: Success test/subjects/codegen/assignment3.php
+Demi_eval_true: Success test/subjects/codegen/bailout_die.php
 Demi_eval_true: Success test/subjects/codegen/bench_ackermann.php
 Demi_eval_true: Success test/subjects/codegen/bench_ary.php
 Demi_eval_true: Success test/subjects/codegen/bench_ary2.php
@@ -6027,6 +6068,7 @@ Demi_eval_true: Success test/subjects/codegen/bench_ary3.php
 Demi_eval_true: Success test/subjects/codegen/bench_fibo.php
 Demi_eval_true: Success test/subjects/codegen/bench_hash1.php
 Demi_eval_true: Success test/subjects/codegen/bench_hash2.php
+Demi_eval_true: Success test/subjects/codegen/bench_heapsort.php
 Demi_eval_true: Success test/subjects/codegen/bench_mandel.php
 Demi_eval_true: Success test/subjects/codegen/bench_mandel2.php
 Demi_eval_true: Success test/subjects/codegen/bench_matrix.php
@@ -6059,6 +6101,7 @@ Demi_eval_true: Success test/subjects/codegen/call_evaled_fn.php
 Demi_eval_true: Success test/subjects/codegen/comma_op.php
 Demi_eval_true: Success test/subjects/codegen/compact_global.php
 Demi_eval_true: Success test/subjects/codegen/conditional.php
+Demi_eval_true: Success test/subjects/codegen/constant_reference.php
 Demi_eval_true: Success test/subjects/codegen/copy1.php
 Demi_eval_true: Success test/subjects/codegen/copy2.php
 Demi_eval_true: Success test/subjects/codegen/copy_into_arrays.php
@@ -6144,6 +6187,7 @@ Demi_eval_true: Success test/subjects/codegen/loop_separation2.php
 Demi_eval_true: Success test/subjects/codegen/masquarading_int_keys.php
 Demi_eval_true: Success test/subjects/codegen/multi_array_access.php
 Demi_eval_true: Success test/subjects/codegen/multi_way_merge.php
+Demi_eval_true: Success test/subjects/codegen/nested_statements.php
 Demi_eval_true: Success test/subjects/codegen/nested_statements_same_var.php
 Demi_eval_true: Success test/subjects/codegen/next.php
 Demi_eval_true: Success test/subjects/codegen/no_ashred_rvalue.php
@@ -6251,6 +6295,7 @@ Demi_eval_true: Success test/subjects/codegen/target_lhs.php
 Demi_eval_true: Success test/subjects/codegen/unary_minus.php
 Demi_eval_true: Success test/subjects/codegen/unary_op.php
 Demi_eval_true: Success test/subjects/codegen/undef_var.php
+Demi_eval_true: Success test/subjects/codegen/unregistered_constant.php
 Demi_eval_true: Success test/subjects/codegen/unset.php
 Demi_eval_true: Success test/subjects/codegen/unset_2d_int.php
 Demi_eval_true: Success test/subjects/codegen/unset_array_elem.php
@@ -6293,6 +6338,7 @@ Demi_eval_true: Success test/subjects/optimization/dce_ack.php
 Demi_eval_true: Success test/subjects/optimization/dce_foreach2.php
 Demi_eval_true: Success test/subjects/optimization/dce_main.php
 Demi_eval_true: Success test/subjects/optimization/decrement.php
+Demi_eval_true: Success test/subjects/optimization/define.php
 Demi_eval_true: Success test/subjects/optimization/die.php
 Demi_eval_true: Success test/subjects/optimization/die_cfg.php
 Demi_eval_true: Success test/subjects/optimization/essa.php
@@ -6305,6 +6351,7 @@ Demi_eval_true: Success test/subjects/optimization/indirect_string.php
 Demi_eval_true: Success test/subjects/optimization/init_lattice.php
 Demi_eval_true: Success test/subjects/optimization/initialized_vars.php
 Demi_eval_true: Success test/subjects/optimization/is_obj_or_array.php
+Demi_eval_true: Success test/subjects/optimization/looping_defines.php
 Demi_eval_true: Success test/subjects/optimization/null_offsets.php
 Demi_eval_true: Success test/subjects/optimization/obj_simple_get.php
 Demi_eval_true: Success test/subjects/optimization/object_casts.php
@@ -6336,6 +6383,7 @@ Demi_eval_true: Success test/subjects/optimization/side_effecting_echo.php
 Demi_eval_true: Success test/subjects/optimization/simple2.php
 Demi_eval_true: Success test/subjects/optimization/simple_example.php
 Demi_eval_true: Success test/subjects/optimization/ssi.php
+Demi_eval_true: Success test/subjects/optimization/static_value_constant.php
 Demi_eval_true: Success test/subjects/optimization/two_objects.php
 Demi_eval_true: Success test/subjects/optimization/unknowns.php
 Demi_eval_true: Success test/subjects/optimization/unset_set_vars.php
@@ -6353,6 +6401,7 @@ Demi_eval_true: Success test/subjects/parsing/conditional.php
 Demi_eval_true: Success test/subjects/parsing/continue.php
 Demi_eval_true: Success test/subjects/parsing/curlies.php
 Demi_eval_true: Success test/subjects/parsing/declare_ticks.php
+Demi_eval_true: Success test/subjects/parsing/define.php
 Demi_eval_true: Success test/subjects/parsing/do.php
 Demi_eval_true: Success test/subjects/parsing/empty.php
 Demi_eval_true: Success test/subjects/parsing/endofscriptincomment1.php
@@ -6373,6 +6422,7 @@ Demi_eval_true: Success test/subjects/parsing/heredoc_nl.php
 Demi_eval_true: Success test/subjects/parsing/heredoc_quotes.php
 Demi_eval_true: Success test/subjects/parsing/heredoc_unparsing.php
 Demi_eval_true: Success test/subjects/parsing/if.php
+Demi_eval_true: Success test/subjects/parsing/impure.php
 Demi_eval_true: Success test/subjects/parsing/include_classes.php
 Demi_eval_true: Success test/subjects/parsing/include_massive.php
 Demi_eval_true: Success test/subjects/parsing/include_multiple_class_def.php
@@ -6423,6 +6473,7 @@ Demi_eval_true: Success test/subjects/parsing/return.php
 Demi_eval_true: Success test/subjects/parsing/scalar_array.php
 Demi_eval_true: Success test/subjects/parsing/sq_vs_dq.php
 Demi_eval_true: Success test/subjects/parsing/switch.php
+Demi_eval_true: Success test/subjects/parsing/tags.php
 Demi_eval_true: Success test/subjects/parsing/transform.php
 Demi_eval_true: Success test/subjects/parsing/unary_plus.php
 Demi_eval_true: Success test/subjects/parsing/unset.php
@@ -12361,6 +12412,7 @@ Refcounts: Success test/subjects/codegen/OO_test.php
 Refcounts: Success test/subjects/codegen/add.php
 Refcounts: Success test/subjects/codegen/assign_to_next.php
 Refcounts: Success test/subjects/codegen/assignment.php
+Refcounts: Success test/subjects/codegen/bailout_die.php
 Refcounts: Success test/subjects/codegen/break6.php
 Refcounts: Success test/subjects/codegen/break_double.php
 Refcounts: Success test/subjects/codegen/break_five.php
@@ -12382,6 +12434,7 @@ Refcounts: Success test/subjects/codegen/call_evaled_fn.php
 Refcounts: Success test/subjects/codegen/comma_op.php
 Refcounts: Success test/subjects/codegen/compact_global.php
 Refcounts: Success test/subjects/codegen/conditional.php
+Refcounts: Success test/subjects/codegen/constant_reference.php
 Refcounts: Success test/subjects/codegen/copy1.php
 Refcounts: Success test/subjects/codegen/die_alone.php
 Refcounts: Success test/subjects/codegen/do_multi.php
@@ -12486,6 +12539,7 @@ Refcounts: Success test/subjects/codegen/unary_minus.php
 Refcounts: Success test/subjects/codegen/unary_op.php
 Refcounts: Success test/subjects/codegen/undeclared_function.php
 Refcounts: Success test/subjects/codegen/undef_var.php
+Refcounts: Success test/subjects/codegen/unregistered_constant.php
 Refcounts: Success test/subjects/codegen/unset.php
 Refcounts: Success test/subjects/codegen/unset_global_array.php
 Refcounts: Success test/subjects/codegen/unset_multiple.php
@@ -12494,6 +12548,7 @@ Refcounts: Success test/subjects/codegen/unset_reference.php
 Refcounts: Success test/subjects/codegen/unset_reference2.php
 Refcounts: Success test/subjects/codegen/unset_reference3.php
 Refcounts: Success test/subjects/codegen/unset_string_offset.php
+Refcounts: Success test/subjects/codegen/valid_callback_warning.php
 Refcounts: Success test/subjects/codegen/while_as_do_while.php
 Refcounts: Success test/subjects/codegen/while_nested.php
 Refcounts: Success test/subjects/codegen/while_simple.php
@@ -12513,6 +12568,7 @@ Refcounts: Success test/subjects/optimization/cp001.php
 Refcounts: Success test/subjects/optimization/dce000.php
 Refcounts: Success test/subjects/optimization/dce002.php
 Refcounts: Success test/subjects/optimization/dce_main.php
+Refcounts: Success test/subjects/optimization/define.php
 Refcounts: Success test/subjects/optimization/die.php
 Refcounts: Success test/subjects/optimization/die_cfg.php
 Refcounts: Success test/subjects/optimization/essa.php
@@ -12521,6 +12577,7 @@ Refcounts: Success test/subjects/optimization/ifs.php
 Refcounts: Success test/subjects/optimization/indirect_string.php
 Refcounts: Success test/subjects/optimization/init_lattice.php
 Refcounts: Success test/subjects/optimization/initialized_vars.php
+Refcounts: Success test/subjects/optimization/looping_defines.php
 Refcounts: Success test/subjects/optimization/object_reference.php
 Refcounts: Success test/subjects/optimization/pixy2_fig2.php
 Refcounts: Success test/subjects/optimization/pixy2_fig6.php
@@ -12550,6 +12607,7 @@ Refcounts: Success test/subjects/parsing/conditional.php
 Refcounts: Success test/subjects/parsing/continue.php
 Refcounts: Success test/subjects/parsing/curlies.php
 Refcounts: Success test/subjects/parsing/declare_ticks.php
+Refcounts: Success test/subjects/parsing/define.php
 Refcounts: Success test/subjects/parsing/do.php
 Refcounts: Success test/subjects/parsing/empty.php
 Refcounts: Success test/subjects/parsing/endofscriptincomment1.php
@@ -12566,6 +12624,7 @@ Refcounts: Success test/subjects/parsing/heredoc_nl.php
 Refcounts: Success test/subjects/parsing/heredoc_quotes.php
 Refcounts: Success test/subjects/parsing/heredoc_unparsing.php
 Refcounts: Success test/subjects/parsing/if.php
+Refcounts: Success test/subjects/parsing/impure.php
 Refcounts: Success test/subjects/parsing/include_classes.php
 Refcounts: Success test/subjects/parsing/include_massive.php
 Refcounts: Success test/subjects/parsing/include_multiple_class_def.php
@@ -12598,6 +12657,7 @@ Refcounts: Success test/subjects/parsing/literal_test.php
 Refcounts: Success test/subjects/parsing/negative_literals.php
 Refcounts: Success test/subjects/parsing/nestedfndefs.php
 Refcounts: Success test/subjects/parsing/new.php
+Refcounts: Success test/subjects/parsing/null_obj_ref.php
 Refcounts: Success test/subjects/parsing/precedence.php
 Refcounts: Success test/subjects/parsing/prepostop.php
 Refcounts: Success test/subjects/parsing/removeconcatnulls.php
@@ -12605,6 +12665,7 @@ Refcounts: Success test/subjects/parsing/return.php
 Refcounts: Success test/subjects/parsing/sq_vs_dq.php
 Refcounts: Success test/subjects/parsing/stringescape.php
 Refcounts: Success test/subjects/parsing/switch.php
+Refcounts: Success test/subjects/parsing/tags.php
 Refcounts: Success test/subjects/parsing/unary_plus.php
 Refcounts: Success test/subjects/parsing/var_targets.php
 Refcounts: Success test/subjects/parsing/vars.php
@@ -12618,6 +12679,7 @@ Refcounts: Success test/subjects/phc/disable.php
 Refcounts: Success test/subjects/phc/dump_parse_tree.php
 Refcounts: Success test/subjects/phc/dump_tokens.php
 Refcounts: Success test/subjects/phc/execute_flag.php
+Refcounts: Success test/subjects/phc/foreach_dump.php
 Refcounts: Success test/subjects/phc/list_passes.php
 Refcounts: Success test/subjects/phc/run_once.php
 Refcounts: Success test/subjects/phc/stats.php
@@ -12644,7 +12706,9 @@ Refcounts: Success test/subjects/reduced/0031.php
 Refcounts: Success test/subjects/reduced/0036.php
 Refcounts: Success test/subjects/reduced/0038.php
 Refcounts: Success test/subjects/reduced/0039.php
+Refcounts: Success test/subjects/reduced/0040.php
 Refcounts: Success test/subjects/reduced/0041.php
+Refcounts: Success test/subjects/reduced/0043.php
 Refcounts: Success test/subjects/reduced/0047.php
 Refcounts: Success test/subjects/reduced/0049.php
 Refcounts: Success test/subjects/reduced/0050.php
