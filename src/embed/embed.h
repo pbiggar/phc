@@ -74,10 +74,6 @@ public:
 
 	/* Superglobals */
 	static MIR::VARIABLE_NAME_list* get_superglobals ();
-	static MIR::VARIABLE_NAME_list* get_initial_vars ();
-
-	// Is the superglobal an array of strings.
-	static bool is_initial_var_string_array (MIR::VARIABLE_NAME* sg);
 
 	/*
 	 * Optimization (defined in optimize.cpp)

@@ -247,20 +247,6 @@ PHP::get_superglobals ()
 	return result;
 }
 
-MIR::VARIABLE_NAME_list*
-PHP::get_initial_vars ()
-{
-	phc_TODO ();
-}
-
-// Is IV known to be an array of strings.
-bool
-PHP::is_initial_var_string_array (MIR::VARIABLE_NAME* iv)
-{
-	phc_TODO ();
-}
-
-
 #else
 
 #include <errno.h>
@@ -406,6 +392,34 @@ PHP::get_ini_entry (String*)
 	return new String;
 }
 
+MIR::VARIABLE_NAME_list*
+PHP::get_superglobals ()
+{
+	MIR::VARIABLE_NAME_list* result = new MIR::VARIABLE_NAME_list;
+
+	String_list* var_names = new String_list;
+	var_names->push_back (s("GLOBALS"));
+	var_names->push_back (s("_ENV"));
+	var_names->push_back (s("HTTP_ENV_VARS"));
+	var_names->push_back (s("_POST"));
+	var_names->push_back (s("HTTP_POST_VARS"));
+	var_names->push_back (s("_GET"));
+	var_names->push_back (s("HTTP_GET_VARS"));
+	var_names->push_back (s("_COOKIE"));
+	var_names->push_back (s("HTTP_COOKIE_VARS"));
+	var_names->push_back (s("_FILES"));
+	var_names->push_back (s("HTTP_FILES_VARS"));
+	var_names->push_back (s("_REQUEST"));
+	var_names->push_back (s("HTTP_REQUEST_VARS"));
+
+	foreach (String *s, *var_names)
+	{
+		result->push_back (new MIR::VARIABLE_NAME (s));
+	}
+
+	return result;
+}
+
 #endif
 
 
@@ -430,5 +444,3 @@ PHP::add_include (String* filename)
 	// TODO: assert absolute filename
 	included.insert (*filename);
 }
-
-

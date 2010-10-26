@@ -23,6 +23,7 @@ using namespace MIR;
 FAIL (Literal* PHP::fold_unary_op (OP*, Literal*))
 FAIL (bool PHP::is_true (Literal*));
 FAIL (Literal* PHP::cast_to (CAST*, Literal*))
+FAIL (String* PHP::get_string_value (Literal* lit))
 FAIL (Literal* PHP::fold_bin_op (Literal* left, OP* op, Literal* right))
 FAIL (Literal* PHP::fold_pre_op (Literal* use, OP* op))
 FAIL (Literal* PHP::fold_constant (Constant* in))

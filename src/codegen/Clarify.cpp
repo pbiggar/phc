@@ -7,22 +7,9 @@
 
 #include "Clarify.h"
 #include "process_ir/General.h"
+#include "embed/embed.h"
 
 using namespace MIR;
-
-// TODO: deal with all superglobals 
-// TODO: _ENV
-// TODO: HTTP_ENV_VARS
-// TODO: _POST
-// TODO: HTTP_POST_VARS
-// TODO: _GET
-// TODO: HTTP_GET_VARS
-// TODO: _COOKIE
-// TODO: HTTP_COOKIE_VARS
-// TODO: _FILES
-// TODO: HTTP_POST_FILES
-// TODO: _REQUEST
-
 
 void Clarify::post_method (MIR::Method* in)
 {
@@ -34,23 +21,9 @@ void Clarify::post_method (MIR::Method* in)
 	if (*in->signature->method_name->value == "__MAIN__")
 		return;
 
-	String_list* var_names = new String_list;
-	var_names->push_back (s("GLOBALS"));
-	var_names->push_back (s("_ENV"));
-	var_names->push_back (s("HTTP_ENV_VARS"));
-	var_names->push_back (s("_POST"));
-	var_names->push_back (s("HTTP_POST_VARS"));
-	var_names->push_back (s("_GET"));
-	var_names->push_back (s("HTTP_GET_VARS"));
-	var_names->push_back (s("_COOKIE"));
-	var_names->push_back (s("HTTP_COOKIE_VARS"));
-	var_names->push_back (s("_FILES"));
-	var_names->push_back (s("HTTP_FILES_VARS"));
-	var_names->push_back (s("_REQUEST"));
-	var_names->push_back (s("HTTP_REQUEST_VARS"));
-	foreach (String *s, *var_names)
+	foreach (VARIABLE_NAME* var_name, *PHP::get_superglobals())
 	{
-		Global* glob = new Global (new VARIABLE_NAME (s));
+		Global* glob = new Global (var_name);
 		glob->attrs->set_true ("phc.optimize.is_super_global");
 		in->statements->push_front (glob);
 	}
