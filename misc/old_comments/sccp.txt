@@ -1,0 +1,122 @@
+/*
+ * Cooper/Torczon Section 10.3.3 describes SSCP, which is weaker than SCCP.
+ * Muchnick 12.6 describes SCCP, but does a very poor job of it. The original
+ * paper, "Constant propagation with Conditional Branches", by Wegman and
+ * Zadeck, is quite readable. I'll summarize:
+ *		
+ *		Simple Constant Propagation, by Kildall, propagates constants.
+ *
+ *		Sparse Simple Constant Propagation, by Reif and Lewis, repeats this
+ *		using SSA, getting faster optimizations, but the same results.
+ *
+ *		Conditional Constant Propagation, by Wegbreit, additionally evaluates
+ *		constant expressions, and only proceeds down flow control edges which
+ *		are known to be executable. This is faster (doesnt waste time
+ *		processing unreachable code), but importantly gets better results (see
+ *		later).
+ *
+ *		Sparse Conditional Constant Propagation, does to CCP what SSCP does to
+ *		SCP, reformulating it with SSA.
+ *
+ *		The algorithm iterates through the SSA graph, following SSA-edges (SSA
+ *		def-use chains) and CFG edges. When it comes to a phi node, it
+ *		evaluates it, assuming that TOP is never executed. After seeing a
+ *		constant definition, it adds the use of this def to the SSA worklist.
+ *		After processing a basic block, it adds the successors to the CFG
+ *		worklist, but only if they havent been executed. It ensures termination
+ *		through a monotonic lattice: TOP->constant->BOTTOM.
+ *
+ *		Sect 5.1: The important difference between the first two and second two
+ *		is that SC is _pessimistic_, which CC is _optimistic_.  So SC expects
+ *		all the argument to the PHI node to be available before it thinks it
+ *		can evaluate it. CC knows that some edges aren't executable, and can
+ *		evaluate a "partial" phi node.
+ *
+ *		Sect 5.2: Using def-use chains is worse than SSA edges, since the chain
+ *		may go through an unreachable region.
+ *
+ *		VRP uses pretty much the same algorithm. In fact, it subsumes constant-
+ *		and copy-propagation, as explained in Section 6 of "Accurate Static
+ *		Branch Prediction by Value Range Propagation", by Jason Patterson.
+ *
+ *		I believe there is a type-inference algorithm with the same algorithm.
+ *		TODO find it:
+ *
+ *		TODO: GCC has a similar approach, abstracting the algorithm for other
+ *		uses. Cite it (2005 proceedings)
+ *
+ *
+ *		TODO: Section 6 expands it to inter-procedural, including alias
+ *		information. Incorporate.
+ *			
+ *
+ *		Algorithm: (Section 3.4)
+ *
+ *		CFG-worklist contains CFG edges.
+ *		SSA-worklist contains SSA edges, an edge between a defining statement
+ *		and the use of that statement (def-use web for SSA).
+ *
+ *		1. Initialize:
+ *			CFG-Worklist: { entry->B1 }
+ *			SSA-Worklist: {}
+ *			ExecFlag (e) = false, for all CFG edges e
+ *			LatticeCell (v) = TOP, for all variables v
+ *
+ *		2. Stop when CFG-worklist and SSA-worklist are both empty.
+ *
+ *		Take workitem from either list.
+ *
+ *		3.  For CFGWL, pop e. If ExecFlag(e) == true, do nothing. Else:
+ *				- ExecFlag(e) = true;
+ *				- visitPhi (p) for all phis in e.target.
+ *				- if this is the first time the stmt is evaluated 
+ *					(ie. if count (execflags(e1), where e1.target = e.target) == 1)
+ *				  then visitExpr (e.target)
+ *				- If e.target has 1 outgoing edge, add it to CFGWL
+ *
+ *		4/5.	For SSAWL, pop e. If e.target is a Phi, perform visitPhi
+ *		(e.target).
+ *			If e.target is an expression, and any of e.targets incoming edges is
+ *			executable, run visit_expression. Else do nothing.
+ *
+ *		The lattice is TOP -> literals -> BOTTOM, where bottom is Not contant,
+ *		and TOP is unitialised. 
+ *
+ *		VisitPhi:
+ *		The lattice of the phis output variable is the meet of all the inputs
+ *		(non-execable means TOP), with the meet function:
+ *			any + TOP = any
+ *			any + BOTTOM = BOTTOM
+ *			ci + cj = ci if i == j (? surely if c_i == c_j?)
+ *			c1 + c2 = BOTTOM if i != j (this can be improved with VRP, using a similar algorithm).
+ *
+ *		VisitExpr:
+ *			Evaluate the expression.
+ *				- If its an assignment and creates a result for the LHS, add all
+ *				SSA edges from LHS to SSAWL.
+ *				- If its a branch, add:
+ *					- all outgoing edges to CFGWL for BOTTOM
+ *					- only the appropriate outgoing edge for a constant
+ *		
+ *
+ *
+ *		At the end of the execution, check that all latticeCells are c or
+ *		bottom, or non-executable.
+ *
+ *
+ *		The propagation must not update the IR. Instead, it should just propagate
+ *		lattice cells. At the end of the analysis, it is appropriate to replace
+ *		variables with their constants. For example:
+ *
+ *		L0:
+ *		x0 = 5;
+ *		x2 = PHI (x0, x1)
+ *		z = x2 + 5;
+ *		x1 = 7;
+ *		...
+ *		goto L0;
+ *
+ *		Although we can propagate 10 into z, we cannot replace z's assignment
+ *		with z = 10. If we do, then when x2 becomes BOTTOM, on the second loop
+ *		iteration, we'll already have the wrong result in z.
+ */

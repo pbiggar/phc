@@ -4012,6 +4012,22 @@ Whole_program::visit_isset (Statement_block* bb, MIR::Isset* in)
 			record_use (block_cx (), VN (ns, dyc<VARIABLE_NAME> (rval)));
 	}
 
+	// For simple variables, if they have a value, they're set.
+	if (in->target == NULL
+			&& isa<VARIABLE_NAME> (in->variable_name)
+			&& in->array_indices->size () == 0)
+	{
+		const Literal* lit = get_abstract_value (block_cx(), R_IN, dyc<VARIABLE_NAME>(in->variable_name))->lit;
+
+		if (lit != NULL)
+		{
+			assign_path_scalar (block_cx (), saved_plhs (), new Abstract_value (new BOOL(true)));
+			return;
+		}
+
+		// TODO: we can use the alias analysis to prove the variable is set or not.
+	}
+
 
 	// Always returns true or false.
 	assign_path_scalar (block_cx (), saved_plhs (), new Abstract_value (new Types ("bool")));

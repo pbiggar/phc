@@ -30,12 +30,14 @@ public:
 
 	const Abstract_value* get_in_abstract_value (Basic_block* bb, MIR::Rvalue* in);
 	const Abstract_value* get_out_abstract_value (Basic_block* bb, MIR::Rvalue* in);
-	bool rhs_is_pure (Statement_block* bb, MIR::Assign_var* in);
+	bool rhs_is_pure (Statement_block* bb, MIR::Expr* in);
 
 	void visit_branch_block (Branch_block* bb);
 
 	DECLARE_STATEMENT_CFG_VISITORS
 	DECLARE_EXPR_CFG_VISITORS
+	MIR::Expr* transform_cast (Statement_block*, MIR::Cast*);
+	void transform_eval_expr (Statement_block*, MIR::Eval_expr*, BB_list*);
 
 private:
 

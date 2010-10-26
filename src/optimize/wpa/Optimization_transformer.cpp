@@ -73,6 +73,7 @@ Optimization_transformer::visit_block (Basic_block* bb)
 		return;
 
 	CFG_visitor::visit_block (bb);
+	CFG_visitor::transform_block (bb);
 }
 
 void
@@ -106,36 +107,33 @@ Optimization_transformer::visit_assign_field (Statement_block* bb, MIR::Assign_f
 }
 
 bool
-Optimization_transformer::rhs_is_pure (Statement_block* bb, MIR::Assign_var* in)
+Optimization_transformer::rhs_is_pure (Statement_block* bb, MIR::Expr* in)
 {
 	// We dont model enough here to be sure.
-	if (isa<Method_invocation> (in->rhs) || isa<New> (in->rhs))
+	if (isa<New> (in))
 		return false;
+
+	if (Method_invocation* mi = dynamic_cast<Method_invocation*> (in))
+	{
+		METHOD_NAME* name = dynamic_cast<METHOD_NAME*> (mi->method_name);
+		if (name == NULL)
+			return false;
+
+		if (!Oracle::is_pure_function (name))
+			return false;
+
+		foreach (Actual_parameter* param, *mi->actual_parameters)
+			if (get_literal (bb, param->rvalue) == NULL)
+				return false;
+	}
 
 	// If the only definition is the LHS, nothing else has happened
 	cIndex_node_list* defs = wp->def_use->get_defs (bb);
 	cIndex_node_list* may_defs = wp->def_use->get_may_defs (bb);
+	if (defs->size () + may_defs->size () != 1)
+		return false;
 
-	if (defs->size () + may_defs->size () == 1)
-	{
-		return true;
-	}
-	else
-	{
-		if (debugging_enabled)
-		{
-			cdebug << "defs: \n";
-			foreach (const Index_node* def, *defs)
-				cdebug << def->str () << ", ";
-
-			cdebug << "\n\nmay-defs: \n";
-			foreach (const Index_node* def, *may_defs)
-				cdebug << def->str () << ", ";
-
-		}
-	}
-
-	return false;
+	return true;
 }
 
 
@@ -145,8 +143,12 @@ Optimization_transformer::visit_assign_var (Statement_block* bb, MIR::Assign_var
 	// If the RHS value is known, replace it outright.
 	const Literal* lit = get_out_abstract_value (bb, in->lhs)->lit;
 
-	if (lit && in->is_ref == false && rhs_is_pure (bb, in))
+	if (	lit
+		&& in->is_ref == false 
+		&& rhs_is_pure (bb, in->rhs))
+	{
 		in->rhs = clone (lit);
+	}
 	else
 		visit_expr (bb, in->rhs);
 }
@@ -191,8 +193,6 @@ Optimization_transformer::visit_foreach_reset (Statement_block* bb, MIR::Foreach
 void
 Optimization_transformer::visit_global (Statement_block* bb, MIR::Global* in)
 {
-	if (isa<Variable_variable> (in->variable_name))
-    phc_optimization_exception ("Optimization of globals unsupported");
 }
 
 void
@@ -233,26 +233,27 @@ Optimization_transformer::visit_return (Statement_block* bb, MIR::Return* in)
 void
 Optimization_transformer::visit_static_declaration (Statement_block* bb, MIR::Static_declaration* in)
 {
-  phc_optimization_exception ("Optimization of static declarations unsupported");
 }
 
 void
 Optimization_transformer::visit_throw (Statement_block* bb, MIR::Throw* in)
 {
-  phc_optimization_exception ("Optimization of throw statements unsupported");
 }
 
 void
 Optimization_transformer::visit_try (Statement_block* bb, MIR::Try* in)
 {
-  phc_optimization_exception ("Optimization of try blocks unsupported");
 }
 
 void
 Optimization_transformer::visit_unset (Statement_block* bb, MIR::Unset* in)
 {
-	// We can remove unsets from uninits later.
-	// TODO: We should replace array indices
+	foreach (Rvalue*& rval, *in->array_indices)
+	{
+		rval = get_literal (bb, rval);
+	}
+
+	// TODO: We can remove unsets from uninits later.
 }
 
 
@@ -267,7 +268,6 @@ Optimization_transformer::visit_array_access (Statement_block* bb, MIR::Array_ac
 void
 Optimization_transformer::visit_array_next (Statement_block* bb, MIR::Array_next* in)
 {
-  phc_optimization_exception ("Optimization of array-next statements unsupported");
 }
 
 void
@@ -298,6 +298,12 @@ void
 Optimization_transformer::visit_field_access (Statement_block* bb, MIR::Field_access* in)
 {
 	// TODO: can change a variable field to just a field.
+	if (Variable_field* vf = dynamic_cast<Variable_field*> (in->field_name))
+	{
+		Rvalue* rval = get_literal (bb, vf->variable_name);
+		if (Literal* lit = dynamic_cast<Literal*> (rval))
+			in->field_name = new MIR::FIELD_NAME (PHP::get_string_value(lit));
+	}
 	
 	// TODO: if this actually calls __get, we need to do some work here. That
 	// cant happen yet, because we check for handlers early.
@@ -321,7 +327,6 @@ Optimization_transformer::visit_foreach_has_key (Statement_block* bb, MIR::Forea
 void
 Optimization_transformer::visit_instanceof (Statement_block* bb, MIR::Instanceof* in)
 {
-  phc_optimization_exception ("Optimization of instanceof statements unsupported");
 }
 
 void
@@ -414,3 +419,25 @@ Optimization_transformer::visit_variable_variable (Statement_block* bb, MIR::Var
 	// TODO: optimize var-vars
 }
 
+
+void
+Optimization_transformer::transform_eval_expr (Statement_block* in, Eval_expr* eval_expr, BB_list* out)
+{
+	if (!rhs_is_pure (in, eval_expr->expr))
+		out->push_back (in);
+}
+
+/*
+ * Exprs
+ */
+
+Expr*
+Optimization_transformer::transform_cast (Statement_block* bb, Cast* in)
+{
+	// Remove the cast if we can.
+	const Abstract_value* absval = get_in_abstract_value (bb, in->variable_name);
+	if (*absval->types == Types (*in->cast->value))
+		return in->variable_name;
+
+	return in;
+}

@@ -679,7 +679,7 @@ void Pass_manager::optimize (MIR::PHP_script* in)
 	}
 	catch (String* e)
 	{
-		cout << "Warning: The optimizer has failed for the following reason:\n" << *e << endl; 
+		cerr << "Warning: The optimizer has failed for the following reason:\n" << *e << endl; 
 	}
 }
 
@@ -753,7 +753,16 @@ Pass_manager::run_optimization_pass (Pass* pass, Whole_program* wp, CFG* cfg)
 
 	// Run optimization
 	maybe_enable_debug (pass->name);
-	opt->run (cfg, this);
+
+	try
+	{
+		opt->run (cfg, this);
+	}
+	catch (String* e)
+	{
+		cerr << "Warning: The optimizer has failed, but can continue. It experienced the following problem: " << *e << endl; 
+	}
+
 	cfg->clean ();
 	cfg_dump (cfg, pass->name, s("After optimization (cleaned)"));
 

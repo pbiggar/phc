@@ -1,118 +1,114 @@
 
 Annotated_test: Failure test/subjects/optimization/dce_foreach1.php -  found (foreach_), not expected: "foreach_" using pattern "/foreach_/ms"
-BasicFastOptAnalyseTest: Failure test/subjects/codegen/indexing_non_arrays.php - Stdout not clear
-BasicFastOptAnalyseTest: Failure test/subjects/codegen/push_uninitialized.php - Stdout not clear
-BasicFastOptAnalyseTest: Failure test/subjects/codegen/write_var_var.php - Stdout not clear
-BasicFastOptAnalyseTest: Failure test/subjects/horrible/invocation_priorities.php - Stdout not clear
-BasicFastOptAnalyseTest: Failure test/subjects/horrible/method_invocation.php - Stdout not clear
+BasicFastOptAnalyseTest: Failure test/subjects/codegen/indexing_non_arrays.php - Stderr not clear
+BasicFastOptAnalyseTest: Failure test/subjects/codegen/push_uninitialized.php - Stderr not clear
+BasicFastOptAnalyseTest: Failure test/subjects/codegen/write_var_var.php - Stderr not clear
+BasicFastOptAnalyseTest: Failure test/subjects/horrible/invocation_priorities.php - Stderr not clear
+BasicFastOptAnalyseTest: Failure test/subjects/horrible/method_invocation.php - Stderr not clear
 BasicFastOptAnalyseTest: Failure test/subjects/optimization/looping_defines.php - Stderr not clear
-BasicFastOptAnalyseTest: Failure test/subjects/optimization/points_to.php - Stdout not clear
-BasicFastOptAnalyseTest: Failure test/subjects/parsing/invocation.php - Stdout not clear
-BasicFastOptAnalyseTest: Failure test/subjects/parsing/scalar_array.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/019b.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/bench_ackermann.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/bench_fibo.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/braces.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/default_values.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/dynamic_class_def_and_constants.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/eval.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/factorial.php - Stdout not clear
+BasicFastOptAnalyseTest: Failure test/subjects/optimization/points_to.php - Stderr not clear
+BasicFastOptAnalyseTest: Failure test/subjects/parsing/invocation.php - Stderr not clear
+BasicFastOptAnalyseTest: Failure test/subjects/parsing/scalar_array.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/019b.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/bench_ackermann.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/bench_fibo.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/default_values.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/dynamic_class_def_and_constants.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/eval.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/factorial.php - Stderr not clear
 BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/for_empty.php - Stderr not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/functioncalls_evald_functions.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/functioncalls_evald_invocations.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/global_var_var.php - Stdout not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/functioncalls_evald_functions.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/functioncalls_evald_invocations.php - Stderr not clear
 BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/include_fail.php - Stderr not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/include_once.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/invalid_foreach_array.php - Stdout not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/include_once.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/invalid_foreach_array.php - Stderr not clear
 BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/next_available.php - Stderr not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/non_existant_function.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_assign_field.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_class_attribute1.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_class_attribute2.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_class_attribute4.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_class_attribute5.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_class_constant.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_field_access.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_method_def1.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_method_def2.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_method_invocation1.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_method_invocation1_2.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_method_invocation2.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_method_invocation3.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_method_invocation4.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_new1.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_new3.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_set_and_get.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_simple_get.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_simple_set.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_static_attribute1.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_static_attribute2.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_static_attribute3.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_static_invocation1a.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_static_invocation2a.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_static_invocation3a.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_static_invocation4a.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_static_invocation5a.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/reference_to_static.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/repeated_static.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/return_by_reference_evald_functions.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/return_by_reference_evald_invocations.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/return_by_reference_torture.php - Stdout not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/non_existant_function.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_assign_field.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_class_attribute1.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_class_attribute2.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_class_attribute4.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_class_attribute5.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_class_constant.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_field_access.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_method_def1.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_method_def2.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_method_invocation1.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_method_invocation1_2.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_method_invocation2.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_method_invocation3.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_method_invocation4.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_new1.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_new3.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_set_and_get.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_simple_get.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_simple_set.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_static_attribute1.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_static_attribute2.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_static_attribute3.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_static_invocation1a.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_static_invocation2a.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_static_invocation3a.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_static_invocation4a.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/oop_static_invocation5a.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/reference_to_static.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/repeated_static.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/return_by_reference_evald_functions.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/return_by_reference_evald_invocations.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/return_by_reference_torture.php - Stderr not clear
 BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/return_global.php - Stderr not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/shred_op_assign_target.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/shutdown_on_exit_bool.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/shutdown_on_exit_int.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/shutdown_on_exit_no_exit.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/shutdown_on_exit_string.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/shutdown_on_missing_function.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/side_effecting_break_expr.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/static.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/static_array_keys.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/static_reference.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/switch_multi_break.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/target_lhs.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/undeclared_function.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/undefined_consts.php - Stdout not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/shred_op_assign_target.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/shutdown_on_exit_bool.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/shutdown_on_exit_int.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/shutdown_on_exit_no_exit.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/shutdown_on_exit_string.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/shutdown_on_missing_function.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/side_effecting_break_expr.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/static.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/static_array_keys.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/static_reference.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/switch_multi_break.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/target_lhs.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/undeclared_function.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/undefined_consts.php - Stderr not clear
 BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/unset_2d_int.php - Stderr not clear
 BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/unset_non_array.php - Stderr not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/valid_callback_warning.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/variable_global.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/optimization/array_loop.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/optimization/decrement.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/optimization/obj_simple_get.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/optimization/side_effecting_echo.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/allowed_offset_types.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/clone.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/comments.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/const_attribute.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/constants.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/exceptions.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/factorial.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/global.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/impure.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/include_classes.php - Stdout not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/codegen/valid_callback_warning.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/optimization/array_loop.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/optimization/decrement.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/optimization/obj_simple_get.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/optimization/side_effecting_echo.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/allowed_offset_types.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/clone.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/comments.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/const_attribute.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/constants.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/exceptions.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/factorial.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/impure.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/include_classes.php - Stderr not clear
 BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/include_massive.php - Stderr not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/included_recursive1.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/included_use_existing_vars.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/instanceof.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/integer_field_name.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/interfaces.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/layout5.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/new.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/refs.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/static.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/vars.php - Stdout not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/included_recursive1.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/included_use_existing_vars.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/instanceof.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/integer_field_name.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/interfaces.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/layout5.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/new.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/refs.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/static.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/parsing/vars.php - Stderr not clear
 BasicPreciseOptAnalyseTest: Failure test/subjects/phc/no-warning.php - Stderr not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/php_bugs/6117.php - Stdout not clear
-BasicPreciseOptAnalyseTest: Failure test/subjects/reduced/0016.php - Stdout not clear
-BasicPreciseOptimizeTest: Failure test/subjects/horrible/invocation_priorities.php - Stdout not clear
-BasicPreciseOptimizeTest: Failure test/subjects/horrible/method_invocation.php - Stdout not clear
-BasicPreciseOptimizeTest: Failure test/subjects/parsing/invocation.php - Stdout not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/php_bugs/6117.php - Stderr not clear
+BasicPreciseOptAnalyseTest: Failure test/subjects/reduced/0016.php - Stderr not clear
+BasicPreciseOptimizeTest: Failure test/subjects/horrible/invocation_priorities.php - Stderr not clear
+BasicPreciseOptimizeTest: Failure test/subjects/horrible/method_invocation.php - Stderr not clear
+BasicPreciseOptimizeTest: Failure test/subjects/parsing/invocation.php - Stderr not clear
 CompileOptimized: Failure test/subjects/bugs/bug0007.php - Outputs dont match PHP outputs
 CompileOptimized: Failure test/subjects/bugs/bug0021.php - Outputs dont match PHP outputs
 CompileOptimized: Failure test/subjects/bugs/bug0033.php - Outputs dont match PHP outputs
 CompileOptimized: Failure test/subjects/codegen/empty_class_var.php - Outputs dont match PHP outputs
-CompileOptimized: Failure test/subjects/codegen/include_once_and_include.php - Outputs dont match PHP outputs
+CompileOptimized: Failure test/subjects/codegen/include_once_and_include.php - exit or err not clear
 CompileOptimized: Failure test/subjects/codegen/object_exit.php - Outputs dont match PHP outputs
 CompileOptimized: Failure test/subjects/codegen/oop_class_attribute6.php - Outputs dont match PHP outputs
 CompileOptimized: Failure test/subjects/codegen/oop_inheritance1.php - Outputs dont match PHP outputs
@@ -122,8 +118,8 @@ CompileOptimized: Failure test/subjects/codegen/switch_object.php - Outputs dont
 CompileOptimized: Failure test/subjects/horrible/static_member_invocation.php - Outputs dont match PHP outputs
 CompileOptimized: Failure test/subjects/optimization/two_objects.php - Outputs dont match PHP outputs
 CompileOptimized: Failure test/subjects/parsing/attributes.php - Outputs dont match PHP outputs
-CompileOptimized: Failure test/subjects/parsing/include_multiple_class_def.php - Outputs dont match PHP outputs
-CompileOptimized: Failure test/subjects/parsing/included_recursive2.php - Outputs dont match PHP outputs
+CompileOptimized: Failure test/subjects/parsing/include_multiple_class_def.php - exit or err not clear
+CompileOptimized: Failure test/subjects/parsing/included_recursive2.php - exit or err not clear
 CompileOptimized: Failure test/subjects/parsing/included_use_vars_in_classes.php - Outputs dont match PHP outputs
 CompileOptimized: Failure test/subjects/parsing/instring_complex_object_var.php - Outputs dont match PHP outputs
 CompileOptimized: Failure test/subjects/parsing/instring_simple_object_var.php - Outputs dont match PHP outputs
@@ -176,10 +172,12 @@ CompiledVsInterpreted: Failure test/subjects/reduced/0048.php - Outputs dont mat
 CompiledVsInterpreted: Failure test/subjects/reduced/0056.php - Outputs dont match PHP outputs
 CompiledVsInterpreted: Failure test/subjects/reduced/0057.php - Outputs dont match PHP outputs
 Demi_eval_false: Failure test/subjects/bugs/bug0021.php - Outputs dont match PHP outputs
+Demi_eval_false: Failure test/subjects/codegen/bench_ackermann.php - Outputs dont match PHP outputs
 Demi_eval_false: Failure test/subjects/codegen/bench_heapsort.php - Outputs dont match PHP outputs
 Demi_eval_false: Failure test/subjects/codegen/ignore_errors2.php - Outputs dont match PHP outputs
 Demi_eval_false: Failure test/subjects/codegen/include_once.php - Outputs dont match PHP outputs
 Demi_eval_false: Failure test/subjects/codegen/indexing_non_arrays.php - Outputs dont match PHP outputs
+Demi_eval_false: Failure test/subjects/codegen/loop_separation1.php - Outputs dont match PHP outputs
 Demi_eval_false: Failure test/subjects/codegen/loop_separation2.php - Outputs dont match PHP outputs
 Demi_eval_false: Failure test/subjects/codegen/object_exit.php - Outputs dont match PHP outputs
 Demi_eval_false: Failure test/subjects/codegen/oop_inheritance1.php - Outputs dont match PHP outputs
@@ -203,11 +201,13 @@ Demi_eval_true: Failure test/subjects/bugs/bug0018.php - Outputs dont match PHP 
 Demi_eval_true: Failure test/subjects/bugs/bug0019.php - Outputs dont match PHP outputs
 Demi_eval_true: Failure test/subjects/bugs/bug0021.php - Outputs dont match PHP outputs
 Demi_eval_true: Failure test/subjects/bugs/bug0024.php - Outputs dont match PHP outputs
+Demi_eval_true: Failure test/subjects/codegen/bench_ackermann.php - Outputs dont match PHP outputs
 Demi_eval_true: Failure test/subjects/codegen/include_once.php - Outputs dont match PHP outputs
 Demi_eval_true: Failure test/subjects/codegen/indexing_non_arrays.php - Outputs dont match PHP outputs
 Demi_eval_true: Failure test/subjects/codegen/inherited_array_field.php - Outputs dont match PHP outputs
 Demi_eval_true: Failure test/subjects/codegen/invalid_foreach_array.php - Outputs dont match PHP outputs
 Demi_eval_true: Failure test/subjects/codegen/isset_byte.php - Outputs dont match PHP outputs
+Demi_eval_true: Failure test/subjects/codegen/loop_separation2.php - Outputs dont match PHP outputs
 Demi_eval_true: Failure test/subjects/codegen/non_existant_function.php - Outputs dont match PHP outputs
 Demi_eval_true: Failure test/subjects/codegen/oop_inheritance1.php - Outputs dont match PHP outputs
 Demi_eval_true: Failure test/subjects/codegen/oop_method_def2.php - Outputs dont match PHP outputs
@@ -277,10 +277,19 @@ InterpretIncludes: Failure test/subjects/parsing/include_complex_once.php - Outp
 InterpretIncludes: Failure test/subjects/parsing/include_massive.php - Outputs dont match
 InterpretOptimized: Failure test/subjects/bugs/bug0030.php - Outputs dont match
 InterpretOptimized: Failure test/subjects/codegen/array_index_integer_string.php - Outputs dont match
+InterpretOptimized: Failure test/subjects/codegen/braces.php - Outputs dont match
 InterpretOptimized: Failure test/subjects/codegen/foreach_simple.php - Outputs dont match
+InterpretOptimized: Failure test/subjects/codegen/global_var_var.php - Outputs dont match
 InterpretOptimized: Failure test/subjects/codegen/indexing_with_odd_keys.php - Outputs dont match
 InterpretOptimized: Failure test/subjects/codegen/inherited_array_field.php - Outputs dont match
+InterpretOptimized: Failure test/subjects/codegen/isset_in_main.php - Outputs dont match
 InterpretOptimized: Failure test/subjects/codegen/isset_int_var_var.php - Outputs dont match
+InterpretOptimized: Failure test/subjects/codegen/isset_local.php - Outputs dont match
+InterpretOptimized: Failure test/subjects/codegen/isset_multiple.php - Outputs dont match
+InterpretOptimized: Failure test/subjects/codegen/isset_null.php - Outputs dont match
+InterpretOptimized: Failure test/subjects/codegen/isset_null_var_var.php - Outputs dont match
+InterpretOptimized: Failure test/subjects/codegen/isset_var_var.php - Outputs dont match
+InterpretOptimized: Failure test/subjects/codegen/isset_varvar.php - Outputs dont match
 InterpretOptimized: Failure test/subjects/codegen/long_opeq.php - Outputs dont match
 InterpretOptimized: Failure test/subjects/codegen/non_string_var_vars.php - Outputs dont match
 InterpretOptimized: Failure test/subjects/codegen/push_by_ref.php - Outputs dont match
@@ -288,7 +297,9 @@ InterpretOptimized: Failure test/subjects/codegen/push_onto_scalar.php - Outputs
 InterpretOptimized: Failure test/subjects/codegen/push_onto_scalar_by_ref.php - Outputs dont match
 InterpretOptimized: Failure test/subjects/codegen/push_reference_through_array_by_copy.php - Outputs dont match
 InterpretOptimized: Failure test/subjects/codegen/unset_global_global.php - Outputs dont match
+InterpretOptimized: Failure test/subjects/codegen/variable_global.php - Outputs dont match
 InterpretOptimized: Failure test/subjects/horrible/ifscope.php - Outputs dont match
+InterpretOptimized: Failure test/subjects/parsing/isset.php - Outputs dont match
 InterpretOptimized: Failure test/subjects/parsing/nestedfndefs.php - Outputs dont match
 InterpretOptimized: Failure test/subjects/phc/oop_assign_to_this1.php - Outputs dont match
 InterpretOptimized: Failure test/subjects/reduced/0031.php - Outputs dont match
