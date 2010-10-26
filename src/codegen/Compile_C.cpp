@@ -171,6 +171,7 @@ void Compile_C::run (IR::PHP_script* in, Pass_manager* pm)
 
 		FILE* stderr_file = fdopen (error_pipe[READ_END], "r");
 		char buffer[100];
+		buffer[0] = '\0';
 		while (!feof (stderr_file))
 		{
 			fgets (buffer, 100, stderr_file);
@@ -180,7 +181,7 @@ void Compile_C::run (IR::PHP_script* in, Pass_manager* pm)
 				char otherbuffer[100];
 				fgets (otherbuffer, 100, stderr_file);
 				string t(otherbuffer);
-				if (t.substr (t.find_first_of ('w',0) ,47 ) != "warning: useless type name in empty declaration")
+				if (t.substr (t.find_first_of ('w', 0) , 47) != "warning: useless type name in empty declaration")
 				{
 					cerr << buffer;
 					cerr << otherbuffer;
