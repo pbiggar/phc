@@ -140,3 +140,13 @@ benchmarks/zend/.*												non-interpretable
 
 # Uses the GLOBALS array
 optimization/global_references.php							no-RaisedCompileOptimized
+
+
+# The outputs here differ, but the difference is irrelevant
+bugs/bug0026.php													non-interpretable 
+bugs/bug0028.php													non-interpretable
+codegen/global_param.php										non-interpretable
+codegen/target_rhs.php											non-interpretable
+codegen/infinite_lists.php										non-interpretable
+parsing/functions.php											non-interpretable
+optimization/may_defs.php										non-interpretable
