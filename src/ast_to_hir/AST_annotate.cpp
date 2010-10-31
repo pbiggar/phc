@@ -34,7 +34,8 @@ void Annotate::pre_assignment(Assignment* in)
 		in->variable->attrs->set_true("phc.ast_lower_expr.no_temp");
 	
 	// Don't shred $$x = $y (do shred $$x[$i] = $y; dont shred $x->$$f = $y))
-	if (in->variable->variable_name->classid() == Reflection::ID
+	if (in->variable->target == NULL
+		&& in->variable->variable_name->classid() == Reflection::ID
 		&& in->variable->array_indices->size () == 0)
 		in->variable->attrs->set_true("phc.ast_lower_expr.no_temp");
 
