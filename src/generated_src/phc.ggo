@@ -67,7 +67,6 @@ option "rt-stats" - "Print statistics about a program at run-time" flag off hidd
 option "cfg-dump" - "Dump CFG after the pass named 'PASSNAME'" string typestr="PASSNAME" multiple hidden optional
 option "debug" - "Print debugging information for the pass named 'PASSNAME" string typestr="PASSNAME" multiple hidden optional
 option "dont-fail" - "Dont fail on error (after parsing)" flag off hidden
-option "missed-opt" - "Give a warning when an optimization was missed" flag on hidden # this should be off by default, obviously
 option "disable" - "Disable the pass named 'PASSNAME'" string typestr="PASSNAME" multiple hidden optional
 option "pause" - "Pause compilation at pause() statements (in phc source, not user code)" flag off hidden 
 

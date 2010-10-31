@@ -179,8 +179,6 @@ struct gengetopt_args_info
   const char *debug_help; /**< @brief Print debugging information for the pass named 'PASSNAME help description.  */
   int dont_fail_flag;	/**< @brief Dont fail on error (after parsing) (default=off).  */
   const char *dont_fail_help; /**< @brief Dont fail on error (after parsing) help description.  */
-  int missed_opt_flag;	/**< @brief Give a warning when an optimization was missed (default=on).  */
-  const char *missed_opt_help; /**< @brief Give a warning when an optimization was missed help description.  */
   char ** disable_arg;	/**< @brief Disable the pass named 'PASSNAME'.  */
   char ** disable_orig;	/**< @brief Disable the pass named 'PASSNAME' original value given at command line.  */
   unsigned int disable_min; /**< @brief Disable the pass named 'PASSNAME''s minimum occurreces */
@@ -240,7 +238,6 @@ struct gengetopt_args_info
   unsigned int cfg_dump_given ;	/**< @brief Whether cfg-dump was given.  */
   unsigned int debug_given ;	/**< @brief Whether debug was given.  */
   unsigned int dont_fail_given ;	/**< @brief Whether dont-fail was given.  */
-  unsigned int missed_opt_given ;	/**< @brief Whether missed-opt was given.  */
   unsigned int disable_given ;	/**< @brief Whether disable was given.  */
   unsigned int pause_given ;	/**< @brief Whether pause was given.  */
 

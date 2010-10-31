@@ -93,7 +93,6 @@ const char *gengetopt_args_info_full_help[] = {
   "      --cfg-dump=PASSNAME       Dump CFG after the pass named 'PASSNAME'",
   "      --debug=PASSNAME          Print debugging information for the pass named \n                                  'PASSNAME",
   "      --dont-fail               Dont fail on error (after parsing)  \n                                  (default=off)",
-  "      --missed-opt              Give a warning when an optimization was missed  \n                                  (default=on)",
   "      --disable=PASSNAME        Disable the pass named 'PASSNAME'",
   "      --pause                   Pause compilation at pause() statements (in phc \n                                  source, not user code)  (default=off)",
   "\nMore options are available via --full-help",
@@ -143,7 +142,7 @@ init_help_array(void)
   gengetopt_args_info_help[37] = gengetopt_args_info_full_help[52];
   gengetopt_args_info_help[38] = gengetopt_args_info_full_help[53];
   gengetopt_args_info_help[39] = gengetopt_args_info_full_help[54];
-  gengetopt_args_info_help[40] = gengetopt_args_info_full_help[64];
+  gengetopt_args_info_help[40] = gengetopt_args_info_full_help[63];
   gengetopt_args_info_help[41] = 0; 
   
 }
@@ -228,7 +227,6 @@ void clear_given (struct gengetopt_args_info *args_info)
   args_info->cfg_dump_given = 0 ;
   args_info->debug_given = 0 ;
   args_info->dont_fail_given = 0 ;
-  args_info->missed_opt_given = 0 ;
   args_info->disable_given = 0 ;
   args_info->pause_given = 0 ;
 }
@@ -304,7 +302,6 @@ void clear_args (struct gengetopt_args_info *args_info)
   args_info->debug_arg = NULL;
   args_info->debug_orig = NULL;
   args_info->dont_fail_flag = 0;
-  args_info->missed_opt_flag = 1;
   args_info->disable_arg = NULL;
   args_info->disable_orig = NULL;
   args_info->pause_flag = 0;
@@ -385,11 +382,10 @@ void init_args_info(struct gengetopt_args_info *args_info)
   args_info->debug_min = 0;
   args_info->debug_max = 0;
   args_info->dont_fail_help = gengetopt_args_info_full_help[60] ;
-  args_info->missed_opt_help = gengetopt_args_info_full_help[61] ;
-  args_info->disable_help = gengetopt_args_info_full_help[62] ;
+  args_info->disable_help = gengetopt_args_info_full_help[61] ;
   args_info->disable_min = 0;
   args_info->disable_max = 0;
-  args_info->pause_help = gengetopt_args_info_full_help[63] ;
+  args_info->pause_help = gengetopt_args_info_full_help[62] ;
   
 }
 
@@ -732,8 +728,6 @@ cmdline_parser_dump(FILE *outfile, struct gengetopt_args_info *args_info)
   write_multiple_into_file(outfile, args_info->debug_given, "debug", args_info->debug_orig, 0);
   if (args_info->dont_fail_given)
     write_into_file(outfile, "dont-fail", 0, 0 );
-  if (args_info->missed_opt_given)
-    write_into_file(outfile, "missed-opt", 0, 0 );
   write_multiple_into_file(outfile, args_info->disable_given, "disable", args_info->disable_orig, 0);
   if (args_info->pause_given)
     write_into_file(outfile, "pause", 0, 0 );
@@ -1395,7 +1389,6 @@ cmdline_parser_internal (
         { "cfg-dump",	1, NULL, 0 },
         { "debug",	1, NULL, 0 },
         { "dont-fail",	0, NULL, 0 },
-        { "missed-opt",	0, NULL, 0 },
         { "disable",	1, NULL, 0 },
         { "pause",	0, NULL, 0 },
         { 0,  0, 0, 0 }
@@ -1994,18 +1987,6 @@ cmdline_parser_internal (
             if (update_arg((void *)&(args_info->dont_fail_flag), 0, &(args_info->dont_fail_given),
                 &(local_args_info.dont_fail_given), optarg, 0, 0, ARG_FLAG,
                 check_ambiguity, override, 1, 0, "dont-fail", '-',
-                additional_error))
-              goto failure;
-          
-          }
-          /* Give a warning when an optimization was missed.  */
-          else if (strcmp (long_options[option_index].name, "missed-opt") == 0)
-          {
-          
-          
-            if (update_arg((void *)&(args_info->missed_opt_flag), 0, &(args_info->missed_opt_given),
-                &(local_args_info.missed_opt_given), optarg, 0, 0, ARG_FLAG,
-                check_ambiguity, override, 1, 0, "missed-opt", '-',
                 additional_error))
               goto failure;
           
