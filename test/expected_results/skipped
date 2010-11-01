@@ -25,6 +25,7 @@ BasicFastOptAnalyseTest: Skipped test/subjects/bugs/bug0008.php - Test failed de
 BasicFastOptAnalyseTest: Skipped test/subjects/bugs/bug0026.php - Test failed dependency
 BasicFastOptAnalyseTest: Skipped test/subjects/bugs/bug0028.php - Test failed dependency
 BasicFastOptAnalyseTest: Skipped test/subjects/bugs/bug0029.php - Test failed dependency
+BasicFastOptAnalyseTest: Skipped test/subjects/bugs/bug0035.php - Test failed dependency
 BasicFastOptAnalyseTest: Skipped test/subjects/codegen/006.php - Test failed dependency
 BasicFastOptAnalyseTest: Skipped test/subjects/codegen/006b.php - Test failed dependency
 BasicFastOptAnalyseTest: Skipped test/subjects/codegen/006c.php - Test failed dependency
@@ -156,7 +157,6 @@ BasicFastOptAnalyseTest: Skipped test/subjects/inline-c/hashref2.php - Test fail
 BasicFastOptAnalyseTest: Skipped test/subjects/inline-c/hello-c.php - Test failed dependency
 BasicFastOptAnalyseTest: Skipped test/subjects/inline-c/refcount.php - Test failed dependency
 BasicFastOptAnalyseTest: Skipped test/subjects/optimization/array_loop.php - Test failed dependency
-BasicFastOptAnalyseTest: Skipped test/subjects/optimization/array_use.php - Test failed dependency
 BasicFastOptAnalyseTest: Skipped test/subjects/optimization/concat_null.php - Test failed dependency
 BasicFastOptAnalyseTest: Skipped test/subjects/optimization/dce_foreach1.php - Test failed dependency
 BasicFastOptAnalyseTest: Skipped test/subjects/optimization/decrement.php - Test failed dependency
@@ -265,6 +265,7 @@ BasicFastOptimizeTest: Skipped test/subjects/bugs/bug0011.php - Test failed depe
 BasicFastOptimizeTest: Skipped test/subjects/bugs/bug0026.php - Test failed dependency
 BasicFastOptimizeTest: Skipped test/subjects/bugs/bug0028.php - Test failed dependency
 BasicFastOptimizeTest: Skipped test/subjects/bugs/bug0029.php - Test failed dependency
+BasicFastOptimizeTest: Skipped test/subjects/bugs/bug0035.php - Test failed dependency
 BasicFastOptimizeTest: Skipped test/subjects/codegen/006.php - Test failed dependency
 BasicFastOptimizeTest: Skipped test/subjects/codegen/006b.php - Test failed dependency
 BasicFastOptimizeTest: Skipped test/subjects/codegen/006c.php - Test failed dependency
@@ -293,7 +294,6 @@ BasicFastOptimizeTest: Skipped test/subjects/codegen/empty.php - Test failed dep
 BasicFastOptimizeTest: Skipped test/subjects/codegen/eval.php - Test failed dependency
 BasicFastOptimizeTest: Skipped test/subjects/codegen/factorial.php - Test failed dependency
 BasicFastOptimizeTest: Skipped test/subjects/codegen/for_empty.php - Test failed dependency
-BasicFastOptimizeTest: Skipped test/subjects/codegen/foreach_expr.php - Test failed dependency
 BasicFastOptimizeTest: Skipped test/subjects/codegen/foreach_key_val.php - Test failed dependency
 BasicFastOptimizeTest: Skipped test/subjects/codegen/foreach_nested.php - Test failed dependency
 BasicFastOptimizeTest: Skipped test/subjects/codegen/foreach_object.php - Test failed dependency
@@ -430,7 +430,6 @@ BasicFastOptimizeTest: Skipped test/subjects/inline-c/hashref2.php - Test failed
 BasicFastOptimizeTest: Skipped test/subjects/inline-c/hello-c.php - Test failed dependency
 BasicFastOptimizeTest: Skipped test/subjects/inline-c/refcount.php - Test failed dependency
 BasicFastOptimizeTest: Skipped test/subjects/optimization/array_loop.php - Test failed dependency
-BasicFastOptimizeTest: Skipped test/subjects/optimization/array_use.php - Test failed dependency
 BasicFastOptimizeTest: Skipped test/subjects/optimization/concat_null.php - Test failed dependency
 BasicFastOptimizeTest: Skipped test/subjects/optimization/dce_foreach1.php - Test failed dependency
 BasicFastOptimizeTest: Skipped test/subjects/optimization/decrement.php - Test failed dependency
@@ -487,7 +486,6 @@ BasicFastOptimizeTest: Skipped test/subjects/parsing/listassignment.php - Test f
 BasicFastOptimizeTest: Skipped test/subjects/parsing/literal_test.php - Test failed dependency
 BasicFastOptimizeTest: Skipped test/subjects/parsing/negative_literals.php - Test failed dependency
 BasicFastOptimizeTest: Skipped test/subjects/parsing/new.php - Test failed dependency
-BasicFastOptimizeTest: Skipped test/subjects/parsing/reflect_ints.php - Test failed dependency
 BasicFastOptimizeTest: Skipped test/subjects/parsing/refs.php - Test failed dependency
 BasicFastOptimizeTest: Skipped test/subjects/parsing/scalar_array.php - Test failed dependency
 BasicFastOptimizeTest: Skipped test/subjects/parsing/scoped_function.php - Test failed dependency
@@ -558,6 +556,7 @@ BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/bugs/bug0011.php - Test
 BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/bugs/bug0026.php - Test failed dependency
 BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/bugs/bug0028.php - Test failed dependency
 BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/bugs/bug0029.php - Test failed dependency
+BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/bugs/bug0035.php - Test failed dependency
 BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/codegen/006.php - Test failed dependency
 BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/codegen/006b.php - Test failed dependency
 BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/codegen/006c.php - Test failed dependency
@@ -590,7 +589,6 @@ BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/codegen/empty.php - Tes
 BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/codegen/eval.php - Test failed dependency
 BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/codegen/factorial.php - Test failed dependency
 BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/codegen/for_empty.php - Test failed dependency
-BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/codegen/for_nested.php - Test failed dependency
 BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/codegen/foreach_expr.php - Test failed dependency
 BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/codegen/foreach_key_val.php - Test failed dependency
 BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/codegen/foreach_nested.php - Test failed dependency
@@ -736,7 +734,6 @@ BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/inline-c/hashref2.php -
 BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/inline-c/hello-c.php - Test failed dependency
 BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/inline-c/refcount.php - Test failed dependency
 BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/optimization/array_loop.php - Test failed dependency
-BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/optimization/array_use.php - Test failed dependency
 BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/optimization/concat_null.php - Test failed dependency
 BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/optimization/dce_foreach1.php - Test failed dependency
 BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/optimization/decrement.php - Test failed dependency
@@ -793,7 +790,6 @@ BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/parsing/listassignment.
 BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/parsing/literal_test.php - Test failed dependency
 BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/parsing/negative_literals.php - Test failed dependency
 BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/parsing/new.php - Test failed dependency
-BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/parsing/reflect_ints.php - Test failed dependency
 BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/parsing/refs.php - Test failed dependency
 BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/parsing/scalar_array.php - Test failed dependency
 BasicIgnoreOutputFastOptimizeTest: Skipped test/subjects/parsing/scoped_function.php - Test failed dependency
@@ -864,6 +860,7 @@ BasicIgnoreOutputPreciseOptimizeTest: Skipped test/subjects/bugs/bug0011.php - T
 BasicIgnoreOutputPreciseOptimizeTest: Skipped test/subjects/bugs/bug0026.php - Test failed dependency
 BasicIgnoreOutputPreciseOptimizeTest: Skipped test/subjects/bugs/bug0028.php - Test failed dependency
 BasicIgnoreOutputPreciseOptimizeTest: Skipped test/subjects/bugs/bug0029.php - Test failed dependency
+BasicIgnoreOutputPreciseOptimizeTest: Skipped test/subjects/bugs/bug0035.php - Test failed dependency
 BasicIgnoreOutputPreciseOptimizeTest: Skipped test/subjects/codegen/006.php - Test failed dependency
 BasicIgnoreOutputPreciseOptimizeTest: Skipped test/subjects/codegen/006b.php - Test failed dependency
 BasicIgnoreOutputPreciseOptimizeTest: Skipped test/subjects/codegen/006c.php - Test failed dependency
@@ -998,7 +995,6 @@ BasicIgnoreOutputPreciseOptimizeTest: Skipped test/subjects/inline-c/hashref2.ph
 BasicIgnoreOutputPreciseOptimizeTest: Skipped test/subjects/inline-c/hello-c.php - Test failed dependency
 BasicIgnoreOutputPreciseOptimizeTest: Skipped test/subjects/inline-c/refcount.php - Test failed dependency
 BasicIgnoreOutputPreciseOptimizeTest: Skipped test/subjects/optimization/array_loop.php - Test failed dependency
-BasicIgnoreOutputPreciseOptimizeTest: Skipped test/subjects/optimization/array_use.php - Test failed dependency
 BasicIgnoreOutputPreciseOptimizeTest: Skipped test/subjects/optimization/concat_null.php - Test failed dependency
 BasicIgnoreOutputPreciseOptimizeTest: Skipped test/subjects/optimization/dce_foreach1.php - Test failed dependency
 BasicIgnoreOutputPreciseOptimizeTest: Skipped test/subjects/optimization/decrement.php - Test failed dependency
@@ -1254,7 +1250,6 @@ BasicPreciseOptAnalyseTest: Skipped test/subjects/inline-c/hashref.php - Test ex
 BasicPreciseOptAnalyseTest: Skipped test/subjects/inline-c/hashref2.php - Test excepted
 BasicPreciseOptAnalyseTest: Skipped test/subjects/inline-c/hello-c.php - Test excepted
 BasicPreciseOptAnalyseTest: Skipped test/subjects/inline-c/refcount.php - Test excepted
-BasicPreciseOptAnalyseTest: Skipped test/subjects/optimization/array_use.php - Test failed dependency
 BasicPreciseOptAnalyseTest: Skipped test/subjects/optimization/concat_null.php - Test failed dependency
 BasicPreciseOptAnalyseTest: Skipped test/subjects/optimization/dce_foreach1.php - Test failed dependency
 BasicPreciseOptAnalyseTest: Skipped test/subjects/optimization/indirect_string.php - Test excepted
@@ -1332,6 +1327,7 @@ BasicPreciseOptimizeTest: Skipped test/subjects/bugs/bug0008.php - Test failed d
 BasicPreciseOptimizeTest: Skipped test/subjects/bugs/bug0026.php - Test failed dependency
 BasicPreciseOptimizeTest: Skipped test/subjects/bugs/bug0028.php - Test failed dependency
 BasicPreciseOptimizeTest: Skipped test/subjects/bugs/bug0029.php - Test failed dependency
+BasicPreciseOptimizeTest: Skipped test/subjects/bugs/bug0035.php - Test failed dependency
 BasicPreciseOptimizeTest: Skipped test/subjects/codegen/006.php - Test failed dependency
 BasicPreciseOptimizeTest: Skipped test/subjects/codegen/006b.php - Test failed dependency
 BasicPreciseOptimizeTest: Skipped test/subjects/codegen/006c.php - Test failed dependency
@@ -1463,7 +1459,6 @@ BasicPreciseOptimizeTest: Skipped test/subjects/inline-c/hashref2.php - Test fai
 BasicPreciseOptimizeTest: Skipped test/subjects/inline-c/hello-c.php - Test failed dependency
 BasicPreciseOptimizeTest: Skipped test/subjects/inline-c/refcount.php - Test failed dependency
 BasicPreciseOptimizeTest: Skipped test/subjects/optimization/array_loop.php - Test failed dependency
-BasicPreciseOptimizeTest: Skipped test/subjects/optimization/array_use.php - Test failed dependency
 BasicPreciseOptimizeTest: Skipped test/subjects/optimization/concat_null.php - Test failed dependency
 BasicPreciseOptimizeTest: Skipped test/subjects/optimization/dce_foreach1.php - Test failed dependency
 BasicPreciseOptimizeTest: Skipped test/subjects/optimization/decrement.php - Test failed dependency
@@ -1570,10 +1565,9 @@ CompileOptimized: Skipped test/subjects/bugs/bug0008.php - Test failed dependenc
 CompileOptimized: Skipped test/subjects/bugs/bug0009.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/bugs/bug0011.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/bugs/bug0025.php - Test failed dependency
-CompileOptimized: Skipped test/subjects/bugs/bug0026.php - Test failed dependency
-CompileOptimized: Skipped test/subjects/bugs/bug0028.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/bugs/bug0029.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/bugs/bug0030.php - Test failed dependency
+CompileOptimized: Skipped test/subjects/bugs/bug0035.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/codegen/006.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/codegen/006b.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/codegen/006c.php - Test failed dependency
@@ -1605,7 +1599,6 @@ CompileOptimized: Skipped test/subjects/codegen/foreach_simple.php - Test failed
 CompileOptimized: Skipped test/subjects/codegen/functioncalls_compiled.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/codegen/functioncalls_evald_functions.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/codegen/functioncalls_evald_invocations.php - Test failed dependency
-CompileOptimized: Skipped test/subjects/codegen/global_param.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/codegen/global_var_var.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/codegen/include_fail.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/codegen/include_once.php - Test failed dependency
@@ -1614,7 +1607,6 @@ CompileOptimized: Skipped test/subjects/codegen/index_object.php - Test failed d
 CompileOptimized: Skipped test/subjects/codegen/indexing_non_arrays.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/codegen/indexing_with_odd_keys.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/codegen/indirect_fields.php - Test failed dependency
-CompileOptimized: Skipped test/subjects/codegen/infinite_lists.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/codegen/inherited_array_field.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/codegen/invalid_foreach_array.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/codegen/isset_eval_order.php - Test failed dependency
@@ -1702,7 +1694,6 @@ CompileOptimized: Skipped test/subjects/codegen/switch_functions.php - Test fail
 CompileOptimized: Skipped test/subjects/codegen/switch_multi_break.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/codegen/target_lhs.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/codegen/target_lhs2.php - Test failed dependency
-CompileOptimized: Skipped test/subjects/codegen/target_rhs.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/codegen/undeclared_function.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/codegen/undefined_consts.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/codegen/unset_2d_int.php - Test failed dependency
@@ -1758,14 +1749,12 @@ CompileOptimized: Skipped test/subjects/horrible/invocation_priorities.php - Tes
 CompileOptimized: Skipped test/subjects/horrible/method_invocation.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/horrible/obfuscated_foreach.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/optimization/array_loop.php - Test failed dependency
-CompileOptimized: Skipped test/subjects/optimization/array_use.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/optimization/concat_null.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/optimization/dce_foreach1.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/optimization/decrement.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/optimization/field_on_nonobjects.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/optimization/gettimeofday.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/optimization/indirect_string.php - Test failed dependency
-CompileOptimized: Skipped test/subjects/optimization/may_defs.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/optimization/obj_simple_get.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/optimization/object_casting.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/optimization/ref_via_unknown.php - Test failed dependency
@@ -1792,7 +1781,6 @@ CompileOptimized: Skipped test/subjects/parsing/exceptions.php - Test failed dep
 CompileOptimized: Skipped test/subjects/parsing/factorial.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/parsing/foreach.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/parsing/foreach_with_complex_key.php - Test failed dependency
-CompileOptimized: Skipped test/subjects/parsing/functions.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/parsing/impure.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/parsing/include_classes.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/parsing/include_complex.php - Test failed dependency
@@ -1863,12 +1851,8 @@ CompileOptimized: Skipped test/subjects/warnings/constant_folding6.php - Test fa
 CompileOptimized: Skipped test/subjects/warnings/constant_folding7.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/warnings/missing_include.php - Test failed dependency
 CompileOptimized: Skipped test/subjects/warnings/variable_include.php - Test failed dependency
-CompiledVsInterpreted: Skipped test/subjects/bugs/bug0026.php - Test failed dependency
-CompiledVsInterpreted: Skipped test/subjects/bugs/bug0028.php - Test failed dependency
 CompiledVsInterpreted: Skipped test/subjects/bugs/bug0029.php - Test failed dependency
 CompiledVsInterpreted: Skipped test/subjects/codegen/dynamic_class_def_and_constants.php - Test failed dependency
-CompiledVsInterpreted: Skipped test/subjects/codegen/global_param.php - Test failed dependency
-CompiledVsInterpreted: Skipped test/subjects/codegen/infinite_lists.php - Test failed dependency
 CompiledVsInterpreted: Skipped test/subjects/codegen/new.php - Test failed dependency
 CompiledVsInterpreted: Skipped test/subjects/codegen/next_available.php - Test failed dependency
 CompiledVsInterpreted: Skipped test/subjects/codegen/oop_class_constant.php - Test failed dependency
@@ -1879,7 +1863,6 @@ CompiledVsInterpreted: Skipped test/subjects/codegen/static.php - Test failed de
 CompiledVsInterpreted: Skipped test/subjects/codegen/static_array_keys.php - Test failed dependency
 CompiledVsInterpreted: Skipped test/subjects/codegen/static_reference.php - Test failed dependency
 CompiledVsInterpreted: Skipped test/subjects/codegen/str_vs_int_index.php - Test failed dependency
-CompiledVsInterpreted: Skipped test/subjects/codegen/target_rhs.php - Test failed dependency
 CompiledVsInterpreted: Skipped test/subjects/codegen/undefined_consts.php - Test failed dependency
 CompiledVsInterpreted: Skipped test/subjects/dynamic/bad_nested.php - Test failed dependency
 CompiledVsInterpreted: Skipped test/subjects/dynamic/nested.php - Test failed dependency
@@ -1920,10 +1903,8 @@ CompiledVsInterpreted: Skipped test/subjects/errors/sticks.php - Test failed dep
 CompiledVsInterpreted: Skipped test/subjects/errors/try_catch_break.php - Test failed dependency
 CompiledVsInterpreted: Skipped test/subjects/horrible/invocation_priorities.php - Test failed dependency
 CompiledVsInterpreted: Skipped test/subjects/horrible/method_invocation.php - Test failed dependency
-CompiledVsInterpreted: Skipped test/subjects/optimization/array_use.php - Test failed dependency
 CompiledVsInterpreted: Skipped test/subjects/optimization/concat_null.php - Test failed dependency
 CompiledVsInterpreted: Skipped test/subjects/optimization/dce_foreach1.php - Test failed dependency
-CompiledVsInterpreted: Skipped test/subjects/optimization/may_defs.php - Test failed dependency
 CompiledVsInterpreted: Skipped test/subjects/optimization/string_handler.php - Test failed dependency
 CompiledVsInterpreted: Skipped test/subjects/parsing/allchars_inline.php - Test failed dependency
 CompiledVsInterpreted: Skipped test/subjects/parsing/allowed_offset_types.php - Test failed dependency
@@ -1934,7 +1915,6 @@ CompiledVsInterpreted: Skipped test/subjects/parsing/const_attribute.php - Test 
 CompiledVsInterpreted: Skipped test/subjects/parsing/constant_folding.php - Test failed dependency
 CompiledVsInterpreted: Skipped test/subjects/parsing/constants.php - Test failed dependency
 CompiledVsInterpreted: Skipped test/subjects/parsing/exceptions.php - Test failed dependency
-CompiledVsInterpreted: Skipped test/subjects/parsing/functions.php - Test failed dependency
 CompiledVsInterpreted: Skipped test/subjects/parsing/instanceof.php - Test failed dependency
 CompiledVsInterpreted: Skipped test/subjects/parsing/integer_field_name.php - Test failed dependency
 CompiledVsInterpreted: Skipped test/subjects/parsing/interfaces.php - Test failed dependency
@@ -1964,8 +1944,6 @@ CompiledVsInterpreted: Skipped test/subjects/warnings/missing_include.php - Test
 CompiledVsInterpreted: Skipped test/subjects/warnings/variable_include.php - Test failed dependency
 Demi_eval_false: Skipped test/subjects/bugs/bug0008.php - Test failed dependency
 Demi_eval_false: Skipped test/subjects/bugs/bug0025.php - Test failed dependency
-Demi_eval_false: Skipped test/subjects/bugs/bug0026.php - Test failed dependency
-Demi_eval_false: Skipped test/subjects/bugs/bug0028.php - Test failed dependency
 Demi_eval_false: Skipped test/subjects/bugs/bug0029.php - Test failed dependency
 Demi_eval_false: Skipped test/subjects/codegen/019c.php - Test failed dependency
 Demi_eval_false: Skipped test/subjects/codegen/022b.php - Test failed dependency
@@ -1973,12 +1951,10 @@ Demi_eval_false: Skipped test/subjects/codegen/decrement.php - Test failed depen
 Demi_eval_false: Skipped test/subjects/codegen/dynamic_class_def_and_constants.php - Test failed dependency
 Demi_eval_false: Skipped test/subjects/codegen/foreach_object.php - Test failed dependency
 Demi_eval_false: Skipped test/subjects/codegen/functioncalls_compiled.php - Test failed dependency
-Demi_eval_false: Skipped test/subjects/codegen/global_param.php - Test failed dependency
 Demi_eval_false: Skipped test/subjects/codegen/include_fail.php - Test failed dependency
 Demi_eval_false: Skipped test/subjects/codegen/increment.php - Test failed dependency
 Demi_eval_false: Skipped test/subjects/codegen/index_object.php - Test failed dependency
 Demi_eval_false: Skipped test/subjects/codegen/indirect_fields.php - Test failed dependency
-Demi_eval_false: Skipped test/subjects/codegen/infinite_lists.php - Test failed dependency
 Demi_eval_false: Skipped test/subjects/codegen/itemlist.php - Test failed dependency
 Demi_eval_false: Skipped test/subjects/codegen/new.php - Test failed dependency
 Demi_eval_false: Skipped test/subjects/codegen/next_available.php - Test failed dependency
@@ -2004,7 +1980,6 @@ Demi_eval_false: Skipped test/subjects/codegen/static_array_keys.php - Test fail
 Demi_eval_false: Skipped test/subjects/codegen/static_reference.php - Test failed dependency
 Demi_eval_false: Skipped test/subjects/codegen/str_vs_int_index.php - Test failed dependency
 Demi_eval_false: Skipped test/subjects/codegen/target_lhs2.php - Test failed dependency
-Demi_eval_false: Skipped test/subjects/codegen/target_rhs.php - Test failed dependency
 Demi_eval_false: Skipped test/subjects/codegen/undefined_consts.php - Test failed dependency
 Demi_eval_false: Skipped test/subjects/dynamic/bad_nested.php - Test failed dependency
 Demi_eval_false: Skipped test/subjects/dynamic/nested.php - Test failed dependency
@@ -2046,11 +2021,9 @@ Demi_eval_false: Skipped test/subjects/errors/try_catch_break.php - Test failed 
 Demi_eval_false: Skipped test/subjects/horrible/invocation_priorities.php - Test failed dependency
 Demi_eval_false: Skipped test/subjects/horrible/method_invocation.php - Test failed dependency
 Demi_eval_false: Skipped test/subjects/horrible/obfuscated_foreach.php - Test failed dependency
-Demi_eval_false: Skipped test/subjects/optimization/array_use.php - Test failed dependency
 Demi_eval_false: Skipped test/subjects/optimization/concat_null.php - Test failed dependency
 Demi_eval_false: Skipped test/subjects/optimization/dce_foreach1.php - Test failed dependency
 Demi_eval_false: Skipped test/subjects/optimization/field_on_nonobjects.php - Test failed dependency
-Demi_eval_false: Skipped test/subjects/optimization/may_defs.php - Test failed dependency
 Demi_eval_false: Skipped test/subjects/optimization/object_casting.php - Test failed dependency
 Demi_eval_false: Skipped test/subjects/optimization/reference2.php - Test failed dependency
 Demi_eval_false: Skipped test/subjects/optimization/string_handler.php - Test failed dependency
@@ -2066,7 +2039,6 @@ Demi_eval_false: Skipped test/subjects/parsing/const_attribute.php - Test failed
 Demi_eval_false: Skipped test/subjects/parsing/constant_folding.php - Test failed dependency
 Demi_eval_false: Skipped test/subjects/parsing/constants.php - Test failed dependency
 Demi_eval_false: Skipped test/subjects/parsing/exceptions.php - Test failed dependency
-Demi_eval_false: Skipped test/subjects/parsing/functions.php - Test failed dependency
 Demi_eval_false: Skipped test/subjects/parsing/include_complex.php - Test failed dependency
 Demi_eval_false: Skipped test/subjects/parsing/include_complex_once.php - Test failed dependency
 Demi_eval_false: Skipped test/subjects/parsing/include_once.php - Test failed dependency
@@ -2108,8 +2080,6 @@ Demi_eval_false: Skipped test/subjects/warnings/missing_include.php - Test faile
 Demi_eval_false: Skipped test/subjects/warnings/variable_include.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/bugs/bug0008.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/bugs/bug0025.php - Test failed dependency
-Demi_eval_true: Skipped test/subjects/bugs/bug0026.php - Test failed dependency
-Demi_eval_true: Skipped test/subjects/bugs/bug0028.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/bugs/bug0029.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/codegen/019c.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/codegen/022b.php - Test failed dependency
@@ -2117,12 +2087,10 @@ Demi_eval_true: Skipped test/subjects/codegen/decrement.php - Test failed depend
 Demi_eval_true: Skipped test/subjects/codegen/dynamic_class_def_and_constants.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/codegen/foreach_object.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/codegen/functioncalls_compiled.php - Test failed dependency
-Demi_eval_true: Skipped test/subjects/codegen/global_param.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/codegen/include_fail.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/codegen/increment.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/codegen/index_object.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/codegen/indirect_fields.php - Test failed dependency
-Demi_eval_true: Skipped test/subjects/codegen/infinite_lists.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/codegen/itemlist.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/codegen/new.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/codegen/next_available.php - Test failed dependency
@@ -2148,7 +2116,6 @@ Demi_eval_true: Skipped test/subjects/codegen/static_array_keys.php - Test faile
 Demi_eval_true: Skipped test/subjects/codegen/static_reference.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/codegen/str_vs_int_index.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/codegen/target_lhs2.php - Test failed dependency
-Demi_eval_true: Skipped test/subjects/codegen/target_rhs.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/codegen/undefined_consts.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/dynamic/bad_nested.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/dynamic/nested.php - Test failed dependency
@@ -2190,11 +2157,9 @@ Demi_eval_true: Skipped test/subjects/errors/try_catch_break.php - Test failed d
 Demi_eval_true: Skipped test/subjects/horrible/invocation_priorities.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/horrible/method_invocation.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/horrible/obfuscated_foreach.php - Test failed dependency
-Demi_eval_true: Skipped test/subjects/optimization/array_use.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/optimization/concat_null.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/optimization/dce_foreach1.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/optimization/field_on_nonobjects.php - Test failed dependency
-Demi_eval_true: Skipped test/subjects/optimization/may_defs.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/optimization/object_casting.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/optimization/reference2.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/optimization/string_handler.php - Test failed dependency
@@ -2210,7 +2175,6 @@ Demi_eval_true: Skipped test/subjects/parsing/const_attribute.php - Test failed 
 Demi_eval_true: Skipped test/subjects/parsing/constant_folding.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/parsing/constants.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/parsing/exceptions.php - Test failed dependency
-Demi_eval_true: Skipped test/subjects/parsing/functions.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/parsing/include_complex.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/parsing/include_complex_once.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/parsing/include_once.php - Test failed dependency
@@ -2250,14 +2214,9 @@ Demi_eval_true: Skipped test/subjects/warnings/constant_folding6.php - Test fail
 Demi_eval_true: Skipped test/subjects/warnings/constant_folding7.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/warnings/missing_include.php - Test failed dependency
 Demi_eval_true: Skipped test/subjects/warnings/variable_include.php - Test failed dependency
-Generate_C: Skipped test/subjects/bugs/bug0026.php - Test failed dependency
-Generate_C: Skipped test/subjects/bugs/bug0028.php - Test failed dependency
 Generate_C: Skipped test/subjects/bugs/bug0029.php - Test failed dependency
-Generate_C: Skipped test/subjects/codegen/global_param.php - Test failed dependency
-Generate_C: Skipped test/subjects/codegen/infinite_lists.php - Test failed dependency
 Generate_C: Skipped test/subjects/codegen/new.php - Test failed dependency
 Generate_C: Skipped test/subjects/codegen/str_vs_int_index.php - Test failed dependency
-Generate_C: Skipped test/subjects/codegen/target_rhs.php - Test failed dependency
 Generate_C: Skipped test/subjects/errors/array_as_class_constant.php - Test failed dependency
 Generate_C: Skipped test/subjects/errors/assign_const_by_ref.php - Test failed dependency
 Generate_C: Skipped test/subjects/errors/bad_arrays_read1.php - Test failed dependency
@@ -2291,16 +2250,13 @@ Generate_C: Skipped test/subjects/errors/prepostop_error2.php - Test failed depe
 Generate_C: Skipped test/subjects/errors/simple_neg_break.php - Test failed dependency
 Generate_C: Skipped test/subjects/errors/sticks.php - Test failed dependency
 Generate_C: Skipped test/subjects/errors/try_catch_break.php - Test failed dependency
-Generate_C: Skipped test/subjects/optimization/array_use.php - Test failed dependency
 Generate_C: Skipped test/subjects/optimization/concat_null.php - Test failed dependency
 Generate_C: Skipped test/subjects/optimization/dce_foreach1.php - Test failed dependency
-Generate_C: Skipped test/subjects/optimization/may_defs.php - Test failed dependency
 Generate_C: Skipped test/subjects/optimization/string_handler.php - Test failed dependency
 Generate_C: Skipped test/subjects/parsing/allchars_inline.php - Test excepted
 Generate_C: Skipped test/subjects/parsing/capital_ticks.php - Test failed dependency
 Generate_C: Skipped test/subjects/parsing/comments_declare.php - Test failed dependency
 Generate_C: Skipped test/subjects/parsing/constant_folding.php - Test failed dependency
-Generate_C: Skipped test/subjects/parsing/functions.php - Test failed dependency
 Generate_C: Skipped test/subjects/parsing/layout5_declare.php - Test failed dependency
 Generate_C: Skipped test/subjects/parsing/line_and_co.php - Test failed dependency
 Generate_C: Skipped test/subjects/parsing/scoped_function.php - Test failed dependency
@@ -2361,7 +2317,6 @@ HIR-to-MIR_dump: Skipped test/subjects/errors/prepostop_error2.php - Test failed
 HIR-to-MIR_dump: Skipped test/subjects/errors/simple_neg_break.php - Test failed dependency
 HIR-to-MIR_dump: Skipped test/subjects/errors/sticks.php - Test failed dependency
 HIR-to-MIR_dump: Skipped test/subjects/errors/try_catch_break.php - Test failed dependency
-HIR-to-MIR_dump: Skipped test/subjects/optimization/array_use.php - Test failed dependency
 HIR-to-MIR_dump: Skipped test/subjects/optimization/concat_null.php - Test failed dependency
 HIR-to-MIR_dump: Skipped test/subjects/optimization/dce_foreach1.php - Test failed dependency
 HIR-to-MIR_dump: Skipped test/subjects/optimization/may_defs.php - Test failed dependency
@@ -2461,12 +2416,7 @@ InterpretCanonicalUnparsed: Skipped test/subjects/warnings/constant_folding6.php
 InterpretCanonicalUnparsed: Skipped test/subjects/warnings/constant_folding7.php - Test failed dependency
 InterpretCanonicalUnparsed: Skipped test/subjects/warnings/missing_include.php - Test failed dependency
 InterpretCanonicalUnparsed: Skipped test/subjects/warnings/variable_include.php - Test failed dependency
-InterpretIncludes: Skipped test/subjects/bugs/bug0026.php - Test failed dependency
-InterpretIncludes: Skipped test/subjects/bugs/bug0028.php - Test failed dependency
 InterpretIncludes: Skipped test/subjects/bugs/bug0029.php - Test failed dependency
-InterpretIncludes: Skipped test/subjects/codegen/global_param.php - Test failed dependency
-InterpretIncludes: Skipped test/subjects/codegen/infinite_lists.php - Test failed dependency
-InterpretIncludes: Skipped test/subjects/codegen/target_rhs.php - Test failed dependency
 InterpretIncludes: Skipped test/subjects/errors/array_as_class_constant.php - Test failed dependency
 InterpretIncludes: Skipped test/subjects/errors/assign_const_by_ref.php - Test failed dependency
 InterpretIncludes: Skipped test/subjects/errors/bad_arrays_read1.php - Test failed dependency
@@ -2500,10 +2450,7 @@ InterpretIncludes: Skipped test/subjects/errors/prepostop_error2.php - Test fail
 InterpretIncludes: Skipped test/subjects/errors/simple_neg_break.php - Test failed dependency
 InterpretIncludes: Skipped test/subjects/errors/sticks.php - Test failed dependency
 InterpretIncludes: Skipped test/subjects/errors/try_catch_break.php - Test failed dependency
-InterpretIncludes: Skipped test/subjects/optimization/array_use.php - Test failed dependency
 InterpretIncludes: Skipped test/subjects/optimization/dce_foreach1.php - Test failed dependency
-InterpretIncludes: Skipped test/subjects/optimization/may_defs.php - Test failed dependency
-InterpretIncludes: Skipped test/subjects/parsing/functions.php - Test failed dependency
 InterpretIncludes: Skipped test/subjects/parsing/hash_bang1.php - Test excepted
 InterpretIncludes: Skipped test/subjects/parsing/line_and_co.php - Test failed dependency
 InterpretIncludes: Skipped test/subjects/parsing/scoped_function.php - Test failed dependency
@@ -2522,16 +2469,11 @@ InterpretIncludes: Skipped test/subjects/warnings/constant_folding6.php - Test f
 InterpretIncludes: Skipped test/subjects/warnings/constant_folding7.php - Test failed dependency
 InterpretIncludes: Skipped test/subjects/warnings/missing_include.php - Test failed dependency
 InterpretIncludes: Skipped test/subjects/warnings/variable_include.php - Test failed dependency
-InterpretObfuscated: Skipped test/subjects/bugs/bug0026.php - Test failed dependency
-InterpretObfuscated: Skipped test/subjects/bugs/bug0028.php - Test failed dependency
 InterpretObfuscated: Skipped test/subjects/bugs/bug0029.php - Test failed dependency
-InterpretObfuscated: Skipped test/subjects/codegen/global_param.php - Test failed dependency
-InterpretObfuscated: Skipped test/subjects/codegen/infinite_lists.php - Test failed dependency
 InterpretObfuscated: Skipped test/subjects/codegen/loop_separation1.php - Test failed dependency
 InterpretObfuscated: Skipped test/subjects/codegen/loop_separation2.php - Test failed dependency
 InterpretObfuscated: Skipped test/subjects/codegen/new.php - Test failed dependency
 InterpretObfuscated: Skipped test/subjects/codegen/str_vs_int_index.php - Test failed dependency
-InterpretObfuscated: Skipped test/subjects/codegen/target_rhs.php - Test failed dependency
 InterpretObfuscated: Skipped test/subjects/errors/array_as_class_constant.php - Test failed dependency
 InterpretObfuscated: Skipped test/subjects/errors/assign_const_by_ref.php - Test failed dependency
 InterpretObfuscated: Skipped test/subjects/errors/bad_arrays_read1.php - Test failed dependency
@@ -2565,16 +2507,13 @@ InterpretObfuscated: Skipped test/subjects/errors/prepostop_error2.php - Test fa
 InterpretObfuscated: Skipped test/subjects/errors/simple_neg_break.php - Test failed dependency
 InterpretObfuscated: Skipped test/subjects/errors/sticks.php - Test failed dependency
 InterpretObfuscated: Skipped test/subjects/errors/try_catch_break.php - Test failed dependency
-InterpretObfuscated: Skipped test/subjects/optimization/array_use.php - Test failed dependency
 InterpretObfuscated: Skipped test/subjects/optimization/concat_null.php - Test failed dependency
 InterpretObfuscated: Skipped test/subjects/optimization/dce_foreach1.php - Test failed dependency
-InterpretObfuscated: Skipped test/subjects/optimization/may_defs.php - Test failed dependency
 InterpretObfuscated: Skipped test/subjects/optimization/string_handler.php - Test failed dependency
 InterpretObfuscated: Skipped test/subjects/parsing/capital_ticks.php - Test failed dependency
 InterpretObfuscated: Skipped test/subjects/parsing/casts.php - Test failed dependency
 InterpretObfuscated: Skipped test/subjects/parsing/comments_declare.php - Test failed dependency
 InterpretObfuscated: Skipped test/subjects/parsing/constant_folding.php - Test failed dependency
-InterpretObfuscated: Skipped test/subjects/parsing/functions.php - Test failed dependency
 InterpretObfuscated: Skipped test/subjects/parsing/layout5_declare.php - Test failed dependency
 InterpretObfuscated: Skipped test/subjects/parsing/line_and_co.php - Test failed dependency
 InterpretObfuscated: Skipped test/subjects/parsing/scoped_function.php - Test failed dependency
@@ -2598,9 +2537,8 @@ InterpretObfuscated: Skipped test/subjects/warnings/missing_include.php - Test f
 InterpretObfuscated: Skipped test/subjects/warnings/variable_include.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/bugs/bug0008.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/bugs/bug0011.php - Test failed dependency
-InterpretOptimized: Skipped test/subjects/bugs/bug0026.php - Test failed dependency
-InterpretOptimized: Skipped test/subjects/bugs/bug0028.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/bugs/bug0029.php - Test failed dependency
+InterpretOptimized: Skipped test/subjects/bugs/bug0035.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/codegen/006.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/codegen/006b.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/codegen/006c.php - Test failed dependency
@@ -2619,10 +2557,8 @@ InterpretOptimized: Skipped test/subjects/codegen/for_empty.php - Test failed de
 InterpretOptimized: Skipped test/subjects/codegen/foreach_object.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/codegen/functioncalls_evald_functions.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/codegen/functioncalls_evald_invocations.php - Test failed dependency
-InterpretOptimized: Skipped test/subjects/codegen/global_param.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/codegen/include_fail.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/codegen/include_once.php - Test failed dependency
-InterpretOptimized: Skipped test/subjects/codegen/infinite_lists.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/codegen/invalid_foreach_array.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/codegen/loop_separation1.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/codegen/loop_separation2.php - Test failed dependency
@@ -2676,7 +2612,6 @@ InterpretOptimized: Skipped test/subjects/codegen/static_reference.php - Test fa
 InterpretOptimized: Skipped test/subjects/codegen/str_vs_int_index.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/codegen/switch_multi_break.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/codegen/target_lhs.php - Test failed dependency
-InterpretOptimized: Skipped test/subjects/codegen/target_rhs.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/codegen/undeclared_function.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/codegen/undefined_consts.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/codegen/unset_2d_int.php - Test failed dependency
@@ -2729,13 +2664,11 @@ InterpretOptimized: Skipped test/subjects/horrible/invocation_priorities.php - T
 InterpretOptimized: Skipped test/subjects/horrible/method_invocation.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/horrible/obfuscated_foreach.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/optimization/array_loop.php - Test failed dependency
-InterpretOptimized: Skipped test/subjects/optimization/array_use.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/optimization/concat_null.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/optimization/dce_foreach1.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/optimization/decrement.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/optimization/gettimeofday.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/optimization/indirect_string.php - Test failed dependency
-InterpretOptimized: Skipped test/subjects/optimization/may_defs.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/optimization/obj_simple_get.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/optimization/object_casting.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/optimization/ref_via_unknown.php - Test failed dependency
@@ -2761,7 +2694,6 @@ InterpretOptimized: Skipped test/subjects/parsing/exceptions.php - Test failed d
 InterpretOptimized: Skipped test/subjects/parsing/factorial.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/parsing/foreach.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/parsing/foreach_with_complex_key.php - Test failed dependency
-InterpretOptimized: Skipped test/subjects/parsing/functions.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/parsing/impure.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/parsing/include_classes.php - Test failed dependency
 InterpretOptimized: Skipped test/subjects/parsing/include_complex.php - Test failed dependency
@@ -3039,8 +2971,6 @@ ParseTreeDot: Skipped test/subjects/warnings/missing_include.php - Test failed d
 ParseTreeDot: Skipped test/subjects/warnings/variable_include.php - Test failed dependency
 Refcounts: Skipped test/subjects/bugs/bug0008.php - Test failed dependency
 Refcounts: Skipped test/subjects/bugs/bug0025.php - Test failed dependency
-Refcounts: Skipped test/subjects/bugs/bug0026.php - Test failed dependency
-Refcounts: Skipped test/subjects/bugs/bug0028.php - Test failed dependency
 Refcounts: Skipped test/subjects/bugs/bug0029.php - Test failed dependency
 Refcounts: Skipped test/subjects/codegen/019c.php - Test failed dependency
 Refcounts: Skipped test/subjects/codegen/022b.php - Test failed dependency
@@ -3066,12 +2996,10 @@ Refcounts: Skipped test/subjects/codegen/decrement.php - Test failed dependency
 Refcounts: Skipped test/subjects/codegen/dynamic_class_def_and_constants.php - Test failed dependency
 Refcounts: Skipped test/subjects/codegen/foreach_object.php - Test failed dependency
 Refcounts: Skipped test/subjects/codegen/functioncalls_compiled.php - Test failed dependency
-Refcounts: Skipped test/subjects/codegen/global_param.php - Test failed dependency
 Refcounts: Skipped test/subjects/codegen/include_fail.php - Test failed dependency
 Refcounts: Skipped test/subjects/codegen/increment.php - Test failed dependency
 Refcounts: Skipped test/subjects/codegen/index_object.php - Test failed dependency
 Refcounts: Skipped test/subjects/codegen/indirect_fields.php - Test failed dependency
-Refcounts: Skipped test/subjects/codegen/infinite_lists.php - Test failed dependency
 Refcounts: Skipped test/subjects/codegen/itemlist.php - Test failed dependency
 Refcounts: Skipped test/subjects/codegen/nested_statements.php - Test excepted
 Refcounts: Skipped test/subjects/codegen/new.php - Test failed dependency
@@ -3104,7 +3032,6 @@ Refcounts: Skipped test/subjects/codegen/static_array_keys.php - Test failed dep
 Refcounts: Skipped test/subjects/codegen/static_reference.php - Test failed dependency
 Refcounts: Skipped test/subjects/codegen/str_vs_int_index.php - Test failed dependency
 Refcounts: Skipped test/subjects/codegen/target_lhs2.php - Test failed dependency
-Refcounts: Skipped test/subjects/codegen/target_rhs.php - Test failed dependency
 Refcounts: Skipped test/subjects/codegen/undefined_consts.php - Test failed dependency
 Refcounts: Skipped test/subjects/dynamic/bad_nested.php - Test failed dependency
 Refcounts: Skipped test/subjects/dynamic/nested.php - Test failed dependency
@@ -3146,11 +3073,9 @@ Refcounts: Skipped test/subjects/errors/try_catch_break.php - Test failed depend
 Refcounts: Skipped test/subjects/horrible/invocation_priorities.php - Test failed dependency
 Refcounts: Skipped test/subjects/horrible/method_invocation.php - Test failed dependency
 Refcounts: Skipped test/subjects/horrible/obfuscated_foreach.php - Test failed dependency
-Refcounts: Skipped test/subjects/optimization/array_use.php - Test failed dependency
 Refcounts: Skipped test/subjects/optimization/concat_null.php - Test failed dependency
 Refcounts: Skipped test/subjects/optimization/dce_foreach1.php - Test failed dependency
 Refcounts: Skipped test/subjects/optimization/field_on_nonobjects.php - Test failed dependency
-Refcounts: Skipped test/subjects/optimization/may_defs.php - Test failed dependency
 Refcounts: Skipped test/subjects/optimization/object_casting.php - Test failed dependency
 Refcounts: Skipped test/subjects/optimization/reference2.php - Test failed dependency
 Refcounts: Skipped test/subjects/optimization/string_handler.php - Test failed dependency
@@ -3166,7 +3091,6 @@ Refcounts: Skipped test/subjects/parsing/const_attribute.php - Test failed depen
 Refcounts: Skipped test/subjects/parsing/constant_folding.php - Test failed dependency
 Refcounts: Skipped test/subjects/parsing/constants.php - Test failed dependency
 Refcounts: Skipped test/subjects/parsing/exceptions.php - Test failed dependency
-Refcounts: Skipped test/subjects/parsing/functions.php - Test failed dependency
 Refcounts: Skipped test/subjects/parsing/include_complex.php - Test failed dependency
 Refcounts: Skipped test/subjects/parsing/include_complex_once.php - Test failed dependency
 Refcounts: Skipped test/subjects/parsing/include_once.php - Test failed dependency
@@ -3350,13 +3274,8 @@ XML_roundtrip: Skipped test/subjects/warnings/constant_folding6.php - Test faile
 XML_roundtrip: Skipped test/subjects/warnings/constant_folding7.php - Test failed dependency
 XML_roundtrip: Skipped test/subjects/warnings/missing_include.php - Test failed dependency
 XML_roundtrip: Skipped test/subjects/warnings/variable_include.php - Test failed dependency
-cb_AST-to-HIR: Skipped test/subjects/bugs/bug0026.php - Test failed dependency
-cb_AST-to-HIR: Skipped test/subjects/bugs/bug0028.php - Test failed dependency
 cb_AST-to-HIR: Skipped test/subjects/bugs/bug0029.php - Test failed dependency
-cb_AST-to-HIR: Skipped test/subjects/codegen/global_param.php - Test failed dependency
-cb_AST-to-HIR: Skipped test/subjects/codegen/infinite_lists.php - Test failed dependency
 cb_AST-to-HIR: Skipped test/subjects/codegen/str_vs_int_index.php - Test excepted
-cb_AST-to-HIR: Skipped test/subjects/codegen/target_rhs.php - Test failed dependency
 cb_AST-to-HIR: Skipped test/subjects/errors/array_as_class_constant.php - Test failed dependency
 cb_AST-to-HIR: Skipped test/subjects/errors/assign_const_by_ref.php - Test failed dependency
 cb_AST-to-HIR: Skipped test/subjects/errors/bad_arrays_read1.php - Test failed dependency
@@ -3390,12 +3309,9 @@ cb_AST-to-HIR: Skipped test/subjects/errors/prepostop_error2.php - Test failed d
 cb_AST-to-HIR: Skipped test/subjects/errors/simple_neg_break.php - Test failed dependency
 cb_AST-to-HIR: Skipped test/subjects/errors/sticks.php - Test failed dependency
 cb_AST-to-HIR: Skipped test/subjects/errors/try_catch_break.php - Test failed dependency
-cb_AST-to-HIR: Skipped test/subjects/optimization/array_use.php - Test failed dependency
 cb_AST-to-HIR: Skipped test/subjects/optimization/dce_foreach1.php - Test failed dependency
-cb_AST-to-HIR: Skipped test/subjects/optimization/may_defs.php - Test failed dependency
 cb_AST-to-HIR: Skipped test/subjects/parsing/capital_ticks.php - Test excepted
 cb_AST-to-HIR: Skipped test/subjects/parsing/comments_declare.php - Test excepted
-cb_AST-to-HIR: Skipped test/subjects/parsing/functions.php - Test failed dependency
 cb_AST-to-HIR: Skipped test/subjects/parsing/layout5_declare.php - Test excepted
 cb_AST-to-HIR: Skipped test/subjects/parsing/line_and_co.php - Test failed dependency
 cb_AST-to-HIR: Skipped test/subjects/parsing/scoped_function.php - Test failed dependency
@@ -3464,14 +3380,9 @@ cb_ast: Skipped test/subjects/warnings/constant_folding6.php - Test failed depen
 cb_ast: Skipped test/subjects/warnings/constant_folding7.php - Test failed dependency
 cb_ast: Skipped test/subjects/warnings/missing_include.php - Test failed dependency
 cb_ast: Skipped test/subjects/warnings/variable_include.php - Test failed dependency
-cb_hir: Skipped test/subjects/bugs/bug0026.php - Test failed dependency
-cb_hir: Skipped test/subjects/bugs/bug0028.php - Test failed dependency
 cb_hir: Skipped test/subjects/bugs/bug0029.php - Test failed dependency
-cb_hir: Skipped test/subjects/codegen/global_param.php - Test failed dependency
-cb_hir: Skipped test/subjects/codegen/infinite_lists.php - Test failed dependency
 cb_hir: Skipped test/subjects/codegen/new.php - Test failed dependency
 cb_hir: Skipped test/subjects/codegen/str_vs_int_index.php - Test failed dependency
-cb_hir: Skipped test/subjects/codegen/target_rhs.php - Test failed dependency
 cb_hir: Skipped test/subjects/errors/array_as_class_constant.php - Test failed dependency
 cb_hir: Skipped test/subjects/errors/assign_const_by_ref.php - Test failed dependency
 cb_hir: Skipped test/subjects/errors/bad_arrays_read1.php - Test failed dependency
@@ -3505,15 +3416,12 @@ cb_hir: Skipped test/subjects/errors/prepostop_error2.php - Test failed dependen
 cb_hir: Skipped test/subjects/errors/simple_neg_break.php - Test failed dependency
 cb_hir: Skipped test/subjects/errors/sticks.php - Test failed dependency
 cb_hir: Skipped test/subjects/errors/try_catch_break.php - Test failed dependency
-cb_hir: Skipped test/subjects/optimization/array_use.php - Test failed dependency
 cb_hir: Skipped test/subjects/optimization/concat_null.php - Test failed dependency
 cb_hir: Skipped test/subjects/optimization/dce_foreach1.php - Test failed dependency
-cb_hir: Skipped test/subjects/optimization/may_defs.php - Test failed dependency
 cb_hir: Skipped test/subjects/optimization/string_handler.php - Test failed dependency
 cb_hir: Skipped test/subjects/parsing/capital_ticks.php - Test failed dependency
 cb_hir: Skipped test/subjects/parsing/comments_declare.php - Test failed dependency
 cb_hir: Skipped test/subjects/parsing/constant_folding.php - Test failed dependency
-cb_hir: Skipped test/subjects/parsing/functions.php - Test failed dependency
 cb_hir: Skipped test/subjects/parsing/layout5_declare.php - Test failed dependency
 cb_hir: Skipped test/subjects/parsing/line_and_co.php - Test failed dependency
 cb_hir: Skipped test/subjects/parsing/scoped_function.php - Test failed dependency
@@ -3533,14 +3441,9 @@ cb_hir: Skipped test/subjects/warnings/constant_folding6.php - Test failed depen
 cb_hir: Skipped test/subjects/warnings/constant_folding7.php - Test failed dependency
 cb_hir: Skipped test/subjects/warnings/missing_include.php - Test failed dependency
 cb_hir: Skipped test/subjects/warnings/variable_include.php - Test failed dependency
-cb_mir: Skipped test/subjects/bugs/bug0026.php - Test failed dependency
-cb_mir: Skipped test/subjects/bugs/bug0028.php - Test failed dependency
 cb_mir: Skipped test/subjects/bugs/bug0029.php - Test failed dependency
-cb_mir: Skipped test/subjects/codegen/global_param.php - Test failed dependency
-cb_mir: Skipped test/subjects/codegen/infinite_lists.php - Test failed dependency
 cb_mir: Skipped test/subjects/codegen/new.php - Test failed dependency
 cb_mir: Skipped test/subjects/codegen/str_vs_int_index.php - Test failed dependency
-cb_mir: Skipped test/subjects/codegen/target_rhs.php - Test failed dependency
 cb_mir: Skipped test/subjects/errors/array_as_class_constant.php - Test failed dependency
 cb_mir: Skipped test/subjects/errors/assign_const_by_ref.php - Test failed dependency
 cb_mir: Skipped test/subjects/errors/bad_arrays_read1.php - Test failed dependency
@@ -3574,15 +3477,12 @@ cb_mir: Skipped test/subjects/errors/prepostop_error2.php - Test failed dependen
 cb_mir: Skipped test/subjects/errors/simple_neg_break.php - Test failed dependency
 cb_mir: Skipped test/subjects/errors/sticks.php - Test failed dependency
 cb_mir: Skipped test/subjects/errors/try_catch_break.php - Test failed dependency
-cb_mir: Skipped test/subjects/optimization/array_use.php - Test failed dependency
 cb_mir: Skipped test/subjects/optimization/concat_null.php - Test failed dependency
 cb_mir: Skipped test/subjects/optimization/dce_foreach1.php - Test failed dependency
-cb_mir: Skipped test/subjects/optimization/may_defs.php - Test failed dependency
 cb_mir: Skipped test/subjects/optimization/string_handler.php - Test failed dependency
 cb_mir: Skipped test/subjects/parsing/capital_ticks.php - Test failed dependency
 cb_mir: Skipped test/subjects/parsing/comments_declare.php - Test failed dependency
 cb_mir: Skipped test/subjects/parsing/constant_folding.php - Test failed dependency
-cb_mir: Skipped test/subjects/parsing/functions.php - Test failed dependency
 cb_mir: Skipped test/subjects/parsing/layout5_declare.php - Test failed dependency
 cb_mir: Skipped test/subjects/parsing/line_and_co.php - Test failed dependency
 cb_mir: Skipped test/subjects/parsing/scoped_function.php - Test failed dependency
@@ -3602,12 +3502,7 @@ cb_mir: Skipped test/subjects/warnings/constant_folding6.php - Test failed depen
 cb_mir: Skipped test/subjects/warnings/constant_folding7.php - Test failed dependency
 cb_mir: Skipped test/subjects/warnings/missing_include.php - Test failed dependency
 cb_mir: Skipped test/subjects/warnings/variable_include.php - Test failed dependency
-cb_sua: Skipped test/subjects/bugs/bug0026.php - Test failed dependency
-cb_sua: Skipped test/subjects/bugs/bug0028.php - Test failed dependency
 cb_sua: Skipped test/subjects/bugs/bug0029.php - Test failed dependency
-cb_sua: Skipped test/subjects/codegen/global_param.php - Test failed dependency
-cb_sua: Skipped test/subjects/codegen/infinite_lists.php - Test failed dependency
-cb_sua: Skipped test/subjects/codegen/target_rhs.php - Test failed dependency
 cb_sua: Skipped test/subjects/errors/array_as_class_constant.php - Test failed dependency
 cb_sua: Skipped test/subjects/errors/assign_const_by_ref.php - Test failed dependency
 cb_sua: Skipped test/subjects/errors/bad_arrays_read1.php - Test failed dependency
@@ -3641,10 +3536,7 @@ cb_sua: Skipped test/subjects/errors/prepostop_error2.php - Test failed dependen
 cb_sua: Skipped test/subjects/errors/simple_neg_break.php - Test failed dependency
 cb_sua: Skipped test/subjects/errors/sticks.php - Test failed dependency
 cb_sua: Skipped test/subjects/errors/try_catch_break.php - Test failed dependency
-cb_sua: Skipped test/subjects/optimization/array_use.php - Test failed dependency
 cb_sua: Skipped test/subjects/optimization/dce_foreach1.php - Test failed dependency
-cb_sua: Skipped test/subjects/optimization/may_defs.php - Test failed dependency
-cb_sua: Skipped test/subjects/parsing/functions.php - Test failed dependency
 cb_sua: Skipped test/subjects/parsing/line_and_co.php - Test failed dependency
 cb_sua: Skipped test/subjects/parsing/scoped_function.php - Test failed dependency
 cb_sua: Skipped test/subjects/phc/debug1.php - Test failed dependency
@@ -3705,7 +3597,6 @@ mir_dump: Skipped test/subjects/errors/prepostop_error2.php - Test failed depend
 mir_dump: Skipped test/subjects/errors/simple_neg_break.php - Test failed dependency
 mir_dump: Skipped test/subjects/errors/sticks.php - Test failed dependency
 mir_dump: Skipped test/subjects/errors/try_catch_break.php - Test failed dependency
-mir_dump: Skipped test/subjects/optimization/array_use.php - Test failed dependency
 mir_dump: Skipped test/subjects/optimization/concat_null.php - Test failed dependency
 mir_dump: Skipped test/subjects/optimization/dce_foreach1.php - Test failed dependency
 mir_dump: Skipped test/subjects/optimization/may_defs.php - Test failed dependency
@@ -4154,6 +4045,7 @@ regression_dump_ast: Skipped test/subjects/bugs/bug0031.php - No regression supp
 regression_dump_ast: Skipped test/subjects/bugs/bug0032.php - No regression support file at test/support_files/regression_dump_ast/bugs/bug0032.php.dot
 regression_dump_ast: Skipped test/subjects/bugs/bug0033.php - No regression support file at test/support_files/regression_dump_ast/bugs/bug0033.php.dot
 regression_dump_ast: Skipped test/subjects/bugs/bug0034.php - No regression support file at test/support_files/regression_dump_ast/bugs/bug0034.php.dot
+regression_dump_ast: Skipped test/subjects/bugs/bug0035.php - No regression support file at test/support_files/regression_dump_ast/bugs/bug0035.php.dot
 regression_dump_ast: Skipped test/subjects/codegen/000.php - No regression support file at test/support_files/regression_dump_ast/codegen/000.php.dot
 regression_dump_ast: Skipped test/subjects/codegen/001a.php - No regression support file at test/support_files/regression_dump_ast/codegen/001a.php.dot
 regression_dump_ast: Skipped test/subjects/codegen/001b.php - No regression support file at test/support_files/regression_dump_ast/codegen/001b.php.dot
@@ -4919,6 +4811,7 @@ regression_dump_php: Skipped test/subjects/bugs/bug0031.php - No regression supp
 regression_dump_php: Skipped test/subjects/bugs/bug0032.php - No regression support file at test/support_files/regression_dump_php/bugs/bug0032.php.unparsed
 regression_dump_php: Skipped test/subjects/bugs/bug0033.php - No regression support file at test/support_files/regression_dump_php/bugs/bug0033.php.unparsed
 regression_dump_php: Skipped test/subjects/bugs/bug0034.php - No regression support file at test/support_files/regression_dump_php/bugs/bug0034.php.unparsed
+regression_dump_php: Skipped test/subjects/bugs/bug0035.php - No regression support file at test/support_files/regression_dump_php/bugs/bug0035.php.unparsed
 regression_dump_php: Skipped test/subjects/codegen/000.php - No regression support file at test/support_files/regression_dump_php/codegen/000.php.unparsed
 regression_dump_php: Skipped test/subjects/codegen/001a.php - No regression support file at test/support_files/regression_dump_php/codegen/001a.php.unparsed
 regression_dump_php: Skipped test/subjects/codegen/001b.php - No regression support file at test/support_files/regression_dump_php/codegen/001b.php.unparsed
@@ -5684,6 +5577,7 @@ regression_dump_xml: Skipped test/subjects/bugs/bug0031.php - No regression supp
 regression_dump_xml: Skipped test/subjects/bugs/bug0032.php - No regression support file at test/support_files/regression_dump_xml/bugs/bug0032.php.unparsed
 regression_dump_xml: Skipped test/subjects/bugs/bug0033.php - No regression support file at test/support_files/regression_dump_xml/bugs/bug0033.php.unparsed
 regression_dump_xml: Skipped test/subjects/bugs/bug0034.php - No regression support file at test/support_files/regression_dump_xml/bugs/bug0034.php.unparsed
+regression_dump_xml: Skipped test/subjects/bugs/bug0035.php - No regression support file at test/support_files/regression_dump_xml/bugs/bug0035.php.unparsed
 regression_dump_xml: Skipped test/subjects/codegen/000.php - No regression support file at test/support_files/regression_dump_xml/codegen/000.php.unparsed
 regression_dump_xml: Skipped test/subjects/codegen/001a.php - No regression support file at test/support_files/regression_dump_xml/codegen/001a.php.unparsed
 regression_dump_xml: Skipped test/subjects/codegen/001b.php - No regression support file at test/support_files/regression_dump_xml/codegen/001b.php.unparsed

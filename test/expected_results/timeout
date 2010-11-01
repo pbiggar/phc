@@ -14,7 +14,6 @@ BasicFastOptAnalyseTest: Timeout test/subjects/codegen/break_three.php
 BasicFastOptAnalyseTest: Timeout test/subjects/codegen/break_two.php
 BasicFastOptAnalyseTest: Timeout test/subjects/codegen/break_zero.php
 BasicFastOptAnalyseTest: Timeout test/subjects/codegen/empty.php
-BasicFastOptAnalyseTest: Timeout test/subjects/codegen/foreach_expr.php
 BasicFastOptAnalyseTest: Timeout test/subjects/codegen/foreach_key_val.php
 BasicFastOptAnalyseTest: Timeout test/subjects/codegen/foreach_nested.php
 BasicFastOptAnalyseTest: Timeout test/subjects/codegen/functioncalls_compiled.php
@@ -40,7 +39,6 @@ BasicFastOptAnalyseTest: Timeout test/subjects/parsing/foreach_with_complex_key.
 BasicFastOptAnalyseTest: Timeout test/subjects/parsing/instring.php
 BasicFastOptAnalyseTest: Timeout test/subjects/parsing/literal_test.php
 BasicFastOptAnalyseTest: Timeout test/subjects/parsing/negative_literals.php
-BasicFastOptAnalyseTest: Timeout test/subjects/parsing/reflect_ints.php
 BasicFastOptAnalyseTest: Timeout test/subjects/parsing/switch.php
 BasicFastOptAnalyseTest: Timeout test/subjects/parsing/variable_name.php
 BasicFastOptAnalyseTest: Timeout test/subjects/php_bugs/26396.php
@@ -49,7 +47,7 @@ BasicFastOptimizeTest: Timeout test/subjects/codegen/bench_mandel2.php
 BasicFastOptimizeTest: Timeout test/subjects/codegen/bench_nested_loop.php
 BasicFastOptimizeTest: Timeout test/subjects/codegen/bench_sieve.php
 BasicFastOptimizeTest: Timeout test/subjects/codegen/break_var_expr.php
-BasicFastOptimizeTest: Timeout test/subjects/codegen/for_nested.php
+BasicFastOptimizeTest: Timeout test/subjects/codegen/foreach_expr.php
 BasicFastOptimizeTest: Timeout test/subjects/codegen/foreach_ref_expr.php
 BasicFastOptimizeTest: Timeout test/subjects/codegen/foreach_simple.php
 BasicFastOptimizeTest: Timeout test/subjects/codegen/index_array.php

@@ -35,6 +35,7 @@ Annotated_test: Success test/subjects/bugs/bug0031.php
 Annotated_test: Success test/subjects/bugs/bug0032.php
 Annotated_test: Success test/subjects/bugs/bug0033.php
 Annotated_test: Success test/subjects/bugs/bug0034.php
+Annotated_test: Success test/subjects/bugs/bug0035.php
 Annotated_test: Success test/subjects/codegen/000.php
 Annotated_test: Success test/subjects/codegen/001a.php
 Annotated_test: Success test/subjects/codegen/001b.php
@@ -860,6 +861,7 @@ BasicFastOptAnalyseTest: Success test/subjects/codegen/exit_alone.php
 BasicFastOptAnalyseTest: Success test/subjects/codegen/for_nested.php
 BasicFastOptAnalyseTest: Success test/subjects/codegen/for_simple.php
 BasicFastOptAnalyseTest: Success test/subjects/codegen/for_varying_cond.php
+BasicFastOptAnalyseTest: Success test/subjects/codegen/foreach_expr.php
 BasicFastOptAnalyseTest: Success test/subjects/codegen/foreach_ref_expr.php
 BasicFastOptAnalyseTest: Success test/subjects/codegen/foreach_shocking.php
 BasicFastOptAnalyseTest: Success test/subjects/codegen/foreach_simple.php
@@ -1023,6 +1025,7 @@ BasicFastOptAnalyseTest: Success test/subjects/horrible/static_member_invocation
 BasicFastOptAnalyseTest: Success test/subjects/horrible/whilescope.php
 BasicFastOptAnalyseTest: Success test/subjects/optimization/address_taken.php
 BasicFastOptAnalyseTest: Success test/subjects/optimization/array_pop.php
+BasicFastOptAnalyseTest: Success test/subjects/optimization/array_use.php
 BasicFastOptAnalyseTest: Success test/subjects/optimization/assignment_to_indirect.php
 BasicFastOptAnalyseTest: Success test/subjects/optimization/bad_sccp.php
 BasicFastOptAnalyseTest: Success test/subjects/optimization/change_globals.php
@@ -1147,6 +1150,7 @@ BasicFastOptAnalyseTest: Success test/subjects/parsing/nestedfndefs.php
 BasicFastOptAnalyseTest: Success test/subjects/parsing/null_obj_ref.php
 BasicFastOptAnalyseTest: Success test/subjects/parsing/precedence.php
 BasicFastOptAnalyseTest: Success test/subjects/parsing/prepostop.php
+BasicFastOptAnalyseTest: Success test/subjects/parsing/reflect_ints.php
 BasicFastOptAnalyseTest: Success test/subjects/parsing/removeconcatnulls.php
 BasicFastOptAnalyseTest: Success test/subjects/parsing/return.php
 BasicFastOptAnalyseTest: Success test/subjects/parsing/sq_vs_dq.php
@@ -1325,6 +1329,7 @@ BasicFastOptimizeTest: Success test/subjects/codegen/empty_array.php
 BasicFastOptimizeTest: Success test/subjects/codegen/empty_class_var.php
 BasicFastOptimizeTest: Success test/subjects/codegen/empty_exit.php
 BasicFastOptimizeTest: Success test/subjects/codegen/exit_alone.php
+BasicFastOptimizeTest: Success test/subjects/codegen/for_nested.php
 BasicFastOptimizeTest: Success test/subjects/codegen/for_simple.php
 BasicFastOptimizeTest: Success test/subjects/codegen/for_varying_cond.php
 BasicFastOptimizeTest: Success test/subjects/codegen/foreach_shocking.php
@@ -1482,6 +1487,7 @@ BasicFastOptimizeTest: Success test/subjects/horrible/static_member_invocation.p
 BasicFastOptimizeTest: Success test/subjects/horrible/whilescope.php
 BasicFastOptimizeTest: Success test/subjects/optimization/address_taken.php
 BasicFastOptimizeTest: Success test/subjects/optimization/array_pop.php
+BasicFastOptimizeTest: Success test/subjects/optimization/array_use.php
 BasicFastOptimizeTest: Success test/subjects/optimization/assignment_to_indirect.php
 BasicFastOptimizeTest: Success test/subjects/optimization/bad_sccp.php
 BasicFastOptimizeTest: Success test/subjects/optimization/change_globals.php
@@ -1606,6 +1612,7 @@ BasicFastOptimizeTest: Success test/subjects/parsing/nestedfndefs.php
 BasicFastOptimizeTest: Success test/subjects/parsing/null_obj_ref.php
 BasicFastOptimizeTest: Success test/subjects/parsing/precedence.php
 BasicFastOptimizeTest: Success test/subjects/parsing/prepostop.php
+BasicFastOptimizeTest: Success test/subjects/parsing/reflect_ints.php
 BasicFastOptimizeTest: Success test/subjects/parsing/removeconcatnulls.php
 BasicFastOptimizeTest: Success test/subjects/parsing/return.php
 BasicFastOptimizeTest: Success test/subjects/parsing/sq_vs_dq.php
@@ -1783,6 +1790,7 @@ BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/empty_array.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/empty_class_var.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/empty_exit.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/exit_alone.php
+BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/for_nested.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/for_simple.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/for_varying_cond.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/codegen/foreach_shocking.php
@@ -1940,6 +1948,7 @@ BasicIgnoreOutputFastOptimizeTest: Success test/subjects/horrible/static_member_
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/horrible/whilescope.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/optimization/address_taken.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/optimization/array_pop.php
+BasicIgnoreOutputFastOptimizeTest: Success test/subjects/optimization/array_use.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/optimization/assignment_to_indirect.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/optimization/bad_sccp.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/optimization/change_globals.php
@@ -2064,6 +2073,7 @@ BasicIgnoreOutputFastOptimizeTest: Success test/subjects/parsing/nestedfndefs.ph
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/parsing/null_obj_ref.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/parsing/precedence.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/parsing/prepostop.php
+BasicIgnoreOutputFastOptimizeTest: Success test/subjects/parsing/reflect_ints.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/parsing/removeconcatnulls.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/parsing/return.php
 BasicIgnoreOutputFastOptimizeTest: Success test/subjects/parsing/sq_vs_dq.php
@@ -2423,6 +2433,7 @@ BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/horrible/static_memb
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/horrible/whilescope.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/optimization/address_taken.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/optimization/array_pop.php
+BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/optimization/array_use.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/optimization/assignment_to_indirect.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/optimization/bad_sccp.php
 BasicIgnoreOutputPreciseOptimizeTest: Success test/subjects/optimization/change_globals.php
@@ -2654,6 +2665,7 @@ BasicParseTest: Success test/subjects/bugs/bug0031.php
 BasicParseTest: Success test/subjects/bugs/bug0032.php
 BasicParseTest: Success test/subjects/bugs/bug0033.php
 BasicParseTest: Success test/subjects/bugs/bug0034.php
+BasicParseTest: Success test/subjects/bugs/bug0035.php
 BasicParseTest: Success test/subjects/codegen/000.php
 BasicParseTest: Success test/subjects/codegen/001a.php
 BasicParseTest: Success test/subjects/codegen/001b.php
@@ -3608,6 +3620,7 @@ BasicPreciseOptAnalyseTest: Success test/subjects/horrible/static_member_invocat
 BasicPreciseOptAnalyseTest: Success test/subjects/horrible/whilescope.php
 BasicPreciseOptAnalyseTest: Success test/subjects/optimization/address_taken.php
 BasicPreciseOptAnalyseTest: Success test/subjects/optimization/array_pop.php
+BasicPreciseOptAnalyseTest: Success test/subjects/optimization/array_use.php
 BasicPreciseOptAnalyseTest: Success test/subjects/optimization/assignment_to_indirect.php
 BasicPreciseOptAnalyseTest: Success test/subjects/optimization/bad_sccp.php
 BasicPreciseOptAnalyseTest: Success test/subjects/optimization/change_globals.php
@@ -4098,6 +4111,7 @@ BasicPreciseOptimizeTest: Success test/subjects/horrible/static_member_invocatio
 BasicPreciseOptimizeTest: Success test/subjects/horrible/whilescope.php
 BasicPreciseOptimizeTest: Success test/subjects/optimization/address_taken.php
 BasicPreciseOptimizeTest: Success test/subjects/optimization/array_pop.php
+BasicPreciseOptimizeTest: Success test/subjects/optimization/array_use.php
 BasicPreciseOptimizeTest: Success test/subjects/optimization/assignment_to_indirect.php
 BasicPreciseOptimizeTest: Success test/subjects/optimization/bad_sccp.php
 BasicPreciseOptimizeTest: Success test/subjects/optimization/change_globals.php
@@ -4534,6 +4548,7 @@ CompileOptimized: Success test/subjects/codegen/wordy_operators.php
 CompileOptimized: Success test/subjects/horrible/whilescope.php
 CompileOptimized: Success test/subjects/optimization/address_taken.php
 CompileOptimized: Success test/subjects/optimization/array_pop.php
+CompileOptimized: Success test/subjects/optimization/array_use.php
 CompileOptimized: Success test/subjects/optimization/assignment_to_indirect.php
 CompileOptimized: Success test/subjects/optimization/bad_sccp.php
 CompileOptimized: Success test/subjects/optimization/change_globals.php
@@ -4767,6 +4782,7 @@ CompiledVsInterpreted: Success test/subjects/bugs/bug0031.php
 CompiledVsInterpreted: Success test/subjects/bugs/bug0032.php
 CompiledVsInterpreted: Success test/subjects/bugs/bug0033.php
 CompiledVsInterpreted: Success test/subjects/bugs/bug0034.php
+CompiledVsInterpreted: Success test/subjects/bugs/bug0035.php
 CompiledVsInterpreted: Success test/subjects/codegen/000.php
 CompiledVsInterpreted: Success test/subjects/codegen/001a.php
 CompiledVsInterpreted: Success test/subjects/codegen/001b.php
@@ -5098,6 +5114,7 @@ CompiledVsInterpreted: Success test/subjects/horrible/whilescope.php
 CompiledVsInterpreted: Success test/subjects/optimization/address_taken.php
 CompiledVsInterpreted: Success test/subjects/optimization/array_loop.php
 CompiledVsInterpreted: Success test/subjects/optimization/array_pop.php
+CompiledVsInterpreted: Success test/subjects/optimization/array_use.php
 CompiledVsInterpreted: Success test/subjects/optimization/assignment_to_indirect.php
 CompiledVsInterpreted: Success test/subjects/optimization/bad_sccp.php
 CompiledVsInterpreted: Success test/subjects/optimization/change_globals.php
@@ -5355,6 +5372,7 @@ Demi_eval_false: Success test/subjects/bugs/bug0031.php
 Demi_eval_false: Success test/subjects/bugs/bug0032.php
 Demi_eval_false: Success test/subjects/bugs/bug0033.php
 Demi_eval_false: Success test/subjects/bugs/bug0034.php
+Demi_eval_false: Success test/subjects/bugs/bug0035.php
 Demi_eval_false: Success test/subjects/codegen/000.php
 Demi_eval_false: Success test/subjects/codegen/001a.php
 Demi_eval_false: Success test/subjects/codegen/001b.php
@@ -5670,6 +5688,7 @@ Demi_eval_false: Success test/subjects/horrible/static_member_invocation.php
 Demi_eval_false: Success test/subjects/horrible/whilescope.php
 Demi_eval_false: Success test/subjects/optimization/address_taken.php
 Demi_eval_false: Success test/subjects/optimization/array_pop.php
+Demi_eval_false: Success test/subjects/optimization/array_use.php
 Demi_eval_false: Success test/subjects/optimization/assignment_to_indirect.php
 Demi_eval_false: Success test/subjects/optimization/bad_sccp.php
 Demi_eval_false: Success test/subjects/optimization/change_globals.php
@@ -6225,6 +6244,7 @@ Demi_eval_true: Success test/subjects/horrible/whilescope.php
 Demi_eval_true: Success test/subjects/optimization/address_taken.php
 Demi_eval_true: Success test/subjects/optimization/array_loop.php
 Demi_eval_true: Success test/subjects/optimization/array_pop.php
+Demi_eval_true: Success test/subjects/optimization/array_use.php
 Demi_eval_true: Success test/subjects/optimization/assignment_to_indirect.php
 Demi_eval_true: Success test/subjects/optimization/bad_sccp.php
 Demi_eval_true: Success test/subjects/optimization/change_globals.php
@@ -6471,6 +6491,7 @@ Generate_C: Success test/subjects/bugs/bug0031.php
 Generate_C: Success test/subjects/bugs/bug0032.php
 Generate_C: Success test/subjects/bugs/bug0033.php
 Generate_C: Success test/subjects/bugs/bug0034.php
+Generate_C: Success test/subjects/bugs/bug0035.php
 Generate_C: Success test/subjects/codegen/000.php
 Generate_C: Success test/subjects/codegen/001a.php
 Generate_C: Success test/subjects/codegen/001b.php
@@ -6827,6 +6848,7 @@ Generate_C: Success test/subjects/horrible/whilescope.php
 Generate_C: Success test/subjects/optimization/address_taken.php
 Generate_C: Success test/subjects/optimization/array_loop.php
 Generate_C: Success test/subjects/optimization/array_pop.php
+Generate_C: Success test/subjects/optimization/array_use.php
 Generate_C: Success test/subjects/optimization/assignment_to_indirect.php
 Generate_C: Success test/subjects/optimization/bad_sccp.php
 Generate_C: Success test/subjects/optimization/change_globals.php
@@ -7105,6 +7127,7 @@ HIR-to-MIR_dump: Success test/subjects/bugs/bug0031.php
 HIR-to-MIR_dump: Success test/subjects/bugs/bug0032.php
 HIR-to-MIR_dump: Success test/subjects/bugs/bug0033.php
 HIR-to-MIR_dump: Success test/subjects/bugs/bug0034.php
+HIR-to-MIR_dump: Success test/subjects/bugs/bug0035.php
 HIR-to-MIR_dump: Success test/subjects/codegen/000.php
 HIR-to-MIR_dump: Success test/subjects/codegen/001a.php
 HIR-to-MIR_dump: Success test/subjects/codegen/001b.php
@@ -7484,6 +7507,7 @@ HIR-to-MIR_dump: Success test/subjects/inline-c/refcount.php
 HIR-to-MIR_dump: Success test/subjects/optimization/address_taken.php
 HIR-to-MIR_dump: Success test/subjects/optimization/array_loop.php
 HIR-to-MIR_dump: Success test/subjects/optimization/array_pop.php
+HIR-to-MIR_dump: Success test/subjects/optimization/array_use.php
 HIR-to-MIR_dump: Success test/subjects/optimization/assignment_to_indirect.php
 HIR-to-MIR_dump: Success test/subjects/optimization/bad_sccp.php
 HIR-to-MIR_dump: Success test/subjects/optimization/change_globals.php
@@ -7773,13 +7797,13 @@ InterpretCanonicalUnparsed: Success test/subjects/bugs/bug0022.php
 InterpretCanonicalUnparsed: Success test/subjects/bugs/bug0023.php
 InterpretCanonicalUnparsed: Success test/subjects/bugs/bug0024.php
 InterpretCanonicalUnparsed: Success test/subjects/bugs/bug0025.php
-InterpretCanonicalUnparsed: Success test/subjects/bugs/bug0026.php
 InterpretCanonicalUnparsed: Success test/subjects/bugs/bug0027.php
 InterpretCanonicalUnparsed: Success test/subjects/bugs/bug0030.php
 InterpretCanonicalUnparsed: Success test/subjects/bugs/bug0031.php
 InterpretCanonicalUnparsed: Success test/subjects/bugs/bug0032.php
 InterpretCanonicalUnparsed: Success test/subjects/bugs/bug0033.php
 InterpretCanonicalUnparsed: Success test/subjects/bugs/bug0034.php
+InterpretCanonicalUnparsed: Success test/subjects/bugs/bug0035.php
 InterpretCanonicalUnparsed: Success test/subjects/codegen/000.php
 InterpretCanonicalUnparsed: Success test/subjects/codegen/001a.php
 InterpretCanonicalUnparsed: Success test/subjects/codegen/001b.php
@@ -8154,6 +8178,7 @@ InterpretCanonicalUnparsed: Success test/subjects/horrible/whilescope.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/address_taken.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/array_loop.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/array_pop.php
+InterpretCanonicalUnparsed: Success test/subjects/optimization/array_use.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/assignment_to_indirect.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/bad_sccp.php
 InterpretCanonicalUnparsed: Success test/subjects/optimization/change_globals.php
@@ -8454,6 +8479,7 @@ InterpretIncludes: Success test/subjects/bugs/bug0031.php
 InterpretIncludes: Success test/subjects/bugs/bug0032.php
 InterpretIncludes: Success test/subjects/bugs/bug0033.php
 InterpretIncludes: Success test/subjects/bugs/bug0034.php
+InterpretIncludes: Success test/subjects/bugs/bug0035.php
 InterpretIncludes: Success test/subjects/codegen/000.php
 InterpretIncludes: Success test/subjects/codegen/001a.php
 InterpretIncludes: Success test/subjects/codegen/001b.php
@@ -8828,6 +8854,7 @@ InterpretIncludes: Success test/subjects/horrible/whilescope.php
 InterpretIncludes: Success test/subjects/optimization/address_taken.php
 InterpretIncludes: Success test/subjects/optimization/array_loop.php
 InterpretIncludes: Success test/subjects/optimization/array_pop.php
+InterpretIncludes: Success test/subjects/optimization/array_use.php
 InterpretIncludes: Success test/subjects/optimization/assignment_to_indirect.php
 InterpretIncludes: Success test/subjects/optimization/bad_sccp.php
 InterpretIncludes: Success test/subjects/optimization/change_globals.php
@@ -9124,6 +9151,7 @@ InterpretObfuscated: Success test/subjects/bugs/bug0031.php
 InterpretObfuscated: Success test/subjects/bugs/bug0032.php
 InterpretObfuscated: Success test/subjects/bugs/bug0033.php
 InterpretObfuscated: Success test/subjects/bugs/bug0034.php
+InterpretObfuscated: Success test/subjects/bugs/bug0035.php
 InterpretObfuscated: Success test/subjects/codegen/000.php
 InterpretObfuscated: Success test/subjects/codegen/001a.php
 InterpretObfuscated: Success test/subjects/codegen/001b.php
@@ -9494,6 +9522,7 @@ InterpretObfuscated: Success test/subjects/horrible/whilescope.php
 InterpretObfuscated: Success test/subjects/optimization/address_taken.php
 InterpretObfuscated: Success test/subjects/optimization/array_loop.php
 InterpretObfuscated: Success test/subjects/optimization/array_pop.php
+InterpretObfuscated: Success test/subjects/optimization/array_use.php
 InterpretObfuscated: Success test/subjects/optimization/assignment_to_indirect.php
 InterpretObfuscated: Success test/subjects/optimization/bad_sccp.php
 InterpretObfuscated: Success test/subjects/optimization/change_globals.php
@@ -10019,6 +10048,7 @@ InterpretOptimized: Success test/subjects/horrible/static_member_invocation.php
 InterpretOptimized: Success test/subjects/horrible/whilescope.php
 InterpretOptimized: Success test/subjects/optimization/address_taken.php
 InterpretOptimized: Success test/subjects/optimization/array_pop.php
+InterpretOptimized: Success test/subjects/optimization/array_use.php
 InterpretOptimized: Success test/subjects/optimization/assignment_to_indirect.php
 InterpretOptimized: Success test/subjects/optimization/bad_sccp.php
 InterpretOptimized: Success test/subjects/optimization/change_globals.php
@@ -10235,6 +10265,7 @@ NoWhitespace: Success test/subjects/bugs/bug0030.php
 NoWhitespace: Success test/subjects/bugs/bug0032.php
 NoWhitespace: Success test/subjects/bugs/bug0033.php
 NoWhitespace: Success test/subjects/bugs/bug0034.php
+NoWhitespace: Success test/subjects/bugs/bug0035.php
 NoWhitespace: Success test/subjects/codegen/000.php
 NoWhitespace: Success test/subjects/codegen/001a.php
 NoWhitespace: Success test/subjects/codegen/001b.php
@@ -10887,6 +10918,7 @@ ParseASTDot: Success test/subjects/bugs/bug0031.php
 ParseASTDot: Success test/subjects/bugs/bug0032.php
 ParseASTDot: Success test/subjects/bugs/bug0033.php
 ParseASTDot: Success test/subjects/bugs/bug0034.php
+ParseASTDot: Success test/subjects/bugs/bug0035.php
 ParseASTDot: Success test/subjects/codegen/000.php
 ParseASTDot: Success test/subjects/codegen/001a.php
 ParseASTDot: Success test/subjects/codegen/001b.php
@@ -11580,6 +11612,7 @@ ParseTreeDot: Success test/subjects/bugs/bug0031.php
 ParseTreeDot: Success test/subjects/bugs/bug0032.php
 ParseTreeDot: Success test/subjects/bugs/bug0033.php
 ParseTreeDot: Success test/subjects/bugs/bug0034.php
+ParseTreeDot: Success test/subjects/bugs/bug0035.php
 ParseTreeDot: Success test/subjects/codegen/000.php
 ParseTreeDot: Success test/subjects/codegen/001a.php
 ParseTreeDot: Success test/subjects/codegen/001b.php
@@ -12265,6 +12298,7 @@ Refcounts: Success test/subjects/bugs/bug0031.php
 Refcounts: Success test/subjects/bugs/bug0032.php
 Refcounts: Success test/subjects/bugs/bug0033.php
 Refcounts: Success test/subjects/bugs/bug0034.php
+Refcounts: Success test/subjects/bugs/bug0035.php
 Refcounts: Success test/subjects/codegen/000.php
 Refcounts: Success test/subjects/codegen/001a.php
 Refcounts: Success test/subjects/codegen/001b.php
@@ -12627,6 +12661,7 @@ ReparseUnparsed: Success test/subjects/bugs/bug0031.php
 ReparseUnparsed: Success test/subjects/bugs/bug0032.php
 ReparseUnparsed: Success test/subjects/bugs/bug0033.php
 ReparseUnparsed: Success test/subjects/bugs/bug0034.php
+ReparseUnparsed: Success test/subjects/bugs/bug0035.php
 ReparseUnparsed: Success test/subjects/codegen/000.php
 ReparseUnparsed: Success test/subjects/codegen/001a.php
 ReparseUnparsed: Success test/subjects/codegen/001b.php
@@ -13311,6 +13346,7 @@ XML_roundtrip: Success test/subjects/bugs/bug0031.php
 XML_roundtrip: Success test/subjects/bugs/bug0032.php
 XML_roundtrip: Success test/subjects/bugs/bug0033.php
 XML_roundtrip: Success test/subjects/bugs/bug0034.php
+XML_roundtrip: Success test/subjects/bugs/bug0035.php
 XML_roundtrip: Success test/subjects/codegen/000.php
 XML_roundtrip: Success test/subjects/codegen/001a.php
 XML_roundtrip: Success test/subjects/codegen/001b.php
@@ -14001,6 +14037,7 @@ cb_AST-to-HIR: Success test/subjects/bugs/bug0031.php
 cb_AST-to-HIR: Success test/subjects/bugs/bug0032.php
 cb_AST-to-HIR: Success test/subjects/bugs/bug0033.php
 cb_AST-to-HIR: Success test/subjects/bugs/bug0034.php
+cb_AST-to-HIR: Success test/subjects/bugs/bug0035.php
 cb_AST-to-HIR: Success test/subjects/codegen/000.php
 cb_AST-to-HIR: Success test/subjects/codegen/001a.php
 cb_AST-to-HIR: Success test/subjects/codegen/001b.php
@@ -14373,6 +14410,7 @@ cb_AST-to-HIR: Success test/subjects/horrible/whilescope.php
 cb_AST-to-HIR: Success test/subjects/optimization/address_taken.php
 cb_AST-to-HIR: Success test/subjects/optimization/array_loop.php
 cb_AST-to-HIR: Success test/subjects/optimization/array_pop.php
+cb_AST-to-HIR: Success test/subjects/optimization/array_use.php
 cb_AST-to-HIR: Success test/subjects/optimization/assignment_to_indirect.php
 cb_AST-to-HIR: Success test/subjects/optimization/bad_sccp.php
 cb_AST-to-HIR: Success test/subjects/optimization/change_globals.php
@@ -14665,6 +14703,7 @@ cb_ast: Success test/subjects/bugs/bug0031.php
 cb_ast: Success test/subjects/bugs/bug0032.php
 cb_ast: Success test/subjects/bugs/bug0033.php
 cb_ast: Success test/subjects/bugs/bug0034.php
+cb_ast: Success test/subjects/bugs/bug0035.php
 cb_ast: Success test/subjects/codegen/000.php
 cb_ast: Success test/subjects/codegen/001a.php
 cb_ast: Success test/subjects/codegen/001b.php
@@ -15039,6 +15078,7 @@ cb_ast: Success test/subjects/horrible/whilescope.php
 cb_ast: Success test/subjects/optimization/address_taken.php
 cb_ast: Success test/subjects/optimization/array_loop.php
 cb_ast: Success test/subjects/optimization/array_pop.php
+cb_ast: Success test/subjects/optimization/array_use.php
 cb_ast: Success test/subjects/optimization/assignment_to_indirect.php
 cb_ast: Success test/subjects/optimization/bad_sccp.php
 cb_ast: Success test/subjects/optimization/change_globals.php
@@ -15338,6 +15378,7 @@ cb_hir: Success test/subjects/bugs/bug0031.php
 cb_hir: Success test/subjects/bugs/bug0032.php
 cb_hir: Success test/subjects/bugs/bug0033.php
 cb_hir: Success test/subjects/bugs/bug0034.php
+cb_hir: Success test/subjects/bugs/bug0035.php
 cb_hir: Success test/subjects/codegen/000.php
 cb_hir: Success test/subjects/codegen/001a.php
 cb_hir: Success test/subjects/codegen/001b.php
@@ -15710,6 +15751,7 @@ cb_hir: Success test/subjects/horrible/whilescope.php
 cb_hir: Success test/subjects/optimization/address_taken.php
 cb_hir: Success test/subjects/optimization/array_loop.php
 cb_hir: Success test/subjects/optimization/array_pop.php
+cb_hir: Success test/subjects/optimization/array_use.php
 cb_hir: Success test/subjects/optimization/assignment_to_indirect.php
 cb_hir: Success test/subjects/optimization/bad_sccp.php
 cb_hir: Success test/subjects/optimization/change_globals.php
@@ -16002,6 +16044,7 @@ cb_mir: Success test/subjects/bugs/bug0031.php
 cb_mir: Success test/subjects/bugs/bug0032.php
 cb_mir: Success test/subjects/bugs/bug0033.php
 cb_mir: Success test/subjects/bugs/bug0034.php
+cb_mir: Success test/subjects/bugs/bug0035.php
 cb_mir: Success test/subjects/codegen/000.php
 cb_mir: Success test/subjects/codegen/001a.php
 cb_mir: Success test/subjects/codegen/001b.php
@@ -16372,6 +16415,7 @@ cb_mir: Success test/subjects/horrible/whilescope.php
 cb_mir: Success test/subjects/optimization/address_taken.php
 cb_mir: Success test/subjects/optimization/array_loop.php
 cb_mir: Success test/subjects/optimization/array_pop.php
+cb_mir: Success test/subjects/optimization/array_use.php
 cb_mir: Success test/subjects/optimization/assignment_to_indirect.php
 cb_mir: Success test/subjects/optimization/bad_sccp.php
 cb_mir: Success test/subjects/optimization/change_globals.php
@@ -16661,6 +16705,7 @@ cb_sua: Success test/subjects/bugs/bug0031.php
 cb_sua: Success test/subjects/bugs/bug0032.php
 cb_sua: Success test/subjects/bugs/bug0033.php
 cb_sua: Success test/subjects/bugs/bug0034.php
+cb_sua: Success test/subjects/bugs/bug0035.php
 cb_sua: Success test/subjects/codegen/000.php
 cb_sua: Success test/subjects/codegen/001a.php
 cb_sua: Success test/subjects/codegen/001b.php
@@ -17035,6 +17080,7 @@ cb_sua: Success test/subjects/horrible/whilescope.php
 cb_sua: Success test/subjects/optimization/address_taken.php
 cb_sua: Success test/subjects/optimization/array_loop.php
 cb_sua: Success test/subjects/optimization/array_pop.php
+cb_sua: Success test/subjects/optimization/array_use.php
 cb_sua: Success test/subjects/optimization/assignment_to_indirect.php
 cb_sua: Success test/subjects/optimization/bad_sccp.php
 cb_sua: Success test/subjects/optimization/change_globals.php
@@ -17334,6 +17380,7 @@ mir_dump: Success test/subjects/bugs/bug0031.php
 mir_dump: Success test/subjects/bugs/bug0032.php
 mir_dump: Success test/subjects/bugs/bug0033.php
 mir_dump: Success test/subjects/bugs/bug0034.php
+mir_dump: Success test/subjects/bugs/bug0035.php
 mir_dump: Success test/subjects/codegen/000.php
 mir_dump: Success test/subjects/codegen/001a.php
 mir_dump: Success test/subjects/codegen/001b.php
@@ -17711,6 +17758,7 @@ mir_dump: Success test/subjects/inline-c/refcount.php
 mir_dump: Success test/subjects/optimization/address_taken.php
 mir_dump: Success test/subjects/optimization/array_loop.php
 mir_dump: Success test/subjects/optimization/array_pop.php
+mir_dump: Success test/subjects/optimization/array_use.php
 mir_dump: Success test/subjects/optimization/assignment_to_indirect.php
 mir_dump: Success test/subjects/optimization/bad_sccp.php
 mir_dump: Success test/subjects/optimization/change_globals.php
@@ -18005,6 +18053,7 @@ plugin_cloning: Success test/subjects/bugs/bug0031.php
 plugin_cloning: Success test/subjects/bugs/bug0032.php
 plugin_cloning: Success test/subjects/bugs/bug0033.php
 plugin_cloning: Success test/subjects/bugs/bug0034.php
+plugin_cloning: Success test/subjects/bugs/bug0035.php
 plugin_cloning: Success test/subjects/codegen/000.php
 plugin_cloning: Success test/subjects/codegen/001a.php
 plugin_cloning: Success test/subjects/codegen/001b.php
@@ -18697,6 +18746,7 @@ plugin_inconsistent_st_attr: Success test/subjects/bugs/bug0031.php
 plugin_inconsistent_st_attr: Success test/subjects/bugs/bug0032.php
 plugin_inconsistent_st_attr: Success test/subjects/bugs/bug0033.php
 plugin_inconsistent_st_attr: Success test/subjects/bugs/bug0034.php
+plugin_inconsistent_st_attr: Success test/subjects/bugs/bug0035.php
 plugin_inconsistent_st_attr: Success test/subjects/codegen/000.php
 plugin_inconsistent_st_attr: Success test/subjects/codegen/001a.php
 plugin_inconsistent_st_attr: Success test/subjects/codegen/001b.php
@@ -19390,6 +19440,7 @@ plugin_linear: Success test/subjects/bugs/bug0031.php
 plugin_linear: Success test/subjects/bugs/bug0032.php
 plugin_linear: Success test/subjects/bugs/bug0033.php
 plugin_linear: Success test/subjects/bugs/bug0034.php
+plugin_linear: Success test/subjects/bugs/bug0035.php
 plugin_linear: Success test/subjects/codegen/000.php
 plugin_linear: Success test/subjects/codegen/001a.php
 plugin_linear: Success test/subjects/codegen/001b.php
@@ -20083,6 +20134,7 @@ plugin_pre_vs_post_count: Success test/subjects/bugs/bug0031.php
 plugin_pre_vs_post_count: Success test/subjects/bugs/bug0032.php
 plugin_pre_vs_post_count: Success test/subjects/bugs/bug0033.php
 plugin_pre_vs_post_count: Success test/subjects/bugs/bug0034.php
+plugin_pre_vs_post_count: Success test/subjects/bugs/bug0035.php
 plugin_pre_vs_post_count: Success test/subjects/codegen/000.php
 plugin_pre_vs_post_count: Success test/subjects/codegen/001a.php
 plugin_pre_vs_post_count: Success test/subjects/codegen/001b.php
@@ -20776,6 +20828,7 @@ plugin_source_vs_semantic_values: Success test/subjects/bugs/bug0031.php
 plugin_source_vs_semantic_values: Success test/subjects/bugs/bug0032.php
 plugin_source_vs_semantic_values: Success test/subjects/bugs/bug0033.php
 plugin_source_vs_semantic_values: Success test/subjects/bugs/bug0034.php
+plugin_source_vs_semantic_values: Success test/subjects/bugs/bug0035.php
 plugin_source_vs_semantic_values: Success test/subjects/codegen/000.php
 plugin_source_vs_semantic_values: Success test/subjects/codegen/001a.php
 plugin_source_vs_semantic_values: Success test/subjects/codegen/001b.php
