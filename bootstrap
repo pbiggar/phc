@@ -5,8 +5,12 @@ set -x
 # Ubuntu
 AUTOCONF_ARCHIVES+=" -I /usr/share/aclocal"
 
-# Mac OS X
+# Mac OS X - MacPorts
+# As of late-2010, MacPorts uses autoconf-archive from 2008.
 #AUTOCONF_ARCHIVES+=" -I /opt/local/share/aclocal"
+
+# Mac OS X - homebrew
+AUTOCONF_ARCHIVES+=" -I /usr/local/share/aclocal"
 
 # autotools invocations are hard to get right.
 
