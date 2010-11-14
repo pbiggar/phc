@@ -1,16 +1,21 @@
 #!/bin/bash
 
 set -x
+function add-autoconf-archive-dir {
+  if [ -d "$1" ] ; then
+    AUTOCONF_ARCHIVES+=" -I $1"
+  fi
+}
 
 # Ubuntu
-AUTOCONF_ARCHIVES+=" -I /usr/share/aclocal"
+add-autoconf-archive-dir "/usr/share/aclocal"
 
 # Mac OS X - MacPorts
 # As of late-2010, MacPorts uses autoconf-archive from 2008.
-#AUTOCONF_ARCHIVES+=" -I /opt/local/share/aclocal"
+add-autoconf-archive-dir "/opt/local/share/aclocal"
 
 # Mac OS X - homebrew
-AUTOCONF_ARCHIVES+=" -I /usr/local/share/aclocal"
+add-autoconf-archive-dir "/usr/local/share/aclocal"
 
 # autotools invocations are hard to get right.
 
