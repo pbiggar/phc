@@ -405,7 +405,7 @@ Whole_program::get_possible_receivers (Context* cx, Result_state state, Target* 
 	String* name;
 	if (Variable_method* vm =  dynamic_cast<Variable_method*> (method_name))
 	{
-		name = get_string_value (cx, state, VN (cx->symtable_name (), dyc<Variable_method> (method_name)->variable_name));
+		name = get_string_value (cx, state, VN (cx->symtable_name (), vm->variable_name));
 		if (*name == UNKNOWN)
 			phc_optimization_exception ("Variable method calls not supported");
 	}
@@ -2583,7 +2583,6 @@ Whole_program::assign_path_typed (Context* cx, Path* plhs, const Types* types, b
 	DEBUG ("assign_path_typed");
 
 	// Split scalars, objects and arrays here.
-	Types* scalars = Type_info::get_scalar_types (types);
 	Types* array = Type_info::get_array_types (types);
 	Types* objects = Type_info::get_object_types (types);
 
@@ -2833,7 +2832,6 @@ Whole_program::cast_value (Context* cx, const Index_node* lhs, const Index_node*
 	// overwriting the GLOBALS array with an integer)
 	record_use (cx, rhs);
 
-	const Abstract_value* absval = get_abstract_value (cx, R_WORKING, rhs);
 	if (Type_info::is_scalar (type))
 	{
 		const Abstract_value* absval = get_abstract_value (cx, R_WORKING, rhs);
