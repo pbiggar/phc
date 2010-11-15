@@ -54,6 +54,10 @@ or obtained by writing to the Free Software Foundation, Inc.,
 #  define LT_LIBEXT "a"
 #endif
 
+#if !defined(LT_LIBPREFIX)
+#  define LT_LIBPREFIX "lib"
+#endif
+
 /* This is the maximum symbol size that won't require malloc/free */
 #undef	LT_SYMBOL_LENGTH
 #define LT_SYMBOL_LENGTH	128
@@ -72,6 +76,7 @@ or obtained by writing to the Free Software Foundation, Inc.,
 static	const char	objdir[]		= LT_OBJDIR;
 static	const char	archive_ext[]		= LT_ARCHIVE_EXT;
 static  const char	libext[]		= LT_LIBEXT;
+static  const char	libprefix[]		= LT_LIBPREFIX;
 #if defined(LT_MODULE_EXT)
 static	const char	shlib_ext[]		= LT_MODULE_EXT;
 #endif
@@ -208,7 +213,7 @@ LT_BEGIN_C_DECLS
 LT_SCOPE const lt_dlvtable *	get_vtable (lt_user_data data);
 LT_END_C_DECLS
 #ifdef HAVE_LIBDLLOADER
-extern lt_dlsymlist		preloaded_symbols;
+extern LT_DLSYM_CONST lt_dlsymlist preloaded_symbols[];
 #endif
 
 /* Initialize libltdl. */
@@ -234,7 +239,7 @@ lt_dlinit (void)
 #ifdef HAVE_LIBDLLOADER
       if (!errors)
 	{
-	  errors += lt_dlpreload (&preloaded_symbols);
+	  errors += lt_dlpreload (preloaded_symbols);
 	}
 
       if (!errors)
@@ -529,7 +534,8 @@ find_module (lt_dlhandle *handle, const char *dir, const char *libdir,
   /* Try to open the old library first; if it was dlpreopened,
      we want the preopened version of it, even if a dlopenable
      module is available.  */
-  if (old_name && tryall_dlopen (handle, old_name, advise, 0) == 0)
+  if (old_name && tryall_dlopen (handle, old_name,
+			  advise, lt_dlloader_find ("lt_preopen") ) == 0)
     {
       return 0;
     }
@@ -993,7 +999,7 @@ trim (char **dest, const char *str)
 
   FREE (*dest);
 
-  if (!end)
+  if (!end || end == str)
     return 1;
 
   if (len > 3 && str[0] == '\'')
@@ -1075,11 +1081,19 @@ parse_dotla_file(FILE *file, char **dlname, char **libdir, char **deplibs,
 	{
 	  errors += trim (old_name, &line[sizeof (STR_OLD_LIBRARY) - 1]);
 	}
+
+      /* Windows native tools do not understand the POSIX paths we store
+	 in libdir. */
 #undef  STR_LIBDIR
 #define STR_LIBDIR	"libdir="
       else if (strncmp (line, STR_LIBDIR, sizeof (STR_LIBDIR) - 1) == 0)
 	{
 	  errors += trim (libdir, &line[sizeof(STR_LIBDIR) - 1]);
+#ifdef __WINDOWS__
+	  /* Disallow following unix-style paths on MinGW.  */
+	  if (*libdir && (**libdir == '/' || **libdir == '\\'))
+	    **libdir = '\0';
+#endif
 	}
 
 #undef  STR_DL_DEPLIBS
@@ -1263,8 +1277,8 @@ try_dlopen (lt_dlhandle *phandle, const char *filename, const char *ext,
 
       if (vtable)
 	{
-	  /* name + "." + libext + NULL */
-	  archive_name = MALLOC (char, LT_STRLEN (name) + LT_STRLEN (libext) + 2);
+	  /* libprefix + name + "." + libext + NULL */
+	  archive_name = MALLOC (char, strlen (libprefix) + LT_STRLEN (name) + strlen (libext) + 2);
 	  *phandle = (lt_dlhandle) lt__zalloc (sizeof (struct lt__handle));
 
 	  if ((*phandle == NULL) || (archive_name == NULL))
@@ -1276,7 +1290,14 @@ try_dlopen (lt_dlhandle *phandle, const char *filename, const char *ext,
 
 	  /* Preloaded modules are always named according to their old
 	     archive name.  */
-	  sprintf (archive_name, "%s.%s", name, libext);
+	  if (strncmp(name, "lib", 3) == 0)
+	    {
+	      sprintf (archive_name, "%s%s.%s", libprefix, name + 3, libext);
+	    }
+	  else
+	    {
+	      sprintf (archive_name, "%s.%s", name, libext);
+	    }
 
 	  if (tryall_dlopen (&newhandle, archive_name, advise, vtable) == 0)
 	    {
@@ -1345,7 +1366,7 @@ try_dlopen (lt_dlhandle *phandle, const char *filename, const char *ext,
 	    }
 #endif
 	}
-      if (!file)
+      else
 	{
 	  file = fopen (attempt, LT_READTEXT_MODE);
 	}
@@ -1486,7 +1507,7 @@ try_dlopen (lt_dlhandle *phandle, const char *filename, const char *ext,
 }
 
 
-/* If the last error messge store was `FILE_NOT_FOUND', then return
+/* If the last error message stored was `FILE_NOT_FOUND', then return
    non-zero.  */
 static int
 file_not_found (void)
@@ -1506,7 +1527,7 @@ file_not_found (void)
 static int
 has_library_ext (const char *filename)
 {
-  char *	ext     = 0;
+  const char *	ext     = 0;
 
   assert (filename);
 
@@ -1614,6 +1635,9 @@ lt_dlopenadvise (const char *filename, lt_dladvise advise)
 {
   lt_dlhandle	handle	= 0;
   int		errors	= 0;
+  const char *	saved_error	= 0;
+
+  LT__GETERROR (saved_error);
 
   /* Can't have symbols hidden and visible at the same time!  */
   if (advise && advise->is_symlocal && advise->is_symglobal)
@@ -1650,6 +1674,7 @@ lt_dlopenadvise (const char *filename, lt_dladvise advise)
 
 #if defined(LT_MODULE_EXT)
       /* Try appending SHLIB_EXT.   */
+      LT__SETERRORSTR (saved_error);
       errors = try_dlopen (&handle, filename, shlib_ext, advise);
 
       /* As before, if the file was found but loading failed, return now
@@ -2061,7 +2086,7 @@ lt_dlerror (void)
   LT__GETERROR (error);
   LT__SETERRORSTR (0);
 
-  return error ? error : NULL;
+  return error;
 }
 
 static int
