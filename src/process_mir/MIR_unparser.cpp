@@ -170,6 +170,7 @@ void MIR_unparser::children_branch(Branch* in)
 	in_if_expression = false;
 	echo(") goto ");
 	visit_label_name (in->iftrue);
+	echo (";");
 	echo (" else goto ");
 	visit_label_name (in->iffalse);
 	echo (";");
