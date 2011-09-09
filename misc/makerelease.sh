@@ -39,6 +39,7 @@ VERSION=$(grep AC_INIT configure.ac | awk '{print $2}' | sed -e 's/^.\(.*\)..$/\
 
 SRC_DIR=phc-$VERSION
 DOC_DIR=$SRC_DIR/doc/manual/
+LATEX_DIR=$DOC_DIR/.build/latex/
 TST_DIR=$(readlink -f phc-$VERSION-test)
 
 SRC_TGZ=phc-$VERSION.tar.gz
@@ -90,13 +91,14 @@ tar cfj $SRC_BZ2 $SRC_DIR
 
 ## Generate documentation (HTML)
 
-make -C $DOC_DIR
+make -C $DOC_DIR html
 tar cfz $DOC_TGZ $DOC_DIR 
 
 ## Generate documentation (PDF)
 
-make -C $DOC_DIR manual.pdf
-mv $DOC_DIR/manual.pdf $PDF 
+make -C $DOC_DIR latex
+make -C $LATEX_DIR all-pdf
+mv $LATEX_DIR/manual.pdf $PDF 
 
 ## Remove temporary files
 
