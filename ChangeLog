@@ -1,11 +1,19 @@
+0.3.0.1 (23 October 2011)
+-------------------------
+
+Bug Fix release:
+	* Regenerate configure file, to fix issues with 0.3.0.
+ 	* Rename bootstrap to the more standards-compliant "autogen.sh".
+	* Move m4 files from autoconf-archive into m4/.
+
 0.3.0 (7 September 2011)
 ------------------------
 
-- added an optimization framework
-- support basic object operations
-- many many bug fixes
-- added a new code generation framework, which makes it easier to use
-the results of optimization and to add support for new features.
+	* added an optimization framework
+	* support basic object operations
+	* many many bug fixes
+	* added a new code generation framework, which makes it easier to use
+	  the results of optimization and to add support for new features.
 
 0.2.0.3 (14 February 2009)
 ------------------------

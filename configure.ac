@@ -8,7 +8,7 @@ dnl Process this file using autoconf to produce configure
 # which adds the macros needed for libtool, boost, etc.
 
 dnl Autoconf requirements
-AC_INIT([phc], [0.3.0], [phc-general@phpcompiler.org])
+AC_INIT([phc], [0.3.0.1], [phc-general@phpcompiler.org])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([config])
