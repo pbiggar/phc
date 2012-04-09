@@ -1,4 +1,3 @@
-
 #include <algorithm>
 #include <boost/graph/dominator_tree.hpp>
 #include <boost/graph/reverse_graph.hpp>
@@ -108,8 +107,12 @@ calculate_dominance (Dominance* info, Graph_type& graph, vertex_t entry)
 	{
 		if (in_degree (n, graph) > 0)
 		{
-			foreach (edge_t e, in_edges (n, graph))
+			// foreach (edge_t e, in_edges (n, graph))
+			typedef typename boost::graph_traits<Graph_type>::in_edge_iterator in_edge_iter;
+			in_edge_iter et, end;
+			for (tie(et, end) = in_edges(n, graph); et != end; ++et)
 			{
+				typename boost::graph_traits<Graph_type>::edge_descriptor e = * et;
 				vertex_t runner = source (e, graph);
 				// Dont include RUNNER, since it dominates itself.
 				while (runner != info->idominator[n] && runner != n)
