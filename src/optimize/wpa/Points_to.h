@@ -312,7 +312,7 @@ public:
 	void dump()
 	{
 		CHECK_DEBUG ();
-		cdebug << source.str() << " -> " << target.str();
+		cdebug << source->str() << " -> " << target->str();
 	}
 
 	Source_type* const source;
