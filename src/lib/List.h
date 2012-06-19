@@ -136,29 +136,29 @@ public:
 public:
 	List(_Tp elem1) : std::list<_Tp, _Alloc>()
 	{
-		push_back(elem1);
+		std::list<_Tp, _Alloc>::push_back(elem1);
 	}
 
 	List(_Tp elem1, _Tp elem2) : std::list<_Tp, _Alloc>()
 	{
-		push_back(elem1);
-		push_back(elem2);
+		std::list<_Tp, _Alloc>::push_back(elem1);
+		std::list<_Tp, _Alloc>::push_back(elem2);
 	}
 
 	List(_Tp elem1, _Tp elem2, _Tp elem3) : std::list<_Tp, _Alloc>()
 	{
-		push_back(elem1);
-		push_back(elem2);
-		push_back(elem3);
+		std::list<_Tp, _Alloc>::push_back(elem1);
+		std::list<_Tp, _Alloc>::push_back(elem2);
+		std::list<_Tp, _Alloc>::push_back(elem3);
 	}
 
 	// We're probably pushing it at 4...
 	List(_Tp elem1, _Tp elem2, _Tp elem3, _Tp elem4) : std::list<_Tp, _Alloc>()
 	{
-		push_back(elem1);
-		push_back(elem2);
-		push_back(elem3);
-		push_back(elem4);
+		std::list<_Tp, _Alloc>::push_back(elem1);
+		std::list<_Tp, _Alloc>::push_back(elem2);
+		std::list<_Tp, _Alloc>::push_back(elem3);
+		std::list<_Tp, _Alloc>::push_back(elem4);
 	}
 
 public:
@@ -167,12 +167,12 @@ public:
 
 	void push_back_all (List* other) 
 	{
-		insert(end(), other->begin(), other->end());
+		std::list<_Tp, _Alloc>::insert(end(), other->begin(), other->end());
 	}
 	
 	void push_front_all (List* other) 
 	{
-		insert(begin(), other->begin(), other->end());
+		std::list<_Tp, _Alloc>::insert(begin(), other->begin(), other->end());
 	}
 
 public:
