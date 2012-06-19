@@ -21,32 +21,37 @@ AC_DEFUN([PHP_EMBED],
         ]
     )
 
-	if test -z "$php_config"; then
-	  AC_MSG_ERROR([Cannot find php-config. Please use --with-php-config=PATH])
-	fi
+    if test -z "$php_config"; then
+        AC_MSG_ERROR([Cannot find php-config. Please use --with-php-config=PATH])
+    fi
 
-	dnl For BC
-	PHP_CONFIG=$php_config
-	PHP_INSTALL_PATH=`$PHP_CONFIG --prefix 2>/dev/null`
-	AC_DEFINE_UNQUOTED(PHP_INSTALL_PATH, "${PHP_INSTALL_PATH}")
-	PHP_INCLUDES_PATH=`$PHP_CONFIG --include-dir 2>/dev/null`
-	AC_DEFINE_UNQUOTED(PHP_INCLUDES_PATH, "${PHP_INCLUDES_PATH}")
-	PHP_INCLUDES=`$PHP_CONFIG --includes 2>/dev/null`
-	PHP_EXECUTABLE=`$PHP_CONFIG --php-binary 2>/dev/null`
+    dnl For BC
+    PHP_CONFIG=$php_config
+    PHP_INSTALL_PATH=`$PHP_CONFIG --prefix 2>/dev/null`
+    PHP_INCLUDES_PATH=`$PHP_CONFIG --include-dir 2>/dev/null`
+    PHP_INCLUDES=`$PHP_CONFIG --includes 2>/dev/null`
+    PHP_EXECUTABLE=`$PHP_CONFIG --php-binary 2>/dev/null`
 
-	for php_embed_path in ${PHP_INSTALL_PATH}/lib ${PHP_INSTALL_PATH}/lib/php ${PHP_INSTALL_PATH}/lib/php5; do
-		for libext in so dylib a; do
-			if test -f ${php_embed_path}/libphp5.${libext}; then
-				PHP_EMBED_PATH=${php_embed_path};
-			fi
-		done
-	done
+    for php_embed_path in ${PHP_INSTALL_PATH}/lib ${PHP_INSTALL_PATH}/lib/php ${PHP_INSTALL_PATH}/lib/php5; do
+        for libext in so dylib a; do
+            if test -f ${php_embed_path}/libphp5.${libext}; then
+                PHP_EMBED_PATH=${php_embed_path};
+            fi
+        done
+    done
 
 	if test -z "$PHP_EMBED_PATH"; then
 	  AC_MSG_ERROR([Cannot find libphp5 embed.])
 	fi
 
-	AC_DEFINE_UNQUOTED(PHP_EMBED_PATH, "${PHP_EMBED_PATH}")
+    AC_PATH_PROG([php], [php], [${PHP_EXECUTABLE}], [$PATH])
+    # For config.h:
+    AC_DEFINE_UNQUOTED([PHP_INSTALL_PATH], ["${PHP_INSTALL_PATH}"])
+    AC_DEFINE_UNQUOTED([PHP_INSTALL_PATH], ["${PHP_INSTALL_PATH}"])
+    AC_DEFINE_UNQUOTED([PHP_INCLUDES_PATH], ["${PHP_INCLUDES_PATH}"])
+    AC_DEFINE_UNQUOTED([PHP_EMBED_PATH], ["${PHP_EMBED_PATH}"])
+    # For autovars.php.in:
+    AC_SUBST([php_install_path], ["${PHP_INSTALL_PATH}"])
 
 	dnl To check if the PHP embed SAPI has been installed, we temporarily add the
 	dnl PHP installation path to LDFLAGS and CFLAGS, and restore it later (since 
