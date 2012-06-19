@@ -608,7 +608,7 @@ function kill_properly (&$handle, &$pipes)
 	# proc_terminate kills the shell process, but won't kill a runaway infinite
 	# loop. Get the child processes using ps, before killing the parent.
 	$ppid = $status["pid"];
-	$pids = preg_split ("/\s+/", trim (`ps -o pid --no-heading --ppid $ppid`));
+	$pids = preg_split ("/\s+/", trim (`ps ao pid,ppid | grep " $ppid$" | awk {'print $1'}`));
 
 	# if we dont close pipes, we can create deadlock, leaving zombie processes.
 	foreach ($pipes as &$pipe) fclose ($pipe);
