@@ -48,37 +48,48 @@ void Compile_C::run (IR::PHP_script* in, Pass_manager* pm)
 	// Find PHP installation path
 	const char* php_path;
 	const char* php_include_path;
-	if(pm->args_info->with_php_given)
-		php_path = pm->args_info->with_php_arg;
-	else
-	{
-		#ifdef PHP_INCLUDE_PATH
-			php_include_path = PHP_INCLUDE_PATH;
-		#else
-			phc_error ("PHP_INCLUDE_PATH not configured. Please use the --with-php-config flag to compile");
-			assert (0); // in the case of --dont-fail, still fail here.
-		#endif
-		#ifdef PHP_INSTALL_PATH
-			php_path = PHP_INSTALL_PATH;
-		#else
-			phc_error ("PHP_INSTALL_PATH not configured. Please use the --with-php flag to compile");
-			assert (0); // in the case of --dont-fail, still fail here.
-		#endif
-	}
-
-
-	// Argument array for gcc
+	const char* php_embed_path;
 	Vector<stringstream*> args;
 	new_arg (args) << "gcc";
-	new_arg (args) << "-I" << php_include_path";
-	new_arg (args) << "-I" << php_include_path << "/main";
-	new_arg (args) << "-I" << php_include_path << "/TSRM";
-	new_arg (args) << "-I" << php_include_path << "/Zend";
-	new_arg (args) << "-L" << php_path << "/lib";
-	new_arg (args) << "-Wl,-R" << php_path << "/lib";
-	new_arg (args) << "-lphp5";
-	new_arg (args) << "-xc";
-	new_arg (args) << "-";
+	if(pm->args_info->with_php_given) {
+		php_path = pm->args_info->with_php_arg;
+
+		// Argument array for gcc
+		new_arg (args) << "-I" << php_path << "/include/php";
+		new_arg (args) << "-I" << php_path << "/include/php/main";
+		new_arg (args) << "-I" << php_path << "/include/php/TSRM";
+		new_arg (args) << "-I" << php_path << "/include/php/Zend";
+		new_arg (args) << "-L" << php_path << "/lib";
+		new_arg (args) << "-Wl,-R" << php_path << "/lib";
+		new_arg (args) << "-lphp5";
+		new_arg (args) << "-xc";
+		new_arg (args) << "-";
+	} else
+	{
+		#ifdef PHP_INCLUDES_PATH
+			php_include_path = PHP_INCLUDES_PATH;
+		#else
+			phc_error ("PHP_INCLUDES_PATH not configured. Please use the --with-php-config flag to compile");
+			assert (0); // in the case of --dont-fail, still fail here.
+		#endif
+		#ifdef PHP_EMBED_PATH
+			php_embed_path = PHP_EMBED_PATH;
+		#else
+			phc_error ("PHP_EMBED_PATH not configured. Please use the --with-php-config flag to compile");
+			assert (0); // in the case of --dont-fail, still fail here.
+		#endif
+
+		// Argument array for gcc
+		new_arg (args) << "-I" << php_include_path;
+		new_arg (args) << "-I" << php_include_path << "/main";
+		new_arg (args) << "-I" << php_include_path << "/TSRM";
+		new_arg (args) << "-I" << php_include_path << "/Zend";
+		new_arg (args) << "-L" << php_embed_path;
+		new_arg (args) << "-Wl,-R" << php_embed_path;
+		new_arg (args) << "-lphp5";
+		new_arg (args) << "-xc";
+		new_arg (args) << "-";
+	}
 
 	// Add (gcc) -g and -o arguments
 	if (strncmp (pm->args_info->optimize_arg, "0", 2) == 0)

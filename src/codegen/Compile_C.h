@@ -8,6 +8,7 @@
 #ifndef PHC_COMPILE_C
 #define PHC_COMPILE_C
 
+#include "config.h"
 #include "pass_manager/Pass.h"
 
 class Compile_C : public Pass

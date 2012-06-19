@@ -37,7 +37,7 @@
 #undef PHP_INSTALL_PATH
 
 // PHP installation path
-#undef PHP_INCLUDE_PATH
+#undef PHP_INCLUDES_PATH
 
 // PHP embed lib path
 #undef PHP_EMBED_PATH

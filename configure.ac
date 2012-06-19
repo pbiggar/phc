@@ -55,12 +55,6 @@ AX_BOOST_REGEX
 
 dnl PHP
 PHP_EMBED
-AS_IF([test "x$PHP_INSTALL_PATH" != xno],
-      [AC_DEFINE([PHP_INSTALL_PATH], [$PHP_INSTALL_PATH])]) # for config.h
-AS_IF([test "x$PHP_INCLUDE_PATH" != xno],
-      [AC_DEFINE([PHP_INCLUDE_PATH], [$PHP_INCLUDE_PATH])]) # for config.h
-AS_IF([test "x$PHP_EMBED_PATH" != xno],
-      [AC_DEFINE([PHP_EMBED_PATH], [$PHP_EMBED_PATH])]) # for config.h
 
 dnl Xerces
 AX_LIB_XERCES

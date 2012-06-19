@@ -28,9 +28,9 @@ AC_DEFUN([PHP_EMBED],
 	dnl For BC
 	PHP_CONFIG=$php_config
 	PHP_INSTALL_PATH=`$PHP_CONFIG --prefix 2>/dev/null`
-	AC_DEFINE(PHP_INSTALL_PATH, $PHP_INSTALL_PATH)
-	PHP_INCLUDE_PATH=`$PHP_CONFIG --include-dir 2>/dev/null`
-	AC_DEFINE(PHP_INCLUDE_PATH, $PHP_INCLUDE_PATH)
+	AC_DEFINE_UNQUOTED(PHP_INSTALL_PATH, "${PHP_INSTALL_PATH}")
+	PHP_INCLUDES_PATH=`$PHP_CONFIG --include-dir 2>/dev/null`
+	AC_DEFINE_UNQUOTED(PHP_INCLUDES_PATH, "${PHP_INCLUDES_PATH}")
 	PHP_INCLUDES=`$PHP_CONFIG --includes 2>/dev/null`
 	PHP_EXECUTABLE=`$PHP_CONFIG --php-binary 2>/dev/null`
 
@@ -46,7 +46,7 @@ AC_DEFUN([PHP_EMBED],
 	  AC_MSG_ERROR([Cannot find libphp5 embed.])
 	fi
 
-	AC_DEFINE(PHP_EMBED_PATH, $PHP_EMBED_PATH)
+	AC_DEFINE_UNQUOTED(PHP_EMBED_PATH, "${PHP_EMBED_PATH}")
 
 	dnl To check if the PHP embed SAPI has been installed, we temporarily add the
 	dnl PHP installation path to LDFLAGS and CFLAGS, and restore it later (since 
