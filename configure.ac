@@ -46,24 +46,21 @@ AC_ARG_WITH([maketea],
   [AC_PATH_PROG([maketea], [maketea], [config/phc_missing maketea])]
   )
 
-# check PHP path
-AC_ARG_WITH([php], 
-	AS_HELP_STRING([--with-php=PATH], [PHP installation path (defaults to /usr/local)]), 
-	[
-		AS_IF([test "x$with_php" != xno], 
-			[AC_CHECK_PHP([$withval])], [AS_VAR_SET([found_embed_sapi], [no])])
-	], 
-	[
-		AC_CHECK_PHP([/usr/local])
-	])
-
-
 dnl checks for libraries
 AC_LANG([C++])
 AC_CHECK_COVARIANCE
 AC_CHECK_LIB_CRUN
 AX_BOOST_BASE([1.35.0])
 AX_BOOST_REGEX
+
+dnl PHP
+PHP_EMBED
+AS_IF([test "x$PHP_INSTALL_PATH" != xno],
+      [AC_DEFINE([PHP_INSTALL_PATH], [$PHP_INSTALL_PATH])]) # for config.h
+AS_IF([test "x$PHP_INCLUDE_PATH" != xno],
+      [AC_DEFINE([PHP_INCLUDE_PATH], [$PHP_INCLUDE_PATH])]) # for config.h
+AS_IF([test "x$PHP_EMBED_PATH" != xno],
+      [AC_DEFINE([PHP_EMBED_PATH], [$PHP_EMBED_PATH])]) # for config.h
 
 dnl Xerces
 AX_LIB_XERCES

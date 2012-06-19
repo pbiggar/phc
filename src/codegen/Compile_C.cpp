@@ -47,10 +47,17 @@ void Compile_C::run (IR::PHP_script* in, Pass_manager* pm)
 {
 	// Find PHP installation path
 	const char* php_path;
+	const char* php_include_path;
 	if(pm->args_info->with_php_given)
 		php_path = pm->args_info->with_php_arg;
 	else
 	{
+		#ifdef PHP_INCLUDE_PATH
+			php_include_path = PHP_INCLUDE_PATH;
+		#else
+			phc_error ("PHP_INCLUDE_PATH not configured. Please use the --with-php-config flag to compile");
+			assert (0); // in the case of --dont-fail, still fail here.
+		#endif
 		#ifdef PHP_INSTALL_PATH
 			php_path = PHP_INSTALL_PATH;
 		#else
@@ -63,10 +70,10 @@ void Compile_C::run (IR::PHP_script* in, Pass_manager* pm)
 	// Argument array for gcc
 	Vector<stringstream*> args;
 	new_arg (args) << "gcc";
-	new_arg (args) << "-I" << php_path << "/include/php";
-	new_arg (args) << "-I" << php_path << "/include/php/main";
-	new_arg (args) << "-I" << php_path << "/include/php/TSRM";
-	new_arg (args) << "-I" << php_path << "/include/php/Zend";
+	new_arg (args) << "-I" << php_include_path";
+	new_arg (args) << "-I" << php_include_path << "/main";
+	new_arg (args) << "-I" << php_include_path << "/TSRM";
+	new_arg (args) << "-I" << php_include_path << "/Zend";
 	new_arg (args) << "-L" << php_path << "/lib";
 	new_arg (args) << "-Wl,-R" << php_path << "/lib";
 	new_arg (args) << "-lphp5";
