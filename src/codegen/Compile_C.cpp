@@ -115,7 +115,7 @@ void Compile_C::run (IR::PHP_script* in, Pass_manager* pm)
 	// add -o argument
 	if (pm->args_info->output_given)
 	{
-		new_arg (args) << "-o" << pm->args_info->output_arg;
+		new_arg (args) << "-o " << pm->args_info->output_arg;
 	}
 
 
