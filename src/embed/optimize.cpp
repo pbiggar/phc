@@ -218,14 +218,18 @@ PHP::get_method_info (String* name)
 	ZVAL_STRING (&fn, const_cast<char*> (name->c_str ()), 0);
 
 
-	uint check_flags=0;
 	zend_fcall_info fci;
 	zend_fcall_info_cache fcic;
+#if PHP_VERSION_ID > 50399
+	uint check_flags=0;
 	char callable_name[124];
 	char error[513]; // , void ***tsrm_ls);
 	char * cname = &callable_name[0];
 	char * err = &error[0];
 	int result = zend_fcall_info_init (&fn, check_flags, &fci, &fcic, &cname, &err TSRMLS_CC);
+#else
+	int result = zend_fcall_info_init (&fn, &fci, &fcic TSRMLS_CC);
+#endif
 
 	if (result != SUCCESS)
 		return NULL;
@@ -250,7 +254,11 @@ Internal_method_info::has_implementation ()
 bool
 Internal_method_info::return_by_ref ()
 {
+#if PHP_VERSION_ID > 50399
 	return (func->common.fn_flags & ZEND_ACC_RETURN_REFERENCE);
+#else
+	return func->common.return_reference;
+#endif
 }
 
 bool
