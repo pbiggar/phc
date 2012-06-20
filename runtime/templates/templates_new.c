@@ -1206,11 +1206,9 @@ call_function (node ATTRS, string MN, list ARGS, string FILENAME, string LINE, s
 // We can tell this at compile-time.
 return_reference_bug (node ATTRS) where ATTRS.return_reference_bug @@@ 1 @@@
 return_reference_bug (node ATTRS) where ATTRS.no_return_reference_bug @@@ 0 @@@
-#if PHP_VERSION_ID > 50399
 return_reference_bug (node ATTRS) @@@ (signature->common.fn_flags |= ZEND_ACC_RETURN_REFERENCE) && signature->type != ZEND_USER_FUNCTION @@@
-#else
-return_reference_bug (node ATTRS) @@@ signature->common.return_reference && signature->type != ZEND_USER_FUNCTION @@@
-#end
+//return_reference_bug (node ATTRS) where PHP_VERSION_ID > 50399 @@@ (signature->common.fn_flags |= ZEND_ACC_RETURN_REFERENCE) && signature->type != ZEND_USER_FUNCTION @@@
+//return_reference_bug (node ATTRS) @@@ signature->common.return_reference && signature->type != ZEND_USER_FUNCTION @@@
 
 
 function_lhs (string USE_LHS, token LHS) where USE_LHS == "NONE" @@@@@@
