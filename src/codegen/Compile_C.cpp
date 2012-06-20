@@ -87,7 +87,9 @@ void Compile_C::run (IR::PHP_script* in, Pass_manager* pm)
 		new_arg (args) << "-I" << php_include_path << "/TSRM";
 		new_arg (args) << "-I" << php_include_path << "/Zend";
 		new_arg (args) << "-L" << php_embed_path;
+#ifndef __APPLE__
 		new_arg (args) << "-Wl,-R" << php_embed_path;
+#endif
 		new_arg (args) << "-lphp5";
 		new_arg (args) << "-xc";
 		new_arg (args) << "-";
