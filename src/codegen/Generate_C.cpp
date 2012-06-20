@@ -31,6 +31,9 @@
 //
 //	So that means casts are pure.
 
+// Needed for PHP_VERSION_ID
+#include <php_version.h>
+
 #include <fstream>
 #include <boost/format.hpp>
 
