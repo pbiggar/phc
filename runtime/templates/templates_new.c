@@ -1057,7 +1057,7 @@ arg_by_ref (node ARG)
       arg_info++;
    }
    else
-#IF PHP_VERSION_ID > 50399
+#if PHP_VERSION_ID > 50399
       by_ref[abr_index] = (signature->common.fn_flags & ZEND_ACC_PASS_REST_BY_REFERENCE);
 #else
       by_ref[abr_index] = signature->common.pass_rest_by_reference;
