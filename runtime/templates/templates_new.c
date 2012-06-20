@@ -1057,8 +1057,11 @@ arg_by_ref (node ARG)
       arg_info++;
    }
    else
+#IF PHP_VERSION_ID > 50399
+      by_ref[abr_index] = (signature->common.fn_flags & ZEND_ACC_PASS_REST_BY_REFERENCE);
+#else
       by_ref[abr_index] = signature->common.pass_rest_by_reference;
-
+#endif
    abr_index++;
 @@@
 
@@ -1203,7 +1206,11 @@ call_function (node ATTRS, string MN, list ARGS, string FILENAME, string LINE, s
 // We can tell this at compile-time.
 return_reference_bug (node ATTRS) where ATTRS.return_reference_bug @@@ 1 @@@
 return_reference_bug (node ATTRS) where ATTRS.no_return_reference_bug @@@ 0 @@@
+#if PHP_VERSION_ID > 50399
+return_reference_bug (node ATTRS) @@@ (signature->common.fn_flags |= ZEND_ACC_RETURN_REFERENCE) && signature->type != ZEND_USER_FUNCTION @@@
+#else
 return_reference_bug (node ATTRS) @@@ signature->common.return_reference && signature->type != ZEND_USER_FUNCTION @@@
+#end
 
 
 function_lhs (string USE_LHS, token LHS) where USE_LHS == "NONE" @@@@@@

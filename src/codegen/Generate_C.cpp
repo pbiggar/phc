@@ -543,9 +543,11 @@ void function_declaration_block(ostream& buf, Signature_list* methods, String* b
 		buf << "ZEND_END_ARG_INFO()\n\n";
 	}
 
-	buf 
-		<< "static function_entry " << *block_name << "_functions[] = {\n"
-		;
+#IF PHP_VERSION_ID > 50399
+	buf << "static zend_function_entry " << *block_name << "_functions[] = {\n";
+#else
+	buf << "static function_entry " << *block_name << "_functions[] = {\n";
+#endif
 
 	foreach (Signature* s, *methods)
 	{
