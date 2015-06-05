@@ -1,4 +1,4 @@
-dependency:
+dependencies:
   pre:
     - apt-get update && apt-get install -y libgc-dev
   override:
