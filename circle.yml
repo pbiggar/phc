@@ -1,0 +1,5 @@
+test:
+  override:
+    - ./configure
+    - make
+    - make install
