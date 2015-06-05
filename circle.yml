@@ -1,7 +1,8 @@
 dependencies:
   pre:
-    - apt-get update && apt-get install -y libgc-dev
+    - sudo apt-get update && sudo apt-get install -y libgc-dev
+    - touch src/generated/*
   override:
     - ./configure
-    - make
+    - make -j 3
     - make install
