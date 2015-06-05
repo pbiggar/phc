@@ -1,5 +1,5 @@
 # ===========================================================================
-#             http://autoconf-archive.cryp.to/ax_boost_regex.html
+#      http://www.gnu.org/software/autoconf-archive/ax_boost_regex.html
 # ===========================================================================
 #
 # SYNOPSIS
@@ -27,7 +27,10 @@
 #
 #   Copying and distribution of this file, with or without modification, are
 #   permitted in any medium without royalty provided the copyright notice
-#   and this notice are preserved.
+#   and this notice are preserved. This file is offered as-is, without any
+#   warranty.
+
+#serial 22
 
 AC_DEFUN([AX_BOOST_REGEX],
 [
@@ -43,7 +46,7 @@ AC_DEFUN([AX_BOOST_REGEX],
             ax_boost_user_regex_lib=""
         else
 		    want_boost="yes"
-        	ax_boost_user_regex_lib="$withval"
+		ax_boost_user_regex_lib="$withval"
 		fi
         ],
         [want_boost="yes"]
@@ -62,9 +65,9 @@ AC_DEFUN([AX_BOOST_REGEX],
         AC_CACHE_CHECK(whether the Boost::Regex library is available,
 					   ax_cv_boost_regex,
         [AC_LANG_PUSH([C++])
-			 AC_COMPILE_IFELSE(AC_LANG_PROGRAM([[@%:@include <boost/regex.hpp>
+			 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[@%:@include <boost/regex.hpp>
 												]],
-                                   [[boost::regex r(); return 0;]]),
+                                   [[boost::regex r(); return 0;]])],
                    ax_cv_boost_regex=yes, ax_cv_boost_regex=no)
          AC_LANG_POP([C++])
 		])
@@ -72,19 +75,19 @@ AC_DEFUN([AX_BOOST_REGEX],
 			AC_DEFINE(HAVE_BOOST_REGEX,,[define if the Boost::Regex library is available])
             BOOSTLIBDIR=`echo $BOOST_LDFLAGS | sed -e 's/@<:@^\/@:>@*//'`
             if test "x$ax_boost_user_regex_lib" = "x"; then
-                for libextension in `ls $BOOSTLIBDIR/libboost_regex*.so* $BOOSTLIBDIR/libboost_regex*.a* 2>/dev/null | sed 's,.*/,,' | sed -e 's;^lib\(boost_regex.*\)\.so.*$;\1;' -e 's;^lib\(boost_regex.*\)\.a*$;\1;'` ; do
+                for libextension in `ls $BOOSTLIBDIR/libboost_regex*.so* $BOOSTLIBDIR/libboost_regex*.dylib* $BOOSTLIBDIR/libboost_regex*.a* 2>/dev/null | sed 's,.*/,,' | sed -e 's;^lib\(boost_regex.*\)\.so.*$;\1;' -e 's;^lib\(boost_regex.*\)\.dylib.*;\1;' -e 's;^lib\(boost_regex.*\)\.a.*$;\1;'` ; do
                      ax_lib=${libextension}
 				    AC_CHECK_LIB($ax_lib, exit,
                                  [BOOST_REGEX_LIB="-l$ax_lib"; AC_SUBST(BOOST_REGEX_LIB) link_regex="yes"; break],
                                  [link_regex="no"])
-  				done
+				done
                 if test "x$link_regex" != "xyes"; then
-                for libextension in `ls $BOOSTLIBDIR/boost_regex*.{dll,a}* 2>/dev/null | sed 's,.*/,,' | sed -e 's;^\(boost_regex.*\)\.dll.*$;\1;' -e 's;^\(boost_regex.*\)\.a*$;\1;'` ; do
+                for libextension in `ls $BOOSTLIBDIR/boost_regex*.dll* $BOOSTLIBDIR/boost_regex*.a* 2>/dev/null | sed 's,.*/,,' | sed -e 's;^\(boost_regex.*\)\.dll.*$;\1;' -e 's;^\(boost_regex.*\)\.a.*$;\1;'` ; do
                      ax_lib=${libextension}
 				    AC_CHECK_LIB($ax_lib, exit,
                                  [BOOST_REGEX_LIB="-l$ax_lib"; AC_SUBST(BOOST_REGEX_LIB) link_regex="yes"; break],
                                  [link_regex="no"])
-  				done
+				done
                 fi
 
             else
@@ -94,12 +97,15 @@ AC_DEFUN([AX_BOOST_REGEX],
                                    [link_regex="no"])
                done
             fi
+            if test "x$ax_lib" = "x"; then
+                AC_MSG_ERROR(Could not find a version of the Boost::Regex library!)
+            fi
 			if test "x$link_regex" != "xyes"; then
 				AC_MSG_ERROR(Could not link against $ax_lib !)
 			fi
 		fi
 
 		CPPFLAGS="$CPPFLAGS_SAVED"
-    	LDFLAGS="$LDFLAGS_SAVED"
+	LDFLAGS="$LDFLAGS_SAVED"
 	fi
 ])
