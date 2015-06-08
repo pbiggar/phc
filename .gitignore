@@ -1,0 +1,14 @@
+/.deps/
+/Makefile
+/config.h
+/config.log
+/config.status
+/libltdl/.deps/
+/libltdl/Makefile
+/libltdl/config.h
+/libltdl/config.log
+/libltdl/config.status
+/libltdl/libtool
+/libltdl/stamp-h1
+/libtool
+/stamp-h1

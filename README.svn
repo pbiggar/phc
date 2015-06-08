@@ -1,9 +1,0 @@
-Immediately after doing an svn checkout or svn export, you need to do:
-
-	$ touch src/generated/*
-
-otherwise you will get this error (or similar):
-
-src/generated_src/ast.tea
-/bin/bash: src/generated_src/ast.tea: Permission denied
-make: *** [src/generated/AST.h] Error 126

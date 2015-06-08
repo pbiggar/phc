@@ -1,3 +1,23 @@
+# PHC
+
+phc is an open source compiler for PHP with support for plugins. In addition, it can be used to pretty-print or obfuscate PHP code, as a framework for developing applications that process PHP scripts, or to convert PHP into XML and back, enabling processing of PHP scripts using XML tools.
+
+See https://phpcompiler.org for more details.
+
+## Building from source
+
+After checking out via git, run
+
+  $ touch src/generated/*
+  $ ./configure
+  $ make
+  $ make install
+
+For more detail, see the manual, in docs/manual/.
+
+
+## Testing
+
 The tests are held in test/framework/, but tests should be run from this
 directory.  test/support_files/ are files used by the tests, for example for
 regression.  test/subjects/ are the files used to test phc. Most are designed
