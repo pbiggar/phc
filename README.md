@@ -8,10 +8,10 @@ See https://phpcompiler.org for more details.
 
 After checking out via git, run
 
-  $ touch src/generated/*
-  $ ./configure
-  $ make
-  $ make install
+	$ touch src/generated/*
+	$ ./configure
+	$ make
+	$ make install
 
 For more detail, see the manual, in docs/manual/.
 
@@ -29,12 +29,18 @@ each test run.
 
 To run tests:
 
-	$ make test (aka make check)
+	$ make test # aka make check
+
 or
+
 	$ make installcheck
+
 or
+
 	$ make long-test
+
 or
+
 	$ php test/framework/driver.php
 
 The latter allows command line options, and limiting the tests with regular
