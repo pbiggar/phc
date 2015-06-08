@@ -2,7 +2,7 @@
 
 phc is an open source compiler for PHP with support for plugins. In addition, it can be used to pretty-print or obfuscate PHP code, as a framework for developing applications that process PHP scripts, or to convert PHP into XML and back, enabling processing of PHP scripts using XML tools.
 
-See https://phpcompiler.org for more details.
+See http://phpcompiler.org for more details.
 
 ## Building from source
 
