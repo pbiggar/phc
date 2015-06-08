@@ -1,9 +1,0 @@
-NOTE: if building from svn, read README.svn.
-
-Please refer to the phc manual, in docs/manual/.
-
-However, you should be able to just:
-
-  ./configure
-  make
-  make install
