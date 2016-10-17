@@ -220,7 +220,7 @@ PHP::get_method_info (String* name)
 
 	zend_fcall_info fci;
 	zend_fcall_info_cache fcic;
-	int result = zend_fcall_info_init (&fn, 0 ,&fci, &fcic, NULL, NULL TSRMLS_CC);
+	int result = zend_fcall_info_init (&fn, 0 ,&fci, &fcic, NULL, NULL, TSRMLS_CC);
 
 	if (result != SUCCESS)
 		return NULL;
