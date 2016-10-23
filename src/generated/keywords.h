@@ -1,5 +1,5 @@
-/* ANSI-C code produced by gperf version 3.0.3 */
-/* Command-line: /usr/bin/gperf --language=ANSI-C --includes --readonly-tables --struct-type --ignore-case --output-file=src/generated/keywords.h src/generated_src/php.gperf  */
+/* ANSI-C code produced by gperf version 3.0.4 */
+/* Command-line: /usr/local/bin/gperf --language=ANSI-C --includes --readonly-tables --struct-type --ignore-case --output-file=src/generated/keywords.h src/generated_src/php.gperf  */
 /* Computed positions: -k'1,3-4' */
 
 #if !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
@@ -39,7 +39,7 @@
 	 */
 
 	// Suppress warnings in the gperf generated code 
-	#pragma GCC system_header
+  #pragma GCC system_header
 #line 12 "src/generated_src/php.gperf"
 struct keyword { char* name; int token; };
 #include <string.h>
@@ -151,7 +151,7 @@ hash (register const char *str, register unsigned int len)
 
 #ifdef __GNUC__
 __inline
-#ifdef __GNUC_STDC_INLINE__
+#if defined __GNUC_STDC_INLINE__ || defined __GNUC_GNU_INLINE__
 __attribute__ ((__gnu_inline__))
 #endif
 #endif
