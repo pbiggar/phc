@@ -17340,7 +17340,7 @@ fi
 
 
 if test "x$want_boost" = "xyes"; then
-    boost_lib_version_req=1.35.0
+    boost_lib_version_req=1.55.0
     boost_lib_version_req_shorten=`expr $boost_lib_version_req : '\([0-9]*\.[0-9]*\)'`
     boost_lib_version_req_major=`expr $boost_lib_version_req : '\([0-9]*\)'`
     boost_lib_version_req_minor=`expr $boost_lib_version_req : '[0-9]*\.\([0-9]*\)'`
@@ -17355,9 +17355,23 @@ $as_echo_n "checking for boostlib >= $boost_lib_version_req... " >&6; }
 
                         libsubdirs="lib"
     ax_arch=`uname -m`
-    if test $ax_arch = x86_64 -o $ax_arch = ppc64 -o $ax_arch = s390x -o $ax_arch = sparc64; then
+    case $ax_arch in
+      x86_64)
+        libsubdirs="lib64 libx32 lib lib64"
+        ;;
+      ppc64|s390x|sparc64|aarch64|ppc64le)
         libsubdirs="lib64 lib lib64"
-    fi
+        ;;
+    esac
+
+
+    libsubdirs="lib/${host_cpu}-${host_os} $libsubdirs"
+
+    case ${host_cpu} in
+      i?86)
+        libsubdirs="lib/i386-${host_os} $libsubdirs"
+        ;;
+    esac
 
                 if test "$ac_boost_path" != ""; then
         BOOST_CPPFLAGS="-I$ac_boost_path/include"
@@ -17437,6 +17451,10 @@ ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
 
             if test "x$succeeded" != "xyes"; then
+        CPPFLAGS="$CPPFLAGS_SAVED"
+        LDFLAGS="$LDFLAGS_SAVED"
+        BOOST_CPPFLAGS=
+        BOOST_LDFLAGS=
         _version=0
         if test "$ac_boost_path" != ""; then
             if test -d "$ac_boost_path" && test -r "$ac_boost_path"; then
@@ -17449,6 +17467,11 @@ ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
                     VERSION_UNDERSCORE=`echo $_version | sed 's/\./_/'`
                     BOOST_CPPFLAGS="-I$ac_boost_path/include/boost-$VERSION_UNDERSCORE"
                 done
+                                if test -z "$BOOST_CPPFLAGS"; then
+                    if test -d "$ac_boost_path/boost" && test -r "$ac_boost_path/boost"; then
+                        BOOST_CPPFLAGS="-I$ac_boost_path"
+                    fi
+                fi
             fi
         else
             if test "$cross_compiling" != yes; then
