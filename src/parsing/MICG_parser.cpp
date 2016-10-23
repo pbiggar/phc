@@ -31,7 +31,7 @@
 #include "process_ir/XML_unparser.h"
 
 using namespace std;
-using namespace boost::spirit;
+using namespace boost::spirit::classic;
 using namespace boost;
 using namespace MICG;
 
@@ -268,7 +268,7 @@ typedef tree_match_t::tree_iterator tree_iter_t;
 
 Object* create_micg_node (tree_iter_t tree);
 
-Object_list* create_micg_list (container trees)
+Object_list* create_micg_list (::container trees)
 {
 	Object_list* result = new Object_list;
 	for (tree_iter_t tree = trees.begin (); tree != trees.end (); tree++)
