@@ -3,10 +3,10 @@
 .dirstamp
 .deps
 .deps
-/.libs/
+.libs
 /Makefile
 /aclocal.m4
-/autom4te.cache/
+autom4te.cache
 /config.h
 /config.log
 /config.status
@@ -24,6 +24,7 @@
 /libltdl/libtool
 /libltdl/stamp-h1
 /libtool
+/plugins/*/*.la
 /stamp-h1
 /test/framework/lib/autovars.phpsrc/phc_compile_plugin
 test/framework/lib/autovars.php
