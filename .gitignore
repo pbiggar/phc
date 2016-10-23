@@ -1,9 +1,18 @@
 /.deps/
+/.libs/
 /Makefile
+/aclocal.m4
+/autom4te.cache/
 /config.h
 /config.log
 /config.status
+/getopt*.lo
+/getopt*.o
+/libltdl/*.la
+/libltdl/*.lo
+/libltdl/*.o
 /libltdl/.deps/
+/libltdl/.libs/
 /libltdl/Makefile
 /libltdl/config.h
 /libltdl/config.log
@@ -12,3 +21,4 @@
 /libltdl/stamp-h1
 /libtool
 /stamp-h1
+/test/framework/lib/autovars.php
