@@ -8,8 +8,8 @@
 #ifndef PHC_MAP_H
 #define PHC_MAP_H
 
-#include <tr1/unordered_map>
-#include <tr1/functional_hash.h>
+#include <unordered_map>
+#include <functional>
 #include "List.h"
 #include <boost/tuple/tuple.hpp> // for tie
 
@@ -18,11 +18,11 @@ using boost::tie;
 template <
 	typename _Key, 
 	typename _Tp, 
-	typename _Hash = std::tr1::hash<_Key>,
+  typename _Hash = hash<_Key>,
 	typename _Pred = std::equal_to<_Key>,
 	typename _Alloc = phc_allocator<std::pair<const _Key, _Tp> >
 >
-class phc_unordered_map : virtual public GC_obj, public std::tr1::unordered_map<_Key, _Tp, _Hash, _Pred, _Alloc>
+class phc_unordered_map : virtual public GC_obj, public unordered_map<_Key, _Tp, _Hash, _Pred, _Alloc>
 {
 public:
 	int reference_count;
@@ -45,7 +45,7 @@ void print_cow_memory_stats ();
 template <
 	typename _Key, 
 	typename _Tp, 
-	typename _Hash = std::tr1::hash<_Key>,
+  typename _Hash = hash<_Key>,
 	typename _Pred = std::equal_to<_Key>,
 	typename _Alloc = phc_allocator<std::pair<const _Key, _Tp> >
 >
