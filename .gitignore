@@ -29,3 +29,5 @@ autom4te.cache
 /test/framework/lib/autovars.phpsrc/phc_compile_plugin
 test/framework/lib/autovars.php
 src/phc_compile_plugin
+/libphc.la
+/src/phc
