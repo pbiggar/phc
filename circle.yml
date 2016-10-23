@@ -2,6 +2,7 @@ dependencies:
   pre:
     - sudo apt-get update && sudo apt-get install -y libgc-dev libboost1.55-all-dev
     - touch src/generated/*
+    - touch configure Makefile
   override:
     - ./configure --with-boost-regex=boost_regex
     - make -j 3

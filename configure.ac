@@ -17,7 +17,7 @@ AC_PREREQ(2.63) # 2.61 adds a warning. Pre-2.61 just doesnt work.
 PHC_CHECK_SVN
 
 dnl configure automake
-AM_INIT_AUTOMAKE([subdir-objects foreign -Wall -Werror 1.14]) # 1.10 changed a lot of things.
+AM_INIT_AUTOMAKE([subdir-objects foreign -Wall -Werror 1.15]) # 1.10 changed a lot of things.
 AM_MAINTAINER_MODE
 
 
