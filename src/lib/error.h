@@ -11,8 +11,6 @@
 #include <stdarg.h>
 #include <iostream>
 
-using namespace std;
-
 class String;
 
 namespace AST { class Node; }
@@ -51,7 +49,7 @@ void phc_warning (const char* message, MICG::Node*, ...);
 #define phc_unreachable() assert(0 && "Should be unreachable")
 #define phc_TODO() assert(0 && "TODO")
 
-void _phc_optimization_exception (string message, string filename, int line);
+void _phc_optimization_exception (std::string message, std::string filename, int line);
 
 #define phc_optimization_exception(MSG) _phc_optimization_exception(MSG,__FILE__,__LINE__)
 
