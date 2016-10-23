@@ -17,7 +17,7 @@ AC_PREREQ(2.63) # 2.61 adds a warning. Pre-2.61 just doesnt work.
 PHC_CHECK_SVN
 
 dnl configure automake
-AM_INIT_AUTOMAKE([foreign -Wall -Werror 1.10]) # 1.10 changed a lot of things.
+AM_INIT_AUTOMAKE([subdir-objects foreign -Wall -Werror 1.15]) # 1.10 changed a lot of things.
 AM_MAINTAINER_MODE
 
 
@@ -26,6 +26,7 @@ AC_PROG_CC
 AC_PROG_CXX
 
 dnl Configure libtool and libltdl
+AM_PROG_AR
 LT_INIT([dlopen])
 LT_CONFIG_LTDL_DIR([libltdl])
 LTDL_INIT([convenience])
