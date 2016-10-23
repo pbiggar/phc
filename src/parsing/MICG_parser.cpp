@@ -16,10 +16,10 @@
 #define BOOST_SPIRIT_DEBUG_FLAGS BOOST_SPIRIT_DEBUG_FLAGS_NODES
 
 #include <boost/lexical_cast.hpp>
-#include <boost/spirit.hpp>
-#include <boost/spirit/iterator/position_iterator.hpp>
-#include <boost/spirit/tree/ast.hpp>
-#include <boost/spirit/tree/parse_tree.hpp>
+#include <boost/spirit/include/classic.hpp>
+#include <boost/spirit/include/classic_position_iterator.hpp>
+#include <boost/spirit/include/classic_ast.hpp>
+#include <boost/spirit/include/classic_parse_tree.hpp>
 
 #include <iostream>
 
