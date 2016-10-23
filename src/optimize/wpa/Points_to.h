@@ -155,118 +155,115 @@ namespace std
 
 
 
-	namespace tr1
+  template <>
+  struct hash<Index_node>
+  {
+    size_t operator() (const Index_node& an) const
+    {
+      return an.hash ();
+    }
+  };
+
+  template <>
+  struct hash<const Index_node>
 	{
-		template <>
-		struct hash<Index_node>
-		{
-			size_t operator() (const Index_node& an) const
-			{
-				return an.hash ();
-			}
-		};
+    size_t operator() (const Index_node& an) const
+    {
+      return an.hash ();
+    }
+  };
 
-		template <>
-		struct hash<const Index_node>
-		{
-			size_t operator() (const Index_node& an) const
-			{
-				return an.hash ();
-			}
-		};
+  template <>
+  struct hash<Index_node*>
+	{
+    size_t operator() (const Index_node*& an) const
+    {
+      return an->hash ();
+    }
+  };
 
-		template <>
-		struct hash<Index_node*>
-		{
-			size_t operator() (const Index_node*& an) const
-			{
-				return an->hash ();
-			}
-		};
-
-		template <>
-		struct hash<const Index_node*>
-		{
-			size_t operator() (const Index_node* const an) const
-			{
-				return an->hash ();
-			}
-		};
+  template <>
+	struct hash<const Index_node*>
+	{
+    size_t operator() (const Index_node* const an) const
+    {
+      return an->hash ();
+    }
+  };
 
 
-		template <>
-		struct hash<Storage_node>
-		{
-			size_t operator() (const Storage_node& an) const
-			{
-				return an.hash ();
-			}
-		};
+  template <>
+	struct hash<Storage_node>
+	{
+    size_t operator() (const Storage_node& an) const
+    {
+      return an.hash ();
+    }
+  };
 
-		template <>
-		struct hash<const Storage_node>
-		{
-			size_t operator() (const Storage_node& an) const
-			{
-				return an.hash ();
-			}
-		};
+  template <>
+	struct hash<const Storage_node>
+	{
+    size_t operator() (const Storage_node& an) const
+    {
+      return an.hash ();
+    }
+  };
 
-		template <>
-		struct hash<Storage_node*>
-		{
-			size_t operator() (const Storage_node*& an) const
-			{
-				return an->hash ();
-			}
-		};
+  template <>
+	struct hash<Storage_node*>
+	{
+    size_t operator() (const Storage_node*& an) const
+    {
+      return an->hash ();
+    }
+  };
 
-		template <>
-		struct hash<const Storage_node*>
-		{
-			size_t operator() (const Storage_node* const an) const
-			{
-				return an->hash ();
-			}
-		};
+  template <>
+	struct hash<const Storage_node*>
+	{
+    size_t operator() (const Storage_node* const an) const
+    {
+      return an->hash ();
+    }
+  };
 
 
-		template <>
-		struct hash<Value_node>
-		{
-			size_t operator() (const Value_node& an) const
-			{
-				return an.hash ();
-			}
-		};
+  template <>
+	struct hash<Value_node>
+	{
+    size_t operator() (const Value_node& an) const
+    {
+      return an.hash ();
+    }
+  };
 
-		template <>
-		struct hash<const Value_node>
-		{
-			size_t operator() (const Value_node& an) const
-			{
-				return an.hash ();
-			}
-		};
+  template <>
+	struct hash<const Value_node>
+	{
+    size_t operator() (const Value_node& an) const
+    {
+      return an.hash ();
+    }
+  };
 
-		template <>
-		struct hash<Value_node*>
-		{
-			size_t operator() (const Value_node*& an) const
-			{
-				return an->hash ();
-			}
-		};
+  template <>
+	struct hash<Value_node*>
+	{
+    size_t operator() (const Value_node*& an) const
+    {
+      return an->hash ();
+    }
+  };
 
-		template <>
-		struct hash<const Value_node*>
-		{
-			size_t operator() (const Value_node* const an) const
-			{
-				return an->hash ();
-			}
-		};
-	}
+  template <>
+	struct hash<const Value_node*>
+	{
+    size_t operator() (const Value_node* const an) const
+    {
+      return an->hash ();
+    }
+  };
 }
 
 

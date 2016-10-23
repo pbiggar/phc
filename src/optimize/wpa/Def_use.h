@@ -24,26 +24,23 @@ typedef enum _deftype deftype;
 // For hashmaps
 namespace std
 {
-	namespace tr1
-	{
-		template <>
-		struct hash<reftype>
-		{
-			size_t operator() (reftype t) const
-			{
-				return hash<int>() ((int)(t));
-			}
-		};
+  template <>
+  struct hash<reftype>
+  {
+    size_t operator() (reftype t) const
+    {
+      return hash<int>() ((int)(t));
+    }
+  };
 
-		template <>
-		struct hash<deftype>
-		{
-			size_t operator() (deftype t) const
-			{
-				return hash<int>() ((int)(t));
-			}
-		};
-	}
+  template <>
+  struct hash<deftype>
+  {
+    size_t operator() (deftype t) const
+    {
+      return hash<int>() ((int)(t));
+    }
+  };
 }
 
 class Def_use : public WPA

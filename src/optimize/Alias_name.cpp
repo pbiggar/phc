@@ -38,6 +38,6 @@ Alias_name::operator!= (const Alias_name& other) const
 size_t
 Alias_name::hash () const
 {
-	return std::tr1::hash<string>() (this->str ());
+  return std::hash<string>() (this->str ());
 }
 

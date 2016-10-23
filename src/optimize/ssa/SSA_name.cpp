@@ -38,7 +38,7 @@ SSA_name::operator!= (const SSA_name& other) const
 size_t
 SSA_name::hash () const
 {
-	return std::tr1::hash<string>() (this->str ());
+  return std::hash<string>() (this->str ());
 }
 
 string
