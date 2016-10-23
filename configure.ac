@@ -63,7 +63,7 @@ dnl checks for libraries
 AC_LANG([C++])
 AC_CHECK_COVARIANCE
 AC_CHECK_LIB_CRUN
-AX_BOOST_BASE([1.35.0])
+AX_BOOST_BASE([1.55.0])
 AX_BOOST_REGEX
 
 dnl Xerces
