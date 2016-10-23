@@ -23,17 +23,21 @@ that used to be there.
 
 After checking out via git, run
 
-	$ touch src/generated/*
+	$ touch src/generated/* Makefile.in configure Makefile libltdl/aclocal.m4 libltdl/Makefile.in libltdl/configure libltdl/Makefile
 	$ ./configure
 	$ make
 	$ make install
 
-On OSX, you need boost 1.55:
+For more detail, see (the manual)(doc/manual).
 
-    $ brew install homebrew/versions/boost155
-    $ LDFLAGS=-L/usr/local/opt/boost155/lib CPPFLAGS=-I/usr/local/opt/boost155/include ./configure --with-boost --with-boost-regex=boost_regex
+### OSX
+
+There's a little bit of work to get it building on OSX:
+
+    $ brew insall homebrew/versions/boost155 xerces-c boehmgc
+    $ LDFLAGS="-L/usr/local/opt/boost155/lib -L/usr/local/Cellar/bdw-gc/7.6.0/lib" CPPFLAGS="-I/usr/local/opt/boost155/include -I/usr/local/Cellar/bdw-gc/7.6.0/include" ./configure --with-xerces --disable-static
     
-For more detail, see the manual, in [doc/manual/](doc/manual).
+
 
 
 ## Testing

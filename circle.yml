@@ -6,6 +6,6 @@ dependencies:
     - touch Makefile.in configure Makefile
     - touch libltdl/aclocal.m4 libltdl/configure libltdl/Makefile.in libltdl/Makefile
   override:
-    - ./configure --with-boost-regex=boost_regex
-    - make -j 3
+    - ./configure --with-xerces --disable-static
+    - make -j 4
     - make install
