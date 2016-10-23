@@ -28,6 +28,11 @@ After checking out via git, run
 	$ make
 	$ make install
 
+On OSX, you need boost 1.55:
+
+    $ brew install homebrew/versions/boost155
+    $ LDFLAGS=-L/usr/local/opt/boost155/lib CPPFLAGS=-I/usr/local/opt/boost155/include ./configure --with-boost --with-boost-regex=boost_regex
+    
 For more detail, see the manual, in [doc/manual/](doc/manual).
 
 
