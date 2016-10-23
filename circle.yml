@@ -2,7 +2,9 @@ dependencies:
   pre:
     - sudo apt-get update && sudo apt-get install -y libgc-dev libboost1.55-all-dev
     - touch src/generated/*
-    - touch configure Makefile
+    # If the timestamps are wrong here, they'll be rebuilt, but we don't have the right versions
+    - touch Makefile.in configure Makefile
+    - touch libltdl/aclocal.m4 libltdl/configure libltdl/Makefile.in libltdl/Makefile
   override:
     - ./configure --with-boost-regex=boost_regex
     - make -j 3
