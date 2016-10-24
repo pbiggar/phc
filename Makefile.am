@@ -28,7 +28,7 @@ bin_PROGRAMS = src/phc
 
 # By using CXXFLAGS we avoid warnings in generated_src, which we dont want to
 # hear about. 
-AM_CXXFLAGS = -std=c++11 -Wextra -Wno-unused-parameter -Wno-write-strings -Wno-deprecated -Wno-unused-local-typedef -Wno-overloaded-virtual
+AM_CXXFLAGS = -Wextra -Wno-unused-parameter -Wno-write-strings -Wno-deprecated -Wno-unused-local-typedef -Wno-overloaded-virtual
 
 ACLOCAL_AMFLAGS = -I m4 -I libltdl
 
