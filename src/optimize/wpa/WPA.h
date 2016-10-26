@@ -42,14 +42,17 @@ string result_state_string (Result_state);
 
 namespace std
 {
-  template <>
-  struct hash<Result_state>
-  {
-    size_t operator() (const Result_state rs) const
-    {
-      return hash<int>() ((int)(rs));
-    }
-  };
+	namespace tr1
+	{
+		template <>
+		struct hash<Result_state>
+		{
+			size_t operator() (const Result_state rs) const
+			{
+				return hash<int>() ((int)(rs));
+			}
+		};
+	}
 }
 
 #define UNKNOWN "*"

@@ -82,7 +82,7 @@ class CX_map_hash : virtual public GC_obj
 public:
 	size_t operator() (Context* cx1) const
 	{
-    return std::hash<string>() (cx1->name ());
+		return std::tr1::hash<string>() (cx1->name ());
 	}
 };
 

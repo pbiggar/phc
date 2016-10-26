@@ -25,7 +25,7 @@ public:
 
 	bool operator== (const SSA_name& other) const;
 	bool operator!= (const SSA_name& other) const;
-  size_t hash () const;
+	size_t hash () const;
 
 public:
 	// I'm not 100% sure what this is used for...
@@ -62,41 +62,46 @@ namespace std
 		}
 	};
 
-  template <>
-  struct hash<SSA_name>
-  {
-    size_t operator() (const SSA_name& sn) const
-    {
-      return sn.hash ();
-    }
-  };
 
-  template <>
-  struct hash<const SSA_name>
-  {
-    size_t operator() (const SSA_name& sn) const
-    {
-      return sn.hash ();
-    }
-  };
 
-  template <>
-  struct hash<SSA_name*>
-  {
-    size_t operator() (const SSA_name*& sn) const
-    {
-      return sn->hash ();
-    }
-  };
+	namespace tr1
+	{
+		template <>
+		struct hash<SSA_name>
+		{
+			size_t operator() (const SSA_name& sn) const
+			{
+				return sn.hash ();
+			}
+		};
 
-  template <>
-  struct hash<const SSA_name*>
-  {
-    size_t operator() (const SSA_name* const sn) const
-    {
-      return sn->hash ();
-    }
-  };
+		template <>
+		struct hash<const SSA_name>
+		{
+			size_t operator() (const SSA_name& sn) const
+			{
+				return sn.hash ();
+			}
+		};
+
+		template <>
+		struct hash<SSA_name*>
+		{
+			size_t operator() (const SSA_name*& sn) const
+			{
+				return sn->hash ();
+			}
+		};
+
+		template <>
+		struct hash<const SSA_name*>
+		{
+			size_t operator() (const SSA_name* const sn) const
+			{
+				return sn->hash ();
+			}
+		};
+	}
 }
 
 

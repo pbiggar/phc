@@ -17,11 +17,11 @@
 
 template <
 	typename _Tp, 
-  typename _Hash = std::hash<_Tp>,
+  typename _Hash = hash<_Tp>,
 	typename _Pred = std::equal_to<_Tp>,
 	typename _Alloc = phc_allocator<_Tp>
 >
-class phc_unordered_set : virtual public GC_obj, public std::unordered_set<_Tp, _Hash, _Pred, _Alloc>
+class phc_unordered_set : virtual public GC_obj, public unordered_set<_Tp, _Hash, _Pred, _Alloc>
 {
 public:
 	int reference_count;
@@ -41,7 +41,7 @@ extern long long __set_private_copy_construct_count;
 
 template <
 	typename _Tp, 
-  typename _Hash = std::hash<_Tp>,
+  typename _Hash = hash<_Tp>,
 	typename _Pred = std::equal_to<_Tp>,
 	typename _Alloc = phc_allocator<_Tp>
 >

@@ -86,41 +86,44 @@ namespace std
 
 
 
-  template <>
-  struct hash<Alias_name>
-  {
-    size_t operator() (const Alias_name& an) const
-    {
-      return an.hash ();
-    }
-  };
+	namespace tr1
+	{
+		template <>
+		struct hash<Alias_name>
+		{
+			size_t operator() (const Alias_name& an) const
+			{
+				return an.hash ();
+			}
+		};
 
-  template <>
-  struct hash<const Alias_name>
-  {
-    size_t operator() (const Alias_name& an) const
-    {
-      return an.hash ();
-    }
-  };
+		template <>
+		struct hash<const Alias_name>
+		{
+			size_t operator() (const Alias_name& an) const
+			{
+				return an.hash ();
+			}
+		};
 
-  template <>
-  struct hash<Alias_name*>
-  {
-    size_t operator() (const Alias_name*& an) const
-    {
-      return an->hash ();
-    }
-  };
+		template <>
+		struct hash<Alias_name*>
+		{
+			size_t operator() (const Alias_name*& an) const
+			{
+				return an->hash ();
+			}
+		};
 
-  template <>
-  struct hash<const Alias_name*>
-  {
-    size_t operator() (const Alias_name* const an) const
-    {
-      return an->hash ();
-    }
-  };
+		template <>
+		struct hash<const Alias_name*>
+		{
+			size_t operator() (const Alias_name* const an) const
+			{
+				return an->hash ();
+			}
+		};
+	}
 }
 
 #endif // PHC_ALIAS_NAME
