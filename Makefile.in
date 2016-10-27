@@ -541,8 +541,8 @@ PROGRAMS = $(bin_PROGRAMS)
 am_src_phc_OBJECTS = src/phc.$(OBJEXT)
 src_phc_OBJECTS = $(am_src_phc_OBJECTS)
 am__DEPENDENCIES_1 =
-src_phc_DEPENDENCIES = $(am__DEPENDENCIES_1) libphc.la \
-	$(am__DEPENDENCIES_1)
+src_phc_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	libphc.la $(am__DEPENDENCIES_1)
 src_phc_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
 	$(CXXFLAGS) $(src_phc_LDFLAGS) $(LDFLAGS) -o $@
@@ -961,7 +961,7 @@ ACLOCAL_AMFLAGS = -I m4 -I libltdl
 
 # -export-dynammic: Special libtool flag for later plugin loading
 src_phc_LDFLAGS = -export-dynamic
-src_phc_LDADD = @gc_lib@ $(LIBLTDL) $(BOOST_REGEX_LIB) libphc.la $(XERCES_LIBS)
+src_phc_LDADD = @gc_lib@ $(LIBLTDL) $(BOOST_REGEX_LIBS) libphc.la $(XERCES_LIBS)
 bin_SCRIPTS = src/phc_compile_plugin
 libexec_SCRIPTS = libtool
 # pkgdata_DATA = phc-1.0.xsd

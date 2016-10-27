@@ -19272,6 +19272,66 @@ fi
 
 
 
+if test x"$boost_cv_inc_path" = xno; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: Boost not available, not searching for boost/unordered_map.hpp" >&5
+$as_echo "$as_me: Boost not available, not searching for boost/unordered_map.hpp" >&6;}
+else
+ac_ext=cpp
+ac_cpp='$CXXCPP $CPPFLAGS'
+ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+boost_save_CPPFLAGS=$CPPFLAGS
+CPPFLAGS="$CPPFLAGS $BOOST_CPPFLAGS"
+ac_fn_cxx_check_header_mongrel "$LINENO" "boost/unordered_map.hpp" "ac_cv_header_boost_unordered_map_hpp" "$ac_includes_default"
+if test "x$ac_cv_header_boost_unordered_map_hpp" = xyes; then :
+
+$as_echo "#define HAVE_BOOST_UNORDERED_MAP_HPP 1" >>confdefs.h
+
+else
+  as_fn_error $? "cannot find boost/unordered_map.hpp" "$LINENO" 5
+fi
+
+
+CPPFLAGS=$boost_save_CPPFLAGS
+ac_ext=cpp
+ac_cpp='$CXXCPP $CPPFLAGS'
+ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+fi
+
+
+if test x"$boost_cv_inc_path" = xno; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: Boost not available, not searching for boost/functional/hash.hpp" >&5
+$as_echo "$as_me: Boost not available, not searching for boost/functional/hash.hpp" >&6;}
+else
+ac_ext=cpp
+ac_cpp='$CXXCPP $CPPFLAGS'
+ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+boost_save_CPPFLAGS=$CPPFLAGS
+CPPFLAGS="$CPPFLAGS $BOOST_CPPFLAGS"
+ac_fn_cxx_check_header_mongrel "$LINENO" "boost/functional/hash.hpp" "ac_cv_header_boost_functional_hash_hpp" "$ac_includes_default"
+if test "x$ac_cv_header_boost_functional_hash_hpp" = xyes; then :
+
+$as_echo "#define HAVE_BOOST_FUNCTIONAL_HASH_HPP 1" >>confdefs.h
+
+else
+  as_fn_error $? "cannot find boost/functional/hash.hpp" "$LINENO" 5
+fi
+
+
+CPPFLAGS=$boost_save_CPPFLAGS
+ac_ext=cpp
+ac_cpp='$CXXCPP $CPPFLAGS'
+ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+fi
+
+
 
 
 
