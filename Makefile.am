@@ -42,7 +42,7 @@ ACLOCAL_AMFLAGS = -I m4 -I libltdl
 # -export-dynammic: Special libtool flag for later plugin loading
 src_phc_LDFLAGS = -export-dynamic
 
-src_phc_LDADD = @gc_lib@ $(LIBLTDL) $(BOOST_REGEX_LIBS) libphc.la $(XERCES_LIBS)
+src_phc_LDADD = libphc.la @gc_lib@ $(LIBLTDL) $(BOOST_REGEX_LIBS) $(XERCES_LIBS)
 
 bin_SCRIPTS = src/phc_compile_plugin
 libexec_SCRIPTS = libtool
