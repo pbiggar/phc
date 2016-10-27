@@ -805,7 +805,6 @@ class Points_to : virtual public GC_obj
 {
 private:
 	Points_to_impl* impl;
-	int reference_count;
 
 	void detach ()
 	{

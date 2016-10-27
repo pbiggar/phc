@@ -18,7 +18,6 @@ class Goto_uppering : public MIR::Visitor, virtual public GC_obj
 private:
 	AST::Variable* ast_next;
 	MIR::VARIABLE_NAME* next;
-	AST::Switch* switching;
 
 public:
 	Goto_uppering ();

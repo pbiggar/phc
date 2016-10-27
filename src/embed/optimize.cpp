@@ -18,7 +18,7 @@ using namespace MIR;
 
 #if !HAVE_EMBED
 
-#define FAIL(SIG) SIG { phc_error ("Optimizations require the PHP SAPI"); }
+#define FAIL(SIG) SIG { phc_error ("Optimizations require the PHP SAPI"); exit(-1); }
 
 FAIL (Literal* PHP::fold_unary_op (OP*, Literal*))
 FAIL (bool PHP::is_true (Literal*));

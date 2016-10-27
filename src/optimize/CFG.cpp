@@ -1022,7 +1022,7 @@ struct filter_back_edges : virtual public GC_obj
 	filter_back_edges () {}
 
 	filter_back_edges (CFG* cfgs)
-	: cfg (cfg)
+  : cfg (cfgs)
 	{
 	}
 

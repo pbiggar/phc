@@ -146,7 +146,7 @@ Stat_collector::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 	MIR::VARIABLE_NAME* vn;
 	if (in->is_ref && (fa = dynamic_cast<MIR::Field_access*> (in->rhs)))
 	{
-		if (vn = dynamic_cast<MIR::VARIABLE_NAME*> (fa->target))
+    if ((vn = dynamic_cast<MIR::VARIABLE_NAME*> (fa->target)))
 		{
 			if (wp->get_abstract_value (Context::non_contextual (bb), R_IN, vn)->types->has ("unset"))
 				CTS ("num_implicit_object_defs");
@@ -332,7 +332,7 @@ Stat_collector::visit_method_invocation (Statement_block* bb, MIR::Method_invoca
 {
 	string meth_func = "function";
 	MIR::VARIABLE_NAME* varname;
-	if (varname = dynamic_cast<VARIABLE_NAME*> (in->target))
+  if ((varname = dynamic_cast<VARIABLE_NAME*> (in->target)))
 		meth_func = "method";
 
 	CTS (meth_func + "_call_sites");	
@@ -348,8 +348,8 @@ Stat_collector::visit_method_invocation (Statement_block* bb, MIR::Method_invoca
 		 if (info != NULL)
 		 {	
 			 if (info->get_method ()->statements->size () == 0 || 
-					 info->get_method ()->statements->size () == 1 
-					 && info->get_method ()->statements->at (0)->classid () == Return::ID)			
+           (info->get_method ()->statements->size () == 1
+            && info->get_method ()->statements->at (0)->classid () == Return::ID))
 			 {
 				 CTS ("num_inlinable_" + meth_func + "s");
 			 }

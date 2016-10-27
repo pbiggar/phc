@@ -26,7 +26,7 @@ Oracle::initialize (MIR::PHP_script* in)
 		if (Method* m = dynamic_cast<Method*> (stmt))
 			add_method_info (new User_method_info (m));
 
-		else if (Interface_def* i = dynamic_cast<Interface_def*> (stmt))
+    else if (dynamic_cast<Interface_def*> (stmt))
 	    phc_optimization_exception("Interfaces are not supported");
 
 		else if (Class_def* c = dynamic_cast<Class_def*> (stmt))

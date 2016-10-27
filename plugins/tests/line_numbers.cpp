@@ -15,15 +15,12 @@ using namespace std;
 class Print_line_numbers : public Visitor
 {
 	String delimiter;
-	bool read;
 public:
 
 	Print_line_numbers()
-		:	delimiter("--!!--!!--"),
-			read(false)
-	{
-		
-	}
+    :	delimiter("--!!--!!--")
+  {
+  }
 
 	void pre_if(If* in)
 	{
