@@ -8,7 +8,7 @@
 #ifndef PHC_SET_H
 #define PHC_SET_H
 
-#include <tr1/unordered_set>
+#include <boost/unordered_set.hpp>
 #include <iterator>
 #include <algorithm>
 #include "List.h"
@@ -17,11 +17,11 @@
 
 template <
 	typename _Tp, 
-	typename _Hash = std::tr1::hash<_Tp>,
+  typename _Hash = boost::hash<_Tp>,
 	typename _Pred = std::equal_to<_Tp>,
 	typename _Alloc = phc_allocator<_Tp>
 >
-class phc_unordered_set : virtual public GC_obj, public std::tr1::unordered_set<_Tp, _Hash, _Pred, _Alloc>
+class phc_unordered_set : virtual public GC_obj, public boost::unordered_set<_Tp, _Hash, _Pred, _Alloc>
 {
 public:
 	int reference_count;
@@ -41,7 +41,7 @@ extern long long __set_private_copy_construct_count;
 
 template <
 	typename _Tp, 
-	typename _Hash = std::tr1::hash<_Tp>,
+  typename _Hash = boost::hash<_Tp>,
 	typename _Pred = std::equal_to<_Tp>,
 	typename _Alloc = phc_allocator<_Tp>
 >

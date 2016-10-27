@@ -7,6 +7,7 @@
 #ifndef PHC_SSA_NAME
 #define PHC_SSA_NAME
 
+#include <boost/functional/hash.hpp>
 #include <string>
 #include "lib/List.h"
 
@@ -61,12 +62,11 @@ namespace std
 			return *sn1 == *sn2;
 		}
 	};
+}
 
-
-
-	namespace tr1
-	{
-		template <>
+namespace boost
+{
+  template <>
 		struct hash<SSA_name>
 		{
 			size_t operator() (const SSA_name& sn) const
@@ -75,7 +75,7 @@ namespace std
 			}
 		};
 
-		template <>
+  template <>
 		struct hash<const SSA_name>
 		{
 			size_t operator() (const SSA_name& sn) const
@@ -84,7 +84,7 @@ namespace std
 			}
 		};
 
-		template <>
+  template <>
 		struct hash<SSA_name*>
 		{
 			size_t operator() (const SSA_name*& sn) const
@@ -93,7 +93,7 @@ namespace std
 			}
 		};
 
-		template <>
+  template <>
 		struct hash<const SSA_name*>
 		{
 			size_t operator() (const SSA_name* const sn) const
@@ -101,7 +101,6 @@ namespace std
 				return sn->hash ();
 			}
 		};
-	}
 }
 
 
