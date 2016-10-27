@@ -1,6 +1,6 @@
 dependencies:
   pre:
-    - sudo apt-get update && sudo apt-get install -y libgc-dev libboost1.55-all-dev
+    - sudo apt-get update && sudo apt-get install -y libgc-dev libboost1.55-all-dev libxerces-c2-dev
     - touch src/generated/*
     # If the timestamps are wrong here, they'll be rebuilt, but we don't have the right versions
     - touch Makefile.in configure Makefile
