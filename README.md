@@ -35,7 +35,7 @@ For more detail, see (the manual)(doc/manual).
 There's a little bit of work to get it building on OSX:
 
     $ brew insall homebrew/versions/boost155 xerces-c boehmgc
-    $ LDFLAGS="-L/usr/local/opt/boost155/lib -L/usr/local/Cellar/bdw-gc/7.6.0/lib" CPPFLAGS="-I/usr/local/opt/boost155/include -I/usr/local/Cellar/bdw-gc/7.6.0/include" ./configure --with-xerces --disable-static
+    $ LDFLAGS="-L/usr/local/opt/boost155/lib -L/usr/local/Cellar/bdw-gc/7.6.0/lib" CPPFLAGS="-I/usr/local/opt/boost155/include -I/usr/local/Cellar/bdw-gc/7.6.0/include" ./configure --disable-static --disable-gc
     
 
 
