@@ -31,5 +31,6 @@ test/framework/lib/autovars.php
 src/phc_compile_plugin
 /libphc.la
 /src/phc
-/test/dependencies
-/test/logs
+/test/dependencies/*
+/test/logs/*
+/test/working/*
