@@ -5,8 +5,15 @@ dependencies:
     # If the timestamps are wrong here, they'll be rebuilt, but we don't have the right versions
     - touch Makefile.in configure Makefile
     - touch libltdl/aclocal.m4 libltdl/configure libltdl/Makefile.in libltdl/Makefile
+    # Now PHP
+    - wget http://museum.php.net/php5/php-5.2.10.tar.gz
+    - tar zxvf php-5.2.10.tar.gz
+    - cd php-5.2.10 && CFLAGS="-O0 -ggdb3" ./configure --enable-debug --enable-maintainer-zts --enable-embed
+    - cd php-5.2.10 && make -j 4
+  
+
   override:
-    - ./configure --with-xerces --disable-static --prefix=`pwd`/install_dir
+    - ./configure --with-xerces --disable-static --prefix=`pwd`/install_dir --with-php=`pwd`/php.5.2.10
     - make -j 4
     - make install
 
