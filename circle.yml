@@ -6,7 +6,7 @@ dependencies:
     - touch Makefile.in configure Makefile
     - touch libltdl/aclocal.m4 libltdl/configure libltdl/Makefile.in libltdl/Makefile
   override:
-    - ./configure --with-xerces --disable-static --prefix=install_dir
+    - ./configure --with-xerces --disable-static --prefix=`pwd`/install_dir
     - make -j 4
     - make install
 
