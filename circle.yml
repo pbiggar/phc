@@ -6,14 +6,15 @@ dependencies:
     - touch Makefile.in configure Makefile
     - touch libltdl/aclocal.m4 libltdl/configure libltdl/Makefile.in libltdl/Makefile
     # Now PHP
-    - wget http://museum.php.net/php5/php-5.2.10.tar.gz
-    - tar zxvf php-5.2.10.tar.gz
-    - cd php-5.2.10 && CFLAGS="-O0 -ggdb3" ./configure --enable-debug --enable-maintainer-zts --enable-embed
-    - cd php-5.2.10 && make -j 4
+    - wget http://museum.php.net/php5/php-5.2.17.tar.gz
+    - tar zxvf php-5.2.17.tar.gz
+    - cd php-5.2.17 && CFLAGS="-O0 -ggdb3" ./configure --enable-debug --enable-maintainer-zts --enable-embed
+    - cd php-5.2.17 && wget http://storage.googleapis.com/google-code-attachments/php52-backports/issue-16/comment-2/libxml29_compat.patch && patch -p0 < libxml29_compat.patch
+    - cd php-5.2.17 && make -j 4
   
 
   override:
-    - ./configure --with-xerces --disable-static --prefix=`pwd`/install_dir --with-php=`pwd`/php.5.2.10
+    - ./configure --with-xerces --disable-static --prefix=`pwd`/install_dir --with-php=`pwd`/php.5.2.17
     - make -j 4
     - make install
 
