@@ -20,4 +20,4 @@ dependencies:
 
 test:
   override:
-    - php -Cq test/framework/driver.php -p -q -v -i
+    - php-5.2.17/sapi/cli/php -Cq test/framework/driver.php -p -q -v -i
