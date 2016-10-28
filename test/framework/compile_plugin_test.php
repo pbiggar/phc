@@ -39,10 +39,10 @@ class CompilePluginTest extends AsyncTest
 			{
 				$dest = "$working_directory/".basename ($header);
 				if (!copy ($header, $dest))
-				{
-					$this->async_failure ($subject, "Copying headers failed", "$header to $dest");
-					return;
-				}
+                {
+                    print("dying while copying headers: $header to $dest");
+                    die(-1);
+                }
 			}
 		}
 	}
