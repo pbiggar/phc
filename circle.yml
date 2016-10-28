@@ -9,3 +9,7 @@ dependencies:
     - ./configure --with-xerces --disable-static
     - make -j 4
     - make install
+
+test:
+  override:
+    php -Cq test/framework/driver.php -p -q -v -i
