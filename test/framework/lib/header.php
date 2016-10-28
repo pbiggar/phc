@@ -223,7 +223,7 @@ function open_status_files ()
   global $status_file_names, $status_files, $log_directory;
 	foreach ($status_file_names as $status)
 	{
-		$status_files[$status] = fopen ("$log_directory/$status", "w") or die ("Cannot open $status file\n");
+        $status_files[$status] = fopen ("$log_directory/$status", "w") or die ("Cannot open \"$status\" status file\n");
 	}
 }
 
