@@ -12,9 +12,9 @@ function test_ereg($base) {
     $matches = array();
     do {
 	foreach ($strings as $string) {
-	    if (eregi('^[a-z0-9]+([_\\.-][a-z0-9]+)*' .
-		      '@([a-z0-9]+([\.-][a-z0-9]{1,})+)*$',
-		 $string, $matches) <= 0 ||
+        if (preg_match('/^[a-z0-9]+([_\\.-][a-z0-9]+)*' .
+            '@([a-z0-9]+([\.-][a-z0-9]{1,})+)*$/i',
+            $string, $matches) <= 0 ||
 		empty($matches[2])) {
 		test_regression(__FUNCTION__);
 	    }			   
