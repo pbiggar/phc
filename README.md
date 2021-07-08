@@ -12,7 +12,7 @@ though, which unfortunately was last updated for PHP 5.2, and does not support
 newer features. PRs will likely still be read, and if they pass the CircleCI
 build, I may merge them.
 
-~~See http://phpcompiler.org for more details.~~ Sadly, we allowed
+Sadly, we allowed
 phpcompiler.org's registration to lapse. See [the docs](doc) or
 the [website source](https://github.com/pbiggar/phpcompiler.org) for the info
 that used to be there.
