@@ -31,6 +31,9 @@
 //
 //	So that means casts are pure.
 
+// Needed for PHP_VERSION_ID
+#include <php_version.h>
+
 #include <fstream>
 #include <boost/format.hpp>
 
@@ -543,9 +546,11 @@ void function_declaration_block(ostream& buf, Signature_list* methods, String* b
 		buf << "ZEND_END_ARG_INFO()\n\n";
 	}
 
-	buf 
-		<< "static function_entry " << *block_name << "_functions[] = {\n"
-		;
+#if PHP_VERSION_ID > 50399
+	buf << "static zend_function_entry " << *block_name << "_functions[] = {\n";
+#else
+	buf << "static function_entry " << *block_name << "_functions[] = {\n";
+#endif
 
 	foreach (Signature* s, *methods)
 	{

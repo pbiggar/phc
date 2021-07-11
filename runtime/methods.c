@@ -144,10 +144,19 @@ initialize_method_call (zend_fcall_info * fci, zend_fcall_info_cache * fcic,
   fcic->initialized = 1;
   fcic->calling_scope = obj_ce;
   Z_SET_OBJECT_PTR(fcic, obj);
+
+#if PHP_VERSION_ID > 50399
+  fcic->function_handler
+    = Z_OBJ_HT_PP (obj)->get_method (obj,
+				     function_name,
+				     strlen (function_name),
+				     NULL TSRMLS_CC);
+#else
   fcic->function_handler
     = Z_OBJ_HT_PP (obj)->get_method (obj,
 				     function_name,
 				     strlen (function_name) TSRMLS_CC);
+#endif
 
   if (fcic->function_handler == NULL)
     {
